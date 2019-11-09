@@ -12,6 +12,7 @@
 #include "TrkVolumes/CylinderVolumeBounds.h"
 #include "TrkVolumes/CuboidVolumeBounds.h"
 #include "TrkVolumes/TrapezoidVolumeBounds.h"
+#include "TrkVolumes/PrismVolumeBounds.h"
 #include "TrkVolumes/BoundarySurface.h"
 #include "TrkVolumes/SubtractedVolumeBounds.h"
 #include "TrkVolumes/CombinedVolumeBounds.h"
@@ -32,6 +33,7 @@
 #include "GeoModelKernel/GeoSimplePolygonBrep.h"
 #include "GeoModelKernel/GeoTrd.h"
 #include "GeoModelKernel/GeoTrap.h"
+#include "GeoModelKernel/GeoGenericTrap.h"
 #include "GeoModelKernel/GeoPgon.h"
 #include "GeoModelKernel/GeoPara.h"
 #include "GeoModelKernel/GeoVolumeCursor.h"
@@ -113,10 +115,13 @@ Trk::Volume* Trk::GeoShapeConverter::translateGeoShape(const GeoShape* sh, Amg::
 {
   Trk::Volume* vol=0;
   double tol = 0.1;
+  if (!sh) return vol;
 
-  DEBUG_TRACE( std::cout << " translateGeoShape " << sh->type() << std::endl; );
+  std::string type = sh->type();
 
-  if ( sh->type()=="Trap") {
+  DEBUG_TRACE( std::cout << " translateGeoShape " << type << std::endl; );
+
+  if ( type=="Trap") {
     const GeoTrap* trap = dynamic_cast<const GeoTrap*> (sh);
     Trk::TrapezoidVolumeBounds* volBounds = 0;
     if (trap->getDxdyndzp()<trap->getDxdyndzn())
@@ -129,7 +134,7 @@ Trk::Volume* Trk::GeoShapeConverter::translateGeoShape(const GeoShape* sh, Amg::
     return vol;
   }
 
-  if ( sh->type()=="Pgon") {
+  if ( type=="Pgon") {
     const GeoPgon* pgon = dynamic_cast<const GeoPgon*>(sh);
     if (!pgon) return 0;
     double hlz = 0.5*fabs(pgon->getZPlane(1)-pgon->getZPlane(0));
@@ -187,7 +192,7 @@ Trk::Volume* Trk::GeoShapeConverter::translateGeoShape(const GeoShape* sh, Amg::
 
   }
 
-  if ( sh->type()=="Trd") {
+  if ( type=="Trd") {
     const GeoTrd* trd = dynamic_cast<const GeoTrd*> (sh);
     //
     double x1= trd->getXHalfLength1();
@@ -308,7 +313,18 @@ Trk::Volume* Trk::GeoShapeConverter::translateGeoShape(const GeoShape* sh, Amg::
     }
   }
 
-  if ( sh->type()=="Box") {
+  if ( type=="GenericTrap") {
+    const GeoGenericTrap* gtrap = dynamic_cast<const GeoGenericTrap*> (sh);
+    //
+    double hZ = gtrap->getZHalfLength();
+    std::vector<CLHEP::Hep2Vector> edges=gtrap->getVertices();
+    std::vector<std::pair<double,double> > ivtx;
+    for (auto vtx : edges)  ivtx.push_back(std::pair<double,double>(vtx.x(),vtx.y()));
+    //   
+    return new Trk::Volume(new Amg::Transform3D(*transf),new Trk::SimplePolygonBrepVolumeBounds(ivtx,hZ));
+  }
+
+  if ( type=="Box") {
     const GeoBox* box = dynamic_cast<const GeoBox*> (sh);
     //
     double x = box->getXHalfLength();
@@ -319,7 +335,7 @@ Trk::Volume* Trk::GeoShapeConverter::translateGeoShape(const GeoShape* sh, Amg::
     return vol;
     //
   }
-  if ( sh->type()=="Para") {
+  if ( type=="Para") {
     const GeoPara* para = dynamic_cast<const GeoPara*> (sh);
     //
     double x = para->getXHalfLength();
@@ -330,7 +346,7 @@ Trk::Volume* Trk::GeoShapeConverter::translateGeoShape(const GeoShape* sh, Amg::
     return vol;
     //
   }
-  if ( sh->type() == "Tube" ) {
+  if ( type == "Tube" ) {
     const GeoTube* tube=dynamic_cast<const GeoTube*> (sh);
     double rMin= tube->getRMin();
     double rMax= tube->getRMax();
@@ -340,7 +356,7 @@ Trk::Volume* Trk::GeoShapeConverter::translateGeoShape(const GeoShape* sh, Amg::
     return vol;
    }
 
-  if ( sh->type() == "Tubs" ) {            // non-trivial case - transform!
+  if ( type == "Tubs" ) {            // non-trivial case - transform!
     const GeoTubs* tubs=dynamic_cast<const GeoTubs*> (sh);
     double rMin= tubs->getRMin();
     double rMax= tubs->getRMax();
@@ -355,7 +371,7 @@ Trk::Volume* Trk::GeoShapeConverter::translateGeoShape(const GeoShape* sh, Amg::
     return vol;
   }
 
-  if ( sh->type() == "Cons" ) {
+  if ( type == "Cons" ) {
     const GeoCons* cons=dynamic_cast<const GeoCons*> (sh);
     double rMin1= cons->getRMin1();
     double rMin2= cons->getRMin2();
@@ -379,7 +395,7 @@ Trk::Volume* Trk::GeoShapeConverter::translateGeoShape(const GeoShape* sh, Amg::
     }
   }
 
-  if ( sh->type() == "Pcon" ) {
+  if ( type == "Pcon" ) {
     const GeoPcon* con = dynamic_cast<const GeoPcon*> (sh);
     if (!con) return 0;
     Trk::CylinderVolumeBounds* volBounds = 0;
@@ -463,7 +479,7 @@ Trk::Volume* Trk::GeoShapeConverter::translateGeoShape(const GeoShape* sh, Amg::
     }
   }
 
-  if ( sh->type()=="SimplePolygonBrep") {
+  if ( type=="SimplePolygonBrep") {
     const GeoSimplePolygonBrep* spb = dynamic_cast<const GeoSimplePolygonBrep*> (sh);
     if (!spb) return 0;
     unsigned int nv = spb->getNVertices();
@@ -475,7 +491,7 @@ Trk::Volume* Trk::GeoShapeConverter::translateGeoShape(const GeoShape* sh, Amg::
     return new Trk::Volume(new Amg::Transform3D(*transf),new Trk::SimplePolygonBrepVolumeBounds(ivtx,spb->getDZ()));
   }
 
-  if ( sh->type()=="Subtraction") {
+  if ( type=="Subtraction") {
     const GeoShapeSubtraction* sub = dynamic_cast<const GeoShapeSubtraction*> (sh);
     if (!sub) return 0;
     const GeoShape* shA = sub->getOpA();
@@ -489,7 +505,7 @@ Trk::Volume* Trk::GeoShapeConverter::translateGeoShape(const GeoShape* sh, Amg::
     return vol;
   }
 
-  if ( sh->type()=="Union") {
+  if ( type=="Union") {
     const GeoShapeUnion* uni = dynamic_cast<const GeoShapeUnion*> (sh);
     if (!uni) return 0;
     const GeoShape* shA = uni->getOpA();
@@ -503,7 +519,7 @@ Trk::Volume* Trk::GeoShapeConverter::translateGeoShape(const GeoShape* sh, Amg::
     return vol;
   }
 
-  if ( sh->type()=="Intersection") {
+  if ( type=="Intersection") {
     const GeoShapeIntersection* intersect = dynamic_cast<const GeoShapeIntersection*> (sh);
     if (!intersect) return 0;
     const GeoShape* shA = intersect->getOpA();
@@ -517,7 +533,7 @@ Trk::Volume* Trk::GeoShapeConverter::translateGeoShape(const GeoShape* sh, Amg::
     return vol;
   }
 
-  if ( sh->type()=="Shift") {
+  if ( type=="Shift") {
     const GeoShapeShift* shift = dynamic_cast<const GeoShapeShift*> (sh);
     if (!shift) return 0;
     const GeoShape* shA = shift->getOp();
@@ -608,3 +624,322 @@ void Trk::GeoShapeConverter::decodeShape(const GeoShape* sh) const
     decodeShape(shA);
   }
 }
+
+double Trk::GeoShapeConverter::calculateVolume( const Trk::Volume* trvol ) const {
+
+  if (!trvol) return 0.;
+  
+  const Trk::CuboidVolumeBounds* cube = dynamic_cast<const Trk::CuboidVolumeBounds*> (&(trvol->volumeBounds()));
+  const Trk::CylinderVolumeBounds* cyl = dynamic_cast<const Trk::CylinderVolumeBounds*> (&(trvol->volumeBounds()));
+  const Trk::TrapezoidVolumeBounds* trd = dynamic_cast<const Trk::TrapezoidVolumeBounds*> (&(trvol->volumeBounds()));
+  const Trk::CombinedVolumeBounds* comb = dynamic_cast<const Trk::CombinedVolumeBounds*> (&(trvol->volumeBounds()));
+  const Trk::SimplePolygonBrepVolumeBounds* spb = dynamic_cast<const Trk::SimplePolygonBrepVolumeBounds*> (&(trvol->volumeBounds()));
+  const Trk::PrismVolumeBounds* prism = dynamic_cast<const Trk::PrismVolumeBounds*> (&(trvol->volumeBounds()));
+  
+  if (cube)  return 8*cube->halflengthX()*cube->halflengthY()*cube->halflengthZ();
+  if (cyl)   return 2*cyl->halfPhiSector()*(pow(cyl->outerRadius(),2)-pow(cyl->innerRadius(),2))*cyl->halflengthZ();
+  if (trd)   return 4*(trd->minHalflengthX()+trd->maxHalflengthX())*trd->halflengthY()*trd->halflengthZ();
+  
+  if (comb) {
+    
+    double intersect = calculateIntersection(comb->first(),comb->second());
+    if (comb->intersection()) return intersect;
+    else return (calculateVolume(comb->first())+calculateVolume(comb->second())-intersect); 
+  }
+  
+  if (spb) return calculateVolume(spb->combinedVolume());
+  
+  if ( prism ) {
+    std::vector<std::pair<double,double> > v=prism->xyVertices();
+    double a2 = v[1].first*v[1].first+v[1].second*v[1].second
+      +v[0].first*v[0].first+v[0].second*v[0].second
+      -2*(v[0].first*v[1].first+v[0].second*v[1].second);
+    double c2 = v[2].first*v[2].first+v[2].second*v[2].second
+      +v[0].first*v[0].first+v[0].second*v[0].second
+      -2*(v[0].first*v[2].first+v[0].second*v[2].second);
+    double ca = v[1].first*v[2].first+v[1].second*v[2].second
+      +v[0].first*v[0].first+v[0].second*v[0].second
+      -v[0].first*v[1].first-v[0].second*v[1].second
+      -v[0].first*v[2].first-v[0].second*v[2].second;
+    double vv = c2*a2>ca*ca ? sqrt(c2-ca*ca/a2) : 0.;
+    return vv*sqrt(a2)*prism->halflengthZ();
+  }
+  
+  return 0;
+}
+
+double Trk::GeoShapeConverter::calculateIntersection(Trk::Volume* volA, Trk::Volume* volB) const {
+
+  if (!volA || !volB) return 0;
+   
+  double vA = calculateVolume(volA); double vB =  calculateVolume(volB);
+  
+  if ( vA < vB ) return sampleIntersection(volA,volB);
+  else return sampleIntersection(volB,volA);  
+  
+  return 0;
+} 
+ 
+double Trk::GeoShapeConverter::sampleIntersection(const Trk::Volume* sampledVol, Trk::Volume* overlapVol, Trk::Volume* assocVol,
+                                                 bool intersectionMode) const {
+
+  if (!sampledVol || ! overlapVol ) return 0.;
+
+  const Trk::CuboidVolumeBounds* cube = dynamic_cast<const Trk::CuboidVolumeBounds*> (&(sampledVol->volumeBounds()));
+  const Trk::CylinderVolumeBounds* cyl = dynamic_cast<const Trk::CylinderVolumeBounds*> (&(sampledVol->volumeBounds()));
+  const Trk::TrapezoidVolumeBounds* trd = dynamic_cast<const Trk::TrapezoidVolumeBounds*> (&(sampledVol->volumeBounds()));
+  const Trk::CombinedVolumeBounds* comb = dynamic_cast<const Trk::CombinedVolumeBounds*> (&(sampledVol->volumeBounds()));
+  const Trk::SimplePolygonBrepVolumeBounds* spb = dynamic_cast<const Trk::SimplePolygonBrepVolumeBounds*> (&(sampledVol->volumeBounds()));
+
+  if ( cube ) {
+    float hX = cube->halflengthX(); float hY = cube->halflengthY(); float hZ = cube->halflengthZ(); 
+    double volumeS = 8*hX*hY*hZ;  
+    int nPoints = 0; float hits = 0;
+    for ( float x=-hX; x<hX; x+=2. ) {
+      for ( float y=-hY; y<hY; y+=2. ) {
+       for ( float z=-hZ; z<hZ; z+=2. ) {
+          nPoints++; 
+         Amg::Vector3D testPos=sampledVol->transform()*Amg::Vector3D(x,y,z);
+          if ( overlapVol->inside(testPos) ) {
+           if (!assocVol) hits+=1.; 
+           else if ( assocVol->inside(testPos) ) hits+=0.5;
+            else if (!intersectionMode) hits+=1.; 
+         }
+       }}} 
+    return ( nPoints>0 ? hits/nPoints*volumeS : 0. );
+  }
+
+  if ( cyl ) {
+    float minR = cyl->innerRadius(); float maxR = cyl->outerRadius();
+    float dPhi = cyl->halfPhiSector(); float hZ = cyl->halflengthZ(); 
+    double volumeS =  2*dPhi*(pow(maxR,2)-pow(minR,2))*hZ;
+    int nPoints = 0; float hits = 0;
+    for ( float r=minR; r<maxR; r+=2. ) {
+      float rPhi= -r*dPhi;
+      while ( rPhi<r*dPhi) {
+        float phi=rPhi/r;
+       for ( float z=-hZ; z<hZ; z+=2. ) {
+          nPoints++; 
+         Amg::Vector3D testPos=sampledVol->transform()*Amg::Vector3D(r*cos(phi),r*sin(phi),z);
+         if (overlapVol->inside(testPos) ) {
+           if (!assocVol) hits+=1.; 
+           else if ( assocVol->inside(testPos)) hits+=0.5;
+            else if (!intersectionMode) hits+=1.; 
+         }
+       }
+        rPhi+=2.;
+      }
+    } 
+    return ( nPoints>0 ? hits/nPoints*volumeS : 0. );
+  }
+
+  if ( trd ) {
+    float minX = trd->minHalflengthX(); float maxX = trd->maxHalflengthX();
+    float hY = trd->halflengthY(); float hZ = trd->halflengthZ(); 
+    double volumeS =  4*(minX+maxX)*hY*hZ;  
+    int nPoints = 0; float hits = 0;
+    for ( float y=-hY; y<hY; y+=2. ) {
+      for ( float x=-maxX+(maxX-minX)/2/hY*(y+hY); x<maxX-(maxX-minX)/2/hY*(y+hY); x+=2. ) {
+       for ( float z=-hZ; z<hZ; z+=2. ) {
+          nPoints++; 
+         Amg::Vector3D testPos=sampledVol->transform()*Amg::Vector3D(x,y,z);
+          if ( overlapVol->inside(testPos) ) {
+           if (!assocVol) hits+=1.; 
+           else if ( assocVol->inside(testPos) ) hits+=0.5;
+            else if (!intersectionMode) hits+=1.; 
+         }
+       }}} 
+    return ( nPoints>0 ? hits/nPoints*volumeS : 0. );
+  }
+
+  if (comb) {
+    if (comb->intersection()) return (sampleIntersection(comb->first(),overlapVol,comb->second(),true) 
+                                     + sampleIntersection(comb->second(),overlapVol,comb->first(),true));
+    else return (sampleIntersection(comb->first(),overlapVol,comb->second())
+		 + sampleIntersection(comb->second(),overlapVol,comb->first())); 
+  }
+
+  if (spb) return sampleIntersection(spb->combinedVolume(),overlapVol,assocVol,intersectionMode);
+
+   return 0;
+} 
+
+Trk::Volume* Trk::GeoShapeConverter::cylEnvelope( const Trk::Volume* trVol, double volume ) const
+{
+  Trk::Volume* envelope = 0;
+
+  if (!trVol) return envelope;
+
+  const Trk::CuboidVolumeBounds* cube = dynamic_cast<const Trk::CuboidVolumeBounds*> (&(trVol->volumeBounds()));
+  const Trk::CylinderVolumeBounds* cyl = dynamic_cast<const Trk::CylinderVolumeBounds*> (&(trVol->volumeBounds()));
+  const Trk::TrapezoidVolumeBounds* trd = dynamic_cast<const Trk::TrapezoidVolumeBounds*> (&(trVol->volumeBounds()));
+  const Trk::CombinedVolumeBounds* comb = dynamic_cast<const Trk::CombinedVolumeBounds*> (&(trVol->volumeBounds()));
+  const Trk::SimplePolygonBrepVolumeBounds* spbv = dynamic_cast<const Trk::SimplePolygonBrepVolumeBounds*> (&(trVol->volumeBounds()));
+
+  //DEBUG_TRACE( std::cout << " building cylindrical envelope " << type << std::endl; );
+
+  std::vector<Amg::Vector3D> edges; edges.clear();
+  double  refPhi = (trVol->transform()*Amg::Vector3D(0.,0.,0.)).phi();
+
+  if ( trd ) {
+    float minX = trd->minHalflengthX(); float maxX = trd->maxHalflengthX();
+    float hY = trd->halflengthY(); float hZ = trd->halflengthZ(); 
+    edges.push_back(trVol->transform()*Amg::Vector3D( minX, hY, hZ));
+    edges.push_back(trVol->transform()*Amg::Vector3D(-minX, hY, hZ));
+    edges.push_back(trVol->transform()*Amg::Vector3D( maxX,-hY, hZ));
+    edges.push_back(trVol->transform()*Amg::Vector3D(-maxX,-hY, hZ));
+    edges.push_back(trVol->transform()*Amg::Vector3D( minX, hY,-hZ));
+    edges.push_back(trVol->transform()*Amg::Vector3D(-minX, hY,-hZ));
+    edges.push_back(trVol->transform()*Amg::Vector3D( maxX,-hY,-hZ));
+    edges.push_back(trVol->transform()*Amg::Vector3D(-maxX,-hY,-hZ));
+  }
+
+  if ( cube ) {
+    float hX = cube->halflengthX(); float hY = cube->halflengthY(); float hZ = cube->halflengthZ(); 
+    edges.push_back(trVol->transform()*Amg::Vector3D( hX, hY, hZ));
+    edges.push_back(trVol->transform()*Amg::Vector3D(-hX, hY, hZ));
+    edges.push_back(trVol->transform()*Amg::Vector3D( hX, -hY, hZ));
+    edges.push_back(trVol->transform()*Amg::Vector3D(-hX, -hY, hZ));
+    edges.push_back(trVol->transform()*Amg::Vector3D( hX, hY,-hZ));
+    edges.push_back(trVol->transform()*Amg::Vector3D(-hX, hY,-hZ));
+    edges.push_back(trVol->transform()*Amg::Vector3D( hX, -hY,-hZ));
+    edges.push_back(trVol->transform()*Amg::Vector3D(-hX, -hY,-hZ));
+  }
+
+  if (edges.size()) {
+ 
+    float rmin=15000.; float rmax = 0.; float hphi = 0.; float zmin=25000.; float zmax=-25000.; float thmin = acos(-1.); float thmax=0.;
+    for ( auto edge : edges) {
+      rmin = fmin( rmin, edge.perp() );
+      rmax = fmax( rmax, edge.perp() );
+      zmin = fmin( zmin, edge.z() );
+      zmax = fmax( zmax, edge.z() );
+      hphi = fmax( hphi, asin(fabs(sin(edge.phi()-refPhi))));
+      thmax = fmax( thmax,edge.z()!=0 ? atan(edge.perp()/edge.z()) : acos(-1.)/2.);
+      thmin = fmin( thmin,edge.z()!=0 ? atan(edge.perp()/edge.z()) : acos(-1.)/2.);
+    } 
+
+    hphi = acos(cos(hphi));
+    if (hphi>=0.5*M_PI) hphi=M_PI;
+
+    // adapt volume
+    double rRef = 0.5*(rmin+rmax);
+    if (volume > 0.) { 
+      if ( (rmax-rmin) < zmax-zmin ) {  // cylinder like
+       double dr = volume/2/hphi/rRef/(zmax-zmin);
+       rmax = rRef+0.5*dr; rmin = rRef-0.5*dr; 
+      } else { // disc like
+       double dz = volume/hphi/(rmax*rmax-rmin*rmin); double zc=0.5*(zmin+zmax);
+       zmin = zc-0.5*dz; zmax = zc+0.5*dz;
+      }
+    }
+        
+    Amg::Transform3D tr(Amg::Translation3D(Amg::Vector3D(0.,0.,0.5*(zmin+zmax))));
+    if (hphi<M_PI) {
+      const Amg::AngleAxis3D zRotation(refPhi, gZAxis);
+      tr = tr*zRotation;
+    }
+
+    return new Trk::Volume(new Amg::Transform3D(tr),
+                          new Trk::CylinderVolumeBounds(rmin,rmax,hphi,0.5*(zmax-zmin)) ); 
+  }
+
+  if ( cyl ) {
+    float hZ = cyl->halflengthZ(); 
+    if (trVol->center().perp()<0.01) {
+      return new Trk::Volume(*trVol);
+    } 
+    edges.push_back(trVol->transform()*Amg::Vector3D( 0., 0., hZ));
+    edges.push_back(trVol->transform()*Amg::Vector3D( 0., 0., -hZ));
+    float rmin=15000.; float rmax = 0.; float zmin=25000.; float zmax=-25000.;
+    if (edges.size()) {
+       for ( auto edge : edges) {
+       rmin = fmin( rmin, edge.perp() );
+       rmax = fmax( rmax, edge.perp() );
+       zmin = fmin( zmin, edge.z() );
+       zmax = fmax( zmax, edge.z() );
+      }        
+    }
+    float hz=0.5*(zmax-zmin);
+    if (hz<1.) hz=hZ;
+    double rRef = 0.5*(rmin+rmax);
+    double dr = volume > 0. ? volume/4/acos(-1.)/rRef/hz : rmax-rmin ;
+    Amg::Translation3D tr(Amg::Vector3D(0.,0.,0.5*(zmin+zmax)));
+    return new Trk::Volume(new Amg::Transform3D(tr),
+                          new Trk::CylinderVolumeBounds(rRef-0.5*dr,rRef+0.5*dr,acos(-1.),hz) );       
+  }
+
+  if (comb) {  // process shapes independently TODO calculate intersection 
+
+    double volA = calculateVolume(comb->first());
+    double volB = calculateVolume(comb->second());
+   
+    Trk::Volume* shA = comb->first() ? new Trk::Volume(*comb->first(),trVol->transform()) : 0;
+    Trk::Volume* shB = comb->second() ? new Trk::Volume(*comb->second(),trVol->transform()) : 0;
+
+    Trk::Volume* envA = cylEnvelope(shA,shB ? volA : volume) ;
+    Trk::Volume* envB = cylEnvelope(shB,shA ? volB : volume) ;
+
+    if (!envA && !envB) return envelope;
+    if (!envA) {delete shB; return envB;}
+    if (!envB) {delete shA; return envA;}
+ 
+    const Trk::CylinderVolumeBounds* cylA = dynamic_cast<const Trk::CylinderVolumeBounds*> (&(envA->volumeBounds()));
+    const Trk::CylinderVolumeBounds* cylB = dynamic_cast<const Trk::CylinderVolumeBounds*> (&(envB->volumeBounds()));
+
+    double  refPhiA = (shA->transform()*Amg::Vector3D(0.,0.,0.)).phi();
+    double  refPhiB = (shB->transform()*Amg::Vector3D(0.,0.,0.)).phi();
+
+    delete shA; delete shB;
+
+    float minRA = cylA->innerRadius();
+    float maxRA = cylA->outerRadius();
+    float dPhiA = cylA->halfPhiSector(); float hZA = cylA->halflengthZ(); 
+    float minRB = cylB->innerRadius(); 
+    float maxRB = cylB->outerRadius();
+    float dPhiB = cylB->halfPhiSector(); float hZB = cylB->halflengthZ(); 
+
+    double phmin=fmin(refPhiA-dPhiA,refPhiB-dPhiB);
+    double phmax=fmax(refPhiA+dPhiA,refPhiB+dPhiB);
+    double hphi = 0.5*(phmax-phmin);
+    refPhi = 0.5*(phmax+phmin);
+    if (hphi>M_PI)  hphi=M_PI;
+    float zmin = fmin(envA->center().z()-hZA,envB->center().z()-hZB);
+    float zmax = fmax(envA->center().z()+hZA,envB->center().z()+hZB);
+     
+    float rmin = fmin(minRA,minRB); 
+    float rmax = fmax(maxRA,maxRB); 
+    
+    if ( (rmax-rmin) < zmax-zmin ) {  // cylinder like
+      if (volume>0.) {
+        double dr = volume/2./hphi/(zmax-zmin);
+	rmax = 0.5*(rmin+rmax)+dr; rmin = 0.5*(rmin+rmax)-dr;
+      }
+    } else { // disc like
+      if (volume>0.) { 
+	double dz = volume/hphi/(rmax*rmax-rmin*rmin); double zc=0.5*(zmin+zmax);
+	zmin = zc-0.5*dz; zmax = zc+0.5*dz;
+      }
+    }
+    Amg::Transform3D tr(Amg::Translation3D(Amg::Vector3D(0.,0.,0.5*(zmin+zmax))));
+    if (hphi<M_PI) {
+      const Amg::AngleAxis3D zRotation(0.5*(phmin+phmax), gZAxis);
+      tr = tr*zRotation;
+    }
+    return new Trk::Volume(new Amg::Transform3D(tr),
+                            new Trk::CylinderVolumeBounds(rmin,rmax,hphi,0.5*(zmax-zmin)) );       
+  }
+
+  if (spbv) {
+    const Trk::Volume* vspb = new Trk::Volume(*spbv->envelope(),trVol->transform());
+    Trk::Volume* cylEnv = cylEnvelope(vspb,volume);
+    delete vspb;
+    return cylEnv;
+  }
+
+  DEBUG_TRACE( std::cout <<"envelope not resolved for tracking volume "<< trVol->volumeName()<< std::endl);
+
+  return envelope;
+
+}
+

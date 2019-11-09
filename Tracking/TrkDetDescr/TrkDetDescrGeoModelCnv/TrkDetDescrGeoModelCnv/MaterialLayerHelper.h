@@ -1,3 +1,7 @@
+/*
+   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
 ///////////////////////////////////////////////////////////////////
 // MaterialLayerHelper.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
@@ -44,19 +48,19 @@ namespace Trk {
 
         /** assign material objects to layer */
 	void findClosestLayer(std::vector<MaterialElement>& matInput, std::vector< const Trk::Layer* >&  layers);
-	void closestLayer(MaterialElement,std::vector< const Trk::Layer* >&  layers );
-
 
         /** build and assign material arrays */
 	void buildMaterial(std::vector< const Trk::Layer* >&  matLayers);
-	void buildMaterialInEtaProjection(std::vector< const Trk::Layer* >&  matLayers);
 
         /** material overview */
-	void printInfo() const;
+	void materialBudget(std::vector<MaterialElement>& inputMat) const; 
 
         double eta(double z, double R) const;
-        double z(double eta, double R) const;
-
+        double etaToZ(double eta, double R) const;
+        double etaToR(double eta, double z) const;
+	std::pair<double,std::pair<double,double> >  averageThickness(MaterialElement mat,bool cyl) const; 
+        // best thickness approximation (input in eta)
+	double binThickness( double binLow, double binUp, double thick, double e0, double e1, double e2, double e3) const; 
 	mutable std::vector< std::vector < MaterialElement > > m_mat4merge;
         mutable float m_unassignedMass;
         mutable float m_unassignedITk;

@@ -64,8 +64,18 @@ namespace Trk {
         /** Convert an arbitrary GeoShape into Trk::Volume */
         Volume* translateGeoShape( const GeoShape*, Amg::Transform3D* ) const;
 
+	/** Find cylindrical envelope for arbitrary Volume, scale to predefine size */
+	Volume* cylEnvelope( const Volume*, double volume=-1.) const;
+
         /** Decode and dump arbitrary GeoShape for visual inspection */
         void decodeShape( const GeoShape* ) const;
+
+       /** Calculate volume - numerically if complex shape */
+	double calculateVolume( const Volume* ) const;
+
+	/** Calculate intersections */
+        double calculateIntersection( Volume* ,Volume* ) const;
+        double sampleIntersection( const Volume* ,Volume*, Volume* assocVol=0, bool intersectionMode = false ) const;
 
       private:
     };

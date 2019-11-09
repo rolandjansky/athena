@@ -1,3 +1,7 @@
+/*
+   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
 ///////////////////////////////////////////////////////////////////
 // MaterialLayerHelper.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
@@ -22,33 +26,40 @@
 // Amg
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
+// #define DEBUG
+#ifdef DEBUG
+#  define DEBUG_TRACE(a) do { a } while (0)
+#else
+#  define DEBUG_TRACE(a) do {  } while (0)
+#endif
+
 namespace Trk{
   typedef std::pair< SharedObject<const Surface>, Amg::Vector3D > SurfaceOrderPosition;
 }
 
 void Trk::MaterialLayerHelper::processMaterial(const Trk::TrackingVolume* inputVol, std::vector<MaterialElement>& inputMat, bool printInfo)
 {
+  // extract summary information about material in GeoModel
+  if (printInfo) materialBudget(inputMat); 
+ 
   // loop over input volume and collect material layers
-
   std::vector< const Trk::Layer* >  matLayers;
-  
   getMaterialLayers( inputVol, matLayers ); 
 
-  //std::cout << "Number of material layers in the tracking volume:"<< inputVol->volumeName()<<":"<<matLayers.size()<< std::endl; 
-
+  // resolve volume boundaries
   const Trk::CylinderVolumeBounds* cylBounds = dynamic_cast<const Trk::CylinderVolumeBounds*> (&(inputVol->volumeBounds()));
-
   m_rExt = cylBounds ? cylBounds->outerRadius() : 1148.;
   m_zExt = cylBounds ? cylBounds->halflengthZ() : 3450.;
 
   // prepare the material collection for merge
   m_mat4merge.clear();
-  for (auto l : matLayers) m_mat4merge.push_back(std::vector< MaterialElement>());
+  for (unsigned int j=0; j< matLayers.size(); j++) m_mat4merge.push_back(std::vector< MaterialElement>());
 
+  // assign material objects to layers
   findClosestLayer( inputMat, matLayers);
 
+  // merge material into binned material arrays
   buildMaterial( matLayers );
-  //buildMaterialInEtaProjection( matLayers );
 
 }
 
@@ -64,7 +75,6 @@ void Trk::MaterialLayerHelper::getMaterialLayers(const Trk::TrackingVolume* inpu
     const std::vector<const Trk::Layer*>& layers = inputVol->confinedLayers()->arrayObjects();
     for (auto lay : layers) {
       if (lay->layerMaterialProperties()) matLayers.push_back(lay); 
-      //std::cout <<"confined layer in "<<inputVol->volumeName()<<":has material layer? "<< lay->layerMaterialProperties()<< std::endl;
     }
   }
   
@@ -72,12 +82,10 @@ void Trk::MaterialLayerHelper::getMaterialLayers(const Trk::TrackingVolume* inpu
   auto& bSurfaces = inputVol->boundarySurfaces();
   for (auto& bsIter : bSurfaces ) 
     if (bsIter->surfaceRepresentation().materialLayer()) {
-      //std::cout<<"material boundary found in volume:"<<inputVol->volumeName()<<std::endl; 
       // boundaries shared : check if not added already
       bool notCounted = true;
       for (auto mlay : matLayers) if (bsIter->surfaceRepresentation().materialLayer() == mlay ) { notCounted=false; break;}
       if (notCounted) matLayers.push_back(bsIter->surfaceRepresentation().materialLayer());
-      //if (notCounted) std::cout<<"material boundary found in:"<<inputVol->volumeName()<<std::endl; 
     }
 }
 
@@ -110,48 +118,63 @@ void Trk::MaterialLayerHelper::findClosestLayer(std::vector<MaterialElement>& ma
       double layThMin = zLay==0 ? acos(-1.)/2. : ( zLay>0 ? atan(db->rMin()/zLay) : atan(db->rMax()/zLay)+acos(-1.) );
       layThRange.push_back(std::pair<double,double>(layThMin,layThMax));
     }
-
-    //if (cyl)  std::cout <<"layerInfo:"<<i<<":cyl:"<<zLay<<"("<<zLay-cyl->halflengthZ()<<","<<zLay+cyl->halflengthZ()<<"),eta range:"
-    //			<<-log(tan(0.5*layThRange.back().first))<<","<<-log(tan(0.5*layThRange.back().second))<<std::endl;
-    //else  std::cout <<"layerInfo:"<<i<<":disk:"<<zLay<<"("<<db->rMin()<<","<<db->rMax()<<"),eta range:"
-    //		    <<-log(tan(0.5*layThRange.back().first))<<","<<-log(tan(0.5*layThRange.back().second))<<std::endl;
   }
 
   const Trk::Layer* assocLayer=0;
   int index=-1; 
   float dist = 5.e5;
-  float matOK = 0;
+  
   std::vector< std::pair<int, std::pair<float,float> > > closeLays;
+
+  float mLimitShuffle = 500.;   // this is the limit of material reshuffling (in g)
+  float mLimitScale = 0.1;  // this is the limit beyond which we cut objects 
+
+  float massContained = 0;  unsigned int nAssocContained = 0; 
+
+  for ( unsigned int ie=0; ie<matInput.size(); ie++ ) {
+    MaterialElement mat = matInput[ie];      // updates done on local copy of the material object ( except for the splitted volumes )
  
-  for ( auto mat : matInput ) {
-    
     // ignore objects beyond the volume boundaries !TODO extend to deal with volumes shifted in z!
     if (mat.rmin>=m_rExt) continue; 
     if (mat.zmin>=m_zExt) continue;  
     if (mat.zmax<=-m_zExt) continue;  
 
     // remove material beyond volume boundaries
-    if (mat.rmax>m_rExt)  mat.rmax=m_rExt;
-    if (mat.zmax>m_zExt)  mat.zmax=m_zExt;
-    if (mat.zmin<-m_zExt) mat.zmin=-m_zExt;
+    if (mat.rmax>m_rExt)  {
+      float inscale = ( m_rExt*m_rExt -mat.rmin*mat.rmin)/(mat.rmax*mat.rmax-mat.rmin*mat.rmin); 
+      mat.rmax=m_rExt; mat.geoVolume = inscale*mat.geoVolume;
+    }
+    if (mat.zmax>m_zExt)  {
+      float inscale = ( m_zExt-mat.zmin )/( mat.zmax - mat.zmin ); 
+      mat.zmax=m_zExt; mat.geoVolume = inscale*mat.geoVolume;
+    }
+    if (mat.zmin<-m_zExt) {
+      float inscale = ( mat.zmax+m_zExt )/( mat.zmax - mat.zmin ); 
+      mat.zmin=-m_zExt; mat.geoVolume = inscale*mat.geoVolume;
+    }
 
+    massContained += mat.mass(); 
+    nAssocContained++; 
+    //
     double dr = mat.rmax-mat.rmin;
     double dz = mat.zmax-mat.zmin;
+    if (dr==0 && mat.mass()>0) {
+      float dphi = mat.phimax-mat.phimin;
+      if (dphi<=0 || dphi>2*acos(-1.)) dphi=2*acos(-1.);
+      dr = mat.geoVolume/dz/dphi/mat.rmin;
+      mat.rmin = mat.rmin-0.5*dr;
+      mat.rmax =mat.rmax+0.5*dr;
+      } 
 
     if (mat.volume()<=0.) {
-      m_unassignedMass += mat.mass();
+       m_unassignedMass += mat.mass();
       continue; 
     }    
 
-    //std::cout<<"mat.elm:"<<mat.name<<":"<<mat.mass()<<":"<<mat.geoVolume<<":"<<mat.volume()<<std::endl;   
     Trk::Material  material = matCnvTool.convert(mat.material);
-    double scale = 1.;
-    if (mat.geoVolume>0.) scale = mat.geoVolume/mat.volume();
+    double scale =   (mat.geoVolume>0.) ? mat.geoVolume/mat.volume() : 1. ;
     mat.setMaterial(Trk::Material( material.X0/scale, material.L0/scale, scale*material.A, scale*material.Z, scale*material.rho));
-    //if ( fabs(mat.mass()-mat.volume()*mat.matProp.rho)>0.001*mat.mass()) {
-    //  std::cout<<"mat.elm conv:"<<mat.name<<":"<<mat.mass()<<":"<<mat.volume()*mat.matProp.rho<<std::endl;   
-    //}  
- 
+  
     assocLayer=0;
     dist = 5.e5;
     index=-1; 
@@ -162,30 +185,41 @@ void Trk::MaterialLayerHelper::findClosestLayer(std::vector<MaterialElement>& ma
 
     // loop over layers to find best match
     float d=0.;float overlap=0.; float zpos=0.;
+ 
     for (unsigned int i=0; i<layers.size(); i++) {
-
+      
       if ( mat.thmin< layThRange[i].second && mat.thmax > layThRange[i].first ) {
-
+	
 	const Trk::Layer* lay = layers[i];      
 	const Trk::DiscBounds*  db = layBounds[i].second; 
 	const Trk::CylinderBounds*  cyl = layBounds[i].first; 
 	
 	if (db && mat.rmin<30 ) continue;    // TODO : check if needed
 	if (cyl && cyl->r()<32.2 && mat.rmax > 30.) continue;  //TODO check if needed
-
-	zpos = lay->surfaceRepresentation().center().z(); 
+	
+	zpos = lay->surfaceRepresentation().center().z();
+        // evaluate the overlap in theta 
 	overlap =  (fmin(mat.thmax,layThRange[i].second) -fmax(mat.thmin,layThRange[i].first))/(mat.thmax-mat.thmin);
-	if (cyl) d=fabs(cyl->r()-rRef);
-	else if (db) d=fabs(zpos-zRef);
-
+        // evaluate the relative scaling associated with the projection
+	if (cyl) d=fabs(cyl->r()/rRef-1.);
+	else if (db) d=  zRef!=0 ? fabs(zpos/zRef-1.) : fabs(zpos);   // absolute distance for disks at z=0.
+	
 	if (d<dist) {dist=d; assocLayer = lay; index = i; thOverlap = overlap; }
-	if (overlap>0 && d<500.) { // order in overlap
+	if (overlap>0 ) { // order in distance weighted by overlap
 	  if (!closeLays.size()) closeLays.push_back(std::pair<int,std::pair<float,float> > (i,std::pair<float,float>(d,overlap)));
           else {
-	    std::vector< std::pair<int, std::pair<float,float> > >::iterator clIt = closeLays.begin();
-	    while (clIt!=closeLays.end() && (*clIt).second.second > overlap ) clIt++;   	
-	    while (clIt!=closeLays.end() && (*clIt).second.second == overlap && (*clIt).second.first < d ) clIt++;   	
-	    closeLays.insert(clIt,std::pair<int,std::pair<float,float> > (i,std::pair<float,float>(d,overlap)));
+	    std::vector< std::pair<int, std::pair<float,float> > >::iterator cIt = closeLays.begin();
+            if (!db || zRef!=0) {
+	      if ( d<mLimitScale) {   //  among close layers, order in decreasing overlap
+		while (cIt!=closeLays.end() && (*cIt).second.second>overlap && (*cIt).second.first<mLimitScale ) cIt++;   	
+              } else {
+		while (cIt!=closeLays.end() && (*cIt).second.first<mLimitScale ) cIt++;   	
+                while (cIt!=closeLays.end() && (*cIt).second.first*((*cIt).second.second>0.99 ? 1. : 1.-(*cIt).second.second)<d*(overlap>0.99? 1. : 1.-overlap) ) cIt++;   	
+	      }
+	    }  else 
+	      while (cIt!=closeLays.end() && (*cIt).second.first*((*cIt).second.second>0.99 ? 1. : 1.-(*cIt).second.second)<d*(overlap>0.99? 1. : 1.-overlap) ) cIt++;   	
+            //  insert layer 
+	    closeLays.insert(cIt,std::pair<int,std::pair<float,float> > (i,std::pair<float,float>(d,overlap)));
 	  }
 	} 
       }
@@ -193,194 +227,117 @@ void Trk::MaterialLayerHelper::findClosestLayer(std::vector<MaterialElement>& ma
       if (dist==0 && assocLayer && overlap==1.) break; 
     }
 
-    if ( thOverlap < 0.9) {
-      //std::cout<<"mat.elm:"<<mat.name<<":"<<mat.mass()<<":"<<mat.rmin<<","<<mat.rmax<<":"<<mat.zmin<<","<<mat.zmax<<std::endl;
-      //std::cout <<"low overlap:"<<thOverlap<< std::endl;
-      for (auto cl : closeLays) {
-	//std::cout << "compatible layers found :"<<cl.second.first<<":"<<cl.second.second<< std::endl;
-        if (cl.second.first<200 && cl.second.second>thOverlap) {
-          dist=cl.second.first; thOverlap =cl.second.second; index=cl.first; assocLayer=layers[cl.first];
-          if (thOverlap>0.9) break;
-	} 
-      }
-      //std::cout <<"association resolved to :"<<index<<":"<<dist<<":"<<thOverlap<<std::endl;
-    }
-
-    if (assocLayer) {
-      // resolve projections
-
-      //if (thOverlap< 0.9 ) std::cout <<"candidate for split object:"<<mat.name<<":"<<mat.mass()<<":thOverlap:"<<thOverlap<<":eta range:"<<mat.etamin<<":"<<mat.etamax<< std::endl;
-
-      // if (thOverlap<0.9 && mat.mass()>20.) {
-      //	if (mat.thmin< layThRange[index].first) {
-      //    double zn = zRef? rRef/tan(layThRange[index].first) :           
-      //	}
-      //}
-
-      if (m_mat4merge[index].size() && mat.name ==  m_mat4merge[index].back().name) { 
-        bool mmatch =  fabs(mat.mass()- m_mat4merge[index].back().mass())<0.01*mat.mass();
-        float dzm= m_mat4merge[index].back().zmax-m_mat4merge[index].back().zmin;
-        float dzn= mat.zmax-mat.zmin;
-        float drm= m_mat4merge[index].back().rmax-m_mat4merge[index].back().rmin;
-        float drn= mat.rmax-mat.rmin;
-        bool zmatch = fabs(mat.zmin- m_mat4merge[index].back().zmin)<10.
-	  &&  fabs(mat.zmax- m_mat4merge[index].back().zmax)<10.;
-        bool rmatch = fabs(mat.rmin- m_mat4merge[index].back().rmin)<10.
-	  &&  fabs(mat.rmax- m_mat4merge[index].back().rmax)<10.;
-        if ( mmatch && zmatch && rmatch ) {
-	  m_mat4merge[index].back().multi =  m_mat4merge[index].back().multi+1;
-	  //std::cout<<"merged objects:"<< mat.name<<":"<< m_mat4merge[index].back().multi<<std::endl;         
-	} else {
-
-          // split object if it significantly exceeds the layer dimension
-	  //if (layBounds[index].first ) {
-          //  double cylR = layBounds[index].first->r();
-          //  double lemin =  
- 	  /*
-	  float zn =  fmin(mat.zmin, m_mat4merge[index].back().zmin);
-          float zx =  fmax(mat.zmax, m_mat4merge[index].back().zmax);
-          float rn =  fmin(mat.rmin, m_mat4merge[index].back().rmin);
-          float rx =  fmax(mat.rmax, m_mat4merge[index].back().rmax);
-          bool zmerge = zx-zn < dzm+dzn+20.;
-          bool rmerge = rx-rn < drm+drn+20.;
-
-	  if (layBounds[index].first && rmatch && zmerge) {
-            double cylR = layBounds[index].first->r(); 
-            double vol = mat.volume()+m_mat4merge[index].back().volume();            
-            m_mat4merge[index].back().zmin = zn;  m_mat4merge[index].back().zmax = zx;
-            double thick = 0.5*vol/acos(-1.)/cylR/(zx-zn);
-            m_mat4merge[index].back().rmin = cylR-0.5*thick;  m_mat4merge[index].back().rmax = cylR+0.5*thick;
-	    Trk::MaterialProperties matProp(material,thick);
-	    m_mat4merge[index].back().setMaterialProperties(matProp);   
-	  } else if (layBounds[index].second && zmatch && rmerge) {
-            //double diskRmin = layBounds[index].second->rMin(); 
-            //double diskRmax = layBounds[index].second->rMax(); 
-            double vol = mat.volume()+m_mat4merge[index].back().volume();             
-            m_mat4merge[index].back().rmin = rn;  m_mat4merge[index].back().rmax = rx;
-            double thick = vol/acos(-1.)/(rx*rx-rn*rn); double zdisk = 0.5*(zn+zx);
-            m_mat4merge[index].back().zmin = zdisk-0.5*thick;  m_mat4merge[index].back().rmax = zdisk+0.5*thick;
-	    Trk::MaterialProperties matProp(material,thick);
-	    m_mat4merge[index].back().setMaterialProperties(matProp);   
-	  } else {
-	    std::cout <<mat.name<<":lay:"<<index<<":m/r/z/match:"<< mmatch<<":"<<rmatch<<":"<<zmatch<<":zmerge:"<<zmerge<<";rmerge:"<<rmerge<<std::endl;
-	  */
-	  m_mat4merge[index].push_back(mat);	  
+   // first, closest layer chosen, check if overlap acceptable : change if another suitable layer found, or split volume
+   if (thOverlap<1. ) {  //  partial overlap
+      float mDiff = (1.-thOverlap)*mat.mass();
+      if (mDiff<mLimitScale*mLimitShuffle)  {     //  not worth the optimization 
+      } else if (mDiff<mLimitShuffle) {  // associated layer acceptable, just check if no better solution
+ 	if (closeLays.size() && closeLays[0].first!=index) {
+          if ( closeLays[0].second.first<mLimitScale && (1-closeLays[0].second.second)*mat.mass()<mDiff) {   // update
+	    index = closeLays[0].first; assocLayer = layers[index];
+            dist = closeLays[0].second.first;
+            thOverlap =  closeLays[0].second.second;
+          }
 	}
-      } else  m_mat4merge[index].push_back(mat);
-	
+      } else {     // action required
+         if (closeLays.size() && closeLays[0].first!=index) {
+	   index = closeLays[0].first; assocLayer = layers[index];
+	   dist = closeLays[0].second.first;
+	   thOverlap =  closeLays[0].second.second;
+	 }
+	 // the best alternative accepted if not too far and the bias acceptable 
+	 if ( closeLays[0].second.first<mLimitScale && (1-closeLays[0].second.second)*mat.mass()<2*mLimitShuffle) {   // update
+	 } else if ( closeLays[0].second.first<mLimitScale && closeLays[0].second.second>1.-mLimitScale){
+	 } else {
+	   float dth = layThRange[index].first - mat.thmin;
+	   if (dth>mLimitScale*(mat.thmax-mat.thmin)) {
+	     if (mat.rmax-mat.rmin<mat.zmax-mat.zmin) {
+	       float zcut = 0.5*(mat.rmin+mat.rmax)/tan(layThRange[index].first);
+	       if (zcut>mat.zmin && zcut<mat.zmax) {
+		 matInput.push_back(MaterialElement(mat.name+"_lowsplit",mat.rmin,mat.rmax,mat.zmin,zcut,mat.phimin,mat.phimax,
+						    mat.material,(zcut-mat.zmin)/(mat.zmax-mat.zmin)*mat.geoVolume));
+		 matInput[ie].zmin = zcut; matInput[ie].geoVolume = (mat.zmax-zcut)/(mat.zmax-mat.zmin)*mat.geoVolume;
+		 mat.zmin = zcut; mat.geoVolume = matInput[ie].geoVolume;
+	       }
+	     } else {
+	       float rcut = 0.5*(mat.zmin+mat.zmax)*tan(layThRange[index].first);
+	       if (rcut>mat.rmin && rcut<mat.rmax) {
+		 if (zRef<0)  {
+		   matInput.push_back(MaterialElement(mat.name+"_lowsplit",mat.rmin,rcut,mat.zmin,mat.zmax,mat.phimin,mat.phimax,
+						      mat.material,(rcut*rcut-mat.rmin*mat.rmin)/(mat.rmax*mat.rmax-mat.rmin*mat.rmin)*mat.geoVolume));
+		   matInput[ie].rmin = rcut; matInput[ie].geoVolume = (mat.rmax*mat.rmax-rcut*rcut)/(mat.rmax*mat.rmax-mat.rmin*mat.rmin)*mat.geoVolume;
+		 } else {
+		   matInput.push_back(MaterialElement(mat.name+"_lowsplit",rcut,mat.rmax,mat.zmin,mat.zmax,mat.phimin,mat.phimax,
+						      mat.material,(mat.rmax*mat.rmax-rcut*rcut)/(mat.rmax*mat.rmax-mat.rmin*mat.rmin)*mat.geoVolume));
+		   matInput[ie].rmax = rcut; matInput[ie].geoVolume = (rcut*rcut-mat.rmin*mat.rmin)/(mat.rmax*mat.rmax-mat.rmin*mat.rmin)*mat.geoVolume;
+		 }
+	       }
+	     } 
+	   }
+	   dth = mat.thmax -layThRange[index].second ;
+	   if (dth>mLimitScale*(mat.thmax-mat.thmin)) {
+	     if (mat.rmax-mat.rmin<mat.zmax-mat.zmin) {
+	       float zcut = 0.5*(mat.rmin+mat.rmax)/tan(layThRange[index].second);
+	       if (zcut>mat.zmin && zcut<mat.zmax) {
+		 matInput.push_back(MaterialElement(mat.name+"_upsplit",mat.rmin,mat.rmax,zcut,mat.zmax,mat.phimin,mat.phimax,
+						    mat.material,(mat.zmax-zcut)/(mat.zmax-mat.zmin)*mat.geoVolume));
+		 matInput[ie].zmax = zcut; matInput[ie].geoVolume = (zcut-mat.zmin)/(mat.zmax-mat.zmin)*mat.geoVolume;
+		 mat.zmax = zcut; mat.geoVolume = matInput[ie].geoVolume;
+	       }
+	     } else {
+	       float rcut = 0.5*(mat.zmin+mat.zmax)*tan(layThRange[index].second);
+	       if (rcut>mat.rmin && rcut<mat.rmax) {
+		 if (zRef>0)  {
+			       matInput.push_back(MaterialElement(mat.name+"_upsplit",mat.rmin,rcut,mat.zmin,mat.zmax,mat.phimin,mat.phimax,
+								  mat.material,(rcut*rcut-mat.rmin*mat.rmin)/(mat.rmax*mat.rmax-mat.rmin*mat.rmin)*mat.geoVolume));
+			       matInput[ie].rmin = rcut; matInput[ie].geoVolume = (mat.rmax*mat.rmax-rcut*rcut)/(mat.rmax*mat.rmax-mat.rmin*mat.rmin)*mat.geoVolume;
+		 } else {
+		   matInput.push_back(MaterialElement(mat.name+"_lowsplit",rcut,mat.rmax,mat.zmin,mat.zmax,mat.phimin,mat.phimax,
+						      mat.material,(mat.rmax*mat.rmax-rcut*rcut)/(mat.rmax*mat.rmax-mat.rmin*mat.rmin)*mat.geoVolume));
+		   matInput[ie].rmax = rcut; matInput[ie].geoVolume = (rcut*rcut-mat.rmin*mat.rmin)/(mat.rmax*mat.rmax-mat.rmin*mat.rmin)*mat.geoVolume;
+		 }
+	       }
+	     } 
+	   }
+	 }
+      }  // end of action item
+   }   // end treatment of partial overlap
+   
+   if (assocLayer) {
+     // resolve projections
+     if (m_mat4merge[index].size() && mat.name ==  m_mat4merge[index].back().name) { 
+       bool mmatch =  fabs(mat.mass()- m_mat4merge[index].back().mass())<0.01*mat.mass();
+       bool zmatch = fabs(mat.zmin- m_mat4merge[index].back().zmin)<10.
+								    &&  fabs(mat.zmax- m_mat4merge[index].back().zmax)<10.;
+       bool rmatch = fabs(mat.rmin- m_mat4merge[index].back().rmin)<10.
+								    &&  fabs(mat.rmax- m_mat4merge[index].back().rmax)<10.;
+       if ( mmatch && zmatch && rmatch ) {
+	 m_mat4merge[index].back().multi =  m_mat4merge[index].back().multi+1;
+       } else {
+         unsigned int iord = 0;
+         while (iord<m_mat4merge[index].size() && mat.mass()<m_mat4merge[index][iord].mass()) iord++;
+	 m_mat4merge[index].push_back(mat);	  
+       }
+     } else  m_mat4merge[index].push_back(mat);
+     
    } else {
-      std::cout <<"no suitable layer found for material element:"<<mat.rmin<<","<<mat.rmax<<":"<<mat.zmin<<","<<mat.zmax<< std::endl;
-      
-      //double dphi = mat.phimax-mat.phimin;
-      //if (dphi<0 || dphi>2*acos(-1.)) dphi=2*acos(-1.);
-      //double mass= 0.5*dphi*(mat.zmax-mat.zmin)*(mat.rmax*mat.rmax-mat.rmin*mat.rmin)*mat.matProp.rho;
-      m_unassignedMass += mat.mass();
-      if (mat.rmin>30. && mat.zmax<3500. && mat.zmin>-3500) m_unassignedITk += mat.mass();
-    }
-    
-    double dphi = mat.phimax-mat.phimin;
-    if (dphi<0 || dphi>2*acos(-1.)) dphi=2*acos(-1.);
-    // sanity check
-    double massObj= 0.5*dphi*(mat.zmax-mat.zmin)*(mat.rmax*mat.rmax-mat.rmin*mat.rmin)*mat.matProp.rho;    
-    massTot+=massObj;
-    massInp+=mat.mass();
-  }
-  //std::cout<<"total mass:"<< massTot<<":"<<massInp<<std::endl;
-  //std::cout<<"unassigned:"<< m_unassignedMass<<":"<<m_unassignedITk<< std::endl;
-  //std::cout<<"contained:"<< matOK<< std::endl;
+     DEBUG_TRACE( std::cout <<"no suitable layer found for material element:"<<mat.rmin<<","<<mat.rmax<<":"<<mat.zmin<<","<<mat.zmax<< std::endl; );
+     m_unassignedMass += mat.mass();
+     if (mat.rmin>30. && mat.zmax<3500. && mat.zmin>-3500) m_unassignedITk += mat.mass();
+   }
+   
+   double dphi = mat.phimax-mat.phimin;
+   if (dphi<0 || dphi>2*acos(-1.)) dphi=2*acos(-1.);
+   // sanity check
+   double massObj= 0.5*dphi*(mat.zmax-mat.zmin)*(mat.rmax*mat.rmax-mat.rmin*mat.rmin)*mat.matProp.rho;    
+   massTot+=massObj;
+   massInp+=mat.mass();
 
-  // print out layer mass
-  index=-1;  
-  for ( auto matVector : m_mat4merge  ) {
-    index++;
-    float layerMass = 0.;
-    for ( auto m : matVector) layerMass+=m.mass();
-
-    const Trk::DiscBounds*  db = dynamic_cast<const Trk::DiscBounds*> (&(layers[index]->surfaceRepresentation().bounds())); 
-    const Trk::CylinderBounds*  cyl = dynamic_cast<const Trk::CylinderBounds*> (&(layers[index]->surfaceRepresentation().bounds())); 
-
-    float zpos =  layers[index]->surfaceRepresentation().center().z() ;
-  
-    //if (db) std::cout <<"disc:"<< db->rMin()<<","<< db->rMax() <<":z:"<< zpos <<":mass:"<<layerMass <<std::endl;
-    //if (cyl) std::cout << "cyl:"<<cyl->r()<<":"<< zpos-cyl->halflengthZ() <<","<< zpos+cyl->halflengthZ()<<":mass:"<<layerMass<< std::endl;
-
-  }
+   }
+  DEBUG_TRACE( std::cout<<"total mass:contained,read:"<< massContained<<","<<massInp<<std::endl; );
+  DEBUG_TRACE( std::cout<<"unassigned:"<< m_unassignedMass<<":"<<m_unassignedITk<< std::endl; );
 
 }
-
-void Trk::MaterialLayerHelper::closestLayer(MaterialElement mat ,std::vector< const Trk::Layer* >&  layers ) {
-
-  const Trk::Layer* assocLayer=0;
-  float dist = 500000.;
-  int index=-1; 
-
-  for (unsigned int i=0; i<layers.size(); i++) {
-    const Trk::Layer* lay = layers[i];
-
-    const Trk::DiscBounds*  db = dynamic_cast<const Trk::DiscBounds*> (&lay->surfaceRepresentation().bounds()); 
-    const Trk::CylinderBounds*  cyl = dynamic_cast<const Trk::CylinderBounds*> (&lay->surfaceRepresentation().bounds()); 
-
-    float zpos = lay->surfaceRepresentation().center().z(); 
-
-    if (db && mat.rmin<30 ) continue;    // TODO : check if needed
-    if (cyl && cyl->r()<30. && mat.rmax > 30.) continue;  //TODO check if needed
-  
-    if (cyl) {
-      double zLayMin = zpos-cyl->halflengthZ(); double zLayMax =  zpos+cyl->halflengthZ();
-      double layThMin = zLayMin==0 ? acos(-1.)/2. : atan(cyl->r()/zLayMin); if (zLayMin<0) layThMin+=acos(-1.);
-      double layThMax = zLayMax==0 ? acos(-1.)/2. : atan(cyl->r()/zLayMax); if (zLayMax<0) layThMax+=acos(-1.);
-      //if (layThMin>layThMax) std::cout << "layThMin > layThMax!!"<< std::endl;
-      //if ( mat.zmin< zpos+cyl->halflengthZ() && mat.zmax > zpos-cyl->halflengthZ() ) {
-      if ( mat.thmin< layThMax && mat.thmax > layThMin ) {
-	float d=fabs(cyl->r()-0.5*(mat.rmin+mat.rmax));
-	if (d<dist) {dist=d; assocLayer = lay; index = i; }
-      }
-    }
-
-    else if (db) {
-      double layThMin = zpos==0 ? acos(-1.)/2. : ( zpos>0 ? atan(db->rMax()/zpos) : atan(db->rMin()/zpos)+acos(-1.) );
-      double layThMax = zpos==0 ? acos(-1.)/2. : ( zpos>0 ? atan(db->rMin()/zpos) : atan(db->rMax()/zpos)+acos(-1.) );
-      //if (layThMin>layThMax) std::cout << "db:layThMin > layThMax!!"<< std::endl;
-      //if ( mat.rmin < db->rMax() && mat.rmax > db->rMin() ) {
-      if ( mat.thmin< layThMax && mat.thmax > layThMin ) {
-	float d=fabs(zpos-0.5*(mat.zmin+mat.zmax));
-        if (d==dist && fabs(zpos) < fabs( assocLayer->surfaceRepresentation().center().z()) ) { assocLayer = lay; index = i; }
-	else if (d<dist) {dist=d; assocLayer = lay; index=i;}
-      }
-    }
-    
-    if (dist==0 && assocLayer) break; 
-  }
-
-  if (assocLayer) {
-
-    m_mat4merge[index].push_back(mat);
-
-    /*
-    const Trk::DiscBounds*  db = dynamic_cast<const Trk::DiscBounds*> (&assocLayer->surfaceRepresentation().bounds()); 
-    const Trk::CylinderBounds*  cyl = dynamic_cast<const Trk::CylinderBounds*> (&assocLayer->surfaceRepresentation().bounds()); 
-
-    std::cout <<"material element:"<<mat.rmin<<","<<mat.rmax<<":"<<mat.zmin<<","<<mat.zmax<< std::endl;
-    std::cout <<"associated with layer:";
-    float zpos =  assocLayer->surfaceRepresentation().center().z() ;
-    //{ 
-      if (db) std::cout <<"disc:"<< db->rMin()<<","<< db->rMax() <<":"<< zpos <<std::endl;
-      if (cyl) std::cout << "cyl:"<<cyl->r()<<":"<< zpos-cyl->halflengthZ() <<","<< zpos+cyl->halflengthZ()<< std::endl;
-    //}
-    std::cout <<"at distance:"<< dist<< ":material:"<< mat.materialName<<":"<<mat.layer<<std::endl;
-    // project material object into MaterialProperties, collect material input for each layer
-    */
-  } else {
-    std::cout <<"no suitable layer found for material element:"<<mat.rmin<<","<<mat.rmax<<":"<<mat.zmin<<","<<mat.zmax<< std::endl;
-    double dphi = mat.phimax-mat.phimin;
-    if (dphi<0 || dphi>2*acos(-1.)) dphi=2*acos(-1.);
-    double mass= 0.5*dphi*(mat.zmax-mat.zmin)*(mat.rmax*mat.rmax-mat.rmin*mat.rmin)*mat.matProp.rho;
-    m_unassignedMass += mass;
-    if (mat.rmin>30. && mat.zmax<3500. && mat.zmin>-3500) m_unassignedITk += mass;
-  }
-
-}
-
 
 void Trk::MaterialLayerHelper::buildMaterial(std::vector< const Trk::Layer* >&  matLayers)
 {
@@ -396,13 +353,13 @@ void Trk::MaterialLayerHelper::buildMaterial(std::vector< const Trk::Layer* >&  
 
   for (auto lay : matLayers) {
 
-    //std::cout <<"loop over material layers, number of associated objects:"<<icounter<<":"<<m_mat4merge[icounter].size()<<std::endl;
-
     const Trk::DiscBounds*  db = dynamic_cast<const Trk::DiscBounds*> (&lay->surfaceRepresentation().bounds()); 
     const Trk::CylinderBounds*  cyl = dynamic_cast<const Trk::CylinderBounds*> (&lay->surfaceRepresentation().bounds()); 
 
     float matLayInput = 0.;
     float matLayWeight = 0.;
+
+    //============ cylinder layers ===============
  
     if (cyl && m_mat4merge[icounter].size() ) {
       double layR = cyl->r();
@@ -410,40 +367,50 @@ void Trk::MaterialLayerHelper::buildMaterial(std::vector< const Trk::Layer* >&  
       if (layMatProp) {
 	Amg::Vector3D gp(cyl->r(),0.,lay->surfaceRepresentation().center().z());
 	const Trk::MaterialProperties* mp=layMatProp->fullMaterial(gp);
-        if (mp)  std::cout << "layer material present before merge, overwritten:"<<mp->thicknessInX0()<<std::endl;
+        if (mp)  DEBUG_TRACE(std::cout << "layer material present before merge, overwritten:"<<mp->thicknessInX0()<<std::endl;);
       }
+      // check if heavy objects associated 
+      bool hasheavy = false;
+      for (auto mat :  m_mat4merge[icounter])  if (mat.mass()>500.) hasheavy=true; 
       std::vector<std::pair<float,Trk::MaterialProperties> > zmat;
+
+      double layZmax = lay->surfaceRepresentation().center().z()+cyl->halflengthZ();
       zmat.push_back(std::pair<float,Trk::MaterialProperties>(lay->surfaceRepresentation().center().z()-cyl->halflengthZ(),Trk::MaterialProperties()));
-      zmat.push_back(std::pair<float,Trk::MaterialProperties>(lay->surfaceRepresentation().center().z()+cyl->halflengthZ(),Trk::MaterialProperties()));
+      if (hasheavy) {
+         double zdiff = 50.; double znext = zmat.back().first+zdiff;
+         while (znext<layZmax-0.5*zdiff) {
+	  zmat.push_back(std::pair<float,Trk::MaterialProperties>(znext,Trk::MaterialProperties())); 
+	  znext = zmat.back().first+zdiff;  
+	} 
+      }
+      zmat.push_back(std::pair<float,Trk::MaterialProperties>(layZmax,Trk::MaterialProperties()));
       std::vector<std::pair<float,Trk::MaterialProperties> >::iterator iz=zmat.begin();
       std::vector<std::pair<float,Trk::MaterialProperties> >::iterator iztmp=zmat.begin();
-
+      // eta projection
+      std::vector<std::pair<float,Trk::MaterialProperties> > etamat;
+      etamat.push_back(std::pair<float,Trk::MaterialProperties>(eta(zmat.front().first,layR),Trk::MaterialProperties()));
+      etamat.push_back(std::pair<float,Trk::MaterialProperties>(eta(zmat.back().first,layR),Trk::MaterialProperties()));
+      std::vector<std::pair<float,Trk::MaterialProperties> >::iterator ieta=etamat.begin();
+      std::vector<std::pair<float,Trk::MaterialProperties> >::iterator ietmp=etamat.begin();
+ 
       for (unsigned int im=0; im<m_mat4merge[icounter].size(); im++) {
         MaterialElement mat = m_mat4merge[icounter][im];
         matLayInput +=mat.mass()*mat.multi; 
-        double dphi = mat.phimax-mat.phimin;
-	float phi_dilution = dphi<2*acos( -1.) ? dphi/2/acos(-1.) : 1.;
-	double dz=mat.zmax-mat.zmin; double dr=mat.rmax-mat.rmin;
-	double dmax=sqrt(dz*dz+dr*dr*phi_dilution*phi_dilution);
-        double rRef = 0.5*(mat.rmin+mat.rmax); 
-        double zRef = 0.5*(mat.zmin+mat.zmax); 
-        double rProj = layR/rRef;
         // project object dimensions
-        double mzmin = mat.zmin*rProj; double mzmax = mat.zmax*rProj;
+        double mzmin = mat.zmin*layR/(mat.zmin<0? mat.rmin : mat.rmax); 
+	double mzmax = mat.zmax*layR/(mat.zmax<0?mat.rmax : mat.rmin);
         // contained part
-        if ( mzmin>=zmat.back().first || mzmax<zmat.front().first) {
-	  std::cout << "skipping non-overlapping object:"<<mat.name<<":"<<mat.mass()<<"closest layer:"<< zmat.front().first<<":"<<zmat.back().first<<std::endl;
-          continue; 
-	}
+        if ( mat.etamin>=etamat.back().first || mat.etamax<etamat.front().first)  continue; 
+        if ( mzmin>=zmat.back().first || mzmax<zmat.front().first) continue; 
         double excess = fmax( fmin(zmat.front().first,mzmax) - mzmin , 0.)
 	  +fmax( mzmax-fmax(zmat.back().first,mzmin), 0.);
-        double rscale = (mzmax-mzmin)/(mzmax-mzmin-excess);
-	double thickness=0.5*mat.volume()/acos(-1.)/layR/(mzmax-mzmin)*rscale;    // correction of eta ragne excess
+        double exscale = fmin((mzmax-mzmin)/(mzmax-mzmin-excess),2.);    //  TODO : object with low overlap should be split or re-assigned
+        // thickness of object calculated at the reference radius, corrected for longitudinal excess
+	std::pair<double,std::pair<double,double> > thicknessEta = averageThickness(mat,true);
+        double thickness = thicknessEta.first*exscale;
         //
 	iz = zmat.begin(); 
-        //float dz = (*iz).first > mat.zmin ? fmin(mat.zmax,(*iz).first)-mat.zmin : 0.;
-	//float dz = 0.;
-        float matMassValid = 0.;
+         float matMassValid = 0.;
 	while (iz!=(zmat.end()-1)) { 
           if ((*(iz+1)).first <= mzmin) iz++; 
 	  else if ((*iz).first >= mzmax) break; // 
@@ -451,112 +418,82 @@ void Trk::MaterialLayerHelper::buildMaterial(std::vector< const Trk::Layer* >&  
 	    if ((*iz).first<mzmin-tol && (*(iz+1)).first > mzmin+tol ) {     // resolve lower bin
 	      iztmp=zmat.insert(iz+1,std::pair<float,Trk::MaterialProperties>(mzmin,(*iz).second));              
               iz = iztmp;
-	      //std::cout << "inserting zstep low:"<<(*(iz-1)).first<<":"<<(*iz).first<<":"<<(*(iz+1)).first<< std::endl;
 	    }	  			  
 	    if ((*iz).first<mzmax-tol && (*(iz+1)).first > mzmax+tol) {  // resolve upper bin
 	      iztmp=zmat.insert(iz+1,std::pair<float,Trk::MaterialProperties>(mzmax,(*iz).second));
 	      iz=iztmp-1;
-	      //std::cout << "inserting zstep up:"<<(*(iz-1)).first<<":"<<(*iz).first<<":"<<(*(iz+1)).first<< std::endl;
 	    }
-            //if ((*iz).first<mzmin) dz+=(*iz).first-mzmin; 
-            //if ((*(iz+1)).first>mzmax) dz+=mzmax-(*(iz+1)).first;
-            //if (iz+2 == zmat.end() && mat.zmax>(*(iz+1)).first) dz+=mat.zmax-fmax((*(iz+1)).first,mat.zmin); 
             double overlap = fmin(mzmax,(*(iz+1)).first)-fmax(mzmin,(*iz).first);
             double binsize = (*(iz+1)).first-(*iz).first;
-	    //std::cout <<"dz:binsize:"<<dz<<":"<<binsize<<std::endl;
             double zscale = binsize>0? overlap/binsize : 0.; 
-           
-            // for keeping d/x0 in the projection ( for weight conservation, apply another factor 1/rProj ) 
             if (zscale>0.) {
-	      // matMassValid += overlap*2*acos(-1.)*layR*rscale/rProj*phi_dilution*(mat.rmax-mat.rmin)*mat.matProp.averageRho();
-	      //double massOld = binsize*2*acos(-1.)*layR*(*iz).second.thicknessInX0()*(*iz).second.x0()*(*iz).second.averageRho();
-              //double dz=mat.zmax-mat.zmin; double dr=mat.rmax-mat.rmin;
-              //double th = atan(rRef/fabs(zRef));
-              //double thickness = dz<dr ? fmin(dz/cos(th),dr)*sin(th) : dr;
-              double zLoc =  0.5*((*(iz+1)).first+(*iz).first) ;
-	      double thRef = zLoc!=0 ? atan(layR/fabs(zLoc)) : acos(-1.)/2.;
-              double thickness_corr = rProj*rProj*thickness;     // correction to re-establish projection
-              if ( thickness_corr > dmax*sin(thRef) ) thickness_corr=dmax*sin(thRef); 
-	      (*iz).second.addMaterial(mat.matProp,thickness_corr*zscale*mat.multi/mat.matProp.x0());
- 	      matMassValid +=zscale*mat.matProp.rho*binsize*2*acos(-1.)*layR*thickness;
-	      //double massNew      = binsize*2*acos(-1.)*layR*(*iz).second.thicknessInX0()*(*iz).second.x0()*(*iz).second.averageRho();
-	      //std::cout << "check merged material:"<< massNew-massOld<<":"<<matMassValid<<std::endl;
+	      double binLow = eta((*iz).first,layR);
+	      double binUp = eta((*(iz+1)).first,layR);	      
+	      double thAv = binThickness(binLow,binUp,thickness,
+					   mat.etamin,thicknessEta.second.first,thicknessEta.second.second,mat.etamax);
+	      (*iz).second.addMaterial(mat.matProp,thAv*zscale*mat.multi/mat.matProp.x0());
+ 	      matMassValid +=zscale*mat.matProp.rho*binsize*2*acos(-1.)*layR*thAv;
 	    }
-	    iz++; //dz=0.;
+	    iz++; 
 	  }
 	}
-        //if (fabs(mat.mass()-matMassValid)>0.1*mat.mass()) {
-	//  std::cout << "wrong projection cyl:"<<mat.name<<":rscale:"<<rscale
-	//							    <<":mat_true/mat_projected"<<mat.mass()/matMassValid<< std::endl;	   
-	//  std::cout << "volume check:"<<mat.volume()<<":"<<2*acos(-1.)*layR*thickness*(mzmax-mzmin-excess)*phi_dilution<< std::endl; 
-	//}
-	//std::cout << "translated mass :"<<mat.mass()<<":"<<matMassValid<<":"<<rscale<<":"<<rProj<<";"<<phi_dilution<<std::endl;
       }
-      //if (flog) fprintf(flog,"lay cyl R zMin zMax: %e %e %e \n",layR,zmat.front().first,zmat.back().first); 
-      //if (flog) {int nbins=zmat.size(); fprintf(flog,"nbins %d \n",nbins); }
+      if (flog) fprintf(flog,"lay cyl R zMin zMax: %e %e %e \n",layR,zmat.front().first,zmat.back().first); 
+      if (flog) {int nbins=zmat.size(); fprintf(flog,"nbins %d \n",nbins); }
       std::vector<float> steps; std::vector<const Trk::MaterialProperties*> matMerged;
       iz = zmat.begin();
       while (iz!=(zmat.end()-1)) {
-	//std::cout<<"material array in z:"<<(*iz).first<<":"<<(*iz).second.thicknessInX0()<<std::endl;
-        //fprintf(flog," %e %e \n", (*iz).first, (*iz).second.thicknessInX0()); 
-	//std::cout<<"checking:"<<(*iz).second.x0()<<":"<<(*iz).second.averageRho()<<std::endl;
+        fprintf(flog," %e %e \n", (*iz).first, (*iz).second.thicknessInX0()); 
         steps.push_back((*iz).first); matMerged.push_back(new Trk::MaterialProperties((*iz).second));
         matLayWeight +=2*acos(-1.)*cyl->r()*((*(iz+1)).first-(*iz).first)
 	  *(*iz).second.thicknessInX0()*(*iz).second.x0()*(*iz).second.averageRho();
 	iz++;
       }
       steps.push_back((*iz).first);
-      //fprintf(flog," %e %e \n", (*iz).first, (*iz).second.thicknessInX0()); 
-      //fprintf(flog,"   \n"); 
+      fprintf(flog," %e %e \n", (*iz).first, (*iz).second.thicknessInX0()); 
+      fprintf(flog,"   \n"); 
       Trk::BinUtility buZ(steps,Trk::open,Trk::binZ);      
       Trk::BinnedLayerMaterial material(buZ,matMerged);
       lay->assignMaterialProperties(material);
-      //std::cout <<"material comparison cylindrical layer, input/output:"<<matLayInput<<":"<<matLayWeight<< std::endl;
       if( cyl->r()>30.) layMatTot += matLayInput;
     }
 
+    //=========== disk layers =============
+
     if (db && m_mat4merge[icounter].size() ) {
-      const Trk::LayerMaterialProperties* layMatProp=lay->layerMaterialProperties();
- 
-      if (layMatProp) {
-	Amg::Vector3D gp(0.5*(db->rMin()+db->rMax()),0.,lay->surfaceRepresentation().center().z());
-	const Trk::MaterialProperties* mp=layMatProp->fullMaterial(gp);
-        if (mp)  std::cout<<"layer material present before merging, overwritten:"<<mp->thicknessInX0()<<std::endl;
-      } 
-    
+
+      // check if heavy objects associated 
+      bool hasheavy = false;
+      for (auto mat :  m_mat4merge[icounter])  if (mat.mass()>500.) hasheavy=true; 
+   
       std::vector<std::pair<float,Trk::MaterialProperties> > rmat;
-      rmat.push_back(std::pair<float,Trk::MaterialProperties>(db->rMin(),Trk::MaterialProperties()));
+      rmat.push_back(std::pair<float,Trk::MaterialProperties>(fmax(db->rMin(),30.),Trk::MaterialProperties()));   // do not accept disks within the beam pipe volume     
+      if (hasheavy) {
+        double rdiff = 20.; double rnext = rmat.back().first+rdiff;
+        while (rnext<db->rMax()-0.5*rdiff) {
+	  rmat.push_back(std::pair<float,Trk::MaterialProperties>(rnext,Trk::MaterialProperties())); 
+	  rnext = rmat.back().first+rdiff;  
+	} 
+     }
       rmat.push_back(std::pair<float,Trk::MaterialProperties>(db->rMax(),Trk::MaterialProperties()));
       std::vector<std::pair<float,Trk::MaterialProperties> >::iterator ir=rmat.begin();
       std::vector<std::pair<float,Trk::MaterialProperties> >::iterator irtmp=rmat.begin();
       double zLay = lay->surfaceRepresentation().center().z();
-
+ 
       for (unsigned int im=0; im<m_mat4merge[icounter].size(); im++) {
         MaterialElement mat = m_mat4merge[icounter][im];
         matLayInput +=mat.mass()*mat.multi;
-        double dphi = mat.phimax-mat.phimin;
-	float phi_dilution = dphi<2*acos(-1.) ? dphi/2/acos(-1.) : 1.;
-	//std::cout<<"adding mat element:"<<mat.zmin<<":"<<mat.zmax<<":"<<mat.matProp.thicknessInX0()<<":phi_dilution:"<<phi_dilution<<std::endl;
-	//std::cout<<"phimin,max:"<<mat.phimin<<":"<<mat.phimax<<std::endl;
-	//std::cout<<"zPos->dbZ:"<<0.5*(mat.zmin+mat.zmax)<<"->"<<lay->surfaceRepresentation().center().z() <<std::endl;
-	//std::cout<<"adding material object:"<<mat.name<<"with material thickness:"<<mat.matProp.thicknessInX0()<<":x0:"<<
-	//  mat.matProp.x0()<<std::endl;
-	double dz=mat.zmax-mat.zmin; double dr=mat.rmax-mat.rmin;
-	double dmax=sqrt(dr*dr+dz*dz*phi_dilution*phi_dilution);
-    
-        double zRef = 0.5*(mat.zmin+mat.zmax);
-        double rRef = 0.5*(mat.rmin+mat.rmax);
-        double zProj = zLay*zRef >0 ? zLay/zRef : 1.;
+        double zProjn = zLay*mat.zmin >0 ? zLay/mat.zmin : 1.;
+        double zProjx = zLay*mat.zmax >0 ? zLay/mat.zmax : 1.;
         // project object dimensions
-        double mrmin = mat.rmin*zProj; double mrmax = mat.rmax*zProj;
-	//std::cout<<"adding mat element in projection:"<<mrmin<<":"<<mrmax<<":"<<mat.matProp.thicknessInX0()<<":phi_dilution:"<<phi_dilution<<std::endl;
-	//std::cout<<"phimin,max:"<<mat.phimin<<":"<<mat.phimax<<std::endl;
-	//std::cout<<"zRef->zDisc:"<<zRef<<"->"<<zLay<<std::endl;
+        double mrmin = mat.rmin*(mat.zmin<0? zProjn : zProjx);
+        double mrmax = mat.rmax*(mat.zmax<0?zProjx : zProjn);
         // contained part
-        if ( mrmin>=rmat.back().first || mrmax<rmat.front().first) {
-	  std::cout << "skipping non-overlapping object:"<<mat.name<<":"<<mat.mass()<<"closest layer:"<< rmat.front().first<<":"<<rmat.back().first<<std::endl;
-          continue; 
+        if ( mat.etamin>= eta(zLay,zLay>0? rmat.front().first : rmat.back().first)  || mat.etamax<eta(zLay,zLay>0? rmat.back().first : rmat.front().first)) {
+         continue; 
 	}
+        if ( mrmin>=rmat.back().first || mrmax<rmat.front().first)  continue; 
+	
         double excess=0;
         if (mrmin<rmat.front().first) { 
 	  double rup=fmin(rmat.front().first,mrmax);
@@ -567,13 +504,12 @@ void Trk::MaterialLayerHelper::buildMaterial(std::vector< const Trk::Layer* >&  
           excess +=(mrmax*mrmax - rlow*rlow);
 	}
         double rSf=mrmax*mrmax-mrmin*mrmin;
-        double rscale = rSf/(rSf-excess);
-	double thickness = mat.volume()/acos(-1.)/rSf*rscale;
-	//if (excess>0.) std::cout << "scaling for dB layer excess in R:"<<rscale<< std::endl;
-        //
+        double rscale = fmin(rSf/(rSf-excess),2.);  // TODO: objects with small overlap should be split or re-assigned
+        // thickness of object calculated at the reference radius, corrected for longitudinal excess
+	std::pair<double,std::pair<double,double> > thicknessEta = averageThickness(mat,false);
+       double thickness = thicknessEta.first*rscale;
 
         ir = rmat.begin(); 
-        //float dr = (*ir).first > mat.rmin ? fmin(mat.rmax,(*ir).first)-mat.rmin : 0.;
         float matMassValid = 0.;
 	while (ir!=(rmat.end()-1)) { 
           if ((*(ir+1)).first < mrmin) ir++; 
@@ -591,219 +527,51 @@ void Trk::MaterialLayerHelper::buildMaterial(std::vector< const Trk::Layer* >&  
 	    }
             double overlap = pow(fmin(mrmax,(*(ir+1)).first),2)-pow(fmax(mrmin,(*ir).first),2);
             double binsize = ((*(ir+1)).first-(*ir).first)*((*(ir+1)).first+(*ir).first) ;
-	    //std::cout <<"dz:binsize:"<<dz<<":"<<binsize<<std::endl;
-            double zscale = binsize>0? overlap/binsize : 0.; 
+           double zscale = binsize>0? overlap/binsize : 0.; 
             if (zscale>0.) {
-	      //std::cout<<"adding material thickness:"<< zscale*rscale/zProj/zProj*phi_dilution*(mat.zmax-mat.zmin)/mat.matProp.x0()<<std::endl;
-	      //std::cout <<"zscale,rscale,zProj,phi_dilution:"<<zscale<<","<<rscale<<","<<zProj<<":"<<phi_dilution<<std::endl;
-              //double dz=mat.zmax-mat.zmin; double dr=mat.rmax-mat.rmin;
-              //double th = atan(rRef/fabs(zRef));
-              //double thickness = dr<dz ? fmin(dr/sin(th),dz)*cos(th) : dz;
-              double rLoc =  0.5*((*(ir+1)).first+(*ir).first) ;
-	      double thRef = zLay!=0 ? atan(rLoc/fabs(zLay)) : acos(-1.)/2.;
-              double thickness_corr = zProj*zProj*thickness;     // correction to re-establish projection
-              if ( thickness_corr > dmax*cos(thRef) ) thickness_corr=dmax*cos(thRef); 
-	      (*ir).second.addMaterial(mat.matProp,thickness_corr*zscale*mat.multi/mat.matProp.X0); 
-	      matMassValid += acos(-1.)*binsize*zscale*thickness*mat.matProp.rho;
+               double binLow = fmin(eta(zLay,(*ir).first),eta(zLay,(*(ir+1)).first));
+	       double binUp = fmax(eta(zLay,(*ir).first),eta(zLay,(*(ir+1)).first));	      
+	       double thAv = binThickness(binLow,binUp,thickness,
+					  mat.etamin,thicknessEta.second.first,thicknessEta.second.second,mat.etamax);
+	       (*ir).second.addMaterial(mat.matProp,thAv*zscale*mat.multi/mat.matProp.X0); 
+	       matMassValid += acos(-1.)*binsize*zscale*thAv*mat.matProp.rho;
 	    }
 	    ir++; 
 	  }
 	}
-        //if (fabs(mat.mass()-matMassValid)>0.1*mat.mass()) {
-        // std::cout << "wrong projection db:"<<mat.name<<":rscale:"<<rscale
-	//							    <<":mat_true/mat_projected"<<mat.mass()/matMassValid<< std::endl;	   
-	//  std::cout << "volume check:"<<mat.volume()<<":"<<acos(-1.)*thickness*(rSf-excess)<< std::endl; 
-	//}
-	//std::cout << "translated mass :"<<mat.mass()<<":"<<matMassValid<<":"<<rscale<<":"<<rProj<<";"<<phi_dilution<<std::endl;
-	   
       }
-      //if (flog) fprintf(flog,"lay disc zpos rMin rMax: %e %e %e \n",zLay,rmat.front().first,rmat.back().first); 
-      //if (flog) {int nbins=rmat.size(); fprintf(flog,"nbins %d \n",nbins); }
+      if (flog) fprintf(flog,"lay disc zpos rMin rMax: %e %e %e \n",zLay,rmat.front().first,rmat.back().first); 
+      if (flog) {int nbins=rmat.size(); fprintf(flog,"nbins %d \n",nbins); }
       std::vector<float> steps; std::vector<const Trk::MaterialProperties*> matMerged;
       ir = rmat.begin();
       while (ir!=(rmat.end()-1)) {
-	//std::cout<<"material array in R:"<<(*ir).first<<":"<<(*ir).second.thicknessInX0()<<std::endl;
 	float sbin = (*ir).first; float dInXbin = (*ir).second.thicknessInX0();
-	//fprintf(flog," %e %e \n", sbin, dInXbin); 
+	fprintf(flog," %e %e \n", sbin, dInXbin); 
         steps.push_back((*ir).first); matMerged.push_back(new Trk::MaterialProperties((*ir).second));
         matLayWeight += acos(-1.)*(pow((*(ir+1)).first,2)-pow((*ir).first,2))
 	  *(*ir).second.thicknessInX0()*(*ir).second.x0()*(*ir).second.averageRho();
-	//std::cout<<"disk add:"<< (pow((*(ir+1)).first,2)-pow((*ir).first,2)) <<":"<<
-	//  (*ir).second.thicknessInX0()<<":"<<(*ir).second.x0()<<":"<<(*ir).second.averageRho() <<std::endl;
 	ir++;
       }
       steps.push_back((*ir).first);
       sbin = (*ir).first; dInXbin = (*ir).second.thicknessInX0();
-      //fprintf(flog," %e %e \n", sbin, dInXbin); 
-      //fprintf(flog," \n"); 
+      fprintf(flog," %e %e \n", sbin, dInXbin); 
+      fprintf(flog," \n"); 
       Trk::BinUtility buR(steps,Trk::open,Trk::binR);      
       Trk::BinnedLayerMaterial material(buR,matMerged);
       lay->assignMaterialProperties(material);
-      //std::cout <<"material comparison disk layer, input/output:"<<matLayInput<<":"<<matLayWeight<< std::endl; 
-      layMatTot += matLayInput;
+       layMatTot += matLayInput;
     }
     
     icounter++;
   }
-
-  //std::cout <<"total weight input layers :"<<layMatTot<< std::endl;
-
 
   fclose(flog);
 }
 
-void Trk::MaterialLayerHelper::buildMaterialInEtaProjection(std::vector< const Trk::Layer* >&  matLayers)
-{
-
-  int icounter = 0;
-  float tol = 0.1;    // smallest array step
-  for (auto lay : matLayers) {
-
-    //std::cout <<"loop over material layers, number of associated objects:"<<icounter<<":"<<m_mat4merge[icounter].size()<<std::endl;
-
-    const Trk::DiscBounds*  db = dynamic_cast<const Trk::DiscBounds*> (&lay->surfaceRepresentation().bounds()); 
-    const Trk::CylinderBounds*  cyl = dynamic_cast<const Trk::CylinderBounds*> (&lay->surfaceRepresentation().bounds()); 
-
-    float matLayInput = 0.;
-    float matLayWeight = 0.;
- 
-    if (cyl && m_mat4merge[icounter].size() ) {
-      //std::cout<<"cyl:R/hZ:"<< cyl->r()<<","<< lay->surfaceRepresentation().center().z()<<"+-"<<cyl->halflengthZ() <<std::endl; 
-      const Trk::LayerMaterialProperties* layMatProp=lay->layerMaterialProperties();
-      if (layMatProp) {
-	Amg::Vector3D gp(cyl->r(),0.,lay->surfaceRepresentation().center().z());
-	const Trk::MaterialProperties* mp=layMatProp->fullMaterial(gp);
-        if (mp)  std::cout << "layer material present before merge, overwritten:"<<mp->thicknessInX0()<<std::endl;
-      }
-      std::vector<std::pair<float,Trk::MaterialProperties> > emat;
-      emat.push_back(std::pair<float,Trk::MaterialProperties> (eta(lay->surfaceRepresentation().center().z()-cyl->halflengthZ(),cyl->r()),
-							       Trk::MaterialProperties()));  
-      emat.push_back(std::pair<float,Trk::MaterialProperties> (eta(lay->surfaceRepresentation().center().z()+cyl->halflengthZ(),cyl->r()),
-							       Trk::MaterialProperties()));  
-      std::vector<std::pair<float,Trk::MaterialProperties> >::iterator ie=emat.begin();
-      std::vector<std::pair<float,Trk::MaterialProperties> >::iterator ietmp=emat.begin();
-
-      for (unsigned int im=0; im<m_mat4merge[icounter].size(); im++) {
-        MaterialElement mat = m_mat4merge[icounter][im];
-        matLayInput +=mat.mass();
-        double dphi = mat.phimax-mat.phimin;
-	float scale = dphi<2*acos(-1.) ? dphi/2/acos(-1.) : 1.;
-        float etasize = z(mat.etamax,cyl->r())-z(mat.etamin,cyl->r());
-	double thickness = mat.volume()/(2*acos(-1.)*cyl->r())/etasize;
-	ie = emat.begin(); 
-        float de = (*ie).first > mat.etamin ? fmin(mat.etamax,(*ie).first)-mat.etamin : 0.;
-	while (ie!=(emat.end()-1)) { 
-          if ((*(ie+1)).first <= mat.etamin) ie++; 
-	  else if ((*ie).first >= mat.etamax) break; // TODO dz>0 should be added
-	  else{
-	    if ((*ie).first<mat.etamin && (*(ie+1)).first > mat.etamin ) {     // resolve lower bin
-              if (mat.etamin-(*ie).first>tol && (*(ie+1)).first-mat.etamin>tol)
-		ie=emat.insert(ie+1,std::pair<float,Trk::MaterialProperties>(mat.etamin,(*ie).second));              
-	    }	  			
-	    if ((*ie).first<mat.etamax && (*(ie+1)).first > mat.etamax) {  // resolve upper bin
-              if (mat.etamax-(*ie).first>tol && (*(ie+1)).first-mat.etamax>tol) {
-		ietmp=emat.insert(ie+1,std::pair<float,Trk::MaterialProperties>(mat.etamax,(*ie).second));
-		ie=ietmp-1;
-	      }
-	    }
-            if ((*ie).first<mat.etamin) de+=(*ie).first-mat.etamin; 
-            if ((*(ie+1)).first>mat.etamax) de+=mat.etamax-(*(ie+1)).first;
-            if (ie+2 == emat.end() && mat.etamax>(*(ie+1)).first) de+=mat.etamax-fmax((*(ie+1)).first,mat.etamin); 
-            float binsize = (*(ie+1)).first-(*ie).first;
-            float fscale = binsize>0? de/binsize+1 : 0.;  
-	    (*ie).second.addMaterial(mat.matProp,fscale*scale*thickness/mat.matProp.X0);
-	    ie++; de=0.;
-	  }
-	}	   
-      }
-      std::vector<float> steps; std::vector<const Trk::MaterialProperties*> matMerged;
-      ie = emat.begin();
-      while (ie!=(emat.end()-1)) {
-	//std::cout<<"material array in z:"<<z((*ie).first,cyl->r())<<":"<<(*ie).second.thicknessInX0()<<std::endl;
-        steps.push_back(z((*ie).first,cyl->r())); matMerged.push_back(new Trk::MaterialProperties((*ie).second));
-        matLayWeight +=2*acos(-1.)*cyl->r()*(z((*(ie+1)).first,cyl->r())-z((*ie).first,cyl->r()))
-	  *(*ie).second.thicknessInX0()*(*ie).second.x0()*(*ie).second.averageRho();
-	ie++;
-      }
-      steps.push_back(z((*ie).first,cyl->r()));
-      Trk::BinUtility buZ(steps,Trk::open,Trk::binZ);      
-      Trk::BinnedLayerMaterial material(buZ,matMerged);
-      lay->assignMaterialProperties(material);
-      //std::cout <<"material comparison cylindrical layer, input/output:"<<matLayInput<<":"<<matLayWeight<< std::endl;
-    }
-
-    if (db && m_mat4merge[icounter].size() ) {
-      const Trk::LayerMaterialProperties* layMatProp=lay->layerMaterialProperties();
- 
-      if (layMatProp) {
-	Amg::Vector3D gp(0.5*(db->rMin()+db->rMax()),0.,lay->surfaceRepresentation().center().z());
-	const Trk::MaterialProperties* mp=layMatProp->fullMaterial(gp);
-        if (mp)  std::cout<<"layer material present before merging, overwritten:"<<mp->thicknessInX0()<<std::endl;
-      } 
-    
-      std::vector<std::pair<float,Trk::MaterialProperties> > rmat;
-      rmat.push_back(std::pair<float,Trk::MaterialProperties>(db->rMin(),Trk::MaterialProperties()));
-      rmat.push_back(std::pair<float,Trk::MaterialProperties>(db->rMax(),Trk::MaterialProperties()));
-      std::vector<std::pair<float,Trk::MaterialProperties> >::iterator ir=rmat.begin();
-      std::vector<std::pair<float,Trk::MaterialProperties> >::iterator irtmp=rmat.begin();
-
-      for (unsigned int im=0; im<m_mat4merge[icounter].size(); im++) {
-        MaterialElement mat = m_mat4merge[icounter][im];
-        matLayInput +=mat.mass();
-        double dphi = mat.phimax-mat.phimin;
-	float scale = dphi<2*acos(-1.) ? dphi/2/acos(-1.) : 1.;
-        ir = rmat.begin(); 
-        float dr = (*ir).first > mat.rmin ? fmin(mat.rmax,(*ir).first)-mat.rmin : 0.;
-	while (ir!=(rmat.end()-1)) { 
-          if ((*(ir+1)).first < mat.rmin) ir++; 
-	  else if ((*ir).first >= mat.rmax) break;  // TODO dr>0 should be added
-          else {
-	    if ((*ir).first<mat.rmin && (*(ir+1)).first > mat.rmin ) {     // resolve lower bin
-              if (mat.rmin-(*ir).first>tol && (*(ir+1)).first-mat.rmin>tol)
-		ir=rmat.insert(ir+1,std::pair<float,Trk::MaterialProperties>(mat.rmin,(*ir).second));
-	    }	  			
-	    if ((*ir).first<mat.rmax && (*(ir+1)).first > mat.rmax) {  // resolve upper bin
-              if (mat.rmax-(*ir).first>tol && (*(ir+1)).first-mat.rmax>tol) {
-		irtmp=rmat.insert(ir+1,std::pair<float,Trk::MaterialProperties>(mat.rmax,(*ir).second));
-		ir=irtmp-1;
-	      }
-	    }
-            if ((*ir).first<mat.rmin) dr+=(*ir).first-mat.rmin; 
-            if ((*(ir+1)).first>mat.rmax) dr+=mat.rmax-(*(ir+1)).first;
-            if (ir+2 == rmat.end() && mat.rmax>(*(ir+1)).first) dr+=mat.rmax-fmax((*(ir+1)).first,mat.rmin); 
-            float binsize = (*(ir+1)).first-(*ir).first;
-            float rscale = binsize>0? dr/binsize+1 : 0.; 
-            if (rscale*scale*(mat.zmax-mat.zmin)/mat.matProp.X0>1.e-6) {
-	      (*ir).second.addMaterial(mat.matProp,rscale*scale*(mat.zmax-mat.zmin)/mat.matProp.X0);
-	    }
-	    ir++; dr=0.;
-	  }
-	}	   
-      }
-      std::vector<float> steps; std::vector<const Trk::MaterialProperties*> matMerged;
-      ir = rmat.begin();
-      while (ir!=(rmat.end()-1)) {
-	//std::cout<<"material array in R:"<<(*ir).first<<":"<<(*ir).second.thicknessInX0()<<std::endl;
-        steps.push_back((*ir).first); matMerged.push_back(new Trk::MaterialProperties((*ir).second));
-        matLayWeight += acos(-1.)*(pow((*(ir+1)).first,2)-pow((*ir).first,2))
-	  *(*ir).second.thicknessInX0()*(*ir).second.x0()*(*ir).second.averageRho();
-	ir++;
-      }
-      steps.push_back((*ir).first);
-      Trk::BinUtility buR(steps,Trk::open,Trk::binR);      
-      Trk::BinnedLayerMaterial material(buR,matMerged);
-      lay->assignMaterialProperties(material);
-      //std::cout <<"material comparison disk layer, input/output:"<<matLayInput<<":"<<matLayWeight<< std::endl; 
-    }
-    
-    icounter++;
-  }
-
-
-}
 
 double Trk::MaterialLayerHelper::eta(double z, double R) const 
 {
+  if (z==0)  return 0;
   double th = atan(R/z);
   if (z<0.) th+=acos(-1.);
   double eta = -log(tan(th/2.)); 
@@ -811,11 +579,218 @@ double Trk::MaterialLayerHelper::eta(double z, double R) const
   return eta;
 }
 
-double Trk::MaterialLayerHelper::z(double eta, double R) const 
+double Trk::MaterialLayerHelper::etaToZ(double eta, double R) const 
 {
   double th = 2*atan(exp(-eta));
   double z = R / tan(th);
   return z;
 }
 
-void Trk::MaterialLayerHelper::printInfo() const {}
+double Trk::MaterialLayerHelper::etaToR(double eta, double z) const 
+{
+  double th = 2*atan(exp(-eta));
+  double R = z * tan(th);
+  return R;
+}
+
+// best thickness approximation (input in eta)
+double Trk::MaterialLayerHelper::binThickness( double binLow, double binUp, double thick, double e0, double e1, double e2, double e3) const 
+{
+ if (binLow>=e3 || binUp<=e0) return 0.;
+  double xtot = 0.; double xlow = 0.; double xup = 0.;  
+  // collect increasing part 
+  if (binLow<e1) {
+    if (e1>e0) {
+      xlow = thick*(fmax(binLow,e0)-e0) /(e1-e0);
+      xup = (binUp<e1) ?  thick*(binUp-e0) /(e1-e0) : thick;
+      double de = fmin(binUp,e1) -  fmax(binLow,e0);
+      xtot +=  de*0.5*(xlow+xup);
+    }
+  } 
+  // collect flat part
+  if (binUp>e1 && binLow<e2) {  
+    double de = fmin(binUp,e2) -fmax(binLow,e1);
+    xtot += de*thick;
+ }
+ // collect decreasing part 
+  if (binUp>e2) {
+    if (e3>e2) {
+      xlow = thick*(e3-fmax(binLow,e2)) /(e3-e2);
+      xup =  thick*(e3-fmin(binUp,e3))/(e3-e2);
+      double de = fmin(binUp,e3) -  fmax(binLow,e2);
+      xtot +=  de*0.5*(xlow+xup);
+    }
+  } ;
+  return xtot/(fmin(binUp,e3)-fmax(binLow,e0));
+}
+
+std::pair<double,std::pair<double,double> > Trk::MaterialLayerHelper::averageThickness(MaterialElement mat,bool cyl) const 
+{
+  double e0 = mat.etamin;
+  double e1 = fmin( eta(mat.zmin,mat.zmin<0? mat.rmax : mat.rmin), eta(mat.zmax,mat.zmin<0? mat.rmin : mat.rmax));
+  double e2 = fmax( eta(mat.zmin,mat.zmin<0? mat.rmax : mat.rmin), eta(mat.zmax,mat.zmin<0? mat.rmin : mat.rmax));
+  double e3 = mat.etamax;
+  // thickness in inner points
+  double th1 = 2*atan(exp(-e1));
+  double th2 = 2*atan(exp(-e2));
+  // true thickness
+  double d1 = fmin( (mat.rmax-mat.rmin)/sin(th1) , (mat.zmax-mat.zmin)/fabs(cos(th1)));
+  double d2 = fmin( (mat.rmax-mat.rmin)/sin(th2) , (mat.zmax-mat.zmin)/fabs(cos(th2)));
+  // corrected for impact angle
+  double d1c = cyl? d1*sin(th1) : d1*fabs(cos(th1));
+  double d2c = cyl? d2*sin(th2) : d2*fabs(cos(th2));
+  // average corrected for phi dilution
+  double dphi = mat.phimax-mat.phimin;
+  if (dphi<0 || dphi>2*acos(-1.)) dphi = 2*acos(-1.);
+  double dav = 0.5*dphi/2/acos(-1.)/(e3-e0)*(     (e1<=e2? d1c*(e1-e0) : d2c*(e2-e0))
+					      +(d1c+d2c)*fabs(e2-e1) + (e1<=e2 ? d2c*(e3-e2) : d1c*(e3-e1))    );
+
+  std::pair<double,double> etamid(fmin(e1,e2),fmax(e1,e2));
+  return std::pair<double,std::pair<double,double> > (dav,etamid); 
+
+}
+
+
+void Trk::MaterialLayerHelper::materialBudget(std::vector<MaterialElement>& inputMat) const 
+{
+
+  // extract summary information about material in GeoModel
+  int im=0;
+  float sct = 0.;
+  float bp = 0.;
+  float siInner = 0;  
+  //  float siOuter = 0;  
+  float siOB = 0.;
+  float siEC = 0.;
+  float hybridInner = 0;  
+  float hybridOB = 0.;
+  float hybridEC = 0.;
+  float chipInner = 0;  
+  float chipOB = 0.;
+  float chipEC = 0.;
+  float modules = 0.;
+  float ladders = 0.;
+  float svcInner = 0;  
+  float svcOB = 0.;
+  float svcEC = 0.;
+  float structInner = 0.;
+  float structOB = 0.;
+  float structEC = 0.;
+  //  float ipt = 0.;
+  float ist = 0.;
+  float pst = 0.;
+  float interlink = 0.;
+  float foam = 0.;
+  float longeron = 0.;
+  float shell = 0.;
+  std::vector<float> shellLayer=std::vector<float>(20,0.);
+  int nModOB = 0; int layIndex=-1; size_t labelLay;
+  float materialAll = 0.;
+  for ( auto mat : inputMat ) {
+    materialAll +=mat.mass();
+    float rad =  0.5*(mat.rmin+mat.rmax);
+    labelLay = mat.name.find("_L");
+    if (labelLay!=std::string::npos) {
+      if ( sscanf(mat.name.substr(labelLay+2,1).c_str(),"%d",&layIndex)!=1 ) layIndex=-1;
+    }   
+    labelLay = mat.name.find("_L1");
+    if (labelLay!=std::string::npos) {
+      if ( sscanf(mat.name.substr(labelLay+2,2).c_str(),"%d",&layIndex)!=1 ) layIndex=1;
+    }   
+    if (mat.rmin > 342.) sct += mat.mass();
+    else if (mat.name.find("siLog")!=std::string::npos) {
+      if (rad < 145.) siInner += mat.mass();
+      else if ( mat.zmin<-1100. || mat.zmax>1100.) siEC += mat.mass();
+      else siOB += mat.mass(); 
+    } else if (mat.name.find("Hybrid")!=std::string::npos) {
+      if (rad < 145.) hybridInner += mat.mass();
+      else if ( mat.zmin<-1100. || mat.zmax>1100.) hybridEC += mat.mass();
+      else hybridOB += mat.mass();
+    } else if (mat.name.find("Chip")!=std::string::npos) {
+      if (rad < 145.) chipInner += mat.mass();
+      else if ( mat.zmin<-1100. || mat.zmax>1100.) chipEC += mat.mass();
+      else chipOB += mat.mass(); 
+    } else if (mat.name=="Module") { modules += mat.mass();
+      if (rad>145. && mat.zmin>-1100. && mat.zmax<1100) nModOB++; 
+    } else if (mat.name=="Ladder") { ladders += mat.mass(); 
+    } else if (mat.name=="Pigtail") { svcInner += mat.mass(); 
+    } else if (mat.name=="FoamSupport") { structOB += mat.mass(); foam += mat.mass();
+    } else if (mat.name.find("Section")!=std::string::npos) {  bp += mat.mass();
+    } else if (mat.name.find("StaveSupport")!=std::string::npos) { structInner += mat.mass();
+    } else if (mat.name.find("IST")!=std::string::npos) { ist += mat.mass();
+    } else if (mat.name.find("PST")!=std::string::npos) { pst += mat.mass();
+    } else if (mat.name.find("QuarterShell")!=std::string::npos) { structInner += mat.mass();
+    } else if (mat.name.find("Interlink")!=std::string::npos) { interlink += mat.mass();
+    } else if (mat.name.find("Longeron")!=std::string::npos) { structOB += mat.mass(); longeron += mat.mass();
+    } else if (mat.name=="ModuleSvc") {
+      if (rad < 145.) svcInner += mat.mass();
+      else if ( mat.zmin<-1100. || mat.zmax>1100.) svcEC += mat.mass();
+      else svcOB += mat.mass(); 
+    } else if (mat.name.find("shellWallLog")!=std::string::npos) {
+      if (rad < 145.) structInner += mat.mass();
+      else if ( mat.zmin<-1100. || mat.zmax>1100.) structEC += mat.mass();
+      else { structOB += mat.mass(); shell += mat.mass(); }
+      if (layIndex>=0) shellLayer[layIndex] += mat.mass();  
+    } else if (mat.name.find("shellBotLog")!=std::string::npos) {
+      if (rad < 145.) structInner += mat.mass();
+      else if ( mat.zmin<-1100. || mat.zmax>1100.) structEC += mat.mass();
+      else { structOB += mat.mass(); shell += mat.mass();}  
+      if (layIndex>=0) shellLayer[layIndex] += mat.mass(); 
+    } else if (mat.name.find("shellSupLog")!=std::string::npos) {
+      if (rad < 145.) structInner += mat.mass();
+      else if ( mat.zmin<-1100. || mat.zmax>1100.) structEC += mat.mass();
+      else { structOB += mat.mass(); shell += mat.mass();} 
+      if (layIndex>=0) shellLayer[layIndex] += mat.mass(); 
+    } else if (mat.name.find("supLog")!=std::string::npos) {
+      if (rad<145.) structInner += mat.mass();
+      else if ( mat.zmin<-1100. || mat.zmax>1100.) structEC += mat.mass();
+      else structOB += mat.mass(); 
+    } else if (mat.name.find("ringLog")!=std::string::npos) {
+      if (rad<145.) structInner += mat.mass();
+      else if ( mat.zmin<-1100. || mat.zmax>1100.) structEC += mat.mass();
+      else structOB += mat.mass(); 
+    } else if (mat.name.find("SvcEc")!=std::string::npos) {
+      if (rad<145.) svcInner += mat.mass();
+      else svcEC += mat.mass();
+    } else if (mat.name.find("SvcBrl")!=std::string::npos) {
+      if (rad<145.) svcInner += mat.mass();
+      else svcOB += mat.mass();
+    } else if (mat.name.find("Svc")!=std::string::npos) {
+      if (rad<145.) svcInner += mat.mass();
+      else svcOB += mat.mass();
+    } else if (mat.name.find("Wall")!=std::string::npos) {  structOB += mat.mass(); longeron += mat.mass();
+    } else if (mat.name.find("Corner")!=std::string::npos) {  structOB += mat.mass(); longeron += mat.mass(); 
+    } else {
+      //std::cout <<im<<":"<< mat.name<<":"<<mat.geoVolume<<":"<<mat.volume()<<":"<<mat.mass()<< std::endl;
+      //std::cout <<im<<":"<< mat.rmin<<":"<<mat.rmax<<":"<<mat.zmin<<":"<<mat.zmax<< ":"<<mat.phimin<<":"<<mat.phimax<<std::endl;
+    }
+ 
+    if (mat.name.substr(0,2)=="_L") {
+      //std::cout <<im<<":"<< mat.name<<":"<<mat.geoVolume<<":"<<mat.volume()<<":"<<mat.mass()<<":"<<mat.material->getName()<< std::endl;
+      //std::cout <<im<<":"<< mat.rmin<<":"<<mat.rmax<<":"<<mat.zmin<<":"<<mat.zmax<< ":"<<mat.phimin<<":"<<mat.phimax<<std::endl;
+    }
+    im++;
+
+  }
+
+  DEBUG_TRACE(std::cout << "GM material budget:"<< materialAll<< std::endl;);
+  DEBUG_TRACE(std::cout << "SCT total:"<< sct<< std::endl;);
+  DEBUG_TRACE(std::cout << "interlinks:"<< interlink<< std::endl;);
+  
+  DEBUG_TRACE(std::cout << "modules inner:Si:hybrid:chip:"<<siInner<<":"<<hybridInner<<":"<<chipInner<<":total:"<<siInner+hybridInner+chipInner<< std::endl;);
+  DEBUG_TRACE(std::cout << "modules OB:Si:hybrid:chip:"<<siOB<<":"<<hybridOB<<":"<<chipOB<<":total:"<<siOB+hybridOB+chipOB<< std::endl;);
+  DEBUG_TRACE(std::cout << "modules EC:Si:hybrid:chip:"<<siEC<<":"<<hybridEC<<":"<<chipEC<<":total:"<<siEC+hybridEC+chipEC<< std::endl;);
+
+  DEBUG_TRACE(std::cout <<"( x-check total modules ... should be empty)"<< modules<< std::endl;);
+  DEBUG_TRACE(std::cout <<"( x-check total ladders ... should be empty)"<< ladders<< std::endl;);
+
+  DEBUG_TRACE(std::cout << "services inner : OB : EC (position):"<<svcInner<<":"<<svcOB<<":"<<svcEC<<":total:"<<svcInner+svcOB+svcEC<< std::endl;);
+  DEBUG_TRACE(std::cout << "structure inner : OB : EC (position):"<<structInner<<":"<<structOB<<":"<<structEC<<":total:"<<structInner+structOB+structEC<< std::endl;);
+
+  DEBUG_TRACE(std::cout << " OB substructure: longeron: shell:"<< longeron<<":"<<shell<< std::endl; );
+
+  DEBUG_TRACE(std::cout << "number of OB modules:"<< nModOB << std::endl; ); 
+
+  DEBUG_TRACE(std::cout <<"IPT:IST:PST"<<ipt<<":"<<ist<<":"<<pst<< std::endl;);
+  for (unsigned int is=0; is<shellLayer.size(); is++) if (shellLayer[is]>0.) DEBUG_TRACE(std::cout << "shell layer material:"<< is<<":"<<shellLayer[is]<< std::endl;);
+}
