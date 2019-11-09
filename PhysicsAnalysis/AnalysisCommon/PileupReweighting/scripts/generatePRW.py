@@ -135,7 +135,7 @@ def main():
       extraOpts=""
       if args.forceStaged: extraOpts += "--forceStaged "
   
-      mycommand = """pathena --inDS="%s" --outDS="%s" PileupReweighting/generatePRW_jobOptions.py %s--mergeOutput --nGBPerJob=MAX --useContElementBoundary --addNthFieldOfInDSToLFN=2,6""" % (",".join(aodDatasets),args.outDS,extraOpts)
+      mycommand = """pathena --inDS="%s" --outDS="%s" PileupReweighting/generatePRW_jobOptions.py %s--mergeOutput --nGBPerJob=MAX --addNthFieldOfInDSToLFN=2,6""" % (",".join(aodDatasets),args.outDS,extraOpts)
       
       print "Command: %s" % mycommand
       
