@@ -312,7 +312,7 @@ def addReductionArguments(parser, transform = None):
                         group='Reduction', help='NTUP common input file', nargs='+')
     parser.add_argument('--inputDAOD_PHYSFile',
                         type=argFactory(trfArgClasses.argPOOLFile, io='input', type='aod'),
-                        group='Reduction', help='Input DAOD_PHYS for skimming')
+                        group='Reduction', help='Input DAOD_PHYS for skimming',nargs='+')
     parser.add_argument('--outputDNTUPFile', 
                         type=argFactory(trfArgClasses.argNTUPFile, treeNames=None),
                         group='Reduction', help='Reduced NTUP output filename base')
