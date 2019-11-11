@@ -922,7 +922,7 @@ if [ "x$DETDESCRTAG" != "x" ]; then
 fi
 if [ "x$NSWAGDDFILE" != "x" ]; then
     if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
-    OPTS="${OPTS}vp1NSWAGDDFiles=["'"${NSWAGDDFILE}"'"]"
+    OPTS="${OPTS}vp1NSWAGDDFiles=[\"${NSWAGDDFILE}\"]"
 fi
 if [ "x$GLOBCONDTAG" != "x" ]; then
     if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
