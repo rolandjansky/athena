@@ -561,7 +561,7 @@ class DetFlags:
         # print flags for each task
         for attr in dir(cls)[:]:
             # check if this attribute is in the task list
-            if not "__" in attr: #avoid __class__ etc
+            if "__" not in attr: #avoid __class__ etc
               if cls.__dict__[attr] in cls._taskList+cls._oredTaskList:
                   item=[]
                   # task name
