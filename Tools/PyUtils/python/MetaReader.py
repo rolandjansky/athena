@@ -691,13 +691,13 @@ def promote_keys(meta_dict):
                 md.update(md[key])
                 
                 if len(md['eventTypes']):
-					et = md['eventTypes'][0]
-					md['mc_event_number'] = et.get('mc_event_number', md['runNumbers'][0])
+                    et = md['eventTypes'][0]
+                    md['mc_event_number'] = et.get('mc_event_number', md['runNumbers'][0])
+                    
+                    md['mc_channel_number'] = et.get('mc_channel_number', 0)
+                    md['eventTypes'] = et['type']
 
-					md['mc_channel_number'] = et.get('mc_channel_number', 0)
-					md['eventTypes'] = et['type']
-					
-					
+
                 md['lumiBlockNumbers'] = md['lumiBlockNumbers']
                 md['processingTags'] = md[key]['processingTags']
 
