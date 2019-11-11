@@ -123,14 +123,12 @@ Trk::QuickCloseComponentsMultiStateMerger::merge(const Trk::MultiComponentState&
     }
   }
 
-  const Trk::TrackParameters* combinedState = unmergedState.begin()->first->clone();
-  const Trk::ComponentParameters reducedState(combinedState, 1.);
   if (componentWithoutMeasurement) {
     ATH_MSG_DEBUG("A track parameters object is without measurement... reducing state to single component");
+    const Trk::ComponentParameters reducedState(unmergedState.begin()->first->clone(), 1.);
     return std::make_unique<Trk::MultiComponentState>(reducedState);
   }
 
-  delete combinedState;
   return mergeFullDistArray(cache, unmergedState);
 }
 
