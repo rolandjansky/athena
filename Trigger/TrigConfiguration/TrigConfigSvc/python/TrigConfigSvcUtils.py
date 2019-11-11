@@ -260,8 +260,7 @@ def getTriggerDBCursor(connection):
     return cursor,schema
 
 def _get_sqlite_cursor (filename):
-    try: import sqlite3
-    except ImportError: raise RuntimeError, "ERROR: Can't import sqlite3?"
+    import sqlite3
     os.lstat(filename)
     connection = sqlite3.connect(filename)
     return connection.cursor()
@@ -271,8 +270,7 @@ def _get_oracle_cursor (tns, user, passwd=""):
         from getpass import getpass
         passwd = getpass("[Oracle] database password for %s@%s: " % (user, tns))
 
-    try: from cx_Oracle import connect
-    except ImportError: raise RuntimeError, "ERROR: Can't import cx_Oracle?"
+    from cx_Oracle import connect
     connection = connect (user, passwd, tns, threaded=True)
     return connection.cursor()
 
@@ -282,8 +280,7 @@ def _get_mysql_cursor (host, db, user, passwd=""):
         from getpass import getpass
         passwd = getpass("[MySQL] `%s' database password for %s@%s: " % (db, user, host))
 
-    try: from MySQLdb import connect
-    except ImportError: raise RuntimeError, "ERROR: Can't import MySQLdb?"
+    from MySQLdb import connect
     connection = connect(host=host, user=user, passwd=passwd, db=db, connect_timeout=10)
     return connection.cursor()
 
