@@ -44,7 +44,9 @@ class ITauToolBase : virtual public asg::IAsgTool
   virtual StatusCode executeShotFinder(xAOD::TauJet& pTau, xAOD::CaloClusterContainer& shotClusterContainer, xAOD::PFOContainer& PFOContainer ) = 0;
   virtual StatusCode executePi0CreateROI(xAOD::TauJet& pTau, CaloCellContainer& caloCellContainer ) = 0;
   virtual StatusCode executePi0ClusterCreator(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer, 
-					      xAOD::PFOContainer& hadronicPFOContainer, xAOD::CaloClusterContainer& caloClusterContainer ) = 0;
+					      xAOD::PFOContainer& hadronicPFOContainer, 
+					      xAOD::CaloClusterContainer& caloClusterContainer, 
+					      const xAOD::CaloClusterContainer& pCaloClusterContainer ) = 0;
   virtual StatusCode executeVertexVariables(xAOD::TauJet& pTau, xAOD::VertexContainer& vertexContainer ) = 0;  
   virtual StatusCode executePi0ClusterScaler(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer, xAOD::PFOContainer& chargedPFOContainer ) = 0;  
   virtual StatusCode executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer) = 0;
