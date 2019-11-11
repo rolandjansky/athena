@@ -262,8 +262,7 @@ StatusCode TauProcessorAlg::execute() {
 	if ( (*itT)->name().find("ShotFinder") != std::string::npos){
 	  sc = (*itT)->executeShotFinder(*pTau, *tauShotClusContainer, *tauShotPFOContainer);
 	}
-	else if ( (*itT)->name().find("Pi0CreateROI") != std::string::npos){
-	  ATH_MSG_INFO("EXEC PI0CREATEROI");
+	else if ( (*itT)->name().find("Pi0ClusterFinder") != std::string::npos){
 	  sc = (*itT)->executePi0CreateROI(*pTau, *Pi0CellContainer);
 	}
 	else {
