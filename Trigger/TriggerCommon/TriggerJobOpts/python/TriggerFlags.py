@@ -144,7 +144,7 @@ class doMT(JobProperty):
     statusOn=True
     allowedType=['bool']
     from AthenaCommon.ConcurrencyFlags import jobproperties  # noqa: F811
-    StoredValue= bool(int(jobproperties.ConcurrencyFlags.NumThreads) >= 1)
+    StoredValue= bool(jobproperties.ConcurrencyFlags.NumThreads >= 1)
         
 _flags.append(doMT)
 
