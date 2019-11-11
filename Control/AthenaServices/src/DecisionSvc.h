@@ -11,7 +11,6 @@
 
 // FrameWork includes
 #include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/IAlgExecStateSvc.h"
 
 // Athena includes
@@ -28,7 +27,7 @@
  * @author S.Binet<binet@cern.ch>
  * @author B.Radics<radbal@cern.ch>
  */
-class DecisionSvc : public extends<AthService, IDecisionSvc, IIncidentListener>
+class DecisionSvc : public extends<AthService, IDecisionSvc>
 { 
 
 public: 
@@ -46,9 +45,6 @@ public:
   virtual StatusCode finalize() override;
   //@}
 
-
-  /// Incident service handle listening for BeginFile and EndFile.
-  virtual void handle(const Incident& incident) override;
 
   /////////////////////////////////////////////////////////////////// 
   // Non-const methods: 
