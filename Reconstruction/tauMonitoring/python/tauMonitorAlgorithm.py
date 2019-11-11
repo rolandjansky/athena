@@ -71,12 +71,72 @@ def tauMonitoringConfig(inputFlags):
     
     for itup in [(myKinGroupBA,'BA'),(myKinGroupCR,'CR'),(myKinGroupEC,'EC')]:
         (igroup, postfix) = itup
-        igroup.defineHistogram('Eflow', title='Eflow;Eflow;Events', path='Kinematics', 
-                               xbins=100, xmin=0., xmax=1000.)
+
+	### 1 ###
+
+	### 2 ###
+        igroup.defineHistogram('ntaus', title='Number of tau candidates;Number of Taus per Event', path='Kinematics', 
+                               xbins=30, xmin=0., xmax=30.)
+
+
+	### 3 ###
+        igroup.defineHistogram('eta', title='Eta of tau candidates);Eta);Number of Candidates', path='Kinematics', 
+                               xbins=40, xmin=-2., xmax=2.)
+
+	### 4 ###
+        igroup.defineHistogram('phi', title='Phi of tau candidates);Phi);Number of Candidates', path='Kinematics', 
+                               xbins=80, xmin=-4., xmax=4.)
+
+	### 5 ###
+
+        igroup.defineHistogram('pt', title='Pt of tau candidates);pt);Number of Candidates', path='Kinematics', 
+                               xbins=300, xmin=0., xmax=100000.)
+
+
+
+	### 6 ###
+        igroup.defineHistogram('charge', title='Charge of tau candidates;Charge;Number of Candidates', path='Kinematics', 
+                               xbins=120, xmin=-6., xmax=6.)
+
+        ### 7 ###
+	igroup.defineHistogram('nTracks', title='nTracks;nTracks;Events', path='Kinematics', 
+                               xbins=10, xmin=0., xmax=10.)
+
+	### 8 ###
+	igroup.defineHistogram('nClusters', title='nClusters;nClusters;Events', path='Kinematics', 
+                               xbins=40, xmin=0., xmax=40.)
+
+
+
+	### 9 ### ?????
+        igroup.defineHistogram('pt15', title='Pt15 of tau candidates);pt);Number of Candidates', path='Kinematics', 
+                               xbins=300, xmin=0., xmax=100000.)
+
+
+ 	
+	### 10 ###
+        igroup.defineHistogram('pt,eta', type='TH2F', title='PtVsEtaTitle;#eta;pt', path='Kinematics', 
+                               xbins=300.,xmin=0.,xmax=100000.,ybins=40.,ymin=-2.,ymax=2.)
+
+
+
+	### 11 ###
+        igroup.defineHistogram('pt,phi', type='TH2F', title='PtVsPhiTitle;#eta;#phi',path='Kinematics', 
+                               xbins=300.,xmin=0.,xmax=100000.,ybins=80.,ymin=-4.,ymax=4.)
+
+
+
+	### 12 ###
         igroup.defineHistogram('eta,phi', type='TH2F', title='PhiVsEtaTitle;#eta;#phi', path='Kinematics', 
-                               #xbins=[0,.1,.2,.4,.8,1.6],ybins=[0,10,30,40,60,70,90])
-                               #xbins=[0,4.,8.,10.,15.],ybins=[0.,1.,2.,3.,4.])
                                xbins=30,xmin=-3.0,xmax=3.0,ybins=32,ymin=-3.15,ymax=3.15)
+
+	### 13 ###
+        igroup.defineHistogram('eta15,phi15', type='TH2F', title='PhiVsEtaTitle;#eta;#phi', path='Kinematics', 
+                               xbins=30,xmin=-3.0,xmax=3.0,ybins=32,ymin=-3.15,ymax=3.15)
+
+
+
+	### 14 ###
 
 
 
