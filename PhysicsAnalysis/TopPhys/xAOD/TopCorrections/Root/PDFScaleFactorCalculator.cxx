@@ -46,7 +46,7 @@ namespace top {
     top::check(evtStore()->retrieve(event_info, m_config->sgKeyEventInfo()), "Failed to retrieve EventInfo");
     const xAOD::TruthEventContainer* truthEventContainer(nullptr);
     top::check(evtStore()->retrieve(truthEventContainer,
-                                    m_config->sgKeyTruthEvent()), "Failed to retrieve truth PDF info");
+                                    m_config->sgKeyTruthEvent()), "PDFScaleFactorCalculator: Failed to retrieve TruthEvent container");
 
     float mc_weight = event_info->auxdataConst<float>("AnalysisTop_eventWeight");
 

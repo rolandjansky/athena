@@ -711,7 +711,7 @@ int main(int argc, char** argv) {
       }
       if (totalYieldSoFar == 0 && topConfig->isMC() && topConfig->doLHAPDF()) {
         const xAOD::TruthEventContainer* truthEvent(nullptr);
-        top::check(xaodEvent.retrieve(truthEvent, topConfig->sgKeyTruthEvent()), "Failed to retrieve truth PDF info");
+        top::check(xaodEvent.retrieve(truthEvent, topConfig->sgKeyTruthEvent()), "Failed to retrieve TruthEvent container for LHAPDF");
         for (auto tePtr : *truthEvent) {
           for (auto& pdf : totalEventsPdfWeighted) {
             if (tePtr->isAvailable< std::vector<float> >("AnalysisTop_" + pdf.first + "_Weights")) {
