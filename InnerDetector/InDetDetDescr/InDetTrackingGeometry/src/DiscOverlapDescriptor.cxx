@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -32,18 +32,20 @@ bool InDet::DiscOverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceInt
   
 {
   // Get Storegate, ID helpers, and so on
-  ISvcLocator* svcLocator = Gaudi::svcLocator();
+  if (m_sctIdHelper==nullptr) {
+    ISvcLocator* svcLocator = Gaudi::svcLocator();
     
-  // get DetectorStore service
-  StoreGateSvc* detStore;
-  StatusCode sc = svcLocator->service("DetectorStore",detStore);
-  if (sc.isFailure()) {
-    return 0;
-  }
+    // get DetectorStore service
+    StoreGateSvc* detStore = nullptr;
+    if (svcLocator->service("DetectorStore", detStore).isFailure()) {
+      return false;
+    }
 
-  const SCT_ID* sctIdHelper = 0;
-  if (detStore->retrieve(sctIdHelper, "SCT_ID").isFailure()) {
-    return 0;
+    const SCT_ID* sctIdHelper = nullptr;
+    if (detStore->retrieve(sctIdHelper, "SCT_ID").isFailure()) {
+      return false;
+    }
+    m_sctIdHelper = sctIdHelper;
   }
   
   // get the according detector element
@@ -51,7 +53,7 @@ bool InDet::DiscOverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceInt
   
   // first add the target surface
   surfaces.push_back(Trk::SurfaceIntersection(Trk::Intersection(pos, 0., true),&tsf));
-  int etaModule = sctIdHelper->eta_module(tsf.associatedDetectorElementIdentifier());
+  int etaModule = m_sctIdHelper.load()->eta_module(tsf.associatedDetectorElementIdentifier());
   
   // return empty cell vector
   if (pElement) {
