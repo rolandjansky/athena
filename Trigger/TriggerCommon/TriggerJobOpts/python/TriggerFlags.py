@@ -144,7 +144,7 @@ class doMT(JobProperty):
     statusOn=True
     allowedType=['bool']
     from AthenaCommon.ConcurrencyFlags import jobproperties  # noqa: F811
-    StoredValue= bool(jobproperties.ConcurrencyFlags.NumThreads >= 1)
+    StoredValue= bool(int(jobproperties.ConcurrencyFlags.NumThreads) >= 1)
         
 _flags.append(doMT)
 
@@ -1188,7 +1188,6 @@ else:
     from TriggerJobOpts.SliceFlags import *                                   # noqa: F401, F403
 
 from TriggerJobOpts.Tier0TriggerFlags       import Tier0TriggerFlags      # noqa: F401
-from TrigTier0.NtupleProdFlags              import NtupleProductionFlags  # noqa: F401
 
 
 def sync_Trigger2Reco():
