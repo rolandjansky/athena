@@ -32,7 +32,7 @@ public:
   
   ///default for this class is to simulate get_number_of_expected_hits() hits, 
   ///which gives fluctuations sigma^2=1/get_number_of_expected_hits()
-  virtual float get_sigma2_fluctuation(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override;
+  virtual double get_sigma2_fluctuation(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override;
 
   /// default for this class is to simulate get_number_of_expected_hits() hits
   virtual int get_number_of_hits(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override;

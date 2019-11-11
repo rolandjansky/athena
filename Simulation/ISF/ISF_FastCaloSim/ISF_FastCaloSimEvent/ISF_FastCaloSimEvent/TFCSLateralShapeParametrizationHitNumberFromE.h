@@ -29,7 +29,7 @@ public:
   TFCSLateralShapeParametrizationHitNumberFromE(const char* name, const char* title,double stochastic,double stochastic_hadron,double constant);
 
   ///Give the effective size sigma^2 of the fluctuations from the stochastic and constant term
-  float get_sigma2_fluctuation(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override;
+  double get_sigma2_fluctuation(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override;
 
   int get_number_of_hits(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override;
 

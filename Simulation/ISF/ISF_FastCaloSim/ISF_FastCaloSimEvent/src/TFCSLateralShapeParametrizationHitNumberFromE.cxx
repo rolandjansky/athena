@@ -25,7 +25,7 @@ TFCSLateralShapeParametrizationHitNumberFromE::TFCSLateralShapeParametrizationHi
   set_match_all_pdgid();
 }
 
-float TFCSLateralShapeParametrizationHitNumberFromE::get_sigma2_fluctuation(TFCSSimulationState& simulstate,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/) const
+double TFCSLateralShapeParametrizationHitNumberFromE::get_sigma2_fluctuation(TFCSSimulationState& simulstate,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/) const
 {
   int cs=calosample();
   float energy=simulstate.E(cs);
