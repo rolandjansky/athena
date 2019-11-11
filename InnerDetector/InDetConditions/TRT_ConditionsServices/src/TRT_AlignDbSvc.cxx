@@ -1645,7 +1645,7 @@ StatusCode TRT_AlignDbSvc::tweakGlobalFolder(Identifier ident, Amg::Transform3D 
   msg(MSG::DEBUG) << " Identifier is valid: "<< ident.is_valid() << endmsg;
   int bec=m_trtid->barrel_ec(ident);
   const unsigned int DBident=1000+bec*100;
-  // so far not a very fancy DB identifier, but seems elaborate enough for this simple structure
+  // Salva. Restore previous code by Matthias. -> so far not a very fancy DB identifier, but seems elaborate enough for this simple structure
   ATH_MSG_INFO( " -- tweakGlobalFolder -- START ==> identifier " << ident 
 		<< "\n                                                    >> key: " << key 
 		<< "\n                                                    >> bec: " << bec 
