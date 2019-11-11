@@ -788,6 +788,8 @@ class JetToolManager:
     for m in modifiers:
       self.setOutputLevel(m, OutputLevel)
 
+    self.configureContainerName(modifiers, name.split('_')[1])
+
     self.ptminFilter = ptminSave
     
 
@@ -865,6 +867,7 @@ class JetToolManager:
     triggerGroomerTool = TriggerJetGroomerTool(name)
     triggerGroomerTool.JetGroomer = trimmerTool
     triggerGroomerTool.JetModifiers = self.getModifiers(modifiersin)
+    self.configureContainerName(triggerGroomerTool.JetModifiers, name.split('_')[1])
     triggerGroomerTool.OutputLevel = OutputLevel
 
     # TriggerJetGroomerTool obtains a TriggerJetGroomerTool, will pass it

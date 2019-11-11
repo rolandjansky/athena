@@ -123,8 +123,8 @@ StatusCode JetCaloQualityTool::initialize() {
   }// end loop over m_calculationNames
 
   // Set the DecorHandleKeys with the correct strings
-  for(const JetCaloCalculator* calc : m_jetCalculations){
-    m_writeDecorKeys.emplace_back(m_jetContainerName + "." + calc->name());
+  for(size_t i=0; i < m_jetCalculations.numCalculators(); i++){
+    m_writeDecorKeys.emplace_back(m_jetContainerName + "." + m_jetCalculations.at(i)->name());
   }
 
   // Define OOT calculators.

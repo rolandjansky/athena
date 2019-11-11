@@ -35,7 +35,7 @@ public:
   virtual StatusCode decorate(const xAOD::JetContainer& jets) const;
 
   // Local method to calculate and return the width.
-  float width(const xAOD::Jet& jet, float& widthEta, float& widthPhi) const;
+  double width(const xAOD::Jet& jet, double& widthEta, double& widthPhi) const;
 
 private:
 
