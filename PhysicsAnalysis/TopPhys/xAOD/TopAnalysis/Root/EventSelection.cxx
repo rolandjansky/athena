@@ -400,8 +400,7 @@ namespace top {
       double btagSF = 1.;
 
       if (m_isMC) {
-//             mcweight = event.m_info->mcEventWeight();
-        mcweight = event.m_truthEvent->at(0)->weights()[0];// FIXME temporary bugfix
+        mcweight = event.m_info->auxdataConst<float>("AnalysisTop_eventWeight");
 
         if (top::ScaleFactorRetriever::hasPileupSF(event)) puweight = top::ScaleFactorRetriever::pileupSF(event);
 

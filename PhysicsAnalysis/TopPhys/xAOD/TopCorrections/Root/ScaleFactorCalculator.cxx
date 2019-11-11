@@ -164,7 +164,7 @@ namespace top {
     ///-- Start using the PMG tool to get the nominal event weights --///
     ///-- But nominal weight name seems to vary so we try to test   --///
     const std::vector<std::string> nominal_weight_names = {
-      " nominal ", "nominal", ""
+      "Weight", " nominal ", "nominal", ""
     };
 
     for (auto weight_name : nominal_weight_names) {
@@ -178,15 +178,7 @@ namespace top {
     }
     ///-- If we reach here, no name was found, so use the old method --///
     ///-- If not, we can default to retrieving the nominal weight assuming it is in the 0th position --///
-    const xAOD::TruthEventContainer* truthEventContainer(nullptr);
-    top::check(evtStore()->retrieve(truthEventContainer,
-                                    m_config->sgKeyTruthEvent()), "Failed to retrieve truth PDF info");
-
-    // Old method which was buggy due to issues in metadata
-    // sf = eventInfo->mcEventWeight();
-
-    // Temporary bug fix due to the above problem
-    sf = truthEventContainer->at(0)->weights()[0];
+    sf = eventInfo->mcEventWeights()[0];
     // Decorate the event info with this weight
     eventInfo->auxdecor<float>("AnalysisTop_eventWeight") = sf;
 
