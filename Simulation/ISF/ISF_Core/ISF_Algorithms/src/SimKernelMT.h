@@ -18,6 +18,7 @@
 #include "ISF_Interfaces/ISimulationSelector.h"
 #include "ISF_Interfaces/SimulationFlavor.h"
 #include "ISF_Interfaces/IEntryLayerTool.h"
+#include "ISF_Interfaces/ITruthSvc.h"
 
 // DetectorDescription
 #include "AtlasDetDescr/AtlasRegion.h"
@@ -97,6 +98,9 @@ private:
 
   /// Input converter service (from Generator->ISF particle types)
   ServiceHandle<IInputConverter> m_inputConverter{this, "InputConverter", "", "Input McEventCollection->ISFParticleContainer conversion service."};
+
+  /** Central truth service */
+  ServiceHandle<ITruthSvc>             m_truthRecordSvc{this,"TruthRecordService", "ISF_MC15aPlusTruthService", ""};
 
   /// Quasi-Stable Particle Simulation Patcher
   ServiceHandle<Simulation::IZeroLifetimePatcher> m_qspatcher{this, "QuasiStablePatcher", "", "Quasi-Stable Particle Simulation Patcher"};

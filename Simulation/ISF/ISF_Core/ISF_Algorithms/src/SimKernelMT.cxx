@@ -104,6 +104,8 @@ StatusCode ISF::SimKernelMT::initialize() {
 
   ATH_CHECK( m_inputConverter.retrieve() );
 
+  ATH_CHECK ( m_truthRecordSvc.retrieve() );
+
   if(!m_qspatcher.empty()) {
     ATH_CHECK(m_qspatcher.retrieve());
   }
@@ -140,6 +142,9 @@ StatusCode ISF::SimKernelMT::execute() {
       ATH_CHECK(m_qspatcher->applyWorkaround(*currentGenEvent));
     }
   }
+
+  // Reset barcodes for this thread
+  ATH_CHECK(m_truthRecordSvc->initializeTruthCollection());
 
   // Create TrackRecordCollections and pass them to the entryLayerTool
   SG::WriteHandle<TrackRecordCollection> caloEntryLayer(m_caloEntryLayerKey);

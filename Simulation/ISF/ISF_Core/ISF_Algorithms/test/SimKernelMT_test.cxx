@@ -90,6 +90,31 @@ namespace ISFTesting {
   DECLARE_COMPONENT( MockGeoIDSvc ) // MockGeoIDSvc class
 
 
+  // Athena Service to mock a TruthSvc
+  //
+  const std::string mockTruthSvcName = "ISFTesting::MockTruthSvc/MyMockTruthSvc";
+
+  class MockTruthSvc : public extends<AthService, ISF::ITruthSvc> {
+
+  public:
+    MockTruthSvc(const std::string& name, ISvcLocator* svc)
+      : base_class(name,svc)
+    {  };
+    MOCK_METHOD0(finalize, StatusCode());
+
+    // dummy methods implementing in pure virtual interface methods (to make class non-abstract)
+    virtual StatusCode initialize() override {
+      ATH_MSG_INFO ("initializing MockTruthSvc: " << name());
+      return StatusCode::SUCCESS;
+    };
+    void registerTruthIncident(ISF::ITruthIncident&) const override { };
+    StatusCode initializeTruthCollection() override { return StatusCode::SUCCESS; };
+    StatusCode releaseEvent() override { return StatusCode::SUCCESS; };
+  };
+
+  DECLARE_COMPONENT( MockTruthSvc ) // MockTruthSvc class
+
+
 // Athena Tool to mock a SimulationSelector
 //
 const std::string mockSimulationSelectorName = "ISFTesting::MockSimulationSelector/MyTestSimulationSelector";
@@ -257,10 +282,12 @@ protected:
       m_alg->addRef();
       EXPECT_TRUE( m_alg->setProperty("ParticleKillerTool", particleKillerSimulatorToolName).isSuccess() );
       EXPECT_TRUE( m_alg->setProperty("GeoIDSvc", mockGeoIDSvcName).isSuccess() );
+      EXPECT_TRUE( m_alg->setProperty("TruthRecordService", mockTruthSvcName).isSuccess() );
       EXPECT_TRUE( m_alg->setProperty("EntryLayerTool", mockEntryLayerToolName).isSuccess() );
 
       // retrieve mocked Athena components
       m_mockGeoIDSvc = retrieveService<MockGeoIDSvc>(mockGeoIDSvcName);
+      m_mockTruthSvc = retrieveService<MockTruthSvc>(mockTruthSvcName);
       m_mockInputConverter = retrieveService<MockInputConverter>(mockInputConverterName);
       m_mockSimulatorTool = retrieveTool<MockSimulatorTool>(mockSimulatorToolName);
       m_mockSimulationSelector = retrieveTool<MockSimulationSelector>(mockSimulationSelectorName);
@@ -275,6 +302,7 @@ protected:
       delete m_alg;
       // release various service instances
       delete m_mockGeoIDSvc;
+      delete m_mockTruthSvc;
       delete m_mockInputConverter;
     }
 
@@ -345,6 +373,7 @@ protected:
 
     // mocked Athena components
     ISFTesting::MockGeoIDSvc* m_mockGeoIDSvc = nullptr;
+    ISFTesting::MockTruthSvc* m_mockTruthSvc = nullptr;
     ISFTesting::MockInputConverter* m_mockInputConverter = nullptr;
     ISFTesting::MockSimulatorTool* m_mockSimulatorTool = nullptr;
     ISFTesting::MockSimulationSelector* m_mockSimulationSelector = nullptr;
