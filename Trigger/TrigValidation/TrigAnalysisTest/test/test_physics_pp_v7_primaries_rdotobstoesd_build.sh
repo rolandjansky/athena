@@ -16,7 +16,7 @@ export JOBOPTION="TrigAnalysisTest/testAthenaTrigRDOtoBS.py"
 source exec_athena_art_trigger_validation.sh
 
 echo $(date "+%FT%H:%M %Z")"     Running checklog for ${JOB_LOG}"
-timeout 5m check_log.pl --config checklogTriggerTest.conf --showexcludestats ${JOB_LOG}  2>&1 | tee checklog_BS.log
+timeout 5m check_log.py --errors --config checklogTriggerTest.conf --showexcludestats ${JOB_LOG}  2>&1 | tee checklog_BS.log
 
 echo "art-result: ${PIPESTATUS[0]} CheckLog BS"
 
