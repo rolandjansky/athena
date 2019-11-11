@@ -195,6 +195,11 @@ def applyJetAugmentation(jetalg,algname,sequence,jetaugtool):
     if not jetaugtool in jetaug.AugmentationTools:
         jetaug.AugmentationTools.append(jetaugtool)
 
+    if jetalg=='AntiKt4EMPFlow':
+        extjetlog.info('Augmentations for PFlow jets: {}'.format(jetaug.AugmentationTools))
+    if jetalg=='AntiKt4EMTopo':
+        extjetlog.info('Augmentations for EMTopo jets: {}'.format(jetaug.AugmentationTools))
+
 def getJetAugmentationTool(jetalg, suffix=''):
     jetaugtoolname = 'DFJetAug_'+jetalg+suffix
     jetaugtool = None
@@ -375,15 +380,14 @@ def addJetPtAssociation(jetalg, truthjetalg, sequence, algname):
     extjetlog.info('ExtendedJetCommon: Adding JetPtAssociationTool for jet collection: '+jetalg+'Jets')
     applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
 
-#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 def applyMVfJvtAugmentation(jetalg,sequence,algname):
     supportedJets = ['AntiKt4EMTopo']
     if not jetalg in supportedJets:
         extjetlog.warning('*** MVfJvt augmentation requested for unsupported jet collection {}! ***'.format(jetalg))
         return
     else:
-        jetaugtool =  getJetAugmentationTool(jetalg)
-        
+        jetaugtool = getJetAugmentationTool(jetalg)
+
         if(jetaugtool==None or jetaugtool.JetCalibTool=='' or jetaugtool.JetJvtTool==''):
             extjetlog.warning('*** MVfJvt called but required augmentation tool does not exist! ***')
             extjetlog.warning('*** You must apply jet calibration and JVT! ***')
@@ -399,8 +403,38 @@ def applyMVfJvtAugmentation(jetalg,sequence,algname):
             ToolSvc += mvfjvttool
             jetaugtool.JetForwardJvtToolBDT = mvfjvttool
             
-        extjetlog.info('ExtendedJetCommon:  Applying MVfJVT augmentation to jet collection: '+jetalg+'Jets')
+        extjetlog.info('ExtendedJetCommon: Applying MVfJVT augmentation to jet collection: '+jetalg+'Jets')
         applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
+
+#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+def getPFlowfJVT(jetalg,algname,sequence):
+    supportedJets = ['AntiKt4EMPFlow']
+    if not jetalg in supportedJets:
+        extjetlog.warning('*** pfwarning: PFlow fJvt augmentation requested for unsupported jet collection {}! ***'.format(jetalg))
+        return
+    else:
+        jetaugtool = getJetAugmentationTool(jetalg)
+
+        if(jetaugtool==None or jetaugtool.JetCalibTool=='' or jetaugtool.JetJvtTool==''):
+            extjetlog.warning('***pfwarning:  PFlow fJvt called but required augmentation tool does not exist! ***')
+            extjetlog.warning('*** pfwarning: You must apply jet calibration and JVT! ***')
+        
+        pffjvttoolname = 'DFJetPFfJvt_'+jetalg    
+        
+        from AthenaCommon.AppMgr import ToolSvc
+
+        if hasattr(ToolSvc,pffjvttoolname):
+            jetaugtool.JetForwardPFlowJvtTool = getattr(ToolSvc,pffjvttoolname)
+        else:
+            pffjvttool = CfgMgr.JetForwardPFlowJvtTool(pffjvttoolname)
+            ToolSvc += pffjvttool
+            jetaugtool.JetForwardPFlowJvtTool = pffjvttool
+            
+        extjetlog.info('ExtendedJetCommon: Applying PFlow fJvt augmentation to jet collection: '+jetalg+'Jets')
+        applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
+
+
+
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 def applyBTaggingAugmentation(jetalg,algname='default',sequence=DerivationFrameworkJob,btagtooldict={}):
@@ -658,6 +692,9 @@ eventCleanTight_xAODColl("AntiKt4EMTopo")
 eventCleanLooseLLP_xAODColl("AntiKt4EMTopo")
 eventCleanSuperLooseLLP_xAODColl("AntiKt4EMTopo")
 eventCleanVeryLooseLLP_xAODColl("AntiKt4EMTopo")
+
+applyJetCalibration_xAODColl("AntiKt4EMPFlow")
+updateJVT_xAODColl("AntiKt4EMPFlow")
 
 ##################################################################
 # Helper to add origin corrected clusters

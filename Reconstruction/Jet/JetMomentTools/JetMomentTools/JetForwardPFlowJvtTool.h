@@ -89,7 +89,7 @@
     virtual StatusCode  initialize() override;
  
 
-    virtual int modify(xAOD::JetContainer& jetCont) const;
+    virtual int modify(xAOD::JetContainer& jetCont) const override;
 
     float getFJVT(const xAOD::Jet *jet,std::vector<TVector2> pileupMomenta) const;
     bool isForwardJet(const xAOD::Jet *jet) const;
@@ -97,7 +97,8 @@
 
     static StatusCode tagTruth(const xAOD::JetContainer *jets,const xAOD::JetContainer *truthJets);
     std::vector<TVector2> calculateVertexMomenta(const xAOD::JetContainer *jets,int pvind, int vertices) const;
-    void buildPFlowPUjets(const xAOD::Vertex &vx, const xAOD::PFOContainer &pfos) const;
+//  void buildPFlowPUjets(const xAOD::Vertex &vx, const xAOD::PFOContainer &pfos) const;
+    StatusCode buildPFlowPUjets(const xAOD::Vertex &vx, const xAOD::PFOContainer &pfos) const;
     bool hasCloseByHSjet(const xAOD::Jet *jet, const xAOD::JetContainer *pjets ) const;
     double getRpt(const xAOD::Jet *jet) const;
     fastjet::PseudoJet pfoToPseudoJet(const xAOD::PFO* pfo, const CP::PFO_JetMETConfig_charge& theCharge, const xAOD::Vertex *vx) const;

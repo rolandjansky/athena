@@ -83,19 +83,19 @@
     Dec_outFjvt = std::make_unique<SG::AuxElement::Decorator<char> >(m_outLabelFjvt);
 
     m_pfotool.setTypeAndName("CP::RetrievePFOTool/"+ m_pfoToolName );
-    m_pfotool.retrieve();
+    ATH_CHECK( m_pfotool.retrieve() );
 
     m_wpfotool.setTypeAndName("CP::WeightPFOTool/"+ m_wpfoToolName );
-    m_wpfotool.retrieve();
+    ATH_CHECK( m_wpfotool.retrieve() );
   
-    m_pfoJES.setTypeAndName("JetCalibrationTool/"+ m_pfoJESName    );
-    m_pfoJES.setProperty("JetCollection",m_jetAlgo                 );
-    m_pfoJES.setProperty("ConfigFile"   ,m_caliconfig              );
-    m_pfoJES.setProperty("CalibSequence",m_calibSeq                );
-    m_pfoJES.setProperty("CalibArea"    ,m_calibArea               );
-    m_pfoJES.setProperty("IsData"       ,m_isdata                  );
-    m_pfoJES.retrieve();
-  
+    m_pfoJES.setTypeAndName("JetCalibrationTool/"+ m_pfoJESName   );
+    ATH_CHECK( m_pfoJES.setProperty("JetCollection",m_jetAlgo                ) );
+    ATH_CHECK( m_pfoJES.setProperty("ConfigFile"   ,m_caliconfig             ) );
+    ATH_CHECK( m_pfoJES.setProperty("CalibSequence",m_calibSeq               ) );
+    ATH_CHECK( m_pfoJES.setProperty("CalibArea"    ,m_calibArea              ) );
+    ATH_CHECK( m_pfoJES.setProperty("IsData"       ,m_isdata                 ) );
+    ATH_CHECK( m_pfoJES.retrieve() ) ;
+
     return StatusCode::SUCCESS;
   }
 
@@ -148,17 +148,34 @@
 
     for(const xAOD::Vertex* vx: *vxCont) {
       if(vx->vertexType()!=xAOD::VxType::PriVtx && vx->vertexType()!=xAOD::VxType::PileUp) continue;
-      if(vx->index()==pv_index) continue;
+      if(vx->index()==(size_t)pv_index) continue;
       // Build and retrieve PU jets
-      buildPFlowPUjets(*vx,*pfos);
+//    buildPFlowPUjets(*vx,*pfos);
+
+//      if( buildPFlowPUjets(*vx,*pfos).isFailure() ){
+//	  ATH_MSG_WARNING(" Some issue appeared while building the pflow pileup jets for vertex "<< vx->index() << " (vxType = " << vx->vertexType()<<" )!" );
+//	}
+//      }
+
       TString jname = m_jetsName;
       jname += vx->index();
       const xAOD::JetContainer* vertex_jets  = nullptr;
-      if(evtStore()->retrieve(vertex_jets,jname.Data()).isFailure()){
-        ATH_MSG_ERROR("Unable to retrieve built PU jets with name \"" << m_jetsName << "\"");
-        return pileupMomenta;
+      
+      // Check if pflow pileup jet container exists
+      if( !evtStore()->contains<xAOD::JetContainer>(jname.Data()) ){
+	
+	// if not, build it
+	if( buildPFlowPUjets(*vx,*pfos).isFailure() ){
+	  ATH_MSG_WARNING(" Some issue appeared while building the pflow pileup jets for vertex "<< vx->index() << " (vxType = " << vx->vertexType()<<" )!" );
+	}
+	
       }
-
+      
+      if(evtStore()->retrieve(vertex_jets,jname.Data()).isFailure()){
+	ATH_MSG_ERROR("Unable to retrieve built PU jets with name \"" << m_jetsName << "\"");
+	return pileupMomenta;
+      }
+      
       TVector2 vertex_met;
       for (const xAOD::Jet *jet : *vertex_jets) {
 
@@ -175,7 +192,7 @@
         }
       }
       pileupMomenta.push_back(vertex_met);
-      if(vertices!=-1 && vx->index()==vertices) break;
+      if(vertices!=-1 && vx->index()==(size_t)vertices) break;
     }
     return pileupMomenta;
   }
@@ -189,17 +206,18 @@
     return false;
   }
 
-  void JetForwardPFlowJvtTool::buildPFlowPUjets(const xAOD::Vertex &vx, const xAOD::PFOContainer &pfos) const {
-    
+  StatusCode JetForwardPFlowJvtTool::buildPFlowPUjets(const xAOD::Vertex &vx, const xAOD::PFOContainer &pfos) const {
+//void JetForwardPFlowJvtTool::buildPFlowPUjets(const xAOD::Vertex &vx, const xAOD::PFOContainer &pfos) const {
+
     int pv_index = (m_pvind==-1) ? getPV() : m_pvind;
 
     std::vector<fastjet::PseudoJet> input_pfo;
     std::set<int> charged_pfo;
     for(const xAOD::PFO* pfo : pfos){ 
       if (pfo->charge()!=0) { 
-        if (vx.index()==pv_index && fabs((vx.z()-pfo->track(0)->z0())*sin(pfo->track(0)->theta()))>m_dzCut) continue;
-        if (vx.index()!=pv_index && &vx!=pfo->track(0)->vertex()) continue;
-        input_pfo.push_back(pfoToPseudoJet(pfo, CP::charged, &vx) );
+        if (vx.index()==(size_t)pv_index && fabs((vx.z()-pfo->track(0)->z0())*sin(pfo->track(0)->theta()))>m_dzCut) continue;
+        if (vx.index()!=(size_t)pv_index && &vx!=pfo->track(0)->vertex()) continue;
+	input_pfo.push_back(pfoToPseudoJet(pfo, CP::charged, &vx) );
         charged_pfo.insert(pfo->index());
       } 
       else if (fabs(pfo->eta())<m_neutMaxRap && pfo->charge()==0 && pfo->eEM()>0)
@@ -238,9 +256,20 @@
       xAOD::JetFourMom_t chargejetp4(chargedpart,inclusive_jets[i].rap(),inclusive_jets[i].phi(),0);
       jet->setJetP4(m_jetchargedp4,chargejetp4);
     }   
-    m_pfoJES->modify(*vertjets);
-    evtStore()->record(vertjets.release(),newname.Data());
-    evtStore()->record(vertjetsAux.release(),(newname+"Aux.").Data());
+
+//    m_pfoJES->modify(*vertjets);
+//    if( (evtStore()->record(vertjets.release(),newname.Data())).isFailure() ){
+//      ATH_MSG_ERROR("Could not record vertex jets container");
+//      return;
+//    }
+//    if( (evtStore()->record(vertjetsAux.release(),(newname+"Aux.").Data())).isFailure() ){
+//      ATH_MSG_ERROR("Could not record vertex jets aux. container");
+//      return;
+//    }
+    
+    ATH_CHECK( evtStore()->record(vertjets.release(),newname.Data())    );
+    ATH_CHECK( evtStore()->record(vertjetsAux.release(),newname.Data()) );
+    return StatusCode::SUCCESS;
   }
 
   fastjet::PseudoJet JetForwardPFlowJvtTool::pfoToPseudoJet(const xAOD::PFO* pfo, const CP::PFO_JetMETConfig_charge& theCharge, const xAOD::Vertex *vx) const {
@@ -248,9 +277,10 @@
     TLorentzVector pfo_p4;
     if (CP::charged == theCharge){
       float pweight = m_weight;
-      m_wpfotool->fillWeight(*pfo,pweight);
-      // Create a PSeudojet with the momentum of the selected IParticle
-      pfo_p4= TLorentzVector(pfo->p4().Px()*pweight,pfo->p4().Py()*pweight,pfo->p4().Pz()*pweight,pfo->e()*pweight);
+      if( (m_wpfotool->fillWeight(*pfo,pweight)).isSuccess() ){
+	// Create a PSeudojet with the momentum of the selected IParticle
+	pfo_p4= TLorentzVector(pfo->p4().Px()*pweight,pfo->p4().Py()*pweight,pfo->p4().Pz()*pweight,pfo->e()*pweight);
+      }
     } else if (CP::neutral == theCharge){ 
       pfo_p4= pfo->GetVertexCorrectedEMFourVec(*vx);
     }

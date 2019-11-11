@@ -25,6 +25,11 @@
 
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h" // QGTaggerTool
 
+// PFlow fjvt
+#include "xAODPFlow/PFOContainer.h"
+#include "PFlowUtils/IWeightPFOTool.h"
+#include "PFlowUtils/WeightPFOTool.h"
+
 namespace DerivationFramework {
 
   class JetAugmentationTool : public AthAlgTool, public IAugmentationTool {
@@ -59,7 +64,13 @@ namespace DerivationFramework {
     std::string m_jvtMomentKey;
     bool m_dojvt;
 
-      
+    // PFlow fJVT
+    std::unique_ptr< SG::AuxElement::Decorator<float> > dec_fjvt;
+    //std::unique_ptr< SG::AuxElement::Decorator<char> > dec_passfjvt;
+    ToolHandle<IJetModifier> m_fjvtTool;
+    std::string m_fjvtMomentKey;
+    bool m_dofjvt;
+
     // MV-fJVT     @author: louis.portales@cern.ch
     std::unique_ptr< SG::AuxElement::Decorator<float> > dec_MVfJvt;
     std::unique_ptr< SG::AuxElement::Decorator<float> > dec_MVfJvt_Sumcle;
