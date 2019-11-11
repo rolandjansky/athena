@@ -90,6 +90,7 @@ namespace xAODMaker {
        det = covMatrixCompr.determinant();
 
        offDiagComprBits++;
+       delete offDiagCovMatrixCompressor;
 
      }
 
