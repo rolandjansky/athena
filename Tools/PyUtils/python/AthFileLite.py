@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # Lightweight and simplified version of AthFile
 # As the transform knows which files are bytestream and which are
@@ -135,7 +135,7 @@ class AthPoolFile(object):
                                         "import IOVDbSvc.IOVDb",
                                         "theApp.EvtMax = 1")).format(filename=self._filename, picklename=self._infoOutputFile)
 
-        except Exception, e:
+        except Exception as e:
             print >>sys.stderr, "Exception raised when writing JO file: {0}".format(e)
             self._error = True
             raise
@@ -197,13 +197,13 @@ class AthBSFile(object):
         beam_type   = '<beam-type N/A>'
         try:
             beam_type = data_reader.beamType()
-        except Exception,err:
+        except Exception as err:
             msg.warning ("problem while extracting beam-type information")
 
         beam_energy = '<beam-energy N/A>'
         try:
             beam_energy = data_reader.beamEnergy()
-        except Exception,err:
+        except Exception as err:
             msg.warning ("problem while extracting beam-type information")
 
         bs = ef.istream(fname)
@@ -283,7 +283,7 @@ class AthBSFile(object):
                 self._metadata['beam_energy'].append(beam_energy)
                 self._metadata['stream_tags'].extend(stream_tags)
 
-            except RuntimeError, err:
+            except RuntimeError as err:
                 print "** WARNING ** detected a corrupted bs-file:\n",err
 
 
@@ -353,7 +353,7 @@ class AthTagFile(object):
             self._metadata['nentries'] = nentries
             self._metadata['run_number'] = runs
             self._metadata['evt_number'] = evts
-        except Exception, e:
+        except Exception as e:
             print >>sys.stderr, "Exception raised when processing TAG file {0}: {1}".format(self._filename, e)
             raise
 
@@ -419,7 +419,7 @@ class AthInpFile(object):
 
             self._metadata['file_guid'] = pool_guid
             self._metadata['nentries'] = nentries
-        except Exception, e:
+        except Exception as e:
             print >>sys.stderr, "Exception raised when processing POOL file {0}: {1}".format(self._filename, e)
             raise
 
