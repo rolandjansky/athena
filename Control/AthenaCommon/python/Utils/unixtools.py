@@ -46,7 +46,7 @@ files will be returned."""
    except KeyError:
       p = os.defpath
 
-   return FindFile( filename, string.split( p, os.pathsep ), os.X_OK )
+   return FindFile( filename, p.split( os.pathsep ), os.X_OK )
 
 
 ### "which" for python files ----------------------------------------------------
