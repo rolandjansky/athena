@@ -11,6 +11,9 @@ main();
 exit 0;
 
 sub main(){
+  print "$prog: !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+  print "$prog: !! WARNING: This perl script is deprecated, please use check_log.py instead !!\n";
+  print "$prog: !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
   parse_options(); # command line options
   parse_config(); # config file
   scan_logfile();

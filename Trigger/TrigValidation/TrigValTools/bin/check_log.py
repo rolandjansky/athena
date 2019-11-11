@@ -12,26 +12,44 @@ desc = 'Tool to check for error messages in a log file. By default ERROR, FATAL 
 provide patterns of lines to exclude from this check - known problems or false positives. \
 If no config file is provided, all errors will be shown.'
 
-errorRegex = ["^ERROR | ERROR | FATAL |CRITICAL |ABORT_CHAIN",
-"^Exception\:|^Caught signal|^Core dump|Traceback|Shortened traceback|stack trace|^Algorithm stack\:|inconsistent use of tabs and spaces in indentation\
-|glibc detected|tcmalloc\: allocation failed|athenaHLT.py\: error|HLTMPPU.*Child Issue|There was a crash|illegal instruction|failure loading library|Cannot allocate memory"]
+# Error keywords
+errorRegex = [
+    '^ERROR ', ' ERROR ', ' FATAL ', 'CRITICAL ', 'ABORT_CHAIN',
+    '^Exception\:',
+    '^Caught signal',
+    '^Core dump',
+    'Traceback',
+    'Shortened traceback',
+    'stack trace',
+    '^Algorithm stack\:',
+    'inconsistent use of tabs and spaces in indentation',
+    'glibc detected',
+    'tcmalloc\: allocation failed',
+    'athenaHLT.py\: error',
+    'HLTMPPU.*Child Issue',
+    'There was a crash',
+    'illegal instruction',
+    'failure loading library',
+    'Cannot allocate memory',
+    'in state: CONTROLREADY$',
+    '^\s*missing data: ',
+    '^\s*can be produced by alg(s): '
+]
 
-#Get list of all builtin Python errors 
+# Add list of all builtin Python errors
 builtins = dir(locals()['__builtins__'])
-pythonErrors = ""
-for builtin in builtins:
-    if "Error" in builtin:
-        pythonErrors += builtin + "|"
+builtinErrors = [b for b in builtins if 'Error' in b]
+errorRegex.extend(builtinErrors)
 
-#Remove final "|"
-pythonErrors = pythonErrors[:-1]
+# Traceback keywords
+traceback = [
+    'Traceback',
+    'Shortened traceback',
+    '^Algorithm stack',
+    '^#\d+\s*0x\w+ in '
+]
 
-errorRegex.append(pythonErrors)
-
-      
-
-traceback = ['Traceback|Shortened traceback|^Algorithm stack|Thread .*0x']
-
+# Warning keywords
 warningRegex = ['WARNING ']
 
 def main():
@@ -84,7 +102,9 @@ def parseConfig():
             print('Ignoring warnings/error patterns defined in ' + args.config)
             for aline in configFile:
                 if 'ignore' in aline:
-                  line = aline.strip('ignore').strip().strip("'")
+                  line = aline.strip('ignore').strip()
+                  if line.startswith('\'') and line.endswith('\''):
+                      line = line[1:-1]
                   ignorePattern.append(line)
         noConfig = False
     except:
@@ -110,14 +130,13 @@ def scanLogfile():
         for line in logFile:
             #Tracing only makes sense for errors
             if args.errors == True and re.search(tPattern,line):
-            #if re.search(tPattern,line):
                 tracing = True
-                resultsA.append('\n')
             elif line =='\n':
                 tracing = False
             if re.search(msgLevels,line):
                 resultsA.append(line)
             elif tracing:
+                # This currently prints all lines after a traceback even if they don't belong to traceback
                 resultsA.append(line)
 
     if args.showexcludestats and not noConfig:
