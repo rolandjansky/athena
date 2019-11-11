@@ -80,7 +80,7 @@ __author__  = 'Wim Lavrijsen (WLavrijsen@lbl.gov)'
 __doc__     = 'For details about athena.py, run "less `which athena.py`"'
 
 import sys, os
-import getopt, string
+import getopt
 
 ldpreload = os.getenv( 'LD_PRELOAD' ) or ''
 
@@ -93,14 +93,14 @@ _help_and_exit = aop._help_and_exit
 if ldpreload:
    if 'TCMALLOCDIR' in os.environ:
        tcmlib = os.getenv( 'TCMALLOCDIR' ) +  "/libtcmalloc.so"
-       ldpreload = string.replace( ldpreload, tcmlib, '' )
+       ldpreload = ldpreload.replace(tcmlib, '' )
        tcmlib = os.getenv( 'TCMALLOCDIR' ) +  "/libtcmalloc_minimal.so"
-       ldpreload = string.replace( ldpreload, tcmlib, '' )
+       ldpreload = ldpreload.replace(tcmlib, '' )
        del tcmlib
    if os.getenv( 'ATHENA_ADD_PRELOAD' ):
-      ldpreload = string.replace( ldpreload, os.getenv( 'ATHENA_ADD_PRELOAD' ), '' )
+      ldpreload = ldpreload.replace(os.getenv( 'ATHENA_ADD_PRELOAD' ), '' )
       os.unsetenv( 'ATHENA_ADD_PRELOAD' )
-   ldpreload = string.replace( ldpreload, '::', ':')
+   ldpreload = ldpreload.replace( '::', ':')
    ldpreload = ldpreload.strip(':')
 
    if not ldpreload:
