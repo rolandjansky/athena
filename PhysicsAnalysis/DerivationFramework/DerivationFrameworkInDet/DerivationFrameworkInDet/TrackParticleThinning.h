@@ -22,6 +22,11 @@
 // EDM include(s):
 #include "xAODTracking/TrackParticleContainerFwd.h"
 
+namespace InDet
+{
+  class IInDetTrackSelectionTool;
+}
+
 namespace DerivationFramework {
 
    /// Tool selecting track particles to keep
@@ -82,6 +87,9 @@ namespace DerivationFramework {
 
       /// Main thinning service
       ServiceHandle< IThinningSvc > m_thinningSvc;
+
+      /// Track selection tool
+      ToolHandle< InDet::IInDetTrackSelectionTool > m_trkSelTool;
 
       /// The expression evaluation helper object
       std::unique_ptr< ExpressionParserHelper > m_parser;

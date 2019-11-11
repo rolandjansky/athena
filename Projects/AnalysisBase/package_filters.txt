@@ -102,4 +102,28 @@
 + Trigger/TriggerSimulation/TrigBtagEmulationTool
 + Reconstruction/RecoTools/IsolationTool
 + Reconstruction/RecoTools/RecoToolInterfaces
+
+
+
+#
+# Packages to build as part of AnalysisTop:
+#
+
++ PhysicsAnalysis/UpgradePhys/SmearingFunctions/UpgradePerformanceFunctions
++ PhysicsAnalysis/TopPhys/TopPhysUtils/TopDataPreparation
++ PhysicsAnalysis/TopPhys/xAOD/TopAnalysis
++ PhysicsAnalysis/TopPhys/xAOD/TopCPTools
++ PhysicsAnalysis/TopPhys/xAOD/TopConfiguration
++ PhysicsAnalysis/TopPhys/xAOD/TopCorrections
++ PhysicsAnalysis/TopPhys/xAOD/TopEvent
++ PhysicsAnalysis/TopPhys/xAOD/TopEventReconstructionTools
++ PhysicsAnalysis/TopPhys/xAOD/TopEventSelectionTools
++ PhysicsAnalysis/TopPhys/xAOD/TopExamples
++ PhysicsAnalysis/TopPhys/xAOD/TopHLUpgrade
++ PhysicsAnalysis/TopPhys/xAOD/TopJetSubstructure
++ PhysicsAnalysis/TopPhys/xAOD/TopObjectSelectionTools
++ PhysicsAnalysis/TopPhys/xAOD/TopParticleLevel
++ PhysicsAnalysis/TopPhys/xAOD/TopPartons
++ PhysicsAnalysis/TopPhys/xAOD/TopSystematicObjectMaker
+
 - .*

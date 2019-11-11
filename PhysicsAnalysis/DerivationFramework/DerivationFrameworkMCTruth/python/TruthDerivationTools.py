@@ -31,11 +31,11 @@ DFCommonTruthPhotonTool = DerivationFramework__TruthCollectionMaker(name        
                                                          KeepNavigationInfo      = False,
                                                          ParticleSelectionString = "(abs(TruthParticles.pdgId) == 22) && (TruthParticles.status == 1) && TruthParticles.barcode < "+str(DerivationFrameworkSimBarcodeOffset))
 ToolSvc += DFCommonTruthPhotonTool
-# this tool is needed for making TruthPhotons from sim samples, where extra cuts are needed
+# this tool is needed for making TruthPhotons from sim samples, where extra cuts are needed. Origin 42 (pi0) and 23 (light meson) cut way down uninteresting photons
 DFCommonTruthPhotonToolSim = DerivationFramework__TruthCollectionMaker(name      = "DFCommonTruthPhotonToolSim",
                                                          NewCollectionName       = "TruthPhotons",
                                                          KeepNavigationInfo      = False,
-                                                         ParticleSelectionString = "(abs(TruthParticles.pdgId) == 22) && (TruthParticles.status == 1) && ((TruthParticles.classifierParticleOrigin != 42) || (TruthParticles.pt > 20.0*GeV)) && ( TruthParticles.barcode < "+str(DerivationFrameworkSimBarcodeOffset)+")")
+                                                         ParticleSelectionString = "(abs(TruthParticles.pdgId) == 22) && (TruthParticles.status == 1) && ((TruthParticles.classifierParticleOrigin != 42 && TruthParticles.classifierParticleOrigin !=23) || (TruthParticles.pt > 20.0*GeV)) && ( TruthParticles.barcode < "+str(DerivationFrameworkSimBarcodeOffset)+")")
 ToolSvc += DFCommonTruthPhotonToolSim
 
 neutrinoexpression = "(TruthParticles.isNeutrino && TruthParticles.status == 1) && TruthParticles.barcode < "+str(DerivationFrameworkSimBarcodeOffset)
@@ -73,6 +73,29 @@ DFCommonTruthBSMTool = DerivationFramework__TruthCollectionMaker(name           
                                                                 ParticleSelectionString = "(TruthParticles.isBSM)",
                                                                 Do_Compress             = True)
 ToolSvc += DFCommonTruthBSMTool
+
+# Set up a tool to keep forward protons for AFP
+# Note that we have inputFileSummary coming from derivation framework master
+if 'beam_energy' in inputFileSummary:
+    beam_energy = inputFileSummary['beam_energy']
+elif '/TagInfo' in inputFileSummary and 'beam_energy' in inputFileSummary['/TagInfo']:
+    beam_energy = inputFileSummary['/TagInfo']['beam_energy']
+elif 'metadata_itemsList' in inputFileSummary and 'tag_info' in inputFileSummary['metadata_itemsList'] and 'beam_energy' in inputFileSummary['metadata_itemsList']['tag_info']:
+    beam_energy = inputFileSummary['metadata_itemsList']['tag_info']['beam_energy']
+else:
+    from AthenaCommon import Logging
+    dfcommontruthlog = Logging.logging.getLogger('DFCommonTruth')
+    dfcommontruthlog.warninng('Could not find beam energy in input file. Using default of 6.5 TeV')
+    beam_energy = 6500000.0 # Sensible defaults
+# Weird formats in some metadata
+if type(beam_energy) is list: beam_energy = beam_energy[0]
+
+DFCommonTruthForwardProtonTool = DerivationFramework__TruthCollectionMaker(name                   = "DFCommonTruthForwardProtonTool",
+                                                                           NewCollectionName       = "TruthForwardProtons",
+                                                                           KeepNavigationInfo      = False,
+                                                                           ParticleSelectionString = "(TruthParticles.status==1) && (abs(TruthParticles.pdgId)==2212) && (TruthParticles.e>0.8*"+str(beam_energy)+")",
+                                                                           Do_Compress             = True)
+ToolSvc += DFCommonTruthForwardProtonTool
 
 #==============================================================================
 # Decoration tools

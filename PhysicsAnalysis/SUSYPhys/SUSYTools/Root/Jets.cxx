@@ -56,6 +56,23 @@ namespace ST {
   const static SG::AuxElement::Decorator<char> dec_passDRcut("passDRcut");
   const static SG::AuxElement::ConstAccessor<char> acc_passDRcut("passDRcut");
   
+  StatusCode SUSYObjDef_xAOD::BendBTaggingLinks(xAOD::JetContainer* to_container , const std::string& bTagKey) const {
+        const xAOD::JetContainer* b_tag_jets = nullptr;
+        ATH_CHECK(evtStore()->retrieve(b_tag_jets,bTagKey));
+        if (b_tag_jets->size() != to_container->size()){
+            ATH_MSG_FATAL("Size of the original jet container and of the btagg container do not match");
+            return StatusCode::FAILURE;
+        }
+        xAOD::JetContainer::const_iterator btag_begin = b_tag_jets->begin();
+        xAOD::JetContainer::const_iterator btag_end   = b_tag_jets->end();
+        
+        xAOD::JetContainer::iterator to_begin = to_container->begin();
+        xAOD::JetContainer::iterator to_end   = to_container->end();
+        for (  ; to_begin != to_end && btag_begin != btag_end ; ++to_begin, ++btag_begin){
+             (*to_begin)->setBTaggingLink((*btag_begin)->btaggingLink());
+        }
+        return StatusCode::SUCCESS;
+  }
   StatusCode SUSYObjDef_xAOD::GetJets(xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, bool recordSG, const std::string& jetkey, const xAOD::JetContainer* containerToBeCopied) 
   {
     if (!m_tool_init) {
@@ -67,7 +84,13 @@ namespace ST {
     if (jetkey.empty()) {
       jetkey_tmp = m_defaultJets;
     }
-
+    
+    /// Keys like AntiKt4EMTopoJets_BTagging201810 are provided 
+    /// --> We need to copy the btagging link
+    size_t bend_btagging = jetkey_tmp.find("_BTagging");
+    if (bend_btagging != std::string::npos) jetkey_tmp = jetkey_tmp.substr(0, bend_btagging);
+    
+    
     const xAOD::JetContainer* jets(0);
     if (copy==NULL) { // empty container provided
       if (containerToBeCopied != nullptr) {
@@ -88,7 +111,9 @@ namespace ST {
       ATH_MSG_DEBUG("Not retrieving jet collecton, using existing one provided by user");
       jets=copy;
     }
-
+    if(bend_btagging != std::string::npos){
+        ATH_CHECK(BendBTaggingLinks(copy, jetkey.empty()? m_defaultJets : jetkey ));
+    }
     // Update the jets
     for (const auto& jet : *copy) {
       ATH_CHECK( this->FillJet(*jet, true) );
@@ -817,8 +842,13 @@ namespace ST {
     switch (ret) {
     case CP::CorrectionCode::Error:
       ATH_MSG_ERROR( "Failed to retrieve SF for jet in SUSYTools_xAOD::JVT_SF" );
+      // this is probably not right, should report an error here
+      break;
     case CP::CorrectionCode::OutOfValidityRange:
       ATH_MSG_VERBOSE( "No valid SF for jet in SUSYTools_xAOD::JVT_SF" );
+      // this may or may not be right, may want to report that this
+      // jet doesn't have a valid scale factor
+      break;
     default:
       ATH_MSG_VERBOSE( "Retrieve SF for jet container in SUSYTools_xAOD::JVT_SF with value " << totalSF );
     }
@@ -870,8 +900,13 @@ namespace ST {
     switch (ret) {
     case CP::CorrectionCode::Error:
       ATH_MSG_ERROR( "Failed to retrieve SF for jet in SUSYTools_xAOD::FJVT_SF" );
+      // this is probably not right, should report an error here
+      break;
     case CP::CorrectionCode::OutOfValidityRange:
       ATH_MSG_VERBOSE( "No valid SF for jet in SUSYTools_xAOD::FJVT_SF" );
+      // this may or may not be right, may want to report that this
+      // jet doesn't have a valid scale factor
+      break;
     default:
       ATH_MSG_VERBOSE( "Retrieve SF for jet container in SUSYTools_xAOD::FJVT_SF with value " << totalSF );
     }

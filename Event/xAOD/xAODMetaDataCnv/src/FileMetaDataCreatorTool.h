@@ -75,6 +75,8 @@ namespace xAODMaker {
 
       /// Key of the metadata object for the output file
       std::string m_outputKey;
+      /// Flag to identify whether we're running on EVNT files
+      bool m_isEVNT;
 
       /// The output interface object
       std::unique_ptr< xAOD::FileMetaData > m_md;

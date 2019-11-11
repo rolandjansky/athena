@@ -98,24 +98,26 @@ namespace DerivationFramework {
     for (TString prodMode:{"GGF","VBF","WH","QQ2ZH","GG2ZH","TTH","BBH","TH","THQB","WHT"}) {
 
       // loop over each mcID belonging to the production mode
-      for ( int mcID : vectorize(m_config->GetValue("HTXS.MCsamples."+prodMode,"")) )
-	if (mcID==(int)mc_channel_number) {
-	  ATH_MSG_INFO("Higgs production for MC channel number "<<mc_channel_number<<" mode is "<<prodMode);
-	  // gah, need to convert
-	  if (prodMode=="GGF"  ) return HTXS::HiggsProdMode::GGF;
-	  if (prodMode=="VBF"  ) return HTXS::HiggsProdMode::VBF;
-	  if (prodMode=="WH"   ) return HTXS::HiggsProdMode::WH;
-	  if (prodMode=="QQ2ZH") return HTXS::HiggsProdMode::QQ2ZH;
-	  if (prodMode=="GG2ZH") return HTXS::HiggsProdMode::GG2ZH;
-	  if (prodMode=="TTH"  ) return HTXS::HiggsProdMode::TTH;
-	  if (prodMode=="BBH"  ) return HTXS::HiggsProdMode::BBH;
-	  if (prodMode=="TH"   ) return HTXS::HiggsProdMode::TH;
-	  if (prodMode=="THQB" ) { th_type = HTXS::tH_type::THQB; return HTXS::HiggsProdMode::TH; }
-	  if (prodMode=="WHT"  ) { th_type = HTXS::tH_type::TWH; return HTXS::HiggsProdMode::TH; }
-	}
+      for ( int mcID : vectorize(m_config->GetValue("HTXS.MCsamples."+prodMode,"")) ){
+        if (mcID==(int)mc_channel_number) {
+          ATH_MSG_INFO("Higgs production for MC channel number "<<mc_channel_number<<" mode is "<<prodMode);
+          // gah, need to convert
+          if (prodMode=="GGF"  ) return HTXS::HiggsProdMode::GGF;
+          if (prodMode=="VBF"  ) return HTXS::HiggsProdMode::VBF;
+          if (prodMode=="WH"   ) return HTXS::HiggsProdMode::WH;
+          if (prodMode=="QQ2ZH") return HTXS::HiggsProdMode::QQ2ZH;
+          if (prodMode=="GG2ZH") return HTXS::HiggsProdMode::GG2ZH;
+          if (prodMode=="TTH"  ) return HTXS::HiggsProdMode::TTH;
+          if (prodMode=="BBH"  ) return HTXS::HiggsProdMode::BBH;
+          if (prodMode=="TH"   ) return HTXS::HiggsProdMode::TH;
+          if (prodMode=="THQB" ) { th_type = HTXS::tH_type::THQB; return HTXS::HiggsProdMode::TH; }
+          if (prodMode=="WHT"  ) { th_type = HTXS::tH_type::TWH; return HTXS::HiggsProdMode::TH; }
+        }
+      }
     }
-    ATH_MSG_WARNING("Did not managed to extract Higgs production mode for MC channel number " << 
-		    mc_channel_number << ". HTXS categorization will hence not be derived.");
+    // This is perfectly fine if we aren't running on a Higgs sample
+    ATH_MSG_INFO("Did not managed to extract Higgs production mode for MC channel number " << 
+                    mc_channel_number << ". HTXS categorization will hence not be derived.");
     return HTXS::HiggsProdMode::UNKNOWN;
   }
 

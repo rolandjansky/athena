@@ -59,8 +59,12 @@ IJetCalibrationTool* calibTool(const std::string & alg, const std::string & radi
 
   const std::string name = "HTTSubjetcalib"; 
   //Call the constructor. The default constructor can also be used if the arguments are set with python configuration instead
-  JetCalibrationTool *myJES = new JetCalibrationTool(name, jetAlgo, config, calibSeq, isData);
-  
+  //JetCalibrationTool *myJES = new JetCalibrationTool(name, jetAlgo, config, calibSeq, isData);
+  JetCalibrationTool *myJES = new JetCalibrationTool(name);
+  myJES->setProperty("JetCollection", jetAlgo);
+  myJES->setProperty("ConfigFile", config);
+  myJES->setProperty("CalibSequence", calibSeq);
+  myJES->setProperty("IsData", isData);
   //Initialize the tool
   HTT_CHECK(myJES->initializeTool(name));
   return myJES;
@@ -144,7 +148,7 @@ JetRecTool * buildFullHTTagger(const std::string & treename){
 
   ToolHandleArray<IPseudoJetGetter> getterArray;
   // Create a PseudoJet builder.
-  cout << "Creating pseudojet builder." << endl;
+  std::cout << "Creating pseudojet builder." << std::endl;
   PseudoJetGetter* lcgetter = new PseudoJetGetter("lcget");
   //ToolStore::put(lcgetter);
   HTT_CHECK(lcgetter->setProperty("InputContainer", "CaloCalTopoClusters"));
@@ -169,7 +173,7 @@ JetRecTool * buildFullHTTagger(const std::string & treename){
 
   HTT_CHECK(jetFromPJ->initialize());
 
-  cout << "Creating jet finder." << endl;
+  std::cout << "Creating jet finder." << std::endl;
   JetFinder* finder = new JetFinder("CamKt15Finder");
   //ToolStore::put(finder);
   HTT_CHECK(finder->setProperty("JetAlgorithm", "CamKt"));
@@ -192,7 +196,7 @@ JetRecTool * buildFullHTTagger(const std::string & treename){
   const char * CAJets_HTT = CAJets_HTT_container ;
   modArray.push_back( ToolHandle<IJetModifier>( configHTTTool(treename) ) );
 
-  cout << "Creating jetrec tool." << endl;
+  std::cout << "Creating jetrec tool." << std::endl;
   JetRecTool* fullJetTool = new JetRecTool("FullJetRecTool");
   HTT_CHECK(fullJetTool->setProperty("OutputContainer", CAJets_HTT ));
   HTT_CHECK(fullJetTool->setProperty("PseudoJetGetters", getterArray));

@@ -148,7 +148,7 @@ namespace CP {
   std::pair<float, float> PhotonPointingTool::getCaloPointing(const xAOD::Egamma *egamma) const
   {
     if (egamma == nullptr) {
-      ATH_MSG_WARNING("Passed Egamma was a nullptr, returning (0,0).");
+      ATH_MSG_DEBUG("Passed Egamma was a nullptr, returning (0,0).");
       return std::make_pair(0,0);
     }
 
@@ -198,7 +198,7 @@ namespace CP {
   std::pair<float, float> PhotonPointingTool::getConvPointing(const xAOD::Photon *photon) const
   {
     if (photon == nullptr) {
-      ATH_MSG_WARNING("Passed Egamma was a nullptr, returning (0,0).");
+      ATH_MSG_DEBUG("Passed Egamma was a nullptr, returning (0,0).");
       return std::make_pair(0,0);
     }
 

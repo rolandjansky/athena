@@ -67,10 +67,10 @@ namespace top {
                       "Electron Efficiency Systematic model E_T binning (option for SIMPLIFIED model, do not specify to use default; format XXX:YYY:ZZZ. e.g. 4000:7000:10000:15000:13000000)",
                       "default");
     registerParameter("ElectronIsolation",
-                      "Isolation to use : Gradient, FCLoose, FCTight, FCHighPtCaloOnly, (EXPERIMENTAL: HighPtCaloOnly, Loose, Tight, TightTrackOnly), (DANGEROUS: PflowTight, PflowLoose), None",
+                      "Isolation to use : Gradient, FCLoose, FCTight, FCHighPtCaloOnly, (EXPERIMENTAL: HighPtCaloOnly, Loose, Tight, TightTrackOnly, PLVTight, PLVLoose), (DANGEROUS: PflowTight, PflowLoose), None",
                       "Gradient");
     registerParameter("ElectronIsolationLoose",
-                      "Isolation to use : Gradient, FCLoose, FCTight, FCHighPtCaloOnly, (EXPERIMENTAL: HighPtCaloOnly, Loose, Tight, TightTrackOnly), (DANGEROUS: PflowTight, PflowLoose), None",
+                      "Isolation to use : Gradient, FCLoose, FCTight, FCHighPtCaloOnly, (EXPERIMENTAL: HighPtCaloOnly, Loose, Tight, TightTrackOnly, PLVTight, PLVLoose), (DANGEROUS: PflowTight, PflowLoose), None",
                       "None");
     registerParameter("ElectronIsolationSF", "Force electron isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("ElectronIsolationSFLoose", "Force electron isolation SF (e.g. None). EXPERIMENTAL!", " ");
@@ -227,11 +227,11 @@ namespace top {
     registerParameter("TauJetIDWP",
                       "Tau jet IDWP (None, Loose, Medium, Tight, LooseNotMedium, LooseNotTight, MediumNotTight, NotLoose)."
                       "Default Medium.",
-                      "Medium");
+                      "RNNMedium");
     registerParameter("TauJetIDWPLoose",
                       "Loose Tau jet IDWP (None, Loose, Medium, Tight, LooseNotMedium, LooseNotTight, MediumNotTight, NotLoose)."
                       "Default None.",
-                      "Medium");
+                      "RNNMedium");
     registerParameter("TauEleBDTWP",
                       "Tau electron BDT WP (None, Loose, Medium, Tight, OldLoose, OldMedium)."
                       "Default Loose.",
@@ -263,6 +263,12 @@ namespace top {
     registerParameter("ApplyTauMVATES",
                       "Apply new Tau energy calibration based on substructure information and regression. Must be True. Deprecated.",
                       "True");
+    registerParameter("TauSFDoRNNID",
+                      "Save SF for RNN tau ID True/False",
+                      "True");
+    registerParameter("TauSFDoBDTID",
+                      "Save SF for BDT tau ID True/False",
+                      "False");
 
     registerParameter("Systematics", "What to run? Nominal (just the nominal), All(do all systematics) ", "Nominal");
 

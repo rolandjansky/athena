@@ -516,7 +516,7 @@ namespace DerivationFramework {
 
 	  // Add truth variables for QG tagging
 	  const xAOD::EventInfo* eventInfo = nullptr;
-	  ATH_CHECK(evtStore()->retrieve(eventInfo));
+	  ATH_CHECK(evtStore()->retrieve(eventInfo,"EventInfo"));
 	  bool isMC = eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION);
 	  int tntrk = 0;
 	  float truthjet_pt  = -999.0;

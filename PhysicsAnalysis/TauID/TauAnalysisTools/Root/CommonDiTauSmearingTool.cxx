@@ -78,7 +78,7 @@ CP::CorrectionCode CommonDiTauSmearingTool::applyCorrection( xAOD::DiTauJet& xDi
     return CP::CorrectionCode::Ok;
 
   // check which true state is requestet
-  if (!m_bSkipTruthMatchCheck and checkTruthMatch(xDiTau) != m_eCheckTruth)
+  if (!m_bSkipTruthMatchCheck and getTruthParticleType(xDiTau) != m_eCheckTruth)
   {
     return CP::CorrectionCode::Ok;
   }
@@ -271,19 +271,4 @@ CP::CorrectionCode CommonDiTauSmearingTool::getValue(const std::string& sHistNam
   dEfficiencyScaleFactor = hHist->GetBinContent(iBin);
 
   return CP::CorrectionCode::Ok;
-}
-
-//______________________________________________________________________________
-e_TruthMatchedParticleType CommonDiTauSmearingTool::checkTruthMatch(const xAOD::DiTauJet& xDiTau) const
-{
-  if (!xDiTau.isAvailable<char>("IsTruthHadronic"))
-    ATH_MSG_ERROR("No truth match information available. Please run DiTauTruthMatchingTool first");
-  static SG::AuxElement::Accessor<char> accIsTruthHadronic("IsTruthHadronic");
-
-  e_TruthMatchedParticleType eTruthMatchedParticleType = Unknown;
-
-  if (accIsTruthHadronic(xDiTau))
-    eTruthMatchedParticleType = TruthHadronicDiTau;
-
-  return eTruthMatchedParticleType;
 }

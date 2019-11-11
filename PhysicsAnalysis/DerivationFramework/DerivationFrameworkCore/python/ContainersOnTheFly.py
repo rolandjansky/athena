@@ -80,6 +80,8 @@ ContainersOnTheFly = [
                         ["AntiKt10LCTopoCSSKSoftDropBeta100Zcut10JetsAux","xAOD::JetAuxContainer"],
                         ["AntiKt10LCTopoCSSKJets","xAOD::JetContainer"],
                         ["AntiKt10LCTopoCSSKJetsAux","xAOD::JetAuxContainer"],
+                        ["AntiKt10UFOCSSKJets","xAOD::JetContainer"],
+                        ["AntiKt10UFOCSSKJetsAux","xAOD::JetAuxContainer"],
 
                         ["TrackCaloClustersCombinedAndNeutral","xAOD::TrackCaloClusterContainer"],
                         ["TrackCaloClustersCombinedAndNeutralAux","xAOD::TrackCaloClusterAuxContainer"],
@@ -113,4 +115,6 @@ ContainersOnTheFly = [
                         ["BTagging_AntiKt4EMPFlow_201810Aux","xAOD::BTaggingAuxContainer"],
                         ["BTagging_AntiKt4EMPFlow_201903","xAOD::BTaggingContainer"],
                         ["BTagging_AntiKt4EMPFlow_201903Aux","xAOD::BTaggingAuxContainer"],
+                        ["DiTauJetsLowPt","xAOD::DiTauJetContainer"],
+                        ["DiTauJetsLowPtAux","xAOD::DiTauJetAuxContainer"],
 ]

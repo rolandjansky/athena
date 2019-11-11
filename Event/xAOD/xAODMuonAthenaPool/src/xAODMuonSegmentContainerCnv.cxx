@@ -85,7 +85,8 @@ xAOD::MuonSegmentContainer* xAODMuonSegmentContainerCnv::createTransient() {
 
 void xAODMuonSegmentContainerCnv::
 toPersistent( xAOD::MuonSegment* ms ) const {
-
+   // disable compiler warning in XAOD_ANALYSIS
+   (void) ms;
 #ifndef XAOD_ANALYSIS
    try {
 

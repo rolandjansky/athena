@@ -5,10 +5,10 @@
 from AnaAlgorithm.AlgSequence import AlgSequence
 from AnaAlgorithm.DualUseConfig import createAlgorithm
 
-def makeSequence (dataType) :
+def makeSequence (dataType, jetContainer="AntiKt4EMPFlowJets") :
 
     # config
-    jetContainer = "AntiKt4EMTopoJets"
+    
 
     algSeq = AlgSequence()
 
@@ -60,7 +60,7 @@ def makeSequence (dataType) :
             # 'EventInfo.jvt_effSF_%SYS% -> jvtSF_%SYS%',
             # 'EventInfo.fjvt_effSF_%SYS% -> fjvtSF_%SYS%',
             'AnalysisJets_%SYS%.jvt_effSF_NOSYS -> jet_%SYS%_jvtEfficiency',
-            'AnalysisJets_%SYS%.fjvt_effSF_NOSYS -> jet_%SYS%_fjvtEfficiency',
+            # 'AnalysisJets_%SYS%.fjvt_effSF_NOSYS -> jet_%SYS%_fjvtEfficiency',
             ]
         ntupleMaker.systematicsRegex = '(^$)|(^JET_.*)'
         algSeq += ntupleMaker

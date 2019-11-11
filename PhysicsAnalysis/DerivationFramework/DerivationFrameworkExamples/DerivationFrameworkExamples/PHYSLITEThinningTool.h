@@ -3,11 +3,11 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// NANOThinningTool.h, (c) ATLAS Detector software
+// PHYSLITEThinningTool.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#ifndef DERIVATIONFRAMEWORK_NANOTHINNINGTOOL_H
-#define DERIVATIONFRAMEWORK_NANOTHINNINGTOOL_H 1
+#ifndef DERIVATIONFRAMEWORK_PHYSLITETHINNINGTOOL_H
+#define DERIVATIONFRAMEWORK_PHYSLITETHINNINGTOOL_H 1
 
 #include<string>
 
@@ -22,18 +22,18 @@ class IThinningSvc;
 
 namespace DerivationFramework {
 
-  /** @class NANOThinningTool
+  /** @class PHYSLITEThinningTool
   
       @author James Catmore -at- cern.ch
      */
-  class NANOThinningTool : public AthAlgTool, public IThinningTool {
+  class PHYSLITEThinningTool : public AthAlgTool, public IThinningTool {
     
   public: 
     /** Constructor with parameters */
-    NANOThinningTool( const std::string& t, const std::string& n, const IInterface* p );
+    PHYSLITEThinningTool( const std::string& t, const std::string& n, const IInterface* p );
     
     /** Destructor */
-    ~NANOThinningTool();
+    ~PHYSLITEThinningTool();
     
     // Athena algtool's Hooks
     StatusCode  initialize();

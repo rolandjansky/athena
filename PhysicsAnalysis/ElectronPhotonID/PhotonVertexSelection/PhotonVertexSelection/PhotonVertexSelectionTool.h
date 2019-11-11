@@ -41,20 +41,6 @@ namespace CP {
   ASG_TOOL_CLASS(PhotonVertexSelectionTool, CP::IPhotonVertexSelectionTool)
 
   private:
-    // enum indicating where the tool has failed
-    enum FailType {
-      Unkown        = -99,  // Init value
-      NoFail        =   0,  // Ok to run the MVA algorithm
-      NoVxCont      =   1,  // No vertex container
-      NoEventInfo   =   2,  // No EventInfo
-      FailPointing  =   3,  // Calo pointing failed
-      FailEgamVect  =   4,  // No diphoton event
-      NoGdCandidate =   5,  // Pointing succeded but too distant from any other vertex
-      MatchedTrack  =   6,  // Conversion photon has a track attached to a primary/pileup vertex
-    };
-
-
-  private:
     /// Configuration variables
     std::string m_configFileCase1; 
     std::string m_configFileCase2; 
@@ -136,7 +122,7 @@ namespace CP {
     int getCase() const { return m_case; }
 
     /// Return the last fail encountered
-    int getFail() const { return m_fail; }
+    FailType getFail() const { return m_fail; }
     
     /// Get possible vertex directly associated with photon conversions
     const xAOD::Vertex* getPrimaryVertexFromConv(const xAOD::PhotonContainer *photons) const;

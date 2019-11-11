@@ -5,10 +5,6 @@
 #ifndef IFAKE_BKG_TOOL_H
 #define IFAKE_BKG_TOOL_H
 
-#if (defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)) && !defined(FAKEBKGTOOLS_ATLAS_ENVIRONMENT)
-    #define FAKEBKGTOOLS_ATLAS_ENVIRONMENT
-#endif
-
 #include "PATInterfaces/ISystematicsTool.h"
 #include "xAODBase/IParticleContainer.h"
 

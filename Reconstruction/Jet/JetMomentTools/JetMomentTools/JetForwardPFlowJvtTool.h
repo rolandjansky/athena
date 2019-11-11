@@ -142,7 +142,7 @@
     asg::AnaToolHandle<CP::WeightPFOTool> m_wpfotool;
     asg::AnaToolHandle<IJetCalibrationTool> m_pfoJES;
 
-    int getPV() const;
+    std::size_t getPV() const;
 
   };
 #endif //> !FORWARDJVTTOOL_JVT_FORWARDJVTTOOL_H

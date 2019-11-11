@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #################################################
 # Common code used for the HIGG4 slimming       #
@@ -18,6 +18,7 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
         HIGG4DxSlimmingHelper.SmartCollections = ["Electrons",
                                               "Muons",
                                               "TauJets",
+                                              "DiTauJetsLowPt",
                                               "InDetTrackParticles",
                                               "PrimaryVertices",
                                               "MET_Reference_AntiKt4EMPFlow",
@@ -49,9 +50,11 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
     if HIGG4DxName in ['HIGG4D1', 'HIGG4D2', 'HIGG4D3', 'HIGG4D5', 'HIGG4D6', 'HDBS1']:
         HIGG4DxSlimmingHelper.SmartCollections += ["Photons"]
 
-
     if HIGG4DxName in ['HIGG4D2', 'HIGG4D3']:
         HIGG4DxSlimmingHelper.SmartCollections += ["AntiKt4LCTopoJets"]  # used as seeds for taus
+
+    if HIGG4DxName in ['HIGG4D2', 'HIGG4D3', 'HIGG4D6']:
+        HIGG4DxSlimmingHelper.SmartCollections += ["DiTauJets"]
 
     #extra variables added to the smart slimming content
     ExtraContentElectrons=[
@@ -170,12 +173,6 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
         else:
             addJetOutputs(HIGG4DxSlimmingHelper, [HIGG4DxName], ['AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets','AntiKt4TruthJets', 'AntiKt4TruthWZJets'])
         
-    if HIGG4DxName in ['HIGG4D2', 'HIGG4D3', 'HIGG4D6']:
-       HIGG4DxSlimmingHelper.AllVariables += ["DiTauJets"]
-    if HIGG4DxName in ['HDBS1']:
-       HIGG4DxSlimmingHelper.AppendToDictionary["DiTauJetsLowPt"] = 'xAOD::DiTauJetContainer' #Added
-       HIGG4DxSlimmingHelper.AppendToDictionary["DiTauJetsLowPtAux"] = 'xAOD::DiTauJetAuxContainer' #Added
-       HIGG4DxSlimmingHelper.AllVariables += ["DiTauJetsLowPt"] #Added "DiTauJetsLowPt"
     if HIGG4DxName in ['HIGG4D3', 'HIGG4D6']:
         HIGG4DxSlimmingHelper.AppendToDictionary.update( {
               "AntiKtVR30Rmax4Rmin02TrackJets"               :   "xAOD::JetContainer"        ,

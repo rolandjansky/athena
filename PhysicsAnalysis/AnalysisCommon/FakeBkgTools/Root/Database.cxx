@@ -67,7 +67,7 @@ bool Database::fillEfficiencies(ParticleData& pd, const xAOD::IParticle& p, cons
     /// Loop over all the type of efficiencies (real, fake, fake factor) that were requested to be filled
     for(int wt=0;wt<N_EFFICIENCY_TYPES;++wt)
     {
-		EfficiencyType wantedType = static_cast<EfficiencyType>(wt);
+        EfficiencyType wantedType = static_cast<EfficiencyType>(wt);
         if(!m_typesToFill[wantedType]) continue; 
         Efficiency* eff = selectEfficiency(pd, p, wantedType); /// pointer to the proper member of ParticleData that needs to be filled 
         if(!eff) continue;
@@ -219,7 +219,7 @@ void Database::importXML(std::string filename)
     while(stream.length())
     {
         readNextTag(stream, tag, attributes, contents);
-        if(tag=="electron" || tag=="muon") addTables(tag, attributes, contents);
+        if(tag=="electron" || tag=="muon" || tag=="tau") addTables(tag, attributes, contents);
         else if(tag=="param") addParams(tag, contents, attributes);
         else if(tag=="syst") addSysts(tag, contents, attributes);
         else if(tag=="ROOT") importCustomROOT(tag, contents, attributes);
@@ -383,10 +383,13 @@ void Database::addSysts(const StringRef& tag, const StringRef& contents, const A
         int matched = 0;
         if(targetMatches("electron", "real-efficiency")) { affects.set(ELECTRON_REAL_EFFICIENCY); ++matched; }
         if(targetMatches("muon", "real-efficiency")) { affects.set(MUON_REAL_EFFICIENCY); ++matched; }
+        if(targetMatches("tau", "real-efficiency")) { affects.set(TAU_REAL_EFFICIENCY); ++matched; }
         if(targetMatches("electron", "fake-efficiency")) { affects.set(ELECTRON_FAKE_EFFICIENCY); ++matched; }
         if(targetMatches("muon", "fake-efficiency")) { affects.set(MUON_FAKE_EFFICIENCY); ++matched; }
+        if(targetMatches("tau", "fake-efficiency")) { affects.set(TAU_FAKE_EFFICIENCY); ++matched; }
         if(targetMatches("electron", "fake-factor")) { affects.set(ELECTRON_FAKE_FACTOR); ++matched; }
         if(targetMatches("muon", "fake-factor")) { affects.set(MUON_FAKE_FACTOR); ++matched; }
+        if(targetMatches("tau", "fake-factor")) { affects.set(TAU_FAKE_FACTOR); ++matched; }
         if(!matched) throw(XmlError(tag) << "the value \"" << target << "\" specified for the attribute \"affects\" is not recognized");
     }
     if(affects.none()) throw(XmlError(tag) << "missing or empty attribute \"affects\"");
@@ -420,6 +423,8 @@ void Database::addTables(const StringRef& particle, const AttributesMap& attribu
         "real-efficiency", MUON_REAL_EFFICIENCY, "fake-efficiency", MUON_FAKE_EFFICIENCY, "fake-factor", MUON_FAKE_FACTOR);
     else if(particle == "electron") type = getAttribute(particle, attributes, "type", 
         "real-efficiency", ELECTRON_REAL_EFFICIENCY, "fake-efficiency", ELECTRON_FAKE_EFFICIENCY, "fake-factor", ELECTRON_FAKE_FACTOR);
+    else if(particle == "tau") type = getAttribute(particle, attributes, "type", 
+        "real-efficiency", TAU_REAL_EFFICIENCY, "fake-efficiency", TAU_FAKE_EFFICIENCY, "fake-factor", TAU_FAKE_FACTOR);
     else throw(XmlError(particle) << "unexpected error: unsupported particle type " << particle.str());
     auto statMode = attributes.at(particle.str()+"/stat") ? getAttribute(particle, attributes, "stat", 
         "global", StatMode::GLOBAL, "per-bin", StatMode::PER_BIN, "none", StatMode::NONE) : StatMode::UNSPECIFIED;
@@ -440,7 +445,7 @@ void Database::addTables(const StringRef& particle, const AttributesMap& attribu
             if(tag == "TH1")
             {
                 if(!source) throw(XmlError(tag) << "histograms can only be imported inside <ROOT>...</ROOT> blocks!");
-                if(!subattributes.at("TH1/X")) throw(XmlError(tag) << "the attribute 'X' should be specified (as well as 'Y' for 2D histograms)");
+                if(!subattributes.at("TH1/X")) throw(XmlError(tag) << "the attribute 'X' should be specified (as well as 'Y' for 2D histograms, 'Z' for 3D histograms)");
                 auto name = subcontents.trim();
                 hist = static_cast<const TH1*>(source->Get(name.c_str()));
                 if(!hist) throw(XmlError(subcontents) << "can't find any histogram named \"" << name << "\" in the file " << source->GetName());
@@ -448,7 +453,7 @@ void Database::addTables(const StringRef& particle, const AttributesMap& attribu
                 if(inputType!=InputType::CORRECTION && (norm && norm!="none"))
                     throw(XmlError(norm) << "normalization of input histograms is only accepted for 'input=\"correction\"'");
                 float scale = getNormalizationFactor(hist, type, norm, subcontents);
-                importNominalTH1(hist, type, subattributes.at("TH1/X"), subattributes.at("TH1/Y"), scale, statMode, globalStatUID, subcontents);
+                importNominalTH1(hist, type, subattributes.at("TH1/X"), subattributes.at("TH1/Y"), subattributes.at("TH1/Z"), scale, statMode, globalStatUID, subcontents);
             }
             else m_tables[type].emplace_back();
             auto& table = m_tables[type].back();
@@ -507,13 +512,13 @@ void Database::addDimension(EfficiencyTable& table, unsigned paramUID, const Str
     if(!contents) return;
     auto& param = m_params[paramUID];
     const bool integer = param.integer();
-    const std::string fp = "(?:[0-9]+\\.)?[0-9]+(?:[Ee][+-]?[0-9]+)?";
+    const std::string fp = "[+-]?[0-9]*\\.?[0-9]+(?:[Ee][+-]?[0-9]+)?";
     const std::string pattern = "^\\s*\\[\\s*(?:(?:-inf\\s*,\\s*|-?)inf|(?:-inf\\s*,\\s*)?" 
         + fp + "(?:\\s*,\\s*" + fp + ")*(?:\\s*,\\s*inf)?)\\s*\\]\\s*$";
     if(!std::regex_match(contents.ptr, contents.endptr, std::regex(pattern)))
     {
         /// Also accept a simpler syntax for integers (e.g. nJets = "2")
-        if(!integer || !std::regex_match(contents.ptr, contents.endptr, std::regex("\\s*[0-9]+\\s*")))
+        if(!integer || !std::regex_match(contents.ptr, contents.endptr, std::regex("\\s*[+-]?[0-9]+\\s*")))
         {
             throw(XmlError(contents) << "invalid format for the range of the parameter " << param.name);
         }
@@ -539,6 +544,8 @@ void Database::addDimension(EfficiencyTable& table, unsigned paramUID, const Str
         {
             if(i==0 || i==(dim.nBounds-1))
             {
+                ss.clear();
+                ss.unget(); /// the stream might have consumed the leading '-' in its failed attempt to read a number, so recover it
                 ss.clear();
                 std::string x_s;
                 ss >> x_s;
@@ -688,7 +695,7 @@ void Database::importCustomROOT(const StringRef& rootTag, const StringRef& conte
     {
         resetAttributes(subattributes);
         readNextTag(stream, tag, subattributes, subcontents);
-        if(tag=="electron" || tag=="muon") addTables(tag, subattributes, subcontents, file);
+        if(tag=="electron" || tag=="muon" || tag=="tau") addTables(tag, subattributes, subcontents, file);
         else throw(XmlError(stream) << "unknown/unexpected XML tag \"" << tag << "\"");
     }
     
@@ -702,14 +709,15 @@ void Database::resetAttributes(AttributesMap& attributes)
     attributes["param/type"];
     attributes["param/level"];
     attributes["syst/affects"];
-    attributes["electron/type"];
-    attributes["electron/input"];
-    attributes["electron/stat"];
-    attributes["muon/type"];
-    attributes["muon/input"];
-    attributes["muon/stat"];
+    for(const std::string& p : {"electron", "muon", "tau"})
+    {
+        attributes[p + "/type"];
+        attributes[p + "/input"];
+        attributes[p + "/stat"];
+    }
     attributes["TH1/X"];
     attributes["TH1/Y"];
+    attributes["TH1/Z"];
     attributes["TH1/label"];
     attributes["bin/label"];
     attributes["TH1/norm"]; /// for now only a TH1 attribute
@@ -732,6 +740,7 @@ void Database::importDefaultROOT(std::string filename)
     const std::string prefix = "^(FakeFactor|FakeEfficiency|RealEfficiency)", suffix = "_([[:w:]][^_]+)(__[[:w:]]+)?$";
     const std::regex rxTH1(prefix + "_(el|mu|tau)" + suffix);
     const std::regex rxTH2(prefix + "2D_(el|mu|tau)_([[:alnum:]]+)" + suffix);
+    const std::regex rxTH3(prefix + "3D_(el|mu|tau)_([[:alnum:]]+)_([[:alnum:]]+)" + suffix);
     
     filename = PathResolverFindCalibFile(filename);
     TFile* file = TFile::Open(filename.c_str(), "READ");
@@ -757,22 +766,24 @@ void Database::importDefaultROOT(std::string filename)
             unsigned nDims = 0;
             if(keyType=="TH1F" || keyType=="TH1D") nDims = 1 * std::regex_match(key->GetName(), mr, rxTH1);
             else if(keyType=="TH2F" || keyType=="TH2D") nDims = 2 * std::regex_match(key->GetName(), mr, rxTH2);
+            else if(keyType=="TH3F" || keyType=="TH3D") nDims = 3 * std::regex_match(key->GetName(), mr, rxTH3);
             else continue;
             if(nDims < 1) throw(GenericError() << "don't know what to do with histogram named \"" << key->GetName() << "\" (please check naming conventions)");
             TH1* hist = static_cast<TH1*>(key->ReadObj());
             /// Efficiency type
             std::string sss = mr[1].str() + "-" + mr[2].str();
             auto type = getAttribute(StringRef(sss.data(), sss.length()),
-                "FakeFactor-el", ELECTRON_FAKE_FACTOR, "FakeFactor-mu", MUON_FAKE_FACTOR, // "FakeFactor-tau", TAU_FAKE_FACTOR,
-                "FakeEfficiency-el", ELECTRON_FAKE_EFFICIENCY, "FakeEfficiency-mu", MUON_FAKE_EFFICIENCY, // "FakeEfficiency-tau", TAU_FAKE_EFFICIENCY,
-                "RealEfficiency-el", ELECTRON_REAL_EFFICIENCY, "RealEfficiency-mu", MUON_REAL_EFFICIENCY // "RealEfficiency-tau", TAU_REAL_EFFICIENCY
+                "FakeFactor-el", ELECTRON_FAKE_FACTOR, "FakeFactor-mu", MUON_FAKE_FACTOR, "FakeFactor-tau", TAU_FAKE_FACTOR,
+                "FakeEfficiency-el", ELECTRON_FAKE_EFFICIENCY, "FakeEfficiency-mu", MUON_FAKE_EFFICIENCY, "FakeEfficiency-tau", TAU_FAKE_EFFICIENCY,
+                "RealEfficiency-el", ELECTRON_REAL_EFFICIENCY, "RealEfficiency-mu", MUON_REAL_EFFICIENCY, "RealEfficiency-tau", TAU_REAL_EFFICIENCY
                 );
             bool systTH1 = (mr[mr.size()-1].str() != "");
             if(step==0 && !systTH1)
             {
                 StringRef paramX = StringRef(mr[3].first, mr[3].second);
                 StringRef paramY = (nDims>1) ? StringRef(mr[4].first, mr[4].second) : StringRef();
-                importNominalTH1(hist, type, paramX, paramY, 1.f, StatMode::PER_BIN, dummy, nullStream);
+                StringRef paramZ = (nDims>2) ? StringRef(mr[5].first, mr[5].second) : StringRef();
+                importNominalTH1(hist, type, paramX, paramY, paramZ, 1.f, StatMode::PER_BIN, dummy, nullStream);
                 m_tables[type].back().inputType = InputType::CENTRAL_VALUE;
             }
             else if(step==1 && systTH1) importSystTH1(hist, type, mr[nDims+3].str().substr(2));
@@ -826,7 +837,7 @@ float Database::getNormalizationFactor(const TH1* hist, EfficiencyType type, con
     return 1.f;
 }
 
-void Database::importNominalTH1(const TH1* hist, EfficiencyType type, const StringRef& paramX, const StringRef& paramY, 
+void Database::importNominalTH1(const TH1* hist, EfficiencyType type, const StringRef& paramX, const StringRef& paramY,  const StringRef& paramZ, 
         float scale, StatMode statMode, unsigned short& globalStatUID, const StringRef& xmlStream)
 {
     const bool useDefaults = !xmlStream;
@@ -835,7 +846,7 @@ void Database::importNominalTH1(const TH1* hist, EfficiencyType type, const Stri
     m_tables[type].emplace_back();
     auto& table = m_tables[type].back();
 
-    const int nDims = paramY? 2 : 1;
+    const int nDims = paramZ? 3 : paramY? 2 : 1;
     if(hist->GetDimension() != nDims)
     {
         if(xmlStream) throw(XmlError(xmlStream) << "histogram " << hist->GetName() << " doesn't have the expected dimension");
@@ -845,8 +856,8 @@ void Database::importNominalTH1(const TH1* hist, EfficiencyType type, const Stri
     /// Parameters and ranges
     for(int j=0;j<nDims;++j)
     {
-        std::string name = (j? paramY : paramX).str();
-        const TAxis* axis = j? hist->GetYaxis() : hist->GetXaxis();
+        std::string name = ((j==2)? paramZ : (j==1)? paramY : paramX).str();
+        const TAxis* axis = (j==2)? hist->GetZaxis() : (j==1)? hist->GetYaxis() : hist->GetXaxis();
         if(useDefaults && name == "eta" && axis->GetBinLowEdge(1) >= 0) name = "|eta|";
         table.m_dimensions.emplace_back();
         auto& dim = table.m_dimensions.back();
@@ -888,16 +899,18 @@ void Database::importNominalTH1(const TH1* hist, EfficiencyType type, const Stri
     if(statMode==StatMode::GLOBAL && !globalStatUID) globalStatUID = addStat(type, xmlStream);
     const unsigned xmax = table.m_dimensions.front().nBounds;
     const unsigned ymax = table.m_dimensions.size()>1? table.m_dimensions[1].nBounds : 2;
+    const unsigned zmax = table.m_dimensions.size()>2? table.m_dimensions[2].nBounds : 2;
     for(unsigned x=1;x<xmax;++x)
     for(unsigned y=1;y<ymax;++y)
+    for(unsigned z=1;z<zmax;++z)
     {
         table.m_efficiencies.emplace_back();
         auto& eff = table.m_efficiencies.back();
-        eff.nominal = scale * hist->GetBinContent(x, y);
+        eff.nominal = scale * hist->GetBinContent(x, y, z);
         if(statMode != StatMode::NONE)
         {
             uint16_t uid = (statMode==StatMode::GLOBAL)? globalStatUID : addStat(type, xmlStream);
-            float err = hist->GetBinError(x, y);
+            float err = hist->GetBinError(x, y, z);
             FakeBkgTools::Uncertainty uncdata{scale*err, scale*err};
             eff.uncertainties.emplace(uid, uncdata);
         }
@@ -910,7 +923,8 @@ void Database::importSystTH1(const TH1* hist, EfficiencyType type, const std::st
     auto& table = m_tables[type].back();
     const int xmax = table.m_dimensions.front().nBounds;
     const int ymax = table.m_dimensions.size()>1? table.m_dimensions[1].nBounds : 2;
-    if(xmax!=hist->GetNbinsX()+1 || ymax!=hist->GetNbinsY()+1)
+    const int zmax = table.m_dimensions.size()>1? table.m_dimensions[2].nBounds : 2;
+    if(xmax!=hist->GetNbinsX()+1 || ymax!=hist->GetNbinsY()+1 || zmax!=hist->GetNbinsZ()+1)
     {
         throw(GenericError() << "binning mismatch between the nominal histogram and " << hist->GetName());
     }
@@ -931,8 +945,9 @@ void Database::importSystTH1(const TH1* hist, EfficiencyType type, const std::st
     auto eff = table.m_efficiencies.begin();
     for(int x=1;x<xmax;++x)
     for(int y=1;y<ymax;++y)
+    for(int z=1;z<zmax;++z)
     {
-        float err = hist->GetBinContent(x, y);
+        float err = hist->GetBinContent(x, y, z);
         FakeBkgTools::Uncertainty uncdata{err, err};
         if(!eff->uncertainties.emplace(uid, uncdata).second)
         {
@@ -987,6 +1002,11 @@ Efficiency* Database::selectEfficiency(ParticleData& pd, const xAOD::IParticle& 
         else if(type==MUON_FAKE_EFFICIENCY) return &pd.fake_efficiency;
         else if(type==MUON_REAL_EFFICIENCY) return &pd.real_efficiency;
         break;
+      case xAOD::Type::Tau:
+        if(type==TAU_FAKE_FACTOR) return &pd.fake_factor;
+        else if(type==TAU_FAKE_EFFICIENCY) return &pd.fake_efficiency;
+        else if(type==TAU_REAL_EFFICIENCY) return &pd.real_efficiency;
+        break;
       default:;
     }
     return nullptr;
@@ -1000,13 +1020,16 @@ auto Database::selectTypesToFill(Client client) -> std::bitset<N_EFFICIENCY_TYPE
     {
         result[ELECTRON_REAL_EFFICIENCY] = true;
         result[MUON_REAL_EFFICIENCY] = true;
+        result[TAU_REAL_EFFICIENCY] = true;
         result[ELECTRON_FAKE_EFFICIENCY] = true;
         result[MUON_FAKE_EFFICIENCY] = true;
+        result[TAU_FAKE_EFFICIENCY] = true;
     }
     if(client==Client::FAKE_FACTOR || client==Client::ALL_METHODS)
     {
         result[ELECTRON_FAKE_FACTOR] = true;
         result[MUON_FAKE_FACTOR] = true;
+        result[TAU_FAKE_FACTOR] = true;
     }
     if(result.none()) throw(GenericError() << "unrecognized client type, implementation incomplete");
     return result;
@@ -1021,8 +1044,10 @@ Database::EfficiencyType Database::getSourceType(EfficiencyType wantedType) cons
         {
           case ELECTRON_FAKE_EFFICIENCY: return ELECTRON_FAKE_FACTOR;
           case MUON_FAKE_EFFICIENCY: return MUON_FAKE_FACTOR;
+          case TAU_FAKE_EFFICIENCY: return TAU_FAKE_FACTOR;
           case ELECTRON_FAKE_FACTOR: return ELECTRON_FAKE_EFFICIENCY;
           case MUON_FAKE_FACTOR: return MUON_FAKE_EFFICIENCY;
+          case TAU_FAKE_FACTOR: return TAU_FAKE_EFFICIENCY;
           default:;
         }
     }
@@ -1049,6 +1074,9 @@ std::string Database::getTypeAsString(EfficiencyType type)
         case MUON_REAL_EFFICIENCY: return "real efficiency (muons)";
         case MUON_FAKE_EFFICIENCY: return "fake efficiency (muons)";
         case MUON_FAKE_FACTOR: return "fake factor (muons)";
+        case TAU_REAL_EFFICIENCY: return "real efficiency (taus)";
+        case TAU_FAKE_EFFICIENCY: return "fake efficiency (taus)";
+        case TAU_FAKE_FACTOR: return "fake factor (taus)";
         default:;
     }
     return "???";

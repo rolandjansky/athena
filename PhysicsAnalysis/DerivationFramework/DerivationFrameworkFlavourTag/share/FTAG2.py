@@ -110,6 +110,7 @@ addExKtDoubleTaggerRCJets(FTAG2Seq, ToolSvc)
 
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet
 addVRJets(FTAG2Seq, doFlipTagger=True)
+addVRJets(FTAG2Seq, doFlipTagger=True, training='201903')
 addVRJets(FTAG2Seq, do_ghost=True, doFlipTagger=True)
 
 # Also add Hbb Tagger
@@ -260,13 +261,16 @@ FTAG2SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("An
 if BTaggingFlags.Do2019Retraining:
     FTAG2SlimmingHelper.SmartCollections += ["AntiKt4EMTopoJets_BTagging201810",
                                              "AntiKt4EMPFlowJets_BTagging201810",
-                                             "AntiKt4EMPFlowJets_BTagging201903"]
+                                             "AntiKt4EMPFlowJets_BTagging201903",
+					     "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903"]
     FTAG2SlimmingHelper.AllVariables += ["BTagging_AntiKt4EMPFlow_201810",
                                          "BTagging_AntiKt4EMPFlow_201903",
                                          "BTagging_AntiKt4EMTopo_201810",
+					 "BTagging_AntiKtVR30Rmax4Rmin02Track_201903",
                                          "AntiKt4EMTopoJets_BTagging201810",
                                          "AntiKt4EMPFlowJets_BTagging201810",
-                                         "AntiKt4EMPFlowJets_BTagging201903"]
+                                         "AntiKt4EMPFlowJets_BTagging201903",
+					 "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903"]
 else:
     FTAG2SlimmingHelper.AllVariables += ["BTagging_AntiKt4EMPFlow",
                                          "BTagging_AntiKt4EMTopo"]

@@ -43,6 +43,7 @@ atlas_depends_on_subdirs(
    ${extra_deps}
    PRIVATE
    Calorimeter/CaloGeoHelpers
+   Event/FourMomUtils
    ${extra_deps_private} )
 
 # External dependencies:
@@ -61,7 +62,7 @@ atlas_add_library( IsolationToolLib
    IsolationCorrectionsLib
    RecoToolInterfaces	
    ${extra_lib}
-   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} CaloGeoHelpers
+   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} CaloGeoHelpers FourMomUtils
    ${extra_lib_private}
    )
 

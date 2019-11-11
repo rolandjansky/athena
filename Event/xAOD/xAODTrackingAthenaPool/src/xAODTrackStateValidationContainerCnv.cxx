@@ -37,11 +37,6 @@ createPersistent( xAOD::TrackStateValidationContainer* trans ) {
       new xAOD::TrackStateValidationContainer( trans->begin(), trans->end(),
                                       SG::VIEW_ELEMENTS );
 
-   // Prepare the objects to be written out:
-   xAOD::TrackStateValidationContainer::iterator itr = result->begin();
-   xAOD::TrackStateValidationContainer::iterator end = result->end();
-   
-
    // Return the new container:
    return result;
 }

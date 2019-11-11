@@ -90,8 +90,8 @@ StatusCode AthenaPoolCnvSvc::initialize() {
       if (iter->find('=') != std::string::npos) {
          long long maxFileSize = atoll(iter->substr(iter->find('=') + 1).c_str());
          if (maxFileSize > 10000000000LL) {
-            ATH_MSG_WARNING("Files larger than 10GB are disallowed by ATLAS policy.");
-            ATH_MSG_WARNING("They should only be produced for private use or in special cases.");
+            ATH_MSG_INFO("Files larger than 10GB are disallowed by ATLAS policy.");
+            ATH_MSG_INFO("They should only be produced for private use or in special cases.");
          }
          std::string databaseName = iter->substr(0, iter->find_first_of(" 	="));
          std::pair<std::string, long long> entry(databaseName, maxFileSize);
@@ -99,8 +99,8 @@ StatusCode AthenaPoolCnvSvc::initialize() {
       } else {
          m_domainMaxFileSize = atoll(iter->c_str());
          if (m_domainMaxFileSize > 10000000000LL) {
-            ATH_MSG_WARNING("Files larger than 10GB are disallowed by ATLAS policy.");
-            ATH_MSG_WARNING("They should only be produced for private use or in special cases.");
+            ATH_MSG_INFO("Files larger than 10GB are disallowed by ATLAS policy.");
+            ATH_MSG_INFO("They should only be produced for private use or in special cases.");
          }
       }
    }

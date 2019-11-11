@@ -31,12 +31,15 @@ To get started you can do the following::
   TauAnalysisTools::TauEfficiencyCorrectionsTool TauTriggerEffTool( "TauTriggerEfficiencyCorrectionsTool" );
 
   CHECK(TauTriggerEffTool.setProperty("EfficiencyCorrectionTypes", std::vector<int>({SFTriggerHadTau}) ));
-  CHECK(TauTriggerEffTool.setProperty("TriggerName", "HLT_tau25_medium1_tracktwo" ));
   CHECK(TauTriggerEffTool.setProperty("IDLevel", (int)JETIDBDTTIGHT ));
-  CHECK(TauTriggerEffTool.setProperty("PileupReweightingTool", PileupReweightingTool ));
+  CHECK(TauTriggerEffTool.setProperty("TriggerName", "HLT_tau25_medium1_tracktwo" ));
+  CHECK(TauTriggerEffTool.setProperty("AutoTriggerYear", true ));
 
   CHECK(TauTriggerEffTool.initialize());
 
+The year is automatically detected if you ran ``PileupReweightingTool`` before.
+
+Alternatively you can pass the pile-up tool directly to this tool.
 The ``PileupReweightingTool`` is required to be a ToolHandle to the same
 PileupReweightingTool that you use for you analysis. This tool is used to obtain
 the random run number to make a decision on the year of data taking, that is
@@ -92,7 +95,12 @@ one needs a separate tool instance with at least the following configuration:
      - ``std::string``
      - ``"2016"``
      - year of data taking, not necessary if PileupReweightingTool Property is used
-   
+
+   * - ``AutoTriggerYear``
+     - ``bool``
+     - ``false``
+     - automatically detect the year if ``RandomRunNumber`` decoration exists
+
    * - ``PileupReweightingTool``
      - ``ToolHandle<CP::PileupReweightingTool>``
      - empty

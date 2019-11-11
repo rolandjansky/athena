@@ -58,6 +58,19 @@ class WriteDAOD_PHYS2Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_PHYS2Stream)
 listAODtoDPD.append(WriteDAOD_PHYS2Stream.StreamName)
 
+class WriteDAOD_PHYSLITEStream(JobProperty):
+    """ DAOD_PHYSLITE - prototype format for Run 3 """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+    StreamName   = "StreamDAOD_PHYSLITE"
+    FileName     = ""
+    isVirtual      = False
+    DPDMakerScript = "DerivationFrameworkExamples/PHYSLITE.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_PHYSLITEStream)
+listAODtoDPD.append(WriteDAOD_PHYSLITEStream.StreamName)
+
 class WriteDAOD_NANOStream(JobProperty):
     """ DAOD_NANO - prototype format for Run 3 """
     statusOn     = True
@@ -84,6 +97,18 @@ class WriteDAOD_TRIGStream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TRIGStream)
 listAODtoDPD.append(WriteDAOD_TRIGStream.StreamName)
 
+class WriteD2AOD_SKIMTESTStream(JobProperty):
+    """ D2AOD_SKIMTEST - test of DAOD_PHYS skimming for Run 3 """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+    StreamName   = "StreamD2AOD_SKIMTEST"
+    FileName     = ""
+    isVirtual      = False
+    DPDMakerScript = "DerivationFrameworkExamples/SKIMTEST.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteD2AOD_SKIMTESTStream)
+listAODtoDPD.append(WriteD2AOD_SKIMTESTStream.StreamName)
 
 ####################################
 # Defined by ASG for tests/examples
@@ -243,7 +268,6 @@ class WriteDAOD_TEST11Stream(JobProperty):
     DPDMakerScript = "DerivationFrameworkExamples/TriggerMatchingExample.py"
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TEST11Stream)
 listAODtoDPD.append(WriteDAOD_TEST11Stream.StreamName)
-
 
 class WriteDAOD_MCTEST1Stream(JobProperty):
     """ Produce the DPD for DAOD_MCTEST1 - derivation framework test """
