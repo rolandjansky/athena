@@ -143,12 +143,14 @@ StatusCode RCJetMC15::initialize() {
     m_split23 = std::make_shared<JetSubStructureUtils::KtSplittingScale>(2);
 
     m_qw = std::make_shared<JetSubStructureUtils::Qw>();
-  }
-  if (m_useAdditionalJSS) {
+    
     m_ECF1 = std::make_shared<fastjet::contrib::EnergyCorrelator>(1, 1.0, fastjet::contrib::EnergyCorrelator::pt_R);
     m_ECF2 = std::make_shared<fastjet::contrib::EnergyCorrelator>(2, 1.0, fastjet::contrib::EnergyCorrelator::pt_R);
     m_ECF3 = std::make_shared<fastjet::contrib::EnergyCorrelator>(3, 1.0, fastjet::contrib::EnergyCorrelator::pt_R);
 
+  }
+  if (m_useAdditionalJSS) {
+    
     m_gECF332 = std::make_shared<JetSubStructureUtils::EnergyCorrelatorGeneralized>(3, 3, 2,
                                                                                     JetSubStructureUtils::EnergyCorrelator::pt_R);
     m_gECF461 = std::make_shared<JetSubStructureUtils::EnergyCorrelatorGeneralized>(6, 4, 1,
