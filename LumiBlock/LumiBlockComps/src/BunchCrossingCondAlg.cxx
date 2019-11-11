@@ -115,7 +115,7 @@ StatusCode BunchCrossingCondAlg::execute (const EventContext& ctx) const {
 
 std::vector<BunchCrossingCondData::bunchTrain_t> BunchCrossingCondAlg::findTrains(const std::bitset< BunchCrossingCondData::m_MAX_BCID>& collidingBCIDs, const int maxSpacingInTrain, const unsigned minBunchesPerTrain) const {
   
-  constexpr int MAX_BCID=collidingBCIDs.size();
+  const int MAX_BCID=collidingBCIDs.size();
   std::vector<bunchTrain_t> result;
     
   std::vector<std::pair<int,int> > holes;
