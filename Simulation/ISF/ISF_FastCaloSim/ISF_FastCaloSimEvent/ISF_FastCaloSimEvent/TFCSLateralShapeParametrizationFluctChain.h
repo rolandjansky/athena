@@ -14,7 +14,10 @@ public:
 
   virtual FCSReturnCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) override;
 
+  void Print(Option_t *option) const override;
 private:
+  float m_RMS=1.0;
+  
   ClassDefOverride(TFCSLateralShapeParametrizationFluctChain,1)  //TFCSLateralShapeParametrizationFluctChain
 };
 

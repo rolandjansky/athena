@@ -33,7 +33,7 @@ TFCS2DFunctionLateralShapeParametrization::~TFCS2DFunctionLateralShapeParametriz
   m_function=nullptr;
 }
 
-double TFCS2DFunctionLateralShapeParametrization::get_sigma2_fluctuation(TFCSSimulationState& /*simulstate*/,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/) const
+float TFCS2DFunctionLateralShapeParametrization::get_sigma2_fluctuation(TFCSSimulationState& /*simulstate*/,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/) const
 {
   return 1.0/m_nhits;
 }

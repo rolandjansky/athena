@@ -6,6 +6,8 @@
 #include "ISF_FastCaloSimEvent/FastCaloSim_CaloCell_ID.h"
 #include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
 
+#include "CLHEP/Random/RandGauss.h"
+
 #include "TMath.h"
 
 //=============================================
@@ -37,6 +39,7 @@ FCSReturnCode TFCSLateralShapeParametrizationFluctChain::simulate(TFCSSimulation
 
   //Make a good guess of the needed hit energy, assuming all hits would have the same energy
   float Eavghit=Elayer/nhit;
+  float Eavghit_tenth=Eavghit/10;
   float sumEhit=0;
   float error2_sumEhit=0;
   float error2=1000;
@@ -53,7 +56,10 @@ FCSReturnCode TFCSLateralShapeParametrizationFluctChain::simulate(TFCSSimulation
   hit.reset_center();
   do {
     hit.reset();
-    hit.E()=Eavghit;
+    //hit.E()=Eavghit;
+    do {
+      hit.E()=CLHEP::RandGauss::shoot(simulstate.randomEngine(), Eavghit, m_RMS*Eavghit);
+    } while (hit.E()<Eavghit_tenth);
     bool failed=false;
     for(TFCSLateralShapeParametrizationHitBase* hitsim : m_chain) {
       if (debug) {
@@ -94,3 +100,13 @@ FCSReturnCode TFCSLateralShapeParametrizationFluctChain::simulate(TFCSSimulation
   return FCSSuccess;
 }
 
+void TFCSLateralShapeParametrizationFluctChain::Print(Option_t *option) const
+{
+  TString opt(option);
+  bool shortprint=opt.Index("short")>=0;
+  bool longprint=msgLvl(MSG::DEBUG) || (msgLvl(MSG::INFO) && !shortprint);
+  TString optprint=opt;optprint.ReplaceAll("short","");
+  TFCSLateralShapeParametrizationHitChain::Print(option);
+
+  if(longprint) ATH_MSG_INFO(optprint <<"  hit energy RMS="<<m_RMS);
+}
