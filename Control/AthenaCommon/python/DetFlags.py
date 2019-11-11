@@ -561,19 +561,20 @@ class DetFlags:
         # print flags for each task
         for attr in dir(cls)[:]:
             # check if this attribute is in the task list
-            if cls.__dict__[attr] in cls._taskList+cls._oredTaskList:
-                item=[]
-                # task name
-                item.append(attr)
-                for det in alldets:
-                    # test whether each detector is on
-                    command = "%s_on" % det
-                    if getattr(cls.__dict__[attr],command)():
-                        item.append("ON")
-                    else:
-                        item.append("--")
-                # print
-                print (format % tuple(item))
+            if not "__" in attr: #avoid __class__ etc
+              if cls.__dict__[attr] in cls._taskList+cls._oredTaskList:
+                  item=[]
+                  # task name
+                  item.append(attr)
+                  for det in alldets:
+                      # test whether each detector is on
+                      command = "%s_on" % det
+                      if getattr(cls.__dict__[attr],command)():
+                          item.append("ON")
+                      else:
+                          item.append("--")
+                  # print
+                  print (format % tuple(item))
 
     # class method
     _setAllTask  = classmethod(_setAllTask)
