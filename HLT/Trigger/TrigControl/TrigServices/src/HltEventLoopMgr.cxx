@@ -13,7 +13,6 @@
 // Athena includes
 #include "AthenaKernel/AthStatusCode.h"
 #include "AthenaMonitoring/OHLockedHist.h"
-#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "ByteStreamData/ByteStreamMetadata.h"
 #include "ByteStreamData/ByteStreamMetadataContainer.h"
 #include "EventInfoUtils/EventInfoFromxAOD.h"
@@ -89,7 +88,6 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& name, ISvcLocator* svcLoc)
   m_evtStore("StoreGateSvc", name),
   m_detectorStore("DetectorStore", name),
   m_inputMetaDataStore("StoreGateSvc/InputMetaDataStore", name),
-  m_robDataProviderSvc("ROBDataProviderSvc", name),
   m_THistSvc("THistSvc", name),
   m_ioCompMgr("IoComponentMgr", name)
 {
@@ -178,7 +176,6 @@ StatusCode HltEventLoopMgr::initialize()
   ATH_CHECK(m_evtStore.retrieve());
   ATH_CHECK(m_detectorStore.retrieve());
   ATH_CHECK(m_inputMetaDataStore.retrieve());
-  ATH_CHECK(m_robDataProviderSvc.retrieve());
   ATH_CHECK(m_THistSvc.retrieve());
   ATH_CHECK(m_evtSelector.retrieve());
   ATH_CHECK(m_evtSelector->createContext(m_evtSelContext)); // create an EvtSelectorContext
@@ -203,15 +200,6 @@ StatusCode HltEventLoopMgr::initialize()
   // HLTResultMT ReadHandle (created dynamically from the result builder property)
   m_hltResultRHKey = m_hltResultMaker->resultName();
   ATH_CHECK(m_hltResultRHKey.initialize());
-
-  //----------------------------------------------------------------------------
-  // Setup the HLT ROB Data Provider Service when configured
-  //----------------------------------------------------------------------------
-  m_hltROBDataProviderSvc = SmartIF<ITrigROBDataProviderSvc>( m_robDataProviderSvc.get() );
-  if (m_hltROBDataProviderSvc.isValid())
-    ATH_MSG_INFO("A ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvc was found");
-  else
-    ATH_MSG_INFO("No ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvc was found");
 
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
   return StatusCode::SUCCESS;
@@ -248,9 +236,6 @@ StatusCode HltEventLoopMgr::finalize()
   // Usually (but not necessarily) corresponds to the number of processed events +1
   ATH_MSG_INFO("Total number of EventContext objects created " << m_localEventNumber);
 
-  // Need to release now - automatic release in destructor is too late since services are already gone
-  m_hltROBDataProviderSvc.reset();
-
   // Release all handles
   auto releaseAndCheck = [&](auto& handle, std::string handleType) {
     if (handle.release().isFailure())
@@ -261,7 +246,6 @@ StatusCode HltEventLoopMgr::finalize()
   auto releaseSmartIF = [](auto&&... args) { (args.reset(), ...); };
 
   releaseService(m_incidentSvc,
-                 m_robDataProviderSvc,
                  m_evtStore,
                  m_detectorStore,
                  m_inputMetaDataStore,
@@ -275,8 +259,7 @@ StatusCode HltEventLoopMgr::finalize()
   releaseSmartIF(m_whiteboard,
                  m_algResourcePool,
                  m_aess,
-                 m_schedulerSvc,
-                 m_hltROBDataProviderSvc);
+                 m_schedulerSvc);
 
   return StatusCode::SUCCESS;
 }
