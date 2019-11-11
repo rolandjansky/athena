@@ -676,7 +676,7 @@ class triggerConfig(JobProperty):
                     cmd = 'TriggerFlags.do%s = False' % detOff
                     # possibly not all DetFlags have a TriggerFlag
                     try:
-                        exec cmd
+                        exec(cmd)
                         log.info(cmd)
                     except AttributeError:
                         pass
