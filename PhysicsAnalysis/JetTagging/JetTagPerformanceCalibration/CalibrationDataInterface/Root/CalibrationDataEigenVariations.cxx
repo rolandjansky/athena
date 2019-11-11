@@ -758,7 +758,10 @@ CalibrationDataEigenVariations::removeVariations(const IndexSet &set)
 
   std::vector<std::pair<TH1*, TH1*> > new_eigen;
   for (size_t index = 0; index < m_eigen.size(); ++index)
-    if (set.count(index) == 0) new_eigen.push_back(m_eigen[index]);
+    {
+      if (set.count(index) == 0) new_eigen.push_back(m_eigen[index]);
+      else { delete m_eigen[index].first; delete m_eigen[index].second; }
+    }
   m_eigen = new_eigen;
 }
 
