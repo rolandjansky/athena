@@ -259,6 +259,17 @@ JETM1SlimmingHelper.ExtraVariables  += ["AntiKt4EMTopoJets.DFCommonJets_QGTagger
 
 JETM1SlimmingHelper.ExtraVariables  += ["InDetTrackParticles.truthMatchProbability"]
 
+JETM1SlimmingHelper.ExtraVariables += ["AntiKt10UFOCSSKTrimmedPtFrac5SmallR20Jets.zg.rg",
+                                       "AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJets.zg.rg",
+                                       "AntiKt10UFOCHSTrimmedPtFrac5SmallR20Jets.zg.rg",
+                                       "AntiKt10EMPFlowTrimmedPtFrac5SmallR20Jets.zg.rg",
+                                       "AntiKt10UFOCHSSoftDropBeta100Zcut10Jets.zg.rg",
+                                       "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets.zg.rg",
+                                       "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets.zg.rg",
+                                       "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.zg.rg",
+                                       "AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5Jets.zg.rg",
+                                       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.zg.rg"]
+
 
 JETM1SlimmingHelper.AllVariables = [ "MuonTruthParticles", "egammaTruthParticles",
                                      "TruthParticles", "TruthEvents", "TruthVertices",
