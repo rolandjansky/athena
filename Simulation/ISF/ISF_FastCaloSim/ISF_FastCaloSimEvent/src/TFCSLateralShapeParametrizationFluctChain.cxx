@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationFluctChain.h"
-#include "ISF_FastCaloSimEvent/FastCaloSim_CaloCell_ID.h"
 #include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
 
 #include "CLHEP/Random/RandGauss.h"
@@ -14,7 +13,7 @@
 //======= TFCSLateralShapeParametrizationFluctChain =========
 //=============================================
 
-TFCSLateralShapeParametrizationFluctChain::TFCSLateralShapeParametrizationFluctChain(const char* name, const char* title):TFCSLateralShapeParametrizationHitChain(name,title)
+TFCSLateralShapeParametrizationFluctChain::TFCSLateralShapeParametrizationFluctChain(const char* name, const char* title, float RMS):TFCSLateralShapeParametrizationHitChain(name,title), m_RMS(RMS)
 {
 }
 
@@ -108,5 +107,5 @@ void TFCSLateralShapeParametrizationFluctChain::Print(Option_t *option) const
   TString optprint=opt;optprint.ReplaceAll("short","");
   TFCSLateralShapeParametrizationHitChain::Print(option);
 
-  if(longprint) ATH_MSG_INFO(optprint <<"  hit energy RMS="<<m_RMS);
+  if(longprint) ATH_MSG_INFO(optprint <<"  hit energy fluctuation RMS="<<m_RMS);
 }
