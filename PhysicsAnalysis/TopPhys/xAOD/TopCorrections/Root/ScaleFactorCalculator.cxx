@@ -163,7 +163,7 @@ namespace top {
     ///-- Start using the PMG tool to get the nominal event weights --///
     ///-- But nominal weight name seems to vary so we try to test   --///
     const std::vector<std::string> nominal_weight_names = {
-      "Weight", " nominal ", "nominal", ""
+      " nominal ", "nominal", "", "Weight"
     };
 
     for (auto weight_name : nominal_weight_names) {
