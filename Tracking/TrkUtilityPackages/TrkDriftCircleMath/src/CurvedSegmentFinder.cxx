@@ -3,7 +3,6 @@
 */
 
 #include "TrkDriftCircleMath/CurvedSegmentFinder.h"
-#include "TrkDriftCircleMath/MdtId.h"
 #define sq(x) ((x)*(x))
 
 
@@ -98,11 +97,7 @@ namespace TrkDriftCircleMath {
     }//end loop on ml1
     if(m_debugLevel >= 5) std::cout << "Finished CurvedSegments Finding, and found " << nCurved << " CurvedSegments" << std::endl; 
 
-
     return;
   }
 
-
-
-
-}//end namespace
+}//end namespace TrkDriftCircleMath
