@@ -5,6 +5,7 @@ def TrigIDtrkMonitoringTool():
 	from AthenaCommon.AppMgr import ToolSvc
 
 	list = []
+        return list
 
         from TrigInDetAnalysisExample.TrigInDetAnalysisExampleConf import TrigTestBase
 
