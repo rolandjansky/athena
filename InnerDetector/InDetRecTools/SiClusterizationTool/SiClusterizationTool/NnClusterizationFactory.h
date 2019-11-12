@@ -66,7 +66,6 @@ namespace InDet {
     float phi;
     float theta;
     float etaModule;
-    bool useTrackInfo;
     int columnWeightedPosition;
     int rowWeightedPosition;
   };
@@ -86,25 +85,12 @@ namespace InDet {
      
     virtual StatusCode initialize();
     virtual StatusCode finalize() { return StatusCode::SUCCESS; };
-     
-    std::vector<double> estimateNumberOfParticles(const InDet::PixelCluster& pCluster,
-                                                  Amg::Vector3D & beamSpotPosition,
-                                                  int sizeX=7,
-                                                  int sizeY=7);
 
     std::vector<double> estimateNumberOfParticles(const InDet::PixelCluster& pCluster,
                                                   const Trk::Surface& pixelSurface,
                                                   const Trk::TrackParameters& trackParsAtSurface,
                                                   int sizeX=7,
                                                   int sizeY=7);
-    
-    std::vector<Amg::Vector2D> estimatePositions(const InDet::PixelCluster& pCluster,
-                                                      Amg::Vector3D & beamSpotPosition,
-                                                      std::vector<Amg::MatrixX> & errors,
-                                                      int numberSubClusters,
-                                                      int sizeX=7,
-                                                      int sizeY=7);
-
     
     std::vector<Amg::Vector2D> estimatePositions(const InDet::PixelCluster& pCluster,
                                                       const Trk::Surface& pixelSurface,
@@ -119,17 +105,6 @@ namespace InDet {
     
    private:
     void clearCache(std::vector<TTrainedNetwork*>& ttnn);
- 
- 
-    /* estimate position for both with and w/o tracks */
-    std::vector<Amg::Vector2D> estimatePositions(std::vector<double> inputData,
-                                                      NNinput* input,
-                                                      const InDet::PixelCluster& pCluster,
-                                                      int sizeX,
-                                                      int sizeY,
-                                                      bool useTrackInfo,
-                                                      int numberSubClusters,
-                                                      std::vector<Amg::MatrixX> & errors);
 
      /* algorithmic component */
     NNinput* createInput(const InDet::PixelCluster& pCluster,
@@ -144,9 +119,8 @@ namespace InDet {
                              const Trk::TrackParameters& trackParsAtSurface,
                              const double tanl);
 
-    /* neural network component */
-    bool m_loadNoTrackNetworks;
-    bool m_loadWithTrackNetworks;
+    /* neural networks: read from COOL using TTrainedNetwork? */
+    bool m_loadTTrainedNetworks;
 
     TTrainedNetwork* retrieveNetwork(const std::string& folder, const std::string& subfolder);
 
@@ -154,19 +128,6 @@ namespace InDet {
     std::vector<double> assembleInput(NNinput& input,
                                       int sizeX,
                                       int sizeY);
-
-
-  std::vector<double> assembleInputRunI(NNinput& input,
-                                      int sizeX,
-                                      int sizeY);
-
-
-
-  std::vector<double> assembleInputRunII(NNinput& input,
-                                      int sizeX,
-                                      int sizeY);
-
-
 
     std::vector<Amg::Vector2D> getPositionsFromOutput(std::vector<double> & output,
 						      NNinput & input,
@@ -186,16 +147,9 @@ namespace InDet {
      
     
      TTrainedNetwork* m_NetworkEstimateNumberParticles;
-     TTrainedNetwork* m_NetworkEstimateNumberParticles_NoTrack;
-
      std::vector<TTrainedNetwork*> m_NetworkEstimateImpactPoints;
-     std::vector<TTrainedNetwork*> m_NetworkEstimateImpactPoints_NoTrack;
-
      std::vector<TTrainedNetwork*> m_NetworkEstimateImpactPointErrorsX;
-     std::vector<TTrainedNetwork*> m_NetworkEstimateImpactPointErrorsX_NoTrack;
-
      std::vector<TTrainedNetwork*> m_NetworkEstimateImpactPointErrorsY;
-     std::vector<TTrainedNetwork*> m_NetworkEstimateImpactPointErrorsY_NoTrack;
 
      std::string m_coolFolder;
      std::string m_layerInfoHistogram;
@@ -209,7 +163,6 @@ namespace InDet {
 
     bool m_useToT;
     bool m_addIBL;
-    bool m_doRunI;
 
     bool m_useRecenteringNNWithouTracks;
     bool m_useRecenteringNNWithTracks;

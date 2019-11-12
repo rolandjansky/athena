@@ -43,32 +43,13 @@ if InDetFlags.doPixelClusterSplitting() and not InDetFlags.doSLHC():
             print NeuralNetworkToHistoTool
 
         # --- new NN factor   
-        
-        # --- put in a temporary hack here for 19.1.0, to select the necessary settings when running on run 1 data/MC
-        # --- since a correction is needed to fix biases when running on new run 2 compatible calibation
-        # --- a better solution is needed...
-
 
         from SiClusterizationTool.SiClusterizationToolConf import InDet__NnClusterizationFactory
 
-        if not "R2" in globalflags.DetDescrVersion() and not "IBL3D25" in globalflags.DetDescrVersion():
-            NnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "NnClusterizationFactory",
-                                                                      NetworkToHistoTool   = NeuralNetworkToHistoTool,
-                                                                      doRunI = True,
-                                                                      useToT = False,
-                                                                      useRecenteringNNWithoutTracks = True,
-                                                                      useRecenteringNNWithTracks = False,
-                                                                      correctLorShiftBarrelWithoutTracks = 0,
-                                                                      correctLorShiftBarrelWithTracks = 0.030,
-                                                                      LoadNoTrackNetwork   = True,
-                                                                      LoadWithTrackNetwork = True)
-
-        else:
-            NnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "NnClusterizationFactory",
-                                                                      NetworkToHistoTool   = NeuralNetworkToHistoTool,
-                                                                      LoadNoTrackNetwork   = True,
-                                                                      useToT = InDetFlags.doNNToTCalibration(),
-                                                                      LoadWithTrackNetwork = True)
+        NnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "NnClusterizationFactory",
+                                                                  NetworkToHistoTool   = NeuralNetworkToHistoTool,
+                                                                  useToT = InDetFlags.doNNToTCalibration(),
+                                                                  LoadTTrainedNetworks = True)
                
         ToolSvc += NnClusterizationFactory
 
