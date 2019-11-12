@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_SLHC_GeoModel/SCT_FwdRing.h"
@@ -31,13 +31,14 @@ inline double sqr(double x) {return x*x;}
 namespace InDetDDSLHC {
 
 SCT_FwdRing::SCT_FwdRing(const std::string & name, 
-			 int iWheel,
+			 int /*iWheel*/,
 			 int iRing, double offset)
   : SCT_UniqueComponentFactory(name), 
-    m_iWheel(iWheel),
+    // m_iWheel(iWheel),
     m_iRing(iRing),
     m_numModules(0), m_doubleSided(0), m_moduleStagger(0),m_stereoSign(0), m_refStartAngle(0),
-    m_refFirstStagger(0), m_innerRadius(0), m_middleRadius(0),m_length(0),m_thickness(0), m_firstStagger(0){
+    // m_refFirstStagger(0),
+    m_innerRadius(0), m_middleRadius(0),m_length(0),m_thickness(0), m_firstStagger(0){
     m_ringSide = (offset>0) ? 1 : -1;
     getParameters();
     m_logVolume = preBuild();
