@@ -52,21 +52,9 @@ namespace Trk {
 
 namespace Muon {
   class MuonSegment;  
-  // class IMuonErrorOptimisationTool;
-  // class IMuonHoleRecoveryTool;
-  // class IMuonTrackExtrapolationTool;
-  // class MooTrackFitter;
-  // class MooCandidateMatchingTool;
-  // class MuPatCandidateTool;
-  // class IMuonTrackToSegmentTool;
-  // class IMuonSeededSegmentFinder;
-  // class MuonEDMPrinterTool;
-  // class MuonIdHelperTool;
   class MuPatCandidateBase;
   class MuPatTrack;
   class MuPatSegment;
-  // class IMdtDriftCircleOnTrackCreator;
-  // class IMuonCompetingClustersOnTrackCreator;
 }
 
 static const InterfaceID IID_MooTrackBuilder("Muon::MooTrackBuilder",1,0);
