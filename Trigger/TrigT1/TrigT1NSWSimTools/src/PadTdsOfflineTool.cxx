@@ -319,7 +319,7 @@ namespace NSWL1 {
                             //PadOfflineData* pad = new PadOfflineData(Id, digit->time(), digit->bcTag(), m_sTgcIdHelper);
                             //S.I
                             //std::shared_ptr<PadOfflineData> pad(new PadOfflineData(Id, digit->time(), digit->bcTag(), m_sTgcIdHelper));
-                            auto pad=std::make_shared<PadOfflineData>(Id, digit->time(), digit->bcTag(), m_sTgcIdHelper);
+                            auto pad=std::make_shared<PadOfflineData>(Id, digit->time(), digit->bcTag(), m_detManager);
                             //pad_hits.push_back(PadHits(Id, pad, cache_index(digit)));
                             pad_hits.emplace_back(Id, pad, cache_index(digit));//avoids extra copy
                             //S.I
