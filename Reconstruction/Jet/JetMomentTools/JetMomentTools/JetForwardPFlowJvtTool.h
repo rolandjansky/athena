@@ -97,7 +97,6 @@
 
     static StatusCode tagTruth(const xAOD::JetContainer *jets,const xAOD::JetContainer *truthJets);
     std::vector<TVector2> calculateVertexMomenta(const xAOD::JetContainer *jets,int pvind, int vertices) const;
-//  void buildPFlowPUjets(const xAOD::Vertex &vx, const xAOD::PFOContainer &pfos) const;
     StatusCode buildPFlowPUjets(const xAOD::Vertex &vx, const xAOD::PFOContainer &pfos) const;
     bool hasCloseByHSjet(const xAOD::Jet *jet, const xAOD::JetContainer *pjets ) const;
     double getRpt(const xAOD::Jet *jet) const;

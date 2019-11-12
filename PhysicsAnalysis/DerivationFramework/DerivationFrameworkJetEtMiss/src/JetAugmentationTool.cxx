@@ -284,17 +284,17 @@ namespace DerivationFramework {
     if(m_decoratetracksum){
       if( m_jetTrackSumMomentsTool->modify(*jets_copy) )
       {
-	 ATH_MSG_WARNING("Problems calculating TrackSumMass and TrackSumPt");
-	 return StatusCode::FAILURE;
+	ATH_MSG_WARNING("Problems calculating TrackSumMass and TrackSumPt");
+	return StatusCode::FAILURE;
       }
     }
 
     if(m_decorateorigincorrection){
       if(m_jetOriginCorrectionTool->modify(*jets_copy))
-       {
+        {
 	  ATH_MSG_WARNING("Problem applying the origin correction tool");
 	  return StatusCode::FAILURE;
-       }
+        }
     }
 
     // Check if GhostTruthAssociation decorations already exist for first jet, and if so skip them //
@@ -360,7 +360,6 @@ namespace DerivationFramework {
           bool passJVT = m_jetJvtEfficiencyTool->passesJvtCut(jet_orig);
 	  (*dec_passJvt)(jet_orig) = passJVT;
 	  
-
 	  if(m_doMVfJvt) {   
 	    (*dec_MVfJvt)(jet_orig)                    = jet->auxdata<float>("MVfJVT");
             (*dec_MVfJvt_Sumcle)(jet_orig)             = jet->auxdata<float>("Sumcle");
@@ -368,7 +367,7 @@ namespace DerivationFramework {
 	    (*dec_MVfJvt_SumclEMprob)(jet_orig)        = jet->auxdata<float>("SumclEMprob");
 	    (*dec_MVfJvt_LeadclWidth)(jet_orig)        = jet->auxdata<float>("LeadclWidth");
 	    (*dec_MVfJvt_LeadclSecondLambda)(jet_orig) = jet->auxdata<float>("LeadclSecondLambda");
-	    ATH_MSG_INFO("What goes in decoration:  m_cle = " << jet->auxdata<float>("Sumcle")
+	    ATH_MSG_VERBOSE("What goes in decoration:  m_cle = " << jet->auxdata<float>("Sumcle")
 			    << " || m_cliso = "                  << jet->auxdata<float>("SumclIso")
 			    << " || m_clemprob = "               << jet->auxdata<float>("SumclEMprob")
 			    << " || m_cletawidth = "             << jet->auxdata<float>("LeadclWidth")
@@ -379,7 +378,6 @@ namespace DerivationFramework {
 	  if(m_dofjvt) {
 	    ATH_MSG_INFO( "fJvt value = " << jet->auxdata<float>("fJvt") );
 	    (*dec_fjvt)(jet_orig) = jet->auxdata<float>("fJvt");
-	    //(*dec_passfjvt)(jet_orig) = jet->auxdata<float>("passOnlyFJVT");
 	  }
 
 	  if(m_dobtag) {
@@ -392,12 +390,6 @@ namespace DerivationFramework {
           }
         }
       }
-//      if(m_dofjvt) {
-//	ATH_MSG_INFO( "fJvt value = " << jet->auxdata<float>("fJvt") );
-//	(*dec_fjvt)(jet_orig) = jet->auxdata<float>("fJvt");
-//	//(*dec_passfjvt)(jet_orig) = jet->auxdata<float>("passOnlyFJVT");
-//      }
-
 
       if(m_decoratetracksum) {
         (*dec_tracksummass)(jet_orig) = jet->getAttribute<float>("TrackSumMass");

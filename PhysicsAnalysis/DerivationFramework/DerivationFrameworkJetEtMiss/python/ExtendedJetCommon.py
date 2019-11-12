@@ -418,9 +418,9 @@ def getPFlowfJVT(jetalg,algname,sequence):
         if(jetaugtool==None or jetaugtool.JetCalibTool=='' or jetaugtool.JetJvtTool==''):
             extjetlog.warning('***pfwarning:  PFlow fJvt called but required augmentation tool does not exist! ***')
             extjetlog.warning('*** pfwarning: You must apply jet calibration and JVT! ***')
-        
-        pffjvttoolname = 'DFJetPFfJvt_'+jetalg    
-        
+
+        pffjvttoolname = 'DFJetPFfJvt_'+jetalg
+
         from AthenaCommon.AppMgr import ToolSvc
 
         if hasattr(ToolSvc,pffjvttoolname):
@@ -429,12 +429,9 @@ def getPFlowfJVT(jetalg,algname,sequence):
             pffjvttool = CfgMgr.JetForwardPFlowJvtTool(pffjvttoolname)
             ToolSvc += pffjvttool
             jetaugtool.JetForwardPFlowJvtTool = pffjvttool
-            
+
         extjetlog.info('ExtendedJetCommon: Applying PFlow fJvt augmentation to jet collection: '+jetalg+'Jets')
         applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
-
-
-
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 def applyBTaggingAugmentation(jetalg,algname='default',sequence=DerivationFrameworkJob,btagtooldict={}):

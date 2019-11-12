@@ -66,7 +66,6 @@ namespace DerivationFramework {
 
     // PFlow fJVT
     std::unique_ptr< SG::AuxElement::Decorator<float> > dec_fjvt;
-    //std::unique_ptr< SG::AuxElement::Decorator<char> > dec_passfjvt;
     ToolHandle<IJetModifier> m_fjvtTool;
     std::string m_fjvtMomentKey;
     bool m_dofjvt;

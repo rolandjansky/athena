@@ -149,13 +149,6 @@
     for(const xAOD::Vertex* vx: *vxCont) {
       if(vx->vertexType()!=xAOD::VxType::PriVtx && vx->vertexType()!=xAOD::VxType::PileUp) continue;
       if(vx->index()==(size_t)pv_index) continue;
-      // Build and retrieve PU jets
-//    buildPFlowPUjets(*vx,*pfos);
-
-//      if( buildPFlowPUjets(*vx,*pfos).isFailure() ){
-//	  ATH_MSG_WARNING(" Some issue appeared while building the pflow pileup jets for vertex "<< vx->index() << " (vxType = " << vx->vertexType()<<" )!" );
-//	}
-//      }
 
       TString jname = m_jetsName;
       jname += vx->index();
@@ -206,7 +199,7 @@
     return false;
   }
 
-  void JetForwardPFlowJvtTool::buildPFlowPUjets(const xAOD::Vertex &vx, const xAOD::PFOContainer &pfos) const {
+  StatusCode JetForwardPFlowJvtTool::buildPFlowPUjets(const xAOD::Vertex &vx, const xAOD::PFOContainer &pfos) const {
     
     const std::size_t pv_index = (m_pvind==-1) ? getPV() : std::size_t (m_pvind);
 
@@ -255,16 +248,6 @@
       xAOD::JetFourMom_t chargejetp4(chargedpart,inclusive_jets[i].rap(),inclusive_jets[i].phi(),0);
       jet->setJetP4(m_jetchargedp4,chargejetp4);
     }   
-
-//    m_pfoJES->modify(*vertjets);
-//    if( (evtStore()->record(vertjets.release(),newname.Data())).isFailure() ){
-//      ATH_MSG_ERROR("Could not record vertex jets container");
-//      return;
-//    }
-//    if( (evtStore()->record(vertjetsAux.release(),(newname+"Aux.").Data())).isFailure() ){
-//      ATH_MSG_ERROR("Could not record vertex jets aux. container");
-//      return;
-//    }
     
     ATH_CHECK( evtStore()->record(vertjets.release(),newname.Data())    );
     ATH_CHECK( evtStore()->record(vertjetsAux.release(),newname.Data()) );
