@@ -34,6 +34,7 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     using namespace Monitored;
 
 
+    auto Eflow = Monitored::Scalar<float>("Eflow");
     auto eta = Monitored::Scalar<float>("eta");
     auto phi = Monitored::Scalar<float>("phi");
     auto pt = Monitored::Scalar<float>("pt");
@@ -41,8 +42,9 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     auto nTracks = Monitored::Scalar<int>("nTracks");
     auto ntaus = Monitored::Scalar<int>("ntaus");
     auto nClusters = Monitored::Scalar<int>("nClusters");
-    auto lb = Monitored::Scalar<int>("lb",0);
-
+    auto pt15 = Monitored::Scalar<float>("pt15");
+    auto phi15 = Monitored::Scalar<float>("phi15");
+    auto eta15 = Monitored::Scalar<float>("eta15");
 
 
     SG::ReadHandle<xAOD::TauJetContainer> taus(m_TauContainerKey, ctx);
@@ -61,12 +63,20 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
       charge = tau->charge();
       nTracks = tau->nTracks();
       nClusters = tau->detail<int>(xAOD::TauJetParameters::numTopoClusters) ;
-      lb = GetEventInfo(ctx)->lumiBlock();
       ANA_MSG_INFO( "groupName = " << m_kinGroupName );
 
+      
 
-      if (m_etaMin < eta && eta < m_etaMax){
-      	fill(m_kinGroupName, eta, phi, pt, charge, nTracks, ntaus, nClusters,lb);
+      if (pt>15000){
+	  pt15 = tau->pt();
+	  eta15 = tau->eta();
+	  phi15 = tau->phi();
+      }
+
+      if(pt>15000){
+          fill(m_kinGroupName, Eflow, eta, phi, pt, charge, nTracks, ntaus, nClusters,pt15, eta15, phi15);
+      }else{
+          fill(m_kinGroupName, Eflow, eta, phi, pt, charge, nTracks, ntaus, nClusters);
       }
 
 

@@ -73,9 +73,6 @@ def tauMonitoringConfig(inputFlags):
         (igroup, postfix) = itup
 
 	### 1 ###
-        igroup.defineHistogram('lb', title='luminosity something;something', path='Kinematics', 
-                               xbins=1000, xmin=0., xmax=1000.)
-
 
 	### 2 ###
         igroup.defineHistogram('ntaus', title='Number of tau candidates;Number of Taus per Event', path='Kinematics', 
@@ -95,6 +92,8 @@ def tauMonitoringConfig(inputFlags):
         igroup.defineHistogram('pt', title='Pt of tau candidates);pt);Number of Candidates', path='Kinematics', 
                                xbins=300, xmin=0., xmax=100000.)
 
+
+
 	### 6 ###
         igroup.defineHistogram('charge', title='Charge of tau candidates;Charge;Number of Candidates', path='Kinematics', 
                                xbins=120, xmin=-6., xmax=6.)
@@ -105,11 +104,13 @@ def tauMonitoringConfig(inputFlags):
 
 	### 8 ###
 	igroup.defineHistogram('nClusters', title='nClusters;nClusters;Events', path='Kinematics', 
-                               xbins=40, xmin=0., xmax=40. )
+                               xbins=40, xmin=0., xmax=40.)
 
 
 
-	### 9 ###
+	### 9 ### ?????
+        igroup.defineHistogram('pt15', title='Pt15 of tau candidates);pt);Number of Candidates', path='Kinematics', 
+                               xbins=300, xmin=0., xmax=100000.)
 
 
  	
@@ -130,6 +131,8 @@ def tauMonitoringConfig(inputFlags):
                                xbins=30,xmin=-3.0,xmax=3.0,ybins=32,ymin=-3.15,ymax=3.15)
 
 	### 13 ###
+        igroup.defineHistogram('eta15,phi15', type='TH2F', title='PhiVsEtaTitle;#eta;#phi', path='Kinematics', 
+                               xbins=30,xmin=-3.0,xmax=3.0,ybins=32,ymin=-3.15,ymax=3.15)
 
 
 
