@@ -4018,14 +4018,14 @@ StatusCode TrigEDMChecker::dumpTDT() {
   // Note: This minimal TDT dumper is for use during run-3 dev
   std::vector<std::string> confChains = m_trigDec->getListOfTriggers("HLT_.*");
   for (const auto& item : confChains) {
-    bool passed = m_trigDec->isPassed(item, TrigDefs::requireDecision);
+    bool passed = m_trigDec->isPassed(item);
     ATH_MSG_INFO("  HLT Item " << item << " (numeric ID " << TrigConf::HLTUtils::string2hash(item, "Identifier") << ") passed raw? " << passed);
-    if (passed) {
-      if (m_trigDec->getNavigationFormat() == "TriggerElement") {
-        ATH_MSG_INFO("    Skipping Run 2 features in this dumper");
-        continue;
-      }
-      std::vector< LinkInfo<xAOD::IParticleContainer> > passFeatures = m_trigDec->features<xAOD::IParticleContainer>(item);
+    if (m_trigDec->getNavigationFormat() == "TriggerElement") {
+      ATH_MSG_INFO("    Skipping Run 2 features in this dumper");
+      continue;
+    }
+    std::vector< LinkInfo<xAOD::IParticleContainer> > passFeatures = m_trigDec->features<xAOD::IParticleContainer>(item);
+    if (passFeatures.size()) {
       ATH_MSG_INFO("    " << item << " Passed IParticle features size: " << passFeatures.size());
       for (const LinkInfo<xAOD::IParticleContainer>& li : passFeatures) {
         if (!li.isValid()) {
@@ -4034,7 +4034,9 @@ StatusCode TrigEDMChecker::dumpTDT() {
           ATH_MSG_INFO("      IParticle Feature from " << li.link.dataID() << " pt:" << (*li.link)->pt() << " eta:" << (*li.link)->eta() << " phi:" << (*li.link)->phi());
         }
       }
-      std::vector< LinkInfo<xAOD::IParticleContainer> > allFeatures = m_trigDec->features<xAOD::IParticleContainer>(item, TrigDefs::includeFailedDecisions);
+    }
+    std::vector< LinkInfo<xAOD::IParticleContainer> > allFeatures = m_trigDec->features<xAOD::IParticleContainer>(item, TrigDefs::includeFailedDecisions);
+    if (allFeatures.size()) {
       ATH_MSG_INFO("    " << item << " Passed+Failed IParticle features size: " << allFeatures.size());
       for (const LinkInfo<xAOD::IParticleContainer>& li : allFeatures) {
         if (!li.isValid()) {

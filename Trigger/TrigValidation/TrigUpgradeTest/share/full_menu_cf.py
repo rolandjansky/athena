@@ -293,7 +293,7 @@ makeHLTTree( triggerConfigHLT=TriggerConfigHLT )
 # Configure trigger output using parts of the NewJO configuration
 # in a somewhat hacky way - copy-pasted from full_menu.py
 ##########################################
-from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectDecisionObjects, collectFilterDecisionObjects, triggerOutputCfg
+from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectDecisionObjects, collectHypoDecisionObjects, triggerOutputCfg
 from AthenaCommon.CFElements import findAlgorithm,findSubSequence
 hypos = collectHypos(findSubSequence(topSequence, "HLTAllSteps"))
 filters = collectFilters(findSubSequence(topSequence, "HLTAllSteps"))
@@ -309,19 +309,19 @@ if not l1decoder:
     l1decoder = findAlgorithm(topSequence,'L1EmulationTest')
 if l1decoder and summaryMakerAlg:
     decObj = collectDecisionObjects( hypos, filters, l1decoder, summaryMakerAlg )
-    decObjFilterOut = collectFilterDecisionObjects(filters, inputs=False, outputs=True)
+    decObjHypoOut = collectHypoDecisionObjects(hypos, inputs=False, outputs=True)
     __log.debug("Decision Objects to write to output [hack method - should be replaced with triggerRunCfg()]")
     __log.debug(decObj)
 else:
     __log.warning("Failed to find L1Decoder or summaryMakerAlg, cannot determine Decision names for output configuration")
     decObj = []
-    decObjFilterOut = []
+    decObjHypoOut = []
 
 
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.Configurable import Configurable
 Configurable.configurableRun3Behavior+=1
-acc, edmSet = triggerOutputCfg(ConfigFlags, decObj, decObjFilterOut, summaryMakerAlg)
+acc, edmSet = triggerOutputCfg(ConfigFlags, decObj, decObjHypoOut, summaryMakerAlg)
 Configurable.configurableRun3Behavior-=1
 acc.appendToGlobals()
 
