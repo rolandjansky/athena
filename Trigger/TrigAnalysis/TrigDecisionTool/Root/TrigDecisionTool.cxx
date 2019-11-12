@@ -107,9 +107,7 @@ Trig::TrigDecisionTool::initialize() {
      return StatusCode::FAILURE;
    }
 
-   if (m_navigationFormat == "TrigComposite") {
-     ATH_CHECK(m_HLTSummaryKeyIn.initialize());
-   }
+   ATH_CHECK(m_HLTSummaryKeyIn.initialize(m_navigationFormat == "TrigComposite"));
 
    s_instances.push_back(name());
    if ( s_instances.size() > 1) {

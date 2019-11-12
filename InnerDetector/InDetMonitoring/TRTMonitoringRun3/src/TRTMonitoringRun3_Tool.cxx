@@ -64,7 +64,7 @@ StatusCode TRTMonitoringRun3_Tool::initialize() {
     ATH_CHECK( m_trackCollectionKey.initialize() );
     ATH_CHECK( m_combTrackCollectionKey.initialize() );
     ATH_CHECK( m_xAODEventInfoKey.initialize() );
-    ATH_CHECK( m_TRT_BCIDCollectionKey.initialize() );
+    ATH_CHECK( m_TRT_BCIDCollectionKey.initialize(m_doRDOsMon) );
     
     ATH_CHECK(detStore()->retrieve(m_idHelper, "AtlasID"));
     
@@ -515,7 +515,6 @@ StatusCode TRTMonitoringRun3_Tool::fillHistograms( const EventContext& ctx ) con
     SG::ReadHandle<TrackCollection>     trackCollection{m_trackCollectionKey, ctx};
     SG::ReadHandle<TrackCollection>     combTrackCollection{m_combTrackCollectionKey, ctx};
     SG::ReadHandle<xAOD::EventInfo>     xAODEventInfo{m_xAODEventInfoKey, ctx};
-    SG::ReadHandle<InDetTimeCollection> trtBCIDCollection{m_TRT_BCIDCollectionKey, ctx};
 
     if (!xAODEventInfo.isValid()) {
         ATH_MSG_ERROR("Could not find event info object " << m_xAODEventInfoKey.key() <<
@@ -524,6 +523,7 @@ StatusCode TRTMonitoringRun3_Tool::fillHistograms( const EventContext& ctx ) con
     }
 
     if (m_doRDOsMon) {
+      SG::ReadHandle<InDetTimeCollection> trtBCIDCollection{m_TRT_BCIDCollectionKey, ctx};
         if (!trtBCIDCollection.isValid()) {
 			ATH_MSG_INFO("Could not find BCID collection " << m_TRT_BCIDCollectionKey.key() << " in store");
         }

@@ -68,6 +68,12 @@ if __name__=='__main__':
     dq = AthenaMonitoringCfg(ConfigFlags)
     cfg.merge(dq)
 
+    if (ConfigFlags.Concurrency.NumThreads > 0 and
+        (ConfigFlags.DQ.Steering.doTRTMon)):
+        from AthenaMonitoring.AthenaMonitoringConf import ForceIDConditionsAlg
+        beginseq = cfg.getSequence("AthBeginSeq")
+        beginseq += ForceIDConditionsAlg("ForceIDConditionsAlg")
+    
     # any last things to do?
     if args.postExec:
         log.info('Executing postExec: %s', args.postExec)
