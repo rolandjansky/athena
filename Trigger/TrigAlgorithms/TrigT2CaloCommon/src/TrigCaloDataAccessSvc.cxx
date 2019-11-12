@@ -144,9 +144,6 @@ StatusCode TrigCaloDataAccessSvc::loadCollections ( const EventContext& context,
 StatusCode TrigCaloDataAccessSvc::loadFullCollections ( const EventContext& context,
                                                         CaloConstCellContainer& cont ) {
 
-  struct timeval t1,t2;
-  gettimeofday(&t1,NULL);
-
   // Gets all data
   {
   std::lock_guard<std::mutex> dataPrepLock { m_dataPrepMutex };
@@ -163,27 +160,15 @@ StatusCode TrigCaloDataAccessSvc::loadFullCollections ( const EventContext& cont
   sc = prepareTileFullCollections( context );
   ATH_CHECK( sc == 0 );
 
-  struct timeval t3,t4;
-
-
   m_hLTCaloSlot.get(context)->lastFSEvent = context.evt();
 
   std::lock_guard<std::mutex> getCollClock{ m_getCollMutex };   
-  gettimeofday(&t3,NULL);
   CaloCellContainer* cont_to_copy = m_hLTCaloSlot.get(context)->fullcont ;
   cont.clear();
   cont.reserve( cont_to_copy->size() );
   for( const CaloCell* c : *cont_to_copy ) cont.push_back_fast( c );
-  gettimeofday(&t4,NULL);
-  double time_int1 = 1e-3*(t4.tv_usec-t3.tv_usec);
-  time_int1 += 1e+3*(t4.tv_sec-t3.tv_sec);
-  std::cout << "Output " << time_int1 << std::endl;
       
   ATH_CHECK( sc == 0 );
-  gettimeofday(&t2,NULL);
-  double time_int = 1e-3*(t2.tv_usec-t1.tv_usec);
-  time_int += 1e+3*(t2.tv_sec-t1.tv_sec);
-  std::cout << "Full " << time_int << std::endl;
   
   return StatusCode::SUCCESS;
 }
@@ -212,10 +197,7 @@ unsigned int TrigCaloDataAccessSvc::prepareLArFullCollections( const EventContex
 
   unsigned int status(0);
 
-  std::cout << "m_vrodid32fullDetHG.size() : " << m_vrodid32fullDetHG.size() << std::endl;
-  struct timeval t1,t2;
   for( size_t ii=0;ii<m_vrodid32fullDetHG.size();ii++) {
-      gettimeofday(&t1,NULL);
       std::vector<uint32_t>& vrodid32fullDet = m_vrodid32fullDetHG[ii];
       std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> robFrags;
       {
@@ -232,11 +214,6 @@ unsigned int TrigCaloDataAccessSvc::prepareLArFullCollections( const EventContex
         //status |= 0x1; // dummy code
         clearMissing( vrodid32fullDet, robFrags, ( cache->larContainer ) );
       }
-      gettimeofday(&t2,NULL);
-      double time_int = 1e-3*(t2.tv_usec-t1.tv_usec);
-      time_int += 1e+3*(t2.tv_sec-t1.tv_sec);
-      std::cout << "ii : " << ii << " " << time_int << std::endl;
-
   } // end of for m_vrodid32fullDetHG.size()
 
   int detid(0);
@@ -254,8 +231,6 @@ unsigned int TrigCaloDataAccessSvc::prepareTileFullCollections( const EventConte
     return 0x1; // dummy code
   }
 
-  struct timeval t1,t2;
-  gettimeofday(&t1,NULL);
   HLTCaloEventCache* cache = m_hLTCaloSlot.get( context );
 
   auto lockTime = Monitored::Timer ( "TIME_locking_LAr_FullDet" );
@@ -267,10 +242,6 @@ unsigned int TrigCaloDataAccessSvc::prepareTileFullCollections( const EventConte
 
   unsigned int status(0);
   convertROBs( m_rIdstile, (cache->tileContainer) );
-  gettimeofday(&t2,NULL);
-  double time_int = 1e-3*(t2.tv_usec-t1.tv_usec);
-  time_int += 1e+3*(t2.tv_sec-t1.tv_sec);
-  std::cout << "Tile :  " << time_int << std::endl;
 
   int detid(0);
   auto detidMon = Monitored::Scalar<int>( "det", detid );
