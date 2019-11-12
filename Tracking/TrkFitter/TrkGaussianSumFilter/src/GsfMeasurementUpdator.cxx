@@ -127,7 +127,7 @@ Trk::GsfMeasurementUpdator::fitQuality(const MultiComponentState& updatedState,
 
   if (updatedState.empty()) {
     ATH_MSG_WARNING("Attempting to calculate chi2 of a hit with respect to an empty multiple-component state");
-    return 0;
+    return nullptr;
   }
 
   double chi2 = 0;
@@ -174,17 +174,12 @@ Trk::GsfMeasurementUpdator::calculateFilterStep(const Trk::MultiComponentState& 
 
   // state Assembler cache
   IMultiComponentStateAssembler::Cache cache;
-  // Check that the assember is reset
-  bool isAssemblerReset = m_stateAssembler->reset(cache);
+  m_stateAssembler->reset(cache);
 
-  if (!isAssemblerReset) {
-    ATH_MSG_DEBUG("Could not reset the state assembler... returning 0");
-    return 0;
-  }
 
   if (stateBeforeUpdate.empty()) {
     ATH_MSG_WARNING("Cannot update multi-state with no components!");
-    return 0;
+    return nullptr;
   }
 
   // Calculate the weight of each component after the measurement
@@ -285,7 +280,7 @@ Trk::GsfMeasurementUpdator::update(const Trk::MultiComponentState& stateBeforeUp
   if (!updatedState) {
     ATH_MSG_DEBUG("Updated state could not be calculated... Returning 0");
     fitQoS.reset();
-    return 0;
+    return nullptr;
   }
   return updatedState;
 }
@@ -297,17 +292,12 @@ Trk::GsfMeasurementUpdator::calculateFilterStep(const Trk::MultiComponentState& 
 {
   // state Assembler cache
   IMultiComponentStateAssembler::Cache cache;
-  // Check that the assember is reset
-  bool isAssemblerReset = m_stateAssembler->reset(cache);
+  m_stateAssembler->reset(cache);
 
-  if (!isAssemblerReset) {
-    ATH_MSG_ERROR("Could not reset the state assembler... returning 0");
-    return 0;
-  }
 
   if (stateBeforeUpdate.empty()) {
     ATH_MSG_WARNING("Cannot update multi-state with no components!");
-    return 0;
+    return nullptr;
   }
 
   // Calculate the weight of each component after the measurement

@@ -91,18 +91,14 @@ Trk::QuickCloseComponentsMultiStateMerger::merge(const Trk::MultiComponentState&
   ATH_MSG_VERBOSE("Merging state with " << unmergedState.size() << " components");
   // Assembler Cache
   IMultiComponentStateAssembler::Cache cache;
-  // Check that the assember is reset
-  bool isAssemblerReset = m_stateAssembler->reset(cache);
+  // MAke sure  the assembler is reset
+  m_stateAssembler->reset(cache);
 
   if (unmergedState.size() <= m_maximumNumberOfComponents) {
     ATH_MSG_VERBOSE("State is already sufficiently small... no component reduction required");
     return std::unique_ptr<Trk::MultiComponentState> (unmergedState.clone());
   }
 
-  if (!isAssemblerReset) {
-    ATH_MSG_ERROR("Could not reset the state assembler... returning 0");
-    return nullptr;
-  }
 
   if (unmergedState.empty()) {
     ATH_MSG_ERROR("Attempting to merge multi-state with zero components");

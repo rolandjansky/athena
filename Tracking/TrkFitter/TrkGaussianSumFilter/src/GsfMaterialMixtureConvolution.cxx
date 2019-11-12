@@ -82,18 +82,14 @@ Trk::GsfMaterialMixtureConvolution::update(const Trk::MultiComponentState& multi
 
   // Assembler Cache
   IMultiComponentStateAssembler::Cache cache;
-  // Reset the assembler and check
-  bool isAssemblerReset = m_stateAssembler->reset(cache);
+  // Reset the assembler 
+  m_stateAssembler->reset(cache);
 
-  if (!isAssemblerReset) {
-    ATH_MSG_ERROR("Could not reset the state assembler... returning clone of original state");
-    return std::unique_ptr<Trk::MultiComponentState> (multiComponentState.clone());
-  }
 
   // Check the multi-component state is populated
   if (multiComponentState.empty()) {
     ATH_MSG_DEBUG("Multi component state passed to extrapolateInsideVolume is not populated... returning 0");
-    return 0;
+    return nullptr;
   }
 
   // Loop over all components and perform material effects update separately
@@ -145,13 +141,8 @@ Trk::GsfMaterialMixtureConvolution::preUpdate(const Trk::MultiComponentState& mu
      ------------------------------------- */
   // Assembler Cache
   IMultiComponentStateAssembler::Cache cache;
-  // Reset the assembler and check
-  bool isAssemblerReset = m_stateAssembler->reset(cache);
-
-  if (!isAssemblerReset) {
-    ATH_MSG_ERROR("Could not reset the state assembler... returning clone of original state");
-    return std::unique_ptr<Trk::MultiComponentState>(multiComponentState.clone());
-  }
+  // Reset the assembler 
+  m_stateAssembler->reset(cache);
 
   // Check the multi-component state is populated
   if (multiComponentState.empty()) {
@@ -211,18 +202,13 @@ Trk::GsfMaterialMixtureConvolution::postUpdate(const Trk::MultiComponentState& m
 
   // Assembler Cache
   IMultiComponentStateAssembler::Cache cache;
-  // Reset the assembler and check
-  bool isAssemblerReset = m_stateAssembler->reset(cache);
-
-  if (!isAssemblerReset) {
-    ATH_MSG_WARNING("Could not reset the state assembler... returning clone of original state");
-    return std::unique_ptr<Trk::MultiComponentState>(multiComponentState.clone());
-  }
+  // Reset the assembler  
+  m_stateAssembler->reset(cache);
 
   // Check the multi-component state is populated
   if (multiComponentState.empty()) {
     ATH_MSG_DEBUG("Multi component state passed to extrapolateInsideVolume is not populated... returning 0");
-    return 0;
+    return nullptr;
   }
 
   // Loop over all components and perform material effects update separately
@@ -268,18 +254,14 @@ Trk::GsfMaterialMixtureConvolution::simpliedMaterialUpdate(const Trk::MultiCompo
      ------------------------------------- */
   // Assembler Cache
   IMultiComponentStateAssembler::Cache cache;
-  // Reset the assembler and check
-  bool isAssemblerReset = m_stateAssembler->reset(cache);
+  // Reset the assembler 
+  m_stateAssembler->reset(cache);
 
-  if (!isAssemblerReset) {
-    ATH_MSG_WARNING("Could not reset the state assembler... returning clone of original state");
-    return std::unique_ptr<Trk::MultiComponentState> (multiComponentState.clone());
-  }
 
   // Check the multi-component state is populated
   if (multiComponentState.empty()) {
     ATH_MSG_DEBUG("Multi component state passed to extrapolateInsideVolume is not populated... returning 0");
-    return 0;
+    return nullptr;
   }
 
   // Hardwired material effects based on approximate material distribution
