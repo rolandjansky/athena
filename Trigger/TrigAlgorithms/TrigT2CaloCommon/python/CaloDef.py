@@ -1,4 +1,4 @@
-from AthenaCommon.Constants import ERROR,DEBUG
+from AthenaCommon.Constants import ERROR
 from AthenaCommon.CFElements import seqAND, parOR
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 
@@ -132,7 +132,6 @@ def HLTRoITopoRecoSequence(RoIs):
   
 def HLTLCTopoRecoSequence(RoIs='InViewRoIs'):
     cellMaker = HLTCellMaker(RoIs, outputName="CaloCellsLC", algSuffix="LC")
-    cellMaker.OutputLevel=DEBUG
     topoClusterMaker = _algoHLTTopoClusterLC(inputEDM = cellMaker.CellsName, algSuffix="LC")
     RecoSequence = parOR("TopoClusterRecoSequenceLC",[cellMaker,topoClusterMaker])
     return (RecoSequence, topoClusterMaker.CaloClusters)
