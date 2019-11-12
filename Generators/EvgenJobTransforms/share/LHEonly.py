@@ -3,6 +3,16 @@
 # No output is kept from this generation
 ## Base config for Pythia8
 
+import os
+if 'ATHENA_PROC_NUMBER' in os.environ:
+    evgenLog.info('Noticed that you have run with an athena MP-like whole-node setup.  Will re-configure now to make sure that the remainder of the job runs 
+serially.')
+    njobs = os.environ.pop('ATHENA_PROC_NUMBER')
+    # Try to modify the opts underfoot
+    if not hasattr(opts,'nprocs'): mglog.warning('Did not see option!')
+    else: opts.nprocs = 0
+    print opts
+
 from Pythia8_i.Pythia8_iConf import Pythia8_i
 genSeq += Pythia8_i("Pythia8")
 
