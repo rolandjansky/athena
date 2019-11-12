@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
+
 # art-description: test ttFC_fastSim_fastDigi + ttFC_reco_Split_fastSim_fastDigi
 # art-type: grid
-
-# specify branches of athena that are being targeted:
 # art-include: 21.3/Athena
 # art-output: config.txt
 # art-output: RAWtoESD_config.txt
+# art-output: *.root
+# art-output: dcube
 
 FastChain_tf.py --simulator ATLFASTIIF_PileUp \
     --digiSteeringConf "SplitNoMergeFF" \
@@ -26,7 +27,7 @@ FastChain_tf.py --simulator ATLFASTIIF_PileUp \
     --preDigiInclude="FastTRT_Digitization/preInclude.FastTRT_Digi.Validation.py" \
     --imf False
 
-echo "art-result: $? EVNTtoRDO step"
+echo "art-result: $? EVNTtoRDO"
 
 
 FastChain_tf.py --maxEvents 50 \
@@ -40,16 +41,20 @@ FastChain_tf.py --maxEvents 50 \
     --imf False
 
 
-echo "art-result: $? RDOtoAOD step"
-ArtPackage=$1
-ArtJobName=$2
-art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}
-echo  "art-result: $? regression"
+rc=$?
+rc2=-9999
+echo  "art-result: $rc RDOtoAOD"
+if [ $rc -eq 0 ]
+then
+    ArtPackage=$1
+    ArtJobName=$2
+    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
+    rc2=$?
+fi
+
+echo  "art-result: $rc2 regression"
+
 #add an additional payload from the job (corollary file).
-# art-output: InDetStandardPlots.root
 /cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube TEST_ttFC_reco_Split_fastSim_fastDigi InDetStandardPlots.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/dcube_configs/config/InDetStandardPlotCompare.xml /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/InDetStandardPlots_Refs/test_ttFC_reco_Split_fastSim_fastDigi_InDetStandardPlots.root
 
-
-# art-output: dcube/
-
-echo  "art-result: $? histcomp"
+echo  "art-result: $? dcubeHistComp"
