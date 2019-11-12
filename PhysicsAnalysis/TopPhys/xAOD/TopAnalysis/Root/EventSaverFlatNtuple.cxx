@@ -3594,11 +3594,6 @@ namespace top {
 
     top::check(evtStore()->retrieve(eventInfo, m_config->sgKeyEventInfo()), "Failed to retrieve EventInfo");
 
-    const xAOD::TruthEventContainer* truthEvent(nullptr);
-    top::check(evtStore()->retrieve(truthEvent, m_config->sgKeyTruthEvent()), "Failed to retrieve truth event container");
-    unsigned int truthEventSize = truthEvent->size();
-    top::check(truthEventSize == 1, "Failed to retrieve truth PDF info - truth event container size is different from 1 (strange)");
-
     m_weight_mc = eventInfo->auxdataConst<float>("AnalysisTop_eventWeight");
     m_eventNumber = eventInfo->eventNumber();
     m_runNumber = eventInfo->runNumber();
@@ -3719,12 +3714,6 @@ namespace top {
     for (auto& selectionDecision : m_particleLevel_SelectionDecisions) {
       selectionDecision.second = plEvent.m_selectionDecisions[ selectionDecision.first ];
     }
-
-    // to get the fixed mc weight
-    const xAOD::TruthEventContainer* truthEvent(nullptr);
-    top::check(evtStore()->retrieve(truthEvent, m_config->sgKeyTruthEvent()), "Failed to retrieve truth event container");
-    unsigned int truthEventSize = truthEvent->size();
-    top::check(truthEventSize == 1, "Failed to retrieve truth PDF info - truth event container size is different from 1 (strange)");
 
     m_weight_mc = plEvent.m_info->auxdataConst<float>("AnalysisTop_eventWeight");
 
@@ -4383,12 +4372,6 @@ namespace top {
       selectionDecision.second = upgradeEvent.m_selectionDecisions[ selectionDecision.first ];
     }
 
-    // to get the fixed mc weight
-    const xAOD::TruthEventContainer* truthEvent(nullptr);
-    top::check(evtStore()->retrieve(truthEvent, m_config->sgKeyTruthEvent()), "Failed to retrieve truth event container");
-    unsigned int truthEventSize = truthEvent->size();
-    top::check(truthEventSize == 1, "Failed to retrieve truth PDF info - truth event container size is different from 1 (strange)");
-
     m_weight_mc = upgradeEvent.m_info->auxdataConst<float>("AnalysisTop_eventWeight");
 
     m_eventNumber = upgradeEvent.m_info->eventNumber();
@@ -4770,12 +4753,9 @@ namespace top {
   }
 
   void EventSaverFlatNtuple::loadMCGeneratorWeights() {
-    const xAOD::TruthEventContainer* truthEvent(nullptr);
-
-    top::check(evtStore()->retrieve(truthEvent, m_config->sgKeyTruthEvent()), "Failed to retrieve MC Generator weights - impossible to retrieve truth event container");
-    unsigned int truthEventSize = truthEvent->size();
-    top::check(truthEventSize == 1, "Failed to retrieve truth PDF info - truth event container size is different from 1 (strange)");
-    m_mc_generator_weights = truthEvent->at(0)->weights();
+    const xAOD::EventInfo* eventInfo(nullptr);
+    top::check(evtStore()->retrieve(eventInfo, m_config->sgKeyEventInfo()), "Failed to retrieve EventInfo for loading of MCGenWeights!");
+    m_mc_generator_weights = eventInfo->mcEventWeights();
   }
 
   // This bit is new

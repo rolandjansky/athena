@@ -937,8 +937,7 @@ namespace top {
     std::vector<float> m_PDFinfo_XF1;
     std::vector<float> m_PDFinfo_XF2;
 
-    //the on-the-fly computed generator weights
-    //there is one vector of float per entry in the trutheventcontainer (which should have only 1 entry)
+    //the on-the-fly computed generator weights stored in EventInfo
     std::vector<float> m_mc_generator_weights;
 
     //Extra variables for Particle Level (bare lepton kinematics and b-Hadron
@@ -1546,8 +1545,7 @@ namespace top {
     const std::vector<float>& PDFinfo_XF1() const {return m_PDFinfo_XF1;}
     const std::vector<float>& PDFinfo_XF2() const {return m_PDFinfo_XF2;}
 
-    //the on-the-fly computed generator weights
-    //there is one vector of float per entry in the trutheventcontainer (which should have only 1 entry)
+    //the on-the-fly computed generator weights stored in EventInfo
     const std::vector<float>& mc_generator_weights() const {return m_mc_generator_weights;}
 
     //Extra variables for Particle Level (bare lepton kinematics and b-Hadron
