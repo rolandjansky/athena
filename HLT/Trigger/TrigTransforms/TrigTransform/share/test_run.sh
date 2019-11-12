@@ -168,8 +168,7 @@ Trig_reco_tf.py \
 --outputBSFile="RAW.05530098._000001.pool.root.1" \
 > log.txt 2>&1
 
-#may also want to make use of dumpoptions or testing a real precommand
-#--dumpOptions=True \
+#may also want to make use of testing a real precommand
 #--precommand "rerunLVL1=True;markTest=True" \
 
 echo "***trf command***"
@@ -504,7 +503,6 @@ echo "{\
 Trig_reco_tf.py --argJSON=data15_cos.00253010.debug_all.daq.RAW.g17.dbgrec.task._0011.job.argdict.json \
 > log.txt 2>&1
 
-#--dumpOptions=True \
 #--precommand "rerunLVL1=True;markTest=True" \
 
 echo "***trf command***"
@@ -555,7 +553,6 @@ echo "{\
 Trig_reco_tf.py --argJSON=data15_cos.00263146.debug_all.daq.RAW.g17.dbgrec.task._0005.job.argdict.json \
 > log.txt 2>&1
 
-#--dumpOptions=True \
 #--precommand "rerunLVL1=True;markTest=True" \
 
 #\"jobOptionSvcType\": \"TrigConf::HLTJobOptionsSvc\", \
@@ -643,6 +640,9 @@ fi
 
 if $runTest04 ; then
 
+#TODO tests to be updated to latest examples
+#this test was using --dumpOptions=True which has now been removed - is comparing the wrapper scripts now enough?
+
 echo -e "\n******runTest04: BSRDO->BS with athenaopt******"
 
 rm -rf runTest04_BSRDO_BS_athOpt
@@ -659,7 +659,6 @@ Trig_reco_tf.py \
 --maxEvents=1 --skipEvents=2 \
 --outputHIST_HLTMONFile="HIST_HLTMON.04854087._000852.pool.root.1" \
 --outputBSFile="RAW.05530098._000001.pool.root.1" \
---dumpOptions=True \
 > logDBargs.txt 2>&1
 
 echo "***trf command using DB args***"
@@ -679,7 +678,6 @@ Trig_reco_tf.py \
 --maxEvents=1 --skipEvents=2 \
 --outputHIST_HLTMONFile="HIST_HLTMON.04854087._000852.pool.root.1" \
 --outputBSFile="RAW.05530098._000001.pool.root.1" \
---dumpOptions=True \
 > logAthenaOpts.txt 2>&1
 
 echo "***trf command using athenaopts***"

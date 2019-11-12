@@ -288,7 +288,7 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                 bs_metadata['stream'] = getattr(data_reader, 'stream')()
                 #bs_metadata['beamType'] = getattr(data_reader, 'beamType')()
                 beamTypeNbr= getattr(data_reader, 'beamType')()
-                #According to info from Rainer and Guiseppe the beam type is 
+                #According to info from Rainer and Guiseppe the beam type is
                 #O: no beam
                 #1: protons
                 #2: ions
@@ -323,7 +323,7 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                 meta_dict[filename]['run_type'] = [eformat.helper.run_type2string(evt.run_type())]
 
                 # fix for ATEAM-122
-                if len(bs_metadata.get('eventTypes', '')) == 0:	 # see: ATMETADATA-6
+                if len(bs_metadata.get('eventTypes', '')) == 0:  # see: ATMETADATA-6
                     evt_type = ['IS_DATA', 'IS_ATLAS']
                     if bs_metadata.get('stream', '').startswith('physics_'):
                         evt_type.append('IS_PHYSICS')
@@ -689,15 +689,15 @@ def promote_keys(meta_dict):
         for key in file_content:
             if key in md['metadata_items'] and regexEventStreamInfo.match(md['metadata_items'][key]):
                 md.update(md[key])
-                
-                if len(md['eventTypes']):
-					et = md['eventTypes'][0]
-					md['mc_event_number'] = et.get('mc_event_number', md['runNumbers'][0])
 
-					md['mc_channel_number'] = et.get('mc_channel_number', 0)
-					md['eventTypes'] = et['type']
-					
-					
+                if len(md['eventTypes']):
+                    et = md['eventTypes'][0]
+                    md['mc_event_number'] = et.get('mc_event_number', md['runNumbers'][0])
+
+                    md['mc_channel_number'] = et.get('mc_channel_number', 0)
+                    md['eventTypes'] = et['type']
+
+
                 md['lumiBlockNumbers'] = md['lumiBlockNumbers']
                 md['processingTags'] = md[key]['processingTags']
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTPCnv/CaloClusterContainerCnv_p6.h" 
@@ -26,15 +26,15 @@ bool testbit (unsigned int x, unsigned int i)
 } // anonymous namespace
 
 
-void CaloClusterContainerCnv_p6::persToTrans(const CaloClusterContainer_p6* pers, 
-					     CaloClusterContainer* trans, MsgStream &log) {
+void CaloClusterContainerCnv_p6::persToTrans (const CaloClusterContainer_p6* pers, 
+                                              CaloClusterContainer* trans,
+                                              MsgStream &log) const
+{
   if (log.level() <= MSG::DEBUG) log<< MSG::DEBUG << "Reading CaloClusterContainerCnv_p6" << endmsg;
 
-  static CaloPhiRange range;
-					     
   // reset element link converters, and provide container name lookup table
-  m_showerElementLinkCnv.resetForCnv(pers->m_linkNames);
-  m_cellElementLinkCnv.resetForCnv(pers->m_linkNames);
+  ShowerLinkState showerLinkState (pers->m_linkNames);
+  CellLinkState cellLinkState (pers->m_linkNames);
 
   // Use data pool for clusters to avoid calling constructor for each event
   DataPool<CaloCluster> clusters;
@@ -111,7 +111,10 @@ void CaloClusterContainerCnv_p6::persToTrans(const CaloClusterContainer_p6* pers
     index++;
     
     CaloCluster* transCluster = clusters.nextElementPtr();// Get next ptr for next cluster
-    persToTrans(&(*itp),transCluster,log);  //Convert Cluster-quantities
+    persToTrans(&(*itp),transCluster,
+                showerLinkState,
+                cellLinkState,
+                log);  //Convert Cluster-quantities
 
     CaloSamplingData *trDS =&(transCluster->m_dataStore);
 	
@@ -195,7 +198,7 @@ void CaloClusterContainerCnv_p6::persToTrans(const CaloClusterContainer_p6* pers
     if (fillBad){
         while (ibad1 != ibad2 && (*ibad1) ==index) {
            float eta = tmp_badChannelEta[nbad] + transCluster->eta();
-           float phi = range.fix(tmp_badChannelPhi[nbad] + transCluster->phi());
+           float phi = CaloPhiRange::fix(tmp_badChannelPhi[nbad] + transCluster->phi());
            short status=pers->m_badLayerStatusList[nbad];
            CaloSampling::CaloSample layer = (CaloSampling::CaloSample) (status & 0xff);
            CaloBadChannel flag = CaloBadChannel( ((status>>8) & 0xff) );
@@ -221,7 +224,7 @@ void CaloClusterContainerCnv_p6::persToTrans(const CaloClusterContainer_p6* pers
       iraw3++;
     }
     if (iraw3 != iraw4) { 
-      transCluster->m_rawPhi = range.fix((*iraw3)+transCluster->phi());
+      transCluster->m_rawPhi = CaloPhiRange::fix((*iraw3)+transCluster->phi());
       iraw3++;
     }
     if (iraw3 == iraw4 && !raw_overrun_err) {
@@ -253,7 +256,7 @@ void CaloClusterContainerCnv_p6::persToTrans(const CaloClusterContainer_p6* pers
       ialt3++;
     }
     if (ialt3 != ialt4) { 
-      transCluster->m_altPhi = range.fix((*ialt3)+transCluster->phi());
+      transCluster->m_altPhi = CaloPhiRange::fix((*ialt3)+transCluster->phi());
       ialt3++;
     }
     if (ialt3 == ialt4 && !raw_overrun_err) {
@@ -346,17 +349,21 @@ void CaloClusterContainerCnv_p6::persToTrans(const CaloClusterContainer_p6* pers
 }
 
 
-
-void CaloClusterContainerCnv_p6::transToPers(const CaloClusterContainer* /*trans*/, 
-					     CaloClusterContainer_p6* /*pers*/, MsgStream &log) {
+void CaloClusterContainerCnv_p6::transToPers (const CaloClusterContainer* /*trans*/, 
+                                              CaloClusterContainer_p6* /*pers*/,
+                                              MsgStream &log) const
+{
   log << MSG::ERROR << "Writing of CaloClusterContainer_p6 not implemented any more!" << endmsg;
 
 } 
 
 
-
 void CaloClusterContainerCnv_p6::persToTrans(const CaloClusterContainer_p6::CaloCluster_p* pers, 
-					     CaloCluster* trans, MsgStream& log) {
+					     CaloCluster* trans,
+                                             ShowerLinkState& showerLinkState,
+                                             CellLinkState& cellLinkState,
+                                             MsgStream& log) const
+{
   trans->setDefaultSignalState (P4SignalState::CALIBRATED);
   trans->setBasicEnergy (pers->m_basicSignal);
   trans->setTime (pers->m_time);
@@ -368,17 +375,18 @@ void CaloClusterContainerCnv_p6::persToTrans(const CaloClusterContainer_p6::Calo
 
   //Convert base class and element links
   m_P4EEtaPhiMCnv.persToTrans(&pers->m_P4EEtaPhiM,(P4EEtaPhiM*)trans,log);
-  m_showerElementLinkCnv.persToTrans(&pers->m_dataLink,&trans->m_dataLink,log);
-  m_cellElementLinkCnv.persToTrans(&pers->m_cellLink,&trans->m_cellLink,log);
+  m_showerElementLinkCnv.persToTrans(showerLinkState, pers->m_dataLink, trans->m_dataLink,log);
+  m_cellElementLinkCnv.persToTrans(cellLinkState, pers->m_cellLink, trans->m_cellLink,log);
   trans->setAthenaBarCode (IAthenaBarCode::UNDEFINEDBARCODE);
 }
 
 
-
-
 void CaloClusterContainerCnv_p6::transToPers(const CaloCluster* trans, 
-					     CaloClusterContainer_p6::CaloCluster_p* pers, MsgStream& log) {
-
+					     CaloClusterContainer_p6::CaloCluster_p* pers,
+                                             ShowerLinkState& showerLinkState,
+                                             CellLinkState& cellLinkState,
+                                             MsgStream& log) const
+{
   pers->m_basicSignal=trans->getBasicEnergy();
   pers->m_time=trans->getTime();
   pers->m_samplingPattern=trans->m_samplingPattern; 
@@ -389,42 +397,6 @@ void CaloClusterContainerCnv_p6::transToPers(const CaloCluster* trans,
  
   //Convert base class and element links
   m_P4EEtaPhiMCnv.transToPers((P4EEtaPhiM*)trans,&pers->m_P4EEtaPhiM,log);
-  m_showerElementLinkCnv.transToPers(&trans->m_dataLink,&pers->m_dataLink,log);
-  m_cellElementLinkCnv.transToPers(&trans->m_cellLink,&pers->m_cellLink,log);
+  m_showerElementLinkCnv.transToPers(showerLinkState, trans->m_dataLink, pers->m_dataLink,log);
+  m_cellElementLinkCnv.transToPers(cellLinkState, trans->m_cellLink, pers->m_cellLink,log);
 }
-
-
-void CaloClusterContainerCnv_p6::persToTransUntyped(const void* pers,
-                                                    void* trans,
-                                                    MsgStream& log)
-{
-  persToTrans (reinterpret_cast<const CaloClusterContainer_p6*>(pers),
-               reinterpret_cast<CaloClusterContainer*>(trans),
-               log);
-}
-
-
-void CaloClusterContainerCnv_p6::transToPersUntyped(const void* trans,
-                                                    void* pers,
-                                                    MsgStream& log)
-{
-  transToPers (reinterpret_cast<const CaloClusterContainer*>(trans),
-               reinterpret_cast<CaloClusterContainer_p6*>(pers),
-               log);
-}
-
-
-const std::type_info& CaloClusterContainerCnv_p6::transientTInfo() const
-{
-  return typeid (CaloClusterContainer);
-}
-
-/** return C++ type id of the persistent class this converter is for
-    @return std::type_info&
-*/
-const std::type_info& CaloClusterContainerCnv_p6::persistentTInfo() const
-{
-  return typeid (CaloClusterContainer_p6);
-}
-
-

@@ -6,9 +6,10 @@
 #include "CaloEvent/CaloClusterContainer.h"
 #include "CaloUtils/CaloClusterSignalState.h"
 
-void CaloClusterContainerCnv_p1::persToTrans(const CaloClusterContainer_p1* pers,
-                                             CaloClusterContainer* trans,
-                                             MsgStream &log) const
+
+void CaloClusterContainerCnv_p1::persToTrans (const CaloClusterContainer_p1* pers,
+                                              CaloClusterContainer* trans,
+                                              MsgStream &log) const
 {
   CaloClusterContainer_p1::const_iterator it=pers->m_vec.begin();
   CaloClusterContainer_p1::const_iterator it_e=pers->m_vec.end();
@@ -24,9 +25,9 @@ void CaloClusterContainerCnv_p1::persToTrans(const CaloClusterContainer_p1* pers
 }
 
 
-void CaloClusterContainerCnv_p1::transToPers(const CaloClusterContainer* trans,
-                                             CaloClusterContainer_p1* pers,
-                                             MsgStream &log) const
+void CaloClusterContainerCnv_p1::transToPers (const CaloClusterContainer* trans,
+                                              CaloClusterContainer_p1* pers,
+                                              MsgStream &log) const
 {
   pers->m_vec.resize(trans->size());
   CaloClusterContainer_p1::iterator itp=pers->m_vec.begin();

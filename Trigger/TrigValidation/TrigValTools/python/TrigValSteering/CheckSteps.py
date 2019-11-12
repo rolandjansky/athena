@@ -206,7 +206,7 @@ class CheckLogStep(Step):
 
     def __init__(self, name):
         super(CheckLogStep, self).__init__(name)
-        self.executable = 'check_log.pl'
+        self.executable = 'check_log.py'
         self.log_file = None
         self.check_errors = True
         self.check_warnings = False
@@ -228,8 +228,8 @@ class CheckLogStep(Step):
                 self.log_file = test.exec_steps[0].name+'.log'
             else:
                 self.log_file = 'athena.log'
-        if not self.check_errors:
-            self.args += ' --noerrors'
+        if self.check_errors:
+            self.args += ' --errors'
         if self.check_warnings:
             self.args += ' --warnings'
         if self.check_errors and not self.check_warnings:

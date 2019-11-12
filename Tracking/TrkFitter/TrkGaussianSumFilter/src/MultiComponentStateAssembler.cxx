@@ -40,7 +40,7 @@ Trk::MultiComponentStateAssembler::finalize()
   return StatusCode::SUCCESS;
 }
 
-bool
+void
 Trk::MultiComponentStateAssembler::reset(Cache& cache) const
 {
   ATH_MSG_VERBOSE("Resetting the MultiComponentStateAssembler: " << name() << "\n");
@@ -50,7 +50,6 @@ Trk::MultiComponentStateAssembler::reset(Cache& cache) const
   }
   cache.validWeightSum = 0.;
   cache.invalidWeightSum = 0.;
-  return true;
 }
 
 void

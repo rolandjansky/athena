@@ -98,7 +98,6 @@ private:
 
 
   std::list<std::string> m_inputFilesRead;
-  std::list<std::string> m_inputFilesError;
   std::list<std::string> m_outputFiles;
   std::list<std::string> m_outputFilesError;
 

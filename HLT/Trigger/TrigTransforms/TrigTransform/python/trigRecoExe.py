@@ -12,16 +12,17 @@ msg = logging.getLogger("PyJobTransforms." + __name__)
 import os
 import fnmatch
 import re
+import subprocess
 
 from PyJobTransforms.trfExe import athenaExecutor
 
 #imports for preExecute
-from PyJobTransforms.trfUtils import asetupReport, cvmfsDBReleaseCheck
+from PyJobTransforms.trfUtils import asetupReport, cvmfsDBReleaseCheck, lineByLine
 import PyJobTransforms.trfEnv as trfEnv
 import PyJobTransforms.trfExceptions as trfExceptions
 from PyJobTransforms.trfExitCodes import trfExit as trfExit
 import TrigTransform.dbgAnalysis as dbgStream
-from TrigTransform.trigTranslate import writeTranslate as writeTranslate
+from TrigTransform.trigTranslate import getTranslated as getTranslated
 
 
 class trigRecoExecutor(athenaExecutor):
@@ -123,18 +124,13 @@ class trigRecoExecutor(athenaExecutor):
         #self._envUpdate.setStandardEnvironment(self.conf.argdict)
         self._prepAthenaCommandLine() 
         
-        #to get athenaHLT to read in the relevant parts from the runargs file we have to add the -F option
+        #to get athenaHLT to read in the relevant parts from the runargs file we have to translate them
         if 'athenaHLT' in self._exe:
-            self._cmd=['-F runtranslate.BSRDOtoRAW.py' if x=='runargs.BSRDOtoRAW.py' else x for x in self._cmd]
-            
-            # write runTranslate file to be used by athenaHLT
-            writeTranslate('runtranslate.BSRDOtoRAW.py', self.conf.argdict, name=self._name, substep=self._substep, first=self.conf.firstExecutor, output = outputFiles)
-            
-            #instead of running athenaHLT we can dump the options it has loaded
-            #note the -D needs to go after the -F in the command
-            if 'dumpOptions' in self.conf.argdict:
-                self._cmd=['-F runtranslate.BSRDOtoRAW.py -D' if x=='-F runtranslate.BSRDOtoRAW.py' else x for x in self._cmd]
-            
+            self._cmd.remove('runargs.BSRDOtoRAW.py')
+            # get list of translated arguments to be used by athenaHLT
+            optionList = getTranslated(self.conf.argdict, name=self._name, substep=self._substep, first=self.conf.firstExecutor, output = outputFiles)
+            self._cmd.extend(optionList)
+
             #Run preRun step debug_stream analysis if debug_stream=True
             if 'debug_stream' in self.conf.argdict:
                 inputFiles = dict()
@@ -199,22 +195,67 @@ class trigRecoExecutor(athenaExecutor):
             
     def postExecute(self):
                 
+        #Adding check for HLTMPPU.*Child Issue in the log file
+        #   Throws an error message if there so we catch that the child died
+        #   Also sets the return code of the mother process to mark the job as failed
+        #   Is based on trfValidation.scanLogFile
+        log = self._logFileName
+        msg.debug('Now scanning logfile {0}'.format(log))
+        # Using the generator so that lines can be grabbed by subroutines if needed for more reporting
+        try:
+            myGen = lineByLine(log, substepName=self._substep)
+        except IOError as e:
+            msg.error('Failed to open transform logfile {0}: {1:s}'.format(log, e))
+        for line, lineCounter in myGen:
+            # Check to see if any of the hlt children had an issue
+            if 'Child Issue' in line > -1:
+                try:
+                    signal = int((re.search('signal ([0-9]*)', line)).group(1))
+                except AttributeError:
+                    #signal not found in message, so return 1 to highlight failure
+                    signal = 1
+                msg.error('Detected issue with HLTChild, setting mother return code to %s' % (signal) )
+                self._rc = signal
+
         msg.info("Check for expert-monitoring.root file")
-        #the BS-BS step generates the file expert-monitoring.root
+        #the BS-BS step generates the files:
+        #   expert-monitoring.root (from mother process)
+        #   athenaHLT_workers/*/expert-monitoring.root (from child processes)        
         #to save on panda it needs to be renamed via the outputHIST_HLTMONFile argument
         expectedFileName = 'expert-monitoring.root'
-        #first check argument is in dict
-        if 'outputHIST_HLTMONFile' in self.conf.argdict:
-             #check file is created
-             if(os.path.isfile(expectedFileName)):
-                 msg.info('Renaming %s to %s' % (expectedFileName, self.conf.argdict['outputHIST_HLTMONFile'].value[0]) ) 
-                 try:
-                      os.rename(expectedFileName, self.conf.argdict['outputHIST_HLTMONFile'].value[0])
-                 except OSError, e:
-                      raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
-                                    'Exception raised when renaming {0} to {1}: {2}'.format(expectedFileName, self.conf.argdict['outputHIST_HLTMONFile'].value[0], e))
-             else:
-                 msg.error('HLTMON argument defined %s but %s not created' % (self.conf.argdict['outputHIST_HLTMONFile'].value[0], expectedFileName ))
+
+        #first check athenaHLT step actually completed
+        if self._rc != 0:
+            msg.info('HLT step failed (with status %s) so skip HIST_HLTMON filename check' % self._rc)
+        #next check argument is in dictionary as a requested output
+        elif 'outputHIST_HLTMONFile' in self.conf.argdict:
+
+            #rename the mother file
+            expectedMotherFileName = 'expert-monitoring-mother.root'
+            if(os.path.isfile(expectedFileName)):
+                msg.info('Renaming %s to %s' % (expectedFileName, expectedMotherFileName) )
+                try:
+                    os.rename(expectedFileName, expectedMotherFileName)
+                except OSError, e:
+                    raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
+                        'Exception raised when renaming {0} to {1}: {2}'.format(expectedFileName, expectedMotherFileName, e))
+            else:
+                msg.error('HLTMON argument defined but mother %s not created' % (expectedFileName ))
+
+            #merge worker files
+            expectedWorkerFileName = 'athenaHLT_workers/athenaHLT-01/' + expectedFileName
+            if(os.path.isfile(expectedWorkerFileName) and os.path.isfile(expectedMotherFileName)):
+                msg.info('Merging worker and mother %s files to %s' % (expectedFileName, self.conf.argdict['outputHIST_HLTMONFile'].value[0]) )
+                try:
+                    #have checked that at least one worker file exists
+                    cmd = 'hadd ' + self.conf.argdict['outputHIST_HLTMONFile'].value[0] + ' athenaHLT_workers/*/expert-monitoring.root expert-monitoring-mother.root'
+                    subprocess.call(cmd, shell=True)
+                except OSError, e:
+                    raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
+                        'Exception raised when merging worker and mother {0} files to {1}: {2}'.format(expectedFileName, self.conf.argdict['outputHIST_HLTMONFile'].value[0], e))
+            else:
+                msg.error('HLTMON argument defined %s but worker %s not created' % (self.conf.argdict['outputHIST_HLTMONFile'].value[0], expectedFileName ))
+
         else:
             msg.info('HLTMON argument not defined so skip %s check' % expectedFileName)
         
@@ -223,7 +264,9 @@ class trigRecoExecutor(athenaExecutor):
         msg.info("Search for created BS files, and rename if single file found")
         #The following is needed to handle the BS file being written with a different name (or names)
         #base is from either the tmp value created by the transform or the value entered by the user
-        if 'BS' in self.conf.dataDictionary:
+        if self._rc != 0:
+            msg.info('HLT step failed (with status %s) so skip BS filename check' % self._rc)
+        elif 'BS' in self.conf.dataDictionary:
             argInDict = self.conf.dataDictionary['BS']
             #create expected string by taking only some of input
             # removes uncertainty of which parts of the filename are used by athenaHLT
@@ -280,7 +323,9 @@ class trigRecoExecutor(athenaExecutor):
             if "outputHIST_DEBUGSTREAMMONFile" in self.conf.argdict:
                 fileNameDbg= self.conf.argdict["outputHIST_DEBUGSTREAMMONFile"].value                
                 msg.info('outputHIST_DEBUGSTREAMMONFile argument is {0}'.format(fileNameDbg) )
-                
+
+            #TODO add merging of mother and child debug files
+
             if(os.path.isfile(fileNameDbg[0])):
                 #keep filename if not defined
                 msg.info('Will use file created  in PreRun step {0}'.format(fileNameDbg) )

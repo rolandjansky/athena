@@ -78,7 +78,7 @@ class Step(object):
         parent = psutil.Process(pid)
         backtrace = ''
         for proc in [parent] + parent.children(recursive=True):
-            backtrace += '\nBacktrace for {} PID {}:\n'.format(proc.name(), proc.pid)
+            backtrace += '\nTraceback for {} PID {}:\n'.format(proc.name(), proc.pid)
             backtrace += subprocess.check_output('$ROOTSYS/etc/gdb-backtrace.sh {}'.format(proc.pid),
                                                  stderr=subprocess.STDOUT, shell=True)
         backtrace_list[0] = backtrace

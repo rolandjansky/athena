@@ -287,11 +287,18 @@ namespace TrigCompositeUtils {
   const std::string& seedString();
   /// @}
 
+  /**
+   * @brief Removes ElementLinks from the supplied vector if they do not come from the specified collection (sub-string match).
+   * @param[in] containerSGKey The StoreGate key of the collection to match against. Performs sub-string matching. Passing "" performs no filtering.
+   * @param[in,out] vector Mutible vector of ElementLinks on which to filter.
+   **/
+  template<class CONTAINER>
+  void filterLinkVectorByContainerKey(const std::string& containerSGKey, ElementLinkVector<CONTAINER>& vector);
 
   /**
    * @brief Extract features from the supplied linkVector (obtained through recursiveGetDecisions).
    * @param[in] linkVector Vector of paths through the navigation which are to be considered.
-   * @param[in] oneFeaturePerLeg True for TrigDefs::oneFeaturePerLeg. stops at the first feature (of the correct type) found per path through the navigation.
+   * @param[in] lastFeatureOfType True for TrigDefs::lastFeatureOfType. stops at the first feature (of the correct type) found per path through the navigation.
    * @param[in] featureName Optional name of feature link as saved online. The "feature" link is enforced, others may have been added. 
    * @param[in] chains Optional set of Chain IDs which features are being requested for. Used to set the ActiveState of returned LinkInfo objects.
    * @return Typed vector of LinkInfo. Each LinkInfo wraps an ElementLink to a feature and a pointer to the feature's Decision object in the navigation.
@@ -299,8 +306,9 @@ namespace TrigCompositeUtils {
   template<class CONTAINER>
   const std::vector< LinkInfo<CONTAINER> > getFeaturesOfType( 
     const std::vector<ElementLinkVector<DecisionContainer>>& linkVector, 
-    const bool oneFeaturePerLeg = true,
-    const std::string& featureName = featureString(),
+    const std::string containerSGKey = "",
+    const bool lastFeatureOfType = true,
+    const std::string& navElementLinkKey = featureString(),
     const DecisionIDContainer chainIDs = DecisionIDContainer());
 
   /**

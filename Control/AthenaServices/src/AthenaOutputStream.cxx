@@ -14,7 +14,6 @@
 #include "GaudiKernel/ClassID.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
-#include "GaudiKernel/FileIncident.h"
 #include "GaudiKernel/AlgTool.h"
 
 #include "AthenaKernel/IClassIDSvc.h"
@@ -412,27 +411,6 @@ void AthenaOutputStream::handle(const Incident& inc)
          }
          ATH_MSG_INFO("Records written: " << m_events);
       }
-   } else if (inc.type() == "UpdateOutputFile") {
-     const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
-     if(fileInc!=nullptr) {
-       if(m_outputName != fileInc->fileName()) {
-	 m_outputName = fileInc->fileName();
-	 ServiceHandle<IIoComponentMgr> iomgr("IoComponentMgr", name());
-	 if(iomgr.retrieve().isFailure()) {
-	   ATH_MSG_FATAL("Cannot retrieve IoComponentMgr from within the incident handler");
-	   return;
-	 }
-	 if(iomgr->io_register(this, IIoComponentMgr::IoMode::WRITE, m_outputName).isFailure()) {
-	   ATH_MSG_FATAL("Cannot register new output name with IoComponentMgr");
-	   return;
-	 }
-       } else {
-	 ATH_MSG_DEBUG("New output file name received through the UpdateOutputFile incident is the same as the already defined output name. Nothing to do");
-       }
-     } else {
-       ATH_MSG_FATAL("Cannot dyn-cast the UpdateOutputFile incident to FileIncident");
-       return;
-     }
    }
 
    // Handle Event Ranges
@@ -948,7 +926,7 @@ bool AthenaOutputStream::matchKey(const std::vector<std::string>& key,
 
 StatusCode AthenaOutputStream::io_reinit() {
    ATH_MSG_INFO("I/O reinitialization...");
-   // For 'write on finalize', we set up listener for 'LastInputFile'
+   // For 'write on finalize', we set up listener for 'MetaDataStop'
    // and perform write at this point. This happens at 'stop' of the
    // event selector. RDS 04/2010
    // Set to be listener for end of event
@@ -958,7 +936,6 @@ StatusCode AthenaOutputStream::io_reinit() {
       return StatusCode::FAILURE;
    }
    incSvc->addListener(this, "MetaDataStop", 50);
-   incSvc->addListener(this, "UpdateOutputFile", 50);
    for (std::vector<ToolHandle<IAthenaOutputTool> >::iterator iter = m_helperTools.begin();
        iter != m_helperTools.end(); iter++) {
       if (!(*iter)->postInitialize().isSuccess()) {

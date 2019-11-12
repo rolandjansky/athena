@@ -9,7 +9,6 @@
 
 #include "CaloEvent/CaloClusterContainer.h"
 #include "CaloEvent/CaloSamplingData.h"
-#include "AthenaKernel/ITPCnvBase.h"
 #include "CaloTPCnv/CaloTowerSegCnv_p1.h"
 #include "EventCommonTPCnv/P4EEtaPhiMCnv_p2.h"
 #include "CaloEvent/CaloShowerContainer.h"
@@ -19,36 +18,30 @@
 #include "DataModelAthenaPool/ElementLinkCnv_p3.h"
 #include "DataModelAthenaPool/AthenaBarCodeCnv_p1.h"
 #include "AthLinks/ElementLink.h"
-#include "AthenaPoolCnvSvc/ITPConverter.h"
+#include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
 class CaloClusterContainer;
 class CaloCluster;
 
-class CaloClusterContainerCnv_p7 : public ITPCnvBase {
+class CaloClusterContainerCnv_p7
+  : public T_AthenaPoolTPCnvConstBase<CaloClusterContainer, CaloClusterContainer_p7>
+{
 public:
-  typedef CaloClusterContainer Trans_t;
-  typedef CaloClusterContainer_p7 Pers_t;
+  using base_class::transToPers;
+  using base_class::persToTrans;
 
 
-  CaloClusterContainerCnv_p7() {};
-  virtual ~CaloClusterContainerCnv_p7() {}; 
+  virtual
+  void persToTrans (const CaloClusterContainer_p7* pers,
+                    CaloClusterContainer* trans,
+                    MsgStream &log) const override;
 
-  // Methods for invoking conversions on objects given by generic pointers.
-  virtual void persToTransUntyped(const void* pers,
-                                  void* trans,
-                                  MsgStream& log) override;
-  virtual void transToPersUntyped(const void* trans,
-                                  void* pers,
-                                  MsgStream& log) override;
-  virtual const std::type_info& transientTInfo() const override;
 
-  /** return C++ type id of the persistent class this converter is for
-      @return std::type_info&
-  */
-  virtual const std::type_info& persistentTInfo() const override;
+  virtual
+  void transToPers (const CaloClusterContainer* trans,
+                    CaloClusterContainer_p7* pers,
+                    MsgStream &log) const override;
 
-  void persToTrans(const CaloClusterContainer_p7*, CaloClusterContainer*, MsgStream &log) const;
-  void transToPers(const CaloClusterContainer*, CaloClusterContainer_p7*, MsgStream &log) const;
 
 private:
   friend class CaloClusterContainerCnvTest_p7;

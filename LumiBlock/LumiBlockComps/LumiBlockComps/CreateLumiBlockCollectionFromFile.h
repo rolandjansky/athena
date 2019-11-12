@@ -42,7 +42,7 @@ public:
   StatusCode finalize();
   StatusCode fillLumiBlockCollection();
 
-  /// Incident service handle listening for BeginFile and EndFile.
+  /// Incident service handle listening for MetaDataStop
   void handle(const Incident& incident);
   ///  Callback for database access
   virtual StatusCode updateCache(IOVSVC_CALLBACK_ARGS);
