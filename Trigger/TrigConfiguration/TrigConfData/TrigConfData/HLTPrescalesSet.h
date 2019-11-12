@@ -4,8 +4,10 @@
 
 #ifndef TRIGCONFDATA_HLTPRESCALESET_H
 #define TRIGCONFDATA_HLTPRESCALESET_H
-
+ 	
 #include "TrigConfData/DataStructure.h"
+
+#include <unordered_map>
 
 namespace TrigConf {
 
@@ -34,9 +36,6 @@ namespace TrigConf {
       /** Destructor */
       ~HLTPrescalesSet();
 
-      /** Update the internal prescale map after modification of the data object */
-      virtual void update();
-
       /** name of the prescale set */
       std::string name() const;
 
@@ -44,18 +43,21 @@ namespace TrigConf {
       std::size_t size() const;
 
       /** HLT prescales by chain names */
-      const std::map<std::string, HLTPrescale> & prescales() const;
+      const HLTPrescale & prescale(const std::string & chainName) const;
 
       /** HLT prescales by chain hashes */
-      const std::map<uint32_t, HLTPrescale> & prescalesByHash() const;
+      const HLTPrescale & prescale(uint32_t chainHash) const;
 
    private:
 
+      /** Update the internal prescale map after modification of the data object */
+      virtual void update();
+
       // maps HLT chain names to prescales 
-      std::map<std::string, HLTPrescale> m_prescales;
+      std::unordered_map<std::string, HLTPrescale> m_prescales {1024};
 
       // maps HLT chain hashes to prescales 
-      std::map<uint32_t, HLTPrescale> m_prescalesByHash;
+      std::unordered_map<uint32_t, HLTPrescale> m_prescalesByHash {1024};
 
    };
 }

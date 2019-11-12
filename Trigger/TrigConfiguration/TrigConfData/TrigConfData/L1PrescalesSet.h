@@ -25,7 +25,7 @@ namespace TrigConf {
          double   prescale { 1 };
       };
 
-      double getPrescaleFromCut(int32_t cut) const;
+      double getPrescaleFromCut(uint32_t cut) const;
 
       /** Constructor */
       L1PrescalesSet();
@@ -38,18 +38,18 @@ namespace TrigConf {
       /** Destructor */
       virtual ~L1PrescalesSet();
 
-      /** Update the internal prescale map after modification of the data object */
-      virtual void update();
-
       /** name of the prescale set */
       std::string name() const;
 
       /** number of L1 prescales */
       std::size_t size() const;
 
-      const std::map<std::string, L1Prescale> & prescales() const;
+      const L1Prescale & prescale(const std::string & itemName) const;
 
    private:
+
+      /** Update the internal prescale map after modification of the data object */
+      virtual void update();
 
       // maps L1 item names to prescales 
       std::map<std::string, L1Prescale> m_prescales;

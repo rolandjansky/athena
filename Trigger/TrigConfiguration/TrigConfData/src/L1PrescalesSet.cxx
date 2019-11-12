@@ -38,9 +38,9 @@ TrigConf::L1PrescalesSet::size() const
    return m_prescales.size();
 }
 
-const std::map<std::string, TrigConf::L1PrescalesSet::L1Prescale> & 
-TrigConf::L1PrescalesSet::prescales() const {
-   return m_prescales;
+const TrigConf::L1PrescalesSet::L1Prescale & 
+TrigConf::L1PrescalesSet::prescale(const std::string & itemName) const {
+   return m_prescales.at(itemName);
 }
 
 /**
@@ -56,9 +56,7 @@ TrigConf::L1PrescalesSet::prescales() const {
    cut = 334     --> prescale = 50081.238806    
 */
 double
-TrigConf::L1PrescalesSet::getPrescaleFromCut(int32_t cut) const {
-   double sign = cut<0 ? -1 : 1;
-   uint32_t  ucut = abs(cut);
-   return (sign * 0xFFFFFF ) / ( 0x1000000 - ucut );
+TrigConf::L1PrescalesSet::getPrescaleFromCut(uint32_t cut) const {
+   return 0xFFFFFF / ( 0x1000000 - cut );
 }
 

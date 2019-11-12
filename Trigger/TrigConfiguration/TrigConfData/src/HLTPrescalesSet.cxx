@@ -28,9 +28,6 @@ TrigConf::HLTPrescalesSet::update()
       m_prescales[p.first] = ps;
       m_prescalesByHash[ps.namehash] = ps;
    }
-   for( auto & entry : m_prescales ) {
-      std::cout << entry.first << "  =>  " << entry.second.prescale << std::endl;
-   }
 }
 
 std::size_t 
@@ -39,13 +36,12 @@ TrigConf::HLTPrescalesSet::size() const
    return m_prescales.size();
 }
 
-const std::map<std::string, TrigConf::HLTPrescalesSet::HLTPrescale> & 
-TrigConf::HLTPrescalesSet::prescales() const {
-   return m_prescales;
+const TrigConf::HLTPrescalesSet::HLTPrescale & 
+TrigConf::HLTPrescalesSet::prescale(const std::string & chainName) const {
+   return m_prescales.at(chainName);
 }
 
-
-const std::map<uint32_t, TrigConf::HLTPrescalesSet::HLTPrescale> &
-TrigConf::HLTPrescalesSet::prescalesByHash() const {
-   return m_prescalesByHash;
+const TrigConf::HLTPrescalesSet::HLTPrescale &
+TrigConf::HLTPrescalesSet::prescale(uint32_t chainHash) const {
+   return m_prescalesByHash.at(chainHash);
 }

@@ -59,12 +59,6 @@ namespace TrigConf {
        */
       void clear();
 
-      /** Update the internal data after modification of the data object
-       * 
-       * to be implemented by the derived class
-       */
-      virtual void update() {};
-
       /** Access to the underlying data, if needed */
       ptree data() const { return m_data; }
 
@@ -160,6 +154,12 @@ namespace TrigConf {
                                std::ostream & os = std::cout);
 
    protected:
+
+      /** Update the internal data after modification of the data object
+       * 
+       * to be implemented by the derived class
+       */
+      virtual void update() {};
 
       bool m_initialized { false }; //!< if initialized, the underlying ptree is has been assigned to (can be empty)
 
