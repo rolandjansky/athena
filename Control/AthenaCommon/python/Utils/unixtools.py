@@ -5,7 +5,7 @@
 
 """Unix-like tools and helpers."""
 
-import os, string, sys
+import os, sys
 
 
 ### data ________________________________________________________________________
