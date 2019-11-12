@@ -553,17 +553,17 @@ def addMiniTruthCollectionLinks(kernel=None, doElectrons=True, doPhotons=True, d
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthLinkRepointTool
     if doElectrons:
         electron_relink = DerivationFramework__TruthLinkRepointTool("ElMiniCollectionTruthLinkTool",
-                                                                    RecoCollection="Electrons", TargetCollection="TruthElectrons")
+                                                                    RecoCollection="Electrons", TargetCollections=["TruthMuons","TruthPhotons","TruthElectrons"])
         ToolSvc += electron_relink
         aug_tools += [ electron_relink ]
     if doPhotons:
         photon_relink = DerivationFramework__TruthLinkRepointTool("PhMiniCollectionTruthLinkTool",
-                                                                    RecoCollection="Photons", TargetCollection="TruthPhotons")
+                                                                    RecoCollection="Photons", TargetCollections=["TruthMuons","TruthPhotons","TruthElectrons"])
         ToolSvc += photon_relink
         aug_tools += [ photon_relink ]
     if doMuons:
         muon_relink = DerivationFramework__TruthLinkRepointTool("MuMiniCollectionTruthLinkTool",
-                                                                    RecoCollection="Muons", TargetCollection="TruthMuons")
+                                                                    RecoCollection="Muons", TargetCollections=["TruthMuons","TruthPhotons","TruthElectrons"])
         ToolSvc += muon_relink
         aug_tools += [ muon_relink ]
     kernel +=CfgMgr.DerivationFramework__DerivationKernel("MiniCollectionTruthLinkKernel",
