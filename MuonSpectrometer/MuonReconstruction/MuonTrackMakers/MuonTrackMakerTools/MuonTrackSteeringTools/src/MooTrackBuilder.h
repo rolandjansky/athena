@@ -272,7 +272,7 @@ namespace Muon {
     ToolHandle<Trk::IPropagator>                      m_propagator          {this, "Propagator", "Trk::STEP_Propagator/MuonPropagator"};
     ToolHandle<Trk::IResidualPullCalculator>          m_pullCalculator      {this, "PullCalculator", "Trk::ResidualPullCalculator/ResidualPullCalculator"}; 
     ToolHandle<IMuonHoleRecoveryTool>                 m_hitRecoverTool      {this, "HitRecoveryTool", "Muon::MuonChamberHoleRecoveryTool/MuonChamberHoleRecoveryTool"};    //<! tool to recover holes on track 
-    ToolHandle<IMuonHoleRecoveryTool>                 m_muonChamberHoleRecoverTool {this, "ChamberHoleRecoverTool", "Muon::MuonChamberHoleRecoveryTool/MuonChamberHoleRecoveryTool"};    //<! tool to add holes on track 
+    ToolHandle<IMuonHoleRecoveryTool>                 m_muonChamberHoleRecoverTool {this, "ChamberHoleRecoveryTool", "Muon::MuonChamberHoleRecoveryTool/MuonChamberHoleRecoveryTool"};    //<! tool to add holes on track 
     ToolHandle<IMuonTrackExtrapolationTool>           m_trackExtrapolationTool  {this, "Extrapolator", "Muon::MuonTrackExtrapolationTool/MuonTrackExtrapolationTool"}; //<! track extrapolation tool
 
     ToolHandle<IMuonErrorOptimisationTool>            m_errorOptimisationTool {this, "ErrorOptimisationTool", ""};
