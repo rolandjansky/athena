@@ -15,7 +15,7 @@ hist_diff.sh ExampleMonitorOutput.root ./ref-*/ExampleMonitorOutput.root -x TIME
 echo "art-result: $? HIST_Diff"
 rm -rf ref-*
 
-art.py download AthenaMonitoring test_run3eq_r21_esd.sh
+art.py download AthenaMonitoring test_run3dq_r21_esd.sh
 hist_diff.sh ExampleMonitorOutput.root ./ref-*/ExampleMonitorOutput.root -x TIME_execute
 echo "art-result: $? HIST_Diff_Serial"
 
