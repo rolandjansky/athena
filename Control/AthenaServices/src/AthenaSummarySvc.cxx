@@ -193,10 +193,6 @@ StatusCode AthenaSummarySvc::initialize() {
   p_incSvc->addListener( this, "BeginRun", pri, true);
   p_incSvc->addListener( this, "EndRun", pri, true);
 
-
-  p_incSvc->addListener( this, "BeginFile", pri, true );
-  p_incSvc->addListener( this, "EndFile", pri, true );
-
   p_incSvc->addListener( this, "FirstInputFile", pri, true );
 
   vector<string>::const_iterator itr;
@@ -379,7 +375,7 @@ AthenaSummarySvc::handle(const Incident &inc) {
     fileName = inc.source();
   }
 
-  if (inc.type() == "BeginInputFile" || inc.type() == "BeginFile") {
+  if (inc.type() == "BeginInputFile" ) {
     m_inputFilesRead.push_back( fileName );
   } else if (inc.type() == "BeginOutputFile") {
     m_outputFiles.push_back( fileName );

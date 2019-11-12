@@ -244,7 +244,7 @@ void PrimaryDPDPrescaler::handle(const Incident& inc) {
   
   const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
   if (fileInc == 0) {
-    ATH_MSG_ERROR( " Unable to get FileName from BeginFile/EndFile incident" );
+    ATH_MSG_ERROR( " Unable to get FileName from BeginInputFile/EndInputFile incident" );
     return;
   }
   const std::string fileName = fileInc->fileName();
