@@ -62,7 +62,8 @@ namespace NSWL1 {
     virtual float time()    const = 0;    //!< global X pos
     //! Use this for clustering
     virtual float globX()    const = 0;    //!< global X pos
-    virtual float globY()    const = 0;    //!< global Y pos 
+    virtual float globY()    const = 0;    //!< global Y pos
+    virtual float etaCenter()      const =0;     // in ATLAS global
     virtual float globZ()    const = 0;    //!< globzl Z pos 
     virtual float locX()    const = 0;    //!< local X pos
     virtual float locY()    const = 0;    //!< local Y pos 

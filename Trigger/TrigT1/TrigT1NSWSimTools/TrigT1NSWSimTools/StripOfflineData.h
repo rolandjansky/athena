@@ -104,6 +104,7 @@ namespace NSWL1 {
     float globX()       const;
     float globY()       const;
     float globZ()       const;
+    float etaCenter() const;     // in ATLAS global / eta of strip center
     void set_globX(float pos);
     void set_globY(float pos);
     void set_globZ(float pos);
