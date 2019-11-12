@@ -32,8 +32,6 @@ PURPOSE:  Performs Calo Extension for all selected tracks
 
 StatusCode Trk::CaloExtensionBuilderAlg::initialize() 
 {
-    IToolSvc* myToolSvc;
-
     ATH_CHECK(m_TrkSelection.retrieve());  
     ATH_CHECK(m_TrkDetailedSelection.retrieve());  
     ATH_CHECK(m_particleCaloExtensionTool.retrieve());
@@ -41,11 +39,6 @@ StatusCode Trk::CaloExtensionBuilderAlg::initialize()
     ATH_CHECK(m_ParticleCacheKey.initialize());
     ATH_CHECK(m_TrkPartContainerKey.initialize());
     ATH_CHECK(m_vertexInputContainer.initialize(SG::AllowEmpty));
-
-    if (service("ToolSvc", myToolSvc).isFailure()) {
-        ATH_MSG_WARNING(" Tool Service Not Found");
-        return StatusCode::SUCCESS;
-    }
 
     if(m_TrkSelection.retrieve().isFailure()){
         ATH_MSG_ERROR("initialize: Cannot retrieve " << m_TrkSelection);
@@ -88,7 +81,7 @@ StatusCode Trk::CaloExtensionBuilderAlg::execute()
 
       // checking for vertices being read correctly
       if (!vertexInHandle.isValid()) {
-        ATH_MSG_WARNING("Could not retrieve VertexContainer with key " << vertexInHandle.key());
+        ATH_MSG_VERBOSE("Could not retrieve VertexContainer with key " << vertexInHandle.key());
       } else {
         vxContainer = vertexInHandle.cptr();
       }
