@@ -10,7 +10,6 @@
 #include "TopEvent/EventTools.h"
 
 #include "xAODEventInfo/EventInfo.h"
-#include "xAODTruth/TruthEventContainer.h"
 
 namespace top {
   ScaleFactorCalculator::ScaleFactorCalculator(const std::string& name) :

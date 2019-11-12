@@ -712,6 +712,7 @@ int main(int argc, char** argv) {
       if (totalYieldSoFar == 0 && topConfig->isMC() && topConfig->doLHAPDF()) {
         const xAOD::TruthEventContainer* truthEvent(nullptr);
         top::check(xaodEvent.retrieve(truthEvent, topConfig->sgKeyTruthEvent()), "Failed to retrieve TruthEvent container for LHAPDF");
+        top::check(truthEvent->size() == 1, "TruthEvent container size != 1, not sure what to do with PDF reweighting");
         for (auto tePtr : *truthEvent) {
           for (auto& pdf : totalEventsPdfWeighted) {
             if (tePtr->isAvailable< std::vector<float> >("AnalysisTop_" + pdf.first + "_Weights")) {
