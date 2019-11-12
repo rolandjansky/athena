@@ -12,7 +12,6 @@
 
 #include <math.h>
 
-#include "GaudiKernel/StatusCode.h"
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
@@ -21,17 +20,13 @@
 
 #include "TrigL2MultiMuFex.h"
 
-#include "TrigInDetEvent/TrigInDetTrackCollection.h"
 #include "TrigInDetEvent/TrigInDetTrackFitPar.h"
-
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
 
 #include "TrigInDetToolInterfaces/ITrigVertexingTool.h"
 #include "TrigInDetEvent/TrigL2Vertex.h"
 
-#include "TrigParticle/TrigL2Bphys.h"
 
 #include "TrigBphysHypo/Constants.h"
 #include "BtrigUtils.h"
