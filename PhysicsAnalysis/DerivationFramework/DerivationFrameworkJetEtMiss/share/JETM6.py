@@ -15,19 +15,6 @@ from DerivationFrameworkFlavourTag.HbbCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 
 #====================================================================
-# TRUTH3
-#====================================================================
-
-if DerivationFrameworkIsMonteCarlo:
-  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addBosonsAndDownstreamParticles,addTopQuarkAndDownstreamParticles,addHFAndDownstreamParticles
-  addStandardTruthContents()
-  addBosonsAndDownstreamParticles()
-  addTopQuarkAndDownstreamParticles()
-  addHFAndDownstreamParticles(addB=True, addC=False, generations=0)
-  import DerivationFrameworkCore.WeightMetadata
-  import DerivationFrameworkCore.LHE3WeightMetadata
-
-#====================================================================
 # SKIMMING TOOL
 #====================================================================
 
@@ -298,6 +285,19 @@ addVRJetsTCC(jetm6Seq, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJ
 
 from DerivationFrameworkFlavourTag.HbbCommon import addRecommendedXbbTaggers
 addRecommendedXbbTaggers(jetm6Seq, ToolSvc)
+
+#====================================================================
+# TRUTH3
+#====================================================================
+
+if DerivationFrameworkIsMonteCarlo:
+  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addBosonsAndDownstreamParticles,addTopQuarkAndDownstreamParticles,addHFAndDownstreamParticles
+  addStandardTruthContents()
+  addBosonsAndDownstreamParticles()
+  addTopQuarkAndDownstreamParticles()
+  addHFAndDownstreamParticles(addB=True, addC=False, generations=0)
+  import DerivationFrameworkCore.WeightMetadata
+  import DerivationFrameworkCore.LHE3WeightMetadata
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
