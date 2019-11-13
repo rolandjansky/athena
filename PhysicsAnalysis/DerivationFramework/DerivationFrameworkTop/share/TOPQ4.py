@@ -121,7 +121,9 @@ applyTOPQJetCalibration("AntiKt10LCTopoTrimmedPtFrac5SmallR20",TOPQ4Sequence)
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import updateJVT_xAODColl
 updateJVT_xAODColl('AntiKt4EMTopo', DerivationFrameworkJob)
 from DerivationFrameworkFlavourTag.FlavourTagCommon import applyBTagging_xAODColl
-applyBTagging_xAODColl('AntiKt4EMTopo', DerivationFrameworkJob)
+applyJetCalibration_xAODColl("AntiKt4EMTopo_BTagging201810", DerivationFrameworkJob)
+updateJVT_xAODColl('AntiKt4EMTopo_BTagging201810', DerivationFrameworkJob)
+applyBTagging_xAODColl('AntiKt4EMTopo_BTagging201810', DerivationFrameworkJob)
 
 # Then skim on the newly created fat jets and calibrated jets
 TOPQ4Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ4SkimmingKernel_jet", SkimmingTools = skimmingTools_jet)
