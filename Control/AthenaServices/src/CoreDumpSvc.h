@@ -6,6 +6,7 @@
 #define ATHENASERVICES_COREDUMPSVC_H 1
 
 // System includes
+#include <memory>
 #include <signal.h>
 #include <string>
 #include <atomic>
@@ -135,7 +136,7 @@ private:
   StatusCode uninstallSignalHandler(); 
   
   /// Algorithm timer to terminate job if it's looping during stack unwinding
-  Athena::AlgorithmTimer m_abortTimer;  
+  std::unique_ptr<Athena::AlgorithmTimer> m_abortTimer;
 }; 
 
 

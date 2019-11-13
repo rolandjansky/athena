@@ -63,6 +63,10 @@ namespace CoreDumpSvcHandler
   bool callOldHandler(true);        ///< forward calls to old handlers?
   CoreDumpSvc* coreDumpSvc(nullptr);      ///< pointer to CoreDumpSvc
   
+  constexpr Athena::AlgorithmTimer::AlgorithmTimerConfig AbortTimerConfig = 
+    Athena::AlgorithmTimer::AlgorithmTimerConfig(Athena::AlgorithmTimer::USEREALTIME |
+                                                 Athena::AlgorithmTimer::DELIVERYBYTHREAD);
+
   /**
    * Signal handler for the CoreDumpSvc
    */
@@ -78,7 +82,11 @@ namespace CoreDumpSvcHandler
     // setup timeout
     int timeoutMilliseconds = int(coreDumpSvc->m_timeout * 1e-6);
     
-    coreDumpSvc->m_abortTimer.start(timeoutMilliseconds);
+    if (!coreDumpSvc->m_abortTimer) {
+      coreDumpSvc->m_abortTimer = std::make_unique<Athena::AlgorithmTimer>(
+        0, (Athena::AlgorithmTimer::callbackFct_t)0, AbortTimerConfig);
+    }
+    coreDumpSvc->m_abortTimer->start(timeoutMilliseconds);
     
     std::cout.flush();
     std::cerr.flush();
@@ -113,8 +121,7 @@ namespace CoreDumpSvcHandler
 //================================================================================
 CoreDumpSvc::CoreDumpSvc( const std::string& name, ISvcLocator* pSvcLocator ) : 
   base_class( name, pSvcLocator ),
-  m_abortTimer(0, 0, Athena::AlgorithmTimer::AlgorithmTimerConfig(Athena::AlgorithmTimer::USEREALTIME | 
-                                                                  Athena::AlgorithmTimer::DELIVERYBYTHREAD ) )
+  m_abortTimer(nullptr)
 {
   // Set us as the current instance
   CoreDumpSvcHandler::coreDumpSvc = this;
