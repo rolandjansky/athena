@@ -48,16 +48,24 @@ def EMECPresamplerCalibrationCalculatorCfg(ConfigFlags, name="EMECPresamplerCali
     return CfgMgr.LArG4__EC__PresamplerCalibrationCalculator(name, **kwargs)
 
 def EndcapCryostatCalibrationCalculatorCfg(ConfigFlags, name="EndcapCryostatCalibrationCalculator", **kwargs):
-    return CfgMgr.LArG4__EndcapCryostat__CalibrationCalculator(name, **kwargs)
+    result = ComponentAccumulator()
+    result.addService( CfgMgr.LArG4__EndcapCryostat__CalibrationCalculator(name, **kwargs) )
+    return result
 
 def EndcapCryostatCalibrationLArCalculatorCfg(ConfigFlags, name="EndcapCryostatCalibrationLArCalculator", **kwargs):
-    return CfgMgr.LArG4__EndcapCryostat__CalibrationLArCalculator(name, **kwargs)
+    result = ComponentAccumulator()
+    result.addService( CfgMgr.LArG4__EndcapCryostat__CalibrationLArCalculator(name, **kwargs) )
+    return result
 
 def EndcapCryostatCalibrationMixedCalculatorCfg(ConfigFlags, name="EndcapCryostatCalibrationMixedCalculator", **kwargs):
-    return CfgMgr.LArG4__EndcapCryostat__CalibrationMixedCalculator(name, **kwargs)
+    result = ComponentAccumulator()
+    result.addService( CfgMgr.LArG4__EndcapCryostat__CalibrationMixedCalculator(name, **kwargs) )
+    return result
 
 def EMECSupportCalibrationCalculatorCfg(ConfigFlags, name="EMECSupportCalibrationCalculator", **kwargs):
-    return CfgMgr.LArG4__EMECSupportCalibrationCalculator(name, **kwargs)
+    result = ComponentAccumulator()
+    result.addService( CfgMgr.LArG4__EMECSupportCalibrationCalculator(name, **kwargs))
+    return result
 
 def EnergyCalculatorCfg(name="EnergyCalculator", **kwargs):
     result = ComponentAccumulator()
