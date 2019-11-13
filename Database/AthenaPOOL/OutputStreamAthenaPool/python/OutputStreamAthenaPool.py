@@ -58,6 +58,14 @@ def createOutputStream( streamName, fileName = "", asAlg = False, noTag = False,
       streamInfoTool.EventInfoKey = eventInfoKey
       outputStream.HelperTools = [ streamInfoTool ]
 
+
+   # Support for MT thinning.
+   from AthenaServices.AthenaServicesConf import Athena__ThinningCacheTool
+   tct = Athena__ThinningCacheTool ('ThinningCacheTool_' + streamName,
+                                    StreamName = streamName)
+   outputStream.HelperTools += [tct]
+
+
    # Set the list of transient items based on what we know is in the transient
    # store.  The output algorithm will then declare input dependencies
    # for objects which are both listed here and in the ItemList.
