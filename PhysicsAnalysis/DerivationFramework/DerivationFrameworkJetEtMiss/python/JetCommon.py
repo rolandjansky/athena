@@ -533,6 +533,7 @@ OutputJets["SmallR"] = [
 OutputJets["LargeR"] = [
     "AntiKt10LCTopoJets",
     "AntiKt10TrackCaloClusterJets",
+    "AntiKt10UFOCSSKJets",
     "AntiKt10TruthJets",
     "AntiKt10TruthWZJets",
     ]
