@@ -161,6 +161,10 @@ double InfoHelper::getMassOverPt(const xAOD::Jet& jet) const
     // UNKNOWN is just use the assigned scale
     if (m_massDef == CompMassDef::UNKNOWN)
         return jet.m()/jet.pt();
+
+    // The config may also directly specify the assigned (four-vector) scale
+    if (m_massDef == CompMassDef::FourVecMass)
+        return jet.m()/jet.pt();
     
     // Check if the specified scale is available and return it if so
     if (scale.isAvailable(jet))
@@ -185,6 +189,10 @@ double InfoHelper::getMassOverE(const xAOD::Jet& jet) const
     // UNKNOWN is just use the assigned scale
     if (m_massDef == CompMassDef::UNKNOWN)
         return jet.m()/jet.e();
+
+    // The config may also directly specify the assigned (four-vector) scale
+    if (m_massDef == CompMassDef::FourVecMass)
+        return jet.m()/jet.pt();
     
     // Check if the specified scale is available and return it if so
     if (scale.isAvailable(jet))

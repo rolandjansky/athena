@@ -315,6 +315,10 @@ double UncertaintyComponent::getMassOverPt(const xAOD::Jet& jet, const CompMassD
     // UNKNOWN is just use the assigned scale
     if (massDef == CompMassDef::UNKNOWN)
         return jet.m()/jet.pt();
+
+    // The config may also directly specify the assigned (four-vector) scale
+    if (massDef == CompMassDef::FourVecMass)
+        return jet.m()/jet.pt();
     
     // Check if the specified scale is available and return it if so
     if (scale.isAvailable(jet))
@@ -340,6 +344,10 @@ double UncertaintyComponent::getMassOverE(const xAOD::Jet& jet, const CompMassDe
     // UNKNOWN is just use the assigned scale
     if (massDef == CompMassDef::UNKNOWN)
         return jet.m()/jet.e();
+
+    // The config may also directly specify the assigned (four-vector) scale
+    if (massDef == CompMassDef::FourVecMass)
+        return jet.m()/jet.pt();
     
     // Check if the specified scale is available and return it if so
     if (scale.isAvailable(jet))
