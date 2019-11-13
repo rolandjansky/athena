@@ -2,8 +2,9 @@
 """Run tests on G4AtlasFieldConfig
 
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-from __future__ import print_function
 """
+
+from __future__ import print_function
 
 if __name__ == '__main__':
   from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
@@ -19,12 +20,12 @@ if __name__ == '__main__':
 
   #import config flags
   from AthenaConfiguration.AllConfigFlags import ConfigFlags
-  
+
   from AthenaConfiguration.TestDefaults import defaultTestFiles
   inputDir = defaultTestFiles.d
   ConfigFlags.Input.Files = defaultTestFiles.EVNT
 
-  # Finalize 
+  # Finalize
 #  ConfigFlags.lock()
 
   ## Initialize a new component accumulator
@@ -54,7 +55,7 @@ if __name__ == '__main__':
 
 
   f=open("test.pkl","w")
-  cfg.store(f) 
+  cfg.store(f)
   f.close()
 
-  print "-----------------finished----------------------"
+  print("-----------------finished----------------------")
