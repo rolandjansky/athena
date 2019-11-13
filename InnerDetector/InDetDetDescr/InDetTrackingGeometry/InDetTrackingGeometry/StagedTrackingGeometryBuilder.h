@@ -240,6 +240,8 @@ namespace InDet {
       std::string                                    m_exitVolume;                //!< the final ID container             
       // material-on-fly option
       bool                                             m_materialOnFly;            //! switch for material retrieval from GM 
+      // 
+      mutable float                              m_bpRadius;                 //! info about beam pipe radius ( from envelope svc)
   };
 
   inline void StagedTrackingGeometryBuilder::checkForInsert(std::vector<double>& radii, double radius) const {
