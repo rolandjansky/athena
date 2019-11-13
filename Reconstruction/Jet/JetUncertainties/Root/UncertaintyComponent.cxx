@@ -309,17 +309,13 @@ bool UncertaintyComponent::getValidBool(const double validity) const
 
 double UncertaintyComponent::getMassOverPt(const xAOD::Jet& jet, const CompMassDef::TypeEnum massDef) const
 {
-    // UNKNOWN is just use the assigned scale
-    if (massDef == CompMassDef::UNKNOWN)
-        return jet.m()/jet.pt();
-
-    // The config may also directly specify the assigned (four-vector) scale
-    if (massDef == CompMassDef::FourVecMass)
+    static bool isSimpleCase = (massDef == CompMassDef::UNKNOWN || massDef == CompMassDef::FourVecMass);
+    static JetFourMomAccessor scale(isSimpleCase ? "" : CompMassDef::getJetScaleString(massDef).Data());
+    static SG::AuxElement::ConstAccessor<float> scaleTAMoment(isSimpleCase ? "" : "JetTrackAssistedMassCalibrated");
+    
+    if (isSimpleCase)
         return jet.m()/jet.pt();
     
-    static JetFourMomAccessor scale(CompMassDef::getJetScaleString(massDef).Data());
-    static SG::AuxElement::ConstAccessor<float> scaleTAMoment("JetTrackAssistedMassCalibrated");
-
     // Check if the specified scale is available and return it if so
     if (scale.isAvailable(jet))
         return scale(jet).M()/scale(jet).Pt();
@@ -338,16 +334,12 @@ double UncertaintyComponent::getMassOverPt(const xAOD::Jet& jet, const CompMassD
 
 double UncertaintyComponent::getMassOverE(const xAOD::Jet& jet, const CompMassDef::TypeEnum massDef) const
 {
-    // UNKNOWN is just use the assigned scale
-    if (massDef == CompMassDef::UNKNOWN)
-        return jet.m()/jet.e();
-
-    // The config may also directly specify the assigned (four-vector) scale
-    if (massDef == CompMassDef::FourVecMass)
-        return jet.m()/jet.pt();
+    static bool isSimpleCase = (massDef == CompMassDef::UNKNOWN || massDef == CompMassDef::FourVecMass);
+    static JetFourMomAccessor scale(isSimpleCase ? "" : CompMassDef::getJetScaleString(massDef).Data());
+    static SG::AuxElement::ConstAccessor<float> scaleTAMoment(isSimpleCase ? "" : "JetTrackAssistedMassCalibrated");
     
-    static JetFourMomAccessor scale(CompMassDef::getJetScaleString(massDef).Data());
-    static SG::AuxElement::ConstAccessor<float> scaleTAMoment("JetTrackAssistedMassCalibrated");
+    if (isSimpleCase)
+        return jet.m()/jet.e();
 
     // Check if the specified scale is available and return it if so
     if (scale.isAvailable(jet))
