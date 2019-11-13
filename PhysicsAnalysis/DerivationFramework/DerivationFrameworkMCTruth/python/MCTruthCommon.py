@@ -243,7 +243,7 @@ def schedulePreJetMCTruthAugmentations(kernel=None, decorationDressing=None):
                               DFCommonTruthElectronDressingTool, DFCommonTruthMuonDressingTool,
                               DFCommonTruthElectronIsolationTool1, DFCommonTruthElectronIsolationTool2,
                               DFCommonTruthMuonIsolationTool1, DFCommonTruthMuonIsolationTool2,
-                              DFCommonTruthPhotonIsolationTool1, DFCommonTruthPhotonIsolationTool2]
+                              DFCommonTruthPhotonIsolationTool1, DFCommonTruthPhotonIsolationTool2, DFCommonTruthPhotonIsolationTool3]
     from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
     kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonPreJetKernel",
                                                              AugmentationTools = augmentationToolsList
@@ -311,7 +311,7 @@ def addStandardTruthContents(kernel=None,
     # Add back the navigation contect for the collections we want
     addTruthCollectionNavigationDecorations(kernel, ["TruthElectrons", "TruthMuons", "TruthPhotons", "TruthTaus", "TruthNeutrinos", "TruthBSM", "TruthBottom", "TruthTop", "TruthBoson"])
     # Some more additions for standard TRUTH3
-    addWbosonsAndDownstreamParticles(kernel)
+    addBosonsAndDownstreamParticles(kernel)
     addLargeRJetD2(kernel)
     # Special collection for BSM particles
     addBSMAndDownstreamParticles(kernel)
@@ -371,7 +371,7 @@ def addBosonsAndDownstreamParticles(kernel=None, generations=1,
     return addParentAndDownstreamParticles(kernel=kernel,
                                            generations=generations,
                                            parents=[23,24,25],
-                                           prefix='Boson',
+                                           prefix='Bosons',
                                            rejectHadronChildren=rejectHadronChildren)
 
 
@@ -584,8 +584,8 @@ def addTruth3ContentToSlimmerTool(slimmer):
         "TruthBoson",
         "TruthForwardProtons",
         "BornLeptons",
-        "TruthWbosonWithDecayParticles",
-        "TruthWbosonWithDecayVertices",
+        "TruthBosonsWithDecayParticles",
+        "TruthBosonsWithDecayVertices",
         "TruthBSMWithDecayParticles",
         "TruthBSMWithDecayVertices",
         "HardScatterParticles",
