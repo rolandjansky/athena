@@ -58,16 +58,9 @@ StatusCode eflowTrackCaloExtensionTool::initialize() {
 		    << m_theTrackExtrapolatorTool.typeAndName());
   }
 
-  ATH_CHECK(m_ParticleCacheKey.initialize());
+  if (!m_ParticleCacheKey.key().empty()) ATH_CHECK(m_ParticleCacheKey.initialize());
+  else m_useOldCalo = true;
   
-  if (m_ParticleCacheKey.initialize().isFailure()) {
-    ATH_MSG_WARNING("Setting up the CaloExtensionTool to replace CaloExtensionBuilder");
-    ATH_CHECK( m_theTrackExtrapolatorTool.retrieve() );
-    m_useOldCalo = true;
-  } else {
-    m_useOldCalo = false;
-  }
-
   return StatusCode::SUCCESS;
 }
 
@@ -79,7 +72,6 @@ std::unique_ptr<eflowTrackCaloPoints> eflowTrackCaloExtensionTool::execute(const
   std::map<eflowCalo::LAYER, const Trk::TrackParameters*> parametersMap;
 
   /*get the CaloExtension object*/
-  SG::ReadHandle<CaloExtensionCollection>  particleCache {m_ParticleCacheKey};
   const Trk::CaloExtension * extension = nullptr;
   std::unique_ptr<Trk::CaloExtension> uniqueExtension;
   const int index = track->index();
@@ -92,6 +84,7 @@ std::unique_ptr<eflowTrackCaloPoints> eflowTrackCaloExtensionTool::execute(const
     extension = uniqueExtension.get();
   } else {
     /*get the CaloExtension object*/
+    SG::ReadHandle<CaloExtensionCollection>  particleCache {m_ParticleCacheKey};
     ATH_MSG_VERBOSE("Using the CaloExtensionBuilder Cache");
     extension = (*particleCache)[index];
     ATH_MSG_VERBOSE("Getting element " << index << " from the particleCache");
