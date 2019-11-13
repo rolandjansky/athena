@@ -384,6 +384,24 @@ class SlimmingHelper:
                         if not self.AppendToDictionary.has_key("AntiKt4EMTopoJets_BTagging201810"):
                                 self.AppendToDictionary["AntiKt4EMTopoJets_BTagging201810"]='xAOD::JetContainer'
                                 self.AppendToDictionary["AntiKt4EMTopoJets_BTagging201810Aux"]='xAOD::ShallowAuxContainer'
+                elif collectionName=="AntiKt10TruthJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt10TruthJetsCPContent import AntiKt10TruthJetsCPContent
+                        items.extend(AntiKt10TruthJetsCPContent)
+                elif collectionName=="AntiKt10TruthWZJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt10TruthWZJetsCPContent import AntiKt10TruthWZJetsCPContent
+                        items.extend(AntiKt10TruthWZJetsCPContent)
+                elif collectionName=="AntiKt10LCTopoJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt10LCTopoJetsCPContent import AntiKt10LCTopoJetsCPContent
+                        items.extend(AntiKt10LCTopoJetsCPContent)
+                elif collectionName=="AntiKt10TrackCaloClusterJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt10TrackCaloClusterJetsCPContent import AntiKt10TrackCaloClusterJetsCPContent
+                        items.extend(AntiKt10TrackCaloClusterJetsCPContent)
+                elif collectionName=="AntiKt10UFOCSSKJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt10UFOCSSKJetsCPContent import AntiKt10UFOCSSKJetsCPContent
+                        items.extend(AntiKt10UFOCSSKJetsCPContent)
+                elif collectionName=="AntiKt10TruthTrimmedPtFrac5SmallR20Jets":
+                        from DerivationFrameworkJetEtMiss.AntiKt10TruthTrimmedPtFrac5SmallR20JetsCPContent import AntiKt10TruthTrimmedPtFrac5SmallR20JetsCPContent
+                        items.extend(AntiKt10TruthTrimmedPtFrac5SmallR20JetsCPContent)
                 elif collectionName=="AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets":
                         from DerivationFrameworkJetEtMiss.AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsCPContent import AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsCPContent
                         #from DerivationFrameworkCore.AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsCPContent import AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsCPContent
@@ -412,6 +430,9 @@ class SlimmingHelper:
                 elif collectionName=="AntiKt10UFOCSSKTrimmedPtFrac5SmallR20Jets":
                         from DerivationFrameworkJetEtMiss.AntiKt10UFOCSSKTrimmedPtFrac5SmallR20JetsCPContent import AntiKt10UFOCSSKTrimmedPtFrac5SmallR20JetsCPContent
                         items.extend(AntiKt10UFOCSSKTrimmedPtFrac5SmallR20JetsCPContent)
+                elif collectionName=="AntiKt10TruthSoftDropBeta100Zcut10Jets":
+                        from DerivationFrameworkJetEtMiss.AntiKt10TruthSoftDropBeta100Zcut10JetsCPContent import AntiKt10TruthSoftDropBeta100Zcut10JetsCPContent
+                        items.extend(AntiKt10TruthSoftDropBeta100Zcut10JetsCPContent)
                 elif collectionName=="AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets":
                         from DerivationFrameworkJetEtMiss.AntiKt10LCTopoCSSKSoftDropBeta100Zcut10JetsCPContent import AntiKt10LCTopoCSSKSoftDropBeta100Zcut10JetsCPContent
                         items.extend(AntiKt10LCTopoCSSKSoftDropBeta100Zcut10JetsCPContent)
@@ -421,9 +442,15 @@ class SlimmingHelper:
                 elif collectionName=="AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets":
                         from DerivationFrameworkJetEtMiss.AntiKt10UFOCSSKSoftDropBeta100Zcut10JetsCPContent import AntiKt10UFOCSSKSoftDropBeta100Zcut10JetsCPContent
                         items.extend(AntiKt10UFOCSSKSoftDropBeta100Zcut10JetsCPContent)
+                elif collectionName=="AntiKt10TruthBottomUpSoftDropBeta100Zcut5Jets":
+                        from DerivationFrameworkJetEtMiss.AntiKt10TruthBottomUpSoftDropBeta100Zcut5JetsCPContent import AntiKt10TruthBottomUpSoftDropBeta100Zcut5JetsCPContent
+                        items.extend(AntiKt10TruthBottomUpSoftDropBeta100Zcut5JetsCPContent)
                 elif collectionName=="AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5Jets":
                         from DerivationFrameworkJetEtMiss.AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5JetsCPContent import AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5JetsCPContent
                         items.extend(AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5JetsCPContent)
+                elif collectionName=="AntiKt10TruthRecursiveSoftDropBeta100Zcut5NinfJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt10TruthRecursiveSoftDropBeta100Zcut5NinfJetsCPContent import AntiKt10TruthRecursiveSoftDropBeta100Zcut5NinfJetsCPContent
+                        items.extend(AntiKt10TruthRecursiveSoftDropBeta100Zcut5NinfJetsCPContent)
                 elif collectionName=="AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJets":
                         from DerivationFrameworkJetEtMiss.AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJetsCPContent import AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJetsCPContent
                         items.extend(AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJetsCPContent)
@@ -439,6 +466,9 @@ class SlimmingHelper:
                         if not self.AppendToDictionary.has_key("AntiKt4EMPFlowJets_BTagging201903"):
                                 self.AppendToDictionary["AntiKt4EMPFlowJets_BTagging201903"]='xAOD::JetContainer'
                                 self.AppendToDictionary["AntiKt4EMPFlowJets_BTagging201903Aux"]='xAOD::ShallowAuxContainer'
+                elif collectionName=="AntiKt2TruthJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt2TruthJetsCPContent import AntiKt2TruthJetsCPContent
+                        items.extend(AntiKt2TruthJetsCPContent)
                 elif collectionName=="AntiKt2LCTopoJets":
                         from DerivationFrameworkJetEtMiss.AntiKt2LCTopoJetsCPContent import AntiKt2LCTopoJetsCPContent
                         items.extend(AntiKt2LCTopoJetsCPContent)

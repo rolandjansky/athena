@@ -32,6 +32,8 @@ ContainersOnTheFly = [
                         ["TruthWbosonWithDecayParticlesAux",'xAOD::TruthParticleAuxContainer'],
                         ['TruthWbosonWithDecayVertices','xAOD::TruthVertexContainer'],
                         ['TruthWbosonWithDecayVerticesAux','xAOD::TruthVertexAuxContainer'],
+                        ["AntiKt2TruthJets","xAOD::JetContainer"],
+                        ["AntiKt2TruthJetsAux","xAOD::JetAuxContainer"],
                         ["AntiKt4TruthJets","xAOD::JetContainer"],
                         ["AntiKt4TruthJetsAux","xAOD::JetAuxContainer"],
                         ["AntiKt4TruthWZJets","xAOD::JetContainer"],
