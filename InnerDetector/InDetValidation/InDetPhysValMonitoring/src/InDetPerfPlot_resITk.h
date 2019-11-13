@@ -67,8 +67,8 @@ public:
 private:
   // defining global eta binning for resolution plots
   static const int m_nEtaBins = 64;
-  static const double  m_etaMin = -4.0;
-  static const double  m_etaMax = 4.0;
+  const double  m_etaMin = -4.0;
+  const double  m_etaMax = 4.0;
   static const int m_nPtBins = 9;
   static const int m_nResHist = 4;
 
