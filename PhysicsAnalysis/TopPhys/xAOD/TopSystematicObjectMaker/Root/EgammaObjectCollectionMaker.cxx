@@ -406,7 +406,8 @@ namespace top {
 	  top::check(m_isolationTool_LowPtPLV->augmentPLV(*electron), "Failed to augment electron with LowPtPLV decorations");
 	else
 	  byhand_LowPtPLV(*electron) = 1.1; // decorate the electron ourselves following IFF default
-	if ( PLV_PromptLeptonVeto.isAvailable(*electron) ) {
+	if ( PLV_PromptLeptonVeto.isAvailable(*electron) &&
+	     ptvarcone30_TightTTVALooseCone_pt1000.isAvailable(*electron) ) {
 	  AnalysisTop_Isol_PLVTight(*electron) = (m_isolationTool_PLVTight->accept(*electron) ? 1 : 0);
 	  AnalysisTop_Isol_PLVLoose(*electron) = (m_isolationTool_PLVLoose->accept(*electron) ? 1 : 0);
 	}
