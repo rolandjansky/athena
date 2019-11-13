@@ -244,6 +244,11 @@ def applyJetCalibration(jetalg,algname,sequence,fatjetconfig = 'comb'):
     calibtoolname = 'DFJetCalib_'+jetalg
     jetaugtool = getJetAugmentationTool(jetalg)
 
+    if '_BTagging' in jetalg:
+        jetalg_basename = jetalg[:jetalg.find('_BTagging')]
+    else:
+        jetalg_basename = jetalg
+            
     from AthenaCommon.AppMgr import ToolSvc
     if hasattr(ToolSvc,calibtoolname):
         jetaugtool.JetCalibTool = getattr(ToolSvc,calibtoolname)
@@ -281,15 +286,15 @@ def applyJetCalibration(jetalg,algname,sequence,fatjetconfig = 'comb'):
             configdict['AntiKt4EMTopo'] = ('JES_MC15Prerecommendation_AFII_June2015_rel21.config',
                                            'JetArea_Residual_EtaJES_GSC')
 
-        config,calibseq = configdict[jetalg]
+        config,calibseq = configdict[jetalg_basename]
 
-        if (not isMC) and jetalg in ['AntiKt4EMTopo','AntiKt4LCTopo','AntiKt4EMPFlow']:
+        if (not isMC) and jetalg_basename in ['AntiKt4EMTopo','AntiKt4LCTopo','AntiKt4EMPFlow']:
             isdata=True
-            if not jetalg=='AntiKt4LCTopo': calibseq = calibseq[:-6]+'_Insitu'
+            if not jetalg_basename=='AntiKt4LCTopo': calibseq = calibseq[:-6]+'_Insitu'
 
         calibtool = CfgMgr.JetCalibrationTool(
             calibtoolname,
-            JetCollection=jetalg,
+            JetCollection=jetalg_basename,
             ConfigFile=config,
             CalibSequence=calibseq,
             IsData=isdata
@@ -301,7 +306,7 @@ def applyJetCalibration(jetalg,algname,sequence,fatjetconfig = 'comb'):
     applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
 
 def applyJetCalibration_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
-    supportedJets = ['AntiKt4EMTopo','AntiKt4LCTopo','AntiKt4EMPFlow']
+    supportedJets = ['AntiKt4EMTopo','AntiKt4LCTopo','AntiKt4EMPFlow','AntiKt4EMTopo_BTagging201810','AntiKt4EMPFlow_BTagging201810']
     if not jetalg in supportedJets:
         extjetlog.warning('*** Calibration requested for unsupported jet collection '+jetalg+'! ***')
         return
@@ -324,8 +329,14 @@ def updateJVT(jetalg,algname,sequence):
         extjetlog.warning('*** You must apply jet calibration before scheduling JVT! ***')
 
     jvttoolname = 'DFJetJvt_'+jetalg
+
+    if '_BTagging' in jetalg:
+        jetalg_basename = jetalg[:jetalg.find('_BTagging')]
+    else:
+        jetalg_basename = jetalg
+
     #use the standard name defined by the config helper
-    jvtefftoolname = getJvtEffToolName(jetalg)
+    jvtefftoolname = getJvtEffToolName(jetalg_basename)
 
     from AthenaCommon.AppMgr import ToolSvc
 
@@ -343,7 +354,7 @@ def updateJVT(jetalg,algname,sequence):
         extjetlog.info('Setup the jvt eff tool {}'.format(jvtefftoolname))
     else:
         extjetlog.info('Setting up the jvt eff tool {}'.format(jvtefftoolname))
-        jvtefftool = getJvtEffTool(jetalg)
+        jvtefftool = getJvtEffTool(jetalg_basename)
         ToolSvc += jvtefftool
         jetaugtool.JetJvtEffTool = jvtefftool
         
@@ -351,7 +362,7 @@ def updateJVT(jetalg,algname,sequence):
     applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
 
 def updateJVT_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
-    supportedJets = ['AntiKt4EMTopo','AntiKt4EMPFlow']
+    supportedJets = ['AntiKt4EMTopo','AntiKt4EMPFlow','AntiKt4EMTopo_BTagging201810','AntiKt4EMPFlow_BTagging201810']
     if not jetalg in supportedJets:
         extjetlog.warning('*** JVT update requested for unsupported jet collection {}! ***'.format(jetalg))
         return
