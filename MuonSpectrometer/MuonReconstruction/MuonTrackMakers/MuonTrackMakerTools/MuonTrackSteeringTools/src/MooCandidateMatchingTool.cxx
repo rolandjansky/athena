@@ -99,7 +99,6 @@ namespace Muon {
       m_segmentMatchingTool("Muon::MuonSegmentMatchingTool/MuonSegmentMatchingTool"),
       m_segmentMatchingToolTight("Muon::MuonSegmentMatchingTool/MuonSegmentMatchingToolTight"),
       m_magFieldSvc("AtlasFieldSvc",n),
-      m_candidateTool("Muon::MuPatCandidateTool/MuPatCandidateTool"),
       m_goodSegmentMatches(0),
       m_goodSegmentMatchesTight(0),
       m_segmentMatches(0),
@@ -158,7 +157,8 @@ namespace Muon {
     ATH_CHECK( m_magFieldSvc.retrieve() );
     ATH_CHECK( m_segmentMatchingTool.retrieve() );
     ATH_CHECK( m_segmentMatchingToolTight.retrieve() );
-
+    ATH_CHECK( m_candidateTool.retrieve() );
+    
     return StatusCode::SUCCESS;
   }
 

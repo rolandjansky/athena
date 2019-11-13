@@ -181,7 +181,8 @@ namespace Muon {
     ToolHandle<IMuonSegmentMatchingTool>  m_segmentMatchingTool;
     ToolHandle<IMuonSegmentMatchingTool>  m_segmentMatchingToolTight;
     ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc; 
-    ToolHandle<MuPatCandidateTool>        m_candidateTool;
+    ToolHandle<MuPatCandidateTool>        m_candidateTool    {this, "MuPatCandidateTool", "Muon::MuPatCandidateTool/MuPatCandidateTool"};
+    
     int                                   m_trackSegmentPreMatchingStrategy; //!< 0=no segments match,1=any segment match,2=all segment match
     bool                                  m_doTrackSegmentMatching; //!< apply track-segment matching or not
 
