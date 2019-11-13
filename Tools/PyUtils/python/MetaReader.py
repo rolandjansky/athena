@@ -693,7 +693,6 @@ def promote_keys(meta_dict):
                 if len(md['eventTypes']):
                     et = md['eventTypes'][0]
                     md['mc_event_number'] = et.get('mc_event_number', md['runNumbers'][0])
-
                     md['mc_channel_number'] = et.get('mc_channel_number', 0)
                     md['eventTypes'] = et['type']
 

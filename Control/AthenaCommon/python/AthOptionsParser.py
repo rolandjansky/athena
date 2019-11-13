@@ -16,7 +16,6 @@ __author__ = "Sebastien Binet"
 import getopt
 import sys
 import os
-import string
 
 from .Debugging import DbgStage
 
@@ -249,14 +248,14 @@ def parse(chk_tcmalloc=True):
             opts.dbg_stage = arg
 
         elif opt in ("-c", "--command"):
-            opts.command = string.strip(arg)
+            opts.command = arg.strip()
 
         elif opt in ("-h", "--help"):
             print (_error_msg)
             sys.exit()
 
         elif opt in ("-l", "--loglevel"):
-            opts.msg_lvl = string.upper(arg)
+            opts.msg_lvl = arg.upper()
             
         elif opt in ("-s", "--showincludes"):
             opts.showincludes = 1

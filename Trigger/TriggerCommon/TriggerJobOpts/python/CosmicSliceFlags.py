@@ -230,13 +230,13 @@ class EFHitsHypoNTRTHTDC(JobProperty):
 _flags.append(EFHitsHypoNTRTHTDC)
 
 for x in SliceList.StoredValue:
-    exec """class do%s(JobProperty):
+    exec("""class do%s(JobProperty):
 \t ' run the %s slice '
 \t statusOn=True
 \t allowedTypes=['bool']
 \t StoredValue=False
 _flags.append(do%s)
-""" % (x,x,x)
+""" % (x,x,x))
 
 for x in ['StandaloneThreshold',
           'TrackingThreshold',
@@ -244,190 +244,190 @@ for x in ['StandaloneThreshold',
           'StandaloneThreshold_V2',
           'TrackingThreshold_V2',
           'CalibrationThreshold_V2']:
-    exec """class %s(JobProperty):
+    exec("""class %s(JobProperty):
 \t ' %s '
 \t statusOn=True
 \t allowedTypes=['str']
 \t StoredValue='EM3'
 _flags.append(%s)
-""" % (x,x,x)
+""" % (x,x,x))
 
 for x in ['StandaloneSignature',
           'TrackingSignature',
           'CalibrationSignature']:
-    exec """class %s(JobProperty):
+    exec("""class %s(JobProperty):
 \t ' %s '
 \t statusOn=True
 \t allowedTypes=['str']
 \t StoredValue='L1_EM3'
 _flags.append(%s)
-""" % (x,x,x)
+""" % (x,x,x))
 
 for x in ['StandaloneSignature_V2',
           'TrackingSignature_V2',
           'CalibrationSignature_V2']:
-    exec """class %s(JobProperty):
+    exec("""class %s(JobProperty):
 \t ' %s '
 \t statusOn=True
 \t allowedTypes=['str']
 \t StoredValue='L1_EM3_EMPTY'
 _flags.append(%s)
-""" % (x,x,x)
+""" % (x,x,x))
 
 for x in ['TGCSignature',
           ]:
-    exec """class %s(JobProperty):
+    exec("""class %s(JobProperty):
 \t ' %s '
 \t statusOn=True
 \t allowedTypes=['str']
 \t StoredValue='L1_MU0_TGC'
 _flags.append(%s)
-""" % (x,x,x)
+""" % (x,x,x))
 
 for x in ['TGCThreshold',
           ]:
-    exec """class %s(JobProperty):
+    exec("""class %s(JobProperty):
 \t ' %s '
 \t statusOn=True
 \t allowedTypes=['str']
 \t StoredValue='MU0_TGC'
 _flags.append(%s)
-""" % (x,x,x)
+""" % (x,x,x))
 
 for x in ['RPCSignature',
           ]:
-    exec """class %s(JobProperty):
+    exec("""class %s(JobProperty):
 \t ' %s '
 \t statusOn=True
 \t allowedTypes=['str']
 \t StoredValue='L1_MU6_RPC'
 _flags.append(%s)
-""" % (x,x,x)
+""" % (x,x,x))
 
 for x in ['RPCThreshold',
           ]:
-    exec """class %s(JobProperty):
+    exec("""class %s(JobProperty):
 \t ' %s '
 \t statusOn=True
 \t allowedTypes=['str']
 \t StoredValue='MU6_RPC'
 _flags.append(%s)
-""" % (x,x,x)
+""" % (x,x,x))
 
 for x in ['WidePatternRPCSignature',
           ]:
-    exec """class %s(JobProperty):
+    exec("""class %s(JobProperty):
 \t ' %s '
 \t statusOn=True
 \t allowedTypes=['str']
 \t StoredValue='L1_MU0_LOW_RPC'
 _flags.append(%s)
-""" % (x,x,x)
+""" % (x,x,x))
 
 for x in ['WidePatternRPCThreshold',
           ]:
-    exec """class %s(JobProperty):
+    exec("""class %s(JobProperty):
 \t ' %s '
 \t statusOn=True
 \t allowedTypes=['str']
 \t StoredValue='MU0_LOW_RPC'
 _flags.append(%s)
-""" % (x,x,x)
+""" % (x,x,x))
 
 for x in ['MuonSignature_V2',
           ]:
-    exec """class %s(JobProperty):
+    exec("""class %s(JobProperty):
 \t ' %s '
 \t statusOn=True
 \t allowedTypes=['str']
 \t StoredValue='L1_MU0_EMPTY'
 _flags.append(%s)
-""" % (x,x,x)
+""" % (x,x,x))
 
 for x in ['MuonThreshold_V2',
           ]:
-    exec """class %s(JobProperty):
+    exec("""class %s(JobProperty):
 \t ' %s '
 \t statusOn=True
 \t allowedTypes=['str']
 \t StoredValue='MU0'
 _flags.append(%s)
-""" % (x,x,x)
+""" % (x,x,x))
 
 
 
 for x in ['CaloSignature',
           ]:
-    exec """class %s(JobProperty):
+    exec("""class %s(JobProperty):
 \t ' %s '
 \t statusOn=True
 \t allowedTypes=['str']
 \t StoredValue='L1_J10'
 _flags.append(%s)
-""" % (x,x,x)
+""" % (x,x,x))
 
 for x in ['CaloSignature_V2',
           ]:
-    exec """class %s(JobProperty):
+    exec("""class %s(JobProperty):
 \t ' %s '
 \t statusOn=True
 \t allowedTypes=['str']
 \t StoredValue='L1_J10_EMPTY'
 _flags.append(%s)
-""" % (x,x,x)
+""" % (x,x,x))
 
 
 for x in ['CaloThreshold',
           'CaloThreshold_V2',
           ]:
-    exec """class %s(JobProperty):
+    exec("""class %s(JobProperty):
 \t ' %s '
 \t statusOn=True
 \t allowedTypes=['str']
 \t StoredValue='J10'
 _flags.append(%s)
-""" % (x,x,x)
+""" % (x,x,x))
 
 
 for x in ['Signature',
           ]:
-    exec """class %s(JobProperty):
+    exec("""class %s(JobProperty):
 \t ' %s '
 \t statusOn=True
 \t allowedTypes=['str']
 \t StoredValue='L1_MU6_RPC'
 _flags.append(%s)
-""" % (x,x,x)
+""" % (x,x,x))
 
 for x in ['Threshold',
           ]:
-    exec """class %s(JobProperty):
+    exec("""class %s(JobProperty):
 \t ' %s '
 \t statusOn=True
 \t allowedTypes=['str']
 \t StoredValue='MU6_RPC'
 _flags.append(%s)
-""" % (x,x,x)
+""" % (x,x,x))
 
 for x in ['Signature_V2',
           ]:
-    exec """class %s(JobProperty):
+    exec("""class %s(JobProperty):
 \t ' %s '
 \t statusOn=True
 \t allowedTypes=['str']
 \t StoredValue='L1_MU6_EMPTY'
 _flags.append(%s)
-""" % (x,x,x)
+""" % (x,x,x))
 
 for x in ['Threshold_V2',
           ]:
-    exec """class %s(JobProperty):
+    exec("""class %s(JobProperty):
 \t ' %s '
 \t statusOn=True
 \t allowedTypes=['str']
 \t StoredValue='MU6'
 _flags.append(%s)
-""" % (x,x,x)
+""" % (x,x,x))
 
 
 

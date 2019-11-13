@@ -676,7 +676,7 @@ class triggerConfig(JobProperty):
                     cmd = 'TriggerFlags.do%s = False' % detOff
                     # possibly not all DetFlags have a TriggerFlag
                     try:
-                        exec cmd
+                        exec(cmd)
                         log.info(cmd)
                     except AttributeError:
                         pass
@@ -1188,7 +1188,6 @@ else:
     from TriggerJobOpts.SliceFlags import *                                   # noqa: F401, F403
 
 from TriggerJobOpts.Tier0TriggerFlags       import Tier0TriggerFlags      # noqa: F401
-from TrigTier0.NtupleProdFlags              import NtupleProductionFlags  # noqa: F401
 
 
 def sync_Trigger2Reco():

@@ -111,7 +111,7 @@ class useTrackSegmentMatching(JobProperty) :
 class MuonStandalone(JobPropertyContainer):
     ##set defaults of the flags depending on type of input (MC, data, cosmics etc.)
     def setDefaults(self):
-        from MuonRecUtils import setJobPropertyDefault as setDefault
+        from MuonRecExample.MuonRecUtils import setJobPropertyDefault as setDefault
 
         global beamFlags
         if beamFlags.beamType()=='cosmics' or beamFlags.beamType()=='singlebeam':
