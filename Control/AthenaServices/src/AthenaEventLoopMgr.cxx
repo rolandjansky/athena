@@ -735,7 +735,7 @@ StatusCode AthenaEventLoopMgr::executeEvent(EventContext&& ctx)
   {
     // With no iterator it's up to us to create an EventInfo
     pEventPtr = std::make_unique<EventInfo>
-      (new EventID(1,m_nevt), new EventType());
+      (new EventID(1,m_nevt,0), new EventType());
     pEvent = pEventPtr.get();
     pEventPtr->event_ID()->set_lumi_block( m_nevt );
     eventID=*(pEvent->event_ID());
