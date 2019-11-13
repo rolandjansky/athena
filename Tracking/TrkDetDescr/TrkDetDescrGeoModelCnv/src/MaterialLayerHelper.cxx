@@ -37,8 +37,11 @@ namespace Trk{
   typedef std::pair< SharedObject<const Surface>, Amg::Vector3D > SurfaceOrderPosition;
 }
 
-void Trk::MaterialLayerHelper::processMaterial(const Trk::TrackingVolume* inputVol, std::vector<MaterialElement>& inputMat, bool printInfo)
+void Trk::MaterialLayerHelper::processMaterial(const Trk::TrackingVolume* inputVol, std::vector<MaterialElement>& inputMat, float beamPipeRadius, bool printInfo)
 {
+  // if no input tracking volume, bail out
+  if ( !inputVol ) return;  
+
   // extract summary information about material in GeoModel
   if (printInfo) materialBudget(inputMat); 
  
@@ -48,8 +51,13 @@ void Trk::MaterialLayerHelper::processMaterial(const Trk::TrackingVolume* inputV
 
   // resolve volume boundaries
   const Trk::CylinderVolumeBounds* cylBounds = dynamic_cast<const Trk::CylinderVolumeBounds*> (&(inputVol->volumeBounds()));
-  m_rExt = cylBounds ? cylBounds->outerRadius() : 1148.;
-  m_zExt = cylBounds ? cylBounds->halflengthZ() : 3450.;
+  if (!cylBounds) {
+    DEBUG_TRACE( std::cout<<"Trk::MaterialLayerHelped failed to retrieve cylindrical bounds for input volume, material mapping not done"<< std::endl; );
+    return;
+  }
+  m_rExt = cylBounds->outerRadius() ;
+  m_zExt = cylBounds->halflengthZ() ;
+  m_rBP = beamPipeRadius; 
 
   // prepare the material collection for merge
   m_mat4merge.clear();
@@ -99,13 +107,15 @@ void Trk::MaterialLayerHelper::findClosestLayer(std::vector<MaterialElement>& ma
   double massInp = 0.;
   m_unassignedMass=0.;
   m_unassignedITk =0.;
+ 
+  double precision = 10.; 
 
   std::vector<std::pair<double,double> > layThRange;
   std::vector<std::pair<const Trk::CylinderBounds*,const Trk::DiscBounds*> > layBounds;
   for (unsigned int i=0; i<layers.size(); i++) {
     const Trk::Layer* lay = layers[i];
     const Trk::DiscBounds*  db = dynamic_cast<const Trk::DiscBounds*> (&lay->surfaceRepresentation().bounds()); 
-    const Trk::CylinderBounds*  cyl = dynamic_cast<const Trk::CylinderBounds*> (&lay->surfaceRepresentation().bounds()); 
+    const Trk::CylinderBounds*  cyl = db ? 0 : dynamic_cast<const Trk::CylinderBounds*> (&lay->surfaceRepresentation().bounds()); 
     float zLay = lay->surfaceRepresentation().center().z(); 
     layBounds.push_back(std::pair<const Trk::CylinderBounds*,const Trk::DiscBounds*>(cyl,db)); 
     if (cyl) {
@@ -194,8 +204,8 @@ void Trk::MaterialLayerHelper::findClosestLayer(std::vector<MaterialElement>& ma
 	const Trk::DiscBounds*  db = layBounds[i].second; 
 	const Trk::CylinderBounds*  cyl = layBounds[i].first; 
 	
-	if (db && mat.rmin<30 ) continue;    // TODO : check if needed
-	if (cyl && cyl->r()<32.2 && mat.rmax > 30.) continue;  //TODO check if needed
+	if (db && mat.rmin<m_rBP ) continue;    // TODO : check if needed
+	if (cyl && cyl->r()<m_rBP && mat.rmax > m_rBP) continue;  //TODO check if needed
 	
 	zpos = lay->surfaceRepresentation().center().z();
         // evaluate the overlap in theta 
@@ -307,10 +317,10 @@ void Trk::MaterialLayerHelper::findClosestLayer(std::vector<MaterialElement>& ma
      // resolve projections
      if (m_mat4merge[index].size() && mat.name ==  m_mat4merge[index].back().name) { 
        bool mmatch =  fabs(mat.mass()- m_mat4merge[index].back().mass())<0.01*mat.mass();
-       bool zmatch = fabs(mat.zmin- m_mat4merge[index].back().zmin)<10.
-								    &&  fabs(mat.zmax- m_mat4merge[index].back().zmax)<10.;
-       bool rmatch = fabs(mat.rmin- m_mat4merge[index].back().rmin)<10.
-								    &&  fabs(mat.rmax- m_mat4merge[index].back().rmax)<10.;
+       bool zmatch = fabs(mat.zmin- m_mat4merge[index].back().zmin)<precision
+								    &&  fabs(mat.zmax- m_mat4merge[index].back().zmax)<precision;
+       bool rmatch = fabs(mat.rmin- m_mat4merge[index].back().rmin)<precision
+								    &&  fabs(mat.rmax- m_mat4merge[index].back().rmax)<precision;
        if ( mmatch && zmatch && rmatch ) {
 	 m_mat4merge[index].back().multi =  m_mat4merge[index].back().multi+1;
        } else {
@@ -323,7 +333,7 @@ void Trk::MaterialLayerHelper::findClosestLayer(std::vector<MaterialElement>& ma
    } else {
      DEBUG_TRACE( std::cout <<"no suitable layer found for material element:"<<mat.rmin<<","<<mat.rmax<<":"<<mat.zmin<<","<<mat.zmax<< std::endl; );
      m_unassignedMass += mat.mass();
-     if (mat.rmin>30. && mat.zmax<3500. && mat.zmin>-3500) m_unassignedITk += mat.mass();
+     if (mat.rmin>m_rBP && mat.zmax<m_zExt && mat.zmin>-m_zExt) m_unassignedITk += mat.mass();
    }
    
    double dphi = mat.phimax-mat.phimin;
@@ -344,6 +354,7 @@ void Trk::MaterialLayerHelper::buildMaterial(std::vector< const Trk::Layer* >&  
 
   int icounter = 0;
   float tol = 10.;    // smallest array step
+  float heavyLimit = 500.;  // set a limit for objects worth additional effort (splits)
 
   static FILE* flog = 0;
   flog = fopen("layer_material.dump","w+");
@@ -354,7 +365,7 @@ void Trk::MaterialLayerHelper::buildMaterial(std::vector< const Trk::Layer* >&  
   for (auto lay : matLayers) {
 
     const Trk::DiscBounds*  db = dynamic_cast<const Trk::DiscBounds*> (&lay->surfaceRepresentation().bounds()); 
-    const Trk::CylinderBounds*  cyl = dynamic_cast<const Trk::CylinderBounds*> (&lay->surfaceRepresentation().bounds()); 
+    const Trk::CylinderBounds*  cyl = db ? 0 : dynamic_cast<const Trk::CylinderBounds*> (&lay->surfaceRepresentation().bounds()); 
 
     float matLayInput = 0.;
     float matLayWeight = 0.;
@@ -371,7 +382,7 @@ void Trk::MaterialLayerHelper::buildMaterial(std::vector< const Trk::Layer* >&  
       }
       // check if heavy objects associated 
       bool hasheavy = false;
-      for (auto mat :  m_mat4merge[icounter])  if (mat.mass()>500.) hasheavy=true; 
+      for (auto mat :  m_mat4merge[icounter])  if (mat.mass()>heavyLimit) hasheavy=true; 
       std::vector<std::pair<float,Trk::MaterialProperties> > zmat;
 
       double layZmax = lay->surfaceRepresentation().center().z()+cyl->halflengthZ();
@@ -455,7 +466,7 @@ void Trk::MaterialLayerHelper::buildMaterial(std::vector< const Trk::Layer* >&  
       Trk::BinUtility buZ(steps,Trk::open,Trk::binZ);      
       Trk::BinnedLayerMaterial material(buZ,matMerged);
       lay->assignMaterialProperties(material);
-      if( cyl->r()>30.) layMatTot += matLayInput;
+      if( cyl->r()>m_rBP) layMatTot += matLayInput;
     }
 
     //=========== disk layers =============
@@ -464,10 +475,10 @@ void Trk::MaterialLayerHelper::buildMaterial(std::vector< const Trk::Layer* >&  
 
       // check if heavy objects associated 
       bool hasheavy = false;
-      for (auto mat :  m_mat4merge[icounter])  if (mat.mass()>500.) hasheavy=true; 
+      for (auto mat :  m_mat4merge[icounter])  if (mat.mass()>heavyLimit) hasheavy=true; 
    
       std::vector<std::pair<float,Trk::MaterialProperties> > rmat;
-      rmat.push_back(std::pair<float,Trk::MaterialProperties>(fmax(db->rMin(),30.),Trk::MaterialProperties()));   // do not accept disks within the beam pipe volume     
+      rmat.push_back(std::pair<float,Trk::MaterialProperties>(fmax(db->rMin(),m_rBP),Trk::MaterialProperties()));   // do not accept disks within the beam pipe volume     
       if (hasheavy) {
         double rdiff = 20.; double rnext = rmat.back().first+rdiff;
         while (rnext<db->rMax()-0.5*rdiff) {

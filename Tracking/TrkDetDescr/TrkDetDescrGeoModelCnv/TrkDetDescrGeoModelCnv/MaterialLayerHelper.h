@@ -37,7 +37,7 @@ namespace Trk {
       virtual ~MaterialLayerHelper(){}
       
       /** main method to process the external input */
-      void processMaterial(const Trk::TrackingVolume*, std::vector<MaterialElement>& , bool printInfo=false);
+      void processMaterial(const Trk::TrackingVolume*, std::vector<MaterialElement>& , float beamPipeRadius, bool printInfo=false);
       
       Trk::CylinderLayer* buildCylinderLayer(std::vector< MaterialElement>& material, double, double, double, double) const;
       
@@ -67,7 +67,8 @@ namespace Trk {
 
         mutable float m_rExt;
         mutable float m_zExt;
-   };
+        mutable float m_rBP; 
+  };
  
 
 } // end of namespace Trk
