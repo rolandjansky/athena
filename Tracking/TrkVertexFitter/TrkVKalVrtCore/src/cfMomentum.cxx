@@ -7,6 +7,7 @@
 #include "TrkVKalVrtCore/TrkVKalVrtCore.h"
 #include <math.h>
 #include <iostream>
+#include <array>
 
 namespace Trk {
 
@@ -24,9 +25,9 @@ void vkPerigeeToP( double *perig3, double *pp, double BMAG)
 
 
 
-std::vector<double> getFitParticleMom( VKTrack * trk)
+std::array<double, 4> getFitParticleMom( VKTrack * trk)
 {
-    std::vector<double> p(4);
+    std::array<double, 4> p;
     double magConst =vkalvrtbmag.bmag  * vkalMagCnvCst;
 
     double cth = 1. / tan( trk->fitP[0]);
@@ -39,9 +40,10 @@ std::vector<double> getFitParticleMom( VKTrack * trk)
     p[3] = sqrt(p[0]*p[0]+p[1]*p[1]+p[2]*p[2] + m*m );
     return p;
 }
-std::vector<double> getIniParticleMom( VKTrack * trk)
+
+std::array<double, 4> getIniParticleMom( VKTrack * trk)
 {
-    std::vector<double> p(4);
+    std::array<double, 4> p;
     double magConst =vkalvrtbmag.bmag  * vkalMagCnvCst;
 
     double cth = 1. / tan( trk->iniP[0]);
@@ -54,9 +56,9 @@ std::vector<double> getIniParticleMom( VKTrack * trk)
     p[3] = sqrt(p[0]*p[0]+p[1]*p[1]+p[2]*p[2] + m*m );
     return p;
 }
-std::vector<double> getCnstParticleMom( VKTrack * trk)
+std::array<double, 4> getCnstParticleMom( VKTrack * trk)
 {
-    std::vector<double> p(4);
+    std::array<double, 4> p;
     double magConst =vkalvrtbmag.bmag  * vkalMagCnvCst;
 
     double cth = 1. / tan( trk->cnstP[0]);
