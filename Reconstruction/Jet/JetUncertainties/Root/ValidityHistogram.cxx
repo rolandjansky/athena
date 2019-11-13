@@ -155,9 +155,9 @@ class InfoHelpereLOGmOeAbsEta : public InfoHelper
 
 double InfoHelper::getMassOverPt(const xAOD::Jet& jet) const
 {
-    static bool isSimpleCase = (m_massDef == CompMassDef::UNKNOWN || m_massDef == CompMassDef::FourVecMass);
-    static JetFourMomAccessor scale(isSimpleCase ? "" : CompMassDef::getJetScaleString(m_massDef).Data());
-    static SG::AuxElement::ConstAccessor<float> scaleTAMoment(isSimpleCase ? "" : "JetTrackAssistedMassCalibrated");
+    bool isSimpleCase = (m_massDef == CompMassDef::UNKNOWN || m_massDef == CompMassDef::FourVecMass);
+    JetFourMomAccessor scale(isSimpleCase ? "" : CompMassDef::getJetScaleString(m_massDef).Data());
+    SG::AuxElement::ConstAccessor<float> scaleTAMoment(isSimpleCase ? "" : "JetTrackAssistedMassCalibrated");
     
     if (isSimpleCase)
         return jet.m()/jet.pt();
@@ -179,9 +179,9 @@ double InfoHelper::getMassOverPt(const xAOD::Jet& jet) const
 
 double InfoHelper::getMassOverE(const xAOD::Jet& jet) const
 {
-    static bool isSimpleCase = (m_massDef == CompMassDef::UNKNOWN || m_massDef == CompMassDef::FourVecMass);
-    static JetFourMomAccessor scale(isSimpleCase ? "" : CompMassDef::getJetScaleString(m_massDef).Data());
-    static SG::AuxElement::ConstAccessor<float> scaleTAMoment(isSimpleCase ? "" : "JetTrackAssistedMassCalibrated");
+    bool isSimpleCase = (m_massDef == CompMassDef::UNKNOWN || m_massDef == CompMassDef::FourVecMass);
+    JetFourMomAccessor scale(isSimpleCase ? "" : CompMassDef::getJetScaleString(m_massDef).Data());
+    SG::AuxElement::ConstAccessor<float> scaleTAMoment(isSimpleCase ? "" : "JetTrackAssistedMassCalibrated");
     
     if (isSimpleCase)
         return jet.m()/jet.e();

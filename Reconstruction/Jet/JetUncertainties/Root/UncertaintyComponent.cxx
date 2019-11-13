@@ -309,9 +309,9 @@ bool UncertaintyComponent::getValidBool(const double validity) const
 
 double UncertaintyComponent::getMassOverPt(const xAOD::Jet& jet, const CompMassDef::TypeEnum massDef) const
 {
-    static bool isSimpleCase = (massDef == CompMassDef::UNKNOWN || massDef == CompMassDef::FourVecMass);
-    static JetFourMomAccessor scale(isSimpleCase ? "" : CompMassDef::getJetScaleString(massDef).Data());
-    static SG::AuxElement::ConstAccessor<float> scaleTAMoment(isSimpleCase ? "" : "JetTrackAssistedMassCalibrated");
+    bool isSimpleCase = (massDef == CompMassDef::UNKNOWN || massDef == CompMassDef::FourVecMass);
+    JetFourMomAccessor scale(isSimpleCase ? "" : CompMassDef::getJetScaleString(massDef).Data());
+    SG::AuxElement::ConstAccessor<float> scaleTAMoment(isSimpleCase ? "" : "JetTrackAssistedMassCalibrated");
     
     if (isSimpleCase)
         return jet.m()/jet.pt();
@@ -334,9 +334,9 @@ double UncertaintyComponent::getMassOverPt(const xAOD::Jet& jet, const CompMassD
 
 double UncertaintyComponent::getMassOverE(const xAOD::Jet& jet, const CompMassDef::TypeEnum massDef) const
 {
-    static bool isSimpleCase = (massDef == CompMassDef::UNKNOWN || massDef == CompMassDef::FourVecMass);
-    static JetFourMomAccessor scale(isSimpleCase ? "" : CompMassDef::getJetScaleString(massDef).Data());
-    static SG::AuxElement::ConstAccessor<float> scaleTAMoment(isSimpleCase ? "" : "JetTrackAssistedMassCalibrated");
+    bool isSimpleCase = (massDef == CompMassDef::UNKNOWN || massDef == CompMassDef::FourVecMass);
+    JetFourMomAccessor scale(isSimpleCase ? "" : CompMassDef::getJetScaleString(massDef).Data());
+    SG::AuxElement::ConstAccessor<float> scaleTAMoment(isSimpleCase ? "" : "JetTrackAssistedMassCalibrated");
     
     if (isSimpleCase)
         return jet.m()/jet.e();
