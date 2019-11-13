@@ -287,7 +287,7 @@ def schedulePostJetMCTruthAugmentations(kernel=None, decorationDressing=None):
     from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
     if IsSUSYSignal():
         from DerivationFrameworkSUSY.DecorateSUSYProcess import DecorateSUSYProcess
-        augmentationToolsList += [DecorateSUSYProcess('MCTruthCommon')]
+        augmentationToolsList += DecorateSUSYProcess('MCTruthCommon')
     from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
     kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonPostJetKernel",
                                                              AugmentationTools = augmentationToolsList
