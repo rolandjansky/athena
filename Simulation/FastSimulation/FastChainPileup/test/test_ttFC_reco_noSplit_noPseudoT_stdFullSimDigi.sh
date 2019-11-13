@@ -1,13 +1,11 @@
 #!/usr/bin/env bash
+
 # art-description: Job ttFC_stdFullSim + ttFC_stdFullSimMerge + ttFC_stdFullSimDigi + ttFC_reco_noSplit_noPseudoT_stdFullSimDigi
 # art-type: grid
-#
-
-# specify branches of athena that are being targeted:
-
 # art-include: 21.3/Athena
-
-# job 1: Simulation from evgen
+# art-include: master/Athena
+# art-output: *.root
+# art-output: dcube
 
 Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' \
     --physicsList 'FTFP_BERT' \
@@ -22,10 +20,10 @@ Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' \
     --maxEvents 50 \
     --imf False
 
-echo "art-result: $? EVNTtoHITS step"
+echo "art-result: $? EVNTtoHITS"
+
 
 #merging of hits file
-
 HITSMerge_tf.py --inputHITSFile='Hits.pool.root' \
     --outputHITS_MRGFile='Merge.pool.root' \
     --maxEvents=50 \
@@ -34,7 +32,7 @@ HITSMerge_tf.py --inputHITSFile='Hits.pool.root' \
     --conditionsTag 'OFLCOND-RUN12-SDR-19' \
     --imf False
 
-echo "art-result: $? HITS Merge step"
+echo "art-result: $? HITSMerge"
 #digi
 Digi_tf.py --inputHITSFile 'Merge.pool.root' \
     --outputRDOFile 'RDO.pool.root' \
@@ -48,7 +46,7 @@ Digi_tf.py --inputHITSFile 'Merge.pool.root' \
     --conditionsTag 'OFLCOND-RUN12-SDR-31' \
     --imf False
 
-echo "art-result: $? HITStoRDO step"
+echo "art-result: $? HITStoRDO"
 
 FastChain_tf.py --maxEvents 50 \
     --skipEvents 0 \
@@ -60,23 +58,20 @@ FastChain_tf.py --maxEvents 50 \
     --imf False
 
 #end of job
-echo "art-result: $? RDOtoAOD step"
-#add an additional payload from the job (corollary file).
-# art-output: InDetStandardPlots.root
 
-ArtPackage=$1
-ArtJobName=$2
-art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}
-echo  "art-result: $? regression"
+rc=$?
+rc2=-9999
+echo  "art-result: $rc RDOtoAOD"
+if [ $rc -eq 0 ]
+then
+    ArtPackage=$1
+    ArtJobName=$2
+    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
+    rc2=$?
+fi
 
+echo  "art-result: $rc2 regression"
 
 /cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube TEST_ttFC_reco_noSplit_noPseudoT_stdFullSimDigi InDetStandardPlots.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/dcube_configs/config/dcube_indetplots_no_pseudotracks.xml /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/InDetStandardPlots_Refs/test_ttFC_reco_noSplit_noPseudoT_stdFullSimDigi_InDetStandardPlots.root
-
-
-
-
-# InDetStandardPlots.root -l dcube.log -p -r   -x dcube.xml -s /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/
-
-# art-output: dcube/
 
 echo  "art-result: $? histcomp test"
