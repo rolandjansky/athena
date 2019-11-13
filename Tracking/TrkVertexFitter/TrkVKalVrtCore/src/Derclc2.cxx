@@ -7,6 +7,7 @@
 #include "TrkVKalVrtCore/VKalVrtBMag.h"
 #include "TrkVKalVrtCore/CommonPars.h"
 #include "TrkVKalVrtCore/TrkVKalVrtCore.h"
+#include <array>
 
 namespace Trk {
 
@@ -20,7 +21,7 @@ extern VKalVrtBMag vkalvrtbmag;
 //      cnstV and cnstP values are used!!!
 //-----------------------------------------------
  extern void cfnewp(long int*, double*, double*, double*, double*, double*);
- extern std::vector<double> getCnstParticleMom( VKTrack * );
+ extern std::array<double, 4> getCnstParticleMom( VKTrack * );
 
 
 void  calcPointConstraint( VKPointConstraint * cnst )
@@ -36,7 +37,7 @@ void  calcPointConstraint( VKPointConstraint * cnst )
     VKVertex * vk=cnst->getOriginVertex();
     int NTRK = vk->TrackList.size();
     VKTrack * trk;
-    std::vector< std::vector<double> > pp(NTRK);
+    std::vector< std::array<double, 4> > pp(NTRK);
     for( it=0; it<NTRK; it++){
       trk = vk->TrackList[it];
       pp[it]=getCnstParticleMom( trk );

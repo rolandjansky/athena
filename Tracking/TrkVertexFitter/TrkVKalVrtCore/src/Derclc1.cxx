@@ -7,6 +7,7 @@
 #include "TrkVKalVrtCore/CommonPars.h"
 #include "TrkVKalVrtCore/TrkVKalVrtCore.h"
 #include <iostream>
+#include <array>
 
 namespace Trk {
 
@@ -17,7 +18,7 @@ namespace Trk {
 //      cnstV and cnstP values are used!!!
 //-----------------------------------------------
 
-extern std::vector<double> getCnstParticleMom( VKTrack * );
+extern std::array<double, 4> getCnstParticleMom( VKTrack * );
 
 void  calcMassConstraint( VKMassConstraint * cnst )
 {
@@ -28,7 +29,7 @@ void  calcMassConstraint( VKMassConstraint * cnst )
     VKVertex * vk=cnst->getOriginVertex();
     int usedNTRK = cnst->usedParticles.size();
     VKTrack * trk;
-    std::vector< std::vector<double> > pp(usedNTRK);
+    std::vector< std::array<double, 4> > pp(usedNTRK);
     for( itc=0; itc<usedNTRK; itc++){
       it = cnst->usedParticles[itc];
       trk = vk->TrackList.at(it);

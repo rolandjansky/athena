@@ -317,17 +317,16 @@ CalibrationDataEigenVariations::getEigenCovarianceMatrixFromVariations() const
   TMatrixD    jac = getJacobianReductionMatrix();
   int         nbins = jac.GetNcols();
   TMatrixDSym cov(nbins);
+  auto variation = std::make_unique<double[]>(nbins);
 
   for (std::vector<std::pair<TH1*, TH1*> >::const_iterator it = m_eigen.begin();
        it != m_eigen.end(); ++it) {
-    double *variation = new double[nbins];
     TH1* resultVariedUp = it->first;
     for (unsigned int u = 0; u < (unsigned int) nbins; ++u)
       variation[u] = resultVariedUp->GetBinContent(u) - result->GetBinContent(u);
     for (int u = 0; u < nbins; ++u)
       for (int v = 0; v < nbins; ++v)
         cov(u, v) += variation[u]*variation[v];
-    delete[] variation;
   }
 
   return cov;

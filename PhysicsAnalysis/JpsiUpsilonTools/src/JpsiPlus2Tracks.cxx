@@ -560,12 +560,12 @@ namespace Analysis {
     // ---------------------------------------------------------------------------------
     
     double JpsiPlus2Tracks::getInvariantMass(const xAOD::TrackParticle* trk1, double mass1, const xAOD::TrackParticle* trk2, double mass2){
-        const auto trk1V = trk1->p4();
+        const auto &trk1V = trk1->p4();
         double px1 = trk1V.Px();
         double py1 = trk1V.Py();
         double pz1 = trk1V.Pz();
         double e1 = sqrt(px1*px1+py1*py1+pz1*pz1+mass1*mass1);
-        const auto trk2V = trk2->p4();
+        const auto &trk2V = trk2->p4();
         double px2 = trk2V.Px();
         double py2 = trk2V.Py();
         double pz2 = trk2V.Pz();
@@ -584,25 +584,25 @@ namespace Analysis {
                                              const std::vector<double> &masses)
     {
         assert(trk.size() == masses.size() && trk.size()==4);
-        const auto trk1V = trk[0]->p4();
+        const auto &trk1V = trk[0]->p4();
         double px1 = trk1V.Px();
         double py1 = trk1V.Py();
         double pz1 = trk1V.Pz();
         double e1 = sqrt(px1*px1+py1*py1+pz1*pz1+masses[0]*masses[0]);
 
-        const auto trk2V = trk[1]->p4();
+        const auto &trk2V = trk[1]->p4();
         double px2 = trk2V.Px();
         double py2 = trk2V.Py();
         double pz2 = trk2V.Pz();
         double e2 = sqrt(px2*px2+py2*py2+pz2*pz2+masses[1]*masses[1]);
         
-        const auto trk3V = trk[2]->p4();
+        const auto &trk3V = trk[2]->p4();
         double px3 = trk3V.Px();
         double py3 = trk3V.Py();
         double pz3 = trk3V.Pz();
         double e3 = sqrt(px3*px3+py3*py3+pz3*pz3+masses[2]*masses[2]);
         
-        const auto trk4V = trk[3]->p4();
+        const auto &trk4V = trk[3]->p4();
         double px4 = trk4V.Px();
         double py4 = trk4V.Py();
         double pz4 = trk4V.Pz();
