@@ -182,11 +182,20 @@ DFCommonTruthPhotonIsolationTool2 = DerivationFramework__TruthIsolationTool(name
                                                                   isoParticlesKey = "TruthPhotons",
                                                                   allParticlesKey = "TruthParticles",
                                                                   particleIDsToCalculate = [22],
-                                                                  IsolationConeSizes = [0.3],
+                                                                  IsolationConeSizes = [0.2],
                                                                   IsolationVarNamePrefix = 'ptcone',
                                                                   ChargedParticlesOnly = True
                                                                   )
 ToolSvc += DFCommonTruthPhotonIsolationTool2
+DFCommonTruthPhotonIsolationTool3 = DerivationFramework__TruthIsolationTool(name = "DFCommonTruthPhotonIsolationTool3",
+                                                                  isoParticlesKey = "TruthPhotons",
+                                                                  allParticlesKey = "TruthParticles",
+                                                                  particleIDsToCalculate = [22],
+                                                                  IsolationConeSizes = [0.4],
+                                                                  IsolationVarNamePrefix = 'etcone',
+                                                                  ChargedParticlesOnly = False
+                                                                  )
+ToolSvc += DFCommonTruthPhotonIsolationTool3
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthQGDecorationTool
 DFCommonTruthQGLabelTool = DerivationFramework__TruthQGDecorationTool(name="DFCommonTruthQGLabelTool",
                                                                   JetCollection = "AntiKt4TruthWZJets")
