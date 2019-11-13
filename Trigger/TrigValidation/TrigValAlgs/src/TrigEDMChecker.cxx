@@ -4031,7 +4031,11 @@ StatusCode TrigEDMChecker::dumpTDT() {
         if (!li.isValid()) {
           ATH_MSG_WARNING("      Unable to access feature - link invalid.");
         } else {
-          ATH_MSG_INFO("      IParticle Feature from " << li.link.dataID() << " pt:" << (*li.link)->pt() << " eta:" << (*li.link)->eta() << " phi:" << (*li.link)->phi());
+          try {
+            ATH_MSG_INFO("      IParticle Feature from " << li.link.dataID() << " pt:" << (*li.link)->pt() << " eta:" << (*li.link)->eta() << " phi:" << (*li.link)->phi());
+          } catch (const std::exception& e) {
+            ATH_MSG_WARNING("      Unable to dereference feature {" << e.what() << "}");
+          }
         }
       }
     }
@@ -4042,7 +4046,11 @@ StatusCode TrigEDMChecker::dumpTDT() {
         if (!li.isValid()) {
           ATH_MSG_WARNING("      Unable to access feature - link invalid.");
         } else {
-          ATH_MSG_INFO("      IParticle Feature from " << li.link.dataID() << " pt:" << (*li.link)->pt() << " eta:" << (*li.link)->eta() << " phi:" << (*li.link)->phi());
+          try {
+            ATH_MSG_INFO("      IParticle Feature from " << li.link.dataID() << " pt:" << (*li.link)->pt() << " eta:" << (*li.link)->eta() << " phi:" << (*li.link)->phi());
+          } catch (const std::exception& e) {
+            ATH_MSG_WARNING("      Unable to dereference feature {" << e.what() << "}");
+          }
         }
       }
     }
