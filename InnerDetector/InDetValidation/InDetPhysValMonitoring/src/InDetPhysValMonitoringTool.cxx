@@ -515,9 +515,6 @@ InDetPhysValMonitoringTool::fillHistograms() {
             if (prob > minProbEffLow) {
               matches.push_back(std::make_pair(prob, thisTrack));
             }
-            // Fixing double counting of fake rates
-            // const bool isFake = (prob < minProbEffLow);
-            // m_monPlots->fillFakeRate(*thisTrack, isFake);
           }
         }
       }
