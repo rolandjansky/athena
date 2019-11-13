@@ -309,9 +309,6 @@ bool UncertaintyComponent::getValidBool(const double validity) const
 
 double UncertaintyComponent::getMassOverPt(const xAOD::Jet& jet, const CompMassDef::TypeEnum massDef) const
 {
-    static JetFourMomAccessor scale(CompMassDef::getJetScaleString(massDef).Data());
-    static SG::AuxElement::ConstAccessor<float> scaleTAMoment("JetTrackAssistedMassCalibrated");
-
     // UNKNOWN is just use the assigned scale
     if (massDef == CompMassDef::UNKNOWN)
         return jet.m()/jet.pt();
@@ -320,6 +317,9 @@ double UncertaintyComponent::getMassOverPt(const xAOD::Jet& jet, const CompMassD
     if (massDef == CompMassDef::FourVecMass)
         return jet.m()/jet.pt();
     
+    static JetFourMomAccessor scale(CompMassDef::getJetScaleString(massDef).Data());
+    static SG::AuxElement::ConstAccessor<float> scaleTAMoment("JetTrackAssistedMassCalibrated");
+
     // Check if the specified scale is available and return it if so
     if (scale.isAvailable(jet))
         return scale(jet).M()/scale(jet).Pt();
@@ -338,9 +338,6 @@ double UncertaintyComponent::getMassOverPt(const xAOD::Jet& jet, const CompMassD
 
 double UncertaintyComponent::getMassOverE(const xAOD::Jet& jet, const CompMassDef::TypeEnum massDef) const
 {
-    static JetFourMomAccessor scale(CompMassDef::getJetScaleString(massDef).Data());
-    static SG::AuxElement::ConstAccessor<float> scaleTAMoment("JetTrackAssistedMassCalibrated");
-
     // UNKNOWN is just use the assigned scale
     if (massDef == CompMassDef::UNKNOWN)
         return jet.m()/jet.e();
@@ -349,6 +346,9 @@ double UncertaintyComponent::getMassOverE(const xAOD::Jet& jet, const CompMassDe
     if (massDef == CompMassDef::FourVecMass)
         return jet.m()/jet.pt();
     
+    static JetFourMomAccessor scale(CompMassDef::getJetScaleString(massDef).Data());
+    static SG::AuxElement::ConstAccessor<float> scaleTAMoment("JetTrackAssistedMassCalibrated");
+
     // Check if the specified scale is available and return it if so
     if (scale.isAvailable(jet))
         return scale(jet).M()/scale(jet).E();

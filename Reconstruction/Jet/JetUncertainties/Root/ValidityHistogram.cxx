@@ -155,9 +155,6 @@ class InfoHelpereLOGmOeAbsEta : public InfoHelper
 
 double InfoHelper::getMassOverPt(const xAOD::Jet& jet) const
 {
-    static JetFourMomAccessor scale(CompMassDef::getJetScaleString(m_massDef).Data());
-    static SG::AuxElement::ConstAccessor<float> scaleTAMoment("JetTrackAssistedMassCalibrated");
-
     // UNKNOWN is just use the assigned scale
     if (m_massDef == CompMassDef::UNKNOWN)
         return jet.m()/jet.pt();
@@ -166,6 +163,9 @@ double InfoHelper::getMassOverPt(const xAOD::Jet& jet) const
     if (m_massDef == CompMassDef::FourVecMass)
         return jet.m()/jet.pt();
     
+    static JetFourMomAccessor scale(CompMassDef::getJetScaleString(m_massDef).Data());
+    static SG::AuxElement::ConstAccessor<float> scaleTAMoment("JetTrackAssistedMassCalibrated");
+
     // Check if the specified scale is available and return it if so
     if (scale.isAvailable(jet))
         return scale(jet).M()/scale(jet).Pt();
@@ -183,9 +183,6 @@ double InfoHelper::getMassOverPt(const xAOD::Jet& jet) const
 
 double InfoHelper::getMassOverE(const xAOD::Jet& jet) const
 {
-    static JetFourMomAccessor scale(CompMassDef::getJetScaleString(m_massDef).Data());
-    static SG::AuxElement::ConstAccessor<float> scaleTAMoment("JetTrackAssistedMassCalibrated");
-
     // UNKNOWN is just use the assigned scale
     if (m_massDef == CompMassDef::UNKNOWN)
         return jet.m()/jet.e();
@@ -194,6 +191,9 @@ double InfoHelper::getMassOverE(const xAOD::Jet& jet) const
     if (m_massDef == CompMassDef::FourVecMass)
         return jet.m()/jet.pt();
     
+    static JetFourMomAccessor scale(CompMassDef::getJetScaleString(m_massDef).Data());
+    static SG::AuxElement::ConstAccessor<float> scaleTAMoment("JetTrackAssistedMassCalibrated");
+
     // Check if the specified scale is available and return it if so
     if (scale.isAvailable(jet))
         return scale(jet).M()/scale(jet).E();
