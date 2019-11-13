@@ -51,7 +51,7 @@ if nThreads >=1 :
 theApp.EvtMax = 20
 
 from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-topSequence+=xAODMaker__EventInfoCnvAlg()
+topSequence+=xAODMaker__EventInfoCnvAlg(DoBeginRun = False)
 
 #---------------------------------------------------------------------------------#
 # NEW Conditions access infrastructure
