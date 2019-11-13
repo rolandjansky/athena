@@ -196,7 +196,7 @@ JETM15EMUFOTPThinningTool = DerivationFramework__UFOTrackParticleThinning(name  
                                                                        JetKey                       = "AntiKt10UFOCHSJets",
                                                                        UFOKey                       = "CHSUFO",
                                                                        InDetTrackParticlesKey       = "InDetTrackParticles",
-                                                                       PFOCollectionSGKey       = "CHS",
+                                                                       PFOCollectionSGKey       = "JetETMiss",
                                                                         AdditionalPFOKey  = ["CSSK", "CHS"])
 ToolSvc += JETM15EMUFOTPThinningTool
 thinningTools.append(JETM15EMUFOTPThinningTool)
