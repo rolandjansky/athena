@@ -40,7 +40,7 @@ StatusCode GenericMonitoringTool::start() {
 }
 
 StatusCode GenericMonitoringTool::stop() {
-  m_fillers.clear();
+  m_fillerMap.clear();
   return StatusCode::SUCCESS;
 }
 
@@ -59,7 +59,10 @@ StatusCode GenericMonitoringTool::book() {
 
   HistogramFillerFactory factory(this, m_histoPath);
 
-  m_fillers.reserve(m_histograms.size());
+  // First, make a vector of fillers. Then move the pointers to an unordered_map en masse.
+  std::vector<std::shared_ptr<Monitored::HistogramFiller>> fillers;
+  fillers.reserve(m_histograms.size());
+  m_fillerMap.reserve(m_histograms.size());
   for (const std::string& item : m_histograms) {
     if (item.empty()) {
       ATH_MSG_DEBUG( "Skipping empty histogram definition" );
@@ -72,7 +75,7 @@ StatusCode GenericMonitoringTool::book() {
       std::shared_ptr<HistogramFiller> filler(factory.create(def));
 
       if (filler) {
-        m_fillers.push_back(filler);
+        fillers.push_back(filler);
       } else {
         ATH_MSG_WARNING( "The histogram filler cannot be instantiated for: " << def.name );
       }
@@ -83,12 +86,23 @@ StatusCode GenericMonitoringTool::book() {
     ATH_MSG_DEBUG( "Monitoring for variable " << def.name << " prepared" );
   }
 
-  if ( m_fillers.empty() ) {
+  if ( fillers.empty() ) {
     std::string hists;
     for (const auto &h : m_histograms) hists += (h+",");
     ATH_MSG_ERROR("No monitored variables created based on histogram definition: [" << hists <<
                   "] Remove this monitoring tool or check its configuration.");
     return StatusCode::FAILURE;
+  }
+
+  for (const auto& filler : fillers ) {
+    const auto& fillerVariables = filler->histogramVariablesNames();
+    for (const auto& fillerVariable : fillerVariables) {
+      m_fillerMap[fillerVariable].push_back(filler);
+    }
+    const auto& fillerWeight = filler->histogramWeightName();
+    if (fillerWeight != "") {
+      m_fillerMap[fillerWeight].push_back(filler);
+    }
   }
 
   return StatusCode::SUCCESS;
@@ -104,7 +118,17 @@ namespace Monitored {
 std::vector<std::shared_ptr<HistogramFiller>> GenericMonitoringTool::getHistogramsFillers(std::vector<std::reference_wrapper<IMonitoredVariable>> monitoredVariables) const {
   std::vector<std::shared_ptr<HistogramFiller>> result;
 
-  for (const auto& filler : m_fillers) {
+  // stage 1: get candidate fillers (assume generally we get only a few variables)
+  std::unordered_set<std::shared_ptr<HistogramFiller>> candidates;
+  for (const auto& monValue : monitoredVariables) {
+    const auto& match = m_fillerMap.find(monValue.get().name());
+    if (match != m_fillerMap.end()) {
+      candidates.insert(match->second.begin(), match->second.end());
+    }
+  } 
+
+  // stage 2: refine for fillers that have all variables set
+  for (const auto& filler : candidates) {
     // Find the associated monitored variable for each histogram's variable(s)
     const auto& fillerVariables = filler->histogramVariablesNames();
 
