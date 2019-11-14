@@ -212,11 +212,6 @@ include("RecExCond/AllDet_detDescr.py")
 runTCCReconstruction(jetm6Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles", outputTCCName="TrackCaloClustersCombinedAndNeutral")
 runUFOReconstruction(jetm6Seq, ToolSvc, PFOPrefix="CSSK")
 
-from JetRec.JetRecConf import PseudoJetGetter
-csskufopjgetter = PseudoJetGetter("csskufoPJGetter", InputContainer="CSSKUFO", OutputContainer="CSSKUFOPJ", Label="UFO", SkipNegativeEnergy=True)
-jtm+=csskufopjgetter
-csskufogetters = [csskufopjgetter]+list(jtm.gettersMap["tcc"])[1:]
-
 #=======================================
 # RESTORE AOD-REDUCED JET COLLECTIONS
 #=======================================
@@ -226,11 +221,10 @@ reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt4TruthJets",
                   "AntiKt10TruthJets",
                   "AntiKt10LCTopoJets",
-                  "AntiKt10TrackCaloClusterJets"]
+                  "AntiKt10TrackCaloClusterJets",
+                  "AntiKt10UFOCSSKJets"]
 
 replaceAODReducedJets(reducedJetList,jetm6Seq,"JETM6")
-
-addStandardJets("AntiKt", 1.0, "UFOCSSK", ptmin=40000, ptminFilter=50000, algseq=jetm6Seq, outputGroup="JETM6", customGetters = csskufogetters, constmods=["CSSK"])
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 jetm6Seq += CfgMgr.DerivationFramework__DerivationKernel( name = "JETM6MainKernel",
