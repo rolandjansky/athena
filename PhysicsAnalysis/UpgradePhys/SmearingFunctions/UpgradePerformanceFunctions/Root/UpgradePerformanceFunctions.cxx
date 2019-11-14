@@ -51,7 +51,8 @@ UpgradePerformanceFunctions::UpgradePerformanceFunctions( const std::string& nam
     m_photonFakeFilename("UpgradePerformanceFunctions/CalibArea-00-01/PhotonFakes.root"),
     m_chargeFlipRateFilename("UpgradePerformanceFunctions/CalibArea-00-01/ChargeFlipRates.root"),
     m_METFilename("UpgradePerformanceFunctions/CalibArea-00-01/sumetPU_mu200_ttbar_gold.root"),
-    m_puPath("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/UpgradePerformanceFunctions/")
+    //    m_puPath("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/UpgradePerformanceFunctions/")
+    m_puPath("")
 {
   // This is the default constructor, so we use default settings
   declareProperty( "Layout", m_layout = Step1p6 );
