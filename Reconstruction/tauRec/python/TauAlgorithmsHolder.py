@@ -338,7 +338,7 @@ def getElectronVetoVars():
     TauElectronVetoVariables = TauElectronVetoVariables(name = _name,
                                                         CellCorrection = True,
                                                         ParticleCaloExtensionTool = getParticleCaloExtensionTool(),
-                                                        tauEVParticleCache = "ParticleCaloExtension")
+                                                        tauEVParticleCache = getParticleCache() )
     
     cached_instances[_name] = TauElectronVetoVariables
     return TauElectronVetoVariables
@@ -687,7 +687,7 @@ def getTauTrackFinder(removeDuplicateTracks=True):
                                     TrackSelectorToolTau  = getInDetTrackSelectorTool(),
                                     TrackToVertexTool         = getTrackToVertexTool(),
                                     ParticleCaloExtensionTool = getParticleCaloExtensionTool(),
-                                    tauParticleCache = "ParticleCaloExtension",
+                                    tauParticleCache = getParticleCache(),
                                     removeDuplicateCoreTracks = removeDuplicateTracks,
                                     Key_trackPartInputContainer = _DefaultTrackContainer,
                                     #maxDeltaZ0wrtLeadTrk = 2, #in mm
@@ -971,6 +971,16 @@ def getTauEleOLRDecorator():
                                               EleOLRFile="eVetoAODfix.root")
     cached_instances[_name] = myTauEleOLRDecorator
     return myTauEleOLRDecorator
+
+def getParticleCache():
+    #If reading from ESD we not create a cache of extrapolations to the calorimeter, so we should signify this by setting the cache key to a null string
+    from RecExConfig.RecFlags import rec
+    if True == rec.doESD:
+        ParticleCache = "ParticleCaloExtension"
+    else : 
+        ParticleCache = ""
+    
+    return ParticleCache
 
 
 
