@@ -57,6 +57,9 @@ bool InDet::DiscOverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceInt
   
   // return empty cell vector
   if (pElement) {
+    size_t newCapacity = surfaces.size() + 19;
+    if (pElement->otherSide()) newCapacity += 19;
+    surfaces.reserve(newCapacity);
     
     addOtherSideDO(pElement,surfaces); 
     
