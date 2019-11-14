@@ -2,14 +2,12 @@
 
 # art-description: test for job configuration ttFC_fastSim_fulldigi (Sim/Digi job) + stdReco_fastSim_fullDigi
 # art-type: grid
-# art-include: 21.0/Athena
 # art-include: 21.3/Athena
 # art-include: master/Athena
 # art-output: config.txt
 # art-output: RAWtoESD_config.txt
 # art-output: *.root
 # art-output: dcube
-
 
 FastChain_tf.py --simulator ATLFASTIIF_PileUp \
     --digiSteeringConf "SplitNoMerge" \
@@ -50,10 +48,10 @@ then
     art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
     rc2=$?
 fi
-
 echo  "art-result: $rc2 regression"
 
 
-/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube TEST_ttFC_stdReco_fastSim_fullDigi InDetStandardPlots.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/dcube_configs/config/InDetStandardPlotCompare.xml /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/InDetStandardPlots_Refs/test_stdReco_fastSim_fullDigi_InDetStandardPlots.root
+#add an additional payload from the job (corollary file).
+ccvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/act-dcube TEST_ttFC_stdReco_fastSim_fullDigi InDetStandardPlots.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/dcube_configs/config/InDetStandardPlotCompare.xml /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/InDetStandardPlots_Refs/test_stdReco_fastSim_fullDigi_InDetStandardPlots.root
 
 echo "art-result: $? dcubeHistComp"

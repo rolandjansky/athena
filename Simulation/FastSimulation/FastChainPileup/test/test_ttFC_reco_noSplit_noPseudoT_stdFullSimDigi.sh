@@ -1,13 +1,11 @@
 #!/usr/bin/env bash
+
 # art-description: Job ttFC_stdFullSim + ttFC_stdFullSimMerge + ttFC_stdFullSimDigi + ttFC_reco_noSplit_noPseudoT_stdFullSimDigi
 # art-type: grid
-# art-include: 21.0/Athena
 # art-include: 21.3/Athena
 # art-include: master/Athena
 # art-output: *.root
 # art-output: dcube
-
-# job 1: Simulation from evgen
 
 Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' \
     --physicsList 'FTFP_BERT' \
@@ -24,8 +22,8 @@ Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' \
 
 echo "art-result: $? EVNTtoHITS"
 
-#merging of hits file
 
+#merging of hits file
 HITSMerge_tf.py --inputHITSFile='Hits.pool.root' \
     --outputHITS_MRGFile='Merge.pool.root' \
     --maxEvents=50 \
@@ -59,6 +57,8 @@ FastChain_tf.py --maxEvents 50 \
     --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doStandardPlots.set_Value_and_Lock(True);" \
     --imf False
 
+#end of job
+
 rc=$?
 rc2=-9999
 echo  "art-result: $rc RDOtoAOD"
@@ -74,4 +74,4 @@ echo  "art-result: $rc2 regression"
 
 /cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube TEST_ttFC_reco_noSplit_noPseudoT_stdFullSimDigi InDetStandardPlots.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/dcube_configs/config/dcube_indetplots_no_pseudotracks.xml /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/InDetStandardPlots_Refs/test_ttFC_reco_noSplit_noPseudoT_stdFullSimDigi_InDetStandardPlots.root
 
-echo  "art-result: $? dcubeHistComp"
+echo  "art-result: $? histcomp test"

@@ -1,14 +1,13 @@
 #!/usr/bin/env bash
-
-# art-description: ttFC_fullHS_fastPU_simDigi 
+#
+# art-description: ttFC_fullHS_fastPU_simDigi
 # art-type: grid
-# art-include: 21.0/Athena
 # art-include: 21.3/Athena
-# art-include: master/Athena
 # art-output: config.txt
 # art-output: *.root
 # art-output: dcube
 
+# Run FastChain 'Fast PU, Full HS' and tests: G4HS_FastPileup sim (G4 for HS, Pythia on the fly + FastCaloSim for PU) + fast digi PU/full digi HS + Split reco (truth tracking PU, full HS)
 FastChain_tf.py --simulator G4HS_FastPileup \
     --digiSteeringConf "SplitNoMergeSF" \
     --useISF True \
@@ -29,7 +28,6 @@ FastChain_tf.py --simulator G4HS_FastPileup \
     --preDigiInclude="FastTRT_Digitization/preInclude.FastTRT_Digi.Validation.py" \
     --imf False
 
-
 rc=$?
 rc2=-9999
 echo  "art-result: $rc EVNTtoRDO"
@@ -42,7 +40,6 @@ then
 fi
 
 echo  "art-result: $rc2 regression"
-
 
 #add an additional payload from the job (corollary file).
 /cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube TEST_ttFC_fullHS_fastPU RDO_truth.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/dcube_configs/config/RDOTruthCompare.xml /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/RDO_TruthPlots_Refs/test_ttFC_fullHS_fastPU_simDigi_RDO_Truth.root

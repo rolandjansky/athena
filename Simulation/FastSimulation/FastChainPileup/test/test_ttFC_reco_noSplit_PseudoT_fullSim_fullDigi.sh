@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
+
 # art-description: test job ttFC_fullSim_fullDigi + ttFC_reco_noSplit_PseudoT_fullSim_fullDigi
 # art-type: grid
-# art-include: 21.0/Athena
 # art-include: 21.3/Athena
-# art-include: master/Athena
 # art-output: config.txt
 # art-output: *.root
 # art-output: dcube
+
 
 FastChain_tf.py --simulator ATLFASTII \
     --digiSteeringConf "SplitNoMerge" \
@@ -50,6 +50,7 @@ fi
 
 echo  "art-result: $rc2 regression"
 
+#add an additional payload from the job (corollary file).
 /cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube TEST_ttFC_reco_noSplit_PseudoT_fullSim_fullDigi InDetStandardPlots.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/dcube_configs/config/dcube_indetplots.xml /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/InDetStandardPlots_TEST.root
 
 echo  "art-result: $? dcubeHistComp"
