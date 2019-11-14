@@ -37,9 +37,9 @@
 #include "TrkEventUtils/PRDtoTrackMap.h"
 #include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
 
+#include "CxxUtils/checker_macros.h"
 
 class MsgStream;
-
 
 namespace InDet {
 
@@ -78,6 +78,8 @@ namespace InDet {
 
     protected:
 
+      StatusCode execute_r (const EventContext& ctx) const;
+
       ///////////////////////////////////////////////////////////////////
       /* Protected data                                                */
       ///////////////////////////////////////////////////////////////////
@@ -93,13 +95,13 @@ namespace InDet {
       unsigned int                       m_minTRTonSegment  ;  /** Minimum number of TRT hits on segment */
       unsigned int                       m_minTRTonly       ;  /** Minimum number of TRT hits on TRT only */
 
-      ToolHandle<ITRT_SeededTrackFinder>   m_trackmaker     ;  /** Track maker tool */
+      mutable ToolHandle<ITRT_SeededTrackFinder>   m_trackmaker     ;  /** Track maker tool */
       ToolHandle<Trk::ITrackFitter>        m_fitterTool     ;  /** Refitting tool */
-      ToolHandle<ITRT_TrackExtensionTool>  m_trtExtension
+      mutable ToolHandle<ITRT_TrackExtensionTool>  m_trtExtension
        { this, "TrackExtensionTool", "InDet::TRT_TrackExtensionTool_xk", "TRT track extension tool "};
 
-      SG::ReadHandle<Trk::SegmentCollection> m_Segments     ;  /** TRT segments to use */
-      SG::WriteHandle<TrackCollection>       m_outTracks   ;
+      SG::ReadHandleKey<Trk::SegmentCollection>  m_SegmentsKey ;  /** TRT segments to use */
+      SG::WriteHandleKey<TrackCollection>        m_outTracksKey;
 
       SG::ReadHandleKey<Trk::PRDtoTrackMap>       m_prdToTrackMap
          {this,"PRDtoTrackMap",""};
@@ -116,33 +118,35 @@ namespace InDet {
       double m_maxZImp;         //!< maximal z impact parameter cut
 
       /** Global Counters for final algorithm statistics */
-      int m_nTrtSeg{}          ;  /** Number of TRT segments to be investigated per event  */
-      int m_nTrtFailSel{}      ;  /** Number of TRT segments failing input selection */
-      int m_nTrtSegGood{}      ;  /** Number of TRT segments that will be investigated per event  */
-      int m_nTrtLimit{}        ;  /** Number of TRT segments lost in busy events */
-      int m_nTrtNoSiExt{}      ;  /** Number of TRT segments not extended in Si */
-      int m_nExtCut{}          ;  /** Number of Si extensions failing cuts */
-      int m_nBckTrkTrt{}       ;  /** Number of back tracks found without a Si extension per event */
-      int m_nTrtExtCalls{}     ;  /** Number of times the TRT extension is called */
-      int m_nTrtExt{}          ;  /** Number of good TRT extensions */
-      int m_nTrtExtBad{}       ;  /** Number of shorter TRT extensions */
-      int m_nTrtExtFail{}      ;  /** Number of failed TRT extensions */
-      int m_nBckTrkSi{}        ;  /** Number of back tracks found with Si extension per event */
-      int m_nBckTrk{}          ;  /** Number of back tracks found with or without Si extension per event */
+      struct Stat_t {
+         enum ECounter {
+            kNTrtSeg          ,  /** Number of TRT segments to be investigated per event  */
+            kNTrtFailSel      ,  /** Number of TRT segments failing input selection */
+            kNTrtSegGood      ,  /** Number of TRT segments that will be investigated per event  */
+            kNTrtLimit        ,  /** Number of TRT segments lost in busy events */
+            kNTrtNoSiExt      ,  /** Number of TRT segments not extended in Si */
+            kNExtCut          ,  /** Number of Si extensions failing cuts */
+            kNBckTrkTrt       ,  /** Number of back tracks found without a Si extension per event */
+            kNTrtExtCalls     ,  /** Number of times the TRT extension is called */
+            kNTrtExt          ,  /** Number of good TRT extensions */
+            kNTrtExtBad       ,  /** Number of shorter TRT extensions */
+            kNTrtExtFail      ,  /** Number of failed TRT extensions */
+            kNBckTrkSi        ,  /** Number of back tracks found with Si extension per event */
+            kNBckTrk          ,  /** Number of back tracks found with or without Si extension per event */
+            kNCounter
+         };
+         std::array<int,kNCounter> m_counter {};
 
-      int m_nTrtSegTotal{}     ;  /** Total number of TRT segments to be investigated  */
-      int m_nTrtFailSelTotal{} ;  /** Total number of TRT segments failing input selection */
-      int m_nTrtSegGoodTotal{} ;  /** Total number of TRT segments that will be investigated  */
-      int m_nTrtLimitTotal{}   ;  /** Total number of TRT segments lost in busy events */
-      int m_nTrtNoSiExtTotal{} ;  /** Total number of TRT segments not extended in Si */
-      int m_nExtCutTotal{}     ;  /** Total number of Si extensions failing cuts */
-      int m_nBckTrkTrtTotal{}  ;  /** Total number of back tracks found without a Si extension */
-      int m_nTrtExtCallsTotal{};  /** Total number of times the TRT extension is called */
-      int m_nTrtExtTotal{}     ;  /** Total number of good TRT extensions */
-      int m_nTrtExtBadTotal{}  ;  /** Total number of shorter TRT extensions */
-      int m_nTrtExtFailTotal{} ;  /** Total number of failed TRT extensions */
-      int m_nBckTrkSiTotal{}   ;  /** Total number of back tracks found with Si extension */
-      int m_nBckTrkTotal{}     ;  /** Total number of back tracks found with or without Si extension  */
+         Stat_t &operator +=(const Stat_t &a) {
+            for (unsigned int i=0; i<a.m_counter.size(); ++i) {
+               m_counter[i] += a.m_counter[i];
+            }
+            return *this;
+         }
+      };
+
+      mutable std::mutex m_statMutex ATLAS_THREAD_SAFE;
+      mutable Stat_t m_totalStat ATLAS_THREAD_SAFE;
 
       ///////////////////////////////////////////////////////////////////
       /** Protected methods                                            */
@@ -161,10 +165,8 @@ namespace InDet {
       void                 Analyze(TrackCollection*) const;
 
       MsgStream&    dumptools(MsgStream&    out) const;
-      MsgStream&    dumpevent(MsgStream&    out) const;
+      MsgStream&    dumpevent(MsgStream&    out,const InDet::TRT_SeededTrackFinder::Stat_t &stat) const;
 
     };
-  MsgStream&    operator << (MsgStream&   ,const TRT_SeededTrackFinder&);
-  std::ostream& operator << (std::ostream&,const TRT_SeededTrackFinder&); 
 }
 #endif // TRT_SeededTrackFinder_H
