@@ -76,3 +76,5 @@ atlas_install_python_modules( python/*.py )
 atlas_install_runtime( share/*.hdef  share/*.xml  share/*.xsl} )
 atlas_install_runtime( test/InDetPhysValMonitoring_TestConfiguration.xml )
 
+
+

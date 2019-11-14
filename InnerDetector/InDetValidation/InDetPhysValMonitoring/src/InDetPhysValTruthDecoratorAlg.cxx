@@ -106,8 +106,7 @@ InDetPhysValTruthDecoratorAlg::execute(const EventContext &ctx) const {
 
 bool
 InDetPhysValTruthDecoratorAlg::decorateTruth(const xAOD::TruthParticle& particle,
-                                              std::vector< std::pair<SG::WriteDecorHandle<xAOD::TruthParticleContainer,float>,
-                                                                     const SG::AuxElement::ConstAccessor<float> &> > &float_decor,
+                                              std::vector<IDPVM::WriteAccessorRefPair<xAOD::TruthParticleContainer, float> > &float_decor,
                                                                       const Amg::Vector3D& beamPos) const {
   ATH_MSG_VERBOSE("Decorate truth with d0 etc");
   if (particle.isNeutral()) {
@@ -157,7 +156,7 @@ InDetPhysValTruthDecoratorAlg::decorateTruth(const xAOD::TruthParticle& particle
     float z0st_truth = z0_truth * std::sin(theta_truth);
 
     // 'safeDecorator' used to prevent a crash in case of adding something which pre-exists.
-    // behaviour chosen is to reject but issue a warning
+    // behaviour chosen is to reject quietly
     IDPVM::decorateOrRejectQuietly(particle,float_decor[kDecorD0],d0_truth);
     IDPVM::decorateOrRejectQuietly(particle,float_decor[kDecorZ0],z0_truth);
     IDPVM::decorateOrRejectQuietly(particle,float_decor[kDecorPhi],phi_truth);
