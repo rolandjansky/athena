@@ -1,12 +1,13 @@
 # Common fragment for generation of 1 Pythia8 event, when producing LHE output only
+# the number of events is set to 1 in two places: as Pythia param: Main:numberOfEvents = 1 and evgenconfig.nEventsPerJob=1 (the later one is stronger)
 # It is needed to make the transform run
 # No output is kept from this generation
 ## Base config for Pythia8
 
+from __main__ import opts
 import os
 if 'ATHENA_PROC_NUMBER' in os.environ:
-    evgenLog.info('Noticed that you have run with an athena MP-like whole-node setup.  Will re-configure now to make sure that the remainder of the job runs 
-serially.')
+    evgenLog.info('Noticed that you have run with an athena MP-like whole-node setup.  Will re-configure now to make sure that the remainder of the job runs serially.')
     njobs = os.environ.pop('ATHENA_PROC_NUMBER')
     # Try to modify the opts underfoot
     if not hasattr(opts,'nprocs'): mglog.warning('Did not see option!')
@@ -18,6 +19,7 @@ genSeq += Pythia8_i("Pythia8")
 
 genSeq.Pythia8.Commands += [
     "Main:timesAllowErrors = 500",
+    "Main:numberOfEvents = 1",
     "6:m0 = 172.5",
     "23:m0 = 91.1876",
     "23:mWidth = 2.4952",
@@ -39,7 +41,7 @@ genSeq.Pythia8.Commands += [
     "SoftQCD:inelastic = on",
     "SpaceShower:rapidityOrder=0"]
 
-evgenConfig.minevents = 1
+evgenConfig.nEventsPerJob = 1
 del testSeq.TestHepMC
 
 
