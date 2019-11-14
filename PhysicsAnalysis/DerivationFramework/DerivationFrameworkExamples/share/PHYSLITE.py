@@ -23,8 +23,9 @@ from DerivationFrameworkTrigger.TriggerMatchingHelper import TriggerMatchingHelp
 
 # Truth
 if DerivationFrameworkIsMonteCarlo:
-  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addPVCollection
   addStandardTruthContents()
+  addPVCollection()
   from DerivationFrameworkMCTruth.HFHadronsCommon import *
   # Extra classifiers for the Higgs group
   import DerivationFrameworkHiggs.TruthCategories
@@ -187,12 +188,6 @@ from DerivationFrameworkCore.LHE3WeightMetadata import *
 #==============================================================================
 from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
 if IsSUSYSignal():
-   
-   from DerivationFrameworkSUSY.DecorateSUSYProcess import DecorateSUSYProcess
-   SeqPHYSLITE += CfgMgr.DerivationFramework__DerivationKernel("PHYSLITEKernelSigAug",
-                                                            AugmentationTools = DecorateSUSYProcess("PHYSLITE")
-                                                            )
-   
    from DerivationFrameworkSUSY.SUSYWeightMetadata import *
 
 
@@ -345,6 +340,7 @@ PHYSLITESlimmingHelper.AppendToDictionary = {
                                          'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
                                          'TruthWbosonWithDecayParticles':'xAOD::TruthParticleContainer','TruthWbosonWithDecayParticlesAux':'xAOD::TruthParticleAuxContainer',
                                          'TruthWbosonWithDecayVertices':'xAOD::TruthVertexContainer','TruthWbosonWithDecayVerticesAux':'xAOD::TruthVertexAuxContainer',
+                                         'TruthPrimaryVertices':'xAOD::TruthVertexContainer','TruthPrimaryVerticesAux':'xAOD::TruthVertexAuxContainer',
                                          'AnalysisElectrons_NOSYS':'xAOD::ElectronContainer', 
                                          'AnalysisElectrons_NOSYSAux':'xAOD::ElectronAuxContainer',
                                          'AnalysisMuons_NOSYS':'xAOD::MuonContainer', 
@@ -382,7 +378,8 @@ PHYSLITESlimmingHelper.ExtraVariables = [
   "BTagging_AntiKt4EMPFlow_201903.MV2c10_discriminant",
   "MET_Core_AntiKt4EMPFlow.name.mpx.mpy.sumet.source",
   "MET_Reference_AntiKt4EMPFlow.name.mpx.mpy.sumet.source",
-  "METAssoc_AntiKt4EMPFlow."
+  "METAssoc_AntiKt4EMPFlow.",
+  "TruthPrimaryVertices.t.x.y.z",
   ]
 
 if DerivationFrameworkIsMonteCarlo:
