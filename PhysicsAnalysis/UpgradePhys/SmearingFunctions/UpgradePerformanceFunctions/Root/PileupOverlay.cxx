@@ -6,6 +6,8 @@
 #define PILEUPOVERLAY_CXX
 
 #include "UpgradePerformanceFunctions/UpgradePerformanceFunctions.h"
+#include "PathResolver/PathResolver.h"
+
 #include "TFile.h"
 
 namespace Upgrade {
