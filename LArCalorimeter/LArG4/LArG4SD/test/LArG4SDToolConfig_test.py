@@ -45,33 +45,33 @@ if __name__ == '__main__':
   
   acc1 = LArEMBSensitiveDetectorCfg(ConfigFlags)
   tool1 = cfg.popToolsAndMerge(acc1)
-  cfg.addPublicTool(tool1)
+  #cfg.setPrivateTools(tool1)
   
   acc2 = LArEMECSensitiveDetectorCfg(ConfigFlags)
   tool2 = cfg.popToolsAndMerge(acc2)
-  cfg.addPublicTool(tool2)
+  #cfg.setPrivateTools(tool2)
 
 
   acc3 = LArFCALSensitiveDetectorCfg(ConfigFlags)
   tool3 = cfg.popToolsAndMerge(acc3)
-  cfg.addPublicTool(tool3)
+  #cfg.setPrivateTools(tool3)
   
   acc4 = LArHECSensitiveDetectorCfg(ConfigFlags)
   tool4 = cfg.popToolsAndMerge(acc4)
-  cfg.addPublicTool(tool4)
+  #cfg.setPrivateTools(tool4)
 
   acc5 = LArMiniFCALSensitiveDetectorToolCfg(ConfigFlags)
   tool5 = cfg.popToolsAndMerge(acc5)
-  cfg.addPublicTool(tool5)
+  #cfg.setPrivateTools(tool5)
 
-  toolDeadSensitiveDetector = LArDeadSensitiveDetectorToolCfg(ConfigFlags)
-  cfg.addPublicTool(toolDeadSensitiveDetector)
+  acc6 = LArDeadSensitiveDetectorToolCfg(ConfigFlags)
+  #cfg.setPrivateTools(toolDeadSensitiveDetector)
 
   toolActiveSensitiveDetector = LArActiveSensitiveDetectorToolCfg(ConfigFlags)
-  cfg.addPublicTool(toolActiveSensitiveDetector)
+  #cfg.setPrivateTools(toolActiveSensitiveDetector)
 
   toolInactiveSensitiveDetector = LArInactiveSensitiveDetectorToolCfg(ConfigFlags)
-  cfg.addPublicTool(toolInactiveSensitiveDetector)
+  #cfg.setPrivateTools(toolInactiveSensitiveDetector)
 
 
   cfg.printConfig(withDetails=True, summariseProps = True)
