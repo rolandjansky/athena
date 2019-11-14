@@ -57,8 +57,7 @@ private:
   SG::ReadHandleKey<CaloExtensionCollection>  m_ParticleCacheKey{this,
       "PFParticleCache", "ParticleCaloExtension", "Name of the particle measurement extrapolation cache"};
 
-  bool m_useOldCalo;
-
+  Gaudi::Property<bool> m_useOldCalo{this,"useOldCalo",false,"If true, it uses the CaloExtensionTool for calculating track extrapolation. Otherwise, it allows the code to read from the cache created by CaloExtensionBuilderalg."};
 
 };
 
