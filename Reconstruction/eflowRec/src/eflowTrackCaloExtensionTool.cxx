@@ -58,8 +58,15 @@ StatusCode eflowTrackCaloExtensionTool::initialize() {
 		    << m_theTrackExtrapolatorTool.typeAndName());
   }
 
-  if (!m_ParticleCacheKey.key().empty()) {ATH_CHECK(m_ParticleCacheKey.initialize());}
-  else {m_useOldCalo = true;}
+  ATH_CHECK(m_ParticleCacheKey.initialize());
+  
+  if (m_ParticleCacheKey.initialize().isFailure()) {
+    ATH_MSG_WARNING("Setting up the CaloExtensionTool to replace CaloExtensionBuilder");
+    ATH_CHECK( m_theTrackExtrapolatorTool.retrieve() );
+    m_useOldCalo = true;
+  } else {
+    m_useOldCalo = false;
+  }
 
   return StatusCode::SUCCESS;
 }
