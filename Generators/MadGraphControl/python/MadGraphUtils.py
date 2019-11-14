@@ -684,7 +684,8 @@ def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,r
         mglog.info( sorted( os.listdir( currdir ) ) )
         mglog.info('For your information, ls of '+gridpack_dir+':')
         mglog.info( sorted( os.listdir( gridpack_dir ) ) )
-
+        if is_version_or_newer([2,6,3]):
+            modify_run_card(gridpack_dir+'/Cards/run_card.dat',gridpack_dir+'/Cards/run_card.backup',{'python_seed' : random_seed})
         run_card_consistency_check(isNLO=isNLO,path=gridpack_dir)
         generate = subprocess.Popen([gridpack_dir+'/bin/run.sh',str(int(nevents)),str(int(random_seed))],stdin=subprocess.PIPE)
         generate.communicate()
@@ -2208,6 +2209,7 @@ def build_run_card(run_card_old='run_card.SM.dat',run_card_new='run_card.dat',
     oldcard = open(run_card_old,'r')
     newcard = open(run_card_new,'w')
     used_options = []
+    python_seed_set=False
     for line in oldcard:
         if '= xqcut ' in line:
             newcard.write('%f   = xqcut   ! minimum kt jet measure between partons \n'%(xqcut))
@@ -2215,6 +2217,9 @@ def build_run_card(run_card_old='run_card.SM.dat',run_card_new='run_card.dat',
             newcard.write('  %i       = nevents ! Number of unweighted events requested \n'%(nevts))
         elif ' iseed ' in line:
             newcard.write('   %i      = iseed   ! rnd seed (0=assigned automatically=default)) \n'%(rand_seed))
+        elif ' python_seed ' in line:
+            python_seed_set=True
+            newcard.write('   %i      = python_seed   ! python seed (hidden parameter) \n'%(rand_seed))
         elif ' ebeam1 ' in line:
             newcard.write('   %i      = ebeam1  ! beam 1 energy in GeV \n'%(int(beamEnergy)))
         elif ' ebeam2 ' in line:
@@ -2225,7 +2230,7 @@ def build_run_card(run_card_old='run_card.SM.dat',run_card_new='run_card.dat',
             newcard.write(' %3.2f     = alpsfact         ! scale factor for QCD emission vx \n'%(alpsfact))
         else:
             for ak in extras:
-                excludeList=['xqcut','nevents','iseed','ebeam1','ebeam2','scalefact','alpsfact']
+                excludeList=['xqcut','nevents','iseed','ebeam1','ebeam2','scalefact','alpsfact','python_seed']
                 if ak in excludeList:
                     mglog.error('You are trying to set "%s" with the extras parameter in build_run_card, this must be set in the build_run_card arguments instead.'%ak)
                     raise RuntimeError('You are trying to set "%s" with the extras parameter in build_run_card, this must be set in the build_run_card arguments instead.'%ak)
@@ -2254,6 +2259,8 @@ def build_run_card(run_card_old='run_card.SM.dat',run_card_new='run_card.dat',
                 newcard.write(line)
     # Clean up options that weren't used
     newcard.write('\n')
+    if not python_seed_set and not isNLO and is_version_or_newer([2,6,3]):
+        newcard.write('   %i      = python_seed   ! python seed (hidden parameter) \n'%(rand_seed))
     for ak in extras:
         if ak in used_options: continue
         mglog.warning('Option '+ak+' was not in the default run_card.  Adding by hand a setting to '+str(extras[ak]) )
@@ -2498,6 +2505,13 @@ def run_card_consistency_check(isNLO=False,path='.'):
         # still need to set pdf and systematics
         syst_settings=MadGraphSystematicsUtils.get_pdf_and_systematic_settings(MADGRAPH_PDFSETTING,isNLO)
         modify_run_card(cardpath,cardpath.replace('.dat','_before_syst.dat'),syst_settings)
+
+    if not isNLO and is_version_or_newer([2,6,3]):
+        if not 'python_seed' in mydict:
+            mglog.warning('No python seed set in run_card -- adding one with same value as iseed')
+            modify_run_card(cardpath,cardpath+'.iseed.backup',{'python_seed' : mydict['iseed']})
+        elif int(mydict['python_seed'])!=int(mydict['iseed']):
+            raise RuntimeError('python_seed and iseed do not agree')
 
     mglog.info('Finished checking run card - All OK!')
     return
