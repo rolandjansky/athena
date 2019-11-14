@@ -108,14 +108,14 @@ StatusCode HLTCaloESD_xAODTrigEMClusters::book()
 
   // HLT clusters vs. OFF clusters
   addHistogram(new TH1F       ("HLT_vs_OFF_minimum_delta_r",   "HLT vs OFF Cluster #DeltaR;                 #DeltaR;                                             Entries",  50,   0.0,   0.1));
-  addHistogram(new TH1F       ("HLT_vs_OFF_delta_eta",         "HLT vs OFF Cluster #Delta#eta;              #eta_{_{ OFF}} -  #eta_{_{ HLT}};                    Entries",  50,  -0.2,   0.2));
-  addHistogram(new TH1F       ("HLT_vs_OFF_delta_phi",         "HLT vs OFF Cluster #Delta#phi;              #phi_{_{OFF}} -  #phi_{_{HLT}};                      Entries",  50,   0.0,   0.02));
-  addHistogram(new TH2F       ("HLT_vs_OFF_et_vs_et",          "HLT vs OFF Cluster E_{T};                   #E_{T_{OFF}} [GeV];                        E_{T_{HLT}} [GeV]", 100,   0.0, 100.0, 100,   0.0, 100.0));
-  addHistogram(new TH1F       ("HLT_vs_OFF_resolution",        "HLT vs OFF Cluster #DeltaE_{T} / E_{T};     E_{T_{OFF}}-  E_{T_{HLT}} /  E_{T_{OFF}};            Entries", 100, -10.0,  10.0)); 
+  addHistogram(new TH1F       ("HLT_vs_OFF_delta_eta",         "HLT vs OFF Cluster #Delta#eta;              #eta_{_{ OFF}} - #eta_{_{ HLT}};                    Entries",  50,  -0.2,   0.2));
+  addHistogram(new TH1F       ("HLT_vs_OFF_delta_phi",         "HLT vs OFF Cluster #Delta#phi;              #phi_{_{OFF}} - #phi_{_{HLT}};                      Entries",  50,   0.0,   0.02));
+  addHistogram(new TH2F       ("HLT_vs_OFF_et_vs_et",          "HLT vs OFF Cluster E_{T};                   E_{T_{OFF}} [GeV];                        E_{T_{HLT}} [GeV]", 100,   0.0, 100.0, 100,   0.0, 100.0));
+  addHistogram(new TH1F       ("HLT_vs_OFF_resolution",        "HLT vs OFF Cluster #DeltaE_{T} / E_{T};     E_{T_{OFF}} - E_{T_{HLT}} / E_{T_{OFF}};            Entries", 100, -10.0,  10.0)); 
   addHistogram(new TProfile2D ("HLT_vs_OFF_resolution_map",    "HLT vs OFF Cluster < #DeltaE_{T} / E_{T} >; #eta;                                                   #phi",  50,  -5.0,   5.0,  64, -M_PI,  M_PI));
-  addProfile  (new TProfile   ("HLT_vs_OFF_resolution_vs_et",  "HLT vs OFF Cluster < #DeltaE_{T} / E_{T} >; #eta_{_{ OFF}}; < E_{T_{OFF}}-  E_{T_{HLT}} /  E_{T_{OFF}} >",  20,  -5.0,   5.0));
-  addProfile  (new TProfile   ("HLT_vs_OFF_resolution_vs_eta", "HLT vs OFF Cluster < #DeltaE_{T} / E_{T} >; #eta_{_{ OFF}}; < E_{T_{OFF}}-  E_{T_{HLT}} /  E_{T_{OFF}} >",  20,  -5.0,   5.0));
-  addProfile  (new TProfile   ("HLT_vs_OFF_resolution_vs_phi", "HLT vs OFF Cluster < #DeltaE_{T} / E_{T} >; #phi_{_{OFF}};  < E_{T_{OFF}}-  E_{T_{HLT}} /  E_{T_{OFF}} >",  16, -M_PI,  M_PI));
+  addProfile  (new TProfile   ("HLT_vs_OFF_resolution_vs_et",  "HLT vs OFF Cluster < #DeltaE_{T} / E_{T} >; E_{T_{OFF}}; < E_{T_{OFF}} - E_{T_{HLT}} / E_{T_{OFF}} >",  100,  0.0,   100.0));
+  addProfile  (new TProfile   ("HLT_vs_OFF_resolution_vs_eta", "HLT vs OFF Cluster < #DeltaE_{T} / E_{T} >; #eta_{_{ OFF}}; < E_{T_{OFF}} - E_{T_{HLT}} / E_{T_{OFF}} >",  20,  -5.0,   5.0));
+  addProfile  (new TProfile   ("HLT_vs_OFF_resolution_vs_phi", "HLT vs OFF Cluster < #DeltaE_{T} / E_{T} >; #phi_{_{OFF}};  < E_{T_{OFF}} - E_{T_{HLT}} / E_{T_{OFF}} >",  16, -M_PI,  M_PI));
 
   return StatusCode::SUCCESS;
 }
@@ -285,7 +285,7 @@ StatusCode HLTCaloESD_xAODTrigEMClusters::fill()
       
       hist   ("HLT_vs_OFF_resolution")       ->Fill(delta_et);
       hist2  ("HLT_vs_OFF_resolution_map")   ->Fill((*OFF_itr)->eta(),(*OFF_itr)->phi(),delta_et);
-      profile("HLT_vs_OFF_resolution_vs_et" )->Fill((*OFF_itr)->et (),delta_et);
+      profile("HLT_vs_OFF_resolution_vs_et" )->Fill((*OFF_itr)->et()*0.001,delta_et);
       profile("HLT_vs_OFF_resolution_vs_eta")->Fill((*OFF_itr)->eta(),delta_et);  
       profile("HLT_vs_OFF_resolution_vs_phi")->Fill((*OFF_itr)->phi(),delta_et); 
     }
