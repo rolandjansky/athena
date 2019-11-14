@@ -81,7 +81,13 @@ namespace Pythia8{
     
     void calcPreFac(bool) {
 
+#ifdef PYTHIA_VERSION_INTEGER
+  #if PYTHIA_VERSION_INTEGER > 8300
+      CoupSM* couplingsPtr = infoPtr->coupSMPtr;
+  #endif
+#endif
       alpEM   = couplingsPtr->alphaEM(mHat * mHat);
+
       preFac  = 0.25 * alpEM * m_kCoup * mHat; 
       
       return;

@@ -23,17 +23,17 @@
 
     ATH_MSG_INFO( "InitializePythiaInfo " << name() << " with process " << m_process);
     if (m_process == 1) {
-      PDF* photonFlux = new Lepton2gamma2(-11);
+      PDFPtr photonFlux = PNEW(Lepton2gamma2, -11);
       pythia.setPhotonFluxPtr(photonFlux, 0);
       return StatusCode::SUCCESS;
     }
     else if(m_process ==2 || m_process ==3) {    
       ATH_MSG_INFO( "InitializePythiaInfo " << name() << " using nuclear photon flux with Z = " << m_flux_Z << ", bmin = " << m_flux_min_b);
-      Nucleus2gamma* photonFlux = new Nucleus2gamma(-11);
+      Nucleus2gammaPtr photonFlux = PNEW(Nucleus2gamma,-11);
       photonFlux->setZ(m_flux_Z);
       photonFlux->setMinB(m_flux_min_b);
       photonFlux->setMinX(m_flux_min_x);
-      Nucleus2gamma* photonFlux2 = nullptr;
+      Nucleus2gammaPtr photonFlux2 = nullptr; PNEW(Nucleus2gamma,-11);
       if(m_process==3) photonFlux2=photonFlux;
       pythia.setPhotonFluxPtr(photonFlux, photonFlux2);
       return StatusCode::SUCCESS;

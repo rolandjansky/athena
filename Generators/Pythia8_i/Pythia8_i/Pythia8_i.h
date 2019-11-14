@@ -14,10 +14,12 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "Pythia8_i/UserHooksFactory.h"
 
 #include <stdexcept>
 
 using std::string;
+
 
 /**
  *  Author: James Monk (jmonk@cern.ch)
@@ -116,6 +118,7 @@ private:
   double m_nAccepted;
   double m_nMerged;
   double m_sigmaTotal;
+  double m_conversion;
   
   unsigned int m_maxFailures;
   unsigned int m_failureCount;
@@ -130,8 +133,8 @@ private:
   Pythia8::Sigma2Process *m_procPtr;
   
   std::vector<std::string> m_userHooks;
-  
-  std::vector<Pythia8::UserHooks*> m_userHooksPtrs;
+
+  std::vector<UserHooksPtrType> m_userHooksPtrs;
   
   std::string m_userResonances;
   
