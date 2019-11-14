@@ -93,7 +93,7 @@ UpgradePerformanceFunctions::UpgradePerformanceFunctions( const std::string& nam
   declareProperty( "ChargeFlipRateFile", m_chargeFlipRateFilename = "UpgradePerformanceFunctions/CalibArea-00-01/ChargeFlipRates.root" );
   declareProperty( "METFile", m_METFilename = "UpgradePerformanceFunctions/CalibArea-00-01/sumetPU_mu200_ttbar_gold.root" );  
   //  declareProperty( "PileupPath", m_puPath = "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/UpgradePerformanceFunctions/" );
-  declareProperty( "PileupPath", m_puPath = "UpgradePerformanceFunctions" );
+  declareProperty( "PileupPath", m_puPath = "UpgradePerformanceFunctions/PULibrary200_2.root" );
 
   m_tool_init = false;
 }
@@ -137,7 +137,7 @@ UpgradePerformanceFunctions::UpgradePerformanceFunctions( const std::string& nam
     m_chargeFlipRateFilename("UpgradePerformanceFunctions/CalibArea-00-01/ChargeFlipRates.root"),
     m_METFilename("UpgradePerformanceFunctions/CalibArea-00-01/sumetPU_mu200_ttbar_gold.root"),
     //    m_puPath("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/UpgradePerformanceFunctions/")
-    m_puPath("UpgradePerformanceFunctions/")
+    m_puPath("UpgradePerformanceFunctions/PULibrary200_2.root")
 {
 
   m_layout = layout;
@@ -182,7 +182,7 @@ UpgradePerformanceFunctions::UpgradePerformanceFunctions( const std::string& nam
   declareProperty( "ChargeFlipRateFile", m_chargeFlipRateFilename = "UpgradePerformanceFunctions/CalibArea-00-01/ChargeFlipRates.root" );
   declareProperty( "METFile", m_METFilename = "UpgradePerformanceFunctions/CalibArea-00-01/sumetPU_mu200_ttbar_gold.root" );  
   //  declareProperty( "PileupPath", m_puPath = "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/UpgradePerformanceFunctions/" );
-  declareProperty( "PileupPath", m_puPath = "UpgradePerformanceFunctions" );
+  declareProperty( "PileupPath", m_puPath = "UpgradePerformanceFunctions/PULibrary200_2.root" );
   
   m_tool_init = false;
 
