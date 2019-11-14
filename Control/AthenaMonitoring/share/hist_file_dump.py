@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 
 import ROOT
 import sys, os, operator
@@ -46,30 +47,13 @@ def dumpdir(d):
             subdirs.append(k)
         else:
             if args.hash:
-                #lhash = ROOT.bufferhash(k)
-                #objsize = (k.GetNbytes()-k.GetKeylen())/8
-                #print (k.GetNbytes()-k.GetKeylen())/8.
-                #buf = ROOT.getbuffer(k); buf.SetSize(objsize)
-                #print buf[objsize-1], objsize
-                #lhash = zlib.adler32(str(buf))
-                #k.DeleteBuffer()
-                #obj=k.ReadObj(); 
-                #tm=ROOT.TMessage(ROOT.TMessage.kMESS_OBJECT)
-                #tm.WriteObject(obj)
-                # This is what we _were_ doing
-                #lhash = ROOT.bufferhash2(k)
-                # How about this?
-                #lhash = ROOT.bufferhash3(k)
-                obj = k.ReadObj(); lhash = obj.Hash(); del obj
+                lhash = ROOT.bufferhash2(k)
             else:
                 lhash = 0
             idxname = os.path.join(thispath, k.GetName())
             accounting[idxname] = (k.GetObjlen(), k.GetNbytes()-k.GetKeylen())
             hashes[idxname] = lhash
             types[idxname] = k.GetClassName()
-            #print '%s,' % os.path.join(thispath, k.GetName()),
-            #obj = k.ReadObj(); obj.IsA().Destructor(obj)
-            #print 'OK'
     for k in subdirs:
         dumpdir(k.ReadObj())
 
@@ -77,13 +61,12 @@ f = ROOT.TFile.Open(args.filename)
 if args.path:
     d = f.Get(args.path.rstrip('/'))
     if not d:
-        print "Can't access path", args.path, "- exiting"
+        print("Can't access path", args.path, "- exiting")
         sys.exit(1)
 else:
     d = f
 dumpdir(d)
 
-#sortedl = sorted(accounting.items(), key=operator.itemgetter(0,1), reverse=True)
 if ordering == 'onfile':
     key=lambda x: (x[1][1], x[1][0], x[0])
 elif ordering == 'uncompressed':
@@ -92,15 +75,16 @@ else:
     key=lambda x: (x[0], x[1][1], x[1][0])
 sortedl = sorted(accounting.items(), key=key, reverse=True)
 if args.hash:
-    print '\n'.join(('%s %s: '
+    print('\n'.join(('%s %s: '
                      + ('%d uncompressed' % b if not args.no_inmem else '')
                      + (', %d on file ' % c if not args.no_onfile else '')
                      + '(hash %s)')
                     % (types[a], a, hashes[a]) for a, (b, c) in  sortedl)
+          )
 else:
-    print '\n'.join(('%s %s: '
+    print('\n'.join(('%s %s: '
                      + ('%d uncompressed' % b if not args.no_inmem else '')
                      + (', %d on file' % c if not args.no_onfile else ''))
                     % (types[a], a) for a, (b, c) in  sortedl)
-    #print '\n'.join('%s %s: %d uncompressed, %d on file' % (types[a], a, b, c) for a, (b, c) in  sortedl)
+          )
 
