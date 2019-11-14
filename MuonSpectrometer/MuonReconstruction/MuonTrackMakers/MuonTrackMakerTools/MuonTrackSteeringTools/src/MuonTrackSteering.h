@@ -101,11 +101,10 @@ namespace Muon {
     TrackCollection *selectTracks(std::vector<MuPatTrack*> & candidates, bool takeOwnership = true ) const;
 
     /** actual find method */
-    TrackCollection* findTracks( ) const;
-    bool extractSegments( const MuonSegmentCollection& coll ) const;
+    TrackCollection* findTracks( SegColVec& chamberSegments, SegColVec& stationSegments ) const;
+    bool extractSegments( const MuonSegmentCollection& coll, SegColVec& chamberSegments, SegColVec& stationSegments, ChSet&  chambersWithSegments, StSet& stationsWithSegments  ) const;
     
     void cleanUp() const;
-    void init() const;
 
     StatusCode decodeStrategyVector(const std::vector<std::string>& strategy);
     const MuonTrackSteeringStrategy* decodeStrategy(const std::string& strategy) const;
@@ -128,7 +127,7 @@ namespace Muon {
     */
     std::vector<MuPatTrack*> *solveAmbiguities( std::vector< MuPatTrack* >& tracks , const MuonTrackSteeringStrategy* strat = 0 ) const;
 
-    void combineOverlapSegments( std::vector< MuPatSegment*>& ch1, std::vector< MuPatSegment*>& ch2 ) const;
+    void combineOverlapSegments( std::vector< MuPatSegment*>& ch1, std::vector< MuPatSegment*>& ch2, SegColVec& stationSegments, StSet& stationsWithSegments ) const;
 
   private:
 
@@ -147,14 +146,8 @@ namespace Muon {
     ToolHandle<Trk::ITrackSelectorTool>           m_trackSelector; //<! track selector
     ToolHandle<IMuonHoleRecoveryTool>             m_muonHoleRecoverTool;
 
-    mutable SegColVec m_chamberSegments;      // <! Segments sorted per Chamber
-    mutable SegColVec m_stationSegments;      // <! Segments sorted per station
-    mutable ChSet     m_chambersWithSegments; // <! Chambers having segments
-    mutable StSet     m_stationsWithSegments; // <! Stations having segments
-
      mutable SegCol m_segmentsToDelete;
      mutable TrkVec m_tracksToDelete;
-     mutable TrkCollVec m_trktracksToDelete;
      mutable std::vector<const MuonSegment*>  m_constsegmentsToDelete;
     
     std::vector<const MuonTrackSteeringStrategy*> m_strategies;
@@ -168,8 +161,8 @@ namespace Muon {
     bool m_onlyMDTSeeding;
     int m_segThreshold;
 
-    mutable int m_findingDepth;
-    mutable int m_seedCombinatorics;
+    mutable std::atomic_uint m_findingDepth {0};
+    mutable std::atomic_uint m_seedCombinatorics {0};
   };
 
 }

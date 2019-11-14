@@ -46,6 +46,22 @@ def getTriggerEDMList(key, runVersion):
     else:
         return getTriggerObjList(key,[TriggerL2List,TriggerEFList, TriggerResultsRun1List])
 
+def getRun3TrigObjProducedInView(theKey, trigEDMList):
+    """
+    Run 3 only
+    Finds a given key from within the trigEDMList.
+    Returns true if this collection is produced inside EventViews
+    (Hence, has the special viewIndex Aux decoration applied by steering)
+    """
+    import itertools
+    for item in itertools.chain(*trigEDMList):
+        if len(item) < 4:
+            continue
+        if theKey not in item[0]:
+            continue
+        return ("inViews" in item[3])
+    return False
+
 
 def getRun3TrigObjList(destination, trigEDMList):
     """
@@ -88,10 +104,26 @@ def getRun3TrigEDMSlimList(key):
         newnames = []
         for el in v:
             if 'Aux.' in el: 
+                # Get equivalent non-aux string (fragile!!!)
+                keyNoAux = el.split('.')[0].replace('Aux','')
+                # Check if this interface container is produced inside a View
+                inView = getRun3TrigObjProducedInView(keyNoAux, [TriggerHLTListRun3])
                 if el.split('.')[1] == '':
-                    newnames+=[el.split('.')[0]+'.-']
+                    # Aux lists zero dynamic vars to save ...
+                    if inView:
+                        # ... but it was produced in a View, so we need to add the viewIndex dynamic aux
+                        newnames+=[el.split('.')[0]+'.viewIndex']
+                    else: 
+                        # ... and was not in a View, strip all dynamic
+                        newnames+=[el.split('.')[0]+'.-']
                 else:
-                    newnames+=[el]
+                    # Aux lists one or more dynamic vars to save ...
+                    if inView:
+                        # ... and was produced in a View, so add the viewIndex dynamic as well
+                        newnames+=[el+'.viewIndex']
+                    else:
+                        # ... and was not produced in a View, keep user-supplied list 
+                        newnames+=[el]
             else:
                 newnames+=[el]
             output[k] = newnames

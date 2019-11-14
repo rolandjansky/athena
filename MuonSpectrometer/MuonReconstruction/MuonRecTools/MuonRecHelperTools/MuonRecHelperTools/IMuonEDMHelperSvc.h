@@ -26,7 +26,6 @@ namespace Trk {
 namespace Muon {
  
   class MuonSegment;
-  class MuonIdHelperTool;
 
   /** 
       Helper tool containing functionality needed by multiple tools. 

@@ -68,7 +68,7 @@ dqm_algorithms::RootFit::RootFit( const std::string & name )
 
 dqm_algorithms::RootFit::~RootFit()
 {
-  // totally defeats the purpose of auto_ptr, but fixes a segfault in 5.34 ...
+  // totally defeats the purpose of unique_ptr, but fixes a segfault in 5.34 ...
   m_func.release();
 }
 

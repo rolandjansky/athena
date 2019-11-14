@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
+
 # art-description: test for job configuration ttFC_fastSim_fulldigi (Sim/Digi job) + stdReco_fastSim_fullDigi
 # art-type: grid
-#
-# specify branches of athena that are being targeted:
 # art-include: 21.0/Athena
 # art-include: 21.3/Athena
 # art-include: master/Athena
 # art-output: config.txt
 # art-output: RAWtoESD_config.txt
+# art-output: *.root
+# art-output: dcube
+
 
 FastChain_tf.py --simulator ATLFASTIIF_PileUp \
     --digiSteeringConf "SplitNoMerge" \
@@ -28,7 +30,7 @@ FastChain_tf.py --simulator ATLFASTIIF_PileUp \
     --postSimExec='genSeq.Pythia8.NCollPerEvent=10;' \
     --imf False
 
-echo "art-result: $? EVNTtoRDO step"
+echo "art-result: $? EVNTtoRDO"
 
 Reco_tf.py --inputRDOFile='RDO_pileup_fastsim_fulldigi.pool.root'\
  --outputAODFile=AOD_fastSim_fullDigi.pool.root \
@@ -38,22 +40,20 @@ Reco_tf.py --inputRDOFile='RDO_pileup_fastsim_fulldigi.pool.root'\
     --postExec 'RAWtoESD:from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("RAWtoESD_config.txt")' \
     --imf False
 
-echo "art-result: $? RDOtoAOD step"
+rc=$?
+rc2=-9999
+echo  "art-result: $rc RDOtoAOD"
+if [ $rc -eq 0 ]
+then
+    ArtPackage=$1
+    ArtJobName=$2
+    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
+    rc2=$?
+fi
 
+echo  "art-result: $rc2 regression"
 
-#add an additional payload from the job (corollary file).
-# art-output: InDetStandardPlots.root
-#Regression test
-
-ArtPackage=$1
-ArtJobName=$2
-
-art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}
-
-echo  "art-result: $? regression"
 
 /cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube TEST_ttFC_stdReco_fastSim_fullDigi InDetStandardPlots.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/dcube_configs/config/InDetStandardPlotCompare.xml /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/InDetStandardPlots_Refs/test_stdReco_fastSim_fullDigi_InDetStandardPlots.root
 
-# art-output: dcube/
-
-echo "art-result: $? histcompArtPackage
+echo "art-result: $? dcubeHistComp"

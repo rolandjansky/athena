@@ -722,6 +722,9 @@ if __name__=="__main__":
     parser.add_argument("--run", help="Run directly from the python. If false, just stop once the pickle is written.",
                         action="store_true")
                         
+    parser.add_argument("--forceclone", help="Override default cloneability of algorithms to force them to run in parallel",
+                        action="store_true")
+
     args = parser.parse_args()
     
     from AthenaCommon.Configurable import Configurable
@@ -757,6 +760,8 @@ if __name__=="__main__":
     if args.run:
         from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
         cfg = MainServicesThreadedCfg(ConfigFlags)
+        msgService = cfg.getService('MessageSvc')
+        msgService.Format = "S:%s E:%e % F%58W%S%7W%R%T  %0W%M"
     else:
         cfg=ComponentAccumulator()
 
@@ -766,10 +771,13 @@ if __name__=="__main__":
     acc = MuonSegmentFindingCfg(ConfigFlags, cardinality=args.threads)
     cfg.merge(acc)
     
-    if args.threads>1:
+    if args.threads>1 and args.forceclone:
+        log.info('Forcing segment finding cardinality to be equal to '+str(args.threads))
         # We want to force the algorithms to run in parallel (eventually the algorithm will be marked as cloneable in the source code)
         from GaudiHive.GaudiHiveConf import AlgResourcePool
         cfg.addService(AlgResourcePool( OverrideUnClonable=True ) )
+        segment_finder = acc.getPrimary()
+        segment_finder.Cardinality=args.threads
 
     # This is a temporary fix - it should go someplace central as it replaces the functionality of addInputRename from here:
     # https://gitlab.cern.ch/atlas/athena/blob/master/Control/SGComps/python/AddressRemappingSvc.py
@@ -791,10 +799,6 @@ if __name__=="__main__":
     outstream = cfg.getEventAlgo("OutputStreamESD")
     # outstream.OutputLevel=DEBUG
     outstream.ForceRead = True
-
-    # Show slots & events
-    # msgService = cfg.getService('MessageSvc')
-    # msgService.Format = "S:%s E:%e % F%48W%S%7W%R%T  %0W%M"
 
     # Fix for ATLASRECTS-5151
     from  TrkEventCnvTools.TrkEventCnvToolsConf import Trk__EventCnvSuperTool

@@ -79,7 +79,6 @@ std::unique_ptr<eflowTrackCaloPoints> eflowTrackCaloExtensionTool::execute(const
   std::map<eflowCalo::LAYER, const Trk::TrackParameters*> parametersMap;
 
   /*get the CaloExtension object*/
-  SG::ReadHandle<CaloExtensionCollection>  particleCache {m_ParticleCacheKey};
   const Trk::CaloExtension * extension = nullptr;
   std::unique_ptr<Trk::CaloExtension> uniqueExtension;
   const int index = track->index();
@@ -92,6 +91,7 @@ std::unique_ptr<eflowTrackCaloPoints> eflowTrackCaloExtensionTool::execute(const
     extension = uniqueExtension.get();
   } else {
     /*get the CaloExtension object*/
+    SG::ReadHandle<CaloExtensionCollection>  particleCache {m_ParticleCacheKey};
     ATH_MSG_VERBOSE("Using the CaloExtensionBuilder Cache");
     extension = (*particleCache)[index];
     ATH_MSG_VERBOSE("Getting element " << index << " from the particleCache");

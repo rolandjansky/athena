@@ -41,6 +41,11 @@ def CaloExtensionBuilder( cutLevel = "TightPrimary", minPT = 100.0 ):
     ToolSvc += pcExtensionTool
 
     CaloExtensionBuilderTool = CaloExtensionBuilderAlg(LastCaloExtentionTool = pcExtensionTool)
+
+    from AthenaCommon.BeamFlags import jobproperties
+    if jobproperties.Beam.beamType() != 'collisions':
+        CaloExtensionBuilderTool.vertexInputContainer = ''
+
     TrackSelectionToolHC = InDet__InDetTrackSelectionTool(name            = "CaloExtensionBuilderTrackSelectionTool",
                                                           minPt           = minPT,
                                                           CutLevel        = cutLevel)#,

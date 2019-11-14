@@ -36,6 +36,7 @@ atlas_depends_on_subdirs(
    Reconstruction/RecoTools/RecoToolInterfaces
    ${extra_deps}
    PRIVATE
+   Event/FourMomUtils
    Calorimeter/CaloGeoHelpers
    ${extra_deps_private} )
 
@@ -52,7 +53,7 @@ atlas_add_library( IsolationToolLib
    InDetTrackSelectionToolLib
    IsolationCorrectionsLib
    ${extra_lib}
-   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} CaloGeoHelpers
+   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} CaloGeoHelpers FourMomUtils
    ${extra_lib_private}
    )
 

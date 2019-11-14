@@ -46,13 +46,16 @@ private:
   /// Output conditions object.
   SG::WriteCondHandleKey<BunchCrossingCondData> m_outputKey{this, "OutputKey", "BunchCrossingData", "Key of output CDO" };
 
-  std::vector<bunchTrain_t> findTrains(const std::bitset< BunchCrossingCondData::m_MAX_BCID>& pairsToConsume, const int maxSpacingInTrain, const unsigned minBunchesPerTrain) const;
 
+  ///internal methods:
+  std::vector<bunchTrain_t> findTrains(const std::bitset< BunchCrossingCondData::m_MAX_BCID>& pairsToConsume, const int maxSpacingInTrain, const unsigned minBunchesPerTrain) const;
+  std::vector<float> tokenize(const std::string& pattern) const;
+
+  //Algorithm properties
   Gaudi::Property<unsigned> m_maxBunchSpacing{this, "MaxBunchSpacing",5, "Maximal bunch-spacing to be considered a 'bunch train'"};
   Gaudi::Property<unsigned> m_minBunchesPerTrain{this, "MinBunchesPerTrain",32, "Minimal number of bunches to be considerd a 'bunch train'"};
-
   Gaudi::Property<bool> m_isRun1{this,"Run1",false,"Assume run-1 database"};
+  Gaudi::Property<bool> m_isMC{this,"isMC",false,"MC case"};
 };
-
 
 #endif

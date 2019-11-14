@@ -128,7 +128,6 @@ StatusCode MetaDataSvc::initialize() {
    m_incSvc->addListener(this, "FirstInputFile", 80);
    m_incSvc->addListener(this, "BeginInputFile", 80);
    m_incSvc->addListener(this, "EndInputFile", 10);
-   m_incSvc->addListener(this, "LastInputFile", 10);
 
    // Register this service for 'I/O' events
    ServiceHandle<IIoComponentMgr> iomgr("IoComponentMgr", this->name());
@@ -394,11 +393,7 @@ void MetaDataSvc::handle(const Incident& inc) {
       if(retireMetadataSource(inc).isFailure()) {
          ATH_MSG_ERROR("Could not retire metadata source " << fileName);
       }
-   } else if (inc.type() == "LastInputFile") {
-      if (m_metaDataTools.release().isFailure()) {
-         ATH_MSG_WARNING("Cannot release " << m_metaDataTools);
-      }
-   }
+   } 
 }
 //__________________________________________________________________________
 StatusCode MetaDataSvc::transitionMetaDataFile(bool ignoreInputFile) {

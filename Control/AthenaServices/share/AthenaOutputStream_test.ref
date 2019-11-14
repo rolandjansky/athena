@@ -135,7 +135,6 @@ IoComponentMgr      DEBUG --> io_register(AthenaOutputStream,W,DidNotNameOutput.
 IoComponentMgr      DEBUG --> io_hasitem()
 AthenaOutputStream   INFO I/O reinitialization...
 IncidentSvc         DEBUG Adding [MetaDataStop] listener 'AthenaOutputStream' with priority 50
-IncidentSvc         DEBUG Adding [UpdateOutputFile] listener 'AthenaOutputStream' with priority 50
 AthenaOutputStr...  DEBUG Property update for OutputLevel : new value = 1
 AthenaOutputStream  DEBUG End initialize
 AthenaOutputStreamVERBOSE ServiceLocatorHelper::service: found service AlgExecStateSvc

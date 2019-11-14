@@ -3,13 +3,13 @@
 */
 
 /**
- * @class DQTLumiMonTool
+ * @class DQTLumiMonAlg
  * @author C. D. Burton <burton@utexas.edu>
  * @date 2019/08/09
  */
 
-#ifndef DQTLUMIMONTOOL_H
-#define DQTLUMIMONTOOL_H
+#ifndef DQTLUMIMONALG_H
+#define DQTLUMIMONALG_H
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
 
@@ -17,10 +17,10 @@
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "InDetIdentifier/PixelID.h"
 
-class DQTLumiMonTool : public AthMonitorAlgorithm {
+class DQTLumiMonAlg : public AthMonitorAlgorithm {
 public:
-    DQTLumiMonTool(const std::string& name, ISvcLocator* pSvcLocator);
-    virtual ~DQTLumiMonTool();
+    DQTLumiMonAlg(const std::string& name, ISvcLocator* pSvcLocator);
+    virtual ~DQTLumiMonAlg();
     virtual StatusCode initialize() override;
     virtual StatusCode fillHistograms(const EventContext& ctx) const override;
 private:
@@ -30,7 +30,7 @@ private:
 
     RHK<xAOD::VertexContainer> m_VertexContainerKey {this, "VertexContainerKey", "PrimaryVertices", ""};
     RHK<InDet::PixelClusterContainer> m_PixelClustersKey {this, "PixelClustersKey", "PixelClusters", ""};
-    RHK<PixelID> m_PixelIDKey {this, "PixelIDKey", "PixelID", ""};
+    RHK<PixelID> m_PixelIDKey {this, "PixelIDKey", "DetectorStore+PixelID", ""};
 
     GP<float> m_tightTrackWeight {this, "TightTrackWeight", 0.01};
     GP<int> m_tightNTracks {this, "TightNTracks", 4};

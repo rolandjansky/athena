@@ -78,7 +78,9 @@ Double_t GetRandom (TRandom& rand, const TH1& h)
 } // anonymous namespace
 
 
-ParticleEnergyParametrization::ParticleEnergyParametrization(int id,double E,double eta):TNamed(Form("ParticleShape%d_E%d_eta%d",id,(int)(E+0.1),(int)(eta*100+0.1)),Form("ParticleShape pdgid=%d E=%1.1f eta=%4.2f",id,E,eta)),m_id(id),m_E(E),m_eta(eta) {
+ParticleEnergyParametrization::ParticleEnergyParametrization(int id,double E,double eta):TNamed(Form("ParticleShape%d_E%d_eta%d",id,(int)(E+0.1),(int)(eta*100+0.1)),Form("ParticleShape pdgid=%d E=%1.1f eta=%4.2f",id,E,eta)),m_id(id),m_E(E),m_eta(eta),
+  m_weights_err()
+{
   m_Ecal_vs_dist=0;
   m_h_layer_d_fine=0;
   for(int i=CaloCell_ID_FCS::FirstSample;i<CaloCell_ID_FCS::MaxSample;++i) {
