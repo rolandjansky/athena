@@ -23,7 +23,7 @@ std::string UpgradePerformanceFunctions::setPileupTemplatesPath() {
   ATH_MSG_INFO("Loading PU histogram file");
   if ( std::abs(m_avgMu - 140) < 0.1 )
     {  
-      std::string PUFile puFileName = m_puPath + "/PULibrary140_1.root";
+      std::string PUFileName = m_puPath + "/PULibrary140_1.root";
       std::string PUFile = PathResolverFindCalibFile(puFileName);
       ATH_MSG_INFO("Found OU histogram file: " << PUFile);
       return m_puPath + "/PULibrary140_1.root";
