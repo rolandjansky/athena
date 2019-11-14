@@ -25,7 +25,7 @@ FCSReturnCode TFCSLateralShapeParametrizationFluctChain::simulate(TFCSSimulation
 {
   // Call get_number_of_hits() only once, as it could contain a random number
   float sigma2  = get_sigma2_fluctuation(simulstate, truth, extrapol);
-  if (sigma2 >= 1000) {
+  if (sigma2 >= s_max_sigma2_fluctuation) {
     ATH_MSG_ERROR("TFCSLateralShapeParametrizationHitChain::simulate(): fluctuation of hits could not be calculated");
     return FCSFatal;
   }
@@ -41,7 +41,7 @@ FCSReturnCode TFCSLateralShapeParametrizationFluctChain::simulate(TFCSSimulation
   float Eavghit_tenth=Eavghit/10;
   float sumEhit=0;
   float error2_sumEhit=0;
-  float error2=1000;
+  float error2=2*s_max_sigma2_fluctuation;
 
   bool debug = msgLvl(MSG::DEBUG);
   if (debug) {

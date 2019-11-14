@@ -37,6 +37,8 @@ public:
   ///Give the effective size sigma^2 of the fluctuations that should be generated.
   virtual float get_sigma2_fluctuation(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const;
 
+  static constexpr float s_max_sigma2_fluctuation=1000;//! Do not persistify!
+
   void Print(Option_t *option = "") const override;
 
 #if defined(__FastCaloSimStandAlone__)

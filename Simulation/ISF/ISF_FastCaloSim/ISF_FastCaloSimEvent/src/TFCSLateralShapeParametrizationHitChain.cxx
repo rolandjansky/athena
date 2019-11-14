@@ -53,8 +53,8 @@ float TFCSLateralShapeParametrizationHitChain::get_sigma2_fluctuation(TFCSSimula
     double sigma2=hitsim->get_sigma2_fluctuation(simulstate,truth,extrapol);
     if(sigma2>0) return sigma2;
   } 
-  //Limit to factor 1000 fluctuations
-  return 1000;
+  //Limit to factor s_max_sigma2_fluctuation fluctuations
+  return s_max_sigma2_fluctuation;
 }
 
 FCSReturnCode TFCSLateralShapeParametrizationHitChain::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol)
