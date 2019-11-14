@@ -401,6 +401,7 @@ namespace FSR {
                     if (m_energyRescaler->applyCorrection(*m_photon) != CP::CorrectionCode::Ok) {
                         ATH_MSG_ERROR("FsrPhotonTool::sortFsrCandidates: Unable to applyCorrection to photon ");
                     }
+                    if ( m_photon->showerShapeValue(part_f1, xAOD::EgammaParameters::f1) ) c.f1 = part_f1; 
                     c.Et  = m_photon->pt();
                     c.eta = m_photon->caloCluster()->eta();
                     c.phi = m_photon->caloCluster()->phi();
@@ -447,6 +448,14 @@ namespace FSR {
             if(c.deltaR < 0.05) c.Et -= 400./cosh(particle->eta());
             c.type         = (c.deltaR > m_far_fsr_drcut) ? FsrCandidate::FsrFar : FsrCandidate::FsrNear;
             m_fsrPhotons.push_back(c);
+
+            ATH_MSG_DEBUG( "sortFsrCandidates: save fsr candidate  f1 = " << c.f1
+                           << ", deltaR = " << c.deltaR
+                           << ", Et = " << c.Et
+                           << ", Eta = " << c.eta
+                           << ", Phi = " << c.phi
+                           << ", type = " <<c.type);
+            
         }
    
         // ATH_MSG_INFO( "sortFsrCandidates: found " << m_fsrPhotons.size() << " FSR photons" );
