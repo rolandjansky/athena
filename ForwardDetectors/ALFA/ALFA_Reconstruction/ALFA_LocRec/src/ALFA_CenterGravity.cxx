@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ALFA_LocRec/ALFA_CenterGravity.h"
@@ -15,7 +15,6 @@ ALFA_CenterGravity::ALFA_CenterGravity()
 	m_fFiberD = 0.0;
 	m_fHitBU  = 0.0;
 	m_fHitBV  = 0.0;
-	m_fPrivPI = 0.0;
 	m_fRHigh  = 0.0;
 	m_fRLow   = 0.0;
 	m_fRecXPos= 0.0;
@@ -77,9 +76,8 @@ StatusCode ALFA_CenterGravity::Initialize(const eRPotName &eRPName, const std::l
 	m_fFiberD = 0.7071;
 	m_fzStep  = 2.0;
 
-	m_fPrivPI= 3.14159265359;
-	m_fTLow  = (1.0/4.0)*m_fPrivPI;
-	m_fTHigh = (3.0/4.0)*m_fPrivPI;
+	m_fTLow  = (1.0/4.0)*M_PI;
+	m_fTHigh = (3.0/4.0)*M_PI;
 	m_fRLow  = 0.0;
 	m_fRHigh = 64.0;
 	m_iTBins = 100;
