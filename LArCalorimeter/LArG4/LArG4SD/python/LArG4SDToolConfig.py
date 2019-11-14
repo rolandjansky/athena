@@ -419,7 +419,8 @@ def CalibrationDefaultCalculatorCfg(ConfigFlags, name="CalibrationDefaultCalcula
     result.addService( LArG4__CalibrationDefaultCalculator(name, **kwargs) )
     return result
 
-def getDeadMaterialCalibrationHitMerger(name="DeadMaterialCalibrationHitMerger", **kwargs):
-    kwargs.setdefault("InputHits",["LArCalibrationHitDeadMaterial_DEAD","LArCalibrationHitActive_DEAD","LArCalibrationHitInactive_DEAD"])
-    kwargs.setdefault("OutputHits","LArCalibrationHitDeadMaterial")
-    return CfgMgr.LArG4__CalibrationHitMerger(name, **kwargs)
+#todo -> migrate this
+#def getDeadMaterialCalibrationHitMerger(name="DeadMaterialCalibrationHitMerger", **kwargs):
+#    kwargs.setdefault("InputHits",["LArCalibrationHitDeadMaterial_DEAD","LArCalibrationHitActive_DEAD","LArCalibrationHitInactive_DEAD"])
+#    kwargs.setdefault("OutputHits","LArCalibrationHitDeadMaterial")
+#    return CfgMgr.LArG4__CalibrationHitMerger(name, **kwargs)

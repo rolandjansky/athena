@@ -32,7 +32,6 @@ def TileCTBGeoG4SDCfg(ConfigFlags, name="TileCTBGeoG4SD", **kwargs):
 def TileGeoG4SDCalcCfg(ConfigFlags, name="TileGeoG4SDCalc", **kwargs):
     result = ComponentAccumulator()
 
-    from G4AtlasApps.SimFlags import simFlags
     if ConfigFlags.Beam.Type == 'cosmics' or ConfigFlags.Sim.ReadTR:
         kwargs.setdefault("DeltaTHit", [1])
         kwargs.setdefault("DoTOFCorrection", False)
