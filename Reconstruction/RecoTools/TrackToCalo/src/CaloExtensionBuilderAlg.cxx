@@ -32,8 +32,6 @@ PURPOSE:  Performs Calo Extension for all selected tracks
 
 StatusCode Trk::CaloExtensionBuilderAlg::initialize() 
 {
-    IToolSvc* myToolSvc;
-
     ATH_CHECK(m_TrkSelection.retrieve());  
     ATH_CHECK(m_TrkDetailedSelection.retrieve());  
     ATH_CHECK(m_particleCaloExtensionTool.retrieve());
@@ -41,11 +39,6 @@ StatusCode Trk::CaloExtensionBuilderAlg::initialize()
     ATH_CHECK(m_ParticleCacheKey.initialize());
     ATH_CHECK(m_TrkPartContainerKey.initialize());
     ATH_CHECK(m_vertexInputContainer.initialize(SG::AllowEmpty));
-
-    if (service("ToolSvc", myToolSvc).isFailure()) {
-        ATH_MSG_WARNING(" Tool Service Not Found");
-        return StatusCode::SUCCESS;
-    }
 
     if(m_TrkSelection.retrieve().isFailure()){
         ATH_MSG_ERROR("initialize: Cannot retrieve " << m_TrkSelection);
@@ -88,13 +81,13 @@ StatusCode Trk::CaloExtensionBuilderAlg::execute()
 
       // checking for vertices being read correctly
       if (!vertexInHandle.isValid()) {
-        ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << vertexInHandle.key());
-        return StatusCode::FAILURE;
+        ATH_MSG_VERBOSE("Could not retrieve VertexContainer with key " << vertexInHandle.key());
+      } else {
+        vxContainer = vertexInHandle.cptr();
       }
 
       // picking primary vertex
-      vxContainer = vertexInHandle.cptr();
-      if (vxContainer->size()>0) {
+      if (vxContainer && vxContainer->size()>0) {
         // simple loop through and get the primary vertex
         xAOD::VertexContainer::const_iterator vxIter    = vxContainer->begin();
         xAOD::VertexContainer::const_iterator vxIterEnd = vxContainer->end();
@@ -124,7 +117,8 @@ StatusCode Trk::CaloExtensionBuilderAlg::execute()
     std::vector<bool> mask (ptrTracks->size(),false);
     for (auto track: *tracks){
       if( static_cast<bool>(m_TrkSelection->accept(*track, nullptr)) || 
-          (primaryVertex && m_TrkDetailedSelection->decision(*track, primaryVertex))    || 
+          // Adding the vxContainer tests if it is not a nullptr
+          (vxContainer && primaryVertex && m_TrkDetailedSelection->decision(*track, primaryVertex))    || 
           (vxContainer && m_TrkDetailedSelection->decision(*track, (*vxContainer)[0])) ) {
         mask[track->index()] = true;
       }
