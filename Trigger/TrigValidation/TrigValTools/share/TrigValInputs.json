@@ -3,17 +3,7 @@
         "source": "data",
         "format": "BS",
         "paths": [
-            "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"
-        ]
-    },
-    "data_FTK_MissingTowers": {
-        "source": "data",
-        "format": "BS",
-        "paths": [
-            "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.MissingTowers._lb0151._SFO-6._0001.1",
-            "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.MissingTowers._lb0151._SFO-6._0002.1",
-            "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.MissingTowers._lb0151._SFO-6._0003.1",
-            "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.MissingTowers._lb0151._SFO-6._0004.1"
+            "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.merge.RAW._lb0151._SFO-1._0001.1"
         ]
     },
     "data_run1": {
@@ -21,6 +11,27 @@
         "format": "BS",
         "paths": [
             "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigAnalysisTest/data12_8TeV.00209109.physics_JetTauEtmiss.merge.RAW._lb0186._SFO-1._0001.1"
+        ]
+    },
+    "data_cos": {
+        "source": "data",
+        "format": "BS",
+        "paths": [
+            "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data16_cos.00306147.physics_Main.daq.RAW._lb0494._SFO-4._0001.data"
+        ]
+    },
+    "data_cos_CosmicMuons": {
+        "source": "data",
+        "format": "BS",
+        "paths": [
+            "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data16_cos.00306147.physics_CosmicMuons.merge.RAW._lb0494._SFO-ALL._0001.1"
+        ]
+    },
+    "data_cos_IDCosmic": {
+        "source": "data",
+        "format": "BS",
+        "paths": [
+            "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data16_cos.00306147.physics_IDCosmic.merge.RAW._lb0494._SFO-ALL._0001.1"
         ]
     },
     "ttbar": {

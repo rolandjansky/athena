@@ -16,6 +16,7 @@ import ast
 import collections
 import six
 import copy
+import sys
 
 from AthenaConfiguration.UnifyProperties import unifySet
 
@@ -888,6 +889,10 @@ class ComponentAccumulator(object):
         return app
 
     def run(self,maxEvents=None,OutputLevel=3):
+        # Make sure python output is flushed before triggering output from Gaudi.
+        # Otherwise, observed output ordering may differ between py2/py3.
+        sys.stdout.flush()
+
         from AthenaCommon.Debugging import allowPtrace, hookDebugger
         allowPtrace()
 

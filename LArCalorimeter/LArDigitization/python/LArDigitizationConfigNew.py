@@ -7,7 +7,7 @@ from PileUpComps.PileUpCompsConf import PileUpXingFolder
 from LArGeoAlgsNV.LArGMConfig import LArGMCfg
 from LArBadChannelTool.LArBadChannelConfig import LArBadChannelMaskerCfg, LArBadFebCfg
 from LArRecUtils.LArRecUtilsConfig import LArAutoCorrNoiseCondAlgCfg
-from LArRecUtils.LArRecUtilsConfig import LArADC2MeVCondAlgCfg
+from LArRecUtils.LArADC2MeVCondAlgConfig import LArADC2MeVCondAlgCfg
 from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDbCfg
 from LArDigitization.LArDigitizationConf import LArPileUpTool, LArDigitMaker
 from CommissionUtils.CommissionUtilsConf import CosmicTriggerTimeTool

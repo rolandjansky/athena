@@ -87,10 +87,23 @@ namespace TrigCompositeUtils {
   }
 
   template<class CONTAINER>
+  void filterLinkVectorByContainerKey(const std::string& containerSGKey, ElementLinkVector<CONTAINER>& vector) {
+    if (containerSGKey == "") {
+      return;
+    }
+    auto it = std::remove_if(vector.begin(), vector.end(), [&](const ElementLink<CONTAINER>& el) {
+      return (el.dataID().find(containerSGKey) == std::string::npos);
+    });
+    // Collection has been re-ordered to put the bad elements at the end
+    vector.erase(it, vector.end());
+  }
+
+  template<class CONTAINER>
   const std::vector< LinkInfo<CONTAINER> > getFeaturesOfType(
     const std::vector<ElementLinkVector<DecisionContainer>>& linkVector,
-    const bool oneFeaturePerLeg,
-    const std::string& featureName,
+    const std::string containerSGKey,
+    const bool lastFeatureOfType,
+    const std::string& navElementLinkKey,
     const DecisionIDContainer chainIDs) {
 
     std::vector< LinkInfo<CONTAINER> > features;
@@ -103,13 +116,13 @@ namespace TrigCompositeUtils {
 
         // Look up what named links are available in the Decision Object
         std::vector<std::string> availableLinkNames;
-        if (featureName == "") { 
+        if (navElementLinkKey == "") { 
           const std::vector<std::string> getSingleLinkNames = decisionObj->getObjectNames<CONTAINER>();
           const std::vector<std::string> getCollectionLinkNames = decisionObj->getObjectCollectionNames<CONTAINER>();
           std::copy(getSingleLinkNames.begin(), getSingleLinkNames.end(), std::back_inserter(availableLinkNames));
           std::copy(getCollectionLinkNames.begin(), getCollectionLinkNames.end(), std::back_inserter(availableLinkNames));
         } else { // Just looking for an explicitly named feature
-          availableLinkNames.push_back( featureName );
+          availableLinkNames.push_back( navElementLinkKey );
         }
 
         // Fetch the named links that we're interested in
@@ -117,9 +130,10 @@ namespace TrigCompositeUtils {
           // This try block protects against ExcCLIDMismatch throws from
           // features which do not derive from IParticle, when an IParticle interface is requested.
           try {
-            // Slices may have added link collections
+            // Slices may have added link collections. These links may have been to objects in different containers.
             if (decisionObj->hasObjectCollectionLinks(featureNameToGet, ClassID_traits< CONTAINER >::ID())) {
               ElementLinkVector<CONTAINER> collectionLinks = decisionObj->objectCollectionLinks<CONTAINER>( featureNameToGet );
+              filterLinkVectorByContainerKey<CONTAINER>(containerSGKey, collectionLinks);
               std::copy(collectionLinks.begin(), collectionLinks.end(), std::back_inserter(featureLinks));
             }
           } catch (SG::ExcCLIDMismatch&) {
@@ -129,7 +143,10 @@ namespace TrigCompositeUtils {
           try {
             // Slices may have added single links. Note: the framework-specified "feature" link is always a single link.
             if (decisionObj->hasObjectLink(featureNameToGet, ClassID_traits< CONTAINER >::ID())) {
-              featureLinks.push_back( decisionObj->objectLink<CONTAINER>( featureNameToGet ) );
+              ElementLinkVector<CONTAINER> singleEntryVector; // Filtering function operates on a vector
+              singleEntryVector.push_back( decisionObj->objectLink<CONTAINER>( featureNameToGet ) );
+              filterLinkVectorByContainerKey<CONTAINER>(containerSGKey, singleEntryVector);
+              std::copy(singleEntryVector.begin(), singleEntryVector.end(), std::back_inserter(featureLinks));
             }
           } catch (SG::ExcCLIDMismatch&) {
             // Silently. As above.
@@ -164,8 +181,8 @@ namespace TrigCompositeUtils {
           }
         }
 
-        // Stop processing this path through the navigation if the oneFeaturePerLeg flag is set
-        if (featureLinks.size() && oneFeaturePerLeg) {
+        // Stop processing this path through the navigation if the lastFeatureOfType flag is set
+        if (featureLinks.size() && lastFeatureOfType) {
           break;
         }
 

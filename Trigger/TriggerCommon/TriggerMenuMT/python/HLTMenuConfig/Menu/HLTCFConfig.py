@@ -164,7 +164,7 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
 
     # add signature monitor
     from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectViewMakers, collectDecisionObjects,\
-        triggerMonitoringCfg, triggerSummaryCfg, triggerMergeViewsAndAddMissingEDMCfg, collectFilterDecisionObjects
+        triggerMonitoringCfg, triggerSummaryCfg, triggerMergeViewsAndAddMissingEDMCfg, collectHypoDecisionObjects
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior+=1
@@ -176,14 +176,14 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     hltTop += summaryAlg
     summaryAcc.appendToGlobals()
     decObj = collectDecisionObjects( hypos, filters, l1decoder[0], summaryAlg )
-    decObjFilterOut = collectFilterDecisionObjects(filters, inputs=False, outputs=True)
+    decObjHypoOut = collectHypoDecisionObjects(hypos, inputs=False, outputs=True)
 
     monAcc, monAlg = triggerMonitoringCfg( ConfigFlags, hypos, filters, l1decoder[0] )
     monAcc.appendToGlobals()
     hltTop += monAlg
 
     # this is a shotcut for now, we always assume we may be writing ESD & AOD outputs, so all gaps will be filled
-    edmAlg = triggerMergeViewsAndAddMissingEDMCfg(['AOD', 'ESD'], hypos, viewMakers, decObj, decObjFilterOut)
+    edmAlg = triggerMergeViewsAndAddMissingEDMCfg(['AOD', 'ESD'], hypos, viewMakers, decObj, decObjHypoOut)
     hltTop += edmAlg
 
     Configurable.configurableRun3Behavior-=1

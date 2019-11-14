@@ -115,10 +115,17 @@ void G4AtlasAlg::initializeOnce()
 #ifdef G4MULTITHREADED
     auto* runMgr = G4AtlasMTRunManager::GetG4AtlasMTRunManager();
     m_physListSvc->SetPhysicsList();
+    runMgr->SetDetGeoSvc( m_detGeoSvc.typeAndName() );
+    runMgr->SetFastSimMasterTool(m_fastSimTool.typeAndName() );
+    runMgr->SetPhysListSvc( m_physListSvc.typeAndName() );
     // Worker Thread initialization used to create worker run manager on demand.
-    // @TODO use this class to pass any configuration to worker run manager.
-    runMgr->SetUserInitialization( new G4AtlasUserWorkerThreadInitialization );
-    // @TODO configure all tool and service handles as in single threaded case.
+    std::unique_ptr<G4AtlasUserWorkerThreadInitialization> workerInit =
+      std::make_unique<G4AtlasUserWorkerThreadInitialization>();
+    workerInit->SetUserActionSvc( m_userActionSvc.typeAndName() );
+    workerInit->SetDetGeoSvc( m_detGeoSvc.typeAndName() );
+    workerInit->SetSDMasterTool( m_senDetTool.typeAndName() );
+    workerInit->SetFastSimMasterTool( m_fastSimTool.typeAndName() );
+    runMgr->SetUserInitialization( workerInit.release() );
 #else
     throw std::runtime_error("Trying to use multi-threading in non-MT build!");
 #endif

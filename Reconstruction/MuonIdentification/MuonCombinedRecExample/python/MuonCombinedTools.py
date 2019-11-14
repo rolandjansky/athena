@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 from MuonCombinedRecExample.MuonCombinedKeys import MuonCombinedKeys as MuonCbKeys
@@ -48,9 +48,12 @@ def MuonInDetForwardCandidateTool( name = 'MuonInDetForwardCandidateTool', **kwa
    return idCandTool
 
 def MuonCombinedParticleCreator(name="MuonCombinedParticleCreator",**kwargs):
-    import MuonCombinedRecExample.CombinedMuonTrackSummary
+    if TriggerFlags.MuonSlice.doTrigMuonConfig:
+        kwargs.setdefault("TrackSummaryTool"              , getPublicTool("MuonTrackSummaryTool") )
+    else:
+        import MuonCombinedRecExample.CombinedMuonTrackSummary
+        kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary ) #getPublicTool("CombinedMuonTrackSummary") )
     kwargs.setdefault("Extrapolator", getPublicTool("AtlasExtrapolator") )
-    kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary ) #getPublicTool("CombinedMuonTrackSummary") )
     kwargs.setdefault("KeepAllPerigee",True )
     kwargs.setdefault("UseMuonSummaryTool",True )
     if beamFlags.beamType() == 'cosmics':
@@ -71,14 +74,17 @@ def InDetCandidateTool(name="InDetCandidateTool",**kwargs ):
 
 def MuonCreatorTool(name="MuonCreatorTool",**kwargs):
     kwargs.setdefault("CaloMaterialProvider", getPublicTool("MuonMaterialProviderTool"))
-
-    getPublicTool("MuonMomentumBalanceSignificanceTool")
-    getPublicTool("MuonScatteringAngleSignificanceTool")
-    getPublicTool("MuonCaloParticleCreator")
+    if TriggerFlags.MuonSlice.doTrigMuonConfig:
+        kwargs.setdefault('MakeTrackAtMSLink',True)
+        kwargs.setdefault("FillTimingInformation",False)
+        kwargs.setdefault("MuonSelectionTool", "")
+    else:
+        getPublicTool("MuonMomentumBalanceSignificanceTool")
+        getPublicTool("MuonScatteringAngleSignificanceTool")
+        getPublicTool("MuonCaloParticleCreator")
 
     kwargs.setdefault("TrackParticleCreator", getPublicTool("MuonCombinedParticleCreator") )
     kwargs.setdefault("ParticleCaloExtensionTool", getPublicTool("MuonParticleCaloExtensionTool") )
-    # kwargs.setdefault("CaloNoiseTool", getPublicTool("CaloNoiseToolDefault") )
     return CfgMgr.MuonCombined__MuonCreatorTool(name,**kwargs)
 
 def MuonCandidateTool(name="MuonCandidateTool",**kwargs):
@@ -102,6 +108,7 @@ def MuonCombinedFitTagTool(name="MuonCombinedFitTagTool",**kwargs):
         TrigMuonPropagator = Propagator(name = 'TrigMuonPropagator')
         ToolSvc += TrigMuonPropagator
         kwargs.setdefault("TrackBuilder",         getPublicToolClone("TrigMuonTrackBuilder", "CombinedMuonTrackBuilder", Propagator=TrigMuonPropagator) )
+        kwargs.setdefault("VertexContainer", "")
     else:
         kwargs.setdefault("TrackBuilder",         getPublicTool("CombinedMuonTrackBuilder") )
     kwargs.setdefault("TrackQuery",           getPublicTool("MuonTrackQuery") )

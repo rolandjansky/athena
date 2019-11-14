@@ -52,7 +52,7 @@ public:
    [[deprecated("this converter uses createPersistent() with 2 arguments")]]
    virtual DataHeader_p6* createPersistent(DataHeader*) override { return nullptr; }
 
-   /// Incident service handle listening for EndFile.
+   /// Incident service handle listening for EndInputFile.
    virtual void handle(const Incident& incident) override;
  
 protected:

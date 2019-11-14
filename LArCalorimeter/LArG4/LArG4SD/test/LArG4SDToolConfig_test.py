@@ -3,10 +3,13 @@
 
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
+
+from __future__ import print_function
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
+
 if __name__ == '__main__':
-  
+
 
   # Set up logging and config behaviour
   from AthenaCommon.Logging import log
@@ -24,8 +27,8 @@ if __name__ == '__main__':
   from AthenaConfiguration.TestDefaults import defaultTestFiles
   inputDir = defaultTestFiles.d
   ConfigFlags.Input.Files = defaultTestFiles.EVNT
-  
-  # Finalize 
+
+  # Finalize
   ConfigFlags.lock()
 
 
@@ -42,7 +45,7 @@ if __name__ == '__main__':
   from LArG4SD.LArG4SDToolConfig import LArDeadSensitiveDetectorToolCfg
   from LArG4SD.LArG4SDToolConfig import LArActiveSensitiveDetectorToolCfg
   from LArG4SD.LArG4SDToolConfig import LArInactiveSensitiveDetectorToolCfg
-  
+
   acc1 = LArEMBSensitiveDetectorCfg(ConfigFlags)
   tool1 = cfg.popToolsAndMerge(acc1)
   #cfg.setPrivateTools(tool1)
@@ -78,10 +81,10 @@ if __name__ == '__main__':
   ConfigFlags.dump()
 
   f=open("test.pkl","w")
-  cfg.store(f) 
+  cfg.store(f)
   f.close()
 
 
 
-  print cfg._publicTools
-  print "-----------------finished----------------------"
+  print(cfg._publicTools)
+  print("-----------------finished----------------------")

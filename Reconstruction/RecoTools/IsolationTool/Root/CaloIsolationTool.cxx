@@ -34,6 +34,7 @@
 #include "xAODEgamma/EgammaDefs.h"
 #include "xAODMuon/Muon.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
+#include "FourMomUtils/xAODP4Helpers.h"
 
 #include "boost/foreach.hpp"
 #include "boost/format.hpp"
@@ -491,7 +492,7 @@ namespace xAOD {
     if(mu){
       auto cluster = mu->cluster();
       if(cluster){
-        float etaT = 0, phiT = 0;
+        float etaT = 0, phiT = 0, dphiT = 0.;
         int nSample = 0;
         for(unsigned int i=0; i<CaloSampling::Unknown; i++) // dangerous?
         { 
@@ -499,12 +500,15 @@ namespace xAOD {
           if(!cluster->hasSampling(s)) continue;
           ATH_MSG_DEBUG("Sampling: " << i << "eta-phi (" << cluster->etaSample(s) << ", " << cluster->phiSample(s) << ")");
           etaT += cluster->etaSample(s);
-          phiT += cluster->phiSample(s);
+          if( nSample == 0 )
+            phiT = cluster->phiSample(s);
+          else
+            dphiT += xAOD::P4Helpers::deltaPhi( cluster->phiSample(s), phiT ) ;
           nSample++;
         }
         if(nSample>0){
           eta = etaT/nSample;
-          phi = phiT/nSample;
+          phi = phiT + dphiT/nSample;
 
           if(m_addCaloDeco && !Decorated.isAvailable(*tp)) decorateTrackCaloPosition(*tp, eta, phi);
           return true;

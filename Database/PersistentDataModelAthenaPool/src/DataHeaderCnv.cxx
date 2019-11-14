@@ -45,7 +45,7 @@ DataHeaderCnv::~DataHeaderCnv()
 //______________________________________________________________________________
 StatusCode DataHeaderCnv::initialize()
 {
-   // listen to EndFile incidents to clear old DataHeaderForms from the cache
+   // listen to EndInputFile incidents to clear old DataHeaderForms from the cache
    //Get IncidentSvc
    ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", "DataHeaderCnv");
    ATH_CHECK( incSvc.retrieve() );

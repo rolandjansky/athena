@@ -96,7 +96,7 @@ namespace TrigConf {
        * @param key The path to the attribute name, relative to the current one in form "path.to.child"
        * @param ignoreIfMissing Controls the behavior in case of missing configuration child
        */
-      std::string getAttribute(const std::string & key, bool ignoreIfMissing = false) const;
+      std::string getAttribute(const std::string & key, bool ignoreIfMissing = false, const std::string & def = "") const;
 
       /** Access to array structure
        * @param pathToChild The path to the configuration child, relative to the current one in form "path.to.child"
@@ -154,6 +154,12 @@ namespace TrigConf {
                                std::ostream & os = std::cout);
 
    protected:
+
+      /** Update the internal data after modification of the data object
+       * 
+       * to be implemented by the derived class
+       */
+      virtual void update() {};
 
       bool m_initialized { false }; //!< if initialized, the underlying ptree is has been assigned to (can be empty)
 

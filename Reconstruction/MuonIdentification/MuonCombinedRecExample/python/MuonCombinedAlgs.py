@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017, 2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 from AthenaCommon.CfgGetter import getPublicTool, getAlgorithm,getPublicToolClone
@@ -12,6 +12,7 @@ from AthenaCommon.BeamFlags import jobproperties
 
 from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 def MuonCombinedInDetExtensionAlg(name="MuonCombinedInDetExtensionAlg",**kwargs):
     tools = []
@@ -137,6 +138,9 @@ def MuonCreatorAlg( name="MuonCreatorAlg",**kwargs ):
     # but don't set this default in case the StauCreatorAlg is created (see below)
     if not muonCombinedRecFlags.doMuGirl() and not name=="StauCreatorAlg":
         kwargs.setdefault("TagMaps",["muidcoTagMap","stacoTagMap","caloTagMap","segmentTagMap"])
+    if TriggerFlags.MuonSlice.doTrigMuonConfig:
+        kwargs.setdefault("MakeClusters", False)
+        kwargs.setdefault("ClusterContainerName", "")
     return CfgMgr.MuonCreatorAlg(name,**kwargs)
 
 def StauCreatorAlg( name="StauCreatorAlg", **kwargs ):
@@ -150,7 +154,8 @@ def StauCreatorAlg( name="StauCreatorAlg", **kwargs ):
     kwargs.setdefault("BuildSlowMuon",1)
     kwargs.setdefault("ClusterContainerName", "SlowMuonClusterCollection")
     kwargs.setdefault("TagMaps",["stauTagMap"])
-    recordMuonCreatorAlgObjs (kwargs)
+    if not TriggerFlags.MuonSlice.doTrigMuonConfig:
+        recordMuonCreatorAlgObjs (kwargs)
     return MuonCreatorAlg(name,**kwargs)
 
 class MuonCombinedReconstruction(ConfiguredMuonRec):
@@ -188,5 +193,5 @@ class MuonCombinedReconstruction(ConfiguredMuonRec):
         # runs over outputs and create xAODMuon collection
         topSequence += getAlgorithm("MuonCreatorAlg")
         
-        if muonCombinedRecFlags.doMuGirlLowBeta():
+        if muonCombinedRecFlags.doMuGirl() and muonCombinedRecFlags.doMuGirlLowBeta():
             topSequence += getAlgorithm("StauCreatorAlg")

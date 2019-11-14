@@ -38,6 +38,7 @@ class opt:
     doEmptyMenu      = False          # Disable all chains, except those re-enabled by specific slices
     createHLTMenuExternally = False   # Set to True if the menu is build manually outside testHLT_MT.py
     endJobAfterGenerate = False       # Finish job after menu generation
+    failIfNoProxy     = False         # Sets the SGInputLoader.FailIfNoProxy property
 #Individual slice flags
     doEgammaSlice     = True
     doMuonSlice       = True
@@ -152,6 +153,11 @@ athenaCommonFlags.isOnline.set_Value_and_Lock(opt.isOnline)
 
 log.info('Configured the following global flags:')
 globalflags.print_JobProperties()
+
+# Set default doL1Sim option depending on input type (if not set explicitly)
+if 'doL1Sim' not in globals():
+    opt.doL1Sim = globalflags.DataSource != 'data'
+    log.info('Setting default doL1Sim=%s because globalflags.DataSource=%s', opt.doL1Sim, globalflags.DataSource())
 
 #-------------------------------------------------------------
 # Transfer flags into TriggerFlags
@@ -301,6 +307,15 @@ if jobproperties.ConcurrencyFlags.NumThreads() > 0:
     AlgScheduler.ShowControlFlow( True )
     AlgScheduler.ShowDataDependencies( True )
     AlgScheduler.EnableVerboseViews( True )
+
+#--------------------------------------------------------------
+# Set the FailIfNoProxy property of SGInputLoader
+#--------------------------------------------------------------
+if not hasattr(topSequence,"SGInputLoader"):
+    log.error('Cannot set FailIfNoProxy property because SGInputLoader not found in topSequence')
+    theApp.exit(1)
+topSequence.SGInputLoader.FailIfNoProxy = opt.failIfNoProxy
+
 
 #--------------------------------------------------------------
 # Event Info setup

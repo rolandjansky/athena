@@ -51,7 +51,7 @@ def readMenuFromXML(l1menu, filename):
 
 
     if 'ctpVersion' in reader.LVL1Config:
-        from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
+        from TriggerMenuMT.LVL1MenuConfig.LVL1.Lvl1Flags import Lvl1Flags
         Lvl1Flags.CTPVersion = int ( reader.LVL1Config['ctpVersion'] )
 
 
@@ -165,7 +165,7 @@ def readMenuFromXML(l1menu, filename):
 
         if 'monitor' in itemelem and itemelem['monitor'].startswith('LF'):
             lf,hf = [ int(m[-3:],2) for m in itemelem['monitor'].split('|') ]
-            from TriggerMenu.l1menu.MonitorDef import MonitorDef
+            from TriggerMenuMT.LVL1MenuConfig.LVL1Menu.MonitorDef import MonitorDef
             item.addMonitor(lf, MonitorDef.LOW_FREQ)
             item.addMonitor(hf, MonitorDef.HIGH_FREQ)
 

@@ -12,11 +12,16 @@ def BunchCrossingCondAlgCfg(configFlags):
 
     run1=(configFlags.IOVDb.DatabaseInstance=='COMP200')
 
-    folder = '/TDAQ/OLC/LHC/FILLPARAMS'
-    result.merge(addFolders(configFlags,folder,'TDAQ',className = 'AthenaAttributeList'))
+    if (configFlags.Input.isMC):
+        folder = "/Digitization/Parameters"
+        result.merge(addFolders(configFlags,folder,"",className="AthenaAttributeList"))
+    else: #data case
+        folder = '/TDAQ/OLC/LHC/FILLPARAMS'
+        result.merge(addFolders(configFlags,folder,'TDAQ',className = 'AthenaAttributeList'))
 
 
     alg = BunchCrossingCondAlg(Run1=run1,
+                               isMC=configFlags.Input.isMC,
                                FillParamsFolderKey =folder )
 
     result.addCondAlgo(alg)

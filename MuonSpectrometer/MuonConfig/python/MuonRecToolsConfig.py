@@ -7,6 +7,28 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 # Tracking
 from TrkDetDescrSvc.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
 
+def MuonTrackToSegmentToolCfg(flags,name="MuonTrackToSegmentTool", **kwargs):
+    from MuonTrackFinderTools.MuonTrackFinderToolsConf import Muon__MuonTrackToSegmentTool
+    #MDT conditions information not available online
+    if(flags.Common.isOnline):
+        kwargs.setdefault("MdtCondKey","")
+    
+    result = MuonStationIntersectSvcCfg(flags)
+    msis = result.getPrimary()
+    kwargs.setdefault("MuonStationIntersectSvc",msis)
+    
+    # FIXME - this should have a CA
+    from TrkExRungeKuttaPropagator.TrkExRungeKuttaPropagatorConf import Trk__RungeKuttaPropagator as RkPropagator
+    atlasRungeKuttaPropagator = RkPropagator(name = 'AtlasRungeKuttaPropagator')
+    result.addPublicTool(atlasRungeKuttaPropagator)
+    kwargs.setdefault("Propagator",atlasRungeKuttaPropagator)
+    
+    # Not bothering to explicitly set IdHelper or EDMHelper    
+    muon_track_to_segment_tool = Muon__MuonTrackToSegmentTool(name, **kwargs)
+    result.setPrivateTools(muon_track_to_segment_tool)
+    return result
+
+
 def MuonSeededSegmentFinderCfg(flags,name="MuonSeededSegmentFinder", **kwargs):
     from MuonTrackFinderTools.MuonTrackFinderToolsConf import Muon__MuonSeededSegmentFinder
     from MuonSegmentFindingConfig import DCMathSegmentMakerCfg, MdtMathSegmentFinder # FIXME - should really shift this to RecTools then.

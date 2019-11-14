@@ -44,8 +44,6 @@ private:
 
 #include "POOLRootAccess/TEvent.h"
 
-#include "GaudiKernel/FileIncident.h"
-
 int main() {
 
   POOL::TEvent evt(POOL::TEvent::kClassAccess);

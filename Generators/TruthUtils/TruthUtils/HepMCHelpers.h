@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #pragma once
@@ -17,13 +17,6 @@
 // Common imports from external namespaces
 //using fastjet::PseudoJet;
 //using fastjet::ClusterSequence;
-
-// Alias BOOST_FOREACH as foreach in this semi-safe way
-#include <boost/foreach.hpp>
-#ifndef foreach
-namespace boost { namespace BOOST_FOREACH = foreach; }
-#define foreach BOOST_FOREACH
-#endif
 
 
 namespace MC {

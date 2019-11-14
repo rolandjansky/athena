@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -26,6 +26,14 @@ bool InDet::SCT_OverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceInt
                                                        const Amg::Vector3D&) const
                                                             
 {
+    size_t newCapacity = cSurfaces.size()+2;
+    if (m_robustMode) {
+        newCapacity += 16;
+    } else {
+        newCapacity += 6;
+    }
+    cSurfaces.reserve(newCapacity);  
+
     // first add the target surface and the backside surface (in the if statement)
     cSurfaces.push_back(Trk::SurfaceIntersection(Trk::Intersection(pos,0.,true),&tsf));
 

@@ -12,7 +12,6 @@ PixelByteStreamErrorsTool::PixelByteStreamErrorsTool(const std::string& type, co
   m_readESD(false)
 { 
   declareProperty("ReadingESD",     m_readESD,"Get summary of BS errors from StoreGate, if available"); 
-  declareProperty("BSErrContainer", m_BSErrContainerKey=std::string("PixelByteStreamErrs"));
   resetCounts();
 }
 
@@ -21,11 +20,14 @@ StatusCode PixelByteStreamErrorsTool::initialize() {
 
   ATH_CHECK(detStore()->retrieve(m_pixelID,"PixelID"));
 
-  m_BSErrContReadKey=m_BSErrContainerKey;
-  ATH_CHECK(m_BSErrContReadKey.initialize());
-
-  m_BSErrContWriteKey=m_BSErrContainerKey;
-  ATH_CHECK(m_BSErrContWriteKey.initialize());
+  if (m_readESD) {
+    ATH_CHECK(m_BSErrContReadKey.initialize());
+    renounce(m_BSErrContWriteKey);
+  }
+  else {
+    renounce(m_BSErrContReadKey);
+    ATH_CHECK(m_BSErrContWriteKey.initialize());
+  }
 
   m_module_errors.reserve(m_pixelID->wafer_hash_max());
   m_moduleROD_errors.reserve(m_pixelID->wafer_hash_max());

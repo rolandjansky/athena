@@ -2,10 +2,10 @@
 """Run tests on G4Geometry Tool configuration
 
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-from __future__ import print_function
 """
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
+from __future__ import print_function
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 if __name__ == '__main__':
   from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
@@ -21,7 +21,7 @@ if __name__ == '__main__':
 
   #import config flags
   from AthenaConfiguration.AllConfigFlags import ConfigFlags
-  
+
   from AthenaConfiguration.TestDefaults import defaultTestFiles
   inputDir = defaultTestFiles.d
   ConfigFlags.Input.Files = defaultTestFiles.EVNT
@@ -45,7 +45,7 @@ if __name__ == '__main__':
 
   ConfigFlags.Sim.TwissFileNomReal = "nominal" #so it doesn't crash
 
-  # Finalize 
+  # Finalize
   ConfigFlags.lock()
 
 
@@ -111,7 +111,7 @@ if __name__ == '__main__':
   acc10, tool10 = AFPGeoDetectorToolCfg(ConfigFlags)
   cfg.merge(acc10)
   cfg.addPublicTool(tool10)
-  
+
 
   accATLAS,toolATLAS = ATLASEnvelopeCfg(ConfigFlags)
   cfg.merge(accATLAS)
@@ -123,10 +123,10 @@ if __name__ == '__main__':
   ConfigFlags.dump()
 
   f=open("test.pkl","w")
-  cfg.store(f) 
+  cfg.store(f)
   f.close()
 
 
 
-  print cfg._publicTools
-  print "-----------------finished----------------------"
+  print(cfg._publicTools)
+  print("-----------------finished----------------------")

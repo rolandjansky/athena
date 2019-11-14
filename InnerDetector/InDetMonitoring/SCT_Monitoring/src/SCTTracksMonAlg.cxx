@@ -171,31 +171,29 @@ ATH_MSG_DEBUG("SCTTracksMonAlg::fillHistograms()");
             const bool doThisDetector{doThisSubsystem[subsystemIndex]};
             hasHits[subsystemIndex] = true;
             unique_ptr<const Trk::TrackParameters> trkParameters(nullptr);
+            const Trk::TrackParameters* trkParam{tsos->trackParameters()};
             const Trk::RIO_OnTrack* rio{dynamic_cast<const Trk::RIO_OnTrack*>(tsos->measurementOnTrack())};
             if (rio) {
 #ifndef NDEBUG
               ATH_MSG_DEBUG("if rio");
 #endif
               if (m_doUnbiasedCalc) {
-                const Trk::TrackParameters* trkParam{tsos->trackParameters()};
                 if (trkParam) {
                   trkParameters.reset(m_updator->removeFromState(*trkParam, rio->localParameters(), rio->localCovariance())); //need to take ownership of the returned pointer
+                  trkParam = trkParameters.get();
                 }
               }
             } else {
               ATH_MSG_DEBUG("not rio");
             }
-            if (trkParameters==nullptr) {
-              trkParameters.reset(tsos->trackParameters());
-            }
-            if (trkParameters) {
-              const AmgVector(5) LocalTrackParameters{trkParameters->parameters()};
+            if (trkParam) {
+              const AmgVector(5) LocalTrackParameters{trkParam->parameters()};
 #ifndef NDEBUG
               ATH_MSG_DEBUG("Track Position Phi= " << LocalTrackParameters[Trk::locX]);
               ATH_MSG_DEBUG("Cluster Position Phi= " << clus->localParameters()[Trk::locX]);
 #endif
               if (not m_residualPullCalculator.empty()) {
-                unique_ptr<const Trk::ResidualPull> residualPull{m_residualPullCalculator->residualPull(rio, trkParameters.get(),
+                unique_ptr<const Trk::ResidualPull> residualPull{m_residualPullCalculator->residualPull(rio, trkParam,
                                                                       m_doUnbiasedCalc ? Trk::ResidualPull::Unbiased : Trk::ResidualPull::Biased)};
                 if (not residualPull) {
                   ATH_MSG_WARNING("Residual Pull Calculator did not succeed!");

@@ -24,13 +24,13 @@ from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloSequenceSetup import precis
 
 # This is an instance of TrigEMClusterTool to be used at TrigTopoEgammaPhotons
 TrigEMClusterTool = ToolFactory(egammaToolsConf.EMClusterTool,
-                         name = 'TrigEMClusterTool',
-                         OutputClusterContainerName = TrigEgammaKeys.TrigEMClusterToolOutputContainer, 
-                         OutputTopoSeededClusterContainerName = TrigEgammaKeys.outputTopoSeededClusterKey,
-                         ClusterCorrectionTool = egammaSwTool,
-                         doSuperCluster = True,
-                         MVACalibSvc = egammaMVASvc                             
-                         )
+        name = 'TrigEMClusterTool',
+        OutputClusterContainerName = TrigEgammaKeys.TrigEMClusterToolOutputContainer, 
+        OutputTopoSeededClusterContainerName = TrigEgammaKeys.outputTopoSeededClusterKey,
+        ClusterCorrectionTool = egammaSwTool,
+        doSuperCluster = True,
+        MVACalibSvc = egammaMVASvc                             
+        )
 # Factory for egamaRecBuilder/TrigEgammaRecPhoton
 TrigEgammaRecPhoton = AlgFactory( egammaAlgsConf.egammaRecBuilder,
         name = 'TrigEgammaRecPhoton' ,
@@ -46,25 +46,28 @@ TrigEgammaRecPhoton = AlgFactory( egammaAlgsConf.egammaRecBuilder,
 
 #Factory for photon SC builder
 TrigPhotonSuperClusterBuilder = AlgFactory( egammaAlgsConf.photonSuperClusterBuilder,
-                                        name = 'TrigPhotonSuperClusterBuilder',
-                                        InputEgammaRecContainerName=TrigEgammaKeys.EgammaRecKey,
-                                        SuperPhotonRecCollectionName=TrigEgammaKeys.SuperPhotonRecCollectionName,
-                                        ClusterCorrectionTool=egammaSwTool,
-                                        MVACalibSvc= egammaMVASvc,
-                                        doConversions = False,
-                                        AddClustrsMatchingVtxTracks = False,
-                                        ConversionBuilderTool = EMConversionBuilder,
-                                        doAdd = False
-                                        )
+        name = 'TrigPhotonSuperClusterBuilder',
+        InputEgammaRecContainerName=TrigEgammaKeys.EgammaRecKey,
+        SuperPhotonRecCollectionName=TrigEgammaKeys.SuperPhotonRecCollectionName,
+        ClusterCorrectionTool=egammaSwTool,
+        MVACalibSvc= egammaMVASvc,
+        doConversions = False,
+        AddClustrsMatchingVtxTracks = False,
+        ConversionBuilderTool = EMConversionBuilder,
+        doAdd = False
+        )
 
 #Factory for photons
-TrigTopoEgammaPhotons = AlgFactory( egammaAlgsConf.topoEgammaBuilder, name = 'TrigTopoEgammaPhotons',
-    SuperElectronRecCollectionName = TrigEgammaKeys.SuperElectronRecCollectionName,
-    SuperPhotonRecCollectionName = TrigEgammaKeys.SuperPhotonRecCollectionName,
-    ElectronOutputName = TrigEgammaKeys.outputElectronKey,
-    PhotonOutputName = TrigEgammaKeys.outputPhotonKey,  
-    AmbiguityTool = EGammaAmbiguityTool,
-    EMClusterTool = TrigEMClusterTool,
-    doAdd = False,
-    )
+TrigTopoEgammaPhotons = AlgFactory( egammaAlgsConf.topoEgammaBuilder, 
+        name = 'TrigTopoEgammaPhotons',
+        SuperElectronRecCollectionName = TrigEgammaKeys.SuperElectronRecCollectionName,
+        SuperPhotonRecCollectionName = TrigEgammaKeys.SuperPhotonRecCollectionName,
+        ElectronOutputName = TrigEgammaKeys.outputElectronKey,
+        PhotonOutputName = TrigEgammaKeys.outputPhotonKey,  
+        AmbiguityTool = EGammaAmbiguityTool,
+        EMClusterTool = TrigEMClusterTool,
+        doAdd = False,
+        doPhotons = True,
+        doElectrons = False,
+        )
 

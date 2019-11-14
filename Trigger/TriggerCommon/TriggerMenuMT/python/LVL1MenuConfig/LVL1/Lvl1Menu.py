@@ -10,7 +10,7 @@ from Limits import Limits
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger("TriggerMenu.l1.Lvl1Menu")
+log = logging.getLogger("TriggerMenuMT.LVL1MenuConfig.LVL1.Lvl1Menu")
 
 class Lvl1Menu(object):
 
@@ -68,7 +68,7 @@ class Lvl1Menu(object):
 
 
     def addCounters(self):
-        from TriggerMenu.l1menu.MonitorDef import MonitorDef
+        from TriggerMenuMT.LVL1MenuConfig.LVL1Menu.MonitorDef import MonitorDef
         # add the CTPIN counters
         for counter in MonitorDef.ctpinCounters( self.thresholds ):
             self.counters.addCounter( counter )

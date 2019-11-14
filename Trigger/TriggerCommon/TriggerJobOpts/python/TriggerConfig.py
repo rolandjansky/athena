@@ -216,7 +216,7 @@ def triggerMonitoringCfg(flags, hypos, filters, l1Decoder):
     return acc, mon
 
 
-def triggerOutputCfg(flags, decObj, decObjFilterOut, summaryAlg):
+def triggerOutputCfg(flags, decObj, decObjHypoOut, summaryAlg):
     # Following cases are considered:
     # 1) Running in partition or athenaHLT - configure BS output written by the HLT framework
     # 2) Running offline athena and writing BS - configure BS output written by OutputStream alg
@@ -255,13 +255,13 @@ def triggerOutputCfg(flags, decObj, decObjFilterOut, summaryAlg):
     # Create the configuration
     if onlineWriteBS:
         __log.info("Configuring online ByteStream HLT output")
-        acc = triggerBSOutputCfg(flags, decObj, decObjFilterOut, summaryAlg)
+        acc = triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg)
     elif offlineWriteBS:
         __log.info("Configuring offline ByteStream HLT output")
-        acc = triggerBSOutputCfg(flags, decObj, decObjFilterOut, summaryAlg, offline=True)
+        acc = triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg, offline=True)
     elif writePOOL:
         __log.info("Configuring POOL HLT output")
-        acc = triggerPOOLOutputCfg(flags, decObj, decObjFilterOut, edmSet)
+        acc = triggerPOOLOutputCfg(flags, decObj, decObjHypoOut, edmSet)
     else:
         __log.info("No HLT output writing is configured")
         acc = ComponentAccumulator()
@@ -269,7 +269,7 @@ def triggerOutputCfg(flags, decObj, decObjFilterOut, summaryAlg):
     return acc, edmSet
 
 
-def triggerBSOutputCfg(flags, decObj, decObjFilterOut, summaryAlg, offline=False):
+def triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg, offline=False):
     from TriggerMenuMT.HLTMenuConfig.Menu import EventBuildingInfo
     from TrigEDMConfig.TriggerEDM import getTriggerEDMList
     from TrigEDMConfig.TriggerEDMRun3 import persistent
@@ -289,7 +289,7 @@ def triggerBSOutputCfg(flags, decObj, decObjFilterOut, summaryAlg, offline=False
     # Add decision containers (navigation)
     for item in decObj:
         dynamic = '.-' # Exclude dynamic
-        if item in decObjFilterOut:
+        if item in decObjHypoOut:
             dynamic = '.' # Include dynamic
         typeName = 'xAOD::TrigCompositeContainer#{:s}'.format(item)
         typeNameAux = 'xAOD::TrigCompositeAuxContainer#{:s}Aux{:s}'.format(item, dynamic)
@@ -350,7 +350,7 @@ def triggerBSOutputCfg(flags, decObj, decObjFilterOut, summaryAlg, offline=False
     return acc
 
 
-def triggerPOOLOutputCfg(flags, decObj, decObjFilterOut, edmSet):
+def triggerPOOLOutputCfg(flags, decObj, decObjHypoOut, edmSet):
     # Get the list from TriggerEDM
     from TrigEDMConfig.TriggerEDM import getTriggerEDMList
     edmList = getTriggerEDMList(edmSet, flags.Trigger.EDMDecodingVersion)
@@ -363,7 +363,7 @@ def triggerPOOLOutputCfg(flags, decObj, decObjFilterOut, edmSet):
     # Add decision containers (navigation)
     for item in decObj:
         dynamic = '.-' # Exclude dynamic
-        if item in decObjFilterOut:
+        if item in decObjHypoOut:
             dynamic = '.' # Include dynamic
         itemsToRecord.append('xAOD::TrigCompositeContainer#{:s}'.format(item))
         itemsToRecord.append('xAOD::TrigCompositeAuxContainer#{:s}Aux{:s}'.format(item, dynamic))
@@ -399,7 +399,7 @@ def triggerPOOLOutputCfg(flags, decObj, decObjFilterOut, edmSet):
     return acc
 
 
-def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj, decObjFilterOut ):
+def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj, decObjHypoOut ):
 
     from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreatorAlg, HLTEDMCreator
     from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3
@@ -469,7 +469,7 @@ def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj, dec
     __log.debug("The GapFiller is ensuring the creation of all the decision object collections: '{}'".format( decObj ) )
     # Append and hence confirm all TrigComposite collections
     # Gap filler is also used to perform re-mapping of the HypoAlg outputs which is a sub-set of decObj
-    tool.FixLinks = list(decObjFilterOut)
+    tool.FixLinks = list(decObjHypoOut)
     tool.TrigCompositeContainer += list(decObj)
     alg.OutputTools += [tool]
 
@@ -519,9 +519,9 @@ def triggerRunCfg( flags, menu=None ):
     acc.merge( TrigCostMonitorMTCfg( flags ) )
 
     decObj = collectDecisionObjects( hypos, filters, l1DecoderAlg, summaryAlg )
-    decObjFilterOut = collectFilterDecisionObjects(filters, inputs=False, outputs=True)
+    decObjHypoOut = collectHypoDecisionObjects(hypos, inputs=False, outputs=True)
     __log.info( "Number of decision objects found in HLT CF %d", len( decObj ) )
-    __log.info( "Of which, %d are the outputs of filters", len( decObjFilterOut ) )
+    __log.info( "Of which, %d are the outputs of hypos", len( decObjHypoOut ) )
     __log.info( str( decObj ) )
 
     HLTTop = seqOR( "HLTTop", [ l1DecoderAlg, HLTSteps, summaryAlg, monitoringAlg ] )
@@ -533,11 +533,11 @@ def triggerRunCfg( flags, menu=None ):
     # configure components need to normalise output before writing out
     viewMakers = collectViewMakers( HLTSteps )
 
-    outputAcc, edmSet = triggerOutputCfg( flags, decObj, decObjFilterOut, summaryAlg )
+    outputAcc, edmSet = triggerOutputCfg( flags, decObj, decObjHypoOut, summaryAlg )
     acc.merge( outputAcc )
 
     if edmSet:
-        mergingAlg = triggerMergeViewsAndAddMissingEDMCfg( [edmSet] , hypos, viewMakers, decObj, decObjFilterOut )
+        mergingAlg = triggerMergeViewsAndAddMissingEDMCfg( [edmSet] , hypos, viewMakers, decObj, decObjHypoOut )
         acc.addEventAlgo( mergingAlg, sequenceName="HLTTop" )
 
     return acc

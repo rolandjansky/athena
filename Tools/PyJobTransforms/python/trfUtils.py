@@ -53,17 +53,17 @@ def findFile(pathvar, fname):
     ))
     if fname.startswith('/'):
         return(fname)
-    
+
     # Split the path.
     pathElements = pathvar.split(':')
     for pathElement in pathElements:
         if path.exists(path.join(pathElement, fname)):
             return(path.join(pathElement, fname))
-    
+
     return(None)
 
 
-## @brief List all processes and parents and form a dictionary where the 
+## @brief List all processes and parents and form a dictionary where the
 #  parent key lists all child PIDs
 #  @param listMyOrphans If this is @c True, then processes which share the same
 #  @c pgid as this process and have parent PID=1 (i.e., init) get added to this process's children,
@@ -81,11 +81,11 @@ def getAncestry(listMyOrphans = False):
     except OSError as e:
         msg.error('Failed to execute "ps" to get process ancestry: %s' % repr(e))
         raise
-    
+
     childDict = {}
     myPgid = os.getpgrp()
     myPid = os.getpid()
-    for line in stdout.split('\n'):
+    for line in stdout.decode().split('\n'):
         try:
             (pid, ppid, pgid, cmd) = line.split(None, 3)
             pid = int(pid)
@@ -104,7 +104,7 @@ def getAncestry(listMyOrphans = False):
                     childDict[myPid].append(pid)
                 else:
                     childDict[myPid] = [pid]
-                
+
         except ValueError:
             # Not a nice line
             pass
@@ -116,12 +116,12 @@ def getAncestry(listMyOrphans = False):
 #  @param psTree The process tree returned by @c trfUtils.listChildren(); if None then @c trfUtils.listChildren() is called internally.
 #  @param parent The parent process for which to return all the child PIDs
 #  @param listOrphans Parameter value to pass to getAncestry() if necessary
-#  @return @c children List of child PIDs 
+#  @return @c children List of child PIDs
 def listChildren(psTree = None, parent = os.getpid(), listOrphans = False):
     '''Take a psTree dictionary and list all children'''
     if psTree is None:
         psTree = getAncestry(listMyOrphans = listOrphans)
-    
+
     msg.debug("List children of %d (%s)" % (parent, psTree.get(parent, [])))
     children = []
     if parent in psTree:
@@ -133,8 +133,8 @@ def listChildren(psTree = None, parent = os.getpid(), listOrphans = False):
 
 
 ## @brief Kill all PIDs
-#  @note Even if this function is used, subprocess objects need to join() with the 
-#  child to prevent it becoming a zombie 
+#  @note Even if this function is used, subprocess objects need to join() with the
+#  child to prevent it becoming a zombie
 #  @param childPIDs Explicit list of PIDs to kill; if absent then listChildren() is called
 #  @param sleepTime Time between SIGTERM and SIGKILL
 #  @param message Boolean if messages should be printed
@@ -143,18 +143,18 @@ def listChildren(psTree = None, parent = os.getpid(), listOrphans = False):
 def infanticide(childPIDs = None, sleepTime = 3, message = True, listOrphans = False):
     if childPIDs is None:
         childPIDs = listChildren(listOrphans = listOrphans)
-        
+
     if len(childPIDs) > 0 and message:
         msg.info('Killing these child processes: {0}...'.format(childPIDs))
-        
+
     for pid in childPIDs:
         try:
             os.kill(pid, signal.SIGTERM)
         except OSError:
             pass
-        
+
     time.sleep(sleepTime)
-        
+
     for pid in childPIDs:
         try:
             os.kill(pid, signal.SIGKILL)
@@ -184,7 +184,7 @@ def call(args, bufsize=0, executable=None, stdin=None, preexec_fn=None, close_fd
                 logger.log(loglevel, line)
             line=p.stdout.readline()
 
-    if loglevel is None: 
+    if loglevel is None:
         loglevel=logging.DEBUG
 
     if timeout is None or timeout<=0: # no timeout set
@@ -194,10 +194,10 @@ def call(args, bufsize=0, executable=None, stdin=None, preexec_fn=None, close_fd
         while p.poll() is None:
             logProc(p)
         flushProc(p)
-        if timeout is not None:    
+        if timeout is not None:
             msg.info('Executed call within %d s.' % (time.time()-starttime))
         return p.returncode
-            
+
     else: #timeout set
         n=0
         while n<=retry:
@@ -216,7 +216,7 @@ def call(args, bufsize=0, executable=None, stdin=None, preexec_fn=None, close_fd
                 msg.info('Checking if something is left in buffer.')
                 flushProc(p)
                 if n!=retry:
-                    msg.info('Going to sleep for %d s.' % sleeptime)                    
+                    msg.info('Going to sleep for %d s.' % sleeptime)
                     time.sleep(sleeptime)
                 n+=1
                 timeout*=timefactor
@@ -242,13 +242,13 @@ def asetupReport():
     for eVar in eVars:
         if eVar in os.environ:
             setupMsg += '\t%s=%s\n' % (eVar, os.environ[eVar])
-    # Look for patches so that the job can be rerun 
+    # Look for patches so that the job can be rerun
     if 'WorkDir_DIR' in os.environ and os.access(os.environ['WorkDir_DIR'], os.R_OK):
         setupMsg += "\n\tPatch packages are:\n"
         try:
             cmd = ['lstags']
             lstagsOut = Popen(cmd, shell = False, stdout = PIPE, stderr = STDOUT, bufsize = 1).communicate()[0]
-            setupMsg +=  "\n".join([ "\t\t{0}".format(pkg) for pkg in lstagsOut.split("\n") ])
+            setupMsg +=  "\n".join([ "\t\t{0}".format(pkg) for pkg in lstagsOut.decode().split("\n") ])
         except (CalledProcessError, OSError) as e:
             setupMsg += 'Execution of lstags failed: {0}'.format(e)
     else:
@@ -260,13 +260,13 @@ def asetupReport():
 ## @brief Test (to the best of our knowledge) if the current release is older
 #  than a major, minor version number
 #  @details There's no unambiguous reference to the release that encompasses
-#  all of the development builds (dev, devval, migs), but almost everything 
-#  can be determined from @c AtlasVersion and @c AtlasBaseDir. If neither of 
+#  all of the development builds (dev, devval, migs), but almost everything
+#  can be determined from @c AtlasVersion and @c AtlasBaseDir. If neither of
 #  those contain version information then we assume a development build
 #  that is @e new by definition (so we return @c False)
 #  @param major Major release number
 #  @param minor Minor release number (if not specified, will not be matched against)
-#  @return Boolean if current release is found to be older  
+#  @return Boolean if current release is found to be older
 def releaseIsOlderThan(major, minor=None):
     if 'AtlasVersion' not in os.environ or 'AtlasBaseDir' not in os.environ:
         msg.warning("Could not find 'AtlasVersion' and 'AtlasBaseDir' in the environment - no release match possible")
@@ -286,13 +286,13 @@ def releaseIsOlderThan(major, minor=None):
         relmajor = int(relMatch.group('major'))
         relminor = int(relMatch.group('minor'))
         msg.info('Detected release major {0}, minor {1} (.{2}) from environment'.format(relmajor, relminor, relMatch.group('other')))
-        
+
         # Major beats minor, so test this first
         if relmajor < major:
             return True
         if relmajor > major:
             return False
-        
+
         # First case is major equality and don't care about minor
         if minor is None or relminor >= minor:
             return False
@@ -304,8 +304,8 @@ def releaseIsOlderThan(major, minor=None):
 
 ## @brief Quote a string array so that it can be echoed back on the command line in a cut 'n' paste safe way
 #  @param strArray: Array of strings to quote
-#  @details Technique is to first quote any pre-existing single quotes, then single quote all of the array 
-#  elements so that the shell sees them as a single argument 
+#  @details Technique is to first quote any pre-existing single quotes, then single quote all of the array
+#  elements so that the shell sees them as a single argument
 def shQuoteStrings(strArray = sys.argv):
     return [ "'" + qstring.replace("'", "\\'") + "'" for qstring in strArray ]
 
@@ -330,7 +330,7 @@ def lineByLine(filename, strip=True, removeTimestamp=True, substepName=None):
             line = line.strip()
         yield line, linecounter
     f.close()
-    
+
 
 ## @brief XML pretty print an ElementTree.ELement object
 #  @param element ElementTree.ELement object to print
@@ -338,9 +338,9 @@ def lineByLine(filename, strip=True, removeTimestamp=True, substepName=None):
 #  @param poolFileCatalogFormat Whether to reformat the XML as a classic POOLFILECATALOG document
 #  @return String with the pretty printed XML version
 #  @note This is rather a convoluted way to get the correct DOCTYPE
-#        set and there's probably a better way to do it, but as this 
+#        set and there's probably a better way to do it, but as this
 #        is a deprecated way of delivering metadata upstream it's not
-#        worth improving at this stage. 
+#        worth improving at this stage.
 def prettyXML(element, indent = ' ', poolFileCatalogFormat = False):
     # Use minidom for pretty printing
     # See http://broadcast.oreilly.com/2010/03/pymotw-creating-xml-documents.html
@@ -352,17 +352,17 @@ def prettyXML(element, indent = ' ', poolFileCatalogFormat = False):
         msg.warning('Error parsing ElementTree string - will try removing hex literals ({0!r})'.format(xmlstring))
         xmlstring = xmlstring.replace('\x00', '')
         metadataDoc = minidom.parseString(xmlstring)
-        
-    
+
+
     if poolFileCatalogFormat is False:
         return metadataDoc.toprettyxml(indent=indent, encoding='UTF-8')
-    
+
     # Now create a new document with the correct doctype for classic POOLFILECATALOG
     # See http://stackoverflow.com/questions/2337285/set-a-dtd-using-minidom-in-python
     imp = minidom.DOMImplementation()
     doctype = imp.createDocumentType(qualifiedName='POOLFILECATALOG', publicId='', systemId='InMemory')
     doc = imp.createDocument(None, 'POOLFILECATALOG', doctype)
-    
+
     # Cut and paste the parsed document into the new one
     # See http://stackoverflow.com/questions/1980380/how-to-render-a-doctype-with-pythons-xml-dom-minidom
     refel = doc.documentElement
@@ -386,7 +386,7 @@ def isodate():
 #  @note This is used to force executor names and substep aliases
 #   to a form that the substep argument parser will recognise.
 #   None is still allowed as this is the default for "unset" in
-#   some cases. 
+#   some cases.
 def forceToAlphaNum(string):
     if string is None or string.isalnum():
         return string
@@ -439,7 +439,7 @@ def cmpMetadata(metadata1, metadata2, guidCheck = 'valid'):
                         return False
             if metadata1[fname][key] != metadata2[fname][key]:
                 msg.warning('In metadata comparison found different key values: {0!s} != {1!s}'.format(metadata1[fname][key], metadata2[fname][key]))
-    return True                
+    return True
 
 
 ## @brief Unpack a given tarfile
@@ -456,7 +456,7 @@ def unpackTarFile(filename, directory="."):
         raise trfExceptions.TransformSetupException(trfExit.nameToCode('TRF_SETUP'), errMsg)
 
 
-## @brief Ensure that the DBRelease tarball has been unpacked 
+## @brief Ensure that the DBRelease tarball has been unpacked
 #  @details Extract the dbversion number and look for an unpacked directory.
 #  If found then this release is already setup. If not then try to unpack
 #  the tarball.
@@ -471,7 +471,7 @@ def unpackDBRelease(tarball, dbversion=None):
             raise trfExceptions.TransformSetupException(trfExit.nameToCode('TRF_DBRELEASE_PROBLEM'),
                                                         'Could not find a valid version in the DBRelease tarball: {0}'.format(tarball))
         dbversion = dbdMatch.group(1)
-    dbsetup = path.abspath(path.join("DBRelease", dbversion, "setup.py")) 
+    dbsetup = path.abspath(path.join("DBRelease", dbversion, "setup.py"))
     if os.access(dbsetup, os.R_OK):
         msg.debug('DBRelease {0} is already unpacked, found {1}'.format(tarball, dbsetup))
         return False, dbsetup
@@ -498,7 +498,7 @@ def setupDBRelease(setup):
         # Instansiate the Setup module, which activates the customisation
         setupObj = Setup(dbdir)
         sys.path = opath
-        msg.debug('DBRelease setup module was initialised successfully')        
+        msg.debug('DBRelease setup module was initialised successfully')
     except ImportError as e:
         errMsg = 'Import error while trying to load DB Setup module: {0}'.format(e)
         msg.error(errMsg)
@@ -507,8 +507,8 @@ def setupDBRelease(setup):
         errMsg = 'Unexpected error while trying to load DB Setup module: {0}'.format(e)
         msg.error(errMsg)
         raise trfExceptions.TransformSetupException(trfExit.nameToCode('TRF_DBRELEASE_PROBLEM'), errMsg)
-    
-    
+
+
 ## @brief Validate a DBRelease exists on cvmfs and return the path to the setup script
 #  @param dbrelease The DBRelease number (X.Y.Z[.A]) or "current"
 #  @throws trfExceptions.TransformSetupException If the DBRelease setup is unreadable or the dbrelease parameter is not understood
@@ -535,9 +535,9 @@ def cvmfsDBReleaseCheck(dbrelease):
     else:
         raise trfExceptions.TransformSetupException(trfExit.nameToCode('TRF_DBRELEASE_PROBLEM'),
                                                     'Unable to interpret DBRelease "{0}" as either a tarball or a CVMFS release directory'.format(dbrelease))
-    return dbsetup                
- 
- 
+    return dbsetup
+
+
 ## @brief Dump a list of arguments to the pickle file given in the 'dumpPickle' argument
 #  @note  This is a copy of the JSONDump function, but should in fact be deprecated soon
 #         so no point in merging the common parts!
@@ -545,7 +545,7 @@ def cvmfsDBReleaseCheck(dbrelease):
 def pickledDump(argdict):
     if 'dumpPickle' not in argdict:
         return
-    
+
     from PyJobTransforms.trfArgClasses import argument
     theArgumentDictionary = {}
     for k, v in iteritems(argdict):
@@ -564,7 +564,7 @@ def pickledDump(argdict):
 def JSONDump(argdict):
     if 'dumpJSON' not in argdict:
         return
-    
+
     from PyJobTransforms.trfArgClasses import argument
     theArgumentDictionary = {}
     for k, v in iteritems(argdict):
@@ -577,7 +577,7 @@ def JSONDump(argdict):
     with open(argdict['dumpJSON'], 'w') as JSONFile:
         import json
         json.dump(theArgumentDictionary, JSONFile, sort_keys=True, indent=2)
-        
+
 ## @brief Recursively convert unicode to str, useful when we have just loaded something
 #  from json (TODO: make the transforms happy with unicode as well as plain str!)
 def convertToStr(in_string):
@@ -594,7 +594,7 @@ def convertToStr(in_string):
     else:
         return in_string
 
-        
+
 ## @brief Convert a command line option to the dictionary key that will be used by argparse
 def cliToKey(option):
     return option.lstrip('-').replace('-', '_')
@@ -1203,11 +1203,11 @@ class ParallelJobProcessor(object):
 #   the user suppress them through an option. To append additional options to
 #   the command specification the argument extraOptionsList is used. This
 #   causes the list of extra specified command options to be appended to
-#   the command specification, which will contain the default options unless 
+#   the command specification, which will contain the default options unless
 #   these are suppressed.
 #   The Athena serialised configuration file is specified using the argument
 #   AthenaSerialisedConfigurationFile.
-#   @return command as string 
+#   @return command as string
 def ValgrindCommand(
     defaultOptions                    = True,
     extraOptionsList                  = None,
@@ -1244,7 +1244,7 @@ def ValgrindCommand(
         else:
             msg.warning("Bad path to suppression file: {sfile}, {path} not defined".format(
                 sfile = suppressionFile, path = pathEnvironmentVariable)
-            ) 
+            )
     optionsList.append("$(which python)")
     optionsList.append("$(which athena.py)")
     optionsList.append(AthenaSerialisedConfigurationFile)

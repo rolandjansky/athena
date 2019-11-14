@@ -23,7 +23,7 @@ find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 
 # Component(s) in the package:
 atlas_add_library( TrigConfIOLib
-  TrigConfIO/*.h src/JsonFileLoader.cxx src/TrigDBLoader.cxx src/TrigDBMenuLoader.cxx src/TrigDBJobOptionsLoader.cxx
+  TrigConfIO/*.h src/JsonFileLoader.cxx src/TrigDBLoader.cxx src/TrigDBMenuLoader.cxx src/TrigDBJobOptionsLoader.cxx src/TrigDBL1PrescalesSetLoader.cxx src/TrigDBHLTPrescalesSetLoader.cxx
   PUBLIC_HEADERS TrigConfIO
   INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
   LINK_LIBRARIES ${Boost_LIBRARIES} TrigConfBase TrigConfData GaudiKernel

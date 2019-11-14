@@ -18,6 +18,7 @@
 #include "MuonPattern/MuonPatternCollection.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 #include <string>
 
