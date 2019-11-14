@@ -7,7 +7,7 @@
 #include "TrigT1NSWSimTools/StripOfflineData.h"
 
 #include <string>
-
+#include <TVector3.h>
 
 namespace NSWL1 {
 
@@ -142,7 +142,12 @@ namespace NSWL1 {
       }
   float StripOfflineData::globZ()   const {
     return  m_z; 
-      }
+  }
+
+  float StripOfflineData::etaCenter() const{
+    return TVector3(globX(),globY(),globZ()).Eta();
+  }
+
 
   void StripOfflineData::set_globX(float pos)    {
       m_x=pos; 
@@ -202,7 +207,6 @@ namespace NSWL1 {
     void StripOfflineData::setLayerId(int lr){
       m_layerId=lr;
     }
-
 
 
 
