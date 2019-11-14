@@ -64,7 +64,7 @@ StatusCode TrigSignatureMoniMT::start() {
   m_rateBufferHistogram->SetDirectory(0);
 
   m_timer = std::make_unique<Athena::AlgorithmTimer>(0, boost::bind(&TrigSignatureMoniMT::callback, this), Athena::AlgorithmTimer::DELIVERYBYTHREAD);
-  m_timer->start(m_duration*50);  
+  m_isTimerStarted = false;
 
   return StatusCode::SUCCESS;
 }
@@ -212,6 +212,11 @@ void TrigSignatureMoniMT::callback() const {
 }
 
 StatusCode TrigSignatureMoniMT::execute( const EventContext& context ) const {  
+  if (!m_isTimerStarted){
+    m_timer->start(m_duration*50);
+    m_isTimerStarted = true;
+  }
+
   auto l1Decisions = SG::makeHandle( m_l1DecisionsKey, context );
 
   const TrigCompositeUtils::Decision* l1SeededChains = nullptr; // Activated by L1

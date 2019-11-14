@@ -59,6 +59,7 @@ class TrigSignatureMoniMT : public ::AthReentrantAlgorithm
   mutable LockedHandle<TH2> m_rateHistogram;
 
   std::unique_ptr<Athena::AlgorithmTimer> m_timer;
+  mutable std::atomic_bool m_isTimerStarted;
 
   //helper to know when to switch to new interval  
   std::unique_ptr<TimeDivider> m_timeDivider;
