@@ -27,19 +27,14 @@ std::string UpgradePerformanceFunctions::setPileupTemplatesPath() {
     {  
       std::string puFileName = m_puPath + "/PULibrary140_1.root";
       std::string puFile = PathResolverFindCalibFile(puFileName);
-      ATH_MSG_INFO("Found OU histogram file: " << puFile);
-      return m_puPath + "/PULibrary140_1.root";
-      //    return m_puPath + "/PULibrary140_1.root";
+      ATH_MSG_INFO("Found PU histogram file: " << puFile);
+      return puFile;
     }
   else if ( std::abs(m_avgMu - 200) < 0.1 ) {
-    //    std::string puFileName = m_puPath + "/PULibrary200_2.root";
-    std::string puFileName = m_puPath;
-    std::string puFile = PathResolverFindCalibFile(puFileName);
-    ATH_MSG_INFO("Found PU histogram file: " << puFile);
-    //    return m_puPath + "/PULibrary200_2.root";
-    //    return m_puPath;
-    return puFile;
-    //return m_puPath + "/PULibrary200_2.root";
+        std::string puFileName = m_puPath + "/PULibrary200_2.root";
+	std::string puFile = PathResolverFindCalibFile(puFileName);
+	ATH_MSG_INFO("Found PU histogram file: " << puFile);
+	return puFile;
   }
   else
     return "";
