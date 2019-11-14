@@ -210,10 +210,10 @@ namespace CP {
     }
 
     // Retrieve all the relevant histograms 
-    ATH_CHECK( getHist( file,"tightWP_lowPt_rhoCuts",m_tightWP_lowPt_rhoCuts) ) ;
-    ATH_CHECK( getHist( file,"tightWP_lowPt_qOverPCuts",m_tightWP_lowPt_qOverPCuts) );
-    ATH_CHECK( getHist( file,"tightWP_mediumPt_rhoCuts",m_tightWP_mediumPt_rhoCuts) ) ;
-    ATH_CHECK( getHist( file,"tightWP_highPt_rhoCuts",m_tightWP_highPt_rhoCuts) ) ;
+    ATH_CHECK( getHist( file.get(),"tightWP_lowPt_rhoCuts",m_tightWP_lowPt_rhoCuts) ) ;
+    ATH_CHECK( getHist( file.get(),"tightWP_lowPt_qOverPCuts",m_tightWP_lowPt_qOverPCuts) );
+    ATH_CHECK( getHist( file.get(),"tightWP_mediumPt_rhoCuts",m_tightWP_mediumPt_rhoCuts) ) ;
+    ATH_CHECK( getHist( file.get(),"tightWP_highPt_rhoCuts",m_tightWP_highPt_rhoCuts) ) ;
     // 
     file->Close();
   
