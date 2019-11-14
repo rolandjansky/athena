@@ -12,7 +12,6 @@
 #include "TrkDetDescrGeoModelCnv/GeoShapeConverter.h"
 #include "TrkGeometry/Material.h"
 #include "TrkVolumes/Volume.h"
-#include "TrkGeometry/LayerMaterialProperties.h"
 //Amg
 #include "GeoPrimitives/GeoPrimitives.h"
 // STL
@@ -61,8 +60,6 @@ MaterialElement(std::string nameObj, float rn, float rx, float zn, float zx, flo
 
   double mass() { 
     if (!material) return 0.;
-    double dphi = phimax-phimin;
-    if (dphi<=0 || dphi>2*acos(-1.)) dphi = 2*acos(-1.) ; 
      return material->getDensity()/CLHEP::g*CLHEP::mm3*geoVolume;
   }
   double volume() { 
@@ -166,13 +163,7 @@ namespace Trk {
         /** Single conversion , input type GeoMaterial - output type Trk::Material */
         Material convert(const GeoMaterial* gm) const;
 
-        /** Material properties : combined material+shape conversion, projection from volume to surface */
-        //MaterialProperties* convertMaterialPropertiesWithSurface(const GeoVPhysVol* geoVol, const Surface& surf) const;
-        //MaterialProperties* convertMaterialPropertiesWithArea(const GeoVPhysVol* geoVol, double surf) const;
-
 	void printInfo(const GeoPVConstLink pv) const;
-
-	//void getMaterialElements(const GeoPVConstLink pv, std::vector<MaterialElement>& material, Amg::Transform3D& ) const;
 
 	std::vector<GeoObject*> decodeGMtree(const GeoPVConstLink pv) const;
 
@@ -180,16 +171,8 @@ namespace Trk {
 
 	void convertGeoObject(GeoObject* geo, std::vector<MaterialElement>& material, bool fixedVolume) const;
 
-	//Trk::CylinderLayer* buildCylinderLayer(std::vector< MaterialElement>& material, double, double, double, double) const;
-
-
       private:
         static double s_densityCnvFactor; //!< the conversion factor from GeoUnits to Tracking
-	//void printChildren(const GeoPVConstLink pv, Amg::Transform3D trIn, int level) const;
-	//void extractMaterialProperties(const GeoPVConstLink geoVol, const Trk::Surface& surf, double projSurf,
-	//			       Trk::MaterialProperties& matProp) const; 
-    //void extractMaterialProperties(const GeoPVConstLink geoVol, double projSurf,
-	//			       Trk::MaterialProperties& matProp) const; 
 	MaterialElement envelope2element(Trk::Volume* envelope, const GeoMaterial* material, std::string name, double geoVolSize = 0.) const;
 
 	mutable std::vector<GeoObject*> m_geoContent;

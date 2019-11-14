@@ -13,9 +13,9 @@
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoElement.h"
 #include "GeoModelKernel/GeoPVConstLink.h"
-#include "GeoModelKernel/GeoVPhysVol.h"
 #include "GeoModelKernel/GeoLogVol.h"
-// CLHEP
+#include "GeoModelKernel/GeoVPhysVol.h"
+/// CLHEP
 #include "CLHEP/Units/SystemOfUnits.h"
 // Amg
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"

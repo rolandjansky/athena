@@ -13,16 +13,11 @@
 #include "TrkGeometry/CylinderLayer.h"
 #include "TrkGeometry/DiscLayer.h"
 #include "TrkGeometry/BinnedLayerMaterial.h"
-//#include "TrkGeometry/LayerMaterialBinned.h"
 #include "TrkGeometry/HomogeneousLayerMaterial.h"
 #include "TrkVolumes/CylinderVolumeBounds.h"
 #include "TrkSurfaces/DiscBounds.h"
 #include "TrkSurfaces/CylinderBounds.h"
 #include "TrkSurfaces/RectangleBounds.h"
-#include "TrkDetDescrUtils/BinnedArray1D.h"
-#include "TrkDetDescrUtils/BinnedArray1D1D.h"
-#include "TrkDetDescrUtils/BinningData.h"
-#include "TrkDetDescrUtils/BinUtility.h"
 // Amg
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
@@ -666,6 +661,10 @@ void Trk::MaterialLayerHelper::materialBudget(std::vector<MaterialElement>& inpu
 {
 
   // extract summary information about material in GeoModel
+  // using geometrical association while developing a consistent naming scheme
+  float radiusInOut = 145. ; 
+  float radiusPixSCT = 342.;
+  float zlowOuterEC =  1100.;
   int im=0;
   float sct = 0.;
   float bp = 0.;
@@ -708,21 +707,21 @@ void Trk::MaterialLayerHelper::materialBudget(std::vector<MaterialElement>& inpu
     if (labelLay!=std::string::npos) {
       if ( sscanf(mat.name.substr(labelLay+2,2).c_str(),"%d",&layIndex)!=1 ) layIndex=1;
     }   
-    if (mat.rmin > 342.) sct += mat.mass();
+    if (mat.rmin > radiusPixSCT) sct += mat.mass();
     else if (mat.name.find("siLog")!=std::string::npos) {
-      if (rad < 145.) siInner += mat.mass();
-      else if ( mat.zmin<-1100. || mat.zmax>1100.) siEC += mat.mass();
+      if (rad < radiusInOut) siInner += mat.mass();
+      else if ( mat.zmin<-zlowOuterEC || mat.zmax>zlowOuterEC) siEC += mat.mass();
       else siOB += mat.mass(); 
     } else if (mat.name.find("Hybrid")!=std::string::npos) {
-      if (rad < 145.) hybridInner += mat.mass();
-      else if ( mat.zmin<-1100. || mat.zmax>1100.) hybridEC += mat.mass();
+      if (rad < radiusInOut) hybridInner += mat.mass();
+      else if ( mat.zmin<-zlowOuterEC || mat.zmax>zlowOuterEC) hybridEC += mat.mass();
       else hybridOB += mat.mass();
     } else if (mat.name.find("Chip")!=std::string::npos) {
-      if (rad < 145.) chipInner += mat.mass();
-      else if ( mat.zmin<-1100. || mat.zmax>1100.) chipEC += mat.mass();
+      if (rad < radiusInOut) chipInner += mat.mass();
+      else if ( mat.zmin<-zlowOuterEC || mat.zmax>zlowOuterEC) chipEC += mat.mass();
       else chipOB += mat.mass(); 
     } else if (mat.name=="Module") { modules += mat.mass();
-      if (rad>145. && mat.zmin>-1100. && mat.zmax<1100) nModOB++; 
+      if (rad>radiusInOut && mat.zmin>-zlowOuterEC && mat.zmax<1100) nModOB++; 
     } else if (mat.name=="Ladder") { ladders += mat.mass(); 
     } else if (mat.name=="Pigtail") { svcInner += mat.mass(); 
     } else if (mat.name=="FoamSupport") { structOB += mat.mass(); foam += mat.mass();
@@ -734,51 +733,43 @@ void Trk::MaterialLayerHelper::materialBudget(std::vector<MaterialElement>& inpu
     } else if (mat.name.find("Interlink")!=std::string::npos) { interlink += mat.mass();
     } else if (mat.name.find("Longeron")!=std::string::npos) { structOB += mat.mass(); longeron += mat.mass();
     } else if (mat.name=="ModuleSvc") {
-      if (rad < 145.) svcInner += mat.mass();
-      else if ( mat.zmin<-1100. || mat.zmax>1100.) svcEC += mat.mass();
+      if (rad < radiusInOut) svcInner += mat.mass();
+      else if ( mat.zmin<-zlowOuterEC || mat.zmax>zlowOuterEC) svcEC += mat.mass();
       else svcOB += mat.mass(); 
     } else if (mat.name.find("shellWallLog")!=std::string::npos) {
-      if (rad < 145.) structInner += mat.mass();
-      else if ( mat.zmin<-1100. || mat.zmax>1100.) structEC += mat.mass();
+      if (rad < radiusInOut) structInner += mat.mass();
+      else if ( mat.zmin<-zlowOuterEC || mat.zmax>zlowOuterEC) structEC += mat.mass();
       else { structOB += mat.mass(); shell += mat.mass(); }
       if (layIndex>=0) shellLayer[layIndex] += mat.mass();  
     } else if (mat.name.find("shellBotLog")!=std::string::npos) {
-      if (rad < 145.) structInner += mat.mass();
-      else if ( mat.zmin<-1100. || mat.zmax>1100.) structEC += mat.mass();
+      if (rad < radiusInOut) structInner += mat.mass();
+      else if ( mat.zmin<-zlowOuterEC || mat.zmax>zlowOuterEC) structEC += mat.mass();
       else { structOB += mat.mass(); shell += mat.mass();}  
       if (layIndex>=0) shellLayer[layIndex] += mat.mass(); 
     } else if (mat.name.find("shellSupLog")!=std::string::npos) {
-      if (rad < 145.) structInner += mat.mass();
-      else if ( mat.zmin<-1100. || mat.zmax>1100.) structEC += mat.mass();
+      if (rad < radiusInOut) structInner += mat.mass();
+      else if ( mat.zmin<-zlowOuterEC || mat.zmax>zlowOuterEC) structEC += mat.mass();
       else { structOB += mat.mass(); shell += mat.mass();} 
       if (layIndex>=0) shellLayer[layIndex] += mat.mass(); 
     } else if (mat.name.find("supLog")!=std::string::npos) {
-      if (rad<145.) structInner += mat.mass();
-      else if ( mat.zmin<-1100. || mat.zmax>1100.) structEC += mat.mass();
+      if (rad<radiusInOut) structInner += mat.mass();
+      else if ( mat.zmin<-zlowOuterEC || mat.zmax>zlowOuterEC) structEC += mat.mass();
       else structOB += mat.mass(); 
     } else if (mat.name.find("ringLog")!=std::string::npos) {
-      if (rad<145.) structInner += mat.mass();
-      else if ( mat.zmin<-1100. || mat.zmax>1100.) structEC += mat.mass();
+      if (rad<radiusInOut) structInner += mat.mass();
+      else if ( mat.zmin<-zlowOuterEC || mat.zmax>zlowOuterEC) structEC += mat.mass();
       else structOB += mat.mass(); 
     } else if (mat.name.find("SvcEc")!=std::string::npos) {
-      if (rad<145.) svcInner += mat.mass();
+      if (rad<radiusInOut) svcInner += mat.mass();
       else svcEC += mat.mass();
     } else if (mat.name.find("SvcBrl")!=std::string::npos) {
-      if (rad<145.) svcInner += mat.mass();
+      if (rad<radiusInOut) svcInner += mat.mass();
       else svcOB += mat.mass();
     } else if (mat.name.find("Svc")!=std::string::npos) {
-      if (rad<145.) svcInner += mat.mass();
+      if (rad<radiusInOut) svcInner += mat.mass();
       else svcOB += mat.mass();
     } else if (mat.name.find("Wall")!=std::string::npos) {  structOB += mat.mass(); longeron += mat.mass();
     } else if (mat.name.find("Corner")!=std::string::npos) {  structOB += mat.mass(); longeron += mat.mass(); 
-    } else {
-      //std::cout <<im<<":"<< mat.name<<":"<<mat.geoVolume<<":"<<mat.volume()<<":"<<mat.mass()<< std::endl;
-      //std::cout <<im<<":"<< mat.rmin<<":"<<mat.rmax<<":"<<mat.zmin<<":"<<mat.zmax<< ":"<<mat.phimin<<":"<<mat.phimax<<std::endl;
-    }
- 
-    if (mat.name.substr(0,2)=="_L") {
-      //std::cout <<im<<":"<< mat.name<<":"<<mat.geoVolume<<":"<<mat.volume()<<":"<<mat.mass()<<":"<<mat.material->getName()<< std::endl;
-      //std::cout <<im<<":"<< mat.rmin<<":"<<mat.rmax<<":"<<mat.zmin<<":"<<mat.zmax<< ":"<<mat.phimin<<":"<<mat.phimax<<std::endl;
     }
     im++;
 

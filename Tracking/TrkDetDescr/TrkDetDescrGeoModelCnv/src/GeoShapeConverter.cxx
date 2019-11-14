@@ -808,15 +808,15 @@ Trk::Volume* Trk::GeoShapeConverter::cylEnvelope( const Trk::Volume* trVol, doub
 
   if (edges.size()) {
  
-    float rmin=15000.; float rmax = 0.; float hphi = 0.; float zmin=25000.; float zmax=-25000.; float thmin = acos(-1.); float thmax=0.;
+    float rmin=15000.; float rmax = 0.; float hphi = 0.; float zmin=25000.; float zmax=-25000.; float thmin = M_PI; float thmax=0.;
     for ( auto edge : edges) {
       rmin = fmin( rmin, edge.perp() );
       rmax = fmax( rmax, edge.perp() );
       zmin = fmin( zmin, edge.z() );
       zmax = fmax( zmax, edge.z() );
       hphi = fmax( hphi, asin(fabs(sin(edge.phi()-refPhi))));
-      thmax = fmax( thmax,edge.z()!=0 ? atan(edge.perp()/edge.z()) : acos(-1.)/2.);
-      thmin = fmin( thmin,edge.z()!=0 ? atan(edge.perp()/edge.z()) : acos(-1.)/2.);
+      thmax = fmax( thmax,edge.z()!=0 ? atan(edge.perp()/edge.z()) : M_PI/2.);
+      thmin = fmin( thmin,edge.z()!=0 ? atan(edge.perp()/edge.z()) : M_PI/2.);
     } 
 
     hphi = acos(cos(hphi));
@@ -863,10 +863,10 @@ Trk::Volume* Trk::GeoShapeConverter::cylEnvelope( const Trk::Volume* trVol, doub
     float hz=0.5*(zmax-zmin);
     if (hz<1.) hz=hZ;
     double rRef = 0.5*(rmin+rmax);
-    double dr = volume > 0. ? volume/4/acos(-1.)/rRef/hz : rmax-rmin ;
+    double dr = volume > 0. ? volume/4/M_PI/rRef/hz : rmax-rmin ;
     Amg::Translation3D tr(Amg::Vector3D(0.,0.,0.5*(zmin+zmax)));
     return new Trk::Volume(new Amg::Transform3D(tr),
-                          new Trk::CylinderVolumeBounds(rRef-0.5*dr,rRef+0.5*dr,acos(-1.),hz) );       
+                          new Trk::CylinderVolumeBounds(rRef-0.5*dr,rRef+0.5*dr,M_PI,hz) );       
   }
 
   if (comb) {  // process shapes independently TODO calculate intersection 
