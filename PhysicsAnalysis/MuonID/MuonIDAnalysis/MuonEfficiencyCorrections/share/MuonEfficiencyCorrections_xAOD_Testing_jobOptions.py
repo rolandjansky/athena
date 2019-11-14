@@ -31,7 +31,7 @@ alg = CP__MuonEfficiencyCorrections_TestAlg("EffiTestAlg")
 alg.PileupReweightingTool = GetPRWTool()
 alg.MuonSelectionTool = GetSelectionTool()
 alg.DefaultRelease="cFeb_2019"
-alg.ValidationRelease="cAugust_2019"
+alg.ValidationRelease="cOct_2019"
 alg.SGKey = "CalibratedMuons"
 ## Select 30 GeV muons for the high-pt WP only
 alg.MinPt = 100.e3
@@ -39,37 +39,41 @@ alg.MaxEta = 2.5
 #alg.MinQualit = 1 #Medium
 WPs = [
          # reconstruction WPs
-        #"LowPt",
-        #"Loose", 
-        #"Medium", 
-        #"Tight", 
-        #"HighPt", 
-        #"CaloTag",      
+        "LowPt",
+        "Loose", 
+        "Medium", 
+        "Tight", 
+        "HighPt", 
+        "CaloTag",      
          # track-to-vertex-association WPs
-        # "TTVA",
+         "TTVA",
          # BadMuon veto SFs
-        "BadMuonVeto_HighPt",
+        "BadMuonVeto_HighPt",        
         #"GradientIso",
          # isolation WPs
-#        "FCLooseIso",                    
-#        "FCTight_FixedRadIso",
-#        "FCLoose_FixedRadIso",           
-#        "FixedCutHighPtTrackOnlyIso",
-#        "FCTightIso",                    
-#        "FixedCutPflowLooseIso",
-#        "FCTightTrackOnlyIso",           
-#        "FixedCutPflowTightIso",
-#        "FCTightTrackOnly_FixedRadIso",
+        "FCLooseIso",                    
+        "FCTight_FixedRadIso",
+        "FCLoose_FixedRadIso",           
+        "FixedCutHighPtTrackOnlyIso",
+        "FCTightIso",                    
+        "FixedCutPflowLooseIso",
+        "FCTightTrackOnlyIso",           
+        "FixedCutPflowTightIso",
+        "FCTightTrackOnly_FixedRadIso",
         ]
 for WP in WPs: 
-    alg.EfficiencyTools += [GetMuonEfficiencyTool(WP, Release="190530_r21", 
-                                               #   CustomInput = "/ptmp/mpp/junggjo9/Cluster/SFFiles/Autumn_2019/"
-                                                  )]
+    alg.EfficiencyTools += [GetMuonEfficiencyTool(WP, Release="190530_r21")]
     alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP, 
-                                                CustomInput = "/afs/ipp-garching.mpg.de/home/j/junggjo9/Athena/Rel21/MCP/source/MuonTPPostProcessing/python/SFFileCreation/SFFiles/"
-                                                #Release = "190530_r21"
-                                              )]
-  
+                                                CustomInput = "/eos/user/j/jojungge/AutumunRecommendations/to_copy/")]
+ToolSvc.MuonEfficiencyTool_CaloTag.ApplyKinematicSystematic = False
+ToolSvc.MuonEfficiencyTool_CaloTag_190530_r21.ApplyKinematicSystematic = False
+
+### New working points
+for WP in["HighPt3Layers", "LowPtMVA"]:    
+    alg.EfficiencyTools += [GetMuonEfficiencyTool(WP, 
+                                                CustomInput = "/eos/user/j/jojungge/AutumunRecommendations/to_copy/")]
+    alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP, 
+                                                CustomInput = "/eos/user/j/jojungge/AutumunRecommendations/to_copy/")]
 theJob += alg
 
 # Do some additional tweaking:
