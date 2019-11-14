@@ -213,6 +213,7 @@
 + PhysicsAnalysis/AnalysisCommon/PileupReweighting
 + PhysicsAnalysis/AnalysisCommon/PMGOverlapRemovalTools/HFORTools
 + PhysicsAnalysis/AnalysisCommon/PMGOverlapRemovalTools/GammaORTools
++ PhysicsAnalysis/AnalysisCommon/PMGTools
 + PhysicsAnalysis/AnalysisCommon/ReweightUtils
 + PhysicsAnalysis/AnalysisCommon/ThinningUtils
 + PhysicsAnalysis/AnalysisCommon/LeptonTaggers

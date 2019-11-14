@@ -650,6 +650,8 @@ namespace top {
             for (top::topSFSyst i = top::topSFSyst(top::topSFSyst::TAU_SF_NOMINAL + 1); i < top::topSFSyst::TAU_SF_END;
                  i = top::topSFSyst(i + 1)) {
               if (top::tauSF_alias.find(i) == top::tauSF_alias.end()) continue;
+              if (m_config->tauSFDoRNNID() == false && top::tauSF_name.at(i).Contains("RNN")) continue;
+              if (m_config->tauSFDoBDTID() == false && top::tauSF_name.at(i).Contains("JETID")) continue;
               m_weight_tauSF_variations[i] = 1;
               systematicTree->makeOutputVariable(m_weight_tauSF_variations[i], ("weight_tauSF_" + top::tauSF_alias.at(
                                                                                   i)).Data());
@@ -2285,14 +2287,16 @@ namespace top {
 
         if (m_config->isMC()) {
           m_softmu_SF_ID[i] = m_sfRetriever->softmuonSF_ID(*muPtr, top::topSFSyst::nominal);
-          m_softmu_SF_ID_STAT_UP[i] = m_sfRetriever->softmuonSF_ID(*muPtr, top::topSFSyst::MU_SF_ID_STAT_UP);
-          m_softmu_SF_ID_STAT_DOWN[i] = m_sfRetriever->softmuonSF_ID(*muPtr, top::topSFSyst::MU_SF_ID_STAT_DOWN);
-          m_softmu_SF_ID_SYST_UP[i] = m_sfRetriever->softmuonSF_ID(*muPtr, top::topSFSyst::MU_SF_ID_SYST_UP);
-          m_softmu_SF_ID_SYST_DOWN[i] = m_sfRetriever->softmuonSF_ID(*muPtr, top::topSFSyst::MU_SF_ID_SYST_DOWN);
-          m_softmu_SF_ID_STAT_LOWPT_UP[i] = m_sfRetriever->softmuonSF_ID(*muPtr, top::topSFSyst::MU_SF_ID_STAT_LOWPT_UP);
-          m_softmu_SF_ID_STAT_LOWPT_DOWN[i] = m_sfRetriever->softmuonSF_ID(*muPtr, top::topSFSyst::MU_SF_ID_STAT_LOWPT_DOWN);
-          m_softmu_SF_ID_SYST_LOWPT_UP[i] = m_sfRetriever->softmuonSF_ID(*muPtr, top::topSFSyst::MU_SF_ID_SYST_LOWPT_UP);
-          m_softmu_SF_ID_SYST_LOWPT_DOWN[i] = m_sfRetriever->softmuonSF_ID(*muPtr, top::topSFSyst::MU_SF_ID_SYST_LOWPT_DOWN);
+          if (event.m_hashValue == m_config->nominalHashValue()) {
+            m_softmu_SF_ID_STAT_UP[i] = m_sfRetriever->softmuonSF_ID(*muPtr, top::topSFSyst::MU_SF_ID_STAT_UP);
+            m_softmu_SF_ID_STAT_DOWN[i] = m_sfRetriever->softmuonSF_ID(*muPtr, top::topSFSyst::MU_SF_ID_STAT_DOWN);
+            m_softmu_SF_ID_SYST_UP[i] = m_sfRetriever->softmuonSF_ID(*muPtr, top::topSFSyst::MU_SF_ID_SYST_UP);
+            m_softmu_SF_ID_SYST_DOWN[i] = m_sfRetriever->softmuonSF_ID(*muPtr, top::topSFSyst::MU_SF_ID_SYST_DOWN);
+            m_softmu_SF_ID_STAT_LOWPT_UP[i] = m_sfRetriever->softmuonSF_ID(*muPtr, top::topSFSyst::MU_SF_ID_STAT_LOWPT_UP);
+            m_softmu_SF_ID_STAT_LOWPT_DOWN[i] = m_sfRetriever->softmuonSF_ID(*muPtr, top::topSFSyst::MU_SF_ID_STAT_LOWPT_DOWN);
+            m_softmu_SF_ID_SYST_LOWPT_UP[i] = m_sfRetriever->softmuonSF_ID(*muPtr, top::topSFSyst::MU_SF_ID_SYST_LOWPT_UP);
+            m_softmu_SF_ID_SYST_LOWPT_DOWN[i] = m_sfRetriever->softmuonSF_ID(*muPtr, top::topSFSyst::MU_SF_ID_SYST_LOWPT_DOWN);
+          }
 
           static SG::AuxElement::Accessor<int> acc_mctt("truthType");
           static SG::AuxElement::Accessor<int> acc_mcto("truthOrigin");
@@ -2814,45 +2818,45 @@ namespace top {
 
     if (m_makeRCJets) {
       // re-clustered jet substructure
-      static SG::AuxElement::ConstAccessor<float> RCSplit12("Split12");
-      static SG::AuxElement::ConstAccessor<float> RCSplit23("Split23");
+      static const SG::AuxElement::ConstAccessor<float> RCSplit12("Split12");
+      static const SG::AuxElement::ConstAccessor<float> RCSplit23("Split23");
 
 
 
       // re-clustered jet substructure from clusters
-      static SG::AuxElement::ConstAccessor<float> Tau21_clstr("Tau21_clstr");
-      static SG::AuxElement::ConstAccessor<float> Tau32_clstr("Tau32_clstr");
-      static SG::AuxElement::ConstAccessor<float> Tau3_clstr("Tau3_clstr");
-      static SG::AuxElement::ConstAccessor<float> Tau2_clstr("Tau2_clstr");
-      static SG::AuxElement::ConstAccessor<float> Tau1_clstr("Tau1_clstr");
-      static SG::AuxElement::ConstAccessor<float> D2_clstr("D2_clstr");
-      static SG::AuxElement::ConstAccessor<float> ECF1_clstr("ECF1_clstr");
-      static SG::AuxElement::ConstAccessor<float> ECF2_clstr("ECF2_clstr");
-      static SG::AuxElement::ConstAccessor<float> ECF3_clstr("ECF3_clstr");
-      static SG::AuxElement::ConstAccessor<float> d12_clstr("d12_clstr");
-      static SG::AuxElement::ConstAccessor<float> d23_clstr("d23_clstr");
-      static SG::AuxElement::ConstAccessor<float> Qw_clstr("Qw_clstr");
-      static SG::AuxElement::ConstAccessor<float> nconstituent_clstr("nconstituent_clstr");
+      static const SG::AuxElement::ConstAccessor<float> Tau21_clstr("Tau21_clstr");
+      static const SG::AuxElement::ConstAccessor<float> Tau32_clstr("Tau32_clstr");
+      static const SG::AuxElement::ConstAccessor<float> Tau3_clstr("Tau3_clstr");
+      static const SG::AuxElement::ConstAccessor<float> Tau2_clstr("Tau2_clstr");
+      static const SG::AuxElement::ConstAccessor<float> Tau1_clstr("Tau1_clstr");
+      static const SG::AuxElement::ConstAccessor<float> D2_clstr("D2_clstr");
+      static const SG::AuxElement::ConstAccessor<float> ECF1_clstr("ECF1_clstr");
+      static const SG::AuxElement::ConstAccessor<float> ECF2_clstr("ECF2_clstr");
+      static const SG::AuxElement::ConstAccessor<float> ECF3_clstr("ECF3_clstr");
+      static const SG::AuxElement::ConstAccessor<float> d12_clstr("d12_clstr");
+      static const SG::AuxElement::ConstAccessor<float> d23_clstr("d23_clstr");
+      static const SG::AuxElement::ConstAccessor<float> Qw_clstr("Qw_clstr");
+      static const SG::AuxElement::ConstAccessor<float> nconstituent_clstr("nconstituent_clstr");
 
-      static SG::AuxElement::ConstAccessor<float> gECF332_clstr("gECF332_clstr");
-      static SG::AuxElement::ConstAccessor<float> gECF461_clstr("gECF461_clstr");
-      static SG::AuxElement::ConstAccessor<float> gECF322_clstr("gECF322_clstr");
-      static SG::AuxElement::ConstAccessor<float> gECF331_clstr("gECF331_clstr");
-      static SG::AuxElement::ConstAccessor<float> gECF422_clstr("gECF422_clstr");
-      static SG::AuxElement::ConstAccessor<float> gECF441_clstr("gECF441_clstr");
-      static SG::AuxElement::ConstAccessor<float> gECF212_clstr("gECF212_clstr");
-      static SG::AuxElement::ConstAccessor<float> gECF321_clstr("gECF321_clstr");
-      static SG::AuxElement::ConstAccessor<float> gECF311_clstr("gECF311_clstr");
-      static SG::AuxElement::ConstAccessor<float> L1_clstr("L1_clstr");
-      static SG::AuxElement::ConstAccessor<float> L2_clstr("L2_clstr");
-      static SG::AuxElement::ConstAccessor<float> L3_clstr("L3_clstr");
-      static SG::AuxElement::ConstAccessor<float> L4_clstr("L4_clstr");
-      static SG::AuxElement::ConstAccessor<float> L5_clstr("L5_clstr");
+      static const SG::AuxElement::ConstAccessor<float> gECF332_clstr("gECF332_clstr");
+      static const SG::AuxElement::ConstAccessor<float> gECF461_clstr("gECF461_clstr");
+      static const SG::AuxElement::ConstAccessor<float> gECF322_clstr("gECF322_clstr");
+      static const SG::AuxElement::ConstAccessor<float> gECF331_clstr("gECF331_clstr");
+      static const SG::AuxElement::ConstAccessor<float> gECF422_clstr("gECF422_clstr");
+      static const SG::AuxElement::ConstAccessor<float> gECF441_clstr("gECF441_clstr");
+      static const SG::AuxElement::ConstAccessor<float> gECF212_clstr("gECF212_clstr");
+      static const SG::AuxElement::ConstAccessor<float> gECF321_clstr("gECF321_clstr");
+      static const SG::AuxElement::ConstAccessor<float> gECF311_clstr("gECF311_clstr");
+      static const SG::AuxElement::ConstAccessor<float> L1_clstr("L1_clstr");
+      static const SG::AuxElement::ConstAccessor<float> L2_clstr("L2_clstr");
+      static const SG::AuxElement::ConstAccessor<float> L3_clstr("L3_clstr");
+      static const SG::AuxElement::ConstAccessor<float> L4_clstr("L4_clstr");
+      static const SG::AuxElement::ConstAccessor<float> L5_clstr("L5_clstr");
       // store also the jet that is rebuilt to calculate the JSS
-      static SG::AuxElement::ConstAccessor<float> RRCJet_pt("RRCJet_pt");
-      static SG::AuxElement::ConstAccessor<float> RRCJet_eta("RRCJet_eta");
-      static SG::AuxElement::ConstAccessor<float> RRCJet_phi("RRCJet_phi");
-      static SG::AuxElement::ConstAccessor<float> RRCJet_e("RRCJet_e");
+      static const SG::AuxElement::ConstAccessor<float> RRCJet_pt("RRCJet_pt");
+      static const SG::AuxElement::ConstAccessor<float> RRCJet_eta("RRCJet_eta");
+      static const SG::AuxElement::ConstAccessor<float> RRCJet_phi("RRCJet_phi");
+      static const SG::AuxElement::ConstAccessor<float> RRCJet_e("RRCJet_e");
 
       // Initialize the vectors to be saved as branches
       unsigned int sizeOfRCjets(event.m_RCJets.size());
@@ -3052,42 +3056,42 @@ namespace top {
           std::string name = rho + mass_scale;
 
           // re-clustered jet substructure
-          static SG::AuxElement::ConstAccessor<float> VarRCSplit12("Split12");
-          static SG::AuxElement::ConstAccessor<float> VarRCSplit23("Split23");
+          static const SG::AuxElement::ConstAccessor<float> VarRCSplit12("Split12");
+          static const SG::AuxElement::ConstAccessor<float> VarRCSplit23("Split23");
 
           // re-clustered jet substructure from clusters
-          static SG::AuxElement::ConstAccessor<float> Tau21_clstr("Tau21_clstr");
-          static SG::AuxElement::ConstAccessor<float> Tau32_clstr("Tau32_clstr");
-          static SG::AuxElement::ConstAccessor<float> Tau3_clstr("Tau3_clstr");
-          static SG::AuxElement::ConstAccessor<float> Tau2_clstr("Tau2_clstr");
-          static SG::AuxElement::ConstAccessor<float> Tau1_clstr("Tau1_clstr");
-          static SG::AuxElement::ConstAccessor<float> D2_clstr("D2_clstr");
-          static SG::AuxElement::ConstAccessor<float> ECF1_clstr("ECF1_clstr");
-          static SG::AuxElement::ConstAccessor<float> ECF2_clstr("ECF2_clstr");
-          static SG::AuxElement::ConstAccessor<float> ECF3_clstr("ECF3_clstr");
-          static SG::AuxElement::ConstAccessor<float> d12_clstr("d12_clstr");
-          static SG::AuxElement::ConstAccessor<float> d23_clstr("d23_clstr");
-          static SG::AuxElement::ConstAccessor<float> Qw_clstr("Qw_clstr");
+          static const SG::AuxElement::ConstAccessor<float> Tau21_clstr("Tau21_clstr");
+          static const SG::AuxElement::ConstAccessor<float> Tau32_clstr("Tau32_clstr");
+          static const SG::AuxElement::ConstAccessor<float> Tau3_clstr("Tau3_clstr");
+          static const SG::AuxElement::ConstAccessor<float> Tau2_clstr("Tau2_clstr");
+          static const SG::AuxElement::ConstAccessor<float> Tau1_clstr("Tau1_clstr");
+          static const SG::AuxElement::ConstAccessor<float> D2_clstr("D2_clstr");
+          static const SG::AuxElement::ConstAccessor<float> ECF1_clstr("ECF1_clstr");
+          static const SG::AuxElement::ConstAccessor<float> ECF2_clstr("ECF2_clstr");
+          static const SG::AuxElement::ConstAccessor<float> ECF3_clstr("ECF3_clstr");
+          static const SG::AuxElement::ConstAccessor<float> d12_clstr("d12_clstr");
+          static const SG::AuxElement::ConstAccessor<float> d23_clstr("d23_clstr");
+          static const SG::AuxElement::ConstAccessor<float> Qw_clstr("Qw_clstr");
 
-          static SG::AuxElement::ConstAccessor<float> gECF332_clstr("gECF332_clstr");
-          static SG::AuxElement::ConstAccessor<float> gECF461_clstr("gECF461_clstr");
-          static SG::AuxElement::ConstAccessor<float> gECF322_clstr("gECF322_clstr");
-          static SG::AuxElement::ConstAccessor<float> gECF331_clstr("gECF331_clstr");
-          static SG::AuxElement::ConstAccessor<float> gECF422_clstr("gECF422_clstr");
-          static SG::AuxElement::ConstAccessor<float> gECF441_clstr("gECF441_clstr");
-          static SG::AuxElement::ConstAccessor<float> gECF212_clstr("gECF212_clstr");
-          static SG::AuxElement::ConstAccessor<float> gECF321_clstr("gECF321_clstr");
-          static SG::AuxElement::ConstAccessor<float> gECF311_clstr("gECF311_clstr");
-          static SG::AuxElement::ConstAccessor<float> L1_clstr("L1_clstr");
-          static SG::AuxElement::ConstAccessor<float> L2_clstr("L2_clstr");
-          static SG::AuxElement::ConstAccessor<float> L3_clstr("L3_clstr");
-          static SG::AuxElement::ConstAccessor<float> L4_clstr("L4_clstr");
-          static SG::AuxElement::ConstAccessor<float> L5_clstr("L5_clstr");
+          static const SG::AuxElement::ConstAccessor<float> gECF332_clstr("gECF332_clstr");
+          static const SG::AuxElement::ConstAccessor<float> gECF461_clstr("gECF461_clstr");
+          static const SG::AuxElement::ConstAccessor<float> gECF322_clstr("gECF322_clstr");
+          static const SG::AuxElement::ConstAccessor<float> gECF331_clstr("gECF331_clstr");
+          static const SG::AuxElement::ConstAccessor<float> gECF422_clstr("gECF422_clstr");
+          static const SG::AuxElement::ConstAccessor<float> gECF441_clstr("gECF441_clstr");
+          static const SG::AuxElement::ConstAccessor<float> gECF212_clstr("gECF212_clstr");
+          static const SG::AuxElement::ConstAccessor<float> gECF321_clstr("gECF321_clstr");
+          static const SG::AuxElement::ConstAccessor<float> gECF311_clstr("gECF311_clstr");
+          static const SG::AuxElement::ConstAccessor<float> L1_clstr("L1_clstr");
+          static const SG::AuxElement::ConstAccessor<float> L2_clstr("L2_clstr");
+          static const SG::AuxElement::ConstAccessor<float> L3_clstr("L3_clstr");
+          static const SG::AuxElement::ConstAccessor<float> L4_clstr("L4_clstr");
+          static const SG::AuxElement::ConstAccessor<float> L5_clstr("L5_clstr");
           // store also the jet that is rebuilt to calculate the JSS
-          static SG::AuxElement::ConstAccessor<float> RRCJet_pt("RRCJet_pt");
-          static SG::AuxElement::ConstAccessor<float> RRCJet_eta("RRCJet_eta");
-          static SG::AuxElement::ConstAccessor<float> RRCJet_phi("RRCJet_phi");
-          static SG::AuxElement::ConstAccessor<float> RRCJet_e("RRCJet_e");
+          static const SG::AuxElement::ConstAccessor<float> RRCJet_pt("RRCJet_pt");
+          static const SG::AuxElement::ConstAccessor<float> RRCJet_eta("RRCJet_eta");
+          static const SG::AuxElement::ConstAccessor<float> RRCJet_phi("RRCJet_phi");
+          static const SG::AuxElement::ConstAccessor<float> RRCJet_e("RRCJet_e");
 
           // Initialize the vectors to be saved as branches
 
@@ -3590,11 +3594,6 @@ namespace top {
 
     top::check(evtStore()->retrieve(eventInfo, m_config->sgKeyEventInfo()), "Failed to retrieve EventInfo");
 
-    const xAOD::TruthEventContainer* truthEvent(nullptr);
-    top::check(evtStore()->retrieve(truthEvent, m_config->sgKeyTruthEvent()), "Failed to retrieve truth event container");
-    unsigned int truthEventSize = truthEvent->size();
-    top::check(truthEventSize == 1, "Failed to retrieve truth PDF info - truth event container size is different from 1 (strange)");
-
     m_weight_mc = eventInfo->auxdataConst<float>("AnalysisTop_eventWeight");
     m_eventNumber = eventInfo->eventNumber();
     m_runNumber = eventInfo->runNumber();
@@ -3715,12 +3714,6 @@ namespace top {
     for (auto& selectionDecision : m_particleLevel_SelectionDecisions) {
       selectionDecision.second = plEvent.m_selectionDecisions[ selectionDecision.first ];
     }
-
-    // to get the fixed mc weight
-    const xAOD::TruthEventContainer* truthEvent(nullptr);
-    top::check(evtStore()->retrieve(truthEvent, m_config->sgKeyTruthEvent()), "Failed to retrieve truth event container");
-    unsigned int truthEventSize = truthEvent->size();
-    top::check(truthEventSize == 1, "Failed to retrieve truth PDF info - truth event container size is different from 1 (strange)");
 
     m_weight_mc = plEvent.m_info->auxdataConst<float>("AnalysisTop_eventWeight");
 
@@ -3905,43 +3898,43 @@ namespace top {
 
     if (m_makeRCJets) {
       // re-clustered jet substructure
-      static SG::AuxElement::ConstAccessor<float> RCSplit12("Split12");
-      static SG::AuxElement::ConstAccessor<float> RCSplit23("Split23");
+      static const SG::AuxElement::ConstAccessor<float> RCSplit12("Split12");
+      static const SG::AuxElement::ConstAccessor<float> RCSplit23("Split23");
 
       // re-clustered jet substructure from clusters
-      static SG::AuxElement::ConstAccessor<float> Tau21_clstr("Tau21_clstr");
-      static SG::AuxElement::ConstAccessor<float> Tau32_clstr("Tau32_clstr");
-      static SG::AuxElement::ConstAccessor<float> Tau3_clstr("Tau3_clstr");
-      static SG::AuxElement::ConstAccessor<float> Tau2_clstr("Tau2_clstr");
-      static SG::AuxElement::ConstAccessor<float> Tau1_clstr("Tau1_clstr");
-      static SG::AuxElement::ConstAccessor<float> D2_clstr("D2_clstr");
-      static SG::AuxElement::ConstAccessor<float> ECF1_clstr("ECF1_clstr");
-      static SG::AuxElement::ConstAccessor<float> ECF2_clstr("ECF2_clstr");
-      static SG::AuxElement::ConstAccessor<float> ECF3_clstr("ECF3_clstr");
-      static SG::AuxElement::ConstAccessor<float> d12_clstr("d12_clstr");
-      static SG::AuxElement::ConstAccessor<float> d23_clstr("d23_clstr");
-      static SG::AuxElement::ConstAccessor<float> Qw_clstr("Qw_clstr");
-      static SG::AuxElement::ConstAccessor<float> nconstituent_clstr("nconstituent_clstr");
+      static const SG::AuxElement::ConstAccessor<float> Tau21_clstr("Tau21_clstr");
+      static const SG::AuxElement::ConstAccessor<float> Tau32_clstr("Tau32_clstr");
+      static const SG::AuxElement::ConstAccessor<float> Tau3_clstr("Tau3_clstr");
+      static const SG::AuxElement::ConstAccessor<float> Tau2_clstr("Tau2_clstr");
+      static const SG::AuxElement::ConstAccessor<float> Tau1_clstr("Tau1_clstr");
+      static const SG::AuxElement::ConstAccessor<float> D2_clstr("D2_clstr");
+      static const SG::AuxElement::ConstAccessor<float> ECF1_clstr("ECF1_clstr");
+      static const SG::AuxElement::ConstAccessor<float> ECF2_clstr("ECF2_clstr");
+      static const SG::AuxElement::ConstAccessor<float> ECF3_clstr("ECF3_clstr");
+      static const SG::AuxElement::ConstAccessor<float> d12_clstr("d12_clstr");
+      static const SG::AuxElement::ConstAccessor<float> d23_clstr("d23_clstr");
+      static const SG::AuxElement::ConstAccessor<float> Qw_clstr("Qw_clstr");
+      static const SG::AuxElement::ConstAccessor<float> nconstituent_clstr("nconstituent_clstr");
 
-      static SG::AuxElement::ConstAccessor<float> gECF332_clstr("gECF332_clstr");
-      static SG::AuxElement::ConstAccessor<float> gECF461_clstr("gECF461_clstr");
-      static SG::AuxElement::ConstAccessor<float> gECF322_clstr("gECF322_clstr");
-      static SG::AuxElement::ConstAccessor<float> gECF331_clstr("gECF331_clstr");
-      static SG::AuxElement::ConstAccessor<float> gECF422_clstr("gECF422_clstr");
-      static SG::AuxElement::ConstAccessor<float> gECF441_clstr("gECF441_clstr");
-      static SG::AuxElement::ConstAccessor<float> gECF212_clstr("gECF212_clstr");
-      static SG::AuxElement::ConstAccessor<float> gECF321_clstr("gECF321_clstr");
-      static SG::AuxElement::ConstAccessor<float> gECF311_clstr("gECF311_clstr");
-      static SG::AuxElement::ConstAccessor<float> L1_clstr("L1_clstr");
-      static SG::AuxElement::ConstAccessor<float> L2_clstr("L2_clstr");
-      static SG::AuxElement::ConstAccessor<float> L3_clstr("L3_clstr");
-      static SG::AuxElement::ConstAccessor<float> L4_clstr("L4_clstr");
-      static SG::AuxElement::ConstAccessor<float> L5_clstr("L5_clstr");
+      static const SG::AuxElement::ConstAccessor<float> gECF332_clstr("gECF332_clstr");
+      static const SG::AuxElement::ConstAccessor<float> gECF461_clstr("gECF461_clstr");
+      static const SG::AuxElement::ConstAccessor<float> gECF322_clstr("gECF322_clstr");
+      static const SG::AuxElement::ConstAccessor<float> gECF331_clstr("gECF331_clstr");
+      static const SG::AuxElement::ConstAccessor<float> gECF422_clstr("gECF422_clstr");
+      static const SG::AuxElement::ConstAccessor<float> gECF441_clstr("gECF441_clstr");
+      static const SG::AuxElement::ConstAccessor<float> gECF212_clstr("gECF212_clstr");
+      static const SG::AuxElement::ConstAccessor<float> gECF321_clstr("gECF321_clstr");
+      static const SG::AuxElement::ConstAccessor<float> gECF311_clstr("gECF311_clstr");
+      static const SG::AuxElement::ConstAccessor<float> L1_clstr("L1_clstr");
+      static const SG::AuxElement::ConstAccessor<float> L2_clstr("L2_clstr");
+      static const SG::AuxElement::ConstAccessor<float> L3_clstr("L3_clstr");
+      static const SG::AuxElement::ConstAccessor<float> L4_clstr("L4_clstr");
+      static const SG::AuxElement::ConstAccessor<float> L5_clstr("L5_clstr");
       // store also the jet that is rebuilt to calculate the JSS
-      static SG::AuxElement::ConstAccessor<float> RRCJet_pt("RRCJet_pt");
-      static SG::AuxElement::ConstAccessor<float> RRCJet_eta("RRCJet_eta");
-      static SG::AuxElement::ConstAccessor<float> RRCJet_phi("RRCJet_phi");
-      static SG::AuxElement::ConstAccessor<float> RRCJet_e("RRCJet_e");
+      static const SG::AuxElement::ConstAccessor<float> RRCJet_pt("RRCJet_pt");
+      static const SG::AuxElement::ConstAccessor<float> RRCJet_eta("RRCJet_eta");
+      static const SG::AuxElement::ConstAccessor<float> RRCJet_phi("RRCJet_phi");
+      static const SG::AuxElement::ConstAccessor<float> RRCJet_e("RRCJet_e");
 
 
       // Initialize the vectors to be saved as branches
@@ -4130,41 +4123,41 @@ namespace top {
           std::string name = rho + mass_scale;
 
           // re-clustered jet substructure
-          static SG::AuxElement::ConstAccessor<float> VarRCSplit12("Split12");
-          static SG::AuxElement::ConstAccessor<float> VarRCSplit23("Split23");
+          static const SG::AuxElement::ConstAccessor<float> VarRCSplit12("Split12");
+          static const SG::AuxElement::ConstAccessor<float> VarRCSplit23("Split23");
           // re-clustered jet substructure from clusters
-          static SG::AuxElement::ConstAccessor<float> Tau21_clstr("Tau21_clstr");
-          static SG::AuxElement::ConstAccessor<float> Tau32_clstr("Tau32_clstr");
-          static SG::AuxElement::ConstAccessor<float> Tau3_clstr("Tau3_clstr");
-          static SG::AuxElement::ConstAccessor<float> Tau2_clstr("Tau2_clstr");
-          static SG::AuxElement::ConstAccessor<float> Tau1_clstr("Tau1_clstr");
-          static SG::AuxElement::ConstAccessor<float> D2_clstr("D2_clstr");
-          static SG::AuxElement::ConstAccessor<float> ECF1_clstr("ECF1_clstr");
-          static SG::AuxElement::ConstAccessor<float> ECF2_clstr("ECF2_clstr");
-          static SG::AuxElement::ConstAccessor<float> ECF3_clstr("ECF3_clstr");
-          static SG::AuxElement::ConstAccessor<float> d12_clstr("d12_clstr");
-          static SG::AuxElement::ConstAccessor<float> d23_clstr("d23_clstr");
-          static SG::AuxElement::ConstAccessor<float> Qw_clstr("Qw_clstr");
+          static const SG::AuxElement::ConstAccessor<float> Tau21_clstr("Tau21_clstr");
+          static const SG::AuxElement::ConstAccessor<float> Tau32_clstr("Tau32_clstr");
+          static const SG::AuxElement::ConstAccessor<float> Tau3_clstr("Tau3_clstr");
+          static const SG::AuxElement::ConstAccessor<float> Tau2_clstr("Tau2_clstr");
+          static const SG::AuxElement::ConstAccessor<float> Tau1_clstr("Tau1_clstr");
+          static const SG::AuxElement::ConstAccessor<float> D2_clstr("D2_clstr");
+          static const SG::AuxElement::ConstAccessor<float> ECF1_clstr("ECF1_clstr");
+          static const SG::AuxElement::ConstAccessor<float> ECF2_clstr("ECF2_clstr");
+          static const SG::AuxElement::ConstAccessor<float> ECF3_clstr("ECF3_clstr");
+          static const SG::AuxElement::ConstAccessor<float> d12_clstr("d12_clstr");
+          static const SG::AuxElement::ConstAccessor<float> d23_clstr("d23_clstr");
+          static const SG::AuxElement::ConstAccessor<float> Qw_clstr("Qw_clstr");
 
-          static SG::AuxElement::ConstAccessor<float> gECF332_clstr("gECF332_clstr");
-          static SG::AuxElement::ConstAccessor<float> gECF461_clstr("gECF461_clstr");
-          static SG::AuxElement::ConstAccessor<float> gECF322_clstr("gECF322_clstr");
-          static SG::AuxElement::ConstAccessor<float> gECF331_clstr("gECF331_clstr");
-          static SG::AuxElement::ConstAccessor<float> gECF422_clstr("gECF422_clstr");
-          static SG::AuxElement::ConstAccessor<float> gECF441_clstr("gECF441_clstr");
-          static SG::AuxElement::ConstAccessor<float> gECF212_clstr("gECF212_clstr");
-          static SG::AuxElement::ConstAccessor<float> gECF321_clstr("gECF321_clstr");
-          static SG::AuxElement::ConstAccessor<float> gECF311_clstr("gECF311_clstr");
-          static SG::AuxElement::ConstAccessor<float> L1_clstr("L1_clstr");
-          static SG::AuxElement::ConstAccessor<float> L2_clstr("L2_clstr");
-          static SG::AuxElement::ConstAccessor<float> L3_clstr("L3_clstr");
-          static SG::AuxElement::ConstAccessor<float> L4_clstr("L4_clstr");
-          static SG::AuxElement::ConstAccessor<float> L5_clstr("L5_clstr");
+          static const SG::AuxElement::ConstAccessor<float> gECF332_clstr("gECF332_clstr");
+          static const SG::AuxElement::ConstAccessor<float> gECF461_clstr("gECF461_clstr");
+          static const SG::AuxElement::ConstAccessor<float> gECF322_clstr("gECF322_clstr");
+          static const SG::AuxElement::ConstAccessor<float> gECF331_clstr("gECF331_clstr");
+          static const SG::AuxElement::ConstAccessor<float> gECF422_clstr("gECF422_clstr");
+          static const SG::AuxElement::ConstAccessor<float> gECF441_clstr("gECF441_clstr");
+          static const SG::AuxElement::ConstAccessor<float> gECF212_clstr("gECF212_clstr");
+          static const SG::AuxElement::ConstAccessor<float> gECF321_clstr("gECF321_clstr");
+          static const SG::AuxElement::ConstAccessor<float> gECF311_clstr("gECF311_clstr");
+          static const SG::AuxElement::ConstAccessor<float> L1_clstr("L1_clstr");
+          static const SG::AuxElement::ConstAccessor<float> L2_clstr("L2_clstr");
+          static const SG::AuxElement::ConstAccessor<float> L3_clstr("L3_clstr");
+          static const SG::AuxElement::ConstAccessor<float> L4_clstr("L4_clstr");
+          static const SG::AuxElement::ConstAccessor<float> L5_clstr("L5_clstr");
           // store also the jet that is rebuilt to calculate the JSS
-          static SG::AuxElement::ConstAccessor<float> RRCJet_pt("RRCJet_pt");
-          static SG::AuxElement::ConstAccessor<float> RRCJet_eta("RRCJet_eta");
-          static SG::AuxElement::ConstAccessor<float> RRCJet_phi("RRCJet_phi");
-          static SG::AuxElement::ConstAccessor<float> RRCJet_e("RRCJet_e");
+          static const SG::AuxElement::ConstAccessor<float> RRCJet_pt("RRCJet_pt");
+          static const SG::AuxElement::ConstAccessor<float> RRCJet_eta("RRCJet_eta");
+          static const SG::AuxElement::ConstAccessor<float> RRCJet_phi("RRCJet_phi");
+          static const SG::AuxElement::ConstAccessor<float> RRCJet_e("RRCJet_e");
 
           // Initialize the vectors to be saved as branches
 
@@ -4378,12 +4371,6 @@ namespace top {
     for (auto& selectionDecision : m_upgrade_SelectionDecisions) {
       selectionDecision.second = upgradeEvent.m_selectionDecisions[ selectionDecision.first ];
     }
-
-    // to get the fixed mc weight
-    const xAOD::TruthEventContainer* truthEvent(nullptr);
-    top::check(evtStore()->retrieve(truthEvent, m_config->sgKeyTruthEvent()), "Failed to retrieve truth event container");
-    unsigned int truthEventSize = truthEvent->size();
-    top::check(truthEventSize == 1, "Failed to retrieve truth PDF info - truth event container size is different from 1 (strange)");
 
     m_weight_mc = upgradeEvent.m_info->auxdataConst<float>("AnalysisTop_eventWeight");
 
@@ -4766,12 +4753,9 @@ namespace top {
   }
 
   void EventSaverFlatNtuple::loadMCGeneratorWeights() {
-    const xAOD::TruthEventContainer* truthEvent(nullptr);
-
-    top::check(evtStore()->retrieve(truthEvent, m_config->sgKeyTruthEvent()), "Failed to retrieve MC Generator weights - impossible to retrieve truth event container");
-    unsigned int truthEventSize = truthEvent->size();
-    top::check(truthEventSize == 1, "Failed to retrieve truth PDF info - truth event container size is different from 1 (strange)");
-    m_mc_generator_weights = truthEvent->at(0)->weights();
+    const xAOD::EventInfo* eventInfo(nullptr);
+    top::check(evtStore()->retrieve(eventInfo, m_config->sgKeyEventInfo()), "Failed to retrieve EventInfo for loading of MCGenWeights!");
+    m_mc_generator_weights = eventInfo->mcEventWeights();
   }
 
   // This bit is new

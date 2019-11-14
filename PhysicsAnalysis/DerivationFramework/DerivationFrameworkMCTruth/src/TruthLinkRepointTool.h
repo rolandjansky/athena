@@ -14,6 +14,7 @@
 
 // STL includes
 #include <string>
+#include <vector>
 
 namespace DerivationFramework {
 
@@ -29,7 +30,7 @@ namespace DerivationFramework {
       /// Parameter: output decoration
       std::string m_decOutput;
       /// Parameter: target collection
-      std::string m_targetKey;
+      std::vector<std::string> m_targetKeys;
       // Helper function for finding matching truth particle and warning consistently
       int find_match(const xAOD::TruthParticle* p, const DataHandle<xAOD::TruthParticleContainer> & c) const;
   }; 

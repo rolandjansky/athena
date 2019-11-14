@@ -913,7 +913,7 @@ namespace InDet
         if (myCandidate->chiSquared()<0 ||
             myCandidate->numberDoF()<0)
         {
-          msg(MSG::INFO) << " Fit for V0 candidate failed: chi2 or ndf negative. Deleting candidate..." << endmsg;
+          ATH_MSG_DEBUG(" Fit for V0 candidate failed: chi2 or ndf negative. Deleting candidate...");
           delete myCandidate;
           myCandidate=0;
           continue;

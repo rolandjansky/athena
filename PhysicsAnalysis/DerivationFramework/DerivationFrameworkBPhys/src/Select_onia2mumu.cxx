@@ -156,7 +156,8 @@ namespace DerivationFramework {
     for(; oniaItr!=oniaContainer->end(); ++oniaItr) {
       // create BPhysHypoHelper
       xAOD::BPhysHypoHelper onia(m_hypoName, *oniaItr);
-      
+      if((*oniaItr)->nTrackParticles() != m_trkMasses.size())
+          ATH_MSG_WARNING("Vertex has " << (*oniaItr)->nTrackParticles() << " while provided masses " << m_trkMasses.size());
       //----------------------------------------------------
       // decorate the vertex
       //----------------------------------------------------

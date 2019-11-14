@@ -1048,6 +1048,8 @@ namespace top {
     this->tauEleBDTWPLoose(settings->value("TauEleBDTWPLoose"));
     this->tauEleOLR((settings->value("TauEleOLR") == "True"));
     this->tauEleOLRLoose((settings->value("TauEleOLRLoose") == "True"));
+    this->tauSFDoRNNID((settings->value("TauSFDoRNNID") == "True"));
+    this->tauSFDoBDTID((settings->value("TauSFDoBDTID") == "True"));
     this->tauJetConfigFile(settings->value("TauJetConfigFile"));
     this->tauJetConfigFileLoose(settings->value("TauJetConfigFileLoose"));
     if (settings->value("ApplyTauMVATES") != "True") throw std::runtime_error {

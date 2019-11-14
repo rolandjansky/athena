@@ -32,6 +32,8 @@ ContainersOnTheFly = [
                         ["TruthWbosonWithDecayParticlesAux",'xAOD::TruthParticleAuxContainer'],
                         ['TruthWbosonWithDecayVertices','xAOD::TruthVertexContainer'],
                         ['TruthWbosonWithDecayVerticesAux','xAOD::TruthVertexAuxContainer'],
+                        ["AntiKt2TruthJets","xAOD::JetContainer"],
+                        ["AntiKt2TruthJetsAux","xAOD::JetAuxContainer"],
                         ["AntiKt4TruthJets","xAOD::JetContainer"],
                         ["AntiKt4TruthJetsAux","xAOD::JetAuxContainer"],
                         ["AntiKt4TruthWZJets","xAOD::JetContainer"],
@@ -80,6 +82,8 @@ ContainersOnTheFly = [
                         ["AntiKt10LCTopoCSSKSoftDropBeta100Zcut10JetsAux","xAOD::JetAuxContainer"],
                         ["AntiKt10LCTopoCSSKJets","xAOD::JetContainer"],
                         ["AntiKt10LCTopoCSSKJetsAux","xAOD::JetAuxContainer"],
+                        ["AntiKt10UFOCSSKJets","xAOD::JetContainer"],
+                        ["AntiKt10UFOCSSKJetsAux","xAOD::JetAuxContainer"],
 
                         ["TrackCaloClustersCombinedAndNeutral","xAOD::TrackCaloClusterContainer"],
                         ["TrackCaloClustersCombinedAndNeutralAux","xAOD::TrackCaloClusterAuxContainer"],
@@ -113,4 +117,6 @@ ContainersOnTheFly = [
                         ["BTagging_AntiKt4EMPFlow_201810Aux","xAOD::BTaggingAuxContainer"],
                         ["BTagging_AntiKt4EMPFlow_201903","xAOD::BTaggingContainer"],
                         ["BTagging_AntiKt4EMPFlow_201903Aux","xAOD::BTaggingAuxContainer"],
+                        ["DiTauJetsLowPt","xAOD::DiTauJetContainer"],
+                        ["DiTauJetsLowPtAux","xAOD::DiTauJetAuxContainer"],
 ]

@@ -85,7 +85,7 @@ CP::CorrectionCode CommonDiTauEfficiencyTool::getEfficiencyScaleFactor(const xAO
     double& dEfficiencyScaleFactor, unsigned int /*iRunNumber*/, unsigned int /*iMu*/)
 {
   // check which true state is requestet
-  if (checkTruthMatch(xDiTau) != m_eCheckTruth)
+  if (getTruthParticleType(xDiTau) != m_eCheckTruth)
   {
     dEfficiencyScaleFactor = 1.;
     return CP::CorrectionCode::Ok;
@@ -316,27 +316,6 @@ CP::CorrectionCode CommonDiTauEfficiencyTool::getValue(const std::string& sHistN
   // finally obtain efficiency scale factor from TH1F/TH1D/TF1, by calling the
   // function pointer stored in the tuple from the scale factor map
   return  (std::get<1>(tTuple))(std::get<0>(tTuple), dEfficiencyScaleFactor, dVars);
-}
-
-/*
-  Check the type of truth particle, previously matched with the
-  DiTauTruthMatchingTool. The type to match was parsed from the input file in
-  CommonDiTauEfficiencyTool::generateSystematicSets()
-*/
-//______________________________________________________________________________
-e_TruthMatchedParticleType CommonDiTauEfficiencyTool::checkTruthMatch(const xAOD::DiTauJet& xDiTau) const
-{
-
-  if (!xDiTau.isAvailable<char>("IsTruthHadronic"))
-    ATH_MSG_ERROR("No truth match information available. Please run DiTauTruthMatchingTool first");
-  static SG::AuxElement::Accessor<char> accIsTruthHadronic("IsTruthHadronic");
-
-  e_TruthMatchedParticleType eTruthMatchedParticleType = Unknown;
-
-  if (accIsTruthHadronic(xDiTau))
-    eTruthMatchedParticleType = TruthHadronicDiTau;
-
-  return eTruthMatchedParticleType;
 }
 
 //______________________________________________________________________________

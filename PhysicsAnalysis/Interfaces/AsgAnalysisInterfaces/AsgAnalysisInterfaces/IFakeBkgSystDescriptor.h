@@ -40,6 +40,9 @@ class IFakeBkgSystDescriptor
     
     /// \brief checks whether the specified source of uncertainty affects muons
     virtual bool affectsMuons(const CP::SystematicVariation& systematic) const = 0;
+
+    /// \brief checks whether the specified source of uncertainty affects taus
+    virtual bool affectsTaus(const CP::SystematicVariation& systematic) const = 0;
     
     /// \brief checks whether the specified source of uncertainty affects real efficiencies
     virtual bool affectsRealEfficiencies(const CP::SystematicVariation& systematic) const = 0;

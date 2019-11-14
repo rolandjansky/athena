@@ -247,6 +247,13 @@ namespace top {
                                              "SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC16d_20190410.dat"),
                  "Failed to set ConfigFile for m_TaggerForJES");
       top::check(m_TaggerForJES->setProperty("DSID", m_config->getDSID()), "Failed to set DSID for m_TaggerForJet");
+      // For DAOD_PHYS we need to pass few more arguments as it uses TRUTH3
+      if (m_config->getDerivationStream() == "PHYS") {
+        top::check(m_TaggerForJES->setProperty("TruthWBosonContainerName", "TruthBoson"), "Failed to set truth container name for m_TaggerForJet");
+        top::check(m_TaggerForJES->setProperty("TruthZBosonContainerName", "TruthBoson"), "Failed to set truth container name for m_TaggerForJet");
+        top::check(m_TaggerForJES->setProperty("TruthHBosonContainerName", "TruthBoson"), "Failed to set truth container name for m_TaggerForJet");
+        top::check(m_TaggerForJES->setProperty("TruthTopQuarkContainerName", "TruthTop"), "Failed to set truth container name for m_TaggerForJet");
+      }
       top::check(m_TaggerForJES->initialize(), "Failed to initialize m_TaggerForJES");
     }
 
@@ -308,7 +315,6 @@ namespace top {
       ///-- First calibrate the nominal jets, everything else comes from this, so let's only do it once not 3000 times
       // --///
       top::check(calibrate(isLargeR), "Failed to calibrate jets");
-      if (isLargeR) top::check(tagNominalLargeRJets(), "Failed to tag large-R jets");
 
       ///-- Return after calibrating the nominal --///
       return StatusCode::SUCCESS;
@@ -339,6 +345,9 @@ namespace top {
         }
       }
     } else {
+      // tag calibrated (nominal) jets -- the tagging information will be available
+      // for systematically-shifted shallow copies as well
+      top::check(tagNominalLargeRJets(), "Failed to tag large-R jets");
       if (m_config->isMC()) {
         top::check(applySystematic(m_jetUncertaintiesToolLargeR, m_systMap_LargeR,
                                    true), "Failed to apply large-R syst.");
@@ -549,11 +558,6 @@ namespace top {
           }
           ///-- Update JVT --///
           if (!isLargeR) jet->auxdecor<float>("AnalysisTop_JVT") = m_jetUpdateJvtTool->updateJvt(*jet);
-
-          // due to design of boosted tagging SF uncertainties, we have to tag the jets **now**
-          // the SF must be decorrated before applying the SF syst variation
-          // afterwards we use JetUncertaintiesTool to syst-alter the decorrated SF
-          if (isLargeR) top::check(tagLargeRJet(*jet), "Failed to tag large-R jet");
 
           ///-- Apply large-R jet tagging SF uncertainties --///
           if (isLargeR && m_config->isMC()) {

@@ -60,7 +60,7 @@ job.sampleHandler( sh )
 job.options().setDouble( ROOT.EL.Job.optMaxEvents, 500 )
 
 from JetAnalysisAlgorithms.JetAnalysisAlgorithmsTest import makeSequence
-algSeq = makeSequence (dataType)
+algSeq = makeSequence (dataType, jetContainer)
 print algSeq # For debugging
 for alg in algSeq:
     job.algsAdd( alg )
@@ -74,7 +74,7 @@ submitDir = options.submission_dir
 if options.unit_test:
     import os
     import tempfile
-    submitDir = tempfile.mkdtemp( prefix = 'jetTest_'+dataType+'_', dir = os.getcwd() )
+    submitDir = tempfile.mkdtemp( prefix = 'jetTest_'+dataType+'_PFlow_', dir = os.getcwd() )
     os.rmdir( submitDir )
     pass
 

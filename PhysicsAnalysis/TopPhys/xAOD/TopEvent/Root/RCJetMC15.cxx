@@ -470,7 +470,9 @@ bool RCJetMC15::isUniqueSyst(const std::string syst_name) {
   if ((syst_name.find("_R10_") != std::string::npos) ||
       (syst_name.find("_CombMass_") != std::string::npos) ||
       (syst_name.find("_LargeR_") != std::string::npos) ||
-      (syst_name.find("_MassRes_") != std::string::npos)) isSmallRJetSys = false;
+      (syst_name.find("_MassRes_") != std::string::npos) ||
+      (syst_name.find("_SigSF_") != std::string::npos) ||
+      (syst_name.find("_BGSF_") != std::string::npos) ) isSmallRJetSys = false;
 
   m_unique_syst = (syst_name.find(m_egamma) == 0 ||
                    syst_name.find(m_muonsyst) == 0 ||

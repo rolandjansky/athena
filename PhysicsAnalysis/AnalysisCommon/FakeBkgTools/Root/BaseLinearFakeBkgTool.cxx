@@ -6,8 +6,6 @@
 #include "FakeBkgTools/FakeBkgInternals.h"
 #include "FakeBkgTools/Database.h"
 #include "PathResolver/PathResolver.h"
-#include "xAODEgamma/Electron.h"
-#include "xAODMuon/Muon.h"
 
 #ifndef FAKEBKGTOOLS_ATLAS_ENVIRONMENT
     #define declareProperty(n, p, h) ExtraPropertyManager<BaseLinearFakeBkgTool>::declareProperty(n, &BaseLinearFakeBkgTool::p, h)

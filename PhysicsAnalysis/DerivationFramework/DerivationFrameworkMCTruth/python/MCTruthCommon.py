@@ -91,9 +91,12 @@ def addTruthJetsEVNT(kernel=None, decorationDressing=None):
         truthgetters   += flavorgetters
         jtm.gettersMap["truth"]   = list(truthgetters)
 
+        # NB! This line works together with the next block. Some care is required here!
+        # If we build groomed jets, the jet code will automatically build ungroomed jets, so no need to add them separately
         #Large R ungroomed jets
-        from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets
-        addStandardJets('AntiKt', 1.0, 'Truth', ptmin=50000, mods=truth_modifiers, algseq=kernel, outputGroup="DFCommonMCTruthJets")
+        if objKeyStore.isInInput( "xAOD::JetContainer","AntiKt10TruthTrimmedPtFrac5SmallR20Jets"):
+            from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets
+            addStandardJets('AntiKt', 1.0, 'Truth', ptmin=50000, mods=truth_modifiers, algseq=kernel, outputGroup="DFCommonMCTruthJets")
 
     if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt10TruthTrimmedPtFrac5SmallR20Jets"):
         #Large R jets
@@ -113,7 +116,13 @@ def addTruthJetsAOD(kernel=None, decorationDressing=None):
     if decorationDressing is not None:
         from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addAntiKt4TruthDressedWZJets
         addAntiKt4TruthDressedWZJets(kernel,'TRUTH')
-    addAntiKt10TruthJets(kernel,"TRUTH")
+    if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt10TruthTrimmedPtFrac5SmallR20Jets"):
+        #Large R jets
+        from DerivationFrameworkJetEtMiss.JetCommon import addTrimmedJets
+        addTrimmedJets('AntiKt', 1.0, 'Truth', rclus=0.2, ptfrac=0.05, mods="truth_groomed",
+                       algseq=kernel, outputGroup="Trimmed", writeUngroomed=False)
+    elif not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt10TruthJets"):
+        addAntiKt10TruthJets(kernel,"TRUTH")
 
 # Helper for adding truth jet collections
 def addTruthJets(kernel=None, decorationDressing=None):
@@ -230,10 +239,11 @@ def schedulePreJetMCTruthAugmentations(kernel=None, decorationDressing=None):
                               DFCommonTruthTopTool,
                               DFCommonTruthBosonTool,
                               DFCommonTruthBSMTool,
+                              DFCommonTruthForwardProtonTool,
                               DFCommonTruthElectronDressingTool, DFCommonTruthMuonDressingTool,
                               DFCommonTruthElectronIsolationTool1, DFCommonTruthElectronIsolationTool2,
                               DFCommonTruthMuonIsolationTool1, DFCommonTruthMuonIsolationTool2,
-                              DFCommonTruthPhotonIsolationTool1, DFCommonTruthPhotonIsolationTool2]
+                              DFCommonTruthPhotonIsolationTool1, DFCommonTruthPhotonIsolationTool2, DFCommonTruthPhotonIsolationTool3]
     from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
     kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonPreJetKernel",
                                                              AugmentationTools = augmentationToolsList
@@ -273,6 +283,11 @@ def schedulePostJetMCTruthAugmentations(kernel=None, decorationDressing=None):
         from AthenaCommon.AppMgr import ToolSvc
         ToolSvc += DFCommonTruthDressedWZQGLabelTool
         augmentationToolsList += [ DFCommonTruthDressedWZQGLabelTool ]
+    # SUSY signal decorations
+    from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
+    if IsSUSYSignal():
+        from DerivationFrameworkSUSY.DecorateSUSYProcess import DecorateSUSYProcess
+        augmentationToolsList += DecorateSUSYProcess('MCTruthCommon')
     from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
     kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonPostJetKernel",
                                                              AugmentationTools = augmentationToolsList
@@ -295,6 +310,16 @@ def addStandardTruthContents(kernel=None,
     schedulePostJetMCTruthAugmentations(kernel, decorationDressing)
     # Add back the navigation contect for the collections we want
     addTruthCollectionNavigationDecorations(kernel, ["TruthElectrons", "TruthMuons", "TruthPhotons", "TruthTaus", "TruthNeutrinos", "TruthBSM", "TruthBottom", "TruthTop", "TruthBoson"])
+    # Some more additions for standard TRUTH3
+    addBosonsAndDownstreamParticles(kernel)
+    addLargeRJetD2(kernel)
+    # Special collection for BSM particles
+    addBSMAndDownstreamParticles(kernel)
+    # Special collection for Born leptons
+    addBornLeptonCollection(kernel)
+    # Special collection for hard scatter (matrix element) - save TWO extra generations of particles
+    addHardScatterCollection(kernel,2)
+
 
 def addParentAndDownstreamParticles(kernel=None,
                                     generations=1,
@@ -346,7 +371,7 @@ def addBosonsAndDownstreamParticles(kernel=None, generations=1,
     return addParentAndDownstreamParticles(kernel=kernel,
                                            generations=generations,
                                            parents=[23,24,25],
-                                           prefix='Boson',
+                                           prefix='Bosons',
                                            rejectHadronChildren=rejectHadronChildren)
 
 
@@ -512,6 +537,7 @@ def addLargeRJetD2(kernel=None):
     kernel +=CfgMgr.DerivationFramework__DerivationKernel("TRUTHD2Kernel",
                                                           AugmentationTools = [TruthD2Decorator] )
 
+
 def addMiniTruthCollectionLinks(kernel=None, doElectrons=True, doPhotons=True, doMuons=True):
     # Sets up modifiers to move pointers to old truth collections to new mini truth collections
     # Ensure that we are adding it to something
@@ -527,17 +553,17 @@ def addMiniTruthCollectionLinks(kernel=None, doElectrons=True, doPhotons=True, d
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthLinkRepointTool
     if doElectrons:
         electron_relink = DerivationFramework__TruthLinkRepointTool("ElMiniCollectionTruthLinkTool",
-                                                                    RecoCollection="Electrons", TargetCollection="TruthElectrons")
+                                                                    RecoCollection="Electrons", TargetCollections=["TruthMuons","TruthPhotons","TruthElectrons"])
         ToolSvc += electron_relink
         aug_tools += [ electron_relink ]
     if doPhotons:
         photon_relink = DerivationFramework__TruthLinkRepointTool("PhMiniCollectionTruthLinkTool",
-                                                                    RecoCollection="Photons", TargetCollection="TruthPhotons")
+                                                                    RecoCollection="Photons", TargetCollections=["TruthMuons","TruthPhotons","TruthElectrons"])
         ToolSvc += photon_relink
         aug_tools += [ photon_relink ]
     if doMuons:
         muon_relink = DerivationFramework__TruthLinkRepointTool("MuMiniCollectionTruthLinkTool",
-                                                                    RecoCollection="Muons", TargetCollection="TruthMuons")
+                                                                    RecoCollection="Muons", TargetCollections=["TruthMuons","TruthPhotons","TruthElectrons"])
         ToolSvc += muon_relink
         aug_tools += [ muon_relink ]
     kernel +=CfgMgr.DerivationFramework__DerivationKernel("MiniCollectionTruthLinkKernel",
@@ -556,8 +582,14 @@ def addTruth3ContentToSlimmerTool(slimmer):
         "TruthBottom",
         "TruthTop",
         "TruthBoson",
-        "TruthWbosonWithDecayParticles",
-        "TruthWbosonWithDecayVertices",
+        "TruthForwardProtons",
+        "BornLeptons",
+        "TruthBosonsWithDecayParticles",
+        "TruthBosonsWithDecayVertices",
+        "TruthBSMWithDecayParticles",
+        "TruthBSMWithDecayVertices",
+        "HardScatterParticles",
+        "HardScatterVertices",
     ]
     slimmer.ExtraVariables += [
         "AntiKt4TruthDressedWZJets.GhostCHadronsFinalCount.GhostBHadronsFinalCount.pt.HadronConeExclTruthLabelID.ConeTruthLabelID.PartonTruthLabelID.TrueFlavor",

@@ -86,6 +86,8 @@ namespace EL
   const std::string Job::optGridAddNthFieldOfInDSToLFN = "nc_addNthFieldOfInDSToLFN";
   const std::string Job::optGridWorkingGroup = "nc_workingGroup";
   const std::string Job::optGridShowCmd = "nc_showCmd";
+  const std::string Job::optGridCpuTimePerEvent = "nc_cpuTimePerEvent";
+  const std::string Job::optGridMaxWalltime = "nc_maxWalltime";
   const std::string Job::optBatchSharedFileSystem = "nc_sharedFileSystem";
   const std::string Job::optBatchSlurmExtraConfigLines = "nc_SlurmExtraConfig";
   const std::string Job::optBatchSlurmWrapperExec = "nc_SlurmWrapperExec";

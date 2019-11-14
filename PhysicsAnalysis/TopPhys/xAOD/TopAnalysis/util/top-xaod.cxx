@@ -625,6 +625,7 @@ int main(int argc, char** argv) {
       skippedEventsSoFar += entries < firstEvent ? entries : firstEvent;
     }
     unsigned int entry;
+    bool isFirst(true);
     for (entry = firstEvent; entry < entries; ++entry, ++totalYieldSoFar) {
       if (topConfig->numberOfEventsToRun() != 0 && totalYieldSoFar >= topConfig->numberOfEventsToRun()) break;
 
@@ -710,7 +711,8 @@ int main(int argc, char** argv) {
       }
       if (totalYieldSoFar == 0 && topConfig->isMC() && topConfig->doLHAPDF()) {
         const xAOD::TruthEventContainer* truthEvent(nullptr);
-        top::check(xaodEvent.retrieve(truthEvent, topConfig->sgKeyTruthEvent()), "Failed to retrieve truth PDF info");
+        top::check(xaodEvent.retrieve(truthEvent, topConfig->sgKeyTruthEvent()), "Failed to retrieve TruthEvent container for LHAPDF");
+        top::check(truthEvent->size() == 1, "TruthEvent container size != 1, not sure what to do with PDF reweighting");
         for (auto tePtr : *truthEvent) {
           for (auto& pdf : totalEventsPdfWeighted) {
             if (tePtr->isAvailable< std::vector<float> >("AnalysisTop_" + pdf.first + "_Weights")) {
@@ -722,29 +724,28 @@ int main(int argc, char** argv) {
       // on the first event, set the size of the vector of sum of LHE3 weights in case it needs to be calculated on the
       // fly
       if (topConfig->isMC() && topConfig->doMCGeneratorWeights()) {
-        const xAOD::TruthEventContainer* truthEvent(nullptr);
-        top::check(xaodEvent.retrieve(truthEvent,
-                                      topConfig->sgKeyTruthEvent()),
-                   "Failed to retrieve LHE3 weights from truth event");
-        unsigned int weightsSize = truthEvent->at(0)->weights().size();
+        const xAOD::EventInfo* ei(nullptr);
+        top::check(xaodEvent.retrieve(ei, topConfig->sgKeyEventInfo()),
+                   "Failed to retrieve LHE3 weights from EventInfo");
+        unsigned int weightsSize = ei->mcEventWeights().size();
         if (recalc_LHE3) {
           if (totalYieldSoFar == 0) {
             totalEventsWeighted_LHE3_temp.resize(weightsSize);
             for (unsigned int i_LHE3 = 0; i_LHE3 < weightsSize; i_LHE3++) {
-              totalEventsWeighted_LHE3_temp.at(i_LHE3) = truthEvent->at(0)->weights().at(i_LHE3);
+              totalEventsWeighted_LHE3_temp.at(i_LHE3) = ei->mcEventWeights().at(i_LHE3);
             }
             names_LHE3.resize(weightsSize);
             std::fill(names_LHE3.begin(), names_LHE3.end(), "?");
           } else {
             for (unsigned int i_LHE3 = 0; i_LHE3 < weightsSize; i_LHE3++) {
               totalEventsWeighted_LHE3_temp.at(i_LHE3) = totalEventsWeighted_LHE3_temp.at(i_LHE3) +
-                                                         truthEvent->at(0)->weights().at(i_LHE3);
+                                                         ei->mcEventWeights().at(i_LHE3);
             }
           }
         } else if (weightsSize != names_LHE3.size()) {// don't recalc sum of weights, but cross-check the size of the
                                                       // vectors
           std::cout <<
-            "Ouch: strange inconsistency in the sum of LHE3 weights vectors from the meta-data and the vector of LHE3 weights in the TruthEventContainer."
+            "Ouch: strange inconsistency in the sum of LHE3 weights vectors from the meta-data and the vector of LHE3 weights in the EventInfo container."
                     << std::endl;
           std::cout << "It should be the same; since it's not, it's pointless to continue.";
           std::cout << "Exiting...." << std::endl;
@@ -826,6 +827,20 @@ int main(int argc, char** argv) {
           top::Event topEvent = topEventMaker->makeTopEvent(currentSystematic);
           ///-- Apply event selection --///
           const bool passAnyEventSelection = eventSelectionManager.apply(topEvent, *currentSystematic);
+          // check if we are using actual mu for mc16d or mc16e
+          if (isFirst && topConfig->isMC()) {
+            const int runNumber = topEvent.m_info->runNumber();
+            if (runNumber >= 300000) {
+              if ((!topConfig->isAFII() && topConfig->PileupActualMu_FS().size() == 0) || 
+                (topConfig->isAFII() && topConfig->PileupActualMu_AF().size() == 0)) {
+                std::cout << "******************************************************************************************************\n";
+                std::cout << "\tWARNING: You are running over mc16d or mc16e samples but you are not using actual mu reweighting!\n";
+                std::cout << "\tYou are strongly advised to use the actual mu reweighting\n";
+                std::cout << "\tCheck: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TopxAODStartGuideR21#PRW_and_Lumicalc_files\n";
+                std::cout << "******************************************************************************************************\n";
+              }
+            }
+          }
           currentSystematic->auxdecor<char>(topConfig->passEventSelectionDecoration()) = passAnyEventSelection ? 1 : 0;
           topEvent.m_saveEvent = passAnyEventSelection;
           ///-- Save event - we defer to eventSaver the decision to write or not --///
@@ -850,6 +865,20 @@ int main(int argc, char** argv) {
           top::Event topEvent = topEventMaker->makeTopEvent(currentSystematic);
           ///-- Apply event selection --///
           const bool passAnyEventSelection = eventSelectionManager.apply(topEvent, *currentSystematic);
+
+          // check if we are using actual mu for mc16d or mc16e
+          if (isFirst && topConfig->isMC()) {
+            const int runNumber = topEvent.m_info->runNumber();
+            std::cout << "RunNumber: " << runNumber << std::endl;
+            if (runNumber >= 300000) {
+              if ((!topConfig->isAFII() && topConfig->PileupActualMu_FS().size() == 0) || 
+                (topConfig->isAFII() && topConfig->PileupActualMu_AF().size() == 0)) {
+                std::cout << "WARNING: You are running over mc16d or mc16e samples but you are not using actual mu reweighting!\n";
+                std::cout << "You are strongly advised to use the actual mu reweighting\n";
+                std::cout << "Check: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TopxAODStartGuideR21#PRW_and_Lumicalc_files\n";
+              }
+            }
+          }
           currentSystematic->auxdecor<char>(topConfig->passEventSelectionDecoration()) = passAnyEventSelection ? 1 : 0;
           topEvent.m_saveEvent = passAnyEventSelection;
           ///-- weights for matrix-method fakes estimate from IFF tools, only for nominal --///
@@ -917,6 +946,7 @@ int main(int argc, char** argv) {
 
       ///-- Needed for xAOD output, all systematics go into the same TTree --///
       eventSaver->saveEventToxAOD();
+      isFirst = false;
     } //loop over events in current file
     if (tracker) tracker->addInputFile(inputFile->GetName(), entry - firstEvent);
 

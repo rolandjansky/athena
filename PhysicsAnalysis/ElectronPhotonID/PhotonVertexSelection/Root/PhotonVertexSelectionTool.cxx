@@ -118,7 +118,7 @@ namespace CP {
     // Update calo pointing auxdata for photons
     // FIXME: Remove once variables properly included in derivations
     if (m_updatePointing and m_pointingTool->updatePointingAuxdata(egammas).isFailure()) {
-      ATH_MSG_ERROR("Couldn't update photon calo pointing auxdata");
+      ATH_MSG_INFO("Couldn't update photon calo pointing auxdata");
       m_fail = FailType::FailPointing;
     }
 
@@ -202,9 +202,10 @@ namespace CP {
     }
 
     if (m_fail){
-      ATH_MSG_ERROR("Returning hardest vertex. Fail detected (type="<< m_fail <<")");
+      ATH_MSG_VERBOSE("Returning hardest vertex. Fail detected (type="<< m_fail <<")");
+      m_vertexMLP.clear();
       m_vertexMLP.push_back(std::make_pair(xAOD::PVHelpers::getHardestVertex(m_vertices), 10.));
-      return StatusCode::FAILURE;
+      return StatusCode::SUCCESS;
     }
 
     // If there are any silicon conversions passing selection, use MVA1
@@ -264,11 +265,10 @@ namespace CP {
     } // loop over vertices
 
     if (mlp_max <= -9999.0) {
-      ATH_MSG_ERROR("No good vertex candidates from pointing, returning hardest vertex.");
+      ATH_MSG_VERBOSE("No good vertex candidates from pointing, returning hardest vertex.");
       m_fail = FailType::NoGdCandidate;
       m_vertexMLP.clear();
       m_vertexMLP.push_back(std::make_pair(xAOD::PVHelpers::getHardestVertex(m_vertices), 20.));
-      return StatusCode::FAILURE;
     }
 
     ATH_MSG_VERBOSE("getVertex case "<<m_case << " exit code "<< m_fail);
@@ -345,14 +345,14 @@ namespace CP {
     const xAOD::CaloCluster *cluster = nullptr;
     for (const xAOD::Egamma* egamma: *egammas) {
       if (egamma == nullptr) {
-        ATH_MSG_WARNING("No egamma object to get four vector");
+        ATH_MSG_INFO("No egamma object to get four vector");
         m_fail = FailType::FailEgamVect;
         continue;
 
       }
       cluster = egamma->caloCluster();
       if (cluster == nullptr) {
-        ATH_MSG_WARNING("No cluster associated to egamma, not adding to 4-vector.");
+        ATH_MSG_INFO("No cluster associated to egamma, not adding to 4-vector.");
         continue;
       }
 

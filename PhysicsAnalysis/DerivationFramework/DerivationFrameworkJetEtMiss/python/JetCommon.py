@@ -47,7 +47,8 @@ else:
         if not batmanaugtool in batmanaug.AugmentationTools:
             batmanaug.AugmentationTools.append(batmanaugtool)
     else:
-        dfjetlog.warning('Could not schedule BadBatmanAugmentation (fine if running on EVNT)')
+        if not objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
+            dfjetlog.warning('Could not schedule BadBatmanAugmentation (fine if running on EVNT)')
 
 ######################
 
@@ -178,7 +179,7 @@ def reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale=-1.0, variab
     # map the input to the jtm code for PseudoJetGetter
     getterMap = dict( LCTopo = 'lctopo', EMTopo = 'emtopo', EMPFlow = 'empflow',             EMCPFlow = 'emcpflow', 
                       Truth='truth',     TruthWZ='truthwz', TruthDressedWZ='truthdressedwz', TruthCharged='truthcharged', 
-                      PV0Track='pv0track', TrackCaloCluster='tcc')
+                      PV0Track='pv0track', TrackCaloCluster='tcc', UFO='tcc', UFOCHS='tcc', CSSKUFO='tcc')
 
     getters = getterMap[inputtype]
 
@@ -368,6 +369,48 @@ def addSoftDropJets(jetalg, rsize, inputtype, beta=0, zcut=0.1, mods="groomed",
 
 
 ##################################################################
+def addRecursiveSoftDropJets(jetalg, rsize, inputtype, beta=0, zcut=0.1, N=-1, mods="groomed",
+                    includePreTools=False, algseq=None, outputGroup="SoftDrop",
+                    writeUngroomed=False, constmods=[]):
+    inputname = inputtype + "".join(constmods)
+    if N >= 0:
+      softDropName = "{0}{1}{2}RecursiveSoftDropBeta{3}Zcut{4}N{5}Jets".format(jetalg,int(rsize*10),inputname,int(beta*100),int(zcut*100), int(N))
+    if N < 0:
+      softDropName = "{0}{1}{2}RecursiveSoftDropBeta{3}Zcut{4}NinfJets".format(jetalg,int(rsize*10),inputname,int(beta*100),int(zcut*100))
+
+    # a function dedicated to build SoftDrop jet:
+    def recursiveSoftDropToolBuilder( name, inputJetCont):
+        from JetRec.JetRecStandard import jtm
+        if name in jtm.tools: return jtm.tools[name]
+        else: return jtm.addJetRecursiveSoftDrop( name, beta=beta, zcut=zcut, N=N, r0=rsize, input=inputJetCont, modifiersin=mods )
+
+    dfjetlog.info( "Configuring soft drop jets :  "+softDropName )
+    #pass the softDropName and our specific soft drop tool to the generic function:
+    return buildGenericGroomAlg(jetalg, rsize, inputtype, softDropName, recursiveSoftDropToolBuilder,
+                                includePreTools, algseq, outputGroup,
+                                writeUngroomed=writeUngroomed, constmods=constmods)
+
+##################################################################
+def addBottomUpSoftDropJets(jetalg, rsize, inputtype, beta=0, zcut=0.1, mods="groomed",
+                    includePreTools=False, algseq=None, outputGroup="SoftDrop",
+                    writeUngroomed=False, constmods=[]):
+    inputname = inputtype + "".join(constmods)
+    softDropName = "{0}{1}{2}BottomUpSoftDropBeta{3}Zcut{4}Jets".format(jetalg,int(rsize*10),inputname,int(beta*100),int(zcut*100))
+
+    # a function dedicated to build SoftDrop jet:
+    def bottomUpSoftDropToolBuilder( name, inputJetCont):
+        from JetRec.JetRecStandard import jtm
+        if name in jtm.tools: return jtm.tools[name]
+        else: return jtm.addJetBottomUpSoftDrop( name, beta=beta, zcut=zcut, r0=rsize, input=inputJetCont, modifiersin=mods )
+
+    dfjetlog.info( "Configuring soft drop jets :  "+softDropName )
+    #pass the softDropName and our specific soft drop tool to the generic function:
+    return buildGenericGroomAlg(jetalg, rsize, inputtype, softDropName, bottomUpSoftDropToolBuilder,
+                                includePreTools, algseq, outputGroup,
+                                writeUngroomed=writeUngroomed, constmods=constmods)
+
+
+##################################################################
 
 def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
                     mods="default", calibOpt="none", ghostArea=0.01,
@@ -490,6 +533,7 @@ OutputJets["SmallR"] = [
 OutputJets["LargeR"] = [
     "AntiKt10LCTopoJets",
     "AntiKt10TrackCaloClusterJets",
+    "AntiKt10UFOCSSKJets",
     "AntiKt10TruthJets",
     "AntiKt10TruthWZJets",
     ]

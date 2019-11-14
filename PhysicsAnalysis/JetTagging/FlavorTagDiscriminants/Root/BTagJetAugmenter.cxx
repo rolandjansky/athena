@@ -124,13 +124,7 @@ BTagJetAugmenter::BTagJetAugmenter(BTagJetAugmenter&&) = default;
 
 void BTagJetAugmenter::augment(const xAOD::Jet &jet, const xAOD::Jet &uncalibrated_jet) {
 
-  const xAOD::BTagging* btag_ptr = jet.btagging();
-  if (!btag_ptr) throw std::runtime_error("No b-tagging object found!");
-  const xAOD::BTagging& btag = *btag_ptr;
-
-  pt_uncalib(btag) = uncalibrated_jet.pt();
-  eta_uncalib(btag) = uncalibrated_jet.eta();
-  abs_eta_uncalib(btag) = std::abs(uncalibrated_jet.eta());
+  augmentBtagJes(jet, uncalibrated_jet);
 
   // pass off to calibrated jet function
   augment(jet);
@@ -145,13 +139,27 @@ void BTagJetAugmenter::augmentJfDr(const xAOD::BTagging& btag) {
 }
 void BTagJetAugmenter::augmentIpRatios(const xAOD::BTagging& btag) {
 
-  ip2d_cu(btag) = std::log(ip2d_pc(btag) / ip2d_pu(btag));
-  ip2d_bu(btag) = std::log(ip2d_pb(btag) / ip2d_pu(btag));
-  ip2d_bc(btag) = std::log(ip2d_pb(btag) / ip2d_pc(btag));
+  // Note that both numerator and denominator =0 give FPE divide by zero errors, one for
+  // obvious reasosns, and the other within the log function itself because of log(0)
+  ip2d_cu(btag) = (ip2d_pc(btag)!=0. && ip2d_pu(btag)!=0.)?std::log(ip2d_pc(btag) / ip2d_pu(btag)):NAN;
+  ip2d_bu(btag) = (ip2d_pb(btag)!=0. && ip2d_pu(btag)!=0.)?std::log(ip2d_pb(btag) / ip2d_pu(btag)):NAN;
+  ip2d_bc(btag) = (ip2d_pb(btag)!=0. && ip2d_pc(btag)!=0.)?std::log(ip2d_pb(btag) / ip2d_pc(btag)):NAN;
 
-  ip3d_cu(btag) = std::log(ip3d_pc(btag) / ip3d_pu(btag));
-  ip3d_bu(btag) = std::log(ip3d_pb(btag) / ip3d_pu(btag));
-  ip3d_bc(btag) = std::log(ip3d_pb(btag) / ip3d_pc(btag));
+  ip3d_cu(btag) = (ip3d_pc(btag)!=0. && ip3d_pu(btag)!=0.)?std::log(ip3d_pc(btag) / ip3d_pu(btag)):NAN;
+  ip3d_bu(btag) = (ip3d_pb(btag)!=0. && ip3d_pu(btag)!=0.)?std::log(ip3d_pb(btag) / ip3d_pu(btag)):NAN;
+  ip3d_bc(btag) = (ip3d_pb(btag)!=0. && ip3d_pc(btag)!=0.)?std::log(ip3d_pb(btag) / ip3d_pc(btag)):NAN;
+
+}
+void BTagJetAugmenter::augmentBtagJes(const xAOD::Jet &target,
+                                      const xAOD::Jet &uncalib) {
+
+  const xAOD::BTagging* btag_ptr = target.btagging();
+  if (!btag_ptr) throw std::runtime_error("No b-tagging object found!");
+  const xAOD::BTagging& btag = *btag_ptr;
+
+  pt_uncalib(btag) = uncalib.pt();
+  eta_uncalib(btag) = uncalib.eta();
+  abs_eta_uncalib(btag) = std::abs(uncalib.eta());
 
 }
 
@@ -302,7 +310,7 @@ void BTagJetAugmenter::augment(const xAOD::Jet &jet) {
   {
     double min = secondaryVtx_min_track_flightDirRelEta;
     double max = secondaryVtx_max_track_flightDirRelEta;
-    double avg = secondaryVtx_track_flightDirRelEta_total / secondaryVtx_track_number;
+    double avg = secondaryVtx_track_number>0?secondaryVtx_track_flightDirRelEta_total / secondaryVtx_track_number:NAN;
     secondaryVtx_min_trk_flightDirRelEta(btag) = min;
     secondaryVtx_max_trk_flightDirRelEta(btag) = max;
     secondaryVtx_avg_trk_flightDirRelEta(btag) = avg;
@@ -310,7 +318,7 @@ void BTagJetAugmenter::augment(const xAOD::Jet &jet) {
   {
     double min = min_track_flightDirRelEta;
     double max = max_track_flightDirRelEta;
-    double avg = track_flightDirRelEta_total / track_number;
+    double avg = track_number>0?track_flightDirRelEta_total / track_number:NAN;
     min_trk_flightDirRelEta(btag) = min;
     max_trk_flightDirRelEta(btag) = max;
     avg_trk_flightDirRelEta(btag) = avg;

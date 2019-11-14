@@ -114,7 +114,7 @@ SUSY::CrossSectionDB::Process SUSY::CrossSectionDB::process(int id, int proc) co
 {
   // for background x-sections, use the PMG tool
   if(proc==0 && m_usePMGTool) {
-    return Process( id, m_pmgxs->getSampleName(id), m_pmgxs->getAMIXsection(id), m_pmgxs->getKfactor(id), m_pmgxs->getFilterEff(id), -1, -1, -1 );  
+    return Process( id, m_pmgxs->getSampleName(id), m_pmgxs->getAMIXsection(id), m_pmgxs->getKfactor(id), m_pmgxs->getFilterEff(id), m_pmgxs->getXsectionUncertainty(id), -1, -1 );  
   } else {
     const Key k(id, proc);
     xsDB_t::const_iterator pos = m_cache.find(k);

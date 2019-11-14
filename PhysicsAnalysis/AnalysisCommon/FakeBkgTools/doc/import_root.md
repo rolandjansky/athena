@@ -1,6 +1,6 @@
 # ROOT input format
 
-The real and fake/non-prompt lepton efficiencies required by the tools may be imported from histograms (TH1 or TH2) stored in ROOT files. The tool can understand on its own simple parametrizations and histograms following the naming convention detailed in the _Default format_ section below. Otherwise, it is necessary to provide an XML file describing the contents of the ROOT file(s) (see section _Custom format_). 
+The real and fake/non-prompt lepton efficiencies required by the tools may be imported from histograms (TH1, TH2 or TH3) stored in ROOT files. The tool can understand on its own simple parametrizations and histograms following the naming convention detailed in the _Default format_ section below. Otherwise, it is necessary to provide an XML file describing the contents of the ROOT file(s) (see section _Custom format_). 
 
 ## Default format
 
@@ -8,14 +8,15 @@ A default ROOT file may contain, for each type of efficiency / lepton flavour, a
 
 ### Central values
 
-Histograms must be named according to the following convention that defines sequentially the type of efficiency, the type of lepton (electron or muon), and the parameter(s) corresponding to the X (and Y) axis of the histogram:
+Histograms must be named according to the following convention that defines sequentially the type of efficiency, the type of lepton (electron,  muon or tau), and the parameter(s) corresponding to the X (and Y, Z) axis of the histogram:
 
 ```
-{RealEfficiency | FakeEfficiency | FakeFactor}_{el | mu}_paramX for 1D histograms
-{RealEfficiency | FakeEfficiency | FakeFactor}2D_{el | mu}_paramX_paramY for 2D histograms
+{RealEfficiency | FakeEfficiency | FakeFactor}_{el | mu | tau}_paramX for 1D histograms
+{RealEfficiency | FakeEfficiency | FakeFactor}2D_{el | mu | tau}_paramX_paramY for 2D histograms
+{RealEfficiency | FakeEfficiency | FakeFactor}3D_{el | mu | tau}_paramX_paramY_paramZ for 3D histograms
 ```
 
-Note that the parameter names _paramX_, _paramY_ are not allowed to contain underscores. `pt, eta, phi` are predefined and read directly from the _IParticle_ object; for other parameters, it is assumed that a _float_ decoration of the _IParticle_ objects will be found with the same name. If a better control of the parameter type/scope is needed, it is possible to load a minimal XML file beforehand that only contains the declarations of the parameters. 
+Note that the parameter names _paramX_, _paramY_, _paramZ_ are not allowed to contain underscores. `pt, eta, phi` are predefined and read directly from the _IParticle_ object; for other parameters, it is assumed that a _float_ decoration of the _IParticle_ objects will be found with the same name. If a better control of the parameter type/scope is needed, it is possible to load a minimal XML file beforehand that only contains the declarations of the parameters. 
 
 The histogram boundaries are always extended to $`\pm\infty`$; i.e. efficiencies from the first bin are used for underflows, and from the last bin for overflows. Note that this is a different behaviour than for XML files, where it is up to the user to specify the correct range. 
 
@@ -71,11 +72,11 @@ Note that is perfectly possible to mix imported histograms and tabulated values 
 
 ### Loading histograms
 
-The `X, Y` attributes of the `<TH1>` markup indicate which parameters the histogram axes correspond to. There is no need to specify the binnings, since they are read from the histogram. Axis boundaries are extended as well to $`\pm 1\infty`$, as described above for the default format. 
+The `X, Y, Z` attributes of the `<TH1>` markup indicate which parameters the histogram axes correspond to. There is no need to specify the binnings, since they are read from the histogram. Axis boundaries are extended as well to $`\pm 1\infty`$, as described above for the default format. 
 
 Similarly to the `<bin>` or `<table>` markups it is possible to specify extra cuts (see the example above that differentiates histograms based on the number of b-jets). 
 
-Statistical uncertainties are read from the bin errors; the way they are interpreted is goverened by the `stat` attributes of the `<electron>` and `<muon>` markdowns. 
+Statistical uncertainties are read from the bin errors; the way they are interpreted is goverened by the `stat` attributes of the `<electron>`, `<muon>` and `<tau>` markdowns. 
 
 ### Normalizing histograms
 

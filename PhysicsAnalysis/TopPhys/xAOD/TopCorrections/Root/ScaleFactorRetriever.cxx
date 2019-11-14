@@ -919,42 +919,42 @@ namespace top {
                                     bool isLoose) const {
     // See TauScaleFactorCalculator.cxx for uncertainties
 
-    static std::map<TString, SG::AuxElement::ConstAccessor<float> > acc_tauSFs;
-    static std::map<TString, SG::AuxElement::ConstAccessor<float> > acc_tauSFs_loose;
+    static std::map<TString, const SG::AuxElement::ConstAccessor<float> > acc_tauSFs;
+    static std::map<TString, const SG::AuxElement::ConstAccessor<float> > acc_tauSFs_loose;
 
     if (!isLoose) {
       if (tauSF_name.find(SFSyst) == tauSF_name.end()) {
         if (acc_tauSFs.find(tauSF_name.at(top::topSFSyst::TAU_SF_NOMINAL)) == acc_tauSFs.end()) {
           acc_tauSFs.insert(std::pair<TString,
-                                      SG::AuxElement::ConstAccessor<float> > (tauSF_name.at(top::topSFSyst::
-                                                                                             TAU_SF_NOMINAL),
-                                                                              tauSF_name.at(top::topSFSyst::
-                                                                                             TAU_SF_NOMINAL).Data()));
+                                      const SG::AuxElement::ConstAccessor<float> > (tauSF_name.at(top::topSFSyst::
+												  TAU_SF_NOMINAL),
+										    tauSF_name.at(top::topSFSyst::
+												  TAU_SF_NOMINAL).Data()));
         }
         return acc_tauSFs.at(tauSF_name.at(top::topSFSyst::TAU_SF_NOMINAL))(x);
       }
       if (acc_tauSFs.find(tauSF_name.at(SFSyst)) == acc_tauSFs.end()) {
-        acc_tauSFs.insert(std::pair<TString, SG::AuxElement::ConstAccessor<float> > (tauSF_name.at(SFSyst),
-                                                                                     tauSF_name.at(SFSyst).Data()));
+        acc_tauSFs.insert(std::pair<TString, const SG::AuxElement::ConstAccessor<float> > (tauSF_name.at(SFSyst),
+											   tauSF_name.at(SFSyst).Data()));
       }
       return acc_tauSFs.at(tauSF_name.at(SFSyst))(x);
     } else {
       if (tauSF_name.find(SFSyst) == tauSF_name.end()) {
         if (acc_tauSFs_loose.find(tauSF_name.at(top::topSFSyst::TAU_SF_NOMINAL)) == acc_tauSFs_loose.end()) {
           acc_tauSFs_loose.insert(std::pair<TString,
-                                            SG::AuxElement::ConstAccessor<float> > (tauSF_name.at(top::topSFSyst::
-                                                                                                   TAU_SF_NOMINAL) +
+                                            const SG::AuxElement::ConstAccessor<float> > (tauSF_name.at(top::topSFSyst::
+													TAU_SF_NOMINAL) +
           "_loose",
-                                                                                    tauSF_name.at(top::topSFSyst::
-                                                                                                   TAU_SF_NOMINAL).Data()));
+											  tauSF_name.at(top::topSFSyst::
+													TAU_SF_NOMINAL).Data()));
         }
         return acc_tauSFs_loose.at(tauSF_name.at(top::topSFSyst::TAU_SF_NOMINAL) + "_loose")(x);
       }
       if (acc_tauSFs_loose.find((tauSF_name.at(SFSyst) + "_loose")) == acc_tauSFs_loose.end()) {
         acc_tauSFs_loose.insert(std::pair<TString,
-                                          SG::AuxElement::ConstAccessor<float> > (tauSF_name.at(SFSyst) + "_loose",
-                                                                                  (tauSF_name.at(SFSyst) +
-                                                                                   "_loose").Data()));
+                                          const SG::AuxElement::ConstAccessor<float> > (tauSF_name.at(SFSyst) + "_loose",
+											(tauSF_name.at(SFSyst) +
+											 "_loose").Data()));
       }
       return acc_tauSFs_loose.at((tauSF_name.at(SFSyst) + "_loose"))(x);
     }
@@ -999,9 +999,9 @@ namespace top {
   float ScaleFactorRetriever::photonSF(const xAOD::Photon& photon,
                                        const top::topSFSyst SFSyst,
                                        bool isLoose) const {
-    static SG::AuxElement::ConstAccessor<float> acc_ph_IDSF("EFF_ID_SF");
-    static SG::AuxElement::ConstAccessor<float> acc_ph_IDSFUp("EFF_ID_SF_UP");
-    static SG::AuxElement::ConstAccessor<float> acc_ph_IDSFDown("EFF_ID_SF_DOWN");
+    static const SG::AuxElement::ConstAccessor<float> acc_ph_IDSF("EFF_ID_SF");
+    static const SG::AuxElement::ConstAccessor<float> acc_ph_IDSFUp("EFF_ID_SF_UP");
+    static const SG::AuxElement::ConstAccessor<float> acc_ph_IDSFDown("EFF_ID_SF_DOWN");
 
     switch (SFSyst) {
     case top::topSFSyst::nominal:

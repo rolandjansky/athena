@@ -200,7 +200,7 @@ namespace top {
   }
 
   bool ElectronLikelihoodMC15::passChargeIDCut(const xAOD::Electron& el) const {
-    static SG::AuxElement::ConstAccessor<char> acc_ECIDS("DFCommonElectronsECIDS");
+    static const SG::AuxElement::ConstAccessor<char> acc_ECIDS("DFCommonElectronsECIDS");
 
     top::check(acc_ECIDS.isAvailable(
                  el), "ElectronLikelihoodMC15::passChargeIDCut: DFCommonElectronsECIDS is not available");

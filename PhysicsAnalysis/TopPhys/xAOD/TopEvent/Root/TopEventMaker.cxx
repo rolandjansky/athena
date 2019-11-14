@@ -28,6 +28,8 @@
 #include <iostream>
 
 namespace top {
+  bool TopEventMaker::s_hasTruthEvent = true;
+
   TopEventMaker::TopEventMaker(const std::string& name) :
     asg::AsgTool(name),
     m_config(nullptr) {
@@ -526,8 +528,13 @@ namespace top {
       }
 
       // Truth Event
-      top::check(evtStore()->retrieve(event.m_truthEvent, m_config->sgKeyTruthEvent()),
-                 "Failed to retrieve truth Event");
+      if (TopEventMaker::s_hasTruthEvent) {
+        bool hasTruthEvent = evtStore()->retrieve(event.m_truthEvent, m_config->sgKeyTruthEvent());
+        if (!hasTruthEvent) {
+          ATH_MSG_WARNING("Failed to retrieve truth Event. TopEvent::m_truthEvent will be nullptr!");
+          TopEventMaker::s_hasTruthEvent = false;
+        }
+      }
 
       // Parton History
       if (m_config->doTopPartonHistory()) {

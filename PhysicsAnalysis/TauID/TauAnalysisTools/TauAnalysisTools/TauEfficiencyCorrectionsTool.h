@@ -29,11 +29,8 @@
 #include "TauAnalysisTools/TauEfficiencyEleIDTool.h"
 #include "TauAnalysisTools/TauEfficiencyTriggerTool.h"
 
-#if __has_include("PileupReweighting/IPileupReweightingTool.h")
 // Tool include(s)
 #include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
-#define TAUANALYSISTOOLS_PRWTOOL_AVAILABLE
-#endif
 
 namespace TauAnalysisTools
 {
@@ -104,6 +101,8 @@ private:
   StatusCode initializeTools_mc15_moriond();
   StatusCode initializeTools_mc15_pre_recommendations();
 
+  StatusCode readRandomRunNumber();
+
 private:
 
   std::vector<int> m_vEfficiencyCorrectionTypes;
@@ -141,6 +140,7 @@ private:
   bool m_bUseHighPtUncert;
   bool m_bIsData;
   bool m_bIsConfigured;
+  bool m_bReadRandomRunNumber;
   int m_iIDLevel;
   int m_iEVLevel;
   int m_iOLRLevel;
@@ -152,9 +152,7 @@ private:
   unsigned int m_iMu;
 
   ToolHandle<TauAnalysisTools::ITauSelectionTool> m_tTauSelectionToolHandle;
-#ifdef TAUANALYSISTOOLS_PRWTOOL_AVAILABLE
   ToolHandle<CP::IPileupReweightingTool> m_tPRWTool;
-#endif // TAUANALYSISTOOLS_PRWTOOL_AVAILABLE
   TauSelectionTool* m_tTauSelectionTool;
 
   std::string m_sEventInfoName;

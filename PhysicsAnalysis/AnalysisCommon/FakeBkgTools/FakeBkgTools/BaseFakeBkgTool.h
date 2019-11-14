@@ -65,6 +65,7 @@ class BaseFakeBkgTool : virtual public CP::IFakeBkgTool, public CP::IFakeBkgSyst
     virtual bool isStatisticalUncertainty(const CP::SystematicVariation& systematic) const override final;
     virtual bool affectsElectrons(const CP::SystematicVariation& systematic) const override final;
     virtual bool affectsMuons(const CP::SystematicVariation& systematic) const override final;
+    virtual bool affectsTaus(const CP::SystematicVariation& systematic) const override final;
     virtual bool affectsRealEfficiencies(const CP::SystematicVariation& systematic) const override final;
     virtual bool affectsFakeEfficiencies(const CP::SystematicVariation& systematic) const override final;
     virtual bool affectsFakeFactors(const CP::SystematicVariation& systematic) const override final;

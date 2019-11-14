@@ -104,9 +104,12 @@ StatusCode DerivationFramework::DiphotonVertexDecorator::addBranches() const
   {
     const xAOD::VertexContainer *PV(0); 
     ATH_CHECK( evtStore()->retrieve(PV, m_primaryVertexSGKey) );
-    if(PV->size()>0 && (PV->front()->vertexType() == xAOD::VxType::PriVtx )){
-      vxResult.push_back( std::make_pair(PV->front(), -9999.) );
-    }
+    for (const xAOD::Vertex* vx : *PV) {
+      if (vx->vertexType()==xAOD::VxType::PriVtx) {
+        vxResult.push_back( std::make_pair(vx, -9999.) );
+        break;
+      }
+     }
   }
 
   // Decorate the vertices with the NN score

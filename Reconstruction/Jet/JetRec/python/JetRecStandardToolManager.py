@@ -250,6 +250,7 @@ groomed_modifiers = [
     jtm.dipolarity,
     jtm.pull,
     jtm.planarflow,
+    jtm.softdropobservables,
     jtm.width,
     jtm.qw,
     jtm.trksummoms,

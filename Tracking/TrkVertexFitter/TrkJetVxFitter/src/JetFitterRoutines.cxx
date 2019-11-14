@@ -224,9 +224,9 @@ namespace Trk
                   
 
               } catch (Error::NewtonProblem e) {
-                if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Problem with Newton finder " << e.p << endreq;
+                ATH_MSG_DEBUG("Problem with Newton finder " << e.p );
               } catch (...) {
-                msg(MSG::ERROR) << "Could not catch error " << endreq;
+                ATH_MSG_ERROR("Could not catch error ");
               }
               ATH_MSG_DEBUG ("initializingToMinDistancesToJetAxis for vertex number... " << 
                              myVertex->getNumVertex() << " to distance " << distOnAxis << 

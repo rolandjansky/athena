@@ -176,6 +176,7 @@ namespace CompMassDef
     {
         switch(type)
         {
+            case FourVecMass:   return "FourVec";
             case CaloMass:      return "Calo";
             case TAMass:        return "TA";
             case CombMassQCD:   return "CombQCD";
@@ -188,6 +189,8 @@ namespace CompMassDef
 
     TypeEnum stringToEnum(const TString type)
     {
+        if (!type.CompareTo("FourVec",TString::kIgnoreCase) || !type.CompareTo("FourVector",TString::kIgnoreCase))
+            return FourVecMass;
         if (!type.CompareTo("Calo",TString::kIgnoreCase) || !type.CompareTo("Calorimeter",TString::kIgnoreCase))
             return CaloMass;
         if (!type.CompareTo("TA",TString::kIgnoreCase) || !type.CompareTo("TrackAssisted",TString::kIgnoreCase))

@@ -167,11 +167,33 @@ def setup(TOPQname, stream):
         'xAOD::JetAuxContainer#AntiKt10TruthSoftDropBeta100Zcut10JetsAux.',
     ]
 
-    # for TOPQDERIV-69
-    if TOPQname == 'TOPQ1' or TOPQname == 'TOPQ6':
+    if TOPQname == 'TOPQ1':
+        # for TOPQDERIV-69
         TOPQSlimmingHelper.StaticContent += [
             'xAOD::VertexContainer#TOPQ1RecoV0Candidates',
             'xAOD::VertexAuxContainer#TOPQ1RecoV0CandidatesAux'
+                + '.-vxTrackAtVertex'
+                + '.-vertexType'
+                + '.-neutralParticleLinks'
+                + '.-neutralWeights'
+                + '.-KshortLink'
+                + '.-LambdaLink'
+                + '.-LambdabarLink'
+                + '.-gamma_fit'
+                + '.-gamma_mass'
+                + '.-gamma_massError'
+                + '.-gamma_probability',
+        ]
+    elif TOPQname == 'TOPQ5':
+        TOPQSlimmingHelper.StaticContent += [
+            'xAOD::VertexContainer#TOPQ5RefittedPrimaryVertices',
+            'xAOD::VertexAuxContainer#TOPQ5RefittedPrimaryVerticesAux.',
+        ]
+    elif TOPQname == 'TOPQ6':
+        # for TOPQDERIV-69
+        TOPQSlimmingHelper.StaticContent += [
+            'xAOD::VertexContainer#TOPQ6RecoV0Candidates',
+            'xAOD::VertexAuxContainer#TOPQ6RecoV0CandidatesAux'
                 + '.-vxTrackAtVertex'
                 + '.-vertexType'
                 + '.-neutralParticleLinks'

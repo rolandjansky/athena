@@ -103,15 +103,13 @@ PHYSTauTPThinningTool = DerivationFramework__TauTrackParticleThinning(name      
                                                                       TauTracksKey           = "TauTracks")
 ToolSvc += PHYSTauTPThinningTool
 
-#====================================================================
-# CREATE THE DERIVATION KERNEL ALGORITHM   
-#====================================================================
-
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("PHYSKernel",
-                                                                       ThinningTools = [PHYSTrackParticleThinningTool,PHYSMuonTPThinningTool,
-                                                                                        PHYSTauJetsThinningTool,PHYSTauTPThinningTool],
-                                                                       AugmentationTools = [PHYS_trigmatching_helper.matching_tool])
+# ID tracks associated with high-pt di-tau
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__DiTauTrackParticleThinning
+PHYSDiTauTPThinningTool = DerivationFramework__DiTauTrackParticleThinning(name                    = "PHYSDiTauTPThinningTool",
+                                                                          ThinningService         = PHYSThinningHelper.ThinningSvc(),
+                                                                          DiTauKey                = "DiTauJets",
+                                                                          InDetTrackParticlesKey  = "InDetTrackParticles")
+ToolSvc += PHYSDiTauTPThinningTool
 
 #====================================================================
 # JET/MET   
@@ -130,7 +128,40 @@ addDefaultTrimmedJets(DerivationFrameworkJob,"PHYS",dotruth=DerivationFrameworkI
 addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=DerivationFrameworkJob,algname="QGTaggerToolAlg")
 addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=DerivationFrameworkJob,algname="QGTaggerToolPFAlg")
 
+#====================================================================
+# Tau   
+#====================================================================
 
+# Schedule low-pt di-tau reconstruction (needs AntiKt2PV0TrackJets)
+from DerivationFrameworkTau.TauCommon import addDiTauLowPt
+addDiTauLowPt()
+
+# Low-pt di-tau thinning
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
+PHYSDiTauLowPtThinningTool = DerivationFramework__GenericObjectThinning(name            = "PHYSDiTauLowPtThinningTool",
+                                                                        ThinningService = PHYSThinningHelper.ThinningSvc(),
+                                                                        ContainerName   = "DiTauJetsLowPt",
+                                                                        SelectionString = "DiTauJetsLowPt.nSubjets > 1")
+ToolSvc += PHYSDiTauLowPtThinningTool
+
+# ID tracks associated with low-pt ditau
+PHYSDiTauLowPtTPThinningTool = DerivationFramework__DiTauTrackParticleThinning(name                    = "PHYSDiTauLowPtTPThinningTool",
+                                                                               ThinningService         = PHYSThinningHelper.ThinningSvc(),
+                                                                               DiTauKey                = "DiTauJetsLowPt",
+                                                                               InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                               SelectionString         = "DiTauJetsLowPt.nSubjets > 1")
+ToolSvc += PHYSDiTauLowPtTPThinningTool
+
+#====================================================================
+# CREATE THE DERIVATION KERNEL ALGORITHM   
+#====================================================================
+
+from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
+DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("PHYSKernel",
+                                                                       ThinningTools = [PHYSTrackParticleThinningTool,PHYSMuonTPThinningTool,
+                                                                                        PHYSTauJetsThinningTool,PHYSTauTPThinningTool,
+                                                                                        PHYSDiTauTPThinningTool,PHYSDiTauLowPtThinningTool,PHYSDiTauLowPtTPThinningTool],
+                                                                       AugmentationTools = [PHYS_trigmatching_helper.matching_tool])
 
 
 #====================================================================
@@ -152,10 +183,15 @@ FlavorTagInit(JetCollections  = [ 'AntiKt4EMTopoJets','AntiKt4EMPFlowJets'], Seq
 # Truth collections
 #====================================================================
 if (DerivationFrameworkIsMonteCarlo):
-   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addMiniTruthCollectionLinks
+   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addMiniTruthCollectionLinks,addHFAndDownstreamParticles,addPVCollection
+   import DerivationFrameworkHiggs.TruthCategories 
    addStandardTruthContents()
    addMiniTruthCollectionLinks()
-   
+   addHFAndDownstreamParticles()
+   addPVCollection()
+   from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
+   if IsSUSYSignal():
+      from DerivationFrameworkSUSY.SUSYWeightMetadata import *
 
 #====================================================================
 # CONTENTS   
@@ -163,10 +199,10 @@ if (DerivationFrameworkIsMonteCarlo):
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 PHYSSlimmingHelper = SlimmingHelper("PHYSSlimmingHelper")
 
-PHYSSlimmingHelper.SmartCollections = ["Electrons", 
-                                       "Photons", 
-                                       "Muons", 
-                                       "PrimaryVertices", 
+PHYSSlimmingHelper.SmartCollections = ["Electrons",
+                                       "Photons",
+                                       "Muons",
+                                       "PrimaryVertices",
                                        "InDetTrackParticles",
                                        "AntiKt4EMTopoJets",
                                        "AntiKt4EMPFlowJets",
@@ -176,7 +212,9 @@ PHYSSlimmingHelper.SmartCollections = ["Electrons",
                                        "MET_Reference_AntiKt4EMTopo",
                                        "MET_Reference_AntiKt4EMPFlow",
                                        "TauJets",
-                                       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",      
+                                       "DiTauJets",
+                                       "DiTauJetsLowPt",
+                                       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                        "AntiKt4TruthWZJets",
                                        "AntiKt4TruthJets"
                                       ]
@@ -198,41 +236,37 @@ PHYSSlimmingHelper.IncludeMinBiasTriggerContent = True
 #addJetOutputs(PHYSSlimmingHelper,["PHYS"])
 
 # Truth containers
-PHYSSlimmingHelper.AppendToDictionary = {'TruthEvents':'xAOD::TruthEventContainer','TruthEventsAux':'xAOD::TruthEventAuxContainer',
-                                         'MET_Truth':'xAOD::MissingETContainer','MET_TruthAux':'xAOD::MissingETAuxContainer',
-                                         'MET_TruthRegions':'xAOD::MissingETContainer','MET_TruthRegionsAux':'xAOD::MissingETAuxContainer',
-                                         'TruthElectrons':'xAOD::TruthParticleContainer','TruthElectronsAux':'xAOD::TruthParticleAuxContainer',
-                                         'TruthMuons':'xAOD::TruthParticleContainer','TruthMuonsAux':'xAOD::TruthParticleAuxContainer',
-                                         'TruthPhotons':'xAOD::TruthParticleContainer','TruthPhotonsAux':'xAOD::TruthParticleAuxContainer',
-                                         'TruthTaus':'xAOD::TruthParticleContainer','TruthTausAux':'xAOD::TruthParticleAuxContainer',
-                                         'TruthNeutrinos':'xAOD::TruthParticleContainer','TruthNeutrinosAux':'xAOD::TruthParticleAuxContainer',
-                                         'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
-                                         'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer',
-                                         'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
-                                         'TruthWbosonWithDecayParticles':'xAOD::TruthParticleContainer','TruthWbosonWithDecayParticlesAux':'xAOD::TruthParticleAuxContainer',
-                                         'TruthWbosonWithDecayVertices':'xAOD::TruthVertexContainer','TruthWbosonWithDecayVerticesAux':'xAOD::TruthVertexAuxContainer',
-                                        }
-PHYSSlimmingHelper.AllVariables = ["MET_Truth",
-                                   "MET_TruthRegions",
-                                   "TruthElectrons",
-                                   "TruthMuons",
-                                   "TruthPhotons",
-                                   "TruthTaus",
-                                   "TruthNeutrinos",
-                                   "TruthBSM",
-                                   "TruthTop",
-                                   "TruthBoson",
-                                   "TruthWbosonWithDecayParticles",
-                                   "TruthWbosonWithDecayVertices"]
+if DerivationFrameworkIsMonteCarlo:
+   PHYSSlimmingHelper.AppendToDictionary = {'TruthEvents':'xAOD::TruthEventContainer','TruthEventsAux':'xAOD::TruthEventAuxContainer',
+                                            'MET_Truth':'xAOD::MissingETContainer','MET_TruthAux':'xAOD::MissingETAuxContainer',
+                                            'MET_TruthRegions':'xAOD::MissingETContainer','MET_TruthRegionsAux':'xAOD::MissingETAuxContainer',
+                                            'TruthElectrons':'xAOD::TruthParticleContainer','TruthElectronsAux':'xAOD::TruthParticleAuxContainer',
+                                            'TruthMuons':'xAOD::TruthParticleContainer','TruthMuonsAux':'xAOD::TruthParticleAuxContainer',
+                                            'TruthPhotons':'xAOD::TruthParticleContainer','TruthPhotonsAux':'xAOD::TruthParticleAuxContainer',
+                                            'TruthTaus':'xAOD::TruthParticleContainer','TruthTausAux':'xAOD::TruthParticleAuxContainer',
+                                            'TruthNeutrinos':'xAOD::TruthParticleContainer','TruthNeutrinosAux':'xAOD::TruthParticleAuxContainer',
+                                            'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
+                                            'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer',
+                                            'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
+                                            'TruthWbosonWithDecayParticles':'xAOD::TruthParticleContainer','TruthWbosonWithDecayParticlesAux':'xAOD::TruthParticleAuxContainer',
+                                            'TruthWbosonWithDecayVertices':'xAOD::TruthVertexContainer','TruthWbosonWithDecayVerticesAux':'xAOD::TruthVertexAuxContainer',
+                                            'TruthHFWithDecayParticles':'xAOD::TruthParticleContainer','TruthHFWithDecayParticlesAux':'xAOD::TruthParticleAuxContainer',
+                                            'TruthHFWithDecayVertices':'xAOD::TruthVertexContainer','TruthHFWithDecayVerticesAux':'xAOD::TruthVertexAuxContainer',
+                                            'TruthPrimaryVertices':'xAOD::TruthVertexContainer','TruthPrimaryVerticesAux':'xAOD::TruthVertexAuxContainer',
+                                           }
+
+   from DerivationFrameworkMCTruth.MCTruthCommon import addTruth3ContentToSlimmerTool
+   addTruth3ContentToSlimmerTool(PHYSSlimmingHelper)
+   PHYSSlimmingHelper.AllVariables += ['TruthHFWithDecayParticles','TruthHFWithDecayVertices']
 
 PHYSSlimmingHelper.ExtraVariables = ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.Tau1_wta.Tau2_wta.Tau3_wta.D2",
                                      "Electrons.TruthLink",
                                      "Muons.TruthLink",
                                      "Photons.TruthLink",
-                                     "TruthEvents.Q.XF1.XF2.PDGID1.PDGID2.PDFID1.PDFID2.X1.X2.weights.crossSection",
                                      "AntiKt2PV0TrackJets.pt.eta.phi.m",
                                      "AntiKt4EMTopoJets.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_eta.NumTrkPt500PV.PartonTruthLabelID",
-                                     "AntiKt4EMPFlowJets.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_eta.NumTrkPt500PV.PartonTruthLabelID"]
+                                     "AntiKt4EMPFlowJets.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_eta.NumTrkPt500PV.PartonTruthLabelID",
+                                     "TruthPrimaryVertices.t.x.y.z"]
 
 # Add trigger matching
 PHYS_trigmatching_helper.add_to_slimming(PHYSSlimmingHelper)

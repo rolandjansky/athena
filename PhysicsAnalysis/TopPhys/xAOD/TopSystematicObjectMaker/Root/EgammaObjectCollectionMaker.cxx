@@ -53,6 +53,9 @@ namespace top {
     m_isolationTool_HighPtCaloOnly("CP::IsolationTool_HighPtCaloOnly"),
     m_isolationTool_FCTight("CP::IsolationTool_FCTight"),
     m_isolationTool_FCLoose("CP::IsolationTool_FCLoose"),
+    m_isolationTool_PLVTight("CP::IsolationTool_PLVTight"),
+    m_isolationTool_PLVLoose("CP::IsolationTool_PLVLoose"),
+    m_isolationTool_LowPtPLV("CP::IsolationTool_LowPtPLV"),
     m_isolationCorr("CP::IsolationCorrectionTool") {
     declareProperty("config", m_config);
 
@@ -76,6 +79,9 @@ namespace top {
     declareProperty("IsolationTool_HighPtCaloOnly", m_isolationTool_HighPtCaloOnly);
     declareProperty("IsolationTool_FCTight", m_isolationTool_FCTight);
     declareProperty("IsolationTool_FCLoose", m_isolationTool_FCLoose);
+    declareProperty("IsolationTool_PLVTight", m_isolationTool_PLVTight);
+    declareProperty("IsolationTool_PLVLoose", m_isolationTool_PLVLoose);
+    declareProperty("IsolationTool_LowPtPLV", m_isolationTool_LowPtPLV);
     declareProperty("IsolationCorrectionTool", m_isolationCorr);
   }
 
@@ -117,6 +123,9 @@ namespace top {
       top::check(m_isolationTool_TightTrackOnly.retrieve(), "Failed to retrieve Isolation Tool");
       top::check(m_isolationTool_PflowLoose.retrieve(), "Failed to retrieve Isolation Tool");
       top::check(m_isolationTool_PflowTight.retrieve(), "Failed to retrieve Isolation Tool");
+      top::check(m_isolationTool_PLVTight.retrieve(), "Failed to retrieve Isolation Tool");
+      top::check(m_isolationTool_PLVLoose.retrieve(), "Failed to retrieve Isolation Tool");
+      top::check(m_isolationTool_LowPtPLV.retrieve(), "Failed to retrieve Isolation Tool");
     }
 
     top::check(m_isolationCorr.retrieve(), "Failed to retrieve Isolation Correction Tool");
@@ -220,7 +229,7 @@ namespace top {
           }
         }
         ///-- Isolation selection --///
-        static SG::AuxElement::ConstAccessor<float> ptcone20_TightTTVA_pt1000("ptcone20_TightTTVA_pt1000");
+        static const SG::AuxElement::ConstAccessor<float> ptcone20_TightTTVA_pt1000("ptcone20_TightTTVA_pt1000");
         char passIsol_FixedCutTight(0);
         char passIsol_FixedCutTightCaloOnly(0);
         char passIsol_FixedCutLoose(0);
@@ -274,12 +283,15 @@ namespace top {
   }
 
   StatusCode EgammaObjectCollectionMaker::executeElectrons(bool executeNominal) {
-    static SG::AuxElement::ConstAccessor<float> ptvarcone20_TightTTVA_pt1000("ptvarcone20_TightTTVA_pt1000");
-    static SG::AuxElement::ConstAccessor<float> ptvarcone30_TightTTVALooseCone_pt1000(
-      "ptvarcone30_TightTTVALooseCone_pt1000");
-    static SG::AuxElement::ConstAccessor<float> ptvarcone30_TightTTVALooseCone_pt500(
-      "ptvarcone30_TightTTVALooseCone_pt500");
-    static SG::AuxElement::ConstAccessor<float> neflowisol20("neflowisol20");
+    static const SG::AuxElement::ConstAccessor<float> ptvarcone20_TightTTVA_pt1000("ptvarcone20_TightTTVA_pt1000");
+    static const SG::AuxElement::ConstAccessor<float> ptvarcone30_TightTTVALooseCone_pt1000("ptvarcone30_TightTTVALooseCone_pt1000");
+    static const SG::AuxElement::ConstAccessor<float> ptvarcone30_TightTTVALooseCone_pt500("ptvarcone30_TightTTVALooseCone_pt500");
+    static const SG::AuxElement::ConstAccessor<float> neflowisol20("neflowisol20");
+    static const SG::AuxElement::ConstAccessor<short> PLV_TrackJetNTrack("PromptLeptonInput_TrackJetNTrack");
+    static const SG::AuxElement::ConstAccessor<float> PLV_DRlj("PromptLeptonInput_DRlj");
+    static const SG::AuxElement::ConstAccessor<float> PLV_PtRel("PromptLeptonInput_PtRel");
+    static const SG::AuxElement::ConstAccessor<float> PLV_PtFrac("PromptLeptonInput_PtFrac");
+    static const SG::AuxElement::ConstAccessor<float> PLV_PromptLeptonVeto("PromptLeptonVeto");
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_FCTight("AnalysisTop_Isol_FCTight");
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_FCLoose("AnalysisTop_Isol_FCLoose");
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_Tight("AnalysisTop_Isol_Tight");
@@ -287,6 +299,9 @@ namespace top {
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_TightTrackOnly("AnalysisTop_Isol_TightTrackOnly");
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_PflowTight("AnalysisTop_Isol_PflowTight");
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_PflowLoose("AnalysisTop_Isol_PflowLoose");
+    static SG::AuxElement::Accessor<char> AnalysisTop_Isol_PLVTight("AnalysisTop_Isol_PLVTight");
+    static SG::AuxElement::Accessor<char> AnalysisTop_Isol_PLVLoose("AnalysisTop_Isol_PLVLoose");
+    static SG::AuxElement::Decorator<float> byhand_LowPtPLV("LowPtPLV");
 
     const xAOD::EventInfo* eventInfo(nullptr);
 
@@ -381,6 +396,26 @@ namespace top {
         if (electron->isAvailable<float>("PromptLeptonVeto")) // r21
           electron->auxdecor<char>("AnalysisTop_Isol_PromptLeptonVeto") =
             (electron->auxdata<float>("PromptLeptonVeto") < -0.5) ? 1 : 0;
+
+	// New PLV: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/PromptLeptonTaggerIFF
+	// For PLV isolation, we need to compute additional variables in the low-pT regime (<12 GeV)
+	if ( PLV_TrackJetNTrack.isAvailable(*electron) &&
+	     PLV_DRlj.isAvailable(*electron) &&
+	     PLV_PtRel.isAvailable(*electron) &&
+	     PLV_PtFrac.isAvailable(*electron) )
+	  top::check(m_isolationTool_LowPtPLV->augmentPLV(*electron), "Failed to augment electron with LowPtPLV decorations");
+	else
+	  byhand_LowPtPLV(*electron) = 1.1; // decorate the electron ourselves following IFF default
+	if ( PLV_PromptLeptonVeto.isAvailable(*electron) &&
+	     ptvarcone30_TightTTVALooseCone_pt1000.isAvailable(*electron) ) {
+	  AnalysisTop_Isol_PLVTight(*electron) = (m_isolationTool_PLVTight->accept(*electron) ? 1 : 0);
+	  AnalysisTop_Isol_PLVLoose(*electron) = (m_isolationTool_PLVLoose->accept(*electron) ? 1 : 0);
+	}
+	else {
+	  // decorate with special character to indicate failure to retrieve necessary variables
+	  AnalysisTop_Isol_PLVTight(*electron) = 'n';
+	  AnalysisTop_Isol_PLVLoose(*electron) = 'n';
+	}
       }
 
       ///-- set links to original objects- needed for MET calculation --///

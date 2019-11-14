@@ -74,6 +74,8 @@ namespace top {
     std::map<std::string, std::unique_ptr<RCJetMC15> > m_VarRC;
     std::vector<std::string> m_VarRCJetRho;
     std::vector<std::string> m_VarRCJetMassScale;
+
+    static bool s_hasTruthEvent; // one-time check at first event we loop over
   };
 }
 #endif

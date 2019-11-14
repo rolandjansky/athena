@@ -3,7 +3,7 @@
 */
 
 /////////////////////////////////////////////////////////////////
-// NANOThinningTool.cxx, (c) ATLAS Detector software
+// PHYSLITEThinningTool.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 // Author: Kerim Suruliz (Kerim.Suruliz@cern.ch)
 // This thinning tool that thins all objects in the containers
@@ -11,14 +11,14 @@
 // mode, so if any other tool keps the objects, they will ultimately
 // be kept.
 
-#include "DerivationFrameworkExamples/NANOThinningTool.h"
+#include "DerivationFrameworkExamples/PHYSLITEThinningTool.h"
 #include "AthenaKernel/IThinningSvc.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include <vector>
 #include <string>
 
 // Constructor
-DerivationFramework::NANOThinningTool::NANOThinningTool( 	const std::string& t,
+DerivationFramework::PHYSLITEThinningTool::PHYSLITEThinningTool( 	const std::string& t,
                                                  		const std::string& n,
                                                  		const IInterface* p ) : 
   AthAlgTool(t,n,p),
@@ -31,23 +31,23 @@ DerivationFramework::NANOThinningTool::NANOThinningTool( 	const std::string& t,
   }
   
 // Destructor
-DerivationFramework::NANOThinningTool::~NANOThinningTool() {
+DerivationFramework::PHYSLITEThinningTool::~PHYSLITEThinningTool() {
 }  
 
 // Athena initialize and finalize
-StatusCode DerivationFramework::NANOThinningTool::initialize()
+StatusCode DerivationFramework::PHYSLITEThinningTool::initialize()
 {
      ATH_MSG_VERBOSE("initialize() ...");
      return StatusCode::SUCCESS;
 }
-StatusCode DerivationFramework::NANOThinningTool::finalize()
+StatusCode DerivationFramework::PHYSLITEThinningTool::finalize()
 {
      ATH_MSG_VERBOSE("finalize() ...");
      return StatusCode::SUCCESS;
 }
 
 // The thinning itself
-StatusCode DerivationFramework::NANOThinningTool::doThinning() const
+StatusCode DerivationFramework::PHYSLITEThinningTool::doThinning() const
 {
 
   // Loop over names of containers to thin

@@ -65,7 +65,7 @@ CP::CorrectionCode TauEfficiencyTriggerTool::getEfficiencyScaleFactor(const xAOD
     double& dEfficiencyScaleFactor, unsigned int /*iRunNumber*/, unsigned int /*iMu*/)
 {
   // check which true state is requestet
-  if (!m_bSkipTruthMatchCheck and checkTruthMatch(xTau) != m_eCheckTruth)
+  if (!m_bSkipTruthMatchCheck and getTruthParticleType(xTau) != m_eCheckTruth)
   {
     dEfficiencyScaleFactor = 1.;
     return CP::CorrectionCode::Ok;

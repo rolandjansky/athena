@@ -38,7 +38,7 @@ bool SUSYObjDef_xAOD :: isPrompt(const xAOD::IParticle* part) const {
       if(origin != MCTruthPartClassifier::PhotonConv) return false;
       if(originbkg == MCTruthPartClassifier::FSRPhot || originbkg == MCTruthPartClassifier::BremPhot) return true;
       origin = originbkg;
-      // [[fallthrough]]
+      /* FALLTHRU */
     case MCTruthPartClassifier::IsoElectron:
       return (origin == MCTruthPartClassifier::top
 	      || origin == MCTruthPartClassifier::WBoson

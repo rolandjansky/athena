@@ -29,13 +29,13 @@ orstr  = ' || '
 andstr = ' && '
 eltrigsel = '(EventInfo.eventTypeBitmask==1) || '+orstr.join(electronTriggers)
 elofflinesel = andstr.join(['count((Electrons.pt > 25*GeV) && (Electrons.DFCommonElectronsLHMedium)) >= 1',
-                            'count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt>20*GeV && AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_77_MV2c10) >= 1'
+                            'count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt>20*GeV &&  AntiKt4EMTopoJets_BTagging201810.DFCommonJets_FixedCutBEff_77_MV2c10) >= 1'
                             ])
 electronSelection = '( (' + eltrigsel + ') && (' + elofflinesel + ') )'
 
 mutrigsel = '(EventInfo.eventTypeBitmask==1) || '+orstr.join(muonTriggers)
 muofflinesel = andstr.join(['count((Muons.pt > 25*GeV) && (Muons.DFCommonMuonsPreselection)) >= 1',
-                            'count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt>20*GeV && AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_77_MV2c10) >= 1'
+                            'count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt>20*GeV &&  AntiKt4EMTopoJets_BTagging201810.DFCommonJets_FixedCutBEff_77_MV2c10) >= 1'
                             ])
 muonSelection = ' ( (' + mutrigsel + ') && (' + muofflinesel + ') )'
 expression = '( ' + electronSelection + ' || ' + muonSelection + ' )'
@@ -67,7 +67,9 @@ applyJetCalibration_xAODColl("AntiKt4EMTopo") # adds this to DerivationFramework
 updateJVT_xAODColl("AntiKt4EMTopo") # adds this to DerivationFrameworkJob by default
 
 from DerivationFrameworkFlavourTag.FlavourTagCommon import applyBTagging_xAODColl
-applyBTagging_xAODColl("AntiKt4EMTopo")
+applyJetCalibration_xAODColl("AntiKt4EMTopo_BTagging201810")
+updateJVT_xAODColl('AntiKt4EMTopo_BTagging201810')
+applyBTagging_xAODColl('AntiKt4EMTopo_BTagging201810')
 
 #=======================================
 # ESTABLISH THE THINNING HELPER

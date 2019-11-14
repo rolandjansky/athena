@@ -566,7 +566,14 @@ bool CombinedP4FromRecoTaus::GetUseCaloPtFlag(const xAOD::TauJet* tau){
   TLorentzVector tauRecP4;
   TLorentzVector tauMVATESP4;
   tauRecP4.SetPtEtaPhiM(tau->pt(), tau->eta(), tau->phi(), tau->m());
-  tauMVATESP4.SetPtEtaPhiM(tau->ptFinalCalib(), tau->etaFinalCalib(), tau->phiFinalCalib(), tau->mFinalCalib());
+  // This function is sometimes entered with a nonsense value (-1111) for the eta and phi of final calibration
+  // In that case, the set PtEtaPhiM can cause an overflow when converting pt/eta/phi to x/y/z
+  // This is protection against such an overflow
+  if (tau->etaFinalCalib()>-1000. || tau->phiFinalCalib()>-1000.){
+    tauMVATESP4.SetPtEtaPhiM(tau->ptFinalCalib(), tau->etaFinalCalib(), tau->phiFinalCalib(), tau->mFinalCalib());
+  } else {
+    tauMVATESP4.SetPtEtaPhiM(tau->ptFinalCalib(), 0., 0., tau->mFinalCalib());
+  }
   double et_tauRec = tauRecP4.Et();
   double et_MVATES = tauMVATESP4.Et();
 
