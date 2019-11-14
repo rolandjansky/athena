@@ -14,9 +14,7 @@
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
 #include "MuonReadoutGeometry/CscReadoutElement.h"
  
-#include "Identifier/Identifier.h"
-
-
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 /////////////////////////////////////////////////////////
 #include "AmdcMGM/AmdcDumpGeoModel.h"
@@ -24,17 +22,13 @@
 
 AmdcDumpGeoModel::AmdcDumpGeoModel(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-p_AmdcsimrecAthenaSvc ( "AmdcsimrecAthenaSvc",name ) 
+  m_muIdHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
+  p_AmdcsimrecAthenaSvc ( "AmdcsimrecAthenaSvc",name )
 {
 
   m_AmdcsimrecAthenaSvcUpdatedSvcDONE = false ; 
   m_KountCallsDoIt   = 0 ;
 
-   m_mdtId               = 0 ;  
-   m_cscId               = 0 ; 
-   m_rpcId               = 0 ; 
-   m_tgcId               = 0 ; 
-   p_detStore            = 0 ; 
    p_MuonDetectorManager = 0 ; 
 
 // CheckTEC if 1 perform the comparison for TEC 
@@ -194,31 +188,6 @@ StatusCode AmdcDumpGeoModel::initialize(){
       ATH_MSG_FATAL( "p_MuonDetectorManager not found !" ) ;
       return StatusCode::FAILURE;
     }
-
-    sc = detStore()->retrieve(m_mdtId,"MDTIDHELPER");
-    if (sc.isFailure()) {
-      ATH_MSG_FATAL( "Cannot retrieve m_mdtId" ) ;
-      return StatusCode::FAILURE;
-    }
-
-    sc = detStore()->retrieve(m_cscId,"CSCIDHELPER");
-    if (sc.isFailure()) {
-      ATH_MSG_FATAL( "Cannot retrieve m_cscId" ) ;
-      return StatusCode::FAILURE;
-    }
-
-    sc = detStore()->retrieve(m_rpcId,"RPCIDHELPER");
-    if (sc.isFailure()) {
-      ATH_MSG_FATAL( "Cannot retrieve m_rpcId" ) ;
-      return StatusCode::FAILURE;
-    }
-
-    sc = detStore()->retrieve(m_tgcId,"TGCIDHELPER");
-    if (sc.isFailure()) {
-      ATH_MSG_FATAL( "Cannot retrieve m_tgcId" ) ;
-      return StatusCode::FAILURE;
-    }
-
 
 //Retrieve p_AmdcsimrecAthenaSvc and set up call back
     if ( p_AmdcsimrecAthenaSvc.retrieve().isFailure() ) {
@@ -432,16 +401,16 @@ void AmdcDumpGeoModel::LoopMdtElements(std::ofstream&  OutFile) {
      	     					      dbr_index);
       if (pReadoutElement == NULL) continue;
       Identifier idr = pReadoutElement->identify();
-      Identifier idp = m_mdtId->parentID(idr);
+      Identifier idp = m_muIdHelper->mdtIdHelper().parentID(idr);
       for ( int tl=1; tl<=pReadoutElement->getNLayers();) 
       {
        int turn = 1 ;
        for ( int tube=1; tube<=pReadoutElement->getNtubesperlayer();) 
        {
-        Identifier channelId = m_mdtId->channelID(idp,
+        Identifier channelId = m_muIdHelper->mdtIdHelper().channelID(idp,
 	                                           pReadoutElement->getMultilayer(),
 						   tl, tube);
-        bool IsValid = m_mdtId->valid(channelId);
+        bool IsValid = m_muIdHelper->mdtIdHelper().valid(channelId);
 	if (IsValid) {
          MdtCompare(OutFile,channelId,pReadoutElement);
 	}else{
@@ -493,16 +462,16 @@ void AmdcDumpGeoModel::MdtCompare(
  Identifier               channelId,
  const MdtReadoutElement* pReadoutElement)
 {
-  bool IsValid = m_mdtId->valid(channelId);
+  bool IsValid = m_muIdHelper->mdtIdHelper().valid(channelId);
   if (IsValid) {
   
-    int SPstationName		   = m_mdtId->stationName(channelId);
-    std::string SPstationNameString = m_mdtId->stationNameString(SPstationName);
-    int SPstationEta		   = m_mdtId->stationEta(channelId);
-    int SPstationPhi		   = m_mdtId->stationPhi(channelId);
-    int SPmultilayer		   = m_mdtId->multilayer(channelId);
-    int SPtubeLayer 		   = m_mdtId->tubeLayer(channelId);
-    int SPtube 		           = m_mdtId->tube(channelId);
+    int SPstationName		   = m_muIdHelper->mdtIdHelper().stationName(channelId);
+    std::string SPstationNameString = m_muIdHelper->mdtIdHelper().stationNameString(SPstationName);
+    int SPstationEta		   = m_muIdHelper->mdtIdHelper().stationEta(channelId);
+    int SPstationPhi		   = m_muIdHelper->mdtIdHelper().stationPhi(channelId);
+    int SPmultilayer		   = m_muIdHelper->mdtIdHelper().multilayer(channelId);
+    int SPtubeLayer 		   = m_muIdHelper->mdtIdHelper().tubeLayer(channelId);
+    int SPtube 		           = m_muIdHelper->mdtIdHelper().tube(channelId);
 
     const  Amg::Vector3D globalPositionRO = pReadoutElement->ROPos(channelId);
     const  Amg::Vector3D globalPosition   = pReadoutElement->tubePos(channelId);
@@ -1007,23 +976,23 @@ void AmdcDumpGeoModel::LoopRpcElements(std::ofstream&  OutFile){
         					       dbz_index);
        if (pReadoutElement == NULL) continue;
        Identifier idr = pReadoutElement->identify();
-       Identifier idp = m_rpcId->parentID(idr);
+       Identifier idp = m_muIdHelper->rpcIdHelper().parentID(idr);
 
        int ndbphi = pReadoutElement->NphiStripPanels();
        for (int idbphi = 1; idbphi<=ndbphi; idbphi++)
        {
 //I do not understand this JFL(Wed Nov 17 13:43:44 CET 2004)
-        int dbp = m_rpcId->doubletPhi(idr);
+        int dbp = m_muIdHelper->rpcIdHelper().doubletPhi(idr);
         if (ndbphi>1 && idbphi>1) dbp = idbphi;
         for ( int igg=1; igg<3; igg++) 
         {
          int measphi = 1;
          for (int strip = 1; strip<=pReadoutElement->NphiStrips();)
          {
-          Identifier channelId = m_rpcId->channelID(idp,
-             				            m_rpcId->doubletZ(idr),
+          Identifier channelId = m_muIdHelper->rpcIdHelper().channelID(idp,
+             				            m_muIdHelper->rpcIdHelper().doubletZ(idr),
              				            dbp, igg, measphi, strip);
-          bool IsValid = m_rpcId->valid(channelId);
+          bool IsValid = m_muIdHelper->rpcIdHelper().valid(channelId);
 	  if (IsValid) {
            RpcCompare(OutFile,channelId,pReadoutElement);
 	  }else{
@@ -1044,10 +1013,10 @@ void AmdcDumpGeoModel::LoopRpcElements(std::ofstream&  OutFile){
          measphi = 0;
          for (int strip = 1; strip<=pReadoutElement->NetaStrips();)
          {
-          Identifier channelId = m_rpcId->channelID(idp,
-             					    m_rpcId->doubletZ(idr),
+          Identifier channelId = m_muIdHelper->rpcIdHelper().channelID(idp,
+             					    m_muIdHelper->rpcIdHelper().doubletZ(idr),
              					    dbp, igg, measphi, strip);
-          bool IsValid = m_rpcId->valid(channelId);
+          bool IsValid = m_muIdHelper->rpcIdHelper().valid(channelId);
 	  if (IsValid) {
            RpcCompare(OutFile,channelId,pReadoutElement);
 	  }else{
@@ -1088,18 +1057,18 @@ void AmdcDumpGeoModel::RpcCompare(
  const RpcReadoutElement* pReadoutElement)
 {
 
-  bool IsValid = m_rpcId->valid(channelId);
+  bool IsValid = m_muIdHelper->rpcIdHelper().valid(channelId);
   if (IsValid) {
-   int SPstationName               = m_rpcId->stationName(channelId);
-   std::string SPstationNameString = m_rpcId->stationNameString(SPstationName);
-   int SPstationEta                = m_rpcId->stationEta(channelId);
-   int SPstationPhi                = m_rpcId->stationPhi(channelId);
-   int SPDoubletR                  = m_rpcId->doubletR(channelId);
-   int SPDoubletZ                  = m_rpcId->doubletZ(channelId);
-   int SPDoubletPhi                = m_rpcId->doubletPhi(channelId);
-   int SPGasGap                    = m_rpcId->gasGap(channelId);
-   int SPMeasuresPhi               = m_rpcId->measuresPhi(channelId);
-   int SPStrip                     = m_rpcId->strip(channelId);
+   int SPstationName               = m_muIdHelper->rpcIdHelper().stationName(channelId);
+   std::string SPstationNameString = m_muIdHelper->rpcIdHelper().stationNameString(SPstationName);
+   int SPstationEta                = m_muIdHelper->rpcIdHelper().stationEta(channelId);
+   int SPstationPhi                = m_muIdHelper->rpcIdHelper().stationPhi(channelId);
+   int SPDoubletR                  = m_muIdHelper->rpcIdHelper().doubletR(channelId);
+   int SPDoubletZ                  = m_muIdHelper->rpcIdHelper().doubletZ(channelId);
+   int SPDoubletPhi                = m_muIdHelper->rpcIdHelper().doubletPhi(channelId);
+   int SPGasGap                    = m_muIdHelper->rpcIdHelper().gasGap(channelId);
+   int SPMeasuresPhi               = m_muIdHelper->rpcIdHelper().measuresPhi(channelId);
+   int SPStrip                     = m_muIdHelper->rpcIdHelper().strip(channelId);
 
    const Amg::Vector3D globalPosition = pReadoutElement->stripPos(channelId);
 
@@ -1326,10 +1295,10 @@ void AmdcDumpGeoModel::LoopTgcElements(std::ofstream&  OutFile){
      						     sphi_index);
      if (pReadoutElement == NULL) continue;
      Identifier idr  = pReadoutElement->identify();
-     Identifier idp  = m_tgcId->parentID(idr);
-     Identifier idp1 = m_tgcId->elementID(m_tgcId->stationName(idp),
-     					  -m_tgcId->stationEta(idp),
-     					  m_tgcId->stationPhi(idp));
+     Identifier idp  = m_muIdHelper->tgcIdHelper().parentID(idr);
+     Identifier idp1 = m_muIdHelper->tgcIdHelper().elementID(m_muIdHelper->tgcIdHelper().stationName(idp),
+     					  -m_muIdHelper->tgcIdHelper().stationEta(idp),
+     					  m_muIdHelper->tgcIdHelper().stationPhi(idp));
      const TgcReadoutElement* pReadoutElement1 = 
          p_MuonDetectorManager->getTgcReadoutElement(idp1);
 
@@ -1338,8 +1307,8 @@ void AmdcDumpGeoModel::LoopTgcElements(std::ofstream&  OutFile){
       int isStrip = 0 ;
       for (int channel = 1; channel<=pReadoutElement->getNGangs(ngg+1);)
       {
-       Identifier channelId = m_tgcId->channelID(idp,ngg+1, isStrip, channel);
-       bool IsValid = m_tgcId->valid(channelId);
+       Identifier channelId = m_muIdHelper->tgcIdHelper().channelID(idp,ngg+1, isStrip, channel);
+       bool IsValid = m_muIdHelper->tgcIdHelper().valid(channelId);
        if (IsValid) {
         TgcCompare(OutFile,channelId,pReadoutElement);
        }else{
@@ -1361,15 +1330,15 @@ void AmdcDumpGeoModel::LoopTgcElements(std::ofstream&  OutFile){
         OutFile  
                 << " getNGangs " << pReadoutElement->getNGangs(ngg+1) 
 		<< " Is this expected? " 
-		<< " " << m_tgcId->show_to_string(channelId)
+		<< " " << m_muIdHelper->tgcIdHelper().show_to_string(channelId)
 	        << std::endl; 
 	
        }
       }
       for (int channel = 1; channel<=pReadoutElement1->getNGangs(ngg+1);)
       {
-       Identifier channelId = m_tgcId->channelID(idp1,ngg+1, isStrip, channel);
-       bool IsValid = m_tgcId->valid(channelId);
+       Identifier channelId = m_muIdHelper->tgcIdHelper().channelID(idp1,ngg+1, isStrip, channel);
+       bool IsValid = m_muIdHelper->tgcIdHelper().valid(channelId);
        if (IsValid) {
         TgcCompare(OutFile,channelId,pReadoutElement1);
        }else{
@@ -1391,7 +1360,7 @@ void AmdcDumpGeoModel::LoopTgcElements(std::ofstream&  OutFile){
         OutFile  
                 << " getNGangs " << pReadoutElement1->getNGangs(ngg+1) 
 		<< " Is this expected? " 
-		<< " " << m_tgcId->show_to_string(channelId)
+		<< " " << m_muIdHelper->tgcIdHelper().show_to_string(channelId)
 	        << std::endl; 
 	
        }
@@ -1399,8 +1368,8 @@ void AmdcDumpGeoModel::LoopTgcElements(std::ofstream&  OutFile){
       isStrip = 1 ;
       for (int channel = 1; channel<=pReadoutElement->getNStrips(ngg+1);)
       {
-       Identifier channelId = m_tgcId->channelID(idp, ngg+1, isStrip, channel);
-       bool IsValid = m_tgcId->valid(channelId);
+       Identifier channelId = m_muIdHelper->tgcIdHelper().channelID(idp, ngg+1, isStrip, channel);
+       bool IsValid = m_muIdHelper->tgcIdHelper().valid(channelId);
        if (IsValid) {
         TgcCompare(OutFile,channelId,pReadoutElement);
        }else{
@@ -1422,15 +1391,15 @@ void AmdcDumpGeoModel::LoopTgcElements(std::ofstream&  OutFile){
 //         OutFile  
 //                 << " getNStrips " << pReadoutElement->getNStrips(ngg+1) 
 // 		<< " Is this expected? " 
-// 		<< " " << m_tgcId->show_to_string(channelId)
+// 		<< " " << m_muIdHelper->tgcIdHelper().show_to_string(channelId)
 // 	        << std::endl; 
 	
        }
       }
       for (int channel = 1; channel<=pReadoutElement1->getNStrips(ngg+1);)
       {
-       Identifier channelId = m_tgcId->channelID(idp1,ngg+1, isStrip, channel);
-       bool IsValid = m_tgcId->valid(channelId);
+       Identifier channelId = m_muIdHelper->tgcIdHelper().channelID(idp1,ngg+1, isStrip, channel);
+       bool IsValid = m_muIdHelper->tgcIdHelper().valid(channelId);
        if (IsValid) {
         TgcCompare(OutFile,channelId,pReadoutElement1);
        }else{
@@ -1449,11 +1418,6 @@ void AmdcDumpGeoModel::LoopTgcElements(std::ofstream&  OutFile){
        channel += pReadoutElement1->getNStrips(ngg+1)-1;
        if (channel == 1 ){
         channel = 2 ;
-//         OutFile  
-//                 << " getNStrips " << pReadoutElement1->getNStrips(ngg+1) 
-// 		<< " Is this expected? " 
-// 		<< " " << m_tgcId->show_to_string(channelId)
-// 	        << std::endl; 
 	
        }
       }
@@ -1476,15 +1440,15 @@ void AmdcDumpGeoModel::TgcCompare(
  Identifier               channelId,
  const TgcReadoutElement* pReadoutElement){
 
-  bool IsValid = m_tgcId->valid(channelId);
+  bool IsValid = m_muIdHelper->tgcIdHelper().valid(channelId);
   if (IsValid) {
-   int         SPstationName       = m_tgcId->stationName(channelId);
-   std::string SPstationNameString = m_tgcId->stationNameString(SPstationName);
-   int         SPstationEta        = m_tgcId->stationEta(channelId);
-   int         SPstationPhi        = m_tgcId->stationPhi(channelId);
-   int         SPGasGap            = m_tgcId->gasGap(channelId);
-   int         SPIsStrip           = m_tgcId->isStrip(channelId);
-   int         SPChannel           = m_tgcId->channel(channelId);
+   int         SPstationName       = m_muIdHelper->tgcIdHelper().stationName(channelId);
+   std::string SPstationNameString = m_muIdHelper->tgcIdHelper().stationNameString(SPstationName);
+   int         SPstationEta        = m_muIdHelper->tgcIdHelper().stationEta(channelId);
+   int         SPstationPhi        = m_muIdHelper->tgcIdHelper().stationPhi(channelId);
+   int         SPGasGap            = m_muIdHelper->tgcIdHelper().gasGap(channelId);
+   int         SPIsStrip           = m_muIdHelper->tgcIdHelper().isStrip(channelId);
+   int         SPChannel           = m_muIdHelper->tgcIdHelper().channel(channelId);
 
    const Amg::Vector3D globalPosition = pReadoutElement->channelPos(channelId);
    double GeoModX = globalPosition.x();
@@ -1706,11 +1670,11 @@ void AmdcDumpGeoModel::LoopCscElements(std::ofstream&  OutFile){
       if (pReadoutElement == NULL) continue;
 
       Identifier idr  = pReadoutElement->identify();
-      Identifier idp  = m_cscId->parentID(idr);
-      Identifier idp1 = m_cscId->elementID(m_cscId->stationName(idp),
-     	     				   -m_cscId->stationEta(idp),
-     	     				   m_cscId->stationPhi(idp));
-      Identifier idp1ch = m_cscId->channelID(idp1, 
+      Identifier idp  = m_muIdHelper->cscIdHelper().parentID(idr);
+      Identifier idp1 = m_muIdHelper->cscIdHelper().elementID(m_muIdHelper->cscIdHelper().stationName(idp),
+     	     				   -m_muIdHelper->cscIdHelper().stationEta(idp),
+     	     				   m_muIdHelper->cscIdHelper().stationPhi(idp));
+      Identifier idp1ch = m_muIdHelper->cscIdHelper().channelID(idp1, 
                                              pReadoutElement->ChamberLayer(), 
 					     1, 0, 1);
 //Why is it not getCscReadoutElement(idp1) JFL(Tue Nov 30 10:17:40 CET 2004)
@@ -1722,8 +1686,8 @@ void AmdcDumpGeoModel::LoopCscElements(std::ofstream&  OutFile){
        int MeasuresPhi = 0 ;
        for (int Strip=1; Strip<=pReadoutElement->NetaStrips(gg);)
        {
-        Identifier channelId = m_cscId->channelID(idp, ml+1, gg, MeasuresPhi, Strip);
-        bool IsValid = m_cscId->valid(channelId);
+        Identifier channelId = m_muIdHelper->cscIdHelper().channelID(idp, ml+1, gg, MeasuresPhi, Strip);
+        bool IsValid = m_muIdHelper->cscIdHelper().valid(channelId);
         if (IsValid) {
          CscCompare(OutFile,channelId,pReadoutElement);
         }else{
@@ -1745,15 +1709,15 @@ void AmdcDumpGeoModel::LoopCscElements(std::ofstream&  OutFile){
          OutFile  
                  << " NetaStrips " << pReadoutElement->NetaStrips(gg) 
 		 << " Is this expected? " 
-		 << " " << m_cscId->show_to_string(channelId)
+		 << " " << m_muIdHelper->cscIdHelper().show_to_string(channelId)
 	         << std::endl; 
 	
         }
        }
        for (int Strip=1; Strip<=pReadoutElement1->NetaStrips(gg);)
        {
-        Identifier channelId = m_cscId->channelID(idp1, ml+1, gg, MeasuresPhi, Strip);
-        bool IsValid = m_cscId->valid(channelId);
+        Identifier channelId = m_muIdHelper->cscIdHelper().channelID(idp1, ml+1, gg, MeasuresPhi, Strip);
+        bool IsValid = m_muIdHelper->cscIdHelper().valid(channelId);
         if (IsValid) {
          CscCompare(OutFile,channelId,pReadoutElement1);
         }else{
@@ -1775,7 +1739,7 @@ void AmdcDumpGeoModel::LoopCscElements(std::ofstream&  OutFile){
          OutFile  
                  << " NetaStrips " << pReadoutElement1->NetaStrips(gg) 
 		 << " Is this expected? " 
-		 << " " << m_cscId->show_to_string(channelId)
+		 << " " << m_muIdHelper->cscIdHelper().show_to_string(channelId)
 	         << std::endl; 
 	
         }
@@ -1783,8 +1747,8 @@ void AmdcDumpGeoModel::LoopCscElements(std::ofstream&  OutFile){
        MeasuresPhi = 1 ;
        for (int Strip=1; Strip<=pReadoutElement->NphiStrips(gg);)
        {
-        Identifier channelId = m_cscId->channelID(idp, ml+1, gg, MeasuresPhi, Strip);
-        bool IsValid = m_cscId->valid(channelId);
+        Identifier channelId = m_muIdHelper->cscIdHelper().channelID(idp, ml+1, gg, MeasuresPhi, Strip);
+        bool IsValid = m_muIdHelper->cscIdHelper().valid(channelId);
         if (IsValid) {
          CscCompare(OutFile,channelId,pReadoutElement);
         }else{
@@ -1805,7 +1769,7 @@ void AmdcDumpGeoModel::LoopCscElements(std::ofstream&  OutFile){
          OutFile  
                  << " NphiStrips " << pReadoutElement->NphiStrips(gg) 
 		 << " Is this expected? " 
-		 << " " << m_cscId->show_to_string(channelId)
+		 << " " << m_muIdHelper->cscIdHelper().show_to_string(channelId)
 	         << std::endl; 
 	
         }else{
@@ -1830,8 +1794,8 @@ void AmdcDumpGeoModel::LoopCscElements(std::ofstream&  OutFile){
        }
        for (int Strip=1; Strip<=pReadoutElement1->NphiStrips(gg);)
        {
-        Identifier channelId = m_cscId->channelID(idp1, ml+1, gg, MeasuresPhi, Strip);
-        bool IsValid = m_cscId->valid(channelId);
+        Identifier channelId = m_muIdHelper->cscIdHelper().channelID(idp1, ml+1, gg, MeasuresPhi, Strip);
+        bool IsValid = m_muIdHelper->cscIdHelper().valid(channelId);
         if (IsValid) {
          CscCompare(OutFile,channelId,pReadoutElement1);
         }else{
@@ -1852,7 +1816,7 @@ void AmdcDumpGeoModel::LoopCscElements(std::ofstream&  OutFile){
          OutFile  
                  << " NphiStrips " << pReadoutElement1->NphiStrips(gg) 
 		 << " Is this expected? " 
-		 << " " << m_cscId->show_to_string(channelId)
+		 << " " << m_muIdHelper->cscIdHelper().show_to_string(channelId)
 	         << std::endl; 
 	
         }else{
@@ -1895,16 +1859,16 @@ void AmdcDumpGeoModel::CscCompare(
  Identifier               channelId,
  const CscReadoutElement* pReadoutElement){
 
-  bool IsValid = m_cscId->valid(channelId);
+  bool IsValid = m_muIdHelper->cscIdHelper().valid(channelId);
   if (IsValid) {
-   int          SPstationName       = m_cscId->stationName(channelId);
-   std::string  SPstationNameString = m_cscId->stationNameString(SPstationName);
-   int          SPstationEta        = m_cscId->stationEta(channelId);
-   int          SPstationPhi        = m_cscId->stationPhi(channelId);
-   int          SPChamberLayer      = m_cscId->chamberLayer(channelId);
-   int          SPWireLayer	    = m_cscId->wireLayer(channelId);
-   int          SPMeasuresPhi	    = m_cscId->measuresPhi(channelId);
-   int          SPStrip	            = m_cscId->strip(channelId);
+   int          SPstationName       = m_muIdHelper->cscIdHelper().stationName(channelId);
+   std::string  SPstationNameString = m_muIdHelper->cscIdHelper().stationNameString(SPstationName);
+   int          SPstationEta        = m_muIdHelper->cscIdHelper().stationEta(channelId);
+   int          SPstationPhi        = m_muIdHelper->cscIdHelper().stationPhi(channelId);
+   int          SPChamberLayer      = m_muIdHelper->cscIdHelper().chamberLayer(channelId);
+   int          SPWireLayer	    = m_muIdHelper->cscIdHelper().wireLayer(channelId);
+   int          SPMeasuresPhi	    = m_muIdHelper->cscIdHelper().measuresPhi(channelId);
+   int          SPStrip	            = m_muIdHelper->cscIdHelper().strip(channelId);
  
    const Amg::Vector3D globalPosition = pReadoutElement->stripPos(channelId);
    double GeoModX = globalPosition.x();
