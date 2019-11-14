@@ -6,7 +6,7 @@ const Trig::Feature<T> Trig::DecisionAccess::ancestor(const HLT::TriggerElement*
   std::vector<Trig::Feature<T> > data;
   FeatureAccessImpl::collect<T>(te, data, label, TrigDefs::alsoDeactivateTEs, "", const_cast<HLT::TrigNavStructure*>(cgm()->navigation()));
 
-  BOOST_FOREACH( Feature<T>& f, data ) {
+  for( Feature<T>& f : data ) {
     if ( f.owned() ) {
       cgm()->deleteAtTheEndOfEvent( const_cast<T*>( f.cptr() ) );
     }
@@ -22,7 +22,7 @@ template<class T>
 const std::vector<Trig::Feature<T> > Trig::DecisionAccess::ancestors(const HLT::TriggerElement* te, std::string label, unsigned int condition, const std::string& teName) const {
   std::vector<Trig::Feature<T> > data;
   FeatureAccessImpl::collect<T>(te, data, label, condition, teName, const_cast<HLT::TrigNavStructure*>(cgm()->navigation()));
-  BOOST_FOREACH( Feature<T>& f, data ) {
+  for( Feature<T>& f : data ) {
     if ( f.owned() ) {
       cgm()->deleteAtTheEndOfEvent(const_cast<T*>( f.cptr() ));
     }

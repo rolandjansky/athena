@@ -12,10 +12,11 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           DetectorDescription/AtlasDetDescr
                           DetectorDescription/GeoPrimitives
-			  Generators/GeneratorObjects
+                          Generators/GeneratorObjects
                           GaudiKernel
                           Generators/GeneratorObjects
                           Simulation/Barcode/BarcodeEvent
+                          Simulation/G4Sim/TrackRecord
                           Simulation/ISF/ISF_Core/ISF_Event )
 
 # External dependencies:

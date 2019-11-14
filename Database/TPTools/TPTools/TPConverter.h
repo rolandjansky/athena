@@ -370,21 +370,45 @@ public:
   /// @copydoc ITPCnvBase::persToTransUntyped()
   virtual void persToTransUntyped(const void* pers,
                                   void* trans,
-                                  MsgStream& log)
+                                  MsgStream& log) override
   {
     persToTrans (reinterpret_cast<const PERS*> (pers),
                  reinterpret_cast<TRANS*> (trans),
                  log);
   }
 
+  /// @copydoc ITPCnvBase::persToTransWithKeyUntyped()
+  virtual void persToTransWithKeyUntyped(const void* pers,
+                                         void* trans,
+                                         const std::string& key,
+                                         MsgStream& log) override
+  {
+    persToTransWithKey (reinterpret_cast<const PERS*> (pers),
+                        reinterpret_cast<TRANS*> (trans),
+                        key,
+                        log);
+  }
+
   /// @copydoc ITPCnvBase::transToPersUntyped()
   virtual void transToPersUntyped(const void* trans,
                                   void* pers,
-                                  MsgStream& log)
+                                  MsgStream& log) override
   {
     transToPers (reinterpret_cast<const TRANS*> (trans),
                  reinterpret_cast<PERS*> (pers),
                  log);
+  }
+
+  /// @copydoc ITPCnvBase::transToPersWithKeyUntyped()
+  virtual void transToPersWithKeyUntyped(const void* trans,
+                                         void* pers,
+                                         const std::string& key,
+                                         MsgStream& log) override
+  {
+    transToPersWithKey (reinterpret_cast<const TRANS*> (trans),
+                        reinterpret_cast<PERS*> (pers),
+                        key,
+                        log);
   }
   
   // Default implementations (usually no need to overwrite)
@@ -420,10 +444,10 @@ public:
 
   
   /// @copydoc ITPCnvBase::transientTInfo()
-  virtual const std::type_info& transientTInfo() const { return typeid(TRANS); }
+  virtual const std::type_info& transientTInfo() const override { return typeid(TRANS); }
 
   /// @copydoc ITPCnvBase::persistentTInfo()
-  virtual const std::type_info& persistentTInfo() const { return typeid(PERS); }
+  virtual const std::type_info& persistentTInfo() const override { return typeid(PERS); }
 
 //protected:
   // various virtual "redirector" methods
@@ -435,7 +459,7 @@ public:
    @param trans [IN] empty transient object
    @param log [IN] output message stream   
   */
-  virtual void	pstoreToTrans( unsigned index, TRANS_BASE *trans, MsgStream &log ) {
+  virtual void	pstoreToTrans( unsigned index, TRANS_BASE *trans, MsgStream &log ) override {
      assert (index < m_pStorage->size());
      TRANS* trans_der = dynamic_cast<TRANS*>(trans);
      if (!trans_der) std::abort();
@@ -446,7 +470,7 @@ public:
       Here toPersistent_impl is invoked with the dynamic cast of the
       transient type pointer to it's actual type
   */
-  virtual TPObjRef virt_toPersistent( const TRANS_BASE *trans, MsgStream &log )  {
+  virtual TPObjRef virt_toPersistent( const TRANS_BASE *trans, MsgStream &log )  override {
      const TRANS* trans_der = dynamic_cast<const TRANS*>(trans);
      if (!trans_der) std::abort();
      return toPersistent_impl( trans_der, log);
@@ -456,7 +480,7 @@ public:
    * should never be called, as abstract type can not be
    * instantiated.  If it is called, it is a TP converter design error
    */
-  virtual TRANS* virt_createTransFromPStore( unsigned, MsgStream& ) {     
+  virtual TRANS* virt_createTransFromPStore( unsigned, MsgStream& ) override {
      throw std::runtime_error(
 	std::string("virt_createTransFromPStore() mothod not supported in TP converter for an abstract class: ")
 	+ typeid(*this).name() );
@@ -490,7 +514,7 @@ public:
   }
 
   /// Reserve 'size' elements for persistent storage
-  virtual void	reservePStorage( size_t size ) {
+  virtual void	reservePStorage( size_t size ) override {
      m_pStorage->reserve( size );
   }
 

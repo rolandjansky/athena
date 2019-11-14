@@ -26,7 +26,7 @@
 #include <math.h>
 #include <sys/types.h>
 
-const unsigned nFEBnominal=1524;
+//const unsigned nFEBnominal=1524;
 
 // ********************************************************************
 LArFEBMonAlg::LArFEBMonAlg( const std::string& name, ISvcLocator* pSvcLocator) 

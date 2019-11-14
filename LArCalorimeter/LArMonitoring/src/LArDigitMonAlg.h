@@ -64,7 +64,6 @@ private:
   Gaudi::Property<int>         m_NumberBadFebs     {this, "NumberBadFebs", 5};
   /**bool use to mask the bad channels*/
   Gaudi::Property<bool>        m_ignoreKnownBadChannels{this, "IgnoreBadChannels", false};
-  bool m_PercComputed;
   /** Switch to online/offline mode*/
   Gaudi::Property<bool>        m_IsOnline      {this, "IsOnline", false}; 
   /** Treshold to declare a bad event*/

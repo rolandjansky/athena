@@ -26,15 +26,15 @@ namespace NSWL1 {
     class PadTrigger {//S.I make this a proper class // needs a wrap-up
     public:
         uint16_t m_bandid; ///< see bandId below
-        float m_eta;
-        float m_phi;
-        float m_etamin;
+        float m_eta;//eta of the centroid of the pad tower
+        float m_phi; // phi of the centroid of the pad tower
+        float m_etamin;//bounding rectangles in eta-phi for the pad tower
         float m_etamax;
         float m_phimin;
         float m_phimax;
-        int   m_eta_id;
+        int   m_eta_id;//meaningless
         int   m_phi_id;
-        int   m_multiplet_id;
+        int   m_multiplet_id;//meaningless as theres no single wedge triggers
         int   m_isSmall;
         int m_moduleIdInner;
         int m_moduleIdOuter;
@@ -60,18 +60,24 @@ namespace NSWL1 {
         
         }
 
+        std::shared_ptr<PadData> firstPad() const;
+        std::shared_ptr<PadData> firstPadInner() const;
+        std::shared_ptr<PadData> firstPadOuter() const;
         uint16_t bctag()     const;
         int index() const { return m_triggerindex;}
         int sideId()        const; ///! sideId of the first pad in the trigger
         int sectorId()      const; ///! sectorId of the first pad in the trigger
+        int triggerSectorNumber() const;
         uint16_t bandId()   const { return m_bandid; }
         float eta()         const { return m_eta;    } ///! SectorTriggerCandidate eta center
         float phi()         const { return m_phi;    } ///! SectorTriggerCandidate phi center 
         float etaId()       const { return m_eta_id; } ///! SectorTriggerCandidate pad eta index 
-        float phiId()       const { return m_phi_id; } ///! SectorTriggerCandidate pad phi index
+        uint16_t phiId()       const { return m_phi_id; } ///! SectorTriggerCandidate pad phi index
         float multipletId() const { return m_multiplet_id; } ///! SectorTriggerCandidate pad multiplet index 
+        //=== boundaries of triggger band in eta
         float etaMin()      const {return m_etamin;}
         float etaMax()      const {return m_etamax;}
+        //========
         float phiMin()      const {return m_phimin;}
         float phiMax()      const {return m_phimax;}
         int isSmall ()      const {return m_isSmall;}
