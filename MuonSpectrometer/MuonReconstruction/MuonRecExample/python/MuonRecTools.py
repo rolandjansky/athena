@@ -24,7 +24,6 @@ from MuonCnvExample.MuonCalibFlags import mdtCalibFlags
 mdtCalibFlags.setDefaults()
 
 from RecExConfig.RecFlags import rec
-from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 from AthenaCommon.CfgGetter import getPrivateTool,getPrivateToolClone,getPublicTool,getPublicToolClone,\
@@ -225,8 +224,8 @@ def MuonExtrapolator(name='MuonExtrapolator',**kwargs):
 def MuonIdHelperTool(name="MuonIdHelperTool",**kwargs):
     from MuonIdHelpers.MuonIdHelpersConf import Muon__MuonIdHelperTool
     kwargs.setdefault("HasCSC", MuonGeometryFlags.hasCSC())
-    kwargs.setdefault("HasSTgc", (CommonGeometryFlags.Run()=="RUN3"))
-    kwargs.setdefault("HasMM", (CommonGeometryFlags.Run()=="RUN3"))
+    kwargs.setdefault("HasSTgc", MuonGeometryFlags.hasSTGC())
+    kwargs.setdefault("HasMM", MuonGeometryFlags.hasMM())
     return Muon__MuonIdHelperTool(name,**kwargs)
 
 def MuonEDMHelperTool(name='MuonEDMHelperTool',**kwargs):

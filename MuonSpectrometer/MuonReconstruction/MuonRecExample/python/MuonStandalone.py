@@ -8,7 +8,6 @@ __doc__ = """Configuration of Muon Spectrometer Standalone muon reconstruction""
 #
 #==============================================================
 from AthenaCommon import CfgMgr
-from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 from MuonStandaloneFlags import muonStandaloneFlags,MoorelikeStrategy
@@ -87,8 +86,8 @@ class MuonStandalone(ConfiguredMuonRec):
         if muonStandaloneFlags.segmentOrigin == 'TruthTracking':
             SegmentLocation = "ThirdChainSegments"
 
-        # we assume that RUN3 means that at least one sTgc and one MM chamber are present
-        if (CommonGeometryFlags.Run()=="RUN3"):
+        # do the following in case of a NSW
+        if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
             getPublicTool("MuonLayerHoughTool")
             self.addAlg( CfgMgr.MuonLayerHoughAlg( "MuonLayerHoughAlg", PrintSummary = muonStandaloneFlags.printSummary()  ) )
             if not muonStandaloneFlags.patternsOnly():
