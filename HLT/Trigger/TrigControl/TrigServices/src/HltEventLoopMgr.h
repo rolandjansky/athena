@@ -8,7 +8,6 @@
 // Trigger includes
 #include "TrigKernel/ITrigEventLoopMgr.h"
 #include "TrigKernel/HltPscErrorCode.h"
-#include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc.h"
 #include "TrigOutputHandling/HLTResultMTMaker.h"
 
 // Athena includes
@@ -48,7 +47,6 @@ class IAlgResourcePool;
 class IHiveWhiteBoard;
 class IIncidentSvc;
 class IJobOptionsSvc;
-class IROBDataProviderSvc;
 class IScheduler;
 class ITHistSvc;
 class StoreGateSvc;
@@ -187,7 +185,6 @@ private:
   ServiceHandle<StoreGateSvc>        m_evtStore;
   ServiceHandle<StoreGateSvc>        m_detectorStore;
   ServiceHandle<StoreGateSvc>        m_inputMetaDataStore;
-  ServiceHandle<IROBDataProviderSvc> m_robDataProviderSvc;
   ServiceHandle<ITHistSvc>           m_THistSvc;
   ServiceHandle<IIoComponentMgr>     m_ioCompMgr;
   ServiceHandle<IEvtSelector>        m_evtSelector{this, "EvtSel", "EvtSel"};
@@ -199,7 +196,6 @@ private:
   SmartIF<IAlgResourcePool> m_algResourcePool;
   SmartIF<IAlgExecStateSvc> m_aess;
   SmartIF<IScheduler> m_schedulerSvc;
-  SmartIF<ITrigROBDataProviderSvc> m_hltROBDataProviderSvc;
 
   // ------------------------- Other properties --------------------------------------
   Gaudi::Property<std::string> m_schedulerName{
