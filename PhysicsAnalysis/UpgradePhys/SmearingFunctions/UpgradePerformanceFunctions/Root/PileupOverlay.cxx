@@ -37,7 +37,8 @@ std::string UpgradePerformanceFunctions::setPileupTemplatesPath() {
     std::string puFile = PathResolverFindCalibFile(puFileName);
     ATH_MSG_INFO("Found PU histogram file: " << puFile);
     //    return m_puPath + "/PULibrary200_2.root";
-    return m_puPath;
+    //    return m_puPath;
+    return puFile;
     //return m_puPath + "/PULibrary200_2.root";
   }
   else
