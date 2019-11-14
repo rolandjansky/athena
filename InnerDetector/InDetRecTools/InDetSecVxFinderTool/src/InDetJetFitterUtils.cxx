@@ -238,9 +238,9 @@ namespace InDet
      weightReduced.inverse().eval();
      //using determinant as protection - better solution to come...
      if(weightReduced.determinant()==0)
-       {
-	 msg(MSG::WARNING) <<  " Problem inverting cov matrix in compatibility method" << endmsg; 
-       }
+     {
+	   msg(MSG::WARNING) <<  " Problem inverting cov matrix in compatibility method" << endmsg; 
+     }
      Amg::Vector2D paramsReduced((myLinearizedTrack->expectedParametersAtPCA())[0],(myLinearizedTrack->expectedParametersAtPCA())[1]);
      
      double returnv2= paramsReduced.transpose() * weightReduced * paramsReduced;
@@ -325,7 +325,7 @@ namespace InDet
     
     if (firstTrackPerigee==0 ||secondTrackPerigee==0)
     {
-      msg(MSG::WARNING) <<  " No Perigee in one of the two tracks at vertex. No sensible charge returned." << endmsg;
+      ATH_MSG_DEBUG( "No Perigee in one of the two tracks at vertex. No sensible charge returned." );
       return -100;
     }
     
@@ -363,7 +363,7 @@ namespace InDet
     
     if (firstTrackPerigee==0 ||secondTrackPerigee==0)
     {
-      msg(MSG::WARNING) <<  " No Perigee in one of the two tracks at vertex. No sensible mass returned." << endmsg;
+      ATH_MSG_DEBUG( "No Perigee in one of the two tracks at vertex. No sensible mass returned." );
       return -100;
     }
     
@@ -415,7 +415,7 @@ namespace InDet
     
     if (firstTrackPerigee==0 ||secondTrackPerigee==0)
     {
-      msg(MSG::WARNING) <<  " No Perigee in one of the two tracks at vertex. No sensible mass returned." << endmsg;
+      ATH_MSG_DEBUG( "No Perigee in one of the two tracks at vertex. No sensible mass returned." );
       return -100;
     }
     
@@ -470,7 +470,7 @@ namespace InDet
       }
       else
       {
-        msg(MSG::WARNING) << " The significance of the distance to the PV is negative or zero definite: " << endmsg;
+        ATH_MSG_WARNING( "The significance of the distance to the PV is negative or zero definite." );
 	//MU	msg(MSG::WARNING) << std::scientific << temp << " two-trk vertex : " << first << " PV " << second << std::fixed << endmsg;
       }
     }
@@ -478,11 +478,11 @@ namespace InDet
     {
       if (sumErrorsThenInverted.determinant()<=0)
       {
-        msg(MSG::WARNING) <<  " Sum of cov matrices of PV + single vertex fit is zero or negative. Error on distance is returned as 1000mm." << endmsg; 
+        ATH_MSG_DEBUG( "Sum of cov matrices of PV + single vertex fit is zero or negative. Error on distance is returned as 1000mm." ); 
       }
       else
       {
-        msg(MSG::DEBUG) << "The distance between the vertices is: " << endmsg;
+        ATH_MSG_DEBUG( "The distance between the vertices is: " << distance );
       }
     }
     return std::pair<double,double>(distance,error);
