@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGGER_DECISION_TOOL_Combination_H
@@ -24,7 +24,6 @@
 #include "TrigDecisionTool/Conditions.h"
 #include "TrigDecisionTool/CacheGlobalMemory.h"
 #include "TrigNavStructure/TrigNavStructure.h"
-#include "boost/foreach.hpp"
 #include <vector>
 
 #include "xAODBase/IParticle.h"
@@ -175,9 +174,9 @@ const std::vector<Trig::Feature<T> > Trig::Combination::get(const std::string& l
   std::vector<Feature<T> > data;
 
 #if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
-  BOOST_FOREACH( const HLT::TriggerElement* te, m_tes )
+  for( const HLT::TriggerElement* te : m_tes )
     FeatureAccessImpl::collect<T>(te, data, label, condition, teName, navigation());
-  BOOST_FOREACH( Feature<T>& f, data ) {
+  for( Feature<T>& f : data ) {
     if ( f.owned() ) {
       m_cgm->deleteAtTheEndOfEvent( const_cast<T*>( f.cptr() ) );
     }

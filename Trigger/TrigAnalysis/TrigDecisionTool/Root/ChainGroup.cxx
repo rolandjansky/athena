@@ -15,7 +15,7 @@
  ***********************************************************************************/
 #include <limits>
 #include "boost/regex.hpp"
-#include "boost/foreach.hpp"
+#include "boost/range/adaptor/reversed.hpp"
 
 #include "TrigConfHLTData/HLTChain.h"
 #include "TrigConfHLTData/HLTStreamTag.h"
@@ -500,7 +500,7 @@ Trig::ChainGroup::getListOfGroups() const {
 
    vector< string > v;
 
-   BOOST_FOREACH( const TrigConf::HLTChain* ch, m_confChains )
+   for( const TrigConf::HLTChain* ch : m_confChains )
       v.assign( ch->groups().begin(), ch->groups().end() );
 
    return v;
@@ -538,7 +538,7 @@ Trig::ChainGroup::getListOfThresholds() const {
    std::stack<const TrigConf::TriggerItemNode*> nodes;
    const TrigConf::TriggerItemNode* node;
 
-   BOOST_FOREACH( const TrigConf::TriggerItem* item, m_confItems ) {
+   for( const TrigConf::TriggerItem* item : m_confItems ) {
       nodes.push( item->topNode() );
       while (!nodes.empty()) {
          node = nodes.top(); nodes.pop();
@@ -554,7 +554,7 @@ Trig::ChainGroup::getListOfThresholds() const {
                s.insert(node->thresholdName());
             }
          } else {
-            BOOST_FOREACH(TrigConf::TriggerItemNode* childnode, node->children()) {
+           for(TrigConf::TriggerItemNode* childnode : node->children()) {
                nodes.push(childnode);
             }
          }
@@ -647,14 +647,14 @@ Trig::ChainGroup::update(const TrigConf::HLTChainList* confChains,
       boost::regex compiled(*it);
       boost::cmatch what;
 
-      BOOST_FOREACH(TrigConf::HLTChain* ch, *confChains) {
+      for(TrigConf::HLTChain* ch : *confChains) {
          if ( boost::regex_match(ch->chain_name().c_str(), what, compiled) ) {
             m_confChains.insert(ch);
             m_names.push_back(ch->chain_name());
          }
       }
 
-      BOOST_FOREACH(TrigConf::TriggerItem* item, *confItems) {
+      for(TrigConf::TriggerItem* item : *confItems) {
          if ( boost::regex_match( item->name().c_str(), what, compiled) ) {
             m_confItems.insert(item);
             m_names.push_back(item->name());
@@ -672,7 +672,7 @@ namespace ChainGroup_impl {
    using namespace Trig;
 
    bool allActive(const std::vector<TriggerElement*>& tes) {
-      BOOST_FOREACH(TriggerElement* te, tes){
+     for(TriggerElement* te : tes){
          if (te->getActiveState() == false)
             return false;
       }
@@ -685,7 +685,7 @@ namespace ChainGroup_impl {
       // go over the steps of the chain and collecte TEs combinations for each of the chain step (signature)
       bool last_step=true;
       const TrigConf::HLTSignature* previous_sig(0);
-      BOOST_REVERSE_FOREACH(const TrigConf::HLTSignature* sig, conf->signatureList()) {
+      for(const TrigConf::HLTSignature* sig : boost::adaptors::reverse(conf->signatureList())) {
          // chain without signatures
          if (!sig) break;
 
@@ -696,7 +696,7 @@ namespace ChainGroup_impl {
 
          std::vector<std::vector<HLT::TriggerElement*> > tes(sig->outputTEs().size()); // preallocate     
          size_t idx = 0;
-         BOOST_FOREACH(const TrigConf::HLTTriggerElement* confte, sig->outputTEs() ) {
+         for(const TrigConf::HLTTriggerElement* confte : sig->outputTEs() ) {
 
             // here the condition enters; if we take only accepted objects we need to pick only the active TEs
             cgm->navigation()->getAllOfType(confte->id(), tes[idx], condition & TrigDefs::Physics ); 	
@@ -743,7 +743,7 @@ Trig::ChainGroup::features(unsigned int condition) const {
    std::vector< std::vector< HLT::TriggerElement*> >::iterator tesit;
    const_conf_item_iterator it; // iterator over configuration items, *it is TrigConf::TriggerItem*
 
-   BOOST_FOREACH(const TrigConf::TriggerItem* item, m_confItems) {
+   for(const TrigConf::TriggerItem* item : m_confItems) {
 
       std::set< std::string > threshold_names;
       std::stack<const TrigConf::TriggerItemNode*>nodes;
@@ -768,7 +768,7 @@ Trig::ChainGroup::features(unsigned int condition) const {
                threshold_names.insert(node->thresholdName());
             }
          }
-         BOOST_FOREACH(TrigConf::TriggerItemNode* childnode, node->children()) {
+         for(TrigConf::TriggerItemNode* childnode : node->children()) {
             nodes.push(childnode);
          }
       }

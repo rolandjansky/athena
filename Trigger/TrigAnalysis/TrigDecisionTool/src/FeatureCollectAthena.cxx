@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AsgTools/AsgToolsConf.h"
@@ -66,8 +66,8 @@ namespace Trig{
 	return;
       }
 
-      BOOST_FOREACH(const Trig::Feature<TrigRoiDescriptor>& roi, rois) {
-	BOOST_FOREACH(const T& specific, (lvl1->*(method))() ) {
+      for(const Trig::Feature<TrigRoiDescriptor>& roi : rois) {
+	for(const T& specific : (lvl1->*(method))() ) {
           if (specific.getROIWord() == roi.cptr()->roiWord()) {
 	    data.push_back( Trig::Feature<T>( &specific, roi.te(), "") );
 	    break;

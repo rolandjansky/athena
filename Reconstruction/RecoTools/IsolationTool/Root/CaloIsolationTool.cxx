@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -36,7 +36,6 @@
 #include "xAODEgamma/EgammaxAODHelpers.h"
 #include "FourMomUtils/xAODP4Helpers.h"
 
-#include "boost/foreach.hpp"
 #include "boost/format.hpp"
 #include <cmath> 
 #include <map> 
@@ -882,7 +881,7 @@ namespace xAOD {
     
     ATH_MSG_DEBUG("In CaloIsolationTool::topoClustCones");
     
-    BOOST_FOREACH (const CaloCluster* cl, clusts) {
+    for (const CaloCluster* cl : clusts) {
       float et = (m_useEMScale ? cl->p4(CaloCluster::State::UNCALIBRATED).Et() : cl->pt() );
       if(et <= 0 || fabs(cl->eta()) > 7.0) continue;
 
@@ -915,7 +914,7 @@ namespace xAOD {
     
     ATH_MSG_DEBUG("In pflowObjCones obj eta = " << eta << " phi = " << phi);
     
-    BOOST_FOREACH (const PFO* cl, clusts) {
+    for (const PFO* cl : clusts) {
       float et = cl->pt();
       if (m_useEMScale)
 	et = cl->ptEM();
@@ -1020,7 +1019,7 @@ namespace xAOD {
       topoCore = fwdClus->p4(CaloCluster::State::UNCALIBRATED).Et();
       ATH_MSG_DEBUG("Including " << topoCore << " in the core transverse energy of the fwd electron");
     } else {
-      BOOST_FOREACH (const CaloCluster* cl, clusts) {
+      for (const CaloCluster* cl : clusts) {
 	ATH_MSG_DEBUG("cl: eta " << cl->eta() << " phi " << cl->phi() 
 		      << " E " << cl->p4(CaloCluster::State::UNCALIBRATED).E() 
 		      << " pt " << cl->p4(CaloCluster::State::UNCALIBRATED).Et() 
@@ -1147,7 +1146,7 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
   {
     
     float pflowCore(0.);
-    BOOST_FOREACH (const PFO* cl, clusts) {
+    for (const PFO* cl : clusts) {
       ATH_MSG_DEBUG("pflo: eta " << cl->eta() << " phi " << cl->phi() << " pt " << cl->pt() << " ptEM = " << cl->ptEM()
 		    << " charge " << cl->charge());
       float dphi = Phi_mpi_pi(cl->phi()-phi);
