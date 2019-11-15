@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation file for Athena-Rivet interface
@@ -28,10 +28,6 @@
 
 /// @todo Eliminate Boost?
 #include <boost/algorithm/string.hpp>
-#include "boost/foreach.hpp"
-#ifndef foreach
-#define foreach BOOST_FOREACH
-#endif
 
 #include <cstdlib>
 #include <memory>
@@ -103,7 +99,7 @@ StatusCode Rivet_i::initialize() {
       ATH_MSG_WARNING("$CMTCONFIG variable not set: finding the main analysis plugin directory will be difficult...");
     } else {
       const string libpath = "/InstallArea/" + cmtconfig + "/lib";
-      foreach (const string& p, cmtpaths) {
+      for (const string& p : cmtpaths) {
         const string cmtlibpath = p + libpath;
         if (PathResolver::find_file_from_list("RivetMCAnalyses.so", cmtlibpath).empty()) continue;
         ATH_MSG_INFO("Appending " + cmtlibpath + " to default Rivet analysis search path");
@@ -115,7 +111,7 @@ StatusCode Rivet_i::initialize() {
 
   // Then re-grab RIVET_ANALYSIS_PATH and append all the discovered std plugin paths to it
   string anapathstr = getenv_str("RIVET_ANALYSIS_PATH");
-  foreach (const string& ap, anapaths) {
+  for (const string& ap : anapaths) {
     if (anapathstr.size() > 0) anapathstr += ":";
     anapathstr += ap;
   }
@@ -137,11 +133,11 @@ StatusCode Rivet_i::initialize() {
   if (msgLvl(MSG::VERBOSE)) {
     vector<string> analysisNames = Rivet::AnalysisLoader::analysisNames();
     ATH_MSG_VERBOSE("List of available Rivet analyses:");
-    foreach (const string& a, analysisNames) ATH_MSG_VERBOSE(" " + a);
+    for (const string& a : analysisNames) ATH_MSG_VERBOSE(" " + a);
   }
 
   // Add analyses
-  foreach (const string& a, m_analysisNames) {
+  for (const string& a : m_analysisNames) {
     ATH_MSG_INFO("Loading Rivet analysis " << a);
     m_analysisHandler->addAnalysis(a);
     Rivet::Log::setLevel("Rivet.Analysis."+a, rivetLevel(msg().level()));
@@ -221,7 +217,7 @@ StatusCode Rivet_i::finalize() {
 
   // Convert YODA-->ROOT
   if (m_doRootHistos) {
-    foreach (const Rivet::AnalysisObjectPtr ao, m_analysisHandler->getData()) {
+    for (const Rivet::AnalysisObjectPtr ao : m_analysisHandler->getData()) {
       // Normalize path name to be usable by ROOT
       const string path = boost::replace_all_copy(ao->path(), "-", "_");
       const string basename = ao->path().substr(ao->path().rfind("/")+1); // There should always be >= 1 slash
