@@ -76,11 +76,10 @@ namespace xAODMaker {
      // Compress off-diagonal terms as much as possible, as long as the determinant stays positive
      while(det<=0. && offDiagComprBits<=m_diagCovMatrixBits){
 
-       xAOD::FloatCompressor* offDiagCovMatrixCompressor = new xAOD::FloatCompressor( offDiagComprBits);
+       const xAOD::FloatCompressor& fc = xAOD::FloatCompressor( offDiagComprBits);
 
        std::vector< float > offDiagVecCompr;
        for( unsigned int i = 0; i < offDiagVec.size(); ++i ) {
-	 const xAOD::FloatCompressor& fc = *offDiagCovMatrixCompressor;
 	 offDiagVecCompr.push_back(fc.reduceFloatPrecision( offDiagVec[i] ));
        }
 
@@ -90,7 +89,6 @@ namespace xAODMaker {
        det = covMatrixCompr.determinant();
 
        offDiagComprBits++;
-       delete offDiagCovMatrixCompressor;
 
      }
 
