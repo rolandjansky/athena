@@ -61,7 +61,7 @@ def createMuonConfigFlags():
     mcf.addFlag("Muon.enableErrorTuning",False) # turn on error tuning to account for misalignments
     mcf.addFlag("Muon.useLooseErrorTuning",False) 
     mcf.addFlag("Muon.useTGCPriorNextBC",False) # Use TGC measurements from Prior and Next Bunch Crossings. These measurements are available in the real data since somewhere in 2008.
-    mcf.addFlag("Muon.useAlignmentCorrections",False) # Apply alignment corrections to MuonGeoModel. The corrections are read from a COOL database
+    mcf.addFlag("Muon.useAlignmentCorrections",True) # Apply alignment corrections to MuonGeoModel. The corrections are read from a COOL database
     mcf.addFlag("Muon.useWireSagCorrections",False) # tApply wire sag corrections.
     
     # makePRDs - surely this is top level and redundant with makeRIO?

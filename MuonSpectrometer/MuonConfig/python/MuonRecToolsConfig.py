@@ -41,9 +41,9 @@ def MuonSeededSegmentFinderCfg(flags,name="MuonSeededSegmentFinder", **kwargs):
         seg_maker=""
         acc={}
         if flags.Beam.Type == 'collisions':
-            acc = DCMathSegmentMakerCfg( flags, MdtSegmentFinder = mdt_segment_finder, SinAngleCut = 0.04, DoGeometry = True)
+            acc = DCMathSegmentMakerCfg( flags, name = "MCTBDCMathSegmentMaker", MdtSegmentFinder = mdt_segment_finder, SinAngleCut = 0.04, DoGeometry = True)
         else:  # cosmics or singlebeam
-            acc = DCMathSegmentMakerCfg( flags, MdtSegmentFinder = mdt_segment_finder, SinAngleCut = 0.1,  DoGeometry = False, AddUnassociatedPhiHits= True )
+            acc = DCMathSegmentMakerCfg( flags, name = "MCTBDCMathSegmentMaker", MdtSegmentFinder = mdt_segment_finder, SinAngleCut = 0.1,  DoGeometry = False, AddUnassociatedPhiHits= True )
         seg_maker = acc.getPrimary()
         result.merge(acc)
         result.addPublicTool(seg_maker)
@@ -164,7 +164,7 @@ def MuonAmbiProcessorCfg(flags, name="MuonAmbiProcessor", **kwargs):
     result.setPrivateTools(Trk__TrackSelectionProcessorTool(name=name,**kwargs))
     return result
 
-def MuonTrackCleanerCfg(flags, **kwargs):
+def MuonTrackCleanerCfg(flags, name="MuonTrackCleaner", **kwargs):
     from MuonTrackFinderTools.MuonTrackFinderToolsConf import Muon__MuonTrackCleaner
     from MuonConfig.MuonRIO_OnTrackCreatorConfig import MdtDriftCircleOnTrackCreatorCfg, TriggerChamberClusterOnTrackCreatorCfg
     # declareProperty("IdHelper",m_idHelper);
@@ -196,24 +196,23 @@ def MuonTrackCleanerCfg(flags, **kwargs):
     result.merge( extrapolator_CA )
     kwargs.setdefault("Extrapolator", extrapolator)
 
-    acc = MCTBFitterCfg(flags, name = "SLFitter", StraightLine=True)
+    acc = MCTBFitterCfg(flags, name = "MCTBSLFitterMaterialFromTrack", StraightLine=True, GetMaterialFromTrack=True)
     slfitter = acc.getPrimary()
     acc.addPublicTool(slfitter)
     result.merge(acc)
     kwargs.setdefault("SLFitter", slfitter)
 
-    acc = MCTBFitterCfg(flags, name = "CurvedFitter")
+    acc = MCTBFitterCfg(flags, name = "MCTBFitterMaterialFromTrack", GetMaterialFromTrack=True)
     fitter = acc.getPrimary()
-    
     acc.addPublicTool(fitter)
     result.merge(acc)
-    kwargs.setdefault("Fitter", fitter)    
+    kwargs.setdefault("Fitter", fitter)
 
     # kwargs.setdefault("MagFieldSvc", mag_field_svc) Default for moment
 
     # FIXME - do remaining tools
     
-    result.setPrivateTools(Muon__MuonTrackCleaner(**kwargs))
+    result.setPrivateTools(Muon__MuonTrackCleaner(name, **kwargs))
     
     return result 
 
@@ -284,7 +283,6 @@ def MuonChi2TrackFitterCfg(flags, name='MuonChi2TrackFitter', **kwargs):
 
     extrapolator_CA = MuonExtrapolatorCfg(flags)
     extrapolator= extrapolator_CA.getPrimary()
-    
     result.addPublicTool(extrapolator) # TODO remove
     result.merge(extrapolator_CA)
     
@@ -353,19 +351,46 @@ def MCTBFitterCfg(flags, name='MCTBFitter', **kwargs):
     
     acc = MCTBExtrapolatorCfg(flags)
     mctbExtrapolator = acc.getPrimary()
+    result.addPublicTool(mctbExtrapolator)
     result.merge(acc)
     
     kwargs.setdefault("ExtrapolationTool", mctbExtrapolator)
     kwargs.setdefault("GetMaterialFromTrack", True)
     kwargs.setdefault("Momentum", flags.Muon.straightLineFitMomentum)
     
-    extra_kwargs = {}
-    if 'StraightLine' in kwargs:
-      # Pass this on! Can't safely just pass on kwargs, because MuonChi2TrackFitterCfg also has a property ExtrapolationTool
-      extra_kwargs.setdefault('StraightLine', kwargs['StraightLine'])
-    acc = MuonChi2TrackFitterCfg(flags, name=name, **extra_kwargs)
+    # extra_kwargs = {}
+    # if 'StraightLine' in kwargs:
+    #   # Pass this on! Can't safely just pass on kwargs, because MuonChi2TrackFitterCfg also has a property ExtrapolationTool
+    #   extra_kwargs.setdefault('StraightLine', kwargs['StraightLine'])
+    #   extra_kwargs.setdefault('GetMaterialFromTrack', kwargs['GetMaterialFromTrack'])
+    acc = MuonChi2TrackFitterCfg(flags, name=name, **kwargs)
     mctbfitter = acc.getPrimary()
     result.merge(acc)
     # print mctbfitter
     result.setPrivateTools(mctbfitter)
+    return result
+
+def MuonPhiHitSelector(flags, name="MuonPhiHitSelector",**kwargs):
+    from MuonSegmentCleaner.MuonSegmentCleanerConf import MuonPhiHitSelector
+    kwargs.setdefault("MakeClusters", True)
+    kwargs.setdefault("CompetingRios", True)
+    kwargs.setdefault("DoCosmics", flags.Beam.Type == 'cosmics')
+
+    return MuonPhiHitSelector(name,**kwargs)
+
+
+def MuPatHitToolCfg(flags, name="MuPatHitTool",**kwargs):
+    from MuonTrackSteeringTools.MuonTrackSteeringToolsConf import Muon__MuPatHitTool
+    from MuonConfig.MuonRIO_OnTrackCreatorConfig import CscClusterOnTrackCreatorCfg,MdtDriftCircleOnTrackCreatorCfg
+    
+    result = MdtDriftCircleOnTrackCreatorCfg(flags)
+    mdt_creator=result.getPrimary()
+    kwargs.setdefault("MdtRotCreator", mdt_creator)
+    
+    acc = CscClusterOnTrackCreatorCfg(flags)
+    csc_cluster_creator = acc.getPrimary()
+    result.merge(acc)
+    kwargs.setdefault("CscRotCreator", csc_cluster_creator)
+    
+    result.setPrivateTools(Muon__MuPatHitTool(name,**kwargs))
     return result

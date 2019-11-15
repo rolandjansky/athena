@@ -9,11 +9,20 @@ def MooTrackFitterCfg(flags, name = 'MooTrackFitter', **kwargs):
     # (Tons of explicit configuration missing from there though)
     from MuonTrackSteeringTools.MuonTrackSteeringToolsConf import Muon__MooTrackFitter
     from MuonSegmentMomentum.MuonSegmentMomentumConf import MuonSegmentMomentum
+    from MuonConfig.MuonRecToolsConfig import MuonPhiHitSelector, MuonTrackToSegmentToolCfg, MuonTrackSummaryHelperToolCfg, MuPatHitToolCfg
+    from MuonConfig.MuonRIO_OnTrackCreatorConfig import MdtDriftCircleOnTrackCreatorCfg
     
     result = MCTBFitterCfg(flags)
     mctb_fitter = result.getPrimary()
     result.addPublicTool(mctb_fitter)
     kwargs.setdefault("Fitter",          mctb_fitter)
+    kwargs.setdefault("FitterPreFit",          mctb_fitter)
+    
+    acc = MuPatHitToolCfg(flags)
+    mu_pat_hit_tool = acc.getPrimary()
+    result.addPublicTool(mu_pat_hit_tool)
+    result.merge(acc)
+    kwargs.setdefault("HitTool",          mu_pat_hit_tool)
     
     acc = MuonSTEP_PropagatorCfg(flags)
     muon_prop = acc.getPrimary()
@@ -35,16 +44,36 @@ def MooTrackFitterCfg(flags, name = 'MooTrackFitter', **kwargs):
     result.addPublicTool(momentum_estimator)
     kwargs.setdefault("SegmentMomentum", momentum_estimator )
     
-    kwargs.setdefault("CleanPhiHits",              True)
-    kwargs.setdefault("UsePreciseHits",            True)
-    kwargs.setdefault("UsePrefit",                 False)
-    kwargs.setdefault("SeedAtStartOfTrack",        False)
+    acc = MuonTrackToSegmentToolCfg(flags)
+    track_to_segment_tool =  acc.getPrimary()
+    kwargs.setdefault("TrackToSegmentTool", track_to_segment_tool)    
+    result.merge(acc)
+    
+    acc = MdtDriftCircleOnTrackCreatorCfg(flags)
+    mdt_dcot_creator = acc.getPrimary()
+    kwargs.setdefault("MdtRotCreator", mdt_dcot_creator)
+    result.merge(acc)
+    
+    kwargs.setdefault("PhiHitSelector",  MuonPhiHitSelector(flags))
+    
     
     acc = MuonTrackCleanerCfg(flags)
     track_cleaner = acc.getPrimary()
     result.merge(acc)
     result.addPublicTool(track_cleaner)
     kwargs.setdefault("TrackCleaner",  track_cleaner)
+    # Leaving "SegmentInOverlapTool" as default, which is what happens in the current configuration.
+    
+    acc = MuonTrackSummaryHelperToolCfg(flags)
+    track_summary_helper = acc.getPrimary()
+    result.merge(acc)
+    kwargs.setdefault("TrackSummaryTool",  track_summary_helper)
+    
+    
+    kwargs.setdefault("CleanPhiHits",              True)
+    kwargs.setdefault("UsePreciseHits",            True)
+    kwargs.setdefault("UsePrefit",                 False)
+    kwargs.setdefault("SeedAtStartOfTrack",        False)
     
     fitter = Muon__MooTrackFitter(name, **kwargs)
     result.setPrivateTools(fitter)
@@ -91,8 +120,8 @@ def MooTrackBuilderCfg(flags, name="MooTrackBuilderTemplate", **kwargs):
     result.merge(acc)
     kwargs.setdefault("SeededSegmentFinder", muon_seeded_segment_finder)
 
-    result = MdtDriftCircleOnTrackCreatorCfg(flags)
-    mdt_dcot_creator = result.getPrimary()
+    acc = MdtDriftCircleOnTrackCreatorCfg(flags)
+    mdt_dcot_creator = acc.getPrimary()
     kwargs.setdefault("MdtRotCreator", mdt_dcot_creator)
     result.merge(acc)
     
