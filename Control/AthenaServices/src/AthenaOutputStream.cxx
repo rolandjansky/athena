@@ -641,7 +641,14 @@ void AthenaOutputStream::collectAllObjects() {
    }
    m_objects.clear();  // clear previous list
    for (auto it = prunedList.begin(); it != prunedList.end(); ++it) {
-      m_objects.push_back(*it);  // copy new into previous
+      if ((*it)->name().length() > 4 && (*it)->name().substr((*it)->name().length() - 4) == "Aux.") {
+         m_objects.push_back(*it);  // first copy aux store new into previous
+      }
+   }
+   for (auto it = prunedList.begin(); it != prunedList.end(); ++it) {
+      if ((*it)->name().length() <= 4 || (*it)->name().substr((*it)->name().length() - 4) != "Aux.") {
+         m_objects.push_back(*it);  // then copy others new into previous
+      }
    }
 }
 
