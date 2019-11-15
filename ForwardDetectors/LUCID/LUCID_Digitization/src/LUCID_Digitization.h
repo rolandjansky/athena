@@ -17,8 +17,8 @@ class LUCID_DigiTop : public AthAlgorithm {
 public:
   LUCID_DigiTop(const std::string& name, ISvcLocator* svcLoc);
   virtual ~LUCID_DigiTop() = default;
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
   virtual bool isClonable() const override final { return true; }
 private:
   ToolHandle<IPileUpTool> m_mergeTool{this, "LUCID_PileUpTool", "LUCID_PileUpTool", ""};
