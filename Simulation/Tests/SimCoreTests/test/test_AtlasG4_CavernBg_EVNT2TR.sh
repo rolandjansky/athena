@@ -25,6 +25,10 @@ AtlasG4_tf.py \
 --imf False
 
 rc=$?
+
+# remove HITS file so it does not trigger regression
+rm discard.HITS.pool.root
+
 rc2=-9999
 echo  "art-result: $rc simulation"
 if [ $rc -eq 0 ]
