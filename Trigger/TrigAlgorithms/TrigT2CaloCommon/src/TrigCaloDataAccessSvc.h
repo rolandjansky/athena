@@ -49,7 +49,7 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
 
   
   virtual StatusCode loadFullCollections ( const EventContext& context,
-                                           ConstDataVector<CaloCellContainer>& cont ) override;
+                                           CaloConstCellContainer& cont ) override;
   
  private:
   

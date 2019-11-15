@@ -142,8 +142,7 @@ StatusCode TrigCaloDataAccessSvc::loadCollections ( const EventContext& context,
 
 
 StatusCode TrigCaloDataAccessSvc::loadFullCollections ( const EventContext& context,
-                                                        ConstDataVector<CaloCellContainer>& cont ) {
-
+                                                        CaloConstCellContainer& cont ) {
 
   // Gets all data
   {
@@ -167,9 +166,10 @@ StatusCode TrigCaloDataAccessSvc::loadFullCollections ( const EventContext& cont
   CaloCellContainer* cont_to_copy = m_hLTCaloSlot.get(context)->fullcont ;
   cont.clear();
   cont.reserve( cont_to_copy->size() );
-  for( const CaloCell* c : *cont_to_copy ) cont.push_back( c );
+  for( const CaloCell* c : *cont_to_copy ) cont.push_back_fast( c );
       
   ATH_CHECK( sc == 0 );
+  
   return StatusCode::SUCCESS;
 }
 
@@ -214,7 +214,6 @@ unsigned int TrigCaloDataAccessSvc::prepareLArFullCollections( const EventContex
         //status |= 0x1; // dummy code
         clearMissing( vrodid32fullDet, robFrags, ( cache->larContainer ) );
       }
-
   } // end of for m_vrodid32fullDetHG.size()
 
   int detid(0);
