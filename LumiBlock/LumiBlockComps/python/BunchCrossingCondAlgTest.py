@@ -2,7 +2,7 @@
 from future import standard_library
 standard_library.install_aliases()
 
-import sys
+import sys,os
 from LumiBlockComps.BunchCrossingCondAlgConfig import BunchCrossingCondAlgCfg
 
 from LumiBlockComps.dummyLHCFillDB import createSqlite,fillFolder
@@ -46,6 +46,12 @@ def createBCMask2():
 
     
 #First, create a dummy database to work with: 
+
+#Delete any previous instance, if there is any:
+try:
+    os.remove("test.db")
+except OSError:
+    pass
 
 #Copy the standard db content for one run (330470, LB301) to IOV 1 - 2 
 copycmd='AtlCoolCopy "COOLONL_TDAQ/CONDBR2" "sqlite://;schema=test.db;dbname=CONDBR2" -c -f /TDAQ/OLC/LHC/FILLPARAMS -ts 1500867637 -tu 1500867638 -a -nts 0 -ntu 2'
