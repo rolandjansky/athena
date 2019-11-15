@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+from __future__ import print_function
+
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 import os.path
 import sys
@@ -16,8 +18,8 @@ inputXMLname = '../schema/L1CTSpecifications.xml'
 outputNames = 'L1Common'
 
 opts, remainder = getopt.getopt( argv[1:], 'i:o:', ['inputXML=','outputNames='])
-#print "OPTIONS: ", opts
-#print "REMAINDER: ", remainder
+#print ("OPTIONS: ", opts)
+#print ("REMAINDER: ", remainder)
 
 for opt,arg in opts:
     if opt in ['-i','--inputXML']:
@@ -66,7 +68,7 @@ childIndex = 0
 for child in root:
     childIndex +=1
     if child.find('name') is None:
-        #print message_missingElement.format(number=childIndex, element='name')
+        #print (message_missingElement.format(number=childIndex, element='name'))
         exit(1)
     elif child.find('name').text[1:-1] in nameVersionsDict:
         nameVersionsDict[child.find('name').text[1:-1]].append(child.attrib['ns'])
@@ -74,7 +76,7 @@ for child in root:
         versionList = [child.attrib['ns']]
         nameVersionsDict[child.find('name').text[1:-1]] = versionList
 
-#print nameVersionsDict
+#print (nameVersionsDict)
 staticList = [] #parameters that didn't change so far
 for name in nameVersionsDict:
     if len(nameVersionsDict[name])==1:
@@ -82,7 +84,7 @@ for name in nameVersionsDict:
     for vers in nameVersionsDict[name]:
         count = nameVersionsDict[name].count(vers)
         if count>1:
-            #print 'ERROR: Element "',name,'" occurs several times with same version (' , vers, '). Please fix config file.'
+            #print ('ERROR: Element "',name,'" occurs several times with same version (' , vers, '). Please fix config file.')
             exit(1)
 
 
@@ -97,7 +99,7 @@ for v in list(versionDict)[1:]:
     for child in root:
         childIndex +=1
         if child.attrib['ns'] is None:
-            #print message_missingElement.format(number=childIndex, element='ns')
+            #print (message_missingElement.format(number=childIndex, element='ns'))
             exit(1)
         else:
             if child.attrib['ns']==v:
@@ -187,7 +189,7 @@ def CreateFiles(time):
         for child in root:
             hasChanged = False
             childIndex=childIndex+1
-            #print 'looking at child #', childIndex
+            #print ('looking at child #', childIndex)
             
             if child.attrib['ns'] not in versionDict:
                 #print 'Version ID ', child.attrib['ns'], ' not recognised. Should be one of ', versionDict.keys()
@@ -195,22 +197,22 @@ def CreateFiles(time):
             
             #check if all the attributes necessary are set
             if child.find('name') is None:
-                #print message_missingElement.format(number=childIndex, element='name')
+                #print (message_missingElement.format(number=childIndex, element='name'))
                 exit(1)
             if child.find('type') is None:
-                #print message_missingElement.format(number=childIndex, element='type')
+                #print (message_missingElement.format(number=childIndex, element='type'))
                 exit(1)
             if child.find('value') is None:
-                #print message_missingElement.format(number=childIndex, element='value')
+                #print (message_missingElement.format(number=childIndex, element='value'))
                 exit(1)
                 
                 
             #check wether parameter has already been written, don't write again
             if child.find('name').text[1:-1] in nameList:
-                #print child.find('name').text[1:-1], ' already written. Skipping.'
+                #print (child.find('name').text[1:-1], ' already written. Skipping.')
                 continue
             #else:
-                #print 'Found new parameter: ', child.find('name').text[1:-1]
+                #print ('Found new parameter: ', child.find('name').text[1:-1])
             
             
             #-------------------------------------------------------------
@@ -232,7 +234,7 @@ def CreateFiles(time):
                 hasChanged=True
             
             if child.attrib['ns']!=tmp_v:
-                #print 'Version (' , child.attrib['ns'] , ') is not what we are looking for right now. Skipping.'
+                #print ('Version (' , child.attrib['ns'] , ') is not what we are looking for right now. Skipping.')
                 continue
                 
                 
