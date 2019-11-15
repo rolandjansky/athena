@@ -81,9 +81,11 @@ StatusCode TrigMultiTrkHypoMT::initialize()
     if(m_particleType == 0){
         ATH_CHECK( m_trackParticleContainerKey.initialize() );
         renounce(m_trackParticleContainerKey);
+        ATH_CHECK( m_muonContainerKey.initialize(false) );//Not using muons
     } else if (m_particleType == 1){
         ATH_CHECK( m_muonContainerKey.initialize() );
         renounce(m_muonContainerKey);
+        ATH_CHECK( m_trackParticleContainerKey.initialize(false) ); //Not using tracks
     } else{
         ATH_MSG_ERROR("Particle type > 1 requested, we are not configured for that yet!");
     }
