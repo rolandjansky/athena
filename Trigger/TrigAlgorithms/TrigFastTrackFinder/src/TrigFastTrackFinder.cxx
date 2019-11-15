@@ -12,7 +12,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <cmath>
+#include <cstring>
 #include <iostream>
+#include <fstream>
 #include <algorithm>
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
@@ -69,6 +71,8 @@
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "CxxUtils/make_unique.h"
 
+#include "PathResolver/PathResolver.h"
+
 TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* pSvcLocator) : 
 
   HLT::FexAlgo(name, pSvcLocator), 
@@ -121,6 +125,8 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   declareProperty("DoubletDR_Max",            m_tcs.m_doublet_dR_Max = 270.0);
   declareProperty("SeedRadBinWidth",            m_tcs.m_seedRadBinWidth = 2.0);
 
+  declareProperty("UseTrigSeedML",            m_tcs.m_useTrigSeedML = 0);
+  declareProperty("TrigSeedML_LUT",      m_trigseedML_LUT = "trigseed_ML_loose.lut");
   /** Triplet finding properties. */
 
   declareProperty("Triplet_D0Max",            m_tcs.m_tripletD0Max      = 4.0);
@@ -401,6 +407,44 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
   ATH_MSG_DEBUG(" Feature set recorded with Key " << m_attachedFeatureName);
   ATH_MSG_DEBUG(" doResMon " << m_doResMonitoring);
   ATH_MSG_DEBUG(" Initialized successfully"); 
+
+  if(m_tcs.m_useTrigSeedML > 0) {
+    //create dummy LUT
+
+    TrigSeedML_LUT* pL = new TrigSeedML_LUT;
+    pL->m_w = 30;
+    pL->m_h = 45;
+    pL->m_c[0] = 0.0;
+    pL->m_c[1] = 3.0;
+    pL->m_c[2] = 0.0;
+    pL->m_c[3] = 9.0;
+    pL->m_data = new unsigned char[pL->m_w*pL->m_h];
+    memset(&pL->m_data[0], 1, pL->m_w*pL->m_h);
+
+    pL->initialize();
+
+    //read data from LUT file 
+    std::string lut_fileName = PathResolver::find_file(m_trigseedML_LUT, "DATAPATH");
+    if (lut_fileName.empty()) {
+      ATH_MSG_WARNING("Cannot find barrel LUT file " << lut_fileName);
+      m_tcs.m_useTrigSeedML = 0;
+    }
+    else {
+      ATH_MSG_INFO(lut_fileName);
+      std::ifstream ifs(lut_fileName.c_str());
+      int row, col0, col1;
+      while(!ifs.eof()) {
+	ifs >> row >> col0 >> col1;
+	if(ifs.eof()) break;
+	for(int c=col0;c<=col1;c++) pL->setBin(row, c);
+      }
+      ifs.close();
+      ATH_MSG_INFO("TrigSeedML LUT initialized from file " << m_trigseedML_LUT);
+    }
+    
+    m_tcs.m_vLUT.push_back(pL);
+  }
+
   return HLT::OK;
 }
 
@@ -964,6 +1008,15 @@ HLT::ErrorCode TrigFastTrackFinder::hltFinalize()
     }
   }
   ATH_MSG_INFO("=========================================================");
+
+  if(m_tcs.m_useTrigSeedML > 0) {
+
+    for(std::vector<const TrigSeedML_LUT*>::iterator it = m_tcs.m_vLUT.begin();it!=m_tcs.m_vLUT.end();++it) {
+      delete *it;
+    }
+    m_tcs.m_vLUT.clear();
+  }
+
 
   return HLT::OK;
 }

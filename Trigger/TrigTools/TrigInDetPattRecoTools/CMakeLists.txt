@@ -10,7 +10,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigInDetEvent
                           Trigger/TrigEvent/TrigInDetPattRecoEvent
                           PRIVATE
-                          DetectorDescription/IRegionSelector )
+                          DetectorDescription/IRegionSelector 
+                          InnerDetector/InDetRecEvent/InDetPrepRawData)
 
 # Component(s) in the package:
 atlas_add_library( TrigInDetPattRecoTools
