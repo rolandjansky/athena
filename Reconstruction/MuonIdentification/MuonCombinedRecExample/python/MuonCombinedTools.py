@@ -78,6 +78,7 @@ def MuonCreatorTool(name="MuonCreatorTool",**kwargs):
         kwargs.setdefault('MakeTrackAtMSLink',True)
         kwargs.setdefault("FillTimingInformation",False)
         kwargs.setdefault("MuonSelectionTool", "")
+        kwargs.setdefault("UseCaloCells", False)
     else:
         getPublicTool("MuonMomentumBalanceSignificanceTool")
         getPublicTool("MuonScatteringAngleSignificanceTool")

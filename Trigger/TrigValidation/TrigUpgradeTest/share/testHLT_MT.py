@@ -348,6 +348,7 @@ if TriggerFlags.doCalo():
     svcMgr.ToolSvc += TrigDataAccess()
 
 if TriggerFlags.doMuon():
+    TriggerFlags.MuonSlice.doTrigMuonConfig=True
     import MuonCnvExample.MuonCablingConfig  # noqa: F401
     import MuonRecExample.MuonReadCalib      # noqa: F401
     if globalflags.InputFormat.is_pool():
