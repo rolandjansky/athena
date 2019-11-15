@@ -1633,8 +1633,8 @@ namespace Muon {
     int phi = m_idHelperTool->mdtIdHelper().stationPhi(chid);
     int name = m_idHelperTool->mdtIdHelper().stationName(chid);
     int isBarrel = m_idHelperTool->mdtIdHelper().isBarrel(chid);
-    TrkDriftCircleMath::MdtStationId  stationId( isBarrel, name, eta, phi );
-
+    int isSmallMdt = m_idHelperTool->mdtIdHelper().isSmallMdt(chid);
+    TrkDriftCircleMath::MdtStationId stationId( isSmallMdt, isBarrel, name, eta, phi );
 
     // get detEL for first ml (always there)
     const MuonGM::MdtReadoutElement* detEl1 = m_detMgr->getMdtReadoutElement( m_idHelperTool->mdtIdHelper().channelID( name,eta,phi,1,1,1 ) );
