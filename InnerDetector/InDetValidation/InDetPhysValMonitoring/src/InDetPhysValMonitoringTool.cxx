@@ -372,9 +372,14 @@ InDetPhysValMonitoringTool::fillHistograms() {
     
     if (associatedTruth) {
       hasTruth += 1;
-      if (prob < minProbEffLow) { // nan will also fail this test
+
+      if (not std::isnan(prob)) {
+        // Fixing double counting of fake rates --> fill fake rates only once within track loop
         const bool isFake = (prob < minProbEffLow);
         m_monPlots->fillFakeRate(*thisTrack, isFake);
+      }
+
+      if (prob < minProbEffLow) { // nan will also fail this test
         if ((associatedTruth->barcode() < 200e3)and(associatedTruth->barcode() != 0)) {
           Prim_w = 1; // Fake Primary, set weight to 1
         }
@@ -510,8 +515,6 @@ InDetPhysValMonitoringTool::fillHistograms() {
             if (prob > minProbEffLow) {
               matches.push_back(std::make_pair(prob, thisTrack));
             }
-            const bool isFake = (prob < minProbEffLow);
-            m_monPlots->fillFakeRate(*thisTrack, isFake);
           }
         }
       }
