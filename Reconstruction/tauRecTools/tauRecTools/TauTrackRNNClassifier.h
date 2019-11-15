@@ -56,7 +56,7 @@ public:
   virtual StatusCode execute(xAOD::TauJet& pTau) override;
   virtual StatusCode executeShotFinder(xAOD::TauJet&, xAOD::CaloClusterContainer&, xAOD::PFOContainer&) override { return StatusCode::SUCCESS; }
   virtual StatusCode executePi0CreateROI(xAOD::TauJet&, CaloCellContainer&) override { return StatusCode::SUCCESS; }
-  virtual StatusCode executePi0ClusterCreator(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&, xAOD::CaloClusterContainer&) override { return StatusCode::SUCCESS; }
+  virtual StatusCode executePi0ClusterCreator(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&, xAOD::CaloClusterContainer&, const xAOD::CaloClusterContainer&) override { return StatusCode::SUCCESS; }
   virtual StatusCode executeVertexVariables(xAOD::TauJet&, xAOD::VertexContainer&) override { return StatusCode::SUCCESS; }
   virtual StatusCode executePi0ClusterScaler(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&) override { return StatusCode::SUCCESS; }
   virtual StatusCode executePanTau(xAOD::TauJet&, xAOD::ParticleContainer&) override { return StatusCode::SUCCESS; }
@@ -89,7 +89,7 @@ class TrackRNN
   virtual StatusCode initialize() override;
   virtual StatusCode executeShotFinder(xAOD::TauJet&, xAOD::CaloClusterContainer&, xAOD::PFOContainer&) override { return StatusCode::SUCCESS; }
   virtual StatusCode executePi0CreateROI(xAOD::TauJet&, CaloCellContainer&) override { return StatusCode::SUCCESS; }
-  virtual StatusCode executePi0ClusterCreator(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&, xAOD::CaloClusterContainer&) override { return StatusCode::SUCCESS; }
+  virtual StatusCode executePi0ClusterCreator(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&, xAOD::CaloClusterContainer&, const xAOD::CaloClusterContainer&) override { return StatusCode::SUCCESS; }
   virtual StatusCode executeVertexVariables(xAOD::TauJet&, xAOD::VertexContainer&) override { return StatusCode::SUCCESS; }
   virtual StatusCode executePi0ClusterScaler(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&) override { return StatusCode::SUCCESS; }
   virtual StatusCode executePi0nPFO(xAOD::TauJet&, xAOD::PFOContainer&) override { return StatusCode::SUCCESS; }
