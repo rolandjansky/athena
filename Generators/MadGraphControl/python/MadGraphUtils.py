@@ -255,6 +255,31 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
     # Check if process is NLO or LO
     isNLO=is_NLO_run(proc_dir=proc_dir)
 
+    # use f2py2 if f2py not available
+    if reweight_card_loc is not None:
+        from distutils.spawn import find_executable
+        if find_executable('f2py') is not None:
+            mglog.info('Found f2py, can run reweighting.')
+        elif find_executable('f2py2') is not None:
+            mglog.info('f2py is called f2py2 on this machine, will update configuration')
+            if isNLO:
+                config_card=proc_dir+'/Cards/amcatnlo_configuration.txt'
+            else:
+                config_card=proc_dir+'/Cards/me5_configuration.txt'
+            shutil.move(config_card,config_card+'.old')
+            oldcard = open(config_card+'.old','r')
+            newcard = open(config_card,'w')
+            for line in oldcard:
+                if 'f2py_compiler' in line:
+                    newcard.write(' f2py_compiler = f2py2\n')
+                else:
+                    newcard.write(line)
+            oldcard.close()
+            newcard.close()
+        else:
+            mglog.error('Could not find f2py or f2py2, needed for reweighting')
+            return 1
+
     if grid_pack:
         #Running in gridpack mode
         mglog.info('Started generating gridpack at '+str(time.asctime()))
@@ -659,7 +684,8 @@ def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,r
         mglog.info( sorted( os.listdir( currdir ) ) )
         mglog.info('For your information, ls of '+gridpack_dir+':')
         mglog.info( sorted( os.listdir( gridpack_dir ) ) )
-
+        if is_version_or_newer([2,6,3]):
+            modify_run_card(gridpack_dir+'/Cards/run_card.dat',gridpack_dir+'/Cards/run_card.backup',{'python_seed' : random_seed})
         run_card_consistency_check(isNLO=isNLO,path=gridpack_dir)
         generate = subprocess.Popen([gridpack_dir+'/bin/run.sh',str(int(nevents)),str(int(random_seed))],stdin=subprocess.PIPE)
         generate.communicate()
@@ -825,15 +851,7 @@ def getMadGraphVersion():
 def setupFastjet(isNLO, proc_dir=None):
 
     mglog.info('Path to fastjet install dir:%s'%os.environ['FASTJETPATH'])
-
-
-    getfjconfig = subprocess.Popen(['get_files','-data','fastjet-config'])
-    getfjconfig.wait()
-    #Get custom fastjet-config
-    if not os.access(os.getcwd()+'/fastjet-config',os.X_OK):
-        mglog.error('Failed to get fastjet-config from MadGraphControl')
-        return 1
-    fastjetconfig = os.getcwd()+'/fastjet-config'
+    fastjetconfig = os.environ['FASTJETPATH']+'/bin/fastjet-config'
 
     mglog.info('fastjet-config --version:      %s'%str(subprocess.Popen([fastjetconfig, '--version'],stdout = subprocess.PIPE).stdout.read().strip()))
     mglog.info('fastjet-config --prefix:       %s'%str(subprocess.Popen([fastjetconfig, '--prefix'],stdout = subprocess.PIPE).stdout.read().strip()))
@@ -2191,6 +2209,7 @@ def build_run_card(run_card_old='run_card.SM.dat',run_card_new='run_card.dat',
     oldcard = open(run_card_old,'r')
     newcard = open(run_card_new,'w')
     used_options = []
+    python_seed_set=False
     for line in oldcard:
         if '= xqcut ' in line:
             newcard.write('%f   = xqcut   ! minimum kt jet measure between partons \n'%(xqcut))
@@ -2198,6 +2217,9 @@ def build_run_card(run_card_old='run_card.SM.dat',run_card_new='run_card.dat',
             newcard.write('  %i       = nevents ! Number of unweighted events requested \n'%(nevts))
         elif ' iseed ' in line:
             newcard.write('   %i      = iseed   ! rnd seed (0=assigned automatically=default)) \n'%(rand_seed))
+        elif ' python_seed ' in line:
+            python_seed_set=True
+            newcard.write('   %i      = python_seed   ! python seed (hidden parameter) \n'%(rand_seed))
         elif ' ebeam1 ' in line:
             newcard.write('   %i      = ebeam1  ! beam 1 energy in GeV \n'%(int(beamEnergy)))
         elif ' ebeam2 ' in line:
@@ -2208,7 +2230,7 @@ def build_run_card(run_card_old='run_card.SM.dat',run_card_new='run_card.dat',
             newcard.write(' %3.2f     = alpsfact         ! scale factor for QCD emission vx \n'%(alpsfact))
         else:
             for ak in extras:
-                excludeList=['xqcut','nevents','iseed','ebeam1','ebeam2','scalefact','alpsfact']
+                excludeList=['xqcut','nevents','iseed','ebeam1','ebeam2','scalefact','alpsfact','python_seed']
                 if ak in excludeList:
                     mglog.error('You are trying to set "%s" with the extras parameter in build_run_card, this must be set in the build_run_card arguments instead.'%ak)
                     raise RuntimeError('You are trying to set "%s" with the extras parameter in build_run_card, this must be set in the build_run_card arguments instead.'%ak)
@@ -2237,6 +2259,8 @@ def build_run_card(run_card_old='run_card.SM.dat',run_card_new='run_card.dat',
                 newcard.write(line)
     # Clean up options that weren't used
     newcard.write('\n')
+    if not python_seed_set and not isNLO and is_version_or_newer([2,6,3]):
+        newcard.write('   %i      = python_seed   ! python seed (hidden parameter) \n'%(rand_seed))
     for ak in extras:
         if ak in used_options: continue
         mglog.warning('Option '+ak+' was not in the default run_card.  Adding by hand a setting to '+str(extras[ak]) )
@@ -2437,20 +2461,25 @@ def run_card_consistency_check(isNLO=False,path='.'):
     for k,v in mydict.iteritems():
         mglog.info( '"%s" = %s'%(k,v) )
 
+    if is_version_or_newer([2,5,0]):
+        # We should always use event_norm = average [AGENE-1725] otherwise Pythia cross sections are wrong
+        if is_version_or_newer([2,6,1]):
+            if not checkSetting('event_norm','average',mydict):
+                modify_run_card(cardpath,cardpath.replace('.dat','_backup.dat'),{'event_norm':'average'})
+        # Only needed for 2.5.0 to 2.6.0 to battle problem with inconsistent event weights [AGENE-1542]
+        # Will likely cause Pythia to calculate the wrong cross section [AGENE-1725]
+        else:
+            if not isNLO and checkSettingIsTrue('use_syst',mydict):
+                if not checkSetting('event_norm','sum',mydict):
+                    modify_run_card(cardpath,cardpath.replace('.dat','_backup.dat'),{'event_norm':'sum'})
+                    mglog.warning("Setting 'event_norm' to 'sum' -- this will mean the cross section calculated by Pythia is most likely wrong.")
+
     if not isNLO:
         #Check CKKW-L setting
         if float(mydict['ktdurham']) > 0 and int(mydict['ickkw']) != 0:
             log='Bad combination of settings for CKKW-L merging! ktdurham=%s and ickkw=%s.'%(mydict['ktdurham'],mydict['ickkw'])
             mglog.error(log)
             raise RuntimeError(log)
-
-        version = getMadGraphVersion() # avoiding code duplication
-        # Only needed for 2.5.0 and later
-        if int(version.split('.')[0])>=2 and int(version.split('.')[1])>=5:
-            #event_norm must be "sum" for use_syst to work
-            if mydict['use_syst'].replace('.','').lower() in ['t','true']:
-                if 'event_norm' not in mydict or mydict['event_norm']!="sum":
-                    modify_run_card(cardpath,cardpath.replace('.dat','_backup.dat'),{'event_norm':'sum'})
 
         # Check if user is trying to use deprecated syscalc arguments with the other systematics script
         if is_version_or_newer([2,6,2]) and (not 'systematics_program' in mydict or mydict['systematics_program']=='systematics'):
@@ -2476,6 +2505,13 @@ def run_card_consistency_check(isNLO=False,path='.'):
         # still need to set pdf and systematics
         syst_settings=MadGraphSystematicsUtils.get_pdf_and_systematic_settings(MADGRAPH_PDFSETTING,isNLO)
         modify_run_card(cardpath,cardpath.replace('.dat','_before_syst.dat'),syst_settings)
+
+    if not isNLO and is_version_or_newer([2,6,3]):
+        if not 'python_seed' in mydict:
+            mglog.warning('No python seed set in run_card -- adding one with same value as iseed')
+            modify_run_card(cardpath,cardpath+'.iseed.backup',{'python_seed' : mydict['iseed']})
+        elif int(mydict['python_seed'])!=int(mydict['iseed']):
+            raise RuntimeError('python_seed and iseed do not agree')
 
     mglog.info('Finished checking run card - All OK!')
     return

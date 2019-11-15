@@ -50,8 +50,12 @@ assert evgenConfig.generators
 if any(gen in ranluxlist for gen in evgenConfig.generators):
     evgenLog.info("Using RanLux random numbers!")
     atRndmGenSvc = svcMgr.AtRanluxGenSvc
+    atRndmGenSvc.EventReseeding = False
+    print "Events will not be reseeded (RunLuxGenSvc) "
 else:
     atRndmGenSvc = svcMgr.AtRndmGenSvc
+    atRndmGenSvc.EventReseeding = False
+    print "Events will not be reseeded (RndmGenSvc) "
 
 ## Pass the random seed from the transform command line into each used generator's seed config string
 seedstrs = []

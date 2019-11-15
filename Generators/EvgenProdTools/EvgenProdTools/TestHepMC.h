@@ -50,7 +50,7 @@ public:
   bool m_doHist;
   bool m_beamEnergyTest, m_vtxNaNTest, m_vtxDisplacedTest, m_momNaNTest, m_lifeTimeTest, m_energyG4Test;
   bool m_energyImbalanceTest, m_momImbalanceTest, m_negativeEnergyTest, m_tachyonsTest, m_unstableNoVtxTest;
-  bool m_pi0NoVtxTest, m_undisplacedDaughtersTest;
+  bool m_pi0NoVtxTest, m_undisplacedDaughtersTest, m_unknownPDGIDTest;
 
   std::vector<int> m_vertexStatuses;
 
@@ -84,13 +84,14 @@ public:
   int m_Status1ShortLifetime;
   int m_undisplacedDecayDaughtersOfDisplacedVtxCheckRate;
   int m_nonG4_energyCheckRate;
+  int m_unknownPDGIDCheckRate;
 
   std::string m_paramFile;
-  
-  std::ifstream G4file;
-  std::ifstream susyFile;
+  std::string m_unknownPDGIDFile;
+
   vector<int> m_G4pdgID_tab;
   vector<int> m_SusyPdgID_tab;
+  vector<int> m_uknownPDGID_tab;
   TruthHelper::IsGenNonInteracting nonint;
 
   /// @todo Can we use the GenAnalysis / AthHistoAlg methods for histo management?
