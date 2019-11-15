@@ -1,5 +1,5 @@
 # TrigDB modifier
-# Usage: athenaMT/PT -C 'include("TriggerRelease/dbmod_nameAuditor.py")' ...
+# Usage: athenaMT/PT -C 'include("TriggerJobOpts/dbmod_nameAuditor.py")' ...
 #
 # Enable NameAuditor
 #

@@ -24,7 +24,7 @@ if [ -z ${SKIPEVENTS} ]; then
 fi
 
 if [ -z ${JOBOPTION} ]; then
-  export JOBOPTION="TriggerRelease/runHLT_standalone.py"
+  export JOBOPTION="TriggerJobOpts/runHLT_standalone.py"
 fi
 
 if [ -z ${JOB_LOG} ]; then

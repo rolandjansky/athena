@@ -136,7 +136,7 @@ AOD_ItemList+=["PileUpEventInfo#*"]
 #obsolete AOD_ItemList+=[ "DetStatusMap#DetectorStatus" ]
 
 if AODFlags.Trigger:
-     include ("TriggerRelease/TriggerOutputItemListAOD_jobOptions.py")
+     include ("TriggerJobOpts/TriggerOutputItemListAOD_jobOptions.py")
 
 
 # now merge the explicit AOD list to the one coming from ObjKeyStore

@@ -5,7 +5,7 @@
 # deployment in the online DB.
 #
 # Usage:
-#  athena.py -c "sqlite='noise.db'" TriggerRelease/test_hltConditions.py
+#  athena.py -c "sqlite='noise.db'" TriggerJobOpts/test_hltConditions.py
 #  - Other options can be found below
 #
 # Author: Frank Winklmeier
@@ -23,7 +23,7 @@ EvtMax=10
 BSRDOInput='/afs/cern.ch/atlas/project/trigger/pesa-sw/validation/atn-test/data16_13TeV.00307126.physics_eb_zmm_egz.merged.RAW.selected._0001.data'
 
 myfolder = folder     # 'folder' seesm to be overwritten somwhere in the include
-include('TriggerRelease/runHLT_standalone.py')
+include('TriggerJobOpts/runHLT_standalone.py')
 folder = myfolder
 
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr

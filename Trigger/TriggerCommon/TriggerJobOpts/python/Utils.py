@@ -1,8 +1,8 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 ######################################################################
-## @file   TriggerRelease/python/Utils.py
-## @brief  Utilities for TriggerRelease
+## @file   TriggerJobOpts/python/Utils.py
+## @brief  Utilities for TriggerJobOpts
 ## @author Frank Winklmeier
 ## $Id: Utils.py,v 1.1 2008-08-20 13:07:06 fwinkl Exp $
 ######################################################################
@@ -15,7 +15,8 @@ def uniqueFileName():
    # Unique for templated applications
    name = os.environ.get("TDAQ_APPLICATION_NAME","")
    # Unqiue for normal applications
-   if name == "": name = os.environ.get("TDAQ_APPLICATION_OBJECT_ID","")
+   if name == "":
+      name = os.environ.get("TDAQ_APPLICATION_OBJECT_ID","")
       
    if name != "":
       # Make sure no "/" is in the name

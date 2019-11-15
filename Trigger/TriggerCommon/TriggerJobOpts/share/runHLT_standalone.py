@@ -1,5 +1,5 @@
 ##############################################################
-# TriggerRelease/runHLT_standalone.py
+# TriggerJobOpts/runHLT_standalone.py
 #
 #   jobOption file to run HLT standalone (independant of RecExCommon)
 #
@@ -34,7 +34,7 @@
 #   Good defaults are provided for running on physics MC and cosmics Data
 #   Change by specifying list in "setModifiers" or turn modifiers on/off
 #    by doing "myModifier=True/False"
-#   Existing modifiers can be found in "TriggerRelease/python/Modifiers.py"
+#   Existing modifiers can be found in "TriggerJobOpts/python/Modifiers.py"
 #
 # Predefined setups
 #   certain menu configurations can be run just by doing
@@ -46,23 +46,23 @@
 # Usage:
 #  
 #   run with athenaHLT:
-#      athenaHLT -f input.data -c testPhysicsV6=True -l DEBUG -n 25 TriggerRelease/runHLT_standalone.py
+#      athenaHLT -f input.data -c testPhysicsV6=True -l DEBUG -n 25 TriggerJobOpts/runHLT_standalone.py
 #      or with multiple files
-#      athenaHLT -f "['input1.data','input2.data']" -c testPhysicsV6=True -n 25 TriggerRelease/runHLT_standalone.py
+#      athenaHLT -f "['input1.data','input2.data']" -c testPhysicsV6=True -n 25 TriggerJobOpts/runHLT_standalone.py
 #      or, for writing BS output:
-#      athenaHLT -f input.data -c testPhysicsV6=True -n 25 -o outBS TriggerRelease/runHLT_standalone.py
+#      athenaHLT -f input.data -c testPhysicsV6=True -n 25 -o outBS TriggerJobOpts/runHLT_standalone.py
 #      or, with online THistSvc
-#      athenaHLT -M -l DEBUG -c testPhysicsV6=True -n 25 TriggerRelease/runHLT_standalone.py
+#      athenaHLT -M -l DEBUG -c testPhysicsV6=True -n 25 TriggerJobOpts/runHLT_standalone.py
 #
 #   run with athena:
-#      BS input: athena.py -c "testPhysicsV6=True;BSRDOInput=['raw.data']" TriggerRelease/runHLT_standalone.py
-#      RDO input: athena.py -c "testPhysicsV6=True;PoolRDOInput=['file.pool.root']" TriggerRelease/runHLT_standalone.py
+#      BS input: athena.py -c "testPhysicsV6=True;BSRDOInput=['raw.data']" TriggerJobOpts/runHLT_standalone.py
+#      RDO input: athena.py -c "testPhysicsV6=True;PoolRDOInput=['file.pool.root']" TriggerJobOpts/runHLT_standalone.py
 #
 # Select slice(s) to test:
 #   set one or more of the following flags to True in the jo:
 #      testEgamma, testMuon, testTau, testJet, testBjet, testMET, testBphysics
 #    e.g.:
-#      athenaHLT -f input.data -l DEBUG -n 25 -c "testTau=True;testPhysicsV6=True" TriggerRelease/runHLT_standalone.py
+#      athenaHLT -f input.data -l DEBUG -n 25 -c "testTau=True;testPhysicsV6=True" TriggerJobOpts/runHLT_standalone.py
 #
 #===========================================================================================
 from AthenaCommon.Logging import logging
@@ -291,8 +291,8 @@ del setupForMC
 #-------------------------------------------------------------
 
 modifierList=[]
-import TriggerRelease.Modifiers
-if '_run_number' in dir(): TriggerRelease.Modifiers._run_number = _run_number
+import TriggerJobOpts.Modifiers
+if '_run_number' in dir(): TriggerJobOpts.Modifiers._run_number = _run_number
 
 try:  # Temporary backwards compatible hack
     from TrigConfigSvc.TrigConfMetaData import TrigConfMetaData
@@ -301,8 +301,8 @@ except:
     log.warning("TrigConfigSvc.TrigConfMetaData not available in this release")
     meta = None
     
-for mod in dir(TriggerRelease.Modifiers):
-    if not hasattr(getattr(TriggerRelease.Modifiers,mod),'preSetup'): continue
+for mod in dir(TriggerJobOpts.Modifiers):
+    if not hasattr(getattr(TriggerJobOpts.Modifiers,mod),'preSetup'): continue
     if mod in dir():  #allow turning on and off modifiers by variable of same name
         if globals()[mod]:
             if mod not in setModifiers:
@@ -310,7 +310,7 @@ for mod in dir(TriggerRelease.Modifiers):
         else:
             if mod in setModifiers: setModifiers.remove(mod)
     if mod in setModifiers:
-        modifierList+=[getattr(TriggerRelease.Modifiers,mod)()]
+        modifierList+=[getattr(TriggerJobOpts.Modifiers,mod)()]
         if meta: meta.Modifiers += [mod]    # store in trig conf meta data
         setModifiers.remove(mod)
 
@@ -365,7 +365,7 @@ log.info("Trigger xml files HLT    : in = %s , out = %s (read from XML = %s)" % 
 # define a unique HLT configuration xml when running in a partition
 import os
 if "TDAQ_PARTITION" in os.environ:
-    from TriggerRelease import Utils
+    from TriggerJobOpts import Utils
     ident = Utils.uniqueFileName()
     TriggerFlags.outputHLTconfigFile ="outputHLTconfig_%s.xml" % ident
     TriggerFlags.inputHLTconfigFile  ="outputHLTconfig_%s.xml" % ident
@@ -531,7 +531,7 @@ log.info("===============================================")
 #-------------------------------------------------------------
 # Setup trigger
 #-------------------------------------------------------------
-include("TriggerRelease/Trigger_topOptions_standalone.py")
+include("TriggerJobOpts/Trigger_topOptions_standalone.py")
 log = logging.getLogger('runHLT_standalone.py')
 
 # ----------------------------------------------------------------

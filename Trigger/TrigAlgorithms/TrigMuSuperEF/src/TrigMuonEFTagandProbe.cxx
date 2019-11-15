@@ -35,13 +35,13 @@
   Running:-----------------------------------------------------------------------------------------  
 
   athenaHLT: 
-  from glob import glob;athenaHLT.py -M -f "glob("/path/to/dir1/star")+glob("/path/to/dir2/star")+glob(etc..)" -o HLT_MCV7  -c 'testMCV7=True;HLTOutputLevel=INFO;ServiceMgr.MessageSvc.defaultLimit=9999999;doValidation=True;fpeAuditor=True' -C "topSequence.TrigSteer_HLT.TrigMuonEFTagandProbe.OutputLevel=DEBUG" TriggerRelease/runHLT_standalone.py >& log 
+  from glob import glob;athenaHLT.py -M -f "glob("/path/to/dir1/star")+glob("/path/to/dir2/star")+glob(etc..)" -o HLT_MCV7  -c 'testMCV7=True;HLTOutputLevel=INFO;ServiceMgr.MessageSvc.defaultLimit=9999999;doValidation=True;fpeAuditor=True' -C "topSequence.TrigSteer_HLT.TrigMuonEFTagandProbe.OutputLevel=DEBUG" TriggerJobOpts/runHLT_standalone.py >& log 
 
   Output of online histogramming will be in r000...HLT-Histogramming.root
 
   athena (data):
 
-  athena.py -c 'testMCV7=True;HLTOutputLevel=INFO;ServiceMgr.MessageSvc.defaultLimit=9999999;doValidation=True;fpeAuditor=True;from glob import glob;BSRDOInput=glob("/path/to/dir1/star")+glob("/path/to/dir2/star")+glob(etc..)'  TriggerRelease/runHLT_standalone.py Path/To/localDebug.py >& log_file
+  athena.py -c 'testMCV7=True;HLTOutputLevel=INFO;ServiceMgr.MessageSvc.defaultLimit=9999999;doValidation=True;fpeAuditor=True;from glob import glob;BSRDOInput=glob("/path/to/dir1/star")+glob("/path/to/dir2/star")+glob(etc..)'  TriggerJobOpts/runHLT_standalone.py Path/To/localDebug.py >& log_file
 
   athena (MC):
 

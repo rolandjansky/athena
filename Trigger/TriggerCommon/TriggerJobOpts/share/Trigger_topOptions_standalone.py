@@ -91,7 +91,7 @@ if globalflags.InputFormat()=='bytestream':
         theApp.ExtSvc += [ "ByteStreamCnvSvc"]
 
     # Online specific setup of BS converters
-    include( "TriggerRelease/jobOfragment_ReadBS_standalone.py" )
+    include( "TriggerJobOpts/jobOfragment_ReadBS_standalone.py" )
 
 
 # ----------------------------------------------------------------
@@ -164,7 +164,7 @@ lvl1 = Lvl1SimulationGetter()
 
 if globalflags.InputFormat()=='pool':
     log.info("setting up transient BS")
-    include( "TriggerRelease/jobOfragment_TransBS_standalone.py" )
+    include( "TriggerJobOpts/jobOfragment_TransBS_standalone.py" )
 
 # setup HLT
 # initialize HLT config svc

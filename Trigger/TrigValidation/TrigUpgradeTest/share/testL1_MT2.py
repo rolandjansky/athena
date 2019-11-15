@@ -14,7 +14,7 @@
 #
 # Additional "modifiers" can be specified by using
 #   -c "myModifier=True/False"
-# Existing modifiers can be found in "TriggerRelease/python/Modifiers.py"
+# Existing modifiers can be found in "TriggerJobOpts/python/Modifiers.py"
 #
 class opt:
     setupForMC       = None           # force MC setup
@@ -105,7 +105,7 @@ for s in slices:
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.BeamFlags import jobproperties
-import TriggerRelease.Modifiers
+import TriggerJobOpts.Modifiers
 
 # Auto-configuration for athena
 if len(athenaCommonFlags.FilesInput())>0:
@@ -118,7 +118,7 @@ if len(athenaCommonFlags.FilesInput())>0:
     if opt.setGlobalTag is None:
         opt.setGlobalTag = af.fileinfos.get('conditions_tag',None) or \
             (TriggerFlags.OnlineCondTag() if opt.isOnline else 'CONDBR2-BLKPA-2018-13')
-    TriggerRelease.Modifiers._run_number = af.fileinfos['run_number'][0]
+    TriggerJobOpts.Modifiers._run_number = af.fileinfos['run_number'][0]
 
 else:   # athenaHLT
     globalflags.InputFormat = 'bytestream'
@@ -129,7 +129,7 @@ else:   # athenaHLT
         af = athFile.fopen(athenaCommonFlags.BSRDOInput()[0])
         _run_number = af.run_number[0]
 
-    TriggerRelease.Modifiers._run_number = _run_number   # noqa, set by athenaHLT
+    TriggerJobOpts.Modifiers._run_number = _run_number   # noqa, set by athenaHLT
 
     from RecExConfig.RecFlags import rec
     rec.RunNumber =_run_number
@@ -215,8 +215,8 @@ modifierList=[]
 from TrigConfigSvc.TrigConfMetaData import TrigConfMetaData
 meta = TrigConfMetaData()
     
-for mod in dir(TriggerRelease.Modifiers):
-    if not hasattr(getattr(TriggerRelease.Modifiers,mod),'preSetup'): continue
+for mod in dir(TriggerJobOpts.Modifiers):
+    if not hasattr(getattr(TriggerJobOpts.Modifiers,mod),'preSetup'): continue
     if mod in dir():  #allow turning on and off modifiers by variable of same name
         if globals()[mod]:
             if mod not in setModifiers:
@@ -224,7 +224,7 @@ for mod in dir(TriggerRelease.Modifiers):
         else:
             if mod in setModifiers: setModifiers.remove(mod)
     if mod in setModifiers:
-        modifierList+=[getattr(TriggerRelease.Modifiers,mod)()]
+        modifierList+=[getattr(TriggerJobOpts.Modifiers,mod)()]
         meta.Modifiers += [mod]    # store in trig conf meta data
         setModifiers.remove(mod)
 
@@ -348,7 +348,7 @@ if globalflags.InputFormat.is_pool():
     # enable transient BS 
     if TriggerFlags.writeBS():
         log.info("setting up transient BS")
-        include( "TriggerRelease/jobOfragment_TransBS_standalone.py" )
+        include( "TriggerJobOpts/jobOfragment_TransBS_standalone.py" )
      
 # ----------------------------------------------------------------
 # ByteStream input
@@ -363,7 +363,7 @@ elif globalflags.InputFormat.is_bytestream():
         theApp.ExtSvc += [ "ByteStreamCnvSvc"]
 
     # Online specific setup of BS converters
-    include( "TriggerRelease/jobOfragment_ReadBS_standalone.py" )    
+    include( "TriggerJobOpts/jobOfragment_ReadBS_standalone.py" )    
 
 
 # ---------------------------------------------------------------

@@ -1,5 +1,5 @@
 # TrigDB modifier
-# Usage: athenaMT/PT -C 'include("TriggerRelease/dbmod_CostMonForCAF.py")' ...
+# Usage: athenaMT/PT -C 'include("TriggerJobOpts/dbmod_CostMonForCAF.py")' ...
 #
 # Enable writing of cost monitoring ntuples at CAF
 #

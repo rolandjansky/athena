@@ -1,5 +1,5 @@
 # TrigDB modifier
-# Usage: athenaMT/PT -C 'include("TriggerRelease/dbmod_setTimeout.py")' ...
+# Usage: athenaMT/PT -C 'include("TriggerJobOpts/dbmod_setTimeout.py")' ...
 #
 # Set timeouts
 #

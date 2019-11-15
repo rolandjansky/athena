@@ -1,5 +1,5 @@
 # TrigDB modifier
-# Usage: athenaMT/PT -C 'include("TriggerRelease/dbmod_chronoAuditor.py")' ...
+# Usage: athenaMT/PT -C 'include("TriggerJobOpts/dbmod_chronoAuditor.py")' ...
 #
 # Enable ChronoStat auditor
 #
