@@ -2,9 +2,7 @@
 
 # art-description: test ttFC_fastSim_fastDigi
 # art-type: grid
-# art-include: 21.0/Athena
 # art-include: 21.3/Athena
-# art-include: master/Athena
 # art-output: config.txt
 # art-output: *.root
 # art-output: dcube
@@ -40,7 +38,8 @@ then
 fi
 
 echo  "art-result: $rc2 regression"
+#add an additional payload from the job (corollary file).
 
 /cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube TEST_ttFC_fastSim_fastDigi RDO_truth.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/dcube_configs/config/RDOTruthCompare.xml /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/RDO_TruthPlots_Refs/test_ttFC_fastSim_fastDigi_RDO_Truth.root
 
-echo  "art-result: $? histcomp"
+echo  "art-result: $? dcubeHistComp"

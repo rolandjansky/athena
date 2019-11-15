@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
+
 # art-description: test ttFC_fastSim_fastDigi + ttFC_reco_Split_fastSim_fastDigi
 # art-type: grid
-# art-include: 21.0/Athena
 # art-include: 21.3/Athena
-# art-include: master/Athena
 # art-output: config.txt
 # art-output: RAWtoESD_config.txt
 # art-output: *.root
@@ -41,6 +40,7 @@ FastChain_tf.py --maxEvents 50 \
     --postExec 'RAWtoESD:from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("RAWtoESD_config.txt")'\
     --imf False
 
+
 rc=$?
 rc2=-9999
 echo  "art-result: $rc RDOtoAOD"
@@ -54,6 +54,7 @@ fi
 
 echo  "art-result: $rc2 regression"
 
+#add an additional payload from the job (corollary file).
 /cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube TEST_ttFC_reco_Split_fastSim_fastDigi InDetStandardPlots.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/dcube_configs/config/InDetStandardPlotCompare.xml /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/InDetStandardPlots_Refs/test_ttFC_reco_Split_fastSim_fastDigi_InDetStandardPlots.root
 
 echo  "art-result: $? dcubeHistComp"

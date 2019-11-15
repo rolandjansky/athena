@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
+
 # art-description: test for job configuration ttFC_fastSim_fulldigi followed by reco job ttFC_reco_noSplit_PseudoT_fastSim_fullDigi
 # art-type: grid
-# art-include: 21.0/Athena
 # art-include: 21.3/Athena
-# art-include: master/Athena
 # art-output: config.txt
 # art-output: *.root
 # art-output: dcube

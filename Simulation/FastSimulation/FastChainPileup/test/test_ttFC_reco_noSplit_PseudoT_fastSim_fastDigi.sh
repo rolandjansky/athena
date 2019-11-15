@@ -1,12 +1,10 @@
 #!/usr/bin/env bash
+
 # art-description: test ttFC_fastSim_fastDigi + ttFC_reco_noSplit_PseudoT_fastSim_fastDigi
 # art-type: grid
-# art-include: 21.0/Athena
 # art-include: 21.3/Athena
-# art-include: master/Athena
 # art-output: *.root
 # art-output: dcube
-
 
 FastChain_tf.py --simulator ATLFASTIIF_PileUp \
     --digiSteeringConf "SplitNoMergeFF" \
