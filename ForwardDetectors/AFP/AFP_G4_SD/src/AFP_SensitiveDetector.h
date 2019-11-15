@@ -12,6 +12,7 @@
 #include "AFP_SimEv/AFP_TDSimHitCollection.h"
 #include "AFP_SimEv/AFP_SIDSimHitCollection.h"
 #include "StoreGate/WriteHandle.h"
+#include <gtest/gtest_prod.h>
 
 // STL header
 #include <string>
@@ -26,6 +27,11 @@ class G4TouchableHistory;
 
 class AFP_SensitiveDetector : public G4VSensitiveDetector
 {
+ FRIEND_TEST( AFP_SensitiveDetectortest, Initialize );
+ FRIEND_TEST( AFP_SensitiveDetectortest, ProcessHits1 );
+ FRIEND_TEST( AFP_SensitiveDetectortest, ProcessHits2 );
+ FRIEND_TEST( AFP_SensitiveDetectortest, StartOfAthenaEvent);
+ FRIEND_TEST( AFP_SensitiveDetectortest, EndOfAthenaEvent );
 
 public:
   // Constructor
