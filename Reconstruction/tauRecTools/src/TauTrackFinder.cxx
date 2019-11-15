@@ -25,8 +25,7 @@ TauTrackFinder::TauTrackFinder(const std::string& name ) :
         m_applyZ0cut(false),
         m_storeInOtherTrks(true),
         m_bypassSelector(false),
-        m_bypassExtrapolator(false),
-        m_useOldCalo(false)
+        m_bypassExtrapolator(false)
 {
     declareProperty("MaxJetDrTau", m_maxJetDr_tau = 0.2);
     declareProperty("MaxJetDrWide", m_maxJetDr_wide = 0.4);
@@ -61,14 +60,10 @@ StatusCode TauTrackFinder::initialize() {
     ATH_CHECK( m_caloExtensionTool.retrieve() );
 
     ATH_CHECK( m_trackPartInputContainer.initialize() );
-    ATH_CHECK( m_ParticleCacheKey.initialize() );
 
-    if (m_ParticleCacheKey.initialize().isFailure()) {
-      ATH_MSG_WARNING("Setting up the CaloExtensionTool to replace CaloExtensionBuilder");
-      m_useOldCalo = true;
-    } else {
-      m_useOldCalo = false;
-    }
+    if (!m_ParticleCacheKey.key().empty()) {ATH_CHECK(m_ParticleCacheKey.initialize());}
+    else {m_useOldCalo = true;}
+  
     if(m_caloExtensionTool.retrieve().isFailure()){
         ATH_MSG_ERROR("initialize: Cannot retrieve " << m_caloExtensionTool);
         return StatusCode::FAILURE;

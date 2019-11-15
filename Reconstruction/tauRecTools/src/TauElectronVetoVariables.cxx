@@ -60,8 +60,7 @@ using Gaudi::Units::GeV;
 TauElectronVetoVariables::TauElectronVetoVariables(const std::string &name) :
 TauRecToolBase(name),
 m_doCellCorrection(false), //FF: don't do cell correction by default
-m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool"),
-m_useOldCalo(false)
+m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool")
 {
     declareProperty("CellCorrection", m_doCellCorrection);
     declareProperty("ParticleCaloExtensionTool",   m_caloExtensionTool );
@@ -86,16 +85,11 @@ StatusCode TauElectronVetoVariables::finalize()
 //-------------------------------------------------------------------------
 StatusCode TauElectronVetoVariables::initialize()
 {
-  ATH_CHECK( m_ParticleCacheKey.initialize() );
   ATH_CHECK( m_caloExtensionTool.retrieve() );
 
-  if (m_ParticleCacheKey.initialize().isFailure()) {
-    ATH_MSG_WARNING("Setting up the CaloExtensionTool to replace CaloExtensionBuilder");
-    ATH_CHECK( m_caloExtensionTool.retrieve() );
-    m_useOldCalo = true;
-  } else {
-    m_useOldCalo = false;
-  }
+  if (!m_ParticleCacheKey.key().empty()) {ATH_CHECK(m_ParticleCacheKey.initialize());}
+  else {m_useOldCalo = true;}
+
   if(m_caloExtensionTool.retrieve().isFailure()){
       ATH_MSG_ERROR("initialize: Cannot retrieve " << m_caloExtensionTool);
       return StatusCode::FAILURE;

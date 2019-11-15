@@ -140,7 +140,7 @@ private:
 
     bool m_bypassSelector;
     bool m_bypassExtrapolator;
-    bool m_useOldCalo;
+    Gaudi::Property<bool> m_useOldCalo{this,"useOldCalo",false,"If true, it uses the CaloExtensionTool for calculating track extrapolation. Otherwise, it allows the code to read from the cache created by CaloExtensionBuilderalg."};
 
     //-------------------------------------------------------------
     // Sets of EM/Had samplings for track extrapolation 
