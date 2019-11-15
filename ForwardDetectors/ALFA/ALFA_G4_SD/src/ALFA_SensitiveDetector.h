@@ -12,6 +12,7 @@
 #include "ALFA_SimEv/ALFA_HitCollection.h"
 #include "ALFA_SimEv/ALFA_ODHitCollection.h"
 #include "StoreGate/WriteHandle.h"
+#include <gtest/gtest_prod.h>
 
 // STL header
 #include <string>
@@ -21,6 +22,12 @@ class G4TouchableHistory;
 
 class ALFA_SensitiveDetector : public G4VSensitiveDetector
 {
+ FRIEND_TEST( ALFA_SensitiveDetectortest, Initialize );
+ FRIEND_TEST( ALFA_SensitiveDetectortest, ProcessHits1 );
+ FRIEND_TEST( ALFA_SensitiveDetectortest, ProcessHits2 );
+ FRIEND_TEST( ALFA_SensitiveDetectortest, ProcessHits3 );
+ FRIEND_TEST( ALFA_SensitiveDetectortest, StartOfAthenaEvent );
+ FRIEND_TEST( ALFA_SensitiveDetectortest, EndOfAthenaEvent );
 
 public:
   // Constructor
