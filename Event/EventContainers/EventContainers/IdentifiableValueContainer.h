@@ -2,7 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef EVENTCONTAINERS_IDENTIFIABLECVALUEONTAINER_H
+#ifndef EVENTCONTAINERS_IDENTIFIABLEVALUECONTAINER_H
 #define EVENTCONTAINERS_IDENTIFIABLEVALUECONTAINER_H
 
 #include "EventContainers/IdentifiableValueCache.h"
