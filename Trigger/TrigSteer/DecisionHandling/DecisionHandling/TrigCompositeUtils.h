@@ -141,6 +141,11 @@ namespace TrigCompositeUtils {
    * @brief checks if required decision ID is in the set of IDs in the container
    **/
   bool passed( DecisionID id, const DecisionIDContainer& );
+
+  /**
+   * @brief Takes a raw pointer to a Decision and returns an ElementLink to the Decision. The Decision must already be in a container in SG.
+   **/
+  ElementLink<DecisionContainer> decisionToElementLink(const Decision* d, const EventContext& ctx = Gaudi::Hive::currentContext());
   
   /**
    * @brief Links to the previous object, location of previous 'seed' decision supplied by hand
