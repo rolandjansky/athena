@@ -147,54 +147,54 @@ namespace Trig {
     /**
      * @brief Runs 3+. Returns a range over a container which are associated with a particular EventView instance from online.
      * Instance mapping done via an ElementLink<TrigRoiDescriptorCollection> obtained from the supplied LinkInfo
-     * @param[in] inViewContainerKey The ReadHandleKey of the collection which was produced online inside an EventView.
+     * @param[in] inViewContainer The ReadHandle of the collection which was produced online inside an EventView.
      * @param[in] linkInfo LinkInfo from which a TrigRoiDescriptor can be located.
      * @param[in] roiName Name of the TrigRoiDescriptor inside the Navigation. 
      * @return Pair of iterators spanning a range of indices over the collection accessed through the ReadHandleKey
      **/
-    template<class OBJECT, class FEATURE_CONTAINER>
-    std::pair< typename DataVector<OBJECT>::const_iterator, typename DataVector<OBJECT>::const_iterator > 
-    associateToEventView(const SG::ReadHandleKey<DataVector<OBJECT>>& inViewContainerKey,
+    template<class CONTAINER, class FEATURE_CONTAINER>
+    std::pair< typename CONTAINER::const_iterator, typename CONTAINER::const_iterator > 
+    associateToEventView(SG::ReadHandle<CONTAINER>& inViewContainer,
                          const TrigCompositeUtils::LinkInfo<FEATURE_CONTAINER> linkInfo,
                          const std::string& roiName = TrigCompositeUtils::initialRoIString()) const;
 
     /**
      * @brief Runs 3+. Returns a range over a container which are associated with a particular EventView instance from online.
      * Instance mapping done via an ElementLink<TrigRoiDescriptorCollection> obtained from the supplied Decision object pointer
-     * @param[in] inViewContainerKey The ReadHandleKey of the collection which was produced online inside an EventView.
+     * @param[in] inViewContainer The ReadHandle of the collection which was produced online inside an EventView.
      * @param[in] decisionObject Decision node from which a TrigRoiDescriptor can be located.
      * @param[in] roiName Name of the TrigRoiDescriptor inside the Navigation. 
      * @return Pair of iterators spanning a range of indices over the collection accessed through the ReadHandleKey
      **/
-    template<class OBJECT>
-    std::pair< typename DataVector<OBJECT>::const_iterator, typename DataVector<OBJECT>::const_iterator > 
-    associateToEventView(const SG::ReadHandleKey<DataVector<OBJECT>>& inViewContainerKey,
+    template<class CONTAINER>
+    std::pair< typename CONTAINER::const_iterator, typename CONTAINER::const_iterator > 
+    associateToEventView(SG::ReadHandle<CONTAINER>& inViewContainer,
                          const TrigCompositeUtils::Decision* decisionObject,
                          const std::string& roiName = TrigCompositeUtils::initialRoIString()) const;
 
     /**
      * @brief Runs 3+. Returns a range over a container which are associated with a particular EventView instance from online.
      * Instance mapping done via supplied ElementLink<TrigRoiDescriptorCollection>.
-     * @param[in] inViewContainerKey The ReadHandleKey of the collection which was produced online inside an EventView.
+     * @param[in] inViewContainer The ReadHandle of the collection which was produced online inside an EventView.
      * @param[in] roi TrigRoiDescriptor used to seed the desired EventView.
      * @return Pair of iterators spanning a range of indices over the collection accessed through the ReadHandleKey
      **/
-    template<class OBJECT>
-    std::pair< typename DataVector<OBJECT>::const_iterator, typename DataVector<OBJECT>::const_iterator > 
-    associateToEventView(const SG::ReadHandleKey<DataVector<OBJECT>>& inViewContainerKey,
+    template<class CONTAINER>
+    std::pair< typename CONTAINER::const_iterator, typename CONTAINER::const_iterator > 
+    associateToEventView(SG::ReadHandle<CONTAINER>& inViewContainer,
                          const ElementLink<TrigRoiDescriptorCollection>& matchROI) const;
 
     /**
      * @brief Runs 3+. Returns a range over a container which are associated with a particular EventView instance from online.
      * Instance mapping done via matchIndex and optional matchKey (leave matchKey = 0 to not cut on this).
-     * @param[in] inViewContainerKey The ReadHandleKey of the collection which was produced online inside an EventView.
+     * @param[in] inViewContainer The ReadHandle of the collection which was produced online inside an EventView.
      * @param[in] matchIndex The index of the desired EventView.
      * @param[in] matchKey Optional SGKey of the index of the desired EventView (collection hosting the ROI used to span the Event View)
      * @return Pair of iterators spanning a range of indices over the collection accessed through the ReadHandleKey
      **/
-    template<class OBJECT>
-    std::pair< typename DataVector<OBJECT>::const_iterator, typename DataVector<OBJECT>::const_iterator > 
-    associateToEventView(const SG::ReadHandleKey<DataVector<OBJECT>>& inViewContainerKey,
+    template<class CONTAINER>
+    std::pair< typename CONTAINER::const_iterator, typename CONTAINER::const_iterator > 
+    associateToEventView(SG::ReadHandle<CONTAINER>& inViewContainer,
                          const uint32_t matchIndex,
                          const uint32_t matchKey = 0) const;
 

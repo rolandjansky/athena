@@ -63,17 +63,17 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::DecisionAccess::fea
   return features<CONTAINER>(g, condition, containerSGKey, featureCollectionMode, navElementLinkKey);
 }
 
-template<class OBJECT, class FEATURE_CONTAINER>
-std::pair< typename DataVector<OBJECT>::const_iterator, typename DataVector<OBJECT>::const_iterator > 
-Trig::DecisionAccess::associateToEventView(const SG::ReadHandleKey<DataVector<OBJECT>>& inViewContainerKey,
+template<class CONTAINER, class FEATURE_CONTAINER>
+std::pair< typename CONTAINER::const_iterator, typename CONTAINER::const_iterator > 
+Trig::DecisionAccess::associateToEventView(SG::ReadHandle<CONTAINER>& inViewContainer,
                                            const TrigCompositeUtils::LinkInfo<FEATURE_CONTAINER> linkInfo,
                                            const std::string& roiName) const {
-  return associateToEventView(inViewContainerKey, linkInfo.source, roiName);
+  return associateToEventView(inViewContainer, linkInfo.source, roiName);
 }
 
-template<class OBJECT>
-std::pair< typename DataVector<OBJECT>::const_iterator, typename DataVector<OBJECT>::const_iterator > 
-Trig::DecisionAccess::associateToEventView(const SG::ReadHandleKey<DataVector<OBJECT>>& inViewContainerKey,
+template<class CONTAINER>
+std::pair< typename CONTAINER::const_iterator, typename CONTAINER::const_iterator > 
+Trig::DecisionAccess::associateToEventView(SG::ReadHandle<CONTAINER>& inViewContainer,
                                            const TrigCompositeUtils::Decision* decisionObject,
                                            const std::string& roiName) const {
   using TrigCompositeUtils::LinkInfo;
@@ -85,38 +85,36 @@ Trig::DecisionAccess::associateToEventView(const SG::ReadHandleKey<DataVector<OB
     throw std::runtime_error("Trig::DecisionAccess::associateToEventView Unable to locate an ElementLink with name "+roiName+
       " from given Decision object.");
   }
-  return associateToEventView(inViewContainerKey, roiLI.link);
+  return associateToEventView(inViewContainer, roiLI.link);
 }
 
-template<class OBJECT>
-std::pair< typename DataVector<OBJECT>::const_iterator, typename DataVector<OBJECT>::const_iterator > 
-Trig::DecisionAccess::associateToEventView(const SG::ReadHandleKey<DataVector<OBJECT>>& inViewContainerKey,
+template<class CONTAINER>
+std::pair< typename CONTAINER::const_iterator, typename CONTAINER::const_iterator > 
+Trig::DecisionAccess::associateToEventView(SG::ReadHandle<CONTAINER>& inViewContainer,
                                            const ElementLink<TrigRoiDescriptorCollection>& matchROI) const {
-  return associateToEventView(inViewContainerKey, matchROI.index(), matchROI.key());
+  return associateToEventView(inViewContainer, matchROI.index(), matchROI.key());
 }
 
-template<class OBJECT>
-std::pair< typename DataVector<OBJECT>::const_iterator, typename DataVector<OBJECT>::const_iterator > 
-Trig::DecisionAccess::associateToEventView(const SG::ReadHandleKey<DataVector<OBJECT>>& inViewContainerKey,
+template<class CONTAINER>
+std::pair< typename CONTAINER::const_iterator, typename CONTAINER::const_iterator > 
+Trig::DecisionAccess::associateToEventView(SG::ReadHandle<CONTAINER>& inViewContainer,
                                            const uint32_t matchIndex,
                                            const uint32_t matchKey) const {
-  SG::ReadHandle<DataVector<OBJECT>> readHandle(inViewContainerKey);
-  if (!readHandle.isValid()) {
-    ATH_MSG_ERROR("Unable to read " << inViewContainerKey);
-    throw std::runtime_error("Trig::DecisionAccess::associateToEventView Unable to read "+inViewContainerKey.key());
+  if (!inViewContainer.isValid()) {
+    ATH_MSG_ERROR("Supplied ReadHandle is not valid.");
+    throw std::runtime_error("Trig::DecisionAccess::associateToEventView Supplied ReadHandle is not valid.");
   }
-  const DataVector<OBJECT>* container = readHandle.cptr();
-  const typename DataVector<OBJECT>::const_iterator end = container->end();
-  typename DataVector<OBJECT>::const_iterator foundStartIt = end, foundEndIt = end; 
+  const CONTAINER* container = inViewContainer.cptr();
+  const typename CONTAINER::const_iterator end = container->end();
+  typename CONTAINER::const_iterator foundStartIt = end, foundEndIt = end; 
   static const SG::AuxElement::ConstAccessor< ElementLink<TrigRoiDescriptorCollection> > accessor("viewIndex");
-  for (typename DataVector<OBJECT>::const_iterator it = container->begin(); it != end; ++it) {
-    const OBJECT* object = *it;
-    if (!accessor.isAvailable(*object)) {
-      ATH_MSG_ERROR("Unable to read the viewIndex decoration from the " << inViewContainerKey << " collection. Was it created inside an EventView?");
-      throw std::runtime_error("Trig::DecisionAccess::associateToEventView Unable to read the viewIndex decoration from the "+inViewContainerKey.key()
-        +" collection. Was it created inside an EventView?");
+  for (typename CONTAINER::const_iterator it = container->begin(); it != end; ++it) {
+    if (!accessor.isAvailable(**it)) { // iterator dereferences to an OBJECT*, OBJECT* dereferences to an OBJECT
+      ATH_MSG_ERROR("Unable to read the viewIndex decoration from the supplied container. Was it created inside an EventView?");
+      throw std::runtime_error("Trig::DecisionAccess::associateToEventView Unable to read the viewIndex decoration from the "
+        "supplied container. Was it created inside an EventView?");
     }
-    const ElementLink<TrigRoiDescriptorCollection> objectROI = accessor( *object );
+    const ElementLink<TrigRoiDescriptorCollection> objectROI = accessor( **it );
     bool match = true;
     if (objectROI.index() != matchIndex) { // Always match on the Index
       match = false;
