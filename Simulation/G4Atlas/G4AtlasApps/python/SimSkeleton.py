@@ -101,13 +101,16 @@ class SimSkeleton(object):
         if DetFlags.Muon_on():
             stream1.ItemList += ["RPCSimHitCollection#*",
                                  "TGCSimHitCollection#*",
-                                 "CSCSimHitCollection#*",
                                  "MDTSimHitCollection#*",
                                  "TrackRecordCollection#MuonExitLayer"]
-            from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
-            if CommonGeometryFlags.Run()=="RUN3" :
+            from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+            if MuonGeometryFlags.hasSTGC():
                 stream1.ItemList += ["sTGCSimHitCollection#*"]
+            if MuonGeometryFlags.hasMM():
                 stream1.ItemList += ["MMSimHitCollection#*"]
+            if MuonGeometryFlags.hasCSC():
+                stream1.ItemList += ["CSCSimHitCollection#*"]
+                
         ## Lucid
         if DetFlags.Lucid_on():
             stream1.ItemList += ["LUCID_SimHitCollection#*"]

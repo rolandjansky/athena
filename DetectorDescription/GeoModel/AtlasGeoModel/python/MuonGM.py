@@ -2,7 +2,6 @@
 
 from AthenaCommon.JobProperties import jobproperties
 from AthenaCommon.DetFlags      import DetFlags
-from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 if ( jobproperties.Global.DetGeo() == "ctbh8" or jobproperties.Global.DetGeo() == "ctbh6" ):
@@ -13,7 +12,7 @@ elif ( DetFlags.detdescr.Muon_on() ):
     GeoModelSvc = GeoModelSvc()
 
     from MuonGeoModel.MuonGeoModelConf import MuonDetectorTool
-    GeoModelSvc.DetectorTools += [ MuonDetectorTool(HasCSC=MuonGeometryFlags.hasCSC(), HasSTgc=(CommonGeometryFlags.Run()=="RUN3"), HasMM=(CommonGeometryFlags.Run()=="RUN3")) ]
+    GeoModelSvc.DetectorTools += [ MuonDetectorTool(HasCSC=MuonGeometryFlags.hasCSC(), HasSTgc=MuonGeometryFlags.hasSTGC(), HasMM=MuonGeometryFlags.hasMM()) ]
     GeoModelSvc.DetectorTools[ "MuonDetectorTool" ].BuildFromNova = 0
     if ( not DetFlags.simulate.any_on() or DetFlags.overlay.any_on() ):
       GeoModelSvc.DetectorTools[ "MuonDetectorTool" ].TheMuonAlignmentTool = "MuonAlignmentDbTool/MGM_AlignmentDbTool"

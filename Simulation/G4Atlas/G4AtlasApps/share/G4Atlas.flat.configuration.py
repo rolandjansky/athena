@@ -27,14 +27,11 @@ from AthenaCommon.DetFlags import DetFlags
 ## Tidy up DBM DetFlags: temporary measure
 DetFlags.DBM_setOff()
 
-## Tidy up NSW DetFlags: temporary measure
-DetFlags.sTGC_setOff()
-DetFlags.Micromegas_setOff()
-from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
-if CommonGeometryFlags.Run()=="RUN3" :
-    DetFlags.sTGC_setOn()
-    DetFlags.Micromegas_setOn()
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+if not MuonGeometryFlags.hasSTGC():
+    DetFlags.sTGC_setOff()
+if not MuonGeometryFlags.hasMM():
+    DetFlags.Micromegas_setOff()
 if not MuonGeometryFlags.hasCSC():
     DetFlags.CSC_setOff()
 
@@ -129,7 +126,7 @@ if DetFlags.Muon_on():
     if not "MuonAGDDTool/MuonSpectrometer" in AGDD2Geo.Builders:
         ToolSvc += CfgGetter.getPublicTool("MuonSpectrometer", checkType=True)
         AGDD2Geo.Builders += ["MuonAGDDTool/MuonSpectrometer"]
-    if CommonGeometryFlags.Run()=="RUN3" :
+    if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
         if not "NSWAGDDTool/NewSmallWheel" in AGDD2Geo.Builders:
             ToolSvc += CfgGetter.getPublicTool("NewSmallWheel", checkType=True)
             AGDD2Geo.Builders += ["NSWAGDDTool/NewSmallWheel"]
@@ -212,9 +209,8 @@ if not simFlags.ISFRun:
                                  "MDTSimHitCollection#*",
                                  "TrackRecordCollection#MuonExitLayer"]
             if MuonGeometryFlags.hasCSC(): stream1.ItemList += ["CSCSimHitCollection#*"]
-            if CommonGeometryFlags.Run()=="RUN3" :
-                stream1.ItemList += ["sTGCSimHitCollection#*"]
-                stream1.ItemList += ["MMSimHitCollection#*"]
+            if MuonGeometryFlags.hasSTGC(): stream1.ItemList += ["sTGCSimHitCollection#*"]
+            if MuonGeometryFlags.hasMM(): stream1.ItemList += ["MMSimHitCollection#*"]
 
         ## Lucid
         if DetFlags.Lucid_on():
