@@ -284,6 +284,8 @@ protected:
 
   bool m_useNewLayerNumberScheme;
 
+  std::string m_trigseedML_LUT;
+
 };
 
 #endif // not TRIGFASTTRACKFINDER_TRIGFASTTRACKFINDER_H
