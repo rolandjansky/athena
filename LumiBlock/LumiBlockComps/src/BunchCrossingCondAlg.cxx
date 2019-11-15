@@ -21,6 +21,12 @@ StatusCode BunchCrossingCondAlg::initialize() {
 
 StatusCode BunchCrossingCondAlg::execute (const EventContext& ctx) const {
 
+  SG::WriteCondHandle<BunchCrossingCondData> writeHdl(m_outputKey, ctx);
+  if (writeHdl.isValid()) {
+    ATH_MSG_DEBUG("Found valid write handle");
+    return StatusCode::SUCCESS;
+  }
+
   SG::ReadCondHandle<AthenaAttributeList> fillParamsHdl (m_fillParamsFolderKey, ctx);
   EventIDRange range;
   ATH_CHECK( fillParamsHdl.range (range) );
@@ -179,7 +185,6 @@ StatusCode BunchCrossingCondAlg::execute (const EventContext& ctx) const {
   }//end else is data
 
   
-  SG::WriteCondHandle<BunchCrossingCondData> writeHdl(m_outputKey, ctx);
   ATH_CHECK( writeHdl.record (range, std::move (bccd)) );
   return StatusCode::SUCCESS;
 }
@@ -270,7 +275,7 @@ std::vector<BunchCrossingCondData::bunchTrain_t> BunchCrossingCondAlg::findTrain
     }
   }
 
-  ATH_MSG_DEBUG("Found " << result1.size() << " Bunch trains have at least " << minBunchesPerTrain << " colliding bunches");
+  ATH_MSG_INFO("Found " << result1.size() << " Bunch trains having at least " << minBunchesPerTrain << " colliding bunches and separated by at least " << maxSpacingInTrain << " bcids");
 
 
   if (msgLvl(MSG::VERBOSE)) {
@@ -292,7 +297,7 @@ std::vector<BunchCrossingCondData::bunchTrain_t> BunchCrossingCondAlg::findTrain
  * @returns The "decoded" bunch pattern
  */
 std::vector<float> BunchCrossingCondAlg::tokenize( const std::string& pattern ) const {
-  ATH_MSG_DEBUG("Input to tokenize: " << pattern);
+  ATH_MSG_VERBOSE("Input to tokenize: " << pattern);
   
   std::vector< float > result;
   const char* c= &(*pattern.begin());
