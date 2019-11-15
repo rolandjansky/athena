@@ -27,10 +27,6 @@
 #include <algorithm> 
 #include <cmath>
 
-namespace {
-static const SG::AuxElement::Accessor < std::vector< 
-  ElementLink< xAOD::CaloClusterContainer > > > caloClusterLinks("constituentClusterLinks");
-}
 
 topoEgammaBuilder::topoEgammaBuilder(const std::string& name, 
                                      ISvcLocator* pSvcLocator): 
@@ -47,11 +43,10 @@ StatusCode topoEgammaBuilder::initialize()
   ATH_MSG_DEBUG("Initializing topoEgammaBuilder");
 
   // the data handle keys
-  ATH_CHECK(m_electronOutputKey.initialize(m_doElectrons));
   ATH_CHECK(m_electronSuperClusterRecContainerKey.initialize(m_doElectrons));
-  ATH_CHECK(m_photonOutputKey.initialize(m_doPhotons));
   ATH_CHECK(m_photonSuperClusterRecContainerKey.initialize(m_doPhotons));
-  
+  ATH_CHECK(m_electronOutputKey.initialize());
+  ATH_CHECK(m_photonOutputKey.initialize());
   //////////////////////////////////////////////////
   // retrieve tools
   ATH_MSG_DEBUG("Retrieving " << m_egammaTools.size() << " tools for egamma objects");
@@ -97,34 +92,37 @@ StatusCode topoEgammaBuilder::execute(const EventContext& ctx) const{
   const EgammaRecContainer* inputPhRecs = nullptr;
   xAOD::ElectronContainer* electrons = nullptr;
   xAOD::PhotonContainer* photons = nullptr;
-  /* From here one if a Read/Write handle is retrieved the above will be != nullptr
+  /* 
+   * From here one if a Read/Write handle is retrieved the above will be != nullptr
    * for electron or photons or both 
    */
-  if (m_doElectrons){
+ if (m_doElectrons){
     SG::ReadHandle<EgammaRecContainer> electronSuperRecs(m_electronSuperClusterRecContainerKey, ctx);
-    // the output handles
-    SG::WriteHandle<xAOD::ElectronContainer> electronContainer(m_electronOutputKey, ctx);
-    ATH_CHECK(electronContainer.record(std::make_unique<xAOD::ElectronContainer>(),
-                                       std::make_unique<xAOD::ElectronAuxContainer>()));
-
     inputElRecs=electronSuperRecs.ptr();
-    electrons=electronContainer.ptr();
   }
   if (m_doPhotons){
     SG::ReadHandle<EgammaRecContainer> photonSuperRecs(m_photonSuperClusterRecContainerKey, ctx);
-    SG::WriteHandle<xAOD::PhotonContainer> photonContainer(m_photonOutputKey, ctx);
-    ATH_CHECK(photonContainer.record(std::make_unique<xAOD::PhotonContainer>(),
-                                     std::make_unique<xAOD::PhotonAuxContainer>()));
-
     inputPhRecs=photonSuperRecs.ptr();
-    photons=photonContainer.ptr();
   }
+  
+  SG::WriteHandle<xAOD::ElectronContainer> electronContainer(m_electronOutputKey, ctx);
+  ATH_CHECK(electronContainer.record(std::make_unique<xAOD::ElectronContainer>(),
+                                       std::make_unique<xAOD::ElectronAuxContainer>()));
 
-  if (inputElRecs&&electrons){
+  SG::WriteHandle<xAOD::PhotonContainer> photonContainer(m_photonOutputKey, ctx);
+  ATH_CHECK(photonContainer.record(std::make_unique<xAOD::PhotonContainer>(),
+                                   std::make_unique<xAOD::PhotonAuxContainer>()));
+  electrons=electronContainer.ptr();
+  photons=photonContainer.ptr();
+
+  /*
+   * Now fill the electrons and photons
+   */  
+  if (m_doElectrons){
     for (const egammaRec* electronRec : *inputElRecs) { 
       unsigned int author = xAOD::EgammaParameters::AuthorElectron;
       xAOD::AmbiguityTool::AmbiguityType type= xAOD::AmbiguityTool::electron;
-      if(inputPhRecs){
+      if(m_doPhotons){
         // get the hottest cell
         const xAOD::CaloCluster *const elClus = electronRec->caloCluster();
         const auto elEta0 = elClus->eta0();
@@ -153,11 +151,11 @@ StatusCode topoEgammaBuilder::execute(const EventContext& ctx) const{
     }
   }
 
-  if (inputPhRecs&&photons){
+  if (m_doPhotons){
     for (const auto& photonRec : *inputPhRecs) {
       unsigned int author = xAOD::EgammaParameters::AuthorPhoton;
       xAOD::AmbiguityTool::AmbiguityType type= xAOD::AmbiguityTool::photon;
-      if (inputElRecs){
+      if (m_doElectrons){
         // get the hottest cell
         const xAOD::CaloCluster *const phClus = photonRec->caloCluster();
         const auto phEta0 = phClus->eta0();
@@ -198,14 +196,14 @@ StatusCode topoEgammaBuilder::execute(const EventContext& ctx) const{
     ATH_CHECK( CallTool(ctx, tool, electrons,photons) );
   }
 
-  if(electrons){
+  if(m_doElectrons){
     ATH_MSG_DEBUG("Calling Electron tools: ");
     for (auto& tool : m_electronTools){
       ATH_MSG_DEBUG("Calling tool " << tool );
       ATH_CHECK( CallTool(ctx, tool, electrons, nullptr) );
     }
   }
-  if(photons){
+  if(m_doPhotons){
     ATH_MSG_DEBUG("Calling Photon tools: ");
     for (auto& tool : m_photonTools){
       ATH_MSG_DEBUG("Calling tool " << tool );
@@ -213,7 +211,7 @@ StatusCode topoEgammaBuilder::execute(const EventContext& ctx) const{
     }
   }
   //Do the ambiguity Links
-  if (electrons && photons ){
+  if (m_doElectrons && m_doPhotons){
     ATH_CHECK(doAmbiguityLinks (electrons,photons));
   }
 
@@ -225,6 +223,8 @@ StatusCode topoEgammaBuilder::doAmbiguityLinks(xAOD::ElectronContainer *electron
                                                xAOD::PhotonContainer *photonContainer) const {
 
   ///Needs the same logic as the ambiguity after building the objects (make sure they are all valid)
+  static const SG::AuxElement::Accessor < std::vector< 
+  ElementLink< xAOD::CaloClusterContainer > > > caloClusterLinks("constituentClusterLinks");
   static const SG::AuxElement::Accessor<ElementLink<xAOD::EgammaContainer> > ELink ("ambiguityLink");
   ElementLink<xAOD::EgammaContainer> dummylink;
   for (size_t photonIndex=0; photonIndex < photonContainer->size() ; ++photonIndex) {    
