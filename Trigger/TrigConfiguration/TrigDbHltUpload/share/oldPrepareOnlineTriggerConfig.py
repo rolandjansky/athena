@@ -224,8 +224,8 @@ class App:
         # find the correct runHLT_standalone
         if(self.config.jobOption()==''):
             for p in os.getenv('JOBOPTSEARCHPATH').split(os.pathsep)+['./']:
-                if not os.path.exists(p+'/TriggerRelease/runHLT_standalone.py'): continue
-                self.config.jobOption.set(p+'/TriggerRelease/runHLT_standalone.py')
+                if not os.path.exists(p+'/TriggerJobOpts/runHLT_standalone.py'): continue
+                self.config.jobOption.set(p+'/TriggerJobOpts/runHLT_standalone.py')
                 break
         else:
             self.recheckMenuOptions()

@@ -1,6 +1,6 @@
 ######################################################################################
 #
-# Run testHLT_standalone.py from TriggerRelease offline to compare with results
+# Run runHLT_standalone.py from TriggerJobOpts offline to compare with results
 # from AthenaMT/PT: run on RDO
 #
 ######################################################################################
@@ -15,7 +15,7 @@ if not ('EvtMax' in dir()):
 
 ReadBS=False
 
-include("TriggerRelease/runHLT_standalone.py")
+include("TriggerJobOpts/runHLT_standalone.py")
 
 MessageSvc.Format = "% F%48W%S%7W%R%T %0W%M"
 

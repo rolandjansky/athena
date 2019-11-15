@@ -815,7 +815,7 @@ echo -e "\n******run HLTONLY******"
 
 Trig_reco_tf.py \
 --argJSON="../../runTest00J/hltonly.json" \
---postcommand="include(\"TriggerRelease/dbmod_BFieldAutoConfig.py\")" \
+--postcommand="include(\"TriggerJobOpts/dbmod_BFieldAutoConfig.py\")" \
 > log.txt 2>&1
 
 echo "***trf command***"
@@ -846,7 +846,7 @@ echo -e "\n******run HLT+RECO******"
 
 Trig_reco_tf.py \
 --argJSON=../../runTest00J/hlt+reco.json \
---postcommand="include(\"TriggerRelease/dbmod_BFieldAutoConfig.py\")" \
+--postcommand="include(\"TriggerJobOpts/dbmod_BFieldAutoConfig.py\")" \
 > log.txt 2>&1
 
 echo "***trf command***"

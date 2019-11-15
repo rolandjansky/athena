@@ -134,7 +134,7 @@ if TriggerFlags.doMT():
     from L1Decoder.L1DecoderConfig import L1Decoder
     topSequence += L1Decoder()
     
-    include( "TriggerRelease/jobOfragment_TransBS_standalone.py" )
+    include( "TriggerJobOpts/jobOfragment_TransBS_standalone.py" )
     topSequence.StreamBS.ItemList =     [ x for x in topSequence.StreamBS.ItemList if 'RoIBResult' not in x ] # eliminate RoIBResult
 
     # add a fake data dependency assuring that the StreamBS runs before the L1 decoder of HLT

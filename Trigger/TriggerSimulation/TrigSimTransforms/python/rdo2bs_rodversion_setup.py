@@ -10,7 +10,7 @@ def rod_version_setup(trigger_release):
     rodconfig = get_rod_config(trigger_release)
 
     # LAr setup
-    # taken from https://svnweb.cern.ch/trac/atlasoff/browser/Trigger/TriggerRelease/trunk/share/Trigger_topOptions_writeBS.py
+    # taken from TriggerJobOpts/share/Trigger_topOptions_writeBS.py
     lar_rodconfig = rodconfig["LAR"]
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc.LArRawDataContByteStreamTool.DSPRunMode      = lar_rodconfig["DSPRunMode"]

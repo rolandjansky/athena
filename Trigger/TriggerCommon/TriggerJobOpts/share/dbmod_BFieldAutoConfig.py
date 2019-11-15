@@ -1,5 +1,5 @@
 # TrigDB modifier
-# Usage: athenaHLT.py --postcommand 'include("TriggerRelease/dbmod_BFieldAutoConfig.py")' ...
+# Usage: athenaHLT.py --postcommand 'include("TriggerJobOpts/dbmod_BFieldAutoConfig.py")' ...
 #
 # Use DCS currents to configure magnetic field
 #
