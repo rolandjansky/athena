@@ -6,8 +6,6 @@
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
-from DerivationFrameworkEGamma.EGammaCommon import *
-from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkFlavourTag.HbbCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 
@@ -16,8 +14,6 @@ from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 #====================================================================
 
 from DerivationFrameworkJetEtMiss import TriggerLists
-electronTriggers = TriggerLists.single_el_Trig()
-muonTriggers = TriggerLists.single_mu_Trig()
 jetTriggers = TriggerLists.jetTrig()
 
 # For first data
@@ -212,7 +208,6 @@ JETM8SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons",
 JETM8SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
                                     "CSSKUFO",
                                     "TruthParticles",
-                                    "TruthEvents",
                                     "Kt4EMPFlowEventShape"]
 
 JETM8SlimmingHelper.AppendToDictionary["CSSKUFO"] = "xAOD::TrackCaloClusterContainer"
