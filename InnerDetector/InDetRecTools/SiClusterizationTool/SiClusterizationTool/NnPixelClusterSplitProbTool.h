@@ -42,6 +42,8 @@ namespace InDet {
     
     StatusCode initialize();
 
+    virtual InDet::PixelClusterSplitProb splitProbability(const InDet::PixelCluster& origCluster ) const;
+
     virtual InDet::PixelClusterSplitProb splitProbability(const InDet::PixelCluster& origCluster, const Trk::TrackParameters& trackParameters ) const;
 
 
