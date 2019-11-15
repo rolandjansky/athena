@@ -442,9 +442,9 @@ class FilePeeker(PyAthena.Alg):
             if len(root_files)==1:
                 root_file = root_files[0]
                 data_hdr = root_file.Get("POOLContainer")
-                if data_hdr is None:
+                if not data_hdr:
                     data_hdr = root_file.Get("POOLContainer_DataHeader")                
-                nentries = data_hdr.GetEntriesFast() if data_hdr is not None \
+                nentries = data_hdr.GetEntriesFast() if bool(data_hdr) \
                            else None
             else:
                 _info('could not find correct ROOT file (looking for [%s])',
