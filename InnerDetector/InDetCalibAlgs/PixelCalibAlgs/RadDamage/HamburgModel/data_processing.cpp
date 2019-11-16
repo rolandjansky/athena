@@ -551,8 +551,9 @@ vector<DataElement> get_Profile(string filename)                                
 
             if(debug) cout << "Line read: " << timestep << " " << temp1 << " " << rad1  << endl;
 
-            if(input_file.eof())break;                          	// if end of file is reached: brake the loop
+            if(input_file.eof())break;                          	// if end of file is reached: break the loop
 
+            // cppcheck-suppress constStatement; false positve
             limit_file_size_input--;
             if(limit_file_size_input==0)break;
         }

@@ -846,6 +846,7 @@ namespace asg
       break;
     }
 
+    // cppcheck-suppress constStatement; false positive
     T *toolPtr = nullptr;
     ANA_CHECK (makeToolRetrieve (toolPtr, th));
 
