@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //    Management of constraints 
@@ -25,31 +25,8 @@ void applyConstraints(VKVertex * vk)
 {
   int NCEntries=vk->ConstraintList.size();
   int NTRK=vk->TrackList.size();
-  VKMassConstraint  * mass_cnst;
-  VKPhiConstraint   * p_cnst;
-  VKThetaConstraint * t_cnst;
-  VKPointConstraint * pnt_cnst;
-  VKPlaneConstraint * pln_cnst;
   for(int ic=0; ic<NCEntries; ic++){
-    mass_cnst = dynamic_cast<VKMassConstraint *>(vk->ConstraintList[ic]);
-    if(mass_cnst){  calcMassConstraint( mass_cnst ); 
-                 //std::cout<<(*mass_cnst)<<'\n';
-    }
-    p_cnst = dynamic_cast<VKPhiConstraint *>(vk->ConstraintList[ic]);
-    if(p_cnst){  calcPhiConstraint( p_cnst ); 
-                 //std::cout<<(*p_cnst)<<'\n';
-    }
-    t_cnst = dynamic_cast<VKThetaConstraint *>(vk->ConstraintList[ic]);
-    if(t_cnst){  calcThetaConstraint( t_cnst ); 
-                 //std::cout<<(*t_cnst)<<'\n';
-    }
-    pln_cnst = dynamic_cast<VKPlaneConstraint *>(vk->ConstraintList[ic]);
-    if(pln_cnst){  calcPlaneConstraint( pln_cnst ); 
-                 //std::cout<<(*pln_cnst)<<'\n';
-    }
-    pnt_cnst = dynamic_cast<VKPointConstraint *>(vk->ConstraintList[ic]);
-    if(pnt_cnst){  calcPointConstraint( pnt_cnst ); 
-                 //std::cout<<(*pnt_cnst)<<'\n';
+    vk->ConstraintList[ic]->applyConstraint();
 /*//-------------------------------------
        int ici=1;  double aa0=vk->ConstraintList[ic]->aa[ici];
        double der1,der2,der3;
@@ -73,7 +50,6 @@ void applyConstraints(VKVertex * vk)
        vk->cnstV[2] -= 0.001; der3=(vk->ConstraintList[ic]->aa[ici]-aa0)/0.001;
        std::cout<<"Numerical deriv vrt="<<der1<<", "<<der2<<", "<<der3<<'\n';
 *///------------------------------------------
-     }
   }      
 //
 // Effect of symmetrization
@@ -145,7 +121,7 @@ void applyConstraints(VKVertex * vk)
     VKConstraintBase(1,NTRK),
     targetMass(mass)
   {
-    for(int i=0; i<(int)listTrk.size(); i++) usedParticles.push_back(listTrk[i]);
+    usedParticles = std::move(listTrk);
     m_originVertex = vk;
   }
   VKMassConstraint::~VKMassConstraint(){}
@@ -162,7 +138,7 @@ void applyConstraints(VKVertex * vk)
 	out << " * particle masses: ";
         for(int i=0; i<NP; i++){out<<vk->TrackList[cnst.usedParticles[i]]->getMass()<<", ";}
 	out << std::endl;
-        out<< (VKConstraintBase)cnst <<'\n';
+        out<< (VKConstraintBase&)cnst <<'\n';
 	out.precision(6); //restore default
 	return out;                                 
   }                                              
@@ -177,7 +153,7 @@ void applyConstraints(VKVertex * vk)
   {     VKVertex * vk = cnst.getOriginVertex();
 	out.setf( std::ios::scientific); out.precision(7); out << std::endl;
         out << " Phi constraint  (total NTRK="<<vk->TrackList.size()<<")"<< std::endl;
-        out<< (VKConstraintBase)cnst <<'\n';
+        out<< (VKConstraintBase&)cnst <<'\n';
 	out.precision(6); //restore default
 	return out;                                 
   }                                              
@@ -190,7 +166,7 @@ void applyConstraints(VKVertex * vk)
   {     VKVertex * vk = cnst.getOriginVertex();
 	out.setf( std::ios::scientific); out.precision(7); out << std::endl;
         out << " Theta constraint  (total NTRK="<<vk->TrackList.size()<<")"<< std::endl;
-        out<< (VKConstraintBase)cnst <<'\n';
+        out<< (VKConstraintBase&)cnst <<'\n';
 	out.precision(6); //restore default
 	return out;                                 
   }                                              
@@ -214,7 +190,7 @@ void applyConstraints(VKVertex * vk)
         out << " target vertex="<<cnst.targetVertex[0]<<", "
                                 <<cnst.targetVertex[1]<<", "
                                 <<cnst.targetVertex[2]<<std::endl;
-        out<< (VKConstraintBase)cnst <<'\n';
+        out<< (VKConstraintBase&)cnst <<'\n';
 	out.precision(6); //restore default
 	return out;                                 
   }                                              
@@ -230,10 +206,17 @@ void applyConstraints(VKVertex * vk)
 	out.setf( std::ios::scientific); out.precision(7); out << std::endl;
         out << " Vertex in plane constraint  (total NTRK="<<vk->TrackList.size()<<")"<< std::endl;
         out << " Plane(A,B,C,D):"<<cnst.getA()<<", "<<cnst.getB()<<", "<<cnst.getC()<<", "<<cnst.getD()<<std::endl;
-        out<< (VKConstraintBase)cnst <<'\n';
+        out<< (VKConstraintBase&)cnst <<'\n';
 	out.precision(6); //restore default
 	return out;                                 
   }                                              
+
+  void VKMassConstraint::applyConstraint(){  calcMassConstraint(this); }
+  void VKPhiConstraint::applyConstraint(){  calcPhiConstraint(this); }
+  void VKThetaConstraint::applyConstraint(){  calcThetaConstraint(this); }
+  void VKPointConstraint::applyConstraint(){  calcPointConstraint(this); }
+  void VKPlaneConstraint::applyConstraint(){  calcPlaneConstraint(this); }
+
 
 } /* End of namespace */
 
