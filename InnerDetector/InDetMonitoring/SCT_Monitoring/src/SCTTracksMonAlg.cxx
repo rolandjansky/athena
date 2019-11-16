@@ -19,7 +19,9 @@
 
 
 using namespace std;
-//using namespace SCT_Monitoring;
+using SCT_Monitoring::N_REGIONS;
+using SCT_Monitoring::bec2Index;
+
 
 namespace {
   // some possible parameter key values
