@@ -64,9 +64,6 @@ StatusCode PerfMonMTSvc::queryInterface( const InterfaceID& riid,
  */
 StatusCode PerfMonMTSvc::initialize() {
 
-  // TODO: Define this array as a class member !
-  // Name the steps whose snapshots will be captured as a whole
-  //const std::string snapshotStepNames[3] = {"Initialize","Event_loop","Finalize"};
   m_snapshotStepNames.push_back("Initialize");
   m_snapshotStepNames.push_back("Event Loop");
   m_snapshotStepNames.push_back("Finalize");
@@ -122,9 +119,6 @@ void PerfMonMTSvc::stopAud( const std::string& stepName,
 
     if( !isLoop() ) 
       stopCompAud_serial(stepName, compName);
-    //else if( m_doEventLoopMonitoring == true )
-      //stopCompAud_MT(stepName, compName);
-
   }
 }
 
@@ -556,17 +550,6 @@ bool PerfMonMTSvc::isLoop() {
   
   int eventID = getEventID();
   return (eventID >= 0) ? true : false;
-  
-  /*
-  m_eventId = getEventID(); // data race?
-  if(m_eventId >= 0){
-    eventCounter(m_eventId);
-    return true;
-  }
-  else{
-    return false;
-  }
-  */
 }
 
 int PerfMonMTSvc::getEventID() const {
