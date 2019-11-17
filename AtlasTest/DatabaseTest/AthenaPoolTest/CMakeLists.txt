@@ -159,7 +159,7 @@ athenapooltest_run_test( ReadCombinedRDO ReadCombinedRDO
 
 # Test basic overlay algorithms with DoubleEventSelector
 athenapooltest_run_test( DoubleEventSelectorOverlayTest DoubleEventSelectorOverlayTest
-                         "'^..DoubleEvent|^..AthenaPoolAddr|^..Stream1'"
+                         "'^..DoubleEvent|^..AthenaPoolAddr|^..Stream1|Found HelperTools'"
                          DEPENDS ReadCombinedRDO )
 
 # AthenaMT test for DoubleEventSelector
