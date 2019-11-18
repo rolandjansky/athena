@@ -83,7 +83,7 @@ def defineTrackMods(trkopt):
 
 # Translate calib specification into something understood by
 # the calibration config helper
-def defineCalibFilterMods(jetRecoDict,dataSource):
+def defineCalibFilterMods(jetRecoDict,dataSource,rhoKey="auto"):
     # Minimum modifier set for calibration w/o track GSC
     # Should eventually build in more mods, depend on track info etc
     jetalg = jetRecoDict["recoAlg"]
@@ -97,7 +97,7 @@ def defineCalibFilterMods(jetRecoDict,dataSource):
             ("a10t","jes"):    ("TrigTrimmed","EtaJES_JMS"),
             }[(jetRecoDict["recoAlg"],jetRecoDict["jetCalib"])]
 
-        calibSpec = calibContext+":"+dataSource+":"+calibSeq
+        calibSpec = ":".join( [calibContext, dataSource, calibSeq, rhoKey] )
         from TriggerJetMods import ConstitFourMom_copy
         if jetalg=="a4":
             calibMods = [(ConstitFourMom_copy,""),

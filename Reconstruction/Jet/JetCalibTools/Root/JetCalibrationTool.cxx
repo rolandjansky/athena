@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetCalibrationTool.cxx 
@@ -67,8 +67,6 @@ StatusCode JetCalibrationTool::initialize() {
 
   // Initialise ReadHandle(s)
   ATH_CHECK( m_rhkEvtInfo.initialize() );
-  ATH_CHECK( m_rhkRhoKey.assign(m_rhoKey)) ;  // set in `initializeTool'
-  ATH_CHECK( m_rhkRhoKey.initialize() );
   ATH_CHECK( m_rhkPV.initialize() );
 
   return StatusCode::SUCCESS;
@@ -147,6 +145,8 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
         else if ( m_jetScale == PFLOW ) m_rhoKey = "Kt4EMPFlowEventShape";
       }
     }
+    ATH_CHECK( m_rhkRhoKey.assign(m_rhoKey)) ;  // set in `initializeTool'
+    ATH_CHECK( m_rhkRhoKey.initialize() );
     if ( !calibSeq.Contains("Residual") ) m_doResidual = false;
   } else if ( !calibSeq.Contains("JetArea") && calibSeq.Contains("Residual") ) {
     ATH_MSG_FATAL("JetCalibrationTool::initializeTool : You are trying to initialize JetCalibTools with the jet area correction turned off and the residual offset correction turned on. This is inconsistent. Aborting.");
@@ -406,34 +406,36 @@ StatusCode JetCalibrationTool::initializeEvent(JetEventInfo& jetEventInfo) const
   
   ATH_MSG_VERBOSE("Initializing event.");
 
-  //Determine the rho value to use for the jet area subtraction
-  //Should be determined using EventShape object, use hard coded values if EventShape doesn't exist
-  double rho=0;
-  const xAOD::EventShape * eventShape = 0;
+  if( m_doJetArea ) {
+    //Determine the rho value to use for the jet area subtraction
+    //Should be determined using EventShape object, use hard coded values if EventShape doesn't exist
+    double rho=0;
+    const xAOD::EventShape * eventShape = 0;
 
-  SG::ReadHandle<xAOD::EventShape> rhRhoKey(m_rhkRhoKey);
+    SG::ReadHandle<xAOD::EventShape> rhRhoKey(m_rhkRhoKey);
 
-  if ( m_doJetArea && rhRhoKey.isValid() ) {
-    ATH_MSG_VERBOSE("  Found event density container " << m_rhoKey);
-    eventShape = rhRhoKey.cptr();
-    if ( !rhRhoKey.isValid() ) {
-      ATH_MSG_VERBOSE("  Event shape container not found.");
+    if ( rhRhoKey.isValid() ) {
+      ATH_MSG_VERBOSE("  Found event density container " << m_rhoKey);
+      eventShape = rhRhoKey.cptr();
+      if ( !rhRhoKey.isValid() ) {
+	ATH_MSG_VERBOSE("  Event shape container not found.");
+	ATH_MSG_FATAL("Could not retrieve xAOD::EventShape DataHandle.");
+	return StatusCode::FAILURE;
+      } else if ( !eventShape->getDensity( xAOD::EventShape::Density, rho ) ) {
+	ATH_MSG_VERBOSE("  Event density not found in container.");
+	ATH_MSG_FATAL("Could not retrieve xAOD::EventShape::Density from xAOD::EventShape.");
+	return StatusCode::FAILURE;
+      } else {
+	ATH_MSG_VERBOSE("  Event density retrieved.");
+      }
+    } else if ( m_doJetArea && !rhRhoKey.isValid() ) {
+      ATH_MSG_VERBOSE("  Rho container not found: " << m_rhoKey);
       ATH_MSG_FATAL("Could not retrieve xAOD::EventShape DataHandle.");
       return StatusCode::FAILURE;
-    } else if ( !eventShape->getDensity( xAOD::EventShape::Density, rho ) ) {
-      ATH_MSG_VERBOSE("  Event density not found in container.");
-      ATH_MSG_FATAL("Could not retrieve xAOD::EventShape::Density from xAOD::EventShape.");
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_VERBOSE("  Event density retrieved.");
     }
-  } else if ( m_doJetArea && !rhRhoKey.isValid() ) {
-    ATH_MSG_VERBOSE("  Rho container not found: " << m_rhoKey);
-    ATH_MSG_FATAL("Could not retrieve xAOD::EventShape DataHandle.");
-    return StatusCode::FAILURE;
+    jetEventInfo.setRho(rho);
+    ATH_MSG_VERBOSE("  Rho = " << 0.001*rho << " GeV");
   }
-  jetEventInfo.setRho(rho);
-  ATH_MSG_VERBOSE("  Rho = " << 0.001*rho << " GeV");
 
   // Retrieve EventInfo object, which now has multiple uses
   if ( m_doResidual || m_doGSC ) {

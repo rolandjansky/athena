@@ -148,18 +148,22 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
             trkMods = JetRecoConfiguration.defineTrackMods(jetRecoDict["trkopt"])
             jetModList += trkMods
 
+        rhoKey = "auto"
+        if "sub" in jetRecoDict["jetCalib"]:
+            # Add the event shape alg if needed for area subtraction
+            eventShapeAlg = JetRecConfig.getEventShapeAlg( jetDef.inputdef, constitPJKey, "HLT_" )
+            recoSeq += eventShapeAlg
+            # Not currently written because impossible to merge
+            # across event views, which is maybe a concern in
+            # the case of regional PFlow
+            rhoKey = eventShapeAlg.EventDensityTool.OutputContainer
+
         # Import the standard jet modifiers as defined for offline
         # We can add/configure these differently if desired. In particular,
         # we could define a TriggerJetMods module if settings need to
         # diverge substantially e.g. track/vertex collections
-        calibMods = JetRecoConfiguration.defineCalibFilterMods(jetRecoDict,dataSource)
-        jetModList += calibMods
-
-        if "sub" in jetRecoDict["jetCalib"]:
-            # Add the event shape alg if needed for area subtraction
-            from JetRecConfig.JetRecConfig import getEventShapeAlg
-            eventShapeAlg = getEventShapeAlg( jetDef.inputdef, constitPJKey, "HLT_" )
-            recoSeq += eventShapeAlg
+        calibMods = JetRecoConfiguration.defineCalibFilterMods(jetRecoDict,dataSource, rhoKey)
+        jetModList = calibMods
 
         # Generate a JetAlgorithm to run the jet finding and modifiers
         # (via a JetRecTool instance).
