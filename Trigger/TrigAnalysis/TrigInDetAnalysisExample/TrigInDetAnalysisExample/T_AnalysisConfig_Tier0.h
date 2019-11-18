@@ -78,10 +78,8 @@
 
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
-// xAOD
-// not actual XAOD, but this file safely includes
-// the xAOD::TrackParticle header if it exists
-#include "TrkParticleCreator/TrackParticleCreatorTool.h"
+#include "xAODTracking/TrackParticle.h"
+#include "xAODTracking/TrackParticleContainer.h"
 
 
 

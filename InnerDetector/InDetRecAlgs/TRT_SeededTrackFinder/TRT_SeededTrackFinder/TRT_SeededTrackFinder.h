@@ -35,6 +35,7 @@
 #include "BeamSpotConditionsData/BeamSpotData.h"
 #include "InDetRecToolInterfaces/ITRT_SeededTrackFinder.h" 
 #include "TrkEventUtils/PRDtoTrackMap.h"
+#include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
 
 
 class MsgStream;
@@ -94,13 +95,17 @@ namespace InDet {
 
       ToolHandle<ITRT_SeededTrackFinder>   m_trackmaker     ;  /** Track maker tool */
       ToolHandle<Trk::ITrackFitter>        m_fitterTool     ;  /** Refitting tool */
-      ToolHandle<ITRT_TrackExtensionTool>  m_trtExtension   ;  /** TRT track extension tool */
+      ToolHandle<ITRT_TrackExtensionTool>  m_trtExtension
+       { this, "TrackExtensionTool", "InDet::TRT_TrackExtensionTool_xk", "TRT track extension tool "};
 
       SG::ReadHandle<Trk::SegmentCollection> m_Segments     ;  /** TRT segments to use */
       SG::WriteHandle<TrackCollection>       m_outTracks   ;
 
       SG::ReadHandleKey<Trk::PRDtoTrackMap>       m_prdToTrackMap
          {this,"PRDtoTrackMap",""};
+      ToolHandle<Trk::IExtendedTrackSummaryTool> m_trackSummaryTool
+        {this, "TrackSummaryTool", "InDetTrackSummaryToolNoHoleSearch"};
+
 
       ToolHandle<Trk::IExtrapolator>   m_extrapolator; //!< the extrapoator
       SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
@@ -144,16 +149,16 @@ namespace InDet {
       ///////////////////////////////////////////////////////////////////
 
       /** Merge a TRT track segment and a Si track component into one global ID track */
-      Trk::Track*                   mergeSegments(const Trk::Track&,const Trk::TrackSegment&);
+      Trk::Track*                   mergeSegments(const Trk::Track&,const Trk::TrackSegment&) const;
 
       /** Merge a TRT track extension and a Si track component into one global ID track */
-      Trk::Track*                   mergeExtension(const Trk::Track&,std::vector<const Trk::MeasurementBase*>&);
+      Trk::Track*                   mergeExtension(const Trk::Track&,std::vector<const Trk::MeasurementBase*>&) const;
 
       /** Transform a TRT track segment into a track  */
-      Trk::Track*                   segToTrack(const Trk::TrackSegment&);
+      Trk::Track*                   segToTrack(const Trk::TrackSegment&) const;
 
       /** Do some statistics analysis at the end of each event */
-      void                 Analyze(TrackCollection*);
+      void                 Analyze(TrackCollection*) const;
 
       MsgStream&    dumptools(MsgStream&    out) const;
       MsgStream&    dumpevent(MsgStream&    out) const;

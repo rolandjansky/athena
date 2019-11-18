@@ -371,13 +371,22 @@ def TMEF_MuonCandidateTool(name="TMEF_MuonCandidateTool",**kwargs):
     kwargs.setdefault("TrackBuilder","TMEF_CombinedMuonTrackBuilder")
     return CfgMgr.MuonCombined__MuonCandidateTool(name,**kwargs)
 
+def TrigMuonAmbiProcessor(name="TrigMuonAmbiProcessor",**kwargs) :
+    # definition mostly copied from MuonRecExample/python/MooreTools.py
+    import InDetRecExample.TrackingCommon as TrackingCommon
+    kwargs.setdefault("AssociationTool",TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels())
+    kwargs.setdefault("DropDouble", False)
+    kwargs.setdefault("ScoringTool", "MuonTrackScoringTool")
+    kwargs.setdefault("SelectionTool", "MuonAmbiSelectionTool" )
+    return CfgMgr.Trk__TrackSelectionProcessorTool(name,**kwargs)
+
 def TMEF_MuonCreatorTool(name="TMEF_MuonCreatorTool",**kwargs):
     from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
     from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
     pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator = AtlasExtrapolator())
-
     kwargs.setdefault("ParticleCaloExtensionTool", pcExtensionTool)
     kwargs.setdefault('TrackParticleCreator','TMEF_TrkToTrackParticleConvTool')
+    kwargs.setdefault("AmbiguityProcessor", CfgGetter.getPublicTool('TrigMuonAmbiProcessor'))
     kwargs.setdefault('MakeTrackAtMSLink',True)
     kwargs.setdefault("CaloMaterialProvider", "TMEF_TrkMaterialProviderTool")
     kwargs.setdefault("FillTimingInformation",False)

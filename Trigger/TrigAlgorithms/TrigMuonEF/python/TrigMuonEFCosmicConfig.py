@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #
 # TrigMuonEF configurables
@@ -302,9 +302,12 @@ ToolSvc += TMEF_MuonTrackScoringToolCosmic
 TMEF_MuonAmbiTrackSelectionToolCosmic = CfgMgr.Muon__MuonAmbiTrackSelectionTool("TMEF_MuonAmbiTrackSelectionToolCosmic")
 ToolSvc += TMEF_MuonAmbiTrackSelectionToolCosmic
 
+import InDetRecExample.TrackingCommon  as TrackingCommon
 #from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__SimpleAmbiguityProcessorTool
 TMEF_MuonAmbiProcessorCosmic = CfgMgr.Trk__SimpleAmbiguityProcessorTool("TMEF_MuonAmbiProcessorCosmic",
                                                                  Fitter             = TMEF_MCTBFitterTGMatCosmic,
+                                                                 AssociationTool    = TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels(),
+                                                                 TrackSummaryTool   = TrackingCommon.getInDetTrigTrackSummaryTool(),
                                                                  ScoringTool        = TMEF_MuonTrackScoringToolCosmic,
                                                                  SuppressHoleSearch = True  ,
                                                                  SuppressTrackFit   = True  ,

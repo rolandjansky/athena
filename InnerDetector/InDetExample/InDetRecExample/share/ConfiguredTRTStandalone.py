@@ -36,8 +36,8 @@ class ConfiguredTRTStandalone:
     prd_to_track_map = ''
     if usePrdAssociationTool and extension != "_TRT" :
       prefix='InDetTRTonly_'
-      InDetTRTonly_PRD_Association = TrackingCommon.getInDetTrackPRD_Association(prefix     = prefix,
-                                                                                 suffix     = extension,
+      InDetTRTonly_PRD_Association = TrackingCommon.getInDetTrackPRD_Association(namePrefix = prefix,
+                                                                                 nameSuffix = extension,
                                                                                  TracksName = list(InputCollections))
 
       prd_to_track_map = prefix+'PRDtoTrackMap'+extension
@@ -63,7 +63,7 @@ class ConfiguredTRTStandalone:
     #
     from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetTrtTrackScoringTool
     InDetTRT_StandaloneScoringTool = InDet__InDetTrtTrackScoringTool(name                = 'InDetTRT_StandaloneScoringTool'+extension,
-                                                                     SummaryTool         = InDetTrackSummaryTool,
+                                                                     SummaryTool         = TrackingCommon.getInDetTrackSummaryTool(),
                                                                      DriftCircleCutTool  = InDetTRTDriftCircleCut,
                                                                      useAmbigFcn         = True,
                                                                      useSigmaChi2        = False,
@@ -88,8 +88,9 @@ class ConfiguredTRTStandalone:
     InDetTRT_SegmentToTrackTool = InDet__TRT_SegmentToTrackTool(name = 'InDetTRT_SegmentToTrackTool'+extension,
                                                                 RefitterTool          = CfgGetter.getPublicTool('InDetTrackFitterTRT'),
                                                                 AssociationTool       = asso_tool,
+                                                                TrackSummaryTool      = TrackingCommon.getInDetTrackSummaryTool(),
                                                                 ScoringTool           = InDetTRT_StandaloneScoringTool,
-                                                                Extrapolator          = InDetExtrapolator,
+                                                                Extrapolator          = TrackingCommon.getInDetExtrapolator(),
                                                                 FinalRefit            = True,
                                                                 MaxSharedHitsFraction = NewTrackingCuts.maxTRTonlyShared(),
                                                                 SuppressHoleSearch    = True)

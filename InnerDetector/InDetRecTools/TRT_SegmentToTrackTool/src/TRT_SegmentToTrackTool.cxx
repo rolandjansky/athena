@@ -79,9 +79,8 @@ namespace InDet {
 
     // Get association tool
     //
-    if(!m_assoTool.name().empty()){
-      ATH_CHECK(m_assoTool.retrieve());
-    }
+    ATH_CHECK(m_assoTool.retrieve( DisableTool{m_assoTool.name().empty()} ));
+    ATH_CHECK(m_trackSummaryTool.retrieve( DisableTool{m_trackSummaryTool.name().empty()} ));
 
     // Get the scoring tool
     //
@@ -735,8 +734,13 @@ namespace InDet {
   }
 
   void TRT_SegmentToTrackTool::addNewTrack(Trk::Track* trk) {
-
+    // @TODO avoid non const member m_trackScoreTrackMap
     ATH_MSG_DEBUG ("Add track to the scoring multimap...");
+    if (m_trackSummaryTool.isEnabled()) {
+       m_trackSummaryTool->computeAndReplaceTrackSummary(*trk,
+                                                         nullptr,
+                                                         m_suppressHoleSearch);
+    }
 
     //Score the track under investigation
     Trk::TrackScore score = m_scoringTool->score(*trk,m_suppressHoleSearch);

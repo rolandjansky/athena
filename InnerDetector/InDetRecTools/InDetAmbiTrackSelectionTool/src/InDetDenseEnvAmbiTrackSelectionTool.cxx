@@ -54,8 +54,6 @@ StatusCode InDet::InDetDenseEnvAmbiTrackSelectionTool::initialize()
     m_IBLParameterSvc->setBoolParameters(m_doPixelClusterSplitting.value(), "doPixelClusterSplitting");
   }
 
-  ATH_CHECK(m_assoTool.retrieve());
-
   // Get segment selector tool
   if (m_parameterization) {
     ATH_CHECK(m_selectortool.retrieve());
@@ -75,6 +73,8 @@ StatusCode InDet::InDetDenseEnvAmbiTrackSelectionTool::initialize()
   } else {
     m_observerTool.disable();
   }
+
+  ATH_CHECK(m_assoTool.retrieve());
 
   ATH_CHECK(m_incidentSvc.retrieve());
   
@@ -106,7 +106,8 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::handle(const Incident& inc)
 }
 
 
-void InDet::InDetDenseEnvAmbiTrackSelectionTool::newEvent()
+// @TODO move cluster "map" creation to separate algorithm
+void InDet::InDetDenseEnvAmbiTrackSelectionTool::newEvent() const
 {
   // Reload ROI's
   if (m_useHClusSeed) {
@@ -146,7 +147,9 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::newEvent()
 }
 
 //============================================================================================
-const Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::getCleanedOutTrack(const Trk::Track* ptrTrack, const Trk::TrackScore score) 
+std::tuple<Trk::Track*,bool> InDet::InDetDenseEnvAmbiTrackSelectionTool::getCleanedOutTrack(const Trk::Track* ptrTrack,
+                                                                                            const Trk::TrackScore score,
+                                                                                            Trk::PRDtoTrackMap &prd_to_track_map) const
 {
   //Fill ROI's  
   if (!m_mapFilled) newEvent();
@@ -179,11 +182,11 @@ const Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::getCleanedOutTrack
   TSoS_Details    tsosDetails(tsos->size());
   
   // Fill structs will information
-  fillTrackDetails( ptrTrack, trackHitDetails, tsosDetails );
+  fillTrackDetails( ptrTrack, prd_to_track_map, trackHitDetails, tsosDetails );
   
   //Decide which hits to keep
   ATH_MSG_DEBUG ("DecideWhichHitsToKeep");
-  bool TrkCouldBeAccepted = decideWhichHitsToKeep( ptrTrack,  score,  trackHitDetails, tsosDetails, nCutTRT );
+  bool TrkCouldBeAccepted = decideWhichHitsToKeep( ptrTrack,  score,  prd_to_track_map, trackHitDetails, tsosDetails, nCutTRT );
   
   ATH_MSG_DEBUG ("DecidedWhichHitsToKeep " << TrkCouldBeAccepted );
     
@@ -245,14 +248,14 @@ const Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::getCleanedOutTrack
          ( totalSiHits >= m_minNotShared && trackHitDetails.numWeightedShared < m_maxShared && // shared hits and enough unique hits and shared hits with good quality
            ( totalSiHits + std::min(trackHitDetails.numShared,m_maxShared) ) >= m_minHits && score > m_minScoreShareTracks ) ) ) {
     ATH_MSG_DEBUG ("=> Suggest to keep track with "<<trackHitDetails.numShared<<" shared hits !");
-    
+
 
     //  Change pixel hits property for shared hits as this track will be accepted into the final track colection
     if (!trackHitDetails.isPatternTrack){
       updatePixelClusterInformation( tsosDetails ); 
     }
-    
-    return ptrTrack; // keep track as it is
+
+    return std::make_tuple(static_cast<Trk::Track *>(nullptr),true); // keep input track
 
     // ok, failed that one, can we recover the track ?
     /*
@@ -278,7 +281,7 @@ const Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::getCleanedOutTrack
       if (m_monitorTracks) {
         m_observerTool->rejectTrack(*ptrTrack, 0);    // cosmic track should not be rejected
       }
-      return ptrTrack;
+      return std::make_tuple(static_cast<Trk::Track *>(nullptr),true); // keep input track
     }
 
     // Track is potentially ok, create a stripped down version from the unused hits and the allowed shared hits
@@ -327,7 +330,7 @@ const Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::getCleanedOutTrack
         
         bool isSplitable = tsosDetails.splitProb1[index] >= m_sharedProbCut || tsosDetails.splitProb2[index] >= m_sharedProbCut2;
         
-        int  numberOfTracksWithThisPrd = checkOtherTracksValidity( rot, isSplitable, maxiShared, maxothernpixel, maxotherhasblayer, otherfailsMinUniqueHits);
+        int  numberOfTracksWithThisPrd = checkOtherTracksValidity( rot, isSplitable, prd_to_track_map, maxiShared, maxothernpixel, maxotherhasblayer, otherfailsMinUniqueHits);
 
 
         // now decide what to do, can we keep the shared hit
@@ -375,7 +378,7 @@ const Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::getCleanedOutTrack
         m_observerTool->rejectTrack(*ptrTrack, 111);    // rejection location 111: "Too few hits, reject track with shared hits"
       ATH_MSG_VERBOSE ("newTSOS.size(): "<<newTSOS.size() );
       ATH_MSG_DEBUG ("reject track; Too few hits, reject track with shared hits");
-      return 0;
+      return std::make_tuple(static_cast<Trk::Track *>(nullptr),false); // reject input track
     }
 
     // check that this is not the input track
@@ -390,7 +393,7 @@ const Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::getCleanedOutTrack
         m_observerTool->rejectTrack(*ptrTrack, 0);    // maybe track was mark as rejected, but we recoverd it so no rejection
       }
       ATH_MSG_DEBUG ("reject track; maybe track was mark as rejected, but we recoverd it so no rejection");
-      return ptrTrack;
+      return std::make_tuple(static_cast<Trk::Track *>(nullptr),true); // keep input track
     } else {
       // ok, done, create subtrack
       Trk::Track* newTrack = createSubTrack(newTSOS,ptrTrack);
@@ -399,23 +402,23 @@ const Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::getCleanedOutTrack
         if (m_monitorTracks && TrkCouldBeAccepted)  // otherwise (!TrkCouldBeAccepted) already rejected
           m_observerTool->rejectTrack(*ptrTrack, 112);    // rejection location 112: "Failed to create subtrack"
         ATH_MSG_DEBUG ("reject track; Failed to create subtrack");
-        return 0;
+        return std::make_tuple(static_cast<Trk::Track *>(nullptr),false); // reject input track
       }
-  
+
       Trk::TrackInfo info;
       info.addPatternRecoAndProperties(ptrTrack->info());
       Trk::TrackInfo newInfo;
       newInfo.setPatternRecognitionInfo(Trk::TrackInfo::InDetAmbiTrackSelectionTool);
       info.addPatternReco(newInfo);
       newTrack->info().addPatternReco(ptrTrack->info()); 
-      
+
       ATH_MSG_DEBUG ("=> Successfully created subtrack with shared hits recovered !");
       if (m_monitorTracks) {
         m_observerTool->rejectTrack(*ptrTrack, 113);    // rejection location 113: There is a cleaner track, subtrack created
         ATH_MSG_DEBUG ("reject track; There is a cleaner track, subtrack created");
         // observer Tool creates subtrack in ProcessorTool.cxx  
       }
-      return newTrack;
+      return std::make_tuple(newTrack,false); // create new, cleaned track and reject input track
     }
   } else {
     ATH_MSG_DEBUG ("=> Track is recommended to be dropped");
@@ -424,11 +427,12 @@ const Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::getCleanedOutTrack
     }
     ATH_MSG_DEBUG ("reject track; other");
   }
-  return 0;
+  return std::make_tuple(static_cast<Trk::Track *>(nullptr),false); // reject input track
 }
 
 int  InDet::InDetDenseEnvAmbiTrackSelectionTool::checkOtherTracksValidity(const Trk::RIO_OnTrack* rot,
-                                                                          const bool isSplitable, 
+                                                                          const bool isSplitable,
+                                                                          Trk::PRDtoTrackMap &prd_to_track_map,
                                                                           int& maxiShared, 
                                                                           int& maxothernpixel, 
                                                                           bool& maxotherhasblayer, 
@@ -436,7 +440,7 @@ int  InDet::InDetDenseEnvAmbiTrackSelectionTool::checkOtherTracksValidity(const 
 {
 
   // find out how many tracks use this hit already
-  Trk::IPRD_AssociationTool::PrepRawDataTrackMapRange range = m_assoTool->onTracks(*(rot->prepRawData()));        
+  Trk::PRDtoTrackMap::ConstPrepRawDataTrackMapRange range = prd_to_track_map.onTracks(*(rot->prepRawData()));
   int                             numberOfTracksWithThisPrd = std::distance(range.first,range.second);
   ATH_MSG_VERBOSE ("---> number of tracks with this shared Prd: " << numberOfTracksWithThisPrd << " maxtracks: " << m_maxTracksPerPRD);
 
@@ -471,7 +475,7 @@ int  InDet::InDetDenseEnvAmbiTrackSelectionTool::checkOtherTracksValidity(const 
       iHasBlayer     = false;
       iSCT           = 0; 
       
-      auto prdsToCheck = m_assoTool->getPrdsOnTrack(*(track->second));
+      auto prdsToCheck = m_assoTool->getPrdsOnTrack(prd_to_track_map, *(track->second));
       for ( const auto&  prdToCheck: prdsToCheck) {
         bool isPixel(false);
         bool isSplitPixel(false);
@@ -492,7 +496,7 @@ int  InDet::InDetDenseEnvAmbiTrackSelectionTool::checkOtherTracksValidity(const 
           ++iSCT;
         }
             
-        if (m_assoTool->isShared( *prdToCheck )){
+        if (prd_to_track_map.isShared( *prdToCheck )){
           iShared += isSplitPixel ? 0 : isPixel ? 2 : 1;
         } else {
           ++iNotShared;
@@ -526,7 +530,8 @@ int  InDet::InDetDenseEnvAmbiTrackSelectionTool::checkOtherTracksValidity(const 
 
 
 
-void InDet::InDetDenseEnvAmbiTrackSelectionTool::fillTrackDetails(const Trk::Track* ptrTrack,  
+void InDet::InDetDenseEnvAmbiTrackSelectionTool::fillTrackDetails(const Trk::Track* ptrTrack,
+                                                                  const Trk::PRDtoTrackMap &prd_to_track_map,
                                                                   TrackHitDetails& trackHitDetails, 
                                                                   TSoS_Details& tsosDetails ) const
 { 
@@ -679,7 +684,7 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::fillTrackDetails(const Trk::Tra
       }
     } 
 
-    bool isUsed = m_assoTool->isUsed(*(rot->prepRawData()));
+    bool isUsed = prd_to_track_map.isUsed(*(rot->prepRawData()));
 
     // Do we have an outlier (and not a pattern track) ?
     if ( (isoutlier && !isUsed && !trackHitDetails.isPatternTrack) || !(m_detID->is_indet(id)) ) {
@@ -720,16 +725,16 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::fillTrackDetails(const Trk::Tra
     /* Allow a hit to be a shared one, if
        - not too many tracks share this hit already
        - the score of the track is high enough to allow for shared hits
-    */        
-    Trk::IPRD_AssociationTool::PrepRawDataTrackMapRange range = m_assoTool->onTracks(*(rot->prepRawData()));        
+    */
+    Trk::PRDtoTrackMap::ConstPrepRawDataTrackMapRange range = prd_to_track_map.onTracks(*(rot->prepRawData()));
     int numberOfTracksWithThisPrd = std::distance(range.first,range.second);
     ATH_MSG_VERBOSE ( Form("---%3d Number of tracks with this share Prd: %2d maxtracks: %2d",index, numberOfTracksWithThisPrd, m_maxTracksPerPRD.value()) );
     tsosDetails.hitIsShared[index] = numberOfTracksWithThisPrd;
-    
-    
+
+
     // get iterators for range
-    Trk::IPRD_AssociationTool::ConstPRD_MapIt mapIt    = range.first;
-    Trk::IPRD_AssociationTool::ConstPRD_MapIt mapItEnd = range.second;
+    Trk::PRDtoTrackMap::PrepRawDataTrackMap::const_iterator  mapIt    = range.first;
+    Trk::PRDtoTrackMap::PrepRawDataTrackMap::const_iterator mapItEnd = range.second;
     // simple for loop instead of fancier remove_if above
     for ( ;mapIt!=mapItEnd; ++mapIt) {
       tsosDetails.overlappingTracks.insert( std::pair<const Trk::Track*, int >(mapIt->second, index) );
@@ -744,11 +749,12 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::fillTrackDetails(const Trk::Tra
   return;
 }
 
-bool InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk::Track* ptrTrack, 
-                                                                       const Trk::TrackScore score, 
-                                                                       TrackHitDetails& trackHitDetails, 
-                                                                       TSoS_Details& tsosDetails, 
-                                                                       int nCutTRT )const 
+bool InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk::Track* ptrTrack,
+                                                                       const Trk::TrackScore score,
+                                                                       Trk::PRDtoTrackMap &prd_to_track_map,
+                                                                       TrackHitDetails& trackHitDetails,
+                                                                       TSoS_Details& tsosDetails,
+                                                                       int nCutTRT )const
 {
 
   // Can the track can automatically be accpeted without further checks
@@ -1099,7 +1105,7 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
 
     //If an overlapping track if found get the track parameters on the first shared surface
     if ( mostOverlappingTrack ){ 
-      auto tpPair = getOverlapTrackParameters(indexOfFirstOverlappingHit, ptrTrack, mostOverlappingTrack, trackHitDetails.numSplitSharedPix );
+      auto tpPair = getOverlapTrackParameters(indexOfFirstOverlappingHit, ptrTrack, mostOverlappingTrack, prd_to_track_map, trackHitDetails.numSplitSharedPix );
       if (tpPair.first && tpPair.second){
         // Check if both tracks are above threshold       
         bool passPt = tpPair.first->pT() > m_minPairTrackPt && tpPair.second->pT() > m_minPairTrackPt;
@@ -1251,7 +1257,7 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
         bool maxotherhasblayer = false;
         bool otherfailsMinUniqueHits = false;
         bool isSplitable = tsosDetails.splitProb1[index] >= m_sharedProbCut || tsosDetails.splitProb2[index] >= m_sharedProbCut2;
-        int numberOfTracksWithThisPrd = checkOtherTracksValidity( tsosDetails.RIO[index], isSplitable, maxiShared, maxothernpixel, maxotherhasblayer, otherfailsMinUniqueHits);
+        int numberOfTracksWithThisPrd = checkOtherTracksValidity( tsosDetails.RIO[index], isSplitable, prd_to_track_map, maxiShared, maxothernpixel, maxotherhasblayer, otherfailsMinUniqueHits);
  
         if (numberOfTracksWithThisPrd > 0 && ( otherfailsMinUniqueHits || maxiShared >= m_maxShared )){
           TrkCouldBeAccepted = false;
@@ -1417,7 +1423,10 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::isEmCaloCompatible(const Trk::T
 
 
 std::pair<const Trk::TrackParameters*, const Trk::TrackParameters*> 
-InDet::InDetDenseEnvAmbiTrackSelectionTool::getOverlapTrackParameters(int index, const Trk::Track* track1, const Trk::Track* track2, int SplitSharedPix ) const
+InDet::InDetDenseEnvAmbiTrackSelectionTool::getOverlapTrackParameters(int index, const Trk::Track* track1,
+                                                                      const Trk::Track* track2,
+                                                                      const Trk::PRDtoTrackMap &prd_to_track_map,
+                                                                      int SplitSharedPix ) const
 {
   
   auto returnPair = std::make_pair<const Trk::TrackParameters*,const Trk::TrackParameters*>(0,0);
@@ -1439,7 +1448,7 @@ InDet::InDetDenseEnvAmbiTrackSelectionTool::getOverlapTrackParameters(int index,
     return returnPair;
   }
 
-  if ( !m_assoTool->isUsed(*(firstRot->prepRawData()))){
+  if ( !prd_to_track_map.isUsed(*(firstRot->prepRawData()))){
     ATH_MSG_ERROR("This hist is not shared");
     return returnPair;
   }

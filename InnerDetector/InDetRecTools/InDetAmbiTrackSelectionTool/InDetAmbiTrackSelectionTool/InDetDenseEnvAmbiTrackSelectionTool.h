@@ -22,10 +22,12 @@
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
-#include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include "TrkTrack/Track.h" //for use in the struct lessTrkTrack implementation in this header
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkValInterfaces/ITrkObserverTool.h"
+
+#include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
+#include "TrkEventUtils/PRDtoTrackMap.h"
 
 #include "GaudiKernel/ToolHandle.h"
 
@@ -69,13 +71,11 @@ namespace InDet
     virtual StatusCode finalize() override;
     /** handle for incident service */
     virtual void handle(const Incident& inc) override;
-      
-    virtual const Trk::Track* getCleanedOutTrack(const Trk::Track*, const Trk::TrackScore score) override;
-    virtual StatusCode registerPRDs(const Trk::Track* ptrTrack) override;
-    virtual void reset() override;
-    virtual std::vector<const Trk::PrepRawData*> getPrdsOnTrack(const Trk::Track* ptrTrack) const override;
-      
-      
+
+    virtual std::tuple<Trk::Track*,bool> getCleanedOutTrack(const Trk::Track*,
+                                                            const Trk::TrackScore score,
+                                                            Trk::PRDtoTrackMap &prd_to_track_map) const override;
+
   private:
     
     // possible classification of TSOS
@@ -255,13 +255,21 @@ namespace InDet
     /** method to create a new track from a vector of TSOS's */
     Trk::Track* createSubTrack( const std::vector<const Trk::TrackStateOnSurface*>& tsos, const Trk::Track* track ) const ;
       
-    /** Fill the two structs TrackHitDetails & TSoS_Details full of information*/      
-    void fillTrackDetails(const Trk::Track*, TrackHitDetails& trackHitDetails, TSoS_Details& tsosDetails ) const; 
+    /** Fill the two structs TrackHitDetails & TSoS_Details full of information*/
+    void fillTrackDetails(const Trk::Track* ptrTrack,
+                          const Trk::PRDtoTrackMap &prd_to_track_map,
+                          TrackHitDetails& trackHitDetails,
+                          TSoS_Details& tsosDetails ) const;
 
-    /** Determine which hits to keep on this track*/      
-    bool decideWhichHitsToKeep(const Trk::Track*, const Trk::TrackScore score, TrackHitDetails& trackHitDetails, TSoS_Details& tsosDetails, int nCutTRT )const; 
+    /** Determine which hits to keep on this track*/
+    bool decideWhichHitsToKeep(const Trk::Track*,
+                               const Trk::TrackScore score,
+                               Trk::PRDtoTrackMap &prd_to_track_map,
+                               TrackHitDetails& trackHitDetails,
+                               TSoS_Details& tsosDetails,
+                               int nCutTRT )const;
 
-    /** Update the pixel clusters split information*/      
+    /** Update the pixel clusters split information*/
     void updatePixelClusterInformation(TSoS_Details& tsosDetails) const;
       
     /** Check if the cluster is compatible with a hadronic cluster*/
@@ -271,29 +279,34 @@ namespace InDet
     bool isEmCaloCompatible(const Trk::TrackParameters& Tp) const;      
       
     /** Fill hadronic & EM cluster map*/
-    void newEvent();
+    void newEvent() const;
       
     /** Returns the number of track that use that hit already
         Need to let it know if that cluster is splittable
         maxiShared  = max number of shared hits on a  shared track
         which has maxothernpixel pixe hits and blayer hit if maxotherhasblayer is true
-          
     */
-    int checkOtherTracksValidity(const Trk::RIO_OnTrack*,bool isSplitable, int& maxiShared, int& maxothernpixel, bool& maxotherhasblayer, bool& failMinHits) const;
+    int checkOtherTracksValidity(const Trk::RIO_OnTrack*,
+                                 bool isSplitable,
+                                 Trk::PRDtoTrackMap &prd_to_track_map,
+                                 int& maxiShared,
+                                 int& maxothernpixel,
+                                 bool& maxotherhasblayer,
+                                 bool& failMinHits) const;
 
 
     /** Returns the Trackparameters of the two tracks on the n'th TrackStateOnSurface of the first track*/
     std::pair< const Trk::TrackParameters* , const Trk::TrackParameters* > 
-    getOverlapTrackParameters(int n, const Trk::Track* track1, const Trk::Track* track2, int numSplitSharedPix ) const;
+    getOverlapTrackParameters(int n, const Trk::Track* track1,
+                              const Trk::Track* track2,
+                              const Trk::PRDtoTrackMap &prd_to_track_map,
+                              int numSplitSharedPix ) const;
 
     /** Check if two sets of track paremeters are compatible with being from a the same low mass particle decay. 
         It is assumed that the track parmeters are on the same surface.*/
     bool isNearbyTrackCandidate(const Trk::TrackParameters* paraA, const Trk::TrackParameters* paraB) const;
 
 
-    /**Association tool - used to work out which (if any) PRDs are shared between 
-       tracks*/
-    PublicToolHandle<Trk::IPRD_AssociationTool> m_assoTool{this, "AssociationTool", "Trk::PRD_AssociationTool/PRD_AssociationTool"};
     /** TRT minimum number of drift circles tool- returns allowed minimum number of TRT drift circles */
     PublicToolHandle<ITrtDriftCircleCutTool>  m_selectortool{this, "DriftCircleCutTool", "InDet::InDetTrtDriftCircleCutTool"};
     ServiceHandle<IBLParameterSvc> m_IBLParameterSvc{this, "IBLParameterSvc", "IBLParameterSvc"};
@@ -305,7 +318,10 @@ namespace InDet
       
     /**Observer tool      This tool is used to observe the tracks and their 'score' */
     PublicToolHandle<Trk::ITrkObserverTool> m_observerTool{this, "ObserverTool", "Trk::TrkObserverTool/TrkObserverTool"};
-      
+
+    ToolHandle<Trk::IPRDtoTrackMapTool>         m_assoTool
+         {this, "AssociationTool", "InDet::InDetPRDtoTrackMapToolGangedPixels" };
+
     /** some cut values */
     IntegerProperty m_minHits{this, "minHits", 5, "Min Number of hits on track"};
     IntegerProperty m_minTRT_Hits{this, "minTRTHits", 0, "Min Number of TRT hits on track"};
@@ -339,10 +355,10 @@ namespace InDet
     FloatProperty m_etaWidth{this, "etaWidth", 0.2};
     SG::ReadHandleKey<CaloClusterROI_Collection> m_inputHadClusterContainerName{this, "InputHadClusterContainerName", "InDetHadCaloClusterROIs"};
       
-    std::vector<double>   m_hadF;
-    std::vector<double>   m_hadE;
-    std::vector<double>   m_hadR;
-    std::vector<double>   m_hadZ;
+    mutable std::vector<double>   m_hadF;
+    mutable std::vector<double>   m_hadE;
+    mutable std::vector<double>   m_hadR;
+    mutable std::vector<double>   m_hadZ;
 
     BooleanProperty m_useEmClusSeed{this, "doEmCaloSeed", false};
     FloatProperty m_minPtEm{this, "minPtConv", 10000., "in MeV"};
@@ -350,13 +366,13 @@ namespace InDet
     FloatProperty m_etaWidthEm{this, "etaWidthEM", 0.05};
 
     SG::ReadHandleKey<CaloClusterROI_Collection> m_inputEmClusterContainerName{this, "InputEmClusterContainerName", "InDetCaloClusterROIs"};
-    std::vector<double>   m_emF;
-    std::vector<double>   m_emE;
-    std::vector<double>   m_emR;
-    std::vector<double>   m_emZ;
+    mutable std::vector<double>   m_emF;
+    mutable std::vector<double>   m_emE;
+    mutable std::vector<double>   m_emR;
+    mutable std::vector<double>   m_emZ;
 
-    bool m_mapFilled{false};
-            
+    mutable bool m_mapFilled{false};
+
     //Track Pair Selection
     BooleanProperty m_doPairSelection{this, "doPairSelection", true};
     FloatProperty m_minPairTrackPt{this, "minPairTrackPt", 1000., "In MeV"};
@@ -371,20 +387,6 @@ namespace InDet
       
   }; 
 } // end of namespace
-
-inline StatusCode InDet::InDetDenseEnvAmbiTrackSelectionTool::registerPRDs(const Trk::Track* ptrTrack)
-{
-  return m_assoTool->addPRDs(*ptrTrack);
-}
-
-inline void InDet::InDetDenseEnvAmbiTrackSelectionTool::reset()
-{
-  m_assoTool->reset();
-}
-inline std::vector<const Trk::PrepRawData*> InDet::InDetDenseEnvAmbiTrackSelectionTool::getPrdsOnTrack(const Trk::Track* ptrTrack) const
-{
-  return m_assoTool->getPrdsOnTrack(*ptrTrack);
-}
 
 
 #endif 

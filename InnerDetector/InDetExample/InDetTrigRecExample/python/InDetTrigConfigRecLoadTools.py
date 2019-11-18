@@ -945,11 +945,12 @@ if InDetTrigFlags.doNewTracking():
                                                             WriteKey = "SCT_DetElementBoundaryLinks_xk")
       #to here
 
+import InDetRecExample.TrackingCommon as TrackingCommon
 from InDetAmbiTrackSelectionTool.InDetAmbiTrackSelectionToolConf import InDet__InDetAmbiTrackSelectionTool
 InDetTrigAmbiTrackSelectionTool = \
     InDet__InDetAmbiTrackSelectionTool(name               = 'InDetTrigAmbiTrackSelectionTool',
-                                       AssociationTool    = InDetTrigPrdAssociationTool,
                                        DriftCircleCutTool = InDetTrigTRTDriftCircleCut,
+                                       AssociationTool = TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels(),
                                        minHits         = InDetTrigCutValues.minClusters(),
                                        minNotShared    = InDetTrigCutValues.minSiNotShared(),
                                        maxShared       = InDetTrigCutValues.maxShared(),

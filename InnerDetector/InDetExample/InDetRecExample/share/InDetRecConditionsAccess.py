@@ -256,8 +256,11 @@ if DetFlags.haveRIO.SCT_on():
 
     if InDetFlags.doSCTModuleVeto():
         InDetSCT_ConditionsSummaryTool.ConditionsTools += [ sct_MonitorConditionsToolSetup.getTool().getFullName() ]
-        
-    
+
+    # @TODO fix this temporary hack to make the configguration of the InDetSCT_ConditionsSummaryTool accessible to TrackingCommon
+    import InDetRecExample.TrackingCommon as TrackingCommon
+    TrackingCommon.def_InDetSCT_ConditionsSummaryTool=InDetSCT_ConditionsSummaryTool
+
     if (InDetFlags.doPrintConfigurables()):
         print InDetSCT_ConditionsSummaryTool
 

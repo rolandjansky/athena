@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # ------------------------------------------------------------
 #
@@ -267,6 +267,10 @@ class InDetTrigTrackingxAODCnv_EF( InDet__TrigTrackingxAODCnv ):
           InDetTrigParticleCreatorToolFTF,InDetTrigParticleCreatorToolWithSummaryTRTPid
 
       creatorTool = InDetTrigParticleCreatorToolWithSummary
+      self.doSharedHits=True
+      from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigPRDtoTrackMapExchangeTool
+      self.PRDToTrackMapExchange = InDetTrigPRDtoTrackMapExchangeTool
+
 
       if "_FTF" in name or "_FTK" in name:
         creatorTool = InDetTrigParticleCreatorToolFTF

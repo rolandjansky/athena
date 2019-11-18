@@ -17,6 +17,9 @@
 #include "TrkAmbiguityProcessor/dRMap.h"
 #include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
 
+#include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
+#include "TrkEventUtils/PRDtoTrackMap.h"
+#include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
 
 //need to include the following, since its a typedef and can't be forward declared.
 #include "TrkTrack/TrackCollection.h"
@@ -27,7 +30,9 @@
 #include <set>
 #include <vector>
 #include <functional>
+#include <ostream>
 
+#include "TrackPtr.h"
 
 class AtlasDetectorID;
 class PixelID;
@@ -41,7 +46,6 @@ namespace InDet{
 namespace Trk {
 
   class ITrackScoringTool;
-  class IPRD_AssociationTool;
   class ITruthToTrack;
   class IExtrapolator;
 
@@ -62,32 +66,115 @@ namespace Trk {
      The tracks will be refitted if no fitQuality is given at input.
      @return new collections of tracks, with ambiguities resolved. Ownership is passed on 
      (i.e. client handles deletion)*/
-      virtual TrackCollection*  process(TracksScores* trackScoreTrackMap) override;
-      
-      virtual TrackCollection*  process(const TrackCollection*) override {return nullptr;}; 
-      /** statistics output */
+      virtual TrackCollection*  process(const TracksScores *trackScoreTrackMap) const override;
+
+      virtual TrackCollection*  process(const TrackCollection*,Trk::PRDtoTrackMap *) const override {return nullptr;};
+
+      /** statistics output to be called by algorithm during finalize. */
       virtual void statistics() override;
-
     private:
-      
-      //transfer ownership
-      void addTrack(const Track* track, const bool fitted,
-                    std::multimap<float, std::pair<const Track*, bool>>* scoreTrackFitflagMap,
-                    std::vector<std::unique_ptr<const Trk::Track> >& cleanup_tracks);
+      class TrackStat {
+      public:
+         TrackStat(const std::vector<float> &eta_bounds) : m_etabounds(&eta_bounds){}
 
-      void solveTracks(TracksScores* trackScoreTrackMap,
-                       TrackCollection* finalTracks,
-                       std::vector<std::unique_ptr<const Trk::Track> >& cleanup_tracks);
-    
+         enum EStatType {
+            kNtracks,
+            kNinvalid,
+            kNcandidates,
+            // kNcandScoreZero,
+            // kNcandDouble,
+            kNscoreOk,
+            kNscoreZeroBremRefit,
+            kNscoreZeroBremRefitFailed,
+            kNscoreZeroBremRefitScoreZero,
+            kNscoreZero,
+            kNaccepted,
+            kNsubTrack,
+            kNnoSubTrack,
+            kNacceptedBrem,
+            kNbremFits,
+            kNfits,
+            kNrecoveryBremFits,
+            kNgoodFits,
+            kNfailedFits,
+            kNStatTypes
+         };
+         enum EGlobalStatType {
+            kNevents,
+            kNInvalidTracks,
+            kNTracksWithoutParam,
+            kNGlobalStatTypes,
+         };
+         /** internal monitoring: categories for counting different types of extension results*/
+         enum StatIndex {iAll = 0, iBarrel = 1, iTransi = 2, iEndcap = 3, iForwrd = 4, kNStatRegions=5};
+
+         class Counter {
+         public:
+            Counter &operator+=(const Counter &a) {
+               m_counter += a.m_counter;
+               return *this;
+            }
+            Counter &operator++()   { ++m_counter; return *this;}
+            operator int() const    { return m_counter; }
+            int value()    const    { return m_counter; }
+         private:
+            unsigned int m_counter=0;
+         };
+
+         void newEvent() {
+            ++m_globalCounter[kNevents];
+         }
+
+         TrackStat &operator+=(const TrackStat &a) {
+            for (unsigned int i=0; i<kNGlobalStatTypes; ++i) {
+               m_globalCounter[i]+= a.m_globalCounter[i];
+            }
+            for (unsigned int i=0; i<kNStatTypes; ++i) {
+               for (unsigned int region_i=0; region_i< kNStatRegions; ++region_i) {
+                  m_counter[i][region_i] += a.m_counter[i][region_i];
+               }
+            }
+            return *this;
+         }
+
+         /** helper for monitoring and validation: does success/failure counting */
+         void increment_by_eta(EStatType type, const Track* track, bool updateAll=true);
+         void dumpStatType(std::ostream &out, const std::string &head, EStatType type, unsigned short iw=9) const;
+         void dump(std::ostream &out, bool try_brem_fit) const;
+
+         const std::vector<float>  &etaBounds() const { return *m_etabounds; }  //!< eta intervals for internal monitoring
+
+      private:
+         std::array<Counter,kNGlobalStatTypes>                      m_globalCounter;
+         std::array<std::array<Counter, kNStatRegions>,kNStatTypes> m_counter;
+
+         const std::vector<float>  *m_etabounds;           //!< eta intervals for internal monitoring
+      };
+
+      //transfer ownership
+      void addTrack(Track* track, const bool fitted,
+                    std::multimap<float, TrackPtr > &scoreTrackFitflagMap,
+                    const Trk::PRDtoTrackMap &prd_to_track_map,
+                    std::vector<std::unique_ptr<const Trk::Track> >& cleanup_tracks,
+                    Trk::DenseEnvironmentsAmbiguityProcessorTool::TrackStat &stat) const;
+
+      void solveTracks(const TracksScores& trackScoreTrackMap,
+                       Trk::PRDtoTrackMap &prd_to_track_map,
+                       TrackCollection &finalTracks,
+                       std::vector<std::unique_ptr<const Trk::Track> >& cleanup_tracks,
+                       Trk::DenseEnvironmentsAmbiguityProcessorTool::TrackStat &stat) const;
+
       /** refit track */
-      Track* refitTrack( const Trk::Track* track);
-      
+      Track* refitTrack( const Trk::Track* track, Trk::PRDtoTrackMap &prd_to_track_map,
+                         Trk::DenseEnvironmentsAmbiguityProcessorTool::TrackStat &stat) const;
+
       /** refit PRDs */
-      Track* refitPrds( const Track* track);
+      Track* refitPrds( const Track* track, Trk::PRDtoTrackMap &prd_to_track_map,
+                        Trk::DenseEnvironmentsAmbiguityProcessorTool::TrackStat &stat) const;
 
       /** refit ROTs corresponding to PRDs*/
       //TODO or Q: new created track, why const
-      Track* refitRots( const Track* track);
+      Track* refitRots( const Track* track, Trk::DenseEnvironmentsAmbiguityProcessorTool::TrackStat &stat) const;
 
       /** stores the minimal dist(trk,trk) for covariance correction*/
       void storeTrkDistanceMapdR(TrackCollection& tracks,
@@ -98,13 +185,13 @@ namespace Trk {
       Trk::Track* refitTracksFromB(const Trk::Track* track,double fitQualityOriginal) const;
      
       /** see if we are in the region of interest for B tracks*/
-      bool decideIfInHighPtBROI(const Trk::Track*);
+      bool decideIfInHighPtBROI(const Trk::Track*) const;
 
       /** Check if the cluster is compatible with a hadronic cluster*/
       bool isHadCaloCompatible(const Trk::TrackParameters& Tp) const;
 
       /** Load the clusters to see if they are compatibles with ROI*/
-      void reloadHadROIs();
+      void reloadHadROIs() const;
            
  
       Trk::Track *fit(std::vector<const Trk::PrepRawData*> &raw,
@@ -144,10 +231,10 @@ namespace Trk {
       float m_etaWidth;
       SG::ReadHandleKey<CaloClusterROI_Collection> m_inputHadClusterContainerName;
 
-      std::vector<double>   m_hadF;
-      std::vector<double>   m_hadE;
-      std::vector<double>   m_hadR;
-      std::vector<double>   m_hadZ;
+      mutable std::vector<double>   m_hadF;
+      mutable std::vector<double>   m_hadE;
+      mutable std::vector<double>   m_hadR;
+      mutable std::vector<double>   m_hadZ;
 
       /** control material effects (0=non-interacting, 1=pion, 2=electron, 3=muon, 4=pion) read in as an integer 
       read in as an integer and convert to particle hypothesis */
@@ -159,9 +246,9 @@ namespace Trk {
          @todo The actual tool that is used should be configured through job options*/
       ToolHandle<ITrackScoringTool> m_scoringTool;
 
-	  /**Observer tool
-         This tool is used to observe the tracks and their 'score' */
-      ToolHandle<ITrkObserverTool> m_observerTool;
+       /**Observer tool
+          This tool is used for debugging. It tracks selection and rejection of tracks */
+      mutable ToolHandle<ITrkObserverTool> m_observerTool;
       
       /** refitting tool - used to refit tracks once shared hits are removed. 
           Refitting tool used is configured via jobOptions.*/
@@ -169,6 +256,16 @@ namespace Trk {
       /** extrapolator tool - used to refit tracks once shared hits are removed. 
           Extrapolator tool used is configured via jobOptions.*/
       ToolHandle<IExtrapolator> m_extrapolatorTool;
+
+      ToolHandle<Trk::IPRDtoTrackMapTool>         m_assoTool
+         {this, "AssociationTool", "InDet::InDetPRDtoTrackMapToolGangedPixels" };
+
+      ToolHandle<Trk::IExtendedTrackSummaryTool> m_trackSummaryTool
+        {this, "TrackSummaryTool", "InDetTrackSummaryToolNoHoleSearch"};
+
+      /** key for the PRDtoTrackMap to filled by the ambiguity score processor.**/
+      SG::ReadHandleKey<Trk::PRDtoTrackMap>  m_assoMapName
+         {this,"AssociationMapName",""};  ///< the key given to the newly created association map
 
       /** selection tool - here the decision which hits remain on a track and
           which are removed are made */
@@ -178,20 +275,21 @@ namespace Trk {
       /**These allow us to retrieve the helpers*/
       const PixelID* m_pixelId;
       const AtlasDetectorID* m_idHelper;
-      
-      /** internal monitoring: categories for counting different types of extension results*/
-      enum StatIndex {iAll = 0, iBarrel = 1, iTransi = 2, iEndcap = 3};
-      std::vector<float>  m_etabounds;           //!< eta intervals for internal monitoring
-
-      bool m_monitorTracks; // to track observeration/monitoring (default is false)
+      std::vector<float>     m_etabounds;           //!< eta intervals for internal monitoring
 
       SG::WriteHandleKey<InDet::DRMap>                    m_dRMap;      //!< the actual dR map         
+
+      mutable std::mutex m_statMutex;
+      mutable TrackStat  m_stat ATLAS_THREAD_SAFE;
+
+      bool m_monitorTracks; // to track observeration/monitoring (default is false)
 
       bool m_rejectInvalidTracks;
   };
       inline
       Trk::Track *DenseEnvironmentsAmbiguityProcessorTool::fit(std::vector<const Trk::PrepRawData*> &raw,
-                                                           const TrackParameters &param, bool flag, Trk::ParticleHypothesis hypo) const {
+                                                               const TrackParameters &param, bool flag,
+                                                               Trk::ParticleHypothesis hypo) const {
          Trk::Track *new_track=nullptr;
          for ( const ToolHandle<ITrackFitter> &a_fitter : m_fitterTool) {
               delete new_track;
@@ -211,7 +309,10 @@ namespace Trk {
       }
 
       inline
-      Trk::Track *DenseEnvironmentsAmbiguityProcessorTool::fit(std::vector<const Trk::MeasurementBase*> &measurements, const TrackParameters &param, bool flag, Trk::ParticleHypothesis hypo) const
+      Trk::Track *DenseEnvironmentsAmbiguityProcessorTool::fit(std::vector<const Trk::MeasurementBase*> &measurements,
+                                                               const TrackParameters &param,
+                                                               bool flag,
+                                                               Trk::ParticleHypothesis hypo) const
       {
         Trk::Track *new_track=nullptr;
         for ( const ToolHandle<ITrackFitter> &a_fitter : m_fitterTool) {
@@ -255,6 +356,41 @@ namespace Trk {
       }
 } //end ns
 
+void Trk::DenseEnvironmentsAmbiguityProcessorTool::TrackStat::increment_by_eta(EStatType type,
+                                                                               const Track* track,
+                                                                               bool updateAll) {
+   std::array<Counter,kNStatRegions> &Ntracks = m_counter[type];
+   if (updateAll) ++Ntracks[iAll];
+
+   // test
+   if (!track) {
+      ++m_globalCounter[kNInvalidTracks];
+   }
+   // use first parameter
+   if (!track->trackParameters()) {
+      ++m_globalCounter[kNTracksWithoutParam];
+   }
+   else {
+      double eta = track->trackParameters()->front()->eta();
+      for (unsigned int region_i=1; region_i< kNStatRegions; ++region_i) {
+         if (std::abs(eta)      < (*m_etabounds)[region_i-1]) {
+            ++Ntracks[region_i];
+            break;
+         }
+      }
+   }
+}
+
+void Trk::DenseEnvironmentsAmbiguityProcessorTool::TrackStat::dumpStatType(std::ostream &out,
+                                                                           const std::string &head,
+                                                                           EStatType type,
+                                                                           unsigned short iw) const {
+   out << head << std::setiosflags(std::ios::dec);
+   for (unsigned region_i=0; region_i<kNStatRegions; ++region_i) {
+      out << std::setw(iw) << m_counter[type][region_i].value();
+   }
+   out << std::endl;
+}
 
 #endif // TrackAmbiguityProcessorTool_H
 

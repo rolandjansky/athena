@@ -51,9 +51,9 @@ if InDetFlags.doSplitReco()  and is_mc:
     xAODTruthCnvPU.MetaObjectName = "TruthMetaData_PU" #output
     topSequence += xAODTruthCnvPU
 
-def getInDetxAODParticleCreatorTool() :
+def getInDetxAODParticleCreatorTool(prd_to_track_map=None, suffix="") :
     from AthenaCommon.AppMgr import theApp, ToolSvc
-    if hasattr(ToolSvc,'InDetxAODParticleCreatorTool') :
+    if hasattr(ToolSvc,'InDetxAODParticleCreatorTool'+suffix) :
         return getattr(ToolSvc,'InDetxAODParticleCreatorTool')
 
     _perigee_expression=InDetFlags.perigeeExpression()
@@ -64,14 +64,28 @@ def getInDetxAODParticleCreatorTool() :
     if _perigee_expression == 'Vertex' :
         _perigee_expression = 'BeamLine'
 
+    from InDetRecExample                import TrackingCommon as TrackingCommon
+    from InDetRecExample.TrackingCommon import setDefaults
+    if prd_to_track_map is None :
+        track_summary_tool = TrackingCommon.getInDetTrackSummaryToolSharedHits()
+    else :
+        prop_args          = setDefaults({}, nameSuffix = suffix)
+        asso_tool          = TrackingCommon.getConstPRD_AssociationTool(**setDefaults(prop_args,
+                                                                                      PRDtoTrackMap = prd_to_track_map))
+        helper_tool        = TrackingCommon.getInDetSummaryHelperSharedHits(**setDefaults(prop_args,
+                                                                                          AssoTool = asso_tool) )
+        track_summary_tool = TrackingCommon.getInDetTrackSummaryToolSharedHits(**setDefaults(prop_args,
+                                                                                             InDetSummaryHelperTool=helper_tool))
+
     from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
-    InDetxAODParticleCreatorTool = Trk__TrackParticleCreatorTool(name = "InDetxAODParticleCreatorTool",
+    InDetxAODParticleCreatorTool = Trk__TrackParticleCreatorTool(name = "InDetxAODParticleCreatorTool"+suffix,
                                                                  Extrapolator            = InDetExtrapolator,
-                                                                 TrackSummaryTool        = InDetTrackSummaryToolSharedHits,
+                                                                 TrackSummaryTool        = track_summary_tool,
                                                                  BadClusterID            = InDetFlags.pixelClusterBadClusterID(),
                                                                  KeepParameters          = True,
                                                                  KeepFirstParameters     = InDetFlags.KeepFirstParameters(),
-                                                                 PerigeeExpression       = _perigee_expression)
+                                                                 PerigeeExpression       = _perigee_expression,
+                                                                 UpdateTrack             = False)
 
     ToolSvc += InDetxAODParticleCreatorTool
     if InDetFlags.doPrintConfigurables():
@@ -82,14 +96,25 @@ def getInDetxAODParticleCreatorTool() :
 def isValid(name) :
     return name != None and name != ""
 
-def createTrackParticles(track_in, track_particle_truth_in,track_particle_out, topSequence) :
+def createTrackParticles(track_in, track_particle_truth_in,track_particle_out, topSequence, prd_to_track_map=None, suffix="") :
+    '''
+    create algorithm to convert the input tracks into track xAOD track particles.
+    @param track_in the name of the input TrackCollection
+    @param track_particle_truth_in optional truth track collection to link to
+    @param track_particle_out the name of the output xAOD track particle collection
+    @param topSequence the sequence to which the algorithm is added
+    @param prd_to_track_map None or if shared hits are to be recomputed a PRDtoTrackMap filled by a preceding
+           algorithms e.g. a TrackCollectionMerger.
+    @param suffix which makes the names of the particle creator tool and sub-tools unique in case a prd_to_track_map
+           is provided.
+    '''
     if isValid(track_in) and isValid(track_particle_out) :
         from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg
         xAODTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg(track_particle_out)
         xAODTrackParticleCnvAlg.xAODContainerName = ""
         xAODTrackParticleCnvAlg.xAODTrackParticlesFromTracksContainerName = track_particle_out
         xAODTrackParticleCnvAlg.TrackContainerName = track_in
-        xAODTrackParticleCnvAlg.TrackParticleCreator = getInDetxAODParticleCreatorTool()
+        xAODTrackParticleCnvAlg.TrackParticleCreator = getInDetxAODParticleCreatorTool(prd_to_track_map, suffix)
         xAODTrackParticleCnvAlg.AODContainerName = ""
         xAODTrackParticleCnvAlg.AODTruthContainerName = ""
         xAODTrackParticleCnvAlg.ConvertTrackParticles = False
@@ -213,10 +238,19 @@ if InDetFlags.doTrackSegmentsSCT() and InDetFlags.doParticleCreation():
 
 if InDetFlags.doTrackSegmentsTRT() and InDetFlags.doParticleCreation():
     if doCreation :
-        createTrackParticles(InDetKeys.TRTTracks(),
-                             "",
-                             InDetKeys.xAODTRTTrackParticleContainer(),
-                             topSequence)
+        if InDetFlags.doCosmics() :
+            # to reproduce shared hits of TRTTrackParticles stored in the ESD of q220
+            createTrackParticles(InDetKeys.TRTTracks(),
+                                 "",
+                                 InDetKeys.xAODTRTTrackParticleContainer(),
+                                 topSequence,
+                                 ("PRDtoTrackMap" + InDetKeys.UnslimmedTracks()),
+                                 "TRTTracks")
+        else :
+            createTrackParticles(InDetKeys.TRTTracks(),
+                                 "",
+                                 InDetKeys.xAODTRTTrackParticleContainer(),
+                                 topSequence)
 
 if InDetFlags.doStoreTrackSeeds() and InDetFlags.doParticleCreation():
     if doCreation :

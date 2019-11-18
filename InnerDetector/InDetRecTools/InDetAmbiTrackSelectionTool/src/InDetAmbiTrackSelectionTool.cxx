@@ -21,6 +21,7 @@
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackInfo.h"
 #include "TrkTrackSummary/TrackSummary.h"
+#include "TrkEventUtils/PRDtoTrackMap.h"
 
 //================ Constructor =================================================
 
@@ -42,8 +43,7 @@ StatusCode InDet::InDetAmbiTrackSelectionTool::initialize()
   } else {
     m_IBLParameterSvc->setBoolParameters(m_doPixelClusterSplitting.value(), "doPixelClusterSplitting");
   }
-  ATH_CHECK(  m_assoTool.retrieve());
-  
+
   // Get segment selector tool
   //
   if (m_parameterization){
@@ -53,6 +53,8 @@ StatusCode InDet::InDetAmbiTrackSelectionTool::initialize()
   }
   ATH_CHECK(detStore()->retrieve(m_detID, "SiliconID" ));
   ATH_MSG_DEBUG( "initialize() successful" );
+
+  ATH_CHECK(m_assoTool.retrieve() );
   return StatusCode::SUCCESS;
 }
 
@@ -64,7 +66,9 @@ StatusCode InDet::InDetAmbiTrackSelectionTool::finalize()
 }
 
 //============================================================================================
-const Trk::Track* InDet::InDetAmbiTrackSelectionTool::getCleanedOutTrack(const Trk::Track* ptrTrack, const Trk::TrackScore score) 
+std::tuple<Trk::Track*,bool> InDet::InDetAmbiTrackSelectionTool::getCleanedOutTrack(const Trk::Track *ptrTrack,
+                                                                                    const Trk::TrackScore score,
+                                                                                    Trk::PRDtoTrackMap &prd_to_track_map) const
 {
   // flag if the track is ok (true) or needs cleaning (false)
   bool TrkCouldBeAccepted        = true;
@@ -212,7 +216,7 @@ const Trk::Track* InDet::InDetAmbiTrackSelectionTool::getCleanedOutTrack(const T
     }
 
     // let's check if this is a shared hit (even if it is an outlier on a pattern track) ?
-    if (!m_assoTool->isUsed(*(rot->prepRawData()))) {
+    if (!prd_to_track_map.isUsed(*(rot->prepRawData()))) {
       if ( !isoutlier ) {
         ATH_MSG_VERBOSE ("-> Prd is unused, copy it over");
       } else {
@@ -259,7 +263,7 @@ const Trk::Track* InDet::InDetAmbiTrackSelectionTool::getCleanedOutTrack(const T
        - not too many tracks share this hit already
        - the score of the track is high enough to allow for shared hits
     */      
-    Trk::IPRD_AssociationTool::PrepRawDataTrackMapRange range = m_assoTool->onTracks(*(rot->prepRawData()));      
+    Trk::PRDtoTrackMap::ConstPrepRawDataTrackMapRange range = prd_to_track_map.onTracks(*(rot->prepRawData()));
     int                             numberOfTracksWithThisPrd = std::distance(range.first,range.second);
     ATH_MSG_VERBOSE ("---> number of tracks with this share Prd: " << numberOfTracksWithThisPrd << " maxtracks: " << m_maxTracksPerPRD);
 
@@ -391,7 +395,7 @@ const Trk::Track* InDet::InDetAmbiTrackSelectionTool::getCleanedOutTrack(const T
          ( totalSiHits >= m_minNotShared && numWeightedShared <= m_maxShared && // shared hits and enough unique hits and shared hits with good quality
            ( totalSiHits + std::min(numShared,m_maxShared) ) >= m_minHits && score > m_minScoreShareTracks ) ) ) {
     ATH_MSG_DEBUG ("=> Suggest to keep track with "<<numShared<<" shared hits !");
-    return ptrTrack; // keep track as it is
+    return std::make_tuple(static_cast<Trk::Track *>(nullptr),true); // keep input track
 
     // ok, failed that one, can we recover the track ?
   } else if ( numTRT_Unused >= nCutTRT           && // TRT track or no TRT at all (back tracking)
@@ -401,12 +405,12 @@ const Trk::Track* InDet::InDetAmbiTrackSelectionTool::getCleanedOutTrack(const T
     // catch, if this is cosmics, accept the incoming track
     if (m_cosmics) {
       ATH_MSG_DEBUG ("=> Cosmics, accept input track even with shared hits");
-      return ptrTrack;
+      return std::make_tuple(static_cast<Trk::Track *>(nullptr),true); // keep input track;
     }
 
     // if ( numShared == 0 && TrkCouldBeAccepted ) {
     // ATH_MSG_DEBUG ("=> Nothing to recover from, drop track !");
-    // return nullptr;
+    // return std::make_tuple(static_cast<Trk::Track *>(nullptr),false); // reject input track;
     // }
     
     // Track is potentially ok, create a stripped down version from the unused hits and the allowed shared hits
@@ -454,8 +458,8 @@ const Trk::Track* InDet::InDetAmbiTrackSelectionTool::getCleanedOutTrack(const T
         bool isPixel = m_detID->is_pixel(rot->identify());
  
         // find out how many tracks use this hit already
-        Trk::IPRD_AssociationTool::PrepRawDataTrackMapRange range = m_assoTool->onTracks(*(rot->prepRawData()));      
-        int                             numberOfTracksWithThisPrd = std::distance(range.first,range.second);
+        Trk::PRDtoTrackMap::ConstPrepRawDataTrackMapRange range = prd_to_track_map.onTracks(*(rot->prepRawData()));
+        int                           numberOfTracksWithThisPrd = std::distance(range.first,range.second);
         ATH_MSG_VERBOSE ("---> number of tracks with this shared Prd: " << numberOfTracksWithThisPrd << " maxtracks: " << m_maxTracksPerPRD);
  
         // check if this newly shared hit would exceed the shared hits limit of the already accepted track (**) 
@@ -463,9 +467,10 @@ const Trk::Track* InDet::InDetAmbiTrackSelectionTool::getCleanedOutTrack(const T
         int  othernpixel    = 0;
         bool otherhasblayer = false;
         if ( numberOfTracksWithThisPrd == 1 ) {
-          std::vector< const Trk::PrepRawData* > prdsToCheck = m_assoTool->getPrdsOnTrack(*(range.first->second));
+          // @TODO is it ensured that the prds of all tracks have been registered already ?
+          std::vector< const Trk::PrepRawData* > prdsToCheck = m_assoTool->getPrdsOnTrack(prd_to_track_map,*(range.first->second));
           for (const Trk::PrepRawData* prd : prdsToCheck) {
-            if (m_assoTool->isShared(*prd))
+            if (prd_to_track_map.isShared(*prd))
               ++iShared;
             if (m_detID->is_pixel(prd->identify())) {
               othernpixel++;
@@ -498,19 +503,19 @@ const Trk::Track* InDet::InDetAmbiTrackSelectionTool::getCleanedOutTrack(const T
     // this still may happen per (**) see above.
     if ( numUnused+nPixelDeadSensor+nSCTDeadSensor < m_minHits || newTSOS.size() <= 3 ) {
       ATH_MSG_DEBUG ("=> Too few hits, reject track with shared hits");
-      return nullptr;
+      return std::make_tuple(static_cast<Trk::Track *>(nullptr),false); // reject input track;
     }
 
     // check that this is not the input track
     if ( newTSOS.size() == tsos->size() ) {
       ATH_MSG_DEBUG ("=> Recovered input track, accept it !");
-      return ptrTrack;
+      return std::make_tuple(static_cast<Trk::Track *>(nullptr),true); // keep input track;
     } else {
       // ok, done, create subtrack
       Trk::Track* newTrack = createSubTrack(newTSOS,ptrTrack);
       if (!newTrack) {
         ATH_MSG_DEBUG ("=> Failed to create subtrack");
-        return nullptr;
+        return std::make_tuple(static_cast<Trk::Track *>(nullptr),false); // reject input track;
       }
 
       Trk::TrackInfo info;
@@ -519,15 +524,15 @@ const Trk::Track* InDet::InDetAmbiTrackSelectionTool::getCleanedOutTrack(const T
       newInfo.setPatternRecognitionInfo(Trk::TrackInfo::InDetAmbiTrackSelectionTool);
       info.addPatternReco(newInfo);
       newTrack->info().addPatternReco(ptrTrack->info()); 
-      
+
       ATH_MSG_DEBUG ("=> Successfully created subtrack with shared hits recovered !");
-      return newTrack;
+      return std::make_tuple(newTrack,false); // new cleaned track, reject input track ;
     }
   } else {
     ATH_MSG_DEBUG ("=> Track is recommended to be dropped");
   }
-  
-  return nullptr;
+
+  return std::make_tuple(static_cast<Trk::Track *>(nullptr),false); // reject input track;
 }
 
 //==========================================================================================

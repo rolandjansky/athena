@@ -30,8 +30,7 @@
 InDet::TRT_TrackSegmentsMaker_ATLxk::TRT_TrackSegmentsMaker_ATLxk
 (const std::string& t,const std::string& n,const IInterface* p)
   : AthAlgTool(t,n,p)                                                ,
-    m_propTool     ("Trk::RungeKuttaPropagator"                  ),
-    m_extensionTool("InDet::TRT_TrackExtensionTool_xk"           )
+    m_propTool     ("Trk::RungeKuttaPropagator"                  )
 {
   m_fieldmode   =      "MapSolenoid" ;
   m_pTmin       =                500.;
@@ -50,7 +49,6 @@ InDet::TRT_TrackSegmentsMaker_ATLxk::TRT_TrackSegmentsMaker_ATLxk
   declareInterface<ITRT_TrackSegmentsMaker>(this);
 
   declareProperty("PropagatorTool"         ,m_propTool     );
-  declareProperty("TrackExtensionTool"     ,m_extensionTool);
   declareProperty("MagneticFieldMode"      ,m_fieldmode    );
   declareProperty("TrtManagerLocation"     ,m_ntrtmanager  );
   declareProperty("NumberAzimuthalChannel" ,m_nPhi         ); 

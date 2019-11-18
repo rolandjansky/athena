@@ -55,7 +55,7 @@ StatusCode Trk::TrackCollectionMerger::initialize()
 
   ATH_CHECK( m_trkSummaryTool.retrieve() );
   ATH_CHECK( m_assoTool.retrieve() );
-
+  ATH_CHECK( m_assoMapName.initialize( !m_assoMapName.key().empty() ));
   return StatusCode::SUCCESS;
 }
 
@@ -96,14 +96,24 @@ StatusCode Trk::TrackCollectionMerger::execute()
 
   ATH_MSG_DEBUG("Update summaries");  
   // now loop over all tracks and update summaries with new shared hit counts
+  // @TODO magic! tracks are now non-const !??
   for (Trk::Track* trk : *outputCol) {
     if (m_updateAdditionalInfo)  m_trkSummaryTool->updateAdditionalInfo(*trk, prd_to_track_map.get());
     else if (m_updateSharedHitsOnly) m_trkSummaryTool->updateSharedHitCount(*trk, prd_to_track_map.get());
-    else  m_trkSummaryTool->updateTrack(*trk, prd_to_track_map.get());
+    else  {
+       m_trkSummaryTool->computeAndReplaceTrackSummary(*trk, prd_to_track_map.get(), false /* DO NOT suppress hole search*/);
+    }
   }
 
   SG::WriteHandle<TrackCollection> h_write(m_outtracklocation);
   ATH_CHECK(h_write.record(std::move(outputCol)));	     
+
+  if (!m_assoMapName.key().empty()) {
+     SG::WriteHandle<Trk::PRDtoTrackMap> write_handle(m_assoMapName);
+     if (write_handle.record( m_assoTool->reduceToStorableMap(std::move(prd_to_track_map))).isFailure()) {
+        ATH_MSG_FATAL("Failed to add PRD to track association map.");
+     }
+  }
 
 
   //Print common event information

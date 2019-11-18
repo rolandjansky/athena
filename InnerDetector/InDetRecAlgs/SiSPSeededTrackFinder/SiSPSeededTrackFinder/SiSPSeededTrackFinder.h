@@ -16,6 +16,7 @@
 #include "InDetRecToolInterfaces/ISiZvertexMaker.h"
 #include "StoreGate/DataHandle.h"
 #include "TrkExInterfaces/IPatternParametersPropagator.h"
+#include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkSpacePoint/SpacePointContainer.h"
 #include "TrkSurfaces/PerigeeSurface.h"
@@ -101,6 +102,9 @@ namespace InDet {
     ToolHandle<ISiZvertexMaker> m_zvertexmaker{this, "ZvertexTool", "InDet::SiZvertexMaker_xk/InDetSiZvertexMaker", "Space poins z-vertex maker"};
     ToolHandle<ISiTrackMaker> m_trackmaker{this, "TrackTool", "InDet::SiTrackMaker_xk/InDetSiTrackMaker", "Track maker"};
     PublicToolHandle<Trk::IPatternParametersPropagator> m_proptool{this, "PropagatorTool", "Trk::RungeKuttaPropagator/InDetPropagator"};
+
+    ToolHandle<Trk::IExtendedTrackSummaryTool> m_trackSummaryTool
+     {this, "TrackSummaryTool", "InDetTrackSummaryToolNoHoleSearch"};
 
     Trk::MagneticFieldProperties m_fieldprop;
 

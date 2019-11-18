@@ -28,28 +28,50 @@ class IExtendedTrackSummaryTool : virtual public ITrackSummaryTool {
   public:
   static const InterfaceID& interfaceID( ) ;
 
-  /** create a summary object from passed Track. The summary object belongs to
-      you, the user, and so you must take care of deletion of it.*/
-  virtual const TrackSummary* createSummary ATLAS_NOT_THREAD_SAFE ( const Track& track,
-                                                                    const Trk::PRDtoTrackMap *prd_to_track_map,
-                                                                    bool onlyUpdateTrack=false ) const = 0;
 
-  /** create a summary object of passed track without doing the tedious hole search.
-      Same comments as for createSummary apply here, of course, too. */
-  virtual const Trk::TrackSummary* createSummaryNoHoleSearch ATLAS_NOT_THREAD_SAFE (const Track& track,
-                                                                                    const Trk::PRDtoTrackMap *prd_to_track_map) const = 0;
+  /** Compute track summary and replace the summary in given track.
+   * @param track the track whose track summary is replaced with a newly computed one
+   * @param prd_to_track_map a PRD to track association map to compute shared hits or a nullptr
+   * @param suppress_hole_search do not perform the hole search independent of the settings of the ID and muon hole search properties.
+   * Will recompute the track summary for the given track, delete the old track summary of
+   * the track if there is already one and set the new one. If a valid PRD to track map is
+   * given the number of shared hits is computed otherwise not. The hole search is performed
+   * according to the settings of the ID and muon hole search properties unless the
+   * suppress_hole_search argument is true.
+   */
+  virtual void computeAndReplaceTrackSummary(Track &track,
+                                             const Trk::PRDtoTrackMap *prd_to_track_map,
+                                             bool suppress_hole_search=false) const = 0;
 
-  /** method which can be used to update the track and add a summary to it.
-   *  this can be used to add a summary to a track and then retrieve it from it without the need to clone. */
-  virtual void updateTrack(Track& track, const Trk::PRDtoTrackMap *prd_to_track_map) const = 0;
+  /** create a summary object from passed Track.*/
+  virtual std::unique_ptr<Trk::TrackSummary> summary( const Track& track,
+                                                      const Trk::PRDtoTrackMap *prd_to_track_map) const = 0;
 
-  /** method which can be used to update the track and add a summary to it,without doing the tedious hole search.
-      This can be used to add a summary to a track and then retrieve it from it without the need to clone. */
-  virtual void updateTrackNoHoleSearch(Track& track, const Trk::PRDtoTrackMap *prd_to_track_map) const = 0;
+  /** create a summary object of passed track without doing the tedious hole search. */
+  virtual std::unique_ptr<Trk::TrackSummary> summaryNoHoleSearch( const Track& track,
+                                                                  const Trk::PRDtoTrackMap *prd_to_track_map) const = 0;
+
+  /** Update the shared hit count of the given track summary.
+   * @param track the track which corresponds to the given track summary and is used to compute the numbers of shared hits.
+   * @param prd_to_track_map an optional PRD-to-track map which is used to compute the shared hits otherwise the association tool will be used.
+   * @param summary the summary to be updated i.e. a copy of the track summary of the given track.
+   * The method will update the shared information in the given summary. The track will not be modified i.e. the shared hit count
+   * of the summary owned by the track will not be updated.
+   */
+  virtual void updateSharedHitCount(const Track& track, const Trk::PRDtoTrackMap *prd_to_track_map, TrackSummary &summary) const = 0;
 
   /** method to update the shared hit content only, this is optimised for track collection merging. */
   virtual void updateSharedHitCount(Track& track, const Trk::PRDtoTrackMap *prd_to_track_map) const = 0;
 
+  /** Update the shared hit counts, expected hit, PID information and eventually the detailed track summaries.
+   * @param track the track corresponding to the summary which is updated, which is not actively changed.
+   * @param prd-to-track an optional  PRD-to-track map to compute shared hits or nullptr.
+   * @param summary the summary which is updated.
+   * Will update the shared hit, expected hit, PID information and eventually the detailed track summaries. If
+   * no PRD-to-track map is given the helper tools will rely on a PRD association tool to privide the shared
+   * hit information. The method will not update the track itself unless the given summary is owned by the track.
+   */
+  virtual void updateAdditionalInfo(const Track& track, const Trk::PRDtoTrackMap *prd_to_track_map, TrackSummary &summary) const = 0;
 
   virtual void updateAdditionalInfo(Track& track, const Trk::PRDtoTrackMap *prd_to_track_map) const = 0;
 
