@@ -265,13 +265,17 @@ Trig::TrigDecisionTool::handle(const Incident& inc) {
    // an update configuration incident triggers the update of the configuration
    ATH_MSG_DEBUG("got  incident type:" << inc.type()  << " source: " << inc.source() );
    
-   if ( inc.type()=="TrigConf" ) {
-     ATH_MSG_INFO("updating config via config svc");
+   if ( inc.type()=="TrigConf") {
+      if(m_configSvc.isSet()) {
+         ATH_MSG_INFO("updating config via config svc");
      
      
-     configurationUpdate( m_configSvc->chainList(), 
+         configurationUpdate( m_configSvc->chainList(), 
      			  m_configSvc->ctpConfig() 
      			  );
+      } else {
+         ATH_MSG_DEBUG("No TrigConfigSvc, ignoring TrigConf incident.");
+      }
    }
    else {
      //call the parent handle

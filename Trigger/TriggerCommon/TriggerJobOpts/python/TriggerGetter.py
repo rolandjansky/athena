@@ -94,8 +94,18 @@ class TriggerGetter(Configured):
         from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
         from AthenaCommon.AppMgr import ToolSvc
         ToolSvc += Trig__TrigDecisionTool( "TrigDecisionTool" )
-        # tell tdt to use TrigConfigSvc (Since TrigDecisionTool-00-03-40, defaults to not use it) 
-        ToolSvc.TrigDecisionTool.TrigConfigSvc = "TrigConf::TrigConfigSvc/TrigConfigSvc"
+        from PyUtils.MetaReaderPeekerFull import metadata
+        if "metadata_items" in metadata and any(('TriggerMenu' in key) for key in metadata["metadata_items"].keys()):
+            # Use xAOD configuration. 
+            if not hasattr(ToolSvc, 'xAODConfigTool'):
+                from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODConfigTool
+                ToolSvc += TrigConf__xAODConfigTool('xAODConfigTool')
+            ToolSvc += Trig__TrigDecisionTool( "TrigDecisionTool" )
+            ToolSvc.TrigDecisionTool.ConfigTool = ToolSvc.xAODConfigTool
+            ToolSvc.TrigDecisionTool.TrigConfigSvc = "" # Force use of in-file configuration
+        else:
+            # Use TrigConfigSvc
+            ToolSvc.TrigDecisionTool.TrigConfigSvc = "TrigConf::TrigConfigSvc/TrigConfigSvc"
 
         from TrigEDMConfig.TriggerEDM import EDMLibraries
         ToolSvc.TrigDecisionTool.Navigation.Dlls = [e for e in  EDMLibraries if 'TPCnv' not in e]
