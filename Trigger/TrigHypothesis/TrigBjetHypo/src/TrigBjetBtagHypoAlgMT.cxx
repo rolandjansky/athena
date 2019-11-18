@@ -18,6 +18,8 @@ StatusCode TrigBjetBtagHypoAlgMT::initialize() {
   ATH_MSG_DEBUG(  "declareProperty review:"   );
   ATH_MSG_DEBUG(  "   " << m_bTagKey          );
 
+  renounce( m_bTagKey );
+
   return StatusCode::SUCCESS;
 }
 

@@ -40,7 +40,7 @@ class TrigBjetBtagHypoAlgMT : public TrigBjetHypoAlgBaseMT {
  private:
   ToolHandleArray< TrigBjetBtagHypoTool > m_hypoTools {this,"HypoTools",{},"Hypo Tools"};
 
-  SG::ReadHandleKey< xAOD::BTaggingContainer> m_bTagKey {this,"BTaggingKey","BTagging","Key for BTagging"};
+  SG::ReadHandleKey< xAOD::BTaggingContainer> m_bTagKey {this,"BTagging","Unspecified","Key for BTagging"};
   SG::WriteHandleKey< TrigCompositeUtils::DecisionContainer > m_decisionsKey {this,"DecisionsKey","BjetHypoDecisions","Output key for Btag Kypo Decisions"};
 }; 
 
