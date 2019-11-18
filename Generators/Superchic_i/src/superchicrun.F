@@ -81,89 +81,89 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 ccccccc
 cccccccccccccccccccccccccccccccccccccccccccccccccccc
 cccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-      forward=.false.
-
-      call length(outtag,outl)
-
-      open(45,file='evrecs/evrec'//outtag(1:outl)//'.dat')
-      wmax=0d0
-      evnum=0
-
-      if(genunw)then
-      else
-         readwt=.false.
-      endif
-      if(readwt)wmax=wtmax
-
-      if(erec.eq.'hepmc')then
-         erech=.true.
-         erec='lhe'
-      endif
-
-      iw=0
-
-      gf=1.16639d-5
-      v=dsqrt(1d0/dsqrt(2d0)/gf)
-      mt=173d0
-      mb=4.75d0
-      mc=1.4d0
-      mmu=0.10566d0
-      mpsi=3.096916d0
-      mpsip=3.686109d0
-      mups=9.46030d0
-      mchic0=3.41475d0
-      mchib0=9.85944d0
-      mp=0.938272046d0
-      mn=0.939565413d0
-      mw=80.318d0
-      me=0.511d-3
-      mtau=1.77682d0
-      mpip=0.13957018d0
-      mkp=0.493677d0
-      mphi=1.019461d0
-      alpha=7.2974d-3
-      pi=dacos(-1d0)
-      conv=389379d3
-      zi=(0d0,1d0)
-      mup=0.062d0
-      md=0.083d0
-      ms=0.215d0
-
-      rmf1( 1) = 1d-10
-      rmf1( 2) = me
-      rmf1( 3) = 1d-10
-      rmf1( 4) = mmu
-      rmf1( 5) = 1d-10
-      rmf1( 6) = mtau
-      rmf1( 7) = 0.062d0
-      rmf1( 8) = 0.083d0
-      rmf1( 9) = mc
-      rmf1(10) = 0.215d0
-      rmf1(11) = mt
-      rmf1(12) = mb
-
-      rmf1( 1) = me
-      rmf1( 2) = mmu
-      rmf1( 3) = mtau
-      rmf1( 4) = md
-      rmf1( 5) = mup
-      rmf1( 6) = ms
-      rmf1( 7) = mc
-      rmf1( 8) = mb
-      rmf1( 9) = mt
-
-
-      mq=0d0
-      hel=1
-      mes=.false.
-      mfact='mx'
-      forward=.false.
-      decay2=.false.
-      decay3=.false.
-      decay4=.false.
-      decay6=.false.
-
+c
+c      forward=.false.
+c
+c      call length(outtag,outl)
+c
+c      open(45,file='evrecs/evrec'//outtag(1:outl)//'.dat')
+c      wmax=0d0
+c      evnum=0
+c
+c      if(genunw)then
+c      else
+c         readwt=.false.
+c      endif
+c      if(readwt)wmax=wtmax
+c
+c      if(erec.eq.'hepmc')then
+c         erech=.true.
+c         erec='lhe'
+c      endif
+c
+c      iw=0
+c
+c      gf=1.16639d-5
+c      v=dsqrt(1d0/dsqrt(2d0)/gf)
+c      mt=173d0
+c      mb=4.75d0
+c      mc=1.4d0
+c      mmu=0.10566d0
+c      mpsi=3.096916d0
+c      mpsip=3.686109d0
+c      mups=9.46030d0
+c      mchic0=3.41475d0
+c      mchib0=9.85944d0
+c      mp=0.938272046d0
+c      mn=0.939565413d0
+c      mw=80.318d0
+c      me=0.511d-3
+c      mtau=1.77682d0
+c      mpip=0.13957018d0
+c      mkp=0.493677d0
+c      mphi=1.019461d0
+c      alpha=7.2974d-3
+c      pi=dacos(-1d0)
+c      conv=389379d3
+c      zi=(0d0,1d0)
+c      mup=0.062d0
+c      md=0.083d0
+c      ms=0.215d0
+c
+c      rmf1( 1) = 1d-10
+c      rmf1( 2) = me
+c      rmf1( 3) = 1d-10
+c      rmf1( 4) = mmu
+c      rmf1( 5) = 1d-10
+c      rmf1( 6) = mtau
+c      rmf1( 7) = 0.062d0
+c      rmf1( 8) = 0.083d0
+c      rmf1( 9) = mc
+c      rmf1(10) = 0.215d0
+c      rmf1(11) = mt
+c      rmf1(12) = mb
+c
+c      rmf1( 1) = me
+c      rmf1( 2) = mmu
+c      rmf1( 3) = mtau
+c      rmf1( 4) = md
+c      rmf1( 5) = mup
+c      rmf1( 6) = ms
+c      rmf1( 7) = mc
+c      rmf1( 8) = mb
+c      rmf1( 9) = mt
+c
+c
+c      mq=0d0
+c      hel=1
+c      mes=.false.
+c      mfact='mx'
+c      forward=.false.
+c      decay2=.false.
+c      decay3=.false.
+c      decay4=.false.
+c      decay6=.false.
+c
 cccccccccccc
 c
 c      do i=1,20
@@ -496,7 +496,8 @@ c      endif
       sd1=sd
 
       ncall=ncall*iinc
-      inccall=inccall*iinc
+c      inccall=inccall*iinc
+      inccall=inccall
 
  779  bin=.true.
 
