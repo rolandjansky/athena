@@ -1028,8 +1028,11 @@ bool InDet::SiTrajectory_xk::backwardExtension(int itmax)
           if(Ei.inside() <= 0 && ++lbest >=0 ) {
             MPbest[lbest] = lbest;
             if(Ei.cluster()) {
-              CL[nbest]=Ei.cluster(); XI2B[nbest] = Ei.xi2B(); PUB[nbest] = Ei.parametersUB();
-              TE[nbest++]=lbest; ndfbest+=Ei.ndf(); 
+              CL[nbest]   = Ei.cluster(); 
+              XI2B[nbest] = Ei.xi2B(); 
+              PUB[nbest]  = Ei.parametersUB();
+              TE[nbest++] = lbest; 
+              ndfbest += Ei.ndf(); 
               if(l<0) l=lbest;
             }
             m_elementsMap[lbest] = m_elementsMap[i];
