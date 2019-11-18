@@ -408,6 +408,12 @@ StatusCode InDet::SiSPSeededTrackFinder::itkStrategy()
   if (m_doFastTracking) return itkFastTrackingStrategy();
   
   m_outputTracks = CxxUtils::make_unique<TrackCollection>();
+  
+  // For HI events we can use MBTS information from calorimeter
+  //
+  if(!isGoodEvent()) {
+    return StatusCode::SUCCESS;
+  }
 
   std::multimap<double,Trk::Track*>    qualityTrack;
   const InDet::SiSpacePointsSeed* seed = 0;
