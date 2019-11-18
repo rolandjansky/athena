@@ -35,9 +35,6 @@
 #include "TrigMonitoringEvent/TrigMonConfig.h"
 #include "TrigCostMonitor/FillConf.h"
 
-#include "boost/foreach.hpp"
-#define foreach BOOST_FOREACH
-
 using namespace std;
 
 //---------------------------------------------------------------------------------------
@@ -115,7 +112,7 @@ namespace Trig
          log << "  " << item_name << ": " << th_name << endl;
       }
       else {
-         BOOST_FOREACH(TrigConf::TriggerItemNode* child, node->children())
+        for(TrigConf::TriggerItemNode* child : node->children())
             addAllThresholds(item_name, child, svec, log);
       }
 
@@ -135,7 +132,7 @@ bool Trig::FillConf::FillLV1(TrigMonConfig &confg,
 
    std::set<TrigConfSeq> myth_set;
 
-   BOOST_FOREACH(TrigConf::TriggerItem *item, ctp_config.menu().items()) {
+   for(TrigConf::TriggerItem *item : ctp_config.menu().items()) {
       if(!item) {
          m_error << "Null TriggerItem pointer" << endl;
          continue;
@@ -229,7 +226,7 @@ bool Trig::FillConf::FillSeq(TrigMonConfig &confg,
   //
 
   std::map<std::string, TrigConf::HLTSequence *> seqmap;
-  BOOST_FOREACH(TrigConf::HLTSequence *hseq, seq_list) {
+  for(TrigConf::HLTSequence *hseq : seq_list) {
     if(!hseq) {
       m_error << "Null HLTSequence pointer" << endl;
       continue;
@@ -339,7 +336,7 @@ bool Trig::FillConf::FillHLT(TrigMonConfig &confg,
   //
   // Iterate over configured chains
   //
-  BOOST_FOREACH(TrigConf::HLTChain *hchn, chn_list) {
+  for(TrigConf::HLTChain *hchn : chn_list) {
     // Get singlechain configuration
     if(!hchn) {
       m_error << "Null HLTChain pointer" << endl;
@@ -399,7 +396,7 @@ bool Trig::FillConf::FillHLT(TrigMonConfig &confg,
       TrigConf::HLTStreamTag *htag = str_vec[i];
       if(htag) mychn.addStream(htag->stream(), htag->prescale());
     }
-    BOOST_FOREACH(const string& grp, hchn->groups()) {
+    for(const string& grp : hchn->groups()) {
        mychn.addGroup(grp);
     }
 
@@ -429,20 +426,20 @@ bool Trig::FillConf::FillStreams(TrigMonConfig &confg,
    TrigConf::HLTLevel level = TrigConf::HLT;
    std::string levels = "HLT";
 
-   BOOST_FOREACH(const TrigConf::HLTPrescaleSet::ScalingMap_t::value_type& x, pss.getPrescales(level)) {
+   for(const TrigConf::HLTPrescaleSet::ScalingMap_t::value_type& x : pss.getPrescales(level)) {
       unsigned int chain_counter = x.first;
       const TrigConf::HLTPrescale& prescale = x.second;
 
       // find matching confChain (by counter)
       TrigConfChain* confChain(0);
-      BOOST_FOREACH(TrigConfChain& monchain, confg.getVec<TrigConfChain>()) {
+      for(TrigConfChain& monchain : confg.getVec<TrigConfChain>()) {
          if( monchain.getCounter() == chain_counter && monchain.getLevel()==levels) {
             confChain = &monchain;
             break;
          }            
       }
       if(confChain==0) continue;
-      BOOST_FOREACH(const TrigConf::HLTPrescale::PrescaleMap_t::value_type& stream_ps, prescale.getStreamPrescales()) {
+      for(const TrigConf::HLTPrescale::PrescaleMap_t::value_type& stream_ps : prescale.getStreamPrescales()) {
          // stream name
          const std::string& streamnametype = stream_ps.first;
          std::string::size_type colPos = streamnametype.rfind(':');
@@ -491,7 +488,7 @@ bool Trig::FillConf::FillEBHypo(TrigMonConfig &confg, const TrigConf::JobOptionT
       
   // loop over all job options
   const std::vector<TrigConf::JobOption> & jobOptions = jot.jobOptionVector();
-  foreach(TrigConf::JobOption jo, jobOptions) {
+  for(TrigConf::JobOption jo : jobOptions) {
     if(jo.component_alias().find("_eb_") !=string::npos && 
        jo.name() == "L1ItemNames" &&
        jo.value().length() > 0 ) {
@@ -525,7 +522,7 @@ void Trig::FillConf::UpdateLV1(TrigMonConfig &confg,
 
   const std::vector<float> prescalesL1 = ctp_config.prescaleSet().prescales_float();
 
-  BOOST_FOREACH(TrigConf::TriggerItem *item, ctp_config.menu().items()) {
+  for(TrigConf::TriggerItem *item : ctp_config.menu().items()) {
     if(!item) {
       m_error << "Null TriggerItem pointer" << endl;
       continue;
@@ -563,7 +560,7 @@ void Trig::FillConf::UpdateHLT(TrigMonConfig &confg,
   //
 //   const std::vector<TrigConf::HLTChain*> &chnv = chn_list.chains();
   
-  BOOST_FOREACH(TrigConf::HLTChain* hchn, chn_list) {
+  for(TrigConf::HLTChain* hchn : chn_list) {
      //for(unsigned int ichn = 0; ichn < chnv.size(); ++ichn) {
      // Get singlechain configuration
 //      TrigConf::HLTChain *hchn = chnv[ichn];
