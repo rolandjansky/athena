@@ -185,11 +185,7 @@ fillEventShape( xAOD::EventShape* pevs, const PseudoJetVector& pjv) const {
     ATH_MSG_DEBUG(" pj input e="<<pj.e() << " pz="<<pj.pz() << " px="<<pj.px() );
   }
   // Find jets.
-  const ClusterSequenceArea* pcsa = new ClusterSequenceArea(pjv, m_fjjetdef, m_fjareadef);
-  if ( pcsa == 0 ) {
-    ATH_MSG_WARNING("Jet finding failed.");
-    return StatusCode::FAILURE;
-  }
+  std::unique_ptr<ClusterSequenceArea> pcsa=std::make_unique<ClusterSequenceArea>(pjv, m_fjjetdef, m_fjareadef);
   ATH_MSG_DEBUG("Found jet count: " << pcsa->inclusive_jets().size());
 
   // Extract rho.
@@ -208,8 +204,6 @@ fillEventShape( xAOD::EventShape* pevs, const PseudoJetVector& pjv) const {
   areaDec(*pevs) = area;
 
   ATH_MSG_DEBUG("Recorded event density:  = " << 0.001*rho << " GeV");
-
-  delete pcsa;
 
   return StatusCode::SUCCESS;
 }
