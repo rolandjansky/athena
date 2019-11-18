@@ -44,6 +44,9 @@ EventDensityTool::~EventDensityTool() {}
 StatusCode EventDensityTool::initialize() {
   ATH_MSG_INFO ("Initializing " << name() << "...");
 
+  // Initialise output handle
+  ATH_CHECK( m_outEDKey.initialize() );
+
   // Fetch the fastjet algorithm enum
   JetAlgorithm fjalg;
   if      ( m_jetalg == "Kt"     ) fjalg = fastjet::kt_algorithm;
@@ -113,9 +116,6 @@ StatusCode EventDensityTool::initialize() {
     return StatusCode::FAILURE;
   }
 
-  // Initialise output handle
-  ATH_CHECK( m_outEDKey.initialize() );
-
   return StatusCode::SUCCESS;
 }
 
@@ -125,19 +125,17 @@ StatusCode EventDensityTool::fillEventShape() const {
   
   ATH_MSG_DEBUG("Begin fillEventShape()");
 
-  xAOD::EventShape *pevs = new xAOD::EventShape();
-  std::unique_ptr<const xAOD::EventShape> pevs_ptr(pevs);
 
-  xAOD::EventShapeAuxInfo* pevsaux = new xAOD::EventShapeAuxInfo();
-  std::unique_ptr<const xAOD::EventShapeAuxInfo> pevsaux_ptr(pevsaux);
-  pevs->setStore( pevsaux );
+  std::unique_ptr<xAOD::EventShape> pevs(std::make_unique<xAOD::EventShape>());
+  std::unique_ptr<xAOD::EventShapeAuxInfo> pevsaux(std::make_unique<xAOD::EventShapeAuxInfo>());
+  pevs->setStore( pevsaux.get() );
 
   // Change the order: first fill the object and then record
-  ATH_CHECK(fillEventShape(pevs));  
+  ATH_CHECK(fillEventShape(pevs.get()));  
 
   auto h_out = makeHandle(m_outEDKey);
-  if ( ! h_out.put(std::move(pevs_ptr), std::move(pevsaux_ptr) )) {
-    ATH_MSG_WARNING("Unable to write new Jet collection and aux store to event store: " << m_outEDKey.key());
+  if ( ! h_out.record(std::move(pevs), std::move(pevsaux) )) {
+    ATH_MSG_WARNING("Unable to write new EventShape and aux store to event store: " << m_outEDKey.key());
   } else {
     ATH_MSG_DEBUG("Created new EventShape container: " << m_outEDKey.key());
   }
