@@ -204,7 +204,6 @@ def MuonMaterialProviderTool( name = "MuonMaterialProviderTool"):
     return materialProviderTool
 
 def CombinedMuonTrackBuilderFit( name='CombinedMuonTrackBuilderFit', **kwargs ):
-    import MuonCombinedRecExample.CombinedMuonTrackSummary
     from AthenaCommon.AppMgr    import ToolSvc
     kwargs.setdefault("CaloEnergyParam"               , getPublicTool("MuidCaloEnergyToolParam") )
     kwargs.setdefault("CaloTSOS"                      , getPublicTool("MuidCaloTrackStateOnSurface") )
@@ -229,7 +228,13 @@ def CombinedMuonTrackBuilderFit( name='CombinedMuonTrackBuilderFit', **kwargs ):
     kwargs.setdefault("CaloMaterialProvider"          , getPublicTool("MuonMaterialProviderTool"))
 
     if TriggerFlags.MuonSlice.doTrigMuonConfig:
-        kwargs.setdefault("TrackSummaryTool"              , getPublicTool("MuonTrackSummaryTool") )
+        kwargs.setdefault("MuonHoleRecovery"              , "" )
+        trigTrackSummary = getPublicToolClone("TrigMuonTrackSummary", "MuonTrackSummaryTool")
+        if DetFlags.detdescr.ID_on():
+            from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryHelperTool, InDetTrigHoleSearchTool
+            trigTrackSummary.InDetSummaryHelperTool = InDetTrigTrackSummaryHelperTool
+            trigTrackSummary.doHolesInDet = True
+        kwargs.setdefault("TrackSummaryTool"              , trigTrackSummary )
 
         kwargs.setdefault("Propagator"                    , ToolSvc.AtlasRungeKuttaPropagator)
         kwargs.setdefault("SLPropagator"                  , ToolSvc.AtlasRungeKuttaPropagator)
@@ -280,7 +285,12 @@ def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
 
     if TriggerFlags.MuonSlice.doTrigMuonConfig:
         kwargs.setdefault("MuonHoleRecovery"              , "" )
-        kwargs.setdefault("TrackSummaryTool"              , getPublicTool("MuonTrackSummaryTool") )
+        trigTrackSummary = getPublicToolClone("TrigMuonTrackSummary", "MuonTrackSummaryTool")
+        if DetFlags.detdescr.ID_on():
+            from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryHelperTool, InDetTrigHoleSearchTool
+            trigTrackSummary.InDetSummaryHelperTool = InDetTrigTrackSummaryHelperTool
+            trigTrackSummary.doHolesInDet = True
+        kwargs.setdefault("TrackSummaryTool"              , trigTrackSummary )
 
         kwargs.setdefault("Propagator"                    , ToolSvc.AtlasRungeKuttaPropagator)
         kwargs.setdefault("SLPropagator"                  , ToolSvc.AtlasRungeKuttaPropagator)
