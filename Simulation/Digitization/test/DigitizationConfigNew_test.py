@@ -17,10 +17,10 @@ from BCM_Digitization.BCM_DigitizationConfigNew import BCM_DigitizationCfg
 from SCT_Digitization.SCT_DigitizationConfigNew import SCT_DigitizationCfg
 from TRT_Digitization.TRT_DigitizationConfigNew import TRT_DigitizationCfg
 from PixelDigitization.PixelDigitizationConfigNew import PixelDigitizationCfg
-from MuonConfig.MDT_DigitizationConfig import MDT_DigitizerDigitToRDOCfg
-from MuonConfig.TGC_DigitizationConfig import TGC_DigitizerDigitToRDOCfg
-from MuonConfig.RPC_DigitizationConfig import RPC_DigitizerDigitToRDOCfg
-from MuonConfig.CSC_DigitizationConfig import CSC_DigitBuilderDigitToRDOCfg
+from MuonConfig.MDT_DigitizationConfig import MDT_DigitizationDigitToRDOCfg
+from MuonConfig.TGC_DigitizationConfig import TGC_DigitizationDigitToRDOCfg
+from MuonConfig.RPC_DigitizationConfig import RPC_DigitizationDigitToRDOCfg
+from MuonConfig.CSC_DigitizationConfig import CSC_DigitizationDigitToRDOCfg
 from LArDigitization.LArDigitizationConfigNew import LArTriggerDigitizationCfg
 from TileSimAlgs.TileDigitizationConfig import TileDigitizationCfg, TileTriggerDigitizationCfg
 from MCTruthSimAlgs.RecoTimingConfig import MergeRecoTimingObjCfg
@@ -56,10 +56,10 @@ acc.merge(TileDigitizationCfg(ConfigFlags))
 acc.merge(TileTriggerDigitizationCfg(ConfigFlags))
 
 # Muon Spectrometer
-acc.merge(MDT_DigitizerDigitToRDOCfg(ConfigFlags))
-acc.merge(TGC_DigitizerDigitToRDOCfg(ConfigFlags))
-acc.merge(RPC_DigitizerDigitToRDOCfg(ConfigFlags))
-acc.merge(CSC_DigitBuilderDigitToRDOCfg(ConfigFlags))
+acc.merge(MDT_DigitizationDigitToRDOCfg(ConfigFlags))
+acc.merge(TGC_DigitizationDigitToRDOCfg(ConfigFlags))
+acc.merge(RPC_DigitizationDigitToRDOCfg(ConfigFlags))
+acc.merge(CSC_DigitizationDigitToRDOCfg(ConfigFlags))
 
 # Timing
 acc.merge(MergeRecoTimingObjCfg(ConfigFlags))
