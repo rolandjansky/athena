@@ -1185,7 +1185,7 @@ if InDetFlags.doPattern():
       
     if InDetFlags.doSLHC():
       InDetSiComTrackFinder.ITkGeometry = True
-      #InDetSiComTrackFinder.doFastTracking = InDetFlags.doFastTracking();
+      InDetSiComTrackFinder.doFastTracking = InDetFlags.doFastTracking();
       
 
     ToolSvc += InDetSiComTrackFinder
