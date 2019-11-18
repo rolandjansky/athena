@@ -1,7 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file: PyMonUtils.py
 # @author: Sebastien Binet <binet@cern.ch>
+from __future__ import print_function
 
 __author__  = "Sebastien Binet <binet@cern.ch>"
 __version__ = "$Revision: 1.3 $"
@@ -83,7 +84,7 @@ def dump_smaps (fname=None):
     if not (fname is None): o = open (fname, 'w')
     else:                   o = sys.stdout
     for l in open('/proc/%d/smaps'%os.getpid()):
-        print >>o, l,
+        print(l, file=o)
     if not (fname is None):
         o.close()
     return
@@ -110,7 +111,7 @@ def loaded_libs (fname=None, pid=None, show=False):
     libs = sorted([l for l in libs], reverse=True)
     if show:
         for libname in libs:
-            print >>o,libname
+            print(libname, file=o)
     return libs
 
 import sys
@@ -169,7 +170,7 @@ def lshosts_infos():
         data  = data.split()
         for i,k in enumerate(title[:-1]): # dropping the 'RESOURCES' field
             cpu_infos[k] = data[i]
-    except Exception,err:
+    except Exception as err:
         return ('err', err)
     return ('ok', cpu_infos)
 

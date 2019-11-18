@@ -5,6 +5,7 @@
 # POOL files we just have two simple classes and definately avoid
 # doing anything fancy here
 
+from __future__ import print_function
 import os
 import os.path
 import re
@@ -124,19 +125,19 @@ class AthPoolFile(object):
         try:
             jo = open(self._jobOptionsFile, "w")
 
-            print >>jo, os.linesep.join(("FNAME=['{filename}']",
-                                        "import os",
-                                        "os.environ.pop('PYTHONINSPECT', None)",
-                                        "include('AthenaPython/athfile_peeker.py')",
-                                        "from AthenaCommon.AlgSequence import AlgSequence",
-                                        "job = AlgSequence()",
-                                        "job.peeker.outfname='{picklename}'",
-                                        "job.peeker.infname=FNAME[0]",
-                                        "import IOVDbSvc.IOVDb",
-                                        "theApp.EvtMax = 1")).format(filename=self._filename, picklename=self._infoOutputFile)
+            print(os.linesep.join(("FNAME=['{filename}']",
+                                   "import os",
+                                   "os.environ.pop('PYTHONINSPECT', None)",
+                                   "include('AthenaPython/athfile_peeker.py')",
+                                   "from AthenaCommon.AlgSequence import AlgSequence",
+                                   "job = AlgSequence()",
+                                   "job.peeker.outfname='{picklename}'",
+                                   "job.peeker.infname=FNAME[0]",
+                                   "import IOVDbSvc.IOVDb",
+                                   "theApp.EvtMax = 1")).format(filename=self._filename, picklename=self._infoOutputFile), file=jo)
 
         except Exception as e:
-            print >>sys.stderr, "Exception raised when writing JO file: {0}".format(e)
+            print("Exception raised when writing JO file: {0}".format(e), file=sys.stderr)
             self._error = True
             raise
 
@@ -284,7 +285,7 @@ class AthBSFile(object):
                 self._metadata['stream_tags'].extend(stream_tags)
 
             except RuntimeError as err:
-                print "** WARNING ** detected a corrupted bs-file:\n",err
+                print("** WARNING ** detected a corrupted bs-file:\n",err)
 
 
 class AthTagFile(object):
@@ -354,7 +355,7 @@ class AthTagFile(object):
             self._metadata['run_number'] = runs
             self._metadata['evt_number'] = evts
         except Exception as e:
-            print >>sys.stderr, "Exception raised when processing TAG file {0}: {1}".format(self._filename, e)
+            print("Exception raised when processing TAG file {0}: {1}".format(self._filename, e), file=sys.stderr)
             raise
 
     def _getSize(self):
@@ -420,7 +421,7 @@ class AthInpFile(object):
             self._metadata['file_guid'] = pool_guid
             self._metadata['nentries'] = nentries
         except Exception as e:
-            print >>sys.stderr, "Exception raised when processing POOL file {0}: {1}".format(self._filename, e)
+            print("Exception raised when processing POOL file {0}: {1}".format(self._filename, e), file=sys.stderr)
             raise
 
     def _getSize(self):
