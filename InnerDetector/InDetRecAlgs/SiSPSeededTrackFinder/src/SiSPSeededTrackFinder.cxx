@@ -27,6 +27,7 @@ InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
   m_ITKGeometry(false)                                                 ,
   m_useITKPPSseeds(false)                                              ,
   m_useConvSeeded(false)                                               ,
+  m_doFastTracking(false)                                              ,
   m_outputlevel(0)                                                     ,
   m_nprint(0)                                                          ,
   m_nseeds(0)                                                          ,
@@ -42,6 +43,7 @@ InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
   m_seedsmaker("InDet::SiSpacePointsSeedMaker_ATLxk/InDetSpSeedsMaker"),
   m_zvertexmaker("InDet::SiZvertexMaker_xk/InDetSiZvertexMaker")       ,
   m_trackmaker("InDet::SiTrackMaker_xk/InDetSiTrackMaker")             ,
+  m_etaDependentCutsSvc("",name)                                          ,
   m_fieldmode("MapSolenoid")                                           ,
   m_proptool("Trk::RungeKuttaPropagator/InDetPropagator")              ,
   m_regionSelector("RegSelSvc", name)                                  ,
@@ -70,29 +72,31 @@ InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
 
   // SiSPSeededTrackFinder steering parameters
   //
-  declareProperty("SeedsTool"           ,m_seedsmaker          );
-  declareProperty("ZvertexTool"         ,m_zvertexmaker        );
-  declareProperty("TrackTool"           ,m_trackmaker          );
-  declareProperty("TracksLocation"      ,m_outputTracks        );
-  declareProperty("useZvertexTool"      ,m_useZvertexTool      );
-  declareProperty("maxNumberSeeds"      ,m_maxNumberSeeds      );
-  declareProperty("useMBTSTimeDiff"     ,m_useMBTS             );
-  declareProperty("maxNumberPIXsp"      ,m_maxPIXsp            );
-  declareProperty("maxNumberSCTsp"      ,m_maxSCTsp            );
-  declareProperty("SpacePointsSCTName"  ,m_SpacePointsSCT      );
-  declareProperty("SpacePointsPixelName",m_SpacePointsPixel    );
-  declareProperty("FreeClustersCut"     ,m_nfreeCut            );
-  declareProperty("useNewStrategy"      ,m_useNewStrategy      );
-  declareProperty("useZBoundFinding"    ,m_useZBoundaryFinding );
-  declareProperty("maxVertices"         ,m_nvertex             );
-  declareProperty("PropagatorTool"      ,m_proptool            );
-  declareProperty("BeamConditionsService",m_beamconditions     ); 
-  declareProperty("HistSize"            ,m_histsize            );
-  declareProperty("Zcut"                ,m_zcut                );
-  declareProperty("MagneticFieldMode"   ,m_fieldmode           );
-  declareProperty("ITKGeometry"         ,m_ITKGeometry         );
-  declareProperty("useITKPPSseeds"      ,m_useITKPPSseeds      );
-  declareProperty("useConvSeeded"       ,m_useConvSeeded       );
+  declareProperty("SeedsTool"               ,m_seedsmaker          );
+  declareProperty("ZvertexTool"             ,m_zvertexmaker        );
+  declareProperty("TrackTool"               ,m_trackmaker          );
+  declareProperty("TracksLocation"          ,m_outputTracks        );
+  declareProperty("useZvertexTool"          ,m_useZvertexTool      );
+  declareProperty("maxNumberSeeds"          ,m_maxNumberSeeds      );
+  declareProperty("useMBTSTimeDiff"         ,m_useMBTS             );
+  declareProperty("maxNumberPIXsp"          ,m_maxPIXsp            );
+  declareProperty("maxNumberSCTsp"          ,m_maxSCTsp            );
+  declareProperty("SpacePointsSCTName"      ,m_SpacePointsSCT      );
+  declareProperty("SpacePointsPixelName"    ,m_SpacePointsPixel    );
+  declareProperty("FreeClustersCut"         ,m_nfreeCut            );
+  declareProperty("useNewStrategy"          ,m_useNewStrategy      );
+  declareProperty("useZBoundFinding"        ,m_useZBoundaryFinding );
+  declareProperty("maxVertices"             ,m_nvertex             );
+  declareProperty("PropagatorTool"          ,m_proptool            );
+  declareProperty("BeamConditionsService"   ,m_beamconditions      ); 
+  declareProperty("HistSize"                ,m_histsize            );
+  declareProperty("Zcut"                    ,m_zcut                );
+  declareProperty("MagneticFieldMode"       ,m_fieldmode           );
+  declareProperty("ITKGeometry"             ,m_ITKGeometry         );
+  declareProperty("useITKPPSseeds"          ,m_useITKPPSseeds      );
+  declareProperty("useConvSeeded"           ,m_useConvSeeded       );
+  declareProperty("doFastTracking"          ,m_doFastTracking      );
+  declareProperty("InDetEtaDependentCutsSvc",m_etaDependentCutsSvc);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -104,32 +108,24 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
 
   // Get tool for space points seed maker
   //
-  if ( m_seedsmaker.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_seedsmaker << endmsg;
-    return StatusCode::FAILURE;
-  } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_seedsmaker << endmsg;
-  }
+  ATH_CHECK(m_seedsmaker.retrieve());
 
   if(m_useZvertexTool) {
 
     // Get tool for z-coordinates ptimary vertices search
     //
-    if ( m_zvertexmaker.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_zvertexmaker << endmsg;
-      return StatusCode::FAILURE;
-    } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_zvertexmaker << endmsg;
-    }
+    ATH_CHECK(m_zvertexmaker.retrieve());
   }
 
   // Get track-finding tool
   //
-  if ( m_trackmaker.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_trackmaker << endmsg;
+  ATH_CHECK(m_trackmaker.retrieve());
+  
+  // Get InDetDynamicCutsTool
+  //
+  if (m_ITKGeometry and m_doFastTracking) {
+    ATH_CHECK(m_etaDependentCutsSvc.retrieve());
     return StatusCode::FAILURE;
-  } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_trackmaker << endmsg;
   }
 
   if(m_useConvSeeded){
@@ -157,12 +153,7 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
     
       // Get RungeKutta propagator tool
       //
-      if ( m_proptool.retrieve().isFailure() ) {
-        msg(MSG::FATAL) << "Failed to retrieve tool " << m_proptool << endmsg;
-        return StatusCode::FAILURE;
-      } else {
-        msg(MSG::INFO) << "Retrieved tool " << m_proptool << endmsg;
-      }
+      ATH_CHECK(m_proptool.retrieve());
       
       // Setup for magnetic field
       //
@@ -394,7 +385,7 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy()
   ++m_neventsTotal;
 
   if(ERR) {m_outputTracks->clear();}
-  else    {m_ntracksTotal+=m_ntracks;                            }
+  else    {m_ntracksTotal+=m_ntracks;}
 
 
   // Save reconstructed tracks
@@ -414,13 +405,9 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy()
    
 StatusCode InDet::SiSPSeededTrackFinder::itkStrategy()
 {
+  if (m_doFastTracking) return itkFastTrackingStrategy();
+  
   m_outputTracks = CxxUtils::make_unique<TrackCollection>();
-
-  // For HI events we can use MBTS information from calorimeter
-  //
-  if(!isGoodEvent()) {
-    return StatusCode::SUCCESS;
-  }
 
   std::multimap<double,Trk::Track*>    qualityTrack;
   const InDet::SiSpacePointsSeed* seed = 0;
@@ -507,11 +494,79 @@ StatusCode InDet::SiSPSeededTrackFinder::itkStrategy()
   ++m_neventsTotal;
 
   if(ERR) {m_outputTracks->clear();}
-  else    {m_ntracksTotal+=m_ntracks;                            }
+  else    {m_ntracksTotal+=m_ntracks;}
 
   // Print common event information
+  //  
+  if(m_outputlevel<=0) {
+    m_nprint=1; 
+    msg(MSG::DEBUG)<<(*this)<<endmsg;
+  }
+  return StatusCode::SUCCESS;
+}
+
+///////////////////////////////////////////////////////////////////
+// Execute with fast strategy for ITK
+///////////////////////////////////////////////////////////////////
+   
+StatusCode InDet::SiSPSeededTrackFinder::itkFastTrackingStrategy()
+{ 
+  m_outputTracks = CxxUtils::make_unique<TrackCollection>();
+
+  std::multimap<double,Trk::Track*>    qualityTrack;
+  std::list    <Trk::Track*>           outputTrack ;
+  const InDet::SiSpacePointsSeed* seed = 0;
+
+  // Test is sct clusters collection for given event
   //
-  
+  bool PIX = true ;
+  bool SCT = true ;
+  bool ERR = false;
+
+  m_trackmaker->newTrigEvent(PIX,SCT);
+
+  m_nseeds  = 0;
+  m_ntracks = 0;
+  std::list<Trk::Vertex> VZ;
+ 
+  // Loop through all PPP seeds
+  //
+  m_seedsmaker->newEvent(0); m_seedsmaker->find3Sp(VZ);
+
+  while((seed = m_seedsmaker->next())) {
+    ++m_nseeds;
+    const std::list<Trk::Track*>& T = m_trackmaker->getTracks(seed->spacePoints());
+    for(std::list<Trk::Track*>::const_iterator t=T.begin(); t!=T.end(); ++t) {
+      qualityTrack.insert(std::make_pair(-trackQuality((*t)),(*t)));
+
+    }
+    if( m_nseeds >= m_maxNumberSeeds) {
+      ERR = true; ++m_problemsTotal;  break;
+    }
+  }
+ 
+  m_trackmaker->endEvent();
+
+  // Remove shared tracks with worse quality
+  //
+  filterSharedTracksN(qualityTrack,outputTrack);
+
+  // Save good tracks in track collection
+  //
+  std::list<Trk::Track*>::iterator
+    q = outputTrack.begin(), qe =outputTrack.end();
+
+  for(; q!=qe; ++q) {++m_ntracks; m_outputTracks->push_back((*q));}
+
+  m_nseedsTotal += m_nseeds ;
+
+  ++m_neventsTotal;
+
+  if(ERR) {m_outputTracks->clear();}
+  else    {m_ntracksTotal+=m_ntracks;}
+
+  // Print common event information
+  //  
   if(m_outputlevel<=0) {
     m_nprint=1; 
     msg(MSG::DEBUG)<<(*this)<<endmsg;
@@ -817,29 +872,29 @@ double InDet::SiSPSeededTrackFinder::trackQuality(const Trk::Track* Tr)
     m  = Tr->trackStateOnSurfaces()->begin(), 
     me = Tr->trackStateOnSurfaces()->end  ();
 
-double quality = 0. ;
-double W       = 17.;
-
-for(; m!=me; ++m) {
-
-  if(!(*m)->type(Trk::TrackStateOnSurface::Measurement)) continue;
-  const Trk::FitQualityOnSurface* fq =  (*m)->fitQualityOnSurface();
-  if(!fq) continue;
-
-  double x2 = fq->chiSquared();
-  double q;
-  if(fq->numberDoF() == 2) q = (1.2*(W-x2*.5)); 
-  else                     q =      (W-x2    );
-  if(q < 0.) 
-    q = 0.; 
-  quality+=q;
-}
-if( Tr->info().trackProperties(Trk::TrackInfo::BremFit) ) quality*=.7;
-return quality;
+  double quality = 0. ;
+  double W       = 17.;
+  
+  for(; m!=me; ++m) {
+  
+    if(!(*m)->type(Trk::TrackStateOnSurface::Measurement)) continue;
+    const Trk::FitQualityOnSurface* fq =  (*m)->fitQualityOnSurface();
+    if(!fq) continue;
+  
+    double x2 = fq->chiSquared();
+    double q;
+    if(fq->numberDoF() == 2) q = (1.2*(W-x2*.5)); 
+    else                     q =      (W-x2    );
+    if(q < 0.) 
+      q = 0.; 
+    quality+=q;
+  }
+  if( Tr->info().trackProperties(Trk::TrackInfo::BremFit) ) quality*=.7;
+  return quality;
 }
 
 ///////////////////////////////////////////////////////////////////
-// Filer shared tracks
+// Filter shared tracks
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiSPSeededTrackFinder::filterSharedTracks
@@ -879,6 +934,51 @@ void InDet::SiSPSeededTrackFinder::filterSharedTracks
     else  {
       delete (*q).second; QT.erase(q++);
     }
+  }
+}
+
+
+///////////////////////////////////////////////////////////////////
+// Filter shared tracks for trigger
+///////////////////////////////////////////////////////////////////
+
+void InDet::SiSPSeededTrackFinder::filterSharedTracksN (std::multimap<double,Trk::Track*>& QT,
+                                                        std::list<Trk::Track*>& OT)
+{
+  std::set<const Trk::PrepRawData*> clusters;
+  std::multimap<double,Trk::Track*>::iterator q = QT.begin(),qe = QT.end();
+ 
+  const Trk::PrepRawData* prd[100];
+  for (; q!=qe; ++q) {
+
+    std::set<const Trk::PrepRawData*>::iterator fe = clusters.end();
+    
+    int nf = 0, nc = 0 ,np = 0;;
+    
+    DataVector<const Trk::TrackStateOnSurface>::const_iterator 
+      m  = (*q).second->trackStateOnSurfaces()->begin(),
+      me = (*q).second->trackStateOnSurfaces()->end  ();
+    
+    for(; m!=me; ++m) {
+    
+      if(!(*m)->type(Trk::TrackStateOnSurface::Measurement)) continue;
+      const Trk::FitQualityOnSurface* fq =  (*m)->fitQualityOnSurface();
+      if(!fq) continue;
+    
+     if(fq->numberDoF() == 2) ++np;
+     
+     const Trk::MeasurementBase* mb = (*m)->measurementOnTrack();
+     const Trk::RIO_OnTrack*     ri = dynamic_cast<const Trk::RIO_OnTrack*>(mb);
+     if(!ri) continue;
+     const Trk::PrepRawData*     pr = ri->prepRawData();
+     if(pr) {
+        ++nc; if(clusters.find(pr)==fe) {prd[nf++]=pr; if(nf==100) break;}
+      }
+    }
+    
+    for(int n=0; n!=nf; ++n) clusters.insert(prd[n]);
+    if( np > 2 && Quality((*q).second,nc,nf) ) OT.push_back((*q).second);
+    else delete (*q).second;
   }
 }
 
@@ -944,9 +1044,9 @@ void  InDet::SiSPSeededTrackFinder::findZvertex(std::list<Trk::Vertex>& ZV,doubl
 
       if(m_useNewStrategy) { 
 
-  double p = m_phistogram[i-1]+m_phistogram[i]+m_phistogram[i+1];
-  vern.insert(std::make_pair(-n,z));
-  verp.insert(std::make_pair(-p,z));
+        double p = m_phistogram[i-1]+m_phistogram[i]+m_phistogram[i+1];
+        vern.insert(std::make_pair(-n,z));
+        verp.insert(std::make_pair(-p,z));
       }
     }
   }
@@ -997,3 +1097,23 @@ void InDet::SiSPSeededTrackFinder::magneticFieldInit()
   m_fieldprop = *pMF; delete pMF;
 }
 
+///////////////////////////////////////////////////////////////////
+// Track quality calculation
+///////////////////////////////////////////////////////////////////
+
+bool InDet::SiSPSeededTrackFinder::Quality(const Trk::Track* Tr,int Nc,int Nf)
+{
+  DataVector<const Trk::TrackStateOnSurface>::const_iterator  m = Tr->trackStateOnSurfaces()->begin();
+  const Trk::TrackParameters* par = (*m)->trackParameters();
+  if(!par) return false;
+
+  double eta = fabs(par->eta());
+  if(Nc    < m_etaDependentCutsSvc->getMinSiHitsAtEta(eta)) return false;
+  if(Nf    < m_etaDependentCutsSvc->getMinSiNotSharedAtEta(eta)) return false;
+  if(Nc-Nf > m_etaDependentCutsSvc->getMaxSharedAtEta(eta)) return false;
+
+  if(par->pT() < m_etaDependentCutsSvc->getMinPtAtEta(eta)) return false;
+  if(!(*m)->type(Trk::TrackStateOnSurface::Perigee)) return true ;
+  if(fabs(par->localPosition()[0]) > m_etaDependentCutsSvc->getMaxPrimaryImpactAtEta(eta)) return false;
+  return true;
+}

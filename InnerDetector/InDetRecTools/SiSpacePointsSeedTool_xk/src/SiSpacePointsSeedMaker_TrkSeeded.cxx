@@ -364,9 +364,6 @@ void InDet::SiSpacePointsSeedMaker_TrkSeeded::newEvent(int iteration)
 
   i_spforseed = l_spforseed.begin();
 
-  float irstep = 1./r_rstep;
-  int   irmax  = r_size-1  ;
-
   r_first      = 0         ;
   m_checketa   = false     ;
 
@@ -659,7 +656,9 @@ void InDet::SiSpacePointsSeedMaker_TrkSeeded::findVSp (const std::list<Trk::Vert
 
 MsgStream& InDet::SiSpacePointsSeedMaker_TrkSeeded::dump( MsgStream& out ) const
 {
-  if(m_nprint)  return dumpEvent(out); return dumpConditions(out);
+  if(m_nprint)  
+    return dumpEvent(out); 
+  return dumpConditions(out);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -1210,7 +1209,9 @@ void InDet::SiSpacePointsSeedMaker_TrkSeeded::fillLists()
 
   for(int i=r_first; i!=r_size;  ++i) {
 
-    if(!r_map[i]) continue; r = r_Sorted[i].begin(); re = r_Sorted[i].end();
+    if(!r_map[i]) continue; 
+    r = r_Sorted[i].begin(); 
+    re = r_Sorted[i].end();
     if(!ir0) ir0 = i;
 
     if( m_iteration) {
@@ -1324,60 +1325,65 @@ void InDet::SiSpacePointsSeedMaker_TrkSeeded::production2Sp()
       // Loop through trigger space points
       //
       for(; r0!=r0e; ++r0) {
-
-	float X  = (*r0)->x();
-	float Y  = (*r0)->y();
-	float R  = (*r0)->radius();
-	if(R<m_r2minv) continue; if(R>m_r2maxv) break;
-	float Z  = (*r0)->z();
-	float ax = X/R;
-	float ay = Y/R;
-
-	// Bottom links production
-	//
-	int NB = rfzv_n[a];
-	for(int i=0; i!=NB; ++i) {
-	  
-	  int an = rfzv_i[a][i];
-	  if(!rfzv_map[an]) continue; 
-
-	  r  =  rfzv_Sorted[an].begin();
-	  re =  rfzv_Sorted[an].end  ();
-	  
-	  for(; r!=re; ++r) {
-	    
-	    float Rb =(*r)->radius();
-	    if(Rb<m_r1minv) continue; if(Rb>m_r1maxv) break;
-	    float dR = R-Rb; 
-	    if(dR<m_drminv) break; if(dR>m_drmax) continue;
-	    float dZ = Z-(*r)->z();
-	    float Tz = dZ/dR; if(Tz<m_dzdrmin || Tz>m_dzdrmax) continue;
-	    float Zo = Z-R*Tz;	          
-
-	    // Comparison with vertices Z coordinates
-	    //
-	    if(!isZCompatible(Zo,Rb,Tz)) continue;
-
-	    // Momentum cut
-	    //
-	    float dx =(*r)->x()-X; 
-	    float dy =(*r)->y()-Y; 
-	    float x  = dx*ax+dy*ay          ;
-	    float y  =-dx*ay+dy*ax          ;
-	    float xy = x*x+y*y              ; if(xy == 0.) continue;
-	    float r2 = 1./xy                ;
-	    float Ut = x*r2                 ;
-	    float Vt = y*r2                 ;
-	    float UR = Ut*R+1.              ; if(UR == 0.) continue;
-	    float A  = Vt*R/UR              ;
-	    float B  = Vt-A*Ut              ;
-	    if(fabs(B*m_K) > m_ipt*sqrt(1.+A*A)) continue; ++nseed;
-	    newSeed((*r),(*r0),Zo);
-	  }
-	}
-	if(nseed < m_maxsize) continue; 
-	m_endlist=false; m_rMin = (++r0); m_fvNmin=f; m_zMin=z; 
-	return;
+        
+        float X  = (*r0)->x();
+        float Y  = (*r0)->y();
+        float R  = (*r0)->radius();
+        if(R<m_r2minv) continue; 
+        if(R>m_r2maxv) break;
+        float Z  = (*r0)->z();
+        float ax = X/R;
+        float ay = Y/R;
+        
+        // Bottom links production
+        //
+        int NB = rfzv_n[a];
+        for(int i=0; i!=NB; ++i) {
+          
+          int an = rfzv_i[a][i];
+          if(!rfzv_map[an]) continue; 
+        
+          r  =  rfzv_Sorted[an].begin();
+          re =  rfzv_Sorted[an].end  ();
+          
+          for(; r!=re; ++r) {
+            
+            float Rb =(*r)->radius();
+            if(Rb<m_r1minv) continue; 
+            if(Rb>m_r1maxv) break;
+            float dR = R-Rb; 
+            if(dR<m_drminv) break; 
+            if(dR>m_drmax) continue;
+            float dZ = Z-(*r)->z();
+            float Tz = dZ/dR; 
+            if(Tz<m_dzdrmin || Tz>m_dzdrmax) continue;
+            float Zo = Z-R*Tz;
+            
+            // Comparison with vertices Z coordinates
+            //
+            if(!isZCompatible(Zo,Rb,Tz)) continue;
+        
+            // Momentum cut
+            //
+            float dx =(*r)->x()-X; 
+            float dy =(*r)->y()-Y; 
+            float x  = dx*ax+dy*ay;
+            float y  =-dx*ay+dy*ax;
+            float xy = x*x+y*y    ; if(xy == 0.) continue;
+            float r2 = 1./xy      ;
+            float Ut = x*r2       ;
+            float Vt = y*r2       ;
+            float UR = Ut*R+1.    ; if(UR == 0.) continue;
+            float A  = Vt*R/UR    ;
+            float B  = Vt-A*Ut    ;
+            if(fabs(B*m_K) > m_ipt*sqrt(1.+A*A)) continue; 
+            ++nseed;
+            newSeed((*r),(*r0),Zo);
+          }
+        }
+        if(nseed < m_maxsize) continue; 
+        m_endlist=false; m_rMin = (++r0); m_fvNmin=f; m_zMin=z; 
+        return;
       }
     }
   }
