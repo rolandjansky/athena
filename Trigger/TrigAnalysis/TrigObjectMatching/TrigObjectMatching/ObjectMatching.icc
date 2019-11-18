@@ -11,8 +11,6 @@
 
 #include "TrigObjectMatching/TraitDefs.h"
 
-#include "boost/foreach.hpp"
-
 #include <memory>
 
 /************************************/
@@ -141,7 +139,7 @@ const T* ObjectMatching::matchToObject(
   if (best_dist < 0)
     best_dist = std::numeric_limits<float>::max();
 
-  BOOST_FOREACH (const T* o, targetObjects) {
+  for (const T* o : targetObjects) {
     float dist = this->distance<T, U>(o, matchObject, metric);
     if (dist >= 0 && dist < best_dist) {
       best = o;
@@ -175,7 +173,7 @@ const T* ObjectMatching::matchToObject(
   if (best_dist < 0)
     best_dist = std::numeric_limits<float>::max();
 
-  BOOST_FOREACH (const T* o, targetObjects) {
+  for (const T* o : targetObjects) {
     float dist = this->distance<T, U>(o, matchObject, metric);
     if (dist >= 0 && dist < best_dist) {
       best = o;
