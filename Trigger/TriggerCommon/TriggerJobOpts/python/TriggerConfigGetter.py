@@ -159,6 +159,7 @@ class TriggerConfigGetter(Configured):
         self.readPool       = globalflags.InputFormat() == 'pool'
         self.readRDO        = rec.readRDO()
         self.writeESDAOD    = rec.doWriteESD() or rec.doWriteAOD() or rec.doWriteDPD()
+        self.writeAOD       = rec.doWriteAOD() or rec.doWriteDPD()
         self.ConfigSrcList  = TriggerFlags.configurationSourceList()
         self.readMC         = globalflags.DataSource()=='geant3' or globalflags.DataSource()=='geant4'
         self.readTriggerDB  = TriggerFlags.readMenuFromTriggerDb() and self.readRDO
@@ -288,7 +289,7 @@ class TriggerConfigGetter(Configured):
         if self.makeTempCool:
             TrigCoolDbConnection = self.setupTempCOOLWriting(TrigCoolDbConnection)
 
-        if ('ds' in self.ConfigSrcList or self.writeESDAOD) and TriggerFlags.configForStartup()!='HLToffline':
+        if ('ds' in self.ConfigSrcList or self.writeESDAOD) and not self.writeAOD and TriggerFlags.configForStartup()!='HLToffline':
             self.setupCOOLReading(TrigCoolDbConnection)
 
         if hasattr(svcMgr, 'DSConfigSvc'):
@@ -303,8 +304,7 @@ class TriggerConfigGetter(Configured):
             svcMgr.DSConfigSvc.DBServer = db
             log.info("DSConfigSvc trigger database is '%s'", db)
         
-        if self.writeESDAOD:
-            self.setupCOOLWriting()
+        if self.writeESDAOD and not self.writeAOD: # So ESD only
             self.setupxAODWriting()
 
 
@@ -351,10 +351,7 @@ class TriggerConfigGetter(Configured):
 
     def setupCOOLReading(self,TrigCoolDbConnection):
         log = logging.getLogger( "TriggerConfigGetter.py" )
-        if 'ds' in self.ConfigSrcList:
-            log.info( 'DSConfigSvc enabled, will setup IOVDbSvc to access configuration meta data')
-        if self.writeESDAOD:
-            log.info( 'ESD/AOD writing enabled, will setup IOVDbSvc to access configuration meta data')
+        log.info( 'DSConfigSvc enabled, will setup IOVDbSvc to access configuration meta data')
         #usePresetConnection = (TrigCoolDbConnection != "")
 
         ## if we process MC from an XML file the dbConnection needs to
@@ -417,32 +414,6 @@ class TriggerConfigGetter(Configured):
         for f in folders:
             log.info("     /TRIGGER/%s", f)
             conddb.addFolderWithTag(TrigCoolDbConnection, "/TRIGGER/%s" % f, "HEAD")
-
-
-
-
-    def setupCOOLWriting(self):
-        """method to setup the writing of the configuration
-        to ESD/AOD/poolDPD"""
-        log = logging.getLogger( "TriggerConfigGetter.py" )
-        log.info( 'ESD/AOD writing enabled, will setup IOVDbSvc to write configuration meta data')
-
-        folders = []
-        if self.hltFolders:
-            folders += ["HLT/Menu", "HLT/HltConfigKeys"]
-        if self.l1Folders:
-            folders += ["LVL1/Lvl1ConfigKey", "LVL1/Menu", "LVL1/Prescales", "LVL1/Thresholds", "LVL1/BunchGroupKey"]
-
-        if self.hasLBwiseHLTPrescalesAndL1ItemDef:
-            if self.hltFolders:
-                folders += [ "HLT/Prescales", "HLT/PrescaleKey" ]
-            if self.l1Folders:
-                folders += [ "LVL1/ItemDef" ]
-
-        log.info("Adding output folders to IOVDbSvc")
-        for f in folders:
-            log.info("     /TRIGGER/%s", f)
-            svcMgr.IOVDbSvc.FoldersToMetaData+=["/TRIGGER/%s" % f]
 
 
 
