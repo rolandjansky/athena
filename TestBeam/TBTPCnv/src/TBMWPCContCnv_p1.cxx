@@ -45,17 +45,17 @@ TBMWPCContCnv_p1::persToTrans(const TBMWPCCont_p1* pers,
     // std::vector < std::vector<unsigned> > m_cPosOverflow;
     // and now need to convert the bool constituents of the vectors to unsigned
     // ------------------------------------------------------------------------------------------------
-    unsigned nBools = pers->m_cPosOverflow[nTBMWPCNow].size();  //lenght of the vector of bool in TBMWPC
-    std::vector<bool>  m_cPosOverflowNow(nBools);               //defines lenght
-    m_cPosOverflowNow.reserve(nBools);
+    unsigned nBools = pers->m_cPosOverflow[nTBMWPCNow].size();  //length of the vector of bool in TBMWPC
+    std::vector<bool>  cPosOverflowNow;               //defines length
+    cPosOverflowNow.reserve(nBools);
 
     for (unsigned nBoolNow=0; nBoolNow<nBools; nBoolNow++) {
       if(pers->m_cPosOverflow[nTBMWPCNow][nBoolNow])
-        m_cPosOverflowNow.push_back(true);
+        cPosOverflowNow.push_back(true);
       else
-        m_cPosOverflowNow.push_back(false);
+        cPosOverflowNow.push_back(false);
     }
-    MWPC -> setCPosOverflow( m_cPosOverflowNow );
+    MWPC -> setCPosOverflow( cPosOverflowNow );
     // ------------------------------------------------------------------------------------------------
 
 
@@ -108,14 +108,14 @@ TBMWPCContCnv_p1::transToPers(const TBMWPCCont* trans,
     // std::vector < std::vector<unsigned> > m_cPosOverflow;
     // and now need to convert the bool constituents of the vectors to unsigned
     // ------------------------------------------------------------------------------------------------
-    unsigned nBools = MWPC->isCPosOverflow().size();    //lenght of the vector of bool in TBMWPC
-    std::vector<unsigned>  m_cPosOverflowNow(nBools);   //defines lenght and initializes to zero
+    unsigned nBools = MWPC->isCPosOverflow().size();    //length of the vector of bool in TBMWPC
+    std::vector<unsigned>  cPosOverflowNow(nBools);   //defines length and initializes to zero
 
     for (unsigned nBoolNow=0; nBoolNow<nBools; nBoolNow++) {
       if(MWPC->isCPosOverflow()[nBoolNow])
-        m_cPosOverflowNow[nBoolNow] = 1;
+        cPosOverflowNow[nBoolNow] = 1;
     }
-    pers -> m_cPosOverflow.push_back(   m_cPosOverflowNow  );
+    pers -> m_cPosOverflow.push_back(   cPosOverflowNow  );
     // ------------------------------------------------------------------------------------------------
 
     pers -> m_tbDetectorName.push_back( MWPC->getDetectorName() );

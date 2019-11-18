@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TBTPCnv/TBLArDigitContainerCnv_p1.h"
@@ -65,7 +65,7 @@ TBLArDigitContainerCnv_p1::transToPers(const TBLArDigitContainer* trans,
   //unsigned i=0;
   for (;it!=it_e;it++) {
     const LArDigit* transDigit=*it;
-    pers->m_channelID.push_back(transDigit->m_hardwareID.get_compact());
+    pers->m_channelID.push_back(transDigit->m_hardwareID.get_identifier32().get_compact());
     pers->m_gain.push_back((unsigned char)transDigit->m_gain);
     pers->m_nSamples.push_back(transDigit->m_samples.size());
     std::vector<short>::const_iterator it_dig=transDigit->m_samples.begin();
