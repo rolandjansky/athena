@@ -157,9 +157,9 @@ bool InDet::SiTrajectoryElement_xk::firstTrajectorElement
   m_parametersPF.setCovariance(cv);
   initiateState(m_parametersPF,m_parametersUF);
 
-//   double radl = m_radlength;  m_radlength= 1.;
+  double radl = m_radlength;  m_radlength= 1.;
   noiseProduction(1,m_parametersUF);
-//   m_radlength    = radl ;
+  m_radlength    = radl ;
 
   m_dist         = -10. ;
   m_step         =  0.  ;
