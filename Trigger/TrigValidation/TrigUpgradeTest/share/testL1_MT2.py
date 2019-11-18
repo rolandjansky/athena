@@ -290,15 +290,13 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
 #--------------------------------------------------------------
-# Thread-specific setup
+# Increase scheduler checks and verbosity
 #--------------------------------------------------------------
-from AthenaCommon.ConcurrencyFlags import jobproperties
-if jobproperties.ConcurrencyFlags.NumThreads() > 0:
-    from AthenaCommon.AlgScheduler import AlgScheduler
-    AlgScheduler.CheckDependencies( True )
-    AlgScheduler.ShowControlFlow( True )
-    AlgScheduler.ShowDataDependencies( True )
-    AlgScheduler.EnableVerboseViews( True )
+from AthenaCommon.AlgScheduler import AlgScheduler
+AlgScheduler.CheckDependencies( True )
+AlgScheduler.ShowControlFlow( True )
+AlgScheduler.ShowDataDependencies( True )
+AlgScheduler.EnableVerboseViews( True )
 
 #--------------------------------------------------------------
 # Event Info setup
