@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -102,6 +102,7 @@ namespace InDet{
       bool addNextClusterB(SiTrajectoryElement_xk&,const InDet::SiCluster*);
       bool addNextClusterF(SiTrajectoryElement_xk&,const InDet::SiCluster*);
       void setCluster(const InDet::SiCluster*);
+      void setClusterB(const InDet::SiCluster*,double);
 
       void setParametersB(Trk::PatternTrackParameters&); 
       void setParametersF(Trk::PatternTrackParameters&); 
@@ -573,6 +574,13 @@ namespace InDet{
     {
       m_cluster = Cl;
     }
+    
+  inline void SiTrajectoryElement_xk::setClusterB(const InDet::SiCluster* Cl,double Xi2)
+    {
+      m_cluster = Cl ;
+      m_status  = 2  ;
+      m_xi2B    = Xi2;
+    }
   
 
   inline void SiTrajectoryElement_xk::setParametersB(Trk::PatternTrackParameters& P)
@@ -594,47 +602,47 @@ namespace InDet{
   // Add pixel or SCT cluster to pattern track parameters with Xi2 calculation
   /////////////////////////////////////////////////////////////////////////////////
   
-  inline bool SiTrajectoryElement_xk::addCluster
-	(Trk::PatternTrackParameters& Ta,Trk::PatternTrackParameters& Tb,double& Xi2)
-    {
-      int N; 
+  inline bool SiTrajectoryElement_xk::addCluster(Trk::PatternTrackParameters& Ta,
+                                                 Trk::PatternTrackParameters& Tb,
+                                                 double& Xi2) {
+    int N; 
+    if (m_tools->useFastTracking()) {
       if(!m_stereo) {
-
-	patternCovariances
-	  (m_cluster,m_covariance(0,0),m_covariance(1,0),m_covariance(1,1));	
-
-	if(m_detelement->isSCT()) {
-	  return m_updatorTool->addToStateOneDimension
-	    (Ta,m_cluster->localPosition(),m_covariance,Tb,Xi2,N);
-	} 
-        return m_updatorTool->addToState
-	  (Ta,m_cluster->localPosition(),m_covariance,Tb,Xi2,N);
+        patternCovariances(m_cluster,m_covariance(0,0),m_covariance(1,0),m_covariance(1,1));
+        if(m_ndf==1) {
+          return m_updatorTool->addToStateOneDimension(Ta,m_cluster->localPosition(),m_covariance,Tb,Xi2,N);
+        } else return m_updatorTool->addToState(Ta,m_cluster->localPosition(),m_covariance,Tb,Xi2,N);
+      } else return m_updatorTool->addToStateOneDimension(Ta,m_cluster->localPosition(),m_cluster->localCovariance(),Tb,Xi2,N);
+    } else {
+      if(m_ndf==1) {
+        return m_updatorTool->addToStateOneDimension(Ta,m_cluster->localPosition(),m_cluster->localCovariance(),Tb,Xi2,N);
+      } else {
+        return m_updatorTool->addToState            (Ta,m_cluster->localPosition(),m_cluster->localCovariance(),Tb,Xi2,N);
       }
-      return m_updatorTool->addToStateOneDimension
-	(Ta,m_cluster->localPosition(),m_cluster->localCovariance(),Tb,Xi2,N);
     }
+  }
 
   /////////////////////////////////////////////////////////////////////////////////
   // Add pixel or SCT cluster to pattern track parameters without Xi2 calculation
   /////////////////////////////////////////////////////////////////////////////////
 
-  inline bool SiTrajectoryElement_xk::addCluster
-	(Trk::PatternTrackParameters& Ta,Trk::PatternTrackParameters& Tb)
-    {
-       if(!m_stereo) {
-
-	patternCovariances
-	  (m_cluster,m_covariance(0,0),m_covariance(1,0),m_covariance(1,1));	
-	if(m_detelement->isSCT()) {
-	  return m_updatorTool->addToStateOneDimension
-	    (Ta,m_cluster->localPosition(),m_covariance,Tb);
-	}
-	return m_updatorTool->addToState
-	  (Ta,m_cluster->localPosition(),m_covariance,Tb);
-       }
-       return m_updatorTool->addToStateOneDimension
-	(Ta,m_cluster->localPosition(),m_cluster->localCovariance(),Tb);
+  inline bool SiTrajectoryElement_xk::addCluster(Trk::PatternTrackParameters& Ta,
+                                                 Trk::PatternTrackParameters& Tb) {
+    if (m_tools->useFastTracking()) {
+      if(!m_stereo) {
+        patternCovariances(m_cluster,m_covariance(0,0),m_covariance(1,0),m_covariance(1,1));   
+        if(m_ndf==1) {
+          return m_updatorTool->addToStateOneDimension(Ta,m_cluster->localPosition(),m_covariance,Tb);
+        } else return m_updatorTool->addToState(Ta,m_cluster->localPosition(),m_covariance,Tb);
+      } else return m_updatorTool->addToStateOneDimension(Ta,m_cluster->localPosition(),m_cluster->localCovariance(),Tb);
+    } else {
+      if(m_ndf==1) {
+        return m_updatorTool->addToStateOneDimension(Ta,m_cluster->localPosition(),m_cluster->localCovariance(),Tb);
+      } else {
+        return m_updatorTool->addToState            (Ta,m_cluster->localPosition(),m_cluster->localCovariance(),Tb);
+      }
     }
+  }
   
   /////////////////////////////////////////////////////////////////////////////////
   // Add two pattern track parameters without Xi2 calculation
