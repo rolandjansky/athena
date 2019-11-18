@@ -36,10 +36,24 @@ else :
     # --- since a correction is needed to fix biases when running on new run 2 compatible calibation
     from SiClusterizationTool.SiClusterizationToolConf import InDet__NnClusterizationFactory    
       
-    egNnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "egNnClusterizationFactory",
-                                                                NetworkToHistoTool   = egNeuralNetworkToHistoTool,
-                                                                useToT = InDetFlags.doNNToTCalibration(),
-                                                                LoadTTrainedNetworks   = True)               
+    if not "R2" in globalflags.DetDescrVersion() and not "IBL3D25" in globalflags.DetDescrVersion():
+      egNnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "egNnClusterizationFactory",
+                                                                  NetworkToHistoTool   = egNeuralNetworkToHistoTool,
+                                                                  doRunI = True,
+                                                                  useToT = False,
+                                                                  useRecenteringNNWithoutTracks = True,
+                                                                  useRecenteringNNWithTracks = False,
+                                                                  correctLorShiftBarrelWithoutTracks = 0,
+                                                                  correctLorShiftBarrelWithTracks = 0.030,
+                                                                  LoadNoTrackNetwork   = True,
+                                                                  LoadWithTrackNetwork = True)
+        
+    else:
+      egNnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "egNnClusterizationFactory",
+                                                                  NetworkToHistoTool   = egNeuralNetworkToHistoTool,
+                                                                  LoadNoTrackNetwork   = True,
+                                                                  useToT = InDetFlags.doNNToTCalibration(),
+                                                                  LoadWithTrackNetwork = True)               
     ToolSvc += egNnClusterizationFactory 
       
   #End of do cluster splitting       
