@@ -2,9 +2,9 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "PixelMonitoring/PixelAthClusterMonTool.h"
+#include "PixelMonitoring/PixelAthClusterMonAlg.h"
 
-PixelAthClusterMonTool::PixelAthClusterMonTool( const std::string& name, ISvcLocator* pSvcLocator ) : 
+PixelAthClusterMonAlg::PixelAthClusterMonAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthMonitorAlgorithm(name, pSvcLocator),
   m_holeSearchTool("InDet::InDetTrackHoleSearchTool/InDetHoleSearchTool", this),
   m_trackSelTool("InDet::InDetTrackSelectionTool/TrackSelectionTool", this),
@@ -24,10 +24,10 @@ PixelAthClusterMonTool::PixelAthClusterMonTool( const std::string& name, ISvcLoc
 }
 
 
-PixelAthClusterMonTool::~PixelAthClusterMonTool() {}
+PixelAthClusterMonAlg::~PixelAthClusterMonAlg() {}
 
 
-StatusCode PixelAthClusterMonTool::initialize() {
+StatusCode PixelAthClusterMonAlg::initialize() {
 
   ATH_CHECK( detStore()->retrieve(m_atlasid, "AtlasID") );
   ATH_CHECK( detStore()->retrieve(m_pixelid, "PixelID") );
@@ -41,7 +41,7 @@ StatusCode PixelAthClusterMonTool::initialize() {
 }
 
 
-StatusCode PixelAthClusterMonTool::fillHistograms( const EventContext& ctx ) const {
+StatusCode PixelAthClusterMonAlg::fillHistograms( const EventContext& ctx ) const {
   using namespace Monitored;
 
   int lb = GetEventInfo(ctx)->lumiBlock();
@@ -58,13 +58,7 @@ StatusCode PixelAthClusterMonTool::fillHistograms( const EventContext& ctx ) con
   int phiMod(-99);
   int etaMod(-99);
   bool copyFEval(false);
-  int clusPerEventArray_disksA[PixMon::kNumModulesDisk][PixMon::kNumLayersDisk] = { {0} };
-  int clusPerEventArray_disksC[PixMon::kNumModulesDisk][PixMon::kNumLayersDisk] = { {0} };
-  int clusPerEventArray_l0[PixMon::kNumStavesL0][PixMon::kNumModulesBarrel] = { {0} };
-  int clusPerEventArray_l1[PixMon::kNumStavesL1][PixMon::kNumModulesBarrel] = { {0} };
-  int clusPerEventArray_l2[PixMon::kNumStavesL2][PixMon::kNumModulesBarrel] = { {0} };
-  int clusPerEventArray_lI[PixMon::kNumStavesIBL][PixMon::kNumFEsIBL] = { {0} };  
-
+  AccumulatorArrays clusPerEventArray = { {{0}}, {{0}}, {{0}}, {{0}}, {{0}}, {{0}} };
   VecAccumulator2DMap Map_Of_Modules_Status("Map_Of_Modules_Status", true);
   
   for (auto idIt = m_pixelid->wafer_begin(); idIt!=m_pixelid->wafer_end(); ++idIt) {
@@ -83,23 +77,23 @@ StatusCode PixelAthClusterMonTool::fillHistograms( const EventContext& ctx ) con
       getPhiEtaMod(m_pixelid, waferID, phiMod, etaMod, copyFEval);
       switch (pixlayer) {
       case PixLayers::kECA : 
-	clusPerEventArray_disksA[phiMod][etaMod] = -1;
+	clusPerEventArray.DA[phiMod][etaMod] = -1;
 	break;
       case PixLayers::kECC : 
-	clusPerEventArray_disksC[phiMod][etaMod] = -1;
+	clusPerEventArray.DC[phiMod][etaMod] = -1;
 	break;
       case PixLayers::kB0 : 
-	clusPerEventArray_l0[phiMod][etaMod] = -1;
+	clusPerEventArray.B0[phiMod][etaMod] = -1;
 	break;
       case PixLayers::kB1 : 
-	clusPerEventArray_l1[phiMod][etaMod] = -1;
+	clusPerEventArray.B1[phiMod][etaMod] = -1;
 	break;
       case PixLayers::kB2 : 
-	clusPerEventArray_l2[phiMod][etaMod] = -1;
+	clusPerEventArray.B2[phiMod][etaMod] = -1;
 	break;
       case PixLayers::kIBL : 
-	clusPerEventArray_lI[phiMod][etaMod] = -1;
-	if (copyFEval) clusPerEventArray_lI[phiMod][++etaMod] = -1; 
+	clusPerEventArray.IBL[phiMod][etaMod] = -1;
+	if (copyFEval) clusPerEventArray.IBL[phiMod][++etaMod] = -1; 
 	break;
       }
     } else {
@@ -111,8 +105,8 @@ StatusCode PixelAthClusterMonTool::fillHistograms( const EventContext& ctx ) con
   }  // end of pixelid wafer loop
 
   fill2DProfLayerAccum( Map_Of_Modules_Status );
-  CHECK( fill1DProfLumiLayers("BadModules_per_lumi", lb, nBadMod) );
-  CHECK( fill1DProfLumiLayers("DisabledModules_per_lumi", lb, nDisabledMod) );
+  fill1DProfLumiLayers("BadModules_per_lumi", lb, nBadMod);
+  fill1DProfLumiLayers("DisabledModules_per_lumi", lb, nDisabledMod);
 
   //*******************************************************************************
   //*************************** End of filling Status Histograms ******************
@@ -279,11 +273,14 @@ StatusCode PixelAthClusterMonTool::fillHistograms( const EventContext& ctx ) con
     }
   } // end of track loop
   
-  fill2DProfLayerAccum( TSOS_Outlier );
-  fill2DProfLayerAccum( TSOS_Hole );
-  fill2DProfLayerAccum( TSOS_Measurement );
+ 
   fill2DProfLayerAccum( HolesRatio );
   fill2DProfLayerAccum( MissHitsRatio );
+  if (!m_doOnline) { 
+    fill2DProfLayerAccum( TSOS_Outlier );
+    fill2DProfLayerAccum( TSOS_Hole );
+    fill2DProfLayerAccum( TSOS_Measurement );
+  }
 
   sort(ClusterIDs.begin(), ClusterIDs.end(), [](const std::pair<Identifier, double> &left, const std::pair<Identifier, double> &right) {
       return left.first < right.first;
@@ -363,7 +360,7 @@ StatusCode PixelAthClusterMonTool::fillHistograms( const EventContext& ctx ) con
       fill( clusterGroup, clLVL1A);
       Cluster_LVL1A_Mod.add(pixlayer, clusID, m_pixelid, cluster.LVL1A() + 0.00001);
       if (cluster.rdoList().size() > 1) Cluster_LVL1A_SizeCut.add(pixlayer, clusID, m_pixelid, cluster.LVL1A() + 0.00001);
-      if (cluster.totalToT() > clusterToTMinCut[pixlayer]) fill( addTxt("Cluster_LVL1A_ToTCut", false) + "_" + pixLayersLabel[pixlayer], clLVL1A);
+      if (cluster.totalToT() > clusterToTMinCut[pixlayer]) fill( "Cluster_LVL1A_ToTCut_" + pixLayersLabel[pixlayer], clLVL1A);
 
       // 
       // end timing histos
@@ -385,22 +382,22 @@ StatusCode PixelAthClusterMonTool::fillHistograms( const EventContext& ctx ) con
 	getPhiEtaMod(m_pixelid, clusID, phiMod, etaMod, copyFEval);
 	switch (pixlayer) {
 	case PixLayers::kECA : 
-	  clusPerEventArray_disksA[phiMod][etaMod]++;
+	  clusPerEventArray.DA[phiMod][etaMod]++;
 	  break;
 	case PixLayers::kECC : 
-	  clusPerEventArray_disksC[phiMod][etaMod]++;
+	  clusPerEventArray.DC[phiMod][etaMod]++;
 	  break;
 	case PixLayers::kB0 : 
-	  clusPerEventArray_l0[phiMod][etaMod]++;
+	  clusPerEventArray.B0[phiMod][etaMod]++;
 	  break;
 	case PixLayers::kB1 : 
-	  clusPerEventArray_l1[phiMod][etaMod]++;
+	  clusPerEventArray.B1[phiMod][etaMod]++;
 	  break;
 	case PixLayers::kB2 : 
-	  clusPerEventArray_l2[phiMod][etaMod]++;
+	  clusPerEventArray.B2[phiMod][etaMod]++;
 	  break;
 	case PixLayers::kIBL : 
-	  clusPerEventArray_lI[phiMod][etaMod]++;
+	  clusPerEventArray.IBL[phiMod][etaMod]++;
 	  break;
 	}
 	// begin timing histos
@@ -409,7 +406,7 @@ StatusCode PixelAthClusterMonTool::fillHistograms( const EventContext& ctx ) con
 	fill( clusterGroup_OnTrack, clLVL1A);
 	Cluster_LVL1A_Mod_OnTrack.add(pixlayer, clusID, m_pixelid, cluster.LVL1A() + 0.00001);
 	if (cluster.rdoList().size() > 1) Cluster_LVL1A_SizeCut_OnTrack.add(pixlayer, clusID, m_pixelid, cluster.LVL1A() + 0.00001);
-	if (cluster.totalToT() > clusterToTMinCut[pixlayer]) fill( addTxt("Cluster_LVL1A_ToTCut", true) + "_" + pixLayersLabel[pixlayer], clLVL1A);
+	if (cluster.totalToT() > clusterToTMinCut[pixlayer]) fill( "Cluster_LVL1A_ToTCut_OnTrack_" + pixLayersLabel[pixlayer], clLVL1A);
 	// 
 	// end timing histos
 	// begin cluster sizes
@@ -417,7 +414,7 @@ StatusCode PixelAthClusterMonTool::fillHistograms( const EventContext& ctx ) con
 	auto clSize    = Monitored::Scalar<float>( "Cluster_Size_OnTrack_clsize", cluster.rdoList().size());
 	auto etaModule = Monitored::Scalar<float>( "Cluster_Size_OnTrack_em", m_pixelid->eta_module(clusID) );
 	if ( abs(m_pixelid->barrel_ec(clusID))!=0 ) etaModule = m_pixelid->layer_disk(clusID) + 1;
-	fill( addTxt("Cluster_groupsize_vs_eta", true) + "_" + pixLayersLabel[pixlayer], etaModule, clSize );
+	fill( "Cluster_groupsize_vs_eta_OnTrack_" + pixLayersLabel[pixlayer], etaModule, clSize );
 	Cluster_Size_Map_OnTrack.add(pixlayer, clusID, m_pixelid, cluster.rdoList().size());
 	// 
 	// end cluster sizes
@@ -472,17 +469,14 @@ StatusCode PixelAthClusterMonTool::fillHistograms( const EventContext& ctx ) con
     fill( clusterGroup_OnTrack, lbval, clsFracOnTrack);
   }
 
-  CHECK( fill1DProfLumiLayers( addTxt("Clusters_per_lumi", false), lb, nclusters_mod) );
-  CHECK( fill1DProfLumiLayers( addTxt("Clusters_per_lumi", true), lb, nclusters_ontrack_mod) );
+  fill1DProfLumiLayers( "Clusters_per_lumi", lb, nclusters_mod);
+  fill1DProfLumiLayers( "Clusters_per_lumi_OnTrack", lb, nclusters_ontrack_mod);
 
-  CHECK( fillPP0Histos( addTxt("Cluster_Occupancy_PP0", true), 
-			clusPerEventArray_disksA, clusPerEventArray_disksC, 
-			clusPerEventArray_l0, clusPerEventArray_l1,
-			clusPerEventArray_l2, clusPerEventArray_lI ) );
+  fillFromArrays( "Cluster_Occupancy_PP0_OnTrack", clusPerEventArray);
 
   if (ntracksPerEvent>0) {
     for (unsigned int ii=0; ii<PixLayers::COUNT; ii++) nclusters_ontrack_mod[ii]/= ntracksPerEvent; // keep as in Run 1,2
-    CHECK( fill1DProfLumiLayers( "num_clusters_per_track_per_lumi", lb, nclusters_ontrack_mod) );
+    fill1DProfLumiLayers( "num_clusters_per_track_per_lumi", lb, nclusters_ontrack_mod);
   }
   // 
   // end cluster rate

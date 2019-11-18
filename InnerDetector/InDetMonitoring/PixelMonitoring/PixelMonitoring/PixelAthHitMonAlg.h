@@ -24,12 +24,12 @@ class PixelID;
 class IPixelCablingSvc;
 class PixelRDORawData;
 
-class PixelAthHitMonTool : public PixelAthMonitoringBase {
+class PixelAthHitMonAlg : public PixelAthMonitoringBase {
 
  public:
   
-  PixelAthHitMonTool( const std::string& name, ISvcLocator* pSvcLocator );
-  virtual ~PixelAthHitMonTool();
+  PixelAthHitMonAlg( const std::string& name, ISvcLocator* pSvcLocator );
+  virtual ~PixelAthHitMonAlg();
   virtual StatusCode initialize() override;
   virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
   std::string findComponentString(int bec, int ld) const;
