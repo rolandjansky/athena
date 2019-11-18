@@ -497,10 +497,10 @@ class TestSequencesMerging( unittest.TestCase ):
         ca1.addSequence(seqAND("someSequence"))
 
         print("ca2")
-        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg	
-	ca2 = OutputStreamCfg(ConfigFlags, "RDO", ItemList = [    
-	    "SCT_RDO_Container#SCT_RDOs",
-	    "InDetSimDataCollection#SCT_SDO_Map"	    
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        ca2 = OutputStreamCfg(ConfigFlags, "RDO", ItemList = [
+            "SCT_RDO_Container#SCT_RDOs",
+            "InDetSimDataCollection#SCT_SDO_Map"	    
 	])
         ca2.printConfig()
 
