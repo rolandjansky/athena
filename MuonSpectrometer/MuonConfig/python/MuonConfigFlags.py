@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 import re
 
 # Some comments from Ed about existing flags
@@ -36,10 +37,9 @@ def createMuonConfigFlags():
     mcf.addFlag("Muon.doMDTs",True)
     mcf.addFlag("Muon.doTGCs",True)
     mcf.addFlag("Muon.doRPCs",True)
-    # TODO auto handle NSW here.
-    mcf.addFlag("Muon.doCSCs",True) 
-    mcf.addFlag("Muon.doMicromegas",False) 
-    mcf.addFlag("Muon.dosTGCs",False) 
+    mcf.addFlag("Muon.doCSCs",MuonGeometryFlags.hasCSC()) 
+    mcf.addFlag("Muon.doMicromegas",MuonGeometryFlags.hasMM()) 
+    mcf.addFlag("Muon.dosTGCs",MuonGeometryFlags.hasSTGC()) 
     
     # stages of processing
     # 1. Digitization

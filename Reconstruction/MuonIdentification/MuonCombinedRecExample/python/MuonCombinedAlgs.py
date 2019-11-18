@@ -10,7 +10,6 @@ from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon import CfgMgr
 from AthenaCommon.BeamFlags import jobproperties
 
-from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
@@ -24,16 +23,16 @@ def MuonCombinedInDetExtensionAlg(name="MuonCombinedInDetExtensionAlg",**kwargs)
         kwargs.setdefault("TagMap", "caloTagMap" )
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
     kwargs.setdefault("HasCSC", MuonGeometryFlags.hasCSC() )
-    kwargs.setdefault("HasSTgc", (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]) )
-    kwargs.setdefault("HasMM", (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]) )
+    kwargs.setdefault("HasSTgc", MuonGeometryFlags.hasSTGC() )
+    kwargs.setdefault("HasMM", MuonGeometryFlags.hasMM() )
     return CfgMgr.MuonCombinedInDetExtensionAlg(name,**kwargs)
 
 def MuGirlAlg(name="MuGirlAlg",**kwargs):
     tools = [getPublicTool("MuGirlTagTool")]
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
     kwargs.setdefault("HasCSC", MuonGeometryFlags.hasCSC() )
-    kwargs.setdefault("HasSTgc", (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]) )
-    kwargs.setdefault("HasMM", (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]) )
+    kwargs.setdefault("HasSTgc", MuonGeometryFlags.hasSTGC() )
+    kwargs.setdefault("HasMM", MuonGeometryFlags.hasMM() )
     return CfgMgr.MuonCombinedInDetExtensionAlg(name,**kwargs)
 
 
@@ -45,8 +44,8 @@ def MuonCaloTagAlg(name="MuonCaloTagAlg",**kwargs):
     kwargs.setdefault("METrackCollection","")
     kwargs.setdefault("SegmentCollection","")
     kwargs.setdefault("HasCSC", MuonGeometryFlags.hasCSC() )
-    kwargs.setdefault("HasSTgc", (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]) )
-    kwargs.setdefault("HasMM", (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]) )
+    kwargs.setdefault("HasSTgc", MuonGeometryFlags.hasSTGC() )
+    kwargs.setdefault("HasMM", MuonGeometryFlags.hasMM() )
     return CfgMgr.MuonCombinedInDetExtensionAlg(name,**kwargs)
 
 def MuonSegmentTagAlg( name="MuonSegmentTagAlg", **kwargs ):
@@ -63,8 +62,8 @@ def MuonInsideOutRecoAlg( name="MuonInsideOutRecoAlg", **kwargs ):
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
     kwargs.setdefault("usePRDs",True)
     kwargs.setdefault("HasCSC", MuonGeometryFlags.hasCSC() )
-    kwargs.setdefault("HasSTgc", (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]) )
-    kwargs.setdefault("HasMM", (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]) )
+    kwargs.setdefault("HasSTgc", MuonGeometryFlags.hasSTGC() )
+    kwargs.setdefault("HasMM", MuonGeometryFlags.hasMM() )
     kwargs.setdefault("TagMap","muGirlTagMap")
     return CfgMgr.MuonCombinedInDetExtensionAlg(name,**kwargs)
 
@@ -73,8 +72,8 @@ def MuGirlStauAlg(name="MuGirlStauAlg",**kwargs):
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
     kwargs.setdefault("TagMap","stauTagMap")
     kwargs.setdefault("HasCSC", MuonGeometryFlags.hasCSC() )
-    kwargs.setdefault("HasSTgc", (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]) )
-    kwargs.setdefault("HasMM", (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]) )
+    kwargs.setdefault("HasSTgc", MuonGeometryFlags.hasSTGC() )
+    kwargs.setdefault("HasMM", MuonGeometryFlags.hasMM() )
     kwargs.setdefault("CombinedTrackCollection","MuGirlStauCombinedTracks")
     kwargs.setdefault("METrackCollection","")
     kwargs.setdefault("SegmentCollection","MuGirlStauSegments")

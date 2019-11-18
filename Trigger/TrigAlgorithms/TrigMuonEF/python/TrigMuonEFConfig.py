@@ -21,7 +21,6 @@ from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
 
 from MuonRecExample.MuonRecFlags import muonRecFlags
-from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 #Offline calorimeter isolation tool
@@ -407,7 +406,7 @@ def TMEF_MuonLayerSegmentFinderTool(name="TMEF_MuonLayerSegmentFinderTool",**kwa
     if not MuonGeometryFlags.hasCSC():
         kwargs.setdefault('Csc2DSegmentMaker', '')
         kwargs.setdefault('Csc4DSegmentMaker', '')
-    if (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]): kwargs.setdefault('NSWMuonClusterSegmentFinderTool','TMEF_MuonClusterSegmentFinderTool')
+    if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()): kwargs.setdefault('NSWMuonClusterSegmentFinderTool','TMEF_MuonClusterSegmentFinderTool')
     return CfgMgr.Muon__MuonLayerSegmentFinderTool(name,**kwargs)
 
 def TMEF_MuonInsideOutRecoTool(name="TMEF_MuonInsideOutRecoTool",**kwargs):
