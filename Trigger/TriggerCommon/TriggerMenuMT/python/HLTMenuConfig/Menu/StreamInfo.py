@@ -2,7 +2,7 @@
 
 from future.moves.collections import UserList
 from AthenaCommon.Logging import logging
-log = logging.getLogger('TriggerMenuMT.HLTMenuConfig.Menu.StreamInfo')
+log = logging.getLogger( __name__ )
 
 
 class StreamInfo(UserList):

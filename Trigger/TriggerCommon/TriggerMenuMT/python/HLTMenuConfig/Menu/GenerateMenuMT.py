@@ -19,7 +19,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.ChainMerging import mergeChainDefs
 
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT' )
+log = logging.getLogger( __name__ )
 
 _func_to_modify_signatures = None
 

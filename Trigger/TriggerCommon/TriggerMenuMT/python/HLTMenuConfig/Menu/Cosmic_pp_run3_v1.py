@@ -12,8 +12,8 @@ from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
 def setupMenu():
 
     from TriggerJobOpts.TriggerFlags          import TriggerFlags
-    from AthenaCommon.Logging                 import logging
-    log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Menu.Cosmic_pp_run3_v1.py' )
+    from AthenaCommon.Logging import logging
+    log = logging.getLogger( __name__ )
 
     TriggerFlags.Slices_all_setOff()
 

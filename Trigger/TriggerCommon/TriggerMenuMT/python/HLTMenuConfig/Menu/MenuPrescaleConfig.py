@@ -4,7 +4,8 @@ from TriggerJobOpts.TriggerFlags import TriggerFlags
 #from TriggerMenu.menu.MenuUtil import applyHLTPrescale, resetAllPrescales
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger( 'TriggerMenuMT.menu.MenuPrescaleConfig' )
+log = logging.getLogger( __name__ )
+
 
 def MenuPrescaleConfig(triggerConfigHLT):
 

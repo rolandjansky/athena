@@ -19,9 +19,8 @@ from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import PhysicsStream,Si
 def addP1Signatures():
 
     from TriggerJobOpts.TriggerFlags          import TriggerFlags
-    from AthenaCommon.Logging                 import logging
-    
-    log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Menu.PhysicsP1_pp_run3_v1.py addP1Signatures()' )
+    from AthenaCommon.Logging import logging
+    log = logging.getLogger( __name__+" + addP1Signatures" )
     log.info('addP1Signatures ...')
 
     TriggerFlags.TestSlice.signatures = TriggerFlags.TestSlice.signatures() + []

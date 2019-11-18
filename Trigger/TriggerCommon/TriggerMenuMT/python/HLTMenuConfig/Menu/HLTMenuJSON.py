@@ -5,7 +5,7 @@ from collections import OrderedDict as odict
 from TrigConfigSvc.TrigConfigSvcCfg import getHLTMenuFileName
 
 from AthenaCommon.Logging import logging
-__log = logging.getLogger( 'HLTMenuJSON.py' )
+__log = logging.getLogger( __name__ )
 
 
 def __generateJSON( chainDicts, chainConfigs, menuName, fileName ):

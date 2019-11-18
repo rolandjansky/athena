@@ -1,8 +1,8 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-
 from AthenaCommon.Logging import logging
-logging.getLogger().info("Importing %s",__name__)
-logSignatureDict = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Menu.SignatureDicts")
+log = logging.getLogger( __name__ )
+log.info("Importing %s",__name__)
+
 from copy import deepcopy
 
 #==========================================================
@@ -759,10 +759,10 @@ def getSignatureNameFromToken(chainpart):
     theToken = max(theMatchingTokens, key=len) # gets the longest string in t
     if len(theMatchingTokens)>0:
         if len(theMatchingTokens)>1:
-            logSignatureDict.info('There are several signatures tokens, %s, matching this chain part %s. Picked %s.',
+            log.info('There are several signatures tokens, %s, matching this chain part %s. Picked %s.',
                                   theMatchingTokens,chainpart,theToken)
         return reverseSliceIDDict[theToken]
-    logSignatureDict.error('No signature matching chain part %s was found.', chainpart)
+    log.error('No signature matching chain part %s was found.', chainpart)
     return False
 
 
