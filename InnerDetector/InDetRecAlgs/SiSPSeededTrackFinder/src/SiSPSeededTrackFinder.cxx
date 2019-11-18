@@ -110,6 +110,12 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
   //
   ATH_CHECK(m_seedsmaker.retrieve());
 
+  if(m_useZvertexTool) {
+    // Get tool for z-coordinates ptimary vertices search
+    //
+    ATH_CHECK(m_zvertexmaker.retrieve());
+  }
+
   // Get tool for z-coordinates ptimary vertices search
   //
   if(m_useZvertexTool)
@@ -128,9 +134,6 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
   //
   if (m_ITKGeometry and m_doFastTracking) 
     ATH_CHECK(m_etaDependentCutsSvc.retrieve());
-
-  if(m_useConvSeeded)
-     ATH_CHECK(m_regionSelector.retrieve());
 
   if(m_useNewStrategy && m_beamconditions=="") {
     m_useNewStrategy = false; 
@@ -402,12 +405,6 @@ StatusCode InDet::SiSPSeededTrackFinder::itkStrategy()
   if (m_doFastTracking) return itkFastTrackingStrategy();
   
   m_outputTracks = CxxUtils::make_unique<TrackCollection>();
-  
-  // For HI events we can use MBTS information from calorimeter
-  //
-  if(!isGoodEvent()) {
-    return StatusCode::SUCCESS;
-  }
 
   std::multimap<double,Trk::Track*>    qualityTrack;
   const InDet::SiSpacePointsSeed* seed = 0;
