@@ -19,8 +19,8 @@ AOD_ItemList+=["McEventCollection#GEN_AOD"]
 # TrackRecordCollection - muons at the entrance of the spectrometer
 AOD_ItemList+=["TrackRecordCollection#MuonEntryLayerFilter"]
 
-# slimmed Inner Detector tracks associated to Muons, Egammas and Taus
-if AODFlags.egammaTrackSlimmer or AODFlags.MuonTrackSlimmer or AODFlags.TauTrackSlimmer:
+# slimmed Inner Detector tracks associated to Muons and Egammas
+if AODFlags.egammaTrackSlimmer or AODFlags.MuonTrackSlimmer:
    AOD_ItemList+=["TrackCollection#Tracks"]
 
 # IParticles

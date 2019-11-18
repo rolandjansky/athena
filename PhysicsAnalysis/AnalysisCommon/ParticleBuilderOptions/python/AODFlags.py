@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #=======================================================================
 # File:   ParticleBuilderOptions/python/AODFlags.py
@@ -116,13 +116,6 @@ class Tau(JobProperty):
     allowedTypes=['bool']
     StoredValue=True
     
-class TauTrackSlimmer(JobProperty):
-    """ If True, add TauTrackSlimmer
-    """
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=False
-
 class TrackParticleSlimmer(JobProperty):
     """ If True, add TrackParticleSlimmer which slims last hit
     """
@@ -312,7 +305,6 @@ _list_AOD=[ \
     ThinNegativeEnergyNeutralPFOs, \
     ThinInDetForwardTrackParticles, \
     Muon,MuonTrackSlimmer, \
-    Tau,TauTrackSlimmer, \
     TrackParticleSlimmer, TrackParticleLastHitAndPerigeeSlimmer, \
     ParticleJet,JetTag, \
     SpclMC,TruthParticleJet, \

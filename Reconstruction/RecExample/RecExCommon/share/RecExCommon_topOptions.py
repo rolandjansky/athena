@@ -1375,9 +1375,6 @@ if rec.doWriteAOD():
                 from egammaRec.egammaTrackSlimmer import egammaTrackSlimmer
                 egammaTrackSlimmer()
 
-        if AODFlags.TauTrackSlimmer:
-            protectedInclude("tauRec/tauMerged_trackslim_jobOptions.py")
-
         if rec.doTruth() and AODFlags.ThinGeantTruth:
             from ThinningUtils.ThinGeantTruth import ThinGeantTruth
             ThinGeantTruth()
