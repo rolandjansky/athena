@@ -4,7 +4,7 @@
 # art-type: grid
 # art-include: 21.3/Athena
 # art-include: master/Athena
-# art-output: mc16a_ttbar.RDO.pool.root
+# art-output: *.root
 # art-output: config.txt
 
 HighPtMinbiasHitsFiles="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc16_13TeV.361239.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic_high.merge.HITS.e4981_s3087_s3089/*"
