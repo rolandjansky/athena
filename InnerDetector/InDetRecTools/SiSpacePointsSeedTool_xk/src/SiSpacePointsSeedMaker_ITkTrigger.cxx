@@ -252,7 +252,7 @@ void InDet::SiSpacePointsSeedMaker_ITkTrigger::newEvent(int iteration)
 
   if(!m_iteration) {
     buildBeamFrameWork();
-    
+
     m_ipt2K     = m_ipt2/(m_K*m_K);
     m_ipt2C     = m_ipt2*m_COF    ;
     m_COFK      = m_COF*(m_K*m_K) ;  
@@ -920,7 +920,6 @@ void InDet::SiSpacePointsSeedMaker_ITkTrigger::buildBeamFrameWork()
   m_zbeam[1] = float(sint*cosp)               ;
   m_zbeam[2] = float(sint*sinp)               ;
   m_zbeam[3] = float(cost)                    ;
-  
 }
 
 ///////////////////////////////////////////////////////////////////

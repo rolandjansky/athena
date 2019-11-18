@@ -607,11 +607,12 @@ namespace InDet{
                                                  double& Xi2) {
     int N; 
     if (m_tools->useFastTracking()) {
-      if(m_ndf==1) {
-        return m_updatorTool->addToStateOneDimension(Ta,m_cluster->localPosition(),m_cluster->localCovariance(),Tb,Xi2,N);
-      } else {
-        return m_updatorTool->addToState            (Ta,m_cluster->localPosition(),m_cluster->localCovariance(),Tb,Xi2,N);
-      }
+      if(!m_stereo) {
+        patternCovariances(m_cluster,m_covariance(0,0),m_covariance(1,0),m_covariance(1,1));
+        if(m_ndf==1) {
+          return m_updatorTool->addToStateOneDimension(Ta,m_cluster->localPosition(),m_covariance,Tb,Xi2,N);
+        } else return m_updatorTool->addToState(Ta,m_cluster->localPosition(),m_covariance,Tb,Xi2,N);
+      } else return m_updatorTool->addToStateOneDimension(Ta,m_cluster->localPosition(),m_cluster->localCovariance(),Tb,Xi2,N);
     } else {
       if(!m_stereo) {
         patternCovariances(m_cluster,m_covariance(0,0),m_covariance(1,0),m_covariance(1,1));
