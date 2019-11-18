@@ -78,6 +78,7 @@ StatusCode InDet::InDetExtensionProcessor::initialize()
   Trk::ParticleSwitcher particleSwitch;
   m_particleHypothesis = particleSwitch.particle[m_matEffects];
 
+  ATH_CHECK(m_trackSummaryTool.retrieve( DisableTool{m_trackSummaryTool.name().empty()} ));
   // get scoring tool
   if ( m_scoringTool.retrieve().isFailure() ) {
     ATH_MSG_FATAL( "Failed to retrieve tool " << m_scoringTool  );
@@ -388,6 +389,11 @@ for (const Trk::Track *a_track : *tracks_in) {
 	}
 	
       } else {
+         if (m_trackSummaryTool.isEnabled()) {
+            m_trackSummaryTool->computeAndReplaceTrackSummary(*newtrack,
+                                                              nullptr,
+                                                              m_suppressHoleSearch);
+         }
 	
 	// score old and new tool and decide which one to push back
 	Trk::TrackScore oldScore = m_scoringTool->score( *a_track, m_suppressHoleSearch );
@@ -415,6 +421,12 @@ for (const Trk::Track *a_track : *tracks_in) {
 	  
 	  if (newBremTrack) {
 	    // score again
+            // @TODO should score newBremTrack
+            if (m_trackSummaryTool.isEnabled()) {
+               m_trackSummaryTool->computeAndReplaceTrackSummary(*newBremTrack,
+                                                                 nullptr,
+                                                                 m_suppressHoleSearch);
+            }
 	    newScore = m_scoringTool->score( *newtrack, m_suppressHoleSearch );
 	    ATH_MSG_DEBUG ("recovered new track has score      : "<<newScore);
 	    // copy pointer
@@ -536,7 +548,12 @@ Trk::Track* InDet::InDetExtensionProcessor::trackPlusExtension(const Trk::Track*
 					extendedTrajectory,
 					( siTrack->fitQuality() ? siTrack->fitQuality()->clone() : 0 )
 					);
-  
+
+  if (m_trackSummaryTool.isEnabled()) {
+     m_trackSummaryTool->computeAndReplaceTrackSummary(*extTrack,
+                                                       nullptr,
+                                                       m_suppressHoleSearch);
+  }
   Trk::TrackScore extScore = m_scoringTool->score( *extTrack, m_suppressHoleSearch );
   ATH_MSG_DEBUG ("rejected extension saved as Trk::Track with " << nSiStates <<
 		 " fitted hits and " << nExtStates << " additional Outliers, score :" << extScore);

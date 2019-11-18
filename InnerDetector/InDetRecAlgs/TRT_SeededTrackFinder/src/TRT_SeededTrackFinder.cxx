@@ -39,7 +39,6 @@ InDet::TRT_SeededTrackFinder::TRT_SeededTrackFinder
     m_ntracks(0),
     m_trackmaker("InDet::TRT_SeededTrackFinderTool"),
     m_fitterTool("Trk::KalmanFitter/InDetTrackFitter"),
-    m_trtExtension("InDet::TRT_TrackExtensionTool_xk"),
     m_Segments("TRTSegments"),
     m_outTracks("TRTSeededTracks")
 {
@@ -52,7 +51,6 @@ InDet::TRT_SeededTrackFinder::TRT_SeededTrackFinder
 
   declareProperty("TrackTool"                  ,m_trackmaker       ); //Back tracking tool
   declareProperty("RefitterTool"               ,m_fitterTool       ); //Track refit tool
-  declareProperty("TrackExtensionTool"         ,m_trtExtension     ); //TRT track extension tool
   declareProperty("InputSegmentsLocation"      ,m_Segments         ); //Input track collection
   declareProperty("OutputTracksLocation"       ,m_outTracks        ); //Output track collection
   declareProperty("FinalRefit"                 ,m_doRefit          ); //Do a final careful refit of tracks
@@ -94,6 +92,8 @@ StatusCode InDet::TRT_SeededTrackFinder::initialize()
 
   // optional PRD to track association map
   ATH_CHECK( m_prdToTrackMap.initialize( !m_prdToTrackMap.key().empty() ) );
+
+  ATH_CHECK( m_trackSummaryTool.retrieve( DisableTool{ m_trackSummaryTool.name().empty() } ) );
 
   // Get tool for track extension to TRT
   //
@@ -446,6 +446,11 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
                 m_nBckTrk++; m_nBckTrkTrt++;
 
 		// add it to output list
+                if (m_trackSummaryTool.isEnabled()) {
+                   m_trackSummaryTool->computeAndReplaceTrackSummary(*trtSeg,
+                                                                     combinatorialData.PRDtoTrackMap(),
+                                                                     false /* DO NOT suppress hole search*/);
+                }
 		m_outTracks->push_back(trtSeg);
               }
 
@@ -457,6 +462,11 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
 	      m_nBckTrk++; m_nBckTrkSi++;
 
 	      // add it to output list
+              if (m_trackSummaryTool.isEnabled()) {
+                 m_trackSummaryTool->computeAndReplaceTrackSummary(*globalTrackNew,
+                                                                   combinatorialData.PRDtoTrackMap(),
+                                                                   false /* DO NOT suppress hole search*/);
+              }
 	      m_outTracks->push_back(globalTrackNew);
             }
 	  }
@@ -656,13 +666,14 @@ std::ostream& InDet::operator <<
 // Merge a Si extension and a TRT segment.Refit at the end
 ///////////////////////////////////////////////////////////////////
 
-Trk::Track* InDet::TRT_SeededTrackFinder::mergeSegments(const Trk::Track& tT, const Trk::TrackSegment& tS) {
+Trk::Track* InDet::TRT_SeededTrackFinder::mergeSegments(const Trk::Track& tT, const Trk::TrackSegment& tS) const {
 	// TSOS from the track
 	const DataVector<const Trk::TrackStateOnSurface>* stsos = tT.trackStateOnSurfaces();
 	// fitQuality from track
 	const Trk::FitQuality* fq = tT.fitQuality()->clone();
 	// output datavector of TSOS
-	DataVector<const Trk::TrackStateOnSurface>* ntsos = new DataVector<const Trk::TrackStateOnSurface>;
+	std::unique_ptr<DataVector<const Trk::TrackStateOnSurface> >
+           ntsos(std::make_unique< DataVector<const Trk::TrackStateOnSurface> >());
 
 	int siHits = 0;
 	// copy track Si states into track
@@ -693,42 +704,37 @@ Trk::Track* InDet::TRT_SeededTrackFinder::mergeSegments(const Trk::Track& tT, co
 	///Construct the new track
 	Trk::TrackInfo info;
 	info.setPatternRecognitionInfo(Trk::TrackInfo::TRTSeededTrackFinder);
-	Trk::Track* newTrack = new Trk::Track(info, ntsos, fq);
+        std::unique_ptr<Trk::Track> newTrack(std::make_unique<Trk::Track>(info, ntsos.release(), fq));
 
 	//Careful refitting at the end
 	if (m_doRefit) {
-		Trk::Track* fitTrack = m_fitterTool->fit(*newTrack, false, Trk::pion);
-		delete newTrack;
-		if (!fitTrack) {
+                newTrack=std::unique_ptr<Trk::Track>( m_fitterTool->fit(*newTrack, false, Trk::pion) );
+		if (!newTrack) {
 			ATH_MSG_DEBUG ("Refit of TRT+Si track segment failed!");
-			delete ntsos;
-			return 0;
+			return nullptr;
 		}
 
 		//Protect for tracks that have no really defined locz and theta parameters
-		//const Trk::MeasuredPerigee* perTrack=dynamic_cast<const Trk::MeasuredPerigee*>(fitTrack->perigeeParameters());
+		//const Trk::MeasuredPerigee* perTrack=dynamic_cast<const Trk::MeasuredPerigee*>(newTrack->perigeeParameters());
 
-		const Trk::Perigee* perTrack=fitTrack->perigeeParameters();
+		const Trk::Perigee* perTrack=newTrack->perigeeParameters();
 
 		if (perTrack) {
 			//const Trk::CovarianceMatrix& CM = perTrack->localErrorMatrix().covariance();
 			const AmgSymMatrix(5)* CM = perTrack->covariance();
 			if (!CM || sqrt((*CM)(1,1)) == 0. || sqrt((*CM)(3,3)) == 0.) {
-				delete fitTrack;
-        delete ntsos;
-        return 0;
-      }
-    }
-    return fitTrack;
-  }
-  return newTrack;
+                                return nullptr;
+                        }
+                }
+        }
+        return newTrack.release();
 }
 
 ///////////////////////////////////////////////////////////////////
 // Transform a TRT segment to track
 ///////////////////////////////////////////////////////////////////
 
-Trk::Track* InDet::TRT_SeededTrackFinder::segToTrack(const Trk::TrackSegment& tS) {
+Trk::Track* InDet::TRT_SeededTrackFinder::segToTrack(const Trk::TrackSegment& tS) const {
 	ATH_MSG_DEBUG ("Transforming the TRT segment into a track...");
 
 	//Get the track segment information and build the initial track parameters
@@ -739,7 +745,8 @@ Trk::Track* InDet::TRT_SeededTrackFinder::segToTrack(const Trk::TrackSegment& tS
 	const AmgVector(5)& p = tS.localParameters();
 	AmgSymMatrix(5)* ep = new AmgSymMatrix(5)(tS.localCovariance());
 
-	DataVector<const Trk::TrackStateOnSurface>* ntsos = new DataVector<const Trk::TrackStateOnSurface>;
+        std::unique_ptr<DataVector<const Trk::TrackStateOnSurface> > 
+           ntsos = std::make_unique<DataVector<const Trk::TrackStateOnSurface> >();
 
 	std::unique_ptr<const Trk::TrackParameters> segPar(surf->createParameters<5, Trk::Charged>(p(0), p(1), p(2), p(3), p(4), ep));
 	if (segPar) {
@@ -750,8 +757,7 @@ Trk::Track* InDet::TRT_SeededTrackFinder::segToTrack(const Trk::TrackSegment& tS
 		if (msgLvl(MSG::DEBUG)) {
 			msg(MSG::DEBUG) << "Could not get initial TRT segment parameters! " << endmsg;
 		}
-		delete ntsos;
-		return 0;
+		return nullptr;
 	}
 
 	for (int it = 0; it < int(tS.numberOfMeasurementBases()); it++) {
@@ -771,32 +777,27 @@ Trk::Track* InDet::TRT_SeededTrackFinder::segToTrack(const Trk::TrackSegment& tS
 
 	Trk::TrackInfo info;
 	info.setPatternRecognitionInfo(Trk::TrackInfo::TRTSeededTrackFinder);
-	Trk::Track* newTrack = new Trk::Track(info, ntsos, 0);
+        std::unique_ptr<Trk::Track> newTrack = std::make_unique<Trk::Track>(info, ntsos.release(), nullptr);
 
 	// Careful refitting of the TRT stand alone track
 	if (m_doRefit) {
-		Trk::Track* fitTrack = m_fitterTool->fit(*newTrack, false, Trk::pion);
-		delete newTrack; // cleanup
-		if (!fitTrack) {
+                newTrack = std::unique_ptr<Trk::Track>( m_fitterTool->fit(*newTrack, false, Trk::pion));
+		if (!newTrack) {
 			ATH_MSG_DEBUG ("Refit of TRT track segment failed!");
-			delete ntsos;
-			return 0;
+			return nullptr;
 		}
 
 		//Protect for tracks that have no really defined locz and theta parameters
-		const Trk::Perigee* perTrack=fitTrack->perigeeParameters();
+		const Trk::Perigee* perTrack=newTrack->perigeeParameters();
 		if (perTrack) {
 			const AmgSymMatrix(5)* CM = perTrack->covariance();
-      if (!CM || sqrt((*CM)(1,1)) == 0. || sqrt((*CM)(3,3)) == 0.) {
-	      delete fitTrack;
-	      delete ntsos;
-	      return 0;
-      }
-    }
-    return fitTrack;
-  }
+                        if (!CM || sqrt((*CM)(1,1)) == 0. || sqrt((*CM)(3,3)) == 0.) {
+                           return nullptr;
+                        }
+                }
+        }
 
-  return newTrack;
+        return newTrack.release();
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -804,13 +805,14 @@ Trk::Track* InDet::TRT_SeededTrackFinder::segToTrack(const Trk::TrackSegment& tS
 ///////////////////////////////////////////////////////////////////
 
 Trk::Track* InDet::TRT_SeededTrackFinder::
-mergeExtension(const Trk::Track& tT, std::vector<const Trk::MeasurementBase*>& tS) {
+mergeExtension(const Trk::Track& tT, std::vector<const Trk::MeasurementBase*>& tS) const {
   // TSOS from the track
   const DataVector<const Trk::TrackStateOnSurface>* stsos = tT.trackStateOnSurfaces();
   // fitQuality from track
   const Trk::FitQuality* fq = tT.fitQuality()->clone();
   // output datavector of TSOS
-  DataVector<const Trk::TrackStateOnSurface>* ntsos = new DataVector<const Trk::TrackStateOnSurface>;
+  std::unique_ptr<DataVector<const Trk::TrackStateOnSurface> >
+     ntsos = std::make_unique<DataVector<const Trk::TrackStateOnSurface> >();
 
   int siHits = 0;
   // copy track Si states into track
@@ -832,41 +834,37 @@ mergeExtension(const Trk::Track& tT, std::vector<const Trk::MeasurementBase*>& t
 
   Trk::TrackInfo info;
   info.setPatternRecognitionInfo(Trk::TrackInfo::TRTSeededTrackFinder);
-  Trk::Track* newTrack = new Trk::Track(info, ntsos, fq);
+  std::unique_ptr<Trk::Track> newTrack( std::make_unique<Trk::Track>(info, ntsos.release(), fq) );
 
   //Careful refitting at the end
   if (m_doRefit) {
-    Trk::Track* fitTrack = m_fitterTool->fit(*newTrack, false, Trk::pion);
-    delete newTrack;
-    if (!fitTrack) {
+    newTrack = std::unique_ptr<Trk::Track>( m_fitterTool->fit(*newTrack, false, Trk::pion) ) ;
+    if (!newTrack) {
       ATH_MSG_DEBUG ("Refit of TRT+Si track segment failed!");
-      delete ntsos;
-      return 0;
+      return nullptr;
     }
 
     //Protect for tracks that have no really defined locz and theta parameters
-    const Trk::Perigee* perTrack=fitTrack->perigeeParameters();
+    const Trk::Perigee* perTrack=newTrack->perigeeParameters();
     if (perTrack) {
       const AmgSymMatrix(5)* CM = perTrack->covariance();
       if (!CM || sqrt((*CM)(1,1)) == 0. || sqrt((*CM)(3,3)) == 0.) {
-	      delete fitTrack; 
-	      delete ntsos;
-	      return 0;
+	      return nullptr;
       }
     }
-    return fitTrack;
   }
 
-  return newTrack;
+  return newTrack.release();
 }
 
 ///////////////////////////////////////////////////////////////////
 // Analysis of tracks
 ///////////////////////////////////////////////////////////////////
 
-void InDet::TRT_SeededTrackFinder::Analyze(TrackCollection* tC)
+void InDet::TRT_SeededTrackFinder::Analyze(TrackCollection* tC) const
 {
 
+  if(msgLvl(MSG::DEBUG)) {
   if(msgLvl(MSG::DEBUG)) {msg(MSG::DEBUG) << "Analyzing tracks..." << endmsg;}
 
   if(msgLvl(MSG::DEBUG)) {msg(MSG::DEBUG) << "Number of back tracks " << (tC->size()) << endl;}
@@ -911,9 +909,8 @@ void InDet::TRT_SeededTrackFinder::Analyze(TrackCollection* tC)
     npixTot1+=npix1; npixTot2+=npix2; npixTot3+=npix3;
     //cout << "HITS IN TRACK " << nhits << " OUTLIERS " << noutl << " HOLES " << nholes << endl;
   }
-  if(msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG)<<"Total hits on 1st SCT: "<<nsctTot1<<" 2nd SCT: "<<nsctTot2<<" 3rd SCT: "<<nsctTot3<<" 4th SCT: "<<nsctTot4<<endmsg;
-    msg(MSG::DEBUG)<<"Total hits on 1st Pixel: "<<npixTot1<<" 2nd Pixel: "<<npixTot2<<" 3rd Pixel: "<<npixTot3<<endmsg;
+  msg(MSG::DEBUG)<<"Total hits on 1st SCT: "<<nsctTot1<<" 2nd SCT: "<<nsctTot2<<" 3rd SCT: "<<nsctTot3<<" 4th SCT: "<<nsctTot4<<endmsg;
+  msg(MSG::DEBUG)<<"Total hits on 1st Pixel: "<<npixTot1<<" 2nd Pixel: "<<npixTot2<<" 3rd Pixel: "<<npixTot3<<endmsg;
   }
 
 }

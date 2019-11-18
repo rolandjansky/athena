@@ -24,11 +24,13 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "InDetRecToolInterfaces/ITRT_TrackSegmentsMaker.h"
+#include "InDetRecToolInterfaces/ITRT_TrackExtensionTool.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "TRT_TrackSegmentsTool_xk/TRT_DriftCircleLinkN_xk.h"
 #include "TrkEventUtils/PRDtoTrackMap.h"
+
 
 #include "StoreGate/ReadHandleKey.h"
 
@@ -101,7 +103,8 @@ namespace InDet{
       std::string                            m_ntrtmanager     ; // Name of TRT det. manager 
       ServiceHandle<IGeoModelSvc>            m_geoModelSvc{this, "GeoModelSvc", "GeoModelSvc"};
       ToolHandle<Trk::IPropagator>           m_propTool        ; // Propagator            tool
-      ToolHandle<ITRT_TrackExtensionTool>    m_extensionTool   ; // TRT track extension   tool
+      ToolHandle<ITRT_TrackExtensionTool>    m_extensionTool
+         {this, "TrackExtensionTool", "InDet::TRT_TrackExtensionTool_xk"} ; // TRT track extension   tool
 
       Trk::MagneticFieldProperties           m_fieldprop       ; // Magnetic field properties
       const InDetDD::TRT_DetectorManager   * m_trtmgr          ;

@@ -22,7 +22,8 @@
 
 #include "TrigInDetAnalysisExample/ChainString.h"
 
-#include "TrkParticleCreator/TrackParticleCreatorTool.h"
+#include "xAODTracking/TrackParticle.h"
+#include "xAODTracking/TrackParticleContainer.h"
 
 #include "TTree.h"
 #include "TFile.h"
