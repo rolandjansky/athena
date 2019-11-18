@@ -958,10 +958,6 @@ void InDet::SiSpacePointsSeedMaker_ITK::buildFrameWork()
   
   if(m_ptmin < 100.) m_ptmin = 100.;
 
-//   if(m_diversss < m_diver   ) m_diversss = m_diver   ; 
-//   if(m_diverpps < m_diver   ) m_diverpps = m_diver   ;
-//   if(m_divermax < m_diversss) m_divermax = m_diversss;
-
   if(fabs(m_etamin) < .1) m_etamin = -m_etamax ;
   m_dzdrmax0  = 1./tan(2.*atan(exp(-m_etamax)));
   m_dzdrmin0  = 1./tan(2.*atan(exp(-m_etamin)));
@@ -986,7 +982,6 @@ void InDet::SiSpacePointsSeedMaker_ITK::buildFrameWork()
   // Build radius-azimuthal sorted containers
   //
   const float pi2     = 2.*M_PI            ;
-//   float ptm = 400.; if(m_ptmin < ptm) ptm = m_ptmin;
 
   int   NFmax    = 200            ;
 
