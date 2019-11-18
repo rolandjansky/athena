@@ -109,7 +109,10 @@ StatusCode ThinningHandleKey<T>::initialize (const std::string& stream,
   if (used) {
     std::string dkey = this->fullKey().key() + "_THINNED_" + stream;
     if (!qualifier.empty()) {
-      dkey += "." + qualifier;
+      // Make sure that the qualifier doesn't contain any periods.
+      std::string qual = qualifier;
+      std::replace (qual.begin(), qual.end(), '.', '_');
+      dkey += "." + qual;
     }
     m_decisionKey = dkey;
     if (this->owner()) {
@@ -154,12 +157,12 @@ template <class T>
 StatusCode ThinningHandleKey<T>::initialize (const std::string& stream,
                                              bool used /*= true*/)
 {
-  // Use the owner name as the default qualifier, but make sure it doesn't
-  // contain any periods.
+  // Use the owner name as the default qualifier.
+  // It's possible that the owner name contains periods, which we don't
+  // want here; these will be removed in the delegated @c initialize().
   std::string oname;
   if (this->owner()) {
     oname = this->owner()->name();
-    std::replace (oname.begin(), oname.end(), '.', '_');
   }
   return initialize (stream, oname, used);
 }
