@@ -49,6 +49,5 @@ if( NOT XAOD_STANDALONE )
    atlas_add_test( muon_id_test
                 SOURCES
                 test/muon_id_test.cxx
-                INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} Identifier IdDictParser GaudiKernel MuonIdHelpersLib )
+                LINK_LIBRARIES Identifier IdDictParser GaudiKernel MuonIdHelpersLib )
 endif()
