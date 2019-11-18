@@ -137,7 +137,6 @@ DbStatus RootDatabase::open(const DbDomain& domH,const std::string& nam,DbAccess
     
   }
 
-
   // FIXME: hack to avoid issue with setting up RecExCommon links
   if (m_fileMgr != nullptr && m_fileMgr->hasHandler(Io::ROOT).isFailure()) {
     log << DbPrintLvl::Info
@@ -146,6 +145,10 @@ DbStatus RootDatabase::open(const DbDomain& domH,const std::string& nam,DbAccess
 	<< DbPrint::endmsg;
     m_fileMgr = nullptr;
   }
+
+  // Lock ROOT::gCoreMutex before loading any dictionaries to avoid deadlocks
+  // see: https://its.cern.ch/jira/browse/ATR-20263
+  ROOT::TReadLockGuard lock (ROOT::gCoreMutex);
 
   if ( mode == pool::READ )   {
     if (m_fileMgr == nullptr) {
