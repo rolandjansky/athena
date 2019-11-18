@@ -44,12 +44,12 @@ namespace Trk {
 }
 
 
-class PixelAthClusterMonTool : public PixelAthMonitoringBase {
+class PixelAthClusterMonAlg : public PixelAthMonitoringBase {
 
  public:
   
-  PixelAthClusterMonTool( const std::string& name, ISvcLocator* pSvcLocator );
-  virtual ~PixelAthClusterMonTool();
+  PixelAthClusterMonAlg( const std::string& name, ISvcLocator* pSvcLocator );
+  virtual ~PixelAthClusterMonAlg();
   virtual StatusCode initialize() override;
   virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
   std::string findComponentString(int bec, int ld) const;

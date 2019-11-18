@@ -2,11 +2,11 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "PixelMonitoring/PixelAthErrorMonTool.h"
+#include "PixelMonitoring/PixelAthErrorMonAlg.h"
 #include "PixelMonitoring/PixelAthMonitoringBase.h"
 #include "InDetIdentifier/PixelID.h"
 
-PixelAthErrorMonTool::PixelAthErrorMonTool( const std::string& name, ISvcLocator* pSvcLocator ) : 
+PixelAthErrorMonAlg::PixelAthErrorMonAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthMonitorAlgorithm(name, pSvcLocator),
   m_pixelid(nullptr)
 {
@@ -20,10 +20,10 @@ PixelAthErrorMonTool::PixelAthErrorMonTool( const std::string& name, ISvcLocator
 }
 
 
-PixelAthErrorMonTool::~PixelAthErrorMonTool() {}
+PixelAthErrorMonAlg::~PixelAthErrorMonAlg() {}
 
 
-StatusCode PixelAthErrorMonTool::initialize() {
+StatusCode PixelAthErrorMonAlg::initialize() {
 
   ATH_CHECK( detStore()->retrieve(m_pixelid, "PixelID") );
   ATH_CHECK( m_pixelCondSummaryTool.retrieve() );
@@ -33,7 +33,7 @@ StatusCode PixelAthErrorMonTool::initialize() {
 }
 
 
-StatusCode PixelAthErrorMonTool::fillHistograms( const EventContext& ctx ) const {
+StatusCode PixelAthErrorMonAlg::fillHistograms( const EventContext& ctx ) const {
   using namespace Monitored;
 
   int lb = GetEventInfo(ctx)->lumiBlock();
@@ -48,7 +48,7 @@ StatusCode PixelAthErrorMonTool::fillHistograms( const EventContext& ctx ) const
   float num_errors[PixLayers::COUNT] = {0,1,2,3,4,5,6,7};
   // filling tbd
 
-  CHECK( fill1DProfLumiLayers("errors_per_lumi", lb, num_errors) );
+  fill1DProfLumiLayers("errors_per_lumi", lb, num_errors);
 
 
   //*******************************************************************************

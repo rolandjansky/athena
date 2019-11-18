@@ -3,7 +3,7 @@
 #
 
 '''
-@file PixelAthClusterMonToolCfg.py
+@file PixelAthClusterMonAlgCfg.py
 @brief Configuration of Pixel Monitoring Clusters, Tracks and Status Histograms for Run 3
 '''
 
@@ -11,13 +11,13 @@ from PixelMonitoring.PixelAthMonitoringBase import define2DProfHist, definePP0Hi
 from PixelMonitoring.PixelAthMonitoringBase import define1DLayers
 from PixelMonitoring.PixelAthMonitoringBase import define1DProfLumiLayers
 from PixelMonitoring.PixelAthMonitoringBase import layers, totcuts, xbinsem, xminsem, lumibinsx
-from PixelMonitoring.PixelAthMonitoringBase import addOnTrackTxt, fullDressTitle
+from PixelMonitoring.PixelAthMonitoringBase import addOnTrackTxt, addOnTrackToPath, fullDressTitle
 from RecExConfig.AutoConfiguration import GetRunNumber
 runNumber = GetRunNumber()
 runtext = ' (Run ' + str(runNumber) + ')'
 
 
-def PixelAthClusterMonToolCfg(helper, alg, **kwargs):
+def PixelAthClusterMonAlgCfg(helper, alg, **kwargs):
 
     doOnline  = kwargs.get('doOnline',  False)
     doLumiBlock = kwargs.get('doLumiBlock', False)
@@ -283,10 +283,3 @@ def PixelAthClusterMonToolCfg(helper, alg, **kwargs):
 
 
 ### end cluster histograms
-
-def addOnTrackToPath(name, ontrack):
-    if ontrack:
-        name += 'OnTrack/'
-    else:
-        name += '/'
-    return name

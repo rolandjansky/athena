@@ -18,12 +18,12 @@
 class PixelID;
 class IPixelByteStreamErrorsSvc;
 
-class PixelAthErrorMonTool : public PixelAthMonitoringBase {
+class PixelAthErrorMonAlg : public PixelAthMonitoringBase {
 
  public:
   
-  PixelAthErrorMonTool( const std::string& name, ISvcLocator* pSvcLocator );
-  virtual ~PixelAthErrorMonTool();
+  PixelAthErrorMonAlg( const std::string& name, ISvcLocator* pSvcLocator );
+  virtual ~PixelAthErrorMonAlg();
   virtual StatusCode initialize() override;
   virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
   std::string findComponentString(int bec, int ld) const;

@@ -3,10 +3,9 @@
 #
 
 '''
-@file PixelAthHitMonToolCfg.py
-@brief Configuration of Pixel Hit Monitoring Histograms for Run 3
+@file PixelAthErrorMonAlgCfg.py
+@brief Configuration of Pixel Error Monitoring Histograms for Run 3
 '''
-
 from PixelMonitoring.PixelAthMonitoringBase import define2DProfHist
 from PixelMonitoring.PixelAthMonitoringBase import define1DLayers
 from PixelMonitoring.PixelAthMonitoringBase import define1DProfLumiLayers
@@ -16,13 +15,19 @@ from RecExConfig.AutoConfiguration import GetRunNumber
 runNumber = GetRunNumber()
 runtext = ' (Run ' + str(runNumber) + ')'
 
-def PixelAthHitMonToolCfg(helper, alg, **kwargs):
+def PixelAthErrorMonAlgCfg(helper, alg, **kwargs):
     '''
     Arguments:
-         helper   -- AthMonitorCfgHelper(Old) instance
-         alg      -- algorithm Configurable object returned from addAlgorithm
+         helper  -- AthMonitorCfgHelper(Old) instance
+         alg     -- algorithm Configurable object returned from addAlgorithm
          kwargs  -- jo agruments
     '''
-    path        = '/Pixel/Hits/'
+    doOnline  = kwargs.get('doOnline',  False)
+
+    path        = '/Pixel/Errors/'
     pathLowStat = '/Pixel/LumiBlock/'
 
+    histoGroupName = 'errors_per_lumi'
+    title          = 'Average Total Errors'
+    yaxistext      = ';# errors/event'
+    define1DProfLumiLayers(helper, alg, histoGroupName, title, path, yaxistext, type='TProfile')
