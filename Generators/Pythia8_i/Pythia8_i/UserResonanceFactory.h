@@ -6,6 +6,7 @@
 #define GENERATOR_PYTHIA8_USER_RESONANCE_FACTORY_H
 
 #include "Pythia8/ResonanceWidths.h"
+#include "Pythia8/Pythia.h"
 
 #include <string>
 

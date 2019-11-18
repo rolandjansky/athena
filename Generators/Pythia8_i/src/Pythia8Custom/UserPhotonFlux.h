@@ -106,4 +106,21 @@ class UserPhotonFlux: public AthAlgTool, virtual public IPythia8Custom {
   double m_flux_min_x;
 };
 
+#ifdef PYTHIA_VERSION_INTEGER
+  #if PYTHIA_VERSION_INTEGER > 8300
+    typedef shared_ptr<PDF> PDFPtr;
+    typedef shared_ptr<Nucleus2gamma> Nucleus2gammaPtr;
+    #define PNEW(X, Y) make_shared<X>(Y);
+  #else
+    typedef Nucleus2gamma* Nucleus2gammaPtr;
+    typedef PDF* PDFPtr;
+    #define PNEW(X, Y) new X(Y);
+  #endif
+#else
+  typedef Nucleus2gamma* Nucleus2gammaPtr;
+  typedef PDF* PDFPtr;
+  #define PNEW(X, Y) new X(Y);
+#endif
+
+
 #endif

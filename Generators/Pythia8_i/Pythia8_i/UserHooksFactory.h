@@ -10,6 +10,16 @@
 #include <string>
 #include <map>
 
+#ifdef PYTHIA_VERSION_INTEGER
+  #if PYTHIA_VERSION_INTEGER > 8300
+    typedef std::shared_ptr<Pythia8::UserHooks> UserHooksPtrType;
+  #else
+    typedef Pythia8::UserHooks* UserHooksPtrType;
+  #endif
+#else
+  typedef Pythia8::UserHooks* UserHooksPtrType;
+#endif
+
 namespace Pythia8_UserHooks{
  
   using Pythia8::UserHooks;
@@ -20,7 +30,7 @@ namespace Pythia8_UserHooks{
     
   public:
     
-    static UserHooks* create(const string &hookName);
+    static UserHooksPtrType create(const string &hookName);
     
   private:
     
