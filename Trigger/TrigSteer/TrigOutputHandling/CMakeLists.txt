@@ -26,6 +26,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTrigMissingET
                           Event/xAOD/xAODTau
                           Event/xAOD/xAODTrigBphys
+                          Event/xAOD/xAODJet
                           Trigger/TrigSteer/DecisionHandling
                           Control/AthenaMonitoring
                           Trigger/TrigMonitoring/TrigCostMonitorMT

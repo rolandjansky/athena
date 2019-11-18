@@ -217,7 +217,7 @@ def expandPrereqs(reqtype,prereqs):
 #
 def getEventShapeAlg( constit, constitpjkey, nameprefix="" ):
 
-    rhokey = "Kt4"+constit.label+"EventShape"
+    rhokey = nameprefix+"Kt4"+constit.label+"EventShape"
     rhotoolname = "EventDensity_Kt4"+constit.label
     
     from EventShapeTools import EventShapeToolsConf
