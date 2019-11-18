@@ -108,6 +108,15 @@ namespace TrigCompositeUtils {
     return idSet.count( id ) != 0;
   }
 
+  ElementLink<DecisionContainer> decisionToElementLink(const Decision* d, const EventContext& ctx) {
+    const DecisionContainer* container = dynamic_cast<const DecisionContainer*>( d->container() );
+    if( ! container ) {
+      throw GaudiException("Using convertToElementLink(d) requires that the Decision d is already in a container",
+        "TrigCompositeUtils::convertToElementLink", StatusCode::FAILURE);
+    }
+    return ElementLink<DecisionContainer>(*container, d->index(), ctx);
+  }
+
   void linkToPrevious( Decision* d, const std::string& previousCollectionKey, size_t previousIndex ) {
     ElementLink<DecisionContainer> seed = ElementLink<DecisionContainer>( previousCollectionKey, previousIndex );
     if (!seed.isValid()) {
@@ -118,15 +127,7 @@ namespace TrigCompositeUtils {
   }
 
   void linkToPrevious( Decision* d, const Decision* dOld, const EventContext& ctx ) {
-
-    const DecisionContainer* container = dynamic_cast<const DecisionContainer*>( dOld->container() );
-    if( ! container ) {
-      throw GaudiException("Using linkToPrevious with a previous decision requires that dOld is already in a container",
-        "TrigCompositeUtils::linkToPrevious", StatusCode::FAILURE);
-    }    
-
-    const ElementLink<DecisionContainer> seedLink = ElementLink<DecisionContainer>(*container, dOld->index(), ctx);
-    d->addObjectCollectionLink(seedString(), seedLink);
+    d->addObjectCollectionLink(seedString(), decisionToElementLink(dOld, ctx));
   }
 
   bool hasLinkToPrevious( const Decision* d ) {
