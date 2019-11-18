@@ -57,7 +57,7 @@ public:
   // Derived classes customise initialisation
   void setFlowNetworkBuilder(std::unique_ptr<IFlowNetworkBuilder> );
   void setTotalCapacity(double c){m_totalCapacity = c;}
-  std::string toString() const {return m_flowNetworkBuilder -> toString();}
+  virtual std::string toString() const override {return m_flowNetworkBuilder -> toString();}
  private:
   std::size_t m_nConditions{0};    
 

@@ -51,9 +51,9 @@ UnifiedFlowNetworkMatcher::UnifiedFlowNetworkMatcher(ConditionsMT&& cs,
 
   // create the flow network builder. Foe each event this will
   // create a flow work from its conditions and the jets of the event.
-  setFlowNetworkBuilder(std::move(std::make_unique<UnifiedFlowNetworkBuilder>(std::move(cs),
-									      tree,
-									      sharedNodes))
+  setFlowNetworkBuilder(std::make_unique<UnifiedFlowNetworkBuilder>(std::move(cs),
+                                                                    tree,
+                                                                    sharedNodes)
 			);			
 }
 
