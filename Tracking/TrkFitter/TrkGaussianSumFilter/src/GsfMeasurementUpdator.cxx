@@ -12,14 +12,13 @@ decription           : Implementation code for GsfMeasurementUpdator class
 *********************************************************************************/
 
 #include "TrkGaussianSumFilter/GsfMeasurementUpdator.h"
-
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
-
 #include "TrkEventPrimitives/LocalParameters.h"
-
 #include "GaudiKernel/Chrono.h"
 #include "GaudiKernel/IChronoStatSvc.h"
+
+#include "PosteriorWeightsCalculator.h"
 
 Trk::GsfMeasurementUpdator::GsfMeasurementUpdator(const std::string type,
                                                   const std::string name,
@@ -39,11 +38,6 @@ Trk::GsfMeasurementUpdator::initialize()
     return StatusCode::FAILURE;
   }
 
-  // Retrieve the Posterior Weights Calculator
-  if (m_posteriorWeightsCalculator.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Could not find the Posterior Weights Calculator Service... Exiting!");
-    return StatusCode::FAILURE;
-  }
 
   // Request an instance of the MultiComponentStateAssembler
   if (m_stateAssembler.retrieve().isFailure()) {
@@ -183,8 +177,9 @@ Trk::GsfMeasurementUpdator::calculateFilterStep(const Trk::MultiComponentState& 
   }
 
   // Calculate the weight of each component after the measurement
-  std::unique_ptr<std::vector<Trk::ComponentParameters>> stateWithNewWeights = m_posteriorWeightsCalculator->weights(stateBeforeUpdate, 
-                                                                                                        measurement);
+  PosteriorWeightsCalculator pwc;
+  std::unique_ptr<std::vector<Trk::ComponentParameters>> stateWithNewWeights = pwc.weights(stateBeforeUpdate, 
+                                                                                           measurement);
 
   if (!stateWithNewWeights) {
     ATH_MSG_DEBUG("Cacluation of state posterior weights failed... Exiting!");
@@ -301,8 +296,9 @@ Trk::GsfMeasurementUpdator::calculateFilterStep(const Trk::MultiComponentState& 
   }
 
   // Calculate the weight of each component after the measurement
-  std::unique_ptr<std::vector<Trk::ComponentParameters>> stateWithNewWeights = m_posteriorWeightsCalculator->weights(stateBeforeUpdate, 
-                                                                                                       measurement);
+  PosteriorWeightsCalculator pwc;
+  std::unique_ptr<std::vector<Trk::ComponentParameters>> stateWithNewWeights = pwc.weights(stateBeforeUpdate, 
+                                                                                           measurement);
 
   if (!stateWithNewWeights) {
     ATH_MSG_DEBUG("Cacluation of state posterior weights failed... Exiting!");

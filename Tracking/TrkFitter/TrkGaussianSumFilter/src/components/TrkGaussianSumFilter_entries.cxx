@@ -3,7 +3,6 @@
 #include "TrkGaussianSumFilter/MultiComponentStateAssembler.h"
 #include "TrkGaussianSumFilter/MultiComponentStateCombiner.h"
 #include "TrkGaussianSumFilter/GsfCombinedMaterialEffects.h"
-#include "TrkGaussianSumFilter/PosteriorWeightsCalculator.h"
 #include "TrkGaussianSumFilter/GsfMaterialEffectsUpdator.h"
 #include "TrkGaussianSumFilter/MultipleScatteringEffects.h"
 #include "TrkGaussianSumFilter/GsfBetheHeitlerEffects.h"
@@ -19,7 +18,6 @@ DECLARE_COMPONENT( Trk::GsfMaterialMixtureConvolution )
 DECLARE_COMPONENT( Trk::MultiComponentStateAssembler )
 DECLARE_COMPONENT( Trk::MultiComponentStateCombiner )
 DECLARE_COMPONENT( Trk::GsfCombinedMaterialEffects )
-DECLARE_COMPONENT( Trk::PosteriorWeightsCalculator )
 DECLARE_COMPONENT( Trk::GsfMaterialEffectsUpdator )
 DECLARE_COMPONENT( Trk::MultipleScatteringEffects )
 DECLARE_COMPONENT( Trk::GsfBetheHeitlerEffects )
