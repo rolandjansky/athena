@@ -230,7 +230,7 @@ void InDet::RoISeedTool::getTrkMeasSeeds(std::vector<Amg::Vector3D>& trkseeds)
 // Get all RoI measurements from a list of vertices
 /////////////////////////////////////////////////////////////////////
 
-void InDet::RoISeedTool::getVtxSeeds(std::vector<Amg::Vector3D>& vtxseeds)
+void InDet::RoISeedTool::getVtxSeeds(std::vector<Amg::Vector3D>& /*vtxseeds*/)
 {
 
   // Undeveloped

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -178,6 +178,8 @@ namespace InDet{
       std::vector<InDet::SiDetElementBoundaryLink_xk> m_boundarySCT;
 
       bool                           m_passThroughExtension;
+      
+      bool                           m_doFastTracking; // define the Fast Tracking setup
 
       ///////////////////////////////////////////////////////////////////
       // Methods 
