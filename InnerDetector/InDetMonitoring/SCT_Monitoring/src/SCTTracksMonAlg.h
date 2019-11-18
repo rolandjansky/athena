@@ -27,7 +27,6 @@
 #include <vector>
 
 class SCT_ID;
-using namespace SCT_Monitoring;
 
 class SCTTracksMonAlg : public AthMonitorAlgorithm {
  public:
@@ -53,8 +52,6 @@ private:
   // Data members, which are changed during event processing
   // These have to be converted to local variables or be protected by std::atomic or std::mutex
   // before or when this tool is migrated to the new AthenaMT compatible DQ framework.
-  std::vector<int> m_nTracks_buf{}; // This requires a care in AthenaMT.
-  //  int m_nTracks_pos{0}; // This requires a care in AthenaMT.
   mutable std::atomic_int m_numberOfEvents{0}; // This should be conveted to std::atomic_int in AthenaMT.
 
 
