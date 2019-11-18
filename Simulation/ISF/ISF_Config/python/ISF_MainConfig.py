@@ -214,6 +214,12 @@ def getKernel_GenericSimulatorMT(name="ISF_Kernel_GenericSimulatorMT", **kwargs)
     #kwargs.setdefault("DoCPUMonitoring", ISF_Flags.DoTimeMonitoring())
     #kwargs.setdefault("DoMemoryMonitoring", ISF_Flags.DoMemoryMonitoring())
 
+    # Multi-threading settinggs
+    from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
+    is_hive = (concurrencyProps.ConcurrencyFlags.NumThreads() > 0)
+    if is_hive:
+        kwargs.setdefault('Cardinality', concurrencyProps.ConcurrencyFlags.NumThreads())
+
     from ISF_Algorithms.ISF_AlgorithmsConf import ISF__SimKernelMT
     SimKernelMT = ISF__SimKernelMT(name, **kwargs)
     ##FIXME shouldn't really be doing this here
