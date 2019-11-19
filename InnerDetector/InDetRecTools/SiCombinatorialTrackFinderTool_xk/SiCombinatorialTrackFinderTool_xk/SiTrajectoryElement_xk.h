@@ -559,8 +559,8 @@ namespace InDet{
 
      if(m_detstatus == 2) return false;
       if(m_nlinksF >  1 && m_linkF[1].xi2() <= m_xi2max) {
-	X+=m_linkF[1].xi2();
-	cl = true; return true;
+        X+=m_linkF[1].xi2();
+        cl = true; return true;
       }
 
       if(m_inside < 0) {
