@@ -109,8 +109,8 @@ def getHIGG5CommonTruthDictionExtionson() :
         "TruthHFWithDecayParticlesAux"       : "xAOD::TruthParticleAuxContainer" ,
         "HardScatterVertices"                : "xAOD::TruthVertexContainer" ,
         "HardScatterVerticesAux"             : "xAOD::TruthVertexAuxContainer" ,
-        "TruthBosonWithDecayVertices"        : "xAOD::TruthVertexContainer" ,
-        "TruthBosonWithDecayVerticesAux"     : "xAOD::TruthVertexAuxContainer" ,
+        "TruthBosonsWithDecayVertices"       : "xAOD::TruthVertexContainer" ,
+        "TruthBosonsWithDecayVerticesAux"    : "xAOD::TruthVertexAuxContainer" ,
         "TruthTopQuarkWithDecayVertices"     : "xAOD::TruthVertexContainer" ,
         "TruthTopQuarkWithDecayVerticesAux"  : "xAOD::TruthVertexAuxContainer" ,
         "TruthTausWithDecayVertices"         : "xAOD::TruthVertexContainer" ,
@@ -237,7 +237,7 @@ def getTruth3Collections(kernel) :
                                     prefix='Taus')
      #STEP9
      # Add back the navigation contect for the collections we want
-    addTruthCollectionNavigationDecorations(kernel,["HardScatterParticles","TruthBosonWithDecayParticles","TruthTopQuarkWithDecayParticles","TruthElectrons","TruthMuons","TruthTausWithDecayParticles","TruthNeutrinos","TruthBSM"])
+    addTruthCollectionNavigationDecorations(kernel,["HardScatterParticles","TruthBosonsWithDecayParticles","TruthTopQuarkWithDecayParticles","TruthElectrons","TruthMuons","TruthTausWithDecayParticles","TruthNeutrinos","TruthBSM"])
 
 
 
