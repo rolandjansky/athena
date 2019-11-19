@@ -59,8 +59,8 @@ def PixelOverlayCfg(flags):
     acc = ComponentAccumulator()
 
     # Add Pixel overlay digitization algorithm
-    from PixelDigitization.PixelDigitizationConfigNew import PixelDigitizationOverlayCfg
-    acc.merge(PixelDigitizationOverlayCfg(flags))
+    from PixelDigitization.PixelDigitizationConfigNew import PixelOverlayDigitizationCfg
+    acc.merge(PixelOverlayDigitizationCfg(flags))
     # Add Pixel overlay algorithm
     acc.merge(PixelOverlayAlgCfg(flags))
     # Add Pixel truth overlay
