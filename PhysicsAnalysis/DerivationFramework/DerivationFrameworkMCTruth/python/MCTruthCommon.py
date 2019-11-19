@@ -177,7 +177,8 @@ def addTruthJets(kernel=None, decorationDressing=None):
         if not 'truthpartcharged' in jtm.tools:
             jtm += CopyTruthJetParticles("truthpartcharged", OutputName="JetInputTruthParticlesCharged",
                                          MCTruthClassifier=jtm.JetMCTruthClassifier,
-                                         ChargedParticlesOnly=True
+                                         ChargedParticlesOnly=True,
+                                         BarCodeFromMetadata=barCodeFromMetadata
                                         )
         # Add a jet tool runner for this thing
         from JetRec.JetRecConf import JetToolRunner,JetAlgorithm,PseudoJetGetter
