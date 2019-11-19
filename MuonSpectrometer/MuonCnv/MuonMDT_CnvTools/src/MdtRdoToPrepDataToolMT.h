@@ -3,11 +3,11 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// MdtRdoToPrepDataTool.h, (c) ATLAS Detector software
+// MdtRdoToPrepDataToolMT.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#ifndef MUONMdtRdoToPrepDataTool_H
-#define MUONMdtRdoToPrepDataTool_H
+#ifndef MUONMdtRdoToPrepDataToolMT_H
+#define MUONMdtRdoToPrepDataToolMT_H
 
 #include "MdtRdoToPrepDataToolCore.h"
 
@@ -25,13 +25,13 @@ namespace Muon
       @author  Edward Moyse <Edward.Moyse@cern.ch>
   */  
 
-  class MdtRdoToPrepDataTool : virtual public MdtRdoToPrepDataToolCore
+  class MdtRdoToPrepDataToolMT : virtual public MdtRdoToPrepDataToolCore
   {
   public:
-    MdtRdoToPrepDataTool(const std::string&,const std::string&,const IInterface*);
+    MdtRdoToPrepDataToolMT(const std::string&,const std::string&,const IInterface*);
 
     /** default destructor */
-    virtual ~MdtRdoToPrepDataTool ();
+    virtual ~MdtRdoToPrepDataToolMT ();
 
     /** standard Athena-Algorithm method */
     virtual StatusCode initialize() override;

@@ -2,17 +2,17 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef MUONRDOTOPREPDATA_RPCRDOTOPREPDATATOOL_H
-#define MUONRDOTOPREPDATA_RPCRDOTOPREPDATATOOL_H
+#ifndef MUONRDOTOPREPDATA_RPCRDOTOPREPDATATOOLMT_H
+#define MUONRDOTOPREPDATA_RPCRDOTOPREPDATATOOLMT_H
 
 #include "RpcRdoToPrepDataToolCore.h"
 
 namespace Muon {
 
-class RpcRdoToPrepDataTool : virtual public RpcRdoToPrepDataToolCore {
+class RpcRdoToPrepDataToolMT : virtual public RpcRdoToPrepDataToolCore {
 public:
-  RpcRdoToPrepDataTool( const std::string&, const std::string&, const IInterface* );
-  virtual ~RpcRdoToPrepDataTool();
+  RpcRdoToPrepDataToolMT( const std::string&, const std::string&, const IInterface* );
+  virtual ~RpcRdoToPrepDataToolMT();
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
 

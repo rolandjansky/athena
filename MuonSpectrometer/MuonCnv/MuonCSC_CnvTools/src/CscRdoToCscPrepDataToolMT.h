@@ -2,8 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef MUONCSC_CNVTOOLS_CSCRDOTOCSCPREPDATATOOL_H
-#define MUONCSC_CNVTOOLS_CSCRDOTOCSCPREPDATATOOL_H 
+#ifndef MUONCSC_CNVTOOLS_CSCRDOTOCSCPREPDATATOOLMT_H
+#define MUONCSC_CNVTOOLS_CSCRDOTOCSCPREPDATATOOLMT_H 
 
 #include "CscRdoToCscPrepDataToolCore.h"
 
@@ -22,21 +22,21 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 namespace Muon {
-  class CscRdoToCscPrepDataTool : public CscRdoToCscPrepDataToolCore {
+  class CscRdoToCscPrepDataToolMT : public CscRdoToCscPrepDataToolCore {
 
   public:
     
-    CscRdoToCscPrepDataTool(const std::string& type, const std::string& name,
+    CscRdoToCscPrepDataToolMT(const std::string& type, const std::string& name,
                             const IInterface* parent);
     
     /** destructor 
      */ 
-    virtual ~CscRdoToCscPrepDataTool();
+    virtual ~CscRdoToCscPrepDataToolMT();
     
     virtual StatusCode initialize() override;
     
     virtual StatusCode finalize() override;
-    
+
     using CscRdoToCscPrepDataToolCore::decode;
     
     virtual StatusCode decode(std::vector<IdentifierHash>& givenIdhs, std::vector<IdentifierHash>& decodedIdhs) override;

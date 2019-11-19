@@ -3,14 +3,14 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// sTgcRdoToPrepDataTool.cxx, (c) ATLAS Detector software
+// sTgcRdoToPrepDataToolMT.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#include "sTgcRdoToPrepDataTool.h"
+#include "sTgcRdoToPrepDataToolMT.h"
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
 
 
-Muon::sTgcRdoToPrepDataTool::sTgcRdoToPrepDataTool(const std::string& t,
+Muon::sTgcRdoToPrepDataToolMT::sTgcRdoToPrepDataToolMT(const std::string& t,
 						   const std::string& n,
 						   const IInterface*  p )
   :
@@ -19,11 +19,11 @@ Muon::sTgcRdoToPrepDataTool::sTgcRdoToPrepDataTool(const std::string& t,
 {
 }
 
-Muon::sTgcRdoToPrepDataTool::~sTgcRdoToPrepDataTool()
+Muon::sTgcRdoToPrepDataToolMT::~sTgcRdoToPrepDataToolMT()
 {
 }
 
-StatusCode Muon::sTgcRdoToPrepDataTool::initialize()
+StatusCode Muon::sTgcRdoToPrepDataToolMT::initialize()
 {  
   ATH_MSG_VERBOSE("Starting init");
   ATH_CHECK( sTgcRdoToPrepDataToolCore::initialize() );
@@ -31,12 +31,12 @@ StatusCode Muon::sTgcRdoToPrepDataTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode Muon::sTgcRdoToPrepDataTool::finalize()
+StatusCode Muon::sTgcRdoToPrepDataToolMT::finalize()
 {
   return sTgcRdoToPrepDataToolCore::finalize();
 }
 
-Muon::sTgcRdoToPrepDataToolCore::SetupSTGC_PrepDataContainerStatus Muon::sTgcRdoToPrepDataTool::setupSTGC_PrepDataContainer() 
+Muon::sTgcRdoToPrepDataToolCore::SetupSTGC_PrepDataContainerStatus Muon::sTgcRdoToPrepDataToolMT::setupSTGC_PrepDataContainer() 
 {
 
   if(!evtStore()->contains<Muon::sTgcPrepDataContainer>(m_stgcPrepDataContainerKey.key())){    

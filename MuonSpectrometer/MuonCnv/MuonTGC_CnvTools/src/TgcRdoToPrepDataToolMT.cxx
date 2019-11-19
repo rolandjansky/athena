@@ -6,23 +6,23 @@
 // TGC_CnvTool.cxx, (c) ATLAS Detector software
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "TgcRdoToPrepDataTool.h"
+#include "TgcRdoToPrepDataToolMT.h"
 
 #include "MuonDigitContainer/TgcDigit.h"
 #include "MuonTrigCoinData/TgcCoinData.h"
 
 
-Muon::TgcRdoToPrepDataTool::TgcRdoToPrepDataTool(const std::string& t, const std::string& n, const IInterface* p)
+Muon::TgcRdoToPrepDataToolMT::TgcRdoToPrepDataToolMT(const std::string& t, const std::string& n, const IInterface* p)
   : AthAlgTool(t, n, p), 
     TgcRdoToPrepDataToolCore(t, n, p)
 {
 }  
 
-Muon::TgcRdoToPrepDataTool::~TgcRdoToPrepDataTool()
+Muon::TgcRdoToPrepDataToolMT::~TgcRdoToPrepDataToolMT()
 {
 }
 
-StatusCode Muon::TgcRdoToPrepDataTool::initialize()
+StatusCode Muon::TgcRdoToPrepDataToolMT::initialize()
 {
   ATH_MSG_VERBOSE("Starting init");
   ATH_CHECK( TgcRdoToPrepDataToolCore::initialize() );
@@ -30,14 +30,16 @@ StatusCode Muon::TgcRdoToPrepDataTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode Muon::TgcRdoToPrepDataTool::finalize()
+StatusCode Muon::TgcRdoToPrepDataToolMT::finalize()
 {
   return TgcRdoToPrepDataToolCore::finalize();
 }
 
-StatusCode Muon::TgcRdoToPrepDataTool::decode(std::vector<IdentifierHash>& requestedIdHashVect, 
+StatusCode Muon::TgcRdoToPrepDataToolMT::decode(std::vector<IdentifierHash>& requestedIdHashVect, 
   std::vector<IdentifierHash>& selectedIdHashVect)
 {
+  // MT version of this method always adds containers. Caching will be added later.
+
   int sizeVectorRequested = requestedIdHashVect.size();
   ATH_MSG_DEBUG("decode for " << sizeVectorRequested << " offline collections called");
 
@@ -54,58 +56,26 @@ StatusCode Muon::TgcRdoToPrepDataTool::decode(std::vector<IdentifierHash>& reque
 
   /// clean up containers for Hits
   for(int ibc=0; ibc<NBC+1; ibc++) {      
-    int bcTag=ibc+1;
- 
-    if(!evtStore()->contains<Muon::TgcPrepDataContainer>(m_outputprepdataKeys.at(ibc).key())) {
-
-     
-      // initialize with false  
-      std::fill(m_decodedOnlineId.begin(), m_decodedOnlineId.end(), false);
-      SG::WriteHandle<TgcPrepDataContainer>  handle(m_outputprepdataKeys[ibc]);
-      
-      // record the container in storeGate
-      handle = std::unique_ptr<TgcPrepDataContainer> (new TgcPrepDataContainer(m_muonIdHelperTool->tgcIdHelper().module_hash_max()));
-      // cache the pointer, storegate retains ownership
-      m_tgcPrepDataContainer[ibc] = handle.ptr();
-      if(!handle.isValid()) {
-	ATH_MSG_FATAL("Could not record container of TGC PrepRawData at " << m_outputprepdataKeys[ibc].key());
-	return StatusCode::FAILURE;
-      } else {
-	ATH_MSG_DEBUG("TGC PrepData Container recorded in StoreGate with key " << m_outputprepdataKeys[ibc].key());
-      }
-
-      //true: un-seeded mode (no need to decode this event after this execution)
-      //false: seeded mode (still need to decode this event even after this execution) 
-      m_fullEventDone[ibc] = sizeVectorRequested==0;
-
-      m_decodedRdoCollVec.clear(); // The information of decoded RDO in the previous event is cleared. 
+    // initialize with false  
+    std::fill(m_decodedOnlineId.begin(), m_decodedOnlineId.end(), false);
+    SG::WriteHandle<TgcPrepDataContainer>  handle(m_outputprepdataKeys[ibc]);
+    
+    // record the container in storeGate
+    handle = std::unique_ptr<TgcPrepDataContainer> (new TgcPrepDataContainer(m_muonIdHelperTool->tgcIdHelper().module_hash_max()));
+    // cache the pointer, storegate retains ownership
+    m_tgcPrepDataContainer[ibc] = handle.ptr();
+    if(!handle.isValid()) {
+      ATH_MSG_FATAL("Could not record container of TGC PrepRawData at " << m_outputprepdataKeys[ibc].key());
+      return StatusCode::FAILURE;
+    } else {
+      ATH_MSG_DEBUG("TGC PrepData Container recorded in StoreGate with key " << m_outputprepdataKeys[ibc].key());
     }
-    else {
-      const TgcPrepDataContainer* tgcPrepDataContainer_c = nullptr;
-      ATH_CHECK( evtStore()->retrieve (tgcPrepDataContainer_c, m_outputprepdataKeys[ibc].key()) );
-      m_tgcPrepDataContainer[ibc] = const_cast<TgcPrepDataContainer*> (tgcPrepDataContainer_c);
 
-      // If you come here, this event is partially or fully decoded.
-      ATH_MSG_DEBUG("TGC PrepData Container at " << 
-		    (bcTag==TgcDigit::BC_PREVIOUS ? "Previous"
-		     :  (bcTag==TgcDigit::BC_NEXT ? "Next" 
-                         :  (bcTag==(NBC+1) ? "All" : "Current"))) << 
-		    " BC is already in StoreGate");
+    //true: un-seeded mode (no need to decode this event after this execution)
+    //false: seeded mode (still need to decode this event even after this execution) 
+    m_fullEventDone[ibc] = sizeVectorRequested==0;
 
-      if(m_fullEventDone[ibc]) { // un-seeded mode has been used for this event 
-        ATH_MSG_DEBUG("Whole events at " << 
-		      (bcTag==TgcDigit::BC_PREVIOUS ? "Previous"
-		       :  (bcTag==TgcDigit::BC_NEXT ? "Next" 
-                           :  (bcTag==(NBC+1) ? "All" : "Current"))) << 
-		      " BC have already been decoded; nothing to do");
-	nothingToDo[ibc] = true;
-	continue;
-      }
-
-      if(sizeVectorRequested==0) { // un-seeded mode will be used
-	m_fullEventDone[ibc] = true; // no need to decode this event after this execution
-      }
-    }
+    m_decodedRdoCollVec.clear(); // The information of decoded RDO in the previous event is cleared. 
   }
   
   // If at least one BC has to do something, nothingToDoForAllBC should be false.  
@@ -122,28 +92,20 @@ StatusCode Muon::TgcRdoToPrepDataTool::decode(std::vector<IdentifierHash>& reque
   
   /// clean up containers for Coincidence
   for(int ibc=0; ibc<NBC; ibc++) {
+    // this happens the first time in the event !
+    SG::WriteHandle<TgcCoinDataContainer>  handle(m_outputCoinKeys[ibc]);
+    
+    // record the container in storeGate
+    handle = std::unique_ptr<TgcCoinDataContainer> (new TgcCoinDataContainer(m_muonIdHelperTool->tgcIdHelper().module_hash_max()));
+    
+    // cache the pointer, storegate retains ownership
+    m_tgcCoinDataContainer[ibc] = handle.ptr();
 
-    if(!evtStore()->contains<Muon::TgcCoinDataContainer>(m_outputCoinKeys.at(ibc).key())) {
-      // this happens the first time in the event !
-      SG::WriteHandle<TgcCoinDataContainer>  handle(m_outputCoinKeys[ibc]);
-      
-      // record the container in storeGate
-      handle = std::unique_ptr<TgcCoinDataContainer> (new TgcCoinDataContainer(m_muonIdHelperTool->tgcIdHelper().module_hash_max()));
-      
-      // cache the pointer, storegate retains ownership
-      m_tgcCoinDataContainer[ibc] = handle.ptr();
-
-      if(!handle.isValid()) {
-        ATH_MSG_FATAL("Could not record container of TGC CoinData at " << m_outputCoinKeys[ibc].key());
-        return StatusCode::FAILURE;
-      } else {
-        ATH_MSG_DEBUG("TGC CoinData Container recorded in StoreGate with key " << m_outputCoinKeys[ibc].key());
-      }
+    if(!handle.isValid()) {
+      ATH_MSG_FATAL("Could not record container of TGC CoinData at " << m_outputCoinKeys[ibc].key());
+      return StatusCode::FAILURE;
     } else {
-      ATH_MSG_DEBUG("TGC CoinData Container is already in StoreGate");
-      const TgcCoinDataContainer* tgcCoinDataContainer_c = nullptr;
-      ATH_CHECK( evtStore()->retrieve (tgcCoinDataContainer_c, m_outputCoinKeys[ibc].key()) );
-      m_tgcCoinDataContainer[ibc] = const_cast<TgcCoinDataContainer*> (tgcCoinDataContainer_c);
+      ATH_MSG_DEBUG("TGC CoinData Container recorded in StoreGate with key " << m_outputCoinKeys[ibc].key());
     }
   }
 
