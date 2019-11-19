@@ -73,7 +73,7 @@ def getHIGG5Common() :
     return Common
 
 def getHIGG5CommonTruthContainers() :
-    return ["TruthPrimaryVertices","HardScatterParticles","HardScatterVertices","TruthBosonWithDecayParticles","TruthBosonWithDecayVertices","TruthTopQuarkWithDecayParticles","TruthTopQuarkWithDecayVertices","TruthElectrons","TruthMuons","TruthTaus","TruthTausWithDecayParticles","TruthTausWithDecayVertices","TruthTaus","TruthNeutrinos","TruthBSM","TruthHFWithDecayParticles","TruthHFWithDecayVertices"]
+    return ["TruthPrimaryVertices","HardScatterParticles","HardScatterVertices","TruthBosonsWithDecayParticles","TruthBosonsWithDecayVertices","TruthTopQuarkWithDecayParticles","TruthTopQuarkWithDecayVertices","TruthElectrons","TruthMuons","TruthTaus","TruthTausWithDecayParticles","TruthTausWithDecayVertices","TruthTaus","TruthNeutrinos","TruthBSM","TruthHFWithDecayParticles","TruthHFWithDecayVertices"]
 
 def getHIGG5CommonTruth() :
     return [
@@ -99,8 +99,8 @@ def getHIGG5CommonTruthDictionExtionson() :
         "TruthBSMAux"                        : "xAOD::TruthParticleAuxContainer" ,
         "HardScatterParticles"               : "xAOD::TruthParticleContainer" ,
         "HardScatterParticlesAux"            : "xAOD::TruthParticleAuxContainer" ,
-        "TruthBosonWithDecayParticles"       : "xAOD::TruthParticleContainer" ,
-        "TruthBosonWithDecayParticlesAux"    : "xAOD::TruthParticleAuxContainer" ,
+        "TruthBosonsWithDecayParticles"      : "xAOD::TruthParticleContainer" ,
+        "TruthBosonsWithDecayParticlesAux"   : "xAOD::TruthParticleAuxContainer" ,
         "TruthTopQuarkWithDecayParticles"    : "xAOD::TruthParticleContainer" ,
         "TruthTopQuarkWithDecayParticlesAux" : "xAOD::TruthParticleAuxContainer" ,
         "TruthTausWithDecayParticles"        : "xAOD::TruthParticleContainer" ,
