@@ -163,7 +163,7 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
         # we could define a TriggerJetMods module if settings need to
         # diverge substantially e.g. track/vertex collections
         calibMods = JetRecoConfiguration.defineCalibFilterMods(jetRecoDict,dataSource, rhoKey)
-        jetModList = calibMods
+        jetModList += calibMods
 
         # Generate a JetAlgorithm to run the jet finding and modifiers
         # (via a JetRecTool instance).

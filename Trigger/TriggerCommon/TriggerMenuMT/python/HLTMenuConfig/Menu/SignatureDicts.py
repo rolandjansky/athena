@@ -92,14 +92,16 @@ JetChainParts = {
     'threshold'    : '',
     'multiplicity' : '',
     'etaRange'     : ['0eta320', '320eta490', '0eta240'],
-    'gscThreshold' : ['gsc'],
+    # May need to reinstate in the event that preselection is
+    # needed before running tracking
+    #'gscThreshold' : ['gsc'],
     'trigType'     : ['j'],
     'extra'        : [],
     'cleaning'     : ['noCleaning',],
     'recoAlg'      : ['a4', 'a10', 'a10r', 'a10t'],
     'dataType'     : ['tc'],
     'calib'        : ['em', 'lcw'],
-    'jetCalib'     : ['jes', 'subjes', 'subjesIS', 'nojcalib'],
+    'jetCalib'     : ['jes', 'subjes', 'subjesIS', 'subjesgscIS', 'nojcalib'],
     'scan'         : ['FS',],
     'addInfo'      : ['perf'],    
 

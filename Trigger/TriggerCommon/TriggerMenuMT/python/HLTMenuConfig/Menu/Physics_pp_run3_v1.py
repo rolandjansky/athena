@@ -84,10 +84,10 @@ def setupMenu():
     ]
 
     TriggerFlags.BjetSlice.signatures = [
-        ChainProp(name="HLT_j175_ftf_gsc225_bmv2c1040_split_L1J100", groups=SingleBjetGroup),
-        ChainProp(name="HLT_j225_ftf_gsc275_bmv2c1060_split_L1J100", groups=SingleBjetGroup),
-        ChainProp(name="HLT_j225_ftf_gsc300_bmv2c1070_split_L1J100", groups=SingleBjetGroup),
-        ChainProp(name="HLT_j225_ftf_gsc360_bmv2c1077_split_L1J100", groups=SingleBjetGroup),
+        ChainProp(name="HLT_j225_ftf_subjesgscIS_bmv2c1040_split_L1J100", groups=SingleBjetGroup),
+        ChainProp(name="HLT_j275_ftf_subjesgscIS_bmv2c1060_split_L1J100", groups=SingleBjetGroup),
+        ChainProp(name="HLT_j300_ftf_subjesgscIS_bmv2c1070_split_L1J100", groups=SingleBjetGroup),
+        ChainProp(name="HLT_j360_ftf_subjesgscIS_bmv2c1077_split_L1J100", groups=SingleBjetGroup),
     ] 
 
     TriggerFlags.TauSlice.signatures = [
