@@ -7,7 +7,9 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.MET.METChainConfiguration")
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 
-from TriggerMenuMT.HLTMenuConfig.MET.METMenuSequences import metCellMenuSequence, metClusterPufitMenuSequence, metJetMenuSequence
+from TriggerMenuMT.HLTMenuConfig.MET.METMenuSequences import (
+        metCellMenuSequence, metClusterPufitMenuSequence, metJetMenuSequence,
+        metTrkMHTMenuSequence)
 
 #----------------------------------------------------------------
 # fragments generating configuration will be functions in New JO, 
@@ -24,7 +26,8 @@ def MetClusterPufitSequenceCfg( flags ):
 def MetJetSequenceCfg( flags ):    
    return metJetMenuSequence()
 
-
+def MetTrkMHTSequenceCfg( flags ):
+    return metTrkMHTMenuSequence()
 
 #----------------------------------------------------------------
 # Class to configure chain
@@ -47,6 +50,7 @@ class MetChainConfiguration(ChainConfigurationBase):
             "cell":[self.getMetCellStep()],
             "tcpufit":[self.getMetClusterPufitStep()],
             "mht":[self.getMetJetStep()],
+            "trkmht" : [self.getMetTrkMHTStep()],
         }
         
 
@@ -79,7 +83,9 @@ class MetChainConfiguration(ChainConfigurationBase):
     def getMetClusterPufitStep(self):
         return self.getStep(1,"met_clusterpufit", [MetClusterPufitSequenceCfg] )
      
-            
+    # Configuration of trkmht chain
+    def getMetTrkMHTStep(self):
+        return self.getStep(1, "met_trkmht", [MetTrkMHTSequenceCfg] )
 
         
                 
