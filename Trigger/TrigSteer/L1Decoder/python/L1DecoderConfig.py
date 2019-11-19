@@ -177,6 +177,6 @@ if __name__ == "__main__":
     acc, alg = L1DecoderCfg( ConfigFlags )
     acc.addEventAlgo(alg)
 
-    f=open("L1DecoderConf.pkl","w")
+    f=open("L1DecoderConf.pkl","wb")
     acc.store(f)
     f.close()

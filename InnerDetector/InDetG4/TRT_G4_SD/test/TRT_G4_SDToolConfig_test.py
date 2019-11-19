@@ -52,7 +52,7 @@ if __name__ == '__main__':
   cfg.printConfig(withDetails=True, summariseProps = True)
   ConfigFlags.dump()
 
-  f=open("test.pkl","w")
+  f=open("test.pkl","wb")
   cfg.store(f)
   f.close()
 

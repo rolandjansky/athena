@@ -468,5 +468,5 @@ if __name__ == "__main__":
     acc.merge( rsc )
 
     acc.printConfig()
-    acc.store( open("test.pkl", "w") )
+    acc.store( open("test.pkl", "wb") )
     print('All ok')

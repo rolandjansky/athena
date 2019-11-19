@@ -405,7 +405,7 @@ if __name__=="__main__":
 #    cfg.getService("StoreGateSvc").Dump=True
 
     cfg.run(10)
-    #f=open("CaloTopoCluster.pkl","w")
+    #f=open("CaloTopoCluster.pkl","wb")
     #cfg.store(f)
     #f.close()
     

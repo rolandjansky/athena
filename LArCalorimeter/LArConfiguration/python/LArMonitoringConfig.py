@@ -66,7 +66,7 @@ if __name__=='__main__':
    cfg.printConfig()
 
    ConfigFlags.dump()
-   f=open("LArMonitoring.pkl","w")
+   f=open("LArMonitoring.pkl","wb")
    cfg.store(f)
    f.close()
 

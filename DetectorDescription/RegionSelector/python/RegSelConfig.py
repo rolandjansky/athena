@@ -167,7 +167,7 @@ if __name__ == "__main__":
 
     cfg.getService("IOVDbSvc").OutputLevel=DEBUG
     
-    cfg.store( file( "test.pkl", "w" ) )
+    cfg.store( file( "test.pkl", "wb" ) )
     print("used flags")
     ConfigFlags.dump()
     cfg.run(0)

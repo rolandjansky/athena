@@ -808,7 +808,7 @@ if __name__=="__main__":
     
     # cfg.getService("StoreGateSvc").Dump = True
     cfg.printConfig()
-    f=open("MuonSegmentFinding.pkl","w")
+    f=open("MuonSegmentFinding.pkl","wb")
     cfg.store(f)
     f.close()
 

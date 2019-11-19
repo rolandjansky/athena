@@ -264,7 +264,7 @@ if __name__=='__main__':
     collmon.getEventAlgo("larCollTimeMonAlg").nCells=1
     collmon.getEventAlgo("larCollTimeMonAlg").TrainFrontDistance=30
     cfg.merge(collmon) 
-    f=open("CollTimeMon.pkl","w")
+    f=open("CollTimeMon.pkl","wb")
     cfg.store(f)
     f.close()
    

@@ -75,7 +75,7 @@ if __name__=="__main__":
     acc=LArBadChannelMaskerCfg(ConfigFlags,["allDead",])
     masker=acc.popPrivateTools()
     cfg.merge(acc)
-    f=open("LArBCCondAlgos.pkl","w")
+    f=open("LArBCCondAlgos.pkl","wb")
     cfg.store(f)
     f.close()
     

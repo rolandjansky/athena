@@ -123,7 +123,7 @@ if __name__ == "__main__":
     print(acc.getPublicTool("LArRoI_Map"))
 
     print("running this configuration")
-    of = open("test.pkl", "w")
+    of = open("test.pkl", "wb")
     acc.store(of)
     of.close()
 

@@ -223,6 +223,6 @@ if __name__=="__main__":
     acc.setAppProperty("EvtMax",-1)
 
     acc.run()
-    f=open("BTag.pkl","w")
+    f=open("BTag.pkl","wb")
     acc.store(f)
     f.close()

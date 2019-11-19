@@ -570,7 +570,7 @@ if __name__=="__main__":
     
     cfg.printConfig(withDetails = True, summariseProps = True)
               
-    f=open("MuonTrackBuilding.pkl","w")
+    f=open("MuonTrackBuilding.pkl","wb")
     cfg.store(f)
     f.close()
     
