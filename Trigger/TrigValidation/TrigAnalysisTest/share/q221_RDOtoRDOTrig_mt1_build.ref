@@ -158,7 +158,5 @@ TrigSignatureMoniMT                                INFO HLT_xe30_mht_L1XE10     
 TrigSignatureMoniMT                                INFO HLT_xe30_mht_L1XE10 decisions                     0         0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_xe30_tcpufit_L1XE10       0         0         0         0         0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_xe30_tcpufit_L1XE10 decisions                    0         0         0         0         0         0
-TrigSignatureMoniMT                                INFO HLT_xe30_trkmht_L1XE10        0         0         0         0         0         0         0         0         0
-TrigSignatureMoniMT                                INFO HLT_xe30_trkmht_L1XE10 decisions                    0         0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_xe65_cell_L1XE50          0         0         0         0         0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_xe65_cell_L1XE50 decisions                    0         0         0         0         0         0

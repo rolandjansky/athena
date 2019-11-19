@@ -5,14 +5,10 @@ from AthenaCommon.CFElements import seqAND
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool
 
-from TrigEFMissingET.TrigEFMissingETConf import (
-        EFMissingETAlgMT, EFMissingETFlagsMT, HLT__MET__TrkMHTFex)
+from TrigEFMissingET.TrigEFMissingETConf import EFMissingETAlgMT, EFMissingETFlagsMT
 from TrigEFMissingET.TrigEFMissingETMTConfig import getMETMonTool
 
 from TrigT2CaloCommon.CaloDef import clusterFSInputMaker
-import GaudiKernel.SystemOfUnits as Units
-from AthenaCommon.Logging import logging
-log = logging.getLogger(__name__)
 
 def metCellAthSequence(ConfigFlags):
     InputMakerAlg= clusterFSInputMaker()
@@ -155,41 +151,4 @@ def metJetRecoSequence(RoIs = 'FSJETRoI'):
 
     seqOut = metAlg.METContainerKey
     return (metJetRecoSequence, seqOut)
-
-def metTrkMHTAthSequence(ConfigFlags):
-    InputMakerAlg = clusterFSInputMaker()
-    reco_seq, seq_out = metTrkMHTRecoSequence()
-    ath_seq = seqAND("MetTrkMHTAthSequence", [InputMakerAlg, reco_seq])
-    return ath_seq, InputMakerAlg, seq_out
-
-def metTrkMHTRecoSequence():
-
-    # Prepare the inputs from the jet slice
-    from TriggerMenuMT.HLTMenuConfig.Jet.JetRecoSequences import jetRecoSequence
-    jetRecoDict={"recoAlg":"a4", "dataType": "tc", "calib": "em", "jetCalib": "subjesIS", "trkopt": "ftf", "cleaning": "noCleaning"}
-    (jetSeq, jetOut) = RecoFragmentsPool.retrieve( jetRecoSequence, None, dataSource="data", **jetRecoDict )
-
-    # These are the names set by the downstream algorithms. Unfortunately these
-    # aren't passed to us - we just have to 'know' them
-    tracks = "HLT_xAODTracks_FS"
-    vertices = "HLT_EFHistoPrmVtx"
-    tva = "JetTrackVtxAssoc_{trkopt}".format(**jetRecoDict)
-    track_links = "GhostTrack_{trkopt}".format(**jetRecoDict)
-
-    alg = HLT__MET__TrkMHTFex(
-            name="EFMET_trkmht",
-            METContainerKey = recordable("HLT_MET_trkmht"),
-            MonTool = getMETMonTool(),
-            JetName = jetOut,
-            TrackName = tracks,
-            VertexName = vertices,
-            TVAName = tva,
-            TrackLinkName = track_links)
-    alg.TrackSelTool.CutLevel = "Loose"
-    alg.TrackSelTool.maxZ0SinTheta = 1.5
-    alg.TrackSelTool.maxD0overSigmaD0 = 3
-    alg.TrackSelTool.minPt = 1 * Units.GeV
-
-    reco_seq = seqAND("metTrkMHTRecoSequence", [jetSeq, alg])
-    return (reco_seq, alg.METContainerKey)
 
