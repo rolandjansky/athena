@@ -86,6 +86,8 @@ class CscIdHelper : public MuonIdHelper
 					IdentifierHash& hash_id ) const;
   int get_geo_channel_hash(const Identifier&, IdentifierHash&) const;
 
+  int get_hash_fromGeoHash(const IdentifierHash& geoHash, IdentifierHash& realHash, const IdContext* context) const;
+
   ///////////// compact identifier stuff ends ////////////////////////////////////// 
   
 
