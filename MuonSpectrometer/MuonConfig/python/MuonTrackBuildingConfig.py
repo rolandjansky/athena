@@ -18,6 +18,8 @@ def MooTrackFitterCfg(flags, name = 'MooTrackFitter', **kwargs):
     kwargs.setdefault("Fitter",          mctb_fitter)
     kwargs.setdefault("FitterPreFit",          mctb_fitter)
     
+    # FIXME MuPatHitTool currently isn't configured, but should be.
+    MuPatHitToolCfg
     acc = MuPatHitToolCfg(flags)
     mu_pat_hit_tool = acc.getPrimary()
     result.addPublicTool(mu_pat_hit_tool)
@@ -486,63 +488,13 @@ def MuonTrackBuildingCfg(flags):
 if __name__=="__main__":
     # To run this, do e.g. 
     # python -m MuonConfig.MuonTrackBuildingConfig --run --threads=
-    
-    from argparse import ArgumentParser    
-    parser = ArgumentParser()
-    parser.add_argument("-t", "--threads", type=int,
-                        help="number of threads", default=1)
-                        
-    parser.add_argument("-o", "--output", default='newESD.pool.root',
-                        help="write ESD to FILE", metavar="FILE")
-                        
-    parser.add_argument("--run", help="Run directly from the python. If false, just stop once the pickle is written.",
-                        action="store_true")
+    from MuonConfig.MuonConfigUtils import SetupMuonStandaloneArguments, SetupMuonStandaloneConfigFlags, SetupMuonStandaloneOutput, SetupMuonStandaloneCA
 
-    parser.add_argument("--forceclone", help="Override default cloneability of algorithms to force them to run in parallel",
-                        action="store_true")
-                        
-    args = parser.parse_args()    
-    
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
-
-    from AthenaCommon.Logging import log
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    
-    ConfigFlags.Concurrency.NumThreads=args.threads
-    ConfigFlags.Concurrency.NumConcurrentEvents=args.threads # Might change this later, but good enough for the moment.
-
-    ConfigFlags.Detector.GeometryMDT   = True 
-    ConfigFlags.Detector.GeometryTGC   = True
-    ConfigFlags.Detector.GeometryCSC   = True     
-    ConfigFlags.Detector.GeometryRPC   = True 
-        
-    # from AthenaConfiguration.TestDefaults import defaultTestFiles
-    # ConfigFlags.Input.Files = defaultTestFiles.ESD
-    ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/ESD.16747874._000011_100events.pool.root']
-    ConfigFlags.Output.ESDFileName=args.output
-
-    # from AthenaCommon.Constants import DEBUG
-    # log.setLevel(DEBUG)
-    # log.info('About to set up Muon Track Building.')
-    
-    ConfigFlags.Input.isMC = True
-    ConfigFlags.lock()
-    ConfigFlags.dump()
-
-    # When running from a pickled file, athena inserts some services automatically. So only use this if running now.
-    if args.run:
-        from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
-        cfg = MainServicesThreadedCfg(ConfigFlags)
-        msgService = cfg.getService('MessageSvc')
-        msgService.Format = "S:%s E:%e % F%58W%S%7W%R%T  %0W%M"
-    else:
-        cfg=ComponentAccumulator()
-    
-    from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    cfg.merge(PoolReadCfg(ConfigFlags))
-
-    log.debug('About to set up Muon Track Building.')        
+    args = SetupMuonStandaloneArguments()
+    ConfigFlags = SetupMuonStandaloneConfigFlags(args)
+    cfg = SetupMuonStandaloneCA(args,ConfigFlags)
+          
+    # Run the actual test.
     acc = MuonTrackBuildingCfg(ConfigFlags)
     cfg.merge(acc)
     
@@ -564,21 +516,9 @@ if __name__=="__main__":
     
     cfg.addService(pps)
     cfg.addService(ars)
-    
-    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+
     itemsToRecord = ["TrackCollection#MuonSpectrometerTracks"] 
-    
-    cfg.merge( OutputStreamCfg( ConfigFlags, 'ESD', ItemList=itemsToRecord) )
-    
-    outstream = cfg.getEventAlgo("OutputStreamESD")
-    # outstream.OutputLevel=DEBUG
-    outstream.ForceRead = True
-    
-    # Fix for ATLASRECTS-5151
-    from  TrkEventCnvTools.TrkEventCnvToolsConf import Trk__EventCnvSuperTool
-    cnvTool = Trk__EventCnvSuperTool(name = 'EventCnvSuperTool')
-    cnvTool.MuonCnvTool.FixTGCs = True
-    cfg.addPublicTool(cnvTool)
+    SetupMuonStandaloneOutput(cfg, ConfigFlags, itemsToRecord)
     
     cfg.printConfig(withDetails = True, summariseProps = True)
               
