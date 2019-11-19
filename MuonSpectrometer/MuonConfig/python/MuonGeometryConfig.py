@@ -118,8 +118,9 @@ def MuonGeoModelCfg(flags):
     # turn on/off caching of MdtReadoutElement surfaces
     detTool.CachingFlag = 1
 
+    detTool.FillCacheInitTime = 1
     gms.DetectorTools += [ detTool ]
-
+    
     acc.addService( Muon__MuonIdHelperSvc("MuonIdHelperSvc",
         HasCSC=flags.Detector.GeometryCSC,
         HasSTgc=flags.Detector.GeometrysTGC,
