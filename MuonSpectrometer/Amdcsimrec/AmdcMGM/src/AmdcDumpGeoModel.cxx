@@ -14,7 +14,7 @@
  
 #include "Identifier/Identifier.h"
 
-
+#include <cmath>
 
 /////////////////////////////////////////////////////////
 #include "AmdcMGM/AmdcDumpGeoModel.h"
@@ -1953,7 +1953,7 @@ void AmdcDumpGeoModel::CscCompare(
    double DSF = sin(FF0);
    double SIZ0 = 1.0 ;
    if ( pAmdcsimrec->PosZ(AmdcJtyp,AmdcJff,AmdcJzz) < 0 ) SIZ0 = -SIZ0 ;
-   double AA0 = SIZ0*pAmdcsimrec->PosGama(AmdcJtyp,AmdcJff,AmdcJzz) * 3.1415926535898 / 180. ;
+   double AA0 = SIZ0*pAmdcsimrec->PosGama(AmdcJtyp,AmdcJff,AmdcJzz) * M_PI / 180. ;
    double DCA = cos(AA0);
    double DSA = sin(AA0);
    double GeoModT =   DCF * GeoModX + DSF * GeoModY ;
