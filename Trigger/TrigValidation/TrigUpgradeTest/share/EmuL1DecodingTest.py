@@ -11,14 +11,11 @@ import AthenaCommon.AtlasUnixStandardJob
 ## get a handle on the ServiceManager
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
-#Determine whether we're running in threaded mode (threads= >=1)
-from AthenaCommon.ConcurrencyFlags import jobproperties as jp
-nThreads = jp.ConcurrencyFlags.NumThreads()
-
-if nThreads >= 1:
-  ## get a handle on the Scheduler
-  from AthenaCommon.AlgScheduler import AlgScheduler
-  AlgScheduler.CheckDependencies( True )
+#--------------------------------------------------------------
+# Increase scheduler checks
+#--------------------------------------------------------------
+from AthenaCommon.AlgScheduler import AlgScheduler
+AlgScheduler.CheckDependencies( True )
 
 # Use McEventSelector so we can run with AthenaMP
 #import AthenaCommon.AtlasUnixGeneratorJob

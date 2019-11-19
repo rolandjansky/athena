@@ -140,12 +140,20 @@ _flags.append(doHLT)
 
 # Define Default Flags
 class doMT(JobProperty):
-    """ Run upgrade type of config """
+    """ Configure Run-3 AthenaMT Trigger """
     statusOn=True
     allowedType=['bool']
-    from AthenaCommon.ConcurrencyFlags import jobproperties  # noqa: F811
-    StoredValue= bool(jobproperties.ConcurrencyFlags.NumThreads >= 1)
-        
+    # Cannot use OnlineFlags.partitionName here because OnlineFlags need TriggerFlags to be created first
+    import os
+    partitionName = os.getenv('TDAQ_PARTITION') or ''
+    if partitionName:
+        # Only MT Trigger is supported online
+        StoredValue=True
+    else:
+        # ConcurrencyFlags are valid only in offline athena
+        from AthenaCommon.ConcurrencyFlags import jobproperties  # noqa: F811
+        StoredValue=bool(jobproperties.ConcurrencyFlags.NumThreads >= 1)
+
 _flags.append(doMT)
 
 
