@@ -32,7 +32,7 @@ InDet::FileRoISeedTool::FileRoISeedTool
   declareInterface<IZWindowRoISeedTool>(this);
 
   //
-  declareProperty("InputFileName", m_filename, "Input file MUST be specified by job option" );  
+  declareProperty("InputFileName", m_filename, "Input file MUST be specified with LowPtRoIFile job option" );  
   declareProperty("TrackZ0Window", m_z0_window = 30.0);
 
 }
