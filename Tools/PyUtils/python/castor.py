@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file castor.py
 # @brief A simple helper to handle simple tasks with CASTOR
@@ -21,7 +21,7 @@
 # date:   May 2006
 # @author: Sebastien Binet <binet@cern.ch>
 from __future__ import print_function
-
+from past.builtins import xrange
 import commands
 import os
 import fnmatch

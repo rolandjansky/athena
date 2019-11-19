@@ -6,6 +6,7 @@
 # doing anything fancy here
 
 from __future__ import print_function
+from past.builtins import xrange
 import os
 import os.path
 import re
