@@ -1559,7 +1559,7 @@ LumiCalculator::MakePlots(const std::string& triggerchain)
     this->SetHistogramStyle(m_intlumitrigrateruns_recorded, Form("Delivered luminosity = %.1f /#mub, Recorded luminosity = %.1f /#mub", //, Efficiency * x-sec = %.1f #mub",
 								 total_l1ratediveffxsec,total_l1ratediveffxsec_recorded/*,m_effxsec*/), "Run number", Form("%s Luminosity (#mu b^{-1})",triggerchain.c_str()));
     
-    std::vector<TH1F*>::iterator itr, itr2;
+    std::vector<TH1F*>::iterator itr;
     
   // and store the histograms
     TString histFileName = TString("ilumicalc_histograms_") + TString(triggerchain) + ( runnbrstart==runnbrend ? Form("_%d_",runnbrstart) : Form("_%d-%d_",runnbrstart,runnbrend)) + TString(m_lumitag) + TString(".root");
