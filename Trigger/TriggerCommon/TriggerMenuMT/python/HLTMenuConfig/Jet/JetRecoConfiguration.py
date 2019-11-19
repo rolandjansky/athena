@@ -90,9 +90,13 @@ def defineCalibFilterMods(jetRecoDict,dataSource,rhoKey="auto"):
     if jetRecoDict["jetCalib"] == "nojcalib" or jetalg=="a10r":
         calibMods = []
     else:
+        if jetRecoDict["trkopt"]=="notrk" and "gsc" in jetRecoDict["jetCalib"]:
+            raise ValueError("Track GSC requested but no track source provided!")
+
         calibContext,calibSeq = {
             ("a4","subjes"):   ("TrigRun2","JetArea_EtaJES_GSC"),        # Calo GSC only
             ("a4","subjesIS"): ("TrigRun2","JetArea_EtaJES_GSC_Insitu"), # Calo GSC only
+            ("a4","subjesgscIS"): ("TrigRun2GSC","JetArea_EtaJES_GSC_Insitu"), # Calo+Trk GSC
             ("a10","subjes"):  ("TrigUngroomed","JetArea_EtaJES"),
             ("a10t","jes"):    ("TrigTrimmed","EtaJES_JMS"),
             }[(jetRecoDict["recoAlg"],jetRecoDict["jetCalib"])]
