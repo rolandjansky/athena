@@ -949,11 +949,6 @@ bool InDet::SiSpacePointsSeedMaker_ITK::newVertices(const std::list<Trk::Vertex>
 
 void InDet::SiSpacePointsSeedMaker_ITK::buildFrameWork() 
 {
-  float diver    = m_diver   ;
-  float diversss = m_diversss;
-  float diverpps = m_diverpps;
-  float ptmin    = m_ptmin   ;
-  
   m_ptmin     = fabs(m_ptmin);  
   
   if(m_ptmin < 100.) m_ptmin = 100.;
@@ -993,7 +988,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::buildFrameWork()
   //
   m_nrfz  = 0; for(int i=0; i!=2211; ++i) {rfz_index [i]=0; rfz_map [i]=0;}
 
-  m_fNmax[0] = int(pi2/AzimuthalStep(ptmin,diversss,400.,1000.)); 
+  m_fNmax[0] = int(pi2/AzimuthalStep(m_ptmin,m_diversss,400.,1000.)); 
   if(m_fNmax[0] > NFmax) m_fNmax[0] = NFmax;  
   if(m_fNmax[0] < 10   ) m_fNmax[0] = 10   ;  
   m_sF[0] = float((m_fNmax[0]+1))/pi2;
@@ -1064,7 +1059,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::buildFrameWork()
       }
     }
   }
-  m_fNmax[1] = int(pi2/AzimuthalStep(ptmin,diver,40.,320.));
+  m_fNmax[1] = int(pi2/AzimuthalStep(m_ptmin,m_diver,40.,320.));
   if(m_fNmax[1] > NFmax) m_fNmax[1] = NFmax; 
   if(m_fNmax[1] < 10   ) m_fNmax[1] = 10   ;  
   m_sF[1] = float(m_fNmax[1]+1)/pi2;
@@ -1135,7 +1130,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::buildFrameWork()
   m_iminPPS = int(m_radiusPPSmin/r_rstep);
   m_imaxPPS = int(m_radiusPPSmax/r_rstep);
 
-  m_fNmax[2] = int(pi2/AzimuthalStep(ptmin,diverpps,m_radiusPPSmin,m_radiusPPSmax));
+  m_fNmax[2] = int(pi2/AzimuthalStep(m_ptmin,m_diverpps,m_radiusPPSmin,m_radiusPPSmax));
   if(m_fNmax[2] > NFmax) m_fNmax[2] = NFmax; 
   if(m_fNmax[2] < 10   ) m_fNmax[2] = 10   ;  
   m_sF[2] = float(m_fNmax[2]+1)/pi2;
