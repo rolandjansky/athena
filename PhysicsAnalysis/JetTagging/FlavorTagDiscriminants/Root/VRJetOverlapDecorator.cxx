@@ -25,6 +25,6 @@ void VRJetOverlapDecorator::decorate(const xAOD::JetContainer& jets) const {
       double rel_dR = j1p4.DeltaR(j2p4) / min_radius;
       closest_jet_relative_dr = std::min(rel_dR, closest_jet_relative_dr);
     }
-    m_decorator(*j1->btagging()) = closest_jet_relative_dr;
+    m_decorator(*j1) = closest_jet_relative_dr;
   }
 }
