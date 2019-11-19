@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./XMLTriggerThresholdLoader.h"
@@ -41,7 +41,7 @@ TrigConf::XMLTriggerThresholdLoader::load(TriggerThreshold& thr) {
    
    // <TriggerThresholdValue>'s
    XMLTriggerThresholdValueLoader& thrvldr = dynamic_cast<XMLTriggerThresholdValueLoader&>(m_storageMgr.triggerThresholdValueLoader());
-   BOOST_FOREACH(value_type v, pt()) {
+   for(value_type v : pt()) {
       if(v.first != "TriggerThresholdValue" ) continue;
       thrvldr.setPtree(&v);
       TriggerThresholdValue* thrv = TriggerThreshold::createThresholdValue(type);
