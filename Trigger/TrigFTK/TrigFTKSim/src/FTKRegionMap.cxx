@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigFTKSim/FTKSetup.h"
@@ -10,7 +10,6 @@
 #include <string>
 #include <cstdio>
 #include <iostream>
-#include <boost/foreach.hpp>
 #include <TTree.h>
 #include <TKey.h>
 
@@ -1013,7 +1012,7 @@ int FTKRegionMap::getGlobalId(const unsigned int& towerId,const unsigned int& pl
     return -1;
   }
   const global_to_local_map_type& id_mapping( jmap->second );
-  BOOST_FOREACH( const global_to_local_map_type::value_type& thispair , id_mapping ) {
+  for( const global_to_local_map_type::value_type& thispair : id_mapping ) {
     if( thispair.second==localModuleId ) {
       return thispair.first;
     }

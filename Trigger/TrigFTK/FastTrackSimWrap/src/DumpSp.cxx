@@ -46,7 +46,6 @@
 #include <boost/bind.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <boost/format.hpp>
-#include <boost/foreach.hpp>
 #include <boost/iostreams/filter/bzip2.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/device/file.hpp>
@@ -1841,7 +1840,7 @@ DumpSp::dump_MBTS( ) const
   vector<string> chains = m_trigDecTool->getChainGroup(chains_regex)->getListOfTriggers();
   int nChains = chains.size();
   cout << nChains << " mb chains found." << endl;  
-  BOOST_FOREACH( const string& chain , chains ) { 
+  for( const string& chain : chains ) { 
     cout << " chain: " << chain << " ";
     const bool ok_physics = m_trigDecTool->isPassed( chain , TrigDefs::Physics );
     const bool ok_passthru = m_trigDecTool->isPassed( chain , TrigDefs::passedThrough );
