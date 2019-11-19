@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONEVENTATHENAPOOL_MUONRDOCONTAINERTPCNV_H
@@ -32,6 +32,8 @@ protected:
   /// Extend base-class conversion methods
   virtual P*	createPersistent(T* rdoC);
   virtual T*	createTransient ();
+  // pass the MuonIdHelperSvc to the CscRawDataCnv
+  virtual StatusCode initialize();
 
 protected: 
   typedef typename T::IDENTIFIABLE COLLECTION_t;
