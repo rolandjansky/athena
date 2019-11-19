@@ -85,19 +85,19 @@ StatusCode TrigCOOLUpdateHelper::readFolderInfo()
     // Get folder name and CLID for each key
     IIOVDbSvc::KeyInfo info;
     if ( !m_iovDbSvc->getKeyInfo(key, info) ||
-         m_folderInfo.find(info.foldername)!=m_folderInfo.end() )
+         m_folderInfo.find(info.folderName)!=m_folderInfo.end() )
       continue;
     
     CLID clid = detStore()->clid(key);
     if (clid!=CLID_NULL)
-      m_folderInfo.insert({info.foldername, FolderInfo{clid, key}});
+      m_folderInfo.insert({info.folderName, FolderInfo{clid, key}});
     else
       ATH_MSG_ERROR("Cannot find CLID for " << key);
 
     // If the folder is in the allowed list, make sure it is marked "extensible"
-    if (std::find(m_folders.begin(), m_folders.end(), info.foldername)!=m_folders.end() &&
+    if (std::find(m_folders.begin(), m_folders.end(), info.folderName)!=m_folders.end() &&
         not info.extensible) {
-      ATH_MSG_ERROR("IOVDBSvc folder " << info.foldername << " is not marked as </extensible>. "
+      ATH_MSG_ERROR("IOVDBSvc folder " << info.folderName << " is not marked as </extensible>. "
                     "Remove it from the allowed 'Folders' property or mark it as extensible.");
       return StatusCode::FAILURE;
     }

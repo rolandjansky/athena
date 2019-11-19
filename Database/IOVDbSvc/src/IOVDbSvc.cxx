@@ -801,7 +801,7 @@ bool IOVDbSvc::getKeyInfo(const std::string& key,std::string& foldername,
                           unsigned long long& bytesRead, float& readTime) {
   IIOVDbSvc::KeyInfo info;
   bool result = getKeyInfo(key, info);
-  foldername = info.foldername;
+  foldername = info.folderName;
   tag = info.tag;
   range = info.range;
   retrieved = info.retrieved;
@@ -816,7 +816,7 @@ bool IOVDbSvc::getKeyInfo(const std::string& key, IIOVDbSvc::KeyInfo& info) {
   FolderMap::const_iterator itr = m_foldermap.find(key);
   if (itr!=m_foldermap.end()) {
     const IOVDbFolder* f=itr->second;
-    info.foldername = f->folderName();
+    info.folderName = f->folderName();
     info.tag = f->resolvedTag();
     info.range = f->currentRange();
     info.retrieved = f->retrieved();

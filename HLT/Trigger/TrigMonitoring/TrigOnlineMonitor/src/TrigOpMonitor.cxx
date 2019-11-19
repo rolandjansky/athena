@@ -159,12 +159,7 @@ void TrigOpMonitor::fillIOVDbHist()
 
   // create and fill histogram for IOVDb entries
   std::vector<std::string> keyList(m_IOVDbSvc->getKeyList());
-  std::string folderName;
-  std::string tag;
-  IOVRange range;
-  bool retrieved = false;
-  unsigned long long bytesRead = 0;
-  float readTime = 0;
+  IIOVDbSvc::KeyInfo info;
 
   // set up histograms
   TH2I* IOVDbRunHist = new TH2I("IOVDbRunRange", "IOVDb Run Range", 1, 0, 1, 1, 0, 1);
@@ -177,47 +172,46 @@ void TrigOpMonitor::fillIOVDbHist()
   // fill histograms
   for (const std::string& key : keyList) {
 
-    if (m_IOVDbSvc->getKeyInfo(key, folderName, tag, range, retrieved, bytesRead, readTime) &&
-        retrieved) {
+    if (m_IOVDbSvc->getKeyInfo(key, info) && info.retrieved) {
 
-      m_currentIOVs[key] = range;
+      m_currentIOVs[key] = info.range;
 
-      IOVTime start(range.start());
-      IOVTime stop(range.stop());
+      IOVTime start(info.range.start());
+      IOVTime stop(info.range.stop());
 
       // fill start condition (run number)
       if (start.isRunEvent()) {
-        IOVDbRunHist->Fill(std::to_string(start.run()).c_str(), folderName.c_str(), 1.0);
+        IOVDbRunHist->Fill(std::to_string(start.run()).c_str(), info.folderName.c_str(), 1.0);
       }
 
       // fill start condition (timestamp)
       if (start.isTimestamp()) {
-        IOVDbTimeHist->Fill(std::to_string(start.timestamp()).c_str(), folderName.c_str(), 1.0);
+        IOVDbTimeHist->Fill(std::to_string(start.timestamp()).c_str(), info.folderName.c_str(), 1.0);
       }
 
       // fill stop condition (run number)
       if (stop.isRunEvent()) {
         if (stop.run() == IOVTime::MAXRUN) {
-          IOVDbRunHist->Fill("infinity", folderName.c_str(), 1.0);
+          IOVDbRunHist->Fill("infinity", info.folderName.c_str(), 1.0);
         }
         else {
-          IOVDbRunHist->Fill(std::to_string(stop.run()).c_str(), folderName.c_str(), 1.0);
+          IOVDbRunHist->Fill(std::to_string(stop.run()).c_str(), info.folderName.c_str(), 1.0);
         }
       }
 
       // fill stop condition (timestamp)
       if (stop.isTimestamp()) {
         if (stop.timestamp() == IOVTime::MAXTIMESTAMP) {
-          IOVDbTimeHist->Fill("infinity", folderName.c_str(), 1.0);
+          IOVDbTimeHist->Fill("infinity", info.folderName.c_str(), 1.0);
         }
         else {
-          IOVDbTimeHist->Fill(std::to_string(stop.timestamp()).c_str(), folderName.c_str(), 1.0);
+          IOVDbTimeHist->Fill(std::to_string(stop.timestamp()).c_str(), info.folderName.c_str(), 1.0);
         }
       }
 
       // fill read bytes and time read
-      IOVDbBytesReadHist->Fill(folderName.c_str(), bytesRead, 1.0);
-      IOVDbReadTimeHist->Fill(folderName.c_str(), readTime * 1000, 1.0);
+      IOVDbBytesReadHist->Fill(info.folderName.c_str(), info.bytesRead, 1.0);
+      IOVDbReadTimeHist->Fill(info.folderName.c_str(), info.readTime * 1000, 1.0);
     }
   }
 

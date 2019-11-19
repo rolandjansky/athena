@@ -105,18 +105,14 @@ CondInputLoader::initialize()
   ATH_CHECK( idb.retrieve() );
 
   std::vector<std::string> keys = idb->getKeyList();
-  std::string folderName, tg;
-  IOVRange range;
-  bool retrieved;
-  unsigned long long br;
-  float rt;
+  IIOVDbSvc::KeyInfo info;
   DataObjIDColl handles_to_load;
 
   std::map<std::string,std::string> folderKeyMap;
   for (auto key : keys) {
-    if (idb->getKeyInfo(key, folderName, tg, range, retrieved, br, rt)) {
-      folderKeyMap[folderName] = key;
-      m_keyFolderMap[key] = folderName;
+    if (idb->getKeyInfo(key, info)) {
+      folderKeyMap[info.folderName] = key;
+      m_keyFolderMap[key] = info.folderName;
     } else {
       ATH_MSG_WARNING("unable to retrieve keyInfo for " << key );
     }
@@ -140,23 +136,6 @@ CondInputLoader::initialize()
                          StoreID::storeName(StoreID::CONDITION_STORE));
     handles_to_load.emplace(vhk.fullKey());
   }
-
-  // for (auto key : keys) {
-  //   if (idb->getKeyInfo(key, folderName, tg, range, retrieved, br, rt)) {
-  //     ATH_MSG_VERBOSE("folder: " << folderName << "  key: " << key);
-  //     for (auto id : m_load) {
-  //       if (id.key() == folderName) {
-  //         ATH_MSG_DEBUG("  mapping folder " << folderName << "  to SGkey " << key );
-  //         id.updateKey( key );
-  //         handles_to_load.insert(id);
-  //         m_keyFolderMap[key] = folderName;
-  //         break;
-  //       }
-  //     }
-  //   } else {
-  //     ATH_MSG_WARNING("unable to retrieve keyInfo for " << key );
-  //   }
-  // }
 
   m_load = handles_to_load;
   m_handlesToCreate = handles_to_load;

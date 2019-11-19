@@ -41,7 +41,7 @@ public:
 
     /// Filled by IIOVDbSvc::getKeyInfo
     struct KeyInfo {
-        std::string foldername;
+        std::string folderName;
         std::string tag;
         IOVRange range;
         float readTime{0};
