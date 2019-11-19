@@ -28,7 +28,8 @@ namespace FlavorTagDiscriminants {
   std::vector<DL2InputConfig> get_input_config(
     const std::vector<std::string>& variable_names,
     const TypeRegexes& type_regexes,
-    const StringRegexes& default_flag_regexes)
+    const StringRegexes& default_flag_regexes,
+    std::map<std::string,std::string>& replaced_vars)
   {
     std::vector<DL2InputConfig> inputs;
     for (const auto& var: variable_names) {
@@ -37,6 +38,15 @@ namespace FlavorTagDiscriminants {
       input.type = match_first(type_regexes, var, "type matching");
       input.default_flag = match_first(default_flag_regexes, var,
                                        "default matching");
+
+      // we let the user replace the input names, but we keep the same
+      // configuration for the defaults and types
+      auto replacement_itr = replaced_vars.find(var);
+      if (replacement_itr != replaced_vars.end()) {
+        input.name = replacement_itr->second;
+        replaced_vars.erase(replacement_itr);
+      }
+
       inputs.push_back(input);
     }
     return inputs;
