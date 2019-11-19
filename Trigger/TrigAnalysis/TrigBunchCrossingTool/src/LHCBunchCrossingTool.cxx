@@ -2,7 +2,6 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: LHCBunchCrossingTool.cxx 780643 2016-10-27 03:39:39Z ssnyder $
 
 // System include(s):
 #include <inttypes.h>
@@ -264,30 +263,15 @@ namespace Trig {
       const std::string folder = ( ( update_fillparams & ( ! update_bunchdata ) ) ?
                                    LHC_FILLPARAMS_FOLDER :
                                    LHC_BUNCHDATA_FOLDER );
-      std::string foldername, tag;
-      IOVRange range;
-      bool retrieved;
-      unsigned long long bytesRead;
-      float readTime;
-      if( ! m_iovSvc->getKeyInfo( folder, foldername, tag,
-                                  range, retrieved, bytesRead, readTime ) ) {
+      IIOVDbSvc::KeyInfo info;
+      if( ! m_iovSvc->getKeyInfo( folder, info ) ) {
          REPORT_ERROR( StatusCode::FAILURE )
             << "Couldn't get IOV data about folder: "
             << LHC_FILLPARAMS_FOLDER;
          return StatusCode::FAILURE;
       }
-      if( msgLvl( MSG::VERBOSE ) ) {
-         REPORT_MESSAGE( MSG::VERBOSE ) << "Information about folder: "
-                                        << folder;
-         REPORT_MESSAGE( MSG::VERBOSE ) << "  foldername: " << foldername;
-         REPORT_MESSAGE( MSG::VERBOSE ) << "  tag: " << tag;
-         REPORT_MESSAGE( MSG::VERBOSE ) << "  range: " << range;
-         REPORT_MESSAGE( MSG::VERBOSE ) << "  retrieved: " << retrieved;
-         REPORT_MESSAGE( MSG::VERBOSE ) << "  bytesRead: " << bytesRead;
-         REPORT_MESSAGE( MSG::VERBOSE ) << "  readTime: " << readTime;
-      }
       // Extract the starting time of the IOV:
-      IOVTime time = range.start();
+      IOVTime time = info.range.start();
       // Construct the ID:
       if( time.isRunEvent() ) {
          m_id = static_cast< configid_type >( ( ( time.run() & 0xffff ) << 16 ) |
