@@ -447,9 +447,11 @@ if not opt.createHLTMenuExternally:
         import sys
         sys.exit(0)
 
-from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc
-svcMgr += getHLTConfigSvc()
 
+
+from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc, setupHLTPrescaleCondAlg
+svcMgr += getHLTConfigSvc()
+setupHLTPrescaleCondAlg()
 
 # ---------------------------------------------------------------
 # ID conditions

@@ -59,6 +59,8 @@ namespace TrigConf {
       // maps HLT chain hashes to prescales 
       std::unordered_map<uint32_t, HLTPrescale> m_prescalesByHash {1024};
 
+      std::string m_name;
+
    };
 }
 

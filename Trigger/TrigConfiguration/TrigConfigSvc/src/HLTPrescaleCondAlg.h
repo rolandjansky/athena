@@ -7,6 +7,7 @@
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
+#include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 #include "TrigConfData/HLTPrescalesSet.h"
 
@@ -35,14 +36,16 @@ namespace TrigConf {
    private:
 
       // input key to the HLT Prescale Key folder
-      SG::ReadCondHandleKey<AthenaAttributeList> m_pskFolderInputKey{ this, "PSKFolder", "/TRIGGER/HLT/HLTPrescaleKey", "SG Key of AthenaAttributeList containing hlt psk"};
+      SG::ReadCondHandleKey<AthenaAttributeList> m_pskFolderInputKey{ this, "PSKFolder", "/TRIGGER/HLT/PrescaleKey", "SG Key of AthenaAttributeList containing hlt psk"};
 
       // output key to store the HLTPrescalesSet
       SG::WriteCondHandleKey<TrigConf::HLTPrescalesSet> m_hltPrescaleSetOutputKey{ this, "HLTPrescales", "HLTPrescales", "HLT prescales"};
 
-      // other properties
+      // properties
+      Gaudi::Property< std::string > m_configSource { this, "Source", "FILE", "Configuration source, can be 'FILE', 'DB', or 'COOL'" };
       Gaudi::Property< std::string > m_dbConnection { this, "TriggerDB", "TRIGGERDB", "DB connection alias" };
-      Gaudi::Property< unsigned int > m_psk { this, "PSK", 0, "HLT prescale key" };
+      Gaudi::Property< unsigned int > m_psk { this, "HLTPsk", 0, "HLT prescale key" };
+      Gaudi::Property< std::string > m_filename { this, "Filename", "", "HLT prescale json file" };
 
    };
 
