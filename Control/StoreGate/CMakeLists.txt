@@ -204,6 +204,24 @@ atlas_add_test( ReadDecorHandleKeyArray_test
    LINK_LIBRARIES StoreGateLib TestTools
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
+atlas_add_test( ThinningHandleKey_test
+   SOURCES test/ThinningHandleKey_test.cxx
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
+   LINK_LIBRARIES StoreGateLib AthContainers TestTools
+   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+
+atlas_add_test( ThinningHandleBase_test
+   SOURCES test/ThinningHandleBase_test.cxx
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
+   LINK_LIBRARIES StoreGateLib AthContainers TestTools
+   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+
+atlas_add_test( ThinningHandle_test
+   SOURCES test/ThinningHandle_test.cxx
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
+   LINK_LIBRARIES StoreGateLib AthContainers TestTools
+   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+
 # Install files from the package:
 atlas_install_joboptions( share/StoreGate_jobOptions.txt
    share/StoreGate_jobOptions.py
