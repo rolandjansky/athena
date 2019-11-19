@@ -170,7 +170,7 @@ def bJetStep2Sequence():
     hypo = TrigBjetEtHypoAlgEVMT("TrigBjetEtHypoAlg_step2")
     # no links this time, only for tracks
     hypo.TracksLink = "tracks"
-    hypo.RoIs = "step1RoI"
+    hypo.RoIs = "SplitJets"
     hypo.Jets = theGSC.JetOutputKey
     hypo.PrmVtx = theGSC.PriVtxKey
     hypo.Tracks = PTTrackParticles[0]
@@ -243,6 +243,7 @@ def bJetStep3Sequence():
     bTagFex.JetKey = "InViewJets"
     bTagFex.PriVtxKey = "HLT_EFHistoPrmVtx"
     bTagFex.TracksKey = "InDetTrigPTTrackParticles_bjets"
+    bTagFex.OutputBTagging = "HLT_BTagging"
 
     bTaggingSequence = seqAND("bTaggingSequence",[bTagFex] )
     InputMakerAlg.ViewNodeName = "bTaggingSequence"
@@ -251,6 +252,7 @@ def bJetStep3Sequence():
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetBtagHypoAlgMT
     from TrigBjetHypo.TrigBjetHypoTool import TrigBjetHypoToolFromDict
     hypo = TrigBjetBtagHypoAlgMT("TrigBjetBtagHypoAlg_step3")
+    hypo.BTagging = bTagFex.OutputBTagging
 
     # Sequence
     BjetAthSequence = seqAND("BjetAthSequence_step3", [InputMakerAlg,bTaggingSequence] )
