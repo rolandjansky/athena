@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Gaudi
@@ -46,6 +46,14 @@ MuonRdoContainerTPCnv<T,P, CONV >
    //std::cout << " **** Warning: using default createTransient() - (possibly missing specialized version of this method" << std::endl;
 
    return createTransientFrom_p0( this->poolReadObject(), log );
+}
+
+template <class T, class P, class CONV>
+inline
+StatusCode
+MuonRdoContainerTPCnv<T,P, CONV >
+::initialize(){
+  return T_AthenaPoolCustomCnv<T,P>::initialize();
 }
 
 
