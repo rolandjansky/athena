@@ -110,12 +110,6 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
   //
   ATH_CHECK(m_seedsmaker.retrieve());
 
-  if(m_useZvertexTool) {
-    // Get tool for z-coordinates ptimary vertices search
-    //
-    ATH_CHECK(m_zvertexmaker.retrieve());
-  }
-
   // Get tool for z-coordinates ptimary vertices search
   //
   if(m_useZvertexTool)
@@ -125,7 +119,7 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
   //
   ATH_CHECK(m_trackmaker.retrieve());
   
-  // Get region selector for conv seeded
+  // Get the region selector if using conversion seeded mode 
   //
   if(m_useConvSeeded)
     ATH_CHECK(m_regionSelector.retrieve());
@@ -134,16 +128,6 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
   //
   if (m_ITKGeometry and m_doFastTracking) 
     ATH_CHECK(m_etaDependentCutsSvc.retrieve());
-
-  if(m_useConvSeeded){
-    if ( m_regionSelector.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_regionSelector << endreq;
-      return StatusCode::FAILURE;
-    }
-    else {
-      msg(MSG::INFO) << "Retrieved tool " << m_regionSelector << endreq;
-    }
-  }
 
   if(m_useNewStrategy && m_beamconditions=="") {
     m_useNewStrategy = false; 
