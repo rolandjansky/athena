@@ -110,12 +110,6 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
   //
   ATH_CHECK(m_seedsmaker.retrieve());
 
-  if(m_useZvertexTool) {
-    // Get tool for z-coordinates ptimary vertices search
-    //
-    ATH_CHECK(m_zvertexmaker.retrieve());
-  }
-
   // Get tool for z-coordinates ptimary vertices search
   //
   if(m_useZvertexTool)
