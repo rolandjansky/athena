@@ -1283,7 +1283,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     if (jetcollBTag.find("AntiKt4EMTopoJets") == std::string::npos && jetcollBTag.find("AntiKt4EMPFlowJets")==std::string::npos) {
       ATH_MSG_WARNING("** Only AntiKt4EMTopoJets and AntiKt4EMPFlowJets are supported with FTAG scale factors!");
         return StatusCode::FAILURE;
-    } else ATH_CHECK(m_btagSelTool.retrieve());
+    } 
 
     toolName = "BTagSel_" + jetcollBTag + m_BtagTagger + m_BtagWP;
     m_btagSelTool.setTypeAndName("BTaggingSelectionTool/"+toolName);
