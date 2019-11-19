@@ -16,6 +16,7 @@ Author: Marcin Nowak
 #include "MuonRDO/CscRawData.h"
 
 class MsgStream;
+class CscIdHelper;
 
 class CscRawDataCnv_p2  : public T_AthenaPoolTPCnvBase<CscRawData, CscRawData_p2>
 {
@@ -24,6 +25,10 @@ public:
   
   virtual void		persToTrans(const CscRawData_p2* persObj, CscRawData* transObj, MsgStream &log);
   virtual void		transToPers(const CscRawData* transObj, CscRawData_p2* persObj, MsgStream &log);
+private:
+  bool initialize();
+  bool m_init=false;
+  CscIdHelper* m_cscIdHelper=nullptr;
 };
 
 

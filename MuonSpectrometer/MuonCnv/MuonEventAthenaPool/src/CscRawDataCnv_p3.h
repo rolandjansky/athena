@@ -12,6 +12,7 @@
 #include "MuonRDO/CscRawData.h"
 
 class MsgStream;
+class CscIdHelper;
 
 /**
 Transient/Persistent converter for CscRawData class
@@ -23,6 +24,10 @@ public:
   
   virtual void		persToTrans(const CscRawData_p3* persObj, CscRawData* transObj, MsgStream &log);
   virtual void		transToPers(const CscRawData* transObj, CscRawData_p3* persObj, MsgStream &log);
+private:
+  bool initialize();
+  bool m_init=false;
+  CscIdHelper* m_cscIdHelper=nullptr;
 };
 
 
