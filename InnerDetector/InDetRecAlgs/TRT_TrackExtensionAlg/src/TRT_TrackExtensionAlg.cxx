@@ -17,12 +17,6 @@
 InDet::TRT_TrackExtensionAlg::TRT_TrackExtensionAlg
 (const std::string& name,ISvcLocator* pSvcLocator) :
 	AthAlgorithm(name, pSvcLocator) {
-	m_outputlevel = 0;
-	m_nprint = 0;
-	m_nTracks = 0;
-	m_nTracksExtended = 0;
-	m_nTracksTotal = 0;
-	m_nTracksExtendedTotal = 0;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -37,16 +31,6 @@ StatusCode InDet::TRT_TrackExtensionAlg::initialize() {
 	ATH_CHECK( m_inputTracksKey.initialize() );
 	ATH_CHECK( m_outputTracksKey.initialize() );
 
-	// Get output print level
-
-	m_outputlevel = msg().level()-MSG::DEBUG;
-	if(m_outputlevel<=0) {
-		m_nprint=0; msg(MSG::DEBUG)<<(*this)<<endmsg;
-	}
-
-	m_nTracksTotal         = 0;
-	m_nTracksExtendedTotal = 0;
-
 	return StatusCode::SUCCESS;
 }
 
@@ -55,11 +39,14 @@ StatusCode InDet::TRT_TrackExtensionAlg::initialize() {
 ///////////////////////////////////////////////////////////////////
 
 StatusCode InDet::TRT_TrackExtensionAlg::execute() {
-	m_nTracks         = 0;
-	m_nTracksExtended = 0;
+  return execute_r( Gaudi::Hive::currentContext() );
+}
+
+StatusCode InDet::TRT_TrackExtensionAlg::execute_r(const EventContext& ctx) const {
+        Counter_t counter;
 
 	// Get input tracks collection
-	SG::ReadHandle<TrackCollection> inputTracks(m_inputTracksKey);
+	SG::ReadHandle<TrackCollection> inputTracks(m_inputTracksKey,ctx);
 	if (not inputTracks.isValid()) {
 		ATH_MSG_DEBUG("Could not find input track collection " << m_inputTracksKey);
 		return StatusCode::SUCCESS;
@@ -69,26 +56,30 @@ StatusCode InDet::TRT_TrackExtensionAlg::execute() {
            event_data_p( m_trtExtension->newEvent() );
 
 	// Loop through all input track and output tracks collection production
-	SG::WriteHandle<TrackExtensionMap> outputTracks(m_outputTracksKey);
+	SG::WriteHandle<TrackExtensionMap> outputTracks(m_outputTracksKey,ctx);
 	ATH_CHECK( outputTracks.record(std::make_unique<TrackExtensionMap>()) );
 
 	TrackCollection::const_iterator trk,trkEnd = inputTracks->end();
 	for (trk = inputTracks->begin(); trk != trkEnd; ++trk) {
 		if ( !(*trk) ) continue;
-		++m_nTracks;
+		++counter.m_nTracks;
 
 		std::vector<const Trk::MeasurementBase*>& trkExt = m_trtExtension->extendTrack(*(*trk), *event_data_p);
 		if( !trkExt.size() ) continue;
 
 		outputTracks->insert( std::make_pair((*trk), trkExt) ); 
-		++m_nTracksExtended;
+		++counter.m_nTracksExtended;
 	}
 
-	m_nTracksTotal        += m_nTracks        ;
-	m_nTracksExtendedTotal+= m_nTracksExtended;
+        {
+           std::lock_guard<std::mutex> lock(m_counterMutex);
+           m_totalCounts += counter;
+        }
 
-	// Print common event information
-	if(m_outputlevel<=0) {m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;}
+        if (msgLvl(MSG::DEBUG)) {
+           dumpEvent(msg(MSG::DEBUG), counter);
+           msg(MSG::DEBUG) << endmsg;
+        }
 	return StatusCode::SUCCESS;
 }
 
@@ -97,37 +88,13 @@ StatusCode InDet::TRT_TrackExtensionAlg::execute() {
 ///////////////////////////////////////////////////////////////////
 
 StatusCode InDet::TRT_TrackExtensionAlg::finalize() {
-	m_nprint=2; msg(MSG::INFO)<<(*this)<<endmsg;
+        if (msgLvl(MSG::INFO)) {
+           dumpEvent(msg(MSG::INFO), m_totalCounts);
+           dumpConditions(msg(MSG::INFO));
+        }
 	return StatusCode::SUCCESS;
 }
 
-///////////////////////////////////////////////////////////////////
-// Overload of << operator MsgStream
-///////////////////////////////////////////////////////////////////
-
-MsgStream& InDet::operator    <<
-(MsgStream& sl,const InDet::TRT_TrackExtensionAlg& se) {
-	return se.dump(sl);
-}
-
-///////////////////////////////////////////////////////////////////
-// Overload of << operator std::ostream
-///////////////////////////////////////////////////////////////////
-
-std::ostream& InDet::operator <<
-(std::ostream& sl,const InDet::TRT_TrackExtensionAlg& se) {
-	return se.dump(sl);
-}
-
-///////////////////////////////////////////////////////////////////
-// Dumps relevant information into the MsgStream
-///////////////////////////////////////////////////////////////////
-
-MsgStream& InDet::TRT_TrackExtensionAlg::dump( MsgStream& out ) const {
-	out<<std::endl;
-	if(m_nprint)  return dumpEvent(out);
-	return dumpConditions(out);
-}
 
 ///////////////////////////////////////////////////////////////////
 // Dumps conditions information into the MsgStream
@@ -160,29 +127,17 @@ MsgStream& InDet::TRT_TrackExtensionAlg::dumpConditions( MsgStream& out ) const 
 // Dumps event information into the ostream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::TRT_TrackExtensionAlg::dumpEvent( MsgStream& out ) const {
-
-	int nt  = m_nTracks        ;
-	int nte = m_nTracksExtended;
-	if(m_nprint > 1) {nt = m_nTracksTotal; nte = m_nTracksExtendedTotal;}
+MsgStream& InDet::TRT_TrackExtensionAlg::dumpEvent( MsgStream& out, const InDet::TRT_TrackExtensionAlg::Counter_t &counter ) const {
 
 	out<<"|-------------------------------------------------------------------";
 	out<<"-----------------------------|"
 	   <<std::endl;
 	out<<"|  Investigated "
-	   <<std::setw(7)<<nt <<" input tracks and extended    "
-	   <<std::setw(7)<<nte<<" tracks                              |"
+	   <<std::setw(7)<< counter.m_nTracks         <<" input tracks and extended    "
+	   <<std::setw(7)<< counter.m_nTracksExtended <<" tracks                              |"
 	   <<std::endl;
 	out<<"|-------------------------------------------------------------------";
 	out<<"-----------------------------|"
 	   <<std::endl;
-	return out;
-}
-
-///////////////////////////////////////////////////////////////////
-// Dumps relevant information into the ostream
-///////////////////////////////////////////////////////////////////
-
-std::ostream& InDet::TRT_TrackExtensionAlg::dump( std::ostream& out ) const {
 	return out;
 }
