@@ -284,10 +284,10 @@ class LowPtRoIWindow(InDetFlagsJobProperty):
     """
     statusOn     = True
     allowedTypes = ['float']
-    StoredValue  = 2.0
+    StoredValue  = 30.0
 
 class LowPtRoIFile(InDetFlagsJobProperty):
-    """Set the strategy to extract the RoI; 1 = with tracks, 2 = with HS Truth, 3 = from file
+    """Indicate the file (including location) that contains the ROI location information. Three column format: run number, event number, ROI location (in mm)
     """
     statusOn     = True
     allowedTypes = ['str']
