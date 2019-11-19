@@ -98,24 +98,20 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
   //
   ATH_CHECK(m_seedsmaker.retrieve());
 
-  if(m_useZvertexTool) {
-
-    // Get tool for z-coordinates ptimary vertices search
-    //
+  // Get tool for z-coordinates ptimary vertices search
+  //
+  if(m_useZvertexTool)
     ATH_CHECK(m_zvertexmaker.retrieve());
-  }
-
+  
   // Get track-finding tool
   //
   ATH_CHECK(m_trackmaker.retrieve());
   
   // Get InDetDynamicCutsTool
   //
-  if (m_ITKGeometry and m_doFastTracking) {
+  if (m_ITKGeometry and m_doFastTracking) 
     ATH_CHECK(m_etaDependentCutsSvc.retrieve());
-    return StatusCode::FAILURE;
-  }
-
+  
   if(m_useNewStrategy && m_beamconditions=="") {
     m_useNewStrategy = false; 
     m_useZBoundaryFinding = false;
