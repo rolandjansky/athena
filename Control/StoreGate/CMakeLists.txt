@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 795192 2017-02-02 17:18:15Z ssnyder $
 ################################################################################
 # Package: StoreGate
 ################################################################################
@@ -206,7 +205,6 @@ atlas_add_test( ReadDecorHandleKeyArray_test
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/StoreGate_jobOptions.txt
    share/StoreGate_jobOptions.py
    share/SGHive_test.txt
