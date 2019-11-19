@@ -25,15 +25,15 @@
 InDet::FileRoISeedTool::FileRoISeedTool
 (const std::string& t,const std::string& n,const IInterface* p)
   : AthAlgTool(t,n,p),
-    m_filename("INPUT MUST BE SPECIFIED BY JOB OPTION")
+    m_filename("")
 {
 
   //
   declareInterface<IZWindowRoISeedTool>(this);
 
   //
-  declareProperty("InputFileName", m_filename );  
-  declareProperty("TrackZ0Window", m_z0_window = 2.0);
+  declareProperty("InputFileName", m_filename, "Input file MUST be specified by job option" );  
+  declareProperty("TrackZ0Window", m_z0_window = 30.0);
 
 }
 
