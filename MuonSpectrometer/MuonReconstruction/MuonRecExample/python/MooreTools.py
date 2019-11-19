@@ -36,7 +36,6 @@ from MuonRecUtils import logMuon,ConfiguredBase,ExtraFlags
 from MuonRecFlags import muonRecFlags
 from MuonStandaloneFlags import muonStandaloneFlags
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
-from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 #==============================================================
 
 # call  setDefaults to update flags
@@ -337,11 +336,9 @@ def MuonSeededSegmentFinder(name="MuonSeededSegmentFinder",**kwargs):
         kwargs.setdefault("SegmentMaker", segMaker)
         kwargs.setdefault("SegmentMakerNoHoles", segMaker)
 
-        if not MuonGeometryFlags.hasCSC():
-            kwargs.setdefault("CscPrepDataContainer","")
-        if not (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]):
-            kwargs.setdefault("sTgcPrepDataContainer","")
-            kwargs.setdefault("MMPrepDataContainer","")
+        if not MuonGeometryFlags.hasCSC(): kwargs.setdefault("CscPrepDataContainer","")
+        if not MuonGeometryFlags.hasSTGC(): kwargs.setdefault("sTgcPrepDataContainer","")
+        if not MuonGeometryFlags.hasMM(): kwargs.setdefault("MMPrepDataContainer","")
     
     return CfgMgr.Muon__MuonSeededSegmentFinder(name,**kwargs)
 
@@ -421,9 +418,8 @@ def MuonChamberHoleRecoveryTool(name="MuonChamberHoleRecoveryTool",extraFlags=No
     # add in missing C++ dependency. TODO: fix in C++
     getPublicTool("ResidualPullCalculator")
 
-    if not (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]):
-        kwargs.setdefault("sTgcPrepDataContainer","")
-        kwargs.setdefault("MMPrepDataContainer","")
+    if not MuonGeometryFlags.hasSTGC(): kwargs.setdefault("sTgcPrepDataContainer","")
+    if not MuonGeometryFlags.hasMM(): kwargs.setdefault("MMPrepDataContainer","")
 
     #MDT conditions information not available online
     if(athenaCommonFlags.isOnline):

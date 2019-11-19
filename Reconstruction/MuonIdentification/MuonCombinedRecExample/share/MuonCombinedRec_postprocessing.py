@@ -28,9 +28,10 @@ if rec.doTruth() and muonCombinedRecFlags.doxAOD() and rec.doMuonCombined():
     topSequence+= MuonDetailedTrackTruthMaker("MuonCombinedDetailedTrackTruthMaker")
     topSequence.MuonCombinedDetailedTrackTruthMaker.TrackCollectionNames = cols 
     topSequence.MuonCombinedDetailedTrackTruthMaker.DetailedTrackTruthNames = fcols
+    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
     topSequence.MuonCombinedDetailedTrackTruthMaker.HasCSC = MuonGeometryFlags.hasCSC()
-    topSequence.MuonCombinedDetailedTrackTruthMaker.HasSTgc = (CommonGeometryFlags.Run() in ["RUN3", "RUN4"])
-    topSequence.MuonCombinedDetailedTrackTruthMaker.HasMM = (CommonGeometryFlags.Run() in ["RUN3", "RUN4"])
+    topSequence.MuonCombinedDetailedTrackTruthMaker.HasSTgc = MuonGeometryFlags.hasSTGC()
+    topSequence.MuonCombinedDetailedTrackTruthMaker.HasMM = MuonGeometryFlags.hasMM()
         
     from TrkTruthAlgs.TrkTruthAlgsConf import TrackParticleTruthAlg
     for i in range(0, len(fcols)):

@@ -66,7 +66,6 @@ def MuonSeededSegmentFinderCfg(flags,name="MuonSeededSegmentFinder", **kwargs):
 def MuonSegmentMomentumFromFieldCfg(flags, name="MuonSegmentMomentumFromField", **kwargs):
     from MuonSegmentMomentum.MuonSegmentMomentumConf import MuonSegmentMomentumFromField
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
     from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
     
     result = ComponentAccumulator()
@@ -88,7 +87,7 @@ def MuonSegmentMomentumFromFieldCfg(flags, name="MuonSegmentMomentumFromField", 
     kwargs.setdefault("PropagatorTool", muon_prop)
     
     kwargs.setdefault("HasCSC",  MuonGeometryFlags.hasCSC())
-    kwargs.setdefault("HasSTgc", (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]))
+    kwargs.setdefault("HasSTgc", MuonGeometryFlags.hasSTGC())
         
     muon_seg_mom_from_field = MuonSegmentMomentumFromField(name=name, **kwargs)
     result.setPrivateTools(muon_seg_mom_from_field)

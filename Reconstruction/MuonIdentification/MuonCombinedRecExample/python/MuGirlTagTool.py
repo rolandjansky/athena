@@ -18,7 +18,6 @@ from MuonRecExample.MuonRecTools import DCMathSegmentMaker
 ###logfile
 from AthenaCommon.Logging import log
 
-from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
@@ -74,11 +73,9 @@ def MuonStauSeededSegmentFinder( name="MuonStauSeededSegmentFinder", **kwargs ):
     kwargs.setdefault("MdtRotCreator", getPublicTool("MdtDriftCircleOnTrackCreatorStau") )
     kwargs.setdefault("SegmentMaker", getPublicTool("DCMathStauSegmentMaker") )
     kwargs.setdefault("SegmentMakerNoHoles", getPublicTool("DCMathStauSegmentMaker") )
-    if not MuonGeometryFlags.hasCSC():
-       kwargs.setdefault("CscPrepDataContainer","")
-    if not (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]):
-       kwargs.setdefault("sTgcPrepDataContainer","")
-       kwargs.setdefault("MMPrepDataContainer","")
+    if not MuonGeometryFlags.hasCSC(): kwargs.setdefault("CscPrepDataContainer","")
+    if not MuonGeometryFlags.hasSTGC(): kwargs.setdefault("sTgcPrepDataContainer","")
+    if not MuonGeometryFlags.hasMM(): kwargs.setdefault("MMPrepDataContainer","")
 
     return MuonSeededSegmentFinder(name,**kwargs)
 

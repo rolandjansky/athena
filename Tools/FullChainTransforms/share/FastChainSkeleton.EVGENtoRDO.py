@@ -21,7 +21,7 @@ fast_chain_log.info( str(runArgs) )
 
 from AthenaCommon import CfgGetter
 import AthenaCommon.SystemOfUnits as Units
-
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 ### Start of Sim
 
@@ -281,23 +281,18 @@ except:
 DetFlags.LVL1_setOff()
 DetFlags.Truth_setOn()
 DetFlags.Forward_setOff() # Forward dets are off by default
-DetFlags.Micromegas_setOff()
-DetFlags.sTGC_setOff()
 DetFlags.FTK_setOff()
 checkHGTDOff = getattr(DetFlags, 'HGTD_setOff', None)
 if checkHGTDOff is not None:
     checkHGTDOff() #Default for now
 
-# from AthenaCommon.DetFlags import DetFlags
-
-# from AthenaCommon.DetFlags import DetFlags
     ## Tidy up DBM DetFlags: temporary measure
 DetFlags.DBM_setOff()
 
-from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
-if (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]):
-    DetFlags.sTGC_setOn()
-    DetFlags.Micromegas_setOn()
+# turn off DetFlags for muon detectors which are not part of the layout
+if not MuonGeometryFlags.hasCSC(): DetFlags.CSC_setOff()
+if not MuonGeometryFlags.hasSTGC(): DetFlags.sTGC_setOff()
+if not MuonGeometryFlags.hasMM(): DetFlags.Micromegas_setOff()
 
 #if simFlags.ForwardDetectors.statusOn:
 #    if DetFlags.geometry.FwdRegion_on():
@@ -308,12 +303,16 @@ if (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]):
 DetFlags.digitize.all_setOn()
 DetFlags.digitize.LVL1_setOff()
 DetFlags.digitize.ZDC_setOff()
-DetFlags.digitize.Micromegas_setOff()
-DetFlags.digitize.sTGC_setOff()
 DetFlags.digitize.Forward_setOff()
 DetFlags.digitize.Lucid_setOff()
 DetFlags.digitize.AFP_setOff()
 DetFlags.digitize.ALFA_setOff()
+
+# turn off DetFlags.digitize for muon detectors which are not part of the layout
+# (since DetFlags.digitize.all_setOn() is called a few lines above)
+if not MuonGeometryFlags.hasCSC(): DetFlags.digitize.CSC_setOff()
+if not MuonGeometryFlags.hasSTGC(): DetFlags.digitize.sTGC_setOff()
+if not MuonGeometryFlags.hasMM(): DetFlags.digitize.Micromegas_setOff()
 
 #set all detdescr on except fwd.
 #DetFlags.detdescr.all_setOn()
@@ -776,7 +775,7 @@ if ISF_Flags.UsingGeant4():
         AGDD2Geo = AGDDtoGeoSvc()
         if not "MuonAGDDTool/MuonSpectrometer" in AGDD2Geo.Builders.__str__():
             AGDD2Geo.Builders += [CfgGetter.getPrivateTool("MuonSpectrometer", checkType=True)]
-        if (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]):
+        if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
             if not "NSWAGDDTool/NewSmallWheel" in AGDD2Geo.Builders.__str__():
                 AGDD2Geo.Builders += [CfgGetter.getPrivateTool("NewSmallWheel", checkType=True)]
         theApp.CreateSvc += ["AGDDtoGeoSvc"]

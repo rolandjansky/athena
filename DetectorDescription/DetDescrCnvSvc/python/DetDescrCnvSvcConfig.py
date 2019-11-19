@@ -2,7 +2,6 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
-from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 def DetDescrCnvSvcCfg(configFlags=None):
@@ -13,8 +12,8 @@ def DetDescrCnvSvcCfg(configFlags=None):
     detDescrCnvSvc=DetDescrCnvSvc(IdDictName = "IdDictParser/ATLAS_IDS.xml",
                                   IdDictFromRDB = True,
                                   HasCSC=MuonGeometryFlags.hasCSC(),
-                                  HasSTgc=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"]),
-                                  HasMM=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"]))
+                                  HasSTgc=MuonGeometryFlags.hasSTGC(),
+                                  HasMM=MuonGeometryFlags.hasMM())
     acc.addService(detDescrCnvSvc)
     acc.addService(EvtPersistencySvc("EventPersistencySvc",CnvServices=[detDescrCnvSvc.getName(),])) #No service handle yet???
     return acc

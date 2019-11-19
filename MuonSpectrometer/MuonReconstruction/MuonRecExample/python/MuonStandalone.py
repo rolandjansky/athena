@@ -157,9 +157,8 @@ class MuonStandalone(ConfiguredMuonRec):
         if muonStandaloneFlags.segmentOrigin == 'TruthTracking':
             SegmentLocation = "ThirdChainSegments"
 
-        # we assume that RUN3 or RUN4 means that at least one sTgc and one MM chamber is present
-        from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
-        if (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]):
+        # do the following in case of (at least one) NSW
+        if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
             getPublicTool("MuonLayerHoughTool")
             self.addAlg( CfgMgr.MuonLayerHoughAlg( "MuonLayerHoughAlg", PrintSummary = muonStandaloneFlags.printSummary()  ) )
             if not muonStandaloneFlags.patternsOnly():

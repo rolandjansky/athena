@@ -6,7 +6,6 @@ from MuonGeoModel.MuonGeoModelConf import MuonDetectorTool
 from MuonIdHelpers.MuonIdHelpersConf import Muon__MuonIdHelperSvc
 from AGDD2GeoSvc.AGDD2GeoSvcConf import AGDDtoGeoSvc
 from MuonAGDD.MuonAGDDConf import MuonAGDDTool, NSWAGDDTool
-from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 def MuonGeoModelCfg(flags):
@@ -19,8 +18,8 @@ def MuonGeoModelCfg(flags):
 
     detTool = MuonDetectorTool(
         HasCSC=MuonGeometryFlags.hasCSC(),
-        HasSTgc=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"]),
-        HasMM=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"])
+        HasSTgc=MuonGeometryFlags.hasSTGC(),
+        HasMM=MuonGeometryFlags.hasMM()
         )
     detTool.UseConditionDb = 1
     detTool.UseIlinesFromGM = 1
@@ -103,17 +102,12 @@ def MuonGeoModelCfg(flags):
         detTool.UseAsciiConditionData = 0
         if flags.Detector.SimulateMuon:
             detTool.FillCacheInitTime = 0
-            if flags.GeoModel.Run=="RUN3" or flags.GeoModel.Run=="RUN4":
-                detTool.StationSelection  = 2
-                detTool.SelectedStations  = [ "EIL1", "EIL2", "EIL6", "EIL7",
-                                              "EIS*", "EIL10", "EIL11", "EIL12",
-                                              "EIL17", "CSS*", "CSL*", "T4E*",
-                                              "T4F*" ]
+
             ## Additional material in the muon system
             AGDD2Geo = AGDDtoGeoSvc()
             muonAGDDTool = MuonAGDDTool("MuonSpectrometer", BuildNSW=False)
             AGDD2Geo.Builders += [ muonAGDDTool ]
-            if flags.GeoModel.Run=="RUN3" or flags.GeoModel.Run=="RUN4":
+            if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
                 nswAGDDTool = NSWAGDDTool("NewSmallWheel", Locked=False)
                 nswAGDDTool.Volumes = ["NewSmallWheel"]
                 nswAGDDTool.DefaultDetector = "Muon"
@@ -124,8 +118,8 @@ def MuonGeoModelCfg(flags):
 
     acc.addService( Muon__MuonIdHelperSvc("MuonIdHelperSvc",
         HasCSC=MuonGeometryFlags.hasCSC(),
-        HasSTgc=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"]),
-        HasMM=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"])
+        HasSTgc=MuonGeometryFlags.hasSTGC(),
+        HasMM=MuonGeometryFlags.hasMM()
         ) )
 
     return acc
