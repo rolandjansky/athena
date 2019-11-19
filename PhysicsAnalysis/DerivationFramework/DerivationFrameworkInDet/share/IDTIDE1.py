@@ -12,6 +12,11 @@
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 
 from DerivationFrameworkInDet.InDetCommon import *
+from InDetPrepRawDataToxAOD.InDetDxAODJobProperties import InDetDxAODFlags
+
+from AthenaCommon.Logging import logging
+msg = logging.getLogger( "IDTIDE1" )
+_info = msg.info
 
 #Steering options
 idDxAOD_doPix=True
@@ -25,14 +30,13 @@ if 'DerivationFrameworkIsMonteCarlo' not in dir() :
 
 IsMonteCarlo=DerivationFrameworkIsMonteCarlo
 
-
 #====================================================================
 # CP GROUP TOOLS
 #====================================================================
 from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__TrackToVertexIPEstimator
 IDTIDE1IPETool = Trk__TrackToVertexIPEstimator(name = "IDTIDE1IPETool")
 ToolSvc += IDTIDE1IPETool
-print IDTIDE1IPETool
+_info(IDTIDE1IPETool)
 
 #Setup tools
 if idDxAOD_doTrt:
@@ -43,35 +47,7 @@ if idDxAOD_doTrt:
   TRTCalibDBSvc=TRT_CalDbSvc()
   ServiceMgr += TRTCalibDBSvc
 
-#Setup decorators tools
-if idDxAOD_doTrt:
-  from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import TRT_PrepDataToxAOD
-  xAOD_TRT_PrepDataToxAOD = TRT_PrepDataToxAOD( name = "xAOD_TRT_PrepDataToxAOD")
-  xAOD_TRT_PrepDataToxAOD.OutputLevel=INFO
-  xAOD_TRT_PrepDataToxAOD.UseTruthInfo=IsMonteCarlo
-  print "Add TRT xAOD TrackMeasurementValidation:"
-  print xAOD_TRT_PrepDataToxAOD
-  topSequence += xAOD_TRT_PrepDataToxAOD
 
-if idDxAOD_doSct:
-  from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import SCT_PrepDataToxAOD
-  xAOD_SCT_PrepDataToxAOD = SCT_PrepDataToxAOD( name = "xAOD_SCT_PrepDataToxAOD")
-  xAOD_SCT_PrepDataToxAOD.OutputLevel=INFO
-  xAOD_SCT_PrepDataToxAOD.UseTruthInfo=IsMonteCarlo
-  print "Add SCT xAOD TrackMeasurementValidation:"
-  print xAOD_SCT_PrepDataToxAOD
-  topSequence += xAOD_SCT_PrepDataToxAOD
-
-if idDxAOD_doPix:
-  from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import PixelPrepDataToxAOD
-  xAOD_PixelPrepDataToxAOD = PixelPrepDataToxAOD( name = "xAOD_PixelPrepDataToxAOD")
-  xAOD_PixelPrepDataToxAOD.OutputLevel=INFO
-  xAOD_PixelPrepDataToxAOD.UseTruthInfo=IsMonteCarlo
-  print "Add Pixel xAOD TrackMeasurementValidation:"
-  print xAOD_PixelPrepDataToxAOD
-  topSequence += xAOD_PixelPrepDataToxAOD
-
- 
 #====================================================================
 # AUGMENTATION TOOLS
 #====================================================================
@@ -84,7 +60,16 @@ IDTIDE1TrackToVertexWrapper= DerivationFramework__TrackToVertexWrapper(name = "I
                                                                        ContainerName = "InDetTrackParticles")
 ToolSvc += IDTIDE1TrackToVertexWrapper 
 augmentationTools.append(IDTIDE1TrackToVertexWrapper)
-print IDTIDE1TrackToVertexWrapper
+_info(IDTIDE1TrackToVertexWrapper)
+
+# Add decoration with truth parameters if running on simulation
+if IsMonteCarlo:
+    from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParametersForTruthParticles
+    TruthDecor = DerivationFramework__TrackParametersForTruthParticles( name = "TruthTPDecor",
+                                                                        DecorationPrefix = "")
+    ToolSvc += TruthDecor
+    augmentationTools.append(TruthDecor)
+    _info(TruthDecor)
 
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackStateOnSurfaceDecorator
@@ -100,7 +85,10 @@ DFTSOS = DerivationFramework__TrackStateOnSurfaceDecorator(name = "DFTrackStateO
                                                           OutputLevel =INFO)
 ToolSvc += DFTSOS
 augmentationTools.append(DFTSOS)
-print DFTSOS
+_info(DFTSOS)
+
+# Sequence for skimming kernel (if running on data) -> PrepDataToxAOD -> ID TIDE kernel
+IDTIDESequence = CfgMgr.AthSequencer("IDTIDESequence")
 
 #====================================================================
 # SKIMMING TOOLS 
@@ -190,7 +178,42 @@ if not IsMonteCarlo:
   ToolSvc += IDTIDE_ORTool
 
   skimmingTools.append(IDTIDE_ORTool)
-  print "IDTIDE1.py IDTIDE_ORTool: ", IDTIDE_ORTool
+  _info( "IDTIDE1.py IDTIDE_ORTool: %s", IDTIDE_ORTool)
+  
+  # Add the skimming kernel to the sequence
+  from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
+  IDTIDESequence += CfgMgr.DerivationFramework__DerivationKernel("IDTIDE1KernelPresel",
+                                                                 SkimmingTools = skimmingTools)
+
+#Setup decorators tools
+if idDxAOD_doTrt:
+  from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import TRT_PrepDataToxAOD
+  xAOD_TRT_PrepDataToxAOD = TRT_PrepDataToxAOD( name = "xAOD_TRT_PrepDataToxAOD")
+  xAOD_TRT_PrepDataToxAOD.OutputLevel=INFO
+  xAOD_TRT_PrepDataToxAOD.UseTruthInfo=IsMonteCarlo
+  _info( "Add TRT xAOD TrackMeasurementValidation: %s" , xAOD_TRT_PrepDataToxAOD)
+  IDTIDESequence += xAOD_TRT_PrepDataToxAOD
+
+if idDxAOD_doSct:
+  from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import SCT_PrepDataToxAOD
+  xAOD_SCT_PrepDataToxAOD = SCT_PrepDataToxAOD( name = "xAOD_SCT_PrepDataToxAOD")
+  xAOD_SCT_PrepDataToxAOD.OutputLevel=INFO
+  xAOD_SCT_PrepDataToxAOD.UseTruthInfo=IsMonteCarlo
+  _info("Add SCT xAOD TrackMeasurementValidation: %s", xAOD_SCT_PrepDataToxAOD)
+  IDTIDESequence += xAOD_SCT_PrepDataToxAOD
+
+if idDxAOD_doPix:
+  from PixelCalibAlgs.PixelCalibAlgsConf import PixelChargeToTConversion 
+  PixelChargeToTConversionSetter = PixelChargeToTConversion(name = "PixelChargeToTConversionSetter") 
+  IDTIDESequence += PixelChargeToTConversionSetter 
+  _info("Add Pixel xAOD ToTConversionSetter: %s Properties: %s", PixelChargeToTConversionSetter, PixelChargeToTConversionSetter.properties())
+  from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import PixelPrepDataToxAOD
+  xAOD_PixelPrepDataToxAOD = PixelPrepDataToxAOD( name = "xAOD_PixelPrepDataToxAOD")
+  xAOD_PixelPrepDataToxAOD.OutputLevel=INFO
+  xAOD_PixelPrepDataToxAOD.UseTruthInfo=IsMonteCarlo
+  _info( "Add Pixel xAOD TrackMeasurementValidation: %s", xAOD_PixelPrepDataToxAOD)
+  IDTIDESequence += xAOD_PixelPrepDataToxAOD
+
 
 #====================================================================
 # THINNING TOOLS 
@@ -203,7 +226,7 @@ IDTIDE1ThinningTool = DerivationFramework__TrackParticleThinning(name = "IDTIDE1
                                                                  ThinningService         = "IDTIDE1ThinningSvc",
                                                                  SelectionString         = "abs(DFCommonInDetTrackZ0AtPV) < 5.0",
                                                                  InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                 ThinHitsOnTrack = True)
+                                                                 ThinHitsOnTrack =  InDetDxAODFlags.ThinHitsOnTrack())
 ToolSvc += IDTIDE1ThinningTool
 thinningTools.append(IDTIDE1ThinningTool)
 
@@ -240,13 +263,13 @@ if IsMonteCarlo:
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  
 #====================================================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-idtide_kernel = CfgMgr.DerivationFramework__DerivationKernel("IDTIDE1Kernel",
+IDTIDESequence += CfgMgr.DerivationFramework__DerivationKernel("IDTIDE1Kernel",
                                                              AugmentationTools = augmentationTools,
                                                              SkimmingTools = skimmingTools,
                                                              ThinningTools = thinningTools,
                                                              RunSkimmingFirst = True,
                                                              OutputLevel =INFO)
-DerivationFrameworkJob += idtide_kernel
+DerivationFrameworkJob += IDTIDESequence
 accept_algs=[ idtide_kernel.name() ]
 
 if IsMonteCarlo:
