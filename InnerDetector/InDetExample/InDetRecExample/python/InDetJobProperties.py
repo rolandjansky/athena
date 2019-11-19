@@ -287,7 +287,7 @@ class LowPtRoIWindow(InDetFlagsJobProperty):
     StoredValue  = 30.0
 
 class LowPtRoIFile(InDetFlagsJobProperty):
-    """Indicate the file (including location) that contains the ROI location information. Three column format: run number, event number, ROI location (in mm)
+    """Indicate the file (including location) that contains the ROI location information. This MUST be specified if you want to run with file-based ROIs.  Three column format: run number, event number, ROI location (in mm)
     """
     statusOn     = True
     allowedTypes = ['str']
