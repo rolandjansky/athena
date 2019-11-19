@@ -72,19 +72,3 @@ def metJetMenuSequence():
                           Maker       = InputMakerAlg,
                           Hypo        = metHypoAlg,
                           HypoToolGen = TrigMETCellHypoToolFromDict )
-
-def metTrkMHTMenuSequence():
-    from TriggerMenuMT.HLTMenuConfig.MET.METRecoSequences import metTrkMHTAthSequence
-    reco_seq, input_alg, seq_out = RecoFragmentsPool.retrieve(
-            metTrkMHTAthSequence, ConfigFlags)
-
-    # The hypo
-    hypo = TrigMissingETHypoAlgMT("METHypoAlg_trkmht")
-    hypo.METContainerKey = seq_out
-
-    # NB - the function is called 'TrigMETCellHypoToolFromDict' but it isn't
-    # actually specific to cell at all... something to change in the future
-    return MenuSequence( Sequence    = reco_seq,
-                         Maker       = input_alg,
-                         Hypo        = hypo,
-                         HypoToolGen = TrigMETCellHypoToolFromDict )

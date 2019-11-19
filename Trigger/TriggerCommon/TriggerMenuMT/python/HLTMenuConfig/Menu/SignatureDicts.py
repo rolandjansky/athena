@@ -274,7 +274,7 @@ METChainParts = {
     'extra'        : ['noL1'],
     'calib'        : ['lcw',],    
     'L2recoAlg'    : [],
-    'EFrecoAlg'    : ['cell', 'tcpufit', 'mht', 'trkmht'],
+    'EFrecoAlg'    : ['cell', 'tcpufit', 'mht'],
     'L2muonCorr'   : [],
     'EFmuonCorr'   : [],
     'addInfo'      : ['FStracks'],

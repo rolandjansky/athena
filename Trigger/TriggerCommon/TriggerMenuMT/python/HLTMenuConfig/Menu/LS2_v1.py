@@ -81,7 +81,6 @@ def setupMenu():
         ChainProp(name='HLT_xe30_cell_L1XE10', groups=SingleMETGroup),
         ChainProp(name='HLT_xe30_mht_L1XE10', groups=SingleMETGroup),
         ChainProp(name='HLT_xe30_tcpufit_L1XE10', groups=SingleMETGroup),
-        ChainProp(name='HLT_xe30_trkmht_L1XE10', groups=SingleMETGroup),
 
         # MultiMET Chain
         ChainProp(name='HLT_xe30_cell_xe30_tcpufit_L1XE10',l1SeedThresholds=['XE10']*2, groups=MultiMETGroup), #must be FS seeded
