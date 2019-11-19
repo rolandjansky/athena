@@ -41,8 +41,8 @@ def TrigPhotonSelectors(sel):
             'tight'  : 'PhotonIsEMTightSelectorCutDefs.conf',
             } 
     PhotonIsEMBits = {
-            'loose'  : SelectionDefPhoton.PhotonLoose,
-            'medium' : SelectionDefPhoton.PhotonMedium,
+            'loose'  : SelectionDefPhoton.PhotonLooseEF,
+            'medium' : SelectionDefPhoton.PhotonMediumEF,
             'tight'  : SelectionDefPhoton.PhotonTight,
             }
 
