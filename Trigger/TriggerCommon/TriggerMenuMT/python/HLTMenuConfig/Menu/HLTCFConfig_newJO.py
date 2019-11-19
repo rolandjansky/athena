@@ -9,8 +9,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFDot import stepCF_DataFlow_to_dot, \
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CFSequence, createStepView
 from AthenaCommon.CFElements import parOR, seqAND
 from AthenaCommon.Logging import logging
-
-log = logging.getLogger('HLTCFConfig_newJO')
+log = logging.getLogger( __name__ )
 
 def printStepsMatrix(matrix):
     print('----- Steps matrix ------') # noqa: ATL901

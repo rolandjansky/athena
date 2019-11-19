@@ -3,7 +3,7 @@
 
 import copy
 from AthenaCommon.Logging import logging
-log = logging.getLogger('MenuComponents')
+log = logging.getLogger( __name__ )
 
 from DecisionHandling.DecisionHandlingConf import RoRSeqFilter
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming

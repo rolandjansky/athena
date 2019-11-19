@@ -1,12 +1,8 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
-from AthenaCommon.Logging        import logging
-
-
-log = logging.getLogger('TriggerMenuMT.HLTMenuConfig.Menu.MenuUtil.py')
-
-
+from AthenaCommon.Logging import logging
+log = logging.getLogger(__name__)
 
 def getStreamTagForRerunChains(triggerPythonConfig, HLTPrescale):
     list=[]
