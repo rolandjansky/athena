@@ -13,7 +13,7 @@
 #include "MuonRDO/CscRawDataCollection.h"
 #include "MuonRDO/CscRawDataContainer.h"
 
-#include "CscRdoToCscPrepDataTool.h"
+#include "CscRdoToCscPrepDataToolMT.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkSurfaces/SurfaceBounds.h"
 #include "EventPrimitives/EventPrimitives.h" 
@@ -29,26 +29,26 @@ using namespace Trk;
 using namespace Muon;
 
 
-CscRdoToCscPrepDataTool::CscRdoToCscPrepDataTool
+CscRdoToCscPrepDataToolMT::CscRdoToCscPrepDataToolMT
 (const std::string& type, const std::string& name, const IInterface* parent)
   : CscRdoToCscPrepDataToolCore(type, name, parent) {
 }  
 
-CscRdoToCscPrepDataTool::~CscRdoToCscPrepDataTool(){}
+CscRdoToCscPrepDataToolMT::~CscRdoToCscPrepDataToolMT(){}
 
-StatusCode CscRdoToCscPrepDataTool::initialize(){
+StatusCode CscRdoToCscPrepDataToolMT::initialize(){
   ATH_MSG_VERBOSE("Starting init");
   ATH_CHECK( CscRdoToCscPrepDataToolCore::initialize() );
   ATH_MSG_DEBUG("initialize() successful in " << name());
   return StatusCode::SUCCESS;
 }
 
-StatusCode CscRdoToCscPrepDataTool::finalize() {
+StatusCode CscRdoToCscPrepDataToolMT::finalize() {
   return CscRdoToCscPrepDataToolCore::finalize();
 }
 
 
-StatusCode CscRdoToCscPrepDataTool::decode(std::vector<IdentifierHash>& givenIdhs, std::vector<IdentifierHash>& decodedIdhs) {
+StatusCode CscRdoToCscPrepDataToolMT::decode(std::vector<IdentifierHash>& givenIdhs, std::vector<IdentifierHash>& decodedIdhs) {
   // WARNING : Trigger Part is not finished.
   unsigned int sizeVectorRequested = givenIdhs.size();
   ATH_MSG_DEBUG ( "decode for " << sizeVectorRequested << " offline collections called" );
@@ -56,35 +56,21 @@ StatusCode CscRdoToCscPrepDataTool::decode(std::vector<IdentifierHash>& givenIdh
   // clear output vector of selected data collections containing data
   decodedIdhs.clear();
 
-  if (!evtStore()->contains<Muon::CscStripPrepDataContainer>(m_outputCollectionKey.key())) {    
-    /// record the container in storeGate
-    SG::WriteHandle< Muon::CscStripPrepDataContainer > outputHandle (m_outputCollectionKey);
-    StatusCode status = outputHandle.record(std::make_unique<Muon::CscStripPrepDataContainer>(m_muonMgr->cscIdHelper()->module_hash_max()));
+  /// record the container in storeGate
+  SG::WriteHandle< Muon::CscStripPrepDataContainer > outputHandle (m_outputCollectionKey);
+  StatusCode status = outputHandle.record(std::make_unique<Muon::CscStripPrepDataContainer>(m_muonMgr->cscIdHelper()->module_hash_max()));
 
-    if (status.isFailure() || !outputHandle.isValid() )       {
-      ATH_MSG_FATAL("Could not record container of CSC PrepData Container at " << m_outputCollectionKey.key());
-      return StatusCode::FAILURE;
-    } 
-    m_outputCollection = outputHandle.ptr();
+  if (status.isFailure() || !outputHandle.isValid() )       {
+    ATH_MSG_FATAL("Could not record container of CSC PrepData Container at " << m_outputCollectionKey.key());
+    return StatusCode::FAILURE;
+  } 
+  m_outputCollection = outputHandle.ptr();
 
-    if (sizeVectorRequested == 0) {
-      m_fullEventDone=true;
-      ATH_MSG_DEBUG ( "decoding the entire event " );
-    } else {
-      m_fullEventDone=false;
-    }
-  
-    
+  if (sizeVectorRequested == 0) {
+    m_fullEventDone=true;
+    ATH_MSG_DEBUG ( "decoding the entire event " );
   } else {
-
-    ATH_MSG_DEBUG ("CSC PrepData Container is already in StoreGate ");
-    
-    if (m_fullEventDone) {
-      ATH_MSG_DEBUG("Whole event has already been decoded; nothing to do");
-      return StatusCode::SUCCESS;
-    }
-
-    if (sizeVectorRequested == 0) m_fullEventDone=true;
+    m_fullEventDone=false;
   }
 
   // retrieve the pointer to the RDO container

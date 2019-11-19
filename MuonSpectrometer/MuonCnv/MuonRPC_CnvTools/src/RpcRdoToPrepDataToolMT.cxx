@@ -3,24 +3,24 @@
 */
 
 
-#include "RpcRdoToPrepDataTool.h"
+#include "RpcRdoToPrepDataToolMT.h"
 
 #include "MuonRPC_CnvTools/IRPC_RDO_Decoder.h"
 #include "MuonTrigCoinData/RpcCoinDataContainer.h"
 
 
-Muon::RpcRdoToPrepDataTool::RpcRdoToPrepDataTool( const std::string& type, const std::string& name,
+Muon::RpcRdoToPrepDataToolMT::RpcRdoToPrepDataToolMT( const std::string& type, const std::string& name,
 						  const IInterface* parent ) 
   : AthAlgTool( type, name, parent ),
     RpcRdoToPrepDataToolCore( type, name, parent )
 {
 }
 
-Muon::RpcRdoToPrepDataTool::~RpcRdoToPrepDataTool()
+Muon::RpcRdoToPrepDataToolMT::~RpcRdoToPrepDataToolMT()
 {
 }
 
-StatusCode Muon::RpcRdoToPrepDataTool::initialize() 
+StatusCode Muon::RpcRdoToPrepDataToolMT::initialize() 
 {
   ATH_MSG_VERBOSE("Starting init");
   ATH_CHECK( RpcRdoToPrepDataToolCore::initialize() );
@@ -28,13 +28,14 @@ StatusCode Muon::RpcRdoToPrepDataTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode Muon::RpcRdoToPrepDataTool::finalize()
+StatusCode Muon::RpcRdoToPrepDataToolMT::finalize()
 {   
   return RpcRdoToPrepDataToolCore::finalize();
 }
 
-StatusCode Muon::RpcRdoToPrepDataTool::manageOutputContainers(bool& firstTimeInTheEvent)
+StatusCode Muon::RpcRdoToPrepDataToolMT::manageOutputContainers(bool& firstTimeInTheEvent)
 {
+  // MT version of this method always adds container. Caching will be added later.
   SG::WriteHandle< Muon::RpcPrepDataContainer > rpcPrepDataHandle(m_rpcPrepDataContainerKey);
   if(!rpcPrepDataHandle.isPresent()) {
     firstTimeInTheEvent = true;

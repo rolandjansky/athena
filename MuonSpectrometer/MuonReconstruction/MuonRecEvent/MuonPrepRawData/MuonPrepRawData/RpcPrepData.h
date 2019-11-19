@@ -26,7 +26,7 @@ class RpcPrepDataContainerCnv;
 namespace Muon 
 {
 
-    class RpcRdoToPrepDataTool;
+    class RpcRdoToPrepDataToolCore;
     class RpcPrepDataContainerCnv_p1;
     class RpcPrepDataContainerCnv_p2;
     
@@ -34,7 +34,7 @@ namespace Muon
 class RpcPrepData :   public MuonCluster
 {
 
-    friend class Muon::RpcRdoToPrepDataTool;
+    friend class Muon::RpcRdoToPrepDataToolCore;
     
     ///////////////////////////////////////////////////////////////////
     // Public methods:

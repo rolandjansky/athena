@@ -3,17 +3,17 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// TgcRdoToPrepDataTool.h, (c) ATLAS Detector software
+// TgcRdoToPrepDataToolMT.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
-#ifndef MUONTGC_CNVTOOLS_TGCRDOTOPREPDATATOOL_H
-#define MUONTGC_CNVTOOLS_TGCRDOTOPREPDATATOOL_H
+#ifndef MUONTGC_CNVTOOLS_TGCRDOTOPREPDATATOOLMT_H
+#define MUONTGC_CNVTOOLS_TGCRDOTOPREPDATATOOLMT_H
 
 #include "TgcRdoToPrepDataToolCore.h"
 
 
 namespace Muon 
 {
-  /** @class TgcRdoToPrepDataTool 
+  /** @class TgcRdoToPrepDataToolMT 
    *  This is the algorithm that convert TGCRdo To TGCPrepdata as a tool.
    * 
    * @author Susumu Oda <Susumu.Oda@cern.ch> 
@@ -22,14 +22,14 @@ namespace Muon
    * This class was developed by Takashi Kubota. 
    */  
 
-  class TgcRdoToPrepDataTool : virtual public TgcRdoToPrepDataToolCore
+  class TgcRdoToPrepDataToolMT : virtual public TgcRdoToPrepDataToolCore
   {
     public:
       /** Constructor */
-      TgcRdoToPrepDataTool(const std::string& t, const std::string& n, const IInterface* p);
+      TgcRdoToPrepDataToolMT(const std::string& t, const std::string& n, const IInterface* p);
       
       /** Destructor */
-      virtual ~TgcRdoToPrepDataTool();
+      virtual ~TgcRdoToPrepDataToolMT();
       
       /** Standard AthAlgTool initialize method */
       virtual StatusCode initialize() override;
@@ -41,4 +41,4 @@ namespace Muon
    }; 
 } // end of namespace
 
-#endif // MUONTGC_CNVTOOLS_TGCRDOTOPREPDATATOOL_H
+#endif // MUONTGC_CNVTOOLS_TGCRDOTOPREPDATATOOLMT_H

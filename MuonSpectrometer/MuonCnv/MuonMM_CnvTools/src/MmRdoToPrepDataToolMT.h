@@ -3,11 +3,11 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// MmRdoToPrepDataTool.h, (c) ATLAS Detector software
+// MmRdoToPrepDataToolMT.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#ifndef MUONMmRdoToPrepDataTool_H
-#define MUONMmRdoToPrepDataTool_H
+#ifndef MUONMmRdoToPrepDataToolMT_H
+#define MUONMmRdoToPrepDataToolMT_H
 
 #include "MmRdoToPrepDataToolCore.h"
 
@@ -42,13 +42,13 @@ namespace Muon
   class IMuonRawDataProviderTool;
   class IMMClusterBuilderTool;
 
-  class MmRdoToPrepDataTool : virtual public MmRdoToPrepDataToolCore
+  class MmRdoToPrepDataToolMT : virtual public MmRdoToPrepDataToolCore
   {
   public:
-    MmRdoToPrepDataTool(const std::string&,const std::string&,const IInterface*);
+    MmRdoToPrepDataToolMT(const std::string&,const std::string&,const IInterface*);
     
     /** default destructor */
-    virtual ~MmRdoToPrepDataTool ();
+    virtual ~MmRdoToPrepDataToolMT ();
     
     /** standard Athena-Algorithm method */
     virtual StatusCode initialize();

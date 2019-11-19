@@ -3,10 +3,10 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// sTgcRdoToPrepDataTool.h, (c) ATLAS Detector software
+// sTgcRdoToPrepDataToolMT.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
-#ifndef MUONTGC_CNVTOOLS_STGCRDOTOPREPDATATOOL
-#define MUONTGC_CNVTOOLS_STGCRDOTOPREPDATATOOL
+#ifndef MUONTGC_CNVTOOLS_STGCRDOTOPREPDATATOOLMT
+#define MUONTGC_CNVTOOLS_STGCRDOTOPREPDATATOOLMT
 
 #include "sTgcRdoToPrepDataToolCore.h"
 
@@ -39,14 +39,14 @@ namespace Muon
    *  This is the algorithm that convert STGC Raw data  To STGC PRD  as a tool.
    */  
 
-  class sTgcRdoToPrepDataTool : virtual public sTgcRdoToPrepDataToolCore
+  class sTgcRdoToPrepDataToolMT : virtual public sTgcRdoToPrepDataToolCore
     {
     public:
       /** Constructor */
-      sTgcRdoToPrepDataTool(const std::string& t, const std::string& n, const IInterface* p);
+      sTgcRdoToPrepDataToolMT(const std::string& t, const std::string& n, const IInterface* p);
       
       /** Destructor */
-      virtual ~sTgcRdoToPrepDataTool();
+      virtual ~sTgcRdoToPrepDataToolMT();
       
       /** Standard AthAlgTool initialize method */
       virtual StatusCode initialize() override;
