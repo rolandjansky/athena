@@ -17,8 +17,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Event/ByteStreamData
                           Event/EventBookkeeperMetaData
                           Event/EventInfo
-                          GaudiKernel
-                          TestPolicy )
+                          GaudiKernel )
 
 # Component(s) in the package:
 atlas_add_component( AthenaPoolExampleAlgorithms

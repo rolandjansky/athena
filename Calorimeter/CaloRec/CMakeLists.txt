@@ -37,8 +37,7 @@ atlas_depends_on_subdirs(
    LArCalorimeter/LArRawConditions
    LumiBlock/LumiBlockComps
    Trigger/TrigAnalysis/TrigAnalysisInterfaces	
-   Control/AthenaMonitoring
-   TestPolicy )
+   Control/AthenaMonitoring )
 
 # External dependencies:
 find_package( AIDA )

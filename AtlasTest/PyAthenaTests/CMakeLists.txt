@@ -8,9 +8,7 @@ atlas_subdir( PyAthenaTests )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaExamples/AthExThinning
-                          Control/AthenaPython
-                          PRIVATE
-                          TestPolicy )
+                          Control/AthenaPython )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

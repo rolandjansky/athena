@@ -9,10 +9,9 @@ atlas_subdir( FourMom )
 atlas_depends_on_subdirs( PUBLIC
                           Event/EventKernel
                           Event/EventPrimitives
-			  Control/CxxUtils
+                          Control/CxxUtils
                           PRIVATE
-                          AtlasTest/TestTools
-                          TestPolicy )
+                          AtlasTest/TestTools )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )

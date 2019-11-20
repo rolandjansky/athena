@@ -35,7 +35,6 @@ atlas_depends_on_subdirs( PUBLIC
   InnerDetector/InDetDetDescr/InDetIdentifier
   InnerDetector/InDetDetDescr/InDetReadoutGeometry
   InnerDetector/InDetDetDescr/PixelCabling
-  TestPolicy
   Tools/PathResolver
   ${extra_dep} )
 

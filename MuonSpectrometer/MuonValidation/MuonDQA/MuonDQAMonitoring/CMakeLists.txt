@@ -13,7 +13,6 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           DataQuality/DataQualityInterfaces
                           Event/EventInfo
-                          TestPolicy
                           Trigger/TrigT1/TrigT1Result )
 
 # External dependencies:
