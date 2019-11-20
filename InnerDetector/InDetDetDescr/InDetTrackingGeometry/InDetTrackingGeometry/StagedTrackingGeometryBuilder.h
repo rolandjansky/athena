@@ -202,7 +202,7 @@ namespace InDet {
       const Trk::Layer* mergeDiscLayers(std::vector<const Trk::Layer*>& dlays) const;
 
       /** material retrieval from GM */
-      void addGMmaterial(const Trk::TrackingVolume*& enclosedDetector ) const;
+      void addGMmaterial(const Trk::TrackingVolume*& enclosedDetector , float bpRadius) const;
 
       // helper tools for the geometry building
       ToolHandleArray<Trk::ILayerProvider>           m_layerProviders;          //!< Helper Tools for the Layer creation, includes beam pipe builder   
@@ -240,8 +240,6 @@ namespace InDet {
       std::string                                    m_exitVolume;                //!< the final ID container             
       // material-on-fly option
       bool                                             m_materialOnFly;            //! switch for material retrieval from GM 
-      // 
-      mutable float                              m_bpRadius;                 //! info about beam pipe radius ( from envelope svc)
   };
 
   inline void StagedTrackingGeometryBuilder::checkForInsert(std::vector<double>& radii, double radius) const {

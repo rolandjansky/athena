@@ -57,7 +57,6 @@ InDet::StagedTrackingGeometryBuilder::StagedTrackingGeometryBuilder(const std::s
   m_namespace("InDet::"),
   m_exitVolume("InDet::Containers::InnerDetector")
   ,m_materialOnFly(false)
-  ,m_bpRadius(30.)
 {
   declareInterface<Trk::IGeometryBuilder>(this);  
   // layer builders and their configurations
@@ -155,7 +154,7 @@ const Trk::TrackingGeometry* InDet::StagedTrackingGeometryBuilder::trackingGeome
    ATH_MSG_VERBOSE("       -> retrieved Inner Detector envelope definitions at size " << envelopeDefs.size());
    double envelopeVolumeRadius = envelopeDefs[1].first;
    double envelopeVolumeHalfZ  = fabs(envelopeDefs[1].second);
-   m_bpRadius = envelopeDefs[0].first;
+   float bpRadius = envelopeDefs[0].first;
    ATH_MSG_VERBOSE("       -> envelope R/Z defined as : " << envelopeVolumeRadius << " / " << envelopeVolumeHalfZ );
    ATH_MSG_VERBOSE("       -> beam pipe boundary at R = "<<envelopeDefs[0].first);
 
@@ -294,7 +293,7 @@ const Trk::TrackingGeometry* InDet::StagedTrackingGeometryBuilder::trackingGeome
       trackingGeometry->indexStaticLayers(Trk::Global);   
    }                       
 
-   if (m_materialOnFly) addGMmaterial( enclosedDetector );
+   if (m_materialOnFly) addGMmaterial( enclosedDetector, bpRadius );
 
    return trackingGeometry;
 }
@@ -940,17 +939,8 @@ const Trk::Layer* InDet::StagedTrackingGeometryBuilder::mergeDiscLayers(std::vec
 
 }
 
-void InDet::StagedTrackingGeometryBuilder::addGMmaterial(const Trk::TrackingVolume*& enclosedDetector ) const {
+void InDet::StagedTrackingGeometryBuilder::addGMmaterial(const Trk::TrackingVolume*& enclosedDetector, float bpRadius ) const {
  
-  // get DetectorStore service
-  ISvcLocator* svcLocator = Gaudi::svcLocator();
-  StoreGateSvc* detStore;
-  StatusCode sc = svcLocator->service("DetectorStore",detStore);
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR("Detector service not found, aborting the material retrieval");
-    return ;
-  }
-
   bool fixedVolume = false;
   
   // retrieve the ITk material and process
@@ -963,7 +953,7 @@ void InDet::StagedTrackingGeometryBuilder::addGMmaterial(const Trk::TrackingVolu
   unsigned int nbp = 0;
   // get BeamPipe DetectorManager
   const BeamPipeDetectorManager* beamPipeMgr;    
-  if (detStore->retrieve(beamPipeMgr,"BeamPipe").isFailure()){
+  if (detStore()->retrieve(beamPipeMgr,"BeamPipe").isFailure()){
     ATH_MSG_ERROR("Could not retrieve BeamPipe detector manager!" );
   } else ATH_MSG_DEBUG ("BeamPipe Detector Manager found!");
  
@@ -992,7 +982,7 @@ void InDet::StagedTrackingGeometryBuilder::addGMmaterial(const Trk::TrackingVolu
   }
   // get PixelDetectorManager
   const InDetDD::PixelDetectorManager* pixelMgr;
-  if (detStore->retrieve(pixelMgr, "Pixel").isFailure()) {
+  if (detStore()->retrieve(pixelMgr, "Pixel").isFailure()) {
     ATH_MSG_ERROR("Could not get PixelDetectorManager!");
   } else ATH_MSG_DEBUG ("Pixel Detector Manager found!");
   
@@ -1021,7 +1011,7 @@ void InDet::StagedTrackingGeometryBuilder::addGMmaterial(const Trk::TrackingVolu
  
   // get SCTDetectorManager
   const InDetDD::SCT_DetectorManager* sctMgr;
-  if (detStore->retrieve(sctMgr, "SCT").isFailure()) {
+  if (detStore()->retrieve(sctMgr, "SCT").isFailure()) {
     ATH_MSG_ERROR("Could not get SCT_DetectorManager!");
   } else ATH_MSG_DEBUG ("SCT Detector Manager found!");
    
@@ -1046,7 +1036,7 @@ void InDet::StagedTrackingGeometryBuilder::addGMmaterial(const Trk::TrackingVolu
   }
     
    // retrieve predefined material layers & assign material
-  mlHelper.processMaterial(enclosedDetector,itk_material,m_bpRadius);
+  mlHelper.processMaterial(enclosedDetector,itk_material,bpRadius);
    ATH_MSG_DEBUG("GM material processed");
  
    return;
