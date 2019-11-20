@@ -35,6 +35,11 @@ namespace Monitored {
   }
 
   /**
+   * Disallow temporaries
+   */
+  template <class T> ValuesCollection<T> Collection(std::string name, T const&& collection) = delete;
+
+  /**
    * Declare a monitored collection of objects
    *
    * A converter function/accessor needs to be provided to extract the relevant quantity.

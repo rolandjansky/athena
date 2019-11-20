@@ -18,8 +18,6 @@ namespace Monitored {
     HistogramFillerEfficiency(const HistogramDef& definition, std::shared_ptr<IHistogramProvider> provider)
       : HistogramFiller(definition, provider) {}
 
-    virtual HistogramFillerEfficiency* clone() override { return new HistogramFillerEfficiency(*this); };
-
     virtual unsigned fill() override {
       if (m_monVariables.size() != 2) {
         return 0;
