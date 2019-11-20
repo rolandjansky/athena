@@ -141,17 +141,13 @@ bool TrigEgammaPrecisionPhotonHypoToolInc::decide( const ITrigEgammaPrecisionPho
   PassedCuts = PassedCuts + 1; // ET_em
   
   // This is the last step. So pass is going to be the result of isEM
-  //CHECK(m_egammaPhotonCutIDTool->setProperty("OutputLevel", MSG::DEBUG));
   asg::AcceptData accept =  m_egammaPhotonCutIDTool->accept(input.photon); 
   pass = (bool) accept;
   std::bitset<32> isEMdecision = m_egammaPhotonCutIDTool->accept(input.photon).getCutResultInvertedBitSet();
   ATH_MSG_DEBUG("isEM Result bitset: " << isEMdecision);
 
-
-
  // Decode isEM bits of result to see which bits passed and which bits fialed
  //
-
 
   if ( !pass ){
       ATH_MSG_DEBUG("REJECT isEM failed");
