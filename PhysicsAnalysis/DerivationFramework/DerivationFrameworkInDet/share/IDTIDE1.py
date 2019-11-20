@@ -263,12 +263,14 @@ if IsMonteCarlo:
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  
 #====================================================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-IDTIDESequence += CfgMgr.DerivationFramework__DerivationKernel("IDTIDE1Kernel",
+idtide_kernel = CfgMgr.DerivationFramework__DerivationKernel("IDTIDE1Kernel",
                                                              AugmentationTools = augmentationTools,
                                                              SkimmingTools = skimmingTools,
                                                              ThinningTools = thinningTools,
                                                              RunSkimmingFirst = True,
                                                              OutputLevel =INFO)
+
+IDTIDESequence += idtide_kernel
 DerivationFrameworkJob += IDTIDESequence
 accept_algs=[ idtide_kernel.name() ]
 
