@@ -54,7 +54,6 @@ MuonDetectorTool::MuonDetectorTool( const std::string& type, const std::string& 
       m_dumpCscIntAlines(false),
       m_useCscIntAlinesFromGM(true),
       m_altCscIntAlinesFile(""),
-      m_cachingFlag(0),
       m_enableMdtDeformations(0),
       m_enableMdtAsBuiltParameters(0),
       m_altMdtAsBuiltFile(""),

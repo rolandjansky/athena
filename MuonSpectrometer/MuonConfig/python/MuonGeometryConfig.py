@@ -113,6 +113,11 @@ def MuonGeoModelCfg(flags):
                 nswAGDDTool.DefaultDetector = "Muon"
                 AGDD2Geo.Builders += [ nswAGDDTool ]
             acc.addService(AGDD2Geo)
+    # call fill cache of MuonDetectorTool such that all MdtReadoutElement caches are filled
+    # already during initialize() -> this will increase memory -> needs to be measured
+    detTool.FillCacheInitTime = 1
+    # turn on/off caching of MdtReadoutElement surfaces
+    detTool.CachingFlag = 1
 
     gms.DetectorTools += [ detTool ]
 

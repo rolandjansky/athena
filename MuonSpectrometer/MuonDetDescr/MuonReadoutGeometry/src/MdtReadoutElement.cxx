@@ -194,7 +194,7 @@ double MdtReadoutElement::getTubeLengthForCaching(int tubeLayer, int tube) const
       if (nGrandchildren <= 0) return tlength;
       // child vol 0 is foam; 1 to (nGrandchildren-1) should be tubes
       int ii = (tubeLayer-1)*m_ntubesperlayer+tube;
-      if( (getStationName()).find("BMG") != std::string::npos ) {
+      if (idh->isBMG(identify())) {
         // usually the tube number corresponds to the child number, however for
         // BMG chambers full tubes are skipped during the building process
         // therefore the matching needs to be done via the volume ID
@@ -542,7 +542,7 @@ MdtReadoutElement::nodeform_localTubePos(int multilayer, int tubelayer, int tube
         int nGrandchildren = cv->getNChildVols();
         // child vol 0 is foam; 1 to (nGrandchildren-1) should be tubes
         int ii = (tubelayer-1)*m_ntubesperlayer+tube;
-        if( (getStationName()).find("BMG") != std::string::npos ) {
+        if (manager()->mdtIdHelper()->isBMG(identify())) {
           // usually the tube number corresponds to the child number, however for
           // BMG chambers full tubes are skipped during the building process
           // therefore the matching needs to be done via the volume ID
@@ -1359,7 +1359,6 @@ MdtReadoutElement::transform(const Identifier & id) const
 const Amg::Transform3D &
 MdtReadoutElement::transform(int tubeLayer, int tube) const 
 {
-    //std::cout<<"caching flag = "<<m_caching<<std::endl;
     int ntot_tubes = m_nlayers * m_ntubesperlayer;
     int itube = (tubeLayer-1)*m_ntubesperlayer + tube - 1;
     if( itube >= ntot_tubes ) {
@@ -1992,15 +1991,42 @@ void MdtReadoutElement::fillCache() const
     {
         for (int tube=1; tube<=getNtubesperlayer(); ++tube)
         {
-            // print in order to compute !!!
-	    myTransform = transform(tl, tube); //<! filling m_tubeTransf
-	    myPoint     = center(tl, tube);    //<! filling m_tubeCenter
-            tmpCil = (Trk::CylinderBounds*)&bounds(tl, tube); //<! filling m_tubeBounds
-            tmpSaggL = (Trk::SaggedLineSurface*)&surface(tl, tube);//<! filling m_tubeSurfaces
-	      (*m_Log) <<MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" transform at origin  "<<myTransform*Amg::Vector3D(0.,0.,0.)<<endmsg;
-	      (*m_Log) <<MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube center          "<<myPoint<<endmsg;
-	      (*m_Log) <<MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube bounds pointer  "<<tmpCil<<endmsg;
-	      (*m_Log) <<MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube surface pointer "<<tmpSaggL<<endmsg;
+            // in case of BMG chambers, do not check the 'dead' tubes 
+            // (the tubes are numbered from 1-54 for each multilayer, however there are cutouts for the
+            // alignment system where no tubes are built-in, meaning, those tubes do not exist/are 'dead')
+            if (manager()->mdtIdHelper()->isBMG(identify())) {
+                PVConstLink cv = getMaterialGeom();
+                // usually the tube number corresponds to the child number, however for
+                // BMG chambers full tubes are skipped during the building process
+                // therefore the matching needs to be done via the volume ID
+                int tubenbr = -1;
+                int layernbr = -1;
+                for(unsigned int kk=0; kk < cv->getNChildVols(); kk++) {
+                    tubenbr = cv->getIdOfChildVol(kk) % 100;
+                    layernbr = ( cv->getIdOfChildVol(kk) - tubenbr ) / 100;
+                    if( tubenbr == tube && layernbr == tl) {
+                        // print in order to compute !!!
+                        myTransform = transform(tl, tube); //<! filling m_tubeTransf
+                        myPoint     = center(tl, tube);    //<! filling m_tubeCenter
+                        tmpCil = (Trk::CylinderBounds*)&bounds(tl, tube); //<! filling m_tubeBounds
+                        tmpSaggL = (Trk::SaggedLineSurface*)&surface(tl, tube);//<! filling m_tubeSurfaces
+                        (*m_Log) <<MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" transform at origin  "<<myTransform*Amg::Vector3D(0.,0.,0.)<<endmsg;
+                        (*m_Log) <<MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube center          "<<myPoint<<endmsg;
+                        (*m_Log) <<MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube bounds pointer  "<<tmpCil<<endmsg;
+                        (*m_Log) <<MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube surface pointer "<<tmpSaggL<<endmsg;
+                    }
+                }
+            } else {
+                // print in order to compute !!!
+                myTransform = transform(tl, tube); //<! filling m_tubeTransf
+                myPoint     = center(tl, tube);    //<! filling m_tubeCenter
+                tmpCil = (Trk::CylinderBounds*)&bounds(tl, tube); //<! filling m_tubeBounds
+                tmpSaggL = (Trk::SaggedLineSurface*)&surface(tl, tube);//<! filling m_tubeSurfaces
+                (*m_Log) <<MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" transform at origin  "<<myTransform*Amg::Vector3D(0.,0.,0.)<<endmsg;
+                (*m_Log) <<MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube center          "<<myPoint<<endmsg;
+                (*m_Log) <<MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube bounds pointer  "<<tmpCil<<endmsg;
+                (*m_Log) <<MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube surface pointer "<<tmpSaggL<<endmsg;
+            }
         }
     }
 }
