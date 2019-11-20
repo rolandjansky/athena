@@ -71,8 +71,11 @@ class electronSuperClusterBuilder : public egammaSuperClusterBuilder {
       "BremExtrapDelPhiCut", 0.075,
       "maximum DelPhi for brem search"};
 
+  Gaudi::Property<std::size_t> m_numberOfPixelHits {this, 
+      "NumberOfReqPixelHits", 1, "Number of required pixel hits for electrons"};
+
   Gaudi::Property<std::size_t> m_numberOfSiHits {this, 
-      "NumberOfReqSiHits", 4, "Number of required silicon hits for electrons"};
+      "NumberOfReqSiHits", 7, "Number of required silicon hits for electrons"};
 
   /** @brief Key for input egammaRec container */
   SG::ReadHandleKey<EgammaRecContainer> m_inputEgammaRecContainerKey {this,

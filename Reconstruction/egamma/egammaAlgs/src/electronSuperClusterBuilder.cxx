@@ -106,28 +106,36 @@ StatusCode electronSuperClusterBuilder::execute(){
     if (egRec->getNumberOfTrackParticles()==0) {
       continue;
     }
-    //with silicon
-    if (xAOD::EgammaHelpers::numberOfSiHits(egRec->trackParticle(0)) < m_numberOfSiHits){
-      continue;
-    } 
-    //And pixel hits
-    uint8_t trkPixelHits(0);
+
+    //with possible pixel
+    uint8_t nPixelHits(0);
     uint8_t uint8_value(0);
     if (egRec->trackParticle(0)->summaryValue(uint8_value,  xAOD::numberOfPixelDeadSensors)){
-      trkPixelHits+=uint8_value;
+      nPixelHits+=uint8_value;
     }
     if (egRec->trackParticle(0)->summaryValue(uint8_value,  xAOD::numberOfPixelHits)){
-      trkPixelHits+=uint8_value;
+      nPixelHits+=uint8_value;
     }    
-    if (!trkPixelHits){
+    if (nPixelHits<m_numberOfPixelHits){
       continue;
     }
-    
+
+    //and with silicon (add SCT to pixel)
+    uint8_t  nSiHits=nPixelHits;
+    if (egRec->trackParticle(0)->summaryValue(uint8_value, xAOD::numberOfSCTHits)){
+         nSiHits += uint8_value;
+    }
+    if (nSiHits < m_numberOfSiHits){
+      continue;
+    } 
+   
     ATH_MSG_DEBUG("Creating supercluster egammaRec electron using cluster Et = " 
                   << egRec->caloCluster()->et() << " eta " << egRec->caloCluster()->eta() 
                   << " phi "<< egRec->caloCluster()->phi()  << 
                   " EM Accordeon Et " << EMAccEt
-                  <<" pixel hits " << static_cast<unsigned int> (trkPixelHits));    
+                  <<" pixel hits " << static_cast<unsigned int> (nPixelHits)   
+                  <<" silicon hits " << static_cast<unsigned int> (nSiHits));    
+    
     //Mark seed as used
     isUsed.at(i)=true;     
 

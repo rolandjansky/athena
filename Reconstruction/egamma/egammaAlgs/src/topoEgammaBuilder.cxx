@@ -125,8 +125,8 @@ StatusCode topoEgammaBuilder::execute(const EventContext& ctx) const{
       if(m_doPhotons){
         // get the hottest cell
         const xAOD::CaloCluster *const elClus = electronRec->caloCluster();
-        const auto elEta0 = elClus->eta0();
-        const auto elPhi0 = elClus->phi0();
+        const double elEta0 = elClus->eta0();
+        const double elPhi0 = elClus->phi0();
         for (const egammaRec* photonRec : *inputPhRecs) {
           const xAOD::CaloCluster *const phClus = photonRec->caloCluster();
           //See if they have the same hottest cell
@@ -152,15 +152,15 @@ StatusCode topoEgammaBuilder::execute(const EventContext& ctx) const{
   }
 
   if (m_doPhotons){
-    for (const auto& photonRec : *inputPhRecs) {
+    for (const egammaRec* photonRec : *inputPhRecs) {
       unsigned int author = xAOD::EgammaParameters::AuthorPhoton;
       xAOD::AmbiguityTool::AmbiguityType type= xAOD::AmbiguityTool::photon;
       if (m_doElectrons){
         // get the hottest cell
         const xAOD::CaloCluster *const phClus = photonRec->caloCluster();
-        const auto phEta0 = phClus->eta0();
-        const auto phPhi0 = phClus->phi0();
-        for (const auto& electronRec : *inputElRecs) {
+        const double phEta0 = phClus->eta0();
+        const double phPhi0 = phClus->phi0();
+        for (const egammaRec* electronRec : *inputElRecs) {
           const xAOD::CaloCluster *const elClus = electronRec->caloCluster();
           //See if they have the same hottest cell
           if (phEta0 == elClus->eta0() && phPhi0 == elClus->phi0()) {
@@ -286,7 +286,7 @@ StatusCode topoEgammaBuilder::CallTool(const EventContext& ctx,
 
   if (electronContainer){    
     ATH_MSG_DEBUG("Executing tool on electrons: " << tool );
-    for (const auto& electron : *electronContainer){
+    for (xAOD::Electron* electron : *electronContainer){
       if (tool->execute(ctx, electron).isFailure() ){
         ATH_MSG_ERROR("Problem executing tool on electrons: " << tool);
         return StatusCode::FAILURE;
@@ -295,7 +295,7 @@ StatusCode topoEgammaBuilder::CallTool(const EventContext& ctx,
   }
   if (photonContainer){
     ATH_MSG_DEBUG("Executing tool on photons: " << tool );
-    for (const auto& photon : *photonContainer){
+    for (xAOD::Photon* photon : *photonContainer){
       if (tool->execute(ctx, photon).isFailure() ){
         ATH_MSG_ERROR("Problem executing tool on photons: " << tool);
         return StatusCode::FAILURE;
