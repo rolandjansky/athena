@@ -513,7 +513,6 @@ class TrigMuonEFMSonlyHypoConfig(object):
 
         nt = len(thresholds)
         log.debug('Set %d thresholds', nt)
-        log.warning('But cannot use multi muon trigger (not implemented yet)')
         tool.PtBins = [ [ 0, 2.5 ] ] * nt
         tool.PtThresholds = [ [ 5.49 * GeV ] ] * nt
 
