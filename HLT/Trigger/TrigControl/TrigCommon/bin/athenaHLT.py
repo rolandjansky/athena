@@ -308,6 +308,7 @@ def main():
    g.add_argument('--l1psk', type=int, default=0, help='L1 prescale key')
    g.add_argument('--hltpsk', type=int, default=0, help='HLT prescale key')
    g.add_argument('--dump-config', action='store_true', help='Dump joboptions JSON file')
+   g.add_argument('--dump-config-exit', action='store_true', help='Dump joboptions JSON file and exit')
 
    ## Online histogramming
    g = parser.add_argument_group('Online Histogramming')
@@ -375,8 +376,9 @@ def main():
 
    # Extra Psc configuration
    from TrigPSC import PscConfig
-   PscConfig.interactive = args.interactive          # interactive mode
-   PscConfig.dumpJobProperties = args.dump_config    # dump job options
+   PscConfig.interactive = args.interactive
+   PscConfig.dumpJobProperties = args.dump_config or args.dump_config_exit
+   PscConfig.exitAfterDump = args.dump_config_exit
 
    # Select the correct THistSvc
    from TrigServices.TriggerUnixStandardSetup import _Conf
