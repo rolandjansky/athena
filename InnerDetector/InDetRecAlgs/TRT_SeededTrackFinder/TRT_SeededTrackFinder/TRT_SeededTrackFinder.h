@@ -95,9 +95,9 @@ namespace InDet {
       unsigned int                       m_minTRTonSegment  ;  /** Minimum number of TRT hits on segment */
       unsigned int                       m_minTRTonly       ;  /** Minimum number of TRT hits on TRT only */
 
-      mutable ToolHandle<ITRT_SeededTrackFinder>   m_trackmaker     ;  /** Track maker tool */
+      ToolHandle<ITRT_SeededTrackFinder>   m_trackmaker     ;  /** Track maker tool */
       ToolHandle<Trk::ITrackFitter>        m_fitterTool     ;  /** Refitting tool */
-      mutable ToolHandle<ITRT_TrackExtensionTool>  m_trtExtension
+      ToolHandle<ITRT_TrackExtensionTool>  m_trtExtension
        { this, "TrackExtensionTool", "InDet::TRT_TrackExtensionTool_xk", "TRT track extension tool "};
 
       SG::ReadHandleKey<Trk::SegmentCollection>  m_SegmentsKey ;  /** TRT segments to use */

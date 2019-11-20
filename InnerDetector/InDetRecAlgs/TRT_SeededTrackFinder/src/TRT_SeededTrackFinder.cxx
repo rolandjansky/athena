@@ -99,6 +99,10 @@ StatusCode InDet::TRT_SeededTrackFinder::initialize()
   //
   ATH_CHECK( m_trtExtension.retrieve(    DisableTool{ !m_doExtension} ));
 
+
+  ATH_CHECK(  m_SegmentsKey.initialize()) ;  /** TRT segments to use */
+  ATH_CHECK( m_outTracksKey.initialize());
+
   // Get output print level
   //
   if(msgLvl(MSG::DEBUG)) {
@@ -169,8 +173,8 @@ StatusCode InDet::TRT_SeededTrackFinder::execute_r (const EventContext& ctx) con
   InDet::ExtendedSiCombinatorialTrackFinderData_xk combinatorialData(m_prdToTrackMap);
 
   // Initialize the TRT seeded track tool's new event
-  m_trackmaker  ->newEvent(combinatorialData);
-  m_trtExtension->newEvent();
+  std::unique_ptr<InDet::ITRT_SeededTrackFinder::IEventData> event_data_p( m_trackmaker  ->newEvent(combinatorialData));
+  std::unique_ptr<InDet::ITRT_TrackExtensionTool::IEventData> ext_event_data_p( m_trtExtension->newEvent() );
 
 //  TrackCollection* outTracks  = new TrackCollection;           //Tracks to be finally output
   std::unique_ptr<TrackCollection> outTracks = std::make_unique<TrackCollection>();
@@ -217,7 +221,7 @@ StatusCode InDet::TRT_SeededTrackFinder::execute_r (const EventContext& ctx) con
         ev_stat.m_counter[Stat_t::Stat_t::kNTrtSegGood]++;
 
 	// ok, call track maker and get list of possible track candidates
-        std::list<Trk::Track*> trackSi = m_trackmaker->getTrack(combinatorialData, *trackTRT); //Get the possible Si extensions
+        std::list<Trk::Track*> trackSi = m_trackmaker->getTrack(*event_data_p, *trackTRT); //Get the possible Si extensions
 
         if (trackSi.size()==0) {
           ATH_MSG_DEBUG ("No Si track candidates associated to the TRT track ");
@@ -352,7 +356,7 @@ StatusCode InDet::TRT_SeededTrackFinder::execute_r (const EventContext& ctx) con
 	      ev_stat.m_counter[Stat_t::Stat_t::kNTrtExtCalls]++;
 
 	      // call extension tool
-              std::vector<const Trk::MeasurementBase*>& tn = m_trtExtension->extendTrack(*(*itt));
+              std::vector<const Trk::MeasurementBase*>& tn = m_trtExtension->extendTrack(*(*itt), *ext_event_data_p);
 
               if(!tn.size()) {
 
@@ -474,7 +478,7 @@ StatusCode InDet::TRT_SeededTrackFinder::execute_r (const EventContext& ctx) con
   for (auto p : tempTracks){
     delete p;
   }
-  m_trackmaker->endEvent(combinatorialData);
+  m_trackmaker->endEvent(*event_data_p);
 
   //Print common event information
   if(msgLvl(MSG::DEBUG)){
@@ -491,9 +495,11 @@ StatusCode InDet::TRT_SeededTrackFinder::execute_r (const EventContext& ctx) con
 StatusCode InDet::TRT_SeededTrackFinder::finalize()
 {
   if(msgLvl(MSG::INFO)){
+     msg(MSG::INFO) << std::endl;
      dumpevent(msg(MSG::INFO), m_totalStat);
+     // dumptools(msg(MSG::INFO));
+     msg(MSG::INFO) << endmsg;
   }
-  dumptools(msg(MSG::INFO));
   return StatusCode::SUCCESS;
 }
 

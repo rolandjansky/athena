@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -67,16 +67,24 @@ namespace InDet {
       ///////////////////////////////////////////////////////////////////
       // Main methods for track extension to TRT
       ///////////////////////////////////////////////////////////////////
-      
+
       virtual std::vector<const Trk::MeasurementBase*>& extendTrack
-	(const Trk::Track&);
+         (const Trk::Track&,
+          InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const override;
+
       virtual std::vector<const Trk::MeasurementBase*>& extendTrack
-	(const Trk::TrackParameters&);
+         (const Trk::TrackParameters&,
+          InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const override;
+
       virtual Trk::TrackSegment* findSegment
-	(const Trk::TrackParameters&);
+	 (const Trk::TrackParameters&,
+          InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const override;
+
       virtual Trk::Track* newTrack
-	(const Trk::Track&);
-      virtual void newEvent();
+         (const Trk::Track&,
+          InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const override;
+
+      virtual std::unique_ptr<InDet::ITRT_TrackExtensionTool::IEventData> newEvent() const override;
 
       ///////////////////////////////////////////////////////////////////
       // Print internal tool parameters and status
@@ -108,7 +116,42 @@ namespace InDet {
 
       SG::ReadHandleKey<TRT_DriftCircleContainer> m_trtname {this,"TRT_ClustersContainer","TRT_DriftCircles","RHK to retrieve TRT_DriftCircles"};
 
-      std::vector<const Trk::MeasurementBase*>  m_measurement  ;
+      class EventData : public InDet::ITRT_TrackExtensionTool::IEventData
+      {
+         friend class TRT_TrackExtensionToolCosmics;
+      public:
+         EventData(const TRT_DriftCircleContainer *trtcontainer) : m_trtcontainer(trtcontainer) {}
+
+         ~EventData() {
+            delete m_trtcylinder;
+            delete m_trtdiscA;
+            delete m_trtdiscC;
+         }
+
+         virtual unsigned int type() const override { return s_type;}
+
+
+         static
+         InDet::TRT_TrackExtensionToolCosmics::EventData &
+         getEventData(InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) {
+            if (virt_event_data.type() != InDet::TRT_TrackExtensionToolCosmics::EventData::s_type) {
+               throw std::logic_error("EventData mismatch in call TRT_TrackExtensionTool_xk::extendTrack" );
+            }
+            return static_cast<InDet::TRT_TrackExtensionToolCosmics::EventData&>(virt_event_data);
+         }
+
+      protected:
+
+         static constexpr unsigned int s_type = 0xa875311a; // first 32bit of sha1sum of InDet::TRT_TrackExtensionTool_xk::EventData
+
+         const TRT_DriftCircleContainer  *m_trtcontainer = nullptr;
+         Trk::Surface                    *m_trtcylinder  = nullptr;
+         Trk::Surface                    *m_trtdiscA     = nullptr;
+         Trk::Surface                    *m_trtdiscC     = nullptr;
+
+         std::vector<const Trk::MeasurementBase*>  m_measurement  ;
+      };
+
 
       AtlasDetectorID*                       m_idHelper; //<! Detector ID helper
     
@@ -118,12 +161,15 @@ namespace InDet {
       MsgStream&    dumpEvent     (MsgStream   & out) const;
 
 
-      Trk::Surface *m_trtcylinder; 
-      Trk::Surface *m_trtdiscA,*m_trtdiscC;
 
-      void analyze_tpars(const std::vector<const Trk::TrackParameters* >* tpars);
-      Trk::Surface* findBoundarySurface(const Trk::TrackParameters& par, Trk::PropDirection dir);
-      Amg::Vector3D intersect(const Trk::Surface *surf,const Trk::Perigee *per);
+      void analyze_tpars(const std::vector<const Trk::TrackParameters* >* tpars,
+                         InDet::TRT_TrackExtensionToolCosmics::EventData &event_data) const;
+
+      Trk::Surface* findBoundarySurface(const Trk::TrackParameters& par,
+                                        Trk::PropDirection dir,
+                                        InDet::TRT_TrackExtensionToolCosmics::EventData &event_data) const;
+
+      static Amg::Vector3D intersect(const Trk::Surface *surf,const Trk::Perigee *per);
 
     };
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_TrackExtensionAlg/TRT_TrackExtensionAlg.h"
@@ -65,7 +65,8 @@ StatusCode InDet::TRT_TrackExtensionAlg::execute() {
 		return StatusCode::SUCCESS;
 	}
 
-	m_trtExtension->newEvent();
+        std::unique_ptr<InDet::ITRT_TrackExtensionTool::IEventData>
+           event_data_p( m_trtExtension->newEvent() );
 
 	// Loop through all input track and output tracks collection production
 	SG::WriteHandle<TrackExtensionMap> outputTracks(m_outputTracksKey);
@@ -76,9 +77,9 @@ StatusCode InDet::TRT_TrackExtensionAlg::execute() {
 		if ( !(*trk) ) continue;
 		++m_nTracks;
 
-		std::vector<const Trk::MeasurementBase*>& trkExt = m_trtExtension->extendTrack(*(*trk));
+		std::vector<const Trk::MeasurementBase*>& trkExt = m_trtExtension->extendTrack(*(*trk), *event_data_p);
 		if( !trkExt.size() ) continue;
-		
+
 		outputTracks->insert( std::make_pair((*trk), trkExt) ); 
 		++m_nTracksExtended;
 	}

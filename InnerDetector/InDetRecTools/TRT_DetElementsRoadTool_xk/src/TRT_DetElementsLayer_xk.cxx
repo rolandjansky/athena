@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -50,7 +50,10 @@ void InDet::TRT_DetElementsLayer_xk::set
 ///////////////////////////////////////////////////////////////////
 
 void InDet::TRT_DetElementsLayer_xk::getBarrelDetElementsATL
-(float* P ,float* A,std::list<InDet::TRT_DetElementLink_xk*>& lDE)
+(float* P ,
+ float* A,
+ std::vector<std::pair<const InDet::TRT_DetElementLink_xk*, float> >& lDE,
+ std::vector<InDet::TRT_DetElementLink_xk::Used_t> &used) const
 {
   float a    = (A[0]*P[0]+A[1]*P[1])*2.; 
   float s    = 0. ;
@@ -78,13 +81,15 @@ void InDet::TRT_DetElementsLayer_xk::getBarrelDetElementsATL
   float dx = fabs(yc*m_elements[n].cos()-xc*m_elements[n].sin()-m_elements[n].centerf());
   if((dx-m_wf-P[4]) <= 0.) {
 
-    if(zc0 <= 0 && !m_elements[n].used()) {
-      lDE.push_back(&m_elements[n]); m_elements[n].setUsed(s);
+    assert( used.size() > n);
+    if(zc0 <= 0 && !used[n].used()) {
+       lDE.push_back(std::make_pair(&m_elements[n],s)); used[n].setUsed();
     }
 
     int k = n+1;
-    if(zc1 >= 0. && !m_elements[k].used() ) {
-      lDE.push_back(&m_elements[k]); m_elements[k].setUsed(s);
+    assert( used.size() > k);
+    if(zc1 >= 0. && !used[k].used() ) {
+       lDE.push_back(std::make_pair(&m_elements[k],s)); used[k].setUsed();
     }
   }
   if(dF>0.) { n!=62 ? n+=2 : n=0 ;}
@@ -93,13 +98,15 @@ void InDet::TRT_DetElementsLayer_xk::getBarrelDetElementsATL
   dx = fabs(yc*m_elements[n].cos()-xc*m_elements[n].sin()-m_elements[n].centerf());
   if((dx-m_wf-P[4]) <= 0.) {
 
-    if(zc0 <= 0. && !m_elements[n].used()) {
-      lDE.push_back(&m_elements[n]); m_elements[n].setUsed(s);
+    assert( used.size() > n);
+    if(zc0 <= 0. && !used[n].used()) {
+       lDE.push_back(std::make_pair(&m_elements[n],s)); used[n].setUsed();
     }
 
     int k = n+1;
-    if(zc1 >= 0. && !m_elements[k].used()) {
-      lDE.push_back(&m_elements[k]); m_elements[k].setUsed(s);
+    assert( used.size() > k);
+    if(zc1 >= 0. && !used[k].used()) {
+       lDE.push_back(std::make_pair(&m_elements[k],s)); used[k].setUsed();
     }
   }
 }
@@ -115,7 +122,10 @@ void InDet::TRT_DetElementsLayer_xk::getBarrelDetElementsATL
 ///////////////////////////////////////////////////////////////////
 
 void InDet::TRT_DetElementsLayer_xk::getBarrelDetElementsCTB
-(float* P ,float* A,std::list<InDet::TRT_DetElementLink_xk*>& lDE)
+(float* P ,
+ float* A,
+ std::vector<std::pair<const InDet::TRT_DetElementLink_xk*,float> >& lDE,
+ std::vector<InDet::TRT_DetElementLink_xk::Used_t> &used) const
 {
   float a    = (A[0]*P[0]+A[1]*P[1])*2.; 
   float s    = 0. ;
@@ -141,13 +151,15 @@ void InDet::TRT_DetElementsLayer_xk::getBarrelDetElementsCTB
     float dx = fabs(yc*m_elements[n].cos()-xc*m_elements[n].sin()-m_elements[n].centerf());
     if((dx-m_wf-P[4]) <= 0.) {
 
-      if(zc0 <= 0. &&  !m_elements[n].used()) {
-	lDE.push_back(&m_elements[n]); m_elements[n].setUsed(s);
+      assert( used.size() > n);
+      if(zc0 <= 0. &&  !used[n].used()) {
+         lDE.push_back(std::make_pair(&m_elements[n],s)); used[n].setUsed();
       }
 
-      if(zc1 >= 0. && !m_elements[n+1].used()) {
+      assert( used.size() > n+1);
+      if(zc1 >= 0. && !used[n+1].used()) {
 
-	lDE.push_back(&m_elements[n+1]); m_elements[n+1].setUsed(s);
+         lDE.push_back(std::make_pair(&m_elements[n+1],s)); used[n+1].setUsed();
       }
     }
   }
@@ -164,7 +176,10 @@ void InDet::TRT_DetElementsLayer_xk::getBarrelDetElementsCTB
 ///////////////////////////////////////////////////////////////////
 
 void InDet::TRT_DetElementsLayer_xk::getEndcapDetElements
-(float* P ,float* A,std::list<InDet::TRT_DetElementLink_xk*>& lDE)
+(float* P ,
+ float* A,
+ std::vector<std::pair<const InDet::TRT_DetElementLink_xk*, float> >& lDE,
+ std::vector<InDet::TRT_DetElementLink_xk::Used_t> &used) const
 {
   const float pi2=2.*M_PI;
 
@@ -179,16 +194,18 @@ void InDet::TRT_DetElementsLayer_xk::getEndcapDetElements
   int n     = int((fc-m_f0)*m_sfi); if(n<0) n=0; else if(n>m) n=m;
   float dF  = fc-m_elements[n].phi();
 
-  if(fabs(dF)                     < sf && !m_elements[n].used()) {
-    lDE.push_back(&m_elements[n]); m_elements[n].setUsed(s);
+  assert( used.size() > n);
+  if(fabs(dF)                     < sf && !used[n].used()) {
+     lDE.push_back(std::make_pair(&m_elements[n],s)); used[n].setUsed();
   }
 
   //  if(dF>0.) {if(n!=63) ++n; else {n=0 ; fc-=pi2;}}
   //  else      {if(n!=0 ) --n; else {n=63; fc+=pi2;}}
   if(dF>0.) {if(n!=m) ++n; else {n=0 ; fc-=pi2;}}
   else      {if(n!=0) --n; else {n=m ; fc+=pi2;}}
-  
-  if(fabs(fc-m_elements[n].phi()) < sf && !m_elements[n].used()) {
-    lDE.push_back(&m_elements[n]); m_elements[n].setUsed(s);
+
+  assert( used.size() > n);
+  if(fabs(fc-m_elements[n].phi()) < sf && !used[n].used()) {
+     lDE.push_back(std::make_pair(&m_elements[n],s)); used[n].setUsed();
   }
 }

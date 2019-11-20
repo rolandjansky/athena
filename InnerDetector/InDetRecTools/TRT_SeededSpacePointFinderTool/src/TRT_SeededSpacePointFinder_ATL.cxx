@@ -45,21 +45,10 @@ InDet::TRT_SeededSpacePointFinder_ATL::TRT_SeededSpacePointFinder_ATL
   : AthAlgTool(t,n,p),
     m_fieldServiceHandle("AtlasFieldSvc",n),
     m_fieldService(nullptr),
-    m_nprint(0),
-    m_sctId(nullptr),
-    m_r_size(0),
-    m_ns(0),
-    m_fNmax(0),
-    m_nr(0),
-    m_nrf(0),
-    m_sF(0.)    
-    
+    m_sctId(nullptr)
 {
   m_fieldmode = "MapSolenoid"              ;
   m_ptmin     =   500.  ;  //Lowest pT of track.Up to 2000MeV bending in (r,phi) is +-4
-  m_r_Sorted    = 0     ;
-  m_r_index     = 0     ;
-  m_r_map       = 0     ;
   m_r_rmax      = 600.  ;  //Max radial extend of Si ID
   m_r_rmin      = 0.    ;  //Min radial extend for loading SPs in ID
   m_r_rstep     =  10.  ;  //Step size for SP and SCT histogramming
@@ -99,10 +88,6 @@ InDet::TRT_SeededSpacePointFinder_ATL::TRT_SeededSpacePointFinder_ATL
 
 InDet::TRT_SeededSpacePointFinder_ATL::~TRT_SeededSpacePointFinder_ATL()
 {
-  if(m_r_index)  delete [] m_r_index;
-  if(m_r_map  )  delete [] m_r_map  ; 
-  if(m_r_Sorted) delete [] m_r_Sorted;
-
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -137,11 +122,10 @@ StatusCode InDet::TRT_SeededSpacePointFinder_ATL::initialize()
 
   // Build framework
   //
-  buildFrameWork();
 
   // Get output print level
   //
-  if(msgLvl(MSG::DEBUG)){m_nprint=0; msg(MSG::DEBUG) << (*this) << endmsg;}
+  if(msgLvl(MSG::DEBUG)){ dumpConditions(msg(MSG::DEBUG)); msg(MSG::DEBUG)<<endmsg; }
 
   ATH_CHECK(m_spacepointsPixname.initialize());
   ATH_CHECK(m_spacepointsSCTname.initialize());
@@ -164,11 +148,17 @@ StatusCode InDet::TRT_SeededSpacePointFinder_ATL::finalize()
 // Initialize tool for new event 
 ///////////////////////////////////////////////////////////////////
 
-void InDet::TRT_SeededSpacePointFinder_ATL::newEvent ()
+std::unique_ptr<InDet::ITRT_SeededSpacePointFinder::IEventData>
+InDet::TRT_SeededSpacePointFinder_ATL::newEvent () const
 {
-  erase();
+  std::unique_ptr<InDet::TRT_SeededSpacePointFinder_ATL::EventData> event_data_p = std::make_unique<InDet::TRT_SeededSpacePointFinder_ATL::EventData>();
+  event_data_p->buildFrameWork(m_r_rmax, m_r_rstep, m_ptmin);
+  // @TODO remove m_r_Sorted and directly fill m_rf_Sorted ?
 
   double irstep = 1./m_r_rstep;
+
+  std::vector< std::vector<const Trk::SpacePoint*> > r_Sorted;
+  r_Sorted.resize(event_data_p->m_r_size);
 
   if(m_loadFull){
     // Get pixel space points containers from store gate 
@@ -187,9 +177,10 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newEvent ()
 	  double r = (*sp)->r(); if(r<0. || r>=m_r_rmax) continue;
 	  int   ir = int(r*irstep); 
 	  const Trk::SpacePoint* sps = (*sp); 
-          m_r_Sorted[ir].push_back(sps); ++m_r_map[ir];
-	  if(m_r_map[ir]==1) m_r_index[m_nr++] = ir;
-	  ++m_ns;
+          r_Sorted[ir].push_back(sps);
+          ++event_data_p->m_r_map[ir];
+	  if(event_data_p->m_r_map[ir]==1) event_data_p->m_r_index[event_data_p->m_nr++] = ir;
+	  ++event_data_p->m_ns;
         }
       }
     }
@@ -210,6 +201,7 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newEvent ()
     SpacePointContainer::const_iterator spc  =  spacepointsSCT->begin();
     SpacePointContainer::const_iterator spce =  spacepointsSCT->end  ();
 
+    double r_rmin = (!m_loadFull) ? m_r2min : m_r_rmin;
     for(; spc != spce; ++spc) {
 
       SpacePointCollection::const_iterator sp  = (*spc)->begin();
@@ -223,13 +215,12 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newEvent ()
           if(u1 || u2){continue;}
         }
 
-        if(!m_loadFull) m_r_rmin=m_r2min;
- 	double r = (*sp)->r(); if(r<m_r_rmin || r>=m_r_rmax) continue;
+        double r = (*sp)->r(); if(r<r_rmin || r>=m_r_rmax) continue;
 	int   ir = int(r*irstep); 
 	const Trk::SpacePoint* sps = (*sp); 
-        m_r_Sorted[ir].push_back(sps); ++m_r_map[ir];
-	if(m_r_map[ir]==1) m_r_index[m_nr++] = ir;
-	++m_ns;
+        r_Sorted[ir].push_back(sps); ++event_data_p->m_r_map[ir];
+	if(event_data_p->m_r_map[ir]==1) event_data_p->m_r_index[event_data_p->m_nr++] = ir;
+	++event_data_p->m_ns;
       }
     }
   }
@@ -253,23 +244,28 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newEvent ()
       double r = (*sp)->r(); if(r<0. || r>=m_r_rmax) continue;
       int   ir = int(r*irstep); 
       const Trk::SpacePoint* sps = (*sp); 
-      m_r_Sorted[ir].push_back(sps); ++m_r_map[ir];
-      if(m_r_map[ir]==1) m_r_index[m_nr++] = ir;
-      ++m_ns;
+      r_Sorted[ir].push_back(sps); ++event_data_p->m_r_map[ir];
+      if(event_data_p->m_r_map[ir]==1) event_data_p->m_r_index[event_data_p->m_nr++] = ir;
+      ++event_data_p->m_ns;
     }
   }
 
-  fillLists();  //Fill the R-phi sectors with the corresponding space points
+  fillLists(r_Sorted, *event_data_p);  //Fill the R-phi sectors with the corresponding space points
+  return std::unique_ptr<InDet::ITRT_SeededSpacePointFinder::IEventData>(event_data_p.release());
 }
 
 ///////////////////////////////////////////////////////////////////
 // Initialize tool for new region
 ///////////////////////////////////////////////////////////////////
 
-void InDet::TRT_SeededSpacePointFinder_ATL::newRegion
-(const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT)
+std::unique_ptr<InDet::ITRT_SeededSpacePointFinder::IEventData> InDet::TRT_SeededSpacePointFinder_ATL::newRegion
+(const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT) const
 {
-  erase();
+  std::unique_ptr<InDet::TRT_SeededSpacePointFinder_ATL::EventData> event_data_p = std::make_unique<InDet::TRT_SeededSpacePointFinder_ATL::EventData>();
+  event_data_p->buildFrameWork(m_r_rmax, m_r_rstep, m_ptmin);
+
+  std::vector< std::vector<const Trk::SpacePoint*> > r_Sorted;
+  r_Sorted.resize(event_data_p->m_r_size);
 
   double irstep = 1./m_r_rstep;
 
@@ -297,9 +293,9 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newRegion
 	  double r = (*sp)->r(); if(r<0. || r>=m_r_rmax) continue;
 	  int   ir = int(r*irstep); 
 	  const Trk::SpacePoint* sps = (*sp); 
-          m_r_Sorted[ir].push_back(sps); ++m_r_map[ir];
-	  if(m_r_map[ir]==1) m_r_index[m_nr++] = ir;
-	  ++m_ns;
+          r_Sorted[ir].push_back(sps); ++event_data_p->m_r_map[ir];
+	  if(event_data_p->m_r_map[ir]==1) event_data_p->m_r_index[event_data_p->m_nr++] = ir;
+	  ++event_data_p->m_ns;
         }
       }
     }
@@ -326,6 +322,7 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newRegion
 
       // Loop through all trigger collections
       //
+      double r_rmin = (!m_loadFull) ? m_r2min : m_r_rmin;
       for(; l!=le; ++l) {
 
 	SpacePointContainer::const_iterator  w =  spacepointsSCT->indexFind((*l));
@@ -342,19 +339,19 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newRegion
             if(u1 || u2){continue;}
           }
 
-          if(!m_loadFull) m_r_rmin=m_r2min;
- 	  double r = (*sp)->r(); if(r<m_r_rmin || r>=m_r_rmax) continue;
+          double r = (*sp)->r(); if(r<r_rmin || r>=m_r_rmax) continue;
 	  int   ir = int(r*irstep); 
 	  const Trk::SpacePoint* sps = (*sp); 
-          m_r_Sorted[ir].push_back(sps); ++m_r_map[ir];
-	  if(m_r_map[ir]==1) m_r_index[m_nr++] = ir;
-	  ++m_ns;
+          r_Sorted[ir].push_back(sps); ++event_data_p->m_r_map[ir];
+	  if(event_data_p->m_r_map[ir]==1) event_data_p->m_r_index[event_data_p->m_nr++] = ir;
+	  ++event_data_p->m_ns;
         }
       }
     }
   }
 
-  fillLists();  //Fill the R-phi sectors with the corresponding space points
+  fillLists(r_Sorted,*event_data_p);  //Fill the R-phi sectors with the corresponding space points
+  return std::unique_ptr<InDet::ITRT_SeededSpacePointFinder::IEventData>(event_data_p.release());
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -362,45 +359,43 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newRegion
 // with two space points with or without vertex constraint
 ///////////////////////////////////////////////////////////////////
 
-std::list<std::pair<const Trk::SpacePoint*, const Trk::SpacePoint*> >* 
-InDet::TRT_SeededSpacePointFinder_ATL::find2Sp(const Trk::TrackParameters& tP)
+std::list<std::pair<const Trk::SpacePoint*, const Trk::SpacePoint*> >
+InDet::TRT_SeededSpacePointFinder_ATL::find2Sp(const Trk::TrackParameters& tP,
+                                               ITRT_SeededSpacePointFinder::IEventData &virt_event_data) const
 {
+  if (virt_event_data.type() != InDet::TRT_SeededSpacePointFinder_ATL::EventData::s_type) {
+     throw std::logic_error("EventData mismatch in call TRT_SeededSpacePointFinder_ATL::find2Sp." );
+  }
+  InDet::TRT_SeededSpacePointFinder_ATL::EventData &event_data=static_cast<InDet::TRT_SeededSpacePointFinder_ATL::EventData&>(virt_event_data);
   const double pi2 = 2.*M_PI;
 
-  m_outputListBuffer.clear();
+  /** List of produced space point seeds  */
+  std::list<std::pair<const Trk::SpacePoint*,const Trk::SpacePoint*> > outputListBuffer;
 
   ///Get the phi segment index to use
   double F = 0.;
   double GPx=tP.position().x(); double GPy=tP.position().y();
   F=atan2(GPy,GPx); if(F<0.) F+=pi2;
-  int f = int(F*m_sF);
+  int f = int(F*event_data.m_sF);
   if (f < 0)
-    f += m_fNmax;
-  else if (f > m_fNmax)
-    f -= m_fNmax;
+    f += event_data.m_fNmax;
+  else if (f > event_data.m_fNmax)
+    f -= event_data.m_fNmax;
 
 
-  production2Spb (tP,f); //Get a list of SP pairs.
+  production2Spb (tP,f, outputListBuffer,event_data); //Get a list of SP pairs.
 
   if(msgLvl(MSG::DEBUG)) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
+     dumpEvent( msg(MSG::DEBUG), event_data);
+     dumpConditions( msg(MSG::DEBUG));
+     msg(MSG::DEBUG) << endmsg;
   }
 
-  if(m_outputListBuffer.size()>10000.) m_outputListBuffer.clear();
+  if(outputListBuffer.size()>10000.) outputListBuffer.clear();
 
-  return &m_outputListBuffer;
+  return outputListBuffer;
 }
 
-///////////////////////////////////////////////////////////////////
-// Dumps relevant information into the MsgStream
-///////////////////////////////////////////////////////////////////
-
-MsgStream& InDet::TRT_SeededSpacePointFinder_ATL::dump( MsgStream& out ) const
-{
-  out<<std::endl;
-  if(m_nprint)  return dumpEvent(out);
-  return dumpConditions(out);
-}
 
 ///////////////////////////////////////////////////////////////////
 // Dumps conditions information into the MsgStream
@@ -496,13 +491,13 @@ namespace {
     };
 }
 
-MsgStream& InDet::TRT_SeededSpacePointFinder_ATL::dumpEvent( MsgStream& out ) const
+MsgStream& InDet::TRT_SeededSpacePointFinder_ATL::dumpEvent( MsgStream& out, InDet::TRT_SeededSpacePointFinder_ATL::EventData &event_data) const
 {
   const double pi2    = 2.*M_PI;
   out<<"|---------------------------------------------------------------------|"
      <<"\n";
   out<<"| m_ns                    | "
-     <<std::setw(12)<<m_ns
+     <<std::setw(12)<<event_data.m_ns
      <<"                              |"<<"\n";
   out<<"|---------------------------------------------------------------------|"
      <<"\n";
@@ -520,14 +515,14 @@ MsgStream& InDet::TRT_SeededSpacePointFinder_ATL::dumpEvent( MsgStream& out ) co
   out<<"-------|-------|-------|-------|-------|-------|"
      <<"\n";
   
-  double sF1 = pi2/double(m_fNmax+1);
+  double sF1 = pi2/double(event_data.m_fNmax+1);
   
   //StreamState restore_precision(out);
   auto prec(out.precision());
-  for(int f=0; f<=m_fNmax; ++f) {
+  for(int f=0; f<=event_data.m_fNmax; ++f) {
     out<<"|  "
        <<std::setw(10)<<std::setprecision(4)<<sF1*double(f)<<" | "
-       <<std::setw(6)<<m_rf_map[f]<<" |";
+       <<std::setw(6)<<event_data.m_rf_map[f]<<" |";
     out<<"\n";
   }
   out<<"|-------------|--------|-------|-------|-------|-------|-------|";
@@ -542,44 +537,28 @@ MsgStream& InDet::TRT_SeededSpacePointFinder_ATL::dumpEvent( MsgStream& out ) co
 // Dumps relevant information into the ostream
 ///////////////////////////////////////////////////////////////////
 
+MsgStream& InDet::TRT_SeededSpacePointFinder_ATL::dump( MsgStream& out ) const
+{
+   return dumpConditions(out);
+}
+
 std::ostream& InDet::TRT_SeededSpacePointFinder_ATL::dump( std::ostream& out ) const
 {
   return out;
 }
 
 ///////////////////////////////////////////////////////////////////
-// Overload of << operator MsgStream
-///////////////////////////////////////////////////////////////////
-
-MsgStream& InDet::operator    << 
-  (MsgStream& sl,const InDet::TRT_SeededSpacePointFinder_ATL& se)
-{ 
-  return se.dump(sl); 
-}
-
-///////////////////////////////////////////////////////////////////
-// Overload of << operator std::ostream
-///////////////////////////////////////////////////////////////////
-
-std::ostream& InDet::operator << 
-  (std::ostream& sl,const InDet::TRT_SeededSpacePointFinder_ATL& se)
-{ 
-  return se.dump(sl); 
-}   
-
-///////////////////////////////////////////////////////////////////
 // Initiate frame work for seed generator
 ///////////////////////////////////////////////////////////////////
 
-void InDet::TRT_SeededSpacePointFinder_ATL::buildFrameWork() 
+void InDet::TRT_SeededSpacePointFinder_ATL::EventData::buildFrameWork(double r_rmax, double r_rstep, double ptmin)
 {
 
   m_ns = m_nr = m_nrf = 0;
 
   // Build radius sorted containers
   //
-  m_r_size = int((m_r_rmax+.1)/m_r_rstep);
-  m_r_Sorted = new std::list<const Trk::SpacePoint*>[m_r_size];
+  m_r_size = int((r_rmax+.1)/r_rstep);
   m_r_index  = new int[m_r_size];
   m_r_map    = new int[m_r_size];  
   m_nr   = 0; for(int i=0; i!=m_r_size; ++i) {m_r_index[i]=0; m_r_map[i]=0;}
@@ -589,7 +568,7 @@ void InDet::TRT_SeededSpacePointFinder_ATL::buildFrameWork()
   const double pi2    = 2.*M_PI           ;
   const int   NFmax   = 530               ;
   const double sFmax  = double(NFmax )/pi2;
-  m_sF        = m_ptmin /60. ; if(m_sF    >sFmax ) m_sF    = sFmax  ;
+  m_sF        = ptmin /60. ; if(m_sF    >sFmax ) m_sF    = sFmax  ;
   m_fNmax     = int(pi2*m_sF); if(m_fNmax >=NFmax) m_fNmax = NFmax-1;
   m_nrf   = 0; for(int i=0; i!= 530; ++i) {m_rf_index  [i]=0; m_rf_map  [i]=0;}
 
@@ -599,54 +578,48 @@ void InDet::TRT_SeededSpacePointFinder_ATL::buildFrameWork()
 // Initiate space points seed maker
 ///////////////////////////////////////////////////////////////////
 
-void InDet::TRT_SeededSpacePointFinder_ATL::fillLists() 
+void InDet::TRT_SeededSpacePointFinder_ATL::fillLists(std::vector< std::vector<const Trk::SpacePoint*> > &r_Sorted,
+                                                      InDet::TRT_SeededSpacePointFinder_ATL::EventData &event_data) const
 {
+  assert( event_data.m_r_size == r_Sorted.size());
   const double pi2 = 2.*M_PI;
-  std::list<const Trk::SpacePoint*>::iterator r;
-  
-  for(int i=0; i!= m_r_size;  ++i) {
-    if(!m_r_map[i]) continue;
-    r = m_r_Sorted[i].begin();
 
-    while(r!=m_r_Sorted[i].end()) {
+  for(int i=0; i!= event_data.m_r_size;  ++i) {
+    if(!event_data.m_r_map[i]) continue;
+    for(const Trk::SpacePoint *space_point : r_Sorted[i]) {
 
       // Azimuthal angle sort
       //
-      double F = (*r)->phi(); if(F<0.) F+=pi2;
-      int   f = int(F*m_sF);
+      double F = space_point->phi(); if(F<0.) F+=pi2;
+      int   f = int(F*event_data.m_sF);
       if (f < 0) 
-        f += m_fNmax;
-      else if (f > m_fNmax)
-        f -= m_fNmax;
+        f += event_data.m_fNmax;
+      else if (f > event_data.m_fNmax)
+        f -= event_data.m_fNmax;
       int isBRL = 1000; int isLYR = 1000; int DD = 1000;
  
-      geoInfo((*r),isBRL,isLYR);
+      geoInfo(space_point,isBRL,isLYR);
 
       // Use 4 lower bits (Mask ==  ((2^4 -1) == 15)) for isLYR
       // the upper 28 bits for isBRL (including sign)
       DD = ((isBRL+3) << 4) + (isLYR & 15);
 
-      m_rf_Sorted[f].push_back(std::make_pair((*r),DD)); 
-      if(!m_rf_map[f]++) m_rf_index[m_nrf++] = f;
+      event_data.m_rf_Sorted[f].push_back(std::make_pair(space_point,DD));
+      if(!event_data.m_rf_map[f]++) event_data.m_rf_index[event_data.m_nrf++] = f;
 
-      m_r_Sorted[i].erase(r++);
     }
-    m_r_map[i] = 0;
+    event_data.m_r_map[i] = 0;
   }
 
-  m_nr    = 0;
+  event_data.m_nr    = 0;
 }
 
 ///////////////////////////////////////////////////////////////////
 // Erase space point information
 ///////////////////////////////////////////////////////////////////
 
-void InDet::TRT_SeededSpacePointFinder_ATL::erase()
+void InDet::TRT_SeededSpacePointFinder_ATL::EventData::erase()
 {
-  for(int i=0; i!=m_nr;    ++i) {
-    int n = m_r_index[i]; m_r_map[n] = 0;
-    m_r_Sorted[n].erase(m_r_Sorted[n].begin(),m_r_Sorted[n].end());
-  }
 
   for(int i=0; i!=m_nrf;   ++i) {
     int n = m_rf_index[i]; m_rf_map[n] = 0;
@@ -722,7 +695,10 @@ rotrating(double y, double x) {
 }
 
 void
-InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const Trk::TrackParameters& tP,int phi)
+InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const Trk::TrackParameters& tP,
+                                                      int phi,
+                                                      std::list<std::pair<const Trk::SpacePoint*,const Trk::SpacePoint*> > &outputListBuffer,
+                                                      InDet::TRT_SeededSpacePointFinder_ATL::EventData &event_data) const
 { 
   uint64_t spcount = 0;
   // // // // // // <Fill the invar_bypass // // // // // // //
@@ -783,12 +759,12 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const Trk::TrackParameters
   int fmin=phi; int fmax=phi;
   if(m_search){fmin = phi-1; fmax = phi+1;}
   for(int f=fmin; f<=fmax; ++f) {
-    int j=0; f<0 ? j=f+m_fNmax+1 : f>m_fNmax ? j=f-m_fNmax-1 : j=f;
-    if(!m_rf_map[j]){
+    int j=0; f<0 ? j=f+event_data.m_fNmax+1 : f>event_data.m_fNmax ? j=f-event_data.m_fNmax-1 : j=f;
+    if(!event_data.m_rf_map[j]){
       continue;
     }
-    r0 = m_rf_Sorted[j].begin();
-    r0e = m_rf_Sorted[j].end();
+    r0 = event_data.m_rf_Sorted[j].begin();
+    r0e = event_data.m_rf_Sorted[j].end();
 
     ///Fill a list with the SP in the azimouthal region indicated by the TRT track segment
     for(; r0!=r0e; ++r0){
@@ -796,43 +772,43 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const Trk::TrackParameters
 	 (((*r0).first)->r() < m_r2min)) {
 	continue; //Fill only the SCT SPs
       }
-      m_newRfi_Sorted.push_back(*r0);
+      event_data.m_newRfi_Sorted.push_back(*r0);
       nri++;      
     }
   }
 
-  if(m_newRfi_Sorted.size()>5000 && m_newRfi_Sorted.size()<=10000) {
-    m_newRfi_Sorted.erase(m_newRfi_Sorted.begin(),m_newRfi_Sorted.end()); 
+  if(event_data.m_newRfi_Sorted.size()>5000 && event_data.m_newRfi_Sorted.size()<=10000) {
+    event_data.m_newRfi_Sorted.erase(event_data.m_newRfi_Sorted.begin(),event_data.m_newRfi_Sorted.end());
     int fmin=phi; int fmax=phi;
     for(int f=fmin; f<=fmax; ++f) {
-      int j=0; f<0 ? j=f+m_fNmax+1 : f>m_fNmax ? j=f-m_fNmax-1 : j=f;
-      if(!m_rf_map[j]){
+      int j=0; f<0 ? j=f+event_data.m_fNmax+1 : f>event_data.m_fNmax ? j=f-event_data.m_fNmax-1 : j=f;
+      if(!event_data.m_rf_map[j]){
 	continue;
       }
-      r0 = m_rf_Sorted[j].begin();
-      r0e = m_rf_Sorted[j].end();
+      r0 = event_data.m_rf_Sorted[j].begin();
+      r0e = event_data.m_rf_Sorted[j].end();
       
       ///Fill a list with the SP in the azimouthal region indicated by the TRT track segment
       for(; r0!=r0e; ++r0){
 	if((((*r0).first)->r()>m_r1max) || (((*r0).first)->r()<m_r2min)) {
 	  continue; //Fill only the SCT SPs
 	}
-	m_newRfi_Sorted.push_back(*r0);
+	event_data.m_newRfi_Sorted.push_back(*r0);
 	nri++;      
       }
     }
   }
-  if(m_newRfi_Sorted.size()>10000) {
-    m_newRfi_Sorted.erase(m_newRfi_Sorted.begin(),m_newRfi_Sorted.end());
+  if(event_data.m_newRfi_Sorted.size()>10000) {
+    event_data.m_newRfi_Sorted.erase(event_data.m_newRfi_Sorted.begin(),event_data.m_newRfi_Sorted.end());
     return;
   }
 
-  m_newRfi_Sorted.sort(MyNewDataSortPredicate());
+  event_data.m_newRfi_Sorted.sort(MyNewDataSortPredicate());
 
-  spcount = m_newRfi_Sorted.size();
+  spcount = event_data.m_newRfi_Sorted.size();
 
-  r  = m_newRfi_Sorted.begin();
-  re = m_newRfi_Sorted.end();
+  r  = event_data.m_newRfi_Sorted.begin();
+  re = event_data.m_newRfi_Sorted.end();
 
   std::vector<bypass_struct> tmp_prod_bypass;
   std::vector<const Trk::SpacePoint *> vrp;
@@ -889,10 +865,10 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const Trk::TrackParameters
 		  for (long j = i + 1; j < (long)spcount; j++) {
 			  const Trk::SpacePoint *bp = vrp[j];
 			  SpToPair = bp;
-			  m_outputListBuffer.push_back(std::make_pair(up, SpToPair));
+			  outputListBuffer.push_back(std::make_pair(up, SpToPair));
 		  }
 		  if(!SpToPair) {
-			  m_outputListBuffer.push_back(std::make_pair(up, up));
+			  outputListBuffer.push_back(std::make_pair(up, up));
 		  }
 	  }
   }
@@ -947,15 +923,15 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const Trk::TrackParameters
 				  }
 			  }
 			  SpToPair = bp;
-			  m_outputListBuffer.push_back(std::make_pair(up, SpToPair));
+			  outputListBuffer.push_back(std::make_pair(up, SpToPair));
 		  }
 		  if(!SpToPair) {
-			  m_outputListBuffer.push_back(std::make_pair(up, up));
+			  outputListBuffer.push_back(std::make_pair(up, up));
 		  }
 	  }
   }
 
-  m_newRfi_Sorted.erase(m_newRfi_Sorted.begin(),m_newRfi_Sorted.end());
+  event_data.m_newRfi_Sorted.erase(event_data.m_newRfi_Sorted.begin(),event_data.m_newRfi_Sorted.end());
 }
 
 // comment out to enable angle discontinuity correction
@@ -967,7 +943,7 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const Trk::TrackParameters
 bool
 InDet::TRT_SeededSpacePointFinder_ATL::cutTPb(const invar_bypass_struct  &tmp_invar_bypass,
                                               const std::vector<bypass_struct> &tmp_prod_bypass,
-                                              long bSP1, long bSP2, double H) 
+                                              long bSP1, long bSP2, double H) const
 {
 
   double inv_r2 = tmp_prod_bypass[bSP2].invR;
@@ -1100,7 +1076,7 @@ InDet::TRT_SeededSpacePointFinder_ATL::cutTPb(const invar_bypass_struct  &tmp_in
 ///////////////////////////////////////////////////////////////////
 
 void 
-InDet::TRT_SeededSpacePointFinder_ATL::geoInfo(const Trk::SpacePoint* SP,int& isB,int& ld)
+InDet::TRT_SeededSpacePointFinder_ATL::geoInfo(const Trk::SpacePoint* SP,int& isB,int& ld) const
 {  
   const Trk::PrepRawData* p1;
   const InDet::SCT_Cluster* c1;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -66,14 +66,14 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
       
       virtual std::vector<const Trk::MeasurementBase*>& extendTrack
-	(const Trk::Track&);
+        (const Trk::Track&,InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const override;
       virtual std::vector<const Trk::MeasurementBase*>& extendTrack
-	(const Trk::TrackParameters&);
+        (const Trk::TrackParameters&,InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const override;
       virtual Trk::TrackSegment* findSegment
-	(const Trk::TrackParameters&);
+        (const Trk::TrackParameters&, InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const override;
       virtual Trk::Track* newTrack
-	(const Trk::Track&);
-      virtual void newEvent();
+        (const Trk::Track&, InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const override;
+      virtual std::unique_ptr<InDet::ITRT_TrackExtensionTool::IEventData> newEvent() const override;
 
       ///////////////////////////////////////////////////////////////////
       // Print internal tool parameters and status
@@ -83,13 +83,49 @@ namespace InDet{
       std::ostream& dump(std::ostream& out) const;
 
     protected:
-      
+
+      class EventData : public InDet::ITRT_TrackExtensionTool::IEventData
+      {
+         friend class TRT_TrackExtensionTool_xk;
+      public:
+         EventData(const TRT_DriftCircleContainer *trtcontainer,
+                   double maxslope) : m_trtcontainer(trtcontainer),m_maxslope(maxslope) {}
+
+         ~EventData() {}
+
+         virtual unsigned int type() const override { return s_type;}
+
+
+         static
+         InDet::TRT_TrackExtensionTool_xk::EventData &
+         getEventData(InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) {
+            if (virt_event_data.type() != InDet::TRT_TrackExtensionTool_xk::EventData::s_type) {
+               throw std::logic_error("EventData mismatch in call TRT_TrackExtensionTool_xk::extendTrack" );
+            }
+            return static_cast<InDet::TRT_TrackExtensionTool_xk::EventData&>(virt_event_data);
+         }
+
+      protected:
+
+         static constexpr unsigned int s_type = 0xa875311a; // first 32bit of sha1sum of InDet::TRT_TrackExtensionTool_xk::EventData
+
+         const TRT_DriftCircleContainer           *m_trtcontainer;
+         std::vector<const Trk::MeasurementBase*>  m_measurement;
+         TRT_Trajectory_xk                         m_trajectory;
+         double m_maxslope;
+      };
+
+
+      std::vector<const Trk::MeasurementBase*>& extendTrackFromParameters
+      (const Trk::TrackParameters&,
+       InDet::TRT_TrackExtensionTool_xk::EventData &event_data) const;
+
       ///////////////////////////////////////////////////////////////////
       // Protected Data
       ///////////////////////////////////////////////////////////////////
 
+      const TRT_ID                          *m_trtid;
       ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle;
-      MagField::IMagFieldSvc*                m_fieldService      ;
       ToolHandle<ITRT_DetElementsRoadMaker>         m_roadtool   ; // TRT road maker tool
       ToolHandle<Trk::IPatternParametersPropagator> m_proptool   ; //
       ToolHandle<Trk::IPatternParametersUpdator>    m_updatortool; //
@@ -116,8 +152,6 @@ namespace InDet{
 
       Trk::MagneticFieldProperties     m_fieldprop      ; // Magnetic field properties
       SG::ReadHandleKey<TRT_DriftCircleContainer> m_trtname {this,"TRT_ClustersContainer","TRT_DriftCircles","RHK to retrieve TRT_DriftCircleContainer"};
-      TRT_Trajectory_xk                         m_trajectory   ;
-      std::vector<const Trk::MeasurementBase*>  m_measurement  ;
 
       ///////////////////////////////////////////////////////////////////
       // Methods 
@@ -125,8 +159,8 @@ namespace InDet{
 
       void       magneticFieldInit();
       StatusCode magneticFieldInit(IOVSVC_CALLBACK_ARGS);
-      bool isGoodExtension(const Trk::TrackParameters&);
-      bool numberPIXandSCTclustersCut(const Trk::Track&);
+      bool isGoodExtension(const Trk::TrackParameters&, InDet::TRT_TrackExtensionTool_xk::EventData &event_data) const;
+      bool numberPIXandSCTclustersCut(const Trk::Track&) const;
 
       MsgStream&    dumpConditions(MsgStream   & out) const;
       MsgStream&    dumpEvent     (MsgStream   & out) const;

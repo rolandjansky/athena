@@ -40,7 +40,6 @@ InDet::TRT_TrackSegmentsMaker_ATLxk::TRT_TrackSegmentsMaker_ATLxk
   m_slope       =                  0 ;
   m_islope      =                  0 ;
   m_ndzdr       =                  0 ;
-  m_circles     =                  0 ;
   m_clustersCut =                 10 ;
   m_removeNoise =                true;
   m_build       =               false;
@@ -69,7 +68,6 @@ InDet::TRT_TrackSegmentsMaker_ATLxk::~TRT_TrackSegmentsMaker_ATLxk()
   if(m_ndzdr  ) delete [] m_ndzdr  ;
   if(m_slope  ) delete [] m_slope  ;
   if(m_islope ) delete [] m_islope ;
-  if(m_circles) delete [] m_circles;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -168,26 +166,22 @@ StatusCode InDet::TRT_TrackSegmentsMaker_ATLxk::finalize()
 // Initialize tool for new event 
 ///////////////////////////////////////////////////////////////////
 
-void InDet::TRT_TrackSegmentsMaker_ATLxk::newEvent ()
+std::unique_ptr<InDet::ITRT_TrackSegmentsMaker::IEventData>
+InDet::TRT_TrackSegmentsMaker_ATLxk::newEvent() const
 {
+
   const float pi2 = 2.*M_PI;
 
-  m_clusters     = 0;
-  m_nlocal       = 0;
-  m_nsegments    = 0;
-  m_bincluster .erase(m_bincluster .begin(),m_bincluster .end());
-  m_sizebin    .erase(m_sizebin    .begin(),m_sizebin    .end());
-  m_segments   .erase(m_segments.begin()   ,m_segments.end()   );
-  m_segiterator   = m_segments.begin();
 
-  if(!m_build) return;
+  if(!m_build) { throw std::logic_error("Not build." ); }
 
   // Get drift circles collection
   //
   SG::ReadHandle<InDet::TRT_DriftCircleContainer> trtcontainer(m_trtname);
-  if(not trtcontainer.isValid() && m_outputlevel<=0) {
-    msg(MSG::DEBUG)<<"Could not get TRT_DriftCircleContainer"<<endmsg;
-    return;
+  if(not trtcontainer.isValid()) {
+    std::stringstream msg;
+    msg << name() << " Missing TRT_DriftCircleContainer " << m_trtname.key();
+    throw std::runtime_error(msg.str());
   }
 
   SG::ReadHandle<Trk::PRDtoTrackMap>  prd_to_track_map;
@@ -200,18 +194,21 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::newEvent ()
     prd_to_track_map_cptr = prd_to_track_map.cptr();
   }
 
-  if (not trtcontainer.isValid()) return;
+
+  std::unique_ptr<TRT_TrackSegmentsMaker_ATLxk::EventData>
+     event_data = std::make_unique<TRT_TrackSegmentsMaker_ATLxk::EventData>(trtcontainer.cptr(), m_cirsize);
+
   // Initiate extension tool
   //
-  m_extensionTool->newEvent();
+  event_data->m_extEventData = m_extensionTool->newEvent();
 
   InDet::TRT_DriftCircleContainer::const_iterator
     w = trtcontainer->begin(),we = trtcontainer->end();
-  if(w==we) return;
-  
-  eraseHistogramm(); 
-
   int    n = 0;
+  if(w!=we) {
+
+  eraseHistogramm(*event_data);
+
   for(; w!=we; ++w) {
 
     if(n >= m_cirsize) break;
@@ -241,42 +238,36 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::newEvent ()
       int               ns = m_trtid->straw((*c)->identify());
       const Amg::Vector3D& sc = (*c)->detectorElement()->strawCenter(ns);
       float             Fs = atan2(sc.y(),sc.x()); if(Fs<0.) Fs+=pi2;
-      m_circles[n].set((*c),Fs,ad);
+      event_data->m_circles[n].set((*c),Fs,ad);
       
       // Loop through all dz/dr for given cluster 
       //
-      for(unsigned int s=sb; s<=se; ++s) fillHistogramm (Fs,s);
+      for(unsigned int s=sb; s<=se; ++s) fillHistogramm (Fs,s,*event_data);
       ++n;
     }
   }
-  m_clusters = n;
+  }
+  event_data->m_clusters = n;
+  return std::unique_ptr<InDet::ITRT_TrackSegmentsMaker::IEventData>(event_data.release());
 }
 
 ///////////////////////////////////////////////////////////////////
 // Initialize tool for new region
 ///////////////////////////////////////////////////////////////////
 
-void InDet::TRT_TrackSegmentsMaker_ATLxk::newRegion
-(const std::vector<IdentifierHash>& vTRT)
+std::unique_ptr<InDet::ITRT_TrackSegmentsMaker::IEventData>
+InDet::TRT_TrackSegmentsMaker_ATLxk::newRegion
+(const std::vector<IdentifierHash>& vTRT) const
 {
   const float pi2 = 2.*M_PI;
 
-  m_clusters     = 0;
-  m_nlocal       = 0;
-  m_nsegments    = 0;
-  m_bincluster .erase(m_bincluster .begin(),m_bincluster .end());
-  m_sizebin    .erase(m_sizebin    .begin(),m_sizebin    .end());
-  m_segments   .erase(m_segments.begin()   ,m_segments.end()   );
-  m_segiterator   = m_segments.begin();
-
-  if(!m_build) return;
+  if(!m_build) { throw std::logic_error("Not build." ); }
 
   // Get drift cilrcles collection
   //
   SG::ReadHandle<InDet::TRT_DriftCircleContainer> trtcontainer(m_trtname);
-  if(not trtcontainer.isValid() && m_outputlevel<=0) {
+  if(not trtcontainer.isValid() && msgLvl(MSG::DEBUG)) {
     msg(MSG::DEBUG)<<"Could not get TRT_DriftCircleContainer"<<endmsg;
-    return;
   }
 
   SG::ReadHandle<Trk::PRDtoTrackMap>  prd_to_track_map;
@@ -289,14 +280,17 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::newRegion
     prd_to_track_map_cptr = prd_to_track_map.cptr();
   }
 
-  if(not trtcontainer.isValid()) return;
+  std::unique_ptr<TRT_TrackSegmentsMaker_ATLxk::EventData>
+     event_data = std::make_unique<TRT_TrackSegmentsMaker_ATLxk::EventData>(trtcontainer.cptr(), m_cirsize);
+
+  if(trtcontainer.isValid()) {
   // Initiate extension tool
   //
-  m_extensionTool->newEvent();
+  event_data->m_extEventData = m_extensionTool->newEvent();
 
   InDet::TRT_DriftCircleContainer::const_iterator we = trtcontainer->end();
 
-  eraseHistogramm(); 
+  eraseHistogramm(*event_data);
 
   std::vector<IdentifierHash>::const_iterator d=vTRT.begin(),de=vTRT.end();
   int n = 0;
@@ -330,48 +324,58 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::newRegion
 	int               ns = m_trtid->straw((*c)->identify());
 	const Amg::Vector3D& sc = (*c)->detectorElement()->strawCenter(ns);
 	float             Fs = atan2(sc.y(),sc.x()); if(Fs<0.) Fs+=pi2;
-	m_circles[n].set((*c),Fs,ad);
+	event_data->m_circles[n].set((*c),Fs,ad);
 	
 	// Loop through all dz/dr for given cluster 
 	//
-	for(unsigned int s=sb; s<=se; ++s) fillHistogramm (Fs,s);
+	for(unsigned int s=sb; s<=se; ++s) fillHistogramm (Fs,s,*event_data);
 	++n;
       }
     }
   }
-  m_clusters = n;
+  event_data->m_clusters = n;
+  }
+  return std::unique_ptr<InDet::ITRT_TrackSegmentsMaker::IEventData>( event_data.release() );
 }
 
 ///////////////////////////////////////////////////////////////////
 // Inform tool about end of event or region investigation
 ///////////////////////////////////////////////////////////////////
 
-void InDet::TRT_TrackSegmentsMaker_ATLxk::endEvent ()
+void InDet::TRT_TrackSegmentsMaker_ATLxk::endEvent (InDet::ITRT_TrackSegmentsMaker::IEventData &virt_event_data) const
 {
-  if(m_outputlevel<=0) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
+   if (msgLvl(MSG::DEBUG)) {
+      TRT_TrackSegmentsMaker_ATLxk::EventData &
+         event_data = TRT_TrackSegmentsMaker_ATLxk::EventData::getEventData(virt_event_data);
+      dumpEvent(msg(MSG::DEBUG),event_data);
+      dumpConditions(msg(MSG::DEBUG));
+      msg(MSG::DEBUG) << endmsg;
   }
-
 }
 
 ///////////////////////////////////////////////////////////////////
 // Methods for seeds production without vertex constraint
 ///////////////////////////////////////////////////////////////////
-void InDet::TRT_TrackSegmentsMaker_ATLxk::find() 
+void InDet::TRT_TrackSegmentsMaker_ATLxk::find(InDet::ITRT_TrackSegmentsMaker::IEventData &virt_event_data) const
 {
-  m_sizebin_iterator = m_sizebin.rbegin();
+   TRT_TrackSegmentsMaker_ATLxk::EventData &
+      event_data = TRT_TrackSegmentsMaker_ATLxk::EventData::getEventData(virt_event_data);
 
-  if(m_clusters<m_clustersCut) return;
+  event_data.m_sizebin_iterator = event_data.m_sizebin.rbegin();
 
-  m_clusterSegment.erase(m_clusterSegment.begin(),m_clusterSegment.end());
-  m_qualitySegment.erase(m_qualitySegment.begin(),m_qualitySegment.end());
+  if(event_data.m_clusters<m_clustersCut) return;
 
-  unsigned int mc = m_clusters;
+  //  event_data.m_clusterSegment.erase(event_data.m_clusterSegment.begin(),event_data.m_clusterSegment.end());
+  //  event_data.m_qualitySegment.erase(event_data.m_qualitySegment.begin(),event_data.m_qualitySegment.end());
+  event_data.m_clusterSegment.clear();
+  event_data.m_qualitySegment.clear();
+
+  unsigned int mc = event_data.m_clusters;
   for(unsigned int n=0; n!=mc; ++n) {
 
     
-    unsigned int b  = m_circles[n].buffer();
-    unsigned int l  = m_circles[n].layer ();
+    unsigned int b  = event_data.m_circles[n].buffer();
+    unsigned int l  = event_data.m_circles[n].layer ();
     unsigned int sb = m_begin[b][l];
     unsigned int se = m_end  [b][l];
     
@@ -381,31 +385,32 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::find()
     unsigned int  maxbin = 0;
 
     for(unsigned int s=sb; s<=se; ++s) {
-      analyseHistogramm(max,maxbin,m_circles[n].phi(),s);
+      analyseHistogramm(max,maxbin,event_data.m_circles[n].phi(),s,event_data);
     }
 
     if(int(max) > m_clustersCut) {
-      m_bincluster.insert(std::make_pair(localMaximum(maxbin),n));
+      event_data.m_bincluster.insert(std::make_pair(localMaximum(maxbin,event_data),n));
     }
   }
 
   
   std::multimap<unsigned int,unsigned int>::iterator
-    bc,bce =m_bincluster.end();
+    bc,bce =event_data.m_bincluster.end();
 
   unsigned int nbins = 0       ;
   unsigned int fbin  = 99999999; 
-  for(bc = m_bincluster.begin(); bc!=bce; ++bc) {
+  for(bc = event_data.m_bincluster.begin(); bc!=bce; ++bc) {
 
     if((*bc).first==fbin) ++nbins;
     else     {
-      if(fbin!=99999999 && nbins>=5) m_sizebin.insert(std::make_pair(nbins,fbin));
+      if(fbin!=99999999 && nbins>=5) event_data.m_sizebin.insert(std::make_pair(nbins,fbin));
       fbin=(*bc).first; nbins = 1;
     }
   }
-  if(fbin!=99999999 && nbins>=5) m_sizebin.insert(std::make_pair(nbins,fbin));
-  m_sizebin_iterator = m_sizebin.rbegin();
+  if(fbin!=99999999 && nbins>=5) event_data.m_sizebin.insert(std::make_pair(nbins,fbin));
+  event_data.m_sizebin_iterator = event_data.m_sizebin.rbegin();
 
+  // @TODO add to event data
   SG::ReadHandle<Trk::PRDtoTrackMap>  prd_to_track_map;
   const Trk::PRDtoTrackMap  *prd_to_track_map_cptr = nullptr;
   if (!m_prdToTrackMap.key().empty()) {
@@ -418,26 +423,29 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::find()
 
   // Local reconstruction and track segments production
   //
-  while(m_sizebin_iterator!=m_sizebin.rend()) {
+  while(event_data.m_sizebin_iterator!=event_data.m_sizebin.rend()) {
 
-    unsigned int bin =(*m_sizebin_iterator++).second; 
-    findLocaly(bin,prd_to_track_map_cptr);
+    unsigned int bin =(*event_data.m_sizebin_iterator++).second;
+    findLocaly(bin,prd_to_track_map_cptr, event_data);
   }
 
   // Final segments preparation
   //
-  segmentsPreparation();
+  segmentsPreparation(event_data);
 
-  m_segiterator = m_segments.begin();
+  event_data.m_segiterator = event_data.m_segments.begin();
 }
 
 ///////////////////////////////////////////////////////////////////
 // Pseudo iterator
 ///////////////////////////////////////////////////////////////////
 
-Trk::TrackSegment* InDet::TRT_TrackSegmentsMaker_ATLxk::next()
+Trk::TrackSegment* InDet::TRT_TrackSegmentsMaker_ATLxk::next(InDet::ITRT_TrackSegmentsMaker::IEventData &virt_event_data) const
 {
-  if(m_segiterator!=m_segments.end()) return (*m_segiterator++);
+   TRT_TrackSegmentsMaker_ATLxk::EventData &
+      event_data = TRT_TrackSegmentsMaker_ATLxk::EventData::getEventData(virt_event_data);
+
+  if(event_data.m_segiterator!=event_data.m_segments.end()) return (*event_data.m_segiterator++);
   return 0;
 }
 
@@ -448,7 +456,6 @@ Trk::TrackSegment* InDet::TRT_TrackSegmentsMaker_ATLxk::next()
 MsgStream& InDet::TRT_TrackSegmentsMaker_ATLxk::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpEvent(out);
   return dumpConditions(out);
 }
 
@@ -541,22 +548,25 @@ MsgStream& InDet::TRT_TrackSegmentsMaker_ATLxk::dumpConditions( MsgStream& out )
 // Dumps event information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::TRT_TrackSegmentsMaker_ATLxk::dumpEvent( MsgStream& out ) const
+MsgStream& InDet::TRT_TrackSegmentsMaker_ATLxk::dumpEvent( MsgStream& out,
+                                                           InDet::ITRT_TrackSegmentsMaker::IEventData &virt_event_data) const
 {
+   TRT_TrackSegmentsMaker_ATLxk::EventData &
+      event_data = TRT_TrackSegmentsMaker_ATLxk::EventData::getEventData(virt_event_data);
   out<<"|----------------------------------------------------------------------"
      <<"-------------------|"
      <<std::endl;
   out<<"| Number drift circles    | "
-     <<std::setw(12)<<m_clusters
+     <<std::setw(12)<<event_data.m_clusters
      <<"                                                  |"<<std::endl;
   out<<"| Number local calls      | "
-     <<std::setw(12)<<m_nlocal
+     <<std::setw(12)<<event_data.m_nlocal
      <<"                                                  |"<<std::endl;
   out<<"| Number found segments   | "
-     <<std::setw(12)<<m_nsegments
+     <<std::setw(12)<<event_data.m_nsegments
      <<"                                                  |"<<std::endl;
   out<<"| Number save  segments   | "
-     <<std::setw(12)<<m_segments.size()
+     <<std::setw(12)<<event_data.m_segments.size()
      <<"                                                  |"<<std::endl;
   out<<"|----------------------------------------------------------------------"
      <<"-------------------|"
@@ -573,25 +583,6 @@ std::ostream& InDet::TRT_TrackSegmentsMaker_ATLxk::dump( std::ostream& out ) con
   return out;
 }
 
-///////////////////////////////////////////////////////////////////
-// Overload of << operator MsgStream
-///////////////////////////////////////////////////////////////////
-
-MsgStream& InDet::operator    << 
-  (MsgStream& sl,const InDet::TRT_TrackSegmentsMaker_ATLxk& se)
-{ 
-  return se.dump(sl); 
-}
-
-///////////////////////////////////////////////////////////////////
-// Overload of << operator std::ostream
-///////////////////////////////////////////////////////////////////
-
-std::ostream& InDet::operator << 
-  (std::ostream& sl,const InDet::TRT_TrackSegmentsMaker_ATLxk& se)
-{ 
-  return se.dump(sl); 
-}   
 
 ///////////////////////////////////////////////////////////////////
 // Map of straws production
@@ -604,7 +595,6 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::mapStrawsProduction()
   if(m_ndzdr  ) delete [] m_ndzdr  ;
   if(m_slope  ) delete [] m_slope  ;
   if(m_islope ) delete [] m_islope ;
-  if(m_circles) delete [] m_circles;
 
   m_Ts          = m_nPhi*m_nMom                       ;
   m_Psi         = 2./float(m_nMom-1)                  ;
@@ -797,7 +787,6 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::mapStrawsProduction()
   m_islope   = new          int[n];
   m_slope    = new float       [n];
   m_cirsize  = m_nstraws[0]+m_nstraws[1];
-  m_circles  = new TRT_DriftCircleLinkN_xk[m_cirsize];
 
   n          = 0;
   for(int b=0; b!=4; ++b) {
@@ -874,21 +863,21 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::mapStrawsProduction()
 // Erase histogramm
 ///////////////////////////////////////////////////////////////////
 
-void InDet::TRT_TrackSegmentsMaker_ATLxk::eraseHistogramm()
+void InDet::TRT_TrackSegmentsMaker_ATLxk::eraseHistogramm(TRT_TrackSegmentsMaker_ATLxk::EventData &event_data) const
 {
   for(int i=0; i!=m_histsize; i+=10) {
 
-    m_U.H4[i  ]=0;
+    event_data.m_U.H4[i  ]=0;
 
-    m_U.H4[i+1]=0;
-    m_U.H4[i+2]=0;
-    m_U.H4[i+3]=0;
-    m_U.H4[i+4]=0;
-    m_U.H4[i+5]=0;
-    m_U.H4[i+6]=0;
-    m_U.H4[i+7]=0;
-    m_U.H4[i+8]=0;
-    m_U.H4[i+9]=0;
+    event_data.m_U.H4[i+1]=0;
+    event_data.m_U.H4[i+2]=0;
+    event_data.m_U.H4[i+3]=0;
+    event_data.m_U.H4[i+4]=0;
+    event_data.m_U.H4[i+5]=0;
+    event_data.m_U.H4[i+6]=0;
+    event_data.m_U.H4[i+7]=0;
+    event_data.m_U.H4[i+8]=0;
+    event_data.m_U.H4[i+9]=0;
   }
 }
 
@@ -897,7 +886,7 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::eraseHistogramm()
 ///////////////////////////////////////////////////////////////////
 
 void InDet::TRT_TrackSegmentsMaker_ATLxk::fillHistogramm 
-(float Fs,int s)
+(float Fs,int s, TRT_TrackSegmentsMaker_ATLxk::EventData &event_data) const
 {
   int s0 = m_ndzdr[s]*m_Ts;
   int f  = int((Fs*m_A-m_slope[s])*128.); if(f<0) f+=m_Ns128;
@@ -906,7 +895,7 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::fillHistogramm
   // Loop through all momentum slopes
   //
   for(int i=s0; i!=s0+m_Ts; i+=m_nPhi) {
-    int k =(f>>7); f+=sf; k<m_nPhi ? ++m_U.H[k+i] : ++m_U.H[k+i-m_nPhi];
+    int k =(f>>7); f+=sf; k<m_nPhi ? ++event_data.m_U.H[k+i] : ++event_data.m_U.H[k+i-m_nPhi];
   }
 }
 
@@ -916,7 +905,7 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::fillHistogramm
 ///////////////////////////////////////////////////////////////////
  
 void InDet::TRT_TrackSegmentsMaker_ATLxk::analyseHistogramm 
-(unsigned char& max,unsigned int& maxbin,float Fs,int s)
+(unsigned char& max,unsigned int& maxbin,float Fs,int s, TRT_TrackSegmentsMaker_ATLxk::EventData &event_data) const
 {
   int s0     = m_ndzdr[s]*m_Ts;
   int f      = int((Fs*m_A-m_slope[s])*128.); if(f<0) f+=m_Ns128;
@@ -926,7 +915,7 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::analyseHistogramm
   //
   for(int i=s0; i!=s0+m_Ts; i+=m_nPhi) {
     int k =(f>>7); f+=sf; if(k>=m_nPhi) k-=m_nPhi;
-    if(m_U.H[k+i] > max) max = m_U.H[maxbin = k+i];
+    if(event_data.m_U.H[k+i] > max) max = event_data.m_U.H[maxbin = k+i];
   }
 }
 
@@ -934,22 +923,24 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::analyseHistogramm
 // TRT seeds production
 ///////////////////////////////////////////////////////////////////
 
-void InDet::TRT_TrackSegmentsMaker_ATLxk::findLocaly(unsigned int bin, const Trk::PRDtoTrackMap *prd_to_track_map)
+void InDet::TRT_TrackSegmentsMaker_ATLxk::findLocaly(unsigned int bin,
+                                                     const Trk::PRDtoTrackMap *prd_to_track_map,
+                                                     TRT_TrackSegmentsMaker_ATLxk::EventData &event_data) const
 {
   const double pi=M_PI, pi2 = 2.*M_PI;
    
   std::multimap<const InDet::TRT_DriftCircle*,Trk::TrackSegment*>::const_iterator
-    cse = m_clusterSegment.end();
+    cse = event_data.m_clusterSegment.end();
 
   std::multimap<unsigned int,unsigned int>::iterator 
     bc                          ,
-    bcb = m_bincluster.find(bin),
-    bce = m_bincluster.end()    ;
+    bcb = event_data.m_bincluster.find(bin),
+    bce = event_data.m_bincluster.end()    ;
   int nfree = 0;
   for(bc=bcb; bc!=bce; ++bc) {
 
     if((*bc).first!=bin) break;
-    if(m_clusterSegment.find(m_circles[(*bc).second].circle())==cse) ++nfree;
+    if(event_data.m_clusterSegment.find(event_data.m_circles[(*bc).second].circle())==cse) ++nfree;
   }
   if(nfree<5) return;
   unsigned int ndzdr = bin/m_Ts;
@@ -965,14 +956,14 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::findLocaly(unsigned int bin, const Trk
 
     unsigned int n = (*bc).second;
     
-    unsigned int b  = m_circles[n].buffer();
-    unsigned int l  = m_circles[n].layer ();
+    unsigned int b  = event_data.m_circles[n].buffer();
+    unsigned int l  = event_data.m_circles[n].layer ();
     unsigned int s  = m_begin[b][l];
     unsigned int se = m_end  [b][l];
     
     for(; s<= se; ++s) {if(m_ndzdr[s]==ndzdr) break;}
     if(s>se) continue;
-    float F  = m_circles[n].phi()-m_slope[s]*c0;
+    float F  = event_data.m_circles[n].phi()-m_slope[s]*c0;
 
     if(!first) {
       Fo = F; first = true;
@@ -995,9 +986,9 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::findLocaly(unsigned int bin, const Trk
 
   Amg::Vector3D PSV(0.,0.,0.); Trk::PerigeeSurface PS(PSV);
   const Trk::TrackParameters* Tp = PS.createTrackParameters(0.,0.,fm,atan2(1.,m_dzdr[ndzdr]),pin,0);
-    ++m_nlocal;
+    ++event_data.m_nlocal;
 
-  Trk::TrackSegment* seg = m_extensionTool->findSegment(*Tp);
+  Trk::TrackSegment* seg = m_extensionTool->findSegment(*Tp, *(event_data.m_extEventData) );
   delete Tp;
   if(!seg) return;
 
@@ -1010,7 +1001,7 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::findLocaly(unsigned int bin, const Trk
   if(sin(T) < 0.9*m_pTmin*fabs(iP)) {delete seg; return;}
 
 
-  ++m_nsegments;
+  ++event_data.m_nsegments;
 
   bool isbarrel=false;
   const Trk::MeasurementBase *lastmeas=seg->containedMeasurements().back();
@@ -1054,7 +1045,7 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::findLocaly(unsigned int bin, const Trk
     else if(Xi2 > 1.) quality-=1;
   }
  
-  m_qualitySegment.insert(std::make_pair(quality,seg));
+  event_data.m_qualitySegment.insert(std::make_pair(quality,seg));
 
   s = seg->containedMeasurements().begin();
 
@@ -1064,7 +1055,7 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::findLocaly(unsigned int bin, const Trk
     const Trk::RIO_OnTrack*  rio = dynamic_cast<const Trk::RIO_OnTrack*>(*s);
     if (!rio) continue;
     const InDet::TRT_DriftCircle* dc = ((const InDet::TRT_DriftCircleOnTrack*)(*s))->prepRawData();
-    if(dc) m_clusterSegment.insert(std::make_pair(dc,seg));
+    if(dc) event_data.m_clusterSegment.insert(std::make_pair(dc,seg));
   }
 }
 
@@ -1072,12 +1063,12 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::findLocaly(unsigned int bin, const Trk
 // Remove fake TRT segments
 ///////////////////////////////////////////////////////////////////
 
-void InDet::TRT_TrackSegmentsMaker_ATLxk::segmentsPreparation()
+void InDet::TRT_TrackSegmentsMaker_ATLxk::segmentsPreparation(TRT_TrackSegmentsMaker_ATLxk::EventData &event_data) const
 {
   std::multimap<int,Trk::TrackSegment*>::reverse_iterator 
-    qs = m_qualitySegment.rbegin();
+    qs = event_data.m_qualitySegment.rbegin();
 
-  for(; qs!=m_qualitySegment.rend(); ++qs) {
+  for(; qs!=event_data.m_qualitySegment.rend(); ++qs) {
 
     int nfree = 0;
 
@@ -1090,9 +1081,9 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::segmentsPreparation()
     if (!rio) continue;
 
       const InDet::TRT_DriftCircle* dc = ((const InDet::TRT_DriftCircleOnTrack*)(*s))->prepRawData();
-      if(dc && m_clusterSegment.erase(dc)) ++nfree; 
+      if(dc && event_data.m_clusterSegment.erase(dc)) ++nfree;
     }
-    if(nfree >= 7) m_segments.push_back((*qs).second); 
+    if(nfree >= 7) event_data.m_segments.push_back((*qs).second);
     else           delete               (*qs).second;
   }
 }
@@ -1102,29 +1093,29 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::segmentsPreparation()
 ///////////////////////////////////////////////////////////////////
 
 unsigned int InDet::TRT_TrackSegmentsMaker_ATLxk::localMaximum
-(unsigned int bin)
+(unsigned int bin, TRT_TrackSegmentsMaker_ATLxk::EventData &event_data) const
 {
-  int           b    = bin-(bin/m_Ts)*m_Ts;
-  int           m    = b/m_nPhi           ;
-  int           f    = b-m*m_nPhi         ;
-  unsigned int  maxb = bin                ;
-  unsigned char max  = m_U.H[bin]         ;
+  int           b    = bin-(bin/m_Ts)*m_Ts  ;
+  int           m    = b/m_nPhi             ;
+  int           f    = b-m*m_nPhi           ;
+  unsigned int  maxb = bin                  ;
+  unsigned char max  = event_data.m_U.H[bin];
 
-  int a1 = bin-1; if(f==   0    ) a1+=m_nPhi; if(m_U.H[a1]>max) {max=m_U.H[a1]; maxb=a1;}  
-  int a2 = bin+1; if(f==m_nPhi-1) a2-=m_nPhi; if(m_U.H[a2]>max) {max=m_U.H[a2]; maxb=a2;}   
+  int a1 = bin-1; if(f==   0    ) a1+=m_nPhi; if(event_data.m_U.H[a1]>max) {max=event_data.m_U.H[a1]; maxb=a1;}
+  int a2 = bin+1; if(f==m_nPhi-1) a2-=m_nPhi; if(event_data.m_U.H[a2]>max) {max=event_data.m_U.H[a2]; maxb=a2;}
 
   if ( m < m_nMom-1) {
 
-    int a = bin+m_nPhi; if(m_U.H[a]>max) {max=m_U.H[a]; maxb=a;} 
-    a     = a1 +m_nPhi; if(m_U.H[a]>max) {max=m_U.H[a]; maxb=a;} 
-    a     = a2 +m_nPhi; if(m_U.H[a]>max) {max=m_U.H[a]; maxb=a;} 
-    
+    int a = bin+m_nPhi; if(event_data.m_U.H[a]>max) {max=event_data.m_U.H[a]; maxb=a;}
+    a     = a1 +m_nPhi; if(event_data.m_U.H[a]>max) {max=event_data.m_U.H[a]; maxb=a;}
+    a     = a2 +m_nPhi; if(event_data.m_U.H[a]>max) {max=event_data.m_U.H[a]; maxb=a;}
+
   }
   if ( m  >  0     ) {
 
-    int a = bin-m_nPhi; if(m_U.H[a]>max) {max=m_U.H[a]; maxb=a;} 
-    a     = a1 -m_nPhi; if(m_U.H[a]>max) {max=m_U.H[a]; maxb=a;} 
-    a     = a2 -m_nPhi; if(m_U.H[a]>max) {max=m_U.H[a]; maxb=a;} 
+    int a = bin-m_nPhi; if(event_data.m_U.H[a]>max) {max=event_data.m_U.H[a]; maxb=a;}
+    a     = a1 -m_nPhi; if(event_data.m_U.H[a]>max) {max=event_data.m_U.H[a]; maxb=a;}
+    a     = a2 -m_nPhi; if(event_data.m_U.H[a]>max) {max=event_data.m_U.H[a]; maxb=a;}
   }
   return maxb;
 }

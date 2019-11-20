@@ -47,7 +47,6 @@ InDet::TRT_TrackExtensionTool_xk::TRT_TrackExtensionTool_xk
   m_usedriftrad     = true               ;
   m_parameterization= true               ; 
   m_scale_error     = 2.                 ;
-  m_measurement.reserve(200)             ;
 
   declareInterface<ITRT_TrackExtensionTool>(this);
 
@@ -106,8 +105,11 @@ StatusCode InDet::TRT_TrackExtensionTool_xk::initialize()
       return StatusCode::FAILURE;
     }    
     ATH_MSG_DEBUG("Retrieved " << m_fieldServiceHandle );
-    m_fieldService = &*m_fieldServiceHandle;
   }
+
+  if     (m_fieldmode == "NoField"    ) m_fieldprop = Trk::MagneticFieldProperties(Trk::NoField  );
+  else if(m_fieldmode == "MapSolenoid") m_fieldprop = Trk::MagneticFieldProperties(Trk::FastField);
+  else                                  m_fieldprop = Trk::MagneticFieldProperties(Trk::FullField);
 
   // Get RIO_OnTrack creator with drift time information
   //
@@ -172,34 +174,29 @@ StatusCode InDet::TRT_TrackExtensionTool_xk::initialize()
   }
   */
 
-  const TRT_ID * trtid;
   // TRT
-  if (detStore()->retrieve(trtid,"TRT_ID").isFailure()) {
+  if (detStore()->retrieve(m_trtid,"TRT_ID").isFailure()) {
     msg(MSG::FATAL) << "Could not get TRT ID helper" << endmsg;
     return StatusCode::FAILURE;
   }
-  m_trajectory.set
-    (trtid,&(*m_proptool),&(*m_updatortool),(&(*m_riontrackD)),(&(*m_riontrackN)),
-     m_roadwidth,m_zVertexWidth,m_impact,m_scale_error);
 
   // Setup callback for magnetic field
   //
-  std::string folder( "/EXT/DCS/MAGNETS/SENSORDATA" );
-  if (detStore()->contains<CondAttrListCollection>(folder)){
-    const DataHandle<CondAttrListCollection> currentHandle;
-    sc = detStore()->regFcn(&InDet::TRT_TrackExtensionTool_xk::magneticFieldInit,this,currentHandle,folder);
+  // std::string folder( "/EXT/DCS/MAGNETS/SENSORDATA" );
+  // if (detStore()->contains<CondAttrListCollection>(folder)){
+  //   const DataHandle<CondAttrListCollection> currentHandle;
+  //   sc = detStore()->regFcn(&InDet::TRT_TrackExtensionTool_xk::magneticFieldInit,this,currentHandle,folder);
     
-    if(sc==StatusCode::SUCCESS) {
-      msg(MSG::INFO) << "Registered callback from MagneticFieldSvc for " << name() << endmsg;
-    } else {
-      msg(MSG::ERROR) << "Could not book callback from MagneticFieldSvc for " << name () << endmsg;
-      return StatusCode::FAILURE;
-    }
-  } else {
-    magneticFieldInit();
-    ATH_MSG_INFO("Folder " << folder << " not present, magnetic field callback not set up. Not a problem if AtlasFieldSvc.useDCS=False");
-  }
-
+  //   if(sc==StatusCode::SUCCESS) {
+  //     msg(MSG::INFO) << "Registered callback from MagneticFieldSvc for " << name() << endmsg;
+  //   } else {
+  //     msg(MSG::ERROR) << "Could not book callback from MagneticFieldSvc for " << name () << endmsg;
+  //     return StatusCode::FAILURE;
+  //   }
+  // } else {
+  //   magneticFieldInit();
+  //   ATH_MSG_INFO("Folder " << folder << " not present, magnetic field callback not set up. Not a problem if AtlasFieldSvc.useDCS=False");
+  // }
 
   //Initialize container
   ATH_CHECK(m_trtname.initialize());
@@ -339,12 +336,35 @@ std::ostream& InDet::operator <<
 // Track extension initiation
 ///////////////////////////////////////////////////////////////////
 
-void InDet::TRT_TrackExtensionTool_xk::newEvent()
+std::unique_ptr<InDet::ITRT_TrackExtensionTool::IEventData>
+InDet::TRT_TrackExtensionTool_xk::newEvent() const
 {
   SG::ReadHandle<TRT_DriftCircleContainer> trtcontainer(m_trtname);
+
   if((not trtcontainer.isValid()) && m_outputlevel<=0) {
-    msg(MSG::DEBUG)<<"Could not get TRT_DriftCircleContainer"<<endmsg;
+    std::stringstream msg;
+    msg << "Missing TRT_DriftCircleContainer " << m_trtname.key();
+    throw std::runtime_error( msg.str() );
   }
+
+  Trk::MagneticFieldProperties     fieldprop =  ( m_fieldServiceHandle->solenoidOn()
+                                                  ? m_fieldprop
+                                                  : Trk::MagneticFieldProperties(Trk::NoField  ));
+
+  std::unique_ptr<EventData> event_data(new EventData(trtcontainer.cptr(), m_maxslope));
+  event_data->m_trajectory.set(fieldprop,&(*m_fieldServiceHandle));
+  event_data->m_trajectory.set (m_trtid,
+                                &(*m_proptool),
+                                &(*m_updatortool),
+                                &(*m_riontrackD),
+                                &(*m_riontrackN),
+                                m_roadwidth,
+                                m_zVertexWidth,
+                                m_impact,
+                                m_scale_error);
+  event_data->m_measurement.reserve(200);
+
+  return std::unique_ptr<InDet::ITRT_TrackExtensionTool::IEventData>(event_data.release());
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -352,18 +372,19 @@ void InDet::TRT_TrackExtensionTool_xk::newEvent()
 ///////////////////////////////////////////////////////////////////
 
 std::vector<const Trk::MeasurementBase*>& 
-InDet::TRT_TrackExtensionTool_xk::extendTrack(const Trk::Track& Tr)
-{ 
-  m_measurement.clear();
+InDet::TRT_TrackExtensionTool_xk::extendTrack(const Trk::Track& Tr,
+                                              InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const
+{
+  InDet::TRT_TrackExtensionTool_xk::EventData &
+     event_data=InDet::TRT_TrackExtensionTool_xk::EventData::getEventData(virt_event_data);
 
-  SG::ReadHandle<TRT_DriftCircleContainer> trtcontainer(m_trtname);
-  if (not trtcontainer.isValid()) return m_measurement;
+  event_data.m_measurement.clear();
 
   const DataVector<const Trk::TrackStateOnSurface>* 
     tsos = Tr.trackStateOnSurfaces();
 
   const Trk::TrackParameters* 
-    par = (*(tsos->rbegin()))->trackParameters(); if(!par ) return m_measurement;
+    par = (*(tsos->rbegin()))->trackParameters(); if(!par ) return event_data.m_measurement;
   const Trk::TrackParameters* 
     parb = (*(tsos->begin()))->trackParameters();
 
@@ -374,19 +395,30 @@ InDet::TRT_TrackExtensionTool_xk::extendTrack(const Trk::Track& Tr)
     const Amg::Vector3D& g2 = parb->position();
     if((g2.x()*g2.x()+g2.y()*g2.y()) > (g1.x()*g1.x()+g1.y()*g1.y())) par=parb;
   }
-  return extendTrack(*par);
+  return extendTrackFromParameters(*par,event_data);
 }
 
 ///////////////////////////////////////////////////////////////////
 // Main methods for track extension to TRT for pixles+sct tracks
 ///////////////////////////////////////////////////////////////////
 
-std::vector<const Trk::MeasurementBase*>& 
-InDet::TRT_TrackExtensionTool_xk::extendTrack(const Trk::TrackParameters& par)
-{ 
-  m_measurement.clear();
-  if(isGoodExtension(par)) m_trajectory.convert(m_measurement);
-  return m_measurement;
+std::vector<const Trk::MeasurementBase*>&
+InDet::TRT_TrackExtensionTool_xk::extendTrack(const Trk::TrackParameters& par,
+                                              InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const
+{
+  InDet::TRT_TrackExtensionTool_xk::EventData &
+     event_data=InDet::TRT_TrackExtensionTool_xk::EventData::getEventData(virt_event_data);
+  return extendTrackFromParameters(par,event_data);
+}
+
+
+std::vector<const Trk::MeasurementBase*>&
+InDet::TRT_TrackExtensionTool_xk::extendTrackFromParameters(const Trk::TrackParameters& par,
+                                                            InDet::TRT_TrackExtensionTool_xk::EventData &event_data) const
+{
+  event_data.m_measurement.clear();
+  if(isGoodExtension(par,event_data)) event_data.m_trajectory.convert(event_data.m_measurement);
+  return event_data.m_measurement;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -394,14 +426,18 @@ InDet::TRT_TrackExtensionTool_xk::extendTrack(const Trk::TrackParameters& par)
 ///////////////////////////////////////////////////////////////////
 
 Trk::TrackSegment* 
-InDet::TRT_TrackExtensionTool_xk::findSegment(const Trk::TrackParameters& par)
+InDet::TRT_TrackExtensionTool_xk::findSegment(const Trk::TrackParameters& par,
+                                              InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const
 {
+  InDet::TRT_TrackExtensionTool_xk::EventData &
+     event_data=InDet::TRT_TrackExtensionTool_xk::EventData::getEventData(virt_event_data);
+
   int nCut = m_minNumberDCs;
   if(m_parameterization) {nCut = m_selectortool->minNumberDCs(&par); if(nCut<m_minNumberDCs) nCut=m_minNumberDCs;}
 
   // TRT detector elements road builder
   //
-  std::list<const InDetDD::TRT_BaseElement*> DE;
+  std::vector<const InDetDD::TRT_BaseElement*> DE;
   m_roadtool->detElementsRoad(par,Trk::alongMomentum,DE);
 
   if(int(DE.size())< nCut) return 0;
@@ -410,7 +446,7 @@ InDet::TRT_TrackExtensionTool_xk::findSegment(const Trk::TrackParameters& par)
   //
   std::list<const Trk::Surface*> surfaces;
   int roadsize = 0;
-  std::list<const InDetDD::TRT_BaseElement*>::iterator d,de=DE.end();
+  std::vector<const InDetDD::TRT_BaseElement*>::iterator d,de=DE.end();
   for(d=DE.begin(); d!=de; ++d) {
     surfaces.push_back(&(*d)->surface()); if(++roadsize==399) break;
   }
@@ -423,103 +459,74 @@ InDet::TRT_TrackExtensionTool_xk::findSegment(const Trk::TrackParameters& par)
 
   // Initiate trajectory
   //
-  
-  const TRT_DriftCircleContainer* mjo_trtcontainer = 0;
-  SG::ReadHandle<TRT_DriftCircleContainer> trtcontainer(m_trtname);
-  if (trtcontainer.isValid()){
-    mjo_trtcontainer = trtcontainer.cptr();
-  } 
 
-  m_trajectory.initiateForTRTSeed(gpos,DE,mjo_trtcontainer,Tp);
-  
-  if(m_trajectory.naElements() < nCut) return 0;
-  double maxslope = m_maxslope;
-  m_maxslope      = .0002     ; 
+  event_data.m_trajectory.initiateForTRTSeed(gpos,DE,event_data.m_trtcontainer,Tp);
 
-  if(m_trajectory.isFirstElementBarrel()) {
+  if(event_data.m_trajectory.naElements() < nCut) return 0;
+  event_data.m_maxslope      = .0002     ;
 
-    if(m_usedriftrad)  m_trajectory.trackFindingWithDriftTime   (m_maxslope);
-    else               m_trajectory.trackFindingWithoutDriftTime(m_maxslope);
-    if(!m_trajectory.searchStartStop()) {m_maxslope = maxslope; return 0;}
+  if(event_data.m_trajectory.isFirstElementBarrel()) {
+
+    if(m_usedriftrad)  event_data.m_trajectory.trackFindingWithDriftTime   (event_data.m_maxslope);
+    else               event_data.m_trajectory.trackFindingWithoutDriftTime(event_data.m_maxslope);
+    if(!event_data.m_trajectory.searchStartStop()) {return 0;}
   }
   else   {
 
-    m_trajectory.trackFindingWithoutDriftTime(m_maxslope);
-    if(!m_trajectory.searchStartStop()) { m_maxslope = maxslope; return 0;}
-    m_trajectory.radiusCorrection();
-    if(m_usedriftrad) m_trajectory.trackFindingWithDriftTimeBL   (m_maxslope);
-    else              m_trajectory.trackFindingWithoutDriftTimeBL(m_maxslope);
-    if(!m_trajectory.searchStartStop()) { m_maxslope = maxslope; return 0;}
+    event_data.m_trajectory.trackFindingWithoutDriftTime(event_data.m_maxslope);
+    if(!event_data.m_trajectory.searchStartStop()) { return 0;}
+    event_data.m_trajectory.radiusCorrection();
+    if(m_usedriftrad) event_data.m_trajectory.trackFindingWithDriftTimeBL   (event_data.m_maxslope);
+    else              event_data.m_trajectory.trackFindingWithoutDriftTimeBL(event_data.m_maxslope);
+    if(!event_data.m_trajectory.searchStartStop()) { return 0;}
   }
 
   // Track associate with clusters and holes
   //
-  m_trajectory.buildTrajectoryForTRTSeed(m_usedriftrad);
+  event_data.m_trajectory.buildTrajectoryForTRTSeed(m_usedriftrad);
 
-  m_maxslope = maxslope; 
+  event_data.m_maxslope = m_maxslope;
 
   // Trajectory quality test
   // 
-  int nc = m_trajectory.nclusters();
-  int nh = m_trajectory.nholes   ();
+  int nc = event_data.m_trajectory.nclusters();
+  int nh = event_data.m_trajectory.nholes   ();
   if( nc < nCut  || (1000*nc) < (700*(nc+nh)) ) return 0;
 
   if     (m_segmentFindMode==0) {
-    if(!m_trajectory.trackParametersEstimationForPerigeeWithVertexConstraint()) 
+    if(!event_data.m_trajectory.trackParametersEstimationForPerigeeWithVertexConstraint())
       return 0;
   }
   else if(m_segmentFindMode==1) {
-    if(!m_trajectory.trackParametersEstimationForFirstPointWithVertexConstraint()) 
+    if(!event_data.m_trajectory.trackParametersEstimationForFirstPointWithVertexConstraint())
       return 0;
   }
   else if(m_segmentFindMode==2) {
-    if(!m_trajectory.trackParametersEstimationForFirstPoint()) 
+    if(!event_data.m_trajectory.trackParametersEstimationForFirstPoint())
       return 0;
   }
   else                          {
-    if(!m_trajectory.fitter()) 
+    if(!event_data.m_trajectory.fitter())
       return 0;
   }
 
-  if(m_trajectory.nclusters() < nCut) return 0;
+  if(event_data.m_trajectory.nclusters() < nCut) return 0;
 
   // Trk::TrackSegment production
   //
-  return m_trajectory.convert();
-}
-
-///////////////////////////////////////////////////////////////////
-// Callback function - get the magnetic field /
-///////////////////////////////////////////////////////////////////
-
-StatusCode InDet::TRT_TrackExtensionTool_xk::magneticFieldInit(IOVSVC_CALLBACK_ARGS) 
-{
-  // Build MagneticFieldProperties 
-  //
-  if(!m_fieldService->solenoidOn()) m_fieldmode ="NoField";
-  magneticFieldInit();
-  return StatusCode::SUCCESS;
-}
-
-void InDet::TRT_TrackExtensionTool_xk::magneticFieldInit() 
-{
-  // Build MagneticFieldProperties 
-  //
-  if     (m_fieldmode == "NoField"    ) m_fieldprop = Trk::MagneticFieldProperties(Trk::NoField  );
-  else if(m_fieldmode == "MapSolenoid") m_fieldprop = Trk::MagneticFieldProperties(Trk::FastField);
-  else                                  m_fieldprop = Trk::MagneticFieldProperties(Trk::FullField);
-  m_trajectory.set(m_fieldprop,m_fieldService);
+  return event_data.m_trajectory.convert();
 }
 
 ///////////////////////////////////////////////////////////////////
 // Test possiblity extend track to TRT for pixles+sct tracks
 ///////////////////////////////////////////////////////////////////
 
-bool InDet::TRT_TrackExtensionTool_xk::isGoodExtension(const Trk::TrackParameters& par)
+bool InDet::TRT_TrackExtensionTool_xk::isGoodExtension(const Trk::TrackParameters& par,
+                                                       InDet::TRT_TrackExtensionTool_xk::EventData &event_data) const
 { 
   // TRT detector elements road builder
   //
-  std::list<const InDetDD::TRT_BaseElement*> DE;
+  std::vector<const InDetDD::TRT_BaseElement*> DE;
   m_roadtool->detElementsRoad(par,Trk::alongMomentum,DE);
   if(int(DE.size()) < m_minNumberDCs) return false;
   
@@ -527,7 +534,7 @@ bool InDet::TRT_TrackExtensionTool_xk::isGoodExtension(const Trk::TrackParameter
   //
   std::list<const Trk::Surface*> surfaces;
   int roadsize = 0;
-  std::list<const InDetDD::TRT_BaseElement*>::iterator d,de=DE.end();
+  std::vector<const InDetDD::TRT_BaseElement*>::iterator d,de=DE.end();
   for(d=DE.begin(); d!=de; ++d) {
     surfaces.push_back(&(*d)->surface()); if(++roadsize==399) break;
   }
@@ -540,28 +547,22 @@ bool InDet::TRT_TrackExtensionTool_xk::isGoodExtension(const Trk::TrackParameter
 
   // Initiate trajectory
   //
-  const TRT_DriftCircleContainer* mjo_trtcontainer = 0;
-  SG::ReadHandle<TRT_DriftCircleContainer> trtcontainer(m_trtname);
-  if (trtcontainer.isValid()){
-    mjo_trtcontainer = trtcontainer.cptr();
-  }
 
-  
-  m_trajectory.initiateForPrecisionSeed(gpos,DE,mjo_trtcontainer,Tp);
-  if(m_trajectory.naElements() < m_minNumberDCs) return false;
+  event_data.m_trajectory.initiateForPrecisionSeed(gpos,DE,event_data.m_trtcontainer,Tp);
+  if(event_data.m_trajectory.naElements() < m_minNumberDCs) return false;
 
   // Track finding
   //
-  if(m_usedriftrad)  m_trajectory.trackFindingWithDriftTime   (m_maxslope);
-  else               m_trajectory.trackFindingWithoutDriftTime(m_maxslope);
+  if(m_usedriftrad)  event_data.m_trajectory.trackFindingWithDriftTime   (event_data.m_maxslope);
+  else               event_data.m_trajectory.trackFindingWithoutDriftTime(event_data.m_maxslope);
 
   // Track associate with clusters and holes
   //
-  m_trajectory.buildTrajectoryForPrecisionSeed(m_usedriftrad);
+  event_data.m_trajectory.buildTrajectoryForPrecisionSeed(m_usedriftrad);
 
   // Final test quality
   //
-  if( m_trajectory.nclusters() < m_minNumberDCs) return false;
+  if( event_data.m_trajectory.nclusters() < m_minNumberDCs) return false;
   return true;
 }
 
@@ -570,11 +571,11 @@ bool InDet::TRT_TrackExtensionTool_xk::isGoodExtension(const Trk::TrackParameter
 // and new track production
 ///////////////////////////////////////////////////////////////////
 
-Trk::Track* InDet::TRT_TrackExtensionTool_xk::newTrack(const Trk::Track& Tr)
-{ 
-
-  SG::ReadHandle<TRT_DriftCircleContainer> trtcontainer(m_trtname);
-  if (not trtcontainer.isValid()) return 0;
+Trk::Track* InDet::TRT_TrackExtensionTool_xk::newTrack(const Trk::Track& Tr,
+                                                       InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const
+{
+  InDet::TRT_TrackExtensionTool_xk::EventData &
+     event_data=InDet::TRT_TrackExtensionTool_xk::EventData::getEventData(virt_event_data);
 
   const DataVector<const Trk::TrackStateOnSurface>* 
     tsos = Tr.trackStateOnSurfaces();
@@ -592,7 +593,7 @@ Trk::Track* InDet::TRT_TrackExtensionTool_xk::newTrack(const Trk::Track& Tr)
 
   // Test possibility extend track and new track production
   //
-  if(isGoodExtension(*pe)) return m_trajectory.convert(Tr);
+  if(isGoodExtension(*pe,event_data)) return event_data.m_trajectory.convert(Tr);
   return 0;
 }
 
@@ -600,7 +601,7 @@ Trk::Track* InDet::TRT_TrackExtensionTool_xk::newTrack(const Trk::Track& Tr)
 // Number of SCT clusters test for start extension
 ///////////////////////////////////////////////////////////////////
 
-bool InDet::TRT_TrackExtensionTool_xk::numberPIXandSCTclustersCut(const Trk::Track& Tr)
+bool InDet::TRT_TrackExtensionTool_xk::numberPIXandSCTclustersCut(const Trk::Track& Tr) const
 {
   if(m_minNumberSCT <=0 && m_minNumberPIX <=0) return true;
   

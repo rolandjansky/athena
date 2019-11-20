@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -48,6 +48,11 @@ namespace InDet {
       ///////////////////////////////////////////////////////////////////
       
     public:
+      class IEventData {
+      public:
+         virtual ~IEventData() {}
+         virtual unsigned int type() const = 0;
+      };
 
       ///////////////////////////////////////////////////////////////////
       // Standard tool methods
@@ -56,27 +61,27 @@ namespace InDet {
       static const InterfaceID& interfaceID();
       virtual StatusCode initialize ()=0;
       virtual StatusCode finalize   ()=0;
-       
+
       ///////////////////////////////////////////////////////////////////
       // Methods to initialize tool for new event or region
       ///////////////////////////////////////////////////////////////////
 
-      virtual void newEvent ()=0;
-      virtual void newRegion(const std::vector<IdentifierHash>&)=0;
-      virtual void endEvent ()=0;
-     
+      virtual std::unique_ptr<InDet::ITRT_TrackSegmentsMaker::IEventData> newEvent () const =0;
+      virtual std::unique_ptr<InDet::ITRT_TrackSegmentsMaker::IEventData> newRegion(const std::vector<IdentifierHash>&) const =0;
+      virtual void endEvent (InDet::ITRT_TrackSegmentsMaker::IEventData &event_data) const =0;
+
       ///////////////////////////////////////////////////////////////////
       // Methods of seeds production without vertex constraint
       ///////////////////////////////////////////////////////////////////
 
-      virtual void find()=0;
+      virtual void find(InDet::ITRT_TrackSegmentsMaker::IEventData &event_data) const =0;
 
       ///////////////////////////////////////////////////////////////////
       // Iterator through track segments pseudo collection produced 
       // accordingly methods find    
       ///////////////////////////////////////////////////////////////////
       
-      virtual Trk::TrackSegment* next()=0;
+      virtual Trk::TrackSegment* next(InDet::ITRT_TrackSegmentsMaker::IEventData &event_data) const =0;
       
       ///////////////////////////////////////////////////////////////////
       // Print internal tool parameters and status

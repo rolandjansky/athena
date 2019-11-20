@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -48,6 +48,11 @@ namespace InDet {
       ///////////////////////////////////////////////////////////////////
       
     public:
+       class IEventData {
+       public:
+          virtual ~IEventData() {}
+          virtual unsigned int type() const = 0;
+       };
 
       ///////////////////////////////////////////////////////////////////
       // Standard tool methods
@@ -61,24 +66,25 @@ namespace InDet {
       // Methods to initialize tool for new event or region
       ///////////////////////////////////////////////////////////////////
 
-      virtual void newEvent ()=0;
-      virtual void newRegion
-	(const std::vector<IdentifierHash>&,const std::vector<IdentifierHash>&)=0;
+      virtual std::unique_ptr<InDet::ITRT_SeededSpacePointFinder::IEventData> newEvent () const =0;
+      virtual std::unique_ptr<InDet::ITRT_SeededSpacePointFinder::IEventData> newRegion
+      (const std::vector<IdentifierHash>&,const std::vector<IdentifierHash>&) const =0;
       
       ///////////////////////////////////////////////////////////////////
       // Methods to initilize different strategies of seeds production
       // with two space points with or without vertex constraint
       ///////////////////////////////////////////////////////////////////
 
-      virtual std::list<std::pair<const Trk::SpacePoint*,const Trk::SpacePoint*> >* 
-	find2Sp (const Trk::TrackParameters& tP)=0;
+      virtual std::list<std::pair<const Trk::SpacePoint*,const Trk::SpacePoint*> >
+      find2Sp (const Trk::TrackParameters& tP,
+               ITRT_SeededSpacePointFinder::IEventData &event_data) const=0;
 
       ///////////////////////////////////////////////////////////////////
       // Iterator through seeds pseudo collection produced accordingly
       // methods find    
       ///////////////////////////////////////////////////////////////////
       
-      virtual const SiSpacePointsSeed* next()=0;
+      virtual const SiSpacePointsSeed* next(ITRT_SeededSpacePointFinder::IEventData &event_data) const =0;
       
       ///////////////////////////////////////////////////////////////////
       // Print internal tool parameters and status
@@ -86,7 +92,6 @@ namespace InDet {
      
       virtual MsgStream&    dump(MsgStream&    out) const=0;
       virtual std::ostream& dump(std::ostream& out) const=0;
-     
     };
   
   ///////////////////////////////////////////////////////////////////
