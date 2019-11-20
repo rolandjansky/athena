@@ -59,8 +59,8 @@ def SCTOverlayCfg(flags):
     acc = ComponentAccumulator()
 
     # Add SCT overlay digitization algorithm
-    from SCT_Digitization.SCT_DigitizationConfigNew import SCT_DigitizationOverlayCfg
-    acc.merge(SCT_DigitizationOverlayCfg(flags))
+    from SCT_Digitization.SCT_DigitizationConfigNew import SCT_OverlayDigitizationCfg
+    acc.merge(SCT_OverlayDigitizationCfg(flags))
     # Add SCT overlay algorithm
     acc.merge(SCTOverlayAlgCfg(flags))
     # Add SCT truth overlay
