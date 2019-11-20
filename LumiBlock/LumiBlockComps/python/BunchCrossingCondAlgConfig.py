@@ -82,6 +82,6 @@ if __name__=="__main__":
     result.run(1)
                        
     
-    #f=open("test.pkl","w")
+    #f=open("test.pkl","wb")
     #result.store(f)
     #f.close()

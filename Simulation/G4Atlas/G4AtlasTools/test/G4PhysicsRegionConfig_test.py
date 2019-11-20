@@ -71,7 +71,7 @@ if __name__ == '__main__':
   ConfigFlags.dump()
 
 
-  f=open("test.pkl","w")
+  f=open("test.pkl","wb")
   cfg.store(f) 
   f.close()
 

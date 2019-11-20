@@ -90,7 +90,7 @@ if __name__=="__main__":
     acc.getPrimary().CaloCellsOutputName="AllCaloNew"
     cfg.merge(acc)
     
-    f=open("CaloCellMaker.pkl","w")
+    f=open("CaloCellMaker.pkl","wb")
     cfg.store(f)
     f.close()
 

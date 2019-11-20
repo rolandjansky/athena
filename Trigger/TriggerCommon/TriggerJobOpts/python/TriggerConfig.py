@@ -582,6 +582,6 @@ if __name__ == "__main__":
 
     acc = triggerRunCfg( ConfigFlags, testMenu )
 
-    f=open("TriggerRunConf.pkl","w")
+    f=open("TriggerRunConf.pkl","wb")
     acc.store(f)
     f.close()
