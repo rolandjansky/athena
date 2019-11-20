@@ -19,6 +19,7 @@
 #include "../EFMissingETFromJetsMT.h"
 #include "../EFMissingETFlagsMT.h"
 #include "../EFMissingETComponentCopier.h"
+#include "../TrkMHTFex.h"
 
 DECLARE_COMPONENT( EFMissingET )
 DECLARE_COMPONENT( EFMissingETBaseTool )
@@ -40,4 +41,4 @@ DECLARE_COMPONENT( EFMissingETFromClustersMT )
 DECLARE_COMPONENT( EFMissingETFromClustersPufitMT )
 DECLARE_COMPONENT( EFMissingETFromJetsMT )
 DECLARE_COMPONENT( EFMissingETFlagsMT )
-
+DECLARE_COMPONENT( HLT::MET::TrkMHTFex )
