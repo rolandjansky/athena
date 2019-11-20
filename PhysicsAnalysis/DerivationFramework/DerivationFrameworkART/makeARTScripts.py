@@ -173,7 +173,7 @@ if (makeDataDAODs or makeMCDAODs):
             generateText(formatName,dataLabel,dataFile,False,False,"-1")
             generateText(formatName,delayedStreamLabel,dataFileDelayed,False,False,"-1")
             generateText(formatName,blsStreamLabel,dataFileBLS,False,False,"-1")
-         elif formatName == 'STDM12':
+         elif formatName in ['STDM12','STDM7']:
             generateText(formatName,dataLabel,dataFile,False,False,"-1")
             generateText(formatName,blsStreamLabel,dataFileBLS,False,False,"-1")
          elif formatName=='BPHY20':
