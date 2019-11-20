@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHEXTHINNING_ATHEXTHINNINGEVENTDICT_H
@@ -13,7 +13,6 @@
 #include "AthExThinning/AthExElephantino.h"
 
 #include "AthExThinning/AthExFatObject.h"
-#include "AthExThinning/AthExFatObjectSlimmer.h"
 
 /// Persistency
 
