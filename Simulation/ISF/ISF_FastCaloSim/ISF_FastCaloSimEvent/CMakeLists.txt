@@ -67,6 +67,7 @@ atlas_add_root_dictionary( ISF_FastCaloSimEvent _dictSource
                            ISF_FastCaloSimEvent/TFCSLateralShapeParametrization.h
                            ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitBase.h
                            ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitChain.h
+                           ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationFluctChain.h
                            ISF_FastCaloSimEvent/TFCSCenterPositionCalculation.h
                            ISF_FastCaloSimEvent/TFCSFlatLateralShapeParametrization.h
                            ISF_FastCaloSimEvent/TFCSHistoLateralShapeParametrization.h
