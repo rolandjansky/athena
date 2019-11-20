@@ -26,7 +26,7 @@ topSequence.Pythia8_i.CollisionEnergy = 7000
 topSequence.Pythia8_i.LHEFile = "Powheg.ZMu.MC11.events"
 
 
-from TruthExamples.TruthExamplesConf import DumpMC
+from TruthIO.TruthIOConf import DumpMC
 topSequence += DumpMC()
 
 
