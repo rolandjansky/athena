@@ -21,7 +21,7 @@ topSequence = AlgSequence()
 from Pythia8_i.Pythia8_iConf import Pythia8_i
 
 topSequence+=Pythia8_i()
-topSequence.Pythia8_i.CollisionEnergy = 7000
+topSequence.Pythia8_i.CollisionEnergy = 13000
 
 #topSequence.Pythia8_i.Commands += ['WeakSingleBoson:ffbar2gmZ = on']
 topSequence.Pythia8_i.LHEFile = "Powheg.ZMu.MC11.events"
@@ -30,7 +30,7 @@ topSequence.Pythia8_i.Commands += ['SpaceShower:pTmaxMatch = 2']
 topSequence.Pythia8_i.Commands += ['TimeShower:pTmaxMatch  = 2']
 topSequence.Pythia8_i.UserHook = "QCDVetoedShower"
 
-from TruthExamples.TruthExamplesConf import DumpMC
+from TruthIO.TruthIOConf import DumpMC
 topSequence += DumpMC()
 
 
