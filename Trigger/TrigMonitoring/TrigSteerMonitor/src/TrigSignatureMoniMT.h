@@ -17,6 +17,7 @@
 #include "xAODTrigger/versions/TrigComposite_v1.h"
 #include "DecisionCollectorTool.h"
 #include "TrigConfData/HLTMenu.h"
+#include "TrigConfData/L1Menu.h"
 #include "TrigConfData/DataStructure.h"
 
 #include "TimeDivider.h"
@@ -43,9 +44,11 @@ class TrigSignatureMoniMT : public ::AthReentrantAlgorithm
   SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_l1DecisionsKey{ this, "L1Decisions", "L1DecoderSummary", "Chains activated after the L1" };
   SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_finalDecisionKey{ this, "FinalDecisionKey", "HLTNav_Summary", "Final stage of all decisions" };
   SG::ReadHandleKey<TrigConf::HLTMenu> m_HLTMenuKey{ this, "HLTTriggerMenu", "DetectorStore+HLTTriggerMenu", "HLT Menu" };
+  SG::ReadHandleKey<TrigConf::L1Menu> m_L1MenuKey{ this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu", "L1 Menu" };
 
   std::map<unsigned int, int> m_chainIDToBinMap;
   std::map<std::string, int> m_nameToBinMap;
+  std::map<unsigned int, std::set<std::string>> m_chainIDToBunchMap;
   std::map<std::string, TrigCompositeUtils::DecisionIDContainer> m_groupToChainMap;
   std::map<std::string, TrigCompositeUtils::DecisionIDContainer> m_streamToChainMap;
   
@@ -57,6 +60,7 @@ class TrigSignatureMoniMT : public ::AthReentrantAlgorithm
   mutable LockedHandle<TH2> m_countHistogram;
   mutable LockedHandle<TH2> m_rateBufferHistogram;
   mutable LockedHandle<TH2> m_rateHistogram;
+  mutable LockedHandle<TH2> m_bunchHistogram;
 
   std::unique_ptr<Athena::AlgorithmTimer> m_timer;
   mutable std::atomic_bool m_isTimerStarted;
@@ -71,14 +75,18 @@ class TrigSignatureMoniMT : public ::AthReentrantAlgorithm
   ToolHandleArray<DecisionCollectorTool> m_collectorTools{ this, "CollectorTools", {}, "Tools that collect decisions for steps" };
   
   int nBinsX(SG::ReadHandle<TrigConf::HLTMenu>& ) const;
+  int nBunchBinsX(SG::ReadHandle<TrigConf::HLTMenu>& ) const;
   int nBinsY() const;
   int nRateBinsY() const;
+  int nBunchBinsY(SG::ReadHandle<TrigConf::L1Menu>& ) const;
   void callback() const;
   void updatePublished(unsigned int duration) const;
   StatusCode initHist(std::unique_ptr<TH2>&, SG::ReadHandle<TrigConf::HLTMenu>&, bool = true);
+  StatusCode initBunchHist(std::unique_ptr<TH2>&, SG::ReadHandle<TrigConf::HLTMenu>&, SG::ReadHandle<TrigConf::L1Menu>&);
   StatusCode fillDecisionCount(const std::vector<TrigCompositeUtils::DecisionID>& dc, int row) const;
   StatusCode fillPassEvents(const TrigCompositeUtils::DecisionIDContainer& dc, int row, LockedHandle<TH2>& histogram) const;
   StatusCode fillRate(const TrigCompositeUtils::DecisionIDContainer& dc, int row) const;
+  StatusCode fillBunchGroups(const TrigCompositeUtils::DecisionIDContainer&) const;
   StatusCode fillStreamsAndGroups(const std::map<std::string, TrigCompositeUtils::DecisionIDContainer>& map, const TrigCompositeUtils::DecisionIDContainer& dc) const;
 };
 
