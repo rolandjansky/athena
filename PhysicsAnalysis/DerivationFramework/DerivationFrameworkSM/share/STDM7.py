@@ -123,14 +123,10 @@ MuonTriggerRequirement=['HLT_2mu6_bUpsimumu_L1BPH-8M15-2MU6_BPH-0DR22-2MU6', 'HL
 MuonTriggerRequirement_BLS=['HLT_mu6_mu4_bUpsimumu', 'HLT_2mu6_bUpsimumu', 'HLT_2mu10_bUpsimumu', 'HLT_mu10_mu6_bUpsimumu', 'HLT_mu11_mu6_bUpsimumu', 'HLT_2mu6_bUpsimumu_L1BPH-8M15-2MU6', 'HLT_mu11_mu6_bUpsimumu_L1LFV-MU11', 'HLT_mu6_mu4_bUpsimumu_L1BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4', 'HLT_mu6_mu4_bUpsimumu_L1BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4-B', 'HLT_mu6_mu4_bUpsimumu_L1BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4-BO']
 
 from RecExConfig.InputFilePeeker import inputFileSummary
-if inputFileSummary is not None:
-    if inputFileSummary['tag_info']['triggerStreamOfFile']=='BphysLS':
-        triggerRequirement=MuonTriggerRequirement_BLS
-    elif inputFileSummary['tag_info']['triggerStreamOfFile']=='Main':
-        triggerRequirement=STDMTriggers.single_e_triggers + STDMTriggers.multi_e_triggers + STDMTriggers.multi_mu_triggers + STDMTriggers.mixed_emu_triggers+MuonTriggerRequirement
-else:
-    print("Error: physics stream information is unavailable! No trigger chosen.")
-
+triggerRequirement=STDMTriggers.single_e_triggers + STDMTriggers.multi_e_triggers + STDMTriggers.multi_mu_triggers + STDMTriggers.mixed_emu_triggers+MuonTriggerRequirement
+if inputFileSummary['tag_info']['triggerStreamOfFile']=='BphysLS':
+    triggerRequirement=MuonTriggerRequirement_BLS
+    
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
 STDM7SkimmingTool_Trig = DerivationFramework__TriggerSkimmingTool( name = "STDM7SkimmingTool_Trig", TriggerListOR = triggerRequirement )
 ToolSvc += STDM7SkimmingTool_Trig
