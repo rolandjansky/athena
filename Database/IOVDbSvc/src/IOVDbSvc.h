@@ -157,15 +157,6 @@ public:
   // return list of SG keys being provided by IOVDbSvc
   virtual std::vector<std::string> getKeyList() override;
 
-  // return information about one SG key
-  // - folder, tag, IOVRange and whether data has been retrieved
-  // (if not, range and tag may not be meaningful)
-  // return false if this key is not known to IOVDbSvc
-  virtual
-  bool getKeyInfo(const std::string& key, std::string& foldername,
-                  std::string& tag, IOVRange& range, bool& retrieved,
-                  unsigned long long& bytesRead, float& readTime) override;
-
   /// Return information about SG key
   /// return false if this key is not known to IOVDbSvc
   virtual

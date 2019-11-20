@@ -184,10 +184,6 @@ public:
   virtual std::vector<std::string> getKeyList() override
   { std::abort(); }
 
-  virtual bool getKeyInfo(const std::string& /*key*/, std::string& /*foldername*/,
-                          std::string& /*tag*/, IOVRange& /*range*/, bool& /*retrieved*/,
-                          unsigned long long& /*bytesRead*/, float& /*readTime*/) override
-  { std::abort(); }
   virtual bool getKeyInfo(const std::string& /*key*/, IIOVDbSvc::KeyInfo& /*info*/) override
   { std::abort(); }
 
