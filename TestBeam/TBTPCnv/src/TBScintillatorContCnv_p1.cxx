@@ -1,14 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TBTPCnv/TBScintillatorContCnv_p1.h"
-#define private public
-#define protected public
 #include "TBEvent/TBScintillatorCont.h"
-
-#undef private
-#undef protected
 #include "Identifier/Identifier.h"
 #include "TBTPCnv/TBScintillatorCont_p1.h"
 
@@ -16,7 +11,7 @@
 
 void
 TBScintillatorContCnv_p1::persToTrans(const TBScintillatorCont_p1* pers, 
-                                     TBScintillatorCont* trans, MsgStream &/*log*/)
+                                     TBScintillatorCont* trans, MsgStream &/*log*/) const
 {
   const unsigned nScints = pers->m_signal.size();
   
@@ -45,7 +40,7 @@ TBScintillatorContCnv_p1::persToTrans(const TBScintillatorCont_p1* pers,
 
 void
 TBScintillatorContCnv_p1::transToPers(const TBScintillatorCont* trans, 
-                                     TBScintillatorCont_p1* pers, MsgStream &/*log*/)
+                                     TBScintillatorCont_p1* pers, MsgStream &/*log*/) const
 {
   const unsigned nScints = trans->size();
 

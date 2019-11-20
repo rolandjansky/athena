@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // -------------------------------------------------------------------
@@ -18,14 +18,17 @@ class MsgStream;
 class TBTrackInfo;
 
 
-class TBTrackInfoCnv_p1  : public T_AthenaPoolTPCnvBase<TBTrackInfo, TBTrackInfo_p1>
+class TBTrackInfoCnv_p1  : public T_AthenaPoolTPCnvConstBase<TBTrackInfo, TBTrackInfo_p1>
 {
 public:
+  using base_class::transToPers;
+  using base_class::persToTrans;
+
 
   TBTrackInfoCnv_p1() {}
 
-  virtual void          persToTrans(const TBTrackInfo_p1* pers, TBTrackInfo* trans, MsgStream &log);
-  virtual void          transToPers(const TBTrackInfo* trans, TBTrackInfo_p1* pers, MsgStream &log);
+  virtual void          persToTrans(const TBTrackInfo_p1* pers, TBTrackInfo* trans, MsgStream &log) const override;
+  virtual void          transToPers(const TBTrackInfo* trans, TBTrackInfo_p1* pers, MsgStream &log) const override;
 };
 
 

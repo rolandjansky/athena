@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBEVENT_TBTrack_H
@@ -26,21 +26,13 @@ class TBTrack
   // Constructors and Destructor //
   /////////////////////////////////
 
-  TBTrack() : m_hitNumberU(0), m_hitNumberV(0),
-    m_chi2(0),
-    m_chi2u(0),
-    m_chi2v(0),
-    m_angle(0),
-    m_uslope(0),
-    m_vslope(0),
-    m_uintercept(0),
-    m_vintercept(0),
-    m_cryou(0),
-    m_cryov(0),
-    m_cryow(0)
+  TBTrack() : m_hitNumberU(0), m_hitNumberV(0)
     {};
     
   TBTrack(int hitNumberX,int hitNumberY);
+
+  TBTrack(const std::vector<double>& residualU,
+          const std::vector<double>& residualV);
 
   ~TBTrack();
   
@@ -107,13 +99,13 @@ class TBTrack
 
 
   // track parameters 
-  double m_chi2, m_chi2u, m_chi2v;
-  double m_angle;             // angle between track and Z TestBeam axe
-  double m_uslope,m_vslope;   // slopes with respect to Z TestBeam axe
-  double m_uintercept, m_vintercept;
+  double m_chi2 = 0, m_chi2u = 0, m_chi2v = 0;
+  double m_angle = 0;             // angle between track and Z TestBeam axe
+  double m_uslope = 0,m_vslope = 0;   // slopes with respect to Z TestBeam axe
+  double m_uintercept = 0, m_vintercept = 0;
 
   // extrapoled hit position at cryostat (reconstruction coordonates);
-  double m_cryou,m_cryov,m_cryow;
+  double m_cryou = 0,m_cryov = 0,m_cryow = 0;
 
 };
 CLASS_DEF( TBTrack , 129507460 , 1 )
