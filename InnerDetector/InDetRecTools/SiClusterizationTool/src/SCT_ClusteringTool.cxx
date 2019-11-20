@@ -30,8 +30,6 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 
 #include <algorithm>
-#include <bitset>
-
 
 namespace InDet {
   
@@ -46,6 +44,11 @@ namespace InDet {
   // Are two strips adjacent?
   bool adjacent(unsigned int strip1, unsigned int strip2) {
     return ((1 == (strip2-strip1)) or (1 == (strip1-strip2))); 
+  }
+
+  //version for when using rows
+  bool adjacent(const unsigned int strip1, const int row1, const unsigned int strip2, const int row2){
+    return ((row1==row2) and ((1 == (strip2-strip1)) or (1 == (strip1-strip2)))); 
   }
   
   // Constructor with parameters:
@@ -91,12 +94,8 @@ namespace InDet {
     // if bit is -1 (i.e. X) it always passes, other wise require exact match of 0/1
     // N.B bitset has opposite order to the bit pattern we define
 
-    bool pass(true);
     const std::bitset<3> timePattern(static_cast<unsigned long>(timeBin));
-    if (m_timeBinBits[0] != -1 and timePattern.test(2) != static_cast<bool>(m_timeBinBits[0])) pass=false;
-    if (m_timeBinBits[1] != -1 and timePattern.test(1) != static_cast<bool>(m_timeBinBits[1])) pass=false;
-    if (m_timeBinBits[2] != -1 and timePattern.test(0) != static_cast<bool>(m_timeBinBits[2])) pass=false;
-    return pass;
+    return testTimeBinsN(timePattern);
   }
 
   bool SCT_ClusteringTool::testTimeBins01X(int timeBin) const {
@@ -134,6 +133,12 @@ namespace InDet {
       m_conditionsTool.disable();
     }
     
+    if (m_doNewClustering and not m_lorentzAngleTool.empty()) {
+      ATH_CHECK(m_lorentzAngleTool.retrieve());
+    } else {
+      m_lorentzAngleTool.disable();
+    }
+
     if (decodeTimeBins().isFailure()) return StatusCode::FAILURE;
 
     /// only one of m_majority01X, m_innermostBarrelX1X and m_innertwoBarrelX1X
@@ -298,6 +303,8 @@ namespace InDet {
                                  const SCT_ID& idHelper) const
   {
     ATH_MSG_VERBOSE ("SCT_ClusteringTool::clusterize()");
+
+    if (m_doNewClustering) return clusterizeNew(collection, idHelper);
 
     SCT_ClusterCollection* nullResult(nullptr);
     if (collection.empty()) {
@@ -477,6 +484,246 @@ namespace InDet {
     return clusterCollection;
   }
 
+  SCT_ClusterCollection* SCT_ClusteringTool::clusterizeNew(const InDetRawDataCollection<SCT_RDORawData>& collection,
+                                                            const SCT_ID& idHelper) const
+  {
+    if (collection.empty()) return nullptr;
+
+    std::vector<const SCT_RDORawData*> collectionCopy(collection.begin(), collection.end());
+
+    if (collectionCopy.size() > 1) std::sort(collectionCopy.begin(), collectionCopy.end(), strip_less_than());
+
+    IdVec_t currentVector;
+    currentVector.reserve(100);
+
+    std::vector<IdVec_t> idGroups;
+    idGroups.reserve(collectionCopy.size());
+
+    std::vector<uint16_t> tbinGroups;
+    tbinGroups.reserve(collectionCopy.size());
+
+    unsigned int previousStrip = 0; // Should be ok?
+    uint16_t hitsInThirdTimeBin = 0;
+    int stripCount  =  0;
+    int previousRow = -1;
+    int thisRow     = -1;
+
+    const Identifier badId;
+
+    for (const SCT_RDORawData* pRawData: collectionCopy) {
+      Identifier firstStripId = pRawData->identify();
+      Identifier waferId = idHelper.wafer_id(firstStripId);
+      unsigned int nStrips = pRawData->getGroupSize();
+      int thisStrip = idHelper.strip(firstStripId);
+
+      if (m_useRowInformation) thisRow = idHelper.row(firstStripId);
+
+      // Flushes the vector every time a non-adjacent strip is found
+      //
+      if (not currentVector.empty() and
+          ((m_useRowInformation and !adjacent(thisStrip, thisRow, previousStrip, previousRow)) or 
+           (not m_useRowInformation and !adjacent(thisStrip, previousStrip)))) {
+
+        // Add this group to existing groups (and flush)
+        //
+        idGroups.push_back(currentVector);
+        currentVector.clear();
+
+        tbinGroups.push_back(hitsInThirdTimeBin);
+        hitsInThirdTimeBin = 0;
+        stripCount         = 0;
+      }
+
+      // Only use clusters with certain time bit patterns if m_timeBinStr set
+
+      const SCT3_RawData* pRawData3 = dynamic_cast<const SCT3_RawData*>(pRawData);
+      //sroe: coverity 31562
+      if (!pRawData3) {
+        ATH_MSG_ERROR("Casting into SCT3_RawData failed. This is probably caused by use of an old RDO file.");
+        return nullptr;
+      }
+
+      int timeBin = pRawData3->getTimeBin();
+      std::bitset<3> timePattern(static_cast<unsigned long>(timeBin));
+
+      bool passTiming = true;
+
+      if (!m_timeBinStr.empty()) passTiming = testTimeBinsN(timePattern);
+
+      // Now we are either (a) pushing more contiguous strips onto an existing vector
+      //                or (b) pushing a new set of ids onto an empty vector
+      //
+      if (passTiming) {
+        unsigned int nBadStrips(0);
+        for (unsigned int sn=thisStrip; sn!=thisStrip+nStrips; ++sn) {
+          Identifier stripId = m_useRowInformation ? idHelper.strip_id(waferId,thisRow,sn) : idHelper.strip_id(waferId,sn);
+          if (m_conditionsTool->isGood(stripId, InDetConditions::SCT_STRIP)) {
+            currentVector.push_back(stripId);
+          } else {
+            currentVector.push_back(badId);
+            ++nBadStrips;
+          }
+          if (stripCount < 16) {
+            hitsInThirdTimeBin = hitsInThirdTimeBin | (timePattern.test(0) << stripCount);
+          }
+          ++stripCount;
+        }
+
+        if (currentVector.size() == nBadStrips) {
+          currentVector.clear();
+        } else if (nBadStrips) {
+          currentVector=recluster(currentVector, idGroups);
+        }
+      }
+
+      if (not currentVector.empty()) {
+        // Gives the last strip number in the cluster
+        //
+        previousStrip = idHelper.strip(currentVector.back());
+        if (m_useRowInformation) previousRow = idHelper.row(currentVector.back());
+      }
+    }
+
+    // Still need to add this last vector
+    //
+    if (not currentVector.empty()) {
+      idGroups.push_back(currentVector);
+      tbinGroups.push_back(hitsInThirdTimeBin);
+      hitsInThirdTimeBin=0;
+    }
+
+    // Find detector element for these digits
+    //
+    IdentifierHash idHash = collection.identifyHash();
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEleHandle(m_SCTDetEleCollKey);
+    const InDetDD::SiDetectorElementCollection* sctDetEle(*sctDetEleHandle);
+    if (not sctDetEleHandle.isValid() or sctDetEle==nullptr) {
+      ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " is not available.");
+      return nullptr;
+    }
+    const InDetDD::SiDetectorElement* element(sctDetEle->getDetectorElement(idHash));
+    if (!element) {
+      ATH_MSG_WARNING("Element not in the element map, hash = " << idHash);
+      return nullptr;
+    }
+
+    const InDetDD::SCT_ModuleSideDesign* design = (dynamic_cast<const InDetDD::SCT_ModuleSideDesign*>(&element->design()));
+    if(design==nullptr) return nullptr;
+
+    SCT_ClusterCollection* clusterCollection = new SCT_ClusterCollection(idHash);
+    Identifier elementID = collection.identify();
+    clusterCollection->setIdentifier(elementID);
+    clusterCollection->reserve(idGroups.size());
+
+    int clusterNumber = 0;
+
+    // All strips are assumed to be the same width.
+    //
+    std::vector<IdVec_t>::iterator pGroup = idGroups.begin();
+    std::vector<IdVec_t>::iterator lastGroup = idGroups.end();
+    std::vector<uint16_t>::iterator tbinIter = tbinGroups.begin();
+
+    // If clusters have been split due to bad strips, would require a whole lot
+    // of new logic to recalculate hitsInThirdTimeBin word - instead, just find
+    // when this is the case here, and set hitsInThirdTimeBin to zero later on
+    //
+    double iphipitch  = 1./element->phiPitch();
+    double shift = m_lorentzAngleTool->getLorentzShift(element->identifyHash());
+    double stripPitch = design->stripPitch();
+    bool badStripInClusterOnThisModuleSide = (idGroups.size() != tbinGroups.size());
+    bool rotate = element->design().shape() == InDetDD::Trapezoid || element->design().shape() == InDetDD::Annulus;
+    double stripL = 0.;
+    double COV11 = 0.;
+
+    if (not rotate) {
+      stripL = design->etaPitch();
+      COV11 = stripL*stripL*(1./12.);
+    }
+
+    for (; pGroup!=lastGroup; ++pGroup) {
+      int nStrips = pGroup->size();
+      double dnStrips = static_cast<double>(nStrips);
+      Identifier clusterId = pGroup->front();
+
+      int firstStrip = idHelper.strip(clusterId);
+      double width = stripPitch;
+      InDetDD::SiLocalPosition centre;
+      if (m_useRowInformation) {
+        int row = idHelper.row(clusterId);
+        centre = element->rawLocalPositionOfCell(design->strip1Dim(firstStrip, row));
+        if (nStrips > 1) {
+          InDetDD::SiLocalPosition lastStripPos(element->rawLocalPositionOfCell(design->strip1Dim(firstStrip+nStrips-1, row)));
+          centre = (centre+lastStripPos)*.5;
+          width *=dnStrips;
+        }
+      } else {
+        DimensionAndPosition clusterDim = clusterDimensions(idHelper.strip(pGroup->front()), idHelper.strip(pGroup->back()), element, idHelper);
+        centre = clusterDim.centre;
+        width  = clusterDim.width;
+      }
+
+      Amg::Vector2D localPos{centre.xPhi(), centre.xEta()};
+      Amg::Vector2D locpos{centre.xPhi()+shift, centre.xEta()};
+
+      // Now make a SiCluster
+      //
+      double x = 0.;
+      // single strip - resolution close to pitch/sqrt(12)
+      // two-strip hits: better resolution, approx. 40% lower
+      // lines taken from ClusterMakerTool::sctCluster
+      if (nStrips == 1) {
+        x = 1.05*width;
+      } else {
+        if (nStrips == 2) {
+          x = 0.27*width;
+        } else {
+          x = width;
+        }
+      }
+
+      double V[4] = {x*x*(1./12.), 0., 0., COV11};
+
+      if (rotate) {
+        // Find length of strip at centre
+        //
+        std::pair<InDetDD::SiLocalPosition, InDetDD::SiLocalPosition> ends(design->endsOfStrip(centre));
+        stripL = fabs(ends.first.xEta()-ends.second.xEta());
+
+        double w       = element->phiPitch(localPos)*iphipitch;
+        double sn      = element->sinStereoLocal(localPos);
+        double sn2     = sn*sn;
+        double cs2     = 1.-sn2;
+        double v0      = V[0]*w*w;
+        double v1      = stripL*stripL*(1./12.);
+        V[0]           = cs2*v0+sn2*v1;
+        V[1]  =  V[2]  = sn*sqrt(cs2)*(v0-v1);
+        V[3]           = sn2*v0+cs2*v1;
+      }
+
+      Amg::MatrixX* errorMatrix(new Amg::MatrixX(2,2));
+      *errorMatrix<<V[0],V[1],V[2],V[3];
+
+      SiWidth siWidth{Amg::Vector2D(dnStrips,1.), Amg::Vector2D(width,stripL)};
+
+      SCT_Cluster* cluster = new SCT_Cluster{clusterId, locpos, *pGroup , siWidth, element, errorMatrix};
+
+      cluster->setHashAndIndex(idHash, clusterNumber);
+
+      if (tbinIter != tbinGroups.end()) {
+        cluster->setHitsInThirdTimeBin(*tbinIter);
+        ++tbinIter;
+      }
+
+      // clusters had been split - recalculating HitsInThirdTimeBin too difficult to be worthwhile for this rare corner case..
+      //
+      if (badStripInClusterOnThisModuleSide) cluster->setHitsInThirdTimeBin(0);
+
+      clusterCollection->push_back(cluster);
+      clusterNumber++;
+    }
+    return clusterCollection;
+  }
+
   SCT_ClusteringTool::DimensionAndPosition 
   SCT_ClusteringTool::clusterDimensions(int firstStrip, int lastStrip,
                                         const InDetDD::SiDetectorElement* pElement,
@@ -508,9 +755,4 @@ namespace InDet {
     const InDetDD::SiLocalPosition centre((firstStripPos+lastStripPos)/2.0);
     return SCT_ClusteringTool::DimensionAndPosition(centre, width);
   } 
-
-  
-  bool SCT_ClusteringTool::isBad(const Identifier& stripId) const{
-    return (not m_conditionsTool->isGood(stripId, InDetConditions::SCT_STRIP));
-  }
 }
