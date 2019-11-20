@@ -1860,7 +1860,6 @@ bool DQTGlobalWZFinderTool::checkTruthMuon(const xAOD::Muon* muon){
   const auto* thePart = m_truthClassifier->getGenPart();
   
   if(thePart){
-    int partpdgID = thePart->absPdgId();
     // (type = IsoMuon and origin = ZBoson)
     if(iTypeOfPart == 6 && iPartOrig == 13){
       truthMatched = true;
@@ -1883,7 +1882,6 @@ bool DQTGlobalWZFinderTool::checkTruthTrack(const xAOD::TrackParticle* trk){
   const auto* thePart = m_truthClassifier->getGenPart();
 
   if(thePart){
-    int partpdgID = thePart->absPdgId();
     // (type = IsoMuon and origin ZBoson)
     if(iTypeOfPart == 6 && iPartOrig == 13){
         truthMatched = true;

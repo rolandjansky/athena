@@ -92,8 +92,6 @@ private:
                          const xAOD::Vertex* pVtx, bool isBad);
   bool kinematicCuts(const xAOD::Electron*);
 
-  ToolHandle<Trig::ITrigEgammaMatchingTool> m_elTrigMatchTool;
-  ToolHandle<IMCTruthClassifier> m_truthClassifier;
 
   bool checkTruthElectron(const xAOD::Electron* electron);
   bool checkTruthTrack(const xAOD::TrackParticle* trk);
@@ -233,6 +231,7 @@ private:
   std::vector<std::string> m_Jpsi_mm_trigger;
   std::vector<std::string> m_Z_mm_trigger;
   std::vector<std::string> m_Z_ee_trigger;
+  ToolHandle<Trig::ITrigEgammaMatchingTool> m_elTrigMatchTool;
 
   // Here we define all the TTree variables
 
@@ -337,6 +336,8 @@ private:
   int m_electron_trig_tptree_lb;
   int m_electron_trig_tptree_runnumber;
   unsigned long long  m_electron_trig_tptree_eventnumber;
+
+  ToolHandle<IMCTruthClassifier> m_truthClassifier;
 
 };
 
