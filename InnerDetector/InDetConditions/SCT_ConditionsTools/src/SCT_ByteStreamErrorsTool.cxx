@@ -39,7 +39,7 @@ SCT_ByteStreamErrorsTool::initialize() {
   } 
   
   // Read (Cond)Handle Keys
-  ATH_CHECK(m_bsErrContainerName.initialize());
+  ATH_CHECK(m_bsIDCErrContainerName.initialize());
   ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
   return sc;
@@ -301,51 +301,58 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
   ent->m_tempMaskedChips.clear();
   ent->m_abcdErrorChips.clear();
 
-  SG::ReadHandle<InDetBSErrContainer> errCont (m_bsErrContainerName, ctx);
+  SG::ReadHandle<IDCInDetBSErrContainer> idcErrCont (m_bsIDCErrContainerName, ctx);
 
   /** When running over ESD files without BSErr container stored, don't 
    * want to flood the user with error messages. Should just have a bunch
    * of empty sets, and keep quiet.
    */
-  if (not errCont.isValid()) {
+  if (not idcErrCont.isValid()) {
     m_nRetrievalFailure++;
     if (m_nRetrievalFailure<=3) {
       ATH_MSG_INFO("Failed to retrieve BS error container "
-                   << m_bsErrContainerName.key()
+                   << m_bsIDCErrContainerName.key()
                    << " from StoreGate.");
       if (m_nRetrievalFailure==3) {
-        ATH_MSG_INFO("This message on retrieval failure of " << m_bsErrContainerName.key() << " is suppressed.");
+        ATH_MSG_INFO("This message on retrieval failure of " << m_bsIDCErrContainerName.key() << " is suppressed.");
       }
     }
     return StatusCode::SUCCESS;
   }
-
+  
   /** OK, so we found the StoreGate container, now lets iterate
    * over it to populate the sets of errors owned by this Tool.
    */
-  ATH_MSG_DEBUG("size of error container is " << errCont->size());
-  for (const std::pair<IdentifierHash, int>* elt : *errCont) {
-    addError(elt->first, elt->second, ctx);
-    Identifier wafer_id{m_sct_id->wafer_id(elt->first)};
+  ATH_MSG_DEBUG("size of error container is " << idcErrCont->size());
+  for (auto it = idcErrCont->begin(); it != idcErrCont->end(); it++) {
+    const auto& [errCode, hashId] = std::make_pair(**it, it.hashId());
+    addError(hashId, errCode, ctx);
+    Identifier wafer_id{m_sct_id->wafer_id(hashId)};
     Identifier module_id{m_sct_id->module_id(wafer_id)};
-    int side{m_sct_id->side(m_sct_id->wafer_id(elt->first))};
-    if ((elt->second>=SCT_ByteStreamErrors::ABCDError_Chip0 and elt->second<=SCT_ByteStreamErrors::ABCDError_Chip5)) {
-      ent->m_abcdErrorChips[module_id] |= (1 << (elt->second-SCT_ByteStreamErrors::ABCDError_Chip0 + side*6));
-    } else if (elt->second>=SCT_ByteStreamErrors::TempMaskedChip0 and elt->second<=SCT_ByteStreamErrors::TempMaskedChip5) {
-      ent->m_tempMaskedChips[module_id] |= (1 << (elt->second-SCT_ByteStreamErrors::TempMaskedChip0 + side*6));
+
+    int side{m_sct_id->side(m_sct_id->wafer_id(hashId))};
+
+    if ((errCode >= SCT_ByteStreamErrors::ABCDError_Chip0 and
+         errCode<= SCT_ByteStreamErrors::ABCDError_Chip5)) {
+      ent->m_abcdErrorChips[module_id] |= (1 << (errCode - SCT_ByteStreamErrors::ABCDError_Chip0 + side * 6));
+    } else if (errCode>= SCT_ByteStreamErrors::TempMaskedChip0 and
+               errCode<= SCT_ByteStreamErrors::TempMaskedChip5) {
+      ent->m_tempMaskedChips[module_id] |= (1 << (errCode- SCT_ByteStreamErrors::TempMaskedChip0 + side * 6));
     } else {
-      std::pair<bool, bool> badLinks{m_config->badLinks(elt->first, ctx)};
-      bool result{(side==0 ? badLinks.first : badLinks.second) and (badLinks.first xor badLinks.second)};
+      std::pair<bool, bool> badLinks{m_config->badLinks(hashId, ctx)};
+      bool result{(side == 0 ? badLinks.first : badLinks.second) and (badLinks.first xor badLinks.second)};
       if (result) {
-        /// error in a module using RX redundancy - add an error for the other link as well!!
-        /// However, ABCDError_Chip0-ABCDError_Chip5 and TempMaskedChip0-TempMaskedChip5 are not common for two links.
-        if (side==0) {
-          IdentifierHash otherSide{IdentifierHash(elt->first  + 1)};
-          addError(otherSide, elt->second, ctx);
+        /// error in a module using RX redundancy - add an error for the other
+        /// link as well!!
+        /// However, ABCDError_Chip0-ABCDError_Chip5 and
+        /// TempMaskedChip0-TempMaskedChip5 are not common for two links.
+        if (side == 0) {
+          IdentifierHash otherSide{IdentifierHash(hashId + 1)};
+          addError(otherSide, errCode, ctx);
           ATH_MSG_DEBUG("Adding error to side 1 for module with RX redundancy " << otherSide);
-        } else if (side==1) {
-          IdentifierHash otherSide{IdentifierHash(elt->first  - 1)};
-          addError(otherSide, elt->second, ctx);
+        } else if (side == 1) {
+          IdentifierHash otherSide{IdentifierHash(hashId - 1)};
+          addError(otherSide, errCode, ctx);
           ATH_MSG_DEBUG("Adding error to side 0 for module with RX redundancy " << otherSide);
         }
       }
