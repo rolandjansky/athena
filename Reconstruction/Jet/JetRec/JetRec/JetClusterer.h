@@ -43,7 +43,7 @@ public:
   virtual StatusCode initialize() override;
 
   /// Return the final jets. Can return a void pointer if an error occurs.
-  virtual xAOD::JetContainer* build() const;
+  virtual xAOD::JetContainer* build() const override;
 
 
 protected:
