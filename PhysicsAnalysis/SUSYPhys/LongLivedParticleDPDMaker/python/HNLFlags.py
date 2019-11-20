@@ -28,7 +28,7 @@ class doHnlElMu(JobProperty):
     # prompt electron + displace muon
     statusOn = True
     allowedTypes = ["bool"]
-    StoredValue = False
+    StoredValue = True
     pass
 primRPVLLDESDM.add_JobProperty(doHnlElMu)
 
@@ -36,7 +36,7 @@ class doHnlElEl(JobProperty):
     # prompt electron + displace electron
     statusOn = True
     allowedTypes = ["bool"]
-    StoredValue = False
+    StoredValue = True
     pass
 primRPVLLDESDM.add_JobProperty(doHnlElEl)
 
@@ -44,7 +44,7 @@ class doHnlMuEl(JobProperty):
     # prompt muon + displace electron
     statusOn = True
     allowedTypes = ["bool"]
-    StoredValue = False
+    StoredValue = True
     pass
 primRPVLLDESDM.add_JobProperty(doHnlMuEl)
 
@@ -100,7 +100,7 @@ class displacedMuonIsoThreshHnl(JobProperty):
     # isolation threshold for displaced muons
     statusOn = True
     allowedTypes = ["float"]
-    StoredValue = 1.0
+    StoredValue = 9999.
     pass
 primRPVLLDESDM.add_JobProperty(displacedMuonIsoThreshHnl)
 
@@ -108,7 +108,7 @@ class displacedElectronIsoThreshHnl(JobProperty):
     # isolation threshold for displaced electrons
     statusOn = True
     allowedTypes = ["float"]
-    StoredValue = 1.0
+    StoredValue = 9999.
     pass
 primRPVLLDESDM.add_JobProperty(displacedElectronIsoThreshHnl)
 
@@ -141,8 +141,7 @@ class displacedMuonTypesHnl(JobProperty):
     statusOn = True
     allowedTypes = ["list"]
     StoredValue = [ROOT.xAOD.Muon_v1.Combined,
-                   ROOT.xAOD.Muon_v1.MuonStandAlone,
-                   ROOT.xAOD.Muon_v1.SegmentTagged]
+                   ROOT.xAOD.Muon_v1.MuonStandAlone]
     pass
 primRPVLLDESDM.add_JobProperty(displacedMuonTypesHnl)
 
