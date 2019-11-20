@@ -45,6 +45,7 @@ def scheduleTauTruthTools(kernel=None):
 
         DFCommonTauTruthMatchingTool = TauAnalysisTools__TauTruthMatchingTool(name="DFCommonTauTruthMatchingTool")
         DFCommonTauTruthMatchingTool.WriteTruthTaus = True
+        DFCommonTauTruthMatchingTool.WriteInvisibleFourMomentum = True
         DFCommonTauTruthMatchingTool.MCTruthClassifierTool = DFCommonTauTruthClassifier
         ToolSvc += DFCommonTauTruthMatchingTool
         DFCommonTauTruthMatchingWrapper = DerivationFramework__TauTruthMatchingWrapper( name = "DFCommonTauTruthMatchingWrapper",
