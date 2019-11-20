@@ -21,8 +21,8 @@ class BCM_Digitization : public AthAlgorithm {
   virtual ~BCM_Digitization() = default;
 
   /** Basic algorithm methods */
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
   virtual bool isClonable() const override final { return true; }
 
  private:
