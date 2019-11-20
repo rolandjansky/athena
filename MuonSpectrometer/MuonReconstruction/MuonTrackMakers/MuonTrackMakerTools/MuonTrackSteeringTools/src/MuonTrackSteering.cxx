@@ -11,16 +11,7 @@
 #include "MuonSegment/MuonSegment.h"
 #include "MuonSegment/MuonSegmentCombination.h"
 
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonSegmentMakerToolInterfaces/IMuonSegmentInOverlapResolvingTool.h"
-#include "MuonSegmentMakerToolInterfaces/IMuonSegmentMerger.h"
-#include "MuonRecToolInterfaces/IMuonTrackBuilder.h"
-#include "MuonRecToolInterfaces/IMuonSegmentFittingTool.h"
-#include "MuonRecToolInterfaces/IMuonHoleRecoveryTool.h"
-
 #include "MuPatSegment.h"
-#include "MuPatCandidateTool.h"
 #include "MuPatCandidateBase.h"
 #include "MuPatTrack.h"
 #include "MuonTrackMakerUtils/MuonTrackMakerStlTools.h"
@@ -29,11 +20,7 @@
 #include "TrkSegment/SegmentCollection.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkParameters/TrackParameters.h"
-#include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
-#include "TrkToolInterfaces/ITrackSelectorTool.h"
 
-#include "MooTrackBuilder.h"
-#include "MooCandidateMatchingTool.h"
 
 #include <sstream>
 #include <iomanip>
@@ -48,46 +35,19 @@ namespace Muon {
   //----------------------------------------------------------------------------------------------------------
   
   MuonTrackSteering::MuonTrackSteering(const std::string& t,const std::string& n,const IInterface* p) 
-    : AthAlgTool(t,n,p)
-  , m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
-  , m_candidateTool("Muon::MuPatCandidateTool/MuPatCandidateTool", this)
-  , m_trackBTool("Muon::MooTrackBuilder/MooMuonTrackBuilder", this)
-  , m_ambiTool("Trk::TrackSelectionProcessorTool/MuonAmbiProcessor")
-  , m_mooBTool("Muon::MooTrackBuilder/MooMuonTrackBuilder", this)
-  , m_candidateMatchingTool("Muon::MooCandidateMatchingTool/MooCandidateMatchingTool", this)
-  , m_trackRefineTool("Muon::MooTrackBuilder/MooMuonTrackBuilder", this)
-  , m_segmentFitter("Muon::MuonSegmentFittingTool/MuonSegmentFittingTool", this)
-  , m_segmentMerger("")
-  , m_trackSelector("Muon::MuonTrackSelectorTool/MuonTrackSelectorTool", this)
-  , m_muonHoleRecoverTool("Muon::MuonChamberHoleRecoveryTool/MuonChamberHoleRecoveryTool", this)
-  , m_combinedSLOverlaps(false)
+    : AthAlgTool(t,n,p), m_combinedSLOverlaps(false)
   {
     declareInterface<IMuonTrackFinder>(this);
 
     declareProperty( "StrategyList" , m_stringStrategies , "List of strategies to be used by the track steering" );
-
     declareProperty( "SegSeedQCut" , m_segQCut[0]=-2 , "Required quality for segments to be a seed" );
     declareProperty( "Seg2ndQCut" , m_segQCut[1]=-2 , "Required quality for segments to be the second on a track" );
     declareProperty( "SegOtherQCut" , m_segQCut[2]=-2 , "Required quality for segments to be added to a track" );
-
-    declareProperty( "MuPatCandidateTool" , m_candidateTool );
-    declareProperty( "TrackBuilderTool" , m_trackBTool );
-    declareProperty( "AmbiguityTool",   m_ambiTool);
-    declareProperty( "MooBuilderTool", m_mooBTool);
-    declareProperty( "CandidateMatchingTool", m_candidateMatchingTool);
-    declareProperty( "TrackRefinementTool", m_trackRefineTool);
-    declareProperty( "MuonSegmentFittingTool", m_segmentFitter );
-    declareProperty( "MuonSegmentMerger", m_segmentMerger );
     declareProperty( "OutputSingleStationTracks", m_outputSingleStationTracks = false );
     declareProperty( "DoSummary", m_doSummary = false );
-    declareProperty( "MuonTrackSelector",   m_trackSelector );
-    declareProperty( "HoleRecoveryTool",   m_muonHoleRecoverTool);
     declareProperty( "UseTightSegmentMatching", m_useTightMatching = true );
     declareProperty( "SegmentThreshold", m_segThreshold = 8);
     declareProperty( "OnlyMdtSeeding", m_onlyMDTSeeding = true );
-  }
-    
-  MuonTrackSteering::~MuonTrackSteering() {
   }
   
   StatusCode MuonTrackSteering::initialize() {
