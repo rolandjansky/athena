@@ -220,8 +220,8 @@
 
     for (size_t i = 0; i < inclusive_jets.size(); i++) {
       xAOD::Jet* jet=  new xAOD::Jet();
-      xAOD::JetFourMom_t tempjetp4(inclusive_jets[i].pt(),inclusive_jets[i].rap(),inclusive_jets[i].phi(),0);
-      xAOD::JetFourMom_t newArea(inclusive_jets[i].area_4vector().perp(),inclusive_jets[i].area_4vector().rap(),inclusive_jets[i].area_4vector().phi(),0);
+      xAOD::JetFourMom_t tempjetp4(inclusive_jets[i].pt(),inclusive_jets[i].eta(),inclusive_jets[i].phi(),inclusive_jets[i].m());
+      xAOD::JetFourMom_t newArea(inclusive_jets[i].area_4vector().perp(),inclusive_jets[i].area_4vector().eta(),inclusive_jets[i].area_4vector().phi(),inclusive_jets[i].area_4vector().m());
       vertjets->push_back(jet);
       jet->setJetP4(tempjetp4);
       jet->setJetP4("JetConstitScaleMomentum",tempjetp4);
@@ -235,7 +235,7 @@
           chargedpart += constituents[j].perp(); 
         }
       }
-      xAOD::JetFourMom_t chargejetp4(chargedpart,inclusive_jets[i].rap(),inclusive_jets[i].phi(),0);
+      xAOD::JetFourMom_t chargejetp4(chargedpart,inclusive_jets[i].eta(),inclusive_jets[i].phi(),inclusive_jets[i].m());
       jet->setJetP4(m_jetchargedp4,chargejetp4);
     }   
     m_pfoJES->modify(*vertjets);
@@ -256,7 +256,11 @@
     }
     fastjet::PseudoJet psj(pfo_p4);
     // User index is used to identify the xAOD object used for the PSeudoJet
-    psj.set_user_index(pfo->index());
+    if (CP::charged == theCharge){
+      psj.set_user_index(pfo->index());
+    }else{
+      psj.set_user_index(-1);
+    }
 
     return psj;
   }
