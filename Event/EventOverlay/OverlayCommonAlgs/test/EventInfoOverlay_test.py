@@ -26,6 +26,7 @@ ConfigFlags.Input.SecondaryFiles = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/da
 ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"
 ConfigFlags.Concurrency.NumThreads = 0
 ConfigFlags.Overlay.DataOverlay = False
+ConfigFlags.Output.RDOFileName="myRDO.pool.root"
 ConfigFlags.lock()
 
 # Function tests
