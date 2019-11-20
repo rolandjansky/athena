@@ -203,7 +203,10 @@ StatusCode Muon::MmRdoToPrepDataToolCore::processCollection(const MM_RawDataColl
     if(!merge) {
       prdColl->push_back(new MMPrepData(prdId,hash,localPos,rdoList,cov,detEl,time,charge));
     } else {
-       MMprds.push_back(MMPrepData(prdId,hash,localPos,rdoList,cov,detEl,time,charge));
+       MMPrepData mpd = MMPrepData(prdId,hash,localPos,rdoList,cov,detEl,time,charge);
+       // set the hash of the MMPrepData such that it contains the correct value in case it gets used in SimpleMMClusterBuilderTool::getClusters
+       mpd.setHashAndIndex(hash,0);
+       MMprds.push_back(mpd);
     } 
   }
 
