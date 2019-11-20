@@ -1,9 +1,6 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-/*
- */
-// $Id$
 /**
  * @file AthenaKernel/test/CondCont_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -592,6 +589,30 @@ void test4 (TestRCUSvc& rcusvc)
   assert (cc.erase (mixed(2, 10, 100)).isFailure());
   assert (cc.extendLastRange (EventIDRange (mixed(2, 10, 125),
                                             mixed(2, 20, 200))).isFailure());
+
+  // Extending input
+  // Multiple TS ranges in last RL range.
+  assert ( cc.insert (EventIDRange (mixed (2, 10, 120),
+                                    mixed (2, 30, 130)),
+                      std::make_unique<B> (12)).isFailure() );
+  // Insert new last RL range with one TS range.
+  assert ( cc.insert (EventIDRange (mixed (20, 10, 120),
+                                    mixed (20, 30, 130)),
+                      std::make_unique<B> (13)).isSuccess() );
+  // TS range doesn't match.
+  assert ( cc.insert (EventIDRange (mixed (20, 10, 120),
+                                    mixed (20, 40, 150)),
+                      std::make_unique<B> (14)).isFailure() );
+  // RL range isn't last.
+  assert ( cc.insert (EventIDRange (mixed (1, 30, 25),
+                                    mixed (1, 50, 30)),
+                      std::make_unique<B> (15)).isFailure() );
+  // Should work.
+  sc = cc.insert (EventIDRange (mixed (20, 10, 120),
+                                mixed (20, 40, 130)),
+                  std::make_unique<B> (16));
+  assert (sc.isSuccess());
+  assert (CondContBase::Category::isExtended (sc));
 }
 
 
