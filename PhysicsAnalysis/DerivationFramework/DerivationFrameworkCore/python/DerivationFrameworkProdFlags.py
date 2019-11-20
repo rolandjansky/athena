@@ -1575,6 +1575,19 @@ class WriteDAOD_EXOT27Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT27Stream)
 listAODtoDPD.append(WriteDAOD_EXOT27Stream.StreamName)
 
+class WriteDAOD_EXOT28Stream(JobProperty):
+    """EXOT28: Soft Unclustered Energy Patterns"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_EXOT28'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkExotics/EXOT28.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT28Stream)
+listAODtoDPD.append(WriteDAOD_EXOT28Stream.StreamName)
+
 #################################
 # Defined by the Jet/MET group
 #################################
