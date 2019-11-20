@@ -160,7 +160,7 @@ thinningTools.append(JETM12CaloClusterThinning)
 doTruthThinning = True
 from AthenaCommon.GlobalFlags import globalflags
 if doTruthThinning and DerivationFrameworkIsMonteCarlo:
-    truth_cond_status    = "( (TruthParticles.status == 1) && (TruthParticles.barcode < 200000) )"            # W, Z and Higgs
+    truth_cond_status    = "( (TruthParticles.status == 1) && (TruthParticles.barcode < 200000) && (TruthParticles.pt > 8*GeV) )"            # high pt pions for E/p
     truth_cond_Lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16) && (TruthParticles.barcode < 200000))" # Leptons
     truth_expression = '('+truth_cond_status+' || '+truth_cond_Lepton +')'
   
@@ -231,7 +231,7 @@ JETM12SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJe
                                         "BTagging_AntiKt4EMPFlow_201903",
                                         "BTagging_AntiKt4EMTopo_201810",
                                         ]
-JETM12SlimmingHelper.AllVariables = ["MuonTruthParticles","TruthParticles", "TruthEvents", "TruthVertices",
+JETM12SlimmingHelper.AllVariables = ["MuonTruthParticles","TruthParticles", "TruthVertices",
                                     "MuonSegments","InDetTrackParticles",
                                     "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape","MET_Truth","CaloCalTopoClusters",
                                     "TruthMuons","TruthElectrons","TruthPhotons","TruthTaus","TruthNeutrinos",
