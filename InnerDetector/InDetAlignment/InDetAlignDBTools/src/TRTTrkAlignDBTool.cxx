@@ -246,9 +246,9 @@ void TRTTrkAlignDBTool::updateDB()
    // but we keep it like this for the moment.
 
    // updating level 0, level 1 or level 2 constants in the DB
-   ATH_MSG_DEBUG("Global alignment level: "<<m_trtAlignLevel);
-   ATH_MSG_DEBUG("Barrel alignment level: "<<m_trtAlignLevelBarrel);
-   ATH_MSG_DEBUG("Endcap alignment level: "<<m_trtAlignLevelEndcaps);
+   ATH_MSG_DEBUG("TRT Global alignment level: " << m_trtAlignLevel);
+   ATH_MSG_DEBUG("TRT Barrel alignment level: " << m_trtAlignLevelBarrel);
+   ATH_MSG_DEBUG("TRT Endcap alignment level: " << m_trtAlignLevelEndcaps);
 
    if(m_trtAlignLevel<0 && (m_trtAlignLevelBarrel<0 || m_trtAlignLevelEndcaps<0)) {
       msg(MSG::ERROR)<<" No geometry manager available or alignment level not given."<<endreq;
@@ -256,12 +256,16 @@ void TRTTrkAlignDBTool::updateDB()
       return;
    }
 
-   ATH_MSG_INFO("-------------------------------------------------------");
+   ATH_MSG_INFO("--- TRT alignment ----------------------------------------------------");
+   std::string trtstructtype = "";
    if(m_trtAlignLevel>=0)
       ATH_MSG_INFO("updating Level "<<m_trtAlignLevel<<" alignment constants for modules");
    else {
-      ATH_MSG_INFO("updating Level "<<m_trtAlignLevelBarrel<<" alignment constants for Barrel modules");
-      ATH_MSG_INFO("updating Level "<<m_trtAlignLevelEndcaps<<" alignment constants for Endcap modules");
+     if (m_trtAlignLevelBarrel >1) trtstructtype = "modules";
+     ATH_MSG_INFO("updating Level " << m_trtAlignLevelBarrel <<" alignment constants for TRT Barrel " << trtstructtype.c_str());
+     trtstructtype = "";
+     if (m_trtAlignLevelEndcaps >1) trtstructtype = "modules";
+     ATH_MSG_INFO("updating Level " << m_trtAlignLevelEndcaps <<" alignment constants for TRT Endcap " << trtstructtype.c_str());
    }
 
    Amg::Transform3D dbtransform;
@@ -273,8 +277,7 @@ void TRTTrkAlignDBTool::updateDB()
 
       Trk::AlignModule * module = *imod;
 
-      ATH_MSG_DEBUG("-------------------------------------------------------");
-      ATH_MSG_DEBUG("Alignment corrections for module: "<<module->name());
+      ATH_MSG_DEBUG("-------------------- Alignment corrections for module: "<< module->name() << " -------------------- " );
 
       // the identifier of the module for the DB
       Identifier modID = module->identify();
@@ -291,7 +294,7 @@ void TRTTrkAlignDBTool::updateDB()
       // get active alignment parameters for the module
       DataVector<Trk::AlignPar> * alignPars =  m_alignModuleTool->getAlignPars(module);
       if(alignPars->size() == 0) {
-         ATH_MSG_INFO("Alignment for module "<<module->name()<<" not available.");
+         ATH_MSG_INFO("Alignment of TRT module " <<module->name() << " has been configured with 0 degrees of freedom. Nothing to do.");
          continue;
       }
 
@@ -312,79 +315,82 @@ void TRTTrkAlignDBTool::updateDB()
       transform *= Amg::AngleAxis3D(apRotX, Amg::Vector3D(1.,0.,0.));
 
 
-
-      ATH_MSG_DEBUG(" - translation X = "<<apTraX);
-      ATH_MSG_DEBUG(" - translation Y = "<<apTraY);
-      ATH_MSG_DEBUG(" - translation Z = "<<apTraZ);
-      ATH_MSG_DEBUG(" - rotation X    = "<<apRotX);
-      ATH_MSG_DEBUG(" - rotation Y    = "<<apRotY);
-      ATH_MSG_DEBUG(" - rotation Z    = "<<apRotZ);
-
+      ATH_MSG_DEBUG("  - Translation X = "<<apTraX);
+      ATH_MSG_DEBUG("  - Translation Y = "<<apTraY);
+      ATH_MSG_DEBUG("  - Translation Z = "<<apTraZ);
+      ATH_MSG_DEBUG("  - Rotation X    = "<<apRotX);
+      ATH_MSG_DEBUG("  - Rotation Y    = "<<apRotY);
+      ATH_MSG_DEBUG("  - Rotation Z    = "<<apRotZ);
+      
       // update TRT level 0 constants
       if(m_trtAlignLevel == 0) {
-         updateL0asL1(modID,dbtransform);
-         continue;
+	updateL0asL1(modID, dbtransform);
+	continue;
       }
-
+      
       int level;
-      if(m_trtHelper->is_barrel(modID))
-         level = m_trtAlignLevelBarrel;
-      else
-         level = m_trtAlignLevelEndcaps;
+      if(m_trtHelper->is_barrel(modID)){
+	level = m_trtAlignLevelBarrel;
+	trtstructtype = "BARREL module";
+      }
+      else {
+	level = m_trtAlignLevelEndcaps;
+	trtstructtype = "END-CAP module";
+      }
+      ATH_MSG_INFO(" TRT alignment. Updating level " << level <<" constants for " << trtstructtype.c_str() << " " << module->name() << " with ID "<< modID);
 
       // update the constants in memory
-      ATH_MSG_DEBUG("updating level "<<level<<" constants for module "<<module->name()<<" with ID "<<modID);
       switch(level) {
-         case 1: case 2: {
-            // for levels 1 and 2 alignment the DB frame equals to the global frame but the align
-            // frame does not, so we have to apply an additional transform
-            Amg::Transform3D dbFrameToAlignFrame = module->globalFrameToAlignFrame();
-
-            ATH_MSG_DEBUG("DB to align");
-            printTransform(dbFrameToAlignFrame);
-
-            dbtransform = dbFrameToAlignFrame.inverse() * transform * dbFrameToAlignFrame;
-
-            break;
-         }
-
-         case 3:
-            // for level 3 alignment the DB frame and the align frame equals to the local frame
-            // so we don't apply any additional transform
-
-            // if we are in the Endcap we need to rotate about global Z
-	          //if(abs(m_trtHelper->barrel_ec_id(modID.get_identifier32().get_compact()).get_compact()) == 2) { # Bug!
-	          if( abs(m_trtHelper->barrel_ec(modID)) == 2) {
-	             ATH_MSG_DEBUG("L3 module in TRT end-cap A so we apply additional rotation about global Z (3.14)");
-               Amg::Translation3D newtranslation( 0,0,0 );
-               Amg::Transform3D newtransform = newtranslation * Amg::AngleAxis3D( 3.14, Amg::Vector3D(0.,0.,1.));
-               dbtransform =  newtransform * transform;
-            }
-            else
-               // otherwise we don't do anything
-               dbtransform = transform;
-
-            break;
-
-         default:
-            // otherwise we don't know what to do
-            // so we do nothing for the module
-            ATH_MSG_WARNING("Unknown level "<<level<<". Skipping the module.");
-            continue;
+      case 1: case 2: {
+	// for levels 1 and 2 alignment the DB frame equals to the global frame but the align
+	// frame does not, so we have to apply an additional transform
+	Amg::Transform3D dbFrameToAlignFrame = module->globalFrameToAlignFrame();
+	
+	ATH_MSG_DEBUG("DB to align (" << module->name() << " at level " << level <<")");
+	printTransform(dbFrameToAlignFrame);
+	
+	dbtransform = dbFrameToAlignFrame.inverse() * transform * dbFrameToAlignFrame;
+	
+	break;
       }
-
-      ATH_MSG_DEBUG("DB transform for " << module->name() << " at alignment level " << level);
+	
+      case 3:
+	// for level 3 alignment the DB frame and the align frame equals to the local frame
+	// so we don't apply any additional transform
+	
+	// if we are in the Endcap we need to rotate about global Z
+	//if(abs(m_trtHelper->barrel_ec_id(modID.get_identifier32().get_compact()).get_compact()) == 2) { # Bug!
+	if( abs(m_trtHelper->barrel_ec(modID)) == 2) {
+	  ATH_MSG_DEBUG("L3 module in TRT end-cap A so we apply additional rotation about global Z (3.14)");
+	  Amg::Translation3D newtranslation( 0,0,0 );
+	  Amg::Transform3D newtransform = newtranslation * Amg::AngleAxis3D( 3.14, Amg::Vector3D(0.,0.,1.));
+	  dbtransform =  newtransform * transform;
+	}
+	else
+	  // otherwise we don't do anything
+	  dbtransform = transform;
+	
+	break;
+	
+      default:
+	// otherwise we don't know what to do
+	// so we do nothing for the module
+	ATH_MSG_WARNING(" TRT ALignment --> ALIGNMENT LEVEL " << level << " IS UNKNOWN.  Skipping the module." << module->name());
+	continue;
+      }
+      
+      ATH_MSG_INFO("TRT DB transform to store for " << module->name() << " at alignment level " << level);
       printTransform(dbtransform);
 
       // tweak applies the transform onto already existing transform in the DB
       // or sets it if it doesn't exist yet
       if(m_trtAlignDbSvc->tweakAlignTransform(modID,dbtransform,level).isSuccess())
-         ATH_MSG_DEBUG("Module \'"<<module->name()<<"\': Level "<<level<<" constants updated.");
+         ATH_MSG_INFO("Module \'"<<module->name()<<"\': Level "<<level<<" constants updated.");
       else
-         msg(MSG::ERROR)<<"Error setting constants for TRT module \'"<<module->name()<<"\'"<<endreq;
+	msg(MSG::ERROR)<<"Error setting constants for TRT module \'"<<module->name()<<"\'"<<endreq;
    }
-   ATH_MSG_INFO("-------------------------------------------------------");
-
+   ATH_MSG_INFO("--TRTTrkAlignDBTool::updateDB() -- completed---------------------------------------------------");
+   return;
 }
 
 //________________________________________________________________________
