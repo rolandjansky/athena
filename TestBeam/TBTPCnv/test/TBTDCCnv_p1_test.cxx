@@ -44,7 +44,7 @@ void test1()
   std::cout << "test1\n";
   Athena_test::Leakcheck check;
 
-  TBTDC trans1 (123, 234, 345.5);
+  TBTDC trans1 (123, 234, 345.5, 456);
                                   
   testit (trans1);
 }

@@ -1,14 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TBTPCnv/TBMWPCContCnv_p1.h"
-#define private public
-#define protected public
 #include "TBEvent/TBMWPCCont.h"
-
-#undef private
-#undef protected
 #include "Identifier/Identifier.h"
 #include "TBTPCnv/TBMWPCCont_p1.h"
 
@@ -16,7 +11,7 @@
 
 void
 TBMWPCContCnv_p1::persToTrans(const TBMWPCCont_p1* pers, 
-                                     TBMWPCCont* trans, MsgStream &/*log*/)
+                                     TBMWPCCont* trans, MsgStream &/*log*/) const
 {
 
   const unsigned nTBMWPCs = pers->m_cPos.size();
@@ -72,7 +67,7 @@ TBMWPCContCnv_p1::persToTrans(const TBMWPCCont_p1* pers,
 
 void
 TBMWPCContCnv_p1::transToPers(const TBMWPCCont* trans, 
-                                     TBMWPCCont_p1* pers, MsgStream &/*log*/)
+                                     TBMWPCCont_p1* pers, MsgStream &/*log*/) const
 {
 
   const unsigned nTBMWPCs = trans->size();
