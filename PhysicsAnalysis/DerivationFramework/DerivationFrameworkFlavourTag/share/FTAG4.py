@@ -353,7 +353,7 @@ FTAG4SlimmingHelper.IncludeBJetTriggerContent = True
 
 #FTAG4 TrigNav Thinning
 FTAG4ThinningHelper = ThinningHelper( "FTAG4ThinningHelper" )
-FTAG4ThinningHelper.TriggerChains = 'HLT_e[2-9][0-9]_.*|HLT_e[1-9][0-9][0-9]_.*|HLT_mu[2-9][0-9]_.*|HLT_mu[1-9][0-9][0-9]_.*'
+FTAG4ThinningHelper.TriggerChains = 'HLT_e[2-9][0-9]_.*|HLT_e[1-9][0-9][0-9]_.*|HLT_mu[2-9][0-9]_.*|HLT_mu[1-9][0-9][0-9]_.*|HLT_mu[2-9][0-9]'
 FTAG4ThinningHelper.AppendToStream( FTAG4Stream )
 
 FTAG4SlimmingHelper.AppendContentToStream(FTAG4Stream)
