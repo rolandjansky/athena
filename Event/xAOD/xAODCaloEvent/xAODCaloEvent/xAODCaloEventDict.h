@@ -55,6 +55,7 @@ namespace {
       std::vector< std::vector< ElementLink< xAOD::CaloClusterContainer_v1 > > > el3;
       // Additional type(s) needed:
       std::bitset< 3 > type1; // Using 3 instead of CaloCluster::NSTATES...
+     std::vector<std::vector<std::pair<unsigned int, double > > > calHitDecoratorType;
 
      //BadChannel lists 
      xAOD::CaloClusterBadChannelData_v1 bcd;
