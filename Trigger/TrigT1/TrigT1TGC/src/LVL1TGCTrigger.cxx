@@ -272,6 +272,8 @@ namespace LVL1TGCTrigger {
                                              LVL1MUONIF::Lvl1MuCTPIInput* muctpiinput,
                                              LVL1MUONIF::Lvl1MuCTPIInputPhase1* muctpiinputPhase1)
   {
+    ATH_MSG_DEBUG("start processOneBunch: for BC=" << m_bctagInProcess);
+
     std::map<Identifier, int> tgcDigitIDs;
     std::map<Identifier, int>::iterator itCh;
     
@@ -515,7 +517,6 @@ namespace LVL1TGCTrigger {
     }
   }
 
-
   ////////////////////////////////////////////////////////
   void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *sldata,
                                            const TGCSLSelectorOut* selectorOut, unsigned int subsystem)
@@ -524,7 +525,10 @@ namespace LVL1TGCTrigger {
     int Zdir= (subsystem==LVL1MUONIF::Lvl1MuCTPIInput::idSideA() ? 1 : -1);
     
     sldata->clear2candidatesInSector();// for temporary
-    sldata->bcid(0);
+
+    const int muctpiBcId_offset = TgcDigit::BC_CURRENT;
+    sldata->bcid(m_bctagInProcess - muctpiBcId_offset);
+
     if ((selectorOut->getNCandidate()) >= 1) {
       sldata->roi(0,((selectorOut->getR(0))<<2)+(selectorOut->getPhi(0)));
       //      ovl --> veto
@@ -578,8 +582,12 @@ namespace LVL1TGCTrigger {
     
     if(selectorOut ==0) return;
     int Zdir= (subsystem==LVL1MUONIF::Lvl1MuCTPIInputPhase1::idSideA() ? 1 : -1);
+
     sldata->clear2candidatesInSector();// for temporary
-    sldata->bcid(0);
+
+    const int muctpiBcId_offset = TgcDigit::BC_CURRENT;
+    sldata->bcid(m_bctagInProcess - muctpiBcId_offset);
+
     if ((selectorOut->getNCandidate()) >= 1) {
       sldata->roi(0,((selectorOut->getR(0))<<2)+(selectorOut->getPhi(0)));
       //      ovl --> veto
@@ -605,6 +613,7 @@ namespace LVL1TGCTrigger {
     sldata->set2candidates(1);// not used for TGC
     sldata->clear2candidates(1);// not used for TGC
   }
+
   //////////////////////////////////////////
   void LVL1TGCTrigger::recordRdoSLB(TGCSector * sector)
   {
@@ -1401,8 +1410,7 @@ namespace LVL1TGCTrigger {
 
     return sc;
   }
-  
-  
-  
+
+
 } //end of namespace bracket
 
