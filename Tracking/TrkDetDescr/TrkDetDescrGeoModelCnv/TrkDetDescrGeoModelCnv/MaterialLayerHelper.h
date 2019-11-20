@@ -9,12 +9,14 @@
 #ifndef TRKDETDESCRGEOMODELCNV_MATERIALLAYERHELPER_H
 #define TRKDETDESCRGEOMODELCNV_MATERIALLAYERHELPER_H
 
+#include "TrkDetDescrGeoModelCnv/MaterialElement.h"
 #include "TrkDetDescrGeoModelCnv/GeoMaterialConverter.h"
 
 namespace Trk {
 
   class Layer;
   class TrackingVolume;
+  class CylinderLayer;
 
   /**
     @class MaterialLayerHelper
@@ -47,10 +49,14 @@ namespace Trk {
         void getMaterialLayers(const Trk::TrackingVolume* inputVol, std::vector< const Trk::Layer* >& matLayers);
 
         /** assign material objects to layer */
-	void findClosestLayer(std::vector<MaterialElement>& matInput, std::vector< const Trk::Layer* >&  layers);
+	void findClosestLayer(std::vector<MaterialElement>& matInput, std::vector< const Trk::Layer* >&  layers,
+			      std::vector< std::vector < MaterialElement > >& mat4merge,
+			      float inputVolRadius = 1148. , float inputVolZ=3500. ,  float beamPipeRadius = 30. );
 
         /** build and assign material arrays */
-	void buildMaterial(std::vector< const Trk::Layer* >&  matLayers);
+	void buildMaterial(std::vector< const Trk::Layer* >&  matLayers, 
+			             std::vector< std::vector < MaterialElement > >& mat4merge,
+			             float beamPipeRadius = 30.);
 
         /** material overview */
 	void materialBudget(std::vector<MaterialElement>& inputMat) const; 
@@ -61,14 +67,8 @@ namespace Trk {
 	std::pair<double,std::pair<double,double> >  averageThickness(MaterialElement mat,bool cyl) const; 
         // best thickness approximation (input in eta)
 	double binThickness( double binLow, double binUp, double thick, double e0, double e1, double e2, double e3) const; 
-	mutable std::vector< std::vector < MaterialElement > > m_mat4merge;
-        mutable float m_unassignedMass;
-        mutable float m_unassignedITk;
 
-        mutable float m_rExt;
-        mutable float m_zExt;
-        mutable float m_rBP; 
-  };
+   };
  
 
 } // end of namespace Trk

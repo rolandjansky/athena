@@ -20,13 +20,8 @@
 #include "TrkSurfaces/RectangleBounds.h"
 // Amg
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
-
-// #define DEBUG
-#ifdef DEBUG
-#  define DEBUG_TRACE(a) do { a } while (0)
-#else
-#  define DEBUG_TRACE(a) do {  } while (0)
-#endif
+// messaging
+#include "AthenaKernel/getMessageSvc.h"
 
 namespace Trk{
   typedef std::pair< SharedObject<const Surface>, Amg::Vector3D > SurfaceOrderPosition;
@@ -47,22 +42,22 @@ void Trk::MaterialLayerHelper::processMaterial(const Trk::TrackingVolume* inputV
   // resolve volume boundaries
   const Trk::CylinderVolumeBounds* cylBounds = dynamic_cast<const Trk::CylinderVolumeBounds*> (&(inputVol->volumeBounds()));
   if (!cylBounds) {
-    DEBUG_TRACE( std::cout<<"Trk::MaterialLayerHelped failed to retrieve cylindrical bounds for input volume, material mapping not done"<< std::endl; );
+    MsgStream msg(Athena::getMessageSvc(), "MaterialLayerHelper");
+    msg<< MSG::WARNING <<"Trk::MaterialLayerHelped failed to retrieve cylindrical bounds for input volume, material mapping not done"<< endmsg;
     return;
   }
-  m_rExt = cylBounds->outerRadius() ;
-  m_zExt = cylBounds->halflengthZ() ;
-  m_rBP = beamPipeRadius; 
+  float rExt = cylBounds->outerRadius() ;
+  float zExt = cylBounds->halflengthZ() ;
 
   // prepare the material collection for merge
-  m_mat4merge.clear();
-  for (unsigned int j=0; j< matLayers.size(); j++) m_mat4merge.push_back(std::vector< MaterialElement>());
+  std::vector< std::vector < Trk::MaterialElement > > mat4merge;
+  for (unsigned int j=0; j< matLayers.size(); j++) mat4merge.push_back(std::vector< Trk::MaterialElement>());
 
   // assign material objects to layers
-  findClosestLayer( inputMat, matLayers);
+  findClosestLayer( inputMat, matLayers, mat4merge, rExt, zExt, beamPipeRadius);
 
   // merge material into binned material arrays
-  buildMaterial( matLayers );
+  buildMaterial( matLayers, mat4merge, beamPipeRadius );     // BP info needed for collection of ID material
 
 }
 
@@ -93,15 +88,19 @@ void Trk::MaterialLayerHelper::getMaterialLayers(const Trk::TrackingVolume* inpu
 }
 
 
-void Trk::MaterialLayerHelper::findClosestLayer(std::vector<MaterialElement>& matInput, std::vector< const Trk::Layer* >&  layers) {
+void Trk::MaterialLayerHelper::findClosestLayer(std::vector<Trk::MaterialElement>& matInput, std::vector< const Trk::Layer* >&  layers,
+						std::vector< std::vector < Trk::MaterialElement > >& mat4merge,
+						float rExt, float zExt, float rBP) {
+
+  MsgStream msg(Athena::getMessageSvc(), "MaterialLayerHelper");
 
   // convert into MaterialObject & assign to closest layer
   const Trk::GeoMaterialConverter matCnvTool;
   
   double massTot = 0.;
   double massInp = 0.;
-  m_unassignedMass=0.;
-  m_unassignedITk =0.;
+  float unassignedMass=0.;
+  float unassignedITk =0.;
  
   double precision = 10.; 
 
@@ -140,22 +139,22 @@ void Trk::MaterialLayerHelper::findClosestLayer(std::vector<MaterialElement>& ma
     MaterialElement mat = matInput[ie];      // updates done on local copy of the material object ( except for the splitted volumes )
  
     // ignore objects beyond the volume boundaries !TODO extend to deal with volumes shifted in z!
-    if (mat.rmin>=m_rExt) continue; 
-    if (mat.zmin>=m_zExt) continue;  
-    if (mat.zmax<=-m_zExt) continue;  
+    if (mat.rmin>= rExt) continue; 
+    if (mat.zmin>= zExt) continue;  
+    if (mat.zmax<= -zExt) continue;  
 
     // remove material beyond volume boundaries
-    if (mat.rmax>m_rExt)  {
-      float inscale = ( m_rExt*m_rExt -mat.rmin*mat.rmin)/(mat.rmax*mat.rmax-mat.rmin*mat.rmin); 
-      mat.rmax=m_rExt; mat.geoVolume = inscale*mat.geoVolume;
+    if (mat.rmax > rExt)  {
+      float inscale = ( rExt*rExt -mat.rmin*mat.rmin)/(mat.rmax*mat.rmax-mat.rmin*mat.rmin); 
+      mat.rmax= rExt; mat.geoVolume = inscale*mat.geoVolume;
     }
-    if (mat.zmax>m_zExt)  {
-      float inscale = ( m_zExt-mat.zmin )/( mat.zmax - mat.zmin ); 
-      mat.zmax=m_zExt; mat.geoVolume = inscale*mat.geoVolume;
+    if (mat.zmax> zExt)  {
+      float inscale = ( zExt-mat.zmin )/( mat.zmax - mat.zmin ); 
+      mat.zmax= zExt; mat.geoVolume = inscale*mat.geoVolume;
     }
-    if (mat.zmin<-m_zExt) {
-      float inscale = ( mat.zmax+m_zExt )/( mat.zmax - mat.zmin ); 
-      mat.zmin=-m_zExt; mat.geoVolume = inscale*mat.geoVolume;
+    if (mat.zmin< -zExt) {
+      float inscale = ( mat.zmax+zExt )/( mat.zmax - mat.zmin ); 
+      mat.zmin= -zExt; mat.geoVolume = inscale*mat.geoVolume;
     }
 
     massContained += mat.mass(); 
@@ -172,7 +171,7 @@ void Trk::MaterialLayerHelper::findClosestLayer(std::vector<MaterialElement>& ma
       } 
 
     if (mat.volume()<=0.) {
-       m_unassignedMass += mat.mass();
+       unassignedMass += mat.mass();
       continue; 
     }    
 
@@ -199,8 +198,8 @@ void Trk::MaterialLayerHelper::findClosestLayer(std::vector<MaterialElement>& ma
 	const Trk::DiscBounds*  db = layBounds[i].second; 
 	const Trk::CylinderBounds*  cyl = layBounds[i].first; 
 	
-	if (db && mat.rmin<m_rBP ) continue;    // TODO : check if needed
-	if (cyl && cyl->r()<m_rBP && mat.rmax > m_rBP) continue;  //TODO check if needed
+	if (db && mat.rmin< rBP ) continue;    // TODO : check if needed
+	if (cyl && cyl->r()< rBP && mat.rmax > rBP) continue;  //TODO check if needed
 	
 	zpos = lay->surfaceRepresentation().center().z();
         // evaluate the overlap in theta 
@@ -310,25 +309,26 @@ void Trk::MaterialLayerHelper::findClosestLayer(std::vector<MaterialElement>& ma
    
    if (assocLayer) {
      // resolve projections
-     if (m_mat4merge[index].size() && mat.name ==  m_mat4merge[index].back().name) { 
-       bool mmatch =  fabs(mat.mass()- m_mat4merge[index].back().mass())<0.01*mat.mass();
-       bool zmatch = fabs(mat.zmin- m_mat4merge[index].back().zmin)<precision
-								    &&  fabs(mat.zmax- m_mat4merge[index].back().zmax)<precision;
-       bool rmatch = fabs(mat.rmin- m_mat4merge[index].back().rmin)<precision
-								    &&  fabs(mat.rmax- m_mat4merge[index].back().rmax)<precision;
+     if (mat4merge[index].size() && mat.name ==  mat4merge[index].back().name) { 
+       bool mmatch =  fabs(mat.mass()- mat4merge[index].back().mass())<0.01*mat.mass();
+       bool zmatch = fabs(mat.zmin- mat4merge[index].back().zmin)<precision
+								    &&  fabs(mat.zmax- mat4merge[index].back().zmax)<precision;
+       bool rmatch = fabs(mat.rmin- mat4merge[index].back().rmin)<precision
+								    &&  fabs(mat.rmax- mat4merge[index].back().rmax)<precision;
        if ( mmatch && zmatch && rmatch ) {
-	 m_mat4merge[index].back().multi =  m_mat4merge[index].back().multi+1;
+	 mat4merge[index].back().multi =  mat4merge[index].back().multi+1;
        } else {
          unsigned int iord = 0;
-         while (iord<m_mat4merge[index].size() && mat.mass()<m_mat4merge[index][iord].mass()) iord++;
-	 m_mat4merge[index].push_back(mat);	  
+         while (iord<mat4merge[index].size() && mat.mass()<mat4merge[index][iord].mass()) iord++;
+	 mat4merge[index].push_back(mat);	  
        }
-     } else  m_mat4merge[index].push_back(mat);
+     } else  mat4merge[index].push_back(mat);
      
    } else {
-     DEBUG_TRACE( std::cout <<"no suitable layer found for material element:"<<mat.rmin<<","<<mat.rmax<<":"<<mat.zmin<<","<<mat.zmax<< std::endl; );
-     m_unassignedMass += mat.mass();
-     if (mat.rmin>m_rBP && mat.zmax<m_zExt && mat.zmin>-m_zExt) m_unassignedITk += mat.mass();
+     if (msg.level() <= MSG::DEBUG) 
+       msg<<MSG::DEBUG<<"no suitable layer found for material element:"<<mat.rmin<<","<<mat.rmax<<":"<<mat.zmin<<","<<mat.zmax<< endmsg;
+     unassignedMass += mat.mass();
+     if (mat.rmin> rBP && mat.zmax< zExt && mat.zmin> -zExt) unassignedITk += mat.mass();
    }
    
    double dphi = mat.phimax-mat.phimin;
@@ -339,12 +339,15 @@ void Trk::MaterialLayerHelper::findClosestLayer(std::vector<MaterialElement>& ma
    massInp+=mat.mass();
 
    }
-  DEBUG_TRACE( std::cout<<"total mass:contained,read:"<< massContained<<","<<massInp<<std::endl; );
-  DEBUG_TRACE( std::cout<<"unassigned:"<< m_unassignedMass<<":"<<m_unassignedITk<< std::endl; );
-
+  
+   if (msg.level() <= MSG::DEBUG) {
+      msg<<MSG::DEBUG<< "total mass:contained,read:"<< massContained<<","<<massInp<<endmsg;
+      msg<<MSG::DEBUG<<"unassigned material all:ITk"<< unassignedMass<<":"<<unassignedITk<< endmsg;
+   }
 }
 
-void Trk::MaterialLayerHelper::buildMaterial(std::vector< const Trk::Layer* >&  matLayers)
+void Trk::MaterialLayerHelper::buildMaterial(std::vector< const Trk::Layer* >&  matLayers, 
+						std::vector< std::vector < Trk::MaterialElement > >& mat4merge, float rBP)
 {
 
   int icounter = 0;
@@ -367,17 +370,20 @@ void Trk::MaterialLayerHelper::buildMaterial(std::vector< const Trk::Layer* >&  
 
     //============ cylinder layers ===============
  
-    if (cyl && m_mat4merge[icounter].size() ) {
+    if (cyl && mat4merge[icounter].size() ) {
       double layR = cyl->r();
      const Trk::LayerMaterialProperties* layMatProp=lay->layerMaterialProperties();
       if (layMatProp) {
 	Amg::Vector3D gp(cyl->r(),0.,lay->surfaceRepresentation().center().z());
 	const Trk::MaterialProperties* mp=layMatProp->fullMaterial(gp);
-        if (mp)  DEBUG_TRACE(std::cout << "layer material present before merge, overwritten:"<<mp->thicknessInX0()<<std::endl;);
+        if (mp) {
+	  MsgStream msg(Athena::getMessageSvc(), "MaterialLayerHelper");
+	  msg<<MSG::WARNING << "layer material present before merge, overwritten:"<<mp->thicknessInX0()<<endmsg;
+	}
       }
       // check if heavy objects associated 
       bool hasheavy = false;
-      for (auto mat :  m_mat4merge[icounter])  if (mat.mass()>heavyLimit) hasheavy=true; 
+      for (auto mat :  mat4merge[icounter])  if (mat.mass()>heavyLimit) hasheavy=true; 
       std::vector<std::pair<float,Trk::MaterialProperties> > zmat;
 
       double layZmax = lay->surfaceRepresentation().center().z()+cyl->halflengthZ();
@@ -399,8 +405,8 @@ void Trk::MaterialLayerHelper::buildMaterial(std::vector< const Trk::Layer* >&  
       std::vector<std::pair<float,Trk::MaterialProperties> >::iterator ieta=etamat.begin();
       std::vector<std::pair<float,Trk::MaterialProperties> >::iterator ietmp=etamat.begin();
  
-      for (unsigned int im=0; im<m_mat4merge[icounter].size(); im++) {
-        MaterialElement mat = m_mat4merge[icounter][im];
+      for (unsigned int im=0; im<mat4merge[icounter].size(); im++) {
+        MaterialElement mat = mat4merge[icounter][im];
         matLayInput +=mat.mass()*mat.multi; 
         // project object dimensions
         double mzmin = mat.zmin*layR/(mat.zmin<0? mat.rmin : mat.rmax); 
@@ -461,19 +467,19 @@ void Trk::MaterialLayerHelper::buildMaterial(std::vector< const Trk::Layer* >&  
       Trk::BinUtility buZ(steps,Trk::open,Trk::binZ);      
       Trk::BinnedLayerMaterial material(buZ,matMerged);
       lay->assignMaterialProperties(material);
-      if( cyl->r()>m_rBP) layMatTot += matLayInput;
+      if( cyl->r()> rBP) layMatTot += matLayInput;
     }
 
     //=========== disk layers =============
 
-    if (db && m_mat4merge[icounter].size() ) {
+    if (db && mat4merge[icounter].size() ) {
 
       // check if heavy objects associated 
       bool hasheavy = false;
-      for (auto mat :  m_mat4merge[icounter])  if (mat.mass()>heavyLimit) hasheavy=true; 
+      for (auto mat :  mat4merge[icounter])  if (mat.mass()>heavyLimit) hasheavy=true; 
    
       std::vector<std::pair<float,Trk::MaterialProperties> > rmat;
-      rmat.push_back(std::pair<float,Trk::MaterialProperties>(fmax(db->rMin(),m_rBP),Trk::MaterialProperties()));   // do not accept disks within the beam pipe volume     
+      rmat.push_back(std::pair<float,Trk::MaterialProperties>(fmax(db->rMin(), rBP),Trk::MaterialProperties()));   // do not accept disks within the beam pipe volume     
       if (hasheavy) {
         double rdiff = 20.; double rnext = rmat.back().first+rdiff;
         while (rnext<db->rMax()-0.5*rdiff) {
@@ -486,8 +492,8 @@ void Trk::MaterialLayerHelper::buildMaterial(std::vector< const Trk::Layer* >&  
       std::vector<std::pair<float,Trk::MaterialProperties> >::iterator irtmp=rmat.begin();
       double zLay = lay->surfaceRepresentation().center().z();
  
-      for (unsigned int im=0; im<m_mat4merge[icounter].size(); im++) {
-        MaterialElement mat = m_mat4merge[icounter][im];
+      for (unsigned int im=0; im<mat4merge[icounter].size(); im++) {
+        MaterialElement mat = mat4merge[icounter][im];
         matLayInput +=mat.mass()*mat.multi;
         double zProjn = zLay*mat.zmin >0 ? zLay/mat.zmin : 1.;
         double zProjx = zLay*mat.zmax >0 ? zLay/mat.zmax : 1.;
@@ -659,7 +665,8 @@ std::pair<double,std::pair<double,double> > Trk::MaterialLayerHelper::averageThi
 
 void Trk::MaterialLayerHelper::materialBudget(std::vector<MaterialElement>& inputMat) const 
 {
-
+   MsgStream msg(Athena::getMessageSvc(), "MaterialLayerHelper");
+ 
   // extract summary information about material in GeoModel
   // using geometrical association while developing a consistent naming scheme
   float radiusInOut = 145. ; 
@@ -775,24 +782,25 @@ void Trk::MaterialLayerHelper::materialBudget(std::vector<MaterialElement>& inpu
 
   }
 
-  DEBUG_TRACE(std::cout << "GM material budget:"<< materialAll<< std::endl;);
-  DEBUG_TRACE(std::cout << "SCT total:"<< sct<< std::endl;);
-  DEBUG_TRACE(std::cout << "interlinks:"<< interlink<< std::endl;);
+
+  msg << MSG::INFO << "GM material budget:"<< materialAll<< endmsg;
+  msg << MSG::INFO << "SCT total:"<< sct<< endmsg;
+  msg << MSG::INFO << "interlinks:"<< interlink<< endmsg;
   
-  DEBUG_TRACE(std::cout << "modules inner:Si:hybrid:chip:"<<siInner<<":"<<hybridInner<<":"<<chipInner<<":total:"<<siInner+hybridInner+chipInner<< std::endl;);
-  DEBUG_TRACE(std::cout << "modules OB:Si:hybrid:chip:"<<siOB<<":"<<hybridOB<<":"<<chipOB<<":total:"<<siOB+hybridOB+chipOB<< std::endl;);
-  DEBUG_TRACE(std::cout << "modules EC:Si:hybrid:chip:"<<siEC<<":"<<hybridEC<<":"<<chipEC<<":total:"<<siEC+hybridEC+chipEC<< std::endl;);
+  msg << MSG::INFO << "modules inner:Si:hybrid:chip:"<<siInner<<":"<<hybridInner<<":"<<chipInner<<":total:"<<siInner+hybridInner+chipInner<< endmsg;
+  msg << MSG::INFO << "modules OB:Si:hybrid:chip:"<<siOB<<":"<<hybridOB<<":"<<chipOB<<":total:"<<siOB+hybridOB+chipOB<< endmsg;
+  msg << MSG::INFO << "modules EC:Si:hybrid:chip:"<<siEC<<":"<<hybridEC<<":"<<chipEC<<":total:"<<siEC+hybridEC+chipEC<< endmsg;
 
-  DEBUG_TRACE(std::cout <<"( x-check total modules ... should be empty)"<< modules<< std::endl;);
-  DEBUG_TRACE(std::cout <<"( x-check total ladders ... should be empty)"<< ladders<< std::endl;);
+  msg << MSG::INFO <<"( x-check total modules ... should be empty)"<< modules<< endmsg;
+  msg << MSG::INFO <<"( x-check total ladders ... should be empty)"<< ladders<< endmsg;
 
-  DEBUG_TRACE(std::cout << "services inner : OB : EC (position):"<<svcInner<<":"<<svcOB<<":"<<svcEC<<":total:"<<svcInner+svcOB+svcEC<< std::endl;);
-  DEBUG_TRACE(std::cout << "structure inner : OB : EC (position):"<<structInner<<":"<<structOB<<":"<<structEC<<":total:"<<structInner+structOB+structEC<< std::endl;);
+  msg << MSG::INFO << "services inner : OB : EC (position):"<<svcInner<<":"<<svcOB<<":"<<svcEC<<":total:"<<svcInner+svcOB+svcEC<< endmsg;
+  msg << MSG::INFO << "structure inner : OB : EC (position):"<<structInner<<":"<<structOB<<":"<<structEC<<":total:"<<structInner+structOB+structEC<< endmsg;
 
-  DEBUG_TRACE(std::cout << " OB substructure: longeron: shell:"<< longeron<<":"<<shell<< std::endl; );
+  msg << MSG::INFO << " OB substructure: longeron: shell:"<< longeron<<":"<<shell<< endmsg;
 
-  DEBUG_TRACE(std::cout << "number of OB modules:"<< nModOB << std::endl; ); 
+  msg << MSG::INFO << "number of OB modules:"<< nModOB << endmsg; 
 
-  DEBUG_TRACE(std::cout <<"IPT:IST:PST"<<ipt<<":"<<ist<<":"<<pst<< std::endl;);
-  for (unsigned int is=0; is<shellLayer.size(); is++) if (shellLayer[is]>0.) DEBUG_TRACE(std::cout << "shell layer material:"<< is<<":"<<shellLayer[is]<< std::endl;);
+  msg << MSG::INFO <<"IST:PST"<<":"<<ist<<":"<<pst<< endmsg;
+for (unsigned int is=0; is<shellLayer.size(); is++) if (shellLayer[is]>0.) msg << MSG::INFO << "shell layer material:"<< is<<":"<<shellLayer[is]<< endmsg;
 }

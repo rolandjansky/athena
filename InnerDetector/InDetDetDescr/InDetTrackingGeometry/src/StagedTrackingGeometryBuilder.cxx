@@ -944,7 +944,7 @@ void InDet::StagedTrackingGeometryBuilder::addGMmaterial(const Trk::TrackingVolu
   bool fixedVolume = false;
   
   // retrieve the ITk material and process
-  std::vector<MaterialElement> itk_material;
+  std::vector<Trk::MaterialElement> itk_material;
   Trk::GeoMaterialConverter geoMatCnv;
   Trk::MaterialLayerHelper  mlHelper;
   double massBeamPipe = 0.;
@@ -961,7 +961,7 @@ void InDet::StagedTrackingGeometryBuilder::addGMmaterial(const Trk::TrackingVolu
     // loop over GM tree
     for (unsigned int i=0; i<beamPipeMgr->getNumTreeTops(); i++) {
       //geoMatCnv.printInfo( beamPipeMgr->getTreeTop(i));
-      std::vector<GeoObject*> geoContent = geoMatCnv.decodeGMtree(beamPipeMgr->getTreeTop(i));
+      std::vector<Trk::GeoObject*> geoContent = geoMatCnv.decodeGMtree(beamPipeMgr->getTreeTop(i));
       //mass estimate
       for (auto geo : geoContent) {
 	double mass = geo->material->getDensity()/CLHEP::g*CLHEP::mm3 * geo->volumeSize;      
@@ -991,7 +991,7 @@ void InDet::StagedTrackingGeometryBuilder::addGMmaterial(const Trk::TrackingVolu
     // loop over GM tree
     for (unsigned int i=0; i<pixelMgr->getNumTreeTops(); i++) {
       //geoMatCnv.printInfo( pixelMgr->getTreeTop(i));
-      std::vector<GeoObject*> geoContent = geoMatCnv.decodeGMtree(pixelMgr->getTreeTop(i));
+      std::vector<Trk::GeoObject*> geoContent = geoMatCnv.decodeGMtree(pixelMgr->getTreeTop(i));
       // pixel mass estimate
       for (auto geo : geoContent) {
 	double mass = geo->material->getDensity()/CLHEP::g*CLHEP::mm3 * geo->volumeSize;      
@@ -1019,7 +1019,7 @@ void InDet::StagedTrackingGeometryBuilder::addGMmaterial(const Trk::TrackingVolu
     // lop over GM tree
     for (unsigned int i=0; i<sctMgr->getNumTreeTops(); i++) {
       //geoMatCnv.printInfo( sctMgr->getTreeTop(i));
-      std::vector<GeoObject*> geoContent = geoMatCnv.decodeGMtree(sctMgr->getTreeTop(i));
+      std::vector<Trk::GeoObject*> geoContent = geoMatCnv.decodeGMtree(sctMgr->getTreeTop(i));
       // total mass estimate
       for (auto geo : geoContent) {
 	double mass = geo->material->getDensity()/CLHEP::g*CLHEP::mm3 * geo->volumeSize;      
