@@ -260,11 +260,11 @@ def MuonExtrapolatorCfg(flags,name = "MuonExtrapolator", **kwargs):
     result.merge(navigator_ca)
     kwargs.setdefault("Navigator", navigator)
     
-    acc = MuonSTEP_PropagatorCfg(flags, Tolerance = 0.00001, MaterialEffects=True, IncludeBgradients=True)
-    muon_prop = acc.getPrimary()
-    result.merge(acc)
-    
-    result.addPublicTool(muon_prop)
+    if 'Propagators' not in kwargs:
+        acc = MuonSTEP_PropagatorCfg(flags, Tolerance = 0.00001, MaterialEffects=True, IncludeBgradients=True)
+        muon_prop = acc.getPrimary()
+        result.merge(acc)
+        result.addPublicTool(muon_prop)
     
     kwargs.setdefault("Propagators", [muon_prop])
     kwargs.setdefault("ResolveMuonStation", True)

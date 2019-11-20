@@ -197,19 +197,34 @@ def MuonSegmentMatchingToolCfg(flags, name="MuonSegmentMatchingTool", **kwargs):
     
 def MooCandidateMatchingToolCfg(flags, name="MooCandidateMatchingTool", doSegmentPhiMatching=True, **kwargs):
     from MuonTrackSteeringTools.MuonTrackSteeringToolsConf import Muon__MooCandidateMatchingTool
-    result = ComponentAccumulator()
-    if doSegmentPhiMatching is not None:
-        acc = MuonSegmentMatchingToolCfg(flags, doPhiMatching = doSegmentPhiMatching)
-        muon_seg_matching = acc.getPrimary()
-        result.addPublicTool(muon_seg_matching)
-        result.merge(acc)
-        kwargs.setdefault("SegmentMatchingTool",      muon_seg_matching)
+    from TrkExTools.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+    from MuonConfig.MuonRecToolsConfig import MuonExtrapolatorCfg
     
-        acc = MuonSegmentMatchingToolCfg(flags, name = "MuonSegmentMatchingToolTight", TightSegmentMatching=True, doPhiMatching = doSegmentPhiMatching)
-        muon_seg_matching_tight = acc.getPrimary()
-        result.addPublicTool(muon_seg_matching_tight)
-        result.merge(acc)
-        kwargs.setdefault("SegmentMatchingToolTight", muon_seg_matching_tight)
+    result = ComponentAccumulator()
+
+    # Won't explicitly configure MuonIdHelperTool, MuonEDMHelperSvc, MuonEDMPrinterTool
+    
+    acc = MuonExtrapolatorCfg(flags, name="MuonStraightLineExtrapolator")
+    slextrap = acc.getPrimary()
+    result.merge(acc)
+    kwargs.setdefault("SLExtrapolator", slextrap)
+    
+    acc = AtlasExtrapolatorCfg(flags)
+    extrap = acc.getPrimary()
+    result.merge(acc)
+    kwargs.setdefault("Extrapolator", extrap)
+    
+    acc = MuonSegmentMatchingToolCfg(flags, doPhiMatching = doSegmentPhiMatching)
+    muon_seg_matching = acc.getPrimary()
+    result.addPublicTool(muon_seg_matching)
+    result.merge(acc)
+    kwargs.setdefault("SegmentMatchingTool",      muon_seg_matching)
+
+    acc = MuonSegmentMatchingToolCfg(flags, name = "MuonSegmentMatchingToolTight", TightSegmentMatching=True, doPhiMatching = doSegmentPhiMatching)
+    muon_seg_matching_tight = acc.getPrimary()
+    result.addPublicTool(muon_seg_matching_tight)
+    result.merge(acc)
+    kwargs.setdefault("SegmentMatchingToolTight", muon_seg_matching_tight)
         
     kwargs.setdefault("DoTrackSegmentMatching", flags.Muon.useTrackSegmentMatching)
     kwargs.setdefault("RequireSameSide", flags.Beam.Type != 'collisions')
@@ -228,7 +243,6 @@ def MooCandidateMatchingToolCfg(flags, name="MooCandidateMatchingTool", doSegmen
     acc=MuPatCandidateToolCfg(flags)
     cand_tool = acc.getPrimary()
     result.merge(acc)
-    result.addPublicTool(cand_tool)
     kwargs.setdefault("MuPatCandidateTool",       cand_tool) 
     
     moo_cand_matching_tool = Muon__MooCandidateMatchingTool(name,**kwargs)
@@ -301,9 +315,7 @@ def MuPatCandidateToolCfg(flags, name="MuPatCandidateTool", **kwargs):
     csc_cluster_creator = acc.getPrimary()
     result.merge(acc)
     kwargs.setdefault("CscRotCreator", csc_cluster_creator)
-    
-    kwargs.setdefault("SegmentExtender", "") #FIXME If this is always empty, can it be removed?
-    
+        
     # from AthenaCommon.Constants import VERBOSE
     mu_pat_cand_tool = Muon__MuPatCandidateTool(name, **kwargs)
     result.setPrivateTools(mu_pat_cand_tool)
