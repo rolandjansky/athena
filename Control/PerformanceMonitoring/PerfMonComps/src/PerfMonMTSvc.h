@@ -121,7 +121,7 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     int getEventID() const;
     
     bool isPower(int input, int base); // check if input is power of base or not
-    bool isLoop(); // Returns true if the execution is at the event loop, false o/w.
+    bool isLoop() const; // Returns true if the execution is at the event loop, false o/w.
 
     void divideData2Steps_serial();     
 

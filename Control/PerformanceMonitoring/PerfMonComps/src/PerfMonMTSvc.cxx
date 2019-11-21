@@ -535,7 +535,6 @@ void PerfMonMTSvc::report2JsonFile_Mem_Serial(nlohmann::json& j) const{
 void PerfMonMTSvc::report2JsonFile_Mem_Parallel(nlohmann::json& j){
   
   // Report event level memory measurements
-  //for(auto it : m_eventLevelData.getParallelDeltaMap()){
   for(auto it : m_eventLevelData.getParallelDeltaMap()){
 
     std::string checkPoint = std::to_string(it.first);
@@ -551,8 +550,7 @@ void PerfMonMTSvc::report2JsonFile_Mem_Parallel(nlohmann::json& j){
   }
 }
 
-// const?
-bool PerfMonMTSvc::isLoop() {
+bool PerfMonMTSvc::isLoop() const {
   
   int eventID = getEventID();
   return (eventID >= 0) ? true : false;
