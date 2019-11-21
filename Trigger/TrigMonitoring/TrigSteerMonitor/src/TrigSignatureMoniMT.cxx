@@ -84,9 +84,6 @@ StatusCode TrigSignatureMoniMT::start() {
   m_rateBufferHistogram.set(hRB.release(), &m_bufferMutex);
   m_rateBufferHistogram->SetDirectory(0);
 
-  m_timer = std::make_unique<Athena::AlgorithmTimer>(0, boost::bind(&TrigSignatureMoniMT::callback, this), Athena::AlgorithmTimer::DELIVERYBYTHREAD);
-  m_isTimerStarted = false;
-
   return StatusCode::SUCCESS;
 }
 
@@ -247,9 +244,10 @@ void TrigSignatureMoniMT::callback() const {
 }
 
 StatusCode TrigSignatureMoniMT::execute( const EventContext& context ) const {  
-  if (!m_isTimerStarted){
-    m_timer->start(m_duration*50);
-    m_isTimerStarted = true;
+  // Create and start timer - this has to be done in the first execute call to ensure it happens after forking in HLT
+  if (bool expected = false; m_isTimerStarted.compare_exchange_strong(expected, true)) {
+    m_timer = std::make_unique<Athena::AlgorithmTimer>(m_duration*50, boost::bind(&TrigSignatureMoniMT::callback, this), Athena::AlgorithmTimer::DELIVERYBYTHREAD);
+    ATH_MSG_DEBUG("Started rate timer");
   }
 
   auto l1Decisions = SG::makeHandle( m_l1DecisionsKey, context );
