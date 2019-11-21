@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -47,13 +47,12 @@ void MissingETCnv_p1::persToTrans(  const MissingET_p1* pers,
   trans->m_etSum   = pers->m_etSum;
   trans->m_source  = static_cast<MissingET::Source>(pers->m_source);
   
-  delete trans->m_regions;
-  trans->m_regions = 0;
+  trans->m_regions.reset();
   {
     // use the region converter to convert from pers to trans 
-    MissingEtRegions *theReg = new MissingEtRegions();
-    regCnv.persToTrans(&pers->m_regions, theReg, msg);
-    trans->m_regions = theReg;
+    auto theReg = std::make_unique<MissingEtRegions>();
+    regCnv.persToTrans(&pers->m_regions, theReg.get(), msg);
+    trans->m_regions = std::move(theReg);
   }
 	
     // std::cout<<"IN  source: "<<trans->m_source;
@@ -78,7 +77,7 @@ void MissingETCnv_p1::transToPers(  const MissingET* trans,
   // use the region converter to convert from trans to pers  
   if( trans->m_regions != 0)   
   {
-    regCnv.transToPers( trans->m_regions, &pers->m_regions, msg );
+    regCnv.transToPers( trans->m_regions.get(), &pers->m_regions, msg );
   }
   
   // std::cout<<"OUT source: "<<trans->m_source;

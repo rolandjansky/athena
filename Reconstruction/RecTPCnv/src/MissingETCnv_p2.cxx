@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -55,11 +55,11 @@ void MissingETCnv_p2::persToTrans( MissingET* trans, std::vector<float>::const_i
 	trans->m_ex     = (*i);++i;
 	trans->m_ey     = (*i);++i;
 	trans->m_etSum  = (*i);++i;
-	delete trans->m_regions;
+	trans->m_regions.reset();
 	if( c.i & 1) {
-		MissingEtRegions *theReg = new MissingEtRegions();
-		regCnv.persToTrans( theReg, i);
-		trans->m_regions = theReg;
+                auto theReg = std::make_unique<MissingEtRegions>();
+		regCnv.persToTrans( theReg.get(), i);
+		trans->m_regions = std::move(theReg);
 	}
 	// std::cout<<"READING: source: "<<trans->m_source<<"\t et: "<<trans->m_etSum;
 	// if (trans->m_regions != 0) std::cout<<"\t has Regions"<<std::endl; else std::cout<<"\t NO Regions"<<std::endl;
@@ -76,7 +76,7 @@ void  MissingETCnv_p2::transToPers(  const MissingET* trans,  std::vector<float>
 	all.push_back(trans->m_ex);
 	all.push_back(trans->m_ey);
 	all.push_back(trans->m_etSum);
-	if( trans->m_regions != 0) regCnv.transToPers(trans->m_regions, all);
+	if( trans->m_regions != 0) regCnv.transToPers(trans->m_regions.get(), all);
 	// std::cout<<"WRITING: source: "<<trans->m_source<<"\t et: "<<trans->m_etSum;
 	// if (trans->m_regions != 0) std::cout<<"\t has Regions"<<std::endl; else std::cout<<"\t NO Regions"<<std::endl;
 	return;

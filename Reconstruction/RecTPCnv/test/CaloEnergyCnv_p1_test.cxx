@@ -1,17 +1,15 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
- * @file RecTPCnv/test/CaloEnergyCnv_p2_test.cxx
+ * @file RecTPCnv/test/CaloEnergyCnv_p1_test.cxx
  * @author scott snyder <snyder@bnl.gov>
- * @date Dec, 2015
+ * @date Nov, 2019
  * @brief Regression tests.
  */
 
 #undef NDEBUG
-#include "RecTPCnv/CaloEnergyCnv_p2.h"
+#include "RecTPCnv/CaloEnergyCnv_p1.h"
 #include "TrkMaterialOnTrack/EnergyLoss.h"
 #include "muonEvent/DepositInCalo.h"
 #include "muonEvent/CaloEnergy.h"
@@ -25,7 +23,8 @@ void compare (const Trk::EnergyLoss& p1,
               const Trk::EnergyLoss& p2)
 {
   assert (p1.deltaE() == p2.deltaE());
-  assert (p1.sigmaDeltaE() == p2.sigmaDeltaE());
+  // Not saved in _p1
+  //assert (p1.sigmaDeltaE() == p2.sigmaDeltaE());
   assert (p1.sigmaMinusDeltaE() == p2.sigmaMinusDeltaE());
   assert (p1.sigmaPlusDeltaE() == p2.sigmaPlusDeltaE());
 }
@@ -37,7 +36,8 @@ void compare (const DepositInCalo& p1,
   assert (p1.subCaloId() == p2.subCaloId());
   assert (p1.energyDeposited() == p2.energyDeposited());
   assert (p1.muonEnergyLoss() == p2.muonEnergyLoss());
-  assert (p1.etDeposited() == p2.etDeposited());
+  // Not saved in _p1
+  //assert (p1.etDeposited() == p2.etDeposited());
 }
 
 
@@ -65,12 +65,10 @@ void compare (const CaloEnergy& p1,
 }
 
 
-void testit (const CaloEnergy& trans1)
+void testit (const CaloEnergy& trans1, const CaloEnergy_p1& pers)
 {
   MsgStream log (0, "test");
-  CaloEnergyCnv_p2 cnv;
-  CaloEnergy_p2 pers;
-  cnv.transToPers (&trans1, &pers, log);
+  CaloEnergyCnv_p1 cnv;
   CaloEnergy trans2;
   cnv.persToTrans (&pers, &trans2, log);
   compare (trans1, trans2);
@@ -86,13 +84,30 @@ void test1()
   deposits.emplace_back (CaloCell_ID::EMB2, 10.5, 11.5, 12.5);
   deposits.emplace_back (CaloCell_ID::EME2, 20.5, 21.5, 22.5);
   CaloEnergy trans1 (1.5, 2.5, 3.5, 4.5, 1, 5.5, 20, deposits);
-  testit (trans1);
+
+  CaloEnergy_p1 pers1;
+  pers1.m_energyLossType = static_cast<int>(trans1.energyLossType());
+  pers1.m_caloLRLikelihood = trans1.caloLRLikelihood();
+  pers1.m_caloMuonIdTag = trans1.caloMuonIdTag();
+  pers1.m_fsrCandidateEnergy = trans1.fsrCandidateEnergy();
+  pers1.m_energyDeposit = trans1.deltaE();
+  pers1.m_energySigmaMinus = trans1.sigmaMinusDeltaE();
+  pers1.m_energySigmaPlus = trans1.sigmaPlusDeltaE();
+  for (const DepositInCalo& d : trans1.depositInCalo()) {
+    DepositInCalo_p1 pdep;
+    pdep.m_subCaloId = d.subCaloId();
+    pdep.m_energyDeposited = d.energyDeposited();
+    pdep.m_muonEnergyLoss = d.muonEnergyLoss();
+    pers1.m_deposits.push_back (pdep);
+  }
+  
+  testit (trans1, pers1);
 }
 
 
 int main()
 {
-  std::cout << "RecTPCnv/CaloEnergyCnv_p2\n";
+  std::cout << "RecTPCnv/CaloEnergyCnv_p1\n";
   test1();
   return 0;
 }
