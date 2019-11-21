@@ -102,8 +102,6 @@ namespace InDet
       void  countHitsNearTrack (OccupancyData& data,
                                 int track_local[NLOCAL][NLOCALPHI]) const;
 
-      //   void  countHitsNearTrack(std::vector<IdentifierHash>* hash_vec);
-  //   void  countHitsNearTrack(IdentifierHash hash);
 
   
 
