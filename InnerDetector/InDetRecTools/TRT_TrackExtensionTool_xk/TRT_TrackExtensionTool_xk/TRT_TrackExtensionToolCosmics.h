@@ -22,6 +22,7 @@
 #include "InDetRecToolInterfaces/ITRT_TrackExtensionTool.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "TrkEventPrimitives/PropDirection.h"
+#include "TrkEventUtils/EventDataBase.h"
 
 #include "StoreGate/ReadHandleKey.h"
 
@@ -116,7 +117,8 @@ namespace InDet {
 
       SG::ReadHandleKey<TRT_DriftCircleContainer> m_trtname {this,"TRT_ClustersContainer","TRT_DriftCircles","RHK to retrieve TRT_DriftCircles"};
 
-      class EventData : public InDet::ITRT_TrackExtensionTool::IEventData
+      class EventData;
+      class EventData : public Trk::EventDataBase<EventData,InDet::ITRT_TrackExtensionTool::IEventData>
       {
          friend class TRT_TrackExtensionToolCosmics;
       public:
@@ -128,22 +130,7 @@ namespace InDet {
             delete m_trtdiscC;
          }
 
-         virtual unsigned int type() const override { return s_type;}
-
-
-         static
-         InDet::TRT_TrackExtensionToolCosmics::EventData &
-         getEventData(InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) {
-            if (virt_event_data.type() != InDet::TRT_TrackExtensionToolCosmics::EventData::s_type) {
-               throw std::logic_error("EventData mismatch in call TRT_TrackExtensionTool_xk::extendTrack" );
-            }
-            return static_cast<InDet::TRT_TrackExtensionToolCosmics::EventData&>(virt_event_data);
-         }
-
       protected:
-
-         static constexpr unsigned int s_type = 0xa875311a; // first 32bit of sha1sum of InDet::TRT_TrackExtensionTool_xk::EventData
-
          const TRT_DriftCircleContainer  *m_trtcontainer = nullptr;
          Trk::Surface                    *m_trtcylinder  = nullptr;
          Trk::Surface                    *m_trtdiscA     = nullptr;

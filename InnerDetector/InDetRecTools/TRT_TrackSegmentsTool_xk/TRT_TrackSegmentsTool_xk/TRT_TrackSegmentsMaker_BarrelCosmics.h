@@ -22,6 +22,7 @@
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetRecToolInterfaces/ITRT_TrackSegmentsMaker.h"
+#include "TrkEventUtils/EventDataBase.h"
 #include "TrkParameters/TrackParameters.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "TrkEventPrimitives/LocalParameters.h"
@@ -73,7 +74,8 @@ namespace InDet{
 
 
     protected:
-      class EventData : public InDet::ITRT_TrackSegmentsMaker::IEventData
+      class EventData;
+      class EventData : public Trk::EventDataBase<EventData,InDet::ITRT_TrackSegmentsMaker::IEventData>
       {
          friend class TRT_TrackSegmentsMaker_BarrelCosmics;
       public:
@@ -88,20 +90,7 @@ namespace InDet{
             m_segmentDriftCirclesCount = 0;
          }
 
-         virtual unsigned int type() const override { return s_type;}
-
-         static
-         TRT_TrackSegmentsMaker_BarrelCosmics::EventData &
-         getEventData(InDet::ITRT_TrackSegmentsMaker::IEventData &virt_event_data) {
-            if (virt_event_data.type() != TRT_TrackSegmentsMaker_BarrelCosmics::EventData::s_type) {
-               throw std::logic_error("EventData mismatch expecting TRT_TrackSegmentsMaker_BarrelCosmics::EventData" );
-            }
-            return static_cast<TRT_TrackSegmentsMaker_BarrelCosmics::EventData&>(virt_event_data);
-         }
-
       protected:
-         static constexpr unsigned int s_type = 0x0; // first 32bit of sha1sum of InDet::TRT_TrackExtensionTool_xk::EventData
-
          const TRT_DriftCircleContainer                            *m_trtcontainer = nullptr;
          unsigned int                                               m_segmentDriftCirclesCount = 0;
          std::vector< const InDet::TRT_DriftCircle * >              m_listHits;

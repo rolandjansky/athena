@@ -363,10 +363,8 @@ std::list<std::pair<const Trk::SpacePoint*, const Trk::SpacePoint*> >
 InDet::TRT_SeededSpacePointFinder_ATL::find2Sp(const Trk::TrackParameters& tP,
                                                ITRT_SeededSpacePointFinder::IEventData &virt_event_data) const
 {
-  if (virt_event_data.type() != InDet::TRT_SeededSpacePointFinder_ATL::EventData::s_type) {
-     throw std::logic_error("EventData mismatch in call TRT_SeededSpacePointFinder_ATL::find2Sp." );
-  }
-  InDet::TRT_SeededSpacePointFinder_ATL::EventData &event_data=static_cast<InDet::TRT_SeededSpacePointFinder_ATL::EventData&>(virt_event_data);
+  InDet::TRT_SeededSpacePointFinder_ATL::EventData &event_data = EventData::getPrivateEventData(virt_event_data);
+
   const double pi2 = 2.*M_PI;
 
   /** List of produced space point seeds  */

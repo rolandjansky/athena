@@ -30,6 +30,7 @@
 //
 #include "InDetRecToolInterfaces/ITRT_SeededTrackFinder.h"
 #include "InDetRecToolInterfaces/ITRT_SeededSpacePointFinder.h"
+#include "TrkEventUtils/EventDataBase.h"
 
 //Magnetic field
 //
@@ -119,14 +120,15 @@ namespace InDet{
 
     protected:
 
-       class EventData : public InDet::ITRT_SeededTrackFinder::IEventData {
+       class EventData;
+       class EventData : public Trk::EventDataBase<EventData,InDet::ITRT_SeededTrackFinder::IEventData> {
        public:
+          friend class TRT_SeededTrackFinder_ATL;
           EventData(SiCombinatorialTrackFinderData_xk& combinatorialData,
                     std::unique_ptr<InDet::ITRT_SeededSpacePointFinder::IEventData> &&spacePointFinderEventData)
              : m_combinaatorialData(&combinatorialData),
                m_spacePointFinderEventData(std::move(spacePointFinderEventData) )
           {}
-          virtual unsigned int type() const override { return s_type;}
           virtual InDet::SiCombinatorialTrackFinderData_xk &combinatorialData() override             { return *m_combinaatorialData; }
           virtual const InDet::SiCombinatorialTrackFinderData_xk &combinatorialData() const override { return *m_combinaatorialData; }
 
@@ -138,20 +140,7 @@ namespace InDet{
           const std::vector<double>&                                caloE()  const { return m_caloE; }
           InDet::SiNoise_bt&                                        noise()        { return m_noise; }
           const InDet::SiNoise_bt&                                  noise()  const { return m_noise; }
-
-          static InDet::TRT_SeededTrackFinder_ATL::EventData &
-            getPrivateEventData(InDet::ITRT_SeededTrackFinder::IEventData &event_data)
-          {
-             if (event_data.type() != s_type) {
-                throw std::logic_error("EventData mismatch in TRT_SeededTrackFinder_ATL");
-             }
-             return static_cast<InDet::TRT_SeededTrackFinder_ATL::EventData &>(event_data);
-          }
-
-
        protected:
-          static constexpr unsigned int s_type = 0x627a3745; // first 32 bits of sha1 of InDet::TRT_SeededTrackFinder_ATL::EventData"
-
           SiCombinatorialTrackFinderData_xk                              *m_combinaatorialData;
           std::unique_ptr<InDet::ITRT_SeededSpacePointFinder::IEventData> m_spacePointFinderEventData;
           std::multimap<const Trk::PrepRawData*,const Trk::Track*> m_clusterTrack  ; /** Multimap of tracks and associated PRDs  */

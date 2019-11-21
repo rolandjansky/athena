@@ -204,7 +204,7 @@ InDet::TRT_TrackSegmentsMaker_BarrelCosmics::newRegion(const std::vector<Identif
 
 void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::endEvent (InDet::ITRT_TrackSegmentsMaker::IEventData &virt_event_data) const {
   TRT_TrackSegmentsMaker_BarrelCosmics::EventData &
-     event_data  = TRT_TrackSegmentsMaker_BarrelCosmics::EventData::getEventData(virt_event_data);
+     event_data  = TRT_TrackSegmentsMaker_BarrelCosmics::EventData::getPrivateEventData(virt_event_data);
 
   ATH_MSG_DEBUG("InDet::TRT_TrackSegmentsMaker_BarrelCosmics::endEvent()" );
 
@@ -224,7 +224,7 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::endEvent (InDet::ITRT_TrackSeg
 
 void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::find(InDet::ITRT_TrackSegmentsMaker::IEventData &virt_event_data) const {
   TRT_TrackSegmentsMaker_BarrelCosmics::EventData &
-     event_data  = TRT_TrackSegmentsMaker_BarrelCosmics::EventData::getEventData(virt_event_data);
+     event_data  = TRT_TrackSegmentsMaker_BarrelCosmics::EventData::getPrivateEventData(virt_event_data);
 
   if (!m_magneticField) { findOld(event_data); return; }
 
@@ -409,7 +409,7 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::find(InDet::ITRT_TrackSegments
 Trk::TrackSegment *InDet::TRT_TrackSegmentsMaker_BarrelCosmics::next(InDet::ITRT_TrackSegmentsMaker::IEventData &virt_event_data) const
 {
   TRT_TrackSegmentsMaker_BarrelCosmics::EventData &
-     event_data  = TRT_TrackSegmentsMaker_BarrelCosmics::EventData::getEventData(virt_event_data);
+     event_data  = TRT_TrackSegmentsMaker_BarrelCosmics::EventData::getPrivateEventData(virt_event_data);
 
   // next 6 lines: for debugging purposes only
   ATH_MSG_DEBUG( "InDet::TRT_TrackSegmentsMaker_BarrelCosmics::next(): return "

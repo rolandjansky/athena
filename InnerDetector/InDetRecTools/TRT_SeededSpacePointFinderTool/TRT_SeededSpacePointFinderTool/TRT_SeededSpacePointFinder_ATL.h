@@ -25,6 +25,7 @@
 #include "TrkSpacePoint/SpacePointOverlapCollection.h" 
 
 #include "InDetRecToolInterfaces/ITRT_SeededSpacePointFinder.h"
+#include "TrkEventUtils/EventDataBase.h"
 
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
@@ -149,7 +150,8 @@ namespace InDet{
       /** Tables for 2 space points seeds search                       */
       ///////////////////////////////////////////////////////////////////
 
-       class EventData : public InDet::ITRT_SeededSpacePointFinder::IEventData
+       class EventData;
+       class EventData : public Trk::EventDataBase<EventData,InDet::ITRT_SeededSpacePointFinder::IEventData>
        {
          friend class TRT_SeededSpacePointFinder_ATL;
       public:
@@ -169,13 +171,10 @@ namespace InDet{
               if(m_r_map  )  delete [] m_r_map  ;
          }
 
-         virtual unsigned int type() const override { return s_type;}
-
       protected:
          void buildFrameWork(double r_rmax, double r_rstep, double ptmin);
          void erase(); // unused?
 
-         static constexpr unsigned int s_type = 0xe3a29aa4; // first 32bit of sha1sum of TRT_SeededSpacePointFinder_ATL::FinderEventData
          int m_r_size                                                   ;
          std::list<std::pair<const Trk::SpacePoint*,int> > m_rf_Sorted[530]   ;
          std::list<std::pair<const Trk::SpacePoint*,int> > m_newRfi_Sorted    ;

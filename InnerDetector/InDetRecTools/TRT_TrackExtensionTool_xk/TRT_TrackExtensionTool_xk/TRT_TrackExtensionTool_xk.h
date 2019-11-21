@@ -22,6 +22,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "InDetRecToolInterfaces/ITRT_TrackExtensionTool.h"
+#include "TrkEventUtils/EventDataBase.h"
 #include "TRT_TrackExtensionTool_xk/TRT_Trajectory_xk.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "StoreGate/ReadHandleKey.h"
@@ -84,7 +85,8 @@ namespace InDet{
 
     protected:
 
-      class EventData : public InDet::ITRT_TrackExtensionTool::IEventData
+      class EventData;
+      class EventData : public Trk::EventDataBase<EventData,InDet::ITRT_TrackExtensionTool::IEventData>
       {
          friend class TRT_TrackExtensionTool_xk;
       public:
@@ -93,22 +95,7 @@ namespace InDet{
 
          ~EventData() {}
 
-         virtual unsigned int type() const override { return s_type;}
-
-
-         static
-         InDet::TRT_TrackExtensionTool_xk::EventData &
-         getEventData(InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) {
-            if (virt_event_data.type() != InDet::TRT_TrackExtensionTool_xk::EventData::s_type) {
-               throw std::logic_error("EventData mismatch in call TRT_TrackExtensionTool_xk::extendTrack" );
-            }
-            return static_cast<InDet::TRT_TrackExtensionTool_xk::EventData&>(virt_event_data);
-         }
-
       protected:
-
-         static constexpr unsigned int s_type = 0xa875311a; // first 32bit of sha1sum of InDet::TRT_TrackExtensionTool_xk::EventData
-
          const TRT_DriftCircleContainer           *m_trtcontainer;
          std::vector<const Trk::MeasurementBase*>  m_measurement;
          TRT_Trajectory_xk                         m_trajectory;

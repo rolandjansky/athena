@@ -39,7 +39,6 @@ namespace InDet {
        class IEventData {
        public:
           virtual ~IEventData() {}
-          virtual unsigned int type() const = 0;
           virtual InDet::SiCombinatorialTrackFinderData_xk &combinatorialData() = 0 ;
           virtual const InDet::SiCombinatorialTrackFinderData_xk &combinatorialData() const = 0 ;
        };

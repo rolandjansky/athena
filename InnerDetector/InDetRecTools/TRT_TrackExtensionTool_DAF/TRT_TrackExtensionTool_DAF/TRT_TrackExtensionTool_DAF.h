@@ -27,6 +27,7 @@
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"  // typedef
 
 #include "InDetRecToolInterfaces/ITRT_TrackExtensionTool.h"
+#include "TrkEventUtils/EventDataBase.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 
 class MsgStream;
@@ -120,37 +121,22 @@ protected:
 //    static const int                    maxTrackGlobalPositions = 200; //!< array size for global track positions
 //    static const int                    maxDetElements = 200; //!< array size for the detElements road
 
-    class EventData : public InDet::ITRT_TrackExtensionTool::IEventData
+    class EventData;
+    class EventData : public Trk::EventDataBase<EventData,InDet::ITRT_TrackExtensionTool::IEventData>
     {
        friend class TRT_TrackExtensionTool_DAF;
     public:
        EventData(const TRT_DriftCircleContainer *trtcontainer) : m_trtcontainer(trtcontainer) {}
 
        ~EventData() {}
+    protected:
+       const TRT_DriftCircleContainer               *m_trtcontainer = nullptr;
+       std::vector<const Trk::MeasurementBase*>      m_measurement;               //!< vector of MeasurementBase for the output
+       std::vector <const InDetDD::TRT_BaseElement*> m_detectorElements;          //!< vector to store the detElements
+       std::vector <const Trk::TrackParameters*>     m_propagatedTrackParameters; //!< vector to store the propagated track parameters (propagated to the related entry of m_detectorElements)
 
-       virtual unsigned int type() const override { return s_type;}
-
-
-       static
-       InDet::TRT_TrackExtensionTool_DAF::EventData &
-       getEventData(InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) {
-          if (virt_event_data.type() != InDet::TRT_TrackExtensionTool_DAF::EventData::s_type) {
-             throw std::logic_error("EventData mismatch in call TRT_TrackExtensionTool_xk::extendTrack" );
-          }
-          return static_cast<InDet::TRT_TrackExtensionTool_DAF::EventData&>(virt_event_data);
-       }
-
-      protected:
-
-         static constexpr unsigned int s_type = 0x53782152; // first 32bit of sha1sum of InDet::TRT_TrackExtensionTool_DAF::EventData
-
-         const TRT_DriftCircleContainer               *m_trtcontainer = nullptr;
-         std::vector<const Trk::MeasurementBase*>      m_measurement;               //!< vector of MeasurementBase for the output
-         std::vector <const InDetDD::TRT_BaseElement*> m_detectorElements;          //!< vector to store the detElements
-         std::vector <const Trk::TrackParameters*>     m_propagatedTrackParameters; //!< vector to store the propagated track parameters (propagated to the related entry of m_detectorElements)
-
-         const Trk::TrackParameters                  *m_siliconTrkParams = nullptr; //!< track parameters at the outermost Silicon layer
-      };
+       const Trk::TrackParameters                  *m_siliconTrkParams = nullptr; //!< track parameters at the outermost Silicon layer
+    };
 
 
     ///////////////////////////////////////////

@@ -39,7 +39,6 @@ namespace InDet {
       class IEventData {
       public:
          virtual ~IEventData() {}
-         virtual unsigned int type() const = 0;
       };
 
       ///////////////////////////////////////////////////////////////////

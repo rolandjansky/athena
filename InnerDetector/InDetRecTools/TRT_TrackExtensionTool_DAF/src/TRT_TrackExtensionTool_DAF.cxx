@@ -298,7 +298,7 @@ InDet::TRT_TrackExtensionTool_DAF::extendTrack(const Trk::Track& track,
                                                InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const
 {
   InDet::TRT_TrackExtensionTool_DAF::EventData &
-     event_data=InDet::TRT_TrackExtensionTool_DAF::EventData::getEventData(virt_event_data);
+     event_data=InDet::TRT_TrackExtensionTool_DAF::EventData::getPrivateEventData(virt_event_data);
     //StatusCode sc;
 
     const Trk::TrackParameters *trackPar = 0;
@@ -325,7 +325,7 @@ InDet::TRT_TrackExtensionTool_DAF::extendTrack(const Trk::TrackParameters& track
                                                InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const
 {
    InDet::TRT_TrackExtensionTool_DAF::EventData &
-      event_data=InDet::TRT_TrackExtensionTool_DAF::EventData::getEventData(virt_event_data);
+      event_data=InDet::TRT_TrackExtensionTool_DAF::EventData::getPrivateEventData(virt_event_data);
 
     StatusCode sc(StatusCode::SUCCESS);
     // fake check of StatusCode to avoid "unchecked return codes" warning

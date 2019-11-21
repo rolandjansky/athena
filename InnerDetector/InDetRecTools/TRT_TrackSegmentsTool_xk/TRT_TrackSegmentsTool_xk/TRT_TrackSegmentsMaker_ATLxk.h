@@ -30,7 +30,7 @@
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "TRT_TrackSegmentsTool_xk/TRT_DriftCircleLinkN_xk.h"
 #include "TrkEventUtils/PRDtoTrackMap.h"
-
+#include "TrkEventUtils/EventDataBase.h"
 
 #include "StoreGate/ReadHandleKey.h"
 
@@ -94,7 +94,8 @@ namespace InDet{
 
     protected:
 
-      class EventData : public InDet::ITRT_TrackSegmentsMaker::IEventData
+      class EventData;
+      class EventData : public Trk::EventDataBase<EventData,InDet::ITRT_TrackSegmentsMaker::IEventData>
       {
          friend class TRT_TrackSegmentsMaker_ATLxk;
       public:
@@ -106,21 +107,7 @@ namespace InDet{
 
          ~EventData() { delete [] m_circles; }
 
-         virtual unsigned int type() const override { return s_type;}
-
-         static
-         TRT_TrackSegmentsMaker_ATLxk::EventData &
-         getEventData(InDet::ITRT_TrackSegmentsMaker::IEventData &virt_event_data) {
-            if (virt_event_data.type() != TRT_TrackSegmentsMaker_ATLxk::EventData::s_type) {
-               throw std::logic_error("EventData mismatch expecting TRT_TrackSegmentsMaker_ATLxk::EventData" );
-            }
-            return static_cast<TRT_TrackSegmentsMaker_ATLxk::EventData&>(virt_event_data);
-         }
-
       protected:
-
-         static constexpr unsigned int s_type = 0xa0066afe; // first 32bit of sha1sum of InDet::TRT_TrackExtensionTool_xk::EventData
-
          const InDet::TRT_DriftCircleContainer *m_trtcontainer = nullptr;
          std::unique_ptr<InDet::ITRT_TrackExtensionTool::IEventData>  m_extEventData;
          int                                    m_clusters  = 0   ;

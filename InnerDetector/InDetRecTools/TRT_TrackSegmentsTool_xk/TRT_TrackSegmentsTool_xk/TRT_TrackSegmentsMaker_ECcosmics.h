@@ -27,6 +27,7 @@
 
 #include "StoreGate/ReadHandleKey.h"
 #include "TrkEventUtils/PRDtoTrackMap.h"
+#include "TrkEventUtils/EventDataBase.h"
 
 #include "CxxUtils/checker_macros.h"
 
@@ -111,7 +112,8 @@ namespace InDet{
       std::ostream& dump          (std::ostream& out) const;
 
     protected:
-      class EventData : public InDet::ITRT_TrackSegmentsMaker::IEventData
+      class EventData;
+      class EventData : public Trk::EventDataBase<EventData,InDet::ITRT_TrackSegmentsMaker::IEventData>
       {
          friend class InDet::TRT_TrackSegmentsMaker_ECcosmics;
       public:
@@ -129,21 +131,7 @@ namespace InDet{
             }
          }
 
-         virtual unsigned int type() const override { return s_type;}
-
-         static
-         TRT_TrackSegmentsMaker_ECcosmics::EventData &
-         getEventData(InDet::ITRT_TrackSegmentsMaker::IEventData &virt_event_data) {
-            if (virt_event_data.type() != TRT_TrackSegmentsMaker_ECcosmics::EventData::s_type) {
-               throw std::logic_error("EventData mismatch expecting TRT_TrackSegmentsMaker_ECcosmics::EventData" );
-            }
-            return static_cast<TRT_TrackSegmentsMaker_ECcosmics::EventData&>(virt_event_data);
-         }
-
       protected:
-
-         static constexpr unsigned int s_type = 0x0; // first 32bit of sha1sum of InDet::TRT_TrackExtensionTool_xk::EventData
-
          std::list<const InDet::TRT_DriftCircle*> m_noiseHits; //!< List containing potentially noise hits
          std::list<const InDet::TRT_DriftCircle*> m_goodHits; //!< List containing potenitally good hits
 

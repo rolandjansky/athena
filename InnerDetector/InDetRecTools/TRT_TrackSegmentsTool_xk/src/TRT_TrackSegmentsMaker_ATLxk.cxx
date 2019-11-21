@@ -346,7 +346,7 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::endEvent (InDet::ITRT_TrackSegmentsMak
 {
    if (msgLvl(MSG::DEBUG)) {
       TRT_TrackSegmentsMaker_ATLxk::EventData &
-         event_data = TRT_TrackSegmentsMaker_ATLxk::EventData::getEventData(virt_event_data);
+         event_data = TRT_TrackSegmentsMaker_ATLxk::EventData::getPrivateEventData(virt_event_data);
       dumpEvent(msg(MSG::DEBUG),event_data);
       dumpConditions(msg(MSG::DEBUG));
       msg(MSG::DEBUG) << endmsg;
@@ -359,7 +359,7 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::endEvent (InDet::ITRT_TrackSegmentsMak
 void InDet::TRT_TrackSegmentsMaker_ATLxk::find(InDet::ITRT_TrackSegmentsMaker::IEventData &virt_event_data) const
 {
    TRT_TrackSegmentsMaker_ATLxk::EventData &
-      event_data = TRT_TrackSegmentsMaker_ATLxk::EventData::getEventData(virt_event_data);
+      event_data = TRT_TrackSegmentsMaker_ATLxk::EventData::getPrivateEventData(virt_event_data);
 
   event_data.m_sizebin_iterator = event_data.m_sizebin.rbegin();
 
@@ -443,7 +443,7 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::find(InDet::ITRT_TrackSegmentsMaker::I
 Trk::TrackSegment* InDet::TRT_TrackSegmentsMaker_ATLxk::next(InDet::ITRT_TrackSegmentsMaker::IEventData &virt_event_data) const
 {
    TRT_TrackSegmentsMaker_ATLxk::EventData &
-      event_data = TRT_TrackSegmentsMaker_ATLxk::EventData::getEventData(virt_event_data);
+      event_data = TRT_TrackSegmentsMaker_ATLxk::EventData::getPrivateEventData(virt_event_data);
 
   if(event_data.m_segiterator!=event_data.m_segments.end()) return (*event_data.m_segiterator++);
   return 0;
@@ -552,7 +552,7 @@ MsgStream& InDet::TRT_TrackSegmentsMaker_ATLxk::dumpEvent( MsgStream& out,
                                                            InDet::ITRT_TrackSegmentsMaker::IEventData &virt_event_data) const
 {
    TRT_TrackSegmentsMaker_ATLxk::EventData &
-      event_data = TRT_TrackSegmentsMaker_ATLxk::EventData::getEventData(virt_event_data);
+      event_data = TRT_TrackSegmentsMaker_ATLxk::EventData::getPrivateEventData(virt_event_data);
   out<<"|----------------------------------------------------------------------"
      <<"-------------------|"
      <<std::endl;

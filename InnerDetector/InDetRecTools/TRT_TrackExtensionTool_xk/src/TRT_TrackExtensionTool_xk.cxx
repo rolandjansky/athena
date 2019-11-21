@@ -376,7 +376,7 @@ InDet::TRT_TrackExtensionTool_xk::extendTrack(const Trk::Track& Tr,
                                               InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const
 {
   InDet::TRT_TrackExtensionTool_xk::EventData &
-     event_data=InDet::TRT_TrackExtensionTool_xk::EventData::getEventData(virt_event_data);
+     event_data=InDet::TRT_TrackExtensionTool_xk::EventData::getPrivateEventData(virt_event_data);
 
   event_data.m_measurement.clear();
 
@@ -407,7 +407,7 @@ InDet::TRT_TrackExtensionTool_xk::extendTrack(const Trk::TrackParameters& par,
                                               InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const
 {
   InDet::TRT_TrackExtensionTool_xk::EventData &
-     event_data=InDet::TRT_TrackExtensionTool_xk::EventData::getEventData(virt_event_data);
+     event_data=InDet::TRT_TrackExtensionTool_xk::EventData::getPrivateEventData(virt_event_data);
   return extendTrackFromParameters(par,event_data);
 }
 
@@ -430,7 +430,7 @@ InDet::TRT_TrackExtensionTool_xk::findSegment(const Trk::TrackParameters& par,
                                               InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const
 {
   InDet::TRT_TrackExtensionTool_xk::EventData &
-     event_data=InDet::TRT_TrackExtensionTool_xk::EventData::getEventData(virt_event_data);
+     event_data=InDet::TRT_TrackExtensionTool_xk::EventData::getPrivateEventData(virt_event_data);
 
   int nCut = m_minNumberDCs;
   if(m_parameterization) {nCut = m_selectortool->minNumberDCs(&par); if(nCut<m_minNumberDCs) nCut=m_minNumberDCs;}
@@ -575,7 +575,7 @@ Trk::Track* InDet::TRT_TrackExtensionTool_xk::newTrack(const Trk::Track& Tr,
                                                        InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const
 {
   InDet::TRT_TrackExtensionTool_xk::EventData &
-     event_data=InDet::TRT_TrackExtensionTool_xk::EventData::getEventData(virt_event_data);
+     event_data=InDet::TRT_TrackExtensionTool_xk::EventData::getPrivateEventData(virt_event_data);
 
   const DataVector<const Trk::TrackStateOnSurface>* 
     tsos = Tr.trackStateOnSurfaces();

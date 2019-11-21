@@ -420,7 +420,7 @@ namespace InDet{
 void InDet::TRT_TrackSegmentsMaker_ECcosmics::find(InDet::ITRT_TrackSegmentsMaker::IEventData &virt_event_data) const
 {
   TRT_TrackSegmentsMaker_ECcosmics::EventData &
-     event_data  = TRT_TrackSegmentsMaker_ECcosmics::EventData::getEventData(virt_event_data);
+     event_data  = TRT_TrackSegmentsMaker_ECcosmics::EventData::getPrivateEventData(virt_event_data);
 
   //MsgStream log(msgSvc(), name());
 
@@ -1700,7 +1700,7 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::create_segment(std::vector<const I
 Trk::TrackSegment* InDet::TRT_TrackSegmentsMaker_ECcosmics::next(InDet::ITRT_TrackSegmentsMaker::IEventData &virt_event_data) const
 {
   TRT_TrackSegmentsMaker_ECcosmics::EventData &
-     event_data  = TRT_TrackSegmentsMaker_ECcosmics::EventData::getEventData(virt_event_data);
+     event_data  = TRT_TrackSegmentsMaker_ECcosmics::EventData::getPrivateEventData(virt_event_data);
 
   if(event_data.m_segiterator!=event_data.m_segments.end()) return (*event_data.m_segiterator++);
   return 0;

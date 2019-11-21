@@ -237,7 +237,7 @@ InDet::TRT_TrackExtensionToolCosmics::extendTrack(const Trk::Track& Tr,
                                                   InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const
 { 
   InDet::TRT_TrackExtensionToolCosmics::EventData &
-     event_data=InDet::TRT_TrackExtensionToolCosmics::EventData::getEventData(virt_event_data);
+     event_data=InDet::TRT_TrackExtensionToolCosmics::EventData::getPrivateEventData(virt_event_data);
 
   event_data.m_measurement.clear();
 
@@ -399,7 +399,7 @@ InDet::TRT_TrackExtensionToolCosmics::extendTrack(const Trk::TrackParameters& pa
                                                   InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const
 {
   InDet::TRT_TrackExtensionToolCosmics::EventData &
-     event_data=InDet::TRT_TrackExtensionToolCosmics::EventData::getEventData(virt_event_data);
+     event_data=InDet::TRT_TrackExtensionToolCosmics::EventData::getPrivateEventData(virt_event_data);
 
   event_data.m_measurement.clear();
 
