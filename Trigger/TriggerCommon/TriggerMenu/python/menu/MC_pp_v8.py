@@ -125,6 +125,14 @@ def setupMenu():
 
         ['3mu4_L1BPH-0M10-3MU4',               'L1_BPH-0M10-3MU4', ['L1_3MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1], #ATR-19355
 
+# ATR-20505
+        ['2mu40_msonly',           'L1_MU20', ['L1_MU20','L1_MU20'],       [PhysicsStream], ['RATE:MultiMuon', 'BW:Muon'], -1],
+        ['2mu50_msonly',           'L1_MU20', ['L1_MU20','L1_MU20'],    [PhysicsStream], ['RATE:MultiMuon', 'BW:Muon'], -1],
+        ['2mu40_msonly_3layersEC',           'L1_MU20',  ['L1_MU20','L1_MU20'],       [PhysicsStream], ['RATE:MultiMuon', 'BW:Muon'], -1],
+        ['mu50_msonly_mu40noL1_msonly',           'L1_MU20', ['L1_MU20',''],    [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu50_msonly','mu40noL1_msonly']]],
+        ['mu60_msonly_mu50noL1_msonly',           'L1_MU20', ['L1_MU20',''],    [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu60_msonly','mu50noL1_msonly']]],
+       ['mu50_msonly_3layersEC_mu40noL1_msonly',           'L1_MU20', ['L1_MU20',''],    [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu50_msonly_3layersEC','mu40noL1_msonly']]],
+
         ]
 
     TriggerFlags.JetSlice.signatures = TriggerFlags.JetSlice.signatures() + [
@@ -557,6 +565,14 @@ def setupMenu():
         # ATR-20450
         ['tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_L1TAU20IM_2TAU12IM_4J12.0ETA25',   'L1_TAU20IM_2TAU12IM_4J12.0ETA25',['L1_TAU20IM','L1_TAU12IM'], [PhysicsStream], ['Legacy:Primary','RATE:MultiTau', 'BW:Tau'], -1,['serial',-1,["tau35_mediumRNN_tracktwoMVA","tau25_mediumRNN_tracktwoMVA"]]],
         ['tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_L1TAU20IM_2TAU12IM_4J12.0ETA28',   'L1_TAU20IM_2TAU12IM_4J12.0ETA28',['L1_TAU20IM','L1_TAU12IM'], [PhysicsStream], ['Legacy:Primary','RATE:MultiTau', 'BW:Tau'], -1,['serial',-1,["tau35_mediumRNN_tracktwoMVA","tau25_mediumRNN_tracktwoMVA"]]],
+
+        #ATR-20505
+        ['mu40_msonly_g40_loose',           'L1_EM8VH_MU20', ['L1_MU20','L1_EM20VH'],    [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1,['serial',-1,['g40_loose','mu40_msonly']]],
+        ['mu50_msonly_g50_loose',           'L1_EM8VH_MU20', ['L1_MU20','L1_EM20VH'],    [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1,['serial',-1,['g50_loose','mu50_msonly']]],
+        ['mu40_msonly_3layersEC_g40_loose',           'L1_EM8VH_MU20', ['L1_MU20','L1_EM20VH'],    [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1,['serial',-1,['g40_loose','mu40_msonly_3layersEC']]],
+
+        ['mu50noL1_msonly_g50_loose',           'L1_EM22VHI', ['','L1_EM22VHI'],    [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1,['serial',-1,['g50_loose','mu50noL1_msonly']]],
+
         ]
 
     TriggerFlags.CalibSlice.signatures   = TriggerFlags.CalibSlice.signatures() + []
