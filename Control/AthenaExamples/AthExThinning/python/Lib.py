@@ -7,6 +7,23 @@
 import AthenaCommon.SystemOfUnits as Units
 from AthenaPython import PyAthena
 StatusCode = PyAthena.StatusCode
+import ROOT
+
+
+def keep (dec, l, op = 'set'):
+    if op == 'and':
+        opflag = 1
+    elif op == 'or':
+        opflag = 2
+    else:
+        opflag = 0
+    if isinstance (l, list):
+        for i, x in enumerate(l):
+            dec.keep (i, x, opflag)
+    else:
+        dec.keep (l, opflag)
+    return
+    
 
 class PyWriteThinnedData( PyAthena.Alg ):
     """A simple python algorithm to thin data
@@ -31,11 +48,6 @@ class PyWriteThinnedData( PyAthena.Alg ):
         import cppyy
         cppyy.loadDict("libAthExThinningEventDict")
         from RootUtils import PyROOTFixes  # noqa: 401
-        ## thinningsvc
-        self.thinSvc = PyAthena.py_svc("ThinningSvc",
-                                       createIf=True,
-                                       iface='IThinningSvc')
-        self.msg.info( "==> thinning svc...: %s", self.thinSvc.name() )
         self.filter = self.Filter
         return StatusCode.Success
 
@@ -53,8 +65,8 @@ class PyWriteThinnedData( PyAthena.Alg ):
         self.msg.info( "Performing thinning test [%s]...", testName )
 
         # fetch particles
-        particles = self.sg.retrieve( "AthExParticles",
-                                      "%s_%s" % (self.Particles,testName) )
+        particlesName = "%s_%s" % (self.Particles,testName)
+        particles = self.sg.retrieve( "AthExParticles", particlesName )
         if particles is None:
             self.msg.warning( "Could not fetch particles at [%s] !!",
                               self.Particles )
@@ -62,8 +74,7 @@ class PyWriteThinnedData( PyAthena.Alg ):
         self.msg.info( "particles: %i", particles.size() )
 
         # fetch iparticles
-        iparticles = self.sg.retrieve( "AthExIParticles",
-                                       "%s_%s" % (self.Particles,testName) )
+        iparticles = self.sg.retrieve( "AthExIParticles", particlesName )
         if iparticles is None:
             self.msg.warning( "Could not fetch iparticles at [%s] !!",
                               self.Particles )
@@ -78,7 +89,7 @@ class PyWriteThinnedData( PyAthena.Alg ):
             self.msg.error( "  ipx[0] = %r", iparticles.at(0).px() )
             self.msg.error( "   px[0] = %r",  particles.at(0).px() )
             return StatusCode.Failure
-            
+        
         # fetch decay
         decay = self.sg.retrieve( "AthExDecay",
                                   "%s_%s" % (self.Decay, testName) )
@@ -111,18 +122,23 @@ class PyWriteThinnedData( PyAthena.Alg ):
         self.msg.debug( " ear2: px= %r", elephantino.ear2().px() / Units.GeV )
 
         ## thinning
+        dec = ROOT.SG.ThinningDecision (particlesName)
         if   testName == "test1":
-            if self.doThinningTest1( particles) != StatusCode.Success:
+            if self.doThinningTest1( particles, dec) != StatusCode.Success:
                 self.msg.warning( "Could not exercize Thinning !!" )
         elif testName == "test2":
-            if self.doThinningTest2( particles) != StatusCode.Success:
+            if self.doThinningTest2( particles, dec) != StatusCode.Success:
                 self.msg.warning( "Could not exercize Thinning !!" )
         elif testName == "test3":
-            if self.doThinningTest3(iparticles) != StatusCode.Success:
+            if self.doThinningTest3(iparticles, dec) != StatusCode.Success:
                 self.msg.warning( "Could not exercize Thinning !!" )
         else:
             self.msg.error( "Unknown test [%s]", testName )
             return StatusCode.Failure
+        dec.lock()
+        if not self.sg.record (dec, particlesName + '_THINNED_StreamUSR_0'):
+            return StatusCode.Failure
+        ROOT.SetOwnership (dec, False)
 
         self.msg.info( "Decay is now:" )
         self.msg.info( " p1: px= %r", decay.p1().px() / Units.GeV )
@@ -141,26 +157,29 @@ class PyWriteThinnedData( PyAthena.Alg ):
         self.msg.info( "[%s] has been performed.", testName )
         return StatusCode.Success
 
-    def doThinningTest1(self, particles):
+    def doThinningTest1(self, particles, dec):
         filter = self.filter[:]
-        RemovedIdx = self.thinSvc.RemovedIdx
+        RemovedIdx = ROOT.SG.ThinningDecisionBase.RemovedIdx
         self.msg.info( "Particles | filter :" )
         for i in range(particles.size()):
-            if filter[i]: dec = "keep"
-            else:         dec = "remove"
-            self.msg.info( "%9s | %s", (i+1)*10, dec )
+            if filter[i]: kr = "keep"
+            else:         kr = "remove"
+            self.msg.info( "%9s | %s", (i+1)*10, kr )
         self.msg.info( "="*19 )
 
         filter[len(filter)/2:] = [True]*(len(filter)/2)
         self.msg.info( "Filter %r", filter )
 
         self.msg.info( "... Processing [pre-thinning] ..." )
-        if self.thinSvc.filter(particles, filter) != StatusCode.Success:
-            self.msg.warning( "Could not filter particles !!" )
+        keep (dec, filter)
 
         self.msg.info( "======== Index table =========" )
+        tmp = ROOT.SG.ThinningDecisionBase (dec)
+        tmp.buildIndexMap()
+        import os
+        os.sys.stdout.flush()
         for i in range(particles.size()):
-            newIdx = self.thinSvc.index(particles, i)
+            newIdx = tmp.index(i)
             if newIdx == RemovedIdx: newIdx = "-"
             self.msg.info( " idx %i -> %s", i, newIdx )
 
@@ -169,38 +188,39 @@ class PyWriteThinnedData( PyAthena.Alg ):
         self.msg.info( "Filter %r", filter )
         
         self.msg.info( "... Processing [thinning] ..." )
-        if self.thinSvc.filter(particles, filter) != StatusCode.Success:
-            self.msg.warning( "Could not filter particles !!" )
+        keep (dec, filter, 'and')
         
         self.msg.info( "======== Index table =========" )
+        tmp = ROOT.SG.ThinningDecisionBase (dec)
+        tmp.buildIndexMap()
         for i in range(particles.size()):
-            newIdx = self.thinSvc.index(particles, i)
+            newIdx = tmp.index(i)
             if newIdx == RemovedIdx: newIdx = "-"
             self.msg.info( " idx %i -> %s", i, newIdx )
 
         return StatusCode.Success
 
-    def doThinningTest2(self, particles):
+    def doThinningTest2(self, particles, dec):
         filter = self.filter[:]
-        RemovedIdx = self.thinSvc.RemovedIdx
+        RemovedIdx = ROOT.SG.ThinningDecisionBase.RemovedIdx
         self.msg.info( "Particles | filter :" )
         for i in range(particles.size()):
-            if filter[i]: dec = "keep"
-            else:         dec = "remove"
-            self.msg.info( "%9s | %s", (i+1)*10, dec )
+            if filter[i]: kr = "keep"
+            else:         kr = "remove"
+            self.msg.info( "%9s | %s", (i+1)*10, kr )
         self.msg.info( "="*19 )
 
         filter[len(filter)/2:] = [False]*(len(filter)/2)
         self.msg.info( "Filter %s", filter )
 
         self.msg.info( "... Processing [pre-thinning] ..." )
-        if self.thinSvc.filter(particles,filter,'or') \
-           != StatusCode.Success:
-            self.msg.warning( "Could not filter particles !!" )
+        keep (dec, filter)
 
         self.msg.info( "======== Index table =========" )
+        tmp = ROOT.SG.ThinningDecisionBase (dec)
+        tmp.buildIndexMap()
         for i in range(particles.size()):
-            newIdx = self.thinSvc.index(particles, i)
+            newIdx = tmp.index(i)
             if newIdx == RemovedIdx: newIdx = "-"
             self.msg.info( " idx %i -> %s", i, newIdx )
 
@@ -209,38 +229,39 @@ class PyWriteThinnedData( PyAthena.Alg ):
         self.msg.info( "Filter %s", filter )
         
         self.msg.info( "... Processing [thinning] ..." )
-        if self.thinSvc.filter(particles, filter,'or') \
-           != StatusCode.Success:
-            self.msg.warning( "Could not filter particles !!" )
+        keep (dec, filter, 'or')
         
         self.msg.info( "======== Index table =========" )
+        tmp = ROOT.SG.ThinningDecisionBase (dec)
+        tmp.buildIndexMap()
         for i in range(particles.size()):
-            newIdx = self.thinSvc.index(particles, i)
+            newIdx = tmp.index(i)
             if newIdx == RemovedIdx: newIdx = "-"
             self.msg.info( " idx %i -> %s", i, newIdx )
 
         return StatusCode.Success
 
-    def doThinningTest3(self, iparticles):
+    def doThinningTest3(self, iparticles, dec):
         filter = self.filter[:]
-        RemovedIdx = self.thinSvc.RemovedIdx
+        RemovedIdx = ROOT.SG.ThinningDecisionBase.RemovedIdx
         self.msg.info( "IParticles | filter :" )
         for i in range(iparticles.size()):
-            if filter[i]: dec = "keep"
-            else:         dec = "remove"
-            self.msg.info( "%9s | %s", (i+1)*10, dec )
+            if filter[i]: kr = "keep"
+            else:         kr = "remove"
+            self.msg.info( "%9s | %s", (i+1)*10, kr )
         self.msg.info( "="*19 )
 
         filter[len(filter)/2:] = [True]*(len(filter)/2)
         self.msg.info( "Filter %r", filter )
 
         self.msg.info( "... Processing [pre-thinning] ..." )
-        if self.thinSvc.filter(iparticles, filter) != StatusCode.Success:
-            self.msg.warning( "Could not filter iparticles !!" )
+        keep (dec, filter)
 
         self.msg.info( "======== Index table =========" )
+        tmp = ROOT.SG.ThinningDecisionBase (dec)
+        tmp.buildIndexMap()
         for i in range(iparticles.size()):
-            newIdx = self.thinSvc.index(iparticles, i)
+            newIdx = tmp.index(i)
             if newIdx == RemovedIdx: newIdx = "-"
             self.msg.info( " idx %i -> %s", i, newIdx )
 
@@ -249,12 +270,13 @@ class PyWriteThinnedData( PyAthena.Alg ):
         self.msg.info( "Filter %r", filter )
         
         self.msg.info( "... Processing [thinning] ..." )
-        if self.thinSvc.filter(iparticles, filter) != StatusCode.Success:
-            self.msg.warning( "Could not filter iparticles !!" )
+        keep (dec, filter, 'and')
         
         self.msg.info( "======== Index table =========" )
+        tmp = ROOT.SG.ThinningDecisionBase (dec)
+        tmp.buildIndexMap()
         for i in range(iparticles.size()):
-            newIdx = self.thinSvc.index(iparticles, i)
+            newIdx = tmp.index(i)
             if newIdx == RemovedIdx: newIdx = "-"
             self.msg.info( " idx %i -> %s", i, newIdx )
 
@@ -343,68 +365,6 @@ class PyReadNonThinnedData( PyAthena.Alg ):
         return StatusCode.Success
 
     pass # PyReadNonThinnedData
-
-### ---------------------------------------------------------------------------
-class PySlimmerAlg (PyAthena.Alg):
-    """a simple algorithm to slim AthExFatObject"""
-    def __init__ (self, name="PySlimmerAlg", **kw):
-        ## init base class
-        kw['name'] = name
-        super (PySlimmerAlg, self).__init__ (**kw)
-
-        ## properties and data members
-        self.particles = kw.get ("Particles", "AthExParticles")
-        self.fatobject = kw.get ("FatObject", "AthExFatObject")
-
-        return
-
-    def initialize(self):
-        _info = self.msg.info
-        _info('==> initialize...')
-        # retrieve storegate
-        self.sg = PyAthena.py_svc ("StoreGateSvc")
-        if not self.sg:
-            self.msg.error ("could not retrieve the event store !")
-            return StatusCode.Failure
-        # retrieve thinning svc
-        self.thinSvc = PyAthena.py_svc ("ThinningSvc")
-        if not self.thinSvc:
-            self.msg.error ("could not retrieve thinning svc !")
-            return StatusCode.Failure
-        
-        _info ("input particles [%s]",        self.particles)
-        _info ("slimming fat object at [%s]", self.fatobject)
-        
-        return StatusCode.Success
-
-    def execute(self):
-        _info = self.msg.info
-        particles = self.sg[self.particles]
-        if not particles:
-            self.msg.error ("could not retrieve particles at [%s] !",
-                            self.particles)
-            return StatusCode.Failure
-        _info ("particles' size: %i", particles.size())
-
-        lnk = PyAthena.ElementLink(PyAthena.AthExParticles)()
-        lnk.toIndexedElement (particles, 0)
-        fatobject = PyAthena.AthExFatObject(lnk)
-        self.sg[self.fatobject] = fatobject
-
-        # now register a slimmer with that fatobject
-        slimmer = PyAthena.AthExFatObjectSlimmer (fatobject, self._cppHandle)
-
-        if not self.thinSvc.register_slimmer (slimmer).isSuccess():
-            self.msg.error ("problem registering slimmer for fat object "
-                            "at [%s]", self.fatobject)
-
-        return StatusCode.Success
-
-    def finalize(self):
-        self.msg.info('==> finalize...')
-        return StatusCode.Success
-
-    # class PySlimmerAlg
 
 ### ---------------------------------------------------------------------------
 class PyReadFatObject (PyAthena.Alg):

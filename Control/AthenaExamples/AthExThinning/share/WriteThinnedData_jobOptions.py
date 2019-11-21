@@ -61,18 +61,21 @@ topSequence += WriteThinnedData(
 # POOL Persistency
 #--------------------------------------------------------------
 import AthenaPoolCnvSvc.WriteAthenaPool as wap
+from OutputStreamAthenaPool.OutputStreamAthenaPool import createOutputStream
 
-outStreams = []
-for i in xrange(2):
-   _outStreamName = "StreamUSR_%i" % i
-   topSequence += CfgMgr.AthenaOutputStream(
-      _outStreamName,
-      WritingTool = "AthenaOutputStreamTool")
-   outStreams += [getattr(topSequence, _outStreamName)]
-   outStream   = outStreams[i]
-   
-   # Event Info
-   outStream.ItemList  = [ "EventInfo#*" ]
+if 'OUTPUT' not in dir():
+   OUTPUT = "thinned.%s" % INPUT[0]
+
+OUTPUT1 = os.path.join(
+   os.path.dirname(OUTPUT),
+   'non.%s' % os.path.basename(OUTPUT)
+)
+
+
+outStreams = [createOutputStream ('StreamUSR_0', fileName = OUTPUT),
+              createOutputStream ('StreamUSR_1', fileName = OUTPUT1)]
+
+for outStream in outStreams:
    outStream.ItemList += [ ##
                            "AthExParticles#Particles_test1",
                            "AthExParticles#Particles_test2",
@@ -87,23 +90,6 @@ for i in xrange(2):
                            "AthExElephantino#PinkElephantino_test3",
                            ]
 
-if 'OUTPUT' not in dir():
-   OUTPUT = "thinned.%s" % INPUT[0]
-
-# Stream's output file
-outStreams[0].OutputFile = OUTPUT
-outStreams[1].OutputFile = os.path.join(
-   os.path.dirname(OUTPUT),
-   'non.%s' % os.path.basename(OUTPUT)
-   )
-
-###############################
-# Load thinning service
-###############################
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-## svcMgr += ThinningSvc( OutputLevel = VERBOSE,
-##                        Streams = ['OutStream_0'] )
-svcMgr += createThinningSvc(svcName="ThinningSvc", outStreams=[outStreams[0]])
 
 ##############################################################
 #
