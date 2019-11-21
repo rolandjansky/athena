@@ -52,8 +52,15 @@ class Z_SMEFT(PowhegV2):
         self.add_keyword("btlscalereal")
         self.add_keyword("charmthr")
         self.add_keyword("charmthrpdf")
+        # clobberlhe: needed to make reweighting work --- otherwise Powheg crashes because it
+        # cannot overwrite the LHE file with events before reweighting.
+        # The value given to the parameter here doesn't matter, it just needs to be present in
+        # the powheg.input file. The reweighter postprocessor will replace the value with 1
+        # anyway.
+        # self.add_keyword("clobberlhe")
         self.add_keyword("cmass_lhe")
         self.add_keyword("colltest")
+        self.add_keyword("compute_rwgt")
         self.add_keyword("dim6", 1)
         self.add_keyword("facscfact", self.default_scales[0])
         self.add_keyword("fcnc", 0)
@@ -61,6 +68,8 @@ class Z_SMEFT(PowhegV2):
         self.add_keyword("foldcsi", 5)
         self.add_keyword("foldphi", 2)
         self.add_keyword("foldy", 2)
+        self.add_keyword("fullrwgt")
+        self.add_keyword("fullrwgtmode")
         self.add_keyword("hdamp")
         self.add_keyword("hfact")
         self.add_keyword("icsimax")
@@ -74,6 +83,10 @@ class Z_SMEFT(PowhegV2):
         self.add_keyword("LambdaNP", 1000.0)
         self.add_keyword("lhans1", self.default_PDFs)
         self.add_keyword("lhans2", self.default_PDFs)
+        self.add_keyword("lhrwgt_descr")
+        self.add_keyword("lhrwgt_group_combine")
+        self.add_keyword("lhrwgt_group_name")
+        self.add_keyword("lhrwgt_id")
         self.add_keyword("manyseeds")
         self.add_keyword("mass_high", 2.0 * self.parameters_by_name("beam_energy")[0].value)
         self.add_keyword("mass_low", 60.0)
@@ -94,9 +107,13 @@ class Z_SMEFT(PowhegV2):
         self.add_keyword("renscfact", self.default_scales[1])
         self.add_keyword("running_width")
         self.add_keyword("runningscale", 1) # if 1, central scale equal to Z/gamma virtuality. If 0, central scale equal to M_Z
+        self.add_keyword("rwl_add")
+        self.add_keyword("rwl_file")
+        self.add_keyword("rwl_format_rwgt")
         self.add_keyword("smartsig")
         self.add_keyword("softtest")
         self.add_keyword("sthw2")
+        self.add_keyword("storeinfo_rwgt")
         self.add_keyword("testplots")
         self.add_keyword("testsuda")
         self.add_keyword("ubsigmadetails")
