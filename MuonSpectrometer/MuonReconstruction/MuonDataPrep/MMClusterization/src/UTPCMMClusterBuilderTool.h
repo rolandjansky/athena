@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef UTPCMMClusterBuilderTool_h
 #define UTPCMMClusterBuilderTool_h
@@ -59,10 +59,12 @@ namespace Muon
 
     // params for the hough trafo
     double m_alphaMin,m_alphaMax,m_alphaResolution,m_selectionCut;
-    double m_dMin,m_dMax,m_dResolution;
+    double m_dMin,m_dMax,m_dResolution,m_driftRange;
     int m_houghMinCounts;
 
-    double m_timeOffset,m_dHalf,m_vDrift;
+    double m_timeOffset,m_dHalf,m_vDrift,m_transDiff,m_longDiff, m_ionUncertainty, m_scaleXerror, m_scaleYerror;
+    double m_outerChargeRatioCut;
+    int m_maxStripsCut;
 
     double m_toRad=TMath::Pi()/180.;
 
@@ -75,6 +77,7 @@ namespace Muon
     StatusCode selectTrack(std::vector<std::tuple<double,double>> &tracks,std::vector<double>& xpos, std::vector<double>& time,std::vector<int>& flag,std::vector<int>& idx_selected);
 
     StatusCode transformParameters(double alpha, double d, double dRMS, double& slope,double& intercept, double& interceptRMS);
+    StatusCode applyCrossTalkCut(std::vector<int> &idxSelected,const std::vector<MMPrepData> &MMPrdsOfLayer,std::vector<int> &flag,int &nStripsCut);
     StatusCode finalFit(std::vector<double>& xpos, std::vector<double>& time, std::vector<int>& idxSelected,double& x0, double &sigmaX0, double &fitAngle, double &chiSqProb);
 };
 
