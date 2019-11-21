@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 The SCT 24h Calibration Loop.
 This transformation will run the SCT 24 hours calibration loop.
 Mandatory values as to be given for the input ntuples 
 as well as the output HitMaps and output stream file.
 """
-
 
 import os,sys,time,shutil
 
@@ -28,10 +27,7 @@ import PyJobTransforms.trfExceptions as trfExceptions
 import PyJobTransforms.trfValidation as trfValidation
 
 from PyJobTransforms.trfReports import *
-
-#temporal
 from PyJobTransformsCore.trfutil import *
-
 
 dsDict={'input': [] , 'output' : []}
 RunNumber=-1
@@ -118,7 +114,6 @@ def updateLastRun(RunNumber):
         f.write(str(RunNumber)+' ')
         f.close()
         
-
 @stdTrfExceptionHandler
 @sigUsrStackTrace
 def main():
@@ -141,8 +136,8 @@ def main():
 def getTransform():
 
     exeSet = set()
-#    exeSet.add(SCTCalibExecutor('/afs/cern.ch/work/c/csander/sct/testarea/AtlasProduction-20.7.9.3//InnerDetector/InDetCalibAlgs/SCT_CalibAlgs/share/skeleton.sct_calib.py'))
-    exeSet.add(SCTCalibExecutor('/afs/cern.ch/user/s/sctcalib/testarea/latest/athena/InnerDetector/InDetCalibAlgs/SCT_CalibAlgs/share/skeleton.sct_calib.py'))
+    exeSet.add(SCTCalibExecutor('/afs/cern.ch/user/c/csander/testarea/Athena-master/InnerDetector/athena/InDetCalibAlgs/SCT_CalibAlgs/share/skeleton.sct_calib.py'))
+#    exeSet.add(SCTCalibExecutor('/afs/cern.ch/user/s/sctcalib/testarea/latest/athena/InnerDetector/InDetCalibAlgs/SCT_CalibAlgs/share/skeleton.sct_calib.py'))
 
     trf = transform(executor=exeSet) 
 
@@ -151,31 +146,24 @@ def getTransform():
     
     return trf
 
-
 def addSCTCalibArgs(parser):
-
 
     parser.defineArgGroup('Calibration', 'Specific options related to the calibration configuration')
 
     parser.add_argument('--input',
                         help = 'List of CSV input files',group='Calibration')
-
     parser.add_argument('--prefix', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help = 'Prefix for output files',group='Calibration')
-
     parser.add_argument('--part', type=trfArgClasses.argFactory(trfArgClasses.argList, runarg=True),
                         help = 'List of calibration algorithms to be run',group='Calibration')
-
     parser.add_argument('--SCTCalibConfig', type=trfArgClasses.argFactory(trfArgClasses.argList, runarg=True),
                         help = 'Config file for the SCT Calibration',group='Calibration')
-    
     parser.add_argument('--doRunSelector', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help = 'Specifies if runSelector.py is executed',group='Calibration')
     parser.add_argument('--doRunInfo', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help = 'Specifies if runInfo.py is executed',group='Calibration')
     parser.add_argument('--splitNoisyStrip', type=trfArgClasses.argFactory(trfArgClasses.argInt,runarg=True),      
                         help = 'Split task or not',group='Calibration')
-
 
 def addOutputArgs(parser,dict):
     
@@ -217,7 +205,6 @@ def addOutputArgs(parser,dict):
                             help = 'HitMap output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTHitMaps.root'],runarg=True))
         parser.add_argument('--outputLBFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
                             help = 'LB output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTLB.root'],runarg=True))
-
         parser.add_argument('--outputBSSummaryFile', type=trfArgClasses.argFactory(trfArgClasses.argFile, runarg=True,io='output'),
                             help = 'Bad Strips summary file',group='Calibration',default=trfArgClasses.argFile([checkPrefix+'BadStripsSummaryFile.xml'],runarg=True))
         parser.add_argument('--outputBSAllFile', type=trfArgClasses.argFactory(trfArgClasses.argFile, runarg=True,io='output'),
@@ -239,6 +226,7 @@ def addOutputArgs(parser,dict):
                             help = 'Dead Chip Summary file',group='Calibration',default=trfArgClasses.argFile([checkPrefix+'DeadSummaryFile.xml'],runarg=True))
         parser.add_argument('--outputBSErrorsFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
                             help = 'BS Errors file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTBSErrors.root'],runarg=True))
+
     #DEAD STRIP OUTPUT FILES
     if 'doDeadStrip' in checkPart:
         parser.add_argument('--outputHITMapFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
@@ -249,28 +237,33 @@ def addOutputArgs(parser,dict):
                             help = 'Dead Strip Summary file',group='Calibration',default=trfArgClasses.argFile([checkPrefix+'DeadSummaryFile.xml'],runarg=True))
         parser.add_argument('--outputBSErrorsFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
                             help = 'BS Errors file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTBSErrors.root'],runarg=True))
+
     #NOISE OCCUPANCY OUTPUT FILES
     if 'doNoiseOccupancy' in checkPart:
         parser.add_argument('--outputNOFile', type=trfArgClasses.argFactory(trfArgClasses.argFile, runarg=True,io='output'),
                             help = 'Noise Occupancy file',group='Calibration',default=trfArgClasses.argFile([checkPrefix+'NoiseOccupancyFile.xml'],runarg=True))
         parser.add_argument('--outputNOSummaryFile', type=trfArgClasses.argFactory(trfArgClasses.argFile, runarg=True,io='output'),
                             help = 'Noise Occupancy Summary file',group='Calibration',default=trfArgClasses.argFile([checkPrefix+'NoiseOccupancySummaryFile.xml'],runarg=True))
+
     #LORENTZ ANGLE OUTPUT FILES
     if 'doLorentzAngle' in checkPart:
         parser.add_argument('--outputLAFile', type=trfArgClasses.argFactory(trfArgClasses.argFile, runarg=True,io='output'),
                             help = 'Lorentz Angle file',group='Calibration',default=trfArgClasses.argFile([checkPrefix+'LorentzAngleFile.xml'],runarg=True))
         parser.add_argument('--outputLASummaryFile', type=trfArgClasses.argFactory(trfArgClasses.argFile, runarg=True,io='output'),
                             help = 'Lorentz Angle Summary file',group='Calibration',default=trfArgClasses.argFile([checkPrefix+'LorentzAngleSummaryFile.xml'],runarg=True))
+
     #RAW OCCUPANCY OUTPUT FILES
     if 'doRawOccupancy' in checkPart:
         parser.add_argument('--outputROSummaryFile', type=trfArgClasses.argFactory(trfArgClasses.argFile, runarg=True,io='output'),
                             help = 'Raw Occupancy Summary file',group='Calibration',default=trfArgClasses.argFile([checkPrefix+'RawOccupancySummaryFile.xml'],runarg=True))
+
     #EFFICIENCY OUTPUT FILES
     if 'doEfficiency' in checkPart:
         parser.add_argument('--outputEffModuleFile', type=trfArgClasses.argFactory(trfArgClasses.argFile, runarg=True,io='output'),
                             help = 'Efficiency file',group='Calibration',default=trfArgClasses.argFile([checkPrefix+'EfficiencyModuleSummary.xml'],runarg=True))
         parser.add_argument('--outputEffSummaryFile', type=trfArgClasses.argFactory(trfArgClasses.argFile, runarg=True,io='output'),
                             help = 'Efficiency Summary file',group='Calibration',default=trfArgClasses.argFile([checkPrefix+'EfficiencySummaryFile.xml'],runarg=True))
+
     #BS ERRORS OUTPUT FILES
     if 'doBSErrorDB' in checkPart:
         parser.add_argument('--outputBSModuleFile', type=trfArgClasses.argFactory(trfArgClasses.argFile, runarg=True,io='output'),
@@ -278,17 +271,12 @@ def addOutputArgs(parser,dict):
         parser.add_argument('--outputBSSummaryFile', type=trfArgClasses.argFactory(trfArgClasses.argFile, runarg=True,io='output'),
                             help = 'BS Errors Summary file',group='Calibration',default=trfArgClasses.argFile([checkPrefix+'BSErrorSummaryFile.xml'],runarg=True))
 
-
-
-
-
 class SCTCalibExecutor( athenaExecutor ):
     def __init__(self, skeleton):
         athenaExecutor.__init__(self,
                                 name = 'sctcalib',
-                                skeletonFile='/afs/cern.ch/user/s/sctcalib/testarea/latest/athena/InnerDetector/InDetCalibAlgs/SCT_CalibAlgs/share/skeleton.sct_calib.py')
-#                                skeletonFile='/afs/cern.ch/work/c/csander/sct/testarea/AtlasProduction-20.7.9.3/InnerDetector/InDetCalibAlgs/SCT_CalibAlgs/share/skeleton.sct_calib.py')
-
+                                skeletonFile='/afs/cern.ch/user/c/csander/testarea/Athena-master/athena/InnerDetector/InDetCalibAlgs/SCT_CalibAlgs/share/skeleton.sct_calib.py')
+#                                skeletonFile='/afs/cern.ch/user/s/sctcalib/testarea/latest/athena/InnerDetector/InDetCalibAlgs/SCT_CalibAlgs/share/skeleton.sct_calib.py')
 
     def preExecute(self, input=set(), output=set()):
 
@@ -322,8 +310,6 @@ class SCTCalibExecutor( athenaExecutor ):
         if not 'doRunSelector' in runArgs:
             self.conf.addToArgdict('doRunSelector', trfArgClasses.argBool(False))
 
-            
-            
         # Set STAGE_SVCCLASS
         if not SvcClass is '' and not SvcClass is None:
             os.environ['STAGE_SVCCLASS']=SvcClass
@@ -333,30 +319,23 @@ class SCTCalibExecutor( athenaExecutor ):
         print "Input type = " + inputtype
         self.conf.addToArgdict('InputType', trfArgClasses.argString(inputtype))
 
-
         # check which parts to be run
         if not 'part' in runArgs:
             self.conf.addToArgdict('part', trfArgClasses.argString('doNoisyStrip'))
 
         part=runArgs['part']._value
 
-
-        
-
         for ipart in part:
             if not ipart in ['doNoisyStrip','doNoiseOccupancy','doDeadChip','doDeadStrip','doHV','doBSErrorDB','doRawOccupancy','doEfficiency','doLorentzAngle','doNoisyLB']:
                 self._errMsg = 'Argument part=%s does not match any of the possible candidates' % ipart
                 raise trfExceptions.TransformValidationException(trfExit.nameToCode('TRF_ARG_ERRO'), self._errMsg)
 
-
         # get prefix
         if not 'prefix' in runArgs:
             self.conf.addToArgdict('prefix', trfArgClasses.argString(''))
-        
 
         prefix=runArgs['prefix']._value
 
-            
         # set job number
         jobnb=''
         # find seperator for jobnumber
@@ -380,7 +359,6 @@ class SCTCalibExecutor( athenaExecutor ):
             prefix+='.'+jobnb
             runArgs['prefix']._value = prefix
 
-
         # When ATLAS is NOT in standby the SCT is, the hitmap root files have 0 events,
         # even though the calibration_SCTNoise streams has 10k+ events.
         # If the noisy strips task is generated, the jobs will fail. A.N has implemented
@@ -395,6 +373,7 @@ class SCTCalibExecutor( athenaExecutor ):
         # of the last run uploaded as if this run had been uploaded, to avoid the
         # next run being indefinitely on hold
         # print 'Number of events: ', NumberOfEvents
+
         if 'doNoisyStrip' in part and runArgs['splitNoisyStrip']._value==2 and NumberOfEvents<10000:
             self._isValidated = True
             self._trf._exitCode = 0
@@ -408,9 +387,6 @@ class SCTCalibExecutor( athenaExecutor ):
             self._trf.generateReport(fast=True)
             sys.exit(0)
 
-#                raise trfExceptions.TransformValidationException(trfExit.nameToCode('TRF_EXEC_SETUP_FAIL'), self._errMsg)
-
-
         if jobnb is not '':
             self.conf.addToArgdict('JobNumber', trfArgClasses.argString(jobnb))
 
@@ -423,10 +399,6 @@ class SCTCalibExecutor( athenaExecutor ):
         # Do other prerun actions
         super(SCTCalibExecutor, self).preExecute(input,output)
         
-
-
-
-
     def execute(self):
 
         runArgs=self.conf._argdict
@@ -442,12 +414,8 @@ class SCTCalibExecutor( athenaExecutor ):
             if not checkRun:
 
                 print "Run %s didn't pass run selection criteria. It will not be processed and no output will be generated. Finish execution and exit gracefully" %(RunNumber)
-                #No processing->no output
-                #Need an empry dictionary so the job won't fail in t0
-                #when trying to copy output files
                 emptyDic = {}
                 self._trf._dataDictionary = emptyDic
-
                     
                 self._isValidated = True
                 self._trf._exitMsg = 'Did not pass run selection criteria. Finish execution and exit gracefully.'
@@ -456,7 +424,6 @@ class SCTCalibExecutor( athenaExecutor ):
                 self._trf.generateReport(fast=True)
                 sys.exit(0)
 
-
         rootHitmapFiles = []
         rootLbFiles = []
         for inputFileName in runArgs['input'] :
@@ -464,7 +431,6 @@ class SCTCalibExecutor( athenaExecutor ):
                 rootHitmapFiles.append(inputFileName)
             if inputFileName.find("SCTLB") != -1:
                 rootLbFiles.append(inputFileName)
-           
 
         if runArgs['splitNoisyStrip']._value ==2 :
             if len(rootLbFiles) == len(rootHitmapFiles) and len(rootHitmapFiles) > 0 :
@@ -477,12 +443,12 @@ class SCTCalibExecutor( athenaExecutor ):
                 for inputFileName in rootHitmapFiles :
                     cmd += "%s " %(inputFileName)
                 cmd += "\n"
-    #            cmd += " >> /dev/null 2>&1 \n"
+#                cmd += " >> /dev/null 2>&1 \n"
                 cmd += "hadd SCTLB.root "
                 for inputFileName in rootLbFiles :
                     cmd += "%s " %(inputFileName)
                 cmd += "\n"
-#            cmd += " >> /dev/null 2>&1 \n"
+#                cmd += " >> /dev/null 2>&1 \n"
             
                 print cmd
                 self._echologger.info('Merging Hitmap and LB files!')
@@ -496,8 +462,6 @@ class SCTCalibExecutor( athenaExecutor ):
                 else:
                     self._echologger.error("FAILED to merge root files")
         
-
-
         super(SCTCalibExecutor, self).execute()
 
         if self._rc is not 0:
@@ -509,16 +473,15 @@ class SCTCalibExecutor( athenaExecutor ):
             except:
                 pass
 
-        
     def postExecute(self):
 
         runArgs=self.conf._argdict
         prefix=runArgs['prefix']._value
 
-
         #After processing Hitmaps, change Metadata of SCTHitMaps and SCTLB files so
         #they contain the number of events. This value can be used when processing
         #noisy strips to avoid running over empty files
+
         if 'doNoisyStrip' in runArgs['part']._value and runArgs['splitNoisyStrip']._value == 1:
             outInstance0 = self.conf.dataDictionary[list(self._output)[0]]
             outTFile0 = TFile(outInstance0._value[0])
@@ -532,7 +495,6 @@ class SCTCalibExecutor( athenaExecutor ):
             outNentries1 = int(outTFile1.Get('GENERAL/events').GetEntries())
             outInstance1._setMetadata(outInstance1._value,{'nentries': outNentries1})
 
-
         if 'doDeadStrip' in runArgs['part']._value:
             pwd=os.getcwd()
             deadFile=pwd+'/'+prefix+'.DeadStripsFile.xml'
@@ -545,7 +507,6 @@ class SCTCalibExecutor( athenaExecutor ):
             if os.path.exists(deadSummary):
                 numLinesSummary = sum(1 for line in open(deadSummary))
                     
-
             #if the files exist, but there were no dead strips there won't be COOL file, making the job fail                         
              #remove the COOL file of the list of output files. Clunky, but temporal fix                                                   
                 
@@ -560,7 +521,6 @@ class SCTCalibExecutor( athenaExecutor ):
                 redDict = {key:dataDic[key] for key in listOfKeys}
                 self._trf._dataDictionary = redDict
 
-
         if 'doDeadChip' in runArgs['part']._value:
             pwd=os.getcwd()
             deadFile=pwd+'/'+prefix+'.DeadChipsFile.xml'
@@ -573,9 +533,9 @@ class SCTCalibExecutor( athenaExecutor ):
             if os.path.exists(deadSummary):
                 numLinesSummary = sum(1 for line in open(deadSummary))
 
-
             #if the files exist, but there were no dead strips there won't be COOL file, making the job fail              
-           #remove the COOL file of the list of output files. Clunky, but temporal fix                                                      
+            #remove the COOL file of the list of output files. Clunky, but temporal fix                                                      
+
             if ( numLinesFile == 2 and numLinesSummary == 20 ):
                 dataDic =  self._trf.dataDictionary
                 listOfKeys = []
@@ -587,14 +547,10 @@ class SCTCalibExecutor( athenaExecutor ):
                 redDict = {key:dataDic[key] for key in listOfKeys}
                 self._trf._dataDictionary = redDict
 
-
-
         if 'JobNumber' in runArgs and runArgs['splitNoisyStrip']._value == 1:
             jobnb=runArgs['JobNumber']._value
         else:
             jobnb=''
-          
-
 
         if prefix is not '':
             try:
@@ -610,15 +566,12 @@ class SCTCalibExecutor( athenaExecutor ):
             except:
                 self._echologger.warning('failed to rename DB, ROOT or LOG file.' )
             
-
         super(SCTCalibExecutor, self).postExecute()
-
     
     def validate(self):
         self._hasValidated = True
         deferredException = None
 
-       
         if 'ignorePatterns' in self.conf._argdict:
             igPat = self.conf.argdict['ignorePatterns'].value
         else:
@@ -634,8 +587,6 @@ class SCTCalibExecutor( athenaExecutor ):
         msg.info('Scanning logfile {0} for errors'.format(self._logFileName))
         self._logScan = trfValidation.athenaLogFileReport(logfile = self._logFileName, ignoreList = ignorePatterns)
         worstError = self._logScan.worstError()
-
-        
 
         # In general we add the error message to the exit message, but if it's too long then don't do
         # that and just say look in the jobReport
@@ -659,7 +610,6 @@ class SCTCalibExecutor( athenaExecutor ):
                 deferredException.errMsg = deferredException.errMsg + "; {0}".format(exitErrorMessage)
             raise deferredException
        
-
         #ignore instances of "unknown offline id..."
         #less than ~10/event are admisible
         #if > 10/event, event is skipped in SCT_CalibEventInfo
@@ -669,8 +619,6 @@ class SCTCalibExecutor( athenaExecutor ):
                 worstError['nLevel'] = 30
                 worstError['level'] = 'WARNING'
                 
-
-        #edit starting here
         # Very simple: if we get ERROR or worse, we're dead, except if ignoreErrors=True
         if worstError['nLevel'] == stdLogLevels['ERROR'] and ('ignoreErrors' in self.conf._argdict and self.conf._argdict['ignoreErrors'].value is True):
             msg.warning('Found ERRORs in the logfile, but ignoring this as ignoreErrors=True (see jobReport for details)')
@@ -684,14 +632,5 @@ class SCTCalibExecutor( athenaExecutor ):
         msg.info('Executor {0} has validated successfully'.format(self.name))
         self._isValidated = True
 
-
-
-
-        
-
-
 if __name__ == "__main__":
     main()
-
-        
-
