@@ -1271,6 +1271,20 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 ///////////////////////////////////////////////////////////////////////////////////////////
 // Initialise B-tagging tools
 
+  // Warnings for invalid timestamps, or timestamped containers with old CDI file & vice versa
+  if (!m_BtagTimeStamp.empty() && !(m_BtagTimeStamp.compare("201810")==0||m_BtagTimeStamp.compare("201903")==0)) {
+     ATH_MSG_ERROR("Only 201810 & 201903 are valid BTag container timestamps. Current = " << m_BtagTimeStamp);
+     return StatusCode::FAILURE;
+  }
+  if (!m_BtagTimeStamp.empty() && m_bTaggingCalibrationFilePath.find("13TeV/2017")!=std::string::npos) {
+     ATH_MSG_ERROR("Shouldn't use timestamped collection (" << m_BtagTimeStamp << ") with older CDI file (" << m_bTaggingCalibrationFilePath << ")");
+     return StatusCode::FAILURE;
+  }
+  if (m_BtagTimeStamp.empty() && m_bTaggingCalibrationFilePath.find("13TeV/2019")!=std::string::npos) {
+     ATH_MSG_ERROR("Should provide a BTag container timestamp (default = Btag.TimeStamp: 201810) to use with with newer CDI files (" << m_bTaggingCalibrationFilePath << ")");
+     return StatusCode::FAILURE;
+  }
+
   // btagSelectionTool
   std::string jetcollBTag = jetcoll;
   if (jetcoll == "AntiKt4LCTopoJets") {
