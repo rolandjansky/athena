@@ -30,12 +30,7 @@ class xAODTestReadCVec
   : public AthReentrantAlgorithm
 {
 public:
-  /**
-   * @brief Constructor.
-   * @param name The algorithm name.
-   * @param svc The service locator.
-   */
-  xAODTestReadCVec (const std::string &name, ISvcLocator *pSvcLocator);
+  using AthReentrantAlgorithm::AthReentrantAlgorithm;
   
 
   /**
@@ -57,8 +52,14 @@ public:
 
 
 private:
-  SG::ReadHandleKey<DMTest::CVec> m_cvecKey;
-  SG::WriteHandleKey<DMTest::CVec> m_writeKey;
+  SG::ReadHandleKey<DMTest::CVec> m_cvecKey
+  { this, "CVecKey", "cvec", "" };
+
+  SG::WriteHandleKey<DMTest::CVec> m_writeKey
+  { this, "WriteKey", "", "" };
+
+  BooleanProperty m_brief
+  { this, "Brief", false, "" };
 };
 
 

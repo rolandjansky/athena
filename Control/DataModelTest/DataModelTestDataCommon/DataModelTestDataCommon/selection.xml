@@ -27,6 +27,11 @@
   <class name="DMTest::CAuxContainer_v1" id="2A4C8577-05E9-4246-96EC-97ED64FF9C5B"/>
   <class name="DMTest::CTrigAuxContainer_v1" id="5533CABA-9ACF-486F-BF54-873A6DB65FDB"/>
   <class name="DMTest::CInfoAuxContainer_v1" id="7C9CE4FE-2AD8-4DC5-B36E-19B22994951E"/>
+  <class name="DMTest::CLinks_v1" id="FE56F278-739C-4B44-B5B5-BB33D3B352C6"/>
+  <class name="DMTest::CLinksContainer_v1" id="4F9D2A5B-B88C-4511-8036-662A0E225326"/>
+  <class name="DMTest::CLinksAuxInfo_v1" id="461B9CC7-6BF4-4724-A567-1472D7DF630C"/>
+  <class name="DMTest::CLinksAuxContainer_v1" id="5B64F00A-2E41-4733-BAE6-54F5DD0F03A6"/>
+  <class name="DMTest::CLinksAOD" id="99D3AFCC-F13B-4A15-B2C8-800FB4B8EC92"/>
 
   <class name="DMTest::CView::Pers_t" id="CDB407A6-1B30-4214-BC29-47268D2F28F7"/>
   <class name="std::vector<ElementLink<DMTest::BAuxVec> >"/>

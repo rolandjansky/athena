@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
 #
 #
 # File: DataModelRunTests/share/loadWriteDicts.py
@@ -21,6 +21,7 @@ class LoadWriteDicts (Alg):
         import cppyy
         cppyy.loadDictionary("libDataModelTestDataCommonDict")
         cppyy.loadDictionary("libDataModelTestDataWriteDict")
+        cppyy.loadDictionary("libDataModelTestDataWriteCnvDict")
         ROOT.DMTest.B
         ROOT.DMTest.setConverterLibrary ('libDataModelTestDataWriteCnvPoolCnv.so')
         ROOT.DMTest.setTrigConverterLibrary ('libDataModelTestDataWriteSerCnv.so')

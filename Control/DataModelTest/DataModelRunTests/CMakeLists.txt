@@ -106,6 +106,9 @@ datamodel_run_test (CondReaderMT
 
 datamodel_run_test (CondReadWrite)
 
+datamodel_run_test (xAODTestWriteThinned)
+datamodel_run_test (xAODTestReadThinned DEPENDS xAODTestWriteThinned)
+
 
 
 # xAODTestWrite:
