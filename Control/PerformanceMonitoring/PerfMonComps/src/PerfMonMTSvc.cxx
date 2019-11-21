@@ -554,14 +554,14 @@ void PerfMonMTSvc::report2JsonFile_Mem_Parallel(nlohmann::json& j){
 // const?
 bool PerfMonMTSvc::isLoop() {
   
-  uint64_t eventID = getEventID();
+  int eventID = getEventID();
   return (eventID >= 0) ? true : false;
 }
 
-uint64_t PerfMonMTSvc::getEventID() const {
+int PerfMonMTSvc::getEventID() const {
 
   auto ctx = Gaudi::Hive::currentContext();
-  uint64_t eventID = ctx.eventID().event_number();
+  int eventID = ctx.eventID().event_number();
   return eventID;
 }
 
