@@ -6,7 +6,6 @@
 #define TRTNOISE_H
 
 #include <vector>
-#include <map>
 #include <set>
 
 #include "TRTDigit.h"
