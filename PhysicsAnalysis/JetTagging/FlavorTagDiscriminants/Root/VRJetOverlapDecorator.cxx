@@ -70,9 +70,16 @@ VRJetOverlapDecorator::VRJetOverlapDecorator(const VRJetOverlapConfig& cfg):
 }
 
 void VRJetOverlapDecorator::decorate(const xAOD::JetContainer& jets) const {
-  if (jets.size() < 2) return;
   VRConfig cfg;
-  if (m_param_source == VRJetParameters::EDM) {
+  // we use the default arguments if there are no jets (it won't
+  // matter since there's no DeltaR but we ask for the 0th jet below)
+  if (m_param_source == VRJetParameters::RHO30MIN02MAX4 || jets.size() == 0) {
+    // right now we only have one set of VR jets where we'd use this
+    // tool thus the hardcoded numbers here.
+    cfg.min = 0.02;
+    cfg.max = 0.4;
+    cfg.scale = 30e3;
+  } else if (m_param_source == VRJetParameters::EDM) {
     // we'll assume all the jets have the same parameters, I don't
     // know of counterexamples but if they exist we'd have to rethink
     // all the code here.
@@ -80,12 +87,6 @@ void VRJetOverlapDecorator::decorate(const xAOD::JetContainer& jets) const {
     cfg.min = m_min_radius(*jet);
     cfg.max = m_max_radius(*jet);
     cfg.scale = m_mass_scale(*jet);
-  } else if (m_param_source == VRJetParameters::RHO30MIN02MAX4) {
-    // right now we only have one set of VR jets where we'd use this
-    // tool thus the hardcoded numbers here.
-    cfg.min = 0.02;
-    cfg.max = 0.4;
-    cfg.scale = 30e3;
   } else {
     throw std::logic_error("unknown jet parameter lookup");
   }
