@@ -13,6 +13,8 @@
 
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
+#include <tbb/concurrent_unordered_map.h>
+
 namespace TrigConf {
 
    /**
@@ -34,16 +36,25 @@ namespace TrigConf {
       virtual StatusCode execute(const EventContext& ctx) const override;
 
    private:
+      
+      // helper function to load a HLT prescales set from a file
+      HLTPrescalesSet * createFromFile( const std::string & filename ) const;
+
+      // helper function to load a HLT prescales set from a prescale key
+      HLTPrescalesSet * createFromDB( unsigned int psk ) const;
+
+      // map the prescale key to a HLTPrescalesSet
+      mutable tbb::concurrent_unordered_map<unsigned int, HLTPrescalesSet *> m_pssMap;
 
       // input key to the HLT Prescale Key folder
       SG::ReadCondHandleKey<AthenaAttributeList> m_pskFolderInputKey{ this, "PSKFolder", "/TRIGGER/HLT/PrescaleKey", "SG Key of AthenaAttributeList containing hlt psk"};
 
       // output key to store the HLTPrescalesSet
-      SG::WriteCondHandleKey<TrigConf::HLTPrescalesSet> m_hltPrescaleSetOutputKey{ this, "HLTPrescales", "HLTPrescales", "HLT prescales"};
+      SG::WriteCondHandleKey<TrigConf::HLTPrescalesSet> m_hltPrescalesSetOutputKey{ this, "HLTPrescales", "HLTPrescales", "HLT prescales"};
 
       // properties
       Gaudi::Property< std::string > m_configSource { this, "Source", "FILE", "Configuration source, can be 'FILE', 'DB', or 'COOL'" };
-      Gaudi::Property< std::string > m_dbConnection { this, "TriggerDB", "TRIGGERDB", "DB connection alias" };
+      Gaudi::Property< std::string > m_dbConnection { this, "TriggerDB", "", "DB connection alias" };
       Gaudi::Property< unsigned int > m_psk { this, "HLTPsk", 0, "HLT prescale key" };
       Gaudi::Property< std::string > m_filename { this, "Filename", "", "HLT prescale json file" };
 

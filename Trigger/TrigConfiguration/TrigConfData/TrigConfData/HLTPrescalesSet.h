@@ -28,6 +28,9 @@ namespace TrigConf {
       /** Constructor */
       HLTPrescalesSet();
 
+      /** Copy constructor */
+      HLTPrescalesSet(const HLTPrescalesSet &);
+
       /** Constructor initialized with configuration data 
        * @param data The data containing the HLT prescales 
        */

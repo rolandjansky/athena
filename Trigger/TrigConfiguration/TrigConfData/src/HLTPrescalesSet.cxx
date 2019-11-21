@@ -7,6 +7,12 @@
 TrigConf::HLTPrescalesSet::HLTPrescalesSet()
 {}
 
+TrigConf::HLTPrescalesSet::HLTPrescalesSet(const TrigConf::HLTPrescalesSet & o)
+   : DataStructure(o.m_data)
+{
+   update();
+}
+
 TrigConf::HLTPrescalesSet::HLTPrescalesSet(const boost::property_tree::ptree & data) 
    : DataStructure(data)
 {

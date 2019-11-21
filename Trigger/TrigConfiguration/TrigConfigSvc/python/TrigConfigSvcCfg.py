@@ -85,7 +85,7 @@ def getTrigConfigFromFlag( flags=None ):
     bgk = int(bgk) if bgk!="" else None
     tcdict = {
         "source" : source.upper(),  # DB, FILE, COOL
-        "dbconn" : dbconn, # db connection (if origin==DB or COOL) or "JOS" if connection is to be taken from TrigConf::IJobOptionsSvc 
+        "dbconn" : dbconn, # db connection (if origin==DB or COOL) or "JOSVC" if connection is to be taken from TrigConf::IJobOptionsSvc 
         "smk"    : smk,
         "l1psk"  : l1psk,
         "hltpsk" : hltpsk,
@@ -191,7 +191,6 @@ def setupHLTPrescaleCondAlg( flags = None ):
         raise RuntimeError("trigger configuration flag 'trigConfig' starts with %s, which is not understood" % tc["source"])
 
 
-
     if flags is None: # old style config
         from AthenaCommon.AlgSequence import AthSequencer
         condSequence = AthSequencer("AthCondSeq")
@@ -232,7 +231,7 @@ def HLTPrescaleCondAlgCfg( flags ):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from IOVDbSvc.IOVDbSvcConfig import addFolders
     acc = ComponentAccumulator()
-    acc.addCondAlgo( setupHLTPrescaleCondAlgCfg( flags ) )
+    acc.addCondAlgo( setupHLTPrescaleCondAlg( flags ) )
     acc.merge(addFolders(flags, _hltPrescaleKeyFolderName, "TRIGGER_ONL", className="AthenaAttributeList"))
     log.info("Adding folder %s to CompAcc", _hltPrescaleKeyFolderName )
     return acc
