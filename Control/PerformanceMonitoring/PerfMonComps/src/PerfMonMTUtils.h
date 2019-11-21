@@ -19,6 +19,7 @@
 
 typedef std::map< std::string, long > memory_map_t; // Component : Memory Measurement(kB)
 
+
 /*
  * Inline function prototypes
 */
@@ -52,13 +53,16 @@ namespace PMonMT {
   // Basic Measurement
   struct Measurement {
 
+    typedef std::map< int, Measurement > event_meas_map_t; // Event number: Measurement
+
     // Variables to store measurements
     double cpu_time;
     double wall_time;
     memory_map_t mem_stats; // Vmem, Rss, Pss, Swap
     
     // This map stores the measurements captured in the event loop
-    std::map< int, Measurement > parallel_meas_map; // [Event count so far]: Measurement
+    //std::map< int, Measurement > parallel_meas_map; // [Event count so far]: Measurement
+    event_meas_map_t parallel_meas_map; // [Event count so far]: Measurement
 
     // Peak values for Vmem, Rss and Pss
     long vmemPeak = LONG_MIN;
@@ -114,6 +118,8 @@ namespace PMonMT {
   // Basic Data
   struct MeasurementData {
 
+    typedef std::map< int, Measurement > event_meas_map_t; // Event number: Measurement
+
     // These variables are used to calculate and store the serial component level measurements
     double m_tmp_cpu, m_delta_cpu;
     double m_tmp_wall, m_delta_wall;
@@ -121,7 +127,7 @@ namespace PMonMT {
     memory_map_t m_memMon_delta_map;
 
     // This map is used to store the event level measurements
-    std::map< int, Measurement > m_parallel_delta_map;
+    event_meas_map_t m_parallel_delta_map;
 
     // Offset variables
     double m_offset_cpu;
@@ -166,6 +172,22 @@ namespace PMonMT {
         m_parallel_delta_map[eventCount].mem_stats["swap"] = meas.parallel_meas_map[eventCount].mem_stats["swap"] - m_offset_mem["swap"];
       }
 
+    }
+
+    event_meas_map_t getParallelDeltaMap() const{
+      return m_parallel_delta_map;
+    }
+
+    double getDeltaCPU() const{
+      return m_delta_cpu;
+    }
+
+    double getDeltaWall() const{
+      return m_delta_wall;
+    }
+
+    long getMemMonDeltaMap(std::string mem_stat) {
+      return m_memMon_delta_map[mem_stat];
     }
 
     
