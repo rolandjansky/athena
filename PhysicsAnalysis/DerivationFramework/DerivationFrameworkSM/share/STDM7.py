@@ -31,7 +31,6 @@ fileName   = buildFileName( derivationFlags.WriteDAOD_STDM7Stream )
 STDM7Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 STDM7Stream.AcceptAlgs(["STDM7Kernel"])
 
-
 #====================================================================
 # THINNING TOOLS
 #====================================================================
@@ -119,17 +118,26 @@ electronOnlySelection = 'count('+electronsRequirements+') >= 2'
 electronMuonSelection = '(count('+electronsRequirements+') + count('+muonsRequirements+')) >= 2'
 offlineexpression = '('+muonOnlySelection+' || '+electronOnlySelection+' || '+electronMuonSelection+')'
 
-MuonTriggerRequirement='( HLT_2mu10 || HLT_2mu14 ||  HLT_2mu6_10invm30_pt2_z10  || HLT_mu4_iloose_mu4_11invm60_noos || HLT_mu4_iloose_mu4_11invm60_noos_novtx || HLT_mu4_iloose_mu4_7invm9_noos || HLT_mu4_iloose_mu4_7invm9_noos_novtx || HLT_mu6_iloose_mu6_11invm24_noos || HLT_mu6_iloose_mu6_11invm24_noos_novtx || HLT_mu6_iloose_mu6_24invm60_noos || HLT_mu6_iloose_mu6_24invm60_noos_novtx || HLT_mu18_mu8noL1 || HLT_mu20_iloose_L1MU15 || HLT_2mu6_bBmumu || HLT_mu6_mu4_bBmumu ||  HLT_2mu4_bUpsimumu ||  HLT_mu6_mu4_bUpsimumu || HLT_2mu6_bUpsimumu || HLT_mu4_iloose_mu4_11invm60_noos_L1_MU6_2MU4 || HLT_mu4_iloose_mu4_11invm60_noos_novtx_L1_MU6_2MU4 || HLT_mu4_iloose_mu4_7invm9_noos_L1_MU6_2MU4 || HLT_mu4_iloose_mu4_7invm9_noos_novtx_L1_MU6_2MU4 || HLT_mu24_imedium || HLT_mu26_ivarmedium || HLT_mu50 || HLT_mu24_iloose || HLT_mu24_iloose_L1MU15 )'
-triggerRequirement="(" + STDMTriggers.list_combine_OR(STDMTriggers.single_e_triggers + STDMTriggers.multi_e_triggers + STDMTriggers.multi_mu_triggers + STDMTriggers.mixed_emu_triggers) + " || " + MuonTriggerRequirement + ")"
+MuonTriggerRequirement=['HLT_2mu6_bUpsimumu_L1BPH-8M15-2MU6_BPH-0DR22-2MU6', 'HLT_2mu10', 'HLT_2mu14', 'HLT_2mu6_10invm30_pt2_z10', 'HLT_mu4_iloose_mu4_11invm60_noos', 'HLT_mu4_iloose_mu4_11invm60_noos_novtx', 'HLT_mu4_iloose_mu4_7invm9_noos', 'HLT_mu4_iloose_mu4_7invm9_noos_novtx', 'HLT_mu6_iloose_mu6_11invm24_noos', 'HLT_mu6_iloose_mu6_11invm24_noos_novtx', 'HLT_mu6_iloose_mu6_24invm60_noos', 'HLT_mu6_iloose_mu6_24invm60_noos_novtx', 'HLT_mu18_mu8noL1', 'HLT_mu20_iloose_L1MU15', 'HLT_2mu6_bBmumu', 'HLT_mu6_mu4_bBmumu', 'HLT_2mu4_bUpsimumu', 'HLT_mu6_mu4_bUpsimumu', 'HLT_2mu6_bUpsimumu', 'HLT_mu4_iloose_mu4_11invm60_noos_L1_MU6_2MU4', 'HLT_mu4_iloose_mu4_11invm60_noos_novtx_L1_MU6_2MU4', 'HLT_mu4_iloose_mu4_7invm9_noos_L1_MU6_2MU4', 'HLT_mu4_iloose_mu4_7invm9_noos_novtx_L1_MU6_2MU4', 'HLT_mu24_imedium', 'HLT_mu26_ivarmedium', 'HLT_mu50', 'HLT_mu24_iloose', 'HLT_mu24_iloose_L1MU15']
 
-expression = triggerRequirement+' && '+offlineexpression
-print "STDM7 skimming expression: ",expression
+MuonTriggerRequirement_BLS=['HLT_mu6_mu4_bUpsimumu', 'HLT_2mu6_bUpsimumu', 'HLT_2mu10_bUpsimumu', 'HLT_mu10_mu6_bUpsimumu', 'HLT_mu11_mu6_bUpsimumu', 'HLT_2mu6_bUpsimumu_L1BPH-8M15-2MU6', 'HLT_mu11_mu6_bUpsimumu_L1LFV-MU11', 'HLT_mu6_mu4_bUpsimumu_L1BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4', 'HLT_mu6_mu4_bUpsimumu_L1BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4-B', 'HLT_mu6_mu4_bUpsimumu_L1BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4-BO']
+
+from RecExConfig.InputFilePeeker import inputFileSummary
+triggerRequirement=STDMTriggers.single_e_triggers + STDMTriggers.multi_e_triggers + STDMTriggers.multi_mu_triggers + STDMTriggers.mixed_emu_triggers+MuonTriggerRequirement
+if inputFileSummary['tag_info']['triggerStreamOfFile']=='BphysLS':
+    triggerRequirement=MuonTriggerRequirement_BLS
+    
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
+STDM7SkimmingTool_Trig = DerivationFramework__TriggerSkimmingTool( name = "STDM7SkimmingTool_Trig", TriggerListOR = triggerRequirement )
+ToolSvc += STDM7SkimmingTool_Trig
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-STDM7SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "STDM7SkimmingTool",
-                                                                 expression = expression)
-ToolSvc += STDM7SkimmingTool
+STDM7SkimmingTool_offsel = DerivationFramework__xAODStringSkimmingTool( name = "STDM7SkimmingTool_offsel", expression = offlineexpression )
+ToolSvc += STDM7SkimmingTool_offsel
 
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationAND
+STDM7SkimmingTool=DerivationFramework__FilterCombinationAND(name="STDM7SkimmingTool", FilterList=[STDM7SkimmingTool_Trig,STDM7SkimmingTool_offsel] )
+ToolSvc+=STDM7SkimmingTool
 
 #=====================================================
 # CREATE AND SCHEDULE THE DERIVATION KERNEL ALGORITHM   

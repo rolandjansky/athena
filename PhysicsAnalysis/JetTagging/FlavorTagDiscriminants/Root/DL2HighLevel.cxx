@@ -30,7 +30,7 @@ namespace FlavorTagDiscriminants {
 
   DL2HighLevel::DL2HighLevel(const std::string& nn_file_name,
                              FlipTagConfig flip_config,
-                             const std::map<std::string,std::string>& out_map):
+                             std::map<std::string,std::string> var_map):
     m_dl2(nullptr)
   {
     // get the graph
@@ -113,7 +113,7 @@ namespace FlavorTagDiscriminants {
       }
 
       input_config = get_input_config(
-        input_names, type_regexes, default_flag_regexes);
+        input_names, type_regexes, default_flag_regexes, var_map);
     } else if (config.inputs.size() > 1) {
       throw std::logic_error("DL2 doesn't support multiple inputs");
     }
@@ -153,7 +153,7 @@ namespace FlavorTagDiscriminants {
       trk_names, trk_type_regexes, trk_sort_regexes, trk_select_regexes);
 
     m_dl2.reset(
-      new DL2(config, input_config, trk_config, flip_config, out_map));
+      new DL2(config, input_config, trk_config, flip_config, var_map));
   }
 
   DL2HighLevel::~DL2HighLevel() = default;

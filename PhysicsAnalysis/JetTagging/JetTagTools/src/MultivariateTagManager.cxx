@@ -75,7 +75,7 @@ namespace Analysis {
     for (auto& itr : m_MultivariateTaggerHandleArray) {
       sc = itr.retrieve(); //initialize the tagger from the array
       if(sc.isFailure()){
-  ATH_MSG_WARNING("Retrieving in the initialization of MultivariateTagManager failed.");
+        ATH_MSG_WARNING("Retrieving in the initialization of MultivariateTagManager failed.");
       }
     }
 
@@ -837,7 +837,7 @@ namespace Analysis {
         ATH_MSG_WARNING("aux data '" + raw_key + "' is missing,"
                         " tagger inputs may be incomplete");
       } else if (!BTag->isAvailable<char>(valid_key)) {
-        ATH_MSG_WARNING("no key '" + valid_key + "' found, invalid inputs"
+        ATH_MSG_DEBUG("no key '" + valid_key + "' found, invalid inputs"
                         " may be interperated incorrectly");
         inputs[key] = BTag->auxdata<double>(raw_key);
       } else if (!BTag->auxdata<char>(valid_key)) {
