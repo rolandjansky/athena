@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -95,7 +95,6 @@ MdtReadoutElement::~MdtReadoutElement()
   delete m_elemNormal;
   delete m_associatedSurface;
   delete m_associatedBounds;
-  //delete m_deformTransf;
    
   if (m_deformTransfs) {
     for (unsigned int tsf = 0; tsf < m_deformTransfs->size(); ++tsf) delete (*m_deformTransfs)[tsf];
@@ -619,7 +618,6 @@ const Amg::Vector3D MdtReadoutElement::localTubePos(Identifier id) const
     int layer    = idh->tubeLayer(id);
     int tube     = idh->tube(id);
 
-    //std::cerr<<" localTubePos for Id = "<<idh->show_to_string(id)<<std::endl;
     return localTubePos(ml, layer, tube);
 }
 const Amg::Vector3D MdtReadoutElement::nodeform_localTubePos(Identifier id) const
@@ -954,22 +952,8 @@ const Amg::Transform3D & MdtReadoutElement::fromIdealToDeformed(int multilayer, 
   Amg::Transform3D fromAMDB = toAMDB.inverse();
 
   // Get positions of the wire center and end without deformations
-  //Amg::Vector3D pt_center   = nodeform_localTubePos(multilayer, tubelayer, tube);
-  //double halftubelen = 0.5*getTubeLength(tubelayer, tube);
   Amg::Vector3D pt_center   = localNominalTubePosWoCutouts(tubelayer, tube);
   double halftubelen = 0.5*getNominalTubeLengthWoCutouts(tubelayer, tube);
-  //if (signedRODistanceFromTubeCentre(multilayer, tubelayer, tube) > 0.)
-    //halftubelen = - halftubelen;
-
-  //Amg::Vector3D pt_end1 = Amg::Vector3D(pt_center.x(),
-				 //pt_center.y()-halftubelen,
-				 //pt_center.z()); // s>0 side
-  //Amg::Vector3D pt_end2 = Amg::Vector3D(pt_center.x(),
-				 //pt_center.y()+halftubelen,
-				 //pt_center.z()); // s<0 side
-  
-  //Amg::Vector3D pt_end1_new = pt_end1;
-  //Amg::Vector3D pt_end2_new = pt_end2;
 
   // Compute tube ends in AMDB coordinates
   Amg::Vector3D pt_end1 = toAMDB * pt_center + Amg::Vector3D(+halftubelen, 0., 0.); // s>0 side
@@ -1255,9 +1239,6 @@ void MdtReadoutElement::wireEndpointsAsBuilt(Amg::Vector3D& locAMDBWireEndP, Amg
     else
       reference_point = reference_point + Amg::Vector3D(-0.5*getNominalTubeLengthWoCutouts(ref_layer, 1), 0., 0.);
 
-    //std::cout << "REF: " << reference_point.x() << " " << reference_point.y() << " " << reference_point.z() << std::endl;
-    //std::cout << "WIR: " << wireEnd[isid].x()-reference_point.x() << " " << wireEnd[isid].y()-reference_point.y() << " " << wireEnd[isid].z()-reference_point.z() << std::endl;
-
     int layer_delta = tubelayer;
     if (ml==MdtAsBuiltPar::ML1) layer_delta = m_nlayers+1-tubelayer;
 
@@ -1377,17 +1358,14 @@ MdtReadoutElement::transform(int tubeLayer, int tube) const
         if (!m_tubeTransf) m_tubeTransf = new std::vector<Amg::Transform3D *>( ntot_tubes );
         Amg::Transform3D * transfPtr = (*m_tubeTransf)[itube];
         if (!transfPtr) {
-            //std::cout<<"a new calculation "<<std::endl;
             transfPtr = new Amg::Transform3D(localToGlobalTransf(tubeLayer, tube));
             (*m_tubeTransf)[itube] = transfPtr;
         }
-        //else std::cout<<"use old calculation "<<std::endl;
         return *transfPtr;
     }
     else
     {
         if (!m_tubeTransf) m_tubeTransf = new std::vector<Amg::Transform3D *>;
-        //std::cout<<"a new calculation "<<std::endl;
         Amg::Transform3D * transfPtr = new Amg::Transform3D(localToGlobalTransf(tubeLayer, tube));
         m_tubeTransf->push_back(transfPtr);
         return *transfPtr;

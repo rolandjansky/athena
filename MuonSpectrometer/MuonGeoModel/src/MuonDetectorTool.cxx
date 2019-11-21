@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonGeoModel/MuonDetectorTool.h" 
@@ -136,7 +136,6 @@ MuonDetectorTool::initialize()
     ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", name());
     ATH_CHECK( incidentSvc.retrieve() );
     //Cannot remove DE at End of Event (potentially before other components performe some clean-up still using DE) 
-    //incidentSvc->addListener(this, "EndEvent");   
     //StoreCleared still takes place at each event and as soon as the event store is cleared
     incidentSvc->addListener(this, "StoreCleared");    
     
@@ -146,7 +145,6 @@ MuonDetectorTool::initialize()
 void MuonDetectorTool::handle(const Incident& inc)
 {
     //go to StoreCleared
-    //if (inc.type()=="EndEvent" && m_fillCache_initTime ==0 && m_manager!=0)
     if (inc.type()=="StoreCleared" && m_fillCache_initTime ==0 && m_manager!=0)
     {
         // Do clear cache built up during the event ...
@@ -389,27 +387,7 @@ MuonDetectorTool::create()
 	
         ATH_CHECK( detStore()->record(theFactory.getDetectorManager(),theFactory.getDetectorManager()->getName()) );
 
-        //if  (m_idhfromconverters == 0)
-        //{
-        // Register the MuonIdHelper instances with the Transient Detector Store
-        // this way any client will ask the DetStore for them will not activate their converters 
-        // StatusCode scridh = detStore->record(theFactory.getDetectorManager()->mdtIdHelper(), "MDTIDHELPER");
-        // if (scridh != StatusCode::SUCCESS) ATH_MSG_ERROR("Could not record MDTIDHELPER" );
-        // scridh = detStore->record(theFactory.getDetectorManager()->rpcIdHelper(), "RPCIDHELPER");
-        // if (scridh != StatusCode::SUCCESS) ATH_MSG_ERROR("Could not record RPCIDHELPER" );
-        // scridh = detStore->record(theFactory.getDetectorManager()->tgcIdHelper(), "TGCIDHELPER");
-        // if (scridh != StatusCode::SUCCESS) ATH_MSG_ERROR("Could not record TGCIDHELPER" );
-        // scridh = detStore->record(theFactory.getDetectorManager()->cscIdHelper(), "CSCIDHELPER");
-        // if (scridh != StatusCode::SUCCESS) ATH_MSG_ERROR("Could not record CSCIDHELPER" );
-        //}
         theExpt->addManager(theFactory.getDetectorManager());
-
-        //     ATH_MSG_INFO("ToolHandle in create - "<<m_condDataTool );
-        //     IMuonAlignmentDbTool* pAliTool = &*m_condDataTool;
-        //     //and why not also print out this pAliTool pointer ? The &* is the trick to get the pointer to the real tool.
-        //     ATH_MSG_INFO("pointer to the concrete tool in create - "<<pAliTool );
-        //     std::string afn = m_condDataTool->aLineFolderName();
-        //     ATH_MSG_INFO("A-line folder name is "<<afn );
 
     }
 
