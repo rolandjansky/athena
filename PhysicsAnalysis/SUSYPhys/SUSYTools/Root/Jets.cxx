@@ -34,14 +34,14 @@ namespace ST {
 
   const static SG::AuxElement::Decorator<char>     dec_bad("bad");
   const static SG::AuxElement::ConstAccessor<char> acc_bad("bad");
-  
+
   const static SG::AuxElement::Decorator<char>      dec_passJvt("passJvt");
   const static SG::AuxElement::ConstAccessor<char>  acc_passJvt("passJvt");
   const static SG::AuxElement::ConstAccessor<char>  acc_passFJvt("passFJvt");
 
   const static SG::AuxElement::Decorator<float> dec_jvt("Jvt");
   const static SG::AuxElement::ConstAccessor<float> acc_jvt("Jvt");
-  
+
   const static SG::AuxElement::Decorator<char> dec_bjet("bjet");
   const static SG::AuxElement::ConstAccessor<char> acc_bjet("bjet");
 
@@ -55,25 +55,8 @@ namespace ST {
 
   const static SG::AuxElement::Decorator<char> dec_passDRcut("passDRcut");
   const static SG::AuxElement::ConstAccessor<char> acc_passDRcut("passDRcut");
-  
-  StatusCode SUSYObjDef_xAOD::BendBTaggingLinks(xAOD::JetContainer* to_container , const std::string& bTagKey) const {
-        const xAOD::JetContainer* b_tag_jets = nullptr;
-        ATH_CHECK(evtStore()->retrieve(b_tag_jets,bTagKey));
-        if (b_tag_jets->size() != to_container->size()){
-            ATH_MSG_FATAL("Size of the original jet container and of the btagg container do not match");
-            return StatusCode::FAILURE;
-        }
-        xAOD::JetContainer::const_iterator btag_begin = b_tag_jets->begin();
-        xAOD::JetContainer::const_iterator btag_end   = b_tag_jets->end();
-        
-        xAOD::JetContainer::iterator to_begin = to_container->begin();
-        xAOD::JetContainer::iterator to_end   = to_container->end();
-        for (  ; to_begin != to_end && btag_begin != btag_end ; ++to_begin, ++btag_begin){
-             (*to_begin)->setBTaggingLink((*btag_begin)->btaggingLink());
-        }
-        return StatusCode::SUCCESS;
-  }
-  StatusCode SUSYObjDef_xAOD::GetJets(xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, bool recordSG, const std::string& jetkey, const xAOD::JetContainer* containerToBeCopied) 
+
+  StatusCode SUSYObjDef_xAOD::GetJets(xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, bool recordSG, const std::string& jetkey, const xAOD::JetContainer* containerToBeCopied)
   {
     if (!m_tool_init) {
       ATH_MSG_ERROR("SUSYTools was not initialized!!");
@@ -84,13 +67,15 @@ namespace ST {
     if (jetkey.empty()) {
       jetkey_tmp = m_defaultJets;
     }
-    
-    /// Keys like AntiKt4EMTopoJets_BTagging201810 are provided 
-    /// --> We need to copy the btagging link
-    size_t bend_btagging = jetkey_tmp.find("_BTagging");
-    if (bend_btagging != std::string::npos) jetkey_tmp = jetkey_tmp.substr(0, bend_btagging);
-    
-    
+
+    // Need a timestamped key to copy btagging links
+    bool jetkeyhastimestamp = jetkey_tmp.find("_BTagging")!=std::string::npos;
+    if (jetkeyhastimestamp) { jetkey_tmp = jetkey_tmp.substr(0, jetkey_tmp.find("_BTagging")); jetkeyhastimestamp=false; }      // jetkey = untimestamped
+    std::string jetkey_btag = (m_BtagTimeStamp.empty()) ? jetkey_tmp : jetkey_tmp+"_BTagging"+m_BtagTimeStamp;                  // jetkey_btag = timestamped if necessary
+    ATH_MSG_DEBUG("Central timestamp: m_BtagTimeStamp = " << m_BtagTimeStamp);
+    ATH_MSG_DEBUG("Key for retrieving jet collection:        jetkey      = " << jetkey_tmp);
+    ATH_MSG_DEBUG("Key for retrieving jet collection (bjet): jetkey_btag = " << jetkey_btag);
+
     const xAOD::JetContainer* jets(0);
     if (copy==NULL) { // empty container provided
       if (containerToBeCopied != nullptr) {
@@ -107,12 +92,13 @@ namespace ST {
       if (!setLinks) {
         ATH_MSG_WARNING("Failed to set original object links on " << jetkey_tmp);
       }
-    } else { // use the user-supplied collection instead 
+    } else { // use the user-supplied collection instead
       ATH_MSG_DEBUG("Not retrieving jet collecton, using existing one provided by user");
-      jets=copy;
+      jets = copy;
     }
-    if(bend_btagging != std::string::npos){
-        ATH_CHECK(BendBTaggingLinks(copy, jetkey.empty()? m_defaultJets : jetkey ));
+    // Copy btagging links
+    if(jetkey_tmp.compare(jetkey_btag)!=0){
+      ATH_CHECK(BendBTaggingLinks(copy, jetkey_btag));
     }
     // Update the jets
     for (const auto& jet : *copy) {
@@ -128,7 +114,7 @@ namespace ST {
       if( m_doFwdJVT && fabs(acc_DetEta(*jet)) > m_fwdjetEtaMin ){
         dec_passJvt(*jet) = acc_passFJvt(*jet) && acc_passJvt(*jet);
 
-        //new state for OR   .  0=non-baseline objects, 1=for baseline jets not passing JVT, 2=for any other baseline object 
+        //new state for OR   .  0=non-baseline objects, 1=for baseline jets not passing JVT, 2=for any other baseline object
         if ( acc_baseline(*jet) ){
           if( acc_passJvt(*jet) )     dec_selected(*jet) = 2;
           else                        dec_selected(*jet) = 1;
@@ -148,7 +134,7 @@ namespace ST {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode SUSYObjDef_xAOD::GetTrackJets(xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, bool recordSG, const std::string& jetkey, const xAOD::JetContainer* containerToBeCopied) 
+  StatusCode SUSYObjDef_xAOD::GetTrackJets(xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, bool recordSG, const std::string& jetkey, const xAOD::JetContainer* containerToBeCopied)
   {
     if (!m_tool_init) {
       ATH_MSG_ERROR("SUSYTools was not initialized!!");
@@ -159,6 +145,14 @@ namespace ST {
     if (jetkey.empty()) {
       jetkey_tmp = m_defaultTrackJets;
     }
+
+    // Need a timestamped key to copy btagging link
+    bool jetkeyhastimestamp = jetkey_tmp.find("_BTagging")!=std::string::npos;
+    if (jetkeyhastimestamp) { jetkey_tmp = jetkey_tmp.substr(0, jetkey_tmp.find("_BTagging")); jetkeyhastimestamp=false; }        // jetkey = untimestamped
+    std::string jetkey_btag = (m_BtagTimeStamp_trkJet.empty()) ? jetkey_tmp : jetkey_tmp+"_BTagging"+m_BtagTimeStamp_trkJet;      // jetkey_btag = timestamped if necessary
+    ATH_MSG_DEBUG("Central timestamp trkjet: m_BtagTimeStamp_trkJet = " << m_BtagTimeStamp_trkJet);
+    ATH_MSG_DEBUG("Key for retrieving trkjet collection:        jetkey      = " << jetkey_tmp);
+    ATH_MSG_DEBUG("Key for retrieving trkjet collection (bjet): jetkey_btag = " << jetkey_btag);
 
     const xAOD::JetContainer* jets(0);
     if (copy==NULL) { // empty container provided
@@ -176,9 +170,14 @@ namespace ST {
       if (!setLinks) {
         ATH_MSG_WARNING("Failed to set original object links on " << jetkey_tmp);
       }
-    } else { // use the user-supplied collection instead 
+    } else { // use the user-supplied collection instead
       ATH_MSG_DEBUG("Not retrieving jet collecton, using existing one provided by user");
-      jets=copy;
+      jets = copy;
+    }
+
+    // Copy btagging links
+    if(jetkey_tmp.compare(jetkey_btag)!=0){
+      ATH_CHECK(BendBTaggingLinks(copy, jetkey_btag));
     }
 
     // Update the jets
@@ -242,7 +241,7 @@ namespace ST {
       if (!setLinks) {
         ATH_MSG_WARNING("Failed to set original object links on " << jetkey_tmp);
       }
-    } else { // use the user-supplied collection instead 
+    } else { // use the user-supplied collection instead
       ATH_MSG_DEBUG("Not retrieving jet collecton, using existing one provided by user");
       jets=copy;
     }
@@ -288,6 +287,7 @@ namespace ST {
     if (jetkey.empty()) {
       jetkey_tmp = m_defaultJets;
     }
+
     std::pair<xAOD::JetContainer*, xAOD::ShallowAuxContainer*> shallowcopy = xAOD::shallowCopyContainer(calibjets);
     copy = shallowcopy.first;
     copyaux = shallowcopy.second;
@@ -317,7 +317,7 @@ namespace ST {
       if( m_doFwdJVT && fabs(acc_DetEta(*jet)) > m_fwdjetEtaMin ){
         dec_passJvt(*jet) = acc_passFJvt(*jet) && acc_passJvt(*jet);
 
-        //new state for OR   .  0=non-baseline objects, 1=for baseline jets not passing JVT, 2=for any other baseline object 
+        //new state for OR   .  0=non-baseline objects, 1=for baseline jets not passing JVT, 2=for any other baseline object
         if ( acc_baseline(*jet) ){
           if( acc_passJvt(*jet) )     dec_selected(*jet) = 2;
           else                        dec_selected(*jet) = 1;
@@ -427,10 +427,10 @@ namespace ST {
           break;
         default:
           break;
-        }          
+        }
       }
     }
-  
+
     ATH_MSG_VERBOSE(  "jet (pt,eta,phi) after JES correction " << input.pt() << " " << input.eta() << " " << input.phi() );
 
     dec_passJvt(input) = !m_applyJVTCut || m_jetJvtEfficiencyTool->passesJvtCut(input);
@@ -441,7 +441,7 @@ namespace ST {
     dec_bjet_loose(input) = false;
     dec_effscalefact(input) = 1.;
 
-    //new state for OR   .  0=non-baseline objects, 1=for baseline jets not passing JVT, 2=for any other baseline object 
+    //new state for OR   .  0=non-baseline objects, 1=for baseline jets not passing JVT, 2=for any other baseline object
     if (acc_baseline(input) ){
       if( acc_passJvt(input) ) dec_selected(input) = 2;
       else                     dec_selected(input) = 1;
@@ -453,7 +453,7 @@ namespace ST {
     if (m_useBtagging && !m_orBtagWP.empty()) {
       dec_bjet_loose(input) = this->IsBJetLoose(input);
     }
-  
+
     if (m_debug) {
       ATH_MSG_INFO( "JET pt: " << input.pt() );
       ATH_MSG_INFO( "JET eta: " << input.eta() );
@@ -510,12 +510,12 @@ namespace ST {
     bool isbjet_loose = false;
     if (m_orBJetPtUpperThres < 0 || m_orBJetPtUpperThres > input.pt())
       isbjet_loose = m_btagSelTool_OR->accept(input); //note : b-tag applies only to jet with eta < 2.5
-    return isbjet_loose; 
+    return isbjet_loose;
   }
-  
+
   bool SUSYObjDef_xAOD::JetPassJVT(xAOD::Jet& input, bool update_jvt) {
-    if(update_jvt){ 
-      dec_jvt(input) = m_jetJvtUpdateTool->updateJvt(input);  
+    if(update_jvt){
+      dec_jvt(input) = m_jetJvtUpdateTool->updateJvt(input);
     }
 
     char pass_jvt = !m_applyJVTCut || m_jetJvtEfficiencyTool->passesJvtCut(input);
@@ -598,7 +598,7 @@ namespace ST {
       dec_bad(input) = false;
       ATH_MSG_VERBOSE("Jet cleaning is available only for EMTopo jet collection (InputType == 1), your jet collection: " << m_jetInputType );
     }
-  
+
     ATH_MSG_VERBOSE( "JET isbad?: " << (int) acc_bad(input) );
 
     return acc_bad(input);
@@ -670,7 +670,7 @@ namespace ST {
 
       if ( fabs(jet->eta()) > 2.5 ) {
         ATH_MSG_VERBOSE( "Trying to retrieve b-tagging SF for jet with |eta|>2.5 (jet eta=" << jet->eta() << "), jet will be skipped");
-      } else if ( jet->pt() < 20e3 ){ 
+      } else if ( jet->pt() < 20e3 ){
         ATH_MSG_VERBOSE( "Trying to retrieve b-tagging SF for jet with invalid pt (jet pt=" << jet->pt() << "), jet will be skipped");
       } else {
 
@@ -714,7 +714,7 @@ namespace ST {
 
       dec_effscalefact(*jet) = sf;
 
-      if( acc_signal(*jet) && acc_passOR(*jet) ) totalSF *= sf; //consider goodjets only 
+      if( acc_signal(*jet) && acc_passOR(*jet) ) totalSF *= sf; //consider goodjets only
 
     }
 
@@ -754,7 +754,7 @@ namespace ST {
 
       if ( fabs(trkjet->eta()) > 2.5 ) {
         ATH_MSG_VERBOSE( "Trying to retrieve b-tagging SF for trkjet with |eta|>2.5 (trkjet eta=" << trkjet->eta() << "), trkjet will be skipped");
-      } else if ( trkjet->pt() < 20e3 ){ 
+      } else if ( trkjet->pt() < 10e3 ){
         ATH_MSG_VERBOSE( "Trying to retrieve b-tagging SF for trkjet with invalid pt (trkjet pt=" << trkjet->pt() << "), jet will be skipped");
       } else {
 
@@ -798,7 +798,7 @@ namespace ST {
 
       dec_effscalefact(*trkjet) = sf;
 
-      if( acc_signal(*trkjet) ) totalSF *= sf; 
+      if( acc_signal(*trkjet) ) totalSF *= sf;
 
     }
 
@@ -969,5 +969,22 @@ namespace ST {
     return totalSF;
   }
 
+  StatusCode SUSYObjDef_xAOD::BendBTaggingLinks(xAOD::JetContainer* to_container , const std::string& bTagKey) const {
+        const xAOD::JetContainer* b_tag_jets = nullptr;
+        ATH_CHECK(evtStore()->retrieve(b_tag_jets,bTagKey));
+        if (b_tag_jets->size() != to_container->size()){
+            ATH_MSG_FATAL("Size of the original jet container and of the btagg container do not match");
+            return StatusCode::FAILURE;
+        }
+        xAOD::JetContainer::const_iterator btag_begin = b_tag_jets->begin();
+        xAOD::JetContainer::const_iterator btag_end   = b_tag_jets->end();
+
+        xAOD::JetContainer::iterator to_begin = to_container->begin();
+        xAOD::JetContainer::iterator to_end   = to_container->end();
+        for (  ; to_begin != to_end && btag_begin != btag_end ; ++to_begin, ++btag_begin){
+             (*to_begin)->setBTaggingLink((*btag_begin)->btaggingLink());
+        }
+        return StatusCode::SUCCESS;
+  }
 
 }
