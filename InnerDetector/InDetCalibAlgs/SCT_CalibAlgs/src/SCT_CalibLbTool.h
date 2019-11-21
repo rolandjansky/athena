@@ -37,46 +37,46 @@ class IdentifierHash;
 
 class SCT_CalibLbTool : public extends<AthAlgTool, ISCT_CalibHistoTool>
 {
-   
- public:
-  //@name Tool methods, reimplemented
-  //@{
-  SCT_CalibLbTool(const std::string&, const std::string&, const IInterface*);
-  virtual ~SCT_CalibLbTool() = default;
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
-  //@}
-  //@name ISCT_CalibHistoTool methods, reimplemented
-  //@{
-  virtual bool book();
-  virtual bool fill(const bool fromData=false);
-  virtual bool read(const std::string& fileName);
-  virtual bool fillFromData();
-  //@}
 
- private:
-  ToolHandle<ISCT_CalibEvtInfo> m_evtInfo{this, "SCT_CalibEvtInfo", "SCT_CalibEvtInfo"};
+   public:
+      //@name Tool methods, reimplemented
+      //@{
+      SCT_CalibLbTool(const std::string&, const std::string&, const IInterface*);
+      virtual ~SCT_CalibLbTool() = default;
+      virtual StatusCode initialize();
+      virtual StatusCode finalize();
+      //@}
+      //@name ISCT_CalibHistoTool methods, reimplemented
+      //@{
+      virtual bool book();
+      virtual bool fill(const bool fromData=false);
+      virtual bool read(const std::string& fileName);
+      virtual bool fillFromData();
+      //@}
 
-  const SCT_ID* m_pSCTHelper{nullptr};
-  SCT_ID::const_id_iterator m_waferItrBegin;
-  SCT_ID::const_id_iterator m_waferItrEnd;
-  typedef std::vector<int> VecInt;
-  VecInt* m_sct_waferHash{nullptr};
-  VecInt* m_sct_firstStrip{nullptr};
-  VecInt* m_sct_rdoGroupSize{nullptr};
+   private:
+      ToolHandle<ISCT_CalibEvtInfo> m_evtInfo{this, "SCT_CalibEventInfo", "SCT_CalibEventInfo"};
 
-  int m_lumiBlock{0};
+      const SCT_ID* m_pSCTHelper{nullptr};
+      SCT_ID::const_id_iterator m_waferItrBegin;
+      SCT_ID::const_id_iterator m_waferItrEnd;
+      typedef std::vector<int> VecInt;
+      VecInt* m_sct_waferHash{nullptr};
+      VecInt* m_sct_firstStrip{nullptr};
+      VecInt* m_sct_rdoGroupSize{nullptr};
 
-  //private use in this class
-  int m_LbRange{0};
-  int m_LbsToMerge{0};
+      int m_lumiBlock{0};
 
-  /** Swap phi readout direction */
-  std::vector<bool> m_swapPhiReadoutDirection{};
+      //private use in this class
+      int m_LbRange{0};
+      int m_LbsToMerge{0};
 
-  SG::ReadHandleKey<SCT_RDO_Container> m_rdoContainerKey{this, "RDOContainer", "SCT_RDOs"};
+      /** Swap phi readout direction */
+      std::vector<bool> m_swapPhiReadoutDirection{};
 
-  void fillLbForWafer(const IdentifierHash& waferHash, const int theFirstStrip, const int groupSize);
+      SG::ReadHandleKey<SCT_RDO_Container> m_rdoContainerKey{this, "RDOContainer", "SCT_RDOs"};
+
+      void fillLbForWafer(const IdentifierHash& waferHash, const int theFirstStrip, const int groupSize);
 
 };
 #endif
