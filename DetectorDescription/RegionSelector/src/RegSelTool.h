@@ -61,13 +61,17 @@ class RegSelTool : public extends<AthAlgTool, IRegSelTool> {
 
   // Interface inherited from IRegSelTool service
 
-  void HashIDList( const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) const;
+  virtual
+  void HashIDList( const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) const override;
 
-  void HashIDList( long layer, const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist) const;
-   
-  void ROBIDList( const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const;
+  virtual
+  void HashIDList( long layer, const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist) const override;
 
-  void ROBIDList( long layer, const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const;
+  virtual
+  void ROBIDList( const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const override;
+
+  virtual
+  void ROBIDList( long layer, const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const override;
 
    
 protected:
