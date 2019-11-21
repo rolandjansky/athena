@@ -313,7 +313,7 @@ void PerfMonMTSvc::report2Log_Time_Parallel() {
   ATH_MSG_INFO("=======================================================================================");
   ATH_MSG_INFO("Event CheckPoint             CPU Time [ms]       Wall Time [ms]");
 
-  for(auto it : m_eventLevelData.getParallelDeltaMap()){
+  for(const auto& it : m_eventLevelData.getParallelDeltaMap()){
     ATH_MSG_INFO(format("%1%  %|29t|%2$.2f  %|49t|%3% ") % it.first % it.second.cpu_time % it.second.wall_time );
   }
   ATH_MSG_INFO("=======================================================================================");
@@ -369,12 +369,12 @@ void PerfMonMTSvc::report2Log_Mem_Parallel(){
   ATH_MSG_INFO("Event CheckPoint           Vmem      Rss       Pss       Swap      ");
 
 
-  for(auto it : m_eventLevelData.getParallelDeltaMap()){
+  for(const auto& it : m_eventLevelData.getParallelDeltaMap()){
     ATH_MSG_INFO(format("%1% %|27t|%2% %|37t|%3% %|47t|%4% %|57t|%5%")             % it.first \
-                                                                                   % it.second.mem_stats["vmem"]    \
-                                                                                   % it.second.mem_stats["rss"]     \
-                                                                                   % it.second.mem_stats["pss"]     \
-                                                                                   % it.second.mem_stats["swap"]);
+                                                                                   % it.second.mem_stats.at("vmem")   \
+                                                                                   % it.second.mem_stats.at("rss")    \
+                                                                                   % it.second.mem_stats.at("pss")    \
+                                                                                   % it.second.mem_stats.at("swap"));
   }
   ATH_MSG_INFO("=======================================================================================");
 
@@ -500,7 +500,7 @@ void PerfMonMTSvc::report2JsonFile_Time_Serial(nlohmann::json& j) const {
 void PerfMonMTSvc::report2JsonFile_Time_Parallel(nlohmann::json& j) const {
 
   // Report event level CPU measurements
-  for(auto it : m_eventLevelData.getParallelDeltaMap()){
+  for(const auto& it : m_eventLevelData.getParallelDeltaMap()){
 
     std::string checkPoint = std::to_string(it.first);
     double cpu_time = it.second.cpu_time;
@@ -535,21 +535,21 @@ void PerfMonMTSvc::report2JsonFile_Mem_Serial(nlohmann::json& j) const{
 void PerfMonMTSvc::report2JsonFile_Mem_Parallel(nlohmann::json& j){
   
   // Report event level memory measurements
-  for(auto it : m_eventLevelData.getParallelDeltaMap()){
+  for(const auto& it : m_eventLevelData.getParallelDeltaMap()){
 
     std::string checkPoint = std::to_string(it.first);
     
-    long vmem = it.second.mem_stats["vmem"];
-    long rss = it.second.mem_stats["rss"];
-    long pss = it.second.mem_stats["pss"];
-    long swap = it.second.mem_stats["swap"];
-
+    long vmem = it.second.mem_stats.at("vmem");
+    long rss = it.second.mem_stats.at("rss");
+    long pss = it.second.mem_stats.at("pss");
+    long swap = it.second.mem_stats.at("swap");
 
     j["MemMon_Parallel"][checkPoint] = { {"vmem", vmem}, {"rss", rss}, {"pss", pss}, {"swap", swap} } ;
 
   }
 }
 
+// const?
 bool PerfMonMTSvc::isLoop() const {
   
   int eventID = getEventID();
