@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # specifies egamma"standard"
 from AthenaCommon.Logging import logging
@@ -23,6 +23,7 @@ class egammaTrackSlimmer ( Configured ) :
       from egammaAlgs.egammaAlgsConf import egammaTrackSlimmer
       theEgammaTrackSlimmer = egammaTrackSlimmer(
         "egammaTrackSlimmer",
+        StreamName = 'StreamAOD',
         InputElectronContainerName=egammaKeys.outputElectronKey(),
         InputPhotonContainerName=egammaKeys.outputPhotonKey(),
         TrackParticleContainerName= egammaKeys.outputTrackParticleKey(), 
