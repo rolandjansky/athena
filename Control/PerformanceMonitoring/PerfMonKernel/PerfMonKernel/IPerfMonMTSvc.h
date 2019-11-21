@@ -28,8 +28,6 @@ class IPerfMonMTSvc : virtual public IService
     virtual void stopAud( const std::string& stepName,
                           const std::string& compName = "PerfMonMTSlice" ) = 0;
 
-    /// Count the number of processed events
-    virtual void incrementEventCounter() = 0;
 
     // Do event level monitoring
     virtual void eventLevelMon() = 0;

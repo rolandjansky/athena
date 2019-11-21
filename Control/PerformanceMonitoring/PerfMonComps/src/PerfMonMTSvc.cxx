@@ -197,8 +197,13 @@ void PerfMonMTSvc::eventLevelMon() {
     if(isCheckPoint()){
       m_measurement.capture_MT( m_eventCounter ); 
       m_eventLevelData.record_MT(m_measurement, m_eventCounter);
+    }
   }
-  }
+  incrementEventCounter();
+}
+
+void PerfMonMTSvc::incrementEventCounter(){
+  m_eventCounter++;
 }
 
 bool PerfMonMTSvc::isCheckPoint(){

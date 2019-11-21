@@ -71,7 +71,7 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
                            const std::string& compName ) override;
 
     /// Count the number of processed events
-    virtual void incrementEventCounter() override { m_eventCounter++; };
+    void incrementEventCounter();
 
     // Do event level monitoring
     virtual void eventLevelMon() override; 
