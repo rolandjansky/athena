@@ -4,6 +4,7 @@
 
 // Local include(s)
 #include "TauAnalysisTools/TauTruthMatchingTool.h"
+#include "TauAnalysisTools/HelperFunctions.h"
 
 // Core include(s):
 #include "AthLinks/ElementLink.h"
@@ -221,7 +222,7 @@ TLorentzVector TauTruthMatchingTool::getTruthTauP4Invis(const xAOD::TruthParticl
 
 TauAnalysisTools::TruthMatchedParticleType TauTruthMatchingTool::getTruthParticleType(const xAOD::TauJet& xTau)
 {
-  return getTruthParticleType(xTau);
+	return TauAnalysisTools::getTruthParticleType(xTau);
 }
 
 //______________________________________________________________________________
