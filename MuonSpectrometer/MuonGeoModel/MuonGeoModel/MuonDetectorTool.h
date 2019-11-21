@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONGEOMODEL_MUONDETECTORTOOL_H
@@ -64,7 +64,7 @@ private:
   bool m_dumpCscIntAlines;
   bool m_useCscIntAlinesFromGM;
   std::string m_altCscIntAlinesFile;
-  int m_cachingFlag;
+  Gaudi::Property<int> m_cachingFlag { this, "CachingFlag", 1, "Turn on/off caching of ReadoutElement surfaces etc. (i.e. for MDTs)" };
   int m_enableMdtDeformations;
   int m_enableMdtAsBuiltParameters;    
   std::string m_altMdtAsBuiltFile;
