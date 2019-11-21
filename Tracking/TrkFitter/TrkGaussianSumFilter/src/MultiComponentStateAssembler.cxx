@@ -71,6 +71,7 @@ Trk::MultiComponentStateAssembler::addComponent(Cache& cache, SimpleComponentPar
     ATH_MSG_WARNING("Trying to add state after assembly... returning false \n");
     return false;
   }
+  
   cache.validWeightSum += componentParameters.second; 
   cache.multiComponentState.emplace_back(componentParameters.first.release(),componentParameters.second);
   return true;

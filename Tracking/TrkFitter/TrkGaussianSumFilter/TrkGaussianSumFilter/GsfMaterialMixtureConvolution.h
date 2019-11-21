@@ -16,6 +16,7 @@ decription           : Class description for convolution of GSF material mixture
 
 #include "TrkGaussianSumFilter/IMaterialMixtureConvolution.h"
 #include "TrkGaussianSumFilter/IMultiComponentStateAssembler.h"
+#include "TrkGaussianSumFilter/IMultiComponentStateMerger.h"
 #include "TrkGaussianSumFilter/IMultiComponentStateCombiner.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -73,10 +74,12 @@ public:
                            ParticleHypothesis particleHypothesis = nonInteracting) const override final;
 
 private:
-  ToolHandle<IMultiStateMaterialEffectsUpdator> m_updator{ this,
-                                                           "MaterialEffectsUpdator",
-                                                           "Trk::GsfMaterialEffectsUpdator/GsfMaterialEffectsUpdator",
-                                                           "" };
+  ToolHandle<IMultiStateMaterialEffectsUpdator> m_updator{ 
+    this,
+    "MaterialEffectsUpdator",
+    "Trk::GsfMaterialEffectsUpdator/GsfMaterialEffectsUpdator",
+    ""
+  };
   ToolHandle<IMultiComponentStateCombiner> m_stateCombiner{
     this,
     "MultiComponentStateCombiner",
@@ -89,6 +92,13 @@ private:
     "Trk::MultiComponentStateAssembler/MaterialConvolutionAssembler",
     ""
   };
+  ToolHandle<IMultiComponentStateMerger> m_stateMerger{
+    this,
+    "MultiComponentStateMerger",
+    "Trk::QuickCloseComponentsMultiStateMerger/MaterialConvolutionMerger",
+    ""
+  };
+
 };
 
 } // end Trk namespace
