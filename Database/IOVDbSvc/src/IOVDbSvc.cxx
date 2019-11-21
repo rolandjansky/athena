@@ -795,21 +795,6 @@ IOVDbSvc::getKeyList() {
   return keys;
 }
 
-// temporary until clients are migrated to method just below
-bool IOVDbSvc::getKeyInfo(const std::string& key,std::string& foldername,
-                          std::string& tag, IOVRange& range, bool& retrieved,
-                          unsigned long long& bytesRead, float& readTime) {
-  IIOVDbSvc::KeyInfo info;
-  bool result = getKeyInfo(key, info);
-  foldername = info.folderName;
-  tag = info.tag;
-  range = info.range;
-  retrieved = info.retrieved;
-  bytesRead = info.bytesRead;
-  readTime = info.readTime;
-  return result;
-}
-
 bool IOVDbSvc::getKeyInfo(const std::string& key, IIOVDbSvc::KeyInfo& info) {
   // return information about given SG key
   // first attempt to find the folder object for this key
@@ -1176,16 +1161,12 @@ void IOVDbSvc::dumpKeys() {
   std::vector<std::string> keys=getKeyList();
   ATH_MSG_INFO( "Total of " << keys.size() << " keys to list" );
   for (const auto & thisKey: keys) {
-    std::string foldername,tag;
-    IOVRange range;
-    bool retrieved;
-    unsigned long long nread;
-    float rtime;
-    if (getKeyInfo(thisKey,foldername,tag,range,retrieved,nread,rtime)) {
-      if (retrieved) {
+    IIOVDbSvc::KeyInfo info;
+    if (getKeyInfo(thisKey,info)) {
+      if (info.retrieved) {
         ATH_MSG_INFO( "Data for key " << thisKey << " : foldername " <<
-          foldername << ", tag" << tag << ", range " << range << 
-          " read " << nread << " bytes in " << rtime << " seconds" );
+          info.folderName << ", tag" << info.tag << ", range " << info.range <<
+          " read " << info.bytesRead << " bytes in " << info.readTime << " seconds" );
       } else {
         ATH_MSG_INFO( "Key " << thisKey << " was not yet retrieved from StoreGate" );
       }

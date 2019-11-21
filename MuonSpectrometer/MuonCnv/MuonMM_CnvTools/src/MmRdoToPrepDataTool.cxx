@@ -10,8 +10,8 @@
 #include "MuonPrepRawData/MMPrepDataContainer.h"
 
 Muon::MmRdoToPrepDataTool::MmRdoToPrepDataTool(const std::string& t,
-					       const std::string& n,
-					       const IInterface*  p )
+                 const std::string& n,
+                 const IInterface*  p )
   :
   AthAlgTool(t,n,p),
   MmRdoToPrepDataToolCore(t,n,p)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfL1Data/CaloSinCos.h"
@@ -12,7 +12,8 @@ TrigConf::CaloSinCos::CaloSinCos( const std::string& n, const int v,
                                   int val1, int val2, int val3, int val4, 
                                   int val5, int val6, int val7, int val8,
                                   int phimin, int phimax,int etamin,int etamax)
-   : L1DataBaseclass(), 
+   : L1DataBaseclass(),
+     m_Val(),
      m_Val1( val1 ), 
      m_Val2( val2 ), 
      m_Val3( val3 ), 

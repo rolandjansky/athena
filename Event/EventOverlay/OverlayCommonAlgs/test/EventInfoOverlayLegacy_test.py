@@ -26,6 +26,7 @@ ConfigFlags.Input.SecondaryFiles = defaultTestFiles.HITS
 ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"
 ConfigFlags.Concurrency.NumThreads = 0
 ConfigFlags.Overlay.DataOverlay = False
+ConfigFlags.Output.RDOFileName="myRDO.pool.root"
 ConfigFlags.lock()
 
 # Function tests

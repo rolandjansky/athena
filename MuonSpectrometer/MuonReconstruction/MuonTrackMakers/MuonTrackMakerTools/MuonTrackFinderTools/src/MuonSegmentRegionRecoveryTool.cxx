@@ -4,8 +4,6 @@
 
 #include "MuonSegmentRegionRecoveryTool.h"
 
-#include "MuonChamberHoleRecoveryTool.h"
-#include "MuonRecToolInterfaces/IMuonSeededSegmentFinder.h"
 #include "MuonTrackMakerUtils/MuonGetClosestParameters.h"
 #include "MuonTrackMakerUtils/SortTracksByHitNumber.h"
 #include "MuonTrackMakerUtils/SortMeasurementsByPosition.h"
@@ -16,12 +14,7 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonIdHelpers/MuonStationIndex.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 
-#include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
-#include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
-#include "MuonRecToolInterfaces/IMuonHitSummaryTool.h"
 
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
@@ -46,7 +39,6 @@
 #include "MuonSegment/MuonSegment.h"
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
 
-#include "MuonStationIntersectSvc/MuonStationIntersectSvc.h"
 #include "MuonStationIntersectSvc/MuonStationIntersect.h"
 
 #include "TrkMeasurementBase/MeasurementBase.h"
@@ -54,20 +46,12 @@
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkSurfaces/StraightLineSurface.h"
-#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
-
-#include "TrkExInterfaces/IExtrapolator.h"
-
-#include "TrkToolInterfaces/ITrackHoleSearchTool.h"
-#include "TrkToolInterfaces/IResidualPullCalculator.h"
-#include "TrkFitterInterfaces/ITrackFitter.h"
 
 #include "TrkEventPrimitives/ResidualPull.h"
 #include "TrkEventPrimitives/LocalDirection.h"
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkEventUtils/TrackStateOnSurfaceComparisonFunction.h"
 
-#include "IRegionSelector/IRegSelSvc.h"
 #include "RoiDescriptor/RoiDescriptor.h"
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
@@ -79,38 +63,10 @@
 namespace Muon {
 
 MuonSegmentRegionRecoveryTool::MuonSegmentRegionRecoveryTool(const std::string& ty, const std::string& na, const IInterface* pa)
-  : AthAlgTool(ty, na, pa),
-    m_seededSegmentFinder("Muon::MuonSeededSegmentFinder/MuonSeededSegmentFinder"),
-    m_trackSegmentMatchingTool("Muon::MooCandidateMatchingTool/MooCandidateMatchingTool"),
-    m_chamberHoleRecoveryTool("Muon::MuonChamberHoleRecoveryTool/MuonChamberHoleRecoveryTool"),
-    m_extrapolator("Trk::Extrapolator/MuonExtrapolator"),
-    m_fitter("Rec::CombinedMuonTrackBuilder/CombinedMuonTrackBuilder"),
-    m_intersectSvc("MuonStationIntersectSvc", name()),
-    m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-    m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_hitSummaryTool("Muon::MuonHitSummaryTool/MuonHitSummaryTool"),
-    m_regionSelector("RegSelSvc", name())
+  : AthAlgTool(ty, na, pa)
 {
   declareInterface<IMuonHoleRecoveryTool>(this);
-  declareProperty("SeededSegmentFinder",     m_seededSegmentFinder);
-  declareProperty("TrackSegmentMatchingTool", m_trackSegmentMatchingTool);
-  declareProperty("ChamberHoleRecoveryTool", m_chamberHoleRecoveryTool);
-  declareProperty("Extrapolator",            m_extrapolator);
-  declareProperty("Fitter",                  m_fitter );
-  declareProperty("MuonStationIntersectSvc", m_intersectSvc);
-  declareProperty("IdHelper",                m_idHelperTool);
-  declareProperty("EDMPrinter",              m_printer);
-  declareProperty("HitSummaryTool",          m_hitSummaryTool);
-  declareProperty("RegionSelector",          m_regionSelector);
-
-  declareProperty("DeltaEtaRegion",  m_deta = 0.05);
-  declareProperty("DeltaPhiRegion",  m_dphi = 0.1);
-  declareProperty("ExcludeEES",  m_excludeEES = true);
-  declareProperty("OnlyEO",      m_onlyEO = false);
-  declareProperty("UseFitterOutlierLogic", m_useFitterOutlierLogic = true );
 }
-
-MuonSegmentRegionRecoveryTool::~MuonSegmentRegionRecoveryTool() {}
 
 StatusCode MuonSegmentRegionRecoveryTool::initialize()
 {

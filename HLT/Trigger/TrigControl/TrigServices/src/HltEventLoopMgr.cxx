@@ -550,7 +550,16 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
       ATH_MSG_DEBUG("Retrieved event info for the new event " << *eventInfo);
 
       // Set EventID for the EventContext
-      eventContext->setEventID(eventIDFromxAOD(eventInfo.cptr()));
+      EventIDBase eid = eventIDFromxAOD(eventInfo.cptr());
+      // Override run/timestamp if needed
+      if (m_forceRunNumber > 0) {
+        eid.set_run_number(m_forceRunNumber);
+      }
+      if (m_forceSOR_ns > 0) {
+        eid.set_time_stamp(m_forceSOR_ns / 1000000000);
+        eid.set_time_stamp_ns_offset(m_forceSOR_ns % 1000000000);
+      }
+      eventContext->setEventID(eid);
 
       // Update thread-local EventContext after setting EventID
       Gaudi::Hive::setCurrentContext(*eventContext);

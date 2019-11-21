@@ -9,14 +9,10 @@ class TrigEgammaKeys(object):
       outputElectronKey = recordable('HLT_egamma_Electrons')
       SuperPhotonRecCollectionName = 'HLT_PhotonSuperRecCollection'
       EgammaRecKey = 'HLT_egammaRecCollection'
-      EgammaRecKey_electron = "HLT_egammaRecCollection_electron"
       outputPhotonKey = recordable('HLT_egamma_Photons')
       outputClusterKey = 'HLT_egammaClusters'
-      outputClusterKey_electron = 'HLT_egammaClusters_electron'
       outputTopoSeededClusterKey = 'HLT_egammaTopoSeededClusters'
-      outputTopoSeededClusterKey_electron = 'HLT_egammaTopoSeededClusters_electron'
       TrigEMClusterToolOutputContainer = 'HLT_TrigEMClusterOutput'
-      TrigEMClusterToolOutputContainer_electron = 'HLT_TrigEMClusterOutput_electron'
       pidVersion = 'ElectronPhotonSelectorTools/trigger/rel21_20180312'
 
 def TrigPhotonSelectors(sel):

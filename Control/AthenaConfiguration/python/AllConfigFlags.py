@@ -63,19 +63,21 @@ def _createCfgFlags():
         (25./prevFlags.Beam.BunchSpacing)) # former flobal.estimatedLuminosity
 
 
-    acf.addFlag('Output.doESD', False) # produce ESD containers
-    acf.addFlag('Output.doWriteRDO', False) # write out RDO file
-    acf.addFlag('Output.doWriteESD', False) # write out ESD file
-    acf.addFlag('Output.doWriteAOD', False) # write out AOD file
-    acf.addFlag('Output.doWriteBS', False) # write out RDO ByteStream file
 
-    acf.addFlag('Output.EVNTFileName','myEVNT.pool.root')
-    acf.addFlag('Output.HITSFileName','myHITS.pool.root')
-    acf.addFlag('Output.RDOFileName','myRDO.pool.root')
-    acf.addFlag('Output.ESDFileName','myESD.pool.root')
-    acf.addFlag('Output.AODFileName','myAOD.pool.root')
-    acf.addFlag('Output.HISTFileName','myHIST.root')
+    acf.addFlag('Output.EVNTFileName', '')
+    acf.addFlag('Output.HITSFileName', '')
+    acf.addFlag('Output.RDOFileName',  '')
+    acf.addFlag('Output.ESDFileName',  '')
+    acf.addFlag('Output.AODFileName',  '')
+    acf.addFlag('Output.HISTFileName', '')
     
+
+    acf.addFlag('Output.doWriteRDO', lambda prevFlags: bool(prevFlags.Output.RDOFileName)) # write out RDO file
+    acf.addFlag('Output.doWriteESD', lambda prevFlags: bool(prevFlags.Output.ESDFileName)) # write out ESD file
+    acf.addFlag('Output.doESD',      lambda prevFlags: prevFlags.Output.doWriteESD) # produce ESD containers
+    acf.addFlag('Output.doWriteAOD', lambda prevFlags: bool(prevFlags.Output.AODFileName)) # write out AOD file
+    acf.addFlag('Output.doWriteBS',  False) # write out RDO ByteStream file
+
     # Might move this elsewhere in the future.
     # Some flags from https://gitlab.cern.ch/atlas/athena/blob/master/Tracking/TrkDetDescr/TrkDetDescrSvc/python/TrkDetDescrJobProperties.py
     # (many, e.g. those that set properties of one tool are not needed)

@@ -561,7 +561,7 @@ void TRTNoise::evolve_LT2AmpVsNL_to_include_LTfluct( std::vector<float>& nl_give
 
   //  unsigned int n = nl_given_lt2na.size();
   std::vector<float> new_nl_given_lt2na(number_new_bins);
-
+  constexpr double reciprocalSqrt2Pi = M_2_SQRTPI * 0.5 * M_SQRT1_2;//cmath definitions
   new_min_lt2na = min_lt2na;
   new_max_lt2na = relativeLTFluct < 0.4 ? max_lt2na/(1.0-2.0*relativeLTFluct) : 5*max_lt2na;
 
@@ -585,7 +585,7 @@ void TRTNoise::evolve_LT2AmpVsNL_to_include_LTfluct( std::vector<float>& nl_give
       sum += useLookupTable(u,nl_given_lt2na,min_lt2na,max_lt2na) *
 	exp(minusoneover2sigmasq * (u-new_lt2naval) * (u-new_lt2naval));
     }
-    sum *= du / ( sqrt (2.0 * 3.14159265358979 ) * sigma);
+    sum *= du*reciprocalSqrt2Pi /sigma;
     new_nl_given_lt2na[i] = sum;
   };
 

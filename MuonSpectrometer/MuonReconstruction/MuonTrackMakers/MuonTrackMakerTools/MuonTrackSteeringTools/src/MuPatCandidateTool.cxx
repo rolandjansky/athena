@@ -11,15 +11,6 @@
 
 #include "MuonTrackMakerUtils/MuonTrackMakerStlTools.h"
 
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
-#include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
-#include "MuonRecToolInterfaces/IMuonCompetingClustersOnTrackCreator.h"
-#include "MuonRecToolInterfaces/IMuonSegmentInfoExtender.h"
-#include "MuonSegmentMakerToolInterfaces/IMuonSegmentSelectionTool.h"
-
 #include "MuonSegment/MuonSegment.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "MuonRIO_OnTrack/CscClusterOnTrack.h"
@@ -48,29 +39,11 @@
 namespace Muon {
 
   MuPatCandidateTool::MuPatCandidateTool(const std::string& t, const std::string& n, const IInterface* p)    
-    : AthAlgTool(t,n,p),
-      m_mdtRotCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"),
-      m_cscRotCreator("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator", this),
-      m_compClusterCreator("Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator"),
-      m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-      m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-      m_hitHandler("Muon::MuPatHitTool/MuPatHitTool"),
-      m_segmentSelector("Muon::MuonSegmentSelectionTool/MuonSegmentSelectionTool"),
-      m_segmentExtender("Muon::MuonSegmentInfoExtender/MuonSegmentInfoExtender")
+    : AthAlgTool(t,n,p)
   {
     declareInterface<MuPatCandidateTool>(this);
-    declareProperty("MdtRotCreator",          m_mdtRotCreator);
-    declareProperty("CscRotCreator",          m_cscRotCreator);
-    declareProperty("CreateCompetingROTsPhi", m_createCompetingROTsPhi = false);
-    declareProperty("CreateCompetingROTsEta", m_createCompetingROTsEta = true);
-    declareProperty("DoMdtRecreation",        m_doMdtRecreation = false );
-    declareProperty("DoCscRecreation",        m_doCscRecreation = false );
-    declareProperty("SegmentExtender",        m_segmentExtender );
-    declareProperty("HitTool", m_hitHandler );
   }
-    
-  MuPatCandidateTool::~MuPatCandidateTool() { }
-    
+        
   StatusCode MuPatCandidateTool::initialize(){
 
     ATH_CHECK( m_mdtRotCreator.retrieve() );
@@ -80,12 +53,7 @@ namespace Muon {
     ATH_CHECK( m_hitHandler.retrieve() );
     ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_printer.retrieve() );
-
     ATH_CHECK( m_segmentSelector.retrieve() );
-    if( !m_segmentExtender.empty() && m_segmentExtender.retrieve().isFailure() ){
-      ATH_MSG_WARNING("Could not get " << m_segmentExtender);
-      // Just a warning...
-    }
 
     return StatusCode::SUCCESS;
   }
@@ -134,8 +102,6 @@ namespace Muon {
     updateHits(*info,info->segment->containedMeasurements(),m_doMdtRecreation,m_doCscRecreation, true );
     MuPatHitList& hitList = info->hitList();
     m_hitHandler->create( segment, hitList );
-
-    if (!m_segmentExtender.empty()) m_segmentExtender->extendInfo( info ); 
 
     return info;
   }

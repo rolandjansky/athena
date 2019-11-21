@@ -22,5 +22,9 @@ ToolSvc.MonTool.Histograms += { "EXPERT, TH1F, , , TIME_t1, Timing of tool 1, 10
 ToolSvc.MonTool.Histograms += { "EXPERT, TH1F, , , TIME_t2, Timing of tool 2, 100, 0., 1000." };
 ToolSvc.MonTool.Histograms += { "EXPERT, TH1F, , , DetID, Test of text filling, 10, 0., 10." };
 ToolSvc.MonTool.Histograms += { "EXPERT, TH1F, , , DetCalo, Another test of text filling, 10, 0., 10." };
+ToolSvc.MonTool.Histograms += { "EXPERT, TH2I, , , DetCalo,DetID, Fill 2D with strings, 10, 0., 10., 10, 0., 10." };
+ToolSvc.MonTool.Histograms += { "EXPERT, TH2I, , , DetCalo,y, Fill 2D with string & double, 10, 0., 10., 10, 0., 10." };
+ToolSvc.MonTool.Histograms += { "EXPERT, TH2I, , , DetCalo,x, Fill 2D with string & double, 10, 0., 10., 10, 0., 10." };
+ToolSvc.MonTool.Histograms += { "EXPERT, TH2I, , , y,DetID, Fill 2D with string & double, 10, 0., 10., 10, 0., 10." };
 
 

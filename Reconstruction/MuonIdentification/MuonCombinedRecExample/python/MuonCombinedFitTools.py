@@ -178,7 +178,13 @@ def MuonCombinedPropagator( name='MuonCombinedPropagator', **kwargs ):
 
 def MuonTrackQuery( name="MuonTrackQuery", **kwargs ):
      kwargs.setdefault("MdtRotCreator",   getPublicTool("MdtDriftCircleOnTrackCreator") )
-     kwargs.setdefault("Fitter",          getPublicTool("CombinedMuonTrackBuilder") )
+     if TriggerFlags.MuonSlice.doTrigMuonConfig:
+         trigTrackBuilder = getPublicToolClone("TrigCombinedMuonTrackBuilder","CombinedMuonTrackBuilder",
+                                              TrackSummaryTool=getPublicTool("MuonTrackSummaryTool"))
+         kwargs.setdefault("Fitter", trigTrackBuilder)
+     else:
+         kwargs.setdefault("Fitter",          getPublicTool("CombinedMuonTrackBuilder") )
+
      return CfgMgr.Rec__MuonTrackQuery(name,**kwargs)
 
 def MuidSegmentRegionRecoveryTool( name ='MuidSegmentRegionRecoveryTool', **kwargs ):
@@ -231,7 +237,7 @@ def CombinedMuonTrackBuilderFit( name='CombinedMuonTrackBuilderFit', **kwargs ):
         kwargs.setdefault("MuonHoleRecovery"              , "" )
         trigTrackSummary = getPublicToolClone("TrigMuonTrackSummary", "MuonTrackSummaryTool")
         if DetFlags.detdescr.ID_on():
-            from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryHelperTool, InDetTrigHoleSearchTool
+            from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryHelperTool
             trigTrackSummary.InDetSummaryHelperTool = InDetTrigTrackSummaryHelperTool
             trigTrackSummary.doHolesInDet = True
         kwargs.setdefault("TrackSummaryTool"              , trigTrackSummary )
@@ -287,7 +293,7 @@ def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
         kwargs.setdefault("MuonHoleRecovery"              , "" )
         trigTrackSummary = getPublicToolClone("TrigMuonTrackSummary", "MuonTrackSummaryTool")
         if DetFlags.detdescr.ID_on():
-            from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryHelperTool, InDetTrigHoleSearchTool
+            from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryHelperTool
             trigTrackSummary.InDetSummaryHelperTool = InDetTrigTrackSummaryHelperTool
             trigTrackSummary.doHolesInDet = True
         kwargs.setdefault("TrackSummaryTool"              , trigTrackSummary )

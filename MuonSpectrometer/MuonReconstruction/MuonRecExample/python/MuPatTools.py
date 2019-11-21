@@ -37,9 +37,7 @@ class MuPatCandidateTool(CfgMgr.Muon__MuPatCandidateTool,ConfiguredBase):
         self.applyUserDefaults(kwargs,name)
         if not MuonGeometryFlags.hasCSC():
             kwargs["CscRotCreator"] = ""
-        super(MuPatCandidateTool,self).__init__(name,**kwargs)
-MuPatCandidateTool.setDefaultProperties( SegmentExtender = "" )
-        
+        super(MuPatCandidateTool,self).__init__(name,**kwargs)        
 
 
 class MuPatHitTool(CfgMgr.Muon__MuPatHitTool,ConfiguredBase):

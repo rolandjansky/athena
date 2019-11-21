@@ -167,7 +167,7 @@ class LArCondFolderTags(JobProperty):
 
 class LArfSamplTag(JobProperty):
     ## Used only in overlay! 
-    statusOn=False
+    statusOn=True
     allowedTypes=['str']
     StoredValue=""
 

@@ -26,7 +26,7 @@ ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"
 ConfigFlags.GeoModel.Align.Dynamic = False
 ConfigFlags.Overlay.DataOverlay = False
 ConfigFlags.Detector.OverlayTRT = True
-
+ConfigFlags.Output.RDOFileName = "myRDO.pool.root"
 # Flags relating to multithreaded execution
 ConfigFlags.Concurrency.NumThreads = nThreads
 if nThreads > 0:

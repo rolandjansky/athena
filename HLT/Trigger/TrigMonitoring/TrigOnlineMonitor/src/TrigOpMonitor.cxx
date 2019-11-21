@@ -238,34 +238,29 @@ void TrigOpMonitor::fillIOVDbChangeHist(const EventContext& ctx)
 {
   if (m_IOVDbSvc == nullptr) return;
 
-  IOVRange iov;
-  std::string folder, tag;
-  bool retrieved;
-  unsigned long long bytesRead;
-  float readTime;
-
+  IIOVDbSvc::KeyInfo info;
   std::vector<std::string> keys(m_IOVDbSvc->getKeyList());
 
   // Loop over all keys known to IOVDbSvc
   for (const std::string& k : keys) {
-    if (not m_IOVDbSvc->getKeyInfo(k, folder, tag, iov, retrieved, bytesRead, readTime)) continue;
-    if (not retrieved) continue;
+    if (not m_IOVDbSvc->getKeyInfo(k, info)) continue;
+    if (not info.retrieved) continue;
 
     const auto curIOV = m_currentIOVs.find(k);
     if (curIOV == m_currentIOVs.end()) {
-      m_currentIOVs[k] = iov;
+      m_currentIOVs[k] = info.range;
       continue;
     }
 
     // Print IOV changes and fill histogram
-    if (iov != curIOV->second) {
-      ATH_MSG_INFO("IOV of " << k << " changed from " << curIOV->second << " to " << iov
+    if (info.range != curIOV->second) {
+      ATH_MSG_INFO("IOV of " << k << " changed from " << curIOV->second << " to " << info.range
                              << " on event: " << ctx.eventID());
 
       if (m_iovChangeHist) {
         // Perform a locked fill and remove any empty bins to allow correct gathering
         oh_scoped_lock_histogram lock;
-        m_iovChangeHist->Fill(std::to_string(ctx.eventID().lumi_block()).c_str(), folder.c_str(),
+        m_iovChangeHist->Fill(std::to_string(ctx.eventID().lumi_block()).c_str(), info.folderName.c_str(),
                               1);
         m_iovChangeHist->LabelsDeflate("X");
         m_iovChangeHist->LabelsDeflate("Y");
@@ -273,18 +268,18 @@ void TrigOpMonitor::fillIOVDbChangeHist(const EventContext& ctx)
 
       // Create detailed histograms per changed folder
       if (m_detailedHists) {
-        auto fh = m_folderHist.find(folder);
+        auto fh = m_folderHist.find(info.folderName);
         if (fh == m_folderHist.end()) {
-          std::string name(folder2HistName(folder));
+          std::string name(folder2HistName(info.folderName));
 
-          fh = m_folderHist.insert({folder, FolderHist()}).first;
+          fh = m_folderHist.insert({info.folderName, FolderHist()}).first;
           fh->second.h_time = new TH1F((name + "_ReadTime").c_str(),
-                                       ("Update time for " + folder + ";Time [ms];Entries").c_str(),
+                                       ("Update time for " + info.folderName + ";Time [ms];Entries").c_str(),
                                        100, 0, 200);
 
           fh->second.h_bytes = new TH1F(
               (name + "_BytesRead").c_str(),
-              ("Bytes read for " + folder + ";Data [bytes];Entries").c_str(), 100, 0, 1000);
+              ("Bytes read for " + info.folderName + ";Data [bytes];Entries").c_str(), 100, 0, 1000);
 
           for (TH1* h : {fh->second.h_time, fh->second.h_bytes}) {
             m_histSvc->regHist(h->GetName(), h);
@@ -292,14 +287,14 @@ void TrigOpMonitor::fillIOVDbChangeHist(const EventContext& ctx)
         }
 
         // Need to plot the difference because IOVDbSvc reports total time and bytes for entire job
-        fh->second.h_time->Fill(readTime * 1000 - m_folderHist[folder].total_time);
-        fh->second.total_time += readTime * 1000;
+        fh->second.h_time->Fill(info.readTime * 1000 - m_folderHist[info.folderName].total_time);
+        fh->second.total_time += info.readTime * 1000;
 
-        fh->second.h_bytes->Fill(bytesRead - m_folderHist[folder].total_bytes);
-        fh->second.total_bytes += bytesRead;
+        fh->second.h_bytes->Fill(info.bytesRead - m_folderHist[info.folderName].total_bytes);
+        fh->second.total_bytes += info.bytesRead;
       }
 
-      m_currentIOVs[k] = iov;
+      m_currentIOVs[k] = info.range;
     }
   }
 }

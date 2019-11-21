@@ -91,6 +91,11 @@ def MuonCreatorTool(name="MuonCreatorTool",**kwargs):
 def MuonCandidateTool(name="MuonCandidateTool",**kwargs):
     if beamFlags.beamType() == 'cosmics':
         kwargs.setdefault("ExtrapolationStrategy", 1 )
+
+    if TriggerFlags.MuonSlice.doTrigMuonConfig:
+        trigTrackBuilder = getPublicToolClone("TrigCombinedMuonTrackBuilder","CombinedMuonTrackBuilder",
+                                              TrackSummaryTool=getPublicTool("MuonTrackSummaryTool"))
+        kwargs.setdefault("TrackBuilder", trigTrackBuilder)
     return CfgMgr.MuonCombined__MuonCandidateTool(name,**kwargs)
 
 def MuonCombinedTool(name="MuonCombinedTool",**kwargs):

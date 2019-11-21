@@ -163,10 +163,9 @@ std::vector<std::shared_ptr<HistogramFiller>> GenericMonitoringTool::getHistogra
       continue;
     }
 
-    std::shared_ptr<HistogramFiller> fillerCopy(filler->clone());
-    fillerCopy->setMonitoredVariables(variables);
-    fillerCopy->setMonitoredWeight(weight);
-    result.push_back(fillerCopy);
+    filler->setMonitoredVariables(variables);
+    filler->setMonitoredWeight(weight);
+    result.push_back(filler);
   }
 
   return result;

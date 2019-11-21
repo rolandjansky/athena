@@ -71,8 +71,9 @@ namespace Trk
     globalMaximum (const std::vector<const TrackParameters*>& perigeeList,
                    std::unique_ptr<ITrackDensity>& density) const override;
 
-  std::pair<double,double> globalMaximumWithWidth (const std::vector<const TrackParameters*>& perigeeList/*,
-                                                  std::unique_ptr<ITrackDensity>& density*/) const ;
+    virtual
+    std::pair<double,double> globalMaximumWithWidth (const std::vector<const TrackParameters*>& perigeeList/*,
+                                                  std::unique_ptr<ITrackDensity>& density*/) const override;
 
 
   private:

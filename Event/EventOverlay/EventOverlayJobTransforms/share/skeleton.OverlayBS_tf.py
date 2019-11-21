@@ -21,6 +21,7 @@ from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
 from OverlayCommonAlgs.OverlayFlags import overlayFlags
 
 from MuonRecExample.MuonRecFlags import muonRecFlags
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 if MuonGeometryFlags.hasCSC(): muonRecFlags.doCSCs.set_Value_and_Lock(True)
 
 from LArConditionsCommon.LArCondFlags import larCondFlags
@@ -144,7 +145,7 @@ else:
     #DetFlags.overlay.LAr_setOff()
     DetFlags.overlay.Truth_setOn()
 
-from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+
 if not MuonGeometryFlags.hasCSC(): DetFlags.CSC_setOff()
 if not MuonGeometryFlags.hasSTGC(): DetFlags.sTGC_setOff()
 if not MuonGeometryFlags.hasMM(): DetFlags.Micromegas_setOff()

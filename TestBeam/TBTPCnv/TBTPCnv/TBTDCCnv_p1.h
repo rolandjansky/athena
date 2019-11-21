@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // -------------------------------------------------------------------
@@ -18,14 +18,17 @@ class MsgStream;
 class TBTDC;
 
 
-class TBTDCCnv_p1  : public T_AthenaPoolTPCnvBase<TBTDC, TBTDC_p1>
+class TBTDCCnv_p1  : public T_AthenaPoolTPCnvConstBase<TBTDC, TBTDC_p1>
 {
 public:
+  using base_class::transToPers;
+  using base_class::persToTrans;
+
 
   TBTDCCnv_p1() {}
 
-  virtual void          persToTrans(const TBTDC_p1* pers, TBTDC* trans, MsgStream &log);
-  virtual void          transToPers(const TBTDC* trans, TBTDC_p1* pers, MsgStream &log);
+  virtual void          persToTrans(const TBTDC_p1* pers, TBTDC* trans, MsgStream &log) const override;
+  virtual void          transToPers(const TBTDC* trans, TBTDC_p1* pers, MsgStream &log) const override;
 };
 
 
