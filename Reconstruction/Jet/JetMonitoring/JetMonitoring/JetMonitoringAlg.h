@@ -27,7 +27,7 @@ class JetMonitoringAlg : public AthMonitorAlgorithm {
 public:
     JetMonitoringAlg( const std::string& name, ISvcLocator* pSvcLocator );
     virtual ~JetMonitoringAlg();
-    StatusCode initialize();
+    virtual StatusCode initialize() override;
     virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
 
     bool isPassed(const std::string &c) const ;
