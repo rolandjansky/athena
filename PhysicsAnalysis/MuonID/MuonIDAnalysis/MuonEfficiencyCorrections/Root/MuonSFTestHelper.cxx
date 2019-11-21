@@ -14,6 +14,15 @@
     } 
 
 namespace TestMuonSF {
+        template<typename T> T getProperty(const asg::IAsgTool* interface_tool, const std::string& prop_name) {
+        const asg::AsgTool* asg_tool = dynamic_cast<const asg::AsgTool*>(interface_tool);
+        T prop;
+        const T* HandlePtr = asg_tool->getProperty < T > (prop_name);
+        if (!HandlePtr) Error("getProperty()", "Failed to retrieve property %s ", prop_name.c_str());
+        else prop = (*HandlePtr);
+        return prop;
+    }
+
     //###########################################################
     //                       SFBranches
     //###########################################################
@@ -115,7 +124,7 @@ namespace TestMuonSF {
         return CP::CorrectionCode::Ok;
     }
     std::string MuonSFBranches::name() const {
-        return m_release + (m_release.empty() ? "" : "_") + CP::getProperty<std::string>(m_handle.operator->(), "WorkingPoint");
+        return m_release + (m_release.empty() ? "" : "_") + getProperty<std::string>(m_handle.operator->(), "WorkingPoint");
     }
     bool MuonSFBranches::init() {
         for (auto set : CP::make_systematics_vector(m_handle->recommendedSystematics())) {
@@ -155,7 +164,7 @@ namespace TestMuonSF {
         return CP::CorrectionCode::Ok;
     }
     std::string MuonReplicaBranches::name() const {
-        return m_release + (m_release.empty() ? "" : "_") + CP::getProperty<std::string>(m_handle.operator->(), "WorkingPoint");
+        return m_release + (m_release.empty() ? "" : "_") + getProperty<std::string>(m_handle.operator->(), "WorkingPoint");
     }
     bool MuonReplicaBranches::init() {
         for (auto set : CP::make_systematics_vector(m_handle->recommendedSystematics())) {
