@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*******************************************************
@@ -213,8 +213,7 @@ namespace InDet {
    StatusCode CutTrk(double PInvVert, double ThetaVert, double A0Vert, double Chi2, 
            long int PixelHits,long int SctHits,long int SharedHits, long int BLayHits);
 
-//   const vector<const Trk::TrackParticleBase*> Base(const vector<const Rec::TrackParticle*> & listPart);
-//   const Trk::TrackParticleBase* Base(const Rec::TrackParticle* listPart);
+
      double**    getWorkArr2(long int dim1,long int dim2);
      void removeWorkArr2(double  **Arr,long int dim1,long int dim2);
      double***   getWorkArr3(long int dim1,long int dim2,long int dim3);
