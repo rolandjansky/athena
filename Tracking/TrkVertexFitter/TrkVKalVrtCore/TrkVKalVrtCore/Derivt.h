@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef _TrkVKalVrtCore_Derivt_H
@@ -38,6 +38,9 @@ namespace Trk {
       std::vector<double> aa;                     // Constraint values
       std::vector< std::vector< Vect3DF > > f0t;  // Constraint momentum derivatives 
       std::vector< Vect3DF > h0t;	          // Constraint space derivatives
+      //Apply the constraint based on the type of the object
+      //This was introduced as a more effecient alternative to dyanmic_casts.
+      virtual void applyConstraint() = 0;
    };
 //
 //  Mass constraint
@@ -53,7 +56,7 @@ namespace Trk {
       public:
         double targetMass;
 	std::vector<int> usedParticles;
-
+       virtual void applyConstraint() override;
      private:
        VKVertex * m_originVertex;
  
@@ -70,7 +73,7 @@ namespace Trk {
         ~VKPhiConstraint(); 
         friend std::ostream& operator<<( std::ostream& out, const VKPhiConstraint& );
         VKVertex * getOriginVertex() const { return m_originVertex;}
-   
+        virtual void applyConstraint() override;
       private:
         VKVertex * m_originVertex;
    };
@@ -81,7 +84,7 @@ namespace Trk {
         ~VKThetaConstraint(); 
         friend std::ostream& operator<<( std::ostream& out, const VKThetaConstraint& );
         VKVertex * getOriginVertex() const { return m_originVertex;}
-  
+        virtual void applyConstraint() override;
       private:
         VKVertex * m_originVertex;
    };
@@ -96,7 +99,7 @@ namespace Trk {
         ~VKPointConstraint(); 
         friend std::ostream& operator<<( std::ostream& out, const VKPointConstraint& );
         VKVertex * getOriginVertex() const { return m_originVertex;}
-
+        virtual void applyConstraint() override;
       public:
          double targetVertex[3];   //Target vertex is in global reference system
          bool onlyZ; 
@@ -118,7 +121,7 @@ namespace Trk {
         double getB() const { return m_B;}
         double getC() const { return m_C;}
         double getD() const { return m_D;}
-   
+        virtual void applyConstraint() override;
       private:
         double m_A,m_B,m_C,m_D;
         VKVertex * m_originVertex;
