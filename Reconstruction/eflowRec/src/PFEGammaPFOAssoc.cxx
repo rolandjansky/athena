@@ -19,7 +19,7 @@ PFEGammaPFOAssoc::PFEGammaPFOAssoc(const std::string& name,
 		   ISvcLocator* pSvcLocator): 
   AthAlgorithm(name, pSvcLocator)
 {   
-// Declare the decoration keys   
+  // Declare the decoration keys   
   declareProperty ("ElectronNeutralPFODecorKey", m_electronNeutralPFOWriteDecorKey = "Electrons.neutralpfoLinks");   
   declareProperty ("ElectronChargedPFODecorKey", m_electronChargedPFOWriteDecorKey = "Electrons.chargedpfoLinks");   
   declareProperty ("NeutralPFODecorKey", m_neutralpfoWriteDecorKey = "JetETMissNeutralParticleFlowObjects.pfo_ElectronLinks");   
@@ -73,8 +73,8 @@ StatusCode PFEGammaPFOAssoc::execute() {
   // Loop over neutral PFOs  
   ///////////////////////////
   for (const xAOD::PFO* pfo : *neutralpfoWriteDecorHandle) {     
-    // Obtain the index of the PFO topo-cluster     
-    size_t pfoClusterIndex = pfo->cluster(0)->index();     
+    // Obtain the index of the PFO topo-cluster
+    size_t pfoClusterIndex = pfo->cluster(0)->index();
 
     // Initialise a vector of element links to electrons     
     std::vector<ElectronLink_t> pfoElectronLinks;     
@@ -90,17 +90,17 @@ StatusCode PFEGammaPFOAssoc::execute() {
 	
 	// Link the electron to the PFO if the cluster indices match       
 	if (electronClusterIndex == pfoClusterIndex) { 
-	  // Add pfo->electron element links to a vector          
+	  // Add electron element link to a vector          
 	  // index() is the unique index of the electron in the electron container 
 	  pfoElectronLinks.push_back( ElectronLink_t(*electronReadHandle, electron->index()) ); 
-	  // Add electron->pfo element links to the vector 
+	  // Add pfo element link to a vector 
 	  // index() is the unique index of the nPFO in the nPFO container 
 	  electronNeutralPFOVec.at(electron->index()).push_back( PFOLink_t(*neutralpfoReadHandle, pfo->index()) );       
 	}     
       }     
     }
 
-    // Add vector of pfo->electron element links as decoration to PFO container     
+    // Add vector of electron element links as decoration to PFO container     
     neutralpfoWriteDecorHandle (*pfo) = pfoElectronLinks;  
   }   
 
@@ -120,26 +120,25 @@ StatusCode PFEGammaPFOAssoc::execute() {
       
       for (const xAOD::TrackParticle* electronTrack : electronTrackParticles) {
 
-	// size_t electronTrackIndex = electronOrigTrack->index();       
 	size_t electronTrackIndex = electronTrack->index();             
 
 	// Link the electron to the PFO if the track indices match       
 	if (electronTrackIndex == pfoTrackIndex) { 
-	  // Add pfo->electron element links to a vector 
+	  // Add electron element link to a vector 
 	  // index() is the unique index of the electron in the electron container 
 	  pfoElectronLinks.push_back( ElectronLink_t(*electronReadHandle, electron->index()) ); 
-	  // Add electron->pfo element links to the vector 
+	  // Add pfo element link to a vector 
 	  // index() is the unique index of the cPFO in the cPFO container 
 	  electronChargedPFOVec.at(electron->index()).push_back( PFOLink_t(*chargedpfoReadHandle, pfo->index()) );      
 	}    
       }     
     }
 
-    // Add vector of pfo->electron element links as decoration to PFO container     
+    // Add vector of electron element links as decoration to PFO container     
     chargedpfoWriteDecorHandle (*pfo) = pfoElectronLinks;  
   }   
 
-  // Add the vectors of electron->pfo element links as decorations to the electron container   
+  // Add the vectors of pfo element links as decorations to the electron container   
   for (const xAOD::Electron* electron : *electronNeutralPFOWriteDecorHandle) {     
     electronNeutralPFOWriteDecorHandle (*electron) = electronNeutralPFOVec.at(electron->index()); 
     electronChargedPFOWriteDecorHandle (*electron) = electronChargedPFOVec.at(electron->index()); 
