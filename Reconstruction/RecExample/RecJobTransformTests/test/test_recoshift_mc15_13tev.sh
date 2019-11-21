@@ -13,4 +13,5 @@ export TRF_ECHO=True; Reco_tf.py  '--inputHITSFile=/cvmfs/atlas-nightlies.cern.c
 
 RES=$?
 echo "art-result: $RES Reco"
-return $RES
+
+
