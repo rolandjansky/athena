@@ -382,10 +382,10 @@ void TRTTrkAlignDBTool::updateDB()
       printTransform(dbtransform);
 
       if(m_WriteTRTAsL2){
-         if(m_trtAlignDbSvc->tweakAlignTransform(modID,dbtransform,2).isFailure())
-            msg(MSG::ERROR)<<"Error setting constants for module \'"<<module->name()<<"\'"<<endmsg;
-         else
-            ATH_MSG_DEBUG("Module \'"<<module->name()<<"\': Level "<<level<<" constants updated.");
+         if(m_trtAlignDbSvc->tweakAlignTransform(modID,dbtransform,2).isSuccess())
+            ATH_MSG_INFO("WriteTRTAsL2: Module \'"<<module->name()<<"\': Level "<<level<<" constants updated.");
+         else // failure
+            msg(MSG::ERROR)<<"WriteTRTAsL2: Error setting constants for module \'"<<module->name()<<"\'"<<endmsg;
          continue;
       }
 
