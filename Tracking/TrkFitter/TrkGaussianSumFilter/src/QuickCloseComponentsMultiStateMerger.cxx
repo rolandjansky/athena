@@ -109,7 +109,7 @@ Trk::QuickCloseComponentsMultiStateMerger::merge(const Trk::MultiComponentState&
 
   Trk::MultiComponentState::const_iterator component = unmergedState.begin();
 
-  // Scan all components for covariance matricies. If one or more component
+  // Scan all components for covariance matrices. If one or more component
   // is missing an error matrix, component reduction is impossible.
   for (; component != unmergedState.end(); ++component) {
     const AmgSymMatrix(5)* measuredCov = component->first->covariance();
@@ -124,21 +124,87 @@ Trk::QuickCloseComponentsMultiStateMerger::merge(const Trk::MultiComponentState&
     const Trk::ComponentParameters reducedState(unmergedState.begin()->first->clone(), 1.);
     return std::make_unique<Trk::MultiComponentState>(reducedState);
   }
+  
+  const size_t n = unmergedState.size();
+// Create an array of all components to be merged
+  SimpleMultiComponentState statesToMerge(n);
+  component = unmergedState.begin();
 
-  return mergeFullDistArray(cache, unmergedState);
+  size_t ii = 0;
+  for (; component != unmergedState.end(); ++component) {
+    // Fill in infomation
+    statesToMerge[ii].first = std::unique_ptr<Trk::TrackParameters>(component->first->clone());
+    statesToMerge[ii].second = component->second;
+    ++ii;
+  }
+
+  if(ii==0)
+    return 0;
+
+  return mergeFullDistArray(cache, statesToMerge);
+}
+
+
+
+std::unique_ptr<Trk::MultiComponentState>
+Trk::QuickCloseComponentsMultiStateMerger::merge( Trk::SimpleMultiComponentState&& statesToMerge ) const
+{
+
+  ATH_MSG_VERBOSE("Merging state with " << statesToMerge.size() << " components");
+  // Assembler Cache
+  IMultiComponentStateAssembler::Cache cache;
+  // MAke sure  the assembler is reset
+  m_stateAssembler->reset(cache);
+
+  if (statesToMerge.size() <= m_maximumNumberOfComponents) {
+    ATH_MSG_VERBOSE("State is already sufficiently small... no component reduction required");
+    m_stateAssembler->addMultiState( cache, std::move(statesToMerge) );
+    return m_stateAssembler->assembledState(cache);
+  }
+
+
+  if (statesToMerge.empty()) {
+    ATH_MSG_ERROR("Attempting to merge multi-state with zero components");
+    return nullptr;
+  }
+
+  bool componentWithoutMeasurement = false;
+
+  Trk::SimpleMultiComponentState::const_iterator component = statesToMerge.cbegin();
+
+  // Scan all components for covariance matrices. If one or more component
+  // is missing an error matrix, component reduction is impossible.
+  for (; component != statesToMerge.cend(); ++component) {
+    const AmgSymMatrix(5)* measuredCov = component->first->covariance();
+    if (!measuredCov) {
+      componentWithoutMeasurement = true;
+      break;
+    }
+  }
+
+  if (componentWithoutMeasurement) {
+    ATH_MSG_DEBUG("A track parameters object is without measurement... reducing state to single component");
+    // Sort to select the one with the largest weight
+    std::sort(statesToMerge.begin(),statesToMerge.end(), [](const SimpleComponentParameters& x, const SimpleComponentParameters& y){return x.second > y.second;});
+    const Trk::ComponentParameters reducedState(statesToMerge.begin()->first->clone(), 1.);
+    return std::make_unique<Trk::MultiComponentState>(reducedState);
+  }
+  
+
+  return mergeFullDistArray(cache, statesToMerge);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::unique_ptr<Trk::MultiComponentState>
 Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(IMultiComponentStateAssembler::Cache& cache,
-                                                              const Trk::MultiComponentState& mcs) const
+                                                              SimpleMultiComponentState& statesToMerge ) const 
 {
 
-  const int n = mcs.size();
+  const int n = statesToMerge.size();
   const int nn2 = (n + 1) * n / 2;
 
-  Aligned<float> distances(nn2); // Array to store all of the distances between componants
+  Aligned<float> distances(nn2); // Array to store all of the distances between components
   Aligned<int> indexToI(nn2);    // The i  & J of each distances so that i don't have to calculate them
   Aligned<int> indexToJ(nn2);
 
@@ -170,42 +236,22 @@ Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(IMultiComponentSta
   }
 
   // Create an array of all components to be merged
-  SimpleMultiComponentState statesToMerge(n);
-  Trk::MultiComponentState::const_iterator component = mcs.begin();
-
-  int ii = 0;
-  for (; component != mcs.end(); ++component) {
-    if (ii >= n) {
-      ATH_MSG_ERROR("ii >= n ????");
-      break;
-    }
-
-    const AmgSymMatrix(5)* measuredCov = component->first->covariance();
-    const Amg::VectorX& parameters = component->first->parameters();
-    // If no covariance matrix we dont use component
-    if (!measuredCov) {
-      qonpG[ii] = 1e10;
-      continue;
-    }
+  for (int ii(0); ii < n; ++ii) {
+    const AmgSymMatrix(5)* measuredCov = statesToMerge[ii].first->covariance();
+    const Amg::VectorX& parameters = statesToMerge[ii].first->parameters();
 
     // Fill in infomation
-    statesToMerge[ii].first = std::unique_ptr<Trk::TrackParameters>(component->first->clone());
-    statesToMerge[ii].second = component->second;
     qonp[ii] = parameters[Trk::qOverP];
-    qonpCov[ii] = (*measuredCov)(Trk::qOverP, Trk::qOverP);
+    qonpCov[ii] = measuredCov ? (*measuredCov)(Trk::qOverP, Trk::qOverP): -1.;
     qonpG[ii] = qonpCov[ii] > 0 ? 1. / qonpCov[ii] : 1e10;
-    ++ii;
   }
 
-  if (ii == 0) {
-    ATH_MSG_WARNING("This should not happen");
-  }
-
+ 
   // Calculate distances for all pairs
   // This loop can be vectorised
   calculateAllDistances(qonp, qonpCov, qonpG, distances, n);
 
-  // Loop over all componants until you reach the target amount
+  // Loop over all components until you reach the target amount
   unsigned int numberOfComponents = n;
   int minIndex = -1;
   int nextMinIndex = -1;
@@ -236,7 +282,7 @@ Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(IMultiComponentSta
     // merge components
     ATH_MSG_VERBOSE("key1 " << mini << " key2 " << minj);
     /*
-     * Combine the compoents to be merged
+     * Combine the components to be merged
      * statesToMerge[mini] becomes the merged
      * statesToMerge[minj] is set to dummy values
      */
@@ -343,6 +389,8 @@ Trk::QuickCloseComponentsMultiStateMerger::calculateAllDistances(floatPtrRestric
       float G_sum = qonpGi + qonpG[j];
       distances[indexConst + j] =
         covarianceDifference * G_difference + parametersDifference * G_sum * parametersDifference;
+
+     //\log \frac{\sigma_2}{\sigma_1} + \frac{\sigma_1^2 + (\mu_1 - \mu_2)^2}{2 \sigma_2^2} - \frac{1}{2}
     }
   }
 }
@@ -410,13 +458,18 @@ Trk::QuickCloseComponentsMultiStateMerger::findMinimumIndex(const floatPtrRestri
   float* distances = (float*)__builtin_assume_aligned(distancesIn, 32);
   int mini = 0; // always 1e30
   int mini2 = -1;
-  float minDistance = std::numeric_limits<float>::max();
+  float minDistance = distances[0];
+  float minDistance2 = std::numeric_limits<float>::max();
 
-  for (int i = 0; i < n; ++i) {
+  for (int i = 1; i < n; ++i) {
     if (distances[i] < minDistance) {
       mini2 = mini;
+      minDistance2 = minDistance;
       mini = i;
       minDistance = distances[i];
+    } else if (distances[i] < minDistance2){
+      mini2 = i;
+      minDistance2 = distances[i];
     }
   }
 

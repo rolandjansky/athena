@@ -136,13 +136,14 @@ def getGSFTrackFitter():
     egTrkNavigator = Trk__Navigator(name='egTrkNavigator')
 
     # Set up the GSF
-    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMaterialMixtureConvolution
-    GsfMaterialUpdator = Trk__GsfMaterialMixtureConvolution(name='GsfMaterialUpdator')
-
     # component Reduction
     from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__QuickCloseComponentsMultiStateMerger
     GsfComponentReduction = Trk__QuickCloseComponentsMultiStateMerger(name='GsfComponentReduction',
                                                                       MaximumNumberOfComponents=12)
+
+    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMaterialMixtureConvolution
+    GsfMaterialUpdator = Trk__GsfMaterialMixtureConvolution(name='GsfMaterialUpdator',
+                                                            MultiComponentStateMerger = GsfComponentReduction)
 
     from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfExtrapolator
     GsfExtrapolator = Trk__GsfExtrapolator(name='GsfExtrapolator',
@@ -151,7 +152,6 @@ def getGSFTrackFitter():
                                            StickyConfiguration=True,
                                            Navigator=egTrkNavigator,
                                            GsfMaterialConvolution=GsfMaterialUpdator,
-                                           ComponentMerger=GsfComponentReduction,
                                            SurfaceBasedMaterialEffects=False)
 
     from TrkMeasurementUpdator.TrkMeasurementUpdatorConf import Trk__KalmanUpdatorAmg as ConfiguredKalmanUpdator

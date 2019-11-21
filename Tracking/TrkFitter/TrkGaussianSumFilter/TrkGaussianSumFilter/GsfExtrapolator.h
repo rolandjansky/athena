@@ -166,7 +166,7 @@ private:
   };
 
   /** These are the methods that do the actual heavy lifting when extrapolating with a cache */
-   MultiComponentState* extrapolateImpl(Cache& cache,
+  MultiComponentState* extrapolateImpl(Cache& cache,
                                         const IPropagator&,
                                         const MultiComponentState&,
                                         const Surface&,
@@ -218,7 +218,7 @@ private:
                                                          ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   /** Single extrapolation step to an intermediate layer */
-  MultiComponentState* extrapolateToIntermediateLayer(Cache& cache,
+  std::unique_ptr<Trk::MultiComponentState> extrapolateToIntermediateLayer(Cache& cache,
                                                       const IPropagator&,
                                                       const MultiComponentState&,
                                                       const Layer&,
@@ -228,19 +228,18 @@ private:
                                                       bool perpendicularCheck = true) const;
 
   /** Final extrapolation step to a destination layer */
-  MultiComponentState* extrapolateToDestinationLayer(
-    Cache& cache,
-    const IPropagator&,
-    const MultiComponentState&,
-    const Surface&,
-    const Layer&,
-    const Layer*,
-    PropDirection direction = anyDirection,
-    BoundaryCheck boundaryCheck = true,
-    ParticleHypothesis particleHypothesis = nonInteracting) const;
+  std::unique_ptr<Trk::MultiComponentState> extrapolateToDestinationLayer(Cache& cache,
+                                                                          const IPropagator&,
+                                                                          const MultiComponentState&,
+                                                                          const Surface&,
+                                                                          const Layer&,
+                                                                          const Layer*,
+                                                                          PropDirection direction = anyDirection,
+                                                                          BoundaryCheck boundaryCheck = true,
+                                                                          ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   /** Extrapolation to consider material effects assuming all material on active sensor elements - CTB method */
-  MultiComponentState* extrapolateSurfaceBasedMaterialEffects(
+  std::unique_ptr<Trk::MultiComponentState> extrapolateSurfaceBasedMaterialEffects(
     const IPropagator&,
     const MultiComponentState&,
     const Surface&,
@@ -249,7 +248,7 @@ private:
     ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   /** GSF Method to propagate a number of components simultaneously */
-  MultiComponentState* multiStatePropagate(const IPropagator&,
+  std::unique_ptr<Trk::MultiComponentState> multiStatePropagate(const IPropagator&,
                                            const MultiComponentState&,
                                            const Surface&,
                                            PropDirection direction = anyDirection,
@@ -310,12 +309,6 @@ private:
     this,
     "GsfMaterialConvolution",
     "Trk::GsfMaterialMixtureConvolution/GsfMaterialMixtureConvolution",
-    ""
-  };
-  ToolHandle<IMultiComponentStateMerger> m_merger{
-    this,
-    "ComponentMerger",
-    "Trk::QuickCloseComponentsMultiStateMerger/CloseComponentsMultiStateMerger",
     ""
   };
   ToolHandle<IMultiComponentStateCombiner> m_stateCombiner{ this,

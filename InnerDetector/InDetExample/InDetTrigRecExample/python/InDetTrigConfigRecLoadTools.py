@@ -565,11 +565,6 @@ if InDetTrigFlags.loadFitter():
       InDetTrigTrackFitterTRT.MaxOutliers=99
             
   elif InDetTrigFlags.trackFitterType() is 'GaussianSumFilter' :
-    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMaterialMixtureConvolution
-    InDetTrigGsfMaterialUpdator = Trk__GsfMaterialMixtureConvolution (name = 'InDetTrigGsfMaterialUpdator')
-    ToolSvc += InDetTrigGsfMaterialUpdator
-    if (InDetTrigFlags.doPrintConfigurables()):
-      print      InDetTrigGsfMaterialUpdator
     #
     # component Reduction
     #
@@ -580,6 +575,13 @@ if InDetTrigFlags.loadFitter():
     ToolSvc += InDetTrigGsfComponentReduction
     if (InDetTrigFlags.doPrintConfigurables()):
       print      InDetTrigGsfComponentReduction
+    
+    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMaterialMixtureConvolution
+    InDetTrigGsfMaterialUpdator = Trk__GsfMaterialMixtureConvolution (name = 'InDetTrigGsfMaterialUpdator',
+                                                                      MultiComponentStateMerger = InDetTrigGsfComponentReduction)
+    ToolSvc += InDetTrigGsfMaterialUpdator
+    if (InDetTrigFlags.doPrintConfigurables()):
+      print      InDetTrigGsfMaterialUpdator
     #
     # declare the extrapolator
     #
@@ -590,7 +592,6 @@ if InDetTrigFlags.loadFitter():
                                                     StickyConfiguration           = True,
                                                     Navigator                     = InDetTrigNavigator,
                                                     GsfMaterialConvolution        = InDetTrigGsfMaterialUpdator,
-                                                    ComponentMerger               = InDetTrigGsfComponentReduction,
                                                     SurfaceBasedMaterialEffects   = False )
     ToolSvc += InDetTrigGsfExtrapolator
     if (InDetTrigFlags.doPrintConfigurables()):

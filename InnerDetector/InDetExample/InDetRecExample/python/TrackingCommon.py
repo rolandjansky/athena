@@ -494,6 +494,9 @@ def getInDetRefitRotCreator(name='InDetRefitRotCreator', **kwargs) :
 @makePublicTool
 def getInDetGsfMaterialUpdator(name='InDetGsfMaterialUpdator', **kwargs) :
     the_name = makeName( name, kwargs)
+    if 'MultiComponentStateMerger' not in kwargs :
+        kwargs=setDefaults(kwargs, MultiComponentStateMerger = getInDetGsfComponentReduction())
+
     from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMaterialMixtureConvolution
     return Trk__GsfMaterialMixtureConvolution (name = the_name, **kwargs)
 
@@ -516,9 +519,6 @@ def getInDetGsfExtrapolator(name='InDetGsfExtrapolator', **kwargs) :
 
     if 'GsfMaterialConvolution' not in kwargs :
         kwargs=setDefaults(kwargs, GsfMaterialConvolution        = getInDetGsfMaterialUpdator())
-
-    if 'ComponentMerger' not in kwargs :
-        kwargs=setDefaults(kwargs, ComponentMerger               = getInDetGsfComponentReduction())
 
     from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfExtrapolator
     return Trk__GsfExtrapolator(name = the_name, **setDefaults(kwargs,

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*************************************************************************************
@@ -49,6 +49,13 @@ Trk::GsfMaterialMixtureConvolution::initialize()
     ATH_MSG_ERROR("Could not retrieve the multi-component state assembler... Exiting");
     return StatusCode::FAILURE;
   }
+
+  // Retrieve the state merge 
+  if (m_stateMerger.retrieve().isFailure()) {
+    ATH_MSG_ERROR("Could not retrieve the multi-component state merger... Exiting");
+    return StatusCode::FAILURE;
+  }
+  
   return StatusCode::SUCCESS;
 }
 
@@ -110,15 +117,15 @@ Trk::GsfMaterialMixtureConvolution::update(const Trk::MultiComponentState& multi
     }
   }
 
-  std::unique_ptr<Trk::MultiComponentState> assembledState = m_stateAssembler->assembledState(cache);
-
-  if (!assembledState) {
+  std::unique_ptr<Trk::MultiComponentState> mergedState = m_stateMerger->merge( std::move(cache.multiComponentState) ); 
+  
+  if (!mergedState) {
     return nullptr;
   }
   // Renormalise state
-  assembledState->renormaliseState();
+  mergedState->renormaliseState();
 
-  return assembledState;
+  return mergedState;
 }
 
 /* ==========================================
@@ -167,17 +174,15 @@ Trk::GsfMaterialMixtureConvolution::preUpdate(const Trk::MultiComponentState& mu
       ATH_MSG_WARNING("Component could not be added to the state in the assembler");
   }
 
-  std::unique_ptr<Trk::MultiComponentState> assembledState = m_stateAssembler->assembledState(cache);
-
-  if (!assembledState) {
+  std::unique_ptr<Trk::MultiComponentState> mergedState = m_stateMerger->merge( std::move(cache.multiComponentState) ); 
+  
+  if (!mergedState) {
     return nullptr;
   }
-
   // Renormalise state
-  assembledState->renormaliseState();
+  mergedState->renormaliseState();
 
-  // Clean up memory
-  return assembledState;
+  return mergedState;
 }
 
 /* ==========================================
@@ -229,15 +234,15 @@ Trk::GsfMaterialMixtureConvolution::postUpdate(const Trk::MultiComponentState& m
     }
   }
 
-  std::unique_ptr<Trk::MultiComponentState> assembledState = m_stateAssembler->assembledState(cache);
-
-  if (!assembledState) {
+  std::unique_ptr<Trk::MultiComponentState> mergedState = m_stateMerger->merge( std::move(cache.multiComponentState) ); 
+  
+  if (!mergedState) {
     return nullptr;
   }
+  // Renormalise state
+  mergedState->renormaliseState();
 
-  assembledState->renormaliseState();
-
-  return assembledState;
+  return mergedState;
 }
 
 /* ==========================================
@@ -316,16 +321,13 @@ Trk::GsfMaterialMixtureConvolution::simpliedMaterialUpdate(const Trk::MultiCompo
 
   } // end loop over components
 
-  std::unique_ptr<Trk::MultiComponentState> assembledState = m_stateAssembler->assembledState(cache);
-  // Renormalise the state
-  if(!assembledState)
-  {
-    delete materialProperties;
+  std::unique_ptr<Trk::MultiComponentState> mergedState = m_stateMerger->merge( std::move(cache.multiComponentState) ); 
+  
+  if (!mergedState) {
     return nullptr;
   }
+  // Renormalise state
+  mergedState->renormaliseState();
 
-  assembledState->renormaliseState();
-
-  // Clean up memory
-  return assembledState;
+  return mergedState;
 }
