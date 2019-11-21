@@ -46,10 +46,10 @@ void test1()
   assert (!trans2.exists ("ccc"));
 
   HepGeom::Transform3D t;
-  assert (trans1.getTransform ("aaa", t));
+  assert (trans2.getTransform ("aaa", t));
   assert (t.isNear (makexform (1, 2, 3, 3, 2, 1)));
 
-  assert (trans1.getTransform ("bbb", t));
+  assert (trans2.getTransform ("bbb", t));
   assert (t.isNear (makexform (3, 2, 1, 1, 2, 3)));
 }
 
