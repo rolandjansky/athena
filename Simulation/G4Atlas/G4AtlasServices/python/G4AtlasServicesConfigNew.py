@@ -3,8 +3,9 @@ from __future__ import print_function
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 from G4AtlasServices.G4AtlasServicesConf import DetectorGeometrySvc, G4AtlasSvc, G4GeometryNotifierSvc, PhysicsListSvc
+
 #the physics region tools
-from G4AtlasTools.G4PhysicsRegionConfigNew import SX1PhysicsRegionToolCfg, BedrockPhysicsRegionToolCfg, CavernShaftsConcretePhysicsRegionToolCfg, PixelPhysicsRegionToolCfg, SCTPhysicsRegionToolCfg, TRTPhysicsRegionToolCfg, TRT_ArPhysicsRegionToolCfg, BeampipeFwdCutPhysicsRegionToolCfg, FWDBeamLinePhysicsRegionToolCfg
+from G4AtlasTools.G4PhysicsRegionConfigNew import SX1PhysicsRegionToolCfg, BedrockPhysicsRegionToolCfg, CavernShaftsConcretePhysicsRegionToolCfg, PixelPhysicsRegionToolCfg, SCTPhysicsRegionToolCfg, TRTPhysicsRegionToolCfg, TRT_ArPhysicsRegionToolCfg, BeampipeFwdCutPhysicsRegionToolCfg, FWDBeamLinePhysicsRegionToolCfg, EMBPhysicsRegionToolCfg, EMECPhysicsRegionToolCfg, HECPhysicsRegionToolCfg, FCALPhysicsRegionToolCfg, FCAL2ParaPhysicsRegionToolCfg, EMECParaPhysicsRegionToolCfg, FCALParaPhysicsRegionToolCfg
 
 #the geometry tools
 from G4AtlasTools.G4GeometryToolConfig import MaterialDescriptionToolCfg, G4AtlasDetectorConstructionToolCfg, ATLASEnvelopeCfg
@@ -42,36 +43,39 @@ def getATLAS_RegionCreatorList(ConfigFlags):
     if ConfigFlags.Detector.SimulateCalo:
         if ConfigFlags.Detector.GeometryLAr:
             ## Shower parameterization overrides the calibration hit flag
-            if simFlags.LArParameterization.statusOn and simFlags.LArParameterization() > 0 \
-                    and ConfigFlags.Sim.CalibrationRun in ['LAr','LAr+Tile','DeadLAr']:
-                print('You requested both calibration hits and frozen showers / parameterization in the LAr.')
-                print('  Such a configuration is not allowed, and would give junk calibration hits where the showers are modified.')
-                print('  Please try again with a different value of either simFlags.LArParameterization (' + str(simFlags.LArParameterization()) + ') or simFlags.CalibrationRun ('+str(ConfigFlags.Sim.CalibrationRun)+')')
+            #if simFlags.LArParameterization.statusOn and simFlags.LArParameterization() > 0 \
+                    #and ConfigFlags.Sim.CalibrationRun in ['LAr','LAr+Tile','DeadLAr']:
+            if False:
+                print('You requested both calibration hits and frozen showers / parameterization in the LAr.' )
+                print( '  Such a configuration is not allowed, and would give junk calibration hits where the showers are modified.' )
+                print( '  Please try again with a different value of either simFlags.LArParameterization (' + str(simFlags.LArParameterization()) + ') or simFlags.CalibrationRun ('+str(ConfigFlags.Sim.CalibrationRun)+')' )
                 raise RuntimeError('Configuration not allowed')
-
-            #TODO - migrate below>>
             #if simFlags.LArParameterization() > 0:
-            #    regionCreatorList += [EMBPhysicsRegionTool(ConfigFlags), EMECPhysicsRegionTool(ConfigFlags),
-            #                          HECPhysicsRegionTool(ConfigFlags), FCALPhysicsRegionTool(ConfigFlags)]
+            if True:
+                regionCreatorList += [EMBPhysicsRegionToolCfg(ConfigFlags), EMECPhysicsRegionToolCfg(ConfigFlags),
+                                      HECPhysicsRegionToolCfg(ConfigFlags), FCALPhysicsRegionToolCfg(ConfigFlags)]
                 # FIXME 'EMBPhysicsRegionTool' used for parametrization also - do we need a second instance??
-            #    regionCreatorList += [EMECParaPhysicsRegionTool(ConfigFlags),
-            #                          FCALParaPhysicsRegionTool(ConfigFlags), FCAL2ParaPhysicsRegionTool(ConfigFlags)]
-            #    if simFlags.LArParameterization.get_Value() > 1:
-            #        regionCreatorList += [PreSampLArPhysicsRegionTool(ConfigFlags), DeadMaterialPhysicsRegionTool(ConfigFlags)]
-            #elif simFlags.LArParameterization() is None or simFlags.LArParameterization() == 0:
-            #    regionCreatorList += [EMBPhysicsRegionTool(ConfigFlags), EMECPhysicsRegionTool(ConfigFlags),
-            #                          HECPhysicsRegionTool(ConfigFlags), FCALPhysicsRegionTool(ConfigFlags)]
-
-
+                regionCreatorList += [EMECParaPhysicsRegionToolCfg(ConfigFlags),
+                                      FCALParaPhysicsRegionToolCfg(ConfigFlags), FCAL2ParaPhysicsRegionToolCfg(ConfigFlags)]
+                #if simFlags.LArParameterization.get_Value() > 1:
+                if False:
+                    pass
+                    #todo - add the line below
+                    #regionCreatorList += [PreSampLArPhysicsRegionToolCfg(ConfigFlags), DeadMaterialPhysicsRegionToolCfg(ConfigFlags)]
+            elif simFlags.LArParameterization() is None or simFlags.LArParameterization() == 0:
+                regionCreatorList += [EMBPhysicsRegionToolCfg(ConfigFlags), EMECPhysicsRegionToolCfg(ConfigFlags),
+                                      HECPhysicsRegionToolCfg(ConfigFlags), FCALPhysicsRegionToolCfg(ConfigFlags)]
     ## FIXME _initPR never called for FwdRegion??
     #if simFlags.ForwardDetectors.statusOn:
     #    if DetFlags.geometry.FwdRegion_on():
     #        regionCreatorList += ['FwdRegionPhysicsRegionTool']
-    #if ConfigFlags.Detector.GeometryMuon:
-    #    regionCreatorList += [DriftWallPhysicsRegionTool(ConfigFlags), DriftWall1PhysicsRegionTool(ConfigFlags), DriftWall2PhysicsRegionTool(ConfigFlags)]
-    #    if ConfigFlags.Sim.CavernBG != 'Read' and not (simFlags.RecordFlux.statusOn and simFlags.RecordFlux()):
-    #        regionCreatorList += [MuonSystemFastPhysicsRegionTool(ConfigFlags)]
-    #<<migrate above
+    if ConfigFlags.Detector.GeometryMuon:
+        #todo - add the line below
+        #regionCreatorList += [DriftWallPhysicsRegionTool(ConfigFlags), DriftWall1PhysicsRegionTool(ConfigFlags), DriftWall2PhysicsRegionTool(ConfigFlags)]
+        if ConfigFlags.Sim.CavernBG != 'Read' and not (simFlags.RecordFlux.statusOn and simFlags.RecordFlux()):
+            pass
+            #todo - add the line below
+            #regionCreatorList += [MuonSystemFastPhysicsRegionTool(ConfigFlags)]
     return regionCreatorList
 
 
