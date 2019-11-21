@@ -52,4 +52,4 @@ double Trk::MaterialElement::etaMax()
   return -log(tan(th/2.)); 
 }
 
-void Trk::MaterialElement::setMaterial(Trk::Material mp) { matProp = Trk::Material(mp); };
+void Trk::MaterialElement::setMaterial(Trk::Material mp) { matProp = Trk::Material(mp); }
