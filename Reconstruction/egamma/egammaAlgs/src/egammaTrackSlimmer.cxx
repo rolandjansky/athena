@@ -9,8 +9,6 @@ PACKAGE:  offline/Reconstruction/egammaRec
 
 // INCLUDE HEADER FILES:
 
-#include "AthenaKernel/IThinningSvc.h"
-
 #include "egammaTrackSlimmer.h"
 
 #include "xAODTracking/TrackParticleContainer.h"
@@ -20,31 +18,12 @@ PACKAGE:  offline/Reconstruction/egammaRec
 #include "xAODEgamma/EgammaxAODHelpers.h"
 
 #include "StoreGate/ReadHandle.h"
+#include "StoreGate/ThinningHandle.h"
 
 //  END OF HEADER FILES INCLUDE
 
 /////////////////////////////////////////////////////////////////
 
-
-//  CONSTRUCTOR:
-    
-egammaTrackSlimmer::egammaTrackSlimmer(const std::string& name, 
-				   ISvcLocator* pSvcLocator): 
-  AthAlgorithm(name, pSvcLocator), 
-  m_thinningSvc( "ThinningSvc",  name )
-{
-  // Name of the track thinning service
-  declareProperty("thinSvc", 
-		  m_thinningSvc,
-		  "Name of the thinning service");
-}
-
-// DESTRUCTOR:
-  
-egammaTrackSlimmer::~egammaTrackSlimmer()
-{  }
-
-/////////////////////////////////////////////////////////////////
 
 // INITIALIZE METHOD:
      
@@ -52,18 +31,12 @@ StatusCode egammaTrackSlimmer::initialize()
 {
   ATH_MSG_INFO("Initializing egammaTrackSlimmer");
 
-  // Get pointer to IThinningSvc and cache it :
-  if ( !m_thinningSvc.retrieve().isSuccess() ) {
-    ATH_MSG_ERROR("Unable to retrieve pointer to IThinningSvc");
-    return StatusCode::FAILURE;
-  }
-
   // initialize data handles
   ATH_CHECK(m_InputElectronContainerKey.initialize(m_doThinning));
   ATH_CHECK(m_InputPhotonContainerKey.initialize(m_doThinning));
-  ATH_CHECK(m_TrackParticlesKey.initialize(m_doThinning));
-  ATH_CHECK(m_VertexKey.initialize(m_doThinning));
-  ATH_CHECK(m_InDetTrackParticlesKey.initialize(m_doThinning));
+  ATH_CHECK(m_TrackParticlesKey.initialize(m_streamName, m_doThinning));
+  ATH_CHECK(m_VertexKey.initialize(m_streamName, m_doThinning));
+  ATH_CHECK(m_InDetTrackParticlesKey.initialize(m_streamName, m_doThinning));
 
   ATH_MSG_INFO("Initialization completed successfully");
   return StatusCode::SUCCESS;
@@ -78,7 +51,7 @@ StatusCode egammaTrackSlimmer::finalize() {
 /////////////////////////////////////////////////////////////////
 // ATHENA EXECUTE METHOD:
    
-StatusCode egammaTrackSlimmer::execute() {
+StatusCode egammaTrackSlimmer::execute (const EventContext& ctx) const {
   
   ATH_MSG_DEBUG("Executing egammaTrackSlimmer");
   if(!m_doThinning){
@@ -90,8 +63,8 @@ StatusCode egammaTrackSlimmer::execute() {
    * GSF Track Particles
    * The vector that we'll use to filter the track particles:
    */
-  IThinningSvc::VecFilter_t keptTrackParticles;
-  SG::ReadHandle<xAOD::TrackParticleContainer> trackPC(m_TrackParticlesKey);
+  std::vector<bool> keptTrackParticles;
+  SG::ThinningHandle<xAOD::TrackParticleContainer> trackPC(m_TrackParticlesKey, ctx);
   // check is only used for serial running; remove when MT scheduler used
   if(!trackPC.isValid()) {
     ATH_MSG_FATAL("Failed to retrieve "<< m_TrackParticlesKey.key());
@@ -104,8 +77,8 @@ StatusCode egammaTrackSlimmer::execute() {
    * GSF Vertices
    * The vector that we'll use to filter the GSF vertices:
    */
-  IThinningSvc::VecFilter_t keptVertices;
-  SG::ReadHandle<xAOD::VertexContainer> vertices(m_VertexKey);
+  std::vector<bool> keptVertices;
+  SG::ThinningHandle<xAOD::VertexContainer> vertices(m_VertexKey, ctx);
   // check is only used for serial running; remove when MT scheduler used
   if(!vertices.isValid()) {
     ATH_MSG_FATAL("Failed to retrieve "<< m_VertexKey.key());
@@ -118,8 +91,8 @@ StatusCode egammaTrackSlimmer::execute() {
    * In Det Track Particles
    * The vector that we'll use to filter the In Det Track Particles
    */
-  IThinningSvc::VecFilter_t keptInDetTrackParticles;
-  SG::ReadHandle<xAOD::TrackParticleContainer> indetTrackPC(m_InDetTrackParticlesKey);
+  std::vector<bool> keptInDetTrackParticles;
+  SG::ThinningHandle<xAOD::TrackParticleContainer> indetTrackPC(m_InDetTrackParticlesKey, ctx);
   // check is only used for serial running; remove when MT scheduler used
   if(!indetTrackPC.isValid()) {
     ATH_MSG_FATAL("Failed to retrieve "<< m_InDetTrackParticlesKey.key());
@@ -141,7 +114,7 @@ StatusCode egammaTrackSlimmer::execute() {
   /*
    * Electron track particle Thinning
    */
-  SG::ReadHandle<xAOD::ElectronContainer> electrons(m_InputElectronContainerKey);
+  SG::ReadHandle<xAOD::ElectronContainer> electrons(m_InputElectronContainerKey, ctx);
   // check is only used for serial running; remove when MT scheduler used
   if(!electrons.isValid()) {
     ATH_MSG_FATAL("Failed to retrieve "<< m_InputElectronContainerKey.key());
@@ -170,7 +143,7 @@ StatusCode egammaTrackSlimmer::execute() {
   /*
    * Photon Vertex and track particle  Thinning
    */
-  SG::ReadHandle<xAOD::PhotonContainer> photons(m_InputPhotonContainerKey);
+  SG::ReadHandle<xAOD::PhotonContainer> photons(m_InputPhotonContainerKey, ctx);
   // check is only used for serial running; remove when MT scheduler used
   if(!photons.isValid()) {
     ATH_MSG_FATAL("Failed to retrieve "<< m_InputPhotonContainerKey.key());
@@ -209,9 +182,9 @@ StatusCode egammaTrackSlimmer::execute() {
   }
   //Do the Thinning
   ATH_MSG_DEBUG("Do the Thinning");
-  CHECK( m_thinningSvc->filter( *trackPC, keptTrackParticles, IThinningSvc::Operator::Or));
-  CHECK( m_thinningSvc->filter( *vertices, keptVertices, IThinningSvc::Operator::Or ) );
-  CHECK( m_thinningSvc->filter( *indetTrackPC, keptInDetTrackParticles, IThinningSvc::Operator::Or ) );
+  trackPC.keep (keptTrackParticles);
+  vertices.keep (keptVertices);
+  indetTrackPC.keep (keptInDetTrackParticles);
   ATH_MSG_DEBUG("completed successfully");
   
   //Return Gracefully

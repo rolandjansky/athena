@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAALGS_EGAMMATRACKSLIMMER_H
@@ -15,29 +15,26 @@
 #include "xAODTracking/TrackParticleContainerFwd.h"
 #include "xAODTracking/VertexContainerFwd.h"
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ThinningHandleKey.h"
 
-class IThinningSvc;
 
-class egammaTrackSlimmer : public AthAlgorithm
+class egammaTrackSlimmer : public AthReentrantAlgorithm
 {
  public:
 
   /** @brief Default constructor*/
-  egammaTrackSlimmer(const std::string& name, ISvcLocator* pSvcLocator);
-  
-  /** @brief Destructor*/
-  ~egammaTrackSlimmer();
+  using AthReentrantAlgorithm::AthReentrantAlgorithm;
+
 
   /** @brief initialize method*/
   StatusCode initialize() override final;
   /** @brief finalize method*/
   StatusCode finalize() override final;
   /** @brief execute method*/
-  StatusCode execute() override final;
+  StatusCode execute(const EventContext& ctx) const override final;
 
  private:
 
@@ -55,30 +52,29 @@ class egammaTrackSlimmer : public AthAlgorithm
       "Name of the input photon container"};
 		
   /** @brief GSF Track Particle container to thin */
-  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_TrackParticlesKey {this,
+  SG::ThinningHandleKey<xAOD::TrackParticleContainer> m_TrackParticlesKey {this,
       "TrackParticleContainerName", 
       "",
       "Name of the Track Particle container to thin"};
 
   /** @brief  GSF vertex container to thin */
-  SG::ReadHandleKey<xAOD::VertexContainer> m_VertexKey {this,
+  SG::ThinningHandleKey<xAOD::VertexContainer> m_VertexKey {this,
       "VertexContainerName", 
       "",
       "Name of the Vertex container to thin"};
 
   /** @brief GSF Track Particle container to thin */
-  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_InDetTrackParticlesKey {this,
+  SG::ThinningHandleKey<xAOD::TrackParticleContainer> m_InDetTrackParticlesKey {this,
       "InDetTrackParticleContainerName", 
       "",
       "Name of the Track Particle container to thin"};
 
+  /** @brief Name of the stream being thinned */
+  StringProperty m_streamName
+  { this, "StreamName", "", "Name of the stream being thinned" };
 
   /** @brief Bool to decide if we actually do the Thinning */
   Gaudi::Property<bool> m_doThinning{this, "doThinning", true, "Bool to do Thinning"};
-
-  /** @brief The thinning service */
-  ServiceHandle<IThinningSvc> m_thinningSvc;
-
 };
 
 #endif
