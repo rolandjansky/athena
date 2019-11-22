@@ -37,8 +37,8 @@ StatusCode PerfMonMTAlg::initialize() {
  */
 StatusCode PerfMonMTAlg::execute( const EventContext& /*ctx*/ ) const {
 
-  // Increment the atomic event counter
-  m_perfMonMTSvc->incrementEventCounter();
+  // Do event level monitoring on check points
+  m_perfMonMTSvc->eventLevelMon();
 
   return StatusCode::SUCCESS;
 }
