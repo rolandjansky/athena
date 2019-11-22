@@ -94,6 +94,9 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
         // loop on the strips and set the cluster weighted position and charge
         //
         std::vector<Identifier> rdoList;
+        //vectors to hold the properties of the elements of a cluster
+        std::vector<int> elementsCharge;
+        std::vector<uint16_t> elementsChannel;
         Identifier clusterId;
         double weightedPosX = 0.0;
         double posY = (cluster.at(0)).localPosition().y();
@@ -102,6 +105,8 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
         double totalCharge  = 0.0;
         for ( auto it : cluster ) {
           rdoList.push_back(it.identify());
+          elementsCharge.push_back(it.charge());
+          elementsChannel.push_back(m_muonIdHelperTool->stgcIdHelper().channel(it.identify()));
           double weight = 0.0;
           isWire ? weight = 1.0 : weight = it.charge(); 
           ATH_MSG_DEBUG("isWire: " << isWire << " weight: " << weight);
@@ -149,7 +154,8 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
         // memory allocated dynamically for the PrepRawData is managed by Event Store in the converters
         //
         sTgcPrepData* prdN = new sTgcPrepData(clusterId,hash,localPosition,
-            rdoList, covN, cluster.at(0).detectorElement());
+            rdoList, covN, cluster.at(0).detectorElement(),
+            std::accumulate(elementsCharge.begin(),elementsCharge.end(),0),(short int)0,(uint16_t) 0,elementsChannel,elementsCharge);
         clustersVect.push_back(prdN);   
       }
     }
@@ -207,10 +213,8 @@ bool Muon::SimpleSTgcClusterBuilderTool::addStrip(Muon::sTgcPrepData& strip)
       unsigned int lastStrip  = *(--clusterStripNum.end());
 
       ATH_MSG_DEBUG("First strip and last strip are: " << firstStrip << " " << lastStrip);
-      unsigned int diffFirst = (stripNum-firstStrip) > 0 ? stripNum - firstStrip : firstStrip-stripNum ;
-      unsigned int diffLast  = (stripNum-lastStrip)  > 0 ? stripNum - lastStrip  : lastStrip-stripNum ;
       if ( (stripNum==lastStrip+1 || stripNum==firstStrip-1) 
-	   || (m_allowHoles && ( diffFirst<=2 || diffLast<=2 ))) {
+	   || (m_allowHoles && ( abs(stripNum-lastStrip)<=2 || abs(stripNum-firstStrip)<=2 ))) {
 
         ATH_MSG_DEBUG(">> inserting a new strip");
 	m_clustersStripNum[multilayer][gasGap].at(i).insert(stripNum);
