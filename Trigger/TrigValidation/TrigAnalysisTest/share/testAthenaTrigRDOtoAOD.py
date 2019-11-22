@@ -160,7 +160,6 @@ if  ('sliceName' in dir()):
 #from ParticleBuilderOptions.AODFlags import AODFlags 
 #AODFlags.FastSimulation=False 
 # see comments in https://savannah.cern.ch/bugs/?83735
-#AODFlags.MuonTrackSlimmer=False
 #print AODFlags.Print()
 
 #-----------------------------------------------------------
