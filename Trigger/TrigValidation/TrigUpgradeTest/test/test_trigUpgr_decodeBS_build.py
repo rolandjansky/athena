@@ -7,18 +7,17 @@
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 
 writeBS = ExecStep.ExecStep("WriteBS")
-writeBS.type = 'athenaHLT'
+writeBS.type = 'athena'
 writeBS.job_options = 'TrigUpgradeTest/full_menu.py'
 writeBS.input = 'data'
-writeBS.args = '-o output'
-writeBS.perfmon = False # perfmon with athenaHLT doesn't work at the moment
+writeBS.args = '-c "isOnline=True;doWriteBS=True;doWriteRDOTrigger=False;"'
 
 decodeBS = ExecStep.ExecStep("DecodeBS")
 decodeBS.type = 'athena'
 decodeBS.job_options = 'TriggerJobOpts/decodeBS.py'
 decodeBS.input = ''
 decodeBS.explicit_input = True
-decodeBS.args = '--filesInput=output_Child-001._0001.data'
+decodeBS.args = '--filesInput=data_test.00360026.Single_Stream.daq.RAW._lb0151._Athena._0000.data'
 decodeBS.perfmon = False # no need to run PerfMon for this step
 
 test = Test.Test()
