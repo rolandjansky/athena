@@ -9,6 +9,7 @@ atlas_subdir( DerivationFrameworkMCTruth )
 atlas_depends_on_subdirs(
    PUBLIC
    Control/AthenaBaseComps
+   Control/AthContainers
    Event/xAOD/xAODEventInfo
    Event/xAOD/xAODTruth
    GaudiKernel
@@ -18,6 +19,7 @@ atlas_depends_on_subdirs(
    Event/EventInfo
    Event/xAOD/xAODBase
    Event/xAOD/xAODJet
+   Event/xAOD/xAODEventShape
    Generators/GeneratorObjects
    Generators/GenInterfaces
    Generators/TruthUtils
@@ -38,9 +40,10 @@ atlas_add_component( DerivationFrameworkMCTruth
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS}
    ${FASTJET_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPPDT_LIBRARIES} ${FASTJET_LIBRARIES}
-   ${HEPMC_LIBRARIES} AthenaBaseComps xAODEventInfo xAODTruth GaudiKernel
-   AthenaKernel SGtests EventInfo xAODBase xAODJet GeneratorObjects TruthUtils
-   ExpressionEvaluationLib MCTruthClassifierLib tauRecTools GenInterfacesLib )
+   ${HEPMC_LIBRARIES} AthenaBaseComps AthContainers xAODEventInfo
+   xAODEventShape xAODTruth GaudiKernel AthenaKernel SGtests EventInfo
+   xAODBase xAODJet GeneratorObjects TruthUtils ExpressionEvaluationLib
+   MCTruthClassifierLib tauRecTools GenInterfacesLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

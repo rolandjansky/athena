@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.AppMgr import ToolSvc
 
@@ -196,6 +196,7 @@ DFCommonTruthPhotonIsolationTool3 = DerivationFramework__TruthIsolationTool(name
                                                                   ChargedParticlesOnly = False
                                                                   )
 ToolSvc += DFCommonTruthPhotonIsolationTool3
+# Quark/gluon decoration for jets
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthQGDecorationTool
 DFCommonTruthQGLabelTool = DerivationFramework__TruthQGDecorationTool(name="DFCommonTruthQGLabelTool",
                                                                   JetCollection = "AntiKt4TruthWZJets")

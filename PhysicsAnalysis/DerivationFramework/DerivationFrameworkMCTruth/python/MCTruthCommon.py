@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # Add translator from EVGEN input to xAOD-like truth here
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
@@ -268,7 +268,6 @@ def schedulePostJetMCTruthAugmentations(kernel=None, decorationDressing=None):
     # truth tau matching needs truth jets, truth electrons and truth muons
     from DerivationFrameworkTau.TauTruthCommon import scheduleTauTruthTools
     scheduleTauTruthTools(kernel)
-
     augmentationToolsList = [ DFCommonTruthTauDressingTool ]
 
     #Save the post-shower HT and MET filter values that will make combining filtered samples easier (adds to the EventInfo)
@@ -320,6 +319,8 @@ def addStandardTruthContents(kernel=None,
     addBornLeptonCollection(kernel)
     # Special collection for hard scatter (matrix element) - save TWO extra generations of particles
     addHardScatterCollection(kernel,2)
+    # Energy density for isolation corrections
+    addTruthEnergyDensity(kernel)
 
 
 def addParentAndDownstreamParticles(kernel=None,
@@ -537,6 +538,49 @@ def addLargeRJetD2(kernel=None):
     ToolSvc += TruthD2Decorator
     kernel +=CfgMgr.DerivationFramework__DerivationKernel("TRUTHD2Kernel",
                                                           AugmentationTools = [TruthD2Decorator] )
+
+
+def addTruthEnergyDensity(kernel=None):
+    #Ensure that we are adding it to something
+    if kernel is None:
+        from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
+        kernel = DerivationFrameworkJob
+    if hasattr(kernel,'DFCommonTruthEDKernel'):
+        # Already there!  Carry on...
+        return
+    # Truth energy density tools
+    from EventShapeTools.EventDensityConfig import configEventDensityTool
+    from AthenaCommon.AppMgr import ToolSvc
+    from JetRec.JetRecStandard import jtm
+    DFCommonTruthCentralEDTool = configEventDensityTool("DFCommonTruthCentralEDTool", jtm.truthget,
+                                                        0.5,
+                                                        AbsRapidityMax      = 1.5,
+                                                        OutputContainer     = "TruthIsoCentralEventShape",
+                                                       )
+    ToolSvc += DFCommonTruthCentralEDTool
+    DFCommonTruthForwardEDTool = configEventDensityTool("DFCommonTruthForwardEDTool", jtm.truthget,
+                                                        0.5,
+                                                        AbsRapidityMin      = 1.5,
+                                                        AbsRapidityMax      = 3.0,
+                                                        OutputContainer     = "TruthIsoForwardEventShape",
+                                                       )
+    ToolSvc += DFCommonTruthForwardEDTool
+    # Algorithms for the energy density
+    from EventShapeTools.EventDensityConfig import EventDensityAlg
+    kernel += EventDensityAlg("DFCommonTruthCentralEDAlg", EventDensityTool = DFCommonTruthCentralEDTool )
+    kernel += EventDensityAlg("DFCommonTruthForwardEDAlg", EventDensityTool = DFCommonTruthForwardEDTool )
+
+    # Now add the tool to do the decoration
+    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthEDDecorator
+    DFCommonTruthEDDecorator = DerivationFramework__TruthEDDecorator("DFCommonTruthEDDecorator",
+                                                                     EventInfoName="EventInfo",
+                                                                     EnergyDensityKeys=["TruthIsoCentralEventShape","TruthIsoForwardEventShape"],
+                                                                     DecorationSuffix="_rho"
+                                                                    )
+    ToolSvc += DFCommonTruthEDDecorator
+    kernel +=CfgMgr.DerivationFramework__DerivationKernel("DFCommonTruthEDKernel",
+                                                          AugmentationTools = [DFCommonTruthEDDecorator] )
+
 
 
 def addMiniTruthCollectionLinks(kernel=None, doElectrons=True, doPhotons=True, doMuons=True):
