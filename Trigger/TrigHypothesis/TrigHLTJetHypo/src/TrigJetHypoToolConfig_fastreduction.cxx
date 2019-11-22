@@ -3,7 +3,7 @@
 */
 
 
-#include "TrigJetHypoToolConfig_flownetwork.h"
+#include "TrigJetHypoToolConfig_fastreduction.h"
 
 #include "GaudiKernel/StatusCode.h"
 
@@ -11,7 +11,7 @@
 
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/SingleJetGrouper.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/xAODJetAsIJetFactory.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/groupsMatcherFactory.h"
+// #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/groupsMatcherFactory.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerFactory.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/TrigHLTJetHypoHelper2.h"
 #include "./groupsMatcherFactoryMT.h"
@@ -22,7 +22,7 @@ using TrigCompositeUtils::DecisionID;
 using TrigCompositeUtils::Decision;
 using TrigCompositeUtils::DecisionContainer;
 
-TrigJetHypoToolConfig_flownetwork::TrigJetHypoToolConfig_flownetwork(const std::string& type,
+TrigJetHypoToolConfig_fastreduction::TrigJetHypoToolConfig_fastreduction(const std::string& type,
                                                  const std::string& name,
                                                  const IInterface* parent) :
   base_class(type, name, parent){
@@ -30,10 +30,10 @@ TrigJetHypoToolConfig_flownetwork::TrigJetHypoToolConfig_flownetwork(const std::
 }
 
 
-TrigJetHypoToolConfig_flownetwork::~TrigJetHypoToolConfig_flownetwork(){
+TrigJetHypoToolConfig_fastreduction::~TrigJetHypoToolConfig_fastreduction(){
 }
 
-StatusCode TrigJetHypoToolConfig_flownetwork::initialize() {
+StatusCode TrigJetHypoToolConfig_fastreduction::initialize() {
 
   if(m_conditionMakers.size() != m_treeVec.size()){
     return StatusCode::FAILURE;
@@ -122,7 +122,7 @@ StatusCode TrigJetHypoToolConfig_flownetwork::initialize() {
 
 
 std::optional<ConditionsMT>
-TrigJetHypoToolConfig_flownetwork::getConditions() const {
+TrigJetHypoToolConfig_fastreduction::getConditions() const {
 
   ConditionsMT conditions;
 
@@ -138,18 +138,18 @@ TrigJetHypoToolConfig_flownetwork::getConditions() const {
 
 // following function not used for treeless hypos
 std::size_t
-TrigJetHypoToolConfig_flownetwork::requiresNJets() const {
+TrigJetHypoToolConfig_fastreduction::requiresNJets() const {
   return 0;
 }
 
  
 std::unique_ptr<IJetGrouper>
-TrigJetHypoToolConfig_flownetwork::getJetGrouper() const {
+TrigJetHypoToolConfig_fastreduction::getJetGrouper() const {
   return std::make_unique<SingleJetGrouper>();
 }
 
 std::unique_ptr<IGroupsMatcherMT>
-TrigJetHypoToolConfig_flownetwork::getMatcher () const {
+TrigJetHypoToolConfig_fastreduction::getMatcher () const {
 
   auto opt_conds = getConditions();
 
@@ -157,17 +157,17 @@ TrigJetHypoToolConfig_flownetwork::getMatcher () const {
     return std::unique_ptr<IGroupsMatcherMT>(nullptr);
   }
 
-  return groupsMatcherFactoryMT_Unified(std::move(*opt_conds),
-					m_treeVec,
-					m_sharedNodes);
+  return groupsMatcherFactoryMT_FastReduction(std::move(*opt_conds),
+					      m_treeVec,
+					      m_sharedNodes);
 }
 
-StatusCode TrigJetHypoToolConfig_flownetwork::checkVals() const {
+StatusCode TrigJetHypoToolConfig_fastreduction::checkVals() const {
   return StatusCode::SUCCESS;
 }
 
 std::vector<std::shared_ptr<ICleaner>> 
-TrigJetHypoToolConfig_flownetwork::getCleaners() const {
+TrigJetHypoToolConfig_fastreduction::getCleaners() const {
   std::vector<std::shared_ptr<ICleaner>> v;
   return v;
 }

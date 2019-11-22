@@ -2,11 +2,11 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGJETHYPOTOOLCONFIG_FLOWNETWORK_H
-#define TRIGJETHYPOTOOLCONFIG_FLOWNETWORK_H
+#ifndef TRIGJETHYPOTOOLCONFIG_FASTREDUCTION_H
+#define TRIGJETHYPOTOOLCONFIG_FASTREDUCTION_H
 /********************************************************************
  *
- * NAME:     TrigJetHypoToolConfig_flownetwork.h
+ * NAME:     TrigJetHypoToolConfig_fastreduction.h
  * PACKAGE:  Trigger/TrigHypothesis/TrigHLTJetHypo
  *
  *
@@ -27,15 +27,15 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ConditionsDefs.h"
 #include "./ITrigJetConditionConfig.h"
 
-class TrigJetHypoToolConfig_flownetwork:
+class TrigJetHypoToolConfig_fastreduction:
 public extends<AthAlgTool, ITrigJetHypoToolConfig> {
 
  public:
   
-  TrigJetHypoToolConfig_flownetwork(const std::string& type,
+  TrigJetHypoToolConfig_fastreduction(const std::string& type,
                           const std::string& name,
                           const IInterface* parent);
-  virtual ~TrigJetHypoToolConfig_flownetwork();
+  virtual ~TrigJetHypoToolConfig_fastreduction();
 
   virtual StatusCode initialize() override;
   virtual std::vector<std::shared_ptr<ICleaner>> getCleaners() const override;
