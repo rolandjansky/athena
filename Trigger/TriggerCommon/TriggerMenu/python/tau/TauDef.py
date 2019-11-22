@@ -343,8 +343,12 @@ class L2EFChain_tau(L2EFChainDef):
         needsAlgo2018 = (preselection in preselection2018) or MVATES or TrackRNN or RNN 
         # give unique name to precision sequence
         use = {True:'', False:'no'}
-        MVAprefix = '{0}MVATES_{1}TrackRNN_{2}RNN'.format(use[MVATES], use[TrackRNN], use[RNN])
-
+        # for backward compatibility with Run2 triggers
+        if not TrackRNN:
+            MVAprefix = '{0}MVATES_{1}TrackBDT_{2}RNN'.format(use[MVATES], use[TrackRNN], use[RNN])
+        else:
+            MVAprefix = '{0}MVATES_{1}TrackRNN_{2}RNN'.format(use[MVATES], use[TrackRNN], use[RNN])
+        
         
         #Set the default values
         [trkcore, trkprec] = TrigInDetSequence("Tau", "tau", "IDTrig").getSequence()
