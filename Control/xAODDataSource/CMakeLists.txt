@@ -41,6 +41,14 @@ atlas_add_test( dataFrame_test
    # These patterns are needed to suppress some warning messages in debug builds
    EXTRA_PATTERNS "[0-9a-f][0-9a-f] [0-9a-f][0-9a-f]|\\^~~~|vptr" )
 
+atlas_add_test( dataFrameTypeConversion_test
+   SOURCES test/dataFrameTypeConversion_test.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODBase xAODEgamma
+   xAODDataSourceLib
+   # These patterns are needed to suppress some warning messages in debug builds
+   EXTRA_PATTERNS "[0-9a-f][0-9a-f] [0-9a-f][0-9a-f]|\\^~~~|vptr" )
+
 atlas_add_test( dataFrame_pytest
    SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/dataFrame_test.py )
 

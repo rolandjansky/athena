@@ -5,6 +5,9 @@
 #ifndef XAODDATASOURCE_TEST_HELPERS_H
 #define XAODDATASOURCE_TEST_HELPERS_H
 
+// Framework include(s).
+#include "xAODRootAccess/tools/Message.h"
+
 // System include(s).
 #include <iostream>
 #include <vector>
