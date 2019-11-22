@@ -2346,6 +2346,19 @@ class WriteDAOD_MUON5Stream (JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_MUON5Stream)
 listAODtoDPD.append(WriteDAOD_MUON5Stream.StreamName)
 
+class WriteDAOD_MUON6Stream (JobProperty):
+     """MUON6: MC only"""
+     statusOn = True
+     allowedTypes = ['bool']
+     StoredValue = False
+     StreamName = 'StreamDAOD_MUON6'
+     FileName = ''
+     isVirtual = False
+     DPDMakerScript = "DerivationFrameworkMuons/MUON6.py"
+     pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_MUON6Stream)
+listAODtoDPD.append(WriteDAOD_MUON6Stream.StreamName)
+
 #############################
 # Defined by the L1Calo group
 #############################
