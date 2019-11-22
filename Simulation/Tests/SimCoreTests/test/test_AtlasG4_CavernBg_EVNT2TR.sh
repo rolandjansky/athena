@@ -32,6 +32,6 @@ rm discard.HITS.pool.root
 ArtPackage=$1
 ArtJobName=$2
 # TODO This is a regression test I think. We would also need to compare these files to fixed references
-art.py compare grid --entries 2 ${ArtPackage} ${ArtJobName} --mode=summmary --file=*EVNT.pool.root
+art.py compare grid --entries 2 ${ArtPackage} ${ArtJobName} --mode=summary --file=*EVNT.pool.root
 
 echo  "art-result: $? regression"
