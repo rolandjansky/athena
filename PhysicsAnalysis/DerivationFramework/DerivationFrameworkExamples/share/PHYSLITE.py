@@ -120,13 +120,63 @@ PHYSLITEThinningHelper.AppendToStream( PHYSLITEStream )
 
 # Thin all unless kept by something else
 from DerivationFrameworkExamples.DerivationFrameworkExamplesConf import DerivationFramework__PHYSLITEThinningTool
-PHYSLITEThinningTool = DerivationFramework__PHYSLITEThinningTool(name			 = "PHYSLITEThinningTool",
-                                                         ThinningService	 = PHYSLITEThinningHelper.ThinningSvc(),
-                                                         ContainersToThin  = ["CaloCalTopoClusters",
-                                                                              "egammaClusters",
-                                                                              "GSFTrackParticles"])
+PHYSLITEThinningTool = DerivationFramework__PHYSLITEThinningTool(name              = "PHYSLITEThinningTool",
+                                                                 ThinningService	 = PHYSLITEThinningHelper.ThinningSvc(),
+                                                                 ContainersToThin  = ["CaloCalTopoClusters",
+                                                                                      "egammaClusters",
+                                                                                      "GSFTrackParticles"
+                                                                                      ] )
 ToolSvc += PHYSLITEThinningTool
 thinningTools.append(PHYSLITEThinningTool)
+
+
+# Cluster thinning
+from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
+
+# Caloclusters associated to electrons
+PHYSLITEElectronClusterThinningTool = DerivationFramework__CaloClusterThinning( name                    = "PHYSLITEElectronClusterThinningTool",
+                                                                                ThinningService         = PHYSLITEThinningHelper.ThinningSvc(),
+                                                                                SGKey                   = "AnalysisElectrons_NOSYS",
+                                                                                CaloClCollectionSGKey   = "egammaClusters",
+                                                                                TopoClCollectionSGKey   = "CaloCalTopoClusters",
+                                                                                #SelectionString         = "Electrons.pt > 7*GeV",
+                                                                                ConeSize                = 0.4)
+ToolSvc += PHYSLITEElectronClusterThinningTool
+thinningTools.append(PHYSLITEElectronClusterThinningTool)
+
+# Caloclusters associated to photons
+PHYSLITEPhotonClusterThinningTool = DerivationFramework__CaloClusterThinning( name                    = "PHYSLITEPhotonClusterThinningTool",
+                                                                              ThinningService         = PHYSLITEThinningHelper.ThinningSvc(),
+                                                                              SGKey                   = "AnalysisPhotons_NOSYS",
+                                                                              CaloClCollectionSGKey   = "egammaClusters",
+                                                                              TopoClCollectionSGKey   = "CaloCalTopoClusters",
+                                                                              #SelectionString         = ""Photons.pt > 10*GeV"",
+                                                                              ConeSize                = 0.4)
+ToolSvc += PHYSLITEPhotonClusterThinningTool
+thinningTools.append(PHYSLITEPhotonClusterThinningTool)
+
+
+# GSF track particles thinning
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
+
+# GSF track associated to electrons
+PHYSLITEElectronGsfTrackThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                   = "PHYSLITEElectronGsfTrackThinningTool",
+                                                                                        ThinningService        = PHYSLITEThinningHelper.ThinningSvc(),
+                                                                                        SGKey                  = "AnalysisElectrons_NOSYS",
+                                                                                        BestMatchOnly          = False,
+                                                                                        GSFTrackParticlesKey = "GSFTrackParticles")
+ToolSvc += PHYSLITEElectronGsfTrackThinningTool
+thinningTools.append(PHYSLITEElectronGsfTrackThinningTool)
+
+# GSF track associated to photons
+PHYSLITEPhotonGsfTrackThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                   = "PHYSLITEPhotonGsfTrackThinningTool",
+                                                                                      ThinningService        = PHYSLITEThinningHelper.ThinningSvc(),
+                                                                                      SGKey                  = "AnalysisPhotons_NOSYS",
+                                                                                      BestMatchOnly          = False,
+                                                                                      GSFTrackParticlesKey = "GSFTrackParticles")
+ToolSvc += PHYSLITEPhotonGsfTrackThinningTool
+thinningTools.append(PHYSLITEPhotonGsfTrackThinningTool)
+
 
 # INNER DETECTOR TRACK THINNING
 # See recommedations here: 
@@ -250,7 +300,7 @@ SeqPHYSLITE += pileupSequence
 # Include, and then set up the electron analysis sequence:
 from EgammaAnalysisAlgorithms.ElectronAnalysisSequence import \
     makeElectronAnalysisSequence
-electronSequence = makeElectronAnalysisSequence( dataType, 'LooseLHElectron.GradientLoose', shallowViewOutput = False, deepCopyOutput = True )
+electronSequence = makeElectronAnalysisSequence( dataType, 'LooseLHElectron.NonIso', shallowViewOutput = False, deepCopyOutput = True )
 electronSequence.configure( inputName = 'Electrons',
                             outputName = 'AnalysisElectrons' )
 print( electronSequence ) # For debugging
@@ -261,7 +311,7 @@ SeqPHYSLITE += electronSequence
 # Include, and then set up the photon analysis sequence:                                       
 from EgammaAnalysisAlgorithms.PhotonAnalysisSequence import \
     makePhotonAnalysisSequence
-photonSequence = makePhotonAnalysisSequence( dataType, 'Tight.FixedCutTight', deepCopyOutput = True, recomputeIsEM=True )
+photonSequence = makePhotonAnalysisSequence( dataType, 'Loose.Undefined', deepCopyOutput = True, recomputeIsEM=True )
 photonSequence.configure( inputName = 'Photons',
                           outputName = 'AnalysisPhotons' )
 print( photonSequence ) # For debugging
@@ -271,7 +321,7 @@ SeqPHYSLITE += photonSequence
 # Include, and then set up the muon analysis algorithm sequence:
  
 from MuonAnalysisAlgorithms.MuonAnalysisSequence import makeMuonAnalysisSequence
-muonSequence = makeMuonAnalysisSequence( dataType, shallowViewOutput = False, deepCopyOutput = True, workingPoint = 'Medium.Iso' )
+muonSequence = makeMuonAnalysisSequence( dataType, shallowViewOutput = False, deepCopyOutput = True, workingPoint = 'Loose.NonIso' )
 muonSequence.configure( inputName = 'Muons',
                         outputName = 'AnalysisMuons_%SYS%' )
 print( muonSequence ) # For debugging
@@ -307,7 +357,6 @@ SeqPHYSLITE += CfgMgr.DerivationFramework__DerivationKernel(
    ThinningTools = thinningTools,
    )
 
-#print(SeqPHYSLITE)
 
 #====================================================================
 # CONTENT LIST  
