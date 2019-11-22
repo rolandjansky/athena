@@ -27,7 +27,7 @@ writeBS.perfmon = False # perfmon with athenaHLT doesn't work at the moment
 
 decodeBS = ExecStep.ExecStep("DecodeBS")
 decodeBS.type = 'athena'
-decodeBS.job_options = 'TrigUpgradeTest/decodeBS.py'
+decodeBS.job_options = 'TriggerJobOpts/decodeBS.py'
 decodeBS.input = ''
 decodeBS.explicit_input = True
 decodeBS.args = '--filesInput=output_Child-001._0001.data'

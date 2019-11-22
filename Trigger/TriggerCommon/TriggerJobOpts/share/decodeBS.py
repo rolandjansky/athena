@@ -2,6 +2,11 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
+# Parse option to specify output item list
+ItemList = []
+if 'OutputItemList' in globals().keys():
+    ItemList = globals()['OutputItemList']
+
 # Set message limit to unlimited when general DEBUG is requested
 msgSvc = theApp.service("MessageSvc")
 if msgSvc.OutputLevel<=DEBUG :
@@ -45,12 +50,12 @@ from TriggerJobOpts.TriggerFlags import TriggerFlags
 from TrigEDMConfig.TriggerEDM import getTriggerEDMList
 TriggerFlags.EDMDecodingVersion = 3 # currently hard-coded
 edmList = getTriggerEDMList(TriggerFlags.ESDEDMSet(), TriggerFlags.EDMDecodingVersion())
-ItemList = []
-for edmType, edmKeys in edmList.iteritems():
-    for key in edmKeys:
-        ItemList.append(edmType+'#'+key)
-ItemList += [ "xAOD::EventInfo#EventInfo", "xAOD::EventAuxInfo#EventInfoAux."]
-ItemList += [ 'xAOD::TrigCompositeContainer#*' ]
-ItemList += [ 'xAOD::TrigCompositeAuxContainer#*' ]
+if len(ItemList) == 0:
+    for edmType, edmKeys in edmList.iteritems():
+        for key in edmKeys:
+            ItemList.append(edmType+'#'+key)
+    ItemList += [ "xAOD::EventInfo#EventInfo", "xAOD::EventAuxInfo#EventInfoAux." ]
+    ItemList += [ 'xAOD::TrigCompositeContainer#*' ]
+    ItemList += [ 'xAOD::TrigCompositeAuxContainer#*' ]
 StreamESD.ItemList = list(set(ItemList))
 outSequence += StreamESD
