@@ -549,17 +549,19 @@ void PerfMonMTSvc::report2JsonFile_Mem_Parallel(nlohmann::json& j){
   }
 }
 
-// const?
 bool PerfMonMTSvc::isLoop() const {
   
-  int eventID = getEventID();
-  return (eventID >= 0) ? true : false;
+  EventIDBase::event_number_t eventID = getEventID();
+  return (eventID == std::numeric_limits<EventIDBase::event_number_t>::max()) ? false : true;
 }
 
-int PerfMonMTSvc::getEventID() const {
+/* If this function is invoked outside the event loop, it returns std::numeric_limits<EventIDBase::event_number_t>::max()
+ * This is how we detect whether we are in the event loop or not
+ */
+EventIDBase::event_number_t PerfMonMTSvc::getEventID() const {
 
   auto ctx = Gaudi::Hive::currentContext();
-  int eventID = ctx.eventID().event_number();
+  EventIDBase::event_number_t eventID = ctx.eventID().event_number();
   return eventID;
 }
 

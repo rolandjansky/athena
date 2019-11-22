@@ -118,7 +118,7 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     void report2JsonFile_Mem_Serial(nlohmann::json& j) const;
     void report2JsonFile_Mem_Parallel(nlohmann::json& j);
 
-    int getEventID() const;
+    EventIDBase::event_number_t getEventID() const;
     
     bool isPower(int input, int base); // check if input is power of base or not
     bool isLoop() const; // Returns true if the execution is at the event loop, false o/w.
