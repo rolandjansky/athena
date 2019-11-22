@@ -1,8 +1,8 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 test_strings = [
-    'simple([(10et, 0eta320)])',
-    'simple([(10et, 0eta320)(20et, 0eta320)])',
+    'simple([(38et, 0eta320)])',
+    'simple([(38et, 0eta320)(40et, 0eta320)])',
     'or([] simple([(10et)]) simple([(20et)(40et)]))',
     'and([] simple([(10et)]) simple([(20et)]))',
     'not([] simple([(10et)]))',
@@ -58,6 +58,74 @@ test_strings = [
                                  combgen([] 
                                          dijet([(79djmass91)])
                                          simple([(82et)(83et)])))))""",
+    
+        """partgen([]
+                 partgen([]
+                         simple([(neta, 84et)(peta, 84et)])
+                        )             
+                 combgen([]
+                         qjet([(170qjmass190)])
+                         partgen([]
+                                 combgen([] 
+                                         dijet([(70djmass90)])
+                                         simple([(10et)(11et)]))
+                                 combgen([] 
+                                         dijet([(71djmass91)])
+                                         simple([(12et)(13et)])))))""",
+
+        
+        """partgen([]
+                   combgen([] 
+                           dijet([(djmass90)])
+                           simple([(10et)(11et)]))
+                   combgen([] 
+                           dijet([(79djmass91)])
+                           simple([(12et)(13et)])))""",
+
+            
+        """partgen([]
+                   combgen([] 
+                           dijet([(djmass50)])
+                           simple([(10et)(11et)]))
+                   combgen([] 
+                           dijet([(79djmass101)])
+                           simple([(12et)(13et)])))""",
+
+        
+        """partgen([]
+                 partgen([]
+                         simple([(neta, 50et)(peta, 51et)])
+                        )             
+                 combgen([]
+                         qjet([(300qjmass400)])
+                         partgen([]
+                                 combgen([] 
+                                         dijet([(50djmass200)])
+                                         simple([(10et)(11et)]))
+                                 
+
+                                 combgen([] 
+                                         dijet([(50djmass200)])
+                                         simple([(12et)(13et)]))
+                          )
+                      )
+            )""",
+
+    # use an "And" node for VBENFQ with FB sharing
+        """partgen([]
+                 partgen([]
+                         simple([(neta, 84et)(peta, 84et)])
+                        )             
+                 combgen([]
+                         qjet([(170qjmass190)])
+                         and([]
+                                 combgen([] 
+                                         dijet([(70djmass90)])
+                                         simple([(10et)(11et)]))
+                                 combgen([] 
+                                         dijet([(71djmass91)])
+                                         simple([(12et)(13et)])))))""",
+ 
 ]
 
 

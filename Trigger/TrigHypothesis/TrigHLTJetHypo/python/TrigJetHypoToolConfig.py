@@ -50,7 +50,9 @@ def  trigJetHypoToolHelperFromDict_(chain_label,
         tool = tree.tool
     else:
 
-        if toolSetter.__class__.__name__ == 'ConditionsToolSetterFlowNetwork':
+        if toolSetter.__class__.__name__ in (
+                'ConditionsToolSetterFlowNetwork',
+                'ConditionsToolSetterFastReduction'):
             toolSetter.mod(tree)
             tool = toolSetter.tool
         else:
