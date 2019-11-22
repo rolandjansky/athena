@@ -12,7 +12,7 @@
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 TriggerFlags.triggerMenuSetup = "LS2_emu_v1"
-
+TriggerFlags.generateMenuDiagnostics=True
 
 
 from TrigUpgradeTest.EmuStepProcessingConfig import generateL1DecoderAndChains

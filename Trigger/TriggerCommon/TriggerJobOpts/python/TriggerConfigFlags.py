@@ -92,6 +92,9 @@ def createTriggerFlags():
     # name of the trigger menu
     flags.addFlag('Trigger.triggerMenuSetup', 'LS2_v1')
 
+    # name of the trigger menu
+    flags.addFlag('Trigger.generateMenuDiagnostics', False)
+
     # version of the menu
     from AthenaCommon.AppMgr import release_metadata
     flags.addFlag('Trigger.menuVersion',

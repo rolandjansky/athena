@@ -2,6 +2,7 @@
 
 setMenu             = "LS2_v1"
 endJobAfterGenerate = False
-
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+TriggerFlags.generateMenuDiagnostics = True
 include("TrigUpgradeTest/testHLT_MT.py")
 

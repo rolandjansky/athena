@@ -78,6 +78,7 @@ if __name__ == "__main__":
     Configurable.configurableRun3Behavior=True
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    ConfigFlags.Trigger.generateMenuDiagnostics = True
     setupMenu(ConfigFlags)
 
     from AthenaConfiguration.TestDefaults import defaultTestFiles

@@ -28,7 +28,7 @@
 # Classes to configure the CF graph, via Nodes
 from AthenaCommon.CFElements import parOR, seqAND, seqOR
 from AthenaCommon.AlgSequence import dumpSequence
-from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFDot import  stepCF_DataFlow_to_dot, stepCF_ControlFlow_to_dot, all_DataFlow_to_dot
+from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFDot import  stepCF_DataFlow_to_dot, stepCF_ControlFlow_to_dot, all_DataFlow_to_dot, create_dot
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep
 
@@ -305,7 +305,8 @@ def decisionTree_From_Chains(HLTNode, chains, allDicts, newJO):
         createControlFlowNewJO(HLTNode, CFseq_list)
 
     log.debug("finalDecisions: %s", finalDecisions)
-    all_DataFlow_to_dot(HLTNodeName, CFseq_list)
+    if create_dot():
+        all_DataFlow_to_dot(HLTNodeName, CFseq_list)
 
     # matrix display
     matrixDisplay( CFseq_list )
@@ -490,9 +491,10 @@ def createControlFlow(HLTNode, CFseq_list):
         summary=makeSummary(CFNaming.stepSummaryName(stepCF_name), step_decisions)
         HLTNode += summary
 
-        log.debug("Now Draw...")
-        stepCF_DataFlow_to_dot(recoNodeName, CFseq_list[nstep])
-        stepCF_ControlFlow_to_dot(stepCF)
+        if create_dot():
+            log.debug("Now Draw...")
+            stepCF_DataFlow_to_dot(recoNodeName, CFseq_list[nstep])
+            stepCF_ControlFlow_to_dot(stepCF)
 
         log.info("************* End of step %d, %s", nstep+1, stepCF_name)
 
@@ -599,12 +601,12 @@ def generateDecisionTreeOld(HLTNode, chains, allChainDicts):
         HLTNode += stepFilter
         HLTNode += stepCF
         HLTNode += summary
+        if create_dot():
+            stepCF_DataFlow_to_dot('{}_{}'.format(HLTNode.name(), stepName), CFsequences)
+            stepCF_ControlFlow_to_dot(stepCF)
+            all_DataFlow_to_dot(HLTNode.name(), allSequences)
 
-        stepCF_DataFlow_to_dot('{}_{}'.format(HLTNode.name(), stepName), CFsequences)
-        stepCF_ControlFlow_to_dot(stepCF)
-
-    all_DataFlow_to_dot(HLTNode.name(), allSequences)
-    matrixDisplay( allSequences )
+        matrixDisplay( allSequences )
     return acc
 
 

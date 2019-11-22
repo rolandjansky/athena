@@ -909,6 +909,13 @@ class outputHLTmenuJsonFile(JobProperty):
 
 _flags.append(outputHLTmenuJsonFile)
 
+class generateMenuDiagnostics(JobProperty):
+    """ Generate additional files heling in menu diagnostics """
+    statusOn=True
+    StoredValue=False
+_flags.append( generateMenuDiagnostics )
+
+
 class inputL1TopoConfigFile(JobProperty):
     """Used to define an external L1Topo configuration file. To be
     used together with trigger flag readL1TopoConfigFromXML.

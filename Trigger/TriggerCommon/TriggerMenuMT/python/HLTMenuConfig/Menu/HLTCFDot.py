@@ -5,6 +5,12 @@ from AthenaCommon.AlgSequence import AthSequencer
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import isHypoBase, isInputMakerBase, isFilterAlg
 import itertools
 
+def create_dot():
+    from TriggerJobOpts.TriggerFlags import TriggerFlags
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    return TriggerFlags.generateMenuDiagnostics() or ConfigFlags.Trigger.generateMenuDiagnostics
+
+
 def algColor(alg):
     """ Set given color to Alg type"""
     if isHypoBase(alg):      
