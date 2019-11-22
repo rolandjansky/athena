@@ -7,7 +7,6 @@ atlas_subdir( PmbUtils )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Tools/CoolDozer
                           Tools/PyUtils )
 
 # Install files from the package:
