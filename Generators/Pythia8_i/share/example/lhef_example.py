@@ -1,3 +1,6 @@
+# Note that these are job options, so they can be run like
+# athena lhef_example.py
+
 #import AthenaCommon.AtlasUnixGeneratorJob
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
