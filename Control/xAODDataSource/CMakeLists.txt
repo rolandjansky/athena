@@ -43,9 +43,13 @@ atlas_add_test( dataFrame_test
 
 atlas_add_test( dataFrameTypeConversion_test
    SOURCES test/dataFrameTypeConversion_test.cxx
-   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODBase xAODEgamma
-   xAODDataSourceLib
+   LINK_LIBRARIES xAODRootAccess xAODBase xAODEgamma xAODDataSourceLib
+   # These patterns are needed to suppress some warning messages in debug builds
+   EXTRA_PATTERNS "[0-9a-f][0-9a-f] [0-9a-f][0-9a-f]|\\^~~~|vptr" )
+
+atlas_add_test( dataFrameElementLink_test
+   SOURCES test/dataFrameElementLink_test.cxx
+   LINK_LIBRARIES xAODRootAccess xAODBase xAODEgamma xAODMuon xAODDataSourceLib
    # These patterns are needed to suppress some warning messages in debug builds
    EXTRA_PATTERNS "[0-9a-f][0-9a-f] [0-9a-f][0-9a-f]|\\^~~~|vptr" )
 
