@@ -213,18 +213,20 @@ bool Muon::SimpleSTgcClusterBuilderTool::addStrip(Muon::sTgcPrepData& strip)
       unsigned int lastStrip  = *(--clusterStripNum.end());
 
       ATH_MSG_DEBUG("First strip and last strip are: " << firstStrip << " " << lastStrip);
+      unsigned int diffFirst = (stripNum-firstStrip) > 0 ? stripNum - firstStrip : firstStrip-stripNum ;
+      unsigned int diffLast  = (stripNum-lastStrip)  > 0 ? stripNum - lastStrip  : lastStrip-stripNum ;
       if ( (stripNum==lastStrip+1 || stripNum==firstStrip-1) 
-	   || (m_allowHoles && ( abs(stripNum-lastStrip)<=2 || abs(stripNum-firstStrip)<=2 ))) {
-
+       || (m_allowHoles && ( diffFirst<=2 || diffLast<=2 ))) {
+       
         ATH_MSG_DEBUG(">> inserting a new strip");
-	m_clustersStripNum[multilayer][gasGap].at(i).insert(stripNum);
-	m_clusters[multilayer][gasGap].at(i).push_back(strip);
+	      m_clustersStripNum[multilayer][gasGap].at(i).insert(stripNum);
+	      m_clusters[multilayer][gasGap].at(i).push_back(strip);
 
         ATH_MSG_DEBUG("size after inserting is: " << m_clustersStripNum[multilayer][gasGap].at(i).size());
         ATH_MSG_DEBUG("and the first and last strip are: " 
           << *(m_clustersStripNum[multilayer][gasGap].at(i).begin()) << " "  
           << *(--m_clustersStripNum[multilayer][gasGap].at(i).end())); 
-	return true;
+	      return true;
       }
     }
     // if not, build a new cluster starting from it
