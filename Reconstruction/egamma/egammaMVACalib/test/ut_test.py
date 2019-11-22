@@ -167,7 +167,7 @@ class TestEgammaMVACalib(unittest.TestCase):
             chain.GetEntry(ientry)
             expected_result = chain.exp_output_v1
             result = electron_tool.getMVAEnergy()
-            self.assertAlmostEqual(expected_result, result)
+            self.assertAlmostEqual(expected_result, result, delta=1E-4 * abs(expected_result))
         self.assertGreater(ientry, 20)
         import glob
         import os
@@ -196,7 +196,7 @@ class TestEgammaMVACalib(unittest.TestCase):
             chain.GetEntry(ientry)
             expected_result = chain.exp_output_v1
             result = photon_tool.getMVAEnergy()
-            self.assertAlmostEqual(expected_result, result)
+            self.assertAlmostEqual(expected_result, result, delta=1E-4 * abs(expected_result))
         self.assertGreater(ientry, 20)
         import glob
         import os
