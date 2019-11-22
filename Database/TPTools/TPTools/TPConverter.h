@@ -14,6 +14,8 @@
  **/
 
 #include "AthenaKernel/ITPCnvBase.h"
+#include "AthenaKernel/getThinningCache.h"
+#include "AthenaKernel/ThinningDecisionBase.h"
 #include "ITPConverter.h"
 #include "TopLevelTPCnvBase.h"
 
@@ -242,12 +244,35 @@ public:
   virtual TPObjRef virt_toPersistent( const TransBase_t* trans, MsgStream& log) = 0;
 
   /** Internal interface method that is used to invoke the real conversion
+      method (toPersistent_impl) in the derived converter.
+      @param trans [IN] transient object
+      @param key [IN] SG key of the object being converted.
+      @param log [IN] output message stream
+      @return TPObjRef TP reference to the persistent representation
+      stored in the storage vector of the top-level persistent object
+  */
+  virtual TPObjRef virt_toPersistentWithKey( const TransBase_t* trans,
+                                             const std::string& key,
+                                             MsgStream& log) = 0;
+
+  /** Internal interface method that is used to invoke the real conversion
       method (createTransient) in the derived converter.
       @param index [IN] index of the persistent object in the storage vector
       @param log [IN] output message stream
       @return Transient representation (by pointer)
   */
   virtual TRANS* virt_createTransFromPStore( unsigned index, MsgStream &log ) = 0;
+
+  /** Internal interface method that is used to invoke the real conversion
+      method (createTransient) in the derived converter.
+      @param index [IN] index of the persistent object in the storage vector
+      @param key [IN] SG key of the object being converted
+      @param log [IN] output message stream
+      @return Transient representation (by pointer)
+  */
+  virtual TRANS* virt_createTransFromPStoreWithKey( unsigned index,
+                                                    const std::string& key,
+                                                    MsgStream &log ) = 0;
 
   /** Internal interface method that is used to invoke the real conversion
       method (persToTrans) in the derived converter.
@@ -370,45 +395,21 @@ public:
   /// @copydoc ITPCnvBase::persToTransUntyped()
   virtual void persToTransUntyped(const void* pers,
                                   void* trans,
-                                  MsgStream& log) override
+                                  MsgStream& log)
   {
     persToTrans (reinterpret_cast<const PERS*> (pers),
                  reinterpret_cast<TRANS*> (trans),
                  log);
   }
 
-  /// @copydoc ITPCnvBase::persToTransWithKeyUntyped()
-  virtual void persToTransWithKeyUntyped(const void* pers,
-                                         void* trans,
-                                         const std::string& key,
-                                         MsgStream& log) override
-  {
-    persToTransWithKey (reinterpret_cast<const PERS*> (pers),
-                        reinterpret_cast<TRANS*> (trans),
-                        key,
-                        log);
-  }
-
   /// @copydoc ITPCnvBase::transToPersUntyped()
   virtual void transToPersUntyped(const void* trans,
                                   void* pers,
-                                  MsgStream& log) override
+                                  MsgStream& log)
   {
     transToPers (reinterpret_cast<const TRANS*> (trans),
                  reinterpret_cast<PERS*> (pers),
                  log);
-  }
-
-  /// @copydoc ITPCnvBase::transToPersWithKeyUntyped()
-  virtual void transToPersWithKeyUntyped(const void* trans,
-                                         void* pers,
-                                         const std::string& key,
-                                         MsgStream& log) override
-  {
-    transToPersWithKey (reinterpret_cast<const TRANS*> (trans),
-                        reinterpret_cast<PERS*> (pers),
-                        key,
-                        log);
   }
   
   // Default implementations (usually no need to overwrite)
@@ -437,17 +438,20 @@ public:
       result in the storage vector of the top-level object and returns
       a TP Ref to it.
       @param trans [IN] transient object
+      @param key [IN] SG key of object being converted
       @param log [IN] output message stream
       @return TP reference to the persistent representation
   */
-  TPObjRef toPersistent_impl( const TRANS *trans, MsgStream &log );
+  TPObjRef toPersistentWithKey_impl( const TRANS *trans,
+                                     const std::string& key,
+                                     MsgStream &log );
 
   
   /// @copydoc ITPCnvBase::transientTInfo()
-  virtual const std::type_info& transientTInfo() const override { return typeid(TRANS); }
+  virtual const std::type_info& transientTInfo() const { return typeid(TRANS); }
 
   /// @copydoc ITPCnvBase::persistentTInfo()
-  virtual const std::type_info& persistentTInfo() const override { return typeid(PERS); }
+  virtual const std::type_info& persistentTInfo() const { return typeid(PERS); }
 
 //protected:
   // various virtual "redirector" methods
@@ -459,7 +463,7 @@ public:
    @param trans [IN] empty transient object
    @param log [IN] output message stream   
   */
-  virtual void	pstoreToTrans( unsigned index, TRANS_BASE *trans, MsgStream &log ) override {
+  virtual void	pstoreToTrans( unsigned index, TRANS_BASE *trans, MsgStream &log ) {
      assert (index < m_pStorage->size());
      TRANS* trans_der = dynamic_cast<TRANS*>(trans);
      if (!trans_der) std::abort();
@@ -470,19 +474,43 @@ public:
       Here toPersistent_impl is invoked with the dynamic cast of the
       transient type pointer to it's actual type
   */
-  virtual TPObjRef virt_toPersistent( const TRANS_BASE *trans, MsgStream &log )  override {
+  virtual TPObjRef virt_toPersistent( const TRANS_BASE *trans, MsgStream &log )  {
      const TRANS* trans_der = dynamic_cast<const TRANS*>(trans);
      if (!trans_der) std::abort();
-     return toPersistent_impl( trans_der, log);
+     return toPersistentWithKey_impl( trans_der, "", log);
+  }
+
+  /** @copydoc ITPConverterFor::virt_toPersistentWithKey()
+      Here toPersistentWithKey_impl is invoked with the dynamic cast of the
+      transient type pointer to it's actual type
+  */
+  virtual TPObjRef virt_toPersistentWithKey( const TRANS_BASE *trans,
+                                             const std::string& key,
+                                             MsgStream &log )
+  {
+     const TRANS* trans_der = dynamic_cast<const TRANS*>(trans);
+     if (!trans_der) std::abort();
+     return toPersistentWithKey_impl( trans_der, key, log);
   }
 
   /** This method implements a pure virtual base class method, but
    * should never be called, as abstract type can not be
    * instantiated.  If it is called, it is a TP converter design error
    */
-  virtual TRANS* virt_createTransFromPStore( unsigned, MsgStream& ) override {
+  virtual TRANS* virt_createTransFromPStore( unsigned, MsgStream& ) {     
      throw std::runtime_error(
 	std::string("virt_createTransFromPStore() mothod not supported in TP converter for an abstract class: ")
+	+ typeid(*this).name() );
+     return 0;
+  }
+
+  /** This method implements a pure virtual base class method, but
+   * should never be called, as abstract type can not be
+   * instantiated.  If it is called, it is a TP converter design error
+   */
+  virtual TRANS* virt_createTransFromPStoreWithKey( unsigned, const std::string&, MsgStream& ) {     
+     throw std::runtime_error(
+	std::string("virt_createTransFromPStore() method not supported in TP converter for an abstract class: ")
 	+ typeid(*this).name() );
      return 0;
   }
@@ -514,7 +542,7 @@ public:
   }
 
   /// Reserve 'size' elements for persistent storage
-  virtual void	reservePStorage( size_t size ) override {
+  virtual void	reservePStorage( size_t size ) {
      m_pStorage->reserve( size );
   }
 
@@ -652,6 +680,21 @@ public:
      return createTransient( &(*this->m_pStorage)[index], log );
   }
 
+  /** Internal interface method that is used to invoke the real conversion
+      method (createTransient)
+      @param index [IN] index of the persistent object in the storage vector
+      @param key [IN] SG key of the object being converted
+      @param log [IN] output message stream
+      @return Created transient object (by pointer)
+  */
+  virtual TRANS* virt_createTransFromPStoreWithKey( unsigned index,
+                                                    const std::string& key,
+                                                    MsgStream &log )
+  {
+     assert (index < this->m_pStorage->size());
+     return createTransientWithKey( &(*this->m_pStorage)[index], key, log );
+  }
+
 };
 
 
@@ -674,7 +717,15 @@ public:
 
   /// @copydoc TPAbstractPolyCnvBase::virt_toPersistent()
   virtual TPObjRef virt_toPersistent( const TRANS *trans, MsgStream &log ) {
-      return this->toPersistent_impl( trans, log);
+    return this->toPersistentWithKey_impl( trans, "", log);
+  }
+
+  /// @copydoc TPAbstractPolyCnvBase::virt_toPersistentWithKey()
+  virtual TPObjRef virt_toPersistentWithKey( const TRANS *trans,
+                                             const std::string& key,
+                                             MsgStream &log )
+  {
+     return this->toPersistentWithKey_impl( trans, key, log);
   }
 
   /// @copydoc TPAbstractPolyCnvBase::pstoreToTrans()
@@ -943,6 +994,83 @@ public:
 	    iEnd = transVect->end();
 	  it != iEnd;  ++it ) {
         persVect->push_back( this->toPersistent( &cnv, *it, log ) );
+     }       
+  }
+};
+
+
+
+// --------------------------------------------------------------
+
+/** @class TPThinnedPtrVectorCnv
+  Converter between:
+  transient vector of T* (like DataVector<T>)
+  and persistent vector<T>
+  where T is NOT a polymorphic type!
+  Uses converter CONV for the actual TP conversion
+  Like TPPtrVectorCnv but with const interfaces and supporting thinning on output.
+*/
+template<class TRANS, class PERS, class CONV>
+class TPThinnedPtrVectorCnv : public TPConverterWithKeyBase<TRANS, PERS> {
+public:
+  using TPConverterWithKeyBase<TRANS, PERS>::transToPersWithKey;
+  using TPConverterWithKeyBase<TRANS, PERS>::persToTransWithKey;
+
+
+  TPThinnedPtrVectorCnv() {}
+
+  /** Converts vector of PERS::value_type objects to vector of TRANS::value_type objects,
+      using converter CONV
+      @param persVect [IN] vector of persistent objects
+      @param transVect [IN] vector of transient object
+      @param key [IN] SG key of the object being read.
+      @param log [IN] output message stream
+  */
+  virtual void persToTransWithKey (const PERS* persVect,
+                                   TRANS* transVect,
+                                   const std::string& /*key*/,
+                                   MsgStream &log) const override
+  {
+     transVect->clear();
+     transVect->reserve( persVect->size() );
+     // convert vector entries one by one
+     CONV* cnv = nullptr;
+     for( typename PERS::const_iterator 
+	    it   = persVect->begin(),
+	    iEnd = persVect->end();
+	  it != iEnd;  ++it ) {
+       transVect->push_back( this->createTransFromPStore( &cnv,
+                                                           *it, log ) );
+     }        
+  }
+  
+
+  /** Converts vector of TRANS::value_type objects to vector of PERS::value_type objects,
+      using converter CONV
+      @param transVect [IN] vector of transient object
+      @param persVect [IN] vector of persistent objects
+      @param key [IN] SG key of the object being written.
+      @param log [IN] output message stream
+  */
+  virtual void transToPersWithKey (const TRANS* transVect,
+                                   PERS* persVect,
+                                   const std::string& key,
+                                   MsgStream &log) const override
+  {
+     const SG::ThinningDecisionBase* dec = SG::getThinningDecision (key);
+     persVect->clear();
+     persVect->reserve( transVect->size() );
+     // convert vector entries one by one
+     CONV* cnv = nullptr;
+     size_t ipos = 0;
+     for( typename TRANS::const_iterator 
+	    it   = transVect->begin(),
+	    iEnd = transVect->end();
+	  it != iEnd;  ++it, ++ipos )
+     {
+       if (!dec || !dec->thinned (ipos)) {
+         persVect->push_back( this->toPersistent( &cnv, *it, log ) );
+       }
      }       
   }
 };
