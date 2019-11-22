@@ -28,8 +28,8 @@ DetailedChains = {
                   "FTK"    : 'HLT_(2mu[0-9]+)_bBmumuxv2_Ftk'
                  }
 DetailedL1TopoChains = {
-                      "L1BPH-M-DR-low"    : "HLT_2mu6_bJpsimumu_L1BPH-2M9-2MU6_BPH-2DR15-2MU6",
-                      "L1BPH-M-DR"        : "HLT_2mu6_bUpsimumu_L1BPH-8M15-2MU6_BPH-0DR22-2MU6",
+                      "L1BPH-M-DR-low"    : "HLT_2mu6_bJpsimumu_L1BPH-2M9-2DR15-2MU6",
+                      "L1BPH-M-DR"        : "HLT_2mu6_bUpsimumu_L1BPH-8M15-0DR22-2MU6",
                       #"L1BPH-M"           : "HLT_2mu6_bDimu_L1BPH-8M15-2MU6"
                        }
 EfficiencyChains = {
