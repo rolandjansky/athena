@@ -253,6 +253,7 @@ def getKernel_MultiSimTest(name="ISF_Kernel_MultiSimTest", **kwargs):
 
 ############## Simulator: GenericG4Only ###############
 def getKernel_GenericG4Only(name="ISF_Kernel_GenericG4Only", **kwargs):
+    kwargs.setdefault("MaximumParticleVectorSize"   , 1000000)
     kwargs.setdefault("BeamPipeSimulationSelectors" , [ 'ISF_FullGeant4Selector' ] )
     kwargs.setdefault("IDSimulationSelectors"       , [ 'ISF_FullGeant4Selector' ] )
     kwargs.setdefault("CaloSimulationSelectors"     , [ 'ISF_FullGeant4Selector' ] )
