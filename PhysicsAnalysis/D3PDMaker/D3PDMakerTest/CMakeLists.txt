@@ -20,8 +20,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           MuonSpectrometer/MuonSimEvent
                           PhysicsAnalysis/D3PDMaker/D3PDMakerUtils
-                          Simulation/G4Sim/TrackRecord
-                          TestPolicy )
+                          Simulation/G4Sim/TrackRecord )
 
 # External dependencies:
 find_package( CLHEP )

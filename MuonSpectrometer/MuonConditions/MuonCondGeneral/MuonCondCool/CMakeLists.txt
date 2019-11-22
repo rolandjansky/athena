@@ -12,7 +12,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           GaudiKernel
                           MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondData
-                          TestPolicy
                           PRIVATE
                           Control/AthenaKernel
                           MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondInterface

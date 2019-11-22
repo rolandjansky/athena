@@ -12,7 +12,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           Control/StoreGate
                           GaudiKernel
-                          TestPolicy
                           PRIVATE
                           Database/AthenaPOOL/AthenaPoolUtilities
                           Database/RegistrationServices

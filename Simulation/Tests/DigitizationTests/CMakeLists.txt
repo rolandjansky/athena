@@ -15,8 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Generators/GeneratorObjects
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetRawEvent/InDetRawData
-                          InnerDetector/InDetRawEvent/InDetSimData
-                          TestPolicy )
+                          InnerDetector/InDetRawEvent/InDetSimData )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )

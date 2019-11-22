@@ -28,7 +28,6 @@ atlas_depends_on_subdirs( PRIVATE
                           InnerDetector/InDetRecEvent/InDetPrepRawData
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack
                           LArCalorimeter/LArRecEvent
-                          TestPolicy
                           Tracking/TrkDetDescr/TrkSurfaces
                           Tracking/TrkEvent/TrkCompetingRIOsOnTrack
                           Tracking/TrkEvent/TrkEventPrimitives
