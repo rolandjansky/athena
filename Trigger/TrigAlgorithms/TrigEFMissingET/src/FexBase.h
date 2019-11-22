@@ -23,15 +23,15 @@
 #include <string>
 #include <vector>
 
-/******************************************************************************
- * @class FexBase 
- *
- * Base class for HLT MET Fex algorithms.
- *
- * Responsible for creating the MET object
- *****************************************************************************/
 
 namespace HLT { namespace MET {
+  /****************************************************************************
+  * @class FexBase 
+  *
+  * Base class for HLT MET Fex algorithms.
+  *
+  * Responsible for creating the MET object
+  ***************************************************************************/
   class FexBase : public ::AthReentrantAlgorithm {
     public:
       /// Constructor
