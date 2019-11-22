@@ -224,6 +224,7 @@
 + PhysicsAnalysis/D3PDTools/RootCoreUtils
 + PhysicsAnalysis/D3PDTools/AnaAlgorithm
 + PhysicsAnalysis/DerivationFramework/.*
+- PhysicsAnalysis/DerivationFramework/DerivationFrameworkAnalysisTests
 - PhysicsAnalysis/ElectronPhotonID/ElectronPhotonTagTools
 + PhysicsAnalysis/ElectronPhotonID/.*
 + PhysicsAnalysis/EventTag/TagEvent
