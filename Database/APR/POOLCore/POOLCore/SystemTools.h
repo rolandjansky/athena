@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef POOL_SYSTEMTOOLS_H
@@ -29,9 +29,6 @@ namespace pool{
     
     // return the output level for PFC
     static MSG::Level GetOutputLvl();
-
-    // set PFC output level (env setting still has priority)
-    static MSG::Level SetOutputLvl(MSG::Level new_lvl);
 
     // read the PFC_MSGLEVEL env setting
     static MSG::Level GetOutputLvlFromEnv();
