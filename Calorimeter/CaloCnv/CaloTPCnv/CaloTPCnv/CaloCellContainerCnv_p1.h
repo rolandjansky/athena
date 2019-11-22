@@ -36,15 +36,6 @@ public:
                            CaloCompactCellContainer*,
                            const std::string& key,
                            MsgStream& log) const override;
-
-  // TEMPORARY: Until trigger serialization is fixed.
-  using base_class::persToTrans;
-  void persToTrans (const CaloCompactCellContainer* pers,
-                    CaloCellContainer* trans,
-                    MsgStream& log) const override
-  {
-    persToTransWithKey (pers, trans, "", log);
-  }
 };
 
 
