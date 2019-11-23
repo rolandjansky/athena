@@ -570,7 +570,7 @@ unsigned int TrigCaloDataAccessSvc::prepareLArCollections( const EventContext& c
   cache->larContainer->eventNumber( context.evt() );
   if ( m_applyOffsetCorrection && cache->larContainer->lumiBCIDCheck( context ) ) {
 	SG::ReadHandle<CaloBCIDAverage> avg (m_bcidAvgKey, context);
-	if ( avg.cptr() ) cache->larContainer->updateBCID( *avg.cptr() ); 
+	if ( avg.isValid() ) cache->larContainer->updateBCID( *avg.cptr() ); 
   }
   
   unsigned int status = convertROBs( robFrags, ( cache->larContainer ) );
