@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // METSoftTermsTool.cxx 
@@ -188,7 +188,7 @@ namespace met {
 
   bool METSoftTermsTool::accept(const xAOD::PFO* pfo, const xAOD::Vertex* pv) const
   {
-    if(fabs(pfo->charge())<FLT_MIN) return true;
+    if(!pfo->isCharged()) return true;
     if(fabs(pfo->track(0)->z0() - pv->z())>2) return false;
     return true;
   }
@@ -383,7 +383,7 @@ namespace met {
 	  } else {
 	  // In principle for the charged PFOs we should perhaps add the weights
 	  // but this shouldn't happen if we don't have a jet. 
-	  if(fabs(pfo->charge())<FLT_MIN) {
+	  if(pfo->isCharged()) {
 	    metTerm->add(pfo->pt()*cos(pfo->phi()),
 		         pfo->pt()*sin(pfo->phi()),
 		         pfo->pt());

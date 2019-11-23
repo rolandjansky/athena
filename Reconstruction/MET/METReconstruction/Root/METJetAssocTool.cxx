@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // METJetAssocTool.cxx
@@ -112,7 +112,7 @@ namespace met {
         for (size_t consti = 0; consti < jet->numConstituents(); consti++) {
           const xAOD::PFO *pfo = static_cast<const xAOD::PFO*>(jet->rawConstituent(consti));
 	  ATH_MSG_VERBOSE("Jet constituent PFO, pt :" << pfo->pt() << ", charge: " << pfo->charge());
-          if (fabs(pfo->charge())>FLT_MIN && (!m_cleanChargedPFO || isGoodEoverP(pfo->track(0)))) {
+          if (pfo->isCharged() && (!m_cleanChargedPFO || isGoodEoverP(pfo->track(0)))) {
 	    ATH_MSG_VERBOSE("  Accepted charged PFO, pt " << pfo->pt());
 	    selectedTracks.push_back(pfo);
 	  }
@@ -157,7 +157,7 @@ namespace met {
     jet->getAssociatedObjects<IParticle>(JetAttribute::GhostTrack,jettracks);
 
     for(const auto& pfo : *constits.pfoCont) {
-      if (fabs(pfo->charge())>FLT_MIN) {
+      if (pfo->isCharged()) {
 	const TrackParticle* pfotrk = pfo->track(0);
 	for(const auto& trk : jettracks) {
 	  if (trk==pfotrk) {
