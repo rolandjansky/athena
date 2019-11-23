@@ -27,7 +27,7 @@ TrigConf::HLTPrescaleCondAlg::createFromFile( const std::string & filename ) con
    if( psLoader.loadFile( filename, *pss) ) {
       ATH_MSG_INFO( "HLT prescales set successfully loaded from file " << filename );
    } else {
-      ATH_MSG_ERROR( "Failed loading HLT prescales set from file " << filename );
+      ATH_MSG_WARNING( "Failed loading HLT prescales set from file " << filename ); // will be made an error later
       delete pss;
       pss = nullptr;
    }
@@ -36,17 +36,23 @@ TrigConf::HLTPrescaleCondAlg::createFromFile( const std::string & filename ) con
 
 
 TrigConf::HLTPrescalesSet *
-TrigConf::HLTPrescaleCondAlg::createFromDB( unsigned int psk ) const {
+TrigConf::HLTPrescaleCondAlg::createFromDB( unsigned int psk, bool isRun3 ) const {
+   if( ! isRun3 ) {
+      ATH_MSG_WARNING( "Currently it is not possible to load run 2 prescale sets from the database. Will not load HLT psk " << psk ); 
+      return nullptr;
+   }
    auto pss = new HLTPrescalesSet;
    // load the HLT psk into the HLT prescales set
    ATH_MSG_DEBUG( "Setting up TrigDBHLTPrescalesSetLoader with DB connection " << m_dbConnection.value() );
    TrigConf::TrigDBHLTPrescalesSetLoader psLoader(m_dbConnection);
    psLoader.setLevel(TrigConf::MSGTC::WARNING); 
    ATH_MSG_DEBUG( "Going to load prescales" );
-   if( psLoader.loadHLTPrescales( psk, *pss ) ) {
-      ATH_MSG_INFO( "HLT prescales set successfully loaded from db with key " << psk );
-   } else {
-      ATH_MSG_ERROR( "Failed loading HLT prescales set from db with key " << psk );
+   try {
+      psLoader.loadHLTPrescales( psk, *pss );
+   }
+   catch(std::exception & e) {
+      ATH_MSG_WARNING( "Failed loading HLT prescales set from db with key " << psk ); // will be made an error later
+      ATH_MSG_WARNING( e.what() );
       delete pss;
       pss = nullptr;
    }
@@ -95,7 +101,7 @@ TrigConf::HLTPrescaleCondAlg::initialize() {
       // this is for the case where the reading from the DB was
       // configured and also when we read from COOL online and get a
       // PSK through the JobOptionsSvc
-      m_pssMap[m_psk] = createFromDB( m_psk );
+      m_pssMap[m_psk] = createFromDB( m_psk, true );
 
    }
 
@@ -117,14 +123,21 @@ TrigConf::HLTPrescaleCondAlg::execute(const EventContext& ctx) const {
       if ( pskAL == nullptr ) {
          ATH_MSG_FATAL("Null pointer to the read conditions object of " << m_pskFolderInputKey.key());
          return StatusCode::FAILURE;
-      } else {
-         ATH_MSG_DEBUG("Retrieved the AthenaAttributeList");
       }
       if (not readH.range(range)) {
          ATH_MSG_FATAL("Failed to retrieve validity range for " << readH.key());
          return StatusCode::FAILURE;
       } else {
-         ATH_MSG_DEBUG("Retrieved the current IOV of the readHandle");
+         ATH_MSG_DEBUG("V2 Read handle has range " << range);
+         EventIDBase::number_type run = ctx.eventID().run_number();
+         EventIDBase::number_type lb = ctx.eventID().lumi_block();
+         EventIDBase start, stop;
+         start.set_run_number(run);
+         start.set_lumi_block(lb);
+         stop.set_run_number(run);
+         stop.set_lumi_block(lb+1);
+         range = EventIDRange(start,stop);
+         ATH_MSG_DEBUG("New range " << range);
       }
       // get the prescale key from the cool folder 
       hltPsk = (*pskAL)["HltPrescaleKey"].data<cool::UInt32>();
@@ -143,6 +156,8 @@ TrigConf::HLTPrescaleCondAlg::execute(const EventContext& ctx) const {
 
    }
 
+   ATH_MSG_DEBUG("New range again " << range);
+
 
    HLTPrescalesSet * pss (nullptr);
    if( m_configSource == "FILE" ) {
@@ -155,7 +170,9 @@ TrigConf::HLTPrescaleCondAlg::execute(const EventContext& ctx) const {
 
       if( pssi == m_pssMap.end()) {
 
-         m_pssMap[hltPsk] = createFromDB( hltPsk );
+         bool isRun3 = range.start().run_number()>350000;
+
+         m_pssMap[hltPsk] = createFromDB( hltPsk, isRun3 );
 
          pss = m_pssMap.at( hltPsk );
       }
@@ -170,8 +187,13 @@ TrigConf::HLTPrescaleCondAlg::execute(const EventContext& ctx) const {
    // record HLT prescales set
    SG::WriteCondHandle<TrigConf::HLTPrescalesSet> writeCondHandle(m_hltPrescalesSetOutputKey, ctx);
 
-   ATH_MSG_INFO("Recording HLT prescales set with range " << range);
-   ATH_CHECK( writeCondHandle.record( range, new HLTPrescalesSet(*pss) ) );
+   if( pss == nullptr ) {
+      ATH_MSG_INFO("Recording empty HLT prescales set with range " << range);
+      ATH_CHECK( writeCondHandle.record( range, new HLTPrescalesSet ) );
+   } else {
+      ATH_MSG_INFO("Recording HLT prescales set with range " << range);
+      ATH_CHECK( writeCondHandle.record( range, new HLTPrescalesSet(*pss) ) );
+   }
 
    return StatusCode::SUCCESS;
 }

@@ -131,17 +131,17 @@ def getL1ConfigSvc( flags = None ):
     l1ConfigSvc.ConfigSource = "XML"
     l1XMLFile = findFileInXMLPATH( TriggerFlags.inputLVL1configFile() if flags is None else flags.Trigger.LVL1ConfigFile )
     l1ConfigSvc.XMLMenuFile = l1XMLFile
-    log.info( "Configured LVL1ConfigSvc with run 2 style input file : %s", l1XMLFile )
+    log.info( "For run 2 style menu access configured LVL1ConfigSvc with input file : %s", l1XMLFile )
 
     if generatedFile is None:
         l1ConfigSvc.InputType = "none"
         l1ConfigSvc.JsonFileName = ""
-        log.info( "Configured LVL1ConfigSvc with InputType='none'" )
+        log.info( "For run 3 style menu access configured LVL1ConfigSvc with InputType='none'" )
     else:
         l1ConfigSvc.InputType = "file"
         l1JsonFileName = generatedFile
         l1ConfigSvc.JsonFileName = l1JsonFileName
-        log.info( "Configured LVL1ConfigSvc with InputType='file' and JsonFileName=%s", l1JsonFileName )
+        log.info( "For run 3 style menu access configured LVL1ConfigSvc with InputType='file' and JsonFileName=%s", l1JsonFileName )
 
     theApp.CreateSvc += [ "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc" ]
     return l1ConfigSvc
@@ -190,6 +190,8 @@ def setupHLTPrescaleCondAlg( flags = None ):
     else:
         raise RuntimeError("trigger configuration flag 'trigConfig' starts with %s, which is not understood" % tc["source"])
 
+    hltPrescaleCondAlg.Source = "COOL"
+    hltPrescaleCondAlg.TriggerDB = "TRIGGERDBDEV2"
 
     if flags is None: # old style config
         from AthenaCommon.AlgSequence import AthSequencer

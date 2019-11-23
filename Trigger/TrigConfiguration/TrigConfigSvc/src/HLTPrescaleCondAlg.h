@@ -41,7 +41,7 @@ namespace TrigConf {
       HLTPrescalesSet * createFromFile( const std::string & filename ) const;
 
       // helper function to load a HLT prescales set from a prescale key
-      HLTPrescalesSet * createFromDB( unsigned int psk ) const;
+      HLTPrescalesSet * createFromDB( unsigned int psk, bool isRun3 ) const;
 
       // map the prescale key to a HLTPrescalesSet
       mutable tbb::concurrent_unordered_map<unsigned int, HLTPrescalesSet *> m_pssMap;
