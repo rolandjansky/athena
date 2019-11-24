@@ -5056,7 +5056,7 @@ void IDAlignMonResiduals::MakeTRTEndcapHistograms(MonGroup& al_mon){
       // SALVA
       for (int iWheel=0; iWheel < 40; iWheel++) {
 	m_trt_ec_hist->residualR_ptwheel[endcap][iWheel] = MakeProfile("trt_"+endcapName[endcap]+"_resvspt_wheel_"+intToString(iWheel),
-								       "Unbiased residual vs p_{T} for TRT "+endcapName[endcap]+" "+intToString(iWheel),
+								       "Residual vs p_{T} for TRT "+endcapName[endcap]+" "+intToString(iWheel),
 								       m_nBinsPtRange, -m_PtRange, m_PtRange,
 								       -1.0, 1.0, "Track p_{T} [GeV]","Residual [mm]");
 	RegisterHisto(al_mon,m_trt_ec_hist->residualR_ptwheel[endcap][iWheel]);
