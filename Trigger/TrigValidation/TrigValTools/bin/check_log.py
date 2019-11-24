@@ -33,7 +33,8 @@ errorRegex = [
     'Cannot allocate memory',
     'in state: CONTROLREADY$',
     '^\s*missing data: ',
-    '^\s*can be produced by alg(s): '
+    '^\s*can be produced by alg(s): ',
+    'pure virtual method called'
 ]
 
 # Add list of all builtin Python errors
