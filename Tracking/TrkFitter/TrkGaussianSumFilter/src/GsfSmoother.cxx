@@ -180,8 +180,8 @@ Trk::GsfSmoother::fit(const ForwardTrajectory& forwardTrajectory,
   }
 
   // Perform a measurement update on this new state
-  std::unique_ptr<const Trk::MultiComponentState> updatedState(
-    m_updator->update(*smoothedStateWithScaledError, *firstSmootherMeasurementOnTrack));
+  std::unique_ptr<Trk::MultiComponentState> updatedState= m_updator->update(*smoothedStateWithScaledError, 
+                                                                            *firstSmootherMeasurementOnTrack);
 
   if (!updatedState) {
     ATH_MSG_WARNING("Smoother prediction could not be determined... returning 0");
@@ -215,9 +215,11 @@ Trk::GsfSmoother::fit(const ForwardTrajectory& forwardTrajectory,
      next measurement surface. For the smoother the direction of propagation
      is opposite to the direction of momentum */
 
-    std::unique_ptr<const Trk::MultiComponentState> extrapolatedState =
-      std::unique_ptr<const Trk::MultiComponentState>(m_extrapolator->extrapolate(
-        *updatedState, measurement->associatedSurface(), Trk::oppositeMomentum, false, particleHypothesis));
+    std::unique_ptr<Trk::MultiComponentState> extrapolatedState =m_extrapolator->extrapolate(*updatedState, 
+                                                                                             measurement->associatedSurface(), 
+                                                                                             Trk::oppositeMomentum, 
+                                                                                             false, 
+                                                                                             particleHypothesis);
 
     if (!extrapolatedState) {
       ATH_MSG_DEBUG("Extrapolation to measurement surface failed... rejecting track!");
@@ -238,8 +240,7 @@ Trk::GsfSmoother::fit(const ForwardTrajectory& forwardTrajectory,
     }
 
     // Update newly extrapolated state with MeasurementBase measurement
-    updatedState =
-      std::unique_ptr<const Trk::MultiComponentState>(m_updator->update(*extrapolatedState, *measurement, fitQuality));
+    updatedState =m_updator->update(*extrapolatedState, *measurement, fitQuality);
 
     if (!updatedState) {
       ATH_MSG_WARNING("Could not update the multi-component state... rejecting track!");
@@ -284,7 +285,7 @@ Trk::GsfSmoother::fit(const ForwardTrajectory& forwardTrajectory,
       smoothedTrajectory->push_back(combinedStateOnSurface);
     } else {
       // If combination with forwards state is not done - push back updated state
-      const Trk::MultiComponentStateOnSurface* updatedStateOnSurface = 0;
+      const Trk::MultiComponentStateOnSurface* updatedStateOnSurface = nullptr;
 
       if (trackStateOnSurface == lasttrackStateOnSurface) {
         std::unique_ptr<Trk::TrackParameters> combinedLastState = m_combiner->combine(*updatedState, true);
@@ -309,8 +310,9 @@ Trk::GsfSmoother::fit(const ForwardTrajectory& forwardTrajectory,
 
       if (ccot && trackStateOnSurface == secondLastTrackStateOnSurface) {
 
-        std::unique_ptr<const Trk::MultiComponentState> ccotState = std::unique_ptr<const Trk::MultiComponentState>(
-          addCCOT(updatedStateOnSurface, ccot, smoothedTrajectory.get()));
+        auto ccotState = std::unique_ptr<Trk::MultiComponentState>( 
+          addCCOT(updatedStateOnSurface, ccot, smoothedTrajectory.get())
+          );
         if (ccotState) {
           updatedState = std::move(ccotState);
         }
@@ -401,7 +403,7 @@ Trk::GsfSmoother::combine(const Trk::MultiComponentState& forwardsMultiState,
   return mergedState.release();
 }
 
-const Trk::MultiComponentState*
+Trk::MultiComponentState*
 Trk::GsfSmoother::addCCOT(const Trk::TrackStateOnSurface* currentState,
                           const Trk::CaloCluster_OnTrack* ccot,
                           Trk::SmoothedTrajectory* smoothedTrajectory) const
@@ -419,11 +421,11 @@ Trk::GsfSmoother::addCCOT(const Trk::TrackStateOnSurface* currentState,
   if (measurement) {
     currentSurface = &(measurement->associatedSurface());
   }
-  const Trk::MultiComponentState* extrapolatedState(0);
+  Trk::MultiComponentState* extrapolatedState(0);
   // Extrapolate to the Calo
   if (currentSurface) {
     extrapolatedState = m_extrapolator->extrapolateDirectly(
-      *currentMultiComponentState, ccot->associatedSurface(), Trk::alongMomentum, false, Trk::nonInteracting);
+      *currentMultiComponentState, ccot->associatedSurface(), Trk::alongMomentum, false, Trk::nonInteracting).release();
   }
 
   // Extrapolation Failed continue
@@ -433,7 +435,7 @@ Trk::GsfSmoother::addCCOT(const Trk::TrackStateOnSurface* currentState,
   }
   // Update newly extrapolated state with MeasurementBase measurement
   std::unique_ptr<Trk::FitQualityOnSurface> fitQuality;
-  const Trk::MultiComponentState* updatedState = m_updator->update(*extrapolatedState, *ccot, fitQuality).release();
+  Trk::MultiComponentState* updatedState = m_updator->update(*extrapolatedState, *ccot, fitQuality).release();
 
   if (!updatedState || updatedState == extrapolatedState) {
     ATH_MSG_DEBUG("Update of extrapolated state with CCOT failed .. now not being taken in account");
@@ -441,15 +443,15 @@ Trk::GsfSmoother::addCCOT(const Trk::TrackStateOnSurface* currentState,
     return nullptr;
   }
   delete extrapolatedState;
-  extrapolatedState = 0;
+  extrapolatedState = nullptr;
 
   // Build TSOS with CCOT at the surface of the surface of calo
-  const Trk::MultiComponentStateOnSurface* updatedMCSOS =
+  Trk::MultiComponentStateOnSurface* updatedMCSOS =
     new Trk::MultiComponentStateOnSurface(ccot->clone(), updatedState, fitQuality.release());
 
   // Extrapolate back to the surface nearest the origin
   extrapolatedState = m_extrapolator->extrapolateDirectly(
-    *updatedState, *currentSurface, Trk::oppositeMomentum, false, Trk::nonInteracting);
+    *updatedState, *currentSurface, Trk::oppositeMomentum, false, Trk::nonInteracting).release();
 
   if (!extrapolatedState || extrapolatedState == updatedState) {
     ATH_MSG_DEBUG("Extrapolation from CCOT to 1st measurement failed .. now not being taken in account");
