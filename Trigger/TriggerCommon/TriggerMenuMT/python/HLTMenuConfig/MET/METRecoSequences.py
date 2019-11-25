@@ -6,7 +6,8 @@ from TrigEDMConfig.TriggerEDMRun3 import recordable
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool
 
 from TrigEFMissingET.TrigEFMissingETConf import (
-        EFMissingETAlgMT, EFMissingETFlagsMT, HLT__MET__TrkMHTFex)
+        EFMissingETAlgMT, EFMissingETFlagsMT, HLT__MET__TrkMHTFex,
+        HLT__MET__CellFex)
 from TrigEFMissingET.TrigEFMissingETMTConfig import getMETMonTool
 
 from TrigT2CaloCommon.CaloDef import clusterFSInputMaker
@@ -26,26 +27,16 @@ def metCellRecoSequence():
 
     from TrigT2CaloCommon.CaloDef import HLTFSCellMakerRecoSequence
     (cellMakerSeq, CellsName) = HLTFSCellMakerRecoSequence()
+    alg = HLT__MET__CellFex(
+            name="EFMET_cell",
+            CellName = CellsName,
+            METContainerKey = recordable("HLT_MET_cell"),
+            AbsoluteNoiseThreshold = -1,
+            NegativeNoiseThreshold = -1,
+            MonTool = getMETMonTool() )
 
-    #################################################
-    # Add EFMissingETAlg and associated tools
-    #################################################
-    metAlg = EFMissingETAlgMT( name="EFMET_cell" )
-    flagsTool = EFMissingETFlagsMT("theFlagsTool")
-    metAlg.METContainerKey = recordable("HLT_MET_cell")
-    metAlg.MonTool = getMETMonTool()
-
-    #///////////////////////////////////////////
-    # Add EFMissingETFromCells tool
-    #///////////////////////////////////////////
-    from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFromCellsMT
-    cellTool = EFMissingETFromCellsMT( name="METFromCellsTool" )
-    cellTool.CellsCollection = CellsName
-    metAlg.METTools = [cellTool, flagsTool]
-
-    met_recoSequence = seqAND("metCellRecoSequence", [cellMakerSeq, metAlg])
-
-    seqOut = metAlg.METContainerKey
+    met_recoSequence = seqAND("metCellRecoSequence", [cellMakerSeq, alg])
+    seqOut = alg.METContainerKey
     return (met_recoSequence, seqOut)
 
 
