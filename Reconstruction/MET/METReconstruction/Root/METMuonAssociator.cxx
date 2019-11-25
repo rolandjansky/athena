@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // METMuonAssociator.cxx 
@@ -169,7 +169,7 @@ namespace met {
 
     // One loop over PFOs
     for(const auto& pfo : *constits.pfoCont) {
-      if(fabs(pfo->charge())>1e-9) {
+      if(pfo->isCharged()) {
 	// get charged PFOs by matching the muon ID track
 	// We set a small -ve pt for cPFOs that were rejected
 	// by the ChargedHadronSubtractionTool
@@ -218,7 +218,7 @@ namespace met {
 
     // Get PFOs associated to muons
     for(const auto& pfo : *constits.pfoCont) {      
-      if( fabs(pfo->charge()) > FLT_MIN ) { // Fill list with charged PFOs (using muon tracks)
+      if( pfo->isCharged()) { // Fill list with charged PFOs (using muon tracks)
         const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");
         if( mu && P4Helpers::isInDeltaR(*pfo, *mu, m_Drcone, m_useRapidity) && PVMatchedAcc(*pfo) &&
           ( !m_cleanChargedPFO || isGoodEoverP(pfo->track(0)) ) ){
