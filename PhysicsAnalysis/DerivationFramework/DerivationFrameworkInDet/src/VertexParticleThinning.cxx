@@ -177,6 +177,8 @@ StatusCode DerivationFramework::VertexParticleThinning::doThinning() const
 
 	  for (size_t i = 0; i<(*vtxIt)->nTrackParticles(); i++) {
 	    const xAOD::TrackParticle *trk = (*vtxIt)->trackParticle(i);
+            // Ensure track is from the container we are thinning
+            if(std::find(importedTrackParticles->begin(), importedTrackParticles->end(), trk) == importedTrackParticles->end() ) continue;
 	    int index = trk->index();
 	    mask[index] = true;
 	  }
