@@ -31,7 +31,7 @@ def MuonTrackToSegmentToolCfg(flags,name="MuonTrackToSegmentTool", **kwargs):
 
 def MuonSeededSegmentFinderCfg(flags,name="MuonSeededSegmentFinder", **kwargs):
     from MuonTrackFinderTools.MuonTrackFinderToolsConf import Muon__MuonSeededSegmentFinder
-    from MuonSegmentFindingConfig import DCMathSegmentMakerCfg, MdtMathSegmentFinder # FIXME - should really shift this to RecTools then.
+    from MuonConfig.MuonSegmentFindingConfig import DCMathSegmentMakerCfg, MdtMathSegmentFinder # FIXME - should really shift this to RecTools then.
     result = ComponentAccumulator()
     
     mdt_segment_finder = MdtMathSegmentFinder(flags, name="MCTBMdtMathSegmentFinder", UseChamberTheta = False, AssociationRoadWidth = 1.5)
