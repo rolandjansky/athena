@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 
 # +++++++++++++++++++ beginning of InDetRec_jobOptions.py
 # jobOptions Fragment for ID software
@@ -734,7 +736,7 @@ else:
 
     # ------------------------------------------------------------
     #
-    # --- Pixel Stublets (3 layer tracks) on all PRDs
+    # --- Pixel Stublets (3 layer tracks) on unassociated PRDs
     #
     # ------------------------------------------------------------
     

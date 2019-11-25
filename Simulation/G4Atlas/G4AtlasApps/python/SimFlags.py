@@ -500,6 +500,14 @@ class NeutronEnergyCut(JobProperty):
     allowedTypes = ['int','float']
     StoredValue = -1.
 
+class ApplyNRR(JobProperty):
+    """
+    Apply the Neutron Russian Roulette
+    """
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+
 class NRRThreshold(JobProperty):
     """
     Energy threshold for the Neutron Russian Roulette in MeV
@@ -516,6 +524,14 @@ class NRRWeight(JobProperty):
     allowedTypes = ['int','float']
     StoredValue = 10
 
+class ApplyPRR(JobProperty):
+    """
+    Apply the Photon Russian Roulette
+    """
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+
 class PRRThreshold(JobProperty):
     """
     Energy threshold for the Photon Russian Roulette in MeV
@@ -531,6 +547,15 @@ class PRRWeight(JobProperty):
     statusOn = False
     allowedTypes = ['int','float']
     StoredValue = 10
+
+class DebugStackingAction(JobProperty):
+    """
+    Use the debug stacking action to better control the
+    randomization effects of Russian Roulette algorithms.
+    """
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
 
 class ApplyEMCuts(JobProperty):
     """

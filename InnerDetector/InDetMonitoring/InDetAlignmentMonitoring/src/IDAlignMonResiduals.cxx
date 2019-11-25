@@ -5036,25 +5036,25 @@ void IDAlignMonResiduals::MakeTRTEndcapHistograms(MonGroup& al_mon){
       
       /** Pull noTube vs mu */
 
-      m_trt_ec_hist->pullR_notube_mu[endcap] = MakeHist("trt_ec_pullRnotube_mu_"+endcapName[endcap],"UnBiased Pull vs mu for the TRT Barrel (no tube hits)"+endcapName[endcap],m_nBinsPtRange,-m_PtRange,m_PtRange,100,-m_RangeOfPullHistos,m_RangeOfPullHistos, "#mu","Pull");
+      m_trt_ec_hist->pullR_notube_mu[endcap] = MakeHist("trt_ec_pullRnotube_mu_"+endcapName[endcap],"UnBiased Pull vs mu for the TRT (no tube hits)"+endcapName[endcap],m_nBinsPtRange,-m_PtRange,m_PtRange,100,-m_RangeOfPullHistos,m_RangeOfPullHistos, "#mu","Pull");
       RegisterHisto(al_mon,m_trt_ec_hist->pullR_notube_mu[endcap]);  
     
       
       /** Residuals and pulls vs pT*/
-      m_trt_ec_hist->residualR_pt[endcap] = MakeHist("trt_ec_residualR_pt_"+endcapName[endcap],"UnBiased Residual vs pT for the TRT Barrel "+endcapName[endcap],m_nBinsPtRange,-m_PtRange,m_PtRange,200,-1.0,1.0, "Track p_{T} [GeV]","Residual [mm]");
+      m_trt_ec_hist->residualR_pt[endcap] = MakeHist("trt_ec_residualR_pt_"+endcapName[endcap],"UnBiased Residual vs pT for the TRT "+endcapName[endcap],m_nBinsPtRange,-m_PtRange,m_PtRange,200,-1.0,1.0, "Track p_{T} [GeV]","Residual [mm]");
       RegisterHisto(al_mon,m_trt_ec_hist->residualR_pt[endcap]);  
 			
-      m_trt_ec_hist->pullR_pt[endcap] = MakeHist("trt_ec_pullR_pt_"+endcapName[endcap],"UnBiased Pull vs pT for the TRT Barrel "+endcapName[endcap],m_nBinsPtRange,-m_PtRange,m_PtRange,100,-m_RangeOfPullHistos,m_RangeOfPullHistos, "Track p_{T} [GeV]","Pull");
+      m_trt_ec_hist->pullR_pt[endcap] = MakeHist("trt_ec_pullR_pt_"+endcapName[endcap],"UnBiased Pull vs pT for the TRT "+endcapName[endcap],m_nBinsPtRange,-m_PtRange,m_PtRange,100,-m_RangeOfPullHistos,m_RangeOfPullHistos, "Track p_{T} [GeV]","Pull");
       RegisterHisto(al_mon,m_trt_ec_hist->pullR_pt[endcap]);  
 			
-      m_trt_ec_hist->pullR_notube_pt[endcap] = MakeHist("trt_ec_pullRnotube_pt_"+endcapName[endcap],"UnBiased Pull vs pT for the TRT Barrel (no tube hits)"+endcapName[endcap],m_nBinsPtRange,-m_PtRange,m_PtRange,100,-m_RangeOfPullHistos,m_RangeOfPullHistos, "Track p_{T} [GeV]","Pull");
+      m_trt_ec_hist->pullR_notube_pt[endcap] = MakeHist("trt_ec_pullRnotube_pt_"+endcapName[endcap],"UnBiased Pull vs pT for the TRT (no tube hits)"+endcapName[endcap],m_nBinsPtRange,-m_PtRange,m_PtRange,100,-m_RangeOfPullHistos,m_RangeOfPullHistos, "Track p_{T} [GeV]","Pull");
       RegisterHisto(al_mon,m_trt_ec_hist->pullR_notube_pt[endcap]);  
 
       /** Residuals and pulls vs mu*/
-      m_trt_ec_hist->residualR_mu[endcap] = MakeHist("trt_ec_residualR_mu_"+endcapName[endcap],"UnBiased Residual vs mu for the TRT Barrel "+endcapName[endcap],m_nBinsPtRange,-m_PtRange,m_PtRange,200,-1.0,1.0, "#mu ","Residual [mm]");
+      m_trt_ec_hist->residualR_mu[endcap] = MakeHist("trt_ec_residualR_mu_"+endcapName[endcap],"UnBiased Residual vs mu for the TRT "+endcapName[endcap],m_nBinsPtRange,-m_PtRange,m_PtRange,200,-1.0,1.0, "#mu ","Residual [mm]");
       RegisterHisto(al_mon,m_trt_ec_hist->residualR_mu[endcap]);  
 			
-      m_trt_ec_hist->pullR_mu[endcap] = MakeHist("trt_ec_pullR_mu_"+endcapName[endcap],"UnBiased Pull vs mu for the TRT Barrel "+endcapName[endcap],m_nBinsPtRange,-m_PtRange,m_PtRange,100,-m_RangeOfPullHistos,m_RangeOfPullHistos, "#mu","Pull");
+      m_trt_ec_hist->pullR_mu[endcap] = MakeHist("trt_ec_pullR_mu_"+endcapName[endcap],"UnBiased Pull vs mu for the TRT "+endcapName[endcap],m_nBinsPtRange,-m_PtRange,m_PtRange,100,-m_RangeOfPullHistos,m_RangeOfPullHistos, "#mu","Pull");
       RegisterHisto(al_mon,m_trt_ec_hist->pullR_mu[endcap]);  
     }
 	
