@@ -21,6 +21,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkSegment
                           Tracking/TrkExtrapolation/TrkExInterfaces
                           Tracking/TrkTools/TrkToolInterfaces
+                          Tracking/TrkEvent/TrkEventUtils
                           PRIVATE
                           Database/AthenaPOOL/AthenaPoolUtilities
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack

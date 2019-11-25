@@ -113,9 +113,6 @@ StatusCode InDet::TRT_DetElementsRoadMaker_xk::initialize()
                                &InDet::TRT_DetElementsRoadMaker_xk::mapDetectorElementsProduction,
                                this));
 
-  // Get output print level
-  //
-  m_outputlevel = msg().level()-MSG::DEBUG;
   return sc;
 }
 
@@ -134,8 +131,6 @@ StatusCode InDet::TRT_DetElementsRoadMaker_xk::finalize()
 
 MsgStream& InDet::TRT_DetElementsRoadMaker_xk::dump( MsgStream& out ) const
 {
-  out<<std::endl;
-  if(m_nprint)  return dumpEvent(out);
   return dumpConditions(out);
 }
 
@@ -178,7 +173,7 @@ MsgStream& InDet::TRT_DetElementsRoadMaker_xk::dumpConditions( MsgStream& out ) 
      <<"-------------------|"
      <<std::endl;
 
-  if(!maps || m_outputlevel==0) return out;
+  if(!maps || !msgLvl(MSG::VERBOSE)) return out;
 
   if(m_layer[1].size()) {
     int nl = m_layer[1].size();
@@ -283,11 +278,11 @@ MsgStream& InDet::TRT_DetElementsRoadMaker_xk::dumpConditions( MsgStream& out ) 
 // Dumps event information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::TRT_DetElementsRoadMaker_xk::dumpEvent( MsgStream& out ) const
+MsgStream& InDet::TRT_DetElementsRoadMaker_xk::dumpEvent( MsgStream& out, int size_road) const
 {
   out<<"|--------------------------------------------------------------------|"
      <<std::endl;
-  out<<"| Road size               | "<<std::setw(12)<<m_sizeroad
+  out<<"| Road size               | "<<std::setw(12)<<size_road
      <<"                             |"<<std::endl;
   out<<"|--------------------------------------------------------------------|"
      <<std::endl;
@@ -304,32 +299,12 @@ std::ostream& InDet::TRT_DetElementsRoadMaker_xk::dump( std::ostream& out ) cons
 }
 
 ///////////////////////////////////////////////////////////////////
-// Overload of << operator MsgStream
-///////////////////////////////////////////////////////////////////
-
-MsgStream& InDet::operator    << 
-  (MsgStream& sl,const InDet::TRT_DetElementsRoadMaker_xk& se)
-{ 
-  return se.dump(sl); 
-}
-
-///////////////////////////////////////////////////////////////////
-// Overload of << operator std::ostream
-///////////////////////////////////////////////////////////////////
-
-std::ostream& InDet::operator << 
-  (std::ostream& sl,const InDet::TRT_DetElementsRoadMaker_xk& se)
-{ 
-  return se.dump(sl); 
-}   
-
-///////////////////////////////////////////////////////////////////
 // Main methods for road builder 
 ///////////////////////////////////////////////////////////////////
 
 void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoad
 (const Trk::TrackParameters& Tp,Trk::PropDirection D, 
- std::list<const InDetDD::TRT_BaseElement*>& R) 
+ std::vector<const InDetDD::TRT_BaseElement*>& R) const
 {
 
   double qp   = fabs(500.*Tp.parameters()[4]) ; if( qp < 1.e-10  ) qp = 1.e-10; 
@@ -350,9 +325,10 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoad
     }  
   }
 
-  if(m_outputlevel<0) {
-    m_sizeroad = R.size();
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
+  if (msgLvl(MSG::VERBOSE)) {
+    dumpEvent(msg(MSG::VERBOSE),R.size());
+    dumpConditions(msg(MSG::VERBOSE));
+    msg(MSG::VERBOSE) << endmsg;
   }
 }
 
@@ -362,16 +338,17 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoad
 
 void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoad
 (const Trk::TrackParameters& Tp,Trk::PropDirection D, 
- std::list<std::pair<const InDetDD::TRT_BaseElement*,const Trk::TrackParameters*> >& R)
+ std::vector<std::pair<const InDetDD::TRT_BaseElement*,const Trk::TrackParameters*> >& R) const
 {
- std::list<const InDetDD::TRT_BaseElement*> RE;  detElementsRoad(Tp,D,RE);
+ std::vector<const InDetDD::TRT_BaseElement*> RE;  detElementsRoad(Tp,D,RE);
 
- if(m_outputlevel<0) {
-   m_sizeroad = R.size();
-   m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
+ if (msgLvl(MSG::VERBOSE)) {
+    dumpEvent(msg(MSG::VERBOSE), R.size());
+    dumpConditions(msg(MSG::VERBOSE));
+    msg(MSG::VERBOSE) << endmsg;
  }
 
- std::list<const InDetDD::TRT_BaseElement*>::const_iterator r=RE.begin(),re=RE.end();
+ std::vector<const InDetDD::TRT_BaseElement*>::const_iterator r=RE.begin(),re=RE.end();
  if(r==re) return;
 
  Trk::MagneticFieldMode fieldModeEnum(m_fieldModeEnum);
@@ -403,9 +380,8 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoad
 
 void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoadATL
 (std::list<Amg::Vector3D>& GP,
- std::list<const InDetDD::TRT_BaseElement*>& Road) 
+ std::vector<const InDetDD::TRT_BaseElement*>& Road) const
 {
-  m_sizeroad = 0;
   int n0     = 0;
   int n1     = 0;
   int n2     = 0;
@@ -418,7 +394,14 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoadATL
   for(; n1!=m_map[1]; ++n1) {if(Po[3] < m_layer[1][n1].r()) break;}
   for(; n2!=m_map[2]; ++n2) {if(Po[2] < m_layer[2][n2].z()) break;}
 
-  std::list<InDet::TRT_DetElementLink_xk*> lDE;
+  std::vector<std::pair<const InDet::TRT_DetElementLink_xk*,float> > lDE;
+  std::array<std::vector<std::vector<InDet::TRT_DetElementLink_xk::Used_t> >,3> used;
+  for ( unsigned int module_i=0; module_i<3; ++module_i) {
+     used[module_i].resize( m_layer[module_i].size() );
+     for (unsigned int layer_i=0; layer_i < m_layer[module_i].size(); ++layer_i) {
+        used[module_i][layer_i].resize( m_layer[module_i][layer_i].nElements() );
+     }
+  }
 
   for(++g; g!=ge; ++g) {
 
@@ -437,13 +420,15 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoadATL
     if(Pn[3]>Po[3]) {
       for(; n1<m_map[1]; ++n1) {
 	if(Pn[3] < m_layer[1][n1].r()) break; 
-	m_layer[1][n1].getBarrelDetElementsATL(Po,A,lDE);
+        assert( used.at(1)> n1);
+	m_layer[1][n1].getBarrelDetElementsATL(Po,A,lDE,used[1][n1]);
       }
     }
     else     {
       for(--n1; n1>=0; --n1) {
 	if(Pn[3] > m_layer[1][n1].r()) break; 
-	m_layer[1][n1].getBarrelDetElementsATL(Po,A,lDE);
+        assert( used.at(1).size() > n1 );
+	m_layer[1][n1].getBarrelDetElementsATL(Po,A,lDE,used[1][n1]);
      }
       ++n1;
     }
@@ -454,13 +439,15 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoadATL
 
       for(; n2<m_map[2]; ++n2) {
 	if(Pn[2] < m_layer[2][n2].z()) break; 
-	m_layer[2][n2].getEndcapDetElements(Po,A,lDE);
+        assert( used.at(2)> n2);
+	m_layer[2][n2].getEndcapDetElements(Po,A,lDE,used[2][n2]);
       }
     }
     else     {
       for(--n2; n2>=0; --n2) {
 	if(Pn[2] > m_layer[2][n2].z()) break; 
-	m_layer[2][n2].getEndcapDetElements(Po,A,lDE);
+        assert( used.at(2)> n2);
+	m_layer[2][n2].getEndcapDetElements(Po,A,lDE,used[2][n2]);
       }
       ++n2;
     }
@@ -471,13 +458,15 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoadATL
 
       for(; n0<m_map[0]; ++n0) {
 	if(Pn[2] > m_layer[0][n0].z()) break; 
-	m_layer[0][n0].getEndcapDetElements(Po,A,lDE);
+        assert( used.at(0)> n0);
+	m_layer[0][n0].getEndcapDetElements(Po,A,lDE,used[0][n0]);
       }
     }
      else   {
       for(--n0; n0>=0; --n0) {
 	if(Pn[2] < m_layer[0][n0].z()) break; 
-	m_layer[0][n0].getEndcapDetElements(Po,A,lDE);
+        assert( used.at(0)> n0);
+	m_layer[0][n0].getEndcapDetElements(Po,A,lDE,used[0][n0]);
       } 
       ++n0;
     }
@@ -490,7 +479,7 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoadATL
 
   // Sort list in propogation order
   //
-  std::list<InDet::TRT_DetElementLink_xk*>::iterator l=lDE.begin(),le=lDE.end(),n,m;
+  std::vector<std::pair<const InDet::TRT_DetElementLink_xk*,float> >::iterator l=lDE.begin(),le=lDE.end(),n,m;
   if(l==le) return;
 
   bool nc =true;
@@ -499,8 +488,8 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoadATL
     nc =false; m=l; n=l;
     for(++n; n!=le; ++n) {
    
-      if( (*m)->way() > (*n)->way() ) {
-	InDet::TRT_DetElementLink_xk* d=(*m); (*m)=(*n); (*n)=d; nc=true;
+      if( (*m).second > (*n).second ) {
+         std::pair<const InDet::TRT_DetElementLink_xk*,float>  d=(*m); (*m)=(*n); (*n)=d; nc=true;
       }
       ++m;
     }
@@ -509,9 +498,8 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoadATL
   // Fill list pointers to detector elements
   //
   for(l=lDE.begin(); l!=le; ++l) {
-    Road.push_back((*l)->detElement()); (*l)->clearUsed();
+    Road.push_back((*l).first->detElement());
   }
-  m_sizeroad = Road.size();
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -521,9 +509,8 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoadATL
 
 void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoadCTB
 (std::list<Amg::Vector3D>& GP,
- std::list<const InDetDD::TRT_BaseElement*>& Road) 
+ std::vector<const InDetDD::TRT_BaseElement*>& Road) const
 {
-  m_sizeroad = 0;
   int n1     = 0;
   std::list<Amg::Vector3D>::iterator g=GP.begin(),ge=GP.end();
 
@@ -532,7 +519,14 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoadCTB
 
   for(; n1!=m_map[1]; ++n1) {if(Po[3] < m_layer[1][n1].r()) break;}
 
-  std::list<InDet::TRT_DetElementLink_xk*> lDE;
+  std::vector<std::pair<const InDet::TRT_DetElementLink_xk*,float> > lDE;
+  std::array<std::vector<std::vector<InDet::TRT_DetElementLink_xk::Used_t> >,3> used;
+  for ( unsigned int module_i=0; module_i<3; ++module_i) {
+     used[module_i].resize( m_layer[module_i].size() );
+     for (unsigned int layer_i=0; layer_i < m_layer[module_i].size(); ++layer_i) {
+        used[module_i][layer_i].resize( m_layer[module_i][layer_i].nElements() );
+     }
+  }
 
   for(++g; g!=ge; ++g) {
 
@@ -550,14 +544,16 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoadCTB
     //
     if(Pn[3]>Po[3]) {
       for(; n1<m_map[1]; ++n1) {
-	if(Pn[3] < m_layer[1][n1].r()) break; 
-	m_layer[1][n1].getBarrelDetElementsCTB(Po,A,lDE);
+	if(Pn[3] < m_layer[1][n1].r()) break;
+        assert( used.at(1).size() > n1 );
+	m_layer[1][n1].getBarrelDetElementsCTB(Po,A,lDE,used[1][n1]);
       }
     }
     else     {
       for(--n1; n1>=0; --n1) {
-	if(Pn[3] > m_layer[1][n1].r()) break; 
-	m_layer[1][n1].getBarrelDetElementsCTB(Po,A,lDE);
+	if(Pn[3] > m_layer[1][n1].r()) break;
+        assert( used.at(1).size() > n1 );
+	m_layer[1][n1].getBarrelDetElementsCTB(Po,A,lDE,used[1][n1]);
       }
       ++n1;
     }
@@ -565,7 +561,7 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoadCTB
 
   // Sort list in propogation order
   //
-  std::list<InDet::TRT_DetElementLink_xk*>::iterator l=lDE.begin(),le=lDE.end(),n;
+  std::vector<std::pair<const InDet::TRT_DetElementLink_xk*, float> >::iterator l=lDE.begin(),le=lDE.end(),n;
   if(l==le) return;
 
   bool nc =true;
@@ -574,9 +570,9 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoadCTB
     nc =false; n=l;
     for(++n; n!=le; ++n) {
    
-      if( (*l)->way() > (*n)->way() ) {
-	InDet::TRT_DetElementLink_xk* d = (*l); (*l) = (*n); (*n) = d;
-	nc = true;
+      if( (*l).second > (*n).second ) {
+         std::pair<const InDet::TRT_DetElementLink_xk*,float> d = (*l); (*l) = (*n); (*n) = d;
+         nc = true;
       }
       ++l;
     }
@@ -585,9 +581,8 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoadCTB
   // Fill list pointers to detector elements
   //
   for(l=lDE.begin(); l!=le; ++l) {
-    Road.push_back((*l)->detElement()); (*l)->clearUsed();
+    Road.push_back((*l).first->detElement());
   }
-  m_sizeroad = Road.size();
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -646,6 +641,7 @@ StatusCode InDet::TRT_DetElementsRoadMaker_xk::mapDetectorElementsProduction
       }
       
       std::sort(pE.begin(),pE.end(),InDet::compTRTDetElements_AZ());
+      layer.reserve(pE.size());
       for(unsigned int j=0; j!=pE.size(); ++j) {
 
 	if(pE[j]) {
@@ -668,7 +664,7 @@ StatusCode InDet::TRT_DetElementsRoadMaker_xk::mapDetectorElementsProduction
 	  if(df1>dfm) dfm = df1;
 	  if(df2>dfm) dfm = df2;
 	  InDet::TRT_DetElementLink_xk link(pE[j],P);
-	  layer.add(link);
+	  layer.add(std::move(link));
 	}
       }
       double r  =(rmax+rmin)*.5;
@@ -676,7 +672,7 @@ StatusCode InDet::TRT_DetElementsRoadMaker_xk::mapDetectorElementsProduction
       double z  =(zmax+zmin)*.5;
       double dz =(zmax-zmin)*.5;
       layer.set(r,dr,z,dz,dfm,Wf,Wz);
-      m_layer[N].push_back(layer);
+      m_layer[N].push_back(std::move(layer));
     }
   }
 
@@ -732,7 +728,7 @@ StatusCode InDet::TRT_DetElementsRoadMaker_xk::mapDetectorElementsProduction
 	      if(df2>dfm) dfm = df2;
 	      
 	      InDet::TRT_DetElementLink_xk link(pE[j],P);
-	      layer.add(link);
+	      layer.add(std::move(link));
 	    }
 	  }
 	  double r  =(rmax+rmin)*.5;
@@ -740,7 +736,7 @@ StatusCode InDet::TRT_DetElementsRoadMaker_xk::mapDetectorElementsProduction
 	  double z  =(zmax+zmin)*.5;
 	  double dz =(zmax-zmin)*.5;
 	  layer.set(r,dr,z,dz,dfm,Wf,Wz);
-	  m_layer[N].push_back(layer);
+	  m_layer[N].push_back(std::move(layer));
 	}
       }
     }
@@ -771,8 +767,9 @@ StatusCode InDet::TRT_DetElementsRoadMaker_xk::mapDetectorElementsProduction
   const Trk::CylinderBounds CB(rma+20.,hz+20.);
   m_bounds  = CB;
 
-  if(m_outputlevel<=0) {
-    m_nprint=0; msg(MSG::DEBUG)<<(*this)<<endmsg;
+  if (msgLvl(MSG::DEBUG)) {
+    dumpConditions(msg(MSG::DEBUG));
+    msg(MSG::DEBUG) << endmsg;
   }
 
   return StatusCode::SUCCESS;
@@ -811,7 +808,7 @@ StatusCode InDet::TRT_DetElementsRoadMaker_xk::mapDetectorElementsProduction
 ///////////////////////////////////////////////////////////////////
 
 void InDet::TRT_DetElementsRoadMaker_xk::detElementInformation
-(const InDetDD::TRT_BaseElement& E,double* P) 
+(const InDetDD::TRT_BaseElement& E,double* P) const
 {
   const double pi2=2.*M_PI, pi=M_PI;
 
@@ -971,7 +968,7 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementInformation
 ///////////////////////////////////////////////////////////////////
 
 double InDet::TRT_DetElementsRoadMaker_xk::stepToDetElement
-(const InDetDD::TRT_BaseElement*& de,Amg::Vector3D& r,Amg::Vector3D& a) 
+(const InDetDD::TRT_BaseElement*& de,Amg::Vector3D& r,Amg::Vector3D& a) const
 {
   Amg::Vector3D R  = de->center();
   Amg::Vector3D A  = de->normal();
@@ -984,7 +981,7 @@ double InDet::TRT_DetElementsRoadMaker_xk::stepToDetElement
 ///////////////////////////////////////////////////////////////////
 
 Trk::CylinderBounds InDet::TRT_DetElementsRoadMaker_xk::getBound
-(const Trk::TrackParameters& Tp)
+(const Trk::TrackParameters& Tp) const
 {
   const double cor = 0.8;
 

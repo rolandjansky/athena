@@ -30,7 +30,7 @@
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "TRT_TrackSegmentsTool_xk/TRT_DriftCircleLinkN_xk.h"
 #include "TrkEventUtils/PRDtoTrackMap.h"
-
+#include "TrkEventUtils/EventDataBase.h"
 
 #include "StoreGate/ReadHandleKey.h"
 
@@ -68,22 +68,22 @@ namespace InDet{
       // Methods to initialize tool for new event or region
       ///////////////////////////////////////////////////////////////////
 
-      void newEvent();
-      void newRegion(const std::vector<IdentifierHash>&);
-      void endEvent();
+      virtual std::unique_ptr<InDet::ITRT_TrackSegmentsMaker::IEventData> newEvent () const override;
+      virtual std::unique_ptr<InDet::ITRT_TrackSegmentsMaker::IEventData> newRegion(const std::vector<IdentifierHash>&) const override;
+      void endEvent(InDet::ITRT_TrackSegmentsMaker::IEventData &event_data) const override;
       
       ///////////////////////////////////////////////////////////////////
       // Methods of seeds production without vertex constraint
       ///////////////////////////////////////////////////////////////////
 
-      virtual void find();
+      virtual void find(InDet::ITRT_TrackSegmentsMaker::IEventData &event_data) const override;
 
       ///////////////////////////////////////////////////////////////////
       // Iterator through seeds pseudo collection produced accordingly
       // methods find    
       ///////////////////////////////////////////////////////////////////
       
-      virtual Trk::TrackSegment* next();
+      virtual Trk::TrackSegment* next(InDet::ITRT_TrackSegmentsMaker::IEventData &event_data) const override;
   
       ///////////////////////////////////////////////////////////////////
       // Print internal tool parameters and status
@@ -93,6 +93,43 @@ namespace InDet{
       std::ostream& dump          (std::ostream& out) const;
 
     protected:
+
+      class EventData;
+      class EventData : public Trk::EventDataBase<EventData,InDet::ITRT_TrackSegmentsMaker::IEventData>
+      {
+         friend class TRT_TrackSegmentsMaker_ATLxk;
+      public:
+         EventData(const TRT_DriftCircleContainer *trtcontainer, int cirsize) : m_trtcontainer(trtcontainer) {
+            m_segiterator      = m_segments.begin();
+            m_sizebin_iterator = m_sizebin.rend();
+            m_circles  = new TRT_DriftCircleLinkN_xk[cirsize];
+         }
+
+         ~EventData() { delete [] m_circles; }
+
+      protected:
+         const InDet::TRT_DriftCircleContainer *m_trtcontainer = nullptr;
+         std::unique_ptr<InDet::ITRT_TrackExtensionTool::IEventData>  m_extEventData;
+         int                                    m_clusters  = 0   ;
+         int                                    m_nlocal    = 0   ;
+         int                                    m_nsegments = 0   ;
+
+         std::multimap<unsigned int,unsigned int>  m_bincluster   ;
+         std::multimap<unsigned int,unsigned int>  m_sizebin      ;
+
+         std::list<Trk::TrackSegment*>            m_segments   ;
+         std::list<Trk::TrackSegment*>::iterator  m_segiterator;
+
+         std::multimap<unsigned int,unsigned int>::reverse_iterator m_sizebin_iterator;
+
+         union {unsigned char H[227500*4]; unsigned int H4[227500];} m_U;
+
+         std::multimap<const InDet::TRT_DriftCircle*,Trk::TrackSegment*> m_clusterSegment;
+         std::multimap<int                          ,Trk::TrackSegment*> m_qualitySegment;
+
+         TRT_DriftCircleLinkN_xk*               m_circles  = nullptr;
+
+      };
       
       ///////////////////////////////////////////////////////////////////
       // Protected data and methods
@@ -119,9 +156,6 @@ namespace InDet{
       int                                    m_outputlevel     ;
       int                                    m_nprint          ;
       int                                    m_clustersCut     ;
-      int                                    m_clusters        ;
-      int                                    m_nlocal          ;
-      int                                    m_nsegments       ;
       unsigned int                           m_nlayers[4]      ;
       unsigned int                           m_nstraws[4]      ;
       unsigned int                           m_flayers[4][30]  ;
@@ -143,20 +177,7 @@ namespace InDet{
       int                                    m_nMom            ; // number momentum  channel
       int                                    m_histsize        ; // histogram size
       int                                    m_cirsize         ; // Size of m_circles
-      TRT_DriftCircleLinkN_xk*               m_circles         ;
 
-      union {unsigned char H[227500*4]; unsigned int H4[227500];} m_U;
-      std::multimap<unsigned int,unsigned int> 
-	m_bincluster      ;
-      std::multimap<unsigned int,unsigned int>                  
-	m_sizebin         ;
-      std::multimap<unsigned int,unsigned int>::reverse_iterator  
-	m_sizebin_iterator;
-      std::list<Trk::TrackSegment*>            m_segments   ;
-      std::list<Trk::TrackSegment*>::iterator  m_segiterator;
-
-      std::multimap<const InDet::TRT_DriftCircle*,Trk::TrackSegment*> m_clusterSegment;
-      std::multimap<int                          ,Trk::TrackSegment*> m_qualitySegment;
 
       ///////////////////////////////////////////////////////////////////
       // Protected methods
@@ -165,19 +186,20 @@ namespace InDet{
       StatusCode mapStrawsUpdate    (IOVSVC_CALLBACK_ARGS);
       void magneticFieldInit();
       void mapStrawsProduction();
-      void eraseHistogramm();
-      void fillHistogramm   (float,int);
-      void analyseHistogramm(unsigned char&,unsigned int&,float,int);
-      unsigned int localMaximum(unsigned int);
-      void findLocaly(unsigned int, const Trk::PRDtoTrackMap *prd_to_track_map); 
-      void segmentsPreparation();
-      
-      MsgStream&    dumpConditions(MsgStream   & out) const;
-      MsgStream&    dumpEvent     (MsgStream   & out) const;
-    };
+      void eraseHistogramm(TRT_TrackSegmentsMaker_ATLxk::EventData &event_data) const;
+      void fillHistogramm   (float,int, TRT_TrackSegmentsMaker_ATLxk::EventData &event_data) const;
+      void analyseHistogramm(unsigned char&,unsigned int&,float,int,TRT_TrackSegmentsMaker_ATLxk::EventData &event_data) const;
+      unsigned int localMaximum(unsigned int, TRT_TrackSegmentsMaker_ATLxk::EventData &event_data) const;
 
-  MsgStream&    operator << (MsgStream&   ,const TRT_TrackSegmentsMaker_ATLxk&);
-  std::ostream& operator << (std::ostream&,const TRT_TrackSegmentsMaker_ATLxk&); 
+      void findLocaly(unsigned int,
+                      const Trk::PRDtoTrackMap *prd_to_track_map,
+                      TRT_TrackSegmentsMaker_ATLxk::EventData &event_data) const;
+
+      void segmentsPreparation(TRT_TrackSegmentsMaker_ATLxk::EventData &event_data) const;
+
+      MsgStream&    dumpConditions(MsgStream   & out) const;
+      MsgStream&    dumpEvent     (MsgStream   & out,InDet::ITRT_TrackSegmentsMaker::IEventData &event_data) const;
+    };
 
 } // end of name space
 
