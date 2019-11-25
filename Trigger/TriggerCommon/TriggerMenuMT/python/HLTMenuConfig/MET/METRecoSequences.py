@@ -7,7 +7,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool
 
 from TrigEFMissingET.TrigEFMissingETConf import (
         EFMissingETAlgMT, EFMissingETFlagsMT, HLT__MET__TrkMHTFex,
-        HLT__MET__CellFex)
+        HLT__MET__CellFex, HLT__MET__MHTFex)
 from TrigEFMissingET.TrigEFMissingETMTConfig import getMETMonTool
 
 from TrigT2CaloCommon.CaloDef import clusterFSInputMaker
@@ -31,8 +31,6 @@ def metCellRecoSequence():
             name="EFMET_cell",
             CellName = CellsName,
             METContainerKey = recordable("HLT_MET_cell"),
-            AbsoluteNoiseThreshold = -1,
-            NegativeNoiseThreshold = -1,
             MonTool = getMETMonTool() )
 
     met_recoSequence = seqAND("metCellRecoSequence", [cellMakerSeq, alg])
@@ -124,27 +122,15 @@ def metJetRecoSequence(RoIs = 'FSJETRoI'):
     jetRecoDict={"recoAlg":"a4", "dataType": "tc", "calib": "em", "jetCalib": "subjes", "trkopt": "notrk"}
     (jetSeq, sequenceOut) = RecoFragmentsPool.retrieve( jetRecoSequence, None, dataSource="data", **jetRecoDict )
 
+    alg = HLT__MET__MHTFex(
+            name="EFMET_mht",
+            JetName = sequenceOut,
+            METContainerKey = recordable("HLT_MET_mht"),
+            MonTool = getMETMonTool() )
 
-    #################################################
-    # Add EFMissingETAlg and associated tools
-    #################################################
-    metAlg = EFMissingETAlgMT( name="EFMET_mht" )
-    metAlg.METContainerKey = recordable("HLT_MET_mht")
-    metAlg.MonTool = getMETMonTool()
+    metJetRecoSequence = seqAND("metJetRecoSequence", [jetSeq, alg])
 
-    #///////////////////////////////////////////
-    # Add EFMissingETFromCells tool
-    #///////////////////////////////////////////
-    from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFromJetsMT
-    mhtTool = EFMissingETFromJetsMT( name="METFromJetsTool" )
-
-    mhtTool.JetsCollection=sequenceOut
-    
-    metAlg.METTools = [mhtTool]
-
-    metJetRecoSequence = seqAND("metJetRecoSequence", [jetSeq, metAlg])
-
-    seqOut = metAlg.METContainerKey
+    seqOut = alg.METContainerKey
     return (metJetRecoSequence, seqOut)
 
 def metTrkMHTAthSequence(ConfigFlags):

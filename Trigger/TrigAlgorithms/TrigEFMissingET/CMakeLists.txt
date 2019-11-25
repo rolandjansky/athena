@@ -72,15 +72,14 @@ atlas_add_component( TrigEFMissingET
   src/EFMissingETFlags.cxx
   src/EFMissingETFromHelper.cxx
   src/EFMissingETAlgMT.cxx
-  src/EFMissingETFromCellsMT.cxx
   src/EFMissingETFromClustersMT.cxx
   src/EFMissingETFromClustersPufitMT.cxx
-  src/EFMissingETFromJetsMT.cxx
   src/EFMissingETFlagsMT.cxx
   src/FexBase.cxx
   src/MonGroupBuilder.cxx
   src/TrkMHTFex.cxx
   src/CellFex.cxx
+  src/MHTFex.cxx
   src/components/TrigEFMissingET_entries.cxx
   src/components/TrigEFMissingET_load.cxx
   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS} ${FASTJETCONTRIB_INCLUDE_DIRS} ${FASTJET_INCLUDE_DIRS}
