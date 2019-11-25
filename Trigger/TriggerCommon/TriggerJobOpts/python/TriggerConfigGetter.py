@@ -265,7 +265,7 @@ class TriggerConfigGetter(Configured):
 
             try:
                 self.svc.SetStates( self.ConfigSrcList )
-            except Exception as ex:
+            except Exception:
                 log.error( 'Failed to set state of TrigConfigSvc to %r', self.ConfigSrcList )
             else:
                 log.info('The following configuration services will be tried: %r', self.ConfigSrcList )
