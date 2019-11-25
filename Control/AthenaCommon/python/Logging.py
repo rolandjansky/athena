@@ -74,13 +74,13 @@ class AthenaLogger( logging.getLoggerClass(), object ):
       if self.manager.disable >= logging.ALL:
          return
       if logging.ALL >= self.getEffectiveLevel():
-         apply(self._log, (logging.ALL, msg, args), kwargs)
+         self._log (logging.ALL, msg, args, **kwargs)
 
    def verbose( self, msg, *args, **kwargs):
       if self.manager.disable >= logging.VERBOSE:
          return
       if logging.VERBOSE >= self.getEffectiveLevel():
-         apply(self._log, (logging.VERBOSE, msg, args), kwargs)
+         self._log (logging.VERBOSE, msg, args, **kwargs)
 
 
 # now change the Logger class and make sure to reset the 'root' logger (which
