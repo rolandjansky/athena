@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TileL2Cnv_p2.cxx 
@@ -11,29 +11,26 @@
 /////////////////////////////////////////////////////////////////// 
 
 // TileEvent includes
-#define private public
-#define protected public
 #include "TileEvent/TileL2.h"
-#undef private
-#undef protected
 
 // TileTPCnv includes
 #include "TileTPCnv/TileL2Cnv_p2.h"
+#include <atomic>
 
 // #define TILEL2_DEBUG true
 
 #ifdef TILEL2_DEBUG
-#include "iostream"
+#include <iostream>
 #endif
 
-static bool old_format_print=true;
+static std::atomic<bool> old_format_print=true;
 
-void TileL2Cnv_p2::transToPers(const TileL2* transObj, TileL2_p2* persObj, MsgStream &log) {
+void TileL2Cnv_p2::transToPers(const TileL2* transObj, TileL2_p2* persObj, MsgStream &log) const {
 
-  unsigned int l1 = transObj->m_sumE.size();
-  unsigned int l2 = transObj->m_eta.size();
-  unsigned int l3 = transObj->m_val.size();
-  unsigned int l4 = transObj->m_quality_factor.size();
+  unsigned int l1 = transObj->sumEVec().size();
+  unsigned int l2 = transObj->eta().size();
+  unsigned int l3 = transObj->val().size();
+  unsigned int l4 = transObj->qual().size();
   
   if (l1>15 || l2>15 || l3>15 || l4>15) {
       log << MSG::ERROR << "TOO BIG SIZE IN TileL2Cnv_p2::transToPers !!! " 
@@ -42,19 +39,21 @@ void TileL2Cnv_p2::transToPers(const TileL2* transObj, TileL2_p2* persObj, MsgSt
           << " l3=" << l3
           << " l4=" << l4
           << endmsg;
-      persObj->m_ID = (transObj->m_ID & 0xFFFF);
+      persObj->m_ID = (transObj->identify() & 0xFFFF);
       return;
   }
 
+  persObj->m_fval.clear();
+  persObj->m_ival.clear();
   persObj->m_fval.reserve(l1+4*l2);
   persObj->m_ival.reserve(l3+l4);
 
   // Transverse energy
   if (l1>0) {
     bool allzeros=true;
-    for (std::vector<float>::const_iterator it = transObj->m_sumE.begin(); it != transObj->m_sumE.end(); ++it) {
-      persObj->m_fval.push_back( *it );
-      if (fabs(*it) > 1.e-6) allzeros=false;
+    for (float f : transObj->sumEVec()) {
+      persObj->m_fval.push_back( f );
+      if (fabs(f) > 1.e-6) allzeros=false;
     }
     if (allzeros) {
       l1=0;
@@ -63,51 +62,53 @@ void TileL2Cnv_p2::transToPers(const TileL2* transObj, TileL2_p2* persObj, MsgSt
   }
 
   // Drawer ID
-  persObj->m_ID = (l1<<28) | (l2<<24) | (l3<<20) | (l4<<16) | (transObj->m_ID & 0xFFFF);
+  persObj->m_ID = (l1<<28) | (l2<<24) | (l3<<20) | (l4<<16) | (transObj->identify() & 0xFFFF);
 
   if (l2) {
     // Muon eta coordinate
-    for (std::vector<float>::const_iterator it = transObj->m_eta.begin(); it != transObj->m_eta.end(); ++it) {
-        persObj->m_fval.push_back( *it );
-    }
+    persObj->m_fval.insert (persObj->m_fval.end(),
+                            transObj->eta().begin(),
+                            transObj->eta().end());
 
     // Energy in the innermost layer
-    for (std::vector<float>::const_iterator it = transObj->m_enemu0.begin(); it != transObj->m_enemu0.end(); ++it) {
-        persObj->m_fval.push_back( *it );
-    }
+    persObj->m_fval.insert (persObj->m_fval.end(),
+                            transObj->enemu0().begin(),
+                            transObj->enemu0().end());
+
 
     // Energy in the central layer
-    for (std::vector<float>::const_iterator it = transObj->m_enemu1.begin(); it != transObj->m_enemu1.end(); ++it) {
-        persObj->m_fval.push_back( *it );
-    }
+    persObj->m_fval.insert (persObj->m_fval.end(),
+                            transObj->enemu1().begin(),
+                            transObj->enemu1().end());
 
     // Energy in the outermost layer
-    for (std::vector<float>::const_iterator it = transObj->m_enemu2.begin(); it != transObj->m_enemu2.end(); ++it) {
-        persObj->m_fval.push_back( *it );
-    }
+    persObj->m_fval.insert (persObj->m_fval.end(),
+                            transObj->enemu2().begin(),
+                            transObj->enemu2().end());
 
     if (l1 + 4*l2 != persObj->m_fval.size()) {
       log << MSG::ERROR << "WRONG SIZE IN TileL2Cnv_p2::transToPers !!! " 
           << " l1=" << l1
           << " l2=" << l2
-          << "(" << transObj->m_eta.size()
-          << "," << transObj->m_enemu0.size()
-          << "," << transObj->m_enemu1.size()
-          << "," << transObj->m_enemu2.size()
+          << "(" << transObj->eta().size()
+          << "," << transObj->enemu0().size()
+          << "," << transObj->enemu1().size()
+          << "," << transObj->enemu2().size()
           << ")  f_size=" << persObj->m_fval.size()
           << endmsg;
     }
   }
   
   // Encoded 32-bit words
-  for (std::vector<unsigned int>::const_iterator it = transObj->m_val.begin(); it != transObj->m_val.end(); ++it) {
-      persObj->m_ival.push_back( *it );
-  }
+  persObj->m_ival.insert (persObj->m_ival.end(),
+                          transObj->val().begin(),
+                          transObj->val().end());
 
   // Quality factor
-  for (std::vector<unsigned int>::const_iterator it = transObj->m_quality_factor.begin(); it != transObj->m_quality_factor.end(); ++it) {
-    persObj->m_ival.push_back( *it );
-  }
+  persObj->m_ival.insert (persObj->m_ival.end(),
+                          transObj->qual().begin(),
+                          transObj->qual().end());
+
 
 #ifdef TILEL2_DEBUG
   transObj->print();
@@ -121,13 +122,12 @@ void TileL2Cnv_p2::transToPers(const TileL2* transObj, TileL2_p2* persObj, MsgSt
 }
 
 
-void TileL2Cnv_p2::persToTrans(const TileL2_p2* persObj, TileL2* transObj, MsgStream &log) {
+void TileL2Cnv_p2::persToTrans(const TileL2_p2* persObj, TileL2* transObj, MsgStream &log) const {
 
   unsigned int l0 = persObj->m_ID;
 
   // Drawer ID
-  transObj->m_ID = l0 & 0xFFFF;
-  transObj->setphi();
+  *transObj = TileL2 (l0 & 0xFFFF);
 
   unsigned int l1 = (l0 >> 28) & 0xF;
   unsigned int l2 = (l0 >> 24) & 0xF;
@@ -145,12 +145,10 @@ void TileL2Cnv_p2::persToTrans(const TileL2_p2* persObj, TileL2* transObj, MsgSt
           << endmsg;
       return;
   }
-  
+
+  std::vector<float> sumE;
   if (l1>2 || l3 == 2*l2 ) { // new format, usually with 3 sumE values
-    transObj->m_sumE.reserve(l1);
-    for (unsigned int i=0; i<l1; ++i) {
-      transObj->m_sumE.push_back( (*it++) );
-    }
+    sumE.assign (it, it+l1);  it += l1;
   } else { // decode all old formats (used between July 2010 and June 2011)
            // sumE vector is not saved, only Et might be present
 
@@ -164,56 +162,42 @@ void TileL2Cnv_p2::persToTrans(const TileL2_p2* persObj, TileL2* transObj, MsgSt
           << endmsg;
     }
 
-    transObj->m_sumE.resize(1,0.0);
+    sumE.resize(1,0.0);
 
     if (l3>0) {
-      transObj->m_sumE[0] = (*iti++)-9000.; // take Et from integer applying offset
+      sumE[0] = (*iti++)-9000.; // take Et from integer applying offset
       --l3; // and ignore first integer value - Et is not kept in val array in new format
     }
     
     if (l1>0) { // old format with Et and phi saved as two floats
-      transObj->m_sumE[0] = (*it++); // use Et value from float array directly
+      sumE[0] = (*it++); // use Et value from float array directly
       if (l1>1) ++it; // ignore phi value
     }
   }
 
-  if (l2) {
-    // Muon eta coordinate
-    transObj->m_eta.reserve(l2);
-    for (unsigned int i=0; i<l2; ++i) {
-      transObj->m_eta.push_back( (*it++) );
-    }
+  transObj->setEt (sumE);
 
-    // Energy in the innermost layer
-    transObj->m_enemu0.reserve(l2);
-    for (unsigned int i=0; i<l2; ++i) {
-      transObj->m_enemu0.push_back( (*it++) );
-    }
-
-    // Energy in the central layer
-    transObj->m_enemu1.reserve(l2);
-    for (unsigned int i=0; i<l2; ++i) {
-      transObj->m_enemu1.push_back( (*it++) );
-    }
-
-    // Energy in the outermost layer
-    transObj->m_enemu2.reserve(l2);
-    for (unsigned int i=0; i<l2; ++i) {
-      transObj->m_enemu2.push_back( (*it++) );
-    }
-  }
+  // Muon eta coordinate
+  std::vector<float> eta (it, it+l2);  it += l2;
+  // Energy in the innermost layer
+  std::vector<float> enemu0 (it, it+l2);  it += l2;
+  // Energy in the central layer
+  std::vector<float> enemu1 (it, it+l2);  it += l2;
+  // Energy in the outermost layer
+  std::vector<float> enemu2 (it, it+l2);  it += l2;
   
   // Encoded 32-bit words
-  transObj->m_val.reserve(l3);
-  for (unsigned int i=0; i<l3; ++i) {
-    transObj->m_val.push_back( (*iti++) );
-  }
+  std::vector<unsigned int> val (iti, iti+l3);  iti += l3;
 
   // Quality factor
-  transObj->m_quality_factor.reserve(l4);
-  for (unsigned int i=0; i<l4; ++i) {
-    transObj->m_quality_factor.push_back( (*iti++) );
-  }
+  std::vector<unsigned int> qual (iti, iti+l4);  iti += l4;
+
+  transObj->setMu (std::move(eta),
+                   std::move(enemu0),
+                   std::move(enemu1),
+                   std::move(enemu2),
+                   std::move(qual),
+                   std::move(val));
 
 #ifdef TILEL2_DEBUG
   transObj->print();

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TileDigitsCnv_p1.cxx 
@@ -15,7 +15,7 @@
 
 
 void
-TileDigitsCnv_p1::persToTrans(const TileDigits_p1* persObj, TileDigits* transObj, MsgStream &/*log*/)
+TileDigitsCnv_p1::persToTrans(const TileDigits_p1* persObj, TileDigits* transObj, MsgStream &/*log*/) const
 {
   std::vector<float> digits;
   digits.reserve(persObj->m_digits.size());
@@ -29,7 +29,7 @@ TileDigitsCnv_p1::persToTrans(const TileDigits_p1* persObj, TileDigits* transObj
 
 
 void
-TileDigitsCnv_p1::transToPers(const TileDigits* transObj, TileDigits_p1* persObj, MsgStream &/*log*/)
+TileDigitsCnv_p1::transToPers(const TileDigits* transObj, TileDigits_p1* persObj, MsgStream &/*log*/) const
 {
   persObj->m_channelID = transObj->adc_HWID().get_identifier32().get_compact();
 
