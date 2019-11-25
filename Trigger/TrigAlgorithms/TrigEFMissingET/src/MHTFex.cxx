@@ -43,7 +43,7 @@ namespace HLT { namespace MET {
       std::size_t componentIdx = 0;
       if (ijet->eta() < 0)
         ++componentIdx;
-      if (isCentral(ijet) )
+      if (!isCentral(ijet) )
         componentIdx += 2;
       mhtSums.at(componentIdx) += ijet->p4();
     }

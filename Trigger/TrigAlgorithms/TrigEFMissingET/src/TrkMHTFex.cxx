@@ -120,7 +120,7 @@ namespace HLT { namespace MET {
         std::size_t componentIdx = 0;
         if (ijet->eta() < 0)
           ++componentIdx;
-        if (isCentral(ijet) )
+        if (!isCentral(ijet) )
           componentIdx += 2;
         // Add the jet into the correct component
         mhtSums.at(componentIdx) += ijet->p4();
