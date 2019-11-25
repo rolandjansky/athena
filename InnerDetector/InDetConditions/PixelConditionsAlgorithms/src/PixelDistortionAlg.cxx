@@ -92,7 +92,7 @@ StatusCode PixelDistortionAlg::execute() {
     }
     std::ifstream input(file_name.c_str());
     if (!input.good()) {
-      ATH_MSG_ERROR("Cannot open " << file_name   << " not found! No pixel distortion will be applied.");
+      ATH_MSG_ERROR("Cannot open " << file_name);
       return StatusCode::FAILURE;
     }
     while (!input.eof()) {
