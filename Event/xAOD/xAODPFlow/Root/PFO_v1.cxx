@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // EDM include(s):
@@ -10,6 +10,8 @@
 // Local include(s):
 #include "xAODPFlow/versions/PFO_v1.h"
 #include "xAODPFlow/versions/PFOAttributesAccessor_v1.h"
+
+#include <cmath>
 
 namespace xAOD {
 
@@ -159,7 +161,7 @@ namespace xAOD {
 
   const PFO_v1::FourMom_t& PFO_v1::p4EM() const { 
     
-    if (0.0 != this->charge()) return this->p4();
+    if (this->isCharged()) return this->p4();
 
     if (!m_p4EMCached){
 
@@ -212,7 +214,7 @@ namespace xAOD {
 
    double PFO_v1::ptEM() const {
 
-     if (0.0 != this->charge()) return this->pt();
+     if (this->isCharged()) return this->pt();
 
      const static Accessor<float> accPt("ptEM");
      float pt = accPt(*this);
@@ -222,28 +224,28 @@ namespace xAOD {
 
    double PFO_v1::etaEM() const {
 
-     if (0.0 != this->charge()) return this->eta();
+     if (this->isCharged()) return this->eta();
 
      return p4EM().Eta();
    }
 
    double PFO_v1::phiEM() const {
 
-     if (0.0 != this->charge()) return this->phi();
+     if (this->isCharged()) return this->phi();
 
      return p4EM().Phi();
    }
 
    double PFO_v1::mEM() const {
 
-     if (0.0 != this->charge()) return this->m();
+     if (this->isCharged()) return this->m();
 
      return p4EM().M();
    }
 
    double PFO_v1::eEM() const {
 
-     if (0.0 != this->charge()) return this->e();
+     if (this->isCharged()) return this->e();
 
      const static Accessor<float> accPt("ptEM");
      float pt = accPt(*this);
@@ -256,6 +258,12 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(PFO_v1, float, bdtPi0Score, setBDTPi0Score)
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(PFO_v1, float, centerMag, setCenterMag)
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(PFO_v1, float, charge, setCharge)
+
+  // Define function to avoid issues due to numeric precision when comparing pFO charge to zero
+  // Discussed in https://its.cern.ch/jira/browse/ATLJETMET-796 
+  bool PFO_v1::isCharged() const{
+    return (std::fabs(this->charge())>1e-9);
+  }
 
   /** specaial implementations for floats, for eflowRec JetETMiss variables, to reduce disk space usage */
 

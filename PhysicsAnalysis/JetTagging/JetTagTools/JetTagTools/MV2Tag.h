@@ -110,9 +110,9 @@ namespace Analysis {
     //void setInputVariables(xAOD::Jet& jetToTag, xAOD::BTagging* BTag);//for future
     //void ClearInputs();
     //void PrintInputs();
-    void CreateLocalVariables(std::map<std::string, double> var_map);
-    void ReplaceNaN_andAssign(std::map<std::string, double> var_map);
-    void SetVariableRefs(const std::vector<std::string> inputVars, TMVA::Reader* tmvaReader,
+    void CreateLocalVariables(const std::map<std::string, double> &var_map);
+    void ReplaceNaN_andAssign(const std::map<std::string, double> &var_map);
+    void SetVariableRefs(const std::vector<std::string> &inputVars, TMVA::Reader* tmvaReader,
 			  unsigned &nConfgVar, bool &badVariableFound, std::vector<float*> &inputPointers);
 
     std::vector<float> GetMulticlassResponse(MVAUtils::BDT* bdt) const {

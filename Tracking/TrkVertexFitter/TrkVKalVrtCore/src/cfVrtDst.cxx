@@ -8,6 +8,7 @@
 #include "TrkVKalVrtCore/TrkVKalVrtCore.h"
 #include "TrkVKalVrtCore/Propagator.h"
 #include <iostream>
+#include <array>
 
 namespace Trk {
 
@@ -39,13 +40,13 @@ double cfVrtDstSig( VKVertex * vk, bool UseTrkErr)
 
     extern void cfimp(long int, long int, long int, double *, double *, double *,double *, double *, double *, double *);
     extern void  combinedTrack(long int ICH, double *vrt0, double *pv0, double *covi, double *paro, double *covo);
-    extern std::vector<double> getCnstParticleMom( VKTrack * );
+    extern std::array<double, 4> getCnstParticleMom( VKTrack * );
     extern int cfdinv(double *, double *, long int); 
  /* ------------------------------------------------------------------- */
 
     double ptot[3]= {0.,0.,0.};
     int NTRK = vk->TrackList.size();
-    std::vector<double> pp;
+    std::array<double,4> pp;
     for ( it=0; it<NTRK; it++) {
         pp=getCnstParticleMom( vk->TrackList[it] );
 	ptot[0] += pp[0];

@@ -1,8 +1,8 @@
 SUSYTools
 ====================================
-**Current Main Developers**: stefano.zambito@cern.ch, keisuke.yoshihara@cern.ch
+**Current Main Developers**: sara.alderweireldt@cern.ch, john.kenneth.anders@cern.ch
 
-Note that the newest recommendations are always on the [background forum TWiki page](https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/BackgroundStudies).  Bugs can be reported on [JIRA](https://its.cern.ch/jira/projects/ATLSUSYSW).  In case you are starting out, here are some useful tutorials for [GIT](https://twiki.cern.ch/twiki/bin/view/AtlasComputing/GitTutorial) and [CMake](https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CMakeTestProjectInstructions) as they are used in ATLAS.
+Note that the newest recommendations are always on the [background forum TWiki page](https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/BackgroundStudies).  Bugs can be reported on [JIRA](https://its.cern.ch/jira/projects/ATLSUSYBGF).  In case you are starting out, here are some useful tutorials for [GIT](https://twiki.cern.ch/twiki/bin/view/AtlasComputing/GitTutorial) and [CMake](https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CMakeTestProjectInstructions) as they are used in ATLAS.
 
 ------------------------------------
 Recommended tags

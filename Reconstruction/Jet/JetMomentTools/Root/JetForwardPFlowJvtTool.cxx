@@ -196,13 +196,13 @@
     std::vector<fastjet::PseudoJet> input_pfo;
     std::set<int> charged_pfo;
     for(const xAOD::PFO* pfo : pfos){ 
-      if (pfo->charge()!=0) { 
+      if (pfo->isCharged()) { 
         if (vx.index()==pv_index && fabs((vx.z()-pfo->track(0)->z0())*sin(pfo->track(0)->theta()))>m_dzCut) continue;
         if (vx.index()!=pv_index && &vx!=pfo->track(0)->vertex()) continue;
         input_pfo.push_back(pfoToPseudoJet(pfo, CP::charged, &vx) );
         charged_pfo.insert(pfo->index());
       } 
-      else if (fabs(pfo->eta())<m_neutMaxRap && pfo->charge()==0 && pfo->eEM()>0)
+      else if (fabs(pfo->eta())<m_neutMaxRap && !pfo->isCharged() && pfo->eEM()>0)
       { 
         input_pfo.push_back(pfoToPseudoJet(pfo, CP::neutral, &vx) );
       }
@@ -220,8 +220,8 @@
 
     for (size_t i = 0; i < inclusive_jets.size(); i++) {
       xAOD::Jet* jet=  new xAOD::Jet();
-      xAOD::JetFourMom_t tempjetp4(inclusive_jets[i].pt(),inclusive_jets[i].rap(),inclusive_jets[i].phi(),0);
-      xAOD::JetFourMom_t newArea(inclusive_jets[i].area_4vector().perp(),inclusive_jets[i].area_4vector().rap(),inclusive_jets[i].area_4vector().phi(),0);
+      xAOD::JetFourMom_t tempjetp4(inclusive_jets[i].pt(),inclusive_jets[i].eta(),inclusive_jets[i].phi(),inclusive_jets[i].m());
+      xAOD::JetFourMom_t newArea(inclusive_jets[i].area_4vector().perp(),inclusive_jets[i].area_4vector().eta(),inclusive_jets[i].area_4vector().phi(),inclusive_jets[i].area_4vector().m());
       vertjets->push_back(jet);
       jet->setJetP4(tempjetp4);
       jet->setJetP4("JetConstitScaleMomentum",tempjetp4);
@@ -235,7 +235,7 @@
           chargedpart += constituents[j].perp(); 
         }
       }
-      xAOD::JetFourMom_t chargejetp4(chargedpart,inclusive_jets[i].rap(),inclusive_jets[i].phi(),0);
+      xAOD::JetFourMom_t chargejetp4(chargedpart,inclusive_jets[i].eta(),inclusive_jets[i].phi(),inclusive_jets[i].m());
       jet->setJetP4(m_jetchargedp4,chargejetp4);
     }   
     m_pfoJES->modify(*vertjets);
@@ -256,7 +256,11 @@
     }
     fastjet::PseudoJet psj(pfo_p4);
     // User index is used to identify the xAOD object used for the PSeudoJet
-    psj.set_user_index(pfo->index());
+    if (CP::charged == theCharge){
+      psj.set_user_index(pfo->index());
+    }else{
+      psj.set_user_index(-1);
+    }
 
     return psj;
   }

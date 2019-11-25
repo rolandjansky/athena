@@ -70,6 +70,12 @@ class MuonsDxAODStreamConfigurer:
     allVarContainer['MUON4'] = []
     UseTriggerContent['MUON4'] = False
 
+    ### MUON6
+    Items['MUON6'] = []
+    smSlContainer['MUON6'] = []
+    allVarContainer['MUON6'] = []
+    UseTriggerContent['MUON6'] = True 
+
     checkContainers = {'MUON0':getMUON0TriggerContainers(), 'MUON1':getMUON0TriggerContainers(), 'MUON2':getMUON0TriggerContainers()}
 
     ### Extra variables

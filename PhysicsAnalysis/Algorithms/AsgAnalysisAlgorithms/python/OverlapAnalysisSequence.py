@@ -259,6 +259,19 @@ def makeOverlapAnalysisSequence( dataType,
         if not container[ 1 ]:
             continue
 
+        # Set up a cutflow alg.
+        alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg',
+                               'OverlapRemovalCutFlowDumperAlg_%s' % container[ 0 ] + postfix )
+        alg.histPattern = container[ 0 ] + postfix + '_OR_cflow_%SYS%'
+        if inputLabel:
+            alg.selection = [ '%s,as_char' % inputLabel,
+                              '%s,as_char' % outputLabel ]
+            alg.selectionNCuts = [1, 1]
+        else:
+            alg.selection = [ '%s,as_char' % outputLabel ]
+            alg.selectionNCuts = [1]
+        seq.append( alg, inputPropName = { container[ 0 ] : 'input' } )
+
         # Set up a view container for the type.
         alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
                                'OverlapRemovalViewMaker_%s' % container[ 0 ] + postfix )

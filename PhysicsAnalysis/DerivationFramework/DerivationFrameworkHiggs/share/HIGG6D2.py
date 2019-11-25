@@ -1,7 +1,7 @@
 #********************************************************************
 # HIGG6D2.py (for H+ -> tau-lep)
 # reductionConf flag HIGG6D2 in Reco_tf.py
-# author: sina.bahrasemani@cern.ch
+# author: sina.bahrasemani@cern.ch, elliot.wesley.parrish@cern.ch
 #********************************************************************
 
 # Set up common services and job object. 
@@ -317,8 +317,8 @@ HIGG6D2SlimmingHelper.SmartCollections = [
   "AntiKt4LCTopoJets",
   "AntiKt4EMTopoJets",
   "TauMVATESJets",
-  "BTagging_AntiKt4LCTopo",
-  "BTagging_AntiKt4EMTopo",
+  "AntiKt4EMPFlowJets_BTagging201810",
+  "AntiKt4EMPFlowJets_BTagging201903",
   "InDetTrackParticles",
   "PrimaryVertices",
 ]
@@ -330,7 +330,7 @@ if is_MC:
 HIGG6D2SlimmingHelper.ExtraVariables += ["AntiKt4EMTopoJets.DFCommonJets_Calib_pt.DFCommonJets_Calib_eta"]
 
 HIGG6D2SlimmingHelper.ExtraVariables += [
-  "BTagging_AntiKt4EMTopo.MV2cl100_discriminant.MV2c10rnn_discriminant.MV2c10_discriminant.MV2c10mu_discriminant"\
+  "AntiKt4EMPFlowJets_BTagging201903.MV2cl100_discriminant.MV2c10rnn_discriminant.MV2c10_discriminant.MV2c10mu_discriminant"\
   ".DL1_pb.DL1_pc.DL1_pu.DL1mu_pb.DL1mu_pc.DL1mu_pu.DL1rnn_pb.DL1rnn_pc.DL1rnn_pu"\
   ]
 

@@ -51,7 +51,7 @@ UpgradePerformanceFunctions::UpgradePerformanceFunctions( const std::string& nam
     m_photonFakeFilename("UpgradePerformanceFunctions/CalibArea-00-01/PhotonFakes.root"),
     m_chargeFlipRateFilename("UpgradePerformanceFunctions/CalibArea-00-01/ChargeFlipRates.root"),
     m_METFilename("UpgradePerformanceFunctions/CalibArea-00-01/sumetPU_mu200_ttbar_gold.root"),
-    m_puPath("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/UpgradePerformanceFunctions/")
+    m_puPath("UpgradePerformanceFunctions")
 {
   // This is the default constructor, so we use default settings
   declareProperty( "Layout", m_layout = Step1p6 );
@@ -90,7 +90,7 @@ UpgradePerformanceFunctions::UpgradePerformanceFunctions( const std::string& nam
   declareProperty( "PhotonFakeFile", m_photonFakeFilename = "UpgradePerformanceFunctions/CalibArea-00-01/PhotonFakes.root" );
   declareProperty( "ChargeFlipRateFile", m_chargeFlipRateFilename = "UpgradePerformanceFunctions/CalibArea-00-01/ChargeFlipRates.root" );
   declareProperty( "METFile", m_METFilename = "UpgradePerformanceFunctions/CalibArea-00-01/sumetPU_mu200_ttbar_gold.root" );  
-  declareProperty( "PileupPath", m_puPath = "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/UpgradePerformanceFunctions/" );
+  declareProperty( "PileupPath", m_puPath = "UpgradePerformanceFunctions" );
 
   m_tool_init = false;
 }
@@ -133,7 +133,7 @@ UpgradePerformanceFunctions::UpgradePerformanceFunctions( const std::string& nam
     m_photonFakeFilename("UpgradePerformanceFunctions/CalibArea-00-01/PhotonFakes.root"),
     m_chargeFlipRateFilename("UpgradePerformanceFunctions/CalibArea-00-01/ChargeFlipRates.root"),
     m_METFilename("UpgradePerformanceFunctions/CalibArea-00-01/sumetPU_mu200_ttbar_gold.root"),
-    m_puPath("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/UpgradePerformanceFunctions/")
+    m_puPath("UpgradePerformanceFunctions")
 {
 
   m_layout = layout;
@@ -177,7 +177,7 @@ UpgradePerformanceFunctions::UpgradePerformanceFunctions( const std::string& nam
   declareProperty( "PhotonFakeFile", m_photonFakeFilename = "UpgradePerformanceFunctions/CalibArea-00-01/PhotonFakes.root" );
   declareProperty( "ChargeFlipRateFile", m_chargeFlipRateFilename = "UpgradePerformanceFunctions/CalibArea-00-01/ChargeFlipRates.root" );
   declareProperty( "METFile", m_METFilename = "UpgradePerformanceFunctions/CalibArea-00-01/sumetPU_mu200_ttbar_gold.root" );  
-  declareProperty( "PileupPath", m_puPath = "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/UpgradePerformanceFunctions/" );
+  declareProperty( "PileupPath", m_puPath = "UpgradePerformanceFunctions" );
   
   m_tool_init = false;
 

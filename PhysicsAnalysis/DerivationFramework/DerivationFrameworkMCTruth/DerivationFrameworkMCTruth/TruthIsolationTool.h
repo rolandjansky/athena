@@ -40,6 +40,8 @@ namespace DerivationFramework {
       std::string m_isoVarNamePrefix;
       /// Parameter: Include non-interacting particles?
       bool m_includeNonInteracting;
+      /// Parameter: Use variable radius?
+      bool m_variableR;
 
       std::vector<float> *m_coneSizesSort;
       std::vector<float> *m_coneSizes2;

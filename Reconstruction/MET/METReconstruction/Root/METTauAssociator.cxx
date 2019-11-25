@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // METTauAssociator.cxx
@@ -144,7 +144,7 @@ namespace met {
     TLorentzVector momentum;
     for(const auto& pfo : *constits.pfoCont) {
       bool match = false;
-      if (fabs(pfo->charge())<FLT_MIN) {
+      if (!pfo->isCharged()) {
 	if(xAOD::P4Helpers::isInDeltaR(*seedjet,*pfo,0.2,m_useRapidity) && pfo->eEM()>0) {
 	  ATH_MSG_VERBOSE("Found nPFO with dR " << seedjet->p4().DeltaR(pfo->p4EM()));
 	  match = true;

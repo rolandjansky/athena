@@ -1575,6 +1575,19 @@ class WriteDAOD_EXOT27Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT27Stream)
 listAODtoDPD.append(WriteDAOD_EXOT27Stream.StreamName)
 
+class WriteDAOD_EXOT28Stream(JobProperty):
+    """EXOT28: Soft Unclustered Energy Patterns"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_EXOT28'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkExotics/EXOT28.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT28Stream)
+listAODtoDPD.append(WriteDAOD_EXOT28Stream.StreamName)
+
 #################################
 # Defined by the Jet/MET group
 #################################
@@ -2332,6 +2345,19 @@ class WriteDAOD_MUON5Stream (JobProperty):
      pass
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_MUON5Stream)
 listAODtoDPD.append(WriteDAOD_MUON5Stream.StreamName)
+
+class WriteDAOD_MUON6Stream (JobProperty):
+     """MUON6: MC only"""
+     statusOn = True
+     allowedTypes = ['bool']
+     StoredValue = False
+     StreamName = 'StreamDAOD_MUON6'
+     FileName = ''
+     isVirtual = False
+     DPDMakerScript = "DerivationFrameworkMuons/MUON6.py"
+     pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_MUON6Stream)
+listAODtoDPD.append(WriteDAOD_MUON6Stream.StreamName)
 
 #############################
 # Defined by the L1Calo group

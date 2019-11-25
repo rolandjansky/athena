@@ -67,6 +67,7 @@ namespace CompMassDef
     enum TypeEnum
     {
         UNKNOWN=0,      // Failure/unset/etc
+        FourVecMass,    // Mass directly from the four-vector
         CaloMass,       // Calorimeter jet mass
         TAMass,         // Track-assisted jet mass = (mTrack/pTtrack) * pTcalo
         CombMassQCD,    // Combined jet mass = mCalo*wCalo + mTA*wTA, QCD weights

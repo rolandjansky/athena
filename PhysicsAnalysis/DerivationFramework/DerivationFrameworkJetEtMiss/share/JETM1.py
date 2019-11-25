@@ -10,6 +10,11 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import (
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 #from DerivationFrameworkJetEtMiss.METCommon import *
 
+# Include TRUTH3 containers
+if DerivationFrameworkIsMonteCarlo:
+    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+    addStandardTruthContents()
+
 #====================================================================
 # SKIMMING TOOL
 #====================================================================
@@ -91,31 +96,6 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 jetm1Seq += CfgMgr.DerivationFramework__DerivationKernel("JETM1Kernel" ,
                                                          SkimmingTools = [JETM1ORTool],
                                                          ThinningTools = thinningTools)
-
-# Truth particle thinning
-doTruthThinning = True
-preserveAllDescendants = False
-from AthenaCommon.GlobalFlags import globalflags
-if doTruthThinning and DerivationFrameworkIsMonteCarlo:
-    truth_cond_WZH    = "((abs(TruthParticles.pdgId) >= 23) && (abs(TruthParticles.pdgId) <= 25))"           # W, Z and Higgs
-    truth_cond_Lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16) && (TruthParticles.barcode < 200000))"           # Leptons
-    truth_cond_Quark  = "((abs(TruthParticles.pdgId) <=  5  && (TruthParticles.pt > 10000.)) || (abs(TruthParticles.pdgId) == 6))" # Quarks
-    truth_cond_Gluon  = "((abs(TruthParticles.pdgId) == 21) && (TruthParticles.pt > 10000.))"                # Gluons
-    truth_cond_Photon = "((abs(TruthParticles.pdgId) == 22) && (TruthParticles.pt > 10000.) && (TruthParticles.barcode < 200000))"                # Photon
-    truth_expression = '('+truth_cond_WZH+' || '+truth_cond_Lepton +' || '+truth_cond_Quark+'||'+truth_cond_Gluon+' || '+truth_cond_Photon+')'
-
-    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
-    JETM1TruthThinningTool = DerivationFramework__GenericTruthThinning( name = "JETM1TruthThinningTool",
-                                                                        ThinningService = "JETM1ThinningSvc",
-                                                                        ParticlesKey = "TruthParticles",
-                                                                        VerticesKey = "TruthVertices",
-                                                                        ParticleSelectionString = truth_expression,
-                                                                        PreserveDescendants     = preserveAllDescendants,
-                                                                        PreserveGeneratorDescendants = not preserveAllDescendants,
-                                                                        PreserveAncestors = True)
-
-    ToolSvc += JETM1TruthThinningTool
-    thinningTools.append(JETM1TruthThinningTool)
 
 #====================================================================
 # Special jets
@@ -270,12 +250,8 @@ JETM1SlimmingHelper.ExtraVariables += ["AntiKt10UFOCSSKTrimmedPtFrac5SmallR20Jet
                                        "AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5Jets.zg.rg",
                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.zg.rg"]
 
-
-JETM1SlimmingHelper.AllVariables = [ "MuonTruthParticles", "egammaTruthParticles",
-                                     "TruthParticles", "TruthEvents", "TruthVertices",
-                                     "MuonSegments",
-                                     "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape","Kt4EMPFlowPUSBEventShape","Kt4EMPFlowNeutEventShape",
-                                     ]
+JETM1SlimmingHelper.AllVariables = [ "MuonSegments",
+                                     "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape","Kt4EMPFlowPUSBEventShape","Kt4EMPFlowNeutEventShape"]
 
 # Trigger content
 JETM1SlimmingHelper.IncludeJetTriggerContent = True
@@ -293,6 +269,13 @@ addJetOutputs(JETM1SlimmingHelper,["SmallR","JETM1"],["AntiKt10EMPFlowTrimmedPtF
                "AntiKt4TruthWZJets", "AntiKt10UFOCSSKJets", "AntiKt10UFOCHSJets", "AntiKt10EMPFlowJets", "AntiKt10EMPFlowCSSKJets"
                ]# veto list,
               )
+
+if DerivationFrameworkIsMonteCarlo:
+    JETM1SlimmingHelper.AllVariables += ["TruthMuons", "TruthElectrons", "TruthPhotons"]
+    for truthc in ["TruthTop", "TruthBoson"]:
+        JETM1SlimmingHelper.StaticContent.append("xAOD::TruthParticleContainer#"+truthc)
+        JETM1SlimmingHelper.StaticContent.append("xAOD::TruthParticleAuxContainer#"+truthc+"Aux.")
+
 
 JETM1SlimmingHelper.AppendContentToStream(JETM1Stream)
 JETM1Stream.RemoveItem("xAOD::TrigNavigation#*")

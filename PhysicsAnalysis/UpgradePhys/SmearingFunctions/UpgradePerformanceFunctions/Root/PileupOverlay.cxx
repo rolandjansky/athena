@@ -6,6 +6,8 @@
 #define PILEUPOVERLAY_CXX
 
 #include "UpgradePerformanceFunctions/UpgradePerformanceFunctions.h"
+#include "PathResolver/PathResolver.h"
+
 #include "TFile.h"
 
 namespace Upgrade {
@@ -20,10 +22,20 @@ float UpgradePerformanceFunctions::getPileupJetPtThresholdMeV() {
 
 // Loads the pileup jets
 std::string UpgradePerformanceFunctions::setPileupTemplatesPath() {
+  ATH_MSG_INFO("Loading PU histogram file");
   if ( std::abs(m_avgMu - 140) < 0.1 )
-    return m_puPath + "/PULibrary140_1.root";
-  else if ( std::abs(m_avgMu - 200) < 0.1 )
-    return m_puPath + "/PULibrary200_2.root";
+    {  
+      std::string puFileName = m_puPath + "/PULibrary140_1.root";
+      std::string puFile = PathResolverFindCalibFile(puFileName);
+      ATH_MSG_INFO("Found PU file: " << puFile);
+      return puFile;
+    }
+  else if ( std::abs(m_avgMu - 200) < 0.1 ) {
+        std::string puFileName = m_puPath + "/PULibrary200_2.root";
+	std::string puFile = PathResolverFindCalibFile(puFileName);
+	ATH_MSG_INFO("Found PU file: " << puFile);
+	return puFile;
+  }
   else
     return "";
 }
