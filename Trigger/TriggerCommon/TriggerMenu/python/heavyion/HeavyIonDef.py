@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ########################################################################
 #
@@ -107,7 +107,7 @@ class L2EFChain_HI(L2EFChainDef):
         if 'v2' == self.chainPart['eventShape']:
             from TrigHIHypo.VnHypos import V2_th
             chainSuffix = 'v2_th'+ESth
-            assert V2_th.has_key(int(ESth)), "Missing V2 configuration for threshold "+ESth
+            assert int(ESth) in V2_th.has_key, "Missing V2 configuration for threshold "+ESth
             ESHypo=V2_th[int(ESth)] 
             if self.chainPart['eventShapeVeto'] == 'veto3':
                 from TrigHIHypo.VnHypos import V3_th1_veto
@@ -116,7 +116,7 @@ class L2EFChain_HI(L2EFChainDef):
         elif 'v3' == self.chainPart['eventShape']:
             from TrigHIHypo.VnHypos import V3_th
             chainSuffix = 'v3_th'+ESth
-            assert V3_th.has_key(int(ESth)), "Missing V3 configuration for threshold "+ESth         
+            assert int(ESth) in V3_th.has_key, "Missing V3 configuration for threshold "+ESth         
             ESHypo=V3_th[int(ESth)] 
             if self.chainPart['eventShapeVeto']  == 'veto2':
                 from TrigHIHypo.VnHypos import V2_th1_veto

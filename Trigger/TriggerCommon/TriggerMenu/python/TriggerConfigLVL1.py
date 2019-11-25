@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 import re
 
@@ -73,8 +75,8 @@ class TriggerConfigLVL1:
                 tpcl1.generateMenu()
                 triggerLines = tpcl1.menu.getTriggerLines()
 
-            except Exception, ex:
-                print "Topo menu generation inside L1 menu failed, but will be ignored for the time being",ex 
+            except Exception as ex:
+                print ("Topo menu generation inside L1 menu failed, but will be ignored for the time being",ex )
 
             return triggerLines
 
@@ -118,7 +120,7 @@ class TriggerConfigLVL1:
         from collections import defaultdict
 
         multibitTopoTriggers = defaultdict(list)
-        multibitPattern = re.compile("(?P<line>.*)\[(?P<bit>\d+)\]")
+        multibitPattern = re.compile(r"(?P<line>.*)\[(?P<bit>\d+)\]")
         for triggerline in self.topotriggers:
             m = multibitPattern.match(triggerline.trigger) # tries to match "trigger[bit]"
             if m:
