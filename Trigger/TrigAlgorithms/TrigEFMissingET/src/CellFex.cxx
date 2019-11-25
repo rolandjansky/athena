@@ -6,7 +6,7 @@
  * @package Trigger/TrigAlgorithms/TrigEFMissingET
  * @file CellFex.cxx
  *
- * Implementation of cell fex class
+ * Implementation of the cell fex class
  * @author Jon Burr
  *****************************************************************************/
 
