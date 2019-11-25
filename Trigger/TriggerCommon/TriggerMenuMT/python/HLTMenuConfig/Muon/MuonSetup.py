@@ -504,7 +504,8 @@ def muEFCBRecoSequence( RoIs, name ):
 
     if globalflags.InputFormat.is_bytestream():
       ViewVerifyTrk.DataObjects += [( 'InDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ) ,
-                                    ( 'InDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ) ]
+                                    ( 'InDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
+                                    ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ) ]
     muEFCBRecoSequence += ViewVerifyTrk
 
 
