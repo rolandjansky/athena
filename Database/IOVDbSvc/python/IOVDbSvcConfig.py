@@ -250,6 +250,6 @@ if __name__ == "__main__":
 
     acc  = IOVDbSvcCfg(ConfigFlags)
 
-    f=open('test.pkl','w')
+    f=open('test.pkl','wb')
     acc.store(f)
     f.close()
