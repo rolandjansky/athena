@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // AFP includes
@@ -7,6 +7,9 @@
 
 // AFP_ByteStream2RawCnv includes
 #include "AFP_ByteStream2RawCnv/AFP_RawDataProvider.h"
+
+using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
+
 
 AFP_RawDataProvider::AFP_RawDataProvider(const std::string &name,
                                          ISvcLocator *pSvcLocator)
