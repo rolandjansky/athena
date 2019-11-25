@@ -7,7 +7,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool
 
 from TrigEFMissingET.TrigEFMissingETConf import (
         EFMissingETAlgMT, EFMissingETFlagsMT, HLT__MET__TrkMHTFex,
-        HLT__MET__CellFex, HLT__MET__MHTFex)
+        HLT__MET__CellFex, HLT__MET__MHTFex, HLT__MET__TCFex)
 from TrigEFMissingET.TrigEFMissingETMTConfig import getMETMonTool
 
 from TrigT2CaloCommon.CaloDef import clusterFSInputMaker
@@ -51,25 +51,15 @@ def metClusterRecoSequence():
     from TrigT2CaloCommon.CaloDef import HLTFSTopoRecoSequence
     (tcSeq, ClustersName) = HLTFSTopoRecoSequence()
 
-    #################################################
-    # Add EFMissingETAlg and associated tools
-    #################################################
-    metAlg = EFMissingETAlgMT( name="EFMET_tc" )
-    metAlg.METContainerKey = recordable("HLT_MET_tc")
-    metAlg.MonTool = getMETMonTool()
+    alg = HLT__MET__TCFex(
+            name="EFMET_tc",
+            ClusterName = ClustersName,
+            METContainerKey = recoSequence("HLT_MET_tc"),
+            MonTool = getMETMonTool() )
 
-    #///////////////////////////////////////////
-    # Add EFMissingETFromClusters tool
-    #///////////////////////////////////////////
-    from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFromClustersMT
-    clusterTool = EFMissingETFromClustersMT( name="METFromClustersTool" )
-    clusterTool.ClustersCollection = ClustersName
+    metClusterRecoSequence = seqAND("metClusterRecoSequence", [tcSeq, alg])
 
-    metAlg.METTools = [clusterTool]
-
-    metClusterRecoSequence = seqAND("metClusterRecoSequence", [tcSeq, metAlg])
-
-    seqOut = metAlg.METContainerKey
+    seqOut = alg.METContainerKey
     return (metClusterRecoSequence, seqOut)
 
 
