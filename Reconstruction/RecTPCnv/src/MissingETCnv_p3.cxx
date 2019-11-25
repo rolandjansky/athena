@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -60,11 +60,11 @@ void MissingETCnv_p3::persToTrans( MissingET* trans, std::vector<float>::const_i
 	trans->m_ex     = (*i);++i;
 	trans->m_ey     = (*i);++i;
 	trans->m_etSum  = (*i);++i;
-	delete trans->m_regions; // it's a bit crazy that this is always created in MissingET constructor and recreated here.
+	trans->m_regions.reset(); // it's a bit crazy that this is always created in MissingET constructor and recreated here.
 	if( c.i & 1) {
-		MissingEtRegions *theReg = new MissingEtRegions();
-		regCnv.persToTrans( theReg, i);
-		trans->m_regions = theReg;
+                auto theReg = std::make_unique<MissingEtRegions>();
+		regCnv.persToTrans( theReg.get(), i);
+		trans->m_regions = std::move(theReg);
 	}
 	
     // std::cout<<"IN  source: "<<trans->m_source;
@@ -95,7 +95,7 @@ void  MissingETCnv_p3::transToPers(  const MissingET* trans,  std::vector<float>
 	all.push_back(trans->m_etSum);
 	
 	// calling regions tTP
-	if( trans->m_regions != 0) regCnv.transToPers(trans->m_regions, all);
+	if( trans->m_regions != 0) regCnv.transToPers(trans->m_regions.get(), all);
 	
     // std::cout<<"OUT source: "<<trans->m_source;
     // std::cout<<"\tex: "<<trans->m_ex;

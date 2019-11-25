@@ -9,7 +9,7 @@
 
 NAME:     MissingEtCnv_p3.h
 PACKAGE:  offline/Reconstruction/RecTPCnv
-PURPOSE:  Transient/Persisten converter for MissingET class
+PURPOSE:  Transient/Persistent converter for MissingET class
 ********************************************************************/
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
