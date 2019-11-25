@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 787458 2016-11-30 21:15:29Z ssnyder $
 ################################################################################
 # Package: Tests
 ################################################################################
@@ -16,6 +15,7 @@ atlas_depends_on_subdirs(
    Database/PersistentDataModel
    Control/AthContainers
    Control/AthContainersInterfaces
+   TestPolicy
    AtlasTest/TestTools )
 
 # External dependencies:

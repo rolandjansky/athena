@@ -66,6 +66,24 @@ public:
   }
   
 
+  /** Create transient representation of the persistent object known
+   * to this converter. 
+   NOTE: If the persistent object is @b owned by the converter, it
+   will be deleted
+   @param key [IN] SG key of the object being converted
+   @param log [IN] message stream for output
+   @return TRANS* transient object passed by a pointer
+  */
+  TRANS*  createTransientWithKey( const std::string& key,
+                                  MsgStream &log )
+  {
+     // 0 is the index of the main and only one top level object
+    TRANS *transObj = m_mainConverter.virt_createTransFromPStoreWithKey( 0, key, log );
+     this->deleteTLPersObject();
+     return transObj;
+  }
+  
+
   /** Create transient representation of persObj. 
       NOTE: usually this method will not delete persObj and the user
       needs to do it himself. However, if ownership was somehow passed to
@@ -90,6 +108,27 @@ public:
      this->createTLPersObject();
      // do transToPers conversion, fill in the persistent object
      m_mainConverter.virt_toPersistent(transObj, log);
+     // take the persistent object away from the TL converter 
+     TL_PERS	*ret = this->getTLPersObject();
+     // important to clear so createTransient() will not try to delete it (and crash)
+     this->clearTLPersObject();
+     return ret;
+  }
+
+  /** Create persistent representation of transObj.
+      @param transObj [IN] pointer to the transient representation
+      @param key [IN] SG key of the object being converted.
+      @param log [IN] message stream for output
+      @return TL_PRES* persistent object passed by a pointer
+  */
+  virtual TL_PERS*  createPersistentWithKey(const TRANS* transObj,
+                                            const std::string& key,
+                                            MsgStream &log)
+  {
+     // create a new persistent object (empty)
+     this->createTLPersObject();
+     // do transToPers conversion, fill in the persistent object
+     m_mainConverter.virt_toPersistentWithKey(transObj, key, log);
      // take the persistent object away from the TL converter 
      TL_PERS	*ret = this->getTLPersObject();
      // important to clear so createTransient() will not try to delete it (and crash)

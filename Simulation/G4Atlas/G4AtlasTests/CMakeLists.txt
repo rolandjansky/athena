@@ -34,7 +34,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Simulation/G4Sim/MCTruth
                           Simulation/G4Sim/TrackRecord
                           Simulation/HitManagement
-                          TestPolicy
                           TileCalorimeter/TileDetDescr
                           TileCalorimeter/TileIdentifier
                           TileCalorimeter/TileSimEvent )

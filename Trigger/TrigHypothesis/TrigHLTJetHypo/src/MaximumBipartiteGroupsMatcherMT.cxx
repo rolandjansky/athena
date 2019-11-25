@@ -46,3 +46,39 @@ std::string MaximumBipartiteGroupsMatcherMT::toString() const  {
 
   return ss.str();
 }
+
+void
+MaximumBipartiteGroupsMatcherMT::reportPassingJets(const std::map<int, pHypoJet>& nodeToJet,
+						   const std::unique_ptr<FlowNetwork>& G,
+						   const std::unique_ptr<ITrigJetHypoInfoCollector>& collector,
+						   xAODJetCollector& jetCollector
+						   ) const{
+  HypoJetVector passing_jets;
+
+  auto V = G->V();
+  auto edges = G->edges();
+
+  auto iter =
+    std::partition(edges.begin(),
+		   edges.end(),
+		   [V](const auto& edge){return edge->to() == V-1 and
+					 std::round(edge->flow()) == 1;});
+  
+  std::transform(edges.begin(),
+                  iter,
+		 std::back_inserter(passing_jets),
+		 [&nodeToJet](const auto& edge){
+		   return nodeToJet.at(edge->from());});
+
+  
+  if(collector){
+    std::stringstream ss;
+    for(const auto& j  : passing_jets){
+      ss << "e: " << j->e() << " et " << j->et() << " eta " << j->eta() << '\n';
+    }
+    collector->collect("MaximumBipartiteGroupsMatcher passing jets", ss.str());
+  }
+
+  jetCollector.addJets(passing_jets.cbegin(), passing_jets.cend());
+  
+}

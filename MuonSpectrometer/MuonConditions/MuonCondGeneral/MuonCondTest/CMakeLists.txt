@@ -11,8 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondInterface
                           MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondSvc
-			  MuonSpectrometer/​MuonDetDescr/MuonReadoutGeometry
-                          TestPolicy
+			  MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
                           PRIVATE
                           DetectorDescription/Identifier )
 

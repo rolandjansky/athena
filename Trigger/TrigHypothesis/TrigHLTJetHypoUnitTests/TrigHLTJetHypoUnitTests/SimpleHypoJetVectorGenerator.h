@@ -21,7 +21,7 @@ class SimpleHypoJetVectorGenerator: public extends<AthAlgTool,
   ~SimpleHypoJetVectorGenerator() {}
 
   virtual StatusCode initialize() override;
-  virtual HypoJetVector get() const override;
+  virtual HypoJetVector get()  override;
   virtual std::string toString() const override;
   
  private:

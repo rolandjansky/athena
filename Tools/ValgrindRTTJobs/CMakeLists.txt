@@ -9,7 +9,6 @@ atlas_subdir( ValgrindRTTJobs )
 atlas_depends_on_subdirs( PRIVATE
                           Control/AthenaBaseComps
                           GaudiKernel
-                          TestPolicy
                           Tools/PyJobTransformsCore )
 
 # Component(s) in the package:

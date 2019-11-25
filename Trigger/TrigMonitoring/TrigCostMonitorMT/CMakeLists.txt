@@ -16,8 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigTools/TrigTimeAlgs
                           Trigger/TrigConfiguration/TrigConfHLTData
                           Trigger/TrigEvent/TrigSteeringEvent
-                          Event/xAOD/xAODTrigger
-                          TestPolicy )
+                          Event/xAOD/xAODTrigger )
 
 # Component(s) in the package:
 atlas_add_component( TrigCostMonitorMT

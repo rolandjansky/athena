@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @file   ISiLocAlignDBTool.h
@@ -40,10 +40,10 @@ namespace AFP
     virtual ~ISiLocAlignDBTool() override {}
 
     /// Initilise tool
-    virtual StatusCode initialize() = 0;
+    virtual StatusCode initialize() override = 0;
 
     /// Finalise tool
-    virtual StatusCode finalize() = 0;
+    virtual StatusCode finalize() override = 0;
 
     /// Provide alignment parameters for a given plane. Returns nullptr if no data available.
     virtual const SiLocAlignData* alignment (const int stationID, const int planeID) const = 0;

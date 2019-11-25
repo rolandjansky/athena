@@ -45,6 +45,10 @@ private:
 
   std::size_t m_ncall{0};
 
+  std::size_t m_agree_true{0};
+  std::size_t m_agree_false{0};
+  std::size_t m_differ{0};
+  
   StatusCode initialize_(const ToolHandle<ITrigJetHypoToolHelperMT>&,
 			 const std::string&);
   

@@ -10,7 +10,7 @@
 
 AFP_RawDataProvider::AFP_RawDataProvider(const std::string &name,
                                          ISvcLocator *pSvcLocator)
-    : AthAlgorithm(name, pSvcLocator), m_nRawDataCollection(0), m_nRawData(0),
+    : AthAlgorithm(name, pSvcLocator),
       m_robDataProvider("ROBDataProviderSvc", name),
       m_rawDataTool("AFP_RawDataProviderTool"), m_AFP_RawDataCollectionKey(),
       m_collection()

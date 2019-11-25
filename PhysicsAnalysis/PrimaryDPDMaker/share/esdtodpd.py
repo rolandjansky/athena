@@ -49,7 +49,6 @@ from ParticleBuilderOptions.AODFlags import AODFlags
 AODFlags.Photon             = False
 AODFlags.Electron           = False
 AODFlags.egammaTrackSlimmer = False
-AODFlags.MuonTrackSlimmer   = False
 AODFlags.JetTag             = False
 AODFlags.Streaming          = False
 AODFlags.FastSimulation     = False
@@ -65,7 +64,6 @@ AODFlags.ParticleJet        = False
 #    AODFlags.Photon             = True
 #    AODFlags.Electron           = True
 #    AODFlags.egammaTrackSlimmer = True
-#    AODFlags.MuonTrackSlimmer   = True
 #    pass
     
 #These containers do not exists in the ESD. They have to be created on the fly if using AOD-based tools later on.
