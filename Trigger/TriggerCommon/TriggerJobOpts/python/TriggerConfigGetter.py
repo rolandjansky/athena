@@ -41,10 +41,7 @@ class TriggerConfigGetter(Configured):
     def checkFileMetaData(self):
         log = logging.getLogger( "TriggerConfigGetter.py" )
         from PyUtils.MetaReaderPeekerFull import metadata
-
         self.hasLBwiseHLTPrescalesAndL1ItemDef = True
-        if rec.readESD() or rec.readAOD() or "ReadPool" in self._environment:
-            self.hasLBwiseHLTPrescalesAndL1ItemDef = '/TRIGGER/HLT/Prescales' in metadata # they were all added at the same time (Repro with 15.6.3.2 Prod)
 
         # protection against early runs
         if 'runNumbers' in metadata and self._environment == "" and globalflags.DataSource() == 'data' and rec.readRDO() and any([run < 134230 for run in metadata['runNumbers']]):
@@ -53,7 +50,6 @@ class TriggerConfigGetter(Configured):
             log.info("Using LB-wise HLT prescales")
         else:
             log.info("Using run-wise HLT prescales")
-
 
     def checkInput(self):
         self.checkFileMetaData()
