@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python                                                                                                                                                                    
 m_year = 2017
 m_storingFolder = ""
@@ -8,6 +7,7 @@ m_testArea = ""
 m_packagePath = ""
 m_theUser = ""
 m_savingFile = "acZmumu_history.txt"
+#m_reconmerge = "deriv" # "deriv" "merge" "%"
 m_reconmerge = "merge" # "deriv" "merge" "%"
 m_workDirPlatform = ""
 
@@ -21,6 +21,7 @@ m_userRun = 0
 m_dataType = "DESDM_MCP"
 m_dataProject = "data17_13TeV"
 m_userFiles = 0 # this means all the files
+m_userFilesPerJob = 0 #this means let panda distribute the files
 m_amitag = "%"
 m_physicsType = "physics_Main"
 m_mcDataSetName = "mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.ESD.e3601_s3126_r10201"
@@ -62,7 +63,7 @@ def findListOfDataSets():
     # if user provides the data set name, it may happen (if errors) the data set is not found or does not exist
     if (len(listOfDataSets) == 0 and "NONE" not in m_userDataSet):
         print " <acZmumu> ** WARNING ** user data set: %s not found " %m_userDataSet
-        sys.exit(" >> STOP excution")
+        #sys.exit(" >> STOP excution")
 
     return listOfDataSets
 
@@ -527,10 +528,15 @@ def getGridSubmissionCommand(runNumber, infoFromAMI):
 
     theOptions = "NONE"
     if (runNumber>0):
-        theOptions = "--nfiles %d --useShortLivedReplicas  --forceStaged" %(infoFromAMI[runNumber]["nfiles"])
+        # stop working 11/November/2019 # theOptions = "--nfiles %d --useShortLivedReplicas  --forceStaged" %(infoFromAMI[runNumber]["nfiles"])
+        theOptions = "--nfiles %d --forceStaged" %(infoFromAMI[runNumber]["nfiles"])
     else: 
         if ("NONE" not in m_userDataSet):
-            theOptions = "--useShortLivedReplicas  --forceStaged"
+            #theOptions = "--useShortLivedReplicas  --forceStaged"
+            theOptions = " --forceStaged"
+            
+    if (m_userFilesPerJob > 0 ):
+        theOptions = "%s --nFilesPerJob %d" % (theOptions, m_userFilesPerJob)
 
     theExtraOptions = "" 
     if (len(m_workDirPlatform)>0): 
@@ -587,6 +593,8 @@ def welcomeBanner ():
         print ("  ** use all available files ")
     if (m_userFiles > 0):
         print ("  ** user requested files: %d" %m_userFiles)
+    if (m_userFilesPerJob > 0):
+        print ("  ** user requested files per job: %d" %m_userFilesPerJob)
     print ("  ** AMI tag: %s" %m_amitag) 
     print "  ** script: %s" %m_scriptName
     if ("NONE" not in m_userDataSet):
@@ -613,6 +621,7 @@ def optParsing():
     p_userRun = m_userRun
     p_dataType = m_dataType 
     p_userFiles = m_userFiles
+    p_userFilesPerJob = m_userFilesPerJob
     p_amitag = m_amitag
     p_dataProject = m_dataProject
     p_physicsType = m_physicsType
@@ -629,6 +638,7 @@ def optParsing():
     parser.add_option("--lastRun", dest="p_lastRun", help="Last run number (inclusive). Default %s" %(p_lastRun), default = p_lastRun)
     parser.add_option("--minEvents", dest="p_minEvents", help="Minimum number of events. Default %s" %(p_minEvents), default = p_minEvents)
     parser.add_option("--nFiles", dest="p_userFiles", help="User defined number of files. Default %s = all the available files" %(p_userFiles), default = p_userFiles)
+    parser.add_option("--nFilesPerJob", dest="p_userFilesPerJob", help="User defined number of files per job. Default %s = -> Panda decides" %(p_userFilesPerJob), default = p_userFilesPerJob)
     parser.add_option("--run", dest="p_userRun", help="Run number in case of targetting a single run. Default %s" %(p_userRun), default = p_userRun)
     parser.add_option("--physicsType", dest="p_physicsType", help="Physics type to use (physics_Main, Hardprobes...) Default %s" %(p_physicsType), default = p_physicsType)
     parser.add_option("--script", dest="p_scriptName", help="Name of the python script to be executed. Default %s" %p_scriptName, default = p_scriptName)
@@ -684,6 +694,7 @@ if __name__ == '__main__':
         m_firstRun = m_userRun
         m_lastRun = m_userRun
     m_userFiles = int(config.p_userFiles)
+    m_userFilesPerJob = int(config.p_userFilesPerJob)
     m_amitag = config.p_amitag
     m_dataProject = config.p_dataProject
     m_physicsType = config.p_physicsType
