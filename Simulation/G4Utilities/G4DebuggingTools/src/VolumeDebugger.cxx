@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VolumeDebugger.h"
@@ -94,6 +94,7 @@ namespace G4UA
     if (m_config.dumpGDML) {
       ATH_MSG_INFO( "Writing to GDML volume " << W->GetName() << " to path " << m_config.path );
       G4GDMLParser parser;
+      parser.SetRegionExport(m_config.dumpPhysicsRegions);
       parser.Write(m_config.path, W, true);
     }
     if(m_config.volumeCheck){

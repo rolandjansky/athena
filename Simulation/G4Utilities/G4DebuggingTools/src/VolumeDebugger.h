@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4DEBUGGINGTOOLS_VolumeDebugger_H
@@ -48,7 +48,7 @@ namespace G4UA
       bool volumeCheck=false;
       double targetMaxCopiesToCheck=1.e6;
       bool dumpGDML=true;
-
+      bool dumpPhysicsRegions=false;
     };
 
     VolumeDebugger(const Config& config);
