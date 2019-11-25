@@ -36,7 +36,6 @@
 #include "JetAnalysisInterfaces/IJetSelectorTool.h"
 #include "BoostedJetTaggers/IJetSelectorLabelTool.h"
 #include "BoostedJetTaggers/SmoothedWZTagger.h"
-#include "JetUncertainties/JetUncertaintiesTool.h"
 
 int main( int argc, char* argv[] ) {
 
@@ -147,7 +146,7 @@ int main( int argc, char* argv[] ) {
 
   // Fill a validation true with the tag return value
   std::unique_ptr<TFile> outputFile(TFile::Open("output_SmoothedWZTagger.root", "recreate"));
-  int pass,truthLabel;
+  int pass,truthLabel,ntrk;
   float sf,pt,eta,m;
   TTree* Tree = new TTree( "tree", "test_tree" );
   Tree->Branch( "pass", &pass, "pass/I" );
@@ -155,25 +154,9 @@ int main( int argc, char* argv[] ) {
   Tree->Branch( "pt", &pt, "pt/F" );
   Tree->Branch( "m", &m, "m/F" );
   Tree->Branch( "eta", &eta, "eta/F" );
+  Tree->Branch( "ntrk", &ntrk, "ntrk/I" );
   Tree->Branch( "truthLabel", &truthLabel, "truthLabel/I" );
   
-  std::unique_ptr<JetUncertaintiesTool> m_jetUncToolSF(new JetUncertaintiesTool(("JetUncProvider_SF")));
-  m_jetUncToolSF->setProperty("JetDefinition", "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20");
-  m_jetUncToolSF->setProperty("Path", "/eos/atlas/user/t/tnobe/temp/JetUncertainties/TakuyaTag/");
-  m_jetUncToolSF->setProperty("ConfigFile", "rel21/Summer2019/TagSFUncert_SmoothedWTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_2Var.config");
-  m_jetUncToolSF->setProperty("MCType", "MC16a");
-  m_jetUncToolSF->initialize();
-
-  std::vector<std::string> pulls = {"__1down", "__1up"};
-  CP::SystematicSet jetUnc_sysSet = m_jetUncToolSF->recommendedSystematics();
-  const std::set<std::string> sysNames = jetUnc_sysSet.getBaseNames();
-  std::vector<CP::SystematicSet> m_jetUnc_sysSets;
-  for (std::string sysName: sysNames) {
-    for (std::string pull : pulls) {
-      std::string sysPulled = sysName + pull;
-      m_jetUnc_sysSets.push_back(CP::SystematicSet(sysPulled));
-    }
-  }
   ////////////////////////////////////////////
   /////////// START TOOL SPECIFIC ////////////
   ////////////////////////////////////////////
@@ -188,8 +171,8 @@ int main( int argc, char* argv[] ) {
   ASG_SET_ANA_TOOL_TYPE( m_Tagger, SmoothedWZTagger);
   m_Tagger.setName("MyTagger");
   if(verbose) m_Tagger.setProperty("OutputLevel", MSG::DEBUG);
-  m_Tagger.setProperty( "CalibArea",    "/eos/atlas/user/t/tnobe/temp/BoostedJetTaggers/TakuyaTag/SmoothedWZTaggers/Rel21/");
-  m_Tagger.setProperty( "ConfigFile",   "SmoothedWTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_2Var_MC16d_20190525.dat");
+  m_Tagger.setProperty( "CalibArea", "SmoothedWZTaggers/Rel21/");
+  m_Tagger.setProperty( "ConfigFile",   "SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC16d_20190410.dat");
   m_Tagger.setProperty( "IsMC", m_IsMC );
   m_Tagger.retrieve();
 
@@ -214,7 +197,6 @@ int main( int argc, char* argv[] ) {
     // Get the jets
     const xAOD::JetContainer* myJets = 0;
     if( event.retrieve( myJets, "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets" ) != StatusCode::SUCCESS)
-    //if( event.retrieve( myJets, "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets" ) != StatusCode::SUCCESS)
       continue ;
 
     // Loop over jet container
@@ -226,6 +208,7 @@ int main( int argc, char* argv[] ) {
       if(verbose) std::cout<<"Testing W Tagger "<<std::endl;
       const Root::TAccept& res = m_Tagger->tag( *jetSC );
       if(verbose) std::cout<<"jet pt              = "<<jetSC->pt()<<std::endl;
+      if(verbose) std::cout<<"jet ntrk              = "<<jetSC->auxdata<int>("ParentJetNTrkPt500")<<std::endl;      
       if(verbose) std::cout<<"RunningTag : "<<res<<std::endl;
       if(verbose) std::cout<<"result d2pass       = "<<res.getCutResult("PassD2")<<std::endl;
       if(verbose) std::cout<<"result ntrkpass     = "<<res.getCutResult("PassNtrk")<<std::endl;
@@ -234,28 +217,12 @@ int main( int argc, char* argv[] ) {
       truthLabel = jetSC->auxdata<int>("FatjetTruthLabel");
 
       pass = res;
-      sf = jetSC->auxdata<float>("SmoothWContained2VarMaxSig_SF");
       pt = jetSC->pt();
       m  = jetSC->m();
       eta = jetSC->eta();
+      ntrk = jetSC->auxdata<int>("ParentJetNTrkPt500");
 
       Tree->Fill();
-
-      if ( evtInfo->eventType(xAOD::EventInfo::IS_SIMULATION) ){
-	bool validForUncTool = (pt >= 200e3 && pt < 2500e3);
-	validForUncTool &= (m/pt >= 0 && m/pt <= 1);
-	validForUncTool &= (fabs(eta) < 2);
-	if( validForUncTool ){
-	  std::cout << "Nominal SF=" << sf << " truthLabel=" << truthLabel << " (1: t->qqb, 2: W->qq, 3: Z->qq, etc.)" << std::endl;
-	  std::cout << "passMass? " << (res.getCutResult("PassMassHigh") && res.getCutResult("PassMassLow")) << " passD2? " << res.getCutResult("PassD2") << std::endl;
-	  for ( CP::SystematicSet sysSet : m_jetUnc_sysSets ){
-	    m_Tagger->tag( *jetSC );
-	    m_jetUncToolSF->applySystematicVariation(sysSet);
-	    m_jetUncToolSF->applyCorrection(*jetSC);
-	    std::cout << sysSet.name() << " " << jetSC->auxdata<float>("SmoothWContained2VarMaxSig_SF") << std::endl;
-	  }
-	}
-      }
     }
 
     Info( APP_NAME, "===>>>  done processing event #%i, run #%i %i events processed so far  <<<===", static_cast< int >( evtInfo->eventNumber() ), static_cast< int >( evtInfo->runNumber() ), static_cast< int >( entry + 1 ) );

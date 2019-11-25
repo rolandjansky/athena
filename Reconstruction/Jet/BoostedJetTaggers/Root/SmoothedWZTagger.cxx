@@ -139,7 +139,7 @@ StatusCode SmoothedWZTagger::initialize(){
       } else if ( m_calibarea.find("eos") != std::string::npos) {
 	m_weightConfigPath = PathResolverFindCalibFile((m_calibarea+"/"+m_weightFileName).c_str());
       } else {
-	m_weightConfigPath = PathResolverFindCalibFile(("BoostedJetTaggers/"+m_calibarea+"/SmoothedWZTaggers/"+m_weightFileName).c_str());
+	m_weightConfigPath = PathResolverFindCalibFile(("BoostedJetTaggers/"+m_calibarea+"/"+m_weightFileName).c_str());
       }
     }
   }
@@ -381,7 +381,8 @@ Root::TAccept& SmoothedWZTagger::tag(const xAOD::Jet& jet) const {
 	    m_accept.setCutResult("ValidJetContent", true);
 	    
 	    int jet_ntrk = NTrkPt500.at(primaryVertex->index());
-	    
+	    jet.auxdecor<int>("ParentJetNTrkPt500") = jet_ntrk;
+
 	    if(jet_ntrk < cut_ntrk)
 	      m_accept.setCutResult("PassNtrk",true);
 	  }

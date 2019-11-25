@@ -160,9 +160,8 @@ int main( int argc, char* argv[] ) {
 
   std::unique_ptr<JetUncertaintiesTool> m_jetUncToolSF(new JetUncertaintiesTool(("JetUncProvider_SF")));
   m_jetUncToolSF->setProperty("JetDefinition", "AntiKt10LCTopoTrimmedPtFrac5SmallR20");
-  m_jetUncToolSF->setProperty("Path", "/eos/atlas/user/t/tnobe/temp/JetUncertainties/TakuyaTag/");
-  m_jetUncToolSF->setProperty("ConfigFile", "rel21/Summer2019/TagSFUncert_JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkContained_80Eff.config");
-  m_jetUncToolSF->setProperty("MCType", "MC16a");
+  m_jetUncToolSF->setProperty("ConfigFile", "rel21/Summer2019/R10_SF_LC_DNNContained80_TopTag.config");
+  m_jetUncToolSF->setProperty("MCType", "MC16");
   m_jetUncToolSF->initialize();
 
   std::vector<std::string> pulls = {"__1down", "__1up"};
@@ -190,8 +189,7 @@ int main( int argc, char* argv[] ) {
   ASG_SET_ANA_TOOL_TYPE( m_Tagger, JSSWTopTaggerDNN);
   m_Tagger.setName("MyTagger");
   if(verbose) m_Tagger.setProperty("OutputLevel", MSG::DEBUG);
-  m_Tagger.setProperty( "CalibArea",    "/eos/atlas/user/t/tnobe/temp/BoostedJetTaggers/TakuyaTag/JSSWTopTaggerDNN/Rel21/");
-  m_Tagger.setProperty( "ConfigFile",   "JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkContained_MC16d_20190522_80Eff.dat");
+  m_Tagger.setProperty( "ConfigFile",   "JSSWTopTaggerDNN/Rel21/JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkContained_MC16d_20190827_80Eff.dat");
   m_Tagger.setProperty("TruthJetContainerName", "AntiKt10TruthTrimmedPtFrac5SmallR20Jets");
   m_Tagger.setProperty("IsMC", m_IsMC);
   m_Tagger.retrieve();
