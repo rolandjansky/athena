@@ -2306,6 +2306,7 @@ namespace top {
           if (acc_mcto.isAvailable(*muPtr)) m_softmu_true_origin[i] = acc_mcto(*muPtr);
           m_softmu_true_isPrompt[i] = isPromptMuon(m_softmu_true_type[i], m_softmu_true_origin[i]);
         }//end of if (m_config->isMC())
+        ++i;
       }//end of loop on softmuons
     }//end of if (m_config->useSoftMuons())
 
