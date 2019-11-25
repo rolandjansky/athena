@@ -98,6 +98,19 @@ StatusCode TrigMultiTrkHypoMT::initialize()
     ATH_CHECK(m_hypoTools.retrieve());
 
     ATH_CHECK(m_bphysObjContKey.initialize());
+    
+    // set m_trigLevel
+    if (m_trigLevelString == "L2") {
+      m_trigLevel = xAOD::TrigBphys::L2;
+    }
+    else if (m_trigLevelString == "EF") {
+      m_trigLevel = xAOD::TrigBphys::EF;
+    }
+    else {
+      m_trigLevel = xAOD::TrigBphys::UNKOWNLEVEL;
+      ATH_MSG_ERROR("trigLevelString should be L2 or EF, but " << m_trigLevelString << " provided.");
+      return StatusCode::FAILURE;
+    }
 
   return StatusCode::SUCCESS;
 }
@@ -265,7 +278,7 @@ StatusCode TrigMultiTrkHypoMT::execute( const EventContext& context) const
           trigBphys->makePrivateStore(); //need this so the aux variables are accessible with initialize
           //could just add to container, but don't want to bother storing vertices with gigantic chi2
           
-          trigBphys->initialise(0, 0., 0. ,0., xAOD::TrigBphys::MULTIMU, totalMass, xAOD::TrigBphys::L2);  
+          trigBphys->initialise(0, 0., 0. ,0., xAOD::TrigBphys::MULTIMU, totalMass, m_trigLevel);  
 
           std::vector<ElementLink<xAOD::TrackParticleContainer> > thisIterationTracks = {good_tracks.at(it0), good_tracks.at(it1)};
           if (m_bphysHelperTool->vertexFit(trigBphys,thisIterationTracks,m_trkMasses,*state).isFailure()) {
