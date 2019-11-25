@@ -1102,12 +1102,6 @@ class pT_SSScut(InDetFlagsJobProperty):
   allowedTypes = ['float']
   StoredValue  = -1
   
-class doTIDE_AmbiTrackMonitoring(InDetFlagsJobProperty):
-  """ Switch for monitoring track canidates in TIDE Ambi process """
-  statusOn     = True
-  allowedTypes = ['bool']
-  StoredValue  = False
-
 class ForceCoraCool(InDetFlagsJobProperty):
   """ Use old (non CoolVectorPayload) SCT Conditions """
   statusOn     = True
@@ -2772,7 +2766,6 @@ _list_InDetJobProperties = [Enabled,
                             doMinBias,
                             doLowMuRunSetup,
                             doRobustReco,
-                            doTIDE_AmbiTrackMonitoring,
                             doSingleCollisionVertexReco,
                             useMBTSTimeDiff,
                             useNewSiSPSeededTF,
