@@ -18,7 +18,7 @@ class CompareCells : public ::AthReentrantAlgorithm
 	public:
 	CompareCells( const std::string& name, ISvcLocator* pSvcLocator );
 	virtual ~CompareCells();
-	virtual StatusCode initialize() ;
+	virtual StatusCode initialize() override;
 	virtual StatusCode execute(const EventContext& context) const override;
 
 	private:
