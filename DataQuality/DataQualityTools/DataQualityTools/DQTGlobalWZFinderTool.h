@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -190,9 +190,6 @@ private:
 
   int m_ZBosonCounterSBG_El[2];
   int m_ZBosonCounterSBG_Mu[2];
-
-  //uint32_t lumiBlock;
-  //uint32_t eventNumber;
 
   int m_this_lb; //remove _t
   int m_eventNumber; //remove _t

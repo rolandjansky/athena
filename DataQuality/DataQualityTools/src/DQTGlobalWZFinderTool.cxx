@@ -72,7 +72,6 @@ DQTGlobalWZFinderTool::DQTGlobalWZFinderTool(const std::string & type,
      m_ele_Eta(nullptr),
      m_electronContainerName("Electrons"),
      m_egDetailContainerName("egDetailAOD"),
-     //m_VxPrimContainerName("VxPrimaryCandidate"), //Kshort
      m_VxPrimContainerName("PrimaryVertices"),
      m_VxContainerName("SecVertices"), //Kshort
      m_METName("MET_Reference_AntiKt4EMTopo"),
@@ -162,15 +161,6 @@ StatusCode DQTGlobalWZFinderTool::bookHistogramsRecurrent()
   ATH_MSG_DEBUG("Trigger information for WZFinder");
   ATH_MSG_DEBUG("For Z->mm:");
 
-/*  for (const auto& chain: m_Z_mm_trigger) {
-    std::cout << "Muon triggers: " << chain << std::endl;
-  }
-
-  for (const auto& chain: m_Z_ee_trigger) {
-    std::cout << "Electron triggers: " << chain << std::endl;
-  }
-*/
-
   bool failure(false);
 
   std::string  fullPathDQTGlobalWZFinder=m_path;
@@ -208,7 +198,6 @@ StatusCode DQTGlobalWZFinderTool::bookHistogramsRecurrent()
 
 //----------------------------------------------------------------------------------
 StatusCode DQTGlobalWZFinderTool::bookHistograms( )
-//StatusCode DQTGlobalWZFinderTool::bookHistograms( bool isNewEventsBlock, bool isNewLumiBlock, bool isNewRun )
 //----------------------------------------------------------------------------------
 {
   bool failure(false);
@@ -233,15 +222,11 @@ StatusCode DQTGlobalWZFinderTool::bookHistograms( )
     m_ZBosonCounterSBG_Mu[index]=0;
   }
   
-  //if (newRun) {
   ATH_MSG_DEBUG("in bookHistograms() and m_doRunCosmics = " << m_doRunCosmics << " and m_doRunBeam = " << m_doRunBeam);
   ATH_MSG_DEBUG("Using base path " << m_path);
      
-     failure = bookDQTGlobalWZFinderTool();
-  //}
-  //else if (newEventsBlock || newLumiBlock) {
-  //  return StatusCode::SUCCESS;
-  //}
+  failure = bookDQTGlobalWZFinderTool();
+
   if (failure) {return  StatusCode::FAILURE;}
   else {return StatusCode::SUCCESS;}
 }	
@@ -253,7 +238,6 @@ bool DQTGlobalWZFinderTool::bookDQTGlobalWZFinderTool()
 //----------------------------------------------------------------------------------
 {
   bool failure(false);
-  //  if (isNewEventsBlock || isNewLumiBlock || isNewRun) {
   MsgStream log(msgSvc(), name());
  
   std::string  fullPathDQTGlobalWZFinder=m_path;
@@ -345,7 +329,7 @@ bool DQTGlobalWZFinderTool::bookDQTGlobalWZFinderTool()
     }
 
     if (m_isSimulation) {
-      // failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_mcmatch = TH1F_LW::create("m_mcatch", "Muon matching to truth in acceptance", 2, -0.5, 1.5), lumiBlock).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_mcmatch = TH1F_LW::create("m_mcatch", "Muon matching to truth in acceptance", 2, -0.5, 1.5), lumiBlock).isFailure();
 
       if (m_writeTTrees){
 
@@ -414,9 +398,8 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
 
      //Get MET     
      Double_t phiMet = 0, metMet = 0;
-     //     const MissingET *missET;
      const xAOD::MissingETContainer *missETcont(0);
-     const xAOD::MissingET* missET;
+     const xAOD::MissingET* missET(0);
      if ( evtStore()->contains<xAOD::MissingETContainer>(m_METName) ) {
        evtStore()->retrieve(missETcont,m_METName);
        missET = (*missETcont)["FinalClus"];
@@ -508,7 +491,6 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
      //MET cleaning
      bool isBad = false;
      const JetContainer* jetTES;
-     //std::string m_jetCollectionName = "AntiKt4TopoEMJets";
      bool printedErrorJetCollection = false;
      if (evtStore()->contains<JetContainer>(m_jetCollectionName)) {
        sc=evtStore()->retrieve(jetTES,m_jetCollectionName);
@@ -618,10 +600,9 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
        }
      }
 
-     // Function currently causes explosion of Histograms on MC
-     // if (m_isSimulation) {
-     //   doMuonTruthEff(goodmuonsZ);
-     // }
+     if (m_isSimulation) {
+       doMuonTruthEff(goodmuonsZ);
+     }
 
 
      // Check Sum of Candidate Leptons, Return if None
@@ -1539,7 +1520,7 @@ void DQTGlobalWZFinderTool::doMuonTriggerTP(const xAOD::Muon* mu1, const xAOD::M
 
 
 void DQTGlobalWZFinderTool::doMuonTruthEff(std::vector<const xAOD::Muon*>& goodmuonsZ) {
-  const xAOD::TruthParticleContainer* vtruth;
+  const xAOD::TruthParticleContainer* vtruth(0);
   evtStore()->retrieve(vtruth, "MuonTruthParticles");
   if (! vtruth) {
     ATH_MSG_WARNING("No muon truth particles");
