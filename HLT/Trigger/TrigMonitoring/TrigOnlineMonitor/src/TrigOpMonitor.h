@@ -92,9 +92,6 @@ private:
 
   Gaudi::Property<unsigned short int> m_maxLB{this, "MaxLumiblocks", 3000,
                                               "Number of lumiblocks for histograms"};
-
-  Gaudi::Property<std::vector<std::string>> m_projects{
-      this, "ProjectNames", {"AthenaP1", "Athena"}, "Valid projects names for release"};
 };
 
 #endif // TRIGSTEERMONITOR_TRIGOPMONI_H
