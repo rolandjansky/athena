@@ -10,6 +10,7 @@
 #include "TrkVKalVrtCore/TrkVKalVrtCore.h"
 #include "TrkVKalVrtCore/WorkArray.h"
 #include "TrkVKalVrtCore/Derivt.h"
+#include <array>
 
 
 namespace Trk {
@@ -43,7 +44,7 @@ extern VKTrack * getCombinedVTrack(VKVertex *);
 extern void cleanCascade();
 extern void cfdcopy(double *source, double *target, int);
 extern void vpderiv(bool, long int , double *, double *, double *, double *, double *, double *, double *);
-extern std::vector<double> getFitParticleMom( VKTrack *);
+extern std::array<double, 4> getFitParticleMom( VKTrack *);
 
 extern void setFittedMatrices(double * , long int , std::vector<int> &, std::vector< std::vector<double> > & );
 extern std::vector<double> transformCovar(int , double **, std::vector<double> );
@@ -71,7 +72,7 @@ int setVTrackMass(VKVertex * vk)
    NTRK = vk->TrackList.size();                   // Number of tracks at vertex
    totP.Px=0.;totP.Py=0.;totP.Pz=0.;totP.E=0.;
    for(it=0; it<NTRK; it++){
-       std::vector<double> pp = getFitParticleMom( vk->TrackList[it] );
+       std::array<double, 4> pp = getFitParticleMom( vk->TrackList[it] );
        totP.Px += pp[0];     
        totP.Py += pp[1];     
        totP.Pz += pp[2];     
@@ -761,7 +762,7 @@ void getFittedCascade( std::vector< Vect3DF > & cVertices,
      DPhys[pntPhys+1][cascadeEvent_.matrixPnt[iv]+1]=1.;
      DPhys[pntPhys+2][cascadeEvent_.matrixPnt[iv]+2]=1.;
      for(it=0; it<NTRK; it++){
-       std::vector<double> pp = getFitParticleMom( vk->TrackList[it] );
+       std::array<double, 4> pp = getFitParticleMom( vk->TrackList[it] );
        prtMom.Px=pp[0]; prtMom.Py=pp[1]; prtMom.Pz=pp[2]; prtMom.E=pp[3]; 
        momCollector.push_back( prtMom );
        if(vk->TrackList[it]->Id >= 0) particleChi2.push_back( vk->TrackList[it]->Chi2 ); //Only real tracks

@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: PFO_v1.h 783497 2016-11-10 15:00:53Z mhodgkin $
@@ -101,6 +101,8 @@ namespace xAOD {
     /** set CenterMag moment needed for vertex correction */
     void setCenterMag(float CenterMag);
     
+    /** is a charged PFO */
+    bool isCharged() const;
     /** get charge of PFO */
     float charge() const;
     /** set charge of PFO */

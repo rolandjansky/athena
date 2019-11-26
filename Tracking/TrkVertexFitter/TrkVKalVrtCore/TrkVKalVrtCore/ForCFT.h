@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef _TrkVKalVrtCore_ForCFT_H
@@ -55,7 +55,7 @@ namespace Trk {
       IterationNumber = 100; IterationPrecision=1.e-3; RobustScale = 1.; irob=0;
       localbmag=2.0;   // Safety: standard magnetic field in ID 
     };
-    ~ForCFT(){};
+    ~ForCFT() = default;
   };
 
 }

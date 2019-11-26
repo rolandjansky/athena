@@ -1805,6 +1805,10 @@ double JetUncertaintiesTool::readHistoFromParam(const xAOD::Jet& jet, const Unce
         return readHistoFromParam(jet.jetP4(),histo,param);
     
     // Complex case (need to check the mass type to use)
+    // Simple four-vector case
+    if (massDef == CompMassDef::UNKNOWN || massDef == CompMassDef::FourVecMass)
+        return readHistoFromParam(jet.jetP4(),histo,param);
+    // Special scale case
     JetFourMomAccessor massScaleAccessor(CompMassDef::getJetScaleString(massDef).Data());
     return readHistoFromParam(massScaleAccessor(jet),histo,param);
 }

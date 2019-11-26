@@ -524,7 +524,9 @@ namespace BoostedJetTaggers {
     // check to prevent div by zero
     //
     if (j.numConstituents() < 2) return NAN;
-    return tau3wta(j) / tau2wta(j);
+    // Can also be zero under special circumstances with two constituents
+    // Just explicitly check for that
+    return tau2wta(j)!=0.?tau3wta(j) / tau2wta(j):0.;
   }
   float SubstructureAccessors::fw20(const xAOD::Jet& j) const {
     // Fox Wolfram variables aren't defined for numConstituents < 1,

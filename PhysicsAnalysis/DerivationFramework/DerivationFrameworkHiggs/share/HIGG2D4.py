@@ -90,6 +90,7 @@ metTriggerRequirement=[]
 # add MET trigger to recover muon trigger efficiency at high pt
 if True :
     triglist=[]
+    triglist.append("HLT_xe70") #added on Nov 2019
     triglist.append("HLT_xe80_tc_lcw_L1XE50") # added on Apr 2016
     triglist.append("HLT_xe90_tc_lcw_L1XE50")
     triglist.append("HLT_xe100_tc_lcw_L1XE50")

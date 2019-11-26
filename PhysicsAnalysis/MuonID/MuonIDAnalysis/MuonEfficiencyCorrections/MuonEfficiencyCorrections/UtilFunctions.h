@@ -10,6 +10,7 @@
 #include <functional>
 #include <memory>
 #include <TH1.h>
+#include <AsgTools/AsgTool.h>
 
 namespace CP {
     /// Removes beginning and trailing white spaces from a string

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef _TrkVKalVrtCore_VKalVrtCore_H
@@ -34,8 +34,7 @@ namespace Trk {
    {
     public:
        VKTrack(long int, double[], double[], VKVertex *, double);
-      ~VKTrack();
-//       VKTrack(const VKTrack & src);  //copy
+      ~VKTrack() = default;
        friend std::ostream& operator<<( std::ostream& out, const VKTrack& track );
 
      public:
@@ -96,8 +95,8 @@ namespace Trk {
    class TWRK       // collection of temporary arrays for 
    {   
     public:
-      TWRK();
-     ~TWRK();
+      TWRK(){}
+     ~TWRK() = default;
 
      public:
        double   tt[3];    // U_i vector (see Billoir...)

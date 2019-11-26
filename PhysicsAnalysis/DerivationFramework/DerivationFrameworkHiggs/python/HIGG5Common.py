@@ -73,7 +73,7 @@ def getHIGG5Common() :
     return Common
 
 def getHIGG5CommonTruthContainers() :
-    return ["TruthPrimaryVertices","HardScatterParticles","HardScatterVertices","TruthBosonWithDecayParticles","TruthBosonWithDecayVertices","TruthTopQuarkWithDecayParticles","TruthTopQuarkWithDecayVertices","TruthElectrons","TruthMuons","TruthTaus","TruthTausWithDecayParticles","TruthTausWithDecayVertices","TruthTaus","TruthNeutrinos","TruthBSM","TruthHFWithDecayParticles","TruthHFWithDecayVertices"]
+    return ["TruthPrimaryVertices","HardScatterParticles","HardScatterVertices","TruthBosonsWithDecayParticles","TruthBosonsWithDecayVertices","TruthTopQuarkWithDecayParticles","TruthTopQuarkWithDecayVertices","TruthElectrons","TruthMuons","TruthTaus","TruthTausWithDecayParticles","TruthTausWithDecayVertices","TruthTaus","TruthNeutrinos","TruthBSM","TruthHFWithDecayParticles","TruthHFWithDecayVertices"]
 
 def getHIGG5CommonTruth() :
     return [
@@ -99,8 +99,8 @@ def getHIGG5CommonTruthDictionExtionson() :
         "TruthBSMAux"                        : "xAOD::TruthParticleAuxContainer" ,
         "HardScatterParticles"               : "xAOD::TruthParticleContainer" ,
         "HardScatterParticlesAux"            : "xAOD::TruthParticleAuxContainer" ,
-        "TruthBosonWithDecayParticles"       : "xAOD::TruthParticleContainer" ,
-        "TruthBosonWithDecayParticlesAux"    : "xAOD::TruthParticleAuxContainer" ,
+        "TruthBosonsWithDecayParticles"      : "xAOD::TruthParticleContainer" ,
+        "TruthBosonsWithDecayParticlesAux"   : "xAOD::TruthParticleAuxContainer" ,
         "TruthTopQuarkWithDecayParticles"    : "xAOD::TruthParticleContainer" ,
         "TruthTopQuarkWithDecayParticlesAux" : "xAOD::TruthParticleAuxContainer" ,
         "TruthTausWithDecayParticles"        : "xAOD::TruthParticleContainer" ,
@@ -109,8 +109,8 @@ def getHIGG5CommonTruthDictionExtionson() :
         "TruthHFWithDecayParticlesAux"       : "xAOD::TruthParticleAuxContainer" ,
         "HardScatterVertices"                : "xAOD::TruthVertexContainer" ,
         "HardScatterVerticesAux"             : "xAOD::TruthVertexAuxContainer" ,
-        "TruthBosonWithDecayVertices"        : "xAOD::TruthVertexContainer" ,
-        "TruthBosonWithDecayVerticesAux"     : "xAOD::TruthVertexAuxContainer" ,
+        "TruthBosonsWithDecayVertices"       : "xAOD::TruthVertexContainer" ,
+        "TruthBosonsWithDecayVerticesAux"    : "xAOD::TruthVertexAuxContainer" ,
         "TruthTopQuarkWithDecayVertices"     : "xAOD::TruthVertexContainer" ,
         "TruthTopQuarkWithDecayVerticesAux"  : "xAOD::TruthVertexAuxContainer" ,
         "TruthTausWithDecayVertices"         : "xAOD::TruthVertexContainer" ,
@@ -237,7 +237,7 @@ def getTruth3Collections(kernel) :
                                     prefix='Taus')
      #STEP9
      # Add back the navigation contect for the collections we want
-    addTruthCollectionNavigationDecorations(kernel,["HardScatterParticles","TruthBosonWithDecayParticles","TruthTopQuarkWithDecayParticles","TruthElectrons","TruthMuons","TruthTausWithDecayParticles","TruthNeutrinos","TruthBSM"])
+    addTruthCollectionNavigationDecorations(kernel,["HardScatterParticles","TruthBosonsWithDecayParticles","TruthTopQuarkWithDecayParticles","TruthElectrons","TruthMuons","TruthTausWithDecayParticles","TruthNeutrinos","TruthBSM"])
 
 
 

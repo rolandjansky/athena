@@ -30,7 +30,7 @@ namespace CP {
                 m_efficiency_decoration_name_data(),
                 m_efficiency_decoration_name_mc(),
                 m_sf_decoration_name(),
-                m_calibration_version("190530_r21"),
+                m_calibration_version("191111_Winter_PrecisionZ"),
                 m_lowpt_threshold(15.e3),
                 m_affectingSys(),
                 m_filtered_sys_sets(),
@@ -109,7 +109,8 @@ namespace CP {
 
         } else if (m_wp.find("BadMuon") != std::string::npos) {
             m_Type = CP::MuonEfficiencyType::BadMuonVeto;
-
+            ///Overwrite the property in case of the bad muon veto
+            m_applyKineDepSys = true;
         } else if (m_wp.find("TTVA") != std::string::npos) {
             m_Type = CP::MuonEfficiencyType::TTVA;
         } else {
@@ -417,8 +418,11 @@ namespace CP {
                 syst_map.clear();
                 break;
             }
-            insert_bit("STAT", get_bit(look_up));
-          
+            /// The bad muon veto measurement only provides a combined systematic
+            /// uncertainty of the bad-muon veto. No stat error needed in this case
+            if (measurement() !=  MuonEfficiencyType::BadMuonVeto){
+                insert_bit("STAT", get_bit(look_up));
+            }
             /// If the systematics shall be split into bins
             if (m_seperateSystBins) insert_bit("STAT", EffiCollection::UnCorrelated);
                           

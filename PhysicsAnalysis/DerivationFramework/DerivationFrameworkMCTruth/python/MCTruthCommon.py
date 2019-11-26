@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # Add translator from EVGEN input to xAOD-like truth here
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
@@ -177,7 +177,8 @@ def addTruthJets(kernel=None, decorationDressing=None):
         if not 'truthpartcharged' in jtm.tools:
             jtm += CopyTruthJetParticles("truthpartcharged", OutputName="JetInputTruthParticlesCharged",
                                          MCTruthClassifier=jtm.JetMCTruthClassifier,
-                                         ChargedParticlesOnly=True
+                                         ChargedParticlesOnly=True,
+                                         BarCodeFromMetadata=barCodeFromMetadata
                                         )
         # Add a jet tool runner for this thing
         from JetRec.JetRecConf import JetToolRunner,JetAlgorithm,PseudoJetGetter
@@ -243,7 +244,7 @@ def schedulePreJetMCTruthAugmentations(kernel=None, decorationDressing=None):
                               DFCommonTruthElectronDressingTool, DFCommonTruthMuonDressingTool,
                               DFCommonTruthElectronIsolationTool1, DFCommonTruthElectronIsolationTool2,
                               DFCommonTruthMuonIsolationTool1, DFCommonTruthMuonIsolationTool2,
-                              DFCommonTruthPhotonIsolationTool1, DFCommonTruthPhotonIsolationTool2]
+                              DFCommonTruthPhotonIsolationTool1, DFCommonTruthPhotonIsolationTool2, DFCommonTruthPhotonIsolationTool3]
     from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
     kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonPreJetKernel",
                                                              AugmentationTools = augmentationToolsList
@@ -267,7 +268,6 @@ def schedulePostJetMCTruthAugmentations(kernel=None, decorationDressing=None):
     # truth tau matching needs truth jets, truth electrons and truth muons
     from DerivationFrameworkTau.TauTruthCommon import scheduleTauTruthTools
     scheduleTauTruthTools(kernel)
-
     augmentationToolsList = [ DFCommonTruthTauDressingTool ]
 
     #Save the post-shower HT and MET filter values that will make combining filtered samples easier (adds to the EventInfo)
@@ -287,7 +287,7 @@ def schedulePostJetMCTruthAugmentations(kernel=None, decorationDressing=None):
     from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
     if IsSUSYSignal():
         from DerivationFrameworkSUSY.DecorateSUSYProcess import DecorateSUSYProcess
-        augmentationToolsList += [DecorateSUSYProcess('MCTruthCommon')]
+        augmentationToolsList += DecorateSUSYProcess('MCTruthCommon')
     from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
     kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonPostJetKernel",
                                                              AugmentationTools = augmentationToolsList
@@ -311,7 +311,7 @@ def addStandardTruthContents(kernel=None,
     # Add back the navigation contect for the collections we want
     addTruthCollectionNavigationDecorations(kernel, ["TruthElectrons", "TruthMuons", "TruthPhotons", "TruthTaus", "TruthNeutrinos", "TruthBSM", "TruthBottom", "TruthTop", "TruthBoson"])
     # Some more additions for standard TRUTH3
-    addWbosonsAndDownstreamParticles(kernel)
+    addBosonsAndDownstreamParticles(kernel)
     addLargeRJetD2(kernel)
     # Special collection for BSM particles
     addBSMAndDownstreamParticles(kernel)
@@ -319,6 +319,8 @@ def addStandardTruthContents(kernel=None,
     addBornLeptonCollection(kernel)
     # Special collection for hard scatter (matrix element) - save TWO extra generations of particles
     addHardScatterCollection(kernel,2)
+    # Energy density for isolation corrections
+    addTruthEnergyDensity(kernel)
 
 
 def addParentAndDownstreamParticles(kernel=None,
@@ -371,7 +373,7 @@ def addBosonsAndDownstreamParticles(kernel=None, generations=1,
     return addParentAndDownstreamParticles(kernel=kernel,
                                            generations=generations,
                                            parents=[23,24,25],
-                                           prefix='Boson',
+                                           prefix='Bosons',
                                            rejectHadronChildren=rejectHadronChildren)
 
 
@@ -538,6 +540,49 @@ def addLargeRJetD2(kernel=None):
                                                           AugmentationTools = [TruthD2Decorator] )
 
 
+def addTruthEnergyDensity(kernel=None):
+    #Ensure that we are adding it to something
+    if kernel is None:
+        from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
+        kernel = DerivationFrameworkJob
+    if hasattr(kernel,'DFCommonTruthEDKernel'):
+        # Already there!  Carry on...
+        return
+    # Truth energy density tools
+    from EventShapeTools.EventDensityConfig import configEventDensityTool
+    from AthenaCommon.AppMgr import ToolSvc
+    from JetRec.JetRecStandard import jtm
+    DFCommonTruthCentralEDTool = configEventDensityTool("DFCommonTruthCentralEDTool", jtm.truthget,
+                                                        0.5,
+                                                        AbsRapidityMax      = 1.5,
+                                                        OutputContainer     = "TruthIsoCentralEventShape",
+                                                       )
+    ToolSvc += DFCommonTruthCentralEDTool
+    DFCommonTruthForwardEDTool = configEventDensityTool("DFCommonTruthForwardEDTool", jtm.truthget,
+                                                        0.5,
+                                                        AbsRapidityMin      = 1.5,
+                                                        AbsRapidityMax      = 3.0,
+                                                        OutputContainer     = "TruthIsoForwardEventShape",
+                                                       )
+    ToolSvc += DFCommonTruthForwardEDTool
+    # Algorithms for the energy density
+    from EventShapeTools.EventDensityConfig import EventDensityAlg
+    kernel += EventDensityAlg("DFCommonTruthCentralEDAlg", EventDensityTool = DFCommonTruthCentralEDTool )
+    kernel += EventDensityAlg("DFCommonTruthForwardEDAlg", EventDensityTool = DFCommonTruthForwardEDTool )
+
+    # Now add the tool to do the decoration
+    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthEDDecorator
+    DFCommonTruthEDDecorator = DerivationFramework__TruthEDDecorator("DFCommonTruthEDDecorator",
+                                                                     EventInfoName="EventInfo",
+                                                                     EnergyDensityKeys=["TruthIsoCentralEventShape","TruthIsoForwardEventShape"],
+                                                                     DecorationSuffix="_rho"
+                                                                    )
+    ToolSvc += DFCommonTruthEDDecorator
+    kernel +=CfgMgr.DerivationFramework__DerivationKernel("DFCommonTruthEDKernel",
+                                                          AugmentationTools = [DFCommonTruthEDDecorator] )
+
+
+
 def addMiniTruthCollectionLinks(kernel=None, doElectrons=True, doPhotons=True, doMuons=True):
     # Sets up modifiers to move pointers to old truth collections to new mini truth collections
     # Ensure that we are adding it to something
@@ -553,17 +598,17 @@ def addMiniTruthCollectionLinks(kernel=None, doElectrons=True, doPhotons=True, d
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthLinkRepointTool
     if doElectrons:
         electron_relink = DerivationFramework__TruthLinkRepointTool("ElMiniCollectionTruthLinkTool",
-                                                                    RecoCollection="Electrons", TargetCollection="TruthElectrons")
+                                                                    RecoCollection="Electrons", TargetCollections=["TruthMuons","TruthPhotons","TruthElectrons"])
         ToolSvc += electron_relink
         aug_tools += [ electron_relink ]
     if doPhotons:
         photon_relink = DerivationFramework__TruthLinkRepointTool("PhMiniCollectionTruthLinkTool",
-                                                                    RecoCollection="Photons", TargetCollection="TruthPhotons")
+                                                                    RecoCollection="Photons", TargetCollections=["TruthMuons","TruthPhotons","TruthElectrons"])
         ToolSvc += photon_relink
         aug_tools += [ photon_relink ]
     if doMuons:
         muon_relink = DerivationFramework__TruthLinkRepointTool("MuMiniCollectionTruthLinkTool",
-                                                                    RecoCollection="Muons", TargetCollection="TruthMuons")
+                                                                    RecoCollection="Muons", TargetCollections=["TruthMuons","TruthPhotons","TruthElectrons"])
         ToolSvc += muon_relink
         aug_tools += [ muon_relink ]
     kernel +=CfgMgr.DerivationFramework__DerivationKernel("MiniCollectionTruthLinkKernel",
@@ -584,8 +629,8 @@ def addTruth3ContentToSlimmerTool(slimmer):
         "TruthBoson",
         "TruthForwardProtons",
         "BornLeptons",
-        "TruthWbosonWithDecayParticles",
-        "TruthWbosonWithDecayVertices",
+        "TruthBosonsWithDecayParticles",
+        "TruthBosonsWithDecayVertices",
         "TruthBSMWithDecayParticles",
         "TruthBSMWithDecayVertices",
         "HardScatterParticles",

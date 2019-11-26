@@ -478,11 +478,11 @@ namespace Analysis {
   }
 
 
-void MV2Tag::CreateLocalVariables(std::map<std::string, double> var_map){
+void MV2Tag::CreateLocalVariables(const std::map<std::string, double> &var_map){
 
 
 
-  for(std::map<std::string, double >::iterator iterator = var_map.begin(); iterator != var_map.end(); iterator++) {
+  for(std::map<std::string, double >::const_iterator iterator = var_map.begin(); iterator != var_map.end(); iterator++) {
 
       std::string MVTM_var_name = iterator->first;
 
@@ -495,11 +495,11 @@ void MV2Tag::CreateLocalVariables(std::map<std::string, double> var_map){
 
 }
 
-void MV2Tag::ReplaceNaN_andAssign(std::map<std::string, double> var_map){
+void MV2Tag::ReplaceNaN_andAssign(const std::map<std::string, double> &var_map){
     //replace nan values provided by MultivariateTagManager
 
 
-    for(std::map<std::string, double >::iterator iterator = var_map.begin(); iterator != var_map.end(); iterator++) {
+    for(std::map<std::string, double >::const_iterator iterator = var_map.begin(); iterator != var_map.end(); iterator++) {
 
 
       std::string MVTM_var_name = iterator->first;
@@ -515,7 +515,7 @@ void MV2Tag::ReplaceNaN_andAssign(std::map<std::string, double> var_map){
   }
 
 
-  void MV2Tag::SetVariableRefs(const std::vector<std::string> inputVars, TMVA::Reader* tmvaReader, unsigned &nConfgVar, bool &badVariableFound, std::vector<float*> &inputPointers) {
+  void MV2Tag::SetVariableRefs(const std::vector<std::string> &inputVars, TMVA::Reader* tmvaReader, unsigned &nConfgVar, bool &badVariableFound, std::vector<float*> &inputPointers) {
 
 
     if (!m_useEgammaMethodMV2) {

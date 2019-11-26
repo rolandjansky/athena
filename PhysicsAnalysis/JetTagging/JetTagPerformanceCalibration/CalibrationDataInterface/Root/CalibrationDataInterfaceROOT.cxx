@@ -624,6 +624,12 @@ Analysis::CalibrationDataInterfaceROOT::~CalibrationDataInterfaceROOT()
     }
   }
 
+  for (std::map<std::string, HadronisationReferenceHelper*>::iterator it = m_refMap.begin();
+       it != m_refMap.end(); ++it) {
+    if(it->second)
+      { delete it->second; it->second=nullptr; }
+  }
+
   // Print summary output on out-of-bounds issues
   if (m_absEtaStrategy == Flag) {
     bool found = false;

@@ -46,6 +46,7 @@
 + PhysicsAnalysis/AnalysisCommon/HDF5Utils
 + PhysicsAnalysis/BPhys/BPhysTools
 + PhysicsAnalysis/D3PDTools/.*
++ PhysicsAnalysis/DerivationFramework/DerivationFrameworkAnalysisTests
 - PhysicsAnalysis/ElectronPhotonID/ElectronPhotonTagTools
 + PhysicsAnalysis/ElectronPhotonID/.*
 + PhysicsAnalysis/HiggsPhys/Run2/HZZ/Tools/ZMassConstraint

@@ -56,18 +56,18 @@ namespace FlavorTagDiscriminants {
     // set up outputs
     for (const auto& out_node: graph_config.outputs) {
       std::string node_name = out_node.first;
-      std::string output_stub = node_name;
-
-      // let user rename the output
-      auto replacement_itr = out_remap.find(output_stub);
-      if (replacement_itr != out_remap.end()) {
-        output_stub = out_remap.at(replacement_itr->first);
-        out_remap.erase(replacement_itr);
-      }
 
       OutNode node;
       for (const std::string& element: out_node.second.labels) {
-        std::string name = output_stub + "_" + element;
+        std::string name = node_name + "_" + element;
+
+        // let user rename the output
+        auto replacement_itr = out_remap.find(name);
+        if (replacement_itr != out_remap.end()) {
+          name = replacement_itr->second;
+          out_remap.erase(replacement_itr);
+        }
+
         // for the spring 2019 retraining campaign we're stuck with
         // doubles. Hopefully at some point we can move to using
         // floats.
