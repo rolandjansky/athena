@@ -23,7 +23,7 @@ JetCalibrationTool::JetCalibrationTool(const std::string& name)
     m_rhkRhoKey(""),
     m_rhkPV("PrimaryVertices"),
     m_jetAlgo(""), m_config(""), m_calibSeq(""), m_calibAreaTag(""), m_originScale(""), m_devMode(false), m_isData(true), m_timeDependentCalib(false), m_rhoKey("auto"), m_dir(""), m_eInfoName(""), m_globalConfig(NULL),
-    m_doJetArea(true), m_doResidual(true), m_doOrigin(true), m_doGSC(true),
+    m_doJetArea(true), m_doResidual(true), m_doOrigin(true), m_doGSC(true), m_gscDepth("auto"),
     m_jetPileupCorr(NULL), m_etaJESCorr(NULL), m_globalSequentialCorr(NULL), m_insituDataCorr(NULL), m_jetMassCorr(NULL), m_jetSmearCorr(NULL)
 { 
 
@@ -38,6 +38,7 @@ JetCalibrationTool::JetCalibrationTool(const std::string& name)
   declareProperty( "OriginScale", m_originScale = "JetOriginConstitScaleMomentum");
   declareProperty( "CalibArea", m_calibAreaTag = "00-04-82");
   declareProperty( "rhkRhoKey", m_rhkRhoKey);
+  declareProperty( "GSCDepth", m_gscDepth);
 
 }
 
@@ -251,7 +252,7 @@ StatusCode JetCalibrationTool::getCalibClass(const std::string&name, TString cal
     ATH_MSG_INFO("Initializing GSC correction.");
     suffix="_GSC";
     if(m_devMode) suffix+="_DEV";
-    m_globalSequentialCorr = new GlobalSequentialCorrection(name+suffix,m_globalConfig,jetAlgo,calibPath,m_devMode);
+    m_globalSequentialCorr = new GlobalSequentialCorrection(name+suffix,m_globalConfig,jetAlgo,m_gscDepth,calibPath,m_devMode);
     m_globalSequentialCorr->msg().setLevel( this->msg().level() );
     if ( m_globalSequentialCorr->initializeTool(name+suffix).isFailure() ) {
       ATH_MSG_FATAL("Couldn't initialize the Global Sequential Calibration. Aborting"); 
