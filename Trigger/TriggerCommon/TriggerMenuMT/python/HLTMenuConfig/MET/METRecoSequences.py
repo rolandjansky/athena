@@ -7,7 +7,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool
 
 from TrigEFMissingET.TrigEFMissingETConf import (
         EFMissingETAlgMT, EFMissingETFlagsMT, HLT__MET__TrkMHTFex,
-        HLT__MET__CellFex, HLT__MET__MHTFex, HLT__MET__TCFex)
+        HLT__MET__CellFex, HLT__MET__MHTFex, HLT__MET__TCFex, HLT__MET__TCPufitFex)
 from TrigEFMissingET.TrigEFMissingETMTConfig import getMETMonTool
 
 from TrigT2CaloCommon.CaloDef import clusterFSInputMaker
@@ -76,25 +76,15 @@ def metClusterPufitRecoSequence(RoIs = 'FSJETRoI'):
     from TrigT2CaloCommon.CaloDef import HLTFSTopoRecoSequence
     (tcSeq, ClustersName) = RecoFragmentsPool.retrieve(HLTFSTopoRecoSequence, RoIs)
 
-    #################################################
-    # Add EFMissingETAlg and associated tools
-    #################################################
-    metAlg = EFMissingETAlgMT( name="EFMET_tcPufit" )
-    metAlg.METContainerKey = recordable("HLT_MET_tcPufit")
-    metAlg.MonTool = getMETMonTool()
-    
-        #///////////////////////////////////////////
-        # Add EFMissingETFromClustersPufit tool
-        #///////////////////////////////////////////
-    from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFromClustersPufitMT
-    clusterPufitTool = EFMissingETFromClustersPufitMT( name="METFromClustersPufitTool" )
-    clusterPufitTool.ClustersCollection = ClustersName
+    alg = HLT__MET__TCPufitFex(
+            name="EFMET_tcPufit",
+            METContainerKey = recordable("HLT_MET_tcPufit"),
+            ClusterName = ClustersName,
+            MonTool = getMETMonTool() )
 
-    metAlg.METTools = [clusterPufitTool]
+    metClusterPufitRecoSequence = seqAND("metClusterPufitRecoSequence", [tcSeq, alg])
 
-    metClusterPufitRecoSequence = seqAND("metClusterPufitRecoSequence", [tcSeq ,metAlg])
-
-    seqOut = metAlg.METContainerKey
+    seqOut = alg.METContainerKey
     return (metClusterPufitRecoSequence, seqOut)
 
 
