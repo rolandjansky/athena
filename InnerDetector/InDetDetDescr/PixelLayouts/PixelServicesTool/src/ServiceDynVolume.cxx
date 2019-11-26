@@ -8,28 +8,30 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #include "CLHEP/Units/SystemOfUnits.h"
 #include <iostream>
 
+// FIXME : use athena msg, not cout
 void ServiceDynVolume::dump( bool dumpMaterial) const
 {
   using namespace std;
-  if (shape() == Cylinder) cout << "Cylinder ";
-  else if (shape() == Disk) cout << "Disk";
+  if (shape() == Cylinder) std::cout << "Cylinder ";
+  if (shape() == Disk)     std::cout << "Disk";
   
-  cout << "Radial extent " << m_rMin << "," << m_rMax 
-       << " Z extent "     << m_zMin << "," << m_zMax;
+  std::cout << "Radial extent " << m_rMin << "," << m_rMax 
+	    << " Z extent "     << m_zMin << "," << m_zMax;
+  
+  std::cout << " routes " << layers().size() << " layers" << std::endl;
 
-  cout << " routes " << layers().size() << " layers" << endl;
-
-  if ( dumpMaterial && !materials().empty()) {
+  // Is !materials().empty() a redundant check?
+  if (dumpMaterial && !materials().empty()) {
     for (std::vector<ServiceDynMaterial>::const_iterator i=materials().begin(); i!=materials().end(); ++i) {
-      cout << "   service material " << i->name() << " has the following components" << endl;
+      std::cout << "   service material " << i->name() << " has the following components" << std::endl;
       for ( ServiceDynMaterial::EntryIter ient= i->components().begin(); ient!=i->components().end(); ient++) {
-	cout << ient->name << " linear? " << ient->linear 
-	     << " number " << ient->number 
-	     << " l/w " << ient->weight 
-	     << " total l/w " << ient->weight*ient->number << endl;
+	std::cout<< ient->name << " linear? " << ient->linear 
+		 << " number " << ient->number 
+		 << " l/w " << ient->weight 
+		 << " total l/w " << ient->weight*ient->number << std::endl;
       }
     }
-    cout << endl;
+    std::cout  << std::endl;
   }
 }
 

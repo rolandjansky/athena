@@ -148,7 +148,7 @@ ServiceStaticBuilder::ServiceStaticBuilder(const PixelGeoBuilderBasics* basics, 
 ServiceStaticBuilder::~ServiceStaticBuilder() 
 {
   // delete contents of m_multiParam
-  for (unsigned int i = 0; i < m_services.size(); ++i) {
+  for (size_t i=0; i < m_services.size(); ++i) {
     delete  m_services[i];
   }
   
@@ -176,7 +176,9 @@ void ServiceStaticBuilder::initialize(const std::string & a)
     schema.setPixelSchema();
     table = "PIXEL_PIXELSIMPLESERVICE_GEO_XML";
     label = "Svc";
-  } else if (a=="barrel") { 
+  } 
+  // Redundant, this doesn't occur anywhere else?
+  /* else if (a=="barrel") { 
     schema.setPixelSchema();
     table = "PIXEL_PIXELBARRELSERVICE_GEO_XML";
     label = "Brl";
@@ -184,7 +186,9 @@ void ServiceStaticBuilder::initialize(const std::string & a)
     schema.setPixelSchema();
     table = "PIXEL_PIXELENDCAPSERVICE_GEO_XML";
     label = "EC";
-  } else {
+  }
+  */ 
+  else {
     msg(MSG::ERROR) << "Unrecognized service table type: " << a << endreq;
     return;
   } 

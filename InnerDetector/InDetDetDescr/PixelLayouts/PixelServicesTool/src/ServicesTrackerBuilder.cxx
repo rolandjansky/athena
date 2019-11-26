@@ -23,7 +23,7 @@ ServicesTrackerBuilder::ServicesTrackerBuilder()
 
 ServicesDynTracker* ServicesTrackerBuilder::buildGeometry(const PixelGeoBuilderBasics* basics, bool bBarrelModuleMaterial) const
 {
-
+  // Question - what is difference between using msg<<MSG::DEBUG and msg(MSG::DEBUG)?
   const Athena::MsgStreamMember msg(Athena::Options::Eager,"ServiceTrackerBuilder");
 
   // retrieve the xml interface 
@@ -56,7 +56,7 @@ ServicesDynTracker* ServicesTrackerBuilder::buildGeometry(const PixelGeoBuilderB
     std::vector<InDet::StaveTmp*> staveTmp = m_xmlReader->getPixelStaveTemplate(i);
 
     // ST in principle stave template are different, build material properties for each
-    for (unsigned int is = 0; is < staveTmp.size(); is++) {
+    for (size_t is = 0; is < staveTmp.size(); is++) {
 
       std::string moduleType = staveTmp[is]->b_type; 
       GeoDetModulePixel* barrelModule = m_pixelModuleSvc->getModule(basics,2,i,moduleType);
@@ -76,9 +76,14 @@ ServicesDynTracker* ServicesTrackerBuilder::buildGeometry(const PixelGeoBuilderB
       double staveZOffset = layerTmp->stave_zoffset;
       int nSectors = 1.*layerTmp->stave_n/staveTmp.size();                             // number of sectors built from 1 stave template
       
-      msg<< MSG::DEBUG << "Created new ServicesDynTracker() : barrel layer " << i<<" "<<layerRadius<<"with " <<nSectors << " sectors, stave template "<< is <<" # modules "<<modulesPerStave<<"  // length : "<<layerLength<<endmsg;
+      msg << MSG::DEBUG << "Created new ServicesDynTracker() : barrel layer " << i<<" "
+		        << layerRadius << "with " 
+		        << nSectors << " sectors, stave template "<< is 
+		        << " # modules "<<modulesPerStave
+		        <<"  // length : "<<layerLength
+		        << endmsg;
       
-      if(endcapModuleNumber==0){
+      if (endcapModuleNumber==0){
 	tracker->constructBarrelLayer( layerRadius, layerLength+2.*basics->epsilon(), staveZOffset,
 				       DetTypeDyn::Pixel, i, is, nSectors, suffix,
 				       modulesPerStave, nChipsPerModule);
@@ -87,9 +92,7 @@ ServicesDynTracker* ServicesTrackerBuilder::buildGeometry(const PixelGeoBuilderB
 	std::vector<int> modulesPerStave_vec;
 	std::vector<int> nChipsPerModule_vec;
 	modulesPerStave_vec.push_back(modulesPerStave);
-	if(transModuleNumber>0){
-	  modulesPerStave_vec.push_back(transModuleNumber);
-	}
+	if(transModuleNumber>0) modulesPerStave_vec.push_back(transModuleNumber);
 	modulesPerStave_vec.push_back(endcapModuleNumber);
 	
 	nChipsPerModule_vec.push_back(nChipsPerModule);
@@ -132,126 +135,122 @@ ServicesDynTracker* ServicesTrackerBuilder::buildGeometry(const PixelGeoBuilderB
     double zPos, rMin, rMax;
     int nbModTot, nbChipTot;
 
-    if(isDisc)   // one route per disc
-      {
-	zPos = 0;
-	std::vector<double> zOffset = discTmp->zoffset;
-	std::vector<double> ringPos = discTmp->ringpos;
-	int numRing = (int)zOffset.size();
-	for (int j=0; j<numRing; j++) zPos += (ringPos[j]+zOffset[j]);
-	zPos /= (double)(numRing);
+    // one route per disc
+    if(isDisc) {
+      zPos = 0;
+      std::vector<double> zOffset = discTmp->zoffset;
+      std::vector<double> ringPos = discTmp->ringpos;
+      int numRing = (int)zOffset.size();
+      for (int j=0; j<numRing; j++) zPos += (ringPos[j]+zOffset[j]);
+      zPos /= (double)(numRing);
+      
+      rMin = 999999.; rMax = 0.;
+      nbChipTot = 0; nbModTot=0;
+      std::vector<double> rInner = discTmp->innerRadius;
+      std::vector<std::string> modType = discTmp->modtype;
+      std::vector<int> nSectors = discTmp->nsectors;
+      for(int j=0; j<numRing; j++){
+	rMin = std::min(rMin,rInner[j]);
 	
-	rMin = 999999.; rMax = 0.;
-	nbChipTot = 0; nbModTot=0;
-	std::vector<double> rInner = discTmp->innerRadius;
-	std::vector<std::string> modType = discTmp->modtype;
-	std::vector<int> nSectors = discTmp->nsectors;
-	for(int j=0; j<numRing; j++){
-	  rMin = std::min(rMin,rInner[j]);
-
-	  msg<<MSG::DEBUG<<"ServicesTrackerBuilder - build disc : "<<iDisc<<"  "<<modType[j]<<endmsg;
-	  
-	  GeoDetModulePixel* endcapModule = m_pixelModuleSvc->getModule(basics,2,iDisc,modType[j]);
-	  nbModTot += nSectors[j];
-	  nbChipTot += nSectors[j]*endcapModule->ChipNumber();
-
-	  rMax=std::max(rMax, ComputeRMax(rInner[j], 0.0001, endcapModule->Length(), endcapModule->Width()));
-
-	}
+	msg<<MSG::DEBUG<<"ServicesTrackerBuilder - build disc : "<<iDisc<<"  "<<modType[j]<<endmsg;
 	
-	tracker->constructEndcapLayer( zPos, rMin, rMax,
-				       DetTypeDyn::Pixel, iDisc,
-				       numRing,
-				       suffix,
-				       (int)nbModTot/numRing, (int)(nbModTot/nbChipTot));   // SES fixme
+	GeoDetModulePixel* endcapModule = m_pixelModuleSvc->getModule(basics,2,iDisc,modType[j]);
+	nbModTot += nSectors[j];
+	nbChipTot += nSectors[j]*endcapModule->ChipNumber();
+	
+	rMax=std::max(rMax, ComputeRMax(rInner[j], 0.0001, endcapModule->Length(), endcapModule->Width()));
+	
       }
-    else
-      {
-	ringDisk.push_back(iDisc);
-	std::vector<double> zOffset = discTmp->zoffset;
-	std::vector<double> ringPos = discTmp->ringpos;
- 	int numRing = (int)ringPos.size();
-	for(int j=0; j<numRing; j++){
-	  ringDiskZpos.push_back(ringPos[j]+zOffset[j]);
-	  ringDiskId.push_back(iDisc);
-	  ringId.push_back(j);
-	}
+      
+      tracker->constructEndcapLayer( zPos, rMin, rMax,
+				     DetTypeDyn::Pixel, iDisc,
+				     numRing,
+				     suffix,
+				     (int)nbModTot/numRing, (int)(nbModTot/nbChipTot));   // SES fixme
+    }
+    else {
+      ringDisk.push_back(iDisc);
+      std::vector<double> zOffset = discTmp->zoffset;
+      std::vector<double> ringPos = discTmp->ringpos;
+      int numRing = (int)ringPos.size();
+      for(int j=0; j<numRing; j++){
+	ringDiskZpos.push_back(ringPos[j]+zOffset[j]);
+	ringDiskId.push_back(iDisc);
+	ringId.push_back(j);
       }
+    }
   }
 
   // Special case : ring disks. We have to create the disk following their zpos (smaller->higher value)
   // Special case : ring layers. We have to create the disk following their zpos (smaller->higher value)
   
-  if(ringDisk.size()>0) 
-    {
-      //      int numDisk = (int)ringDisk.size();
-      std::vector<double>sortedRingDiskZpos(ringDiskZpos);
-      std::sort(sortedRingDiskZpos.begin(), sortedRingDiskZpos.end());
-      sortedRingDiskZpos.erase( unique( sortedRingDiskZpos.begin(), sortedRingDiskZpos.end() ), sortedRingDiskZpos.end() );
-
-      std::vector<std::string> trkLayerNumber;
-      for (int iDisc = 0; iDisc < m_ndisks; iDisc++){
-	std::ostringstream os;
-	os<<"Disc trk layer indices "<<iDisc<<" : ";
-	trkLayerNumber.push_back(os.str());
-      }
-
-      int iCmpt=0;
-      // Looping over all the ring defined in the discs
-      for(int i=0; i<(int)sortedRingDiskZpos.size(); i++){
-
-	// Looking for dic/ring indices corresponding to zPos	double zPos = ringDiskZpos[i];
-	double zPos = sortedRingDiskZpos[i];
-	std::vector<int> discIndexList;
-	std::vector<int> ringIndexList;
-	for (int iDisc = 0; iDisc < m_ndisks; iDisc++) 
-	  {
-	    for(int k=0; k<(int)ringDiskZpos.size(); k++)
-	      if(ringDiskId[k]==iDisc) 
-		{
-		  double tmp= fabs(zPos-ringDiskZpos[k]);
-		  if(tmp<0.001) {
-		    discIndexList.push_back(iDisc); 
-		    ringIndexList.push_back(ringId[k]);
-		  }
-		}
+  if(ringDisk.size()>0) {
+    //      int numDisk = (int)ringDisk.size();
+    std::vector<double>sortedRingDiskZpos(ringDiskZpos);
+    std::sort(sortedRingDiskZpos.begin(), sortedRingDiskZpos.end());
+    sortedRingDiskZpos.erase( unique( sortedRingDiskZpos.begin(), sortedRingDiskZpos.end() ), sortedRingDiskZpos.end() );
+    
+    std::vector<std::string> trkLayerNumber;
+    for (int iDisc = 0; iDisc < m_ndisks; iDisc++){
+      std::ostringstream os;
+      os<<"Disc trk layer indices "<<iDisc<<" : ";
+      trkLayerNumber.push_back(os.str());
+    }
+    
+    int iCmpt=0;
+    // Looping over all the ring defined in the discs
+    for(int i=0; i<(int)sortedRingDiskZpos.size(); i++){
+      
+      // Looking for dic/ring indices corresponding to zPos	double zPos = ringDiskZpos[i];
+      double zPos = sortedRingDiskZpos[i];
+      std::vector<int> discIndexList;
+      std::vector<int> ringIndexList;
+      for (int iDisc = 0; iDisc < m_ndisks; iDisc++) {
+	for(int k=0; k<(int)ringDiskZpos.size(); k++)
+	  if(ringDiskId[k]==iDisc) {
+	    double tmp= fabs(zPos-ringDiskZpos[k]);
+	    if(tmp<0.001) {
+	      discIndexList.push_back(iDisc); 
+	      ringIndexList.push_back(ringId[k]);
+	    }
 	  }
-
-	for(int  iDisc = 0; iDisc < (int)discIndexList.size(); iDisc++) {
-
-	  int discIndex = discIndexList[iDisc];
-	  int ringIndex = ringIndexList[iDisc];
-	  
-	  InDet::EndcapLayerTmp* discTmp = m_xmlReader->getPixelEndcapLayerTemplate(discIndex); 
-	  
-	  std::vector<double> zOffset = discTmp->zoffset;
-	  std::vector<double> ringPos = discTmp->ringpos;
-	  std::vector<double> rInner = discTmp->innerRadius;
-	  std::vector<std::string> modType = discTmp->modtype;
-	  std::vector<int> nSectors = discTmp->nsectors;
-	  //	int numRing = (int)zOffset.size();
-	  
-	  zPos = ringPos[ringIndex]+zOffset[ringIndex];
-	  double rMin = rInner[ringIndex];
-	  GeoDetModulePixel* endcapModule = m_pixelModuleSvc->getModule(basics,2,iDisc,modType[ringIndex]);  // same module for a disc
-	  //	double rMax = rMin+endcapModule->Length();
-	  double rMax=ComputeRMax(rMin, 0.0001, endcapModule->Length(), endcapModule->Width());
-	  int nbModTot = nSectors[ringIndex];
-	  int nbChipPerModule = endcapModule->ChipNumber();
-	  
-	  std::ostringstream os;
-	  os<<" "<<iCmpt;
-	  trkLayerNumber[discIndex]+=os.str();
-	  tracker->constructEndcapLayer( zPos, rMin, rMax,
-					 DetTypeDyn::Pixel, iCmpt++,
-					 1,
-					 suffix,
-					 nbModTot, nbChipPerModule);
-	}
       }
       
-      for (int iDisc = 0; iDisc < m_ndisks; iDisc++) msg<<MSG::DEBUG<<trkLayerNumber[iDisc]<<endmsg;
+      for(int  iDisc = 0; iDisc < (int)discIndexList.size(); iDisc++) {
+	
+	int discIndex = discIndexList[iDisc];
+	int ringIndex = ringIndexList[iDisc];
+	
+	InDet::EndcapLayerTmp* discTmp = m_xmlReader->getPixelEndcapLayerTemplate(discIndex); 
+	
+	std::vector<double> zOffset = discTmp->zoffset;
+	std::vector<double> ringPos = discTmp->ringpos;
+	std::vector<double> rInner = discTmp->innerRadius;
+	std::vector<std::string> modType = discTmp->modtype;
+	std::vector<int> nSectors = discTmp->nsectors;
+	//	int numRing = (int)zOffset.size();
+	
+	zPos = ringPos[ringIndex]+zOffset[ringIndex];
+	double rMin = rInner[ringIndex];
+	GeoDetModulePixel* endcapModule = m_pixelModuleSvc->getModule(basics,2,iDisc,modType[ringIndex]);  // same module for a disc
+	//	double rMax = rMin+endcapModule->Length();
+	double rMax=ComputeRMax(rMin, 0.0001, endcapModule->Length(), endcapModule->Width());
+	int nbModTot = nSectors[ringIndex];
+	int nbChipPerModule = endcapModule->ChipNumber();
+	
+	std::ostringstream os;
+	os<<" "<<iCmpt;
+	trkLayerNumber[discIndex]+=os.str();
+	tracker->constructEndcapLayer( zPos, rMin, rMax,
+				       DetTypeDyn::Pixel, iCmpt++,
+				       1,
+				       suffix,
+				       nbModTot, nbChipPerModule);
+      }
     }
+    
+    for (int iDisc = 0; iDisc < m_ndisks; iDisc++) msg<<MSG::DEBUG<<trkLayerNumber[iDisc]<<endmsg;
+  }
   
 	
 
@@ -291,11 +290,9 @@ ServicesDynTracker* ServicesTrackerBuilder::buildGeometry(const PixelGeoBuilderB
 
 double ServicesTrackerBuilder::ComputeRMax(double rMin, double safety, double moduleLength, double moduleWidth) const
 {
-
   double xCorner = moduleWidth*.5;
   double yCorner = rMin + moduleLength;
   
   double ringRmax = sqrt(xCorner*xCorner+yCorner*yCorner);
   return ringRmax + std::abs(safety);
-
 }

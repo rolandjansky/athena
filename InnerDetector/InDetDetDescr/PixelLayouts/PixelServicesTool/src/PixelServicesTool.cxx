@@ -51,12 +51,8 @@ PixelServicesTool::PixelServicesTool(const std::string& type, const std::string&
 
 PixelServicesTool::~PixelServicesTool()
 {
-  if(m_pixServices){
-    if(m_pixServices) delete m_pixServices;
-  }
-  if(m_dynServices){
-    if(m_dynServices) delete m_dynServices;
-  }
+  if(m_pixServices) delete m_pixServices;
+  if(m_dynServices) delete m_dynServices;
 }
 
 
@@ -64,7 +60,6 @@ PixelServicesTool::~PixelServicesTool()
 
 StatusCode PixelServicesTool::initialize()
 {
-  
   StatusCode sc = AthAlgTool::initialize();
   if (sc.isFailure())
     {
@@ -88,12 +83,13 @@ StatusCode PixelServicesTool::finalize()
 void PixelServicesTool::resetServices()
 {
   if(m_pixServices) {
-    delete  m_pixServices; m_pixServices = 0;
+    delete m_pixServices; 
+    m_pixServices = 0;
   }
   if(m_dynServices) {
-    delete  m_dynServices; m_dynServices = 0;
+    delete m_dynServices; 
+    m_dynServices = 0;
   }
-
 }
 
 // Build the services and service regions
@@ -106,7 +102,6 @@ void PixelServicesTool::resetServices()
 
 void PixelServicesTool::buildServices(const PixelGeoBuilderBasics* basics, std::vector<InDetDD::TubeZone*> svcRegions )
 {
-  
   // Services already defined
   if(m_pixServices||m_dynServices){
     ATH_MSG_WARNING("InDetServicesTool::buildServices - services already built");
@@ -142,6 +137,7 @@ void PixelServicesTool::buildServices(const PixelGeoBuilderBasics* basics, std::
   double endcapZmin = -1.;
   double endcapZmax = -1.;
 
+  // Necessary? Under what circumstances would endcapA(C)Present == false?
   if(endcapAPresent||endcapCPresent){
     endcapRmin = genDBHelper.getEndcapRMin();
     endcapRmax = genDBHelper.getEndcapRMax();
@@ -156,7 +152,7 @@ void PixelServicesTool::buildServices(const PixelGeoBuilderBasics* basics, std::
 
   // Barrel/endcap volume
   bool cylBarrel = genDBHelper.isBarrelCylindrical();
-  bool cylEndcap = genDBHelper.isBarrelCylindrical();
+  bool cylEndcap = genDBHelper.isEndcapCylindrical();
 
   // Top volume / pixel envelope
 
@@ -165,12 +161,12 @@ void PixelServicesTool::buildServices(const PixelGeoBuilderBasics* basics, std::
 
   // Define service envelopes for standard cylindrical barrel/endcap geometries
   if(cylBarrel){
-
     ATH_MSG_DEBUG("GEOPIXELSERVICES pixel : cylindrical barrel/endcap");
     double delta =0.;
     InDetDD::TubeZone* pixZone = new InDetDD::TubeZone("Pixel",-pixelZmax+delta,pixelZmax-delta,pixelRmin+delta,pixelRmax-delta);
     InDetDD::UnboundedZone topZone("Mother");
 
+    // for (auto it : svcRegions){   (??)
     for(std::vector<InDetDD::TubeZone*>::iterator it=svcRegions.begin(); it!=svcRegions.end(); ++it){
       pixZone->add(new InDetDD::TubeZone((*it)->label(),(*it)->getZmin(),(*it)->getZmax(),(*it)->getRmin(),(*it)->getRmax(),(*it)->rotated()));
     }
@@ -200,6 +196,8 @@ void PixelServicesTool::buildServices(const PixelGeoBuilderBasics* basics, std::
       double zmin = -hLenList[i];
       double zmax = hLenList[i];
       
+      // Why radiusNumber - 2? 
+      //Because the barrel envelope is 3 radius values for two merged cylinders, does this rteally mean i==0?
       if(i==radiusNumber-2) rmax=pixelRmax;
       
       std::ostringstream name; 
@@ -211,12 +209,16 @@ void PixelServicesTool::buildServices(const PixelGeoBuilderBasics* basics, std::
       InDetDD::TubeZone* pixZone = new InDetDD::TubeZone(os.str(),zmin, zmax, rmin, rmax);
       InDetDD::UnboundedZone topZone("Mother");
       int nbZone=0;
+      // for (auto it : svcRegions){ ??
       for(std::vector<InDetDD::TubeZone*>::iterator it=svcRegions.begin(); it!=svcRegions.end(); ++it){
-	bool bRadial = ((*it)->getRmin()>rmin&&(*it)->getRmax()<rmax);
-	bool bZpos = ((*it)->getZmin()>zmin&&(*it)->getZmax()<zmax);
+	bool bRadial = ((*it)->getRmin()>rmin && (*it)->getRmax()<rmax);
+	bool bZpos = ((*it)->getZmin()>zmin && (*it)->getZmax()<zmax);
 	if(bRadial&&bZpos){
 	  pixZone->add(new InDetDD::TubeZone((*it)->label(),(*it)->getZmin(),(*it)->getZmax(),(*it)->getRmin(),(*it)->getRmax()));
 	  nbZone++;
+	}
+	else {
+	  ATH_MSG_DEBUG("   check if point inside svcRegion - "<<bRadial<<" "<<bZpos);
 	}
       }
       
@@ -229,8 +231,8 @@ void PixelServicesTool::buildServices(const PixelGeoBuilderBasics* basics, std::
       // Takes ownership of pixZone
       if(i==0) {
 	m_pixServices = new ServiceStaticBuilder(basics,/*&*m_serviceBuilderTool,*/ &topZone); 
-	  m_ECmatrialFudges = getMaterialFudgesSvcEc();
-	  m_dynServices = new ServiceDynamicBuilder(basics,/*&*m_serviceBuilderTool,*/ &topZone, m_bSvcDynAutomated, m_bSetupBarrelModuleMaterial, &m_ECmatrialFudges);
+	m_ECmatrialFudges = getMaterialFudgesSvcEc();
+	m_dynServices = new ServiceDynamicBuilder(basics,/*&*m_serviceBuilderTool,*/ &topZone, m_bSvcDynAutomated, m_bSetupBarrelModuleMaterial, &m_ECmatrialFudges);
       }
       else {
 	m_pixServices->addTopZone(&topZone);
@@ -242,19 +244,18 @@ void PixelServicesTool::buildServices(const PixelGeoBuilderBasics* basics, std::
   // --------------------------------------------------------------------------------
   ATH_MSG_DEBUG("-> non cylindrical  sections : ENDCAP");
   
-  if(endcapAPresent)
-    {    
+  if(endcapAPresent) {    
       radiusList = genDBHelper.getEndcapRadiusList();
       int radiusNumber = (int)radiusList.size();
       std::vector<double> zminList = genDBHelper.getEndcapZMinList();
-      for(int iRad=0; iRad<radiusNumber-1; iRad++)
-	{
+      for(int iRad=0; iRad<radiusNumber-1; iRad++) {
 	  double rmin = radiusList[iRad];
 	  double rmax = radiusList[iRad+1];
 	  double zmin_loc = zminList[iRad];
 	  double halflen_loc = (endcapZmax-zmin_loc)*.5;
 	  double middle_loc =  (endcapZmax+zmin_loc)*.5;
 	  
+	  // Why radiusNumber - 2?
 	  if(iRad==radiusNumber-2) rmax=pixelRmax;
 	  
 	  double zmin = middle_loc-halflen_loc;
@@ -271,6 +272,7 @@ void PixelServicesTool::buildServices(const PixelGeoBuilderBasics* basics, std::
 	  ATH_MSG_DEBUG("TubeZone A : "<<os.str()<<" / "<<zmin<<" "<<zmax<<" / "<<rmin<<" "<<rmax<<"     Radius : "<<iRad<<"/"<<radiusList.size());
 	  
 	  int nbZone=0;
+	  //for (auto it : svcRegions) ??
 	  for(std::vector<InDetDD::TubeZone*>::iterator it=svcRegions.begin(); it!=svcRegions.end(); ++it){
 	    bool bRadial = ((*it)->getRmin()>rmin&&(*it)->getRmax()<rmax);
 	    bool bZpos = ((*it)->getZmin()>zmin&&(*it)->getZmax()<zmax);
@@ -278,7 +280,9 @@ void PixelServicesTool::buildServices(const PixelGeoBuilderBasics* basics, std::
 	      pixZoneA->add(new InDetDD::TubeZone((*it)->label(),(*it)->getZmin(),(*it)->getZmax(),(*it)->getRmin(),(*it)->getRmax()));
 	      nbZone++;
 	    }
-	    else ATH_MSG_DEBUG("   check if point inside svcRegion - "<<bRadial<<" "<<bZpos);
+	    else {
+	      ATH_MSG_DEBUG("   check if point inside svcRegion - "<<bRadial<<" "<<bZpos);
+	    }
 	  }
 	  if(nbZone==0)pixZoneA->add(new InDetDD::TubeZone(os.str(),zmin+delta,zmax-delta,rmin+delta,rmax-delta));
 	  ATH_MSG_DEBUG("   nbZone "<<name.str()<<" : "<<os.str()<<" "<<nbZone<<" / "<<svcRegions.size());
@@ -291,19 +295,18 @@ void PixelServicesTool::buildServices(const PixelGeoBuilderBasics* basics, std::
     }
 
   // --------------------------------------------------------------------------------
-  if(endcapCPresent)
-    {    
+  if(endcapCPresent) {    
       radiusList = genDBHelper.getEndcapRadiusList();
       int radiusNumber = (int)radiusList.size();
       std::vector<double> zminList = genDBHelper.getEndcapZMinList();
-      for(int iRad=0; iRad<radiusNumber-1; iRad++)
-	{
+      for(int iRad=0; iRad<radiusNumber-1; iRad++) {
 	  double rmin = radiusList[iRad];
 	  double rmax = radiusList[iRad+1];
 	  double zmin_loc = zminList[iRad];
 	  double halflen_loc = (endcapZmax-zmin_loc)*.5;
 	  double middle_loc =  (endcapZmax+zmin_loc)*.5;
-	  
+	 
+	  // Why radiusNumber-2?
 	  if(iRad==radiusNumber-2) rmax=pixelRmax;
 	  
 	  double zmin = -(middle_loc+halflen_loc);
@@ -327,6 +330,9 @@ void PixelServicesTool::buildServices(const PixelGeoBuilderBasics* basics, std::
 	      pixZoneC->add(new InDetDD::TubeZone((*it)->label(),(*it)->getZmin(),(*it)->getZmax(),(*it)->getRmin(),(*it)->getRmax(),true));
 	      nbZone++;
 	    }
+	    else {
+	      ATH_MSG_DEBUG("   check if point inside svcRegion - "<<bRadial<<" "<<bZpos);
+	    }
 	  }
 	  if(nbZone==0)pixZoneC->add(new InDetDD::TubeZone(osC.str(),-zmax+delta,-zmin-delta,rmin+delta,rmax-delta,true));
 	  ATH_MSG_DEBUG("   nbZone "<<nameC.str()<<" : "<<osC.str()<<" "<<nbZone<<" / "<<svcRegions.size());
@@ -340,6 +346,9 @@ void PixelServicesTool::buildServices(const PixelGeoBuilderBasics* basics, std::
     }	
 
 }
+
+// Following two functions are iudentical, except for "parent" declared as GeoPhysVol or GeoFullPhysVol
+// Both inherit from GeoVPhysVol... Can we just make one function?
 
 // Build and place the services in a GeoPhysVol object
 void PixelServicesTool::buildAndPlace(const std::string & region, GeoPhysVol * parent, double zcenter, std::vector<std::string> svcList,
@@ -569,6 +578,7 @@ std::string PixelServicesTool::getLayerStaveModuleMaterialName(int iLayer, int i
 }
 
 
+// Do we still want to keep the following material fudge factors?
 double PixelServicesTool::getMaterialFudgeModuleSvc(int iLayer) const
 {
   

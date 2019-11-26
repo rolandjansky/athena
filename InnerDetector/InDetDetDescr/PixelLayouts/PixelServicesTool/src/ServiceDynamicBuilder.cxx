@@ -181,14 +181,21 @@ void ServiceDynamicBuilder::addServiceDynVolume( const ServiceDynVolume& vol, co
     for(int i=0; i<(int)linearComponents.size(); i++)
       msgRouting<<"* "<<linearComponents[i]<<" "<<linWeights[i]<<endreq;
 
-    msgRouting<<MSG::DEBUG << "build material for volume " << vol.name() <<"  shape volume : "<<param->volume()/(CLHEP::cm3)<<" [cm3]   service length : "<<vol.length()/(CLHEP::mm)<<" [mm]"<<endreq;
+    msgRouting <<MSG::DEBUG << "build material for volume " << vol.name() 
+	                    <<"  shape volume : " << param->volume()/(CLHEP::cm3)<<" [cm3]" 
+	                    <<"   service length : " <<vol.length()/(CLHEP::mm)<<" [mm]"
+	                    <<endreq;
+
     const GeoMaterial * newMat = matMgr()->getMaterialForVolumeLength( vol.name(), 
 								       linearComponents, linWeights, 
 								       param->volume(), vol.length(),
 								       fudgeFactor);
 
     
-    msgRouting<<MSG::DEBUG << "  => final material    " << newMat->getName()<<"   density : "<<newMat->getDensity()/(CLHEP::g/CLHEP::cm3)<<" g/cm3     X0 : "<<newMat->getRadLength()/CLHEP::mm<<"mm"<<endreq;
+    msgRouting<<MSG::DEBUG << "  => final material    " << newMat->getName()
+	                   <<"   density : " << newMat->getDensity()/(CLHEP::g/CLHEP::cm3) << " g/cm3"
+          	           <<"     X0 : " << newMat->getRadLength()/CLHEP::mm << "mm" 
+	                   << endreq;
     msgRouting<<MSG::DEBUG << "  dataMat ("<<(vol.zMin()+vol.zMax())*.5<<","<<(vol.rMin()+vol.rMax())*.5<<","<<newMat->getRadLength()/CLHEP::mm<<"),"<<endreq;
 
     param->setMaterial(newMat);
@@ -254,21 +261,17 @@ void ServiceDynamicBuilder::printNewVolume( const ServiceDynVolume& vol,
   double dens = mat.getDensity();
   double weight = dens*param.volume();
 
-  if (msgLvl(MSG::DEBUG)) {
-   msg(MSG::DEBUG) << "---> name " << vol.name() << " density " << dens * CLHEP::cm3 / CLHEP::g 
-		   << " [g/cm3] weight " << dens*param.volume()/CLHEP::kg  << " [kg]" << endreq;
-    msg(MSG::DEBUG) << "Creating service volume with rmin " << vol.rMin()
-		   << " rmax " << vol.rMax() 
-		   << " zmin " << vol.zMin() 
-		   << " zmax " << vol.zMax() << endreq;
- 
-   } 
+  msg(MSG::DEBUG) << "---> name " << vol.name() << " density " << dens * CLHEP::cm3 / CLHEP::g 
+		  << " [g/cm3] weight " << dens*param.volume()/CLHEP::kg  << " [kg]" << endreq;
+  msg(MSG::DEBUG) << "Creating service volume with rmin " << vol.rMin()
+		  << " rmax " << vol.rMax() 
+		  << " zmin " << vol.zMin() 
+		  << " zmax " << vol.zMax() << endreq;
+  
 
-  if (msgLvl(MSG::DEBUG)) {   // FIXME: change to VERBOSE when done!
-    msg(MSG::DEBUG) << "Number of elements: " << mat.getNumElements() << endreq;
-    for (unsigned int i=0; i< mat.getNumElements(); i++) {
-      msg(MSG::DEBUG) << "Element " << mat.getElement(i)->getName() 
-		      << " weight " << mat.getFraction(i) * weight / CLHEP::g << endreq;
-    }
+  msg(MSG::DEBUG) << "Number of elements: " << mat.getNumElements() << endreq;
+  for (unsigned int i=0; i< mat.getNumElements(); i++) {
+    msg(MSG::DEBUG) << "Element " << mat.getElement(i)->getName() 
+		    << " weight " << mat.getFraction(i) * weight / CLHEP::g << endreq;
   }
 }
