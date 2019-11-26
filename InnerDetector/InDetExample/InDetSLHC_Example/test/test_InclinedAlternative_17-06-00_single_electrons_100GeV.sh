@@ -32,7 +32,7 @@ name="InclinedDuals"
 script="`basename \"$0\"`"
 
 evnt_electrons_100GeV=$artdata/InDetSLHC_Example/inputs/electrons_100GeV_EVNT.09244567._000004.pool.root.1
-hits_ref_electrons_100GeV=$artdata/InDetSLHC_Example/inputs/InclinedDuals_HITS_mu_100GeV.root
+###hits_ref_electrons_100GeV=$artdata/InDetSLHC_Example/inputs/InclinedDuals_HITS_mu_100GeV.root
 
 if [ $dosim -ne 0 ]; then
   hits_electrons_100GeV=physval_electrons_100GeV.HITS.root

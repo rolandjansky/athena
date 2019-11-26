@@ -32,19 +32,21 @@ name="InclinedDuals"
 script="`basename \"$0\"`"
 
 evnt_muons_100GeV=$artdata/InDetSLHC_Example/inputs/EVNT.09244578.*.pool.root.1
-hits_ref_muons_100GeV=$artdata/InDetSLHC_Example/inputs/InclinedDuals_HITS_mu_100GeV.root
+#hits_ref_muons_100GeV=$artdata/InDetSLHC_Example/inputs/InclinedDuals_HITS_mu_100GeV.root
 
 if [ $dosim -ne 0 ]; then
   hits_muons_100GeV=physval_muons_100GeV.HITS.root
 else
-  hits_muons_100GeV="$hits_ref_muons_100GeV"
+  echo "Sim job failed"
+  ###hits_muons_100GeV="$hits_ref_muons_100GeV"
 fi
 if [ $dorec -ne 0 ]; then
   esd_muons_100GeV=physval_muons_100GeV.ESD.root
   daod_muons_100GeV=physval_muons_100GeV.DAOD_IDTRKVALID.root
 else
-  esd_muons_100GeV=$artdata/InDetSLHC_Example/inputs/InclinedDuals_ESD_mu_100GeV.root
-  daod_muons_100GeV=$artdata/InDetSLHC_Example/inputs/physval_muons_100GeV.DAOD_IDTRKVALID.root
+   echo "Reco job failed"
+  ###esd_muons_100GeV=$artdata/InDetSLHC_Example/inputs/InclinedDuals_ESD_mu_100GeV.root
+  ###daod_muons_100GeV=$artdata/InDetSLHC_Example/inputs/physval_muons_100GeV.DAOD_IDTRKVALID.root
 fi
 #jo=$artdata/InDetSLHC_Example/jobOptions/PhysValITk_jobOptions.py moved to share/
 dcubemon_muons_100GeV_sim=SiHitValid_muons_100GeV.root
