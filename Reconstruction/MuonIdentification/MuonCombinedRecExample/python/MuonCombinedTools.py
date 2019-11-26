@@ -41,6 +41,31 @@ def MuonCombinedInDetDetailedTrackSelectorTool( name='MuonCombinedInDetDetailedT
     kwargs.setdefault("Extrapolator", getPublicTool("AtlasExtrapolator") )
     return CfgMgr.InDet__InDetDetailedTrackSelectorTool(name,**kwargs) 
 
+def MuonCombinedInDetDetailedForwardTrackSelectorTool( name='MuonCombinedInDetDetailedForwardTrackSelectorTool', **kwargs): 
+    if beamFlags.beamType() == 'cosmics':
+        kwargs.setdefault("pTMin", 500 )
+        kwargs.setdefault("IPd0Max", 19999.0 )
+        kwargs.setdefault("IPz0Max", 19999.0 )
+        kwargs.setdefault("z0Max", 19999.0 )
+        kwargs.setdefault("useTrackSummaryInfo", False )
+        kwargs.setdefault("useTrackQualityInfo", False )
+    else:
+        kwargs.setdefault("pTMin", 2000 )
+        kwargs.setdefault("IPd0Max", 50.0 )
+        kwargs.setdefault("IPz0Max", 9999.0 )
+        kwargs.setdefault("z0Max", 9999.0 )
+        kwargs.setdefault("useTrackSummaryInfo", True )
+        kwargs.setdefault("nHitBLayer", 0 )
+        kwargs.setdefault("nHitPix", 1 )
+        kwargs.setdefault("nHitBLayerPlusPix", 0 )
+        kwargs.setdefault("nHitSct", 0 )
+        kwargs.setdefault("nHitSi", 4 )
+        kwargs.setdefault("nHitTrt", 0 )
+        kwargs.setdefault("useTrackQualityInfo", False )
+    kwargs.setdefault("TrackSummaryTool", getPublicTool("AtlasTrackSummaryTool") )
+    kwargs.setdefault("Extrapolator", getPublicTool("AtlasExtrapolator") )
+    return CfgMgr.InDet__InDetDetailedTrackSelectorTool(name,**kwargs) 
+
 def MuonInDetForwardCandidateTool( name = 'MuonInDetForwardCandidateTool', **kwargs):
    #import pdb ; pdb.set_trace()
    idCandTool = getPublicToolClone("InDetForwardCandidateTool","InDetCandidateTool", TrackSelector = getPublicTool("MuonCombinedInDetDetailedForwardTrackSelectorTool") )
