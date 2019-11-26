@@ -280,11 +280,12 @@ addRecommendedXbbTaggers(jetm6Seq, ToolSvc)
 #====================================================================
 
 if DerivationFrameworkIsMonteCarlo:
-  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addBosonsAndDownstreamParticles,addTopQuarkAndDownstreamParticles,addHFAndDownstreamParticles
+  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addBosonsAndDownstreamParticles,addTopQuarkAndDownstreamParticles,addHFAndDownstreamParticles,addTruthCollectionNavigationDecorations
   addStandardTruthContents()
   addBosonsAndDownstreamParticles()
   addTopQuarkAndDownstreamParticles()
   addHFAndDownstreamParticles(addB=True, addC=False, generations=0)
+  addTruthCollectionNavigationDecorations(TruthCollections=["TruthTopQuarkWithDecayParticles","TruthBosonsWithDecayParticles","TruthBottom"])
   import DerivationFrameworkCore.WeightMetadata
   import DerivationFrameworkCore.LHE3WeightMetadata
 
@@ -331,7 +332,7 @@ JETM6SlimmingHelper.ExtraVariables += [
 
 for truthc in [
   "TruthTopQuark",
-  "TruthBoson",
+  "TruthBosons",
   "TruthHF"
   ]:
   JETM6SlimmingHelper.StaticContent.append("xAOD::TruthParticleContainer#"+truthc+"WithDecayParticles")
