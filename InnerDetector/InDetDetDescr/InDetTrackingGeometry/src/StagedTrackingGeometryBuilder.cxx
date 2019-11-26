@@ -960,7 +960,6 @@ void InDet::StagedTrackingGeometryBuilder::addGMmaterial(const Trk::TrackingVolu
   if (beamPipeMgr){
     // loop over GM tree
     for (unsigned int i=0; i<beamPipeMgr->getNumTreeTops(); i++) {
-      //geoMatCnv.printInfo( beamPipeMgr->getTreeTop(i));
       std::vector<Trk::GeoObject*> geoContent = geoMatCnv.decodeGMtree(beamPipeMgr->getTreeTop(i));
       //mass estimate
       for (auto geo : geoContent) {
@@ -975,7 +974,7 @@ void InDet::StagedTrackingGeometryBuilder::addGMmaterial(const Trk::TrackingVolu
     nbp = itk_material.size();
     // double check the collected mass
     double bpmass = 0.;     
-    for (unsigned int ie=0; ie<itk_material.size(); ie++) {
+    for (unsigned int ie=0; ie<nbp; ie++) {
       bpmass += itk_material[ie].mass();
     } 
     ATH_MSG_DEBUG("Material collection finds "<<itk_material.size()<<"  beam pipe objects with total mass "<<  massBeamPipe<<", TG-converted mass is "<< bpmass);
@@ -990,7 +989,6 @@ void InDet::StagedTrackingGeometryBuilder::addGMmaterial(const Trk::TrackingVolu
   if (pixelMgr) {
     // loop over GM tree
     for (unsigned int i=0; i<pixelMgr->getNumTreeTops(); i++) {
-      //geoMatCnv.printInfo( pixelMgr->getTreeTop(i));
       std::vector<Trk::GeoObject*> geoContent = geoMatCnv.decodeGMtree(pixelMgr->getTreeTop(i));
       // pixel mass estimate
       for (auto geo : geoContent) {
@@ -1018,7 +1016,6 @@ void InDet::StagedTrackingGeometryBuilder::addGMmaterial(const Trk::TrackingVolu
   if (sctMgr) {
     // lop over GM tree
     for (unsigned int i=0; i<sctMgr->getNumTreeTops(); i++) {
-      //geoMatCnv.printInfo( sctMgr->getTreeTop(i));
       std::vector<Trk::GeoObject*> geoContent = geoMatCnv.decodeGMtree(sctMgr->getTreeTop(i));
       // total mass estimate
       for (auto geo : geoContent) {

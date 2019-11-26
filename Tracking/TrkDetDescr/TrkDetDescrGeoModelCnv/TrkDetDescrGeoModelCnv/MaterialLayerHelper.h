@@ -39,22 +39,22 @@ namespace Trk {
       virtual ~MaterialLayerHelper(){}
       
       /** main method to process the external input */
-      void processMaterial(const Trk::TrackingVolume*, std::vector<MaterialElement>& , float beamPipeRadius, bool printInfo=false);
+      void processMaterial(const TrackingVolume*, std::vector<MaterialElement>& , float beamPipeRadius, bool printInfo=false);
       
-      Trk::CylinderLayer* buildCylinderLayer(std::vector< MaterialElement>& material, double, double, double, double) const;
+      CylinderLayer* buildCylinderLayer(std::vector< MaterialElement>& material, double, double, double, double) const;
       
 
       private:
         /** extract material layers from input tracking volume */
-        void getMaterialLayers(const Trk::TrackingVolume* inputVol, std::vector< const Trk::Layer* >& matLayers);
+        void getMaterialLayers(const TrackingVolume* inputVol, std::vector< const Layer* >& matLayers);
 
         /** assign material objects to layer */
-	void findClosestLayer(std::vector<MaterialElement>& matInput, std::vector< const Trk::Layer* >&  layers,
+	void findClosestLayer(std::vector<MaterialElement>& matInput, std::vector< const Layer* >&  layers,
 			      std::vector< std::vector < MaterialElement > >& mat4merge,
 			      float inputVolRadius = 1148. , float inputVolZ=3500. ,  float beamPipeRadius = 30. );
 
         /** build and assign material arrays */
-	void buildMaterial(std::vector< const Trk::Layer* >&  matLayers, 
+	void buildMaterial(std::vector< const Layer* >&  matLayers, 
 			             std::vector< std::vector < MaterialElement > >& mat4merge,
 			             float beamPipeRadius = 30.);
 

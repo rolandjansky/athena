@@ -87,7 +87,7 @@ Trk::CylinderVolumeBounds* Trk::GeoShapeConverter::convert(const GeoPcon* gpcon,
 
     rMin = gpcon->getRMinPlane(iplane) < rMin ? gpcon->getRMinPlane(iplane) : rMin;
     rMax = gpcon->getRMaxPlane(iplane) > rMin ? gpcon->getRMaxPlane(iplane) : rMax;
-
+ 
     if (msg.level()<=MSG::DEBUG) {
       msg << MSG::DEBUG  << " Pcon iplane "  << iplane << " gpcon->getZPlane(iplane) " << gpcon->getZPlane(iplane) << " zmin " << zMin << " zmax " << zMax << endmsg;
       msg << MSG::DEBUG << " Pcon iplane "  << iplane << " gpcon->getRminPlane(iplane) " << gpcon->getRMinPlane(iplane) << " rmin " << rMin << " gpcon->getRmaxPlane(iplane) " << gpcon->getRMaxPlane(iplane) << " rmax " << rMax << endmsg;
@@ -115,14 +115,14 @@ Trk::Volume* Trk::GeoShapeConverter::translateGeoShape(const GeoShape* sh, Amg::
   if (!sh) return vol;
   
   MsgStream msg(Athena::getMessageSvc(), "GeoShapeConverter");
-  
+
   std::string type = sh->type();
   
   if (msg.level() <= MSG::DEBUG)  msg << MSG::DEBUG << " translateGeoShape " << type << endmsg;
   
   if ( type=="Trap") {
     const GeoTrap* trap = dynamic_cast<const GeoTrap*> (sh);
-    Trk::TrapezoidVolumeBounds* volBounds = 0;
+    Trk::TrapezoidVolumeBounds* volBounds = nullptr;
     if (trap->getDxdyndzp()<trap->getDxdyndzn())
       volBounds=new Trk::TrapezoidVolumeBounds(trap->getDxdyndzp(),trap->getDxdyndzn(),trap->getDydzn(),trap->getZHalfLength() );
     else
@@ -175,8 +175,6 @@ Trk::Volume* Trk::GeoShapeConverter::translateGeoShape(const GeoShape* sh, Amg::
       const Amg::Translation3D yTranslation(translationVector);
       const Amg::AngleAxis3D zRotation(m90deg, gZAxis);
       Amg::Transform3D totalTransform = *transf * zRotation * yTranslation;
-      //totalTransform *= zRotation;
-      //totalTransform *= yTranslation;
       vol = new Trk::Volume(new Amg::Transform3D(totalTransform), volBounds);
       return vol;
     }
@@ -397,7 +395,7 @@ Trk::Volume* Trk::GeoShapeConverter::translateGeoShape(const GeoShape* sh, Amg::
   if ( type == "Pcon" ) {
     const GeoPcon* con = dynamic_cast<const GeoPcon*> (sh);
     if (!con) return vol;
-    Trk::CylinderVolumeBounds* volBounds = 0;
+    Trk::CylinderVolumeBounds* volBounds = nullptr;
     double aPhi = con->getSPhi();
     double dPhi = con->getDPhi();
     double z1 = con->getZPlane(0);
@@ -423,13 +421,11 @@ Trk::Volume* Trk::GeoShapeConverter::translateGeoShape(const GeoShape* sh, Amg::
          double dMax = fabs(dz);
          if(fabs(drMin)> dMax) dMax = fabs(drMin);
          if(fabs(drMax)> dMax) dMax = fabs(drMax);
-         nSteps = dMax/50.;
-//         nSteps = dMax/100.;
-         if(nSteps<2) nSteps = 2;
+         nSteps = dMax/50.;       // make size adjustable ?
+	 if(nSteps<2) nSteps = 2;
          if(nSteps>20) nSteps = 20;
 	 if (msg.level() <= MSG::DEBUG) msg << MSG::DEBUG << " Now " << nSteps << " cylinders should be created " << dz << " drMin " << drMin << " drMax " << drMax << " splopeMin " << drMin/dz << " slopeMax " << drMax/dz << endmsg;
       }
-//      nSteps = 1;
       
       for (int j=0;j<nSteps;j++) {
 

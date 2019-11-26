@@ -120,14 +120,12 @@ void Trk::GeoMaterialConverter::convertGeoObject(Trk::GeoObject* geo, std::vecto
   double volSize = geo->volumeSize;
   if (volSize<0) return;    // can happen for logical envelopes
 
-  unsigned int it=0;
   Amg::Transform3D tr0=geo->transform[0];
   for ( auto tr : geo->transform ) {
     Trk::Volume clone(*geo->trVolume,tr*tr0.inverse());
     Trk::Volume* envelope = fixedVolume ? geoShapeConverter.cylEnvelope(&clone,volSize) : geoShapeConverter.cylEnvelope(&clone);
     if (envelope) material.push_back(envelope2element(envelope,geo->material,geo->name,volSize));
     delete envelope;
-    it++;
   }
 
   return;
