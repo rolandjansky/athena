@@ -72,41 +72,43 @@ JetForwardJvtToolBDT::~JetForwardJvtToolBDT(){}
 StatusCode JetForwardJvtToolBDT::initialize()
 {
     ATH_MSG_INFO ("Initializing " << name() << "...");
-
-    // -- Retrieve MVfJVT WP configFile
-    std::string filename = PathResolverFindCalibFile(m_configDir+m_wpFile);
-    if (filename.empty()){
+    
+    if(m_isAna){
+      // -- Retrieve MVfJVT WP configFile ONLY if tool used in 'Analysis mode'
+      std::string filename = PathResolverFindCalibFile(m_configDir+m_wpFile);
+      if (filename.empty()){
 	ATH_MSG_ERROR ( "Could NOT resolve file name " << m_wpFile);
 	return StatusCode::FAILURE;
-    }  else{
+      }  else{
 	ATH_MSG_INFO(" Config Files Path found = "<<filename);
-    }
+      }
 
-    // -- Retrieve WP histograms
-    m_wpFileIn = std::make_unique<TFile> (filename.c_str(),"read");
+      // -- Retrieve WP histograms
+      m_wpFileIn = std::make_unique<TFile> (filename.c_str(),"read");
 
-    if ( m_OP=="TIGHTER") {
-      m_mvfjvtThresh1516 = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_1516_tighter" ) ) );
-      m_mvfjvtThresh17   = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_17_tighter"   ) ) );
-      m_mvfjvtThresh18   = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_18_tighter"   ) ) );
-    } else if ( m_OP=="TIGHT" ) {
-      m_mvfjvtThresh1516 = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_1516_tight" ) ) );
-      m_mvfjvtThresh17   = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_17_tight"   ) ) );
-      m_mvfjvtThresh18   = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_18_tight"   ) ) );
-    } else if ( m_OP=="DEFAULT" ) {
-      m_mvfjvtThresh1516 = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_1516_loose" ) ) );
-      m_mvfjvtThresh17   = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_17_loose"   ) ) );
-      m_mvfjvtThresh18   = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_18_loose"   ) ) );
-    } else {
-      ATH_MSG_WARNING(m_OP << " working point doesn't exist. Using \"DEFAULT\" (loose) instead" );
-      m_mvfjvtThresh1516 = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_1516_loose" ) ) );
-      m_mvfjvtThresh17   = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_17_loose"   ) ) );
-      m_mvfjvtThresh18   = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_18_loose"   ) ) );
+      if ( m_OP=="TIGHTER") {
+	m_mvfjvtThresh1516 = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_1516_tighter" ) ) );
+	m_mvfjvtThresh17   = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_17_tighter"   ) ) );
+	m_mvfjvtThresh18   = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_18_tighter"   ) ) );
+      } else if ( m_OP=="TIGHT" ) {
+	m_mvfjvtThresh1516 = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_1516_tight" ) ) );
+	m_mvfjvtThresh17   = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_17_tight"   ) ) );
+	m_mvfjvtThresh18   = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_18_tight"   ) ) );
+      } else if ( m_OP=="DEFAULT" ) {
+	m_mvfjvtThresh1516 = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_1516_loose" ) ) );
+	m_mvfjvtThresh17   = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_17_loose"   ) ) );
+	m_mvfjvtThresh18   = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_18_loose"   ) ) );
+      } else {
+	ATH_MSG_WARNING(m_OP << " working point doesn't exist. Using \"DEFAULT\" (loose) instead" );
+	m_mvfjvtThresh1516 = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_1516_loose" ) ) );
+	m_mvfjvtThresh17   = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_17_loose"   ) ) );
+	m_mvfjvtThresh18   = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_18_loose"   ) ) );
+      }
+      m_mvfjvtThresh1516->SetDirectory(0);
+      m_mvfjvtThresh17->SetDirectory(0);
+      m_mvfjvtThresh18->SetDirectory(0);
+      m_wpFileIn->Close();
     }
-    m_mvfjvtThresh1516->SetDirectory(0);
-    m_mvfjvtThresh17->SetDirectory(0);
-    m_mvfjvtThresh18->SetDirectory(0);
-    m_wpFileIn->Close();
 
     // -- Setup the tagger
     m_MVreader = std::make_unique< TMVA::Reader > ( "Silent" );
@@ -164,7 +166,7 @@ int JetForwardJvtToolBDT::modify(xAOD::JetContainer& jetCont) const {
 	if(pileupMomenta.size()==0) return StatusCode::FAILURE; // This would follow error messages defined in 'calculateVertexMomenta' function.
       }
       (*Dec_mvfjvt)(*jetF) = getMVfJVT(jetF, pvind, pileupMomenta);
-      (*Dec_outMV)(*jetF) = passMVfJVT( (*Dec_mvfjvt)(*jetF), jetF->pt()/(GeV), fabs(jetF->eta()) );
+      if(m_isAna) (*Dec_outMV)(*jetF) = passMVfJVT( (*Dec_mvfjvt)(*jetF), jetF->pt()/(GeV), fabs(jetF->eta()) );
     }
   }
   return 0;
