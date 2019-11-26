@@ -6,8 +6,8 @@ from TrigEDMConfig.TriggerEDMRun3 import recordable
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool
 
 from TrigEFMissingET.TrigEFMissingETConf import (
-        EFMissingETAlgMT, EFMissingETFlagsMT, HLT__MET__TrkMHTFex,
-        HLT__MET__CellFex, HLT__MET__MHTFex, HLT__MET__TCFex, HLT__MET__TCPufitFex)
+        HLT__MET__TrkMHTFex, HLT__MET__CellFex, HLT__MET__MHTFex,
+        HLT__MET__TCFex, HLT__MET__TCPufitFex)
 from TrigEFMissingET.TrigEFMissingETMTConfig import getMETMonTool
 
 from TrigT2CaloCommon.CaloDef import clusterFSInputMaker

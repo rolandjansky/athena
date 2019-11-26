@@ -74,8 +74,6 @@ atlas_add_component( TrigEFMissingET
   src/EFMissingETFromTrackAndClusters.cxx
   src/EFMissingETFlags.cxx
   src/EFMissingETFromHelper.cxx
-  src/EFMissingETAlgMT.cxx
-  src/EFMissingETFlagsMT.cxx
   src/FexBase.cxx
   src/MonGroupBuilder.cxx
   src/TrkMHTFex.cxx
