@@ -111,7 +111,6 @@ from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFram
 JETM6Akt4JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "JETM6Akt4JetTPThinningTool",
                                                                             ThinningService         = JETM6ThinningHelper.ThinningSvc(),
                                                                             JetKey                  = "AntiKt4EMTopoJets",
-                                                                            SelectionString         = "AntiKt4EMTopoJets.pt > 20*GeV",
                                                                             InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                             ApplyAnd                = False)
 ToolSvc += JETM6Akt4JetTPThinningTool
@@ -121,7 +120,6 @@ from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFram
 JETM6Akt4PFlowJetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "JETM6Akt4PFlowJetTPThinningTool",
                                                                                  ThinningService         = JETM6ThinningHelper.ThinningSvc(),
                                                                                  JetKey                  = "AntiKt4EMPFlowJets",
-                                                                                 SelectionString         = "AntiKt4EMPFlowJets.pt > 20*GeV",
                                                                                  InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                                  ApplyAnd                = False)
 ToolSvc += JETM6Akt4PFlowJetTPThinningTool
@@ -131,7 +129,6 @@ from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFram
 JETM6Akt10JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "JETM6Akt10JetTPThinningTool",
                                                                              ThinningService         = JETM6ThinningHelper.ThinningSvc(),
                                                                              JetKey                  = "AntiKt10LCTopoJets",
-                                                                             SelectionString         = "AntiKt10LCTopoJets.pt > 100*GeV",
                                                                              InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                              ApplyAnd                = False)
 ToolSvc += JETM6Akt10JetTPThinningTool
@@ -140,7 +137,6 @@ thinningTools.append(JETM6Akt10JetTPThinningTool)
 JETM6Akt10JetTPThinningToolTCC = DerivationFramework__JetTrackParticleThinning( name          = "JETM6Akt10JetTPThinningToolTCC",
                                                                                 ThinningService         = JETM6ThinningHelper.ThinningSvc(),
                                                                                 JetKey                  = "AntiKt10TrackCaloClusterJets",
-                                                                                SelectionString         = "AntiKt10TrackCaloClusterJets.pt > 100*GeV",
                                                                                 InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                                 ApplyAnd                = False)
 ToolSvc += JETM6Akt10JetTPThinningToolTCC
@@ -149,7 +145,6 @@ thinningTools.append(JETM6Akt10JetTPThinningToolTCC)
 JETM6Akt10JetCSSKUFOThinningToolTCC = DerivationFramework__JetTrackParticleThinning( name          = "JETM6Akt10JetCSSKUFOThinningTool",
                                                                                      ThinningService         = JETM6ThinningHelper.ThinningSvc(),
                                                                                      JetKey                  = "AntiKt10UFOCSSKJets",
-                                                                                     SelectionString         = "AntiKt10UFOCSSKJets.pt > 100*GeV",
                                                                                      InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                                      ApplyAnd                = False)
 ToolSvc += JETM6Akt10JetCSSKUFOThinningToolTCC
