@@ -1,9 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // AFP_ByteStream2RawCnv includes
 #include "AFP_ByteStream2RawCnv/AFP_RawDataProviderTool.h"
+
+using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
+
 
 static const InterfaceID
     IID_IAFP_RawCollByteStreamTool("AFP_RawDataProviderTool", 1, 0);
