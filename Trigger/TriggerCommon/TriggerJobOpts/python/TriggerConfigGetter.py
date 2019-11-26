@@ -291,7 +291,7 @@ class TriggerConfigGetter(Configured):
         if self.makeTempCool:
             TrigCoolDbConnection = self.setupTempCOOLWriting(TrigCoolDbConnection)
 
-        if not self.hasxAODMeta:
+        if ('ds' in self.ConfigSrcList) and not self.hasxAODMeta:
             self.setupCOOLReading(TrigCoolDbConnection)
 
         if hasattr(svcMgr, 'DSConfigSvc'):
