@@ -23,10 +23,8 @@ decription           : Class for merging components of a multi-state based on
 #include "TrkGaussianSumFilter/IMultiComponentStateAssembler.h"
 #include "TrkGaussianSumFilter/IMultiComponentStateMerger.h"
 #include "TrkGaussianSumFilter/SortingClasses.h"
-#include "CxxUtils/restrict.h"
 
 
-typedef float* ATH_RESTRICT floatPtrRestrict;
 
 namespace Trk {
 
@@ -82,36 +80,10 @@ private:
                                                           SimpleMultiComponentState& ) const;
 
 
-  // Recalculate the distances for a row of pairs and return the index of the minimum pair
-  int recalculateDistances(floatPtrRestrict qonpIn,
-                           floatPtrRestrict qonpCovIn,
-                           floatPtrRestrict qonpGIn,
-                           floatPtrRestrict distancesIn,
-                           int mini,
-                           int n) const;
-
-  // Calculate the distances for all pairs
-  void calculateAllDistances(floatPtrRestrict qonpIn,
-                             floatPtrRestrict qonpCovIn,
-                             floatPtrRestrict qonpGIn,
-                             floatPtrRestrict distancesIn,
-                             int n) const;
-
-  // Reset the distances for a row
-  void resetDistances(floatPtrRestrict distancesIn, const int mini, const int n) const;
-
-  // Find the 2 pairs with the smallest distance
-  std::pair<int, int> findMinimumPair(const floatPtrRestrict distancesIn,
-                                      const std::vector<const ComponentParameters*>& comp,
-                                      const int n) const;
-
-  // Finds the index of the  pair with the smallest distance
-  std::pair<int, int> findMinimumIndex(const floatPtrRestrict distancesIn, const int n) const;
-
   //////////////////////////////////////////////////////////////////////////////////////
 };
 
-template<typename T>
+template<typename T,int alignment>
 class Aligned
 {
 public:
@@ -123,7 +95,7 @@ public:
   {
     size_t const size = n * sizeof(T) + alignof(T);
     m_size = n;
-    posix_memalign(&m_ad, 32, size);
+    posix_memalign(&m_ad, alignment, size);
     m_storage = new (m_ad) T[n];
   };
 
