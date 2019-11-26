@@ -15,7 +15,6 @@ atlas_depends_on_subdirs(
    Database/PersistentDataModel
    Control/AthContainers
    Control/AthContainersInterfaces
-   TestPolicy
    AtlasTest/TestTools )
 
 # External dependencies:
