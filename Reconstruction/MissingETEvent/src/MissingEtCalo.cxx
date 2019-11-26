@@ -178,7 +178,7 @@ void MissingEtCalo::setNCellCalo(MissingEtCalo::CaloIndex theCalo,
   
 }
 
-void MissingEtCalo::setCalibType(std::string theCalibType)
+void MissingEtCalo::setCalibType(const std::string& theCalibType)
 {
   
   m_calibType=theCalibType;
