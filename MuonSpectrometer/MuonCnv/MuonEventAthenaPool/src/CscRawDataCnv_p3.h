@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_CSCRAWDATACNV_P3_H
@@ -12,6 +12,7 @@
 #include "MuonRDO/CscRawData.h"
 
 class MsgStream;
+class CscIdHelper;
 
 /**
 Transient/Persistent converter for CscRawData class
@@ -23,6 +24,10 @@ public:
   
   virtual void		persToTrans(const CscRawData_p3* persObj, CscRawData* transObj, MsgStream &log);
   virtual void		transToPers(const CscRawData* transObj, CscRawData_p3* persObj, MsgStream &log);
+private:
+  bool initialize();
+  bool m_init=false;
+  CscIdHelper* m_cscIdHelper=nullptr;
 };
 
 
