@@ -135,6 +135,7 @@ class TriggerConfigGetter(Configured):
 
     def configure(self):
         log = logging.getLogger( "TriggerConfigGetter.py" )
+        from PyUtils.MetaReaderPeekerFull import metadata
 
         # first check the input
         if "HIT2RDO" in self._environment:
@@ -163,6 +164,7 @@ class TriggerConfigGetter(Configured):
         self.l1Folders      = TriggerFlags.dataTakingConditions()=='FullTrigger' or TriggerFlags.dataTakingConditions()=='Lvl1Only'
         self.hltFolders     = TriggerFlags.dataTakingConditions()=='FullTrigger' or TriggerFlags.dataTakingConditions()=='HltOnly'
         self.isRun1Data     = False 
+        self.hasxAODMeta    = ("metadata_items" in metadata and any(('TriggerMenu' in key) for key in metadata["metadata_items"].keys()))
         if globalflags.DataSource()=='data':
             from RecExConfig.AutoConfiguration  import GetRunNumber
             runNumber = GetRunNumber()
@@ -285,7 +287,7 @@ class TriggerConfigGetter(Configured):
         if self.makeTempCool:
             TrigCoolDbConnection = self.setupTempCOOLWriting(TrigCoolDbConnection)
 
-        if ('ds' in self.ConfigSrcList or self.writeESDAOD) and not self.writeAOD and TriggerFlags.configForStartup()!='HLToffline':
+        if ('ds' in self.ConfigSrcList) and not self.hasxAODMeta:
             self.setupCOOLReading(TrigCoolDbConnection)
 
         if hasattr(svcMgr, 'DSConfigSvc'):
