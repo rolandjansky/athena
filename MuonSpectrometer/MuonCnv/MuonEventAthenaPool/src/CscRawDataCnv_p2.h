@@ -14,9 +14,10 @@ Author: Marcin Nowak
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"  
 #include "MuonEventAthenaPool/CscRawData_p2.h"
 #include "MuonRDO/CscRawData.h"
+#include "StoreGate/DataHandle.h"
+#include "MuonIdHelpers/CscIdHelper.h"
 
 class MsgStream;
-class CscIdHelper;
 
 class CscRawDataCnv_p2  : public T_AthenaPoolTPCnvBase<CscRawData, CscRawData_p2>
 {
@@ -28,7 +29,7 @@ public:
 private:
   bool initialize();
   bool m_init=false;
-  CscIdHelper* m_cscIdHelper=nullptr;
+  const DataHandle<CscIdHelper> m_cscIdHelper=nullptr;
 };
 
 
