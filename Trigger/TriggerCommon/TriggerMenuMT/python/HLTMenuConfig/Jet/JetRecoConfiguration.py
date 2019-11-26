@@ -101,7 +101,11 @@ def defineCalibFilterMods(jetRecoDict,dataSource,rhoKey="auto"):
             ("a10t","jes"):    ("TrigTrimmed","EtaJES_JMS"),
             }[(jetRecoDict["recoAlg"],jetRecoDict["jetCalib"])]
 
-        calibSpec = ":".join( [calibContext, dataSource, calibSeq, rhoKey] )
+        gscDepth = "auto"
+        if "gsc" in jetRecoDict["jetCalib"]:
+            gscDepth = "trackWIDTH"
+
+        calibSpec = ":".join( [calibContext, dataSource, calibSeq, rhoKey, gscDepth] )
         from TriggerJetMods import ConstitFourMom_copy
         if jetalg=="a4":
             calibMods = [(ConstitFourMom_copy,""),
