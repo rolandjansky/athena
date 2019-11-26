@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileCalibBlobObjs/TileCalibUtils.h"
@@ -25,6 +25,7 @@ const unsigned int TileCalibUtils::NOISY_DEFINITION_CHAN = 1; /**< @brief Channe
 const unsigned int TileCalibUtils::NOGAINL1_DEFINITION_CHAN = 2; /**< @brief Channel used for storing of NoGainLevel1 channel definitions */
 const unsigned int TileCalibUtils::BADTIMING_DEFINITION_CHAN = 3; /**< @brief Channel used for storing of bad timing channel definitions */
 const unsigned int TileCalibUtils::WRONGBCID_DEFINITION_CHAN = 4; /**< @brief Channel used for storing of wrong BCID channel definitions */
+const unsigned int TileCalibUtils::TIMINGDMUBCOFFSET_DEFINITION_CHAN = 5; /**< @brief Channel used for storing of DMU BC offset channel definitions */
 
 //
 //_____________________________________________________________________________

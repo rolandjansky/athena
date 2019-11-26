@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // System includes
@@ -8,7 +8,7 @@
 #include <string>
 
 // Local includes
-#include "AthenaStackingAction.h"
+#include "AthenaDebugStackingAction.h"
 
 // Truth includes
 #include "MCTruth/PrimaryParticleInformation.h"
@@ -20,14 +20,6 @@
 #include "G4Track.hh"
 #include "G4Event.hh"
 #include "G4EventManager.hh"
-#include "G4NeutrinoE.hh"
-#include "G4NeutrinoMu.hh"
-#include "G4NeutrinoTau.hh"
-#include "G4AntiNeutrinoE.hh"
-#include "G4AntiNeutrinoMu.hh"
-#include "G4AntiNeutrinoTau.hh"
-#include "G4Gamma.hh"
-#include "G4Neutron.hh"
 
 
 namespace G4UA
@@ -36,25 +28,14 @@ namespace G4UA
   //---------------------------------------------------------------------------
   // Constructor
   //---------------------------------------------------------------------------
-  AthenaStackingAction::AthenaStackingAction(const Config& config):
-    m_config(config),
-    m_oneOverWeightNeutron(0),
-    m_oneOverWeightPhoton(0)
-  {
-    // calculate this division only once
-    if (m_config.applyNRR)
-      m_oneOverWeightNeutron = 1./m_config.russianRouletteNeutronWeight;
-
-    // calculate this division only once
-    if (m_config.applyPRR)
-      m_oneOverWeightPhoton = 1./m_config.russianRoulettePhotonWeight;
-  }
+  AthenaDebugStackingAction::AthenaDebugStackingAction(const Config& config):
+    AthenaStackingAction(config) {}
 
   //---------------------------------------------------------------------------
   // Classify a new track
   //---------------------------------------------------------------------------
   G4ClassificationOfNewTrack
-  AthenaStackingAction::ClassifyNewTrack(const G4Track* track)
+  AthenaDebugStackingAction::ClassifyNewTrack(const G4Track* track)
   {
     // Kill neutrinos if enabled
     if(m_config.killAllNeutrinos && isNeutrino(track)) {
@@ -76,31 +57,50 @@ namespace G4UA
     EventInformation* eventInfo __attribute__ ((unused)) =
       static_cast<EventInformation*> (ev->GetUserInformation());
 
+    // Was track subject to a RR?
+    bool rouletted = false;
+
     // Neutron Russian Roulette
-    if (m_config.applyNRR && isNeutron(track) &&
+    if (m_config.russianRouletteNeutronThreshold > 0 && isNeutron(track) &&
         track->GetWeight() < m_config.russianRouletteNeutronWeight && // do not re-Roulette particles
         track->GetKineticEnergy() < m_config.russianRouletteNeutronThreshold) {
       // shoot random number
       if ( CLHEP::RandFlat::shoot() > m_oneOverWeightNeutron ) {
-        // Kill (w-1)/w neutrons
-        return fKill;
+        if (m_config.applyNRR) {
+          // Kill (w-1)/w neutrons
+          return fKill;
+        } else {
+          // process them at the end of the stack
+          return fWaiting;
+        }
       }
+      rouletted = true;
       // Weight the rest 1/w neutrons with a weight of w
-      mutableTrack->SetWeight(m_config.russianRouletteNeutronWeight);
+      if (m_config.applyNRR) {
+        mutableTrack->SetWeight(m_config.russianRouletteNeutronWeight);
+      }
     }
 
     // Photon Russian Roulette
-    if (m_config.applyPRR && isGamma(track) && track->GetOriginTouchable() &&
+    if (m_config.russianRoulettePhotonThreshold > 0 && isGamma(track) && track->GetOriginTouchable() &&
         track->GetOriginTouchable()->GetVolume()->GetName().substr(0, 3) == "LAr" && // only for photons created in LAr
         track->GetWeight() < m_config.russianRoulettePhotonWeight && // do not re-Roulette particles
         track->GetKineticEnergy() < m_config.russianRoulettePhotonThreshold) {
       // shoot random number
       if ( CLHEP::RandFlat::shoot() > m_oneOverWeightPhoton ) {
-        // Kill (w-1)/w photons
-        return fKill;
+        if (m_config.applyPRR) {
+          // Kill (w-1)/w photons
+          return fKill;
+        } else {
+          // process them at the end of the stack
+          return fWaiting;
+        }
       }
+      rouletted = true;
       // Weight the rest 1/w neutrons with a weight of w
-      mutableTrack->SetWeight(m_config.russianRoulettePhotonWeight);
+      if (m_config.applyPRR) {
+        mutableTrack->SetWeight(m_config.russianRoulettePhotonWeight);
+      }
     }
 
     // Handle primary particles
@@ -136,48 +136,11 @@ namespace G4UA
       {
         return fKill;
       }
-    return fUrgent;
-  }
-
-  PrimaryParticleInformation* AthenaStackingAction::getPrimaryParticleInformation(const G4Track *track) const
-  {
-    const G4DynamicParticle* dp = track->GetDynamicParticle();
-    if(dp) {
-      const G4PrimaryParticle* pp = nullptr;
-      pp = dp->GetPrimaryParticle();
-      if(pp) {
-        // Extract the PrimaryParticleInformation
-        return dynamic_cast<PrimaryParticleInformation*>
-          ( pp->GetUserInformation() );
-      }
-    }
-    return nullptr;
-  }
-
-  //---------------------------------------------------------------------------
-  // Identify track definition
-  //---------------------------------------------------------------------------
-  bool AthenaStackingAction::isNeutrino(const G4Track* track) const
-  {
-    auto particleDef = track->GetParticleDefinition();
-    return (particleDef == G4NeutrinoE::NeutrinoEDefinition()           ||
-            particleDef == G4AntiNeutrinoE::AntiNeutrinoEDefinition()   ||
-            particleDef == G4NeutrinoMu::NeutrinoMuDefinition()         ||
-            particleDef == G4AntiNeutrinoMu::AntiNeutrinoMuDefinition() ||
-            particleDef == G4NeutrinoTau::NeutrinoTauDefinition()       ||
-            particleDef == G4AntiNeutrinoTau::AntiNeutrinoTauDefinition());
-  }
-
-  //---------------------------------------------------------------------------
-  bool AthenaStackingAction::isGamma(const G4Track* track) const
-  {
-    return track->GetParticleDefinition() == G4Gamma::Gamma();
-  }
-
-  //---------------------------------------------------------------------------
-  bool AthenaStackingAction::isNeutron(const G4Track* track) const
-  {
-    return track->GetParticleDefinition() == G4Neutron::Neutron();
+    // Put rouletted tracks at the end of the stack
+    if (rouletted)
+      return fWaiting;
+    else
+      return fUrgent;
   }
 
 } // namespace G4UA
