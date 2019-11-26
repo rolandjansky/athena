@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaCommon import CfgMgr,Logging
+from G4UserActions.G4UserActionsConf import G4UA__AthenaStackingActionTool, G4UA__AthenaTrackingActionTool
 
 # this is a bit cumbersome, but it seems ike it is a lot easier to separate
 # the getter functionality from all the rest (i.e. adding the action).
@@ -12,7 +12,6 @@ from AthenaCommon import CfgMgr,Logging
 def AthenaStackingActionToolCfg(ConfigFlags, name='G4UA::AthenaStackingActionTool', **kwargs):
 
     result = ComponentAccumulator()
-    from G4AtlasApps.SimFlags import simFlags
     ## Killing neutrinos
     if "ATLAS" in ConfigFlags.Sim.Layout:
         kwargs.setdefault('KillAllNeutrinos',  True)
@@ -32,7 +31,7 @@ def AthenaStackingActionToolCfg(ConfigFlags, name='G4UA::AthenaStackingActionToo
         kwargs.setdefault('PRRWeight',  ConfigFlags.Sim.PRRWeight)
     kwargs.setdefault('IsISFJob', ConfigFlags.Sim.ISF.Run)
 
-    result.setPrivateTools( CfgMgr.G4UA__AthenaStackingActionTool(name,**kwargs) )
+    result.setPrivateTools( G4UA__AthenaStackingActionTool(name,**kwargs) )
     return result
 
 
@@ -46,5 +45,5 @@ def AthenaTrackingActionToolCfg(ConfigFlags, name='G4UA::AthenaTrackingActionToo
         subDetLevel=2
 
     kwargs.setdefault('SubDetVolumeLevel', subDetLevel)
-    result.setPrivateTools( CfgMgr.G4UA__AthenaTrackingActionTool(name,**kwargs) )
+    result.setPrivateTools( G4UA__AthenaTrackingActionTool(name,**kwargs) )
     return result

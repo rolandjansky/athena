@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ### This module contains functions which may need to peek at the input file metadata
 
@@ -8,26 +8,16 @@ simMDlog = logging.getLogger('Sim_Metadata')
 
 def fillAtlasMetadata(ConfigFlags, dbFiller):
 
-    #which ones to choose?!
-    simMetaDataKeys = { #'doInDetNoise' : 'Digitization.DoInnerDetectorNoise',
-                          #'doCaloNoise' : 'Digitization.DoCaloNoise',
-                          #'doMuonNoise' : "Digitization.DoMuonNoise",
-                          'bunchSpacing' : 'Beam.BunchSpacing',
-                          'beamType' : 'Beam.Type',
-                          'IOVDbGlobalTag' : 'IOVDb.GlobalTag',
-                          'DetDescrVersion' : 'GeoModel.AtlasVersion'
-                      }
-    simMDlog.info('Filling Simulation MetaData')
-    for testKey, testFlag in simMetaDataKeys.iteritems():
-        if ConfigFlags.hasFlag(testFlag):
-            testValue = ConfigFlags._get(testFlag)
-            if not isinstance(testValue, str):
-                testValue = str(testValue)
-            dbFiller.addDigitParam(testKey, testValue) #addSimParam
-            simMDlog.info('SimulationMetaData: setting "%s" to be %s', testKey, testValue)
-        else :
-            simMDlog.debug('SimulationMetaData:  ConfigFlags.%s is not available.', testFlag)
-    del simMetaDataKeys
+    #add all ConfigFlags to the metadata
+    #todo - only add certain ones?
+    #in future this should be a ConfigFlags method...?
+    for flag in sorted(ConfigFlags._flagdict):
+        key = flag.split(".")[-1] #use final part of flag as the key
+
+        if not isinstance(flag, str):
+            flag = str(flag)
+        dbFiller.addSimParam(key, flag)
+        simMDlog.info('SimulationMetaData: setting "%s" to be %s', key, flag)
 
     dbFiller.addSimParam('G4Version', ConfigFlags.Sim.G4Version)
     dbFiller.addSimParam('RunType', 'atlas')
@@ -79,7 +69,6 @@ def writeSimulationParametersMetadata(ConfigFlags):
     dbFiller.setBeginRun(myRunNumber)
     simMDlog.debug('ParameterDbFiller EndRun   = %s', str(myEndRunNumber) )
     dbFiller.setEndRun(myEndRunNumber)
-
 
     fillAtlasMetadata(ConfigFlags, dbFiller)
     if ConfigFlags.Sim.ISF.Run:
