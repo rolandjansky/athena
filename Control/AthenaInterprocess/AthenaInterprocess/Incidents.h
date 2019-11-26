@@ -6,6 +6,7 @@
 #define ATHENAINTERPROCESS_INCIDENTS_H
 
 #include "GaudiKernel/Incident.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 /**
  * @class  UpdateAfterFork
@@ -26,9 +27,11 @@ namespace AthenaInterprocess {
      * @param worker process ID  the process ID of the worker from the OS
      * @param source             sender of the incident
      */
-    UpdateAfterFork(int workerID, int workerProcessID,
-		    const std::string& source) :
-    Incident(source, type()), m_workerID(workerID), m_workerProcessID(workerProcessID) {};
+    UpdateAfterFork(int workerID,
+                    int workerProcessID,
+                    const std::string& source,
+                    const EventContext& ctx = Gaudi::Hive::currentContext()) :
+    Incident(source, type(), ctx), m_workerID(workerID), m_workerProcessID(workerProcessID) {};
     
     /// Incident type
     static const std::string& type();

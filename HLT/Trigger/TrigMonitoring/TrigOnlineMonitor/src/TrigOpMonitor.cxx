@@ -4,12 +4,14 @@
 
 #include "TrigOpMonitor.h"
 
+#include "AthenaInterprocess/Incidents.h"
 #include "AthenaKernel/IOVRange.h"
 #include "AthenaMonitoringKernel/OHLockedHist.h"
 #include "ByteStreamData/ByteStreamMetadata.h"
 #include "ByteStreamData/ByteStreamMetadataContainer.h"
 #include "StoreGate/ReadCondHandle.h"
 #include "GaudiKernel/DirSearchPath.h"
+#include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "eformat/DetectorMask.h"
 #include "eformat/SourceIdentifier.h"
@@ -52,7 +54,7 @@ namespace {
 } // namespace
 
 TrigOpMonitor::TrigOpMonitor(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
+  base_class(name, pSvcLocator),
   m_histPath("/EXPERT/HLTFramework/" + name + "/")
 {}
 
@@ -61,7 +63,19 @@ StatusCode TrigOpMonitor::initialize()
   ATH_CHECK(m_histSvc.retrieve());
   ATH_CHECK(m_lumiDataKey.initialize(!m_lumiDataKey.empty()));
 
+  ATH_CHECK( m_incidentSvc.retrieve() );
+  m_incidentSvc->addListener(this, AthenaInterprocess::UpdateAfterFork::type());
+
   return StatusCode::SUCCESS;
+}
+
+void TrigOpMonitor::handle( const Incident& incident ) {
+  // One time fills after fork
+  if (incident.type() == AthenaInterprocess::UpdateAfterFork::type()) {
+    fillMagFieldHist();
+    fillIOVDbHist();
+    fillSubDetHist();
+  }
 }
 
 StatusCode TrigOpMonitor::start()
@@ -75,17 +89,6 @@ StatusCode TrigOpMonitor::start()
 
 StatusCode TrigOpMonitor::execute()
 {
-  static bool first_call{true};
-  if (first_call) {
-    first_call = false;
-    /* One time fills. Could be done in start(), but we need to run
-       after all other services have been setup. */
-    fillMagFieldHist();
-    fillIOVDbHist();
-    // This one needs to run after prepareForRun, which is currently called after Alg's start()
-    fillSubDetHist();
-  }
-
   /* Per-LB fills */
   const EventContext& ctx = getContext();
   if (m_previousLB != ctx.eventID().lumi_block()) { // New LB
