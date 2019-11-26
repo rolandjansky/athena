@@ -28,8 +28,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PhysicsAnalysis/AnalysisCommon/AnalysisUtils
                           PhysicsAnalysis/AnalysisTrigger/AnalysisTriggerEvent
                           PhysicsAnalysis/TruthParticleID/McParticleUtils
-                          Reconstruction/Jet/JetEvent
-                          TestPolicy )
+                          Reconstruction/Jet/JetEvent )
 
 # External dependencies:
 find_package( CLHEP )
