@@ -25,6 +25,7 @@ decription           : Extrapolation of a MultiComponentState to a destination
 
 #include "GaudiKernel/IAlgTool.h"
 #include <vector>
+#include <memory>
 namespace Trk {
 
 class IPropagator;
@@ -45,7 +46,7 @@ public:
   static const InterfaceID& interfaceID() { return IID_IMultiStateExtrapolator; };
 
   /** Extrapolation of a MutiComponentState to a destination surface (1) */
-  virtual MultiComponentState* extrapolate(
+  virtual std::unique_ptr<MultiComponentState> extrapolate(
     const IPropagator&,
     const MultiComponentState&,
     const Surface&,
@@ -54,7 +55,7 @@ public:
     ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
 
   /** - Extrapolation of a MultiComponentState to destination surface without material effects (2) */
-  virtual MultiComponentState* extrapolateDirectly(
+  virtual std::unique_ptr<MultiComponentState> extrapolateDirectly(
     const IPropagator&,
     const MultiComponentState&,
     const Surface&,
@@ -63,7 +64,7 @@ public:
     ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
 
   /** Configured AlgTool extrapolation method (1) */
-  virtual MultiComponentState* extrapolate(
+  virtual std::unique_ptr<MultiComponentState> extrapolate(
     const MultiComponentState&,
     const Surface&,
     PropDirection direction = anyDirection,
@@ -71,14 +72,14 @@ public:
     ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
 
   /** Configured AlgTool extrapolation without material effects method (2) */
-  virtual MultiComponentState* extrapolateDirectly(
+  virtual std::unique_ptr<MultiComponentState> extrapolateDirectly(
     const MultiComponentState&,
     const Surface&,
     PropDirection direction = anyDirection,
     BoundaryCheck boundaryCheck = true,
     ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
 
-  virtual std::vector<const Trk::TrackStateOnSurface*>* extrapolateM( 
+  virtual std::unique_ptr<std::vector<const Trk::TrackStateOnSurface*>> extrapolateM( 
     const MultiComponentState&,
     const Surface&,
     PropDirection dir = anyDirection,
