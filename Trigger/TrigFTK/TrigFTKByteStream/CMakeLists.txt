@@ -16,8 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           AtlasTest/TestTools
                           Control/AthenaKernel
-                          Control/StoreGate
-                          TestPolicy )
+                          Control/StoreGate )
 
 # External dependencies:
 find_package( tdaq-common COMPONENTS eformat_write DataWriter )
