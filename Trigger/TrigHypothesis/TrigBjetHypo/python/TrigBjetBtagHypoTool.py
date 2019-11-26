@@ -5,7 +5,7 @@ re_Bjet = re.compile(r'^HLT_(?P<multiplicity>\d+)?j(?P<threshold>\d+)(?:_gsc(?P<
 
 from AthenaCommon.Logging import logging
 
-log = logging.getLogger('TrigBjetHypoTool')
+log = logging.getLogger('TrigBjetBtagHypoTool')
 
 ####################################################################################################
 
@@ -34,7 +34,7 @@ bTaggingWP = {
     }
 
 ####################################################################################################  
-def TrigBjetHypoToolFromDict( chainDict ):
+def TrigBjetBtagHypoToolFromDict( chainDict ):
 
     chainPart = chainDict['chainParts'][0]
     conf_dict = { 'threshold'    : chainPart['threshold'],
@@ -46,19 +46,19 @@ def TrigBjetHypoToolFromDict( chainDict ):
                   'maxEta' :       chainPart['etaRange'].split('eta')[1]}
     name = chainDict['chainName']
     # TODO the chain dict can be probably passed over down the line here
-    tool = getBjetHypoConfiguration( name,conf_dict )
+    tool = getBjetBtagHypoConfiguration( name,conf_dict )
     
     log.debug("name = %s, tagger = %s, threshold = %s ", name, tool.MethodTag, tool.BTaggingCut)
 
     return tool
 
-def TrigBjetHypoToolFromName( name, conf ):
+def TrigBjetBtagHypoToolFromName( name, conf ):
     """ Configure a b-jet hypo tool from chain name. """
     from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
     decodedDict = dictFromChainName( conf )
     decodedDict['chainName'] = name # override
     
-    return TrigBjetHypoToolFromDict( decodedDict )
+    return TrigBjetBtagHypoToolFromDict( decodedDict )
 
 
 ####################################################################################################  
@@ -66,7 +66,7 @@ def TrigBjetHypoToolFromName( name, conf ):
 def decodeThreshold( threshold_btag ):
     """ decodes the b-tagging thresholds """
 
-    log.debug("TrigBjetHypoToolFromName: decoding threshold b%s", threshold_btag)
+    log.debug("TrigBjetBtagHypoToolFromName: decoding threshold b%s", threshold_btag)
 
     tagger = "MV2c10"
     if "mv2c20" in threshold_btag :
@@ -79,7 +79,7 @@ def decodeThreshold( threshold_btag ):
 
 ####################################################################################################
 
-def getBjetHypoConfiguration( name,conf_dict ):
+def getBjetBtagHypoConfiguration( name,conf_dict ):
     # Common for both split and non-split configurations
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetBtagHypoTool
     tool = TrigBjetBtagHypoTool( name )
@@ -115,16 +115,7 @@ if __name__ == "__main__":
     from TriggerJobOpts.TriggerFlags import TriggerFlags
     TriggerFlags.enableMonitoring=['Validation']
 
-    t = TrigBjetHypoToolFromName( "HLT_j35_gsc45_boffperf_split_L1J20","HLT_j35_gsc45_boffperf_split_L1J20" )
-    assert t, "can't configure gsc boffperf split"
-
-    t = TrigBjetHypoToolFromName( "HLT_j35_gsc45_boffperf_L1J20","HLT_j35_gsc45_boffperf_L1J20" )
-    assert t, "can't configure gsc boffperf"
-
-    t = TrigBjetHypoToolFromName( "HLT_j35_boffperf_split_L1J20","HLT_j35_boffperf_split_L1J20" )
+    t = TrigBjetBtagHypoToolFromName( "HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20","HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20" )
     assert t, "can't configure boffperf split"
 
-    t = TrigBjetHypoToolFromName( "HLT_j35_boffperf_L1J20","HLT_j35_boffperf_L1J20" )
-    assert t, "can't configure boffperf"
-
-    log.info( "\n\n TrigBjetHypoToolFromName ALL OK\n\n" )
+    log.info( "\n\n TrigBjetBtagHypoToolFromName ALL OK\n\n" )
