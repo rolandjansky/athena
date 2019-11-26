@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 import unittest
 import copy
@@ -86,7 +88,7 @@ class Test_ChainConfigMaker(unittest.TestCase):
 
         ccm = ChainConfigMaker(self.from_central0)
         chainConfig = ccm()
-        print chainConfig
+        print (chainConfig)
         self.assertTrue(chainConfig.__class__.__name__ == 'ChainConfig')
 
     def test_1(self):
@@ -94,7 +96,7 @@ class Test_ChainConfigMaker(unittest.TestCase):
 
         ccm = ChainConfigMaker(self.from_central1)
         chainConfig = ccm()
-        print chainConfig
+        print (chainConfig)
         self.assertTrue(chainConfig.__class__.__name__ == 'ChainConfig')
 
     def test_2(self):
@@ -105,7 +107,7 @@ class Test_ChainConfigMaker(unittest.TestCase):
 
         ccm = ChainConfigMaker(self.from_central1)
         chainConfig = ccm()
-        print chainConfig
+        print (chainConfig)
         self.assertTrue(chainConfig.__class__.__name__ == 'ChainConfig')
 
 

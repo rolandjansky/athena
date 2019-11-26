@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 import unittest
 from mock import MagicMock
@@ -62,7 +64,7 @@ class TestAlgFactory(unittest.TestCase):
 
             if name.startswith ('__') or name == '_hlt_hypo':
                 continue
-            print 'running Algfactory methods', name
+            print ('running Algfactory methods', name)
 
             if name in self.special_cases:
                 continue
