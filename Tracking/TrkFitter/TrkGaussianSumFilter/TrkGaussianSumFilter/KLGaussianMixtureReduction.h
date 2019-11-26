@@ -3,7 +3,7 @@
 */
 
 /*********************************************************************************
-  KLGaussianMixReductionUtils.h  -  description
+  KLGaussianMixReduction.h  -  description
   -------------------------------------------------
 begin                : 26th November 2019
 author               : amorley, Christos
