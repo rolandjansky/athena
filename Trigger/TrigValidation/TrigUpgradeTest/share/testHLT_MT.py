@@ -52,6 +52,7 @@ class opt:
     doMonitorSlice    = True
     doBeamspotSlice   = True
     reverseViews      = False
+    filterViews       = False
     enabledSignatures = []
     disabledSignatures = []
 
