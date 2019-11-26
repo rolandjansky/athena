@@ -11,7 +11,6 @@
  *  IOVSvc
  *
  *  Author: Charles Leggett
- *  $Id: IOVSvc.h,v 1.39 2008-05-15 18:04:12 leggett Exp $
  *
  *  Provides automatic updating and callbacks for time dependent data
  *
@@ -167,7 +166,7 @@ private:
   toolMap m_toolMap;
 
 
-  BooleanProperty m_preLoadRanges, m_preLoadData, m_partialPreLoadData;
+  BooleanProperty m_preLoadRanges, m_preLoadData, m_partialPreLoadData, m_preLoadExtensibleFolders;
   BooleanProperty m_sortKeys, m_forceReset;
   std::string m_updateInterval;
 
