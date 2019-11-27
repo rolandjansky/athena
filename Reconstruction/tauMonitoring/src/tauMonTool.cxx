@@ -492,6 +492,7 @@ StatusCode tauMonTool::fillTrackHistos(s_trkFolder& folder, const xAOD::TauJet* 
 	//--------------------
 //     if ( tau->nTracks() == 0) return StatusCode::SUCCESS;
 
+		
 	const xAOD::TrackParticle* track = tau->track(0)->track();
 	const Trk::Perigee perigee = track->perigeeParameters();
 

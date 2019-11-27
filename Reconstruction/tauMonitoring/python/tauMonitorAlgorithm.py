@@ -30,6 +30,10 @@ def tauMonitoringConfig(inputFlags):
     tauMonAlgBA = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgBA')
     tauMonAlgCR = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgCR')
     tauMonAlgEC = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgEC')
+    tauMonAlgGlobal = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgGlobal')
+
+
+
 
 
 
@@ -47,9 +51,16 @@ def tauMonitoringConfig(inputFlags):
     tauMonAlgEC.etaMin = 1.7
     tauMonAlgEC.etaMax = 3.5
 
+
+
+
+
     tauMonAlgBA.kinGroupName = 'tauMonKinGroupBA'
     tauMonAlgCR.kinGroupName = 'tauMonKinGroupCR'
     tauMonAlgEC.kinGroupName = 'tauMonKinGroupEC'
+    tauMonAlgGlobal.kinGroupName = 'tauMonKinGroupGlobal'
+
+
 
     ### STEP 4 ###
     # Add some tools. N.B. Do not use your own trigger decion tool. Use the
@@ -61,6 +72,9 @@ def tauMonitoringConfig(inputFlags):
     myKinGroupBA = cfgHelper.addGroup(alg=tauMonAlgBA, name='tauMonKinGroupBA', topPath='Tau/BA/' )
     myKinGroupCR = cfgHelper.addGroup(alg=tauMonAlgCR, name='tauMonKinGroupCR', topPath='Tau/CR/' )
     myKinGroupEC = cfgHelper.addGroup(alg=tauMonAlgEC, name='tauMonKinGroupEC', topPath='Tau/EC/' )
+    myKinGroupGlobal = cfgHelper.addGroup(alg=tauMonAlgGlobal, name='tauMonKinGroupGlobal', topPath='Tau/' )
+
+
 
     # Add a GMT for the other example monitor algorithm
     # anotherGroup = cfgHelper.addGroup(anotherTauMonAlg,'tauMonitor')
@@ -68,72 +82,153 @@ def tauMonitoringConfig(inputFlags):
 
     ### STEP 5 ###
     # Configure histograms
+
     
-    for itup in [(myKinGroupBA,'BA'),(myKinGroupCR,'CR'),(myKinGroupEC,'EC')]:
+    
+    for itup in [(myKinGroupBA,'BA'),(myKinGroupCR,'CR'),(myKinGroupEC,'EC'),(myKinGroupGlobal,'Global')]:
         (igroup, postfix) = itup
 
-	### 1 ###
-        igroup.defineHistogram('lb', title='luminosity something;something', path='Kinematics', 
-                               xbins=1000, xmin=0., xmax=1000.)
+	folder = ""
 
 
-	### 2 ###
-        igroup.defineHistogram('ntaus', title='Number of tau candidates;Number of Taus per Event', path='Kinematics', 
-                               xbins=30, xmin=0., xmax=30.)
+        igroup.defineHistogram('nTauCandidates', title='Number of tau candidates;Number of Taus per Event', 
+                               xbins=40, xmin=0., xmax=40.)
 
+        igroup.defineHistogram('tauCharge', title='Charge of tau candidates;Charge;Number of Candidates',
+                               xbins=11, xmin=-5.5, xmax=5.5)
 
-	### 3 ###
-        igroup.defineHistogram('eta', title='Eta of tau candidates);Eta);Number of Candidates', path='Kinematics', 
-                               xbins=40, xmin=-2., xmax=2.)
+        igroup.defineHistogram('tauEt', title='Pt of tau candidates;Transverse Energy (GeV);Number of Candidates',
+                               xbins=60, xmin=0., xmax=300.)
 
-	### 4 ###
-        igroup.defineHistogram('phi', title='Phi of tau candidates);Phi);Number of Candidates', path='Kinematics', 
-                               xbins=80, xmin=-4., xmax=4.)
+        igroup.defineHistogram('tauEta', title='Eta of tau candidates);Eta);Number of Candidates',
+                               xbins=51, xmin=-2.55, xmax=2.55)
 
-	### 5 ###
+        igroup.defineHistogram('LB,tauEta', type='TH2F', title='tauEtaVsLB;LumiBlock;eta', 
+                               xbins=1200,xmin=0,xmax=1200,ybins=51,ymin=-2.55,ymax=2.55)
 
-        igroup.defineHistogram('pt', title='Pt of tau candidates);pt);Number of Candidates', path='Kinematics', 
-                               xbins=300, xmin=0., xmax=100000.)
+        igroup.defineHistogram('tauPhi', title='Phi of tau candidates);Phi);Number of Candidates',
+                               xbins=65, xmin=-3.1415926-0.098174/2., xmax=3.1415926+0.098174/2.)
 
-	### 6 ###
-        igroup.defineHistogram('charge', title='Charge of tau candidates;Charge;Number of Candidates', path='Kinematics', 
-                               xbins=120, xmin=-6., xmax=6.)
+        igroup.defineHistogram('tauEta,tauPhi', type='TH2F', title='PhiVsEtaTitle;#eta;#phi', 
+                               xbins=30,xmin=-2.55,xmax=2.55,ybins=32,ymin=-3.15,ymax=3.15)
 
-        ### 7 ###
-	igroup.defineHistogram('nTracks', title='nTracks;nTracks;Events', path='Kinematics', 
-                               xbins=10, xmin=0., xmax=10.)
+        igroup.defineHistogram('LB,tauPhi', type='TH2F', title='tauEtaVsLB;LumiBlock;#phi', 
+                               xbins=1200,xmin=0,xmax=1200,ybins=80.,ymin=-4.,ymax=4.)
 
-	### 8 ###
-	igroup.defineHistogram('nClusters', title='nClusters;nClusters;Events', path='Kinematics', 
-                               xbins=40, xmin=0., xmax=40. )
+        igroup.defineHistogram('LB,tauEt', type='TH2F', title='tauEtaVsLB;LumiBlock;#Transverse Energy (GeV)', 
+                               xbins=1200,xmin=0,xmax=1200,ybins=300.,ymin=0.,ymax=300.)
 
 
 
-	### 9 ###
+	if postfix != 'Global':
+		
+		igroup.defineHistogram('EMRadius', title='Uncalibrated EM Radius;EM Radius;Number Of Candidates',path=folder+"Calo",
+				       xbins=50, xmin=0., xmax=1.2 )
+
+		igroup.defineHistogram('hadRadius', title='Hadronic Radius of tau candidates;Hadronic Radius; Number Of Candidates',path=folder+"Calo",
+				       xbins=50, xmin=0., xmax=1. )
+
+		igroup.defineHistogram('stripWidth2', title='Strip Width of tau candidates;Strip Width;Number of Candidates',path=folder+"Calo",
+				       xbins=50, xmin=-0.1, xmax=0.12 )
+
+		igroup.defineHistogram('isolFrac', title='Isolation Fraction;Et Isolation Fraction;Number of Candidates',path=folder+"Calo",
+				       xbins=51, xmin=0.0, xmax=1.02 )
+
+		igroup.defineHistogram('nStrip', title='Number of strip cells of tau candidates;Number of Strip Cells;Number of Candidates',path=folder+"Calo",
+				       xbins=56, xmin=-0.5, xmax=55.5 )
+
+		igroup.defineHistogram('etEMAtEMScale', title='EM energy at the EM scale;EM Et (GeV) );Number of Candidates',path=folder+"Calo",
+				       xbins=50, xmin=0., xmax=200. )
+
+		igroup.defineHistogram('etHadAtEMScale', title='Hadronic Energy at the EM Scale;Had Et (GeV) );Number of Candidates',path=folder+"Calo",
+				       xbins=50, xmin=0., xmax=200. )
 
 
- 	
-	### 10 ###
-        igroup.defineHistogram('pt,eta', type='TH2F', title='PtVsEtaTitle;#eta;pt', path='Kinematics', 
-                               xbins=300.,xmin=0.,xmax=100000.,ybins=40.,ymin=-2.,ymax=2.)
+        	igroup.defineHistogram('centFrac,LB', type='TH2F', title='Centrality Fraction vs Lumiblock;Centrality Fraction;Lumiblock', path=folder+"Calo", 
+                               xbins=51,xmin=0,xmax=1.02,ybins=1200.,ymin=0.,ymax=1200.)
+
+        	igroup.defineHistogram('isolFrac,LB', type='TH2F', title='Isolation Fraction vs Lumiblock;Isolation Fraction;Lumiblock', path=folder+"Calo", 
+                               xbins=51,xmin=0,xmax=1.02,ybins=1200.,ymin=0.,ymax=1200.)
+
+
+		igroup.defineHistogram('BDTJetScore', title='BDT Score for Jet Rejection;Boosted Decision Tree Score',path=folder+"Identification",
+				       xbins=48, xmin=-1.1, xmax=1.1 )
+
+		igroup.defineHistogram('BDTJetScoreSigTrans', title='Signal Transformed BDT Score for Jet Rejection;Boosted Decision Tree Score',path=folder+"Identification",
+				       xbins=48, xmin=0, xmax=1.1 )
+
+		igroup.defineHistogram('eleBDTMedium', title='Medium EleBDT',path=folder+"Identification",
+				       xbins=2, xmin=-0.5, xmax=1.5, labels=["False","True"])
+
+		igroup.defineHistogram('eleBDTTight', title='Tight EleBDT',path=folder+"Identification",
+				       xbins=2, xmin=-0.5, xmax=1.5, labels=["False","True"])
+
+		igroup.defineHistogram('muonVeto', title='Muon Veto',path=folder+"Identification",
+				       xbins=2, xmin=-0.5, xmax=1.5, labels=["False","True"] )
+
+		igroup.defineHistogram('tauBDTLoose', title='Identification Flag: tauBDTLoose',path=folder+"Identification",
+				       xbins=2, xmin=-0.5, xmax=1.5 , labels=["False","True"])
+
+		igroup.defineHistogram('tauBDTMedium', title='Identification Flag: tauBDTMedium',path=folder+"Identification",
+				       xbins=2, xmin=-0.5, xmax=1.5 ,labels=["False","True"])
+
+		igroup.defineHistogram('tauBDTTight', title='Identification Flag: tauBDTTight',path=folder+"Identification",
+				       xbins=2, xmin=-0.5, xmax=1.5, labels=["False","True"])
 
 
 
-	### 11 ###
-        igroup.defineHistogram('pt,phi', type='TH2F', title='PtVsPhiTitle;#eta;#phi',path='Kinematics', 
-                               xbins=300.,xmin=0.,xmax=100000.,ybins=80.,ymin=-4.,ymax=4.)
+
+		#Not in the monTool...but in histos I'm meant to be making
+		igroup.defineHistogram('BDTJetScore', title='test',path=folder+"Identification/BDTLoose15GeV",
+				       xbins=48, xmin=-1.1, xmax=1.1 )
 
 
+		#Not in the monTool...but in histos I'm meant to be making
+		igroup.defineHistogram('PSSFrac', title='test',path=folder+"Identification/EleVetoBDTinputs",
+				       xbins=10, xmin=0, xmax=1. )
+		
+		#Substructure time!
+		igroup.defineHistogram('pi0bdt', title='test',path=folder+"SubStructure",
+				       xbins=120, xmin=-0, xmax=1.2 )
 
-	### 12 ###
-        igroup.defineHistogram('eta,phi', type='TH2F', title='PhiVsEtaTitle;#eta;#phi', path='Kinematics', 
-                               xbins=30,xmin=-3.0,xmax=3.0,ybins=32,ymin=-3.15,ymax=3.15)
 
-	### 13 ###
+		igroup.defineHistogram('EMFracTrk', title='Ratio of pt to shot electromagnetic energy for associated tracks; track pt ratio in EM',path=folder+"SubStructure",
+				       xbins=15, xmin=0, xmax=1.5 )
+
+		igroup.defineHistogram('EfracL2EffCluster', title='Energy fraction of leading two effective clusters in shot; energy fraction',path=folder+"SubStructure",
+				       xbins=15, xmin=0, xmax=1.5 )
+
+		igroup.defineHistogram('EisoEffCluster', title='Isolation Energy after correction in effective clusters ; isolation energy (GeV)',path=folder+"SubStructure",
+				       xbins=10, xmin=0, xmax=50. )
+
+		igroup.defineHistogram('InvMassEffClusters', title='Invariant mass of effective clusters in shot; invariant mass (GeV)',path=folder+"SubStructure",
+				       xbins=40, xmin=0, xmax=8. )
+
+		igroup.defineHistogram('nNeutPFO', title='_NumNeutPFO;Number of neutral ParticleFlow objects ; PFO number',path=folder+"SubStructure",
+				       xbins=20, xmin=0, xmax=20. )
+
+		igroup.defineHistogram('nShot', title='number of shots ; shot number ',path=folder+"SubStructure",
+				       xbins=20, xmin=0, xmax=20. )
+		
+
+	
 
 
+	if postfix == 'Global':
 
-	### 14 ###
+		igroup.defineHistogram('NumTracks', title='NumTracks;nTracks;Events',
+				       xbins=21, xmin=-0.5, xmax=20.5)
+
+		igroup.defineHistogram('nClusters', title='nClusters;nClusters;Events',
+				       xbins=40, xmin=0., xmax=40. )
+
+		igroup.defineHistogram('tauEta,tauEt', type='TH2F', title='EtVsEta;eta;Transverse Energy (Gev)',
+				       xbins=40.,xmin=-2.55,xmax=2.55 ,ybins=300.,ymin=0,ymax=300)
+
+		igroup.defineHistogram('tauPhi,tauEt', type='TH2F', title='EtVsPhi;#phi;#eta;',
+				       xbins=80.,xmin=-4.,xmax=4.,ybins=300.,ymin=-0.,ymax=300.)
+
+
 
 
 
@@ -183,6 +278,10 @@ if __name__=='__main__':
     exampleMonitorAcc.getEventAlgo('tauMonAlgBA').OutputLevel = 2 # DEBUG
     exampleMonitorAcc.getEventAlgo('tauMonAlgCR').OutputLevel = 2 # DEBUG
     exampleMonitorAcc.getEventAlgo('tauMonAlgEC').OutputLevel = 2 # DEBUG
+    exampleMonitorAcc.getEventAlgo('tauMonAlgGlobal').OutputLevel = 2 # DEBUG
+
+
+
     cfg.printConfig(withDetails=True) # set True for exhaustive info
 
     cfg.run() #use cfg.run(20) to only run on first 20 events
