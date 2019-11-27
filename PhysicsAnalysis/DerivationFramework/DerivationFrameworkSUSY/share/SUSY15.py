@@ -104,10 +104,12 @@ RandomizingSigmas        = [ 0.5, 1.0, 2.0, 3.0, 4.0 ]
 
 # Temporary flag
 
-doDissolvedVertexing = False
+doDissolvedVertexing = True
 
 #------------------------------------------------------------------------------
 if doDissolvedVertexing:
+  # make needed SCT conditions available
+  include ("InDetRecExample/SCTConditionsAccess.py")
 
   for suffix, sigma in zip( TrackRandomizingSuffices, RandomizingSigmas ):
     randomizer = TrackRandomizer("TrackRandomizer_" + suffix)
