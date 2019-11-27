@@ -14,12 +14,6 @@
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/GlobalUtilities.h"
 
-#include "Identifier/IdentifierHash.h"
-#include "Identifier/Identifier.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonIdHelpers/CscIdHelper.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
 #include "PathResolver/PathResolver.h"
 #include <fstream>
 #include <string>
@@ -34,10 +28,6 @@ MuonAlignmentCondAlg::MuonAlignmentCondAlg(const std::string& name,
   : AthAlgorithm(name, pSvcLocator),
     m_condSvc{"CondSvc", name}
 {
-  m_mdtIdHelper = nullptr;
-  m_cscIdHelper = nullptr;
-  m_rpcIdHelper = nullptr;
-  m_tgcIdHelper = nullptr;
   m_geometryVersion = "";
 
   m_parlineFolder.clear();
@@ -142,43 +132,7 @@ StatusCode MuonAlignmentCondAlg::InitializeGeometryAndIdHelpers(){
   // Initialize Helpers
   //=================
   
-  if (m_mdtIdHelper == nullptr) {
-    if (detStore()->retrieve(m_mdtIdHelper, "MDTIDHELPER" ).isFailure()) {
-      ATH_MSG_ERROR("Can't retrieve MdtIdHelper");
-      return StatusCode::FAILURE;
-    } else ATH_MSG_INFO("MdtIdHelper retrieved from the DetectorStore");
-  } else ATH_MSG_DEBUG("MdtIdHelper already initialized");
-
-  //-------------------
-
-  if (m_cscIdHelper == nullptr) {
-    if (detStore()->retrieve(m_cscIdHelper, "CSCIDHELPER" ).isFailure()) {
-      ATH_MSG_ERROR("Can't retrieve CscIdHelper");
-      return StatusCode::FAILURE;
-    } else ATH_MSG_INFO("CscIdHelper retrieved from the DetectorStore");
-  } else ATH_MSG_DEBUG("CscIdHelper already initialized");
-
-  //-------------------
-
-  if (m_rpcIdHelper == nullptr) {
-    if (detStore()->retrieve(m_rpcIdHelper, "RPCIDHELPER" ).isFailure()) {
-      ATH_MSG_ERROR("Can't retrieve RpcIdHelper");
-      return StatusCode::FAILURE;
-    } else ATH_MSG_INFO("RpcIdHelper retrieved from the DetectorStore");
-  } else ATH_MSG_DEBUG("RpcIdHelper already initialized");
-
-  //-------------------
-
-  if (m_tgcIdHelper == nullptr) {
-    if (detStore()->retrieve(m_tgcIdHelper, "TGCIDHELPER" ).isFailure()) {
-      ATH_MSG_ERROR("Can't retrieve TgcIdHelper");
-      return StatusCode::FAILURE;
-    } else ATH_MSG_INFO("TgcIdHelper retrieved from the DetectorStore");
-  } else ATH_MSG_DEBUG("TgcIdHelper already initialized");
-
-  //-------------------
-
-  // !!!!! HERE WE SHOULD PUT CODE FOR NSW (MM and STGC)
+  ATH_CHECK(m_idHelperSvc.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -631,7 +585,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLines(std::string folderName,
 	  else ATH_MSG_VERBOSE("No B-line found");
 	} 
 	  
-	int stationName = m_mdtIdHelper->stationNameIndex(stationType);
+	int stationName = m_idHelperSvc->mdtIdHelper().stationNameIndex(stationType);
 	Identifier id;
 	ATH_MSG_VERBOSE("stationName  " << stationName);
 	// if (stationType.substr(0,1)=="T") {
@@ -645,22 +599,22 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLines(std::string folderName,
 	    stEta=job;
 	    if (jzz<0) stEta = -stEta;
 	  }
-	  id = m_tgcIdHelper->elementID(stationName, stEta, stPhi);
-	  ATH_MSG_VERBOSE("identifier being assigned is " << m_tgcIdHelper->show_to_string(id));
+	  id = m_idHelperSvc->tgcIdHelper().elementID(stationName, stEta, stPhi);
+	  ATH_MSG_VERBOSE("identifier being assigned is " << m_idHelperSvc->tgcIdHelper().show_to_string(id));
 	}
 	else if (stationType.substr(0,1)=="C") {
 	  // csc case
-	  id = m_cscIdHelper->elementID(stationName, jzz, jff);
-	  ATH_MSG_VERBOSE("identifier being assigned is " << m_cscIdHelper->show_to_string(id));
+	  id = m_idHelperSvc->cscIdHelper().elementID(stationName, jzz, jff);
+	  ATH_MSG_VERBOSE("identifier being assigned is " << m_idHelperSvc->cscIdHelper().show_to_string(id));
 	}
 	else if (stationType.substr(0,3)=="BML" && abs(jzz)==7) {
 	  // rpc case
-	  id = m_rpcIdHelper->elementID(stationName, jzz, jff, 1);
-	  ATH_MSG_VERBOSE("identifier being assigned is " << m_rpcIdHelper->show_to_string(id));
+	  id = m_idHelperSvc->rpcIdHelper().elementID(stationName, jzz, jff, 1);
+	  ATH_MSG_VERBOSE("identifier being assigned is " << m_idHelperSvc->rpcIdHelper().show_to_string(id));
 	}
 	else {
-	  id = m_mdtIdHelper->elementID(stationName, jzz, jff);
-	  ATH_MSG_VERBOSE("identifier being assigned is " << m_mdtIdHelper->show_to_string(id));
+	  id = m_idHelperSvc->mdtIdHelper().elementID(stationName, jzz, jff);
+	  ATH_MSG_VERBOSE("identifier being assigned is " << m_idHelperSvc->mdtIdHelper().show_to_string(id));
 	}
           
 
@@ -894,7 +848,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignILines(std::string folderName)
 	ATH_MSG_VERBOSE("I-line: tras,traz,trat "  << tras <<" "<< traz <<" "<< trat);
 	ATH_MSG_VERBOSE(" rots,rotz,rott "  << rots <<" "<< rotz <<" "<< rott);
 	  
-	int stationName = m_cscIdHelper->stationNameIndex(stationType);
+	int stationName = m_idHelperSvc->cscIdHelper().stationNameIndex(stationType);
 	Identifier id;
 	ATH_MSG_VERBOSE("stationName  " << stationName);
 	// if (stationType.substr(0,1)=="C") {
@@ -902,8 +856,8 @@ StatusCode MuonAlignmentCondAlg::loadAlignILines(std::string folderName)
 	  // csc case
 	  int chamberLayer = 2;
 	  if (job != 3) ATH_MSG_WARNING("job = "<<job<<" is not 3 => chamberLayer should be 1 - not existing ! setting 2");
-	  id = m_cscIdHelper->channelID(stationType, jzz, jff, chamberLayer, jlay, 0, 1);
-	  ATH_MSG_VERBOSE("identifier being assigned is " << m_cscIdHelper->show_to_string(id));
+	  id = m_idHelperSvc->cscIdHelper().channelID(stationType, jzz, jff, chamberLayer, jlay, 0, 1);
+	  ATH_MSG_VERBOSE("identifier being assigned is " << m_idHelperSvc->cscIdHelper().show_to_string(id));
 	}
 	else {
 	  ATH_MSG_ERROR("There is a non CSC chamber in the list of CSC internal alignment parameters.");
@@ -1048,7 +1002,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignAsBuilt(std::string folderName)
         int jzz = 0;
         int job = 0;
         xPar.getAmdbId(stationType, jff, jzz, job);
-	Identifier id = m_mdtIdHelper->elementID(stationType, jzz, jff);
+	Identifier id = m_idHelperSvc->mdtIdHelper().elementID(stationType, jzz, jff);
 	
 	ATH_MSG_VERBOSE("Station type jff jzz "  << stationType  << jff << " " << jzz  );
         ++nDecodedLines;
@@ -1264,7 +1218,7 @@ void MuonAlignmentCondAlg::setAsBuiltFromAscii(MdtAsBuiltMapContainer* writeCdo)
         int jzz = 0;
         int job = 0;
         xPar.getAmdbId(stName, jff, jzz, job);
-        Identifier id = m_mdtIdHelper->elementID(stName, jzz, jff);
+        Identifier id = m_idHelperSvc->mdtIdHelper().elementID(stName, jzz, jff);
         if (!id.is_valid()) {
           ATH_MSG_ERROR( "Invalid MDT identifiers: sta=" << stName << " eta=" << jzz << " phi=" << jff  );
            continue;
@@ -1279,7 +1233,7 @@ void MuonAlignmentCondAlg::setAsBuiltFromAscii(MdtAsBuiltMapContainer* writeCdo)
           delete oldAsBuilt; oldAsBuilt=0;
         } else {
           ATH_MSG_DEBUG( "New entry in AsBuilt container for Station "
-                         <<stName<<" at Jzz/Jff "<<jzz<<"/"<< jff<<" --- in the container with key "<< m_mdtIdHelper->show_to_string(id) );
+                         <<stName<<" at Jzz/Jff "<<jzz<<"/"<< jff<<" --- in the container with key "<< m_idHelperSvc->mdtIdHelper().show_to_string(id) );
         }
 	  writeCdo->insert(std::make_pair(id,new MdtAsBuiltPar(xPar)));
 	  ++count;
