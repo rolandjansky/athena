@@ -12,8 +12,6 @@ import GaudiKernel.SystemOfUnits as Units
 
 from .ConfigHelpers import metRecoDictToString, jetRecoDictForMET
 
-import abc
-
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 
@@ -33,7 +31,6 @@ class AlgConfig(object):
     The subclass must also implement the @classmethod 'algType' which returns
     the EFrecoAlg string that it describes.
     """
-    __metaclass__ = abc.ABCMeta
 
     @classmethod
     def algType(cls):
