@@ -52,6 +52,10 @@ StatusCode TauTrackRNNClassifier::initialize()
 //______________________________________________________________________________
 StatusCode TauTrackRNNClassifier::execute(xAOD::TauJet& xTau)
 {
+  // save charged track multiplicity before RNN track classification
+  // needed to keep track of 0p taus in the trigger
+  xTau.setDetail(xAOD::TauJetParameters::nChargedTracksNoMVA, (int) xTau.nTracks());
+
   // Get track container via link from tau - instead of using read handle (not written to store yet) 
   // Check that size > 0
   ElementLink< xAOD::TauTrackContainer > link;
