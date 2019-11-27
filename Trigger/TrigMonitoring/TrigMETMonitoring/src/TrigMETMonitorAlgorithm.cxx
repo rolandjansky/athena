@@ -149,7 +149,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       tcpufit_phi = v.Phi();
       
       // temporary fake trigger decision
-      if (tcpufit_Et > 30.) pass_HLT1 = 1.0; 
+      if (tcpufit_Et > 10.) pass_HLT1 = 1.0; 
     }
 
 
