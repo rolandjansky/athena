@@ -8,6 +8,9 @@
 
 // InDet
 #include "InDetTrackingGeometry/StagedTrackingGeometryBuilder.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
+#include "BeamPipeGeoModel/BeamPipeDetectorManager.h"
 #include "InDetTrackingGeometryUtils/DiscOverlapDescriptor.h"
 // EnvelopeDefinitionService
 #include "SubDetectorEnvelopes/IEnvelopeDefSvc.h"
@@ -17,6 +20,7 @@
 #include "TrkDetDescrInterfaces/ILayerArrayCreator.h"
 // Trk Geometry stuff
 #include "TrkDetDescrGeoModelCnv/GeoMaterialConverter.h"
+#include "TrkDetDescrGeoModelCnv/MaterialLayerHelper.h"
 #include "TrkDetDescrUtils/BinnedArray.h"
 #include "TrkDetDescrUtils/BinnedArray1D1D.h"
 #include "TrkVolumes/VolumeBounds.h"
@@ -52,30 +56,33 @@ InDet::StagedTrackingGeometryBuilder::StagedTrackingGeometryBuilder(const std::s
   m_ringTolerance(2.*Gaudi::Units::mm),
   m_namespace("InDet::"),
   m_exitVolume("InDet::Containers::InnerDetector")
+  ,m_materialOnFly(false)
 {
   declareInterface<Trk::IGeometryBuilder>(this);  
   // layer builders and their configurations
-  declareProperty("LayerBuilders",                    m_layerProviders);
+  declareProperty("LayerBuilders",                            m_layerProviders);
   declareProperty("LayerBinningTypeCenter",           m_layerBinningTypeCenter);
-  declareProperty("LayerBinningTypeEndcap",           m_layerBinningTypeEndcap);
-  declareProperty("ColorCodes",                       m_colorCodesConfig);  
+  declareProperty("LayerBinningTypeEndcap",          m_layerBinningTypeEndcap);
+  declareProperty("ColorCodes",                               m_colorCodesConfig);  
   // envelope definition service
-  declareProperty("EnvelopeDefinitionSvc",            m_enclosingEnvelopeSvc );
+  declareProperty("EnvelopeDefinitionSvc",              m_enclosingEnvelopeSvc );
   declareProperty("VolumeEnclosureCylinderRadii",     m_enclosingCylinderRadius);
   declareProperty("VolumeEnclosureDiscPositions",     m_enclosingDiscPositionZ);
   // helper tools  
   declareProperty("TrackingVolumeCreator",            m_trackingVolumeCreator);
-  declareProperty("LayerArrayCreator",                m_layerArrayCreator);  
+  declareProperty("LayerArrayCreator",                    m_layerArrayCreator);  
   // build the Boundary Layers
-  declareProperty("EnvelopeCover",                    m_layerEnvelopeCover);
-  declareProperty("BuildBoundaryLayers",              m_buildBoundaryLayers);
+  declareProperty("EnvelopeCover",                         m_layerEnvelopeCover);
+  declareProperty("BuildBoundaryLayers",               m_buildBoundaryLayers);
   declareProperty("ReplaceAllJointBoundaries",        m_replaceJointBoundaries);
   // force robust layer indexing  
-  declareProperty("IndexStaticLayers",                m_indexStaticLayers);
-  declareProperty("CheckForRingLayout",               m_checkForRingLayout);
+  declareProperty("IndexStaticLayers",                    m_indexStaticLayers);
+  declareProperty("CheckForRingLayout",                m_checkForRingLayout);
+  // automatized transcript from GM
+  declareProperty("MaterialOnFly",                          m_materialOnFly);
   // volume namespace & container name
   declareProperty("VolumeNamespace",                  m_namespace); 
-  declareProperty("ExitVolumeName",                   m_exitVolume);
+  declareProperty("ExitVolumeName",                     m_exitVolume);
   // minimal radial distance between rings to allow a split
   declareProperty("MinimalRadialGapForVolumeSplit", m_ringTolerance);
 }
@@ -147,7 +154,9 @@ const Trk::TrackingGeometry* InDet::StagedTrackingGeometryBuilder::trackingGeome
    ATH_MSG_VERBOSE("       -> retrieved Inner Detector envelope definitions at size " << envelopeDefs.size());
    double envelopeVolumeRadius = envelopeDefs[1].first;
    double envelopeVolumeHalfZ  = fabs(envelopeDefs[1].second);
+   float bpRadius = envelopeDefs[0].first;
    ATH_MSG_VERBOSE("       -> envelope R/Z defined as : " << envelopeVolumeRadius << " / " << envelopeVolumeHalfZ );
+   ATH_MSG_VERBOSE("       -> beam pipe boundary at R = "<<envelopeDefs[0].first);
 
    ATH_MSG_DEBUG( "[ STEP 1 ] : Getting overal dimensions from the different layer builders." );
    size_t ilS = 0;
@@ -283,6 +292,8 @@ const Trk::TrackingGeometry* InDet::StagedTrackingGeometryBuilder::trackingGeome
       ATH_MSG_VERBOSE("Re-index the static layers ...");
       trackingGeometry->indexStaticLayers(Trk::Global);   
    }                       
+
+   if (m_materialOnFly) addGMmaterial( enclosedDetector, bpRadius );
 
    return trackingGeometry;
 }
@@ -926,4 +937,104 @@ const Trk::Layer* InDet::StagedTrackingGeometryBuilder::mergeDiscLayers(std::vec
 
    return layer; 
 
+}
+
+void InDet::StagedTrackingGeometryBuilder::addGMmaterial(const Trk::TrackingVolume*& enclosedDetector, float bpRadius ) const {
+ 
+  bool fixedVolume = false;
+  
+  // retrieve the ITk material and process
+  std::vector<Trk::MaterialElement> itk_material;
+  Trk::GeoMaterialConverter geoMatCnv;
+  Trk::MaterialLayerHelper  mlHelper;
+  double massBeamPipe = 0.;
+  double massPixel = 0.;
+  double massSCT = 0.;
+  unsigned int nbp = 0;
+  // get BeamPipe DetectorManager
+  const BeamPipeDetectorManager* beamPipeMgr;    
+  if (detStore()->retrieve(beamPipeMgr,"BeamPipe").isFailure()){
+    ATH_MSG_ERROR("Could not retrieve BeamPipe detector manager!" );
+  } else ATH_MSG_DEBUG ("BeamPipe Detector Manager found!");
+ 
+  if (beamPipeMgr){
+    // loop over GM tree
+    for (unsigned int i=0; i<beamPipeMgr->getNumTreeTops(); i++) {
+      std::vector<Trk::GeoObject*> geoContent = geoMatCnv.decodeGMtree(beamPipeMgr->getTreeTop(i));
+      //mass estimate
+      for (auto geo : geoContent) {
+	double mass = geo->material->getDensity()/CLHEP::g*CLHEP::mm3 * geo->volumeSize;      
+	if (mass==0) continue;
+	if (geo->material->getName()=="Air") continue;
+	if (geo->material->getName()=="Vacuum") continue;
+	massBeamPipe += mass * geo->transform.size();  // assembly volumes discarded already
+	if (mass>0) geoMatCnv.convertGeoObject(geo,itk_material,fixedVolume);
+      }
+    }
+    nbp = itk_material.size();
+    // double check the collected mass
+    double bpmass = 0.;     
+    for (unsigned int ie=0; ie<nbp; ie++) {
+      bpmass += itk_material[ie].mass();
+    } 
+    ATH_MSG_DEBUG("Material collection finds "<<itk_material.size()<<"  beam pipe objects with total mass "<<  massBeamPipe<<", TG-converted mass is "<< bpmass);
+  }
+  // get PixelDetectorManager
+  const InDetDD::PixelDetectorManager* pixelMgr;
+  if (detStore()->retrieve(pixelMgr, "Pixel").isFailure()) {
+    ATH_MSG_ERROR("Could not get PixelDetectorManager!");
+  } else ATH_MSG_DEBUG ("Pixel Detector Manager found!");
+  
+  unsigned int npix = 0;
+  if (pixelMgr) {
+    // loop over GM tree
+    for (unsigned int i=0; i<pixelMgr->getNumTreeTops(); i++) {
+      std::vector<Trk::GeoObject*> geoContent = geoMatCnv.decodeGMtree(pixelMgr->getTreeTop(i));
+      // pixel mass estimate
+      for (auto geo : geoContent) {
+	double mass = geo->material->getDensity()/CLHEP::g*CLHEP::mm3 * geo->volumeSize;      
+	massPixel += mass * geo->transform.size();  // assembly volumes discarded already
+	if (mass>0) geoMatCnv.convertGeoObject(geo,itk_material,fixedVolume);
+      }
+    }
+    // double check the collected mass
+    double pixmass = 0.;     
+    for (unsigned int ie=nbp; ie<itk_material.size(); ie++) {
+      pixmass += itk_material[ie].mass();
+    } 
+    ATH_MSG_DEBUG("Material collection finds "<<itk_material.size()-nbp<<"  pixel objects with total mass "<<  massPixel<<", TG-converted mass is "<< pixmass);
+  }
+
+  npix = itk_material.size();
+ 
+  // get SCTDetectorManager
+  const InDetDD::SCT_DetectorManager* sctMgr;
+  if (detStore()->retrieve(sctMgr, "SCT").isFailure()) {
+    ATH_MSG_ERROR("Could not get SCT_DetectorManager!");
+  } else ATH_MSG_DEBUG ("SCT Detector Manager found!");
+   
+  if (sctMgr) {
+    // lop over GM tree
+    for (unsigned int i=0; i<sctMgr->getNumTreeTops(); i++) {
+      std::vector<Trk::GeoObject*> geoContent = geoMatCnv.decodeGMtree(sctMgr->getTreeTop(i));
+      // total mass estimate
+      for (auto geo : geoContent) {
+	double mass = geo->material->getDensity()/CLHEP::g*CLHEP::mm3 * geo->volumeSize;      
+	massSCT += mass * geo->transform.size();  // assembly volumes discarded already
+	if (mass>0) geoMatCnv.convertGeoObject(geo,itk_material,fixedVolume);
+      }
+    }
+    // double check the collected mass
+    double sctmass = 0.;     
+    for (unsigned int ie=npix; ie<itk_material.size(); ie++) {
+      sctmass += itk_material[ie].mass();
+    } 
+    ATH_MSG_DEBUG("Material collection finds "<<itk_material.size()-npix<<"  pixel objects with total mass "<<  massSCT<<", TG-converted mass is "<< sctmass);
+  }
+    
+   // retrieve predefined material layers & assign material
+  mlHelper.processMaterial(enclosedDetector,itk_material,bpRadius);
+   ATH_MSG_DEBUG("GM material processed");
+ 
+   return;
 }
