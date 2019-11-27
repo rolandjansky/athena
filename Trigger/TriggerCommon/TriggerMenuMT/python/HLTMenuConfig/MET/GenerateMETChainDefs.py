@@ -38,9 +38,3 @@ def generateChainConfigs( chainDict ):
     log.debug("theChainDef %s" , theChainDef)
 
     return theChainDef
-
-
-
-    
-
-    

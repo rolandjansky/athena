@@ -3,150 +3,218 @@
 #
 from AthenaCommon.CFElements import seqAND
 from TrigEDMConfig.TriggerEDMRun3 import recordable
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool
+from ..Menu.MenuComponents import RecoFragmentsPool
 
-from TrigEFMissingET.TrigEFMissingETConf import (
-        HLT__MET__TrkMHTFex, HLT__MET__CellFex, HLT__MET__MHTFex,
-        HLT__MET__TCFex, HLT__MET__TCPufitFex)
 from TrigEFMissingET.TrigEFMissingETMTConfig import getMETMonTool
 
 from TrigT2CaloCommon.CaloDef import clusterFSInputMaker
 import GaudiKernel.SystemOfUnits as Units
+
+from .ConfigHelpers import metRecoDictToString, jetRecoDictForMET
+
+import abc
+
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 
-def metCellAthSequence(ConfigFlags):
-    InputMakerAlg= clusterFSInputMaker()
-    (recoSequence, sequenceOut) = metCellRecoSequence()
+class AlgConfig(object):
+    """ Base class to describe algorithm configurations
 
-    MetAthSequence =  seqAND("MetCellAthSequence",[InputMakerAlg, recoSequence ])
-    return (MetAthSequence, InputMakerAlg, sequenceOut)
+    Each individual 'EFrecoAlg' should be described by *one* AlgConfig subclass.
+    That subclass must set two data members from its __init__ method:
 
+    - self.inputs should be a *list* of all sequences required to make inputs
+      for the algorithm that calculates the MET value
+    - self.metAlg should the FEX that calculates the MET value
+
+    The name of metAlg *must* be self.algName and the METContainerKey property
+    *must* be set to self.outputKey
+
+    The subclass must also implement the @classmethod 'algType' which returns
+    the EFrecoAlg string that it describes.
+    """
+    __metaclass__ = abc.ABCMeta
+
+    @classmethod
+    def algType(cls):
+        """ The algorithm that this object configures - this corresponds to the
+        EFrecoAlg in the METChainParts dictionary
+
+        Note that no two subclasses of AlgConfig can describe the same algorithm
+        (as identified by this string).
+        """
+        raise NotImplementedError("algType not implemented by subclass!")
+
+    def __init__(self, **recoDict):
+        self._suffix = metRecoDictToString(recoDict)
+
+    @property
+    def outputKey(self):
+        """ The MET container object produced by this algorithm """
+        return recordable("HLT_MET_{}".format(self._suffix) )
+
+    @property
+    def algName(self):
+        """ The name of the algorithm made by this configuration """
+        return "EFMET_{}".format(self._suffix)
+
+    def buildSequence(self):
+        """ Create the full reco sequence """
+        # First, verify that everything was done right
+        assert self.metAlg.name() == self.algName, (
+            "Incorrect algorithm name '{}' set (should be '{}')".format(
+                self.metAlg.name(), self.algName) )
+        assert self.metAlg.METContainerKey == self.outputKey, (
+            "Incorrect output key '{}' set (should be '{}')".format(
+                self.metAlg.METContainerKey, self.outputKey) )
+
+        seq = seqAND("METRecoSequence_{}".format(self._suffix),
+                     self.inputs + [self.metAlg])
+        return seq
+
+    @classmethod
+    def _get_subclasses(cls):
+        """ Provides a way to iterate over all subclasses of this class """
+        for subcls in cls.__subclasses__():
+            for subsubcls in subcls.__subclasses__():
+                yield subsubcls
+            yield subcls
+
+    @classmethod
+    def fromRecoDict(cls, EFrecoAlg, **recoDict):
+        for subcls in cls._get_subclasses():
+            if subcls.algType() == EFrecoAlg:
+                return subcls(EFrecoAlg=EFrecoAlg, **recoDict)
+
+        raise ValueError("Unknown EFrecoAlg '{}' requested".format(EFrecoAlg) )
+                    
+
+def metAthSequence(dummyFlags, **recoDict):
+    inputSeq = clusterFSInputMaker()
+    recoSeq, sequenceOut = RecoFragmentsPool.retrieve(
+            metRecoSequence, None, **recoDict)
+
+    seq = seqAND("METAthSeq_{}".format(metRecoDictToString(recoDict) ),
+                 [inputSeq, recoSeq])
+    return seq, inputSeq, sequenceOut
+
+def metRecoSequence(dummyFlags, **recoDict):
+    conf = AlgConfig.fromRecoDict(**recoDict)
+    return conf.buildSequence(), conf.outputKey
+
+class CellConfig(AlgConfig):
+    @classmethod
+    def algType(cls):
+        return "cell"
     
-def metCellRecoSequence():
+    def __init__(self, **recoDict):
+        super(CellConfig, self).__init__(**recoDict)
+        from TrigT2CaloCommon.CaloDef import HLTFSCellMakerRecoSequence
+        from TrigEFMissingET.TrigEFMissingETConf import HLT__MET__CellFex
+        (cellMakerSeq, cellName) = HLTFSCellMakerRecoSequence()
 
-    from TrigT2CaloCommon.CaloDef import HLTFSCellMakerRecoSequence
-    (cellMakerSeq, CellsName) = HLTFSCellMakerRecoSequence()
-    alg = HLT__MET__CellFex(
-            name="EFMET_cell",
-            CellName = CellsName,
-            METContainerKey = recordable("HLT_MET_cell"),
-            MonTool = getMETMonTool() )
+        self.inputs = [cellMakerSeq]
+        self.metAlg = HLT__MET__CellFex(
+                name            = self.algName,
+                CellName        = cellName,
+                METContainerKey = self.outputKey,
+                MonTool         = getMETMonTool() )
 
-    met_recoSequence = seqAND("metCellRecoSequence", [cellMakerSeq, alg])
-    seqOut = alg.METContainerKey
-    return (met_recoSequence, seqOut)
+class TCConfig(AlgConfig):
+    @classmethod
+    def algType(cls):
+        return "tc"
 
+    def __init__(self, **recoDict):
+        super(TCConfig, self).__init__(**recoDict)
+        from TrigT2CaloCommon.CaloDef import HLTFSTopoRecoSequence
+        from TrigEFMissingET.TrigEFMissingETConf import HLT__MET__TCFex
+        # TODO - cluster calibration
+        tcSeq, clusterName = RecoFragmentsPool.retrieve(
+                HLTFSTopoRecoSequence, "FSJETRoI")
 
-def metClusterAthSequence(ConfigFlags):
-    InputMakerAlg= clusterFSInputMaker()
-    (recoSequence, sequenceOut) = metClusterRecoSequence()
+        self.inputs = [tcSeq]
+        self.metAlg = HLT__MET__TCFex(
+                name            = self.algName,
+                ClusterName     = clusterName,
+                METContainerKey = self.outputKey,
+                MonTool = getMETMonTool() )
 
-    MetClusterAthSequence =  seqAND("MetClusterAthSequence",[InputMakerAlg, recoSequence ])
-    return (MetClusterAthSequence, InputMakerAlg, sequenceOut)
+class TCPufitConfig(AlgConfig):
+    @classmethod
+    def algType(cls):
+        return "tcpufit"
 
-    
-def metClusterRecoSequence():
+    def __init__(self, **recoDict):
+        super(TCPufitConfig, self).__init__(**recoDict)
+        from TrigT2CaloCommon.CaloDef import HLTFSTopoRecoSequence
+        from TrigEFMissingET.TrigEFMissingETConf import HLT__MET__TCPufitFex
+        tcSeq, clusterName = RecoFragmentsPool.retrieve(
+                HLTFSTopoRecoSequence, "FSJETRoI")
 
-    from TrigT2CaloCommon.CaloDef import HLTFSTopoRecoSequence
-    (tcSeq, ClustersName) = HLTFSTopoRecoSequence()
+        self.inputs = [tcSeq]
+        self.metAlg = HLT__MET__TCPufitFex(
+                name            = self.algName,
+                ClusterName     = clusterName,
+                METContainerKey = self.outputKey,
+                MonTool = getMETMonTool() )
 
-    alg = HLT__MET__TCFex(
-            name="EFMET_tc",
-            ClusterName = ClustersName,
-            METContainerKey = recoSequence("HLT_MET_tc"),
-            MonTool = getMETMonTool() )
+class MHTConfig(AlgConfig):
+    @classmethod
+    def algType(cls):
+        return "mht"
 
-    metClusterRecoSequence = seqAND("metClusterRecoSequence", [tcSeq, alg])
+    def __init__(self, **recoDict):
+        super(MHTConfig, self).__init__(**recoDict)
+        from ..Jet.JetRecoSequences import jetRecoSequence
+        from TrigEFMissingET.TrigEFMissingETConf import HLT__MET__MHTFex
+        jetRecoDict = jetRecoDictForMET(**recoDict)
+        # TODO - right now jet calibration is hardcoded to EM
+        jetRecoDict["calib"] = "em"
+        jetRecoDict["jetCalib"] = "subjes"
+        jetSeq, jetName = RecoFragmentsPool.retrieve(
+                jetRecoSequence, None, dataSource="data", **jetRecoDict)
 
-    seqOut = alg.METContainerKey
-    return (metClusterRecoSequence, seqOut)
+        self.inputs = [jetSeq]
+        self.metAlg = HLT__MET__MHTFex(
+                name            = self.algName,
+                JetName         = jetName,
+                METContainerKey = self.outputKey,
+                MonTool         = getMETMonTool() )
 
+class TrkMHTConfig(AlgConfig):
+    @classmethod
+    def algType(cls):
+        return "trkmht"
 
-def metClusterPufitAthSequence(ConfigFlags):
-    InputMakerAlg= clusterFSInputMaker()
-    (recoSequence, sequenceOut) = metClusterPufitRecoSequence()
+    def __init__(self, **recoDict):
+        super(TrkMHTConfig, self).__init__(**recoDict)
+        from ..Jet.JetRecoSequences import jetRecoSequence
+        from TrigEFMissingET.TrigEFMissingETConf import HLT__MET__TrkMHTFex
+        jetRecoDict = jetRecoDictForMET(trkopt="ftf", **recoDict)
+        # TODO - right now jet calibration is hardcoded to EM
+        jetRecoDict["calib"] = "em"
+        jetSeq, jetName = RecoFragmentsPool.retrieve(
+                jetRecoSequence, None, dataSource="data", **jetRecoDict)
 
-    MetClusterPufitAthSequence =  seqAND("MetClusterPufitAthSequence",[InputMakerAlg, recoSequence ])
-    return (MetClusterPufitAthSequence, InputMakerAlg, sequenceOut)
+        # These are the names set by the upstream algorithms. Unfortunately
+        # these aren't passed to us - we just have to 'know' them
+        tracks = "HLT_xAODTracks_FS"
+        vertices = "HLT_EFHistoPrmVtx"
+        tva = "JetTrackVtxAssoc_{trkopt}".format(**jetRecoDict)
+        track_links = "GhostTrack_{trkopt}".format(**jetRecoDict)
 
-    
-def metClusterPufitRecoSequence(RoIs = 'FSJETRoI'):
-
-    from TrigT2CaloCommon.CaloDef import HLTFSTopoRecoSequence
-    (tcSeq, ClustersName) = RecoFragmentsPool.retrieve(HLTFSTopoRecoSequence, RoIs)
-
-    alg = HLT__MET__TCPufitFex(
-            name="EFMET_tcPufit",
-            METContainerKey = recordable("HLT_MET_tcPufit"),
-            ClusterName = ClustersName,
-            MonTool = getMETMonTool() )
-
-    metClusterPufitRecoSequence = seqAND("metClusterPufitRecoSequence", [tcSeq, alg])
-
-    seqOut = alg.METContainerKey
-    return (metClusterPufitRecoSequence, seqOut)
-
-
-def metJetAthSequence(ConfigFlags):
-    InputMakerAlg= clusterFSInputMaker()
-    (recoSequence, sequenceOut) = metJetRecoSequence()
-
-    MetAthSequence =  seqAND("MetJetAthSequence",[InputMakerAlg, recoSequence ])
-    return (MetAthSequence, InputMakerAlg, sequenceOut)
-
-
-def metJetRecoSequence(RoIs = 'FSJETRoI'):
-
-    from TriggerMenuMT.HLTMenuConfig.Jet.JetRecoSequences import jetRecoSequence
-    jetRecoDict={"recoAlg":"a4", "dataType": "tc", "calib": "em", "jetCalib": "subjes", "trkopt": "notrk"}
-    (jetSeq, sequenceOut) = RecoFragmentsPool.retrieve( jetRecoSequence, None, dataSource="data", **jetRecoDict )
-
-    alg = HLT__MET__MHTFex(
-            name="EFMET_mht",
-            JetName = sequenceOut,
-            METContainerKey = recordable("HLT_MET_mht"),
-            MonTool = getMETMonTool() )
-
-    metJetRecoSequence = seqAND("metJetRecoSequence", [jetSeq, alg])
-
-    seqOut = alg.METContainerKey
-    return (metJetRecoSequence, seqOut)
-
-def metTrkMHTAthSequence(ConfigFlags):
-    InputMakerAlg = clusterFSInputMaker()
-    reco_seq, seq_out = metTrkMHTRecoSequence()
-    ath_seq = seqAND("MetTrkMHTAthSequence", [InputMakerAlg, reco_seq])
-    return ath_seq, InputMakerAlg, seq_out
-
-def metTrkMHTRecoSequence():
-
-    # Prepare the inputs from the jet slice
-    from TriggerMenuMT.HLTMenuConfig.Jet.JetRecoSequences import jetRecoSequence
-    jetRecoDict={"recoAlg":"a4", "dataType": "tc", "calib": "em", "jetCalib": "subjesIS", "trkopt": "ftf", "cleaning": "noCleaning"}
-    (jetSeq, jetOut) = RecoFragmentsPool.retrieve( jetRecoSequence, None, dataSource="data", **jetRecoDict )
-
-    # These are the names set by the downstream algorithms. Unfortunately these
-    # aren't passed to us - we just have to 'know' them
-    tracks = "HLT_xAODTracks_FS"
-    vertices = "HLT_EFHistoPrmVtx"
-    tva = "JetTrackVtxAssoc_{trkopt}".format(**jetRecoDict)
-    track_links = "GhostTrack_{trkopt}".format(**jetRecoDict)
-
-    alg = HLT__MET__TrkMHTFex(
-            name="EFMET_trkmht",
-            METContainerKey = recordable("HLT_MET_trkmht"),
-            MonTool = getMETMonTool(),
-            JetName = jetOut,
-            TrackName = tracks,
-            VertexName = vertices,
-            TVAName = tva,
-            TrackLinkName = track_links)
-    alg.TrackSelTool.CutLevel = "Loose"
-    alg.TrackSelTool.maxZ0SinTheta = 1.5
-    alg.TrackSelTool.maxD0overSigmaD0 = 3
-    alg.TrackSelTool.minPt = 1 * Units.GeV
-
-    reco_seq = seqAND("metTrkMHTRecoSequence", [jetSeq, alg])
-    return (reco_seq, alg.METContainerKey)
-
+        self.inputs = [jetSeq]
+        self.metAlg = HLT__MET__TrkMHTFex(
+                name            = self.algName,
+                METContainerKey = self.outputKey,
+                MonTool         = getMETMonTool(),
+                JetName         = jetName,
+                TrackName       = tracks,
+                VertexName      = vertices,
+                TVAName         = tva,
+                TrackLinkName   = track_links)
+        self.metAlg.TrackSelTool.CutLevel         = "Loose"
+        self.metAlg.TrackSelTool.maxZ0SinTheta    = 1.5
+        self.metAlg.TrackSelTool.maxD0overSigmaD0 = 3
+        self.metAlg.TrackSelTool.minPt            = 1 * Units.GeV

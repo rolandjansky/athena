@@ -248,6 +248,9 @@ TriggerHLTListRun3 = [
     ('xAOD::TrigMissingETContainer#HLT_MET_tcPufit',                       'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_MET_tcPufitAux.',                'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
 
+    ('xAOD::TrigMissingETContainer#HLT_MET_tcpufit',                       'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
+    ('xAOD::TrigMissingETAuxContainer#HLT_MET_tcpufitAux.',                'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
+
     ('xAOD::TrigMissingETContainer#HLT_MET_tc',                            'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_MET_tcAux.',                     'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
 
