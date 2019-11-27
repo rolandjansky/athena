@@ -87,26 +87,16 @@ StatusCode JetForwardJvtToolBDT::initialize()
       m_wpFileIn = std::make_unique<TFile> (filename.c_str(),"read");
 
       if ( m_OP=="TIGHTER") {
-	m_mvfjvtThresh1516 = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_1516_tighter" ) ) );
-	m_mvfjvtThresh17   = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_17_tighter"   ) ) );
-	m_mvfjvtThresh18   = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_18_tighter"   ) ) );
+	m_mvfjvtThresh = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_tighter" ) ) );
       } else if ( m_OP=="TIGHT" ) {
-	m_mvfjvtThresh1516 = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_1516_tight" ) ) );
-	m_mvfjvtThresh17   = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_17_tight"   ) ) );
-	m_mvfjvtThresh18   = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_18_tight"   ) ) );
-      } else if ( m_OP=="DEFAULT" ) {
-	m_mvfjvtThresh1516 = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_1516_loose" ) ) );
-	m_mvfjvtThresh17   = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_17_loose"   ) ) );
-	m_mvfjvtThresh18   = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_18_loose"   ) ) );
+	m_mvfjvtThresh = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_tight" ) ) );
+      } else if ( m_OP=="DEFAULT" || m_OP=="LOOSE" ) {
+	m_mvfjvtThresh = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_loose" ) ) );
       } else {
-	ATH_MSG_WARNING(m_OP << " working point doesn't exist. Using \"DEFAULT\" (loose) instead" );
-	m_mvfjvtThresh1516 = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_1516_loose" ) ) );
-	m_mvfjvtThresh17   = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_17_loose"   ) ) );
-	m_mvfjvtThresh18   = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_18_loose"   ) ) );
+	ATH_MSG_ERROR(m_OP << " working point doesn't exist." );
+	return StatusCode::FAILURE;
       }
-      m_mvfjvtThresh1516->SetDirectory(0);
-      m_mvfjvtThresh17->SetDirectory(0);
-      m_mvfjvtThresh18->SetDirectory(0);
+      m_mvfjvtThresh->SetDirectory(0);
       m_wpFileIn->Close();
     }
 
@@ -270,19 +260,9 @@ bool JetForwardJvtToolBDT::passMVfJVT( float mvfjvt, float pt, float eta ) const
   float mu = eventInfo->actualInteractionsPerCrossing();
 
   // -- Grab WP from histogram
-  if(year==2015 || year==2016){
-    mvfjvtThresh = m_mvfjvtThresh1516->GetBinContent(m_mvfjvtThresh1516->GetXaxis()->FindBin(pt),
-						     m_mvfjvtThresh1516->GetYaxis()->FindBin(eta),
-						     m_mvfjvtThresh1516->GetZaxis()->FindBin(mu));
-  } else if (year==2017){
-    mvfjvtThresh = m_mvfjvtThresh17->GetBinContent(m_mvfjvtThresh17->GetXaxis()->FindBin(pt),
-						   m_mvfjvtThresh17->GetYaxis()->FindBin(eta),
-						   m_mvfjvtThresh17->GetZaxis()->FindBin(mu));
-  } else if (year==2018){
-    mvfjvtThresh = m_mvfjvtThresh18->GetBinContent(m_mvfjvtThresh18->GetXaxis()->FindBin(pt),
-						   m_mvfjvtThresh18->GetYaxis()->FindBin(eta),
-						   m_mvfjvtThresh18->GetZaxis()->FindBin(mu));
-  } else mvfjvtThresh = -999;
+  mvfjvtThresh = m_mvfjvtThresh->GetBinContent(m_mvfjvtThresh->GetXaxis()->FindBin(pt),
+					       m_mvfjvtThresh->GetYaxis()->FindBin(eta),
+					       m_mvfjvtThresh->GetZaxis()->FindBin(mu));
 
   if(mvfjvt==-2 || mvfjvt>mvfjvtThresh) return true;
   else return false;
