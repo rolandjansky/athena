@@ -32,21 +32,23 @@ name="InclinedDuals"
 script="`basename \"$0\"`"
 
 evnt_muons_100GeV=$artdata/InDetSLHC_Example/inputs/EVNT.09244578.*.pool.root.1
-#hits_ref_muons_100GeV=$artdata/InDetSLHC_Example/inputs/InclinedDuals_HITS_mu_100GeV.root
+###hits_ref_muons_100GeV=$artdata/InDetSLHC_Example/inputs/InclinedDuals_HITS_mu_100GeV.root
 
 if [ $dosim -ne 0 ]; then
   hits_muons_100GeV=physval_muons_100GeV.HITS.root
 else
-  echo "Sim job failed"
-  ###hits_muons_100GeV="$hits_ref_muons_100GeV"
+  echo "Sim job not configured to run... no HITS input available for reco step, exiting test!"
+  exit
+###  hits_muons_100GeV="$hits_ref_muons_100GeV"
 fi
 if [ $dorec -ne 0 ]; then
   esd_muons_100GeV=physval_muons_100GeV.ESD.root
   daod_muons_100GeV=physval_muons_100GeV.DAOD_IDTRKVALID.root
 else
-   echo "Reco job failed"
-  ###esd_muons_100GeV=$artdata/InDetSLHC_Example/inputs/InclinedDuals_ESD_mu_100GeV.root
-  ###daod_muons_100GeV=$artdata/InDetSLHC_Example/inputs/physval_muons_100GeV.DAOD_IDTRKVALID.root
+  echo "Sim job not configured to run... no HITS input available for reco step, exiting test!"
+  exit
+###   esd_muons_100GeV=$artdata/InDetSLHC_Example/inputs/InclinedDuals_ESD_mu_100GeV.root
+###   daod_muons_100GeV=$artdata/InDetSLHC_Example/inputs/physval_muons_100GeV.DAOD_IDTRKVALID.root
 fi
 #jo=$artdata/InDetSLHC_Example/jobOptions/PhysValITk_jobOptions.py moved to share/
 dcubemon_muons_100GeV_sim=SiHitValid_muons_100GeV.root
@@ -137,9 +139,13 @@ fi
 if [ $dorec -ne 0 ]; then
 
   ## Starting reconstruction for single muons
-  if [ $dosim -ne 0 ] && [ ! -s "$hits_muons_100GeV" ] && [ -s "$hits_ref_muons_100GeV" ]; then
-    echo "$script: Sim_tf output '$hits_muons_100GeV' not created. Run Reco_tf on '$hits_ref_muons_100GeV' instead." 2>&1
-    hits_muons_100GeV="$hits_ref_muons_100GeV"
+###  if [ $dosim -ne 0 ] && [ ! -s "$hits_muons_100GeV" ] && [ -s "$hits_ref_muons_100GeV" ]; then
+###    echo "$script: Sim_tf output '$hits_muons_100GeV' not created. Run Reco_tf on '$hits_ref_muons_100GeV' instead." 2>&1
+###    hits_muons_100GeV="$hits_ref_muons_100GeV"
+###  fi
+  if [ $dosim -ne 0 ] && [ ! -s "$hits_muons_100GeV" ] ; then
+    echo "$script: Sim_tf output '$hits_muons_100GeV' not created. Not running Reco_tf and stopping" 2>&1
+    exit
   fi
 
   run ls -lL "$hits_muons_100GeV"

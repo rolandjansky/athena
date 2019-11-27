@@ -37,16 +37,18 @@ evnt_muons_1GeV=$artdata/InDetSLHC_Example/inputs/EVNT.09244569.*.pool.root.1
 if [ $dosim -ne 0 ]; then
   hits_muons_1GeV=physval_muons_1GeV.HITS.root
 else
-  echo "Sim job failed"
-  ###hits_muons_1GeV="$hits_ref_muons_1GeV"
+  echo "Sim job not configured to run... no HITS input available for reco step, exiting test!"
+  exit
+###  hits_muons_1GeV="$hits_ref_muons_1GeV"
 fi
 if [ $dorec -ne 0 ]; then
   esd_muons_1GeV=physval_muons_1GeV.ESD.root
   daod_muons_1GeV=physval_muons_1GeV.DAOD_IDTRKVALID.root
 else
-   echo "Reco job failed"
-  ###esd_muons_1GeV=$artdata/InDetSLHC_Example/inputs/InclinedDuals_ESD_mu_1GeV.root
-  ###daod_muons_1GeV=$artdata/InDetSLHC_Example/inputs/physval_muons_1GeV.DAOD_IDTRKVALID.root
+  echo "Sim job not configured to run... no HITS input available for reco step, exiting test!"
+  exit
+###   esd_muons_1GeV=$artdata/InDetSLHC_Example/inputs/InclinedDuals_ESD_mu_1GeV.root
+###   daod_muons_1GeV=$artdata/InDetSLHC_Example/inputs/physval_muons_1GeV.DAOD_IDTRKVALID.root
 fi
 #jo=$artdata/InDetSLHC_Example/jobOptions/PhysValITk_jobOptions.py moved to share/
 dcubemon_muons_1GeV_sim=SiHitValid_muons_1GeV.root
@@ -120,7 +122,7 @@ if [ $dosim -ne 0 ]; then
   echo "art-result: $? sim"
  
 
-
+  
  
   mv ./SiHitValid.root ./$dcubemon_muons_1GeV_sim
 
@@ -137,9 +139,13 @@ fi
 if [ $dorec -ne 0 ]; then
 
   ## Starting reconstruction for single muons
-  if [ $dosim -ne 0 ] && [ ! -s "$hits_muons_1GeV" ] && [ -s "$hits_ref_muons_1GeV" ]; then
-    echo "$script: Sim_tf output '$hits_muons_1GeV' not created. Run Reco_tf on '$hits_ref_muons_1GeV' instead." 2>&1
-    hits_muons_1GeV="$hits_ref_muons_1GeV"
+###  if [ $dosim -ne 0 ] && [ ! -s "$hits_muons_1GeV" ] && [ -s "$hits_ref_muons_1GeV" ]; then
+###    echo "$script: Sim_tf output '$hits_muons_1GeV' not created. Run Reco_tf on '$hits_ref_muons_1GeV' instead." 2>&1
+###    hits_muons_1GeV="$hits_ref_muons_1GeV"
+###  fi
+  if [ $dosim -ne 0 ] && [ ! -s "$hits_muons_1GeV" ] ; then
+    echo "$script: Sim_tf output '$hits_muons_1GeV' not created. Not running Reco_tf and stopping" 2>&1
+    exit
   fi
 
   run ls -lL "$hits_muons_1GeV"

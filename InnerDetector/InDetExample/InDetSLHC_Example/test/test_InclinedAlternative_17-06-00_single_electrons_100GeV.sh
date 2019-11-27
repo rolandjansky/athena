@@ -37,14 +37,18 @@ evnt_electrons_100GeV=$artdata/InDetSLHC_Example/inputs/electrons_100GeV_EVNT.09
 if [ $dosim -ne 0 ]; then
   hits_electrons_100GeV=physval_electrons_100GeV.HITS.root
 else
-  hits_electrons_100GeV="$hits_ref_electrons_100GeV"
+  echo "Sim job not configured to run... no HITS input available for reco step, exiting test!"
+  exit
+###  hits_electrons_100GeV="$hits_ref_electrons_100GeV"
 fi
 if [ $dorec -ne 0 ]; then
   esd_electrons_100GeV=physval_electrons_100GeV.ESD.root
   daod_electrons_100GeV=physval_electrons_100GeV.DAOD_IDTRKVALID.root
 else
-  esd_electrons_100GeV=$artdata/InDetSLHC_Example/inputs/InclinedDuals_ESD_mu_100GeV.root
-  daod_electrons_100GeV=$artdata/InDetSLHC_Example/inputs/physval_electrons_100GeV.DAOD_IDTRKVALID.root
+  echo "Sim job not configured to run... no HITS input available for reco step, exiting test!"
+  exit
+###   esd_electrons_100GeV=$artdata/InDetSLHC_Example/inputs/InclinedDuals_ESD_mu_100GeV.root
+###   daod_electrons_100GeV=$artdata/InDetSLHC_Example/inputs/physval_electrons_100GeV.DAOD_IDTRKVALID.root
 fi
 #jo=$artdata/InDetSLHC_Example/jobOptions/PhysValITk_jobOptions.py moved to share/
 dcubemon_electrons_100GeV_sim=SiHitValid_electrons_100GeV.root
@@ -135,9 +139,13 @@ fi
 if [ $dorec -ne 0 ]; then
 
   ## Starting reconstruction for single electrons
-  if [ $dosim -ne 0 ] && [ ! -s "$hits_electrons_100GeV" ] && [ -s "$hits_ref_electrons_100GeV" ]; then
-    echo "$script: Sim_tf output '$hits_electrons_100GeV' not created. Run Reco_tf on '$hits_ref_electrons_100GeV' instead." 2>&1
-    hits_electrons_100GeV="$hits_ref_electrons_100GeV"
+###  if [ $dosim -ne 0 ] && [ ! -s "$hits_electrons_100GeV" ] && [ -s "$hits_ref_electrons_100GeV" ]; then
+###    echo "$script: Sim_tf output '$hits_electrons_100GeV' not created. Run Reco_tf on '$hits_ref_electrons_100GeV' instead." 2>&1
+###    hits_electrons_100GeV="$hits_ref_electrons_100GeV"
+###  fi
+  if [ $dosim -ne 0 ] && [ ! -s "$hits_electrons_100GeV" ] ; then
+    echo "$script: Sim_tf output '$hits_electrons_100GeV' not created. Not running Reco_tf and stopping" 2>&1
+    exit
   fi
 
   run ls -lL "$hits_electrons_100GeV"
