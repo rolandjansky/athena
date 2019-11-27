@@ -1,10 +1,8 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
-#include "GaudiKernel/MsgStream.h"
-#include "AthenaKernel/getMessageSvc.h"
 #include "MuonGeoModel/MuonDetectorFactory001.h"
 
 #include "RDBAccessSvc/IRDBAccessSvc.h"
@@ -24,13 +22,6 @@
 #include "MuonReadoutGeometry/MuonStation.h"
 
 #include "IdDictDetDescr/IdDictManager.h" 
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
-#include "MuonIdHelpers/CscIdHelper.h"
-// for nSW
-#include "MuonIdHelpers/sTgcIdHelper.h"
-#include "MuonIdHelpers/MmIdHelper.h"
 
 #include "GeoModelKernel/GeoBox.h"
 #include "GeoModelKernel/GeoTube.h"
@@ -57,6 +48,8 @@
 
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/SystemOfUnits.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 #include "GeoGenericFunctions/Variable.h"
 
@@ -93,7 +86,6 @@ namespace MuonGM {
       m_mdtAsBuiltParaFlag(0), m_dumpMemoryBreakDown(false), m_hasCSC(true), m_hasSTgc(true), m_hasMM(true), m_muon(NULL), m_manager(NULL),
       m_pDetStore(pDetStore), m_pRDBAccess(0)
   {
-    MsgStream log(Athena::getMessageSvc(), "MuonGeoModel");
     m_muon = new MuonSystemDescription( "MuonSystem" );
     m_muon->barrelInnerRadius =  4.30*Gaudi::Units::m;
     m_muon->innerRadius       =  0.07*Gaudi::Units::m;
@@ -111,9 +103,9 @@ namespace MuonGM {
 
     m_enableFineClashFixing = 0;
   
-    log<<MSG::INFO<<"MuonDetectorFactory - constructor "<<" MuonSystem OuterRadius "<< m_muon->outerRadius
+    MsgStream log(Athena::getMessageSvc(),"MuonGeoModel");
+    log << MSG::INFO << "MuonDetectorFactory - constructor "<<" MuonSystem OuterRadius "<< m_muon->outerRadius
        <<" Length "<< m_muon->length <<endmsg;
-    //std::cerr<<"MuonDetectorFactory - constructor/// size of vectors "<<m_selectedStations.size()<<" "<<m_selectedStEta.size()<<" "<<m_selectedStPhi.size()<<std::endl;
   }
 
   MuonDetectorFactory001::~MuonDetectorFactory001() 
@@ -128,7 +120,7 @@ namespace MuonGM {
 
   void MuonDetectorFactory001::create( GeoPhysVol* world )
   {
-    MsgStream log(Athena::getMessageSvc(), "MuGM:MuonFactory");
+    MsgStream log(Athena::getMessageSvc(),"MuGM:MuonFactory");
 
     int mem  = 0;
     float cpu  = 0;
@@ -191,8 +183,7 @@ namespace MuonGM {
     mysql->set_DBMuonVersion(m_DBMuonVersion);
     log<<MSG::INFO<<"Mysql helper class created here for geometry version "
        <<mysql->getGeometryVersion()<<" from DB MuonVersion <"<<mysql->get_DBMuonVersion()<<">"<<endmsg;
-        
-  
+
     StatusCode sc =StatusCode::SUCCESS;
 
     const DataHandle<MdtIdHelper> mdtidh;
@@ -231,6 +222,7 @@ namespace MuonGM {
         else log<<MSG::INFO<<"MMIDHELPER retrieved from DetStore"<<endmsg;
         m_manager->set_mmIdHelper(mmidh);
     }
+
 
     if (m_dumpMemoryBreakDown)
       {
