@@ -250,7 +250,7 @@ JETM1SlimmingHelper.ExtraVariables += ["AntiKt10UFOCSSKTrimmedPtFrac5SmallR20Jet
                                        "AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5Jets.zg.rg",
                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.zg.rg"]
 
-JETM1SlimmingHelper.AllVariables = [ "MuonSegments",
+JETM1SlimmingHelper.AllVariables = [ "MuonSegments", "TruthVertices",
                                      "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape","Kt4EMPFlowPUSBEventShape","Kt4EMPFlowNeutEventShape"]
 
 # Trigger content
