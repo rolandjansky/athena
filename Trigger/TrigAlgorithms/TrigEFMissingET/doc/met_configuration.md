@@ -1,3 +1,5 @@
+<!--Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration-->
+
 # MET Trigger configuration guide
 
 This document is intended to describe the process of going from a chain name to
