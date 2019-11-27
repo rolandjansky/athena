@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -752,7 +752,7 @@ bool TRTCalibrator::calibrate() {
     }
       
       ihist++;
-      delete chist;
+      delete [] chist;
     } // Finish Straw Loop   
     msg(MSG::INFO)  << Form("%7i HISTOGRAMS READ, UNITS ADDED: %i %i %2i %3i %3i %4i %6i",ihist+1,nTRThist, ndethist, nlayhist, nmodhist, nbrdhist, nchphist, nstwhist) << endmsg;
     if(m_DoArXenonSep) msg(MSG::INFO)  << Form("%7i Ar HISTOGRAMS READ, UNITS ADDED: %i %i %2i %3i %3i %4i %6i",ihistAr+1,nTRThistAr, ndethistAr, nlayhistAr, nmodhistAr, nbrdhistAr, nchphistAr, nstwhistAr) << endmsg;
