@@ -4,7 +4,7 @@ from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon import CfgMgr
 
 def setupScaleCalibrationInput():
-    print "Setting up setupScaleCalibrationInput"
+    print("Setting up setupScaleCalibrationInput")
 
     topSequence = AlgSequence()
     # THistSvc configuration
