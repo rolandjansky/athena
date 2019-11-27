@@ -47,7 +47,7 @@ elif [[ $INPUT == "minbias" ]]; then
   export DS='["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/mc15_13TeV.361203.Pythia8_A2_MSTW2008LO_ND_minbias.recon.RDO.e3639_s2606_s2174_r7661_tid07858100_00/RDO.07858100._000087.pool.root.1"]'
 
 elif [[ $INPUT == 'data' ]]; then
-  export DS='["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.recon.RAW.r10978/RAW.15789997._002546.pool.root.1"]'
+  export DS='["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.recon.RAW.r10978/RAW.15789997._000435.pool.root.1","/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.recon.RAW.r10978/RAW.15789997._001626.pool.root.1","/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.recon.RAW.r10978/RAW.15789997._002546.pool.root.1","/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.recon.RAW.r10978/RAW.15789997._005117.pool.root.1"]'
 
 else 
   # Default - ttbar
