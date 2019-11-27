@@ -47,7 +47,7 @@ decodingSeq += costDataDeserialiser
 topSequence += decodingSeq
 
 # Create OutputStream for ESD writing
-from OutputStreamAthenaPool.OutputStreamAthenaPool import createOutputStream
+from OutputStreamAthenaPool.CreateOutputStreams import createOutputStream
 StreamESD = createOutputStream("StreamESD","ESD.pool.root",True)
 topSequence.remove( StreamESD )
 outSequence.remove( StreamESD )

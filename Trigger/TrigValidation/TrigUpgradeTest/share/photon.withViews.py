@@ -132,7 +132,7 @@ from TrigUpgradeTest.TestUtils import MenuTest
 mon.HLTTriggerMenu = [ x.split(":")[1] for x in  MenuTest.CTPToChainMapping ]
 
 import AthenaPoolCnvSvc.WriteAthenaPool
-from OutputStreamAthenaPool.OutputStreamAthenaPool import  createOutputStream
+from OutputStreamAthenaPool.CreateOutputStreams import  createOutputStream
 StreamESD=createOutputStream("StreamESD","myESD.pool.root",True)
 topSequence.remove( StreamESD )
 
