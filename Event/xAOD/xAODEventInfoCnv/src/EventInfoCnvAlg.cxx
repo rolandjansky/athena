@@ -2,7 +2,6 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventInfoCnvAlg.cxx 751296 2016-06-01 08:00:25Z krasznaa $
 
 // System include(s):
 #include <memory>
@@ -157,31 +156,6 @@ namespace xAODMaker {
 
       // Return gracefully:
       return StatusCode::SUCCESS;
-   }
-
-   StatusCode EventInfoCnvAlg::beginRun() {
-
-     if(m_doBeginRun && !Gaudi::Concurrency::ConcurrencyFlags::concurrent()) {
-       // Let the user know what's happening:
-       ATH_MSG_DEBUG( "Preparing xAOD::EventInfo object in beginRun()" );
-       
-       // Run the conversion using the execute function:
-       CHECK( execute (Gaudi::Hive::currentContext()) );
-     }
-     else {
-       // Supress warning about use of beginRun().
-#ifdef __GNUC__
-# pragma GCC diagnostic push
-# pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-       CHECK( Algorithm::beginRun() );
-#ifdef __GNUC__
-# pragma GCC diagnostic pop
-#endif
-     }
-
-     // Return gracefully:
-     return StatusCode::SUCCESS;
    }
 
 } // namespace xAODMaker
