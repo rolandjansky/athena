@@ -2,13 +2,15 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include <algorithm>
+#include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Property.h"
+#include "AthenaInterprocess/Incidents.h"
 #include "DecisionHandling/HLTIdentifier.h"
 #include "TrigSignatureMoniMT.h"
 
 TrigSignatureMoniMT::TrigSignatureMoniMT( const std::string& name, 
 			  ISvcLocator* pSvcLocator ) : 
-  ::AthReentrantAlgorithm( name, pSvcLocator )
+  base_class( name, pSvcLocator )
 {}
 
 StatusCode TrigSignatureMoniMT::initialize() {
@@ -19,7 +21,10 @@ StatusCode TrigSignatureMoniMT::initialize() {
   ATH_CHECK( m_L1MenuKey.initialize() );
   ATH_CHECK( m_collectorTools.retrieve() );
   ATH_CHECK( m_histSvc.retrieve() );
-      
+
+  ATH_CHECK( m_incidentSvc.retrieve() );
+  m_incidentSvc->addListener(this, AthenaInterprocess::UpdateAfterFork::type());
+
   m_timeDivider = std::make_unique<TimeDivider>(m_intervals, m_duration, TimeDivider::seconds);
 
   return StatusCode::SUCCESS;
@@ -151,13 +156,14 @@ StatusCode TrigSignatureMoniMT::finalize() {
 
 StatusCode TrigSignatureMoniMT::stop() {
   //publish final rate histogram
-  if (m_timer) m_timer->stop();
-
-  time_t t = time(0);
-  unsigned int interval;
-  unsigned int duration = m_timeDivider->forcePassed(t, interval);
-  updatePublished(duration); //divide by time that really passed not by interval duration
-
+  if (m_timer) {
+    m_timer->stop();
+    time_t t = time(0);
+    unsigned int interval;
+    unsigned int duration = m_timeDivider->forcePassed(t, interval);
+    updatePublished(duration); //divide by time that really passed not by interval duration
+  }
+  m_timer.reset();
   delete m_rateBufferHistogram.get();
   return StatusCode::SUCCESS;
 }
@@ -243,12 +249,19 @@ void TrigSignatureMoniMT::callback() const {
   m_timer->start(m_duration*50);
 }
 
-StatusCode TrigSignatureMoniMT::execute( const EventContext& context ) const {  
-  // Create and start timer - this has to be done in the first execute call to ensure it happens after forking in HLT
-  if (bool expected = false; m_isTimerStarted.compare_exchange_strong(expected, true)) {
+void TrigSignatureMoniMT::handle( const Incident& incident ) {
+  // Create and start timer after fork
+  if (incident.type() == AthenaInterprocess::UpdateAfterFork::type()) {
+    if (m_timer) {
+      ATH_MSG_WARNING("Timer is already running. UpdateAfterFork incident called more than once?");
+      return;
+    }
     m_timer = std::make_unique<Athena::AlgorithmTimer>(m_duration*50, boost::bind(&TrigSignatureMoniMT::callback, this), Athena::AlgorithmTimer::DELIVERYBYTHREAD);
     ATH_MSG_DEBUG("Started rate timer");
   }
+}
+
+StatusCode TrigSignatureMoniMT::execute( const EventContext& context ) const {
 
   auto l1Decisions = SG::makeHandle( m_l1DecisionsKey, context );
 

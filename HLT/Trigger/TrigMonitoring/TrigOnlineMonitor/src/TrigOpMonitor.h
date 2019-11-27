@@ -31,13 +31,17 @@
 #include <string>
 #include <vector>
 
-class TrigOpMonitor : public AthAlgorithm {
+// Forward declarations
+class IIncidentSvc;
+
+class TrigOpMonitor : public extends<AthAlgorithm, IIncidentListener> {
 public:
   TrigOpMonitor(const std::string& name, ISvcLocator* pSvcLocator);
 
   virtual StatusCode initialize() override;
   virtual StatusCode start() override;
   virtual StatusCode execute() override;
+  virtual void handle( const Incident& incident ) override;
 
   /* Ensure this algorithm is a singleton.
      This should not cause any bottle-necks as the algorithm does very
@@ -62,6 +66,7 @@ private:
     float total_bytes{0};
   };
 
+  ServiceHandle<IIncidentSvc> m_incidentSvc{ this, "IncidentSvc", "IncidentSvc", "Incident service"};
   ServiceHandle<ITHistSvc> m_histSvc{this, "THistSvc", "THistSvc"};
 
   MagField::IMagFieldSvc* m_magFieldSvc{nullptr};
