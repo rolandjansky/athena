@@ -215,7 +215,7 @@ bool eventLoop(asg::AnaToolHandle<Interface>& tool, Result& result)
     eventInfo->setStore(eventAuxInfo.get());
     eventInfo->auxdata<int>("flag") = 1;
     FBT_CHECK( store->record(std::move(eventInfo), "EventInfo") );
-    FBT_CHECK( store->record(std::move(eventAuxInfo), "EventAuxInfo") );
+    FBT_CHECK( store->record(std::move(eventAuxInfo), "EventInfoAux.") );
  
     xAOD::IParticleContainer particles(SG::VIEW_ELEMENTS);
     auto e = std::make_unique<xAOD::Electron>();
