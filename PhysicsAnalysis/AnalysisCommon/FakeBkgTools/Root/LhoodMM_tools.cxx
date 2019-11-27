@@ -40,7 +40,9 @@ LhoodMM_tools* LhoodMM_tools::m_current_lhoodMM_tool;
 LhoodMM_tools::LhoodMM_tools(const std::string& name)  :
   BaseFakeBkgTool(name)
 {
- 
+
+  m_unlimitedSystematicVariations = true;
+
   //setup fixHistogramNormalization property
   declareProperty("FixHistogramNormalization", m_fixNormalization, "Boolean to determine whether or not histograms are scaled such that their normalization is equal to the fake yield computed for the entire sample (true =  yes, do the scaleing)");
 
