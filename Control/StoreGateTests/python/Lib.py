@@ -43,7 +43,7 @@ class PySgStressProducer( PyAthena.Alg ):
         _sg_setConst = self.sg.setConst
         
         allGood = True
-        for i in xrange(self.NbrOfObjects):
+        for i in range(self.NbrOfObjects):
             outName = "%s_payload_%i" % (self.DataName, i)
             dv = _makePayLoadDv()
             data = _makePayLoad()
@@ -61,7 +61,7 @@ class PySgStressProducer( PyAthena.Alg ):
             data = data.m_data
             data.reserve( self.ObjectsSize )
             pback = data.push_back
-            for j in xrange(self.ObjectsSize): pback( j )
+            for j in range(self.ObjectsSize): pback( j )
             pass # loop over NbrOfObjects
         if allGood: return StatusCode.Success
         return StatusCode.Failure
@@ -98,7 +98,7 @@ class PySgStressConsumer(PyAthena.Alg):
 
     def readData(self):
         allGood = True
-        for i in xrange(self.NbrOfObjects):
+        for i in range(self.NbrOfObjects):
             outName = "%s_payload_%i" % (self.DataName, i)
             dv = self.sg.retrieve( "SgTests::PayLoadDv", outName )
             if dv is None:
@@ -165,10 +165,10 @@ class PyClidsTestWriter(PyAthena.Alg):
             tp = getattr(PyAthena, tpName)
             cont = tp()
             cont.reserve(100)
-            for i in xrange(100): cont.push_back(i)
+            for i in range(100): cont.push_back(i)
             try:
                 self.sg[sgKey] = cont
-            except Exception,err:
+            except Exception as err:
                 _error("Could not record '%s' at [%s] !",tpName,sgKey)
                 _error(err)
                 allGood = False
@@ -184,9 +184,9 @@ class PyClidsTestWriter(PyAthena.Alg):
         for tpName,sgKey in self._test_matrix.items():
             cont = self.sg.retrieve(tpName,sgKey)
             if not cont: _info('Could not retrieve [%s] !',sgKey)
-            cont = [cont[i] for i in xrange(10)]
+            cont = [cont[i] for i in range(10)]
             _info('[%s] content: %s', sgKey,cont)
-            if len( [i for i in xrange(10) if i != cont[i]] ) > 0:
+            if len( [i for i in range(10) if i != cont[i]] ) > 0:
                 self.msg.error('[%s] content is NOT as expected !!')
                 allGood = False
         if not allGood: return StatusCode.Failure
