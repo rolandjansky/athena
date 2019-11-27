@@ -5,6 +5,7 @@
 # @date January 2010
 
 from __future__ import print_function
+from past.builtins import basestring
 
 __doc__ = "functions to ease the configuration of reading/copying files"
 __version__ = "$Revision: 285924 $"

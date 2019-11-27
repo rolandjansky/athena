@@ -207,7 +207,7 @@ class FilePeeker(PyAthena.Alg):
             chan_names = []
             sz = payload.name_size()
             msg.info('==names== (sz: %s)', sz)
-            for idx in xrange(sz):
+            for idx in range(sz):
                 chan = payload.chanNum(idx)
                 chan_name = payload.chanName(chan)
                 #msg.info( '--> (%s, %s)', idx, chan_name)
@@ -217,7 +217,7 @@ class FilePeeker(PyAthena.Alg):
                 # iovs
                 sz = payload.iov_size()
                 msg.info('==iovs== (sz: %s)',sz)
-                for idx in xrange(sz):
+                for idx in range(sz):
                     chan = payload.chanNum(idx)
                     iov_range = payload.iovRange(chan)
                     iov_start = iov_range.start()
@@ -235,7 +235,7 @@ class FilePeeker(PyAthena.Alg):
             attrs = [] # can't use a dict as spec.name() isn't unique
             sz = payload.size()
             msg.info('==attrs== (sz: %s)', sz)
-            for idx in xrange(sz):
+            for idx in range(sz):
                 chan = payload.chanNum(idx)
                 #msg.info("idx: %i chan: %s", idx, chan)
                 attr_list = payload.attributeList(chan)
@@ -372,6 +372,7 @@ class FilePeeker(PyAthena.Alg):
                 peeked_data['evt_type'] = evt_type.bit_mask
                 ddt = _get_detdescr_tags(evt_type)
                 peeked_data['det_descr_tags'] = ddt
+                from past.builtins import long
                 peeked_data['mc_channel_number'] = [long(evt_type.mc_channel_number())]
                 
             def _make_item_list(item):
@@ -474,7 +475,7 @@ class FilePeeker(PyAthena.Alg):
             pool_token = re.compile(r'[[]NAME=(?P<name>.*?)[]]'
                                     r'[[]VALUE=(?P<value>.*?)[]]').match
             params = []
-            for i in xrange(pool.GetEntries()):
+            for i in range(pool.GetEntries()):
                 if pool.GetEntry(i)>0:
                     match = pool_token(pool.db_string)
                     if not match:

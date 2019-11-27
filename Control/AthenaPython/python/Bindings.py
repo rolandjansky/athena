@@ -764,7 +764,7 @@ def _py_init_EventType():
             isa_idx = self.raw_bit_mask[idx]
             return self.bit_mask_typecodes[idx][isa_idx]
         bm = map(decode_bitmask,
-                 xrange(len(self.bit_mask_typecodes)))
+                 range(len(self.bit_mask_typecodes)))
         return tuple(bm)
     cls.bit_mask = property(bit_mask)
     return cls
