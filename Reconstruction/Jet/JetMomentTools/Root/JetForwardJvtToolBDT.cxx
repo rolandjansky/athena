@@ -235,29 +235,14 @@ bool JetForwardJvtToolBDT::passMVfJVT( float mvfjvt, float pt, float eta ) const
 
   double mvfjvtThresh = -999.;
 
-  //-- Get year to chose correct WPreturn
-  int year = 0;
   const xAOD::EventInfo *eventInfo = nullptr;
   if ( evtStore()->retrieve(eventInfo, "EventInfo").isFailure() )
   {
     ATH_MSG_ERROR(" Could not retrieve EventInfo ");
     return StatusCode::FAILURE;
   }
-  uint32_t runnumber = 0;
-  if(eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION)){
-    runnumber = eventInfo->runNumber();
-    if (runnumber<295000) year =  2016;
-    else if (runnumber<305000) year =  2017;
-    else year =  2018;
-  } else {
-    runnumber = eventInfo->runNumber();
-    if (runnumber<290000) year =  2015;
-    else if (runnumber<320000) year =  2016;
-    else if (runnumber<342000) year =  2017;
-    else year =  2018;
-  }
 
-  float mu = eventInfo->actualInteractionsPerCrossing();
+ float mu = eventInfo->actualInteractionsPerCrossing();
 
   // -- Grab WP from histogram
   mvfjvtThresh = m_mvfjvtThresh->GetBinContent(m_mvfjvtThresh->GetXaxis()->FindBin(pt),
