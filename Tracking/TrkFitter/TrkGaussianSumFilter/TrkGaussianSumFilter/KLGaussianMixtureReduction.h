@@ -44,8 +44,7 @@ void resetDistances(floatPtrRestrict distancesIn, const int mini, const int n) ;
 
 std::pair<int, int> findMinimumIndex(const floatPtrRestrict distancesIn, const int n) ;
 
-
-}
+}//namespace KLGaussianMixtureReduction
 
 
 #endif

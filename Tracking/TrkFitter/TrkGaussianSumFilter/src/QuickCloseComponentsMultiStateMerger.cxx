@@ -15,11 +15,13 @@ decription           : Implementation code for QuickCloseComponentsMultiStateMer
 #include "TrkGaussianSumFilter/QuickCloseComponentsMultiStateMerger.h"
 #include "TrkGaussianSumFilter/IMultiComponentStateCombiner.h"
 #include "TrkGaussianSumFilter/KLGaussianMixtureReduction.h"
+#include "TrkGaussianSumFilter/AllignedDynArray.h"
 #include "TrkParameters/TrackParameters.h"
 #include "GaudiKernel/Chrono.h"
 #include <limits>
 
-using namespace KLGaussianMixtureReduction; //The utilities used for Gaussina mixture reduction
+using namespace KLGaussianMixtureReduction; 
+using namespace GSFUtils; 
 
 Trk::QuickCloseComponentsMultiStateMerger::QuickCloseComponentsMultiStateMerger(const std::string& type,
                                                                                 const std::string& name,
@@ -195,12 +197,12 @@ Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(IMultiComponentSta
   const int n = statesToMerge.size();
   const int nn2 = (n + 1) * n / 2;
 
-  Aligned<float,alignment> distances(nn2); // Array to store all of the distances between components
-  Aligned<int,alignment> indexToI(nn2);    // The i  & J of each distances so that i don't have to calculate them
-  Aligned<int,alignment> indexToJ(nn2);
-  Aligned<float,alignment> qonp(n);    // Array of qonp for each component
-  Aligned<float,alignment> qonpCov(n); // Array of Cov(qonp,qonp) for each component
-  Aligned<float,alignment> qonpG(n);   // Array of 1/Cov(qonp,qonp) for each component
+  AlignedDynArray<float,alignment> distances(nn2); // Array to store all of the distances between components
+  AlignedDynArray<int,alignment> indexToI(nn2);    // The i  & J of each distances so that i don't have to calculate them
+  AlignedDynArray<int,alignment> indexToJ(nn2);
+  AlignedDynArray<float,alignment> qonp(n);    // Array of qonp for each component
+  AlignedDynArray<float,alignment> qonpCov(n); // Array of Cov(qonp,qonp) for each component
+  AlignedDynArray<float,alignment> qonpG(n);   // Array of 1/Cov(qonp,qonp) for each component
 
   // Initlise all values
   for (int i = 0; i < n; ++i) {

@@ -80,43 +80,7 @@ private:
                                                           SimpleMultiComponentState& ) const;
 
 
-  //////////////////////////////////////////////////////////////////////////////////////
 };
-
-template<typename T,int alignment>
-class Aligned
-{
-public:
-  Aligned(Aligned const&) = delete;
-  Aligned& operator=(Aligned const&) = delete;
-
-  explicit Aligned(size_t n)
-    : m_ad(nullptr)
-  {
-    size_t const size = n * sizeof(T) + alignof(T);
-    m_size = n;
-    posix_memalign(&m_ad, alignment, size);
-    m_storage = new (m_ad) T[n];
-  };
-
-  ~Aligned()
-  {
-    for (std::size_t pos = 0; pos < m_size; ++pos) {
-      reinterpret_cast<const T*>(m_storage + pos)->~T();
-    }
-
-    free(m_storage);
-  }
-
-  operator T*() { return m_storage; }
-
-  T& operator[](std::size_t pos) { return *reinterpret_cast<T*>(m_storage + pos); }
-
-private:
-  T* m_storage;
-  void* m_ad;
-  size_t m_size;
-}; // class Aligned
 
 }
 
