@@ -149,7 +149,7 @@ This `chainParts` dictionary contains all the relevant information for the
 sequence configuration. In fact, it contains **more** information than is
 necessary for this. For this purpose, we construct a subset of this called
 `recoDict` using the
-`TriggerMenuMT.HLTMenuConfig.MET.ConfigHelpers.extractMetRecoDict` function. The
+`TriggerMenuMT.HLTMenuConfig.MET.ConfigHelpers.extractMETRecoDict` function. The
 configuration of the MET reco sequences is *completely* determined by the
 information in this dict.
 

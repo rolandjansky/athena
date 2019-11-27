@@ -12,7 +12,7 @@ from copy import copy
 # The order here is important as it also controls the dict -> string conversion
 recoKeys = ["EFrecoAlg", "calib", "addInfo"]
 
-def extractMetRecoDict(chainDict, fillDefaults=True):
+def extractMETRecoDict(chainDict, fillDefaults=True):
     """ Extract the keys relevant to reconstruction from a provided dictionary
 
     If fillDefaults is True then any missing keys will be taken from the

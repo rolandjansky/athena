@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from ..Menu.ChainDictTools import splitChainDict
-from .METChainConfiguration import MetChainConfiguration
+from .METChainConfiguration import METChainConfiguration
 from ..Menu.ChainMerging import mergeChainDefs
 
 
@@ -23,9 +23,9 @@ def generateChainConfigs( chainDict ):
 
     for subChainDict in listOfChainDicts:
         
-        Met = MetChainConfiguration(subChainDict).assembleChain() 
+        MET = METChainConfiguration(subChainDict).assembleChain() 
 
-        listOfChainDefs += [Met]
+        listOfChainDefs += [MET]
         log.debug('length of chaindefs %s', len(listOfChainDefs) )
         
 
