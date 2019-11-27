@@ -112,8 +112,6 @@ if __name__ == "__main__":
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     from AthenaCommon.Constants import DEBUG
 
-    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
-
     ConfigFlags.Detector.GeometryPixel = True
     ConfigFlags.Detector.GeometrySCT   = True
     ConfigFlags.Detector.GeometryTRT   = True
@@ -122,13 +120,7 @@ if __name__ == "__main__":
     ConfigFlags.Detector.GeometryMDT   = True
     ConfigFlags.Detector.GeometryTGC   = True
     ConfigFlags.Detector.GeometryRPC   = True
-    ConfigFlags.Detector.GeometryCSC   = True
-    if not MuonGeometryFlags.hasCSC(): ConfigFlags.Detector.GeometryCSC = False
-    ConfigFlags.Detector.GeometryMM   = True
-    if not MuonGeometryFlags.hasMM(): ConfigFlags.Detector.GeometryMM = False
-    ConfigFlags.Detector.GeometrysTGC   = True
-    if not MuonGeometryFlags.hasSTGC(): ConfigFlags.Detector.GeometrysTGC = False
-    
+
     ConfigFlags.Input.Files = defaultTestFiles.RAW    
     ConfigFlags.Input.isMC = False
     ConfigFlags.dump()
