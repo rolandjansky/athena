@@ -15,6 +15,9 @@ def SimpleMMClusterBuilderTool(name="SimpleMMClusterBuilderTool",extraFlags=None
 
 def UTPCMMClusterBuilderTool(name="UTPCMMClusterBuilderTool",extraFlags=None,**kwargs):
     return CfgMgr.Muon__UTPCMMClusterBuilderTool(name,**kwargs)
+
+def ProjectionMMClusterBuilderTool(name="ProjectionMMClusterBuilderTool",extraFlags=None,**kwargs):
+    return CfgMgr.Muon__ProjectionMMClusterBuilderTool(name,**kwargs)
 ##
 ## STgc Tools
 ##
