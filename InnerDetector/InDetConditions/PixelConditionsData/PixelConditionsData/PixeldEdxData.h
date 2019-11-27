@@ -32,7 +32,7 @@ class PixeldEdxData {
 
     double getPar(int i, int j) const; 
     void   getP(double dedx, double p, int nGoodPixels, std::array<double,3> vhypo) const;
-    void   getFirstNPar(std::array<double,9> par, double p, int nGoodPixels, int np) const;
+    void   getFirstNPar(std::array<double,9> & par, double p, int nGoodPixels, int np) const;
     double getMass(double dedx, double p, int nGoodPixels) const;
     double getdEdx(double p, double mass, int nGoodPixels) const;
     double getdEdx(double p, double mass, std::array<double,9> par) const;

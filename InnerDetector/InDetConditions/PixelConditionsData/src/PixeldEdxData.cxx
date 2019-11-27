@@ -96,7 +96,7 @@ void PixeldEdxData::getP(double dedx, double p, int nGoodPixels, std::array<doub
   return;
 }
 
-void PixeldEdxData::getFirstNPar(std::array<double,9> par, double p, int nGoodPixels, int npar) const {
+void PixeldEdxData::getFirstNPar(std::array<double,9> & par, double p, int nGoodPixels, int npar) const {
   if (nGoodPixels>5) { nGoodPixels=5; }
   if (p<0 && m_posneg) { nGoodPixels += 5; }
   for (int i=0;i<npar;i++){
