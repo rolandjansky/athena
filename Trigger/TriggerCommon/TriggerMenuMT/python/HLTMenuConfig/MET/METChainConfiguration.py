@@ -6,8 +6,7 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.MET.METChainConfiguration")
 
 
 from ..Menu.ChainConfigurationBase import ChainConfigurationBase
-from .METMenuSequences import metMenuSequence
-from .ConfigHelpers import extractMetRecoDict, metRecoDictToString
+from .ConfigHelpers import extractMetRecoDict, metRecoDictToString, AlgConfig
 from ..Menu.MenuComponents import RecoFragmentsPool, ChainStep
 
 
@@ -38,5 +37,6 @@ class MetChainConfiguration(ChainConfigurationBase):
     def getMetStep(self):
         """ Use the reco-dict to construct a single MET step """
         stepName = "Step1_met_{}".format(metRecoDictToString(self.recoDict) )
-        seq = RecoFragmentsPool.retrieve(metMenuSequence, None, **self.recoDict)
+        conf = AlgConfig.fromRecoDict(**self.recoDict)
+        seq = conf.menuSequence
         return ChainStep(stepName, [seq], multiplicity=[1])

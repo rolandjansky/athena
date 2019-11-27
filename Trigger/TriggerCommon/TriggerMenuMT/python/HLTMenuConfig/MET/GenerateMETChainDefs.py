@@ -1,8 +1,8 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDict
-from TriggerMenuMT.HLTMenuConfig.MET.METChainConfiguration import MetChainConfiguration as MetChainConfiguration
-from TriggerMenuMT.HLTMenuConfig.Menu.ChainMerging import mergeChainDefs
+from ..Menu.ChainDictTools import splitChainDict
+from .METChainConfiguration import MetChainConfiguration
+from ..Menu.ChainMerging import mergeChainDefs
 
 
 from AthenaCommon.Logging import logging
