@@ -211,12 +211,6 @@ def setupMenu():
         ['4j35_AND_j35_ftf', 'L1_4J15', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1, ['serial', -1,["4j35_AND","j35_ftf"]]],
 
         # ATR-20408: gFEX
-        ['noalg_L1gLJ100',   'L1_gLJ100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        ['noalg_L1gLJ120',   'L1_gLJ120', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        ['noalg_L1gLJ140',   'L1_gLJ140', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        ['noalg_L1gLJ160',   'L1_gLJ160', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        ['noalg_L1gLJ180',   'L1_gLJ180', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-
         ['j460_a10t_lcw_jes_L1gLJ100',   'L1_gLJ100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
         ['j460_a10r_L1gLJ100',   'L1_gLJ100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
         ['j460_a10_lcw_subjes_L1gLJ100',   'L1_gLJ100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
@@ -236,12 +230,6 @@ def setupMenu():
         ['j460_a10t_lcw_jes_L1gLJ180',   'L1_gLJ180', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
         ['j460_a10r_L1gLJ180',   'L1_gLJ180', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
         ['j460_a10_lcw_subjes_L1gLJ180',   'L1_gLJ180', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-
-        ['noalg_L1jLJ100',   'L1_jLJ100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        ['noalg_L1jLJ120',   'L1_jLJ120', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        ['noalg_L1jLJ140',   'L1_jLJ140', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        ['noalg_L1jLJ160',   'L1_jLJ160', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        ['noalg_L1jLJ180',   'L1_jLJ180', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 
         ['j460_a10t_lcw_jes_L1jLJ100',   'L1_jLJ100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
         ['j460_a10r_L1jLJ100',   'L1_jLJ100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
@@ -594,6 +582,18 @@ def setupMenu():
         ['noalg_L1gXEPUFIT50', 'L1_gXEPUFIT50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['noalg_L1gXE50', 'L1_gXE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['noalg_L1jXE50', 'L1_jXE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+
+        ['noalg_L1gLJ100',   'L1_gLJ100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['noalg_L1gLJ120',   'L1_gLJ120', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['noalg_L1gLJ140',   'L1_gLJ140', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['noalg_L1gLJ160',   'L1_gLJ160', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['noalg_L1gLJ180',   'L1_gLJ180', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+
+        ['noalg_L1jLJ100',   'L1_jLJ100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['noalg_L1jLJ120',   'L1_jLJ120', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['noalg_L1jLJ140',   'L1_jLJ140', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['noalg_L1jLJ160',   'L1_jLJ160', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['noalg_L1jLJ180',   'L1_jLJ180', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
     ]
 
     TriggerFlags.EnhancedBiasSlice.signatures = TriggerFlags.EnhancedBiasSlice.signatures() + []
