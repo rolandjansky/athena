@@ -302,7 +302,7 @@ class TriggerConfigGetter(Configured):
             svcMgr.DSConfigSvc.DBServer = db
             log.info("DSConfigSvc trigger database is '%s'", db)
         
-        if self.writeESDAOD and not self.writeAOD: # So ESD only
+        if not self.hasxAODMeta:
             self.setupxAODWriting()
 
 
