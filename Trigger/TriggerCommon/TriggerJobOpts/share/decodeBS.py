@@ -33,10 +33,17 @@ from TrigHLTResultByteStream.TrigHLTResultByteStreamConf import HLTResultMTByteS
 from TrigOutputHandling.TrigOutputHandlingConf import TriggerEDMDeserialiserAlg
 from AthenaCommon.CFElements import seqAND
 decoder = HLTResultMTByteStreamDecoderAlg()
+
 deserialiser = TriggerEDMDeserialiserAlg("TrigDeserialiser")
+
+costDataDeserialiser = TriggerEDMDeserialiserAlg("CostDataTrigDeserialiser")
+from TriggerMenuMT.HLTMenuConfig.Menu import EventBuildingInfo
+costDataDeserialiser.ModuleID=EventBuildingInfo.DataScoutingIdentifiers["CostMonDS"]
+
 decodingSeq = seqAND("Decoding")
 decodingSeq += decoder
 decodingSeq += deserialiser
+decodingSeq += costDataDeserialiser
 topSequence += decodingSeq
 
 # Create OutputStream for ESD writing

@@ -110,8 +110,13 @@ StatusCode TriggerEDMDeserialiserAlg::deserialise(   const Payload* dataptr  ) c
 		  }
 		};  
 
-
+  // the pointers defined below need to be used in decoding consecutive fragments of xAOD containers: 1) xAOD interface, 2) Aux store, 3) decorations
+  // invalid conditions are: invalid interface pointer when decoding Aux store
+  //                         invalid aux store and interface when decoding the decoration
+  // these pointer should be invalidated when: decoding TP containers, aux store when decoding the xAOD interface 
   WritableAuxStore* currentAuxStore = nullptr; // set when decoding Aux
+  SG::AuxVectorBase* xAODInterfaceContainer = nullptr; // set when decoding xAOD interface
+  
   int fragmentCount = 0;
   PayloadIterator start = dataptr->begin();
   while ( start != dataptr->end() )  {
@@ -170,20 +175,31 @@ StatusCode TriggerEDMDeserialiserAlg::deserialise(   const Payload* dataptr  ) c
       if ( proxyPtr == nullptr )  {
 	ATH_MSG_WARNING( "Recording of object of CLID " << clid << " and name " << outputName << " failed" );
       }
-      
-      if ( isxAODAuxContainer )  {
+
+      if ( isxAODInterfaceContainer ) {
+	currentAuxStore = nullptr; // the store will be following, setting it to nullptr assure we catch issue with of missing Aux
+	xAODInterfaceContainer = reinterpret_cast<SG::AuxVectorBase*>(dataBucket->object());
+      } else if ( isxAODAuxContainer )  {
 	ATH_CHECK( key.back() == '.' );
 	ATH_CHECK( std::count( key.begin(), key.end(), '.')  == 1 );
+	ATH_CHECK( currentAuxStore == nullptr );
+	ATH_CHECK( xAODInterfaceContainer != nullptr );
+	
 	xAOD::AuxContainerBase* auxHolder = reinterpret_cast<xAOD::AuxContainerBase*>(dataBucket->object());
-	ATH_CHECK( auxHolder != nullptr );	
+	ATH_CHECK( auxHolder != nullptr );
+	xAODInterfaceContainer->setStore( auxHolder );
 	currentAuxStore = new WritableAuxStore();
 	auxHolder->setStore( currentAuxStore );
-      }  else {
+      } else {
 	currentAuxStore = nullptr;
+	xAODInterfaceContainer = nullptr; // invalidate xAOD related pointers	
       }
 
-    } else if ( isxAODDecoration ) {      
-      ATH_CHECK( deserialiseDynAux( transientTypeName, persistentTypeName, key, obj, currentAuxStore) );
+
+    } else if ( isxAODDecoration ) {
+      ATH_CHECK( currentAuxStore != nullptr );
+      ATH_CHECK( xAODInterfaceContainer != nullptr );
+      ATH_CHECK( deserialiseDynAux( transientTypeName, persistentTypeName, key, obj, currentAuxStore, xAODInterfaceContainer ) );
     }
   }
   return StatusCode::SUCCESS;
@@ -192,29 +208,35 @@ StatusCode TriggerEDMDeserialiserAlg::deserialise(   const Payload* dataptr  ) c
 
 
 StatusCode TriggerEDMDeserialiserAlg::deserialiseDynAux( const std::string& transientTypeName, const std::string& persistentTypeName, const std::string& decorationName,
-							 void* obj,   WritableAuxStore* currentAuxStore ) const {
+							 void* obj,   WritableAuxStore* currentAuxStore, SG::AuxVectorBase* interfaceContainer ) const {
   const bool isPacked = persistentTypeName.find("SG::PackedContainer") != std::string::npos;      
 
   SG::AuxTypeRegistry& registry = SG::AuxTypeRegistry::instance();     
   SG::auxid_t id = registry.findAuxID ( decorationName );
   if (id != SG::null_auxid ) {
     if ( stripStdVec( registry.getVecTypeName(id) ) != stripStdVec(transientTypeName) ) {
-      ATH_MSG_INFO( "Schema evolution required for decoration " << decorationName << " from " << transientTypeName << " to "  <<  registry.getVecTypeName( id ) << " not handled yet"); 
+      ATH_MSG_INFO( "Schema evolution required for decoration \"" << decorationName << "\" from " << transientTypeName << " to "  <<  registry.getVecTypeName( id ) << " not handled yet"); 
       return StatusCode::SUCCESS;
     }
   } else {
       std::string elementTypeName;
       const std::type_info* elt_tinfo = getElementType( transientTypeName, elementTypeName );
       ATH_CHECK( elt_tinfo != nullptr );
-      ATH_MSG_DEBUG( "Dynamic decoration: " << decorationName << " of type " << transientTypeName << " will create a dynamic ID, stored type" << elementTypeName );    
+      ATH_MSG_DEBUG( "Dynamic decoration: \"" << decorationName << "\" of type " << transientTypeName << " will create a dynamic ID, stored type" << elementTypeName );    
       id = SG::getDynamicAuxID ( *elt_tinfo, decorationName, elementTypeName, transientTypeName, false );
   }        
-  ATH_MSG_DEBUG( "Unstreaming decoration " << decorationName << " of type " << transientTypeName  << " aux ID " << id << " class " << persistentTypeName << " packed " << isPacked  );  
-  std::unique_ptr<SG::IAuxTypeVector> vec( registry.makeVectorFromData (id, obj, isPacked, true) );
+  ATH_MSG_DEBUG( "Unstreaming decoration \"" << decorationName << "\" of type " << transientTypeName  << " aux ID " << id << " class " << persistentTypeName << " packed " << isPacked  );  
+  std::unique_ptr<SG::IAuxTypeVector> vec( registry.makeVectorFromData (id, obj, isPacked, true) ); 
   ATH_CHECK( vec.get() != nullptr );
-  ATH_CHECK( currentAuxStore != nullptr );
-  currentAuxStore->addVector(id, std::move(vec), false);
-    
+  ATH_MSG_DEBUG("Size for \"" << decorationName << "\" " << vec->size() << " interface " << interfaceContainer->size_v() );
+  ATH_CHECK( vec->size() == interfaceContainer->size_v() );
+  if ( vec->size() != 0 ) {
+    ATH_CHECK( currentAuxStore != nullptr );
+    currentAuxStore->addVector(id, std::move(vec), false);    
+    // trigger loading of the dynamic varaibles
+    SG::AuxElement::TypelessConstAccessor accessor( decorationName );
+    accessor.getDataArray( *interfaceContainer );
+  }
   return StatusCode::SUCCESS;  
 }
 
