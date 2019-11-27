@@ -25,8 +25,7 @@
    BOOST_PP_OVERLOAD( AUX_VARIABLE_, __VA_ARGS__ )(__VA_ARGS__)
 #define AUX_VARIABLE_1( VAR )                                           \
    do {                                                                 \
-      static const auxid_t auxid =                                      \
-         getAuxID( #VAR, VAR, SG::AuxTypeRegistry::Flags::None );       \
+      static const auxid_t auxid = getAuxID( #VAR, VAR );               \
       regAuxVar( auxid, #VAR, VAR );                                    \
    } while( false )
 #define AUX_VARIABLE_2( VAR, FLAGS )            \

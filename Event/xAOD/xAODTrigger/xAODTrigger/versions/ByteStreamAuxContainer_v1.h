@@ -1,10 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
-
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ByteStreamAuxContainer_v1.h 793760 2017-01-25 02:02:33Z ssnyder $
 #ifndef XAODTRIGGER_VERSIONS_BYTESTREAMAUXCONTAINER_V1_H
 #define XAODTRIGGER_VERSIONS_BYTESTREAMAUXCONTAINER_V1_H
 
@@ -37,9 +34,6 @@ namespace xAOD {
    /// manage any specific variables that they want to store.
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
-   ///
-   /// $Revision: 793760 $
-   /// $Date: 2017-01-25 03:02:33 +0100 (Wed, 25 Jan 2017) $
    ///
    class ByteStreamAuxContainer_v1
      : public SG::IAuxStore
@@ -131,9 +125,13 @@ namespace xAOD {
       /// @}
 
    protected:
+      /// Get the auxiliary ID for one of the persistent variables
+      template< typename T >
+      auxid_t getAuxID( const std::string& name,
+                        std::vector< T >& /*vec*/ );
       /// Register one of the user defined persistent variables internally
       template< typename T >
-      void regAuxVar( const std::string& name,
+      void regAuxVar( auxid_t auxid, const std::string& name,
                       std::vector< T >& vec );
 
    private:
