@@ -74,6 +74,11 @@ class AlgConfig(object):
         raise NotImplementedError("algType not implemented by subclass!")
 
     def __init__(self, **recoDict):
+        # Make sure that we got *all* the keys (i.e. the subclass didn't
+        # inadvertently steal one of them from us)
+        assert set(recoKeys) == set(recoDict.iterkeys() ), (
+                "AlgConfig.__init__ did not receive all the recoKeys - this "
+                "suggests a problem in the subclass __init__ method!")
         self.recoDict = copy(recoDict)
         self._suffix = metRecoDictToString(recoDict)
 
