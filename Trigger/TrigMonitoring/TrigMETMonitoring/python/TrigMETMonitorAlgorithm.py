@@ -116,7 +116,7 @@ def TrigMETMonConfig(inputFlags):
     eta_max=4.8
     eff_bins=42 # efficiency
     eff_min=-13.5
-    eff_max=406.5
+    eff_max=401.5
     # Histograms
     metGroup.defineHistogram('L1_Ex',title='L1 Missing E_{x};E_{x} [GeV];Events',
                              path='Shifter/L1',xbins=ec_bins,xmin=ec_min,xmax=ec_max)
@@ -152,7 +152,7 @@ def TrigMETMonConfig(inputFlags):
                              path='Shifter/tcpufit',
                              xbins=eta_bins,xmin=eta_min,xmax=eta_max,ybins=phi_bins,ymin=phi_min,ymax=phi_max)
     metGroup.defineHistogram('pass_HLT1,tcpufit_Et;tcpufit_eff', type='TProfile',title='HLT efficiency;E_{T} [GeV];Efficiency',
-                             path='Shifter/Eff',xbins=et_bins,xmin=et_min,xmax=et_max)
+                             path='Shifter/Eff',xbins=eff_bins,xmin=eff_min,xmax=eff_max)
     metGroup.defineHistogram('mht_Ex',title='mht Missing E_{x};E_{x} [GeV];Events',
                              path='Expert/mht',xbins=ec_bins,xmin=ec_min,xmax=ec_max)
     metGroup.defineHistogram('mht_Ey',title='mht Missing E_{y};E_{y} [GeV];Events',
