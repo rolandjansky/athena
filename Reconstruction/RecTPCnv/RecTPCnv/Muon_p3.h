@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Muon_p3.h 
@@ -25,6 +25,8 @@
 
 // ParticleEventTPCnv includes
 #include "ParticleEventTPCnv/ParticleBase_p1.h"
+
+#include "CxxUtils/unused.h"
 
 // forward declarations
 class MuonCnv_p3;
@@ -68,13 +70,13 @@ public:
   unsigned int m_author;
 
   /// switches
-  bool m_hasCombinedMuon;                   // needed ?
-  bool m_hasInDetTrackParticle;             // needed ?
+  bool ATH_UNUSED_MEMBER(m_hasCombinedMuon) = false;       // needed ?
+  bool ATH_UNUSED_MEMBER(m_hasInDetTrackParticle) = false; // needed ?
   bool m_hasMuonExtrapolatedTrackParticle;  // needed ?
   bool m_hasCombinedMuonTrackParticle;      // needed ?
 
   // not used ?
-  bool m_hasCluster;
+  bool ATH_UNUSED_MEMBER(m_hasCluster) = false;
 
   /// Chi2 of the track matching
   double m_matchChi2;
