@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // CaloEnergyCnv_p1.cxx 
@@ -16,12 +16,8 @@
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
 // muonEvent includes
-#define private public
-#define protected public
 #include "muonEvent/DepositInCalo.h"
 #include "muonEvent/CaloEnergy.h"
-#undef private
-#undef protected
 
 // RecTPCnv includes
 #include "TrkEventTPCnv/TrkMaterialOnTrack/EnergyLossCnv_p1.h"
@@ -30,10 +26,10 @@
 #include "RecTPCnv/CaloEnergyCnv_p1.h"
 
 // pre-allocate converters
-static EnergyLossCnv_p1 energyLossCnv;
+static const EnergyLossCnv_p1 energyLossCnv;
 
 // pre-allocate converters
-static DepositInCaloCnv_p1 depositCnv;
+static const DepositInCaloCnv_p1 depositCnv;
 
 /////////////////////////////////////////////////////////////////// 
 // Non-Const methods: 
@@ -41,7 +37,7 @@ static DepositInCaloCnv_p1 depositCnv;
 
 void CaloEnergyCnv_p1::persToTrans( const CaloEnergy_p1* pers,
 				    CaloEnergy* trans, 
-				    MsgStream& msg ) 
+				    MsgStream& msg ) const
 {
 //   msg << MSG::DEBUG << "Loading CaloEnergy from persistent state..."
 //       << endmsg;
@@ -55,23 +51,19 @@ void CaloEnergyCnv_p1::persToTrans( const CaloEnergy_p1* pers,
                              trans,
                              msg );
 
-  trans->m_energyLossType     = static_cast<CaloEnergy::EnergyLossType>(pers->m_energyLossType);
-  trans->m_caloLRLikelihood   = pers->m_caloLRLikelihood;
-  trans->m_caloMuonIdTag      = pers->m_caloMuonIdTag;
-  trans->m_fsrCandidateEnergy = pers->m_fsrCandidateEnergy;
+  trans->set_energyLossType   (static_cast<CaloEnergy::EnergyLossType>(pers->m_energyLossType));
+  trans->set_caloLRLikelihood  (pers->m_caloLRLikelihood);
+  trans->set_caloMuonIdTag     (pers->m_caloMuonIdTag);
+  trans->set_fsrCandidateEnergy(pers->m_fsrCandidateEnergy);
 
   // reserve enough space so no re-alloc occurs
-  trans->m_deposits.reserve( pers->m_deposits.size() );
+  std::vector<DepositInCalo> deposits (pers->m_deposits.size());
 
-  typedef std::vector<DepositInCalo_p1> Deposits_t;
-  for ( Deposits_t::const_iterator 
-	  itr  = pers->m_deposits.begin(),
-	  iEnd = pers->m_deposits.end();
-	itr != iEnd;
-	++itr ) {
-    trans->m_deposits.push_back( DepositInCalo() );
-    depositCnv.persToTrans( &*itr, &trans->m_deposits.back(), msg );
+  size_t ideposit = 0;
+  for (const DepositInCalo_p1& pers_dep : pers->m_deposits) {
+    depositCnv.persToTrans( &pers_dep, &deposits[ideposit++], msg );
   }
+  trans->set_deposits (std::move (deposits));
 
 //   msg << MSG::DEBUG << "Loaded CaloEnergy from persistent state [OK]"
 //       << endmsg;
@@ -81,7 +73,7 @@ void CaloEnergyCnv_p1::persToTrans( const CaloEnergy_p1* pers,
 
 void CaloEnergyCnv_p1::transToPers( const CaloEnergy* trans, 
 				    CaloEnergy_p1* pers, 
-				    MsgStream& msg ) 
+				    MsgStream& msg ) const
 {
 
   msg << MSG::ERROR << "CaloEnergy at " << trans << " Persistent CaloEnergy_p1 at " 
