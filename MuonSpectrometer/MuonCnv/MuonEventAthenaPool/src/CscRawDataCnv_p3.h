@@ -5,14 +5,13 @@
 #ifndef MUON_CSCRAWDATACNV_P3_H
 #define MUON_CSCRAWDATACNV_P3_H
 
-
-
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"  
 #include "MuonEventAthenaPool/CscRawData_p3.h"
 #include "MuonRDO/CscRawData.h"
+#include "StoreGate/DataHandle.h"
+#include "MuonIdHelpers/CscIdHelper.h"
 
 class MsgStream;
-class CscIdHelper;
 
 /**
 Transient/Persistent converter for CscRawData class
@@ -27,7 +26,7 @@ public:
 private:
   bool initialize();
   bool m_init=false;
-  CscIdHelper* m_cscIdHelper=nullptr;
+  const DataHandle<CscIdHelper> m_cscIdHelper=nullptr;
 };
 
 
