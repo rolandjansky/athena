@@ -18,9 +18,6 @@ class CellConfig(AlgConfig):
         from TrigEFMissingET.TrigEFMissingETConf import HLT__MET__CellFex
         (cellMakerSeq, cellName) = HLTFSCellMakerRecoSequence()
 
-        print ("Cell maker sequence is:")
-        print (cellMakerSeq)
-
         self.inputs = [cellMakerSeq]
         self.fexAlg = self._make_fex_alg(
                 HLT__MET__CellFex,
