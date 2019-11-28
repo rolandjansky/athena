@@ -64,3 +64,50 @@ double CandidateMatchHelpers::PhiROT(double Et,double Eta, int charge, double r_
   return  phiRot;
 }
 
+
+Amg::Vector3D CandidateMatchHelpers::approxXYZwrtPoint (const xAOD::CaloCluster& cluster, 
+                                                        const Amg::Vector3D& point, 
+                                                        const bool isEndCap){
+
+  return approxXYZwrtATLAS(cluster,isEndCap) - point;
+}
+
+
+
+Amg::Vector3D CandidateMatchHelpers::approxXYZwrtATLAS (const xAOD::CaloCluster& cluster, 
+                                                        const bool isEndCap)
+{
+  const double RfaceCalo = 1500;
+  const double ZfaceCalo = 3700;
+  //Get the Rclus , Zclus given the cluster eta
+  double Rclus=RfaceCalo;
+  double Zclus=ZfaceCalo;    
+  const double clusterEta=cluster.eta(); 
+  if(clusterEta!=0){
+    /*
+     * tahn(eta) == cos(theta) 
+     * 1/cosh(clusterEta) == sin(theta)
+     * tan =sin/cos
+     */
+    const double tanthetaclus=(1/cosh(clusterEta))/tanh(clusterEta); 
+    if (isEndCap) {
+      //Negative Eta ---> negative Z
+      if(clusterEta<0){
+        Zclus = -Zclus;
+      }
+    }     
+    else{
+      if(tanthetaclus!=0){
+        Zclus=RfaceCalo/(tanthetaclus);
+      }
+    }
+  }
+  else{//when eta ==0
+    Zclus=0;
+  }
+  const double clusterPhi=cluster.phi();
+  return Amg::Vector3D (Rclus*cos(clusterPhi),Rclus*sin(clusterPhi),Zclus); 
+}
+
+
+
