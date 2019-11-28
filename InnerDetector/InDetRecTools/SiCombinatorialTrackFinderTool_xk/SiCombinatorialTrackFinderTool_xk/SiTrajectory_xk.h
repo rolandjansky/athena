@@ -200,13 +200,13 @@ namespace InDet{
       m_tools            = T.m_tools          ;
 
       for(int i=0; i!=m_nElements; ++i) {
-	int            e =  T.m_elementsMap[i];
-	m_elementsMap[i] = e                  ;
-	m_elements   [e] = T.m_elements[e]    ; 
+        int            e =  T.m_elementsMap[i];
+        m_elementsMap[i] = e                  ;
+        m_elements   [e] = T.m_elements[e]    ; 
       }
       for(int i=0; i!=m_ntos; ++i) {
-	m_atos[i] = T.m_atos[i];
-	m_itos[i] = T.m_itos[i];
+        m_atos[i] = T.m_atos[i];
+        m_itos[i] = T.m_itos[i];
       }
       return(*this);
     }
