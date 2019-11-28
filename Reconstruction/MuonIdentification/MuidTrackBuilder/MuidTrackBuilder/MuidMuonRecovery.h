@@ -20,25 +20,18 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "MuidInterfaces/ICombinedMuonTrackBuilder.h"
 #include "MuidInterfaces/IMuidMuonRecovery.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "TrkExInterfaces/IExtrapolator.h"
+#include "TrkToolInterfaces/IResidualPullCalculator.h"
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
-namespace Muon
-{
-    class MuonEDMPrinterTool;
-    class MuonIdHelperTool;
-}
-namespace Trk
-{
-    class IExtrapolator;
-    class IResidualPullCalculator;
-}
 
 namespace Rec
 {
-    class ICombinedMuonTrackBuilder;    
     
 class MuidMuonRecovery: public AthAlgTool,
   virtual public IMuidMuonRecovery
@@ -60,14 +53,15 @@ public:
 
  private:
     // helpers, managers, tools
-    ToolHandle<Trk::IExtrapolator>                      m_extrapolator; 
-    ServiceHandle<Muon::IMuonEDMHelperSvc>              m_edmHelperSvc {this, "edmHelper", 
+    ToolHandle<Trk::IExtrapolator> m_extrapolator {this, "Extrapolator", "Trk::Extrapolator/AtlasExtrapolator", "Extrapolator tool"};
+    ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" };   //<! multipurpose helper tool
-    ToolHandle<Muon::MuonIdHelperTool>                  m_idHelper; //<! tool to assist with Identifiers
-    ToolHandle<Muon::MuonEDMPrinterTool>                m_printer;  //<! tool to print EDM objects
-    ToolHandle<Trk::IResidualPullCalculator>            m_residualCalculator;
-    ToolHandle<ICombinedMuonTrackBuilder>		m_trackBuilder;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_muonIdHelperSvc{this, "idHelper", 
+      "Muon::MuonIdHelperSvc/MuonIdHelperSvc", "Handle to the service providing the IMuonIdHelperSvc interface"}; //<! tool to assist with Identifiers
+    ToolHandle<Muon::MuonEDMPrinterTool> m_printer {this, "Printer", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool", "Tool to print EDM objects"};  //<! tool to print EDM objects
+    ToolHandle<Trk::IResidualPullCalculator> m_residualCalculator {this, "TrackBuilder", "Trk::ResidualPullCalculator/ResidualPullCalculator", "Residual calculator tool"};
+    ToolHandle<ICombinedMuonTrackBuilder> m_trackBuilder {this, "TrackBuilder", "Rec::CombinedMuonTrackBuilder/CombinedMuonTrackBuilder", "Track builder tool"};
 
     // configurable cuts and tolerances
     double						m_minP;
