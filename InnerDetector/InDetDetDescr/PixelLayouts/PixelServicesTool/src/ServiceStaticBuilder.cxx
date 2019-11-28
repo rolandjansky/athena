@@ -148,9 +148,7 @@ ServiceStaticBuilder::ServiceStaticBuilder(const PixelGeoBuilderBasics* basics, 
 ServiceStaticBuilder::~ServiceStaticBuilder() 
 {
   // delete contents of m_multiParam
-  for (size_t i=0; i < m_services.size(); ++i) {
-    delete  m_services[i];
-  }
+  for (auto & s:m_services){ delete s; }
   
   for(std::vector<InDetDD::VolumeStandardBuilder*>::iterator it=m_pixServBuilder.begin(); it!=m_pixServBuilder.end(); ++it)
     delete (*it);

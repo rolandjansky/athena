@@ -184,7 +184,7 @@ ServicesDynTracker* ServicesTrackerBuilder::buildGeometry(const PixelGeoBuilderB
   // Special case : ring disks. We have to create the disk following their zpos (smaller->higher value)
   // Special case : ring layers. We have to create the disk following their zpos (smaller->higher value)
   
-  if(ringDisk.size()>0) {
+  if (!ringDisk.empty()) {
     //      int numDisk = (int)ringDisk.size();
     std::vector<double>sortedRingDiskZpos(ringDiskZpos);
     std::sort(sortedRingDiskZpos.begin(), sortedRingDiskZpos.end());
