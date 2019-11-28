@@ -214,3 +214,5 @@ class AlgConfig(object):
 
 # Load all the defined configurations
 from . import AlgConfigs
+# Make sure that there is an AlgConfig for every EFrecoAlg
+AlgConfigs.test_configs()

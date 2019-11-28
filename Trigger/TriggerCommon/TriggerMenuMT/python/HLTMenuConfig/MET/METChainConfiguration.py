@@ -7,7 +7,7 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.MET.METChainConfiguration")
 
 from ..Menu.ChainConfigurationBase import ChainConfigurationBase
 from .ConfigHelpers import extractMETRecoDict, metRecoDictToString, AlgConfig
-from ..Menu.MenuComponents import RecoFragmentsPool, ChainStep
+from ..Menu.MenuComponents import ChainStep
 
 
 #----------------------------------------------------------------

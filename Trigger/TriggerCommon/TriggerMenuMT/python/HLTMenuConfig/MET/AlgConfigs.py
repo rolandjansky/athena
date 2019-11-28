@@ -5,7 +5,27 @@
 from .ConfigHelpers import AlgConfig, jetRecoDictForMET
 from TrigEFMissingET.TrigEFMissingETMTConfig import getMETMonTool
 from ..Menu.MenuComponents import RecoFragmentsPool
+from ..Menu.SignatureDicts import METChainParts
 import GaudiKernel.SystemOfUnits as Units
+
+def test_configs():
+    """ Make sure that all algorithms defined in the METChainParts have
+    configurations
+
+    Really, this is mainly to have something sensible to call in the
+    ConfigHelpers file to succeed the ctest :(
+    """
+    unknown_algs = []
+    for alg in METChainParts["EFrecoAlg"]:
+        for subcls in AlgConfig._get_subclasses():
+            if subcls.algType() == alg:
+                break
+        else:
+            unknown_algs.append(alg)
+    assert len(unknown_algs) == 0, (
+             "The following EFrecoAlgs do not have AlgConfig classes: "
+             "{}".format(unknown_algs) )
+    
 
 class CellConfig(AlgConfig):
     @classmethod
