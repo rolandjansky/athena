@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // author: jie.yu@cern.ch
@@ -14,7 +14,6 @@ using namespace xAOD;
 JetParticleCenterOfMassAssociation::JetParticleCenterOfMassAssociation(const string& name)
     : JetParticleAssociation(name) {
 
-        declareProperty("inputTrackCollectionName", m_inputTrackCollectionName);
         declareProperty("partMatchCone", m_partMatchCone = 0.8);
         declareProperty("parentJetCone", m_parentJetCone = 1.0);
 
@@ -23,7 +22,7 @@ JetParticleCenterOfMassAssociation::JetParticleCenterOfMassAssociation(const str
 
 
 const vector<vector<ElementLink<IParticleContainer> > >*
-JetParticleCenterOfMassAssociation::match(const JetContainer& jets) const {
+JetParticleCenterOfMassAssociation::match(const JetContainer& jets, const xAOD::IParticleContainer& parts) const {
 
     // up limit of the delta angle in center-of-mass frame
     double partAngleMax = getAngleSize( m_partMatchCone );
@@ -31,14 +30,8 @@ JetParticleCenterOfMassAssociation::match(const JetContainer& jets) const {
     vector<vector<ElementLink<IParticleContainer> > >* matchedparts =
         new vector<vector<ElementLink<IParticleContainer> > >(jets.size());
 
-    const IParticleContainer* parts = NULL;
-    if (evtStore()->retrieve( parts, m_inputTrackCollectionName ).isFailure() )
-        ATH_MSG_FATAL("JetParticleCenterOfMassAssociation: "
-                "failed to retrieve part collection \"" +
-                m_inputTrackCollectionName + "\"");
-
-    for (IParticleContainer::const_iterator part_itr = parts->begin();
-            part_itr != parts->end(); ++part_itr) {
+    for (IParticleContainer::const_iterator part_itr = parts.begin();
+            part_itr != parts.end(); ++part_itr) {
 
         const IParticle& part = **part_itr;
 
@@ -87,7 +80,7 @@ JetParticleCenterOfMassAssociation::match(const JetContainer& jets) const {
 
         if (matchjetidx >= 0 && deltaAngleMatch < partAngleMax) {
             ElementLink<IParticleContainer> EL; 
-            EL.toContainedElement(*parts, *part_itr);
+            EL.toContainedElement(parts, *part_itr);
             (*matchedparts)[matchjetidx].push_back(EL);
         }
     }
