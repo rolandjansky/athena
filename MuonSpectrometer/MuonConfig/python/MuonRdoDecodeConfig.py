@@ -268,7 +268,7 @@ def muonRdoDecodeTestData( forTrigger = False ):
 
     # Store config as pickle
     log.info('Save Config')
-    with open(pklName,'w') as f:
+    with open(pklName,'wb') as f:
         cfg.store(f)
         f.close()
     return cfg
@@ -320,7 +320,7 @@ def muonRdoDecodeTestMC():
 
     # Store config as pickle
     log.info('Save Config')
-    with open('MuonRdoDecode.pkl','w') as f:
+    with open('MuonRdoDecode.pkl','wb') as f:
         cfg.store(f)
         f.close()
     return cfg
