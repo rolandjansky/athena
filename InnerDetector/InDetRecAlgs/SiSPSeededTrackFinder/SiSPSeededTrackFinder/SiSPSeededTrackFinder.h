@@ -102,9 +102,6 @@ namespace InDet {
       ToolHandle< ISiSpacePointsSeedMaker > m_seedsmaker    ;  // Space poins seed     maker
       ToolHandle< ISiZvertexMaker         > m_zvertexmaker  ;  // Space poins z-vertex maker
       ToolHandle< ISiTrackMaker           > m_trackmaker    ;  // Track                maker     
-
-      ServiceHandle<IRegSelSvc>             m_regionSelector;
-      ToolHandle<Trk::IPRD_AssociationTool>       m_assoTool;
     
       // For new strategy reconstruction
       //
@@ -125,6 +122,8 @@ namespace InDet {
       ToolHandle<Trk::IPatternParametersPropagator> m_proptool ;
       Trk::MagneticFieldProperties                  m_fieldprop;
 
+      ServiceHandle<IRegSelSvc>             m_regionSelector;
+      ToolHandle<Trk::IPRD_AssociationTool>       m_assoTool;
 
       ///////////////////////////////////////////////////////////////////
       // Protected methods

@@ -26,6 +26,7 @@ InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
   m_useZBoundaryFinding(false)                                         ,
   m_ITKGeometry(false)                                                 ,
   m_useITKPPSseeds(false)                                              ,
+  m_useConvSeeded(false)                                               ,
   m_outputlevel(0)                                                     ,
   m_nprint(0)                                                          ,
   m_nseeds(0)                                                          ,
@@ -44,7 +45,6 @@ InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
   m_fieldmode("MapSolenoid")                                           ,
   m_proptool("Trk::RungeKuttaPropagator/InDetPropagator")              ,
   m_regionSelector("RegSelSvc", name)                                  ,
-  m_useConvSeeded(false)                                               ,
   m_assoTool("InDet::InDetPRD_AssociationToolGangedPixels")
 
 {
