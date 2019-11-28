@@ -710,7 +710,7 @@ class ParallelMuonRec(CompositeMuonRec):
             except:
                 if self._applyResilience:
                    import traceback
-                   print traceback.format_exc().rstrip()
+                   print(traceback.format_exc().rstrip())
                    logMuonResil.error("Configuration of %s FAILED. Switching off", c.fullName())
                 else:
                     raise
@@ -784,7 +784,7 @@ def GetMuonRec(configTag,doConfigure=True,applyResilience=False, **kwargs):
         except:
             if applyResilience:
                 import traceback
-                print traceback.format_exc().rstrip()
+                print(traceback.format_exc().rstrip())
                 logMuonResil.error("Configuration of \"%s\" FAILED. Switching off.", configTag)
                 try:
                     theInstance.unConfigure()
