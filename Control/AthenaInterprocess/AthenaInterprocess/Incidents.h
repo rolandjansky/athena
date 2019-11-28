@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAINTERPROCESS_INCIDENTS_H
@@ -10,8 +10,8 @@
 
 /**
  * @class  UpdateAfterFork
- * Slightly modified version of HLT::Incidents::UpdateAfterFork created by W.Wiedenmann
  * @brief  Incident to signal that a new worker was forked
+ *
  * This incident is fired by AthenaMP event processors to signal that a new worker
  * was forked and parameters can be updated before event processing starts.
  * It carries the "worker" ID and the worker process ID which can be used to

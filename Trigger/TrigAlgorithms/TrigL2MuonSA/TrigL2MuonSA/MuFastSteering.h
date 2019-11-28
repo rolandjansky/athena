@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MUFASTSTEERING_H
@@ -38,7 +38,6 @@
 //using namespace TrigL2MuonSA;
 
 class IRegSelSvc;
-class IJobOptionsSvc;
 class Incident;
 class MsgStream;
 
@@ -229,9 +228,6 @@ class MuFastSteering : public HLT::FexAlgo,
 
   //ECRegions whichECRegion(const float eta, const float phi) const;
   float getRoiSizeForID(bool isEta, const xAOD::L2StandAloneMuon* muonSA);
-
-  // calibration streamer properties
-  ServiceHandle<IJobOptionsSvc> m_jobOptionsSvc;
 
   Gaudi::Property< bool > m_allowOksConfig { this, "AllowOksConfig", true, ""};
   Gaudi::Property< std::string > m_calBufferName { this, "MuonCalBufferName", "/tmp/testOutput", ""};
