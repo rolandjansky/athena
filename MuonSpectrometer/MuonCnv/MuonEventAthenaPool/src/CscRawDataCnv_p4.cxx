@@ -6,7 +6,6 @@
 #include "CscRawDataCnv_p4.h"
 #include "GaudiKernel/GaudiException.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "MuonIdHelpers/CscIdHelper.h"
 #include <TString.h> // for Form
 
 bool CscRawDataCnv_p4::initialize() {
