@@ -8,7 +8,7 @@ USER root
 WORKDIR /root
 
 # Install some additional packages.
-RUN yum -y install which git wget tar atlas-devel libuuid-devel texinfo       \
+RUN yum -y install which sclo-git25 wget tar atlas-devel libuuid-devel texinfo       \
            redhat-lsb-core libX11-devel libXpm-devel libXft-devel             \
            libXext-devel openssl-devel glibc-devel rpm-build libcurl-devel && \
     yum clean all
@@ -19,7 +19,7 @@ RUN echo '%wheel	ALL=(ALL)	NOPASSWD: ALL' >> /etc/sudoers && \
     usermod -aG wheel atlas
 
 # Copy the interactive environment setup scripts in place.
-COPY atlas_prompt.sh setup_atlas.sh /etc/profile.d/
+COPY atlas_prompt.sh setup_atlas.sh enable_sclo_git25.sh /etc/profile.d/
 # Add the message of the day instructions for the image.
 COPY motd /etc/
 
