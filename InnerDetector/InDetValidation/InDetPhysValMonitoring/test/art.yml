@@ -1,3 +1,4 @@
 report-to:
+  mail: shaun.roe@cern.ch
   jira:
-    ATLASSIM: https://its.cern.ch/jira/projects/ATLIDTRKCP/summary
+    ATLIDTRKCP: https://its.cern.ch/jira/projects/ATLIDTRKCP/summary
