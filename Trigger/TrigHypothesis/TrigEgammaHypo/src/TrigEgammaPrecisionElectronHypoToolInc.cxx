@@ -31,13 +31,7 @@ StatusCode TrigEgammaPrecisionElectronHypoToolInc::initialize()  {
   }
 
   unsigned int nEtaBin = m_etabin.size();
-#define CHECK_SIZE( __n) if ( m_##__n.size() !=  (nEtaBin - 1) )		\
-    { ATH_MSG_DEBUG(" __n size is " << m_##__n.size() << " but needs to be " << (nEtaBin - 1) ); return StatusCode::FAILURE; }
-
-  CHECK_SIZE( eTthr );
-#undef CHECK_SIZE
-
-
+  ATH_CHECK( m_eTthr.size() == nEtaBin-1 );
 
   ATH_MSG_DEBUG( "Tool configured for chain/id: " << m_decisionId );
 
@@ -74,9 +68,8 @@ bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionE
 
 
   if ( fabs( roiDescriptor->eta() ) > 2.6 ) {
-      ATH_MSG_DEBUG( "REJECT The electron had eta coordinates beyond the EM fiducial volume : " << roiDescriptor->eta() << "; stop the chain now" );
-      pass=false; // special case       
-      return pass;
+      ATH_MSG_DEBUG( "REJECT The electron had eta coordinates beyond the EM fiducial volume : " << roiDescriptor->eta() << "; stop the chain now" );       
+      return false;
   } 
 
   ATH_MSG_DEBUG( "; RoI ID = " << roiDescriptor->roiId()
