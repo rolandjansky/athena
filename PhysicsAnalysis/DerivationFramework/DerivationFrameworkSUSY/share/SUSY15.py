@@ -123,6 +123,7 @@ if doDissolvedVertexing:
     vsi.AugmentingVersionString = "_Randomized" + suffix
     vsi.VertexFitterTool        = InclusiveVxFitterTool
     vsi.Extrapolator            = ToolSvc.AtlasExtrapolator
+    #vsi.OutputLevel             = DEBUG # for debugging /CO
 
     SeqSUSY15 += randomizer
     SeqSUSY15 += vsi

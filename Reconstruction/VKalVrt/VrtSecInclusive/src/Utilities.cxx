@@ -2230,7 +2230,7 @@ namespace VKalVrtAthena {
     
     enum { position=0, detector=1, bec=2, layer=3, isActive=4 };
     
-    // Labmda!
+    // Lambda!
     auto getDetectorType = [&]( const ExtrapolatedPoint& point ) -> unsigned {
       
       const LayerCombination comb { std::get<detector>( point ), std::get<bec>( point ), std::get<layer>( point ) };
@@ -2269,7 +2269,11 @@ namespace VKalVrtAthena {
     for( unsigned i=0; i<Trk::numberOfDetectorTypes; i++) {
       msg += Form("%u", ( disabledPattern >> i ) & 1 );
     }
-    ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": " << msg );
+    ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": " << msg ); 
+    // CO: temporary for debugging, should be removed
+    if (disabledPattern != 0) {
+      ATH_MSG_WARNING( " > " << __FUNCTION__ << ": " << msg ); 
+    }
     
     msg = "Recorded hit pattern: ";
     for( unsigned i=0; i<Trk::numberOfDetectorTypes; i++) {
