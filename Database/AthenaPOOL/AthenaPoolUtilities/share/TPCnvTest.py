@@ -15,7 +15,7 @@
 # to the base part of infile.
 # The dump will be compared against a reference file in share.
 #
-from __future__ import print_function
+
 import AthenaCommon.AtlasUnixStandardJob
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from PyUtils.moduleExists import moduleExists
@@ -52,7 +52,7 @@ def find_file (fname):
             path = os.path.join (p, fname)
             if os.path.exists (path):
                 return path
-    print('ERROR: Cannot find file: ', fname)
+    print 'ERROR: Cannot find file: ', fname
     return None
 
 svcMgr.EventSelector.InputCollections        = [ find_file (infile) ]
@@ -138,14 +138,14 @@ class Dumper (PyAthena.Alg):
         if ret != 0:
             newvars = checknewvars (output)
             if newvars:
-                print('WARNING: new xAOD variables ', newvars)
+                print 'WARNING: new xAOD variables ', newvars
             else:
-                print('ERROR running diff with reference')
-                print(output)
+                print 'ERROR running diff with reference'
+                print output
         return 1
 
     def execute (self):
-        print ('Event index', self.icount, file=self.ofile)
+        print >> self.ofile, 'Event index', self.icount
         self.icount += 1
         for k in keys:
             nmax = None
@@ -153,7 +153,7 @@ class Dumper (PyAthena.Alg):
             if apos >= 0:
                 nmax = int (k[apos+1:])
                 k = k[:apos]
-            print('-->', k, file=self.ofile)
+            print >> self.ofile, '-->', k
 
             store = self.sg
             spos = k.find ('/')
@@ -169,7 +169,7 @@ class Dumper (PyAthena.Alg):
                 o = store[k]
             dumper = get_dumper_fct (type (o), self.ofile, nmax = nmax)
             dumper (o)
-        print('\n', file=self.ofile)
+        print >> self.ofile, '\n'
         return 1
 
 dumper = Dumper ('dumper')
