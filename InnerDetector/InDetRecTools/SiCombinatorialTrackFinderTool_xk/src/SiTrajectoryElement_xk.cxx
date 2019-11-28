@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -71,7 +71,6 @@ bool InDet::SiTrajectoryElement_xk::set
 
 
   if(!m_detstatus) {
-
     IdentifierHash idHash = m_detelement->identifyHash();
     if(m_ndf==2) {if(!m_tools->pixcond()->isGood(idHash)) m_detstatus = -1;}
     else         {if(!m_tools->sctcond()->isGood(idHash)) m_detstatus = -1;}

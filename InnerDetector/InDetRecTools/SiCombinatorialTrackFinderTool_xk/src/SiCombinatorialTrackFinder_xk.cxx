@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -620,7 +620,10 @@ const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracksWi
   bool  Q = (FT==5); 
   if(Q) {
     Q = m_trajectory.isNewTrack(PT); 
-    if(!Q) m_statistic[4] = 1;
+    if(!Q) {
+      m_statistic[4] = 1;
+      return m_tracks;
+    }
   }
   else m_statistic[3]=1;
 

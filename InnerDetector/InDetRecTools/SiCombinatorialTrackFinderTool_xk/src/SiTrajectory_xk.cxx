@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -1387,7 +1387,6 @@ bool InDet::SiTrajectory_xk::forwardExtensionDefault(bool smoother,int itmax)
 
 bool InDet::SiTrajectory_xk::forwardExtensionTracklet(bool smoother,int itmax)
 {
-  const double pi2 = 2.*M_PI, pi = M_PI;
 
   if(m_firstElement >= m_lastElement) return false;
 
