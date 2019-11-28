@@ -63,3 +63,8 @@ TRUTH3Stream.AddMetaDataItem( [ "xAOD::TruthMetaDataContainer#TruthMetaData", "x
 # Note that in 21.2, this means we can't read the file in athena. A bit too dangerous given truth analyses that might be of interest.
 # In master, this is safe and saves us another 0.75kB/event or so
 #TRUTH3Stream.RemoveItem('EventInfo#*')
+
+# If we don't have a conditions tag set by now, then assume this job isn't going to have one and kill the conditions service
+if len(globalflags.ConditionsTag())==0:
+    for a in svcMgr.PoolSvc.ReadCatalog:
+        svcMgr.PoolSvc.ReadCatalog.remove(a)
