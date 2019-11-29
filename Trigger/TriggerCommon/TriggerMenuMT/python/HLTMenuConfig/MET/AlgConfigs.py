@@ -3,7 +3,6 @@
 #
 
 from .ConfigHelpers import AlgConfig, jetRecoDictForMET
-from TrigEFMissingET.TrigEFMissingETMTConfig import getMETMonTool
 from ..Menu.MenuComponents import RecoFragmentsPool
 from ..Menu.SignatureDicts import METChainParts
 import GaudiKernel.SystemOfUnits as Units
