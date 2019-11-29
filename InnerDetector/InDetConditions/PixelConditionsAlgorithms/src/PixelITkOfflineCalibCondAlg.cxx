@@ -77,12 +77,12 @@ StatusCode PixelITkOfflineCalibCondAlg::execute_r(const EventContext& ctx) const
 
     // Find and open the text file
     ATH_MSG_INFO("Load PixelITkErrorData constants from text file");
-    std::string file_name = PathResolver::find_file(m_textFileName, "DATAPATH");
-    if (file_name.size()==0) { ATH_MSG_WARNING("Input file " << file_name << " not found! Default (hardwired) values to be used!"); }
-    else { pced->Load(file_name);  }
+    std::string fileName = PathResolver::find_file(m_textFileName, "DATAPATH");
+    if (fileName.size()==0) { ATH_MSG_WARNING("Input file " << fileName << " not found! Default (hardwired) values to be used!"); }
+    else { pced->load(fileName);  }
 
     ATH_MSG_DEBUG("Get error constants");
-    std::vector<float> constants = calibData->GetConstants();
+    std::vector<float> constants = calibData->getConstants();
     if (constants.size()) { ATH_MSG_VERBOSE("constants are defined"); }
     else                  { ATH_MSG_ERROR("constants size is NULL!!!"); } 
 
@@ -95,7 +95,7 @@ StatusCode PixelITkOfflineCalibCondAlg::execute_r(const EventContext& ctx) const
     
     if (constants.size()) {
       ATH_MSG_DEBUG("Found constants with new-style Identifier key");
-      writeCdo->SetConstants(constants);
+      writeCdo->setConstants(constants);
     }
 
     // TO DO: Need to find the 21.9-friendly syntax
@@ -109,7 +109,7 @@ StatusCode PixelITkOfflineCalibCondAlg::execute_r(const EventContext& ctx) const
 
     if (m_dump!=0) {
       ATH_MSG_DEBUG("Dump the constants to file");
-      calibData->Dump();
+      calibData->dump();
     }
     delete calibData;
 

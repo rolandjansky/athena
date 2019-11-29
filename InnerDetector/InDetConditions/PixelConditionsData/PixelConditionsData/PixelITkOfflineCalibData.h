@@ -39,10 +39,10 @@ class PixelITkOfflineCalibData{
   // get the pointer to pixel cluster error data
   PixelITkClusterErrorData* getPixelITkClusterErrorData() const; 
 
-  std::vector<float> GetConstants() const;
-  void SetConstants(const std::vector<float> &constants);
+  std::vector<float> getConstants() const;
+  void setConstants(const std::vector<float> &constants);
 
-  void Dump();
+  void dump();
 
  private: 
   PixelITkClusterErrorData* m_clustererrordata; 

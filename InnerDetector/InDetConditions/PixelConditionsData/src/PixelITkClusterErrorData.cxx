@@ -8,13 +8,14 @@
 #include <fstream>
 #include <string>
 #include <stdexcept>
+#include <cmath> // TO DO: clean when getITkAC_closestAngle is removed
 
 
 namespace PixelCalib{
 
 // Load defaults - real values to be loaded from database
 
-void PixelITkClusterErrorData::Initialize(){
+void PixelITkClusterErrorData::initialize(){
 
   return;
 }
@@ -45,9 +46,9 @@ std::tuple<double,double,double> PixelITkClusterErrorData::getITkAC_closestAngle
   std::tuple<double,double,double> mytuple = std::make_tuple(0,0,0);
   
   // TO DO - write a faster sorting / search algorithm
-  for( unsigned int i=0 ; i<anglevec.size() ; i++){
-    double angle_from_vec = std::get<0>(anglevec.at(i));
-    double anglediff_i = abs(angle_from_vec-angle);
+  for( auto& tupl : anglevec){
+    double angle_from_vec = std::get<0>(tupl);
+    double anglediff_i = std::abs(angle_from_vec-angle);
     if( anglediff_i > angdiff ){
       // the break here will only happen if we have found the minimum angdiff,
       // and have passed it
@@ -59,7 +60,7 @@ std::tuple<double,double,double> PixelITkClusterErrorData::getITkAC_closestAngle
     }
     else if( anglediff_i < angdiff ){
       angdiff = anglediff_i;
-      mytuple = anglevec.at(i);
+      mytuple = tupl;
     }
   }
   
@@ -99,7 +100,7 @@ void PixelITkClusterErrorData::setITkAngleDeltaError(int xy, int itkregion, int 
 
 
 // save all constants to file
-void PixelITkClusterErrorData::Print(std::string file) const {
+void PixelITkClusterErrorData::print(std::string file) const {
 
   std::ofstream* outfile = new std::ofstream(file.c_str()); 
 
@@ -112,7 +113,7 @@ void PixelITkClusterErrorData::Print(std::string file) const {
 
 
 // Load ITk constants from file
-void PixelITkClusterErrorData::Load(std::string file){
+void PixelITkClusterErrorData::load(std::string file){
 
   std::ifstream infile( file.c_str() );
   

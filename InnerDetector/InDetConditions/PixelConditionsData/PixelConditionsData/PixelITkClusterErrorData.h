@@ -15,7 +15,7 @@ namespace PixelCalib {
 class PixelITkClusterErrorData { 
 
   public: 
-    PixelITkClusterErrorData(){ Initialize(); }
+    PixelITkClusterErrorData(){ initialize(); }
     ~PixelITkClusterErrorData(){};
 
     /** Methods to access the calibration data */ 
@@ -27,11 +27,11 @@ class PixelITkClusterErrorData {
 
     void setITkAngleDeltaError(int xy, int itkregion, int layer, double angle, double delta, double error);
         
-    void Print(std::string file) const;
-    void Load(std::string file);
+    void print(std::string file) const;
+    void load(std::string file);
 
   private: 
-     void Initialize();
+     void initialize();
 
     // vector to store all ITk Analogue Clustering constants and errors
     std::map< std::tuple<int,int,int> , std::vector< std::tuple<double,double,double> > > m_constmap;

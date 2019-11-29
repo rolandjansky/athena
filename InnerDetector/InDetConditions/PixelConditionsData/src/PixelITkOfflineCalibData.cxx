@@ -10,7 +10,7 @@
 
 namespace PixelCalib{
 
-  std::vector<float> PixelITkOfflineCalibData::GetConstants() const { 
+  std::vector<float> PixelITkOfflineCalibData::getConstants() const {
 
     int n_xy = 2; // x + y
     int n_regions = 3; // barrel, inclined, endcap
@@ -45,12 +45,12 @@ namespace PixelCalib{
 
   }
 
-  void PixelITkOfflineCalibData::Dump(){
-    m_clustererrordata->Print("PixelITkClusterDump.txt");
+  void PixelITkOfflineCalibData::dump(){
+    m_clustererrordata->print("PixelITkClusterDump.txt");
   }
 
 
-  void PixelITkOfflineCalibData::SetConstants(const std::vector<float> &constants){
+  void PixelITkOfflineCalibData::setConstants(const std::vector<float> &constants){
 
     int entry_size = 6;
     int map_size = constants.size()/entry_size;
