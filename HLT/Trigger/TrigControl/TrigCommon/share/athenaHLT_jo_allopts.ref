@@ -30,7 +30,7 @@
         <outputFileName>out.data</outputFileName>
         <rosHitStatFileName>ros_hitstats</rosHitStatFileName>
         <fileList>
-          <file>dummy.data</file>
+          <file>/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.merge.RAW._lb0151._SFO-1._0001.1</file>
         </fileList>
         <extraL1Robs />
       </HLTDFFileBackend>
@@ -99,7 +99,7 @@
             <preCommands>
               <preCommand>x=1</preCommand>
               <preCommand>y=2</preCommand>
-              <preCommand>_run_number=327265</preCommand>
+              <preCommand>_run_number=360026</preCommand>
             </preCommands>
             <showInclude>false</showInclude>
             <postCommands>
@@ -140,25 +140,27 @@
 <RunParams>
   <totalTime>0</totalTime>
   <run_type>Physics</run_type>
+  <run_number>360026</run_number>
   <timeEOR>1/1/70 01:00:00</timeEOR>
-  <det_mask>00000000000000000001fffffffffff7</det_mask>
-  <beam_type>0</beam_type>
+  <timeSOR>05/09/18 12:30:52.000000</timeSOR>
+  <stream>physics_EnhancedBias</stream>
+  <trigger_type>0</trigger_type>
+  <T0_project_tag>data18_13TeV</T0_project_tag>
+  <det_mask>0000000000000001c10069fffffffff7</det_mask>
+  <beam_energy>6500</beam_energy>
+  <beam_type>1</beam_type>
+  <lumiblock>151</lumiblock>
   <filename_tag />
   <max_events>0</max_events>
-  <run_number>327265</run_number>
-  <timeSOR>22/11/18 11:02:32.703856</timeSOR>
-  <trigger_type>0</trigger_type>
-  <T0_project_tag />
-  <beam_energy>0</beam_energy>
   <recording_enabled>0</recording_enabled>
 </RunParams>
 <Magnets>
   <ToroidsCurrent>
-    <ts>22/11/18 11:02:32.703856</ts>
+    <ts>05/09/18 12:30:52.000000</ts>
     <value>20400</value>
   </ToroidsCurrent>
   <SolenoidCurrent>
-    <ts>22/11/18 11:02:32.703856</ts>
+    <ts>05/09/18 12:30:52.000000</ts>
     <value>7730</value>
   </SolenoidCurrent>
 </Magnets>

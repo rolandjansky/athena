@@ -14,12 +14,12 @@ function cleanup {
     pkill -9 -P 1 -s $sid is_server
 }
 
-# We only test the configuration stage, so these dummy values are just fine.
+# Data file not really important, as we only test the configuration stage.
 # Specifying run/sor/detmask avoids the COOL lookup.
-file="dummy.data"
-run="327265"
-sortime="1542880952703855872"
-detmask="00000000000000000001fffffffffff7"
+file="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.merge.RAW._lb0151._SFO-1._0001.1"
+run="360026"
+sortime="1536143452000000000"
+detmask="0000000000000001c10069fffffffff7"
 
 # Run only config stage (exit immediately via interactive mode) and filter final ptree
 # If there was a failure, the exit code will be non-zero
