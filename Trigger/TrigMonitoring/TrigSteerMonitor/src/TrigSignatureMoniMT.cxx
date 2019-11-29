@@ -171,7 +171,7 @@ StatusCode TrigSignatureMoniMT::stop() {
 StatusCode TrigSignatureMoniMT::fillPassEvents(const TrigCompositeUtils::DecisionIDContainer& dc, int row, LockedHandle<TH2>& histogram) const {
   for ( auto id : dc )  {
     auto id2bin = m_chainIDToBinMap.find( id );
-    if ( id2bin == m_chainIDToBinMap.end() ) {
+    if ( id2bin == m_chainIDToBinMap.end() && HLT::Identifier(id).name().find("leg") != 0 ) {
       ATH_MSG_WARNING( "HLT chain " << HLT::Identifier(id) << " not configured to be monitored" );
     } else {
       histogram->Fill( id2bin->second, double(row) );
