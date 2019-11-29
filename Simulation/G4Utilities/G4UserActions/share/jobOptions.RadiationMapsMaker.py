@@ -30,6 +30,8 @@ from G4UserActions.G4UserActionsConf import G4UA__RadiationMapsMakerTool
 # radmaptool.LogEMaxo        =    7.0  # in log10(E/MeV)
 # radmaptool.LogTMin         =   -9.0  # in log10(t_cut/s)
 # radmaptool.LogTMax         =   11.0  # in log10(t_cut/s)
+# radmaptool.ElemZMin        =    1    # Atomic number
+# radmaptool.ElemZMax        =   92    # Atomic number
 #
 simFlags.OptionalUserActionList.addAction('G4UA::RadiationMapsMakerTool',['Run','Step'])
 
