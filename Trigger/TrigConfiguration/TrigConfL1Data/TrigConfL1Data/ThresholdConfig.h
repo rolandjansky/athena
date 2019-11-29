@@ -61,7 +61,7 @@ namespace TrigConf {
       const CaloInfo& caloInfo() const { return m_CaloInfo; }
       void setCaloInfo (const CaloInfo& ci) { m_CaloInfo = ci; }
 
-      bool addTriggerThreshold(TriggerThreshold* value); // add according to type
+      bool addTriggerThreshold(TriggerThreshold* value, bool respectRun2Limits = true); // add according to type
 
       virtual void print(const std::string& indent="", unsigned int detail=1) const;
 
