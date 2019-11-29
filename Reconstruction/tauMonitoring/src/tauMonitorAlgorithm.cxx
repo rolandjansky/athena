@@ -4,7 +4,6 @@
 
 #include "tauMonitoring/tauMonitorAlgorithm.h"
 
-
 tauMonitorAlgorithm::tauMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
 :AthMonitorAlgorithm(name,pSvcLocator)
 ,m_doRandom(true)
