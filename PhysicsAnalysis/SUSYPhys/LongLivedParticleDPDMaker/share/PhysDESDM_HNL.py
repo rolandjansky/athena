@@ -35,7 +35,8 @@ HnlMuMuFilterTool = skimtool( name = "HnlMuMuFilterTool",
                               Mu2PtMin  = primRPVLLDESDM.displacedMuonPtThreshHnl(),
                               Mu2Types  = primRPVLLDESDM.displacedMuonTypesHnl(),
                               Mu2IsoCut = primRPVLLDESDM.displacedMuonIsoThreshHnl(),
-                              Mu2d0Min  = primRPVLLDESDM.displacedMuonD0ThreshHnl() )
+                              Mu2d0Min  = primRPVLLDESDM.displacedMuonD0ThreshHnl(),
+                              dPhiMin   = primRPVLLDESDM.leptonDphiThreshHnl())
 ToolSvc += HnlMuMuFilterTool
 msg.info("HnlMuMuFilterTool.Triggers:")
 msg.info(HnlMuMuFilterTool.Triggers)
@@ -57,7 +58,8 @@ if primRPVLLDESDM.doHnlElMu():
                                   Mu2PtMin  = primRPVLLDESDM.displacedMuonPtThreshHnl(),
                                   Mu2Types  = primRPVLLDESDM.displacedMuonTypesHnl(),
                                   Mu2IsoCut = primRPVLLDESDM.displacedMuonIsoThreshHnl(),
-                                  Mu2d0Min  = primRPVLLDESDM.displacedMuonD0ThreshHnl() )
+                                  Mu2d0Min  = primRPVLLDESDM.displacedMuonD0ThreshHnl(),
+                                  dPhiMin   = primRPVLLDESDM.leptonDphiThreshHnl())
     ToolSvc += HnlElMuFilterTool
     msg.info("HnlElMuFilterTool.Triggers:")
     msg.info(HnlElMuFilterTool.Triggers)
@@ -81,7 +83,8 @@ if primRPVLLDESDM.doHnlElEl():
                                   El2PtMin  = primRPVLLDESDM.displacedElectronPtThreshHnl(),
                                   El2IsoType= primRPVLLDESDM.displacedElectronIsoTypeHnl(),
                                   El2IsoCut = primRPVLLDESDM.displacedElectronIsoThreshHnl(),
-                                  El2d0Min  = primRPVLLDESDM.displacedElectronD0ThreshHnl() )
+                                  El2d0Min  = primRPVLLDESDM.displacedElectronD0ThreshHnl(),
+                                  dPhiMin   = primRPVLLDESDM.leptonDphiThreshHnl())
     ToolSvc += HnlElElFilterTool
     msg.info("HnlElElFilterTool.Triggers:")
     msg.info(HnlElElFilterTool.Triggers)
@@ -102,7 +105,8 @@ if primRPVLLDESDM.doHnlMuEl():
                                   El2PtMin  = primRPVLLDESDM.displacedElectronPtThreshHnl(),
                                   El2IsoType= primRPVLLDESDM.displacedElectronIsoTypeHnl(),
                                   El2IsoCut = primRPVLLDESDM.displacedElectronIsoThreshHnl(),
-                                  El2d0Min  = primRPVLLDESDM.displacedElectronD0ThreshHnl() )
+                                  El2d0Min  = primRPVLLDESDM.displacedElectronD0ThreshHnl(),
+                                  dPhiMin   = primRPVLLDESDM.leptonDphiThreshHnl())
     ToolSvc += HnlMuElFilterTool
     msg.info("HnlMuElFilterTool.Triggers:")
     msg.info(HnlMuElFilterTool.Triggers)
