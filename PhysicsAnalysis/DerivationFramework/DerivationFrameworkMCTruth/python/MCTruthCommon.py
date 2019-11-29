@@ -549,7 +549,7 @@ def addTruthEnergyDensity(kernel=None):
         # Already there!  Carry on...
         return
     # Truth energy density tools
-    from EventShapeTools.EventDensityConfig import configEventDensityTool
+    from EventShapeTools.EventDensityConfig import configEventDensityTool,EventDensityAthAlg
     from AthenaCommon.AppMgr import ToolSvc
     from JetRec.JetRecStandard import jtm
     DFCommonTruthCentralEDTool = configEventDensityTool("DFCommonTruthCentralEDTool", jtm.truthget,
@@ -566,9 +566,8 @@ def addTruthEnergyDensity(kernel=None):
                                                        )
     ToolSvc += DFCommonTruthForwardEDTool
     # Algorithms for the energy density
-    from EventShapeTools.EventDensityConfig import EventDensityAlg
-    kernel += EventDensityAlg("DFCommonTruthCentralEDAlg", EventDensityTool = DFCommonTruthCentralEDTool )
-    kernel += EventDensityAlg("DFCommonTruthForwardEDAlg", EventDensityTool = DFCommonTruthForwardEDTool )
+    kernel += EventDensityAthAlg("DFCommonTruthCentralEDAlg", EventDensityTool = DFCommonTruthCentralEDTool )
+    kernel += EventDensityAthAlg("DFCommonTruthForwardEDAlg", EventDensityTool = DFCommonTruthForwardEDTool )
 
     # Now add the tool to do the decoration
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthEDDecorator

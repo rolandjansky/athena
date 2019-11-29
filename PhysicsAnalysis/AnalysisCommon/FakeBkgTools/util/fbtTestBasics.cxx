@@ -28,6 +28,7 @@
 
 #include <fstream>
 #include <map>
+#include <memory>
 
 bool successful(bool arg) { return arg; }
 bool successful(int arg);
@@ -61,6 +62,12 @@ bool addEventWeight(asg::AnaToolHandle<CP::ILinearFakeBkgTool>& tool, Result& re
 bool addEventWeight(asg::AnaToolHandle<CP::IFakeBkgTool>& tool, Result& result);
 template<class Interface = CP::IFakeBkgTool> bool fillResult(asg::AnaToolHandle<Interface>& tool, Result& result);
 
+#ifdef XAOD_STANDALONE
+  std::unique_ptr<xAOD::TStore> store;
+#else
+  StoreGateSvc* store = nullptr;
+#endif
+
 std::vector<std::string> config;
 std::string selection = ">=1T";    
 std::string process = ">=1F[T]";
@@ -82,11 +89,13 @@ int main(int argc, char* argv[])
   #ifdef XAOD_STANDALONE
     xAOD::Init("fbtTestBasics").ignore();
     xAOD::TEvent event(xAOD::TEvent::kClassAccess);
-    xAOD::TStore store;
+    store = std::make_unique<xAOD::TStore>();
     StatusCode::enableFailure();
   #else
     IAppMgrUI* app = POOL::Init();
     POOL::TEvent event(POOL::TEvent::kClassAccess);
+	FBT_CHECK( event.evtStore().retrieve() );
+	store = event.evtStore().get();
   #endif
     
     int returnCode = allTests() ? 0 : 1;
@@ -110,9 +119,7 @@ bool allTests()
     FBT_CHECK( minimalTest("CP::AsymptMatrixTool", result1) );
     
     if(verbose) std::cout <<"\nWill do minimal test with CP::LhoodMM_tools\n";
-    readCPVariations = false;
     FBT_CHECK( minimalTest("CP::LhoodMM_tools", result0) );
-    readCPVariations = true;
     
     if(verbose) std::cout <<"\nWill test loading efficiencies from XML\n";
     FBT_CHECK( readFromXML() );
@@ -203,12 +210,15 @@ bool setup(asg::AnaToolHandle<Interface>& tool, const std::string& type)
 template<class Interface>
 bool eventLoop(asg::AnaToolHandle<Interface>& tool, Result& result)
 {
-    std::unique_ptr<xAOD::EventInfo> eventInfo = std::make_unique<xAOD::EventInfo>();
-    std::unique_ptr<xAOD::EventAuxInfo> eventAuxInfo = std::make_unique<xAOD::EventAuxInfo>();
+    auto eventInfo = std::make_unique<xAOD::EventInfo>();
+    auto eventAuxInfo = std::make_unique<xAOD::EventAuxInfo>();
     eventInfo->setStore(eventAuxInfo.get());
-
+    eventInfo->auxdata<int>("flag") = 1;
+    FBT_CHECK( store->record(std::move(eventInfo), "EventInfo") );
+    FBT_CHECK( store->record(std::move(eventAuxInfo), "EventInfoAux.") );
+ 
     xAOD::IParticleContainer particles(SG::VIEW_ELEMENTS);
-    std::unique_ptr<xAOD::Electron> e(new xAOD::Electron());
+    auto e = std::make_unique<xAOD::Electron>();
     e->makePrivateStore();
     e->setCharge(1);
     particles.push_back(static_cast<xAOD::IParticle*>(&*e));
@@ -219,6 +229,12 @@ bool eventLoop(asg::AnaToolHandle<Interface>& tool, Result& result)
         FBT_CHECK( tool->addEvent(particles) );
         FBT_CHECK( addEventWeight(tool, result) );
     }
+	
+  #ifdef XAOD_STANDALONE
+    store->clear();
+  #else
+    store->clearStore(true);
+  #endif
     return true;
 }
 
@@ -331,10 +347,11 @@ bool readFromXML()
     /// note: the declarations must be placed in the "good" order,
     /// otherwise the definitions of the SystematicVariations will be different than those obtained with readFromROOT()
     out << "<efficiencies>\n";
-    out << "<electron type=\"fake-efficiency\" input=\"central-value\" stat=\"per-bin\" >\n\t<bin>\n 0.05 +- 0.01 (stat) </bin>\n</electron>\n";
-    out << "<electron type=\"real-efficiency\" input=\"central-value\" stat=\"global\" >\n\t<bin>\n 0.90 +- 0.01 (stat) </bin>\n</electron>\n";
-    out << "<muon type=\"fake-efficiency\" input=\"central-value\" stat=\"per-bin\" >\n\t<bin>\n 0.15 +- 0.032 (stat) </bin>\n</muon>\n";
-    out << "<muon type=\"real-efficiency\" input=\"central-value\" stat=\"global\" >\n\t<bin>\n 0.95 +- 0.01 (stat) </bin>\n</muon>\n";
+    out << "<param type=\"int\" level=\"event\"> flag </param>\n";
+    out << "<electron type=\"fake-efficiency\" input=\"central-value\" stat=\"per-bin\" >\n\t<bin flag=\"1\">\n 0.05 +- 0.01 (stat) </bin>\n</electron>\n";
+    out << "<electron type=\"real-efficiency\" input=\"central-value\" stat=\"global\" >\n\t<bin flag=\"1\">\n 0.90 +- 0.01 (stat) </bin>\n</electron>\n";
+    out << "<muon type=\"fake-efficiency\" input=\"central-value\" stat=\"per-bin\" >\n\t<bin flag=\"1\">\n 0.15 +- 0.032 (stat) </bin>\n</muon>\n";
+    out << "<muon type=\"real-efficiency\" input=\"central-value\" stat=\"global\" >\n\t<bin flag=\"1\">\n 0.95 +- 0.01 (stat) </bin>\n</muon>\n";
     out << "</efficiencies>\n";
     out.close();
     return true;

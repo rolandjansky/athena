@@ -96,3 +96,8 @@ TRUTH1Stream.AddItem( "xAOD::TruthParticleContainer#TruthLabelWBosons" )
 TRUTH1Stream.AddItem( "xAOD::TruthParticleContainer#TruthLabelZBosons" )
 # Keep the metadata of course!
 TRUTH1Stream.AddMetaDataItem( [ "xAOD::TruthMetaDataContainer#TruthMetaData", "xAOD::TruthMetaDataAuxContainer#TruthMetaDataAux." ] )
+
+# If we don't have a conditions tag set by now, then assume this job isn't going to have one and kill the conditions service
+if len(globalflags.ConditionsTag())==0:
+    for a in svcMgr.PoolSvc.ReadCatalog:
+        svcMgr.PoolSvc.ReadCatalog.remove(a)

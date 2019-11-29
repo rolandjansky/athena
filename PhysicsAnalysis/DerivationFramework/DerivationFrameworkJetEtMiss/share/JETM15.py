@@ -465,7 +465,7 @@ for truthc in [
 
 for truthc in [
   "TruthTopQuark",
-  "TruthBoson"
+  "TruthBosons"
   ]:
   JETM15SlimmingHelper.StaticContent.append("xAOD::TruthParticleContainer#"+truthc+"WithDecayParticles")
   JETM15SlimmingHelper.StaticContent.append("xAOD::TruthParticleAuxContainer#"+truthc+"WithDecayParticlesAux.")

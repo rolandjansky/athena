@@ -225,7 +225,7 @@ addJetOutputs(JETM8SlimmingHelper,["LargeR",
 
 for truthc in [
   "TruthTopQuark",
-  "TruthBoson",
+  "TruthBosons",
   "TruthHF"
   ]:
   JETM8SlimmingHelper.StaticContent.append("xAOD::TruthParticleContainer#"+truthc+"WithDecayParticles")
