@@ -8,23 +8,23 @@
 
 
 #include "AthenaKernel/CLASS_DEF.h"
-#include "EventContainers/IdentifiableContainer.h"
-#include "EventContainers/IdentifiableCache.h"
+#include "EventContainers/IdentifiableValueContainer.h"
+#include "EventContainers/IdentifiableValueCache.h"
 
 /**
  * IDC like storage for BS errors,
  * TODO, customise implementation further so that we store int rather than int*
  **/
 
-class IDCInDetBSErrContainer : public IdentifiableContainer<int>  {
+class IDCInDetBSErrContainer : public IdentifiableValueContainer<int>  {
 public:
   typedef int ErrorCode;
-  using IdentifiableContainer<ErrorCode>::IdentifiableContainer;
+  using IdentifiableValueContainer<ErrorCode>::IdentifiableValueContainer;
 };
 
 CLASS_DEF( IDCInDetBSErrContainer , 1083695787 , 1 )
 
-typedef EventContainers::IdentifiableCache< IDCInDetBSErrContainer::ErrorCode > IDCInDetBSErrContainer_Cache;
+typedef IdentifiableValueCache< IDCInDetBSErrContainer::ErrorCode > IDCInDetBSErrContainer_Cache;
 
 CLASS_DEF( IDCInDetBSErrContainer_Cache , 1268216266 , 1 )
 
