@@ -20,18 +20,29 @@ def extractRecoDict(chainParts):
 # When actually specifying the reco, clustersKey should be
 # set, but default to None to allow certain checks, in particular
 # grooming configuration
-def defineJetConstit(jetRecoDict,clustersKey=None):
+def defineJetConstit(jetRecoDict,clustersKey=None,pfoPrefix=None):
+    constitMods = []
+    if "sk" in jetRecoDict["dataType"]:
+        constitMods.append("SK")
+
     # Get the details of the constituent definition:
     # type, mods and the input container name
+    if jetRecoDict["dataType"]=="pf":
+        jetConstit = JetConstit( xAODType.ParticleFlow, constitMods)
+        if pfoPrefix is None:
+            raise RuntimeError("JetRecoConfiguration: Cannot define PF jets without pfo prefix!")
+        jetConstit.rawname = pfoPrefix+"ParticleFlowObjects"
+        jetConstit.inputname = pfoPrefix+"CHSParticleFlowObjects"
+        
     if "tc" in jetRecoDict["dataType"]:
         # apply this scale
         if jetRecoDict["calib"] == "em":
-            constitMods = ["EM"]
+            constitMods = ["EM"] + constitMods
         elif jetRecoDict["calib"] == "lcw":
-            constitMods = ["LC"]
+            constitMods = ["LC"] + constitMods
         # read from this cluster collection,
         # overriding the standard offline collection
-        jetConstit = JetConstit( xAODType.CaloCluster, constitMods )
+        jetConstit = JetConstit( xAODType.CaloCluster, constitMods)
         if clustersKey is not None:
             jetConstit.rawname = clustersKey
             if jetRecoDict["dataType"]=="tc":
@@ -45,9 +56,9 @@ def defineJetConstit(jetRecoDict,clustersKey=None):
 
 # Arbitrary min pt for fastjet, set to be low enough for MHT(?)
 # Could/should adjust higher for large-R
-def defineJets(jetRecoDict,clustersKey=None):
+def defineJets(jetRecoDict,clustersKey=None,pfoPrefix=None):
     radius = float(jetRecoDict["recoAlg"].lstrip("a").rstrip("tr"))/10
-    jetConstit = defineJetConstit(jetRecoDict,clustersKey)
+    jetConstit = defineJetConstit(jetRecoDict,clustersKey,pfoPrefix)
     jetDef = JetDefinition( "AntiKt", radius, jetConstit, ptmin=5000.)
     return jetDef
 
@@ -93,13 +104,20 @@ def defineCalibFilterMods(jetRecoDict,dataSource,rhoKey="auto"):
         if jetRecoDict["trkopt"]=="notrk" and "gsc" in jetRecoDict["jetCalib"]:
             raise ValueError("Track GSC requested but no track source provided!")
 
-        calibContext,calibSeq = {
-            ("a4","subjes"):   ("TrigRun2","JetArea_EtaJES_GSC"),        # Calo GSC only
-            ("a4","subjesIS"): ("TrigRun2","JetArea_EtaJES_GSC_Insitu"), # Calo GSC only
-            ("a4","subjesgscIS"): ("TrigRun2GSC","JetArea_EtaJES_GSC_Insitu"), # Calo+Trk GSC
-            ("a10","subjes"):  ("TrigUngroomed","JetArea_EtaJES"),
-            ("a10t","jes"):    ("TrigTrimmed","EtaJES_JMS"),
-            }[(jetRecoDict["recoAlg"],jetRecoDict["jetCalib"])]
+        if jetRecoDict["dataType"]=="tc":
+            calibContext,calibSeq = {
+                ("a4","subjes"):   ("TrigRun2","JetArea_EtaJES_GSC"),        # Calo GSC only
+                ("a4","subjesIS"): ("TrigRun2","JetArea_EtaJES_GSC_Insitu"), # Calo GSC only
+                ("a4","subjesgscIS"): ("TrigRun2GSC","JetArea_EtaJES_GSC_Insitu"), # Calo+Trk GSC
+                ("a10","subjes"):  ("TrigUngroomed","JetArea_EtaJES"),
+                ("a10t","jes"):    ("TrigTrimmed","EtaJES_JMS"),
+                }[(jetRecoDict["recoAlg"],jetRecoDict["jetCalib"])]
+        elif jetRecoDict["dataType"]=="pf":
+            calibContext,calibSeq = {
+                ("a4","subjes"):   ("TrigLS2","JetArea_EtaJES_GSC"),
+                ("a4","subjesIS"): ("TrigLS2","JetArea_EtaJES_GSC_Insitu"),
+                ("a4","subjesgscIS"): ("TrigLS2","JetArea_EtaJES_GSC_Insitu"),
+                }[(jetRecoDict["recoAlg"],jetRecoDict["jetCalib"])]            
 
         gscDepth = "auto"
         if "gsc" in jetRecoDict["jetCalib"]:
