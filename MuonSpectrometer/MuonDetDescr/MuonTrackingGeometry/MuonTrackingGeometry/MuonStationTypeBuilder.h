@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -14,6 +14,8 @@
 #include "TrkGeometry/Material.h"
 #include "TrkDetDescrUtils/SharedObject.h"
 #include "TrkDetDescrGeoModelCnv/GeoMaterialConverter.h"
+#include "TrkDetDescrInterfaces/ITrackingVolumeArrayCreator.h"
+#include "TrkGeometry/MaterialProperties.h"
 // Gaudi
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -22,13 +24,8 @@
 #include "GeoModelKernel/GeoMaterial.h"
 
 namespace Trk {
- class TrackingGeometry;
- class TrackingVolume;
- class DetachedTrackingVolume;
- class MaterialProperties;
  class Volume;
  class Layer;
- class ITrackingVolumeArrayCreator;
  class CuboidVolumeBounds;
  class TrapezoidVolumeBounds;
  class DoubleTrapezoidVolumeBounds;
@@ -57,7 +54,7 @@ namespace Muon {
       /** Constructor */
       MuonStationTypeBuilder(const std::string&,const std::string&,const IInterface*);
       /** Destructor */
-      virtual ~MuonStationTypeBuilder();
+      virtual ~MuonStationTypeBuilder() = default;
       /** AlgTool initailize method.*/
       StatusCode initialize();
       /** AlgTool finalize method */
@@ -96,28 +93,28 @@ namespace Muon {
       //void fillDefaultServiceMaterial();
 
       const MuonGM::MuonDetectorManager*  m_muonMgr;               //!< the MuonDetectorManager
-      std::string                         m_muonMgrLocation;       //!< the location of the Muon Manager
-      bool                                m_multilayerRepresentation;   
-      bool                                m_resolveSpacer;   
+      Gaudi::Property<std::string>        m_muonMgrLocation{this,"MuonDetManagerLocation","MuonMgr"};//!< the location of the Muon Manager
+      Gaudi::Property<bool>               m_multilayerRepresentation{this,"BuildMultilayerRepresentation",true};   
+      Gaudi::Property<bool>               m_resolveSpacer{this,"ResolveSpacerBeams",false};   
 
-      ToolHandle<Trk::ITrackingVolumeArrayCreator>   m_trackingVolumeArrayCreator;  //!< Helper Tool to create TrackingVolume Arrays
+      ToolHandle<Trk::ITrackingVolumeArrayCreator>   m_trackingVolumeArrayCreator{this,"TrackingVolumeArrayCreator","Trk::TrackingVolumeArrayCreator/TrackingVolumeArrayCreator"};  //!< Helper Tool to create TrackingVolume Arrays
 
-      mutable Trk::Material*              m_muonMaterial;               //!< the material
- 
-      mutable Trk::MaterialProperties*      m_mdtTubeMat;                  //
-      mutable std::vector<Trk::MaterialProperties*>   m_mdtFoamMat;                  //
-      mutable Trk::MaterialProperties*    m_rpc46;                  
-      mutable std::vector<Trk::MaterialProperties*>   m_rpcDed;                
-      mutable Trk::MaterialProperties*    m_rpcLayer;                  
-      mutable Trk::MaterialProperties*    m_rpcExtPanel;                  
-      mutable Trk::MaterialProperties*    m_rpcMidPanel;                  
-      mutable Trk::MaterialProperties*    m_matCSC01;                  //
-      mutable Trk::MaterialProperties*    m_matCSCspacer1;                  //
-      mutable Trk::MaterialProperties*    m_matCSC02;                  //
-      mutable Trk::MaterialProperties*    m_matCSCspacer2;                  //
-      mutable Trk::MaterialProperties*    m_matTGC01;                  //
-      mutable Trk::MaterialProperties*    m_matTGC06;                  //
-      Trk::GeoMaterialConverter*                  m_materialConverter;
+      Trk::Material*              m_muonMaterial;               //!< the material
+      Trk::GeoMaterialConverter*          m_materialConverter;
+
+      std::shared_ptr<Trk::MaterialProperties*>    m_mdtTubeMat;
+      std::shared_ptr<std::vector<Trk::MaterialProperties*> > m_mdtFoamMat;
+      std::shared_ptr<Trk::MaterialProperties*>    m_rpc46;                  
+      std::shared_ptr<std::vector<Trk::MaterialProperties*>  > m_rpcDed;                
+      std::shared_ptr<Trk::MaterialProperties*>    m_rpcLayer;                  
+      std::shared_ptr<Trk::MaterialProperties*>    m_rpcExtPanel;                  
+      std::shared_ptr<Trk::MaterialProperties*>    m_rpcMidPanel;                  
+      std::shared_ptr<Trk::MaterialProperties*>    m_matCSC01;        
+      std::shared_ptr<Trk::MaterialProperties*>    m_matCSCspacer1;
+      std::shared_ptr<Trk::MaterialProperties*>    m_matCSC02;       
+      std::shared_ptr<Trk::MaterialProperties*>    m_matCSCspacer2;
+      std::shared_ptr<Trk::MaterialProperties*>    m_matTGC01;       
+      std::shared_ptr<Trk::MaterialProperties*>    m_matTGC06;       
 
     };
 

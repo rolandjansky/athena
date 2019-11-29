@@ -66,7 +66,7 @@ namespace Muon {
       /** Constructor */
       MuonInertMaterialBuilder(const std::string&,const std::string&,const IInterface*);
       /** Destructor */
-      ~MuonInertMaterialBuilder();
+      virtual ~MuonInertMaterialBuilder() = default;
       /** AlgTool initailize method.*/
       StatusCode initialize();
       /** AlgTool finalize method */
@@ -96,33 +96,32 @@ namespace Muon {
       double calculateVolume( const Trk::Volume* envelope) const;
 
       const MuonGM::MuonDetectorManager*  m_muonMgr;               //!< the MuonDetectorManager
-      std::string                         m_muonMgrLocation;       //!< the location of the Muon Manager
-      bool                                m_simplify;              // switch geometry simplification on/off 
-      bool                                m_simplifyToLayers;      // switch geometry simplification to layers on/off 
-      bool                                m_debugMode;             // build layers & dense volumes in parallel - double counting material !!! 
-      bool                                m_buildBT;                    // build barrel toroids 
-      bool                                m_buildECT;                   // build endcap toroids 
-      bool                                m_buildFeets;                 // build feets 
-      int                                 m_buildRails;                 // build rails 
-      bool                                m_buildShields;               // build shieldings 
-      bool                                m_buildSupports;              // build other 
-      bool                                m_buildNSWInert;              // build NSW inert material
-      double                              m_blendLimit;                 // volume limit for blending (except shields) 
-      mutable Trk::Material               m_muonMaterial;               //!< the material
+      Gaudi::Property<std::string>        m_muonMgrLocation{this,"MuonDetManagerLocation","MuonMgr"};//!< the location of the Muon Manager
+      Gaudi::Property<bool>               m_simplify{this,"SimplifyGeometry",false};                 // switch geometry simplification on/off 
+      Gaudi::Property<bool>               m_simplifyToLayers{this,"SimplifyGeometryToLayers",false}; // switch geometry simplification to layers on/off 
+      Gaudi::Property<bool>               m_debugMode{this,"DebugMode",false};                       // build layers & dense volumes in parallel - double counting material !!! 
+      Gaudi::Property<bool>               m_buildBT{this,"BuildBarrelToroids",true};    // build barrel toroids 
+      Gaudi::Property<bool>               m_buildECT{this,"BuildEndcapToroids",true};   // build endcap toroids 
+      Gaudi::Property<bool>               m_buildFeets{this,"BuildFeets",true};         // build feets 
+      Gaudi::Property<int>                m_buildRails{this,"BuildRails",1};            // build rails 
+      Gaudi::Property<bool>               m_buildShields{this,"BuildShields",true};     // build shieldings 
+      Gaudi::Property<bool>               m_buildSupports{this,"BuildSupports",true};   // build other 
+      Gaudi::Property<bool>               m_buildNSWInert{this,"BuildNSWInert",true};              // build NSW inert material
+      Gaudi::Property<double>             m_blendLimit{this,"BlendLimit",3e+09};                 // volume limit for blending (except shields) 
+      Trk::Material                       m_muonMaterial;               //!< the material
 //mw
-      Trk::GeoMaterialConverter*           m_materialConverter;          //!< material converter
-      Trk::GeoShapeConverter*              m_geoShapeConverter;          //!< shape converter
-      ServiceHandle<IRndmGenSvc>           m_rndmGenSvc;                 //!< Random number generator
-      Rndm::Numbers*                       m_flatDist;
+      Trk::GeoMaterialConverter*          m_materialConverter;          //!< material converter
+      Trk::GeoShapeConverter*             m_geoShapeConverter;          //!< shape converter
+      ServiceHandle<IRndmGenSvc>          m_rndmGenSvc{this,"randomGen","RndmGenSvc"};                 //!< Random number generator
+      Rndm::Numbers*                      m_flatDist;
       
-      mutable std::vector<Trk::Volume*>    m_garbage;      
-      mutable std::vector<std::vector<std::pair<const Trk::Volume*,float> >* >   m_constituents;
+      std::shared_ptr<std::vector<std::vector<std::pair<const Trk::Volume*,float> >* >>  m_constituents;
 
-      bool                                 m_extraMaterial;
-      float                                m_extraX0;
-      float                                m_extraFraction;
-      float                                m_extraPos1;
-      float                                m_extraPos2;
+      Gaudi::Property<bool>               m_extraMaterial{this,"AddMaterial",false};
+      Gaudi::Property<float>              m_extraX0{this,"AMradLength",0.3};
+      Gaudi::Property<float>              m_extraFraction{this,"AMsplit",0.5};
+      Gaudi::Property<float>              m_extraPos1{this,"AMlayerPos1",13000.};
+      Gaudi::Property<float>              m_extraPos2{this,"AMlayerPos2",15000.};
     };
 
 

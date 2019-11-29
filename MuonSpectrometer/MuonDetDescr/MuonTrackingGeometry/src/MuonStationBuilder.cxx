@@ -8,7 +8,6 @@
 
 // Muon
 #include "MuonTrackingGeometry/MuonStationBuilder.h"
-#include "MuonTrackingGeometry/MuonStationTypeBuilder.h"
 //MuonSpectrometer include
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MuonStation.h"
@@ -26,7 +25,6 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 // Trk
 #include "TrkDetDescrInterfaces/ITrackingVolumeArrayCreator.h"
-#include "TrkDetDescrInterfaces/ITrackingVolumeHelper.h"
 #include "TrkDetDescrInterfaces/IDetachedTrackingVolumeBuilder.h"
 #include "TrkDetDescrUtils/BinUtility.h"
 #include "TrkDetDescrUtils/BinnedArray.h"
@@ -79,36 +77,10 @@
 
 // constructor
 Muon::MuonStationBuilder::MuonStationBuilder(const std::string& t, const std::string& n, const IInterface* p) :
-  AthAlgTool(t,n,p),
-  m_muonMgr(0),
-  m_mdtIdHelper(0),
-  m_rpcIdHelper(0),
-  m_cscIdHelper(0),
-  m_tgcIdHelper(0),
-  m_stgcIdHelper(0),
-  m_mmIdHelper(0),
-  m_muonMgrLocation("MuonMgr"),
-  m_muonStationTypeBuilder("Muon::MuonStationTypeBuilder/MuonStationTypeBuilder"),
-  m_trackingVolumeHelper("Trk::TrackingVolumeHelper/TrackingVolumeHelper"),
-  m_geoShapeConverter(0),
-  m_materialConverter(0),
-  m_buildBarrel(true),
-  m_buildEndcap(true),
-  m_buildCsc(true),
-  m_buildTgc(true)
+  AthAlgTool(t,n,p)
 {
   declareInterface<Trk::IDetachedTrackingVolumeBuilder>(this);
-  declareProperty("StationTypeBuilder",               m_muonStationTypeBuilder);
-  declareProperty("MuonDetManagerLocation",           m_muonMgrLocation);
-  declareProperty("BuildBarrelStations",              m_buildBarrel);
-  declareProperty("BuildEndcapStations",              m_buildEndcap);
-  declareProperty("BuildCSCStations",                 m_buildCsc);
-  declareProperty("BuildTGCStations",                 m_buildTgc);
 }
-
-// destructor
-Muon::MuonStationBuilder::~MuonStationBuilder()
-{}
 
 // Athena standard methods
 // initialize
@@ -861,7 +833,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 		  Trk::CuboidVolumeBounds* envBounds = new Trk::CuboidVolumeBounds(halfX1,halfY1,halfZ);
 		  // station components
 		  if (m_muonStationTypeBuilder) confinedVolumes = 
-						  m_muonStationTypeBuilder->processBoxStationComponents(cv,envBounds); 
+						  m_muonStationTypeBuilder->processBoxStationComponents(cv,envBounds);
 		  // enveloping volume
 		  envelope= new Trk::Volume(0,envBounds);
 		} else if (shape=="Trd") {
