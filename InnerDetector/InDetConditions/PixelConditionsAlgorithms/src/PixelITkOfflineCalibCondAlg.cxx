@@ -65,11 +65,11 @@ StatusCode PixelITkOfflineCalibCondAlg::execute_r(const EventContext& ctx) const
   std::unique_ptr<PixelCalib::PixelITkOfflineCalibData> writeCdo(std::make_unique<PixelCalib::PixelITkOfflineCalibData>());
 
   if (m_inputSource==0) {
-    ATH_MSG_WARNING("So far do nithing!! return StatusCode::FAILURE");
+    ATH_MSG_WARNING("So far do nothing!! return StatusCode::FAILURE");
     return StatusCode::FAILURE;
   }
   else if (m_inputSource==1) {
-    ATH_MSG_INFO("read from file");
+    ATH_MSG_WARNING("Pixel ITk constants read from text file. Only supported for local developments and debugging!");
 
     PixelCalib::PixelITkOfflineCalibData* calibData = new PixelCalib::PixelITkOfflineCalibData;
     
