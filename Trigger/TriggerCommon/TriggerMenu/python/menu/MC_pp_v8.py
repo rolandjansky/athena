@@ -132,6 +132,10 @@ def setupMenu():
         ['mu50_msonly_mu40noL1_msonly',           'L1_MU20', ['L1_MU20',''],    [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu50_msonly','mu40noL1_msonly']]],
         ['mu60_msonly_mu50noL1_msonly',           'L1_MU20', ['L1_MU20',''],    [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu60_msonly','mu50noL1_msonly']]],
        ['mu50_msonly_3layersEC_mu40noL1_msonly',           'L1_MU20', ['L1_MU20',''],    [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu50_msonly_3layersEC','mu40noL1_msonly']]],
+        
+        # ATR-20573
+        ['mu18_mu10_L12MU10',          'L1_2MU10', [], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['parallel',-1,[] ]],
+        ['mu15_mu12_L12MU10',          'L1_2MU10', [], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['parallel',-1,[] ]],
 
         ]
 
@@ -250,6 +254,14 @@ def setupMenu():
         ['j460_a10t_lcw_jes_L1jLJ180',   'L1_jLJ180', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
         ['j460_a10r_L1jLJ180',   'L1_jLJ180', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
         ['j460_a10_lcw_subjes_L1jLJ180',   'L1_jLJ180', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        
+        # ATR-20573
+        ['2j110_gsc150_boffperf_split_2j60_gsc85_boffperf_split',   'L1_3J50', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        ['3j60_gsc85_boffperf_split_0eta240_2j45_gsc55_boffperf_split_0eta240_L14J15',   'L1_4J15', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        ['3j85_gsc115_boffperf_split_2j50_gsc70_boffperf_split_L14J15',   'L1_4J15', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        ['3j50_gsc70_boffperf_split_0eta240_3j35_gsc45_boffperf_split_0eta240_L14J15',   'L1_4J15', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        ['3j60_gsc85_boffperf_split_3j45_gsc55_boffperf_split_L14J15',   'L1_4J15', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        ['4j50_gsc70_boffperf_split_3j35_L14J15',   'L1_4J15', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
 			 ]
 
     TriggerFlags.BjetSlice.signatures = TriggerFlags.BjetSlice.signatures() + [
@@ -290,6 +302,8 @@ def setupMenu():
         ['j55_gsc80_b77_j45_gsc55_b77_j28_b77_j20_b77_L1V3', 'L1_HT190-J15s5.ETA21', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
         ['j55_gsc80_b77_j45_gsc55_b77_j28_b77_j20_b77_L1V4', 'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
 
+        # ATR-20573
+        ['2j55_gsc75_bmv2c1077_split_j45_gsc55_bmv2c1077_split_L13J35.0ETA23', 'L1_3J35.0ETA23', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
         ]
 
     TriggerFlags.METSlice.signatures = TriggerFlags.METSlice.signatures() + [
@@ -462,6 +476,13 @@ def setupMenu():
         ['e17_lhtight_nod0_L1ZAFB-04DPHI-EM15I',        'L1_ZAFB-04DPHI-EM15I', ['L1_EM15VHI'], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e17_lhtight_nod0_L1ZAFB-25DPHI-EM15I',        'L1_ZAFB-25DPHI-EM15I', ['L1_EM15VHI'], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e20_lhtight_nod0_L1ZAFB-25DPHI-EM18I',        'L1_ZAFB-25DPHI-EM18I', ['L1_EM18VHI'], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+        # ATR-20573
+        ['e26_lhvloose_nod0_e22_lhvloose_nod0', 'L1_2EM20VH', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+        ['g22_tight_icalovloose_g17_tight_icalovloose_L12EM15VHI', 'L1_2EM15VHI', [], [PhysicsStream], ['RATE:MultiPhoton', 'BW:Egamma'],-1],
+        ['g24_tight_g20_tight_L12EM15VHI', 'L1_2EM15VHI', [], [PhysicsStream], ['RATE:MultiPhoton', 'BW:Egamma'],-1],
+        ['g27_tight_g22_tight_L12EM20VH', 'L1_2EM20VH', [], [PhysicsStream], ['RATE:MultiPhoton', 'BW:Egamma'],-1],
+        ['g60_loose_g40_loose_L12EM20VH', 'L1_2EM20VH', [], [PhysicsStream], ['RATE:MultiPhoton', 'BW:Egamma'],-1],
+
         ]
 
     TriggerFlags.BphysicsSlice.signatures = TriggerFlags.BphysicsSlice.signatures() + [
@@ -534,6 +555,10 @@ def setupMenu():
         #e+jets
         ['e20_lhtight_nod0_ivarloose_3j20_L1EM18VHI_3J20', 'L1_EM18VHI_3J20',    ['L1_EM18VHI',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'],-1, ['serial',-1,["e20_lhtight_nod0_ivarloose","3j20"] ]],
         ['e60_etcut_trkcut_L1EM24VHIM_xs30_j15_perf_xe30_6dphi15_mt35', 'L1_EM24VHIM', ['L1_EM24VHIM','','',''], [PhysicsStream], ['RATE:EgammaMET', 'BW:Egamma'], -1, ['serial',-1,["e60_etcut_trkcut_L1EM24VHIM","xs30","j15_perf","xe30"]]],
+        #gamma+jets
+        # ATR-20573
+        ['g45_loose_3j55_0eta240_3j35_0eta240', 'L1_EM15VH',    ['L1_EM15VH', '', ''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'],-1, ['serial',-1,["g45_loose", "3j55_0eta240", "3j35_0eta240"] ]],
+        ['g25_medium_L1EM22VHI_2j45_0eta490_2j25_0eta490_invm1000', 'L1_EM22VHI',    ['L1_EM22VHI','',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'],-1, ['serial',-1,["g25_medium_L1EM22VHI", "2j45_0eta490", "2j25_0eta490_invm1000"] ]],
 
         #ATR-19317
         ['g35_loose_L1EM30VHI_j0_perf',  'L1_EM30VHI', ['L1_EM30VHI',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["g35_loose_L1EM30VHI","j0_perf"]]],
