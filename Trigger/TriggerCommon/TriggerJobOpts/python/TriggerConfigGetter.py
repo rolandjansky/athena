@@ -9,6 +9,8 @@ from TrigConfigSvc.TrigConfigSvcUtils import interpretConnection
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from RecExConfig.RecFlags  import rec
+from RecExConfig.RecAlgsFlags import recAlgs
+
 from AthenaCommon.GlobalFlags  import globalflags
 
 from TrigConfigSvc.TrigConfigSvcConfig import SetupTrigConfigSvc
@@ -152,6 +154,12 @@ class TriggerConfigGetter(Configured):
             if not self.checkInput():
                 log.error("Could not determine job input. Can't setup trigger configuration and will return!")
                 return
+            # self.checkInput() may call TriggerConfigCheckMetadata, this can in turn set "rec.doTrigger.set_Value_and_Lock(False)"
+            # but TriggerConfigGetter might have only been called in the first place due to this flag having been true, 
+            # so re-check that we're still OK to be executing here
+            if not (recAlgs.doTrigger() or rec.doTrigger() or TriggerFlags.doTriggerConfigOnly()):
+                log.info("Aborting TriggerConfigGetter as the trigger flags were switched to false in checkInput()")
+                return True
 
         self.readPool       = globalflags.InputFormat() == 'pool'
         self.readRDO        = rec.readRDO()
