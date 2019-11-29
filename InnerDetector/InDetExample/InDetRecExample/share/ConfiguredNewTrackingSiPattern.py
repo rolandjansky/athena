@@ -248,9 +248,12 @@ class  ConfiguredNewTrackingSiPattern:
          elif NewTrackingCuts.mode() == "SLHCConversionFinding":
            InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_SLHCConversionTracks'
 
-         elif NewTrackingCuts.mode() == "LargeD0" or NewTrackingCuts.mode() == "LowPtLargeD0" or NewTrackingCuts.mode() == "DisplacedSoftPion":
+         elif NewTrackingCuts.mode() == "LargeD0" or NewTrackingCuts.mode() == "LowPtLargeD0":
            InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_LargeD0'
-        
+
+         elif NewTrackingCuts.mode() == "DisplacedSoftPion":
+           InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_TrkSeeded'       
+
          else:
            InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSPSeededFinder'
 					  
