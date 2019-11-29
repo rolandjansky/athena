@@ -5,43 +5,32 @@
 #include "tauMonitoring/tauMonitorAlgorithm.h"
 
 
-
 tauMonitorAlgorithm::tauMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
 :AthMonitorAlgorithm(name,pSvcLocator)
 ,m_doRandom(true)
 {
-  //declareProperty("TauRecContainer", m_TauContainerKey="TauJets");
-  declareProperty("etaMin", m_etaMin=-1000.);
-  declareProperty("etaMax", m_etaMax=1000);
-  declareProperty("kinGroupName", m_kinGroupName="tauMonKinGroupBA");
-
+   declareProperty("TauRecContainer", m_TauContainerKey="TauJets");
+   declareProperty("etaMin", m_etaMin=-1000.);
+   declareProperty("etaMax", m_etaMax=1000);
+   declareProperty("kinGroupName", m_kinGroupName="tauMonKinGroupBA");
 }
 
 
 tauMonitorAlgorithm::~tauMonitorAlgorithm() {}
 
-
 StatusCode tauMonitorAlgorithm::initialize() {
-    using namespace Monitored;
+   using namespace Monitored;
 
-    ATH_CHECK( m_TauContainerKey.initialize() );
+   ATH_CHECK( m_TauContainerKey.initialize() );
 
-    return AthMonitorAlgorithm::initialize();
+   return AthMonitorAlgorithm::initialize();
 }
-
 
 StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const {
     using namespace Monitored;
 
-
     auto tauEta = Monitored::Scalar<float>("tauEta");
-
-
-
     auto tauPhi = Monitored::Scalar<float>("tauPhi");
-
-
-
     auto tauEt = Monitored::Scalar<float>("tauEt");
     auto tauCharge = Monitored::Scalar<int>("tauCharge");
     auto NumTracks = Monitored::Scalar<int>("NumTracks");
@@ -76,10 +65,7 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     auto nNeutPFO = Monitored::Scalar<float>("nNeutPFO");
     auto nShot = Monitored::Scalar<float>("nShot");
 
-    //auto d0 = Monitored::Scalar<float>("d0");
     auto pi0bdt = Monitored::Scalar<float>("pi0bdt");
-
-
 
     SG::ReadHandle<xAOD::TauJetContainer> taus(m_TauContainerKey, ctx);
     if (! taus.isValid() ) {
@@ -89,24 +75,15 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
 
     nTauCandidates = taus->size();
 
-
-
     for (const auto& tau : *taus) {
-
-
-
-      //Global and tauB
+      //Global and tauB/CR/EC
       tauEta = tau->eta();
       tauPhi = tau->phi();
-	
-
-      tauEt = tau->pt()/1000;
+      tauEt = tau->pt()/1000; //GeV
       tauCharge = tau->charge();
       NumTracks = tau->nTracks();
       nClusters = tau->detail<int>(xAOD::TauJetParameters::numTopoClusters) ;
       LB = GetEventInfo(ctx)->lumiBlock();
-
-
 
       //calo
       EMRadius =  tau->detail<float>(xAOD::TauJetParameters::EMRadius);
@@ -118,7 +95,6 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
       etHadAtEMScale = tau->detail<float>(xAOD::TauJetParameters::etHadAtEMScale);
       centFrac = tau->detail<float>(xAOD::TauJetParameters::centFrac) ;
 
-
       //identification
       BDTJetScore = tau->discriminant(xAOD::TauJetParameters::BDTJetScore);
       BDTJetScoreSigTrans = tau->discriminant(xAOD::TauJetParameters::BDTJetScoreSigTrans);
@@ -129,114 +105,99 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
       tauBDTMedium =       tau->isTau(xAOD::TauJetParameters::JetBDTSigMedium);
       tauBDTTight  =       tau->isTau(xAOD::TauJetParameters::JetBDTSigTight);
 
-
       //TauB/Identification/EleVetoBDTinputs
       PSSFrac = tau->detail<float>( xAOD::TauJetParameters::PSSFraction ) ;
 
-	
-     //TauB/SubStructure
-     EMFracTrk = tau->detail<float>( xAOD::TauJetParameters::ChPiEMEOverCaloEME ) ;
-     EfracL2EffCluster = tau->detail<float>( xAOD::TauJetParameters::lead2ClusterEOverAllClusterE );
-     EisoEffCluster = tau->detail<float>( xAOD::TauJetParameters::caloIsoCorrected)/1000  ; //puts it in GeV
-     InvMassEffClusters =  tau->detail<float>( xAOD::TauJetParameters::effTopoInvMass )/1000 ; //puts it in GeV
-     nNeutPFO = tau->nProtoNeutralPFOs();
-     nShot = tau->nShotPFOs() ;
+      //TauB/SubStructure
+      EMFracTrk = tau->detail<float>( xAOD::TauJetParameters::ChPiEMEOverCaloEME ) ;
+      EfracL2EffCluster = tau->detail<float>( xAOD::TauJetParameters::lead2ClusterEOverAllClusterE );
+      EisoEffCluster = tau->detail<float>( xAOD::TauJetParameters::caloIsoCorrected)/1000  ; //puts it in GeV
+      InvMassEffClusters =  tau->detail<float>( xAOD::TauJetParameters::effTopoInvMass )/1000 ; //puts it in GeV
+      nNeutPFO = tau->nProtoNeutralPFOs();
+      nShot = tau->nShotPFOs() ;
 
-	
+      for ( unsigned int np = 0 ; np < nNeutPFO ; np ++ ) 
+      {
+         const xAOD::PFO* npfo = tau->protoNeutralPFO( np ) ;
+         float bdtScore = npfo->bdtPi0Score();
+         pi0bdt += bdtScore;
+      }
 
-
-        for ( unsigned int np = 0 ; np < nNeutPFO ; np ++ ) 
-        {
-          const xAOD::PFO* npfo = tau->protoNeutralPFO( np ) ;
-          float bdtScore = npfo->bdtPi0Score();
-          pi0bdt += bdtScore;
-        }
-
-	
-
-
-
-	if(m_kinGroupName != "tauMonKinGroupGlobal"){
-		if (m_etaMin < tauEta && tauEta < m_etaMax){
-			fill(m_kinGroupName,
-			     tauEta,
-                             tauPhi,
-                             tauEt,
-                             tauCharge,
-                             NumTracks,
-                             nTauCandidates,
-                             nClusters,
-			     LB,
-                             EMRadius,
-                             hadRadius,
-                             isolFrac,
-                             stripWidth2,
-                             nStrip,
-			     etEMAtEMScale,
-			     etHadAtEMScale,
-			     centFrac,
-			     BDTJetScore,
-			     BDTJetScoreSigTrans,
-			     eleBDTMedium,
-			     eleBDTTight,
-			     muonVeto,
-			     tauBDTLoose,
-			     tauBDTMedium,
-			     tauBDTTight,
-			     PSSFrac,
-			     EMFracTrk,
-			     EfracL2EffCluster,
-			     EisoEffCluster,
-			     InvMassEffClusters,
-			     nNeutPFO,
-                             nShot,
-			     pi0bdt
-			);
-		}
-	}else{
-		fill(m_kinGroupName,
-		     tauEta,
-		     tauPhi,
-		     tauEt,
-		     tauCharge,
-		     NumTracks,
-		     nTauCandidates,
-		     nClusters,
-		     LB,
-		     EMRadius,
-		     hadRadius,
-		     isolFrac,
-		     stripWidth2,
-		     nStrip,
-		     etEMAtEMScale,
-		     etHadAtEMScale,
-		     centFrac,
-		     BDTJetScore,
-		     BDTJetScoreSigTrans,
-		     eleBDTMedium,
-		     eleBDTTight,
-		     muonVeto,
-		     tauBDTLoose,
-		     tauBDTMedium,
-		     tauBDTTight,
-		     PSSFrac,
-		     EMFracTrk,
-		     EfracL2EffCluster,
-		     EisoEffCluster,
-		     InvMassEffClusters,
-		     nNeutPFO,
-                     nShot,
-		     pi0bdt
-		);
-
-	}
-
-
-
-
-
-    }
-    
-
-    return StatusCode::SUCCESS;
+      if(m_kinGroupName != "tauMonKinGroupGlobal"){
+         if (m_etaMin < tauEta && tauEta < m_etaMax){
+            fill(
+               m_kinGroupName,
+               tauEta,
+               tauPhi,
+               tauEt,
+               tauCharge,
+               NumTracks,
+               nTauCandidates,
+               nClusters,
+               LB,
+               EMRadius,
+               hadRadius,
+               isolFrac,
+               stripWidth2,
+               nStrip,
+               etEMAtEMScale,
+               etHadAtEMScale,
+               centFrac,
+               BDTJetScore,
+               BDTJetScoreSigTrans,
+               eleBDTMedium,
+               eleBDTTight,
+               muonVeto,
+               tauBDTLoose,
+               tauBDTMedium,
+               tauBDTTight,
+               PSSFrac,
+               EMFracTrk,
+               EfracL2EffCluster,
+               EisoEffCluster,
+               InvMassEffClusters,
+               nNeutPFO,
+               nShot,
+               pi0bdt
+            );
+         }
+      }else{
+         fill(
+            m_kinGroupName,
+            tauEta,
+            tauPhi,
+            tauEt,
+            tauCharge,
+            NumTracks,
+            nTauCandidates,
+            nClusters,
+            LB,
+            EMRadius,
+            hadRadius,
+            isolFrac,
+            stripWidth2,
+            nStrip,
+            etEMAtEMScale,
+            etHadAtEMScale,
+            centFrac,
+            BDTJetScore,
+            BDTJetScoreSigTrans,
+            eleBDTMedium,
+            eleBDTTight,
+            muonVeto,
+            tauBDTLoose,
+            tauBDTMedium,
+            tauBDTTight,
+            PSSFrac,
+            EMFracTrk,
+            EfracL2EffCluster,
+            EisoEffCluster,
+            InvMassEffClusters,
+            nNeutPFO,
+            nShot,
+            pi0bdt
+         );
+      }
+   }
+   return StatusCode::SUCCESS;
 }
