@@ -54,7 +54,7 @@ ConstModConfigs = {
     "SK":     {}
 }
 
-def getConstitModAlg(constit,suffix=""):
+def getConstitModAlg(constit,suffix="",tvaKey="JetTrackVtxAssociation",vtxKey="PrimaryVertices"):
     inputtype = constit.basetype
 
     # Need to extend to TCC
@@ -83,6 +83,15 @@ def getConstitModAlg(constit,suffix=""):
 
         toolname = "ConstitMod{0}_{1}{2}".format(typename,step,suffix)
         tool = ConstModTools[step](toolname,**ConstModConfigs[step])
+
+        # May want to set also for cluster origin correction
+        # but so far unused
+        if step=="CorrectPFO":
+            tool.VertexContainerKey = vtxKey
+        if step=="CHS":
+            tool.TrackVertexAssociation = tvaKey
+            tool.VertexContainerKey = vtxKey
+        
         if inputtype == xAODType.ParticleFlow and step not in ["CorrectPFO","CHS"]:
             tool.IgnoreChargedPFO=True
             tool.ApplyToChargedPFO=False
