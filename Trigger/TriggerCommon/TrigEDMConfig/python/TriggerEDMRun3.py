@@ -198,6 +198,7 @@ TriggerHLTListRun3 = [
     ('xAOD::L2IsoMuonContainer#HLT_MuonL2ISInfo',               'BS ESD AODFULL', 'Muon', 'inViews:MUIsoViewRoIs'),
     ('xAOD::L2IsoMuonAuxContainer#HLT_MuonL2ISInfoAux.',        'BS ESD AODFULL', 'Muon'),
 
+    ('TrigRoiDescriptorCollection#HLT_forID',                   'BS ESD AODFULL', 'Muon', 'inViews = MUViewRoIs'),
 
     # Tau
 
