@@ -104,13 +104,9 @@ def muCombAlgSequence(ConfigFlags):
     l2muCombViewsMaker.Views = "EMCombViewRoIs" #output of the views maker (key in "storegate")
     l2muCombViewsMaker.RequireParentView = True
 
-    from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinderBase
-    FTFAlg = TrigFastTrackFinderBase("TrigFastTrackFinder","Muon")
-    FTFAlg.RoIs = "HLT_forID" 
-
     ### get ID tracking and muComb reco sequences ###    
     from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import muCombRecoSequence, muonIDFastTrackingSequence
-    muFastIDRecoSequence = muonIDFastTrackingSequence( FTFAlg.RoIs, "")
+    muFastIDRecoSequence = muonIDFastTrackingSequence( "HLT_forID", "")
     muCombRecoSequence, sequenceOut = muCombRecoSequence( l2muCombViewsMaker.InViewRoIs )
  
     #Filter algorithm to run muComb only if non-Bphysics muon chains are active
