@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -55,13 +55,12 @@ namespace Muon {
 
     declareProperty("PRD_TruthMaps",      m_PRD_TruthNames);
 
-    m_CSC_SDO_TruthNames = "CSC_SDO";
     m_SDO_TruthNames.push_back("RPC_SDO");
     m_SDO_TruthNames.push_back("TGC_SDO");
     m_SDO_TruthNames.push_back("MDT_SDO");
     m_SDO_TruthNames.push_back("MM_SDO");
     m_SDO_TruthNames.push_back("sTGC_SDO");
-    declareProperty("CSCSDOs",   m_CSC_SDO_TruthNames);
+    declareProperty("CSCSDOs",   m_CSC_SDO_TruthNames="CSC_SDO");
     declareProperty("SDOs",      m_SDO_TruthNames);
     std::stable_sort(m_SDO_TruthNames.begin(),m_SDO_TruthNames.end());
 
@@ -169,15 +168,15 @@ namespace Muon {
 	}
       }
 
-      std::string name = m_CSC_SDO_TruthNames;
-      if ( evtStore()->contains<CscSimDataCollection>(name) ) {
-	if( evtStore()->retrieve(cscSdoCollection, name).isSuccess()) {
-	  if( cscSdoCollection && !cscSdoCollection->empty() ) {
-	    ATH_MSG_DEBUG("CscSimDataCollection retrieved at " << name);
-	  }
-	}
+    if (!m_CSC_SDO_TruthNames.empty() && evtStore()->contains<CscSimDataCollection>(m_CSC_SDO_TruthNames)) {
+      if( evtStore()->retrieve(cscSdoCollection, m_CSC_SDO_TruthNames).isSuccess()) {
+        if( cscSdoCollection && !cscSdoCollection->empty() ) {
+          ATH_MSG_DEBUG("CscSimDataCollection retrieved at " << m_CSC_SDO_TruthNames);
+        }
       }
     }
+
+    } // end if m_createTruthSegment
 
     // loop over truth coll
     for( const auto& truth : *truthContainer ){
