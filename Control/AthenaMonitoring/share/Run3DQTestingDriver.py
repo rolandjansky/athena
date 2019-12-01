@@ -86,11 +86,16 @@ if __name__=='__main__':
     dq = AthenaMonitoringCfg(ConfigFlags)
     cfg.merge(dq)
 
-    if (ConfigFlags.Concurrency.NumThreads > 0 and
-        (ConfigFlags.DQ.Steering.doTRTMon)):
-        from AthenaMonitoring.AthenaMonitoringConf import ForceIDConditionsAlg
-        beginseq = cfg.getSequence("AthBeginSeq")
-        beginseq += ForceIDConditionsAlg("ForceIDConditionsAlg")
+    # Force loading of conditions in MT mode
+    if ConfigFlags.Concurrency.NumThreads > 0:
+        if ConfigFlags.DQ.Steering.doTRTMon:
+            from AthenaMonitoring.AthenaMonitoringConf import ForceIDConditionsAlg
+            beginseq = cfg.getSequence("AthBeginSeq")
+            beginseq += ForceIDConditionsAlg("ForceIDConditionsAlg")
+        if ConfigFlags.DQ.Steering.doMuonMon:
+            from AthenaMonitoring.AthenaMonitoringConf import ForceMSConditionsAlg
+            beginseq = cfg.getSequence("AthBeginSeq")
+            beginseq += ForceMSConditionsAlg("ForceMSConditionsAlg")
     
     # any last things to do?
     if args.postExec:
