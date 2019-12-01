@@ -156,7 +156,8 @@ StatusCode MuonPhysValMonitoringTool::initialize()
     m_selectMuonCategories.push_back(PROMPT);
     m_selectMuonCategories.push_back(REST);
   }
-
+  
+  ATH_CHECK(m_eventInfo.initialize());
   ATH_CHECK(m_muonSelectionTool.retrieve());
   ATH_CHECK(m_trackSelector.retrieve());
   ATH_CHECK(m_isoTool.retrieve());
@@ -385,11 +386,12 @@ StatusCode MuonPhysValMonitoringTool::fillHistograms()
   m_vRecoMuons_EffDen_CB.clear();
   m_vRecoMuons_EffDen_MS.clear();
 
-  const xAOD::EventInfo* eventInfo = evtStore()->retrieve<const xAOD::EventInfo>("EventInfo");
-  if (!eventInfo){
+  SG::ReadHandle<xAOD::EventInfo> eventInfoHandle(m_eventInfo);
+  if (!eventInfoHandle.isValid()){
     ATH_MSG_WARNING("Could not retrieve EventInfo, returning");
     return StatusCode::SUCCESS;
   }
+  const xAOD::EventInfo* eventInfo = eventInfoHandle.cptr();
   m_isData = !eventInfo->eventType( xAOD::EventInfo::IS_SIMULATION );
 
   const xAOD::TruthParticleContainer* TruthMuons(0);
@@ -1027,9 +1029,9 @@ void MuonPhysValMonitoringTool::handleMuon(const xAOD::Muon* mu, const xAOD::Slo
 	//histos
 	m_muonValidationPlots[i]->fill(*mu_c);
 	if (smu && mu_c) m_slowMuonValidationPlots[i]->fill(*smu,*mu_c);
-      }
 	//tree branches 
 	m_muonValidationPlots[i]->fillTreeBranches(*mu_c);
+      }
     }    
     return;
   }
