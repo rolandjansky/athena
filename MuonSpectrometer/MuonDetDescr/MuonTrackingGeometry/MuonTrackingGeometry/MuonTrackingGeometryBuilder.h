@@ -111,11 +111,15 @@ namespace Muon {
       Gaudi::Property<bool>                                m_muonInert{this,"BuildInertMaterial",true};
 
       // Overall Dimensions
-      mutable double                      m_innerBarrelRadius;             //!< minimal extend in radial dimension of the muon barrel
-      mutable double                      m_outerBarrelRadius;             //!< maximal extend in radial dimension of the muon barrel
-      mutable double                      m_barrelZ;   //!< maximal extend in z of the muon barrel
-      mutable double                      m_innerEndcapZ;             //!< maximal extend in z of the inner part of muon endcap 
-      mutable double                      m_outerEndcapZ;             //!< maximal extend in z of the outer part of muon endcap
+      std::shared_ptr<double>         m_innerBarrelRadius;                                                               //!< minimal extend in radial dimension of the muon barrel
+      Gaudi::Property<double>        m_innerBarrelRadiusProperty{this,"InnerBarrelRadius",4255.};    //!< minimal extend in radial dimension of the muon barrel
+      std::shared_ptr<double>         m_outerBarrelRadius;                                                              //!< maximal extend in radial dimension of the muon barrel
+      Gaudi::Property<double>        m_outerBarrelRadiusProperty{this,"OuterBarrelRadius",13910.}; //!< maximal extend in radial dimension of the muon barrel
+      Gaudi::Property<double>        m_barrelZ{this,"BarrelZ",6785.};                                              //!< maximal extend in z of the muon barrel
+      std::shared_ptr<double>         m_innerEndcapZ;                                                                     //!< maximal extend in z of the inner part of muon endcap 
+      Gaudi::Property<double>        m_innerEndcapZProperty{this,"InnerEndcapZ",12900.};              //!< maximal extend in z of the inner part of muon endcap 
+      std::shared_ptr<double>         m_outerEndcapZ;                                                                    //!< maximal extend in z of the outer part of muon endcap
+      Gaudi::Property<double>        m_outerEndcapZProperty{this,"OuterEndcapZ",26046.};             //!< maximal extend in z of the outer part of muon endcap
       double                              m_bigWheel;                 //!< maximal extend in z of the big wheel
       double                              m_outerWheel;               //!< minimal extend in z of the outer wheel (EO)
       double                              m_ectZ;                     //!< minimal extent in z of the ECT
@@ -131,15 +135,19 @@ namespace Muon {
       Gaudi::Property<int>                m_innerEndcapEtaPartition{this,"EtaInnerEndcapPartitions",3};
       Gaudi::Property<int>                m_outerEndcapEtaPartition{this,"EtaOuterEndcapPartitions",3};
       Gaudi::Property<int>                m_phiPartition{this,"PhiPartitions",16};
-      mutable bool                        m_adjustStatic;
-      mutable bool                        m_static3d;
+
+      std::shared_ptr<bool>               m_adjustStatic;
+      Gaudi::Property<bool>              m_adjustStaticProperty{this,"AdjustStatic",true};
+      std::shared_ptr<bool>               m_static3d;
+      Gaudi::Property<bool>              m_static3dProperty{this,"StaticPartition3D",true};
+
       Gaudi::Property<bool>               m_blendInertMaterial{this,"BlendInertMaterial",false}; 
       Gaudi::Property<bool>               m_removeBlended{this,"RemoveBlendedMaterialObjects",false};
       mutable std::atomic_uint            m_inertPerm{0};                  // number of perm objects
-      mutable double                      m_alignTolerance;
+      Gaudi::Property<double>           m_alignTolerance{this,"AlignmentPositionTolerance",0.};
       Gaudi::Property<int>                m_colorCode{this,"ColorCode",0};
-      mutable int                         m_activeAdjustLevel;
-      mutable int                         m_inertAdjustLevel;
+      Gaudi::Property<int>                  m_activeAdjustLevel{this,"ActiveAdjustLevel",2};
+      Gaudi::Property<int>                  m_inertAdjustLevel{this,"InertAdjustLevel",1};
 
       mutable std::atomic_uint            m_frameNum{0};      
       mutable std::atomic_uint            m_frameStat{0};      
