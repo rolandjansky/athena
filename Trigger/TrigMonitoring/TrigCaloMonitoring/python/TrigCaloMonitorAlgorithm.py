@@ -399,7 +399,7 @@ def TrigCaloMonConfig(inputFlags):
 				path=path_names[i]+'/OFF_Matched_to_HLT',xbins=20,xmin=-5.0,xmax=5.0)
         TopoCaloClustersMonGroup[i].defineHistogram('OFF_with_HLT_match_phi,OFF_vs_HLT_resolution',title='HLT vs OFF Cluster < #DeltaE_{T} / E_{T} >; #phi_{_{ OFF}}; < E_{T_{OFF}} - E_{T_{HLT}} / E_{T_{OFF}} >', type='TProfile',
 				path=path_names[i]+'/OFF_Matched_to_HLT',xbins=16,xmin=-3.14153,xmax=3.14153)
-        TopoCaloClustersMonGroup[i].defineHistogram('OFF_with_HLT_match_eta,OFF_with_HLT_match_phi,HLT_vs_OFF_resolution',title='HLT vs OFF Cluster < #DeltaE_{T} / E_{T} >; #eta; #phi', type='TProfile2D',
+        TopoCaloClustersMonGroup[i].defineHistogram('OFF_with_HLT_match_eta,OFF_with_HLT_match_phi,OFF_vs_HLT_resolution',title='HLT vs OFF Cluster < #DeltaE_{T} / E_{T} >; #eta; #phi', type='TProfile2D',
 				path=path_names[i]+'/OFF_Matched_to_HLT',xbins=50,xmin=-5.0,xmax=5.0,ybins=64,ymin=-3.14153,ymax=3.14153)
 
         # Declare OFF histograms with HLT matches
