@@ -27,42 +27,27 @@ public:
   virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
 
  private:
-  SG::ReadHandleKey<xAOD::MissingETContainer> m_metTrackKey { this, "METTrack_AOD_Name", "MET_Track", "Name of MET Track container" };
-  SG::ReadHandleKey<xAOD::MissingETContainer> m_metAntiKtEMTopoKey { this, "METAntiKtEMTopo_AOD_Name", "MET_Reference_AntiKt4EMTopo", "Name of MET AntiKt EM Topo container" };
-  //  SG::ReadHandleKey<xAOD::MissingETContainer> m_metAntiKtEMTopoKey ;
+  SG::ReadHandleKey<xAOD::MissingETContainer> m_metContainerKey { this, "METContainer", "MET_Reference_AntiKt4EMTopo", "Name of MET  container" };
 
-SG::ReadHandleKey<xAOD::MissingETContainer> m_metCaloContainerKey{ this, "METCalo_AOD_Name", "MET_Calo", "Name of MET Calo container" };
+  Gaudi::Property<std::string> m_metTotalKey { this, "metTotalKey", "FinalTrk", "Subkey for total MET" };
 
-//   SG::ReadHandleKey<xAOD::JetContainer> m_jetContainerKey;
-   Gaudi::Property<std::string> m_jetContainerName {this,"JetContainerName","AntiKt4EMTopoJets","jet container name"};
+  SG::ReadHandleKey<xAOD::JetContainer> m_jetContainerKey {this,"JetContainerName","AntiKt4EMTopoJets","jet container name"};
 
 
-   const std::vector<std::string> m_calStrings {       "PEMB", "EMB", "PEME", "EME", "TILE", "HEC", "FCAL" };
+  Gaudi::Property<std::vector<std::string>> m_calStrings {this, "METCaloKeys", {}, "MET calo components to plot" };
 
-   //      std::vector<std::string> m_metKeys;   
-   std::string   m_metFinKey = "MET_RefFinal";   
-   std::string    m_metCalKey = "MET_LocHadTopo";   
-   std::string    m_metRegKey = "";   
-   std::string    m_jetColKey = "AntiKt4EMTopoJets";
-   std::string    m_eleColKey = "Electrons";    
-   std::string    m_muoColKey = "Muons";
 
-   //   Gaudi::Property<std::vector<std::string>> m_metKeys {this,"metKeys",{"MET_RefEle", "MET_RefGamma" }};
-   //      Gaudi::Property<std::vector<std::string>> m_metKeys {this,"metKeys",{"MET_RefEle", "MET_RefGamma" }, "explain this property"};
-   Gaudi::Property<std::vector<std::string>> m_metKeys {this,"metKeys",{ }, "explain this property"};
+   Gaudi::Property<std::vector<std::string>> m_metKeys {this,"metKeys",{ }, "MET components to plot"};
    
    Gaudi::Property<bool> m_alltrigger {this,"alltrigger",false};
    Gaudi::Property<bool> m_dometcut {this,"dometcut",false};
    Gaudi::Property<bool> m_doBadJets {this,"DoBadJets",false};
-   Gaudi::Property<double> m_metcut {this,"metcut",80.};
-   //   Gaudi::Property<std::vector<float>> m_cellEnergyUpperLimitsHG{this,         "CellEnergyUpperLimitsHG", {}, "Energy upper limits of the HG cell-time histograms"};
-   //   Gaudi::Property<std::vector<std::string>> m_metKeys{this,         "CellEnergyUpperLimitsHG", {}, "Energy upper limits of the HG cell-time histograms"};
+   Gaudi::Property<double> m_metcut {this,"metcut", 80.};
 
-   //    Gaudi::Property< std::string > m_metKeys {this,"metKeys","MET_RefFinal"};
-   Gaudi::Property<bool> m_doJetCleaning{this, "DoJetCleaning", false, ""};
+  Gaudi::Property<bool> m_doJetCleaning{this, "DoJetCleaning", false, ""};
    ToolHandle<IJetSelector> m_jetCleaningTool{this, "JetCleaningTool", "", ""};
    // bool isGoodEvent(const EventContext& ctx ) const;
-   bool isGoodEvent( ) const;
+   bool isGoodEvent( const EventContext& ctx ) const;
 
 };
 #endif

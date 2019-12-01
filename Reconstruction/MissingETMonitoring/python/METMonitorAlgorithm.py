@@ -20,7 +20,7 @@ def defineHistograms(monAlg, group,helper,histoNameSuffix=""):
         if kinesuffix == '_sumet':
             xmin = 0
             xmax = 5000  
-        group.defineHistogram(name,title=title,path='ToRuleThemAll',xbins=100,xmin=xmin,xmax=xmax)
+        group.defineHistogram(name,title=title,xbins=100,xmin=xmin,xmax=xmax)
 
 def defineHistogramsCalo(monAlg, group,helper,histoNameSuffix=""):
 #    name = histoNameSuffix + 'x'
@@ -42,7 +42,7 @@ def defineHistogramsCalo(monAlg, group,helper,histoNameSuffix=""):
         if kinesuffix == '_sumet':
             xmin = 0
             xmax = 5000  
-        group.defineHistogram(name,title=title,path='ToRuleThemAll',xbins=100,xmin=xmin,xmax=xmax)
+        group.defineHistogram(name,title=title,xbins=100,xmin=xmin,xmax=xmax)
 
 
 
@@ -62,10 +62,11 @@ def METMonitoringConfig(inputFlags):
 #    anotherExampleMonAlg = helper.addAlgorithm(METMonitoringExampleAlg,'AnotherExampleMonAlg')
 #    met_types = ["MET_RefEle", "MET_RefGamma"]
 #    met_types = ["MET_RefFinal"]
-    met_types = ["MET_RefFinal","MET_RefJet","MET_Muons","MET_RefEle","MET_RefGamma","MET_RefTau","MET_PVSoftTrk"]
+    met_types = ["MET_RefFinal","MET_RefJet","MET_Muon","MET_RefEle","MET_RefGamma","MET_RefTau","MET_PVSoftTrk"]
 #    met_types = ["MET_RefFinal","MET_RefJet","MET_PFlow_PVSoftTrk","MET_PFlow_RefJet","MET_Track"]
 #    exampleMonAlg.JetContainerName = "AntiKt4EMTopoJets"
 #    jet_types = ["AntiKt4EMTopoJets","AntiKt4EMPFlowJets","AntiKt4EMTopoJets"]
+    METRefFinal_MonAlg.METContainer="MET_Reference_AntiKt4EMTopo"
     METRefFinal_MonAlg.metKeys = met_types
     METRefFinal_MonAlg.alltrigger = True
     group = helper.addGroup(METRefFinal_MonAlg, "METMonitor", "MissingEt/AllTriggers/MET_AntiKt4EMTopo/")
@@ -75,7 +76,8 @@ def METMonitoringConfig(inputFlags):
 
 
     METPflow_MonAlg = helper.addAlgorithm(METMonitoringAlg,'METPflow_MonAlg')   
-    pfmet_types = ["MET_PFlow","MET_PFlow_RefJet","MET_Fflow_Muons","MET_PFlow_RefEle","MET_PFlow_RefGamma","MET_PFlow_RefTau","MET_PFlow_PVSoftTrk"]
+    pfmet_types = ["MET_PFlow","MET_PFlow_RefJet","MET_PFlow_Muon","MET_PFlow_RefEle","MET_PFlow_RefGamma","MET_PFlow_RefTau","MET_PFlow_PVSoftTrk"]
+    METPflow_MonAlg.METContainer="MET_Reference_AntiKt4EMPFlow"
     METPflow_MonAlg.metKeys = pfmet_types
     METPflow_MonAlg.alltrigger = True
 
@@ -87,6 +89,8 @@ def METMonitoringConfig(inputFlags):
 
     METCalo_MonAlg = helper.addAlgorithm(METMonitoringAlg,'METCalo_MonAlg')   
     metcalo_types = [ "PEMB", "EMB", "PEME", "EME", "TILE", "HEC", "FCAL" ]
+    METCalo_MonAlg.METContainer="MET_Calo"
+    METCalo_MonAlg.METCaloKeys = metcalo_types
     METCalo_MonAlg.alltrigger = True
 
     group = helper.addGroup(METCalo_MonAlg, "METMonitor", "MissingEt/AllTriggers/MET_Calo/")
@@ -94,16 +98,15 @@ def METMonitoringConfig(inputFlags):
         defineHistogramsCalo(METCalo_MonAlg, group,helper,mets)
 
     
-# return helper.result(),exampleMonAlg
-
-#    anotherExampleMonAlg = helper.addAlgorithm(exampleMonAlg,'AnotherExampleMonAlg')
-    anotherMonAlg = helper.addAlgorithm(METMonitoringAlg,'AnotherMonAlg')
-    anotherMonAlg.metKeys = met_types
-    anotherMonAlg.dometcut = True
-    anotherMonAlg.metcut = 80
-    anotherGroup = helper.addGroup(anotherMonAlg,"METMonitor","MissingEt/CutMet80/") 
+    METRefFinal_METCut_MonAlg = helper.addAlgorithm(METMonitoringAlg,'METRefFinal_METCut_MonAlg')
+    METRefFinal_METCut_MonAlg.METContainer="MET_Reference_AntiKt4EMTopo"
+    METRefFinal_METCut_MonAlg.metTotalKey="FinalTrk"
+    METRefFinal_METCut_MonAlg.metKeys = met_types
+    METRefFinal_METCut_MonAlg.dometcut = True
+    METRefFinal_METCut_MonAlg.metcut = 80
+    group = helper.addGroup(METRefFinal_METCut_MonAlg,"METMonitor","MissingEt/CutMet80/") 
     for mets in met_types:
-        defineHistograms(anotherMonAlg, anotherGroup,helper,mets)
+        defineHistograms(METRefFinal_METCut_MonAlg, group,helper,mets)
 
 # Jet cleaning
 
@@ -120,7 +123,6 @@ def METMonitoringConfig(inputFlags):
     JetCleaningGroup = helper.addGroup(JetCleaning_METMonAlg,"METMonitor","MissingEt/Jetcleaning/")
     JetCleaning_METMonAlg.JetContainerName = "AntiKt4EMTopoJets"
     for mets in met_types:
-        print mets 
         if mets == 'MET_PFlow_PVSoftTrk':
             JetCleaning_METMonAlg.JetContainerName = "AntiKt4EMPFlowJets"
         defineHistograms(JetCleaning_METMonAlg, JetCleaningGroup,helper,mets)

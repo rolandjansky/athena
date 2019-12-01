@@ -53,6 +53,11 @@ def AthenaMonitoringCfg(flags):
         from JetMonitoring.JetMonitoringStandard import standardJetMonitoring
         result.merge(standardJetMonitoring(flags))
 
+    if flags.DQ.Steering.doMissingEtMon:
+        info("Set up MET monitoring")
+        from MissingETMonitoring.METMonitorAlgorithm import METMonitoringConfig
+        result.merge(METMonitoringConfig(flags))
+
     if flags.DQ.Steering.doGlobalMon:
         info('Set up Global monitoring')
         from DataQualityTools.DataQualityToolsConfig import DataQualityToolsConfig
