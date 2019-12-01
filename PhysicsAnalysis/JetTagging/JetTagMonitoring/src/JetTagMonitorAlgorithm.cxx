@@ -40,7 +40,6 @@ JetTagMonitorAlgorithm::JetTagMonitorAlgorithm( const std::string& name, ISvcLoc
   , m_jetContainerKey("AntiKt4EMTopoJets")
   , m_muonContainerKey("Muons")
   , m_electronContainerKey("Electrons")
-  , m_trigDecTool("Trig::TrigDecisionTool/TrigDecisionTool")
    //add here other containers
 {
 
@@ -91,7 +90,6 @@ StatusCode JetTagMonitorAlgorithm::initialize() {
   ATH_CHECK(m_electronContainerKey.initialize());
 
   ATH_CHECK(m_vertContainerKey.initialize());
-  ATH_CHECK(m_EventInfoKey.initialize());
   ATH_CHECK(m_trackContainerKey.initialize());
 
   return AthMonitorAlgorithm::initialize();
@@ -235,20 +233,21 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
 
   //removed october
   bool useTriggerDecisionTool = true; //how to implement in r22 python script?
+  const auto& trigDecTool = getTrigDecisionTool();
 
-  if (useTriggerDecisionTool && m_trigDecTool != 0) { // only apply trigger selection if bool is true (false for express stream) and trigDecTool is ok
+  if (useTriggerDecisionTool && trigDecTool != 0) { // only apply trigger selection if bool is true (false for express stream) and trigDecTool is ok
 
     //ERROR for tool without explicit name
     //NEED TO:
     //find a way to put trigger name on python script (not hardcoded, by variable)
     //find a way to put wildcards * for 20-99 GeV electron and muon triggers
     
-    ATH_MSG_DEBUG("TrigDecTool: " << m_trigDecTool);
-    ATH_MSG_DEBUG("m_trigDecTool->isPassed(" << m_ElectronTrigger_201X << "): " << m_trigDecTool->isPassed(m_ElectronTrigger_201X));
-    ATH_MSG_DEBUG("m_trigDecTool->isPassed(" << m_MuonTrigger_201X << "): " << m_trigDecTool->isPassed(m_MuonTrigger_201X));
-    ATH_MSG_DEBUG("m_trigDecTool->isPassed(" << m_JetTrigger_201X << "): " << m_trigDecTool->isPassed(m_JetTrigger_201X));
+    ATH_MSG_DEBUG("TrigDecTool: " << trigDecTool);
+    ATH_MSG_DEBUG("trigDecTool->isPassed(" << m_ElectronTrigger_201X << "): " << trigDecTool->isPassed(m_ElectronTrigger_201X));
+    ATH_MSG_DEBUG("trigDecTool->isPassed(" << m_MuonTrigger_201X << "): " << trigDecTool->isPassed(m_MuonTrigger_201X));
+    ATH_MSG_DEBUG("trigDecTool->isPassed(" << m_JetTrigger_201X << "): " << trigDecTool->isPassed(m_JetTrigger_201X));
     
-    // auto chainGroup = m_trigDecTool->getChainGroup(".*");
+    // auto chainGroup = trigDecTool->getChainGroup(".*");
     // for (auto & trig : chainGroup->getListOfTriggers()) {
     //   ATH_MSG_DEBUG("Found trigger " << trig);
     // }
@@ -258,30 +257,30 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
     fill(tool,Trigger_CutFlow);
    
     // 201X menu triggers
-    if (m_trigDecTool->isPassed(m_ElectronTrigger_201X)) {
+    if (trigDecTool->isPassed(m_ElectronTrigger_201X)) {
       Trigger_CutFlow = 1;
       fill(tool,Trigger_CutFlow);
     }
-    if (m_trigDecTool->isPassed(m_MuonTrigger_201X)) {
+    if (trigDecTool->isPassed(m_MuonTrigger_201X)) {
       Trigger_CutFlow = 2;
       fill(tool,Trigger_CutFlow);
     }
-    if (m_trigDecTool->isPassed(m_ElectronTrigger_201X) || m_trigDecTool->isPassed(m_MuonTrigger_201X)){
+    if (trigDecTool->isPassed(m_ElectronTrigger_201X) || trigDecTool->isPassed(m_MuonTrigger_201X)){
       Trigger_CutFlow = 3;
       fill(tool,Trigger_CutFlow);
     }
-    if (m_trigDecTool->isPassed(m_ElectronTrigger_201X) && m_trigDecTool->isPassed(m_MuonTrigger_201X)){
+    if (trigDecTool->isPassed(m_ElectronTrigger_201X) && trigDecTool->isPassed(m_MuonTrigger_201X)){
       Trigger_CutFlow = 4;
       fill(tool,Trigger_CutFlow);
     }
-    if (m_trigDecTool->isPassed(m_JetTrigger_201X)){
+    if (trigDecTool->isPassed(m_JetTrigger_201X)){
       Trigger_CutFlow = 5;
       fill(tool,Trigger_CutFlow);
     }
 
     //IMPORTANT    
     // Require e/mu trigger to have unbiased sample of jets (and larger fraction of b-jets since many of these are ttbar events)
-    if (!m_trigDecTool->isPassed(m_ElectronTrigger_201X) && !m_trigDecTool->isPassed(m_MuonTrigger_201X)) // 201X menu triggers
+    if (!trigDecTool->isPassed(m_ElectronTrigger_201X) && !trigDecTool->isPassed(m_MuonTrigger_201X)) // 201X menu triggers
       return StatusCode::SUCCESS;
   }
   
