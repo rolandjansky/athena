@@ -171,6 +171,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_BtagWP(""),
     m_BtagTagger(""),
     m_BtagTimeStamp(""),
+    m_BtagKeyOverride(""),
     m_BtagSystStrategy(""),
     m_BtagWP_trkJet(""),
     m_BtagTagger_trkJet(""),
@@ -1343,6 +1344,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_BtagWP_trkJet, "BtagTrkJet.WP", rEnv, "FixedCutBEff_77");
   configFromFile(m_BtagTimeStamp_trkJet, "BtagTrkJet.TimeStamp", rEnv, "None");
   configFromFile(m_BtagMinPt_trkJet, "BtagTrkJet.MinPt", rEnv, 20e3);
+  configFromFile(m_BtagKeyOverride, "Btag.KeyOverride", rEnv, "");
   //
   configFromFile(m_orDoBoostedElectron, "OR.DoBoostedElectron", rEnv, true);
   configFromFile(m_orBoostedElectronC1, "OR.BoostedElectronC1", rEnv, -999.); // set to positive number to override default
