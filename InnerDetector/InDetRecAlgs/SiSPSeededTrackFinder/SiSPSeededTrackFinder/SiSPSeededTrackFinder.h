@@ -23,6 +23,12 @@
 #include "TrkSurfaces/PerigeeSurface.h" 
 #include "StoreGate/DataHandle.h"
 
+// For ROI conversion tracking
+#include "GaudiKernel/ServiceHandle.h"
+#include "IRegionSelector/IRegSelSvc.h"
+#include "TrkToolInterfaces/IPRD_AssociationTool.h"
+
+
 //class SpacePointContainer;
 namespace InDet {
 
@@ -73,6 +79,7 @@ namespace InDet {
       bool                           m_useZBoundaryFinding;
       bool                           m_ITKGeometry        ; // Is it ITK geometry
       bool                           m_useITKPPSseeds     ; // Use PPS seeds for ITK geometry
+      bool                           m_useConvSeeded      ;
       bool                           m_doFastTracking     ; // Use to enable the fastTracking strategy for ITk
       int                            m_outputlevel        ; // Print level for debug
       int                            m_nprint             ; // Kind of  print    
@@ -88,6 +95,7 @@ namespace InDet {
       int                            m_maxPIXsp           ; // Max. number pixels space points
       int                            m_maxSCTsp           ; // Max. number sct    space points
       int                            m_nfreeCut           ; // Min number free clusters
+      double                         m_ClusterE           ;
 
       SG::ReadHandle<SpacePointContainer> m_SpacePointsSCT  ;
       SG::ReadHandle<SpacePointContainer> m_SpacePointsPixel;
@@ -113,10 +121,14 @@ namespace InDet {
       double*                        m_phistogram;
 
       std::string                    m_beamconditions          ;
-      std::string                    m_fieldmode               ; 
+      std::string                    m_fieldmode               ;
+      std::string                   m_inputClusterContainerName;
       IBeamCondSvc*                                 m_beam     ;
       ToolHandle<Trk::IPatternParametersPropagator> m_proptool ;
       Trk::MagneticFieldProperties                  m_fieldprop;
+
+      ServiceHandle<IRegSelSvc>             m_regionSelector;
+      ToolHandle<Trk::IPRD_AssociationTool>       m_assoTool;
 
       ///////////////////////////////////////////////////////////////////
       // Protected methods
@@ -131,6 +143,7 @@ namespace InDet {
       StatusCode  oldStrategy();
       StatusCode  newStrategy();
       StatusCode  itkStrategy();
+      StatusCode  convStrategy();
       StatusCode  itkFastTrackingStrategy();
       void magneticFieldInit();
       bool Quality(const Trk::Track*,int,int);

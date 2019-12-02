@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <set>
@@ -10,6 +10,10 @@
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkPatternParameters/PatternTrackParameters.h"
 #include "CxxUtils/make_unique.h"
+
+#include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
+#include "RoiDescriptor/RoiDescriptor.h"
+
 ///////////////////////////////////////////////////////////////////
 // Constructor
 ///////////////////////////////////////////////////////////////////
@@ -22,6 +26,7 @@ InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
   m_useZBoundaryFinding(false)                                         ,
   m_ITKGeometry(false)                                                 ,
   m_useITKPPSseeds(false)                                              ,
+  m_useConvSeeded(false)                                               ,
   m_doFastTracking(false)                                              ,
   m_outputlevel(0)                                                     ,
   m_nprint(0)                                                          ,
@@ -31,6 +36,7 @@ InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
   m_maxPIXsp(150000)                                                   ,
   m_maxSCTsp(500000)                                                   ,
   m_nfreeCut(1)                                                        ,
+  m_ClusterE(15000)                                                    ,
   m_SpacePointsSCT("SCT_SpacePoints")                                  ,
   m_SpacePointsPixel("PixelSpacePoints")                               ,
   m_outputTracks("SiSPSeededTracks")                                   ,
@@ -39,7 +45,10 @@ InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
   m_trackmaker("InDet::SiTrackMaker_xk/InDetSiTrackMaker")             ,
   m_etaDependentCutsSvc("",name)                                          ,
   m_fieldmode("MapSolenoid")                                           ,
-  m_proptool("Trk::RungeKuttaPropagator/InDetPropagator")         
+  m_proptool("Trk::RungeKuttaPropagator/InDetPropagator")              ,
+  m_regionSelector("RegSelSvc", name)                                  ,
+  m_assoTool("InDet::InDetPRD_AssociationToolGangedPixels")
+
 {
   m_beamconditions         = "BeamCondSvc"     ;
   m_beam                   = 0                 ;
@@ -58,6 +67,8 @@ InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
   m_problemsTotal          = 0                 ; 
   m_problemsTotalV         = 0                 ; 
   m_zstep                  = 0                 ;
+  m_inputClusterContainerName = "InDetCaloClusterROIs";
+
 
   // SiSPSeededTrackFinder steering parameters
   //
@@ -77,14 +88,15 @@ InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
   declareProperty("useZBoundFinding"        ,m_useZBoundaryFinding );
   declareProperty("maxVertices"             ,m_nvertex             );
   declareProperty("PropagatorTool"          ,m_proptool            );
-  declareProperty("BeamConditionsService"   ,m_beamconditions     ); 
+  declareProperty("BeamConditionsService"   ,m_beamconditions      ); 
   declareProperty("HistSize"                ,m_histsize            );
   declareProperty("Zcut"                    ,m_zcut                );
   declareProperty("MagneticFieldMode"       ,m_fieldmode           );
   declareProperty("ITKGeometry"             ,m_ITKGeometry         );
   declareProperty("useITKPPSseeds"          ,m_useITKPPSseeds      );
+  declareProperty("useConvSeeded"           ,m_useConvSeeded       );
   declareProperty("doFastTracking"          ,m_doFastTracking      );
-  declareProperty("InDetEtaDependentCutsSvc",m_etaDependentCutsSvc);
+  declareProperty("InDetEtaDependentCutsSvc",m_etaDependentCutsSvc );
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -107,6 +119,11 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
   //
   ATH_CHECK(m_trackmaker.retrieve());
   
+  // Get region selector for conv seeded
+  //
+  if(m_useConvSeeded)
+    ATH_CHECK(m_regionSelector.retrieve());
+  
   // Get InDetDynamicCutsTool
   //
   if (m_ITKGeometry and m_doFastTracking) 
@@ -117,7 +134,7 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
     m_useZBoundaryFinding = false;
   }
 
-  if(m_useNewStrategy || m_useZBoundaryFinding || m_ITKGeometry) {
+  if(m_useNewStrategy || m_useZBoundaryFinding || m_ITKGeometry || m_useConvSeeded) {
 
     // Get beam condition service 
     // 
@@ -170,6 +187,7 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
 StatusCode InDet::SiSPSeededTrackFinder::execute() 
 { 
   if(m_ITKGeometry)                                    return itkStrategy();
+  else if(m_useConvSeeded                            ) return convStrategy();
   else if(!m_useNewStrategy && !m_useZBoundaryFinding) return oldStrategy();
   else                                                 return newStrategy();
 }
@@ -549,6 +567,108 @@ StatusCode InDet::SiSPSeededTrackFinder::itkFastTrackingStrategy()
   if(m_outputlevel<=0) {
     m_nprint=1; 
     msg(MSG::DEBUG)<<(*this)<<endmsg;
+  }
+  return StatusCode::SUCCESS;
+}
+
+
+
+///////////////////////////////////////////////////////////////////
+// Conversion Strategy for ITK
+///////////////////////////////////////////////////////////////////
+
+StatusCode InDet::SiSPSeededTrackFinder::convStrategy()
+{
+  m_outputTracks = CxxUtils::make_unique<TrackCollection>();
+
+  // For HI events we can use MBTS information from calorimeter
+  //
+  if(!isGoodEvent()) {
+    return StatusCode::SUCCESS;
+  }
+
+  std::multimap<double,Trk::Track*>    qualityTrack;
+  const InDet::SiSpacePointsSeed* seed = 0;
+
+  const CaloClusterROI_Collection* calo = 0;
+  StatusCode sc = evtStore()->retrieve(calo,m_inputClusterContainerName);
+  std::unique_ptr<RoiDescriptor> roiComp = std::make_unique<RoiDescriptor>(true);
+
+  if(sc == StatusCode::SUCCESS && calo) {
+    RoiDescriptor * roi =0;
+    double beamZ = m_beam->beamPos()[ Amg::z ];
+    roiComp->clear();
+    roiComp->setComposite();
+
+    for( auto& ccROI : *calo) {
+      if ( ccROI->energy() > m_ClusterE)  {
+        double eta = ccROI->globalPosition().eta();
+        double phi = ccROI->globalPosition().phi();
+        double z = beamZ;
+        double roiPhiMin = phi -.25;
+        double roiPhiMax = phi +.25;
+        double roiEtaMin = eta -.1;
+        double roiEtaMax = eta +.1;
+        double roiZMin = beamZ -300;
+        double roiZMax = beamZ +300;
+        roi = new RoiDescriptor( eta, roiEtaMin, roiEtaMax,phi, roiPhiMin ,roiPhiMax,z,roiZMin,roiZMax);
+        roiComp->push_back(roi);
+
+      }
+    }
+  }
+  else return StatusCode::SUCCESS;
+  std::vector<IdentifierHash> listOfSCTIds;
+  std::vector<IdentifierHash> listOfPixIds;
+
+  m_regionSelector->DetHashIDList(SCT, *roiComp, listOfSCTIds );
+
+  // Test is sct clusters collection for given event
+  bool PIX = true ;
+  bool SCT = true ;
+  bool ERR = false;
+
+  m_trackmaker->newEvent(PIX,SCT);
+
+  m_nseeds  = 0;
+  m_ntracks = 0;
+  std::list<Trk::Vertex> VZ;
+
+  m_seedsmaker->newRegion(listOfPixIds,listOfSCTIds); m_seedsmaker->find3Sp(VZ);
+
+  while((seed = m_seedsmaker->next())) {
+    ++m_nseeds;
+    const std::list<Trk::Track*>& T = m_trackmaker->getTracks(seed->spacePoints());
+    for(std::list<Trk::Track*>::const_iterator t=T.begin(); t!=T.end(); ++t) {
+      qualityTrack.insert(std::make_pair(-trackQuality((*t)),(*t)));
+
+    }
+    if( m_nseeds >= m_maxNumberSeeds) {
+      ERR = true; ++m_problemsTotal;  break;
+    }
+  }
+
+  m_trackmaker->endEvent();
+
+  // Remove shared tracks with worse quality
+  //
+  filterSharedTracks(qualityTrack);
+
+  // Save good tracks in track collection
+  //
+  std::multimap<double,Trk::Track*>::iterator
+    q = qualityTrack.begin(), qe =qualityTrack.end();
+
+  for(; q!=qe; ++q) {++m_ntracks; m_outputTracks->push_back((*q).second);}
+
+  m_nseedsTotal += m_nseeds ;
+
+  ++m_neventsTotal;
+  if(ERR) {m_outputTracks->clear();}
+  else    {m_ntracksTotal+=m_ntracks;                            }
+
+  if(m_outputlevel<=0) {
+    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
   return StatusCode::SUCCESS;
 }
@@ -994,5 +1114,3 @@ bool InDet::SiSPSeededTrackFinder::Quality(const Trk::Track* Tr,int Nc,int Nf)
   if(fabs(par->localPosition()[0]) > m_etaDependentCutsSvc->getMaxPrimaryImpactAtEta(eta)) return false;
   return true;
 }
-
-
