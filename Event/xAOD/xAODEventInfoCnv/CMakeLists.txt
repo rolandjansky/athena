@@ -45,3 +45,32 @@ atlas_install_headers( xAODEventInfoCnv )
 atlas_install_python_modules( python/*.py
                               POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
+
+# Setup and run tests
+atlas_add_test( EvenInfoCnvConfigTest
+                SCRIPT test/EventInfoCnv_test.py
+                PROPERTIES TIMEOUT 300 )
+
+atlas_add_test( EvenInfoCnvConfigTestMT
+                SCRIPT test/EventInfoCnv_test.py -n 25 -t 3
+                PROPERTIES TIMEOUT 300 )
+
+atlas_add_test( EventInfoOverlayConfigTest
+                SCRIPT test/EventInfoOverlay_test.py
+                PROPERTIES TIMEOUT 300 )
+
+atlas_add_test( EventInfoOverlayConfigTestMT
+                SCRIPT test/EventInfoOverlay_test.py -n 25 -t 3
+                PROPERTIES TIMEOUT 300 )
+
+atlas_add_test( EventInfoOverlayLegacyConfigTest
+                SCRIPT test/EventInfoOverlayLegacy_test.py
+                PROPERTIES TIMEOUT 300 )
+
+atlas_add_test( EventInfoOverlayTest
+                SCRIPT athena.py xAODEventInfoCnv/EventInfoOverlayTest.py
+                PROPERTIES TIMEOUT 300 )
+
+atlas_add_test( EventInfoOverlayLegacyTest
+                SCRIPT athena.py xAODEventInfoCnv/EventInfoOverlayLegacyTest.py
+                PROPERTIES TIMEOUT 300 )

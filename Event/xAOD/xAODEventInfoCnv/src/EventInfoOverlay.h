@@ -18,6 +18,8 @@
 #include <AthenaBaseComps/AthReentrantAlgorithm.h>
 #include <xAODEventInfo/EventInfo.h>
 
+namespace xAODMaker
+{
 
 class EventInfoOverlay : public AthReentrantAlgorithm
 {
@@ -34,5 +36,7 @@ private:
 
   Gaudi::Property<bool> m_dataOverlay{ this, "DataOverlay", false, "True if running data overlay" };
 };
+
+} // namespace xAODMaker
 
 #endif

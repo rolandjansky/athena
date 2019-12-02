@@ -12,4 +12,4 @@ def getEventInfoOverlay(name="EventInfoOverlay", **kwargs):
 
     kwargs.setdefault("DataOverlay", overlayFlags.isDataOverlay())
 
-    return CfgMgr.EventInfoOverlay(name, **kwargs)
+    return CfgMgr.xAODMaker__EventInfoOverlay(name, **kwargs)
