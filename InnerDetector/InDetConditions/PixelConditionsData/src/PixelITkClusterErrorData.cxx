@@ -21,77 +21,30 @@ void PixelITkClusterErrorData::initialize(){
 }
 
 
-std::vector< std::tuple<double,double,double> > PixelITkClusterErrorData::getITkAC_angleVec( std::tuple<int,int,int> linekeys ) const{
 
-  if(m_constmap.find(linekeys) == m_constmap.end()){
-    // element linekeys does not exist in m_constmap
-    // so return an empty vector ready to be filled
-    std::vector< std::tuple<double,double,double> > toreturn = {};
-    return toreturn;
-  }
-  else{
-    // else return the existing vector
-    return m_constmap.at(linekeys);
-  }
-
-}
-
-
-std::tuple<double,double,double> PixelITkClusterErrorData::getITkAC_closestAngle(int xy, int itkregion, int layer, double angle) const{
-  
+double PixelITkClusterErrorData::getITkDelta(int xy, int itkregion, int layer) const{
   std::tuple<int,int,int> linekeys = std::make_tuple(xy,itkregion,layer);
-  std::vector< std::tuple<double,double,double> > anglevec = getITkAC_angleVec(linekeys);
-  
-  double angdiff = 999;
-  std::tuple<double,double,double> mytuple = std::make_tuple(0,0,0);
-  
-  // TO DO - write a faster sorting / search algorithm
-  for( auto& tupl : anglevec){
-    double angle_from_vec = std::get<0>(tupl);
-    double anglediff_i = std::abs(angle_from_vec-angle);
-    if( anglediff_i > angdiff ){
-      // the break here will only happen if we have found the minimum angdiff,
-      // and have passed it
-      // (ie. anglediff_i is now growing larger again as we run through the vector)
-      // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-      // !!! This requires that the angle bin centres are ordered in the input text file !!!
-      // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-      break;
-    }
-    else if( anglediff_i < angdiff ){
-      angdiff = anglediff_i;
-      mytuple = tupl;
-    }
-  }
-  
-  return mytuple;
-  
+  std::tuple<double,double> mytuple = m_constmap.at(linekeys);
+  return std::get<0>(mytuple);
 }
 
 
-double PixelITkClusterErrorData::getITkDelta(int xy, int itkregion, int layer, double angle) const{
-  std::tuple<double,double,double> mytuple = getITkAC_closestAngle(xy, itkregion, layer, angle); 
+double PixelITkClusterErrorData::getITkDeltaError(int xy, int itkregion, int layer) const{
+  std::tuple<int,int,int> linekeys = std::make_tuple(xy,itkregion,layer);
+  std::tuple<double,double> mytuple = m_constmap.at(linekeys);
   return std::get<1>(mytuple);
-}
-
-
-double PixelITkClusterErrorData::getITkDeltaError(int xy, int itkregion, int layer, double angle) const{
-  std::tuple<double,double,double> mytuple = getITkAC_closestAngle(xy, itkregion, layer, angle); 
-  return std::get<2>(mytuple);
 }
 
 
 
 // SET METHODS
 
-void PixelITkClusterErrorData::setITkAngleDeltaError(int xy, int itkregion, int layer, double angle, double delta, double error){
+void PixelITkClusterErrorData::setITkDeltaError(int xy, int itkregion, int layer, double delta, double error){
 
   //Add new angle, delta, error values to existing ones
   std::tuple<int,int,int> linekeys = std::make_tuple(xy,itkregion,layer);
-  std::tuple<double,double,double> linevalues = std::make_tuple(angle,delta,error);
-  std::vector< std::tuple<double,double,double> > anglevec = getITkAC_angleVec(linekeys);
-  anglevec.push_back( linevalues );  
-  m_constmap[linekeys] = anglevec;
+  std::tuple<double,double> linevalues = std::make_tuple(delta,error);
+  m_constmap[linekeys] = linevalues;
   return;
 
 }
@@ -121,7 +74,7 @@ void PixelITkClusterErrorData::load(std::string file){
        
     //
     // Data in the file is stored in the following columns:
-    // local_x_or_y : pixel_region : pixel_layer : incident_angle_bin_centre (in Radians, between -pi/2 and pi/2) : delta : delta_error
+    // local_x_or_y : pixel_region : pixel_layer : delta : delta_error
     //
     // so for example:
     // eta barrel 0 -1.16667 -0.0604302 0.00706271
@@ -129,7 +82,6 @@ void PixelITkClusterErrorData::load(std::string file){
     // local_x_or_y = eta
     // pixel_region = barrel
     // pixel_layer = 0
-    // incident_angle_bin_centre = -1.16667
     // delta = -0.0604302
     // delta_error = 0.00706271
     //
@@ -140,12 +92,6 @@ void PixelITkClusterErrorData::load(std::string file){
     //
 
 
-    // The incident angle has been replaced by an integer encoding for
-    // 1 = single pixel => no correction
-    // 2 = several pixels => non-zero correction
-    // Some non-trivial gymnastics is performed to still use the previous implementation but it would benefit from some cleaning
-    // TO BE DONE
-
     
     std::string line;
     std::string var;
@@ -153,7 +99,6 @@ void PixelITkClusterErrorData::load(std::string file){
     int local_x_or_y;
     int pixel_region;
     int pixel_layer;
-    double incident_angle_bin_centre;
     double delta;
     double delta_error;
     
@@ -193,18 +138,14 @@ void PixelITkClusterErrorData::load(std::string file){
       line = line.substr(line.find(" ")+1,line.size());
       
       var = line.substr(0,line.find(" "));
-      incident_angle_bin_centre = std::stod(var);
-      line = line.substr(line.find(" ")+1,line.size());
-  
-      var = line.substr(0,line.find(" "));
       delta = std::stod(var);
       line = line.substr(line.find(" ")+1,line.size());
       
       var = line.substr(0,line.find(" "));
       delta_error = std::stod(var);
         
-      setITkAngleDeltaError(local_x_or_y,pixel_region,pixel_layer,
-			    incident_angle_bin_centre,delta,delta_error);
+      setITkDeltaError(local_x_or_y,pixel_region,pixel_layer,
+		       delta,delta_error);
       
     }
     
