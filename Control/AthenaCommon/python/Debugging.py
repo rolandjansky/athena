@@ -8,6 +8,7 @@
 ###############################################################
 
 from __future__ import print_function
+import six
 
 __doc__ = """py-module to hold a few tools and utilities to help debugging
 configurables and/or Athena application.
@@ -42,6 +43,9 @@ def hookStrace(out=None):
     """
     import os
     if out is None: out = 'athena.strace.log.%i' % os.getpid()
+    if six.PY3:
+        import io
+        file = io.IOBase
     if isinstance(out, file):
         out = out.name
     elif not isinstance(out,str):
