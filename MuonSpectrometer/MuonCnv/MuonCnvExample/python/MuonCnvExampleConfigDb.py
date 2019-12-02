@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from AthenaCommon.CfgGetter import addTool, addToolClone, addService, addAlgorithm
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaCommon.CfgGetter import addTool, addService, addAlgorithm
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 ################################################################################
 # Standard BS algorithms
@@ -18,7 +18,7 @@ addTool( "MuonCnvExample.MuonReadBSConfig.TgcROD_Decoder",         "TgcROD_Decod
 addTool( "MuonCnvExample.MuonReadBSConfig.TgcRawDataProviderTool", "TgcRawDataProviderTool" )
 addAlgorithm("Muon::TgcRawDataProvider",                           "MuonTgcRawDataProvider" )
 
-if ConfigFlags.Detector.GeometryCSC:
+if MuonGeometryFlags.hasCSC():
     addTool( "MuonCnvExample.MuonReadBSConfig.CscROD_Decoder",         "CscROD_Decoder" )
     addTool( "MuonCnvExample.MuonReadBSConfig.CscRawDataProviderTool", "CscRawDataProviderTool" )
     addAlgorithm("Muon::CscRawDataProvider",                           "MuonCscRawDataProvider" )
@@ -27,7 +27,7 @@ if ConfigFlags.Detector.GeometryCSC:
 ################################################################################
 # Tools/algorithms/services from MuonCnvExample.MuonCalibConfig
 ################################################################################
-if ConfigFlags.Detector.GeometryCSC:
+if MuonGeometryFlags.hasCSC():
     addTool( "MuonCnvExample.MuonCalibConfig.CscCalibTool", "CscCalibTool")
     addTool( "MuonCnvExample.MuonCalibConfig.MdtCalibDbTool", "MdtCalibDbTool")
 addService( "MuonCnvExample.MuonCalibConfig.MdtCalibrationDbSvc", "MdtCalibrationDbSvc")
@@ -37,7 +37,7 @@ addService( "MuonCnvExample.MuonCalibConfig.MdtCalibrationSvc", "MdtCalibrationS
 ################################################################################
 # Tools/algorithms/services from MuonCnvExample.MuonCnvConfig
 ################################################################################
-if ConfigFlags.Detector.GeometryCSC:
+if MuonGeometryFlags.hasCSC():
     addTool( "MuonCnvExample.MuonCnvConfig.CscDigitToCscRDOTool", "CscDigitToCscRDOTool" )
     addTool( "MuonCnvExample.MuonCnvConfig.CscDigitToCscRDOTool2", "CscDigitToCscRDOTool2" )
     addTool( "MuonCnvExample.MuonCnvConfig.CscDigitToCscRDOTool4", "CscDigitToCscRDOTool4" )

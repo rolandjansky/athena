@@ -87,7 +87,7 @@ StatusCode TrigL2MuonSA::CscDataPreparator::initialize()
    ATH_MSG_DEBUG("Retrieved service " << m_regionSelector.name());
    
 
-   ATH_CHECK(m_cscPrepContainerKey.initialize());
+   ATH_CHECK(m_cscPrepContainerKey.initialize(!m_cscPrepContainerKey.empty()));
 
    // 
    return StatusCode::SUCCESS; 
@@ -162,7 +162,7 @@ StatusCode TrigL2MuonSA::CscDataPreparator::prepareData(const TrigRoiDescriptor*
   cscHits.clear();
 
   // Get CSC container
-  if( !m_doDecoding || to_full_decode || !cscHashIDs.empty() ){
+  if(!m_cscPrepContainerKey.empty() &&(!m_doDecoding || to_full_decode || !cscHashIDs.empty() )){
     auto cscPrepContainerHandle = SG::makeHandle(m_cscPrepContainerKey);
     const CscPrepDataContainer* cscPrepContainer = cscPrepContainerHandle.cptr();
     if (!cscPrepContainerHandle.isValid()) {
