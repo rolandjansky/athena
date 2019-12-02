@@ -40,7 +40,8 @@ xbinsem  = [    3,    3,  13,  13,  13,   20,     3,     3]
 xminsem  = [  0.5,  0.5,-6.5,-6.5,-6.5,  -10,   0.5,   0.5]
 xbinstotz= [    3,    3,  13,  13,  13,   20,     3,     3]
 xminstotz= [ -0.5, -0.5,-0.5,-0.5,-0.5, -0.5,  -0.5,  -0.5]
-
+ztotbinsy= [   20,   20,  20,  20,  20,   20,    20,    20]
+ztotminsy= [ 19.5, 19.5, 7.5,19.5,19.5, -0.5,  -0.5,  -0.5]
 
 pp0layers= ["ECA","ECC","B0","B1","B2","IBLA","IBLC"]
 pp0xbins = [   24,   24,  22,  38,  52,   14,     14]
@@ -49,6 +50,7 @@ lumitext  = ";lumi block"
 lumibinsx = 3000
 
 bcidbinsx = 3600
+
 #labels
 LayersDisk = ["Disk 1", "Disk 2", "Disk 3"] #x EC
 #xBarrel
@@ -248,9 +250,9 @@ def define1DProfLumiLayers(helper, alg, name, title, path, yaxistext, type='TPro
                                     type=type, path=path, title=fulltitle,
                                     xbins=lumibinsx, xmin=-0.5, xmax=-0.5+lumibinsx)
 
-def defineMapVsLumiLayers(helper, alg, name, title, path, ybins, ymin, ymax, yaxistext, type='TH2F'):
+def defineMapVsLumiLayers(helper, alg, name, title, path, xaxistext, yaxistext, ybins, ymins, binsizes=[1.0], type='TH2F', histname=None):
     '''
-    This function configures 1D (Profile) vs lumi histograms for Pixel layers.
+    This function configures 2D histograms vs lumi for Pixel layers.
 
     Arguments:
          helper  -- AthMonitorCfgHelper(Old) instance
@@ -261,20 +263,27 @@ def defineMapVsLumiLayers(helper, alg, name, title, path, ybins, ymin, ymax, yax
          ybins, ymin, ymax, yaxistext
                  -- Configure Y-axis
          type    -- Type of TH2 histogram (TH2I, TH2F)
+         histname-- alternative root name of the histogram (to be filled with the same variables defined by 'name' above)  
     '''
 
-    for layer in layers:
-        groupname   = name  + '_{0}'.format(layer)
+    if histname is None:
+        histname = name
+    for idx,layer in enumerate(layers):
         fulltitle   = title + ' {0}'.format(layer) + runtext + lumitext + yaxistext
-        layerGroup = helper.addGroup(alg, groupname)
+        layerGroup = getLayerGroup(helper, alg, layer)
         fullvarstring = '{0}_{1}'.format(name,'lb')
-        fullvarstring += ',{0}_{1}'.format(name, 'yval')
-        fullvarstring += ';' + groupname
-        layerGroup.defineHistogram(fullvarstring, 
-                                    type=type, path=path, title=fulltitle,
-                                    xbins=lumibinsx, xmin=-0.5, xmax=-0.5+lumibinsx,
-                                    ybins=ybins, ymin=ymin, ymax=ymax)
-
+        fullvarstring += ',{0}_{1}'.format(name, 'val')
+        fullvarstring += ';' + histname  + '_{0}'.format(layer)
+        if ( len(ybins)==1 and len(ymins)==1 and len(binsizes)==1):
+            layerGroup.defineHistogram(fullvarstring, 
+                                       type=type, path=path, title=fulltitle,
+                                       xbins=lumibinsx, xmin=-0.5, xmax=-0.5+lumibinsx,
+                                       ybins=ybins[0], ymin=ymins[0], ymax=ymins[0]+binsizes[0]*ybins[0])
+        elif (len(ybins)==len(layers) and len(ymins)==len(layers) and len(binsizes)==len(layers)):
+            layerGroup.defineHistogram(fullvarstring, 
+                                       type=type, path=path, title=fulltitle,
+                                       xbins=lumibinsx, xmin=-0.5, xmax=-0.5+lumibinsx,
+                                       ybins=ybins[idx], ymin=ymins[idx], ymax=ymins[idx]+binsizes[idx]*ybins[idx]
 
 
 def define1DLayers(helper, alg, name, title, path, xaxistext, yaxistext, xbins, xmins, binsizes=[1.0], type='TH1F', histname=None):
@@ -284,13 +293,13 @@ def define1DLayers(helper, alg, name, title, path, xaxistext, yaxistext, xbins, 
     Arguments:
          helper     -- AthMonitorCfgHelper(Old) instance
          alg        -- algorithm Configurable object returned from addAlgorithm
-         name       -- Name of histogram (Name = name+'_'+layer)
+         name       -- Root name of variables and histogram (Name = name+'_'+layer)
          title      -- Title of histogram (Title = title +' '+layer)
          path       -- Path in ouput file for histogram
          xaxistext  -- X-axis title
          yaxistext  -- Y-axis title
          type       -- Type of histogram
-         *name*     -- name of the variable to fill (_common_ to all layers)  
+         histname   -- alternative root name of the histogram (to be filled with the same variables defined by 'name' above)  
     '''
 
     if histname is None:

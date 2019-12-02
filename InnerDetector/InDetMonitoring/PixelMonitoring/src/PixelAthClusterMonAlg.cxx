@@ -303,6 +303,8 @@ StatusCode PixelAthClusterMonAlg::fillHistograms( const EventContext& ctx ) cons
 
   ATH_MSG_DEBUG("Filling Cluster Monitoring Histograms");
 
+  auto clToTcosAlphaLB = Monitored::Scalar<float>( "Cluster_ToTxCosAlpha_OnTrack_lb", lb);
+
   VecAccumulator2DMap Cluster_LVL1A_Mod("Cluster_LVL1A_Mod");
   VecAccumulator2DMap Cluster_LVL1A_SizeCut("Cluster_LVL1A_SizeCut");
   VecAccumulator2DMap Cluster_LVL1A_Mod_OnTrack("Cluster_LVL1A_Mod_OnTrack");
@@ -436,6 +438,8 @@ StatusCode PixelAthClusterMonAlg::fillHistograms( const EventContext& ctx ) cons
 	if (!m_doOnline) {
 	  auto clQcosAlpha   = Monitored::Scalar<float>( "Cluster_QxCosAlpha_OnTrack_val", cluster.totalCharge() * cosalpha);
 	  fill( pixLayersLabel[pixlayer], clQcosAlpha);
+	} else {
+	  fill( pixLayersLabel[pixlayer], clToTcosAlphaLB, clToTcosAlpha);
 	}
 	// 
 	// end cluster ToT and charge   
