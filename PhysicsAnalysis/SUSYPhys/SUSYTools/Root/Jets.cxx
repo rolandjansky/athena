@@ -69,10 +69,13 @@ namespace ST {
     }
 
     // Need a timestamped key to copy btagging links
-    bool jetkeyhastimestamp = jetkey_tmp.find("_BTagging")!=std::string::npos;
-    if (jetkeyhastimestamp) { jetkey_tmp = jetkey_tmp.substr(0, jetkey_tmp.find("_BTagging")); jetkeyhastimestamp=false; }      // jetkey = untimestamped
-    std::string jetkey_btag = (m_BtagTimeStamp.empty()) ? jetkey_tmp : jetkey_tmp+"_BTagging"+m_BtagTimeStamp;                  // jetkey_btag = timestamped if necessary
-    ATH_MSG_DEBUG("Central timestamp: m_BtagTimeStamp = " << m_BtagTimeStamp);
+    std::string jetkey_btag = m_BtagKeyOverride;
+    if (m_BtagKeyOverride==""){
+      bool jetkeyhastimestamp = jetkey_tmp.find("_BTagging")!=std::string::npos;
+      if (jetkeyhastimestamp) { jetkey_tmp = jetkey_tmp.substr(0, jetkey_tmp.find("_BTagging")); jetkeyhastimestamp=false; }      // jetkey = untimestamped
+      jetkey_btag = (m_BtagTimeStamp.empty()) ? jetkey_tmp : jetkey_tmp+"_BTagging"+m_BtagTimeStamp;                  // jetkey_btag = timestamped if necessary
+      ATH_MSG_DEBUG("Central timestamp: m_BtagTimeStamp = " << m_BtagTimeStamp);
+    }
     ATH_MSG_DEBUG("Key for retrieving jet collection:        jetkey      = " << jetkey_tmp);
     ATH_MSG_DEBUG("Key for retrieving jet collection (bjet): jetkey_btag = " << jetkey_btag);
 
@@ -102,7 +105,8 @@ namespace ST {
     }
     // Update the jets
     for (const auto& jet : *copy) {
-      ATH_CHECK( this->FillJet(*jet, true) );
+      // Note that for PHYSLITE jets we don't need the nominal calibration
+      ATH_CHECK( this->FillJet(*jet, jetkey!="AnalysisJets_NOSYS") );
     }
     // Tool requires a loop over all jets
     if (m_doFwdJVT || m_treatPUJets){
