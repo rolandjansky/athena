@@ -283,7 +283,7 @@ def defineMapVsLumiLayers(helper, alg, name, title, path, xaxistext, yaxistext, 
             layerGroup.defineHistogram(fullvarstring, 
                                        type=type, path=path, title=fulltitle,
                                        xbins=lumibinsx, xmin=-0.5, xmax=-0.5+lumibinsx,
-                                       ybins=ybins[idx], ymin=ymins[idx], ymax=ymins[idx]+binsizes[idx]*ybins[idx]
+                                       ybins=ybins[idx], ymin=ymins[idx], ymax=ymins[idx]+binsizes[idx]*ybins[idx])
 
 
 def define1DLayers(helper, alg, name, title, path, xaxistext, yaxistext, xbins, xmins, binsizes=[1.0], type='TH1F', histname=None):
