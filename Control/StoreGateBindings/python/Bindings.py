@@ -65,6 +65,7 @@ def _setup():
     # add specialized contains method
     def contains( self, klass_or_clid, key ):
         print ("---- StoreGateSvc.contains() ",  klass_or_clid, key)
+        from builtins import int
         if isinstance(klass_or_clid, str):
             try:
                 clid = int(klass_or_clid)
@@ -72,7 +73,7 @@ def _setup():
             except ValueError:
                 klass = str(klass_or_clid)
                 pass
-        elif isinstance(klass_or_clid, (int, long)):
+        elif isinstance(klass_or_clid, int):
             klass = self._pyclidsvc.typename(klass_or_clid)
         elif isinstance(klass_or_clid, type):
             klass = klass_or_clid.__name__

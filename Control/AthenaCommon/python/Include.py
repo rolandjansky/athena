@@ -154,7 +154,8 @@ class Include( object ):
          _filecache[ name ] = open( name, 'r' ).readlines()
          _linecache[ name ] = 0, self.fid
          self.fid += 1
-  
+
+         from past.builtins import execfile
          sys.settrace( self._trace_include )
          execfile( name, self._workspace, self._workspace )
          sys.settrace( sys._getframe(0).f_trace )

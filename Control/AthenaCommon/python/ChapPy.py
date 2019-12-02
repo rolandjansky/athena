@@ -23,6 +23,7 @@ import os
 import subprocess
 import time
 import types
+import six
 from past.builtins import basestring
 
 def dump( buf, stdout = sys.stdout ):
@@ -32,6 +33,9 @@ def dump( buf, stdout = sys.stdout ):
     fname = None
     if isinstance(buf, str):
         fname = buf
+    if six.PY3:
+        import io
+        file = io.IOBase
     if isinstance(buf, file):
         fname = buf.name
     with open(fname, 'r') as fd:

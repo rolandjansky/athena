@@ -24,7 +24,6 @@
 #include "StorageSvc/DbReflex.h"
 #include "StorageSvc/DbColumn.h"
 #include "StorageSvc/DbTypeInfo.h"
-#include "StorageSvc/DbInstanceCount.h"
 #include "StorageSvc/IOODatabase.h"
 #include "StorageSvc/IDbDatabase.h"
 #include "StorageSvc/IDbContainer.h"
@@ -53,7 +52,6 @@ DbDatabaseObj::DbDatabaseObj( const DbDomain& dom,
   m_info(0), m_string_t(0), m_fileAge(0)
 {
   DbPrint log( m_dom.name() );
-  DbInstanceCount::increment(this);
   m_logon = pfn;
   std::unique_ptr<DbToken> tok(new DbToken());
   tok->setTechnology(dom.type().type());
@@ -102,7 +100,6 @@ DbDatabaseObj::DbDatabaseObj( const DbDomain& dom,
 
 // Standard Destructor
 DbDatabaseObj::~DbDatabaseObj()  {
-  DbInstanceCount::decrement(this);
   clearEntries();
   cleanup();
   if( m_string_t ) {
