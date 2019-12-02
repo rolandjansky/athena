@@ -85,7 +85,6 @@ from OverlayCommonAlgs.OverlayFlags import overlayFlags
 if overlayFlags.processLegacyEventInfo() and not hasattr(job, "xAODMaker::EventInfoCnvAlg"):
     from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
     alg = xAODMaker__EventInfoCnvAlg("EventInfoCnvAlg")
-    alg.DoBeginRun = False
     alg.AODKey = overlayFlags.sigPrefix() + 'McEventInfo'
     alg.xAODKey = overlayFlags.sigPrefix() + 'EventInfo'
     job += alg
