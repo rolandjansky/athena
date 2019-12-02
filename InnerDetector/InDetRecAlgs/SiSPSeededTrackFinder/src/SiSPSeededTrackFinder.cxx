@@ -88,7 +88,7 @@ InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
   declareProperty("useZBoundFinding"        ,m_useZBoundaryFinding );
   declareProperty("maxVertices"             ,m_nvertex             );
   declareProperty("PropagatorTool"          ,m_proptool            );
-  declareProperty("BeamConditionsService"   ,m_beamconditions     ); 
+  declareProperty("BeamConditionsService"   ,m_beamconditions      ); 
   declareProperty("HistSize"                ,m_histsize            );
   declareProperty("Zcut"                    ,m_zcut                );
   declareProperty("MagneticFieldMode"       ,m_fieldmode           );
