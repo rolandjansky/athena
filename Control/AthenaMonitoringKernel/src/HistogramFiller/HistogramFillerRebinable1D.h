@@ -24,6 +24,10 @@ namespace Monitored {
       }
     }
 
+    virtual HistogramFillerRebinable1D* clone() override {
+      return new HistogramFillerRebinable1D( *this );
+    }
+
     virtual unsigned fill() override {
       if (m_monVariables.size() != 1) { return 0; }
       {
