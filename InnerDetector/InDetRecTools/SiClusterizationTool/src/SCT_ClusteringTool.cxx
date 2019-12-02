@@ -133,7 +133,7 @@ namespace InDet {
       m_conditionsTool.disable();
     }
     
-    if (m_doNewClustering and not m_lorentzAngleTool.empty()) {
+    if (m_doFastClustering and not m_lorentzAngleTool.empty()) {
       ATH_CHECK(m_lorentzAngleTool.retrieve());
     } else {
       m_lorentzAngleTool.disable();
@@ -304,7 +304,7 @@ namespace InDet {
   {
     ATH_MSG_VERBOSE ("SCT_ClusteringTool::clusterize()");
 
-    if (m_doNewClustering) return clusterizeNew(collection, idHelper);
+    if (m_doFastClustering) return fastClusterize(collection, idHelper);
 
     SCT_ClusterCollection* nullResult(nullptr);
     if (collection.empty()) {
@@ -484,7 +484,7 @@ namespace InDet {
     return clusterCollection;
   }
 
-  SCT_ClusterCollection* SCT_ClusteringTool::clusterizeNew(const InDetRawDataCollection<SCT_RDORawData>& collection,
+  SCT_ClusterCollection* SCT_ClusteringTool::fastClusterize(const InDetRawDataCollection<SCT_RDORawData>& collection,
                                                             const SCT_ID& idHelper) const
   {
     if (collection.empty()) return nullptr;
@@ -628,10 +628,10 @@ namespace InDet {
     // when this is the case here, and set hitsInThirdTimeBin to zero later on
     //
     double iphipitch  = 1./element->phiPitch();
-    double shift = m_lorentzAngleTool->getLorentzShift(element->identifyHash());
+    double shift = m_lorentzAngleTool->getLorentzShift(idHash);
     double stripPitch = design->stripPitch();
     bool badStripInClusterOnThisModuleSide = (idGroups.size() != tbinGroups.size());
-    bool rotate = element->design().shape() == InDetDD::Trapezoid || element->design().shape() == InDetDD::Annulus;
+    bool rotate = (element->design().shape() == InDetDD::Trapezoid || element->design().shape() == InDetDD::Annulus);
     double stripL = 0.;
     double COV11 = 0.;
 
@@ -736,7 +736,7 @@ namespace InDet {
     const InDetDD::SiLocalPosition firstStripPos(pElement->rawLocalPositionOfCell(cell1));
     const InDetDD::SiLocalPosition lastStripPos(pElement->rawLocalPositionOfCell(cell2));
     const double                   width((static_cast<double>(nStrips)/static_cast<double>(nStrips+1))*( lastStripPos.xPhi()-firstStripPos.xPhi()));
-    const InDetDD::SiLocalPosition centre((firstStripPos+lastStripPos)/2.0);
+    const InDetDD::SiLocalPosition centre((firstStripPos+lastStripPos)*0.5);
     return SCT_ClusteringTool::DimensionAndPosition(centre, width);
   }
 
@@ -752,7 +752,7 @@ namespace InDet {
     const InDetDD::SiLocalPosition firstStripPos(pElement->rawLocalPositionOfCell(cell1));
     const InDetDD::SiLocalPosition lastStripPos(pElement->rawLocalPositionOfCell(cell2));
     const double                   width(nStrips*stripPitch);
-    const InDetDD::SiLocalPosition centre((firstStripPos+lastStripPos)/2.0);
+    const InDetDD::SiLocalPosition centre((firstStripPos+lastStripPos)*0.5);
     return SCT_ClusteringTool::DimensionAndPosition(centre, width);
   } 
 }

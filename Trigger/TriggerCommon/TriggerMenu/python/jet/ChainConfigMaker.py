@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 """Reformat input dictionary. Dictionary structure at
 https://svnweb.cern.ch/trac/atlasoff/browser/Trigger/TriggerCommon/ \
@@ -6,6 +8,7 @@ TriggerMenu/trunk/python/menu/SignatureDicts.py#L144
 """
 
 import re
+from functools import reduce
 from eta_string_conversions import eta_string_to_floats
 from clusterparams_factory import clusterparams_factory
 from fexparams_factory import fexparams_factory
@@ -715,7 +718,7 @@ if __name__ == '__main__':
     # cc = chainConfigMaker(j460_a10t_lcw_nojcalib_L1J100)
     cc = chainConfigMaker(j460_a10t_lcw_nojcalib_L1J100)
 
-    print cc
+    print (cc)
     
     def do_all():
         import sys
@@ -726,11 +729,11 @@ if __name__ == '__main__':
         ngood = 0
         for d in MC_pp_V5_dicts: 
             d['run_rtt_diags'] = False
-            print d['chainName']
+            print (d['chainName'])
             try:
-                ChainConfigMaker(d)
-            except Exception, e:
+                chainConfigMaker(d)
+            except Exception:
                 
                 bad.append(d['chainName'])
 
-            print 'bad', str(bad)
+            print ('bad', str(bad))

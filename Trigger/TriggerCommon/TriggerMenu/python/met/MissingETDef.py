@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 """ Missing ET slice signatures """
 
@@ -16,7 +18,7 @@ def trace(frame, event, arg):
     if event == "call":
         filename = frame.f_code.co_filename
         lineno = frame.f_lineno
-        print "%s @ %s" % (filename, lineno)
+        print ("%s @ %s" % (filename, lineno))
         return trace
         
 
@@ -205,14 +207,14 @@ class L2EFChain_met(L2EFChainDef):
             if EFrecoAlg=='pufittrack':
                 calibCorr = ('_{0}'.format(calibration) if calibration != METChainParts_Default['calib'] else '') + ('_{0}'.format(jetCalib) if jetCalib != METChainParts_Default['jetCalib'] else '')
                 #MET fex
-                #print "PUFITTRACK XXXXXXXXXX"
-                #print calibCorr
+                #print ("PUFITTRACK XXXXXXXXXX")
+                #print (calibCorr)
                 theEFMETFex = EFMissingET_Fex_topoClustersTracksPUC("EFMissingET_Fex_topoClustersTracksPUC{0}".format(calibCorr), extraCalib=calibCorr)
-                #print "PUFITTRACK XXXXXXXXXX"
-                #print theEFMETFex
+                #print ("PUFITTRACK XXXXXXXXXX")
+                #print (theEFMETFex)
                 #Muon correction fex
                 theEFMETMuonFex = EFTrigMissingETMuon_Fex_topoclPUC()
-                #print theEFMETMuonFex
+                #print (theEFMETMuonFex)
                 mucorr= '_wMu' if EFmuon else ''
                 #theEFMETHypo = EFMetHypoTCTrkPUCXE('EFMetHypo_TCTrkPUC_xe%s_tc%s%s'%(threshold,calibration,mucorr),ef_thr=float(threshold)*GeV)
                 theEFMETHypo = EFMetHypoTCTrkPUCXE('EFMetHypo_TCTrkPUC_xe%s_tc%s%s%s'%(threshold,jetCalib,calibration,mucorr),ef_thr=float(threshold)*GeV, extraCalib=calibCorr)
@@ -365,7 +367,7 @@ class L2EFChain_met(L2EFChainDef):
           cellPresel_threshold = 50
           # work out what the L1 threshold is
           import re
-          match = re.match("L1_XE(\d+)", self.chainDict['L1item'])
+          match = re.match(r"L1_XE(\d+)", self.chainDict['L1item'])
           if match:
             if int(match.group(1) ) >= cellPresel_minL1Threshold:
               cellPreselectionFex = EFMissingET_Fex_2sidednoiseSupp()
@@ -396,11 +398,11 @@ class L2EFChain_met(L2EFChainDef):
             makelist = lambda x: x if isinstance(x, list) else [x]
             self.EFsequenceList += [ [ x['input'], makelist(x['algorithm']), x['output'] ] for x in bjet_chain_def.sequenceList[:-2] ]
 #            for x in bjet_chain_def.sequenceList[:-2]:
-#                print x
-#            print self.EFsequenceList[4][2], "Clusters, output EF_FSTopoClusters"
-#            print self.EFsequenceList[6][2], "Jets, output EF_8389636500743033767_jetrec_a4tclcwnojcalibFS"
-#            print self.EFsequenceList[-1][2], "Tracks, output HLT_j20_eta_jsplit_IDTrig"
-#            print self.EFsequenceList[-5][2], "Vertex, output HLT_superIDTrig_prmVtx"
+#                print (x)
+#            print (self.EFsequenceList[4][2], "Clusters, output EF_FSTopoClusters")
+#            print (self.EFsequenceList[6][2], "Jets, output EF_8389636500743033767_jetrec_a4tclcwnojcalibFS")
+#            print (self.EFsequenceList[-1][2], "Tracks, output HLT_j20_eta_jsplit_IDTrig")
+#            print (self.EFsequenceList[-5][2], "Vertex, output HLT_superIDTrig_prmVtx")
 #            Fill the sequence with clusters, jets, tracks, vertices 
             self.EFsequenceList += [[ [self.EFsequenceList[4][2],self.EFsequenceList[6][2],self.EFsequenceList[-1][2],self.EFsequenceList[-5][2]], [theEFMETFex], 'EF_xe_step1' ]]  
             self.EFsequenceList += [[ ['EF_xe_step1',muonSeed], [theEFMETMuonFex, theEFMETHypo], 'EF_xe_step2' ]]
@@ -417,7 +419,7 @@ class L2EFChain_met(L2EFChainDef):
             if "FStracks" in addInfo:
                 from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
                 trk_algs = TrigInDetSequence("FullScan", "fullScan", "IDTrig", sequenceFlavour=["FTF"]).getSequence()
-                print trk_algs[0]
+                print (trk_algs[0])
                 dummyAlg = PESA__DummyUnseededAllTEAlgo("EF_DummyFEX_xe")
                 self.EFsequenceList +=[[ [''], [dummyAlg]+trk_algs[0], 'EF_xe_step3' ]]
 

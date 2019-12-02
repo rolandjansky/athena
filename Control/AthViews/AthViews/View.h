@@ -49,6 +49,9 @@ public:
     m_implementation->linkParent( parent );
   }
 
+  void setFilter( std::vector< std::string > const& inputFilter ) {
+    m_implementation->setFilter( inputFilter );
+  }
   
   virtual SG::DataProxy* deep_proxy(const void* const pTransient) const { 
     return m_implementation->proxy (pTransient); 

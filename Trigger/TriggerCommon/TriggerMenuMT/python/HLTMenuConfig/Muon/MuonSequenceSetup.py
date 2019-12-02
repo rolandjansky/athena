@@ -103,10 +103,10 @@ def muCombAlgSequence(ConfigFlags):
     l2muCombViewsMaker.InViewRoIs = "EMIDRoIs" #name of the RoIS inside of the view, because in principle we can have more than one RoI/view
     l2muCombViewsMaker.Views = "EMCombViewRoIs" #output of the views maker (key in "storegate")
     l2muCombViewsMaker.RequireParentView = True
-    
+
     ### get ID tracking and muComb reco sequences ###    
     from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import muCombRecoSequence, muonIDFastTrackingSequence
-    muFastIDRecoSequence = muonIDFastTrackingSequence( l2muCombViewsMaker.InViewRoIs,"")
+    muFastIDRecoSequence = muonIDFastTrackingSequence( "HLT_forID", "")
     muCombRecoSequence, sequenceOut = muCombRecoSequence( l2muCombViewsMaker.InViewRoIs )
  
     #Filter algorithm to run muComb only if non-Bphysics muon chains are active

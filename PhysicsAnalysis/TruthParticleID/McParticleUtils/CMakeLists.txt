@@ -15,8 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           AtlasTest/TestTools
                           Control/StoreGate
-                          Control/RootUtils
-                          TestPolicy )
+                          Control/RootUtils )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )

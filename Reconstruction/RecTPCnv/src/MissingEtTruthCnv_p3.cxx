@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -12,12 +12,8 @@ PURPOSE:  Transient/Persisten converter for MissingEtTruth class
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
 // MissingETEvent includes
-#define private public
-#define protected public
 #include "MissingETEvent/MissingET.h"
 #include "MissingETEvent/MissingEtTruth.h"
-#undef private
-#undef protected
 
 // RecTPCnv includes
 #include "RecTPCnv/MissingEtTruthCnv_p3.h"
@@ -27,7 +23,7 @@ PURPOSE:  Transient/Persisten converter for MissingEtTruth class
 static MissingETCnv_p3 metCnv;
 
 
-void MissingEtTruthCnv_p3::persToTrans( const MissingEtTruth_p3* pers, MissingEtTruth* trans, MsgStream& /* msg */) {
+void MissingEtTruthCnv_p3::persToTrans( const MissingEtTruth_p3* pers, MissingEtTruth* trans, MsgStream& /* msg */) const {
 	// std::cout << "Loading MissingEtTruth from persistent state..."<< std::endl;
 	
     std::vector<float>::const_iterator i = pers->m_allTheData.begin();
@@ -38,9 +34,10 @@ void MissingEtTruthCnv_p3::persToTrans( const MissingEtTruth_p3* pers, MissingEt
     
     int size= static_cast<int>(*i);  ++i;
     for (int vi=0;vi<size;++vi){        
-    	trans->m_exTruth[vi]    = (*i); ++i;
-    	trans->m_eyTruth[vi]    = (*i); ++i;
-    	trans->m_etSumTruth[vi] = (*i); ++i;
+        auto ti = static_cast<MissingEtTruth::TruthIndex>(vi);
+        trans->setExTruth(ti, *i); ++i;
+        trans->setEyTruth(ti, *i); ++i;
+        trans->setEtSumTruth(ti, *i); ++i;
 	}
 	
 	if ( i != pers->m_allTheData.end()) {
@@ -55,7 +52,7 @@ void MissingEtTruthCnv_p3::persToTrans( const MissingEtTruth_p3* pers, MissingEt
 
 
 
-void MissingEtTruthCnv_p3::transToPers( const MissingEtTruth* trans, MissingEtTruth_p3* pers, MsgStream& /*msg*/ ) {
+void MissingEtTruthCnv_p3::transToPers( const MissingEtTruth* trans, MissingEtTruth_p3* pers, MsgStream& /*msg*/ ) const {
 	
 	// std::cout << "Creating persistent state of MissingEtTruth..."<< std::endl;
 	
@@ -65,14 +62,15 @@ void MissingEtTruthCnv_p3::transToPers( const MissingEtTruth* trans, MissingEtTr
 	
     pers->m_allTheData.push_back(MissingEtTruth::Size);
     for (int vi=0;vi<MissingEtTruth::Size;++vi){        
-    	pers->m_allTheData.push_back(trans->m_exTruth[vi]);
-    	pers->m_allTheData.push_back(trans->m_eyTruth[vi]);
-    	pers->m_allTheData.push_back(trans->m_etSumTruth[vi]);
+        auto ti = static_cast<MissingEtTruth::TruthIndex>(vi);
+    	pers->m_allTheData.push_back(trans->exTruth(ti));
+    	pers->m_allTheData.push_back(trans->eyTruth(ti));
+    	pers->m_allTheData.push_back(trans->etSumTruth(ti));
     }
     
-	if( trans->m_source >= 0 && trans->m_source < 1000 ){
-		metCnv.transToPers(trans, pers->m_allTheData);
-	}
+    if( trans->getSource() >= 0 && trans->getSource() < 1000 ){
+      metCnv.transToPers(trans, pers->m_allTheData);
+    }
 	
     // for (unsigned int vi=0;vi<trans->m_exTruth.size();++vi)
     //      std::cout<<"OUT EtTruth ex: "<<trans->m_exTruth[vi]<<"\tey: "<<trans->m_eyTruth[vi]<<"\tet: "<<trans->m_etSumTruth[vi]<<std::endl;

@@ -10,6 +10,7 @@ atlas_subdir( TrigSteerMonitor )
 atlas_depends_on_subdirs(
    PRIVATE
    GaudiKernel
+   Control/AthenaInterprocess
    Control/AthenaKernel
    Control/AthenaMonitoring
    Event/EventInfo
@@ -41,8 +42,8 @@ atlas_add_component( TrigSteerMonitor
    src/*.h src/*.cxx src/components/*.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
    ${TDAQ-COMMON_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES}
-   ${TDAQ-COMMON_LIBRARIES} AthenaKernel AthenaMonitoringLib EventInfo
+   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES}
+   ${TDAQ-COMMON_LIBRARIES} AthenaInterprocess AthenaKernel AthenaMonitoringLib EventInfo
    GaudiKernel TrigDataAccessMonitoringLib TrigMonitorBaseLib TrigSteeringLib
    StoreGateLib MagFieldInterfaces LumiBlockData TrigConfHLTData TrigConfData
    TrigConfL1Data TrigNavigationLib TrigSteeringEvent TrigInterfacesLib

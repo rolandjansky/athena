@@ -136,4 +136,4 @@ private:
 
 };
 CPPUNIT_TEST_SUITE_REGISTRATION (FTKEncodeDecodeTest);
-#include <TestPolicy/CppUnit_testdriver.cxx>
+#include <TestTools/CppUnit_testdriver.cxx>

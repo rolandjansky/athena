@@ -95,11 +95,16 @@ def JetTrackingSequence(dummyFlags,trkopt,RoIs):
     jetTrkSeq += pjgalg
 
     trkcolls = {
-        "Tracks":      tracksname,
-        "Vertices":    verticesname,
-        "JetTracks":   jettracksname,
-        "TVA":         tvaname,
-        "GhostTracks": ghosttracksname
+        "Tracks":           tracksname,
+        "Vertices":         verticesname,
+        "JetTracks":        jettracksname,
+        "TVA":              tvaname,
+        "GhostTracks":      ghosttracksname,
+        "GhostTracksLabel": label
     }
+
+    from JetMomentTools.JetMomentToolsConfig import trackcollectionmap
+    if trkopt not in trackcollectionmap.keys():
+        trackcollectionmap[trkopt] = trkcolls
 
     return jetTrkSeq, trkcolls

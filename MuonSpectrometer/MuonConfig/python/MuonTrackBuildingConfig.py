@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from MuonRecToolsConfig import MCTBFitterCfg, MuonSTEP_PropagatorCfg, MuonTrackCleanerCfg, MuonSegmentMomentumFromFieldCfg, MuonSeededSegmentFinderCfg
+from MuonConfig.MuonRecToolsConfig import MCTBFitterCfg, MuonSTEP_PropagatorCfg, MuonTrackCleanerCfg, MuonSegmentMomentumFromFieldCfg, MuonSeededSegmentFinderCfg
 from MuonConfig.MuonSegmentFindingConfig import MuonSegmentFittingToolCfg 
 
 def MooTrackFitterCfg(flags, name = 'MooTrackFitter', **kwargs):
@@ -83,7 +83,7 @@ def MooTrackBuilderCfg(flags, name="MooTrackBuilderTemplate", **kwargs):
     from MuonTrackSteeringTools.MuonTrackSteeringToolsConf import Muon__MooTrackBuilder
     from TrkExSTEP_Propagator.TrkExSTEP_PropagatorConf import Trk__STEP_Propagator
     from MuonConfig.MuonRIO_OnTrackCreatorConfig import MdtDriftCircleOnTrackCreatorCfg, TriggerChamberClusterOnTrackCreatorCfg
-    from MuonRecToolsConfig import MuonTrackToSegmentToolCfg
+    from MuonConfig.MuonRecToolsConfig import MuonTrackToSegmentToolCfg
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     
     # Based on this: https://gitlab.cern.ch/atlas/athena/blob/release/22.0.3/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MooreTools.py#L221

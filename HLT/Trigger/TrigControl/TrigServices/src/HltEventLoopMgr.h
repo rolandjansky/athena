@@ -290,7 +290,9 @@ private:
   /// Application name
   std::string m_applicationName;
   /// Worker ID
-  std::string m_workerId;
+  int m_workerID{0};
+  /// Worker PID
+  int m_workerPID{0};
 
 };
 

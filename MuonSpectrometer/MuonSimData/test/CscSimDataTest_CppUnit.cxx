@@ -76,5 +76,5 @@ public:
 CPPUNIT_TEST_SUITE_REGISTRATION(CscSimDataTest);
 
 // CppUnit test-driver common for all the cppunit test classes.
-// In ATLAS sw release it is located in TestPolicy package.
-#include <TestPolicy/CppUnit_testdriver.cxx>
+// In ATLAS sw release it is located in TestTools package.
+#include <TestTools/CppUnit_testdriver.cxx>

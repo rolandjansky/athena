@@ -19,7 +19,6 @@ def _loadBasicEventInfoMgt():
 
     import os
     import string
-    import sys
     class EventInfoMgtInit:
 
         def __init__(self):
@@ -49,7 +48,7 @@ def _loadBasicEventInfoMgt():
                 version = os.environ ['AtlasVersion']
                 #print ("EventInfoMgtInit.getRelease: project, version",project, version)
                 return project + '-' + version
-            except:
+            except Exception:
                 # These variables can be missing during CI builds,
                 # so don't complain if they're not there.
                 #print ("EventInfoMgtInit getRelease: except caught")
@@ -60,7 +59,7 @@ def _loadBasicEventInfoMgt():
 
 
     ## make sure we have been -at least- minimally correctly configured
-    import AthenaCommon.AtlasUnixStandardJob
+    import AthenaCommon.AtlasUnixStandardJob # noqa: F401
 
     from AthenaCommon.Logging import logging
     from AthenaCommon.AppMgr  import ServiceMgr as svcMgr

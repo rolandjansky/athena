@@ -1,4 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 __author__  = 'Javier Montejo'
 __version__="$Revision: 1.01 $"
 __doc__="Enumerations for trigger types and periods"
@@ -110,6 +113,6 @@ class TriggerRenaming:
     ]
 
 if __name__ == "__main__":
-   print TriggerPeriod.y2015.isBasePeriod() 
-   print TriggerPeriod.y2017.isBasePeriod() 
-   print TriggerPeriod.basePeriods() 
+   print (TriggerPeriod.y2015.isBasePeriod() )
+   print (TriggerPeriod.y2017.isBasePeriod() )
+   print (TriggerPeriod.basePeriods() )

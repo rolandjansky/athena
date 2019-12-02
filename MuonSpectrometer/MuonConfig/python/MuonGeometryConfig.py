@@ -6,7 +6,6 @@ from MuonGeoModel.MuonGeoModelConf import MuonDetectorTool
 from MuonIdHelpers.MuonIdHelpersConf import Muon__MuonIdHelperSvc
 from AGDD2GeoSvc.AGDD2GeoSvcConf import AGDDtoGeoSvc
 from MuonAGDD.MuonAGDDConf import MuonAGDDTool, NSWAGDDTool
-from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 def MuonGeoModelCfg(flags):
     acc = ComponentAccumulator()
@@ -17,9 +16,9 @@ def MuonGeoModelCfg(flags):
     acc.merge(gmsAcc)
 
     detTool = MuonDetectorTool(
-        HasCSC=MuonGeometryFlags.hasCSC(),
-        HasSTgc=MuonGeometryFlags.hasSTGC(),
-        HasMM=MuonGeometryFlags.hasMM()
+        HasCSC=flags.Detector.GeometryCSC,
+        HasSTgc=flags.Detector.GeometrysTGC,
+        HasMM=flags.Detector.GeometryMM
         )
     detTool.UseConditionDb = 1
     detTool.UseIlinesFromGM = 1
@@ -107,7 +106,7 @@ def MuonGeoModelCfg(flags):
             AGDD2Geo = AGDDtoGeoSvc()
             muonAGDDTool = MuonAGDDTool("MuonSpectrometer", BuildNSW=False)
             AGDD2Geo.Builders += [ muonAGDDTool ]
-            if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
+            if (flags.Detector.GeometrysTGC and flags.Detector.GeometryMM):
                 nswAGDDTool = NSWAGDDTool("NewSmallWheel", Locked=False)
                 nswAGDDTool.Volumes = ["NewSmallWheel"]
                 nswAGDDTool.DefaultDetector = "Muon"
@@ -122,9 +121,9 @@ def MuonGeoModelCfg(flags):
     gms.DetectorTools += [ detTool ]
 
     acc.addService( Muon__MuonIdHelperSvc("MuonIdHelperSvc",
-        HasCSC=MuonGeometryFlags.hasCSC(),
-        HasSTgc=MuonGeometryFlags.hasSTGC(),
-        HasMM=MuonGeometryFlags.hasMM()
+        HasCSC=flags.Detector.GeometryCSC,
+        HasSTgc=flags.Detector.GeometrysTGC,
+        HasMM=flags.Detector.GeometryMM
         ) )
 
     return acc

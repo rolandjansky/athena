@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TileDigitsCnv_p3.cxx 
@@ -15,7 +15,7 @@
 
 
 void
-TileDigitsCnv_p3::persToTrans(const TileDigits_p3* persObj, TileDigits* transObj, MsgStream &/*log*/)
+TileDigitsCnv_p3::persToTrans(const TileDigits_p3* persObj, TileDigits* transObj, MsgStream &/*log*/) const
 {
   *transObj = TileDigits (HWIdentifier(Identifier32(persObj->m_channelID)),
                           persObj->m_digits);
@@ -23,7 +23,7 @@ TileDigitsCnv_p3::persToTrans(const TileDigits_p3* persObj, TileDigits* transObj
 
 
 void
-TileDigitsCnv_p3::transToPers(const TileDigits* transObj, TileDigits_p3* persObj, MsgStream &/*log*/)
+TileDigitsCnv_p3::transToPers(const TileDigits* transObj, TileDigits_p3* persObj, MsgStream &/*log*/) const
 {
   persObj->m_channelID = transObj->adc_HWID().get_identifier32().get_compact();
   persObj->m_digits = transObj->samples();

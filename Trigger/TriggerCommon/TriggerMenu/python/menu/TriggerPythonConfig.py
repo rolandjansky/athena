@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #########################################################################################
 # User interface for the configuration, nothing beneath this class need to be studied
@@ -8,6 +8,7 @@ import string
 from collections import defaultdict
 import xml.dom.minidom as minidom
 import xml.etree.cElementTree as etree
+from functools import reduce
 
 from TriggerMenu.menu.HLTObjects import HLTSequence
 
@@ -398,7 +399,7 @@ class TriggerPythonConfig:
         seqDict is dictionary {sequence outout te: sequence obj}
         """
         seq = []
-        if not seqDict.has_key(te):
+        if te not in seqDict:
             return seq
         this = seqDict[te]
         seq += [this]

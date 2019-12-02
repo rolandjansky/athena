@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETPHYSVALMONITORING_INDETPERFPLOT_FAKES
@@ -20,6 +20,7 @@
 #include <string>
 class TH1;
 class TProfile;
+class TEfficiency;
 
 
 ///class holding fake plots for Inner Detector RTT Validation and implementing fill methods
@@ -29,11 +30,22 @@ public:
   enum Category {
     ALL, IN_JETS, N_FAKETYPES
   };
+  // inclusive track rates cuts
+  // pt: one histo per cut 
+  static const unsigned int m_nPtCuts=3;
+  static const unsigned int m_nPtHists=m_nPtCuts;
+  // mu: one histo per interval + total histo
+  static const unsigned int m_nEtaCuts=2;
+  // 2 cuts --> 3 intervals + 1 for total histogram:
+  static const unsigned int m_nEtaHists=m_nEtaCuts+2;
+  
   InDetPerfPlot_fakes(InDetPlotBase* pParent, const std::string& dirName);
   void fill(const xAOD::TrackParticle& trkprt, const bool isFake, const Category f = ALL);
-  void fillLinkedandUnlinked(const xAOD::TrackParticle& trkprt, float Prim_w, float Sec_w, float Unlinked_w);
-  void fillIncFakeDenom(const xAOD::TruthParticle& particle);
-  void fillIncTrkRate(const unsigned int nMuEvents, std::vector<int> incTrkNum, std::vector<int> incTrkDenom);
+  void fillLinkedandUnlinked(const xAOD::TrackParticle& trkprt, float Prim_w, float Sec_w, float Unlinked_w, unsigned int mu=0);
+  void fillIncTrkRateVsEtaPtcut(std::array<TH1*, m_nPtHists>& hists, double trkpt, double trketa);
+  void fillIncTrkRateVsMuEtacut(std::array<TH1*, m_nEtaHists>& hists,  double trketa, unsigned int mu = 0);
+  void fillIncFakeDenom(const xAOD::TruthParticle& particle, unsigned int mu = 0);
+  void setPlotErrors(TH1* hrat, TH1* hnum, TH1* hdenom);
 private:
   ///fakes Histograms
   TH1* m_fakepT;
@@ -48,40 +60,48 @@ private:
   TProfile* m_track_fakerate_vs_phi;
   TProfile* m_track_fakerate_vs_d0;
   TProfile* m_track_fakerate_vs_z0;
-  TH1* m_incFakeNum_pt1;
-  TH1* m_incFakeNum_pt2;
-  TH1* m_incFakeNum_pt5;
-  TProfile* m_fakeEtaTotal;
-  TProfile* m_fakePtPrimary;
-  TProfile* m_fakeetaPrimary;
-  TProfile* m_fakePhiPrimary;
-  TProfile* m_faked0Primary;
-  TProfile* m_fakez0Primary;
-  TProfile* m_fakePtSecondary;
-  TProfile* m_fakeetaSecondary;
-  TProfile* m_fakePhiSecondary;
-  TProfile* m_faked0Secondary;
-  TProfile* m_fakez0Secondary;
-  TH1* m_incFakeDenomEta_pt1;
-  TH1* m_incFakeDenomEta_pt2;
-  TH1* m_incFakeDenomEta_pt5;
-  TProfile* m_fakePtUnlinkedFrac;
-  TProfile* m_fakeetaUnlinkedFrac;
-  TProfile* m_fakePhiUnlinkedFrac;
-  TProfile* m_faked0UnlinkedFrac;
-  TProfile* m_fakez0UnlinkedFrac;
-  TH1* m_incFakeEta_pt1;
-  TH1* m_incFakeEta_pt2;
-  TH1* m_incFakeEta_pt5;
-  TH1* m_nTracks_vs_mu;
-  TH1* m_nTruth_vs_mu;
-  TH1* m_incTrkRate_vs_mu;
-  TH1* m_nTracks_vs_mu2;
-  TH1* m_nTruth_vs_mu2;
-  TH1* m_incTrkRate_vs_mu2;
-  TH1* m_nTracks_vs_mu3;
-  TH1* m_nTruth_vs_mu3;
-  TH1* m_incTrkRate_vs_mu3;
+  TEfficiency* m_fakeEtaTotal;
+  TEfficiency* m_fakePtPrimary;
+  TEfficiency* m_fakeetaPrimary;
+  TEfficiency* m_fakePhiPrimary;
+  TEfficiency* m_faked0Primary;
+  TEfficiency* m_fakez0Primary;
+  TEfficiency* m_fakePtSecondary;
+  TEfficiency* m_fakeetaSecondary;
+  TEfficiency* m_fakePhiSecondary;
+  TEfficiency* m_faked0Secondary;
+  TEfficiency* m_fakez0Secondary;
+
+  TEfficiency* m_fakePtUnlinkedFrac;
+  TEfficiency* m_fakeetaUnlinkedFrac;
+  TEfficiency* m_fakePhiUnlinkedFrac;
+  TEfficiency* m_faked0UnlinkedFrac;
+  TEfficiency* m_fakez0UnlinkedFrac;
+
+  
+  // inclusive track rates
+  // ---> vs eta, pt>ptcut:
+  // track pt cut values [GeV]
+  std::array<float, m_nPtCuts> m_incTrkRatePtcutVals;
+  // strings for histogram names (avoid float to string)
+  std::array<std::string, m_nPtHists> m_incTrkRatePtcutSuff;
+  // # accepted reco tracks vs eta, pt>ptcut
+  std::array<TH1*, m_nPtHists> m_nRecTrkVsEtaPtcut;
+  // # accepted truth tracks vs eta, pt>ptcut
+  std::array<TH1*, m_nPtHists> m_nTruthTrkVsEtaPtcut;
+  // (# acc reco)/(# acc truth) vs eta, pt>ptcut
+  std::array<TH1*, m_nPtHists> m_incTrkRateVsEtaPtcut;
+  // ---> vs mu, |eta|<cutlow && |eta|>cuthigh 
+  std::array<float, m_nEtaCuts> m_incTrkRateEtacutVals;
+  // strings for histogram names (avoid float to string)
+  std::array<std::string, m_nEtaHists> m_incTrkRateEtacutSuff;
+  // # accepted reco tracks vs eta, pt>ptcut
+  std::array<TH1*, m_nEtaHists> m_nRecTrkVsMuEtacut;
+  // # accepted truth tracks vs eta, pt>ptcut
+  std::array<TH1*, m_nEtaHists> m_nTruthTrkVsMuEtacut;
+  // (# acc reco)/(# acc truth) vs eta, pt>ptcut
+  std::array<TH1*, m_nEtaHists> m_incTrkRateVsMuEtacut;
+
   TH1* m_mu;
 
   // plot base has nop default implementation of this; we use it to book the histos
@@ -93,3 +113,4 @@ private:
 
 
 #endif
+

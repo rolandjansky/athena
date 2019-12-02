@@ -3,6 +3,8 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from IOVDbSvc.IOVDbSvcConfig import addFolders
 from BTagging.BTaggingFlags import BTaggingFlags
 from BTagging.JetBTaggerAlgConfig import JetBTaggerAlgCfg
+from BTagging.JetParticleAssociationAlgConfig import JetParticleAssociationAlgCfg
+from BTagging.JetSecVertexingAlgConfig import JetSecVertexingAlgCfg
 
 def JetTagCalibCfg(ConfigFlags, scheme="", TaggerList = []):
     result=ComponentAccumulator()
@@ -71,7 +73,7 @@ def registerOutputContainersForJetCollection(flags, JetCollection, suffix = ''):
       author = flags.BTagging.OutputFiles.Prefix + JetCollection + suffix
       ItemList.append(OutputFilesBaseName + author)
       ItemList.append(OutputFilesBaseAuxName + author + 'Aux.-BTagTrackToJetAssociatorBB')
-      # SeCVert
+      # SecVert
       ItemList.append(OutputFilesBaseNameSecVtx + author + OutputFilesSVname)
       ItemList.append(OutputFilesBaseAuxNameSecVtx + author + OutputFilesSVname + 'Aux.-vxTrackAtVertex')
       # JFSeCVert
@@ -80,7 +82,7 @@ def registerOutputContainersForJetCollection(flags, JetCollection, suffix = ''):
 
       return ItemList
 
-def BTagRedoESDCfg(flags, jet):
+def BTagRedoESDCfg(flags, jet, extraContainers=[]):
     acc=ComponentAccumulator()
 
     #Delete BTagging container read from input ESD
@@ -94,7 +96,7 @@ def BTagRedoESDCfg(flags, jet):
     #Register input ESD container in output
     ESDItemList = registerOutputContainersForJetCollection(flags, jet)
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    acc.merge(OutputStreamCfg(flags,"ESD", ItemList=ESDItemList))
+    acc.merge(OutputStreamCfg(flags,"ESD", ItemList=ESDItemList+extraContainers))
 
     return acc
 
@@ -120,6 +122,10 @@ def BTagCfg(inputFlags,**kwargs):
     result=ComponentAccumulator()
     timestamp = kwargs.get('TimeStamp', None)
     if timestamp: del kwargs['TimeStamp']
+    splitAlg = kwargs.get('SplitAlg', None)
+    del kwargs['SplitAlg']
+    release = kwargs.get('Release', None)
+    if release: del kwargs['Release']
 
     from TrkDetDescrSvc.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
     acc = TrackingGeometrySvcCfg(inputFlags)
@@ -157,6 +163,7 @@ def BTagCfg(inputFlags,**kwargs):
     taggerList = inputFlags.BTagging.run2TaggersList
     taggerList += ['MultiSVbb1','MultiSVbb2']
 
+
     for jet in JetCollection:
         if timestamp:
             #Time-stamped BTagging container (21.2)
@@ -164,7 +171,34 @@ def BTagCfg(inputFlags,**kwargs):
               result.merge(BTagESDtoESDCfg(inputFlags, jet, ts))
             kwargs['TimeStamp'] = timestamp
         else:
-            result.merge(BTagRedoESDCfg(inputFlags, jet))
+            extraCont = []
+            if splitAlg:
+                JFSecVtx = "xAOD::BTagVertexContainer#"
+                AuxJFSecVtx= "xAOD::BTagVertexAuxContainer#"
+                SecVtx = "xAOD::VertexContainer#"
+                AuxSecVtx = "xAOD::VertexAuxContainer#"
+                author = inputFlags.BTagging.OutputFiles.Prefix + jet
+                extraCont.append(JFSecVtx + author + 'JFVtxMT')
+                extraCont.append(AuxJFSecVtx + author + 'JFVtxMTAux.')
+                extraCont.append(SecVtx + author + 'SecVtxMT')
+                extraCont.append(AuxSecVtx + author + 'SecVtxMTAux.-vxTrackAtVertex')
+                extraCont.append(SecVtx + author + 'MSVMT')
+                extraCont.append(AuxSecVtx + author + 'MSVMTAux.-vxTrackAtVertex')
+            result.merge(BTagRedoESDCfg(inputFlags, jet, extraCont))
+
+        if splitAlg:
+            #Track Association
+            kwargs['Release'] = '22'
+            result.merge(JetParticleAssociationAlgCfg(inputFlags, jet, "InDetTrackParticles", jet+'Jets.BTagTrackToJetAssociator', **kwargs))
+            kwargs['Release'] = '21'
+            #result.merge(JetParticleAssociationAlgCfg(inputFlags, jet, "InDetTrackParticles", jet+'Jets.BTagTrackToJetAssociator', **kwargs))
+            result.merge(JetParticleAssociationAlgCfg(inputFlags, jet, "InDetTrackParticles", jet+'Jets.BTagTrackToJetAssociatorBB', **kwargs))
+            del kwargs['Release']
+
+            #Sec vertexing
+            result.merge(JetSecVertexingAlgCfg(inputFlags, jet, "InDetTrackParticles", 'JetFitter', jet+'Jets.BTagTrackToJetAssociator'))
+            result.merge(JetSecVertexingAlgCfg(inputFlags, jet, "InDetTrackParticles", 'SV1', jet+'Jets.BTagTrackToJetAssociator'))
+            result.merge(JetSecVertexingAlgCfg(inputFlags, jet, "InDetTrackParticles", 'MSV', jet+'Jets.BTagTrackToJetAssociatorBB'))
 
         result.merge(JetBTaggerAlgCfg(inputFlags, JetCollection = jet, TaggerList = taggerList, **kwargs))
 
@@ -172,15 +206,24 @@ def BTagCfg(inputFlags,**kwargs):
 
     return result
 
+def str2bool(v):
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
+
 if __name__=="__main__":
 
     inputESD = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s3170_r10572_homeMade.pool.root"
-    from argparse import ArgumentParser
-    parser = ArgumentParser(prog="BTagRun3Config: An example configuration module for btagging reconstruction reading an ESD",
+    import argparse
+    parser = argparse.ArgumentParser(prog="BTagRun3Config: An example configuration module for btagging reconstruction reading an ESD",
                             usage="Call with an input file, pass -n=0 to skip execution, -t 0 for serial or 1 for threaded execution.")
     parser.add_argument("-f", "--filesIn", default = inputESD, type=str, help="Comma-separated list of input files")
     parser.add_argument("-t", "--nThreads", default=1, type=int, help="The number of concurrent threads to run. 0 uses serial Athena.")
     parser.add_argument("-r", "--release", default="22", type=str, help="Release number to test different scenarii.")
+    parser.add_argument('-s', '--splitAlg', type=str2bool, default=False, help="Split JetBTaggerAlg.")
 
     args = parser.parse_args()
 
@@ -218,6 +261,8 @@ if __name__=="__main__":
     kwargs = {}
     if args.release == "21.2":
         kwargs["TimeStamp"] = ['201810','201903']
+    kwargs["SplitAlg"] = args.splitAlg
+
     acc.merge(BTagCfg(cfgFlags, **kwargs))
 
     acc.setAppProperty("EvtMax",-1)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DecisionHandling_TrigCompositeUtils_h
@@ -21,6 +21,8 @@
 #include "AthContainers/AuxElement.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
+
+#include "HLTIdentifier.h"
 
 namespace TrigCompositeUtils {
 
@@ -173,6 +175,14 @@ namespace TrigCompositeUtils {
    * @ret true if success
    **/
   bool copyLinks(const Decision* src, Decision* dest);
+
+  /**
+   * @brief Generate the HLT::Identifier which corresponds to a specific leg of a given chain. This can be queried for its DecisionID.
+   * @param chainIdentifier The HLT::Identifier corresponding to the chain.
+   * @param counter The numeral of the leg.
+   * @return HLT::Identifier corresponding to the specified leg. Call .numeric() on this to get the DecisionID.
+   **/
+  HLT::Identifier createLegName(const HLT::Identifier& chainIdentifier, size_t counter);
 
   /**
    * @brief traverses TC links for another TC fufilling the prerequisite specified by the filter

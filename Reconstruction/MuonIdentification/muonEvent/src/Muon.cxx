@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -39,12 +39,8 @@ Muon::Muon() :
   INavigable4Momentum (),
   MuonImpl_t(),
   m_author(MuonParameters::unknown),
-  m_hasCombinedMuon(false),
-  m_hasInDetTrackParticle(false),
   m_hasMuonExtrapolatedTrackParticle(false),
-  m_hasInnerExtrapolatedTrackParticle(false),
   m_hasCombinedMuonTrackParticle(false),
-  m_hasCluster(false),
   m_matchChi2(-1.0),
   m_matchNumberDoF(0),
   m_outerMatchNumberDoF(0),
@@ -73,12 +69,8 @@ Muon::Muon(MuonParameters::Author author) :
   INavigable4Momentum (),
   MuonImpl_t(),
   m_author(author),
-  m_hasCombinedMuon(false),
-  m_hasInDetTrackParticle(false),
   m_hasMuonExtrapolatedTrackParticle(false),
-  m_hasInnerExtrapolatedTrackParticle(false),
   m_hasCombinedMuonTrackParticle(false),
-  m_hasCluster(false),
   m_matchChi2(-1.0),
   m_matchNumberDoF(0),
   m_outerMatchNumberDoF(0),
@@ -111,7 +103,6 @@ Muon::Muon(MuonParameters::Author author,
   INavigable4Momentum (),
   MuonImpl_t(),
   m_author(author),   
-  m_hasCombinedMuon(false),
   m_matchChi2(-1.0),
   m_matchNumberDoF(0),
   m_outerMatchNumberDoF(0),
@@ -133,10 +124,7 @@ Muon::Muon(MuonParameters::Author author,
 
   m_combinedMuonTrackParticle.setElement(const_cast<Rec::TrackParticle*>(combTP));
 
-  m_hasCluster                       = m_cluster.isValid();
-  m_hasInDetTrackParticle            = m_inDetTrackParticle.isValid();
   m_hasMuonExtrapolatedTrackParticle = m_muonExtrapolatedTrackParticle.isValid();
-  m_hasInnerExtrapolatedTrackParticle= m_innerExtrapolatedTrackParticle.isValid();
   m_hasCombinedMuonTrackParticle     = m_combinedMuonTrackParticle.isValid();
   m_associatedEtaDigits.clear();
   m_associatedPhiDigits.clear();
@@ -157,7 +145,6 @@ Muon::Muon(MuonParameters::Author author,
   INavigable4Momentum (),
   MuonImpl_t(),
   m_author(author),
-  m_hasCombinedMuon(false),
   m_matchChi2(-1.0),
   m_matchNumberDoF(0),
   m_outerMatchNumberDoF(0),
@@ -178,10 +165,7 @@ Muon::Muon(MuonParameters::Author author,
     else
       m_innerExtrapolatedTrackParticle.setElement(const_cast<Rec::TrackParticle*>(trackParticle));
   }
-  m_hasCluster                       = m_cluster.isValid();
-  m_hasInDetTrackParticle            = m_inDetTrackParticle.isValid();
   m_hasMuonExtrapolatedTrackParticle = m_muonExtrapolatedTrackParticle.isValid();
-  m_hasInnerExtrapolatedTrackParticle= m_innerExtrapolatedTrackParticle.isValid();
   m_hasCombinedMuonTrackParticle     = m_combinedMuonTrackParticle.isValid();
   m_associatedEtaDigits.clear();
   m_associatedPhiDigits.clear();
@@ -206,7 +190,6 @@ Muon::Muon(MuonParameters::Author author,
   INavigable4Momentum (),
   MuonImpl_t(),
   m_author(author),
-  m_hasCombinedMuon(false),
   m_matchChi2(-1.0),
   m_matchNumberDoF(0),
   m_outerMatchNumberDoF(0),
@@ -222,10 +205,7 @@ Muon::Muon(MuonParameters::Author author,
 
   for (unsigned int i=0; i<muonSegments.size(); ++i) this->addSegment(segmentContainer, muonSegments[i]);
 
-  m_hasCluster                       = m_cluster.isValid();
-  m_hasInDetTrackParticle            = m_inDetTrackParticle.isValid();
   m_hasMuonExtrapolatedTrackParticle = m_muonExtrapolatedTrackParticle.isValid();
-  m_hasInnerExtrapolatedTrackParticle= m_innerExtrapolatedTrackParticle.isValid();
   m_hasCombinedMuonTrackParticle     = m_combinedMuonTrackParticle.isValid();
   m_associatedEtaDigits.clear();
   m_associatedPhiDigits.clear();
@@ -245,12 +225,8 @@ Muon::Muon( const Muon& rhs ) :
   INavigable4Momentum (rhs),
   MuonImpl_t(rhs),
   m_author                           ( rhs.m_author ),
-  m_hasCombinedMuon                  ( rhs.m_hasCombinedMuon ),
-  m_hasInDetTrackParticle            ( rhs.m_hasInDetTrackParticle ),
   m_hasMuonExtrapolatedTrackParticle ( rhs.m_hasMuonExtrapolatedTrackParticle ),
-  m_hasInnerExtrapolatedTrackParticle( rhs.m_hasInnerExtrapolatedTrackParticle ),
   m_hasCombinedMuonTrackParticle     ( rhs.m_hasCombinedMuonTrackParticle ),
-  m_hasCluster                       ( rhs.m_hasCluster ),
   m_matchChi2                        ( rhs.m_matchChi2 ),
   m_matchNumberDoF                   ( rhs.m_matchNumberDoF ),
   m_outerMatchNumberDoF              ( rhs.m_outerMatchNumberDoF ),
@@ -299,12 +275,8 @@ Muon& Muon::operator=( const Muon& rhs )
     INavigable4Momentum::operator=(rhs);
     MuonImpl_t::operator=(rhs);
     m_author                           = rhs.m_author;
-    m_hasCombinedMuon                  = rhs.m_hasCombinedMuon;
-    m_hasInDetTrackParticle            = rhs.m_hasInDetTrackParticle;
     m_hasMuonExtrapolatedTrackParticle = rhs.m_hasMuonExtrapolatedTrackParticle;
-    m_hasInnerExtrapolatedTrackParticle= rhs.m_hasInnerExtrapolatedTrackParticle;
     m_hasCombinedMuonTrackParticle     = rhs.m_hasCombinedMuonTrackParticle;
-    m_hasCluster                       = rhs.m_hasCluster;
     m_matchChi2                        = rhs.m_matchChi2;
     m_matchNumberDoF                   = rhs.m_matchNumberDoF;
     m_outerMatchNumberDoF              = rhs.m_outerMatchNumberDoF;
@@ -761,13 +733,11 @@ void Muon::set_inDetTrackParticle(const Rec::TrackParticleContainer* cont,
 {
   if (m_inDetTrackParticle.isValid() ) m_inDetTrackParticle.reset();
   m_inDetTrackParticle.toContainedElement(*cont, const_cast<Rec::TrackParticle*>(trackParticle));
-  m_hasInDetTrackParticle = m_inDetTrackParticle.isValid();
 }
 
 void Muon::set_inDetTrackParticle(const Rec::TrackParticle* trackParticle )
 {
   m_inDetTrackParticle.setElement(const_cast<Rec::TrackParticle*>(trackParticle));
-  m_hasInDetTrackParticle = m_inDetTrackParticle.isValid();
 }
 
 /** Set MuonSegments  */
@@ -830,14 +800,12 @@ void Muon::set_innerExtrapolatedTrackParticle(const Rec::TrackParticleContainer*
   if (m_innerExtrapolatedTrackParticle.isValid() ) m_innerExtrapolatedTrackParticle.reset();
   if (cont && trackParticle) { // allow also to remove an EL
     m_innerExtrapolatedTrackParticle.toContainedElement(*cont, const_cast<Rec::TrackParticle*>(trackParticle));
-    m_hasInnerExtrapolatedTrackParticle = m_innerExtrapolatedTrackParticle.isValid();
   }
 }
 
 void Muon::set_innerExtrapolatedTrackParticle(const Rec::TrackParticle* trackParticle )
 {
   m_innerExtrapolatedTrackParticle.setElement(const_cast<Rec::TrackParticle*>(trackParticle));
-  m_hasInnerExtrapolatedTrackParticle = m_innerExtrapolatedTrackParticle.isValid();
 }
 
 /** Set Combined Muon TrackParticle */

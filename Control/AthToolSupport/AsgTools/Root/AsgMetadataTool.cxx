@@ -122,9 +122,6 @@ namespace asg {
 
          // Set up the right callbacks: don't rethrow exceptions, any failure and we should end
          incSvc->addListener( this, IncidentType::BeginEvent, 0, false );
-         incSvc->addListener( this, IncidentType::BeginInputFile, 0, false );
-         incSvc->addListener( this, IncidentType::EndInputFile, 0, false );
-         incSvc->addListener( this, IncidentType::MetaDataStop, 70, false );
       }
       // Let the base class do its thing:
       ATH_CHECK( AlgTool::sysInitialize() );
@@ -141,18 +138,7 @@ namespace asg {
       ATH_MSG_VERBOSE( "Callback received with incident: " << inc.type() );
 
       // Call the appropriate member function:
-      if( inc.type() == IncidentType::BeginInputFile ) {
-         m_beginInputFileCalled = true;
-         if( beginInputFile().isFailure() ) {
-            ATH_MSG_FATAL( "Failed to call beginInputFile()" );
-            throw std::runtime_error( "Couldn't call beginInputFile()" );
-         }
-      } else if( inc.type() == IncidentType::EndInputFile ) {
-         if( endInputFile().isFailure() ) {
-            ATH_MSG_FATAL( "Failed to call endInputFile()" );
-            throw std::runtime_error( "Couldn't call endInputFile()" );
-         }
-      } else if( inc.type() == IncidentType::BeginEvent ) {
+      if( inc.type() == IncidentType::BeginEvent ) {
          // If the tool didn't catch the begin input file incident for the
          // first input file of the job, then call the appropriate function
          // now.
@@ -166,11 +152,6 @@ namespace asg {
          if( beginEvent().isFailure() ) {
             ATH_MSG_FATAL( "Failed to call beginEvent()" );
             throw std::runtime_error( "Couldn't call beginEvent()" );
-         }
-      } else if( inc.type() == IncidentType::MetaDataStop ) {
-         if( metaDataStop().isFailure() ) {
-            ATH_MSG_FATAL( "Failed to call metaDataStop()" );
-            throw std::runtime_error( "Couldn't call metaDataStop()" );
          }
       } else {
          ATH_MSG_WARNING( "Unknown incident type received: " << inc.type() );

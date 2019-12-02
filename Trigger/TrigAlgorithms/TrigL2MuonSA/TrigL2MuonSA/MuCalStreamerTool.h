@@ -19,7 +19,8 @@
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "MuonRPC_Cabling/MuonRPC_CablingSvc.h"
 #include "RegionSelector/IRegSelSvc.h"
-
+#include "MuonRDO/TgcRdoContainer.h"
+#include "StoreGate/ReadHandleKey.h"
 
 //#include "TGCcablingInterface/ITGCcablingServerSvc.h"
 //#include "TGCcablingInterface/ITGCcablingSvc.h"
@@ -104,8 +105,8 @@ namespace TrigL2MuonSA {
 
   private:
 
-    Gaudi::Property< bool > m_writeToFile {
-	this, "WriteToFile", false, ""};
+    Gaudi::Property< bool > m_writeToFile { this, "WriteToFile", false, "" };
+    SG::ReadHandleKey<TgcRdoContainer> m_tgcRdoKey{this, "TgcRdoContainer", "TGCRDO", "Tgc RDO Input"};
 
     // name of the calibration buffer or of the 
     // output file

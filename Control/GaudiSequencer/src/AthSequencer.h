@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthSequencer.h
@@ -77,16 +77,6 @@ public:
    ** is invoked once per event.
    **/
   virtual StatusCode execute( const EventContext& ctx ) const override;
-    
-  /**
-   ** AthSequencer beginRun.
-   **/
-  virtual StatusCode beginRun( ) override;
-
-  /**
-   ** AthSequencer endRun.
-   **/
-  virtual StatusCode endRun( ) override;
 
   /** Start (from INITIALIZED to RUNNING). @c IStateful::start
    */

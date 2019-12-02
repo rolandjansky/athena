@@ -186,7 +186,7 @@ svcMgr.AthenaSealSvc.CheckDictionary = True
 #svcMgr.AthenaSealSvc.CheckDictAtInit = True
 
 
-from OutputStreamAthenaPool.OutputStreamAthenaPool import AthenaPoolOutputStream
+from OutputStreamAthenaPool.CreateOutputStreams import AthenaPoolOutputStream
 ostream = AthenaPoolOutputStream("StreamRDO", athenaCommonFlags.PoolRDOOutput(), True)
 
 ostream.TakeItemsFromInput = True
