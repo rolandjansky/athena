@@ -88,14 +88,15 @@ InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
   declareProperty("useZBoundFinding"        ,m_useZBoundaryFinding );
   declareProperty("maxVertices"             ,m_nvertex             );
   declareProperty("PropagatorTool"          ,m_proptool            );
-  declareProperty("BeamConditionsService"   ,m_beamconditions     ); 
+  declareProperty("BeamConditionsService"   ,m_beamconditions      ); 
   declareProperty("HistSize"                ,m_histsize            );
   declareProperty("Zcut"                    ,m_zcut                );
   declareProperty("MagneticFieldMode"       ,m_fieldmode           );
   declareProperty("ITKGeometry"             ,m_ITKGeometry         );
   declareProperty("useITKPPSseeds"          ,m_useITKPPSseeds      );
+  declareProperty("useConvSeeded"           ,m_useConvSeeded       );
   declareProperty("doFastTracking"          ,m_doFastTracking      );
-  declareProperty("InDetEtaDependentCutsSvc",m_etaDependentCutsSvc);
+  declareProperty("InDetEtaDependentCutsSvc",m_etaDependentCutsSvc );
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -117,6 +118,11 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
   // Get track-finding tool
   //
   ATH_CHECK(m_trackmaker.retrieve());
+  
+  // Get region selector for conv seeded
+  //
+  if(m_useConvSeeded)
+    ATH_CHECK(m_regionSelector.retrieve());
   
   // Get InDetDynamicCutsTool
   //
