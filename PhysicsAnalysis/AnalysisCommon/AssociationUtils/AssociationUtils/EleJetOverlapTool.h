@@ -76,7 +76,7 @@ namespace ORUtils
       std::string m_bJetLabel;
 
       /// Max electron PT for b-tag aware OR
-      double m_maxElePt;
+      double m_maxElePtForBJetAwareOR;
 
       /// Toggle PT ratio criteria
       bool m_applyPtRatio;

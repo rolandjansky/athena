@@ -28,7 +28,7 @@ namespace ORUtils
   {
     declareProperty("BJetLabel", m_bJetLabel = "",
                     "Input b-jet flag. Disabled by default.");
-    declareProperty("MaxElePt", m_maxElePt = 100.*GeV,
+    declareProperty("MaxElePtForBJetAwareOR", m_maxElePtForBJetAwareOR = 100.*GeV,
                     "Max electron PT for b-tag aware OR. 100 GeV by default.");
     declareProperty("ApplyPtRatio", m_applyPtRatio = false,
                     "Toggle ele/jet PT ratio requirement");
@@ -60,15 +60,15 @@ namespace ORUtils
     // Initialize the b-jet helper
     if(!m_bJetLabel.empty()) {
 
-      if (m_maxElePt < 0){
-        m_maxElePt = std::numeric_limits<double>::max();
+      if (m_maxElePtForBJetAwareOR < 0){
+        m_maxElePtForBJetAwareOR = std::numeric_limits<double>::max();
         ATH_MSG_DEBUG("Configuring btag-aware OR with btag label " <<
                       m_bJetLabel << " for all electrons");
       }
       else{
         ATH_MSG_DEBUG("Configuring btag-aware OR with btag label " <<
                       m_bJetLabel << " for electrons below "
-                      << m_maxElePt/GeV << " GeV");
+                      << m_maxElePtForBJetAwareOR/GeV << " GeV");
       }
       m_bJetHelper = make_unique<BJetHelper>(m_bJetLabel);
     }
@@ -141,7 +141,7 @@ namespace ORUtils
         if(!m_decHelper->isSurvivingObject(*jet)) continue;
         // Don't reject user-defined b-tagged jets below an electron pT threshold
         if(m_bJetHelper && m_bJetHelper->isBJet(*jet) &&
-           electron->pt() < m_maxElePt) continue;
+           electron->pt() < m_maxElePtForBJetAwareOR) continue;
         // Don't reject jets with high relative PT
         if(m_applyPtRatio && (electron->pt()/jet->pt() < m_eleJetPtRatio)) continue;
 
