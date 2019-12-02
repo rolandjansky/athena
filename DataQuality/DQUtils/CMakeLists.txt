@@ -18,7 +18,6 @@ find_package( PythonLibs )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 find_package( pyanalysis )
 find_package( pygraphics )
-find_package( pytools )
 find_package( six )
 find_package( sqlalchemy )
 
