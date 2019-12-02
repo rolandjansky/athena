@@ -8,7 +8,6 @@
 #include <fstream>
 #include <string>
 #include <stdexcept>
-#include <cmath> // TO DO: clean when getITkAC_closestAngle is removed
 
 
 namespace PixelCalib{
