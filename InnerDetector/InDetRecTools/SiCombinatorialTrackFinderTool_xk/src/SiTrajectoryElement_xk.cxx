@@ -176,9 +176,7 @@ bool InDet::SiTrajectoryElement_xk::firstTrajectorElement
   if (not m_tools->isITkGeometry())
     noiseProduction(1,m_parametersUF);
   else {
-    double radl = m_radlength;  m_radlength= 1.;
-    noiseProduction(1,m_parametersUF);
-    m_radlength    = radl ;    
+    noiseProduction(1,m_parametersUF,1.);
   }
 
   m_dist         = -10. ;
@@ -1317,11 +1315,12 @@ InDet::SiTrajectoryElement_xk::trackParameters(bool cov,int Q)
 ///////////////////////////////////////////////////////////////////
 
 void  InDet::SiTrajectoryElement_xk::noiseProduction
-(int Dir,const Trk::PatternTrackParameters& Tp)
+(int Dir,const Trk::PatternTrackParameters& Tp, double rad_length)
 {
-
   int Model = m_noisemodel; 
   if(Model < 1 || Model > 2) return; 
+  
+  if (rad_length<0.) rad_length=m_radlength;
 
   double q = fabs(Tp.par()[4]);
   double s = fabs(m_A[0]*m_Tr[6]+m_A[1]*m_Tr[7]+m_A[2]*m_Tr[8]); 
@@ -1332,7 +1331,7 @@ void  InDet::SiTrajectoryElement_xk::noiseProduction
   }
   double d = (1.-m_A[2])*(1.+m_A[2]);   if(d < 1.e-5) d = 1.e-5;
 
-  m_radlengthN = s*m_radlength; 
+  m_radlengthN = s*rad_length; 
   double covariancePola = (134.*m_radlengthN)*(q*q);
   double covarianceAzim = covariancePola/d;
   double covarianceIMom,correctionIMom;
