@@ -13,35 +13,29 @@ namespace ROIB {
   class MuCTPIRoI;
 }
 
+
 class ITrigMuonRoITool: virtual public IAlgTool 
 {
  public:
   DeclareInterfaceID( ITrigMuonRoITool, 1, 0 );
 
-  /**
-   * @brief Accessor to an iterator over all RoIs in time with the event
-   * @return handle to the begin iterator
-   */
-  virtual std::vector<ROIB::MuCTPIRoI>::const_iterator begin_InTimeRoIs() = 0;
+  struct MuonRois{
+    MuonRois(std::vector<ROIB::MuCTPIRoI>* inroi,
+	     std::vector< std::pair<ROIB::MuCTPIRoI,int> >* outroi)
+    : inTimeRois( inroi),
+      outOfTimeRois( outroi ) {}
+    std::vector<ROIB::MuCTPIRoI>* inTimeRois;
+    std::vector< std::pair<ROIB::MuCTPIRoI,int> >* outOfTimeRois;
+  };
+
 
   /**
-   * @brief Accessor to an iterator over all RoIs in time with the event
-   * @return handle to the end iterator
+   * @brief Accessor to the vectors of all RoIs in and out of time with the event.
+   * @brief Out of time RoIs stored as pair<out of time muon RoIs, difference: RoI(BCID)-event(BCID)> > 
+   * @return Structure containing in and out of time RoIs
    */
-  virtual std::vector<ROIB::MuCTPIRoI>::const_iterator end_InTimeRoIs() = 0;
+  /// Decoding the muCTPi RoIB and DAQ ROB and return in and out of time RoIs
+  virtual std::unique_ptr<MuonRois> decodeMuCTPi()=0;
 
-  /**
-   * @brief Accessor to an iterator over all RoIs out of time with the event.
-   * @brief pair < Muon RoI in RoIB format, difference: RoI(BCID)-event(BCID) > 
-   * @return handle to the begin iterator
-   */
-  virtual std::vector< std::pair<ROIB::MuCTPIRoI,int> >::const_iterator begin_OutOfTimeRoIs() = 0;
-
-  /**
-   * @brief Accessor to an iterator over all RoIs out of time with the event.
-   * @brief pair < Muon RoI in RoIB format, difference: RoI(BCID)-event(BCID) > 
-   * @return handle to the end iterator
-   */
-  virtual std::vector< std::pair<ROIB::MuCTPIRoI,int> >::const_iterator end_OutOfTimeRoIs() = 0;
 };
 #endif

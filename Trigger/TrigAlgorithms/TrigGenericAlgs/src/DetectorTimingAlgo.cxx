@@ -264,30 +264,37 @@ HLT::ErrorCode DetectorTimingAlgo::hltExecute(std::vector<HLT::TEVec>& tes_in, u
       
     // }
 
-    
+
+    //get muon RoIs
+    auto roiVectors = m_trigMuonRoITool->decodeMuCTPi();
+    if(!roiVectors){
+      ATH_MSG_VERBOSE("No RoIs found");
+      return HLT::OK;
+    }
+
     if ( (l1accept_type==2 ||  l1accept_type==4 || l1accept_type==6 || l1accept_type==7) || ( other_type==2 ||  other_type==4 || other_type==6 || other_type==7) ){
 
       // now get a list of the in and out of time muon ROIS:
       if( (l1accept_type==2 ||  l1accept_type==4 || l1accept_type==6 || l1accept_type==7) ){
-	for  (std::vector< ROIB::MuCTPIRoI >::const_iterator it = m_trigMuonRoITool->begin_InTimeRoIs();
-	      it != m_trigMuonRoITool->end_InTimeRoIs(); ++it) {
+	//loop over in time RoIs
+	for(auto it : *(roiVectors->inTimeRois)){
 
-	  if ( ((*it).pt() <6  )) continue;
+	  if ( ((it).pt() <6  )) continue;
 
 	  //// need to reject the long L1 signals.. reject rois which are the same as in the BCID before:
 	  bool overlapsintime=false;
-	  for  (std::vector< std::pair<ROIB::MuCTPIRoI,int> >::const_iterator itoot = m_trigMuonRoITool->begin_OutOfTimeRoIs();
-		itoot != m_trigMuonRoITool->end_OutOfTimeRoIs(); ++itoot) {
-	    if ( (*itoot).second != -1 ) continue; // if its not one BCID before continue
-	    if( ((*itoot).first).getSectorID() == (*it).getSectorID() &&
-		((*itoot).first).getSectorAddress() == (*it).getSectorAddress() ){
+	  //loop over out of time rois
+	  for(auto itoot : *(roiVectors->outOfTimeRois)){
+	    if ( (itoot).second != -1 ) continue; // if its not one BCID before continue
+	    if( ((itoot).first).getSectorID() == (it).getSectorID() &&
+		((itoot).first).getSectorAddress() == (it).getSectorAddress() ){
 	      overlapsintime=true;
 	      break;
 	    }
 	  }  
 	  if(overlapsintime) continue;
 	  
-	  unsigned int temp_sysID = getBitMaskValue(((*it)).getSectorAddress(), LVL1::SysIDMask );
+	  unsigned int temp_sysID = getBitMaskValue(((it)).getSectorAddress(), LVL1::SysIDMask );
 	  unsigned int sysID = 0;                // Barrel
 	  if( temp_sysID & 0x2 ) sysID = 1;      // Endcap
 	  else if( temp_sysID & 0x1 ) sysID = 2; // Forward
@@ -295,7 +302,7 @@ HLT::ErrorCode DetectorTimingAlgo::hltExecute(std::vector<HLT::TEVec>& tes_in, u
      
 	  
 	  if( sysID == 0 ) {  // only if its in the RPC domain.. we are not interested in the other detectors
-	    m_recRPCRoiSvc->reconstruct( ((*it)).roIWord() );
+	    m_recRPCRoiSvc->reconstruct( ((it)).roIWord() );
 	    float eta = m_recRPCRoiSvc->eta();
 	    float phi = m_recRPCRoiSvc->phi();
 
@@ -307,32 +314,32 @@ HLT::ErrorCode DetectorTimingAlgo::hltExecute(std::vector<HLT::TEVec>& tes_in, u
 
       
       if ( other_type==2 ||  other_type==4 || other_type==6 || other_type==7){
-	
-	for  (std::vector< std::pair<ROIB::MuCTPIRoI,int> >::const_iterator it = m_trigMuonRoITool->begin_OutOfTimeRoIs();
-	      it != m_trigMuonRoITool->end_OutOfTimeRoIs(); ++it) {
-	  if (abs((*it).second) !=1) continue;
-	  if ( ((*it).first).pt() < 6 ) continue;
+
+	//loop over out of time rois
+	for(auto it : *(roiVectors->outOfTimeRois)){
+	  if (abs((it).second) !=1) continue;
+	  if ( ((it).first).pt() < 6 ) continue;
 
 	  //// need to reject the long L1 signals.. reject rois which are the same as in the central BCID:
-	  if( (*it).second == +1 ) { // if this ROI is actually a late ROI.. for early ones we don't do anything
+	  if( (it).second == +1 ) { // if this ROI is actually a late ROI.. for early ones we don't do anything
 	    bool overlapsintime=false;
-	    for  (std::vector< ROIB::MuCTPIRoI >::const_iterator itintime = m_trigMuonRoITool->begin_InTimeRoIs();
-		  itintime != m_trigMuonRoITool->end_InTimeRoIs(); ++itintime) {
-	      if( ((*it).first).getSectorID() == (*itintime).getSectorID() &&
-		  ((*it).first).getSectorAddress() == (*itintime).getSectorAddress() ){
+	    //loop over in time rois
+	    for(auto itintime : *(roiVectors->inTimeRois)){
+	      if( ((it).first).getSectorID() == (itintime).getSectorID() &&
+		  ((it).first).getSectorAddress() == (itintime).getSectorAddress() ){
 		overlapsintime=true;
 		break;
 	      }
 	    }
 	    if(overlapsintime) continue;
 	  }
-	  unsigned int temp_sysID = getBitMaskValue(((*it).first).getSectorAddress(), LVL1::SysIDMask );
+	  unsigned int temp_sysID = getBitMaskValue(((it).first).getSectorAddress(), LVL1::SysIDMask );
 	  unsigned int sysID = 0;                // Barrel
 	  if( temp_sysID & 0x2 ) sysID = 1;      // Endcap
 	  else if( temp_sysID & 0x1 ) sysID = 2; // Forward
 	  
 	  if( sysID == 0 ) {  // only if its in the RPC domain.. we are not interested in the other detectors
-	    m_recRPCRoiSvc->reconstruct( ((*it).first).roIWord() );
+	    m_recRPCRoiSvc->reconstruct( ((it).first).roIWord() );
 	    float eta = m_recRPCRoiSvc->eta();
 	    float phi = m_recRPCRoiSvc->phi();
 	     
