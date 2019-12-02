@@ -102,7 +102,15 @@
   int JetForwardPFlowJvtTool::modify(xAOD::JetContainer& jetCont) const {
     std::vector<TVector2> pileupMomenta;
     pileupMomenta=calculateVertexMomenta(&jetCont,m_pvind, m_vertices);
-    if(pileupMomenta.size()==0) return StatusCode::FAILURE;
+
+    if(pileupMomenta.size()==0) {
+      ATH_MSG_WARNING( "pileupMomenta is empty, fJVT will not be computed." );
+      for(const xAOD::Jet* jetF : jetCont) {
+	(*Dec_outFjvt)(*jetF) = 1;
+	fjvt_dec(*jetF) = -1;
+      }
+      return 1;
+    }
 
     for(const xAOD::Jet* jetF : jetCont) {
       (*Dec_outFjvt)(*jetF) = 1;
@@ -153,15 +161,15 @@
       TString jname = m_jetsName;
       jname += vx->index();
       const xAOD::JetContainer* vertex_jets  = nullptr;
-      
+
       // Check if pflow pileup jet container exists
       if( !evtStore()->contains<xAOD::JetContainer>(jname.Data()) ){
-	
 	// if not, build it
 	if( buildPFlowPUjets(*vx,*pfos).isFailure() ){
 	  ATH_MSG_WARNING(" Some issue appeared while building the pflow pileup jets for vertex "<< vx->index() << " (vxType = " << vx->vertexType()<<" )!" );
 	}
-	
+      } else {
+	ATH_MSG_WARNING( jname.Data() << " already exists. Existing container will be used.");
       }
       
       if(evtStore()->retrieve(vertex_jets,jname.Data()).isFailure()){

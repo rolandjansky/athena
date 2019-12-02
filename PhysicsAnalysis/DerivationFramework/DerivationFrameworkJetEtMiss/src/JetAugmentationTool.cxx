@@ -143,18 +143,6 @@ namespace DerivationFramework {
       }
     }
 
-	
-////    ATH_MSG_INFO(" Retrieving fjvt tool (" << m_fjvtTool <<") for jet collection " << m_containerName);
-//    if(!m_fjvtTool.empty()) {
-//      CHECK(m_fjvtTool.retrieve());
-//      ATH_MSG_INFO("Augmenting (PFlow) jets with fJVT \"" << m_momentPrefix+m_fjvtMomentKey << "\"");
-//      m_dofjvt = true;
-//      
-//      dec_fjvt  = std::make_unique< SG::AuxElement::Decorator<float> >(m_momentPrefix+m_fjvtMomentKey);
-//      //dec_passfjvt  = std::make_unique< SG::AuxElement::Decorator<char> >(m_momentPrefix+"pass"+m_fjvtMomentKey);
-//    } else {
-//      ATH_MSG_INFO(" PFlow fJVT tool is missing ");
-//    }
 
     if(!m_jetJvtEfficiencyTool.empty()) {
       CHECK(m_jetJvtEfficiencyTool.retrieve());

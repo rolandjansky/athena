@@ -222,6 +222,8 @@ def applyJetAugmentation(jetalg,algname,sequence,jetaugtool):
         extjetlog.info('Augmentations for PFlow jets: {}'.format(jetaug.AugmentationTools))
     if jetalg=='AntiKt4EMTopo':
         extjetlog.info('Augmentations for EMTopo jets: {}'.format(jetaug.AugmentationTools))
+    if jetalg=='AntiKt4LCTopo':
+        extjetlog.info('Augmentations for LCTopo jets: {}'.format(jetaug.AugmentationTools))
 
 def getJetAugmentationTool(jetalg, suffix=''):
     jetaugtoolname = 'DFJetAug_'+jetalg+suffix
@@ -268,9 +270,9 @@ def getJetExternalAssocTool(jetalg, extjetalg, **options):
 
     return jetassoctool
 
-def applyJetCalibration(jetalg,algname,sequence,fatjetconfig = 'comb'):
+def applyJetCalibration(jetalg,algname,sequence,fatjetconfig = 'comb', suffix = ''):
     calibtoolname = 'DFJetCalib_'+jetalg
-    jetaugtool = getJetAugmentationTool(jetalg)
+    jetaugtool = getJetAugmentationTool(jetalg, suffix)
 
     if '_BTagging' in jetalg:
         jetalg_basename = jetalg[:jetalg.find('_BTagging')]
@@ -350,8 +352,8 @@ def applyJetCalibration_CustomColl(jetalg='AntiKt10LCTopoTrimmedPtFrac5SmallR20'
     else:
         applyJetCalibration(jetalg,'JetCommonKernel_{0}'.format(jetalg),sequence)
 
-def updateJVT(jetalg,algname,sequence):
-    jetaugtool = getJetAugmentationTool(jetalg)
+def updateJVT(jetalg,algname,sequence, suffix = ''):
+    jetaugtool = getJetAugmentationTool(jetalg, suffix)
     if(jetaugtool==None or jetaugtool.JetCalibTool==''):
         extjetlog.warning('*** JVT update called but corresponding augmentation tool does not exist! ***')
         extjetlog.warning('*** You must apply jet calibration before scheduling JVT! ***')
@@ -447,7 +449,9 @@ def getPFlowfJVT(jetalg,algname,sequence):
         extjetlog.warning('*** pfwarning: PFlow fJvt augmentation requested for unsupported jet collection {}! ***'.format(jetalg))
         return
     else:
-        jetaugtool = getJetAugmentationTool(jetalg)
+        applyJetCalibration(jetalg,algname,sequence,suffix='_PFlow_fJVT')
+        updateJVT(jetalg,algname,sequence,suffix='_PFlow_fJVT')
+        jetaugtool = getJetAugmentationTool(jetalg,suffix='_PFlow_fJVT')
 
         if(jetaugtool==None or jetaugtool.JetCalibTool=='' or jetaugtool.JetJvtTool==''):
             extjetlog.warning('***pfwarning:  PFlow fJvt called but required augmentation tool does not exist! ***')
@@ -723,9 +727,6 @@ eventCleanTight_xAODColl("AntiKt4EMTopo")
 eventCleanLooseLLP_xAODColl("AntiKt4EMTopo")
 eventCleanSuperLooseLLP_xAODColl("AntiKt4EMTopo")
 eventCleanVeryLooseLLP_xAODColl("AntiKt4EMTopo")
-
-applyJetCalibration_xAODColl("AntiKt4EMPFlow")
-updateJVT_xAODColl("AntiKt4EMPFlow")
 
 ##################################################################
 # Helper to add origin corrected clusters

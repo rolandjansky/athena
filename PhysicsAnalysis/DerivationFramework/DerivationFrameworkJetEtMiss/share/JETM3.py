@@ -156,8 +156,6 @@ jetm3Seq += CfgMgr.DerivationFramework__DerivationKernel(	name = "JETM3Kernel",
                                                                 SkimmingTools = [JETM3SkimmingTool],
                                                                 ThinningTools = thinningTools,
                                                                 AugmentationTools = [TrigMatchAug])
-# PFlow augmentation
-applyPFOAugmentation(jetm3Seq)
 
 OutputJets["JETM3"] = []
 
