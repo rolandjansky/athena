@@ -2,8 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef OVERLAYCOMMONALGS_COPYTRACKRECORDCOLLECTION_H
-#define OVERLAYCOMMONALGS_COPYTRACKRECORDCOLLECTION_H
+#ifndef OVERLAYCOPYALGS_COPYTRACKRECORDCOLLECTION_H
+#define OVERLAYCOPYALGS_COPYTRACKRECORDCOLLECTION_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "TrackRecord/TrackRecordCollection.h"
@@ -24,4 +24,4 @@ private:
   Gaudi::Property<std::string> m_collectionName{ this, "collectionName", "", "TrackRecordCollection collection name" };
 };
 
-#endif // OVERLAYCOMMONALGS_COPYTRACKRECORDCOLLECTION_H
+#endif // OVERLAYCOPYALGS_COPYTRACKRECORDCOLLECTION_H

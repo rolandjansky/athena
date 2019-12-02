@@ -19,7 +19,7 @@ def CopyMcEventCollectionCfg(flags, name = "CopyMcEventCollection", **kwargs):
     kwargs.setdefault("OutputKey", "TruthEvent")
 
     # Merge and copy McEventCollection
-    from OverlayCommonAlgs.OverlayCommonAlgsConf import CopyMcEventCollection
+    from OverlayCopyAlgs.OverlayCopyAlgsConf import CopyMcEventCollection
     alg = CopyMcEventCollection(name, **kwargs)
     acc.addEventAlgo(alg)
 

@@ -2,8 +2,8 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef OVERLAYCOMMONALGS_COPYJETTRUTHINFO_H
-#define OVERLAYCOMMONALGS_COPYJETTRUTHINFO_H
+#ifndef OVERLAYCOPYALGS_COPYJETTRUTHINFO_H
+#define OVERLAYCOPYALGS_COPYJETTRUTHINFO_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "xAODJet/JetContainer.h"
@@ -23,4 +23,4 @@ private:
 
 };
 
-#endif // OVERLAYCOMMONALGS_COPYJETTRUTHINFO_H
+#endif // OVERLAYCOPYALGS_COPYJETTRUTHINFO_H

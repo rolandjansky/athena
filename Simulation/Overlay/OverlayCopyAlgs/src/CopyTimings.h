@@ -2,8 +2,8 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef OVERLAYCOMMONALGS_COPYTIMINGS_H
-#define OVERLAYCOMMONALGS_COPYTIMINGS_H
+#ifndef OVERLAYCOPYALGS_COPYTIMINGS_H
+#define OVERLAYCOPYALGS_COPYTIMINGS_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "RecEvent/RecoTimingObj.h"
@@ -24,4 +24,4 @@ private:
 
 };
 
-#endif // OVERLAYCOMMONALGS_COPYTIMINGS_H
+#endif // OVERLAYCOPYALGS_COPYTIMINGS_H

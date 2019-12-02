@@ -2,8 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef OVERLAYCOMMONALGS_COPYCALOCALIBRATIONHITCONTAINER_H
-#define OVERLAYCOMMONALGS_COPYCALOCALIBRATIONHITCONTAINER_H
+#ifndef OVERLAYCOPYALGS_COPYCALOCALIBRATIONHITCONTAINER_H
+#define OVERLAYCOPYALGS_COPYCALOCALIBRATIONHITCONTAINER_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "CaloSimEvent/CaloCalibrationHitContainer.h"
@@ -24,4 +24,4 @@ private:
   Gaudi::Property<std::string> m_collectionName{ this, "collectionName", "", "CaloCalibrationHitContainer collection name" };
 };
 
-#endif // OVERLAYCOMMONALGS_COPYCALOCALIBRATIONHITCONTAINER_H
+#endif // OVERLAYCOPYALGS_COPYCALOCALIBRATIONHITCONTAINER_H
