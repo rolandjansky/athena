@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 import sys
 import traceback
@@ -28,10 +30,9 @@ try:
                                             TrigCaloCellMaker_eGamma_cells)
     from TrigEgammaRec.TrigEgammaToolFactories import TrigCaloClusterMaker_slw
     
-except Exception, e:
-    print 'makeCaloSequences: import failed'
-    print e
-    print  exc2string2()
+except Exception:
+    print ('makeCaloSequences: import failed')
+    traceback.print_exc()
     sys.exit(1)
 
 class SequenceSpecifier(object):
@@ -114,7 +115,7 @@ def EgammaSlwClusterSequence(te_in,te_out):
 
 if __name__ == '__main__':
     seq = fullScanTopoClusterSequence()
-    print seq
+    print (seq)
 
     seq2 = EgammaSlwClusterSequence("EF_step0","EF_step1")
-    print seq2
+    print (seq2)

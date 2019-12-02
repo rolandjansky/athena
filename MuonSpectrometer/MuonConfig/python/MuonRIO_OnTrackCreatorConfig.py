@@ -53,8 +53,6 @@ def MdtDriftCircleOnTrackCreatorCfg(flags,name="MdtDriftCircleOnTrackCreator", *
     result=ComponentAccumulator()
     
     # setup dependencies missing in C++. TODO: fix in C++
-    # acc  = MdtCalibrationSvcCfg(flags)
-    # result.merge(acc)
     #
     # acc = MdtCalibrationDbSvcCfg(flags)
     # result.merge(acc)

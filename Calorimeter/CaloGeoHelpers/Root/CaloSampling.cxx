@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloGeoHelpers/CaloSampling.h"
@@ -14,11 +14,6 @@ const char* const sample_names[] = {
 
 } // anonymous namespace
 
-unsigned int CaloSampling::getNumberOfSamplings()
-{
-  return (unsigned int)Unknown;
-}
-
 
 std::string CaloSampling::getSamplingName (CaloSample theSample)
 {
@@ -31,4 +26,15 @@ std::string CaloSampling::getSamplingName (unsigned int theSample)
   if (theSample >= getNumberOfSamplings())
     return "";
   return sample_names[theSample];
+}
+
+
+CaloSampling::CaloSample CaloSampling::getSampling (const std::string& name)
+{
+  for (int samp = 0; samp != static_cast<int>(Unknown); ++samp) {
+    if (sample_names[samp] == name) {
+      return static_cast<CaloSample> (samp);
+    }
+  }
+  return Unknown;
 }

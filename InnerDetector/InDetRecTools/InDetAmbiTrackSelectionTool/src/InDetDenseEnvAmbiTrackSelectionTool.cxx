@@ -24,7 +24,6 @@
 #include "TrkTrack/TrackInfo.h"
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkTrackSummary/TrackSummary.h"
-#include "TrkValInterfaces/ITrkObserverTool.h"
 
 #include "TString.h"
 
@@ -63,17 +62,6 @@ StatusCode InDet::InDetDenseEnvAmbiTrackSelectionTool::initialize()
 
   ATH_CHECK(detStore()->retrieve(m_detID, "SiliconID"));
  
-  if (m_monitorTracks) {
-    if (m_observerTool.retrieve().isFailure()) {
-      ATH_MSG_ERROR("Failed to retrieve AlgTool " << m_observerTool);
-      m_monitorTracks.set(false);
-    } else {
-      ATH_MSG_INFO( "Retrieved tool " << m_observerTool );
-    }
-  } else {
-    m_observerTool.disable();
-  }
-
   ATH_CHECK(m_assoTool.retrieve());
 
   ATH_CHECK(m_incidentSvc.retrieve());
@@ -278,9 +266,6 @@ std::tuple<Trk::Track*,bool> InDet::InDetDenseEnvAmbiTrackSelectionTool::getClea
     // catch, if this is cosmics, accept the incoming track
     if (m_cosmics) {
       ATH_MSG_DEBUG ("=> Cosmics, accept input track even with shared hits");
-      if (m_monitorTracks) {
-        m_observerTool->rejectTrack(*ptrTrack, 0);    // cosmic track should not be rejected
-      }
       return std::make_tuple(static_cast<Trk::Track *>(nullptr),true); // keep input track
     }
 
@@ -374,8 +359,6 @@ std::tuple<Trk::Track*,bool> InDet::InDetDenseEnvAmbiTrackSelectionTool::getClea
     if ( trackHitDetails.numUnused+trackHitDetails.numPixelDeadSensor+trackHitDetails.numSCTDeadSensor+trackHitDetails.numSplitSharedPix+merged_sct  < m_minHits || newTSOS.size() <= 3 ) {
       //WPM another problematic if statment
       ATH_MSG_DEBUG ("=> Too few hits, reject track with shared hits");
-      if (m_monitorTracks && TrkCouldBeAccepted)  // otherwise (!TrkCouldBeAccepted) already rejected
-        m_observerTool->rejectTrack(*ptrTrack, 111);    // rejection location 111: "Too few hits, reject track with shared hits"
       ATH_MSG_VERBOSE ("newTSOS.size(): "<<newTSOS.size() );
       ATH_MSG_DEBUG ("reject track; Too few hits, reject track with shared hits");
       return std::make_tuple(static_cast<Trk::Track *>(nullptr),false); // reject input track
@@ -389,9 +372,6 @@ std::tuple<Trk::Track*,bool> InDet::InDetDenseEnvAmbiTrackSelectionTool::getClea
       if (!trackHitDetails.isPatternTrack){
         updatePixelClusterInformation( tsosDetails ); 
       }
-      if (m_monitorTracks) {
-        m_observerTool->rejectTrack(*ptrTrack, 0);    // maybe track was mark as rejected, but we recoverd it so no rejection
-      }
       ATH_MSG_DEBUG ("reject track; maybe track was mark as rejected, but we recoverd it so no rejection");
       return std::make_tuple(static_cast<Trk::Track *>(nullptr),true); // keep input track
     } else {
@@ -399,8 +379,6 @@ std::tuple<Trk::Track*,bool> InDet::InDetDenseEnvAmbiTrackSelectionTool::getClea
       Trk::Track* newTrack = createSubTrack(newTSOS,ptrTrack);
       if (!newTrack) {
         ATH_MSG_DEBUG ("=> Failed to create subtrack");
-        if (m_monitorTracks && TrkCouldBeAccepted)  // otherwise (!TrkCouldBeAccepted) already rejected
-          m_observerTool->rejectTrack(*ptrTrack, 112);    // rejection location 112: "Failed to create subtrack"
         ATH_MSG_DEBUG ("reject track; Failed to create subtrack");
         return std::make_tuple(static_cast<Trk::Track *>(nullptr),false); // reject input track
       }
@@ -413,18 +391,10 @@ std::tuple<Trk::Track*,bool> InDet::InDetDenseEnvAmbiTrackSelectionTool::getClea
       newTrack->info().addPatternReco(ptrTrack->info()); 
 
       ATH_MSG_DEBUG ("=> Successfully created subtrack with shared hits recovered !");
-      if (m_monitorTracks) {
-        m_observerTool->rejectTrack(*ptrTrack, 113);    // rejection location 113: There is a cleaner track, subtrack created
-        ATH_MSG_DEBUG ("reject track; There is a cleaner track, subtrack created");
-        // observer Tool creates subtrack in ProcessorTool.cxx  
-      }
       return std::make_tuple(newTrack,false); // create new, cleaned track and reject input track
     }
   } else {
     ATH_MSG_DEBUG ("=> Track is recommended to be dropped");
-    if (m_monitorTracks && TrkCouldBeAccepted) { // otherwise (!TrkCouldBeAccepted) already rejected
-      m_observerTool->rejectTrack(*ptrTrack, 114);    // rejection location 114: "other"
-    }
     ATH_MSG_DEBUG ("reject track; other");
   }
   return std::make_tuple(static_cast<Trk::Track *>(nullptr),false); // reject input track
@@ -834,9 +804,6 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
       tsosDetails.type[index]    = RejectedHit;
       // Mark track as bad !
       TrkCouldBeAccepted = false;
-      if (m_monitorTracks) {
-        m_observerTool->rejectTrack(*ptrTrack, 101);    // rejection location 101: "problematic single pixel hit on track"
-      }
       ATH_MSG_DEBUG ("reject track; Special case, problematic single pixel hit on track, reject it !");
       continue;             
     }
@@ -864,9 +831,6 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
              !( tsosDetails.type[indexPreviousMeasurement]  == SplitSharedHit || tsosDetails.type[indexPreviousMeasurement]  == SharedHit ||
                 tsosDetails.splitProb1[indexPreviousMeasurement] >= m_sharedProbCut || tsosDetails.splitProb2[indexPreviousMeasurement] >= m_sharedProbCut2) ) {
           ATH_MSG_VERBOSE ("--->  Previous hit was not shared or compatible with a split hit!!!");
-          if (m_monitorTracks) {
-            m_observerTool->rejectTrack(*ptrTrack, 102);    // rejection location 102: "Previous hit was not shared or compatible with a split hit"
-          }
           TrkCouldBeAccepted = false; // we have to remove at least one PRD
           tsosDetails.type[index]    = RejectedHit;            
           continue;
@@ -905,9 +869,6 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
         if ( tsosDetails.splitProb1[index] >= m_sharedProbCut && tsosDetails.splitProb2[index] < m_sharedProbCut2){
           if (tsosDetails.hitIsShared[index] >= 2){
             ATH_MSG_VERBOSE ("---> Pixel cluster is split, and sheared  between too many tracks  -- hit will be removed from the track!!!");
-            if (m_monitorTracks) {
-              m_observerTool->rejectTrack(*ptrTrack, 103);    // rejection location 103: "Pixel cluster is split, and sheared  between too many tracks  -- hit will be removed from the track"
-            }
             TrkCouldBeAccepted = false;        // Flag that we need to remove the at least one hit
             tsosDetails.type[index] = RejectedHit;
             continue;
@@ -938,8 +899,6 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
         }  else if ( tsosDetails.splitProb2[index] >= m_sharedProbCut2){
           if (tsosDetails.hitIsShared[index] >= m_maxPixMultiCluster ){
             ATH_MSG_VERBOSE ("---> Pixel cluster is split, and sheared  between too many tracks -- hit will be removed from the track!!!");
-            if (m_monitorTracks)
-              m_observerTool->rejectTrack(*ptrTrack, 104);    // rejection location 104: "Pixel cluster is split, and sheared  between too many tracks  -- hit will be removed from the track"
             TrkCouldBeAccepted = false;      // Flag that we need to remove the at least one hit
             tsosDetails.type[index]    = RejectedHit;
             continue;
@@ -974,9 +933,6 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
                         << tsosDetails.splitProb2[index] << ") , reject shared hit !!!");
         if ( tsosDetails.hitIsShared[index] >= 2 ) {
           TrkCouldBeAccepted = false; // we have to remove at least one PRD   
-          if (m_monitorTracks) {
-            m_observerTool->rejectTrack(*ptrTrack, 105);    // rejection location 105: "Too many hits shared - we have to remove at least one PRD" 
-          }
           ATH_MSG_DEBUG ("reject track; Too many hits shared - we have to remove at least one PRD 105");    
           tsosDetails.type[index]    = RejectedHit;
           continue; 
@@ -999,9 +955,6 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
     } else if (tsosDetails.type[index] == Outlier &&  tsosDetails.hitIsShared[index] <= 0){
       continue;
     } else {
-      if (m_monitorTracks) {
-        m_observerTool->rejectTrack(*ptrTrack, 106);    // rejection location 106: "Too many hits shared - we have to remove at least one PRD"
-      }
       ATH_MSG_DEBUG ("reject track; Too many hits shared - we have to remove at least one PRD 106");
       TrkCouldBeAccepted         = false; // we have to remove at least one PRD       
       tsosDetails.type[index]    = RejectedHit;
@@ -1038,9 +991,6 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
     }
     // mark track as bad !
     TrkCouldBeAccepted     = false;
-    if (m_monitorTracks) {
-      m_observerTool->rejectTrack(*ptrTrack, 107);    // rejection location 107: "Special cut on distance or too many holes, reject last hit on track"
-    }
     ATH_MSG_DEBUG ("reject track; Special cut on distance or too many holes, reject last hit on track");    
   }
 
@@ -1227,9 +1177,6 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
       ATH_MSG_DEBUG ("Shared hits, we have a bad chi2 track, mark it as bad !");
       // mark track as bad !
       TrkCouldBeAccepted = false;
-      if (m_monitorTracks) {
-        m_observerTool->rejectTrack(*ptrTrack, 108);    // rejection location 108: "Shared hits, we have a bad chi2 track"
-      }
       ATH_MSG_DEBUG ("reject track; Shared hits, we have a bad chi2 track");
     }
   }
@@ -1240,9 +1187,6 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
     ATH_MSG_DEBUG ("Track fails TRT hit cut, mark it as bad !");
     // mark track as bad !
     TrkCouldBeAccepted = false;
-    if (m_monitorTracks) {
-      m_observerTool->rejectTrack(*ptrTrack, 109);    // rejection location 109: "Track fails TRT hit cut, mark it as bad"
-    }
     ATH_MSG_DEBUG ("reject track; Track fails TRT hit cut, mark it as bad");
   }
   
@@ -1261,9 +1205,6 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
  
         if (numberOfTracksWithThisPrd > 0 && ( otherfailsMinUniqueHits || maxiShared >= m_maxShared )){
           TrkCouldBeAccepted = false;
-          if (m_monitorTracks) {
-            m_observerTool->rejectTrack(*ptrTrack, 110);    // rejection location 110: "Tracks shared hits will mess up an accpeted track"
-          }
           ATH_MSG_DEBUG ("reject track; Tracks shared hits will mess up an accepted track");
           tsosDetails.type[index] = RejectedHit;
           trackHitDetails.numShared--;                             // decrease counter 
@@ -1271,12 +1212,6 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
         }
       }
     }
-  }
-
-  if (m_monitorTracks) {
-    m_observerTool->updateHolesSharedHits(*ptrTrack, trackHitDetails.numPixelHoles, trackHitDetails.numSCTHoles, 
-                                          trackHitDetails.numSplitSharedPix, trackHitDetails.numSplitSharedSCT, trackHitDetails.numSharedOrSplit, 
-                                          trackHitDetails.numSharedOrSplitPixels, trackHitDetails.numShared); // add holes, split/shared hits to observer tool
   }
 
   if (msgLvl(MSG::VERBOSE)){

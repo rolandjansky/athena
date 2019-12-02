@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // File:  Generators/FlowAfterburnber/AddFlowByShifting.cxx
@@ -573,9 +573,8 @@ void AddFlowByShifting::jjia_minbias_new_v2only(double b, double eta, double pt)
 
 
 // Fixed vn
-void AddFlowByShifting::fixed_vn(double b, double eta, double pt)
+void AddFlowByShifting::fixed_vn(double /*b*/, double /*eta*/, double /*pt*/)
 {
-  b=b;eta=eta;pt=pt;// to avoid compiler warnings
   m_v_n[0]=0.0000; m_v_n[1]=0.0500;
   m_v_n[2]=0.0280; m_v_n[3]=0.0130;
   m_v_n[4]=0.0045; m_v_n[5]=0.0015;
@@ -583,9 +582,8 @@ void AddFlowByShifting::fixed_vn(double b, double eta, double pt)
 
 
 // Fixed 5% v2 (other vn=0)
-void AddFlowByShifting::fixed_v2(double b, double eta, double pt)
+void AddFlowByShifting::fixed_v2(double /*b*/, double /*eta*/, double /*pt*/)
 {
-  b=b;eta=eta;pt=pt; // to avoid compiler warnings
   m_v_n[0]=0.0000; m_v_n[1]=0.0500;
   m_v_n[2]=0.0000; m_v_n[3]=0.0000;
   m_v_n[4]=0.0000; m_v_n[5]=0.0000;
@@ -603,9 +601,8 @@ void AddFlowByShifting::jjia_minbias_old(double b, double eta, double pt)
 }
 
 
-void AddFlowByShifting::ao_test (double b, double eta, double pt)
+void AddFlowByShifting::ao_test (double b, double /*eta*/, double pt)
 {
-  eta=eta;  // to avoid compiler warnings
   pt/=1000;
   if(pt>2) pt = 2; // flat max at pt > 2
   m_v_n[1] = 0.02 * b * pt;
@@ -613,9 +610,8 @@ void AddFlowByShifting::ao_test (double b, double eta, double pt)
 }
 
 
-void AddFlowByShifting::custom_vn (double b, double eta, double pt)
+void AddFlowByShifting::custom_vn (double /*b*/, double /*eta*/, double /*pt*/)
 {
-  b=b;eta=eta;pt=pt ; // to avoid compiler warnings
   m_v_n[0]=m_custom_v1;
   m_v_n[1]=m_custom_v2;
   m_v_n[2]=m_custom_v3;
@@ -625,9 +621,8 @@ void AddFlowByShifting::custom_vn (double b, double eta, double pt)
 }
 
 // p_Pb vn
-void AddFlowByShifting::p_Pb_cent_eta_indep(double b, double eta, double pt)
+void AddFlowByShifting::p_Pb_cent_eta_indep(double /*b*/, double /*eta*/, double pt)
 {
-  b=b;eta=eta;  //to avoid compiler warnings
   pt=pt/1000.0; //convert to GeV
 
   float an_val[4][3];

@@ -61,7 +61,7 @@ topSequence += WriteThinnedData(
 # POOL Persistency
 #--------------------------------------------------------------
 import AthenaPoolCnvSvc.WriteAthenaPool as wap
-from OutputStreamAthenaPool.OutputStreamAthenaPool import createOutputStream
+from OutputStreamAthenaPool.CreateOutputStreams import createOutputStream
 
 if 'OUTPUT' not in dir():
    OUTPUT = "thinned.%s" % INPUT[0]

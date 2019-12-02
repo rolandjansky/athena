@@ -1,4 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 __author__  = 'Javier Montejo'
 __version__="$Revision: 1.01 $"
 __doc__="Access to Trigger DB and TriggerMenu to read past and future prescales"
@@ -9,7 +12,7 @@ from TriggerMenu.api.TriggerPeriodData import TriggerPeriodData
 
 def getRunLBFromU64(runlb):
     run = runlb >> 32
-    lb = runlb & ((1L<<32)-1)
+    lb = runlb & ((1<<32)-1)
     return ( int(run), int(lb) )
 
 
@@ -18,17 +21,17 @@ def getReadyForPhysicsInRange(period):
     returns all runs in the given period which have the ReadyForPhysics flag set in at least 1 LB
     """
 
-    print "Loading COOL libs..."
+    print ("Loading COOL libs...")
     from CoolLumiUtilities.CoolDataReader import CoolDataReader
-    print "Done loading libs, starting now ..."
+    print ("Done loading libs, starting now ...")
 
     myReader = CoolDataReader('COOLONL_TDAQ/CONDBR2', '/TDAQ/RunCtrl/DataTakingMode')
     runsWithReady = {}
 
     firstRun = min([x for x in period.keys()])
     lastRun = max([x for x in period.keys()])+1
-    since = ((1L*firstRun) << 32)
-    until = ((1L*lastRun) << 32)
+    since = (firstRun << 32)
+    until = (lastRun << 32)
 
     myReader.setIOVRange( since, until )
     myReader.readData()
@@ -40,14 +43,14 @@ def getReadyForPhysicsInRange(period):
         sincerun, sincelb = getRunLBFromU64(obj.since())
         untilrun, untillb = getRunLBFromU64(obj.until())
         if sincerun != untilrun:
-            print "WARNING: ready block crosses run boundaries:", sincerun, untilrun
+            print ("WARNING: ready block crosses run boundaries:", sincerun, untilrun)
         if sincerun not in period: continue
         if sincerun in runsWithReady:
             runsWithReady[sincerun] += [ (sincelb, untillb) ]
         else:
             runsWithReady[sincerun] = [ (sincelb, untillb) ]
 
-    print runsWithReady
+    print (runsWithReady)
 
     return runsWithReady
 
@@ -67,10 +70,10 @@ def getKeys( listOfRuns, doPrint = False ):
 
         listOfReadyBlocks = listOfRuns[run]
 
-        print "Getting keys for run %i, lbs %r" % (run, listOfReadyBlocks)
+        print ("Getting keys for run %i, lbs %r" % (run, listOfReadyBlocks))
 
-        since = ((1L*run) << 32) 
-        until = ((1L*(run+1)) << 32)
+        since = (run << 32) 
+        until = ((run+1) << 32)
 
         # super master key
         mySmkReader.setIOVRange( since, until - 1 )
@@ -83,8 +86,8 @@ def getKeys( listOfRuns, doPrint = False ):
 
         for sincelb, untillb in listOfReadyBlocks:
 
-            since = ((1L*run) << 32) + sincelb
-            until = ((1L*run) << 32) + untillb
+            since = (run << 32) + sincelb
+            until = (run << 32) + untillb
 
             # l1 prescale keys
             myL1pskReader.setIOVRange( since, until )
@@ -116,7 +119,7 @@ def getKeys( listOfRuns, doPrint = False ):
             #    keysByRun.setdefault(run,{}).setdefault('bgsk',[]).append(bgsk)
 
     if doPrint:
-        print keysByRun
+        print (keysByRun)
 
     return keysByRun
 
@@ -204,13 +207,13 @@ def fillHLTmap( info, hltMap_prev , lbCount, run, grlblocks):
     for lbstart, lbend, hltprescales, l1prescales in mergedList:
         lboverlap = max([min(lbend,grllbend) - max(lbstart,grllbstart) for (grllbstart,grllbend) in grlblocks])+1
         if lboverlap <= 0:
-            #print "Rejected:",(lboverlap, lbstart, lbend, grlblocks)
+            #print ("Rejected:",(lboverlap, lbstart, lbend, grlblocks))
             continue
         if run in LBexceptions.exceptions:
             if any([lbstart>=exc_start and lbstart<=exc_end for exc_start, exc_end in LBexceptions.exceptions[run]]): continue
             if any([lbend>=exc_start and lbend<=exc_end for exc_start, exc_end in LBexceptions.exceptions[run]]): continue
 
-        #print "Accepted:",(lboverlap, lbstart, lbend, grlblocks)
+        #print ("Accepted:",(lboverlap, lbstart, lbend, grlblocks))
         lbCount += lboverlap
         for hltid, (hltps, hltrerun) in hltprescales.iteritems():
             if hltid not in chainsHLT: continue
@@ -224,7 +227,7 @@ def fillHLTmap( info, hltMap_prev , lbCount, run, grlblocks):
                 l1ps = min(l1ps, tmpl1ps)
             
             #if hltps*l1ps!=1 and chainsHLT[hltid][0]=="HLT_mu60_0eta105_msonly": #muon primary since 2015 as standard candle to find problematic LBs
-            #    print "WARNING: Prescaled HLT_mu60_0eta105_msonly",l1ps,hltps,lbstart, lbend, grlblocks
+            #    print ("WARNING: Prescaled HLT_mu60_0eta105_msonly",l1ps,hltps,lbstart, lbend, grlblocks)
 
             if hltps*l1ps < 1e99: efflb = lboverlap/(hltps*l1ps)
             else:                 efflb = 0
@@ -284,7 +287,7 @@ def getHLTmap_fromDB(period, customGRL):
     hltMap = {}
     lbCount = 0
     for run in keys:
-        print "Filling run:",run
+        print ("Filling run:",run)
         hltMap, lbCount = fillHLTmap( keys[run], hltMap, lbCount , run, triggerPeriod[run])
 
     return hltMap, lbCount
@@ -310,7 +313,7 @@ def getHLTmap_fromTM(period, release):
     maxlumi = 20000
     if   period & TriggerPeriod.future1p8e34: maxlumi = 17000
     elif period & TriggerPeriod.future2e34:   maxlumi = 20000
-    else: print "Warning non-recongnized future",period
+    else: print ("Warning non-recongnized future",period)
 
     hltMap = {}
     dummyfutureLBs = 1e6
@@ -366,7 +369,7 @@ def cleanHLTmap(hltmap, totalLB):
     return hltlist
 
 def test():
-    print getHLTlist(TriggerPeriod.y2017,None)
+    print (getHLTlist(TriggerPeriod.y2017,None))
 
 if __name__ == "__main__":
     sys.exit(test())

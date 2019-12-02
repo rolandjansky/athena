@@ -290,7 +290,7 @@ Trk::ForwardGsfFitter::stepForwardFit(ForwardTrajectory* forwardTrajectory,
   // =================================================================
 
   const Trk::MultiComponentState* extrapolatedState =
-    m_extrapolator->extrapolate(*updatedState, surface, Trk::alongMomentum, false, particleHypothesis);
+    m_extrapolator->extrapolate(*updatedState, surface, Trk::alongMomentum, false, particleHypothesis).release(); 
 
   if (extrapolatedState && extrapolatedState != updatedState) {
     delete updatedState;

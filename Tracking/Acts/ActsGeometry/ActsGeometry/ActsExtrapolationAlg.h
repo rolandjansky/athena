@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ACTSGEOMETRY_ACTSEXTRAPOLATIONALG_H
@@ -27,7 +27,7 @@
 
 namespace Acts {
   class TrackingGeometry;
-  
+
   namespace detail {
     class Step;
   }
@@ -48,7 +48,7 @@ public:
   StatusCode initialize() override;
   StatusCode execute(const EventContext& ctx) const override;
   StatusCode finalize() override;
-  
+
 private:
   ServiceHandle<IActsPropStepRootWriterSvc> m_propStepWriterSvc;
   ServiceHandle<IAthRNGSvc> m_rndmGenSvc;
@@ -56,15 +56,16 @@ private:
   ToolHandle<IActsExtrapolationTool> m_extrapolationTool{this, "ExtrapolationTool", "ActsExtrapolationTool"};
 
   std::shared_ptr<RootExCellWriter<Acts::TrackParameters>> m_rootEccWriter;
-  
+
   // poor-mans Particle Gun is included here right now
-  Gaudi::Property<std::vector<double>> m_etaRange{this, "EtaRange", {-3, 3}, ""};
-  Gaudi::Property<std::vector<double>> m_ptRange{this, "PtRange", {0.1, 1000}, ""};
+  Gaudi::Property<std::vector<double>> m_etaRange{this, "EtaRange", {-3, 3}, "The eta range for particles"};
+  Gaudi::Property<std::vector<double>> m_ptRange{this, "PtRange", {0.1, 1000}, "The pt range for particles"};
+  Gaudi::Property<size_t> m_nParticlePerEvent{this, "NParticlesPerEvent", 1, "The number of particles per event"};
 
   // this does not work right now
   //Gaudi::Property<bool> m_writeMaterialTracks{this, "WriteMaterialTracks", false, ""};
   //ServiceHandle<IActsMaterialTrackWriterSvc> m_materialTrackWriterSvc;
-  
+
   mutable std::mutex m_writeMutex{};
   mutable std::unique_ptr<std::ofstream> m_objOut;
   mutable size_t m_objVtxCount{0};

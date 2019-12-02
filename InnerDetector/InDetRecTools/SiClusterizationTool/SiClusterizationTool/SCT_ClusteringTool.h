@@ -78,7 +78,7 @@ namespace InDet {
     BooleanProperty m_innertwoBarrelX1X{this, "innertwoBarrelX1X", false};
     BooleanProperty m_majority01X{this, "majority01X", false};
     BooleanProperty m_useRowInformation{this, "useRowInformation", false};
-    BooleanProperty m_doNewClustering{this, "doNewClustering", false};
+    BooleanProperty m_doNewClustering{this, "doNewClustering", true};
 
     SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 

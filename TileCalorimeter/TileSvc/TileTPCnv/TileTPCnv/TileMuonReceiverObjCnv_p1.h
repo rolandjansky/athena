@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TileMuonReceiverObjCnv_p1.h 
@@ -23,9 +23,12 @@
 
 class MsgStream;
 
-class TileMuonReceiverObjCnv_p1 : public T_AthenaPoolTPCnvBase<TileMuonReceiverObj, TileMuonReceiverObj_p1> {
+class TileMuonReceiverObjCnv_p1 : public T_AthenaPoolTPCnvConstBase<TileMuonReceiverObj, TileMuonReceiverObj_p1> {
 
 public:
+  using base_class::transToPers;
+  using base_class::persToTrans;
+
 
   /** Default constructor: 
    */
@@ -34,12 +37,12 @@ public:
   /** Method creating the transient representation TileMuonReceiverObj
    *  from its persistent representation TileMuonReceiverObj_p1
    */
-  virtual void persToTrans(const TileMuonReceiverObj_p1* persObj, TileMuonReceiverObj* transObj, MsgStream &log);
+  virtual void persToTrans(const TileMuonReceiverObj_p1* persObj, TileMuonReceiverObj* transObj, MsgStream &log) const override;
 
   /** Method creating the persistent representation TileMuonReceiverObj_p1
    *  from its transient representation TileMuonReceiverObj
    */
-  virtual void transToPers(const TileMuonReceiverObj* transObj, TileMuonReceiverObj_p1* persObj, MsgStream &log);
+  virtual void transToPers(const TileMuonReceiverObj* transObj, TileMuonReceiverObj_p1* persObj, MsgStream &log) const override;
 
 };
 

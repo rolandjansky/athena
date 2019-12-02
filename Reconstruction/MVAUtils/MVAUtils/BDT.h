@@ -5,20 +5,21 @@
 #ifndef MVAUtils_BDT_H
 #define MVAUtils_BDT_H
 
-#include<vector>
+#include "MVAUtils/MVAUtilsDefs.h"
 #include "TString.h"
-#include "MVAUtils/Node.h"
+#include <vector>
+#include <map>
+#include <cassert>
+#include <memory>
+#include "ForestBase.h"
 
 class TTree;
-
-namespace MVAUtils 
+namespace MVAUtils
 {
-  /** Simplified Boosted Decision Tree, based on TMVA::DecisionTree.
+
+   /** Simplified Boosted Regression Tree, support TMVA and lgbm.
    * Holds a forest (vector of top nodes of each decision tree) and a
-   * constant offset (not always used).  The response is given by in
-   * various ways, e.g. offset + the sum of the response of each tree,
-   * or 2.0/(1.0+exp(-2.0*sum))-1, with no offset. Also, there's a special
-   * return when the BDTs are trained with multiple classes.
+   * constant offset or set of weights (not always used).
    *
    * Can be constructed from TMVA::MethodBDT or a TTree. Each entry
    * of the TTree represents a binary tree and each element of the
@@ -26,95 +27,111 @@ namespace MVAUtils
    *
    * The response can be evaluated from a vector of floats or a vector
    * of pointers (to avoid creating vectors at each call) which can be
-   * stored internally (m_pointers).
+   * stored internally (m_pointers)
    **/
+
   class BDT
   {
   public:
-
-    BDT(float offset,
-        float sumWeights,
-        const std::vector<Node::index_t>& forest,
-        const std::vector<float>& weights,
-        const std::vector<Node>& nodes): 
-      m_offset(offset),
-      m_sumWeights(sumWeights),
-      m_forest(forest),
-      m_weights(weights),
-      m_nodes(nodes){
+    /** Constructor. The input tree must be created with
+     *  convertLGBMToRootTree.py (for lgbm training) or with
+     *  convertXmlToRootTree (for tmva training)
+     **/
+    explicit BDT(TTree *tree);//ctor TTree
+   
+    BDT(std::unique_ptr<IForest> forest): 
+      m_forest(std::move(forest)){
       }
 
-    BDT(TTree *tree);
-
-    /** Disable default ctor and copy*/
+    /* delete default ctor 
+     * and default copy / assignment*/
     BDT() = delete;
     BDT (const BDT&) = delete;
     BDT& operator=(const BDT&) = delete;
     /** default move ctor, move assignment and dtor*/
+    /** default move ctor, move assignment*/
     BDT (BDT&&) = default;
     BDT& operator=(BDT&&) = default;
     ~BDT()=default; 
 
-    /** return the number of trees in the forest */
-    unsigned int GetNTrees() const { return m_forest.size(); }
 
-    /** return the offset that is added to the response */
-    float GetOffset() const { return m_offset; }
 
-    /** these return offset + sum */
+    /** Number of trees in the whole forest **/
+    unsigned int GetNTrees() const ;
+    /** Number of variables expected in the inputs **/
+    int GetNVars() const ;
+    /** Get the offset to the whole forest **/
+    float GetOffset() const ;
+    /** Get response of the forest, for regression **/
     float GetResponse(const std::vector<float>& values) const;
     float GetResponse(const std::vector<float*>& pointers) const;
-    float GetResponse() const {
-      return (m_pointers.size() ? GetResponse(m_pointers) : -9999.);
-    }
+    float GetResponse() const;
 
-    /** these return Sum( purity_i*weight_i )/Sum weight_i */
+    /** Get response of the forest, for classification **/
+    float GetClassification(const std::vector<float>& values) const;
     float GetClassification(const std::vector<float*>& pointers) const;
-    float GetClassification() const {
-      return (m_pointers.size() ? GetClassification(m_pointers) : -9999.);
-    }
+    float GetClassification() const;
 
-    /** these return 2.0/(1.0+exp(-2.0*sum))-1, with no offset */
+    // TMVA specific: return 2.0/(1.0+exp(-2.0*sum))-1, with no offset.
     float GetGradBoostMVA(const std::vector<float>& values) const;
     float GetGradBoostMVA(const std::vector<float*>& pointers) const;
-    float GetGradBoostMVA() const {
-      return (m_pointers.size() ? GetGradBoostMVA(m_pointers) : -9999.);
-    }
 
-    /** these return a vector of normalised responses */
+    /** Get response of the forest, for multiclassification (e.g. b-tagging) **/
     std::vector<float> GetMultiResponse(const std::vector<float>& values, unsigned int numClasses) const;
     std::vector<float> GetMultiResponse(const std::vector<float*>& pointers, unsigned int numClasses) const;
     std::vector<float> GetMultiResponse(unsigned int numClasses) const;
-	
-    //for debugging, print out tree or forest to stdout
-    void PrintForest() const;
-    void PrintTree(Node::index_t index) const;
-    //dump out a TTree
-    TTree* WriteTree(TString name = "BDT");
-	
+
     /** Return the values corresponding to m_pointers (or an empty vector) **/
     std::vector<float> GetValues() const;
-	
-    /** Return stored pointers (which are used by GetResponse with no args)*/
-    std::vector<float*> GetPointers() const { return m_pointers; }
+    /** Return stored pointers (which are used by methods with no args) **/
+    const std::vector<float*>& GetPointers() const;
+    /** Set the stored pointers so that one can use methods with no args */
+    void SetPointers(const std::vector<float*>& pointers);
 
-    /** Set the stored pointers so that one can use GetResponse with no args non-const not MT safe*/
-    void SetPointers(const std::vector<float*>& pointers) { m_pointers = pointers; }
-	
+    /** Return a TTree representing the BDT:
+    * each entry is a binary tree, each element of the vectors is a node
+    **/
+    TTree* WriteTree(TString name = "BDT") const;
+
+    /** for debugging, print out tree or forest to stdout */
+    void PrintForest() const;
+    void PrintTree(unsigned int itree) const;
+
+    /** for debugging, return the response of a sigle tree given the index of its top node **/
+    float GetTreeResponse(const std::vector<float>& values, MVAUtils::index_t index) const;
+    float GetTreeResponse(const std::vector<float*>& pointers, MVAUtils::index_t index) const;
+
   private:
-
-    // create new tree 
-    void newTree(const std::vector<int>& vars, const std::vector<float>& values);
-    float GetTreeResponse(const std::vector<float>& values, Node::index_t index) const;
-    float GetTreeResponse(const std::vector<float*>& pointers, Node::index_t index) const;
-
-    float m_offset; //!< the offset to add in the GetResponse functions
-    float m_sumWeights; //!< the sumOfBoostWeights--no need to recompute each call
-    std::vector<Node::index_t> m_forest; //!< indices of the top-level nodes of each tree
-    std::vector<float> m_weights; //!< boost weights
-    std::vector<Node> m_nodes; //!< where the nodes of the forest are stored
-    std::vector<float*> m_pointers; //!< where vars to cut on can be set (but can also be passed) 
+    std::unique_ptr<IForest> m_forest;  //!< the implementation of the forest, doing the hard work
+    std::vector<float*> m_pointers; //!< where vars to cut on can be set (but can also be passed)
   };
+
+
+  inline float BDT::GetResponse() const {
+    return (m_pointers.size() ? GetResponse(m_pointers) : -9999.);
+  }
+
+  inline float BDT::GetClassification() const {
+    return (m_pointers.size() ? GetClassification(m_pointers) : -9999.);
+  }
+
+  inline std::vector<float> BDT::GetMultiResponse(unsigned int numClasses) const {
+    return (m_pointers.size() ? GetMultiResponse(m_pointers, numClasses) : std::vector<float>());
+  }
+
+  inline std::vector<float> BDT::GetValues() const {
+    std::vector<float> result;
+    for (float* ptr : m_pointers)
+    {
+      assert (ptr);
+      result.push_back(*ptr);
+    }
+    return result;
+  }
+
+  inline const std::vector<float*>& BDT::GetPointers() const { return m_pointers; }
+  inline void BDT::SetPointers(const std::vector<float*>& pointers) { m_pointers = pointers; }
+
 }
 
 #endif

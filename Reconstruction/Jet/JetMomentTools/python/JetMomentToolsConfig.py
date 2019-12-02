@@ -18,24 +18,16 @@ from JetMomentTools import JetMomentToolsConf
 # Testing code -- move to another module and perhaps allow extensions
 # e.g. in a dedicated trigger collections module to keep online/offline
 # code more factorised
-trackcolls = {
-    "":"InDetTrackParticles",
-    "ftf":"HLT_xAODTracks_FS",
-}
-
-vertexcolls = {
-    "":"PrimaryVertices",
-    "ftf":"HLT_EFHistoPrmVtx"
-}
-
-tvacolls = {
-    "":"JetTrackVtxAssoc",
-    "ftf":"JetTrackVtxAssoc_ftf"
-}
-
-assoctracks = {
-    "":"GhostTrack",
-    "ftf":"GhostTrack_ftf"
+trackcollectionmap = {
+    # Offline track collections
+    "": {
+        "Tracks":           "InDetTrackParticles",
+        "JetTracks":        "JetSelectedTracks",
+        "Vertices":         "PrimaryVertices",
+        "TVA":              "JetTrackVtxAssoc",
+        "GhostTracks":      "PseudoJetGhostTrack",
+        "GhostTracksLabel": "GhostTrack",
+    }
 }
 
 def getCaloQualityTool():
@@ -95,10 +87,10 @@ def getJVFTool(modspec=""):
 
     jvf = JetMomentToolsConf.JetVertexFractionTool(
         "jvf",
-        VertexContainer = vertexcolls[modspec],
-        AssociatedTracks = assoctracks[modspec],
-        TrackVertexAssociation = tvacolls[modspec],
-        TrackParticleContainer  = trackcolls[modspec],
+        VertexContainer = trackcollectionmap[modspec]["Vertices"],
+        AssociatedTracks = trackcollectionmap[modspec]["GhostTracksLabel"],
+        TrackVertexAssociation = trackcollectionmap[modspec]["TVA"],
+        TrackParticleContainer  = trackcollectionmap[modspec]["Tracks"],
         TrackSelector = jettrackselloose,
     )
     return jvf
@@ -106,10 +98,9 @@ def getJVFTool(modspec=""):
 
 # Jet vertex fraction with selection.
 def getJVTTool(modspec=""):
-
     jvt = JetMomentToolsConf.JetVertexTaggerTool(
         "jvt",
-        VertexContainer = vertexcolls[modspec],
+        VertexContainer = trackcollectionmap[modspec]["Vertices"],
     )
     return jvt
 
@@ -119,9 +110,9 @@ def getTrackMomentsTool(modspec=""):
 
     trackmoments = JetMomentToolsConf.JetTrackMomentsTool(
         "trkmoms",
-        VertexContainer = vertexcolls[modspec],
-        AssociatedTracks = assoctracks[modspec],
-        TrackVertexAssociation = tvacolls[modspec],
+        VertexContainer = trackcollectionmap[modspec]["Vertices"],
+        AssociatedTracks = trackcollectionmap[modspec]["GhostTracksLabel"],
+        TrackVertexAssociation = trackcollectionmap[modspec]["TVA"],
         TrackMinPtCuts = [500, 1000],
         TrackSelector = jettrackselloose
     )
@@ -132,9 +123,9 @@ def getTrackSumMomentsTool(modspec=""):
 
     tracksummoments = JetMomentToolsConf.JetTrackSumMomentsTool(
         "trksummoms",
-        VertexContainer = vertexcolls[modspec],
-        AssociatedTracks = assoctracks[modspec],
-        TrackVertexAssociation = tvacolls[modspec],
+        VertexContainer = trackcollectionmap[modspec]["Vertices"],
+        AssociatedTracks = trackcollectionmap[modspec]["GhostTracksLabel"],
+        TrackVertexAssociation = trackcollectionmap[modspec]["TVA"],
         RequireTrackPV = True,
         TrackSelector = jettrackselloose
     )
@@ -142,10 +133,10 @@ def getTrackSumMomentsTool(modspec=""):
 
 # This tool sets a decoration saying which the nominal HS PV was.
 # Historically it did the origin correction, but now we do this to constituents
-def getOriginCorrVxTool():
+def getOriginCorrVxTool(modspec=""):
     origin_setpv = JetMomentToolsConf.JetOriginCorrectionTool(
       "jetorigin_setpv",
-      VertexContainer = "PrimaryVertices",
+      VertexContainer = trackcollectionmap[modspec]["Vertices"],
       OriginCorrectedName = "",
       OnlyAssignPV = True,
     )

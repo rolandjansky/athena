@@ -30,11 +30,15 @@ allChainConfigs = menu.generateMT()
 ##########################################
 # Debugging for view cross-dependencies
 ##########################################
-if opt.reverseViews:
+if opt.reverseViews or opt.filterViews:
     from TriggerJobOpts.TriggerConfig import collectViewMakers
     viewMakers = collectViewMakers( topSequence )
+    theFilter = []
+    if opt.filterViews:
+        theFilter = [ "Cache", "EventInfo" ]
     for alg in viewMakers:
-        alg.ReverseViewsDebug = True
+        alg.ReverseViewsDebug = opt.reverseViews
+        alg.FallThroughFilter = theFilter
 
 ##########################################
 # Configure trigger output using parts of the NewJO configuration

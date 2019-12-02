@@ -92,16 +92,16 @@ public:
   GsfExtrapolator(const std::string&, const std::string&, const IInterface*);
 
   /** Destructor */
-  ~GsfExtrapolator();
+  virtual ~GsfExtrapolator() override final;
 
   /** AlgTool initialise method */
-  virtual StatusCode initialize() override;
+  virtual StatusCode initialize() override final;
 
   /** AlgTool finalise method */
-  virtual StatusCode finalize() override;
+  virtual StatusCode finalize() override final;
 
   /** Extrapolation of a MutiComponentState to a destination surface (1) */
-  virtual MultiComponentState* extrapolate(
+  virtual std::unique_ptr<MultiComponentState> extrapolate(
     const IPropagator&,
     const MultiComponentState&,
     const Surface&,
@@ -110,7 +110,7 @@ public:
     ParticleHypothesis particleHypothesis = nonInteracting) const override final;
 
   /** - Extrapolation of a MultiComponentState to destination surface without material effects (2) */
-  virtual MultiComponentState* extrapolateDirectly(
+  virtual std::unique_ptr<MultiComponentState> extrapolateDirectly(
     const IPropagator&,
     const MultiComponentState&,
     const Surface&,
@@ -119,7 +119,7 @@ public:
     ParticleHypothesis particleHypothesis = nonInteracting) const override final;
 
   /** Configured AlgTool extrapolation method (1) */
-  virtual MultiComponentState* extrapolate(
+  virtual std::unique_ptr<MultiComponentState> extrapolate(
     const MultiComponentState&,
     const Surface&,
     PropDirection direction = anyDirection,
@@ -127,14 +127,14 @@ public:
     ParticleHypothesis particleHypothesis = nonInteracting) const override final;
 
   /** Configured AlgTool extrapolation without material effects method (2) */
-  virtual MultiComponentState* extrapolateDirectly(
+  virtual std::unique_ptr<MultiComponentState> extrapolateDirectly(
     const MultiComponentState&,
     const Surface&,
     PropDirection direction = anyDirection,
     BoundaryCheck boundaryCheck = true,
     ParticleHypothesis particleHypothesis = nonInteracting) const override final;
 
-  virtual std::vector<const Trk::TrackStateOnSurface*>* extrapolateM(
+  virtual std::unique_ptr<std::vector<const Trk::TrackStateOnSurface*>> extrapolateM(
     const MultiComponentState&,
     const Surface& sf,
     PropDirection dir,
@@ -166,20 +166,20 @@ private:
   };
 
   /** These are the methods that do the actual heavy lifting when extrapolating with a cache */
-  MultiComponentState* extrapolateImpl(Cache& cache,
-                                        const IPropagator&,
-                                        const MultiComponentState&,
-                                        const Surface&,
-                                        PropDirection direction = anyDirection,
-                                        BoundaryCheck boundaryCheck = true,
-                                        ParticleHypothesis particleHypothesis = nonInteracting) const;
+  std::unique_ptr<MultiComponentState> extrapolateImpl(Cache& cache,
+                                                       const IPropagator&,
+                                                       const MultiComponentState&,
+                                                       const Surface&,
+                                                       PropDirection direction = anyDirection,
+                                                       BoundaryCheck boundaryCheck = true,
+                                                       ParticleHypothesis particleHypothesis = nonInteracting) const;
 
-  MultiComponentState* extrapolateImpl(Cache& cache,
-                                       const MultiComponentState&,
-                                       const Surface&,
-                                       PropDirection direction = anyDirection,
-                                       BoundaryCheck boundaryCheck = true,
-                                       ParticleHypothesis particleHypothesis = nonInteracting) const;
+  std::unique_ptr<MultiComponentState> extrapolateImpl(Cache& cache,
+                                                       const MultiComponentState&,
+                                                       const Surface&,
+                                                       PropDirection direction = anyDirection,
+                                                       BoundaryCheck boundaryCheck = true,
+                                                       ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   /** Two primary private extrapolation methods
     - extrapolateToVolumeBoundary - extrapolates to the exit of the destination tracking volume
@@ -195,15 +195,15 @@ private:
                                    PropDirection direction = anyDirection,
                                    ParticleHypothesis particleHypothesis = nonInteracting) const;
 
-  MultiComponentState* extrapolateInsideVolume(Cache& cache,
-                                               const IPropagator&,
-                                               const MultiComponentState&,
-                                               const Surface&,
-                                               const Layer*,
-                                               const TrackingVolume&,
-                                               PropDirection direction = anyDirection,
-                                               BoundaryCheck boundaryCheck = true,
-                                               ParticleHypothesis particleHypothesis = nonInteracting) const;
+  std::unique_ptr<MultiComponentState> extrapolateInsideVolume(Cache& cache,
+                                                               const IPropagator&,
+                                                               const MultiComponentState&,
+                                                               const Surface&,
+                                                               const Layer*,
+                                                               const TrackingVolume&,
+                                                               PropDirection direction = anyDirection,
+                                                               BoundaryCheck boundaryCheck = true,
+                                                               ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   /** Additional private extrapolation methods */
 

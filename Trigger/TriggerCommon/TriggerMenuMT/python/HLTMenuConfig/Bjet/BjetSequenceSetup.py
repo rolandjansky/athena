@@ -31,7 +31,7 @@ def getBJetSequence( step ):
 # ==================================================================================================== 
 
 def bJetStep1Sequence():
-    jetsKey = "HLT_AntiKt4EMTopoJets_subjesIS_ftf"
+    jetsKey = "HLT_AntiKt4EMTopoJets_subjesgscIS_ftf"
     prmVtxKey = "HLT_EFHistoPrmVtx"
     
     from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
@@ -51,7 +51,7 @@ def bJetStep1Sequence():
 
     # hypo
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgMT
-    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromDict_j
+    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromDict
     hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlgMT_step1")
     hypo.RoILink = "step1RoI" # To be used in following step EventView
     hypo.PrmVtxLink = "xPrimVx"
@@ -65,7 +65,7 @@ def bJetStep1Sequence():
     return MenuSequence( Sequence    = BjetAthSequence,
                          Maker       = InputMakerAlg,
                          Hypo        = hypo,
-                         HypoToolGen = TrigBjetEtHypoToolFromDict_j )
+                         HypoToolGen = TrigBjetEtHypoToolFromDict )
 
 def bJetStep1SequenceALLTE():
 
@@ -107,7 +107,7 @@ def bJetStep1SequenceALLTE():
 
     # hypo
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgMT
-    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromDict_j
+    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromDict
     hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlgMT_step1_ALLTE")
     hypo.RoILink = "step1RoI" # To be used in following step EventView
     hypo.PrmVtxLink = "xPrimVx"
@@ -121,7 +121,7 @@ def bJetStep1SequenceALLTE():
     return MenuSequence( Sequence    = BjetAthSequence,
                          Maker       = InputMakerAlg,
                          Hypo        = hypo,
-                         HypoToolGen = TrigBjetEtHypoToolFromDict_j )
+                         HypoToolGen = TrigBjetEtHypoToolFromDict )
 
 
 
@@ -166,7 +166,7 @@ def bJetStep2Sequence():
     
     # hypo
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgEVMT
-    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromDict_gsc
+    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromDict
     hypo = TrigBjetEtHypoAlgEVMT("TrigBjetEtHypoAlg_step2")
     # no links this time, only for tracks
     hypo.TracksLink = "tracks"
@@ -181,7 +181,7 @@ def bJetStep2Sequence():
     return MenuSequence( Sequence    = BjetAthSequence,
                          Maker       = InputMakerAlg,
                          Hypo        = hypo,
-                         HypoToolGen = TrigBjetEtHypoToolFromDict_gsc )
+                         HypoToolGen = TrigBjetEtHypoToolFromDict )
 
 
 def bJetStep2SequenceALLTE():
@@ -202,7 +202,7 @@ def bJetStep2SequenceALLTE():
 
     # hypo
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgMT
-    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromDict_gsc
+    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromDict
     hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlg_step2ALLTE")
     hypo.RoIs = "step1RoI"
     hypo.Jets = theGSC.JetOutputKey
@@ -217,7 +217,7 @@ def bJetStep2SequenceALLTE():
     return MenuSequence( Sequence    = BjetAthSequence,
                          Maker       = InputMakerAlg,
                          Hypo        = hypo,
-                         HypoToolGen = TrigBjetEtHypoToolFromDict_gsc )
+                         HypoToolGen = TrigBjetEtHypoToolFromDict )
 
 # ==================================================================================================== 
 #    step 3: secondary vertex and b-tagging
@@ -250,7 +250,7 @@ def bJetStep3Sequence():
 
     # Hypo
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetBtagHypoAlgMT
-    from TrigBjetHypo.TrigBjetHypoTool import TrigBjetHypoToolFromDict
+    from TrigBjetHypo.TrigBjetBtagHypoTool import TrigBjetBtagHypoToolFromDict
     hypo = TrigBjetBtagHypoAlgMT("TrigBjetBtagHypoAlg_step3")
     hypo.BTagging = bTagFex.OutputBTagging
 
@@ -260,5 +260,5 @@ def bJetStep3Sequence():
     return MenuSequence( Sequence    = BjetAthSequence,
                          Maker       = InputMakerAlg,
                          Hypo        = hypo,
-                         HypoToolGen = TrigBjetHypoToolFromDict )
+                         HypoToolGen = TrigBjetBtagHypoToolFromDict )
 

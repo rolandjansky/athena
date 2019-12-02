@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 """ This module sets up the algorithm lists for sequences, and supplies
 the list with a name (alias) which will be used later in the construction
@@ -307,7 +309,7 @@ class JetSequencesBuilder(object):
 
         for seq in ftksequence_list:
                 for a in seq:
-                        print "adding ftk algo ", a
+                        print ("adding ftk algo ", a)
                         ftkalgo_list.append(AlgStringProxy(a))
 
         return AlgList(ftkalgo_list, alias=alias)

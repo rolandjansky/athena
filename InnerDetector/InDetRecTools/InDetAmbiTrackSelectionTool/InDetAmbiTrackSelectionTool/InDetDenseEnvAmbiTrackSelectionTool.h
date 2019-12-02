@@ -24,7 +24,6 @@
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkTrack/Track.h" //for use in the struct lessTrkTrack implementation in this header
 #include "TrkTrack/TrackStateOnSurface.h"
-#include "TrkValInterfaces/ITrkObserverTool.h"
 
 #include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
 #include "TrkEventUtils/PRDtoTrackMap.h"
@@ -39,7 +38,6 @@
 class Identifier;
 class SiliconID;
 namespace Trk {
-  class ITrkObserverTool;
   class TrackStateOnSurface;
   class PrepRawData;
   class RIO_OnTrack;
@@ -316,9 +314,6 @@ namespace InDet
     /**atlas id helper*/
     const SiliconID* m_detID{nullptr};
       
-    /**Observer tool      This tool is used to observe the tracks and their 'score' */
-    PublicToolHandle<Trk::ITrkObserverTool> m_observerTool{this, "ObserverTool", "Trk::TrkObserverTool/TrkObserverTool"};
-
     ToolHandle<Trk::IPRDtoTrackMapTool>         m_assoTool
          {this, "AssociationTool", "InDet::InDetPRDtoTrackMapToolGangedPixels" };
 

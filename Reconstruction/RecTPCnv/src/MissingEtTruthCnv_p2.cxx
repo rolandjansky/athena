@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -17,36 +17,36 @@ PURPOSE:  Transient/Persisten converter for MissingEtTruth class
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
 // MissingETEvent includes
-#define private public
-#define protected public
 #include "MissingETEvent/MissingET.h"
 #include "MissingETEvent/MissingEtTruth.h"
-#undef private
-#undef protected
 
 // RecTPCnv includes
 #include "RecTPCnv/MissingEtTruthCnv_p2.h"
 #include "RecTPCnv/MissingETCnv_p2.h"
 
 // MissingET converter
-static MissingETCnv_p2 metCnv;
+static const MissingETCnv_p2 metCnv;
 
 /////////////////////////////////////////////////////////////////// 
 // methods: 
 ///////////////////////////////////////////////////////////////////
 
-void MissingEtTruthCnv_p2::persToTrans( const MissingEtTruth_p2* pers, MissingEtTruth* trans, MsgStream& /* msg */) {
+void MissingEtTruthCnv_p2::persToTrans( const MissingEtTruth_p2* pers, MissingEtTruth* trans, MsgStream& /* msg */) const {
 	// std::cout << "Loading MissingEtTruth from persistent state..."<< std::endl;
 	std::vector<float>::const_iterator i = pers->m_allTheData.begin();
-	trans->m_exTruth[0]    = (*i); ++i;
-	trans->m_exTruth[1]    = (*i); ++i;
-	trans->m_exTruth[2]    = (*i); ++i;
-	trans->m_eyTruth[0]    = (*i); ++i;
-	trans->m_eyTruth[1]    = (*i); ++i;
-	trans->m_eyTruth[2]    = (*i); ++i;
-	trans->m_etSumTruth[0] = (*i); ++i;
-	trans->m_etSumTruth[1] = (*i); ++i;
-	trans->m_etSumTruth[2] = (*i); ++i;
+        auto TI0 = static_cast<MissingEtTruth::TruthIndex>(0);
+        auto TI1 = static_cast<MissingEtTruth::TruthIndex>(1);
+        auto TI2 = static_cast<MissingEtTruth::TruthIndex>(2);
+	trans->setExTruth(TI0, *i); ++i;
+        trans->setExTruth(TI1, *i); ++i;
+	trans->setExTruth(TI2, *i); ++i;
+	trans->setEyTruth(TI0, *i); ++i;
+	trans->setEyTruth(TI1, *i); ++i;
+	trans->setEyTruth(TI2, *i); ++i;
+	trans->setEtSumTruth(TI0, *i); ++i;
+	trans->setEtSumTruth(TI1, *i); ++i;
+	trans->setEtSumTruth(TI2, *i); ++i;
+
 	if (pers->m_allTheData.size()>9) {
 		metCnv.persToTrans(trans, i);
 		// std::cout<<"==> "<<trans->m_ex<<"\t"<<trans->m_ey<<"\t"<<trans->m_etSum<<"\t";
@@ -61,21 +61,21 @@ void MissingEtTruthCnv_p2::persToTrans( const MissingEtTruth_p2* pers, MissingEt
   return;
 }
 
-void MissingEtTruthCnv_p2::transToPers( const MissingEtTruth* trans, MissingEtTruth_p2* pers, MsgStream& /*msg*/ ) {
+void MissingEtTruthCnv_p2::transToPers( const MissingEtTruth* trans, MissingEtTruth_p2* pers, MsgStream& /*msg*/ ) const {
 	
 	// std::cout << "Creating persistent state of MissingEtTruth..."<< std::endl;
 
 	pers->m_allTheData.reserve(9);
-	pers->m_allTheData.push_back(trans->m_exTruth[0]);
-	pers->m_allTheData.push_back(trans->m_exTruth[1]);
-	pers->m_allTheData.push_back(trans->m_exTruth[2]);
-	pers->m_allTheData.push_back(trans->m_eyTruth[0]);
-	pers->m_allTheData.push_back(trans->m_eyTruth[1]);
-	pers->m_allTheData.push_back(trans->m_eyTruth[2]);
-	pers->m_allTheData.push_back(trans->m_etSumTruth[0]);
-	pers->m_allTheData.push_back(trans->m_etSumTruth[1]);
-	pers->m_allTheData.push_back(trans->m_etSumTruth[2]);
-	if( trans->m_source >= 0 && trans->m_source < 1000 ){
+	pers->m_allTheData.push_back(trans->exTruth(static_cast<MissingEtTruth::TruthIndex>(0)));
+	pers->m_allTheData.push_back(trans->exTruth(static_cast<MissingEtTruth::TruthIndex>(1)));
+	pers->m_allTheData.push_back(trans->exTruth(static_cast<MissingEtTruth::TruthIndex>(2)));
+	pers->m_allTheData.push_back(trans->eyTruth(static_cast<MissingEtTruth::TruthIndex>(0)));
+	pers->m_allTheData.push_back(trans->eyTruth(static_cast<MissingEtTruth::TruthIndex>(1)));
+	pers->m_allTheData.push_back(trans->eyTruth(static_cast<MissingEtTruth::TruthIndex>(2)));
+	pers->m_allTheData.push_back(trans->etSumTruth(static_cast<MissingEtTruth::TruthIndex>(0)));
+	pers->m_allTheData.push_back(trans->etSumTruth(static_cast<MissingEtTruth::TruthIndex>(1)));
+	pers->m_allTheData.push_back(trans->etSumTruth(static_cast<MissingEtTruth::TruthIndex>(2)));
+	if( trans->getSource() >= 0 && trans->getSource() < 1000 ){
 		metCnv.transToPers(trans, pers->m_allTheData);
 		// std::cout<<"==> "<<trans->m_ex<<"\t"<<trans->m_ey<<"\t"<<trans->m_etSum<<"\t";
 		// if (trans->m_regions) 

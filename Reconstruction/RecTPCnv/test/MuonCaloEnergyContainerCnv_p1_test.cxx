@@ -109,6 +109,7 @@ void test1()
 
 int main()
 {
+  std::cout << "RecTPCnv/MuonCaloEnergyContainerCnv_p1\n";
   test1();
   return 0;
 }

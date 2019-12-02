@@ -412,6 +412,30 @@ public:
                  log);
   }
   
+  /// @copydoc ITPCnvBase::persToTransWithKeyUntyped()
+  virtual void persToTransWithKeyUntyped(const void* pers,
+                                         void* trans,
+                                         const std::string& key,
+                                         MsgStream& log)
+  {
+    persToTransWithKey (reinterpret_cast<const PERS*> (pers),
+                        reinterpret_cast<TRANS*> (trans),
+                        key,
+                        log);
+  }
+
+  /// @copydoc ITPCnvBase::transToPersWithKeyUntyped()
+  virtual void transToPersWithKeyUntyped(const void* trans,
+                                         void* pers,
+                                         const std::string& key,
+                                         MsgStream& log)
+  {
+    transToPersWithKey (reinterpret_cast<const TRANS*> (trans),
+                        reinterpret_cast<PERS*> (pers),
+                        key,
+                        log);
+  }
+  
   // Default implementations (usually no need to overwrite)
   // ------------------------------------------------------
 

@@ -4,7 +4,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, Confi
 from AthenaCommon.Logging import logging
 
 def OutputStreamCfg(configFlags, streamName, ItemList=[] ):
-   from OutputStreamAthenaPoolConf import MakeEventStreamInfo
+   from OutputStreamAthenaPool.OutputStreamAthenaPoolConf import MakeEventStreamInfo
    from AthenaServices.AthenaServicesConf import AthenaOutputStream
    from AthenaServices.AthenaServicesConf import AthenaOutputStreamTool
    from StoreGate.StoreGateConf import StoreGateSvc

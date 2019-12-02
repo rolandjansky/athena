@@ -11,7 +11,6 @@
 #include "MuonGeoModel/Technology.h"
 #include "MuonReadoutGeometry/TgcReadoutParams.h"
 
-
 namespace MuonGM {
 
 MYSQL* MYSQL::s_thePointer=0;
@@ -23,8 +22,6 @@ MYSQL::MYSQL() : m_includeCutoutsBog(0), m_includeCtbBis(0), m_controlAlines(0)
     m_amdb_version = 0;
     m_nova_version = 0;
     m_amdb_from_rdb = false;
-    IMessageSvc* msgSvc = Athena::getMessageSvc();
-    m_MsgStream = new MsgStream(msgSvc ,"MuonGeoModel_MYSQL");
     for(unsigned int i=0; i<NTgcReadouts; i++) m_tgcReadout[i]=NULL;
 
 }
@@ -43,8 +40,6 @@ MYSQL::~MYSQL()
     {
         delete (*it1).second;
     }
-    delete m_MsgStream;
-    m_MsgStream = 0;
     // reset the pointer so that at next initialize the MYSQL object will be re-created
     s_thePointer = 0;
 }
@@ -60,12 +55,12 @@ MYSQL* MYSQL::GetPointer()
 
 Station* MYSQL::GetStation(std::string name)
 {
-  if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<" looking for station "<<name<<endmsg;
+  MsgStream log(Athena::getMessageSvc(),"MuonGeoModel.MYSQL");
+  if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE<<" looking for station "<<name<<endmsg;
   std::map<std::string, Station* >::const_iterator it= m_stations.find(name);
   if (it!=m_stations.end())
     {
-      if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<"found the station"<<endmsg;
-      //      std::cout<<" station with old method "<<m_stations[name]->GetName()<<" new method "<<(it->second)->GetName()<<std::endl;
+      if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE<<"found the station"<<endmsg;
       return it->second;
 
     }
@@ -75,18 +70,19 @@ Station* MYSQL::GetStation(std::string name)
 Position MYSQL::GetStationPosition(std::string nameType, int fi, int zi)
 {
     Position p;
-    if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<" MYSQL::GetStationPosition for "<<nameType<<" fi/zi "<<fi<<" "<<zi<<endmsg;
+    MsgStream log(Athena::getMessageSvc(),"MuonGeoModel.MYSQL");
+    if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE<<" MYSQL::GetStationPosition for "<<nameType<<" fi/zi "<<fi<<" "<<zi<<endmsg;
     int subtype = allocPosFindSubtype(nameType, fi, zi);
     std::string stname = nameType+MuonGM::buildString(subtype, 0);
     Station* st = GetStation(stname);
     if ( st != NULL ) {
-        if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<" found in Station "<<st->GetName();
+        if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE<<" found in Station "<<st->GetName();
         p =  (*(st->FindPosition(zi, fi))).second;
-        if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<" at p.fi,zi "<<p.phiindex<<" "<<p.zindex<<" shift/z "<<p.shift<<" "<<p.z<<endmsg;
+        if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE<<" at p.fi,zi "<<p.phiindex<<" "<<p.zindex<<" shift/z "<<p.shift<<" "<<p.z<<endmsg;
     }
     else
     {
-      reLog()<<MSG::WARNING<<"::GetStationPosition nothing found for "
+      log<<MSG::WARNING<<"::GetStationPosition nothing found for "
 	 <<nameType<<" at fi/zi "<<fi<<" "<<zi<<endmsg;
     }
     return p;
@@ -95,7 +91,8 @@ Position MYSQL::GetStationPosition(std::string nameType, int fi, int zi)
 
 TgcReadoutParams* MYSQL::GetTgcRPars(std::string name)
 {
-   if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<"MYSQL::GetTgcRPars looking for a TgcRPars named <"<<name<<">"<<endmsg;
+   MsgStream log(Athena::getMessageSvc(),"MuonGeoModel.MYSQL");
+   if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE<<"MYSQL::GetTgcRPars looking for a TgcRPars named <"<<name<<">"<<endmsg;
 
    std::map<std::string, TgcReadoutParams* >::const_iterator it =m_tgcReadouts.find(name);
     if (it!=m_tgcReadouts.end())
@@ -108,7 +105,8 @@ TgcReadoutParams* MYSQL::GetTgcRPars(std::string name)
 TgcReadoutParams* MYSQL::GetTgcRPars(int jsta)
 {
   if (jsta-1<0 || jsta>=NTgcReadouts) {
-    reLog()<<MSG::ERROR<<"MYSQL::GetTgcRPars jsta = "<<jsta<<" out of range (0,"<<NTgcReadouts-1<<")"<<endmsg;
+    MsgStream log(Athena::getMessageSvc(),"MuonGeoModel.MYSQL");
+    log<<MSG::ERROR<<"MYSQL::GetTgcRPars jsta = "<<jsta<<" out of range (0,"<<NTgcReadouts-1<<")"<<endmsg;
     return NULL;
   }  
   return m_tgcReadout[jsta-1];
@@ -117,25 +115,27 @@ TgcReadoutParams* MYSQL::GetTgcRPars(int jsta)
 Technology* MYSQL::GetTechnology(std::string name)
 {
   std::map<std::string,Technology* >::const_iterator it =  m_technologies.find(name);
+  MsgStream log(Athena::getMessageSvc(),"MuonGeoModel.MYSQL");
 	if (it!=m_technologies.end())
 	{
-	  if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<"found the station technology name "<<name<<endmsg;
+	  if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE<<"found the station technology name "<<name<<endmsg;
 	  return it->second;
 	}
 	else 
 	{
-	  if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<"MYSQL:: Technology "<<name<<"+++++++++ not found!"<<endmsg;
+	  if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE<<"MYSQL:: Technology "<<name<<"+++++++++ not found!"<<endmsg;
 	  return 0;
 	}
 }
 
 void MYSQL::StoreTechnology(Technology* t)
 {
-  if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<"MYSQL::StoreTechnology /// techn. named "<<t->GetName()<<endmsg;
+  MsgStream log(Athena::getMessageSvc(),"MuonGeoModel.MYSQL");
+  if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE<<"MYSQL::StoreTechnology /// techn. named "<<t->GetName()<<endmsg;
   std::map<std::string,Technology* >::const_iterator it = m_technologies.find(t->GetName());
   if (it!=m_technologies.end())
     {
-      reLog()<<MSG::ERROR
+      log<<MSG::ERROR
 	 <<"MYSQL::StoreTechnology ERROR /// This place is already taken !!! for "
 	 <<t->GetName()<<endmsg;
         assert(0);
@@ -145,15 +145,17 @@ void MYSQL::StoreTechnology(Technology* t)
 
 void MYSQL::StoreStation(Station* s)
 {
-  if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<"name "<<s->GetName()<<endmsg;
+  MsgStream log(Athena::getMessageSvc(),"MuonGeoModel.MYSQL");
+  if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE<<"name "<<s->GetName()<<endmsg;
   m_stations[s->GetName()]=s;
 }
 void MYSQL::StoreTgcRPars(TgcReadoutParams* s)
 {
-  if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<"MYSQL::StoreTgcRPars named "<<s->GetName()<<" located @ "<<s<<" jsta = "<<s->chamberType()<<endmsg;
+  MsgStream log(Athena::getMessageSvc(),"MuonGeoModel.MYSQL");
+  if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE<<"MYSQL::StoreTgcRPars named "<<s->GetName()<<" located @ "<<s<<" jsta = "<<s->chamberType()<<endmsg;
   if ( s->chamberType() >= NTgcReadouts)
   {
-    reLog()<<MSG::ERROR<<"MYSQL::StoreTgcRPars ChamberType(JSTA) "<<s->chamberType() <<" > NTgcReadouts="<<NTgcReadouts<<endmsg;
+    log<<MSG::ERROR<<"MYSQL::StoreTgcRPars ChamberType(JSTA) "<<s->chamberType() <<" > NTgcReadouts="<<NTgcReadouts<<endmsg;
     return;
   }
   m_tgcReadout[s->chamberType()-1]=s;
@@ -183,14 +185,15 @@ void MYSQL::PrintTechnologies()
 Technology* MYSQL::GetATechnology(std::string name)
 {
   std::map<std::string,Technology* >::const_iterator it = m_technologies.find(name);
+  MsgStream log(Athena::getMessageSvc(),"MuonGeoModel.MYSQL");
     if (it!=m_technologies.end())
     {
-      if (reLog().level()<=MSG::VERBOSE)  reLog()<<MSG::VERBOSE<<"found the station technology name "<<name<<endmsg;
+      if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE<<"found the station technology name "<<name<<endmsg;
       return it->second;
     }
     else 
     {
-        if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<"MYSQL:: Technology "<<name<<"+++++++++ not found!"<<endmsg;
+        if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE<<"MYSQL:: Technology "<<name<<"+++++++++ not found!"<<endmsg;
         for (unsigned int i=1; i<=20; i++)
         {
             char chindex[3];
@@ -199,7 +202,7 @@ Technology* MYSQL::GetATechnology(std::string name)
             std::string newname = name.substr(0,3)+MuonGM::buildString(i,2);
 	    it = m_technologies.find(newname);
             if (it!=m_technologies.end()) {
-	      if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<" Selecting a technology called <"<<newname
+	      if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE<<" Selecting a technology called <"<<newname
 		 		<<">"<<endmsg;
                 return it->second;
             }
@@ -212,7 +215,8 @@ std::string MYSQL::allocPosBuildKey(std::string statType, int fi, int zi)
 {
     std::ostringstream mystream;
     mystream << statType << "fi" << MuonGM::buildString(fi, 1) << "zi" << MuonGM::buildString(zi, -1);
-    if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<" from "<<statType <<" fi "<<  fi <<" zi "<< zi <<" we get as key "<<mystream.str()<<std::endl;
+    MsgStream log(Athena::getMessageSvc(),"MuonGeoModel.MYSQL");
+    if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE<<" from "<<statType <<" fi "<<  fi <<" zi "<< zi <<" we get as key "<<mystream.str()<<endmsg;
     return mystream.str();
 }
 

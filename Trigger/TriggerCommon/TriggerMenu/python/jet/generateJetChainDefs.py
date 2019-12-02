@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ##########################################################################################
 ##########################################################################################
@@ -56,7 +56,7 @@ def generateChainDefs(chainDict):
         logJet.info("Adding topo to jet chain")
         try:
             theChainDef = _addTopoInfo(theChainDef, chainDict, topoAlgs)
-        except Exception, e:
+        except Exception as e:
             tb = exc2string2()
             theChainDef = process_exception(e, tb, chainName)
 

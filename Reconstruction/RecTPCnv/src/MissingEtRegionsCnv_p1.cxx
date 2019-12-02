@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -20,28 +20,28 @@ PURPOSE:  Transient/Persisten converter for MissingEtRegions class
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
 // MissingETEvent includes
-#define private public
-#define protected public
 #include "MissingETEvent/MissingEtRegions.h"
-#undef private
-#undef protected
 
 // RecTPCnv includes
 #include "RecTPCnv/MissingEtRegionsCnv_p1.h"
 
-/////////////////////////////////////////////////////////////////// 
-// methods: 
-///////////////////////////////////////////////////////////////////
 
 void MissingEtRegionsCnv_p1::persToTrans(  const MissingEtRegions_p1* pers,
 				           MissingEtRegions* trans, 
-				           MsgStream& /*msg*/ ) 
+				           MsgStream& /*msg*/ ) const
 {
 //   msg << MSG::DEBUG << "Loading MissingEtRegions from persistent state..."  << endmsg;
 
-  trans->m_exReg      = pers->m_exReg;  
-  trans->m_eyReg      = pers->m_eyReg; 
-  trans->m_etReg      = pers->m_etReg; 
+  auto getVec = [] (const std::vector<double>& v)
+                {
+                  std::vector newv (v);
+                  if (newv.empty()) newv.resize (MissingEtRegions::Size, 0);
+                  return newv;
+                };
+
+  trans->setExRegVec      (getVec (pers->m_exReg));
+  trans->setEyRegVec      (getVec (pers->m_eyReg));
+  trans->setEtSumRegVec   (getVec (pers->m_etReg));
 
     
     // for (unsigned int vi=0;vi<trans->m_exReg.size();++vi)
@@ -52,13 +52,13 @@ void MissingEtRegionsCnv_p1::persToTrans(  const MissingEtRegions_p1* pers,
 
 void MissingEtRegionsCnv_p1::transToPers(  const MissingEtRegions* trans, 
 				           MissingEtRegions_p1* pers, 
-				           MsgStream& /*msg*/ ) 
+				           MsgStream& /*msg*/ ) const
 {
 //   msg << MSG::DEBUG << "Creating persistent state of MissingEtRegions..."   << endmsg;
 
-  pers->m_exReg     = trans->m_exReg;  
-  pers->m_eyReg     = trans->m_eyReg; 
-  pers->m_etReg     = trans->m_etReg; 
+  pers->m_exReg     = trans->exRegVec();  
+  pers->m_eyReg     = trans->eyRegVec(); 
+  pers->m_etReg     = trans->etSumRegVec(); 
   
     // for (unsigned int vi=0;vi<trans->m_exReg.size();++vi)
     //      std::cout<<"OUT regions ex: "<<trans->m_exReg[vi]<<"\tey: "<<trans->m_eyReg[vi]<<"\tet: "<<trans->m_etReg[vi]<<std::endl;

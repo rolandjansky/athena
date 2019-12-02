@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // author: cpollard@cern.ch
@@ -13,7 +13,6 @@ using namespace xAOD;
 JetParticleShrinkingConeAssociation::JetParticleShrinkingConeAssociation(const string& name)
     : JetParticleAssociation(name) {
 
-        declareProperty("inputParticleCollectionName", m_inputParticleCollectionName);
         declareProperty("coneSizeFitPar1", m_coneSizeFitPar1=0);
         declareProperty("coneSizeFitPar2", m_coneSizeFitPar2=0);
         declareProperty("coneSizeFitPar3", m_coneSizeFitPar3=0);
@@ -23,21 +22,14 @@ JetParticleShrinkingConeAssociation::JetParticleShrinkingConeAssociation(const s
 
 
 const vector<vector<ElementLink<IParticleContainer> > >*
-JetParticleShrinkingConeAssociation::match(const xAOD::JetContainer& jets) const {
-
-    const xAOD::IParticleContainer* parts = NULL;
-    if (evtStore()->retrieve( parts, m_inputParticleCollectionName ).isFailure() )
-        ATH_MSG_FATAL("JetParticleShrinkingConeAssociation: "
-                      "failed to retrieve part collection \"" +
-                      m_inputParticleCollectionName + "\"");
-
+JetParticleShrinkingConeAssociation::match(const xAOD::JetContainer& jets, const xAOD::IParticleContainer& parts) const {
 
     vector<vector<ElementLink<IParticleContainer> > >* matchedparts =
         new vector<vector<ElementLink<IParticleContainer> > >(jets.size());
 
 
-    for (xAOD::IParticleContainer::const_iterator part_itr = parts->begin();
-            part_itr != parts->end(); ++part_itr) {
+    for (xAOD::IParticleContainer::const_iterator part_itr = parts.begin();
+            part_itr != parts.end(); ++part_itr) {
 
         const xAOD::IParticle& part = **part_itr;
 
@@ -63,7 +55,7 @@ JetParticleShrinkingConeAssociation::match(const xAOD::JetContainer& jets) const
 
         if (matchjetidx >= 0) {
             ElementLink<IParticleContainer> EL; 
-            EL.toContainedElement(*parts, *part_itr);
+            EL.toContainedElement(parts, *part_itr);
             (*matchedparts)[matchjetidx].push_back(EL);
         }
     }

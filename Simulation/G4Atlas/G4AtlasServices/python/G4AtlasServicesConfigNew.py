@@ -14,11 +14,9 @@ from G4AtlasTools.G4FieldConfigNew import ATLASFieldManagerToolCfg, TightMuonsAT
 
 def getATLAS_RegionCreatorList(ConfigFlags):
     regionCreatorList = []
-    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
-    from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
 
     isUpgrade = ConfigFlags.GeoModel.Run =="RUN4"
-    isRUN2 = (ConfigFlags.GeoModel.Run in ["RUN2", "RUN3"]) or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isIBL())
+    isRUN2 = (ConfigFlags.GeoModel.Run in ["RUN2", "RUN3"]) or (ConfigFlags.GeoModel.Run=="UNDEFINED" and ConfigFlags.GeoModel.IBLLayout not in ["noIBL", "UNDEFINED"])
 
     from G4AtlasApps.SimFlags import simFlags
     if ConfigFlags.Beam.Type == 'cosmics' or ConfigFlags.Sim.CavernBG != 'Signal':

@@ -22,8 +22,10 @@ TrigSignatureMoniMT                                 INFO HLT_j45_L1J15          
 TrigSignatureMoniMT                                 INFO HLT_j45_L1J15 decisions                           5         
 TrigSignatureMoniMT                                 INFO HLT_j45_ftf_L1J15             20        20        5         5         
 TrigSignatureMoniMT                                 INFO HLT_j45_ftf_L1J15 decisions                       5         
-TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_L1J15 20        20        4         4         
-TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_L1J15 decisions                    4         
+TrigSignatureMoniMT                                 INFO HLT_j45_ftf_pf_L1J20          20        20        4         4         
+TrigSignatureMoniMT                                 INFO HLT_j45_ftf_pf_L1J20 decisions                    4         
+TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_L1J15 20        20        5         5         
+TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_L1J15 decisions                    5         
 TrigSignatureMoniMT                                 INFO HLT_j460_a10_lcw_subjes_L1J10020        20        0         0         
 TrigSignatureMoniMT                                 INFO HLT_j460_a10_lcw_subjes_L1J100 decisions                    0         
 TrigSignatureMoniMT                                 INFO HLT_j460_a10_lcw_subjes_L1J20 20        20        0         0         
@@ -44,3 +46,5 @@ TrigSignatureMoniMT                                 INFO HLT_j85_L1J20          
 TrigSignatureMoniMT                                 INFO HLT_j85_L1J20 decisions                           1         
 TrigSignatureMoniMT                                 INFO HLT_j85_ftf_L1J20             20        20        1         1         
 TrigSignatureMoniMT                                 INFO HLT_j85_ftf_L1J20 decisions                       1         
+TrigSignatureMoniMT                                 INFO HLT_j85_ftf_pf_L1J20          20        20        0         0         
+TrigSignatureMoniMT                                 INFO HLT_j85_ftf_pf_L1J20 decisions                    0         

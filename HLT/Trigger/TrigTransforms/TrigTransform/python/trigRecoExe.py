@@ -269,13 +269,14 @@ class trigRecoExecutor(athenaExecutor):
         elif 'BS' in self.conf.dataDictionary:
             argInDict = self.conf.dataDictionary['BS']
             #create expected string by taking only some of input
-            # removes uncertainty of which parts of the filename are used by athenaHLT
+            #know that the format will be of the format ####._HLTMPPy_Argument_####.data
+	    expectedOutputFileName = '*HLTMPPy_'
+	    # removes uncertainty of which parts of the filename are used by athenaHLT
             split_argInDict = argInDict.value[0].split('.')
-            #drop most of the input string to remove any potential ._####.data 
+            #drop most of the input string to remove any potential ._####.data clash
             # already in argInDict - so just take first element from input
-            expectedOutputFileName = split_argInDict[0]
+            expectedOutputFileName += split_argInDict[0]
             #expect file from athenaHLT to end _###.data so add ending
-            #TODO  a better ending check could be *_????.data
             expectedOutputFileName+='*.data'
             #keep dataset in case need to update argument
             dataset_argInDict = argInDict._dataset

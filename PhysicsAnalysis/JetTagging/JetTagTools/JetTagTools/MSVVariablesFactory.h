@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BTAGTOOL_MSVVARIABLESFACTORY_C
@@ -36,7 +36,8 @@ namespace Analysis {
     virtual StatusCode initialize();
     virtual StatusCode finalize();
     
-    virtual StatusCode fillMSVVariables(const xAOD::Jet &, xAOD::BTagging* BTag, const Trk::VxSecVKalVertexInfo* myInfoVKal, xAOD::VertexContainer* btagVertex, const xAOD::Vertex& PV, std::string basename) const ;
+    virtual StatusCode fillMSVVariables(const xAOD::Jet &, xAOD::BTagging* BTag, const Trk::VxSecVKalVertexInfo* myInfoVKal, xAOD::VertexContainer* btagVertex, const xAOD::Vertex& PV, std::string basename) const override ;
+    virtual StatusCode createMSVContainer(const xAOD::Jet &, const Trk::VxSecVKalVertexInfo* myInfoVKal, xAOD::VertexContainer* btagVertex, const xAOD::Vertex& PV) const override;
 
     void setOrigin(const xAOD::Vertex* priVtx); 
     //  static const InterfaceID& interfaceID() { return IID_JetFitterVariablesFactory; };

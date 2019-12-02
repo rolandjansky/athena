@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TileL2Cnv_p2.h 
@@ -23,9 +23,12 @@
 
 class MsgStream;
 
-class TileL2Cnv_p2 : public T_AthenaPoolTPCnvBase<TileL2, TileL2_p2> {
+class TileL2Cnv_p2 : public T_AthenaPoolTPCnvConstBase<TileL2, TileL2_p2> {
 
 public:
+  using base_class::transToPers;
+  using base_class::persToTrans;
+
 
   /** Default constructor: 
    */
@@ -34,12 +37,12 @@ public:
   /** Method creating the transient representation TileL2
    *  from its persistent representation TileL2_p2
    */
-  virtual void persToTrans(const TileL2_p2* persObj, TileL2* transObj, MsgStream &log);
+  virtual void persToTrans(const TileL2_p2* persObj, TileL2* transObj, MsgStream &log) const override;
 
   /** Method creating the persistent representation TileL2_p2
    *  from its transient representation TileL2
    */
-  virtual void transToPers(const TileL2* transObj, TileL2_p2* persObj, MsgStream &log);
+  virtual void transToPers(const TileL2* transObj, TileL2_p2* persObj, MsgStream &log) const override;
 
 };
 

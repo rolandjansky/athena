@@ -18,6 +18,9 @@ template<class T>
 class IdentifiableValueCache{
 
 public:
+
+   typedef std::true_type thread_safe;
+
    ///Return the empty value that is interpreted as an empty entry
    const T& emptyValue() const {
       return m_emptyValue;
