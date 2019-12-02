@@ -1,9 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils.scripts.dump_root_file
 # @purpose ascii-fy a ROOT file
 # @author Sebastien Binet
 # @date December 2010
+
+from __future__ import print_function
 
 __version__ = "$Revision: 438720 $"
 __doc__ = "ASCII-fy a ROOT file"
@@ -75,5 +77,5 @@ def main(args):
         for d in f.dump(tree_name, nentries):
             tree_name, ientry, name, data = d
             n = '.'.join(map(str, [tree_name,"%03i"%ientry]+name))
-            print '%s %r' %(n, data)
+            print ('%s %r' %(n, data))
     return 0

@@ -1,9 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils.scripts.jira
 # @purpose Interface with CERN JIRA instance
 # @author Edward Moyse
 # @date July 2016
+
+from __future__ import print_function
 
 __version__ = "$Revision: 717788 $"
 __doc__ = "Interface with CERN JIRA instance."
@@ -26,9 +28,9 @@ def queryJira(querystring, cookies):
     r = requests.get(url, cookies=cookies)
     if r.status_code != 200:
         if r.status_code == 401:
-            print 'Authorisation has failed. Have you got a valid SSO cookie? If not, re-run "cern-get-sso-cookie -u https://its.cern.ch/jira/loginCern.jsp -o jira.txt" '
+            print ('Authorisation has failed. Have you got a valid SSO cookie? If not, re-run "cern-get-sso-cookie -u https://its.cern.ch/jira/loginCern.jsp -o jira.txt" ')
         else:
-            print "Something has gone wrong! The response is: ", r.text
+            print ("Something has gone wrong! The response is: ", r.text)
         return
 
     import json
@@ -71,12 +73,12 @@ def main(args):
             if 'atlassian.xsrf.token' in line:
                 cookies['atlassian.xsrf.token'] = text[-1]   
     except:
-         print "Problems opening cookie file at ", args.cookies
+         print ("Problems opening cookie file at ", args.cookies)
          return 1
     
     querystring = ""
     if (args.query):
-        print "Will use the following search string: ",args.query
+        print ("Will use the following search string: ",args.query)
         querystring = args.query
     else:
         querystring = "search?jql=resolution=Unresolved"
@@ -93,11 +95,11 @@ def main(args):
     
     # Now lets get some information out
     issues = response['issues']
-    print
-    print 'Key'.ljust(20), 'Summary'.ljust(20)
-    print '---'.ljust(20), '-------'.ljust(20)
+    print()
+    print ('Key'.ljust(20), 'Summary'.ljust(20))
+    print ('---'.ljust(20), '-------'.ljust(20))
     for issue in issues:
-        print issue['key'].ljust(20), issue['fields']['summary'].ljust(20)
+        print (issue['key'].ljust(20), issue['fields']['summary'].ljust(20))
     return
 
 
