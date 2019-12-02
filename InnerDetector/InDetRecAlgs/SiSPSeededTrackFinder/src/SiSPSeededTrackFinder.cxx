@@ -96,7 +96,7 @@ InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
   declareProperty("useITKPPSseeds"          ,m_useITKPPSseeds      );
   declareProperty("useConvSeeded"           ,m_useConvSeeded       );
   declareProperty("doFastTracking"          ,m_doFastTracking      );
-  declareProperty("InDetEtaDependentCutsSvc",m_etaDependentCutsSvc);
+  declareProperty("InDetEtaDependentCutsSvc",m_etaDependentCutsSvc );
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -118,6 +118,11 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
   // Get track-finding tool
   //
   ATH_CHECK(m_trackmaker.retrieve());
+  
+  // Get region selector for conv seeded
+  //
+  if(m_useConvSeeded)
+    ATH_CHECK(m_regionSelector.retrieve());
   
   // Get InDetDynamicCutsTool
   //
