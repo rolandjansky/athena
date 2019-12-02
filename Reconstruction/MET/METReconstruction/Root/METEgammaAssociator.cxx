@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // METEgammaAssociator.cxx 
@@ -163,8 +163,8 @@ namespace met {
 	// We set a small -ve pt for cPFOs that were rejected
 	// by the ChargedHadronSubtractionTool
 	const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");	
-	if( ( fabs(pfo->charge())<FLT_MIN && pfo->e() > FLT_MIN ) ||
-	    ( fabs(pfo->charge())>FLT_MIN && PVMatchedAcc(*pfo)
+	if( ( !pfo->isCharged() && pfo->e() > FLT_MIN ) ||
+	    ( pfo->isCharged() && PVMatchedAcc(*pfo)
 	      && ( !m_cleanChargedPFO || isGoodEoverP(pfo->track(0)) ) )
 	    ) {
 	  nearbyPFO.push_back(pfo);
@@ -177,7 +177,7 @@ namespace met {
     ATH_CHECK( selectEgammaTracks(eg, constits.trkCont, trackset) );
     for(const auto& track : trackset) {
       for(const auto& pfo : nearbyPFO) {
-	if(fabs(pfo->charge())>FLT_MIN && pfo->track(0) == track) {
+	if(pfo->isCharged() && pfo->track(0) == track) {
 	  pfolist.push_back(pfo);
 	} // PFO/track match
       } // PFO loop
@@ -194,7 +194,7 @@ namespace met {
     std::sort(nearbyPFO.begin(),nearbyPFO.end(),greaterPtPFO);
     for(const auto& pfo : nearbyPFO) {
       // Skip charged PFOs, as we already matched them
-      if(fabs(pfo->charge())>FLT_MIN || !P4Helpers::isInDeltaR(*pfo, *swclus, m_tcMatch_dR, m_useRapidity)) {continue;}
+      if(pfo->isCharged() || !P4Helpers::isInDeltaR(*pfo, *swclus, m_tcMatch_dR, m_useRapidity)) {continue;}
       // Handle neutral PFOs like topoclusters
       double pfo_e = pfo->eEM();
       // skip cluster if it's above our bad match threshold or outside the matching radius
