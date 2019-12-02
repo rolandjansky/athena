@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 # This file is for the "old" non-topocluster version of egamma
 from AthenaCommon.Logging import logging
@@ -89,10 +91,10 @@ class egammaGetter ( Configured ) :
         except Exception:
             mlog.error("could not get handle to egamma")
             import traceback
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
         
-        print self._egammaBuilderHandle
+        print (self._egammaBuilderHandle)
         return True
 
     def egammaBuilderHandle(self):
