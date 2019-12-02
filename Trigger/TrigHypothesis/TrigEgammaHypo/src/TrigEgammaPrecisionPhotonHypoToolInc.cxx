@@ -148,7 +148,7 @@ bool TrigEgammaPrecisionPhotonHypoToolInc::decide( const ITrigEgammaPrecisionPho
 
 
   float Rhad1(0), Rhad(0), Reta(0), Rphi(0), e277(0), weta2c(0), //emax2(0), 
-    Eratio(0), DeltaE(0), f1(0), weta1c(0), wtot(0), fracm(0), f3(0);
+    Eratio(0), DeltaE(0), f1(0), weta1c(0), wtot(0), fracm(0);
 
     
   // variables based on HCAL
