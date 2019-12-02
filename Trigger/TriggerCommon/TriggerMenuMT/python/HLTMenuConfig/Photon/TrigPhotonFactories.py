@@ -49,7 +49,7 @@ TrigEgammaOQFlagsBuilder = ToolFactory( egammaToolsConf.egammaOQFlagsBuilder,
 # Copying from https://gitlab.cern.ch/atlas/athena/blob/master/Reconstruction/egamma/egammaRec/python/topoEgammaGetter.py#L28
 def TrigEgammaDecorationTools():
     #Return a list with the tools that decorate both electrons and photons. 
-    return [ EMFourMomBuilder(), TrigEMShowerBuilder()] #[, TrigEgammaOQFlagsBuilder()]
+    return [ EMFourMomBuilder(), TrigEMShowerBuilder() ] 
 
 def TrigPhotonDecorationTools():
     #Return a list with the tools that decorate only photons
