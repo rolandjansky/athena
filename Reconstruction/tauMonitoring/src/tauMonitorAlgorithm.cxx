@@ -8,13 +8,6 @@ tauMonitorAlgorithm::tauMonitorAlgorithm( const std::string& name, ISvcLocator* 
 :AthMonitorAlgorithm(name,pSvcLocator)
 ,m_doRandom(true)
 {
-  declareProperty("TauRecContainer", m_TauContainerKey="TauJets");
-
-  declareProperty("etaMin", m_etaMin=-1.);
-  declareProperty("etaMax", m_etaMax=2.6);
-
-  declareProperty("kinGroupName", m_kinGroupName="tauMonKinGroupBA");
-
 }
 
 
