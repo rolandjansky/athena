@@ -12,7 +12,7 @@
 
 class StoreGateSvc;
 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -223,8 +223,8 @@ private:
    int m_KountCallsDoIt     ; //!< Kount calls to DoIt
 
    ServiceHandle<AmdcsimrecAthenaSvc> p_AmdcsimrecAthenaSvc;  //!< Pointer On AmdcsimrecAthenaSvc
-   ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-     "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+   ServiceHandle<Muon::IMuonIdHelperSvc> m_muonIdHelperSvc{this, "idHelper", 
+      "Muon::MuonIdHelperSvc/MuonIdHelperSvc", "Handle to the service providing the IMuonIdHelperSvc interface"};
 
    StatusCode regFcnDoIt();
    StatusCode DoIt();
