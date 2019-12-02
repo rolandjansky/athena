@@ -98,6 +98,7 @@ StatusCode PixelAthHitMonAlg::fillHistograms( const EventContext& ctx ) const {
   int nActive_layer[PixLayers::COUNT] = {0};
   float avgocc_active_layer[PixLayers::COUNT] = {0};
   float avgocc_good_layer[PixLayers::COUNT] = {0};
+  float avgocc_ratio_toIBL_layer[PixLayers::COUNT] = {0};
 
   PixelID::const_id_iterator idIt = m_pixelid->wafer_begin();
   PixelID::const_id_iterator idItEnd = m_pixelid->wafer_end();
@@ -212,6 +213,12 @@ StatusCode PixelAthHitMonAlg::fillHistograms( const EventContext& ctx ) const {
   fill1DProfLumiLayers( "AvgOcc_active_per_lumi", lb, avgocc_active_layer );
   fill1DProfLumiLayers( "AvgOcc_good_per_lumi", lb, avgocc_good_layer );
 
+  if (m_doOnline && avgocc_good_layer[PixLayers::kIBL]>0) {
+    for (int i = 0; i < PixLayers::COUNT; i++) {
+      avgocc_ratio_toIBL_layer[i] = avgocc_good_layer[i] / avgocc_good_layer[PixLayers::kIBL];
+    }
+    fill1DProfLumiLayers( "AvgOcc_ratio_toIBL_per_lumi", lb, avgocc_ratio_toIBL_layer );
+  }
   //*******************************************************************************
   //************************** End of filling Hit Histograms **********************
   //*******************************************************************************

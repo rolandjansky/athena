@@ -56,6 +56,12 @@ def PixelAthHitMonAlgCfg(helper, alg, **kwargs):
     yaxistext      = ';# hits/pixel/event'
     define1DProfLumiLayers(helper, alg, histoGroupName, title, pathGroup, yaxistext, type='TProfile')
 
+    if doOnline:
+        histoGroupName = addOnTrackTxt('AvgOcc_ratio_toIBL_per_lumi', ontrack)
+        title          = addOnTrackTxt('Relative to IBL pixel occupancy per event per LB', ontrack, True)
+        yaxistext      = ';occ. ratio to IBL'
+        define1DProfLumiLayers(helper, alg, histoGroupName, title, pathGroup, yaxistext, type='TProfile')
+
     histoGroupName = 'HitMap' 
     title = 'hit map'
     define2DProfHist(helper, alg, histoGroupName, title, path, type='TH2F')
