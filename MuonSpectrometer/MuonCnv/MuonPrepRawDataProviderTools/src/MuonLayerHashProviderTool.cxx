@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonPrepRawDataProviderTools/MuonLayerHashProviderTool.h"
@@ -130,11 +130,11 @@ namespace Muon {
                   << " technologies " << m_ntechnologies << " sectorLayers " << MuonStationIndex::sectorLayerHashMax() );
 
     // add technologies
-    if (&(m_idHelper->mdtIdHelper())) insertTechnology(m_idHelper->mdtIdHelper());
-    if (&(m_idHelper->rpcIdHelper())) insertTechnology(m_idHelper->rpcIdHelper());
-    if (&(m_idHelper->cscIdHelper())) insertTechnology(m_idHelper->cscIdHelper());
-    if (&(m_idHelper->mmIdHelper())) insertTechnology(m_idHelper->mmIdHelper());
-    if (&(m_idHelper->stgcIdHelper())) insertTechnology(m_idHelper->stgcIdHelper());
+    if (m_idHelper->hasMdtIdHelper()) insertTechnology(m_idHelper->mdtIdHelper());
+    if (m_idHelper->hasRpcIdHelper()) insertTechnology(m_idHelper->rpcIdHelper());
+    if (m_idHelper->hasCscIdHelper()) insertTechnology(m_idHelper->cscIdHelper());
+    if (m_idHelper->hasMmIdHelper()) insertTechnology(m_idHelper->mmIdHelper());
+    if (m_idHelper->hasSTgcIdHelper()) insertTechnology(m_idHelper->stgcIdHelper());
 
     if( !insertTgcs() ) return false;
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -108,6 +108,7 @@ public:
 
     /** set the detailed energy deposits in the calorimeter layers */
     void set_deposits( const std::vector<DepositInCalo> & deposits ) { m_deposits = deposits; }
+    void set_deposits( std::vector<DepositInCalo>&& deposits ) { m_deposits = std::move(deposits); }
 
     /** insert a deposit */
     void insert_deposit ( const DepositInCalo& deposit ) { m_deposits.push_back( deposit ); }

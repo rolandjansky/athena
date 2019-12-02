@@ -64,10 +64,10 @@ namespace TrigDefs {
 
   const static unsigned int Express_passed            = 0x1 << 20;
 
-  /// Run 3 "enum". Only return the first feature along each route through the navigation
-  const static unsigned int oneFeaturePerLeg          = 0x1 << 21;
+  /// Run 3 "enum". Only return the final feature along each route through the navigation
+  const static unsigned int lastFeatureOfType         = 0x1 << 21;
   /// Run 3 "enum". Return all features along legs (still with type and container checks)
-  const static unsigned int allFeaturesPerLeg         = 0x1 << 22;
+  const static unsigned int allFeaturesOfType         = 0x1 << 22;
 
 
 }

@@ -14,13 +14,14 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTrackSummary/TrackSummary.h"
 
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/ListItem.h"
 #include "GaudiKernel/StatusCode.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 
 using namespace std;
-//using namespace SCT_Monitoring;
+using SCT_Monitoring::N_REGIONS;
+using SCT_Monitoring::bec2Index;
+
 
 namespace {
   // some possible parameter key values
@@ -50,7 +51,6 @@ SCTTracksMonAlg::SCTTracksMonAlg(const std::string& name, ISvcLocator* pSvcLocat
 
 StatusCode SCTTracksMonAlg::initialize(){
   ATH_CHECK( m_tracksName.initialize() );
-  ATH_CHECK( m_eventInfoKey.initialize() );
   ATH_CHECK(m_trackSummaryTool.retrieve());
   ATH_CHECK(m_residualPullCalculator.retrieve());
   if (m_doUnbiasedCalc) {
@@ -173,31 +173,29 @@ ATH_MSG_DEBUG("SCTTracksMonAlg::fillHistograms()");
             const bool doThisDetector{doThisSubsystem[subsystemIndex]};
             hasHits[subsystemIndex] = true;
             unique_ptr<const Trk::TrackParameters> trkParameters(nullptr);
+            const Trk::TrackParameters* trkParam{tsos->trackParameters()};
             const Trk::RIO_OnTrack* rio{dynamic_cast<const Trk::RIO_OnTrack*>(tsos->measurementOnTrack())};
             if (rio) {
 #ifndef NDEBUG
               ATH_MSG_DEBUG("if rio");
 #endif
               if (m_doUnbiasedCalc) {
-                const Trk::TrackParameters* trkParam{tsos->trackParameters()};
                 if (trkParam) {
                   trkParameters.reset(m_updator->removeFromState(*trkParam, rio->localParameters(), rio->localCovariance())); //need to take ownership of the returned pointer
+                  trkParam = trkParameters.get();
                 }
               }
             } else {
               ATH_MSG_DEBUG("not rio");
             }
-            if (trkParameters==nullptr) {
-              trkParameters.reset(tsos->trackParameters());
-            }
-            if (trkParameters) {
-              const AmgVector(5) LocalTrackParameters{trkParameters->parameters()};
+            if (trkParam) {
+              const AmgVector(5) LocalTrackParameters{trkParam->parameters()};
 #ifndef NDEBUG
               ATH_MSG_DEBUG("Track Position Phi= " << LocalTrackParameters[Trk::locX]);
               ATH_MSG_DEBUG("Cluster Position Phi= " << clus->localParameters()[Trk::locX]);
 #endif
               if (not m_residualPullCalculator.empty()) {
-                unique_ptr<const Trk::ResidualPull> residualPull{m_residualPullCalculator->residualPull(rio, trkParameters.get(),
+                unique_ptr<const Trk::ResidualPull> residualPull{m_residualPullCalculator->residualPull(rio, trkParam,
                                                                       m_doUnbiasedCalc ? Trk::ResidualPull::Unbiased : Trk::ResidualPull::Biased)};
                 if (not residualPull) {
                   ATH_MSG_WARNING("Residual Pull Calculator did not succeed!");
@@ -258,7 +256,8 @@ SCTTracksMonAlg::calculatePull(const float residual, const float trkErr, const f
 
 StatusCode
 SCTTracksMonAlg::checkTriggers(bitset<N_TRIGGER_TYPES>& firedTriggers) const {
-  SG::ReadHandle<xAOD::EventInfo> evtInfo{m_eventInfoKey};
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  SG::ReadHandle<xAOD::EventInfo> evtInfo = GetEventInfo (ctx);
   if (evtInfo.isValid()) {
     firedTriggers = evtInfo->level1TriggerType();
 

@@ -1,0 +1,45 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "MuonIdHelpers/MuonIdHelperSvc.h"
+#include "IdDictParser/IdDictParser.h"
+#include "StoreGate/StoreGateSvc.h"
+#include "GaudiKernel/ISvcLocator.h"
+
+Muon::MuonIdHelperSvc* muIdHelperSvc()
+{
+  ISvcLocator* svcLoc = Gaudi::svcLocator();
+  StoreGateSvc* sg = nullptr;
+  assert ( svcLoc->service("DetectorStore", sg).isSuccess() );
+
+  static IdDictParser parser;
+  parser.register_external_entity("MuonSpectrometer", "IdDictMuonSpectrometer_R.03.xml");
+  IdDictMgr& idd = parser.parse("IdDictParser/ATLAS_IDS.xml");
+
+  auto rpc_id = std::make_unique<RpcIdHelper>();
+  rpc_id->initialize_from_dictionary (idd);
+  assert ( sg->record (std::move (rpc_id), "RPCIDHELPER") );
+
+  auto csc_id = std::make_unique<CscIdHelper>();
+  csc_id->initialize_from_dictionary (idd);
+  assert ( sg->record (std::move (csc_id), "CSCIDHELPER") );
+
+  auto mdt_id = std::make_unique<MdtIdHelper>();
+  mdt_id->initialize_from_dictionary (idd);
+  assert ( sg->record (std::move (mdt_id), "MDTIDHELPER") );
+
+  auto tgc_id = std::make_unique<TgcIdHelper>();
+  tgc_id->initialize_from_dictionary (idd);
+  assert ( sg->record (std::move (tgc_id), "TGCIDHELPER") );
+
+  Muon::MuonIdHelperSvc* muIdSvc = new Muon::MuonIdHelperSvc("MuonIdHelperSvc", svcLoc);
+  muIdSvc->setProperty("HasSTgc", false);
+  muIdSvc->setProperty("HasMM", false);
+  assert ( muIdSvc->initialize().isSuccess() );
+  ISvcManager* svcmgr = dynamic_cast<ISvcManager*>( svcLoc );
+  svcmgr->addService( muIdSvc );
+  return muIdSvc;
+}
+
+

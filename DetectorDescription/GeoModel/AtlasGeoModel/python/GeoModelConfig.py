@@ -46,5 +46,5 @@ if __name__ == "__main__":
     Configurable.configurableRun3Behavior=1
 
     acc = GeoModelCfg( ConfigFlags )
-    acc.store( file( "test.pkl", "w" ) )
+    acc.store( open( "test.pkl", "wb" ) )
     Logging.log.info("All OK")

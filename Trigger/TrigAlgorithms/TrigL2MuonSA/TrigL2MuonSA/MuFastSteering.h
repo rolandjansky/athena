@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MUFASTSTEERING_H
@@ -38,7 +38,6 @@
 //using namespace TrigL2MuonSA;
 
 class IRegSelSvc;
-class IJobOptionsSvc;
 class Incident;
 class MsgStream;
 
@@ -230,9 +229,6 @@ class MuFastSteering : public HLT::FexAlgo,
   //ECRegions whichECRegion(const float eta, const float phi) const;
   float getRoiSizeForID(bool isEta, const xAOD::L2StandAloneMuon* muonSA);
 
-  // calibration streamer properties
-  ServiceHandle<IJobOptionsSvc> m_jobOptionsSvc;
-
   Gaudi::Property< bool > m_allowOksConfig { this, "AllowOksConfig", true, ""};
   Gaudi::Property< std::string > m_calBufferName { this, "MuonCalBufferName", "/tmp/testOutput", ""};
   Gaudi::Property< int > m_calBufferSize { this, "MuonCalBufferSize", 1024*1024, ""};
@@ -244,11 +240,11 @@ class MuFastSteering : public HLT::FexAlgo,
 
   //ReadHandle MURoIs
   SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey{
-	this, "MuRoIs", "MURoIs", "Name of the input data from L1Decoder"};
+	this, "MuRoIs", "HLT_MURoIs", "Name of the input data from L1Decoder"};
 
   //ReadHandle RecMuonRoIs
   SG::ReadHandleKey<DataVector<LVL1::RecMuonRoI>> m_recRoiCollectionKey{
-	this, "RecMuonRoI", "RecMURoIs", "Name of the input data on LVL1::RecMuonRoI produced by L1Decoder"};
+	this, "RecMuonRoI", "HLT_RecMURoIs", "Name of the input data on LVL1::RecMuonRoI produced by L1Decoder"};
 
   //WriteHandle <xAOD::L2StandAloneMuonContainer>
   SG::WriteHandleKey<xAOD::L2StandAloneMuonContainer> m_muFastContainerKey{

@@ -2,15 +2,15 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGMUROIMT_H
-#define TRIGMUROIMT_H
+#ifndef TRIGMUROI_TRIGMUROIMT_H
+#define TRIGMUROI_TRIGMUROIMT_H
 
 #include "TrigT1Interfaces/RecMuonRoiSvc.h"
 #include "TrigMuonRoITools/ITrigMuonRoITool.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 class TrigmuRoIMT : public AthAlgorithm
 {
@@ -22,7 +22,7 @@ class TrigmuRoIMT : public AthAlgorithm
 
    private:
    
-      ToolHandle<ITrigMuonRoITool> m_trigMuonRoITool;
+      ToolHandle<ITrigMuonRoITool> m_trigMuonRoITool{this, "RoITool", "TrigMuonRoITool"};
       ServiceHandle<LVL1::RecMuonRoiSvc> m_recRPCRoiSvc;
       ServiceHandle<LVL1::RecMuonRoiSvc> m_recTGCRoiSvc;
 

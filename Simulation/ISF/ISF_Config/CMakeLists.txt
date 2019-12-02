@@ -5,10 +5,6 @@
 # Declare the package name:
 atlas_subdir( ISF_Config )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          TestPolicy )
-
 if( NOT SIMULATIONBASE )
    atlas_add_test(test_Sim_tf_configuration
                   SCRIPT test/test_Sim_tf_configuration.py

@@ -34,3 +34,8 @@ atlas_add_test( IDStressTest SOURCES test/IDC_Realistic_Test.cxx
                 LINK_LIBRARIES Identifier AthenaKernel GaudiKernel EventContainers
                 EXTRA_PATTERNS "elapsed|^no lock time|^deleted|^countHit|^lock time"
               )
+atlas_add_test( IDCValueTest SOURCES test/IDCValueTest.cxx
+                INCLUDE_DIRS src test EventContainers
+                LINK_LIBRARIES Identifier AthenaKernel GaudiKernel EventContainers
+                EXTRA_PATTERNS ""
+              )

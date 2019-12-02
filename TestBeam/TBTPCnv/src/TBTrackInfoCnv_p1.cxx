@@ -1,14 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TBTPCnv/TBTrackInfoCnv_p1.h"
-#define private public
-#define protected public
 #include "TBEvent/TBTrackInfo.h"
-
-#undef private
-#undef protected
 #include "Identifier/Identifier.h"
 #include "TBTPCnv/TBTrackInfo_p1.h"
 
@@ -16,7 +11,7 @@
 
 void
 TBTrackInfoCnv_p1::persToTrans(const TBTrackInfo_p1* pers, 
-                                     TBTrackInfo* trans, MsgStream &/*log*/)
+                                     TBTrackInfo* trans, MsgStream &/*log*/) const
 {
 
   trans->tb_Trigger         = pers->tb_Trigger;
@@ -65,7 +60,7 @@ TBTrackInfoCnv_p1::persToTrans(const TBTrackInfo_p1* pers,
 
 void
 TBTrackInfoCnv_p1::transToPers(const TBTrackInfo* trans, 
-                                     TBTrackInfo_p1* pers, MsgStream &/*log*/)
+                                     TBTrackInfo_p1* pers, MsgStream &/*log*/) const
 {
 
   pers->tb_Trigger         = trans->tb_Trigger;

@@ -13,4 +13,4 @@ export TRF_ECHO=True; Reco_tf.py --AMIConfig=q220 --preExec 'rec.doDetailedAudit
 
 RES=$?
 echo "art-result: $RES Reco"
-return $RES
+

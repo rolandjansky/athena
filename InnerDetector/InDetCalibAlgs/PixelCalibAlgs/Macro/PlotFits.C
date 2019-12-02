@@ -2,6 +2,9 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifdef __CPPCHECK__
+void PlotFits()
+#endif
 {
 std::vector<std::string> filenames;
 std::string parameter;

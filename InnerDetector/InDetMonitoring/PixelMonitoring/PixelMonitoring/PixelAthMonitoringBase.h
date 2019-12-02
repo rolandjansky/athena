@@ -41,15 +41,9 @@ namespace PixMon {
 class PixelAthMonitoringBase : public virtual AthMonitorAlgorithm {
 
  public:
-
-  StatusCode fill2DProfLayer( const std::string& prof2Dname, const std::string& layer, Identifier& id, const PixelID* pid, float weight=1.0, bool copy2DFEval=false ) const;
-  StatusCode fill1DProfLumiLayers( std::string prof1Dname, int lb, float* weights ) const;
-  StatusCode fill1DProfLayers( std::string name, float* values ) const;
-  StatusCode fillPP0Histos( std::string name, int(&D_A)[PixMon::kNumModulesDisk][PixMon::kNumLayersDisk], int(&D_C)[PixMon::kNumModulesDisk][PixMon::kNumLayersDisk], int(&B0)[PixMon::kNumStavesL0][PixMon::kNumModulesBarrel], int(&B1)[PixMon::kNumStavesL1][PixMon::kNumModulesBarrel], int(&B2)[PixMon::kNumStavesL2][PixMon::kNumModulesBarrel], int(&IBL)[PixMon::kNumStavesIBL][PixMon::kNumFEsIBL] ) const;
-
+  void fill1DProfLumiLayers( const std::string& prof1Dname, int lb, float* weights ) const;
 
   int getPixLayersID(int ec, int ld) const;
-  std::string addTxt(std::string txt, bool ontrack) const;
   void getPhiEtaMod(const PixelID* pid, Identifier& id, int& phiMod, int& etaMod, bool& copyFE) const;
   bool isHitOnTrack(Identifier id, std::vector<Identifier> const &RDOIDs) const;
   bool isClusterOnTrack(Identifier id, std::vector<std::pair<Identifier, double> > const &ClusterIDs) const;
@@ -71,6 +65,16 @@ class PixelAthMonitoringBase : public virtual AthMonitorAlgorithm {
 	      const PixelID* pid, float value=1.0 );
   };
   void fill2DProfLayerAccum( const VecAccumulator2DMap& accumulator ) const;
+
+  struct AccumulatorArrays {
+    int DA[PixMon::kNumModulesDisk][PixMon::kNumLayersDisk];
+    int DC[PixMon::kNumModulesDisk][PixMon::kNumLayersDisk];
+    int B0[PixMon::kNumStavesL0][PixMon::kNumModulesBarrel];
+    int B1[PixMon::kNumStavesL1][PixMon::kNumModulesBarrel];
+    int B2[PixMon::kNumStavesL2][PixMon::kNumModulesBarrel];
+    int IBL[PixMon::kNumStavesIBL][PixMon::kNumFEsIBL];
+  }; 
+  void fillFromArrays( const std::string& namePP0, AccumulatorArrays& pixarrays, const std::string& name2DMap="" ) const;
   
 };
 

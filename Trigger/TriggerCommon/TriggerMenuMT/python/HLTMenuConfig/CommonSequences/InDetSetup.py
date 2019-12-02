@@ -17,6 +17,7 @@ class InDetCacheNames(object):
   SpacePointCachePix = "PixelSpacePointCache"
   SpacePointCacheSCT = "SctSpacePointCache"
   SCTRDOCacheKey     = "SctRDOCache"
+  SCTBSErrCacheKey   = "SctBSErrCache"
   PixRDOCacheKey     = "PixRDOCache"
 
 
@@ -47,7 +48,8 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
 
     from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRawDataProviderTool
     InDetPixelRawDataProviderTool = PixelRawDataProviderTool(name    = "InDetPixelRawDataProviderTool" + signature,
-                                                             Decoder = InDetPixelRodDecoder)
+                                                             Decoder = InDetPixelRodDecoder,
+                                                             checkLVL1ID = False)
     ToolSvc += InDetPixelRawDataProviderTool
 
     if (InDetTrigFlags.doPrintConfigurables()):
@@ -90,7 +92,7 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
     InDetSCTRawDataProvider.isRoI_Seeded = True
     InDetSCTRawDataProvider.RoIs = rois
     InDetSCTRawDataProvider.RDOCacheKey = InDetCacheNames.SCTRDOCacheKey
-    
+    InDetSCTRawDataProvider.BSErrCacheKey = InDetCacheNames.SCTBSErrCacheKey
 
     viewAlgs.append(InDetSCTRawDataProvider)
 

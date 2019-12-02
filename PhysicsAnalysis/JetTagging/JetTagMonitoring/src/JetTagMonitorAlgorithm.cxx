@@ -40,8 +40,7 @@ JetTagMonitorAlgorithm::JetTagMonitorAlgorithm( const std::string& name, ISvcLoc
   , m_jetContainerKey("AntiKt4EMTopoJets")
   , m_muonContainerKey("Muons")
   , m_electronContainerKey("Electrons")
-  , m_trigDecTool("Trig::TrigDecisionTool/TrigDecisionTool")
-  //add here other containers
+   //add here other containers
 {
 
   declareProperty("SkipJetQuality",         m_skipJetQuality    = false);
@@ -91,7 +90,6 @@ StatusCode JetTagMonitorAlgorithm::initialize() {
   ATH_CHECK(m_electronContainerKey.initialize());
 
   ATH_CHECK(m_vertContainerKey.initialize());
-  ATH_CHECK(m_EventInfoKey.initialize());
   ATH_CHECK(m_trackContainerKey.initialize());
 
   return AthMonitorAlgorithm::initialize();
@@ -178,7 +176,7 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
   fill(tool,nPrimVtx);
   
   if (vertices->size() < 2) {//why < 2?
-    ATH_MSG_WARNING("No vertices reconstructed");
+    ATH_MSG_DEBUG("No vertices reconstructed");
     return StatusCode::SUCCESS;
   }
   
@@ -235,20 +233,21 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
 
   //removed october
   bool useTriggerDecisionTool = true; //how to implement in r22 python script?
+  const auto& trigDecTool = getTrigDecisionTool();
 
-  if (useTriggerDecisionTool && m_trigDecTool != 0) { // only apply trigger selection if bool is true (false for express stream) and trigDecTool is ok
+  if (useTriggerDecisionTool && trigDecTool != 0) { // only apply trigger selection if bool is true (false for express stream) and trigDecTool is ok
 
     //ERROR for tool without explicit name
     //NEED TO:
     //find a way to put trigger name on python script (not hardcoded, by variable)
     //find a way to put wildcards * for 20-99 GeV electron and muon triggers
     
-    ATH_MSG_DEBUG("TrigDecTool: " << m_trigDecTool);
-    ATH_MSG_DEBUG("m_trigDecTool->isPassed(" << m_ElectronTrigger_201X << "): " << m_trigDecTool->isPassed(m_ElectronTrigger_201X));
-    ATH_MSG_DEBUG("m_trigDecTool->isPassed(" << m_MuonTrigger_201X << "): " << m_trigDecTool->isPassed(m_MuonTrigger_201X));
-    ATH_MSG_DEBUG("m_trigDecTool->isPassed(" << m_JetTrigger_201X << "): " << m_trigDecTool->isPassed(m_JetTrigger_201X));
+    ATH_MSG_DEBUG("TrigDecTool: " << trigDecTool);
+    ATH_MSG_DEBUG("trigDecTool->isPassed(" << m_ElectronTrigger_201X << "): " << trigDecTool->isPassed(m_ElectronTrigger_201X));
+    ATH_MSG_DEBUG("trigDecTool->isPassed(" << m_MuonTrigger_201X << "): " << trigDecTool->isPassed(m_MuonTrigger_201X));
+    ATH_MSG_DEBUG("trigDecTool->isPassed(" << m_JetTrigger_201X << "): " << trigDecTool->isPassed(m_JetTrigger_201X));
     
-    // auto chainGroup = m_trigDecTool->getChainGroup(".*");
+    // auto chainGroup = trigDecTool->getChainGroup(".*");
     // for (auto & trig : chainGroup->getListOfTriggers()) {
     //   ATH_MSG_DEBUG("Found trigger " << trig);
     // }
@@ -258,31 +257,31 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
     fill(tool,Trigger_CutFlow);
    
     // 201X menu triggers
-    if (m_trigDecTool->isPassed(m_ElectronTrigger_201X)) {
+    if (trigDecTool->isPassed(m_ElectronTrigger_201X)) {
       Trigger_CutFlow = 1;
       fill(tool,Trigger_CutFlow);
     }
-    if (m_trigDecTool->isPassed(m_MuonTrigger_201X)) {
+    if (trigDecTool->isPassed(m_MuonTrigger_201X)) {
       Trigger_CutFlow = 2;
       fill(tool,Trigger_CutFlow);
     }
-    if (m_trigDecTool->isPassed(m_ElectronTrigger_201X) || m_trigDecTool->isPassed(m_MuonTrigger_201X)){
+    if (trigDecTool->isPassed(m_ElectronTrigger_201X) || trigDecTool->isPassed(m_MuonTrigger_201X)){
       Trigger_CutFlow = 3;
       fill(tool,Trigger_CutFlow);
     }
-    if (m_trigDecTool->isPassed(m_ElectronTrigger_201X) && m_trigDecTool->isPassed(m_MuonTrigger_201X)){
+    if (trigDecTool->isPassed(m_ElectronTrigger_201X) && trigDecTool->isPassed(m_MuonTrigger_201X)){
       Trigger_CutFlow = 4;
       fill(tool,Trigger_CutFlow);
     }
-    if (m_trigDecTool->isPassed(m_JetTrigger_201X)){
+    if (trigDecTool->isPassed(m_JetTrigger_201X)){
       Trigger_CutFlow = 5;
       fill(tool,Trigger_CutFlow);
     }
 
     //IMPORTANT    
     // Require e/mu trigger to have unbiased sample of jets (and larger fraction of b-jets since many of these are ttbar events)
-    // if (!m_trigDecTool->isPassed(m_ElectronTrigger_201X) && !m_trigDecTool->isPassed(m_MuonTrigger_201X)) // 201X menu triggers
-    //return StatusCode::SUCCESS;
+    if (!trigDecTool->isPassed(m_ElectronTrigger_201X) && !trigDecTool->isPassed(m_MuonTrigger_201X)) // 201X menu triggers
+      return StatusCode::SUCCESS;
   }
   
   Event_CutFlow = 4;
@@ -437,7 +436,6 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
   if(isTTbarEvent)
     ATH_MSG_DEBUG("This is ttbar event "<< event);
 
-
   /////////////////////
   //* Jet container *//
   /////////////////////
@@ -492,6 +490,8 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
   auto jet_phi_smt = Monitored::Scalar<float>("jet_phi_smt",0.0);
 
   auto jet_MV = Monitored::Scalar<double>("jet_MV",0.0);
+  auto jet_MV_JVT_bef = Monitored::Scalar<double>("jet_MV_JVT_bef",0.0);
+  auto jet_MV_JVT_aft = Monitored::Scalar<double>("jet_MV_JVT_aft",0.0);
   auto jet_DL = Monitored::Scalar<float>("jet_DL",0.0);
 
   //Variables for TTbar events
@@ -518,11 +518,16 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
     jet_ETA = jetItr->eta();
     jet_PHI = jetItr->phi();
     ATH_MSG_DEBUG("Jet kinematics: eta = " << jet_ETA << ", phi= " << jet_PHI << ", pT= " << jet_PT);
+    
+    double mv = 0; 
+    mv = getMVweight(jetItr); // get MV weight (MV2c10/DL1*)
+    jet_MV = mv;
 
     fill(tool,jet_PT);
     fill(tool,jet_ETA);
     fill(tool,jet_PHI);
- 
+    fill(tool,jet_MV);
+     
     // All jets
     Jet_CutFlow = 0;
     fill(tool,Jet_CutFlow);
@@ -551,7 +556,13 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
     
     // fillTrackInJetHistograms(jetItr); // fill histograms with properties of associated tracks
 
+    //jet_MV_JVT_bef = mv;
+    //fill(tool,jet_MV_JVT_bef);
+
     if ( !passJVTCuts(jetItr) ) continue; 
+
+    //jet_MV_JVT_aft = mv;
+    //fill(tool,jet_MV_JVT_aft);
 
     // Jets passing JVT cuts
     Jet_CutFlow = 3;
@@ -609,7 +620,22 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
 
       fillGoodJetHistos(jetItr); //fill good jet histograms, also with b-tagging information
 
-      //Fill ttbar plots (top)
+      //Fill MV plots vs <mu>
+      auto jet_MV_mu_0_30 = Monitored::Scalar<float>("jet_MV_mu_0_30",0);
+      auto jet_MV_mu_30_50 = Monitored::Scalar<float>("jet_MV_mu_30_50",0);
+      auto jet_MV_mu_50_100 = Monitored::Scalar<float>("jet_MV_mu_50_100",0);
+      
+      if ( mu > 0. && mu < 30. ) {
+	jet_MV_mu_0_30 = mv;
+	fill(tool,jet_MV_mu_0_30);}
+      else if ( mu > 30. && mu < 50. ) {
+	jet_MV_mu_30_50 = mv;
+	fill(tool,jet_MV_mu_30_50);}
+      else if ( mu > 50. && mu < 100. ) {
+	jet_MV_mu_50_100 = mv;
+	fill(tool,jet_MV_mu_50_100);}
+
+      //Fill ttbar plots
       if (isTTbarEvent){// Looking for ttbar events
 
 	++nTTbarGoodJets; //good jet counter, to check if jets are more than 2
@@ -665,6 +691,7 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
 	jet_eta_smt = jetItr->eta();
 	jet_phi_smt = jetItr->phi();
 	smt_jet.SetPtEtaPhiE(jetItr->pt(),jetItr->eta(),jetItr->phi(),jetItr->e());
+	mvSMT = mv;
 	++nSMTJets;
       }
 
@@ -688,12 +715,6 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
       //fillBadJetHistos(*jetItr); //other histograms to fill
     }
     
-    double mv = 0; 
-    mv = getMVweight(jetItr); // get MV weight (MV2c10/DL1*)
-    jet_MV = mv;
-    
-    fill(tool,jet_MV);
-
   }
   //end of jetItr loop
 
@@ -715,8 +736,8 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
     fill(tool,ptSMT_ratio);
     pTrelSMT = smt_mu.Perp((smt_jet+smt_mu).Vect()) / Gaudi::Units::GeV;
     fill(tool,pTrelSMT);
-    // m_smt_jet_mv_w->Fill(mv);   
     fill(tool,jet_eta_smt,jet_phi_smt);//fill 2D plot
+    fill(tool,mvSMT);
   }
 
   // Two variables (value and passed) needed for TEfficiency
@@ -831,47 +852,68 @@ void JetTagMonitorAlgorithm::fillTTbarHistograms(const xAOD::Jet *jet) const {
 
   auto tool = getGroup("JetTagMonitor");
 
-  auto nTTbarJets_pretag = Monitored::Scalar<float>("nTTbarJets_pretag",0);
-  auto nTTbarJets_60tag = Monitored::Scalar<float>("nTTbarJets_60tag",0);
-  auto nTTbarJets_70tag = Monitored::Scalar<float>("nTTbarJets_70tag",0);
-  auto nTTbarJets_77tag = Monitored::Scalar<float>("nTTbarJets_77tag",0);
-  auto nTTbarJets_85tag = Monitored::Scalar<float>("nTTbarJets_85tag",0);
+  auto mvTTbarJets = Monitored::Scalar<float>("mvTTbarJets",0);
 
-  auto ptTTbarJet_pretag = Monitored::Scalar<float>("ptTTbarJet_pretag",0);
-  auto ptTTbarJet_60tag = Monitored::Scalar<float>("ptTTbarJet_60tag",0);
-  auto ptTTbarJet_70tag = Monitored::Scalar<float>("ptTTbarJet_70tag",0);
-  auto ptTTbarJet_77tag = Monitored::Scalar<float>("ptTTbarJet_77tag",0);
-  auto ptTTbarJet_85tag = Monitored::Scalar<float>("ptTTbarJet_85tag",0);
+  mvTTbarJets=mv;
+  fill(tool,mvTTbarJets);
 
-  nTTbarJets_pretag=1;
-  fill(tool,nTTbarJets_pretag);
-  ptTTbarJet_pretag=mv;
-  fill(tool,ptTTbarJet_pretag);
+  //Fill simple plots with number and pT distribution of ttbar jets
+  auto nTTbarJets_60tag = Monitored::Scalar<int>("nTTbarJets_60tag",0);
+  auto nTTbarJets_70tag = Monitored::Scalar<int>("nTTbarJets_70tag",0);
+  auto nTTbarJets_77tag = Monitored::Scalar<int>("nTTbarJets_77tag",0);
+  auto nTTbarJets_85tag = Monitored::Scalar<int>("nTTbarJets_85tag",0);
+
+  auto ptTTbarJets_60tag = Monitored::Scalar<float>("ptTTbarJets_60tag",0);
+  auto ptTTbarJets_70tag = Monitored::Scalar<float>("ptTTbarJets_70tag",0);
+  auto ptTTbarJets_77tag = Monitored::Scalar<float>("ptTTbarJets_77tag",0);
+  auto ptTTbarJets_85tag = Monitored::Scalar<float>("ptTTbarJets_85tag",0);
 
   if (mv > m_mv_85_weight_cut) {
-    nTTbarJets_85tag=1;
-    fill(tool,nTTbarJets_pretag);
-    ptTTbarJet_85tag=jet->pt() / Gaudi::Units::GeV;
-    fill(tool,ptTTbarJet_85tag);
+    fill(tool,nTTbarJets_85tag);
+    ptTTbarJets_85tag=jet->pt() / Gaudi::Units::GeV;
+    fill(tool,ptTTbarJets_85tag);
+    if (mv > m_mv_77_weight_cut) {
+      fill(tool,nTTbarJets_77tag);
+      ptTTbarJets_77tag=jet->pt() / Gaudi::Units::GeV;
+      fill(tool,ptTTbarJets_77tag);
+      if (mv > m_mv_70_weight_cut) {
+	fill(tool,nTTbarJets_70tag);
+	ptTTbarJets_70tag=jet->pt() / Gaudi::Units::GeV;
+	fill(tool,ptTTbarJets_70tag);
+	if (mv > m_mv_60_weight_cut) {
+	  fill(tool,nTTbarJets_60tag);
+	  ptTTbarJets_60tag=jet->pt() / Gaudi::Units::GeV;
+	  fill(tool,ptTTbarJets_60tag);
+	}
+      }
+    }
   }
-  if (mv > m_mv_77_weight_cut) {
-    nTTbarJets_77tag=1;
-    fill(tool,nTTbarJets_pretag);
-    ptTTbarJet_77tag=jet->pt() / Gaudi::Units::GeV;
-    fill(tool,ptTTbarJet_77tag);
-  }
-  if (mv > m_mv_70_weight_cut) {
-    nTTbarJets_70tag=1;
-    fill(tool,nTTbarJets_pretag);
-    ptTTbarJet_70tag=jet->pt() / Gaudi::Units::GeV;
-    fill(tool,ptTTbarJet_70tag);
-  }
-  if (mv > m_mv_60_weight_cut) {
-    nTTbarJets_60tag=1;
-    fill(tool,nTTbarJets_pretag);
-    ptTTbarJet_60tag=jet->pt() / Gaudi::Units::GeV;
-    fill(tool,ptTTbarJet_60tag);
-  }
+
+  //fill Efficiency plots
+  auto nTTbarJets = Monitored::Scalar<int>("nTTbarJets",0);
+  //nTTbarJets_pretag=1; //useless, variable should be 0
+  //ATH_MSG_INFO("TTbar event variable --> "+nTTbarJets_pretag);
+  auto pass85n = Monitored::Scalar<bool>("pass85n",false);
+  auto pass77n = Monitored::Scalar<bool>("pass77n",false);
+  auto pass70n = Monitored::Scalar<bool>("pass70n",false);
+  auto pass60n = Monitored::Scalar<bool>("pass60n",false);
+  pass85n = mv > m_mv_85_weight_cut;
+  pass77n = mv > m_mv_77_weight_cut;
+  pass70n = mv > m_mv_70_weight_cut;
+  pass60n = mv > m_mv_60_weight_cut;
+  fill(tool,nTTbarJets,pass85n,pass77n,pass70n,pass60n);
+  
+  auto ptTTbarJets = Monitored::Scalar<float>("ptTTbarJets",0);
+  ptTTbarJets=jet->pt() / Gaudi::Units::GeV;
+  auto pass85p = Monitored::Scalar<bool>("pass85p",false);
+  auto pass77p = Monitored::Scalar<bool>("pass77p",false);
+  auto pass70p = Monitored::Scalar<bool>("pass70p",false);
+  auto pass60p = Monitored::Scalar<bool>("pass60p",false);
+  pass85p = mv > m_mv_85_weight_cut;
+  pass77p = mv > m_mv_77_weight_cut;
+  pass70p = mv > m_mv_70_weight_cut;
+  pass60p = mv > m_mv_60_weight_cut;
+  fill(tool,ptTTbarJets,pass85p,pass77p,pass70p,pass60p);
 
   return;
 }
@@ -883,26 +925,10 @@ void JetTagMonitorAlgorithm::fillGoodJetHistos(const xAOD::Jet *jet) const {
 
   auto tool = getGroup("JetTagMonitor");
 
-  auto jet_MV = Monitored::Scalar<float>("jet_MV",0);
+  auto jet_MV_good = Monitored::Scalar<float>("jet_MV_good",0);
   
-  jet_MV = mv;
-  fill(tool,jet_MV);
-
-  auto jet_MV_mu_0_30 = Monitored::Scalar<float>("jet_MV_mu_0_30",0);
-  auto jet_MV_mu_30_50 = Monitored::Scalar<float>("jet_MV_mu_30_50",0);
-  auto jet_MV_mu_50_100 = Monitored::Scalar<float>("jet_MV_mu_50_100",0);
-
-  double mu = 15; //define mu!
-
-  if ( mu > 0. && mu < 30. ) {
-    jet_MV_mu_0_30 = mv;
-    fill(tool,jet_MV_mu_0_30);}
-  else if ( mu > 30. && mu < 50. ) {
-    jet_MV_mu_30_50 = mv;
-    fill(tool,jet_MV_mu_30_50);}
-  else if ( mu > 50. && mu < 100. ) {
-    jet_MV_mu_50_100 = mv;
-    fill(tool,jet_MV_mu_50_100);}
+  jet_MV_good = mv;
+  fill(tool,jet_MV_good);
 
   // Fill general jet kinematic plots vs High level tagger
   auto jet_MV_pt_0_20 = Monitored::Scalar<float>("jet_MV_pt_0_20",0);
@@ -972,7 +998,7 @@ void JetTagMonitorAlgorithm::fillGoodJetHistos(const xAOD::Jet *jet) const {
   if      ( fabs(jet->phi()) > 2.5 ) {
     jet_MV_phi_25_31=mv;
     fill(tool,jet_MV_phi_25_31);}
-  if      ( fabs(jet->phi()) > 2.0 ) {
+  else if ( fabs(jet->phi()) > 2.0 ) {
     jet_MV_phi_20_25=mv;
     fill(tool,jet_MV_phi_20_25);}
   else if ( fabs(jet->phi()) > 1.5 ) {
@@ -988,42 +1014,62 @@ void JetTagMonitorAlgorithm::fillGoodJetHistos(const xAOD::Jet *jet) const {
     jet_MV_phi_00_05=mv;
     fill(tool,jet_MV_phi_00_05);}
 
-  //fill efficiency plots of eta and phi distributions vs MV tag WP
-  auto jet_eta_pretag = Monitored::Scalar<float>("jet_eta_pretag",0);
+  //fill 2D plots of eta and phi distributions vs MV tag WP
   auto jet_eta_60tag = Monitored::Scalar<float>("jet_eta_60tag",0);
   auto jet_eta_70tag = Monitored::Scalar<float>("jet_eta_70tag",0);
   auto jet_eta_77tag = Monitored::Scalar<float>("jet_eta_77tag",0);
   auto jet_eta_85tag = Monitored::Scalar<float>("jet_eta_85tag",0);
 
-  auto jet_phi_pretag = Monitored::Scalar<float>("jet_phi_pretag",0);
   auto jet_phi_60tag = Monitored::Scalar<float>("jet_phi_60tag",0);
   auto jet_phi_70tag = Monitored::Scalar<float>("jet_phi_70tag",0);
   auto jet_phi_77tag = Monitored::Scalar<float>("jet_phi_77tag",0);
   auto jet_phi_85tag = Monitored::Scalar<float>("jet_phi_85tag",0);
-
+  
   if ( mv > m_mv_85_weight_cut ) {
     jet_eta_85tag = jet->eta();
-    jet_phi_85tag = jet->phi();
-    fill(tool,jet_eta_85tag,jet_phi_85tag);//fill 2D plot (fill also efficiency?)
+    jet_phi_85tag = jet->phi();   
+    fill(tool,jet_eta_85tag,jet_phi_85tag);
+    if ( mv > m_mv_77_weight_cut ) {
+      jet_eta_77tag = jet->eta();
+      jet_phi_77tag = jet->phi();
+      fill(tool,jet_eta_77tag,jet_phi_77tag);
+      if ( mv > m_mv_70_weight_cut ) {
+	jet_eta_70tag = jet->eta();
+	jet_phi_70tag = jet->phi();
+	fill(tool,jet_eta_70tag,jet_phi_70tag);
+	if ( mv >  m_mv_60_weight_cut ) {
+	  jet_eta_60tag = jet->eta();
+	  jet_phi_60tag = jet->phi();
+	  fill(tool,jet_eta_60tag,jet_phi_60tag);
+	}
+      }
+    }
   }
-  if ( mv > m_mv_77_weight_cut ) {
-    jet_eta_77tag = jet->eta();
-    jet_phi_77tag = jet->phi();
-    fill(tool,jet_eta_77tag,jet_phi_77tag);
-  }
-  if ( mv > m_mv_70_weight_cut ) {
-    jet_eta_70tag = jet->eta();
-    jet_phi_70tag = jet->phi();
-    fill(tool,jet_eta_70tag,jet_phi_70tag);
-  }
-  if ( mv >  m_mv_60_weight_cut ) {
-    jet_eta_60tag = jet->eta();
-    jet_phi_60tag = jet->phi();
-    fill(tool,jet_eta_60tag,jet_phi_60tag);
-  }
-  jet_eta_pretag = jet->eta();
-  jet_phi_pretag = jet->phi();
-  fill(tool,jet_eta_pretag,jet_phi_pretag);
 
+  //fill Efficiency plots
+  auto jet_eta = Monitored::Scalar<float>("jet_eta",0);
+  jet_eta = jet->eta();
+  auto pass85e = Monitored::Scalar<bool>("pass85e",false);
+  auto pass77e = Monitored::Scalar<bool>("pass77e",false);
+  auto pass70e = Monitored::Scalar<bool>("pass70e",false);
+  auto pass60e = Monitored::Scalar<bool>("pass60e",false);
+  pass85e = mv > m_mv_85_weight_cut;
+  pass77e= mv > m_mv_77_weight_cut;
+  pass70e = mv > m_mv_70_weight_cut;
+  pass60e = mv > m_mv_60_weight_cut;
+  fill(tool,jet_eta,pass85e,pass77e,pass70e,pass60e);
+
+  auto jet_phi = Monitored::Scalar<float>("jet_phi",0);
+  auto pass85f = Monitored::Scalar<bool>("pass85f",false);
+  auto pass77f = Monitored::Scalar<bool>("pass77f",false);
+  auto pass70f = Monitored::Scalar<bool>("pass70f",false);
+  auto pass60f = Monitored::Scalar<bool>("pass60f",false);
+  jet_phi = jet->phi();
+  pass85f = mv > m_mv_85_weight_cut;
+  pass77f = mv > m_mv_77_weight_cut;
+  pass70f = mv > m_mv_70_weight_cut;
+  pass60f = mv > m_mv_60_weight_cut;
+  fill(tool,jet_phi,pass85f,pass77f,pass70f,pass60f);
+  
   return;
 }

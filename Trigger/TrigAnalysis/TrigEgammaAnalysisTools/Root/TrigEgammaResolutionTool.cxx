@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************
@@ -43,8 +43,6 @@ StatusCode TrigEgammaResolutionTool::childFinalize(){
 StatusCode TrigEgammaResolutionTool::toolExecute(const std::string basePath,TrigInfo info,
         std::vector<std::pair< const xAOD::Egamma*,const HLT::TriggerElement*>> pairObjs){
 
-    ATH_MSG_DEBUG("Executing ResolutionTool for " << basePath);
-
     if(m_tp) return StatusCode::SUCCESS;
     const std::string dir = basePath+"/"+info.trigName;
     bool filliso=false;
@@ -53,7 +51,7 @@ StatusCode TrigEgammaResolutionTool::toolExecute(const std::string basePath,Trig
     ATH_MSG_DEBUG("Executing resolution for " << dir);
     for(const auto pairObj : pairObjs){
         const xAOD::Egamma* eg =pairObj.first;
-        const HLT::TriggerElement *feat = pairObj.second;
+        const HLT::TriggerElement *feat = pairObj.second; 
 
         if ( feat!=nullptr ) {
             // Final cuts done here
@@ -71,13 +69,13 @@ StatusCode TrigEgammaResolutionTool::toolExecute(const std::string basePath,Trig
                 if(eg->type()==xAOD::Type::Electron){
                     const xAOD::Electron* el = static_cast<const xAOD::Electron *> (eg);
                     float et = getEt(el)/1e3;
-                    if(et < info.trigThrHLT-5.0) continue;
-                    if(!eg->auxdecor<bool>(info.trigPidDecorator)) continue;
+                    if(et < info.trigThrHLT-5.0) continue; 
+                    if(!eg->auxdecor<bool>(info.trigPidDecorator)) continue; 
                     resolutionElectron(dir,pairObj,filliso);
                 } // Offline object Electron
                 else if(eg->type()==xAOD::Type::Photon){
                     float et = getCluster_et(eg)/1e3;
-                    if(et < info.trigThrHLT-5.0) continue;
+                    if(et < info.trigThrHLT-5.0) continue; 
                     resolutionPhoton(dir,pairObj,filliso);
                 } // Offline photon
             }
@@ -96,7 +94,7 @@ void TrigEgammaResolutionTool::resolutionPhoton(const std::string basePath,std::
     if(pairObj.second){
         if(ancestorPassed<xAOD::PhotonContainer>(pairObj.second))
             phEF=closestObject<xAOD::Photon,xAOD::PhotonContainer>(pairObj,dRmax);
-        if(phEF){
+        if(phEF){    
             if(dRmax < 0.05){
                 fillHLTResolution(dir1,phEF,pairObj.first);
                 if(filliso) fillIsolationResolution(dir1,phEF,pairObj.first);
@@ -115,13 +113,13 @@ void TrigEgammaResolutionTool::resolutionElectron(const std::string basePath,std
     std::string dir7 = basePath + "/Resolutions/L1Calo";
     std::string dir8 = basePath + "/AbsResolutions/L1Calo";
 
-
+    
     float dRmax = 100;
     const xAOD::Electron *elEF = nullptr;
     if(pairObj.second){
         if(ancestorPassed<xAOD::ElectronContainer>(pairObj.second))
             elEF=closestObject<xAOD::Electron,xAOD::ElectronContainer>(pairObj,dRmax);
-        if(elEF){
+        if(elEF){    
             if(dRmax < 0.05){
                 fillHLTResolution(dir1,elEF,pairObj.first);
                 if(filliso) fillIsolationResolution(dir1,elEF,pairObj.first);
@@ -132,7 +130,7 @@ void TrigEgammaResolutionTool::resolutionElectron(const std::string basePath,std
                     fillL2CaloResolution(dir6,clus,elEF);
                 }
             }
-        }
+        } 
         // L1 resolutions
         auto itEmTau = tdt()->ancestor<xAOD::EmTauRoI>(pairObj.second);
         const xAOD::EmTauRoI *l1 = itEmTau.cptr();
@@ -152,7 +150,7 @@ void TrigEgammaResolutionTool::resolutionL2Photon(const std::string dir,std::pai
         if(pairObj.second){
             if(ancestorPassed<xAOD::TrigPhotonContainer>(pairObj.second))
                 phL2=closestObject<xAOD::TrigPhoton,xAOD::TrigPhotonContainer>(pairObj,dRmax);
-            if(phL2){
+            if(phL2){    
                 if(dRmax < 0.05){
                     //Do something here
                 }
@@ -163,13 +161,13 @@ void TrigEgammaResolutionTool::resolutionL2Photon(const std::string dir,std::pai
 
 void TrigEgammaResolutionTool::resolutionL2Electron(const std::string dir,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj){
     cd(dir);
-
+    
     float dRmax = 100;
     const xAOD::TrigElectron *elL2 = nullptr;
     if(pairObj.second){
         if(ancestorPassed<xAOD::TrigElectronContainer>(pairObj.second))
             elL2=closestObject<xAOD::TrigElectron,xAOD::TrigElectronContainer>(pairObj,dRmax);
-        if(elL2){
+        if(elL2){    
             if(dRmax < 0.05){
                 //Do something here
             }
@@ -248,8 +246,8 @@ void TrigEgammaResolutionTool::fillHLTResolution(const std::string dir,const xAO
         if(val_off!=0.) hist1("res_d0")->Fill(getTrack_d0(elonl)-val_off);
         val_off=getD0sig(eloff);
         if(val_off!=0.) hist1("res_d0sig")->Fill(getD0sig(elonl)-val_off);
-
-        // Absolute resolution on track summary ints/floats
+        
+        // Absolute resolution on track summary ints/floats 
         val_off=getTrackSummaryFloat_eProbabilityHT(eloff);
         hist1("res_eprobht")->Fill( (getTrackSummaryFloat_eProbabilityHT(elonl)-val_off));
         hist2("res_eprobht_onVsOff")->Fill(val_off,
@@ -259,7 +257,7 @@ void TrigEgammaResolutionTool::fillHLTResolution(const std::string dir,const xAO
         hist1("res_npixhits")->Fill(getTrackSummary_numberOfPixelHits(elonl)-getTrackSummary_numberOfPixelHits(elonl));
         hist1("res_nscthits")->Fill(getTrackSummary_numberOfSCTHits(elonl)-getTrackSummary_numberOfSCTHits(elonl));
 
-    } else {
+    } else { 
         val_off=getCluster_et(off);
         if(val_off!=0.){
             hist1("res_et")->Fill((getCluster_et(onl)-val_off)/val_off);
@@ -453,7 +451,7 @@ void TrigEgammaResolutionTool::fillIsolationResolution(const std::string dir,con
         float val_off=getIsolation_ptcone20(eloff);
         hist2("res_ptcone20_onVsOff")->Fill(val_off,
                 getIsolation_ptcone20(elonl));
-        if (getEt(elonl) > 0. && getEt(eloff) > 0.){
+        if (getEt(elonl) > 0. && getEt(eloff) > 0.){ 
             hist2("res_ptvarcone20_rel_onVsOff")->Fill(getIsolation_ptvarcone20(eloff)/getEt(eloff),
                     getIsolation_ptvarcone20(elonl)/getEt(elonl));
             hist2("res_ptcone20_rel_onVsOff")->Fill(getIsolation_ptcone20(eloff)/getEt(eloff),
@@ -532,7 +530,7 @@ void TrigEgammaResolutionTool::fillIsolationResolution(const std::string dir,con
 }
 
 void TrigEgammaResolutionTool::fillHLTAbsResolution(const std::string dir,const xAOD::Egamma *onl, const xAOD::Egamma *off){
-
+   
     cd(dir);
     ATH_MSG_DEBUG("Fill Abs Resolution");
     if(xAOD::EgammaHelpers::isElectron(onl)){
@@ -540,7 +538,7 @@ void TrigEgammaResolutionTool::fillHLTAbsResolution(const std::string dir,const 
         const xAOD::Electron* eloff =static_cast<const xAOD::Electron*> (off);
         hist1("res_pt")->Fill((getTrack_pt(elonl)-getTrack_pt(eloff)));
         hist1("res_et")->Fill((getEt(elonl)-getEt(eloff))/getEt(eloff));
-
+        
         const float onl_eta=onl->eta();
         const float feta = fabs(onl_eta);
         const float off_eta=off->eta();
@@ -574,15 +572,15 @@ void TrigEgammaResolutionTool::fillHLTAbsResolution(const std::string dir,const 
                                               getIsolation_ptcone20(elonl)/getEt(elonl));
         }
 
-    if( feta < 1.37 )
-      hist1("res_etInEta0")->Fill((getEt(elonl)-getEt(eloff)));
-    else if( feta >=1.37 && feta <= 1.52 )
-      hist1("res_etInEta1")->Fill((getEt(elonl)-getEt(eloff)));
-    else if( feta >= 1.55 && feta < 1.8 )
-      hist1("res_etInEta2")->Fill((getEt(elonl)-getEt(eloff)));
-    else if( feta >= 1.8 && feta < 2.45 )
-      hist1("res_etInEta3")->Fill((getEt(elonl)-getEt(eloff)));
-
+	if( feta < 1.37 )
+	  hist1("res_etInEta0")->Fill((getEt(elonl)-getEt(eloff)));
+	else if( feta >=1.37 && feta <= 1.52 )
+	  hist1("res_etInEta1")->Fill((getEt(elonl)-getEt(eloff)));
+	else if( feta >= 1.55 && feta < 1.8 )
+	  hist1("res_etInEta2")->Fill((getEt(elonl)-getEt(eloff)));
+	else if( feta >= 1.8 && feta < 2.45 )
+	  hist1("res_etInEta3")->Fill((getEt(elonl)-getEt(eloff)));
+        
         hist1("res_deta1")->Fill((getCaloTrackMatch_deltaEta1(elonl)-getCaloTrackMatch_deltaEta1(eloff)));
         hist1("res_deta2")->Fill((getCaloTrackMatch_deltaEta2(elonl)-getCaloTrackMatch_deltaEta2(eloff)));
         hist1("res_dphi2")->Fill((getCaloTrackMatch_deltaPhi2(elonl)-getCaloTrackMatch_deltaPhi2(eloff)));
@@ -593,26 +591,26 @@ void TrigEgammaResolutionTool::fillHLTAbsResolution(const std::string dir,const 
         hist1("res_npixhits")->Fill(getTrackSummary_numberOfPixelHits(elonl)-getTrackSummary_numberOfPixelHits(elonl));
         hist1("res_nscthits")->Fill(getTrackSummary_numberOfSCTHits(elonl)-getTrackSummary_numberOfSCTHits(elonl));
     }
-    else{
+    else{ 
       hist1("res_et")->Fill((getCluster_et(onl)-getCluster_et(off)));
       hist1("res_eta")->Fill((onl->eta()-off->eta()));
       hist1("res_phi")->Fill((onl->phi()-off->phi()));
 
       hist2("res_etVsEta")->Fill(onl->eta(),
-                 (getCluster_et(onl)-getCluster_et(off)));
+				 (getCluster_et(onl)-getCluster_et(off)));
       hist2("res_etVsEt")->Fill( getCluster_et(onl)/1e3,
-                 (getCluster_et(onl)-getCluster_et(off)));
+				 (getCluster_et(onl)-getCluster_et(off)));
       float feta = fabs(onl->eta());
       if( feta < 1.37 )
-    hist1("res_etInEta0")->Fill((getCluster_et(onl)-getCluster_et(off)));
+	hist1("res_etInEta0")->Fill((getCluster_et(onl)-getCluster_et(off)));
       else if( feta >=1.37 && feta <= 1.52 )
-    hist1("res_etInEta1")->Fill((getCluster_et(onl)-getCluster_et(off)));
+	hist1("res_etInEta1")->Fill((getCluster_et(onl)-getCluster_et(off)));
       else if( feta >= 1.55 && feta < 1.8 )
-    hist1("res_etInEta2")->Fill((getCluster_et(onl)-getCluster_et(off)));
+	hist1("res_etInEta2")->Fill((getCluster_et(onl)-getCluster_et(off)));
       else if( feta >= 1.8 && feta < 2.45 )
-    hist1("res_etInEta3")->Fill((getCluster_et(onl)-getCluster_et(off)));
+	hist1("res_etInEta3")->Fill((getCluster_et(onl)-getCluster_et(off)));
     }
-
+    
     /*hist1("res_e011")->Fill((getShowerShape_e011(onl)-getShowerShape_e011(off)));
     hist1("res_e132")->Fill((getShowerShape_e132(onl)-getShowerShape_e132(off)));
     hist1("res_e237")->Fill((getShowerShape_e237(onl)-getShowerShape_e237(off)));
@@ -656,9 +654,9 @@ void TrigEgammaResolutionTool::fillL2CaloResolution(const std::string dir,const 
 
         float elonl_ethad = elonl->energy( CaloSampling::HEC0 ); elonl_ethad += elonl->energy( CaloSampling::HEC1 );
         elonl_ethad += elonl->energy( CaloSampling::HEC2 ); elonl_ethad += elonl->energy( CaloSampling::HEC3 );
-        elonl_ethad += elonl->energy( CaloSampling::TileBar0 ); elonl_ethad += elonl->energy( CaloSampling::TileExt0 );
-        elonl_ethad += elonl->energy( CaloSampling::TileBar1 ); elonl_ethad += elonl->energy( CaloSampling::TileExt1 );
-        elonl_ethad += elonl->energy( CaloSampling::TileBar2 ); elonl_ethad += elonl->energy( CaloSampling::TileExt2 );
+        elonl_ethad += elonl->energy( CaloSampling::TileBar0 ); elonl_ethad += elonl->energy( CaloSampling::TileExt0 ); 
+        elonl_ethad += elonl->energy( CaloSampling::TileBar1 ); elonl_ethad += elonl->energy( CaloSampling::TileExt1 ); 
+        elonl_ethad += elonl->energy( CaloSampling::TileBar2 ); elonl_ethad += elonl->energy( CaloSampling::TileExt2 ); 
         elonl_ethad /= TMath::CosH(elonl->eta() );
         val_off=getShowerShape_ethad(off);
         if(val_off!=0.){
@@ -750,7 +748,7 @@ void TrigEgammaResolutionTool::fillL2CaloResolution(const std::string dir,const 
             }
         }
         float onl_eratio = 999.0;
-        if ( fabsf(onl->emaxs1() + onl->e2tsts1()) > 0.01 )
+        if ( fabsf(onl->emaxs1() + onl->e2tsts1()) > 0.01 ) 
             onl_eratio = (onl->emaxs1() - onl->e2tsts1()) / (onl->emaxs1() + onl->e2tsts1());
         val_off=getShowerShape_Eratio(off);
         if(val_off!=0.){
@@ -763,12 +761,4 @@ void TrigEgammaResolutionTool::fillL2CaloResolution(const std::string dir,const 
             }
         }
     } // Electron
-}
-
-void TrigEgammaResolutionTool::setDetail(bool doDetail)  {
-    m_detailedHists = doDetail;
-}
-
-void TrigEgammaResolutionTool::setTP(bool tp) {
-    m_tp = tp;
 }

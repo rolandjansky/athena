@@ -58,6 +58,9 @@ StatusCode eflowTrackCaloExtensionTool::initialize() {
 		    << m_theTrackExtrapolatorTool.typeAndName());
   }
 
+  if (!m_ParticleCacheKey.key().empty()) ATH_CHECK(m_ParticleCacheKey.initialize());
+  else m_useOldCalo = true;
+  
   return StatusCode::SUCCESS;
 }
 
@@ -65,23 +68,45 @@ std::unique_ptr<eflowTrackCaloPoints> eflowTrackCaloExtensionTool::execute(const
 
   ATH_MSG_VERBOSE(" Now running eflowTrackCaloExtensionTool");
 
-  /*make the map*/
+  /*Create a map to index the TrackParameters at calo (owned by the extension) wrt to layers*/
   std::map<eflowCalo::LAYER, const Trk::TrackParameters*> parametersMap;
 
   /*get the CaloExtension object*/
-  std::unique_ptr<Trk::CaloExtension> extension = m_theTrackExtrapolatorTool->caloExtension(*track);
-  if (extension.get()!=nullptr) {
+  const Trk::CaloExtension * extension = nullptr;
+  std::unique_ptr<Trk::CaloExtension> uniqueExtension;
+  const int index = track->index();
+  ATH_MSG_VERBOSE("Getting element " << index << " from the particleCache");
+
+  if (m_useOldCalo) {
+    /* If CaloExtensionBuilder is unavailable, use the calo extension tool */
+    ATH_MSG_VERBOSE("Using the CaloExtensionTool");
+    uniqueExtension = m_theTrackExtrapolatorTool->caloExtension(*track);
+    extension = uniqueExtension.get();
+  } else {
+    /*get the CaloExtension object*/
+    SG::ReadHandle<CaloExtensionCollection>  particleCache {m_ParticleCacheKey};
+    ATH_MSG_VERBOSE("Using the CaloExtensionBuilder Cache");
+    extension = (*particleCache)[index];
+    ATH_MSG_VERBOSE("Getting element " << index << " from the particleCache");
+    if( not extension ){
+      ATH_MSG_VERBOSE("Cache does not contain a calo extension -> Calculating with the a CaloExtensionTool" );
+      uniqueExtension = m_theTrackExtrapolatorTool->caloExtension(*track);
+      extension = uniqueExtension.get();
+    }
+  }
+  
+  if (extension != nullptr) {
 
     /*extract the CurvilinearParameters*/
     const std::vector<const Trk::CurvilinearParameters*>& clParametersVector = extension->caloLayerIntersections();
 
-    /*fill the map*/
-    for (auto clParameter : clParametersVector) {
-      if (parametersMap[getLayer(clParameter)] == NULL) {
-        parametersMap[getLayer(clParameter)] = clParameter->clone();
+     /*The parameters are owned by the CaloExtension so are handlel by it the eflowTrackCaloPoints does
+     * not take ownership */
+    for ( const Trk::CurvilinearParameters * clParameter : clParametersVector) {
+      if (parametersMap[getLayer(clParameter)] == nullptr) {
+        parametersMap[getLayer(clParameter)] = clParameter;
       } else if (m_trackParametersIdHelper->isEntryToVolume(clParameter->cIdentifier())) {
-        delete parametersMap[getLayer(clParameter)];
-        parametersMap[getLayer(clParameter)] = clParameter->clone();
+        parametersMap[getLayer(clParameter)] = clParameter;
       }
     }
     /*
@@ -91,14 +116,13 @@ std::unique_ptr<eflowTrackCaloPoints> eflowTrackCaloExtensionTool::execute(const
     */
     
     return std::make_unique<eflowTrackCaloPoints>(parametersMap);
+
   }
   else{
     if (track->pt() > 3*Gaudi::Units::GeV) ATH_MSG_WARNING("TrackExtension failed for track with pt and eta " << track->pt() << " and " << track->eta());
     parametersMap[eflowCalo::LAYER::Unknown] = nullptr;
     return std::make_unique<eflowTrackCaloPoints>(parametersMap);
   }
-
-
 }
 
 StatusCode eflowTrackCaloExtensionTool::finalize() {

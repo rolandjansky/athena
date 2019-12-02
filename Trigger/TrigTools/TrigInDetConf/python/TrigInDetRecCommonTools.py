@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """
 #
@@ -53,3 +53,8 @@ ToolSvc += InDetTrigTrackSummaryToolSharedHitsWithTRTPid
 if (InDetTrigFlags.doPrintConfigurables()):
     print      InDetTrigTrackSummaryToolSharedHitsWithTRTPid
 
+
+# HACK to emulate run2 behaviour
+from TrkAssociationTools.TrkAssociationToolsConf import Trk__PRDtoTrackMapExchangeTool
+InDetTrigPRDtoTrackMapExchangeTool = Trk__PRDtoTrackMapExchangeTool("InDetTrigPRDtoTrackMapExchangeTool")
+ToolSvc += InDetTrigPRDtoTrackMapExchangeTool

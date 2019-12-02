@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ###########################################################################
 #
@@ -109,8 +109,7 @@ if DetFlags.haveRIO.pixel_on():
   # load PixelToTPID tool
   from PixelToTPIDTool.PixelToTPIDToolConf import InDet__PixelToTPIDTool
   ToolSvc += InDet__PixelToTPIDTool( \
-    name                       = "CombinedMuonPixelToTPID",
-    ReadFromCOOL               = True)
+    name                       = "CombinedMuonPixelToTPID")
 
   # set properties into public tools
   ToolSvc.CombinedMuonIDHoleSearch.PixelSummaryTool    = InDetPixelConditionsSummaryTool

@@ -11,9 +11,9 @@
 #include "TrigSteeringEvent/HLTResultMT.h"
 
 // Athena includes
+#include "AthenaInterprocess/Incidents.h"
 #include "AthenaKernel/AthStatusCode.h"
 #include "AthenaMonitoring/OHLockedHist.h"
-#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "ByteStreamData/ByteStreamMetadata.h"
 #include "ByteStreamData/ByteStreamMetadataContainer.h"
 #include "EventInfoUtils/EventInfoFromxAOD.h"
@@ -45,6 +45,7 @@
 
 // System includes
 #include <sstream>
+#include <string>
 
 // =============================================================================
 // Helper macros, typedefs and constants
@@ -88,7 +89,6 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& name, ISvcLocator* svcLoc)
   m_evtStore("StoreGateSvc", name),
   m_detectorStore("DetectorStore", name),
   m_inputMetaDataStore("StoreGateSvc/InputMetaDataStore", name),
-  m_robDataProviderSvc("ROBDataProviderSvc", name),
   m_THistSvc("THistSvc", name),
   m_ioCompMgr("IoComponentMgr", name)
 {
@@ -121,16 +121,17 @@ StatusCode HltEventLoopMgr::initialize()
   updateDFProps();
 
   // print properties
-  ATH_MSG_INFO(" ---> ApplicationName         = " << m_applicationName);
-  ATH_MSG_INFO(" ---> HardTimeout             = " << m_hardTimeout.value());
-  ATH_MSG_INFO(" ---> SoftTimeoutFraction     = " << m_softTimeoutFraction.value());
-  ATH_MSG_INFO(" ---> SoftTimeoutValue        = " << m_softTimeoutValue);
-  ATH_MSG_INFO(" ---> MaxFrameworkErrors      = " << m_maxFrameworkErrors.value());
-  ATH_MSG_INFO(" ---> FwkErrorDebugStreamName = " << m_fwkErrorDebugStreamName.value());
-  ATH_MSG_INFO(" ---> AlgErrorDebugStreamName = " << m_algErrorDebugStreamName.value());
-  ATH_MSG_INFO(" ---> TimeoutDebugStreamName  = " << m_timeoutDebugStreamName.value());
-  ATH_MSG_INFO(" ---> EventContextWHKey       = " << m_eventContextWHKey.key());
-  ATH_MSG_INFO(" ---> EventInfoRHKey          = " << m_eventInfoRHKey.key());
+  ATH_MSG_INFO(" ---> ApplicationName           = " << m_applicationName);
+  ATH_MSG_INFO(" ---> HardTimeout               = " << m_hardTimeout.value());
+  ATH_MSG_INFO(" ---> SoftTimeoutFraction       = " << m_softTimeoutFraction.value());
+  ATH_MSG_INFO(" ---> SoftTimeoutValue          = " << m_softTimeoutValue);
+  ATH_MSG_INFO(" ---> MaxFrameworkErrors        = " << m_maxFrameworkErrors.value());
+  ATH_MSG_INFO(" ---> FwkErrorDebugStreamName   = " << m_fwkErrorDebugStreamName.value());
+  ATH_MSG_INFO(" ---> AlgErrorDebugStreamName   = " << m_algErrorDebugStreamName.value());
+  ATH_MSG_INFO(" ---> TimeoutDebugStreamName    = " << m_timeoutDebugStreamName.value());
+  ATH_MSG_INFO(" ---> TruncationDebugStreamName = " << m_truncationDebugStreamName.value());
+  ATH_MSG_INFO(" ---> EventContextWHKey         = " << m_eventContextWHKey.key());
+  ATH_MSG_INFO(" ---> EventInfoRHKey            = " << m_eventInfoRHKey.key());
 
   ATH_CHECK( m_jobOptionsSvc.retrieve() );
   const Gaudi::Details::PropertyBase* prop = m_jobOptionsSvc->getClientProperty("EventDataSvc","NSlots");
@@ -176,7 +177,6 @@ StatusCode HltEventLoopMgr::initialize()
   ATH_CHECK(m_evtStore.retrieve());
   ATH_CHECK(m_detectorStore.retrieve());
   ATH_CHECK(m_inputMetaDataStore.retrieve());
-  ATH_CHECK(m_robDataProviderSvc.retrieve());
   ATH_CHECK(m_THistSvc.retrieve());
   ATH_CHECK(m_evtSelector.retrieve());
   ATH_CHECK(m_evtSelector->createContext(m_evtSelContext)); // create an EvtSelectorContext
@@ -202,17 +202,6 @@ StatusCode HltEventLoopMgr::initialize()
   m_hltResultRHKey = m_hltResultMaker->resultName();
   ATH_CHECK(m_hltResultRHKey.initialize());
 
-  //----------------------------------------------------------------------------
-  // Setup the HLT ROB Data Provider Service when configured
-  //----------------------------------------------------------------------------
-  if ( &*m_robDataProviderSvc ) {
-    m_hltROBDataProviderSvc = SmartIF<ITrigROBDataProviderSvc>( &*m_robDataProviderSvc );
-    if (m_hltROBDataProviderSvc.isValid())
-      ATH_MSG_INFO("A ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvc was found");
-    else
-      ATH_MSG_INFO("No ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvc was found");
-  }
-
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
   return StatusCode::SUCCESS;
 }
@@ -232,7 +221,7 @@ StatusCode HltEventLoopMgr::start()
 StatusCode HltEventLoopMgr::stop()
 {
   // Need to reinitialize IO in the mother process
-  if (m_workerId.empty()) {
+  if (m_workerID==0) {
     ATH_CHECK(m_ioCompMgr->io_reinitialize());
   }
 
@@ -248,9 +237,6 @@ StatusCode HltEventLoopMgr::finalize()
   // Usually (but not necessarily) corresponds to the number of processed events +1
   ATH_MSG_INFO("Total number of EventContext objects created " << m_localEventNumber);
 
-  // Need to release now - automatic release in destructor is too late since services are already gone
-  m_hltROBDataProviderSvc.reset();
-
   // Release all handles
   auto releaseAndCheck = [&](auto& handle, std::string handleType) {
     if (handle.release().isFailure())
@@ -261,7 +247,6 @@ StatusCode HltEventLoopMgr::finalize()
   auto releaseSmartIF = [](auto&&... args) { (args.reset(), ...); };
 
   releaseService(m_incidentSvc,
-                 m_robDataProviderSvc,
                  m_evtStore,
                  m_detectorStore,
                  m_inputMetaDataStore,
@@ -275,8 +260,7 @@ StatusCode HltEventLoopMgr::finalize()
   releaseSmartIF(m_whiteboard,
                  m_algResourcePool,
                  m_aess,
-                 m_schedulerSvc,
-                 m_hltROBDataProviderSvc);
+                 m_schedulerSvc);
 
   return StatusCode::SUCCESS;
 }
@@ -375,7 +359,7 @@ StatusCode HltEventLoopMgr::hltUpdateAfterFork(const ptree& /*pt*/)
   if ( !m_ioCompMgr->io_retrieve(histsvc.get()).empty() ) {
     boost::filesystem::path worker_dir = boost::filesystem::absolute("athenaHLT_workers");
     std::ostringstream oss;
-    oss << "athenaHLT-" << std::setfill('0') << std::setw(2) << m_workerId;
+    oss << "athenaHLT-" << std::setfill('0') << std::setw(2) << m_workerID;
     worker_dir /= oss.str();
     // Delete worker directory if it exists already
     if ( boost::filesystem::exists(worker_dir) ) {
@@ -405,6 +389,9 @@ StatusCode HltEventLoopMgr::hltUpdateAfterFork(const ptree& /*pt*/)
     m_isSlotProcessing.resize(m_whiteboard->getNumberOfStores(), false);
   }
   m_timeoutCond.notify_all();
+
+  // Fire incident to update listeners after forking
+  m_incidentSvc->fireIncident(AthenaInterprocess::UpdateAfterFork(m_workerID, m_workerPID, name(), m_currentRunCtx));
 
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
   return StatusCode::SUCCESS;
@@ -567,7 +554,16 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
       ATH_MSG_DEBUG("Retrieved event info for the new event " << *eventInfo);
 
       // Set EventID for the EventContext
-      eventContext->setEventID(eventIDFromxAOD(eventInfo.cptr()));
+      EventIDBase eid = eventIDFromxAOD(eventInfo.cptr());
+      // Override run/timestamp if needed
+      if (m_forceRunNumber > 0) {
+        eid.set_run_number(m_forceRunNumber);
+      }
+      if (m_forceSOR_ns > 0) {
+        eid.set_time_stamp(m_forceSOR_ns / 1000000000);
+        eid.set_time_stamp_ns_offset(m_forceSOR_ns % 1000000000);
+      }
+      eventContext->setEventID(eid);
 
       // Update thread-local EventContext after setting EventID
       Gaudi::Hive::setCurrentContext(*eventContext);
@@ -687,7 +683,11 @@ void HltEventLoopMgr::updateDFProps()
                    };
 
   getDFProp( "DF_ApplicationName", m_applicationName );
-  getDFProp( "DF_WorkerId", m_workerId, false );
+  std::string wid, wpid;
+  getDFProp( "DF_WorkerId", wid, false );
+  getDFProp( "DF_Pid", wpid, false );
+  if (!wid.empty()) m_workerID = std::stoi(wid);
+  if (!wpid.empty()) m_workerPID = std::stoi(wpid);
 }
 
 // =============================================================================
@@ -855,7 +855,7 @@ const coral::AttributeList& HltEventLoopMgr::getSorAttrList() const
     // corresponding to the SOR should contain one single AttrList). Since
     // that's required by code ahead but not checked at compile time, we
     // explicitly guard against any potential future mistake with this check
-    throw std::runtime_error("SOR record should have one and one only attribute list, but it has " + sor->size());
+    throw std::runtime_error("SOR record should have one and one only attribute list, but it has " + std::to_string(sor->size()));
   }
 
   const auto & soral = sor->begin()->second;
@@ -1015,6 +1015,9 @@ StatusCode HltEventLoopMgr::failedEvent(hltonl::PSCErrorCode errorCode, const Ev
     case hltonl::PSCErrorCode::TIMEOUT:
       hltResultWH->addStreamTag({m_timeoutDebugStreamName.value(), eformat::DEBUG_TAG, true});
       break;
+    case hltonl::PSCErrorCode::RESULT_TRUNCATION:
+      hltResultWH->addStreamTag({m_truncationDebugStreamName.value(), eformat::DEBUG_TAG, true});
+      break;
     default:
       hltResultWH->addStreamTag({m_fwkErrorDebugStreamName.value(), eformat::DEBUG_TAG, true});
       break;
@@ -1069,8 +1072,10 @@ StatusCode HltEventLoopMgr::failedEvent(hltonl::PSCErrorCode errorCode, const Ev
   // Finish handling the failed event
   //----------------------------------------------------------------------------
 
-  // Unless this is a timeout or processing (i.e. algorithm) failure, increment the number of framework failures
-  if (errorCode != hltonl::PSCErrorCode::TIMEOUT && errorCode != hltonl::PSCErrorCode::PROCESSING_FAILURE) {
+  // Unless this is a timeout, truncation or processing (i.e. algorithm) failure, increment the number of framework failures
+  if (errorCode != hltonl::PSCErrorCode::TIMEOUT
+      && errorCode != hltonl::PSCErrorCode::RESULT_TRUNCATION
+      && errorCode != hltonl::PSCErrorCode::PROCESSING_FAILURE) {
     if ( (++m_nFrameworkErrors)>m_maxFrameworkErrors.value() ) {
       ATH_MSG_ERROR("Failure with PSCErrorCode=" << hltonl::PrintPscErrorCode(errorCode)
         << " was successfully handled, but the number of tolerable framework errors for this HltEventLoopMgr instance,"
@@ -1229,6 +1234,11 @@ HltEventLoopMgr::DrainSchedulerStatusCode HltEventLoopMgr::drainScheduler()
     if (!hltResultDO) markFailed();
     HLT_DRAINSCHED_CHECK(sc, "Failed to retrieve the HLTResult DataObject",
                          hltonl::PSCErrorCode::NO_HLT_RESULT, *thisFinishedEvtContext);
+
+    // Check for result truncation
+    if (!hltResult->getTruncatedModuleIds().empty()) markFailed();
+    HLT_DRAINSCHED_CHECK(sc, "HLT result truncation",
+                         hltonl::PSCErrorCode::RESULT_TRUNCATION, *thisFinishedEvtContext);
 
     // Convert the HLT result to the output data format
     IOpaqueAddress* addr = nullptr;

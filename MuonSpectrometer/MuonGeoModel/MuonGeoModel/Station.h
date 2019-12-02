@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef Station_H
@@ -14,6 +14,8 @@
 #include "MuonGeoModel/AlignPos.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelKernel/GeoDefinitions.h"
+#include <memory>
+#include "AthenaKernel/CLASS_DEF.h"
 
 /*
    This class holds an std::map of Position, AlignPos and an std::vector of 
@@ -22,9 +24,6 @@
    is done (in MYSQL).
    It is responsible for releasing the memory allocated by Components and Cutouts
 */
-
-
-class IMessageSvc;
 
 namespace MuonGM {
 
@@ -97,21 +96,14 @@ public:
 
 private:
     double getYMin() const;
-
-	mutable double m_thickness;
-	mutable double m_length;
-        mutable double m_amdbOrigine_along_length;
-        mutable double m_amdbOrigine_along_thickness;
-	mutable double m_width1;
-	mutable double m_width2;
-	mutable double m_mdthalfpitch;
+    mutable double m_amdbOrigine_along_length;
+    mutable double m_amdbOrigine_along_thickness;
 	std::string m_name;
-        bool m_hasMdts;
+    bool m_hasMdts;
 	std::vector<Component *> m_components;
 	std::vector<Cutout *> m_cutouts;
 	PositionMap m_positions;
 	AlignPosMap m_alignpositions;
-	IMessageSvc*    m_msgSvc;
 	Station & operator=(const Station &right);
 };
 } // namespace MuonGM

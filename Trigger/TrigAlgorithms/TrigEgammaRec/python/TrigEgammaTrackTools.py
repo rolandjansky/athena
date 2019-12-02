@@ -68,14 +68,16 @@ ToolSvc += egTrigTrkExtrapolator
 
 
 # Set up the GSF
-from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMaterialMixtureConvolution
-GSFTrigMaterialUpdator = Trk__GsfMaterialMixtureConvolution (name = 'GSFTrigMaterialUpdator')
-ToolSvc += GSFTrigMaterialUpdator
 # component Reduction
 from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__QuickCloseComponentsMultiStateMerger
 GSFTrigComponentReduction = Trk__QuickCloseComponentsMultiStateMerger (name                      = 'GSFTrigComponentReduction',
                                                                        MaximumNumberOfComponents = 12)
 ToolSvc += GSFTrigComponentReduction
+
+from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMaterialMixtureConvolution
+GSFTrigMaterialUpdator = Trk__GsfMaterialMixtureConvolution (name = 'GSFTrigMaterialUpdator',
+                                                             MultiComponentStateMerger = GSFTrigComponentReduction)
+ToolSvc += GSFTrigMaterialUpdator
 
 from TrkMeasurementUpdator.TrkMeasurementUpdatorConf import Trk__KalmanUpdator as ConfiguredKalmanUpdator
 egTrigTrkUpdator = ConfiguredKalmanUpdator('egTrigTrkUpdator')
@@ -93,7 +95,6 @@ GSFTrigExtrapolator = Trk__GsfExtrapolator(name                          = 'GSFT
                                        StickyConfiguration           = True,
                                        Navigator                     = egTrigTrkNavigator,
                                        GsfMaterialConvolution        = GSFTrigMaterialUpdator,
-                                       ComponentMerger               = GSFTrigComponentReduction,
                                        SurfaceBasedMaterialEffects   = False )
 ToolSvc += GSFTrigExtrapolator
 

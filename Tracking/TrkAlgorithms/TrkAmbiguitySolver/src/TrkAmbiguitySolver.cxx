@@ -11,10 +11,10 @@ Trk::TrkAmbiguitySolver::TrkAmbiguitySolver(const std::string& name, ISvcLocator
   m_scoredTracksKey(""),
   m_resolvedTracksKey("Tracks"),
   m_ambiTool("Trk::SimpleAmbiguityProcessorTool/TrkAmbiguityProcessor", this),
-  m_applySolve(true), 
-  m_trackInCount(0),   
+  m_applySolve(true),
+  m_trackInCount(0),
   m_trackOutCount(0)
-{  
+{
   declareProperty("TrackInput"        , m_scoredTracksKey);
   declareProperty("TrackOutput"       , m_resolvedTracksKey);
   declareProperty("AmbiguityProcessor", m_ambiTool);
@@ -41,6 +41,8 @@ Trk::TrkAmbiguitySolver::initialize()
 
   ATH_CHECK(m_scoredTracksKey.initialize());
   ATH_CHECK(m_resolvedTracksKey.initialize());
+  m_trackInCount=0;
+  m_trackOutCount=0;
   return StatusCode::SUCCESS;
 }
 
@@ -51,18 +53,19 @@ Trk::TrkAmbiguitySolver::execute()
   ATH_MSG_VERBOSE ("TrkAmbiguitySolver::execute()");
   SG::ReadHandle<TracksScores> scoredTracksHandle(m_scoredTracksKey);
   if ( !scoredTracksHandle.isValid() )  ATH_MSG_ERROR("Could not read scoredTracks.");
-
-  std::unique_ptr<TrackCollection> resolvedTracks = std::make_unique<TrackCollection>();
+  m_trackInCount += scoredTracksHandle->size();
+  std::unique_ptr<TrackCollection> resolvedTracks;
   if (m_applySolve){
-    Trk::TracksScores scoredTracks(*scoredTracksHandle);
-    resolvedTracks.reset(m_ambiTool->process(&scoredTracks)); //note: take ownership and delete
+     resolvedTracks.reset(m_ambiTool->process(scoredTracksHandle.cptr())); //note: take ownership and delete
   }
   else{
+    resolvedTracks = std::make_unique<TrackCollection>(SG::VIEW_ELEMENTS);
     resolvedTracks->reserve(scoredTracksHandle->size());
-    for(auto &e: *scoredTracksHandle)
-      resolvedTracks->push_back(const_cast<Track*>(e.first));
+    for(const std::pair< const Trk::Track *, float> &e: *scoredTracksHandle) {
+       resolvedTracks->push_back(const_cast<Trk::Track *>(e.first));
+    }
   }
-
+  m_trackOutCount += resolvedTracks->size();
   SG::WriteHandle<TrackCollection> resolvedTracksHandle(m_resolvedTracksKey);
   ATH_CHECK(resolvedTracksHandle.record(std::move(resolvedTracks)));
   ATH_MSG_VERBOSE ("Saved "<<resolvedTracksHandle->size()<<" tracks");
@@ -74,8 +77,9 @@ Trk::TrkAmbiguitySolver::execute()
 StatusCode
 Trk::TrkAmbiguitySolver::finalize()
 {
-  m_ambiTool->statistics();
-
+  if (m_ambiTool.isEnabled()) {
+      m_ambiTool->statistics();
+  }
   ATH_MSG_INFO( "Finalizing with "<< m_trackInCount << " tracks input, and "<< m_trackOutCount<< " output");
   return StatusCode::SUCCESS;
 }

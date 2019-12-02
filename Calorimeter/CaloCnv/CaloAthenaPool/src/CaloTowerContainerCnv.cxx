@@ -61,7 +61,7 @@ CaloTowerContainer* CaloTowerContainerCnv::createTransient() {
 	  << m_classID.toString() << endmsg;
       CaloTowerContainerPERS* pers=poolReadObject<CaloTowerContainer_p1>();
       Cont=new CaloTowerContainer();
-      m_converter.persToTrans(pers,Cont);
+      m_converter.persToTrans(pers,Cont,log);
       delete pers;
     }
     if (!Cont) {
@@ -156,7 +156,7 @@ CaloTowerContainerPERS* CaloTowerContainerCnv::createPersistent(CaloTowerContain
     MsgStream log(msgSvc(), "CaloTowerContainerCnv::createPersistent");
     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Writing CaloTowerContainer_p1" << endmsg;
     CaloTowerContainerPERS* pers=new CaloTowerContainerPERS();
-    m_converter.transToPers(trans,pers); 
+    m_converter.transToPers(trans,pers,log); 
     return pers;
 }
 

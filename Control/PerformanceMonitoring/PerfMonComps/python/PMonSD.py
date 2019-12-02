@@ -1,4 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
 
 __doc__   ='Module for parsing and basic analysis of Semi-Detailed PerfMon (PMonSD) output. More info at https://twiki.cern.ch/twiki/bin/viewauth/Atlas/PerfMonSD'
 __author__='Thomas Kittelmann <thomas.kittelmann@cern.ch>'
@@ -36,7 +37,7 @@ def need_line(l):
 def print_ascii(infile):
     """Print parsed PMonSD info to stdout"""
     for line in deparse(infile):
-        print line
+        print(line)
 
 def diff(infile1,infile2):
     """Look for main performance differences between two PMonSD outputs (this function not finalised yet!)"""
@@ -94,12 +95,12 @@ def __save_output(data,outfile,prefix,infile=None):
     else:
         fh=open(outfile,'w')
     if infile!=None and outfile==infile:
-        print "%s.parse WARNING: output file %s equals input file. Won't dump."%(_appname,outfile)
+        print("%s.parse WARNING: output file %s equals input file. Won't dump."%(_appname,outfile))
     else:
         import cPickle
         force_share(data)#make sure we register shared strings
         cPickle.dump(data,fh)
-        print "%s.parse INFO: Placed info in %s"%(_appname,outfile)
+        print("%s.parse INFO: Placed info in %s"%(_appname,outfile))
 
 def __smart_parse(infile):
     #Input can be in a wide range of formats.
@@ -120,8 +121,8 @@ def __smart_parse(infile):
             try:
                 #fh=gzip.open(infile)
                 fh=gzip_fastopen(infile)
-            except IOError,e:
-                print "Could not open and decompress file %s: %s"%(infile,e)
+            except IOError as e:
+                print("Could not open and decompress file %s: %s"%(infile,e))
                 return None
         else:
             #unzipped txt output or pickle
@@ -131,8 +132,8 @@ def __smart_parse(infile):
             import cPickle
             try:
                 ds=cPickle.load(fh)
-            except cPickle.UnpicklingError,e:
-                print "ERROR: Could not load pickled info from file %s: %s"%(infile,e)
+            except cPickle.UnpicklingError as e:
+                print("ERROR: Could not load pickled info from file %s: %s"%(infile,e))
                 return None
             #basic validation of the format:
             for d in ds:
@@ -181,7 +182,7 @@ def __actual_parse(filehandle):
                 d['version']=version
                 d['full_info']=full_info
                 if version>pmonsd_version():
-                    print "WARNING: Using PMonSD of version %f to parse output made with version %f"%(pmonsd_version(),version)
+                    print("WARNING: Using PMonSD of version %f to parse output made with version %f"%(pmonsd_version(),version))
             continue
         #remove prefix:
         l=l[len(_prefix):].strip()
@@ -358,29 +359,29 @@ def _validate_deparsing(f):
             if l.endswith('\n'): l=l[0:-1]
             lines+=[l]
     if len(lines)==0:
-        print "File does not have %s lines!"%_appname
+        print("File does not have %s lines!"%_appname)
         return False
     d=__smart_parse(lines)
     if d==None:
         return False
     lines2=deparse(d)
     if len(lines)!=len(lines2):
-        print "Validation failed! Linecount mismatch. %i vs. %i"%(len(lines),len(lines2))
+        print("Validation failed! Linecount mismatch. %i vs. %i"%(len(lines),len(lines2)))
         found=False
         for i in range(min(len(lines),len(lines2))):
             if lines[i]!=lines2[i]:
                 found=True
-                print "< ",lines[i]
-                print "> ",lines2[i]
+                print("< ",lines[i])
+                print("> ",lines2[i])
             if not found:
-                print "Difference must be in final lines"
+                print("Difference must be in final lines")
                 return False
         return False
     for i in range(len(lines)):
         if lines[i]!=lines2[i]:
-            print "Validation failed in following lines:"
-            print "parsed  :",lines[i]
-            print "deparsed:",lines2[i]
+            print("Validation failed in following lines:")
+            print("parsed  :",lines[i])
+            print("deparsed:",lines2[i])
             return False
     return True
 
@@ -391,26 +392,26 @@ def __actual_diff(infile1,infile2):
     #Gymnastics to accept separate types:
     if type(d1)==list and type(d2)==list:
         if len(d1)!=len(d2):
-            print "Difference detected: Different number of %s sections in inputs: %i vs. %i"%(_appname,len(d1),len(d2))
+            print("Difference detected: Different number of %s sections in inputs: %i vs. %i"%(_appname,len(d1),len(d2)))
             return False
         for i in range(len(d1)):
             if not diff(d1[i],d2[i]):
-                print "Difference detected in %s sections with index %i"%(_appname,i)
+                print("Difference detected in %s sections with index %i"%(_appname,i))
                 return False
         return True
     #Finally start direct diff of two dicts:
     keys1=set(d1.keys())
     keys2=set(d2.keys())
     if keys1!=keys2:
-        print "Different keys detected!"
+        print("Different keys detected!")
         return False
     if d1['version']!=d2['version']:
-        print "WARNING: Comparing pickles with different versions. Results might not be trustworthy!"
+        print("WARNING: Comparing pickles with different versions. Results might not be trustworthy!")
     #diff components:
     steps1=set(d1['steps_comps'].keys())
     steps2=set(d2['steps_comps'].keys())
     if steps1!=steps2:
-        print "Different steps detected!"
+        print("Different steps detected!")
         return False
     #tricky part when comparing components is that a component might
     #have been collapsed in just one, without a significant difference
@@ -434,13 +435,13 @@ def __actual_diff(infile1,infile2):
     def compat(comp,step,data1,data2):
         n=data1['n']
         if not n==data2['n']:
-            print "Different number of entries for %s in step %s: %i vs. %i"%(comp,step,n,data2['n'])
+            print("Different number of entries for %s in step %s: %i vs. %i"%(comp,step,n,data2['n']))
             return False,True
         valchange=False
         for var,cut in [('cpu',100),('vmem',100),('malloc',10)]:
             if abs(data1[var]-data2[var])>cut:
                 valchange=True
-                print "Change in %s %s in step %s: %i to %i"%(comp,var,step,data1[var],data2[var])
+                print("Change in %s %s in step %s: %i to %i"%(comp,var,step,data1[var],data2[var]))
                 #don't abort since job config didn't change, only performance (want other changes as well)
         return True,valchange
     valchange=False
@@ -448,14 +449,14 @@ def __actual_diff(infile1,infile2):
         ne1,anycollapsed1=_ncomps_and_entries(d1['steps_comps'][step])
         ne2,anycollapsed2=_ncomps_and_entries(d2['steps_comps'][step])
         if ne1!=ne2:
-            print "Difference in number of components and/or number of entries in step %s!"%step
+            print("Difference in number of components and/or number of entries in step %s!"%step)
             return False
         check=[]
         if not anycollapsed1 and not anycollapsed2:
             #awesome, we can check all comps completely before vs. after
             for comp,compdata in d1['steps_comps'][step].items():
                 if not comp in d2['steps_comps'][step].keys():
-                    print "Difference: Component %s only present in one input in step %s"%(comp,step)
+                    print("Difference: Component %s only present in one input in step %s"%(comp,step))
                     return False
                 check+=[(comp,compdata,d2['steps_comps'][step][comp])]
         else:

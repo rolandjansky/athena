@@ -15,7 +15,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Generators/GeneratorObjects
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
-                          TestPolicy
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkTools/TrkToolInterfaces
                           PRIVATE

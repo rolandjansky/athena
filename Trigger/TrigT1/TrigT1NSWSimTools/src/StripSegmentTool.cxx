@@ -297,11 +297,10 @@ namespace NSWL1 {
             eta=log(tan(theta/2));
          }
          else{
-            ATH_MSG_ERROR("Segment Global Z at IP");//S.I : Error so ?
+            ATH_MSG_WARNING("Segment Global Z at IP");// somehow zero might come from simulation effects so throw a warning and continue to avoid nan
+            continue;
          }
          
-         
-         //S.I instead of doing all these stuff like below, which is quite error prone  why dont we use TVectors?
          if(glx>=0 && gly>=0){
              phi=atan(gly/glx);
          }

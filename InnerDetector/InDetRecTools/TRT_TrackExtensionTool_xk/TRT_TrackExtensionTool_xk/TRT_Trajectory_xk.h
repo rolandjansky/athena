@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -62,26 +62,26 @@ namespace InDet{
       bool isLastElementBarrel ();
 
       void set(const TRT_ID                     *,
-	       Trk::IPatternParametersPropagator*, 
-	       Trk::IPatternParametersUpdator   *, 
-	       Trk::IRIO_OnTrackCreator         *,
-	       Trk::IRIO_OnTrackCreator         *,
+	       const Trk::IPatternParametersPropagator*,
+	       const Trk::IPatternParametersUpdator   *,
+	       const Trk::IRIO_OnTrackCreator         *,
+	       const Trk::IRIO_OnTrackCreator         *,
 	       double,
 	       double,
 	       double,
                double);
 
-      void set(Trk::MagneticFieldProperties&,MagField::IMagFieldSvc*&);
+      void set(Trk::MagneticFieldProperties&,const MagField::IMagFieldSvc *);
 
       void initiateForPrecisionSeed
 	(std::list< std::pair<Amg::Vector3D,double> >&,
-	 std::list<const InDetDD::TRT_BaseElement*>&,
+	 std::vector<const InDetDD::TRT_BaseElement*>&,
 	 const TRT_DriftCircleContainer*&,
 	 const Trk::PatternTrackParameters&);
 
       void initiateForTRTSeed
 	(std::list< std::pair<Amg::Vector3D,double> >&,
-	 std::list<const InDetDD::TRT_BaseElement*>&,
+	 std::vector<const InDetDD::TRT_BaseElement*>&,
 	 const TRT_DriftCircleContainer*&,
 	 const Trk::PatternTrackParameters&);
 

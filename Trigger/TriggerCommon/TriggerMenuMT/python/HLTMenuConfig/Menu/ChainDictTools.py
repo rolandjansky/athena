@@ -1,8 +1,9 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from copy import deepcopy
+
 from AthenaCommon.Logging import logging
-log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools' )
+log = logging.getLogger( __name__ )
 
 
 def splitInterSignatureChainDict(chainDict):

@@ -51,6 +51,6 @@ if __name__=="__main__":
 
     cfg.merge(MuonReconstructionCfg(ConfigFlags))
               
-    f=open("MuonSegmentFinding.pkl","w")
+    f=open("MuonSegmentFinding.pkl","wb")
     cfg.store(f)
     f.close()

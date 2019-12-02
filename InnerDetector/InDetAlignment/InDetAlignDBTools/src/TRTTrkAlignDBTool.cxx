@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #include "InDetIdentifier/TRT_ID.h"
 #include "InDetIdentifier/PixelID.h"
 
@@ -327,9 +326,9 @@ void TRTTrkAlignDBTool::updateDB()
             // if we are in the Endcap we need to rotate about global Z
 	          //if(abs(m_trtHelper->barrel_ec_id(modID.get_identifier32().get_compact()).get_compact()) == 2) { # Bug!
 	          if( abs(m_trtHelper->barrel_ec(modID)) == 2) {
-	             ATH_MSG_DEBUG("L3 module in TRT end-cap A so we apply additional rotation about global Z (3.14)");
+	             ATH_MSG_DEBUG("L3 module in TRT end-cap A so we apply additional rotation about global Z (" << M_PI << ")");
                Amg::Translation3D newtranslation( 0,0,0 );
-               Amg::Transform3D newtransform = newtranslation * Amg::AngleAxis3D( 3.14, Amg::Vector3D(0.,0.,1.));
+               Amg::Transform3D newtransform = newtranslation * Amg::AngleAxis3D( M_PI, Amg::Vector3D(0.,0.,1.));
                dbtransform =  newtransform * transform;
             }
             else

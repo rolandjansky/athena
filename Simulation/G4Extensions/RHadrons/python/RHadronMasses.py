@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # This file contains a number of helper functions for defining R-hadron mass spectra
 # A large data table at the top is then used in several of the helper functions
@@ -473,6 +473,7 @@ def print_masses(spectrum=-1):
     for i in sorted(offset_options.keys()):
         s= str(offset_options[i][2])+' '+str(i)
         if spectrum<0:
+            from past.builtins import xrange # Temporary workaround for python3 compatibility use range in CA-based config
             for j in xrange(first_mass_set,len(offset_options[i])): s+=' '+str(offset_options[i][j])
         else:
             if first_mass_set+spectrum>len(offset_options[i]):

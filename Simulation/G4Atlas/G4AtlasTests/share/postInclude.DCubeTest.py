@@ -17,7 +17,9 @@ if not hasattr(job, 'G4TestAlg'):
     job += G4TestAlg()
 from AthenaCommon.DetFlags import DetFlags
 from G4AtlasApps.SimFlags import simFlags
-simFlags.ReleaseGeoModel=False;
+simFlags.ReleaseGeoModel=False
+
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 from AthenaCommon import CfgGetter
 if DetFlags.Truth_on():
@@ -49,14 +51,10 @@ if simFlags.CalibrationRun.get_Value()=='LAr+Tile':
 if DetFlags.Muon_on():
     job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("MDTHitsTestTool", checkType=True)]
     job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("RPCHitsTestTool", checkType=True)]
-    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
-    if (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]):
-        job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("MMHitsTestTool",  checkType=True)]
-        job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("sTGCHitsTestTool",  checkType=True)]
-    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
-    if MuonGeometryFlags.hasCSC():
-        job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("CSCHitsTestTool", checkType=True)]
     job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("TGCHitsTestTool", checkType=True)]
+    if MuonGeometryFlags.hasCSC(): job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("CSCHitsTestTool", checkType=True)]
+    if MuonGeometryFlags.hasMM(): job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("MMHitsTestTool",  checkType=True)]
+    if MuonGeometryFlags.hasSTGC(): job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("sTGCHitsTestTool",  checkType=True)]
     if DetFlags.Truth_on():
         job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("MuonEntryLayerTestTool", checkType=True)]
         job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("MuonExitLayerTestTool", checkType=True)]

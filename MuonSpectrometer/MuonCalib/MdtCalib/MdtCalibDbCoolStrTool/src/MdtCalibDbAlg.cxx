@@ -31,7 +31,6 @@
 #include <vector>
 
 #include "MdtCalibSvc/MdtCalibrationRegionSvc.h"
-#include "MdtCalibSvc/MdtCalibrationDbSvc.h"
 
 #include "MdtCalibData/MdtRtRelationCollection.h"
 #include "MdtCalibData/MdtTubeCalibContainerCollection.h"

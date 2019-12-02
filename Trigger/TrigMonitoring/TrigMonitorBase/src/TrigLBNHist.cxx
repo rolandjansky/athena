@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/ITHistSvc.h"
@@ -8,7 +8,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/type_traits/is_base_of.hpp>
 #include <boost/type_traits/is_same.hpp>
-#include <boost/foreach.hpp>
 #include <cmath>
 
 //#include <iostream>
@@ -46,13 +45,13 @@ ITrigLBNHist::~ITrigLBNHist() {
 
 
 void ITrigLBNHist::set_lbn(unsigned int l) {
-  BOOST_FOREACH(ITrigLBNHist* h, AllTrigLBNHists::s_lbnHistograms)
+  for(ITrigLBNHist* h : AllTrigLBNHists::s_lbnHistograms)
     h->lbn(l);  
 }
 
 // this is not bad duplication we can not use the same function, guess why!
 void ITrigLBNHist::force_lbn(unsigned int l ) {  
-  BOOST_FOREACH(ITrigLBNHist* h, AllTrigLBNHists::s_lbnHistograms)
+  for(ITrigLBNHist* h : AllTrigLBNHists::s_lbnHistograms)
     h->force(l);
 }
 

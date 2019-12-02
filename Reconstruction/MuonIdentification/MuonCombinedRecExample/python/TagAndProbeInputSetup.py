@@ -4,7 +4,7 @@ from AthenaCommon.Include import include
 
 
 def setupTagAndProbeInput():
-    print "Setting up setupTagAndProbeInput"
+    print("Setting up setupTagAndProbeInput")
 
     #from MuonPerformanceAlgs.ZmumuTPAnalysis import *
     #from MuonPerformanceAlgs.ZmumuTPIsolationAnalysis import *

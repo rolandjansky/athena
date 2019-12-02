@@ -52,8 +52,21 @@ namespace Muon
 		  const std::vector<Identifier>& rdoList,
 		  const Amg::MatrixX* locErrMat,
 		  const MuonGM::sTgcReadoutElement* detEl,
+		  const int charge,
+		  const short int time,
+		  const uint16_t bcBitMap,
+		  const std::vector<uint16_t>& stripNumbers,
+		  const std::vector<int>& stripCharges );
+
+
+    sTgcPrepData( const Identifier& RDOId,
+		  const IdentifierHash &idDE,
+		  const Amg::Vector2D& locpos,
+		  const std::vector<Identifier>& rdoList,
+		  const Amg::MatrixX* locErrMat,
+		  const MuonGM::sTgcReadoutElement* detEl,
 		  const int charge = 0,
-		  const int time   = 0,
+		  const short int time   = 0,
 		  const uint16_t bcBitMap=0);
 
 
@@ -77,17 +90,27 @@ namespace Muon
     /** @brief Returns the bcBitMap of this PRD
 	bit2 for Previous BC, bit1 for Current BC, bit0 for Next BC */
     int charge() const;
-    int time() const;
+    short int time() const;
     uint16_t getBcBitMap() const;
     enum {BCBIT_UNDEFINED=0, BCBIT_NEXT=1, BCBIT_CURRENT=2, BCBIT_PREVIOUS=4};
+
+    /** @brief returns the list of strip numbers */
+    const std::vector<uint16_t>& stripNumbers() const;
+
+    /** @brief returns the list of charges */
+    const std::vector<int>& stripCharges() const;
 
   private:
 
     /** Cached pointer to the detector element - should never be zero.*/
     const MuonGM::sTgcReadoutElement* m_detEl;
     int m_charge;
-    int m_time;
+    short int m_time;
     uint16_t m_bcBitMap;
+
+    /** @list of strip numbers, time and charge, of the strips associated to the PRD */
+    std::vector<uint16_t> m_stripNumbers;
+    std::vector<int> m_stripCharges;    
 
   };
 
@@ -109,7 +132,7 @@ namespace Muon
     return m_charge;
   }
 
-  inline int sTgcPrepData::time() const
+  inline short int sTgcPrepData::time() const
   {
     return m_time;
   }
@@ -119,7 +142,17 @@ namespace Muon
     return m_bcBitMap;
   }
 
+  inline const std::vector<uint16_t>& sTgcPrepData::stripNumbers() const
+  {
+    return m_stripNumbers;
+  }
+
+  inline const std::vector<int>& sTgcPrepData::stripCharges() const
+  {
+    return m_stripCharges;
+  }
+
 }
 
-#endif // MUONPREPRAWDATA_RPCPREPDATA_H
+#endif // MUONPREPRAWDATA_STGCPREPDATA_H
 

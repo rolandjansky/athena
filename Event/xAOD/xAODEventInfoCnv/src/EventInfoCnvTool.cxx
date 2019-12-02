@@ -58,11 +58,6 @@ namespace xAODMaker {
                                        const std::string& name,
                                        const IInterface* parent )
       : AthAlgTool( type, name, parent ),
-#ifndef XAOD_ANALYSIS
-#ifndef SIMULATIONBASE
-        m_beamCondSvc( "BeamCondSvc", name ),
-#endif
-#endif
         m_beamCondSvcAvailable( false ),
         m_disableBeamSpot( false ) {
 
@@ -71,7 +66,6 @@ namespace xAODMaker {
 #ifndef XAOD_ANALYSIS
 #ifndef SIMULATIONBASE
       // Declare the tool's properties:
-      declareProperty( "BeamCondSvc", m_beamCondSvc );
       declareProperty( "DisableBeamSpot", m_disableBeamSpot );
 #endif
 #endif
@@ -96,11 +90,10 @@ namespace xAODMaker {
       if(m_disableBeamSpot){
          ATH_MSG_WARNING( "Beam conditions service manually disabled on EventInfo object" );
          m_beamCondSvcAvailable = false;
-      }
+      } 
+      
       // Try to access the beam conditions service:
-      if( m_beamCondSvcAvailable ) {
-         CHECK( m_beamCondSvc.retrieve() );
-      }
+      ATH_CHECK(m_beamSpotKey.initialize(m_beamCondSvcAvailable));
 
       CHECK( m_lumiDataKey.initialize (SG::AllowEmpty) );
 #else
@@ -182,7 +175,7 @@ namespace xAODMaker {
       }
 
       // Copy the trigger properties into the xAOD object:
-      if( aod->trigger_info() && ( ! pileUpInfo ) ) {
+      if( aod->trigger_info() && !pileUpInfo  ) {
          xaod->setStatusElement( aod->trigger_info()->statusElement() );
          xaod->setExtendedLevel1ID( aod->trigger_info()->extendedLevel1ID() );
          xaod->setLevel1TriggerType( aod->trigger_info()->level1TriggerType() );
@@ -320,16 +313,17 @@ namespace xAODMaker {
 #if !defined(XAOD_ANALYSIS) && !defined(SIMULATIONBASE)
       // Fill the beam spot variables if the necessary service is available:
       if( m_beamCondSvcAvailable && ( ! pileUpInfo ) ) {
-         xaod->setBeamPos( m_beamCondSvc->beamPos()[ Amg::x ],
-                           m_beamCondSvc->beamPos()[ Amg::y ],
-                           m_beamCondSvc->beamPos()[ Amg::z ] );
-         xaod->setBeamPosSigma( m_beamCondSvc->beamSigma( 0 ),
-                                m_beamCondSvc->beamSigma( 1 ),
-                                m_beamCondSvc->beamSigma( 2 ) );
-         xaod->setBeamPosSigmaXY( m_beamCondSvc->beamSigmaXY() );
-         xaod->setBeamTiltXZ( m_beamCondSvc->beamTilt( 0 ) );
-         xaod->setBeamTiltYZ( m_beamCondSvc->beamTilt( 1 ) );
-         xaod->setBeamStatus( m_beamCondSvc->beamStatus() );
+         SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
+         xaod->setBeamPos( beamSpotHandle->beamPos()[ Amg::x ],
+                           beamSpotHandle->beamPos()[ Amg::y ],
+                           beamSpotHandle->beamPos()[ Amg::z ] );
+         xaod->setBeamPosSigma( beamSpotHandle->beamSigma( 0 ),
+                                beamSpotHandle->beamSigma( 1 ),
+                                beamSpotHandle->beamSigma( 2 ) );
+         xaod->setBeamPosSigmaXY( beamSpotHandle->beamSigmaXY() );
+         xaod->setBeamTiltXZ( beamSpotHandle->beamTilt( 0 ) );
+         xaod->setBeamTiltYZ( beamSpotHandle->beamTilt( 1 ) );
+         xaod->setBeamStatus( beamSpotHandle->beamStatus() );
       }
 #else
       (void)ctx; // silence "unused" compiler warnings

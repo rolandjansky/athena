@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigEgammaNavBaseTool_H
@@ -46,12 +46,12 @@ class TrigEgammaNavBaseTool
 public:
 
   TrigEgammaNavBaseTool( const std::string& myname );
-  virtual ~TrigEgammaNavBaseTool() {};
+  ~TrigEgammaNavBaseTool() {};
 
-  virtual StatusCode childInitialize() override;
-  virtual StatusCode childBook() override;
-  virtual StatusCode childExecute() override;
-  virtual StatusCode childFinalize() override;
+  StatusCode childInitialize();
+  StatusCode childBook();
+  StatusCode childExecute();
+  StatusCode childFinalize();
 protected:
   /*! EventWise Selection */
   bool EventWiseSelection();
@@ -59,19 +59,19 @@ protected:
   StatusCode executeNavigation(const TrigInfo);
 
   /*! Tag Electron selection */
-  bool passedTrigger(const HLT::TriggerElement* obj);
+  bool passedTrigger(const HLT::TriggerElement* obj); 
   /*! Rerun offline selection */
   bool ApplyElectronPid(const xAOD::Electron *eg, const std::string pidname);
   /*! Clears list of probes after each trigger item per event */
-  void clearList();
+  void clearList(); 
   /*! vector of offline object and matched TE */
   std::vector<std::pair<const xAOD::Egamma*,const HLT::TriggerElement*> > m_objTEList;
   /*! List of triggers from menu */
   std::vector<std::string> m_trigInputList;
   /*! List of trigger categories for MaM */
-  //std::vector<std::string> m_categories;
+  //std::vector<std::string> m_categories; 
   /*! List of triggers to study */
-  std::vector<std::string> m_trigList;
+  std::vector<std::string> m_trigList; 
   /*! Base Directory name for each algorithm */
   std::string m_dir;
   /*! Directory name for each algorithm */
@@ -85,12 +85,12 @@ protected:
   const xAOD::TruthParticleContainer* m_truthContainer;
 
 private:
-
+ 
   /*! navigation method called by executeNavigation */
-  StatusCode executeElectronNavigation(const std::string trigItem,float,std::string);
+  StatusCode executeElectronNavigation(const std::string trigItem,float,std::string); 
   /*! navigation method called by executeNavigation */
-  StatusCode executePhotonNavigation(const std::string trigItem,float);
-
+  StatusCode executePhotonNavigation(const std::string trigItem,float); 
+ 
   // ToolHandles
   // Offline ++ selectors
   // In python order will matter. Should always be tight, medium, loose
@@ -102,17 +102,17 @@ private:
   const xAOD::PhotonContainer* m_offPhotons;
   /*! Jet container for probe selection */
   const xAOD::JetContainer* m_jets;
-
+ 
   /* TP selection properties */
-
+ 
   /*! Define the PID for tag electron */
   std::string m_offTagTightness;
-  /*! define the Pid of Probe from the trigger name */
+  /*! define the Pid of Probe from the trigger name */ 
   std::string m_offProbeTightness;
   /*! Map of trigger name and L1 item */
   //std::map<std::string,std::string> m_triggerMap;
   /*! Define isolation working point for Probe electron */
-  std::string m_offProbeIsolation;
+  std::string m_offProbeIsolation;  
   /* Define the pidname for data collection using experimentalSelection methods*/
   std::string m_electronFilterType;
   /* Define the pidname for data collection using experimentalSelection methods*/
@@ -129,8 +129,8 @@ protected:/// Protect type is used here becouse this can be access by inheritanc
   /* force et cluster cut*/
   bool m_forceEtThr;
    /*! Remove crack region for Probe default True */
-  bool m_rmCrack;
-  /* force experimentalSelection selection*/
+  bool m_rmCrack; 
+  /* force experimentalSelection selection*/  
   bool m_forceVetoVeryLoose;
 
 

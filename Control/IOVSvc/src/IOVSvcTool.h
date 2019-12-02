@@ -181,7 +181,6 @@ private:
 
   std::string m_storeName;
 
-  StoreGateSvc* p_sgSvc{nullptr};
   ServiceHandle<StoreGateSvc> p_cndSvc;
   ServiceHandle<IIncidentSvc> p_incSvc;
   ServiceHandle<IProxyProviderSvc> p_PPSvc;
@@ -242,6 +241,7 @@ private:
   Gaudi::Property<bool> m_preLoadRanges{this, "preLoadRanges", false};
   Gaudi::Property<bool> m_preLoadData{this, "preLoadData", false};
   Gaudi::Property<bool> m_partialPreLoadData{this, "partialPreLoadData", true};
+  Gaudi::Property<bool> m_preLoadExtensibleFolders{this, "preLoadExtensibleFolders", true};
   Gaudi::Property<bool> m_sortKeys{this, "sortKeys", true};
   Gaudi::Property<bool> m_forceReset{this, "forceResetAtBeginRun", false};
   Gaudi::Property<std::string> m_updateInterval{this, "updateInterval", "Event"};

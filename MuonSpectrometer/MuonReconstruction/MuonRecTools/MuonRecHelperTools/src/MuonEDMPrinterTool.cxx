@@ -4,7 +4,6 @@
 
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecHelperTools/MuonEDMHelperSvc.h"
 
 #include "TrkToolInterfaces/ITrackSummaryHelperTool.h"

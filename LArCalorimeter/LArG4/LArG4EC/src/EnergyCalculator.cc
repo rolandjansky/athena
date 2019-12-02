@@ -110,7 +110,7 @@ static G4double zsep23[22]; // used as const after initialization
 // ****************************************************************************
 
 // ****************************************************************************
-inline G4double EnergyCalculator::DistanceToEtaLine(const G4ThreeVector &p, G4double eta) const {
+G4double EnergyCalculator::DistanceToEtaLine(const G4ThreeVector &p, G4double eta) const {
   G4double sinTheta = 2. * exp(-eta) / (1. + exp(2. * -eta));
   G4double cosTheta = (1. - exp(2. * -eta)) / (1. + exp(2. * -eta));
   return p.perp() * cosTheta - p.z() * sinTheta;

@@ -85,6 +85,6 @@ acc.printConfig()
 
 fname = "newJOtest.pkl"
 print "Storing config in the config", fname
-with file(fname, "w") as p:
+with open(fname, "wb") as p:
     acc.store( p, nEvents=20, useBootStrapFile=False, threaded=True )
     p.close()

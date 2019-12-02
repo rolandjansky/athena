@@ -1,7 +1,7 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-*/  
-  
+*/
+
 #ifndef AthenaMonitoringKernel_HistogramFiller_HistogramFiller1D_h
 #define AthenaMonitoringKernel_HistogramFiller_HistogramFiller1D_h
 
@@ -15,72 +15,45 @@ namespace Monitored {
    * @brief Filler for plain 1D histograms
    */
   class HistogramFiller1D : public HistogramFiller {
-  public: 
+  public:
     HistogramFiller1D(const HistogramDef& definition, std::shared_ptr<IHistogramProvider> provider)
-      : HistogramFiller(definition, provider) {}
-
-    HistogramFiller1D* clone() override { return new HistogramFiller1D(*this); };
+      : HistogramFiller(definition, provider) {
+    }
 
     virtual unsigned fill() override {
+
       if (m_monVariables.size() != 1) { return 0; }
 
-      std::lock_guard<std::mutex> lock(*(this->m_mutex));
+      std::function<double(size_t)> weightValue = [] (size_t ){ return 1.0; };  // default is always 1.0
+      std::vector<double> weightVector;
+      if ( m_monWeight != nullptr ) {
+	weightVector = m_monWeight->getVectorRepresentation();
+	weightValue = [&](size_t i){ return weightVector[i]; };
+      }
 
-      return fillHistogram();
-    } 
-    
-  protected:
-    unsigned fillHistogram() {
-      if (shouldUseWeightedFill()) {
-        return weightedFill();
+      if ( not m_monVariables.at(0).get().hasStringRepresentation() ) {
+	const auto valuesVector = m_monVariables.at(0).get().getVectorRepresentation();
+	fill( std::size( valuesVector), [&](size_t i){ return valuesVector[i]; }, weightValue );
+	return std::size( valuesVector );
       } else {
-        return simpleFill();
+	const auto valuesVector = m_monVariables.at(0).get().getStringVectorRepresentation();
+	fill( std::size( valuesVector ), [&](size_t i){ return valuesVector[i].c_str(); }, weightValue );
+	return std::size( valuesVector );
       }
     }
 
-    bool shouldUseWeightedFill() {
-      if (!m_monWeight) { return false; }
+  protected:
 
-      auto valuesVector = m_monVariables[0].get().getVectorRepresentation();
-      auto weightsVector = m_monWeight->getVectorRepresentation();
+    template<typename F1, typename F2>
+    void fill( size_t n, F1 f1, F2 f2 ) {
 
-      return std::size(valuesVector) == std::size(weightsVector);
-    }
-
-    unsigned simpleFill() {
+      std::lock_guard<std::mutex> lock(*(this->m_mutex));
       auto histogram = this->histogram<TH1>();
-      if ( not m_monVariables[0].get().hasStringRepresentation() ) {
-	auto valuesVector = m_monVariables[0].get().getVectorRepresentation();
-	for ( double value : valuesVector) {
-	  histogram->Fill(value);
-	}
-	return std::size(valuesVector);
-      } 
-
-      auto valuesVector = m_monVariables[0].get().getStringVectorRepresentation();
-      for (const std::string& value : valuesVector) {
-	histogram->Fill(value.c_str(), 1.);
+      for ( size_t i = 0; i < n; ++i ) {
+	histogram->Fill( f1(i), f2(i) );
       }
-      return std::size(valuesVector);	
-    }
-
-    unsigned weightedFill() {
-      if ( m_monVariables[0].get().hasStringRepresentation() )
-	throw std::runtime_error("Weighted filling with strings is not supported");
-      auto histogram = this->histogram<TH1>();
-      auto valuesVector = m_monVariables[0].get().getVectorRepresentation();
-      auto weightVector = m_monWeight->getVectorRepresentation();
-      double value, weight;
-
-      for (const auto& zipped : boost::combine(valuesVector, weightVector)) {
-        boost::tie(value, weight) = zipped;
-        histogram->Fill(value, weight);
-      }
-
-      return std::size(valuesVector);
     }
   };
 }
 
 #endif /* AthenaMonitoringKernel_HistogramFiller_HistogramFiller1D_h */
-

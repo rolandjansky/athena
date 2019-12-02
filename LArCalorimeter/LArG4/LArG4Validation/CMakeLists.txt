@@ -17,8 +17,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Generators/GeneratorObjects
                           LArCalorimeter/LArSimEvent
                           MagneticField/MagFieldInterfaces
-                          Reconstruction/egamma/egammaEvent
-                          TestPolicy )
+                          Reconstruction/egamma/egammaEvent )
 
 # External dependencies:
 find_package( CLHEP )

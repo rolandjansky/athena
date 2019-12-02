@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """ InDetTrigConfigRecLoadToolsCosmics
     various tools for cosmicsN slice
@@ -55,10 +55,10 @@ if (InDetTrigFlags.doPrintConfigurables()):
 from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPrdAssociationTool
 from InDetAmbiTrackSelectionTool.InDetAmbiTrackSelectionToolConf import InDet__InDetAmbiTrackSelectionTool
 from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTRTDriftCircleCut
+import InDetRecExample.TrackingCommon as TrackingCommon
 
 InDetTrigAmbiTrackSelectionToolCosmicsN = InDet__InDetAmbiTrackSelectionTool \
   (name = 'InDetTrigAmbiTrackSelectionToolCosmicsN',
-   AssociationTool = InDetTrigPrdAssociationTool,
    minHits         = 0,
    minNotShared    = 3,
    maxShared       = 0,
@@ -66,7 +66,8 @@ InDetTrigAmbiTrackSelectionToolCosmicsN = InDet__InDetAmbiTrackSelectionTool \
    Cosmics=True,
    maxTracksPerSharedPRD = 10,
    UseParameterization = False,
-   DriftCircleCutTool = InDetTrigTRTDriftCircleCut)
+   DriftCircleCutTool = InDetTrigTRTDriftCircleCut,
+   AssociationTool    = TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels())
 
 ToolSvc += InDetTrigAmbiTrackSelectionToolCosmicsN
 

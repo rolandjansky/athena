@@ -43,8 +43,9 @@ DijetMassConditionMT::isSatisfied(const HypoJetVector& ips,
    if(collector){
      std::stringstream ss0;
      const void* address = static_cast<const void*>(this);
-     ss0 << "DijetMassConditionMT: " << address
-	 <<  mass << std::boolalpha << pass <<  " jet group: \n";
+     ss0 << "DijetMassConditionMT: (" << address << ") "
+	 <<  mass << " "
+	 << std::boolalpha << pass <<  " jet group: \n";
 
      std::stringstream ss1;
 

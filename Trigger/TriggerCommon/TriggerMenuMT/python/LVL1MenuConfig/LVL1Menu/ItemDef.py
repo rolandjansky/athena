@@ -289,11 +289,6 @@ class ItemDef(object):
 
         LVL1MenuItem('L1_MU20_FIRSTEMPTY' ).setLogic( MU20 & firstempty).setTriggerType(TT.muon)
 
-        #FTK items
-        LVL1MenuItem('L1_MU6_FTK').setLogic( MU6  & physcond).setTriggerType(TT.ftk)
-        LVL1MenuItem('L1_MU15_FTK').setLogic( MU15  & physcond).setTriggerType(TT.ftk)
-        LVL1MenuItem('L1_MU20_FTK').setLogic( MU20  & physcond).setTriggerType(TT.ftk)
-            
         # EM and MU
         LVL1MenuItem('L1_EM6_MU10'   ).setLogic( EM6        & MU10     & physcond).setTriggerType(TT.muon)
         LVL1MenuItem('L1_EM7_MU10'   ).setLogic( EM7        & MU10     & physcond).setTriggerType(TT.muon)
@@ -424,16 +419,6 @@ class ItemDef(object):
         LVL1MenuItem('L1_MU10_TAU12IM_XE40'            ).setLogic( MU10    & HA12IM     & XE40 & physcond).setTriggerType( TT.calo )
         LVL1MenuItem('L1_TAU20I_2TAU12I_XE35'          ).setLogic( HA20I   & HA12I.x(2) & XE35 & physcond).setTriggerType( TT.calo )
 
-        #FTK items
-        LVL1MenuItem('L1_TAU12IM_FTK').setLogic( HA12IM & physcond).setTriggerType( TT.ftk)
-        LVL1MenuItem('L1_TAU20IM_FTK').setLogic( HA20IM & physcond).setTriggerType( TT.ftk)
-        LVL1MenuItem('L1_MU20_TAU12IM_FTK').setLogic( MU20 & HA12IM & physcond).setTriggerType( TT.ftk)
-        LVL1MenuItem('L1_TAU20IM_2TAU12IM_J25_2J20_3J12_FTK').setLogic( HA20IM & HA12IM.x(2)     & J25 & J20.x(2) & J12.x(3) & physcond).setTriggerType( TT.ftk )
-        LVL1MenuItem('L1_DR-TAU20ITAU12I-J25_FTK').setLogic( TOPO_1DISAMB_J25ab_0DR28_TAU20abi_TAU12abi & physcond).setTriggerType(TT.ftk)
-
-
-
-
         # JET ctpid=[0x60:0x7f]
         LVL1MenuItem('L1_J5'   ).setLogic( J5   & physcond).setTriggerType(TT.calo)
         LVL1MenuItem('L1_J10'   ).setLogic( J10  & physcond).setTriggerType(TT.calo)
@@ -531,13 +516,6 @@ class ItemDef(object):
         LVL1MenuItem('L1_3J15.0ETA25' ).setLogic( J150ETA25.x(3) & physcond).setTriggerType(TT.calo)
         LVL1MenuItem('L1_4J15.0ETA25' ).setLogic( J150ETA25.x(4) & physcond).setTriggerType(TT.calo) 
         LVL1MenuItem('L1_5J15.0ETA25' ).setLogic( J150ETA25.x(5) & physcond).setTriggerType(TT.calo)
-
-        #FTK items
-        LVL1MenuItem('L1_4J15_FTK'   ).setLogic( J15.x(4)    & physcond).setTriggerType(TT.ftk)
-        LVL1MenuItem('L1_4J15.0ETA25_FTK' ).setLogic( J150ETA25.x(4) & physcond).setTriggerType(TT.ftk) 
-        LVL1MenuItem('L1_J100_FTK'  ).setLogic( J100 & physcond).setTriggerType(TT.ftk)
-        LVL1MenuItem('L1_J15_FTK'   ).setLogic( J15  & physcond).setTriggerType(TT.ftk)
-        LVL1MenuItem('L1_J40_FTK'   ).setLogic( J40  & physcond).setTriggerType(TT.ftk)
 
 #        LVL1MenuItem('L1_ZB_J20').setLogic(ZB_EM15 & J20 & physcond).setTriggerType(TT.zerobs)
         if (('Physics_HI_v3' in TriggerFlags.triggerMenuSetup()) or ('MC_HI_v3' in TriggerFlags.triggerMenuSetup()) or ('Physics_HI_v4' in TriggerFlags.triggerMenuSetup()) or ('MC_HI_v4' in TriggerFlags.triggerMenuSetup())):
@@ -1479,11 +1457,11 @@ class ItemDef(object):
      
                     LVL1MenuItem('L1_LFV-MU6').setLogic( TOPO_0DR15_2MU6ab & physcond)
                     LVL1MenuItem('L1_LFV-MU').setLogic( TOPO_0DR10_MU10ab_MU6ab & physcond)
-                    if not '_v7' in TriggerFlags.triggerMenuSetup() and not 'LS2_v' in TriggerFlags.triggerMenuSetup():
+                    if not '_v7' in TriggerFlags.triggerMenuSetup() and not 'LS2_v' in TriggerFlags.triggerMenuSetup() and not 'pp_run3_v' in TriggerFlags.triggerMenuSetup():
                         LVL1MenuItem('L1_LFV-EM8I').setLogic( TOPO_0DETA04_0DPHI03_EM8abi_MU10ab & physcond)
                     else:
                         LVL1MenuItem('L1_LFV-EM8I').setLogic( TOPO_0DETA04_EM8abi_MU10ab & TOPO_0DPHI03_EM8abi_MU10ab & physcond) #ATR-14282
-                    if not '_v7' in TriggerFlags.triggerMenuSetup() and not 'LS2_v' in TriggerFlags.triggerMenuSetup():
+                    if not '_v7' in TriggerFlags.triggerMenuSetup() and not 'LS2_v' in TriggerFlags.triggerMenuSetup() and not 'pp_run3_v' in TriggerFlags.triggerMenuSetup():
                         LVL1MenuItem('L1_LFV-EM15I').setLogic( TOPO_0DETA04_0DPHI03_EM15abi_MUab & physcond)
                     else:
                         LVL1MenuItem('L1_LFV-EM15I').setLogic( TOPO_0DETA04_EM15abi_MUab & TOPO_0DPHI03_EM15abi_MUab & physcond) #ATR-14282

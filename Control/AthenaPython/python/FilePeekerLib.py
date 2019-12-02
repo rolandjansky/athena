@@ -116,14 +116,14 @@ class FilePeeker(PyAthena.Alg):
                          'EventType',
                          'PyEventType',
                          ):
-            cls = getattr(PyAthena, cls_name)
+            cls = getattr(PyAthena, cls_name)  # noqa: F841
 
         _info = self.msg.info
         _info("retrieving various stores...")
         for store_name in ('evtStore', 'inputStore',
                            'tagStore', 'metaStore',):
             _info('retrieving [%s]...', store_name)
-            o = getattr(self, store_name)
+            o = getattr(self, store_name)  # noqa: F841
             _info('retrieving [%s]... [done]', store_name)
             ## if store_name not in ('evtStore',):
             ##     _info('loading event proxies for [%s]...', store_name)
@@ -175,7 +175,6 @@ class FilePeeker(PyAthena.Alg):
         return PyAthena.py_svc('StoreGateSvc/InputMetaDataStore')
     
     def execute(self):
-        _info = self.msg.info
         self.peeked_data.update(self._do_peeking(peek_evt_data=True))
         self.print_summary()
         self._peeked_events.append(dict(self.peeked_data))
@@ -185,7 +184,7 @@ class FilePeeker(PyAthena.Alg):
         msg = self.msg
         try:
             obj = store[metadata_name]
-        except KeyError as err:
+        except KeyError:
             msg.warning('could not retrieve [%s]', metadata_name)
             return
         msg.info('processing container [%s]', obj.folderName())
@@ -208,7 +207,7 @@ class FilePeeker(PyAthena.Alg):
             chan_names = []
             sz = payload.name_size()
             msg.info('==names== (sz: %s)', sz)
-            for idx in xrange(sz):
+            for idx in range(sz):
                 chan = payload.chanNum(idx)
                 chan_name = payload.chanName(chan)
                 #msg.info( '--> (%s, %s)', idx, chan_name)
@@ -218,7 +217,7 @@ class FilePeeker(PyAthena.Alg):
                 # iovs
                 sz = payload.iov_size()
                 msg.info('==iovs== (sz: %s)',sz)
-                for idx in xrange(sz):
+                for idx in range(sz):
                     chan = payload.chanNum(idx)
                     iov_range = payload.iovRange(chan)
                     iov_start = iov_range.start()
@@ -236,7 +235,7 @@ class FilePeeker(PyAthena.Alg):
             attrs = [] # can't use a dict as spec.name() isn't unique
             sz = payload.size()
             msg.info('==attrs== (sz: %s)', sz)
-            for idx in xrange(sz):
+            for idx in range(sz):
                 chan = payload.chanNum(idx)
                 #msg.info("idx: %i chan: %s", idx, chan)
                 attr_list = payload.attributeList(chan)
@@ -287,10 +286,7 @@ class FilePeeker(PyAthena.Alg):
             _info('storing peeked file infos into [%s]...', oname)
             if os.path.exists(oname):
                 os.remove(oname)
-            try:
-                import cPickle as pickle
-            except ImportError:
-                import pickle
+
             import PyUtils.dbsqlite as dbsqlite
             db = dbsqlite.open(oname,flags='w')
             
@@ -376,6 +372,7 @@ class FilePeeker(PyAthena.Alg):
                 peeked_data['evt_type'] = evt_type.bit_mask
                 ddt = _get_detdescr_tags(evt_type)
                 peeked_data['det_descr_tags'] = ddt
+                from past.builtins import long
                 peeked_data['mc_channel_number'] = [long(evt_type.mc_channel_number())]
                 
             def _make_item_list(item):
@@ -440,16 +437,15 @@ class FilePeeker(PyAthena.Alg):
         # was present in the input file
         if nentries is None:
             ROOT = _import_ROOT()
-            import os
             root_files = list(ROOT.gROOT.GetListOfFiles())
             root_files = [root_file for root_file in root_files
                           if root_file.GetName().count(self.infname)]
             if len(root_files)==1:
                 root_file = root_files[0]
                 data_hdr = root_file.Get("POOLContainer")
-                if data_hdr == None:
+                if not data_hdr:
                     data_hdr = root_file.Get("POOLContainer_DataHeader")                
-                nentries = data_hdr.GetEntriesFast() if data_hdr is not None \
+                nentries = data_hdr.GetEntriesFast() if bool(data_hdr) \
                            else None
             else:
                 _info('could not find correct ROOT file (looking for [%s])',
@@ -463,7 +459,6 @@ class FilePeeker(PyAthena.Alg):
         def _get_guid():
             guid = None
             ROOT = _import_ROOT()
-            import os
             root_files = list(ROOT.gROOT.GetListOfFiles())
             root_files = [root_file for root_file in root_files
                           if root_file.GetName().count(self.infname)]
@@ -477,10 +472,10 @@ class FilePeeker(PyAthena.Alg):
             import re
             # Pool parameters are of the form:
             # '[NAME=somevalue][VALUE=thevalue]'
-            pool_token = re.compile(r'[[]NAME=(?P<name>.*?)[]]'\
+            pool_token = re.compile(r'[[]NAME=(?P<name>.*?)[]]'
                                     r'[[]VALUE=(?P<value>.*?)[]]').match
             params = []
-            for i in xrange(pool.GetEntries()):
+            for i in range(pool.GetEntries()):
                 if pool.GetEntry(i)>0:
                     match = pool_token(pool.db_string)
                     if not match:
@@ -515,7 +510,7 @@ class FilePeeker(PyAthena.Alg):
             outDict={}
             for d in inDicts:
                 for k,o in d.iteritems():
-                    if not outDict.has_key(k):
+                    if k not in outDict:
                         outDict[k]=o
             if len(outDict)==0:
                 return None
@@ -554,11 +549,11 @@ class FilePeeker(PyAthena.Alg):
             peeked_data['beam_energy']= [maybe_float(taginfo.get('beam_energy',
                                                                  'N/A'))]
 
-        if not 'geometry' in peeked_data:
+        if 'geometry' not in peeked_data:
             peeked_data['geometry'] = None
-        if not 'conditions_tag' in peeked_data:
+        if 'conditions_tag' not in peeked_data:
             peeked_data['conditions_tag'] = None
-        if not 'det_descr_tags' in peeked_data:
+        if 'det_descr_tags' not in peeked_data:
             peeked_data['det_descr_tags'] = {}
             
         # eventless simulated DAOD files
@@ -569,7 +564,7 @@ class FilePeeker(PyAthena.Alg):
                 peeked_data['run_number'] = [metadata.get('/Simulation/Parameters').get('RunNumber',None)]
         #######################################################################
         ## return early if no further processing needed...
-        if peek_evt_data == False:
+        if peek_evt_data is False:
             return peeked_data
         #######################################################################
 
@@ -596,8 +591,7 @@ class FilePeeker(PyAthena.Alg):
         sg_key = dh_keys[0]
         _info('=== [DataHeader#%s] ===', sg_key)
         dh = store.retrieve('DataHeader', sg_key)
-        dh_cls = type(dh)
-        
+
         def _make_item_list(dhe):
             sgkey= dhe.getKey()
             clid = dhe.getPrimaryClassID()
@@ -623,7 +617,7 @@ class FilePeeker(PyAthena.Alg):
                 if clid_name:
                     clid = clid_name
             except Exception as err:
-                msg.info("no typename for clid [%s] (%s)", clid, err)
+                self.msg.info("no typename for clid [%s] (%s)", clid, err)
             item_list.append((str(clid), sgkey))
 
         # -- event-type

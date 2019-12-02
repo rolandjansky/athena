@@ -46,7 +46,18 @@ namespace InDet {
   StatusCode SiSpacePointMakerTool::finalize() {
     return StatusCode::SUCCESS;
   }
-    
+  //--------------------------------------------------------------------------
+  void SiSpacePointMakerTool::newEvent() const {
+    const EventContext& ctx{Gaudi::Hive::currentContext()};
+    std::lock_guard<std::mutex> lock{m_mutex};
+    CacheEntry* ent{m_cache.get(ctx)};
+    if (ent->m_evt!=ctx.evt()) { // New event in this slot
+      ent->clear();
+      ent->m_evt = ctx.evt();
+    } else {
+      ent->m_elementOLD = nullptr;
+    }
+  }    
   //--------------------------------------------------------------------------
   Trk::SpacePoint* SiSpacePointMakerTool::makeSCT_SpacePoint(const InDet::SiCluster& cluster1, 
                                                              const InDet::SiCluster& cluster2,
@@ -83,8 +94,8 @@ namespace InDet {
     Amg::Vector3D b(ends1.second);  // Bottom end, first cluster
     Amg::Vector3D c(ends2.first);   // Top end, second cluster
     Amg::Vector3D d(ends2.second);  // Bottom end, second cluster
-    Amg::Vector3D q(a-b);          // vector joining ends of line
-    Amg::Vector3D r(c-d);          // vector joining ends of line
+    Amg::Vector3D q(a-b);           // vector joining ends of line
+    Amg::Vector3D r(c-d);           // vector joining ends of line
 
     Amg::Vector3D point;
 
@@ -95,12 +106,9 @@ namespace InDet {
          to determine the position of the SpacePoint on element 1. 
          This option is especially aimed at the use with cosmics data.
       */
-      //Amg::Vector3D center1(element1->center());
-      //Amg::Vector3D center2(element2->center());
-      //c -= (center2-center1);
       Amg::Vector3D mab(c - a);
       double eaTeb = q.dot(r);
-      double denom = 1 - eaTeb*eaTeb;
+      double denom = 1. - eaTeb*eaTeb;
       if (fabs(denom)>10e-7){
         double lambda0 = (mab.dot(q) - mab.dot(r)*eaTeb)/denom;
         point = a+lambda0*q;    
@@ -112,8 +120,8 @@ namespace InDet {
         ok = false;
       }
     } else {   
-      Amg::Vector3D s(a+b-2*vertexVec);  // twice the vector from vertex to midpoint
-      Amg::Vector3D t(c+d-2*vertexVec);  // twice the vector from vertex to midpoint
+      Amg::Vector3D s(a+b-2.*vertexVec);  // twice the vector from vertex to midpoint
+      Amg::Vector3D t(c+d-2.*vertexVec);  // twice the vector from vertex to midpoint
       Amg::Vector3D qs(q.cross(s));  
       Amg::Vector3D rt(r.cross(t));  
       double m(-s.dot(rt)/q.dot(rt));    // ratio for first  line
@@ -123,7 +131,7 @@ namespace InDet {
       // us to recover space-points from tracks pointing back to an interaction
       // point up to around z = +- 20 cm
 
-      double limit  = 1. + m_stripLengthTolerance;
+      double limit = 1. + m_stripLengthTolerance;
 
       if      (fabs(            m             ) > limit) ok = false;
       else if (fabs((n=-(t.dot(qs)/r.dot(qs)))) > limit) ok = false;
@@ -419,4 +427,118 @@ namespace InDet {
     stripLengthGapTolerance = d; 
     return dm;
   }
+
+  void SiSpacePointMakerTool::offset(double& stripLengthGapTolerance,
+                                     const InDetDD::SiDetectorElement* element1,
+                                     const InDetDD::SiDetectorElement* element2) const {
+    const Amg::Transform3D& T1 = element1->transform();
+    const Amg::Transform3D& T2 = element2->transform();
+    Amg::Vector3D           C  = element1->center()   ;
+
+    double r   = sqrt(C[0]*C[0]+C[1]*C[1])                                                    ;
+    double x12 = T1(0,0)*T2(0,0) + T1(1,0)*T2(1,0) + T1(2,0)*T2(2,0)                              ;
+    double s   = (T1(0,3)-T2(0,3))*T1(0,2) + (T1(1,3)-T2(1,3))*T1(1,2) + (T1(2,3)-T2(2,3))*T1(2,2);
+
+    double dm  = (m_SCTgapParameter*r)*fabs(s*x12);
+
+    double d   = 0.;
+    if (element1->design().shape() == InDetDD::Trapezoid || element1->design().shape() == InDetDD::Annulus) {
+      d = dm*(1./0.04);
+    } else {
+      d = dm/sqrt((1.-x12)*(1.+x12));
+    }
+
+    if (fabs(T1(2,2)) > 0.7) d *= (r/fabs(T1(2,3))); // endcap d = d*R/Z
+    stripLengthGapTolerance = d;
+  }
+
+  ///////////////////////////////////////////////////////////////////
+  // Compare SCT strips and space points production
+  ///////////////////////////////////////////////////////////////////
+
+  void SiSpacePointMakerTool::makeSCT_SpacePoints(const double stripLengthGapTolerance) const {
+    // Find intersection of a line through a cluster on one sct detector and
+    // a line through a cluster on its stereo pair. Return zero if lines
+    // don't intersect.
+
+    // A general point on the line joining point a to point b is
+    // x, where 2*x=(1+m)*a + (1-m)*b. Similarly for 2*y=(1+n)*c + (1-n)*d.
+    // Suppose that v is the vertex, which we take as (0,0,0); this could
+    // an input parameter later, if required. Requiring that the two 'general
+    // points' lie on a straight through v means that the vector x-v is a
+    // multiple of y-v. This condition fixes the parameters m and n.
+    // We then return the 'space-point' x, supposed to be the phi-layer.
+    // We require that -1<m<1, otherwise x lies
+    // outside the segment a to b; and similarly for n.
+
+    const EventContext& ctx{Gaudi::Hive::currentContext()};
+    std::lock_guard<std::mutex> lock{m_mutex};
+    CacheEntry* ent{m_cache.get(ctx)};
+    if (ent->m_evt!=ctx.evt()) { // New event in this slot
+      ent->clear();
+      ent->m_evt = ctx.evt();
+    } else {
+      if (ent->m_tmpSpacePoints.size()) {
+        for (Trk::SpacePoint* sp : ent->m_tmpSpacePoints) {
+          delete sp;
+        }
+      }
+      ent->m_tmpSpacePoints.clear();
+    }
+
+    std::vector<SCTinformation>::iterator I    = ent->m_SCT0.begin(), IE = ent->m_SCT0.end();
+    std::vector<SCTinformation>::iterator J,JB = ent->m_SCT1.begin(), JE = ent->m_SCT1.end();
+
+    double limit = 1. + m_stripLengthTolerance;
+
+    for (; I!=IE; ++I) {
+      for (J=JB; J!=JE; ++J) {
+        double qm     = (*I).qm();
+        double limitm = limit+(stripLengthGapTolerance*qm);
+
+        double a =-(*I).s().dot((*J).qs());
+        double b = (*I).q().dot((*J).qs());
+        if (fabs(a) > fabs(b)*limitm) continue;
+
+        double qn     = (*J).qm();
+        double limitn = limit+(stripLengthGapTolerance*qn);
+
+        double c =-(*J).s().dot((*I).qs());
+        double d = (*J).q().dot((*I).qs());
+        if (fabs(c) > fabs(d)*limitn) continue;
+
+        double m = a/b;
+        double n = c/d;
+
+        if (m >  limit or n >  limit) {
+
+          double cs  = (*I).q().dot((*J).q())*(qm*qm);
+          double dm  = (m-1.);
+          double dmn = (n-1.)*cs;
+          if (dmn > dm) dm = dmn;
+          m-=dm; n-=(dm/cs);
+
+        } else if (m < -limit or n < -limit) {
+
+          double cs = (*I).q().dot((*J).q())*(qm*qm);
+          double dm  = -(1.+m);
+          double dmn = -(1.+n)*cs;
+          if (dmn > dm) dm = dmn;
+          m+=dm; n+=(dm/cs);
+
+        }
+
+        if (fabs(m) > limit or fabs(n) > limit) continue;
+
+        Amg::Vector3D point((*I).position(m));
+
+        ATH_MSG_VERBOSE("SpacePoint generated at: ( " <<  point.x() << " , " << point.y() << " , " << point.z() << " )   ");
+        const std::pair<IdentifierHash, IdentifierHash> elementIdList(ent->m_element0->identifyHash(), ent->m_element1->identifyHash());
+        const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>*
+          clusList = new std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>((*I).cluster(), (*J).cluster());
+        ent->m_tmpSpacePoints.push_back(new InDet::SCT_SpacePoint(elementIdList, new Amg::Vector3D(point), clusList));
+      }
+    }
+  }
+  
 }

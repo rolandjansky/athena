@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ACTSGEOMETRY_ACTSEXTRAPOLATIONTOOL_H
@@ -27,15 +27,20 @@
 #include "Acts/Propagator/Navigator.hpp"
 #include "Acts/Propagator/detail/DebugOutputActor.hpp"
 #include "Acts/Propagator/detail/StandardAborters.hpp"
+#include "Acts/Propagator/detail/RelativePathCorrector.hpp"
+#include "ActsGeometry/ATLASMagneticFieldWrapper.h"
 #include "Acts/MagneticField/ConstantBField.hpp"
 #include "Acts/MagneticField/MagneticFieldContext.hpp"
 #include "Acts/Utilities/Result.hpp"
 #include "Acts/Utilities/Units.hpp"
+#include "Acts/Utilities/Helpers.hpp"
 
 // BOOST
 #include <boost/variant/variant.hpp>
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/static_visitor.hpp>
+
+#include <cmath>
 
 namespace MagField {
   class IMagFieldSvc;
@@ -88,7 +93,6 @@ public:
     options.loopProtection
       = (Acts::VectorHelpers::perp(startParameters.momentum())
           < m_ptLoopers * 1_MeV);
-
     options.maxStepSize = m_maxStepSize * 1_m;
 
     std::vector<Acts::detail::Step> steps;
@@ -138,10 +142,11 @@ private:
   using AbortConditions = Acts::AbortList<EndOfWorld>;
 
   using Options = Acts::PropagatorOptions<ActionList, AbortConditions>;
+  using Corrector = Acts::detail::RelativePathCorrector;
 
   using VariantPropagator = boost::variant<
-    Acts::Propagator<Acts::EigenStepper<ATLASMagneticFieldWrapper>, Acts::Navigator>,
-    Acts::Propagator<Acts::EigenStepper<Acts::ConstantBField>, Acts::Navigator>
+    Acts::Propagator<Acts::EigenStepper<ATLASMagneticFieldWrapper, Corrector>, Acts::Navigator>,
+    Acts::Propagator<Acts::EigenStepper<Acts::ConstantBField, Corrector>, Acts::Navigator>
   >;
 
   std::unique_ptr<VariantPropagator> m_varProp;
@@ -149,8 +154,8 @@ private:
   ServiceHandle<MagField::IMagFieldSvc> m_fieldServiceHandle;
   ToolHandle<IActsTrackingGeometryTool> m_trackingGeometryTool{this, "TrackingGeometryTool", "ActsTrackingGeometryTool"};
 
-  Gaudi::Property<std::string> m_fieldMode{this, "FieldMode", "ATLAS"};
-  Gaudi::Property<std::vector<double>> m_constantFieldVector{this, "ConstantFieldVector", {0, 0, 0}};
+  Gaudi::Property<std::string> m_fieldMode{this, "FieldMode", "ATLAS", "Either ATLAS or Constant"};
+  Gaudi::Property<std::vector<double>> m_constantFieldVector{this, "ConstantFieldVector", {0, 0, 0}, "Constant field value to use if FieldMode == Constant"};
 
   Gaudi::Property<double> m_ptLoopers{this, "PtLoopers", 300, "PT loop protection threshold. Will be converted to Acts MeV unit"};
 

@@ -39,7 +39,8 @@ class partitionName(JobProperty):
    """ Name of the partition if running in online environment, otherwise empty """
    statusOn = True
    allowedTypes = ['str']
-   StoredValue = ''
+   import os
+   StoredValue = os.getenv('TDAQ_PARTITION') or ''
 
 _flags += [partitionName]
 

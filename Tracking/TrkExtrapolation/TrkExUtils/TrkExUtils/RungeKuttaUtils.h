@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -99,7 +99,7 @@ namespace Trk {
       // Step estimators to surface
       /////////////////////////////////////////////////////////////////////////////////
 
-      double stepEstimator              (int,double*,const double*,bool&) const;
+      double stepEstimator                  (int,double*,const double*,bool&) const;
       double stepEstimatorToCone            (double*ATH_RESTRICT,const double*ATH_RESTRICT,bool&) const;
       double stepEstimatorToPlane           (double*ATH_RESTRICT,const double*ATH_RESTRICT,bool&) const;
       double stepEstimatorToCylinder        (double*ATH_RESTRICT,const double*ATH_RESTRICT,bool&) const;
@@ -109,14 +109,14 @@ namespace Trk {
       // Step estimators to surfaces
       /////////////////////////////////////////////////////////////////////////////////
       std::pair<double,int> stepEstimator 
-	(std::vector<std::pair<const Trk::Surface*,Trk::BoundaryCheck> >&,
-	 std::multimap<double,int>&,
-	 const double*,const double*,double,double,int Nv,bool&) const;
+        (std::vector<std::pair<const Trk::Surface*,Trk::BoundaryCheck> >&,
+         std::multimap<double,int>&,
+         const double*,const double*,double,double,int Nv,bool&) const;
 
       int fillDistancesMap
-	(std::vector<std::pair<const Trk::Surface*,Trk::BoundaryCheck> >&,
-	 std::multimap<double,int>&,
-	 const double*ATH_RESTRICT,double,const Trk::Surface*,double*ATH_RESTRICT) const;
+        (std::vector<std::pair<const Trk::Surface*,Trk::BoundaryCheck> >&,
+         std::multimap<double,int>&,
+         const double*ATH_RESTRICT,double,const Trk::Surface*,double*ATH_RESTRICT) const;
       
       /////////////////////////////////////////////////////////////////////////////////
       // Transformations from local to global system coordinates 
@@ -124,10 +124,10 @@ namespace Trk {
       /////////////////////////////////////////////////////////////////////////////////
   
       bool transformLocalToGlobal
-	(bool,const Trk::TrackParameters&        ,double*) const;
+        (bool,const Trk::TrackParameters&        ,double*) const;
 
       bool transformLocalToGlobal
-	(bool,const Trk::NeutralParameters&       ,double*) const;
+        (bool,const Trk::NeutralParameters&       ,double*) const;
 
       /////////////////////////////////////////////////////////////////////////////////
       // Transformations from local to global system coordinates 
@@ -135,7 +135,7 @@ namespace Trk {
       /////////////////////////////////////////////////////////////////////////////////
   
       bool transformLocalToGlobal
-	(bool,const Trk::PatternTrackParameters&        ,double*) const;
+        (bool,const Trk::PatternTrackParameters&        ,double*) const;
 
       /////////////////////////////////////////////////////////////////////////////////
       // Transformations from local to global system coordinates 
@@ -143,13 +143,13 @@ namespace Trk {
       /////////////////////////////////////////////////////////////////////////////////
 
       void transformDiscToGlobal        
-	(bool,const Trk::Surface*,const double*ATH_RESTRICT,double*ATH_RESTRICT) const;
+        (bool,const Trk::Surface*,const double*ATH_RESTRICT,double*ATH_RESTRICT) const;
       void transformPlaneToGlobal       
-	(bool,const Trk::Surface*,const double*ATH_RESTRICT,double*ATH_RESTRICT) const;
+        (bool,const Trk::Surface*,const double*ATH_RESTRICT,double*ATH_RESTRICT) const;
       void transformCylinderToGlobal    
-	(bool,const Trk::Surface*,const double*ATH_RESTRICT,double*ATH_RESTRICT) const;
+        (bool,const Trk::Surface*,const double*ATH_RESTRICT,double*ATH_RESTRICT) const;
       void transformLineToGlobal
-	(bool,const Trk::Surface*,const double*ATH_RESTRICT,double*ATH_RESTRICT) const;
+        (bool,const Trk::Surface*,const double*ATH_RESTRICT,double*ATH_RESTRICT) const;
 
       /////////////////////////////////////////////////////////////////////////////////
       // Transformations from global to local system coordinates
@@ -157,17 +157,17 @@ namespace Trk {
 
       void transformGlobalToLocal        (double*ATH_RESTRICT,double*ATH_RESTRICT) const;
       void transformGlobalToLocal
-	 (const Trk::Surface*,bool,double*ATH_RESTRICT,double*ATH_RESTRICT,double*ATH_RESTRICT) const;
+        (const Trk::Surface*,bool,double*ATH_RESTRICT,double*ATH_RESTRICT,double*ATH_RESTRICT) const;
       void transformGlobalToCone
-	(const Trk::Surface*,bool,double*ATH_RESTRICT,double*ATH_RESTRICT,double*ATH_RESTRICT) const;
+        (const Trk::Surface*,bool,double*ATH_RESTRICT,double*ATH_RESTRICT,double*ATH_RESTRICT) const;
       void transformGlobalToDisc
-	(const Trk::Surface*,bool,double*ATH_RESTRICT,double*ATH_RESTRICT,double*ATH_RESTRICT) const;
+        (const Trk::Surface*,bool,double*ATH_RESTRICT,double*ATH_RESTRICT,double*ATH_RESTRICT) const;
       void transformGlobalToPlane
-	(const Trk::Surface*,bool,double*ATH_RESTRICT,double*ATH_RESTRICT,double*ATH_RESTRICT) const;
+        (const Trk::Surface*,bool,double*ATH_RESTRICT,double*ATH_RESTRICT,double*ATH_RESTRICT) const;
       void transformGlobalToCylinder
-  	(const Trk::Surface*,bool,double*ATH_RESTRICT,double*ATH_RESTRICT,double*ATH_RESTRICT) const;
+        (const Trk::Surface*,bool,double*ATH_RESTRICT,double*ATH_RESTRICT,double*ATH_RESTRICT) const;
       void transformGlobalToLine
-	(const Trk::Surface*,bool,double*ATH_RESTRICT,double*ATH_RESTRICT,double*ATH_RESTRICT) const;
+        (const Trk::Surface*,bool,double*ATH_RESTRICT,double*ATH_RESTRICT,double*ATH_RESTRICT) const;
 
      /////////////////////////////////////////////////////////////////////////////////
 
@@ -176,7 +176,7 @@ namespace Trk {
       /////////////////////////////////////////////////////////////////////////////////
       
       AmgSymMatrix(5)*  newCovarianceMatrix
-	(double*,const AmgSymMatrix(5)&) const;
+        (const double*,const AmgSymMatrix(5)&) const;
 
       /////////////////////////////////////////////////////////////////////////////////
       // Transformations from curvilinear to global system coordinates 
@@ -184,7 +184,7 @@ namespace Trk {
       /////////////////////////////////////////////////////////////////////////////////
 
       void transformCurvilinearToGlobal        
-	(double*ATH_RESTRICT,double*ATH_RESTRICT) const;
+        (double*ATH_RESTRICT,double*ATH_RESTRICT) const;
 
       /////////////////////////////////////////////////////////////////////////////////
       // Transformations from global to curvilinear system coordinates 
@@ -192,20 +192,20 @@ namespace Trk {
       /////////////////////////////////////////////////////////////////////////////////
 
       void transformGlobalToCurvilinear        
-	(bool,double*ATH_RESTRICT,double*ATH_RESTRICT,double*ATH_RESTRICT) const;
+        (bool,double*ATH_RESTRICT,double*ATH_RESTRICT,double*ATH_RESTRICT) const;
 
       /////////////////////////////////////////////////////////////////////////////////
       // Jacobian of transformations from curvilinear to local system coordinates
       /////////////////////////////////////////////////////////////////////////////////
 
       void jacobianTransformCurvilinearToLocal
-	(const Trk::TrackParameters&,double*);
+        (const Trk::TrackParameters&,double*);
 
       void jacobianTransformCurvilinearToLocal
-	(const Trk::PatternTrackParameters&,double*); 
+        (const Trk::PatternTrackParameters&,double*); 
 
       void jacobianTransformCurvilinearToLocal
-	(double*ATH_RESTRICT,const Trk::Surface*,double*ATH_RESTRICT);
+        (double*ATH_RESTRICT,const Trk::Surface*,double*ATH_RESTRICT);
    
       void jacobianTransformCurvilinearToDisc        (double*ATH_RESTRICT,double*ATH_RESTRICT) const;
       void jacobianTransformCurvilinearToPlane       (double*ATH_RESTRICT,double*ATH_RESTRICT) const;

@@ -12,7 +12,6 @@
 
 TrigmuRoIMT::TrigmuRoIMT(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
-    m_trigMuonRoITool( "TrigMuonRoITool" ),
     m_recRPCRoiSvc("LVL1RPC::RPCRecRoiSvc",""),
     m_recTGCRoiSvc("LVL1TGC::TGCRecRoiSvc","")
 {   
@@ -86,29 +85,36 @@ StatusCode TrigmuRoIMT::execute()
   ATH_CHECK(wh_roiCollection.record(std::make_unique<TrigRoiDescriptorCollection>()));
   auto roiColl = wh_roiCollection.ptr();
 
-  for  (std::vector< std::pair<ROIB::MuCTPIRoI,int> >::const_iterator it = m_trigMuonRoITool->begin_OutOfTimeRoIs();
-	it != m_trigMuonRoITool->end_OutOfTimeRoIs(); ++it) {
-    
-    ATH_MSG_DEBUG(" Difference(RoI(BCID) - Event(BCID)) = " << (*it).second);
-    ATH_MSG_DEBUG(" ------------------------------------- ");
-    ATH_MSG_DEBUG("RoIB word               : 0x" << MSG::hex << ((*it).first).roIWord() << MSG::dec);
-    ATH_MSG_DEBUG("Threshold               :  pt" << ((*it).first).pt());
-    ATH_MSG_DEBUG("Sector ID               :  " << ((*it).first).getSectorID());
-    ATH_MSG_DEBUG("Sector addr             :  0x" << MSG::hex << ((*it).first).getSectorAddress() << MSG::dec);
-    ATH_MSG_DEBUG("Sector overflow         :  " << ((*it).first).getSectorOverflow());
-    ATH_MSG_DEBUG("RoI overflow            :  " << ((*it).first).getRoiOverflow());
-    ATH_MSG_DEBUG("RoI number              :  " << ((*it).first).getRoiNumber());
-    ATH_MSG_DEBUG("IsHighestPt             :  " << ((*it).first).getCandidateIsHighestPt());
-    ATH_MSG_DEBUG("=================================================");
+  //get rois and loop over out of time rois
+  auto roiVectors = m_trigMuonRoITool->decodeMuCTPi();
+  if(!roiVectors){
+    ATH_MSG_VERBOSE("No RoIs found");
+    return StatusCode::SUCCESS;
+  }
+  for(auto it : *(roiVectors->outOfTimeRois)){
+
+    if (msgLvl(MSG::DEBUG)) {
+      ATH_MSG_DEBUG(" Difference(RoI(BCID) - Event(BCID)) = " << (it).second);
+      ATH_MSG_DEBUG(" ------------------------------------- ");
+      ATH_MSG_DEBUG("RoIB word               : 0x" << MSG::hex << ((it).first).roIWord() << MSG::dec);
+      ATH_MSG_DEBUG("Threshold               :  pt" << ((it).first).pt());
+      ATH_MSG_DEBUG("Sector ID               :  " << ((it).first).getSectorID());
+      ATH_MSG_DEBUG("Sector addr             :  0x" << MSG::hex << ((it).first).getSectorAddress() << MSG::dec);
+      ATH_MSG_DEBUG("Sector overflow         :  " << ((it).first).getSectorOverflow());
+      ATH_MSG_DEBUG("RoI overflow            :  " << ((it).first).getRoiOverflow());
+      ATH_MSG_DEBUG("RoI number              :  " << ((it).first).getRoiNumber());
+      ATH_MSG_DEBUG("IsHighestPt             :  " << ((it).first).getCandidateIsHighestPt());
+      ATH_MSG_DEBUG("=================================================");
+    }
             
-    unsigned int temp_sysID = getBitMaskValue(((*it).first).getSectorAddress(), LVL1::SysIDMask );
+    unsigned int temp_sysID = getBitMaskValue(((it).first).getSectorAddress(), LVL1::SysIDMask );
     unsigned int sysID = 0;                // Barrel
     if( temp_sysID & 0x2 ) sysID = 1;      // Endcap
     else if( temp_sysID & 0x1 ) sysID = 2; // Forward
 
 
-    if ( sysID == 0 ) outOfTimeRpc.push_back((*it).second);
-    else              outOfTimeTgc.push_back((*it).second);
+    if ( sysID == 0 ) outOfTimeRpc.push_back((it).second);
+    else              outOfTimeTgc.push_back((it).second);
       
     const LVL1::RecMuonRoiSvc* recMuonRoiSvc = 0;
     std::string region = "";
@@ -123,7 +129,7 @@ StatusCode TrigmuRoIMT::execute()
       region = "Forward region";
     }
 	   
-    recMuonRoiSvc->reconstruct( ((*it).first).roIWord() );
+    recMuonRoiSvc->reconstruct( ((it).first).roIWord() );
     // create new trigger element for this out of time RoI
     double eta = recMuonRoiSvc->eta();
     double phi = recMuonRoiSvc->phi();
@@ -135,11 +141,11 @@ StatusCode TrigmuRoIMT::execute()
     double phimin = CxxUtils::wrapToPi(phi - 0.2);
     double phimax = CxxUtils::wrapToPi(phi + 0.2);
 
-    if ((*it).second >= m_minValueForOutOfTimeBC &&
-	(*it).second <= m_maxValueForOutOfTimeBC    ) {
+    if ((it).second >= m_minValueForOutOfTimeBC &&
+	(it).second <= m_maxValueForOutOfTimeBC    ) {
 
       // generic TrigRoiDescriptor
-      auto roiDescriptor = new TrigRoiDescriptor( ((*it).first).roIWord(), 0, roi_id, eta, etamin, etamax, phi, phimin, phimax,0,-255,255);
+      auto roiDescriptor = new TrigRoiDescriptor( ((it).first).roIWord(), 0, roi_id, eta, etamin, etamax, phi, phimin, phimax,0,-255,255);
       roiColl->push_back(roiDescriptor);
 
       ATH_MSG_DEBUG("Created RoI descriptor with id, eta, phi: "<<roi_id<<" "<<eta<<" "<<phi);

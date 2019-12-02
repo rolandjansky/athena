@@ -32,8 +32,6 @@
 #include "SGTools/TransientAddress.h"
 #include "SGTools/DataProxy.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 
 #include "IOVEntry.h"
 #include "IOVSvc/IOVAddress.h"
@@ -43,6 +41,7 @@
 #include <stdint.h>
 #include <ctype.h>
 #include <stdexcept>
+#include <atomic>
 
 using SG::DataProxy;
 using SG::TransientAddress;
@@ -58,7 +57,7 @@ std::string toUpper(const std::string& str) {
 }
 
 namespace {
-  bool s_firstRun(true);
+  std::atomic<bool> s_firstRun(true);
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -151,8 +150,6 @@ IOVSvcTool::~IOVSvcTool() {
 StatusCode 
 IOVSvcTool::initialize() {
 
-  StatusCode status;
-
   static const bool CREATEIF(true);
 
   IIOVSvc* p_iovSvc(nullptr);
@@ -167,22 +164,11 @@ IOVSvcTool::initialize() {
   setProperty( iovSvcProp->getProperty("preLoadRanges") ).ignore();
   setProperty( iovSvcProp->getProperty("preLoadData") ).ignore();
   setProperty( iovSvcProp->getProperty("partialPreLoadData") ).ignore();
+  setProperty( iovSvcProp->getProperty("preLoadExtensibleFolders") ).ignore();
   setProperty( iovSvcProp->getProperty("updateInterval") ).ignore();
   setProperty( iovSvcProp->getProperty("sortKeys") ).ignore();
   setProperty( iovSvcProp->getProperty("forceResetAtBeginRun") ).ignore();
   setProperty( iovSvcProp->getProperty("OutputLevel") ).ignore();
-
-  if (m_storeName == "StoreGateSvc") {
-    status = service("StoreGateSvc", p_sgSvc);
-  } else {
-    string sgn = "StoreGateSvc/" + m_storeName;
-    status = service(sgn,p_sgSvc);
-  }
-
-  if (status.isFailure()) {
-    ATH_MSG_ERROR("Unable to get the StoreGateSvc");
-    return status;
-  }
 
   int pri=100;
 
@@ -233,7 +219,7 @@ IOVSvcTool::initialize() {
 
   ATH_MSG_DEBUG("Tool initialized");
 
-  return status;
+  return StatusCode::SUCCESS;
 }
 
 
@@ -970,7 +956,10 @@ IOVSvcTool::preLoadProxies() {
   ATH_MSG_DEBUG("preLoadProxies()");
 
   StatusCode scr(StatusCode::SUCCESS);
- 
+
+  IIOVDbSvc *iovDB = nullptr;
+  service("IOVDbSvc", iovDB, false).ignore();
+
   std::map<BFCN*, std::list<std::string> > resetKeys;
   for (DataProxy* dp : m_proxies) {
     Gaudi::Guards::AuditorGuard auditor(m_names[dp], auditorSvc(), "preLoadProxy");
@@ -1004,15 +993,21 @@ IOVSvcTool::preLoadProxies() {
 
     if ( ( m_partialPreLoadData && 
            m_partPreLoad.find(TADkey(*dp)) != m_partPreLoad.end() )
-         ||
-         m_preLoadData ) {
+         || m_preLoadData ) {
 
-      ATH_MSG_VERBOSE("preloading data for ("
-                      << dp->clID() << "/"
-                      << dp->name() << ")");
+      IIOVDbSvc::KeyInfo kinfo;
+      if ( !m_preLoadExtensibleFolders && iovDB &&
+           iovDB->getKeyInfo(dp->name(), kinfo) && kinfo.extensible ) {
+        ATH_MSG_VERBOSE("not preloading data for extensible folder " << dp->name());
+      }
+      else {
+        ATH_MSG_VERBOSE("preloading data for ("
+                        << dp->clID() << "/"
+                        << dp->name() << ")");
 
-      sc =  ( dp->accessData() != nullptr ?
-              StatusCode::SUCCESS : StatusCode::FAILURE );
+        sc =  ( dp->accessData() != nullptr ?
+                StatusCode::SUCCESS : StatusCode::FAILURE );
+      }
     }
 
     if (sc.isFailure()) scr=sc;

@@ -1,5 +1,5 @@
 # Creation: David Cote, 19 May 2008
-# This temporary file replaces the former include( "TriggerRelease/jobOfragment_ReadBS.py" ) 
+# This temporary file replaces the former include( "TriggerJobOpts/jobOfragment_ReadBS.py" ) 
 # Note that this requires Event/ByteStreamCnvSvcBase/share/BSAddProvSvc_RIO_jobOptions.py revision 1.9
 #avoid doing BS read configuration twice
 

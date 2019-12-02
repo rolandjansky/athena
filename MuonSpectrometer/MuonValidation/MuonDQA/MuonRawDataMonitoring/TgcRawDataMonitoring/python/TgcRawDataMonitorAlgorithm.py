@@ -26,6 +26,10 @@ def TgcRawDataMonitoringConfig(inputFlags):
     tgcRawDataMonAlg.TagTrigList += ',HLT_mu6_L1MU6'
     tgcRawDataMonAlg.TagTrigList += ',HLT_mu20_mu8noL1;HLT_mu20'
 
+    # Run 2 containers?
+    if 'HLT_xAOD__MuonContainer_MuonEFInfo' in inputFlags.Input.Collections:
+        tgcRawDataMonAlg.MuonEFContainerName='HLT_xAOD__MuonContainer_MuonEFInfo'
+    
     mainDir = 'Muon/MuonRawDataMonitoring/TGC/'
     pi = 3.14159265359
 

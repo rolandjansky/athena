@@ -93,10 +93,18 @@ StatusCode ISF::SimKernelMT::initialize() {
       }
   }
 
+  ATH_CHECK( m_entryLayerTool.retrieve() );
+
   ATH_CHECK( m_inputEvgenKey.initialize() );
   ATH_CHECK( m_outputTruthKey.initialize() );
 
+  ATH_CHECK( m_caloEntryLayerKey.initialize() );
+  ATH_CHECK( m_muonEntryLayerKey.initialize() );
+  ATH_CHECK( m_muonExitLayerKey.initialize() );
+
   ATH_CHECK( m_inputConverter.retrieve() );
+
+  ATH_CHECK ( m_truthRecordSvc.retrieve() );
 
   if(!m_qspatcher.empty()) {
     ATH_CHECK(m_qspatcher.retrieve());
@@ -135,6 +143,20 @@ StatusCode ISF::SimKernelMT::execute() {
     }
   }
 
+  // Reset barcodes for this thread
+  ATH_CHECK(m_truthRecordSvc->initializeTruthCollection());
+
+  // Create TrackRecordCollections and pass them to the entryLayerTool
+  SG::WriteHandle<TrackRecordCollection> caloEntryLayer(m_caloEntryLayerKey);
+  caloEntryLayer = std::make_unique<TrackRecordCollection>(caloEntryLayer.name());
+  ATH_CHECK(m_entryLayerTool->registerTrackRecordCollection(caloEntryLayer.ptr(), fAtlasCaloEntry));
+  SG::WriteHandle<TrackRecordCollection> muonEntryLayer(m_muonEntryLayerKey);
+  muonEntryLayer = std::make_unique<TrackRecordCollection>(muonEntryLayer.name());
+  ATH_CHECK(m_entryLayerTool->registerTrackRecordCollection(muonEntryLayer.ptr(), fAtlasMuonEntry));
+  SG::WriteHandle<TrackRecordCollection> muonExitLayer(m_muonExitLayerKey);
+  muonExitLayer = std::make_unique<TrackRecordCollection>(muonExitLayer.name());
+  ATH_CHECK(m_entryLayerTool->registerTrackRecordCollection(muonExitLayer.ptr(), fAtlasMuonExit));
+
   // read and convert input
   ISFParticleContainer simParticles; // particles for ISF simulation
   ATH_CHECK( m_inputConverter->convert(*outputTruth, simParticles, HepMcParticleLink::find_enumFromKey(outputTruth.name())) );
@@ -158,6 +180,10 @@ StatusCode ISF::SimKernelMT::execute() {
           ISFParticleContainer newSecondaries;
           //ATH_CHECK( simTool.simulate( std::move(curParticle), newSecondaries ) );
           ATH_CHECK( simTool.simulateVector( particles, newSecondaries, outputTruth.ptr() ) );
+          // register returned particles with the entry layer tool
+          for ( auto* secondary : newSecondaries ) {
+            m_entryLayerTool->registerParticle( *secondary );
+          }
           // add any returned ISFParticles to the list of particles to be simulated
           simParticles.splice( end(simParticles), std::move(newSecondaries) );
           // delete simulated particles
@@ -176,6 +202,10 @@ StatusCode ISF::SimKernelMT::execute() {
       ISFParticleContainer newSecondaries;
       if(!lastSimulator) { ATH_MSG_FATAL("Particles with no assigned simulator. Bail!"); return StatusCode::FAILURE; }
       ATH_CHECK( lastSimulator->simulateVector( particles, newSecondaries, outputTruth.ptr() ) );
+      // register returned particles with the entry layer tool
+      for ( auto* secondary : newSecondaries ) {
+        m_entryLayerTool->registerParticle( *secondary );
+      }
       // add any returned ISFParticles to the list of particles to be simulated
       simParticles.splice( end(simParticles), std::move(newSecondaries) );
       // delete simulated particles

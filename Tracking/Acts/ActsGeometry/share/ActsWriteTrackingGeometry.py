@@ -36,9 +36,12 @@ InDetGeometryFlags.useDynamicAlignFolders=True
 
 # Just the pixel and SCT
 DetFlags.ID_setOn()
+DetFlags.Calo_setOn()
 
 from AtlasGeoModel import GeoModelInit
 from AtlasGeoModel import SetGeometryVersion
+from SubDetectorEnvelopes.SubDetectorEnvelopesConfig import getEnvelopeDefSvc
+svcMgr += getEnvelopeDefSvc()
 
 
 from AthenaCommon.AlgScheduler import AlgScheduler

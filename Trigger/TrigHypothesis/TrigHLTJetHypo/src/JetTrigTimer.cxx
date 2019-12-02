@@ -31,12 +31,14 @@ void JetTrigTimer::stop(){
     m_delta += duration_cast<microseconds>(m_stop - m_start).count();
   }
   m_elapsedDelta += m_delta;
+  m_delta = 0;
 }
 
 
 void JetTrigTimer::reset() noexcept {
   m_nCalls = 0;
   m_delta = 0.;
+  m_elapsedDelta = 0;
 }
   
 std::string JetTrigTimer::read(){    

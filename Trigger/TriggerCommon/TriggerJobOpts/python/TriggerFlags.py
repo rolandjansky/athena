@@ -140,12 +140,20 @@ _flags.append(doHLT)
 
 # Define Default Flags
 class doMT(JobProperty):
-    """ Run upgrade type of config """
+    """ Configure Run-3 AthenaMT Trigger """
     statusOn=True
     allowedType=['bool']
-    from AthenaCommon.ConcurrencyFlags import jobproperties  # noqa: F811
-    StoredValue= bool(jobproperties.ConcurrencyFlags.NumThreads >= 1)
-        
+    # Cannot use OnlineFlags.partitionName here because OnlineFlags need TriggerFlags to be created first
+    import os
+    partitionName = os.getenv('TDAQ_PARTITION') or ''
+    if partitionName:
+        # Only MT Trigger is supported online
+        StoredValue=True
+    else:
+        # ConcurrencyFlags are valid only in offline athena
+        from AthenaCommon.ConcurrencyFlags import jobproperties  # noqa: F811
+        StoredValue=bool(jobproperties.ConcurrencyFlags.NumThreads() >= 1)
+
 _flags.append(doMT)
 
 
@@ -676,7 +684,7 @@ class triggerConfig(JobProperty):
                     cmd = 'TriggerFlags.do%s = False' % detOff
                     # possibly not all DetFlags have a TriggerFlag
                     try:
-                        exec cmd
+                        exec(cmd)
                         log.info(cmd)
                     except AttributeError:
                         pass
@@ -732,7 +740,10 @@ class readLVL1configFromXML(JobProperty):
         import os
         log = logging.getLogger( 'TriggerFlags.readLVL1configFromXML' )
 
-        import TriggerMenu.l1.Lvl1Flags  # noqa: F401
+        if TriggerFlags.doMT():
+            import TriggerMenuMT.LVL1MenuConfig.LVL1.Lvl1Flags  # noqa: F401
+        else:
+            import TriggerMenu.l1.Lvl1Flags  # noqa: F401
         
         if self.get_Value() is False:
             TriggerFlags.inputLVL1configFile = TriggerFlags.outputLVL1configFile()
@@ -1064,7 +1075,11 @@ class triggerMenuSetup(JobProperty):
         # Run 3 (and preparation for Run-3)
         'LS2_v1', # for development of AthenaMT
         'LS2_emu_v1', # emulation test menu for AthenaMT
+        'MC_pp_run3_v1', # MC_pp_run3 for AthenaMT
+        'PhysicsP1_pp_run3_v1', # PhysicsP1_pp_run3 for AthenaMT
+        'Physics_pp_run3_v1', # Physics_pp_run3 for AthenaMT
         'MC_pp_v8', 'Physics_pp_v8', 'MC_pp_v8_no_prescale', 'MC_pp_v8_tight_mc_prescale', 'MC_pp_v8_tightperf_mc_prescale', 'MC_pp_v8_loose_mc_prescale','Physics_pp_v8_tight_physics_prescale',
+        'Cosmic_pp_run3_v1',
         ]
 
     _default_menu='Physics_pp_v7_primaries'
@@ -1173,9 +1188,14 @@ from TriggerJobOpts.TriggerOnlineFlags      import OnlineFlags   # noqa: F401
 
 ## add slices generation flags
 
-from TriggerJobOpts.SliceFlags import *                                   # noqa: F401, F403
+if doMT():
+    log.info("TriggerFlags importing SliceFlagsMT"  )
+    from TriggerJobOpts.SliceFlagsMT import *                                   # noqa: F401, F403
+else:
+    log.info("TriggerFlags importing SliceFlags (non-MT)"  )
+    from TriggerJobOpts.SliceFlags import *                                   # noqa: F401, F403
+
 from TriggerJobOpts.Tier0TriggerFlags       import Tier0TriggerFlags      # noqa: F401
-from TrigTier0.NtupleProdFlags              import NtupleProductionFlags  # noqa: F401
 
 
 def sync_Trigger2Reco():
@@ -1185,7 +1205,7 @@ def sync_Trigger2Reco():
     from RecExConfig.RecFlags import rec
     
     if  recAlgs.doTrigger() and rec.readRDO() and not globalflags.InputFormat()=='bytestream':
-        include( "TriggerRelease/TransientBS_DetFlags.py" )
+        include( "TriggerJobOpts/TransientBS_DetFlags.py" )
 
     from RecExConfig.RecFlags import rec
     if globalflags.InputFormat() == 'bytestream':

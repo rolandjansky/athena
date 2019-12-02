@@ -37,7 +37,6 @@ private:
     GP<bool> m_doMuons {this, "Muons", true};
 
     // StoreGate keys
-    RHK<xAOD::EventInfo> m_EventInfoKey {this,"EventInfoKey","EventInfo",""};
     RHK<RawInfoSummaryForTag> m_RawInfoSummaryForTagKey{this, "RawInfoSummaryForTagKey", "RawInfoSummaryForTag", ""};
     RHK<LArCollisionTime> m_LArCollisionTimeKey {this, "LArCollisionTimeKey", "LArCollisionTime", ""};
     RHK<MBTSCollisionTime> m_MBTSCollisionTimeKey {this, "MBTSCollisionTimeKey", "MBTSCollisionTime", ""};

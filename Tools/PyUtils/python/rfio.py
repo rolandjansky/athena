@@ -67,7 +67,7 @@ class File(object):
         self.name = fname
         self.mode = mode
         if not mode in ('r','w','a'):
-            raise ValueError, "mode should be 'r', 'w' or 'a'"
+            raise ValueError("mode should be 'r', 'w' or 'a'")
         global c_api
         self._f = c_api.rfio_fopen (fname, mode)
         if c_api.rfio_serrno():

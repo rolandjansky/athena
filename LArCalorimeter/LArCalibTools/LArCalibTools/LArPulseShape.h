@@ -14,7 +14,6 @@
 
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "TrigDecisionTool/TrigDecisionTool.h"
 #include <iostream>
 #include "TProfile.h"
 #include "TH1.h"
@@ -34,6 +33,10 @@ class LArEM_Base_ID;
 class LArHEC_Base_ID;
 class LArFCAL_Base_ID;
 class CaloCell_ID;
+
+namespace Trig{
+   class TrigDecisionTool;
+}
 
 class LArPulseShape : public AthAlgorithm {
 
@@ -81,7 +84,7 @@ class LArPulseShape : public AthAlgorithm {
 
    const ILArPedestal* m_larPedestal;
 
-   std::map<std::string, TProfile*> m_effhistos;  
+   std::map<std::string, TProfile*> m_effhistos;
    std::map<int, TProfile*> m_cellHistos;     
    TProfile* m_TProfpulse_diff;    
    std::map<std::string, TH1*> m_histos;

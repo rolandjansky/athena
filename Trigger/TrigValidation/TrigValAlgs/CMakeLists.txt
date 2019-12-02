@@ -10,7 +10,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthAnalysisBaseComps
                           GaudiKernel
-                          TestPolicy
                           Trigger/TrigAnalysis/TrigDecisionTool
                           Trigger/TrigConfiguration/TrigConfInterfaces
                           Trigger/TrigConfiguration/TrigConfHLTData

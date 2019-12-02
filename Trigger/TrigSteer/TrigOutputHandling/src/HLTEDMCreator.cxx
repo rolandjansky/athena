@@ -176,7 +176,7 @@ StatusCode HLTEDMCreator::fixLinks() const {
     // Only increment this index for the sub-set of the TrigComposite collections that we are fixing. Mirror the initialize() logic.
     ++writeHandleArrayIndex;
 
-    ATH_MSG_DEBUG("Fixing links: confirm collection is there: " << writeHandleKey.key() << ", write hand array index: " << writeHandleArrayIndex);
+    ATH_MSG_DEBUG("Fixing links: confirm collection is there: " << writeHandleKey.key() << ", write handle array index: " << writeHandleArrayIndex);
     SG::ReadHandle<xAOD::TrigCompositeContainer> readHandle( writeHandleKey.key() );
     if ( not readHandle.isValid() ) { // object missing, this is now an error as we should have literally just created it
       ATH_MSG_ERROR("  Collection is not present. " << writeHandleKey.key() << " should have been created by createIfMissing.");

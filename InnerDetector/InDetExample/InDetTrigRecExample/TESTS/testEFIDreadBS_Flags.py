@@ -32,7 +32,7 @@ doTAG=False
 # Set Truth flags
 doTruth=False    # needs to be true if creating Fake RoI 
 
-include ("TriggerRelease/TriggerFlags.py")
+include ("TriggerJobOpts/TriggerFlags.py")
 TriggerFlags.readHLTconfigFromXML=False
 TriggerFlags.readLVL1configFromXML=False
 
@@ -73,7 +73,7 @@ TriggerFlags.EgammaSlice.setFlag("doTRTxK", False)
 # End of setting flags
 #-------------------------------------------------------------
 
-include( "TriggerRelease/TrigReadBS_topOptions.py" )
+include( "TriggerJobOpts/TrigReadBS_topOptions.py" )
 
 MessageSvc.OutputLevel = DEBUG
 #NovaCnvSvc.OutputLevel = INFO

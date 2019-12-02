@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration 
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 ###########################################################################
 # SliceDef file for Bphysics chains
@@ -125,7 +127,7 @@ def getBphysThresholds(chainDict) :
         mult = mult + int(part['multiplicity'])
         if not 'noL1' in  part['extra'] :
             mult_without_noL1 = mult_without_noL1 + int(part['multiplicity'])
-    print "OI multiplicity ", mult, mult_without_noL1
+    print ("OI multiplicity ", mult, mult_without_noL1)
     for dictpart in chainDict['chainParts']:
         #if 'noL1' in  dictpart['extra'] : continue
         if 'mu' in dictpart['trigType']:
@@ -638,9 +640,9 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
 
 
     if "bTau" in chainDict['chainName'] :
-        #print "OI btrk ", theChainDef
+        #print ("OI btrk ", theChainDef)
             
-        print "OI resulting sequence ", sequence
+        print ("OI resulting sequence ", sequence)
       
     return theChainDef
 
@@ -1481,7 +1483,7 @@ def bBmumuxTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom, d
                EFFex  =  EFBMuMuXFex_1_legacyVtx()
         
     elif 'bBmumuxv3' in topoAlgs:
-#        print 'MOOOO in bBmumuxv3'
+#        print ('MOOOO in bBmumuxv3')
         from TrigBphysHypo.TrigL2BMuMuXHypoConfig import L2BMuMuXHypo_EF
         from TrigBphysHypo.TrigL2BMuMuXFexConfig import L2BMuMuXFex_EF
         EFFex  =  L2BMuMuXFex_EF()
@@ -1509,7 +1511,7 @@ def bBmumuxTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom, d
             L2Fex  = L2BMuMuFex_DiMu_passL2()
             L2Hypo = L2BMuMuHypo_DiMu_passL2()
     elif 'bBmumuxv3' in topoAlgs:
-#        print 'MOOOO2 in bBmumuxv3'
+#        print ('MOOOO2 in bBmumuxv3')
         from TrigBphysHypo.TrigL2BMuMuXHypoConfig import L2BMuMuXHypo_1
         from TrigBphysHypo.TrigL2BMuMuXFexConfig import L2BMuMuXFex_1
         L2Fex = L2BMuMuXFex_1()

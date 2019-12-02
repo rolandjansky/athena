@@ -90,6 +90,6 @@ if __name__=="__main__":
 
 
           
-    f=open("MagneticFieldSvc.pkl","w")
+    f=open("MagneticFieldSvc.pkl","wb")
     cfg.store(f)
     f.close()

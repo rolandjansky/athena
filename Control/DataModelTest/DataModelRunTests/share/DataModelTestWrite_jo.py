@@ -55,7 +55,7 @@ fullItemList+=["DMTest::ELVec#elvec"]
 fullItemList+=["DMTest::ELVec#elv_remap"]
 
 # Stream's output file
-from OutputStreamAthenaPool.OutputStreamAthenaPool import createOutputStream
+from OutputStreamAthenaPool.CreateOutputStreams import createOutputStream
 Stream1 = createOutputStream( "Stream1", noTag = True )
 Stream1.OutputFile =   "SimplePoolFile.root"
 # List of DO's to write out

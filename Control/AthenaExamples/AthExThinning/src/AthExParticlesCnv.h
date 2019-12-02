@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthExParticlesCnv.h 
@@ -15,56 +15,17 @@
 
 
 // AthenaPoolCnvSvc includes
-#include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
+#include "AthenaPoolCnvSvc/T_AthenaPoolTPCnvCnv.h"
 
 // AthExThinning includes
 #include "AthExThinning/AthExParticles.h"
 #include "AthExThinning/AthExParticles_p1.h"
+#include "AthExParticlesCnv_p1.h"
 
-// Forward declaration
 
-// the latest persistent representation type of DataCollection:
-typedef AthExParticles_p1  AthExParticles_PERS;
+typedef T_AthenaPoolTPCnvCnv<AthExParticles, AthExParticlesCnv_p1>
+  AthExParticlesCnv;
 
-class AthExParticlesCnv: public T_AthenaPoolCustomCnv<
-                                          AthExParticles, 
-			                  AthExParticles_PERS 
-			                  > 
-
-{
-
-  // make the factory for this converter our friend
-  friend class CnvFactory<AthExParticlesCnv>;
-
-  /////////////////////////////////////////////////////////////////// 
-  // Protected methods: 
-  /////////////////////////////////////////////////////////////////// 
- protected:
-
-  /** Create the converter from the service locator
-   */
-public:
-  AthExParticlesCnv(ISvcLocator* svcloc);
-protected:
-
-  /** Build the persistent representation from the transient one.
-   */
-  virtual AthExParticles_PERS*
-  createPersistent( AthExParticles* transCont );
-  
-  /** Build the transient representation from a persistent one
-   */
-  virtual AthExParticles* createTransient();
-
-  /////////////////////////////////////////////////////////////////// 
-  // Protected data: 
-  /////////////////////////////////////////////////////////////////// 
- protected:
-};
-
-/////////////////////////////////////////////////////////////////// 
-/// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
 
 #endif //> ATHEXTHINNING_AthExPARTICLESCNV_H
 

@@ -17,7 +17,7 @@ class TestATLFASTII(unittest.TestCase):
             '--athenaopts', '"--config-only={}"'.format(config_picklefilename),
             '--conditionsTag', 'default:OFLCOND-RUN12-SDR-19',
             '--geometryVersion', 'default:ATLAS-R2-2015-03-01-00_VALIDATION',
-            '--inputEVNTFile', '/afs/cern.ch/atlas/groups/Simulation/EVNT_files/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1',
+            '--inputEVNTFile', '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ISF_Validation/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1',
             '--outputHITSFile', 'Hits.pool.root',
             '--maxEvents', '2',
             # would otherwise fail due to missing HITS file:

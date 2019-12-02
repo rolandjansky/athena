@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BTagging/BTagTrackAssociation.h"
@@ -155,9 +155,6 @@ namespace Analysis {
           ATH_MSG_VERBOSE("#BTAG# Number of TrackParticles in event: " << tpContainer->size());
 
           // compute the associations
-          // NB we are doing away with the Analysis::TrackAssociation class for this.
-          // std::vector<Analysis::TrackAssociation> assocs = 
-          //   (*tAssocIter)->associateParticlesToJets<Analysis::TrackAssociation, xAOD::TrackParticleContainer>( theJets, tpContainer, *tAssocNameIter );
           std::vector<std::vector<const xAOD::TrackParticle*>*> assocs =
               (*tAssocIter)->associateParticlesToJets<std::vector<const xAOD::TrackParticle*>, xAOD::TrackParticleContainer>( theJets, tpContainer, *tAssocNameIter );
 

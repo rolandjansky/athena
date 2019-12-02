@@ -53,7 +53,7 @@ dqm_algorithms::PassInput::execute(const std::string &  name,
 
   //Pass this input object pointer
   TObject* resultObject = object.Clone();
-  result->object_ =  (std::auto_ptr<TObject>)resultObject;
+  result->object_ =  (boost::shared_ptr<TObject>)resultObject;
 
   //Pass the config as a series of tags (with labels embedded in the strings):
   //First the options:

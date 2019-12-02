@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "boost/foreach.hpp"
 #include "TrigConfHLTData/HLTSignature.h"
 #include "TrigConfHLTData/HLTStreamTag.h"
 
@@ -383,7 +382,7 @@ bool SteeringChain::resetChain() {
   if ( m_timer ) m_timer->reset();
   // reset streamtags
 
-  BOOST_FOREACH(HLT::StreamTag& st, m_streamTags){
+  for(HLT::StreamTag& st : m_streamTags){
     st.reset();
   }
   // reset all signatures:

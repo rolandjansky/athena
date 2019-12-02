@@ -50,6 +50,9 @@ class SimpleView : public IProxyDict
 		 **/
                  void linkParent( const IProxyDict* parent );
 
+		/// Set a filtering rule for anything loaded via fallthrough
+		void setFilter( std::vector< std::string > const& inputFilter )
+		{ m_fallFilter = inputFilter; }
 
 		/// get proxy for a given data object address in memory,
 		/// but performs a deep search among all possible 'symlinked' containers
@@ -182,6 +185,7 @@ class SimpleView : public IProxyDict
 		ElementLink<TrigRoiDescriptorCollection> m_roi;
 		std::string m_name;
                 std::vector< const SimpleView* > m_parents;
+		std::vector< std::string > m_fallFilter;
 
                 // The real implementation of proxy(), with control for whole-event store access
                 SG::DataProxy* findProxy( const CLID& id, const std::string& key, const bool allowFallThrough ) const;

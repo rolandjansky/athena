@@ -2,6 +2,7 @@
 """Run tests on G4AtlasFieldServices
 
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
 """
 
 if __name__ == '__main__':
@@ -53,11 +54,11 @@ if __name__ == '__main__':
   ConfigFlags.dump()
 
 
-  f=open("test.pkl","w")
-  cfg.store(f) 
+  f=open("test.pkl","wb")
+  cfg.store(f)
   f.close()
 
 
 
-  print cfg._publicTools
-  print "-----------------finished----------------------"
+  print (cfg._publicTools)
+  print ("-----------------finished----------------------")

@@ -21,7 +21,8 @@ from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
 from OverlayCommonAlgs.OverlayFlags import overlayFlags
 
 from MuonRecExample.MuonRecFlags import muonRecFlags
-muonRecFlags.doCSCs.set_Value_and_Lock(True)
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+if MuonGeometryFlags.hasCSC(): muonRecFlags.doCSCs.set_Value_and_Lock(True)
 
 from LArConditionsCommon.LArCondFlags import larCondFlags
 larCondFlags.LArCoolChannelSelection.set_Value_and_Lock("")
@@ -144,17 +145,10 @@ else:
     #DetFlags.overlay.LAr_setOff()
     DetFlags.overlay.Truth_setOn()
 
-## Tidy up NSW DetFlags: temporary measure
-DetFlags.sTGC_setOff()
-DetFlags.Micromegas_setOff()
-from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
-if (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]):
-    DetFlags.sTGC_setOn()
-    DetFlags.Micromegas_setOn()
 
-from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
-if not MuonGeometryFlags.hasCSC():
-    DetFlags.CSC_setOff()
+if not MuonGeometryFlags.hasCSC(): DetFlags.CSC_setOff()
+if not MuonGeometryFlags.hasSTGC(): DetFlags.sTGC_setOff()
+if not MuonGeometryFlags.hasMM(): DetFlags.Micromegas_setOff()
 
 DetFlags.Print()
 
@@ -180,7 +174,7 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
 if DetFlags.overlay.LAr_on() or DetFlags.overlay.Tile_on():
    include ( "EventOverlayJobTransforms/CaloOverlay_jobOptions.py" )
 
-if DetFlags.overlay.CSC_on() or DetFlags.overlay.MDT_on() or DetFlags.overlay.RPC_on() or DetFlags.overlay.TGC_on():
+if (MuonGeometryFlags.hasCSC() and DetFlags.overlay.CSC_on()) or DetFlags.overlay.MDT_on() or DetFlags.overlay.RPC_on() or DetFlags.overlay.TGC_on():
    include ( "EventOverlayJobTransforms/MuonOverlay_jobOptions.py" )
 
 if DetFlags.overlay.LVL1_on():

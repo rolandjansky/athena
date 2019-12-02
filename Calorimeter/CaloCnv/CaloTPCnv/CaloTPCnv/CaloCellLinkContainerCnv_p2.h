@@ -36,6 +36,7 @@ public:
    * @param trans The transient object to which to convert.
    * @param log Error logging stream.
    */
+  virtual
   void persToTransWithKey (const CaloCellLinkContainer_p2* pers,
                            CaloCellLinkContainer* trans,
                            const std::string& key,
@@ -48,6 +49,7 @@ public:
    * @param pers The persistent object to which to convert.
    * @param log Error logging stream.
    */
+  virtual
   void transToPersWithKey (const CaloCellLinkContainer* trans,
                            CaloCellLinkContainer_p2* pers,
                            const std::string& key,

@@ -10,7 +10,7 @@ log = logging.getLogger('TrigBjetEtHypoTool')
 
 ####################################################################################################
 
-def TrigBjetEtHypoToolFromDict_j( chainDict ):
+def TrigBjetEtHypoToolFromDict( chainDict ):
 
     """ set the name of the EtHypoTool (name=chain) and figure out the threshold and selection from conf """
     name    = chainDict['chainName']
@@ -18,7 +18,6 @@ def TrigBjetEtHypoToolFromDict_j( chainDict ):
     
     conf_dict = { 'threshold' : chainPart['threshold'],
                   'multiplicity' : '1',
-                  'gscThreshold' : '0',
                   'bTag' : 'offperf',
                   'bConfig' : 'EF',
                   'minEta' : chainPart['etaRange'].split('eta')[0],
@@ -43,57 +42,13 @@ def TrigBjetEtHypoToolFromDict_j( chainDict ):
     log.debug("name = %s, cut_j = %s ", name, tool.EtThreshold)
     return tool
 
-def TrigBjetEtHypoToolFromName_j( name, conf ):
+def TrigBjetEtHypoToolFromName( name, conf ):
     from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName   
     
     decodedDict = dictFromChainName(conf)
     decodedDict['chainName'] = name # override
 
-    return TrigBjetEtHypoToolFromDict_j( decodedDict )
-    
-
-def TrigBjetEtHypoToolFromDict_gsc( chainDict ):
-    """ set the name of the EtHypoTool (name=chain) and figure out the threshold and selection from conf """
-
-    name    = chainDict['chainName']
-    chainPart = chainDict['chainParts'][0]
-
-    
-    conf_dict = { 'threshold' : '0',
-                  'multiplicity' : '1',
-                  'gscThreshold' : '0' if 'gscThreshold' not in chainPart else chainPart['gscThreshold'].replace('gsc',''),
-                  'bTag' : 'offperf',
-                  'bConfig' : 'EF',
-                  'minEta' : chainPart['etaRange'].split('eta')[0],
-                  'maxEta' : chainPart['etaRange'].split('eta')[1],
-                  'L1' : None }
-    
-    # chain = conf
-    # match = re_Bjet.match( chain )
-    # conf_dict = match.groupdict()
-
-    # for k, v in default_conf.items():
-    #     if k not in conf_dict: conf_dict[k] = v
-    #     if conf_dict[k] == None: conf_dict[k] = v
-
-    from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoTool        
-    tool = TrigBjetEtHypoTool( name )
-    tool.AcceptAll   = False
-    tool.EtThreshold  = float(conf_dict['gscThreshold']) * GeV
-    tool.MinEtaThreshold = float(conf_dict['minEta']) / 100
-    tool.MaxEtaThreshold = float(conf_dict['maxEta']) / 100
-
-    log.debug("gsc: name = %s, cut_j = %s ", name, tool.EtThreshold)
-    return tool
-
-def TrigBjetEtHypoToolFromName_gsc( name, conf ):
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName   
-    
-    decodedDict = dictFromChainName( conf )        
-    decodedDict['chainName'] = name # override
-
-    return TrigBjetEtHypoToolFromDict_gsc( decodedDict )
-    
+    return TrigBjetEtHypoToolFromDict( decodedDict )
     
 ####################################################################################################
 
@@ -101,16 +56,7 @@ if __name__ == "__main__":
     from TriggerJobOpts.TriggerFlags import TriggerFlags
     TriggerFlags.enableMonitoring=['Validation']
 
-    t = TrigBjetEtHypoToolFromName_gsc( "HLT_j35_gsc45_boffperf_split","HLT_j35_gsc45_boffperf_split" )
-    assert t, "can't configure gsc boffperf split"
-
-    t = TrigBjetEtHypoToolFromName_gsc( "HLT_j35_gsc45_boffperf","HLT_j35_gsc45_boffperf" )
-    assert t, "can't configure gsc boffperf"
-
-    t = TrigBjetEtHypoToolFromName_j( "HLT_j35_boffperf_split","HLT_j35_boffperf_split" )
+    t = TrigBjetEtHypoToolFromName( "HLT_j45_ftf_subjesgscIS_boffperf_split","HLT_j45_ftf_subjesgscIS_boffperf_split" )
     assert t, "can't configure boffperf split"
-
-    t = TrigBjetEtHypoToolFromName_j( "HLT_j35_boffperf","HLT_j35_boffperf" )
-    assert t, "can't configure boffperf"
 
     log.info( "\n\n TrigBjetEtHypoToolFromName ALL OK\n\n" )

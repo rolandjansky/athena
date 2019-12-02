@@ -30,6 +30,8 @@
 // Other Libraries
 #include <algorithm>
 #include <functional>
+#include <cmath>
+
 
 
 /*
@@ -69,7 +71,10 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
                            const std::string& compName ) override;
 
     /// Count the number of processed events
-    virtual void incrementEventCounter() override { m_eventCounter++; };
+    void incrementEventCounter();
+
+    // Do event level monitoring
+    virtual void eventLevelMon() override; 
     
     /// Snapshot Auditing: Take snapshots at the beginning and at the end of each step
     void startSnapshotAud ( const std::string& stepName,
@@ -85,12 +90,6 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     void stopCompAud_serial ( const std::string& stepName,
                               const std::string& compName );
 
-    /// Component Level Auditing in Parallel Steps(Event loop)
-    void startCompAud_MT ( const std::string& stepName,
-                           const std::string& compName );
-
-    void stopCompAud_MT ( const std::string& stepName,
-                          const std::string& compName );
 
     // Report the results
     void report();
@@ -109,7 +108,7 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     void report2Log_Summary();  // make it const
     void report2Log_CpuInfo() const;
 
-    void report2JsonFile() const;
+    void report2JsonFile();
 
     void report2JsonFile_Summary(nlohmann::json& j) const;
 
@@ -117,15 +116,19 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     void report2JsonFile_Time_Parallel(nlohmann::json& j) const;
 
     void report2JsonFile_Mem_Serial(nlohmann::json& j) const;
+    void report2JsonFile_Mem_Parallel(nlohmann::json& j);
 
-    int getEventNumber() const;
+    EventIDBase::event_number_t getEventID() const;
     
+    bool isPower(int input, int base); // check if input is power of base or not
     bool isLoop() const; // Returns true if the execution is at the event loop, false o/w.
 
-    void parallelDataAggregator(); // 
+    void divideData2Steps_serial();     
 
-    void divideData2Steps_serial();    
-    void divideData2Steps_parallel();   
+    std::string scaleTime(double timeMeas);
+    std::string scaleMem(long memMeas);
+
+    bool isCheckPoint();
  
     std::string get_cpu_model_info() const;
     int get_cpu_core_info() const;
@@ -133,12 +136,11 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     PMonMT::StepComp generate_serial_state( const std::string& stepName,
                                             const std::string& compName) const;
 
-    PMonMT::StepCompEvent generate_parallel_state( const std::string& stepName,
-                                                   const std::string& compName,
-                                                   const int& eventNumber) const;
 
     
   private:
+
+    PMonMT::Measurement m_peaks;
 
     /// Measurement to capture the CPU time
     PMonMT::Measurement m_measurement;
@@ -149,6 +151,13 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     /// Print detailed tables
     BooleanProperty m_printDetailedTables;
 
+
+    Gaudi::Property<int> m_nThreads {this, "nThreads", 0, "Number of threads which is given as argument"};
+
+    Gaudi::Property< std::string > m_checkPointType { this, "checkPointType", "Arithmetic", "Type of the check point sequence: Arithmetic(0, k, 2k...) or Geometric(0,k,k^2...)" };
+    Gaudi::Property<int> m_checkPointFactor {this, "checkPointFactor", 10, "Common difference if check point sequence is arithmetic, Common ratio if it is Geometric"};
+
+
     // An array to store snapshot measurements: Init - EvtLoop - Fin
     PMonMT::MeasurementData m_snapshotData[SNAPSHOT_NUM];
 
@@ -156,11 +165,11 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     //const static std::string m_snapshotStepNames[3];
     std::vector< std::string > m_snapshotStepNames;
   
+    // Store event level measurements
+    PMonMT::MeasurementData m_eventLevelData;
 
-    // Comp level measurements inside event loop
-    PMonMT::MeasurementData m_parallelCompLevelData;
-
-    std::mutex m_mutex_capture; // lock for capturing event loop measurements
+    // Lock for capturing event loop measurements
+    std::mutex m_mutex_capture; 
 
     // Count the number of events processed 
     std::atomic<unsigned long long> m_eventCounter;
@@ -179,21 +188,7 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_plp; // preLoadProxy
     std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_cbk; // callback
     
-    std::vector<std::map < PMonMT::StepComp , PMonMT::MeasurementData* > > m_stdoutVec_serial;
-    
-
-    std::map< PMonMT::StepComp, PMonMT::Measurement > m_aggParallelCompLevelDataMap;
-    
-    // m_aggParallelCompLevelDataMap is divided into following maps and these are stored in the m_stdoutVec_parallel.
-    // There should be a more clever way!
-    std::map< PMonMT::StepComp, PMonMT::Measurement > m_aggParallelCompLevelDataMap_evt;
-    std::map< PMonMT::StepComp, PMonMT::Measurement > m_aggParallelCompLevelDataMap_stop;
-    std::map< PMonMT::StepComp, PMonMT::Measurement > m_aggParallelCompLevelDataMap_plp;
-    std::map< PMonMT::StepComp, PMonMT::Measurement > m_aggParallelCompLevelDataMap_cbk;
-
-    std::vector<std::map < PMonMT::StepComp , PMonMT::Measurement> > m_stdoutVec_parallel;
-
-    
+    std::vector<std::map < PMonMT::StepComp , PMonMT::MeasurementData* > > m_stdoutVec_serial;    
 
 }; // class PerfMonMTSvc
 

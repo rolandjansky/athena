@@ -19,7 +19,6 @@ beamFlags = jobproperties.Beam
 from AthenaCommon.CfgGetter import getAlgorithm
 from MuonRecExample.MuonPrdProviderToolsConfig import RpcPrepDataProviderTool, MdtPrepDataProviderTool, TgcPrepDataProviderTool, CscPrepDataProviderTool
 
-from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 if MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs() and DetFlags.makeRIO.CSC_on() and (DetFlags.haveRDO.CSC_on() or DetFlags.digitize.CSC_on()):
@@ -39,7 +38,7 @@ if muonRecFlags.doTGCs() and DetFlags.makeRIO.TGC_on() and (DetFlags.haveRDO.TGC
     topSequence.TgcRdoToTgcPrepData.DecodingTool = TgcPrepDataProviderTool()
 
 if not muonRecFlags.doFastDigitization():
-    if (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]):
+    if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
         if muonRecFlags.dosTGCs() and DetFlags.makeRIO.sTGC_on() and (DetFlags.haveRDO.sTGC_on() or DetFlags.digitize.sTGC_on()):
             topSequence += getAlgorithm("StgcRdoToStgcPrepData", tryDefaultConfigurable=True)
         if muonRecFlags.doMicromegas() and DetFlags.makeRIO.Micromegas_on() and (DetFlags.haveRDO.Micromegas_on() or DetFlags.digitize.Micromegas_on()):

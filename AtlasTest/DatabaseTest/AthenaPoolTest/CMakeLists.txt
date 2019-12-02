@@ -28,7 +28,6 @@ atlas_depends_on_subdirs( PRIVATE
                           InnerDetector/InDetRecEvent/InDetPrepRawData
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack
                           LArCalorimeter/LArRecEvent
-                          TestPolicy
                           Tracking/TrkDetDescr/TrkSurfaces
                           Tracking/TrkEvent/TrkCompetingRIOsOnTrack
                           Tracking/TrkEvent/TrkEventPrimitives
@@ -159,7 +158,7 @@ athenapooltest_run_test( ReadCombinedRDO ReadCombinedRDO
 
 # Test basic overlay algorithms with DoubleEventSelector
 athenapooltest_run_test( DoubleEventSelectorOverlayTest DoubleEventSelectorOverlayTest
-                         "'^..DoubleEvent|^..AthenaPoolAddr|^..Stream1'"
+                         "'^..DoubleEvent|^..AthenaPoolAddr|^..Stream1|Found HelperTools'"
                          DEPENDS ReadCombinedRDO )
 
 # AthenaMT test for DoubleEventSelector

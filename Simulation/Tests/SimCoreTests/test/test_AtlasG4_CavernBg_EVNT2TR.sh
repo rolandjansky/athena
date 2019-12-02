@@ -25,13 +25,17 @@ AtlasG4_tf.py \
 --imf False
 
 rc=$?
+
+# remove HITS file so it does not trigger regression
+rm discard.HITS.pool.root
+
 rc2=-9999
 echo  "art-result: $rc simulation"
 if [ $rc -eq 0 ]
 then
     ArtPackage=$1
     ArtJobName=$2
-    art.py compare grid --entries 2 ${ArtPackage} ${ArtJobName} --mode=summary
+    art.py compare grid --entries 2 ${ArtPackage} ${ArtJobName} --mode=summary --file=*EVNT.pool.root
     rc2=$?
 fi
 

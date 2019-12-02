@@ -19,8 +19,8 @@ AOD_ItemList+=["McEventCollection#GEN_AOD"]
 # TrackRecordCollection - muons at the entrance of the spectrometer
 AOD_ItemList+=["TrackRecordCollection#MuonEntryLayerFilter"]
 
-# slimmed Inner Detector tracks associated to Muons, Egammas and Taus
-if AODFlags.egammaTrackSlimmer or AODFlags.MuonTrackSlimmer or AODFlags.TauTrackSlimmer:
+# slimmed Inner Detector tracks associated to Muons and Egammas
+if AODFlags.egammaTrackSlimmer or AODFlags.MuonTrackSlimmer:
    AOD_ItemList+=["TrackCollection#Tracks"]
 
 # IParticles
@@ -136,7 +136,7 @@ AOD_ItemList+=["PileUpEventInfo#*"]
 #obsolete AOD_ItemList+=[ "DetStatusMap#DetectorStatus" ]
 
 if AODFlags.Trigger:
-     include ("TriggerRelease/TriggerOutputItemListAOD_jobOptions.py")
+     include ("TriggerJobOpts/TriggerOutputItemListAOD_jobOptions.py")
 
 
 # now merge the explicit AOD list to the one coming from ObjKeyStore

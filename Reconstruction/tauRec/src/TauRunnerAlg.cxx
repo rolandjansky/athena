@@ -57,6 +57,7 @@ StatusCode TauRunnerAlg::initialize() {
     }
 
     ATH_CHECK( m_tauInputContainer.initialize() );
+    ATH_CHECK( m_pi0ClusterInputContainer.initialize() );
 
     ATH_CHECK( m_tauOutputContainer.initialize() );
     ATH_CHECK( m_neutralPFOOutputContainer.initialize() );
@@ -200,6 +201,16 @@ StatusCode TauRunnerAlg::execute() {
     }
     pTauContainer = tauInputHandle.cptr();
 
+    // Read the CaloClusterContainer created by the CaloClusterMaker
+    const xAOD::CaloClusterContainer * pPi0ClusterContainer;
+
+    SG::ReadHandle<xAOD::CaloClusterContainer> pi0ClusterInHandle( m_pi0ClusterInputContainer );
+    if (!pi0ClusterInHandle.isValid()) {
+      ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << pi0ClusterInHandle.key());
+      return StatusCode::FAILURE;
+    }
+    pPi0ClusterContainer = pi0ClusterInHandle.cptr();
+
     // Make new container which is deep copy of that
     xAOD::TauJetContainer* newTauCon = 0;
     xAOD::TauJetAuxContainer* newTauAuxCon = 0;
@@ -210,7 +221,7 @@ StatusCode TauRunnerAlg::execute() {
     SG::WriteHandle<xAOD::TauJetContainer> outputTauHandle(m_tauOutputContainer);
     ATH_CHECK( outputTauHandle.record(std::unique_ptr<xAOD::TauJetContainer>(newTauCon), 
 				      std::unique_ptr<xAOD::TauJetAuxContainer>(newTauAuxCon)) );    
-    
+
     // iterate over the copy
     xAOD::TauJetContainer::iterator itTau = newTauCon->begin();
     xAOD::TauJetContainer::iterator itTauE = newTauCon->end();
@@ -225,7 +236,7 @@ StatusCode TauRunnerAlg::execute() {
       for (; itT != itTE; ++itT) {
 	ATH_MSG_DEBUG("RunnerAlg Invoking tool " << (*itT)->name());
 	if ( (*itT)->name().find("Pi0ClusterCreator") != std::string::npos){
-          sc = (*itT)->executePi0ClusterCreator(*pTau, *neutralPFOContainer, *hadronicClusterPFOContainer, *pi0CaloClusterContainer);
+          sc = (*itT)->executePi0ClusterCreator(*pTau, *neutralPFOContainer, *hadronicClusterPFOContainer, *pi0CaloClusterContainer, *pPi0ClusterContainer);
         }
 	else if ( (*itT)->name().find("VertexVariables") != std::string::npos){
 	  sc = (*itT)->executeVertexVariables(*pTau, *pSecVtxContainer);

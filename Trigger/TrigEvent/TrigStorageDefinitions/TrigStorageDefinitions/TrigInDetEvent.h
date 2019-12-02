@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STORAGEDEF_TRIGINDETEVENT
@@ -12,6 +12,7 @@ namespace Trk{
   class VxCandidate;
   class VxSecVertexInfo;
   class Segment;
+  class PRDtoTrackMap;
   typedef DataVector<Trk::Segment> SegmentCollection;
   typedef DataVector<Trk::VxSecVertexInfo> VxSecVertexInfoContainer;
 }
@@ -21,6 +22,7 @@ namespace Rec{
   class TrackParticleContainer;
 }
 
+typedef DataVector<Trk::PRDtoTrackMap> PRDtoTrackMapContainer;
 typedef DataVector<Trk::Track> TrackCollection;
 
 
@@ -79,7 +81,9 @@ HLT_BEGIN_TYPE_REGISTRATION
      HLT_REGISTER_TYPE(TrackTruthCollection, TrackTruthCollection,  TrackTruthCollectionContainer)
      HLT_REGISTER_TYPE(class TrackParticleTruthCollection, class  TrackParticleTruthCollection,TrackParticleTruthCollectionContainer)
      HLT_REGISTER_TYPE(Trk::Segment,  Trk::SegmentCollection, Trk::SegmentCollection )
-   
+
+     HLT_REGISTER_TYPE(Trk::PRDtoTrackMap, class Trk::PRDtoTrackMap, PRDtoTrackMapContainer )
+
      HLT_REGISTER_TYPE(TrackExtensionMap, TrackExtensionMap, TrackExtensionMapContainer )
      HLT_REGISTER_TYPE(Rec::TrackParticle,  Rec::TrackParticleContainer, Rec::TrackParticleContainer  )
      // xAOD 

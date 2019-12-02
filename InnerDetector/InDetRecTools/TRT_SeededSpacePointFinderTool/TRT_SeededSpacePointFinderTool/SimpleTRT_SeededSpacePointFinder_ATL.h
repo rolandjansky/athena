@@ -53,30 +53,31 @@ namespace InDet{
       SimpleTRT_SeededSpacePointFinder_ATL
 	(const std::string&,const std::string&,const IInterface*);
       virtual ~SimpleTRT_SeededSpacePointFinder_ATL();
-      virtual StatusCode               initialize();
-      virtual StatusCode               finalize  ();
+      virtual StatusCode               initialize() override;
+      virtual StatusCode               finalize  () override;
 
       ///////////////////////////////////////////////////////////////////
       // Methods to satisfy the interface
       ///////////////////////////////////////////////////////////////////
 
       /** obsolete, do not do anything. */
-      void newEvent ();
-      void newRegion
-	(const std::vector<IdentifierHash>&,const std::vector<IdentifierHash>&);      
-      const SiSpacePointsSeed* next();
+      virtual std::unique_ptr<InDet::ITRT_SeededSpacePointFinder::IEventData> newEvent () const override;
+      virtual std::unique_ptr<InDet::ITRT_SeededSpacePointFinder::IEventData> newRegion
+	(const std::vector<IdentifierHash>&,const std::vector<IdentifierHash>&) const override;
+      const SiSpacePointsSeed* next(InDet::ITRT_SeededSpacePointFinder::IEventData &event_data) const override;
 
       /** main method, calls the private methods and returns a pointer to
           the list of SpacePointpairs. The list itself is a private member of this
           class */
-      std::list<std::pair<const Trk::SpacePoint*,const Trk::SpacePoint*> >* find2Sp (const Trk::TrackParameters&);
+      std::list<std::pair<const Trk::SpacePoint*,const Trk::SpacePoint*> > find2Sp (const Trk::TrackParameters&,
+                                                                                    InDet::ITRT_SeededSpacePointFinder::IEventData &event_data) const override;
       
       ///////////////////////////////////////////////////////////////////
       // Print internal tool parameters and status
       ///////////////////////////////////////////////////////////////////
 
-      MsgStream&    dump          (MsgStream   & out) const;
-      std::ostream& dump          (std::ostream& out) const;
+      MsgStream&    dump          (MsgStream   & out) const override;
+      std::ostream& dump          (std::ostream& out) const override;
 
     private:
       
@@ -131,31 +132,32 @@ namespace InDet{
        
        /** List with SP pairs as seed for the Si part of the back-track. It is cleared and filled  in
            every call of find2Sp, the pointer to it is returned. */
-       std::list<std::pair<const Trk::SpacePoint*, const Trk::SpacePoint*> > m_listOfSpacePointPairsBuffer;
        
        /** determines the width of the considered ROI around the TP. deltaPhi and deltaEta are return values */
-       //void getSearchRange(const Trk::TrackParameters& directionTRT, double& deltaPhi, double& deltaEta);       	 
-       void getSearchRange(double& deltaPhi, double& deltaEta);       	 
+       //void getSearchRange(const Trk::TrackParameters& directionTRT, double& deltaPhi, double& deltaEta);
+       void getSearchRange(double& deltaPhi, double& deltaEta) const;
 
        /** retrieves SP Collections of modules in the ROI and sorts them by SCT layer */
-       void getSpacePointsInROI(std::set<IdentifierHash>& setOfSCT_Hashes, int modulTRT,  std::multimap<int,const Trk::SpacePoint*>& relevantSpacePoints);
-       
+       void getSpacePointsInROI(std::set<IdentifierHash>& setOfSCT_Hashes, int modulTRT,  std::multimap<int,const Trk::SpacePoint*>& relevantSpacePoints) const;
+
        /** obtains the hashes of modules in the ROI */ 
-       void getHashesInROI(const Trk::TrackParameters& directionTRT, std::set<IdentifierHash>& setOfSCT_Hashes);
+       void getHashesInROI(const Trk::TrackParameters& directionTRT, std::set<IdentifierHash>& setOfSCT_Hashes) const;
 
        /** builds pairs of SP according to the kook-up table */
        void combineSpacePoints(const std::multimap<int,const Trk::SpacePoint*>& relevantSpacePoints,
-			       const Trk::TrackParameters& directionTRT, int modulTRT);
+			       const Trk::TrackParameters& directionTRT,
+                               int modulTRT,
+                               std::list<std::pair<const Trk::SpacePoint*, const Trk::SpacePoint*> > &listOfSpacePointPairsBuffer) const;
 
        /** applies rough cuts on the quality of a SP pair */
-       bool pairIsOk(const Trk::SpacePoint* sp1, const Trk::SpacePoint* sp2, const Trk::TrackParameters& directionTRT );
+       bool pairIsOk(const Trk::SpacePoint* sp1, const Trk::SpacePoint* sp2, const Trk::TrackParameters& directionTRT ) const;
 
        /** the name says it */
        void setupLookUpTable();
-       void printLookupTable();
+       void printLookupTable() const;
 
        /** returns the number of the TRT wheel or barrel where the TP belongs to */
-       int TRT_Module(const Trk::TrackParameters& directionTRT);
+       int TRT_Module(const Trk::TrackParameters& directionTRT) const;
 
     };
 
@@ -166,13 +168,15 @@ namespace InDet{
   // Inline methods
   ///////////////////////////////////////////////////////////////////
 
-  inline const SiSpacePointsSeed* SimpleTRT_SeededSpacePointFinder_ATL::next()
+  inline const SiSpacePointsSeed* SimpleTRT_SeededSpacePointFinder_ATL::next(InDet::ITRT_SeededSpacePointFinder::IEventData &) const
     {
-      return 0;
+      return nullptr;
     }
 
 
-  inline void SimpleTRT_SeededSpacePointFinder_ATL::newEvent (){}
+  inline std::unique_ptr<InDet::ITRT_SeededSpacePointFinder::IEventData> SimpleTRT_SeededSpacePointFinder_ATL::newEvent () const {
+     return std::unique_ptr<InDet::ITRT_SeededSpacePointFinder::IEventData>();
+   }
   
 } // end of name space
 

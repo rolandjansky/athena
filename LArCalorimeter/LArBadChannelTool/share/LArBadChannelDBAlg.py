@@ -88,27 +88,11 @@ theLArDBAlg.DBFolder=Folder
 theLArDBAlg.OutputLevel=DEBUG
 topSequence += theLArDBAlg
 
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-theLArBadChannelTool=LArBadChanTool()
-theLArBadChannelTool.ReadFromASCII=True
-
-theLArBadChannelTool.EMECAfile = InputFile 
-theLArBadChannelTool.HECAfile = InputFile
-theLArBadChannelTool.FCALAfile = InputFile
-
-theLArBadChannelTool.EMECCfile = InputFile
-theLArBadChannelTool.HECCfile = InputFile
-theLArBadChannelTool.FCALCfile =InputFile
-
-theLArBadChannelTool.EMBAfile =InputFile
-theLArBadChannelTool.EMBCfile =InputFile
-
-
-theLArBadChannelTool.CoolFolder=""
-theLArBadChannelTool.CoolMissingFEBsFolder = ""
-
-theLArBadChannelTool.OutputLevel=DEBUG
-ToolSvc+=theLArBadChannelTool
+from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelCondAlg
+theLArBadChannelCondAlg=LArBadChannelCondAlg(ReadKey="", InputFileName=InputFile, OutputLevel=DEBUG)
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+condSeq+=theLArBadChannelCondAlg
 
 OutputList=[ "CondAttrListCollection#"+Folder ]
 Tag=join(split(Folder, '/'),'') + TagPostfix

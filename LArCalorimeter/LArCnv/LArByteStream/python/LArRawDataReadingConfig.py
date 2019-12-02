@@ -34,6 +34,6 @@ if __name__=="__main__":
     acc.merge(LArOnOffIdMappingCfg(ConfigFlags))
     acc.addEventAlgo(DumpLArRawChannels(LArRawChannelContainerName="LArRawChannels",))
 
-    f=open("LArRawDataReading.pkl","w")
+    f=open("LArRawDataReading.pkl","wb")
     acc.store(f)
     f.close()

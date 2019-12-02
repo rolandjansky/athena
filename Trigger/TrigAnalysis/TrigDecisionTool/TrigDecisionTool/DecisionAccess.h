@@ -30,6 +30,8 @@
 #include "TrigDecisionTool/FeatureContainer.h"
 #include "TrigDecisionTool/ChainGroup.h"
 
+#include "DecisionHandling/TrigCompositeUtils.h"
+
 namespace HLT {
   class Chain;
 }
@@ -105,37 +107,98 @@ namespace Trig {
     FeatureContainer features(const std::string& chainName = "EF_.*", 
                               unsigned int condition = TrigDefs::Physics) const;
 
+    /// @name Run 3 functions
+    /// @{
+
     /**
      * @brief Runs 3+. Returns all features related to given chain group
      * @param[in] group Chain group to return features for.
      * @param[in] condition Condition requirement. Only TrigDefs::Physics and TrigDefs::includeFailedDecisions are supported.
-     * @param[in] container Optional requirement to return only features within the specificed container name. Not checked if not specified. 
-     * @param[in] featureCollectionMode For oneFeaturePerLeg, stop exploring each route through the navigation once one matching feature has been found.
-     * @param[in] featureName Optional name of element link as saved online. The "feature" link is enforced, others may have been added. 
+     * @param[in] containerSGKey Optional requirement to return only features within the specified container name. Not checked if not specified. 
+     * @param[in] featureCollectionMode For lastFeatureOfType, stop exploring each route through the navigation once one matching feature has been found.
+     * @param[in] navElementLinkKey Optional name of element link as saved online. The "feature" link is enforced, others may have been added. 
      * @return Vector of LinkInfo, where each entry wraps an ElementLink to the feature, and the Decision object it came from.
      **/
     template<class CONTAINER>
-    std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > features(const Trig::ChainGroup* group,
-                                                                    const unsigned int condition = TrigDefs::Physics,
-                                                                    const std::string& container = "",
-                                                                    const unsigned int featureCollectionMode = TrigDefs::oneFeaturePerLeg,
-                                                                    const std::string& featureName = "feature") const;
+    std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > 
+    features(const Trig::ChainGroup* group,
+             const unsigned int condition = TrigDefs::Physics,
+             const std::string& containerSGKey = "",
+             const unsigned int featureCollectionMode = TrigDefs::lastFeatureOfType,
+             const std::string& navElementLinkKey = "feature") const;
 
     /**
      * @brief Runs 3+. Returns features related to given chain
      * @param[in] group Chain group to return features for.
      * @param[in] condition Condition requirement. Only TrigDefs::Physics and TrigDefs::includeFailedDecisions are supported.
-     * @param[in] container Optional requirement to return only features within the specificed container name. Not checked if not specified. 
-     * @param[in] featureCollectionMode For oneFeaturePerLeg, stop exploring each route through the navigation once one matching feature has been found.
-     * @param[in] featureName Optional name of element link as saved online. The "feature" link is enforced, others may have been added. 
+     * @param[in] containerSGKey Optional requirement to return only features within the specified container name. Not checked if not specified. 
+     * @param[in] featureCollectionMode For lastFeatureOfType, stop exploring each route through the navigation once one matching feature has been found.
+     * @param[in] navElementLinkKey Optional name of element link as saved online. The "feature" link is enforced, others may have been added. 
      * @return Vector of LinkInfo, where each entry wraps an ElementLink to the feature, and the Decision object it came from.
      **/
     template<class CONTAINER>
-    std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > features(const std::string& chainName = "HLT_.*",
-                                                                    const unsigned int condition = TrigDefs::Physics,
-                                                                    const std::string& container = "",
-                                                                    const unsigned int featureCollectionMode = TrigDefs::oneFeaturePerLeg,
-                                                                    const std::string& featureName = "feature") const;
+    std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> >
+    features(const std::string& chainGroupName,
+             const unsigned int condition = TrigDefs::Physics,
+             const std::string& containerSGKey = "",
+             const unsigned int featureCollectionMode = TrigDefs::lastFeatureOfType,
+             const std::string& navElementLinkKey = "feature") const;
+
+    /**
+     * @brief Runs 3+. Returns a range over a container which are associated with a particular EventView instance from online.
+     * Instance mapping done via an ElementLink<TrigRoiDescriptorCollection> obtained from the supplied LinkInfo
+     * @param[in] inViewContainer The ReadHandle of the collection which was produced online inside an EventView.
+     * @param[in] linkInfo LinkInfo from which a TrigRoiDescriptor can be located.
+     * @param[in] roiName Name of the TrigRoiDescriptor inside the Navigation. 
+     * @return Pair of iterators spanning a range of indices over the collection accessed through the ReadHandleKey
+     **/
+    template<class CONTAINER, class FEATURE_CONTAINER>
+    std::pair< typename CONTAINER::const_iterator, typename CONTAINER::const_iterator > 
+    associateToEventView(SG::ReadHandle<CONTAINER>& inViewContainer,
+                         const TrigCompositeUtils::LinkInfo<FEATURE_CONTAINER> linkInfo,
+                         const std::string& roiName = TrigCompositeUtils::initialRoIString()) const;
+
+    /**
+     * @brief Runs 3+. Returns a range over a container which are associated with a particular EventView instance from online.
+     * Instance mapping done via an ElementLink<TrigRoiDescriptorCollection> obtained from the supplied Decision object pointer
+     * @param[in] inViewContainer The ReadHandle of the collection which was produced online inside an EventView.
+     * @param[in] decisionObject Decision node from which a TrigRoiDescriptor can be located.
+     * @param[in] roiName Name of the TrigRoiDescriptor inside the Navigation. 
+     * @return Pair of iterators spanning a range of indices over the collection accessed through the ReadHandleKey
+     **/
+    template<class CONTAINER>
+    std::pair< typename CONTAINER::const_iterator, typename CONTAINER::const_iterator > 
+    associateToEventView(SG::ReadHandle<CONTAINER>& inViewContainer,
+                         const TrigCompositeUtils::Decision* decisionObject,
+                         const std::string& roiName = TrigCompositeUtils::initialRoIString()) const;
+
+    /**
+     * @brief Runs 3+. Returns a range over a container which are associated with a particular EventView instance from online.
+     * Instance mapping done via supplied ElementLink<TrigRoiDescriptorCollection>.
+     * @param[in] inViewContainer The ReadHandle of the collection which was produced online inside an EventView.
+     * @param[in] roi TrigRoiDescriptor used to seed the desired EventView.
+     * @return Pair of iterators spanning a range of indices over the collection accessed through the ReadHandleKey
+     **/
+    template<class CONTAINER>
+    std::pair< typename CONTAINER::const_iterator, typename CONTAINER::const_iterator > 
+    associateToEventView(SG::ReadHandle<CONTAINER>& inViewContainer,
+                         const ElementLink<TrigRoiDescriptorCollection>& matchROI) const;
+
+    /**
+     * @brief Runs 3+. Returns a range over a container which are associated with a particular EventView instance from online.
+     * Instance mapping done via matchIndex and optional matchKey (leave matchKey = 0 to not cut on this).
+     * @param[in] inViewContainer The ReadHandle of the collection which was produced online inside an EventView.
+     * @param[in] matchIndex The index of the desired EventView.
+     * @param[in] matchKey Optional SGKey of the index of the desired EventView (collection hosting the ROI used to span the Event View)
+     * @return Pair of iterators spanning a range of indices over the collection accessed through the ReadHandleKey
+     **/
+    template<class CONTAINER>
+    std::pair< typename CONTAINER::const_iterator, typename CONTAINER::const_iterator > 
+    associateToEventView(SG::ReadHandle<CONTAINER>& inViewContainer,
+                         const uint32_t matchIndex,
+                         const uint32_t matchKey = 0) const;
+
+    /// @}
 
     /**
      * @brief gives back feature matching (by seeding relation)

@@ -13,7 +13,6 @@
 #include "Identifier/Identifier.h"
 
 // Tracking:
-//#include "TrkTrack/Track.h"
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkSurfaces/Surface.h"
@@ -35,7 +34,6 @@
 //STL includes
 #include <sstream>
 
-#define PI 3.141592653589793238462643383
 
 class TRT_ID;
 
@@ -452,9 +450,9 @@ int TRT_LocalOccupancy::mapPhiToPhisector(const double t_phi) const {
   // shift all phi to positive numbers
   float dphi = 0; // TBD
   
-  double phi2pi = (t_phi > 0) ? t_phi : t_phi + 2*PI;
+  double phi2pi = (t_phi > 0) ? t_phi : t_phi + 2*M_PI;
 
-  phisector = int ( (phi2pi + dphi)*32./(2*PI) );
+  phisector = int ( (phi2pi + dphi)*32./(2*M_PI) );
   return phisector;
 }
 
@@ -505,7 +503,6 @@ TRT_LocalOccupancy::makeData() const
       for(; p_rdo!=p_rdo_end; ++p_rdo){
 	const TRT_DriftCircle* rdo = (*p_rdo);
 	if(!rdo)        continue;
-	// if (isMiddleBXOn(rdo->getWord())) {
 	Identifier id = rdo->identify();
 	
 	int det      = m_TRTHelper->barrel_ec(         id)     ;
@@ -516,7 +513,6 @@ TRT_LocalOccupancy::makeData() const
 	data->m_hit_total[0]                        +=1;
 	data->m_hit_total[i_total]                  +=1;
 	data->m_hit_local[i_total-1][phi]           +=1;
-	//} // if (isMiddleBXOn)
       }
     }
   } else {
@@ -550,7 +546,6 @@ TRT_LocalOccupancy::makeData() const
   }
    
   ATH_MSG_DEBUG("Active straws: " << data->m_stw_total[0] << "\t total number of hits: " << data->m_hit_total[0] << "\t occ: " << data->m_occ_total[0] ); 
-//  printArrays( m_occdc_array, m_occdc_array_phi, m_occdc_array_det );
   return data;
 }
 

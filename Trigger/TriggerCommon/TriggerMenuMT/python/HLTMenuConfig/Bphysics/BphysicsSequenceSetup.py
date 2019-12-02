@@ -24,6 +24,7 @@ def dimuL2Sequence(name = 'Dimu'):
     jpsiHypo.nTrackMassMin = [100]
     jpsiHypo.nTrackMassMax = [20000]
     jpsiHypo.nTrk = 2
+    jpsiHypo.trigLevelString = "L2"
     jpsiHypo.MonTool = TrigMultiTrkHypoAlgMTMonitoring("TrigMultiTrkHypoAlgMTMonitoring_"+name)
 
     from TrigBphysHypo.TrigMultiTrkHypoMTConfig import TrigMultiTrkHypoToolMTFromDict
@@ -68,6 +69,7 @@ def dimuEFSequence(name = 'Dimu'):
     jpsiHypo.nTrackMassMin = [100]
     jpsiHypo.nTrackMassMax = [20000]
     jpsiHypo.nTrk = 2
+    jpsiHypo.trigLevelString = "EF"
     jpsiHypo.MonTool = TrigMultiTrkHypoAlgMTMonitoring("TrigMultiTrkHypoAlgEFMTMonitoring_"+name)
 
     from TrigBphysHypo.TrigMultiTrkHypoMTConfig import TrigMultiTrkHypoToolMTFromDict

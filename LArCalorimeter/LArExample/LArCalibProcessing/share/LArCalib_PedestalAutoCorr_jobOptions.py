@@ -322,9 +322,9 @@ if not SuperCells:
 #ToolSvc.LArRodDecoder.FTNumPreselection  = [6]                                                   ## : [FCAL feedthrough number]
 
 theByteStreamAddressProviderSvc =svcMgr.ByteStreamAddressProviderSvc
-theByteStreamAddressProviderSvc.TypeNames += ["LArFebHeaderContainer/LArFebHeader"]
 
 if not SuperCells:
+   theByteStreamAddressProviderSvc.TypeNames += ["LArFebHeaderContainer/LArFebHeader"]
    theByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/HIGH"]
    theByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/MEDIUM"]
    theByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/LOW"]
@@ -339,15 +339,19 @@ if SuperCells:
 
 from IOVDbSvc.CondDB import conddb
 
-BadChannelsFolder="/LAR/BadChannelsOfl/BadChannels"
-MissingFEBsFolder="/LAR/BadChannelsOfl/MissingFEBs"
+if 'BadChannelsFolder' not in dir():
+   BadChannelsFolder="/LAR/BadChannelsOfl/BadChannels"
+if 'MissingFEBsFolder' not in dir():
+   MissingFEBsFolder="/LAR/BadChannelsOfl/MissingFEBs"
+
 
 if ( ReadBadChannelFromCOOL ):      
    if 'InputBadChannelSQLiteFile' in dir():
       InputDBConnectionBadChannel = DBConnectionFile(InputBadChannelSQLiteFile)
    else:
       #InputDBConnectionBadChannel = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=CONDBR2;"
-      InputDBConnectionBadChannel = "COOLOFL_LAR/" + conddb.dbname
+      if 'InputDBConnectionBadChannel' not in dir():
+         InputDBConnectionBadChannel = "COOLOFL_LAR/" + conddb.dbname
 
 if 'BadChannelsLArCalibFolderTag' in dir() :
    BadChannelsTagSpec = LArCalibFolderTag (BadChannelsFolder,BadChannelsLArCalibFolderTag) 
@@ -371,16 +375,18 @@ condSeq+=theLArBadFebCondAlg
 
 ## This algorithm verifies that no FEBs are dropping out of the run
 ## If it finds corrupt events, it breaks the event loop and terminates the job rapidly
-include ("LArROD/LArFebErrorSummaryMaker_jobOptions.py")
-topSequence.LArFebErrorSummaryMaker.CheckAllFEB=False
-if doBadCatcher:
-   from LArCalibDataQuality.LArCalibDataQualityConf import LArBadEventCatcher
-   theLArBadEventCatcher=LArBadEventCatcher()
-   theLArBadEventCatcher.CheckAccCalibDigitCont=True
-   theLArBadEventCatcher.CheckBSErrors=True
-   theLArBadEventCatcher.KeyList=GainList
-   theLArBadEventCatcher.StopOnError=False
-   topSequence+=theLArBadEventCatcher 
+if not SuperCells:
+   include ("LArROD/LArFebErrorSummaryMaker_jobOptions.py")
+   topSequence.LArFebErrorSummaryMaker.CheckAllFEB=False
+
+   if doBadCatcher:
+      from LArCalibDataQuality.LArCalibDataQualityConf import LArBadEventCatcher
+      theLArBadEventCatcher=LArBadEventCatcher()
+      theLArBadEventCatcher.CheckAccCalibDigitCont=True
+      theLArBadEventCatcher.CheckBSErrors=True
+      theLArBadEventCatcher.KeyList=GainList
+      theLArBadEventCatcher.StopOnError=False
+      topSequence+=theLArBadEventCatcher 
 
 #######################################################
 #                                                     #

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BeamHaloGenerator/BeamHaloGeneratorAlg.h"
@@ -26,7 +26,6 @@ BeamHaloGeneratorAlg::BeamHaloGeneratorAlg(const std::string& name, ISvcLocator*
     m_generatorSettings(),
     m_doMonitoringPlots(false),
     m_tHistSvc(0),
-    m_AtRndmGenSvc(0),
     m_randomStream("BeamHalo"),
     m_beamHaloGenerator(0),
     m_evt() {

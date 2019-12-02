@@ -17,10 +17,6 @@
 
 namespace LVL1TGCTrigger {
 
-extern bool g_OUTCOINCIDENCE;
-extern TGCCoincidences * g_TGCCOIN;
-extern bool g_DEBUGLEVEL;
-
 void TGCRPhiCoincidenceMatrix::inputR(int rIn, int dRIn, int ptRIn)
 {
   m_r=rIn;
@@ -92,12 +88,12 @@ TGCRPhiCoincidenceOut* TGCRPhiCoincidenceMatrix::doCoincidence()
       }
     } // loop pt
       
-    if (g_OUTCOINCIDENCE) {
+    if (tgcArgs()->OUTCOINCIDENCE()) {
       TGCCoincidence * coin
 	= new TGCCoincidence(m_sectorLogic->getBid(), m_sectorLogic->getId(), m_sectorLogic->getModuleID(), 
 			     m_sectorLogic->getRegion(), m_SSCId, m_r, m_phi[j], subsector, 
 			     m_ptR, m_dR, m_ptPhi[j], m_dPhi[j], ptOut);
-      g_TGCCOIN->push_back(coin);
+      tgcArgs()->TGCCOIN()->push_back(coin);
     }
 
     // Trigger Out
@@ -114,7 +110,7 @@ TGCRPhiCoincidenceOut* TGCRPhiCoincidenceMatrix::doCoincidence()
     }
   }
 
-  if (g_DEBUGLEVEL){
+  if (tgcArgs()->DEBUGLEVEL()){
     IMessageSvc* msgSvc = 0;
     ISvcLocator* svcLocator = Gaudi::svcLocator();
     if (svcLocator->service("MessageSvc", msgSvc) != StatusCode::FAILURE) {
@@ -140,10 +136,10 @@ void TGCRPhiCoincidenceMatrix::setRPhiMap(const TGCRPhiCoincidenceMap* map)
   this->m_map = map;
 }
 
-TGCRPhiCoincidenceMatrix::TGCRPhiCoincidenceMatrix(const TGCSectorLogic* sL) 
+TGCRPhiCoincidenceMatrix::TGCRPhiCoincidenceMatrix(TGCArguments* tgcargs,const TGCSectorLogic* sL) 
   : m_sectorLogic(sL),
     m_matrixOut(0), m_map(0),
-    m_nPhiHit(0), m_SSCId(0), m_r(0), m_dR(0), m_ptR(0)
+    m_nPhiHit(0), m_SSCId(0), m_r(0), m_dR(0), m_ptR(0), m_tgcArgs(tgcargs)
 {
   for (int i=0; i<MaxNPhiHit; i++) {
     m_phi[i]=0;

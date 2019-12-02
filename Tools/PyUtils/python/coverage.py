@@ -57,7 +57,7 @@
 # pertaining to distribution of the software without specific, written
 # prior permission.
 #
-
+from __future__ import print_function
 import sys
 import string
 
@@ -240,11 +240,11 @@ class Coverage:
         # Get the original lines from the .py file
         try:
             lines = open(orig_filename, 'r').readlines()
-        except IOError, err:
+        except IOError as err:
             sys.stderr.write(
                 "%s: Could not open %s for reading because: %s - skipping\n" %
 \
-                ("trace", `filename`, err.strerror))
+                ("trace", repr(filename), err.strerror))
             return
 
         # there are many places where this is insufficient, like a blank
@@ -281,7 +281,7 @@ class Coverage:
             outlines.append (prefix + string.expandtabs(line, 8))
 
         if uncovered:
-            print "*** There were %d uncovered lines." % uncovered
+            print("*** There were %d uncovered lines." % uncovered)
         else:
             return
 
@@ -290,10 +290,10 @@ class Coverage:
         listfilename = self.modname + ".cover"
         try:
             outfile = open(listfilename, 'w')
-        except IOError, err:
+        except IOError as err:
             sys.stderr.write(
                 '%s: Could not open %s for writing because: %s - skipping\n' %
-                ("trace", `listfilename`, err.strerror))
+                ("trace", repr(listfilename), err.strerror))
             return
 
         for l in outlines:

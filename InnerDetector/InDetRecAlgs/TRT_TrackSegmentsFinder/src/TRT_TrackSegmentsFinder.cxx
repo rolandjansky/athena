@@ -107,14 +107,15 @@ StatusCode InDet::TRT_TrackSegmentsFinder::execute()
   Trk::Segment* segment = 0;
   m_nsegments           = 0;
   
+  std::unique_ptr<InDet::ITRT_TrackSegmentsMaker::IEventData> event_data_p;
   if(!m_useCaloSeeds) {
- 
-    m_segmentsMakerTool->newEvent();
-    m_segmentsMakerTool->find    (); 
+
+    event_data_p = m_segmentsMakerTool->newEvent();
+    m_segmentsMakerTool->find    (*event_data_p);
 
     // Loop through all segments and reconsrtucted segments collection preparation
     //
-    while((segment = m_segmentsMakerTool->next())) {
+    while((segment = m_segmentsMakerTool->next(*event_data_p))) {
       ++m_nsegments; m_foundSegments->push_back(segment);
     }
   }
@@ -142,36 +143,34 @@ StatusCode InDet::TRT_TrackSegmentsFinder::execute()
 
 	// TRT detector elements road builder
 	//
-	std::list<const InDetDD::TRT_BaseElement*> DE;
+	std::vector<const InDetDD::TRT_BaseElement*> DE;
 	m_roadtool->detElementsRoad(*par,Trk::alongMomentum,DE); delete par;
 	if(int(DE.size()) < m_minNumberDCs) continue;
 
 
 	vTR.clear();
-	std::list<const InDetDD::TRT_BaseElement*>::iterator d,de=DE.end();
+        vTR.reserve(DE.size());
+	std::vector<const InDetDD::TRT_BaseElement*>::iterator d,de=DE.end();
 	for(d=DE.begin(); d!=de; ++d) {vTR.push_back((*d)->identifyHash());}
 
-	
-	m_segmentsMakerTool->newRegion(vTR);
-	m_segmentsMakerTool->find(); 
-	
+	event_data_p = m_segmentsMakerTool->newRegion(vTR);
+	m_segmentsMakerTool->find(*event_data_p);
+
 	// Loop through all segments and reconsrtucted segments collection preparation
 	//
-	while((segment = m_segmentsMakerTool->next())) {
+	while((segment = m_segmentsMakerTool->next(*event_data_p))) {
 	  ++m_nsegments; m_foundSegments->push_back(segment);
 	}
       }
     }else{
         msg(MSG::WARNING)<<"Could not find TRT segments in container " << m_calo.name() <<endmsg;
-        
+        return StatusCode::SUCCESS; // @TODO correct ?
     }
   }
-  m_segmentsMakerTool->endEvent();
-  m_nsegmentsTotal+=m_nsegments; 
+  m_segmentsMakerTool->endEvent(*event_data_p);
+  m_nsegmentsTotal+=m_nsegments;
 
 
-
-  
   // Print common event information
   //
   if(m_outputlevel<=0) {

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // DepositInCaloCnv_p2.cxx 
@@ -16,37 +16,24 @@
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
 // muonEvent includes
-#define private public
-#define protected public
 #include "muonEvent/DepositInCalo.h"
-#undef private
-#undef protected
 
 // RecTPCnv includes
 #include "RecTPCnv/DepositInCaloCnv_p2.h"
 
-/////////////////////////////////////////////////////////////////// 
-// Non-Const methods: 
-///////////////////////////////////////////////////////////////////
 
 void DepositInCaloCnv_p2::persToTrans( const DepositInCalo_p2* pers,
 				       DepositInCalo* trans, 
-				       MsgStream& /*msg*/ ) 
+				       MsgStream& /*msg*/ ) const
 {
 //   msg << MSG::DEBUG << "Loading DepositInCalo from persistent state..."
 //       << endmsg;
 
-  // calorimeter sampling identifier
-  trans->m_subCaloId = static_cast<CaloCell_ID::CaloSample>(pers->m_subCaloId);
+  *trans = DepositInCalo(static_cast<CaloCell_ID::CaloSample>(pers->m_subCaloId),
+                         pers->m_energyDeposited,
+                         pers->m_muonEnergyLoss,
+                         pers->m_etDeposited);
 
-  // energy deposited
-  trans->m_energyDeposited = pers->m_energyDeposited;
-
-  // energy Loss of the muons computed using the extrapolator
-  trans->m_muonEnergyLoss = pers->m_muonEnergyLoss;
-
-  // energy loss Et
-  trans->m_etDeposited = pers->m_etDeposited;
 
 //   msg << MSG::DEBUG << "Loaded DepositInCalo from persistent state [OK]"
 //       << endmsg;
@@ -56,24 +43,24 @@ void DepositInCaloCnv_p2::persToTrans( const DepositInCalo_p2* pers,
 
 void DepositInCaloCnv_p2::transToPers( const DepositInCalo* trans, 
 				       DepositInCalo_p2* pers, 
-				       MsgStream& /*msg*/ ) 
+				       MsgStream& /*msg*/ ) const
 {
 //   msg << MSG::DEBUG << "Creating persistent state of DepositInCalo..."
 //       << endmsg;
 
   // calorimeter sampling identifier
-  pers->m_subCaloId = static_cast<CaloCell_ID::CaloSample>(trans->m_subCaloId);
+  pers->m_subCaloId = static_cast<CaloCell_ID::CaloSample>(trans->subCaloId());
 
   // energy deposited
-  pers->m_energyDeposited = trans->m_energyDeposited;
+  pers->m_energyDeposited = trans->energyDeposited();
 
   // energy Loss of the muons computed using the extrapolator
-  pers->m_muonEnergyLoss = trans->m_muonEnergyLoss;
+  pers->m_muonEnergyLoss = trans->muonEnergyLoss();
 
   // Energy loss Et
-  pers->m_etDeposited = trans->m_etDeposited;
+  pers->m_etDeposited = trans->etDeposited();
   
-//   msg << MSG::DEBUG << "Created persistent state of DepositInCalo [OK]"
+  //   msg << MSG::DEBUG << "Created persistent state of DepositInCalo [OK]"
 //       << endmsg;
   return;
 }

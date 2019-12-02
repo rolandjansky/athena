@@ -72,8 +72,8 @@ def TRTOverlayCfg(flags):
     acc = ComponentAccumulator()
 
     # Add TRT overlay digitization algorithm
-    from TRT_Digitization.TRT_DigitizationConfigNew import TRT_DigitizationOverlayCfg
-    acc.merge(TRT_DigitizationOverlayCfg(flags))
+    from TRT_Digitization.TRT_DigitizationConfigNew import TRT_OverlayDigitizationCfg
+    acc.merge(TRT_OverlayDigitizationCfg(flags))
     # Add TRT overlay algorithm
     acc.merge(TRTOverlayAlgCfg(flags))
     # Add TRT truth overlay

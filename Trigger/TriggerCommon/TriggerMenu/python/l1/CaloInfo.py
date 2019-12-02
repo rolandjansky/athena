@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from Lvl1MenuUtil import log
 from Lvl1MenuUtil import oldStyle
@@ -108,7 +108,7 @@ class CaloInfo:
     def setXsParams( self, **args ):
         for k in args:
             if not k in self.xsParams:
-                raise RuntimeError, "'%s' is not a MET significance parameter" %  k
+                raise RuntimeError ("'%s' is not a MET significance parameter" %  k)
             self.xsParams[k]  = args[k]
 
     def xml(self, ind=1, step=2):

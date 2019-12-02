@@ -10,12 +10,13 @@
 
 namespace LVL1TGCTrigger {
 
-TGCSlaveBoard::TGCSlaveBoard()
+TGCSlaveBoard::TGCSlaveBoard( TGCArguments* tgcargs )
   :m_lengthOfCoincidenceOut(0),m_coincidenceOut(0), 
    m_slaveBoardOut(0), 
    m_id(0), m_bid(-1),m_idHighPtBoard(0),
    m_type(0), m_region(FORWARD),
-   m_patchPanel(0), m_patchPanelOut(0)
+   m_patchPanel(0), m_patchPanelOut(0),
+   m_tgcArgs(tgcargs)
 {
 }
 

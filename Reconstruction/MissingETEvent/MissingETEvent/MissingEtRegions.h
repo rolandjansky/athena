@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MissingETEVENT_MissingEtRegions_H
@@ -51,11 +51,19 @@ class MissingEtRegions
   void setExReg(RegionIndex aRegion, double theEx);
   void setEyReg(RegionIndex aRegion, double theEy);
   void setEtSumReg(RegionIndex aRegion, double theEtSum);
+
+  void setExRegVec(std::vector<double>&& exVec);
+  void setEyRegVec(std::vector<double>&& eyVec);
+  void setEtSumRegVec(std::vector<double>&& etSumVec);
   
   // get region contributions 
   double exReg(RegionIndex aRegion) const;
   double eyReg(RegionIndex aRegion) const;
   double etSumReg(RegionIndex aRegion) const;
+
+  const std::vector<double>& exRegVec() const;
+  const std::vector<double>& eyRegVec() const;
+  const std::vector<double>& etSumRegVec() const;
   
  protected:
 

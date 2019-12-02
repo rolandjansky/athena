@@ -125,6 +125,6 @@ acc.printConfig()
 
 fname = "EmuNewJOTest.pkl"
 log.debug("Storing config in the config %s", fname)
-with file(fname, "w") as p:
+with open(fname, "wb") as p:
     acc.store( p, nEvents=4, useBootStrapFile=False, threaded=True )
     p.close()

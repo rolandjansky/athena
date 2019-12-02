@@ -16,7 +16,21 @@
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMuonHoleRecoveryTool.h"
 #include "MuonRecToolInterfaces/IMuonTrackSegmentMatchingTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
+#include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
+#include "MuonRecToolInterfaces/IMuonHitSummaryTool.h"
+#include "MuonStationIntersectSvc/MuonStationIntersectSvc.h"
+#include "TrkExInterfaces/IExtrapolator.h"
+#include "TrkToolInterfaces/ITrackHoleSearchTool.h"
+#include "TrkToolInterfaces/IResidualPullCalculator.h"
+#include "TrkFitterInterfaces/ITrackFitter.h"
 #include "MuonChamberHoleRecoveryTool.h"
+#include "MuonRecToolInterfaces/IMuonSeededSegmentFinder.h"
+#include "MuonChamberHoleRecoveryTool.h"
+#include "IRegionSelector/IRegSelSvc.h"
+
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -64,16 +78,6 @@ class ITrackingGeometrySvc;
 class MuonStationIntersectSvc;
 class MdtCondDbData;
 
-namespace Muon {
-  class IMdtDriftCircleOnTrackCreator;
-  class IMuonClusterOnTrackCreator;
-  class IMuonSeededSegmentFinder;
-  class MuonIdHelperTool;
-  class MuonEDMPrinterTool;
-  class MuonChamberHoleRecoveryTool;
-  class IMuonHitSummaryTool;
-  class IMuonTrackSegmentMatchingTool;
-}
 
 namespace MuonGM {
   class MuonDetectorManager;
@@ -84,12 +88,7 @@ namespace Trk {
   class TrkDetElementBase;
   class MeasurementBase;
   class TrackStateOnSurface;
-  class IExtrapolator;
-  class INavigator;    
-  class ITrackHoleSearchTool;
-  class IResidualPullCalculator;
   class TrackStateOnSurface;
-  class ITrackFitter;
 }
 
 namespace Muon {
@@ -130,7 +129,7 @@ namespace Muon {
     MuonSegmentRegionRecoveryTool(const std::string&,const std::string&,const IInterface*);
 
     /** @brief destructor */
-    virtual ~MuonSegmentRegionRecoveryTool ();
+    virtual ~MuonSegmentRegionRecoveryTool () = default;
     
     /** @brief AlgTool initialize */
     StatusCode initialize();
@@ -166,27 +165,36 @@ namespace Muon {
     
     const MuonGM::MuonDetectorManager*  m_detMgr;
     
-    ToolHandle<IMuonSeededSegmentFinder>       m_seededSegmentFinder;  //!< seeded segment finder
-    ToolHandle<IMuonTrackSegmentMatchingTool>  m_trackSegmentMatchingTool; 
-    ToolHandle<MuonChamberHoleRecoveryTool>    m_chamberHoleRecoveryTool;  //!< hit-based hole search
-    ToolHandle<Trk::IExtrapolator>             m_extrapolator;         //!< extrapolator
-    ToolHandle<Trk::ITrackFitter>              m_fitter;               //!< ITrackFitter
-    ServiceHandle<MuonStationIntersectSvc>     m_intersectSvc;
-    ToolHandle<MuonIdHelperTool>               m_idHelperTool;         //!< IdHelper tool
+    ToolHandle<IMuonSeededSegmentFinder>        m_seededSegmentFinder
+      {this, "SeededSegmentFinder", "Muon::MuonSeededSegmentFinder/MuonSeededSegmentFinder"};            //!< seeded segment finder
+    ToolHandle<IMuonTrackSegmentMatchingTool>        m_trackSegmentMatchingTool
+      {this, "TrackSegmentMatchingTool", "Muon::MooCandidateMatchingTool/MooCandidateMatchingTool"};            //<! tool to print EDM objects
+    ToolHandle<MuonChamberHoleRecoveryTool>        m_chamberHoleRecoveryTool
+      {this, "ChamberHoleRecoveryTool", "Muon::MuonChamberHoleRecoveryTool/MuonChamberHoleRecoveryTool"};            //<! hit-based hole search
+    ToolHandle<Trk::IExtrapolator>        m_extrapolator
+      {this, "Extrapolator", "Trk::Extrapolator/MuonExtrapolator"};            
+    ToolHandle<Trk::ITrackFitter>        m_fitter
+      {this, "Fitter", "Rec::CombinedMuonTrackBuilder/CombinedMuonTrackBuilder"};            
+    ServiceHandle<MuonStationIntersectSvc>        m_intersectSvc
+      {this, "MuonStationIntersectSvc", "MuonStationIntersectSvc"};            
+    ToolHandle<MuonIdHelperTool>        m_idHelperTool
+      {this, "IdHelper", "Muon::MuonIdHelperTool/MuonIdHelperTool"};            //!< IdHelper tool
+    ToolHandle<IMuonHitSummaryTool>        m_hitSummaryTool
+      {this, "HitSummaryTool", "Muon::MuonHitSummaryTool/MuonHitSummaryTool"};            //!< hit summary tool
+    ServiceHandle<IRegSelSvc>         m_regionSelector
+      {this, "RegionSelector", "RegSelSvc"};            //!< The region selector      
     ServiceHandle<IMuonEDMHelperSvc>           m_edmHelperSvc {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" };           //!< EDM Helper tool
-    ToolHandle<MuonEDMPrinterTool>             m_printer;              //!< EDM printer tool
-    ToolHandle<IMuonHitSummaryTool>            m_hitSummaryTool;       //!< hit summary tool
-    ServiceHandle<IRegSelSvc>                  m_regionSelector;       //!< The region selector
+    ToolHandle<MuonEDMPrinterTool>        m_printer
+        {this, "EDMPrinter", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};            //<! tool to print EDM objects    
     SG::ReadCondHandleKey<MdtCondDbData> m_condKey{this, "MdtCondKey", "MdtCondDbData", "Key of MdtCondDbData"};
     //properties
-    double m_deta;
-    double m_dphi;
-    bool m_excludeEES;
-    bool m_onlyEO;
-    bool m_useFitterOutlierLogic;
-
+    Gaudi::Property<double>                                 m_deta        {this, "DeltaEtaRegion", 0.05}; 
+    Gaudi::Property<double>                                 m_dphi        {this, "DeltaPhiRegion", 0.1}; 
+    Gaudi::Property<bool>                                   m_excludeEES  {this, "ExcludeEES", true}; 
+    Gaudi::Property<bool>                                   m_onlyEO      {this, "OnlyEO", false}; 
+    Gaudi::Property<bool>                                   m_useFitterOutlierLogic {this, "UseFitterOutlierLogic", true}; 
   };
 }
 

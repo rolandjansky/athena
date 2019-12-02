@@ -1,14 +1,13 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthSequencer.cxx
 // Implementation file for class AthSequencer
 // Author: S.Binet<binet@cern.ch>
 ///////////////////////////////////////////////////////////////////
-//$Id: AthSequencer.cxx,v 1.7 2009-05-06 12:01:57 binet Exp $
 
 // AthSequencer class
 // Implements:
@@ -306,90 +305,6 @@ AthSequencer::stop()
   }
   
 #endif // !GAUDIKERNEL_STATEMACHINE_H_
-  return sc;
-}
-
-StatusCode
-AthSequencer::beginRun()
-{
-  // Bypass the loop if this sequencer is disabled
-  StatusCode sc(StatusCode::SUCCESS);
-  if ( isEnabled( ) ) {
-    
-    // Loop over all members calling their sysInitialize functions
-    // if they are not disabled. Note that the Algoriithm::sysInitialize
-    // function protects this from affecting Algorithms that have already
-    // been initialized.
-    std::vector<Gaudi::Algorithm*>* theAlgs = subAlgorithms( );
-    std::vector<Gaudi::Algorithm*>::iterator it;
-    std::vector<Gaudi::Algorithm*>::iterator itend = theAlgs->end( );
-    for (it = theAlgs->begin(); it != itend; it++) {
-      Gaudi::Algorithm* theAlgorithm = (*it);
-      if (!theAlgorithm->sysInitialize( ).isSuccess()) {
-        ATH_MSG_ERROR 
-          ("Unable to initialize Algorithm " << theAlgorithm->name());
-        sc = StatusCode::FAILURE;
-        return sc;
-      }
-    }
-    
-    // Loop over all members calling their beginRun functions
-    // if they are not disabled.
-    for (it = theAlgs->begin(); it != itend; it++) {
-      Gaudi::Algorithm* theAlgorithm = (*it);
-      if ( theAlgorithm->isEnabled( ) ) {
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-        if (theAlgorithm->sysBeginRun( ).isFailure()) {
-          ATH_MSG_ERROR("Unable to BeginRun Algorithm "
-                        << theAlgorithm->type() << "/"
-                        << theAlgorithm->name());
-          sc = StatusCode::FAILURE;
-        }
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
-      }
-    }
-    
-  }
-
-  return sc;
-}
-
-StatusCode
-AthSequencer::endRun()
-{
-  StatusCode sc(StatusCode::SUCCESS);
-  // Bypass the loop if this sequencer is disabled
-  if ( isEnabled( ) ) {
-    
-    // Loop over all members calling their endRun functions
-    // if they are not disabled.
-    std::vector<Gaudi::Algorithm*>* theAlgms = subAlgorithms( );
-    std::vector<Gaudi::Algorithm*>::iterator it;
-    std::vector<Gaudi::Algorithm*>::iterator itend = theAlgms->end( );
-    for (it = theAlgms->begin(); it != itend; it++) {
-      Gaudi::Algorithm* theAlgorithm = (*it);
-      if ( theAlgorithm->isEnabled( ) ) {
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-        if ( theAlgorithm->sysEndRun( ).isFailure() ) {
-          ATH_MSG_ERROR("Unable to EndRun Algorithm "
-                        << theAlgorithm->type() << "/"
-                        << theAlgorithm->name());
-          sc = StatusCode::FAILURE;
-        }
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
-      }
-    }
-  }
   return sc;
 }
 

@@ -41,7 +41,6 @@ rec.doFileMetaData.set_Value_and_Lock(False)
 #Disable track-based thinning:
 from ParticleBuilderOptions.AODFlags import AODFlags
 AODFlags.egammaTrackSlimmer.set_Value_and_Lock(False)
-AODFlags.TauTrackSlimmer.set_Value_and_Lock(False)
 AODFlags.ThinNegativeEnergyNeutralPFOs.set_Value_and_Lock(False)
 AODFlags.ThinInDetForwardTrackParticles.set_Value_and_Lock(False)
 AODFlags.AddEgammaMuonTracksInAOD.set_Value_and_Lock(False)

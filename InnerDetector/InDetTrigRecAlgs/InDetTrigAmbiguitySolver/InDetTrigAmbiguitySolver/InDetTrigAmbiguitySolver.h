@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,8 @@
 #include "TrigInterfaces/FexAlgo.h"
 
 #include "TrkTrack/TrackCollection.h"
+#include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
+#include "TrkToolInterfaces/IPRDtoTrackMapExchangeTool.h"
 
 namespace Trk { class ITrackAmbiguityProcessorTool; }
 
@@ -63,11 +65,23 @@ namespace InDet {
     std::vector<float> m_eta;
     std::vector<float> m_qoverp;
 
-    /** responsible for actual amiguity processing*/                  
+    /** responsible for actual amiguity processing*/
     ToolHandle<Trk::ITrackAmbiguityProcessorTool> m_ambiTool;
+
+     /** Optional tool to export a PRD-to-track map to allow downstream clients to compute shared hits.*/
+    ToolHandle<Trk::IPRDtoTrackMapTool>         m_assoTool
+       {this, "AssociationTool", "" };
+
+     /** Tool to emulate the run2 behaviour.
+      * The downstream clients will use the latest PRD association map indpendent of the feature that created it.
+      * If this tool is set, the map will be exchanged via the tool rather than being  attached as a feature.
+      */
+    PublicToolHandle<Trk::IPRDtoTrackMapExchangeTool>         m_prdToTrackMapExchange
+       {this, "PRDToTrackMapExchange", "" };
 
     std::string      m_inputTracksLabel;
     std::string      m_outputTracksLabel;
+    std::string      m_outputPRDMapLabel;
 
     uint32_t         m_ntimesInvoked;
 

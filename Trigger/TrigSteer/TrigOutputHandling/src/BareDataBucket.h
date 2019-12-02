@@ -7,7 +7,8 @@
 #include "DataModelRoot/RootType.h"
 
 /**
- * @class Allows to insert void* returned from serialisation into the store
+ * @class BareDataBucket
+ * @brief Allows to insert void* returned from serialisation into the store
  **/
 
 class BareDataBucket: public DataBucketBase {

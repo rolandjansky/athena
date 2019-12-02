@@ -10,10 +10,6 @@
 #include "SCT_RawDataByteStreamCnv/ISCTRawDataProviderTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "AthenaKernel/SlotSpecificObj.h"
-#include "InDetRawData/SCT_RDO_Container.h"
-#include "ByteStreamData/RawEvent.h"
-
 #include "GaudiKernel/ToolHandle.h"
 
 #include <atomic>

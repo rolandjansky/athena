@@ -22,7 +22,7 @@ except that that has the potential to hide other errors."""
 
     # We have to do this differently in py2 vs py3.
     if six.PY34:
-        import importlib
+        import importlib.util
         return importlib.util.find_spec (modName) is not None
     else:
         import imp

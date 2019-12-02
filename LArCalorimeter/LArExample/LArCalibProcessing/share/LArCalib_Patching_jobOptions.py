@@ -219,5 +219,4 @@ if WriteNtuple:
 
 svcMgr.DetectorStore.Dump=True
 
-ToolSvc.LArBadChanTool.OutputLevel=DEBUG
 svcMgr.IOVDbSvc.OutputLevel=DEBUG

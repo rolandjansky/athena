@@ -71,7 +71,7 @@ namespace NSWL1 {
 
     virtual ~StripTdsOfflineTool();
 
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
 
     virtual void handle (const Incident& inc);
 

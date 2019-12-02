@@ -187,7 +187,7 @@ else:
 # Region Selector and Trigger 
 #--------------------------------------------------------------
 
-include( "TriggerRelease/TriggerFlags.py" )
+include( "TriggerJobOpts/TriggerFlags.py" )
 include( "RegionSelector/RegionSelector_jobOptions.py" )
 include( "InDetRegionSelector/InDetRegionSelectorTable_jobOptions.py" ) #include it temporarily!
 

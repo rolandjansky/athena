@@ -26,7 +26,7 @@ ConditionsMT conditionsFactoryAcceptAllMT(std::size_t capacity){
 
   ConditionsMT conditions;
   conditions.push_back
-    ( std::move(std::make_unique<AcceptAllConditionMT>(capacity)));
+    ( std::make_unique<AcceptAllConditionMT>(capacity));
   return conditions;
 }
 

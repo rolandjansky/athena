@@ -63,7 +63,10 @@ TrigJetHypoToolConfig_partgen::getJetGrouper() const {
   return std::make_unique<PartitionsGrouper>(mults);
 }
 
-StatusCode TrigJetHypoToolConfig_partgen::checkVals() const {    
+StatusCode TrigJetHypoToolConfig_partgen::checkVals() const {
+
+  if(m_children.empty()){return  StatusCode::FAILURE;}
+
   return StatusCode::SUCCESS;
 }
 
@@ -71,6 +74,14 @@ std::vector<std::shared_ptr<ICleaner>>
 TrigJetHypoToolConfig_partgen::getCleaners() const {
   std::vector<std::shared_ptr<ICleaner>> v;
   return v;
+}
+
+std::size_t
+TrigJetHypoToolConfig_partgen::requiresNJets() const {
+
+  std::size_t result{0};
+  for(const auto& c : m_children){result += c->requiresNJets();}
+  return result;
 }
 
 

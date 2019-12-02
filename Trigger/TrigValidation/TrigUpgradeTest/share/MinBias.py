@@ -1,53 +1,86 @@
 #
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
+createHLTMenuExternally=True
 include("TrigUpgradeTest/testHLT_MT.py")
 
+from TrigUpgradeTest.TestUtils import makeChain
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep
+
+chainName = "HLT_mb_sptrk_L1RD0_FILLED"
+
+
 from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
+from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection, mapThresholdToL1DecisionCollection
 
-viewAlgs = makeInDetAlgs(whichSignature='MinBias', separateTrackParticleCreator='MinBias')
+idAlgs = makeInDetAlgs(whichSignature='MinBias', separateTrackParticleCreator='MinBias', rois=mapThresholdToL1RoICollection('FS'))
 
-for viewAlg in viewAlgs:
-        if "RoIs" in viewAlg.properties():
-            viewAlg.RoIs = "FSRoI"
-        if "roiCollectionName" in viewAlg.properties():
-            viewAlg.roiCollectionName = "FSRoI"
-
-from AthenaCommon.AlgSequence import AlgSequence
-topSequence  = AlgSequence()
-topSequence += viewAlgs
 
 from TrigT2MinBias.TrigT2MinBiasConf import TrigCountSpacePointsMT, SPCountHypoAlgMT, SPCountHypoTool
 SpCount=TrigCountSpacePointsMT()
 SpCount.OutputLevel= DEBUG
 SpCount.SpacePointsKey="HLT_SpacePointCounts"
-topSequence += SpCount
-
-def makeAndSetHypo( alg, hypoClass, **hypokwargs):
-    hypoTool = hypoClass( **hypokwargs )
-    tools = alg.HypoTools
-    alg.HypoTools = tools + [ hypoTool ]
-    # now, this seems to be simpler: alg.HypoTools += [hypoTool], but it gives issue with Configurables of different class beeing named the same (even if they are private tools!)
 
 SpCountHypo = SPCountHypoAlgMT()
 SpCountHypo.OutputLevel= DEBUG
-SpCountHypo.HypoInputDecisions="L1FS"
-makeAndSetHypo( SpCountHypo, SPCountHypoTool, name="HLT_mbsptrk", OutputLevel=DEBUG)
+
+
+def generateSPCountHypo(chainDict):
+        hypo = SPCountHypoTool(chainDict["chainName"])
+        # will set here thresholds
+        return hypo
+
 
 SpCountHypo.HypoOutputDecisions="SPDecisions"
 SpCountHypo.SpacePointsKey="HLT_SpacePointCounts"
-topSequence += SpCountHypo
 
 from TrigMinBias.TrigMinBiasConf import TrackCountHypoAlgMT, TrackCountHypoTool
 TrackCountHypo=TrackCountHypoAlgMT()
 TrackCountHypo.OutputLevel= DEBUG
-makeAndSetHypo( TrackCountHypo, TrackCountHypoTool, name="HLT_mbsptrk", OutputLevel=DEBUG )
+
 
 TrackCountHypo.HypoInputDecisions="SPDecisions"
 TrackCountHypo.HypoOutputDecisions="TrackCountDecisions"
 TrackCountHypo.tracksKey="HLT_xAODTracksMinBias"
 TrackCountHypo.trackCountKey="HLT_TrackCount"
-topSequence += TrackCountHypo
+
 
 from TrigMinBias.TrackCountMonitoringMT import TrackCountMonitoring
 TrackCountHypo.MonTool = TrackCountMonitoring()
+
+def generateTrackCountHypo(chainDict):
+        hypo = TrackCountHypoTool(chainDict["chainName"])
+        # will set here cuts
+        return hypo
+
+############### build menu 
+
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
+from AthenaCommon.CFElements import parOR
+from DecisionHandling.DecisionHandlingConf  import InputMakerForRoI
+
+# TODO - split ID into two parts, one for SP counting another for the tracking, the tracking will go to the second step (Tracking) sequence
+inputMakerSPCount = InputMakerForRoI(name="IMMinBiasSPCount", RoIs="HLT_MBSP")
+stepSPCount = ChainStep( "stepSPCount",  [MenuSequence( Maker=inputMakerSPCount,
+                                                        Sequence=parOR("SPCountReco", [inputMakerSPCount]+idAlgs + [ SpCount ] ),
+                                                        Hypo=SpCountHypo, HypoToolGen=generateSPCountHypo )] )
+
+
+inputMakerTrkCount = InputMakerForRoI(name="IMMinBiasTrkCount", RoIs="HLT_MBTRK")
+stepTrkCount = ChainStep( "stepTrkCount",
+                          [ MenuSequence( Maker=inputMakerTrkCount ,
+                                          Sequence=parOR("TrkCountReco", [inputMakerTrkCount]),
+                                          Hypo=TrackCountHypo,
+                                          HypoToolGen=generateTrackCountHypo )] )
+
+
+makeChain(chainName, ["FS"], ChainSteps=[stepSPCount, stepTrkCount])
+
+from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeHLTTree
+from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
+makeHLTTree( triggerConfigHLT=TriggerConfigHLT )
+
+
+from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
+generateJSON()
+

@@ -25,7 +25,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/EventInfo
 			  Event/xAOD/xAODEventInfo
                           GaudiKernel
-                          TestPolicy 
 			  Control/xAODRootAccess)
 
 # External dependencies:

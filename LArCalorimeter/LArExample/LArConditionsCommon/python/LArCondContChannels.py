@@ -89,7 +89,7 @@ class LArCondContChannels(object) :
     if operator.isNumberType(gainList): gains = [gainList]
     for g in gains:
       if g < 0 or g > 2:
-        print "LArCondContChannels.folderFeedThruGroupChanSel: invalid gain value - must be 0-2 - ", g
+        print("LArCondContChannels.folderFeedThruGroupChanSel: invalid gain value - must be 0-2 - ", g)
         return "<channelSelection>  </channelSelection>"
 
     if feedThruGroup == "negBarrel":
@@ -121,8 +121,8 @@ class LArCondContChannels(object) :
         feedThruList += [ft]
       chans = self.feedThruChannelSelection(feedThruList, gains, posNeg, isBarrel)
     else:
-      print "LArCondContChannels.folderFeedThruGroupChanSel: feedThru grouping, found", feedThruGroup
-      print "Allowed values: \"negBarrel\", \"posBarrel\", \"negEndcap\", \"posEndcap\""
+      print("LArCondContChannels.folderFeedThruGroupChanSel: feedThru grouping, found", feedThruGroup)
+      print("Allowed values: \"negBarrel\", \"posBarrel\", \"negEndcap\", \"posEndcap\"")
       return "<channelSelection>  </channelSelection>"
 
 
@@ -165,10 +165,10 @@ class LArCondContChannels(object) :
        len(negEC_FTList)  == 0 and \
        len(posEC_FTList)  == 0:
 
-      print "LArCondContChannels.folderFeedThruChannelSelection Warning: FeedThru lists are all empty - no channels selected"
+      print("LArCondContChannels.folderFeedThruChannelSelection Warning: FeedThru lists are all empty - no channels selected")
 
     elif len(gainList) == 0:
-      print "LArCondContChannels.folderFeedThruChannelSelection Warning: Gain list is empty - no channels selected"
+      print("LArCondContChannels.folderFeedThruChannelSelection Warning: Gain list is empty - no channels selected")
     else:
       if len(negB_FTList)   > 0:
         chans += self.feedThruChannelSelection(
@@ -199,7 +199,7 @@ class LArCondContChannels(object) :
           False,
           isCorrection)
 
-    print "chans ",chans
+    print("chans ",chans)
     chanSel = self.channelSelection(chans)
     return chanSel
 
@@ -221,10 +221,10 @@ class LArCondContChannels(object) :
        len(negEC_FTList)  == 0 and \
        len(posEC_FTList)  == 0:
 
-      print "LArCondContChannels.folderFeedThruChannelSelection Warning: FeedThru lists are all empty - no channels selected"
+      print("LArCondContChannels.folderFeedThruChannelSelection Warning: FeedThru lists are all empty - no channels selected")
 
     elif len(gainList) == 0:
-      print "LArCondContChannels.folderFeedThruChannelSelection Warning: Gain list is empty - no channels selected"
+      print("LArCondContChannels.folderFeedThruChannelSelection Warning: Gain list is empty - no channels selected")
     else:
       if len(negB_FTList)   > 0:
         chans += self.extFeedThruChannelSelection(
@@ -255,7 +255,7 @@ class LArCondContChannels(object) :
           False,
           isCorrection)
 
-    print "chans ",chans
+    print("chans ",chans)
     chanSel = self.channelSelection(chans)
     return chanSel
 
@@ -289,8 +289,8 @@ class LArCondContChannels(object) :
     fts.sort()
     # Check value for posNeg
     if posNeg != -1 and posNeg != +1:
-      print __name__,
-      raise __name__,"posNeg must be either +/-1, found: " + str(posNeg)
+      print(__name__,)
+      raise(__name__,"posNeg must be either +/-1, found: " + str(posNeg))
 
     offset = 0
     # First get offset per gain
@@ -334,8 +334,8 @@ class LArCondContChannels(object) :
     fts.sort()
     # Check value for posNeg
     if posNeg != -1 and posNeg != +1:
-      print __name__,
-      raise __name__,"posNeg must be either +/-1, found: " + str(posNeg)
+      print (__name__,)
+      raise (__name__,"posNeg must be either +/-1, found: " + str(posNeg))
 
     offset = 0
     # First get offset per gain
@@ -415,7 +415,7 @@ class LArCondContChannels(object) :
   # Allowed subdet names: EMB, EMEC, HEC, FCAL
   def subDetChannelSelection(self, subDetName, gain):
     if gain >= self.nGains:
-      print "invalid gain: range in 0 to",self.nGain-1
+      print ("invalid gain: range in 0 to",self.nGain-1)
       return -1
     offset = gain*self.nSubDets + self.subDetsOffset
     if subDetName == "Corr":
@@ -621,10 +621,10 @@ if __name__ == '__main__':
   # Test of LArCondContChannels
   decoder = LArCondContChannels()
 
-  print "0 - unknown", decoder.isUnknown(0),"SG", decoder.isSingleGroup(0),"SDG",decoder.isSubDetectorGrouping(0),"FT",decoder.isFeedThroughGrouping(0)
-  print "1 - unknown", decoder.isUnknown(1),"SG", decoder.isSingleGroup(1),"SDG",decoder.isSubDetectorGrouping(1),"FT",decoder.isFeedThroughGrouping(1)
-  print "2 - unknown", decoder.isUnknown(2),"SG", decoder.isSingleGroup(2),"SDG",decoder.isSubDetectorGrouping(2),"FT",decoder.isFeedThroughGrouping(2)
-  print "3 - unknown", decoder.isUnknown(3),"SG", decoder.isSingleGroup(3),"SDG",decoder.isSubDetectorGrouping(3),"FT",decoder.isFeedThroughGrouping(3)
+  print ("0 - unknown", decoder.isUnknown(0),"SG", decoder.isSingleGroup(0),"SDG",decoder.isSubDetectorGrouping(0),"FT",decoder.isFeedThroughGrouping(0))
+  print ("1 - unknown", decoder.isUnknown(1),"SG", decoder.isSingleGroup(1),"SDG",decoder.isSubDetectorGrouping(1),"FT",decoder.isFeedThroughGrouping(1))
+  print ("2 - unknown", decoder.isUnknown(2),"SG", decoder.isSingleGroup(2),"SDG",decoder.isSubDetectorGrouping(2),"FT",decoder.isFeedThroughGrouping(2))
+  print ("3 - unknown", decoder.isUnknown(3),"SG", decoder.isSingleGroup(3),"SDG",decoder.isSubDetectorGrouping(3),"FT",decoder.isFeedThroughGrouping(3))
 
   # Check channels list
 
@@ -636,7 +636,7 @@ if __name__ == '__main__':
   ftList_ecn = [0,18,23]
 
 
-  print " ====== CHECKS FOR FEEDTHROUGHGROUPING ====== "
+  print(" ====== CHECKS FOR FEEDTHROUGHGROUPING ====== ")
   
   for gain in range(3):
     chans      = []
@@ -646,32 +646,32 @@ if __name__ == '__main__':
     chans += decoder.feedThruChannelSelection(ftList_ecn, gainList, -1, False)
     chans += decoder.feedThruChannelSelection(ftList_ecp, gainList,  1, False)
 
-    print "ft list b neg: ", ftList_bn
-    print "ft list b pos: ", ftList_bp
-    print "ft list ec neg: ", ftList_ecn
-    print "ft list ec pos: ", ftList_ecp
-    print "gain, chans: ", gainList, chans    
+    print( "ft list b neg: ", ftList_bn)
+    print( "ft list b pos: ", ftList_bp)
+    print( "ft list ec neg: ", ftList_ecn)
+    print( "ft list ec pos: ", ftList_ecp)
+    print( "gain, chans: ", gainList, chans)
 
     chanSel = decoder.folderFeedThruChannelSelection(ftList_bn,
                                                      ftList_bp,
                                                      ftList_ecn,
                                                      ftList_ecp,
                                                      gainList)
-    print chanSel
+    print( chanSel )
 
     for chan in chans:
       (isBarrel, posNeg, feedThru, gain) = decoder.decodeFeedThruChannelNumber(chan)
-      print "chan, isBarrel, posNeg, feedThru, gain",chan, isBarrel, posNeg, feedThru, gain
+      print( "chan, isBarrel, posNeg, feedThru, gain",chan, isBarrel, posNeg, feedThru, gain)
 
 
   # Check subdet channel decoding
   for chan in range(15):
     (detName, gain) = decoder.decodeSubDetChannelNumber(chan)
     chan1 = decoder.subDetChannelSelection(detName, gain)
-    print "chan, detName, gain, and chan recalc", chan, detName, gain, chan1
+    print( "chan, detName, gain, and chan recalc", chan, detName, gain, chan1)
 
 
-  print " ====== CHECKS FOR EXTENDED FEEDTHROUGHGROUPING ====== "
+  print( " ====== CHECKS FOR EXTENDED FEEDTHROUGHGROUPING ====== ")
   for gain in range(3):
     chans      = []
     gainList = [ gain ]
@@ -680,21 +680,21 @@ if __name__ == '__main__':
     chans += decoder.extFeedThruChannelSelection(ftList_ecn, gainList, -1, False)
     chans += decoder.extFeedThruChannelSelection(ftList_ecp, gainList,  1, False)
 
-    print "ft list b neg: ", ftList_bn
-    print "ft list b pos: ", ftList_bp
-    print "ft list ec neg: ", ftList_ecn
-    print "ft list ec pos: ", ftList_ecp
-    print "gain, chans: ", gainList, chans    
+    print( "ft list b neg: ", ftList_bn)
+    print( "ft list b pos: ", ftList_bp)
+    print( "ft list ec neg: ", ftList_ecn)
+    print( "ft list ec pos: ", ftList_ecp)
+    print( "gain, chans: ", gainList, chans)
 
     chanSel = decoder.folderExtFeedThruChannelSelection(ftList_bn,
                                                         ftList_bp,
                                                         ftList_ecn,
                                                         ftList_ecp,
                                                         gainList)
-    print chanSel
+    print( chanSel)
 
     for chan in chans:
       (isBarrel, posNeg, feedThru, gain) = decoder.decodeExtFeedThruChannelNumber(chan)
-      print "chan, isBarrel, posNeg, feedThru, gain",chan, isBarrel, posNeg, feedThru, gain
+      print( "chan, isBarrel, posNeg, feedThru, gain",chan, isBarrel, posNeg, feedThru, gain)
 
 

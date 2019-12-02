@@ -6,6 +6,8 @@ from __future__ import print_function
 from ChainLabelParser import ChainLabelParser
 from  TrigHLTJetHypo.treeVisitors import TreeParameterExpander
 from  TrigHLTJetHypo.ConditionsToolSetterTree import ConditionsToolSetterTree
+from  TrigHLTJetHypo.ConditionsToolSetterFlowNetwork import (
+    ConditionsToolSetterFlowNetwork,)
 
 def compile(label, setter=None, expand=False, do_dump=False, do_print=False):
     print ('compile:',  label)
@@ -21,8 +23,12 @@ def compile(label, setter=None, expand=False, do_dump=False, do_print=False):
         tree.accept(visitor)
 
     print ('compile: tree.scenario', tree.scenario)
+
     if setter is not None:
-        tree.accept(setter)
+        if setter.__class__.__name__ == 'ConditionsToolSetterFlowNetwork':
+            setter.mod(tree)
+        else:
+            raise NotImplementedError('Unknown setter ' + setter.__class__.__name__)
         
     if do_print:
         print ('\nnode dumping top node only:\n')
@@ -61,8 +67,13 @@ if __name__ == '__main__':
     print('index', index)
     label = test_strings[index]
 
-    setter = ConditionsToolSetterTree('toolSetter')
+    setter = None
+    unused_setter0 = ConditionsToolSetterTree('toolSetter')
+    unised_setter1 = ConditionsToolSetterFlowNetwork('fnToolSetter')
     
     tree = compile(label, setter=setter,  expand=True, do_dump=True)
 
- 
+    print ('tvec: %s' % str(setter.treeVec))
+    print ('svec: %s' % setter.shared)
+    print ('conditionsVec [%d]: %s' % (len(setter.conditionsVec),
+                                       str(setter.conditionsVec)))

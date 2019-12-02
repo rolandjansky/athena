@@ -110,14 +110,6 @@ if not useNewAlgs:
     print InDetSCTLorentzMonTool
 
 
-from SCT_Monitoring.SCT_MonitoringConf import SCTRatioNoiseMonTool
-InDetSCTRatioNoiseMonTool = SCTRatioNoiseMonTool ( name        = "InDetSCTRatioNoiseMonTool",
-                                                   OutputLevel = 4 )
-
-if (InDetFlags.doPrintConfigurables()):
-  print InDetSCTRatioNoiseMonTool
-           
-
 from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
 
 InDetSCTMonMan = AthenaMonManager("InDetSCTMonManager",
@@ -128,8 +120,7 @@ InDetSCTMonMan = AthenaMonManager("InDetSCTMonManager",
                                   Environment         = DQMonFlags.monManEnvironment(),
                                   Run                 = DQMonFlags.monManRun(),
                                   LumiBlock           = DQMonFlags.monManLumiBlock(),
-                                  AthenaMonTools      = [ InDetSCTRatioNoiseMonTool,
-                                                          InDetSCTHitEffMonTool,
+                                  AthenaMonTools      = [ InDetSCTHitEffMonTool,
                                                           InDetSCTHitsTool,
                                                           InDetSCTErrMonTool ] )
 

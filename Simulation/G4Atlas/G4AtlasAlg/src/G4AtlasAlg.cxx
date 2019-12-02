@@ -25,6 +25,9 @@
 #include "G4StackManager.hh"
 #include "G4UImanager.hh"
 #include "G4ScoringManager.hh"
+#include "G4VUserPhysicsList.hh"
+#include "G4VModularPhysicsList.hh"
+#include "G4ParallelWorldPhysics.hh"
 
 // CLHEP includes
 #include "CLHEP/Random/RandomEngine.h"
@@ -50,18 +53,6 @@ static std::once_flag releaseGeoModelOnceFlag;
 G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
 {
-  declareProperty( "Dll", m_libList);
-  declareProperty( "Physics", m_physList);
-  declareProperty( "FieldMap", m_fieldMap);
-  declareProperty( "RandomGenerator", m_rndmGen);
-  declareProperty( "ReleaseGeoModel", m_releaseGeoModel);
-  declareProperty( "RecordFlux", m_recordFlux);
-  declareProperty( "KillAbortedEvents", m_killAbortedEvents);
-  declareProperty( "FlagAbortedEvents", m_flagAbortedEvents);
-  declareProperty("G4Commands", m_g4commands, "Commands to send to the G4UI");
-  // Multi-threading specific settings
-  declareProperty("MultiThreading", m_useMT, "Multi-threading specific settings");
-
   // Verbosities
   declareProperty("Verbosities", m_verbosities);
 }
@@ -72,10 +63,6 @@ G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
 StatusCode G4AtlasAlg::initialize()
 {
   ATH_MSG_DEBUG("Start of initialize()");
-
-  // Input/Ouput Keys
-  ATH_CHECK( m_inputTruthCollectionKey.initialize());
-  ATH_CHECK( m_outputTruthCollectionKey.initialize());
 
   // Create the scoring manager if requested
   if (m_recordFlux) G4ScoringManager::GetScoringManager();
@@ -92,25 +79,24 @@ StatusCode G4AtlasAlg::initialize()
   ATH_CHECK( m_rndmGenSvc.retrieve() );
   ATH_CHECK( m_userActionSvc.retrieve() );
 
-  // FIXME TOO EARLY???
-  ATH_CHECK(m_g4atlasSvc.retrieve());
+  ATH_CHECK(m_senDetTool.retrieve());
+  ATH_CHECK(m_fastSimTool.retrieve());
 
+  // Truth
   ATH_CHECK( m_truthRecordSvc.retrieve() );
   ATH_MSG_INFO( "- Using ISF TruthRecordSvc : " << m_truthRecordSvc.typeAndName() );
   ATH_CHECK( m_geoIDSvc.retrieve() );
   ATH_MSG_INFO( "- Using ISF GeoIDSvc       : " << m_geoIDSvc.typeAndName() );
 
-  ATH_CHECK(m_inputConverter.retrieve());
-
-  ATH_MSG_DEBUG(std::endl << std::endl << std::endl);
-
-
   TruthStrategyManager* sManager = TruthStrategyManager::GetStrategyManager();
   sManager->SetISFTruthSvc( &(*m_truthRecordSvc) );
   sManager->SetISFGeoIDSvc( &(*m_geoIDSvc) );
 
-  ATH_CHECK(m_senDetTool.retrieve());
-  ATH_CHECK(m_fastSimTool.retrieve());
+  // I/O
+  ATH_CHECK( m_inputTruthCollectionKey.initialize());
+  ATH_CHECK( m_outputTruthCollectionKey.initialize());
+
+  ATH_CHECK(m_inputConverter.retrieve());
 
   ATH_MSG_DEBUG("End of initialize()");
   return StatusCode::SUCCESS;
@@ -120,19 +106,26 @@ StatusCode G4AtlasAlg::initialize()
 void G4AtlasAlg::initializeOnce()
 {
   // Assign physics list
-  if(m_physListTool.retrieve().isFailure()) {
-    throw std::runtime_error("Could not initialize ATLAS PhysicsListTool!");
+  if(m_physListSvc.retrieve().isFailure()) {
+    throw std::runtime_error("Could not initialize ATLAS PhysicsListSvc!");
   }
 
   // Create the (master) run manager
   if(m_useMT) {
 #ifdef G4MULTITHREADED
     auto* runMgr = G4AtlasMTRunManager::GetG4AtlasMTRunManager();
-    m_physListTool->SetPhysicsList();
+    m_physListSvc->SetPhysicsList();
+    runMgr->SetDetGeoSvc( m_detGeoSvc.typeAndName() );
+    runMgr->SetFastSimMasterTool(m_fastSimTool.typeAndName() );
+    runMgr->SetPhysListSvc( m_physListSvc.typeAndName() );
     // Worker Thread initialization used to create worker run manager on demand.
-    // @TODO use this class to pass any configuration to worker run manager.
-    runMgr->SetUserInitialization( new G4AtlasUserWorkerThreadInitialization );
-    // @TODO configure all tool and service handles as in single threaded case.
+    std::unique_ptr<G4AtlasUserWorkerThreadInitialization> workerInit =
+      std::make_unique<G4AtlasUserWorkerThreadInitialization>();
+    workerInit->SetUserActionSvc( m_userActionSvc.typeAndName() );
+    workerInit->SetDetGeoSvc( m_detGeoSvc.typeAndName() );
+    workerInit->SetSDMasterTool( m_senDetTool.typeAndName() );
+    workerInit->SetFastSimMasterTool( m_fastSimTool.typeAndName() );
+    runMgr->SetUserInitialization( workerInit.release() );
 #else
     throw std::runtime_error("Trying to use multi-threading in non-MT build!");
 #endif
@@ -140,14 +133,14 @@ void G4AtlasAlg::initializeOnce()
   // Single-threaded run manager
   else {
     auto* runMgr = G4AtlasRunManager::GetG4AtlasRunManager();
-    m_physListTool->SetPhysicsList();
+    m_physListSvc->SetPhysicsList();
     runMgr->SetRecordFlux( m_recordFlux, std::make_unique<G4AtlasFluxRecorder>() );
     runMgr->SetLogLevel( int(msg().level()) ); // Synch log levels
     runMgr->SetUserActionSvc( m_userActionSvc.typeAndName() );
     runMgr->SetDetGeoSvc( m_detGeoSvc.typeAndName() );
     runMgr->SetSDMasterTool(m_senDetTool.typeAndName() );
     runMgr->SetFastSimMasterTool(m_fastSimTool.typeAndName() );
-    runMgr->SetPhysListTool(m_physListTool.typeAndName() );
+    runMgr->SetPhysListSvc(m_physListSvc.typeAndName() );
   }
 
   // G4 user interface commands
@@ -181,10 +174,39 @@ void G4AtlasAlg::initializeOnce()
     commandLog(returnCode, g4command);
   }
 
-  // G4 init moved to PyG4AtlasAlg / G4AtlasEngine
-  /// @todo Reinstate or delete?! This can't actually be called from the Py algs
-  //ATH_MSG_INFO("Firing initialization of G4!!!");
-  //initializeG4();
+  // Code from G4AtlasSvc
+  auto* rm = G4RunManager::GetRunManager();
+  if(!rm) {
+    throw std::runtime_error("Run manager retrieval has failed");
+  }
+  rm->Initialize();     // Initialization differs slightly in multi-threading.
+  // TODO: add more details about why this is here.
+  if(!m_useMT && rm->ConfirmBeamOnCondition()) {
+    rm->RunInitialization();
+  }
+
+  ATH_MSG_INFO( "retireving the Detector Geometry Service" );
+  if(m_detGeoSvc.retrieve().isFailure()) {
+    throw std::runtime_error("Could not initialize ATLAS DetectorGeometrySvc!");
+  }
+
+  if(m_userLimitsSvc.retrieve().isFailure()) {
+    throw std::runtime_error("Could not initialize ATLAS UserLimitsSvc!");
+  }
+
+  if (m_activateParallelGeometries) {
+    G4VModularPhysicsList* thePhysicsList=dynamic_cast<G4VModularPhysicsList*>(m_physListSvc->GetPhysicsList());
+    if (!thePhysicsList) {
+      throw std::runtime_error("Failed dynamic_cast!! this is not a G4VModularPhysicsList!");
+    }
+#if G4VERSION_NUMBER >= 1010
+    std::vector<std::string>& parallelWorldNames=m_detGeoSvc->GetParallelWorldNames();
+    for (auto& it: parallelWorldNames) {
+      thePhysicsList->RegisterPhysics(new G4ParallelWorldPhysics(it,true));
+    }
+#endif
+  }
+
   return;
 }
 

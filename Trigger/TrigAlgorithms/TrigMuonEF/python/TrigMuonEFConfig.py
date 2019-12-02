@@ -21,7 +21,6 @@ from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
 
 from MuonRecExample.MuonRecFlags import muonRecFlags
-from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 #Offline calorimeter isolation tool
@@ -371,13 +370,22 @@ def TMEF_MuonCandidateTool(name="TMEF_MuonCandidateTool",**kwargs):
     kwargs.setdefault("TrackBuilder","TMEF_CombinedMuonTrackBuilder")
     return CfgMgr.MuonCombined__MuonCandidateTool(name,**kwargs)
 
+def TrigMuonAmbiProcessor(name="TrigMuonAmbiProcessor",**kwargs) :
+    # definition mostly copied from MuonRecExample/python/MooreTools.py
+    import InDetRecExample.TrackingCommon as TrackingCommon
+    kwargs.setdefault("AssociationTool",TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels())
+    kwargs.setdefault("DropDouble", False)
+    kwargs.setdefault("ScoringTool", "MuonTrackScoringTool")
+    kwargs.setdefault("SelectionTool", "MuonAmbiSelectionTool" )
+    return CfgMgr.Trk__TrackSelectionProcessorTool(name,**kwargs)
+
 def TMEF_MuonCreatorTool(name="TMEF_MuonCreatorTool",**kwargs):
     from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
     from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
     pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator = AtlasExtrapolator())
-
     kwargs.setdefault("ParticleCaloExtensionTool", pcExtensionTool)
     kwargs.setdefault('TrackParticleCreator','TMEF_TrkToTrackParticleConvTool')
+    kwargs.setdefault("AmbiguityProcessor", CfgGetter.getPublicTool('TrigMuonAmbiProcessor'))
     kwargs.setdefault('MakeTrackAtMSLink',True)
     kwargs.setdefault("CaloMaterialProvider", "TMEF_TrkMaterialProviderTool")
     kwargs.setdefault("FillTimingInformation",False)
@@ -407,7 +415,7 @@ def TMEF_MuonLayerSegmentFinderTool(name="TMEF_MuonLayerSegmentFinderTool",**kwa
     if not MuonGeometryFlags.hasCSC():
         kwargs.setdefault('Csc2DSegmentMaker', '')
         kwargs.setdefault('Csc4DSegmentMaker', '')
-    if (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]): kwargs.setdefault('NSWMuonClusterSegmentFinderTool','TMEF_MuonClusterSegmentFinderTool')
+    if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()): kwargs.setdefault('NSWMuonClusterSegmentFinderTool','TMEF_MuonClusterSegmentFinderTool')
     return CfgMgr.Muon__MuonLayerSegmentFinderTool(name,**kwargs)
 
 def TMEF_MuonInsideOutRecoTool(name="TMEF_MuonInsideOutRecoTool",**kwargs):

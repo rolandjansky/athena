@@ -553,6 +553,8 @@ class TRTConditionsServicesSetup:
     from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTHTCondAlg
     TRTHTCondAlg = TRTHTCondAlg(name = "TRTHTCondAlg")
 
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTToTCondAlg
+    TRTToTCondAlg = TRTToTCondAlg(name = "TRTToTCondAlg")
 
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
@@ -566,6 +568,9 @@ class TRTConditionsServicesSetup:
     if not hasattr(condSeq, "TRTHTCondAlg"):
         condSeq += TRTHTCondAlg
 
+    if not hasattr(condSeq, "TRTToTCondAlg"):
+        condSeq += TRTToTCondAlg
+        
 
     from AthenaCommon.GlobalFlags import globalflags
     

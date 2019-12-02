@@ -33,5 +33,5 @@ atlas_add_dictionary( StoreGateBindingsDict
                       LINK_LIBRARIES ${PYTHON_LIBRARIES} ${ROOT_LIBRARIES} AthenaKernel DataModelRoot SGTools StoreGateLib SGtests GaudiKernel StoreGateBindings )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
-
+atlas_install_python_modules( python/*.py
+                              POST_BUILD_CMD ${ATLAS_FLAKE8} )

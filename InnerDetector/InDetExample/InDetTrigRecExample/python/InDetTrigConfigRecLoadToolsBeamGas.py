@@ -13,11 +13,12 @@ from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
 from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPrdAssociationTool
 
 from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCutsBeamGas
+import InDetRecExample.TrackingCommon as TrackingCommon
 
 if InDetTrigFlags.doAmbiSolving():
   InDetTrigAmbiTrackSelectionToolBeamGas = \
       InDet__InDetAmbiTrackSelectionTool(name            = 'InDetTrigAmbiTrackSelectionToolBeamGas',
-                                         AssociationTool = InDetTrigPrdAssociationTool,
+                                         AssociationTool = TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels(),
                                          minHits         = InDetTrigCutValuesBeamGas.minClusters(),
                                          minNotShared    = InDetTrigCutValuesBeamGas.minSiNotShared(),
                                          maxShared       = InDetTrigCutValuesBeamGas.maxShared(),

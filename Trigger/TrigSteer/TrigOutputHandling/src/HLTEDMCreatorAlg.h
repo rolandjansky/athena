@@ -12,7 +12,7 @@
 
 /**
  * @class HLTEDMCreatorAlg
- * @brief 
+ * @brief Algorithm calling the HLTEDMCreator
  **/
 class HLTEDMCreatorAlg : public AthReentrantAlgorithm {
 public:

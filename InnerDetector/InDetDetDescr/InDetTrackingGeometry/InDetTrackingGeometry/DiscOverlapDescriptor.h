@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 #include "TrkDetDescrUtils/BinnedArray1D1D.h"
 #include "TrkDetDescrUtils/Intersection.h"
 
+// STL include
+#include <atomic>
+
 #ifndef INDETTRACKINGGEOMETRY_DISCDETADDNEXTPHIETA
 #define INDETTRACKINGGEOMETRY_DISCDETADDNEXTPHIETA
 #define addSurfaceDO(cur,surfaces) if (cur) surfaces.push_back(Trk::SurfaceIntersection(Trk::Intersection(Amg::Vector3D(0.,0.,0.),0.,true),&(cur->surface(cur->identify()))))
@@ -26,6 +29,8 @@
 #define addNextInEtaDO(cur, surfaces) addSurfaceDO(cur->nextInEta(), surfaces); addOtherSideDO(cur->nextInEta(),surfaces)
 #define addPrevInEtaDO(cur, surfaces) addSurfaceDO(cur->prevInEta(), surfaces); addOtherSideDO(cur->prevInEta(),surfaces)
 #endif // INDETTRACKINGGEOMETRY_DISCDETADDNEXTPHIETA
+
+class SCT_ID;
 
 namespace Trk {
   class Surface;
@@ -87,7 +92,7 @@ namespace InDet {
     
     const Trk::BinnedArray<Trk::Surface>*           m_bin_array;
     std::vector<Trk::BinUtility*>*                  m_singleBinUtils;
-    
+    mutable std::atomic<const SCT_ID*>              m_sctIdHelper{nullptr};
     
   };
   
