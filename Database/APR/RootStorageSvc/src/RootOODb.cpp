@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -16,7 +16,6 @@
 #include "RootKeyContainer.h"
 #include "RootTreeContainer.h"
 #include "RootTreeIndexContainer.h"
-#include "StorageSvc/DbInstanceCount.h"
 
 // declare the types provided by this Storage plugin
 DECLARE_COMPONENT_WITH_ID(pool::RootOODb, "ROOT_All")
@@ -29,7 +28,6 @@ using namespace pool;
 /// Standard Constructor
 RootOODb::RootOODb(DbType) : IOODatabase()
 {
-   DbInstanceCount::increment(this);
 }
 
 const std::string&  RootOODb::name () const {
@@ -39,7 +37,6 @@ const std::string&  RootOODb::name () const {
 
 /// Standard Destructor
 RootOODb::~RootOODb()  {
-  DbInstanceCount::decrement(this);
 }
 
 /// Create Root Domain object
