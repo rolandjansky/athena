@@ -73,7 +73,7 @@ namespace ST {
     if (m_BtagKeyOverride==""){
       bool jetkeyhastimestamp = jetkey_tmp.find("_BTagging")!=std::string::npos;
       if (jetkeyhastimestamp) { jetkey_tmp = jetkey_tmp.substr(0, jetkey_tmp.find("_BTagging")); jetkeyhastimestamp=false; }      // jetkey = untimestamped
-      std::string jetkey_btag = (m_BtagTimeStamp.empty()) ? jetkey_tmp : jetkey_tmp+"_BTagging"+m_BtagTimeStamp;                  // jetkey_btag = timestamped if necessary
+      jetkey_btag = (m_BtagTimeStamp.empty()) ? jetkey_tmp : jetkey_tmp+"_BTagging"+m_BtagTimeStamp;                  // jetkey_btag = timestamped if necessary
       ATH_MSG_DEBUG("Central timestamp: m_BtagTimeStamp = " << m_BtagTimeStamp);
     }
     ATH_MSG_DEBUG("Key for retrieving jet collection:        jetkey      = " << jetkey_tmp);

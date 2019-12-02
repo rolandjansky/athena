@@ -441,7 +441,7 @@ namespace ST {
     void configFromFile(int& property, const std::string& propname, TEnv& rEnv,
                         int defaultValue);
     void configFromFile(std::string& property, const std::string& propname, TEnv& rEnv,
-                        const std::string& defaultValue);
+                        const std::string& defaultValue, bool allowEmpty=false);
 
     //little helpers for WP configurations / handling
     bool check_isOption(const std::string& wp, const std::vector<std::string>& list) const;
