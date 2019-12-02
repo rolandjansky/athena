@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////
@@ -156,10 +156,12 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
       }
       if (!rot) continue;
 
-      ::Identifier channelId = rot->identify();
+      Identifier channelId = rot->identify();
+      if (m_idHelper->isMM(channelId)||m_idHelper->issTgc(channelId)) continue; // needs to be still implemented for the NSW
+
       MuonCalib::MuonFixedId calibId = m_idTool->idToFixedId(channelId);
       if (!calibId.isValid()) {
-	continue;
+        continue;
       }
 
       // GATHERING INFORMATION TO PUT TOGETHER THE STATION NAME //
@@ -168,7 +170,7 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
       multilayer_stream << calibId.mdtMultilayer();
       std::string multilayer_sstring = multilayer_stream.str();
 
-      if ( calibId.is_mdt() || ( calibId.is_csc() && calibId.cscMeasuresPhi() == 0 ) ) { 
+      if ( m_idHelper->isMdt(channelId) || ( m_idHelper->isCsc(channelId) && m_idHelper->cscIdHelper().measuresPhi(channelId) == 0 ) ) {
 
         ATH_MSG_DEBUG("Hit is in station " << completename << " multilayer " << multilayer_sstring);
 	++nPrecisionHits;
@@ -184,8 +186,7 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
 
            if (  boost::regex_match(completename, tmp_stationName) ) {
 
-              if( !boost::regex_match(multilayer_sstring, m_deviationsVec[iDev]->multilayer) && !calibId.is_csc() ) {
-                 //ATH_MSG_DEBUG("Hit in multilayer " << multilayer_sstring << " couldn't match to " << (m_deviationsVec[iDev]->multilayer).str());
+              if( !boost::regex_match(multilayer_sstring, m_deviationsVec[iDev]->multilayer) && !m_idHelper->isCsc(channelId) ) {
                  continue;
               }
 
