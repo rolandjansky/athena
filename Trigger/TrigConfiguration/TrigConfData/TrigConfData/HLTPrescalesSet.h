@@ -20,9 +20,8 @@ namespace TrigConf {
    public:
 
       struct HLTPrescale {
-         std::string name {""};
+         bool     enabled  { false };
          double   prescale { 1 };
-         uint32_t namehash { 0 };
       };
 
       /** Constructor */

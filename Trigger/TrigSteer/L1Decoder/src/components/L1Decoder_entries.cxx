@@ -13,6 +13,7 @@
 #include "../RoIsUnpackingEmulationTool.h"
 #include "../MURoIsUnpackingTool.h"
 #include "../RerunRoIsUnpackingTool.h"
+#include "../PrescalingTool.h"
 #include "../PrescalingEmulationTool.h"
 #include "../CreateFullScanRoI.h"
 
@@ -31,6 +32,7 @@ DECLARE_COMPONENT( RoIsUnpackingEmulationTool )
 DECLARE_COMPONENT( MURoIsUnpackingTool )
 DECLARE_COMPONENT( JRoIsUnpackingTool )
 DECLARE_COMPONENT( TAURoIsUnpackingTool )
+DECLARE_COMPONENT( PrescalingTool )
 DECLARE_COMPONENT( PrescalingEmulationTool )
 DECLARE_COMPONENT( RerunRoIsUnpackingTool )
 DECLARE_COMPONENT( CreateFullScanRoI )

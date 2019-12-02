@@ -28,12 +28,22 @@ TrigConf::HLTPrescalesSet::update()
    m_name = m_data.get_child("name").get_value<std::string>();
    const auto & prescales = m_data.get_child("prescales");
    for( auto & p : prescales ) {
+
+      double prescaleValue = p.second.get_child("prescale").get_value<double>();
       HLTPrescale ps;
-      ps.name = p.first;
-      ps.namehash = p.second.get_child("hash").get_value<uint32_t>();
-      ps.prescale = p.second.get_child("prescale").get_value<double>();
+      ps.prescale = prescaleValue < 0 ? -prescaleValue : prescaleValue;
+      ps.enabled = (prescaleValue > 0);
+      boost::optional<bool> enabledField = p.second.get_optional<bool>("enabled");
+      if( ! enabledField ) {
+         ps.enabled = *enabledField;
+      }
+
+      // store in map by name
       m_prescales[p.first] = ps;
-      m_prescalesByHash[ps.namehash] = ps;
+
+      // store in map by hash
+      uint32_t namehash = p.second.get_child("hash").get_value<uint32_t>();
+      m_prescalesByHash[namehash] = ps;
    }
 }
 
