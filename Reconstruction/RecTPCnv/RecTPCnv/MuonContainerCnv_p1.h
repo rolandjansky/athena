@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // MuonContainerCnv_p1.h 
@@ -29,7 +29,7 @@
 #include "RecTPCnv/MuonContainer_p1.h"
 #include "RecTPCnv/MuonCnv_p1.h"
 
-typedef T_AthenaPoolTPCnvVector< 
+typedef T_AthenaPoolTPCnvVectorConst< 
             Analysis::MuonContainer, 
             MuonContainer_p1, 
             MuonCnv_p1 
@@ -38,22 +38,25 @@ typedef T_AthenaPoolTPCnvVector<
 class MuonContainerCnv_p1 : public MuonContainerCnvBase_p1
 {
   public:
+    using base_class::transToPers;
+    using base_class::persToTrans;
+
     typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
     MuonContainerCnv_p1(){}
-    virtual void  persToTrans(const MuonContainer_p1* persColl, Analysis::MuonContainer* transColl, MsgStream &log) ;
+    virtual void  persToTrans(const MuonContainer_p1* persColl, Analysis::MuonContainer* transColl, MsgStream &log) const;
     void setKey ( const std::string key) { m_cnv.setKey( key ); }
     void setEventStore( const StoreGateSvc_t storeGate ) { m_cnv.setEventStore( storeGate ); }  
   private:
     MuonCnv_p1 m_cnv;
 };
 
-inline void  MuonContainerCnv_p1::persToTrans(const MuonContainer_p1* persColl, Analysis::MuonContainer* transColl, MsgStream &log)
+inline void  MuonContainerCnv_p1::persToTrans(const MuonContainer_p1* persColl, Analysis::MuonContainer* transColl, MsgStream &log) const
 {
    MuonContainer_p1::const_iterator it;
    transColl->clear();
    transColl->reserve(persColl->size());
    for (it = persColl->begin(); it != persColl->end(); ++it) {
-      transColl->push_back(m_cnv.createTransient(&(*it), log));
+      transColl->push_back(m_cnv.createTransientConst(&(*it), log));
    }
 }
 

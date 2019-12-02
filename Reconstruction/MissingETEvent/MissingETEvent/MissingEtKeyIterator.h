@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MISSINGETEVENT_MISSINGETKEYITERATOR_H
@@ -16,10 +16,10 @@
     ~MissingEtKeyIterator()                                        { };
 
     // stepping operators
-    MissingEtKeyIterator operator++()    { m_actual++; return *this; }
-    MissingEtKeyIterator operator++(int) { ++m_actual; return *this; }
-    MissingEtKeyIterator operator--()    { m_actual--; return *this; }
-    MissingEtKeyIterator operator--(int) { --m_actual; return *this; }
+    MissingEtKeyIterator operator++()    { ++m_actual; return *this; }
+    MissingEtKeyIterator operator++(int) { auto ret = *this; ++m_actual; return ret; }
+    MissingEtKeyIterator operator--()    { --m_actual; return *this; }
+    MissingEtKeyIterator operator--(int) { auto ret = *this; --m_actual; return ret; }
 
     // comparators
     bool operator==(const MissingEtKeyIterator& anIter) const
@@ -57,10 +57,10 @@
     ~MissingEtKeyConstIterator()                                        { };
 
     // stepping operators
-    MissingEtKeyConstIterator operator++()    { m_actual++; return *this; }
-    MissingEtKeyConstIterator operator++(int) { ++m_actual; return *this; }
-    MissingEtKeyConstIterator operator--()    { m_actual--; return *this; }
-    MissingEtKeyConstIterator operator--(int) { --m_actual; return *this; }
+    MissingEtKeyConstIterator operator++()    { ++m_actual; return *this; }
+    MissingEtKeyConstIterator operator++(int) { auto ret = *this; ++m_actual; return ret; }
+    MissingEtKeyConstIterator operator--()    { --m_actual; return *this; }
+    MissingEtKeyConstIterator operator--(int) { auto ret = *this; --m_actual; return ret; }
 
     // comparators
     bool operator==(const MissingEtKeyConstIterator& anIter) const

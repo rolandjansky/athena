@@ -1,0 +1,21 @@
+{
+    "name": "CentOS 7",
+    "dockerFile": "Dockerfile",
+
+    "runArgs": [
+        "-v", "/cvmfs/atlas.cern.ch:/cvmfs/atlas.cern.ch:cached",
+        "-v", "/cvmfs/atlas-nightlies.cern.ch:/cvmfs/atlas-nightlies.cern.ch:cached",
+        "-v", "/cvmfs/atlas-condb.cern.ch:/cvmfs/atlas-condb.cern.ch:cached",
+        "-v", "/cvmfs/sft.cern.ch:/cvmfs/sft.cern.ch:cached",
+        "-v", "${localWorkspaceFolder}/../build:/workspaces/build:delegated"
+    ],
+
+    "settings": {
+        "terminal.integrated.shell.linux": "/bin/bash"
+    },
+
+    "extensions": [
+        "ms-vscode.cpptools",
+        "twxs.cmake"
+    ]
+}

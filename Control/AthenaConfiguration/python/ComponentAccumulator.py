@@ -841,7 +841,7 @@ class ComponentAccumulator(object):
             if svc.getName()=="MessageSvc":
                 #Message svc exists already! Needs special treatment
                 for k, v in svc.getValuedProperties().items():
-                    bsh.setProperty(msp,k,str(v).encode())
+                    bsh.setProperty(msp,k.encode(),str(v).encode())
             else:
                 addCompToJos(svc)
             pass

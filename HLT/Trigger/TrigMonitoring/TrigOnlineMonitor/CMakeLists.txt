@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Trigger/TrigConfiguration/TrigConfInterfaces
                           PRIVATE
+                          Control/AthenaInterprocess
                           Control/AthenaKernel
                           Control/AthenaMonitoring
                           Event/ByteStreamCnvSvcBase
@@ -38,7 +39,7 @@ atlas_add_component( TrigOnlineMonitor
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps ByteStreamData ByteStreamData_test GaudiKernel AthenaKernel ByteStreamCnvSvcBaseLib EventInfo MagFieldInterfaces TrigConfL1Data TrigROBDataProviderSvcLib TrigSteeringEvent TrigMonitorBaseLib TrigSteeringLib L1TopoConfig L1TopoRDO TrigT1Interfaces TrigT1Result TrigT1ResultByteStreamLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps ByteStreamData ByteStreamData_test GaudiKernel AthenaInterprocess AthenaKernel ByteStreamCnvSvcBaseLib EventInfo MagFieldInterfaces TrigConfL1Data TrigROBDataProviderSvcLib TrigSteeringEvent TrigMonitorBaseLib TrigSteeringLib L1TopoConfig L1TopoRDO TrigT1Interfaces TrigT1Result TrigT1ResultByteStreamLib )
 
 # Install files from the package:
 atlas_install_headers( TrigOnlineMonitor )

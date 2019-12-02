@@ -67,10 +67,13 @@ namespace InDet{
         bool isInsideView(const EventContext&) const;
         template<typename T>
         StatusCode createContainer(const SG::WriteHandleKey<T>& , long unsigned int , const EventContext& ) const;
+        template<typename T, typename X>
+        StatusCode createValueContainer(const SG::WriteHandleKey<T>& , long unsigned int , const EventContext&, const X& defaultValue ) const;
     };
 
     template<typename T>
     StatusCode CacheCreator::createContainer(const SG::WriteHandleKey<T>& containerKey, long unsigned int size, const EventContext& ctx) const{
+        static_assert(std::is_base_of<EventContainers::IdentifiableCacheBase, T>::value, "Expects a IdentifiableCache Class" );
         if(containerKey.key().empty()){
             ATH_MSG_DEBUG( "Creation of container "<< containerKey.key() << " is disabled (no name specified)");
             return StatusCode::SUCCESS;
@@ -80,6 +83,20 @@ namespace InDet{
         ATH_MSG_DEBUG( "Container "<< containerKey.key() << " created to hold " << size );
         return StatusCode::SUCCESS;
     }
+
+    template<typename T, typename X>
+    StatusCode CacheCreator::createValueContainer(const SG::WriteHandleKey<T>& containerKey, long unsigned int size, const EventContext& ctx, const X& defaultValue) const{
+        static_assert(std::is_base_of<IdentifiableValueCache<X>, T>::value, "Expects a IdentifiableValueCache Class" );
+        if(containerKey.key().empty()){
+            ATH_MSG_DEBUG( "Creation of container "<< containerKey.key() << " is disabled (no name specified)");
+            return StatusCode::SUCCESS;
+        }
+        SG::WriteHandle<T> ContainerCacheKey(containerKey, ctx);
+        ATH_CHECK( ContainerCacheKey.recordNonConst ( std::make_unique<T>(size, defaultValue) ));
+        ATH_MSG_DEBUG( "ValueContainer "<< containerKey.key() << " created to hold " << size );
+        return StatusCode::SUCCESS;
+    }
+
 
 }
 

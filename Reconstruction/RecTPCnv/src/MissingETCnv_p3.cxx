@@ -14,12 +14,8 @@ PURPOSE:  Transient/Persisten converter for MissingET class
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
 // MissingETEvent includes
-#define private public
-#define protected public
 #include "MissingETEvent/MissingET.h"
 #include "MissingETEvent/MissingEtRegions.h"
-#undef private
-#undef protected
 
 // RecTPCnv includes
 #include "RecTPCnv/MissingETCnv_p3.h"
@@ -29,26 +25,23 @@ PURPOSE:  Transient/Persisten converter for MissingET class
 // #include <stdlib.h> // not needed here?
 
 // region converter
-static MissingEtRegionsCnv_p3 regCnv;
+static const MissingEtRegionsCnv_p3 regCnv;
 
 
-/////////////////////////////////////////////////////////////////// 
-// methods: 
-///////////////////////////////////////////////////////////////////
 
-void MissingETCnv_p3::persToTrans(  const MissingET_p3* pers, MissingET* trans, MsgStream& /* msg */ ) {
+void MissingETCnv_p3::persToTrans(  const MissingET_p3* pers, MissingET* trans, MsgStream& /* msg */ ) const {
 	std::vector<float>::const_iterator it=pers->m_AllTheData.begin();
 	persToTrans(trans, it);
   return;
 }
 
-void MissingETCnv_p3::transToPers(  const MissingET* trans, MissingET_p3* pers, MsgStream& /* msg */ ) {
+void MissingETCnv_p3::transToPers(  const MissingET* trans, MissingET_p3* pers, MsgStream& /* msg */ ) const {
 	transToPers(trans, pers->m_AllTheData);	
  return;
 }
 
 
-void MissingETCnv_p3::persToTrans( MissingET* trans, std::vector<float>::const_iterator i) {
+void MissingETCnv_p3::persToTrans( MissingET* trans, std::vector<float>::const_iterator i) const {
 	
     //float version;
     //version = (*i);
@@ -56,16 +49,18 @@ void MissingETCnv_p3::persToTrans( MissingET* trans, std::vector<float>::const_i
 	
 	union conv{  unsigned int i;   float f;  } c;
 	c.f=(*i); ++i;
-	trans->m_source = static_cast<MissingET::Source>(c.i>>1);
-	trans->m_ex     = (*i);++i;
-	trans->m_ey     = (*i);++i;
-	trans->m_etSum  = (*i);++i;
-	trans->m_regions.reset(); // it's a bit crazy that this is always created in MissingET constructor and recreated here.
+        MissingET::Source source = static_cast<MissingET::Source>(c.i>>1);
+	double ex     = (*i);++i;
+	double ey     = (*i);++i;
+	double etSum  = (*i);++i;
+        std::unique_ptr<MissingEtRegions> regions;
 	if( c.i & 1) {
-                auto theReg = std::make_unique<MissingEtRegions>();
-		regCnv.persToTrans( theReg.get(), i);
-		trans->m_regions = std::move(theReg);
+          regions = std::make_unique<MissingEtRegions>();
+          regCnv.persToTrans( regions.get(), i);
 	}
+        *trans = MissingET (source,
+                            std::move (regions),
+                            ex, ey, etSum);
 	
     // std::cout<<"IN  source: "<<trans->m_source;
     // std::cout<<"\tex: "<<trans->m_ex;
@@ -76,26 +71,26 @@ void MissingETCnv_p3::persToTrans( MissingET* trans, std::vector<float>::const_i
 	return;
 }
 
-void  MissingETCnv_p3::transToPers(  const MissingET* trans,  std::vector<float> &all ) {
+void  MissingETCnv_p3::transToPers(  const MissingET* trans,  std::vector<float> &all ) const {
     
     all.push_back(3.0); // storing version number
     
     // folding together m_source and if regions are present
-	unsigned int tmp=static_cast<unsigned int>(trans->m_source);
+        unsigned int tmp=static_cast<unsigned int>(trans->getSource());
 	tmp <<= 1;
-	if( trans->m_regions != 0) tmp|=1;
+        if( trans->getRegions() != 0) tmp|=1;
 	
 	union conv{  unsigned int i;   float f;  } c;
 	c.i=tmp;
 	all.push_back(c.f);
 	
 	// simple types
-	all.push_back(trans->m_ex);
-	all.push_back(trans->m_ey);
-	all.push_back(trans->m_etSum);
+        all.push_back(trans->etx());
+	all.push_back(trans->ety());
+	all.push_back(trans->sumet());
 	
 	// calling regions tTP
-	if( trans->m_regions != 0) regCnv.transToPers(trans->m_regions.get(), all);
+	if( trans->getRegions() != 0) regCnv.transToPers(trans->getRegions(), all);
 	
     // std::cout<<"OUT source: "<<trans->m_source;
     // std::cout<<"\tex: "<<trans->m_ex;

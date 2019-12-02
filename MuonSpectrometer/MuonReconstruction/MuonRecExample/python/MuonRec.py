@@ -27,5 +27,5 @@ muonRec = MuonRec(applyResilience=athenaCommonFlags.AllowIgnoreConfigError())
 #--------------------------------------------------------------------------
 # Print out full muon Reco config
 #--------------------------------------------------------------------------
-print muonRec
+print(muonRec)
 

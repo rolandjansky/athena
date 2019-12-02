@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MISSINGETEVENT_MISSINGETCALO_H
@@ -59,7 +59,7 @@ class MissingEtCalo : public MissingET
   void setEyCalo(CaloIndex aCalo,  double theEy);
   void setEtSumCalo(CaloIndex aCalo, double theEtSum);
   void setNCellCalo(CaloIndex aCalo, unsigned int theNCell);
-  void setCalibType(std::string theCalibType);
+  void setCalibType(const std::string& theCalibType);
   
   void setExCaloVec(std::vector<double>&& exCaloVec);
   void setEyCaloVec(std::vector<double>&& exCaloVec);

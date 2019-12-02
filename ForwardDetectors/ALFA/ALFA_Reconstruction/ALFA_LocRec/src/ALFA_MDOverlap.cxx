@@ -338,17 +338,12 @@ StatusCode ALFA_MDOverlap::Overlap()
 						fbMinP = m_fbMD[iLayer][m_iFHits[iLayer]] + fHalfStep;
 						iLayMinU = iLayer;
 					}
-					else
-					{
-						fbMinP = fbMinP;
-					}
 				}
 
 				if (m_fbMD[iLayer][m_iFHits[iLayer]] - fHalfStep < fbMinP)
 				{
 					if (fbMaxP > m_fbMD[iLayer][m_iFHits[iLayer]] - fHalfStep)
 					{
-						fbMaxP = fbMaxP;
 					}
 					else
 					{
@@ -371,17 +366,12 @@ StatusCode ALFA_MDOverlap::Overlap()
 						fbMinN =m_fbMD[iLayer][m_iFHits[iLayer]] + fHalfStep;
 						iLayMinV = iLayer;
 					}
-					else
-					{
-						fbMinN = fbMinN;
-					}
 				}
 
 				if (m_fbMD[iLayer][m_iFHits[iLayer]] - fHalfStep < fbMinN)
 				{
 					if (fbMaxN > m_fbMD[iLayer][m_iFHits[iLayer]] - fHalfStep)
 					{
-						fbMaxN = fbMaxN;
 					}
 					else
 					{

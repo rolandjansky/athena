@@ -21,7 +21,7 @@ update_metadata = ExecStep.ExecStep('UpdateMetadata')
 update_metadata.type = 'other'
 update_metadata.executable = 'trigbs_updateBSMetadata.py'
 update_metadata.input = ''
-update_metadata.args = '--copyFrom {:s} --outputName inputForReco output_Child-001._0001.data'.format(get_input('data').paths[0])
+update_metadata.args = '--copyFrom {:s} --outputName inputForReco `find . -name \'*_HLTMPPy_output.*.data\' | tail -n 1`'.format(get_input('data').paths[0])
 
 # Tier-0 reco step (BS->ESD->AOD)
 tzrecoPreExec = ' '.join([

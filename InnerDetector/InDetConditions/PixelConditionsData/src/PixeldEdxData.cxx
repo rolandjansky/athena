@@ -3,8 +3,9 @@
 */
 
 #include "PixelConditionsData/PixeldEdxData.h"
-#include "CLHEP/Units/SystemOfUnits.h"
 #include "TMath.h"
+#include <cmath>
+#include <algorithm>
 
 void PixeldEdxData::setPar(const int i, const double param) {
   m_par[i].push_back(param);
@@ -26,36 +27,36 @@ void PixeldEdxData::setMinimumdEdxForMass(const double mindedxMass) {
   m_mindedxformass = mindedxMass;
 }
 
-double PixeldEdxData::dEdxPdf(double dedx,double p,double mass, std::array<double,9> par, int offset) const {
-  p = fabs(p);
+double PixeldEdxData::dEdxPdf(const double dedx,const double signedP,const double mass, const std::array<double,9> &par, const int offset) const {
+  const auto p = std::abs(signedP);
 
   double x0 = getdEdx(p,mass,par);
 
   double pLG[4]={1,1,1,1};
 
   if (m_fun=="AG") {
-    x0     = log(x0)   - 9.4;
+    x0     = std::log(x0)   - 9.4;
     pLG[1] = x0;
     pLG[0] = par[offset]+par[offset+2];
     pLG[3] = par[offset+1]+par[offset+3];
-    return Func2(dedx, pLG[1], pLG[0], pLG[3]);
+    return asymGaus(dedx, pLG[1], pLG[0], pLG[3]);
   } 
   else if (m_fun=="CB") {
-    x0     = log(x0)   - 9.4;
+    x0     = std::log(x0)   - 9.4;
     pLG[0] = x0;
     pLG[1] = par[offset];
     pLG[2] = par[offset+1];
     pLG[3] = par[offset+2];
-    return Func1(dedx, pLG[0], pLG[1], pLG[2], pLG[3]);
+    return crystalBall(dedx, pLG[0], pLG[1], pLG[2], pLG[3]);
   } 
   return 0;
 }
 
-double PixeldEdxData::fdEdx_zero(double x, std::array<double,9> par) const {
+double PixeldEdxData::fdEdxZero(const double x, const std::array<double,9> & par) const {
   return getdEdx(par[6],x,par)-par[5];
 }
 
-double PixeldEdxData::getPar(int i, int j) const {
+double PixeldEdxData::getPar(const int i, const int j) const {
   auto itr = m_par.find(i);
   if (itr!=m_par.end()) {
     const std::vector<double> &param = itr->second;
@@ -66,53 +67,48 @@ double PixeldEdxData::getPar(int i, int j) const {
   return 0;
 }
 
-void PixeldEdxData::getP(double dedx, double p, int nGoodPixels, std::array<double,3> vhypo) const {
-  std::array<double,9> par;
+std::array<double,3> 
+PixeldEdxData::getP(const double dedxArg, const double signedP, const int nGoodPixels) const {
+  std::array<double,3> vhypo{-2,-2,-2};
+  if (nGoodPixels<=0) { return vhypo; }
+  const auto & par = getFirstNPar(signedP,nGoodPixels,9);
+  const auto p = std::fabs(signedP);
 
-  vhypo[0] = -2;
-  vhypo[1] = -2;
-  vhypo[2] = -2;
+  const auto dedx = std::log(dedxArg)-9.4;
 
-  if (nGoodPixels<=0) { return; }
-  getFirstNPar(par,p,nGoodPixels,9);
-  p = fabs(p);
-
-  dedx = log(dedx)-9.4;
-
-  double pk  = dEdxPdf(dedx,p,m_k ,par,5);
-  double pp  = dEdxPdf(dedx,p,m_p ,par,5);
-  double ppi = dEdxPdf(dedx,p,m_pi,par,5);
+  double pk  = dEdxPdf(dedx,p,m_kMass ,par,5);
+  double pp  = dEdxPdf(dedx,p,m_pMass ,par,5);
+  double ppi = dEdxPdf(dedx,p,m_piMass,par,5);
 
   if (ppi+pk+pp>=0) {
-    vhypo[0] = ppi; 
-    vhypo[1] =  pk;
-    vhypo[2] =  pp; 
+    vhypo = {ppi, pk,pp};
   } 
   else { 
-    vhypo[0] = -1;
-    vhypo[1] = -1;
-    vhypo[2] = -1;
+    vhypo ={-1,-1,-1};
   }
-  return;
+  return vhypo;
 }
 
-void PixeldEdxData::getFirstNPar(std::array<double,9> par, double p, int nGoodPixels, int npar) const {
-  if (nGoodPixels>5) { nGoodPixels=5; }
-  if (p<0 && m_posneg) { nGoodPixels += 5; }
-  for (int i=0;i<npar;i++){
-    par[i] = getPar(nGoodPixels-1,i);
-  }
-}
-
-double PixeldEdxData::getMass(double dedx, double p, int nGoodPixels) const {
-
-  if (dedx<m_mindedxformass) { return m_pi; }
-
+std::array<double,9> 
+PixeldEdxData::getFirstNPar(const double p, const int nGoodPixels, const int npar) const {
   std::array<double,9> par;
-  if (nGoodPixels<=0) { return -2; }
-  getFirstNPar(par,p,nGoodPixels,5);
+  auto setNGoodPixels{nGoodPixels};
+  if (setNGoodPixels>5) { setNGoodPixels=5; }
+  if (p<0 && m_posneg) { setNGoodPixels += 5; }
+  for (int i=0;i<npar;i++){
+    par[i] = getPar(setNGoodPixels-1,i);
+  }
+  return par;
+}
 
-  p = fabs(p);
+double PixeldEdxData::getMass(const double dedx, const double signedP, const int nGoodPixels) const {
+
+  if (dedx<m_mindedxformass) { return m_piMass; }
+
+  if (nGoodPixels<=0) { return -2; }
+  auto  par = getFirstNPar(signedP,nGoodPixels,5);
+
+  const auto p = std::abs(signedP);
 
   par[5] = dedx;
   par[6] = p;
@@ -120,34 +116,32 @@ double PixeldEdxData::getMass(double dedx, double p, int nGoodPixels) const {
   double xmin=0;
   double xmax=14000;
 
-  double xmed = (xmin+xmax)/2;
+  double xmed = (xmin+xmax)*0.5;
   double prec=1e-6;
 
-  if (dedx<15000){ return m_pi; }
+  if (dedx<15000){ return m_piMass; }
 
   do {
-    if (fdEdx_zero(xmed,par)==0) { return xmed; }
-    if (fdEdx_zero(xmed,par)*fdEdx_zero(xmax,par)>0) { xmax=xmed; }
+    if (fdEdxZero(xmed,par)==0) { return xmed; }
+    if (fdEdxZero(xmed,par)*fdEdxZero(xmax,par)>0) { xmax=xmed; }
     else { xmin=xmed; }
-    xmed=(xmin+xmax)/2;
+    xmed=(xmin+xmax)*0.5;
   } while (std::abs(xmax-xmin)>prec);
   return xmed;
 }
 
-double PixeldEdxData::getdEdx(double p, double mass, int nGoodPixels) const {
-  std::array<double,9> par;
-
+double PixeldEdxData::getdEdx(const double signedP, const double mass, const int nGoodPixels) const {
   if (nGoodPixels<=0) { return -2; }
-  getFirstNPar(par,p,nGoodPixels,5);
-  p = fabs(p);
+  const auto & par = getFirstNPar(signedP,nGoodPixels,5);
+  const auto p = std::abs(signedP);
   if      (m_bb=="3p")       { return dEdx_3p(p,mass,par); } 
   else if (m_bb=="5p")       { return dEdx_5p(p,mass,par); } 
   else if (m_bb=="5p_aleph") { return dEdx_5p_aleph(p,mass,par); }
   return 0;
 }
 
-double PixeldEdxData::getdEdx(double p, double mass, std::array<double,9> par) const {
-  p = fabs(p);
+double PixeldEdxData::getdEdx(const double signedP, const double mass, const std::array<double,9> & par) const {
+  const auto p = std::abs(signedP);
   if      (m_bb=="3p")       { return dEdx_3p(p,mass,par); } 
   else if (m_bb=="5p")       { return dEdx_5p(p,mass,par); } 
   else if (m_bb=="5p_aleph") { return dEdx_5p_aleph(p,mass,par); }
@@ -155,88 +149,84 @@ double PixeldEdxData::getdEdx(double p, double mass, std::array<double,9> par) c
 }
 
 // Crystal Ball distribution
-double PixeldEdxData::Func1(double x,double x0,double sig,double alp,double n) const {
-  double A = pow(n/fabs(alp),n)*exp(-pow(fabs(alp),2)/2);
-  double B = n/fabs(alp)-fabs(alp);
+double PixeldEdxData::crystalBall(const double x,const double x0,const double sig,const double alp,const double n) const {
+  double A = std::pow(n/std::abs(alp),n)*std::exp(-std::pow(std::abs(alp),2)*0.5);
+  double B = n/std::abs(alp)-std::abs(alp);
   double pull = (x-x0)/sig;
-  double N = sig*(n/alp*(1/(n-1))*exp(-alp*alp/2)+sqrt(M_PI/2)*(1+erf(alp/sqrt(2))));
+  double N = sig*(n/alp*(1/(n-1))*std::exp(-alp*alp*0.5)+std::sqrt(M_PI_2)*(1+std::erf(alp*M_SQRT1_2)));
   if (pull<alp){
-    return exp(-pull*pull/2)/N;
+    return std::exp(-pull*pull*0.5)/N;
   }
-  return A*pow(B+pull,-n)/N;
+  return A*std::pow(B+pull,-n)/N;
 }
 
 // Asymetric Gaussian distribution
-double PixeldEdxData::Func2(double x,double x0,double sig,double asym) const {
+double PixeldEdxData::asymGaus(const double x,const double x0,const double sig,const double asym) const {
   double sigp = sig*asym;
   double sigm = sig/asym;
   double fun;
   if (x>x0) { fun = TMath::Gaus(x,x0,sigp,false); } 
   else      { fun = TMath::Gaus(x,x0,sigm,false); }
-  return fun/(sqrt(2*TMath::Pi())*(sigp/2+sigm/2));
+  return fun/(std::sqrt(2*M_PI)*((sigp*0.5) + (sigm*0.5)));
 }
 
 // Moyal distribution
-double PixeldEdxData::Func3(double x,double Ep,double R) const {
+double PixeldEdxData::moyal(const double x,const double Ep,const double R) const {
   double lambda = (x-Ep)/R;
-  return sqrt(exp(-lambda-exp(-lambda))/(2*TMath::Pi()));
+  return std::sqrt(std::exp(-lambda-std::exp(-lambda))*M_1_PI*0.5);
 }
 
-double PixeldEdxData::dEdx_5p_BG_aleph(double xbg, std::array<double,9>& pp) const {
-  double gamma = sqrt(xbg*xbg+1);
-  double beta  = sqrt(1-1/(gamma*gamma));
-  return pp[0]/pow(beta,pp[3])*(pp[1]-pow(beta,pp[3])-log(pp[2]+1/pow(beta*gamma,pp[4])));
+double PixeldEdxData::dEdx_5p_BG_aleph(const double xbg, const std::array<double,9>& pp) const {
+  double gamma = std::sqrt(xbg*xbg+1.);
+  double beta  = std::sqrt(1.-1./(gamma*gamma));
+  return pp[0]/std::pow(beta,pp[3])*(pp[1]-std::pow(beta,pp[3])-std::log(pp[2]+1./std::pow(beta*gamma,pp[4])));
 }
 
-double PixeldEdxData::dEdx_5p_aleph(double p,double mass, std::array<double,9>& pp) const {
+double PixeldEdxData::dEdx_5p_aleph(const double p,const double mass, const std::array<double,9>& pp) const {
   double bg = p/mass;
   return dEdx_5p_BG_aleph(bg,pp);
 }
 
-double PixeldEdxData::dEdx_5p_BG(double xbg, std::array<double,9>& pp) const {
-  double gamma   = sqrt(xbg*xbg+1);
-  double beta    = sqrt(1-1/(gamma*gamma));
-  double fdedx   = pp[0]/pow(beta,pp[2])*log(1+pow(std::abs(pp[1])*beta*gamma,pp[4]))-pp[3];
+double PixeldEdxData::dEdx_5p_BG(const double xbg, const std::array<double,9>& pp) const {
+  double gamma   = std::sqrt(xbg*xbg+1);
+  double beta    = std::sqrt(1.-1./(gamma*gamma));
+  double fdedx   = pp[0]/std::pow(beta,pp[2])*std::log(1+std::pow(std::abs(pp[1])*beta*gamma,pp[4]))-pp[3];
   return fdedx;
 }
 
-double PixeldEdxData::dEdx_5p(double p,double mass, std::array<double,9>& pp) const {
+double PixeldEdxData::dEdx_5p(const double p,const double mass, const std::array<double,9>& pp) const {
   double bg = p/mass;
   return dEdx_5p_BG(bg,pp);
 }
 
-double PixeldEdxData::dEdx_BG(double xbg, std::array<double,9>& pp) const {
-  double gamma     = sqrt(xbg*xbg+1);
-  double beta      = sqrt(1-1/(gamma*gamma));
+double PixeldEdxData::dEdx_BG(const double xbg, const std::array<double,9>& pp) const {
+  double gamma     = std::sqrt(xbg*xbg+1);
+  double beta      = std::sqrt(1-1/(gamma*gamma));
   double beta2     = beta*beta;
   double gamma2    = gamma*gamma;
-  double fdedx = (pp[0]/pow(beta2,pp[2]))*(log(std::abs(pp[1])*beta2*gamma2))-pp[0];
+  double fdedx = (pp[0]/std::pow(beta2,pp[2]))*(std::log(std::abs(pp[1])*beta2*gamma2))-pp[0];
   return fdedx;
 }
 
-double PixeldEdxData::dEdx_def(double p,double mass, std::array<double,9>& pp) const {
+double PixeldEdxData::dEdx_def(const double p,const double mass, const std::array<double,9>& pp) const {
   double bg = p/mass;
   return dEdx_BG(bg,pp);
 }
 
-double PixeldEdxData::dEdx_3p(double p,double mass, std::array<double,9>& pp) const {
+double PixeldEdxData::dEdx_3p(const double p,const double mass, const std::array<double,9>& pp) const {
   double bg = p/mass;
   return dEdx_BG(bg,pp);
 }
 
-std::vector<float> PixeldEdxData::getLikelihoods(double dedx2, double p2, int nGoodPixels) const {
+std::vector<float> 
+PixeldEdxData::getLikelihoods(const double dedx2, const double p2, const int nGoodPixels) const {
   double dedx=dedx2; 
-  double p=p2/1000; 
-  std::vector<float> vhypo; 
-  vhypo.resize(3); 
-  vhypo[0] = vhypo[1] = vhypo[2] = -1;
-  if (nGoodPixels<=0) return vhypo;
-  std::array<double,3> vhypo2;
-  vhypo2[0] = vhypo2[1] = vhypo2[2] = -1;
-  getP(dedx,p,nGoodPixels,vhypo2);
-  vhypo[0]=vhypo2[0];
-  vhypo[1]=vhypo2[1];
-  vhypo[2]=vhypo2[2];
-  return vhypo;
+  double p=p2*0.001; 
+  std::vector<float> vecResult(3,-1); 
+  if (nGoodPixels>0){
+    const auto & array { getP(dedx,p,nGoodPixels)};
+    std::copy(array.begin(), array.end(),vecResult.begin());
+  }
+  return vecResult;
 }
 

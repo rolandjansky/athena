@@ -420,14 +420,14 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoadATL
     if(Pn[3]>Po[3]) {
       for(; n1<m_map[1]; ++n1) {
 	if(Pn[3] < m_layer[1][n1].r()) break; 
-        assert( used.at(1)> n1);
+        assert( used.at(1).size() > static_cast<unsigned int>(n1) );
 	m_layer[1][n1].getBarrelDetElementsATL(Po,A,lDE,used[1][n1]);
       }
     }
     else     {
       for(--n1; n1>=0; --n1) {
 	if(Pn[3] > m_layer[1][n1].r()) break; 
-        assert( used.at(1).size() > n1 );
+        assert( used.at(1).size() > static_cast<unsigned int>(n1) );
 	m_layer[1][n1].getBarrelDetElementsATL(Po,A,lDE,used[1][n1]);
      }
       ++n1;
@@ -439,14 +439,14 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoadATL
 
       for(; n2<m_map[2]; ++n2) {
 	if(Pn[2] < m_layer[2][n2].z()) break; 
-        assert( used.at(2)> n2);
+        assert( used.at(2).size()> static_cast<unsigned int>(n2));
 	m_layer[2][n2].getEndcapDetElements(Po,A,lDE,used[2][n2]);
       }
     }
     else     {
       for(--n2; n2>=0; --n2) {
 	if(Pn[2] > m_layer[2][n2].z()) break; 
-        assert( used.at(2)> n2);
+        assert( used.at(2).size() > static_cast<unsigned int>(n2));
 	m_layer[2][n2].getEndcapDetElements(Po,A,lDE,used[2][n2]);
       }
       ++n2;
@@ -458,14 +458,14 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoadATL
 
       for(; n0<m_map[0]; ++n0) {
 	if(Pn[2] > m_layer[0][n0].z()) break; 
-        assert( used.at(0)> n0);
+        assert( used.at(0).size() > static_cast<unsigned int>(n0));
 	m_layer[0][n0].getEndcapDetElements(Po,A,lDE,used[0][n0]);
       }
     }
      else   {
       for(--n0; n0>=0; --n0) {
 	if(Pn[2] < m_layer[0][n0].z()) break; 
-        assert( used.at(0)> n0);
+        assert( used.at(0).size() > static_cast<unsigned int>(n0));
 	m_layer[0][n0].getEndcapDetElements(Po,A,lDE,used[0][n0]);
       } 
       ++n0;
@@ -545,14 +545,14 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoadCTB
     if(Pn[3]>Po[3]) {
       for(; n1<m_map[1]; ++n1) {
 	if(Pn[3] < m_layer[1][n1].r()) break;
-        assert( used.at(1).size() > n1 );
+        assert( used.at(1).size() > static_cast<unsigned int>(n1) );
 	m_layer[1][n1].getBarrelDetElementsCTB(Po,A,lDE,used[1][n1]);
       }
     }
     else     {
       for(--n1; n1>=0; --n1) {
 	if(Pn[3] > m_layer[1][n1].r()) break;
-        assert( used.at(1).size() > n1 );
+        assert( used.at(1).size() > static_cast<unsigned int>(n1) );
 	m_layer[1][n1].getBarrelDetElementsCTB(Po,A,lDE,used[1][n1]);
       }
       ++n1;

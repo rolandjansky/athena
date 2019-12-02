@@ -384,7 +384,7 @@ class Muon : public ParticleImpl<
   { return m_hasCombinedMuonTrackParticle; }
 
   /** Access to the smart pointer to the muon combined track */
-  const ElementLink<Rec::TrackParticleContainer> statCombinedTrackLink() const { return m_statCombinedMuonTrackParticle; }
+  const ElementLink<Rec::TrackParticleContainer>& statCombinedTrackLink() const { return m_statCombinedMuonTrackParticle; }
 
   void setStatCombinedTrackLink (const ElementLink<Rec::TrackParticleContainer>& l)
   { m_statCombinedMuonTrackParticle = l; }
@@ -601,22 +601,18 @@ class Muon : public ParticleImpl<
   /** set the Calorimeter information */
   void set_cluster( const CaloClusterContainer* cont, const CaloCluster* cluster ) {
     m_cluster.toContainedElement( *cont, const_cast<CaloCluster*> (cluster));
-    m_hasCluster = m_cluster.isValid();
   }
   /** set the Calorimeter information */
   void set_cluster( const CaloCluster* cluster) {
      m_cluster.setElement(const_cast<CaloCluster*>(cluster));
-     m_hasCluster = m_cluster.isValid();
   }
   /** set the Calorimeter information, by link */
   void set_cluster( const ElementLink<CaloClusterContainer>& cluster) {
      m_cluster = cluster;
-     m_hasCluster = m_cluster.isValid();
   }
   /** set the Calorimeter information */
   void set_clusterContainer(const CaloClusterContainer * clusterContainer) {
      m_cluster.setStorableObject(*clusterContainer);
-     m_hasCluster = m_cluster.isValid();
   }
 
   /** Set the inner detector track particle. Does not change the Muon's 4-momentum. */
@@ -653,7 +649,6 @@ class Muon : public ParticleImpl<
   /** set the TrackParticle containers */
   void set_inDetTrackParticleContainer(const Rec::TrackParticleContainer * inDetTPContainer) {
      m_inDetTrackParticle.setStorableObject(*inDetTPContainer);
-     m_hasInDetTrackParticle = m_inDetTrackParticle.isValid();
   }
   /** set the TrackParticle containers */
   void set_muonExtrapolatedTrackParticleContainer(const Rec::TrackParticleContainer *
@@ -665,7 +660,6 @@ class Muon : public ParticleImpl<
   void set_innerExtrapolatedTrackParticleContainer(const Rec::TrackParticleContainer *
                                                    innerExtrapolatedTPContainer) {
      m_innerExtrapolatedTrackParticle.setStorableObject(*innerExtrapolatedTPContainer);
-     m_hasInnerExtrapolatedTrackParticle = m_innerExtrapolatedTrackParticle.isValid();
   }
   /** set the TrackParticle containers */
   void set_combinedMuonTrackParticleContainer(const Rec::TrackParticleContainer * combinedMuonTPContainer) {
@@ -764,17 +758,9 @@ class Muon : public ParticleImpl<
   /** the author of this muon */
   MuonParameters::Author m_author;
 
-  /** was there a successfully combined trach? */
-  bool m_hasCombinedMuon;
-
   /** test for TrackParticles */
-  bool m_hasInDetTrackParticle;
   bool m_hasMuonExtrapolatedTrackParticle;
-  bool m_hasInnerExtrapolatedTrackParticle;
   bool m_hasCombinedMuonTrackParticle;
-
-  /* Calorimeter cluster info */
-  bool m_hasCluster;
 
   /* chi2 of the track matching */
   float m_matchChi2;

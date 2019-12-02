@@ -8,6 +8,7 @@
 #include "MuonGeoModel/MYSQL.h"
 #include <fstream>
 #include <sstream>
+#include "AthenaKernel/getMessageSvc.h"
 
 namespace MuonGM {
 

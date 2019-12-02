@@ -119,5 +119,5 @@ def getStream(type,name):
         return StreamBS
                     
     else:
-        raise RuntimeError ("unsupported StreamType:%s" % type)
+        raise RuntimeError("unsupported StreamType:%s" % type)
 

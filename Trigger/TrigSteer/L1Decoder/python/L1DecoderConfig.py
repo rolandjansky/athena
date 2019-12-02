@@ -112,6 +112,8 @@ class L1Decoder(L1Decoder) :
                                        ForceEnableAllChains = True)
 
         self.ctpUnpacker = ctpUnpacker
+        from L1Decoder.L1DecoderConf import FSRoIsUnpackingTool
+        self.roiUnpackers += [ FSRoIsUnpackingTool("FSRoIsUnpackingTool", Decisions=mapThresholdToL1DecisionCollection("FS") ) ]
 
         # EM unpacker
         if TriggerFlags.doID() or TriggerFlags.doCalo():
@@ -145,7 +147,13 @@ def L1DecoderCfg(flags):
     decoderAlg.ctpUnpacker = CTPUnpackingTool( ForceEnableAllChains = flags.Trigger.L1Decoder.forceEnableAllChains,
                                                MonTool = CTPUnpackingMonitoring(512, 200) )
 
-    decoderAlg.roiUnpackers, decoderAlg.rerunRoiUnpackers = createCaloRoIUnpackers()
+
+    from L1Decoder.L1DecoderConf import FSRoIsUnpackingTool
+    decoderAlg.roiUnpackers += [ FSRoIsUnpackingTool("FSRoIsUnpackingTool", Decisions=mapThresholdToL1DecisionCollection("FS") ) ]
+
+    unpackers, rerunUnpackers = createCaloRoIUnpackers()
+    decoderAlg.roiUnpackers += unpackers
+    decoderAlg.rerunRoiUnpackers += rerunUnpackers
 
     from MuonConfig.MuonCablingConfig import RPCCablingConfigCfg, TGCCablingConfigCfg
     acc.merge( TGCCablingConfigCfg( flags ) )

@@ -18,7 +18,7 @@ decodeBS.type = 'athena'
 decodeBS.job_options = 'TriggerJobOpts/decodeBS.py'
 decodeBS.input = ''
 decodeBS.explicit_input = True
-decodeBS.args = '--filesInput=output_Child-001._0001.data'
+decodeBS.args = '--filesInput=`find . -name \'*_HLTMPPy_output.*.data\' | tail -n 1`'
 decodeBS.perfmon = False # no need to run PerfMon for this step
 
 test = Test.Test()

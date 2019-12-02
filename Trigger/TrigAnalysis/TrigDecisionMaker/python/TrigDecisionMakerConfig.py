@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from TrigDecisionMaker.TrigDecisionMakerConf import TrigDec__TrigDecisionMaker
 from TrigDecisionMaker.TrigDecisionMakerConf import TrigDec__TrigDecisionMakerMT
@@ -41,7 +41,7 @@ class TrigDecisionStream ( object) :
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         svcMgr.PoolSvc.WriteCatalog = catalog
 
-        # revert later from OutputStreamAthenaPool.OutputStreamAthenaPool import createOutputStream
+        # revert later from OutputStreamAthenaPool.CreateOutputStreams import createOutputStream
         # revert later self.stream = createOutputStream( streamName )
 
         from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
@@ -75,7 +75,7 @@ class TrigConditionStream ( object) :
         svcMgr += PoolSvc()
         svcMgr.PoolSvc.WriteCatalog = catalog
 
-        from OutputStreamAthenaPool.OutputStreamAthenaPool import AthenaPoolOutputConditionStream
+        from OutputStreamAthenaPool.CreateOutputStreams import AthenaPoolOutputConditionStream
         self.stream = AthenaPoolOutputConditionStream( streamName )
 
         from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream

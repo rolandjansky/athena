@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /****************************************
@@ -91,11 +91,13 @@ namespace Trk {
     return m_selectedTracksInJet;
   }
 
-  const std::vector<Trk::VxJetCandidate*> & VxJetFitterVertexInfo::verticesJF() const {
+  inline const std::vector<Trk::VxJetCandidate*> & VxJetFitterVertexInfo::verticesJF() const {
     return m_verticesJF;
   }
 
   /* clone method */
+  // this method returns a newly-allocated VxJetFitterVertexInfo
+  // caller is responsible for deleting it.
   inline VxJetFitterVertexInfo* VxJetFitterVertexInfo::clone() const {
     return new VxJetFitterVertexInfo(*this);
   }

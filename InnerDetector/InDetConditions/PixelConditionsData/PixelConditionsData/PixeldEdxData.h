@@ -16,6 +16,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <array>
 
 #include "AthenaKernel/CondCont.h"
 
@@ -27,37 +28,37 @@ class PixeldEdxData {
     void   setBetheBlochType(const std::string &bb);
     void   setMinimumdEdxForMass(const double mindedxMass);
 
-    double dEdxPdf(double dedx, double p, double mass, std::array<double,9> par, int offset) const;
-    double fdEdx_zero(double x, std::array<double,9> par) const;
+    double dEdxPdf(const double dedx, const double signedP, const double mass, const std::array<double,9> & par, const int offset) const;
+    double fdEdxZero(const double x, const std::array<double,9> & par) const;
 
-    double getPar(int i, int j) const; 
-    void   getP(double dedx, double p, int nGoodPixels, std::array<double,3> vhypo) const;
-    void   getFirstNPar(std::array<double,9> par, double p, int nGoodPixels, int np) const;
-    double getMass(double dedx, double p, int nGoodPixels) const;
-    double getdEdx(double p, double mass, int nGoodPixels) const;
-    double getdEdx(double p, double mass, std::array<double,9> par) const;
+    double getPar(const int i, const int j) const; 
+    std::array<double, 3>   getP(const double dedxArg, const double signedP, const int nGoodPixels) const;
+    std::array<double,9>   getFirstNPar( const double p, const int nGoodPixels, const int np) const;
+    double getMass(const double dedx, const double signedP, const int nGoodPixels) const;
+    double getdEdx(const double p, const double mass, const int nGoodPixels) const;
+    double getdEdx(const double p, const double mass, const std::array<double,9> & par) const;
 
     // Crystal Ball distribution
-    double Func1(double x,double x0,double sig,double alp,double n) const;
+    double crystalBall(const double x, const double x0,const double sig,const double alp,const double n) const;
     // Asymetric Gaussian distribution
-    double Func2(double x,double x0,double sig,double asym) const;
+    double asymGaus(const double x,const double x0,const double sig,const double asym) const;
     // Moyal distribution
-    double Func3(double x,double Ep,double R) const;
+    double moyal(const double x,const double Ep,const double R) const;
 
-    double dEdx_5p_BG_aleph(double xbg, std::array<double,9>& pp) const;
-    double dEdx_5p_aleph(double p,double mass, std::array<double,9>& pp) const;
-    double dEdx_5p_BG(double xbg, std::array<double,9>& pp) const;
-    double dEdx_5p(double p,double mass, std::array<double,9>& pp) const;
-    double dEdx_BG(double xbg, std::array<double,9>& pp) const;
-    double dEdx_def(double p,double mass, std::array<double,9>& pp) const;
-    double dEdx_3p(double p,double mass, std::array<double,9>& pp) const;
+    double dEdx_5p_BG_aleph(const double xbg, const std::array<double,9>& pp) const;
+    double dEdx_5p_aleph(const double p,double mass, const std::array<double,9>& pp) const;
+    double dEdx_5p_BG(const double xbg, const std::array<double,9>& pp) const;
+    double dEdx_5p(const double p,const double mass, const std::array<double,9>& pp) const;
+    double dEdx_BG(const double xbg, const std::array<double,9>& pp) const;
+    double dEdx_def(const double p,const double mass, const std::array<double,9>& pp) const;
+    double dEdx_3p(const double p, const double mass, const std::array<double,9>& pp) const;
 
-    std::vector<float> getLikelihoods(double dedx2, double p2, int nGoodPixels) const;
+    std::vector<float> getLikelihoods(const double dedx2, const double p2, const int nGoodPixels) const;
 
   private:
-    static constexpr double m_pi = 0.13957;
-    static constexpr double m_k  = 0.49368;
-    static constexpr double m_p  = 0.93827;
+    static constexpr double m_piMass = 0.13957;
+    static constexpr double m_kMass  = 0.49368;
+    static constexpr double m_pMass  = 0.93827;
 
     std::unordered_map<uint32_t,std::vector<double>> m_par;
     bool m_posneg;

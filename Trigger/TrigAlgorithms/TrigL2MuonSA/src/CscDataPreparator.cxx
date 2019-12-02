@@ -9,7 +9,6 @@
 #include "CLHEP/Units/PhysicalConstants.h"
 
 #include "Identifier/IdentifierHash.h"
-#include "MuonContainerManager/MuonRdoContainerAccess.h"
 #include "xAODTrigMuon/TrigMuonDefs.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 

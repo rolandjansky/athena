@@ -81,13 +81,13 @@ void InDet::TRT_DetElementsLayer_xk::getBarrelDetElementsATL
   float dx = fabs(yc*m_elements[n].cos()-xc*m_elements[n].sin()-m_elements[n].centerf());
   if((dx-m_wf-P[4]) <= 0.) {
 
-    assert( used.size() > n);
+    assert( used.size() > static_cast<unsigned int>(n));
     if(zc0 <= 0 && !used[n].used()) {
        lDE.push_back(std::make_pair(&m_elements[n],s)); used[n].setUsed();
     }
 
     int k = n+1;
-    assert( used.size() > k);
+    assert( used.size() > static_cast<unsigned int>(k));
     if(zc1 >= 0. && !used[k].used() ) {
        lDE.push_back(std::make_pair(&m_elements[k],s)); used[k].setUsed();
     }
@@ -98,13 +98,13 @@ void InDet::TRT_DetElementsLayer_xk::getBarrelDetElementsATL
   dx = fabs(yc*m_elements[n].cos()-xc*m_elements[n].sin()-m_elements[n].centerf());
   if((dx-m_wf-P[4]) <= 0.) {
 
-    assert( used.size() > n);
+    assert( used.size() > static_cast<unsigned int>(n));
     if(zc0 <= 0. && !used[n].used()) {
        lDE.push_back(std::make_pair(&m_elements[n],s)); used[n].setUsed();
     }
 
     int k = n+1;
-    assert( used.size() > k);
+    assert( used.size() > static_cast<unsigned int>(k));
     if(zc1 >= 0. && !used[k].used()) {
        lDE.push_back(std::make_pair(&m_elements[k],s)); used[k].setUsed();
     }
@@ -151,12 +151,12 @@ void InDet::TRT_DetElementsLayer_xk::getBarrelDetElementsCTB
     float dx = fabs(yc*m_elements[n].cos()-xc*m_elements[n].sin()-m_elements[n].centerf());
     if((dx-m_wf-P[4]) <= 0.) {
 
-      assert( used.size() > n);
+      assert( used.size() > static_cast<unsigned int>(n));
       if(zc0 <= 0. &&  !used[n].used()) {
          lDE.push_back(std::make_pair(&m_elements[n],s)); used[n].setUsed();
       }
 
-      assert( used.size() > n+1);
+      assert( used.size() > static_cast<unsigned int>(n+1));
       if(zc1 >= 0. && !used[n+1].used()) {
 
          lDE.push_back(std::make_pair(&m_elements[n+1],s)); used[n+1].setUsed();
@@ -194,7 +194,7 @@ void InDet::TRT_DetElementsLayer_xk::getEndcapDetElements
   int n     = int((fc-m_f0)*m_sfi); if(n<0) n=0; else if(n>m) n=m;
   float dF  = fc-m_elements[n].phi();
 
-  assert( used.size() > n);
+  assert( used.size() > static_cast<unsigned int>(n));
   if(fabs(dF)                     < sf && !used[n].used()) {
      lDE.push_back(std::make_pair(&m_elements[n],s)); used[n].setUsed();
   }

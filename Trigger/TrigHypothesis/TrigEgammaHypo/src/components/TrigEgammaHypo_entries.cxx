@@ -17,6 +17,7 @@
 #include "../TrigL2CaloHypoToolInc.h"
 #include "../TrigEgammaPrecisionCaloHypoToolInc.h"
 #include "../TrigEgammaPrecisionPhotonHypoToolInc.h"
+#include "../TrigEgammaPrecisionElectronHypoToolInc.h"
 #include "../TrigL2CaloHypoToolMult.h"
 #include "../TrigL2ElectronHypoTool.h"
 #include "../TrigL2ElectronFexMT.h"
@@ -26,6 +27,7 @@
 #include "../TrigEgammaPrecisionCaloHypoAlgMT.h"
 #include "../TrigEgammaPrecisionCaloHypoToolMult.h"
 #include "../TrigEgammaPrecisionPhotonHypoAlgMT.h"
+#include "../TrigEgammaPrecisionElectronHypoAlgMT.h"
 #include "../TrigEgammaPrecisionPhotonHypoToolMult.h"
 
 DECLARE_COMPONENT( TrigL2CaloHypo )
@@ -49,6 +51,7 @@ DECLARE_COMPONENT( TrigL2PhotonHypoAlgMT )
 DECLARE_COMPONENT( TrigL2CaloHypoToolInc )
 DECLARE_COMPONENT( TrigEgammaPrecisionCaloHypoToolInc )
 DECLARE_COMPONENT( TrigEgammaPrecisionPhotonHypoToolInc )
+DECLARE_COMPONENT( TrigEgammaPrecisionElectronHypoToolInc )
 DECLARE_COMPONENT( TrigL2CaloHypoToolMult )
 DECLARE_COMPONENT( TrigL2ElectronHypoTool )
 DECLARE_COMPONENT( TrigL2ElectronFexMT )
@@ -56,4 +59,5 @@ DECLARE_COMPONENT( TrigL2PhotonHypoTool )
 DECLARE_COMPONENT( TrigEgammaPrecisionCaloHypoAlgMT )
 DECLARE_COMPONENT( TrigEgammaPrecisionCaloHypoToolMult )
 DECLARE_COMPONENT( TrigEgammaPrecisionPhotonHypoAlgMT )
+DECLARE_COMPONENT( TrigEgammaPrecisionElectronHypoAlgMT )
 DECLARE_COMPONENT( TrigEgammaPrecisionPhotonHypoToolMult )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonGeoModel/Station.h"
@@ -8,58 +8,40 @@
 #include "MuonGeoModel/StandardComponent.h"
 #include "MuonGeoModel/SupComponent.h"
 #include "MuonGeoModel/TgcComponent.h"
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/SystemOfUnits.h"
-#include "AthenaKernel/getMessageSvc.h"
 #include <iostream>
 #include <algorithm>
 #include <cassert>
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 namespace MuonGM {
 
 Station::Station(std::string s):m_name(s)
 {
-  m_msgSvc = Athena::getMessageSvc();
-  MsgStream log(m_msgSvc, "MuonGeoModel");
-    //    log << MSG::DEBUG<<"creating station "<<m_name<<" "<<this<<" with name "<<s<<endmsg;
-    m_thickness=m_width1=m_width2=m_length=0;
     m_amdbOrigine_along_length = 0;
     m_amdbOrigine_along_thickness = 0;
-    m_mdthalfpitch = 0.;
     MYSQL *mysql=MYSQL::GetPointer();
     m_hasMdts = false;
     mysql->StoreStation(this);
-    //    log << MSG::DEBUG<<" stored in MYSQL "<<mysql<<endmsg;
 }
 
 Station::Station()
 {
-    m_msgSvc = Athena::getMessageSvc();
-    m_thickness=m_width1=m_width2=m_length=0;
     m_amdbOrigine_along_length = 0;
     m_amdbOrigine_along_thickness = 0;
-    m_mdthalfpitch = 0.;
     m_name = "unknown";
     m_hasMdts = false;
-    MsgStream log(m_msgSvc, "MuonGeoModel");
-    log << MSG::DEBUG << "Creating a Station..." << endmsg;
 }
 
 Station::Station(const Station& s)
 {
-  m_msgSvc = Athena::getMessageSvc();
-	MsgStream log(m_msgSvc, "MuonGeoModel");
-	log << MSG::DEBUG << "Creating a Station..." << endmsg;
-	m_thickness=m_width1=m_width2=m_length=0;
-        m_amdbOrigine_along_length = 0;
-        m_amdbOrigine_along_thickness = 0;
-	m_mdthalfpitch = 0.;
-        m_hasMdts = s.m_hasMdts;
-	m_name=s.m_name;
-	for (unsigned int i=0;i<s.m_components.size();i++)
-		m_components.push_back(s.m_components[i]);
-	for (unsigned int i=0;i<s.m_cutouts.size();i++)
-		m_cutouts.push_back(s.m_cutouts[i]);
+    m_amdbOrigine_along_length = 0;
+    m_amdbOrigine_along_thickness = 0;
+    m_hasMdts = s.m_hasMdts;
+    m_name=s.m_name;
+    for (unsigned int i=0;i<s.m_components.size();i++) m_components.push_back(s.m_components[i]);
+    for (unsigned int i=0;i<s.m_cutouts.size();i++) m_cutouts.push_back(s.m_cutouts[i]);
 }
 
 
@@ -77,8 +59,8 @@ Station::~Station()
 
 void Station::SetAlignPos(const AlignPos& p)
 {
-  MsgStream log(m_msgSvc, "MuonGeoModel");
   if (FindAlignPos(p.zindex, p.phiindex) != m_alignpositions.end() && p.jobindex==0) {
+    MsgStream log(Athena::getMessageSvc(),"MuonGeoModel.Station");
     log << MSG::WARNING<<" this alignposition already exists !!!"<<endmsg;
     log << MSG::WARNING<<" for station named "<<m_name
 	     <<" setting alignposition at z,phi, key "
@@ -88,14 +70,7 @@ void Station::SetAlignPos(const AlignPos& p)
     assert(0);
   }    
   int key=p.zindex*100+p.phiindex;
-  //m_alignpositions[p.zindex*100+p.phiindex]=p;
   m_alignpositions.insert(std::pair<int, AlignPos>(key, p));
-
-  /*
-    log << MSG::DEBUG <<" setting position with key "<<
-    p.zindex*100+p.phiindex<<" zi, phi = "
-    <<p.zindex<<" "<<p.phiindex<<endmsg;
-  */
 }
 
 AlignPosIterator Station::getFirstAlignPosInRange(int iz, int iphi, AlignPosIterator& lastAlignPosInRange) const
@@ -154,8 +129,8 @@ Cutout* Station::GetCutout(int i)  const
 
 void Station::SetPosition(Position p)
 {
-  MsgStream log(m_msgSvc, "MuonGeoModel");
     if (FindPosition(p.zindex, p.phiindex) != end()) {
+        MsgStream log(Athena::getMessageSvc(),"MuonGeoModel.Station");
         log << MSG::WARNING <<" this position already exists !!!"<<endmsg;
         log << MSG::WARNING
 	    <<" for station named "<<m_name<<" setting position at z,phi, key "
@@ -168,9 +143,6 @@ void Station::SetPosition(Position p)
     {
         p.isAssigned = true;
         m_positions[p.zindex*100+p.phiindex]=p;
-        //     log << MSG::DEBUG<<" setting position with key "
-	//         <<p.zindex*100+p.phiindex<<" zi, phi = "
-        //              <<p.zindex<<" "<<p.phiindex<<endmsg;
     }
     
 }
@@ -196,36 +168,22 @@ PositionIterator Station::end() const
 }
 std::string Station::GetName() const
 {
-    //	cout<<"name "<<m_name<<endl;
 	return m_name;
 }
 double Station::GetThickness() const
 {
-  MsgStream log(m_msgSvc, "MuonGeoModel");
-  //    log << MSG::DEBUG<<" station thickness for stat = "<<m_name<<endmsg;
-    
-  if (m_thickness) {
-//        log << MSG::DEBUG<<" Station::thickness already defined = "<<m_thickness<<" for station "<<m_name<<endmsg;
-    return m_thickness;
-  }
-    
-  else 
-    {
-      //            log << MSG::DEBUG<<"    not defined yet "<<endmsg;
       double thick=0;
       if (m_name[0]=='T')
 	{                    
 	  for (unsigned int i=0;i<m_components.size();i++)
 	    {
-	      //std::string n=m_components[i]->m_name.substr(0,3);
-	      //if (n=="TGC")
-	      //{
 	      TgcComponent *t=(TgcComponent *)m_components[i];
 	      thick=thick > t->GetThickness()+t->posz ? thick : t->GetThickness()+t->posz;
 	    }
 	}
       else
         {
+      MsgStream log(Athena::getMessageSvc(),"MuonGeoModel.Station");
 	  double zstart = 999999999.;
 	  for (unsigned int i=0;i<m_components.size();i++)
 	    {
@@ -237,42 +195,17 @@ double Station::GetThickness() const
             }
 	  if (fabs(zstart) > 0.001)
             {
-	      //                 std::cout<<"getThickness for station "
-	      //                          <<m_name<<" zstart = "
-	      //                          <<zstart
-	      //                          <<std::endl;
-              // std::cout<<"station "<<m_name<<" zstart "<<zstart<<" redefining thick "<<thick<<" "<< thick - zstart<<std::endl;
               thick = thick - zstart;
               m_amdbOrigine_along_thickness = -zstart;
               if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE<<"Station "<<m_name<<" redefining Thinkness = "<<thick<<" because zstart = "<<zstart
                  <<"; then amdbOrigine_along_thickness = "<<m_amdbOrigine_along_thickness<<endmsg;
             }
         }
-      m_thickness=thick;
       return thick;
-    }
 }
-//                    //                log << MSG::DEBUG<<" component "<<s->m_name<<" found"<<endmsg;
-//                     if ((s->m_name).substr(0,3) == "SUP") {
-//                         //log << MSG::DEBUG<<" thick "<<s->GetThickness()<<" posz "<<s->posz<<endmsg;
-//                         //thick > s->GetThickness() ? thick : s->GetThickness();
-//                     }
-//                    else 
-//                    {
-//                        thick=
-//                            thick > s->GetThickness()+s->posz ? thick : s->GetThickness()+s->posz;
-//                    }
-//                     //log << MSG::DEBUG<<" thickness is now = "<<thick<<endmsg;
-//                }
-//            }
-//            m_thickness=thick;
-//            return thick;
-//	}
-//}
+
 double Station::GetExtraTopThickness() const
 {
-  MsgStream log(m_msgSvc, "MuonGeoModel");
-    //    log << MSG::DEBUG<<" GetExtraTopThickness for stat = "<<m_name<<endmsg;
     if (m_name[0] != 'B') return 0.;
 
     return 0.;
@@ -314,8 +247,6 @@ double Station::GetExtraTopThickness() const
 }
 double Station::GetExtraBottomThickness() const
 {
-  MsgStream log(m_msgSvc, "MuonGeoModel");
-    //    log << MSG::DEBUG<<" GetExtraBottomThickness  for stat = "<<m_name<<endmsg;
     if (m_name[0] != 'B') return 0.;
 
     return 0.;
@@ -355,12 +286,6 @@ double Station::GetExtraBottomThickness() const
 }
 double Station::GetLength() const 
 {
-    MsgStream log(m_msgSvc, "MuonGeoModel-GetLength");
-    if (m_length) {
-        return m_length;
-    }
-    else
-    {
         double len=0;
         if (m_name[0] == 'T')
         {
@@ -381,34 +306,24 @@ double Station::GetLength() const
         else
         {
             double ystart = 999999.;
+            MsgStream log(Athena::getMessageSvc(),"MuonGeoModel.Station");
             for (unsigned int i=0;i<m_components.size();i++)
             {
                 StandardComponent *sc=(StandardComponent *)m_components[i];
-                //if (m_name == "EIL8" || m_name == "EIL9")
                 if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE<<"Station "<<m_name<<" *** comp "<<i<<" named "<<sc->name
                        <<" posy "<<sc->posy<<" dy "<<sc->dy<<" len "<<len<<" ystart "<<ystart<<endmsg;
-                //if (m_name == "CSS1")std::cout<<" getLength() --- Station "<<m_name<<" *** comp "<<i<<" named "<<sc->m_name
-                //       <<" posy "<<sc->posy<<" dy "<<sc->dy<<" len "<<len<<" ystart "<<ystart<<std::endl;
                 if ((sc->dy + sc->posy) > len) len = sc->dy+sc->posy;
                 if (i==0 || sc->posy < ystart ) ystart = sc->posy;
-                //if (m_name == "EIL8" || m_name == "EIL9")
                 if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE<<" now len = "<<len<<" ystart = "<<ystart<<endmsg;
-                //if (m_name == "CSS1")std::cout<<"Now length = "<<len<<" ystart = "<<ystart<<std::endl;
             }
             if (fabs(ystart) > 0.001)
             {
-//                 std::cout<<"getlength for station "
-//                          <<m_name<<" ystart = "
-//                          <<ystart
-//                          <<std::endl;
-                // std::cout<<"station "<<m_name<<" ystart "<<ystart<<" redefining len "<<len<<" "<< len - ystart<<std::endl;
                 len = len - ystart;
 		m_amdbOrigine_along_length = -ystart;
-                //if (m_name == "EIL8" || m_name == "EIL9")
-                if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE<<"Station "<<m_name<<" redefining len = "<<len<<" because ystart = "
-                   <<ystart<<endmsg;
+                if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE<<"Station "<<m_name<<" redefining len = "<<len<<" because ystart = "<<ystart<<endmsg;
             }
         }
+  return len;
 //    else
 //    {
 //        //log << MSG::DEBUG<<" building length "<<endmsg;        
@@ -444,10 +359,7 @@ double Station::GetLength() const
 //                }
 //            }            
 //        }
-        m_length = len;
         //if (m_name == "CSS1")std::cout<<"In the end length is = "<<m_length<<std::endl;
-        return len;
-    }
 }
 
 double Station::getYMin() const {
@@ -464,14 +376,8 @@ double Station::getYMin() const {
 
 double Station::GetWidth1() const 
 {
-  //MsgStream log(m_msgSvc, "MuonGeoModel");
-	if (m_width1) return m_width1;
-	else
-	{
             double maxdxmin = -99999.;
             double ymin= getYMin();
-            //double ymax= GetLength()-getAmdbOrigine_along_length();
-	  //            log << MSG::DEBUG<<" building m_width1"<<endmsg;
 	        double w=0;
 		for (unsigned int i=0;i<m_components.size();i++)
 		{
@@ -543,18 +449,11 @@ double Station::GetWidth1() const
 //                     std::cout<<"shortWidth of station "<<m_name<<" std = "<<w<<" new "<<maxdxmin<<std::endl;
 //                     if (fabs(maxdxmin - w)>0.01) std::cout<<" AAAAAAAAAAAAAAAAAAAAATTENZIONE abs(maxdxmin - w)="<<fabs(maxdxmin - w)<<" in station "<<m_name<<std::endl;
 //                 }
-		if (m_name.substr(0,1)=="T")m_width1=w;
-                else m_width1=maxdxmin;
-                //std::cout<<"Station m_name is "<<m_name<<" m_width1 = "<<m_width1<<std::endl;
-                return m_width1;
-	}
+		if (m_name.substr(0,1)=="T") return w;
+    else return maxdxmin;
 }
 double Station::GetWidth2() const
 {
-  //MsgStream log(m_msgSvc, "MuonGeoModel");
-    if (m_width2) return m_width2;
-    else
-    {
         //double ymin= -getAmdbOrigine_along_length();
         double ymax= getYMin() + GetLength();
         double maxdxmax = -99999.;
@@ -603,17 +502,8 @@ double Station::GetWidth2() const
 //                 std::cout<<"Maxdxmax = "<<maxdxmax<<std::endl;
             }                       
         }
-//         if (m_name.substr(0,1)!="T")
-//         {
-//             std::cout<<"longWidth of station "<<m_name<<" std = "<<w<<" new "<<maxdxmax<<std::endl;
-//             if (fabs(maxdxmax - w)>0.01) std::cout<<" AAAAAAAAAAAAAAAAAAAAATTENZIONE abs(maxdxmax - w)="<<fabs(maxdxmax - w)<<" in station "<<m_name<<std::endl;
-//         }
-        if (m_name.substr(0,1)=="T") m_width2=w;
-        else m_width2=maxdxmax;
-        //        log << MSG::DEBUG<<" it is "<<w<<endmsg;
-        //std::cout<<"Station m_name is "<<m_name<<" m_width2 = "<<m_width2<<std::endl;
-        return m_width2;
-    }
+        if (m_name.substr(0,1)=="T") return w;
+        else return maxdxmax;
 }
 
 int Station::GetNrOfComponents() const
@@ -643,43 +533,39 @@ std::ostream& operator<<(std::ostream& os,const Station& s)
 
 
 double Station::mdtHalfPitch() const {
-  if (m_mdthalfpitch) return m_mdthalfpitch;
 
-  MsgStream log(m_msgSvc, "mdtHalfPitch");
   MYSQL* mysql=MYSQL::GetPointer();
   MDT       *mdtobj= (MDT *)mysql->GetATechnology("MDT0");
-  m_mdthalfpitch = 0.5 * (mdtobj->pitch);
+  double mdthalfpitch = 0.5 * (mdtobj->pitch);
   if (hasMdts()) {
+    MsgStream log(Athena::getMessageSvc(),"MuonGeoModel.Station");
     for (int icomp = 0; icomp<GetNrOfComponents(); ++icomp) {
       const Component* c = GetComponent(icomp);
       if (c->name.substr(0,3) != "MDT") continue;
       MDT* mdtobj= (MDT *)mysql->GetATechnology(c->name);
       if (!mdtobj) {
-	log << MSG::ERROR << "Cannot find MDT definition for component " << c->name << std::endl;
+	if (log.level()<=MSG::ERROR) log << MSG::ERROR << "Cannot find MDT definition for component " << c->name << endmsg;
 	continue;
       }
-      m_mdthalfpitch = 0.5 * (mdtobj->pitch);
-      log << MSG::DEBUG << "Setting halfpitch " << m_mdthalfpitch << " for station " << m_name << std::endl;
+      mdthalfpitch = 0.5 * (mdtobj->pitch);
+      if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "Setting halfpitch " << mdthalfpitch << " for station " << m_name << endmsg;
       break;
     }
   }
-  return m_mdthalfpitch;
+  return mdthalfpitch;
 }
 
 
 //this is really needed 
 GeoTrf::Transform3D Station::native_to_tsz_frame( const Position & p ) const {
-
-    MsgStream log(m_msgSvc, "MGM-native_to_tsz");
-	const bool dLvl = log.level()<=MSG::DEBUG;
-	const bool vLvl = log.level()<=MSG::VERBOSE;
+    MsgStream log(Athena::getMessageSvc(),"MuonGeoModel.Station");
     int amdbVersion = MYSQL::GetPointer()->getNovaReadVersion();
-    if (amdbVersion > 0 && amdbVersion < 7 && m_name[0]!='B')
-      if (dLvl)
-	  log << MSG::DEBUG << "For AMDB version " << amdbVersion
+    if (amdbVersion > 0 && amdbVersion < 7 && m_name[0]!='B') {
+	    log << MSG::DEBUG << "For AMDB version " << amdbVersion
 		<< " a left-handed chamber coordinate system was used "
 		<< " for endcap side A so be very careful."
 		<< endmsg;
+    }
     
     // first apply here the mirror symmetry: (we, in fact, apply a rotation)
     GeoTrf::Transform3D mirrsym=GeoTrf::Transform3D::Identity();
@@ -703,8 +589,6 @@ GeoTrf::Transform3D Station::native_to_tsz_frame( const Position & p ) const {
             GeoTrf::Translate3D(GetThickness()/2.-getAmdbOrigine_along_thickness(),
                            0.,
 			   GetLength()/2.-(getAmdbOrigine_along_length()+halfpitch));
-                           //GetLength()/2.-(halfpitch));
-        if (vLvl)
 		log<<MSG::VERBOSE<<" GetThickness / getAmdbO_thick / GetLength() / getAmdbO_length "
            <<GetThickness()<<" "
            <<getAmdbOrigine_along_thickness()<<" "
@@ -713,17 +597,19 @@ GeoTrf::Transform3D Station::native_to_tsz_frame( const Position & p ) const {
     }
     else
     {
-      if (m_name[0]=='T')
+      if (m_name[0]=='T') {
         AMDBorgTranslation =
             GeoTrf::Translate3D(GetThickness()/2.-getAmdbOrigine_along_thickness(),
                            0.,
                            GetLength()/2.-getAmdbOrigine_along_length()+((TgcComponent *)GetComponent(0))->posy);
-      else
+      }
+      else {
         AMDBorgTranslation =
             GeoTrf::Translate3D(GetThickness()/2.-getAmdbOrigine_along_thickness(),
                            0.,
                            GetLength()/2.-getAmdbOrigine_along_length());
-      if (vLvl)
+          }
+
         log<<MSG::VERBOSE<<" GetThickness / getAmdbO_thick / GetLength() / getAmdbO_length "
            <<GetThickness()<<" "
            <<getAmdbOrigine_along_thickness()<<" "
@@ -753,9 +639,6 @@ GeoTrf::Transform3D Station::tsz_to_native_frame( const Position & p ) const {
 }
 // this is really needed 
 GeoTrf::Transform3D Station::tsz_to_global_frame( const Position & p ) const {
-
-  MsgStream log(m_msgSvc, "MGM tsz_to_global_frame");
-  const bool pLvl=log.level()<=MSG::VERBOSE;
   
   GeoTrf::Transform3D nominalTransf= GeoTrf::Transform3D::Identity();
     
@@ -763,7 +646,6 @@ GeoTrf::Transform3D Station::tsz_to_global_frame( const Position & p ) const {
     double RAD;
     if (m_name[0]=='T')
       {
-	//RAD=((TgcComponent *)GetComponent(0))->posy;
 	RAD=p.radius;
       }
     else
@@ -799,8 +681,7 @@ GeoTrf::Transform3D Station::tsz_to_global_frame( const Position & p ) const {
         else
             vec.z() = p.z;
     }
-    
-	if (pLvl)
+    MsgStream log(Athena::getMessageSvc(),"MuonGeoModel.Station");
     log<<MSG::VERBOSE<<" translation according to "<<vec.x()<<" "<<vec.y()<<" "<<vec.z()<<endmsg;
 
     /////// NEWEWEWWEWEWEWEWEWEWEWEWEW
@@ -808,10 +689,8 @@ GeoTrf::Transform3D Station::tsz_to_global_frame( const Position & p ) const {
     GeoTrf::RotateX3D ralpha(p.alpha*Gaudi::Units::deg);
     GeoTrf::RotateZ3D rbeta(p.beta*Gaudi::Units::deg);
     GeoTrf::RotateY3D rgamma(p.gamma*Gaudi::Units::deg);
-    if (pLvl) {
-      log<<MSG::VERBOSE<<" gamma is not changing sign - original "<<p.gamma<<" new one "<<p.gamma<<endmsg;
-      log<<MSG::VERBOSE<<" alpha / beta "<<p.alpha<<" "<<p.beta<<endmsg;
-    }
+    log<<MSG::VERBOSE<<" gamma is not changing sign - original "<<p.gamma<<" new one "<<p.gamma<<endmsg;
+    log<<MSG::VERBOSE<<" alpha / beta "<<p.alpha<<" "<<p.beta<<endmsg;
 
     // // apply all transform in sequence 
     // //    GeoTrf::Transform3D to_tsz = rgamma*rbeta*ralpha*AMDBorgTranslation*mirrsym;  // works for barrel and barrel-like
@@ -848,8 +727,7 @@ GeoTrf::Transform3D Station::tsz_to_global_frame( const Position & p ) const {
                                             GeoTrf::RotateX3D(p.phi*Gaudi::Units::deg-180*Gaudi::Units::deg)*
                                             GeoTrf::RotateZ3D(180*Gaudi::Units::deg));
         }
-	else log << MSG::WARNING<<" AAAAAA problem here p.z, mirrored "
-		    <<p.z<<" "<<p.isMirrored<<endmsg;
+	else log << MSG::WARNING<<"Problem here p.z, mirrored " <<p.z<<" "<<p.isMirrored<<endmsg;
     }
     return GeoTrf::Translate3D(vec.x(),vec.y(),vec.z())*nominalTransf*abgRot;
 }
@@ -860,8 +738,6 @@ GeoTrf::Transform3D Station::global_to_tsz_frame( const Position & p ) const {
 }
 GeoTrf::Transform3D Station::getNominalTransform(const Position & p) const 
 {
-    //    std::cout<<"Station::getNominalTransform for Position P defined below *********"<<std::endl;
-    //    std::cout<<p<<std::endl;
     return  tsz_to_global_frame( p ) * native_to_tsz_frame( p );
 }
 GeoTrf::Transform3D Station::getAlignedTransform(const AlignPos & ap, const Position & p) const 
@@ -870,12 +746,10 @@ GeoTrf::Transform3D Station::getAlignedTransform(const AlignPos & ap, const Posi
 }
 GeoTrf::Transform3D Station::getDeltaTransform_tszFrame(const AlignPos & ap) const
 {
-  MsgStream log(m_msgSvc, "MGM getDeltaTransform_tszFrame");
+  MsgStream log(Athena::getMessageSvc(),"MuonGeoModel.Station");
   if (ap.tras!=0 ||ap.trat!= 0 ||ap.traz!=0 ||
       ap.rots!=0 || ap.rott!=0||ap.rotz!=0)
     {
-	if (log.level()<=MSG::VERBOSE) 
-	{
 	    log << MSG::VERBOSE << "Setting corrections." << endmsg;
 	    log << MSG::VERBOSE << "For station " << m_name <<
 		" corrections sent are " << ap.tras << " " <<
@@ -883,7 +757,6 @@ GeoTrf::Transform3D Station::getDeltaTransform_tszFrame(const AlignPos & ap) con
 		" " << ap.rott << " isBarrel=" << ap.isBarrel << endmsg;
 	    log << MSG::VERBOSE << "length="<< GetLength()<<" m_thickness="
 		<<GetThickness()<<endmsg;
-	}
     }
 
   GeoTrf::RotateX3D rott(ap.rott);
@@ -895,7 +768,7 @@ GeoTrf::Transform3D Station::getDeltaTransform_tszFrame(const AlignPos & ap) con
 
   GeoTrf::Transform3D delta = trans*rots*rotz*rott;
   	
-  if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE<<" delta transform in the tsz frame --------------"<<endmsg
+  log << MSG::VERBOSE<<" delta transform in the tsz frame --------------"<<endmsg
 				     <<
 				   delta(0,0) << " " <<
 				   delta(0,1) << " " <<
@@ -924,24 +797,14 @@ GeoTrf::Transform3D Station::getDeltaTransform(const AlignPos & ap, const Positi
 
 double Station::getAmdbOrigine_along_length() const 
 {
-  if (m_length) 
-    return m_amdbOrigine_along_length; 
-  else { 
-    m_length = GetLength(); 
-    return m_amdbOrigine_along_length; 
-  } 
+  GetLength(); 
+  return m_amdbOrigine_along_length; 
 }
 
 double Station::getAmdbOrigine_along_thickness() const 
 {
-    if (m_thickness) return m_amdbOrigine_along_thickness;
-    else 
-    {
-        m_thickness = GetThickness();
-        return m_amdbOrigine_along_thickness;
-    }    
-//     if (m_amdbOrigine_along_thickness) return m_amdbOrigine_along_thickness;
-//     else return 0.;
+  GetThickness();
+  return m_amdbOrigine_along_thickness;
 }
 
 
