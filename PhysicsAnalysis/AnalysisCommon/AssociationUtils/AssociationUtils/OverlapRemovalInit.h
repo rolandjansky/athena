@@ -43,7 +43,7 @@ namespace ORUtils
     std::string bJetLabel = "";
     /// Set the maximum electron pT for which b-tag aware overlap removal
     /// is done. Set to negative value to use for all electrons.
-    double maxElePt = 100. * 1000;
+    double maxElePtForBJetAwareOR = 100. * 1000;
     /// Activate boosted-lepton recommendations (sliding dR cones)
     bool boostedLeptons = false;
     /// Output value to assign passing objects.

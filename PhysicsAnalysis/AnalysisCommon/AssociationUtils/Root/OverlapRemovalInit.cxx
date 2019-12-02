@@ -80,7 +80,7 @@ namespace ORUtils
       tbox.eleJetORT.setTypeAndName("ORUtils::EleJetOverlapTool/" +
                                     flags.masterName + ".EleJetORT");
       ORT_CHECK( tbox.eleJetORT.setProperty("BJetLabel", flags.bJetLabel) );
-      ORT_CHECK( tbox.eleJetORT.setProperty("MaxElePt", flags.maxElePt) );
+      ORT_CHECK( tbox.eleJetORT.setProperty("MaxElePtForBJetAwareOR", flags.maxElePtForBJetAwareOR) );
       ORT_CHECK( tbox.eleJetORT.setProperty("UseSlidingDR", flags.boostedLeptons) );
     }
     // Mu-jet
