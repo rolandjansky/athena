@@ -7,7 +7,17 @@
 # art-output: config.txt
 # art-output: RAWtoESD_config.txt
 # art-output: *.root
-# art-output: dcube
+# art-output: dcube-rdo-truth
+# art-output: dcube-id
+
+inputRefDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-refs/${AtlasBuildBranch}/test_stdReco_fastSim_fullDigi"
+inputXmlDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-configs"
+art_dcube="/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube"
+dcubeName="stdReco_fastSim_fullDigi"
+dcubeXmlID="${inputXmlDir}/dcube_indetplots.xml"
+dcubeRefID="${inputRefDir}/InDetStandardPlots.root"
+dcubeXmlRDO="${inputXmlDir}/dcube_RDO_truth.xml"
+dcubeRefRDO="${inputRefDir}/RDO_truth.root"
 
 FastChain_tf.py --simulator ATLFASTIIF_PileUp \
     --digiSteeringConf "SplitNoMerge" \
@@ -27,8 +37,19 @@ FastChain_tf.py --simulator ATLFASTIIF_PileUp \
     --DataRunNumber '284500' \
     --postSimExec='genSeq.Pythia8.NCollPerEvent=10;' \
     --imf False
-
-echo "art-result: $? EVNTtoRDO"
+rc1=$?
+echo "art-result: ${rc1} EVNTtoRDO"
+rc2=-9999
+if [ ${rc1} -eq 0 ]
+then
+    bash ${art_dcube} ${dcubeName} RDO_truth.root ${dcubeXmlRDO} ${dcubeRefRDO}
+    rc2=$?
+    if [ -d "dcube" ]
+    then
+       mv "dcube" "dcube-rdo-truth"
+    fi
+fi
+echo "art-result: ${rc2} dcubeRDO"
 
 Reco_tf.py --inputRDOFile='RDO_pileup_fastsim_fulldigi.pool.root'\
  --outputAODFile=AOD_fastSim_fullDigi.pool.root \
@@ -38,20 +59,25 @@ Reco_tf.py --inputRDOFile='RDO_pileup_fastsim_fulldigi.pool.root'\
     --postExec 'RAWtoESD:from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("RAWtoESD_config.txt")' \
     --imf False
 
-rc=$?
-rc2=-9999
-echo  "art-result: $rc RDOtoAOD"
-if [ $rc -eq 0 ]
+rc3=$?
+rc4=-9999
+rc5=-9999
+if [ ${rc3} -eq 0 ]
 then
+    # Regression test
     ArtPackage=$1
     ArtJobName=$2
     art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
-    rc2=$?
+    rc4=$?
+
+    # Histogram comparison with DCube
+    bash ${art_dcube} ${dcubeName} InDetStandardPlots.root ${dcubeXmlID} ${dcubeRefID}
+    rc5=$?
+    if [ -d "dcube" ]
+    then
+       mv "dcube" "dcube-id"
+    fi
 fi
-echo  "art-result: $rc2 regression"
-
-
-#add an additional payload from the job (corollary file).
-ccvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/act-dcube TEST_ttFC_stdReco_fastSim_fullDigi InDetStandardPlots.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/dcube_configs/config/InDetStandardPlotCompare.xml /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/InDetStandardPlots_Refs/test_stdReco_fastSim_fullDigi_InDetStandardPlots.root
-
-echo "art-result: $? dcubeHistComp"
+echo  "art-result: $rc3 RDOtoAOD"
+echo  "art-result: $rc4 regression"
+echo  "art-result: $rc5 dcubeID"
