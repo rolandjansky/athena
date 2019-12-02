@@ -51,7 +51,7 @@ def _monkeypatch_bug_34752():
    return
 try:
    _monkeypatch_bug_34752()
-except: 
+except: # noqa: E722 
    pass
 del _monkeypatch_bug_34752
 
