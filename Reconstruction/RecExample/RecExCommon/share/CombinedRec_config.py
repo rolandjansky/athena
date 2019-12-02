@@ -71,7 +71,7 @@ if (rec.doESD()) and (recAlgs.doEFlow() or rec.doTau()) : #   or rec.readESD()
 # functionality : energy flow
 #                                                                                                 
 pdr.flag_domain('eflow')
-if recAlgs.doEFlow() and (rec.readESD() or (DetFlags.haveRIO.ID_on() and DetFlags.haveRIO.Calo_allOn() and rec.doMuon())):
+if recAlgs.doEFlow() and (rec.readESD() or (DetFlags.haveRIO.ID_on() and DetFlags.haveRIO.Calo_allOn() and rec.doMuonCombined())):
     try:
         include( "eflowRec/eflowRec_jobOptions.py" )
     except Exception:
