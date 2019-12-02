@@ -48,7 +48,7 @@ class EMPIDBuilderElectronBase ( EMPIDBuilder ) :
 
         except:
             mlog.error("could not get configure tools")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         self.electronIsEMselectors = [LooseElectronSelector, MediumElectronSelector, TightElectronSelector]
@@ -74,7 +74,7 @@ class EMPIDBuilderPhotonBase ( EMPIDBuilder ) :
 
         except:
             mlog.error("could not get configure tools")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         self.photonIsEMselectors= [LoosePhotonSelector,TightPhotonSelector]
