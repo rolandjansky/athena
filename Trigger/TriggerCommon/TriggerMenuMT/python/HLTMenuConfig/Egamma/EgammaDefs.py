@@ -24,7 +24,6 @@ def TrigPhotonSelectors(sel):
     # Configure the IsEM selectors
     from ElectronPhotonSelectorTools.ConfiguredAsgPhotonIsEMSelectors import ConfiguredAsgPhotonIsEMSelector
     from ROOT import egammaPID
-    from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefPhoton
     
     SelectorNames = {
             'loose'  : 'LoosePhotonSelector',

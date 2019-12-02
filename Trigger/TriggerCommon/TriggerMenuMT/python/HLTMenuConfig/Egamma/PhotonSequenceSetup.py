@@ -96,7 +96,6 @@ def precisionPhotonMenuSequence(name):
 
     thePrecisionPhotonHypo = TrigEgammaPrecisionPhotonHypoAlgMT(name+"precisionPhotonHypo")
     thePrecisionPhotonHypo.Photons = sequenceOut
-    thePrecisionPhotonHypo.OutputLevel = 2
 
     return MenuSequence( Sequence    = sequence,
                          Maker       = precisionPhotonViewsMaker, 
