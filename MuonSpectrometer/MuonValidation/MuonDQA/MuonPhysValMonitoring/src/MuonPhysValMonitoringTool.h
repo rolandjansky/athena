@@ -18,6 +18,7 @@
 
 // FrameWork includes
 #include "GaudiKernel/ServiceHandle.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthParticleAuxContainer.h"
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h"
@@ -146,6 +147,7 @@ class MuonPhysValMonitoringTool
   std::string m_muonL2CBName;
   std::string m_muonEFCombTrigName;
 
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"EventInfo","EventInfo","event info"};
 
   // Configurable properties
   std::map<std::string,int> m_counterBits;
