@@ -96,7 +96,15 @@ StatusCode Muon::MuonInertMaterialBuilder::initialize()
 
 // mw
     m_materialConverter= new Trk::GeoMaterialConverter();
+    if(!m_materialConverter){
+      ATH_MSG_FATAL(  "Could not create material converter in " << name() <<" initialize()");
+      return StatusCode::FAILURE;
+    }
     m_geoShapeConverter= new Trk::GeoShapeConverter();
+    if(!m_geoShapeConverter){
+      ATH_MSG_FATAL(  "Could not create shape converter in " << name() <<" initialize()");
+      return StatusCode::FAILURE;
+    }
 
     // random number generator
     if ( m_rndmGenSvc.retrieve().isFailure() ){
@@ -104,6 +112,10 @@ StatusCode Muon::MuonInertMaterialBuilder::initialize()
       return StatusCode::FAILURE;
     }
     m_flatDist = new Rndm::Numbers( &(*m_rndmGenSvc), Rndm::Flat(0.,1.) );
+    if(!m_flatDist){
+      ATH_MSG_FATAL(  "Could not create flat distribution random generator in " << name() <<" initialize()");
+      return StatusCode::FAILURE;
+    }
 
     if (m_simplifyToLayers) {
       ATH_MSG_INFO( name() <<" option Simplify(Muon)GeometryToLayers no longer maintained " );

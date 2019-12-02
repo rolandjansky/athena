@@ -95,8 +95,16 @@ StatusCode Muon::MuonStationTypeBuilder::initialize()
 
     // default (trivial) muon material properties 
     m_muonMaterial = new Trk::Material(10e10,10e10,0.,0.,0.);      
+    if(!m_muonMaterial){
+      ATH_MSG_FATAL(  "Could not create the material in " << name() <<" initialize()");
+      return StatusCode::FAILURE;
+    }
 
     m_materialConverter= new Trk::GeoMaterialConverter();
+    if(!m_materialConverter){
+      ATH_MSG_FATAL(  "Could not create material converter in " << name() <<" initialize()");
+      return StatusCode::FAILURE;
+    }
      
     m_mdtTubeMat = std::make_shared<Trk::MaterialProperties*> (); 
     m_rpc46 = std::make_shared<Trk::MaterialProperties*> ();                   

@@ -112,7 +112,15 @@ StatusCode Muon::MuonStationBuilder::initialize()
     m_muonMaterial = Trk::Material(10e10,10e10,0.,0.,0.);      // default material properties
 
     m_materialConverter= new Trk::GeoMaterialConverter();
+    if(!m_materialConverter){
+      ATH_MSG_FATAL(  "Could not create material converter in " << name() <<" initialize()");
+      return StatusCode::FAILURE;
+    }
     m_geoShapeConverter= new Trk::GeoShapeConverter();
+    if(!m_geoShapeConverter){
+      ATH_MSG_FATAL(  "Could not create shape converter in " << name() <<" initialize()");
+      return StatusCode::FAILURE;
+    }
 
     ATH_MSG_INFO( name() <<" initialize() successful" );    
     
