@@ -364,9 +364,6 @@ void InDet::SiSpacePointsSeedMaker_TrkSeeded::newEvent(int iteration)
 
   i_spforseed = l_spforseed.begin();
 
-//   float irstep = 1./r_rstep;
-//   int   irmax  = r_size-1  ;
-
   r_first      = 0         ;
   m_checketa   = false     ;
 
