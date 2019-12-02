@@ -552,22 +552,24 @@ def addTruthEnergyDensity(kernel=None):
     from EventShapeTools.EventDensityConfig import configEventDensityTool,EventDensityAthAlg
     from AthenaCommon.AppMgr import ToolSvc
     from JetRec.JetRecStandard import jtm
-    DFCommonTruthCentralEDTool = configEventDensityTool("DFCommonTruthCentralEDTool", jtm.truthget,
-                                                        0.5,
-                                                        AbsRapidityMax      = 1.5,
-                                                        OutputContainer     = "TruthIsoCentralEventShape",
-                                                       )
-    ToolSvc += DFCommonTruthCentralEDTool
-    DFCommonTruthForwardEDTool = configEventDensityTool("DFCommonTruthForwardEDTool", jtm.truthget,
-                                                        0.5,
-                                                        AbsRapidityMin      = 1.5,
-                                                        AbsRapidityMax      = 3.0,
-                                                        OutputContainer     = "TruthIsoForwardEventShape",
-                                                       )
-    ToolSvc += DFCommonTruthForwardEDTool
-    # Algorithms for the energy density
-    kernel += EventDensityAthAlg("DFCommonTruthCentralEDAlg", EventDensityTool = DFCommonTruthCentralEDTool )
-    kernel += EventDensityAthAlg("DFCommonTruthForwardEDAlg", EventDensityTool = DFCommonTruthForwardEDTool )
+    # Algorithms for the energy density - needed only if e/gamma hasn't set things up already
+    if not hasattr(ToolSvc,'EDTruthCentralTool'):
+        DFCommonTruthCentralEDTool = configEventDensityTool("DFCommonTruthCentralEDTool", jtm.truthget,
+                                                            0.5,
+                                                            AbsRapidityMax      = 1.5,
+                                                            OutputContainer     = "TruthIsoCentralEventShape",
+                                                           )
+        ToolSvc += DFCommonTruthCentralEDTool
+        kernel += EventDensityAthAlg("DFCommonTruthCentralEDAlg", EventDensityTool = DFCommonTruthCentralEDTool )
+    if not hasattr(ToolSvc,'EDTruthForwardTool'):
+        DFCommonTruthForwardEDTool = configEventDensityTool("DFCommonTruthForwardEDTool", jtm.truthget,
+                                                            0.5,
+                                                            AbsRapidityMin      = 1.5,
+                                                            AbsRapidityMax      = 3.0,
+                                                            OutputContainer     = "TruthIsoForwardEventShape",
+                                                           )
+        ToolSvc += DFCommonTruthForwardEDTool
+        kernel += EventDensityAthAlg("DFCommonTruthForwardEDAlg", EventDensityTool = DFCommonTruthForwardEDTool )
 
     # Now add the tool to do the decoration
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthEDDecorator
