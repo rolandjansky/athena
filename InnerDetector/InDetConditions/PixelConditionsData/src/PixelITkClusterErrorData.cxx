@@ -21,17 +21,51 @@ void PixelITkClusterErrorData::initialize(){
 
 
 
-double PixelITkClusterErrorData::getITkDelta(int xy, int itkregion, int layer) const{
-  std::tuple<int,int,int> linekeys = std::make_tuple(xy,itkregion,layer);
-  std::tuple<double,double> mytuple = m_constmap.at(linekeys);
-  return std::get<0>(mytuple);
+std::pair<double,double> PixelITkClusterErrorData::getDelta(int itkregion, int layer) const{
+  std::tuple<int,int,int> linekeys_x = std::make_tuple(0,itkregion,layer);
+  std::tuple<double,double> mytuple_x = m_constmap.at(linekeys_x);
+  std::tuple<int,int,int> linekeys_y = std::make_tuple(1,itkregion,layer);
+  std::tuple<double,double> mytuple_y = m_constmap.at(linekeys_x);
+  return std::make_pair(std::get<0>(mytuple_x),std::get<0>(mytuple_y));
 }
 
 
-double PixelITkClusterErrorData::getITkDeltaError(int xy, int itkregion, int layer) const{
-  std::tuple<int,int,int> linekeys = std::make_tuple(xy,itkregion,layer);
-  std::tuple<double,double> mytuple = m_constmap.at(linekeys);
-  return std::get<1>(mytuple);
+std::pair<double,double> PixelITkClusterErrorData::getDeltaError(int itkregion, int layer) const{
+  std::tuple<int,int,int> linekeys_x = std::make_tuple(0,itkregion,layer);
+  std::tuple<double,double> mytuple_x = m_constmap.at(linekeys_x);
+  std::tuple<int,int,int> linekeys_y = std::make_tuple(1,itkregion,layer);
+  std::tuple<double,double> mytuple_y = m_constmap.at(linekeys_x);
+  return std::make_pair(std::get<1>(mytuple_x),std::get<1>(mytuple_y));
+}
+
+
+std::pair<double,double> PixelITkClusterErrorData::getDelta(const InDetDD::SiDetectorElement* element) const{
+
+  int itkregion = -1;
+  if(element->isBarrel()){
+    itkregion = element->isInclined() ? 1 : 0; //inclined or flat barrel
+  }
+  else itkregion=2; //endcaps
+
+  int layer = element->getPixelLayer();
+
+  return getDelta(itkregion,layer);
+
+}
+
+
+std::pair<double,double> PixelITkClusterErrorData::getDeltaError(const InDetDD::SiDetectorElement* element) const{
+
+  int itkregion = -1;
+  if(element->isBarrel()){
+    itkregion = element->isInclined() ? 1 : 0; //inclined or flat barrel
+  }
+  else itkregion=2; //endcaps
+
+  int layer = element->getPixelLayer();
+
+  return getDeltaError(itkregion,layer);
+
 }
 
 
@@ -56,25 +90,22 @@ void PixelITkClusterErrorData::print(std::string file) const {
 
   std::ofstream* outfile = new std::ofstream(file.c_str()); 
 
-  int n_xy = 2; // x + y
   int n_regions = 3; // barrel, inclined, endcap
   int n_layers = 5;
 
-  for(int xy=0; xy<n_xy; xy++){
-    for(int region=0; region<n_regions; region++){
-      for(int layer=0; layer<n_layers; layer++){
+  for(int region=0; region<n_regions; region++){
+    for(int layer=0; layer<n_layers; layer++){
 
-	float delta = getITkDelta(xy,region,layer);
-	float delta_err = getITkDeltaError(xy,region,layer);
+      std::pair<double,double> delta = getDelta(region,layer);
+      std::pair<double,double> delta_err = getDelta(region,layer);
 
-	std::string xy_string = xy==0 ? "phi" : "eta";
-	std::string region_string = "barrel";
-	if(region==1) region_string = "inclined";
-	else if(region==1) region_string = "endcap";
+      std::string region_string = "barrel";
+      if(region==1) region_string = "inclined";
+      else if(region==1) region_string = "endcap";
 
-	*outfile << xy_string << " " << region_string << " " << layer << " " << delta << " " << delta_err <<std::endl;
+      *outfile << "phi " << region_string << " " << layer << " " << delta.first << " " << delta_err.first <<std::endl;
+      *outfile << "eta " << region_string << " " << layer << " " << delta.second << " " << delta_err.second <<std::endl;
 
-      }
     }
   }
 

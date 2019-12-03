@@ -20,20 +20,24 @@ namespace PixelCalib{
     int data_size = n_xy*n_regions*n_layers;
     constants.reserve(data_size);
 
-    for(int xy=0; xy<n_xy; xy++){
-      for(int region=0; region<n_regions; region++){
-	for(int layer=0; layer<n_layers; layer++){
+    for(int region=0; region<n_regions; region++){
+      for(int layer=0; layer<n_layers; layer++){
 
-	  float delta = m_clustererrordata->getITkDelta(xy,region,layer);
-	  float delta_err = m_clustererrordata->getITkDeltaError(xy,region,layer);
+	std::pair<double,double> delta = m_clustererrordata->getDelta(region,layer);
+	std::pair<double,double> delta_err = m_clustererrordata->getDeltaError(region,layer);
 
-	  constants.push_back(xy);
-	  constants.push_back(region);
-	  constants.push_back(layer);
-	  constants.push_back(delta);
-	  constants.push_back(delta_err);
+	constants.push_back(0); // 0 = phi
+	constants.push_back(region);
+	constants.push_back(layer);
+	constants.push_back(delta.first);
+	constants.push_back(delta_err.first);
+
+	constants.push_back(1); // 1 = eta
+	constants.push_back(region);
+	constants.push_back(layer);
+	constants.push_back(delta.second);
+	constants.push_back(delta_err.second);
 	    
-	}
       }
     }
 

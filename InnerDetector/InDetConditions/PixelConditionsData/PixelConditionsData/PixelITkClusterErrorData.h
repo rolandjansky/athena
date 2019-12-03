@@ -5,6 +5,8 @@
 #ifndef PIXELITKCLUSTERERRORDATA_H
 #define PIXELITKCLUSTERERRORDATA_H
 
+#include "InDetReadoutGeometry/SiDetectorElement.h"
+
 #include "CLIDSvc/CLASS_DEF.h"
 #include <string>
 #include <vector>
@@ -20,8 +22,10 @@ class PixelITkClusterErrorData {
 
     /** Methods to access the calibration data */ 
 
-    double getITkDelta(int xy, int itkregion, int layer) const;
-    double getITkDeltaError(int xy, int itkregion, int layer) const;
+    std::pair<double,double> getDelta(int itkregion, int layer) const;
+    std::pair<double,double> getDeltaError(int itkregion, int layer) const;
+    std::pair<double,double> getDelta(const InDetDD::SiDetectorElement* element) const;
+    std::pair<double,double> getDeltaError(const InDetDD::SiDetectorElement* element) const;
 
     void setITkDeltaError(int xy, int itkregion, int layer, double delta, double error);
         
