@@ -29,7 +29,7 @@ if MuonGeometryFlags.hasCSC():
 ################################################################################
 if MuonGeometryFlags.hasCSC():
     addTool( "MuonCnvExample.MuonCalibConfig.CscCalibTool", "CscCalibTool")
-    addTool( "MuonCnvExample.MuonCalibConfig.MdtCalibDbTool", "MdtCalibDbTool")
+addTool( "MuonCnvExample.MuonCalibConfig.MdtCalibDbTool", "MdtCalibDbTool")
 addService( "MuonCnvExample.MuonCalibConfig.MdtCalibrationDbSvc", "MdtCalibrationDbSvc")
 addService( "MuonCnvExample.MuonCalibConfig.MdtCalibrationSvc", "MdtCalibrationSvc")
 
