@@ -20,8 +20,11 @@ namespace Monitored {
       : HistogramFiller(definition, provider) {
     }
 
-    virtual unsigned fill() override {
+    virtual HistogramFiller1D* clone() override {
+      return new HistogramFiller1D( *this );
+    }
 
+    virtual unsigned fill() override {
       if (m_monVariables.size() != 1) { return 0; }
 
       std::function<double(size_t)> weightValue = [] (size_t ){ return 1.0; };  // default is always 1.0
@@ -46,8 +49,8 @@ namespace Monitored {
 
     template<typename F1, typename F2>
     void fill( size_t n, F1 f1, F2 f2 ) {
-
       std::lock_guard<std::mutex> lock(*(this->m_mutex));
+
       auto histogram = this->histogram<TH1>();
       for ( size_t i = 0; i < n; ++i ) {
 	histogram->Fill( f1(i), f2(i) );

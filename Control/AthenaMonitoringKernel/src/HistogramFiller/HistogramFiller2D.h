@@ -20,6 +20,11 @@ namespace Monitored {
     HistogramFiller2D(const HistogramDef& definition, std::shared_ptr<IHistogramProvider> provider)
       : HistogramFiller(definition, provider) {}
 
+    virtual HistogramFiller2D* clone() override {
+      return new HistogramFiller2D( *this );
+    }
+
+
     virtual unsigned fill() override {
       if (m_monVariables.size() != 2) {
         return 0;

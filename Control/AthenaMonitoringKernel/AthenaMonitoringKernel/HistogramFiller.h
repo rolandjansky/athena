@@ -54,6 +54,14 @@ namespace Monitored {
      */
     virtual unsigned fill() = 0;
 
+
+    /**
+     * @brief clone filler for actual filling
+     * Note that this operation is very chip as the this class is effectively a flyweight
+     */
+    virtual HistogramFiller* clone() = 0;
+
+
     void setMonitoredVariables(const std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>& monitoredVariables) {
       m_monVariables = monitoredVariables;
     }
@@ -84,7 +92,7 @@ namespace Monitored {
     std::shared_ptr<HistogramDef> m_histDef;
     std::shared_ptr<IHistogramProvider> m_histogramProvider;
     std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> m_monVariables;
-    Monitored::IMonitoredVariable* m_monWeight;
+    Monitored::IMonitoredVariable* m_monWeight; // bare pointer instead of reference as it can be null
 
   private:
     HistogramFiller& operator=(HistogramFiller const&) = delete;
