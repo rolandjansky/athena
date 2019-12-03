@@ -24,7 +24,6 @@ find_package( AIDA )
 find_package( Boost )
 find_package( PythonLibs )
 find_package( ROOT COMPONENTS Core PyROOT )
-find_package( pytools )
 find_package( nlohmann_json )
 
 # Component(s) in the package:
