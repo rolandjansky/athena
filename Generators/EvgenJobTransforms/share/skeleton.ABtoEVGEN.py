@@ -388,6 +388,7 @@ svcMgr.EventSelector.RunNumber = runArgs.runNumber
 import EventInfoMgt.EventInfoMgtInit
 svcMgr.TagInfoMgr.ExtraTagValuePairs += ["beam_energy", str(int(runArgs.ecmEnergy*Units.GeV/2.0))]
 svcMgr.TagInfoMgr.ExtraTagValuePairs += ["beam_type", 'collisions']
+if hasattr( runArgs, "AMITag") and runArgs.AMITag != "NONE": svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", runArgs.AMITag]
 
 ## Propagate energy argument to the generators
 # TODO: Standardise energy setting in the GenModule interface
