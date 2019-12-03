@@ -1,3 +1,4 @@
+
 #----------------------------------------------------------------
 # Static classes to configure photon chain container names
 #----------------------------------------------------------------
@@ -23,7 +24,6 @@ def TrigPhotonSelectors(sel):
     # Configure the IsEM selectors
     from ElectronPhotonSelectorTools.ConfiguredAsgPhotonIsEMSelectors import ConfiguredAsgPhotonIsEMSelector
     from ROOT import egammaPID
-    from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefPhoton
     
     SelectorNames = {
             'loose'  : 'LoosePhotonSelector',
@@ -41,9 +41,9 @@ def TrigPhotonSelectors(sel):
             'tight'  : 'PhotonIsEMTightSelectorCutDefs.conf',
             } 
     PhotonIsEMBits = {
-            'loose'  : SelectionDefPhoton.PhotonLoose,
-            'medium' : SelectionDefPhoton.PhotonMedium,
-            'tight'  : SelectionDefPhoton.PhotonTight,
+            'loose'  : egammaPID.PhotonLooseEF,
+            'medium' : egammaPID.PhotonMediumEF,
+            'tight'  : egammaPID.PhotonTight,
             }
 
     mlog.info('Configuring photon PID tools...')
@@ -62,4 +62,3 @@ def TrigPhotonSelectors(sel):
         ToolSvc += SelectorTool
 
         return SelectorTool
-
