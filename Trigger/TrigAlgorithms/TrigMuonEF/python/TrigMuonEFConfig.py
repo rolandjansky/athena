@@ -499,6 +499,24 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFStandaloneTrackTool):
         self.MdtRawDataProvider = "MdtRawDataProviderTool"
         self.RpcRawDataProvider = "RpcRawDataProviderTool"
         self.TgcRawDataProvider = "TgcRawDataProviderTool"
+
+        from AthenaCommon.AppMgr import ToolSvc
+        from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MdtRdoToPrepDataTool
+        MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataTool(name = "TrigMdtRdoToPrepDataTool")
+        ToolSvc += MdtRdoToMdtPrepDataTool
+        self.MdtPrepDataProvider=MdtRdoToMdtPrepDataTool
+        from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscRdoToCscPrepDataTool
+        CscRdoToCscPrepDataTool = Muon__CscRdoToCscPrepDataTool(name = "TrigCscRdoToPrepDataTool")
+        ToolSvc += CscRdoToCscPrepDataTool
+        self.CscPrepDataProvider=CscRdoToCscPrepDataTool
+        from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TgcRdoToPrepDataTool
+        TgcRdoToTgcPrepDataTool = Muon__TgcRdoToPrepDataTool(name = "TrigTgcRdoToPrepDataTool")
+        ToolSvc += TgcRdoToTgcPrepDataTool
+        self.TgcPrepDataProvider=TgcRdoToTgcPrepDataTool
+        from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
+        RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataTool(name = "TrigRpcRdoToPrepDataTool")
+        ToolSvc += RpcRdoToRpcPrepDataTool
+        self.RpcPrepDataProvider=RpcRdoToRpcPrepDataTool
         self.DecodeMdtBS = DetFlags.readRDOBS.MDT_on()
         self.DecodeRpcBS = DetFlags.readRDOBS.RPC_on()
         self.DecodeTgcBS = DetFlags.readRDOBS.TGC_on()
