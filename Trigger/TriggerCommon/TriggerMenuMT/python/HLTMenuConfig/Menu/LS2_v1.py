@@ -23,7 +23,7 @@ def setupMenu():
 
     from TriggerJobOpts.TriggerFlags          import TriggerFlags
     from AthenaCommon.Logging                 import logging
-    log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1.py' )
+    log = logging.getLogger( __name__ )
     log.info('setupMenu ...')
 
 

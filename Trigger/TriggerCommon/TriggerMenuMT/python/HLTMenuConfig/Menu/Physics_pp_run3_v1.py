@@ -31,8 +31,8 @@ EgammaStreamersGroup = ['RATE:SeededStreamers', 'BW:Egamma']
 def setupMenu():
 
     from TriggerJobOpts.TriggerFlags          import TriggerFlags
-    from AthenaCommon.Logging                 import logging
-    log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1.py' )
+    from AthenaCommon.Logging import logging
+    log = logging.getLogger( __name__ )
     log.info('setupMenu ...')
 
 
