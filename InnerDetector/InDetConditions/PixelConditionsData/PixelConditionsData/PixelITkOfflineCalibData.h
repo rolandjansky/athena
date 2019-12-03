@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,6 +13,7 @@
 
 #include "PixelConditionsData/PixelITkClusterErrorData.h"
 
+#include "AthenaKernel/CondCont.h"
 
 /** @class PixelITkOfflineCalibData 
 
@@ -87,6 +88,7 @@ inline PixelITkOfflineCalibData::~PixelITkOfflineCalibData(){
 
 
 CLASS_DEF( PixelCalib::PixelITkOfflineCalibData , 222566141 , 1 )
+CLASS_DEF( CondCont<PixelCalib::PixelITkOfflineCalibData> , 115484743 , 1 )
 
 #endif 
 

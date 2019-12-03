@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DETDESCRCOND_DETCONDCFLOAT_H
@@ -35,6 +35,8 @@
 #include <algorithm>
 #include "Identifier/Identifier.h"
 
+#include "AthenaKernel/CondCont.h"
+
 #ifndef CLIDSVC_CLASSDEF_H
 #include "CLIDSvc/CLASS_DEF.h"
 #endif
@@ -67,6 +69,7 @@ class DetCondCFloat {
 };
 
 CLASS_DEF(DetCondCFloat,247459965,1)
+CLASS_DEF( CondCont<DetCondCFloat> , 85257013 , 1 )
 
 // inline functions for DetCondCFloat
 
