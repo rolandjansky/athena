@@ -179,10 +179,10 @@ StatusCode CombinedP4FromRecoTaus::initialize() {
 StatusCode CombinedP4FromRecoTaus::execute(xAOD::TauJet& xTau) {
   xAOD::TauJet* Tau = &xTau;
 
-  static SG::AuxElement::Decorator<float> decPtCombined("pt_combined");
-  static SG::AuxElement::Decorator<float> decEtaCombined("eta_combined");
-  static SG::AuxElement::Decorator<float> decPhiCombined("phi_combined");
-  static SG::AuxElement::Decorator<float> decMCombined("m_combined");
+  const SG::AuxElement::Decorator<float> decPtCombined("pt_combined");
+  const SG::AuxElement::Decorator<float> decEtaCombined("eta_combined");
+  const SG::AuxElement::Decorator<float> decPhiCombined("phi_combined");
+  const SG::AuxElement::Decorator<float> decMCombined("m_combined");
 
   decPtCombined(xTau) = 0;
   decEtaCombined(xTau) = 0;
@@ -215,24 +215,24 @@ StatusCode CombinedP4FromRecoTaus::execute(xAOD::TauJet& xTau) {
   */
 
   if (m_addUseCaloPtFlag){
-    static SG::AuxElement::Decorator<char> decUseCaloPtFlag("UseCaloPtFlag");
+    const SG::AuxElement::Decorator<char> decUseCaloPtFlag("UseCaloPtFlag");
     decUseCaloPtFlag(xTau)  = GetUseCaloPtFlag(Tau);
   }
 
   if (m_addCalibrationResultVariables){
 
-    static SG::AuxElement::Decorator<float> decPtConstituent("pt_constituent");
-    static SG::AuxElement::Decorator<float> decPtTauRecCalibrated("pt_tauRecCalibrated");
-    static SG::AuxElement::Decorator<float> decPtWeighted("pt_weighted");
+    const SG::AuxElement::Decorator<float> decPtConstituent("pt_constituent");
+    const SG::AuxElement::Decorator<float> decPtTauRecCalibrated("pt_tauRecCalibrated");
+    const SG::AuxElement::Decorator<float> decPtWeighted("pt_weighted");
     decPtConstituent(xTau) = m_et_cb2PT_postcalib;
     decPtTauRecCalibrated(xTau) = m_et_postcalib;
     decPtWeighted(xTau) = m_et_weighted;
 
-    static SG::AuxElement::Decorator<float> decWeightWeighted("weight_weighted");
-    static SG::AuxElement::Decorator<float> decSigmaCombined("sigma_combined");
-    static SG::AuxElement::Decorator<float> decSigmaTaurec("sigma_tauRec");
-    static SG::AuxElement::Decorator<float> decSigmaConstituent("sigma_constituent");    
-    static SG::AuxElement::Decorator<float> decCorrelationCoefficient("correlation_coefficient");    
+    const SG::AuxElement::Decorator<float> decWeightWeighted("weight_weighted");
+    const SG::AuxElement::Decorator<float> decSigmaCombined("sigma_combined");
+    const SG::AuxElement::Decorator<float> decSigmaTaurec("sigma_tauRec");
+    const SG::AuxElement::Decorator<float> decSigmaConstituent("sigma_constituent");    
+    const SG::AuxElement::Decorator<float> decCorrelationCoefficient("correlation_coefficient");    
     decWeightWeighted(xTau)         = m_weight; 
     decSigmaCombined(xTau)          = m_combined_res;
     decSigmaTaurec(xTau)            = m_sigma_tauRec;
