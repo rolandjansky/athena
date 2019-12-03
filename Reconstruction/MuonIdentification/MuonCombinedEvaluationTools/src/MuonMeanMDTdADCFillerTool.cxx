@@ -16,27 +16,16 @@
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonCalibEventBase/MuonCalibRawMdtHit.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
 #include <vector>
 
 using CLHEP::GeV;
 
-namespace Rec
-{
-    
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
+namespace Rec {
 
-MuonMeanMDTdADCFillerTool::MuonMeanMDTdADCFillerTool
-(const std::string&      type,
- const std::string&      name, 
- const IInterface*       parent)
-  : AthAlgTool              (type, name, parent),
-      m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-      m_idToFixedIdTool("MuonCalib::IdToFixedIdTool")
-
+MuonMeanMDTdADCFillerTool::MuonMeanMDTdADCFillerTool(const std::string& type, const std::string& name, const IInterface* parent): 
+    AthAlgTool(type, name, parent)
 {
   declareInterface<IMuonMeanMDTdADCFiller>(this);
- // declareProperty("doMdtGasGainCorrectionForMc", m_doMdtGasGainCorrectionForMc = false);
 }
 
 MuonMeanMDTdADCFillerTool::~MuonMeanMDTdADCFillerTool (void) 
@@ -48,6 +37,8 @@ StatusCode MuonMeanMDTdADCFillerTool::initialize()
 {
   ATH_MSG_INFO( "Initializing MuonMeanMDTdADCFillerTool - package version " << PACKAGE_VERSION );
 
+  ATH_CHECK(m_edmHelperSvc.retrieve());
+  ATH_CHECK(m_idHelperSvc.retrieve());
   ATH_CHECK(m_eventInfo.initialize());
 
   return StatusCode::SUCCESS;
@@ -152,25 +143,20 @@ MuonMeanMDTdADCFillerTool::meanMDTdADCFiller (const Trk::Track& track) const
         if(!(*tsit)->type(Trk::TrackStateOnSurface::Measurement) ||(*tsit)->type(Trk::TrackStateOnSurface::Outlier)) {
             continue;
         }
-        //    if((*tsit)->type() == 3) continue; // scattering center..add count etc
-        //    if((*tsit)->type() == 4) continue; // outlier..add count etc
 
         const Trk::MeasurementBase* measurement = (*tsit)->measurementOnTrack();
         if(measurement == NULL) {
             continue;
         }
         Identifier id = m_edmHelperSvc->getIdentifier(*measurement);
-        if(!(m_idHelperTool->isMuon(id))) {
+        if(!(m_idHelperSvc->isMuon(id))) {
             continue;    // MS summary variables - don't need other technologies
         }
         if(!id.is_valid()) {
-            //      std::cout<<"ID not valid\n";
             continue;
         }
-        MuonCalib::MuonFixedId fid = m_idToFixedIdTool->idToFixedId(id);
         // mdt station counts
-        // int statnam = fid.stationName();
-        if(fid.is_mdt()) {
+        if(m_idHelperSvc->isMdt(id)) {
             const Muon::MdtDriftCircleOnTrack *mdtcirc = dynamic_cast<const Muon::MdtDriftCircleOnTrack *>(measurement);
             if(mdtcirc == NULL) {
               ATH_MSG_WARNING("cannot cast Trk::MeasurementBase to Muon::MdtDriftCircleOnTrack");
