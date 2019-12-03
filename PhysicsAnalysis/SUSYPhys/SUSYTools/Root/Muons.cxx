@@ -74,7 +74,7 @@ StatusCode SUSYObjDef_xAOD::GetMuons(xAOD::MuonContainer*& copy, xAOD::ShallowAu
   }
 
   for (const auto& muon : *copy) {
-    ATH_CHECK( this->FillMuon(*muon, m_muBaselinePt, m_muBaselineEta) );
+    ATH_CHECK( this->FillMuon(*muon, m_muBaselinePt, m_muBaselineEta, muonkey!="AnalysisMuons_NOSYS") );
     this->IsSignalMuon(*muon, m_muPt, m_mud0sig, m_muz0, m_muEta);
     this->IsCosmicMuon(*muon, m_muCosmicz0, m_muCosmicd0);
     this->IsBadMuon(*muon, m_badmuQoverP);
@@ -86,7 +86,7 @@ StatusCode SUSYObjDef_xAOD::GetMuons(xAOD::MuonContainer*& copy, xAOD::ShallowAu
   return StatusCode::SUCCESS;
 }
 
-StatusCode SUSYObjDef_xAOD::FillMuon(xAOD::Muon& input, float ptcut, float etacut) {
+StatusCode SUSYObjDef_xAOD::FillMuon(xAOD::Muon& input, float ptcut, float etacut, const bool doCalib) {
   
   ATH_MSG_VERBOSE( "Starting FillMuon on mu with pt=" << input.pt() );
   
@@ -106,10 +106,13 @@ StatusCode SUSYObjDef_xAOD::FillMuon(xAOD::Muon& input, float ptcut, float etacu
   ATH_MSG_VERBOSE( "MUON eta  = " << input.eta() );
   ATH_MSG_VERBOSE( "MUON type = " << input.muonType() );
   ATH_MSG_VERBOSE( "MUON author = " << input.author() );
-  
-  if (m_muonCalibrationAndSmearingTool->applyCorrection( input ) == CP::CorrectionCode::OutOfValidityRange)
-    ATH_MSG_VERBOSE("FillMuon: applyCorrection out of validity range");
-  
+
+  if (doCalib){
+    if (m_muonCalibrationAndSmearingTool->applyCorrection( input ) == CP::CorrectionCode::OutOfValidityRange){
+      ATH_MSG_VERBOSE("FillMuon: applyCorrection out of validity range");
+    }
+  }
+
   ATH_MSG_VERBOSE( "MUON pt after calibration " << input.pt() );
 
   const xAOD::EventInfo* evtInfo = 0;
@@ -128,37 +131,45 @@ StatusCode SUSYObjDef_xAOD::FillMuon(xAOD::Muon& input, float ptcut, float etacu
   }
 
   //impact parameters (after applyCorrection() so to have the primaryTrack links restored in old buggy samples)
-  dec_z0sinTheta(input) = (track->z0() + track->vz() - primvertex_z) * TMath::Sin(input.p4().Theta());
+  if (track){
+    dec_z0sinTheta(input) = (track->z0() + track->vz() - primvertex_z) * TMath::Sin(input.p4().Theta());
+  } else {
+    ATH_MSG_WARNING("FillMuon: Muon of pT and eta " << input.pt() << " MeV " << input.eta() << " has no associated track");
+  }
   //protect against exception thrown for null or negative d0sig
   try {
-    dec_d0sig(input) = xAOD::TrackingHelpers::d0significance( track , evtInfo->beamPosSigmaX(), evtInfo->beamPosSigmaY(), evtInfo->beamPosSigmaXY() );
+    if (track)
+      dec_d0sig(input) = xAOD::TrackingHelpers::d0significance( track , evtInfo->beamPosSigmaX(), evtInfo->beamPosSigmaY(), evtInfo->beamPosSigmaXY() );
+    else
+      dec_d0sig(input) = -99.;
   }
   catch (...) {
     float d0sigError = -99.; 
-    ATH_MSG_WARNING("FillMuon : Exception catched from d0significance() calculation. Setting dummy decoration d0sig=" << d0sigError );
+    ATH_MSG_WARNING("FillMuon : Exception caught from d0significance() calculation. Setting dummy decoration d0sig=" << d0sigError );
     dec_d0sig(input) = d0sigError;
   }
   
   if (m_debug) {
     // Summary variables in
     // /cvmfs/atlas.cern.ch/repo/sw/ASG/AnalysisBase/2.0.3/xAODTracking/Root/TrackSummaryAccessors_v1.cxx
-    
+
     unsigned char nBLHits(0), nPixHits(0), nPixelDeadSensors(0), nPixHoles(0),
       nSCTHits(0), nSCTDeadSensors(0), nSCTHoles(0), nTRTHits(0), nTRTOutliers(0);
-    
-    const xAOD::TrackParticle* track =  input.primaryTrackParticle();
-    track->summaryValue( nBLHits, xAOD::numberOfBLayerHits);
-    track->summaryValue( nPixHits, xAOD::numberOfPixelHits);
-    track->summaryValue( nPixelDeadSensors, xAOD::numberOfPixelDeadSensors);
-    track->summaryValue( nPixHoles, xAOD::numberOfPixelHoles);
-    
-    track->summaryValue( nSCTHits, xAOD::numberOfSCTHits);
-    track->summaryValue( nSCTDeadSensors, xAOD::numberOfSCTDeadSensors);
-    track->summaryValue( nSCTHoles, xAOD::numberOfSCTHoles);
-    
-    track->summaryValue( nTRTHits, xAOD::numberOfTRTHits);
-    track->summaryValue( nTRTOutliers, xAOD::numberOfTRTOutliers);
-    
+
+    if (track){
+      track->summaryValue( nBLHits, xAOD::numberOfBLayerHits);
+      track->summaryValue( nPixHits, xAOD::numberOfPixelHits);
+      track->summaryValue( nPixelDeadSensors, xAOD::numberOfPixelDeadSensors);
+      track->summaryValue( nPixHoles, xAOD::numberOfPixelHoles);
+
+      track->summaryValue( nSCTHits, xAOD::numberOfSCTHits);
+      track->summaryValue( nSCTDeadSensors, xAOD::numberOfSCTDeadSensors);
+      track->summaryValue( nSCTHoles, xAOD::numberOfSCTHoles);
+
+      track->summaryValue( nTRTHits, xAOD::numberOfTRTHits);
+      track->summaryValue( nTRTOutliers, xAOD::numberOfTRTOutliers);
+    }
+
     ATH_MSG_INFO( "MUON pt: " << input.pt() );
     ATH_MSG_INFO( "MUON eta: " << input.eta() );
     ATH_MSG_INFO( "MUON phi: " << input.phi() );
@@ -280,10 +291,14 @@ bool SUSYObjDef_xAOD::IsBadMuon(const xAOD::Muon& input, float qopcut) const
   const xAOD::TrackParticle* track;
   if (input.muonType() == xAOD::Muon::SiliconAssociatedForwardMuon) {
     track = input.trackParticle(xAOD::Muon::CombinedTrackParticle);
-    if (!track) return StatusCode::SUCCESS; // don't treat SAF muons without CB track further  
+    if (!track) return false; // don't treat SAF muons without CB track further  
   }
   else{
     track = input.primaryTrackParticle();
+    if (!track){
+      ATH_MSG_WARNING("Non-SAF muon without a track; cannot test IsBadMuon criteria");
+      return false;
+    }
   }
 
   float Rerr = Amg::error(track->definingParametersCovMatrix(), 4) / fabs(track->qOverP());
@@ -309,7 +324,7 @@ bool SUSYObjDef_xAOD::IsCosmicMuon(const xAOD::Muon& input, float z0cut, float d
   const static SG::AuxElement::Decorator<char> dec_cosmic("cosmic");
   dec_cosmic(input) = false;
 
-  const xAOD::TrackParticle* track;
+  const xAOD::TrackParticle* track(nullptr);
   if (input.muonType() == xAOD::Muon::SiliconAssociatedForwardMuon) {
     track = input.trackParticle(xAOD::Muon::CombinedTrackParticle);
     if (!track){
@@ -319,6 +334,10 @@ bool SUSYObjDef_xAOD::IsCosmicMuon(const xAOD::Muon& input, float z0cut, float d
   }
   else {
     track = input.primaryTrackParticle();
+    if (!track){
+      ATH_MSG_WARNING("Non-SAF muon without primary track particle found. Not possible to check cosmic muon criteria");
+      return false;
+    }
   }
 
   double mu_d0 = track->d0();

@@ -144,7 +144,7 @@ namespace ST {
     StatusCode FillJet(xAOD::Jet& input, const bool doCalib = true, bool isFat = false, bool isTCC = false) override final;
     StatusCode FillTrackJet(xAOD::Jet& input) override final;
     StatusCode FillTau(xAOD::TauJet& input) override final;
-    StatusCode FillMuon(xAOD::Muon& input, const float ptcut, const float etacut) override final;
+    StatusCode FillMuon(xAOD::Muon& input, const float ptcut, const float etacut, const bool doCalib = true) override final;
     StatusCode FillElectron(xAOD::Electron& input, const float etcut, const float etacut) override final;
     StatusCode FillPhoton(xAOD::Photon& input, const float ptcut, const float etacut) override final;
 
