@@ -241,6 +241,9 @@ private: // properties
    BooleanProperty m_persSvcPerOutput;
    unsigned outputContextId();
    std::map< EventContext::ContextID_t, std::string > m_outputConnectionForSlot;
+   std::map< EventContext::ContextID_t, std::string > m_containerPrefixForSlot;
+   std::map< EventContext::ContextID_t, std::string > m_containerNameHintForSlot;
+   std::map< EventContext::ContextID_t, std::string > m_branchNameHintForSlot;
    mutable std::mutex  m_mutex;  // mutable so const functions can lock
   
    /// SkipFirstChronoCommit, boolean property to skip the first commit in the chrono stats so the first

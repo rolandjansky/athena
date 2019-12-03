@@ -341,9 +341,11 @@ StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSp
       m_streamClientFiles.push_back(outputConnectionSpec);
    }
 
-   if( m_persSvcPerOutput ) {
-      m_outputConnectionForSlot[ Gaudi::Hive::currentContext().slot() ] = m_outputConnectionSpec;
-   }
+   m_outputConnectionForSlot[ Gaudi::Hive::currentContext().slot() ] = m_outputConnectionSpec;
+   m_containerPrefixForSlot[ Gaudi::Hive::currentContext().slot() ] = m_containerPrefix;
+   m_containerNameHintForSlot[ Gaudi::Hive::currentContext().slot() ] = m_containerNameHint;
+   m_branchNameHintForSlot[ Gaudi::Hive::currentContext().slot() ] = m_branchNameHint;
+
    unsigned int contextId = outputContextId();
    try {
       if (!m_poolSvc->connect(pool::ITransaction::UPDATE, contextId).isSuccess()) {
@@ -676,7 +678,6 @@ StatusCode AthenaPoolCnvSvc::disconnectOutput() {
 //______________________________________________________________________________
 const std::string& AthenaPoolCnvSvc::getOutputConnectionSpec() const
 {
-   if( !m_persSvcPerOutput ) return m_outputConnectionSpec;
    auto slot = Gaudi::Hive::currentContext().slot();
    if( slot == EventContext::INVALID_CONTEXT_ID) return m_outputConnectionSpec;
 
@@ -694,6 +695,19 @@ unsigned int AthenaPoolCnvSvc::outputContextId() {
 //______________________________________________________________________________
 std::string AthenaPoolCnvSvc::getOutputContainer(const std::string& typeName,
 		const std::string& key) const {
+   auto slot = Gaudi::Hive::currentContext().slot();
+   std::string containerPrefix = m_containerPrefix;
+   std::string containerNameHint = m_containerNameHint;
+   std::string branchNameHint = m_branchNameHint;
+   if (slot != EventContext::INVALID_CONTEXT_ID) {
+      auto prefix = m_containerPrefixForSlot.find(slot);
+      if (prefix != m_containerPrefixForSlot.end()) containerPrefix = prefix->second;
+      auto container = m_containerNameHintForSlot.find(slot);
+      if (container != m_containerNameHintForSlot.end()) containerNameHint = container->second;
+      auto branch = m_branchNameHintForSlot.find(slot);
+      if (branch != m_branchNameHintForSlot.end()) branchNameHint = branch->second;
+   }
+
    if (typeName.substr(0, 14) == "DataHeaderForm") {
       return(m_dhContainerPrefix + "Form" + "(" + typeName + ")");
    }
@@ -707,12 +721,12 @@ std::string AthenaPoolCnvSvc::getOutputContainer(const std::string& typeName,
       return(m_collContainerPrefix + "(" + key + ")");
    }
    if (key.empty()) {
-      return(m_containerPrefix + typeName);
+      return(containerPrefix + typeName);
    }
    const std::string typeTok = "<type>", keyTok = "<key>";
-   std::string ret = m_containerPrefix + m_containerNameHint;
-   if (!m_branchNameHint.empty()) {
-      ret += "(" + m_branchNameHint + ")";
+   std::string ret = containerPrefix + containerNameHint;
+   if (!branchNameHint.empty()) {
+      ret += "(" + branchNameHint + ")";
    }
    const std::size_t pos1 = ret.find(typeTok);
    if (pos1 != std::string::npos) {
