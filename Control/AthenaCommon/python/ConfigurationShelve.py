@@ -49,7 +49,10 @@ def _monkeypatch_bug_34752():
          del GaudiHandleArray.__setstate__
       except AttributeError: pass # already done, or not relevant anymore
    return
-_monkeypatch_bug_34752()
+try:
+   _monkeypatch_bug_34752()
+except: # noqa: E722 
+   pass
 del _monkeypatch_bug_34752
 
 
