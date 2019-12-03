@@ -39,7 +39,6 @@ class JetTagMonitorAlgorithm : public AthMonitorAlgorithm {
   virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
 
  private:
-  SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKey{this,"EventInfoKey","EventInfo","RHK for xAOD::EventInfo"};
   SG::ReadHandleKey<xAOD::VertexContainer> m_vertContainerKey{this,"VerticesKey","PrimaryVertices","RHK for primary veritces"};
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackContainerKey{this,"TracksKey","InDetTrackParticles","RHK for ID tracks"};
 
@@ -102,7 +101,6 @@ class JetTagMonitorAlgorithm : public AthMonitorAlgorithm {
   double getMVweight(const xAOD::Jet *jet) const;
   Jet_t getTaggabilityLabel(const xAOD::Jet *jet) const; 
 
-  ToolHandle< Trig::TrigDecisionTool > m_trigDecTool;
   std::string m_ElectronTrigger_201X;
   std::string m_MuonTrigger_201X;
   std::string m_JetTrigger_201X;

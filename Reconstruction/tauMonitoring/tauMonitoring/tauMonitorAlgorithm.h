@@ -28,7 +28,7 @@ private:
     std::map<std::string,int> m_cGroups1;
     std::map<std::string,std::map<std::string,int>> m_cGroups2;
 
-    SG::ReadHandleKey<xAOD::TauJetContainer> m_TauContainerKey;
+    SG::ReadHandleKey<xAOD::TauJetContainer> m_TauContainerKey {this, "TauRecContainer", "TauJets"};
 
     Gaudi::Property<float> m_etaMin {this, "etaMin", -1.};
     Gaudi::Property<float> m_etaMax {this, "etaMax", 3.0};

@@ -233,7 +233,7 @@ class TrigEgammaMonToolBuilderRun3(TrigEgammaMonToolBuilder):
         # trigEgammaMonAlg.RandomHist = True
         # to enable a trigger filter, for example:
         trigEgammaMonAlg.TriggerChain = triggerChain
-        trigEgammaMonAlg.OutputLevel = 2 # DEBUG
+        # trigEgammaMonAlg.OutputLevel = 2 # DEBUG
 
 
         # # Then, add a tool that doesn't have its own configuration function. In
