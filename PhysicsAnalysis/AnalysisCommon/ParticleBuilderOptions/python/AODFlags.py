@@ -298,6 +298,7 @@ _list_AOD=[ \
     ThinNegativeEnergyNeutralPFOs, \
     ThinInDetForwardTrackParticles, \
     Muon, \
+    Tau,\
     TrackParticleSlimmer, TrackParticleLastHitAndPerigeeSlimmer, \
     ParticleJet,JetTag, \
     SpclMC,TruthParticleJet, \
