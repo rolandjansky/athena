@@ -20,6 +20,6 @@ def xAODEventInfoCnvAlgDefault (sequence = topSequence):
         lumiDataKey = condalg.LuminosityOutputKey
 
     tool = xAODMaker__EventInfoCnvTool (LumiDataKey = lumiDataKey)
-    alg = xAODMaker__EventInfoCnvAlg (CnvTool = tool, DoBeginRun = False)
+    alg = xAODMaker__EventInfoCnvAlg (CnvTool = tool)
     sequence += alg
     return alg

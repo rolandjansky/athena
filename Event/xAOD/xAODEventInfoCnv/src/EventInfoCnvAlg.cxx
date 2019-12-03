@@ -32,7 +32,6 @@ namespace xAODMaker {
       declareProperty( "xAODKey", m_xaodKey = "EventInfo" );
       declareProperty( "PileupKey", m_pileupKey = "" );
       declareProperty( "CnvTool", m_cnvTool );
-      declareProperty( "DoBeginRun", m_doBeginRun = true );
    }
 
    StatusCode EventInfoCnvAlg::initialize() {
