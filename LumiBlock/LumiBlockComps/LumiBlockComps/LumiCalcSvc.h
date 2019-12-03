@@ -50,7 +50,7 @@ public:
   StatusCode finalize();
   //@}
 
-  /// Incident service handle listening for BeginFile and EndFile.
+  /// Incident service handle listening for BeginInputFile and EndInputFile.
   void handle(const Incident& incident);
 public:
 

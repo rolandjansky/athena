@@ -63,5 +63,4 @@ atlas_add_test( TSMethodCall_test
                 LINK_LIBRARIES ${ROOT_LIBRARIES} ${PYTHON_LIBRARIES} ${Boost_LIBRARIES} TestTools RootUtils RootUtilsPyROOT )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
-
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

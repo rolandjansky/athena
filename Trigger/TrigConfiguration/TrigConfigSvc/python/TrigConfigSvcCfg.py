@@ -127,5 +127,5 @@ if __name__ == "__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     ConfigFlags.lock()
     acc = TrigConfigSvcCfg( ConfigFlags )
-    acc.store( file( "test.pkl", "w" ) )
+    acc.store( open( "test.pkl", "wb" ) )
     print("All OK")

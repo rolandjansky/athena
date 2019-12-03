@@ -20,8 +20,6 @@
 #include "TrkTrack/TrackCollection.h"
 #include "xAODTracking/Vertex.h"
 
-#include "InDetBeamSpotService/IBeamCondSvc.h"
-
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "InDetAlignMonBeamSpot.h"
 
@@ -31,7 +29,6 @@ InDetAlignMonBeamSpot::InDetAlignMonBeamSpot( const std::string & type, const st
   :ManagedMonitorToolBase( type, name, parent ),
    m_extrapolator("Trk::Extrapolator"),
    m_hasExtrapolator(false),
-   m_beamCondSvc("BeamCondSvc",name),
    m_hasBeamCondSvc(false),
    m_hTrNPt(0),
    m_hTrPt(0),
@@ -61,7 +58,6 @@ InDetAlignMonBeamSpot::InDetAlignMonBeamSpot( const std::string & type, const st
    m_hPvTrackEta(0)
 {
   declareProperty("extrapolator",m_extrapolator);
-  declareProperty("beamCondSvc",m_beamCondSvc);
   declareProperty("useBeamspot",m_useBeamspot=true);
   declareProperty("vxContainerWithBeamConstraint",m_vxContainerWithBeamConstraint=false);
   declareProperty("minTracksPerVtx",m_minTracksPerVtx=10);
@@ -87,11 +83,11 @@ StatusCode InDetAlignMonBeamSpot::initialize() {
     ATH_MSG_INFO ("Retrieved tool "+m_extrapolator.typeAndName());
   }
 
-  if ( m_beamCondSvc.retrieve().isFailure() ) {
-    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Failed to retrieve beamspot service " << m_beamCondSvc << " - will use nominal beamspot at (0,0,0)" << endmsg;
+  if ( m_beamSpotKey.initialize().isFailure() ) {
+    ATH_MSG_WARNING( "Failed to retrieve beamspot service - will use nominal beamspot at (0,0,0)" );
   } else {
     m_hasBeamCondSvc = true;
-    msg(MSG::INFO) << "Retrieved service " << m_beamCondSvc << endmsg;
+    ATH_MSG_INFO( "Retrieved service beaspot " );
   }
 
   ATH_CHECK(m_vxContainerName.initialize());
@@ -182,21 +178,22 @@ StatusCode InDetAlignMonBeamSpot::fillHistograms() {
   float scaleFactor = 1.;
 
   if (m_useBeamspot && m_hasBeamCondSvc) {
-    Amg::Vector3D bpos = m_beamCondSvc->beamPos();
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+    Amg::Vector3D bpos = beamSpotHandle->beamPos();
     beamSpotX = bpos.x();
     beamSpotY = bpos.y();
     beamSpotZ = bpos.z();
-    beamTiltX = m_beamCondSvc->beamTilt(0);
-    beamTiltY = m_beamCondSvc->beamTilt(1);
+    beamTiltX = beamSpotHandle->beamTilt(0);
+    beamTiltY = beamSpotHandle->beamTilt(1);
     scaleFactor = 1000.;   // Use microns for some histograms when showing distance relative to beamspot
     m_hBsX->Fill(beamSpotX);
     m_hBsY->Fill(beamSpotY);
     m_hBsZ->Fill(beamSpotZ);
     m_hBsTiltX->Fill(1e6*beamTiltX);
     m_hBsTiltY->Fill(1e6*beamTiltY);
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Beamspot from " << m_beamCondSvc << ": x0 = " << beamSpotX << ", y0 = " << beamSpotY
+    ATH_MSG_DEBUG( "Beamspot : x0 = " << beamSpotX << ", y0 = " << beamSpotY
 				  << ", z0 = " << beamSpotZ << ", tiltX = " << beamTiltX
-				  << ", tiltY = " << beamTiltY <<endmsg;
+				  << ", tiltY = " << beamTiltY );
   }
 
   SG::ReadHandle<xAOD::TrackParticleContainer> trackCollection{m_trackContainerName};

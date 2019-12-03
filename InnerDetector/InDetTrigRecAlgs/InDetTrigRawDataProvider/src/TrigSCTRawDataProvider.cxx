@@ -9,10 +9,8 @@
 #include "GaudiKernel/IIncidentSvc.h"
 
 //#include "InDetRawData/InDetRawDataCLASS_DEF.h"
-#include "SCT_RawDataByteStreamCnv/ISCTRawDataProviderTool.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "IRegionSelector/IRegSelSvc.h" 
-#include "InDetByteStreamErrors/InDetBSErrContainer.h"
 
 using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
@@ -29,7 +27,6 @@ namespace InDet {
     AthAlgTool(type,name,parent),
     m_regionSelector  ("RegSelSvc", name), 
     m_robDataProvider ("ROBDataProviderSvc", name),
-    m_rawDataTool     ("SCTRawDataProviderTool"),
     m_id(nullptr),
     m_container(nullptr),
     m_bsErrCont(nullptr)
@@ -37,7 +34,6 @@ namespace InDet {
     declareInterface<InDet::ITrigRawDataProviderTool>(this);
     declareProperty("RDOKey", m_RDO_Key = "SCT_RDOs_EFID");
     declareProperty("ByteStreamErrContainer", m_bsErrCont_Key = "SCT_ByteStreamErrs");
-    declareProperty("RawDataTool", m_rawDataTool);
   }
 
   TrigSCTRawDataProvider::~TrigSCTRawDataProvider(){

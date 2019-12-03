@@ -54,6 +54,9 @@ template<class TRANS, class PERS, class CONV>
 using T_AthenaPoolTPPtrVectorCnvConst = TPPtrVectorCnvConst<TRANS, PERS, CONV>;
 
 template<class TRANS, class PERS, class CONV>
+using T_AthenaPoolTPThinnedPtrVectorCnv = TPThinnedPtrVectorCnv<TRANS, PERS, CONV>;
+
+template<class TRANS, class PERS, class CONV>
 using T_AthenaPoolTPPolyVectorCnv = TPPolyVectorCnv<TRANS, PERS, CONV>;
 
 template<class TRANS, class PERS, class CONV>

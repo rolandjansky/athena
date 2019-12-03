@@ -39,37 +39,37 @@ namespace TrigConf {
 
       virtual ~TrigConfigSvc(){}
 
-      StatusCode initialize();
+      virtual StatusCode initialize() override;
 
-      StatusCode queryInterface( const InterfaceID& riid, void** ppvIF );
+      virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvIF ) override;
       static const InterfaceID& interfaceID() { return ITrigConfigSvc::interfaceID(); }
 
       // L1Topo menu
-      const TXC::L1TopoMenu* menu() const;
+      virtual const TXC::L1TopoMenu* menu() const override;
 
       // Lvl1 Accessors
-      const Muctpi*          muctpiConfig() const;
-      const CTPConfig*       ctpConfig() const;
-      const ThresholdConfig* thresholdConfig() const;
-      const BunchGroupSet*   bunchGroupSet() const;
+      virtual const Muctpi*          muctpiConfig() const override;
+      virtual const CTPConfig*       ctpConfig() const override;
+      virtual const ThresholdConfig* thresholdConfig() const override;
+      virtual const BunchGroupSet*   bunchGroupSet() const override;
 
       // HLT accessors
-      const HLTChainList*    chainList() const;
-      const HLTChainList&    chains() const;
-      const HLTSequenceList* sequenceList() const;
-      const HLTSequenceList& sequences() const;
+      virtual const HLTChainList*    chainList() const override;
+      virtual const HLTChainList&    chains() const override;
+      virtual const HLTSequenceList* sequenceList() const override;
+      virtual const HLTSequenceList& sequences() const override;
 
       // Super Master Key - 0 if from XML, other cases TBI.
-      uint32_t masterKey() const ;
-      uint32_t lvl1PrescaleKey() const ;
-      uint32_t hltPrescaleKey() const ;
-      std::string configurationSource() const override {
+      virtual uint32_t masterKey() const override;
+      virtual uint32_t lvl1PrescaleKey() const override;
+      virtual uint32_t hltPrescaleKey() const override;
+      virtual std::string configurationSource() const override {
          return "";
       }
 
-      StatusCode updatePrescaleSets(uint requestcount);
+      virtual StatusCode updatePrescaleSets(uint requestcount) override;
 
-      StatusCode assignPrescalesToChains(uint lumiblock );
+      virtual StatusCode assignPrescalesToChains(uint lumiblock ) override;
 
    private:
 

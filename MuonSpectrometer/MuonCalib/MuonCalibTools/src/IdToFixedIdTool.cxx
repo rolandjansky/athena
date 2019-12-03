@@ -130,7 +130,7 @@ Identifier IdToFixedIdTool::fixedIdToId(const MuonFixedId& fid) const
 		     fid.rpcGasGap(),
 		     fid.rpcMeasuresPhi(),
 		     fid.rpcStrip() );
-  } else if((&(m_idHelperTool->cscIdHelper())) && fid.is_csc()){ 
+  } else if( m_idHelperTool->hasCscIdHelper() && fid.is_csc()){ 
      tmp = m_idHelperTool->cscIdHelper().channelID( fid.stationNumberToFixedStationString( fid.stationName() ) ,
 		      fid.eta(),
 		      fid.phi(),

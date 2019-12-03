@@ -37,7 +37,7 @@ def main():
     trf = getTransform()
     trf.parseCmdLineArgs(sys.argv[1:])
     trf.execute()
-    if 'outputFileValidation' in  trf._argdict and  trf._argdict['outputFileValidation'].value is False:
+    if 'outputFileValidation' in  trf._argdict and trf._argdict['outputFileValidation'].value is False and not ('eventService' in trf._argdict and trf._argdict['eventService'].value):
         msg.info('Skipping report generation')
     else:
         trf.generateReport()

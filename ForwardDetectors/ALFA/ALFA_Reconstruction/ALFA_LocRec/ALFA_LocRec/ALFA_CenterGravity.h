@@ -43,7 +43,6 @@ class ALFA_CenterGravity
 		Float_t m_fFiberD;
 		Float_t m_fzStep;
 
-		Float_t m_fPrivPI;
 		Float_t m_fTLow;
 		Float_t m_fTHigh;
 		Float_t m_fRLow;

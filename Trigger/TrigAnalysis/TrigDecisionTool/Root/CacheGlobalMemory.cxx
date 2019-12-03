@@ -24,8 +24,6 @@
 #include "TrigConfHLTData/HLTSignature.h"
 #include "TrigNavStructure/TriggerElement.h"
 
-#include "boost/foreach.hpp"
-
 #include "TrigSteeringEvent/Lvl1Item.h"
 
 #include "TrigDecisionTool/CacheGlobalMemory.h"

@@ -29,7 +29,7 @@ def getTrigDecisionTool(flags):
     from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
     tdt = Trig__TrigDecisionTool('TrigDecisionTool')
     tdt.ConfigTool = cfgtool
-    tdt.NavigationFormat = "TrigComposite"
+    tdt.NavigationFormat = "TrigComposite" if 'HLTNav_Summary' in flags.Input.Collections else "TriggerElement"
     rv.addPublicTool(tdt)
     # Other valid option of NavigationFormat is "TriggerElement" for Run 2 navigation. 
     # This option to be removed and "TrigComposite" the only valid choice once a R2->R3 converter is put in place. 

@@ -39,7 +39,7 @@ namespace TrkDriftCircleMath {
     void MdtChamberGeometry::init()
     {
       m_validGeometry = true;
-      if( m_id.stName() == 53 || m_id.stName() == 54 ) { // BME and BMG chambers are small tubes
+      if( m_id.isSmallMdt() ) {
         m_tubeDist = 15.10;
         m_tubeRad  = 7.1;
         m_layDist  = 13.085;

@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 #           Setup of precision tracking
 
@@ -63,10 +63,12 @@ def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks
   
   from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigAmbiTrackSelectionTool
 
+  from InDetRecExample import TrackingCommon as TrackingCommon
   from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__DenseEnvironmentsAmbiguityScoreProcessorTool as ScoreProcessorTool
   InDetTrigAmbiguityScoreProcessor = ScoreProcessorTool(name = 'InDetTrigAmbiguityScoreProcessor'+signature,
                                                              ScoringTool        = InDetTrigAmbiScoringTool,
                                                              #OutputLevel   = dbgLevel,
+                                                             AssociationTool    = TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels(),
                                                              SelectionTool      = InDetTrigAmbiTrackSelectionTool)
 
   from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguityScore
@@ -79,12 +81,13 @@ def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks
          
   
   
-  
   from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackFitter
   from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__SimpleAmbiguityProcessorTool as ProcessorTool
   InDetTrigMTAmbiguityProcessor = ProcessorTool(name          = 'InDetTrigMTAmbiguityProcessor' + signature,
                                                 Fitter        = InDetTrigTrackFitter,
                                                 ScoringTool   = InDetTrigAmbiScoringTool,
+                                                AssociationTool = TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels(),
+                                                TrackSummaryTool = InDetTrigTrackSummaryTool,
                                                 #OutputLevel   = dbgLevel,
                                                 SelectionTool = InDetTrigAmbiTrackSelectionTool)
   

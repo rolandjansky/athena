@@ -34,8 +34,8 @@ import os
 if os.path.exists ('PoolFileCatalog.xml'):
     os.remove ('PoolFileCatalog.xml')
 
-if (not globals().has_key ('ATLAS_REFERENCE_TAG') and
-    os.environ.has_key ('ATLAS_REFERENCE_TAG')):
+if (not 'ATLAS_REFERENCE_TAG' in globals() and
+    'ATLAS_REFERENCE_TAG' in os.environ):
     ATLAS_REFERENCE_TAG = os.environ['ATLAS_REFERENCE_TAG']
 
 refpaths = [os.environ.get ('ATLAS_REFERENCE_DATA', None),
@@ -73,12 +73,11 @@ if have_atlas_geo:
     svcMgr.GeoModelSvc.IgnoreTagDifference = True
 
 if have_atlas_geo and moduleExists ('TrkEventCnvTools') and moduleExists ('MuonEventCnvTools'):
-    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
     from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
     from TrkEventCnvTools import TrkEventCnvToolsConf
     EventCnvSuperTool = TrkEventCnvToolsConf.Trk__EventCnvSuperTool('EventCnvSuperTool')
     from MuonIdHelpers.MuonIdHelpersConf import Muon__MuonIdHelperSvc
-    svcMgr += Muon__MuonIdHelperSvc("MuonIdHelperSvc",HasCSC=MuonGeometryFlags.hasCSC(), HasSTgc=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"]), HasMM=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"]))
+    svcMgr += Muon__MuonIdHelperSvc("MuonIdHelperSvc",HasCSC=MuonGeometryFlags.hasCSC(), HasSTgc=MuonGeometryFlags.hasSTGC(), HasMM=MuonGeometryFlags.hasMM())
     ToolSvc += EventCnvSuperTool
 
 #
@@ -102,7 +101,7 @@ def checknewvars (output):
     return l
             
 
-if not globals().has_key ('get_dumper_fct'):
+if not 'get_dumper_fct' in globals():
     from PyDumper.Dumpers import get_dumper_fct
 from AthenaPython import PyAthena
 class Dumper (PyAthena.Alg):
@@ -118,14 +117,14 @@ class Dumper (PyAthena.Alg):
         if not os.path.exists (self.reffile_name):
             self.reffile_name = '../' + self.reffile_name
 
-        if not os.path.exists (self.reffile_name) and globals().has_key ('ATLAS_REFERENCE_TAG'):
+        if not os.path.exists (self.reffile_name) and 'ATLAS_REFERENCE_TAG' in globals():
             from AthenaCommon.Utils.unixtools import find_datafile
             r = find_datafile (ATLAS_REFERENCE_TAG)
             if r:
                 self.reffile_name = os.path.join (r, ATLAS_REFERENCE_TAG,
                                                   refbase)
 
-        if not os.path.exists (self.reffile_name) and globals().has_key ('ATLAS_REFERENCE_TAG'):
+        if not os.path.exists (self.reffile_name) and 'ATLAS_REFERENCE_TAG' in globals():
             self.reffile_name = find_file (os.path.join (ATLAS_REFERENCE_TAG,
                                                          refbase))
 

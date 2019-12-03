@@ -4,6 +4,8 @@
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 
+from __future__ import print_function
+
 if __name__ == '__main__':
   from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
   import os
@@ -18,12 +20,12 @@ if __name__ == '__main__':
 
   #import config flags
   from AthenaConfiguration.AllConfigFlags import ConfigFlags
-  
+
   from AthenaConfiguration.TestDefaults import defaultTestFiles
   inputDir = defaultTestFiles.d
   ConfigFlags.Input.Files = defaultTestFiles.EVNT
 
-  # Finalize 
+  # Finalize
 #  ConfigFlags.lock()
 
   ## Initialize a new component accumulator
@@ -52,8 +54,8 @@ if __name__ == '__main__':
   ConfigFlags.dump()
 
 
-  f=open("test.pkl","w")
-  cfg.store(f) 
+  f=open("test.pkl","wb")
+  cfg.store(f)
   f.close()
 
-  print "-----------------finished----------------------"
+  print("-----------------finished----------------------")

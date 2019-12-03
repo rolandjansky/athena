@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./XMLMuctpiLoader.h"
@@ -21,7 +21,7 @@ TrigConf::XMLMuctpiLoader::load( Muctpi& muctpi ) {
    if( readAttribute(pt(), "low_pt", ival) )   muctpi.setLowptThreshold( ival );
    if( readAttribute(pt(), "high_pt", ival) )  muctpi.setHighptThreshold( ival );
    if( readAttribute(pt(), "max_cand", ival) ) muctpi.setMaxCand( ival );
-   BOOST_FOREACH(value_type v, pt()) {
+   for(value_type v : pt()) {
       if( v.first == "low_pt"   && getTextContent(v.second, ival) ) muctpi.setLowptThreshold( ival );
       if( v.first == "high_pt"  && getTextContent(v.second, ival) ) muctpi.setHighptThreshold( ival );
       if( v.first == "max_cand" && getTextContent(v.second, ival) ) muctpi.setMaxCand( ival );

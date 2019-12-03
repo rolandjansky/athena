@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetRecTools/InDetRecToolInterfaces
                           Tracking/TrkDetDescr/TrkGeometry
                           Tracking/TrkEvent/TrkParameters
+                          Tracking/TrkEvent/TrkEventUtils
                           PRIVATE
                           Control/StoreGate
                           InnerDetector/InDetDetDescr/InDetIdentifier

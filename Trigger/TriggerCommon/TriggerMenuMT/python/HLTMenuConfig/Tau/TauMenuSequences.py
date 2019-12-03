@@ -88,8 +88,7 @@ def tauCoreTrackSequence():
 
     from TrigTauHypo.TrigTauHypoConf import TrigTauTrackRoiUpdaterMT
     TrackRoiUpdater = TrigTauTrackRoiUpdaterMT("TrackRoiUpdater")
-    #TrackRoiUpdater.RoIInputKey  = "TAUCaloRoIs"
-    TrackRoiUpdater.RoIOutputKey = recordable("HLT_RoiForID")
+    TrackRoiUpdater.RoIOutputKey = "HLT_RoiForID"
 
 
     fastTrackViewsMaker = EventViewCreatorAlgorithm("IMTauFastTrack")
@@ -147,10 +146,8 @@ def tauPrecisionSequence():
 
     from TrigTauHypo.TrigTauHypoConf import TrigTauTrackRoiUpdaterMT
     precisionTRU = TrigTauTrackRoiUpdaterMT("precisionTRU")
-    #TrackRoiUpdater.RoIInputKey  = "TAUCaloRoIs"
-    precisionTRU.RoIOutputKey = recordable("HLT_RoiForID1")
+    precisionTRU.RoIOutputKey = "HLT_RoiForID1"
     precisionTRU.fastTracksKey = TrackCollection
-    #"TrigFastTrackFinder_Tracks"
 
     from TrigTauRec.TrigTauRecConfigMT import TrigTauRecMerged_TauPrecisionMVA
     trigTauMVA = TrigTauRecMerged_TauPrecisionMVA(doMVATES=True, doTrackBDT=False, doRNN=True)
@@ -160,7 +157,6 @@ def tauPrecisionSequence():
     trigTauMVA.TrigTauJet = "HLT_TrigTauRecMerged"
     trigTauMVA.Key_trackPartInputContainer = TrackParticlesName
     trigTauMVA.UseCaloClusters = False
-    #trigTauMVA.clustersKey = "caloclusters"
     trigTauMVA.Key_vertexInputContainer = "VxPrimaryCandidate"
     trigTauMVA.TrigTauTrkOutputKey = recordable("HLT_tautrack_MVA")
 

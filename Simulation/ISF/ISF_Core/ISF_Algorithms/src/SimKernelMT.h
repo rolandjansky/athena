@@ -17,6 +17,8 @@
 #include "ISF_Interfaces/IGeoIDSvc.h"
 #include "ISF_Interfaces/ISimulationSelector.h"
 #include "ISF_Interfaces/SimulationFlavor.h"
+#include "ISF_Interfaces/IEntryLayerTool.h"
+#include "ISF_Interfaces/ITruthSvc.h"
 
 // DetectorDescription
 #include "AtlasDetDescr/AtlasRegion.h"
@@ -24,6 +26,9 @@
 // McEventCollection
 #include "GeneratorObjects/McEventCollection.h"
 #include "HepMC_Interfaces/IZeroLifetimePatcher.h"
+
+// TrackRecordCollection (and TrackRecord)
+#include "TrackRecord/TrackRecordCollection.h"
 
 // Framework includes
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -75,6 +80,8 @@ public:
   /// Implements empty finalize (implementation required by AthAlgorithm)
   StatusCode finalize() override;
 
+  bool isClonable() const override { return true; }
+
 private:
   /// Returns the simulator to use for the given particle
   const ISimulatorTool& identifySimulator(const ISF::ISFParticle& particle) const;
@@ -83,9 +90,17 @@ private:
   SG::ReadHandleKey<McEventCollection> m_inputEvgenKey{this, "InputEvgenCollection", "", "Input EVGEN collection."};
   /// Output Simulation Truth collection
   SG::WriteHandleKey<McEventCollection> m_outputTruthKey{this, "OutputTruthCollection", "", "Output Truth collection."};
+  /// Output TrackRecordCollections
+  SG::WriteHandleKey<TrackRecordCollection> m_caloEntryLayerKey{this, "CaloEntryLayerKey", "CaloEntryLayer", ""};
+  SG::WriteHandleKey<TrackRecordCollection> m_muonEntryLayerKey{this, "MuonEntryLayerKey", "MuonEntryLayer", ""};
+  SG::WriteHandleKey<TrackRecordCollection> m_muonExitLayerKey{this, "MuonExitLayerKey", "MuonExitLayer", ""};
+
 
   /// Input converter service (from Generator->ISF particle types)
   ServiceHandle<IInputConverter> m_inputConverter{this, "InputConverter", "", "Input McEventCollection->ISFParticleContainer conversion service."};
+
+  /** Central truth service */
+  ServiceHandle<ITruthSvc>             m_truthRecordSvc{this,"TruthRecordService", "ISF_MC15aPlusTruthService", ""};
 
   /// Quasi-Stable Particle Simulation Patcher
   ServiceHandle<Simulation::IZeroLifetimePatcher> m_qspatcher{this, "QuasiStablePatcher", "", "Quasi-Stable Particle Simulation Patcher"};
@@ -95,6 +110,9 @@ private:
 
   /// When no appropriate simulator can be found for a given particle, the particle is sent to this "particle killer":
   PublicToolHandle<ISimulatorTool> m_particleKillerTool{this, "ParticleKillerTool", "", ""};
+
+  // AthenaTool responsible for writing Calo/Muon Entry/Exit Layer collection
+  PublicToolHandle<IEntryLayerTool> m_entryLayerTool{this,"EntryLayerTool","ISF_EntryLayerToolMT", ""};
 
   ServiceHandle<IGeoIDSvc>  m_geoIDSvc{this, "GeoIDSvc", "", "Since InputConverter doesn't set Geo ID yet, do it here"};
 

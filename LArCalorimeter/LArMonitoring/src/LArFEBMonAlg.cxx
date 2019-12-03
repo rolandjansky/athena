@@ -26,7 +26,7 @@
 #include <math.h>
 #include <sys/types.h>
 
-const unsigned nFEBnominal=1524;
+//const unsigned nFEBnominal=1524;
 
 // ********************************************************************
 LArFEBMonAlg::LArFEBMonAlg( const std::string& name, ISvcLocator* pSvcLocator) 
@@ -382,7 +382,7 @@ StatusCode LArFEBMonAlg::fillHistograms(const EventContext& ctx) const {
   evtrej=7;
   fill(m_monGroupName,evtrej);
   if(environment() == Environment_t::online) {
-     auto lbfake = Monitored::Scalar<int>("LBf",0.5);
+     auto lbfake = Monitored::Scalar<int>("LBf",0);
      fill(m_monGroupName,evtyield,lbfake);
   }
 

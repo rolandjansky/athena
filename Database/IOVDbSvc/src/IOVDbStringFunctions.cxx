@@ -48,6 +48,14 @@ namespace IOVDbNamespace{
     return lb;
   }
   
+  std::string
+  sanitiseJsonString(const std::string & dataString){
+    const std::string regex="\n";
+    const std::regex lf(regex);
+    const std::string result = std::regex_replace(dataString,lf,"\\n");
+    return result;
+  }
+  
   int 
   parseClid(const std::string & addrHeaderStr){
     //string of form
@@ -83,15 +91,15 @@ namespace IOVDbNamespace{
   
   std::string
   unescapeQuotes(const std::string & original){
-  const std::string regex=R"delim(\\")delim";
-  std::regex re(regex);
-  return std::regex_replace(original, re,"\"");
+    const std::string regex=R"delim(\\")delim";
+    std::regex re(regex);
+    return std::regex_replace(original, re,"\"");
   }
   
   std::string 
   sanitiseFilename(const std::string & fname){
     std::string newName{fname};
-    std::replace(newName.begin(), newName.end(), '/', '_');
+    std::replace(newName.begin(), newName.end(), '/', '^');
     return newName;
   }
   

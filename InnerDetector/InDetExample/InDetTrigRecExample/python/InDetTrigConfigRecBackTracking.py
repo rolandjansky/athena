@@ -23,7 +23,7 @@ class InDetTrigTrackPRD_Association_EF( InDet__InDetTrigTrackPRD_Association ):
       else:
          self.TracksName = ['AmbigSolv','ExtProcTracks','TRTSeededAmbigSolv']
       import InDetRecExample.TrackingCommon as TrackingCommon
-      self.AssociationTool = TrackingCommon.getInDetPRDtoTrackMapToolGangedPixels() # @TODO correct tool ?
+      self.AssociationTool = TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels() # @TODO correct tool ?
       self.AssociationMapName  = "InDetTrigPRDtoTrackMap_Photon_EF"
 
 from TRT_TrigTrackSegmentsFinder.TRT_TrigTrackSegmentsFinderConf import InDet__TRT_TrigTrackSegmentsFinder
@@ -290,8 +290,8 @@ class TRTSeededTrigAmbiguitySolver_EF( InDet__InDetTrigAmbiguitySolver ):
       #
       from InDetAmbiTrackSelectionTool.InDetAmbiTrackSelectionToolConf import InDet__InDetAmbiTrackSelectionTool
       TRTSeededInDetTrigAmbiTrackSelectionTool = InDet__InDetAmbiTrackSelectionTool(name               = 'TRTSeededInDetTrigAmbiTrackSelectionTool',
-                                                                                    AssociationTool     =  InDetTrigPrdAssociationTool,
                                                                                     DriftCircleCutTool  =  InDetTrigTRTDriftCircleCut,
+                                                                                    AssociationTool     = TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels(),
                                                                                     minScoreShareTracks = -1., # off !
                                                                                     minHits             = InDetTrigCutValues.minSecondaryClusters(),
                                                                                     minNotShared        = InDetTrigCutValues.minSecondarySiNotShared(),
@@ -338,7 +338,9 @@ class TRTSeededTrigAmbiguitySolver_EF( InDet__InDetTrigAmbiguitySolver ):
       #
       from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__SimpleAmbiguityProcessorTool
       TRTSeededInDetTrigAmbiguityProcessor = Trk__SimpleAmbiguityProcessorTool(name = 'TRTSeededInDetTrigAmbiguityProcessor',
-                                                                               Fitter             = InDetTrigTrackFitter,          
+                                                                               Fitter             = InDetTrigTrackFitter,
+                                                                               AssociationTool    = TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels(),
+                                                                               TrackSummaryTool   = InDetTrigTrackSummaryTool,
                                                                                SelectionTool      = TRTSeededInDetTrigAmbiTrackSelectionTool,
                                                                                RefitPrds          = not InDetTrigFlags.refitROT(),
                                                                                SuppressTrackFit   = False,
@@ -381,7 +383,6 @@ class TRT_TrigStandaloneTrackFinder_EF( InDet__TRT_TrigStandaloneTrackFinder ):
       from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
       from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryTool, InDetTrigTrackFitterTRT, InDetTrigExtrapolator, InDetTrigPrdAssociationTool, InDetTrigTRTDriftCircleCut
 
-      import InDetRecExample.TrackingCommon   as TrackingCommon
 
       from AthenaCommon.SystemOfUnits import GeV
       if seqType is "TRTOnly":
@@ -414,7 +415,8 @@ class TRT_TrigStandaloneTrackFinder_EF( InDet__TRT_TrigStandaloneTrackFinder ):
       if (InDetTrigFlags.doPrintConfigurables()):
          print      InDetTrigTRT_StandaloneScoringTool
 
-      # asso_tool = TrackingCommon.getInDetPRDtoTrackMapToolGangedPixels()
+      # import InDetRecExample.TrackingCommon   as TrackingCommon
+      # asso_tool = TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels()
       prefix = 'InDet'
       suffix = ''
       #
@@ -426,6 +428,7 @@ class TRT_TrigStandaloneTrackFinder_EF( InDet__TRT_TrigStandaloneTrackFinder ):
                                                                       Extrapolator          = InDetTrigExtrapolator,
                                                                       PRDtoTrackMap         = prefix+'PRDtoTrackMap'+suffix \
                                                                          if seqType is not "InsideOutAndTRTOnly" else "",
+                                                                      TrackSummaryTool      = InDetTrigTrackSummaryTool,
                                                                       ScoringTool           = InDetTrigTRT_StandaloneScoringTool,
                                                                       FinalRefit            = True,
                                                                       SuppressHoleSearch    = True,

@@ -512,56 +512,6 @@ StatusCode AthenaEventLoopMgr::writeHistograms(bool force) {
 }
 
 //=========================================================================
-// Run the algorithms beginRun hook
-//=========================================================================
-StatusCode AthenaEventLoopMgr::beginRunAlgorithms(const EventContext& ctx) {
-
-  // Fire BeginRun "Incident"
-  m_incidentSvc->fireIncident(Incident(name(),IncidentType::BeginRun,ctx));
-
-  // Call the execute() method of all top algorithms 
-  for ( ListAlg::iterator ita = m_topAlgList.begin(); 
-        ita != m_topAlgList.end();
-        ita++ ) 
-  {
-    const StatusCode& sc = (*ita)->sysBeginRun(); 
-    if ( !sc.isSuccess() ) {
-      info()  << "beginRun of algorithm "
-              << (*ita)->name() << " failed with StatusCode::" << sc
-              << endmsg;
-      return sc;
-    }
-  }
-
-  return StatusCode::SUCCESS;
-}
-
-//=========================================================================
-// Run the algorithms endRun hook
-//=========================================================================
-StatusCode AthenaEventLoopMgr::endRunAlgorithms() {
-
-  // Fire EndRun Incident
-  m_incidentSvc->fireIncident(Incident(name(),IncidentType::EndRun));
-
-  // Call the execute() method of all top algorithms 
-  for ( ListAlg::iterator ita = m_topAlgList.begin(); 
-        ita != m_topAlgList.end();
-        ita++ ) 
-  {
-    const StatusCode& sc = (*ita)->sysEndRun();
-    if ( !sc.isSuccess() ) {
-      info()  << "endRun of algorithm "
-              << (*ita)->name() << " failed with StatusCode::" << sc
-              << endmsg;
-      return sc;
-    }  
-  }
-
-  return StatusCode::SUCCESS;
-}
-
-//=========================================================================
 // Call sysInitialize() on all algorithms and output streams
 //=========================================================================
 StatusCode AthenaEventLoopMgr::initializeAlgorithms() {
@@ -735,7 +685,7 @@ StatusCode AthenaEventLoopMgr::executeEvent(EventContext&& ctx)
   {
     // With no iterator it's up to us to create an EventInfo
     pEventPtr = std::make_unique<EventInfo>
-      (new EventID(1,m_nevt), new EventType());
+      (new EventID(1,m_nevt,0), new EventType());
     pEvent = pEventPtr.get();
     pEventPtr->event_ID()->set_lumi_block( m_nevt );
     eventID=*(pEvent->event_ID());
@@ -758,15 +708,15 @@ StatusCode AthenaEventLoopMgr::executeEvent(EventContext&& ctx)
   if (m_firstRun || (m_currentRun != eventID.run_number()) ) {
     // Fire EndRun incident unless this is the first run
     if (!m_firstRun) {
-      if (!(this->endRunAlgorithms()).isSuccess()) return (StatusCode::FAILURE);
+      m_incidentSvc->fireIncident(Incident(name(),IncidentType::EndRun));
     }
     m_firstRun=false;
     m_currentRun = eventID.run_number();
 
     info() << "  ===>>>  start of run " << m_currentRun << "    <<<==="
            << endmsg;
- 
-    if (!(this->beginRunAlgorithms(ctx)).isSuccess()) return (StatusCode::FAILURE);
+
+    m_incidentSvc->fireIncident(Incident(name(),IncidentType::BeginRun,ctx));
   }
 
   bool toolsPassed=true;
@@ -900,7 +850,9 @@ StatusCode AthenaEventLoopMgr::executeRun(int maxevt)
 {
   if (!(this->nextEvent(maxevt)).isSuccess()) return StatusCode::FAILURE;
   m_incidentSvc->fireIncident(Incident(name(),"EndEvtLoop"));
-  return this->endRunAlgorithms();
+  m_incidentSvc->fireIncident(Incident(name(),IncidentType::EndRun));
+
+  return StatusCode::SUCCESS;
 }
 
 //=========================================================================
@@ -1183,12 +1135,7 @@ void AthenaEventLoopMgr::handle(const Incident& inc)
     return;
   }
 
-  sc = beginRunAlgorithms(ctx);
-  if (!sc.isSuccess()) {
-    error() << "beginRunAlgorithms() failed" << endmsg;
-    return;
-  } 
-
+  m_incidentSvc->fireIncident(Incident(name(),IncidentType::BeginRun,ctx));
   m_firstRun=false;
   m_currentRun = eventID.run_number();
 

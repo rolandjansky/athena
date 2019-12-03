@@ -57,6 +57,17 @@ if rec.doESD() and recAlgs.doTrackParticleCellAssociation() and DetFlags.ID_on()
                                                           ParticleCaloCellAssociationTool=caloCellAssociationTool)
 
 #
+# functionality : CaloExtensionBuilder setup to be used in tau and pflow
+#    
+pdr.flag_domain('CaloExtensionBuilder')
+if (rec.doESD()) and (recAlgs.doEFlow() or rec.doTau()) : #   or rec.readESD()
+    try:
+        include( "TrackToCalo/CaloExtensionBuilderAlg_jobOptions.py" )
+        CaloExtensionBuilder("TightPrimary", 500.) #Arguments are cutLevel and minPt for track selection
+    except Exception:
+        pass
+
+#
 # functionality : energy flow
 #                                                                                                 
 pdr.flag_domain('eflow')

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Dummy converters for testing AthTPCnvSvc
@@ -22,6 +22,14 @@ public:
   virtual
   void 
   transToPersUntyped(const void*, void*, MsgStream&) override {}
+
+  virtual 
+  void 
+  persToTransWithKeyUntyped(const void*, void*, const std::string&, MsgStream&) override {}
+
+  virtual
+  void 
+  transToPersWithKeyUntyped(const void*, void*, const std::string&, MsgStream&) override {}
 
   virtual 
   const std::type_info& transientTInfo() const override

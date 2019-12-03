@@ -17,6 +17,8 @@
 
 #include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
 #include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
+#include "TrkEventUtils/PRDtoTrackMap.h"
+
 #include "StoreGate/WriteHandleKey.h"
 #include "StoreGate/ReadHandleKeyArray.h"
 
@@ -56,6 +58,8 @@ namespace Trk {
       ///////////////////////////////////////////////////////////////////
       SG::ReadHandleKeyArray<TrackCollection>      m_tracklocation; /** Vector of track collections to be merged. */
       SG::WriteHandleKey<TrackCollection>          m_outtracklocation  ;  /** Combined track collection.   */
+      SG::WriteHandleKey<Trk::PRDtoTrackMap>       m_assoMapName
+         {this,"AssociationMapName",""};  ///< the key given to the newly created association map
 
       ToolHandle<Trk::IPRDtoTrackMapTool>          m_assoTool
          {this, "AssociationTool", "InDet::InDetPRDtoTrackMapToolGangedPixels" };

@@ -80,7 +80,7 @@ StatusCode EMClusterTool::finalize() {
 // =========================================================================
 StatusCode EMClusterTool::contExecute(const EventContext& ctx,
                                       xAOD::ElectronContainer *electronContainer, 
-				      xAOD::PhotonContainer *photonContainer) const
+                                      xAOD::PhotonContainer *photonContainer) const
 {
   // Create output cluster container and register in StoreGate
   SG::WriteHandle<xAOD::CaloClusterContainer> outputClusterContainer(m_outputClusterContainerKey, ctx);
@@ -104,24 +104,26 @@ StatusCode EMClusterTool::contExecute(const EventContext& ctx,
   
   // Loop over electrons and create new clusters
   xAOD::EgammaParameters::EgammaType egType = xAOD::EgammaParameters::electron;
-  //Only do this for non-supercluster (i.e. default SW) electrons.
-  for (auto electron : *electronContainer){
-    setNewCluster(ctx, electron, outputClusterContainer.ptr(), egType);
+  if(electronContainer){
+    for (auto electron : *electronContainer){
+      setNewCluster(ctx, electron, outputClusterContainer.ptr(), egType);
+    }
   }
-  // Loop over photons and create new clusters
-  for (auto photon : *photonContainer){
-    egType = (xAOD::EgammaHelpers::isConvertedPhoton(photon) ? 
-	      xAOD::EgammaParameters::convertedPhoton :
-	      xAOD::EgammaParameters::unconvertedPhoton);
+  if(photonContainer){
+    // Loop over photons and create new clusters
+    for (auto photon : *photonContainer){
+      egType = (xAOD::EgammaHelpers::isConvertedPhoton(photon) ? 
+                xAOD::EgammaParameters::convertedPhoton :
+                xAOD::EgammaParameters::unconvertedPhoton);
     
-    if (!m_doTopoSeededContainer || !photon->author(xAOD::EgammaParameters::AuthorCaloTopo35) ){
-      setNewCluster(ctx, photon, outputClusterContainer.ptr(), egType);
-    }
-    else{
-      setNewCluster(ctx, photon, outputTopoSeededClusterContainer.ptr(), egType);
+      if (!m_doTopoSeededContainer || !photon->author(xAOD::EgammaParameters::AuthorCaloTopo35) ){
+        setNewCluster(ctx, photon, outputClusterContainer.ptr(), egType);
+      }
+      else{
+        setNewCluster(ctx, photon, outputTopoSeededClusterContainer.ptr(), egType);
+      }
     }
   }
-
   // Now finalize the cluster: based on code in CaloClusterStoreHelper::finalizeClusters
   // Note: I don't specifically set the IProxyDict, since I also don't set it when I create
   //    data handles, either. 

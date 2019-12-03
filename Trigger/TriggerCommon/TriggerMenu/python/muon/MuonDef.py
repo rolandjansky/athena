@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 ########################################################################
 #
@@ -2477,7 +2479,7 @@ class L2EFChain_mu(L2EFChainDef):
        return False
 
     ########### EF algos  #################
-    print self.chainPart['EFAlg']
+    print (self.chainPart['EFAlg'])
     if 'SuperEF' in self.chainPart['EFAlg']:
       from AthenaCommon import CfgGetter
       theTrigMuSuperEF = CfgGetter.getAlgorithm("TrigMuSuperEF_MGonly")

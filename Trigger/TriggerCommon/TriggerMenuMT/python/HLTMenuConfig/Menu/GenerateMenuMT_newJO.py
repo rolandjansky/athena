@@ -6,7 +6,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import generateDecisionTreeOld
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig_newJO import generateDecisionTree
 
 from AthenaCommon.Logging import logging
-_log = logging.getLogger('GenerateMenuMT_newJO')
+log = logging.getLogger( __name__ )
 
 def fillGeneratorsMap( sigMap, signature ):
     """ Fill the mapping from the flag container name to the function responsible for generating the Chain objects
@@ -22,7 +22,7 @@ def fillGeneratorsMap( sigMap, signature ):
 
     gen = __import__(importString, globals(), locals(), ['generateChains'])
     sigMap[signature] = gen.generateChains
-    _log.info( 'Imported generator for %s', signature )
+    log.info( 'Imported generator for %s', signature )
 
 
 def generateMenu( flags ):
@@ -57,7 +57,7 @@ def generateMenu( flags ):
         fillGeneratorsMap( signatureToGenerator, signature )
 
         if signature not in signatureToGenerator:
-            _log.warning('Generator for {} is missing. Chain dict will not be built'.format(signature))
+            log.warning('Generator for {} is missing. Chain dict will not be built'.format(signature))
             continue
 
         for chain in cfgFlag.get():
@@ -76,7 +76,7 @@ def generateMenu( flags ):
             menuChains.append( chain )
 
 
-    _log.info('Obtained Menu Chain objects')
+    log.info('Obtained Menu Chain objects')
 
     # pass all menuChain to CF builder
     useReworked = True
@@ -94,7 +94,7 @@ def generateMenu( flags ):
 
     menuAcc.printConfig()
 
-    _log.info('CF is built')
+    log.info('CF is built')
 
 
     # # generate JOSON representation of the config

@@ -35,7 +35,7 @@ svcMgr.ThreadPoolSvc.ThreadInitTools = ["G4ThreadInitTool"]
 
 # AthenaCommon flags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-athenaCommonFlags.PoolEvgenInput = ['/afs/cern.ch/atlas/offline/ProdData/15.6.11.3/mu_E200_eta0-60-10000.evgen.pool.root']
+athenaCommonFlags.PoolEvgenInput = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ISF_Validation/mu_E200_eta0-60-10000.evgen.pool.root']
 athenaCommonFlags.PoolHitsOutput = "g4hive.hits.pool.root"
 athenaCommonFlags.EvtMax = 500
 

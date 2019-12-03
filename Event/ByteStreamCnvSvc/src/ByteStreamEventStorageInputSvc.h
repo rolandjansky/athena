@@ -22,7 +22,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 class StoreGateSvc;
-class IIncidentSvc;
 
 /** @class ByteStreamEventStorageInputSvc
  *  @brief This class is the ByteStreamInputSvc for reading events written by EventStorage.
@@ -93,7 +92,6 @@ private: // data
    /// Pointer to StoreGate
    ServiceHandle<StoreGateSvc> m_sgSvc; //!< StoreGateSvc
    ServiceHandle<StoreGateSvc> m_mdSvc; //!< StoreGateSvc
-   ServiceHandle<IIncidentSvc> m_incidentSvc; //!< IncidentSvc
    ServiceHandle<IByteStreamFreeMetadataSvc> m_attlistsvc; 
    ServiceHandle<IROBDataProviderSvc> m_robProvider;
 

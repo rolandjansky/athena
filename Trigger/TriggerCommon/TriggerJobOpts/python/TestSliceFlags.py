@@ -25,7 +25,7 @@ from TriggerJobOpts.TriggerFlags import TriggerFlags
 TriggerFlags.add_Container(TestSlice)
 
 # add add common slice flags
-TriggerFlags.TestSlice.import_JobProperties('CommonSignatureFlags')
+TriggerFlags.TestSlice.import_JobProperties('TriggerJobOpts.CommonSignatureFlags')
 
 for flag in _flags:
     TriggerFlags.TestSlice.add_JobProperty(flag)

@@ -70,8 +70,6 @@ private:
   std::vector<std::string> m_diffnamevec;
   
   // storegate keys
-  SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKey
-    { "EventInfo" };
   SG::ReadHandleKeyArray<InDetTimeCollection> m_InDetTimeCollectionKeys
     { "TRT_BCID", "SCT_BCID", "PixelBCID", "TRT_LVL1ID", "SCT_LVL1ID", "PixelLVL1ID" } ;
   SG::ReadHandleKey<LArFebHeaderContainer> m_LArFebHeaderContainerKey

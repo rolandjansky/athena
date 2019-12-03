@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
 #########################################################################
@@ -213,7 +213,10 @@ class ConfiguredNewTrackingCuts :
     if self.__indetflags.cutLevel() >= 15 :
       self.__minClusters             = 8 #based on studies by R.Jansky     
 
-    if self.__indetflags.cutLevel() >= 16:
+    if self.__indetflags.cutLevel() >= 16 :
+      self.__maxPrimaryImpact        = 5.0 * Units.mm #based on studies by T.Strebler
+
+    if self.__indetflags.cutLevel() >= 17:
       print '--------> FATAL ERROR, cut level undefined, abort !'
       import sys
       sys.exit()

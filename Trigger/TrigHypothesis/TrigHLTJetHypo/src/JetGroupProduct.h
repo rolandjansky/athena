@@ -10,61 +10,31 @@
 #include <vector>
 #include <optional>
 
-
-HypoJetVector merge_groups(HypoJetGroupCIter& iter,
-			   const HypoJetGroupCIter& end){
-  HypoJetVector jets;
-  for(; iter != end; ++iter){
-    jets.insert(jets.end(),
-		iter->begin(),
-		iter->end());
-  }
-  return jets;
-    
-  }
-
+using CondInd2JetGroupsInds = std::map<int, std::vector<std::size_t>>;
 
 class JetGroupProduct{
   /*
-   * Iterate through the combinations of jet grpuops talen from a vector
-   * of vector of jet groups. return the merge of the groups)
-   * eg for [(jg11, jj12), (jg21)], the product is [(jg11,jg21), (jg12, jg21)]
-   * If jg11 contains jets j111, j112, jg12 contains jg121, jg 122 and jg21 
-   * contains jg211, then the merges contain 
-   * [(j111, jg112, jg211)(jg121, jg122, jg121)] from the sequence of all
-   * merged groups.
+   * Iterate through the combinations of jet groups.
+   * The job groups are those that satisfied a set up siblings.
+   * Their parent is tested against all the combioinations of job groups
+   * that satisfy the siblings.
+   * 
+   * eg for a vector of siblings [s1, s2]
+   * satisfiedBy[s1] is a  vector<vector<size_t>> say <[jg1, jg2], [jg3, jg4]>
+   * satisfiedBy[s2] is a  vector<vector<size_t>> say <[jg5, jg6]>
+   * the products are then [jg1, jg2, jg5, jg6], [jg3, jg4, jg5, jg6]
+   * jg1 is an key in a map that has a value of an input job group (typically
+   * containing a single jet.
    */
-public:
- JetGroupProduct(const std::vector<HypoJetGroupVector>& inVecs):
-  m_inVecs(inVecs), m_nVec(inVecs.size()){
-    std::vector<std::size_t> ends;
-    ends.reserve(m_inVecs.size());
-    for(const auto& v : m_inVecs){
-      ends.push_back(v.size());
-    }
-    m_productGen = ProductGen(ends);
-  }
+ public:
+  JetGroupProduct(const std::vector<std::size_t>& siblings,
+		  const CondInd2JetGroupsInds& satisfiedBy);
+  std::optional<std::vector<std::size_t>> next();
   
-  std::optional<HypoJetVector> next(){
-    auto indices = m_productGen.next();
-    if(!indices.has_value()){
-      return  std::optional<HypoJetVector>();
-    }
-    
-    HypoJetGroupVector groups;
-    for(std::size_t i = 0; i < indices->size(); ++i){
-      groups.push_back(m_inVecs[i][(*indices)[i]]);
-    }
+ private:
+  const std::vector<std::size_t> m_siblings;
+  const CondInd2JetGroupsInds m_satisfiedBy;
 
-    auto iter {groups.cbegin()};
-    auto end {groups.cend()};
-    return merge_groups(iter, end);
-  }
-
-
-private:
-  const std::vector<HypoJetGroupVector> m_inVecs;
-  const std::size_t m_nVec;
   ProductGen m_productGen;
 };
 

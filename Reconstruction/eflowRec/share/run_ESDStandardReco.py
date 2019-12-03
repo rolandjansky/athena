@@ -8,6 +8,9 @@ doDumpProperties=True
 from RecExConfig.RecAlgsFlags import recAlgs
 recAlgs.doEFlow.set_Value_and_Lock(True)
 
+from RecExConfig.RecFlags import rec
+rec.doTrigger.set_Value_and_Lock(False)
+
 #change some calo flags
 from CaloRec.CaloRecFlags import jobproperties
 jobproperties.CaloRecFlags.Enabled.set_Value_and_Lock(True)
@@ -22,4 +25,3 @@ athenaCommonFlags.EvtMax=10
 #Run pflopw jet finding - this cannot be enabled via reconstruction flags currently! (without enabling other things we don't want)
 UserAlgs = ["eflowRec/jetAlgs.py"]
 include ("RecExCommon/RecExCommon_topOptions.py")
-

@@ -252,7 +252,7 @@ public:
     virtual StatusCode addOrDelete(std::unique_ptr<T>, IdentifierHash hashId) override final;
 
     ///identical to previous excepts allows counting of deletions
-    virtual StatusCode addOrDelete(std::unique_ptr<T>, IdentifierHash hashId, bool &deleted);
+    StatusCode addOrDelete(std::unique_ptr<T>, IdentifierHash hashId, bool &deleted);
 
     ///Like the other add methods but optimized for changing from the inprogress state
     StatusCode addLock(std::unique_ptr<T> ptr, IdentifierHash hashId);

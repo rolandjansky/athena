@@ -9,7 +9,8 @@ Tree::Tree(const std::vector<std::size_t>& parents) :
   m_children(m_parents.size(),std::vector<std::size_t>()){
   auto nParents = parents.size();
 
-  for(auto i = 0u; i < nParents; ++i){
+  // do not process node 0 to prevent inifinite loops
+  for(auto i = 1u; i < nParents; ++i){
     m_children[m_parents[i]].push_back(i);
   }
 
@@ -29,13 +30,13 @@ Tree::Tree(const std::vector<std::size_t>& parents) :
 }
 
 
-std::size_t Tree::getParent(std::size_t k) const {
+std::size_t Tree::parent(std::size_t k) const {
   return m_parents[k];
 }
 
 
-std::vector<std::size_t> Tree::getSiblings(std::size_t k) const {
-  return m_children[getParent(k)];
+std::vector<std::size_t> Tree::siblings(std::size_t k) const {
+  return m_children[parent(k)];
 }
 
 std::size_t Tree::size() const {
@@ -52,11 +53,22 @@ const std::vector<std::size_t>& Tree::firstGeneration() const {
 }
 
 
+std::size_t Tree::depth(std::size_t n) const {
+  std::size_t depth{0u};
+  while (n != 0){
+    n = m_parents[n];
+    ++depth;
+  }
+  return depth;
+}
+
 std::ostream& operator<< (std::ostream& out, const Tree& t){
   out << "[";
   auto n = t.size();
   auto i = 0u;
-  for(; i < n; ++i){out << i << " ";}
+
+  for(; i < n; ++i){out << t.parent(i) << " ";}
+
   out << "]";
   return out;
 }

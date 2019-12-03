@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr,CfgGetter
 import AthenaCommon.SystemOfUnits as Units
@@ -127,7 +127,7 @@ def InDetKalmanTrackFitterBase(name='InDetKalmanTrackFitterBase',**kwargs) :
     from AthenaCommon.AppMgr import ToolSvc
     split_cluster_map_extension = kwargs.get('SplitClusterMapExtension','')
 
-    kwargs.setdefault('ExtrapolatorHandle', ToolSvc.InDetExtrapolator)
+    kwargs.setdefault('ExtrapolatorHandle', TrackingCommon.getInDetExtrapolator())
     if 'RIO_OnTrackCreatorHandle' not in kwargs :
         from InDetRecExample import TrackingCommon as TrackingCommon
         kwargs=setDefaults(kwargs,
@@ -188,10 +188,9 @@ def KalmanDNAFitter(name='KalmanDNAFitter',**kwargs) :
 def DistributedKalmanFilter(name="DistributedKalmanFilter", **kwargs) :
     split_cluster_map_extension = kwargs.pop('SplitClusterMapExtension','')
 
-    from AthenaCommon.AppMgr                     import ToolSvc
     from InDetRecExample.TrackingCommon          import setDefaults
     if 'ExtrapolatorTool' not in kwargs :
-        kwargs = setDefaults(kwargs, ExtrapolatorTool = ToolSvc.InDetExtrapolator)
+        kwargs = setDefaults(kwargs, ExtrapolatorTool = TrackingCommon.getInDetExtrapolator())
 
     from InDetRecExample import TrackingCommon as TrackingCommon
     if 'ROTcreator' not in kwargs :
@@ -213,13 +212,13 @@ def InDetGlobalChi2FitterBase(name='GlobalChi2FitterBase', **kwargs) :
     import InDetRecExample.TrackingCommon as TrackingCommon
 
     kwargs=setDefaults(kwargs,
-                       ExtrapolationTool      = ToolSvc.InDetExtrapolator,
-                       NavigatorTool          = ToolSvc.InDetNavigator,
-                       PropagatorTool         = ToolSvc.InDetPropagator,
-                       MultipleScatteringTool = ToolSvc.InDetMultipleScatteringUpdator,
+                       ExtrapolationTool      = TrackingCommon.getInDetExtrapolator(),
+                       NavigatorTool          = TrackingCommon.getInDetNavigator(),
+                       PropagatorTool         = TrackingCommon.getInDetPropagator(),
+                       MultipleScatteringTool = TrackingCommon.getInDetMultipleScatteringUpdator(),
                        MeasurementUpdateTool  = ToolSvc.InDetUpdator,
                        TrackingGeometrySvc    = AtlasTrackingGeometrySvc,
-                       MaterialUpdateTool     = ToolSvc.InDetMaterialEffectsUpdator,
+                       MaterialUpdateTool     = TrackingCommon.getInDetMaterialEffectsUpdator(),
                        StraightLine           = not InDetFlags.solenoidOn(),
                        OutlierCut             = 4,
                        SignedDriftRadius      = True,

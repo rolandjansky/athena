@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthExParticlesCnv_p1.cxx 
@@ -14,29 +14,19 @@
 
 // Framework includes
 #include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getThinningCache.h"
+#include "AthenaKernel/ThinningDecisionBase.h"
 
 // AthExThinning includes
 #include "AthExThinning/AthExParticles.h"
 #include "AthExParticlesCnv_p1.h"
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
-
-// Destructor
-///////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
 
 void 
-AthExParticlesCnv_p1::persToTrans( const AthExParticles_p1* persObj, 
-				   AthExParticles* transObj, 
-				   MsgStream &msg ) 
+AthExParticlesCnv_p1::persToTransWithKey( const AthExParticles_p1* persObj, 
+                                          AthExParticles* transObj, 
+                                          const std::string& /*key*/,
+                                          MsgStream &msg ) const
 {
   msg << MSG::DEBUG 
       << "Loading Particles from persistent state..."
@@ -46,12 +36,11 @@ AthExParticlesCnv_p1::persToTrans( const AthExParticles_p1* persObj,
   const std::size_t nMax = particles.size();
   transObj->reserve( nMax );
 
-  for ( unsigned int i = 0; i != nMax; ++i ) {
-    const AthExParticle_p1& p = particles[i];
-    transObj->push_back( new AthExParticle( p.m_px,
-					    p.m_py,
-					    p.m_pz,
-					    p.m_ene ) );
+  for (const AthExParticle_p1& p : particles) {
+    transObj->push_back( std::make_unique<AthExParticle>( p.m_px,
+                                                          p.m_py,
+                                                          p.m_pz,
+                                                          p.m_ene ) );
   }
 
   msg << MSG::DEBUG 
@@ -60,26 +49,32 @@ AthExParticlesCnv_p1::persToTrans( const AthExParticles_p1* persObj,
   return;
 }
 
+
 void 
-AthExParticlesCnv_p1::transToPers( const AthExParticles* transObj, 
-				   AthExParticles_p1* persObj, 
-				   MsgStream &msg )
+AthExParticlesCnv_p1::transToPersWithKey( const AthExParticles* transObj, 
+                                          AthExParticles_p1* persObj,
+                                          const std::string& key,
+                                          MsgStream &msg ) const
 {
   msg << MSG::DEBUG 
       << "Creating persistent state of Particles..."
       << endmsg;
 
+  const SG::ThinningDecisionBase* dec =
+    SG::getThinningDecision (key);
+
   for ( unsigned int i = 0; i != transObj->size(); ++i ) {
+    if (dec && dec->thinned(i)) continue;
     const AthExParticle * p = (*transObj)[i];
     if ( 0 == p ) {
       std::cerr << "## skipping element [" << i << "] ##" << std::endl;
       continue;
     }
     
-    persObj->m_particles.push_back( AthExParticle_p1( p->px(),
-						      p->py(),
-						      p->pz(),
-						      p->e() ) );
+    persObj->m_particles.emplace_back( p->px(),
+                                       p->py(),
+                                       p->pz(),
+                                       p->e() );
   }
 
   msg << MSG::DEBUG 
@@ -87,20 +82,3 @@ AthExParticlesCnv_p1::transToPers( const AthExParticles* transObj,
       << endmsg;
   return;
 }
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-

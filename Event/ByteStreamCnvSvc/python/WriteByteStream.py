@@ -25,7 +25,7 @@ def getStream(type,name):
     # type check
     type = type.upper()
     if not type in ['EVENTSTORAGE','TRANSIENT']:
-        raise RuntimeError,"unsupported StreamType:%s" % type
+        raise RuntimeError("unsupported StreamType:%s" % type)
 
     # return existing stream
     if _streamMap.has_key((type,name)):
@@ -119,5 +119,5 @@ def getStream(type,name):
         return StreamBS
                     
     else:
-        raise RuntimeError,"unsupported StreamType:%s" % type
+        raise RuntimeError("unsupported StreamType:%s" % type)
 

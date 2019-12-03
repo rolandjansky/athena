@@ -48,7 +48,7 @@ void test1 (IIOVDbSvc& iovdbsvc)
 
   assert( iovdbsvc.getRange (1238547719, "/key2", IOVTime (20, 15),
                              range, tag, addr).isSuccess() );
-  assert (std::string(range) == "{[20,10] - [20,20]}");
+  assert (std::string(range) == "{[20,10] - [20,16]}");
 
   assert( iovdbsvc.getRange (1238547719, "/key2", IOVTime (20, 35),
                              range, tag, addr).isSuccess() );

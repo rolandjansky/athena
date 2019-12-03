@@ -25,6 +25,7 @@
 #include "TileConditions/TileInfo.h"
 #include "TileConditions/TileCablingService.h"
 #include "TileConditions/TilePulseShapes.h"
+#include "TileConditions/TileWienerFilterWeights.h"
 
 #include "TileCalibBlobObjs/TileCalibDrawerFlt.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
@@ -102,6 +103,7 @@ TileInfo::TileInfo(ISvcLocator *svcLocator)
   , m_MuL1Time0Bin(0)
   , m_MuL1BinsPerX(0)
   , m_pulseShapes(0)
+  , m_WienerFilterWeights(0)
   , m_tileCablingSvc("TileCablingSvc","TileInfo")
   , m_nPhElec(0)
   , m_nPhElecVec()
@@ -192,6 +194,17 @@ TileInfo::initialize()
   if (m_pulseShapes)
     m_pulseShapes->load(log);
   
+  //=== Read WienerFilter Weights in TileInfoLoader.cxx
+  if (m_WienerFilterWeights) {
+    m_WienerFilterWeights->loadWeights(log);
+
+    if (!m_WienerFilterWeights->loaded()) {
+      log << MSG::ERROR
+        << "Unable to load WienerFilter weights"<<endmsg;
+      return StatusCode::FAILURE;
+    }
+  }
+
   if(debug) log << MSG::DEBUG << " TileInfo initialization completed. " << endmsg;  
   return StatusCode::SUCCESS;
 }

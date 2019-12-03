@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import pickle
 import subprocess
 import unittest
@@ -161,7 +162,7 @@ class TestDigitizationMC16a(unittest.TestCase):
         ath_alg_seqence_list = [ alg for alg in eval(ath_alg_seqence_as_str) if alg not in ignore_Algs ]
 
         actual_2nd_ath_alg_sequence_entry = ath_alg_seqence_list[1]
-        print ath_alg_seqence_list
+        print(ath_alg_seqence_list)
         expected_2nd_ath_alg_sequence_entry = "PileUpToolsAlg/StandardSignalOnlyTruthPileUpToolsAlg"
         self.assertEqual(expected_2nd_ath_alg_sequence_entry,
                          actual_2nd_ath_alg_sequence_entry)

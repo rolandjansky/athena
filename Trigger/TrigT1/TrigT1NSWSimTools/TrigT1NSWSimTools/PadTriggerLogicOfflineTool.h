@@ -64,7 +64,7 @@ namespace NSWL1 {
                         const std::string& name,
                         const IInterface* parent);
         virtual ~PadTriggerLogicOfflineTool();
-        virtual StatusCode initialize();
+        virtual StatusCode initialize() override;
         virtual void handle (const Incident& inc);
         /// Log a message using the Athena controlled logging system
         

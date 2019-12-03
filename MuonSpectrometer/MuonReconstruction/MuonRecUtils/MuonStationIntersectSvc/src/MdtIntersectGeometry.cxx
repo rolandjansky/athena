@@ -132,7 +132,8 @@ namespace Muon{
     int phi = m_mdtIdHelper->stationPhi(m_chid);
     int name = m_mdtIdHelper->stationName(m_chid);
     int isBarrel = m_mdtIdHelper->isBarrel(m_chid);
-    TrkDriftCircleMath::MdtStationId  stationId( isBarrel, name, eta, phi );
+    int isSmallMdt = m_mdtIdHelper->isSmallMdt(m_chid);
+    TrkDriftCircleMath::MdtStationId stationId( isSmallMdt, isBarrel, name, eta, phi );
     
     // get detEL for first ml (always there)
     Identifier firstIdml0 = m_mdtIdHelper->channelID( name,eta,phi,1,1,1 );

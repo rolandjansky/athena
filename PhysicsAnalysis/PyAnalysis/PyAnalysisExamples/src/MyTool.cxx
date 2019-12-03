@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Python.h"
@@ -26,7 +26,11 @@ StatusCode MyTool::execute(MyObj *obj)
   // convert C++ obj to Python obj
   PyObject *pyObj = proxy->toPyObj(obj);
   // get Python code fragment
+#if PY_MAJOR_VERSION < 3
   PyObject *pyFunc = PyObject_GetAttr(m_self,PyString_FromString("py_execute"));
+#else
+  PyObject *pyFunc = PyObject_GetAttr(m_self,PyUnicode_FromString("py_execute"));
+#endif
   // execute Python code fragment
   PyObject *tup = Py_BuildValue((char*)"(O)",pyObj);
   PyObject *ret = PyObject_CallObject(pyFunc, tup); 

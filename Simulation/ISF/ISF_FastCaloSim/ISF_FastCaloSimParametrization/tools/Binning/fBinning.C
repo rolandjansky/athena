@@ -200,19 +200,19 @@ TH2F fBinning(const string& myfile, Int_t nxbins, Float_t *xbins, Int_t nybins, 
     T->GetEntry(i);
     
     // One energy histo per event
-    char *histname = new char[10];
+    char histname[80];
     sprintf(histname, "halphadrEvec2_%d",i);
     halphadrEvec2[i] = new TH2F(histname,"",nxbinsAlpha-1,xbinsAlpha,nybinsR-1,ybinsR) ;
     
-    char *histname2 = new char[10];
+    char histname2[80];
     sprintf(histname2, "halphaEvec_%d",i);
     halphaEvec[i] = new TH1F(histname2,"",nxbinsAlpha-1,xbinsAlpha) ;
 
-    char *histname3 = new char[10];
+    char histname3[80];
     sprintf(histname3, "hdrEvec_%d",i);
     hdrEvec[i] = new TH1F(histname3,"",nybinsR-1,ybinsR) ;
 
-    char *histname4 = new char[10];
+    char histname4[80];
     sprintf(histname4, "hdrEAllvec_%d",i);
     hdrEAllvec[i] = new TH1F(histname4,"",40,0,4) ;
 

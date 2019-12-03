@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/AthenaBaseComps
                           Simulation/G4Sim/TrackRecord
+                          Simulation/G4Atlas/G4AtlasTools
                           Simulation/ISF/ISF_Core/ISF_Event
                           Simulation/ISF/ISF_Core/ISF_Interfaces )
 
@@ -18,7 +19,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( ISF_Geant4CommonTools
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES GaudiKernel AthenaBaseComps ISF_Event ISF_Interfaces )
+                     LINK_LIBRARIES GaudiKernel AthenaBaseComps ISF_Event ISF_Interfaces G4AtlasToolsLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

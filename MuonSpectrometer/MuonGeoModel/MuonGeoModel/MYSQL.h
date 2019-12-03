@@ -9,6 +9,7 @@
 #include <string>
 #include "MuonGeoModel/Station.h"
 #include "MuonGeoModel/Position.h"
+
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaKernel/getMessageSvc.h"
 
@@ -106,8 +107,6 @@ public:
     Technology* GetTechnology(std::string name);
     Technology* GetATechnology(std::string name);
     void PrintTechnologies();
-    MsgStream& reLog() const {return *m_MsgStream;}
-
 
 // singleton
 private:
@@ -128,14 +127,11 @@ private:
     int m_includeCutoutsBog;
     int m_includeCtbBis;
     int m_controlAlines;
-    MsgStream* m_MsgStream;
 
 };
 void MYSQL::addAllocpos(int i, std::string str)
 {
-    //    std::cout<<" trying to declare pos. at key "<<i<<" for station "<<str<<std::endl;
     m_allocatedpos[i]= str;
-    //    std::cout<<" declaring pos. at key "<<i<<" allocated to station "<<str<<std::endl;
 }
 AllocposIterator MYSQL::AllocposEnd() 
 {
@@ -201,35 +197,14 @@ allocPosIterator MYSQL::allocPosFind(std::string key)
 {
     return m_allocPos.find(key);
 }
-int MYSQL::allocPosFindSubtype(std::string key)
-{
-    int subtype = 0;
-    allocPosIterator it = m_allocPos.find(key);
-    if (it != allocPosEnd())
-    {
-        return allocPosFindSubtype(it);
-    }
-    std::cerr<<"MYSQL::allocPosFindSubtype for key  "<<key<<" no element found"<<std::endl;
-    return subtype;
-}
+
 int MYSQL::allocPosFindSubtype(allocPosIterator it)
 {
     int value = it->second;
     int subtype = int(value/100);
     return subtype;
 }
-int MYSQL::allocPosFindCutout(std::string key)
-{
-    int cutout = 0;
-    allocPosIterator it = m_allocPos.find(key);
-    if (it != allocPosEnd())
-    {
-        return allocPosFindCutout(it);
-    }
-    std::cerr<<"MYSQL::allocPosFindCutout for key  "<<key
-	     <<" no element found"<<std::endl;
-    return cutout;
-}
+
 int MYSQL::allocPosFindCutout(allocPosIterator it)
 {
     int value = (*it).second;
@@ -245,16 +220,6 @@ void MYSQL::addallocPos(std::string key, int subtype, int cutout)
 {
     m_allocPos[key]= allocPosBuildValue(subtype, cutout);
 }
-void MYSQL::setGeometryVersion(std::string s)
-{
-    if (m_geometry_version != "unknown") 
-    {
-        if (s == m_geometry_version) return;
-        reLog()<<MSG::WARNING<<"GeometryVersion already set to  <"<< m_geometry_version<<">"<<" resetting to <"<<s<<">"<<endmsg;
-    }    
-    m_geometry_version = s;
-    reLog()<<MSG::INFO<<"GeometryVersion set to <"<< m_geometry_version<<">"<<endmsg;
-}
 
 std::string MYSQL::getGeometryVersion() const
 {return m_geometry_version;}
@@ -267,25 +232,9 @@ void MYSQL::setCtbBisFlag(int i)
 int MYSQL::getCtbBisFlag() const
 {return m_includeCtbBis;}
 
-void MYSQL::setNovaReadVersion(int i)
-{
-    m_amdb_version = i;
-    if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<"setNovaReadVersion to "<< m_amdb_version<<endmsg;
-}
-
 int MYSQL::getNovaReadVersion() const
 {return m_amdb_version;}
 
-void MYSQL::setLayoutName(std::string s)
-{
-    if (m_layout_name != "unknown") 
-    {
-        if (s == m_layout_name) return;
-        reLog()<<MSG::WARNING<<"LayoutName already set to  <"<< m_layout_name<<">"<<" resetting to <"<<s<<">"<<endmsg;
-    }    
-    m_layout_name = s;
-    reLog()<<MSG::INFO<<"LayoutName (from DBAM) set to <"<< m_layout_name<<">  -- relevant for CTB2004"<<endmsg;
-}
 std::string MYSQL::getLayoutName() const 
 {return m_layout_name;}
 
@@ -298,12 +247,6 @@ int  MYSQL::getCutoutsBogFlag() const
     return m_includeCutoutsBog;
 }
 
-
-void MYSQL::setNovaVersion(int i)
-{
-    m_nova_version = i;
-    if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<"setNovaVersion to "<< m_nova_version<<endmsg;
-}
 int MYSQL::getNovaVersion() const
 {
     return m_nova_version;
@@ -328,9 +271,69 @@ std::string MYSQL::get_DBMuonVersion()
 void  MYSQL::setControlAlines(int cA) {m_controlAlines = cA;}
 int  MYSQL::controlAlines() const {return m_controlAlines;}
 
+void MYSQL::setGeometryVersion(std::string s)
+{
+    MsgStream log(Athena::getMessageSvc(),"MuonGeoModel.MYSQL");
+    if (m_geometry_version != "unknown") 
+    {
+        if (s == m_geometry_version) return;
+        log<<MSG::WARNING<<"GeometryVersion already set to  <"<< m_geometry_version<<">"<<" resetting to <"<<s<<">"<<endmsg;
+    }    
+    m_geometry_version = s;
+    log<<MSG::INFO<<"GeometryVersion set to <"<< m_geometry_version<<">"<<endmsg;
+}
 
+void MYSQL::setNovaReadVersion(int i)
+{
+    m_amdb_version = i;
+    MsgStream log(Athena::getMessageSvc(),"MuonGeoModel.MYSQL");
+    if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE<<"setNovaReadVersion to "<< m_amdb_version<<endmsg;
+}
 
+void MYSQL::setLayoutName(std::string s)
+{
+    MsgStream log(Athena::getMessageSvc(),"MuonGeoModel.MYSQL");
+    if (m_layout_name != "unknown") 
+    {
+        if (s == m_layout_name) return;
+        log<<MSG::WARNING<<"LayoutName already set to  <"<< m_layout_name<<">"<<" resetting to <"<<s<<">"<<endmsg;
+    }    
+    m_layout_name = s;
+    log<<MSG::INFO<<"LayoutName (from DBAM) set to <"<< m_layout_name<<">  -- relevant for CTB2004"<<endmsg;
+}
 
+void MYSQL::setNovaVersion(int i)
+{
+    m_nova_version = i;
+    MsgStream log(Athena::getMessageSvc(),"MuonGeoModel.MYSQL");
+    if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE<<"setNovaVersion to "<< m_nova_version<<endmsg;
+}
+
+int MYSQL::allocPosFindCutout(std::string key)
+{
+    int cutout = 0;
+    allocPosIterator it = m_allocPos.find(key);
+    if (it != allocPosEnd())
+    {
+        return allocPosFindCutout(it);
+    }
+    MsgStream log(Athena::getMessageSvc(),"MuonGeoModel.MYSQL");
+    log<<MSG::ERROR<<"MYSQL::allocPosFindCutout for key  "<<key<<" no element found"<<endmsg;
+    return cutout;
+}
+
+int MYSQL::allocPosFindSubtype(std::string key)
+{
+    int subtype = 0;
+    allocPosIterator it = m_allocPos.find(key);
+    if (it != allocPosEnd())
+    {
+        return allocPosFindSubtype(it);
+    }
+    MsgStream log(Athena::getMessageSvc(),"MuonGeoModel.MYSQL");
+    log<<MSG::ERROR<<"MYSQL::allocPosFindSubtype for key  "<<key<<" no element found"<<endmsg;
+    return subtype;
+}
 
 } // namespace MuonGM
 

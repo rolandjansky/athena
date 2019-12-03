@@ -112,6 +112,29 @@ def MooSegmentFinderNCBAlg( name="MuonSegmentMaker_NCB",**kwargs ):
 
     return CfgMgr.MooSegmentFinderAlg(name,**kwargs)
 
+def MuonStandaloneTrackParticleCnvAlg( name="MuonStandaloneTrackParticleCnvAlg",**kwargs):
+    from AthenaCommon.Include import include
+    include("InDetBeamSpotService/BeamCondSvc.py" )        
+    from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg, xAODMaker__TrackCollectionCnvTool, xAODMaker__RecTrackParticleContainerCnvTool
+
+    muonParticleCreatorTool = getPublicTool("MuonParticleCreatorTool")
+    muonTrackCollectionCnvTool = xAODMaker__TrackCollectionCnvTool( name = "MuonTrackCollectionCnvTool", TrackParticleCreator = muonParticleCreatorTool )
+    muonRecTrackParticleContainerCnvTool = xAODMaker__RecTrackParticleContainerCnvTool(name = "MuonRecTrackParticleContainerCnvTool", TrackParticleCreator = muonParticleCreatorTool )
+
+    kwargs.setdefault("TrackParticleCreator", muonParticleCreatorTool)
+    kwargs.setdefault("RecTrackParticleContainerCnvTool", muonRecTrackParticleContainerCnvTool)
+    kwargs.setdefault("TrackCollectionCnvTool", muonTrackCollectionCnvTool)
+    kwargs.setdefault("RecTrackParticleContainerCnvTool", muonRecTrackParticleContainerCnvTool)
+    kwargs.setdefault("TrackContainerName", "MuonSpectrometerTracks")
+    kwargs.setdefault("xAODTrackParticlesFromTracksContainerName", "MuonSpectrometerTrackParticles")
+    kwargs.setdefault("AODContainerName", "")
+    kwargs.setdefault("AODTruthContainerName", "")
+    kwargs.setdefault("xAODTruthLinkVector",  "")
+    kwargs.setdefault("ConvertTrackParticles", False)
+    kwargs.setdefault("ConvertTracks", True)
+
+    return xAODMaker__TrackParticleCnvAlg( name = "MuonStandaloneTrackParticleCnvAlg",**kwargs)
+
 #
 # The top level configurator
 #
@@ -134,9 +157,8 @@ class MuonStandalone(ConfiguredMuonRec):
         if muonStandaloneFlags.segmentOrigin == 'TruthTracking':
             SegmentLocation = "ThirdChainSegments"
 
-        # we assume that RUN3 or RUN4 means that at least one sTgc and one MM chamber is present
-        from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
-        if (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]):
+        # do the following in case of (at least one) NSW
+        if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
             getPublicTool("MuonLayerHoughTool")
             self.addAlg( CfgMgr.MuonLayerHoughAlg( "MuonLayerHoughAlg", PrintSummary = muonStandaloneFlags.printSummary()  ) )
             if not muonStandaloneFlags.patternsOnly():
@@ -188,28 +210,7 @@ class MuonStandalone(ConfiguredMuonRec):
 
         
         if muonStandaloneFlags.createTrackParticles():
-            from AthenaCommon.Include import include
-            include("InDetBeamSpotService/BeamCondSvc.py" )        
-            from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg, xAODMaker__TrackCollectionCnvTool, xAODMaker__RecTrackParticleContainerCnvTool
-
-            muonParticleCreatorTool = getPublicTool("MuonParticleCreatorTool")
-
-            muonTrackCollectionCnvTool = xAODMaker__TrackCollectionCnvTool( name = "MuonTrackCollectionCnvTool", TrackParticleCreator = muonParticleCreatorTool )
-            
-            muonRecTrackParticleContainerCnvTool = xAODMaker__RecTrackParticleContainerCnvTool(name = "MuonRecTrackParticleContainerCnvTool", TrackParticleCreator = muonParticleCreatorTool )
-
-            xAODTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg( name = "MuonStandaloneTrackParticleCnvAlg", 
-                                                                      TrackParticleCreator = muonParticleCreatorTool,
-                                                                      TrackCollectionCnvTool=muonTrackCollectionCnvTool,
-                                                                      RecTrackParticleContainerCnvTool = muonRecTrackParticleContainerCnvTool,
-                                                                      TrackContainerName = "MuonSpectrometerTracks",
-                                                                      xAODTrackParticlesFromTracksContainerName = "MuonSpectrometerTrackParticles",
-                                                                      AODContainerName = "",
-                                                                      AODTruthContainerName = "",
-                                                                      xAODTruthLinkVector =  "",
-                                                                      ConvertTrackParticles = False,
-                                                                      ConvertTracks = True)
-
+            xAODTrackParticleCnvAlg = MuonStandaloneTrackParticleCnvAlg("MuonStandaloneTrackParticleCnvAlg")
             self.addAlg( xAODTrackParticleCnvAlg )
 
 

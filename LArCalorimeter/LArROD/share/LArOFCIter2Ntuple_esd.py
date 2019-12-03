@@ -58,7 +58,7 @@ topSequence += theLArRawChannelBuilder
 from LArROD.LArRODConf import LArRawChannelBuilderToolBadChannelTool
 theLArRawChannelBuilderToolBadChannel=LArRawChannelBuilderToolBadChannelTool()
 from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-theLArRCBMasker=LArBadChannelMasker("LArRCBMasker")
+theLArRCBMasker=LArBadChannelMasker("BadLArRawChannelMask")
 theLArRCBMasker.DoMasking=True
 theLArRCBMasker.ProblemsToMask=[
     "deadReadout","deadPhys","almostDead","short",
@@ -66,9 +66,6 @@ theLArRCBMasker.ProblemsToMask=[
     "lowNoiseMG","highNoiseMG","unstableNoiseMG",
     "lowNoiseLG","highNoiseLG","unstableNoiseLG"
     ]
-ToolSvc+=theLArRCBMasker
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-ToolSvc+=LArBadChanTool()
 theLArRawChannelBuilderToolBadChannel.BadChannelMask=theLArRCBMasker
 theLArRawChannelBuilder.BuilderTools += [theLArRawChannelBuilderToolBadChannel.getFullName()]
 ToolSvc+=theLArRawChannelBuilderToolBadChannel

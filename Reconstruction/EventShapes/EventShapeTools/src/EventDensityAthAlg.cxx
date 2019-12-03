@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // EventDensityAthAlg.cxx 
@@ -11,36 +11,6 @@
 
 // EventShapeTools includes
 #include "EventDensityAthAlg.h"
-
-// STL includes
-
-// FrameWork includes
-#include "GaudiKernel/Property.h"
-
-
-
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
-EventDensityAthAlg::EventDensityAthAlg( const std::string& name, 
-			  ISvcLocator* pSvcLocator ) : 
-  ::AthAlgorithm( name, pSvcLocator ),
-  m_densityTool(this)
-{
-  //
-  // Property declaration
-  // 
-  declareProperty( "EventDensityTool", m_densityTool );
-
-}
-
-// Destructor
-///////////////
-EventDensityAthAlg::~EventDensityAthAlg()
-{}
 
 // Athena Algorithm's Hooks
 ////////////////////////////
@@ -57,7 +27,7 @@ StatusCode EventDensityAthAlg::finalize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode EventDensityAthAlg::execute()
+StatusCode EventDensityAthAlg::execute( const EventContext& /*ctx*/) const
 {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
   StatusCode sc = m_densityTool->fillEventShape();

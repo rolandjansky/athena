@@ -6,12 +6,11 @@ from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from AthenaCommon.JobProperties import jobproperties # noqa: F401
 from TriggerJobOpts.CommonSignatureHelper import CommonSignatureHelper
 
-__author__  = 'T. Bold'
-__version__="$Revision: 1.31 $"
 __doc__="Jet slice specific flags  "
 
 
-_flags = [] 
+_flags = []
+
 class signatures(JobProperty):
     """ signatures in Jet slice """
     statusOn=True

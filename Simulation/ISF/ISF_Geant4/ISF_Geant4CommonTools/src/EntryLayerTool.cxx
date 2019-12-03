@@ -63,12 +63,6 @@ ISF::EntryLayerTool::EntryLayerTool(const std::string& t, const std::string& n, 
 }
 
 
-/** Destructor **/
-ISF::EntryLayerTool::~EntryLayerTool()
-{
-}
-
-
 /** Athena algtool's Hooks */
 StatusCode  ISF::EntryLayerTool::initialize()
 {
@@ -106,14 +100,6 @@ StatusCode  ISF::EntryLayerTool::initialize()
   }
 
   ATH_MSG_INFO("initialize() successful");
-  return StatusCode::SUCCESS;
-}
-
-
-/** Athena algtool's Hooks */
-StatusCode  ISF::EntryLayerTool::finalize()
-{
-  ATH_MSG_INFO("finalize() successful");
   return StatusCode::SUCCESS;
 }
 
@@ -231,6 +217,14 @@ ISF::EntryLayer ISF::EntryLayerTool::registerParticle(const ISF::ISFParticle& pa
 
   return layerHit;
 }
+
+/** Register the TrackRecordCollection pointer for a layer */
+StatusCode ISF::EntryLayerTool::registerTrackRecordCollection(TrackRecordCollection* collection, EntryLayer layer)
+{
+  m_collection[layer]=collection; // Dummy implementation.
+  return StatusCode::SUCCESS;
+}
+
 
 
 /** used to setup a TrackRecordCollection on storegate */

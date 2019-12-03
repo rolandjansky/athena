@@ -6,7 +6,6 @@
 #undef NDEBUG
 #include <cassert>
 
-
 #include "TestTools/initGaudi.h"
 #include "TestTools/expect.h"
 #include "GaudiKernel/MsgStream.h"
@@ -234,7 +233,7 @@ bool fillFromNonTrivialSourcesWorked( ToolHandle<GenericMonitoringTool>& monTool
 
   resetHists( histSvc );
   {
-    int testVal = 0.2;
+    int testVal = 0;
     auto eta = Monitored::Scalar<int>( "Eta", [&](){ return testVal; } ); // some generator
     auto monitorIt = Monitored::Group( monTool, eta );
   }
@@ -315,8 +314,9 @@ bool timerFillingWorked( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* 
 
   auto t1 = Monitored::Timer( "TIME_t1" );
   auto t2 = Monitored::Timer( "TIME_t2" );
+  auto t3 = Monitored::Timer<std::chrono::milliseconds>( "TIME_t3" );
   {
-    auto monitorIt = Monitored::Group( monTool, t1, t2 ); // this is binding to histograms
+    auto monitorIt = Monitored::Group( monTool, t1, t2, t3 ); // this is binding to histograms
 
     t1.start();
     t1.stop();
@@ -333,7 +333,8 @@ bool timerFillingWorked( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* 
 
 bool stringFillingWorked(ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSvc) {
   auto count = Monitored::Scalar<std::string>( "DetID", "SCT" );
-  auto countVec = Monitored::Collection<std::vector<std::string>>( "DetCalo", {"LAr", "LAr", "Tile"} );
+  std::vector<std::string> caloLabels( { "LAr", "LAr", "Tile" } );
+  auto countVec = Monitored::Collection<std::vector<std::string>>( "DetCalo", caloLabels );
   {
     Monitored::Group(monTool, countVec);
     Monitored::Group(monTool, count);
@@ -359,6 +360,78 @@ bool stringFillingWorked(ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* 
   return true;
 }
 
+bool string2DFillingWorked(ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSvc) {
+  auto countID = Monitored::Scalar<std::string>( "DetID", "SCT" );
+  std::vector<std::string> caloLabels( { "LAr", "LAr", "Tile" } );
+  auto countCalo = Monitored::Collection<std::vector<std::string>>( "DetCalo", caloLabels );
+  auto x        = Monitored::Scalar("x", 1.2 );
+  std::vector<double> yvalues({0.2, 2.1, 1.3});
+  auto y        = Monitored::Collection("y", yvalues );
+  // this shoudl fill like this
+  // SCT, LAr
+  // SCT, LAr
+  // SCT, Tile
+  {
+    Monitored::Group(monTool, countID, countCalo);
+  }
+  {
+    const int larBin = getHist( histSvc, "/EXPERT/TestGroup/DetCalo_vs_DetID" )->GetXaxis()->FindBin("LAr");
+    const int sctBin = getHist( histSvc, "/EXPERT/TestGroup/DetCalo_vs_DetID" )->GetYaxis()->FindBin("SCT");
+    VALUE( getHist( histSvc, "/EXPERT/TestGroup/DetCalo_vs_DetID" )->GetBinContent( larBin, sctBin ) ) EXPECTED( 2 );
+  }
+  // this shoudl fill like this
+  // LAr,  0.2
+  // LAr,  2.1
+  // Tile, 1.3
+  {
+    Monitored::Group(monTool, countCalo, y);
+  }
+  {
+    const int larBin = getHist( histSvc, "/EXPERT/TestGroup/DetCalo_vs_y" )->GetXaxis()->FindBin("LAr");
+    const int tileBin = getHist( histSvc, "/EXPERT/TestGroup/DetCalo_vs_y" )->GetXaxis()->FindBin("Tile");
+    VALUE( getHist( histSvc, "/EXPERT/TestGroup/DetCalo_vs_y" )->GetBinContent( larBin, 1 ) ) EXPECTED( 1 );
+    VALUE( getHist( histSvc, "/EXPERT/TestGroup/DetCalo_vs_y" )->GetBinContent( larBin, 2 ) ) EXPECTED( 0 );
+    VALUE( getHist( histSvc, "/EXPERT/TestGroup/DetCalo_vs_y" )->GetBinContent( larBin, 3 ) ) EXPECTED( 1 );
+    VALUE( getHist( histSvc, "/EXPERT/TestGroup/DetCalo_vs_y" )->GetBinContent( tileBin, 1 ) ) EXPECTED( 0 );
+    VALUE( getHist( histSvc, "/EXPERT/TestGroup/DetCalo_vs_y" )->GetBinContent( tileBin, 2 ) ) EXPECTED( 1 );
+  }
+  // this shoudl fill like this
+  // LAr, 1.2
+  // LAr, 1.2
+  // Tile, 1.2
+  {
+    Monitored::Group(monTool, countCalo, x);
+  }
+  {
+    const int larBin = getHist( histSvc, "/EXPERT/TestGroup/DetCalo_vs_x" )->GetXaxis()->FindBin("LAr");
+    const int tileBin = getHist( histSvc, "/EXPERT/TestGroup/DetCalo_vs_x" )->GetXaxis()->FindBin("Tile");
+    VALUE( getHist( histSvc, "/EXPERT/TestGroup/DetCalo_vs_x" )->GetBinContent( larBin, 1 ) ) EXPECTED( 0 );
+    VALUE( getHist( histSvc, "/EXPERT/TestGroup/DetCalo_vs_x" )->GetBinContent( larBin, 2 ) ) EXPECTED( 2 );
+    VALUE( getHist( histSvc, "/EXPERT/TestGroup/DetCalo_vs_x" )->GetBinContent( tileBin, 1 ) ) EXPECTED( 0 );
+    VALUE( getHist( histSvc, "/EXPERT/TestGroup/DetCalo_vs_x" )->GetBinContent( tileBin, 2 ) ) EXPECTED( 1 );
+  }
+
+  // this shoudl fill like this
+  // 0.2 SCT
+  // 2.1 SCT
+  // 1.3 SCT
+  {
+    Monitored::Group(monTool, y, countID );
+  }
+  {
+    const int sctBin = getHist( histSvc, "/EXPERT/TestGroup/y_vs_DetID" )->GetYaxis()->FindBin("SCT");
+    VALUE( getHist( histSvc, "/EXPERT/TestGroup/y_vs_DetID" )->GetBinContent( 1, sctBin ) ) EXPECTED( 1 );
+    VALUE( getHist( histSvc, "/EXPERT/TestGroup/y_vs_DetID" )->GetBinContent( 2, sctBin ) ) EXPECTED( 1 );
+    VALUE( getHist( histSvc, "/EXPERT/TestGroup/y_vs_DetID" )->GetBinContent( 3, sctBin ) ) EXPECTED( 1 );
+    VALUE( getHist( histSvc, "/EXPERT/TestGroup/y_vs_DetID" )->GetBinContent( 4, sctBin ) ) EXPECTED( 0 );
+  }
+
+
+
+
+
+  return true;
+}
 
 
 int main() {
@@ -401,6 +474,7 @@ int main() {
   assert( operatorsWorked() );
   assert( timerFillingWorked( validMon, histSvc ) );
   assert( stringFillingWorked( validMon, histSvc ) );
+  assert( string2DFillingWorked( validMon, histSvc ) );
   log << MSG::DEBUG << "All OK"  << endmsg;
 
   // Make sure that THistSvc gets finalized.

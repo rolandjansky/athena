@@ -193,7 +193,7 @@ int main() {
    populateObject(obj);
 
    // Standalone with copy constructor. Should get own store.
-   xAOD::TrigComposite* copyConstructor = new xAOD::TrigComposite(*obj);
+   std::unique_ptr<xAOD::TrigComposite> copyConstructor = std::make_unique<xAOD::TrigComposite>(*obj);
 
    // Standalone with assignment operator. Should get own store.
    xAOD::TrigComposite* assignmentOperator = new xAOD::TrigComposite();
@@ -228,7 +228,7 @@ int main() {
    SIMPLE_ASSERT( testObject(obj) == 0 );
 
    std::cout << "Testing copy constructor" << std::endl;
-   SIMPLE_ASSERT( testObject(copyConstructor) == 0 );
+   SIMPLE_ASSERT( testObject(copyConstructor.get()) == 0 );
 
    std::cout << "Testing assignment operator (standalone object)" << std::endl;
    SIMPLE_ASSERT( testObject(assignmentOperator) == 0 );

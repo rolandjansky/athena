@@ -69,7 +69,7 @@ if 'PrescaleSet' in dir():
 
 #-----------------------------------------------------------
 HLTOutputLevel=INFO
-include("TriggerRelease/Trigger_topOptions_standalone.py")
+include("TriggerJobOpts/Trigger_topOptions_standalone.py")
 #-----------------------------------------------------------
 
 log.info("Trigger menu generation done. Exiting...")

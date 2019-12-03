@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file: StoreGateTests/python/Lib.py
 # @purpose: a set of Py-components to tests py-record performances
@@ -15,10 +15,10 @@ class PySgStressProducer( PyAthena.Alg ):
         kw['name'] = name
         super(PySgStressProducer,self).__init__(**kw)
 
-        if not kw.has_key('DataName'):     self.DataName = "MyData"
-        if not kw.has_key('NbrOfObjects'): self.NbrOfObjects = 1000
-        if not kw.has_key('ObjectsSize'):  self.ObjectsSize  = 100
-        if not kw.has_key('UseDataPool'):  self.UseDataPool  = False
+        if 'DataName' not in kw:     self.DataName = "MyData"
+        if 'NbrOfObjects' not in kw: self.NbrOfObjects = 1000
+        if 'ObjectsSize' not in kw:  self.ObjectsSize  = 100
+        if 'UseDataPool' not in kw:  self.UseDataPool  = False
 
     def initialize(self):
         self.msg.info( "Initializing %s", self.name() )
@@ -54,7 +54,7 @@ class PySgStressProducer( PyAthena.Alg ):
                 del dv
                 self.msg.error( "Could not store data at [%s] !!", outName )
                 allGood = False
-            if not _sg_setConst(dv).isSuccess():
+            if allGood and not _sg_setConst(dv).isSuccess():  # noqa: F821
                 self.msg.warning("Could not setConst data at [%s] !!", outName)
 
             # filling data
@@ -81,8 +81,8 @@ class PySgStressConsumer(PyAthena.Alg):
         kw['name'] = name
         super(PySgStressConsumer,self).__init__(**kw)
 
-        if not kw.has_key('DataName'):     self.DataName = "MyData"
-        if not kw.has_key('NbrOfObjects'): self.NbrOfObjects = 1000
+        if 'DataName' not in kw:     self.DataName = "MyData"
+        if 'NbrOfObjects' not in kw: self.NbrOfObjects = 1000
 
     def initialize(self):
         self.msg.info( "Initializing %s...", self.name() )
@@ -163,7 +163,8 @@ class PyClidsTestWriter(PyAthena.Alg):
 
         for tpName,sgKey in self._test_matrix.items():
             tp = getattr(PyAthena, tpName)
-            cont = tp(); cont.reserve(100)
+            cont = tp()
+            cont.reserve(100)
             for i in xrange(100): cont.push_back(i)
             try:
                 self.sg[sgKey] = cont

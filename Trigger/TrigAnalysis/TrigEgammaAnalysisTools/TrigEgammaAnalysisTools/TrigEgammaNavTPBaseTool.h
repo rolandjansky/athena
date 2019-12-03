@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TrigEgammaNavTPBaseTool_H
 #define TrigEgammaNavTPBaseTool_H
 
 #include "TrigConfHLTData/HLTFrame.h"
 #include "TrigConfHLTData/HLTTriggerElement.h"
+//#include "TrigNavigation/Navigation.h"
 
 #include "TrigEgammaAnalysisTools/TrigEgammaAnalysisBaseTool.h"
 #include "xAODEventInfo/EventInfo.h"
@@ -32,7 +33,7 @@
 #include "xAODTrigger/EmTauRoIContainer.h"
 
 namespace Trig{
-    class FeatureContainer;
+            class FeatureContainer;
 }
 
 class TrigEgammaNavTPBaseTool: public TrigEgammaAnalysisBaseTool,
@@ -40,27 +41,27 @@ class TrigEgammaNavTPBaseTool: public TrigEgammaAnalysisBaseTool,
         ASG_TOOL_CLASS(TrigEgammaNavTPBaseTool, ITrigEgammaAnalysisBaseTool)
 
   public:
-
+  
     TrigEgammaNavTPBaseTool( const std::string& myname );
-    virtual ~TrigEgammaNavTPBaseTool() {};
-
-    virtual StatusCode childInitialize() override;
-    virtual StatusCode childBook() override;
-    virtual StatusCode childExecute() override;
-    virtual StatusCode childFinalize() override;
-
+    ~TrigEgammaNavTPBaseTool() {};
+  
+    StatusCode childInitialize();
+    StatusCode childBook();
+    StatusCode childExecute();
+    StatusCode childFinalize();
+  
   protected:
-
+    
     /*! things like LAr-error, Tile-error, etc, should come here */
-    bool EventWiseSelection();
+    bool EventWiseSelection(); 
     /*! pass without detector errors */
     bool passesEventCleaning();
     /*! at least one chain should pass. e28_tight_iloose? */
     bool MinimalTriggerRequirement ();
     /*! Tag and Probe method called by derived classes */
-    void executeTandP();
+    void executeTandP(); 
     /*! Match probes called by derived classes */
-    void matchObjects(const std::string trigItem);
+    void matchObjects(const std::string trigItem); 
     /*! Tag Electron selection */
     bool isTagElectron(const xAOD::Electron *el);
     /*! Rerun offline selection */
@@ -68,9 +69,9 @@ class TrigEgammaNavTPBaseTool: public TrigEgammaAnalysisBaseTool,
     /*! Rerun offline selection */
     void DressPid(const xAOD::Electron *eg);
     /*! Probe selection */
-    bool isGoodProbeElectron(const xAOD::Electron *el);//,const std::string,const float,const std::string);
+    bool isGoodProbeElectron(const xAOD::Electron *el);//,const std::string,const float,const std::string); 
     /*! Event-wise trigger selection */
-    bool passedTrigger(const HLT::TriggerElement* obj);
+    bool passedTrigger(const HLT::TriggerElement* obj); 
     /*! Clears list of probes after each trigger item per event */
     void clearProbeList(); 
     /*! Clears list of matched probes after each trigger item per event */
@@ -122,7 +123,7 @@ class TrigEgammaNavTPBaseTool: public TrigEgammaAnalysisBaseTool,
     float m_tagMinEt;
     /*! Minimum probe Et */
     float m_probeMinEt;
-
+ 
     // Containers 
     /*! Event Wise offline ElectronContainer Access and end iterator */
     const xAOD::ElectronContainer* m_offElectrons;
@@ -134,30 +135,30 @@ class TrigEgammaNavTPBaseTool: public TrigEgammaAnalysisBaseTool,
     const xAOD::EventInfo* m_eventInfo;
     /* Truth Container */
     const xAOD::TruthParticleContainer* m_truthContainer;
-
+ 
   private:
 
     // In python order will matter. Should always be tight, medium, loose
     // Order no longer important since using a map
-
+  
     std::map< std::string, unsigned int > m_PidToolMap; /*! Pass a string to pick up correct selector */
-    //std::map< std::string, std::string > m_PidMap; /*! Map trigger pid to selector pid */
-
+    //std::map< std::string, std::string > m_PidMap; /*! Map trigger pid to selector pid */ 
+ 
     /* TP selection properties */
     /*! Not needed */
     // unsigned int m_isEMoffTag;
     /*! Define the PID for tag electron */
     std::string m_offTagTightness;
-    /*! define the Pid of Probe from the trigger name */
+    /*! define the Pid of Probe from the trigger name */ 
     std::string m_offProbeTightness;
-    /*! define the Pid of Probe from the user */
+    /*! define the Pid of Probe from the user */ 
     std::string m_defaultProbeTightness;
     /*! force user defined probe for pid triggers */
     bool m_forceProbePid;
     /*! Trigger for tag and event wise selection */
     std::vector<std::string> m_tagTrigList;
     /*! Apply nearby jet selection */
-    bool m_applyJetNearProbeSelection;
+    bool m_applyJetNearProbeSelection; 
     /*! force probe isolation */
     bool m_forceProbeIsolation;
     /*! Define isolation working point for Probe electron */

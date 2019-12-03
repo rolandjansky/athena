@@ -26,6 +26,7 @@
 #include "xAODTrigMuon/L2CombinedMuon.h"
 
 #include "xAODMuon/SlowMuon.h"
+#include "xAODEventInfo/EventInfo.h"
 
 // Tools
 #include "MuonSelectorTools/IMuonSelectionTool.h"
@@ -99,6 +100,8 @@ class MuonPhysValMonitoringTool
   void handleMuonTrack(const xAOD::TrackParticle* tp, xAOD::Muon::TrackParticleType type);
   void handleMuonSegment(const xAOD::MuonSegment* muSeg);
   void handleTruthMuonSegment(const xAOD::MuonSegment* truthMuSeg, const xAOD::TruthParticleContainer* muonTruthContainer);
+  
+  void handleMuonTrees(const xAOD::EventInfo* eventInfo, bool isData);
 
   void handleMuonL1Trigger(const xAOD::MuonRoI* TrigL1mu);
   void handleMuonL2Trigger(const xAOD::L2StandAloneMuon* L2SAMu);

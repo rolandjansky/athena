@@ -11,6 +11,7 @@ from LArG4SD.LArG4SDConf import LArG4__MiniFCALSDTool
 from LArG4SD.LArG4SDConf import LArG4__DeadSDTool
 from LArG4SD.LArG4SDConf import LArG4__ActiveSDTool
 from LArG4SD.LArG4SDConf import LArG4__InactiveSDTool
+from LArG4SD.LArG4SDConf import LArG4__CalibrationDefaultCalculator
 
 #to be migrated: getCalibrationDefaultCalculator, getDeadMaterialCalibrationHitMerger
 
@@ -127,7 +128,47 @@ def LArDeadSensitiveDetectorToolCfg(ConfigFlags, name="LArDeadSensitiveDetector"
     if ConfigFlags.Sim.CalibrationRun in ['LAr', 'LAr+Tile']:
         outputCollectionName = "LArCalibrationHitDeadMaterial_DEAD"
     kwargs.setdefault("HitCollectionName", outputCollectionName)
-    return LArG4__DeadSDTool(name, **kwargs)
+
+    from LArG4Barrel.LArG4BarrelConfigNew import BarrelCryostatCalibrationCalculatorCfg, BarrelCryostatCalibrationLArCalculatorCfg, BarrelCryostatCalibrationMixedCalculatorCfg, DMCalibrationCalculatorCfg,   BarrelCalibrationCalculatorCfg, BarrelPresamplerCalibrationCalculatorCfg
+
+    from LArG4EC.LArG4ECConfigNew import EndcapCryostatCalibrationCalculatorCfg, EndcapCryostatCalibrationLArCalculatorCfg, EndcapCryostatCalibrationMixedCalculatorCfg, EMECSupportCalibrationCalculatorCfg
+
+    from LArG4HEC.LArG4HECConfigNew import HECCalibrationWheelDeadCalculatorCfg
+
+    result = ComponentAccumulator()
+
+    result.merge( BarrelCryostatCalibrationCalculatorCfg(ConfigFlags) )
+    result.merge( BarrelCryostatCalibrationLArCalculatorCfg(ConfigFlags) )
+    result.merge( CalibrationDefaultCalculatorCfg(ConfigFlags) )
+    result.merge( BarrelCryostatCalibrationMixedCalculatorCfg(ConfigFlags) )
+    result.merge( DMCalibrationCalculatorCfg(ConfigFlags) )
+    result.merge( BarrelPresamplerCalibrationCalculatorCfg(ConfigFlags) )
+    result.merge( BarrelCalibrationCalculatorCfg(ConfigFlags) )
+
+    result.merge( EndcapCryostatCalibrationCalculatorCfg(ConfigFlags) )
+    result.merge( EndcapCryostatCalibrationLArCalculatorCfg(ConfigFlags) )
+    result.merge( EndcapCryostatCalibrationMixedCalculatorCfg(ConfigFlags) )
+    result.merge( EMECSupportCalibrationCalculatorCfg(ConfigFlags) )
+
+    result.merge( HECCalibrationWheelDeadCalculatorCfg(ConfigFlags) )
+
+    kwargs.setdefault("EMBCryoCalibrationCalculator", result.getService("BarrelCryostatCalibrationCalculator"))
+    kwargs.setdefault("EMBCryoLArCalibrationCalculator", result.getService("BarrelCryostatCalibrationLArCalculator"))
+    kwargs.setdefault("DefaultCalibrationCalculator", result.getService("CalibrationDefaultCalculator"))
+    kwargs.setdefault("EMBCryoMixCalibrationCalculator", result.getService("BarrelCryostatCalibrationMixedCalculator"))
+    kwargs.setdefault("DMCalibrationCalculator", result.getService("DMCalibrationCalculator"))
+    kwargs.setdefault("EMBPSCalibrationCalculator", result.getService("BarrelPresamplerCalibrationCalculator"))
+    kwargs.setdefault("EMBCalibrationCalculator", result.getService("BarrelCalibrationCalculator"))
+
+    kwargs.setdefault("ECCryoCalibrationCalculator", result.getService("EndcapCryostatCalibrationCalculator"))
+    kwargs.setdefault("ECCryoLArCalibrationCalculator", result.getService("EndcapCryostatCalibrationLArCalculator"))
+    kwargs.setdefault("ECCryoMixCalibrationCalculator", result.getService("EndcapCryostatCalibrationMixedCalculator"))
+    kwargs.setdefault("EMECSuppCalibrationCalculator", result.getService("EMECSupportCalibrationCalculator"))
+
+    kwargs.setdefault("HECWheelDeadCalculator", result.getService("HECCalibrationWheelDeadCalculator"))
+
+    result.setPrivateTools(LArG4__DeadSDTool(name, **kwargs))
+    return result
 
 def LArEMBSensitiveDetectorCfg(ConfigFlags,name="LArEMBSensitiveDetector", **kwargs):
     result = ComponentAccumulator()
@@ -371,3 +412,15 @@ def LArMiniFCALSensitiveDetectorToolCfg(ConfigFlags, name="LArMiniFCALSensitiveD
 
     result.setPrivateTools(LArG4__MiniFCALSDTool(name, **kwargs))
     return result
+
+
+def CalibrationDefaultCalculatorCfg(ConfigFlags, name="CalibrationDefaultCalculator", **kwargs):
+    result = ComponentAccumulator()
+    result.addService( LArG4__CalibrationDefaultCalculator(name, **kwargs) )
+    return result
+
+#todo -> migrate this
+#def getDeadMaterialCalibrationHitMerger(name="DeadMaterialCalibrationHitMerger", **kwargs):
+#    kwargs.setdefault("InputHits",["LArCalibrationHitDeadMaterial_DEAD","LArCalibrationHitActive_DEAD","LArCalibrationHitInactive_DEAD"])
+#    kwargs.setdefault("OutputHits","LArCalibrationHitDeadMaterial")
+#    return CfgMgr.LArG4__CalibrationHitMerger(name, **kwargs)

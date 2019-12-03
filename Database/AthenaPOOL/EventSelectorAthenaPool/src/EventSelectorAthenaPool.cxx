@@ -365,10 +365,7 @@ void EventSelectorAthenaPool::fireEndFileIncidents(bool isLastFile) const {
             m_incidentSvc->fireIncident(endInputFileIncident);
          }
       }
-      // Fire LastInputFile incident
       if (isLastFile && m_firedIncident) {
-         FileIncident lastInputFileIncident(name(), "LastInputFile", "end");
-         m_incidentSvc->fireIncident(lastInputFileIncident);
          m_firedIncident = false;
       }
    }
@@ -506,10 +503,6 @@ StatusCode EventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) const {
          // Create PoolCollectionConverter for input file
          m_poolCollectionConverter = getCollectionCnv(true);
          if (m_poolCollectionConverter == nullptr) {
-            if (m_processMetadata.value()) {
-               FileIncident lastInputFileIncident(name(), "LastInputFile", "end");
-               m_incidentSvc->fireIncident(lastInputFileIncident);
-            }
             // Return end iterator
             ctxt = *m_endIter;
             return(StatusCode::FAILURE);
@@ -932,13 +925,9 @@ PoolCollectionConverter* EventSelectorAthenaPool::getCollectionCnv(bool throwInc
          delete pCollCnv; pCollCnv = nullptr;
          if (!status.isRecoverable()) {
             ATH_MSG_ERROR("Unable to initialize PoolCollectionConverter.");
- 	    FileIncident inputFileError(name(), "FailInputFile", *m_inputCollectionsIterator);
- 	    m_incidentSvc->fireIncident(inputFileError);
             throw GaudiException("Unable to read: " + *m_inputCollectionsIterator, name(), StatusCode::FAILURE);
          } else {
             ATH_MSG_ERROR("Unable to open: " << *m_inputCollectionsIterator);
- 	    FileIncident inputFileError(name(), "FailInputFile", *m_inputCollectionsIterator);
- 	    m_incidentSvc->fireIncident(inputFileError);
             throw GaudiException("Unable to open: " + *m_inputCollectionsIterator, name(), StatusCode::FAILURE);
          }
       } else {

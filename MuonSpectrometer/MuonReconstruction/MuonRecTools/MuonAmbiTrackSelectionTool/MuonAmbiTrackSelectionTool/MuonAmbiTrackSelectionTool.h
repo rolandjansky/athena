@@ -12,14 +12,14 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkToolInterfaces/IAmbiTrackSelectionTool.h"
-#include "TrkToolInterfaces/IPRD_AssociationTool.h"
+
 #include <map>
 #include <vector>
 
 class Identifier;
 
 namespace Trk{
-class Track;
+   class Track;
 }
 
 
@@ -50,18 +50,12 @@ namespace Muon
     virtual StatusCode initialize();
     /** standard Athena-Algorithm method */
     virtual StatusCode finalize  ();
-      
-    virtual const Trk::Track* getCleanedOutTrack(const Trk::Track*, const Trk::TrackScore score) ;
-    virtual StatusCode registerPRDs(const Trk::Track* ptrTrack);
-    virtual void reset();
-    virtual std::vector<const Trk::PrepRawData*> getPrdsOnTrack(const Trk::Track* ptrTrack) const;
-      
-      
+
+    virtual std::tuple<Trk::Track*,bool> getCleanedOutTrack(const Trk::Track *track,
+                                                            const Trk::TrackScore score,
+                                                            Trk::PRDtoTrackMap &prd_to_track_map) const override;
   private:
-      
-    /**Association tool - used to work out which (if any) PRDs are shared between 
-       tracks*/
-    ToolHandle<Trk::IPRD_AssociationTool> m_assoTool;
+
     ToolHandle<Muon::MuonEDMPrinterTool>  m_printer;
     ToolHandle<Muon::MuonIdHelperTool>    m_idHelperTool;
 
@@ -75,20 +69,5 @@ namespace Muon
     bool m_keepMoreThanOne;
   }; 
 } // end of namespace
-
-inline StatusCode Muon::MuonAmbiTrackSelectionTool::registerPRDs(const Trk::Track* ptrTrack)
-{
-  return m_assoTool->addPRDs(*ptrTrack);
-}
-
-inline void Muon::MuonAmbiTrackSelectionTool::reset()
-{
-  m_assoTool->reset();
-}
-inline std::vector<const Trk::PrepRawData*> Muon::MuonAmbiTrackSelectionTool::getPrdsOnTrack(const Trk::Track* ptrTrack) const
-{
-  return m_assoTool->getPrdsOnTrack(*ptrTrack);
-}
-
 
 #endif 

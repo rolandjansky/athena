@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -29,24 +29,27 @@ class CaloClusterContainerCnvTest_p6
   : public CaloClusterContainerCnv_p6
 {
 public:
+  typedef ElementLinkCnv_p2<ElementLink<CaloShowerContainer> >::State
+    ShowerLinkState;
+  typedef ElementLinkCnv_p2<ElementLink<CaloCellLinkContainer> >::State
+    CellLinkState;
+
   using CaloClusterContainerCnv_p6::transToPers;
   void transToPers (const CaloClusterContainer* trans,
                     CaloClusterContainer_p6* pers,
-                    MsgStream& log);
+                    MsgStream& log) const;
 };
 
 
 void CaloClusterContainerCnvTest_p6::transToPers(const CaloClusterContainer* trans, 
-                                                 CaloClusterContainer_p6* pers, MsgStream &log)
+                                                 CaloClusterContainer_p6* pers, MsgStream &log) const
 {
   if (log.level() <= MSG::DEBUG) log<< MSG::DEBUG << "Writing CaloClusterContainerCnv_p6" << endmsg;
 
 
-  static CaloPhiRange range;
-
   // reset element link converters, and provide container name lookup table
-  m_showerElementLinkCnv.resetForCnv(pers->m_linkNames);
-  m_cellElementLinkCnv.resetForCnv(pers->m_linkNames);
+  ShowerLinkState showerLinkState (pers->m_linkNames);
+  CellLinkState cellLinkState (pers->m_linkNames);
 
   pers->m_vec.resize(trans->size()); 
   CaloClusterContainer_p6::iterator itp=pers->m_vec.begin();
@@ -126,7 +129,10 @@ void CaloClusterContainerCnvTest_p6::transToPers(const CaloClusterContainer* tra
     (*it)->setSignalState(P4SignalState::CALIBRATED);
     //CaloClusterChangeVertexState vertexchange(&cl, 0);
     index++;
-    transToPers(&cl,&(*itp),log); // tP of CaloCluster to CaloCluster_p 
+    transToPers(&cl,&(*itp),
+                showerLinkState,
+                cellLinkState,
+                log); // tP of CaloCluster to CaloCluster_p 
 	
     const CaloSamplingData* trDS=&cl.m_dataStore; //transient
     int nVar=trDS->getNumberOfVariableTypes();
@@ -206,7 +212,7 @@ void CaloClusterContainerCnvTest_p6::transToPers(const CaloClusterContainer* tra
        for (unsigned int i=0;i<badlist->size();i++) {
           pers->m_badClusIndexList.push_back(index);
           float etac = (*badlist)[i].getEta()-(cl.eta());
-          float phic = range.diff((*badlist)[i].getPhi(),cl.phi());
+          float phic = CaloPhiRange::diff((*badlist)[i].getPhi(),cl.phi());
           CaloSampling::CaloSample sampl = (*badlist)[i].getLayer();
           CaloBadChannel flag = (*badlist)[i].getFlag();
           short status =  ((sampl & 0xff) | ((flag.packedData() & 0xff) << 8));
@@ -225,7 +231,7 @@ void CaloClusterContainerCnvTest_p6::transToPers(const CaloClusterContainer* tra
        else
          tmp_rawE.push_back( cl.m_rawE);
        tmp_rawEtaPhiM.push_back( cl.m_rawEta-cl.eta());
-       float dphi = range.diff ( cl.m_rawPhi, cl.phi());
+       float dphi = CaloPhiRange::diff ( cl.m_rawPhi, cl.phi());
        tmp_rawEtaPhiM.push_back( dphi);
        tmp_rawEtaPhiM.push_back( cl.m_rawM);
 
@@ -238,7 +244,7 @@ void CaloClusterContainerCnvTest_p6::transToPers(const CaloClusterContainer* tra
        else
          tmp_altE.push_back( cl.m_altE);
        tmp_altEtaPhiM.push_back( cl.m_altEta-cl.eta());
-       dphi = range.diff ( cl.m_altPhi, cl.phi());
+       dphi = CaloPhiRange::diff ( cl.m_altPhi, cl.phi());
        tmp_altEtaPhiM.push_back( dphi);
        tmp_altEtaPhiM.push_back( cl.m_altM);
 

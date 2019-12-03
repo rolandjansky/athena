@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "xAODShallowAuxContainerCnv.h"
 #include "AthContainers/tools/copyThinned.h"
 #include "AthenaKernel/IThinningSvc.h"
+#include "AthenaKernel/getThinningCache.h"
 
 #include "AthContainers/tools/getThinnedFlags.h"
 #include "AthContainers/AuxTypeRegistry.h"
@@ -14,7 +15,10 @@ xAODShallowAuxContainerCnv::xAODShallowAuxContainerCnv( ISvcLocator* svcLoc ) :
 
 }
 
-xAOD::ShallowAuxContainer* xAODShallowAuxContainerCnv::createPersistent( xAOD::ShallowAuxContainer* trans ) {
+xAOD::ShallowAuxContainer*
+xAODShallowAuxContainerCnv::createPersistentWithKey( xAOD::ShallowAuxContainer* trans,
+                                                     const std::string& key)
+{
 //   std::cout << "Thinning shallow aux, size = " << trans->size() << std::endl;
    if (trans->size() > 0)  {
 
@@ -25,8 +29,9 @@ xAOD::ShallowAuxContainer* xAODShallowAuxContainerCnv::createPersistent( xAOD::S
          size_t size = orig.size();
          std::vector<unsigned char> flags;
          bool thinned = getThinnedFlags (IThinningSvc::instance(), orig, nremaining, flags);
+         const SG::ThinningDecisionBase* dec = SG::getThinningDecision (key);
          //if there is no thinning to do, then just return a regular copy 
-         if(!thinned) return new xAOD::ShallowAuxContainer(orig);
+         if(!thinned && !dec) return new xAOD::ShallowAuxContainer(orig);
          xAOD::ShallowAuxContainer* newcont = new xAOD::ShallowAuxContainer; //dont use copy constructor (like copyThinned.h), want it to have it's own internal store
          newcont->setParent(trans->parent());newcont->setShallowIO(trans->shallowIO());
 
@@ -54,10 +59,12 @@ xAOD::ShallowAuxContainer* xAODShallowAuxContainerCnv::createPersistent( xAOD::S
          
             // Copy over all elements, with thinning.
             for (std::size_t isrc = 0, idst = 0; isrc < size; ++isrc) {
-               if (!thinned || !flags[isrc]) {
-               r.copyForOutput (auxid, dst, idst, src, isrc);
-               ++idst;
-               }
+              if ( ! ((dec && dec->thinned(isrc)) ||
+                      (thinned && flags[isrc])) )
+              {
+                r.copyForOutput (auxid, dst, idst, src, isrc);
+                ++idst;
+              }
             }
          }
 ///End of specialized thinning
@@ -71,6 +78,7 @@ xAOD::ShallowAuxContainer* xAODShallowAuxContainerCnv::createPersistent( xAOD::S
    return new xAOD::ShallowAuxContainer(*trans);
 }
 
-xAOD::ShallowAuxContainer* xAODShallowAuxContainerCnv::createTransient( ) {
+xAOD::ShallowAuxContainer*
+xAODShallowAuxContainerCnv::createTransientWithKey ( const std::string& /*key*/ ) {
    return poolReadObject<xAOD::ShallowAuxContainer>(); 
 }

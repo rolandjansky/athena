@@ -41,6 +41,7 @@ InDetGeometryFlags.useDynamicAlignFolders=True
 
 # Just the pixel and SCT
 DetFlags.ID_setOn()
+DetFlags.Calo_setOn()
 
 
 # Initialize geometry
@@ -84,7 +85,13 @@ trkGeomSvc = ActsTrackingGeometrySvc()
 # used for the proxies during material mapping
 trkGeomSvc.BarrelMaterialBins = [40, 60] # phi z
 trkGeomSvc.EndcapMaterialBins = [50, 20] # phi r
-trkGeomSvc.OutputLevel = INFO
+trkGeomSvc.OutputLevel = VERBOSE
+trkGeomSvc.BuildSubDetectors = [
+  "Pixel",
+  "SCT",
+  "TRT",
+  # "Calo",
+]
 ServiceMgr += trkGeomSvc
 
 # We need the Magnetic fiels
@@ -96,7 +103,9 @@ job = AlgSequence()
 # This is the main extrapolation demo algorithm
 from ActsGeometry.ActsGeometryConf import ActsExtrapolationAlg
 alg = ActsExtrapolationAlg()
+alg.EtaRange = [-5, 5]
 alg.OutputLevel = INFO
+alg.NParticlesPerEvent = int(1e4)
 
 # not really needed right now (also not working)
 # this can be used to test an input material map file
@@ -125,7 +134,7 @@ exTool.TrackingGeometryTool = trkGeomTool
 alg.ExtrapolationTool = exTool
 
 # Make the event heardbeat output a bit nicer
-eventPrintFrequency = 100
+eventPrintFrequency = 10000
 if hasattr(ServiceMgr,"AthenaEventLoopMgr"):
     ServiceMgr.AthenaEventLoopMgr.EventPrintoutInterval = eventPrintFrequency
 if hasattr(ServiceMgr,"AthenaHiveEventLoopMgr"):

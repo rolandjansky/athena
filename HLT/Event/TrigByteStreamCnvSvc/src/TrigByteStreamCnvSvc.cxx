@@ -312,7 +312,7 @@ void TrigByteStreamCnvSvc::monitorRawEvent(const std::unique_ptr<uint32_t[]>& ra
     }
   }
   for (const auto& [moduleId, size] : resultSizes) {
-    m_histResultSizeByModule->Fill(static_cast<float>(moduleId), size*wordsToKiloBytes);
+    m_histResultSizeByModule->Fill(static_cast<float>(moduleId), size*wordsToKiloBytes, 1.0);
   }
   m_histResultSizeTotal->Fill(totalSizeWords*wordsToKiloBytes);
   m_histResultSizeFullEvFrag->Fill(rawEvent.fragment_size_word()*wordsToKiloBytes);
@@ -443,8 +443,7 @@ void TrigByteStreamCnvSvc::bookHistograms() {
   regHist(m_histPebSubDetsFromSubDetList);
 
   m_histResultSizeByModule = new TH2F(
-    "ResultSizeByModule", "HLT result size by module;Module ID;Size [kB]", 1, 0, 1, 100, 0, 1000);
-  m_histResultSizeByModule->SetCanExtend(TH1::kXaxis);
+    "ResultSizeByModule", "HLT result size by module;Module ID;Size [kB]", 10, 0, 10, 100, 0, 1000);
   regHist(m_histResultSizeByModule);
 
   m_histResultSizeByStream = new TH2F(

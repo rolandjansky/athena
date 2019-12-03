@@ -6,39 +6,8 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaCommon.Logging import logging
 from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg
 from LArRecUtils.LArRecUtilsConf import LArMCSymCondAlg
-from DetDescrCnvSvc.DetDescrCnvSvcConfig import DetDescrCnvSvcCfg
 from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDbCfg
 
-def LArADC2MeVCondAlgCfg(flags):
-    from LArRecUtils.LArRecUtilsConf import LArADC2MeVCondAlg 
-    
-    result=ComponentAccumulator()
-    #This CondAlgo needs identifier helpers and the cable map
-    result.merge(LArOnOffIdMappingCfg(flags))
-    result.merge(DetDescrCnvSvcCfg(flags))
-    theADC2MeVCondAlg=LArADC2MeVCondAlg()
-
-    isMC=flags.Input.isMC
-    
-    if isMC:
-        requiredConditons=["Ramp","DAC2uA","uA2MeV","MphysOverMcal","HVScaleCorr"]
-        theADC2MeVCondAlg.LAruA2MeVKey="LAruA2MeVSym"
-        theADC2MeVCondAlg.LArDAC2uAKey="LArDAC2uASym"
-        theADC2MeVCondAlg.LArRampKey="LArRampSym"
-        theADC2MeVCondAlg.LArMphysOverMcalKey="LArMphysOverMcalSym"
-        theADC2MeVCondAlg.LArHVScaleCorrKey="LArHVScaleCorr"
-        theADC2MeVCondAlg.UseFEBGainTresholds=False
-    else: # not MC:
-        requiredConditons=["Ramp","DAC2uA","uA2MeV","MphysOverMcal","HVScaleCorr"]
-        from LArRecUtils.LArFebConfigCondAlgConfig import LArFebConfigCondAlgCfg
-        if 'COMP200' in flags.IOVDb.DatabaseInstance: # Run1 case
-            theADC2MeVCondAlg.LAruA2MeVKey="LAruA2MeVSym"
-            theADC2MeVCondAlg.LArDAC2uAKey="LArDAC2uASym"
-        result.merge(LArFebConfigCondAlgCfg(flags))
-
-    result.merge(LArElecCalibDbCfg(flags,requiredConditons))
-    result.addCondAlgo(theADC2MeVCondAlg,primary=True)
-    return result 
 
 def LArMCSymCondAlgCfg(flags, name="LArMCSymCondAlg", **kwargs):
     """Return ComponentAccumulator with configured LArMCSymCondAlg"""
@@ -46,6 +15,7 @@ def LArMCSymCondAlgCfg(flags, name="LArMCSymCondAlg", **kwargs):
     kwargs.setdefault("ReadKey", "LArOnOffIdMap")
     acc.addCondAlgo(LArMCSymCondAlg(name, **kwargs))
     return acc
+
 
 def LArAutoCorrNoiseCondAlgCfg(flags, name="LArAutoCorrNoiseCondAlg", **kwargs):
     """Return ComponentAccumulator with configured LArAutoCorrNoiseCondAlg"""
@@ -70,17 +40,15 @@ def LArOFCCondAlgCfg (flags, name = 'LArOFCCondAlg', **kwargs):
     kwargs.setdefault ('useHighestGainAutoCorr', flags.LAr.ROD.UseHighestGainAutoCorr)
 
     if flags.LAr.ROD.DoOFCPileupOptimization:
-        if flags.LAr.ROD.NumberOfCollisions():
+        if flags.LAr.ROD.NumberOfCollisions:
             kwargs.setdefault('Nminbias',flags.LAr.ROD.NumberOfCollisions)
             mlog.info("Setup LArOFCCOndAlg Nminbias %f ", flags.LAr.ROD.NumberOfCollisions)
         else:
-            kwargs.setdefault('Nminbias',flags.Beam.numberOfCollisions)
-            mlog.info("Setup LArOFCCOndAlg Nminbias %f " ,flags.Beam.numberOfCollisions)
+            kwargs.setdefault('Nminbias',flags.Beam.NumberOfCollisions)
+            mlog.info("Setup LArOFCCOndAlg Nminbias %f ", flags.Beam.NumberOfCollisions)
     else:
          kwargs.setdefault('Nminbias',0.)
          mlog.info(" no pileup optimization")
-
-      
 
     #The LArPileUpTool needs: Calbling, Shape, Noise, Pedestal and the (total) AutoCorr
     acc = LArOnOffIdMappingCfg(flags)
@@ -104,20 +72,20 @@ def LArAutoCorrTotalCondAlgCfg (flags, name = 'LArAutoCorrTotalCondAlg', **kwarg
     deltaBunch = int(flags.Beam.BunchSpacing/( 25.*ns)+0.5)
     mlog.info("DeltaBunch %d " , deltaBunch)
     kwargs.setdefault('deltaBunch',deltaBunch)
-    
+
     if flags.LAr.ROD.DoOFCPileupOptimization:
         if flags.LAr.ROD.NumberOfCollisions:
-            kwargs.setdefault('Nminbias',flags.LAr.ROD.NumberOfCollisions)
-            mlog.info(" NMminBias %f" , flags.LAr.ROD.NumberOfCollisions) 
-        else: 
-            kwargs.setdefault('Nminbias',flags.Beam.numberOfCollisions)
-            mlog.info(" NMminBias %f" , flags.Beam.numberOfCollisions)
+            kwargs.setdefault("Nminbias", flags.LAr.ROD.NumberOfCollisions)
+            mlog.info(" NMminBias %f", flags.LAr.ROD.NumberOfCollisions)
+        else:
+            kwargs.setdefault("Nminbias", flags.Beam.NumberOfCollisions)
+            mlog.info(" NMminBias %f", flags.Beam.NumberOfCollisions)
     else:
         kwargs.setdefault('Nminbias',0.)
         mlog.info(" no pileup noise in LArAutoCorrTotal ")
 
     #The LArAutoCorrTotalAlg needs cabling and
-    #Shape, AutoCorr, Noise, Pedestal, fSampl and MinBias 
+    #Shape, AutoCorr, Noise, Pedestal, fSampl and MinBias
     acc = LArOnOffIdMappingCfg(flags)
     requiredConditons=["Shape","AutoCorr","Noise","Pedestal","fSampl","MinBias"]
     acc.merge(LArElecCalibDbCfg(flags,requiredConditons))

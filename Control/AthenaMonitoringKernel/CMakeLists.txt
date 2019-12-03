@@ -27,7 +27,8 @@ atlas_add_component(
 )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py 
+                              POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 
 # Unit tests C++:
@@ -60,8 +61,3 @@ foreach ( test_file ${PYTHON_TEST_FILES} )
         PROPERTIES WORKING_DIRECTORY ${rundir}
     )
 endforeach()
-
-# Code quality check
-atlas_add_test( flake8
-    SCRIPT flake8 --select=F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python/*.py
-    POST_EXEC_SCRIPT nopost.sh )

@@ -67,7 +67,7 @@ topSequence += DMTest__AuxDataTestDecor ('AuxDataTestDecor1',
                                          Offset = 100)
 
 # Stream's output file
-from OutputStreamAthenaPool.OutputStreamAthenaPool import createOutputStream
+from OutputStreamAthenaPool.CreateOutputStreams import createOutputStream
 Stream1 = createOutputStream( "Stream1", asAlg = True, noTag = True )
 Stream1.OutputFile =   "auxdata2.root"
 Stream1.ItemList   += fullItemList # List of DO's to write out

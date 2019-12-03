@@ -158,7 +158,7 @@ if __name__ == "__main__":
     ConfigFlags.Tile.doOpt2 = True
     ConfigFlags.Tile.doOptATLAS = True
     ConfigFlags.Tile.NoiseFilter = 1
-
+    ConfigFlags.Output.ESDFileName = "myESD.pool.root"
     ConfigFlags.fillFromArgs()
 
     ConfigFlags.lock()

@@ -1,23 +1,1412 @@
+Flag Name                                : Value
+Beam.BunchSpacing                        : 25
+Beam.Energy                              : [function]
+Beam.NumberOfCollisions                  : [function]
+Beam.Type                                : [function]
+Beam.estimatedLuminosity                 : [function]
+Common.Project                           : 'Athena'
+Common.bunchCrossingSource               : [function]
+Common.doExpressProcessing               : False
+Common.isOnline                          : False
+Common.useOnlineLumi                     : [function]
+Concurrency.NumConcurrentEvents          : 0
+Concurrency.NumProcs                     : 0
+Concurrency.NumThreads                   : 0
+GeoModel.Align.Dynamic                   : [function]
+GeoModel.AtlasVersion                    : 'ATLAS-R2-2016-01-00-01'
+GeoModel.IBLLayout                       : [function]
+GeoModel.Layout                          : 'atlas'
+GeoModel.Run                             : [function]
+GeoModel.StripGeoType                    : [function]
+GeoModel.Type                            : [function]
+IOVDb.DatabaseInstance                   : [function]
+IOVDb.GlobalTag                          : 'CONDBR2-BLKPA-2018-13'
+Input.Collections                        : [function]
+Input.Files                              : ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1']
+Input.Format                             : [function]
+Input.ProjectName                        : [function]
+Input.RunNumber                          : [function]
+Input.SecondaryFiles                     : []
+Input.isMC                               : [function]
+Output.AODFileName                       : ''
+Output.ESDFileName                       : ''
+Output.EVNTFileName                      : ''
+Output.HISTFileName                      : ''
+Output.HITSFileName                      : ''
+Output.RDOFileName                       : ''
+Output.doESD                             : [function]
+Output.doWriteAOD                        : [function]
+Output.doWriteBS                         : False
+Output.doWriteESD                        : [function]
+Output.doWriteRDO                        : [function]
+Random.Engine                            : 'dSFMT'
+Scheduler.CheckDependencies              : True
+Scheduler.ShowControlFlow                : True
+Scheduler.ShowDataDeps                   : True
+Scheduler.ShowDataFlow                   : True
+TrackingGeometry.MagneticFileMode        : 6
+TrackingGeometry.MaterialSource          : 'COOL'
+Flag categories that can be loaded dynamically
+Category        :                 Generator name : Defined in
+BTagging        :                     __btagging : AthenaConfiguration/AllConfigFlags.py
+Calo            :                         __calo : AthenaConfiguration/AllConfigFlags.py
+DQ              :                           __dq : AthenaConfiguration/AllConfigFlags.py
+Detector        :                     __detector : AthenaConfiguration/AllConfigFlags.py
+Digitization    :                 __digitization : AthenaConfiguration/AllConfigFlags.py
+Egamma          :                       __egamma : AthenaConfiguration/AllConfigFlags.py
+LAr             :                          __lar : AthenaConfiguration/AllConfigFlags.py
+Muon            :                         __muon : AthenaConfiguration/AllConfigFlags.py
+Overlay         :                      __overlay : AthenaConfiguration/AllConfigFlags.py
+PF              :                        __pflow : AthenaConfiguration/AllConfigFlags.py
+Sim             :                   __simulation : AthenaConfiguration/AllConfigFlags.py
+Tile            :                         __tile : AthenaConfiguration/AllConfigFlags.py
+Trigger         :                      __trigger : AthenaConfiguration/AllConfigFlags.py
+Py:Athena            INFO About to setup Raw data decoding
+Py:AutoConfigFlags    INFO Obtaining metadata of auto-configuration by peeking into /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1
+Py:MetaReader        INFO Current mode used: peeker
+Py:MetaReader        INFO Current filenames: ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1']
+Py:MetaReader        INFO MetaReader is called with the parameter "unique_tag_info_values" set to True. This is a workaround to remove all duplicate values from "/TagInfo" key
+Py:Athena            INFO using release [WorkDir-22.0.9] [x86_64-centos7-gcc8-opt] [master-enable-new-MT/58a1383162] -- built on [2019-11-26T1418]
+Py:ConfigurableDb    INFO Read module info for 5633 configurables from 4 genConfDb files
+Py:ConfigurableDb    INFO No duplicates have been found: that's good !
+Py:Athena            INFO Importing MuonCnvExample.MuonCnvUtils
+Py:Athena            INFO Importing MagFieldServices.MagFieldServicesConfig
+EventInfoMgtInit: Got release version  Athena-22.0.9
+Py:IOVDbSvc.CondDB    INFO Setting up conditions DB access to instance OFLP200
+Py:Athena            INFO Print Config
+Py:ComponentAccumulator    INFO Event Inputs
+Py:ComponentAccumulator    INFO Event Algorithm Sequences
+Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ************************************************************
+|-Atomic                     = False
+|-AuditAlgorithms            = False
+|-AuditBeginRun              = False
+|-AuditEndRun                = False
+|-AuditExecute               = False
+|-AuditFinalize              = False
+|-AuditInitialize            = False
+|-AuditReinitialize          = False
+|-AuditRestart               = False
+|-AuditStart                 = False
+|-AuditStop                  = False
+|-Cardinality                = 0
+|-ContinueEventloopOnFPE     = False
+|-DetStore                   = ServiceHandle('StoreGateSvc/DetectorStore')
+|-Enable                     = True
+|-ErrorCounter               = 0
+|-ErrorMax                   = 1
+|-EvtStore                   = ServiceHandle('StoreGateSvc')
+|-ExtraInputs                = []  (default: [])
+|-ExtraOutputs               = []  (default: [])
+|-FilterCircularDependencies = True
+|-IgnoreFilterPassed         = False
+|-IsIOBound                  = False
+|-Members                    = ['Muon::RpcRawDataProvider/RpcRawDataProvider', 'Muon::TgcRawDataProvider/TgcRawDataProvider', 'Muon::MdtRawDataProvider/MdtRawDataProvider', 'Muon::CscRawDataProvider/CscRawDataProvider', 'RpcRdoToRpcPrepData/RpcRdoToRpcPrepData', 'TgcRdoToTgcPrepData/TgcRdoToTgcPrepData', 'MdtRdoToMdtPrepData/MdtRdoToMdtPrepData', 'CscRdoToCscPrepData/CscRdoToCscPrepData', 'CscThresholdClusterBuilder/CscThresholdClusterBuilder']
+|                            (default: [])
+|-ModeOR                     = False
+|-MonitorService             = 'MonitorSvc'
+|-NeededResources            = []  (default: [])
+|-OutputLevel                = 0
+|-RegisterForContextService  = False
+|-Sequential                 = True  (default: False)
+|-StopOverride               = False
+|-TimeOut                    = 0.0
+|-Timeline                   = True
+|=/***** Algorithm Muon::RpcRawDataProvider/RpcRawDataProvider ***************************************
+| |-AuditAlgorithms            = False
+| |-AuditBeginRun              = False
+| |-AuditEndRun                = False
+| |-AuditExecute               = False
+| |-AuditFinalize              = False
+| |-AuditInitialize            = False
+| |-AuditReinitialize          = False
+| |-AuditRestart               = False
+| |-AuditStart                 = False
+| |-AuditStop                  = False
+| |-Cardinality                = 1
+| |-DetStore                   = ServiceHandle('StoreGateSvc/DetectorStore')
+| |-DoSeededDecoding           = False
+| |-Enable                     = True
+| |-ErrorCounter               = 0
+| |-ErrorMax                   = 1
+| |-EvtStore                   = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                = []  (default: [])
+| |-ExtraOutputs               = []  (default: [])
+| |-FilterCircularDependencies = True
+| |-IsIOBound                  = False
+| |-MonitorService             = 'MonitorSvc'
+| |-NeededResources            = []  (default: [])
+| |-OutputLevel                = 0
+| |-ProviderTool               = PrivateToolHandle('Muon::RPC_RawDataProviderToolMT/RPC_RawDataProviderToolMT')
+| |                            (default: 'Muon::RPC_RawDataProviderTool/RpcRawDataProviderTool')
+| |-RegionSelectionSvc         = ServiceHandle('RegSelSvc')
+| |-RegisterForContextService  = False
+| |-RoIs                       = 'StoreGateSvc+OutputRoIs'
+| |-Timeline                   = True
+| |=/***** Private AlgTool Muon::RPC_RawDataProviderToolMT/RPC_RawDataProviderToolMT *******************
+| | |-AuditFinalize          = False
+| | |-AuditInitialize        = False
+| | |-AuditReinitialize      = False
+| | |-AuditRestart           = False
+| | |-AuditStart             = False
+| | |-AuditStop              = False
+| | |-AuditTools             = False
+| | |-Decoder                = PrivateToolHandle('Muon::RpcROD_Decoder/RpcROD_Decoder')
+| | |-DetStore               = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore               = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs            = []  (default: [])
+| | |-ExtraOutputs           = []  (default: [])
+| | |-MonitorService         = 'MonitorSvc'
+| | |-OutputLevel            = 0
+| | |-RPCSec                 = 'StoreGateSvc+RPC_SECTORLOGIC'
+| | |-RdoLocation            = 'StoreGateSvc+RPCPAD'
+| | |-RpcContainerCacheKey   = 'StoreGateSvc+'
+| | |-WriteOutRpcSectorLogic = True
+| | |=/***** Private AlgTool Muon::RpcROD_Decoder/RpcROD_Decoder *****************************************
+| | | |-AuditFinalize       = False
+| | | |-AuditInitialize     = False
+| | | |-AuditReinitialize   = False
+| | | |-AuditRestart        = False
+| | | |-AuditStart          = False
+| | | |-AuditStop           = False
+| | | |-AuditTools          = False
+| | | |-DataErrorPrintLimit = 1000
+| | | |-DetStore            = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore            = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs         = []  (default: [])
+| | | |-ExtraOutputs        = []  (default: [])
+| | | |-MonitorService      = 'MonitorSvc'
+| | | |-OutputLevel         = 0
+| | | |-Sector13Data        = False
+| | | |-SpecialROBNumber    = -1
+| | | |-idHelper            = PrivateToolHandle('Muon::MuonIdHelperTool/MuonIdHelperTool')
+| | | |=/***** Private AlgTool Muon::MuonIdHelperTool/MuonIdHelperTool *************************************
+| | | | |-AuditFinalize     = False
+| | | | |-AuditInitialize   = False
+| | | | |-AuditReinitialize = False
+| | | | |-AuditRestart      = False
+| | | | |-AuditStart        = False
+| | | | |-AuditStop         = False
+| | | | |-AuditTools        = False
+| | | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | | |-EvtStore          = ServiceHandle('StoreGateSvc')
+| | | | |-ExtraInputs       = []  (default: [])
+| | | | |-ExtraOutputs      = []  (default: [])
+| | | | |-MonitorService    = 'MonitorSvc'
+| | | | |-OutputLevel       = 0
+| | | | |-idHelper          = ServiceHandle('Muon::MuonIdHelperSvc/MuonIdHelperSvc')
+| | | | \----- (End of Private AlgTool Muon::MuonIdHelperTool/MuonIdHelperTool) ----------------------------
+| | | \----- (End of Private AlgTool Muon::RpcROD_Decoder/RpcROD_Decoder) --------------------------------
+| | \----- (End of Private AlgTool Muon::RPC_RawDataProviderToolMT/RPC_RawDataProviderToolMT) ----------
+| \----- (End of Algorithm Muon::RpcRawDataProvider/RpcRawDataProvider) ------------------------------
+|=/***** Algorithm Muon::TgcRawDataProvider/TgcRawDataProvider ***************************************
+| |-AuditAlgorithms            = False
+| |-AuditBeginRun              = False
+| |-AuditEndRun                = False
+| |-AuditExecute               = False
+| |-AuditFinalize              = False
+| |-AuditInitialize            = False
+| |-AuditReinitialize          = False
+| |-AuditRestart               = False
+| |-AuditStart                 = False
+| |-AuditStop                  = False
+| |-Cardinality                = 1
+| |-DetStore                   = ServiceHandle('StoreGateSvc/DetectorStore')
+| |-DoSeededDecoding           = False
+| |-Enable                     = True
+| |-ErrorCounter               = 0
+| |-ErrorMax                   = 1
+| |-EvtStore                   = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                = []  (default: [])
+| |-ExtraOutputs               = []  (default: [])
+| |-FilterCircularDependencies = True
+| |-IsIOBound                  = False
+| |-MonitorService             = 'MonitorSvc'
+| |-NeededResources            = []  (default: [])
+| |-OutputLevel                = 0
+| |-ProviderTool               = PrivateToolHandle('Muon::TGC_RawDataProviderToolMT/TGC_RawDataProviderToolMT')
+| |                            (default: 'Muon::TGC_RawDataProviderTool/TgcRawDataProviderTool')
+| |-RegionSelectionSvc         = ServiceHandle('RegSelSvc')
+| |-RegisterForContextService  = False
+| |-RoIs                       = 'StoreGateSvc+OutputRoIs'
+| |-Timeline                   = True
+| |=/***** Private AlgTool Muon::TGC_RawDataProviderToolMT/TGC_RawDataProviderToolMT *******************
+| | |-AuditFinalize        = False
+| | |-AuditInitialize      = False
+| | |-AuditReinitialize    = False
+| | |-AuditRestart         = False
+| | |-AuditStart           = False
+| | |-AuditStop            = False
+| | |-AuditTools           = False
+| | |-Decoder              = PrivateToolHandle('Muon::TGC_RodDecoderReadout/TgcROD_Decoder')
+| | |                      (default: 'Muon::TGC_RodDecoderReadout/TGC_RodDecoderReadout')
+| | |-DetStore             = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore             = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs          = []  (default: [])
+| | |-ExtraOutputs         = []  (default: [])
+| | |-MonitorService       = 'MonitorSvc'
+| | |-OutputLevel          = 0
+| | |-RdoLocation          = 'StoreGateSvc+TGCRDO'
+| | |-TgcContainerCacheKey = 'StoreGateSvc+'
+| | |=/***** Private AlgTool Muon::TGC_RodDecoderReadout/TgcROD_Decoder **********************************
+| | | |-AuditFinalize     = False
+| | | |-AuditInitialize   = False
+| | | |-AuditReinitialize = False
+| | | |-AuditRestart      = False
+| | | |-AuditStart        = False
+| | | |-AuditStop         = False
+| | | |-AuditTools        = False
+| | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore          = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs       = []  (default: [])
+| | | |-ExtraOutputs      = []  (default: [])
+| | | |-MonitorService    = 'MonitorSvc'
+| | | |-OutputLevel       = 0
+| | | |-ShowStatusWords   = False
+| | | |-SkipCoincidence   = False
+| | | \----- (End of Private AlgTool Muon::TGC_RodDecoderReadout/TgcROD_Decoder) -------------------------
+| | \----- (End of Private AlgTool Muon::TGC_RawDataProviderToolMT/TGC_RawDataProviderToolMT) ----------
+| \----- (End of Algorithm Muon::TgcRawDataProvider/TgcRawDataProvider) ------------------------------
+|=/***** Algorithm Muon::MdtRawDataProvider/MdtRawDataProvider ***************************************
+| |-ALineMapContainer          = 'ConditionStore+ALineMapContainer'
+| |-AuditAlgorithms            = False
+| |-AuditBeginRun              = False
+| |-AuditEndRun                = False
+| |-AuditExecute               = False
+| |-AuditFinalize              = False
+| |-AuditInitialize            = False
+| |-AuditReinitialize          = False
+| |-AuditRestart               = False
+| |-AuditStart                 = False
+| |-AuditStop                  = False
+| |-Cardinality                = 1
+| |-DetStore                   = ServiceHandle('StoreGateSvc/DetectorStore')
+| |-DoSeededDecoding           = False
+| |-Enable                     = True
+| |-ErrorCounter               = 0
+| |-ErrorMax                   = 1
+| |-EvtStore                   = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                = []  (default: [])
+| |-ExtraOutputs               = []  (default: [])
+| |-FilterCircularDependencies = True
+| |-IsIOBound                  = False
+| |-MonitorService             = 'MonitorSvc'
+| |-NeededResources            = []  (default: [])
+| |-OutputLevel                = 0
+| |-ProviderTool               = PrivateToolHandle('Muon::MDT_RawDataProviderToolMT/MDT_RawDataProviderToolMT')
+| |                            (default: 'Muon::MDT_RawDataProviderTool/MdtRawDataProviderTool')
+| |-RegionSelectionSvc         = ServiceHandle('RegSelSvc')
+| |-RegisterForContextService  = False
+| |-RoIs                       = 'StoreGateSvc+OutputRoIs'
+| |-Timeline                   = True
+| |=/***** Private AlgTool Muon::MDT_RawDataProviderToolMT/MDT_RawDataProviderToolMT *******************
+| | |-AuditFinalize        = False
+| | |-AuditInitialize      = False
+| | |-AuditReinitialize    = False
+| | |-AuditRestart         = False
+| | |-AuditStart           = False
+| | |-AuditStop            = False
+| | |-AuditTools           = False
+| | |-CsmContainerCacheKey = 'StoreGateSvc+'
+| | |-Decoder              = PrivateToolHandle('MdtROD_Decoder/MdtROD_Decoder')
+| | |-DetStore             = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore             = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs          = []  (default: [])
+| | |-ExtraOutputs         = []  (default: [])
+| | |-MonitorService       = 'MonitorSvc'
+| | |-OutputLevel          = 0
+| | |-RdoLocation          = 'StoreGateSvc+MDTCSM'
+| | |-ReadKey              = 'ConditionStore+MuonMDT_CablingMap'
+| | |=/***** Private AlgTool MdtROD_Decoder/MdtROD_Decoder ***********************************************
+| | | |-AuditFinalize     = False
+| | | |-AuditInitialize   = False
+| | | |-AuditReinitialize = False
+| | | |-AuditRestart      = False
+| | | |-AuditStart        = False
+| | | |-AuditStop         = False
+| | | |-AuditTools        = False
+| | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore          = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs       = []  (default: [])
+| | | |-ExtraOutputs      = []  (default: [])
+| | | |-MonitorService    = 'MonitorSvc'
+| | | |-OutputLevel       = 0
+| | | |-ReadKey           = 'ConditionStore+MuonMDT_CablingMap'
+| | | |-SpecialROBNumber  = -1
+| | | |-idHelper          = PrivateToolHandle('Muon::MuonIdHelperTool/MuonIdHelperTool')
+| | | |=/***** Private AlgTool Muon::MuonIdHelperTool/MuonIdHelperTool *************************************
+| | | | |-AuditFinalize     = False
+| | | | |-AuditInitialize   = False
+| | | | |-AuditReinitialize = False
+| | | | |-AuditRestart      = False
+| | | | |-AuditStart        = False
+| | | | |-AuditStop         = False
+| | | | |-AuditTools        = False
+| | | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | | |-EvtStore          = ServiceHandle('StoreGateSvc')
+| | | | |-ExtraInputs       = []  (default: [])
+| | | | |-ExtraOutputs      = []  (default: [])
+| | | | |-MonitorService    = 'MonitorSvc'
+| | | | |-OutputLevel       = 0
+| | | | |-idHelper          = ServiceHandle('Muon::MuonIdHelperSvc/MuonIdHelperSvc')
+| | | | \----- (End of Private AlgTool Muon::MuonIdHelperTool/MuonIdHelperTool) ----------------------------
+| | | \----- (End of Private AlgTool MdtROD_Decoder/MdtROD_Decoder) --------------------------------------
+| | \----- (End of Private AlgTool Muon::MDT_RawDataProviderToolMT/MDT_RawDataProviderToolMT) ----------
+| \----- (End of Algorithm Muon::MdtRawDataProvider/MdtRawDataProvider) ------------------------------
+|=/***** Algorithm Muon::CscRawDataProvider/CscRawDataProvider ***************************************
+| |-AuditAlgorithms            = False
+| |-AuditBeginRun              = False
+| |-AuditEndRun                = False
+| |-AuditExecute               = False
+| |-AuditFinalize              = False
+| |-AuditInitialize            = False
+| |-AuditReinitialize          = False
+| |-AuditRestart               = False
+| |-AuditStart                 = False
+| |-AuditStop                  = False
+| |-Cardinality                = 1
+| |-DetStore                   = ServiceHandle('StoreGateSvc/DetectorStore')
+| |-DoSeededDecoding           = False
+| |-Enable                     = True
+| |-ErrorCounter               = 0
+| |-ErrorMax                   = 1
+| |-EvtStore                   = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                = []  (default: [])
+| |-ExtraOutputs               = []  (default: [])
+| |-FilterCircularDependencies = True
+| |-IsIOBound                  = False
+| |-MonitorService             = 'MonitorSvc'
+| |-NeededResources            = []  (default: [])
+| |-OutputLevel                = 0
+| |-ProviderTool               = PrivateToolHandle('Muon::CSC_RawDataProviderToolMT/CSC_RawDataProviderToolMT')
+| |                            (default: 'Muon::CSC_RawDataProviderTool/CscRawDataProviderTool')
+| |-RegionSelectionSvc         = ServiceHandle('RegSelSvc')
+| |-RegisterForContextService  = False
+| |-RoIs                       = 'StoreGateSvc+OutputRoIs'
+| |-Timeline                   = True
+| |=/***** Private AlgTool Muon::CSC_RawDataProviderToolMT/CSC_RawDataProviderToolMT *******************
+| | |-AuditFinalize        = False
+| | |-AuditInitialize      = False
+| | |-AuditReinitialize    = False
+| | |-AuditRestart         = False
+| | |-AuditStart           = False
+| | |-AuditStop            = False
+| | |-AuditTools           = False
+| | |-CscContainerCacheKey = 'StoreGateSvc+'
+| | |-Decoder              = PrivateToolHandle('Muon::CscROD_Decoder/CscROD_Decoder')
+| | |-DetStore             = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EventInfoKey         = 'StoreGateSvc+EventInfo'
+| | |-EvtStore             = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs          = []  (default: [])
+| | |-ExtraOutputs         = []  (default: [])
+| | |-MonitorService       = 'MonitorSvc'
+| | |-OutputLevel          = 0
+| | |-RdoLocation          = 'StoreGateSvc+CSCRDO'
+| | |-idHelper             = PrivateToolHandle('Muon::MuonIdHelperTool/MuonIdHelperTool')
+| | |=/***** Private AlgTool Muon::CscROD_Decoder/CscROD_Decoder *****************************************
+| | | |-AuditFinalize     = False
+| | | |-AuditInitialize   = False
+| | | |-AuditReinitialize = False
+| | | |-AuditRestart      = False
+| | | |-AuditStart        = False
+| | | |-AuditStop         = False
+| | | |-AuditTools        = False
+| | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore          = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs       = []  (default: [])
+| | | |-ExtraOutputs      = []  (default: [])
+| | | |-IsCosmics         = False
+| | | |-IsOldCosmics      = False
+| | | |-MonitorService    = 'MonitorSvc'
+| | | |-OutputLevel       = 0
+| | | |-idHelper          = PrivateToolHandle('Muon::MuonIdHelperTool/MuonIdHelperTool')
+| | | |=/***** Private AlgTool Muon::MuonIdHelperTool/MuonIdHelperTool *************************************
+| | | | |-AuditFinalize     = False
+| | | | |-AuditInitialize   = False
+| | | | |-AuditReinitialize = False
+| | | | |-AuditRestart      = False
+| | | | |-AuditStart        = False
+| | | | |-AuditStop         = False
+| | | | |-AuditTools        = False
+| | | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | | |-EvtStore          = ServiceHandle('StoreGateSvc')
+| | | | |-ExtraInputs       = []  (default: [])
+| | | | |-ExtraOutputs      = []  (default: [])
+| | | | |-MonitorService    = 'MonitorSvc'
+| | | | |-OutputLevel       = 0
+| | | | |-idHelper          = ServiceHandle('Muon::MuonIdHelperSvc/MuonIdHelperSvc')
+| | | | \----- (End of Private AlgTool Muon::MuonIdHelperTool/MuonIdHelperTool) ----------------------------
+| | | \----- (End of Private AlgTool Muon::CscROD_Decoder/CscROD_Decoder) --------------------------------
+| | |=/***** Private AlgTool Muon::MuonIdHelperTool/MuonIdHelperTool *************************************
+| | | |-AuditFinalize     = False
+| | | |-AuditInitialize   = False
+| | | |-AuditReinitialize = False
+| | | |-AuditRestart      = False
+| | | |-AuditStart        = False
+| | | |-AuditStop         = False
+| | | |-AuditTools        = False
+| | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore          = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs       = []  (default: [])
+| | | |-ExtraOutputs      = []  (default: [])
+| | | |-MonitorService    = 'MonitorSvc'
+| | | |-OutputLevel       = 0
+| | | |-idHelper          = ServiceHandle('Muon::MuonIdHelperSvc/MuonIdHelperSvc')
+| | | \----- (End of Private AlgTool Muon::MuonIdHelperTool/MuonIdHelperTool) ----------------------------
+| | \----- (End of Private AlgTool Muon::CSC_RawDataProviderToolMT/CSC_RawDataProviderToolMT) ----------
+| \----- (End of Algorithm Muon::CscRawDataProvider/CscRawDataProvider) ------------------------------
+|=/***** Algorithm RpcRdoToRpcPrepData/RpcRdoToRpcPrepData *******************************************
+| |-AuditAlgorithms            = False
+| |-AuditBeginRun              = False
+| |-AuditEndRun                = False
+| |-AuditExecute               = False
+| |-AuditFinalize              = False
+| |-AuditInitialize            = False
+| |-AuditReinitialize          = False
+| |-AuditRestart               = False
+| |-AuditStart                 = False
+| |-AuditStop                  = False
+| |-Cardinality                = 1
+| |-DecodingTool               = PrivateToolHandle('Muon::RpcRdoToPrepDataToolMT/RpcRdoToRpcPrepDataTool')
+| |                            (default: 'Muon::RpcRdoToPrepDataTool/RpcRdoToPrepDataTool')
+| |-DetStore                   = ServiceHandle('StoreGateSvc/DetectorStore')
+| |-DoSeededDecoding           = False
+| |-Enable                     = True
+| |-ErrorCounter               = 0
+| |-ErrorMax                   = 1
+| |-EvtStore                   = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                = []  (default: [])
+| |-ExtraOutputs               = []  (default: [])
+| |-FilterCircularDependencies = True
+| |-IsIOBound                  = False
+| |-MonitorService             = 'MonitorSvc'
+| |-NeededResources            = []  (default: [])
+| |-OutputCollection           = 'StoreGateSvc+RPC_Measurements'
+| |-OutputLevel                = 0
+| |-PrintInputRdo              = False
+| |-PrintPrepData              = False  (default: False)
+| |-RegionSelectionSvc         = ServiceHandle('RegSelSvc')
+| |-RegisterForContextService  = False
+| |-RoIs                       = 'StoreGateSvc+OutputRoIs'
+| |-Timeline                   = True
+| |=/***** Private AlgTool Muon::RpcRdoToPrepDataToolMT/RpcRdoToRpcPrepDataTool ************************
+| | |-AuditFinalize                      = False
+| | |-AuditInitialize                    = False
+| | |-AuditReinitialize                  = False
+| | |-AuditRestart                       = False
+| | |-AuditStart                         = False
+| | |-AuditStop                          = False
+| | |-AuditTools                         = False
+| | |-DecodeData                         = True
+| | |-DetStore                           = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore                           = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs                        = []  (default: [])
+| | |-ExtraOutputs                       = []  (default: [])
+| | |-InputCollection                    = 'StoreGateSvc+RPC_triggerHits'
+| | |-MonitorService                     = 'MonitorSvc'
+| | |-OutputCollection                   = 'StoreGateSvc+RPCPAD'
+| | |-OutputLevel                        = 0
+| | |-RPCInfoFromDb                      = False
+| | |-RdoDecoderTool                     = PrivateToolHandle('Muon::RpcRDO_Decoder/Muon::RpcRDO_Decoder')
+| | |                                    (default: 'Muon::RpcRDO_Decoder')
+| | |-ReadKey                            = 'ConditionStore+RpcCondDbData'
+| | |-TriggerOutputCollection            = 'StoreGateSvc+RPC_Measurements'
+| | |-etaphi_coincidenceTime             = 20.0
+| | |-idHelper                           = PrivateToolHandle('Muon::MuonIdHelperTool/MuonIdHelperTool')
+| | |-overlap_timeTolerance              = 10.0
+| | |-processingData                     = False
+| | |-produceRpcCoinDatafromTriggerWords = True
+| | |-reduceCablingOverlap               = True
+| | |-solvePhiAmbiguities                = True
+| | |-timeShift                          = -12.5
+| | |=/***** Private AlgTool Muon::RpcRDO_Decoder/Muon::RpcRDO_Decoder ***********************************
+| | | |-AuditFinalize     = False
+| | | |-AuditInitialize   = False
+| | | |-AuditReinitialize = False
+| | | |-AuditRestart      = False
+| | | |-AuditStart        = False
+| | | |-AuditStop         = False
+| | | |-AuditTools        = False
+| | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore          = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs       = []  (default: [])
+| | | |-ExtraOutputs      = []  (default: [])
+| | | |-MonitorService    = 'MonitorSvc'
+| | | |-OutputLevel       = 0
+| | | |-idHelper          = PrivateToolHandle('Muon::MuonIdHelperTool/MuonIdHelperTool')
+| | | |=/***** Private AlgTool Muon::MuonIdHelperTool/MuonIdHelperTool *************************************
+| | | | |-AuditFinalize     = False
+| | | | |-AuditInitialize   = False
+| | | | |-AuditReinitialize = False
+| | | | |-AuditRestart      = False
+| | | | |-AuditStart        = False
+| | | | |-AuditStop         = False
+| | | | |-AuditTools        = False
+| | | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | | |-EvtStore          = ServiceHandle('StoreGateSvc')
+| | | | |-ExtraInputs       = []  (default: [])
+| | | | |-ExtraOutputs      = []  (default: [])
+| | | | |-MonitorService    = 'MonitorSvc'
+| | | | |-OutputLevel       = 0
+| | | | |-idHelper          = ServiceHandle('Muon::MuonIdHelperSvc/MuonIdHelperSvc')
+| | | | \----- (End of Private AlgTool Muon::MuonIdHelperTool/MuonIdHelperTool) ----------------------------
+| | | \----- (End of Private AlgTool Muon::RpcRDO_Decoder/Muon::RpcRDO_Decoder) --------------------------
+| | |=/***** Private AlgTool Muon::MuonIdHelperTool/MuonIdHelperTool *************************************
+| | | |-AuditFinalize     = False
+| | | |-AuditInitialize   = False
+| | | |-AuditReinitialize = False
+| | | |-AuditRestart      = False
+| | | |-AuditStart        = False
+| | | |-AuditStop         = False
+| | | |-AuditTools        = False
+| | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore          = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs       = []  (default: [])
+| | | |-ExtraOutputs      = []  (default: [])
+| | | |-MonitorService    = 'MonitorSvc'
+| | | |-OutputLevel       = 0
+| | | |-idHelper          = ServiceHandle('Muon::MuonIdHelperSvc/MuonIdHelperSvc')
+| | | \----- (End of Private AlgTool Muon::MuonIdHelperTool/MuonIdHelperTool) ----------------------------
+| | \----- (End of Private AlgTool Muon::RpcRdoToPrepDataToolMT/RpcRdoToRpcPrepDataTool) ---------------
+| \----- (End of Algorithm RpcRdoToRpcPrepData/RpcRdoToRpcPrepData) ----------------------------------
+|=/***** Algorithm TgcRdoToTgcPrepData/TgcRdoToTgcPrepData *******************************************
+| |-AuditAlgorithms            = False
+| |-AuditBeginRun              = False
+| |-AuditEndRun                = False
+| |-AuditExecute               = False
+| |-AuditFinalize              = False
+| |-AuditInitialize            = False
+| |-AuditReinitialize          = False
+| |-AuditRestart               = False
+| |-AuditStart                 = False
+| |-AuditStop                  = False
+| |-Cardinality                = 1
+| |-DecodingTool               = PrivateToolHandle('Muon::TgcRdoToPrepDataToolMT/TgcRdoToTgcPrepDataTool')
+| |                            (default: 'Muon::TgcRdoToPrepDataTool/TgcPrepDataProviderTool')
+| |-DetStore                   = ServiceHandle('StoreGateSvc/DetectorStore')
+| |-DoSeededDecoding           = False
+| |-Enable                     = True
+| |-ErrorCounter               = 0
+| |-ErrorMax                   = 1
+| |-EvtStore                   = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                = []  (default: [])
+| |-ExtraOutputs               = []  (default: [])
+| |-FilterCircularDependencies = True
+| |-IsIOBound                  = False
+| |-MonitorService             = 'MonitorSvc'
+| |-NeededResources            = []  (default: [])
+| |-OutputCollection           = 'StoreGateSvc+TGC_Measurements'
+| |-OutputLevel                = 0
+| |-PrintInputRdo              = False
+| |-PrintPrepData              = False  (default: False)
+| |-RegionSelectorSvc          = ServiceHandle('RegSelSvc')
+| |-RegisterForContextService  = False
+| |-RoIs                       = 'StoreGateSvc+OutputRoIs'
+| |-Setting                    = 0
+| |-Timeline                   = True
+| |=/***** Private AlgTool Muon::TgcRdoToPrepDataToolMT/TgcRdoToTgcPrepDataTool ************************
+| | |-AuditFinalize                           = False
+| | |-AuditInitialize                         = False
+| | |-AuditReinitialize                       = False
+| | |-AuditRestart                            = False
+| | |-AuditStart                              = False
+| | |-AuditStop                               = False
+| | |-AuditTools                              = False
+| | |-DecodeData                              = True
+| | |-DetStore                                = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore                                = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs                             = []  (default: [])
+| | |-ExtraOutputs                            = []  (default: [])
+| | |-FillCoinData                            = True
+| | |-MonitorService                          = 'MonitorSvc'
+| | |-OutputCoinCollection                    = 'TrigT1CoinDataCollection'
+| | |-OutputCollection                        = 'TGC_Measurements'
+| | |-OutputLevel                             = 0
+| | |-RDOContainer                            = 'StoreGateSvc+TGCRDO'
+| | |-TGCHashIdOffset                         = 26000
+| | |-dropPrdsWithZeroWidth                   = True
+| | |-idHelper                                = PrivateToolHandle('Muon::MuonIdHelperTool/MuonIdHelperTool')
+| | |-outputCoinKey                           = ['StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy']
+| | |                                         (default: ['StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy'])
+| | |-prepDataKeys                            = ['StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy']
+| | |                                         (default: ['StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy', 'StoreGateSvc+dummy'])
+| | |-show_warning_level_invalid_A09_SSW6_hit = False
+| | |=/***** Private AlgTool Muon::MuonIdHelperTool/MuonIdHelperTool *************************************
+| | | |-AuditFinalize     = False
+| | | |-AuditInitialize   = False
+| | | |-AuditReinitialize = False
+| | | |-AuditRestart      = False
+| | | |-AuditStart        = False
+| | | |-AuditStop         = False
+| | | |-AuditTools        = False
+| | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore          = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs       = []  (default: [])
+| | | |-ExtraOutputs      = []  (default: [])
+| | | |-MonitorService    = 'MonitorSvc'
+| | | |-OutputLevel       = 0
+| | | |-idHelper          = ServiceHandle('Muon::MuonIdHelperSvc/MuonIdHelperSvc')
+| | | \----- (End of Private AlgTool Muon::MuonIdHelperTool/MuonIdHelperTool) ----------------------------
+| | \----- (End of Private AlgTool Muon::TgcRdoToPrepDataToolMT/TgcRdoToTgcPrepDataTool) ---------------
+| \----- (End of Algorithm TgcRdoToTgcPrepData/TgcRdoToTgcPrepData) ----------------------------------
+|=/***** Algorithm MdtRdoToMdtPrepData/MdtRdoToMdtPrepData *******************************************
+| |-AuditAlgorithms            = False
+| |-AuditBeginRun              = False
+| |-AuditEndRun                = False
+| |-AuditExecute               = False
+| |-AuditFinalize              = False
+| |-AuditInitialize            = False
+| |-AuditReinitialize          = False
+| |-AuditRestart               = False
+| |-AuditStart                 = False
+| |-AuditStop                  = False
+| |-Cardinality                = 1
+| |-DecodingTool               = PrivateToolHandle('Muon::MdtRdoToPrepDataToolMT/MdtRdoToMdtPrepDataTool')
+| |                            (default: 'Muon::MdtRdoToPrepDataTool/MdtPrepDataProviderTool')
+| |-DetStore                   = ServiceHandle('StoreGateSvc/DetectorStore')
+| |-DoSeededDecoding           = False
+| |-Enable                     = True
+| |-ErrorCounter               = 0
+| |-ErrorMax                   = 1
+| |-EvtStore                   = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                = []  (default: [])
+| |-ExtraOutputs               = []  (default: [])
+| |-FilterCircularDependencies = True
+| |-IsIOBound                  = False
+| |-MonitorService             = 'MonitorSvc'
+| |-NeededResources            = []  (default: [])
+| |-OutputCollection           = 'StoreGateSvc+MDT_DriftCircles'
+| |-OutputLevel                = 0
+| |-PrintInputRdo              = False
+| |-PrintPrepData              = False  (default: False)
+| |-RegionSelectionSvc         = ServiceHandle('RegSelSvc')
+| |-RegisterForContextService  = False
+| |-RoIs                       = 'StoreGateSvc+OutputRoIs'
+| |-Timeline                   = True
+| |=/***** Private AlgTool Muon::MdtRdoToPrepDataToolMT/MdtRdoToMdtPrepDataTool ************************
+| | |-AuditFinalize           = False
+| | |-AuditInitialize         = False
+| | |-AuditReinitialize       = False
+| | |-AuditRestart            = False
+| | |-AuditStart              = False
+| | |-AuditStop               = False
+| | |-AuditTools              = False
+| | |-CalibratePrepData       = True
+| | |-CalibrationTool         = PrivateToolHandle('MdtCalibrationTool/MdtCalibrationTool')
+| | |                         (default: 'MdtCalibrationTool')
+| | |-DecodeData              = True
+| | |-DetStore                = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-DiscardSecondaryHitTwin = False
+| | |-DoPropagationCorrection = False
+| | |-DoTofCorrection         = True
+| | |-EvtStore                = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs             = []  (default: [])
+| | |-ExtraOutputs            = []  (default: [])
+| | |-MonitorService          = 'MonitorSvc'
+| | |-OutputCollection        = 'StoreGateSvc+MDT_DriftCircles'
+| | |-OutputLevel             = 0
+| | |-RDOContainer            = 'StoreGateSvc+MDTCSM'
+| | |-ReadKey                 = 'ConditionStore+MuonMDT_CablingMap'
+| | |-SortPrepData            = False
+| | |-TimeWindowLowerBound    = -1000000.0
+| | |-TimeWindowSetting       = 2
+| | |-TimeWindowUpperBound    = -1000000.0
+| | |-TwinCorrectSlewing      = False
+| | |-Use1DPrepDataTwin       = False
+| | |-UseAllBOLTwin           = False
+| | |-UseTwin                 = True
+| | |-idHelper                = PrivateToolHandle('Muon::MuonIdHelperTool/MuonIdHelperTool')
+| | |=/***** Private AlgTool MdtCalibrationTool/MdtCalibrationTool ***************************************
+| | | |-AuditFinalize             = False
+| | | |-AuditInitialize           = False
+| | | |-AuditReinitialize         = False
+| | | |-AuditRestart              = False
+| | | |-AuditStart                = False
+| | | |-AuditStop                 = False
+| | | |-AuditTools                = False
+| | | |-CalibrationDbTool         = PrivateToolHandle('MdtCalibrationDbTool/MdtCalibrationDbTool')
+| | | |                           (default: 'MdtCalibrationDbTool')
+| | | |-DetStore                  = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-DoBackgroundCorrection    = False
+| | | |-DoMagneticFieldCorrection = False
+| | | |-DoPropagationCorrection   = True
+| | | |-DoSlewingCorrection       = False
+| | | |-DoT0Shift                 = False
+| | | |-DoTMaxShift               = False
+| | | |-DoTemperatureCorrection   = False
+| | | |-DoTofCorrection           = True
+| | | |-DoWireSagCorrection       = False
+| | | |-EvtStore                  = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs               = []  (default: [])
+| | | |-ExtraOutputs              = []  (default: [])
+| | | |-LowerBoundHitRadius       = 0.0
+| | | |-MagFieldSvc               = ServiceHandle('AtlasFieldSvc')
+| | | |-MonitorService            = 'MonitorSvc'
+| | | |-OutputLevel               = 0
+| | | |-ResolutionTwinTube        = 1.05
+| | | |-TimeWindowLowerBound      = -1000000.0
+| | | |-TimeWindowSetting         = 1
+| | | |-TimeWindowUpperBound      = -1000000.0
+| | | |-UpperBoundHitRadius       = 20.0
+| | | |=/***** Private AlgTool MdtCalibrationDbTool/MdtCalibrationDbTool ***********************************
+| | | | |-AccessCorrections               = True
+| | | | |-AccessTubeConstants             = True
+| | | | |-AuditFinalize                   = False
+| | | | |-AuditInitialize                 = False
+| | | | |-AuditReinitialize               = False
+| | | | |-AuditRestart                    = False
+| | | | |-AuditStart                      = False
+| | | | |-AuditStop                       = False
+| | | | |-AuditTools                      = False
+| | | | |-CreateBFieldFunctions           = False
+| | | | |-CreateSlewingFunctions          = False
+| | | | |-CreateWireSagFunctions          = False
+| | | | |-DetStore                        = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | | |-EvtStore                        = ServiceHandle('StoreGateSvc')
+| | | | |-ExtraInputs                     = []  (default: [])
+| | | | |-ExtraOutputs                    = []  (default: [])
+| | | | |-MdtCorFuncSetCollection         = 'ConditionStore+MdtCorFuncSetCollection'
+| | | | |-MdtRtRelationCollection         = 'ConditionStore+MdtRtRelationCollection'
+| | | | |-MdtTubeCalibContainerCollection = 'ConditionStore+MdtTubeCalibContainerCollection'
+| | | | |-MonitorService                  = 'MonitorSvc'
+| | | | |-OutputLevel                     = 0
+| | | | \----- (End of Private AlgTool MdtCalibrationDbTool/MdtCalibrationDbTool) --------------------------
+| | | \----- (End of Private AlgTool MdtCalibrationTool/MdtCalibrationTool) ------------------------------
+| | |=/***** Private AlgTool Muon::MuonIdHelperTool/MuonIdHelperTool *************************************
+| | | |-AuditFinalize     = False
+| | | |-AuditInitialize   = False
+| | | |-AuditReinitialize = False
+| | | |-AuditRestart      = False
+| | | |-AuditStart        = False
+| | | |-AuditStop         = False
+| | | |-AuditTools        = False
+| | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore          = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs       = []  (default: [])
+| | | |-ExtraOutputs      = []  (default: [])
+| | | |-MonitorService    = 'MonitorSvc'
+| | | |-OutputLevel       = 0
+| | | |-idHelper          = ServiceHandle('Muon::MuonIdHelperSvc/MuonIdHelperSvc')
+| | | \----- (End of Private AlgTool Muon::MuonIdHelperTool/MuonIdHelperTool) ----------------------------
+| | \----- (End of Private AlgTool Muon::MdtRdoToPrepDataToolMT/MdtRdoToMdtPrepDataTool) ---------------
+| \----- (End of Algorithm MdtRdoToMdtPrepData/MdtRdoToMdtPrepData) ----------------------------------
+|=/***** Algorithm CscRdoToCscPrepData/CscRdoToCscPrepData *******************************************
+| |-AuditAlgorithms            = False
+| |-AuditBeginRun              = False
+| |-AuditEndRun                = False
+| |-AuditExecute               = False
+| |-AuditFinalize              = False
+| |-AuditInitialize            = False
+| |-AuditReinitialize          = False
+| |-AuditRestart               = False
+| |-AuditStart                 = False
+| |-AuditStop                  = False
+| |-Cardinality                = 1
+| |-CscRdoToCscPrepDataTool    = PrivateToolHandle('Muon::CscRdoToCscPrepDataToolMT/CscRdoToCscPrepDataTool')
+| |                            (default: 'Muon::CscRdoToCscPrepDataTool/CscRdoToPrepDataTool')
+| |-DetStore                   = ServiceHandle('StoreGateSvc/DetectorStore')
+| |-DoSeededDecoding           = False
+| |-Enable                     = True
+| |-ErrorCounter               = 0
+| |-ErrorMax                   = 1
+| |-EvtStore                   = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                = []  (default: [])
+| |-ExtraOutputs               = []  (default: [])
+| |-FilterCircularDependencies = True
+| |-IsIOBound                  = False
+| |-MonitorService             = 'MonitorSvc'
+| |-NeededResources            = []  (default: [])
+| |-OutputCollection           = 'StoreGateSvc+CSC_Measurements'
+| |-OutputLevel                = 0
+| |-PrintInputRdo              = False
+| |-PrintPrepData              = False  (default: False)
+| |-RegionSelectionSvc         = ServiceHandle('RegSelSvc')
+| |-RegisterForContextService  = False
+| |-RoIs                       = 'StoreGateSvc+OutputRoIs'
+| |-Timeline                   = True
+| |=/***** Private AlgTool Muon::CscRdoToCscPrepDataToolMT/CscRdoToCscPrepDataTool *********************
+| | |-AuditFinalize     = False
+| | |-AuditInitialize   = False
+| | |-AuditReinitialize = False
+| | |-AuditRestart      = False
+| | |-AuditStart        = False
+| | |-AuditStop         = False
+| | |-AuditTools        = False
+| | |-CSCHashIdOffset   = 22000
+| | |-CscCalibTool      = PrivateToolHandle('CscCalibTool/CscCalibTool')
+| | |-CscRdoDecoderTool = PrivateToolHandle('Muon::CscRDO_Decoder/CscRDO_Decoder')
+| | |-DecodeData        = True
+| | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
+| | |-EvtStore          = ServiceHandle('StoreGateSvc')
+| | |-ExtraInputs       = []  (default: [])
+| | |-ExtraOutputs      = []  (default: [])
+| | |-MonitorService    = 'MonitorSvc'
+| | |-OutputCollection  = 'StoreGateSvc+CSC_Measurements'
+| | |-OutputLevel       = 0
+| | |-RDOContainer      = 'StoreGateSvc+CSCRDO'
+| | |-idHelper          = PrivateToolHandle('Muon::MuonIdHelperTool/MuonIdHelperTool')
+| | |=/***** Private AlgTool CscCalibTool/CscCalibTool ***************************************************
+| | | |-AuditFinalize      = False
+| | | |-AuditInitialize    = False
+| | | |-AuditReinitialize  = False
+| | | |-AuditRestart       = False
+| | | |-AuditStart         = False
+| | | |-AuditStop          = False
+| | | |-AuditTools         = False
+| | | |-DetStore           = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore           = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs        = []  (default: [])
+| | | |-ExtraOutputs       = []  (default: [])
+| | | |-IsOnline           = True
+| | | |-Latency            = 100.0
+| | | |-MonitorService     = 'MonitorSvc'
+| | | |-NSamples           = 4
+| | | |-Noise              = 3.5
+| | | |-OutputLevel        = 0
+| | | |-Pedestal           = 2048.0
+| | | |-ReadFromDatabase   = True
+| | | |-Slope              = 0.19
+| | | |-SlopeFromDatabase  = False
+| | | |-TimeOffsetRange    = 1.0
+| | | |-Use2Samples        = False
+| | | |-integrationNumber  = 12.0
+| | | |-integrationNumber2 = 11.66
+| | | |-samplingTime       = 50.0
+| | | |-signalWidth        = 14.4092
+| | | |-timeOffset         = 46.825
+| | | \----- (End of Private AlgTool CscCalibTool/CscCalibTool) ------------------------------------------
+| | |=/***** Private AlgTool Muon::CscRDO_Decoder/CscRDO_Decoder *****************************************
+| | | |-AuditFinalize     = False
+| | | |-AuditInitialize   = False
+| | | |-AuditReinitialize = False
+| | | |-AuditRestart      = False
+| | | |-AuditStart        = False
+| | | |-AuditStop         = False
+| | | |-AuditTools        = False
+| | | |-CscCalibTool      = PublicToolHandle('CscCalibTool')
+| | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore          = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs       = []  (default: [])
+| | | |-ExtraOutputs      = []  (default: [])
+| | | |-MonitorService    = 'MonitorSvc'
+| | | |-OutputLevel       = 0
+| | | |-idHelper          = PrivateToolHandle('Muon::MuonIdHelperTool/MuonIdHelperTool')
+| | | |=/***** Private AlgTool Muon::MuonIdHelperTool/MuonIdHelperTool *************************************
+| | | | |-AuditFinalize     = False
+| | | | |-AuditInitialize   = False
+| | | | |-AuditReinitialize = False
+| | | | |-AuditRestart      = False
+| | | | |-AuditStart        = False
+| | | | |-AuditStop         = False
+| | | | |-AuditTools        = False
+| | | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | | |-EvtStore          = ServiceHandle('StoreGateSvc')
+| | | | |-ExtraInputs       = []  (default: [])
+| | | | |-ExtraOutputs      = []  (default: [])
+| | | | |-MonitorService    = 'MonitorSvc'
+| | | | |-OutputLevel       = 0
+| | | | |-idHelper          = ServiceHandle('Muon::MuonIdHelperSvc/MuonIdHelperSvc')
+| | | | \----- (End of Private AlgTool Muon::MuonIdHelperTool/MuonIdHelperTool) ----------------------------
+| | | \----- (End of Private AlgTool Muon::CscRDO_Decoder/CscRDO_Decoder) --------------------------------
+| | |=/***** Private AlgTool Muon::MuonIdHelperTool/MuonIdHelperTool *************************************
+| | | |-AuditFinalize     = False
+| | | |-AuditInitialize   = False
+| | | |-AuditReinitialize = False
+| | | |-AuditRestart      = False
+| | | |-AuditStart        = False
+| | | |-AuditStop         = False
+| | | |-AuditTools        = False
+| | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
+| | | |-EvtStore          = ServiceHandle('StoreGateSvc')
+| | | |-ExtraInputs       = []  (default: [])
+| | | |-ExtraOutputs      = []  (default: [])
+| | | |-MonitorService    = 'MonitorSvc'
+| | | |-OutputLevel       = 0
+| | | |-idHelper          = ServiceHandle('Muon::MuonIdHelperSvc/MuonIdHelperSvc')
+| | | \----- (End of Private AlgTool Muon::MuonIdHelperTool/MuonIdHelperTool) ----------------------------
+| | \----- (End of Private AlgTool Muon::CscRdoToCscPrepDataToolMT/CscRdoToCscPrepDataTool) ------------
+| \----- (End of Algorithm CscRdoToCscPrepData/CscRdoToCscPrepData) ----------------------------------
+|=/***** Algorithm CscThresholdClusterBuilder/CscThresholdClusterBuilder *****************************
+| |-AuditAlgorithms            = False
+| |-AuditBeginRun              = False
+| |-AuditEndRun                = False
+| |-AuditExecute               = False
+| |-AuditFinalize              = False
+| |-AuditInitialize            = False
+| |-AuditReinitialize          = False
+| |-AuditRestart               = False
+| |-AuditStart                 = False
+| |-AuditStop                  = False
+| |-Cardinality                = 1
+| |-DetStore                   = ServiceHandle('StoreGateSvc/DetectorStore')
+| |-Enable                     = True
+| |-ErrorCounter               = 0
+| |-ErrorMax                   = 1
+| |-EvtStore                   = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                = []  (default: [])
+| |-ExtraOutputs               = []  (default: [])
+| |-FilterCircularDependencies = True
+| |-IsIOBound                  = False
+| |-MonitorService             = 'MonitorSvc'
+| |-NeededResources            = []  (default: [])
+| |-OutputLevel                = 0
+| |-RegisterForContextService  = False
+| |-Timeline                   = True
+| |-cluster_builder            = PublicToolHandle('CscThresholdClusterBuilderTool/CscThresholdClusterBuilderTool')
+| \----- (End of Algorithm CscThresholdClusterBuilder/CscThresholdClusterBuilder) --------------------
+\----- (End of Algorithm AthSequencer/AthAlgSeq) ---------------------------------------------------
+Py:ComponentAccumulator    INFO Condition Algorithms
+Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
+Py:ComponentAccumulator    INFO  \__ MuonAlignmentCondAlg (cond alg)
+Py:ComponentAccumulator    INFO  \__ MuonMDT_CablingAlg (cond alg)
+Py:ComponentAccumulator    INFO  \__ RpcCondDbAlg (cond alg)
+Py:ComponentAccumulator    INFO  \__ MdtCalibDbAlg (cond alg)
+Py:ComponentAccumulator    INFO Services
+Py:ComponentAccumulator    INFO ['EventSelector', 'ByteStreamInputSvc', 'EventPersistencySvc', 'ByteStreamCnvSvc', 'ROBDataProviderSvc', 'ByteStreamAddressProviderSvc', 'MetaDataStore', 'InputMetaDataStore', 'MetaDataSvc', 'ProxyProviderSvc', 'ByteStreamAttListMetadataSvc', 'IOVDbSvc', 'PoolSvc', 'CondSvc', 'DBReplicaSvc', 'GeoModelSvc', 'DetDescrCnvSvc', 'TagInfoMgr', 'AthenaPoolCnvSvc', 'MuonIdHelperSvc', 'RPCcablingServerSvc', 'MuonRPC_CablingSvc', 'LVL1TGC::TGCRecRoiSvc', 'TGCcablingServerSvc', 'MuonMDT_CablingSvc', 'AtlasFieldSvc', 'MdtCalibrationDbSvc', 'MdtCalibrationSvc', 'CSCcablingSvc', 'MuonCalib::CscCoolStrSvc']
+Py:ComponentAccumulator    INFO Public Tools
+Py:ComponentAccumulator    INFO [
+Py:ComponentAccumulator    INFO   IOVDbMetaDataTool/IOVDbMetaDataTool,
+Py:ComponentAccumulator    INFO   ByteStreamMetadataTool/ByteStreamMetadataTool,
+Py:ComponentAccumulator    INFO   RPCCablingDbTool/RPCCablingDbTool,
+Py:ComponentAccumulator    INFO   Muon::RPC_RawDataProviderToolMT/RPC_RawDataProviderToolMT,
+Py:ComponentAccumulator    INFO   Muon::TGC_RawDataProviderToolMT/TGC_RawDataProviderToolMT,
+Py:ComponentAccumulator    INFO   MDTCablingDbTool/MDTCablingDbTool,
+Py:ComponentAccumulator    INFO   MuonCalib::MdtCalibDbCoolStrTool/MdtCalibDbTool,
+Py:ComponentAccumulator    INFO   Muon::MDT_RawDataProviderToolMT/MDT_RawDataProviderToolMT,
+Py:ComponentAccumulator    INFO   Muon::CSC_RawDataProviderToolMT/CSC_RawDataProviderToolMT,
+Py:ComponentAccumulator    INFO   Muon::RpcRdoToPrepDataToolMT/RpcRdoToRpcPrepDataTool,
+Py:ComponentAccumulator    INFO   Muon::TgcRdoToPrepDataToolMT/TgcRdoToTgcPrepDataTool,
+Py:ComponentAccumulator    INFO   Muon::MdtRdoToPrepDataToolMT/MdtRdoToMdtPrepDataTool,
+Py:ComponentAccumulator    INFO   Muon::CscRdoToCscPrepDataToolMT/CscRdoToCscPrepDataTool,
+Py:ComponentAccumulator    INFO   CscThresholdClusterBuilderTool/CscThresholdClusterBuilderTool,
+Py:ComponentAccumulator    INFO ]
+Py:ComponentAccumulator    INFO Private Tools
+Py:ComponentAccumulator    INFO [
+Py:ComponentAccumulator    INFO ]
+Py:ComponentAccumulator    INFO TheApp properties
+Py:ComponentAccumulator    INFO   EvtSel : EventSelector
+Py:Athena            INFO Save Config
+
+JOs reading stage finished, launching Athena from pickle file
+
+Tue Nov 26 14:27:49 CET 2019
+Preloading tcmalloc_minimal.so
+Py:Athena            INFO using release [WorkDir-22.0.9] [x86_64-centos7-gcc8-opt] [master-enable-new-MT/58a1383162] -- built on [2019-11-26T1418]
+Py:Athena            INFO including file "AthenaCommon/Preparation.py"
+Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
+Py:Athena            INFO executing ROOT6Setup
+Py:Athena            INFO configuring AthenaHive with [1] concurrent threads and [1] concurrent events
+Py:AlgScheduler      INFO setting up AvalancheSchedulerSvc/AvalancheSchedulerSvc with 1 threads
+Py:Athena            INFO including file "AthenaCommon/Execution.py"
+Py:Athena            INFO now loading MuonRdoDecode.pkl  ... 
+Py:ConfigurableDb    INFO Read module info for 5633 configurables from 4 genConfDb files
+Py:ConfigurableDb    INFO No duplicates have been found: that's good !
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v32r2)
+                                          running on pcumass4 on Tue Nov 26 14:27:58 2019
+====================================================================================================================================
+ApplicationMgr       INFO Application Manager Configured successfully
+ApplicationMgr                                      INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
+Py:Athena            INFO including file "AthenaCommon/runbatch.py"
+StatusCodeSvc                                       INFO initialize
+AthDictLoaderSvc                                    INFO in initialize...
+AthDictLoaderSvc                                    INFO acquired Dso-registry
+ClassIDSvc                                          INFO  getRegistryEntries: read 3720 CLIDRegistry entries for module ALL
+CoreDumpSvc                                         INFO install f-a-t-a-l handler... (flag = -1)
+CoreDumpSvc                                         INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
+ByteStreamAddressProviderSvc                        INFO Initializing ByteStreamAddressProviderSvc - package version ByteStreamCnvSvcBase-00-00-00
+ByteStreamAddressProviderSvc                        INFO initialized 
+ByteStreamAddressProviderSvc                        INFO -- Will fill Store with id =  0
+MetaDataSvc                                         INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
+AthenaPoolCnvSvc                                    INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
+PoolSvc                                             INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
+PoolSvc                                             INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
+PoolSvc                                             INFO Frontier compression level set to 5
+DBReplicaSvc                                        INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
+DBReplicaSvc                                        INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-11-25T2135/Athena/22.0.9/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
+DBReplicaSvc                                        INFO Total of 10 servers found for host pcumass4.dyndns.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc                                        INFO COOL SQLite replicas will be excluded if matching pattern /DBRelease/
+PoolSvc                                             INFO Successfully setup replica sorting algorithm
+PoolSvc                                             INFO Setting up APR FileCatalog and Streams
+PoolSvc                                             INFO Resolved path (via ATLAS_POOLCOND_PATH) is /cvmfs/atlas-condb.cern.ch/repo/conditions/poolcond/PoolFileCatalog.xml
+PoolSvc                                          WARNING Unable to locate catalog for prfile:poolcond/PoolCat_oflcond.xml check your ATLAS_POOLCOND_PATH and DATAPATH variables
+PoolSvc                                          WARNING Unable to locate catalog for apcfile:poolcond/PoolCat_oflcond.xml check your ATLAS_POOLCOND_PATH and DATAPATH variables
+PoolSvc                                          WARNING Unable to locate catalog for prfile:poolcond/PoolCat_comcond.xml check your ATLAS_POOLCOND_PATH and DATAPATH variables
+PoolSvc                                          WARNING Unable to locate catalog for apcfile:poolcond/PoolCat_comcond.xml check your ATLAS_POOLCOND_PATH and DATAPATH variables
+PoolSvc                                             INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
+DbSession                                           INFO     Open     DbSession    
+Domain[ROOT_All]                                    INFO >   Access   DbDomain     READ      [ROOT_All] 
+ToolSvc.ByteStreamMetadataTool                      INFO Initializing ToolSvc.ByteStreamMetadataTool - package version ByteStreamCnvSvc-00-00-00
+MetaDataSvc                                         INFO Found MetaDataTools = PublicToolHandleArray(['IOVDbMetaDataTool/IOVDbMetaDataTool','ByteStreamMetadataTool/ByteStreamMetadataTool'])
+IOVDbSvc                                            INFO Opened read transaction for POOL PersistencySvc
+IOVDbSvc                                            INFO Only 5 POOL conditions files will be open at once
+IOVDbSvc                                            INFO Cache alignment will be done in 3 slices
+IOVDbSvc                                            INFO Global tag: CONDBR2-BLKPA-2018-13 set from joboptions
+IOVDbFolder                                         INFO Inputfile tag override disabled for /GLOBAL/BField/Maps
+IOVDbSvc                                            INFO Initialised with 11 connections and 30 folders
+IOVDbSvc                                            INFO Service IOVDbSvc initialised successfully
+IOVDbSvc                                            INFO Opening COOL connection for COOLONL_TDAQ/CONDBR2
+ClassIDSvc                                          INFO  getRegistryEntries: read 3503 CLIDRegistry entries for module ALL
+ClassIDSvc                                          INFO  getRegistryEntries: read 230 CLIDRegistry entries for module ALL
+ClassIDSvc                                          INFO  getRegistryEntries: read 4057 CLIDRegistry entries for module ALL
+ClassIDSvc                                          INFO  getRegistryEntries: read 139 CLIDRegistry entries for module ALL
+ClassIDSvc                                          INFO  getRegistryEntries: read 3236 CLIDRegistry entries for module ALL
+IOVSvc                                              INFO No IOVSvcTool associated with store "StoreGateSvc"
+IOVSvc.IOVSvcTool                                   INFO IOVRanges will be checked at every Event
+IOVDbSvc                                            INFO Opening COOL connection for COOLOFL_MUONALIGN/CONDBR2
+IOVDbSvc                                            INFO Disconnecting from COOLONL_TDAQ/CONDBR2
+IOVDbSvc                                            INFO Opening COOL connection for COOLONL_RPC/CONDBR2
+IOVDbSvc                                            INFO Disconnecting from COOLOFL_MUONALIGN/CONDBR2
+IOVDbSvc                                            INFO Opening COOL connection for COOLONL_TGC/CONDBR2
+IOVDbSvc                                            INFO Disconnecting from COOLONL_RPC/CONDBR2
+IOVDbSvc                                            INFO Opening COOL connection for COOLONL_MDT/CONDBR2
+IOVDbSvc                                            INFO Disconnecting from COOLONL_TGC/CONDBR2
+IOVDbSvc                                            INFO Opening COOL connection for COOLONL_GLOBAL/CONDBR2
+IOVDbSvc                                            INFO Disconnecting from COOLONL_MDT/CONDBR2
+IOVDbSvc                                            INFO Opening COOL connection for COOLOFL_DCS/CONDBR2
+IOVDbSvc                                            INFO Disconnecting from COOLONL_GLOBAL/CONDBR2
+IOVDbSvc                                            INFO Opening COOL connection for COOLOFL_MDT/CONDBR2
+IOVDbSvc                                            INFO Disconnecting from COOLOFL_DCS/CONDBR2
+IOVDbSvc                                            INFO Opening COOL connection for COOLOFL_RPC/CONDBR2
+IOVDbSvc                                            INFO Disconnecting from COOLOFL_MDT/CONDBR2
+IOVDbSvc                                            INFO Opening COOL connection for COOLOFL_CSC/CONDBR2
+IOVDbSvc                                            INFO Disconnecting from COOLOFL_RPC/CONDBR2
+IOVDbSvc                                            INFO Disconnecting from COOLOFL_CSC/CONDBR2
+IOVDbSvc                                            INFO Added taginfo remove for /EXT/DCS/MAGNETS/SENSORDATA
+IOVDbSvc                                            INFO Added taginfo remove for /GLOBAL/BField/Maps
+IOVDbSvc                                            INFO Added taginfo remove for /MDT/CABLING/MAP_SCHEMA
+IOVDbSvc                                            INFO Added taginfo remove for /MDT/CABLING/MEZZANINE_SCHEMA
+IOVDbSvc                                            INFO Added taginfo remove for /MDT/RTBLOB
+IOVDbSvc                                            INFO Added taginfo remove for /MDT/T0BLOB
+IOVDbSvc                                            INFO Added taginfo remove for /MUONALIGN/CSC/ILINES
+IOVDbSvc                                            INFO Added taginfo remove for /MUONALIGN/MDT/ASBUILTPARAMS
+IOVDbSvc                                            INFO Added taginfo remove for /MUONALIGN/MDT/BARREL
+IOVDbSvc                                            INFO Added taginfo remove for /MUONALIGN/MDT/ENDCAP/SIDEA
+IOVDbSvc                                            INFO Added taginfo remove for /MUONALIGN/MDT/ENDCAP/SIDEC
+IOVDbSvc                                            INFO Added taginfo remove for /MUONALIGN/TGC/SIDEA
+IOVDbSvc                                            INFO Added taginfo remove for /MUONALIGN/TGC/SIDEC
+IOVDbSvc                                            INFO Added taginfo remove for /RPC/CABLING/MAP_SCHEMA
+IOVDbSvc                                            INFO Added taginfo remove for /RPC/CABLING/MAP_SCHEMA_CORR
+IOVDbSvc                                            INFO Added taginfo remove for /RPC/DCS/DeadRopanels
+IOVDbSvc                                            INFO Added taginfo remove for /RPC/DCS/OffRopanels
+IOVDbSvc                                            INFO Added taginfo remove for /RPC/DQMF/ELEMENT_STATUS
+IOVDbSvc                                            INFO Added taginfo remove for /RPC/TRIGGER/CM_THR_ETA
+IOVDbSvc                                            INFO Added taginfo remove for /RPC/TRIGGER/CM_THR_PHI
+IOVDbSvc                                            INFO Added taginfo remove for /TDAQ/RunCtrl/SOR_Params
+IOVDbSvc                                            INFO Added taginfo remove for /TGC/CABLING/MAP_SCHEMA
+IOVDbSvc                                            INFO Added taginfo remove for /CSC/FTHOLD
+IOVDbSvc                                            INFO Added taginfo remove for /CSC/NOISE
+IOVDbSvc                                            INFO Added taginfo remove for /CSC/PED
+IOVDbSvc                                            INFO Added taginfo remove for /CSC/PSLOPE
+IOVDbSvc                                            INFO Added taginfo remove for /CSC/RMS
+IOVDbSvc                                            INFO Added taginfo remove for /CSC/STAT
+IOVDbSvc                                            INFO Added taginfo remove for /CSC/T0BASE
+IOVDbSvc                                            INFO Added taginfo remove for /CSC/T0PHASE
+GeoModelSvc                                         INFO Explicitly initializing DetDescrCnvSvc
+DetDescrCnvSvc                                      INFO  initializing 
+DetDescrCnvSvc                                      INFO Found DetectorStore service
+DetDescrCnvSvc                                      INFO  filling proxies for detector managers 
+DetDescrCnvSvc                                      INFO  filling address for CaloTTMgr with CLID 117659265 and storage type 68 to detector store 
+DetDescrCnvSvc                                      INFO  filling address for CaloMgr with CLID 4548337 and storage type 68 to detector store 
+DetDescrCnvSvc                                      INFO  filling address for CaloSuperCellMgr with CLID 241807251 and storage type 68 to detector store 
+DetDescrCnvSvc                                      INFO  filling address for CaloIdManager with CLID 125856940 and storage type 68 to detector store 
+DetDescrCnvSvc                                      INFO  filling address for LArIdManager with CLID 79554919 and storage type 68 to detector store 
+DetDescrCnvSvc                                      INFO  filling address for IdDict with CLID 2411 and storage type 68 to detector store 
+DetDescrCnvSvc                                      INFO  filling address for AtlasID with CLID 164875623 and storage type 68 to detector store 
+DetDescrCnvSvc                                      INFO  filling address for PixelID with CLID 2516 and storage type 68 to detector store 
+DetDescrCnvSvc                                      INFO  filling address for SCT_ID with CLID 2517 and storage type 68 to detector store 
+DetDescrCnvSvc                                      INFO  filling address for TRT_ID with CLID 2518 and storage type 68 to detector store 
+DetDescrCnvSvc                                      INFO  filling address for SiliconID with CLID 129452393 and storage type 68 to detector store 
+DetDescrCnvSvc                                      INFO  filling address for LArEM_ID with CLID 163583365 and storage type 68 to detector store 
+DetDescrCnvSvc                                      INFO  filling address for LArEM_SuperCell_ID with CLID 99488227 and storage type 68 to detector store 
+DetDescrCnvSvc                                      INFO  filling address for LArHEC_ID with CLID 3870484 and storage type 68 to detector store 
+DetDescrCnvSvc                                      INFO  filling address for LArHEC_SuperCell_ID with CLID 254277678 and storage type 68 to detector store 
+DetDescrCnvSvc                                      INFO  filling address for LArFCAL_ID with CLID 45738051 and storage type 68 to detector store 
+DetDescrCnvSvc                                      INFO  filling address for LArFCAL_SuperCell_ID with CLID 12829437 and storage type 68 to detector store 
+DetDescrCnvSvc                                      INFO  filling address for LArMiniFCAL_ID with CLID 79264204 and storage type 68 to detector store 
+DetDescrCnvSvc                                      INFO  filling address for LArOnlineID with CLID 158698068 and storage type 68 to detector store 
+DetDescrCnvSvc                                      INFO  filling address for TTOnlineID with CLID 38321944 and storage type 68 to detector store 
+DetDescrCnvSvc                                      INFO  filling address for LArOnline_SuperCellID with CLID 115600394 and storage type 68 to detector store 
+DetDescrCnvSvc                                      INFO  filling address for LArHVLineID with CLID 27863673 and storage type 68 to detector store 
+DetDescrCnvSvc                                      INFO  filling address for LArElectrodeID with CLID 80757351 and storage type 68 to detector store 
+DetDescrCnvSvc                                      INFO  filling address for TileID with CLID 2901 and storage type 68 to detector store 
+DetDescrCnvSvc                                      INFO  filling address for Tile_SuperCell_ID with CLID 49557789 and storage type 68 to detector store 
+DetDescrCnvSvc                                      INFO  filling address for TileHWID with CLID 2902 and storage type 68 to detector store 
+DetDescrCnvSvc                                      INFO  filling address for TileTBID with CLID 2903 and storage type 68 to detector store 
+DetDescrCnvSvc                                      INFO  filling address for MDTIDHELPER with CLID 4170 and storage type 68 to detector store 
+DetDescrCnvSvc                                      INFO  filling address for CSCIDHELPER with CLID 4171 and storage type 68 to detector store 
+DetDescrCnvSvc                                      INFO  filling address for RPCIDHELPER with CLID 4172 and storage type 68 to detector store 
+DetDescrCnvSvc                                      INFO  filling address for TGCIDHELPER with CLID 4173 and storage type 68 to detector store 
+DetDescrCnvSvc                                      INFO  filling address for CaloLVL1_ID with CLID 108133391 and storage type 68 to detector store 
+DetDescrCnvSvc                                      INFO  filling address for CaloCell_ID with CLID 123500438 and storage type 68 to detector store 
+DetDescrCnvSvc                                      INFO  filling address for CaloCell_SuperCell_ID with CLID 128365736 and storage type 68 to detector store 
+DetDescrCnvSvc                                      INFO  filling address for CaloDM_ID with CLID 167756483 and storage type 68 to detector store 
+DetDescrCnvSvc                                      INFO  filling address for ZdcID with CLID 190591643 and storage type 68 to detector store 
+GeoModelSvc.MuonDetectorTool                        INFO Initializing ...
+GeoModelSvc::RDBMaterialManager                  WARNING  Getting PixTBMatComponents with default tag
+GeoModelSvc::RDBMaterialManager                  WARNING  Getting PixTBMaterials with default tag
+GeoModelSvc::RDBMaterialManager                  WARNING  Getting InDetMatComponents with default tag
+GeoModelSvc::RDBMaterialManager                  WARNING  Getting InDetMaterials with default tag
+GeoModelSvc.MuonDetectorTool                        INFO create MuonDetectorTool - package version = MuonGeoModel-00-00-00
+GeoModelSvc.MuonDetectorTool                        INFO (from GeoModelSvc)    AtlasVersion = <ATLAS-R2-2016-01-00-01>  MuonVersion = <>
+GeoModelSvc.MuonDetectorTool                        INFO Keys for Muon Switches are  (key) ATLAS-R2-2016-01-00-01 (node) ATLAS
+GeoModelSvc.MuonDetectorTool                        INFO (from GeoModelSvc) in AtlasVersion = <ATLAS-R2-2016-01-00-01>  default MuonVersion is <MuonSpectrometer-R.08.01>
+GeoModelSvc.MuonDetectorTool                        INFO Properties have been set as follows: 
+GeoModelSvc.MuonDetectorTool                        INFO     LayoutName                     R
+GeoModelSvc.MuonDetectorTool                        INFO     IncludeCutouts                 0
+GeoModelSvc.MuonDetectorTool                        INFO     IncludeCutoutsBog              0
+GeoModelSvc.MuonDetectorTool                        INFO     IncludeCtbBis                  0
+GeoModelSvc.MuonDetectorTool                        INFO     ControlAlines                  111111
+GeoModelSvc.MuonDetectorTool                        INFO     MinimalGeoFlag                 0
+GeoModelSvc.MuonDetectorTool                        INFO     EnableCscIntAlignment          1
+GeoModelSvc.MuonDetectorTool                        INFO     EnableCscIntAlignmentFromGM    0
+GeoModelSvc.MuonDetectorTool                        INFO     ControlCscIntAlines            111111
+GeoModelSvc.MuonDetectorTool                        INFO     EnableMdtDeformations          1
+GeoModelSvc.MuonDetectorTool                        INFO     EnableMdtAsBuiltParameters     1
+MuonGeoModel                                        INFO MuonDetectorFactory - constructor  MuonSystem OuterRadius 13000 Length 22030
+MuGM:MuonFactory                                    INFO MuonLayout set to <R.08.01> = Development version for DC3 - infrastructures 
+MuGM:MuonFactory                                    INFO                    BOG cutouts are activated 1 , all other cutouts are disabled 1
+MuGM:MuonFactory                                    INFO Manager created for geometry version R.08.01 from DB MuonVersion <MuonSpectrometer-R.08.01>
+MuonGeoModel_MYSQL                                  INFO GeometryVersion set to <R.08.01>
+MuGM:MuonFactory                                    INFO Mysql helper class created here for geometry version R.08.01 from DB MuonVersion <MuonSpectrometer-R.08.01>
+MuGM:MuonFactory                                    INFO MDTIDHELPER retrieved from DetStore
+EventPersistencySvc                                 INFO Added successfully Conversion service:ByteStreamCnvSvc
+EventPersistencySvc                                 INFO Added successfully Conversion service:DetDescrCnvSvc
+MDT_IDDetDescrCnv                                   INFO in createObj: creating a MdtIdHelper object in the detector store
+IdDictDetDescrCnv                                   INFO in initialize
+IdDictDetDescrCnv                                   INFO in createObj: creating a IdDictManager object in the detector store
+IdDictDetDescrCnv                                   INFO IdDictName:  IdDictParser/ATLAS_IDS.xml
+IdDictDetDescrCnv                                   INFO Reading InnerDetector    IdDict file InDetIdDictFiles/IdDictInnerDetector_IBL3D25-03.xml
+IdDictDetDescrCnv                                   INFO Reading LArCalorimeter   IdDict file IdDictParser/IdDictLArCalorimeter_DC3-05-Comm-01.xml
+IdDictDetDescrCnv                                   INFO Reading TileCalorimeter  IdDict file IdDictParser/IdDictTileCalorimeter.xml
+IdDictDetDescrCnv                                   INFO Reading Calorimeter      IdDict file IdDictParser/IdDictCalorimeter_L1Onl.xml
+IdDictDetDescrCnv                                   INFO Reading MuonSpectrometer IdDict file IdDictParser/IdDictMuonSpectrometer_R.03.xml
+IdDictDetDescrCnv                                   INFO Reading ForwardDetectors IdDict file IdDictParser/IdDictForwardDetectors_2010.xml
+IdDictDetDescrCnv                                   INFO Found id dicts:
+IdDictDetDescrCnv                                   INFO Using dictionary tag: null
+IdDictDetDescrCnv                                   INFO Dictionary ATLAS                version default              DetDescr tag (using default) file 
+IdDictDetDescrCnv                                   INFO Dictionary Calorimeter          version default              DetDescr tag CaloIdentifier-LVL1-02 file IdDictParser/IdDictCalorimeter_L1Onl.xml
+IdDictDetDescrCnv                                   INFO Dictionary ForwardDetectors     version default              DetDescr tag ForDetIdentifier-01       file IdDictParser/IdDictForwardDetectors_2010.xml
+IdDictDetDescrCnv                                   INFO Dictionary InnerDetector        version IBL-DBM              DetDescr tag InDetIdentifier-IBL3D25-02 file InDetIdDictFiles/IdDictInnerDetector_IBL3D25-03.xml
+IdDictDetDescrCnv                                   INFO Dictionary LArCalorimeter       version fullAtlas            DetDescr tag LArIdentifier-DC3-05-Comm file IdDictParser/IdDictLArCalorimeter_DC3-05-Comm-01.xml
+IdDictDetDescrCnv                                   INFO Dictionary LArElectrode         version fullAtlas            DetDescr tag (using default) file 
+IdDictDetDescrCnv                                   INFO Dictionary LArHighVoltage       version fullAtlas            DetDescr tag (using default) file 
+IdDictDetDescrCnv                                   INFO Dictionary MuonSpectrometer     version R.03                 DetDescr tag MuonIdentifier-08         file IdDictParser/IdDictMuonSpectrometer_R.03.xml
+IdDictDetDescrCnv                                   INFO Dictionary TileCalorimeter      version fullAtlasAndTestBeam DetDescr tag TileIdentifier-00         file IdDictParser/IdDictTileCalorimeter.xml
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
+AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
+AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
+ AtlasDetectorID::initialize_from_dictionary - OK 
+MdtIdHelper                                         INFO MultiRange built successfully to Technology: MultiRange size is 210
+MdtIdHelper                                         INFO MultiRange built successfully to detector element: Multilayer MultiRange size is 241
+MdtIdHelper                                         INFO MultiRange built successfully to tube: MultiRange size is 241
+MdtIdHelper                                         INFO Initializing MDT hash indices ... 
+MdtIdHelper                                         INFO The element hash max is 1188
+MdtIdHelper                                         INFO The detector element hash max is 2328
+MdtIdHelper                                         INFO Initializing MDT hash indices for finding neighbors ... 
+MuGM:MuonFactory                                    INFO RPCIDHELPER retrieved from DetStore
+RPC_IDDetDescrCnv                                   INFO in createObj: creating a RpcIdHelper object in the detector store
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
+AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
+AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
+ AtlasDetectorID::initialize_from_dictionary - OK 
+RpcIdHelper                                         INFO MultiRange built successfully to doubletR: MultiRange size is 241
+RpcIdHelper                                         INFO MultiRange built successfully to detectorElement: DetectorElement MultiRange size is 241
+RpcIdHelper                                         INFO MultiRange built successfully to rpcStrip: MultiRange size is 241
+RpcIdHelper                                         INFO Initializing RPC hash indices ... 
+RpcIdHelper                                         INFO The element hash max is 600
+RpcIdHelper                                         INFO The detector element hash max is 1122
+RpcIdHelper                                         INFO Initializing RPC hash indices for finding neighbors ... 
+MuGM:MuonFactory                                    INFO TGCIDHELPER retrieved from DetStore
+TGC_IDDetDescrCnv                                   INFO in createObj: creating a TgcIdHelper object in the detector store
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
+AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
+AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
+ AtlasDetectorID::initialize_from_dictionary - OK 
+TgcIdHelper                                         INFO MultiRange built successfully to Technology: MultiRange size is 210
+TgcIdHelper                                         INFO MultiRange built successfully to detector element: Multilayer MultiRange size is 210
+TgcIdHelper                                         INFO MultiRange built successfully to channel: MultiRange size is 241
+TgcIdHelper                                         INFO Initializing TGC hash indices ... 
+TgcIdHelper                                         INFO The element hash max is 1578
+TgcIdHelper                                         INFO The detector element hash max is 1578
+TgcIdHelper                                         INFO Initializing TGC hash indices for finding neighbors ... 
+MuGM:MuonFactory                                    INFO CSCIDHELPER retrieved from DetStore
+CSC_IDDetDescrCnv                                   INFO in createObj: creating a CcscIdHelper object in the detector store
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
+AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
+AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
+ AtlasDetectorID::initialize_from_dictionary - OK 
+CscIdHelper                                         INFO MultiRange built successfully to Technology: MultiRange size is 210
+CscIdHelper                                         INFO MultiRange built successfully to detector element: Multilayer MultiRange size is 237
+CscIdHelper                                         INFO MultiRange built successfully to cscStrip: MultiRange size is 241
+CscIdHelper                                         INFO Initializing CSC hash indices ... 
+CscIdHelper                                         INFO The element hash max is 32
+CscIdHelper                                         INFO The detector element hash max is 64
+CscIdHelper                                         INFO The channel hash max is 61440
+CscIdHelper                                         INFO Initializing CSC hash indices for finding neighbors ... 
+MuGM:MuonFactory                                    INFO  **************** MuonDetectorFactory001 ************************
+MuGM:MuonFactory                                    INFO  *** Start building the Muon Geometry Tree **********************
+MuGM:RDBReadAtlas                                   INFO Start retriving dbObjects with tag = <ATLAS-R2-2016-01-00-01> node <ATLAS>
+RDBAccessSvc                                     WARNING Could not get the tag for XtomoData node. Returning 0 pointer to IRDBQuery
+MuGM:RDBReadAtlas                                   INFO After getQuery XtomoData
+In DblQ00Xtomo(data)
+No XtomoData table in the MuonDD Database
+MuGM:RDBReadAtlas                                   INFO After new DblQ00Xtomo
+MuGM:RDBReadAtlas                                   INFO After m_dhxtomo.data()
+MuGM:RDBReadAtlas                                   INFO No Ascii aszt input found: looking for A-lines in ORACLE
+MuGM:RDBReadAtlas                                   INFO ASZT table found in Oracle
+MuGM:RDBReadAtlas                                   INFO ASZT size is 32
+MuGM:RDBReadAtlas                                   INFO No Ascii iacsc input found: looking for A-lines in ORACLE
+RDBAccessSvc                                     WARNING Could not get the tag for ISZT node. Returning 0 pointer to IRDBQuery
+MuGM:RDBReadAtlas                                   INFO No ISZT table in Oracle
+MuGM:RDBReadAtlas                                   INFO Access granted for all dbObjects needed by muon detectors
+MuonGeoModel_MYSQL                                  INFO LayoutName (from DBAM) set to <R.08>  -- relevant for CTB2004
+MuGM:ProcStations                                   INFO  Processing Stations and Components
+MuGM:ProcStations                                   INFO  Processing Stations and Components DONE
+MuGM:ProcTechnol.s                                  INFO nMDT 13 nCSC 2 nTGC 22 nRPC 25
+MuGM:ProcTechnol.s                                  INFO nDED 2 nSUP 4 nSPA 2
+MuGM:ProcTechnol.s                                  INFO nCHV 7 nCRO 7 nCMI 6 nLBI 6
+MuGM:ProcPosition                                   INFO  *** N. of stations positioned in the setup 234
+MuGM:ProcPosition                                   INFO  *** N. of stations described in mysql      234
+MuGM:ProcPosition                                   INFO  *** N. of types  32 size of jtypvec 32
+MuGM:ProcPosition                                   INFO  *** : 234 kinds of stations (type*sub_type) 
+MuGM:ProcPosition                                   INFO  *** : 1758 physical stations in space - according to the MuonDD DataBase
+MuGM:ProcCutouts                                    INFO  Processing Cutouts for geometry layout R.08
+MuGM:ProcCutouts                                    INFO  Processing Cutouts DONE
+MuGM:RDBReadAtlas                                   INFO  ProcessTGCreadout - version 7 wirespacing 1.8
+MuGM:RDBReadAtlas                                   INFO Intermediate Objects built from primary numbers
+MuGM:MuonFactory                                    INFO  theMaterialManager retrieven successfully from the DetStore
+MuGM:MuonFactory                                    INFO MuonSystem description from OracleTag=<ATLAS-R2-2016-01-00-01> and node=<ATLAS>
+MuGM:MuonFactory                                    INFO  TreeTop added to the Manager
+MuGM:MuonFactory                                    INFO  Muon Layout R.08.01
+MuGM:MuonFactory                                    INFO Fine Clash Fixing disabled: (should be ON/OFF for Simulation/Reconstruction)
+MuGM:MuonFactory                                    INFO  **************** MuonDetectorFactory001 ****************************
+MuGM:MuonFactory                                    INFO  *** The Muon Chamber Geometry Tree is built with 
+MuGM:MuonFactory                                    INFO  *** 1758 child volumes 
+MuGM:MuonFactory                                    INFO  *** 1839 independent elements and 
+MuGM:MuonFactory                                    INFO  *** 11473 elements cloned or shared 
+MuGM:MuonFactory                                    INFO  *** 234 kinds of stations
+MuGM:MuonFactory                                    INFO  *** 1758 stations with alignable transforms
+MuGM:MuonFactory                                    INFO  *** 148 stations are described as Assemblies
+MuGM:MuonFactory                                    INFO  *** 1758 MuonStations 
+MuGM:MuonFactory                                    INFO  *** 	 2324 MDT Readout Elements 	 1186 MDT Detector Elements 
+MuGM:MuonFactory                                    INFO  *** 	 32 CSC Readout Elements 	 32 CSC Detector Elements 
+MuGM:MuonFactory                                    INFO  *** 	 1122 RPC Readout Elements 	 600 RPC Detector Elements 
+MuGM:MuonFactory                                    INFO  *** 	 1578 TGC Readout Elements 	 1578 TGC Detector Elements 
+MuGM:MuonFactory                                    INFO  ********************************************************************
+MuGM:MuonFactory                                    INFO  *** Inert Material built according to DB switches and config. ****** 
+MuGM:MuonFactory                                    INFO  *** The Muon Geometry Tree has 1758 child vol.s in total ********
+MuGM:MuonFactory                                    INFO  ********************************************************************
+
+MGM::MuonDetectorManager                            INFO Init A/B Line Containers - done - size is respectively 1758/0
+MGM::MuonDetectorManager                            INFO Init of CSC I-Lines will be done via Conditions DB
+MGM::MuonDetectorManager                            INFO Init I-Line Container - done - size is respectively 128
+MGM::MuonDetectorManager                            INFO I-Line for CSC wire layers loaded (Csc Internal Alignment)
+MGM::MuonDetectorManager                            INFO According to configuration they WILL be used 
+MGM::MuonDetectorManager                            INFO Filling cache
+GeoModelSvc                                         INFO GeoModelSvc.MuonDetectorTool	 SZ= 169824Kb 	 Time = 3.48S
+ClassIDSvc                                          INFO  getRegistryEntries: read 1474 CLIDRegistry entries for module ALL
+AthenaEventLoopMgr                                  INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
+ClassIDSvc                                     0    INFO  getRegistryEntries: read 1893 CLIDRegistry entries for module ALL
+ClassIDSvc                                     0    INFO  getRegistryEntries: read 305 CLIDRegistry entries for module ALL
+ClassIDSvc                                     0    INFO  getRegistryEntries: read 246 CLIDRegistry entries for module ALL
+CondInputLoader                                0    INFO Initializing CondInputLoader...
+CondInputLoader                                0    INFO Adding base classes:
+  +  ( 'CondAttrListCollection' , 'ConditionStore+/EXT/DCS/MAGNETS/SENSORDATA' )   ->
+  +  ( 'CondAttrListCollection' , 'ConditionStore+/MDT/CABLING/MAP_SCHEMA' )   ->
+  +  ( 'CondAttrListCollection' , 'ConditionStore+/MDT/CABLING/MEZZANINE_SCHEMA' )   ->
+  +  ( 'CondAttrListCollection' , 'ConditionStore+/MDT/RTBLOB' )   ->
+  +  ( 'CondAttrListCollection' , 'ConditionStore+/MDT/T0BLOB' )   ->
+  +  ( 'CondAttrListCollection' , 'ConditionStore+/MUONALIGN/CSC/ILINES' )   ->
+  +  ( 'CondAttrListCollection' , 'ConditionStore+/MUONALIGN/MDT/ASBUILTPARAMS' )   ->
+  +  ( 'CondAttrListCollection' , 'ConditionStore+/MUONALIGN/MDT/BARREL' )   ->
+  +  ( 'CondAttrListCollection' , 'ConditionStore+/MUONALIGN/MDT/ENDCAP/SIDEA' )   ->
+  +  ( 'CondAttrListCollection' , 'ConditionStore+/MUONALIGN/MDT/ENDCAP/SIDEC' )   ->
+  +  ( 'CondAttrListCollection' , 'ConditionStore+/MUONALIGN/TGC/SIDEA' )   ->
+  +  ( 'CondAttrListCollection' , 'ConditionStore+/MUONALIGN/TGC/SIDEC' )   ->
+  +  ( 'CondAttrListCollection' , 'ConditionStore+/RPC/DCS/DeadRopanels' )   ->
+  +  ( 'CondAttrListCollection' , 'ConditionStore+/RPC/DCS/OffRopanels' )   ->
+  +  ( 'CondAttrListCollection' , 'ConditionStore+/RPC/DQMF/ELEMENT_STATUS' )   ->
+CondInputLoader                                0    INFO Will create WriteCondHandle dependencies for the following DataObjects:
+    +  ( 'CondAttrListCollection' , 'ConditionStore+/EXT/DCS/MAGNETS/SENSORDATA' ) 
+    +  ( 'CondAttrListCollection' , 'ConditionStore+/MDT/CABLING/MAP_SCHEMA' ) 
+    +  ( 'CondAttrListCollection' , 'ConditionStore+/MDT/CABLING/MEZZANINE_SCHEMA' ) 
+    +  ( 'CondAttrListCollection' , 'ConditionStore+/MDT/RTBLOB' ) 
+    +  ( 'CondAttrListCollection' , 'ConditionStore+/MDT/T0BLOB' ) 
+    +  ( 'CondAttrListCollection' , 'ConditionStore+/MUONALIGN/CSC/ILINES' ) 
+    +  ( 'CondAttrListCollection' , 'ConditionStore+/MUONALIGN/MDT/ASBUILTPARAMS' ) 
+    +  ( 'CondAttrListCollection' , 'ConditionStore+/MUONALIGN/MDT/BARREL' ) 
+    +  ( 'CondAttrListCollection' , 'ConditionStore+/MUONALIGN/MDT/ENDCAP/SIDEA' ) 
+    +  ( 'CondAttrListCollection' , 'ConditionStore+/MUONALIGN/MDT/ENDCAP/SIDEC' ) 
+    +  ( 'CondAttrListCollection' , 'ConditionStore+/MUONALIGN/TGC/SIDEA' ) 
+    +  ( 'CondAttrListCollection' , 'ConditionStore+/MUONALIGN/TGC/SIDEC' ) 
+    +  ( 'CondAttrListCollection' , 'ConditionStore+/RPC/DCS/DeadRopanels' ) 
+    +  ( 'CondAttrListCollection' , 'ConditionStore+/RPC/DCS/OffRopanels' ) 
+    +  ( 'CondAttrListCollection' , 'ConditionStore+/RPC/DQMF/ELEMENT_STATUS' ) 
+MuonAlignmentCondAlg                           0    INFO Initilalizing
+MuonAlignmentCondAlg                           0    INFO In initialize ---- # of folders registered is 7
+MuonAlignmentCondAlg                           0    INFO geometry version from the MuonDetectorManager = R.08.01
+MuonAlignmentCondAlg                           0    INFO MdtIdHelper retrieved from the DetectorStore
+MuonAlignmentCondAlg                           0    INFO CscIdHelper retrieved from the DetectorStore
+MuonAlignmentCondAlg                           0    INFO RpcIdHelper retrieved from the DetectorStore
+MuonAlignmentCondAlg                           0    INFO TgcIdHelper retrieved from the DetectorStore
+ClassIDSvc                                     0    INFO  getRegistryEntries: read 872 CLIDRegistry entries for module ALL
+ClassIDSvc                                     0    INFO  getRegistryEntries: read 1457 CLIDRegistry entries for module ALL
+ClassIDSvc                                     0    INFO  getRegistryEntries: read 935 CLIDRegistry entries for module ALL
 RpcRawDataProvider                             0    INFO RpcRawDataProvider::initialize
 RpcRawDataProvider                             0    INFO  'DoSeededDecoding':False
+ClassIDSvc                                     0    INFO  getRegistryEntries: read 2416 CLIDRegistry entries for module ALL
+MuonRPC_CablingSvc                             0    INFO Initializing MuonRPC_CablingSvc - package version MuonRPC_Cabling-00-00-00
+ToolSvc.RPCCablingDbTool                       0    INFO Initializing - folders names are: conf /RPC/CABLING/MAP_SCHEMA / corr /RPC/CABLING/MAP_SCHEMA_CORR
+MuonRPC_CablingSvc                             0    INFO RPCCablingDbTool retrieved with statusCode = SUCCESS with handle TheRpcCablingDbTool = PublicToolHandle('RPCCablingDbTool/RPCCablingDbTool')
+MuonRPC_CablingSvc                             0    INFO Register call-back  against 2 folders listed below 
+MuonRPC_CablingSvc                             0    INFO  Folder n. 1 </RPC/CABLING/MAP_SCHEMA>     found in the DetStore
+ClassIDSvc                                     0    INFO  getRegistryEntries: read 595 CLIDRegistry entries for module ALL
+MuonRPC_CablingSvc                             0    INFO initMappingModel registered for call-back against folder </RPC/CABLING/MAP_SCHEMA>
+MuonRPC_CablingSvc                             0    INFO  Folder n. 2 </RPC/CABLING/MAP_SCHEMA_CORR>     found in the DetStore
+MuonRPC_CablingSvc                             0    INFO initMappingModel registered for call-back against folder </RPC/CABLING/MAP_SCHEMA_CORR>
+MuonRPC_CablingSvc                             0    INFO RPCTriggerDbTool retrieved with statusCode = SUCCESS pointer = TheRpcTriggerDbTool = PublicToolHandle('RPCTriggerDbTool')
+MuonRPC_CablingSvc                             0    INFO Register call-back  against 2 folders listed below 
+MuonRPC_CablingSvc                             0    INFO  Folder n. 1 </RPC/TRIGGER/CM_THR_ETA>     found in the DetStore
+MuonRPC_CablingSvc                             0    INFO initTrigRoadsModel registered for call-back against folder </RPC/TRIGGER/CM_THR_ETA>
+MuonRPC_CablingSvc                             0    INFO  Folder n. 2 </RPC/TRIGGER/CM_THR_PHI>     found in the DetStore
+MuonRPC_CablingSvc                             0    INFO initTrigRoadsModel registered for call-back against folder </RPC/TRIGGER/CM_THR_PHI>
+ROBDataProviderSvc                             0    INFO Initializing ROBDataProviderSvc - package version ByteStreamCnvSvcBase-00-00-00
+ROBDataProviderSvc                             0    INFO  ---> Filter out empty ROB fragments                               =  'filterEmptyROB':False
+ROBDataProviderSvc                             0    INFO  ---> Filter out specific ROBs by Status Code: # ROBs = 0
+ROBDataProviderSvc                             0    INFO  ---> Filter out Sub Detector ROBs by Status Code: # Sub Detectors = 0
 RpcRawDataProvider.RPC_RawDataProvide...       0    INFO initialize() successful in RpcRawDataProvider.RPC_RawDataProviderToolMT
 TgcRawDataProvider                             0    INFO TgcRawDataProvider::initialize
 TgcRawDataProvider                             0    INFO  'DoSeededDecoding':False
+ClassIDSvc                                     0    INFO  getRegistryEntries: read 1243 CLIDRegistry entries for module ALL
 TgcRawDataProvider.TGC_RawDataProvide...       0    INFO initialize() successful in TgcRawDataProvider.TGC_RawDataProviderToolMT.TgcROD_Decoder
 TgcRawDataProvider.TGC_RawDataProvide...       0    INFO Retrieved tool Decoder = PrivateToolHandle('Muon::TGC_RodDecoderReadout/TgcROD_Decoder')
 TgcRawDataProvider.TGC_RawDataProvide...       0    INFO Retrieved service ServiceHandle('ROBDataProviderSvc')
+MuonTGC_CablingSvc                             0    INFO for 1/12 sector initialize
+ToolSvc.TGCCablingDbTool                       0    INFO initialize
+ToolSvc.TGCCablingDbTool                       0    INFO readTGCMap from text
+ToolSvc.TGCCablingDbTool                       0    INFO readTGCMap found file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-11-25T2135/Athena/22.0.9/InstallArea/x86_64-centos7-gcc8-opt/share/ASD2PP_diff_12_ONL.db
+ToolSvc.TGCCablingDbTool                       0    INFO giveASD2PP_DIFF_12 (m_ASD2PP_DIFF_12 is not NULL)
 TgcRawDataProvider.TGC_RawDataProvide...       0    INFO initialize() successful in TgcRawDataProvider.TGC_RawDataProviderToolMT
 MdtRawDataProvider                             0    INFO MdtRawDataProvider::initialize
 MdtRawDataProvider                             0    INFO  'DoSeededDecoding':False
+ClassIDSvc                                     0    INFO  getRegistryEntries: read 1195 CLIDRegistry entries for module ALL
 MdtRawDataProvider.MDT_RawDataProvide...       0    INFO Retrieved service ServiceHandle('ROBDataProviderSvc')
 MdtRawDataProvider.MDT_RawDataProvide...       0    INFO Processing configuration for layouts with BME chambers.
 MdtRawDataProvider.MDT_RawDataProvide...       0    INFO Processing configuration for layouts with BMG chambers.
 MdtRawDataProvider.MDT_RawDataProvide...       0    INFO Retrieved tool Decoder = PrivateToolHandle('MdtROD_Decoder/MdtROD_Decoder')
 MdtRawDataProvider.MDT_RawDataProvide...       0    INFO initialize() successful in MdtRawDataProvider.MDT_RawDataProviderToolMT
+ClassIDSvc                                     0    INFO  getRegistryEntries: read 1095 CLIDRegistry entries for module ALL
 CscRawDataProvider.CSC_RawDataProvide...       0    INFO Retrieved service ServiceHandle('ROBDataProviderSvc')
 CscRawDataProvider.CSC_RawDataProvide...       0    INFO Retrieved tool Decoder = PrivateToolHandle('Muon::CscROD_Decoder/CscROD_Decoder')
 CscRawDataProvider.CSC_RawDataProvide...       0    INFO The Muon Geometry version is R.08.01
 CscRawDataProvider.CSC_RawDataProvide...       0    INFO initialize() successful in CscRawDataProvider.CSC_RawDataProviderToolMT
+ClassIDSvc                                     0    INFO  getRegistryEntries: read 53 CLIDRegistry entries for module ALL
 RpcRdoToRpcPrepData.RpcRdoToRpcPrepDa...       0    INFO package version = MuonRPC_CnvTools-00-00-00
 RpcRdoToRpcPrepData.RpcRdoToRpcPrepDa...       0    INFO properties are 
 RpcRdoToRpcPrepData.RpcRdoToRpcPrepDa...       0    INFO processingData                     0
@@ -29,15 +1418,347 @@ RpcRdoToRpcPrepData.RpcRdoToRpcPrepDa...       0    INFO etaphi_coincidenceTime 
 RpcRdoToRpcPrepData.RpcRdoToRpcPrepDa...       0    INFO overlap_timeTolerance              10
 RpcRdoToRpcPrepData.RpcRdoToRpcPrepDa...       0    INFO Correct prd time from cool db      0
 RpcRdoToRpcPrepData.RpcRdoToRpcPrepDa...       0    INFO Rpc Cabling Svc name is dataLike
-RpcRdoToRpcPrepData                            0    INFO Retrieved DecodingTool = PrivateToolHandle('Muon::RpcRdoToPrepDataTool/RpcRdoToRpcPrepDataTool')
+RpcRdoToRpcPrepData                            0    INFO Retrieved DecodingTool = PrivateToolHandle('Muon::RpcRdoToPrepDataToolMT/RpcRdoToRpcPrepDataTool')
 TgcRdoToTgcPrepData.TgcRdoToTgcPrepDa...       0    INFO initialize() successful in TgcRdoToTgcPrepData.TgcRdoToTgcPrepDataTool
-TgcRdoToTgcPrepData                            0    INFO Retrieved DecodingTool = PrivateToolHandle('Muon::TgcRdoToPrepDataTool/TgcRdoToTgcPrepDataTool')
+TgcRdoToTgcPrepData                            0    INFO Retrieved DecodingTool = PrivateToolHandle('Muon::TgcRdoToPrepDataToolMT/TgcRdoToTgcPrepDataTool')
 MdtRdoToMdtPrepData.MdtRdoToMdtPrepDa...       0    INFO Processing configuration for layouts with BMG chambers.
+AtlasFieldSvc                                  0    INFO initialize() ...
+AtlasFieldSvc                                  0    INFO maps will be chosen reading COOL folder /GLOBAL/BField/Maps
+ClassIDSvc                                     0    INFO  getRegistryEntries: read 163 CLIDRegistry entries for module ALL
+AtlasFieldSvc                                  0    INFO magnet currents will be read from COOL folder /EXT/DCS/MAGNETS/SENSORDATA
+AtlasFieldSvc                                  0    INFO Booked callback for /EXT/DCS/MAGNETS/SENSORDATA
+AtlasFieldSvc                                  0    INFO initialize() successful
 MdtRdoToMdtPrepData.MdtRdoToMdtPrepDa...       0    INFO Processing configuration for layouts with BME chambers.
 MdtRdoToMdtPrepData.MdtRdoToMdtPrepDa...       0    INFO Processing configuration for layouts with BMG chambers.
-MdtRdoToMdtPrepData                            0    INFO Retrieved DecodingTool = PrivateToolHandle('Muon::MdtRdoToPrepDataTool/MdtRdoToMdtPrepDataTool')
+MdtRdoToMdtPrepData                            0    INFO Retrieved DecodingTool = PrivateToolHandle('Muon::MdtRdoToPrepDataToolMT/MdtRdoToMdtPrepDataTool')
 CscRdoToCscPrepData.CscRdoToCscPrepDa...       0    INFO The Geometry version is MuonSpectrometer-R.08.01
-CscRdoToCscPrepData                            0    INFO Retrieved CscRdoToCscPrepDataTool = PrivateToolHandle('Muon::CscRdoToCscPrepDataTool/CscRdoToCscPrepDataTool')
+MuonCalib::CscC...   INFO Initializing CscCoolStrSvc
+ClassIDSvc                                     0    INFO  getRegistryEntries: read 181 CLIDRegistry entries for module ALL
+IOVSvc.IOVSvcTool                              0    INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x13038000]+259 bound to CondAttrListCollection[CSC_PED]
+IOVSvc.IOVSvcTool                              0    INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x13038000]+259 bound to CondAttrListCollection[CSC_NOISE]
+IOVSvc.IOVSvcTool                              0    INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x13038000]+259 bound to CondAttrListCollection[CSC_STAT]
+IOVSvc.IOVSvcTool                              0    INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x13038000]+259 bound to CondAttrListCollection[CSC_RMS]
+IOVSvc.IOVSvcTool                              0    INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x13038000]+259 bound to CondAttrListCollection[CSC_FTHOLD]
+IOVSvc.IOVSvcTool                              0    INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x13038000]+259 bound to CondAttrListCollection[CSC_T0BASE]
+IOVSvc.IOVSvcTool                              0    INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x13038000]+259 bound to CondAttrListCollection[CSC_T0PHASE]
+CscRdoToCscPrepData                            0    INFO Retrieved CscRdoToCscPrepDataTool = PrivateToolHandle('Muon::CscRdoToCscPrepDataToolMT/CscRdoToCscPrepDataTool')
+HistogramPersistencySvc                        0 WARNING Histograms saving not required.
+EventSelector                                  0    INFO Initializing EventSelector - package version ByteStreamCnvSvc-00-00-00
+EventSelector                                  0 WARNING InputCollections not properly set, checking EventStorageInputSvc properties
+EventSelector                                  0    INFO Retrieved StoreGateSvc name of  '':StoreGateSvc
+EventSelector                                  0    INFO reinitialization...
+ClassIDSvc                                     0    INFO  getRegistryEntries: read 380 CLIDRegistry entries for module ALL
+EventSelector                                  0    INFO Retrieved InputCollections from InputSvc
+ByteStreamInputSvc                             0    INFO Initializing ByteStreamInputSvc - package version ByteStreamCnvSvc-00-00-00
+EventSelector                                  0    INFO reinitialization...
+AthenaEventLoopMgr                             0    INFO Setup EventSelector service EventSelector
+ApplicationMgr                                 0    INFO Application Manager Initialized successfully
+ByteStreamInputSvc                             0    INFO Picked valid file: /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1
+CondInputLoader                                0    INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/EXT/DCS/MAGNETS/SENSORDATA'
+CondInputLoader                                0    INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/MDT/CABLING/MAP_SCHEMA'
+CondInputLoader                                0    INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/MDT/CABLING/MEZZANINE_SCHEMA'
+CondInputLoader                                0    INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/MDT/RTBLOB'
+CondInputLoader                                0    INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/MDT/T0BLOB'
+CondInputLoader                                0    INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/MUONALIGN/CSC/ILINES'
+CondInputLoader                                0    INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/MUONALIGN/MDT/ASBUILTPARAMS'
+CondInputLoader                                0    INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/MUONALIGN/MDT/BARREL'
+CondInputLoader                                0    INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/MUONALIGN/MDT/ENDCAP/SIDEA'
+CondInputLoader                                0    INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/MUONALIGN/MDT/ENDCAP/SIDEC'
+CondInputLoader                                0    INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/MUONALIGN/TGC/SIDEA'
+CondInputLoader                                0    INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/MUONALIGN/TGC/SIDEC'
+CondInputLoader                                0    INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/RPC/DCS/DeadRopanels'
+CondInputLoader                                0    INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/RPC/DCS/OffRopanels'
+CondInputLoader                                0    INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/RPC/DQMF/ELEMENT_STATUS'
+ApplicationMgr                                 0    INFO Application Manager Started successfully
+EventInfoByteStreamAuxCnv                      0    INFO IsSimulation : 0
+EventInfoByteStreamAuxCnv                      0    INFO IsTestbeam : 0
+EventInfoByteStreamAuxCnv                      0    INFO IsCalibration : 0
+AthenaEventLoopMgr                         0   0    INFO   ===>>>  start of run 327265    <<<===
+EventPersistencySvc                        0   0    INFO Added successfully Conversion service:TagInfoMgr
+IOVDbSvc                                   0   0    INFO Opening COOL connection for COOLOFL_DCS/CONDBR2
+IOVDbSvc                                   0   0    INFO Disconnecting from COOLOFL_DCS/CONDBR2
+EventPersistencySvc                        0   0    INFO Added successfully Conversion service:AthenaPoolCnvSvc
+IOVDbSvc                                   0   0    INFO Opening COOL connection for COOLONL_GLOBAL/CONDBR2
+IOVDbFolder                                0   0    INFO HVS tag CONDBR2-BLKPA-2018-13 resolved to BFieldMap-Run1-14m-v01 for folder /GLOBAL/BField/Maps
+IOVDbSvc                                   0   0    INFO Disconnecting from COOLONL_GLOBAL/CONDBR2
+IOVDbSvc                                   0   0    INFO Opening COOL connection for COOLONL_RPC/CONDBR2
+IOVDbFolder                                0   0    INFO HVS tag CONDBR2-BLKPA-2018-13 resolved to RPCCablingMapSchema_2016_2017_01 for folder /RPC/CABLING/MAP_SCHEMA
+IOVDbFolder                                0   0    INFO HVS tag CONDBR2-BLKPA-2018-13 resolved to RPCCablingMapSchemaCorr_2016_2017_01 for folder /RPC/CABLING/MAP_SCHEMA_CORR
+IOVDbFolder                                0   0    INFO HVS tag CONDBR2-BLKPA-2018-13 resolved to RPCTriggerCMThrEta_RUN1-RUN2-HI-02 for folder /RPC/TRIGGER/CM_THR_ETA
+IOVDbFolder                                0   0    INFO HVS tag CONDBR2-BLKPA-2018-13 resolved to RPCTriggerCMThrPhi_RUN1-RUN2-HI-02 for folder /RPC/TRIGGER/CM_THR_PHI
+IOVDbSvc                                   0   0    INFO Disconnecting from COOLONL_RPC/CONDBR2
+IOVDbSvc                                   0   0    INFO Opening COOL connection for COOLOFL_CSC/CONDBR2
+IOVDbFolder                                0   0    INFO HVS tag CONDBR2-BLKPA-2018-13 resolved to CscFthold-RUN2-BLK-UPD1-007-00 for folder /CSC/FTHOLD
+IOVDbFolder                                0   0    INFO HVS tag CONDBR2-BLKPA-2018-13 resolved to CscNoise-RUN2-BLK-UPD1-007-00 for folder /CSC/NOISE
+IOVDbFolder                                0   0    INFO HVS tag CONDBR2-BLKPA-2018-13 resolved to CscPed-RUN2-BLK-UPD1-007-00 for folder /CSC/PED
+IOVDbFolder                                0   0    INFO HVS tag CONDBR2-BLKPA-2018-13 resolved to CscPslope-RUN2-BLK-UPD1-000-00 for folder /CSC/PSLOPE
+IOVDbFolder                                0   0    INFO HVS tag CONDBR2-BLKPA-2018-13 resolved to CscRms-RUN2-BLK-UPD1-003-00 for folder /CSC/RMS
+IOVDbFolder                                0   0    INFO HVS tag CONDBR2-BLKPA-2018-13 resolved to CscStat-RUN2-BLK-UPD1-008-00 for folder /CSC/STAT
+IOVDbFolder                                0   0    INFO HVS tag CONDBR2-BLKPA-2018-13 resolved to CscT0base-RUN2-BLK-UPD1-001-00 for folder /CSC/T0BASE
+IOVDbFolder                                0   0    INFO HVS tag CONDBR2-BLKPA-2018-13 resolved to CscT0phase-RUN2-BLK-UPD2-001-00 for folder /CSC/T0PHASE
+IOVDbSvc                                   0   0    INFO Disconnecting from COOLOFL_CSC/CONDBR2
+MuonRPC_CablingSvc                         0   0    INFO initMappingModel has been called
+MuonRPC_CablingSvc                         0   0    INFO ToolHandle in initMappingModel - <TheRpcCablingDbTool = PublicToolHandle('RPCCablingDbTool/RPCCablingDbTool')>
+MuonRPC_CablingSvc                         0   0    INFO Retrieving cabling singleton; to create an empty one or to get the existing one
+RPCcabling                                 0   0    INFO CablingRPC---singleton constructor ---- this must be executed just once
+RPCcabling                                 0   0    INFO CablingRPC---The singleton will fill the maps from the COOL streams
+RPCcabling                                 0   0    INFO CablingRPC---InitMaps from COOL cannot be executed NOW: empty string
+RPCcabling                                 0   0    INFO CablingRPC---The singleton is created here
+RPCcabling                                 0   0    INFO CablingRPC--- cacheCleared: s_status = 0
+MuonRPC_CablingSvc                         0   0    INFO Cabling singleton cache has been cleared
+MuonRPC_CablingSvc                         0   0    INFO  Trigger roads will be loaded from COOL
+ToolSvc.RPCCablingDbTool                   0   0    INFO LoadParameters /RPC/CABLING/MAP_SCHEMA I=2 
+ToolSvc.RPCCablingDbTool                   0   0    INFO loadRPCMap --- Load Map from DB
+ToolSvc.RPCCablingDbTool                   0   0    INFO Try to read from folder </RPC/CABLING/MAP_SCHEMA>
+ToolSvc.RPCCablingDbTool                   0   0    INFO  CondAttrListCollection from DB folder have been obtained with size 1
+ToolSvc.RPCCablingDbTool                   0   0    INFO Loop over CondAttrListCollection ic = 1
+ToolSvc.RPCCablingDbTool                   0   0    INFO After Reading folder, Configuration string size is 222202
+ToolSvc.RPCCablingDbTool                   0   0    INFO LoadParameters /RPC/CABLING/MAP_SCHEMA_CORR I=2 
+ToolSvc.RPCCablingDbTool                   0   0    INFO loadRPCCorr --- Load Corrections from DB
+ToolSvc.RPCCablingDbTool                   0   0    INFO Try to read from folder </RPC/CABLING/MAP_SCHEMA_CORR>
+ToolSvc.RPCCablingDbTool                   0   0    INFO  CondAttrListCollection from DB folder have been obtained with size 1
+ToolSvc.RPCCablingDbTool                   0   0    INFO After Reading folder, Correction string size is 29369
+MuonRPC_CablingSvc                         0   0    INFO  InitMappingModel: Trigger roads not yet loaded from COOL - postpone cabling initialization 
+MuonRPC_CablingSvc                         0   0    INFO initTrigRoadsModel has been called
+MuonRPC_CablingSvc                         0   0    INFO  Trigger roads will be loaded from COOL
+MuonRPC_CablingSvc                         0   0    INFO Retrieve the pointer to the cabling singleton 
+RPCcabling                                 0   0    INFO CablingRPC--- cacheCleared: s_status = 0
+MuonRPC_CablingSvc                         0   0    INFO Cabling singleton cache has been cleared
+ToolSvc.RPCTriggerDbTool                   0   0    INFO LoadParameters /RPC/TRIGGER/CM_THR_ETA I=2 
+ToolSvc.RPCTriggerDbTool                   0   0    INFO LoadParameters /RPC/TRIGGER/CM_THR_PHI I=2 
+MuonRPC_CablingSvc                         0   0    INFO ======== RPC Trigger Roads from COOL - Header infos ========
+MuonRPC_CablingSvc                         0   0    INFO 
+RPC LVL1 Configuration 10.6 with roads from Feb 2012
+L1 THRESHOLDS:   MU4 MU6 MU10 MU11 MU15 MU20
+Road version: "road_files_120209"
+CMA            th0    th1   th2
+eta low-pt     mu4    mu6   mu10
+phi low-pt     mu4    mu6   mu10
+eta high-pt    mu11  mu15   mu20
+phi high-pt    mu11  mu15   mu15
+
+
+RPCcabling                                 0   0    INFO CablingRPC---InitMaps from COOL: going to read configuration
+RPCcabling                                 0   0    INFO CablingRPC--->> RPC cabling map from COOL <<
+RPCcabling                                 0   0    INFO CablingRPC--- ReadConf: map has size 222202
+RPCcabling                                 0   0    INFO CablingRPC--- ReadConf: map n. of lines read is 924
+RPCcabling                                 0   0    INFO CablingRPC--- ReadConf: version is 5.0 Atlas R_07_03_RUN2ver104
+RPCcabling                                 0   0    INFO CablingRPC--- buildRDOmap
+RPCcabling                                 0   0    INFO CablingRPC---InitMaps from COOL: going to read corrections to configuration
+RPCcabling                                 0   0    INFO CablingRPC--->> RPC cabling corrections from COOL <<
+RPCcabling                                 0   0    INFO CablingRPC--- ReadCorr: CorrMap has size 29369
+RPCcabling                                 0   0    INFO CablingRPC--- ReadConf: CorrMap n. of lines read is 743
+RPCcabling                                 0   0    INFO CablingRPC---InitMaps from COOL - maps have been parsed
+MuonRPC_CablingSvc                         0   0    INFO InitTrigRoadsModel: RPC cabling model is loaded!
+Level-1 configuration database version 5.0 Atlas R_07_03_RUN2ver104 read.
+Contains 26 Trigger Sector Types:
+negative sectors  0 - 15 ==> 18  2 24  3 19  2 24  4 20  2 24  1 18  5 25  6 
+negative sectors 16 - 31 ==> 21 13 26  6 21  7 16  8 14  7 16  6 21 13 26  1 
+positive sectors 32 - 47 ==>  9 24  2 22  9 24  2 23 10 24  2 18  1 25  5 18 
+positive sectors 48 - 63 ==>  1 26 13 21  6 17 12 15 11 17 12 21  6 26 13 22 
+
+MuonRPC_CablingSvc                         0   0    INFO buildOfflineOnlineMap
+MuonRPC_CablingSvc                         0   0    INFO Applying FeetPadThresholds : 0,2,5
+MuonRPC_CablingSvc                         0   0    INFO MuonRPC_CablingSvc initialized succesfully
+AtlasFieldSvc                              0   0    INFO reading magnetic field map filenames from COOL
+AtlasFieldSvc                              0   0    INFO found map of type GlobalMap with soleCur=7730 toroCur=20400 (path file:MagneticFieldMaps/bfieldmap_7730_20400_14m.root)
+AtlasFieldSvc                              0   0    INFO found map of type SolenoidMap with soleCur=7730 toroCur=0 (path file:MagneticFieldMaps/bfieldmap_7730_0_14m.root)
+AtlasFieldSvc                              0   0    INFO found map of type ToroidMap with soleCur=0 toroCur=20400 (path file:MagneticFieldMaps/bfieldmap_0_20400_14m.root)
+AtlasFieldSvc                              0   0    INFO no need to update map set
+AtlasFieldSvc                              0   0    INFO Attempt 1 at reading currents from DCS (using channel name)
+AtlasFieldSvc                              0   0    INFO Trying to read from DCS: [channel name, index, value] CentralSol_Current , 1 , 7729.99
+AtlasFieldSvc                              0   0    INFO Trying to read from DCS: [channel name, index, value] CentralSol_SCurrent , 2 , 7730
+AtlasFieldSvc                              0   0    INFO Trying to read from DCS: [channel name, index, value] Toroids_Current , 3 , 20399.9
+AtlasFieldSvc                              0   0    INFO Trying to read from DCS: [channel name, index, value] Toroids_SCurrent , 4 , 20397.7
+AtlasFieldSvc                              0   0    INFO Currents read from DCS: solenoid 7729.99 toroid 20399.9
+AtlasFieldSvc                              0   0    INFO Initializing the field map (solenoidCurrent=7729.99 toroidCurrent=20399.9)
+AtlasFieldSvc                              0   0    INFO reading the map from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/atlas/offline/ReleaseData/v20/MagneticFieldMaps/bfieldmap_7730_20400_14m.root
+AtlasFieldSvc                              0   0    INFO Initialized the field map from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/atlas/offline/ReleaseData/v20/MagneticFieldMaps/bfieldmap_7730_20400_14m.root
+ByteStreamCnvSvc                           0   0    INFO problem adding converter for CLID [2101]
+ByteStreamCnvSvc                           0   0 WARNING Cannot get converter for EventInfo
+ClassIDSvc                                 0   0    INFO  getRegistryEntries: read 275 CLIDRegistry entries for module ALL
+AthenaEventLoopMgr                         0   0    INFO   ===>>>  start processing event #186525031, run #327265 0 events processed so far  <<<===
+IOVDbSvc                                   0   0    INFO Opening COOL connection for COOLONL_MDT/CONDBR2
+IOVDbFolder                                0   0    INFO HVS tag CONDBR2-BLKPA-2018-13 resolved to MDTCablingMapSchema_BMG_01 for folder /MDT/CABLING/MAP_SCHEMA
+IOVDbFolder                                0   0    INFO HVS tag CONDBR2-BLKPA-2018-13 resolved to MDTCablingMezzanineSchema_M5-RUN2 for folder /MDT/CABLING/MEZZANINE_SCHEMA
+IOVDbSvc                                   0   0    INFO Disconnecting from COOLONL_MDT/CONDBR2
+IOVDbSvc                                   0   0    INFO Opening COOL connection for COOLOFL_MDT/CONDBR2
+IOVDbFolder                                0   0    INFO HVS tag CONDBR2-BLKPA-2018-13 resolved to MDTRT-RUN2-UPD4-21 for folder /MDT/RTBLOB
+IOVDbFolder                                0   0    INFO HVS tag CONDBR2-BLKPA-2018-13 resolved to MDTT0-RUN2-UPD4-21 for folder /MDT/T0BLOB
+IOVDbSvc                                   0   0    INFO Disconnecting from COOLOFL_MDT/CONDBR2
+IOVDbSvc                                   0   0    INFO Opening COOL connection for COOLOFL_MUONALIGN/CONDBR2
+IOVDbFolder                                0   0    INFO HVS tag CONDBR2-BLKPA-2018-13 resolved to MuonAlignCscIlines-UPD1-02 for folder /MUONALIGN/CSC/ILINES
+IOVDbFolder                                0   0    INFO HVS tag CONDBR2-BLKPA-2018-13 resolved to MuonAlignMdtAsbuiltparams-RUN2-BA_ONLY-UPD4-00 for folder /MUONALIGN/MDT/ASBUILTPARAMS
+IOVDbFolder                                0   0    INFO HVS tag CONDBR2-BLKPA-2018-13 resolved to MuonAlignMDTBarrelAlign-RUN2-BA_ROLLING_11-BLKP-UPD4-00 for folder /MUONALIGN/MDT/BARREL
+IOVDbFolder                                0   0    INFO HVS tag CONDBR2-BLKPA-2018-13 resolved to MuonAlignMDTEndCapAAlign-RUN2-ECA_ROLLING_2015_03_01-UPD4-02 for folder /MUONALIGN/MDT/ENDCAP/SIDEA
+IOVDbFolder                                0   0    INFO HVS tag CONDBR2-BLKPA-2018-13 resolved to MuonAlignMDTEndCapCAlign-RUN2-ECC_ROLLING_2015_03_01-UPD4-02 for folder /MUONALIGN/MDT/ENDCAP/SIDEC
+IOVDbFolder                                0   0    INFO HVS tag CONDBR2-BLKPA-2018-13 resolved to MuonAlignTGCEndCapAAlign-RUN2-TGCA_ROLLING_2011_01-ES1-UPD1-03 for folder /MUONALIGN/TGC/SIDEA
+IOVDbFolder                                0   0    INFO HVS tag CONDBR2-BLKPA-2018-13 resolved to MuonAlignTGCEndCapCAlign-RUN2-TGCC_ROLLING_2011_01-ES1-UPD1-03 for folder /MUONALIGN/TGC/SIDEC
+IOVDbSvc                                   0   0    INFO Disconnecting from COOLOFL_MUONALIGN/CONDBR2
+IOVDbSvc                                   0   0    INFO Opening COOL connection for COOLOFL_RPC/CONDBR2
+IOVDbFolder                                0   0    INFO HVS tag CONDBR2-BLKPA-2018-13 resolved to RPCDQMFElementStatus_Run1_UPD4-RUN2-01 for folder /RPC/DQMF/ELEMENT_STATUS
+IOVDbSvc                                   0   0    INFO Disconnecting from COOLOFL_RPC/CONDBR2
+MuonAlignmentCondAlg                       0   0    INFO Load alignment parameters from DB folder </MUONALIGN/CSC/ILINES>
+MuonAlignmentCondAlg                       0   0    INFO Size of CSC/ILINES CondAttrListCollection  ( 'CondAttrListCollection' , 'ConditionStore+/MUONALIGN/CSC/ILINES' )  readCscILinesCdo->size()= 1
+MuonAlignmentCondAlg                       0   0    INFO Range of CSC/ILINES input is {[0,0,t:1425168000] - [t:4294967294.854775807]}
+MGM::MuonDetectorManager::updateCSCIn...   0   0    INFO temporary CSC I-line container with size = 128
+MGM::MuonDetectorManager::updateCSCIn...   0   0    INFO # of CSC I-lines read from the ILineMapContainer in StoreGate is 128
+MGM::MuonDetectorManager::updateCSCIn...   0   0    INFO # of deltaTransforms updated according to A-lines             is 128
+MGM::MuonDetectorManager::updateCSCIn...   0   0    INFO # of entries in the CSC I-lines historical container          is 128
+MuonAlignmentCondAlg                       0   0    INFO recorded new CscInternalAlignmentMapContainer with range {[0,0,t:1425168000] - [t:4294967294.854775807]} into Conditions Store
+MuonAlignmentCondAlg                       0   0    INFO Load alignment parameters from DB folder </MUONALIGN/MDT/ASBUILTPARAMS>
+MuonAlignmentCondAlg                       0   0    INFO Size of MDT/ASBUILTPARAMS CondAttrListCollection  ( 'CondAttrListCollection' , 'ConditionStore+/MUONALIGN/MDT/ASBUILTPARAMS' )  ->size()= 1
+MuonAlignmentCondAlg                       0   0    INFO Range of MDT/ASBUILTPARAMS input is {[0,0,t:0] - [t:4294967294.854775807]}
+MGM::MuonDetectorManager::updateAsBui...   0   0    INFO temporary As-Built container with size = 628
+MGM::MuonDetectorManager::updateAsBui...   0   0    INFO Creating the Mdt AsBuilt paramerter map
+MGM::MuonDetectorManager::updateAsBui...   0   0    INFO # of MDT As-Built read from the MdtAsBuiltMapContainer in StoreGate is 628
+MGM::MuonDetectorManager::updateAsBui...   0   0    INFO # of deltaTransforms updated according to As-Built                  is 628
+MGM::MuonDetectorManager::updateAsBui...   0   0    INFO # of entries in the MdtAsBuilt historical container                 is 628
+MuonAlignmentCondAlg                       0   0    INFO recorded new MdtAsBuiltMapContainer with range {[0,0,t:0] - [t:4294967294.854775807]} into Conditions Store
+MuonAlignmentCondAlg                       0   0    INFO Load alignment parameters from DB folder </MUONALIGN/MDT/BARREL>
+MuonAlignmentCondAlg                       0   0    INFO Size of /MUONALIGN/MDT/BARREL CondAttrListCollection  ( 'CondAttrListCollection' , 'ConditionStore+/MUONALIGN/MDT/BARREL' )  readCdo->size()= 1
+MuonAlignmentCondAlg                       0   0    INFO Range of /MUONALIGN/MDT/BARREL input is, ALines: {[0,0,t:1497851700] - [t:1498737300]} BLines: {[0,0,t:1497851700] - [t:1498737300]}
+MuonAlignmentCondAlg                       0   0    INFO Data read from folder /MUONALIGN/MDT/BARREL have IoV = 195569
+MuonAlignmentCondAlg                       0   0    INFO A- and B-Lines parameters from DB folder </MUONALIGN/MDT/BARREL> loaded
+MuonAlignmentCondAlg                       0   0    INFO Load alignment parameters from DB folder </MUONALIGN/MDT/ENDCAP/SIDEA>
+MuonAlignmentCondAlg                       0   0    INFO Size of /MUONALIGN/MDT/ENDCAP/SIDEA CondAttrListCollection  ( 'CondAttrListCollection' , 'ConditionStore+/MUONALIGN/MDT/ENDCAP/SIDEA' )  readCdo->size()= 1
+MuonAlignmentCondAlg                       0   0    INFO Range of /MUONALIGN/MDT/ENDCAP/SIDEA input is, ALines: {[0,0,t:1497891240] - [t:1497898380]} BLines: {[0,0,t:1497891240] - [t:1497898380]}
+MuonAlignmentCondAlg                       0   0    INFO Data read from folder /MUONALIGN/MDT/ENDCAP/SIDEA have IoV = 195588
+MuonAlignmentCondAlg                       0   0    INFO A- and B-Lines parameters from DB folder </MUONALIGN/MDT/ENDCAP/SIDEA> loaded
+MuonAlignmentCondAlg                       0   0    INFO Load alignment parameters from DB folder </MUONALIGN/MDT/ENDCAP/SIDEC>
+MuonAlignmentCondAlg                       0   0    INFO Size of /MUONALIGN/MDT/ENDCAP/SIDEC CondAttrListCollection  ( 'CondAttrListCollection' , 'ConditionStore+/MUONALIGN/MDT/ENDCAP/SIDEC' )  readCdo->size()= 1
+MuonAlignmentCondAlg                       0   0    INFO Range of /MUONALIGN/MDT/ENDCAP/SIDEC input is, ALines: {[0,0,t:1497892260] - [t:1497899460]} BLines: {[0,0,t:1497892260] - [t:1497899460]}
+MuonAlignmentCondAlg                       0   0    INFO Data read from folder /MUONALIGN/MDT/ENDCAP/SIDEC have IoV = 195599
+MuonAlignmentCondAlg                       0   0    INFO A- and B-Lines parameters from DB folder </MUONALIGN/MDT/ENDCAP/SIDEC> loaded
+MuonAlignmentCondAlg                       0   0    INFO Load alignment parameters from DB folder </MUONALIGN/TGC/SIDEA>
+MuonAlignmentCondAlg                       0   0    INFO No BLines decoding will be attempted for folder named /MUONALIGN/TGC/SIDEA
+MuonAlignmentCondAlg                       0   0    INFO Size of /MUONALIGN/TGC/SIDEA CondAttrListCollection  ( 'CondAttrListCollection' , 'ConditionStore+/MUONALIGN/TGC/SIDEA' )  readCdo->size()= 1
+MuonAlignmentCondAlg                       0   0    INFO Range of /MUONALIGN/TGC/SIDEA input is, ALines: {[0,0,t:0] - [t:4294967294.854775807]}
+MuonAlignmentCondAlg                       0   0    INFO Data read from folder /MUONALIGN/TGC/SIDEA have IoV = 82360
+MuonAlignmentCondAlg                       0   0    INFO A- and B-Lines parameters from DB folder </MUONALIGN/TGC/SIDEA> loaded
+MuonAlignmentCondAlg                       0   0    INFO Load alignment parameters from DB folder </MUONALIGN/TGC/SIDEC>
+MuonAlignmentCondAlg                       0   0    INFO No BLines decoding will be attempted for folder named /MUONALIGN/TGC/SIDEC
+MuonAlignmentCondAlg                       0   0    INFO Size of /MUONALIGN/TGC/SIDEC CondAttrListCollection  ( 'CondAttrListCollection' , 'ConditionStore+/MUONALIGN/TGC/SIDEC' )  readCdo->size()= 1
+MuonAlignmentCondAlg                       0   0    INFO Range of /MUONALIGN/TGC/SIDEC input is, ALines: {[0,0,t:0] - [t:4294967294.854775807]}
+MuonAlignmentCondAlg                       0   0    INFO Data read from folder /MUONALIGN/TGC/SIDEC have IoV = 82359
+MuonAlignmentCondAlg                       0   0    INFO A- and B-Lines parameters from DB folder </MUONALIGN/TGC/SIDEC> loaded
+MGM::MuonDetectorManager::updateAlign...   0   0    INFO temporary A-line container with size = 2694
+MGM::MuonDetectorManager::updateAlign...   0   0    INFO # of A-lines read from the ALineMapContainer in StoreGate is 2694
+MGM::MuonDetectorManager::updateAlign...   0   0    INFO # of deltaTransforms updated according to A-lines         is 2694
+MGM::MuonDetectorManager::updateAlign...   0   0    INFO # of entries in the A-lines historical container          is 2814
+MuonAlignmentCondAlg                       0   0    INFO recorded new ALineMapContainer with range {[0,0,t:1497892260,l:0] - [t:1497898380]} into Conditions Store
+MGM::MuonDetectorManager::updateDefor...   0   0    INFO In updateDeformations()
+MGM::MuonDetectorManager::updateDefor...   0   0    INFO temporary B-line container with size = 1206
+MGM::MuonDetectorManager::updateDefor...   0   0    INFO # of B-lines read from the ALineMapContainer in StoreGate   is 1206
+MGM::MuonDetectorManager::updateDefor...   0   0    INFO # of deform-Transforms updated according to B-lines         is 1174
+MGM::MuonDetectorManager::updateDefor...   0   0    INFO # of entries in the B-lines historical container            is 1174
+MuonAlignmentCondAlg                       0   0    INFO recorded new BLineMapContainer with range {[0,0,t:1497892260,l:0] - [t:1497898380]} into Conditions Store
+MuonMDT_CablingAlg                         0   0    INFO Size of CondAttrListCollection  ( 'CondAttrListCollection' , 'ConditionStore+/MDT/CABLING/MEZZANINE_SCHEMA' )  readCdoMez->size()= 24
+MuonMDT_CablingAlg                         0   0    INFO Range of input is {[0,l:0] - [INVALID]}
+MuonMDT_CablingAlg                         0   0    INFO Size of CondAttrListCollection  ( 'CondAttrListCollection' , 'ConditionStore+/MDT/CABLING/MAP_SCHEMA' )  readCdoMap->size()= 2312
+MuonMDT_CablingAlg                         0   0    INFO Range of input is {[327264,l:4294640031] - [327265,l:4294640030]}
+MuonMDT_CablingAlg                         0   0    INFO recorded new MuonMDT_CablingMap with range {[327264,t:0,l:4294640031] - [327265,l:4294640030]} into Conditions Store
+MdtCalibDbAlg                              0   0    INFO Size of CondAttrListCollection  ( 'CondAttrListCollection' , 'ConditionStore+/MDT/RTBLOB' )  readCdoRt->size()= 1186
+MdtCalibDbAlg                              0   0    INFO Range of input is {[327265,l:0] - [327342,l:0]}
+MdtCalibDbAlg                              0   0    INFO MdtCalibDbAlg::loadRt Read 1188RTs from COOL
+MdtCalibDbAlg                              0   0    INFO recorded new MdtRtRelationCollection with range {[327265,l:0] - [327342,l:0]} into Conditions Store
+MdtCalibDbAlg                              0   0    INFO recorded new MdtCorFuncSetCollection with range {[327265,l:0] - [327342,l:0]} into Conditions Store
+MdtCalibDbAlg                              0   0    INFO Ignoring nonexistant station in calibration DB: MuonSpectrometer BML -6 stationPhi 7 MDT multiLayer 1 tubeLayer 1 tube 1
+MdtCalibDbAlg                              0   0    INFO Ignoring nonexistant station in calibration DB: MuonSpectrometer BML stationEta 6 stationPhi 7 MDT multiLayer 1 tubeLayer 1 tube 1
+MdtCalibDbAlg                              0   0    INFO Size of CondAttrListCollection  ( 'CondAttrListCollection' , 'ConditionStore+/MDT/T0BLOB' )  readCdoTube->size()= 1186
+MdtCalibDbAlg                              0   0    INFO Range of input is {[319000,l:0] - [INVALID]}
+MdtCalibDbAlg                              0   0    INFO recorded new MdtTubeCalibContainerCollection with range {[319000,l:0] - [INVALID]} into Conditions Store
+AthenaEventLoopMgr                         0   0    INFO   ===>>>  done processing event #186525031, run #327265 1 events processed so far  <<<===
+AthenaEventLoopMgr                         1   0    INFO   ===>>>  start processing event #186524665, run #327265 1 events processed so far  <<<===
+AthenaEventLoopMgr                         1   0    INFO   ===>>>  done processing event #186524665, run #327265 2 events processed so far  <<<===
+AthenaEventLoopMgr                         2   0    INFO   ===>>>  start processing event #186542447, run #327265 2 events processed so far  <<<===
+AthenaEventLoopMgr                         2   0    INFO   ===>>>  done processing event #186542447, run #327265 3 events processed so far  <<<===
+AthenaEventLoopMgr                         3   0    INFO   ===>>>  start processing event #186543405, run #327265 3 events processed so far  <<<===
+AthenaEventLoopMgr                         3   0    INFO   ===>>>  done processing event #186543405, run #327265 4 events processed so far  <<<===
+AthenaEventLoopMgr                         4   0    INFO   ===>>>  start processing event #186548387, run #327265 4 events processed so far  <<<===
+AthenaEventLoopMgr                         4   0    INFO   ===>>>  done processing event #186548387, run #327265 5 events processed so far  <<<===
+AthenaEventLoopMgr                         5   0    INFO   ===>>>  start processing event #186515186, run #327265 5 events processed so far  <<<===
+AthenaEventLoopMgr                         5   0    INFO   ===>>>  done processing event #186515186, run #327265 6 events processed so far  <<<===
+AthenaEventLoopMgr                         6   0    INFO   ===>>>  start processing event #186556019, run #327265 6 events processed so far  <<<===
+AthenaEventLoopMgr                         6   0    INFO   ===>>>  done processing event #186556019, run #327265 7 events processed so far  <<<===
+AthenaEventLoopMgr                         7   0    INFO   ===>>>  start processing event #186542866, run #327265 7 events processed so far  <<<===
+AthenaEventLoopMgr                         7   0    INFO   ===>>>  done processing event #186542866, run #327265 8 events processed so far  <<<===
+AthenaEventLoopMgr                         8   0    INFO   ===>>>  start processing event #186537901, run #327265 8 events processed so far  <<<===
+AthenaEventLoopMgr                         8   0    INFO   ===>>>  done processing event #186537901, run #327265 9 events processed so far  <<<===
+AthenaEventLoopMgr                         9   0    INFO   ===>>>  start processing event #186517811, run #327265 9 events processed so far  <<<===
+AthenaEventLoopMgr                         9   0    INFO   ===>>>  done processing event #186517811, run #327265 10 events processed so far  <<<===
+AthenaEventLoopMgr                        10   0    INFO   ===>>>  start processing event #186534221, run #327265 10 events processed so far  <<<===
+AthenaEventLoopMgr                        10   0    INFO   ===>>>  done processing event #186534221, run #327265 11 events processed so far  <<<===
+AthenaEventLoopMgr                        11   0    INFO   ===>>>  start processing event #186540986, run #327265 11 events processed so far  <<<===
+AthenaEventLoopMgr                        11   0    INFO   ===>>>  done processing event #186540986, run #327265 12 events processed so far  <<<===
+AthenaEventLoopMgr                        12   0    INFO   ===>>>  start processing event #186535104, run #327265 12 events processed so far  <<<===
+AthenaEventLoopMgr                        12   0    INFO   ===>>>  done processing event #186535104, run #327265 13 events processed so far  <<<===
+AthenaEventLoopMgr                        13   0    INFO   ===>>>  start processing event #186539903, run #327265 13 events processed so far  <<<===
+AthenaEventLoopMgr                        13   0    INFO   ===>>>  done processing event #186539903, run #327265 14 events processed so far  <<<===
+AthenaEventLoopMgr                        14   0    INFO   ===>>>  start processing event #186552713, run #327265 14 events processed so far  <<<===
+AthenaEventLoopMgr                        14   0    INFO   ===>>>  done processing event #186552713, run #327265 15 events processed so far  <<<===
+AthenaEventLoopMgr                        15   0    INFO   ===>>>  start processing event #186524730, run #327265 15 events processed so far  <<<===
+AthenaEventLoopMgr                        15   0    INFO   ===>>>  done processing event #186524730, run #327265 16 events processed so far  <<<===
+AthenaEventLoopMgr                        16   0    INFO   ===>>>  start processing event #186547632, run #327265 16 events processed so far  <<<===
+AthenaEventLoopMgr                        16   0    INFO   ===>>>  done processing event #186547632, run #327265 17 events processed so far  <<<===
+AthenaEventLoopMgr                        17   0    INFO   ===>>>  start processing event #186555621, run #327265 17 events processed so far  <<<===
+AthenaEventLoopMgr                        17   0    INFO   ===>>>  done processing event #186555621, run #327265 18 events processed so far  <<<===
+AthenaEventLoopMgr                        18   0    INFO   ===>>>  start processing event #186568452, run #327265 18 events processed so far  <<<===
+AthenaEventLoopMgr                        18   0    INFO   ===>>>  done processing event #186568452, run #327265 19 events processed so far  <<<===
+AthenaEventLoopMgr                        19   0    INFO   ===>>>  start processing event #186580451, run #327265 19 events processed so far  <<<===
+AthenaEventLoopMgr                        19   0    INFO   ===>>>  done processing event #186580451, run #327265 20 events processed so far  <<<===
+Domain[ROOT_All]                          19   0    INFO >   Deaccess DbDomain     READ      [ROOT_All] 
+ApplicationMgr                            19   0    INFO Application Manager Stopped successfully
+IncidentProcAlg1                          19   0    INFO Finalize
+CondInputLoader                           19   0    INFO Finalizing CondInputLoader...
+IncidentProcAlg2                          19   0    INFO Finalize
+AtlasFieldSvc                             19   0    INFO finalize() successful
+IOVDbFolder                               19   0    INFO Folder /EXT/DCS/MAGNETS/SENSORDATA (AttrListColl) db-read 1/2 objs/chan/bytes 4/4/20 ((     0.03 ))s
+IOVDbFolder                               19   0    INFO Folder /GLOBAL/BField/Maps (AttrListColl) db-read 1/1 objs/chan/bytes 3/3/202 ((     0.05 ))s
+IOVDbFolder                               19   0    INFO Folder /MDT/CABLING/MAP_SCHEMA (AttrListColl) db-read 1/1 objs/chan/bytes 2312/2437/216520 ((     0.19 ))s
+IOVDbFolder                               19   0    INFO Folder /MDT/CABLING/MEZZANINE_SCHEMA (AttrListColl) db-read 1/1 objs/chan/bytes 24/24/288 ((     0.03 ))s
+IOVDbFolder                               19   0    INFO Folder /MDT/RTBLOB (AttrListColl) db-read 1/1 objs/chan/bytes 2372/1186/2251209 ((     0.18 ))s
+IOVDbFolder                               19   0    INFO Folder /MDT/T0BLOB (AttrListColl) db-read 1/1 objs/chan/bytes 1186/1186/1374284 ((     0.10 ))s
+IOVDbFolder                               19   0    INFO Folder /MUONALIGN/CSC/ILINES (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/10814 ((     0.04 ))s
+IOVDbFolder                               19   0    INFO Folder /MUONALIGN/MDT/ASBUILTPARAMS (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/128992 ((     0.04 ))s
+IOVDbFolder                               19   0    INFO Folder /MUONALIGN/MDT/BARREL (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/140293 ((     0.06 ))s
+IOVDbFolder                               19   0    INFO Folder /MUONALIGN/MDT/ENDCAP/SIDEA (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/65494 ((     0.04 ))s
+IOVDbFolder                               19   0    INFO Folder /MUONALIGN/MDT/ENDCAP/SIDEC (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/65497 ((     0.03 ))s
+IOVDbFolder                               19   0    INFO Folder /MUONALIGN/TGC/SIDEA (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/165643 ((     0.04 ))s
+IOVDbFolder                               19   0    INFO Folder /MUONALIGN/TGC/SIDEC (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/165643 ((     0.03 ))s
+IOVDbFolder                               19   0    INFO Folder /RPC/CABLING/MAP_SCHEMA (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/222235 ((     0.03 ))s
+IOVDbFolder                               19   0    INFO Folder /RPC/CABLING/MAP_SCHEMA_CORR (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/29402 ((     0.04 ))s
+IOVDbFolder                               19   0    INFO Folder /RPC/DCS/DeadRopanels (AttrListColl) db-read 1/1 objs/chan/bytes 32/48/6200 ((     0.00 ))s
+IOVDbFolder                               19   0    INFO Folder /RPC/DCS/OffRopanels (AttrListColl) db-read 1/1 objs/chan/bytes 4/48/16 ((     0.00 ))s
+IOVDbFolder                               19   0    INFO Folder /RPC/DQMF/ELEMENT_STATUS (AttrListColl) db-read 1/1 objs/chan/bytes 8320/8320/6180700 ((     0.27 ))s
+IOVDbFolder                               19   0    INFO Folder /RPC/TRIGGER/CM_THR_ETA (AttrListColl) db-read 1/1 objs/chan/bytes 1613/1613/7562651 ((     0.14 ))s
+IOVDbFolder                               19   0    INFO Folder /RPC/TRIGGER/CM_THR_PHI (AttrListColl) db-read 1/1 objs/chan/bytes 1612/1612/8096306 ((     0.11 ))s
+IOVDbFolder                               19   0    INFO Folder /TDAQ/RunCtrl/SOR_Params (AttrListColl) db-read 0/0 objs/chan/bytes 0/1/0 ((     0.00 ))s
+IOVDbFolder                               19   0    INFO Folder /TGC/CABLING/MAP_SCHEMA (AttrListColl) db-read 0/0 objs/chan/bytes 0/1/0 ((     0.00 ))s
+IOVDbFolder                               19   0    INFO Folder /CSC/FTHOLD (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/322656 ((     0.05 ))s
+IOVDbFolder                               19   0    INFO Folder /CSC/NOISE (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/350062 ((     0.04 ))s
+IOVDbFolder                               19   0    INFO Folder /CSC/PED (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/411187 ((     0.04 ))s
+IOVDbFolder                               19   0    INFO Folder /CSC/PSLOPE (AttrListColl) db-read 1/0 objs/chan/bytes 32/32/353376 ((     0.03 ))s
+IOVDbFolder                               19   0 WARNING Folder /CSC/PSLOPE is requested but no data retrieved
+IOVDbFolder                               19   0    INFO Folder /CSC/RMS (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/411395 ((     0.04 ))s
+IOVDbFolder                               19   0    INFO Folder /CSC/STAT (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/230496 ((     0.04 ))s
+IOVDbFolder                               19   0    INFO Folder /CSC/T0BASE (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/314380 ((     0.04 ))s
+IOVDbFolder                               19   0    INFO Folder /CSC/T0PHASE (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/3136 ((     0.02 ))s
+IOVDbSvc                                  19   0    INFO  bytes in ((      1.75 ))s
+IOVDbSvc                                  19   0    INFO Connection sqlite://;schema=mycool.db;dbname=CONDBR2 : nConnect: 0 nFolders: 0 ReadTime: ((     0.00 ))s
+IOVDbSvc                                  19   0    INFO Connection COOLONL_TDAQ/CONDBR2 : nConnect: 1 nFolders: 1 ReadTime: ((     0.00 ))s
+IOVDbSvc                                  19   0    INFO Connection COOLOFL_MUONALIGN/CONDBR2 : nConnect: 2 nFolders: 7 ReadTime: ((     0.27 ))s
+IOVDbSvc                                  19   0    INFO Connection COOLONL_RPC/CONDBR2 : nConnect: 2 nFolders: 4 ReadTime: ((     0.33 ))s
+IOVDbSvc                                  19   0    INFO Connection COOLONL_TGC/CONDBR2 : nConnect: 1 nFolders: 1 ReadTime: ((     0.00 ))s
+IOVDbSvc                                  19   0    INFO Connection COOLONL_MDT/CONDBR2 : nConnect: 2 nFolders: 2 ReadTime: ((     0.22 ))s
+IOVDbSvc                                  19   0    INFO Connection COOLONL_GLOBAL/CONDBR2 : nConnect: 2 nFolders: 1 ReadTime: ((     0.05 ))s
+IOVDbSvc                                  19   0    INFO Connection COOLOFL_DCS/CONDBR2 : nConnect: 2 nFolders: 3 ReadTime: ((     0.03 ))s
+IOVDbSvc                                  19   0    INFO Connection COOLOFL_MDT/CONDBR2 : nConnect: 2 nFolders: 2 ReadTime: ((     0.29 ))s
+IOVDbSvc                                  19   0    INFO Connection COOLOFL_RPC/CONDBR2 : nConnect: 2 nFolders: 1 ReadTime: ((     0.27 ))s
+IOVDbSvc                                  19   0    INFO Connection COOLOFL_CSC/CONDBR2 : nConnect: 2 nFolders: 8 ReadTime: ((     0.30 ))s
+IdDictDetDescrCnv                         19   0    INFO in finalize
+AthDictLoaderSvc                          19   0    INFO in finalize...
+ToolSvc                                   19   0    INFO Removing all tools created by ToolSvc
 TgcRdoToTgcPrepData.TgcRdoToTgcPrepDa...  19   0    INFO finalize(): input RDOs->output PRDs [Hit: 6807->6807, Tracklet: 28->28, TrackletEIFI: 692->692, HiPt: 4031->4031, SL: 3->3]
 MdtRawDataProvider.MDT_RawDataProvide...  19   0    INFO Fraction of fills that use the cache = 0
 TgcRawDataProvider.TGC_RawDataProvide...  19   0    INFO Fraction of fills that use the cache = 0
@@ -56,3 +1777,15 @@ RpcROD_Decoder::printcheckformat          19   0    INFO  SL Footer Errors......
 RpcROD_Decoder::printcheckformat          19   0    INFO  RX Footer Errors.............0
 RpcROD_Decoder::printcheckformat          19   0    INFO  CRC8 check Failures..........0
 RpcROD_Decoder::printcheckformat          19   0    INFO  ==================================================== 
+ToolSvc.ByteStreamMetadataTool            19   0    INFO in finalize()
+ToolSvc.TGCCablingDbTool                  19   0    INFO finalize
+*****Chrono*****                          19   0    INFO ****************************************************************************************************
+*****Chrono*****                          19   0    INFO  The Final CPU consumption ( Chrono ) Table (ordered)
+*****Chrono*****                          19   0    INFO ****************************************************************************************************
+cObj_ALL                                  19   0    INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #= 28
+ChronoStatSvc                             19   0    INFO Time User   : Tot= 22.3  [s]                                             #=  1
+*****Chrono*****                          19   0    INFO ****************************************************************************************************
+ChronoStatSvc.finalize()                  19   0    INFO  Service finalized successfully 
+ApplicationMgr                            19   0    INFO Application Manager Finalized successfully
+ApplicationMgr                            19   0    INFO Application Manager Terminated successfully
+Py:Athena            INFO leaving with code 0: "successful run"

@@ -51,6 +51,9 @@
   <class name="xAOD::TrackParticleAuxContainer_v4"
 	 id="403ceb6e-2a3d-11e8-b048-080027f5cbda"/>
 
+  <class name="xAOD::TrackParticleAuxContainer_v5"
+	 id="3CE194F2-99D1-42D5-A3EB-D193E0AFA9FF"/>
+
   <read sourceClass="xAOD::TrackParticleAuxContainer_v4" version="[1-]"
         targetClass="xAOD::TrackParticleAuxContainer_v4"
         source="" target="" >

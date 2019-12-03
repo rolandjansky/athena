@@ -112,9 +112,6 @@ if __name__ == "__main__":
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     from AthenaCommon.Constants import DEBUG
 
-    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
-    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
-
     ConfigFlags.Detector.GeometryPixel = True
     ConfigFlags.Detector.GeometrySCT   = True
     ConfigFlags.Detector.GeometryTRT   = True
@@ -123,14 +120,7 @@ if __name__ == "__main__":
     ConfigFlags.Detector.GeometryMDT   = True
     ConfigFlags.Detector.GeometryTGC   = True
     ConfigFlags.Detector.GeometryRPC   = True
-    ConfigFlags.Detector.GeometryCSC   = True
-    if not MuonGeometryFlags.hasCSC(): ConfigFlags.Detector.GeometryCSC = False
-    ConfigFlags.Detector.GeometryMM   = True
-    ConfigFlags.Detector.GeometrysTGC   = True
-    if not (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]):
-        ConfigFlags.Detector.GeometryMM   = False
-        ConfigFlags.Detector.GeometrysTGC   = False
-    
+
     ConfigFlags.Input.Files = defaultTestFiles.RAW    
     ConfigFlags.Input.isMC = False
     ConfigFlags.dump()
@@ -167,7 +157,7 @@ if __name__ == "__main__":
 
     cfg.getService("IOVDbSvc").OutputLevel=DEBUG
     
-    cfg.store( file( "test.pkl", "w" ) )
+    cfg.store( open( "test.pkl", "wb" ) )
     print("used flags")
     ConfigFlags.dump()
     cfg.run(0)

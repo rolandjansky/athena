@@ -12,7 +12,8 @@ def getPFTrackSelectorAlgorithm(inputFlags):
 
     from eflowRec.eflowRecConf import eflowTrackCaloExtensionTool
     TrackCaloExtensionTool=eflowTrackCaloExtensionTool(TrackCaloExtensionTool=pcExtensionTool)
-
+    TrackCaloExtensionTool.PFParticleCache=""
+    
     PFTrackSelector.trackExtrapolatorTool = TrackCaloExtensionTool
 
     from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ValgrindSvc.cxx 
@@ -25,7 +25,6 @@
 // Valkyrie includes
 #include "ValgrindSvc.h"
 
-#include "boost/foreach.hpp"
 
 /////////////////////////////////////////////////////////////////// 
 // Public methods: 
@@ -108,7 +107,7 @@ StatusCode ValgrindSvc::initialize()
   incSvc->addListener( this, IncidentType::BeginEvent );
   incSvc->addListener( this, IncidentType::EndEvent   );
 
-  BOOST_FOREACH(std::string incident, m_dumpAfterIncident) {
+  for(const std::string& incident : m_dumpAfterIncident) {
     incSvc->addListener( this, incident );
   }
 

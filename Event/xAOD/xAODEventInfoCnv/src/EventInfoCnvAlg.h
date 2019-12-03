@@ -1,10 +1,7 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventInfoCnvAlg.h 751296 2016-06-01 08:00:25Z krasznaa $
 #ifndef XAODEVENTINFOCNV_EVENTINFOCNVALG_H
 #define XAODEVENTINFOCNV_EVENTINFOCNVALG_H
 
@@ -31,9 +28,6 @@ namespace xAODMaker {
     *         from an input (AOD) POOL file into an xAOD::EventInfo object.
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
-    *
-    * $Revision: 751296 $
-    * $Date: 2016-06-01 10:00:25 +0200 (Wed, 01 Jun 2016) $
     */
    class EventInfoCnvAlg : public AthReentrantAlgorithm {
 
@@ -45,10 +39,6 @@ namespace xAODMaker {
       virtual StatusCode initialize() override;
       /// Function executing the algorithm
       virtual StatusCode execute (const EventContext& ctx) const override;
-
-      /// Function executed at the beginning of the job, once the first event
-      /// from the input file is already open
-      virtual StatusCode beginRun() override;
 
    private:
       /// Key for the input object

@@ -51,8 +51,8 @@ class TileHitVecToCnt : public AthAlgorithm {
   virtual ~TileHitVecToCnt() = default;
 
   /** Basic algorithm methods */
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
   virtual bool isClonable() const override final { return true; }
 
  private:

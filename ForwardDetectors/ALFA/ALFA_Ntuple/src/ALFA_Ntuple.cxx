@@ -1986,16 +1986,12 @@ StatusCode ALFA_Ntuple::COOLUpdate(IOVSVC_CALLBACK_ARGS_P(/*I*/, keys))
 
 StatusCode ALFA_Ntuple::COOLIOVRange(std::string strFolder, uint64_t &iTimeIOVStart, uint64_t &iTimeIOVStop)
 {
-	std::string strFoldername, strTag;
-	IOVRange Range;
-	bool bRetrieved;
-	unsigned long long ullBytesRead;
-	float fReadTime;
+    IIOVDbSvc::KeyInfo info;
 
-	if(!m_iovSvc->getKeyInfo(strFolder, strFoldername, strTag, Range, bRetrieved, ullBytesRead, fReadTime)) return StatusCode::FAILURE;
+	if(!m_iovSvc->getKeyInfo(strFolder, info)) return StatusCode::FAILURE;
 
-	IOVTime timeIOVstart = Range.start();
-	IOVTime timeIOVstop  = Range.stop();
+	const IOVTime& timeIOVstart = info.range.start();
+	const IOVTime& timeIOVstop  = info.range.stop();
 
 
 	if(timeIOVstart.isRunEvent() && timeIOVstop.isRunEvent())

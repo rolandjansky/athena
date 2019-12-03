@@ -61,8 +61,7 @@
 
 #include <fstream>
 #include <sstream>
-
-//
+#include <cmath>
 
 typedef std::istringstream mystream;
 
@@ -1313,8 +1312,8 @@ void MuonGMCheck::checkreadoutmmgeo()
 		     fout<<helper.show_to_string(idC)<<" # of gas gaps = "<<helper.gasGapMax(idC)-helper.gasGapMin(idC)+1<<" ggMax = "<<helper.gasGapMax(idC)<<" number of layers(from geo)= "<<mmC->numberOfLayers(true)<<" nStrips = "<<mmC->numberOfStrips(idC)<<std::endl;
 		     Amg::Vector3D chCenterC = (mmC->absTransform())*Amg::Vector3D(0.,0.,0.);
 		     Amg::Vector3D chCenterA = (mmA->absTransform())*Amg::Vector3D(0.,0.,0.);
-		     fout<<"center of the chamber on the A-side = "<<chCenterA<<" cyl coord (r,phi)-> "<<chCenterA.perp()<<" "<<chCenterA.phi()*180./3.14159<<std::endl;
-		     fout<<"center of the chamber on the C-side = "<<chCenterC<<" cyl coord (r,phi)-> "<<chCenterC.perp()<<" "<<chCenterC.phi()*180./3.14159<<std::endl;
+		     fout<<"center of the chamber on the A-side = "<<chCenterA<<" cyl coord (r,phi)-> "<<chCenterA.perp()<<" "<<chCenterA.phi()*180./M_PI<<std::endl;
+		     fout<<"center of the chamber on the C-side = "<<chCenterC<<" cyl coord (r,phi)-> "<<chCenterC.perp()<<" "<<chCenterC.phi()*180./M_PI<<std::endl;
 		     Amg::Vector2D lpos(0.,0.);
 		     //		     for (int igg=1;igg<helper.gasGapMax(idA)-helper.gasGapMin(idA)+2;++igg)
 		     for (int igg=1;igg<mmA->numberOfLayers(true)+1;++igg)
@@ -1328,9 +1327,9 @@ void MuonGMCheck::checkreadoutmmgeo()
 			 const Amg::Vector3D *chCenter_fC = mmC->surface(idgg_fC).Trk::Surface::localToGlobal(lpos);
 			 const Amg::Vector3D *chCenter_lC = mmC->surface(idgg_lC).Trk::Surface::localToGlobal(lpos);
 			 fout<<"A-side: center of surface for gg "<<igg<<" 1st ch, "<<mmA->numberOfStrips(idA)<<"-th ch: r "<<chCenter_fA->perp()<<" "<<chCenter_lA->perp()
-			     <<" phi "<<chCenter_fA->phi()*180./3.14159<<" "<<chCenter_lA->phi()*180./3.14159<<" z "<<chCenter_fA->z()<<" "<<chCenter_lA->z()<<" "<<helper.show_to_string(idgg_fA)<<std::endl;
+			     <<" phi "<<chCenter_fA->phi()*180./M_PI<<" "<<chCenter_lA->phi()*180./M_PI<<" z "<<chCenter_fA->z()<<" "<<chCenter_lA->z()<<" "<<helper.show_to_string(idgg_fA)<<std::endl;
 			 fout<<"C-side: center of surface for gg "<<igg<<" 1st ch, "<<mmC->numberOfStrips(idC)<<"-th ch: r "<<chCenter_fC->perp()<<" "<<chCenter_lC->perp()
-			     <<" phi "<<chCenter_fC->phi()*180./3.14159<<" "<<chCenter_lC->phi()*180./3.14159<<" z "<<chCenter_fC->z()<<" "<<chCenter_lC->z()<<" "<<helper.show_to_string(idgg_fC)<<std::endl;
+			     <<" phi "<<chCenter_fC->phi()*180./M_PI<<" "<<chCenter_lC->phi()*180./M_PI<<" z "<<chCenter_fC->z()<<" "<<chCenter_lC->z()<<" "<<helper.show_to_string(idgg_fC)<<std::endl;
 		       }
 		     //std::cout<<chCenterA.x()<<" "<<chCenterA.y()<<" "<<chCenterA.z()<<std::endl;
 		     //std::cout<<chCenterC.x()<<" "<<chCenterC.y()<<" "<<chCenterC.z()<<std::endl;
@@ -1403,8 +1402,8 @@ void MuonGMCheck::checkreadoutstgcgeo()
 
 		     Amg::Vector3D chCenterC = (mmC->absTransform())*Amg::Vector3D(0.,0.,0.);
 		     Amg::Vector3D chCenterA = (mmA->absTransform())*Amg::Vector3D(0.,0.,0.);
-		     fout<<"center of the chamber on the A-side = "<<chCenterA<<" cyl coord (r,phi)-> "<<chCenterA.perp()<<" "<<chCenterA.phi()*180./3.14159<<std::endl;
-		     fout<<"center of the chamber on the C-side = "<<chCenterC<<" cyl coord (r,phi)-> "<<chCenterC.perp()<<" "<<chCenterC.phi()*180./3.14159<<std::endl;
+		     fout<<"center of the chamber on the A-side = "<<chCenterA<<" cyl coord (r,phi)-> "<<chCenterA.perp()<<" "<<chCenterA.phi()*180./M_PI<<std::endl;
+		     fout<<"center of the chamber on the C-side = "<<chCenterC<<" cyl coord (r,phi)-> "<<chCenterC.perp()<<" "<<chCenterC.phi()*180./M_PI<<std::endl;
 		     // Amg::Vector2D lpos(0.,0.);
 		     // for (int igg=1;igg<helper.gasGapMax(idA)-helper.gasGapMin(idA)+2;++igg)
 		     //   {
@@ -1417,9 +1416,9 @@ void MuonGMCheck::checkreadoutstgcgeo()
 		     // 	 const Amg::Vector3D *chCenter_fC = mmC->surface(idgg_fC).Trk::Surface::localToGlobal(lpos);
 		     // 	 const Amg::Vector3D *chCenter_lC = mmC->surface(idgg_lC).Trk::Surface::localToGlobal(lpos);
 		     // 	 fout<<"A-side/eta: center of surface for gg "<<igg<<" 1st ch, "<<mmA->numberOfStrips(idA)<<"-th ch: r "<<chCenter_fA->perp()<<" "<<chCenter_lA->perp()
-		     // 	     <<" phi "<<chCenter_fA->phi()*180./3.14159<<" "<<chCenter_lA->phi()*180./3.14159<<" z "<<chCenter_fA->z()<<" "<<chCenter_lA->z()<<std::endl;
+		     // 	     <<" phi "<<chCenter_fA->phi()*180./M_PI<<" "<<chCenter_lA->phi()*180./M_PI<<" z "<<chCenter_fA->z()<<" "<<chCenter_lA->z()<<std::endl;
 		     // 	 fout<<"C-side/eta: center of surface for gg "<<igg<<" 1st ch, "<<mmC->numberOfStrips(idC)<<"-th ch: r "<<chCenter_fC->perp()<<" "<<chCenter_lC->perp()
-		     // 	     <<" phi "<<chCenter_fC->phi()*180./3.14159<<" "<<chCenter_lC->phi()*180./3.14159<<" z "<<chCenter_fC->z()<<" "<<chCenter_lC->z()<<std::endl;
+		     // 	     <<" phi "<<chCenter_fC->phi()*180./M_PI<<" "<<chCenter_lC->phi()*180./M_PI<<" z "<<chCenter_fC->z()<<" "<<chCenter_lC->z()<<std::endl;
 		     // 	 idgg_fA =  helper.channelID(helper.parentID(idA),iml+1,igg,1,1);
 		     // 	 idgg_lA =  helper.channelID(helper.parentID(idA),iml+1,igg,1,mmA->numberOfStrips(idA));
 		     // 	 idgg_fC =  helper.channelID(helper.parentID(idC),iml+1,igg,1,1);
@@ -1429,9 +1428,9 @@ void MuonGMCheck::checkreadoutstgcgeo()
 		     // 	 chCenter_fC = mmC->surface(idgg_fC).Trk::Surface::localToGlobal(lpos);
 		     // 	 chCenter_lC = mmC->surface(idgg_lC).Trk::Surface::localToGlobal(lpos);
 		     // 	 fout<<"A-side/phi: center of surface for gg "<<igg<<" 1st ch, "<<mmA->numberOfStrips(idA)<<"-th ch: r "<<chCenter_fA->perp()<<" "<<chCenter_lA->perp()
-		     // 	     <<" phi "<<chCenter_fA->phi()*180./3.14159<<" "<<chCenter_lA->phi()*180./3.14159<<" z "<<chCenter_fA->z()<<" "<<chCenter_lA->z()<<std::endl;
+		     // 	     <<" phi "<<chCenter_fA->phi()*180./M_PI<<" "<<chCenter_lA->phi()*180./M_PI<<" z "<<chCenter_fA->z()<<" "<<chCenter_lA->z()<<std::endl;
 		     // 	 fout<<"C-side/phi: center of surface for gg "<<igg<<" 1st ch, "<<mmC->numberOfStrips(idC)<<"-th ch: r "<<chCenter_fC->perp()<<" "<<chCenter_lC->perp()
-		     // 	     <<" phi "<<chCenter_fC->phi()*180./3.14159<<" "<<chCenter_lC->phi()*180./3.14159<<" z "<<chCenter_fC->z()<<" "<<chCenter_lC->z()<<std::endl;
+		     // 	     <<" phi "<<chCenter_fC->phi()*180./M_PI<<" "<<chCenter_lC->phi()*180./M_PI<<" z "<<chCenter_fC->z()<<" "<<chCenter_lC->z()<<std::endl;
 		     //   }
 		   }
 	       }
@@ -2066,12 +2065,12 @@ void MuonGMCheck::checkreadouttgcgeo()
                      Amg::Vector3D xlgn = tgc1->channelPos(lgn);
                      fout<<"\n gg "<<ngg+1<<" "<<m_muonIdHelperTool->tgcIdHelper().show_to_string(fg)
                               <<"GM:: first eta gang z>0 r,p,z "
-                              <<xfg.perp()<<" "<<xfg.phi()*180./3.14159<<" "<<xfg.z()<<" last "
-                              <<xlg.perp()<<" "<<xlg.phi()*180./3.14159<<" "<<xlg.z()<<std::endl;
+                              <<xfg.perp()<<" "<<xfg.phi()*180./M_PI<<" "<<xfg.z()<<" last "
+                              <<xlg.perp()<<" "<<xlg.phi()*180./M_PI<<" "<<xlg.z()<<std::endl;
                      fout<<"gg "<<ngg+1<<" "<<m_muonIdHelperTool->tgcIdHelper().show_to_string(fgn)
                               <<"GM:: first eta gang z<0 r,p,z "
-                              <<xfgn.perp()<<" "<<xfgn.phi()*180./3.14159<<" "<<xfgn.z()<<" last "
-                              <<xlgn.perp()<<" "<<xlgn.phi()*180./3.14159<<" "<<xlgn.z()<<std::endl;
+                              <<xfgn.perp()<<" "<<xfgn.phi()*180./M_PI<<" "<<xfgn.z()<<" last "
+                              <<xlgn.perp()<<" "<<xlgn.phi()*180./M_PI<<" "<<xlgn.z()<<std::endl;
 
                      Identifier fs = m_muonIdHelperTool->tgcIdHelper().channelID(idp, ngg+1, 1, 1);
                      Identifier ls = m_muonIdHelperTool->tgcIdHelper().channelID(idp, ngg+1, 1, tgc->getNStrips(ngg+1));
@@ -2083,24 +2082,24 @@ void MuonGMCheck::checkreadouttgcgeo()
                      xlgn = tgc1->channelPos(lsn);
                      fout<<"\n gg "<<ngg+1<<" "<<m_muonIdHelperTool->tgcIdHelper().show_to_string(fs)
                               <<"GM:: first phi strip z>0 r,p,z "
-                              <<xfg.perp()<<" "<<xfg.phi()*180./3.14159<<" "<<xfg.z()<<" last "
-                              <<xlg.perp()<<" "<<xlg.phi()*180./3.14159<<" "<<xlg.z()<<std::endl;
+                              <<xfg.perp()<<" "<<xfg.phi()*180./M_PI<<" "<<xfg.z()<<" last "
+                              <<xlg.perp()<<" "<<xlg.phi()*180./M_PI<<" "<<xlg.z()<<std::endl;
                      fout<<"gg "<<ngg+1<<" "<<m_muonIdHelperTool->tgcIdHelper().show_to_string(fsn)
                               <<"GM:: first phi strip z<0 r,p,z "
-                              <<xfgn.perp()<<" "<<xfgn.phi()*180./3.14159<<" "<<xfgn.z()<<" last "
-                              <<xlgn.perp()<<" "<<xlgn.phi()*180./3.14159<<" "<<xlgn.z()<<std::endl;
+                              <<xfgn.perp()<<" "<<xfgn.phi()*180./M_PI<<" "<<xfgn.z()<<" last "
+                              <<xlgn.perp()<<" "<<xlgn.phi()*180./M_PI<<" "<<xlgn.z()<<std::endl;
                      xfg = tgc->localChannelPos(fs);
                      xlg = tgc->localChannelPos(ls);
                      xfgn = tgc1->localChannelPos(fsn);
                      xlgn = tgc1->localChannelPos(lsn);
                      fout<<"\n gg "<<ngg+1<<" "<<m_muonIdHelperTool->tgcIdHelper().show_to_string(fs)
                               <<"GM:: first p_S local z>0 r,p,z "
-                              <<xfg.perp()<<" "<<xfg.phi()*180./3.14159<<" "<<xfg.z()<<" last "
-                              <<xlg.perp()<<" "<<xlg.phi()*180./3.14159<<" "<<xlg.z()<<std::endl;
+                              <<xfg.perp()<<" "<<xfg.phi()*180./M_PI<<" "<<xfg.z()<<" last "
+                              <<xlg.perp()<<" "<<xlg.phi()*180./M_PI<<" "<<xlg.z()<<std::endl;
                      fout<<"gg "<<ngg+1<<" "<<m_muonIdHelperTool->tgcIdHelper().show_to_string(fsn)
                               <<"GM:: first p_S local z<0 r,p,z "
-                              <<xfgn.perp()<<" "<<xfgn.phi()*180./3.14159<<" "<<xfgn.z()<<" last "
-                              <<xlgn.perp()<<" "<<xlgn.phi()*180./3.14159<<" "<<xlgn.z()<<std::endl;
+                              <<xfgn.perp()<<" "<<xfgn.phi()*180./M_PI<<" "<<xfgn.z()<<" last "
+                              <<xlgn.perp()<<" "<<xlgn.phi()*180./M_PI<<" "<<xlgn.z()<<std::endl;
 
                      if (m_check_surfaces)
                      {
@@ -2500,21 +2499,21 @@ void MuonGMCheck::checkreadoutcscgeo()
 			     <<"GM:: first phi strip is at z<0 "<<xfszp1<<" last "<<xlszp1<<std::endl;
                          fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fwzp)
 			     <<"GM::  first eta gang z>0 r,p,z "
-			     <<xfwzp.perp()<<" "<<xfwzp.phi()*180./3.14159<<" "<<xfwzp.z()<<" last "
-			     <<xlwzp.perp()<<" "<<xlwzp.phi()*180./3.14159<<" "<<xlwzp.z()<<std::endl;
+			     <<xfwzp.perp()<<" "<<xfwzp.phi()*180./M_PI<<" "<<xfwzp.z()<<" last "
+			     <<xlwzp.perp()<<" "<<xlwzp.phi()*180./M_PI<<" "<<xlwzp.z()<<std::endl;
                          fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fwzp1)
 			     <<"GM:: first eta wire z<0 r,p,z "
-			     <<xfwzp1.perp()<<" "<<xfwzp1.phi()*180./3.14159<<" "<<xfwzp1.z()<<" last "
-			     <<xlwzp1.perp()<<" "<<xlwzp1.phi()*180./3.14159<<" "<<xlwzp1.z()<<std::endl;
+			     <<xfwzp1.perp()<<" "<<xfwzp1.phi()*180./M_PI<<" "<<xfwzp1.z()<<" last "
+			     <<xlwzp1.perp()<<" "<<xlwzp1.phi()*180./M_PI<<" "<<xlwzp1.z()<<std::endl;
 
                          fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fszp)
 			     <<"GM::  first phi strip z>0 r,p,z "
-			     <<xfszp.perp()<<" "<<xfszp.phi()*180./3.14159<<" "<<xfszp.z()<<" last "
-			     <<xlszp.perp()<<" "<<xlszp.phi()*180./3.14159<<" "<<xlszp.z()<<std::endl;
+			     <<xfszp.perp()<<" "<<xfszp.phi()*180./M_PI<<" "<<xfszp.z()<<" last "
+			     <<xlszp.perp()<<" "<<xlszp.phi()*180./M_PI<<" "<<xlszp.z()<<std::endl;
                          fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fszp1)
 			     <<"GM:: first phi strip z<0 r,p,z "
-			     <<xfszp1.perp()<<" "<<xfszp1.phi()*180./3.14159<<" "<<xfszp1.z()<<" last "
-			     <<xlszp1.perp()<<" "<<xlszp1.phi()*180./3.14159<<" "<<xlszp1.z()<<std::endl;
+			     <<xfszp1.perp()<<" "<<xfszp1.phi()*180./M_PI<<" "<<xfszp1.z()<<" last "
+			     <<xlszp1.perp()<<" "<<xlszp1.phi()*180./M_PI<<" "<<xlszp1.z()<<std::endl;
 
 			 /* 
                          fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fwzp)
@@ -2531,21 +2530,21 @@ void MuonGMCheck::checkreadoutcscgeo()
 			     <<" distance trkGeo-stripPos F="<<(xfszp1New-xfszp1).perp()<<" distance trkGeo-stripPos L="<<(xlszp1New-xlszp1).perp()<<std::endl;
                          fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fwzp)
                                   <<"GM::new first eta gang z>0 r,p,z "
-                                  <<xfwzpNew.perp()<<" "<<xfwzpNew.phi()*180./3.14159<<" "<<xfwzpNew.z()<<" last "
-                                  <<xlwzpNew.perp()<<" "<<xlwzpNew.phi()*180./3.14159<<" "<<xlwzpNew.z()<<std::endl;
+                                  <<xfwzpNew.perp()<<" "<<xfwzpNew.phi()*180./M_PI<<" "<<xfwzpNew.z()<<" last "
+                                  <<xlwzpNew.perp()<<" "<<xlwzpNew.phi()*180./M_PI<<" "<<xlwzpNew.z()<<std::endl;
                          fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fwzp1)
                                   <<"GM::new first eta wire z<0 r,p,z "
-                                  <<xfwzp1New.perp()<<" "<<xfwzp1New.phi()*180./3.14159<<" "<<xfwzp1New.z()<<" last "
-                                  <<xlwzp1New.perp()<<" "<<xlwzp1New.phi()*180./3.14159<<" "<<xlwzp1New.z()<<std::endl;
+                                  <<xfwzp1New.perp()<<" "<<xfwzp1New.phi()*180./M_PI<<" "<<xfwzp1New.z()<<" last "
+                                  <<xlwzp1New.perp()<<" "<<xlwzp1New.phi()*180./M_PI<<" "<<xlwzp1New.z()<<std::endl;
 
                          fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fszp)
                                   <<"GM::new first phi strip z>0 r,p,z "
-                                  <<xfszpNew.perp()<<" "<<xfszpNew.phi()*180./3.14159<<" "<<xfszpNew.z()<<" last "
-                                  <<xlszpNew.perp()<<" "<<xlszpNew.phi()*180./3.14159<<" "<<xlszpNew.z()<<std::endl;
+                                  <<xfszpNew.perp()<<" "<<xfszpNew.phi()*180./M_PI<<" "<<xfszpNew.z()<<" last "
+                                  <<xlszpNew.perp()<<" "<<xlszpNew.phi()*180./M_PI<<" "<<xlszpNew.z()<<std::endl;
                          fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fszp1)
                                   <<"GM::new first phi strip z<0 r,p,z "
-                                  <<xfszp1New.perp()<<" "<<xfszp1New.phi()*180./3.14159<<" "<<xfszp1New.z()<<" last "
-                                  <<xlszp1New.perp()<<" "<<xlszp1New.phi()*180./3.14159<<" "<<xlszp1New.z()<<std::endl;
+                                  <<xfszp1New.perp()<<" "<<xfszp1New.phi()*180./M_PI<<" "<<xfszp1New.z()<<" last "
+                                  <<xlszp1New.perp()<<" "<<xlszp1New.phi()*180./M_PI<<" "<<xlszp1New.z()<<std::endl;
 			 */
 
                          //Amg::Vector3D lxfwzp = csc->localStripPos(fwzp);
@@ -2571,12 +2570,12 @@ void MuonGMCheck::checkreadoutcscgeo()
                          
                          fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fszp)
                                   <<"GM:: first phi_S local z>0 r,p,z "
-                                  <<lxfszp.perp()<<" "<<lxfszp.phi()*180./3.14159<<" "<<lxfszp.z()<<" last "
-                                  <<lxlszp.perp()<<" "<<lxlszp.phi()*180./3.14159<<" "<<lxlszp.z()<<std::endl;
+                                  <<lxfszp.perp()<<" "<<lxfszp.phi()*180./M_PI<<" "<<lxfszp.z()<<" last "
+                                  <<lxlszp.perp()<<" "<<lxlszp.phi()*180./M_PI<<" "<<lxlszp.z()<<std::endl;
                          fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fszp1)
                                   <<"GM:: first phi_S local z<0 r,p,z "
-                                  <<lxfszp1.perp()<<" "<<lxfszp1.phi()*180./3.14159<<" "<<lxfszp1.z()<<" last "
-                                  <<lxlszp1.perp()<<" "<<lxlszp1.phi()*180./3.14159<<" "<<lxlszp1.z()<<std::endl;
+                                  <<lxfszp1.perp()<<" "<<lxfszp1.phi()*180./M_PI<<" "<<lxfszp1.z()<<" last "
+                                  <<lxlszp1.perp()<<" "<<lxlszp1.phi()*180./M_PI<<" "<<lxlszp1.z()<<std::endl;
 
                          //temporary{{
 //                          int chl = m_muonIdHelperTool->cscIdHelper().chamberLayer(fwzp);
@@ -3202,15 +3201,15 @@ void MuonGMCheck::buildTgcRegionSelectorMap()
       //	  posmax = tgc->channelPos(2,1,chmax);
       //	  phimin = atan2f(posmin.y(),posmin.x());
       //	  phimax = atan2f(posmax.y(),posmax.x());
-      //	  if (phimin < 0) phimin += 2.*3.141592653589793238;
-      //	  if (phimax < 0) phimax += 2.*3.141592653589793238;
+      //	  if (phimin < 0) phimin += 2.*M_PI;
+      //	  if (phimax < 0) phimax += 2.*M_PI;
 
       // caliculation based on active sensitive area
       float activelongside = tgc->longWidth()-tgc->frameXwidth()*2.;
       phimin = atan2f(posctr.y(),posctr.x()) - atan2f(activelongside/2.,posctr.perp()+activeheight/2.);
       phimax = atan2f(posctr.y(),posctr.x()) + atan2f(activelongside/2.,posctr.perp()+activeheight/2.);
-      if (phimin < 0) phimin += 2.*3.141592653589793238;
-      if (phimax < 0) phimax += 2.*3.141592653589793238;
+      if (phimin < 0) phimin += 2.*M_PI;
+      if (phimax < 0) phimax += 2.*M_PI;
   
       fout0 << new_extid
 	    << setiosflags(std::ios::fixed) << std::setprecision(0) << std::setw(6) 
@@ -3331,7 +3330,7 @@ void MuonGMCheck::buildCscRegionSelectorMap()
  						
  							phi_test=gphis_x1.phi();
  							// for detector in (-0.25,0.25) phi interval use +-3,14 phi interval
- 							if(!(aux1==51 && aux3==1))	if (phi_test < 0) phi_test += 2.*3.141592653589793238;
+ 							if(!(aux1==51 && aux3==1))	if (phi_test < 0) phi_test += 2.*M_PI;
  														
  							// phi
  							if(phi_test > phi_max)		{
@@ -3354,7 +3353,7 @@ void MuonGMCheck::buildCscRegionSelectorMap()
  
  							phi_test=gphis_x2.phi();
  							// for detector in (-0.25,0.25) phi interval use +-3,14 phi interval
- 							if(!(aux1==51 && aux3==1)) if (phi_test < 0) phi_test += 2.*3.141592653589793238;
+ 							if(!(aux1==51 && aux3==1)) if (phi_test < 0) phi_test += 2.*M_PI;
  							
  							// phi
  							if(phi_test > phi_max)	{
@@ -3404,7 +3403,7 @@ void MuonGMCheck::buildCscRegionSelectorMap()
  							
  							phi_test = getas_x1.phi();
  							// for detector in (-0.25,0.25) phi interval use +-3,14 phi interval
- 							if(!(aux1==51 && aux3==1)) if (phi_test < 0) phi_test += 2.*3.141592653589793238;
+ 							if(!(aux1==51 && aux3==1)) if (phi_test < 0) phi_test += 2.*M_PI;
  							// phi
  							if(phi_test > phi_max)	{
  								Id_phi_max=etas_id;
@@ -3426,7 +3425,7 @@ void MuonGMCheck::buildCscRegionSelectorMap()
  
  							phi_test = getas_x2.phi();
  							// for detector in (-0.25,0.25) phi interval use +-3,14 phi interval
- 							if(!(aux1==51 && aux3==1))	if (phi_test < 0) phi_test += 2.*3.141592653589793238;
+ 							if(!(aux1==51 && aux3==1))	if (phi_test < 0) phi_test += 2.*M_PI;
  							// phi
  							if(phi_test > phi_max)	{
  								Id_phi_max=etas_id;
@@ -3494,8 +3493,8 @@ void MuonGMCheck::buildCscRegionSelectorMap()
  			std::cout << "--------> eta_max " << eta_max << " mp " << mp_eta_max << " chl " << cl_eta_max << " wl " << wl_eta_max << " strip " << N_eta_max << std::endl;
  			std::cout << "--------> Dphi " << fabs(phi_max-phi_min) << " Deta " << fabs(eta_max-eta_min) << std::endl;
  			
- 			if(aux1==51 && aux3==1)	if (phi_min < 0) phi_min += 2.*3.141592653589793238;
- 			if(aux1==51 && aux3==1)	if (phi_max < 0) phi_max += 2.*3.141592653589793238;
+ 			if(aux1==51 && aux3==1)	if (phi_min < 0) phi_min += 2.*M_PI;
+ 			if(aux1==51 && aux3==1)	if (phi_max < 0) phi_max += 2.*M_PI;
  			
  			fout0 << new_extid
              << setiosflags(std::ios::fixed) << std::setprecision(0) << std::setw(6) 

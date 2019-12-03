@@ -106,9 +106,9 @@ public:
     /// Explicit call to process IOV meta data from the input meta
     /// data store, transferring it to the main meta data
     /// store. Normally, this method is called at the
-    /// BeginFileIncident. However, this explicit call allows the
+    /// BeginInputFile incident. However, this explicit call allows the
     /// transfer to occur during the initialization phase, which
-    /// occurs before BeginFileIncident.
+    /// occurs before BegininputFile incident.
     StatusCode  processInputFileMetaData(const std::string& fileName);
 
 private:
@@ -137,7 +137,7 @@ private:
     StoreGateSvc_t   m_inputStore;
 
     // Has the FirstInputFileIncidence fired? Used to skip the first
-    // BeginFileIncidence
+    // BeginInputFile incident
     bool             m_processedFirstInputFileIncidence;
 
     // Flag to check whether we need to override run number for MC

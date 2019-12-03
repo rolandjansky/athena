@@ -14,10 +14,12 @@
 #define ATHENAKERNEL_THINNINGCACHE_H
 
 
+#include "AthenaKernel/ThinningDecisionBase.h"
 #include "AthenaKernel/sgkey_t.h"
 #include <unordered_map>
 #include <string>
 #include <vector>
+#include <memory>
 
 
 namespace SG {
@@ -70,10 +72,28 @@ public:
    * @param key SG string key of the object being added.
    * @param sgkeys SG hashed keys of the object being added.
    * @param thinning Thinning information for the object.
+   * @param unique If true, the object must not already be listed in the cache.
+   *
+   * If there is already thinning information in the cache for the object
+   * identified by @c key:
+   *    - If @c unique is false, the new thinning request will be merged
+   *      with the existing one via AND.
+   *    - If @c unique is true, an exception will be thrown.
    */
   void addThinning (const std::string& key,
                     const std::vector<sgkey_t>& sgkeys,
-                    const ThinningDecisionBase* thinning);
+                    const ThinningDecisionBase* thinning,
+                    bool unique = false);
+
+
+  /**
+   * @brief Lock all the @c ThinningDecisionBase objects that we own.
+   *
+   * This should be called after all thinning objects have been added,
+   * but before the cache is installed in the EventContext.
+   */
+  void lockOwned();
+
 
   /**
    * @brief Clear the cache.
@@ -89,6 +109,22 @@ private:
   /// Mapping by hashed SG key.
   typedef std::unordered_map<sgkey_t, const ThinningDecisionBase*> sgmap_t;
   sgmap_t m_sgmap;
+
+  /// List of decision objects we've copied in order to handle merges.
+  std::vector<std::unique_ptr<ThinningDecisionBase> > m_owned;
+
+
+  /**
+   * @brief Merge a new thinning request into an existing one via AND.
+   * @param oldThinningIt Iterator in @c m_map of the existing thinning decision.
+   * @param sgkeys SG hashed keys of the object being added.
+   * @param thinning New thinning decision.
+   *
+   * The new thinning decision will be combined with the old one via AND.
+   */
+  void merge (map_t::iterator oldThinningIt,
+              const std::vector<sgkey_t>& sgkeys,
+              const ThinningDecisionBase& thinning);
 };
 
 

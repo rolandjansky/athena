@@ -45,11 +45,8 @@ def getHITSStreamItemList():
                          "TrackRecordCollection#MuonExitLayer"]
         from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
         if MuonGeometryFlags.hasCSC(): hitsItemList += ["CSCSimHitCollection#*"]
-        from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
-        if (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]):
-            hitsItemList += ["sTGCSimHitCollection#*"]
-            hitsItemList += ["MMSimHitCollection#*"]
-            hitsItemList += ["GenericMuonSimHitCollection#*"]
+        if MuonGeometryFlags.hasSTGC(): hitsItemList += ["sTGCSimHitCollection#*"]
+        if MuonGeometryFlags.hasMM(): hitsItemList += ["MMSimHitCollection#*"]
 
     ## FwdRegion
     if DetFlags.FwdRegion_on():

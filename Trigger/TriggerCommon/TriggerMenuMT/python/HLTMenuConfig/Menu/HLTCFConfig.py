@@ -27,14 +27,15 @@
 
 # Classes to configure the CF graph, via Nodes
 from AthenaCommon.CFElements import parOR, seqAND, seqOR
-from AthenaCommon.Logging import logging
 from AthenaCommon.AlgSequence import dumpSequence
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFDot import  stepCF_DataFlow_to_dot, stepCF_ControlFlow_to_dot, all_DataFlow_to_dot
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep
 
 import copy
-log = logging.getLogger('HLTCFConfig')
+from AthenaCommon.Logging import logging
+log = logging.getLogger( __name__ )
+
 
 
 #### Here functions to create the CF tree from CF configuration objects
@@ -160,10 +161,11 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     summary= makeSummary("TriggerSummaryFinal", flatDecisions)
     hltTop += summary
 
+    # TODO - check we are not running things twice. Once here and once in TriggerConfig.py
 
     # add signature monitor
     from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectViewMakers, collectDecisionObjects,\
-        triggerMonitoringCfg, triggerSummaryCfg, triggerMergeViewsAndAddMissingEDMCfg
+        triggerMonitoringCfg, triggerSummaryCfg, triggerMergeViewsAndAddMissingEDMCfg, collectHypoDecisionObjects
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior+=1
@@ -171,17 +173,18 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     hypos = collectHypos(steps)
     filters = collectFilters(steps)
     viewMakers = collectViewMakers(steps)
-    decObj = collectDecisionObjects( hypos, filters, l1decoder[0] )
     summaryAcc, summaryAlg = triggerSummaryCfg( ConfigFlags, hypos )
     hltTop += summaryAlg
     summaryAcc.appendToGlobals()
+    decObj = collectDecisionObjects( hypos, filters, l1decoder[0], summaryAlg )
+    decObjHypoOut = collectHypoDecisionObjects(hypos, inputs=False, outputs=True)
 
     monAcc, monAlg = triggerMonitoringCfg( ConfigFlags, hypos, filters, l1decoder[0] )
     monAcc.appendToGlobals()
     hltTop += monAlg
 
     # this is a shotcut for now, we always assume we may be writing ESD & AOD outputs, so all gaps will be filled
-    edmAlg = triggerMergeViewsAndAddMissingEDMCfg(['AOD', 'ESD'], hypos, viewMakers, decObj )
+    edmAlg = triggerMergeViewsAndAddMissingEDMCfg(['AOD', 'ESD'], hypos, viewMakers, decObj, decObjHypoOut)
     hltTop += edmAlg
 
     Configurable.configurableRun3Behavior-=1

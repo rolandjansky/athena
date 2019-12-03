@@ -18,8 +18,6 @@ decription           : Class for performing updates on multi-component states fo
 #include "TrkEventPrimitives/FitQualityOnSurface.h"
 #include "TrkGaussianSumFilter/IMultiComponentStateAssembler.h"
 #include "TrkGaussianSumFilter/IMultiStateMeasurementUpdator.h"
-#include "TrkGaussianSumFilter/IPosteriorWeightsCalculator.h"
-
 #include "TrkToolInterfaces/IUpdator.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -89,12 +87,6 @@ private:
 
 private:
   ToolHandle<IUpdator> m_updator{ this, "Updator", "Trk::KalmanUpdator/KalmanUpdator", "" };
-  ToolHandle<IPosteriorWeightsCalculator> m_posteriorWeightsCalculator{
-    this,
-    "PosteriorWeightsCalculator",
-    "Trk::PosteriorWeightsCalculator/PosteriorWeightsCalculator",
-    ""
-  };
   ToolHandle<IMultiComponentStateAssembler> m_stateAssembler{
     this,
     "MultiComponentStateAssembler",

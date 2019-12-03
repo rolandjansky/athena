@@ -243,7 +243,7 @@ class LVL1TopoInput(LVL1Threshold):
 
         if triggerlines is not None :
             # from triggerline
-            from TriggerMenu.l1topo.TopoOutput import TriggerLine
+            from TriggerMenuMT.LVL1MenuConfig.L1Topo.TopoOutput import TriggerLine
             if type(triggerlines)==list:
                 # multibit triggerlines
                 (commonNameOfLines, firstbit, numberOfBits, cable, clock, fpga, ordinal) = TriggerLine.checkMultibitConsistency(triggerlines)

@@ -18,7 +18,7 @@ public:
   virtual ~HLTCalo_TopoCaloClustersMonitor();
   virtual StatusCode initialize() override;
   virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
-  virtual float calculateDeltaR( float eta_1, float phi_1, float eta_2, float phi_2 ) const;
+  virtual float calculateDeltaR( float max_deltar, float eta_1, float phi_1, float eta_2, float phi_2 ) const;
   virtual float calculateDeltaPhi( float phi_1, float phi_2 ) const;
 
 private:
@@ -28,6 +28,7 @@ private:
   std::string m_HLT_cont_name;
   std::string m_OFF_cont_name;
   std::string m_mongroup_name;
+  float m_HLT_high_et;
   float m_HLT_min_et;
   float m_OFF_min_et;
   std::vector<int> m_HLT_types;

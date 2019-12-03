@@ -561,22 +561,6 @@ StatusCode AthenaHiveEventLoopMgr::writeHistograms(bool force) {
 }
 
 //=========================================================================
-// Run the algorithms beginRun hook
-//=========================================================================
-StatusCode AthenaHiveEventLoopMgr::beginRunAlgorithms() {
-
-  return StatusCode::SUCCESS;
-}
-
-//=========================================================================
-// Run the algorithms endRun hook
-//=========================================================================
-StatusCode AthenaHiveEventLoopMgr::endRunAlgorithms() {
-
-  return StatusCode::SUCCESS;
-}
-
-//=========================================================================
 // Call sysInitialize() on all algorithms and output streams
 //=========================================================================
 StatusCode AthenaHiveEventLoopMgr::initializeAlgorithms() {

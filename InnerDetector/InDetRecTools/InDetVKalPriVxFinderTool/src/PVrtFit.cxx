@@ -7,8 +7,8 @@
 //-------------------------------------------------
 // Other stuff
 #include "TMath.h"
+#include <cmath>
 //
-//#include<iostream>
 
  
 //
@@ -27,9 +27,11 @@ namespace InDet {
       int Selector=2;   // Initial choice
       int NTracksVrt = 0;
       badPart.clear(); badTrk.clear();
-      if( ListParticles.size() == 0 && ListTracks.size() == 0 )return;
-      if( ListParticles.size() != 0 && ListTracks.size() == 0 ){ Selector =1; NTracksVrt=ListParticles.size(); }
-      if( ListParticles.size() == 0 && ListTracks.size() != 0 ){ Selector =2; NTracksVrt=ListTracks.size();}
+      const bool particlesExist{!ListParticles.empty()};
+      const bool tracksExist{!ListTracks.empty()};
+      if( (not particlesExist) and (not tracksExist))return;
+      if( particlesExist and (not tracksExist)){ Selector =1; NTracksVrt=ListParticles.size(); }
+      if( (not particlesExist) and tracksExist){ Selector =2; NTracksVrt=ListTracks.size();}
       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "CleanTrkSet() called. Total tracks= " << NTracksVrt<< endmsg;
       if( NTracksVrt<10 ) return;  //nothing to do
 //
@@ -69,8 +71,7 @@ namespace InDet {
 	     if(distR<6.0)continue;
 	     if(direction<0)continue;
 	     if(distZ<4.0)continue;
-	     //std::cout<<" pairfound="<<it<<", "<<jt<<" Chi2="<<tmpChi2<<" Chi2trk="<<Chi2PerTrk[it]<<", "<<Chi2PerTrk[jt]<<
-	     //     " XYZ="<<tmpFV.x()<<", "<<tmpFV.y()<<", "<<tmpFV.z()<<" dst="<<distR<<", "<<distZ<<'\n';
+
 	     setOfBadTrk.push_back(it); setOfBadTrk.push_back(jt);
 	   }
          }
@@ -85,14 +86,13 @@ namespace InDet {
             m_sc=m_fitSvc->VKalVrtFit(ListP,tmpFV, m_Momentum,m_Charge,ErrorMatrix,trkChi2,tmpAtV,tmpChi2,*state);}
          if(Selector==2){ ListT[0]=ListTracks[it]; 
             m_sc=m_fitSvc->VKalVrtFit(ListT,tmpFV, m_Momentum,m_Charge,ErrorMatrix,trkChi2,tmpAtV,tmpChi2,*state);}
-	 //std::cout<<" singlefound="<<it<<" Chi2="<<tmpChi2<<", "<<Chi2PerTrk[it]<<'\n';
          if(tmpChi2<0.5)setOfBadTrk.push_back(it);
        }
 //
 // Bad track removal      
 //
       ListP.clear(); ListT.clear(); badPart.clear(); badTrk.clear();
-      if( setOfBadTrk.size() == 0) return;   //nothing found
+      if( setOfBadTrk.empty()) return;   //nothing found
 //
       for(it=0; it<NTracksVrt; it++){
         std::vector<int>::iterator found = find(setOfBadTrk.begin(), setOfBadTrk.end(), it);
@@ -211,8 +211,7 @@ if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Out1="<< Chi2PerTrk[Outlier]<<", Wei="<
 //----------------------------------------------------------------------------
 //  Cleaning + refit with full error matrix
 //
-//      std::vector<const Trk::TrackParticleBase*> badPrt; std::vector<const Trk::Track*> badTrk;
-//      CleanTrkSet( ListParticles, ListTracks, FitVertex, Chi2PerTrk, badPrt, badTrk);
+
       state = m_fitSvc->makeState();
       if(m_BeamConstraint) {
          m_fitSvc->setVertexForConstraint(m_BeamCnst[0],m_BeamCnst[1],FitVertex.z(), *state);
@@ -337,7 +336,7 @@ if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Out1="<< Chi2PerTrk[Outlier]<<", Wei="<
 	   Pt= PtTrk[j] < 100000 ? PtTrk[j] : 100000.;
            PtSum += Pt;
 	   PxSum += PxTrk[j]; PySum += PyTrk[j];
-	   Angle=2.*PhiTrk[j]/3.1415926536;
+	   Angle=2.*PhiTrk[j]/M_PI;
 	   if(Angle < 0) Angle += 4.;
  	   PtAng1[(int)Angle]                                        += Pt;
            PtAng2[(int)(Angle+0.5 <  4. ?  Angle+0.5  : Angle-3.5)]  += Pt;
@@ -359,7 +358,6 @@ if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Out1="<< Chi2PerTrk[Outlier]<<", Wei="<
 	if( Counter<=5 && Counter>CounterOld ) Found = 1;
 	if( Counter> 5 && ControlVariableCur > ControlVariable) Found = 1;
         if(Found){
-//std::cout<<" N="<<Counter<<" PtSum="<<PtSum<<" Cntr="<<ControlVariableCur<<" Z="<<ZSum/Counter<<'\n';
 	   ControlVariable = ControlVariableCur;
 	   ZEstimation   = ZSum/Counter;
 	   CounterOld = Counter;
@@ -382,7 +380,7 @@ if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Out1="<< Chi2PerTrk[Outlier]<<", Wei="<
 
   {    std::vector<const Trk::Track*>::const_iterator i_ntrk;
        AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
-       const Trk::Perigee* mPer=NULL;
+       const Trk::Perigee* mPer=nullptr;
        std::vector<double> Impact,ImpError;
 //
        ZTrk.clear();PtTrk.clear();PxTrk.clear();PyTrk.clear(); PhiTrk.clear();
@@ -390,12 +388,12 @@ if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Out1="<< Chi2PerTrk[Outlier]<<", Wei="<
 //
 //- Search of Perigee in TrackParameters
           mPer=GetPerigee( (*i_ntrk) ) ;
-          if( mPer == NULL ){continue;} 
+          if( mPer == nullptr ){continue;} 
           VectPerig = mPer->parameters(); // perigee
-	  double InverseP = fabs(VectPerig[4]);
-	  PtTrk.push_back(sin(VectPerig[3])/InverseP);
-	  PxTrk.push_back(sin(VectPerig[3])*cos(VectPerig[2])/InverseP);
-	  PyTrk.push_back(sin(VectPerig[3])*sin(VectPerig[2])/InverseP);
+	  double InverseP = std::abs(VectPerig[4]);
+	  PtTrk.push_back(std::sin(VectPerig[3])/InverseP);
+	  PxTrk.push_back(std::sin(VectPerig[3])*std::cos(VectPerig[2])/InverseP);
+	  PyTrk.push_back(std::sin(VectPerig[3])*std::sin(VectPerig[2])/InverseP);
 	  PhiTrk.push_back(GetLimitAngle(VectPerig[2]));
 	  if( m_BeamCnst[0] == 0. && m_BeamCnst[1] == 0.) {
 	    ZTrk.push_back(VectPerig[1]);
@@ -415,7 +413,7 @@ if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Out1="<< Chi2PerTrk[Outlier]<<", Wei="<
 
   {    std::vector<const Trk::TrackParticleBase*>::const_iterator i_ntrk;
        AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
-       const Trk::Perigee* mPer=NULL;
+       const Trk::Perigee* mPer=nullptr;
        std::vector<double> Impact,ImpError;
 //
        ZTrk.clear();PtTrk.clear();PxTrk.clear();PyTrk.clear(); PhiTrk.clear(); 
@@ -423,12 +421,12 @@ if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Out1="<< Chi2PerTrk[Outlier]<<", Wei="<
 //
 //- Search of Perigee in TrackParameters
           mPer=GetPerigee( (*i_ntrk) ) ;
-          if( mPer == NULL ){continue;} 
+          if( mPer == nullptr ){continue;} 
           VectPerig = mPer->parameters(); // Measured perigee
-	  double InverseP = fabs(VectPerig[4]);
-	  PtTrk.push_back(sin(VectPerig[3])/InverseP);
-	  PxTrk.push_back(sin(VectPerig[3])*cos(VectPerig[2])/InverseP);
-	  PyTrk.push_back(sin(VectPerig[3])*sin(VectPerig[2])/InverseP);
+	  double InverseP = std::abs(VectPerig[4]);
+	  PtTrk.push_back(std::sin(VectPerig[3])/InverseP);
+	  PxTrk.push_back(std::sin(VectPerig[3])*cos(VectPerig[2])/InverseP);
+	  PyTrk.push_back(std::sin(VectPerig[3])*sin(VectPerig[2])/InverseP);
 	  PhiTrk.push_back(GetLimitAngle(VectPerig[2]));
 	  if( m_BeamCnst[0] == 0. && m_BeamCnst[1] == 0.) {
 	    ZTrk.push_back(VectPerig[1]);

@@ -58,6 +58,6 @@ if __name__ == "__main__":
     acc = egammaMVASvcCfg(ConfigFlags)
     cfg.merge(acc)
 
-    f = open("egmvatools.pkl", "w")
+    f = open("egmvatools.pkl", "wb")
     cfg.store(f)
     f.close()

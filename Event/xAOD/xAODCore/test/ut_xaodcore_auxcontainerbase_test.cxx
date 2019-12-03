@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file xAODCore/test/AuxContainerBase_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -58,9 +57,12 @@ AuxContainerTest::AuxContainerTest()
 {
   SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
 
-  SG::auxid_t i1aux = AUX_VARIABLE(i1);
-  SG::auxid_t m1aux = AUX_VARIABLE(m1);
-  SG::auxid_t a1aux = AUX_VARIABLE(a1, SG::AuxTypeRegistry::Flags::Atomic);
+  AUX_VARIABLE(i1);
+  SG::auxid_t i1aux = getAuxID( "i1", i1 );
+  AUX_VARIABLE(m1);
+  SG::auxid_t m1aux = getAuxID( "m1", m1 );
+  AUX_VARIABLE(a1, SG::AuxTypeRegistry::Flags::Atomic);
+  SG::auxid_t a1aux = getAuxID( "a1", a1, SG::AuxTypeRegistry::Flags::Atomic );
 
   assert (i1aux == r.findAuxID ("i1"));
   assert (m1aux == r.findAuxID ("m1"));

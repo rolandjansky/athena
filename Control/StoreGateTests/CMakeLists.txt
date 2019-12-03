@@ -34,7 +34,7 @@ atlas_add_dictionary( StoreGateTestsDict
 
 # Install files from the package:
 atlas_install_headers( StoreGateTests )
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py share/tests/*.py )
 
 atlas_add_test( PyClidsTestWriter

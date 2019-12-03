@@ -36,6 +36,12 @@ namespace InDet {
       ///////////////////////////////////////////////////////////////////
       
     public:
+       class IEventData {
+       public:
+          virtual ~IEventData() {}
+          virtual InDet::SiCombinatorialTrackFinderData_xk &combinatorialData() = 0 ;
+          virtual const InDet::SiCombinatorialTrackFinderData_xk &combinatorialData() const = 0 ;
+       };
 
       ///////////////////////////////////////////////////////////////////
       // Standard tool methods
@@ -50,12 +56,15 @@ namespace InDet {
       ///////////////////////////////////////////////////////////////////
 
       virtual std::list<Trk::Track*> getTrack
-        (SiCombinatorialTrackFinderData_xk& combinatorialData,
-         const Trk::TrackSegment&) = 0;
-      virtual void newEvent(SiCombinatorialTrackFinderData_xk& combinatorialData)=0;
-      virtual void newRegion(SiCombinatorialTrackFinderData_xk& combinatorialData,
-                             const std::vector<IdentifierHash>&,const std::vector<IdentifierHash>&)=0;
-      virtual void endEvent(SiCombinatorialTrackFinderData_xk& combinatorialData)=0;
+         (InDet::ITRT_SeededTrackFinder::IEventData &,
+          const Trk::TrackSegment&) const = 0;
+      virtual std::unique_ptr<InDet::ITRT_SeededTrackFinder::IEventData>
+      newEvent(SiCombinatorialTrackFinderData_xk& combinatorialData) const =0;
+
+      virtual std::unique_ptr<InDet::ITRT_SeededTrackFinder::IEventData>
+      newRegion(SiCombinatorialTrackFinderData_xk& combinatorialData,
+                const std::vector<IdentifierHash>&,const std::vector<IdentifierHash>&) const =0;
+      virtual void endEvent(InDet::ITRT_SeededTrackFinder::IEventData &event_data) const =0;
 
       ///////////////////////////////////////////////////////////////////
       // Print internal tool parameters and status

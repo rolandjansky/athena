@@ -134,7 +134,7 @@ if TriggerFlags.doMT():
     from L1Decoder.L1DecoderConfig import L1Decoder
     topSequence += L1Decoder()
     
-    include( "TriggerRelease/jobOfragment_TransBS_standalone.py" )
+    include( "TriggerJobOpts/jobOfragment_TransBS_standalone.py" )
     topSequence.StreamBS.ItemList =     [ x for x in topSequence.StreamBS.ItemList if 'RoIBResult' not in x ] # eliminate RoIBResult
 
     # add a fake data dependency assuring that the StreamBS runs before the L1 decoder of HLT
@@ -264,7 +264,9 @@ for i in outSequence.getAllChildren():
         from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectDecisionObjects
         hypos = collectHypos( findSubSequence(topSequence, "HLTAllSteps") )
         filters = collectFilters( findSubSequence(topSequence, "HLTAllSteps") )
-        decObj = collectDecisionObjects( hypos, filters, findAlgorithm(topSequence, "L1Decoder") )
+        decObj = collectDecisionObjects( hypos, filters, 
+            findAlgorithm(topSequence, "L1Decoder"), 
+            findAlgorithm(topSequence, "DecisionSummaryMakerAlg") )
         StreamRDO.ItemList += [ "xAOD::TrigCompositeContainer#"+obj for obj in decObj ]
         StreamRDO.ItemList += [ "xAOD::TrigCompositeAuxContainer#"+obj+"Aux." for obj in decObj ]
         StreamRDO.MetadataItemList +=  [ "xAOD::TriggerMenuContainer#*", "xAOD::TriggerMenuAuxContainer#*" ]

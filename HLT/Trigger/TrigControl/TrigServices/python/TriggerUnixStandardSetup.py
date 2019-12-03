@@ -190,8 +190,9 @@ def setupCommonServicesEnd():
     svcMgr.StatusCodeSvc.AbortOnError = False
         
     svcMgr.IOVSvc.updateInterval = "RUN"
-    svcMgr.IOVSvc.preLoadData = True  
-    svcMgr.IOVSvc.forceResetAtBeginRun = False 
+    svcMgr.IOVSvc.preLoadData = True
+    svcMgr.IOVSvc.preLoadExtensibleFolders = False  # ATR-19392
+    svcMgr.IOVSvc.forceResetAtBeginRun = False
 
     if hasattr(svcMgr,'IOVDbSvc'):
         svcMgr.IOVDbSvc.CacheAlign = 0  # VERY IMPORTANT to get unique queries for folder udpates (see Savannah #81092)

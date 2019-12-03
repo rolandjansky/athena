@@ -31,10 +31,7 @@
 #include "AFP_RawEv/AFP_RawDataCollection.h"
 #include "AFP_RawEv/AFP_RawDataContainer.h"
 
-using eformat::helper::SourceIdentifier;
 
-using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
-using OFFLINE_FRAGMENTS_NAMESPACE::FullEventFragment;
 class ISvcLocator;
 class StatusCode;
 
@@ -55,7 +52,7 @@ public:
   virtual StatusCode finalize();
 
   //  StatusCode getEvent();
-  StatusCode fillCollection(const ROBFragment *robFrag,
+  StatusCode fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag,
                             AFP_RawDataContainer *rdoCont,
                             std::vector<unsigned int> *vecHash = NULL);
 

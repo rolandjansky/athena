@@ -21,6 +21,7 @@
 //***************************************************************************
 
 #include "TileConditions/TilePulseShapes.h"
+#include "TileConditions/TileWienerFilterWeights.h"
 #include "TileConditions/TileCablingSvc.h"
 #include "Identifier/Identifier.h"
 #include "CaloIdentifier/CaloGain.h"
@@ -258,6 +259,9 @@ class ATLAS_CHECK_THREAD_SAFETY TileInfo {
   /** Return pointer to TilePulseShapes*/
   TilePulseShapesStruct * getPulseShapes() const {return m_pulseShapes->TilePSstruct();}
 
+  /** Return pointer to TileWienerFilterWeights */
+  TileWienerFilterWeightsStruct * getWienerFilterWeights() const {return m_WienerFilterWeights->TileWFstruct();}
+
   //==================================================================
   //==
   //== Temporary backwards compatible functions
@@ -386,6 +390,8 @@ class ATLAS_CHECK_THREAD_SAFETY TileInfo {
   int m_MuL1BinsPerX;
 
   TilePulseShapes *m_pulseShapes;
+
+  TileWienerFilterWeights *m_WienerFilterWeights;
 
   double m_emscaleTB[32];
   double m_mev2adcTB[32];

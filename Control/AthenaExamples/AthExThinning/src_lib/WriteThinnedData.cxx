@@ -22,12 +22,12 @@
 
 // StoreGate
 #include "StoreGate/StoreGateSvc.h"
-
-// AthenaKernel includes
-#include "AthenaKernel/IThinningSvc.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/ThinningHandle.h"
 
 // DataModel includes
 #include "AthContainers/DataVector.h"
+#include "AthContainers/ThinningDecision.h"
 
 // AthExThinning includes
 #include "AthExThinning/AthExParticles.h"
@@ -35,9 +35,6 @@
 #include "AthExThinning/AthExElephantino.h"
 #include "AthExThinning/WriteThinnedData.h"
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
 
 using namespace AthExThinning;
 
@@ -45,8 +42,7 @@ using namespace AthExThinning;
 ////////////////
 WriteThinnedData::WriteThinnedData( const std::string& name, 
 				    ISvcLocator* pSvcLocator ) : 
-  ::AthAlgorithm( name, pSvcLocator ),
-  m_thinningSvc( "ThinningSvc",  name )
+  ::AthAlgorithm( name, pSvcLocator )
 {
   //
   // Property declaration
@@ -56,14 +52,6 @@ WriteThinnedData::WriteThinnedData( const std::string& name,
   declareProperty( "Particles", 
                    m_particlesName = "Particles",
                    "Input location of particles (to be thinned)" );
-
-  declareProperty( "Decay", 
-                   m_decayName = "TwoBodyDecay",
-                   "Input location of Decay" );
-
-  declareProperty( "Elephantino", 
-                   m_elephantinoName = "PinkElephantino",
-                   "Input location of Elephantino" );
 
   declareProperty( "Filter", 
                    m_filter, 
@@ -84,13 +72,25 @@ StatusCode WriteThinnedData::initialize()
 {
   ATH_MSG_INFO("Initializing " << name() << "...");
 
-  // Get pointer to ThinningSvc and cache it :
-  // m_thinningSvc is of type IThinningSvc
-  if ( !m_thinningSvc.retrieve().isSuccess() ) {
-    ATH_MSG_ERROR("Unable to retrieve pointer to ThinningSvc");
-    return StatusCode::FAILURE;
+  for (int i = 0; i < 3; i++) {
+    std::ostringstream ss;
+    ss << "_test" << (i+1);
+    m_elephantinoKeys.emplace_back (m_elephantinoName.value() + ss.str());
+    m_decayKeys.emplace_back (m_decayName.value() + ss.str());
+    m_iparticlesKeys.emplace_back (m_particlesName.value() + ss.str());
   }
-  
+  ATH_CHECK( m_elephantinoKeys.initialize() );
+  ATH_CHECK( m_decayKeys.initialize() );
+  ATH_CHECK( m_iparticlesKeys.initialize() );
+
+  m_particlesKey1 = m_particlesName.value() + "_test1";
+  m_particlesKey2 = m_particlesName.value() + "_test2";
+  ATH_CHECK( m_particlesKey1.initialize ("StreamUSR_0") );
+  ATH_CHECK( m_particlesKey2.initialize ("StreamUSR_0") );
+
+  m_iparticlesKey3 = m_particlesName.value() + "_test3";
+  ATH_CHECK( m_iparticlesKey3.initialize ("StreamUSR_0") );
+
   return StatusCode::SUCCESS;
 }
 
@@ -101,21 +101,22 @@ StatusCode WriteThinnedData::finalize()
 }
 
 StatusCode WriteThinnedData::execute()
-{  
+{
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   ATH_MSG_DEBUG("Executing " << name() << "...");
 
   bool allGood = true;
-  if ( !test( "test1" ).isSuccess() ) {
+  if ( !test( ctx, 0, "test1" ).isSuccess() ) {
     ATH_MSG_WARNING("Could not perform 'thinning test1' !!");
     allGood = false;
   }
 
-  if ( !test( "test2" ).isSuccess() ) {
+  if ( !test( ctx, 1, "test2" ).isSuccess() ) {
     ATH_MSG_WARNING("Could not perform 'thinning test2' !!");
     allGood = false;
   }
 
-  if ( !test( "test3" ).isSuccess() ) {
+  if ( !test( ctx, 2, "test3" ).isSuccess() ) {
     ATH_MSG_WARNING("Could not perform 'thinning test3' !!");
     allGood = false;
   }
@@ -123,7 +124,8 @@ StatusCode WriteThinnedData::execute()
   return allGood ? StatusCode::SUCCESS : StatusCode::FAILURE;
 }
 
-StatusCode WriteThinnedData::test( const std::string& testName )
+StatusCode WriteThinnedData::test( const EventContext& ctx,
+                                   int testNum, const std::string& testName )
 {
   const std::string& test = testName;
   ATH_MSG_INFO("Performing thinning test [" << test << "]...");
@@ -139,14 +141,7 @@ StatusCode WriteThinnedData::test( const std::string& testName )
   }
 
   // fetch IParticles
-  const std::string iparticlesName = m_particlesName.value() + "_" + test;
-  const AthExIParticles * iparticles = 0;
-  if ( !evtStore()->retrieve(iparticles, particlesName).isSuccess() ||
-       0 == iparticles ) {
-    ATH_MSG_WARNING
-      ("Could not fetch iparticles at [" << particlesName << "] !!");
-    return StatusCode::RECOVERABLE;
-  }
+  SG::ReadHandle<AthExIParticles> iparticles (m_iparticlesKeys[testNum], ctx);
 
   if ( iparticles->size()      != particles->size()     ||
        iparticles->at(0)->px() != particles->at(0)->px() ) {
@@ -160,23 +155,10 @@ StatusCode WriteThinnedData::test( const std::string& testName )
   }
 
   // fetch Decay
-  const std::string decayName = m_decayName.value()+"_"+test;
-  const AthExDecay * decay = 0;
-  if ( !evtStore()->retrieve(decay, decayName).isSuccess() ||
-       0 == decay ) {
-    ATH_MSG_WARNING("Could not fetch Decay at [" << decayName << "] !!");
-    return StatusCode::RECOVERABLE;
-  }
+  SG::ReadHandle<AthExDecay> decay (m_decayKeys[testNum], ctx);
 
   // fetch Elephantino
-  const std::string elephantinoName = m_elephantinoName.value() + "_" + test;
-  const AthExElephantino * elephantino = 0;
-  if ( !evtStore()->retrieve(elephantino, elephantinoName).isSuccess() ||
-       0 == elephantino ) {
-    ATH_MSG_WARNING
-      ("Could not fetch Elephantino at [" << elephantinoName << "] !!");
-    return StatusCode::RECOVERABLE;
-  }
+  SG::ReadHandle<AthExElephantino> elephantino (m_elephantinoKeys[testNum], ctx);
 
   const double igev = 1. / CLHEP::GeV;
   ATH_MSG_DEBUG("IN particles: " << particles->size() << endmsg
@@ -195,18 +177,18 @@ StatusCode WriteThinnedData::test( const std::string& testName )
 		<< " ear2: px= " << elephantino->ear2()->px() * igev);
 
   ////////////////////////////////////////////////////////////////////
-  /// thinning 
+  /// thinning
   if ( test == "test1" ) {
-    if ( !doThinningTest1(*particles).isSuccess() ) {
-      ATH_MSG_WARNING("Could not exercize Thinning !!");
+    if ( !doThinningTest1(ctx, m_particlesKey1).isSuccess() ) {
+      ATH_MSG_WARNING("Could not exercise Thinning !!");
     }
   } else if ( test == "test2" ) {
-    if ( !doThinningTest2(*particles).isSuccess() ) {
-      ATH_MSG_WARNING("Could not exercize Thinning !!");
+    if ( !doThinningTest2(ctx, m_particlesKey2).isSuccess() ) {
+      ATH_MSG_WARNING("Could not exercise Thinning !!");
     }
   } else if ( test == "test3" ) {
-    if ( !doThinningTest3(*iparticles).isSuccess() ) {
-      ATH_MSG_WARNING("Could not exercize Thinning !!");
+    if ( !doThinningTest3(ctx, m_iparticlesKey3).isSuccess() ) {
+      ATH_MSG_WARNING("Could not exercise Thinning !!");
     }
   } else {
     ATH_MSG_ERROR("Unknown test: [" << test << "]");
@@ -229,70 +211,26 @@ StatusCode WriteThinnedData::test( const std::string& testName )
      << " leg4: px= " << elephantino->leg4()->px() * igev << endmsg
      << " ear1: px= " << elephantino->ear1()->px() * igev << endmsg
      << " ear2: px= " << elephantino->ear2()->px() * igev);
-   
-  // test IThinning::thinningOccurred api
-  if (!m_thinningSvc->thinningOccurred()) {
-    ATH_MSG_ERROR("IThinningSvc::thinningOccurred tells lies !");
-    return StatusCode::FAILURE;
-  }
 
-  if (!m_thinningSvc->thinningOccurred(particles)) {
-    ATH_MSG_ERROR("IThinningSvc::thinningOccurred(particles) tells lies !");
-    return StatusCode::FAILURE;
-  }
-
-  if (!m_thinningSvc->thinningOccurred(iparticles)) {
-    ATH_MSG_ERROR("IThinningSvc::thinningOccurred(iparticles) tells lies !");
-    return StatusCode::FAILURE;
-  }
-
-  {
-    AthExParticles * pristine_particles = new AthExParticles;
-    const std::string key = "NonThinned-" + particlesName;
-    ATH_CHECK(evtStore()->record(pristine_particles, key));
-
-    if (m_thinningSvc->thinningOccurred(pristine_particles)) {
-      ATH_MSG_ERROR("IThinningSvc::thinningOccurred(non-thinned) tells lies !");
-      return StatusCode::FAILURE;
-    }
-  }
 
   ATH_MSG_INFO("[" << test << "] has been performed.");
   return StatusCode::SUCCESS;
 }
 
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
 
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-StatusCode WriteThinnedData::doThinningTest1( const AthExParticles& particles )
+StatusCode WriteThinnedData::doThinningTest1( const EventContext& ctx,
+                                              const SG::ThinningHandleKey<AthExParticles>& particlesKey ) const
 {
-  const AthExParticles * cont = &particles;
+  SG::ThinningHandle<AthExParticles> particles (particlesKey, ctx);
   std::vector<bool> filter = m_filter.value();
   
   const double igev = 1. / CLHEP::GeV;
   msg(MSG::INFO) << "Particles | filter :" << endmsg;
-  for ( unsigned int i = 0; i != particles.size(); ++i ) {
-    const std::string dec = filter[i] ? "keep" : "remove";
+  for ( unsigned int i = 0; i != particles->size(); ++i ) {
+    const std::string kr = filter[i] ? "keep" : "remove";
     msg(MSG::INFO)
-      << std::setw(9) << particles[i]->px() * igev
-      << " | " << dec
+      << std::setw(9) << (*particles)[i]->px() * igev
+      << " | " << kr
       << endmsg;
   }
   msg(MSG::INFO) << "===================" << endmsg;
@@ -306,22 +244,22 @@ StatusCode WriteThinnedData::doThinningTest1( const AthExParticles& particles )
   msg(MSG::INFO) << "]" << endmsg;
 
   msg(MSG::INFO) << "... Processing [pre-thinning] ..." << endmsg;
-  if ( !m_thinningSvc->filter( particles, filter ).isSuccess() ) {
-    msg(MSG::WARNING)
-      << "Could not filter particles !!"
-      << endmsg;
-  }
+  particles.keep (filter);
   msg(MSG::INFO) << "======== Index table =========" << endmsg;
-  for ( std::size_t i = 0; i != particles.size(); ++i ) {
-    std::size_t newIdx = m_thinningSvc->index( cont, i );
-    std::stringstream newIdxStr; 
-    newIdxStr << newIdx;
-    msg(MSG::INFO)
-      << " idx " << i 
-      << " -> "  << (newIdx == IThinningSvc::RemovedIdx 
-		     ? "-"
-		     : newIdxStr.str() )
-      << endmsg;
+  {
+    SG::ThinningDecisionBase tmp = particles.decision();
+    tmp.buildIndexMap();
+    for ( std::size_t i = 0; i != particles->size(); ++i ) {
+      std::size_t newIdx = tmp.index( i );
+      std::stringstream newIdxStr; 
+      newIdxStr << newIdx;
+      msg(MSG::INFO)
+        << " idx " << i 
+        << " -> "  << (newIdx == SG::ThinningDecision::RemovedIdx 
+                       ? "-"
+                       : newIdxStr.str() )
+        << endmsg;
+    }
   }
 
 
@@ -336,40 +274,42 @@ StatusCode WriteThinnedData::doThinningTest1( const AthExParticles& particles )
   msg(MSG::INFO) << "]" << endmsg;
 
   msg(MSG::INFO) << "... Processing [thinning] ..." << endmsg;
-  if ( m_thinningSvc->filter( particles, filter ).isFailure() ) {
-    msg(MSG::WARNING)
-      << "Could not punch holes !!"
-      << endmsg;
-  }
+  particles.keep( filter, SG::ThinningDecisionBase::Op::And );
 
   msg(MSG::INFO) << "======== Index table =========" << endmsg;
-  for ( std::size_t i = 0; i != particles.size(); ++i ) {
-    std::size_t newIdx = m_thinningSvc->index( cont, i );
-    std::stringstream newIdxStr; 
-    newIdxStr << newIdx;
-    msg(MSG::INFO)
-      << " idx " << i 
-      << " -> "  << (newIdx == IThinningSvc::RemovedIdx 
-		     ? "-"
-		     : newIdxStr.str() )
-      << endmsg;
+  {
+    SG::ThinningDecisionBase tmp = particles.decision();
+    tmp.buildIndexMap();
+    for ( std::size_t i = 0; i != particles->size(); ++i ) {
+      std::size_t newIdx = tmp.index( i );
+      std::stringstream newIdxStr; 
+      newIdxStr << newIdx;
+      msg(MSG::INFO)
+        << " idx " << i 
+        << " -> "  << (newIdx == SG::ThinningDecision::RemovedIdx 
+                       ? "-"
+                       : newIdxStr.str() )
+        << endmsg;
+    }
   }
   
   return StatusCode::SUCCESS;
 }
 
-StatusCode WriteThinnedData::doThinningTest2( const AthExParticles& particles )
+
+StatusCode WriteThinnedData::doThinningTest2( const EventContext& ctx,
+                                              const SG::ThinningHandleKey<AthExParticles>& particlesKey ) const
 {
-  const AthExParticles * cont = &particles;
+  SG::ThinningHandle<AthExParticles> particles (particlesKey, ctx);
   std::vector<bool> filter = m_filter.value();
 
   const double igev = 1. / CLHEP::GeV;
   msg(MSG::INFO) << "Particles | filter :" << endmsg;
-  for ( unsigned int i = 0; i != particles.size(); ++i ) {
-    const std::string dec = filter[i] ? "keep" : "remove";
+  for ( unsigned int i = 0; i != particles->size(); ++i ) {
+    const std::string kr = filter[i] ? "keep" : "remove";
     msg(MSG::INFO)
-      << std::setw(9) << particles[i]->px() * igev
-      << " | " << dec
+      << std::setw(9) << (*particles)[i]->px() * igev
+      << " | " << kr
       << endmsg;
   }
   msg(MSG::INFO) << "===================" << endmsg;
@@ -383,23 +323,22 @@ StatusCode WriteThinnedData::doThinningTest2( const AthExParticles& particles )
   msg(MSG::INFO) << "]" << endmsg;
 
   msg(MSG::INFO) << "... Processing [pre-thinning] ..." << endmsg;
-  if ( !m_thinningSvc->filter( particles, filter,
-			       IThinningSvc::Operator::Or ).isSuccess() ) {
-    msg(MSG::WARNING)
-      << "Could not filter particles !!"
-      << endmsg;
-  }
+  particles.keep (filter);
   msg(MSG::INFO) << "======== Index table =========" << endmsg;
-  for ( std::size_t i = 0; i != particles.size(); ++i ) {
-    std::size_t newIdx = m_thinningSvc->index( cont, i );
-    std::stringstream newIdxStr; 
-    newIdxStr << newIdx;
-    msg(MSG::INFO)
-      << " idx " << i 
-      << " -> "  << (newIdx == IThinningSvc::RemovedIdx 
-		     ? "-"
-		     : newIdxStr.str() )
-      << endmsg;
+  {
+    SG::ThinningDecisionBase tmp = particles.decision();
+    tmp.buildIndexMap();
+    for ( std::size_t i = 0; i != particles->size(); ++i ) {
+      std::size_t newIdx = tmp.index( i );
+      std::stringstream newIdxStr; 
+      newIdxStr << newIdx;
+      msg(MSG::INFO)
+        << " idx " << i 
+        << " -> "  << (newIdx == SG::ThinningDecision::RemovedIdx 
+                       ? "-"
+                       : newIdxStr.str() )
+        << endmsg;
+    }
   }
 
 
@@ -414,42 +353,43 @@ StatusCode WriteThinnedData::doThinningTest2( const AthExParticles& particles )
   msg(MSG::INFO) << "]" << endmsg;
 
   msg(MSG::INFO) << "... Processing [thinning] ..." << endmsg;
-  if ( m_thinningSvc->filter( particles, filter,
-			      IThinningSvc::Operator::Or ).isFailure() ) {
-    msg(MSG::WARNING)
-      << "Could not punch holes !!"
-      << endmsg;
-  }
+  particles.keep (filter, SG::ThinningDecisionBase::Op::Or);
 
   msg(MSG::INFO) << "======== Index table =========" << endmsg;
-  for ( std::size_t i = 0; i != particles.size(); ++i ) {
-    std::size_t newIdx = m_thinningSvc->index( cont, i );
-    std::stringstream newIdxStr; 
-    newIdxStr << newIdx;
-    msg(MSG::INFO) 
-      << " idx " << i 
-      << " -> "  << (newIdx == IThinningSvc::RemovedIdx 
-		     ? "-"
-		     : newIdxStr.str() )
-      << endmsg;
+  {
+    SG::ThinningDecisionBase tmp = particles.decision();
+    tmp.buildIndexMap();
+    for ( std::size_t i = 0; i != particles->size(); ++i ) {
+      std::size_t newIdx = tmp.index( i );
+      std::stringstream newIdxStr; 
+      newIdxStr << newIdx;
+      msg(MSG::INFO) 
+        << " idx " << i 
+        << " -> "  << (newIdx == SG::ThinningDecision::RemovedIdx 
+                       ? "-"
+                       : newIdxStr.str() )
+        << endmsg;
+    }
   }
   
   return StatusCode::SUCCESS;
 }
+
 
 StatusCode 
-WriteThinnedData::doThinningTest3( const AthExIParticles& iparticles )
+WriteThinnedData::doThinningTest3( const EventContext& ctx,
+                                   const SG::ThinningHandleKey<AthExIParticles>& iparticlesKey ) const
 {
-  const AthExIParticles * cont = &iparticles;
+  SG::ThinningHandle<AthExIParticles> iparticles (iparticlesKey, ctx);
   std::vector<bool> filter = m_filter.value();
 
   const double igev = 1. / CLHEP::GeV;
   msg(MSG::INFO) << "IParticles | filter :" << endmsg;
-  for ( unsigned int i = 0; i != iparticles.size(); ++i ) {
-    const std::string dec = filter[i] ? "keep" : "remove";
+  for ( unsigned int i = 0; i != iparticles->size(); ++i ) {
+    const std::string kr = filter[i] ? "keep" : "remove";
     msg(MSG::INFO)
-      << std::setw(9) << iparticles[i]->px() * igev
-      << " | " << dec
+      << std::setw(9) << (*iparticles)[i]->px() * igev
+      << " | " << kr
       << endmsg;
   }
   msg(MSG::INFO) << "===================" << endmsg;
@@ -463,22 +403,22 @@ WriteThinnedData::doThinningTest3( const AthExIParticles& iparticles )
   msg(MSG::INFO) << "]" << endmsg;
 
   msg(MSG::INFO) << "... Processing [pre-thinning] ..." << endmsg;
-  if ( !m_thinningSvc->filter( iparticles, filter ).isSuccess() ) {
-    msg(MSG::WARNING)
-      << "Could not filter iparticles !!"
-      << endmsg;
-  }
+  iparticles.keep (filter);
   msg(MSG::INFO) << "======== Index table =========" << endmsg;
-  for ( std::size_t i = 0; i != iparticles.size(); ++i ) {
-    std::size_t newIdx = m_thinningSvc->index( cont, i );
-    std::stringstream newIdxStr; 
-    newIdxStr << newIdx;
-    msg(MSG::INFO)
-      << " idx " << i 
-      << " -> "  << (newIdx == IThinningSvc::RemovedIdx 
-		     ? "-"
-		     : newIdxStr.str() )
-      << endmsg;
+  {
+    SG::ThinningDecisionBase tmp = iparticles.decision();
+    tmp.buildIndexMap();
+    for ( std::size_t i = 0; i != iparticles->size(); ++i ) {
+      std::size_t newIdx = tmp.index( i );
+      std::stringstream newIdxStr; 
+      newIdxStr << newIdx;
+      msg(MSG::INFO)
+        << " idx " << i 
+        << " -> "  << (newIdx == SG::ThinningDecision::RemovedIdx 
+                       ? "-"
+                       : newIdxStr.str() )
+        << endmsg;
+    }
   }
 
 
@@ -493,23 +433,23 @@ WriteThinnedData::doThinningTest3( const AthExIParticles& iparticles )
   msg(MSG::INFO) << "]" << endmsg;
 
   msg(MSG::INFO) << "... Processing [thinning] ..." << endmsg;
-  if ( m_thinningSvc->filter( iparticles, filter ).isFailure() ) {
-    msg(MSG::WARNING)
-      << "Could not punch holes !!"
-      << endmsg;
-  }
+  iparticles.keep (filter, SG::ThinningDecisionBase::Op::And);
 
   msg(MSG::INFO) << "======== Index table =========" << endmsg;
-  for ( std::size_t i = 0; i != iparticles.size(); ++i ) {
-    std::size_t newIdx = m_thinningSvc->index( cont, i );
-    std::stringstream newIdxStr; 
-    newIdxStr << newIdx;
-    msg(MSG::INFO)
-      << " idx " << i 
-      << " -> "  << (newIdx == IThinningSvc::RemovedIdx 
-		     ? "-"
-		     : newIdxStr.str() )
-      << endmsg;
+  {
+    SG::ThinningDecisionBase tmp = iparticles.decision();
+    tmp.buildIndexMap();
+    for ( std::size_t i = 0; i != iparticles->size(); ++i ) {
+      std::size_t newIdx = tmp.index( i );
+      std::stringstream newIdxStr; 
+      newIdxStr << newIdx;
+      msg(MSG::INFO)
+        << " idx " << i 
+        << " -> "  << (newIdx == SG::ThinningDecision::RemovedIdx 
+                       ? "-"
+                       : newIdxStr.str() )
+        << endmsg;
+    }
   }
   
   return StatusCode::SUCCESS;

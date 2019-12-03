@@ -76,8 +76,8 @@ const GeoLogVol * SCT_FwdModule::preBuild(){
   if(m_doubleSided){
     double interSidesGap = std::max(m_spine->thickness(), m_interSidesGap);
     m_thickness = 2*m_sensor->thickness() + interSidesGap + 0.01*Gaudi::Units::mm;//0.01mm safety necessary
-    //the term 10*Gaudi::Units::degree*3.14/180, is to accommodate the stereo rotation
-    m_deltaPhi    = m_deltaPhi + 10*Gaudi::Units::degree*3.14/180.;
+    //the term 10*Gaudi::Units::degree*M_PI/180, is to accommodate the stereo rotation
+    m_deltaPhi    = m_deltaPhi + 10*Gaudi::Units::degree*M_PI/180.;
     //add 1cm, to accomodate for stereo rotation (to be dealt correctly with later)
     //m_innerRadius = m_innerRadius - 0.5*Gaudi::Units::cm;
     //m_outerRadius = m_outerRadius + 0.5*Gaudi::Units::cm;

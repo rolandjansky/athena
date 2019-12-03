@@ -10,6 +10,7 @@ class InDetCacheNames(object):
   SpacePointCachePix = "PixelSpacePointCache"
   SpacePointCacheSCT = "SctSpacePointCache"
   SCTRDOCacheKey     = "SctRDOCache"
+  SCTBSErrCacheKey   = "SctBSErrCache"
   PixRDOCacheKey     = "PixRDOCache"
 
 def InDetIDCCacheCreatorCfg():
@@ -22,6 +23,7 @@ def InDetIDCCacheCreatorCfg():
                                               SpacePointCachePix = InDetCacheNames.SpacePointCachePix,
                                               SpacePointCacheSCT = InDetCacheNames.SpacePointCacheSCT,
                                               SCTRDOCacheKey     = InDetCacheNames.SCTRDOCacheKey,
+                                              SCTBSErrCacheKey   = InDetCacheNames.SCTBSErrCacheKey,
                                               PixRDOCacheKey     = InDetCacheNames.PixRDOCacheKey)
 
   acc.addEventAlgo( InDetCacheCreatorTrig )
@@ -466,5 +468,5 @@ if __name__ == "__main__":
     acc.merge( rsc )
 
     acc.printConfig()
-    acc.store( open("test.pkl", "w") )
+    acc.store( open("test.pkl", "wb") )
     print('All ok')

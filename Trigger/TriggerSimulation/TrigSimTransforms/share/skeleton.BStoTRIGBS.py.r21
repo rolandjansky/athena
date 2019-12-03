@@ -557,7 +557,7 @@ defaultOptions['setModifiers']=[#Common modifiers for MC and data
                                 'enable7BitL1TTStreaming']
 
 modifierList=[]
-import TriggerRelease.Modifiers
+import TriggerJobOpts.Modifiers
 try:  # Temporary backwards compatible hack
     from TrigConfigSvc.TrigConfMetaData import TrigConfMetaData
     meta = TrigConfMetaData()
@@ -576,8 +576,8 @@ for i in svcMgr.getAllChildren():
       i.Seeds = ['TriggerTowerMaker_Pedestal 8594832 5736213', 'TriggerTowerMaker_Digitization 8631309 4492432', 'CTPSimulation 1979283043 1924452189', 'ToolSvc.HLT::RandomScaler 1857585203 1857585203', 'TrigSteer_L2.OPIScaler 1857585203 1857585203', 'TrigSteer_L2.TrigCostExecL2.TrigCostScaler 1857585203 1857585203', 'TrigSteer_L2.TrigCostAthenaL2.TrigCostScaler 1857585203 1857585203', 'TrigSteer_EF.OPIScaler 1857585203 1857585203', 'TrigSteer_EF.TrigCostExecEF.TrigCostScaler 1857585203 1857585203', 'TrigSteer_EF.TrigCostAthenaEF.TrigCostScaler 1857585203 1857585203']
 
 setModifiers = []
-for mod in dir(TriggerRelease.Modifiers):
-    if not hasattr(getattr(TriggerRelease.Modifiers,mod),'preSetup'): continue
+for mod in dir(TriggerJobOpts.Modifiers):
+    if not hasattr(getattr(TriggerJobOpts.Modifiers,mod),'preSetup'): continue
     if mod in dir():  #allow turning on and off modifiers by variable of same name
         if globals()[mod]:
             if not mod in setModifiers:
@@ -585,7 +585,7 @@ for mod in dir(TriggerRelease.Modifiers):
         else:
             if mod in setModifiers: setModifiers.remove(mod)
     if mod in setModifiers:
-        modifierList+=[getattr(TriggerRelease.Modifiers,mod)()]
+        modifierList+=[getattr(TriggerJobOpts.Modifiers,mod)()]
         if meta: meta.Modifiers += [mod]    # store in trig conf meta data
         setModifiers.remove(mod)
 

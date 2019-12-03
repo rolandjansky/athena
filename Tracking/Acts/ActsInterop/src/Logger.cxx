@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ActsInterop/Logger.h"
@@ -69,10 +69,10 @@ makeActsAthenaLogger(IMessageSvc *svc, const std::string& name, int level, boost
 }
 
 std::unique_ptr<const Acts::Logger>
-makeActsAthenaLogger(CommonMessagingBase* parent, const std::string& name)
+makeActsAthenaLogger(const CommonMessagingBase* parent, const std::string& name)
 {
   // no explicit name, get from component
-  INamedInterface *inamed = dynamic_cast<INamedInterface*>(parent);
+  const INamedInterface *inamed = dynamic_cast<const INamedInterface*>(parent);
   boost::optional<std::string> parent_name = boost::none;
   // this will not prefix if parent is not named (which it should be)
   if (inamed == nullptr) {
@@ -83,10 +83,10 @@ makeActsAthenaLogger(CommonMessagingBase* parent, const std::string& name)
 }
 
 std::unique_ptr<const Acts::Logger>
-makeActsAthenaLogger(CommonMessagingBase* parent, const std::string& name, boost::optional<std::string> parent_name)
+makeActsAthenaLogger(const CommonMessagingBase* parent, const std::string& name, boost::optional<std::string> parent_name)
 {
   int level = 0;
-  INamedInterface *inamed = dynamic_cast<INamedInterface*>(parent);
+  const INamedInterface *inamed = dynamic_cast<const INamedInterface*>(parent);
   if (inamed != nullptr) {
     level = parent->msgSvc()->outputLevel(inamed->name());
   }
@@ -94,7 +94,7 @@ makeActsAthenaLogger(CommonMessagingBase* parent, const std::string& name, boost
 }
 
 std::unique_ptr<const Acts::Logger>
-makeActsAthenaLogger(CommonMessagingBase* parent, const std::string& name, const std::string& parent_name)
+makeActsAthenaLogger(const CommonMessagingBase* parent, const std::string& name, const std::string& parent_name)
 {
   
   return makeActsAthenaLogger(parent, name, boost::optional<std::string>(parent_name));

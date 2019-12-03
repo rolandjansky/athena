@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////
@@ -190,22 +190,24 @@ StatusCode InDet::InDetAmbiScoringTool::finalize()
 
 Trk::TrackScore InDet::InDetAmbiScoringTool::score( const Trk::Track& track, const bool suppressHoleSearch ) const
 {
-  const Trk::TrackSummary* summary;
-  if ( suppressHoleSearch) {
-    ATH_MSG_DEBUG ("Get summary for new Track, suppress HoleSearch");
-    summary = m_trkSummaryTool->createSummaryNoHoleSearch(track);
-  } else {
-    ATH_MSG_DEBUG ("Get summary for new Track with HoleSearch");
-    summary = m_trkSummaryTool->createSummary(track);
-  }
-  // move to VERBOSE
-  ATH_MSG_VERBOSE ("Track has TrackSummary "<<*summary);
-  Trk::TrackScore score = Trk::TrackScore( simpleScore(track, *summary) );
-  ATH_MSG_DEBUG ("Track has Score: "<<score);
+   if (!track.trackSummary()) {
+      // @TODO this is not thread safe. Should fail when being called in MT
+      ATH_MSG_DEBUG("Track without track summary. Compute summary to score track.");
+      std::unique_ptr<const Trk::TrackSummary> summary;
+      if ( suppressHoleSearch) {
+         ATH_MSG_DEBUG ("Get summary for new Track, suppress HoleSearch");
+         summary.reset( m_trkSummaryTool->createSummaryNoHoleSearch(track) );
+      } else {
+         ATH_MSG_DEBUG ("Get summary for new Track with HoleSearch");
+         summary.reset( m_trkSummaryTool->createSummary(track) );
+      }
+   }
+   assert( track.trackSummary() );
+   ATH_MSG_VERBOSE ("Track has TrackSummary "<<*track.trackSummary());
+   Trk::TrackScore score = Trk::TrackScore( simpleScore(track, *track.trackSummary()) );
+   ATH_MSG_DEBUG ("Track has Score: "<<score);
 
-  delete summary;
-
-  return score;
+   return score;
 }
 
 //---------------------------------------------------------------------------------------------------------------------

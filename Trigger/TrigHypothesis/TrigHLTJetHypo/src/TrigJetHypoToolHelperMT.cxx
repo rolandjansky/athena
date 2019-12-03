@@ -52,9 +52,14 @@ TrigJetHypoToolHelperMT::pass(HypoJetVector& jets,
 			      xAODJetCollector& jetCollector,
 			      const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const {
 
+  if(collector){
+    std::string msg = "No of jets " + std::to_string(jets.size());
+    collector->collect(name(), msg);
+  }
+
   JetTrigTimer timer;
   timer.start();
-
+  
   if(jets.empty()){   
     timer.stop();
     bool pass = false;

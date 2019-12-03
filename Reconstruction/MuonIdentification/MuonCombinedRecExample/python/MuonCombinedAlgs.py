@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017, 2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 from AthenaCommon.CfgGetter import getPublicTool, getAlgorithm,getPublicToolClone
@@ -10,27 +10,29 @@ from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon import CfgMgr
 from AthenaCommon.BeamFlags import jobproperties
 
-from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 def MuonCombinedInDetExtensionAlg(name="MuonCombinedInDetExtensionAlg",**kwargs):
     tools = []
     if muonCombinedRecFlags.doMuGirl():
         tools.append(getPublicTool("MuGirlTagTool"))
+        kwargs.setdefault("TagMap", "muGirlTagMap" )
     if muonCombinedRecFlags.doCaloTrkMuId():
         tools.append(getPublicTool("MuonCaloTagTool"))
+        kwargs.setdefault("TagMap", "caloTagMap" )
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
     kwargs.setdefault("HasCSC", MuonGeometryFlags.hasCSC() )
-    kwargs.setdefault("HasSTgc", (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]) )
-    kwargs.setdefault("HasMM", (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]) )
+    kwargs.setdefault("HasSTgc", MuonGeometryFlags.hasSTGC() )
+    kwargs.setdefault("HasMM", MuonGeometryFlags.hasMM() )
     return CfgMgr.MuonCombinedInDetExtensionAlg(name,**kwargs)
 
 def MuGirlAlg(name="MuGirlAlg",**kwargs):
     tools = [getPublicTool("MuGirlTagTool")]
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
     kwargs.setdefault("HasCSC", MuonGeometryFlags.hasCSC() )
-    kwargs.setdefault("HasSTgc", (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]) )
-    kwargs.setdefault("HasMM", (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]) )
+    kwargs.setdefault("HasSTgc", MuonGeometryFlags.hasSTGC() )
+    kwargs.setdefault("HasMM", MuonGeometryFlags.hasMM() )
     return CfgMgr.MuonCombinedInDetExtensionAlg(name,**kwargs)
 
 
@@ -42,8 +44,8 @@ def MuonCaloTagAlg(name="MuonCaloTagAlg",**kwargs):
     kwargs.setdefault("METrackCollection","")
     kwargs.setdefault("SegmentCollection","")
     kwargs.setdefault("HasCSC", MuonGeometryFlags.hasCSC() )
-    kwargs.setdefault("HasSTgc", (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]) )
-    kwargs.setdefault("HasMM", (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]) )
+    kwargs.setdefault("HasSTgc", MuonGeometryFlags.hasSTGC() )
+    kwargs.setdefault("HasMM", MuonGeometryFlags.hasMM() )
     return CfgMgr.MuonCombinedInDetExtensionAlg(name,**kwargs)
 
 def MuonSegmentTagAlg( name="MuonSegmentTagAlg", **kwargs ):
@@ -60,8 +62,8 @@ def MuonInsideOutRecoAlg( name="MuonInsideOutRecoAlg", **kwargs ):
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
     kwargs.setdefault("usePRDs",True)
     kwargs.setdefault("HasCSC", MuonGeometryFlags.hasCSC() )
-    kwargs.setdefault("HasSTgc", (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]) )
-    kwargs.setdefault("HasMM", (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]) )
+    kwargs.setdefault("HasSTgc", MuonGeometryFlags.hasSTGC() )
+    kwargs.setdefault("HasMM", MuonGeometryFlags.hasMM() )
     kwargs.setdefault("TagMap","muGirlTagMap")
     return CfgMgr.MuonCombinedInDetExtensionAlg(name,**kwargs)
 
@@ -70,8 +72,8 @@ def MuGirlStauAlg(name="MuGirlStauAlg",**kwargs):
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
     kwargs.setdefault("TagMap","stauTagMap")
     kwargs.setdefault("HasCSC", MuonGeometryFlags.hasCSC() )
-    kwargs.setdefault("HasSTgc", (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]) )
-    kwargs.setdefault("HasMM", (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]) )
+    kwargs.setdefault("HasSTgc", MuonGeometryFlags.hasSTGC() )
+    kwargs.setdefault("HasMM", MuonGeometryFlags.hasMM() )
     kwargs.setdefault("CombinedTrackCollection","MuGirlStauCombinedTracks")
     kwargs.setdefault("METrackCollection","")
     kwargs.setdefault("SegmentCollection","MuGirlStauSegments")
@@ -131,6 +133,13 @@ def recordMuonCreatorAlgObjs (kw):
 def MuonCreatorAlg( name="MuonCreatorAlg",**kwargs ):
     kwargs.setdefault("MuonCreatorTool",getPublicTool("MuonCreatorTool"))
     recordMuonCreatorAlgObjs (kwargs)
+    # if muGirl is off, remove "muGirlTagMap" from "TagMaps"
+    # but don't set this default in case the StauCreatorAlg is created (see below)
+    if not muonCombinedRecFlags.doMuGirl() and not name=="StauCreatorAlg":
+        kwargs.setdefault("TagMaps",["muidcoTagMap","stacoTagMap","caloTagMap","segmentTagMap"])
+    if TriggerFlags.MuonSlice.doTrigMuonConfig:
+        kwargs.setdefault("MakeClusters", False)
+        kwargs.setdefault("ClusterContainerName", "")
     return CfgMgr.MuonCreatorAlg(name,**kwargs)
 
 def StauCreatorAlg( name="StauCreatorAlg", **kwargs ):
@@ -144,7 +153,8 @@ def StauCreatorAlg( name="StauCreatorAlg", **kwargs ):
     kwargs.setdefault("BuildSlowMuon",1)
     kwargs.setdefault("ClusterContainerName", "SlowMuonClusterCollection")
     kwargs.setdefault("TagMaps",["stauTagMap"])
-    recordMuonCreatorAlgObjs (kwargs)
+    if not TriggerFlags.MuonSlice.doTrigMuonConfig:
+        recordMuonCreatorAlgObjs (kwargs)
     return MuonCreatorAlg(name,**kwargs)
 
 class MuonCombinedReconstruction(ConfiguredMuonRec):
@@ -169,7 +179,6 @@ class MuonCombinedReconstruction(ConfiguredMuonRec):
 
         if muonCombinedRecFlags.doMuGirl():
             topSequence += getAlgorithm("MuonInsideOutRecoAlg") 
-            #topSequence += getAlgorithm("MuGirlAlg") 
             if muonCombinedRecFlags.doMuGirlLowBeta():
                 topSequence += getAlgorithm("MuGirlStauAlg")
 
@@ -183,5 +192,5 @@ class MuonCombinedReconstruction(ConfiguredMuonRec):
         # runs over outputs and create xAODMuon collection
         topSequence += getAlgorithm("MuonCreatorAlg")
         
-        if muonCombinedRecFlags.doMuGirlLowBeta():
+        if muonCombinedRecFlags.doMuGirl() and muonCombinedRecFlags.doMuGirlLowBeta():
             topSequence += getAlgorithm("StauCreatorAlg")

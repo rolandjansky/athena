@@ -9,7 +9,9 @@ def MuonDQAMonitoringConfig(flags):
 
     if flags.DQ.Steering.Muon.doRawMon:
         from TgcRawDataMonitoring.TgcRawDataMonitorAlgorithm import TgcRawDataMonitoringConfig
+        from MdtRawDataMonitoring.MDTMonitorAlgorithm import MdtMonitoringConfig
     
         result.merge(TgcRawDataMonitoringConfig(flags))
+        result.merge(MdtMonitoringConfig(flags))
         
     return result

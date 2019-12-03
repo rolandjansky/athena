@@ -57,7 +57,7 @@ if __name__=="__main__":
     from xAODCaloEventCnv.xAODCaloEventCnvConf import ClusterDumper
     acc.addEventAlgo(ClusterDumper("TopoDumper",ContainerName="CaloCalTopoClusters",FileName="TopoCluster.txt"))
 
-    f=open("CaloRec.pkl","w")
+    f=open("CaloRec.pkl","wb")
     acc.store(f)
     f.close()
 

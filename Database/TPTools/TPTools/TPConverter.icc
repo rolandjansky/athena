@@ -38,7 +38,9 @@ createPersistentWithKey(const TRANS* transObj, const std::string& key, MsgStream
 template< class TRANS_BASE, class TRANS, class PERS >
 TPObjRef
 TPAbstractPolyCnvBase<TRANS_BASE, TRANS, PERS>::
-toPersistent_impl( const TRANS *trans, MsgStream &log )
+toPersistentWithKey_impl( const TRANS *trans,
+                          const std::string& key,
+                          MsgStream &log )
 {
    // make sure there is a storage object
    if( !this->topConverter()->hasTLPersObject() ) {
@@ -53,7 +55,7 @@ toPersistent_impl( const TRANS *trans, MsgStream &log )
       // for recursive calls use temporary persistent object
       // as the vector storage may be reallocated in a recursive invocation
       PERS	tmp_pers;
-      transToPers( trans, &tmp_pers, log);
+      transToPersWithKey( trans, &tmp_pers, key, log);
       // do NOT use back() here (the vector has already grown)
       m_pStorage->operator[]( size ) = tmp_pers;
    } else {
@@ -63,7 +65,7 @@ toPersistent_impl( const TRANS *trans, MsgStream &log )
 	    + " called recursively! -> enable the recursive flag" );
       }
       m_curRecLevel++;
-      transToPers( trans, &m_pStorage->back(), log);
+      transToPersWithKey( trans, &m_pStorage->back(), key, log);
       m_curRecLevel--;
    }
    return TPObjRef( this->m_pStorageTID, size );
@@ -144,13 +146,13 @@ PERS* TPConverterConstBase<TRANS, PERS>::createPersistentConst
 template<class TRANS, class PERS, class CONV>
 void TPCnvVector<TRANS, PERS, CONV>::persToTrans(const PERS* persVect,
 		TRANS* transVect,
-		MsgStream &log) {
-   CONV	element_cnv;
+		MsgStream &log)
+{
    typename PERS::const_iterator it;
    transVect->clear();
    transVect->reserve(persVect->size());
    for (it = persVect->begin(); it != persVect->end(); ++it) {
-      transVect->push_back(element_cnv.createTransient(&(*it), log));
+      transVect->push_back( m_elementCnv.createTransient(&(*it), log) );
    }
 }
 
@@ -161,11 +163,10 @@ void TPCnvVector<TRANS, PERS, CONV>::transToPers(const TRANS* transVect,
    size_t size = transVect->size();	
    persVect->resize(size);
    // convert vector entries one by one
-   CONV element_cnv;
    typename TRANS::const_iterator it = transVect->begin();
    typename PERS::iterator pit = persVect->begin();
    while(size) {
-     element_cnv.transToPers( *it, &(*pit), log );
+     m_elementCnv.transToPers( *it, &(*pit), log );
      ++pit; ++it; --size;
    }
 }
@@ -359,11 +360,11 @@ void T_AthenaHitsVectorCnv<TRANS, PERS, CONV>::transToPers(const TRANS* transCon
 template<class TRANS, class PERS, class CONV>
 void TPCnvIDCont<TRANS, PERS, CONV>::persToTrans(const PERS* persCont,
 		TRANS* transCont,
-		MsgStream &log) {
-   CONV	element_cnv;
+		MsgStream &log)
+{ 
    typename PERS::const_iterator pers_elem;
    for (pers_elem = persCont->begin(); pers_elem != persCont->end(); ++pers_elem) {
-      COLLECTION_t* coll = element_cnv.createTransient(&(*pers_elem), log);
+      COLLECTION_t* coll = m_elementCnv.createTransient(&(*pers_elem), log);
       // register the rdo collection in IDC
       //typename COLLECTION_t::ID id_coll = 
       //IdentifierHash is_hash = hashFcn(id_coll);
@@ -380,14 +381,14 @@ void TPCnvIDCont<TRANS, PERS, CONV>::persToTrans(const PERS* persCont,
 template<class TRANS, class PERS, class CONV>
 void TPCnvIDCont<TRANS, PERS, CONV>::transToPers(const TRANS* transCont,
 		PERS* persCont,
-		MsgStream &log) {
-   CONV element_cnv;
+		MsgStream &log)
+{
    typename TRANS::const_iterator it_Coll = transCont->begin();
    typename TRANS::const_iterator it_CollEnd  = transCont->end();
    int entries;
    for (entries = 0; it_Coll != it_CollEnd; ++entries, ++it_Coll)  {
       persCont->resize(entries + 1);
-      element_cnv.transToPers(&(**it_Coll), &(*persCont)[entries], log);
+      m_elementCnv.transToPers(&(**it_Coll), &(*persCont)[entries], log);
    }
    log << MSG::DEBUG << "TPCnvIDCont::transToPers, container size was " << entries << endmsg;
 }
@@ -401,11 +402,11 @@ void TPCnvIDCont<TRANS, PERS, CONV>::transToPers(const TRANS* transCont,
 template<class TRANS, class PERS, class CONV>
 void TPCnvIDContFromIdentifier<TRANS, PERS, CONV>::persToTrans(const PERS* persCont,
 		TRANS* transCont,
-		MsgStream &log) {
-   CONV	element_cnv;
+		MsgStream &log)
+{
    typename PERS::const_iterator pers_elem;
    for (pers_elem = persCont->begin(); pers_elem != persCont->end(); ++pers_elem) {
-      COLLECTION_t* coll = element_cnv.createTransient(&(*pers_elem), log);
+      COLLECTION_t* coll = m_elementCnv.createTransient(&(*pers_elem), log);
       // register the rdo collection in IDC
       //typename COLLECTION_t::ID id_coll = 
       //IdentifierHash is_hash = hashFcn(id_coll);
@@ -422,14 +423,14 @@ void TPCnvIDContFromIdentifier<TRANS, PERS, CONV>::persToTrans(const PERS* persC
 template<class TRANS, class PERS, class CONV>
 void TPCnvIDContFromIdentifier<TRANS, PERS, CONV>::transToPers(const TRANS* transCont,
 		PERS* persCont,
-		MsgStream &log) {
-   CONV element_cnv;
+		MsgStream &log)
+{
    typename TRANS::const_iterator it_Coll = transCont->begin();
    typename TRANS::const_iterator it_CollEnd  = transCont->end();
    int entries;
    for (entries = 0; it_Coll != it_CollEnd; ++entries, ++it_Coll)  {
       persCont->resize(entries + 1);
-      element_cnv.transToPers(&(**it_Coll), &(*persCont)[entries], log);
+      m_elementCnv.transToPers(&(**it_Coll), &(*persCont)[entries], log);
    }
    log << MSG::DEBUG << "TPCnvIDContFromIdentifier::transToPers, container size was " << entries << endmsg;
 }

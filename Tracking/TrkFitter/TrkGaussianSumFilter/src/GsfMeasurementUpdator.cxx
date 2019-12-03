@@ -12,14 +12,13 @@ decription           : Implementation code for GsfMeasurementUpdator class
 *********************************************************************************/
 
 #include "TrkGaussianSumFilter/GsfMeasurementUpdator.h"
-
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
-
 #include "TrkEventPrimitives/LocalParameters.h"
-
 #include "GaudiKernel/Chrono.h"
 #include "GaudiKernel/IChronoStatSvc.h"
+
+#include "PosteriorWeightsCalculator.h"
 
 Trk::GsfMeasurementUpdator::GsfMeasurementUpdator(const std::string type,
                                                   const std::string name,
@@ -39,11 +38,6 @@ Trk::GsfMeasurementUpdator::initialize()
     return StatusCode::FAILURE;
   }
 
-  // Retrieve the Posterior Weights Calculator
-  if (m_posteriorWeightsCalculator.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Could not find the Posterior Weights Calculator Service... Exiting!");
-    return StatusCode::FAILURE;
-  }
 
   // Request an instance of the MultiComponentStateAssembler
   if (m_stateAssembler.retrieve().isFailure()) {
@@ -127,7 +121,7 @@ Trk::GsfMeasurementUpdator::fitQuality(const MultiComponentState& updatedState,
 
   if (updatedState.empty()) {
     ATH_MSG_WARNING("Attempting to calculate chi2 of a hit with respect to an empty multiple-component state");
-    return 0;
+    return nullptr;
   }
 
   double chi2 = 0;
@@ -174,22 +168,18 @@ Trk::GsfMeasurementUpdator::calculateFilterStep(const Trk::MultiComponentState& 
 
   // state Assembler cache
   IMultiComponentStateAssembler::Cache cache;
-  // Check that the assember is reset
-  bool isAssemblerReset = m_stateAssembler->reset(cache);
+  m_stateAssembler->reset(cache);
 
-  if (!isAssemblerReset) {
-    ATH_MSG_DEBUG("Could not reset the state assembler... returning 0");
-    return 0;
-  }
 
   if (stateBeforeUpdate.empty()) {
     ATH_MSG_WARNING("Cannot update multi-state with no components!");
-    return 0;
+    return nullptr;
   }
 
   // Calculate the weight of each component after the measurement
-  std::unique_ptr<Trk::MultiComponentState> stateWithNewWeights = m_posteriorWeightsCalculator->weights(stateBeforeUpdate, 
-                                                                                                        measurement);
+  PosteriorWeightsCalculator pwc;
+  std::unique_ptr<std::vector<Trk::ComponentParameters>> stateWithNewWeights = pwc.weights(stateBeforeUpdate, 
+                                                                                           measurement);
 
   if (!stateWithNewWeights) {
     ATH_MSG_DEBUG("Cacluation of state posterior weights failed... Exiting!");
@@ -285,7 +275,7 @@ Trk::GsfMeasurementUpdator::update(const Trk::MultiComponentState& stateBeforeUp
   if (!updatedState) {
     ATH_MSG_DEBUG("Updated state could not be calculated... Returning 0");
     fitQoS.reset();
-    return 0;
+    return nullptr;
   }
   return updatedState;
 }
@@ -297,22 +287,18 @@ Trk::GsfMeasurementUpdator::calculateFilterStep(const Trk::MultiComponentState& 
 {
   // state Assembler cache
   IMultiComponentStateAssembler::Cache cache;
-  // Check that the assember is reset
-  bool isAssemblerReset = m_stateAssembler->reset(cache);
+  m_stateAssembler->reset(cache);
 
-  if (!isAssemblerReset) {
-    ATH_MSG_ERROR("Could not reset the state assembler... returning 0");
-    return 0;
-  }
 
   if (stateBeforeUpdate.empty()) {
     ATH_MSG_WARNING("Cannot update multi-state with no components!");
-    return 0;
+    return nullptr;
   }
 
   // Calculate the weight of each component after the measurement
-  std::unique_ptr<Trk::MultiComponentState> stateWithNewWeights = m_posteriorWeightsCalculator->weights(stateBeforeUpdate, 
-                                                                                                       measurement);
+  PosteriorWeightsCalculator pwc;
+  std::unique_ptr<std::vector<Trk::ComponentParameters>> stateWithNewWeights = pwc.weights(stateBeforeUpdate, 
+                                                                                           measurement);
 
   if (!stateWithNewWeights) {
     ATH_MSG_DEBUG("Cacluation of state posterior weights failed... Exiting!");

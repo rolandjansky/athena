@@ -2,7 +2,6 @@ include.block ("MuonByteStreamCnvTest/jobOptions_MuonRDOToDigit.py")
 
 from AthenaCommon.CfgGetter import getPublicTool
 
-from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 ## configure the tool
@@ -13,11 +12,11 @@ MuonRdoToMuonDigitTool = MuonRdoToMuonDigitTool (
                          DecodeRpcRDO = True,
                          DecodeTgcRDO = True,
                          DecodeCscRDO = MuonGeometryFlags.hasCSC(),
-                         DecodeSTGC_RDO = (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]),
-                         DecodeMM_RDO = (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]),
+                         DecodeSTGC_RDO = MuonGeometryFlags.hasSTGC(),
+                         DecodeMM_RDO = MuonGeometryFlags.hasMM(),
                          cscRdoDecoderTool=("Muon::CscRDO_Decoder" if MuonGeometryFlags.hasCSC() else ""),
-                         stgcRdoDecoderTool=("Muon::STGC_RDO_Decoder" if (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]) else ""),
-                         mmRdoDecoderTool=("Muon::MM_RDO_Decoder" if (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]) else "")
+                         stgcRdoDecoderTool=("Muon::STGC_RDO_Decoder" if MuonGeometryFlags.hasSTGC() else ""),
+                         mmRdoDecoderTool=("Muon::MM_RDO_Decoder" if MuonGeometryFlags.hasMM() else "")
                          )
 			 
 if MuonGeometryFlags.hasCSC(): MuonRdoToMuonDigitTool.cscCalibTool = getPublicTool("CscCalibTool")

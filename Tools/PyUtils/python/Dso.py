@@ -5,6 +5,7 @@
 ## @purpose: a set of classes to model so-called 'rootmap' files
 
 from __future__ import print_function
+from past.builtins import xrange
 
 __version__ = "$Revision$"
 __author__  = "Sebastien Binet"

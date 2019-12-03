@@ -52,82 +52,82 @@ namespace TrigConf {
       virtual ~DSConfigSvc();
 
       // @brief initialize the service
-      StatusCode initialize();
+      virtual StatusCode initialize() override;
 
       // @brief finalize the service
-      StatusCode finalize() {
+      virtual StatusCode finalize() override {
          return StatusCode::SUCCESS;
       }
 
       // @brief set the master key of the configuration to be requested
-      StatusCode queryInterface( const InterfaceID& riid, void** ppvIF );
+      virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvIF ) override;
 
       // @brief L1 topo configuration menu
-      virtual const TXC::L1TopoMenu* menu() const {
+      virtual const TXC::L1TopoMenu* menu() const override {
          return m_topoMenu.get();
       }
       
       // LVL1 menu and prescales only (no bunchgroups, prescale clocks, etc.)
-      const CTPConfig* ctpConfig() const {
+      virtual const CTPConfig* ctpConfig() const override {
          return & m_ctpConfig;
       }
 
       // access muctpi configuration
-      const Muctpi* muctpiConfig() const {
+      virtual const Muctpi* muctpiConfig() const override {
          return & m_ctpConfig.muCTPi();
       }
 
       // access to trigger thresholds
-      const ThresholdConfig* thresholdConfig() const {
+      virtual const ThresholdConfig* thresholdConfig() const override {
          return & m_ctpConfig.menu().thresholdConfig();
       }
 
       // returns bunch group set
-      const BunchGroupSet* bunchGroupSet() const {
+      virtual const BunchGroupSet* bunchGroupSet() const override {
          return & m_ctpConfig.bunchGroupSet();
       }
 
       // access to HLT chains
-      const HLTChainList* chainList() const {
+      virtual const HLTChainList* chainList() const override {
          return & m_hltFrame.getHLTChainList();
       }
 
       // access to HLT chains
-      const HLTChainList& chains() const {
+      virtual const HLTChainList& chains() const override {
          return m_hltFrame.chains();
       }
 
       // access to HLT sequences
-      const HLTSequenceList* sequenceList() const {
+      virtual const HLTSequenceList* sequenceList() const override {
          return & m_hltFrame.getHLTSequenceList();
       }
 
       // access to HLT sequences
-      const HLTSequenceList& sequences() const {
+      virtual const HLTSequenceList& sequences() const override {
          return m_hltFrame.sequences();
       }
 
       // access to SMK
-      uint32_t masterKey() const { return m_masterKey; }
+      virtual uint32_t masterKey() const override { return m_masterKey; }
 
       // access to LVL1 prescale key
-      uint32_t lvl1PrescaleKey() const {
+      virtual uint32_t lvl1PrescaleKey() const override {
          return m_lvl1PsKey;
       }
 
       // access to HLT prescale configuration key
-      uint32_t hltPrescaleKey() const { return m_hltPsKey; }
+      virtual uint32_t hltPrescaleKey() const override { return m_hltPsKey; }
 
       // access to a description of the source of the configuration (TriggerDB/XMLfilename)
-      std::string configurationSource() const override {
+      virtual std::string configurationSource() const override {
          return m_configSrc;
       }
 
-      StatusCode updatePrescaleSets(uint requestcount);
+      virtual StatusCode updatePrescaleSets(uint requestcount) override;
 
       // This method is called by TrigSteer on *every* event (keep it fast)
       // This is never used in connection with COOL configuration data
-      StatusCode assignPrescalesToChains(uint lumiblock );
+      virtual StatusCode assignPrescalesToChains(uint lumiblock ) override;
 
    private:
       StatusCode registerCallbackForFolder( const std::string& foldername,

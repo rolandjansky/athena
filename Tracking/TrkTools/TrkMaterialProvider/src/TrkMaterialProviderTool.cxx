@@ -92,6 +92,7 @@ Trk::TrkMaterialProviderTool::initialize()
   ATH_CHECK(m_elossupdator.retrieve());
   ATH_CHECK(m_scattool.retrieve());
   if(m_useCaloEnergyMeasurement) {
+    ATH_CHECK(m_trackIsolationTool.retrieve());
     if(m_useMuonCaloEnergyTool) {
       ATH_CHECK(m_muonCaloEnergyTool.retrieve());
       m_caloMeasTool.disable();
@@ -106,8 +107,8 @@ Trk::TrkMaterialProviderTool::initialize()
     m_caloMeasTool.disable();
     m_caloParamTool.disable();
     m_muonCaloEnergyTool.disable();
+    m_trackIsolationTool.disable();
   }
-  ATH_CHECK(m_trackIsolationTool.retrieve());
 
   ATH_CHECK(m_magFieldSvc.retrieve());
 
@@ -941,7 +942,7 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm,
   // Check if we can use the measured eloss in the fit
   bool useMeasuredEnergy = m_useCaloEnergyMeasurement;
   if(pAtCaloEntry*sin(parm.parameters()[Trk::theta]) < m_paramPtCut) useMeasuredEnergy = false; 
-  if(!isIsolatedTrack(eta,phi)) useMeasuredEnergy = false;
+  if(useMeasuredEnergy && !isIsolatedTrack(eta,phi)) useMeasuredEnergy = false;
  
   // Total eloss
   double Eloss_tot=0.0;

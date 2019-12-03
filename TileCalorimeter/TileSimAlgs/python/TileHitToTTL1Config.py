@@ -127,7 +127,7 @@ if __name__ == "__main__":
     ConfigFlags.Input.Files = defaultTestFiles.HITS
     ConfigFlags.IOVDb.GlobalTag = 'OFLCOND-MC16-SDR-16'
     ConfigFlags.Digitization.Pileup = False
-
+    ConfigFlags.Output.RDOFileName = "myRDO.pool.root"
     ConfigFlags.fillFromArgs()
     ConfigFlags.lock()
 

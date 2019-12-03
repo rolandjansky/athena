@@ -68,7 +68,7 @@ if __name__=='__main__':
 
    acc.printConfig(withDetails = True, summariseProps = True)
    ConfigFlags.dump()
-   acc.store(open("TileMonitoring.pkl","w"))
+   acc.store(open("TileMonitoring.pkl","wb"))
 
    sc = acc.run(maxEvents = 3)
    import sys

@@ -60,7 +60,6 @@ InDet::TRT_TrackExtensionTool_DAF::TRT_TrackExtensionTool_DAF
             m_jo_simpleExtension(true),
             m_jo_maxGroupDistance(5.),
             m_jo_minGroupDistance(1.),
-            m_siliconTrkParams(nullptr),
             m_compROTcreator("InDet::CompetingTRT_DriftCirclesOnTrackTool/CompetingTRT_DriftCirclesOnTrackTool"),
             m_jo_annealingFactor(81.),
             m_roadtool("InDet::TRT_DetElementsRoadMaker_xk/TRT_DetElementsRoadMaker"),
@@ -69,7 +68,6 @@ InDet::TRT_TrackExtensionTool_DAF::TRT_TrackExtensionTool_DAF
             m_fieldmode("MapSolenoid"),
             m_trtID(nullptr)
 {
-    m_measurement.reserve(200);
 
     declareInterface<ITRT_TrackExtensionTool>(this);
 
@@ -145,8 +143,8 @@ StatusCode InDet::TRT_TrackExtensionTool_DAF::initialize() {
     }
     // ----------------------------
     // init the size of the vectors
-    m_detectorElements.reserve(200);
-    m_propagatedTrackParameters.reserve(200);
+
+    ATH_CHECK( m_jo_trtcontainername.initialize());
 
     return StatusCode::SUCCESS;
 }
@@ -273,21 +271,34 @@ std::ostream& InDet::TRT_TrackExtensionTool_DAF::dump( std::ostream& out ) const
 ///////////////////////////////////////////////////////////////////
 // Track extension init for a new event
 ///////////////////////////////////////////////////////////////////
-void InDet::TRT_TrackExtensionTool_DAF::newEvent() {
+std::unique_ptr<InDet::ITRT_TrackExtensionTool::IEventData>
+InDet::TRT_TrackExtensionTool_DAF::newEvent() const {
     // -----------
     // get the container with TRT RIOs
-    m_trtcontainer = 0;
-    StatusCode sc = evtStore()->retrieve(m_trtcontainer, m_jo_trtcontainername);
-    if(sc.isFailure()) {
-        ATH_MSG_DEBUG("Could not get TRT_DriftCircleContainer");
-    }
+   SG::ReadHandle<TRT_DriftCircleContainer> trtcontainer(m_jo_trtcontainername);
+
+   if((not trtcontainer.isValid())) {
+      std::stringstream msg;
+      msg << "Missing TRT_DriftCircleContainer " << m_jo_trtcontainername.key();
+      throw std::runtime_error( msg.str() );
+   }
+
+   std::unique_ptr<EventData> event_data(new EventData(trtcontainer.cptr()));
+   event_data->m_measurement.reserve(200);
+   event_data->m_propagatedTrackParameters.reserve(200);
+
+   return std::unique_ptr<InDet::ITRT_TrackExtensionTool::IEventData>(event_data.release());
 }
 
 ///////////////////////////////////////////////////////////////////
 // Main methods for track extension to TRT
 ///////////////////////////////////////////////////////////////////
-std::vector<const Trk::MeasurementBase*>& InDet::TRT_TrackExtensionTool_DAF::extendTrack(
-        const Trk::Track& track) {
+std::vector<const Trk::MeasurementBase*>&
+InDet::TRT_TrackExtensionTool_DAF::extendTrack(const Trk::Track& track,
+                                               InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const
+{
+  InDet::TRT_TrackExtensionTool_DAF::EventData &
+     event_data=InDet::TRT_TrackExtensionTool_DAF::EventData::getPrivateEventData(virt_event_data);
     //StatusCode sc;
 
     const Trk::TrackParameters *trackPar = 0;
@@ -301,16 +312,21 @@ std::vector<const Trk::MeasurementBase*>& InDet::TRT_TrackExtensionTool_DAF::ext
         if(!trackPar) {
             // now I am upset...
             ATH_MSG_ERROR("even the Perigee == Null, stop!");
-            return m_measurement;
+            return event_data.m_measurement;
         }
     }
     // call main function
-    return extendTrack(*trackPar);
+    return extendTrack(*trackPar,event_data);
 }
 
 
-std::vector<const Trk::MeasurementBase*>& InDet::TRT_TrackExtensionTool_DAF::extendTrack(
-        const Trk::TrackParameters& trackPar) {
+std::vector<const Trk::MeasurementBase*>&
+InDet::TRT_TrackExtensionTool_DAF::extendTrack(const Trk::TrackParameters& trackPar,
+                                               InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const
+{
+   InDet::TRT_TrackExtensionTool_DAF::EventData &
+      event_data=InDet::TRT_TrackExtensionTool_DAF::EventData::getPrivateEventData(virt_event_data);
+
     StatusCode sc(StatusCode::SUCCESS);
     // fake check of StatusCode to avoid "unchecked return codes" warning
     if (sc.isFailure()) {
@@ -319,26 +335,26 @@ std::vector<const Trk::MeasurementBase*>& InDet::TRT_TrackExtensionTool_DAF::ext
     // ------------
     // reset the output vector
     //m_measurement.erase(m_measurement.begin(), m_measurement.end());
-    m_measurement.clear();
+    event_data.m_measurement.clear();
     // reset the detElements vector
-    m_detectorElements.clear();
+    event_data.m_detectorElements.clear();
     // reset the vector with propagated trackParameters
-    m_propagatedTrackParameters.clear();
+    event_data.m_propagatedTrackParameters.clear();
 
     // ------------
     // stop immediately if no RIO container could be retrieved
-    if(!m_trtcontainer) {
+    if(!event_data.m_trtcontainer) {
         ATH_MSG_DEBUG("no RIO container retrieved, stop!");
-        return m_measurement;
+        return event_data.m_measurement;
     }
 
-    m_siliconTrkParams = &trackPar;
+    event_data.m_siliconTrkParams = &trackPar;
 
-    ATH_MSG_DEBUG("starting TRT detector elements road maker with initial TrackParemeters: "<< *m_siliconTrkParams );
+    ATH_MSG_DEBUG("starting TRT detector elements road maker with initial TrackParemeters: "<< *event_data.m_siliconTrkParams );
     // ----------------------------------
     // start the TRT detector elements road maker to get a list of possibly interesting detector elements
-    std::list<const InDetDD::TRT_BaseElement*> detElements;
-    m_roadtool->detElementsRoad(*m_siliconTrkParams, Trk::alongMomentum, detElements);
+    std::vector<const InDetDD::TRT_BaseElement*> detElements;
+    m_roadtool->detElementsRoad(*event_data.m_siliconTrkParams, Trk::alongMomentum, detElements);
 
     ATH_MSG_DEBUG("TRT detector elements road maker found "<< detElements.size()<< " detElements" );
 
@@ -355,12 +371,12 @@ std::vector<const Trk::MeasurementBase*>& InDet::TRT_TrackExtensionTool_DAF::ext
     // was the barrel already crossed?
     bool barrelCrossed = false;
     // start extrapolation with TrkParameters from Silicon
-    const Trk::TrackParameters* previousTrkPar = m_siliconTrkParams;
+    const Trk::TrackParameters* previousTrkPar = event_data.m_siliconTrkParams;
     // loop over detElements
-    std::list<const InDetDD::TRT_BaseElement*>::const_iterator detElIter=detElements.begin();
+    std::vector<const InDetDD::TRT_BaseElement*>::const_iterator detElIter=detElements.begin();
     if(detElIter == detElements.end()) {
         ATH_MSG_DEBUG("TRT_DetElementsRoadMaker found no road, stop!");
-        return m_measurement;
+        return event_data.m_measurement;
     }
     for(; detElIter!=detElements.end(); ++detElIter) {
         // propagate without boundary checks to detElement
@@ -370,7 +386,7 @@ std::vector<const Trk::MeasurementBase*>& InDet::TRT_TrackExtensionTool_DAF::ext
             // propagate directly to this detElement and hope that the Fitter will do a better job:
             ATH_MSG_DEBUG("step by step propagation of track parameters to TRT detector element failed: Try direct propagation (this may cause problems for the Fitter)");
             ATH_MSG_DEBUG("Problem was in " << (*detElIter)->type() <<" at (" << (*detElIter)->center().x() <<", "<< (*detElIter)->center().y() <<", "<< (*detElIter)->center().z() << ")" );
-            nextTrkPar = m_propagator->propagateParameters(*m_siliconTrkParams, (*detElIter)->surface(), Trk::alongMomentum, false, m_fieldprop, Trk::nonInteracting);
+            nextTrkPar = m_propagator->propagateParameters(*event_data.m_siliconTrkParams, (*detElIter)->surface(), Trk::alongMomentum, false, m_fieldprop, Trk::nonInteracting);
             if (!nextTrkPar) {
                 ATH_MSG_WARNING("direct propagation of track parameters to TRT detector element failed:");
                 ATH_MSG_WARNING("   this detector element will be dropped and RIOs on the road may be lost!");
@@ -381,19 +397,19 @@ std::vector<const Trk::MeasurementBase*>& InDet::TRT_TrackExtensionTool_DAF::ext
         ATH_MSG_VERBOSE("propagated TrackParameters: ("<< nextTrkPar->position().x() <<", "<< nextTrkPar->position().y() <<", "<< nextTrkPar->position().z() << ") in detectorType: " << (*detElIter)->type() );
 
         // append the detElement and the trkParameters to the vectors
-        m_detectorElements.push_back((*detElIter));
-        m_propagatedTrackParameters.push_back(nextTrkPar);
+        event_data.m_detectorElements.push_back((*detElIter));
+        event_data.m_propagatedTrackParameters.push_back(nextTrkPar);
 
         // set the index if subdetector crossed:
         if ((*detElIter)->type() == InDetDD::TRT_BaseElement::BARREL) {
             if (!barrelCrossed) {
                 barrelCrossed = true;
-                beginBarrelRoad = m_detectorElements.size()-1;
+                beginBarrelRoad = event_data.m_detectorElements.size()-1;
             }
         } else {
             if ( (barrelCrossed) && (beginSecondEndcapRoad == 0) )  {
                 //barrelCrossed = true;
-                beginSecondEndcapRoad = m_detectorElements.size()-1;
+                beginSecondEndcapRoad = event_data.m_detectorElements.size()-1;
             }
         }
 
@@ -402,39 +418,39 @@ std::vector<const Trk::MeasurementBase*>& InDet::TRT_TrackExtensionTool_DAF::ext
         //nDetElements++;
     } // end for loop over detElements
 
-    ATH_MSG_DEBUG("Barrel Road starts at index "<< beginBarrelRoad << ",  second Encap Road at "<< beginSecondEndcapRoad << " with a total of "<< m_detectorElements.size()<< " detElements" );
+    ATH_MSG_DEBUG("Barrel Road starts at index "<< beginBarrelRoad << ",  second Encap Road at "<< beginSecondEndcapRoad << " with a total of "<< event_data.m_detectorElements.size()<< " detElements" );
 
     if (m_jo_simpleExtension) {
         ATH_MSG_DEBUG("run the simpleExtension" );
         // -----------------
         // build the complete extension element-wise:
-        sc = elementWiseExtension(0, m_detectorElements.size()-1);
+        sc = elementWiseExtension(0, event_data.m_detectorElements.size()-1,event_data);
     } else {
         // -----------------
         // build the extensions for the three road parts and combine them:
         // endcap before barrel
         if (beginBarrelRoad > 0) {
             ATH_MSG_DEBUG("start processing of endcap road before barrel" );
-            sc = elementWiseExtension(0, beginBarrelRoad-1);
+            sc = elementWiseExtension(0, beginBarrelRoad-1,event_data);
         } else if (!barrelCrossed) {
             ATH_MSG_DEBUG("start processing of endcap road (endcap only track)" );
-            sc = elementWiseExtension(0, m_detectorElements.size()-1);
+            sc = elementWiseExtension(0, event_data.m_detectorElements.size()-1,event_data);
         }
         // barrel
         if (barrelCrossed && (!(sc.isFailure()))) {
             ATH_MSG_DEBUG("start processing of barrel road" );
             if (beginSecondEndcapRoad > 0) {
                 // endcap was reached after the barrel was crossed
-                sc = groupedBarrelExtension(beginBarrelRoad, beginSecondEndcapRoad-1);
+                sc = groupedBarrelExtension(beginBarrelRoad, beginSecondEndcapRoad-1,event_data);
             } else {
                 // after the barrel no endcap was hit
-                sc = groupedBarrelExtension(beginBarrelRoad, m_detectorElements.size()-1);
+                sc = groupedBarrelExtension(beginBarrelRoad, event_data.m_detectorElements.size()-1,event_data);
             }
         }
         // encap after barrel
         if ((beginSecondEndcapRoad > 0) && !(sc.isFailure())) {
             ATH_MSG_DEBUG("start processing of endcap road after barrel" );
-            sc = elementWiseExtension(beginSecondEndcapRoad, m_detectorElements.size()-1);
+            sc = elementWiseExtension(beginSecondEndcapRoad, event_data.m_detectorElements.size()-1,event_data);
         }
     }// end if (simpleExtension)
 
@@ -442,32 +458,35 @@ std::vector<const Trk::MeasurementBase*>& InDet::TRT_TrackExtensionTool_DAF::ext
     if (sc.isFailure()) {
         ATH_MSG_WARNING("extensions failed: Return empty MeasurementBase vector" );
         // delete extension made so far
-        std::vector<const Trk::MeasurementBase*>::const_iterator createdCompROTsIter = m_measurement.begin();
-        for(; createdCompROTsIter!=m_measurement.end(); ++createdCompROTsIter) {
+        std::vector<const Trk::MeasurementBase*>::const_iterator createdCompROTsIter = event_data.m_measurement.begin();
+        for(; createdCompROTsIter!=event_data.m_measurement.end(); ++createdCompROTsIter) {
             delete (*createdCompROTsIter);
         }
-        m_measurement.clear();
+        event_data.m_measurement.clear();
     }
 
 
     // ------------------------------------------
     // delete all the propagated track parameters:
-    std::vector<const Trk::TrackParameters*>::const_iterator trkParIter = m_propagatedTrackParameters.begin();
-    for(; trkParIter!=m_propagatedTrackParameters.end(); ++trkParIter) {
+    std::vector<const Trk::TrackParameters*>::const_iterator trkParIter = event_data.m_propagatedTrackParameters.begin();
+    for(; trkParIter!=event_data.m_propagatedTrackParameters.end(); ++trkParIter) {
         delete (*trkParIter);
     }
-    m_propagatedTrackParameters.clear();
-    m_detectorElements.clear();
+    event_data.m_propagatedTrackParameters.clear();
+    event_data.m_detectorElements.clear();
 
-    ATH_MSG_DEBUG("** done: Made TRT extension with "<< m_measurement.size() << " CompetingTRT_DriftCirclesOnTrack");
-    return m_measurement;
+    ATH_MSG_DEBUG("** done: Made TRT extension with "<< event_data.m_measurement.size() << " CompetingTRT_DriftCirclesOnTrack");
+    return event_data.m_measurement;
 }
 
 ///////////////////////////////////////////////////////////////////
 // find an element-wise extension (ie. the RIOs in a CompROT belong to one detElement)
 ///////////////////////////////////////////////////////////////////
 
-StatusCode InDet::TRT_TrackExtensionTool_DAF::elementWiseExtension(int beginIndex, int endIndex) const {
+StatusCode InDet::TRT_TrackExtensionTool_DAF::elementWiseExtension(int beginIndex,
+                                                                   int endIndex,
+                                                                   InDet::TRT_TrackExtensionTool_DAF::EventData &event_data) const
+{
 
 
     const double squaredMaxBarrelRIOdistance = m_jo_roadwidth * m_jo_roadwidth;
@@ -487,29 +506,29 @@ StatusCode InDet::TRT_TrackExtensionTool_DAF::elementWiseExtension(int beginInde
         // ----------
         // global position of the track prediction
         // get the global position of the track prediction on the detElement
-        Amg::Vector3D trkPos( m_propagatedTrackParameters[index]->position() );
+        Amg::Vector3D trkPos( event_data.m_propagatedTrackParameters[index]->position() );
         //ATH_MSG_INFO("track prediction at: ("<< trkPos.x() <<", "<< trkPos.y() <<", "<< trkPos.z() << ")" );
         //ATH_MSG_INFO("detElement surface: " );
         //m_detectorElements[index]->surface().dump(log);
         // ignore the z coordinate:
         trkPos[Amg::z]=0.;
         // determine the subdetector type
-        bool isBarrel = (m_detectorElements[index]->type() ==  InDetDD::TRT_BaseElement::BARREL);
+        bool isBarrel = (event_data.m_detectorElements[index]->type() ==  InDetDD::TRT_BaseElement::BARREL);
         bool createCompROT = true;
         if (!isBarrel) {
-            if ( m_detectorElements[index]->surface().center().z() == lastEndCapZ ) {
+            if ( event_data.m_detectorElements[index]->surface().center().z() == lastEndCapZ ) {
                 // this detector element belongs to the same wheel, so we add its measurements to
                 // the previous group
                 createCompROT = false;
             } else {
-                lastEndCapZ = m_detectorElements[index]->surface().center().z();
+                lastEndCapZ = event_data.m_detectorElements[index]->surface().center().z();
             }
         } else {
             lastEndCapZ = -10000.;
         }
         if ( (RIOlist.size() > 0) && createCompROT ) {
             ATH_MSG_DEBUG("try to create CompetingTRT_DriftCirclesOnTrackTool with " << RIOlist.size() << " RIOs" );
-            const Trk::MeasurementBase* compROT = m_compROTcreator->createCompetingROT(RIOlist, *(m_propagatedTrackParameters[index-1]), m_jo_annealingFactor);
+            const Trk::MeasurementBase* compROT = m_compROTcreator->createCompetingROT(RIOlist, *(event_data.m_propagatedTrackParameters[index-1]), m_jo_annealingFactor);
             if (!compROT) {
                 ATH_MSG_WARNING("current CompetingTRT_DriftCirclesOnTrack could not be created:");
                 ATH_MSG_WARNING("   the RIOs on this detElement will be skipped!");
@@ -517,7 +536,7 @@ StatusCode InDet::TRT_TrackExtensionTool_DAF::elementWiseExtension(int beginInde
             } else {
                 // ---------------
                 // append the created compROT to the MeasurementBase vector:
-                m_measurement.push_back(compROT);
+                event_data.m_measurement.push_back(compROT);
             }
             // RIOs were used in the CompetingROT, clear the list
             RIOlist.clear();
@@ -527,11 +546,11 @@ StatusCode InDet::TRT_TrackExtensionTool_DAF::elementWiseExtension(int beginInde
         // Driftcircle collection and contained RIOs
         ATH_MSG_VERBOSE("trying to get detElement for index "<< index );
         // get the id of the detElement
-        IdentifierHash detElementID = m_detectorElements[index]->identifyHash();
+        IdentifierHash detElementID = event_data.m_detectorElements[index]->identifyHash();
         // get the driftCircleCollection belonging to this id
-        containerIterator = m_trtcontainer->indexFind(detElementID);
+        containerIterator = event_data.m_trtcontainer->indexFind(detElementID);
 
-        if(containerIterator==m_trtcontainer->end()) {
+        if(containerIterator==event_data.m_trtcontainer->end()) {
             ATH_MSG_DEBUG("for the current detectorElement no DriftCircleContainer seems to exist");
             continue;
         }
@@ -544,7 +563,7 @@ StatusCode InDet::TRT_TrackExtensionTool_DAF::elementWiseExtension(int beginInde
         InDet::TRT_DriftCircleCollection::const_iterator driftCircleIterator = (*containerIterator)->begin();
         for (; driftCircleIterator != (*containerIterator)->end(); driftCircleIterator++) {
             // get the straw center of the RIO
-            Amg::Vector3D strawGlobPos( m_detectorElements[index]->center( (*driftCircleIterator)->identify() ) );
+            Amg::Vector3D strawGlobPos( event_data.m_detectorElements[index]->center( (*driftCircleIterator)->identify() ) );
             ATH_MSG_DEBUG("straw center at: ("<< strawGlobPos.x() <<", "<< strawGlobPos.y() << ")" );
             strawGlobPos[Amg::z]=0.;
             if (isBarrel) {
@@ -562,7 +581,7 @@ StatusCode InDet::TRT_TrackExtensionTool_DAF::elementWiseExtension(int beginInde
                 int straw = m_trtID->straw( (*driftCircleIterator)->identify() );
                 // calc squared distance of straw and track prediction perpendicular to the straw axis
                 //double distance = (strawGlobPos - trkPos).perp2( m_detectorElements[index]->strawAxis(straw) );
-                double distance = perp2(strawGlobPos-trkPos, m_detectorElements[index]->strawAxis(straw));
+                double distance = perp2(strawGlobPos-trkPos, event_data.m_detectorElements[index]->strawAxis(straw));
                 ATH_MSG_DEBUG("distance perp. to straw axis: " << sqrt(distance) );
 
                 if ( distance > squaredMaxEndcapRIOdistance ) {
@@ -576,7 +595,7 @@ StatusCode InDet::TRT_TrackExtensionTool_DAF::elementWiseExtension(int beginInde
     } // end for (loop over detElements)
     if ( RIOlist.size() > 0 ) {
         ATH_MSG_DEBUG("try to create CompetingTRT_DriftCirclesOnTrackTool with " << RIOlist.size() << " RIOs" );
-        const Trk::MeasurementBase* compROT = m_compROTcreator->createCompetingROT(RIOlist, *(m_propagatedTrackParameters[endIndex]), m_jo_annealingFactor);
+        const Trk::MeasurementBase* compROT = m_compROTcreator->createCompetingROT(RIOlist, *(event_data.m_propagatedTrackParameters[endIndex]), m_jo_annealingFactor);
         if (!compROT) {
             ATH_MSG_WARNING("current CompetingTRT_DriftCirclesOnTrack could not be created:");
             ATH_MSG_WARNING("   the RIOs on this detElement will be skipped!");
@@ -584,7 +603,7 @@ StatusCode InDet::TRT_TrackExtensionTool_DAF::elementWiseExtension(int beginInde
         } else {
             // ---------------
             // append the created compROT to the MeasurementBase vector:
-            m_measurement.push_back(compROT);
+            event_data.m_measurement.push_back(compROT);
         }
     }
     return StatusCode::SUCCESS;
@@ -593,7 +612,11 @@ StatusCode InDet::TRT_TrackExtensionTool_DAF::elementWiseExtension(int beginInde
 ///////////////////////////////////////////////////////////////////
 // find a barrel extension with RIOs grouped along the globalPositions of the track
 ///////////////////////////////////////////////////////////////////
-StatusCode InDet::TRT_TrackExtensionTool_DAF::groupedBarrelExtension(int beginIndex, int endIndex) const {
+StatusCode
+InDet::TRT_TrackExtensionTool_DAF::groupedBarrelExtension(int beginIndex,
+                                                          int endIndex,
+                                                          InDet::TRT_TrackExtensionTool_DAF::EventData &event_data) const
+{
 
 
     //double squaredMaxGroupDistance = m_jo_maxGroupDistance * m_jo_maxGroupDistance;
@@ -611,7 +634,7 @@ StatusCode InDet::TRT_TrackExtensionTool_DAF::groupedBarrelExtension(int beginIn
     //     vector<double>  trackGlobalPosX;
     //     vector<double>  trackGlobalPosY;
     // index of the last global position belonging to the detElement
-    std::vector<int> detElementGlobPosIndex(m_propagatedTrackParameters.size(), 0);
+    std::vector<int> detElementGlobPosIndex(event_data.m_propagatedTrackParameters.size(), 0);
     //     trackGlobalPosX.reserve(200);
     //     trackGlobalPosY.reserve(200);
     //detElementIndex.reserve(200);
@@ -624,7 +647,7 @@ StatusCode InDet::TRT_TrackExtensionTool_DAF::groupedBarrelExtension(int beginIn
     //    trackGlobalPosY.push_back( lastPosY );
     ATH_MSG_DEBUG("looping over detElements between index " << beginIndex << " and " << endIndex << "to produce a list of global positions" );
 
-    Amg::Vector3D* lastPos = new Amg::Vector3D( m_propagatedTrackParameters[beginIndex]->position() );
+    Amg::Vector3D* lastPos = new Amg::Vector3D( event_data.m_propagatedTrackParameters[beginIndex]->position() );
     ATH_MSG_VERBOSE("global position: ("<< lastPos->x() <<", "<< lastPos->y() << ")" );
     // ignore z coordinate (along the straw)
     (*lastPos)[Amg::z]=0.;
@@ -635,7 +658,7 @@ StatusCode InDet::TRT_TrackExtensionTool_DAF::groupedBarrelExtension(int beginIn
         // get the global track position and fill it into vectors
         //double posX = m_propagatedTrackParameters[index]->position().x();
         //double posY = m_propagatedTrackParameters[index]->position().y();
-        Amg::Vector3D* Pos = new Amg::Vector3D( m_propagatedTrackParameters[index]->position() );
+        Amg::Vector3D* Pos = new Amg::Vector3D( event_data.m_propagatedTrackParameters[index]->position() );
         // ignore z coordinate (along the straw)
         (*Pos)[Amg::z]=0.;
 
@@ -683,11 +706,11 @@ StatusCode InDet::TRT_TrackExtensionTool_DAF::groupedBarrelExtension(int beginIn
     for(int index = beginIndex+1; index <= endIndex; ++index) {
         ATH_MSG_VERBOSE("trying to get detElement for index "<< index );
         // get the id of the detElement
-        IdentifierHash detElementID = m_detectorElements[index]->identifyHash();
+        IdentifierHash detElementID = event_data.m_detectorElements[index]->identifyHash();
         // get the driftCircleCollection belonging to this id
-        containerIterator = m_trtcontainer->indexFind(detElementID);
+        containerIterator = event_data.m_trtcontainer->indexFind(detElementID);
         // loop over RIOs in the collection
-        if(containerIterator==m_trtcontainer->end()) {
+        if(containerIterator==event_data.m_trtcontainer->end()) {
             ATH_MSG_DEBUG("for the current detectorElement no DriftCircleContainer seems to exist");
             continue;
         }
@@ -699,7 +722,7 @@ StatusCode InDet::TRT_TrackExtensionTool_DAF::groupedBarrelExtension(int beginIn
         InDet::TRT_DriftCircleCollection::const_iterator driftCircleIterator = (*containerIterator)->begin();
         for (; driftCircleIterator != (*containerIterator)->end(); driftCircleIterator++) {
             // get the straw center of the RIO
-            Amg::Vector3D strawGlobPos( m_detectorElements[index]->center( (*driftCircleIterator)->identify() ) );
+            Amg::Vector3D strawGlobPos( event_data.m_detectorElements[index]->center( (*driftCircleIterator)->identify() ) );
             strawGlobPos[Amg::z]=0.;
 
             // --------------------------------
@@ -835,7 +858,7 @@ StatusCode InDet::TRT_TrackExtensionTool_DAF::groupedBarrelExtension(int beginIn
         const Trk::Surface& RIOsurface = minDistanceRIO[groupIndex]->detectorElement()->surface(minDistanceRIO[groupIndex]->identify());
         // propagate to this surface
         //const Trk::TrackParameters* TrkPar = m_propagator->propagateParameters(*m_siliconTrkParams, RIOsurface, Trk::alongMomentum, false, m_fieldprop, Trk::pion);
-        const Trk::TrackParameters* TrkPar = m_propagator->propagateParameters(*m_siliconTrkParams, RIOsurface, Trk::alongMomentum, false, m_fieldprop, Trk::nonInteracting);
+        const Trk::TrackParameters* TrkPar = m_propagator->propagateParameters(*event_data.m_siliconTrkParams, RIOsurface, Trk::alongMomentum, false, m_fieldprop, Trk::nonInteracting);
         if (!TrkPar) {
             ATH_MSG_WARNING("propagation of track parameters to the RIO surface failed:");
             ATH_MSG_WARNING("   this group of RIOs will skipped!");
@@ -855,7 +878,7 @@ StatusCode InDet::TRT_TrackExtensionTool_DAF::groupedBarrelExtension(int beginIn
         // ---------------
         // append the created compROT to the MeasurementBase vector:
         // first we have to cast to the base class?
-        m_measurement.push_back(compROT);
+        event_data.m_measurement.push_back(compROT);
         // delete the propagated trkParams
         delete TrkPar;
         usedGroupCounter++;
@@ -876,15 +899,20 @@ StatusCode InDet::TRT_TrackExtensionTool_DAF::groupedBarrelExtension(int beginIn
 ///////////////////////////////////////////////////////////////////
 // Main methods for segment finding in TRT
 ///////////////////////////////////////////////////////////////////
-Trk::TrackSegment* InDet::TRT_TrackExtensionTool_DAF::findSegment(const Trk::TrackParameters&) {
+Trk::TrackSegment*
+InDet::TRT_TrackExtensionTool_DAF::findSegment(const Trk::TrackParameters&,
+                                               InDet::ITRT_TrackExtensionTool::IEventData &) const
+{
     return 0;
 }
 ///////////////////////////////////////////////////////////////////
-// Methods for track extension to TRT for pixles+sct tracks 
+// Methods for track extension to TRT for pixles+sct tracks
 // and new track production
 ///////////////////////////////////////////////////////////////////
 
-Trk::Track* InDet::TRT_TrackExtensionTool_DAF::newTrack(const Trk::Track&)
-{ 
+Trk::Track*
+InDet::TRT_TrackExtensionTool_DAF::newTrack(const Trk::Track&,
+                                            InDet::ITRT_TrackExtensionTool::IEventData &) const
+{
   return 0;
 }

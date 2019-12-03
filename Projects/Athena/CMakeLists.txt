@@ -62,6 +62,12 @@ find_package( PNG )
 find_package( VDT )
 find_package( TIFF )
 
+# Set up the correct runtime environment for OpenBLAS.
+set( OpenBlasEnvironment_DIR "${CMAKE_SOURCE_DIR}/cmake"
+   CACHE PATH "Directory holding OpenBlasEnvironmentConfig.cmake" )
+mark_as_advanced( OpenBlasEnvironment_DIR )
+find_package( OpenBlasEnvironment )
+
 # Load all the files from the externals/ subdirectory:
 file( GLOB _externals "${CMAKE_CURRENT_SOURCE_DIR}/externals/*.cmake" )
 foreach( _external ${_externals} )

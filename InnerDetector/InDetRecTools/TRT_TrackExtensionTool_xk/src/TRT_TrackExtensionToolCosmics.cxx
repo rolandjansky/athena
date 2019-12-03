@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -53,9 +53,6 @@ InDet::TRT_TrackExtensionToolCosmics::TRT_TrackExtensionToolCosmics
   declareProperty("BoundaryCheck"        ,m_boundarycheck=false);
 
 
-  m_trtcylinder=0;
-  m_trtdiscA=0;
-  m_trtdiscC=0;
  }
 
 ///////////////////////////////////////////////////////////////////
@@ -136,10 +133,6 @@ StatusCode InDet::TRT_TrackExtensionToolCosmics::finalize()
 {
    StatusCode sc = AlgTool::finalize(); 
 
-   if(m_trtcylinder) delete m_trtcylinder;
-   if(m_trtdiscA) delete m_trtdiscA;
-   if(m_trtdiscC) delete m_trtdiscC;
-
    return sc;
 }
 
@@ -207,29 +200,32 @@ std::ostream& InDet::operator <<
 // Track extension initiation
 ///////////////////////////////////////////////////////////////////
 
-void InDet::TRT_TrackExtensionToolCosmics::newEvent()
+std::unique_ptr<InDet::ITRT_TrackExtensionTool::IEventData>
+InDet::TRT_TrackExtensionToolCosmics::newEvent() const
 {
   //create the boundary surfaces
   //
-  Amg::RotationMatrix3D r; r.setIdentity(); 
-  Amg::Transform3D* t = 0;
-
-  if(!m_trtcylinder) {
-    t = new Amg::Transform3D(r * Amg::Translation3D(Amg::Vector3D::Zero()));
-    m_trtcylinder= new Trk::CylinderSurface(t,1150.,3000.);
-  }
-  if(!m_trtdiscA   ) {
-    t = new Amg::Transform3D(r * Amg::Translation3D(Amg::Vector3D(0.,0.,3000)));
-    m_trtdiscA   = new Trk::DiscSurface    (t,1.,1200.);
-  }
-  if(!m_trtdiscC) {
-    t = new Amg::Transform3D(r * Amg::Translation3D(Amg::Vector3D(0.,0.,-3000)));
-    m_trtdiscC   = new Trk::DiscSurface    (t,1.,1200.);
-  }
   SG::ReadHandle<TRT_DriftCircleContainer> trtcontainer(m_trtname);
   if(not trtcontainer.isValid() && m_outputlevel<=0) {
-    msg(MSG::DEBUG)<<"Could not get TRT_DriftCircleContainer"<<endmsg;
+    std::stringstream msg;
+    msg << "Missing TRT_DriftCircleContainer " << m_trtname.key();
+    throw std::runtime_error( msg.str() );
   }
+
+  std::unique_ptr<EventData> event_data(new EventData(trtcontainer.cptr()));
+
+  Amg::RotationMatrix3D r; r.setIdentity();
+  Amg::Transform3D* t = 0;
+
+  t = new Amg::Transform3D(r * Amg::Translation3D(Amg::Vector3D::Zero()));
+  event_data->m_trtcylinder= new Trk::CylinderSurface(t,1150.,3000.);
+  t = new Amg::Transform3D(r * Amg::Translation3D(Amg::Vector3D(0.,0.,3000)));
+  event_data->m_trtdiscA   = new Trk::DiscSurface    (t,1.,1200.);
+  t = new Amg::Transform3D(r * Amg::Translation3D(Amg::Vector3D(0.,0.,-3000)));
+  event_data->m_trtdiscC   = new Trk::DiscSurface    (t,1.,1200.);
+
+  return std::unique_ptr<InDet::ITRT_TrackExtensionTool::IEventData>(event_data.release());
+
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -237,18 +233,21 @@ void InDet::TRT_TrackExtensionToolCosmics::newEvent()
 ///////////////////////////////////////////////////////////////////
 
 std::vector<const Trk::MeasurementBase*>& 
-InDet::TRT_TrackExtensionToolCosmics::extendTrack(const Trk::Track& Tr)
+InDet::TRT_TrackExtensionToolCosmics::extendTrack(const Trk::Track& Tr,
+                                                  InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const
 { 
-  m_measurement.erase(m_measurement.begin(), m_measurement.end());
+  InDet::TRT_TrackExtensionToolCosmics::EventData &
+     event_data=InDet::TRT_TrackExtensionToolCosmics::EventData::getPrivateEventData(virt_event_data);
 
-  SG::ReadHandle<TRT_DriftCircleContainer> trtcontainer(m_trtname);
-  if(not trtcontainer.isValid()) return m_measurement;
+  event_data.m_measurement.clear();
+
+  if(not event_data.m_trtcontainer) return event_data.m_measurement;
 
   const DataVector<const Trk::TrackStateOnSurface>* 
     tsos = Tr.trackStateOnSurfaces();
 
   const Trk::TrackParameters* 
-    par = (*(tsos->rbegin()))->trackParameters(); if(!par ) return m_measurement;
+    par = (*(tsos->rbegin()))->trackParameters(); if(!par ) return event_data.m_measurement;
   const Trk::TrackParameters* 
     parb = (*(tsos->begin()))->trackParameters();
 
@@ -261,24 +260,20 @@ InDet::TRT_TrackExtensionToolCosmics::extendTrack(const Trk::Track& Tr)
   }
 
   if(Tr.perigeeParameters()) {
-    return extendTrack(*Tr.perigeeParameters());
+     return extendTrack(*Tr.perigeeParameters(),event_data);
   }
-  m_measurement.erase(m_measurement.begin(), m_measurement.end());
-  return m_measurement;
+  event_data.m_measurement.clear();
+  return event_data.m_measurement;
 }
 
 ///////////////////////////////////////////////////////////////////
 // Main methods for track extension to TRT
 ///////////////////////////////////////////////////////////////////
-void InDet::TRT_TrackExtensionToolCosmics::analyze_tpars(const std::vector<const Trk::TrackParameters* >* tpars)
+void InDet::TRT_TrackExtensionToolCosmics::analyze_tpars(const std::vector<const Trk::TrackParameters* >* tpars,
+                                                         InDet::TRT_TrackExtensionToolCosmics::EventData &event_data) const
 {
   msg(MSG::DEBUG)<<"Number of tpars: "<<tpars->size()<<endmsg;
 
-  SG::ReadHandle<TRT_DriftCircleContainer> trtcontainer(m_trtname);
-  if (!trtcontainer.isValid()) {
-    return;
-  }
-  
   double lastz=-99999;
   std::vector< const Trk::TrackParameters* >::const_iterator parameterIter = tpars->begin();
   for ( ; parameterIter != tpars->end(); ++parameterIter) {
@@ -320,9 +315,9 @@ void InDet::TRT_TrackExtensionToolCosmics::analyze_tpars(const std::vector<const
 	  
 	  //check if this PRD exists
 	  // get the driftCircleCollection belonging to this id
-	  InDet::TRT_DriftCircleContainer::const_iterator containerIterator = trtcontainer->indexFind(detElements[i+1]);
+	  InDet::TRT_DriftCircleContainer::const_iterator containerIterator = event_data.m_trtcontainer->indexFind(detElements[i+1]);
 	  
-	  if(containerIterator==trtcontainer->end()) {
+	  if(containerIterator==event_data.m_trtcontainer->end()) {
 	    msg(MSG::DEBUG)<<"for the current detectorElement no DriftCircleContainer seems to exist: "<<m_trtid->show_to_string(m_trtid->layer_id(detElements[i+1]))<<endmsg;
 	    continue;
 	  }
@@ -374,7 +369,7 @@ void InDet::TRT_TrackExtensionToolCosmics::analyze_tpars(const std::vector<const
         const Trk::StraightLineSurface *slsurf=dynamic_cast<const Trk::StraightLineSurface *>(&circ->detectorElement()->surface(circ->identify())); if(!slsurf) continue;
         Trk::AtaStraightLine atasl((**parameterIter).position(),(**parameterIter).parameters()[Trk::phi],(**parameterIter).parameters()[Trk::theta],(**parameterIter).parameters()[Trk::qOverP],*slsurf);
         const Trk::MeasurementBase *newmeas=m_riontrackN->correct(*circ,atasl); 
-	m_measurement.push_back(newmeas);
+	event_data.m_measurement.push_back(newmeas);
         //std::cout << "param pos: " << (**parameterIter).position() << " meas pos: " << newmeas->globalPosition() << std::endl;
 
       }	  
@@ -399,11 +394,14 @@ class tp_sort_cosmics{
 // Main methods for track extension to TRT
 ///////////////////////////////////////////////////////////////////
 
-std::vector<const Trk::MeasurementBase*>& 
-InDet::TRT_TrackExtensionToolCosmics::extendTrack(const Trk::TrackParameters& par)
-{ 
- 
-  m_measurement.erase(m_measurement.begin(), m_measurement.end());
+std::vector<const Trk::MeasurementBase*>&
+InDet::TRT_TrackExtensionToolCosmics::extendTrack(const Trk::TrackParameters& par,
+                                                  InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const
+{
+  InDet::TRT_TrackExtensionToolCosmics::EventData &
+     event_data=InDet::TRT_TrackExtensionToolCosmics::EventData::getPrivateEventData(virt_event_data);
+
+  event_data.m_measurement.clear();
 
   std::vector<Identifier> vecID;
   std::vector<const Trk::TrackParameters*> vecTP;
@@ -415,16 +413,15 @@ InDet::TRT_TrackExtensionToolCosmics::extendTrack(const Trk::TrackParameters& pa
 const Trk::Perigee *per=dynamic_cast<const Trk::Perigee *>(&par);
   if (!per) {
     msg(MSG::FATAL)<<"Track perigee not found!"<<endmsg;
-    return m_measurement;
+    return event_data.m_measurement;
   }
 
-  SG::ReadHandle<TRT_DriftCircleContainer> trtcontainer(m_trtname);
-  if (!trtcontainer.isValid()) {
-    return m_measurement;
+ if (!event_data.m_trtcontainer) {
+    return event_data.m_measurement;
   }
 
 InDet::TRT_DriftCircleContainer::const_iterator
-   w = trtcontainer->begin(),we = trtcontainer->end();
+   w = event_data.m_trtcontainer->begin(),we = event_data.m_trtcontainer->end();
    for(; w!=we; ++w) {
      if ((**w).empty()) continue; 
      const Trk::Surface &surf=(**(**w).begin()).detectorElement()->surface();
@@ -447,7 +444,7 @@ InDet::TRT_DriftCircleContainer::const_iterator
   tpars_down=new std::vector<const Trk::TrackParameters* >;
   tpars_up=new std::vector<const Trk::TrackParameters* >;
 
-  if(!tpars_down ||  !tpars_up) return m_measurement;
+  if(!tpars_down ||  !tpars_up) return event_data.m_measurement;
 
   tp_sort_cosmics sorter(per->parameters()[Trk::theta]);
   std::sort(vecTP.begin(),vecTP.end(),sorter);  
@@ -459,21 +456,21 @@ InDet::TRT_DriftCircleContainer::const_iterator
   }
   if (!tpars_up->empty()) std::reverse(tpars_up->begin(),tpars_up->end());
   
-/*  Trk::Surface *boundary_surface=findBoundarySurface(par,Trk::alongMomentum);
+/*  Trk::Surface *boundary_surface=findBoundarySurface(par,Trk::alongMomentum, event_data);
   if(boundary_surface)
     tpars_down=m_extrapolator->extrapolateStepwise(*m_propagator, par, *boundary_surface, Trk::alongMomentum, m_boundarycheck, Trk::muon);  
 
-  boundary_surface=findBoundarySurface(par,Trk::oppositeMomentum);
+  boundary_surface=findBoundarySurface(par,Trk::oppositeMomentum, event_data);
   if(boundary_surface)
     tpars_up  =m_extrapolator->extrapolateStepwise(*m_propagator, par, *boundary_surface, Trk::oppositeMomentum, m_boundarycheck, Trk::muon);
 */
   if(tpars_down){
     //std::cout << "analyze_tpars(tpars_down)" << std::endl;
-    analyze_tpars(tpars_down);
+    analyze_tpars(tpars_down,event_data);
   }
   if(tpars_up){
     //std::cout << "analyze_tpars(tpars_up)" << std::endl;
-    analyze_tpars(tpars_up);
+    analyze_tpars(tpars_up, event_data);
   }
 
   //clean up
@@ -493,9 +490,9 @@ InDet::TRT_DriftCircleContainer::const_iterator
     delete tpars_down;
   }
 
-  msg(MSG::DEBUG)<<"Found "<<m_measurement.size()<<" driftcircles"<<endmsg;
+  msg(MSG::DEBUG)<<"Found "<<event_data.m_measurement.size()<<" driftcircles"<<endmsg;
 
-  return m_measurement;
+  return event_data.m_measurement;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -503,31 +500,35 @@ InDet::TRT_DriftCircleContainer::const_iterator
 ///////////////////////////////////////////////////////////////////
 
 Trk::TrackSegment* 
-InDet::TRT_TrackExtensionToolCosmics::findSegment(const Trk::TrackParameters&)
+InDet::TRT_TrackExtensionToolCosmics::findSegment(const Trk::TrackParameters&,
+                                                  InDet::ITRT_TrackExtensionTool::IEventData &) const
 {
   return NULL;
 }
 
 
-Trk::Surface* InDet::TRT_TrackExtensionToolCosmics::findBoundarySurface(const Trk::TrackParameters& par, Trk::PropDirection dir)
+Trk::Surface*
+InDet::TRT_TrackExtensionToolCosmics::findBoundarySurface(const Trk::TrackParameters&
+                                                          par, Trk::PropDirection dir,
+                                                          InDet::TRT_TrackExtensionToolCosmics::EventData &event_data) const
 {
 
-  const Trk::TrackParameters* test=m_extrapolator->extrapolateDirectly(*m_propagator,par,*m_trtcylinder,dir,true,Trk::muon);
+  const Trk::TrackParameters* test=m_extrapolator->extrapolateDirectly(*m_propagator,par,*event_data.m_trtcylinder,dir,true,Trk::muon);
   if(test){
     delete test;
-    return m_trtcylinder;
+    return event_data.m_trtcylinder;
   }
 
-  test=m_extrapolator->extrapolateDirectly(*m_propagator,par,*m_trtdiscA,dir,true,Trk::muon);
+  test=m_extrapolator->extrapolateDirectly(*m_propagator,par,*event_data.m_trtdiscA,dir,true,Trk::muon);
   if(test){
     delete test;
-    return m_trtdiscA;
+    return event_data.m_trtdiscA;
   }
 
-  test=m_extrapolator->extrapolateDirectly(*m_propagator,par,*m_trtdiscC,dir,true,Trk::muon);
+  test=m_extrapolator->extrapolateDirectly(*m_propagator,par,*event_data.m_trtdiscC,dir,true,Trk::muon);
   if(test){
     delete test;
-    return m_trtdiscC;
+    return event_data.m_trtdiscC;
   }
 
   return 0;
@@ -596,7 +597,8 @@ Amg::Vector3D InDet::TRT_TrackExtensionToolCosmics::intersect(const Trk::Surface
 ///////////////////////////////////////////////////////////////////
 
 Trk::Track* 
-InDet::TRT_TrackExtensionToolCosmics::newTrack(const Trk::Track&)
+InDet::TRT_TrackExtensionToolCosmics::newTrack(const Trk::Track&,
+                                               InDet::ITRT_TrackExtensionTool::IEventData &) const
 { 
   return 0;
 }

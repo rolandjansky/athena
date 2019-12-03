@@ -27,9 +27,9 @@ StatusCode MuonCombinedInDetExtensionAlg::initialize()
   ATH_CHECK(m_MDT_ContainerName.initialize(m_usePRDs));
   ATH_CHECK(m_RPC_ContainerName.initialize(m_usePRDs));
   ATH_CHECK(m_TGC_ContainerName.initialize(m_usePRDs));
-  if (m_hasCSC) ATH_CHECK(m_CSC_ContainerName.initialize(m_usePRDs));
-  if (m_hasSTGC) ATH_CHECK(m_sTGC_ContainerName.initialize(m_usePRDs));
-  if (m_hasMM) ATH_CHECK(m_MM_ContainerName.initialize(m_usePRDs));
+  ATH_CHECK(m_CSC_ContainerName.initialize(m_usePRDs && m_hasCSC));
+  ATH_CHECK(m_sTGC_ContainerName.initialize(m_usePRDs && m_hasSTGC));
+  ATH_CHECK(m_MM_ContainerName.initialize(m_usePRDs && m_hasMM));
   ATH_CHECK(m_tagMap.initialize());
   ATH_CHECK(m_combTracks.initialize(m_combTracks.key()!=""));
   ATH_CHECK(m_METracks.initialize(m_METracks.key()!=""));

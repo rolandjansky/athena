@@ -148,7 +148,7 @@ if __name__ == '__main__':
     result = CSCCablingConfigCfg(ConfigFlags)
     acc.merge( result )
 
-    f=open('MuonCabling.pkl','w')
+    f=open('MuonCabling.pkl','wb')
     acc.store(f)
     f.close()
 

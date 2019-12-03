@@ -31,66 +31,41 @@ def getBJetSequence( step ):
 # ==================================================================================================== 
 
 def bJetStep1Sequence():
+    jetsKey = "HLT_AntiKt4EMTopoJets_subjesgscIS_ftf"
+    prmVtxKey = "HLT_EFHistoPrmVtx"
+    
+    from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
+    InputMakerAlg = InputMakerForRoI("IMstep1bjet", RoIsLink="initialRoI")
+    InputMakerAlg.RoIs = "BjetInputRoI"
 
-    from TrigUpgradeTest.jetMenuHelper import jetCFSequenceFromString
-    (recoSequence, InputMakerAlg, sequenceOut) = jetCFSequenceFromString("a4_tc_em_subjes")
-				 
-    # Start with b-jet-specific algo sequence
-    # Construct RoI. Needed input for Fast Tracking
-    from TrigBjetHypo.TrigBjetHypoConf import TrigRoIFromJetsMT
-    RoIBuilder = TrigRoIFromJetsMT("TrigRoIFromJetsMT")
-    RoIBuilder.JetInputKey = sequenceOut
-    RoIBuilder.RoIOutputKey = "BjetRoIs"
-    RoIs=RoIBuilder.RoIOutputKey
-
-    # Fast Tracking
-    viewAlgs = makeInDetAlgs(whichSignature='FS',separateTrackParticleCreator="_FS", rois=RoIs)
-
-    # Primary Vertex 
-    #from TrigT2HistoPrmVtx.TrigT2HistoPrmVtxAllTEMTConfig import EFHistoPrmVtxAllTEMT_Jet
-    #prmVtx = EFHistoPrmVtxAllTEMT_Jet( "EFHistoPrmVtxAllTEMT_Jet" ) 
-    #prmVtx.InputRoIsKey = RoIs
-    #prmVtx.InputTracksKey = "HLT_xAODTracks_FS"
-    #prmVtx.OutputVertexKey = recordable("HLT_EFHistoPrmVtx")
-
-    from TrigInDetConfig.TrigInDetPriVtxConfig import makeVertices
-
-  
-    #TODO need to change the name of the output vertex collection to something recordable
-    outputVertexKey = "HLT_EFHistoPrmVtx"
-    vtxAlgs = makeVertices( "egamma", "HLT_xAODTracks_FS", outputVertexKey  )
-    prmVtx = vtxAlgs[-1]
-
-    # Shortlis of jets
+    # Shortlist of jets
     from TrigBjetHypo.TrigBjetHypoConf import TrigJetSplitterMT
     jetSplitter = TrigJetSplitterMT("TrigJetSplitterMT")
     jetSplitter.ImposeZconstraint = True
-    jetSplitter.Jets = sequenceOut
+    jetSplitter.Jets = jetsKey
     jetSplitter.OutputJets = recordable("HLT_SplitJet")
     jetSplitter.OutputRoi = "SplitJets"
-    #jetSplitter.InputVertex = prmVtx.OutputVertexKey
-    jetSplitter.InputVertex = outputVertexKey
+    jetSplitter.InputVertex = prmVtxKey
 
-    fastTrackingSequence = parOR("fastTrackingSequence",viewAlgs)
-    bJetEtSequence = seqAND("bJetEtSequence",[ RoIBuilder,fastTrackingSequence,prmVtx,jetSplitter] )
+    bJetEtSequence = seqAND("bJetEtSequence",[ jetSplitter] )
 
     # hypo
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgMT
-    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromDict_j
+    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromDict
     hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlgMT_step1")
     hypo.RoILink = "step1RoI" # To be used in following step EventView
     hypo.PrmVtxLink = "xPrimVx"
     hypo.Jets = jetSplitter.OutputJets
     hypo.RoIs = jetSplitter.OutputRoi
-    hypo.PrmVtx = outputVertexKey
+    hypo.PrmVtx = prmVtxKey
 
-    # Sequence     
-    BjetAthSequence = seqAND("BjetAthSequence_step1", [InputMakerAlg,recoSequence,bJetEtSequence])
+    # Sequence
+    BjetAthSequence = seqAND("BjetAthSequence_step1",[InputMakerAlg,bJetEtSequence])
 
     return MenuSequence( Sequence    = BjetAthSequence,
                          Maker       = InputMakerAlg,
                          Hypo        = hypo,
-                         HypoToolGen = TrigBjetEtHypoToolFromDict_j )
+                         HypoToolGen = TrigBjetEtHypoToolFromDict )
 
 def bJetStep1SequenceALLTE():
 
@@ -132,7 +107,7 @@ def bJetStep1SequenceALLTE():
 
     # hypo
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgMT
-    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromDict_j
+    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromDict
     hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlgMT_step1_ALLTE")
     hypo.RoILink = "step1RoI" # To be used in following step EventView
     hypo.PrmVtxLink = "xPrimVx"
@@ -146,7 +121,7 @@ def bJetStep1SequenceALLTE():
     return MenuSequence( Sequence    = BjetAthSequence,
                          Maker       = InputMakerAlg,
                          Hypo        = hypo,
-                         HypoToolGen = TrigBjetEtHypoToolFromDict_j )
+                         HypoToolGen = TrigBjetEtHypoToolFromDict )
 
 
 
@@ -191,11 +166,11 @@ def bJetStep2Sequence():
     
     # hypo
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgEVMT
-    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromDict_gsc
+    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromDict
     hypo = TrigBjetEtHypoAlgEVMT("TrigBjetEtHypoAlg_step2")
     # no links this time, only for tracks
     hypo.TracksLink = "tracks"
-    hypo.RoIs = "step1RoI"
+    hypo.RoIs = "SplitJets"
     hypo.Jets = theGSC.JetOutputKey
     hypo.PrmVtx = theGSC.PriVtxKey
     hypo.Tracks = PTTrackParticles[0]
@@ -206,7 +181,7 @@ def bJetStep2Sequence():
     return MenuSequence( Sequence    = BjetAthSequence,
                          Maker       = InputMakerAlg,
                          Hypo        = hypo,
-                         HypoToolGen = TrigBjetEtHypoToolFromDict_gsc )
+                         HypoToolGen = TrigBjetEtHypoToolFromDict )
 
 
 def bJetStep2SequenceALLTE():
@@ -227,7 +202,7 @@ def bJetStep2SequenceALLTE():
 
     # hypo
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgMT
-    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromDict_gsc
+    from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromDict
     hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlg_step2ALLTE")
     hypo.RoIs = "step1RoI"
     hypo.Jets = theGSC.JetOutputKey
@@ -242,7 +217,7 @@ def bJetStep2SequenceALLTE():
     return MenuSequence( Sequence    = BjetAthSequence,
                          Maker       = InputMakerAlg,
                          Hypo        = hypo,
-                         HypoToolGen = TrigBjetEtHypoToolFromDict_gsc )
+                         HypoToolGen = TrigBjetEtHypoToolFromDict )
 
 # ==================================================================================================== 
 #    step 3: secondary vertex and b-tagging
@@ -268,14 +243,16 @@ def bJetStep3Sequence():
     bTagFex.JetKey = "InViewJets"
     bTagFex.PriVtxKey = "HLT_EFHistoPrmVtx"
     bTagFex.TracksKey = "InDetTrigPTTrackParticles_bjets"
+    bTagFex.OutputBTagging = "HLT_BTagging"
 
     bTaggingSequence = seqAND("bTaggingSequence",[bTagFex] )
     InputMakerAlg.ViewNodeName = "bTaggingSequence"
 
     # Hypo
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetBtagHypoAlgMT
-    from TrigBjetHypo.TrigBjetHypoTool import TrigBjetHypoToolFromDict
+    from TrigBjetHypo.TrigBjetBtagHypoTool import TrigBjetBtagHypoToolFromDict
     hypo = TrigBjetBtagHypoAlgMT("TrigBjetBtagHypoAlg_step3")
+    hypo.BTagging = bTagFex.OutputBTagging
 
     # Sequence
     BjetAthSequence = seqAND("BjetAthSequence_step3", [InputMakerAlg,bTaggingSequence] )
@@ -283,5 +260,5 @@ def bJetStep3Sequence():
     return MenuSequence( Sequence    = BjetAthSequence,
                          Maker       = InputMakerAlg,
                          Hypo        = hypo,
-                         HypoToolGen = TrigBjetHypoToolFromDict )
+                         HypoToolGen = TrigBjetBtagHypoToolFromDict )
 

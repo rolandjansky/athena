@@ -21,7 +21,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( TrigmuRoI
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaMonitoringLib GaudiKernel TrigSteeringEvent TrigInterfacesLib TrigT1Interfaces TrigNavigationLib TrigT1Result )
+                     LINK_LIBRARIES AthenaMonitoringKernelLib GaudiKernel TrigSteeringEvent TrigInterfacesLib TrigT1Interfaces TrigNavigationLib TrigT1Result )
 
 # Install files from the package:
 atlas_install_headers( TrigmuRoI )

@@ -15,6 +15,9 @@
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMuonTrackFinder.h"
 
+#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoring/Monitored.h"
+
 class MuPatTrackBuilder : public AthAlgorithm
 {
  public:
@@ -31,6 +34,10 @@ class MuPatTrackBuilder : public AthAlgorithm
   ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" };    //!< helper Tool 
+
+  // Monitoring tool
+  ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
+
 };
 
 #endif 
