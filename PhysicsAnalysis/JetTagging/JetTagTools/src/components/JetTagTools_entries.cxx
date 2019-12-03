@@ -27,9 +27,6 @@
 #include "JetTagTools/MV1Tag.h"
 #include "JetTagTools/MV2Tag.h"
 
-#include "JetTagTools/JetVertexCharge.h"
-
-//#include "JetTagTools/ExKtbbTag.h"
 #include "JetTagTools/ExKtbbTagTool.h"
 
 
@@ -55,8 +52,4 @@ DECLARE_COMPONENT( Analysis::BasicTrackGradeFactory )
 DECLARE_COMPONENT( Analysis::DetailedTrackGradeFactory )
 DECLARE_COMPONENT( Analysis::MV1Tag )
 DECLARE_COMPONENT( Analysis::MV2Tag )
-
-DECLARE_COMPONENT( Analysis::JetVertexCharge )
-
-//DECLARE_COMPONENT( Analysis::ExKtbbTag )
 DECLARE_COMPONENT( Analysis::ExKtbbTagTool )
