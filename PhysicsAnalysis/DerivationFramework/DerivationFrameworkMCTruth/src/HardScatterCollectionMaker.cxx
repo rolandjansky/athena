@@ -123,7 +123,12 @@ StatusCode DerivationFramework::HardScatterCollectionMaker::addBranches() const
             ATH_MSG_WARNING("TruthEvent collection with name " << m_eventsKey << " has a null signal process vertex!");
             warn_once=true;
         }
-        my_tv = importedTruthEvents->at(0)->truthVertex(0);
+        size_t i_vtx=0;
+        // Sometimes we're unlucky and the first vertex is null!
+        while (!my_tv && i_vtx<importedTruthEvents->at(0)->nTruthVertices()){
+          my_tv = importedTruthEvents->at(0)->truthVertex(i_vtx);
+          i_vtx++;
+        }
         if (my_tv==nullptr){
             ATH_MSG_ERROR("TruthEvent collection had no vertices at all? Something is wrong with your truth record!");
             return StatusCode::FAILURE;
