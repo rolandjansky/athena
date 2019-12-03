@@ -69,9 +69,9 @@ public:
     double                                              m_pullCut;
     
     // counters
-    mutable unsigned int 				m_recoveryAttempts;
-    mutable unsigned int 				m_recoveryFitFailure;
-    mutable unsigned int 				m_recoverySuccess;
+    mutable std::atomic<unsigned int> m_recoveryAttempts;
+    mutable std::atomic<unsigned int> m_recoveryFitFailure;
+    mutable std::atomic<unsigned int> m_recoverySuccess;
 
 
 };
