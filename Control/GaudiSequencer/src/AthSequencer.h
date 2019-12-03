@@ -19,8 +19,6 @@
 #include "GaudiKernel/Property.h"
 #include "Gaudi/Sequence.h"
 
-#include "AthenaKernel/AlgorithmTimer.h"
-
 #include <setjmp.h>
 #include <signal.h>
 
@@ -217,9 +215,6 @@ private:
   /// set optional algorithm / sequence time outs
   double m_timeout;
   int m_timeoutMilliseconds;
-  
-  /// timer will abort job once timeout for any algorithm or sequence is reached
-  Athena::AlgorithmTimer m_abortTimer;
   
 private:
   bool m_continueEventloopOnFPE;

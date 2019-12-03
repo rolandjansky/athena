@@ -23,7 +23,9 @@
 #include "GaudiKernel/Stat.h"
 #include "GaudiKernel/GaudiException.h"
 #include "CxxUtils/excepts.h"
+#include "AthenaKernel/AlgorithmTimer.h"
 
+#include <memory.h>
 #include <errno.h>
 #include <fenv.h>
 #ifdef __APPLE__
@@ -31,7 +33,7 @@
 #endif
 
 /// timer will abort job once timeout for any algorithm or sequence is reached
-thread_local Athena::AlgorithmTimer s_abortTimer{ 0, NULL, Athena::AlgorithmTimer::DEFAULT };
+thread_local std::unique_ptr<Athena::AlgorithmTimer> s_abortTimer{nullptr};
 
 
 #include "valgrind/valgrind.h"
@@ -54,7 +56,6 @@ AthSequencer::AthSequencer( const std::string& name,
                             ISvcLocator* pSvcLocator ):
   ::AthCommonDataStore<AthCommonMsg<Gaudi::Sequence>>   ( name, pSvcLocator ),
   m_timeoutMilliseconds(0),
-  m_abortTimer(0, NULL, Athena::AlgorithmTimer::DEFAULT ),
   m_continueEventloopOnFPE(false)
 {
   
@@ -230,11 +231,12 @@ StatusCode AthSequencer::executeAlgorithm (Gaudi::Algorithm* theAlgorithm,
        !sigsetjmp(s_fpe_landing_zone, 1) )
   {
     // Call the sysExecute() of the method the algorithm
-    s_abortTimer.start(m_timeoutMilliseconds);
+    if (!s_abortTimer) s_abortTimer = std::make_unique<Athena::AlgorithmTimer>(0);
+    s_abortTimer->start(m_timeoutMilliseconds);
     sc = theAlgorithm->sysExecute( ctx );
     all_good = sc.isSuccess();
 
-    int tmp=s_abortTimer.stop();
+    int tmp=s_abortTimer->stop();
     // but printout only if non-zero timeout was used
     if (m_timeoutMilliseconds) {
       ATH_MSG_DEBUG ("Time left before interrupting <" 
