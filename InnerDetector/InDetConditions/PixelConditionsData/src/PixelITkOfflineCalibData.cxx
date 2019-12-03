@@ -7,38 +7,34 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "PixelConditionsData/PixelITkOfflineCalibData.h"
+#include "Identifier/Identifier.h"
+
+#include <sstream>
+
 
 namespace PixelCalib{
 
   std::vector<float> PixelITkOfflineCalibData::getConstants() const {
 
-    int n_xy = 2; // x + y
-    int n_regions = 3; // barrel, inclined, endcap
-    int n_layers = 5;
+    std::map< const Identifier, std::tuple<double,double,double,double> > constMap = m_clustererrordata->getConstMap();
+
+    int entry_size = 5; // pixel Id + delta_x +  delta_err_x + delta_y +  delta_err_y
+    int data_size = entry_size*constMap.size();
 
     std::vector<float> constants;
-    int data_size = n_xy*n_regions*n_layers;
     constants.reserve(data_size);
 
-    for(int region=0; region<n_regions; region++){
-      for(int layer=0; layer<n_layers; layer++){
+    for(auto& x : constMap){
 
-	std::pair<double,double> delta = m_clustererrordata->getDelta(region,layer);
-	std::pair<double,double> delta_err = m_clustererrordata->getDeltaError(region,layer);
+      long long pixelId(x.first.get_compact());
+      std::tuple<double,double,double,double> value = x.second;
 
-	constants.push_back(0); // 0 = phi
-	constants.push_back(region);
-	constants.push_back(layer);
-	constants.push_back(delta.first);
-	constants.push_back(delta_err.first);
+      constants.push_back(pixelId);
+      constants.push_back(std::get<0>(value));
+      constants.push_back(std::get<1>(value));
+      constants.push_back(std::get<2>(value));
+      constants.push_back(std::get<3>(value));
 
-	constants.push_back(1); // 1 = eta
-	constants.push_back(region);
-	constants.push_back(layer);
-	constants.push_back(delta.second);
-	constants.push_back(delta_err.second);
-	    
-      }
     }
 
     return constants;
@@ -57,13 +53,18 @@ namespace PixelCalib{
 
     for(int i=0;i<map_size;i++){
 
-      int xy = constants[i*entry_size];
-      int region = constants[i*entry_size + 1];
-      int layer = constants[i*entry_size + 2];
-      float delta = constants[i*entry_size + 3];
-      float delta_err = constants[i*entry_size + 4];
+      std::ostringstream ss;
+      ss << constants[i*entry_size];
+      std::string pixelId_str(ss.str());
+      Identifier pixelId;
+      pixelId.set(pixelId_str);
+
+      double delta_x = constants[i*entry_size + 1];
+      double delta_err_x = constants[i*entry_size + 2];
+      double delta_y = constants[i*entry_size + 3];
+      double delta_err_y = constants[i*entry_size + 4];
       
-      m_clustererrordata->setITkDeltaError(xy,region,layer,delta,delta_err);
+      m_clustererrordata->setDeltaError(&pixelId,delta_x,delta_err_x,delta_y,delta_err_y);
 
     }
 

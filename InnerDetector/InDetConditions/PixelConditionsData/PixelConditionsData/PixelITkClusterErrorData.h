@@ -5,7 +5,7 @@
 #ifndef PIXELITKCLUSTERERRORDATA_H
 #define PIXELITKCLUSTERERRORDATA_H
 
-#include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "Identifier/Identifier.h"
 
 #include "CLIDSvc/CLASS_DEF.h"
 #include <string>
@@ -22,12 +22,11 @@ class PixelITkClusterErrorData {
 
     /** Methods to access the calibration data */ 
 
-    std::pair<double,double> getDelta(int itkregion, int layer) const;
-    std::pair<double,double> getDeltaError(int itkregion, int layer) const;
-    std::pair<double,double> getDelta(const InDetDD::SiDetectorElement* element) const;
-    std::pair<double,double> getDeltaError(const InDetDD::SiDetectorElement* element) const;
+    std::pair<double,double> getDelta(const Identifier* pixelId) const;
+    std::pair<double,double> getDeltaError(const Identifier* pixelId) const;
+    std::map< const Identifier, std::tuple<double,double,double,double> > getConstMap() const {return m_constmap;}
 
-    void setITkDeltaError(int xy, int itkregion, int layer, double delta, double error);
+    void setDeltaError(const Identifier* pixelId, double delta_x, double error_x, double delta_y, double error_y );
         
     void print(std::string file) const;
     void load(std::string file);
@@ -36,7 +35,7 @@ class PixelITkClusterErrorData {
      void initialize();
 
      // map to store all ITk Analogue Clustering constants and errors
-     std::map< std::tuple<int,int,int> , std::tuple<double,double> > m_constmap;
+     std::map< const Identifier, std::tuple<double,double,double,double> > m_constmap;
 
 }; 
 
