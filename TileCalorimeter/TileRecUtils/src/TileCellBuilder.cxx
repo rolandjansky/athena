@@ -16,6 +16,7 @@
 #include "CaloDetDescr/MbtsDetDescrManager.h"
 #include "TileDetDescr/TileDetDescrManager.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
+#include "TileConditions/TileInfo.h"
  
 // Calo includes
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -68,6 +69,7 @@ TileCellBuilder::TileCellBuilder(const std::string& type, const std::string& nam
   , m_mbtsMgr(nullptr)
   , m_notUpgradeCabling(true)
   , m_run2(false)
+  , m_tileInfo(0)
   , m_run2plus(false)
 {
   declareInterface<TileCellBuilder>( this );
@@ -140,6 +142,8 @@ TileCellBuilder::TileCellBuilder(const std::string& type, const std::string& nam
   declareProperty("SkipGain", m_skipGain = -1); // never skip any gain by default
 
   declareProperty("UseDemoCabling", m_useDemoCabling = 0); // if set to 2015 - assume TB 2015 cabling
+
+  declareProperty("TileInfoName", m_infoName = "TileInfo");
 
   declareProperty("CheckDCS", m_checkDCS = false);
 }
@@ -222,6 +226,11 @@ StatusCode TileCellBuilder::initialize() {
   ATH_CHECK( m_eventInfoKey.initialize() );
 
   ATH_MSG_INFO( "TileCellBuilder initialization completed" );
+
+  //=== get TileInfo
+  ATH_CHECK( detStore()->retrieve(m_tileInfo, m_infoName) );
+  m_ADCmaskValueMinusEps = m_tileInfo->ADCmaskValue() - 0.01;  // indicates channels which were masked in background dataset
+  m_ADCmaskValuePlusEps  = m_tileInfo->ADCmaskValue() + 0.01;  // indicates channels which were masked in background dataset
 
   return StatusCode::SUCCESS;
 }
@@ -518,7 +527,7 @@ StatusCode TileCellBuilder::process (CaloCellContainer* theCellContainer,
   // every 4 bits - status of partitions LBA,LBC,EBA,EBC
   // bits 0-3   - there is a signal above threshold in partitions
   // bits 4-7   - there are channels with underflow (sample=0) in partition (since rel 17.2.6.4)
-  // bits 8-11  - there are channels with overflow (sample=1023) in partition (since rel 17.2.6.4)
+  // bits 8-11  - there are channels with overflow (sample=m_tileInfo->ADCmax()) in partition (since rel 17.2.6.4)
   // bits 12-15 - there are at least 16 drawers with bad quality in partition
   // bits 16-19 - maximal length of consecutive bad area (since rel 17.2.6.5)
   // bits 20-23 - there are at least 16 drawers which are completely masked in partition
@@ -1104,15 +1113,16 @@ void TileCellBuilder::build (const EventContext& ctx,
     bool underflow = false;
     bool overfit = false;
     float ped = pChannel->pedestal();
-    if (ped > 55000.) { // one of bad patterns
+    if (ped > 59500.) { // one of bad patterns
       qual = 9999; // mask all bad patterns
     } else if (ped > 39500.) { // 40000 for constant value or 50000 for all zeros in disconnexted channel
       // nothing to do
-    } else if (ped > 5000.) { // 10000 for underflow or 20000 for overflow or 10000+20000
-      underflow = ((ped < 15000.) || (ped > 29500.));
-      overflow = (ped > 15000.);
+    } else if (ped > m_ADCmaskValuePlusEps) { // 10000 for underflow or 20000 for overflow or 10000+20000
+      // NOTE: opt filter can yield values between (-500, 4600) and overlay magic number is 4800 in case of 12-bit ADCs
+      underflow = ((ped < 10000. + m_ADCmaskValuePlusEps) || (ped > 29500.));
+      overflow  =  (ped > 10000. + m_ADCmaskValuePlusEps);
       // special flag indicating that fit method was applied for overflow channels
-      overfit = ( (ped >= 22500 && ped < 29500) || (ped >= 32500 && ped < 39500) );
+      overfit = ( (ped > 20000. + m_ADCmaskValueMinusEps && ped < 29500) || (ped > 30000. + m_ADCmaskValueMinusEps && ped < 39500) );
 
       if (overflow
           && gain == TileID::LOWGAIN
@@ -1194,7 +1204,7 @@ void TileCellBuilder::build (const EventContext& ctx,
                             << " iqual= " << (int) iqual
                             << " qbit = 0x" << MSG::hex << (int) qbit << MSG::dec;
 
-          if (ped > 5000)
+          if (ped > m_ADCmaskValuePlusEps)
             msg(MSG::VERBOSE) << " err = " << TileRawChannelBuilder::BadPatternName(ped) << endmsg;
           else
             msg(MSG::VERBOSE) << endmsg;
@@ -1250,7 +1260,7 @@ void TileCellBuilder::build (const EventContext& ctx,
                             << " iqual= " << (int) iqual
                             << " qbit = 0x" << MSG::hex << (int) qbit << MSG::dec;
 
-          if (ped > 5000)
+          if (ped > m_ADCmaskValuePlusEps)
             msg(MSG::VERBOSE) << " err = " << TileRawChannelBuilder::BadPatternName(ped) << endmsg;
           else
             msg(MSG::VERBOSE) << endmsg;
@@ -1331,7 +1341,7 @@ void TileCellBuilder::build (const EventContext& ctx,
                           << " iqual= " << (int) iqual
                           << " qbit = 0x" << MSG::hex << (int) qbit << MSG::dec;
 
-        if (ped > 5000)
+        if (ped > m_ADCmaskValuePlusEps)
           msg(MSG::VERBOSE) << " err = " << TileRawChannelBuilder::BadPatternName(ped) << endmsg;
         else
           msg(MSG::VERBOSE) << endmsg;
@@ -1354,7 +1364,7 @@ void TileCellBuilder::build (const EventContext& ctx,
                           << " iqual= " << (int) iqual
                           << " qbit = 0x" << MSG::hex << (int) qbit << MSG::dec;
 
-        if (ped > 5000)
+        if (ped > m_ADCmaskValuePlusEps)
           msg(MSG::VERBOSE) << " err = " << TileRawChannelBuilder::BadPatternName(ped) << endmsg;
         else
           msg(MSG::VERBOSE) << endmsg;

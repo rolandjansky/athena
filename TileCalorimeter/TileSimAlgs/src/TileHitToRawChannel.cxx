@@ -330,7 +330,7 @@ StatusCode TileHitToRawChannel::execute() {
         double amp = adc_ampl[ch];
 
         bool lrcGood = true;
-        double thresh = -1024.;
+        double thresh = -99999;
 
         if (TileID::HIGHGAIN != gain) {
           // change ADC ID (channel switched to low gain)

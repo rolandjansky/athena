@@ -19,6 +19,7 @@
 #include "TileEvent/TileCell.h"
 #include "TileEvent/TileContainer.h"
 #include "TileEvent/TileDigitsContainer.h"
+#include "TileConditions/TileInfo.h"
 
 #include "TrigConfL1Data/TriggerItem.h"
 #include "TrigT1Result/CTP_RDO.h"
@@ -91,6 +92,7 @@ TileMBTSMonTool::TileMBTSMonTool(	const std::string & type, const std::string & 
   , m_counterExist(32, false)
   , m_old_lumiblock(-1)
   , m_nLumiblocks(3000)
+  , m_tileInfo(0)
 {
   declareInterface<IMonitorToolBase>(this);
   declareProperty("LVL1ConfigSvc", m_lvl1ConfigSvc, "LVL1 Config Service");
@@ -99,6 +101,7 @@ TileMBTSMonTool::TileMBTSMonTool(	const std::string & type, const std::string & 
   declareProperty("UseTrigger", m_useTrigger = true); // Switch for using trigger information
   declareProperty("FillHistogramsPerMBTS", m_fillHistogramsPerMBTS = true); // Switch for using per MBTS histograms
   declareProperty("NumberOfLumiblocks", m_nLumiblocks = 3000);
+  declareProperty("TileInfoName", m_infoName = "TileInfo");
   declareProperty("TileDQstatus", m_DQstatusKey = "TileDQstatus");
 
   m_path = "/Tile/MBTS";
@@ -162,6 +165,8 @@ StatusCode TileMBTSMonTool:: initialize(){
 	
   CHECK( m_TileDigitsContainerID.initialize() );
   CHECK( m_MBTSCellContainerID.initialize() );
+  CHECK( detStore()->retrieve(m_tileInfo, m_infoName) );
+  m_i_ADCmax = m_tileInfo->ADCmax();
   CHECK( m_DQstatusKey.initialize() );
 
   return StatusCode::SUCCESS;
@@ -921,7 +926,7 @@ StatusCode TileMBTSMonTool::fillHistograms() {
                 if (dsize > 0) {
                   double ped;
                   int maxSamp = 0;
-                  int minSamp = 1023;
+                  int minSamp = m_i_ADCmax;
                   ped = vdigits[0];
                   for (unsigned int i = 0; i < dsize; ++i) {
                     double dig = vdigits[i];

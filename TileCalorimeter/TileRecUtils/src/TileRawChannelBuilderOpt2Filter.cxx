@@ -276,7 +276,7 @@ int TileRawChannelBuilderOpt2Filter::findMaxDigitPosition() {
   bool saturated = false;
   
   for (unsigned int i = 0; i < m_digits.size(); i++) {
-    if (m_digits[i] > 1022.99) saturated = true;
+    if (m_digits[i] > m_ADCmaxMinusEps) saturated = true;
     if (maxDigit < m_digits[i]) {
       maxDigit = m_digits[i];
       iMaxDigit = i;
@@ -650,7 +650,7 @@ double TileRawChannelBuilderOpt2Filter::compute(int ros, int drawer, int channel
 
     //  printf(" 1 OptFilterEneDSP %d calib_offset  %d calib %d \n",OptFilterEneDSP,calib_offset,calib);
 
-    dspEnergy = (dspEnergy + 1024) >> 11;
+    dspEnergy = (dspEnergy + m_i_ADCmaxPlus1) >> 11;
     //  printf(" 2 OptFilterEneDSP %d  \n",OptFilterEneDSP);
     dspEnergy = (dspEnergy * calib_offset + (1 << (calib - 15 - 1))) >> (calib - 15);
     //  printf(" 3 OptFilterEneDSP %d  \n",OptFilterEneDSP);
@@ -682,7 +682,7 @@ double TileRawChannelBuilderOpt2Filter::compute(int ros, int drawer, int channel
    if(OptFilterDigits[i]>0)
    OptFilterChi2 += 50*fabs(OptFilterDigits[i]-(OptFilterEne*g[i]+OptFilterPed))/OptFilterDigits[i];
    else
-   OptFilterChi2 += 50*fabs(OptFilterDigits[i]-(OptFilterEne*g[i]+OptFilterPed))/1024.;
+   OptFilterChi2 += 50*fabs(OptFilterDigits[i]-(OptFilterEne*g[i]+OptFilterPed))/m_f_ADCmaxPlus1;
    }
    } else {
    */

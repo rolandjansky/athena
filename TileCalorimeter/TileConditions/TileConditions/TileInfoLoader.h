@@ -116,6 +116,9 @@ private:
     double m_emscaleMBTS[3]; //!< 1/sampling fraction for inner/outer MBTS and also for E4'
     int    m_nPhElec;
     int    m_nPhElecVec[7];
+    int    m_ADCmax;
+    int    m_ADCmaskValue;
+    
 
 
     /** Pointer to Wiener Filtering weights*/

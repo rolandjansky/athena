@@ -75,8 +75,6 @@ TileDigitsMaker::TileDigitsMaker(std::string name, ISvcLocator* pSvcLocator)
     m_DQstatus(nullptr),
     m_nSamples(0),
     m_iTrig(0),
-    m_adcMax(0.0),
-    m_adcMaxHG(0.0),
     m_tileNoise(false),
     m_tileCoherNoise(false),
     m_tileThresh(false),
@@ -163,8 +161,12 @@ StatusCode TileDigitsMaker::initialize() {
   /* Get needed parameters from tileInfo. */
   m_nSamples = m_tileInfo->NdigitSamples(); // number of time slices for each chan
   m_iTrig = m_tileInfo->ItrigSample();   // index of the triggering time slice
-  m_adcMax = (float)m_tileInfo->ADCmax();// adc saturation value used in assignment
-  m_adcMaxHG = m_adcMax-0.5;               // value of switch from high to low gain
+  m_i_ADCmax = m_tileInfo->ADCmax();     // adc saturation value used in assignment
+  m_f_ADCmax = m_i_ADCmax;               // adc saturation value used in assignment
+  m_f_ADCmaxHG = m_f_ADCmax - 0.5;       // value of switch from high to low gain
+  m_ADCmaxMinusEps = m_f_ADCmax - 0.01;
+  m_ADCmaxPlusEps = m_f_ADCmax + 0.01;
+  m_f_ADCmaskValue = m_tileInfo->ADCmaskValue();               // indicates channels which were masked in background dataset
   m_tileNoise = m_tileInfo->TileNoise(); // (true => generate noise in TileDigits)
   m_tileCoherNoise = m_tileInfo->TileCoherNoise(); // (true => generate coherent noise in TileDigits)
   m_tileThresh = m_tileInfo->TileZeroSuppress(); // (true => apply threshold to Digits)
@@ -897,7 +899,7 @@ StatusCode TileDigitsMaker::execute() {
           }
 
 
-        } else if ((digitsBuffer[js] >= m_adcMaxHG && good_ch) || igain[ich] == TileID::LOWGAIN) { // saturation of high gain in non-calib run
+        } else if ((digitsBuffer[js] >= m_f_ADCmaxHG && good_ch) || igain[ich] == TileID::LOWGAIN) { // saturation of high gain in non-calib run
                                                                                                  // or low gain in digi overlay
           --nChHiSum;
           ++nChLoSum;
@@ -931,10 +933,10 @@ StatusCode TileDigitsMaker::execute() {
               if(m_doDigiTruth) digitsBuffer_DigiHSTruth[js] -= noiseLo;
             }
 
-            if (digitsBuffer[js] > m_adcMax && good_ch) {
-              digitsBuffer[js] = m_adcMax;
-              if(m_doDigiTruth) digitsBuffer_DigiHSTruth[js] = m_adcMax;
-            }
+	    if (digitsBuffer[js] > m_f_ADCmax && good_ch) {
+	      digitsBuffer[js] = m_f_ADCmax;
+	      if(m_doDigiTruth) digitsBuffer_DigiHSTruth[js] = m_f_ADCmax;
+	    }
             if (m_integerDigits) {
               digitsBuffer[js] = round(digitsBuffer[js]);
               if(m_doDigiTruth) digitsBuffer_DigiHSTruth[js] = round(digitsBuffer_DigiHSTruth[js]);
@@ -987,9 +989,8 @@ StatusCode TileDigitsMaker::execute() {
 
         if (chanHiIsBad) {
           for (int js = 0; js < m_nSamples; ++js) {
-            digitsBuffer[js] = 2047;
-            if(m_doDigiTruth) digitsBuffer_DigiHSTruth[js] = 2047;
-
+            digitsBuffer[js] = m_f_ADCmaskValue;
+            if(m_doDigiTruth) digitsBuffer_DigiHSTruth[js] = m_f_ADCmaskValue;
           }
           ATH_MSG_DEBUG( "Masking Channel " << ros << '/' << drawer << '/' << ich << "/1 HG" );
         }
@@ -1004,8 +1005,8 @@ StatusCode TileDigitsMaker::execute() {
 
         if (chanLoIsBad) {
           for (int js = 0; js < m_nSamples; ++js) {
-            digitsBufferLo[js] = 2047;
-            if(m_doDigiTruth) digitsBufferLo_DigiHSTruth[js] = 2047;
+            digitsBufferLo[js] = m_f_ADCmaskValue;
+            if(m_doDigiTruth) digitsBufferLo_DigiHSTruth[js] = m_f_ADCmaskValue;
           }
           ATH_MSG_DEBUG( "Masking Channel " << ros << '/' << drawer << '/' << ich << "/0 LG");
         }
@@ -1056,8 +1057,8 @@ StatusCode TileDigitsMaker::execute() {
             if (chanHiIsBad) {
               if (pmt_id.is_valid()) {
                 for (int js = 0; js < m_nSamples; ++js) {
-                  digitsBuffer[js] = 2047;
-                  if(m_doDigiTruth) digitsBuffer_DigiHSTruth[js] = 2047;
+                  digitsBuffer[js] = m_f_ADCmaskValue;
+                  if(m_doDigiTruth) digitsBuffer_DigiHSTruth[js] = m_f_ADCmaskValue;
                 }
               } else if (good_ch) {
                 ATH_MSG_DEBUG( "Disconnected Channel " << ros << '/' << drawer << '/' << ich);
@@ -1077,8 +1078,8 @@ StatusCode TileDigitsMaker::execute() {
             if (chanLoIsBad) {
               if (pmt_id.is_valid()) {
                 for (int js = 0; js < m_nSamples; ++js) {
-                  digitsBuffer[js] = 2047;
-                  if(m_doDigiTruth) digitsBuffer_DigiHSTruth[js] = 2047;
+                  digitsBuffer[js] = m_f_ADCmaskValue;
+                  if(m_doDigiTruth) digitsBuffer_DigiHSTruth[js] = m_f_ADCmaskValue;
                 }
               } else if (good_ch) {
                 ATH_MSG_DEBUG( "Disconnected Channel " << ros << '/' << drawer << '/' << ich);
@@ -1396,7 +1397,7 @@ StatusCode TileDigitsMaker::overlayBackgroundDigits( const TileDigitsCollection 
     // get number of time samples & compare with nSamp
     int nSamp2 = digits.size();
     int goodDigits = nSamp2;
-    float dig(2047.),digmin(65536.),digmax(-65536.);
+    float dig(m_f_ADCmaskValue),digmin(65536.),digmax(-65536.);
     if (good_dq) {
       for (int js = 0; js < nSamp2; ++js) {
         dig=digits[js];
@@ -1404,9 +1405,9 @@ StatusCode TileDigitsMaker::overlayBackgroundDigits( const TileDigitsCollection 
         if (dig>digmax) digmax=dig;
         if (dig<0.01) { // skip zeros
           --goodDigits;
-        } else if (dig>1022.99) { // skip overflows
-          if (dig>1023.01) { // ignore everything in case of invalid digits
-            dig=2047.0;
+	} else if (dig > m_ADCmaxMinusEps) { // skip overflows
+	  if (dig > m_ADCmaxPlusEps) { // ignore everything in case of invalid digits
+	    dig = m_f_ADCmaskValue;
             goodDigits = 0;
             break;
           }
@@ -1476,7 +1477,7 @@ StatusCode TileDigitsMaker::overlayBackgroundDigits( const TileDigitsCollection 
         buffer = m_drawerBufferLo[channel];
       }
 
-      if (digmin != digmax || (dig!=0. && dig!=1023.)) dig=2047.; // keep only 0 or 1023 as it is
+      if (digmin != digmax || (dig!=0. && dig!=m_f_ADCmax)) dig = m_f_ADCmaskValue; // keep only 0 or m_f_ADCmax as it is
       for (int js = 0; js < m_nSamples; ++js)
         buffer[js] = dig;
 

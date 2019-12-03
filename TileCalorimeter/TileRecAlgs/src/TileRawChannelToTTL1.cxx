@@ -241,7 +241,7 @@ StatusCode TileRawChannelToTTL1::execute() {
           if (status.contains(TileBchPrbs::VeryLargeHfNoise)) {
             hwid = m_tileHWID->adc_id(m_tileHWID->channel_id(hwid), adc);
             float amp = m_tileToolEmscale->channelCalib(drawerIdx,
-                channel, adc, 1023., TileRawChannelUnit::ADCcounts, rChUnit);
+							channel, adc, double(m_tileInfo->ADCmax()), TileRawChannelUnit::ADCcounts, rChUnit);
             *pRch = TileRawChannel (hwid,
                                     amp,
                                     0.0, // time
