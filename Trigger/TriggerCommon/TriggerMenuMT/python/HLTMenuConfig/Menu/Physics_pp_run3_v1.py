@@ -58,8 +58,8 @@ def setupMenu():
         # ElectronChains----------
         ChainProp(name='HLT_e26_etcut_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_2e17_etcut_L12EM15VH', stream=[PhysicsStream], groups=MultiElectronGroup),
-        ChainProp(name='HLT_g140_etcut_L1EM24VHI', groups=SinglePhotonGroup),  
-        ChainProp(name='HLT_2g35_etcut_L12EM20VH', groups=MultiPhotonGroup),  
+        ChainProp(name='HLT_g140_etcut_L1EM24VHI', groups=SinglePhotonGroup),
+        ChainProp(name='HLT_2g35_etcut_L12EM20VH', groups=MultiPhotonGroup),
     ]
 
     TriggerFlags.METSlice.signatures = [
@@ -88,7 +88,7 @@ def setupMenu():
         ChainProp(name="HLT_j275_ftf_subjesgscIS_bmv2c1060_split_L1J100", groups=SingleBjetGroup),
         ChainProp(name="HLT_j300_ftf_subjesgscIS_bmv2c1070_split_L1J100", groups=SingleBjetGroup),
         ChainProp(name="HLT_j360_ftf_subjesgscIS_bmv2c1077_split_L1J100", groups=SingleBjetGroup),
-    ] 
+    ]
 
     TriggerFlags.TauSlice.signatures = [
         #ATR-20049
@@ -99,8 +99,8 @@ def setupMenu():
         ChainProp(name='HLT_2mu10_bJpsimumu_L12MU10',     groups=BphysicsGroup),
         ChainProp(name='HLT_2mu10_bUpsimumu_L12MU10',     groups=BphysicsGroup),
     ]
-    TriggerFlags.CombinedSlice.signatures = [ 
-        ChainProp(name='HLT_e3_etcut1step_mu6fast_L1EM8I_MU10', l1SeedThresholds=['EM8I', 'MU10'], stream=[PhysicsStream], groups=MultiElectronGroup),    #L1 item thresholds in wrong order (EM first, then MU)    
+    TriggerFlags.CombinedSlice.signatures = [
+        ChainProp(name='HLT_e3_etcut1step_mu6fast_L1EM8I_MU10', l1SeedThresholds=['EM8I', 'MU10'], stream=[PhysicsStream], groups=MultiElectronGroup),    #L1 item thresholds in wrong order (EM first, then MU)
    ]
     TriggerFlags.HeavyIonSlice.signatures  = []
     TriggerFlags.BeamspotSlice.signatures  = []
@@ -133,7 +133,7 @@ def setupMenu():
     mydict.update(Prescales.HLTPrescales_cosmics)
     from copy import deepcopy
     Prescales.HLTPrescales_cosmics = deepcopy(mydict)
-    
+
 
 class Prescales(object):
     #   Item name             | Prescale
@@ -156,4 +156,3 @@ class Prescales(object):
     L1Prescales_cosmics  = {}
     HLTPrescales_cosmics = {}
     chain_list=[]
-
