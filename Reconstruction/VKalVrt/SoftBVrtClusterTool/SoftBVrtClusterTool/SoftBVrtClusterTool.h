@@ -13,6 +13,9 @@
 #include "xAODJet/JetContainer.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 
+#include "xAODTruth/TruthParticle.h"
+#include "xAODTruth/TruthParticleContainer.h"   
+
 namespace SoftBVrt {
 
   class SoftBVrtClusterTool: public ::AthAlgorithm {
