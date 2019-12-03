@@ -5,7 +5,6 @@
 #ifndef AthenaMonitoringKernel_HistogramFiller_HistogramFiller1D_h
 #define AthenaMonitoringKernel_HistogramFiller_HistogramFiller1D_h
 
-#include <iostream>
 #include "TH1.h"
 
 #include "AthenaMonitoringKernel/HistogramFiller.h"
