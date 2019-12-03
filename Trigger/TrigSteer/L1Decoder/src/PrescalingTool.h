@@ -57,7 +57,6 @@ class PrescalingTool : public extends<AthAlgTool, IPrescalingTool> {
  private: 
 
    // input data
-   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{ this, "EventInfo", "EventInfo", "EventInfo object, source of CTP time used to reseed the RNG" };
    SG::ReadCondHandleKey<TrigConf::HLTPrescalesSet> m_hltPrescaleSetInputKey{ this, "HLTPrescales", "HLTPrescales", "HLT prescales set"};
 
    // properties

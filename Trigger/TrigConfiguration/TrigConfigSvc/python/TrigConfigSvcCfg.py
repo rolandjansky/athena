@@ -5,7 +5,8 @@ from AthenaCommon.Logging import logging
 from collections import OrderedDict as odict
 import json
 
-_hltPrescaleKeyFolderName = "/TRIGGER/HLT/PrescaleKey <tag>HEAD</tag>"
+def getHLTPrescaleFolderName():
+    return "/TRIGGER/HLT/PrescaleKey <tag>HEAD</tag>"
 
 
 # L1 Json file name 
@@ -170,12 +171,9 @@ def getHLTConfigSvc( flags = None ):
 # configuration of HLTConfigSvc
 @memoize
 def setupHLTPrescaleCondAlg( flags = None ):
-    global _hltPrescaleKeyFolderName
     log = logging.getLogger('TrigConfigSvcCfg')
     from TrigConfigSvc.TrigConfigSvcConf import TrigConf__HLTPrescaleCondAlg
-    from AthenaCommon.Constants import DEBUG
     hltPrescaleCondAlg = TrigConf__HLTPrescaleCondAlg( "HLTPrescaleCondAlg" )
-    hltPrescaleCondAlg.OutputLevel = DEBUG
 
     tc = getTrigConfigFromFlag( flags )
     hltPrescaleCondAlg.Source = tc["source"]
@@ -198,9 +196,8 @@ def setupHLTPrescaleCondAlg( flags = None ):
         condSequence = AthSequencer("AthCondSeq")
         condSequence += hltPrescaleCondAlg
         from IOVDbSvc.CondDB import conddb
-        conddb.addFolder( "TRIGGER", _hltPrescaleKeyFolderName, className="AthenaAttributeList",
-                          extensible = True)
-        log.info("Adding folder %s to conddb", _hltPrescaleKeyFolderName )
+        conddb.addFolder( "TRIGGER", getHLTPrescaleFolderName(), className="AthenaAttributeList" )
+        log.info("Adding folder %s to conddb", getHLTPrescaleFolderName() )
     return hltPrescaleCondAlg
 
 
@@ -228,14 +225,13 @@ def TrigConfigSvcCfg( flags ):
 
 
 def HLTPrescaleCondAlgCfg( flags ):
-    global _hltPrescaleKeyFolderName
     log = logging.getLogger('TrigConfigSvcCfg')
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from IOVDbSvc.IOVDbSvcConfig import addFolders
     acc = ComponentAccumulator()
     acc.addCondAlgo( setupHLTPrescaleCondAlg( flags ) )
-    acc.merge(addFolders(flags, _hltPrescaleKeyFolderName, "TRIGGER_ONL", className="AthenaAttributeList"))
-    log.info("Adding folder %s to CompAcc", _hltPrescaleKeyFolderName )
+    acc.merge(addFolders(flags, getHLTPrescaleFolderName(), "TRIGGER_ONL", className="AthenaAttributeList"))
+    log.info("Adding folder %s to CompAcc", getHLTPrescaleFolderName() )
     return acc
 
 

@@ -20,8 +20,8 @@ namespace TrigConf {
    public:
 
       struct HLTPrescale {
-         bool     enabled  { false };
-         double   prescale { 1 };
+         bool     enabled  { false }; // chain enabled
+         double   prescale { 1 };     // prescale value
       };
 
       /** Constructor */

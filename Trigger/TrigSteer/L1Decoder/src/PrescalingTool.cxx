@@ -24,10 +24,7 @@ PrescalingTool::~PrescalingTool()
 StatusCode
 PrescalingTool::initialize()
 {
-   CHECK( m_eventInfo.initialize( ! m_eventInfo.key().empty() ) );
-
    CHECK(m_hltPrescaleSetInputKey.initialize( ! m_hltPrescaleSetInputKey.key().empty() ));
-
    return StatusCode::SUCCESS;
 }
 
@@ -62,18 +59,13 @@ StatusCode PrescalingTool::prescaleChains( const EventContext& ctx,
    // prepare the result
    remainActive.reserve( initiallyActive.size() );
 
-   // create the seed from the CTP time
-   size_t seed =  initiallyActive[0].numeric();
-   if ( ! m_eventInfo.key().empty() ) {
-      auto handle = SG::makeHandle( m_eventInfo, ctx );
-      const xAOD::EventInfo* event = handle.cptr();    
-      seed = event->timeStamp() ^ event->timeStampNSOffset();
-   }
+   // create the seed from the event time
+   size_t seed = ctx.eventID().time_stamp() ^ ctx.eventID().time_stamp_ns_offset();
    CLHEP::HepRandomEngine* engine = m_RNGEngines.getEngine( ctx );
    engine->setSeed( seed, 0 );
 
    // go through all active chains
-   for ( auto ch: initiallyActive ) {
+   for ( const auto & ch: initiallyActive ) {
       bool decisionToKeep { false };
       try {
          const auto & prescale = hltPrescaleSet->prescale( ch.numeric() );

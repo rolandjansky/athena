@@ -16,9 +16,9 @@ TrigConf::HLTPrescaleCondAlg::HLTPrescaleCondAlg(const std::string& name, ISvcLo
 {}
 
 
-TrigConf::HLTPrescalesSet *
+TrigConf::HLTPrescalesSetPtr
 TrigConf::HLTPrescaleCondAlg::createFromFile( const std::string & filename ) const {
-   auto pss = new HLTPrescalesSet;
+   auto pss = std::make_shared<HLTPrescalesSet>();
    // load the file into the HLT prescales set
    ATH_MSG_DEBUG( "Setting up JsonFileLoader with file " << filename );
    TrigConf::JsonFileLoader psLoader;
@@ -28,20 +28,19 @@ TrigConf::HLTPrescaleCondAlg::createFromFile( const std::string & filename ) con
       ATH_MSG_INFO( "HLT prescales set successfully loaded from file " << filename );
    } else {
       ATH_MSG_WARNING( "Failed loading HLT prescales set from file " << filename ); // will be made an error later
-      delete pss;
       pss = nullptr;
    }
    return pss;
 }
 
 
-TrigConf::HLTPrescalesSet *
+TrigConf::HLTPrescalesSetPtr
 TrigConf::HLTPrescaleCondAlg::createFromDB( unsigned int psk, bool isRun3 ) const {
    if( ! isRun3 ) {
       ATH_MSG_WARNING( "Currently it is not possible to load run 2 prescale sets from the database. Will not load HLT psk " << psk ); 
       return nullptr;
    }
-   auto pss = new HLTPrescalesSet;
+   auto pss = std::make_shared<HLTPrescalesSet>();
    // load the HLT psk into the HLT prescales set
    ATH_MSG_DEBUG( "Setting up TrigDBHLTPrescalesSetLoader with DB connection " << m_dbConnection.value() );
    TrigConf::TrigDBHLTPrescalesSetLoader psLoader(m_dbConnection);
@@ -53,7 +52,6 @@ TrigConf::HLTPrescaleCondAlg::createFromDB( unsigned int psk, bool isRun3 ) cons
    catch(std::exception & e) {
       ATH_MSG_WARNING( "Failed loading HLT prescales set from db with key " << psk ); // will be made an error later
       ATH_MSG_WARNING( e.what() );
-      delete pss;
       pss = nullptr;
    }
    return pss;
@@ -128,16 +126,7 @@ TrigConf::HLTPrescaleCondAlg::execute(const EventContext& ctx) const {
          ATH_MSG_FATAL("Failed to retrieve validity range for " << readH.key());
          return StatusCode::FAILURE;
       } else {
-         ATH_MSG_DEBUG("V2 Read handle has range " << range);
-         EventIDBase::number_type run = ctx.eventID().run_number();
-         EventIDBase::number_type lb = ctx.eventID().lumi_block();
-         EventIDBase start, stop;
-         start.set_run_number(run);
-         start.set_lumi_block(lb);
-         stop.set_run_number(run);
-         stop.set_lumi_block(lb+1);
-         range = EventIDRange(start,stop);
-         ATH_MSG_DEBUG("New range " << range);
+         ATH_MSG_DEBUG("Read handle has range " << range);
       }
       // get the prescale key from the cool folder 
       hltPsk = (*pskAL)["HltPrescaleKey"].data<cool::UInt32>();
@@ -156,10 +145,7 @@ TrigConf::HLTPrescaleCondAlg::execute(const EventContext& ctx) const {
 
    }
 
-   ATH_MSG_DEBUG("New range again " << range);
-
-
-   HLTPrescalesSet * pss (nullptr);
+   std::shared_ptr<HLTPrescalesSet> pss;
    if( m_configSource == "FILE" ) {
 
       pss = m_pssMap.at(0);
@@ -173,9 +159,9 @@ TrigConf::HLTPrescaleCondAlg::execute(const EventContext& ctx) const {
          bool isRun3 = range.start().run_number()>350000;
 
          m_pssMap[hltPsk] = createFromDB( hltPsk, isRun3 );
-
-         pss = m_pssMap.at( hltPsk );
       }
+      
+      pss = m_pssMap.at( hltPsk );
 
    } else {
 

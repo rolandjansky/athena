@@ -15,7 +15,11 @@
 
 #include <tbb/concurrent_unordered_map.h>
 
+#include <memory>
+
 namespace TrigConf {
+
+   using HLTPrescalesSetPtr = std::shared_ptr<HLTPrescalesSet>;
 
    /**
     * @brief Condition algorithm to provide the L1 trigger menu
@@ -38,13 +42,13 @@ namespace TrigConf {
    private:
       
       // helper function to load a HLT prescales set from a file
-      HLTPrescalesSet * createFromFile( const std::string & filename ) const;
+      HLTPrescalesSetPtr createFromFile( const std::string & filename ) const;
 
       // helper function to load a HLT prescales set from a prescale key
-      HLTPrescalesSet * createFromDB( unsigned int psk, bool isRun3 ) const;
+      HLTPrescalesSetPtr createFromDB( unsigned int psk, bool isRun3 ) const;
 
       // map the prescale key to a HLTPrescalesSet
-      mutable tbb::concurrent_unordered_map<unsigned int, HLTPrescalesSet *> m_pssMap;
+      mutable tbb::concurrent_unordered_map<unsigned int, HLTPrescalesSetPtr> m_pssMap;
 
       // input key to the HLT Prescale Key folder
       SG::ReadCondHandleKey<AthenaAttributeList> m_pskFolderInputKey{ this, "PSKFolder", "/TRIGGER/HLT/PrescaleKey", "SG Key of AthenaAttributeList containing hlt psk"};
@@ -54,9 +58,9 @@ namespace TrigConf {
 
       // properties
       Gaudi::Property< std::string > m_configSource { this, "Source", "FILE", "Configuration source, can be 'FILE', 'DB', or 'COOL'" };
-      Gaudi::Property< std::string > m_dbConnection { this, "TriggerDB", "", "DB connection alias" };
-      Gaudi::Property< unsigned int > m_psk { this, "HLTPsk", 0, "HLT prescale key" };
-      Gaudi::Property< std::string > m_filename { this, "Filename", "", "HLT prescale json file" };
+      Gaudi::Property< std::string > m_dbConnection { this, "TriggerDB", "", "DB connection alias or 'JOSVC', used when property Source set to 'DB' or set to 'COOL'." };
+      Gaudi::Property< unsigned int > m_psk { this, "HLTPsk", 0, "HLT prescale key, used when property 'Source' set to 'DB'" };
+      Gaudi::Property< std::string > m_filename { this, "Filename", "", "HLT prescale json file, used when property 'Source' set to 'FILE'" };
 
    };
 
