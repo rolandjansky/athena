@@ -24,6 +24,7 @@ namespace CP {
    bool IsolationConditionFormula::accept(const xAOD::IParticle& x, std::map<xAOD::Iso::IsolationType, float>* c) {
         getCutValue(x.pt());
         if (c) (*c)[type()] = m_cutValue;
+        if (!(*accessor()).isAvailable(x)) Warning("IsolationConditionFormula","Accessor is not available. Expected when using primary AODs, post-p3793 derivations (only for *FixedRad or FixedCutPflow*  for electrons), pre-p3517 derivations (only for FC*), or pre-p3830 derivations (for other electron WPs)");
         if (!m_invertCut) return (*accessor())(x) <= m_cutValue;
         return (*accessor())(x) > m_cutValue;
     }
