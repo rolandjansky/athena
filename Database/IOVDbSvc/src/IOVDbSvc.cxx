@@ -46,19 +46,6 @@ namespace {
     return false;
   }
 
-
-  /**
-   * @brief Helper to check if a range is open-ended.
-   */
-  bool 
-  isOpenEnded (const IOVRange& range, bool isTimeStamp){
-    if (isTimeStamp) {
-      return range.stop().timestamp() >= IOVTime::MAXTIMESTAMP;
-    }else {
-      return range.stop().re_time() >= IOVTime::MAXRETIME;
-    }
-  }
-  
   bool
   refersToConditionsFolder(const TagInfo::NameTagPair & thisPair){
     return thisPair.first.front() == '/';
@@ -600,11 +587,9 @@ StatusCode IOVDbSvc::getRange( const CLID&        clid,
     }
   }
 
- 
-
-  // Special handling for open-ended ranges in extensible folders:
-  if (folder->extensible() && isOpenEnded (range, folder->timeStamp())) {
-    // Set the end time to just past the current event.
+  // Special handling for extensible folders:
+  if (folder->extensible()) {
+    // Set the end time to just past the current event or lumiblock.
     IOVTime extStop = range.stop();
     if (folder->timeStamp()) {
       extStop.setTimestamp (time.timestamp() + 1);

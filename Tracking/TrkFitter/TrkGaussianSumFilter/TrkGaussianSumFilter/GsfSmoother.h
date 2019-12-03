@@ -66,9 +66,9 @@ private:
   const MultiComponentState* combine(const MultiComponentState&, const MultiComponentState&) const;
 
   /** Methof to add the CaloCluster onto the track */
-  const MultiComponentState* addCCOT(const Trk::TrackStateOnSurface* currentState,
-                                     const Trk::CaloCluster_OnTrack* ccot,
-                                     Trk::SmoothedTrajectory* smoothedTrajectory) const;
+  MultiComponentState* addCCOT(const Trk::TrackStateOnSurface* currentState,
+                               const Trk::CaloCluster_OnTrack* ccot,
+                               Trk::SmoothedTrajectory* smoothedTrajectory) const;
 
 private:
   bool m_combineWithFitter;

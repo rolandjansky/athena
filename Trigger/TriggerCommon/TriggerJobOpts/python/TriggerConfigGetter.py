@@ -9,6 +9,8 @@ from TrigConfigSvc.TrigConfigSvcUtils import interpretConnection
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from RecExConfig.RecFlags  import rec
+from RecExConfig.RecAlgsFlags import recAlgs
+
 from AthenaCommon.GlobalFlags  import globalflags
 
 from TrigConfigSvc.TrigConfigSvcConfig import SetupTrigConfigSvc
@@ -41,10 +43,7 @@ class TriggerConfigGetter(Configured):
     def checkFileMetaData(self):
         log = logging.getLogger( "TriggerConfigGetter.py" )
         from PyUtils.MetaReaderPeekerFull import metadata
-
         self.hasLBwiseHLTPrescalesAndL1ItemDef = True
-        if rec.readESD() or rec.readAOD() or "ReadPool" in self._environment:
-            self.hasLBwiseHLTPrescalesAndL1ItemDef = '/TRIGGER/HLT/Prescales' in metadata # they were all added at the same time (Repro with 15.6.3.2 Prod)
 
         # protection against early runs
         if 'runNumbers' in metadata and self._environment == "" and globalflags.DataSource() == 'data' and rec.readRDO() and any([run < 134230 for run in metadata['runNumbers']]):
@@ -53,7 +52,6 @@ class TriggerConfigGetter(Configured):
             log.info("Using LB-wise HLT prescales")
         else:
             log.info("Using run-wise HLT prescales")
-
 
     def checkInput(self):
         self.checkFileMetaData()
@@ -139,6 +137,7 @@ class TriggerConfigGetter(Configured):
 
     def configure(self):
         log = logging.getLogger( "TriggerConfigGetter.py" )
+        from PyUtils.MetaReaderPeekerFull import metadata
 
         # first check the input
         if "HIT2RDO" in self._environment:
@@ -155,6 +154,12 @@ class TriggerConfigGetter(Configured):
             if not self.checkInput():
                 log.error("Could not determine job input. Can't setup trigger configuration and will return!")
                 return
+            # self.checkInput() may call TriggerConfigCheckMetadata, this can in turn set "rec.doTrigger.set_Value_and_Lock(False)"
+            # but TriggerConfigGetter might have only been called in the first place due to this flag having been true, 
+            # so re-check that we're still OK to be executing here
+            if not (recAlgs.doTrigger() or rec.doTrigger() or TriggerFlags.doTriggerConfigOnly()):
+                log.info("Aborting TriggerConfigGetter as the trigger flags were switched to false in checkInput()")
+                return True
 
         self.readPool       = globalflags.InputFormat() == 'pool'
         self.readRDO        = rec.readRDO()
@@ -167,6 +172,7 @@ class TriggerConfigGetter(Configured):
         self.l1Folders      = TriggerFlags.dataTakingConditions()=='FullTrigger' or TriggerFlags.dataTakingConditions()=='Lvl1Only'
         self.hltFolders     = TriggerFlags.dataTakingConditions()=='FullTrigger' or TriggerFlags.dataTakingConditions()=='HltOnly'
         self.isRun1Data     = False 
+        self.hasxAODMeta    = ("metadata_items" in metadata and any(('TriggerMenu' in key) for key in metadata["metadata_items"].keys()))
         if globalflags.DataSource()=='data':
             from RecExConfig.AutoConfiguration  import GetRunNumber
             runNumber = GetRunNumber()
@@ -265,7 +271,7 @@ class TriggerConfigGetter(Configured):
 
             try:
                 self.svc.SetStates( self.ConfigSrcList )
-            except Exception as ex:
+            except Exception:
                 log.error( 'Failed to set state of TrigConfigSvc to %r', self.ConfigSrcList )
             else:
                 log.info('The following configuration services will be tried: %r', self.ConfigSrcList )
@@ -289,7 +295,7 @@ class TriggerConfigGetter(Configured):
         if self.makeTempCool:
             TrigCoolDbConnection = self.setupTempCOOLWriting(TrigCoolDbConnection)
 
-        if ('ds' in self.ConfigSrcList or self.writeESDAOD) and not self.writeAOD and TriggerFlags.configForStartup()!='HLToffline':
+        if ('ds' in self.ConfigSrcList) and not self.hasxAODMeta:
             self.setupCOOLReading(TrigCoolDbConnection)
 
         if hasattr(svcMgr, 'DSConfigSvc'):
@@ -304,7 +310,7 @@ class TriggerConfigGetter(Configured):
             svcMgr.DSConfigSvc.DBServer = db
             log.info("DSConfigSvc trigger database is '%s'", db)
         
-        if self.writeESDAOD and not self.writeAOD: # So ESD only
+        if not self.hasxAODMeta:
             self.setupxAODWriting()
 
 

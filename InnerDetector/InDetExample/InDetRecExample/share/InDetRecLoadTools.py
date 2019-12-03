@@ -1131,14 +1131,4 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
     logger = logging.getLogger('InDet')
     logger.error('Sorting option '+InDetFlags.primaryVertexSortingSetup()+' not defined. ')
 
-# ------------------------------------------------------------
-#
-# ----------- Loading of tool to monitor track candidates in ambi solving
-#
-# ------------------------------------------------------------
-if InDetFlags.doTIDE_AmbiTrackMonitoring():
-  from TrkValTools.TrkValToolsConf import Trk__TrkObserverTool
-  TrackObserverTool = Trk__TrkObserverTool("TrackObserverTool")
-  ToolSvc += TrackObserverTool
-  if InDetFlags.doPrintConfigurables():
-      print TrackObserverTool
+

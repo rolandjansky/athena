@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -25,14 +25,27 @@ namespace InDet {
       ///////////////////////////////////////////////////////////////////
       // Public methods:
       ///////////////////////////////////////////////////////////////////
-      
+
     public:
-      
+       class Used_t {
+       public:
+          Used_t() : m_used(false) {}
+
+          bool used() const { return m_used; }
+
+          void setUsed() { m_used=true; }
+       private:
+          bool m_used;
+       };
+
       TRT_DetElementLink_xk();
       TRT_DetElementLink_xk(const InDetDD::TRT_BaseElement*&,const double*);
-      TRT_DetElementLink_xk(const TRT_DetElementLink_xk&);
-      ~TRT_DetElementLink_xk();
-      TRT_DetElementLink_xk& operator  = (const TRT_DetElementLink_xk&);
+
+      TRT_DetElementLink_xk(const TRT_DetElementLink_xk&) = default;
+      TRT_DetElementLink_xk(TRT_DetElementLink_xk &&)     = default;
+
+      TRT_DetElementLink_xk& operator  = (const TRT_DetElementLink_xk&) = default;
+      TRT_DetElementLink_xk& operator  = (TRT_DetElementLink_xk&&)      = default;
 
       ///////////////////////////////////////////////////////////////////
       // Main methods
@@ -43,10 +56,6 @@ namespace InDet {
       const float&  sin    ()                      const {return m_sin        ;}
       const float&  cos    ()                      const {return m_cos        ;}
       const float&  centerf()                      const {return m_centerf    ;}
-      const float&  way    ()                      const {return m_way        ;}
-      const bool  & used   ()                      const {return m_used       ;}
-      void clearUsed();  
-      void setUsed (float);
 
     protected:
       
@@ -59,8 +68,6 @@ namespace InDet {
       float                            m_sin        ;
       float                            m_cos        ;
       float                            m_centerf    ;
-      float                            m_way        ;
-      bool                             m_used       ;
 
       ///////////////////////////////////////////////////////////////////
       // Methods
@@ -79,41 +86,18 @@ namespace InDet {
       m_sin        = 0.   ;
       m_cos        = 0.   ;
       m_centerf    = 0.   ;
-      m_way        = 0.   ;
-      m_used       = false;
     }
 
-  inline TRT_DetElementLink_xk::TRT_DetElementLink_xk(const TRT_DetElementLink_xk& L): m_detelement(L.m_detelement)
-    {
-      *this = L; 
-    }
-  
-  inline TRT_DetElementLink_xk& TRT_DetElementLink_xk::operator = 
-    (const TRT_DetElementLink_xk& L) 
-    {
-      if(&L!=this) {
-	m_detelement =  L.m_detelement;
-	m_phi        =  L.m_phi       ;
-	m_sin        =  L.m_sin       ;
-	m_cos        =  L.m_cos       ;
-	m_centerf    =  L.m_centerf   ;
-	m_way        =  L.m_way       ;
-	m_used       =  L.m_used      ;
-      }
-      return(*this);
-    }
+   inline InDet::TRT_DetElementLink_xk::TRT_DetElementLink_xk
+   (const InDetDD::TRT_BaseElement*& el,const double* P)
+   {
+      m_detelement = el                           ; // det elements
+      m_phi        = float(P[ 2])                 ; // azimuthal angle
+      m_sin        = float(P[ 5])                 ; // sin(phi)
+      m_cos        = float(P[ 6])                 ; // cos(phi)
+      m_centerf    = float(P[18])                 ; //
+   }
 
-  inline void InDet::TRT_DetElementLink_xk::clearUsed()
-    {
-      m_used = false;
-    }
-
-  inline void InDet::TRT_DetElementLink_xk::setUsed(float way)
-    {
-      m_used = true; m_way = way;
-    }
-
-  inline TRT_DetElementLink_xk::~TRT_DetElementLink_xk() {}
 
 } // end of name space
 

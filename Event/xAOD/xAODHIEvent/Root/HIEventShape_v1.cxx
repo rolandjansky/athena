@@ -27,7 +27,7 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( HIEventShape_v1, int, layer, setLayer )
 
 
-  static SG::AuxElement::Accessor< std::vector< ElementLink< HIEventShapeContainer_v1 > > >
+  static const SG::AuxElement::Accessor< std::vector< ElementLink< HIEventShapeContainer_v1 > > >
   linkAcc( "HIsubEventLink" );
   void HIEventShape_v1::toPersistent() {
 

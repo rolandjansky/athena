@@ -18,7 +18,6 @@
 #include "StorageSvc/DbDatabase.h"
 #include "StorageSvc/DbColumn.h"
 #include "StorageSvc/DbTypeInfo.h"
-#include "StorageSvc/DbInstanceCount.h"
 #include "StorageSvc/DbArray.h"
 #include "POOLCore/DbPrint.h"
 #include "StorageSvc/Transaction.h"
@@ -130,12 +129,10 @@ RootTreeContainer::RootTreeContainer()
   m_rootDb(nullptr), m_branchName(), m_ioBytes(0), m_treeFillMode(false),
   m_isDirty(false)
 {
-  DbInstanceCount::increment(this);
 }
 
 /// Standard destructor
 RootTreeContainer::~RootTreeContainer()   {
-  DbInstanceCount::decrement(this);
   close();
 }
 

@@ -323,9 +323,11 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
   /** OK, so we found the StoreGate container, now lets iterate
    * over it to populate the sets of errors owned by this Tool.
    */
-  ATH_MSG_DEBUG("size of error container is " << idcErrCont->size());
-  for (auto it = idcErrCont->begin(); it != idcErrCont->end(); it++) {
-    const auto& [errCode, hashId] = std::make_pair(**it, it.hashId());
+  ATH_MSG_DEBUG("size of error container is " << idcErrCont->maxSize());
+  const std::vector<std::pair<size_t, int>> errorcodesforView = idcErrCont->getAll();
+
+  for (const auto& [errCode, hashId] : errorcodesforView) {
+
     addError(hashId, errCode, ctx);
     Identifier wafer_id{m_sct_id->wafer_id(hashId)};
     Identifier module_id{m_sct_id->module_id(wafer_id)};

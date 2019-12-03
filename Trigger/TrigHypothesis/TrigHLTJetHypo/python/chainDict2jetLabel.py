@@ -337,7 +337,8 @@ def chainDict2jetLabel(chain_dict):
     for k in router: cp_sorter[k] = []
 
     for cp in chain_dict['chainParts']:
-        if cp['signature'] != 'Jet': continue
+        if cp['signature'] != 'Jet' and cp['signature'] != 'Bjet': 
+            continue
         for k in cp_sorter:
             if cp['hypoScenario'].startswith(k):
                 cp_sorter[k].append(cp)

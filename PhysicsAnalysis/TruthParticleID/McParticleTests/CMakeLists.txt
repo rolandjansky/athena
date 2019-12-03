@@ -17,8 +17,7 @@ atlas_depends_on_subdirs( PRIVATE
                           PhysicsAnalysis/TruthParticleID/McParticleAlgs
                           PhysicsAnalysis/TruthParticleID/McParticleEvent
                           PhysicsAnalysis/TruthParticleID/McParticleKernel
-                          PhysicsAnalysis/TruthParticleID/McParticleUtils
-                          TestPolicy )
+                          PhysicsAnalysis/TruthParticleID/McParticleUtils )
 
 # External dependencies:
 find_package( CLHEP )

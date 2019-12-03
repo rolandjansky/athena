@@ -1,10 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
-
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: AuxContainerBase.h 793737 2017-01-24 20:11:10Z ssnyder $
 #ifndef XAODCORE_AUXCONTAINERBASE_H
 #define XAODCORE_AUXCONTAINERBASE_H
 
@@ -172,26 +169,35 @@ namespace xAOD {
       /// @}
 
    protected:
+      /// Get the auxiliary ID for one of the persistent variables
+      template< typename T >
+      auxid_t getAuxID( const std::string& name,
+                        std::vector< T >& /*vec*/,
+                        SG::AuxTypeRegistry::Flags flags =
+                        SG::AuxTypeRegistry::Flags::None );
+      /// Get the auxiliary ID for one of the persistent variables
+      template< typename T >
+      auxid_t getAuxID( const std::string& name,
+                        SG::PackedContainer< T >& /*vec*/,
+                        SG::AuxTypeRegistry::Flags flags =
+                        SG::AuxTypeRegistry::Flags::None );
       /// Register one of the persistent variables internally
       template< typename T >
-      SG::auxid_t regAuxVar( const std::string& name,
-                             std::vector< T >& vec,
-                             SG::AuxTypeRegistry::Flags flags = SG::AuxTypeRegistry::Flags::None );
+      void regAuxVar( auxid_t auxid, const std::string& name,
+                      std::vector< T >& vec );
 
       /// Register one of the persistent variables internally
       template< typename T >
-      SG::auxid_t regAuxVar( const std::string& name,
-                             SG::PackedContainer< T >& vec,
-                             SG::AuxTypeRegistry::Flags flags );
+      void regAuxVar( auxid_t auxid, const std::string& name,
+                      SG::PackedContainer< T >& vec );
 
    private:
       friend class ::xAODAuxContainerBaseCnv;
 
       /// Common code between regAuxVar cases.
       template< typename ELT, typename CONT >
-      SG::auxid_t regAuxVar1( const std::string& name,
-                              CONT& vec,
-                              SG::AuxTypeRegistry::Flags flags);
+      void regAuxVar1( auxid_t auxid, const std::string& name,
+                       CONT& vec );
 
       /// Dynamic attributes selection implementation
       AuxSelection  m_selection;

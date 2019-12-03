@@ -130,5 +130,5 @@ if __name__ == "__main__":
     ConfigFlags.Input.Files = defaultTestFiles.RAW
 
     acc = TrigBSReadCfg( ConfigFlags )
-    acc.store( file( "test.pkl", "wb" ) )
+    acc.store( open( "test.pkl", "wb" ) )
     print("All OK")

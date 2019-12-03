@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // File:  Generators/FlowAfterburnber/CheckFlow.h
@@ -44,7 +44,6 @@ CheckFlow::CheckFlow(const std::string& name, ISvcLocator* pSvcLocator) :
   m_v2betapth ( NULL ),
   m_ebetapth ( NULL ),
   m_sgSvc ( NULL ),
-  m_thistSvc ( NULL ),
   m_tesIO ( NULL ) 
 {
   //Declare the algorithm's properties

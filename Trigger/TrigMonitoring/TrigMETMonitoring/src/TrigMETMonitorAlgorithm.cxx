@@ -11,7 +11,6 @@ TrigMETMonitorAlgorithm::TrigMETMonitorAlgorithm( const std::string& name, ISvcL
   , m_hlt_mht_met_key("HLT_MET_mht")
   , m_hlt_tc_met_key("HLT_MET_tc")
   , m_hlt_tcpufit_met_key("HLT_MET_tcPufit")
-  , m_trigDecTool("Trig::TrigDecisionTool/TrigDecisionTool")
 {
   declareProperty("l1_roi_key", m_lvl1_roi_key);
   declareProperty("hlt_cell_key", m_hlt_cell_met_key);
@@ -30,8 +29,6 @@ StatusCode TrigMETMonitorAlgorithm::initialize() {
     ATH_CHECK( m_hlt_mht_met_key.initialize() );
     ATH_CHECK( m_hlt_tc_met_key.initialize() );
     ATH_CHECK( m_hlt_tcpufit_met_key.initialize() );
-
-    ATH_CHECK( m_trigDecTool.retrieve() );
 
     return AthMonitorAlgorithm::initialize();
 }
@@ -135,24 +132,24 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       tcpufit_Et = sqrt(tcpufit_Ex*tcpufit_Ex + tcpufit_Ey*tcpufit_Ey);
     }
 
-
+    const auto& trigDecTool = getTrigDecisionTool();
     // TDT test
-    if (m_trigDecTool->isPassed("HLT_xe30_cell_L1XE10")) {
+    if (trigDecTool->isPassed("HLT_xe30_cell_L1XE10")) {
       ATH_MSG_DEBUG("passed HLT_xe30_cell_L1XE10");
     } else {
       ATH_MSG_DEBUG("not passed HLT_xe30_cell_L1XE10");
     }
-    if (m_trigDecTool->isPassed("HLT_xe30_cell_xe30_tcpufit_L1XE10")) {
+    if (trigDecTool->isPassed("HLT_xe30_cell_xe30_tcpufit_L1XE10")) {
       ATH_MSG_DEBUG("passed HLT_xe30_cell_xe30_tcpufit_L1XE10");
     } else {
       ATH_MSG_DEBUG("not passed HLT_xe30_cell_xe30_tcpufit_L1XE10");
     }
-    if (m_trigDecTool->isPassed("HLT_xe30_tcpufit_L1XE10")) {
+    if (trigDecTool->isPassed("HLT_xe30_tcpufit_L1XE10")) {
       ATH_MSG_DEBUG("passed HLT_xe30_tcpufit_L1XE10");
     } else {
       ATH_MSG_DEBUG("not passed HLT_xe30_tcpufit_L1XE10");
     }
-    if (m_trigDecTool->isPassed(m_triggerChainString)) {
+    if (trigDecTool->isPassed(m_triggerChainString)) {
       ATH_MSG_DEBUG("passed " << m_triggerChainString);
     } else {
       ATH_MSG_DEBUG("not passed " << m_triggerChainString);
@@ -161,9 +158,9 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     // check active triggers
     // This does not work for now
     /*
-    auto chaingroup = m_trigDecTool->getChainGroup("HLT_xe.*");
+    auto chaingroup = trigDecTool->getChainGroup("HLT_xe.*");
     for(auto &trig : chainGroup->getListOfTriggers()) {
-      auto cg = m_trigDecTool->getChainGroup(trig);
+      auto cg = trigDecTool->getChainGroup(trig);
       std::string thisTrig = trig;
       ATH_MSG_DEBUG (thisTrig << " chain prescale = " << cg->getPrescale());
     }

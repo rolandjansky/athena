@@ -5,10 +5,6 @@
 # Declare the package name:
 atlas_subdir( LArCalibProcessing )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          TestPolicy )
-
 # Necessary external(s):
 find_package( cx_Oracle )
 

@@ -105,7 +105,7 @@ private:
    * Handle decoration
    */
   StatusCode deserialiseDynAux( const std::string& transientTypeName, const std::string& persistentTypeName, const std::string& decorationName, 
-				void* data,  WritableAuxStore* currentAuxStore ) const;
+				void* data,  WritableAuxStore* currentAuxStore, SG::AuxVectorBase* interface ) const;
 
 
   /**

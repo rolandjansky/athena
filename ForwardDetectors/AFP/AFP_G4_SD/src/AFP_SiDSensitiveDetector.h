@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AFP_G4_SD_AFP_SiDSensitiveDetector_h
@@ -50,10 +50,8 @@ public:
 private:
   int m_nHitID;
   int m_nEventNumber;
-  int m_nNumberOfTDSimHits;
   int m_nNumberOfSIDSimHits;
 
-  int m_nNOfTDSimHits[4][32];
   int m_nNOfSIDSimHits[4];
 
   float m_delta_pixel_x, m_delta_pixel_y;

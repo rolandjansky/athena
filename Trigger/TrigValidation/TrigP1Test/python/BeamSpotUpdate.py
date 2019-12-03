@@ -20,7 +20,7 @@ import os
 import sys
 import logging
 import eformat
-from TrigByteStreamTools import trigbs_replaceLB
+from TrigByteStreamTools import trigbs_modifyEvent
 from TrigByteStreamTools import CTPfragment
 from AthenaPython import PyAthena
 
@@ -31,10 +31,9 @@ class Config:
                         8:(9,7)
    }
 
-trigbs_replaceLB.Config.eventsPerLB = 5
+trigbs_modifyEvent.Config.eventsPerLB = 5
 folderList = []    # list of COOL folder updates
 log = logging.getLogger(__name__)
-
 
 class BeamSpotWriteAlg(PyAthena.Alg):
    """Algorithm to write a new Beamspot to COOL (sqlite file) for given LBs"""
@@ -106,7 +105,7 @@ def modify(event):
    event = eformat.write.FullEventFragment(event)
 
    # Modify LB and HLT counter in CTP fragment
-   newevt = trigbs_replaceLB.modify(event)
+   newevt = trigbs_modifyEvent.modify(event)
    lb = newevt.lumi_block()
 
    # Write conditions update into CTP fragment
@@ -125,7 +124,7 @@ def modify(event):
 def setup():
    """Initial setup"""
 
-   log.info('Will perform beamspot udpate on these LBs (LB,status): %s' % sorted(Config.lb_updateBeamspot.values()))
+   log.info('Will perform beamspot udpate on these LBs (LB,status): %s', sorted(Config.lb_updateBeamspot.values()))
 
    # Create dblookup file for beamSpotOnl_set.py
    dblookup="""\

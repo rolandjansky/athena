@@ -695,13 +695,6 @@ if InDetTrigFlags.loadSummaryTool():
 
   #prevent loading of the pixel dE/dx tool  
   InDetTrigPixelToTPIDTool = None
-#   try:
-#     from PixelToTPIDTool.PixelToTPIDToolConf import InDet__PixelToTPIDTool
-#     InDetTrigPixelToTPIDTool = InDet__PixelToTPIDTool(name = "InDetTrigPixelToTPIDTool")
-#     ToolSvc += InDetTrigPixelToTPIDTool
-    
-#   except:
-#     log.info("InDetTrigPixelToTPIDTool requested but not available")
   if (InDetTrigFlags.doPrintConfigurables()):
     print     'InDetTrigPixelToTPIDTool ', InDetTrigPixelToTPIDTool
 

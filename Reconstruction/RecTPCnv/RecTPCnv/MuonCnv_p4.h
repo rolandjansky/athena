@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // MuonCnv_p4.h 
@@ -23,46 +23,33 @@
 class MsgStream;
 namespace Analysis { class Muon; }
 
-class MuonCnv_p4 : public T_AthenaPoolTPCnvBase<Analysis::Muon, Muon_p4>
+class MuonCnv_p4 : public T_AthenaPoolTPCnvConstBase<Analysis::Muon, Muon_p4>
 { 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
  public: 
+  using base_class::transToPers;
+  using base_class::persToTrans;
+
 
   /** Default constructor: 
    */
   MuonCnv_p4();
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
 
   /** Method creating the transient representation of @c Analysis::Muon
    *  from its persistent representation @c Muon_p1
    */
   virtual void persToTrans( const Muon_p4* persObj, 
                             Analysis::Muon* transObj, 
-                            MsgStream& msg );
+                            MsgStream& msg ) const override;
 
   /** Method creating the persistent representation @c Muon_p1
    *  from its transient representation @c Analysis::Muon
    */
   virtual void transToPers( const Analysis::Muon* transObj, 
                             Muon_p4* persObj, 
-                            MsgStream& msg );
-
-  /////////////////////////////////////////////////////////////////// 
-  // Protected method: 
-  /////////////////////////////////////////////////////////////////// 
- protected: 
-
+                            MsgStream& msg ) const override;
 }; 
 
-/////////////////////////////////////////////////////////////////// 
-// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
 
 inline MuonCnv_p4::MuonCnv_p4()
 {}

@@ -57,7 +57,7 @@ alg.cut2 = 12
 topSequence += alg
 
 # output options
-from OutputStreamAthenaPool.OutputStreamAthenaPool import AthenaPoolOutputStream
+from OutputStreamAthenaPool.CreateOutputStreams import AthenaPoolOutputStream
 Stream1 = AthenaPoolOutputStream('Stream1', 'OutputAOD.root', asAlg=True)
 Stream1.ItemList = ['xAOD::EventInfo#*', 'xAOD::EventAuxInfo#*']
 Stream1.MetadataItemList += ['xAOD::CutBookkeeperContainer#CutBookkeepers', 'xAOD::CutBookkeeperAuxContainer#CutBookkeepersAux.']

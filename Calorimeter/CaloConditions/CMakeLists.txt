@@ -14,8 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
 			  Calorimeter/CaloIdentifier
                           GaudiKernel
                           PRIVATE
-                          AtlasTest/TestTools
-                          TestPolicy )
+                          AtlasTest/TestTools )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )

@@ -77,7 +77,7 @@ StatusCode SCTRawDataProvider::execute(const EventContext& ctx) const
 
   SG::WriteHandle<IDCInDetBSErrContainer> bsIDCErrContainer(m_bsIDCErrContainerKey, ctx);
   if ( m_bsErrContainerCacheKey.key().empty() ) {
-    ATH_CHECK(bsIDCErrContainer.record( std::make_unique<IDCInDetBSErrContainer>(m_sctID->wafer_hash_max()) ));
+    ATH_CHECK(bsIDCErrContainer.record( std::make_unique<IDCInDetBSErrContainer>(m_sctID->wafer_hash_max(), std::numeric_limits<int>::min() )));
     ATH_MSG_DEBUG("Created IDCInDetBSErrContainer w/o using external cache");
   } else { // use cache
     SG::UpdateHandle<IDCInDetBSErrContainer_Cache> cacheHandle( m_bsErrContainerCacheKey, ctx );
@@ -160,7 +160,7 @@ StatusCode SCTRawDataProvider::execute(const EventContext& ctx) const
 
   // copy decoding errorrs to the IDC container, TODO, move this code to converter
   for ( const std::pair<IdentifierHash, int>* hashErrorPair : *bsErrContainer ) {
-    ATH_CHECK( bsIDCErrContainer->addOrDelete( std::make_unique<IDCInDetBSErrContainer::ErrorCode>(hashErrorPair->second),  hashErrorPair->first ) );
+    bsIDCErrContainer->setOrDrop(  hashErrorPair->first , hashErrorPair->second);
   }
 
 

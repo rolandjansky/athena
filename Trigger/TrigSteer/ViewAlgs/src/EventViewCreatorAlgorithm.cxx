@@ -80,6 +80,12 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
           // make the view
           ATH_MSG_DEBUG( "Making the View" );
           auto newView = ViewHelper::makeView( name()+"_view", viewCounter++, m_viewFallThrough ); //pointer to the view
+
+          // Use a fall-through filter if one is provided
+          if ( m_viewFallFilter.size() ) {
+            newView->setFilter( m_viewFallFilter );
+          }
+
           viewVector->push_back( newView );
           contexts.emplace_back( context );
           Atlas::setExtendedEventContext (contexts.back(),

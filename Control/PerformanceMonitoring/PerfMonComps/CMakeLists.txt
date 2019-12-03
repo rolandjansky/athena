@@ -24,7 +24,6 @@ find_package( AIDA )
 find_package( Boost )
 find_package( PythonLibs )
 find_package( ROOT COMPONENTS Core PyROOT )
-find_package( pytools )
 find_package( nlohmann_json )
 
 # Component(s) in the package:
@@ -40,3 +39,4 @@ atlas_add_component( PerfMonComps
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
+atlas_install_scripts( scripts/PerfMonMTSvc_plotter.py )

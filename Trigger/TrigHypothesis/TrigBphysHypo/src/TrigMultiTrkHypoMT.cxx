@@ -98,6 +98,19 @@ StatusCode TrigMultiTrkHypoMT::initialize()
     ATH_CHECK(m_hypoTools.retrieve());
 
     ATH_CHECK(m_bphysObjContKey.initialize());
+    
+    // set m_trigLevel
+    if (m_trigLevelString == "L2") {
+      m_trigLevel = xAOD::TrigBphys::L2;
+    }
+    else if (m_trigLevelString == "EF") {
+      m_trigLevel = xAOD::TrigBphys::EF;
+    }
+    else {
+      m_trigLevel = xAOD::TrigBphys::UNKOWNLEVEL;
+      ATH_MSG_ERROR("trigLevelString should be L2 or EF, but " << m_trigLevelString << " provided.");
+      return StatusCode::FAILURE;
+    }
 
   return StatusCode::SUCCESS;
 }
@@ -139,6 +152,7 @@ StatusCode TrigMultiTrkHypoMT::execute( const EventContext& context) const
     auto mon_NTrkMass  		   = Monitored::Collection("nTrkMass", ini_nTrkMass);
     auto mon_NTrkFitMass	   = Monitored::Collection("nTrkFitMass", ini_nTrkFitMass);
     auto mon_NTrkChi2          = Monitored::Collection("nTrkChi2", ini_nTrkChi2);
+    auto mon_pairMass          = Monitored::Collection("pairMass", ini_pairMass);
 
     auto mon_NTrk          	     = Monitored::Scalar<int>("nTrk", 0);
     auto mon_accepted_highptNTrk = Monitored::Scalar<int>("accepted_highptNTrk", 0);
@@ -146,7 +160,7 @@ StatusCode TrigMultiTrkHypoMT::execute( const EventContext& context) const
     auto mon_acceptedNPair       = Monitored::Scalar<int>("accepted_nPair", 0);
 
     auto monitorIt = Monitored::Group( m_monTool, mon_NTrk, 
-  			mon_accepted_highptNTrk, mon_NTrkMass, mon_NTrkFitMass, mon_NTrkChi2,
+  			mon_accepted_highptNTrk, mon_NTrkMass, mon_NTrkFitMass, mon_NTrkChi2, mon_pairMass,
   			mon_NPair, mon_acceptedNPair );
 
     auto bphysColl = SG::makeHandle( m_bphysObjContKey, context );
@@ -265,7 +279,7 @@ StatusCode TrigMultiTrkHypoMT::execute( const EventContext& context) const
           trigBphys->makePrivateStore(); //need this so the aux variables are accessible with initialize
           //could just add to container, but don't want to bother storing vertices with gigantic chi2
           
-          trigBphys->initialise(0, 0., 0. ,0., xAOD::TrigBphys::MULTIMU, totalMass, xAOD::TrigBphys::L2);  
+          trigBphys->initialise(0, 0., 0. ,0., xAOD::TrigBphys::MULTIMU, totalMass, m_trigLevel);  
 
           std::vector<ElementLink<xAOD::TrackParticleContainer> > thisIterationTracks = {good_tracks.at(it0), good_tracks.at(it1)};
           if (m_bphysHelperTool->vertexFit(trigBphys,thisIterationTracks,m_trkMasses,*state).isFailure()) {
@@ -284,7 +298,9 @@ StatusCode TrigMultiTrkHypoMT::execute( const EventContext& context) const
           
           ini_nTrkFitMass.push_back(trigBphys->fitmass()*0.001);
           ini_nTrkChi2.push_back(trigBphys->fitchi2());
+          double dimass = m_bphysHelperTool->invariantMass(tp0, tp1, m_trkMasses[0], m_trkMasses[1]);
 
+          ini_pairMass.push_back(dimass);
           bphysColl->push_back(trigBphys);
 
           //need to add some duplicate BPhys object removal here? isUnique(trigBphys)?

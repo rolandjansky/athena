@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Muon_p2.h 
@@ -29,21 +29,13 @@
 // RecTPCnv includes
 #include "RecTPCnv/CaloEnergy_p1.h"
 
+#include "CxxUtils/unused.h"
+
 // forward declarations
 class MuonCnv_p2;
 
 class Muon_p2 
 {
-  /////////////////////////////////////////////////////////////////// 
-  // Friend classes
-  /////////////////////////////////////////////////////////////////// 
-
-  // Make the AthenaPoolCnv class our friend
-  friend class MuonCnv_p2;
-
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
 public: 
 
   /** Default constructor: 
@@ -67,18 +59,6 @@ public:
    */
   ~Muon_p2() = default;
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
-
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Private data: 
-  /////////////////////////////////////////////////////////////////// 
-private: 
 
   /// the 4-mom part
   P4IPtCotThPhiM_p1 m_momentum;
@@ -92,13 +72,13 @@ private:
   unsigned int m_author;
 
   /// switches
-  bool m_hasCombinedMuon;                   // needed ?
-  bool m_hasInDetTrackParticle;             // needed ?
+  bool ATH_UNUSED_MEMBER(m_hasCombinedMuon) = false;                   // needed ?
+  bool ATH_UNUSED_MEMBER(m_hasInDetTrackParticle) = false;             // needed ?
   bool m_hasMuonExtrapolatedTrackParticle;  // needed ?
   bool m_hasCombinedMuonTrackParticle;      // needed ?
 
   // not used ?
-  bool m_hasCluster;
+  bool ATH_UNUSED_MEMBER(m_hasCluster) = false;
 
   /// Chi2 of the track matching
   double m_matchChi2;

@@ -136,56 +136,38 @@ HLT::ErrorCode TrigmuRoI::hltExecute(std::vector<std::vector<HLT::TriggerElement
    //--------------------------------------------------------------------------
    // Gather the Muon RoIs out of time by the
    //--------------------------------------------------------------------------
-   int BCID_diff = distance(m_trigMuonRoITool->begin_OutOfTimeRoIs(),m_trigMuonRoITool->end_OutOfTimeRoIs());
-    
-   if(m_log.level() <= MSG::DEBUG) {
-       m_log << MSG::DEBUG << "=====================================================" << endmsg;
-       m_log << MSG::DEBUG << " RoIs out of time with event BCID:  Number of RoIs = "
-             << BCID_diff << endmsg;
-       m_log << MSG::DEBUG << "=====================================================" << endmsg;
+   auto roiVectors = m_trigMuonRoITool->decodeMuCTPi();
+   if(!roiVectors){
+     ATH_MSG_VERBOSE("No RoIs found");
+     return HLT::OK;
    }
-   
-   std::vector< std::pair<ROIB::MuCTPIRoI,int> >::const_iterator it_begin_ot, it_end_ot;
-   
-   if(m_log.level() <= MSG::DEBUG)
-       m_log << MSG::DEBUG << "===> execute() TrigMuonRoITool Test Algorithm: get begin in time iterator" << endmsg;
-   
-   it_begin_ot = m_trigMuonRoITool->begin_OutOfTimeRoIs();
-   
-   if(m_log.level() <= MSG::DEBUG)
-       m_log << MSG::DEBUG << "===> execute() TrigMuonRoITool Test Algorithm: get end   in time iterator" << endmsg;
-   
-   it_end_ot   = m_trigMuonRoITool->end_OutOfTimeRoIs();
-   
-   if(m_log.level() <= MSG::DEBUG)
-       m_log << MSG::DEBUG << "===> execute() TrigMuonRoITool Test Algorithm: print out of time RoIs" << endmsg;
-   
-   for  (std::vector< std::pair<ROIB::MuCTPIRoI,int> >::const_iterator it = m_trigMuonRoITool->begin_OutOfTimeRoIs();
-       it != m_trigMuonRoITool->end_OutOfTimeRoIs(); ++it) {
+
+   //loop over out of time rois   
+   for(auto it : *(roiVectors->outOfTimeRois)){   
        
        if(m_log.level() <= MSG::DEBUG) {
-           m_log << MSG::DEBUG << " Difference(RoI(BCID) - Event(BCID)) = " << (*it).second << endmsg;
-           m_log << MSG::DEBUG << " ------------------------------------- " << endmsg;
-           m_log << MSG::DEBUG << "RoIB word               : 0x" << MSG::hex << ((*it).first).roIWord() << MSG::dec << endmsg;
-           m_log << MSG::DEBUG << "Threshold               :  pt" << ((*it).first).pt() << endmsg;
-           m_log << MSG::DEBUG << "Sector ID               :  " << ((*it).first).getSectorID() << endmsg;
-           m_log << MSG::DEBUG << "Sector addr             :  0x" << MSG::hex << ((*it).first).getSectorAddress() << MSG::dec << endmsg;
-           m_log << MSG::DEBUG << "Sector overflow         :  " << ((*it).first).getSectorOverflow() << endmsg;
-           m_log << MSG::DEBUG << "RoI overflow            :  " << ((*it).first).getRoiOverflow() << endmsg;
-           m_log << MSG::DEBUG << "RoI number              :  " << ((*it).first).getRoiNumber() << endmsg;
-           m_log << MSG::DEBUG << "IsHighestPt             :  " << ((*it).first).getCandidateIsHighestPt() << endmsg;
-           m_log << MSG::DEBUG << "=================================================" << endmsg;
+           ATH_MSG_DEBUG(" Difference(RoI(BCID) - Event(BCID)) = " << (it).second );
+           ATH_MSG_DEBUG(" ------------------------------------- " );
+           ATH_MSG_DEBUG("RoIB word               : 0x" << MSG::hex << ((it).first).roIWord() << MSG::dec );
+           ATH_MSG_DEBUG("Threshold               :  pt" << ((it).first).pt() );
+           ATH_MSG_DEBUG("Sector ID               :  " << ((it).first).getSectorID() );
+           ATH_MSG_DEBUG("Sector addr             :  0x" << MSG::hex << ((it).first).getSectorAddress() << MSG::dec );
+           ATH_MSG_DEBUG("Sector overflow         :  " << ((it).first).getSectorOverflow() );
+           ATH_MSG_DEBUG("RoI overflow            :  " << ((it).first).getRoiOverflow() );
+           ATH_MSG_DEBUG("RoI number              :  " << ((it).first).getRoiNumber() );
+           ATH_MSG_DEBUG("IsHighestPt             :  " << ((it).first).getCandidateIsHighestPt() );
+           ATH_MSG_DEBUG("=================================================" );
        }
        
        unsigned int temp_sysID =
-           getBitMaskValue(((*it).first).getSectorAddress(), LVL1::SysIDMask );
+           getBitMaskValue(((it).first).getSectorAddress(), LVL1::SysIDMask );
        unsigned int sysID = 0;                // Barrel
        if( temp_sysID & 0x2 ) sysID = 1;      // Endcap
        else if( temp_sysID & 0x1 ) sysID = 2; // Forward
 
 
-       if ( sysID == 0 ) m_RpcOutOfTime.push_back((*it).second);
-       else              m_TgcOutOfTime.push_back((*it).second);
+       if ( sysID == 0 ) m_RpcOutOfTime.push_back((it).second);
+       else              m_TgcOutOfTime.push_back((it).second);
       
        const LVL1::RecMuonRoiSvc* recMuonRoiSvc = 0;
        std::string region = "";
@@ -200,7 +182,7 @@ HLT::ErrorCode TrigmuRoI::hltExecute(std::vector<std::vector<HLT::TriggerElement
            region = "Forward region";
        }
 	   
-       recMuonRoiSvc->reconstruct( ((*it).first).roIWord() );
+       recMuonRoiSvc->reconstruct( ((it).first).roIWord() );
        // create new trigger element for this out of time RoI
        double eta = recMuonRoiSvc->eta();
        double phi = recMuonRoiSvc->phi();
@@ -212,13 +194,13 @@ HLT::ErrorCode TrigmuRoI::hltExecute(std::vector<std::vector<HLT::TriggerElement
        double phimin = CxxUtils::wrapToPi(phi - 0.2);
        double phimax = CxxUtils::wrapToPi(phi + 0.2);
 
-       if ((*it).second >= m_minValueForOutOfTimeBC &&
-           (*it).second <= m_maxValueForOutOfTimeBC    ) {
+       if ((it).second >= m_minValueForOutOfTimeBC &&
+           (it).second <= m_maxValueForOutOfTimeBC    ) {
 
            // generic TrigRoiDescriptor
            HLT::TriggerElement* te;
 	   TrigRoiDescriptor* roiDescriptor = 
-	     new TrigRoiDescriptor( ((*it).first).roIWord(), 0, roi_id, eta, etamin, etamax, phi, phimin, phimax,0,-255,255);
+	     new TrigRoiDescriptor( ((it).first).roIWord(), 0, roi_id, eta, etamin, etamax, phi, phimin, phimax,0,-255,255);
 
            te = addRoI(type_out, roiDescriptor);
            te->setActiveState(true);
@@ -226,15 +208,14 @@ HLT::ErrorCode TrigmuRoI::hltExecute(std::vector<std::vector<HLT::TriggerElement
            // MuFaststeering also requires a RecMuonRoI
            std::vector< TrigConf::TriggerThreshold* > dummy_thresholds;
 	   LVL1::RecMuonRoI* muonroi =
-	     new LVL1::RecMuonRoI( ((*it).first).roIWord(), &( *m_recRPCRoiSvc ), &( *m_recTGCRoiSvc ), &dummy_thresholds );
+	     new LVL1::RecMuonRoI( ((it).first).roIWord(), &( *m_recRPCRoiSvc ), &( *m_recTGCRoiSvc ), &dummy_thresholds );
 
 	   if( attachFeature( te, muonroi, "L1MuRoI" ) != HLT::OK ) return HLT::ERROR;
 
 	   if(m_log.level() <= MSG::DEBUG) {
-	       m_log << MSG::DEBUG << "New RoI descriptor for "
+	       ATH_MSG_DEBUG("New RoI descriptor for "
 	             << region << " created from word 0x"
-	             << MSG::hex  << ((*it).first).roIWord() << MSG::dec 
-		     << endmsg;
+			     << MSG::hex  << ((it).first).roIWord());
            }
        }
        roi_id += 1;

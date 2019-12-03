@@ -35,13 +35,26 @@ if __name__=='__main__':
 
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-
+    from AthenaConfiguration.AutoConfigFlags import GetFileMD
+    
     ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q431/21.0/myESD.pool.root']
     ConfigFlags.Output.HISTFileName = 'ExampleMonitorOutput.root'
     if args.dqOffByDefault:
         from AthenaMonitoring.DQConfigFlags import allSteeringFlagsOff
         allSteeringFlagsOff()
     ConfigFlags.fillFromArgs(args.flags)
+    isReadingRaw = (GetFileMD(ConfigFlags.Input.Files).get('file_type', 'POOL') == 'RAW')
+    if isReadingRaw:
+        if ConfigFlags.DQ.Environment not in ('tier0', 'tier0Raw', 'online'):
+            log.warning('Reading RAW file, but DQ.Environment set to %s',
+                        ConfigFlags.DQ.Environment)
+            log.warning('Will proceed but best guess is this is an error')
+        log.info('Will schedule reconstruction, as best we know')
+    else:
+        if ConfigFlags.DQ.Environment in ('tier0', 'tier0Raw', 'online'):
+            log.warning('Reading POOL file, but DQ.Environment set to %s',
+                        ConfigFlags.DQ.Environment)
+            log.warning('Will proceed but best guess is this is an error')
 
     if args.preExec:
         # bring things into scope
@@ -61,18 +74,28 @@ if __name__=='__main__':
         cfg = MainServicesSerialCfg()
     else:
         cfg = MainServicesThreadedCfg(ConfigFlags)
-    cfg.merge(PoolReadCfg(ConfigFlags))
+    if isReadingRaw:
+        # attempt to start setting up reco ...
+        from CaloRec.CaloRecoConfig import CaloRecoCfg
+        cfg.merge(CaloRecoCfg(ConfigFlags))
+    else:
+        cfg.merge(PoolReadCfg(ConfigFlags))
 
     # load DQ
     from AthenaMonitoring.AthenaMonitoringCfg import AthenaMonitoringCfg
     dq = AthenaMonitoringCfg(ConfigFlags)
     cfg.merge(dq)
 
-    if (ConfigFlags.Concurrency.NumThreads > 0 and
-        (ConfigFlags.DQ.Steering.doTRTMon)):
-        from AthenaMonitoring.AthenaMonitoringConf import ForceIDConditionsAlg
-        beginseq = cfg.getSequence("AthBeginSeq")
-        beginseq += ForceIDConditionsAlg("ForceIDConditionsAlg")
+    # Force loading of conditions in MT mode
+    if ConfigFlags.Concurrency.NumThreads > 0:
+        if ConfigFlags.DQ.Steering.doTRTMon:
+            from AthenaMonitoring.AthenaMonitoringConf import ForceIDConditionsAlg
+            beginseq = cfg.getSequence("AthBeginSeq")
+            beginseq += ForceIDConditionsAlg("ForceIDConditionsAlg")
+        if ConfigFlags.DQ.Steering.doMuonMon:
+            from AthenaMonitoring.AthenaMonitoringConf import ForceMSConditionsAlg
+            beginseq = cfg.getSequence("AthBeginSeq")
+            beginseq += ForceMSConditionsAlg("ForceMSConditionsAlg")
     
     # any last things to do?
     if args.postExec:

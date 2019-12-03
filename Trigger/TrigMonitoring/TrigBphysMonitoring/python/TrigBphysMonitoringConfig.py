@@ -27,7 +27,6 @@ DetailedChains = {
                   "MultiMu": 'HLT_((mu[0-9]+_[2-9]mu[0-9]+)|(3mu[0-9]+))_(b.*)(_L1[0-9]?MU[0-9]+)?',
                   "MuTrack": 'HLT_(mu[0-9]+)_(b.*)_Trk(.*)(_L1[0-9]?MU[0-9]+)?',
                   "Tau3mu" : 'HLT_([2-3]?mu[0-9]+).*_bTau.*(_L1[0-9]?MU[0-9]+)?',
-                  "FTK"    : 'HLT_(2mu[0-9]+)_bBmumuxv2_Ftk(_L1[0-9]?MU[0-9]+)?'
                  }
 DetailedL1TopoChains = {
                       "L1BPH-M-DR-low"    : "HLT_2mu6_bJpsimumu_L1BPH-2M9-2MU6_BPH-2DR15-2MU6",

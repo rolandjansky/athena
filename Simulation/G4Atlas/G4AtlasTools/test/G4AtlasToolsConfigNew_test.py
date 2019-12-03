@@ -58,7 +58,7 @@ if __name__ == '__main__':
 
 
   #cfg not being used so complains ...fine now!
-  f=open("test.pkl","w")
+  f=open("test.pkl","wb")
   cfg.store(f) #sets wasmerged = true
   f.close()
 

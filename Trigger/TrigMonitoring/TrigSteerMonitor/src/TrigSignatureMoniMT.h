@@ -10,6 +10,7 @@
 #include <TH2.h>
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/LockedHandle.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
@@ -22,13 +23,15 @@
 
 #include "TimeDivider.h"
 #include "AthenaKernel/AlgorithmTimer.h"
+
+// Forward declarations
+class IIncidentSvc;
+
 /**
- * @class Algorithm implementing monitoring of the HLT decision in the MT framework
- * @brief 
+ * @class TrigSignatureMoniMT
+ * @brief Algorithm implementing monitoring of the HLT decision in the MT framework
  **/
-
-
-class TrigSignatureMoniMT : public ::AthReentrantAlgorithm
+class TrigSignatureMoniMT : public extends<AthReentrantAlgorithm, IIncidentListener>
 { 
  public: 
 
@@ -39,6 +42,7 @@ class TrigSignatureMoniMT : public ::AthReentrantAlgorithm
   virtual StatusCode  execute( const EventContext& context ) const override;
   virtual StatusCode  finalize() override;
   virtual StatusCode  stop() override;
+  virtual void handle( const Incident& incident ) override;
 
  private:
   SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_l1DecisionsKey{ this, "L1Decisions", "L1DecoderSummary", "Chains activated after the L1" };
@@ -52,6 +56,7 @@ class TrigSignatureMoniMT : public ::AthReentrantAlgorithm
   std::map<std::string, TrigCompositeUtils::DecisionIDContainer> m_groupToChainMap;
   std::map<std::string, TrigCompositeUtils::DecisionIDContainer> m_streamToChainMap;
   
+  ServiceHandle<IIncidentSvc> m_incidentSvc{ this, "IncidentSvc", "IncidentSvc", "Incident service"};
   ServiceHandle<ITHistSvc> m_histSvc{ this, "THistSvc", "THistSvc/THistSvc", "Histogramming svc" };
   Gaudi::Property<std::string> m_bookingPath{ this, "HistPath", "/EXPERT/HLTFramework", "Booking path for the histogram"};
 
@@ -62,8 +67,7 @@ class TrigSignatureMoniMT : public ::AthReentrantAlgorithm
   mutable LockedHandle<TH2> m_rateHistogram;
   mutable LockedHandle<TH2> m_bunchHistogram;
 
-  mutable std::unique_ptr<Athena::AlgorithmTimer> m_timer;
-  mutable std::atomic_bool m_isTimerStarted {false};
+  std::unique_ptr<Athena::AlgorithmTimer> m_timer;
 
   //helper to know when to switch to new interval  
   std::unique_ptr<TimeDivider> m_timeDivider;

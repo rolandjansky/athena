@@ -52,6 +52,7 @@ class opt:
     doMonitorSlice    = True
     doBeamspotSlice   = True
     reverseViews      = False
+    filterViews       = False
     enabledSignatures = []
     disabledSignatures = []
 
@@ -344,6 +345,8 @@ if TriggerFlags.doID():
 if TriggerFlags.doCalo():
     from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigDataAccess
     svcMgr.ToolSvc += TrigDataAccess()
+    if globalflags.InputFormat.is_pool():
+        TriggerFlags.writeBS = True # enable transient BS if TrigDataAccess is used with pool data
 
 if TriggerFlags.doMuon():
     TriggerFlags.MuonSlice.doTrigMuonConfig=True

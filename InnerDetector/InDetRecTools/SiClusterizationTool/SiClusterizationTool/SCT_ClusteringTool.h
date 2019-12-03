@@ -58,10 +58,10 @@ namespace InDet {
     clusterize(const InDetRawDataCollection<SCT_RDORawData>& RDOs,
                const SCT_ID& idHelper) const;
 
-    /// Clusterize the SCT RDOs... new method originally implemented for ITk
+    /// Clusterize the SCT RDOs... a new fast method originally implemented for ITk
     virtual SCT_ClusterCollection*
-      clusterizeNew(const InDetRawDataCollection<SCT_RDORawData>& RDOs,
-                    const SCT_ID& idHelper) const;
+      fastClusterize(const InDetRawDataCollection<SCT_RDORawData>& RDOs,
+                     const SCT_ID& idHelper) const;
     
   private:
     IntegerProperty m_errorStrategy{this, "errorStrategy", 1};
@@ -78,7 +78,7 @@ namespace InDet {
     BooleanProperty m_innertwoBarrelX1X{this, "innertwoBarrelX1X", false};
     BooleanProperty m_majority01X{this, "majority01X", false};
     BooleanProperty m_useRowInformation{this, "useRowInformation", false};
-    BooleanProperty m_doNewClustering{this, "doNewClustering", false};
+    BooleanProperty m_doFastClustering{this, "doFastClustering", true};
 
     SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 

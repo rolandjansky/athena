@@ -764,14 +764,6 @@ def getInDetHoleSearchTool(name = 'InDetHoleSearchTool', **kwargs) :
 @makePublicTool
 def getInDetPixelToTPIDTool(name = "InDetPixelToTPIDTool", **kwargs) :
     the_name = makeName( name, kwargs)
-    from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
-    if not athenaCommonFlags.isOnline():
-        kwargs = setDefaults( kwargs, ReadFromCOOL = True)
-    else:
-        from AthenaCommon.GlobalFlags import globalflags
-        is_data = globalflags.DataSource == 'data'
-        kwargs = setDefaults( kwargs,
-                              CalibrationFile = 'dtpar_signed_234.txt'  if is_data else  'mcpar_signed_234.txt')
 
     from PixelToTPIDTool.PixelToTPIDToolConf import InDet__PixelToTPIDTool
     return InDet__PixelToTPIDTool(name = the_name, **kwargs)

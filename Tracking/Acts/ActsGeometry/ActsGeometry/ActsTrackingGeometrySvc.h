@@ -12,9 +12,12 @@
 
 // PACKAGE
 #include "ActsGeometryInterfaces/IActsTrackingGeometrySvc.h"
+#include "ActsGeometryInterfaces/IActsTrackingVolumeBuilder.h"
 
 // STL
 #include <map>
+
+#include <tbb/concurrent_unordered_map.h>
 
 namespace InDetDD {
   class InDetDetectorManager;
@@ -31,7 +34,7 @@ namespace Acts {
 
 class TrackingGeometry;
 class CylinderVolumeHelper;
-class ITrackingVolumeBuilder;
+class ILayerBuilder;
 
 class GeometryID;
 class BinnedSurfaceMaterial;
@@ -57,8 +60,13 @@ public:
   getNominalAlignmentStore() const override;
 
 private:
-  std::shared_ptr<const Acts::ITrackingVolumeBuilder>
-  makeVolumeBuilder(const InDetDD::InDetDetectorManager* manager, std::shared_ptr<const Acts::CylinderVolumeHelper> cvh, bool toBeamline = false);
+  std::shared_ptr<const Acts::ILayerBuilder>
+  makeLayerBuilder(const InDetDD::InDetDetectorManager* manager);
+
+  std::shared_ptr<Acts::TrackingVolume>
+  makeSCTTRTAssembly(const Acts::GeometryContext& gctx, const Acts::ILayerBuilder& sct_lb,
+      const Acts::ILayerBuilder& trt_lb, const Acts::CylinderVolumeHelper& cvh,
+      const std::shared_ptr<const Acts::TrackingVolume>& pixel);
 
   ServiceHandle<StoreGateSvc> m_detStore;
   const InDetDD::SiDetectorManager* p_pixelManager;
@@ -76,6 +84,9 @@ private:
   Gaudi::Property<std::string> m_materialMapInputFile{this, "MaterialMapInputFile", "", ""};
   Gaudi::Property<std::vector<size_t>> m_barrelMaterialBins{this, "BarrelMaterialBins", {10, 10}};
   Gaudi::Property<std::vector<size_t>> m_endcapMaterialBins{this, "EndcapMaterialBins", {5, 20}};
+  Gaudi::Property<std::vector<std::string>> m_buildSubdetectors{this, "BuildSubDetectors", {"Pixel", "SCT", "TRT", "Calo"}};
+
+  ToolHandle<IActsTrackingVolumeBuilder> m_caloVolumeBuilder{this, "CaloVolumeBuilder", "ActsCaloTrackingVolumeBuilder"};
 
 };
 

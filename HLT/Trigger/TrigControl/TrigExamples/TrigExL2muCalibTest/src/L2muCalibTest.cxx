@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigExL2muCalibTest/L2muCalibTest.h"
@@ -7,7 +7,7 @@
 #include "StoreGate/DataHandle.h"
 #include "GaudiKernel/Incident.h"
 #include "GaudiKernel/IIncidentSvc.h"
-#include "TrigInterfaces/Incidents.h"
+#include "AthenaInterprocess/Incidents.h"
 
 #include "TrigSteeringEvent/HLTResult.h"
 #include "TrigHLTResultByteStream/HLTResultByteStreamTool.h"
@@ -168,7 +168,7 @@ StatusCode L2muCalibTest::initialize(){
     return sc;
   } else {
     long int pri=100;
-    p_incidentSvc->addListener(this,"UpdateAfterFork",pri);
+    p_incidentSvc->addListener(this,AthenaInterprocess::UpdateAfterFork::type(),pri);
     p_incidentSvc.release().ignore();
   }
 
@@ -252,14 +252,14 @@ StatusCode L2muCalibTest::finalize() {
 // handler for "UpdateAfterFork")
 void L2muCalibTest::handle(const Incident& incident) {
 
-  if (incident.type()==HLT::Incidents::UpdateAfterFork::type()) {
+  if (incident.type()==AthenaInterprocess::UpdateAfterFork::type()) {
     MsgStream log(msgSvc(), name());
     ATH_MSG_INFO("+-----------------------------------+");
     ATH_MSG_INFO("| handle for UpdateAfterFork called |");
     ATH_MSG_INFO("+-----------------------------------+");
 
     // get the worker id from the incident
-    const HLT::Incidents::UpdateAfterFork& updinc = dynamic_cast<const HLT::Incidents::UpdateAfterFork&>(incident);
+    const AthenaInterprocess::UpdateAfterFork& updinc = dynamic_cast<const AthenaInterprocess::UpdateAfterFork&>(incident);
     ATH_MSG_INFO(" ---------------------------------------------------------- ");
     ATH_MSG_INFO(" --- Parameters from UpdateAfterFork incident           --- ");
     ATH_MSG_INFO(" ---------------------------------------------------------- ");

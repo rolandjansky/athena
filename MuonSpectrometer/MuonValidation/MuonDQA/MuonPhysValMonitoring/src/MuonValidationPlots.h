@@ -8,6 +8,8 @@
 #include "MuonHistUtils/RecoMuonPlotOrganizer.h"
 #include "MuonHistUtils/TruthMuonPlotOrganizer.h"
 #include "MuonHistUtils/TruthRelatedMuonPlotOrganizer.h"
+#include "MuonHistUtils/MuonTree.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "xAODMuon/Muon.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODTruth/TruthParticle.h"
@@ -22,6 +24,11 @@ class MuonValidationPlots:public PlotBase {
     bool isGoodTruthTrack(const xAOD::TruthParticle& truthMu);
     void fill(const xAOD::TruthParticle& truthMu);
     void fill(const xAOD::TruthParticle* truthMu, const xAOD::Muon* mu, const xAOD::TrackParticleContainer* MSTracks);
+    Muon::MuonTree* getMuonTree();
+    void fillTreeBranches(const xAOD::Muon& mu);
+    void fillTreeBranches(const xAOD::TruthParticle& truthMu);
+    void fillTreeBranches(const xAOD::TruthParticle* truthMu, const xAOD::Muon* mu, const xAOD::TrackParticleContainer* MSTracks);
+    void fillTree(const xAOD::EventInfo* eventInfo, bool isData);
 
     std::vector<int> m_selectedWPs;	
     std::vector<unsigned int> m_selectedAuthors;
@@ -44,6 +51,8 @@ class MuonValidationPlots:public PlotBase {
 
     bool m_isData;
     bool m_doSeparateSAFMuons;
+    
+    Muon::MuonTree* m_MuonTree; 
 };
 
 #endif

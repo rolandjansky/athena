@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -12,6 +12,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
+#include <atomic>
 
 
 namespace pool {
@@ -27,7 +28,7 @@ namespace pool {
       static const MsgLevel Fatal       = MsgLevel::FATAL;
       static const MsgLevel Always      = MsgLevel::ALWAYS;
 
-      extern MsgLevel   outputLvl;
+      extern std::atomic<MsgLevel>   outputLvl;
       inline void       setLevel( MsgLevel l )  { outputLvl=l; }
    }
 

@@ -1,0 +1,91 @@
+Py:Athena            INFO using release [WorkDir-22.0.9] [x86_64-centos7-gcc8-dbg] [atlas-work3g/377ba9f3a7ae] -- built on [2019-11-21T0342]
+--- Reference aliased object by base name.
+Py:AutoConfigFlags    INFO Obtaining metadata of auto-configuration by peeking into /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s3170_r10572_homeMade.pool.root
+Py:MetaReader        INFO Current mode used: peeker
+Py:MetaReader        INFO Current filenames: ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s3170_r10572_homeMade.pool.root']
+Py:MetaReader        INFO MetaReader is called with the parameter "unique_tag_info_values" set to True. This is a workaround to remove all duplicate values from "/TagInfo" key
+Py:ComponentAccumulator    INFO Event Inputs
+Py:ComponentAccumulator    INFO Event Algorithm Sequences
+Py:ComponentAccumulator    INFO Top sequence 0
+Py:ComponentAccumulator    INFO \__ AthAlgSeq (seq: SEQ AND)
+Py:ComponentAccumulator    INFO    \__ TrackCollectionRead_CombinedInDetTracks (alg)
+Py:ComponentAccumulator    INFO        * Aliases: ['Tracks']
+Py:ComponentAccumulator    INFO        * ExtraInputs: [('InDetDD::SiDetectorElementCollection', 'ConditionStore+PixelDetectorElementCollection'), ('InDetDD::SiDetectorElementCollection', 'ConditionStore+SCT_DetectorElementCollection')]
+Py:ComponentAccumulator    INFO        * Key: TrackCollection/CombinedInDetTracks
+Py:ComponentAccumulator    INFO Condition Algorithms
+Py:ComponentAccumulator    INFO Services
+Py:ComponentAccumulator    INFO ['AddressRemappingSvc', 'ProxyProviderSvc']
+Py:ComponentAccumulator    INFO Public Tools
+Py:ComponentAccumulator    INFO [
+Py:ComponentAccumulator    INFO ]
+Py:ComponentAccumulator    INFO Private Tools
+Py:ComponentAccumulator    INFO [
+Py:ComponentAccumulator    INFO ]
+Py:ComponentAccumulator    INFO TheApp properties
+--- Reference aliased object by alias.
+Py:ComponentAccumulator    INFO Event Inputs
+Py:ComponentAccumulator    INFO Event Algorithm Sequences
+Py:ComponentAccumulator    INFO Top sequence 0
+Py:ComponentAccumulator    INFO \__ AthAlgSeq (seq: SEQ AND)
+Py:ComponentAccumulator    INFO    \__ TrackCollectionRead_CombinedInDetTracks (alg)
+Py:ComponentAccumulator    INFO        * Aliases: ['Tracks']
+Py:ComponentAccumulator    INFO        * ExtraInputs: [('InDetDD::SiDetectorElementCollection', 'ConditionStore+PixelDetectorElementCollection'), ('InDetDD::SiDetectorElementCollection', 'ConditionStore+SCT_DetectorElementCollection')]
+Py:ComponentAccumulator    INFO        * Key: TrackCollection/CombinedInDetTracks
+Py:ComponentAccumulator    INFO Condition Algorithms
+Py:ComponentAccumulator    INFO Services
+Py:ComponentAccumulator    INFO ['AddressRemappingSvc', 'ProxyProviderSvc']
+Py:ComponentAccumulator    INFO Public Tools
+Py:ComponentAccumulator    INFO [
+Py:ComponentAccumulator    INFO ]
+Py:ComponentAccumulator    INFO Private Tools
+Py:ComponentAccumulator    INFO [
+Py:ComponentAccumulator    INFO ]
+Py:ComponentAccumulator    INFO TheApp properties
+--- Non-aliased object.
+Py:ComponentAccumulator    INFO Event Inputs
+Py:ComponentAccumulator    INFO Event Algorithm Sequences
+Py:ComponentAccumulator    INFO Top sequence 0
+Py:ComponentAccumulator    INFO \__ AthAlgSeq (seq: SEQ AND)
+Py:ComponentAccumulator    INFO    \__ TrackCollectionRead_ResolvedForwardTracks (alg)
+Py:ComponentAccumulator    INFO        * ExtraInputs: [('InDetDD::SiDetectorElementCollection', 'ConditionStore+PixelDetectorElementCollection'), ('InDetDD::SiDetectorElementCollection', 'ConditionStore+SCT_DetectorElementCollection')]
+Py:ComponentAccumulator    INFO        * Key: TrackCollection/ResolvedForwardTracks
+Py:ComponentAccumulator    INFO Condition Algorithms
+Py:ComponentAccumulator    INFO Services
+Py:ComponentAccumulator    INFO ['AddressRemappingSvc', 'ProxyProviderSvc']
+Py:ComponentAccumulator    INFO Public Tools
+Py:ComponentAccumulator    INFO [
+Py:ComponentAccumulator    INFO ]
+Py:ComponentAccumulator    INFO Private Tools
+Py:ComponentAccumulator    INFO [
+Py:ComponentAccumulator    INFO ]
+Py:ComponentAccumulator    INFO TheApp properties
+--- Non-existent object.
+Py:ComponentAccumulator    INFO Event Inputs
+Py:ComponentAccumulator    INFO Event Algorithm Sequences
+Py:ComponentAccumulator    INFO Top sequence 0
+Py:ComponentAccumulator    INFO \__ AthAlgSeq (seq: SEQ AND)
+Py:ComponentAccumulator    INFO Condition Algorithms
+Py:ComponentAccumulator    INFO Services
+Py:ComponentAccumulator    INFO []
+Py:ComponentAccumulator    INFO Public Tools
+Py:ComponentAccumulator    INFO [
+Py:ComponentAccumulator    INFO ]
+Py:ComponentAccumulator    INFO Private Tools
+Py:ComponentAccumulator    INFO [
+Py:ComponentAccumulator    INFO ]
+Py:ComponentAccumulator    INFO TheApp properties
+--- Non-threaded.
+Py:ComponentAccumulator    INFO Event Inputs
+Py:ComponentAccumulator    INFO Event Algorithm Sequences
+Py:ComponentAccumulator    INFO Top sequence 0
+Py:ComponentAccumulator    INFO \__ AthAlgSeq (seq: SEQ AND)
+Py:ComponentAccumulator    INFO Condition Algorithms
+Py:ComponentAccumulator    INFO Services
+Py:ComponentAccumulator    INFO []
+Py:ComponentAccumulator    INFO Public Tools
+Py:ComponentAccumulator    INFO [
+Py:ComponentAccumulator    INFO ]
+Py:ComponentAccumulator    INFO Private Tools
+Py:ComponentAccumulator    INFO [
+Py:ComponentAccumulator    INFO ]
+Py:ComponentAccumulator    INFO TheApp properties

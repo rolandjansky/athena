@@ -35,33 +35,10 @@ def _setup():
 
 # convert_itemList and convert_metadata_items have the same implementation as the one in MetaReaderPeeker.
 # If there are changes, these must be modified in both files.
-
 def convert_itemList(layout=None):
-    # Find the itemsList:
-    item_list = None
-
-    if 'itemList' in metadata:
-        item_list = metadata['itemList']
-    else:
-        current_key = None
-        for key in metadata:
-            if key in metadata['metadata_items'] and metadata['metadata_items'][key] == 'EventStreamInfo_p3':
-                current_key = key
-                break
-        if current_key is not None:
-            item_list = metadata[current_key]['itemList']
-
-    if item_list is not None:
-        if layout is None:
-            return item_list
-        elif layout == '#join':
-            return [k + '#' + v for k, v in item_list if k]
-        elif layout == 'dict':
-            from collections import defaultdict
-            dic = defaultdict(list)
-            for k, v in item_list:
-                dic[k].append(v)
-            return dict(dic)
+    global metadata
+    from PyUtils.MetaReader import convert_itemList as convert_itemList_MetaReader
+    return convert_itemList_MetaReader(metadata, layout)
 
 
 def convert_metadata_items(layout=None):

@@ -14,6 +14,7 @@
 #include "AthenaMonitoring/TriggerTranslatorSimple.h"
 #include "AthenaMonitoring/ExampleMonitorAlgorithm.h"
 #include "../ForceIDConditionsAlg.h"
+#include "../ForceMSConditionsAlg.h"
 
 
 DECLARE_COMPONENT( AthenaMon )
@@ -28,3 +29,4 @@ DECLARE_COMPONENT( DQBadLBFilterAlg )
 DECLARE_COMPONENT( TriggerTranslatorToolSimple )
 DECLARE_COMPONENT( ExampleMonitorAlgorithm )
 DECLARE_COMPONENT( ForceIDConditionsAlg )
+DECLARE_COMPONENT( ForceMSConditionsAlg )

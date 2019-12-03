@@ -31,7 +31,7 @@ def MuonTrackToSegmentToolCfg(flags,name="MuonTrackToSegmentTool", **kwargs):
 
 def MuonSeededSegmentFinderCfg(flags,name="MuonSeededSegmentFinder", **kwargs):
     from MuonTrackFinderTools.MuonTrackFinderToolsConf import Muon__MuonSeededSegmentFinder
-    from MuonSegmentFindingConfig import DCMathSegmentMakerCfg, MdtMathSegmentFinder # FIXME - should really shift this to RecTools then.
+    from MuonConfig.MuonSegmentFindingConfig import DCMathSegmentMakerCfg, MdtMathSegmentFinder # FIXME - should really shift this to RecTools then.
     result = ComponentAccumulator()
     
     mdt_segment_finder = MdtMathSegmentFinder(flags, name="MCTBMdtMathSegmentFinder", UseChamberTheta = False, AssociationRoadWidth = 1.5)
@@ -66,7 +66,6 @@ def MuonSeededSegmentFinderCfg(flags,name="MuonSeededSegmentFinder", **kwargs):
 def MuonSegmentMomentumFromFieldCfg(flags, name="MuonSegmentMomentumFromField", **kwargs):
     from MuonSegmentMomentum.MuonSegmentMomentumConf import MuonSegmentMomentumFromField
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
     
     result = ComponentAccumulator()
     acc  = MagneticFieldSvcCfg(flags) 
@@ -86,8 +85,8 @@ def MuonSegmentMomentumFromFieldCfg(flags, name="MuonSegmentMomentumFromField", 
     result.addPublicTool(muon_prop)
     kwargs.setdefault("PropagatorTool", muon_prop)
     
-    kwargs.setdefault("HasCSC",  MuonGeometryFlags.hasCSC())
-    kwargs.setdefault("HasSTgc", MuonGeometryFlags.hasSTGC())
+    kwargs.setdefault("HasCSC",  flags.Detector.GeometryCSC)
+    kwargs.setdefault("HasSTgc", flags.Detector.GeometrysTGC)
         
     muon_seg_mom_from_field = MuonSegmentMomentumFromField(name=name, **kwargs)
     result.setPrivateTools(muon_seg_mom_from_field)

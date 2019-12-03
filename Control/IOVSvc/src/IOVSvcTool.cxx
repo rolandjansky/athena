@@ -164,6 +164,7 @@ IOVSvcTool::initialize() {
   setProperty( iovSvcProp->getProperty("preLoadRanges") ).ignore();
   setProperty( iovSvcProp->getProperty("preLoadData") ).ignore();
   setProperty( iovSvcProp->getProperty("partialPreLoadData") ).ignore();
+  setProperty( iovSvcProp->getProperty("preLoadExtensibleFolders") ).ignore();
   setProperty( iovSvcProp->getProperty("updateInterval") ).ignore();
   setProperty( iovSvcProp->getProperty("sortKeys") ).ignore();
   setProperty( iovSvcProp->getProperty("forceResetAtBeginRun") ).ignore();
@@ -955,7 +956,10 @@ IOVSvcTool::preLoadProxies() {
   ATH_MSG_DEBUG("preLoadProxies()");
 
   StatusCode scr(StatusCode::SUCCESS);
- 
+
+  IIOVDbSvc *iovDB = nullptr;
+  service("IOVDbSvc", iovDB, false).ignore();
+
   std::map<BFCN*, std::list<std::string> > resetKeys;
   for (DataProxy* dp : m_proxies) {
     Gaudi::Guards::AuditorGuard auditor(m_names[dp], auditorSvc(), "preLoadProxy");
@@ -989,15 +993,21 @@ IOVSvcTool::preLoadProxies() {
 
     if ( ( m_partialPreLoadData && 
            m_partPreLoad.find(TADkey(*dp)) != m_partPreLoad.end() )
-         ||
-         m_preLoadData ) {
+         || m_preLoadData ) {
 
-      ATH_MSG_VERBOSE("preloading data for ("
-                      << dp->clID() << "/"
-                      << dp->name() << ")");
+      IIOVDbSvc::KeyInfo kinfo;
+      if ( !m_preLoadExtensibleFolders && iovDB &&
+           iovDB->getKeyInfo(dp->name(), kinfo) && kinfo.extensible ) {
+        ATH_MSG_VERBOSE("not preloading data for extensible folder " << dp->name());
+      }
+      else {
+        ATH_MSG_VERBOSE("preloading data for ("
+                        << dp->clID() << "/"
+                        << dp->name() << ")");
 
-      sc =  ( dp->accessData() != nullptr ?
-              StatusCode::SUCCESS : StatusCode::FAILURE );
+        sc =  ( dp->accessData() != nullptr ?
+                StatusCode::SUCCESS : StatusCode::FAILURE );
+      }
     }
 
     if (sc.isFailure()) scr=sc;

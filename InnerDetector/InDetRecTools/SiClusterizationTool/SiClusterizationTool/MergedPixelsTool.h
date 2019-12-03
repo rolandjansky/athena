@@ -126,31 +126,6 @@ namespace InDet {
                        const InDetDD::SiDetectorElement* element,
                        const PixelID& pixelID) const;
 
-    // Functions for merging broken cluster segments (to be used for upgrade studies)
-    // ITk: This function checks if two barrel clusters are potentially a single cluster which is broken into two pieces  
-    bool mergeTwoBrokenClusters(const std::vector<Identifier>& group1, 
-                                const std::vector<Identifier>& group2,
-                                const InDetDD::SiDetectorElement* element,
-                                const PixelID& pixelID) const;
-    // ITk: this function checks if two to-be-merged barrel proto-clusters have sizeZ consistent with cluster positions 
-    bool mergeTwoClusters(const std::vector<Identifier>& group1, 
-                          const std::vector<Identifier>& group2,
-                          const InDetDD::SiDetectorElement* element,
-                          const PixelID& pixelID) const;
-
-    // ITk: checkSizeZ compares cluster sizeZ with expected cluster size for this cluster position (+/-200 mm for beam spread)
-    // checkSizeZ()=-1 if cluster is too small
-    // checkSizeZ()=0 if cluster sizeZ is within allowed range
-    // checkSizeZ()=1 if cluster is too large
-    // in the future, it may be changed to return deltaSizeZ 
-    int checkSizeZ(int colmin, int colmax, int row, const InDetDD::SiDetectorElement* element) const;
-    // this function returns expected sizeZ
-    int expectedSizeZ(int colmin, int colmax, int row, const InDetDD::SiDetectorElement* element) const;
-    // this function returns size of the maximum gap between two cluster fragments  
-    int maxGap(int colmin, int colmax, int row, const InDetDD::SiDetectorElement* element) const;
-    //------- end of declaration of new functions
-
-
     ServiceHandle<IBLParameterSvc>                      m_IBLParameterSvc;
     /// for cluster splitting
     BooleanProperty m_emulateSplitter{this, "EmulateSplitting", false, "don't split - only emulate the split"};
@@ -160,13 +135,6 @@ namespace InDet {
     ToolHandle<InDet::IPixelClusterSplitProbTool> m_splitProbTool{this, "SplitProbTool", "", "ToolHandle for the split probability tool"};
     ToolHandle<InDet::IPixelClusterSplitter> m_clusterSplitter{this, "ClusterSplitter", "", "ToolHandle for the split probability tool"};
     BooleanProperty m_doIBLSplitting{this, "DoIBLSplitting", false};
-    BooleanProperty m_doMergeBrokenClusters{this, "DoMergeBrokenClusters", false, "ITk: switch to turn ON/OFF merging of broken clusters"};
-    BooleanProperty m_doRemoveClustersWithToTequalSize{this, "DoRemoveClustersWithToTequalSize", false, "ITk: switch to remove clusters with ToT=size"};
-    BooleanProperty m_doCheckSizeBeforeMerging{this, "DoCheckSizeBeforeMerging", false, "ITk: switch to check size of to-be-merged clusters"};
-    DoubleProperty m_beam_spread{this, "BeamSpread", 200.0, "ITK: size of the luminous region, need to check cluster size"};
-    DoubleProperty m_lossThreshold{this, "LossProbability", 0.001, "ITk: maximum probability to loose N_mis consequitive pixels in a cluster"};
-    DoubleProperty m_pixelEff{this, "MinPixelEfficiency", 0.90, "ITK: pixel efficiency (it depends on cluster eta; use smaller pixel efficiency)"};
-    IntegerArrayProperty m_minToT{this, "ToTMinCut", {0,0,0,0,0,0,0}, "Minimum ToT cut [IBL, b-layer, L1, L2, Endcap, DBM, ITk extra"};
 
     SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
 

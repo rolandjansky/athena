@@ -716,3 +716,50 @@ def promote_keys(meta_dict):
             md.pop('/Digitization/Parameters')
 
     return meta_dict
+
+
+def convert_itemList(metadata, layout):
+    """
+    This function will rearrange the itemList values to match the format of 'eventdata_items', 'eventdata_itemsList'
+    or 'eventdata_itemsDic' generated with AthFile
+    :param metadata: a dictionary obtained using read_metadata method.
+                     The mode for read_metadata must be 'peeker of 'full'
+    :param layout: the mode in which the data will be converted:
+                * for 'eventdata_items' use: layout= None
+                * for 'eventdata_itemsList' use: layout= '#join'
+                * for 'eventdata_itemsDic' use: layout= 'dict'
+    """
+
+    # Find the itemsList:
+    item_list = None
+
+    if 'itemList' in metadata:
+        item_list = metadata['itemList']
+    else:
+
+        current_key = None
+
+        for key in metadata:
+            if key in metadata['metadata_items'] and metadata['metadata_items'][key] == 'EventStreamInfo_p3':
+                current_key = key
+                break
+        if current_key is not None:
+            item_list = metadata[current_key]['itemList']
+
+    if item_list is not None:
+
+        if layout is None:
+            return item_list
+
+        elif layout == '#join':
+            return [k + '#' + v for k, v in item_list if k]
+
+
+        elif layout == 'dict':
+            from collections import defaultdict
+            dic = defaultdict(list)
+
+            for k, v in item_list:
+                dic[k].append(v)
+
+            return dict(dic)

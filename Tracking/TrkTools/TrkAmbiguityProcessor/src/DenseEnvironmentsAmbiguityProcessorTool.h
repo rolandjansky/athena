@@ -13,7 +13,6 @@
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkToolInterfaces/IAmbiTrackSelectionTool.h"
 #include "InDetPrepRawData/PixelGangedClusterAmbiguities.h"
-#include "TrkValInterfaces/ITrkObserverTool.h"
 #include "TrkAmbiguityProcessor/dRMap.h"
 #include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
 
@@ -245,10 +244,6 @@ namespace Trk {
          This tool is used to 'score' the tracks, i.e. to quantify what a good track is.
          @todo The actual tool that is used should be configured through job options*/
       ToolHandle<ITrackScoringTool> m_scoringTool;
-
-       /**Observer tool
-          This tool is used for debugging. It tracks selection and rejection of tracks */
-      mutable ToolHandle<ITrkObserverTool> m_observerTool;
       
       /** refitting tool - used to refit tracks once shared hits are removed. 
           Refitting tool used is configured via jobOptions.*/
@@ -281,8 +276,6 @@ namespace Trk {
 
       mutable std::mutex m_statMutex;
       mutable TrackStat  m_stat ATLAS_THREAD_SAFE;
-
-      bool m_monitorTracks; // to track observeration/monitoring (default is false)
 
       bool m_rejectInvalidTracks;
   };

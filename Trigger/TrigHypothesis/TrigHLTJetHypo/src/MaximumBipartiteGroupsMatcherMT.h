@@ -20,12 +20,20 @@
 
 class MaximumBipartiteGroupsMatcherMT:
 public virtual IGroupsMatcherMT, private FlowNetworkMatcherBase {
-
+  
   /* An initialiser for FlowNetwork base */
-
-public:
+  
+ public:
   MaximumBipartiteGroupsMatcherMT(ConditionsMT&& cs);
   virtual std::string toString() const override;
+ private:
+ 
+  virtual void
+    reportPassingJets(const std::map<int, pHypoJet>& nodeToJet,
+		      const std::unique_ptr<FlowNetwork>& G,
+		      const std::unique_ptr<ITrigJetHypoInfoCollector>&,
+		      xAODJetCollector&
+		      ) const override;
 };
 
 #endif

@@ -15,8 +15,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Event/ByteStreamData
                           Event/xAOD/xAODEventInfo
                           Event/xAOD/xAODCutFlow
-                          GaudiKernel
-                          TestPolicy )
+                          GaudiKernel )
 
 # Component(s) in the package:
 atlas_add_component( AthenaPoolTools

@@ -24,7 +24,7 @@ from MuonClusterSegmentMakerTools.MuonClusterSegmentMakerToolsConf import Muon__
 from MuonCnvExample.MuonCnvUtils import mdtCalibWindowNumber # TODO - should maybe move this somewhere else?
 
 #Local
-from MuonConfig.MuonCalibConfig import MdtCalibrationDbSvcCfg
+from MuonConfig.MuonCalibConfig import MdtCalibDbAlgCfg
 from MuonConfig.MuonRecToolsConfig import MCTBFitterCfg, MuonAmbiProcessorCfg, MuonStationIntersectSvcCfg, MuonTrackCleanerCfg
 
 def MuonHoughPatternFinderTool(flags, **kwargs):
@@ -162,7 +162,7 @@ def DCMathSegmentMakerCfg(flags, **kwargs):
     kwargs.setdefault("AssumePointingPhi", beamType != 'cosmics')
     kwargs.setdefault("OutputFittedT0", True)
 
-    acc = MdtCalibrationDbSvcCfg(flags) # Needed by MdtSegmentT0Fitter
+    acc = MdtCalibDbAlgCfg(flags) # Needed by MdtSegmentT0Fitter
     result.merge(acc)
 
     mdt_segment_t0_fitter = TrkDriftCircleMath__MdtSegmentT0Fitter()

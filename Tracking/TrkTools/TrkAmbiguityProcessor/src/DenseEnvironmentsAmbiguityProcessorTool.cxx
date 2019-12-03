@@ -56,12 +56,10 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::DenseEnvironmentsAmbiguityProcesso
   AthAlgTool(t,n,p),
   m_particleHypothesis{undefined},
   m_scoringTool("Trk::TrackScoringTool/TrackScoringTool"),
-  m_observerTool("Trk::TrkObserverTool/TrkObserverTool"),
   m_extrapolatorTool("Trk::Extrapolator/AtlasExtrapolator"),
   m_selectionTool("InDet::InDetDenseEnvAmbiTrackSelectionTool/InDetAmbiTrackSelectionTool"),
   m_etabounds{0.8, 1.6, 2.5, 4.0},
-  m_stat(m_etabounds),
-  m_monitorTracks(false)
+  m_stat(m_etabounds)
 {
   // statitics stuff
 
@@ -72,7 +70,6 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::DenseEnvironmentsAmbiguityProcesso
   declareProperty("applydRcorrection"    , m_applydRcorrection  = false);
   declareProperty("MatEffects"           , m_matEffects         = 3); // pion
   declareProperty("ScoringTool"          , m_scoringTool);
-  declareProperty("ObserverTool"         , m_observerTool);
   declareProperty("SelectionTool"        , m_selectionTool);
   declareProperty("Fitter"               , m_fitterTool );
   declareProperty("TrackExtrapolator"    , m_extrapolatorTool);
@@ -83,7 +80,6 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::DenseEnvironmentsAmbiguityProcesso
   declareProperty("caloSeededBrem"       , m_caloSeededBrem     = false);
   declareProperty("pTminBrem"            , m_pTminBrem          = 1000.);
   declareProperty("etaBounds"            , m_etabounds,"eta intervals for internal monitoring");
-  declareProperty("MonitorAmbiguitySolving"  , m_monitorTracks = false);
 
   //To determine the ROI for high pt Bs
   declareProperty("doHadCaloSeed"        ,m_useHClusSeed = false );
@@ -105,21 +101,6 @@ StatusCode Trk::DenseEnvironmentsAmbiguityProcessorTool::initialize()
   StatusCode sc = StatusCode::SUCCESS;
 
   ATH_CHECK( m_scoringTool.retrieve());
-
-  if (m_monitorTracks) {
-    sc = m_observerTool.retrieve(); //Dot, not asterik! This is a method of the observerTool, not of the tool it holds.
-    if (sc.isFailure()) {
-      ATH_MSG_WARNING("Failed to retrieve AlgTool " << m_observerTool);
-      m_monitorTracks = false;
-      sc=StatusCode::RECOVERABLE;
-      //return sc;		// continue without observer tool
-    }
-    else 
-      ATH_MSG_INFO( "Retrieved tool " << m_observerTool );
-  }
-  else {
-    m_observerTool.disable();
-  }
 
   ATH_CHECK( m_assoMapName.initialize(!m_assoMapName.key().empty()));
   ATH_CHECK( m_assoTool.retrieve() );
@@ -265,13 +246,6 @@ TrackCollection* Trk::DenseEnvironmentsAmbiguityProcessorTool::process(const Tra
      }
   }
   std::vector<std::unique_ptr<const Trk::Track> > cleanup_tracks;
-  
-  if (m_monitorTracks){
-    m_observerTool->reset();
-    for(const std::pair<const Trk::Track*, float>& scoreTrack: *trackScoreTrackMap){
-      m_observerTool->storeInputTrack(*(scoreTrack.first)); 
-    }
-  }
 
   reloadHadROIs();
 
@@ -295,12 +269,6 @@ TrackCollection* Trk::DenseEnvironmentsAmbiguityProcessorTool::process(const Tra
   if(m_applydRcorrection)
   {
     ATH_MSG_ERROR("applydRcorrection is going to be removed.");
-  }
-  if (m_monitorTracks){
-    m_observerTool->saveTracksToxAOD();
-    if(msgLvl(MSG::INFO)){
-      m_observerTool->dumpTrackMap();
-    }
   }
 
   return finalTracks;
@@ -329,9 +297,6 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::addTrack(Trk::Track* track, c
   // @TODO create track summary for track
   score = m_scoringTool->score( *track, suppressHoleSearch );
 
-  if (m_monitorTracks)
-    m_observerTool->updateScore(*track, static_cast<double>(score));		// update score for observed track
-
   // do we accept the track ?
   if (score!=0)
   {
@@ -358,9 +323,6 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::addTrack(Trk::Track* track, c
       stat.increment_by_eta(TrackStat::kNscoreZeroBremRefitFailed,track);
       stat.increment_by_eta(TrackStat::kNfailedFits,track);
 
-      if (m_monitorTracks)	// Update observed Track (reject)			
-        m_observerTool->rejectTrack(*track, 6);		// rejection location 6: "Brem refit failed"
-
       // clean up
       cleanup_tracks.push_back(std::unique_ptr<const Trk::Track>(track) );
       track=nullptr;
@@ -373,20 +335,12 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::addTrack(Trk::Track* track, c
                                                            &prd_to_track_map,
                                                            m_suppressHoleSearch);
       }
-      if (m_monitorTracks) {
-        // Update observed track
-        m_observerTool->rejectTrack(*track, 7);		// rejection location 7: "Brem refit worked - new subtrack created"
-        m_observerTool->addSubTrack(*bremTrack, *track);		// add new subtrack
-      }
+
       stat.increment_by_eta(TrackStat::kNgoodFits,bremTrack);
 
       // rerun score
       score = m_scoringTool->score( *bremTrack, suppressHoleSearch );
 
-      if (m_monitorTracks) {
-        // Update observed track score
-        m_observerTool->updateScore(*track, static_cast<double>(score));	
-      }
       cleanup_tracks.push_back(std::unique_ptr<const Trk::Track>(track) );
       track=nullptr;
 
@@ -405,11 +359,6 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::addTrack(Trk::Track* track, c
         ATH_MSG_DEBUG ("Brem refit gave still track score zero, reject it");
         stat.increment_by_eta(TrackStat::kNscoreZeroBremRefitScoreZero,bremTrack);
 
-        if (m_monitorTracks) {
-          // Update observed track
-          m_observerTool->rejectTrack(*bremTrack, 8);		// rejection location 8: "Brem refit gave still track score zero"
-        }
-
         // clean up
         cleanup_tracks.push_back(std::unique_ptr<const Trk::Track>(bremTrack) );
       }
@@ -419,10 +368,6 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::addTrack(Trk::Track* track, c
   {
     ATH_MSG_DEBUG ("Track score is zero, reject it");
 
-    if (m_monitorTracks) {
-      // Update observed track
-      m_observerTool->rejectTrack(*track, 9);		// rejection location 9: "Refit track score 0"
-    }
     stat.increment_by_eta(TrackStat::kNscoreZero,track);
 
     // @TODO can delete this track ?
@@ -526,11 +471,6 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::solveTracks(const TracksScore
     }
     else if ( cleanedTrack ) //cleanedTrack != atrack
     {
-      if (m_monitorTracks) {
-        // ObserverTool: Track already marked as bad (reject because subtrack created) in the SelectionTool - only need to create the subtrack in the observerMap
-        m_observerTool->addSubTrack(*cleanedTrack, *atrack);		// add new subtrack, maybe move this to SelectionTool
-      }
-
       ATH_MSG_DEBUG ("Candidate excluded, add subtrack to map. Track "<<cleanedTrack.get());
       stat.increment_by_eta(TrackStat::kNsubTrack,cleanedTrack.get());
 
@@ -613,21 +553,9 @@ Trk::Track* Trk::DenseEnvironmentsAmbiguityProcessorTool::refitTrack( const Trk:
   if (newTrack!=0) 
   {
     ATH_MSG_DEBUG ("New track "<<newTrack<<" successfully fitted from "<<track);
-
-    if (m_monitorTracks) {
-      // add new track to observed tracks and mark "old" one as rejected
-			m_observerTool->rejectTrack(*track, 4);		// rejection location 4: "refit OK" (not a real rejection, but new track copy is made)
-			m_observerTool->addSubTrack(*newTrack, *track);		// add new subtrack 
-    }
   }
   else { 
     ATH_MSG_DEBUG ("Fit failed !");
-
-    if (m_monitorTracks) {
-      // reject observed track
-      m_observerTool->rejectTrack(*track, 5);		// rejection location 5: "refit failed"
-    }
-    
   }  
   
   return newTrack;

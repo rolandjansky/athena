@@ -13,7 +13,7 @@ def _algoTauRoiUpdater(inputRoIs, clusters):
     from TrigTauHypo.TrigTauHypoConf import TrigTauCaloRoiUpdaterMT
     algo = TrigTauCaloRoiUpdaterMT("TauCaloRoiUpdater")
     algo.RoIInputKey  = inputRoIs
-    algo.RoIOutputKey = recordable("HLT_RoiForTau")
+    algo.RoIOutputKey = "HLT_RoiForTau"
     algo.CaloClustersKey = clusters
     return algo
 
@@ -41,7 +41,7 @@ def _algoTauTrackRoiUpdater(inputRoIs, tracks):
     from TrigTauHypo.TrigTauHypoConf import TrigTauTrackRoiUpdaterMT
     algo = TrigTauTrackRoiUpdaterMT("TrackRoiUpdater")
     algo.RoIInputKey   = inputRoIs
-    algo.RoIOutputKey  = recordable("HLT_RoiForID2")
+    algo.RoIOutputKey  = "HLT_RoiForID2"
     algo.fastTracksKey = tracks
     return algo
 

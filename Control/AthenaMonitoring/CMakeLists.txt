@@ -25,6 +25,7 @@ atlas_depends_on_subdirs(
         Tools/LWHists
         Trigger/TrigAnalysis/TrigDecisionTool
         Trigger/TrigAnalysis/TrigAnalysisInterfaces
+        MuonSpectrometer/MuonAlignment/MuonAlignmentData
 )
 
 # External dependencies:

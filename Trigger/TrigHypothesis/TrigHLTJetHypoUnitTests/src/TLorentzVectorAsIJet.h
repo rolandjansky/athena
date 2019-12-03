@@ -17,7 +17,8 @@ class TLorentzVectorAsIJet: public HypoJet::IJet {
     m_m(tl.M()),
     m_e(tl.E()),
     m_et(tl.Et()),
-    m_eta(tl.Rapidity()), 
+    // m_eta(tl.Rapidity()), 
+    m_eta(tl.Eta()), 
     m_tl(tl),
     m_position(0){
   }
