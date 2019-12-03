@@ -125,7 +125,7 @@ namespace DerivationFramework {
 	  m_dofjvt = true;
 
 	  dec_fjvt  = std::make_unique< SG::AuxElement::Decorator<float> >(m_momentPrefix+m_fjvtMomentKey);
-	  //dec_passfjvt  = std::make_unique< SG::AuxElement::Decorator<char> >(m_momentPrefix+"pass"+m_fjvtMomentKey);
+
 	} else {
 	  ATH_MSG_INFO(" PFlow fJVT tool is missing ");
 	}
@@ -315,7 +315,7 @@ namespace DerivationFramework {
 	    return StatusCode::FAILURE;
 	  }
       }
-//    }
+
       if(m_dofjvt){
        	if(m_fjvtTool->modify(*jets_copy))
 	  {
@@ -341,7 +341,6 @@ namespace DerivationFramework {
         ATH_MSG_VERBOSE("Calibrated jet pt: " << (*dec_calibpt)(jet_orig) );
 	
         if(m_dojvt) {
-
           if(!m_doMVfJvt && !m_dofjvt)(*dec_jvt)(jet_orig) = m_jvtTool->updateJvt(*jet);
 	  else (*dec_jvt)(jet_orig) = (*dec_jvt)(*jet);
           ATH_MSG_VERBOSE("Calibrated JVT: " << (*dec_jvt)(jet_orig) );
@@ -364,7 +363,7 @@ namespace DerivationFramework {
 	  }
 
 	  if(m_dofjvt) {
-	    ATH_MSG_INFO( "fJvt value = " << jet->auxdata<float>("fJvt") );
+	    ATH_MSG_DEBUG( "fJvt value = " << jet->auxdata<float>("fJvt") );
 	    (*dec_fjvt)(jet_orig) = jet->auxdata<float>("fJvt");
 	  }
 

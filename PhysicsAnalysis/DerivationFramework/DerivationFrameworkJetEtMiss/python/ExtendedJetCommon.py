@@ -218,12 +218,6 @@ def applyJetAugmentation(jetalg,algname,sequence,jetaugtool):
     if not jetaugtool in jetaug.AugmentationTools:
         jetaug.AugmentationTools.append(jetaugtool)
 
-    if jetalg=='AntiKt4EMPFlow':
-        extjetlog.info('Augmentations for PFlow jets: {}'.format(jetaug.AugmentationTools))
-    if jetalg=='AntiKt4EMTopo':
-        extjetlog.info('Augmentations for EMTopo jets: {}'.format(jetaug.AugmentationTools))
-    if jetalg=='AntiKt4LCTopo':
-        extjetlog.info('Augmentations for LCTopo jets: {}'.format(jetaug.AugmentationTools))
 
 def getJetAugmentationTool(jetalg, suffix=''):
     jetaugtoolname = 'DFJetAug_'+jetalg+suffix
@@ -442,7 +436,6 @@ def applyMVfJvtAugmentation(jetalg,sequence,algname):
         extjetlog.info('ExtendedJetCommon: Applying MVfJVT augmentation to jet collection: '+jetalg+'Jets')
         applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
 
-#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 def getPFlowfJVT(jetalg,algname,sequence):
     supportedJets = ['AntiKt4EMPFlow']
     if not jetalg in supportedJets:
@@ -454,8 +447,8 @@ def getPFlowfJVT(jetalg,algname,sequence):
         jetaugtool = getJetAugmentationTool(jetalg,suffix='_PFlow_fJVT')
 
         if(jetaugtool==None or jetaugtool.JetCalibTool=='' or jetaugtool.JetJvtTool==''):
-            extjetlog.warning('***pfwarning:  PFlow fJvt called but required augmentation tool does not exist! ***')
-            extjetlog.warning('*** pfwarning: You must apply jet calibration and JVT! ***')
+            extjetlog.warning('*** PFlow fJvt called but required augmentation tool does not exist! ***')
+            extjetlog.warning('*** Jet calibration and JVT have to be applied ! ***')
 
         pffjvttoolname = 'DFJetPFfJvt_'+jetalg
 
@@ -470,7 +463,6 @@ def getPFlowfJVT(jetalg,algname,sequence):
 
         extjetlog.info('ExtendedJetCommon: Applying PFlow fJvt augmentation to jet collection: '+jetalg+'Jets')
         applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
-#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 def applyBTaggingAugmentation(jetalg,algname='default',sequence=DerivationFrameworkJob,btagtooldict={}):
     if algname == 'default':

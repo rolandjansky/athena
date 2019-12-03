@@ -87,7 +87,7 @@
 
     m_wpfotool.setTypeAndName("CP::WeightPFOTool/"+ m_wpfoToolName );
     ATH_CHECK( m_wpfotool.retrieve() );
-  
+
     m_pfoJES.setTypeAndName("JetCalibrationTool/"+ m_pfoJESName   );
     ATH_CHECK( m_pfoJES.setProperty("JetCollection",m_jetAlgo                ) );
     ATH_CHECK( m_pfoJES.setProperty("ConfigFile"   ,m_caliconfig             ) );
@@ -117,9 +117,9 @@
       fjvt_dec(*jetF) = 0;
 
       if (isForwardJet(jetF)){
-       double fjvt = getFJVT(jetF,pileupMomenta);
-       if (fjvt>m_fjvtThresh) (*Dec_outFjvt)(*jetF) = 0;
-       fjvt_dec(*jetF) = fjvt;
+	double fjvt = getFJVT(jetF,pileupMomenta);
+	if (fjvt>m_fjvtThresh) (*Dec_outFjvt)(*jetF) = 0;
+	fjvt_dec(*jetF) = fjvt;
       }
     }
     return 0;
@@ -137,7 +137,6 @@
 
   std::vector<TVector2> JetForwardPFlowJvtTool::calculateVertexMomenta(const xAOD::JetContainer *pjets, int pvind, int vertices) const {
     std::vector<TVector2> pileupMomenta;
-
     // -- Retrieve PV index if not provided by user
     const std::size_t pv_index = (pvind==-1) ? getPV() : std::size_t(pvind);
 
@@ -176,7 +175,7 @@
 	ATH_MSG_ERROR("Unable to retrieve built PU jets with name \"" << m_jetsName << "\"");
 	return pileupMomenta;
       }
-      
+
       TVector2 vertex_met;
       for (const xAOD::Jet *jet : *vertex_jets) {
 
@@ -234,7 +233,7 @@
     fastjet::JetDefinition jet_def(fastjet::antikt_algorithm,0.4);
     fastjet::AreaDefinition area_def(fastjet::active_area_explicit_ghosts,fastjet::GhostedAreaSpec(fastjet::SelectorAbsRapMax(m_maxRap)));
     fastjet::ClusterSequenceArea clust_pfo(input_pfo,jet_def,area_def);
-    std::vector<fastjet::PseudoJet> inclusive_jets = sorted_by_pt(clust_pfo.inclusive_jets(0));
+    std::vector<fastjet::PseudoJet> inclusive_jets = sorted_by_pt(clust_pfo.inclusive_jets(5000.));
 
     for (size_t i = 0; i < inclusive_jets.size(); i++) {
       xAOD::Jet* jet=  new xAOD::Jet();
@@ -255,8 +254,12 @@
       }
       xAOD::JetFourMom_t chargejetp4(chargedpart,inclusive_jets[i].eta(),inclusive_jets[i].phi(),inclusive_jets[i].m());
       jet->setJetP4(m_jetchargedp4,chargejetp4);
-    }   
-    
+    }
+
+    if( m_pfoJES->modify(*vertjets) ){
+      ATH_MSG_WARNING(" Failed to calibrate PU jet container ");
+      return StatusCode::FAILURE;
+    }
     ATH_CHECK( evtStore()->record(vertjets.release(),newname.Data())    );
     ATH_CHECK( evtStore()->record(vertjetsAux.release(),newname.Data()) );
     return StatusCode::SUCCESS;
