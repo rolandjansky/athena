@@ -304,7 +304,12 @@ namespace ST {
     // ghost associate the muons to the jets (needed by MET muon-jet OR later)
     ATH_MSG_VERBOSE("Run muon-to-jet ghost association");
     const xAOD::MuonContainer* muons(0);
-    ATH_CHECK( evtStore()->retrieve(muons, "Muons") );
+    // Do a little guessing
+    if (jetkey!="AnalysisJets_NOSYS"){
+      ATH_CHECK( evtStore()->retrieve(muons, "Muons") );
+    } else {
+      ATH_CHECK( evtStore()->retrieve(muons, "AnalysisMuons_NOSYS") );
+    }
     met::addGhostMuonsToJets(*muons, *copy);
 
     // Update the jets

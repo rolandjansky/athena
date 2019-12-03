@@ -74,7 +74,7 @@ StatusCode SUSYObjDef_xAOD::GetMuons(xAOD::MuonContainer*& copy, xAOD::ShallowAu
   }
 
   for (const auto& muon : *copy) {
-    ATH_CHECK( this->FillMuon(*muon, m_muBaselinePt, m_muBaselineEta, muonkey!="AnalysisMuons_NOSYS") );
+    ATH_CHECK( this->FillMuon(*muon, m_muBaselinePt, m_muBaselineEta) );
     this->IsSignalMuon(*muon, m_muPt, m_mud0sig, m_muz0, m_muEta);
     this->IsCosmicMuon(*muon, m_muCosmicz0, m_muCosmicd0);
     this->IsBadMuon(*muon, m_badmuQoverP);
@@ -86,7 +86,7 @@ StatusCode SUSYObjDef_xAOD::GetMuons(xAOD::MuonContainer*& copy, xAOD::ShallowAu
   return StatusCode::SUCCESS;
 }
 
-StatusCode SUSYObjDef_xAOD::FillMuon(xAOD::Muon& input, float ptcut, float etacut, const bool doCalib) {
+StatusCode SUSYObjDef_xAOD::FillMuon(xAOD::Muon& input, float ptcut, float etacut) {
   
   ATH_MSG_VERBOSE( "Starting FillMuon on mu with pt=" << input.pt() );
   
@@ -107,10 +107,8 @@ StatusCode SUSYObjDef_xAOD::FillMuon(xAOD::Muon& input, float ptcut, float etacu
   ATH_MSG_VERBOSE( "MUON type = " << input.muonType() );
   ATH_MSG_VERBOSE( "MUON author = " << input.author() );
 
-  if (doCalib){
-    if (m_muonCalibrationAndSmearingTool->applyCorrection( input ) == CP::CorrectionCode::OutOfValidityRange){
-      ATH_MSG_VERBOSE("FillMuon: applyCorrection out of validity range");
-    }
+  if (m_muonCalibrationAndSmearingTool->applyCorrection( input ) == CP::CorrectionCode::OutOfValidityRange){
+    ATH_MSG_VERBOSE("FillMuon: applyCorrection out of validity range");
   }
 
   ATH_MSG_VERBOSE( "MUON pt after calibration " << input.pt() );
@@ -291,7 +289,7 @@ bool SUSYObjDef_xAOD::IsBadMuon(const xAOD::Muon& input, float qopcut) const
   const xAOD::TrackParticle* track;
   if (input.muonType() == xAOD::Muon::SiliconAssociatedForwardMuon) {
     track = input.trackParticle(xAOD::Muon::CombinedTrackParticle);
-    if (!track) return false; // don't treat SAF muons without CB track further  
+    if (!track) return false; // don't treat SAF muons without CB track further
   }
   else{
     track = input.primaryTrackParticle();
