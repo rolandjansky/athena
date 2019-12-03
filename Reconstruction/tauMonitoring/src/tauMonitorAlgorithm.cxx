@@ -123,7 +123,7 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
       }
 
       if(m_kinGroupName != "tauMonKinGroupGlobal"){
-         if (m_etaMin < tauEta && tauEta < m_etaMax){
+         if (m_etaMin < fabs(tauEta) && fabs(tauEta) < m_etaMax){
             fill(
                m_kinGroupName,
                tauEta,
