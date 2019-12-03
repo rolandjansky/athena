@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonDigitContainer/sTgcDigit.h"
@@ -52,12 +52,6 @@ StatusCode Muon::STGC_DigitContainerCnv_p1::initialize(MsgStream &log) {
     return StatusCode::FAILURE;
   } else {
     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the sTgc IdHelper." << endmsg;
-  }
-
-  sc = detStore->retrieve(m_muonDetMgr);
-  if (sc.isFailure()) {
-    log << MSG::FATAL << "Could not get DetectorDescription manager" << endmsg;
-    return sc;
   }
 
   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endmsg;

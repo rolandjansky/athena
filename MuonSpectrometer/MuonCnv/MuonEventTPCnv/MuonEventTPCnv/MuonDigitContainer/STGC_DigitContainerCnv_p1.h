@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STGCDIGITCONTAINERCNV_p1_H
@@ -13,14 +13,13 @@
 /*******************************************************************************/
 class StoreGateSvc;
 class sTgcIdHelper;
-namespace MuonGM {class MuonDetectorManager;}
 /*******************************************************************************/
 namespace Muon{
   /** Class to handle the conversion of the transient sTgcDigitContainer into its persistent representation */
   class STGC_DigitContainerCnv_p1 : public T_AthenaPoolTPCnvBase<sTgcDigitContainer, Muon::STGC_DigitContainer_p1>
     {
     public:
-      STGC_DigitContainerCnv_p1() : m_sTgcId(0), m_storeGate(0), m_muonDetMgr(0), m_isInitialized(0)  {};
+      STGC_DigitContainerCnv_p1() : m_sTgcId(0), m_storeGate(0), m_isInitialized(0)  {};
 
 	virtual void	persToTrans(const Muon::STGC_DigitContainer_p1* persCont, sTgcDigitContainer* transCont, MsgStream &log) ;
 	virtual void	transToPers(const sTgcDigitContainer* transCont, Muon::STGC_DigitContainer_p1* persCont, MsgStream &log) ;
@@ -29,7 +28,6 @@ namespace Muon{
     private:
 	const sTgcIdHelper *m_sTgcId;
 	StoreGateSvc *m_storeGate;
-	const MuonGM::MuonDetectorManager* m_muonDetMgr;
 	bool m_isInitialized;
 	StatusCode initialize(MsgStream &log);
     };
