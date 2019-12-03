@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CopyJetTruthInfo.h"
@@ -8,7 +8,7 @@
 
 
 CopyJetTruthInfo::CopyJetTruthInfo(const std::string &name, ISvcLocator *pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator) {}
+  : AthReentrantAlgorithm(name, pSvcLocator) {}
 
 StatusCode CopyJetTruthInfo::initialize()
 {
@@ -23,14 +23,14 @@ StatusCode CopyJetTruthInfo::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode CopyJetTruthInfo::execute()
+StatusCode CopyJetTruthInfo::execute(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG("execute() begin");
 
   // Reading the input timings
   ATH_MSG_VERBOSE("Retrieving input jets containers");
 
-  SG::ReadHandle<xAOD::JetContainer> bkgContainer(m_bkgInputKey);
+  SG::ReadHandle<xAOD::JetContainer> bkgContainer(m_bkgInputKey, ctx);
   if (!bkgContainer.isValid()) {
     ATH_MSG_ERROR("Could not get background jets container " << bkgContainer.name() << " from store " << bkgContainer.store());
     return StatusCode::FAILURE;
@@ -38,7 +38,7 @@ StatusCode CopyJetTruthInfo::execute()
   ATH_MSG_DEBUG("Found background jets container " << bkgContainer.name() << " in store " << bkgContainer.store());
 
   // Creating output jets container
-  SG::WriteHandle<xAOD::JetContainer> outputContainer(m_outputKey);
+  SG::WriteHandle<xAOD::JetContainer> outputContainer(m_outputKey, ctx);
   ATH_CHECK(outputContainer.record(std::make_unique<xAOD::JetContainer>(), std::make_unique<xAOD::JetAuxContainer>()));
   if (!outputContainer.isValid()) {
     ATH_MSG_ERROR("Could not record output jet container " << outputContainer.name() << " to store " << outputContainer.store());
