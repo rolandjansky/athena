@@ -160,3 +160,12 @@ if TileCommissioning:
 else:
     msg.info("Adjusting TileInfo to return cell noise for Opt.Filter without iterations")
     tileInfoConfigurator.NoiseScaleIndex = 1; # Noise for Optimal Filter without iterations
+
+# setup for 12-bit ADCs
+TileUse12bit = False
+if not TileUse12bit:
+    msg.info("Setting 10-bit ADC configuration")
+    tileInfoConfigurator.setupAdcRange(10)
+else:
+    msg.info("Setting 12-bit ADC configuration")
+    tileInfoConfigurator.setupAdcRange(12)

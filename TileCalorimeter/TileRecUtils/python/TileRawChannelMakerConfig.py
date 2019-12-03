@@ -13,6 +13,9 @@ def TileRawChannelMakerCfg(flags, **kwargs):
 
     acc = ComponentAccumulator()
 
+    from TileConditions.TileInfoLoaderConfig import TileInfoLoaderCfg
+    acc.merge( TileInfoLoaderCfg(flags) )
+
     kwargs.setdefault('name', 'TileRChMaker')
     name = kwargs['name']
 

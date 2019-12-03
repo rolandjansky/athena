@@ -63,6 +63,9 @@ def TileRawChannelNoiseFilterCfg(flags, **kwargs):
     from TileRecUtils.TileDQstatusConfig import TileDQstatusAlgCfg
     acc.merge( TileDQstatusAlgCfg(flags) )
 
+    from TileConditions.TileInfoLoaderConfig import TileInfoLoaderCfg
+    acc.merge( TileInfoLoaderCfg(flags) )
+
     if 'TileCondToolEmscale' not in kwargs:
         from TileConditions.TileEMScaleConfig import TileCondToolEmscaleCfg
         emScaleTool = acc.popToolsAndMerge( TileCondToolEmscaleCfg(flags) )

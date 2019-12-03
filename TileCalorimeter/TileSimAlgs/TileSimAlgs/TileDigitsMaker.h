@@ -141,8 +141,12 @@ class TileDigitsMaker: public AthAlgorithm {
 
     int m_nSamples;           //!< Number of time slices for each channel
     int m_iTrig;           //!< Index of the triggering time slice
-    float m_adcMax;        //!< ADC saturation value 
-    float m_adcMaxHG;      //!< ADC saturation value - 0.5 
+    int m_i_ADCmax;        //!< ADC saturation value
+    float m_f_ADCmax;      //!< ADC saturation value
+    float m_f_ADCmaxHG;    //!< ADC saturation value - 0.5 
+    float m_ADCmaxMinusEps;//!< ADC saturation value - 0.01 or something small
+    float m_ADCmaxPlusEps; //!< ADC saturation value + 0.01 or something small
+    float m_f_ADCmaskValue;      //!< indicates channels which were masked in background dataset
     bool m_tileNoise;      //!< If true => generate noise in TileDigits
     bool m_tileCoherNoise; //!< If true => generate coherent noise in TileDigits
     bool m_tileThresh;     //!< If true => apply threshold to Digits

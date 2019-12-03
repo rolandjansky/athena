@@ -442,7 +442,27 @@ class _TileInfoConfigurator( TileInfoLoader ):
 
 
     #_______________________________________________________________
+    def setupAdcRange(self, Nbits = 10):
+        """
+        Call this function to setup maximum range of ADC counts
+        Input parameters:
+        - Nbits : Number of bits of an ADC (either 10 or 12)
+        """
+        self._msg.info("Setting {0}-bit Tile ADC".format(Nbits))
+        if Nbits == 10:
+            self.ADCmax = 1023
+            self.ADCmaskValue = 2047
+        elif Nbits == 12:
+            self.ADCmax = 4095
+            self.ADCmaskValue = 4800
+        # NOTE: For self.ADCmaskValue, value 4800 should work both for 10-bit and 12-bit settings.
+        #       It has to be a value between the interval of possible opt filter output values and
+        #       the interval of possible fit method output values. In case of 12-bit settings:
+        #         - opt filter values: (-500, 4600)
+        #         - fit method values: (5000, 9095) (here, 5000 is added to the output of the fit method itself to indicate that the fit method was used)
+        return
 
+    #_______________________________________________________________
 def TileInfoConfigurator(name="TileInfoLoader", **kwargs):
     """
     factory function to create readily configured TileInfoLoader instances

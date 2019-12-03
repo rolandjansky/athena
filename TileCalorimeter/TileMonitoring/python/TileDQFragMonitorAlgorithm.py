@@ -11,7 +11,6 @@ def TileDQFragMonitoringConfig(flags, **kwargs):
 
     ''' Function to configure TileDQFragMonitorAlgorithm algorithm in the monitoring system.'''
 
-
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     result = ComponentAccumulator()
 
@@ -23,6 +22,9 @@ def TileDQFragMonitoringConfig(flags, **kwargs):
 
     from TileRecUtils.TileDQstatusConfig import TileDQstatusAlgCfg
     result.merge( TileDQstatusAlgCfg(flags) )
+
+    from TileConditions.TileInfoLoaderConfig import TileInfoLoaderCfg
+    result.merge( TileInfoLoaderCfg(flags) )
 
     from TileConditions.TileBadChannelsConfig import TileBadChanToolCfg
     badChanTool = result.popToolsAndMerge( TileBadChanToolCfg(flags) )

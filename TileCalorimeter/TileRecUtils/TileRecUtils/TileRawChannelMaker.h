@@ -37,6 +37,7 @@
 
 
 class TileRawChannelBuilder;
+class TileInfo;
 
 class TileRawChannelMaker: public AthAlgorithm {
 
@@ -77,5 +78,11 @@ class TileRawChannelMaker: public AthAlgorithm {
     float m_overflowReplaceTimeCut;
     float m_overflowReplacePedestalCut;
     float m_overflowReplaceChi2Cut;
+
+    // TileInfo
+    std::string m_infoName;
+    const TileInfo* m_tileInfo;
+    float m_ADCmaxMinusEps;
+
 };
 #endif
