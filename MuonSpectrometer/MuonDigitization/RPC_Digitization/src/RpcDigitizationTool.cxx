@@ -2225,13 +2225,11 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcSt
   double qbetagamma = -1.;
   if(genParticle){
     int particlePdgId = genParticle->pdg_id();
-    std::cout<<"lay test: particlePdgId"<<particlePdgId<<" , particleEncoding = "<<thehit.particleEncoding()<<std::endl;
     //only apply efficiency correction to fractional-charged particles based on pdgId betagamma
     if(((int)(abs(particlePdgId)/10000000) == 2) && ((int)(abs(particlePdgId)/100000)==200)) {
       //charge calculation
       qcharge = (double)((abs(particlePdgId) / 1000) % 100) / (double)((abs(particlePdgId) / 10) % 100);
       qcharge = ((double)((int)(qcharge*100)))/100;
-      std::cout<<"lqy test: qcharge transfer = "<<qcharge<<std::endl;
       if(particlePdgId < 0.0) qcharge = -qcharge;
       //BetaGamma calculation
       double QPx = genParticle->momentum().px();
@@ -2246,7 +2244,6 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcSt
       if(QM>0.){qbetagamma = QP/QM;}
       else {qbetagamma = -1.0;}
 
-      std::cout<<"QPx = "<<QPx<<" , QPy = "<<QPy<<" , QPz = "<<QPz<<" , QE = "<<QE<<" , QP = "<<QP<<" , QM = "<<QM<<std::endl;
       //find the i in the array
       int i_e = -1;
       for(int i=0;i<12;i++){
@@ -2261,8 +2258,6 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcSt
           if(Velocity[i] >= qbetagamma){j_v = i;}
         }
       }
-      std::cout<<"i_e = "<<i_e<<" , i_v = "<<i_v<<" , j_v = "<<j_v<<std::endl;
-      std::cout<<"charge = "<<Charge[i_e]<<" , velocity1 = "<<Velocity[i_v]<<" , velocity2 = "<<Velocity[j_v]<<std::endl;
       //calculate the efficiency according to charge and velocity. Using linear function to calculate efficiency of a specific velocity between velocity1 and velocity2
       double eff_fcp, eff_muon;
       if(i_e >= 0 && i_e <=11){
@@ -2296,12 +2291,8 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcSt
       OnlyEtaEff = OnlyEtaEff * eff_sf;
       OnlyPhiEff = OnlyPhiEff * eff_sf;
 
-      std::cout<<"lqy test: eff_fcp = "<<eff_fcp<<" , eff_muon = "<<eff_muon<<" , eff_sf = "<<eff_sf<<std::endl;
-
-      std::cout<<"lqt test: PhiAndEtaEff = "<<PhiAndEtaEff<<" , OnlyEtaEff = "<<OnlyEtaEff<<" , OnlyPhiEff = "<<OnlyPhiEff<<std::endl;
-
     }
-    std::cout<<"lqy test: qcharge = "<<qcharge<<" , qbetagamma = "<<qbetagamma<<std::endl;
+    //std::cout<<"lqy test: qcharge = "<<qcharge<<" , qbetagamma = "<<qbetagamma<<" , scale factor = "<<eff_sf<<std::endl;
   }
 
 
