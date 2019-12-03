@@ -204,7 +204,7 @@ void InDet::TRT_DetElementsLayer_xk::getEndcapDetElements
   if(dF>0.) {if(n!=m) ++n; else {n=0 ; fc-=pi2;}}
   else      {if(n!=0) --n; else {n=m ; fc+=pi2;}}
 
-  assert( used.size() > n);
+  assert( used.size() > static_cast<size_t>(n));
   if(fabs(fc-m_elements[n].phi()) < sf && !used[n].used()) {
      lDE.push_back(std::make_pair(&m_elements[n],s)); used[n].setUsed();
   }
