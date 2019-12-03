@@ -11,7 +11,9 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
 from AthenaConfiguration.TestDefaults import defaultTestFiles
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-from OverlayCopyAlgs.OverlayCopyAlgsConfig import CopyMcEventCollectionCfg
+from OverlayCopyAlgs.OverlayCopyAlgsConfig import \
+    CopyCaloCalibrationHitContainersCfg, CopyJetTruthInfoCfg, CopyMcEventCollectionCfg, \
+    CopyTimingsCfg, CopyTrackRecordCollectionsCfg
 
 # Global test config
 nThreads = 1
@@ -25,6 +27,7 @@ ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"
 ConfigFlags.GeoModel.Align.Dynamic = False
 ConfigFlags.Overlay.DataOverlay = False
 ConfigFlags.Output.RDOFileName = "myRDO.pool.root"
+ConfigFlags.Output.RDO_SGNLFileName = "myRDO_SGNL.pool.root"
 
 # Flags relating to multithreaded execution
 ConfigFlags.Concurrency.NumThreads = nThreads
@@ -42,6 +45,10 @@ acc.merge(PoolReadCfg(ConfigFlags))
 
 # Add truth overlay (needed downstream)
 acc.merge(CopyMcEventCollectionCfg(ConfigFlags))
+acc.merge(CopyJetTruthInfoCfg(ConfigFlags))
+acc.merge(CopyTimingsCfg(ConfigFlags))
+acc.merge(CopyCaloCalibrationHitContainersCfg(ConfigFlags))
+acc.merge(CopyTrackRecordCollectionsCfg(ConfigFlags))
 
 # Dump config
 acc.printConfig(withDetails=True)
