@@ -1,4 +1,4 @@
-\#!/usr/bin/env python
+#!/usr/bin/env python
 
 # art-description: Test of transform RDO->RDO_TRIG->ESD->AOD with serial athena (legacy trigger)
 # art-type: grid
