@@ -25,7 +25,8 @@ from AssociationUtils.AssociationUtilsConf import (
 #-------------------------------------------------------------------------------
 def recommended_tools(masterName='OverlapRemovalTool',
                       inputLabel='selected', outputLabel='overlaps',
-                      bJetLabel='', boostedLeptons=False,
+                      bJetLabel='', maxElePtForBJetAwareOR = 100. * 1000,
+                      boostedLeptons=False,
                       outputPassValue=False,
                       linkOverlapObjects=False,
                       doEleEleOR=False,
@@ -43,6 +44,9 @@ def recommended_tools(masterName='OverlapRemovalTool',
       outputLabel        - set the OutputLabel property for all tools.
       bJetLabel          - set user bjet decoration name. Leave blank to
                            disable btag-aware overlap removal.
+      maxElePtForBJetAwareOR  - set the maximum electron pT for which b-tag
+                           aware overlap removal is done. Set to negative
+                           value to use for all electrons.
       boostedLeptons     - enable sliding dR cones for boosted lepton
                            analyses.
       outputPassValue    - set the OutputPassValue property for all tools
@@ -88,6 +92,7 @@ def recommended_tools(masterName='OverlapRemovalTool',
     if doElectrons and doJets:
         orTool.EleJetORT = EleJetOverlapTool('EleJetORT',
                                              BJetLabel=bJetLabel,
+                                             MaxElePtForBJetAwareOR=maxElePtForBJetAwareOR,
                                              UseSlidingDR=boostedLeptons,
                                              **common_args)
     # Muon-jet
