@@ -13,7 +13,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
 import TriggerMenuMT.HLTMenuConfig.Menu.MC_pp_run3_v1 as mc_menu
 import TriggerMenuMT.HLTMenuConfig.Menu.PhysicsP1_pp_run3_v1 as p1_menu
 
-from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import PhysicsStream,SingleMuonGroup,MultiMuonGroup,SingleElectronGroup,MultiElectronGroup,SinglePhotonGroup,MultiPhotonGroup,SingleMETGroup,MultiMETGroup,SingleJetGroup,MultiJetGroup,SingleBjetGroup,SingleTauGroup,EgammaStreamersGroup
+from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import PhysicsStream,SingleMuonGroup,MultiMuonGroup,SingleElectronGroup,MultiElectronGroup,SinglePhotonGroup,MultiPhotonGroup,SingleMETGroup,MultiMETGroup,SingleJetGroup,MultiJetGroup,SingleBjetGroup,SingleTauGroup,EgammaStreamersGroup,MinBiasGroup
 
 
 def setupMenu():
@@ -22,8 +22,8 @@ def setupMenu():
     p1_menu.addP1Signatures()
 
     from TriggerJobOpts.TriggerFlags          import TriggerFlags
-    from AthenaCommon.Logging import logging
-    log = logging.getLogger( __name__ )
+    from AthenaCommon.Logging                 import logging
+    log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1.py' )
     log.info('setupMenu ...')
 
 
@@ -37,7 +37,7 @@ def setupMenu():
         #ATR-20049
 
         ChainProp(name='HLT_mu6fast_L1MU6', groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu6Comb_L1MU6', groups=SingleMuonGroup), 
+        ChainProp(name='HLT_mu6Comb_L1MU6', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu6_L1MU6',     groups=SingleMuonGroup),
 
         ChainProp(name='HLT_mu20_ivar_L1MU6',      groups=SingleMuonGroup),
@@ -63,7 +63,7 @@ def setupMenu():
 
         # PhotonChains------------
         # these are to debug photon working points should be removed in production
-        ChainProp(name='HLT_g5_etcut_L1EM3', groups=SinglePhotonGroup),  
+        ChainProp(name='HLT_g5_etcut_L1EM3', groups=SinglePhotonGroup),
         ChainProp(name='HLT_g5_loose_L1EM3', groups=SinglePhotonGroup),
         ChainProp(name='HLT_g5_medium_L1EM3', groups=SinglePhotonGroup),
         ChainProp(name='HLT_g5_tight_L1EM3', groups=SinglePhotonGroup),
@@ -82,7 +82,6 @@ def setupMenu():
         ChainProp(name='HLT_xe30_mht_L1XE10', groups=SingleMETGroup),
         ChainProp(name='HLT_xe30_tcpufit_L1XE10', groups=SingleMETGroup),
         ChainProp(name='HLT_xe30_trkmht_L1XE10', groups=SingleMETGroup),
-
         # MultiMET Chain
         ChainProp(name='HLT_xe30_cell_xe30_tcpufit_L1XE10',l1SeedThresholds=['XE10']*2, groups=MultiMETGroup), #must be FS seeded
     ]
@@ -91,21 +90,21 @@ def setupMenu():
         ChainProp(name='HLT_j85_L1J20', groups=SingleJetGroup),
         ChainProp(name='HLT_j45_L1J15', groups=SingleJetGroup),
         ChainProp(name='HLT_j420_L1J20', groups=SingleJetGroup),
-
         ChainProp(name='HLT_j45_ftf_subjesgscIS_L1J15', groups=SingleJetGroup),
-
         ChainProp(name='HLT_j45_ftf_L1J15', groups=SingleJetGroup),
         ChainProp(name='HLT_j85_ftf_L1J20', groups=SingleJetGroup),
+
 
         ChainProp(name='HLT_j45_ftf_pf_L1J20', groups=SingleJetGroup),
         ChainProp(name='HLT_j85_ftf_pf_L1J20', groups=SingleJetGroup),
 
         ChainProp(name='HLT_j420_ftf_subjesgscIS_L1J20', groups=SingleJetGroup),
+
         ChainProp(name='HLT_j260_320eta490_L1J20', groups=SingleJetGroup),
 
         ChainProp(name='HLT_j460_a10_lcw_subjes_L1J20', groups=SingleJetGroup),
         ChainProp(name='HLT_j460_a10r_L1J20', groups=SingleJetGroup),
-        
+
         ChainProp(name='HLT_3j200_L1J20', groups=MultiJetGroup),
         ChainProp(name='HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20', groups=SingleJetGroup),
 
@@ -114,7 +113,7 @@ def setupMenu():
     TriggerFlags.BjetSlice.signatures = TriggerFlags.BjetSlice.signatures() + [
         ChainProp(name="HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20", groups=SingleBjetGroup),
         ChainProp(name="HLT_j45_ftf_subjesgscIS_bmv2c1070_split_L1J20", groups=SingleBjetGroup),
-    ] 
+    ]
 
     TriggerFlags.TauSlice.signatures = TriggerFlags.TauSlice.signatures() + [
         #ATR-20049
@@ -127,11 +126,13 @@ def setupMenu():
     ]
     TriggerFlags.BphysicsSlice.signatures = TriggerFlags.BphysicsSlice.signatures() + [
     ]
-    TriggerFlags.CombinedSlice.signatures = TriggerFlags.CombinedSlice.signatures() + [ 
+    TriggerFlags.CombinedSlice.signatures = TriggerFlags.CombinedSlice.signatures() + [
    ]
     TriggerFlags.HeavyIonSlice.signatures  = TriggerFlags.HeavyIonSlice.signatures() + []
-    TriggerFlags.BeamspotSlice.signatures  = TriggerFlags.BeamspotSlice.signatures() + []   
-    TriggerFlags.MinBiasSlice.signatures   = TriggerFlags.MinBiasSlice.signatures() + [] 
+    TriggerFlags.BeamspotSlice.signatures  = TriggerFlags.BeamspotSlice.signatures() + []
+    TriggerFlags.MinBiasSlice.signatures   = TriggerFlags.MinBiasSlice.signatures() + [
+    ChainProp(name='HLT_mb_sptrk_L1RD0_FILLED',        l1SeedThresholds=[''], stream=[PhysicsStream], groups=MinBiasGroup),
+    ]
     TriggerFlags.CalibSlice.signatures     = TriggerFlags.CalibSlice.signatures() + []
     TriggerFlags.CosmicSlice.signatures    = TriggerFlags.CosmicSlice.signatures() + []
     TriggerFlags.StreamingSlice.signatures = TriggerFlags.StreamingSlice.signatures() + [
@@ -161,6 +162,6 @@ def setupMenu():
     mydict.update(Prescales.HLTPrescales_cosmics)
     from copy import deepcopy
     Prescales.HLTPrescales_cosmics = deepcopy(mydict)
-    
+
 
 Prescales = mc_menu.Prescales
