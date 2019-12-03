@@ -37,8 +37,6 @@ class PixelITkOfflineCalibCondAlg : public AthReentrantAlgorithm {
     ServiceHandle<ICondSvc> m_condSvc;
 };
 
-// TO DO: find 21.9-friendly way
-CLASS_DEF( PixelITkOfflineCalibCondAlg , 205151649 , 1 )
 
 #endif
 

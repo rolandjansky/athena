@@ -9,6 +9,8 @@
 #ifndef PIXELITKOFFLINECALIBDATA_H
 #define PIXELITKOFFLINECALIBDATA_H
 
+#include "CLIDSvc/CLASS_DEF.h"
+
 #include "PixelConditionsData/PixelITkClusterErrorData.h"
 
 
@@ -83,6 +85,8 @@ inline PixelITkOfflineCalibData::~PixelITkOfflineCalibData(){
 
 }
 
+
+CLASS_DEF( PixelCalib::PixelITkOfflineCalibData , 222566141 , 1 )
 
 #endif 
 
