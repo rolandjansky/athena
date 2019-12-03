@@ -5,6 +5,7 @@
 #include "TRTNoise.h"
 
 #include "TRTDigCondBase.h"
+#include "TRTDigiHelper.h"
 #include "TRTElectronicsProcessing.h"
 #include "TRTElectronicsNoise.h"
 
@@ -142,11 +143,13 @@ void TRTNoise::InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool(CLHEP:
 
   m_pDigConditions->resetGetNextStraw();
 
+  MsgStream* amsg = &(m_msg.get());
   /// Loop through all non-dead straws (there are no dead straws since 2009!):
   while ( m_pDigConditions->getNextStraw(hitid, noiselevel, noiseamp) ) {
 
     const bool isBarrel(!(hitid & 0x00200000));
-    int strawGasType = StrawGasType(getStrawIdentifier(hitid));
+    const int statusHT =  m_sumTool->getStatusHT(getStrawIdentifier(hitid));
+    const int strawGasType = TRTDigiHelper::StrawGasType(statusHT,m_UseGasMix, amsg);
     float lt = useLookupTable(noiselevel, maxLTOverNoiseAmp, 0., 1.) * noiseamp;
 
     if (strawGasType==0) {
@@ -197,7 +200,8 @@ void TRTNoise::InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool(CLHEP:
 
   while ( m_pDigConditions->getNextStraw( hitid, noiselevel, noiseamp) ) {
 
-    int strawGasType = StrawGasType(getStrawIdentifier(hitid));
+    const int statusHT =  m_sumTool->getStatusHT(getStrawIdentifier(hitid));
+    const int strawGasType = TRTDigiHelper::StrawGasType(statusHT,m_UseGasMix, amsg);
 
     const bool isBarrel(!(hitid & 0x00200000));
     if      (strawGasType==0) { actualNA = noiseamp*( isBarrel ? kBa_Xe : kEC_Xe ); }
@@ -661,32 +665,4 @@ Identifier TRTNoise::getStrawIdentifier ( int hitID )
   }
 
   return IdStraw;
-}
-
-
-//_____________________________________________________________________________
-int TRTNoise::StrawGasType(Identifier TRT_Identifier) {
-
-  // TRT/Cond/StatusHT provides: enum { Undefined, Dead(Ar), Good(Xe), Xenon(Xe), Argon(Ar), Krypton(Kr) }
-  // The m_UseGasMix default behaviour (0) is to use TRT/Cond/StatusHT, other values can be set to force
-  // the whole detector to (1)Xenon, (2)Krypton, (3)Argon:
-
-  int strawGasType=99;
-
-  if (m_UseGasMix==0) { // use StatusHT
-    int stat =  m_sumTool->getStatusHT(TRT_Identifier);
-    if       ( stat==2 || stat==3 ) { strawGasType = 0; } // Xe
-    else if  ( stat==5 )            { strawGasType = 1; } // Kr
-    else if  ( stat==1 || stat==4 ) { strawGasType = 2; } // Ar
-    else if  ( stat==6 )            { strawGasType = 0; } // Xe (em Ar)
-    else if  ( stat==7 )            { strawGasType = 0; } // Xe (em Kr)
-    // stat==6 is emulate argon, 7 is emular krypton --  make it xenon here,
-    // and emulate argon later with reduced TR eff.
-  }
-  else if (m_UseGasMix==1) { strawGasType = 0; } // force whole detector to Xe
-  else if (m_UseGasMix==2) { strawGasType = 1; } // force whole detector to Kr
-  else if (m_UseGasMix==3) { strawGasType = 2; } // force whole detector to Ar
-
-  return strawGasType;
-
 }
