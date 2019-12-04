@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #********************************************************************
 # ExtendedJetCommon.py
@@ -217,7 +217,6 @@ def applyJetAugmentation(jetalg,algname,sequence,jetaugtool):
 
     if not jetaugtool in jetaug.AugmentationTools:
         jetaug.AugmentationTools.append(jetaugtool)
-
 
 def getJetAugmentationTool(jetalg, suffix=''):
     jetaugtoolname = 'DFJetAug_'+jetalg+suffix
