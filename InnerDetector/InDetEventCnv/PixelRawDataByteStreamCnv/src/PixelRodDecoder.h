@@ -41,15 +41,9 @@ class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
     StatusCode finalize() override;
 
     StatusCode fillCollection  (const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag, IPixelRDO_Container* rdoIdc,
-				std::vector<IdentifierHash>* vecHash = NULL) override {
-      return fillCollectionConst( robFrag, rdoIdc, vecHash );
-    }
+				std::vector<IdentifierHash>* vecHash = NULL) const override;
 
-    StatusCode fillCollectionConst  (const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag, IPixelRDO_Container* rdoIdc,
-        std::vector<IdentifierHash>* vecHash = NULL) const;
-
-
-    StatusCode StoreBSError() override;
+    StatusCode StoreBSError() const override;
 
     inline void setDet( const eformat::SubDetector det );
     bool m_is_ibl_present;

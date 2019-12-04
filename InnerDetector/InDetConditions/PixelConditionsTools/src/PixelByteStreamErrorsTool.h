@@ -72,7 +72,7 @@ class PixelByteStreamErrorsTool: public AthAlgTool, public IPixelByteStreamError
     virtual unsigned int getBadFE(IdentifierHash hashID) const override final;
 
     virtual StatusCode readData() override;
-    virtual StatusCode recordData() override;
+    virtual StatusCode recordData() const override;
 
     // FE-I4B trailer errors
     virtual void addLinkMaskedByPPC() const override final;
