@@ -35,7 +35,7 @@
 
 typedef Trk::TrackCollection_tlp6   TrackCollection_PERS;
 
-typedef T_AthenaPoolCustomCnv<TrackCollection, TrackCollection_PERS>  TrackCollectionCnvBase;
+typedef T_AthenaPoolCustomCnvWithKey<TrackCollection, TrackCollection_PERS>  TrackCollectionCnvBase;
 
 //-----------------------------------------------------------------------------
 // Converter for TrackCollection object
@@ -52,8 +52,9 @@ public:
 protected:
   virtual StatusCode initialize() override;
 
-  virtual TrackCollection_PERS *createPersistent( TrackCollection *transCont) override;
-  virtual TrackCollection      *createTransient() override;
+  virtual TrackCollection_PERS *createPersistentWithKey( TrackCollection *transCont,
+                                                         const std::string& key) override;
+  virtual TrackCollection      *createTransientWithKey (const std::string& key) override;
 
   virtual AthenaPoolTopLevelTPCnvBase*  getTopLevelTPCnv() override { return & m_TPConverter; }
 
