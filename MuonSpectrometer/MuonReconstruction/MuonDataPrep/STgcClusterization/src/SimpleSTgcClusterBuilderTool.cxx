@@ -101,6 +101,7 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
         std::vector<Identifier> rdoList;
         //vectors to hold the properties of the elements of a cluster
         std::vector<int> elementsCharge;
+        std::vector<short int> elementsTime;
         std::vector<uint16_t> elementsChannel;
         Identifier clusterId;
         double weightedPosX = 0.0;
@@ -111,6 +112,7 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
         for ( auto it : cluster ) {
           rdoList.push_back(it.identify());
           elementsCharge.push_back(it.charge());
+          elementsTime.push_back(it.time());
           elementsChannel.push_back(m_stgcIdHelper->channel(it.identify()));
           double weight = 0.0;
           isWire ? weight = 1.0 : weight = it.charge(); 
@@ -160,7 +162,7 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
         //
         sTgcPrepData* prdN = new sTgcPrepData(clusterId,hash,localPosition,
             rdoList, covN, cluster.at(0).detectorElement(),
-            std::accumulate(elementsCharge.begin(),elementsCharge.end(),0),(short int)0,(uint16_t) 0,elementsChannel,elementsCharge);
+            std::accumulate(elementsCharge.begin(),elementsCharge.end(),0),(short int)0,(uint16_t) 0,elementsChannel,elementsTime,elementsCharge);
         clustersVect.push_back(prdN);   
       }
     }
