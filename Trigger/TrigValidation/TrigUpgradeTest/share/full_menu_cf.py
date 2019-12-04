@@ -214,10 +214,14 @@ if opt.doTauSlice == True:
 # MET chains
 ##################################################################
 if opt.doMETSlice == True:
-    from TriggerMenuMT.HLTMenuConfig.MET.METMenuSequences import metCellMenuSequence, metClusterPufitMenuSequence
+    from TriggerMenuMT.HLTMenuConfig.MET.METMenuSequences import metMenuSequence
+    from TriggerMenuMT.HLTMenuConfig.MET.ConfigHelpers import extractMETRecoDict
 
-    metCellSeq = metCellMenuSequence()
-    metClusterPufitSeq = metClusterPufitMenuSequence()
+    cellRecoDict = extractMETRecoDict({'EFrecoAlg': "cell"})
+    metCellSeq = metMenuSequence(None, **cellRecoDict)
+
+    pufitRecoDict = extractMETRecoDict({'EFrecoAlg': "tcpufit"})
+    metClusterPufitSeq = metMenuSequence(None, **pufitRecoDict)
 
     metCellStep = ChainStep("Step1_met_cell", [metCellSeq])
     metClusterPufitStep          = ChainStep("Step1_met_clusterpufit", [metClusterPufitSeq])

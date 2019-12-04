@@ -9,17 +9,14 @@
 #include "TrigEFMissingET/EFMissingETFromTrackAndJets.h"
 #include "TrigEFMissingET/EFMissingETFromClustersTracksPUC.h"
 #include "TrigEFMissingET/EFMissingETFromTrackAndClusters.h"
-//#include "TrigEFMissingET/EFMissingETFromLvl1Ppr.h"
 #include "TrigEFMissingET/EFMissingETFlags.h"
 #include "TrigEFMissingET/EFMissingETFromHelper.h"
-#include "TrigEFMissingET/EFMissingETAlgMT.h"
-#include "../EFMissingETFromCellsMT.h"
-#include "../EFMissingETFromClustersMT.h"
-#include "../EFMissingETFromClustersPufitMT.h"
-#include "../EFMissingETFromJetsMT.h"
-#include "../EFMissingETFlagsMT.h"
 #include "../EFMissingETComponentCopier.h"
 #include "../TrkMHTFex.h"
+#include "../CellFex.h"
+#include "../MHTFex.h"
+#include "../TCFex.h"
+#include "../TCPufitFex.h"
 
 DECLARE_COMPONENT( EFMissingET )
 DECLARE_COMPONENT( EFMissingETBaseTool )
@@ -32,13 +29,10 @@ DECLARE_COMPONENT( EFMissingETFromJets )
 DECLARE_COMPONENT( EFMissingETFromTrackAndJets )
 DECLARE_COMPONENT( EFMissingETFromClustersTracksPUC )
 DECLARE_COMPONENT( EFMissingETFromTrackAndClusters )
-//DECLARE_COMPONENT( EFMissingETFromLvl1Ppr )
 DECLARE_COMPONENT( EFMissingETFlags )
 DECLARE_COMPONENT( EFMissingETFromHelper )
-DECLARE_COMPONENT( EFMissingETAlgMT )
-DECLARE_COMPONENT( EFMissingETFromCellsMT )
-DECLARE_COMPONENT( EFMissingETFromClustersMT )
-DECLARE_COMPONENT( EFMissingETFromClustersPufitMT )
-DECLARE_COMPONENT( EFMissingETFromJetsMT )
-DECLARE_COMPONENT( EFMissingETFlagsMT )
 DECLARE_COMPONENT( HLT::MET::TrkMHTFex )
+DECLARE_COMPONENT( HLT::MET::CellFex )
+DECLARE_COMPONENT( HLT::MET::MHTFex )
+DECLARE_COMPONENT( HLT::MET::TCFex )
+DECLARE_COMPONENT( HLT::MET::TCPufitFex )

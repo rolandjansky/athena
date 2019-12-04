@@ -290,7 +290,7 @@ METChainParts_Default = {
     'extra'          : '',
     'calib'          : 'lcw',
     'L2recoAlg'      : '',
-    'EFrecoAlg'      : 'cell',
+    'EFrecoAlg'      : '',
     'L2muonCorr'     : '',
     'EFmuonCorr'     : '',
     'addInfo'        : '',
