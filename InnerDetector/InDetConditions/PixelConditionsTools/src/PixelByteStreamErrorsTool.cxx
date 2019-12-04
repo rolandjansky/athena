@@ -321,7 +321,7 @@ StatusCode PixelByteStreamErrorsTool::readData() {
 }
 
 // record the data to Storegate: for one event, one entry per module with errors
-StatusCode PixelByteStreamErrorsTool::recordData() {
+StatusCode PixelByteStreamErrorsTool::recordData() const {
 
   std::unique_ptr<InDetBSErrContainer> cont = std::make_unique<InDetBSErrContainer>();
   for (unsigned int i=0; i<m_pixelID->wafer_hash_max(); i++) {
