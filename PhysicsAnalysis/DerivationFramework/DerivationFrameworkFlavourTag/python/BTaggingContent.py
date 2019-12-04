@@ -40,20 +40,63 @@ BTaggingStandardAux = \
     , "DL1mu_pb"
     ]
 
-# These are roughly the inputs to MV2 or DL1
+# These are the inputs to DL1rmu + SMT
 BTaggingHighLevelAux = [
-    "IP2D_pb", "IP2D_pc", "IP2D_pu",
-    "IP3D_pb", "IP3D_pc", "IP3D_pu",
-    "SV1_pu", "SV1_pb", "SV1_pc",
-    "rnnip_pu", "rnnip_pc", "rnnip_pb", "rnnip_ptau",
-    "JetFitter_energyFraction", "JetFitter_mass",
-    "JetFitter_significance3d", "JetFitter_deltaphi", "JetFitter_deltaeta",
-    "JetFitter_massUncorr", "JetFitter_dRFlightDir",
-    "SV1_masssvx", "SV1_efracsvx", "SV1_significance3d", "SV1_dstToMatLay",
-    "SV1_deltaR", "SV1_Lxy", "SV1_L3d",
-    "JetFitter_nVTX", "JetFitter_nSingleTracks", "JetFitter_nTracksAtVtx",
+    "softMuon_dR",
+    "softMuon_pTrel",
+    "softMuon_scatteringNeighbourSignificance",
+    "softMuon_momentumBalanceSignificance",
+    "softMuon_qOverPratio",
+    "softMuon_ip3dD0",
+    "softMuon_ip3dD0Significance",
+    "softMuon_ip3dZ0",
+    "softMuon_ip3dZ0Significance",
+    "JetFitter_mass",
+    "JetFitter_isDefaults",
+    "JetFitter_energyFraction",
+    "JetFitter_significance3d",
+    "JetFitter_nVTX",
+    "JetFitter_nSingleTracks",
+    "JetFitter_nTracksAtVtx",
     "JetFitter_N2Tpair",
-    "SV1_N2Tpair", "SV1_NGTinSvx"
+    "JetFitter_deltaR",
+    "SV1_NGTinSvx",
+    "SV1_masssvx",
+    "SV1_isDefaults",
+    "SV1_N2Tpair",
+    "SV1_efracsvx",
+    "SV1_deltaR",
+    "SV1_Lxy",
+    "SV1_L3d",
+    "SV1_significance3d",
+    "IP2D_bu",
+    "IP2D_isDefaults",
+    "IP2D_bc",
+    "IP2D_cu",
+    "IP3D_bu",
+    "IP3D_isDefaults",
+    "IP3D_bc",
+    "IP3D_cu",
+    "JetFitterSecondaryVertex_nTracks",
+    "JetFitterSecondaryVertex_isDefaults",
+    "JetFitterSecondaryVertex_mass",
+    "JetFitterSecondaryVertex_energy",
+    "JetFitterSecondaryVertex_energyFraction",
+    "JetFitterSecondaryVertex_displacement3d",
+    "JetFitterSecondaryVertex_displacement2d",
+    "JetFitterSecondaryVertex_maximumTrackRelativeEta",
+    "JetFitterSecondaryVertex_minimumTrackRelativeEta",
+    "JetFitterSecondaryVertex_averageTrackRelativeEta",
+    "maximumTrackRelativeEta",
+    "minimumTrackRelativeEta",
+    "averageTrackRelativeEta",
+    "rnnip_pb",
+    "rnnip_pc",
+    "rnnip_pu",
+    "softMuon_pb",
+    "softMuon_pc",
+    "softMuon_pu",
+    "softMuon_isDefaults",
 ]
 
 BTaggingXbbAux = [
@@ -88,7 +131,7 @@ JetExtendedAux = [
 ]
 
 def BTaggingExpertContent(jetcol):
-    
+
     btaggingtmp = "BTagging_" + jetcol.split('Jets')[0]
     if 'BTagging' in jetcol:
          stamp = jetcol.split('BTagging')[1]
@@ -142,7 +185,7 @@ def BTaggingXbbContent(jetcol):
     jetcontent = [ ".".join( [ jetcol + "Aux" ] + jetAllAux ) ]
 
     # add aux variables
-    btaggingAllAux = BTaggingXbbAux + BTaggingStandardAux
+    btaggingAllAux = BTaggingHighLevelAux + BTaggingStandardAux
     btagcontent = [ ".".join( [ btagging + "Aux" ] + btaggingAllAux ) ]
 
     return [jetcol] + jetcontent + [ btagging ] + btagcontent

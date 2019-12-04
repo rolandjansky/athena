@@ -10,6 +10,7 @@
 #include "BTagging/JetBTaggerTool.h"
 #include "BTagging/StandAloneJetBTaggerAlg.h"
 #include "BTagging/BTagTrackAugmenterAlg.h"
+#include "BTagging/BTagNNAlg.h"
 
 using namespace Analysis ;
 
@@ -17,6 +18,7 @@ using namespace Analysis ;
 //DECLARE_ALGORITHM_FACTORY( BJetBuilderFast )
 DECLARE_ALGORITHM_FACTORY( StandAloneJetBTaggerAlg )
 DECLARE_ALGORITHM_FACTORY( BTagTrackAugmenterAlg )
+DECLARE_ALGORITHM_FACTORY( BTagNNAlg )
 DECLARE_TOOL_FACTORY( BTagLabeling )
 DECLARE_TOOL_FACTORY( BTagTrackAssociation )
 DECLARE_TOOL_FACTORY( BTagSecVertexing )
@@ -32,6 +34,7 @@ DECLARE_FACTORY_ENTRIES( BTagging )
 //  DECLARE_ALGORITHM( BJetBuilderFast );
   DECLARE_ALGORITHM( StandAloneJetBTaggerAlg );
   DECLARE_ALGORITHM( BTagTrackAugmenterAlg );
+  DECLARE_ALGORITHM( BTagNNAlg );
   DECLARE_TOOL( BTagLabeling );
   DECLARE_TOOL( BTagTrackAssociation );
   DECLARE_TOOL( BTagSecVertexing );

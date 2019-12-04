@@ -37,6 +37,7 @@ from DerivationFrameworkFlavourTag import BTaggingContent as bvars
 from DerivationFrameworkMCTruth.MCTruthCommon import (
     addTruth3ContentToSlimmerTool)
 from DerivationFrameworkJetEtMiss.JSSVariables import JSSHighLevelVariables
+from BTagging.BTaggingConf import Analysis__BTagNNAlg as BTagNNAlg
 
 from FlavorTagDiscriminants.discriminants import complex_jet_discriminants
 
@@ -216,6 +217,25 @@ addVRJets(
     training='201903',
     logger=ftag5_log)
 
+# Add new DL1 and RNN
+newtag_collections = [
+    'AntiKtVR30Rmax4Rmin02TrackJets',
+    'AntiKtVR30Rmax4Rmin02TrackGhostTagJets'
+]
+rnn_remap = {'rnnip_p' + x: 'rnnipT_p' + x for x in 'bcu'}
+FTAG5Seq += BTagNNAlg(
+    "BTagRNNForTrackJets",
+    nnPath='BTagging/201903/rnnip/antiktvr30rmax4rmin02track/network.json',
+    jetCollections=newtag_collections,
+    variableRemapping=rnn_remap)
+dl1_remap = {'DL1r_p' + x: 'DL1Tr_p' + x for x in 'bcu'}
+dl1_remap.update(rnn_remap)
+FTAG5Seq += BTagNNAlg(
+    "BTagDL1rForTrackJets",
+    nnPath='BTagging/201903/dl1r/antiktvr30rmax4rmin02track/network.json',
+    jetCollections=newtag_collections,
+    variableRemapping=dl1_remap)
+
 
 #===================================================================
 # Link VR jets to large-R jets 
@@ -339,6 +359,14 @@ ghost_subjets = [
 for jc in ['AntiKt10LCTopoJets', 'AntiKt10TrackCaloClusterJets']:
     FTAG5SlimmingHelper.ExtraVariables.append(
         '.'.join([jc] + ghost_counts + ghost_pts + ghost_subjets))
+
+# add some extra retrained taggers
+augmented_btag_containers = [
+    'BTagging_AntiKtVR30Rmax4Rmin02Track',
+    'BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag']
+for cont in augmented_btag_containers:
+    FTAG5SlimmingHelper.ExtraVariables.append(
+        '.'.join([cont] + dl1_remap.values()))
 
 FTAG5SlimmingHelper.IncludeMuonTriggerContent = False
 FTAG5SlimmingHelper.IncludeEGammaTriggerContent = False
