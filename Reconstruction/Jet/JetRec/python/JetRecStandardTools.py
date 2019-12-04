@@ -34,6 +34,7 @@ from JetRecTools.JetRecToolsConf import CorrectPFOTool
 from JetRecTools.JetRecToolsConf import ChargedHadronSubtractionTool
 from JetRecTools.JetRecToolsConf import TrackPseudoJetGetter
 from JetRecTools.JetRecToolsConf import JetTrackSelectionTool
+from JetRecTools.JetRecToolsConf import JetTrackSelectionTool2
 from JetRecTools.JetRecToolsConf import SimpleJetTrackSelectionTool
 from JetRecTools.JetRecToolsConf import TrackVertexAssociationTool
 # PS 5/12/2017 from JetSimTools.JetSimToolsConf import TruthPseudoJetGetter
@@ -129,12 +130,16 @@ jtm += InDet__InDetTrackSelectionTool(
   minPt    = 500
 )
 
-jtm += JetTrackSelectionTool(
+# This tool is only used to access the selector so we use
+# the simplified JetTrackSelectionTool. The other tools definied here
+# could probably also move to this tool.
+
+jtm += JetTrackSelectionTool2(
   "trackselloose",
-  InputContainer  = jtm.trackContainer,
-  OutputContainer = "JetSelectedTracks",
+  # InputContainer  = jtm.trackContainer,
+  # OutputContainer = "JetSelectedTracks",
   Selector        = jtm.trk_trackselloose
-)
+  )
 
 jtm += InDet__InDetTrackSelectionTool(
   "trk_trackselloose_trackjets",
