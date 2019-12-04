@@ -22,6 +22,7 @@ namespace CP {
         if (c) (*c)[type()] = m_cutValue;
         float isoValue = 0;
         std::vector<double> isoVars;
+        for (unsigned int acc = 0; acc < num_types(); ++acc) if (!(*accessor(acc)).isAvailable(x)) Warning("IsolationConditionFormula","Accessor is not available. Expected when using primary AODs, post-p3793 derivations (only for *FixedRad or FixedCutPflow* for electrons), pre-p3517 derivations (only for FC*), or pre-p3830 derivations (for other electron WPs)");
         for (unsigned int acc = 0; acc < num_types(); ++acc) isoVars.push_back( (*accessor(acc) )(x));
         isoValue = m_isoFunction->EvalPar(&isoVars[0]);
         return isoValue <= m_cutValue;

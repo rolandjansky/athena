@@ -84,9 +84,8 @@ private:
   std::unique_ptr< TFile > m_wpFileIn;
   std::unique_ptr< TMVA::Reader > m_MVreader;
 
-  std::unique_ptr< TH3D > m_mvfjvtThresh1516;
-  std::unique_ptr< TH3D > m_mvfjvtThresh17;
-  std::unique_ptr< TH3D > m_mvfjvtThresh18;
+  std::unique_ptr< TH3D > m_mvfjvtThresh;
+
 
   std::string m_outLabelMV;
   std::string m_orLabel;

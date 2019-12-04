@@ -109,6 +109,8 @@ DerivationFramework::SkimmingToolHIGG1::SkimmingToolHIGG1(const std::string& t,
 
   declareProperty("MinimumPhotonPt",       m_minPhotonPt = 20*CLHEP::GeV);
   declareProperty("MinimumElectronPt",     m_minElectronPt = 20*CLHEP::GeV);
+  declareProperty("MinimumMergedElectronPt",  m_minMergedElectronPt = 18*CLHEP::GeV);
+
   declareProperty("MinimumMuonPt",         m_minMuonPt = 20*CLHEP::GeV);
   declareProperty("MaxMuonEta",            m_maxMuonEta = 2.7);
   declareProperty("RemoveCrack",           m_removeCrack = true);
@@ -865,7 +867,7 @@ bool DerivationFramework::SkimmingToolHIGG1::MergedElectronPreselect(const xAOD:
 
   if (eta > m_maxEta) return false;
   if (m_removeCrack && 1.37 <= eta && eta <= 1.52) return false;
-  if (pt <= m_minElectronPt) return false;
+  if (pt <= m_minMergedElectronPt) return false;
 
   return m_mergedCutTools->accept(el) || ElectronPreselect(el);
 

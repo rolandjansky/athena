@@ -1,5 +1,5 @@
 ################################################################################
-# EXOT27 - Official monoHbb+monoScalar derivation
+# EXOT27 - Official monoHbb+monoScalar+monoVhad derivation
 ################################################################################
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import (
@@ -94,8 +94,11 @@ if DerivationFrameworkIsMonteCarlo:
     "TruthVertices",
     "MET_Truth",
     ]
+
 EXOT27ExtraVariables["TauJets"].update(["truthJetLink", "truthParticleLink",
     "ptDetectorAxis", "etaDetectorAxis", "mDetectorAxis"])
+EXOT27ExtraVariables["AntiKt4EMPFlowJets"].update(["NumTrkPt500"])
+
 def outputContainer(container, warnIfNotSmart=True):
   if container in EXOT27SmartContainers + EXOT27AllVariables:
     logger.debug("Container '{0}' already requested for output!")
@@ -161,26 +164,36 @@ JetCommon.OutputJets["EXOT27Jets"].append(vrGhostTagTrackJets+"Jets")
 # schedule pflow tagging
 FlavorTagInit(JetCollections=['AntiKt4EMPFlowJets'], Sequencer=EXOT27Seq)
 
+#=======================================
+# JETS
+#=======================================
+# Create TCC objects
+from TrackCaloClusterRecTools.TrackCaloClusterConfig import runTCCReconstruction
+# Set up geometry and BField
+include("RecExCond/AllDet_detDescr.py")
+runTCCReconstruction(EXOT27Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles",outputTCCName="TrackCaloClustersCombinedAndNeutral")
+
+
 # *Something* is asking for the pseudo jet getters for the FR track jets so I'm
 # still producing them, just not outputting them.
 replace_jet_list = [
   "AntiKt2PV0TrackJets",
-  "AntiKt4PV0TrackJets"]
+  "AntiKt4PV0TrackJets",
+  "AntiKt10TrackCaloClusterJets"]
 if JetCommon.jetFlags.useTruth:
   replace_jet_list += ["AntiKt4TruthJets"]
 ExtendedJetCommon.replaceAODReducedJets(
     jetlist=replace_jet_list, sequence=EXOT27Seq, outputlist="EXOT27Jets")
 
-
 # Includes the 5% pT trimmed R=1.0 jets
 ExtendedJetCommon.addDefaultTrimmedJets(EXOT27Seq, "EXOT27Jets")
+ExtendedJetCommon.addTCCTrimmedJets(EXOT27Seq,"EXOT27Jets")
 
 # add in the retrained vr jets
 HbbCommon.addVRJets(
     sequence=EXOT27Seq, do_ghost=False, logger=logger, training='201903')
 JetCommon.OutputJets["EXOT27Jets"].append(
     "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903")
-
 
 # add akt2
 JetCommon.addStandardJets("AntiKt",0.2,"LCTopo", mods="lctopo_ungroomed", calibOpt="none", ghostArea=0.01, ptmin=2000, ptminFilter=7000, algseq=EXOT27Seq, outputGroup="EXOT27Jets")
@@ -194,6 +207,7 @@ EXOT27ExtraVariables["AntiKt2LCTopoJets"].update([
 
 OutputLargeR = [
   "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+  "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
   ]
 # XAMPP seems to use the 'Width' variable from these?
 for lrj in OutputLargeR:
@@ -203,7 +217,8 @@ for lrj in OutputLargeR:
       "Tau4_wta",
       ])
 OutputLargeRParent = [
-  "AntiKt10LCTopoJets",
+    "AntiKt10LCTopoJets",
+    "AntiKt10TrackCaloClusterJets",
   ]
 for lrj in OutputLargeRParent:
   EXOT27ExtraVariables[lrj].update(["GhostBQuarksFinal"])
@@ -211,6 +226,7 @@ for lrj in OutputLargeRParent:
 # Ghost-associated the track jets to these large-R jets
 toBeAssociatedTo = [
   "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+  "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
   ]
 toAssociate = {
   vrTrackJetGhosts : vrTrackJetGhosts.lower(),
@@ -237,6 +253,10 @@ for extra in HbbCommon.xbbTaggerExtraVariables:
   partition = extra.partition('.')
   EXOT27ExtraVariables[partition[0]].update(partition[2].split('.') )
 
+# Augment AntiKt4 jets with QG tagging variables
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
+addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=EXOT27Seq,algname="QGTaggerToolPFAlg")
+
 ################################################################################
 # Setup augmentation (add new decorations to objects)
 ################################################################################
@@ -249,8 +269,18 @@ EXOT27TrackSelection = DerivationFramework__InDetTrackSelectionToolWrapper(name 
 EXOT27TrackSelection.TrackSelectionTool.CutLevel = "Loose"
 ToolSvc += EXOT27TrackSelection
 
-EXOT27AugmentationTools.append(EXOT27TrackSelection) 
+EXOT27AugmentationTools.append(EXOT27TrackSelection)
 
+if DerivationFrameworkIsMonteCarlo:
+    #add STXS inputs
+    from DerivationFrameworkHiggs.DerivationFrameworkHiggsConf import DerivationFramework__TruthCategoriesDecorator
+    DFHTXSdecorator = DerivationFramework__TruthCategoriesDecorator(name = "DFHTXSdecorator")
+    
+    ToolSvc += DFHTXSdecorator
+    from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
+    DerivationFrameworkJob += DerivationFramework__CommonAugmentation("TruthCategoriesCommonKernel",
+                                                                             AugmentationTools = [DFHTXSdecorator]
+                                                                             )
 # Trigger matching augmentation
 matching_helper = TriggerMatchingHelper(
     "EXOT27TriggerMatchingTool",
@@ -285,12 +315,13 @@ EXOT27ThinningTools.append(DerivationFramework__GenericObjectThinning(
 
 EXOT27BaselineElectron = "Electrons.DFCommonElectronsLHLooseBL"
 EXOT27BaselineMuon     = "Muons.DFCommonGoodMuon && Muons.DFCommonMuonsPreselection"
-EXOT27BaselinePhoton   = "Photons.pt > 15.*GeV && Photons.DFCommonPhotonsIsEMTight"
+EXOT27BaselinePhoton   = "Photons.pt > 10.*GeV && Photons.DFCommonPhotonsIsEMTight"
 EXOT27BaselineTauJet   = "TauJets.pt > 10.*GeV && TauJets.DFCommonTausLoose"
 EXOT27SignalElectron   = (EXOT27BaselineElectron + " && Electrons.DFCommonElectronsLHTight "
     + "&& Electrons.pt > 20.*GeV")
 EXOT27SignalMuon       = EXOT27BaselineMuon + " && Muons.pt > 20.*GeV"
 EXOT27SignalPhoton     = EXOT27BaselinePhoton + " && Photons.pt > 100.*GeV"
+
 
 EXOT27BaselineTrack = "(InDetTrackParticles.EXOT27DFLoose) && (InDetTrackParticles.pt > 0.5*GeV) && (abs(DFCommonInDetTrackZ0AtPV)*sin(InDetTrackParticles.theta) < 3.0*mm) && (InDetTrackParticles.d0 < 2.0*mm)"
 
@@ -564,6 +595,7 @@ JetCommon.addJetOutputs(
     slimhelper = EXOT27SlimmingHelper,
     contentlist=["EXOT27Jets"],
     smartlist = [
+      "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
       "AntiKt2LCTopoJets",
       "AntiKtVR30Rmax4Rmin02TrackGhostTagJets",
@@ -579,6 +611,9 @@ JetCommon.addJetOutputs(
 EXOT27SlimmingHelper.ExtraVariables += [
   "{0}.{1}".format(k, '.'.join(v) ) for k, v in EXOT27ExtraVariables.iteritems()
 ]
+
+EXOT27SlimmingHelper.ExtraVariables  += ["AntiKt4EMPFlowJets.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_eta"]
+
 
 matching_helper.add_to_slimming(EXOT27SlimmingHelper)
 
