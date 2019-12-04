@@ -416,8 +416,9 @@ StatusCode TileCellMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 
         if (isCellGood) {
 
-          if ((energy > 300.) && (energy < 2000.)
-              && (time > -60.) && (time < 60.) && (time != 0)) {
+          if ((energy > m_energyRangeForMuon[0]) && (energy < m_energyRangeForMuon[1])
+              && (time > m_timeRangeForMuon[0]) && (time < m_timeRangeForMuon[1])
+              && (time != 0)) { // Cell has reconstructed time
             muonCells.push_back(cell);
           }
 

@@ -63,6 +63,11 @@ class TileCellMonitorAlgorithm : public TileMonitorAlgorithm {
     Gaudi::Property<bool> m_fillTimeAndEnergyDiffHistograms{this, "fillTimeAndEnergyDiffHistograms", true,
          "Fill histograms with time and energy difference between two PMTs of the same Cell"};
 
+    Gaudi::Property<std::vector<float>> m_energyRangeForMuon{this,
+         "EnergyRangeForMuon", {300.0F, 2000.F}, "Cell energy range for muon in MeV"};
+
+    Gaudi::Property<std::vector<float>> m_timeRangeForMuon{this,
+         "TimeRangeForMuon", {-60.0F, 60.F}, "Cell time range for muon in ns"};
 
     ToolHandle<ITileBadChanTool> m_tileBadChanTool{this,
         "TileBadChanTool", "TileBadChanTool", "Tile bad channel tool"};
