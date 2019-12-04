@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -29,7 +29,6 @@ TRTRawDataProviderTool::TRTRawDataProviderTool
   :  AthAlgTool( type, name, parent ),
      m_decoder   ("TRT_RodDecoder",this),
      m_bsErrSvc ("TRT_ByteStream_ConditionsSvc", name),
-     m_LastLvl1ID(),
      m_storeInDetTimeColls(true),
      m_doEventCheck(true)
 {
@@ -79,9 +78,6 @@ StatusCode TRTRawDataProviderTool::initialize()
      ATH_MSG_INFO( "Retrieved service " << m_bsErrSvc );
 
 
-  //initialize LastLvl1ID, to keep track of new events.
-  m_LastLvl1ID = 0xffffffff;
-
   //initialize write handles
   ATH_CHECK(m_lvl1idkey.initialize());
   ATH_CHECK(m_bcidkey.initialize());
@@ -114,9 +110,19 @@ StatusCode TRTRawDataProviderTool::convert(const std::vector<const ROBFragment*>
   std::unique_ptr<InDetTimeCollection> LVL1Collection;
   std::unique_ptr<InDetTimeCollection> BCCollection;
   std::vector<const ROBFragment*>::const_iterator rob_it = vecRobs.begin();
+
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  //  std::lock_guard<std::mutex> lock{m_mutex};
+  // Do not lock mutex because this convert method is non-const.
+  // But we should make this method const.
+  CacheEntry* ent{m_cache.get(ctx)};
+  if (ent->m_evt!=ctx.evt()) { // New event in this slot
+    ent->m_LastLvl1ID = 0xffffffff;
+    ent->m_evt = ctx.evt();
+  }
   
   // are we working on a new event ?
-  bool isNewEvent = m_doEventCheck ? ((*rob_it)->rod_lvl1_id() != m_LastLvl1ID) : true;
+  bool isNewEvent = (m_doEventCheck ? ((*rob_it)->rod_lvl1_id() != ent->m_LastLvl1ID) : true);
 
   if ( isNewEvent )
   {
@@ -124,7 +130,7 @@ StatusCode TRTRawDataProviderTool::convert(const std::vector<const ROBFragment*>
      ATH_MSG_DEBUG( " New event, reset the collection set" );
 #endif
     // remember last Lvl1ID
-    m_LastLvl1ID = (*rob_it)->rod_lvl1_id();
+    ent->m_LastLvl1ID = (*rob_it)->rod_lvl1_id();
     // and clean up the identifable container !
     rdoIdc->cleanup(); //TODO REMOVE AFTER TRIGGER LEGACY CODE RETIRED
 
