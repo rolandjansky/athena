@@ -60,9 +60,9 @@ StatusCode TrigL2MuonOverlapRemoverMucombAlg::execute(const EventContext& contex
      const LVL1::RecMuonRoI* RecRoI = *RecRoIEL;
 
      // get View
-     ATH_CHECK( previousDecision->hasObjectLink( viewString()) );
-     auto viewEL = previousDecision->objectLink<ViewContainer>( viewString() );
-     ATH_CHECK( viewEL.isValid() );
+     auto viewELInfo = TrigCompositeUtils::findLink< ViewContainer >( previousDecision, viewString(), /*suppressMultipleLinksWarning = */ true  );
+     ATH_CHECK( viewELInfo.isValid() );
+     auto viewEL = viewELInfo.link;
      
      // get info
      auto L2MuonOverlapRemoverHandle = ViewHelper::makeHandle( *viewEL, m_OverlapRemoverKey, context );
