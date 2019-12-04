@@ -62,11 +62,11 @@ StatusCode Muon::MuonEventCnvTool::initialize()
 
     ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_rpcPrdKey.initialize());
-    ATH_CHECK(m_cscPrdKey.initialize());
+    ATH_CHECK(m_cscPrdKey.initialize(!m_cscPrdKey.empty())); // check for layouts without CSCs
     ATH_CHECK(m_tgcPrdKey.initialize());
     ATH_CHECK(m_mdtPrdKey.initialize());
-    ATH_CHECK(m_mmPrdKey.initialize());
-    ATH_CHECK(m_stgcPrdKey.initialize());
+    ATH_CHECK(m_mmPrdKey.initialize(!m_mmPrdKey.empty())); // check for layouts without MicroMegas
+    ATH_CHECK(m_stgcPrdKey.initialize(!m_stgcPrdKey.empty())); // check for layouts without STGCs
 
     return StatusCode::SUCCESS;
 }

@@ -192,9 +192,8 @@ namespace Muon {
 	}
       }
     }
-    SG::ReadHandle<CscSimDataCollection> cscCollection(m_CSC_SDO_TruthNames);
-    
-    bool useSDO =( !sdoCollections.empty() || cscCollection->size() );
+
+    bool useSDO =( !sdoCollections.empty() || !m_CSC_SDO_TruthNames.empty() );
     std::map<Muon::MuonStationIndex::ChIndex,int> matchMap;
     ATH_MSG_DEBUG(" Creating Truth segments " );
     // loop over chamber layers
@@ -220,10 +219,8 @@ namespace Muon {
 	bool isTrig = m_idHelper->isTrigger(id);
 	bool isEndcap = m_idHelper->isEndcap(id);
 	if( measPhi ) {
-	  if( isCsc ) phiLayers.insert( m_idHelper->gasGap(id) ); // ++nphiLayers;
-	  else        phiLayers.insert( m_idHelper->gasGap(id) );
-          //ATH_MSG_VERBOSE("gasgap " << m_idHelper->gasGap(id) << " phiLayers size " << phiLayers.size() );
-	}else{
+	  phiLayers.insert( m_idHelper->gasGap(id) );
+	} else {
 	  if( !isTrig ) {
 	    if( !chId.is_valid() ) chId = id; // use first precision hit in list
 	    if( isCsc || isMM ) {
@@ -269,6 +266,7 @@ namespace Muon {
 	    }
 	  }
 	  else{
+      SG::ReadHandle<CscSimDataCollection> cscCollection(m_CSC_SDO_TruthNames);
 	    auto pos = cscCollection->find(id);
 	    if( pos != cscCollection->end() ) {
 	      const MuonGM::CscReadoutElement * descriptor = m_muonMgr->getCscReadoutElement(id);
