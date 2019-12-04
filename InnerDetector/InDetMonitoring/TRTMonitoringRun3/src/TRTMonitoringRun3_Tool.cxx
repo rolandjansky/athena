@@ -50,7 +50,8 @@ TRTMonitoringRun3_Tool::TRTMonitoringRun3_Tool( const std::string& name, ISvcLoc
     declareProperty("doEfficiency",             m_doEfficiency          = false);
     declareProperty("doMaskStraws",             m_doMaskStraws          = true);
     declareProperty("doShift",                  m_doShift               = true); 
-    declareProperty("DistanceToStraw",          m_DistToStraw           = 0.4);  
+    declareProperty("DistanceToStraw",          m_DistToStraw           = 0.4);
+    declareProperty("MinTrackP",                m_minP                  = 0.0 * CLHEP::GeV);
 }
 
  
