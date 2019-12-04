@@ -11,7 +11,6 @@
 #define MUONTRACKINGGEOMETRY_MUONCHANNELDESIGN_H
 
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "TMath.h"
 
 namespace MuonGM {
 
@@ -68,7 +67,7 @@ namespace MuonGM {
     //double distanceToReadout( double locY ) const;
 
     /** distance to channel - residual */
-    double distanceToChannel( const Amg::Vector2D& pos, int nChannel=0 ) const;
+    double distanceToChannel( const Amg::Vector2D& pos, int nChannel=-1 ) const;
     //double distanceToReadout( double locY ) const;
 
     /** calculate local channel number, range 1=nstrips like identifiers. Returns -1 if out of range */
@@ -184,7 +183,7 @@ namespace MuonGM {
             // This line is to deal with strips in the deadzone. For now, return strip #1 until we figure out best fix
             // Alexandre Laurier 12 Sept 2018
           int strips = sAngle==0 ? nMissedBottomEta : nMissedBottomStereo;
-          chNum = TMath::Nint( (xMid - xMfirst)/inputPitch) + strips;
+          chNum = ((int) std::round( (xMid - xMfirst)/inputPitch)) + strips;
           
           if (chNum<0) return -1;
           if (chNum>totalStrips) return -1;

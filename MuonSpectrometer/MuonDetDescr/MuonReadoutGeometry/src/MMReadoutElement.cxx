@@ -226,7 +226,7 @@ namespace MuonGM {
             m_etaDesign[il].firstPos = -0.5*m_etaDesign[il].xSize;
             m_etaDesign[il].signY  = 1 ;
 	
-            m_etaDesign[il].nch = TMath::Nint( (m_etaDesign[il].xSize/pitch)) + 1;
+            m_etaDesign[il].nch = ((int) std::round( (m_etaDesign[il].xSize/pitch))) + 1;
 
 	     if (m_etaDesign[il].nch > chMax) { // never enters in this if statement
                // fix with help of dead zone
@@ -246,8 +246,8 @@ namespace MuonGM {
           // in order to derive the total number of active strips for the stereo layer
         
          
-          double low_swift=( m_minHalfY -m_etaDesign[il].dlStereoBottom)*TMath::Abs(TMath::Tan(m_etaDesign[il].sAngle));
-          double up_swift = (m_maxHalfY - m_etaDesign[il].dlStereoTop)*TMath::Abs(TMath::Tan(m_etaDesign[il].sAngle));
+          double low_swift=( m_minHalfY -m_etaDesign[il].dlStereoBottom)*fabs(tan(m_etaDesign[il].sAngle));
+          double up_swift = (m_maxHalfY - m_etaDesign[il].dlStereoTop)*fabs(tan(m_etaDesign[il].sAngle));
           
           double lm1_swift =0;
           if(sector_l=='L' && (abs(getStationEta()))==1){
@@ -258,7 +258,7 @@ namespace MuonGM {
           double fPos = -0.5*m_etaDesign[il].xSize - low_swift + lm1_swift;
           double lPos = 0.5*m_etaDesign[il].xSize + up_swift;
           
-          m_etaDesign[il].nch = TMath::Nint( (lPos - fPos)/pitch ) + 1;
+          m_etaDesign[il].nch = ((int)std::round( (lPos - fPos)/pitch )) + 1;
                     
           m_etaDesign[il].firstPos = ( -0.5*m_etaDesign[il].xSize + (m_etaDesign[il].nMissedBottomStereo + m_etaDesign[il].nRoutedBottom - m_etaDesign[il].nMissedBottomEta)*pitch) - m_etaDesign[il].nRoutedBottom*pitch;
 
