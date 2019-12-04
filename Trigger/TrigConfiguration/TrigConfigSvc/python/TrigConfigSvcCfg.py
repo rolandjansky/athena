@@ -184,12 +184,8 @@ def setupHLTPrescaleCondAlg( flags = None ):
         hltPrescaleCondAlg.HLTPsk    = tc["hltpsk"]
     elif tc["source"] == "FILE":
         hltPrescaleCondAlg.Filename = getHLTPrescalesSetFileName( flags )
-        createHLTPrescalesFileFromMenu( flags )
     else:
         raise RuntimeError("trigger configuration flag 'trigConfig' starts with %s, which is not understood" % tc["source"])
-
-    hltPrescaleCondAlg.Source = "COOL"
-    hltPrescaleCondAlg.TriggerDB = "TRIGGERDBDEV2"
 
     if flags is None: # old style config
         from AthenaCommon.AlgSequence import AthSequencer
