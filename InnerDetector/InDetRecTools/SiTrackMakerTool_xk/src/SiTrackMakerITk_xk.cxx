@@ -671,8 +671,7 @@ void InDet::SiTrackMakerITk_xk::newEvent(bool PIX,bool SCT)
     m_truthPIX = 0;
     StatusCode  s = evtStore()->retrieve(m_truthPIX,"PRD_MultiTruthPixel");    
     if (s.isFailure() || !m_truthPIX) m_usetruth = false;
-  }
-  if(m_usetruth) {
+
     m_truthSCT = 0;
     StatusCode  s = evtStore()->retrieve(m_truthSCT,"PRD_MultiTruthSCT");    
     if (s.isFailure() || !m_truthSCT) m_usetruth = false;

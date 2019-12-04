@@ -252,13 +252,7 @@ void InDet::SiSpacePointsSeedMaker_ITkTrigger::newEvent(int iteration)
 
   if(!m_iteration) {
     buildBeamFrameWork();
-
-    double f[3], gP[3] ={10.,10.,0.}; 
-    if(m_fieldService->solenoidOn()) {
-      m_fieldService->getFieldZR(gP,f); m_K = 2./(300.*f[2]);
-    }
-    else m_K = 2./(300.* 5. );
-
+    
     m_ipt2K     = m_ipt2/(m_K*m_K);
     m_ipt2C     = m_ipt2*m_COF    ;
     m_COFK      = m_COF*(m_K*m_K) ;  
@@ -286,13 +280,6 @@ void InDet::SiSpacePointsSeedMaker_ITkTrigger::newRegion
   m_dzdrmax =  m_dzdrmax0;
 
   buildBeamFrameWork();
-
-  double f[3], gP[3] ={10.,10.,0.}; 
-
-  if(m_fieldService->solenoidOn()) {
-      m_fieldService->getFieldZR(gP,f); m_K = 2./(300.*f[2]);
-    }
-  else m_K = 2./(300.* 5. );
 
   m_ipt2K     = m_ipt2/(m_K*m_K);
   m_ipt2C     = m_ipt2*m_COF    ;
@@ -781,7 +768,13 @@ void InDet::SiSpacePointsSeedMaker_ITkTrigger::buildFrameWork()
   m_COF       =  134*.05*9.                    ;
   m_ipt       = 1./fabs(m_ptmin)               ;
   m_ipt2      = m_ipt*m_ipt                    ;
-  m_K         = 0.                             ;
+  
+  double f[3], gP[3] ={10.,10.,0.};
+  m_K = 2./(300.* 5. );  
+  if(m_fieldService->solenoidOn()) {
+    m_fieldService->getFieldZR(gP,f); 
+    m_K = 2./(300.*f[2]);    
+  }
 
   m_ns = m_nsaz = m_nsazv = 0;
 
@@ -927,6 +920,7 @@ void InDet::SiSpacePointsSeedMaker_ITkTrigger::buildBeamFrameWork()
   m_zbeam[1] = float(sint*cosp)               ;
   m_zbeam[2] = float(sint*sinp)               ;
   m_zbeam[3] = float(cost)                    ;
+  
 }
 
 ///////////////////////////////////////////////////////////////////
