@@ -2,6 +2,7 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
+from six import iteritems
 from AthenaCommon.Logging import logging
 log = logging.getLogger('L1DecoderConfig')
 
@@ -21,7 +22,7 @@ def mapThresholdToL1DecisionCollection(threshold):
                                 "TE" : "HLTNav_L1MET" }
 
     # remove actual threshold value from L1 threshold string
-    for thresholdType, l1Collection in mapThresholdToL1Decoder.iteritems():
+    for (thresholdType, l1Collection) in iteritems(mapThresholdToL1Decoder):
         if threshold.startswith( thresholdType ):
             return l1Collection
 
@@ -43,7 +44,7 @@ def mapThresholdToL1RoICollection(threshold):
                                 "TE" : "HLT_FSRoI" }
 
     # remove actual threshold value from L1 threshold string
-    for thresholdType, l1Collection in mapThresholdToL1Decoder.iteritems():
+    for (thresholdType, l1Collection) in iteritems(mapThresholdToL1Decoder):
         if threshold.startswith( thresholdType ):
             return l1Collection
 
