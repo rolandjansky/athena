@@ -89,34 +89,13 @@ StatusCode JetJvtEfficiency::initialize(){
   if (m_wp=="Loose") histname+="Loose";
   else if (m_wp=="Medium") histname+="Default";
   else if (m_wp=="Tight")  histname+="Tight";
+  else if (m_wp=="Tighter")  histname+="Tighter";
 
-  const xAOD::EventInfo *eventInfo = nullptr;
-
-
-  if(m_doMVfJVT/* || m_dofJVT*/) // 'm_dofJVT' will be uncommented once recommendations are fixed
-  {
-      if ( evtStore()->retrieve(eventInfo, "EventInfo").isFailure() )
-      {
-	  ATH_MSG_ERROR(" Could not retrieve EventInfo ");
-	  return StatusCode::FAILURE;
-      }
-      uint32_t runnumber = eventInfo->runNumber();
-      if(eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION)){
-	  if (runnumber<295000) histname += "1516";
-	  else if (runnumber<305000) histname += "17";
-	  else histname += "18";
-      } else {
-	  if (runnumber<320000) histname+= "1516";
-	  else if (runnumber<342000) histname+= "17";
-	  else histname += "18";
-      }
-  }
-      h_JvtHist.reset( dynamic_cast<TH2*>(infile->Get(histname.c_str())) );
-      h_JvtHist->SetDirectory(0);
-      histname.replace(0,3,"Eff");
-      h_EffHist.reset( dynamic_cast<TH2*>(infile->Get(histname.c_str())) );
-      h_EffHist->SetDirectory(0);
-
+  h_JvtHist.reset( dynamic_cast<TH2*>(infile->Get(histname.c_str())) );
+  h_JvtHist->SetDirectory(0);
+  histname.replace(0,3,"Eff");
+  h_EffHist.reset( dynamic_cast<TH2*>(infile->Get(histname.c_str())) );
+  h_EffHist->SetDirectory(0);
 
   if(h_JvtHist.get()==nullptr || h_EffHist.get()==nullptr) {
     ATH_MSG_ERROR("Failed to retrieve histograms.");
@@ -161,7 +140,20 @@ CorrectionCode JetJvtEfficiency::getEfficiencyScaleFactor( const xAOD::Jet& jet,
             }
         }
     }
-    int jetbin = h_JvtHist->FindBin(jet.pt(),fabs(jet.getAttribute<float>(m_jetEtaName)));
+
+    int jetbin = 0;
+    if((m_dofJVT && !std::strstr(m_file.c_str(),"Moriond")) || m_doMVfJVT){ // fJVT SFs stored in 'Moriond' directory use (pT,eta) binning, new SFs binned in (eta,mu)
+      const xAOD::EventInfo *eventInfo = nullptr;
+      if ( evtStore()->retrieve(eventInfo, "EventInfo").isFailure() )
+	{
+	  ATH_MSG_ERROR(" Could not retrieve EventInfo ");
+	  return CorrectionCode::Error;
+	}
+      jetbin = h_JvtHist->FindBin(jet.pt(),eventInfo->actualInteractionsPerCrossing());
+    } else {
+      jetbin = h_JvtHist->FindBin(jet.pt(),fabs(jet.getAttribute<float>(m_jetEtaName)));
+    }
+
     float baseFactor = h_JvtHist->GetBinContent(jetbin);
     float errorTerm  = h_JvtHist->GetBinError(jetbin);
     
@@ -192,7 +184,20 @@ CorrectionCode JetJvtEfficiency::getInefficiencyScaleFactor( const xAOD::Jet& je
             }
         }
     }
-    int jetbin = h_JvtHist->FindBin(jet.pt(),fabs(jet.getAttribute<float>(m_jetEtaName)));
+
+    int jetbin = 0;
+    if((m_dofJVT && !strstr(m_file.c_str(),"Moriond")) || m_doMVfJVT){
+      const xAOD::EventInfo *eventInfo = nullptr;
+      if ( evtStore()->retrieve(eventInfo, "EventInfo").isFailure() )
+	{
+	  ATH_MSG_ERROR(" Could not retrieve EventInfo ");
+	  return CorrectionCode::Error;
+	}
+      jetbin = h_JvtHist->FindBin(jet.pt(),eventInfo->actualInteractionsPerCrossing());
+    } else {
+      jetbin = h_JvtHist->FindBin(jet.pt(),fabs(jet.getAttribute<float>(m_jetEtaName)));
+    }
+
     float baseFactor = h_JvtHist->GetBinContent(jetbin);
     float effFactor = h_EffHist->GetBinContent(jetbin);
     float errorTerm  = h_JvtHist->GetBinError(jetbin);
@@ -279,8 +284,13 @@ bool JetJvtEfficiency::passesJvtCut(const xAOD::Jet& jet) {
 
 bool JetJvtEfficiency::isInRange(const xAOD::Jet& jet) {
   if (m_doOR && !jet.getAttribute<char>(m_ORdec)) return false;
-  if (fabs(jet.getAttribute<float>(m_jetEtaName))<h_JvtHist->GetYaxis()->GetBinLowEdge(1)) return false;
-  if (fabs(jet.getAttribute<float>(m_jetEtaName))>h_JvtHist->GetYaxis()->GetBinUpEdge(h_JvtHist->GetNbinsY())) return false;
+  if ( (m_dofJVT && !std::strstr(m_file.c_str(),"Moriond")) || m_doMVfJVT ){
+    if (fabs(jet.getAttribute<float>(m_jetEtaName))<2.5) return false;
+    if (fabs(jet.getAttribute<float>(m_jetEtaName))>4.5) return false;
+  } else {
+    if (fabs(jet.getAttribute<float>(m_jetEtaName))<h_JvtHist->GetYaxis()->GetBinLowEdge(1)) return false;
+    if (fabs(jet.getAttribute<float>(m_jetEtaName))>h_JvtHist->GetYaxis()->GetBinUpEdge(h_JvtHist->GetNbinsY())) return false;
+  }
   if (jet.pt()<h_JvtHist->GetXaxis()->GetBinLowEdge(1)) return false;
   if (jet.pt()>h_JvtHist->GetXaxis()->GetBinUpEdge(h_JvtHist->GetNbinsX())) return false;
   if (jet.pt()>m_maxPtForJvt) return false;
