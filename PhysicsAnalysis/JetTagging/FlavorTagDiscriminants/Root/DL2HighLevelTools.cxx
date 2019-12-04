@@ -28,8 +28,7 @@ namespace FlavorTagDiscriminants {
   std::vector<DL2InputConfig> get_input_config(
     const std::vector<std::string>& variable_names,
     const TypeRegexes& type_regexes,
-    const StringRegexes& default_flag_regexes,
-    std::map<std::string,std::string>& replaced_vars)
+    const StringRegexes& default_flag_regexes)
   {
     std::vector<DL2InputConfig> inputs;
     for (const auto& var: variable_names) {
@@ -39,17 +38,31 @@ namespace FlavorTagDiscriminants {
       input.default_flag = match_first(default_flag_regexes, var,
                                        "default matching");
 
-      // we let the user replace the input names, but we keep the same
-      // configuration for the defaults and types
-      auto replacement_itr = replaced_vars.find(var);
-      if (replacement_itr != replaced_vars.end()) {
-        input.name = replacement_itr->second;
-        replaced_vars.erase(replacement_itr);
-      }
-
       inputs.push_back(input);
     }
     return inputs;
+  }
+  // do some input variable magic in case someone asked
+  void remap_inputs(std::vector<lwt::Input>& nn,
+                    std::vector<DL2InputConfig>& dl2,
+                    std::map<std::string, std::string>& replaced_vars) {
+    if (nn.size() != dl2.size()) {
+      throw std::logic_error("DL2 input size != lwtnn input size");
+    }
+    for (size_t iii = 0; iii < nn.size(); iii++) {
+      std::string nn_name = nn.at(iii).name;
+      std::string dl_name = dl2.at(iii).name;
+      if (nn_name != dl_name) {
+        throw std::logic_error(
+          "DL2 input mismatch (" + nn_name + " != " + dl_name + ")");
+      }
+      auto replacement_itr = replaced_vars.find(nn_name);
+      if (replacement_itr != replaced_vars.end()) {
+        nn.at(iii).name = replacement_itr->second;
+        dl2.at(iii).name = replacement_itr->second;
+        replaced_vars.erase(replacement_itr);
+      }
+    }
   }
   std::vector<DL2TrackSequenceConfig> get_track_input_config(
     const std::vector<std::pair<std::string, std::vector<std::string>>>& names,
