@@ -11,7 +11,7 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
 from AthenaConfiguration.TestDefaults import defaultTestFiles
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-from OverlayCommonAlgs.OverlayCopyAlgsConfig import CopyMcEventCollectionCfg
+from OverlayCopyAlgs.OverlayCopyAlgsConfig import CopyMcEventCollectionCfg
 
 # Global test config
 nThreads = 1
@@ -24,6 +24,7 @@ ConfigFlags.Input.SecondaryFiles = defaultTestFiles.HITS
 ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"
 ConfigFlags.GeoModel.Align.Dynamic = False
 ConfigFlags.Overlay.DataOverlay = False
+ConfigFlags.Output.RDOFileName = "myRDO.pool.root"
 
 # Flags relating to multithreaded execution
 ConfigFlags.Concurrency.NumThreads = nThreads
