@@ -117,6 +117,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_tauTerm(""),
     m_jetTerm(""),
     m_muonTerm(""),
+    m_inputMETSuffix(""),
     m_outMETTerm(""),
     m_metRemoveOverlappingCaloTaggedMuons(true),
     m_metDoSetMuonJetEMScale(true),
@@ -432,6 +433,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "METTauTerm",     m_tauTerm   );
   declareProperty( "METJetTerm",     m_jetTerm   );
   declareProperty( "METMuonTerm",    m_muonTerm  );
+  declareProperty( "METInputSuffix", m_inputMETSuffix );
   declareProperty( "METOutputTerm",  m_outMETTerm );
   declareProperty( "METDoTrkSyst",   m_trkMETsyst  );
   declareProperty( "METDoCaloSyst",  m_caloMETsyst );
@@ -822,8 +824,10 @@ StatusCode SUSYObjDef_xAOD::initialize() {
     return StatusCode::FAILURE;
   }
 
-  m_inputMETSuffix = "AntiKt4" + xAOD::JetInput::typeName(xAOD::JetInput::Type(m_jetInputType));
-  m_defaultJets = m_inputMETSuffix + "Jets";
+  if (m_inputMETSuffix==""){
+    m_inputMETSuffix = "AntiKt4" + xAOD::JetInput::typeName(xAOD::JetInput::Type(m_jetInputType));
+  }
+  m_defaultJets = "AntiKt4" + xAOD::JetInput::typeName(xAOD::JetInput::Type(m_jetInputType)) + "Jets";
   ATH_MSG_INFO( "Configured for jet collection " << m_defaultJets );
 
   m_inputMETCore = "MET_Core_" + m_inputMETSuffix;
@@ -1391,6 +1395,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_tauTerm, "MET.TauTerm", rEnv, "RefTau");
   configFromFile(m_jetTerm, "MET.JetTerm", rEnv, "RefJet");
   configFromFile(m_muonTerm, "MET.MuonTerm", rEnv, "Muons");
+  configFromFile(m_inputMETSuffix, "MET.InputSuffix", rEnv, "", true); // May be empty
   configFromFile(m_outMETTerm, "MET.OutputTerm", rEnv, "Final");
   configFromFile(m_metRemoveOverlappingCaloTaggedMuons, "MET.RemoveOverlappingCaloTaggedMuons", rEnv, true);
   configFromFile(m_metDoSetMuonJetEMScale, "Met.DoSetMuonJetEMScale", rEnv, true);
