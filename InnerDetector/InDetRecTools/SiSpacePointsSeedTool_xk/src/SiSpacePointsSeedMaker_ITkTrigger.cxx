@@ -920,6 +920,7 @@ void InDet::SiSpacePointsSeedMaker_ITkTrigger::buildBeamFrameWork()
   m_zbeam[1] = float(sint*cosp)               ;
   m_zbeam[2] = float(sint*sinp)               ;
   m_zbeam[3] = float(cost)                    ;
+  
 }
 
 ///////////////////////////////////////////////////////////////////
