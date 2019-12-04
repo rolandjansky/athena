@@ -68,4 +68,4 @@ if __name__ == "__main__":
     print( acc.popToolsAndMerge( TileRawChannelBuilderFitOverflowCfg(ConfigFlags) ) )
 
     acc.printConfig(withDetails = True, summariseProps = True)
-    acc.store( open('TileRawChannelBuilderFit.pkl','w') )
+    acc.store( open('TileRawChannelBuilderFit.pkl','wb') )

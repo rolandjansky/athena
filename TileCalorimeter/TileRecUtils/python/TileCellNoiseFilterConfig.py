@@ -71,4 +71,4 @@ if __name__ == "__main__":
 
     ConfigFlags.dump()
     acc.printConfig(withDetails = True, summariseProps = True)
-    acc.store( open('TileCellNoiseFilter.pkl','w') )
+    acc.store( open('TileCellNoiseFilter.pkl','wb') )

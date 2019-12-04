@@ -83,7 +83,7 @@ if __name__ == "__main__":
 
     ConfigFlags.dump()
     acc.printConfig(withDetails = True, summariseProps = True)
-    acc.store( open('TileDigitsFilter.pkl','w') )
+    acc.store( open('TileDigitsFilter.pkl','wb') )
 
     sc = acc.run(maxEvents = 3)
 

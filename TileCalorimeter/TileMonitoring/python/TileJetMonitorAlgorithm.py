@@ -265,7 +265,7 @@ if __name__=='__main__':
     cfg.printConfig(withDetails = True, summariseProps = True)
     ConfigFlags.dump()
 
-    cfg.store( open('TileJetMonitorAlgorithm.pkl','w') )
+    cfg.store( open('TileJetMonitorAlgorithm.pkl','wb') )
 
     sc = cfg.run(maxEvents=3)
 

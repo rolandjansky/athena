@@ -159,7 +159,7 @@ if __name__ == "__main__":
     acc.getService('StoreGateSvc').Dump = True
     acc.printConfig(withDetails = True, summariseProps = True)
     ConfigFlags.dump()
-    acc.store( open('TileHitVecToCnt.pkl','w') )
+    acc.store( open('TileHitVecToCnt.pkl','wb') )
 
     sc = acc.run(maxEvents=3)
     # Success should be 0

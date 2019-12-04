@@ -35,6 +35,6 @@ if __name__ == "__main__":
     ConfigFlags.lock()
 
     acc = LArGMCfg(ConfigFlags)
-    f=open('LArGMCfg.pkl','w')
+    f=open('LArGMCfg.pkl','wb')
     acc.store(f)
     f.close()

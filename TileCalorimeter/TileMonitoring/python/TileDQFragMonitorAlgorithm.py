@@ -259,7 +259,7 @@ if __name__=='__main__':
 
     cfg.printConfig(withDetails = True, summariseProps = True)
 
-    cfg.store( open('TileDQFragMonitorAlgorithm.pkl','w') )
+    cfg.store( open('TileDQFragMonitorAlgorithm.pkl','wb') )
 
     sc = cfg.run(maxEvents = 3)
 
