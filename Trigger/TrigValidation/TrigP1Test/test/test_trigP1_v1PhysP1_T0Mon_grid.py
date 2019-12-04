@@ -48,7 +48,7 @@ tzreco.input = ''
 tzreco.explicit_input = True
 tzreco.args = '--inputBSFile=inputForReco._0001.data'  # output of the previous step
 tzreco.args += ' --outputESDFile=ESD.pool.root --outputAODFile=AOD.pool.root'
-tzreco.args += ' --conditionsTag=\'CONDBR2-BLKPA-2017-10\' --geometryVersion=\'ATLAS-R2-2016-01-00-01\''
+tzreco.args += ' --conditionsTag=\'CONDBR2-BLKPA-2018-11\' --geometryVersion=\'ATLAS-R2-2016-01-00-01\''
 tzreco.args += ' --preExec="{:s}"'.format(tzrecoPreExec)
 tzreco.args += ' --postInclude="TriggerTest/disableChronoStatSvcPrintout.py"'
 
