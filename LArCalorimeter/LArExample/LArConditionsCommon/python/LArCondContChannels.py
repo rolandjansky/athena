@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # File: LArConditionsCommon/python/LArCondContChannels.py
 # Author: RD Schaffer (R.D.Schaffer@cern.ch)
@@ -6,6 +6,8 @@
 # The LArCondContChannels class provides the translation for between
 # LArConditionsContainer group numbering and COOL channel numbering.
 #
+
+from __future__ import print_function
 
 import operator
 
@@ -289,8 +291,8 @@ class LArCondContChannels(object) :
     fts.sort()
     # Check value for posNeg
     if posNeg != -1 and posNeg != +1:
-      print(__name__,)
-      raise(__name__,"posNeg must be either +/-1, found: " + str(posNeg))
+      print(__name__)
+      raise RuntimeError (__name__ +"posNeg must be either +/-1, found: " + str(posNeg))
 
     offset = 0
     # First get offset per gain
@@ -334,8 +336,8 @@ class LArCondContChannels(object) :
     fts.sort()
     # Check value for posNeg
     if posNeg != -1 and posNeg != +1:
-      print (__name__,)
-      raise (__name__,"posNeg must be either +/-1, found: " + str(posNeg))
+      print (__name__)
+      raise RuntimeError (__name__ +"posNeg must be either +/-1, found: " + str(posNeg))
 
     offset = 0
     # First get offset per gain
@@ -395,7 +397,6 @@ class LArCondContChannels(object) :
   # Input: list of channel numbers
   def channelSelection(self, channels):
     chans = channels
-    #print "chans", chans
     chans.sort()
     chanSel = "<channelSelection>"
     first   = True
@@ -406,7 +407,6 @@ class LArCondContChannels(object) :
         chanSel += ', '
       chanSel += str(c)
     chanSel += "</channelSelection>"
-    #print "chanSel ", chanSel
     return chanSel
 
 
@@ -456,7 +456,6 @@ class LArCondContChannels(object) :
     chanNum  = channelNumber - self.offsetFtNegBarrel
     gain     = chanNum/self.ftPerGain
     chanNum  = chanNum - gain*self.ftPerGain + self.offsetFtNegBarrel
-    #print "chanNum",chanNum
 
     if chanNum < self.offsetFtPosBarrel:
       # is negative barrel
@@ -492,7 +491,6 @@ class LArCondContChannels(object) :
     chanNum  = channelNumber - self.offsetFtNegBarrel
     gain     = chanNum/self.nChannelsPerGain
     chanNum  = chanNum - gain*self.nChannelsPerGain + self.offsetFtNegBarrel
-    #print "chanNum",chanNum
 
     if chanNum < self.offsetFtPosBarrel:
       # is negative barrel
