@@ -15,8 +15,13 @@ from OverlayCopyAlgs.OverlayCopyAlgsConfig import \
     CopyCaloCalibrationHitContainersCfg, CopyJetTruthInfoCfg, CopyMcEventCollectionCfg, \
     CopyTimingsCfg, CopyTrackRecordCollectionsCfg
 
-# Global test config
-nThreads = 1
+# Argument parsing
+from argparse import ArgumentParser
+parser = ArgumentParser(prog="OverlayCopyAlgs_test.py")
+parser.add_argument("-n", "--nEvents",  default=3, type=int, help="The number of events to run. 0 skips execution")
+parser.add_argument("-t", "--nThreads", default=1, type=int, help="The number of concurrent threads to run. 0 uses serial Athena.")
+parser.add_argument("-V", "--verboseAccumulators", default=False, action="store_true", help="Print full details of the AlgSequence for each accumulator")
+args = parser.parse_args()
 
 # Configure
 Configurable.configurableRun3Behavior = True
@@ -27,15 +32,16 @@ ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"
 ConfigFlags.GeoModel.Align.Dynamic = False
 ConfigFlags.Overlay.DataOverlay = False
 ConfigFlags.Output.RDOFileName = "myRDO.pool.root"
-ConfigFlags.Output.RDO_SGNLFileName = "myRDO_SGNL.pool.root"
+# TODO: temporarily disabled due to I/O problems
+# ConfigFlags.Output.RDO_SGNLFileName = "myRDO_SGNL.pool.root"
 
 # Flags relating to multithreaded execution
-ConfigFlags.Concurrency.NumThreads = nThreads
-if nThreads > 0:
+ConfigFlags.Concurrency.NumThreads = args.nThreads
+if args.nThreads > 0:
     ConfigFlags.Scheduler.ShowDataDeps = True
     ConfigFlags.Scheduler.ShowDataFlow = True
     ConfigFlags.Scheduler.ShowControlFlow = True
-    ConfigFlags.Concurrency.NumConcurrentEvents = nThreads
+    ConfigFlags.Concurrency.NumConcurrentEvents = args.nThreads
 
 ConfigFlags.lock()
 
@@ -51,11 +57,12 @@ acc.merge(CopyCaloCalibrationHitContainersCfg(ConfigFlags))
 acc.merge(CopyTrackRecordCollectionsCfg(ConfigFlags))
 
 # Dump config
-acc.printConfig(withDetails=True)
+if args.verboseAccumulators:
+    acc.printConfig(withDetails=True)
 ConfigFlags.dump()
 
 # Execute and finish
-sc = acc.run(maxEvents=3)
+sc = acc.run(maxEvents=args.nEvents)
 
 # Dump config summary
 acc.printConfig(withDetails=False)
