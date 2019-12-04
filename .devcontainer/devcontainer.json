@@ -11,7 +11,8 @@
     ],
 
     "settings": {
-        "terminal.integrated.shell.linux": "/bin/bash"
+        "terminal.integrated.shell.linux": "/bin/bash",
+        "git.path": "/opt/rh/sclo-git25/root/usr/bin/git"
     },
 
     "extensions": [
