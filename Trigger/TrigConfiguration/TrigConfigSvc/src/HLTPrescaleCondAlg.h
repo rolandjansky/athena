@@ -19,8 +19,6 @@
 
 namespace TrigConf {
 
-   using HLTPrescalesSetPtr = std::shared_ptr<HLTPrescalesSet>;
-
    /**
     * @brief Condition algorithm to provide the L1 trigger menu
     *
@@ -42,13 +40,13 @@ namespace TrigConf {
    private:
       
       // helper function to load a HLT prescales set from a file
-      HLTPrescalesSetPtr createFromFile( const std::string & filename ) const;
+      std::shared_ptr<HLTPrescalesSet> createFromFile( const std::string & filename ) const;
 
       // helper function to load a HLT prescales set from a prescale key
-      HLTPrescalesSetPtr createFromDB( unsigned int psk, bool isRun3 ) const;
+      std::shared_ptr<HLTPrescalesSet> createFromDB( unsigned int psk, bool isRun3 ) const;
 
       // map the prescale key to a HLTPrescalesSet
-      mutable tbb::concurrent_unordered_map<unsigned int, HLTPrescalesSetPtr> m_pssMap;
+      mutable tbb::concurrent_unordered_map<unsigned int, std::shared_ptr<HLTPrescalesSet>> m_pssMap;
 
       // input key to the HLT Prescale Key folder
       SG::ReadCondHandleKey<AthenaAttributeList> m_pskFolderInputKey{ this, "PSKFolder", "/TRIGGER/HLT/PrescaleKey", "SG Key of AthenaAttributeList containing hlt psk"};

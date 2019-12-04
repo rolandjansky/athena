@@ -168,7 +168,7 @@ def getHLTConfigSvc( flags = None ):
     return hltConfigSvc
 
 
-# configuration of HLTConfigSvc
+# configuration of CondAlg providing the HLTPrescalesSet
 @memoize
 def setupHLTPrescaleCondAlg( flags = None ):
     log = logging.getLogger('TrigConfigSvcCfg')

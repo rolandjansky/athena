@@ -16,7 +16,7 @@ TrigConf::HLTPrescaleCondAlg::HLTPrescaleCondAlg(const std::string& name, ISvcLo
 {}
 
 
-TrigConf::HLTPrescalesSetPtr
+std::shared_ptr<TrigConf::HLTPrescalesSet>
 TrigConf::HLTPrescaleCondAlg::createFromFile( const std::string & filename ) const {
    auto pss = std::make_shared<HLTPrescalesSet>();
    // load the file into the HLT prescales set
@@ -34,7 +34,7 @@ TrigConf::HLTPrescaleCondAlg::createFromFile( const std::string & filename ) con
 }
 
 
-TrigConf::HLTPrescalesSetPtr
+std::shared_ptr<TrigConf::HLTPrescalesSet>
 TrigConf::HLTPrescaleCondAlg::createFromDB( unsigned int psk, bool isRun3 ) const {
    if( ! isRun3 ) {
       ATH_MSG_WARNING( "Currently it is not possible to load run 2 prescale sets from the database. Will not load HLT psk " << psk ); 
@@ -146,6 +146,7 @@ TrigConf::HLTPrescaleCondAlg::execute(const EventContext& ctx) const {
    }
 
    std::shared_ptr<HLTPrescalesSet> pss;
+
    if( m_configSource == "FILE" ) {
 
       pss = m_pssMap.at(0);
@@ -158,10 +159,13 @@ TrigConf::HLTPrescaleCondAlg::execute(const EventContext& ctx) const {
 
          bool isRun3 = range.start().run_number()>350000;
 
-         m_pssMap[hltPsk] = createFromDB( hltPsk, isRun3 );
-      }
+         pss = m_pssMap[hltPsk] = createFromDB( hltPsk, isRun3 );
+
+      } else {
       
-      pss = m_pssMap.at( hltPsk );
+         pss = pssi->second;
+
+      }
 
    } else {
 
