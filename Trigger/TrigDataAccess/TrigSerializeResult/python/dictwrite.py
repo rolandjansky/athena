@@ -127,6 +127,9 @@ objects = [
 'xAOD::TrigEMClusterAuxContainer_v2',
 'xAOD::TrigRingerRingsAuxContainer_v2',
 'xAOD::TrigRNNOutputAuxContainer_v2',
+'xAOD::TauTrack_v1',
+'xAOD::TauTrackContainer_v1',
+'xAOD::TauTrackAuxContainer_v1',
 #'TrigMuonEFIsolation_p2',
 ]
 
