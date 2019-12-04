@@ -80,8 +80,6 @@ void Trk::GsfEnergyLossEffects::compute(IMultiStateMaterialEffects::Cache& cache
 
 
   double pathcorrection = pathLength / materialProperties.thickness();
-
-  const Amg::VectorX& trackStateVector = trackParameters->parameters();
   const Amg::Vector3D& globalMomentum = trackParameters->momentum();
 
   EnergyLoss* energyLoss = m_EnergyLossUpdator->energyLoss(
