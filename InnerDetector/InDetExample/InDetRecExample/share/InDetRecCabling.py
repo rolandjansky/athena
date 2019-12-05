@@ -17,7 +17,7 @@ if DetFlags.detdescr.pixel_on() and not 'PixelCabling' in dir():
   PixelCablingSvc = getService("PixelCablingSvc")
   ServiceMgr += PixelCablingSvc
   if (InDetFlags.doPrintConfigurables()):
-    print  PixelCablingSvc
+    print(PixelCablingSvc)
       
 #
 # --- SCT cabling
@@ -30,7 +30,7 @@ if DetFlags.detdescr.SCT_on():
     SCT_CablingCondAlgFromCoraCool = getAlgorithm("SCT_CablingCondAlgFromCoraCool")
     condSeq += SCT_CablingCondAlgFromCoraCool
     if (InDetFlags.doPrintConfigurables()):
-      print  SCT_CablingCondAlgFromCoraCool
+      print(SCT_CablingCondAlgFromCoraCool)
   
 #
 # --- TRT cabling
@@ -44,12 +44,12 @@ if DetFlags.detdescr.TRT_on() and not 'TRT_Cabling' in dir():
     TRT_Cabling.RealData=True
   ToolSvc += TRT_Cabling 
   if (InDetFlags.doPrintConfigurables()):
-    print  TRT_Cabling
+    print(TRT_Cabling)
 
   from TRT_Cabling.TRT_CablingConf import TRT_CablingSvc
   TRT_CablingSvc = TRT_CablingSvc() 
 
   ServiceMgr += TRT_CablingSvc
   if (InDetFlags.doPrintConfigurables()):
-    print  TRT_CablingSvc  
+    print(TRT_CablingSvc)
        

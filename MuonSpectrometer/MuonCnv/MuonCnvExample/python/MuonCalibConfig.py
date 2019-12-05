@@ -16,7 +16,7 @@ from AthenaCommon import CfgMgr
 #--------------------------------------------------------------
 
 from MuonCnvExample.MuonCnvUtils import specialAddFolderSplitOnline,mdtCalibWindowNumber
-from MuonCalibFlags import mdtCalibFlags,cscCalibFlags
+from MuonCnvExample.MuonCalibFlags import mdtCalibFlags,cscCalibFlags
 mdtCalibFlags.setDefaults()
 cscCalibFlags.setDefaults()
 
