@@ -3,6 +3,7 @@
 */
 
 #include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Random/RandGauss.h"
 
 #include "ISF_FastCaloSimEvent/TFCSHistoLateralShapeWeightHitAndMiss.h"
 #include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
@@ -49,6 +50,16 @@ FCSReturnCode TFCSHistoLateralShapeWeightHitAndMiss::simulate_hit(Hit& hit,TFCSS
   if(bin<1) bin=1;
   if(bin>m_hist->GetNbinsX()) bin=m_hist->GetNbinsX();
   float weight=m_hist->GetBinContent(bin);
+  float RMS   =m_hist->GetBinError(bin);
+  if(RMS>0) {
+    if(weight>=1) {
+      weight=CLHEP::RandGauss::shoot(simulstate.randomEngine(), weight, RMS);
+      //weight<1 can't be corrected for with HitAndMiss. So protect against a fluctuation leading to a weight<1
+      if(weight<1) weight=1;
+    } else {
+      weight=CLHEP::RandGauss::shoot(simulstate.randomEngine(), weight, RMS);
+    }
+  }  
   if(weight<=1) {
     //if weight<=1, give lower energy to hit. 
     //TFCSLateralShapeParametrizationHitChain needs to be able to generate more hits in this case
