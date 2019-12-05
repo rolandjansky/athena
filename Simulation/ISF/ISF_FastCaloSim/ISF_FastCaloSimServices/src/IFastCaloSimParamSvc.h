@@ -20,7 +20,7 @@ namespace ISF {
     virtual ~IFastCaloSimParamSvc() = default;
 
     /** Simulation Call */
-    virtual StatusCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) = 0;
+    virtual StatusCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const = 0;
   };
 
 }

@@ -88,7 +88,7 @@ StatusCode ISF::FastCaloSimV2ParamSvc::initialize()
 }
 
 /** Simulation Call */
-StatusCode ISF::FastCaloSimV2ParamSvc::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol)
+StatusCode ISF::FastCaloSimV2ParamSvc::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const
 {
   FCSReturnCode status = m_param->simulate(simulstate, truth, extrapol);
   if (status != FCSSuccess) {
