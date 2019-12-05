@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -27,6 +27,7 @@
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"  // typedef
 
 #include "InDetRecToolInterfaces/ITRT_TrackExtensionTool.h"
+#include "TrkEventUtils/EventDataBase.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 
 class MsgStream;
@@ -76,15 +77,25 @@ public:
     // Main methods for track extension to TRT
     ///////////////////////////////////////////////////////////////////
 
-    virtual std::vector<const Trk::MeasurementBase*>& extendTrack(const Trk::Track&);
-    virtual std::vector<const Trk::MeasurementBase*>& extendTrack(const Trk::TrackParameters&);
-    virtual Trk::Track* newTrack(const Trk::Track&);
-    virtual void newEvent();
+    virtual std::vector<const Trk::MeasurementBase*>&
+       extendTrack(const Trk::Track&,
+                   InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const override;
+
+    virtual std::vector<const Trk::MeasurementBase*>&
+       extendTrack(const Trk::TrackParameters&,
+                   InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const override;
+
+    virtual Trk::Track*
+       newTrack(const Trk::Track&,
+                InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const override;
+
+    virtual std::unique_ptr<InDet::ITRT_TrackExtensionTool::IEventData> newEvent() const override;
     ///////////////////////////////////////////////////////////////////
     // TRT seed extension to TRT  
     ///////////////////////////////////////////////////////////////////
 
-    virtual Trk::TrackSegment* findSegment(const Trk::TrackParameters&);
+    virtual Trk::TrackSegment* findSegment(const Trk::TrackParameters&,
+                                           InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const override;
 
     ///////////////////////////////////////////////////////////////////
     // Print internal tool parameters and status
@@ -100,7 +111,7 @@ protected:
     ///////////////////////////////////////////////////////////////////
 
     const TRT_DriftCircleContainer*  m_trtcontainer; //!< container of TRT RIOs
-    std::string                      m_jo_trtcontainername; //!< jobOption: name of container with TRT RIOs
+    SG::ReadHandleKey<TRT_DriftCircleContainer>     m_jo_trtcontainername; //!< jobOption: name of container with TRT RIOs
     double                           m_jo_roadwidth; //!< jobOption: Max width of the road
     bool                             m_jo_simpleExtension; //!< jobOption: do the simple TRT extension by putting all RIOs of one detector element within the road into one Trk::CompetingRIOsOnTrack
     
@@ -109,12 +120,23 @@ protected:
 
 //    static const int                    maxTrackGlobalPositions = 200; //!< array size for global track positions
 //    static const int                    maxDetElements = 200; //!< array size for the detElements road
-    std::vector <const InDetDD::TRT_BaseElement*>    m_detectorElements; //!< vector to store the detElements
-    std::vector <const Trk::TrackParameters*>        m_propagatedTrackParameters; //!< vector to store the propagated track parameters (propagated to the related entry of m_detectorElements)
-    
-    const Trk::TrackParameters* m_siliconTrkParams; //!< track parameters at the outermost Silicon layer
-    
-    mutable std::vector<const Trk::MeasurementBase*>  m_measurement; //!< vector of MeasurementBase for the output
+
+    class EventData;
+    class EventData : public Trk::EventDataBase<EventData,InDet::ITRT_TrackExtensionTool::IEventData>
+    {
+       friend class TRT_TrackExtensionTool_DAF;
+    public:
+       EventData(const TRT_DriftCircleContainer *trtcontainer) : m_trtcontainer(trtcontainer) {}
+
+       ~EventData() {}
+    protected:
+       const TRT_DriftCircleContainer               *m_trtcontainer = nullptr;
+       std::vector<const Trk::MeasurementBase*>      m_measurement;               //!< vector of MeasurementBase for the output
+       std::vector <const InDetDD::TRT_BaseElement*> m_detectorElements;          //!< vector to store the detElements
+       std::vector <const Trk::TrackParameters*>     m_propagatedTrackParameters; //!< vector to store the propagated track parameters (propagated to the related entry of m_detectorElements)
+
+       const Trk::TrackParameters                  *m_siliconTrkParams = nullptr; //!< track parameters at the outermost Silicon layer
+    };
 
 
     ///////////////////////////////////////////
@@ -139,9 +161,9 @@ protected:
     ///////////////////////////////////////////////////////////////////
     
     /** find an element-wise extension (ie. the RIOs in a CompROT belong to one detElement) */
-    StatusCode elementWiseExtension(int, int) const;
+    StatusCode elementWiseExtension(int, int, InDet::TRT_TrackExtensionTool_DAF::EventData &event_data) const;
     /** find a barrel extension with RIOs grouped along the globalPositions of the track */
-    StatusCode groupedBarrelExtension(int, int) const;
+    StatusCode groupedBarrelExtension(int, int, InDet::TRT_TrackExtensionTool_DAF::EventData &event_data) const;
 
     //    MsgStream&    dumpConditions(MsgStream   & out) const;
     //    MsgStream&    dumpEvent     (MsgStream   & out) const;

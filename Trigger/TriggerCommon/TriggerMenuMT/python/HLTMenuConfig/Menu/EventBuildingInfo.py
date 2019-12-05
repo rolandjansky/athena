@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger('TriggerMenuMT.HLTMenuConfig.Menu.EventBuildingInfo')
+log = logging.getLogger( __name__ )
 
 '''
 This file defines Event Building identifiers which can be used in chain names.
@@ -16,21 +16,18 @@ LArPEB, LumiPEB, RPCPEB, RPCPEBSecondaryReadout, TrkPEB, JetDS, PhotonDS
 
 # PEB identifiers
 PartialEventBuildingIdentifiers = [
+  'BeamSpotPEB',
   'LArPEB',
   'RPCPEBSecondaryReadout'
 ]
 
 # Data scouting identifiers and the corresponding HLT result ROBFragment module IDs
 # WARNING: Never change the module IDs during data taking!
+# WARNING: ID=0 is reserved for full HLT result
 DataScoutingIdentifiers = {
-  'JetDS': 5,
-  'PhotonDS': 6
+  'CostMonDS': 1,
+  'JetDS': 5
 }
-
-# Add DS identifiers to the allowed names
-AllowedEventBuildingIdentifiers = []
-AllowedEventBuildingIdentifiers.extend(PartialEventBuildingIdentifiers)
-AllowedEventBuildingIdentifiers.extend(DataScoutingIdentifiers.keys())
 
 
 def getDataScoutingResultID(name):
@@ -50,9 +47,13 @@ def getFullHLTResultID():
     return 0
 
 
+def getAllDataScoutingIdentifiers():
+    return DataScoutingIdentifiers.keys()
+
+
 def getAllPartialEventBuildingIdentifiers():
-    return DataScoutingIdentifiers.values()
+    return PartialEventBuildingIdentifiers
 
 
 def getAllEventBuildingIdentifiers():
-    return AllowedEventBuildingIdentifiers
+    return PartialEventBuildingIdentifiers + DataScoutingIdentifiers.keys()

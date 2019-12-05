@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __TTrainedNetwork_
-#define __TTrainedNetwork_
+#ifndef PIXELCALIBALGS_TTRAINEDNETWORK_H
+#define PIXELCALIBALGS_TTRAINEDNETWORK_H
 
 #include "TObject.h"
 #include "TMatrixD.h"
@@ -39,44 +39,44 @@ class TTrainedNetwork : public TObject
   void setNewWeights(std::vector<TVectorD*> & thresholdVectors,
 		     std::vector<TMatrixD*> & weightMatrices);
 
-  Int_t getnInput() const {return mnInput;};
+  Int_t getnInput() const {return m_nInput;};
 
-  Int_t getnHidden() const {return mnHidden;};
+  Int_t getnHidden() const {return m_nHidden;};
 
-  Int_t getnOutput() const {return mnOutput;};
+  Int_t getnOutput() const {return m_nOutput;};
 
-  const std::vector<Int_t> &  getnHiddenLayerSize() const {return mnHiddenLayerSize;};
+  const std::vector<Int_t> &  getnHiddenLayerSize() const {return m_nHiddenLayerSize;};
 
-  Int_t getActivationFunction() const {return mActivationFunction;};
+  Int_t getActivationFunction() const {return m_ActivationFunction;};
 
-  const std::vector<TVectorD*> & getThresholdVectors() const {return mThresholdVectors;};
+  const std::vector<TVectorD*> & getThresholdVectors() const {return m_ThresholdVectors;};
 
-  const std::vector<TMatrixD*> & weightMatrices() const {return mWeightMatrices;};
+  const std::vector<TMatrixD*> & weightMatrices() const {return m_WeightMatrices;};
 
   std::vector<Double_t> calculateOutputValues(std::vector<Double_t> & input) const;
 
-  bool getIfLinearOutput() const { return mLinearOutput; };
+  bool getIfLinearOutput() const { return m_LinearOutput; };
 
-  bool getIfNormalizeOutput() const { return mNormalizeOutput; };
+  bool getIfNormalizeOutput() const { return m_NormalizeOutput; };
 
  private:
 
-  Int_t mnInput;
-  Int_t mnHidden;
-  Int_t mnOutput;
+  Int_t m_nInput;
+  Int_t m_nHidden;
+  Int_t m_nOutput;
 
-  std::vector<Int_t> mnHiddenLayerSize;
-  //Int_t* mnHiddenLayerSize;
+  std::vector<Int_t> m_nHiddenLayerSize;
+  //Int_t* m_nHiddenLayerSize;
 
-  std::vector<TVectorD*> mThresholdVectors;
-  std::vector<TMatrixD*> mWeightMatrices;
-  //  TVectorD** mThresholdVectors;
-  //  TMatrixD** mWeightMatrices;
-  Int_t mActivationFunction;
+  std::vector<TVectorD*> m_ThresholdVectors;
+  std::vector<TMatrixD*> m_WeightMatrices;
+  //  TVectorD** m_ThresholdVectors;
+  //  TMatrixD** m_WeightMatrices;
+  Int_t m_ActivationFunction;
 
-  bool mLinearOutput;
+  bool m_LinearOutput;
 
-  bool mNormalizeOutput;
+  bool m_NormalizeOutput;
 
   Double_t sigmoid(Double_t x) const { return 1./(1.+exp(-2*x)); };
 

@@ -32,7 +32,6 @@
 
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 
-#include "RPCcablingInterface/IRPCcablingServerSvc.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 
 #include "xAODTracking/TrackParticle.h"
@@ -152,7 +151,6 @@ class RPCStandaloneTracksMon: public ManagedMonitorToolBase {
   ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
     "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   
-  const IRPCcablingSvc* m_cabling;
   
   //Declare Properties  
   SG::ReadHandleKey<Muon::RpcPrepDataContainer> m_key_rpc{this,"RpcPrepDataContainer","RPC_Measurements","RPC PRDs"};

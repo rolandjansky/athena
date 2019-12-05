@@ -129,7 +129,6 @@ InDet::InDetRecStatisticsAlg::InDetRecStatisticsAlg(const std::string& name, ISv
 
   // Algorithm properties
   declareProperty("SummaryTool",                m_trkSummaryTool);
-  declareProperty("PRDAssociationTool",         m_assoTool); //lt 11.13
   declareProperty("TruthToTrackTool",           m_truthToTrack);
   declareProperty("UpdatorTool",                m_updatorHandle,
 		  "Measurement updator to calculate unbiased track states");
@@ -176,6 +175,7 @@ StatusCode InDet::InDetRecStatisticsAlg::initialize(){
   // Part 1: Get the messaging service, print where you are
   ATH_MSG_DEBUG("initialize()");
 
+  ATH_CHECK(m_assoTool.retrieve());
 
   StatusCode sc1 = getServices();           // retrieve store gate service etc
   if (sc1.isFailure()) {
@@ -366,7 +366,7 @@ StatusCode InDet::InDetRecStatisticsAlg::execute() {
       // clean up association tool
       std::unique_ptr<Trk::PRDtoTrackMap> prd_to_track_map;
       if (m_doSharedHits) {
-        prd_to_track_map = std::move( m_assoTool->createPRDtoTrackMap() );
+        prd_to_track_map = m_assoTool->createPRDtoTrackMap();
 	// clear prdAssociationTool (this may be altered)
 	// loop over tracks and add PRD 
 	TrackCollection::const_iterator trackIt    = RecCollection->begin();

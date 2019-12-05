@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -25,14 +25,13 @@
 class RingerRingsContainerCnv_p1 : public T_AthenaPoolTPPtrVectorCnv<RingerRingsContainer, RingerRingsContainer_p1, RingerRingsCnv_p1> {
  
  public:
-
   RingerRingsContainerCnv_p1() { }
 
   // This part is implemented in T_AthenaPoolTPConverter.h. 
   // It is here temporarily to override and allow some extra debugging
   virtual void persToTrans(const RingerRingsContainer_p1 *persVect,
                            RingerRingsContainer *transVect,
-			   MsgStream &log) {
+			   MsgStream &log) override {
     log << MSG::DEBUG << "RingerRingsContainerCnv::persToTrans" << endmsg;
     if (!persVect) {
       log << MSG::WARNING << "RingerRingsContainerCnv::persToTrans cannot convert NULL persVect" << endmsg;
@@ -59,7 +58,7 @@ class RingerRingsContainerCnv_p1 : public T_AthenaPoolTPPtrVectorCnv<RingerRings
 
   virtual void transToPers(const RingerRingsContainer *transVect,
                            RingerRingsContainer_p1 *persVect,
-			   MsgStream &log) {
+			   MsgStream &log) override {
     if (!persVect) {
       log << MSG::WARNING << "RingerRingsContainerCnv::transToPers cannot convert NULL persVect" << endmsg;
       return;

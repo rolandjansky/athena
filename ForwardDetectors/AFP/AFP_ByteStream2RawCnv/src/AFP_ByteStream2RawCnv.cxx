@@ -7,6 +7,10 @@
 //#include "AFP_ByteStream2RawCnv/ReadOut.h"
 #include <algorithm>
 
+
+using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
+
+
 static const InterfaceID IID_IAFP_ByteStream2RawCnv("AFP_ByteStream2RawCnv", 1,
                                                     0);
 const InterfaceID &AFP_ByteStream2RawCnv::interfaceID() {

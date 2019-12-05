@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./XMLBunchGroupLoader.h"
@@ -24,7 +24,7 @@ TrigConf::XMLBunchGroupLoader::load( BunchGroup& bunchgroup ) {
    if( readAttribute(pt(), "menuPartition", ival) )   bunchgroup.setPartition(ival);
 
    // get bunches
-   BOOST_FOREACH(const ptree::value_type& v, pt())
+   for(const ptree::value_type& v : pt())
       if( readAttribute(v.second, "bunchNumber", ival) ) bunchgroup.addBunch(ival);
 
    return true;

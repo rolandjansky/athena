@@ -58,7 +58,7 @@ public:
   //@}
 
 
-  /// Incident service handle listening for BeginFile and EndFile.
+  /// Incident service handle listening for BeginInputFile, EndInputFile and MetaDataStop
   virtual void handle(const Incident& incident) override;
 
   ///////////////////////////////////////////////////////////////////

@@ -26,6 +26,7 @@ class LArEM_Base_ID;
 class LArHEC_Base_ID;
 class LArFCAL_Base_ID;
 class MsgStream;
+class CaloDetDescrManager_Base;
 
 class LArCond2NtupleBase : public AthAlgorithm {
 
@@ -63,6 +64,7 @@ class LArCond2NtupleBase : public AthAlgorithm {
   NTuple::Item<long> m_isConnected;
   NTuple::Item<long> m_chanHash, m_febHash, m_oflHash;
   
+  NTuple::Item<float> m_reta, m_rphi;
   NTuple::Item<float> m_FEBTemp1, m_FEBTemp2;
 
 
@@ -72,6 +74,7 @@ class LArCond2NtupleBase : public AthAlgorithm {
   const LArFCAL_Base_ID* m_fcalId;
   const LArOnlineID_Base* m_onlineId;
   const CaloCell_Base_ID* m_caloId;
+  const CaloDetDescrManager_Base* m_dd_man;
   ToolHandle<ILArFEBTempTool> m_FEBTempTool;
 
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
@@ -82,6 +85,6 @@ class LArCond2NtupleBase : public AthAlgorithm {
   bool m_isFlat;
   bool m_OffId;
   bool m_addHash;
-
+  bool m_realgeom;
 };
 #endif

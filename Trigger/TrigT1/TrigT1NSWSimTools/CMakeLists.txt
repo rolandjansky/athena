@@ -24,7 +24,7 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonSimData
                           MuonSpectrometer/MuonRDO
                           Simulation/G4Sim/TrackRecord
-                          )
+                          Tools/PathResolver)
 
 # External dependencies:
 find_package( Boost )
@@ -41,7 +41,7 @@ atlas_add_library( TrigT1NSWSimToolsLib
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} ${Boost_LIBRARIES} ${TBB_LIBRARIES} ${HEPMC_LIBRARIES} 
                      SGTools GaudiKernel AthenaBaseComps AthenaKernel AGDDKernel GeoPrimitives Identifier EventInfo MuonAGDDDescription MuonReadoutGeometry
-                     MuonDigitContainer MuonIdHelpersLib MuonSimEvent MuonSimData MuonRDO RegSelLUT)
+                     MuonDigitContainer MuonIdHelpersLib MuonSimEvent MuonSimData MuonRDO RegSelLUT PathResolver)
 
 
 # Component(s) in the package:
@@ -51,7 +51,7 @@ atlas_add_component( TrigT1NSWSimTools
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} ${Boost_LIBRARIES} ${TBB_LIBRARIES} ${HEPMC_LIBRARIES} 
                      SGTools GaudiKernel AthenaBaseComps AthenaKernel AGDDKernel GeoPrimitives Identifier EventInfo MuonAGDDDescription MuonReadoutGeometry
-                     MuonDigitContainer MuonIdHelpersLib MuonSimEvent MuonSimData MuonRDO  RegSelLUT)
+                     MuonDigitContainer MuonIdHelpersLib MuonSimEvent MuonSimData MuonRDO  RegSelLUT PathResolver)
 
 
 
@@ -60,3 +60,4 @@ atlas_add_component( TrigT1NSWSimTools
 
 # Install files from the package:
 atlas_install_headers( TrigT1NSWSimTools )
+atlas_install_runtime( share/* )

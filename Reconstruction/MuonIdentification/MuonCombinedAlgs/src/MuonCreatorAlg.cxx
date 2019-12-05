@@ -3,7 +3,6 @@
 */
 
 #include "MuonCreatorAlg.h"
-#include "MuonCombinedToolInterfaces/IMuonCreatorTool.h"
 
 #include "xAODMuon/MuonContainer.h"
 #include "xAODMuon/MuonAuxContainer.h"
@@ -19,10 +18,8 @@
 #include <vector>
 
 MuonCreatorAlg::MuonCreatorAlg(const std::string& name, ISvcLocator* pSvcLocator):
-  AthAlgorithm(name,pSvcLocator),
-  m_muonCreatorTool("MuonCombined::MuonCreatorTool/MuonCreatorTool")
-{  
-  declareProperty("MuonCreatorTool",m_muonCreatorTool);
+  AthAlgorithm(name,pSvcLocator)
+{
   declareProperty("BuildSlowMuon",m_buildSlowMuon=false);
   declareProperty("CreateSAmuons", m_doSA=false);
   declareProperty("MakeClusters",m_makeClusters=true);
@@ -51,7 +48,11 @@ StatusCode MuonCreatorAlg::initialize()
   m_clusterContainerLinkName = m_clusterContainerName.key()+"_links";
   ATH_CHECK(m_clusterContainerLinkName.initialize(m_makeClusters));
 
-  return StatusCode::SUCCESS; 
+  if ( not m_monTool.name().empty() ) {
+    ATH_CHECK( m_monTool.retrieve() );
+  }
+
+  return StatusCode::SUCCESS;
 }
 
 StatusCode MuonCreatorAlg::execute()
@@ -75,8 +76,7 @@ StatusCode MuonCreatorAlg::execute()
   // Create the xAOD container and its auxiliary store:
   SG::WriteHandle<xAOD::MuonContainer> wh_muons(m_muonCollectionName);
   ATH_CHECK(wh_muons.record(std::make_unique<xAOD::MuonContainer>(), std::make_unique<xAOD::MuonAuxContainer>()));
-  ATH_MSG_DEBUG( "Recorded Muons with key: " << m_muonCollectionName.key() );
-  
+  ATH_MSG_DEBUG( "Recorded Muons with key: " << m_muonCollectionName.key());
   MuonCombined::IMuonCreatorTool::OutputData output(*(wh_muons.ptr()));
 
   // Create and record track particles:
@@ -129,7 +129,7 @@ StatusCode MuonCreatorAlg::execute()
     }
     muonCandidateCollection = muonCandidateRH.cptr();
   }
-  
+
   m_muonCreatorTool->create(muonCandidateCollection, indetCandidateCollection, tagMaps, output);
 
   if(m_makeClusters){
@@ -139,6 +139,33 @@ StatusCode MuonCreatorAlg::execute()
       cl->setLink(clusterlinks, sg);
     }
     ATH_CHECK(wh_clusterslink.record(std::unique_ptr<CaloClusterCellLinkContainer>(clusterlinks)));
+  }
+
+  //---------------------------------------------------------------------------------------------------------------------//
+  //------------                Monitoring of the reconstructed muons inside the trigger algs                ------------//
+  //------------ Author:        Laurynas Mince                                                               ------------//
+  //------------ Created:       26.07.2019                                                                   ------------//
+  //---------------------------------------------------------------------------------------------------------------------//
+
+  // Only run monitoring for online algorithms
+  if ( not m_monTool.name().empty() ) {
+    // Monitoring histograms and variables
+    auto muon_n     = Monitored::Scalar<int>("muon_n", wh_muons->size());
+    auto muon_pt    = Monitored::Collection("muon_pt",    *(wh_muons.ptr()),  [](auto const& mu) {return mu->pt()/1000.0;}); // converted to GeV
+    auto muon_eta   = Monitored::Collection("muon_eta",   *(wh_muons.ptr()),  &xAOD::Muon_v1::eta);
+    auto muon_phi   = Monitored::Collection("muon_phi",   *(wh_muons.ptr()),  &xAOD::Muon_v1::phi);
+
+    auto satrks_n     = Monitored::Scalar<int>("satrks_n", wh_extrtp->size());
+    auto satrks_pt  = Monitored::Collection("satrks_pt",  *(wh_extrtp.ptr()), [](auto const& satrk) {return satrk->pt()/1000.0;}); // converted to GeV
+    auto satrks_eta = Monitored::Collection("satrks_eta", *(wh_extrtp.ptr()), &xAOD::TrackParticle_v1::eta);
+    auto satrks_phi = Monitored::Collection("satrks_phi", *(wh_extrtp.ptr()), &xAOD::TrackParticle_v1::phi);
+
+    auto cbtrks_n   = Monitored::Scalar<int>("cbtrks_n", wh_combtp->size());    
+    auto cbtrks_pt  = Monitored::Collection("cbtrks_pt",  *(wh_combtp.ptr()), [](auto const& cbtrk) {return cbtrk->pt()/1000.0;}); // converted to GeV
+    auto cbtrks_eta = Monitored::Collection("cbtrks_eta", *(wh_combtp.ptr()), &xAOD::TrackParticle_v1::eta);
+    auto cbtrks_phi = Monitored::Collection("cbtrks_phi", *(wh_combtp.ptr()), &xAOD::TrackParticle_v1::phi);
+
+    auto monitorIt = Monitored::Group(m_monTool, muon_n, muon_pt, muon_eta, muon_phi, satrks_n, satrks_pt, satrks_eta, satrks_phi, cbtrks_n, cbtrks_pt, cbtrks_eta, cbtrks_phi);
   }
 
   return StatusCode::SUCCESS;

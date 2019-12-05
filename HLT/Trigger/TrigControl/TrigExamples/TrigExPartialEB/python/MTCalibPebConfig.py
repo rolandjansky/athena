@@ -81,6 +81,22 @@ rob_access_dict = {
   '12 :GET:RND10: Retrieve ': rob_list
 }
 
+class MTCalibPebHypoOptions:
+    def __init__(self):
+        self.RandomAcceptRate = -1.0
+        self.BurnTimePerCycleMillisec = 0
+        self.NumBurnCycles = 0
+        self.BurnTimeRandomly = True
+        self.Crunch = False
+        self.ROBAccessDict = rob_access_dict
+        self.TimeBetweenROBReqMillisec = 0
+        self.PEBROBList = []
+        self.PEBSubDetList = []
+        self.CreateRandomData = {}
+
+
+default_options = MTCalibPebHypoOptions()
+
 
 def make_l1_seq():
     all_algs = []
@@ -89,32 +105,26 @@ def make_l1_seq():
     from TrigT1ResultByteStream.TrigT1ResultByteStreamConf import RoIBResultByteStreamDecoderAlg
     all_algs.append(RoIBResultByteStreamDecoderAlg())
 
+    # Set menu for L1ConfigSvc
+    from TriggerJobOpts.TriggerFlags import TriggerFlags
+    TriggerFlags.triggerMenuSetup = "LS2_v1"
+
     # Ensure LVL1ConfigSvc is initialised before L1Decoder handles BeginRun incident
     # This should be done by the L1Decoder configuration in new-style job options (with component accumulator)
-    from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc, findFileInXMLPATH
+    from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu, getL1ConfigSvc
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-    svcMgr += LVL1ConfigSvc()
-
-    # Set the LVL1 menu (needed for initialising LVL1ConfigSvc)
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
-    svcMgr.LVL1ConfigSvc.XMLMenuFile = findFileInXMLPATH(TriggerFlags.inputLVL1configFile())
+    l1JsonFile = generateL1Menu()
+    svcMgr += getL1ConfigSvc()
 
     # Initialise L1 decoding tools
     from L1Decoder.L1DecoderConf import CTPUnpackingTool
     ctpUnpacker = CTPUnpackingTool(ForceEnableAllChains=True)
     # Can add other tools here if needed
 
-    # Define the menu - L1 items do not matter if we set ForceEnableAllChains = True,
-    # but they have to be defined in the L1 menu xml
-    chainCTPMap = {'HLT_MTCalibPeb1': 'L1_RD0_FILLED',
-                   'HLT_MTCalibPeb2': 'L1_RD0_FILLED',
-                   'HLT_MTCalibPeb3': 'L1_RD0_FILLED'}
-
     # Schedule the L1Decoder algo with the above tools
     from L1Decoder.L1DecoderConf import L1Decoder
     l1decoder = L1Decoder()
     l1decoder.ctpUnpacker = ctpUnpacker
-    l1decoder.ChainToCTPMapping = chainCTPMap
     all_algs.append(l1decoder)
 
     from AthenaCommon.CFElements import seqOR
@@ -129,37 +139,42 @@ def make_hypo_alg(name):
     return hypo
 
 
-def make_hypo_tool(name):
+def make_hypo_tool(name, options=default_options):
     from TrigExPartialEB.TrigExPartialEBConf import MTCalibPebHypoTool
     hypo_tool = MTCalibPebHypoTool(name)
-    hypo_tool.RandomAcceptRate = 0.01
-    hypo_tool.BurnTimePerCycleMillisec = 20
-    hypo_tool.NumBurnCycles = 10
-    hypo_tool.TimeBetweenROBReqMillisec = 0
-    hypo_tool.ROBAccessDict = rob_access_dict
+    hypo_tool.RandomAcceptRate          = options.RandomAcceptRate
+    hypo_tool.BurnTimePerCycleMillisec  = options.BurnTimePerCycleMillisec
+    hypo_tool.NumBurnCycles             = options.NumBurnCycles
+    hypo_tool.BurnTimeRandomly          = options.BurnTimeRandomly
+    hypo_tool.Crunch                    = options.Crunch
+    hypo_tool.ROBAccessDict             = options.ROBAccessDict
+    hypo_tool.TimeBetweenROBReqMillisec = options.TimeBetweenROBReqMillisec
+    hypo_tool.PEBROBList                = options.PEBROBList
+    hypo_tool.PEBSubDetList             = options.PEBSubDetList
+    hypo_tool.CreateRandomData          = options.CreateRandomData
     return hypo_tool
 
 
-def make_all_hypo_algs(concurrent=False):
-    # Chain 1 - default
-    hypoTool1 = make_hypo_tool('HLT_MTCalibPeb1')
-
-    # Chain 2 - default + write PEB info
-    hypoTool2 = make_hypo_tool('HLT_MTCalibPeb2')
-    hypoTool2.PEBROBList = [0x420024, 0x420025, 0x420026, 0x420027]  # example LAr EMB ROBs
-    hypoTool2.PEBSubDetList = [0x53, 0x54]  # TILECAL_EXT A and C
-
-    # Chain 3 - default + write PEB info for data scouting
-    hypoTool3 = make_hypo_tool('HLT_MTCalibPeb3')
-    hypoTool3.CreateRandomData = {
-        'ExampleCollection1': 5,
-        'ExampleCollection2': 3,
-    }
-    hypoTool3.PEBROBList = [0x420034, 0x420035, 0x420036, 0x420037]  # example LAr EMB ROBs
-    hypoTool3.PEBROBList.extend([0x7c0001])  # extra HLT result for data scouting
+def make_all_hypo_algs(num_chains, concurrent=False):
+    hypo_tools = []
+    for chain_index in range(1, 1+num_chains):
+        # Default hypo tool for chains 1, 4, 7, 10, ...
+        hypoTool = make_hypo_tool('HLT_MTCalibPeb{:d}'.format(chain_index))
+        # Hypo for chains 2, 5, 8, 11, ...
+        if chain_index % 3 == 2:
+            hypoTool.PEBROBList = [0x420024, 0x420025, 0x420026, 0x420027]  # example LAr EMB ROBs
+            hypoTool.PEBSubDetList = [0x53, 0x54]  # TILECAL_EXT A and C
+        # Hypo for chains 3, 6, 9, 12, ...
+        elif chain_index % 3 == 0:
+            hypoTool.CreateRandomData = {
+                'ExampleCollection_{:d}_1'.format(chain_index): 5,
+                'ExampleCollection_{:d}_2'.format(chain_index): 3,
+            }
+            hypoTool.PEBROBList = [0x420034, 0x420035, 0x420036, 0x420037]  # example LAr EMB ROBs
+            hypoTool.PEBROBList.extend([0x7c0001])  # extra HLT result for data scouting
+        hypo_tools.append(hypoTool)
 
     # Add the hypo tools to algorithm(s)
-    hypo_tools = [hypoTool1, hypoTool2, hypoTool3]
     hypo_algs = []
     if concurrent:
         for tool in hypo_tools:
@@ -190,12 +205,19 @@ def configure_hlt_result(hypo_algs):
 
     # Data scouting example
     resultList = [getFullHLTResultID(), 1]
-    serialiser.addCollectionListToResults([
-        'xAOD::TrigCompositeContainer_v1#ExampleCollection1',
-        'xAOD::TrigCompositeAuxContainer_v2#ExampleCollection1Aux.floatVec_1.floatVec_2.floatVec_3.floatVec_4.floatVec_5',
-        'xAOD::TrigCompositeContainer_v1#ExampleCollection2',
-        'xAOD::TrigCompositeAuxContainer_v2#ExampleCollection2Aux.floatVec_1.floatVec_2.floatVec_3',
-    ], resultList)
+    collections = set()
+    chain_names = []
+    for hypo in hypo_algs:
+        for hypo_tool in hypo.HypoTools:
+            chain_names.append(hypo_tool.name())
+            if hasattr(hypo_tool,'CreateRandomData'):
+                for coll_name in hypo_tool.CreateRandomData.keys():
+                    collections.add(coll_name)
+    for coll_name in collections:
+        serialiser.addCollectionListToResults([
+            'xAOD::TrigCompositeContainer_v1#{:s}'.format(coll_name),
+            'xAOD::TrigCompositeAuxContainer_v2#{:s}Aux.'.format(coll_name)
+        ], resultList)
 
     # StreamTag definitions
     streamPhysicsMain = {
@@ -217,24 +239,31 @@ def configure_hlt_result(hypo_algs):
         'forceFullEventBuilding': False
     }
     chain_to_streams = {}
-    chain_to_streams['HLT_MTCalibPeb1'] = [streamPhysicsMain]
-    chain_to_streams['HLT_MTCalibPeb2'] = [streamExamplePEB]
-    chain_to_streams['HLT_MTCalibPeb3'] = [streamExampleDataScoutingPEB]
+    for counter, ch in enumerate(chain_names, start=1):
+        if counter % 3 == 1:
+            chain_to_streams[ch] = [streamPhysicsMain]
+        elif counter % 3 == 2:
+            chain_to_streams[ch] = [streamExamplePEB]
+        elif counter % 3 == 0:
+            chain_to_streams[ch] = [streamExampleDataScoutingPEB]
+
     menu_json = write_dummy_menu_json(chain_to_streams.keys(), chain_to_streams)
+
+    # Give the menu json name to HLTConfigSvc
+    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+    if not hasattr(svcMgr, 'HLTConfigSvc'):
+        from TrigConfigSvc.TrigConfigSvcConfig import HLTConfigSvc
+        svcMgr += HLTConfigSvc()
+    svcMgr.HLTConfigSvc.JsonFileName = menu_json
 
     # Tool adding stream tags to HLT result
     stmaker = StreamTagMakerTool()
     stmaker.ChainDecisions = 'HLTNav_Summary'
     stmaker.PEBDecisionKeys = [hypo.HypoOutputDecisions for hypo in hypo_algs]
-    stmaker.HLTmenuFile = menu_json
 
     # Tool adding HLT bits to HLT result
     bitsmaker = TriggerBitsMakerTool()
     bitsmaker.ChainDecisions = 'HLTNav_Summary'
-    bitsmaker.ChainToBit = {}
-    bitsmaker.ChainToBit['HLT_MTCalibPeb1'] = 3
-    bitsmaker.ChainToBit['HLT_MTCalibPeb2'] = 50
-    bitsmaker.ChainToBit['HLT_MTCalibPeb3'] = 11
 
     # Configure the HLT result maker to use the above tools
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
@@ -259,8 +288,8 @@ def make_summary_algs(hypo_algs):
     return [summary, summMaker]
 
 
-def make_hlt_seq(concurrent=False):
-    hypo_algs = make_all_hypo_algs(concurrent)
+def make_hlt_seq(num_chains, concurrent=False):
+    hypo_algs = make_all_hypo_algs(num_chains, concurrent)
     configure_hlt_result(hypo_algs)
     summary_algs = make_summary_algs(hypo_algs)
 
@@ -278,6 +307,7 @@ def make_hlt_seq(concurrent=False):
 
 def write_dummy_menu_json(chains, chain_to_streams):
     import json
+    from TrigConfHLTData.HLTUtils import string2hash
     menu_name = 'MTCalibPeb'
     menu_dict = {
         'name': menu_name,
@@ -291,6 +321,7 @@ def write_dummy_menu_json(chains, chain_to_streams):
         chain_dict['counter'] = counter
         chain_dict['name'] = chain
         chain_dict['streams'] = chain_to_streams[chain]
+        chain_dict['nameHash'] = string2hash(chain)
 
         # Other attributes not used in MTCalibPeb
         chain_dict['groups'] = []

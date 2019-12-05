@@ -1,10 +1,8 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file EventCommonD3PDMaker/src/SkimDecisionVectorFillerTool.cxx
  * @author jgoodson <jgoodson@cern.ch>
@@ -16,7 +14,6 @@
 #include "SkimDecisionVectorFillerTool.h"
 #include "AthenaKernel/errorcheck.h"
 #include "EventBookkeeperMetaData/SkimDecisionCollection.h"
-#include "boost/foreach.hpp"
 
 
 namespace D3PD {
@@ -50,7 +47,7 @@ StatusCode SkimDecisionVectorFillerTool::fill(const SkimDecisionCollection& x )
   std::vector<std::string> tempName;
   std::vector<int> tempStatus;
 
-  BOOST_FOREACH (const SkimDecision* s, x){
+  for (const SkimDecision* s : x){
 
     if(m_doAllSkimDecisions){
       tempStatus.push_back(s->isAccepted() == true ? 1:0);

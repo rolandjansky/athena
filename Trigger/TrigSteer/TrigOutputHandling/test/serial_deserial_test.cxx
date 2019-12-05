@@ -25,14 +25,14 @@
 #include "../src/TriggerEDMDeserialiserAlg.h"
 
 
-void testTrigEMContiner(  const EventContext &ctx );
-void testTrigCompositeContiner(  const EventContext &ctx );
+void testTrigEMContainer(  const EventContext &ctx );
+void testTrigCompositeContainer(  const EventContext &ctx );
 
-void testTrigEMContinerInsert(StoreGateSvc*);
-void testTrigCompositeContinerInsert(StoreGateSvc*);
+void testTrigEMContainerInsert(StoreGateSvc*);
+void testTrigCompositeContainerInsert(StoreGateSvc*);
 
-void testTrigEMContinerReadAndCheck(StoreGateSvc*);
-void testTrigCompositeContinerReadAndCheck(StoreGateSvc*);
+void testTrigEMContainerReadAndCheck(StoreGateSvc*);
+void testTrigCompositeContainerReadAndCheck(StoreGateSvc*);
 
 void testRoIDescriptorInsert(StoreGateSvc*);
 void testRoIDescriptorReadAndCheck(StoreGateSvc*);
@@ -65,41 +65,34 @@ int main() {
   TriggerEDMDeserialiserAlg deser ("deserialiser", pSvcLoc);  deser.addRef();
   deser.sysInitialize();
 
-  //  TriggerEDMDeserialiserAlg deser2 ("deserialiser2", pSvcLoc);  deser2.addRef();
-  //  deser2.sysInitialize();
-
-
-  // TDOD simplify :-) ?
-  auto runAlg = [&](TriggerEDMDeserialiserAlg& alg) {
-    IProxyDict* xdict = &*alg.evtStore();
-    xdict = alg.evtStore()->hiveProxyDict();
-    EventContext ctx;
-    ctx.setExtension( Atlas::ExtendedEventContext(xdict) );
-    Gaudi::Hive::setCurrentContext (ctx);
+  // TODO simplify :-) ?
+  auto runAlg = [&](TriggerEDMDeserialiserAlg& alg, const EventContext& ctx) {
     return alg.execute( ctx );
   };
 
-
+  IProxyDict* xdict = &*deser.evtStore();
+  xdict = deser.evtStore()->hiveProxyDict();
+  EventContext ctx;
+  ctx.setExtension( Atlas::ExtendedEventContext(xdict) );
 
   for ( int rep = 0; rep < 50 ; ++ rep ) {
-    testTrigEMContinerInsert(pStore);
-    testTrigCompositeContinerInsert(pStore);
+    testTrigEMContainerInsert(pStore);
+    testTrigCompositeContainerInsert(pStore);
     testRoIDescriptorInsert(pStore);
 
     auto hltres = new HLT::HLTResultMT();
-    VALUE( ser->fill( *hltres ) ) EXPECTED ( StatusCode::SUCCESS );
+    VALUE( ser->fill( *hltres, ctx ) ) EXPECTED ( StatusCode::SUCCESS );
 
     pStore->clearStore();
     // now objects are only in serialised form in HLTResultMT object
 
     VALUE( pStore->record( hltres, "HLTResultMT" ) ) EXPECTED ( StatusCode::SUCCESS );
-    VALUE( runAlg( deser ) ) EXPECTED ( StatusCode::SUCCESS );
-    //    VALUE( runAlg( deser2 ) ) EXPECTED ( StatusCode::SUCCESS );
+    VALUE( runAlg( deser, ctx ) ) EXPECTED ( StatusCode::SUCCESS );
 
-    testTrigEMContinerReadAndCheck(pStore);
-    testTrigCompositeContinerReadAndCheck(pStore);
+    testTrigEMContainerReadAndCheck(pStore);
+    testTrigCompositeContainerReadAndCheck(pStore);
     testRoIDescriptorReadAndCheck(pStore);
-    // see if we do nto have owneship issues
+    // see if we have ownership issues
     pStore->clearStore();
   }
 
@@ -109,7 +102,7 @@ int main() {
 }
 
 
-void testTrigEMContinerInsert(StoreGateSvc* pStore) {
+void testTrigEMContainerInsert(StoreGateSvc* pStore) {
 
   // place test data
   auto em = new xAOD::TrigEMClusterContainer();
@@ -161,7 +154,7 @@ void testTrigEMContinerInsert(StoreGateSvc* pStore) {
   VALUE( pStore->record( emAux, "EMClustersAux." ) ) EXPECTED ( StatusCode::SUCCESS );
 }
 
-void testTrigEMContinerReadAndCheck(StoreGateSvc* pStore) {
+void testTrigEMContainerReadAndCheck(StoreGateSvc* pStore) {
 
   const xAOD::TrigEMClusterContainer *emback = nullptr;
   VALUE( pStore->retrieve( emback, "DESERIALISED_EMClusters") ) EXPECTED ( StatusCode::SUCCESS );
@@ -187,13 +180,13 @@ void testTrigEMContinerReadAndCheck(StoreGateSvc* pStore) {
     std::cout << vi << " " << fl << " " << rawEt << " ";
     VALUE( vi ) EXPECTED ( i + 1 );
     VALUE( fl ) EXPECTED ( 0.1 + i );
-    VALUE( (smallFl - i) < 0.1 ) EXPECTED ( true );  // precission is poor because we decided to reduce space for this variable
+    VALUE( (smallFl - i) < 0.1 ) EXPECTED ( true );  // precision is poor because we decided to reduce space for this variable
     VALUE( rawEt ) EXPECTED ( i - 0.2 );
   }
   std::cout << std::endl;
 }
 
-void testTrigCompositeContinerInsert(StoreGateSvc* pStore) {
+void testTrigCompositeContainerInsert(StoreGateSvc* pStore) {
 
   auto m = new xAOD::TrigCompositeContainer();
   auto mAux = new xAOD::TrigCompositeAuxContainer();
@@ -211,7 +204,7 @@ void testTrigCompositeContinerInsert(StoreGateSvc* pStore) {
   VALUE( pStore->record( mAux, "EMClustersDecisionsAux." ) ) EXPECTED ( StatusCode::SUCCESS );
 }
 
-void testTrigCompositeContinerReadAndCheck(StoreGateSvc* pStore) {
+void testTrigCompositeContainerReadAndCheck(StoreGateSvc* pStore) {
 
   const xAOD::TrigCompositeContainer *decisions = nullptr;
   VALUE( pStore->retrieve( decisions, "DESERIALISED_EMClustersDecisions") ) EXPECTED ( StatusCode::SUCCESS );

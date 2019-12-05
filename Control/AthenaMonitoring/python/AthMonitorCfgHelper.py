@@ -107,6 +107,7 @@ class AthMonitorCfgHelper(object):
         '''Add many groups to an algorithm
 
         Arguments:
+        dimensions -- list holding the size in each dimension [n1,n2,n3,n4,...]
         alg -- algorithm Configurable object
         baseName -- base name of the group. postfixes are added by GMT Array initialize
         topPath -- directory name in the output ROOT file under which histograms will be
@@ -117,7 +118,7 @@ class AthMonitorCfgHelper(object):
         tool -- a GenericMonitoringToolArray object. This is used to define histograms
                 associated with each group in the array.
         '''
-        from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringArray
+        from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringArray
         array = GenericMonitoringArray(baseName,dimensions)
 
         if self.inputFlags.DQ.isReallyOldStyle:
@@ -163,7 +164,7 @@ class AthMonitorCfgHelperOld(object):
         self.monName = monName
         self.monSeq = AthSequencer('AthMonSeq_' + monName)
 
-    def addAlgorithm(self,algClassOrObj, name = None, *args, **kwargs):
+    def addAlgorithm(self, algClassOrObj, name = None, *args, **kwargs):
         '''
         Instantiate/add a monitoring algorithm
 
@@ -184,7 +185,7 @@ class AthMonitorCfgHelperOld(object):
         if issubclass(algClassOrObj, Configurable):
             if name is None:
                 raise TypeError('addAlgorithm with a class argument requires a name for the algorithm')
-            algObj = algClassOrObj(*args, **kwargs)
+            algObj = algClassOrObj(name, *args, **kwargs)
         else:
             algObj = algClassOrObj
         
@@ -197,7 +198,8 @@ class AthMonitorCfgHelperOld(object):
                 # very bad, bomb out (in any case the top-level steering ought to set this up)
                 import logging
                 local_logger = logging.getLogger(__name__)
-                local_logger.warning("Unable to find TrigDecisionTool %s in ToolSvc, will not set up trigger in monitoring", self.dqflags.nameTrigDecTool())
+                local_logger.warning("Unable to find TrigDecisionTool %s in ToolSvc, will \
+                    not set up trigger in monitoring", self.dqflags.nameTrigDecTool())
             else:
                 algObj.TrigDecisionTool = getattr(ToolSvc, self.dqflags.nameTrigDecTool())
                 algObj.TriggerTranslatorTool = getattr(ToolSvc, self.dqflags.nameTrigTransTool())
@@ -211,38 +213,71 @@ class AthMonitorCfgHelperOld(object):
         return algObj
 
     def addGroup(self, alg, name, topPath='', defaultDuration='run'):
-        '''
-        Add a "group" (technically, a GenericMonitoringTool instance) to an algorithm. The name given
-        here can be used to retrieve the group from within the algorithm when calling the fill()
-        function.  (Note this is *not* the same thing as the Monitored::Group class.)
+        '''Add a group to an algorithm
+
+        Technically, adding a GenericMonitoringTool instance. The name given here can be
+        used to retrieve the group from within the algorithm when calling the fill()
+        function. Note this is *not* the same thing as the Monitored::Group class. To
+        avoid replication of code, this calls the more general case, getArray with an 1D
+        array of length 1.
 
         Arguments:
         alg -- algorithm Configurable object (e.g. one returned from addAlgorithm)
         name -- name of the group
-        topPath -- directory name in the output ROOT file under which histograms will be produced
-        defaultDuration -- default duration of histograms produced under this group; can be overridden for each specific histogram
+        topPath -- directory name in the output ROOT file under which histograms will be
+                   produced
+        defaultDuration -- default time between histogram reset for all histograms in
+                           group; can be overridden for each specific histogram
 
         Returns:
-        tool -- a GenericMonitoringTool Configurable object. This can be used to define histograms
-                associated with that group (using defineHistogram).
+        tool -- a GenericMonitoringTool Configurable object. This can be used to define
+                histograms associated with that group (using defineHistogram).
         '''
-        from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
-        tool = GenericMonitoringTool(name)
+
+        array = self.addArray([1],alg,name,topPath=topPath,defaultDuration=defaultDuration)
+        return array[0]
+
+    def addArray(self, dimensions, alg, baseName, topPath='', defaultDuration='run'):
+        '''Add many groups to an algorithm
+
+        Arguments:
+        dimensions -- list holding the size in each dimension [n1,n2,n3,n4,...]
+        alg -- algorithm Configurable object
+        baseName -- base name of the group. postfixes are added by GMT Array initialize
+        topPath -- directory name in the output ROOT file under which histograms will be
+                   produced
+        duration -- default time between histogram reset for all histograms in group
+
+        Returns:
+        tool -- a GenericMonitoringToolArray object. This is used to define histograms
+                associated with each group in the array.
+        '''
+        # Generate the n-dimensional array
+        from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringArray
+        array = GenericMonitoringArray(baseName,dimensions)
+        # Retrieve the THistSvc
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         if not hasattr(svcMgr, 'THistSvc'):
             from GaudiSvc.GaudiSvcConf import THistSvc
             svcMgr += THistSvc()
-        tool.THistSvc = svcMgr.THistSvc
-        tool.HistPath = self.dqflags.monManFileKey() + ('/%s' % topPath if topPath else '')
+        # Set the histogram path
+        pathToSet = self.dqflags.monManFileKey() + ('/%s' % topPath if topPath else '')
+        # Detect if online or offline
         from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-        tool.convention = 'OFFLINE' if not athenaCommonFlags.isOnline() else 'ONLINE'
-        tool.defaultDuration = defaultDuration
-        alg.GMTools += [tool]
-        return tool
+        conventionName = 'OFFLINE' if not athenaCommonFlags.isOnline() else 'ONLINE'
+
+        # Broadcast member values to each element of the array
+        array.broadcast('THistSvc',svcMgr.THistSvc)
+        array.broadcast('HistPath',pathToSet)
+        array.broadcast('convention',conventionName)
+        array.broadcast('defaultDuration',defaultDuration)
+        alg.GMTools += array.toolList()
+        return array
 
     def result(self):
         '''
-        This function should be called to finalize the creation of the set of monitoring algorithms.
+        This function should be called to finalize the creation of the set of monitoring
+        algorithms.
 
         Returns:
         monSeq -- an AthSequencer

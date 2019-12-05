@@ -19,6 +19,7 @@
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkToolInterfaces/ITrackScoringTool.h"
+#include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
 
 #include "GaudiKernel/ToolHandle.h"
 
@@ -64,6 +65,11 @@ private:
   SG::ReadHandleKey<TrackExtensionMap>  m_extensionMapName; //!< Name of input extension map
   SG::WriteHandleKey<TrackCollection>   m_newTrackName;     //!< Name of output Trackcollection
   ToolHandle<Trk::ITrackFitter>         m_trackFitter;      //!< track fitter tool handle
+
+  ToolHandle<Trk::IExtendedTrackSummaryTool> m_trackSummaryTool
+  //      {this, "TrackSummaryTool", "InDetTrackSummaryTool"};
+      {this, "TrackSummaryTool", ""};
+
   ToolHandle<Trk::ITrackScoringTool>    m_scoringTool;      //!< track scorer tool handle
   Trk::RunOutlierRemoval        m_runOutlier;               //!< whether to run outlier logics
   //! switch whether to append a rejected extension as outlier trajectory

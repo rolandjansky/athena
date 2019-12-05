@@ -2,32 +2,14 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AthenaKernel/Timeout.h" 
-
 #include "MooTrackBuilder.h"
-#include "MooTrackFitter.h"
+
+#include "AthenaKernel/Timeout.h" 
 #include "SortMuPatHits.h"
-#include "MooCandidateMatchingTool.h"
-#include "MuonRecToolInterfaces/IMuonTrackToSegmentTool.h"
-#include "MuonRecToolInterfaces/IMuonSeededSegmentFinder.h"
-#include "MuPatCandidateTool.h"
-#include "MuonTrackFindingEvent/MuPatTrack.h"
-#include "MuonTrackFindingEvent/MuPatSegment.h"
+#include "MuPatTrack.h"
+#include "MuPatSegment.h"
 #include "MuonTrackMakerUtils/SortMeasurementsByPosition.h"
 #include "MuonTrackMakerUtils/SortTracksByHitNumber.h"
-#include "MuonRecToolInterfaces/IMuonErrorOptimisationTool.h"
-
-#include "MuonRecToolInterfaces/IMuonHoleRecoveryTool.h"
-#include "MuonRecToolInterfaces/IMuonTrackExtrapolationTool.h"
-
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-
-#include "MuonRecToolInterfaces/IMuonCompetingClustersOnTrackCreator.h"
-#include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
-#include "TrkExInterfaces/IPropagator.h"
-#include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "TrkEventPrimitives/ResidualPull.h"
 #include "TrkSegment/SegmentCollection.h"
 
@@ -41,62 +23,19 @@
 
 #include <set>
 
+#include "CxxUtils/checker_macros.h"
+ATLAS_CHECK_FILE_THREAD_SAFETY;
+
 namespace Muon {
 
   
   MooTrackBuilder::MooTrackBuilder(const std::string& t,const std::string& n,const IInterface* p)  : 
-    AthAlgTool(t,n,p),
-    m_fitter("Muon::MooTrackFitter/MooTrackFitter"),
-    m_slFitter("Muon::MooTrackFitter/MooSLTrackFitter"),
-    m_candidateHandler("Muon::MuPatCandidateTool/MuPatCandidateTool"),
-    m_candidateMatchingTool("Muon::MooCandidateMatchingTool/MooCandidateMatchingTool"),
-    m_trackToSegmentTool("Muon::MuonTrackToSegmentTool/MuonTrackToSegmentTool"),
-    m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-    m_seededSegmentFinder("Muon::MuonSeededSegmentFinder/MuonSeededSegmentFinder"),
-    m_mdtRotCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"),
-    m_compRotCreator("Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator"),
-    m_propagator("Trk::STEP_Propagator/MuonPropagator"),
-    m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
-    m_hitRecoverTool("Muon::MuonChamberHoleRecoveryTool/MuonChamberHoleRecoveryTool"),
-    m_muonChamberHoleRecoverTool("Muon::MuonChamberHoleRecoveryTool/MuonChamberHoleRecoveryTool"),
-    m_trackExtrapolationTool("Muon::MuonTrackExtrapolationTool/MuonTrackExtrapolationTool"),
-    m_errorOptimisationTool(""),
-    m_magFieldSvc("AtlasFieldSvc",n),
-    m_magFieldProperties(Trk::FullField),
-    m_ncalls(0),
-    m_nTimedOut(0)
+    AthAlgTool(t,n,p)
   {
-
     declareInterface<IMuonSegmentTrackBuilder>(this);
     declareInterface<MooTrackBuilder>(this);
     declareInterface<IMuonTrackRefiner>(this);
     declareInterface<IMuonTrackBuilder>(this);
-    
- 
-    declareProperty("Fitter",m_fitter,"Tool to fit segments to tracks");
-    declareProperty("SLFitter",m_slFitter,"Tool to fit segments to tracks");
-    declareProperty("SeededSegmentFinder",m_seededSegmentFinder,"Second stage segment finding tool");
-    declareProperty("MdtRotCreator",m_mdtRotCreator,"Tool to recalibrate MdtDriftCircleOnTrack objects");
-    declareProperty("CompetingClustersCreator",m_compRotCreator,"Tool to create CompetingMuonClustersOnTrack objects");
-    declareProperty("Propagator",m_propagator,"propagator");
-    declareProperty("MagFieldSvc",    m_magFieldSvc );
-    declareProperty("IdHelper",m_idHelper);
-    declareProperty("HitRecoveryTool",m_hitRecoverTool);
-    declareProperty("Printer",m_printer);
-    declareProperty("CandidateTool",m_candidateHandler);
-    declareProperty("CandidateMatchingTool",m_candidateMatchingTool);
-    declareProperty("TrackToSegmentTool",m_trackToSegmentTool);
-    declareProperty("ErrorOptimisationTool",m_errorOptimisationTool ); 
-
-    declareProperty("UseTimeOutGuard",m_doTimeOutChecks = true );  
-    declareProperty("UseExclusionList",m_useExclusionList = true ); 
-    declareProperty("UseTrackingHistory", m_useTrackingHistory = true );
-    declareProperty("RecalibrateMDTHitsOnTrack", m_recalibrateMDTHits = true);
-  }
-    
-  MooTrackBuilder::~MooTrackBuilder() {
-      
   }
   
   StatusCode MooTrackBuilder::initialize() {
@@ -566,13 +505,13 @@ namespace Muon {
     // for now do not redo segment making for CSCs
     if( m_idHelper->isCsc( *chIds.begin() ) ){
       if( m_candidateMatchingTool->match(candidate,segInfo,true) ) {
-	Trk::Track* newtrack = m_fitter->fit(candidate,segInfo,externalPhiHits);
-	if( !newtrack ) return 0;
-	std::vector<Trk::Track*>* newTracks = new std::vector<Trk::Track*>;
-	newTracks->push_back(newtrack);
-	return newTracks;
+        Trk::Track* newtrack = m_fitter->fit(candidate,segInfo,externalPhiHits);
+        if( !newtrack ) return 0;
+        std::vector<Trk::Track*>* newTracks = new std::vector<Trk::Track*>;
+        newTracks->push_back(newtrack);
+        return newTracks;
       }else{
-	return 0;
+        return 0;
       }
     }
 

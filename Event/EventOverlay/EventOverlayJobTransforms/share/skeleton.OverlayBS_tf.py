@@ -21,7 +21,8 @@ from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
 from OverlayCommonAlgs.OverlayFlags import overlayFlags
 
 from MuonRecExample.MuonRecFlags import muonRecFlags
-muonRecFlags.doCSCs.set_Value_and_Lock(True)
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+if MuonGeometryFlags.hasCSC(): muonRecFlags.doCSCs.set_Value_and_Lock(True)
 
 from LArConditionsCommon.LArCondFlags import larCondFlags
 larCondFlags.LArCoolChannelSelection.set_Value_and_Lock("")
@@ -81,6 +82,11 @@ globalflags.DetGeo = 'commis'
 globalflags.DataSource.set_Value_and_Lock('data')
 #GlobalFlags.DataSource.set_data()
 
+if hasattr(runArgs, 'fSampltag'):
+    larCondFlags.LArfSamplTag.set_Value_and_Lock(runArgs.fSampltag + digitizationFlags.physicsList.get_Value())
+else:
+    raise RuntimeError ("--fSampltag not specified on command-line - see --help message")
+
 #--------------------------------------------------------------
 # Read Simulation MetaData (unless override flag set to True)
 #--------------------------------------------------------------
@@ -139,6 +145,11 @@ else:
     #DetFlags.overlay.LAr_setOff()
     DetFlags.overlay.Truth_setOn()
 
+
+if not MuonGeometryFlags.hasCSC(): DetFlags.CSC_setOff()
+if not MuonGeometryFlags.hasSTGC(): DetFlags.sTGC_setOff()
+if not MuonGeometryFlags.hasMM(): DetFlags.Micromegas_setOff()
+
 DetFlags.Print()
 
 include ( "RecExCond/AllDet_detDescr.py" )
@@ -163,7 +174,7 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
 if DetFlags.overlay.LAr_on() or DetFlags.overlay.Tile_on():
    include ( "EventOverlayJobTransforms/CaloOverlay_jobOptions.py" )
 
-if DetFlags.overlay.CSC_on() or DetFlags.overlay.MDT_on() or DetFlags.overlay.RPC_on() or DetFlags.overlay.TGC_on():
+if (MuonGeometryFlags.hasCSC() and DetFlags.overlay.CSC_on()) or DetFlags.overlay.MDT_on() or DetFlags.overlay.RPC_on() or DetFlags.overlay.TGC_on():
    include ( "EventOverlayJobTransforms/MuonOverlay_jobOptions.py" )
 
 if DetFlags.overlay.LVL1_on():
@@ -193,12 +204,6 @@ print "overlay_trf: final outStream = ", outStream
 #ServiceMgr.MessageSvc.OutputLevel = INFO
 ServiceMgr.MessageSvc.OutputLevel = INFO
 ServiceMgr.MessageSvc.Format = "% F%45W%S%7W%R%T %0W%M"
-
-if DetFlags.overlay.LAr_on() :
-    if hasattr(runArgs, 'fSampltag'):
-        conddb.addFolderWithTag("LAR_OFL","/LAR/ElecCalibMC/fSampl", runArgs.fSampltag + digitizationFlags.physicsList.get_Value(),force=True,forceMC=True,className="LArfSamplMC") 
-    else:
-        raise RuntimeError ("--fSampltag not specified on command-line - see --help message")
 
 #if DetFlags.overlay.Signal_on():
 #   InputDBConnection = "COOLOFL_LAR/COMP200"

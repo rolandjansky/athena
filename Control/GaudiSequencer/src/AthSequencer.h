@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthSequencer.h
@@ -18,8 +18,6 @@
 
 #include "GaudiKernel/Property.h"
 #include "Gaudi/Sequence.h"
-
-#include "AthenaKernel/AlgorithmTimer.h"
 
 #include <setjmp.h>
 #include <signal.h>
@@ -77,16 +75,6 @@ public:
    ** is invoked once per event.
    **/
   virtual StatusCode execute( const EventContext& ctx ) const override;
-    
-  /**
-   ** AthSequencer beginRun.
-   **/
-  virtual StatusCode beginRun( ) override;
-
-  /**
-   ** AthSequencer endRun.
-   **/
-  virtual StatusCode endRun( ) override;
 
   /** Start (from INITIALIZED to RUNNING). @c IStateful::start
    */
@@ -227,9 +215,6 @@ private:
   /// set optional algorithm / sequence time outs
   double m_timeout;
   int m_timeoutMilliseconds;
-  
-  /// timer will abort job once timeout for any algorithm or sequence is reached
-  Athena::AlgorithmTimer m_abortTimer;
   
 private:
   bool m_continueEventloopOnFPE;

@@ -507,7 +507,7 @@ private:
   RegSelSiLUT* m_newstgc{nullptr};
 
   
-  StringProperty m_PixConditionsSvc;
+  StringProperty m_PixConditionsTool;
   StringProperty m_SCTConditionsTool;
   StringProperty m_TRTConditionsSvc;
 

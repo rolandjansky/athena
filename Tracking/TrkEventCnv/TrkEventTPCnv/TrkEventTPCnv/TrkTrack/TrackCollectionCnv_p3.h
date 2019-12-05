@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRACK_COLLECTION_CNV_P3_TRK_H
@@ -21,7 +21,7 @@
 class MsgStream;
 
 class TrackCollectionCnv_p3
-   : public T_AthenaPoolTPPtrVectorCnv< TrackCollection, Trk::TrackCollection_p1, TrackCnv_p3 >
+   : public T_AthenaPoolTPThinnedPtrVectorCnv< TrackCollection, Trk::TrackCollection_p1, TrackCnv_p3 >
 {
 public:
   TrackCollectionCnv_p3() {}

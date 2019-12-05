@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TBEvent/TBTDC.h"
@@ -17,3 +17,15 @@ TBTDC::TBTDC(int phase_value, float scale_value) : m_tdcmin(0),  m_scale(scale_v
 {
   m_tdc=(int)(m_phase/m_scale);
 }
+
+TBTDC::TBTDC(int tdc_value,
+             int tdcmin_value,
+             float scale_value,
+             int phase_value)
+  : m_tdc(tdc_value),
+    m_tdcmin(tdcmin_value),
+    m_scale(scale_value),
+    m_phase(phase_value)
+{
+}
+

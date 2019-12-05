@@ -118,10 +118,10 @@ if jobproperties.AthenaCommonFlags.PoolHitsOutput.statusOn :
     TBDetDescrLoader.OutputLevel = 5
 
 ## Explicitly create DetectorGeometrySvc - temporary fix
-from AthenaCommon.CfgGetter import getService, getPublicTool
+from AthenaCommon.CfgGetter import getService
 from AthenaCommon.AppMgr import ServiceMgr
 ServiceMgr += getService('DetectorGeometrySvc')
-ServiceMgr.ToolSvc += getPublicTool('PhysicsListToolBase')
+ServiceMgr += getService('PhysicsListSvc')
 
 ## TBSimSkeleton._do_metadata
 from G4AtlasApps.G4Atlas_Metadata import createTBSimulationParametersMetadata
@@ -192,10 +192,6 @@ if not simFlags.ISFRun:
                                  "CSCSimHitCollection#*",
                                  "MDTSimHitCollection#*",
                                  "TrackRecordCollection#MuonExitLayer"]
-            from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
-            if ( hasattr(simFlags, 'SimulateNewSmallWheel') and simFlags.SimulateNewSmallWheel() ) or CommonGeometryFlags.Run()=="RUN3" :
-                stream1.ItemList += ["sTGCSimHitCollection#*"]
-                stream1.ItemList += ["MMSimHitCollection#*"]
 
         ## Lucid
         if DetFlags.Lucid_on():

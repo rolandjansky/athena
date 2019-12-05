@@ -196,7 +196,7 @@ StatusCode HIClusterMaker::DumpClusters(xAOD::CaloClusterContainer* clusColl)
     float eta_cl=0;
     float phi_cl=0;
     
-    CaloClusterCellLink* cellLinks=cl->getCellLinks();
+    CaloClusterCellLink* cellLinks=cl->getOwnCellLinks();
     
     if (!cellLinks)
     {

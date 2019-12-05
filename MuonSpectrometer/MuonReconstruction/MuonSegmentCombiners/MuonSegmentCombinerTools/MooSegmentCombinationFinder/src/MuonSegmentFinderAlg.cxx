@@ -92,7 +92,7 @@ StatusCode MuonSegmentFinderAlg::initialize()
     m_csc4dSegmentFinder.disable();
 
   ATH_CHECK( m_segmentCollectionKey.initialize() );
-  ATH_CHECK( m_cscPrdsKey.initialize() );
+  ATH_CHECK( m_cscPrdsKey.initialize(!m_cscPrdsKey.empty()) ); // check for layouts without CSCs
   ATH_CHECK( m_mdtPrdsKey.initialize(m_doTGCClust || m_doRPCClust));
   ATH_CHECK( m_rpcPrdsKey.initialize());
   ATH_CHECK( m_tgcPrdsKey.initialize());

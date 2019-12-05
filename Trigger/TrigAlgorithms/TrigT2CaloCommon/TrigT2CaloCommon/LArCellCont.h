@@ -22,12 +22,14 @@
 #include "LArCabling/LArCablingLegacyService.h"
 #include "LArByteStream/Hid2RESrcID.h"
 #include "Identifier/HWIdentifier.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include <vector>
 
 class EventInfo;
 class ILArBadChannelMasker;
 class ILArBadFebMasker;
+class CaloBCIDAverage;
 static std::vector<float> corrBCIDref_example;
 
 /** Class which contains statically allocated LArCellCollections */
@@ -67,7 +69,7 @@ class LArCellCont : public std::vector<LArCellCollection*>
   virtual ~LArCellCont() { };
 
   /** initialize method. Builds all cells and collections. */
-  StatusCode initialize( bool applyOffsetCorrection ) ;
+  StatusCode initialize( ) ;
   /** finalize method. Destroys all cells and collections. */
   StatusCode finalize( void ) ;
   /** sets Event Number */
@@ -79,6 +81,10 @@ class LArCellCont : public std::vector<LArCellCollection*>
   const std::vector<uint32_t>& MissingROBs( void ) {
 	return m_MissingROBs;
   }
+
+  bool lumiBCIDCheck( const EventContext& context );
+  /** update BCID dependent correction table for MT case */
+  void updateBCID( const CaloBCIDAverage& );
 
 private:    
 
@@ -110,13 +116,12 @@ private:
 	std::vector< std::vector<float> > m_corrBCID;
 	/** reference to the corrections for a given BCID */
 	std::vector<float>& m_corrBCIDref;
-	/** update BCID dependent correction table */
-	void updateBCID();
 	/** index table */
 	std::map<HWIdentifier,int> m_indexset;
         /** current lumi_block */
         float m_lumi_block;
 	unsigned int m_bcid;
+	EventIDBase::event_number_t m_bcidEvt;
 	
 	/** Needs also the LArCablingSvc */
 	LArCablingLegacyService* m_larCablingSvc;  

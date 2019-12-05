@@ -1229,7 +1229,7 @@ Trk::KalmanUpdatorSMatrix::convertToClonedTrackPars(const Trk::TrackParameters& 
                                                     const SCovMatrix5& covpar,
                                                     const int& sign,
                                                     const bool& createFQoS,
-                                                    const std::string& ndtext) const {
+                                                    std::string_view ndtext) const {
   AmgSymMatrix(5)* C = new AmgSymMatrix(5);
   C->setZero();
   for (int i=0; i<5; ++i) {
@@ -1362,13 +1362,12 @@ Trk::FitQualityOnSurface* Trk::KalmanUpdatorSMatrix::makeChi2Object(const Amg::V
 {   // sign: -1 = updated, +1 = predicted parameters.
     Amg::MatrixX R = covRio + sign * covTrk.similarity(H);
     double chiSquared = 0.;
-    R = R.inverse();
     if (false) { //!< TODO check on inverse failure ?
         msg(MSG::DEBUG) << "matrix inversion not possible, set chi2 to zero" << endmsg;
 		chiSquared = 0.f;
     } else {
       // get chi2 = r.T() * R^-1 * r
-      chiSquared = residual.transpose() * R * residual;
+      chiSquared = residual.transpose() * R.inverse() * residual;
       if (msgLvl(MSG::VERBOSE)) {
         msg(MSG::VERBOSE) << "-U- fitQuality of "<< (sign>0?"predicted":"updated")
               <<" state, chi2 :" << chiSquared << " / ndof= " << covRio.cols() << endmsg;

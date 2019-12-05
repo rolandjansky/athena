@@ -39,12 +39,12 @@ class egammaSwTool : public AthAlgTool, virtual public IegammaSwTool
   /** @brief finalize method*/
   StatusCode finalize();
   /** @brief execute method*/
-  StatusCode execute(const EventContext& ctx, xAOD::CaloCluster* cluster);
-  StatusCode execute(const EventContext& ctx, xAOD::CaloCluster* cluster, xAOD::EgammaParameters::EgammaType egType , bool isBarrel) ;
+  StatusCode execute(const EventContext& ctx, xAOD::CaloCluster* cluster) const;
+  StatusCode execute(const EventContext& ctx, xAOD::CaloCluster* cluster, xAOD::EgammaParameters::EgammaType egType , bool isBarrel) const ;
 
  private:
   
-  StatusCode processTools(const EventContext& ctx, ToolHandleArray<CaloClusterProcessor>& tools, xAOD::CaloCluster* cluster) const;
+  StatusCode processTools(const EventContext& ctx, const ToolHandleArray<CaloClusterProcessor>& tools, xAOD::CaloCluster* cluster) const;
 
   /**
    * @brief a list of names for tools to correct clusters

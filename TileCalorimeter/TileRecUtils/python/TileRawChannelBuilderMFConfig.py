@@ -78,4 +78,4 @@ if __name__ == "__main__":
     print( acc.popToolsAndMerge( TileRawChannelBuilderMFCfg(ConfigFlags) ) )
 
     acc.printConfig(withDetails = True, summariseProps = True)
-    acc.store( open('TileRawChannelBuilderMF.pkl','w') )
+    acc.store( open('TileRawChannelBuilderMF.pkl','wb') )

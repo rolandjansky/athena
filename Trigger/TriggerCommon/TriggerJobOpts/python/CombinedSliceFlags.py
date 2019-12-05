@@ -6,7 +6,6 @@ from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from AthenaCommon.JobProperties import jobproperties # noqa: F401
 from TriggerJobOpts.CommonSignatureHelper import CommonSignatureHelper
 
-__author__  = 'T. Bold, B. Demirkoz'
 __doc__="Flags for combined slices  "
 
 

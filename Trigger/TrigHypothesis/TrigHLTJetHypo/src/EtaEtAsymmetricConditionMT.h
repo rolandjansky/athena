@@ -36,7 +36,6 @@ class EtaEtAsymmetricConditionMT: public IConditionMT{
 
   virtual unsigned int capacity() const override {return s_capacity;}
 
-
  private:
 
   double m_etaMin;
@@ -47,6 +46,7 @@ class EtaEtAsymmetricConditionMT: public IConditionMT{
                    const std::unique_ptr<ITrigJetHypoInfoCollector>&) const;
 
   const static  unsigned int s_capacity{1};
+
 
 };
 

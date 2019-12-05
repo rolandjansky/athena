@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ActsGeometry/ActsExtrapolationAlg.h"
@@ -17,6 +17,7 @@
 #include "ActsGeometry/ActsTrackingGeometryTool.h"
 
 #include "ActsGeometry/ActsPropStepRootWriterSvc.h"
+#include "ActsGeometry/ActsCaloTrackingVolumeBuilder.h"
 
 DECLARE_COMPONENT( ActsExtrapolationAlg )
 DECLARE_COMPONENT( ActsWriteTrackingGeometry )
@@ -33,3 +34,4 @@ DECLARE_COMPONENT( ActsTrackingGeometryTool )
 
 DECLARE_COMPONENT( ActsPropStepRootWriterSvc )
 DECLARE_COMPONENT( ActsAlignmentCondAlg )
+DECLARE_COMPONENT( ActsCaloTrackingVolumeBuilder )

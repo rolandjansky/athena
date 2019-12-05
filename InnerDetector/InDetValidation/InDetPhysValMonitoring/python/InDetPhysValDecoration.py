@@ -244,6 +244,8 @@ def getDecorators(**kwargs) :
         decorators += InDetPhysValMonitoring.InDetPhysValDecoration.getTruthDecorators( TruthParticleContainerName = truth_particle_container_name )
     if len(kwargs)> 0 :
         raise Exception( 'Unused kwargs: %s' % kwargs )
+    return decorators
+    
 class InDetPhysValKeys :
     '''
     Keys to decorate and monitor GSF Tracks/TrackParticles

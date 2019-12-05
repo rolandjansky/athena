@@ -22,10 +22,7 @@
 #include "InDetTrigToolInterfaces/ITrigRawDataProviderTool.h"
 
 #include "SCT_Cabling/ISCT_CablingTool.h"
-
-//typedef
-#include "InDetRawData/SCT_RDO_Container.h"
-#include "InDetByteStreamErrors/InDetBSErrContainer.h"
+#include "SCT_RawDataByteStreamCnv/ISCTRawDataProviderTool.h"
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -39,9 +36,7 @@ class IRegSelSvc;
 class IROBDataProviderSvc;
 class MsgStream;
 class IRoiDescriptor;
-class ISCTRawDataProviderTool;
 class Incident;
-class SCT_ByteStreamFractionContainer;
 
 namespace InDet {
   class TrigSCTRawDataProvider :  virtual public ITrigRawDataProviderTool,
@@ -69,16 +64,14 @@ namespace InDet {
   private:
     ServiceHandle<IRegSelSvc>           m_regionSelector;     
     ServiceHandle<IROBDataProviderSvc>  m_robDataProvider;
-    ToolHandle<ISCTRawDataProviderTool> m_rawDataTool;
+    ToolHandle<ISCTRawDataProviderTool> m_rawDataTool{this, "RawDataTool", "SCTRawDataProviderTool"};
     ToolHandle<ISCT_CablingTool>        m_cablingTool{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
     const SCT_ID*                       m_id; 
     //! the RDO container
     SCT_RDO_Container*                  m_container;
     InDetBSErrContainer*                m_bsErrCont;
-    SCT_ByteStreamFractionContainer*    m_bsFracCont;
     std::string                         m_RDO_Key;
     std::string                         m_bsErrCont_Key;
-    std::string                         m_bsFracCont_Key;
 
     //
   };

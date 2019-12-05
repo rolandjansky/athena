@@ -10,7 +10,6 @@ ex = ExecStep.ExecStep()
 ex.type = 'athenaHLT'
 ex.job_options = 'TrigUpgradeTest/full_menu.py'
 ex.input = 'data'
-ex.args = '-c "doWriteESD=False"'
 ex.perfmon = False # perfmon with athenaHLT doesn't work at the moment
 
 test = Test.Test()

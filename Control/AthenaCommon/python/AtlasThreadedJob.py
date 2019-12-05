@@ -21,8 +21,7 @@ def _setupAtlasThreadedJob():
         theApp.MessageSvcType = "MessageSvc"
 
     svcMgr.MessageSvc.defaultLimit = 0
-    msgFmt = "% F%40W%S%4W%e%s%7W%R%T %0W%M"
-    svcMgr.MessageSvc.Format = msgFmt
+    svcMgr.MessageSvc.Format = "% F%40W%S%4W%R%e%s%8W%R%T %0W%M"
 
     theApp.StatusCodeCheck = False
 

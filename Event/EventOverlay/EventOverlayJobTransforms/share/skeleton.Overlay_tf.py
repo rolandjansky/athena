@@ -102,6 +102,18 @@ else:
     DetFlags.bpipe_setOff()
     DetFlags.FTK_setOff()
 
+    if hasattr(runArgs, "triggerConfig") and runArgs.triggerConfig == "NONE":
+        DetFlags.LVL1_setOff()
+    else:
+        DetFlags.LVL1_setOn()
+
+    DetFlags.digitize.LVL1_setOff()
+
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+if not MuonGeometryFlags.hasCSC(): DetFlags.CSC_setOff()
+if not MuonGeometryFlags.hasSTGC(): DetFlags.sTGC_setOff()
+if not MuonGeometryFlags.hasMM(): DetFlags.Micromegas_setOff()
+
 # TODO: need to do it better
 #DetFlags.makeRIO.all_setOff() ## Currently has to be on otherwise InDetTRTStrawStatusSummarySvc is not created
 DetFlags.pileup.all_setOff()
@@ -137,7 +149,21 @@ if hasattr(runArgs, 'conditionsTag') and runArgs.conditionsTag not in ['', 'NONE
         conddb.setGlobalTag(globalflags.ConditionsTag())
 
 
-# TODO: setup LVL1 Trigger Menu
+# LVL1 Trigger Menu
+if hasattr(runArgs, "triggerConfig") and runArgs.triggerConfig!="NONE":
+    # LVL1 Trigger Menu
+    # PJB 9/2/2009 Setup the new triggerConfig flags here
+    from TriggerJobOpts.TriggerFlags import TriggerFlags
+    triggerArg = runArgs.triggerConfig
+    #if not prefixed with LVL1: add it here
+    Args = triggerArg.split(":")
+    if Args[0] != "LVL1":
+        TriggerFlags.triggerConfig ="LVL1:"+triggerArg
+    else:
+        TriggerFlags.triggerConfig =triggerArg
+    overlaylog.info( 'triggerConfig argument is: %s ', TriggerFlags.triggerConfig.get_Value() )
+    from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
+    cfg = TriggerConfigGetter("HIT2RDO")
 
 
 #-------------------------
@@ -163,8 +189,11 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
 if DetFlags.overlay.LAr_on() or DetFlags.overlay.Tile_on():
     include ( "EventOverlayJobTransforms/CaloOverlay_jobOptions.py" )
 
-if DetFlags.overlay.CSC_on() or DetFlags.overlay.MDT_on() or DetFlags.overlay.RPC_on() or DetFlags.overlay.TGC_on() or DetFlags.overlay.sTGC_on() or DetFlags.overlay.Micromegas_on():
+if (MuonGeometryFlags.hasCSC() and DetFlags.overlay.CSC_on()) or DetFlags.overlay.MDT_on() or DetFlags.overlay.RPC_on() or DetFlags.overlay.TGC_on() or (MuonGeometryFlags.hasSTGC() and DetFlags.overlay.sTGC_on()) or (MuonGeometryFlags.hasMM() and DetFlags.overlay.Micromegas_on()):
     include ( "EventOverlayJobTransforms/MuonOverlay_jobOptions.py" )
+
+if DetFlags.overlay.LVL1_on():
+   include ( "EventOverlayJobTransforms/Level1Overlay_jobOptions.py" )
 
 # save the overlay output
 include("EventOverlayJobTransforms/OverlayOutput_jobOptions.py")
@@ -189,7 +218,7 @@ digitizationFlags.rndmSeedList.printSeeds()
 # Logging
 #-------------------------
 ServiceMgr.MessageSvc.OutputLevel = INFO
-ServiceMgr.MessageSvc.Format = "% F%45W%S%7W%R%T %0W%M"
+ServiceMgr.MessageSvc.Format = "% F%45W%S%5W%e%s%7W%R%T %0W%M"
 
 # Post-include
 if hasattr(runArgs, "postInclude"):

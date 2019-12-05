@@ -1,4 +1,4 @@
-include.block("TriggerRelease/TriggerConfig_TrigL2DimuonMassHypo.py")
+include.block("TriggerJobOpts/TriggerConfig_TrigL2DimuonMassHypo.py")
 #
 # Configure a suitable _TrigL2DimuonMassHypo Algorithm instance
 #

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -16,7 +16,7 @@
 // leakage corrections.  Time represents when the feature extraction thinks
 // the deposit occured, in nanoseconds, relative to the trigger.  It ought
 // to be zero for good hits. 
-// Quality is an 32-bits integer number, which is split in 4 unsinged chars
+// Quality is an 32-bits integer number, which is split in 4 unsigned chars
 // m_tileQual[4] like this:
 //   m_tileQual[0] and m_tileQual[1] are  unsigned quality from TileRawChannel for first and second PMT
 //   m_tileQual[2] and m_tileQual[3] contains special bits for first and second PMT respectively:
@@ -167,14 +167,19 @@ public:
   /** @brief set quality of first PMT */
   void setQual1 (unsigned char qual) { m_tileQual[0] = qual; }
   /** @brief set quality of second PMT */
+  // cppcheck-suppress objectIndex
   void setQual2 (unsigned char qual) { m_tileQual[1] = qual; }
   /** @brief set quality bits of first PMT */
+  // cppcheck-suppress objectIndex
   void setQbit1 (unsigned char qbit) { m_tileQual[2] = qbit; }
   /** @brief set quality bits of second PMT */
+  // cppcheck-suppress objectIndex
   void setQbit2 (unsigned char qbit) { m_tileQual[3] = qbit; }
   /** @brief set quality and quality bits of first PMT */
+  // cppcheck-suppress objectIndex
   void setQual1 (unsigned char qual, unsigned char qbit) { m_tileQual[0] = qual; m_tileQual[2] = qbit; }
   /** @brief set quality and quality bits of second PMT */
+  // cppcheck-suppress objectIndex
   void setQual2 (unsigned char qual, unsigned char qbit) { m_tileQual[1] = qual; m_tileQual[3] = qbit; }
 
   /** all get methods */
@@ -197,14 +202,19 @@ public:
   /** @brief get quality of first PMT (data member) */
   virtual uint8_t qual1 (void) const   { return m_tileQual[0]; }
   /** @brief get quality of second PMT (data member) */
+  // cppcheck-suppress objectIndex
   virtual uint8_t qual2 (void) const   { return m_tileQual[1]; }
   /** @brief get quality bits of first PMT (data member) */
+  // cppcheck-suppress objectIndex
   virtual uint8_t qbit1 (void) const   { return m_tileQual[2]; }
   /** @brief get quality bits of second PMT (data member) */
+  // cppcheck-suppress objectIndex
   virtual uint8_t qbit2 (void) const   { return m_tileQual[3]; }
   /** @brief check if first PMT is in bad channel list and masked */
+  // cppcheck-suppress objectIndex
   virtual bool badch1 (void) const   { return ((m_tileQual[2]&TileCell::MASK_BADCH) != 0); }
   /** @brief check if second PMT is in bad channel list and masked */
+  // cppcheck-suppress objectIndex
   virtual bool badch2 (void) const   { return ((m_tileQual[3]&TileCell::MASK_BADCH) != 0); }
   /** @brief check if whole cell is bad (i.e. no energy measurement at all in this cell) */
   virtual bool badcell (void) const   { return (badch1() & badch2()); }
@@ -253,7 +263,9 @@ void TileCell::setEnergy_nonvirt(float e1, float e2, int gain1, int gain2)
 
 inline
 void TileCell::setQuality_nonvirt(unsigned char qual, unsigned char qbit, int pmt) {
+  // cppcheck-suppress objectIndex
   m_tileQual[0+pmt] = qual;
+  // cppcheck-suppress objectIndex
   m_tileQual[2+pmt] = qbit;
 }
 

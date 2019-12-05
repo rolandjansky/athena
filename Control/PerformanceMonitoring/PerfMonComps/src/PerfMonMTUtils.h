@@ -19,11 +19,12 @@
 
 typedef std::map< std::string, long > memory_map_t; // Component : Memory Measurement(kB)
 
+
 /*
  * Inline function prototypes
 */
 inline memory_map_t operator-( memory_map_t& map1,  memory_map_t& map2);
-inline bool isDirectoryExist(const std::string dir);
+inline bool doesDirectoryExist(const std::string dir);
 
 /*
  * Necessary tools
@@ -47,53 +48,68 @@ namespace PMonMT {
       return std::make_pair( this->stepName, this->compName ) < std::make_pair( sc.stepName, sc.compName );
     }
   
-  };
-                                   
-  // Step Name, Component name and event number triple. e.g. Execute - StoreGateSvc - 3    Clear!
-  struct StepCompEvent {
-  
-    std::string stepName;
-    std::string compName;
-    int eventNumber;
-  
-    //Overload < operator, because we are using a custom key(StepCompEvent)  for std::map
-    bool operator<(const StepCompEvent& sce) const {
-      return std::make_pair( this->eventNumber, this->compName ) < std::make_pair( sce.eventNumber, sce.compName );
-    }
-  };
-  
+  };  
 
   // Basic Measurement
   struct Measurement {
 
-    // These two variables stores the measurements captured outside the event loop
+    typedef std::map< int, Measurement > event_meas_map_t; // Event number: Measurement
+
+    // Variables to store measurements
     double cpu_time;
     double wall_time;
+    memory_map_t mem_stats; // Vmem, Rss, Pss, Swap
     
     // This map stores the measurements captured in the event loop
-    std::map< StepCompEvent, Measurement > timeMon_meas_map;
+    //std::map< int, Measurement > parallel_meas_map; // [Event count so far]: Measurement
+    event_meas_map_t parallel_meas_map; // [Event count so far]: Measurement
 
-    memory_map_t memMon_meas_map;
+    // Peak values for Vmem, Rss and Pss
+    long vmemPeak = LONG_MIN;
+    long rssPeak = LONG_MIN;
+    long pssPeak = LONG_MIN;
 
+    // Capture for serial steps
     void capture() {
       cpu_time = get_process_cpu_time();
       wall_time = get_wall_time();
 
-      if(isDirectoryExist("/proc"))
-        memMon_meas_map = get_mem_stats();
+      if(doesDirectoryExist("/proc")){
+        mem_stats = get_mem_stats();
+        if(mem_stats["vmem"] > vmemPeak)
+          vmemPeak = mem_stats["vmem"];
+        if(mem_stats["rss"] > rssPeak)
+          rssPeak = mem_stats["rss"];
+        if(mem_stats["pss"] > pssPeak)
+          pssPeak = mem_stats["pss"];
+      }
+        
     }
 
-    // Could we make it argumentless?
-    void capture_MT ( StepCompEvent sce ) {
-           
-      cpu_time = get_thread_cpu_time();
+    // Capture for serial steps
+    void capture_MT ( int eventCount ) {
+          
+      cpu_time = get_process_cpu_time();
       wall_time = get_wall_time(); 
 
       Measurement meas;
+
+      if(doesDirectoryExist("/proc")){
+        mem_stats = get_mem_stats();
+        meas.mem_stats = mem_stats;
+
+        if(mem_stats["vmem"] > vmemPeak)
+          vmemPeak = mem_stats["vmem"];
+        if(mem_stats["rss"] > rssPeak)
+          rssPeak = mem_stats["rss"];
+        if(mem_stats["pss"] > pssPeak)
+          pssPeak = mem_stats["pss"];
+      }
+      
       meas.cpu_time = cpu_time;
       meas.wall_time = wall_time;
 
-      timeMon_meas_map[sce] = meas;
+      parallel_meas_map[eventCount] = meas;
     }
 
     Measurement() : cpu_time{0.}, wall_time{0.} { }
@@ -102,25 +118,29 @@ namespace PMonMT {
   // Basic Data
   struct MeasurementData {
 
-    // These variables are used to calculate the serial monitoring
+    typedef std::map< int, Measurement > event_meas_map_t; // Event number: Measurement
+
+    // These variables are used to calculate and store the serial component level measurements
     double m_tmp_cpu, m_delta_cpu;
     double m_tmp_wall, m_delta_wall;
-
     memory_map_t m_memMon_tmp_map;
     memory_map_t m_memMon_delta_map;
 
-    // These maps are used to calculate the parallel monitoring
-    std::map< StepCompEvent, Measurement > m_timeMon_tmp_map;
-    std::map< StepCompEvent, Measurement > m_timeMon_delta_map;    
+    // This map is used to store the event level measurements
+    event_meas_map_t m_parallel_delta_map;
 
+    // Offset variables
+    double m_offset_cpu;
+    double m_offset_wall;
+    memory_map_t m_offset_mem;
     
     void addPointStart(const Measurement& meas) {          
 
       m_tmp_cpu = meas.cpu_time;
       m_tmp_wall = meas.wall_time;
       
-      if(isDirectoryExist("/proc"))
-        m_memMon_tmp_map = meas.memMon_meas_map;
+      if(doesDirectoryExist("/proc"))
+        m_memMon_tmp_map = meas.mem_stats;
     }
     // make const
     void addPointStop(Measurement& meas)  {     
@@ -128,20 +148,46 @@ namespace PMonMT {
       m_delta_cpu = meas.cpu_time - m_tmp_cpu;
       m_delta_wall = meas.wall_time - m_tmp_wall;
 
-      if(isDirectoryExist("/proc"))
-        m_memMon_delta_map = meas.memMon_meas_map - m_memMon_tmp_map;   
+      if(doesDirectoryExist("/proc"))
+        m_memMon_delta_map = meas.mem_stats - m_memMon_tmp_map;  
     }
 
-    // Clear -> Make generic + make meas const
-    void addPointStart_MT(Measurement& meas, StepCompEvent sce ){
+    // Record the event level measurements
+    void record_MT(Measurement& meas, int eventCount ){
 
-      m_timeMon_tmp_map[sce] = meas.timeMon_meas_map[sce];
+      // If it is the first event, set it as offset
+      if(eventCount == 0){
+        m_offset_cpu = meas.parallel_meas_map[eventCount].cpu_time;
+        m_offset_wall = meas.parallel_meas_map[eventCount].wall_time;
+        m_offset_mem = meas.parallel_meas_map[eventCount].mem_stats;
+      }
+
+      m_parallel_delta_map[eventCount].cpu_time = meas.parallel_meas_map[eventCount].cpu_time - m_offset_cpu;
+      m_parallel_delta_map[eventCount].wall_time = meas.parallel_meas_map[eventCount].wall_time - m_offset_wall;
+
+      if(doesDirectoryExist("/proc")){
+        m_parallel_delta_map[eventCount].mem_stats["vmem"] = meas.parallel_meas_map[eventCount].mem_stats["vmem"] - m_offset_mem["vmem"];
+        m_parallel_delta_map[eventCount].mem_stats["rss"] = meas.parallel_meas_map[eventCount].mem_stats["rss"] - m_offset_mem["rss"];
+        m_parallel_delta_map[eventCount].mem_stats["pss"] = meas.parallel_meas_map[eventCount].mem_stats["pss"] - m_offset_mem["pss"];
+        m_parallel_delta_map[eventCount].mem_stats["swap"] = meas.parallel_meas_map[eventCount].mem_stats["swap"] - m_offset_mem["swap"];
+      }
+
     }
 
-    void addPointStop_MT (Measurement& meas, StepCompEvent sce  ){
+    event_meas_map_t getParallelDeltaMap() const{
+      return m_parallel_delta_map;
+    }
 
-      m_timeMon_delta_map[sce].cpu_time = meas.timeMon_meas_map[sce].cpu_time - m_timeMon_tmp_map[sce].cpu_time;
-      m_timeMon_delta_map[sce].wall_time = meas.timeMon_meas_map[sce].wall_time - m_timeMon_tmp_map[sce].wall_time;
+    double getDeltaCPU() const{
+      return m_delta_cpu;
+    }
+
+    double getDeltaWall() const{
+      return m_delta_wall;
+    }
+
+    long getMemMonDeltaMap(std::string mem_stat) {
+      return m_memMon_delta_map[mem_stat];
     }
 
     
@@ -189,10 +235,13 @@ inline double PMonMT::get_wall_time() {
 /*
  * Memory statistics for serial steps
  */
+
+ // Read from process
 inline memory_map_t PMonMT::get_mem_stats(){
 
   memory_map_t result;
-  std::ifstream smaps_file("/proc/self/smaps");
+  std::string fileName = "/proc/self/smaps";
+  std::ifstream smaps_file(fileName); 
  
   std::string line;
   std::string key;
@@ -228,7 +277,7 @@ inline memory_map_t operator-( memory_map_t& map1,  memory_map_t& map2){
   return result_map;
 }
 
-inline bool isDirectoryExist(const std::string dir){
+inline bool doesDirectoryExist(const std::string dir){
   struct stat buffer;
   return (stat (dir.c_str(), &buffer) == 0);
 }

@@ -86,7 +86,7 @@ class DefaultHLTConfigSvc( TrigConf__HLTConfigSvc ):
             doc = ET.parse(self.XMLMenuFile)
             algs = self.getAllAlgorithms(doc)
             l2TEs, efTEs = self.getTEsByLevel(doc)
-            
+
             for te in l2TEs:
                 if te in algs.keys():
                     allalgs += algs[te]
@@ -94,7 +94,7 @@ class DefaultHLTConfigSvc( TrigConf__HLTConfigSvc ):
             for te in efTEs:
                 if te in algs.keys():
                     allalgs += algs[te]
-                    
+
         return allalgs
 
 
@@ -115,7 +115,7 @@ class DefaultHLTConfigSvc( TrigConf__HLTConfigSvc ):
             doc = ET.parse(self.XMLMenuFile)
             algs = self.getAllAlgorithms(doc)
             l2TEs, efTEs = self.getTEsByLevel(doc)
-            
+
             for te in l2TEs:
                 if te in algs.keys():
                     l2algs += algs[te]
@@ -123,7 +123,7 @@ class DefaultHLTConfigSvc( TrigConf__HLTConfigSvc ):
             for te in efTEs:
                 if te in algs.keys():
                     efalgs += algs[te]
-                    
+
         return l2algs, efalgs
 
     def getTEsByLevel(self, doc = None):
@@ -189,7 +189,7 @@ class DefaultHLTConfigSvc( TrigConf__HLTConfigSvc ):
         algos = {}
         for seq in doc.getiterator("SEQUENCE"):
             algos[seq.get("output")] = seq.get("algorithm").split()
-        
+
         return algos
 
 
@@ -248,7 +248,7 @@ class LVL1ConfigSvc ( DefaultLVL1ConfigSvc ):
         log = logging.getLogger("LVL1ConfigSvc")
         log.warning( "LVL1ConfigSvc property XMLFile will soon be deprecated. Please use XMLMenuFile instead" )
         self.XMLMenuFile = xmlfile
-    
+
     def setDefaults(self, handle):
         pass
 
@@ -301,10 +301,10 @@ class SetupTrigConfigSvc(object):
             """
             state == xml -> read the trigger configuration from 2 xml files, one for L1, one for HLT
             stats == ds  -> read the trigger configuration from the detector store = esd header
-            state == run3_dummy -> use a hard-coded list of HLT chains until the HLT JSON is ready
+            state == none -> service is not directly serving the run3 configuration
             """
             self.states = ["xml"]
-            self.allowedStates = set(['run3_dummy','xml','ds'])
+            self.allowedStates = set(['none','xml','ds'])
             self.initialised = False
 
             from AthenaCommon.Logging import logging
@@ -428,19 +428,29 @@ def TrigConfigSvcCfg( flags ):
     l1ConfigSvc = TrigConf__LVL1ConfigSvc( "LVL1ConfigSvc" )
     l1XMLFile = findFileInXMLPATH(flags.Trigger.LVL1ConfigFile)
     log.debug( "LVL1ConfigSvc input file:"+l1XMLFile  )
-
     l1ConfigSvc.XMLMenuFile = l1XMLFile
     l1ConfigSvc.ConfigSource = "XML"
 
     acc.addService( l1ConfigSvc )
+
+    from TrigConfigSvc.TrigConfigSvcConf import TrigConf__HLTConfigSvc
+    hltConfigSvc = TrigConf__HLTConfigSvc( "HLTConfigSvc" )
+    hltJsonFile = flags.Trigger.HLTMenuFile.replace(".xml",".json").replace("HLTconfig","HLTmenu")
+    #hltJsonFile = findFileInXMLPATH(hltJsonFile)
+    log.debug( "HLTConfigSvc input file:"+hltJsonFile  )
+    hltConfigSvc.JsonFileName = hltJsonFile
+
+    acc.addService( hltConfigSvc )
+
+
     return acc
 
 if __name__ == "__main__":
     from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=True    
+    Configurable.configurableRun3Behavior=True
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     ConfigFlags.lock()
     acc = TrigConfigSvcCfg( ConfigFlags )
-    acc.store( file( "test.pkl", "w" ) )
+    acc.store( open( "test.pkl", "wb" ) )
     print("All OK")

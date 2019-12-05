@@ -13,6 +13,10 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "AthContainers/DataVector.h"
+#include "CommissionEvent/ComTime.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "TrkTrack/TrackCollection.h"
+#include "VxVertex/VxContainer.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
@@ -49,12 +53,12 @@ namespace InDetAlignMon{
 
     //if this method is used the decision on which trackcollection
     //is made by the calling method
-    const DataVector<Trk::Track>* selectTracks(const std::string &);
+    const DataVector<Trk::Track>* selectTracks(SG::ReadHandle<TrackCollection>& inputTracks);
 
     const DataVector<Trk::Track>* selectTracks();
 
     std::string getTrackColName(){
-      return m_trackColName;
+      return m_trackColName.key();
     }
     
     //Do we cut on the event phase
@@ -62,7 +66,7 @@ namespace InDetAlignMon{
     bool m_useIDTrackSelectionTool;
     float m_maxEventPhase;
     float m_minEventPhase;
-    std::string m_commTimeName;
+    SG::ReadHandleKey<ComTime> m_commTimeName{this, "CommTimeName", "TRT_Phase"};
 
   private:
     
@@ -73,8 +77,8 @@ namespace InDetAlignMon{
     bool m_passAllTracks;//switch that enables track selection to be bypassed completely
 
     //these member variables only play a role if use selectTracks() zero argument method above
-    std::string m_trackColName;
-    std::string m_VtxContainerName;
+    SG::ReadHandleKey<TrackCollection> m_trackColName{this, "TrackColName", ""};
+    SG::ReadHandleKey<VxContainer> m_VtxContainerName{this, "PrimVtxContainerName", "VxPrimaryCandidate"};
     unsigned int m_minTracksPerVtx;
     bool m_usePrimVtx;
     

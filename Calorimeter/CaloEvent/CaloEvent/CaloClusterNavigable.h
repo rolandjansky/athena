@@ -26,6 +26,10 @@
 
 #include <algorithm>
 
+#include "GeoPrimitives/GeoPrimitives.h"
+#include "CxxUtils/checker_macros.h"
+
+
 class CaloClusterNavigable : virtual public INavigable
 {
  public:
@@ -137,7 +141,7 @@ class CaloClusterNavigable : virtual public INavigable
 			 const boost::any& rPar) const;
 
   /** \brief replace container for all cells*/
-  virtual bool replaceCellContainer(const CaloCellContainer* newCont) const;
+  virtual bool replaceCellContainer ATLAS_NOT_CONST_THREAD_SAFE(const CaloCellContainer* newCont) const;
 
   virtual bool isCellLinkValid() const ; 
 
@@ -164,7 +168,7 @@ protected:
   friend class CaloClusterContainerCnv_p7;
   friend class CaloClusterContainerCnvTestMakeCluster;
 
-  CaloCellLink*        getCellLink();
+  CaloCellLink*        getCellLink ATLAS_NOT_CONST_THREAD_SAFE();
   const CaloCellLink*  getCellLink() const;
 
   bool setCellLink(CaloCellLinkContainer* pLink);

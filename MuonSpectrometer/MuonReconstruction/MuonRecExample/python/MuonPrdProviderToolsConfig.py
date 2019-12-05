@@ -32,10 +32,10 @@ def RpcPrepDataProviderTool(name="RpcPrepDataProviderTool",**kwargs):
   else:
     raise ValueError( "RpcPrepDataProviderTool: unsupported dataSource %s" % source )
 
-  from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
+  from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataToolMT
   if athenaCommonFlags.isOnline: 
       kwargs["ReadKey"] = ""
-  return Muon__RpcRdoToPrepDataTool(name,**kwargs)
+  return Muon__RpcRdoToPrepDataToolMT(name,**kwargs)
 
 
 def MdtPrepDataProviderTool(name="MdtPrepDataProviderTool", **kwargs):
@@ -50,24 +50,24 @@ def MdtPrepDataProviderTool(name="MdtPrepDataProviderTool", **kwargs):
   if source == 'data':
     kwargs.setdefault("UseTwin", True)
 
-  from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MdtRdoToPrepDataTool
-  return Muon__MdtRdoToPrepDataTool(name,**kwargs)
+  from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MdtRdoToPrepDataToolMT
+  return Muon__MdtRdoToPrepDataToolMT(name,**kwargs)
 
 
 def TgcPrepDataProviderTool(name="TgcPrepDataProviderTool", **kwargs):
   # setup dependencies which are not yet in C++  
   import MuonCnvExample.MuonCablingConfig
 
-  from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TgcRdoToPrepDataTool
-  return Muon__TgcRdoToPrepDataTool(name, **kwargs)
+  from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TgcRdoToPrepDataToolMT
+  return Muon__TgcRdoToPrepDataToolMT(name, **kwargs)
   
   
 def CscPrepDataProviderTool(name="CscPrepDataProviderTool", **kwargs):
   # setup dependencies which are not yet in C++
   import MuonCnvExample.MuonCablingConfig
 
-  from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscRdoToCscPrepDataTool
-  return Muon__CscRdoToCscPrepDataTool(name, **kwargs)
+  from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscRdoToCscPrepDataToolMT
+  return Muon__CscRdoToCscPrepDataToolMT(name, **kwargs)
 
 
 ################################################################################

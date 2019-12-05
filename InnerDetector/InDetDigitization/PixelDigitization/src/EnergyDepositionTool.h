@@ -28,15 +28,17 @@
 #include "GaudiKernel/Service.h"
 #include "HitManagement/TimedHitPtr.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "PixelConditionsTools/IModuleDistortionsTool.h"
 #include "SiDigitization/SiChargedDiodeCollection.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
+
+#include "InDetIdentifier/PixelID.h"
+#include "PixelConditionsData/PixelDistortionData.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 //=============================
 // C U S T O M   S T R U C T 
 //=============================
-struct BichselData
-{
+struct BichselData {
   std::vector<double> Array_BetaGammaLog10;
   std::vector<std::vector<double> > Array_BetaGammaLog10_ColELog10;  // ColE = CollisionEnergy in eV
   std::vector<std::vector<double> > Array_BetaGammaLog10_IntXLog10;  // IntX = Integrated Xsection. The unit doesn't matter
@@ -47,58 +49,56 @@ struct BichselData
 //  C L A S S   D E F
 //====================
 class EnergyDepositionTool : public AthAlgTool {
+  public:
+    EnergyDepositionTool( const std::string& type, const std::string& name,const IInterface* parent);
 
-public:
-  
-  EnergyDepositionTool( const std::string& type, const std::string& name,const IInterface* parent);
+    static const InterfaceID& interfaceID() ;
+    virtual StatusCode initialize();
+    virtual StatusCode finalize();
 
-  static const InterfaceID& interfaceID() ;
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
+    virtual ~EnergyDepositionTool();
+    StatusCode initTools();
 
-  virtual ~EnergyDepositionTool();
-  StatusCode initTools();
-  
-  std::vector<std::pair<double,double> > BichselSim(double BetaGamma, int ParticleType, double TotalLength, double InciEnergy, CLHEP::HepRandomEngine *rndmEngine) const;   // output hit record in the format (hit position, energy loss)
-  
-  std::vector<std::pair<double,double> > ClusterHits(std::vector<std::pair<double,double> >& rawHitRecord, int n_pieces) const;         // cluster hits into n steps (there could be thousands of hit)
-  int trfPDG(int pdgId) const;                                                             // convert pdgId to ParticleType. If it is unsupported particle, -1 is returned.
-  
-  virtual StatusCode depositEnergy(const TimedHitPtr<SiHit> &phit, const InDetDD::SiDetectorElement &Module, std::vector<std::pair<double,double> > &trfHitRecord, std::vector<double> &initialConditions, CLHEP::HepRandomEngine *rndmEngine);
+    std::vector<std::pair<double,double> > BichselSim(double BetaGamma, int ParticleType, double TotalLength, double InciEnergy, CLHEP::HepRandomEngine *rndmEngine) const;   // output hit record in the format (hit position, energy loss)
 
+    std::vector<std::pair<double,double> > ClusterHits(std::vector<std::pair<double,double> >& rawHitRecord, int n_pieces) const;         // cluster hits into n steps (there could be thousands of hit)
+    int trfPDG(int pdgId) const;                                                             // convert pdgId to ParticleType. If it is unsupported particle, -1 is returned.
 
-// Variables
-private:
-  EnergyDepositionTool();
+    virtual StatusCode depositEnergy(const TimedHitPtr<SiHit> &phit, const InDetDD::SiDetectorElement &Module, std::vector<std::pair<double,double> > &trfHitRecord, std::vector<double> &initialConditions, CLHEP::HepRandomEngine *rndmEngine);
 
-  // internal private members //
-  double                   m_DeltaRayCut;      // Threshold to identify a delta ray. unit in keV
-  std::vector<BichselData> m_BichselData;      // vector to store Bichsel Data. Each entry is for one particle type
-  int                      m_nCols;            // number of collisions to simulate each time. This is mainly to save CPU time if necessary
-  int                      m_LoopLimit;        // upper limit on number of loops. The default value is optimized for current configuration. People can tune this number in case of ITK upgrade (very forward barrel) or other new situation.
-  int    m_numberOfSteps;
-  int    m_numberOfCharges;  
-  bool				m_disableDistortions;
+    // Variables
+  private:
+    EnergyDepositionTool();
 
-  bool   m_doBichsel;                                  // re-do charge deposition following Bichsel model ?
-  double m_doBichselBetaGammaCut;                      // replace momentum cut
-  bool   m_doDeltaRay;                                 // implement Bichsel Model into delta-ray, which does not have truth particle link. 
-  bool   m_doPU;                                       // Whether we apply Bichsel model on non-HS particles
+    // internal private members //
+    double                   m_DeltaRayCut;      // Threshold to identify a delta ray. unit in keV
+    std::vector<BichselData> m_BichselData;      // vector to store Bichsel Data. Each entry is for one particle type
+    int                      m_nCols;            // number of collisions to simulate each time. This is mainly to save CPU time if necessary
+    int                      m_LoopLimit;        // upper limit on number of loops. The default value is optimized for current configuration. People can tune this number in case of ITK upgrade (very forward barrel) or other new situation.
+    int    m_numberOfSteps;
+    int    m_numberOfCharges;  
+    bool   m_disableDistortions;
 
-  PublicToolHandle<IModuleDistortionsTool> m_pixDistoTool
-     {this,"PixelDistortionsTool","PixelDistortionsTool",""};
+    bool   m_doBichsel;                                  // re-do charge deposition following Bichsel model ?
+    double m_doBichselBetaGammaCut;                      // replace momentum cut
+    bool   m_doDeltaRay;                                 // implement Bichsel Model into delta-ray, which does not have truth particle link. 
+    bool   m_doPU;                                       // Whether we apply Bichsel model on non-HS particles
 
-// Functions
-private:
-  void simulateBow(const InDetDD::SiDetectorElement * element,double& xi, double& yi, const double zi, double& xf, double& yf, const double zf) const;
-  std::pair<int,int> FastSearch(std::vector<double> vec, double item) const;               // A quick implementation of binary search in 2D table
-  std::pair<int,int> GetBetaGammaIndices(double BetaGammaLog10, BichselData& iData) const; // get beta-gamma index. This is so commonly used by other functions that a caching would be beneficial
-  double GetColE(double BetaGammaLog10, double IntXLog10, BichselData& iData) const;       // return ColE NOT ColELog10 ! unit is eV
-  double GetColE(std::pair<int,int> indices_BetaGammaLog10, double IntXLog10, BichselData& iData) const;       // return ColE NOT ColELog10 ! unit is eV
-  double GetUpperBound(double BetaGammaLog10, BichselData& iData) const;                   // return IntX upper bound
-  double GetUpperBound(std::pair<int,int> indices_BetaGammaLog10, double BetaGammaLog10, BichselData& iData) const;                   // return IntX upper bound
-  void SetFailureFlag(std::vector<std::pair<double,double> >& rawHitRecord) const;         // return (-1,-1) which indicates failure in running BichselSim
- };
+    const PixelID* m_pixelID;
 
+    SG::ReadCondHandleKey<PixelDistortionData> m_distortionKey
+    {this, "PixelDistortionData", "PixelDistortionData", "Output readout distortion data"};
+
+    // Functions
+  private:
+    void simulateBow(const InDetDD::SiDetectorElement * element,double& xi, double& yi, const double zi, double& xf, double& yf, const double zf) const;
+    std::pair<int,int> FastSearch(std::vector<double> vec, double item) const;               // A quick implementation of binary search in 2D table
+    std::pair<int,int> GetBetaGammaIndices(double BetaGammaLog10, BichselData& iData) const; // get beta-gamma index. This is so commonly used by other functions that a caching would be beneficial
+    double GetColE(double BetaGammaLog10, double IntXLog10, BichselData& iData) const;       // return ColE NOT ColELog10 ! unit is eV
+    double GetColE(std::pair<int,int> indices_BetaGammaLog10, double IntXLog10, BichselData& iData) const;       // return ColE NOT ColELog10 ! unit is eV
+    double GetUpperBound(double BetaGammaLog10, BichselData& iData) const;                   // return IntX upper bound
+    double GetUpperBound(std::pair<int,int> indices_BetaGammaLog10, double BetaGammaLog10, BichselData& iData) const;                   // return IntX upper bound
+    void SetFailureFlag(std::vector<std::pair<double,double> >& rawHitRecord) const;         // return (-1,-1) which indicates failure in running BichselSim
+};
 
 #endif //PIXELDIGITIZATION_EnergyDepositionTool_H

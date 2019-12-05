@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //==============================================
@@ -34,12 +34,12 @@ class TileMu {
   {}
 
   /** Constructor */
-  TileMu ( float eta, float phi, std::vector<float> & ener, float qual );
+  TileMu ( float eta, float phi, const std::vector<float> & ener, float qual );
 
   /** Destructor */
   ~TileMu() {}
 
-  void Set( float eta, float phi, std::vector<float> & ener, float qual ); 
+  void Set( float eta, float phi, const std::vector<float> & ener, float qual ); 
 
   /** Eta (computed as the average of the eta values of the TileCal cells where the muon goes through) */
   float eta() const { return m_eta; }
@@ -53,7 +53,7 @@ class TileMu {
    * 3rd component: energy deposited in outermost layer (D cells),
    * 4th component: energy deposited in the surrounding cells
    */
-  std::vector<float> enedep() const { return m_energy_deposited; }
+  const std::vector<float>& enedep() const { return m_energy_deposited; }
 
   /** Quality flag (0 or 1):
    * set to 0 if the "energy deposition path" is MIP like in all three samples (tight muon),

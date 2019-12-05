@@ -163,7 +163,7 @@ topSequence += MyReFitTrack
 
 import AthenaPoolCnvSvc.WriteAthenaPool
 logRecoOutputItemList_jobOptions = logging.getLogger( 'py:RecoOutputItemList_jobOptions' )
-from OutputStreamAthenaPool.OutputStreamAthenaPool import  createOutputStream
+from OutputStreamAthenaPool.CreateOutputStreams import  createOutputStream
 
 StreamESD=createOutputStream("StreamESD","myESD.pool.root",True)
 include ("CaloRecEx/CaloRecOutputItemList_jobOptions.py")

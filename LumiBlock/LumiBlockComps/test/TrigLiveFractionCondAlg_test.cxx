@@ -57,6 +57,16 @@ EventIDBase timestamp (int t)
 }
 
 
+EventIDBase mixed (int run, int lbn, int t)
+{
+  return EventIDBase (run,  // run
+                      EventIDBase::UNDEFEVT,  // event
+                      t,
+                      0, // ns offset
+                      lbn);
+}
+
+
 template <class ITERATOR>
 coral::Blob make_busyblob (ITERATOR beg, ITERATOR end)
 {
@@ -157,7 +167,7 @@ void test1 (ISvcLocator* svcloc)
 
   EventContext ctx;
   ctx.setExtension (Atlas::ExtendedEventContext());
-  EventIDBase eid (0, 0, 0, 0);
+  EventIDBase eid (1, 0, 0, 0, 20);
   ctx.setEventID (eid);
 
   TrigLiveFractionCondAlg alg ("TrigLiveFractionCondAlg", svcloc);
@@ -173,7 +183,7 @@ void test1 (ISvcLocator* svcloc)
 
   DataObjID id2 ("testLumi");
   auto cc2 = std::make_unique<CondCont<LuminosityCondData> > (rcu, id2);
-  const EventIDRange range2 (timestamp (0), timestamp (90));
+  const EventIDRange range2 (mixed (1, 10, 0), mixed (1, 100, 90));
   float totW = 0;
   assert( cc2->insert (range2, make_lumi(totW), ctx).isSuccess() );
 

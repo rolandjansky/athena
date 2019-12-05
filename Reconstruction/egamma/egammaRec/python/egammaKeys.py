@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = "egammaKeys.py"
 __author__ = "Bruno Lenzi"
@@ -45,13 +45,13 @@ class egammaKeysDict:
 # Create methods to return the types and keys in inputs and outputs
 # e.g. egammaKeys.outputElectronKey()
 for i,j in egammaKeysDict.inputs.items():
-  exec "def input%sType(): return '%s'" % (i, j[0])
-  exec "def input%sKey(): return '%s'" % (i, j[1])
+  exec ("def input%sType(): return '%s'" % (i, j[0]))
+  exec ("def input%sKey(): return '%s'" % (i, j[1]))
 
 for i,j in egammaKeysDict.outputs.items():
-  exec "def output%sType(): return '%s'" % (i, j[0])
-  exec "def output%sKey(): return '%s'" % (i, j[1])
-  exec "def %sKey(): return '%s'" % (i, j[1])
+  exec ("def output%sType(): return '%s'" % (i, j[0]))
+  exec ("def output%sKey(): return '%s'" % (i, j[1]))
+  exec ("def %sKey(): return '%s'" % (i, j[1]))
 del i,j
 
 def caloCellKey():

@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from Limits import Limits # noqa: F401
 from AthenaCommon.Logging import logging
@@ -136,7 +138,7 @@ class Cabling:
 
         x = type2cablename[thrtype]
         for (minthr, maxthr, name) in x:
-            #print "BETTA ",mapping, minthr, maxthr, name
+            #print ("BETTA ",mapping, minthr, maxthr, name)
             if mapping>=minthr and mapping<maxthr:
                 return name
 
@@ -252,7 +254,7 @@ class InputCable:
             break
 
         if not self.connector:
-            print "Cable mapping ERROR ",cableAssign
+            print ("Cable mapping ERROR ",cableAssign)
             raise RuntimeError("No cable has been assigned to threshold type '%s' with mapping %i" % (self.thrtype,self.mapping))
 
 
@@ -271,7 +273,7 @@ class InputCable:
         if infosize==5:
             cableAssign = [tuple(cable[x:x+5]) for x in range(1,len(cable),5)]
         else:
-            #print "Cabling for threshold type %s is not yet defined for Run 2" % thrtype
+            #print ("Cabling for threshold type %s is not yet defined for Run 2" % thrtype)
             bitnum = Cabling.calcBitnum(thrtype)
             cableAssign = [tuple(cable[x:x+4] + [bitnum]) for x in range(1,len(cable),4)]
 

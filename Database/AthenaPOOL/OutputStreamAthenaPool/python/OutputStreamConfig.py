@@ -3,8 +3,8 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, ConfigurationError
 from AthenaCommon.Logging import logging
 
-def OutputStreamCfg(configFlags, streamName, ItemList=[] ):
-   from OutputStreamAthenaPoolConf import MakeEventStreamInfo
+def OutputStreamCfg(configFlags, streamName, ItemList=[], disableEventTag=False ):
+   from OutputStreamAthenaPool.OutputStreamAthenaPoolConf import MakeEventStreamInfo
    from AthenaServices.AthenaServicesConf import AthenaOutputStream
    from AthenaServices.AthenaServicesConf import AthenaOutputStreamTool
    from StoreGate.StoreGateConf import StoreGateSvc
@@ -38,6 +38,16 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[] ):
    result.addService(StoreGateSvc("MetaDataStore"))
    outputStream.MetadataStore = result.getService("MetaDataStore")
    outputStream.MetadataItemList = [ "EventStreamInfo#Stream" + streamName, "IOVMetaDataContainer#*" ]
+
+   # Event Tag
+   if not disableEventTag:
+      key = "SimpleTag"
+      outputStream.WritingTool.AttributeListKey=key
+      # build eventinfo attribute list
+      from .OutputStreamAthenaPoolConf import EventInfoAttListTool, EventInfoTagBuilder
+      result.addPublicTool(EventInfoAttListTool())
+      tagBuilder = EventInfoTagBuilder(AttributeList=key)
+      result.addEventAlgo(tagBuilder)
 
    # For xAOD output
    if streamName=="xAOD":

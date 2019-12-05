@@ -18,6 +18,9 @@
 
 #include "./ConditionsDefsMT.h"
 
+ConditionsMT conditionsFactoryAcceptAllMT(std::size_t capacity,
+					  unsigned int conditionID=0);
+
 ConditionsMT conditionsFactoryEtaEtMT(const std::vector<double>& etasMin,
                                       const std::vector<double>& etasMax,
                                       const std::vector<double>& thresholds,

@@ -577,7 +577,7 @@ void TauSelectionTool::FillValueVector(std::vector<T>& vRegion, U tVal)
 
 //______________________________________________________________________________
 template<typename T>
-void TauSelectionTool::PrintConfigRegion(std::string sCutName, std::vector<T>& vRegion)
+void TauSelectionTool::PrintConfigRegion(const std::string& sCutName, std::vector<T>& vRegion)
 {
   unsigned int iNumRegion = vRegion.size()/2;
   for( unsigned int iRegion = 0; iRegion < iNumRegion; iRegion++ )
@@ -588,7 +588,7 @@ void TauSelectionTool::PrintConfigRegion(std::string sCutName, std::vector<T>& v
 
 //______________________________________________________________________________
 template<typename T>
-void TauSelectionTool::PrintConfigValue(std::string sCutName, std::vector<T>& vRegion)
+void TauSelectionTool::PrintConfigValue(const std::string& sCutName, std::vector<T>& vRegion)
 {
   for (auto tVal : vRegion)
     ATH_MSG_DEBUG( sCutName<<": " << tVal );
@@ -596,13 +596,13 @@ void TauSelectionTool::PrintConfigValue(std::string sCutName, std::vector<T>& vR
 
 //______________________________________________________________________________
 template<typename T>
-void TauSelectionTool::PrintConfigValue(std::string sCutName, T& tVal)
+void TauSelectionTool::PrintConfigValue(const std::string& sCutName, T& tVal)
 {
   ATH_MSG_DEBUG( sCutName<<": " << tVal );
 }
 
 //______________________________________________________________________________
-int TauSelectionTool::convertStrToJetIDWP(std::string sJetIDWP)
+int TauSelectionTool::convertStrToJetIDWP(const std::string& sJetIDWP)
 {
   if (sJetIDWP == "JETIDNONE") return int(JETIDNONE);
   else if (sJetIDWP == "JETIDBDTVERYLOOSE") return int(JETIDBDTVERYLOOSE); // new in rel21 
@@ -626,7 +626,7 @@ int TauSelectionTool::convertStrToJetIDWP(std::string sJetIDWP)
 }
 
 //______________________________________________________________________________
-int TauSelectionTool::convertStrToEleBDTWP(std::string sEleBDTWP)
+int TauSelectionTool::convertStrToEleBDTWP(const std::string& sEleBDTWP)
 {
   if (sEleBDTWP == "ELEIDNONE") return int(ELEIDNONE);
   else if (sEleBDTWP == "ELEIDBDTLOOSE") return int(ELEIDBDTLOOSE);

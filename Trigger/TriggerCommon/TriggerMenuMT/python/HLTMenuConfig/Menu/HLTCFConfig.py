@@ -27,20 +27,21 @@
 
 # Classes to configure the CF graph, via Nodes
 from AthenaCommon.CFElements import parOR, seqAND, seqOR
-from AthenaCommon.Logging import logging
 from AthenaCommon.AlgSequence import dumpSequence
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFDot import  stepCF_DataFlow_to_dot, stepCF_ControlFlow_to_dot, all_DataFlow_to_dot
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep
 
 import copy
-log = logging.getLogger('HLTCFConfig')
+from AthenaCommon.Logging import logging
+log = logging.getLogger( __name__ )
+
 
 
 #### Here functions to create the CF tree from CF configuration objects
 def makeSummary(name, flatDecisions):
     """ Returns a TriggerSummaryAlg connected to given decisions"""
-    from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg
+    from DecisionHandling.DecisionHandlingConfig import TriggerSummaryAlg
     summary = TriggerSummaryAlg( name )
     summary.InputDecision = "L1DecoderSummary"
     summary.FinalDecisions = flatDecisions
@@ -125,10 +126,6 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     # Check if triggerConfigHLT exits, if yes, derive information from this
     # this will be in use once TrigUpgrade test has migrated to TriggerMenuMT completely
 
-    # lock flags
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    ConfigFlags.lock()
-
     # get topSequnece
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
@@ -143,10 +140,6 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
 
     # take L1Decoder out of topSeq
     topSequence.remove( l1decoder )
-
-    # set CTP chains before creating the full tree (and the monitor)
-    EnabledChainNamesToCTP = dict([ (c["chainName"], c["L1item"])  for c in triggerConfigHLT.dictsList()])
-    l1decoder[0].ChainToCTPMapping = EnabledChainNamesToCTP
 
     # main HLT top sequence
     hltTop = seqOR("HLTTop")
@@ -168,30 +161,33 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     summary= makeSummary("TriggerSummaryFinal", flatDecisions)
     hltTop += summary
 
+    # TODO - check we are not running things twice. Once here and once in TriggerConfig.py
 
     # add signature monitor
     from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectViewMakers, collectDecisionObjects,\
-        triggerMonitoringCfg, triggerSummaryCfg, triggerMergeViewsAndAddMissingEDMCfg
+        triggerMonitoringCfg, triggerSummaryCfg, triggerMergeViewsAndAddMissingEDMCfg, collectHypoDecisionObjects
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
+    Configurable.configurableRun3Behavior+=1
 
     hypos = collectHypos(steps)
     filters = collectFilters(steps)
     viewMakers = collectViewMakers(steps)
-    decObj = collectDecisionObjects( hypos, filters, l1decoder[0] )
     summaryAcc, summaryAlg = triggerSummaryCfg( ConfigFlags, hypos )
     hltTop += summaryAlg
     summaryAcc.appendToGlobals()
+    decObj = collectDecisionObjects( hypos, filters, l1decoder[0], summaryAlg )
+    decObjHypoOut = collectHypoDecisionObjects(hypos, inputs=False, outputs=True)
 
     monAcc, monAlg = triggerMonitoringCfg( ConfigFlags, hypos, filters, l1decoder[0] )
     monAcc.appendToGlobals()
     hltTop += monAlg
 
     # this is a shotcut for now, we always assume we may be writing ESD & AOD outputs, so all gaps will be filled
-    edmAlg = triggerMergeViewsAndAddMissingEDMCfg(['AOD', 'ESD'], hypos, viewMakers, decObj )
+    edmAlg = triggerMergeViewsAndAddMissingEDMCfg(['AOD', 'ESD'], hypos, viewMakers, decObj, decObjHypoOut)
     hltTop += edmAlg
 
-    Configurable.configurableRun3Behavior=0
+    Configurable.configurableRun3Behavior-=1
 
     topSequence += hltTop
 
@@ -199,8 +195,7 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     from TriggerMenuMT.HLTMenuConfig.Menu.CFValidation import testHLTTree
     testHLTTree( topSequence )
 
-
-def matrixDisplay( allCFSeq ):
+def matrixDisplayOld( allCFSeq ):
     from collections import defaultdict
     longestName = 5
     mx = defaultdict(lambda: dict())
@@ -211,13 +206,18 @@ def matrixDisplay( allCFSeq ):
             longestName = max(longestName, len(seq.step.name) )
 
     longestName = longestName + 1
+
     def __getHyposOfStep( s ):
         if len(s.step.sequences):
-           if type(s.step.sequences[0].hypo) is list:
-              return s.step.sequences[0].hypo[0].tools
-           else:
-              return s.step.sequences[0].hypo.tools
+            if len(s.step.sequences)==1:
+                if type(s.step.sequences[0].hypo) is list:
+                    return s.step.sequences[0].hypo[0].tools
+                else:
+                    return s.step.sequences[0].hypo.tools
+            else:
+                return s.step.combo.getChains().keys()
         return []
+   
 
 
 
@@ -241,6 +241,50 @@ def matrixDisplay( allCFSeq ):
     log.debug( "" )
 
 
+    
+def matrixDisplay( allCFSeq ):
+ 
+    def __getHyposOfStep( step ):
+        if len(step.sequences):
+            if len(step.sequences)==1:
+                if type(step.sequences[0].hypo) is list:
+                    return step.sequences[0].hypo[0].tools
+                else:
+                    return step.sequences[0].hypo.tools
+            else:
+                return step.combo.getChains().keys()
+        return []
+ 
+   
+    # fill dictionary to cumulate chains on same sequences, in steps (dict with composite keys)
+    from collections import defaultdict
+    mx = defaultdict(list)
+
+    for stepNumber,cfseq_list in enumerate(allCFSeq, 1):
+        for cfseq in cfseq_list:
+            chains = __getHyposOfStep(cfseq.step)
+            for seq in cfseq.step.sequences:
+                mx[stepNumber, seq.sequence.Alg.name()].extend(chains)
+
+
+    # sort dictionary by fist key=step
+    from collections import  OrderedDict
+    sorted_mx = OrderedDict(sorted( mx.items(), key= lambda k: k[0]))
+
+    log.info( "" )
+    log.info( "="*90 )
+    log.info( "Cumulative Summary of steps")
+    log.info( "="*90 )
+    for (step, seq), chains in sorted_mx.items():
+        log.info( "(step, sequence)  ==> (%d, %s) is in chains: ",  step, seq)
+        for chain in chains:
+            log.info( "              %s",chain)
+
+    log.info( "="*90 )
+
+
+
+   
 
 def decisionTree_From_Chains(HLTNode, chains, allDicts, newJO):
     """ creates the decision tree, given the starting node and the chains containing the sequences  """
@@ -394,7 +438,7 @@ def createDataFlow(chains, allDicts):
 
             if chain_step.isCombo:
                 if chain_step.combo is not None:
-                    chain_step.combo.addChain(chain.name)
+                    chain_step.combo.addChain( [d for d in allDicts if d['chainName'] == chain.name ][0])
                     log.debug("Added chains to ComboHypo: %s",chain_step.combo.getChains())
 
 

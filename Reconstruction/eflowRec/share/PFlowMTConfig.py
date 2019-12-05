@@ -2,18 +2,19 @@ from eflowRec.eflowRecConf import PFLeptonSelector
 PFLeptonSelector=PFLeptonSelector("PFLeptonSelector")
 topSequence += PFLeptonSelector
 
-PFLeptonSelector.electronID = "LHMedium"
-PFLeptonSelector.selectElectrons = False
-
 from eflowRec.eflowRecConf import PFTrackSelector
 PFTrackSelector=PFTrackSelector("PFTrackSelector")
-
 from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
 from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
 pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator = AtlasExtrapolator())
 
 from eflowRec.eflowRecConf import eflowTrackCaloExtensionTool
 TrackCaloExtensionTool=eflowTrackCaloExtensionTool(TrackCaloExtensionTool=pcExtensionTool)
+
+#If reading from ESD we not create a cache of extrapolations to the calorimeter, so we should signify this by setting the cache key to a null string
+from RecExConfig.RecFlags import rec
+if True == rec.readESD:
+   TrackCaloExtensionTool.PFParticleCache = ""
 
 PFTrackSelector.trackExtrapolatorTool = TrackCaloExtensionTool
 

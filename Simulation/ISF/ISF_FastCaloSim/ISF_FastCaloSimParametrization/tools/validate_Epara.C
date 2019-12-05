@@ -1,7 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifdef __CPPCHECK__
+void validate_Epara()
+#endif
 {
   if(1==0)
   {

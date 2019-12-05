@@ -22,7 +22,6 @@
 
 #include "Identifier/Identifier.h"
 
-#include "RPCcablingInterface/IRPCcablingServerSvc.h"
 
 #include "MuonDQAUtils/MuonChamberNameConverter.h"
 #include "MuonDQAUtils/MuonChambersRange.h"
@@ -114,22 +113,6 @@ StatusCode MdtVsRpcRawDataValAlg::initialize(){
 
   ATH_CHECK( m_muonIdHelperTool.retrieve() );
   
-  // get RPC cablingSvc
-  const IRPCcablingServerSvc* RpcCabGet = 0;
-  sc = service("RPCcablingServerSvc", RpcCabGet);
-  if (sc.isFailure()) {
-    ATH_MSG_WARNING ( "Could not get RPCcablingServerSvc !" );
-    return StatusCode::FAILURE;
-  }
- 
-  sc = RpcCabGet->giveCabling(m_cabling);
-  if (sc.isFailure()) {
-    ATH_MSG_WARNING ( "Could not get RPCcablingSvc from the Server !" );
-    m_cabling = 0;
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG ( " Found the RPCcablingSvc. " );    } 
-
   ManagedMonitorToolBase::initialize().ignore();  //  Ignore the checking code;
 
   ATH_CHECK(m_key_mdt.initialize());

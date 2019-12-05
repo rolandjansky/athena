@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from sys import settrace
 
@@ -36,7 +38,7 @@ class TriggerConfigL1Topo:
         
         if self.inputFile != None:
             """Read menu from XML"""
-            print "Menu input is not implemented!!"
+            print ("Menu input is not implemented!!")
         else:
             """Build menu from menu name"""
 
@@ -51,7 +53,7 @@ class TriggerConfigL1Topo:
     @staticmethod
     def getMenuBaseName(menuName):
         import re 
-        pattern = re.compile('_v\d+(_primaries)?|DC14')
+        pattern = re.compile(r'_v\d+(_primaries)?|DC14')
         patternPos = pattern.search(menuName)
         if patternPos:
             menuName=menuName[:patternPos.end()]
@@ -76,7 +78,7 @@ class TriggerConfigL1Topo:
     
     def getRegisteredAlgo(self, name):
         if name in self.registeredAlgos:
-#            print "Returning algo: {0}, ID:{1}, reassigning to {2}" .format(self.registeredAlgos[name].name,self.registeredAlgos[name].algoId,self.runningid )
+#            print ("Returning algo: {0}, ID:{1}, reassigning to {2}" .format(self.registeredAlgos[name].name,self.registeredAlgos[name].algoId,self.runningid ))
 #            self.registeredAlgos[name].algoId=self.runningid
             self.runningid+=1
             return self.registeredAlgos[name]
@@ -164,7 +166,7 @@ class TriggerConfigL1Topo:
 
             topooutput.sortingAlgos = self.findRegisteredSortingAlgoByOutput(topooutput.algo)
 
-            #print "For decision alg %s with inputs %r found the following sorting algs %r" % (topooutput.algo.name, topooutput.algo.inputs, [x.name for x in topooutput.sortingAlgos])
+            #print ("For decision alg %s with inputs %r found the following sorting algs %r" % (topooutput.algo.name, topooutput.algo.inputs, [x.name for x in topooutput.sortingAlgos]))
 
             self.menu += topooutput
 

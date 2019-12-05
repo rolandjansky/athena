@@ -24,6 +24,7 @@ atlas_depends_on_subdirs(
    Control/AthenaBaseComps
    Control/AthenaKernel
    Database/AthenaPOOL/AthenaPoolUtilities
+   InnerDetector/InDetConditions/BeamSpotConditionsData
    Event/EventInfo
    Event/xAOD/xAODEventInfo
    Event/xAOD/xAODTruth
@@ -36,7 +37,7 @@ atlas_depends_on_subdirs(
 atlas_add_component( xAODEventInfoCnv
    src/*.h src/*.cxx src/components/*.cxx
    LINK_LIBRARIES xAODCnvInterfaces  AthenaBaseComps
-   AthenaKernel AthenaPoolUtilities EventInfo xAODEventInfo xAODTruth GaudiKernel
+   AthenaKernel AthenaPoolUtilities EventInfo xAODEventInfo xAODTruth BeamSpotConditionsData GaudiKernel
    ${extra_libs} )
 
 # Install files from the package:

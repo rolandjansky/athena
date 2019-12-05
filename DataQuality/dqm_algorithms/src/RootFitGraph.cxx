@@ -32,20 +32,20 @@ dqm_algorithms::RootFitGraph::RootFitGraph( const std::string & name )
 { 
 
   if (m_name == "fermi"){
-    m_func = std::auto_ptr<TF1> ( new TF1("fermi","[0]/(1+exp(([1]-x)/[2]))") );
+    m_func = std::make_unique<TF1> ( "fermi","[0]/(1+exp(([1]-x)/[2]))" );
   }
   if (m_name == "erf"){
-    m_func = std::auto_ptr<TF1> ( new TF1("erf","[0]*TMath::Erf((x-[1])/(sqrt(2.)*[2]))") );
+    m_func = std::make_unique<TF1> ( "erf","[0]*TMath::Erf((x-[1])/(sqrt(2.)*[2]))" );
   }
   if (m_name == "flat"){
-    m_func = std::auto_ptr<TF1> ( new TF1("flat","[0]") );
+    m_func = std::make_unique<TF1> ( "flat","[0]" );
   }
   dqm_core::AlgorithmManager::instance().registerAlgorithm( "Simple_"+name +"_Fit_Graph", this );
 }
 
 dqm_algorithms::RootFitGraph::~RootFitGraph()
 {
-  // totally defeats the purpose of auto_ptr, but fixes a segfault in 5.34 ...
+  // totally defeats the purpose of unique_ptr, but fixes a segfault in 5.34 ...
   m_func.release();
 }
 

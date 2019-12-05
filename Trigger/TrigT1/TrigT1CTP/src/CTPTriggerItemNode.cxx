@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cassert>
@@ -16,7 +16,6 @@
 #include "TrigT1CTP/MsgLogger.h"
 
 #include "boost/lexical_cast.hpp"
-#include "boost/foreach.hpp"
 
 using namespace std;
 
@@ -72,7 +71,7 @@ bool LVL1CTP::CTPTriggerItemNode::evaluate( const TrigConf::TriggerItemNode* nod
 
    if( node->type() == TrigConf::TriggerItemNode::AND ) {
       bool decision = true;
-      BOOST_FOREACH(TrigConf::TriggerItemNode* child, children) {
+      for(TrigConf::TriggerItemNode* child : children) {
          decision &= evaluate( child, map, internalTrigger );
          if(!decision) break;
       }
@@ -83,7 +82,7 @@ bool LVL1CTP::CTPTriggerItemNode::evaluate( const TrigConf::TriggerItemNode* nod
 
    if ( node->type() == TrigConf::TriggerItemNode::OR ) {
       bool decision = false;
-      BOOST_FOREACH(TrigConf::TriggerItemNode* child, children) {
+      for(TrigConf::TriggerItemNode* child : children) {
          decision |= evaluate( child, map, internalTrigger );
          if(decision) break;
       }

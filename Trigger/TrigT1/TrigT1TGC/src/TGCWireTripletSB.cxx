@@ -9,9 +9,7 @@
 
 namespace LVL1TGCTrigger {
 
-extern bool g_STRICTWT;
-
-TGCWireTripletSB::TGCWireTripletSB():TGCSlaveBoard()
+TGCWireTripletSB::TGCWireTripletSB( TGCArguments* tgcargs ):TGCSlaveBoard(tgcargs)
 {}
 
 void TGCWireTripletSB::createSlaveBoardOut()
@@ -92,7 +90,7 @@ void TGCWireTripletSB::doCoincidence()
     // bug fixed (KH 19/01/01) 
     bool* out = new bool [totalLength];
     for( i=0; i<totalLength-8; i++){
-      if(g_STRICTWT){
+      if(tgcArgs()->STRICTWT()){
 	out[i] = ( b[i+3] & b[i+4] & b[i+5] );
       } else {
 	out[i] = ( b[i+3] & b[i+5] & !b[i+1] & !b[i+7] ) | 

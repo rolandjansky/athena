@@ -6,10 +6,10 @@
 # If you create a grid version, check art-output in existing grid tests.
 
 export EVENTS=10
-export THREADS=1
-export SLOTS=1
+export THREADS=2
+export SLOTS=2
 export JOBOPTION="TrigUpgradeTest/full_menu.py"
-export EXTRA="doEmptyMenu=True"
+export EXTRA="isOnline=True;doEmptyMenu=True;doWriteBS=False;doWriteRDOTrigger=True;"
 
 # This test doesn't produce any output useful for RegTest, so do a dummy reference comparison
 export REGTESTEXP="leaving with code"

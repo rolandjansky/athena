@@ -549,7 +549,7 @@ class TileROD_Decoder: public AthAlgTool {
     // thresholds for parabolic amplitude correction
     float m_ampMinThresh_pC; //!< correct amplitude if it's above amplitude threshold (in pC)
     float m_ampMinThresh_MeV; //!< correct amplitude if it's above amplitude threshold (in MeV)
-    void updateAmpThreshold();
+    void updateAmpThreshold(int run = -1);
 
     // OFWeights for different units and different drawers:
     // every element contains OFC for single drawer and one of 4 different units

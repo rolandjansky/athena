@@ -6,9 +6,6 @@
 #include "PEBInfoWriterAlg.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 
-// Athena includes
-#include "AthViews/View.h"
-
 // TrigCompositeUtils types used here
 using TrigCompositeUtils::Decision;
 using TrigCompositeUtils::DecisionContainer;
@@ -21,6 +18,10 @@ using TrigCompositeUtils::createAndStore;
 using TrigCompositeUtils::decisionIDs;
 using TrigCompositeUtils::linkToPrevious;
 using TrigCompositeUtils::newDecisionIn;
+using TrigCompositeUtils::initialRoIString;
+using TrigCompositeUtils::featureString;
+using TrigCompositeUtils::roiString;
+using TrigCompositeUtils::findLink;
 
 // =============================================================================
 
@@ -73,31 +74,30 @@ StatusCode PEBInfoWriterAlg::execute(const EventContext& eventContext) const {
   size_t counter = 0;
   for (const Decision* previousDecision: *previousDecisionsHandle) {
     // Get RoI
-    auto roiELInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>(previousDecision, "initialRoI");
+    auto roiELInfo = findLink<TrigRoiDescriptorCollection>(previousDecision, initialRoIString());
     auto roiEL = roiELInfo.link;
     ATH_CHECK(roiEL.isValid());
-    const TrigRoiDescriptor* roi = *roiEL;
-
-    // Get View
-    auto viewELInfo = TrigCompositeUtils::findLink<ViewContainer>(previousDecision, "view");
-    ATH_CHECK(viewELInfo.isValid());
-    auto viewEL = viewELInfo.link;
 
     // Create new decision
     Decision* newd = newDecisionIn(decisions);
 
+    // Attach empty PEB Info lists to the new decision
+    ATH_CHECK(newd->setDetail(PEBInfoWriterToolBase::robListKey(), std::vector<uint32_t>()));
+    ATH_CHECK(newd->setDetail(PEBInfoWriterToolBase::subDetListKey(), std::vector<uint32_t>()));
+
     // Push_back to toolInput
-    toolInputs.emplace_back(newd, eventContext, roi, previousDecision);
+    toolInputs.emplace_back(newd, eventContext, roiEL, previousDecision);
 
     // Link to new decision
-    newd->setObjectLink("roi", roiEL);
-    newd->setObjectLink("view", viewEL);
     linkToPrevious(newd, previousDecision, eventContext);
-    
-    ATH_MSG_DEBUG("REGTEST:  View = " << (*viewEL));
-    ATH_MSG_DEBUG("REGTEST:  RoI  = eta/phi = " << (*roiEL)->eta() << "/" << (*roiEL)->phi());
-    ATH_MSG_DEBUG("Added view, roi, previous decision to new decision " << counter
-                  << " for view " << (*viewEL)->name());
+
+    // Link to feature. Dummy link here
+    ElementLink<DecisionContainer> dummyLink(*decisions, decisions->size()-1, eventContext);
+    newd->setObjectLink(featureString(), dummyLink);
+    newd->setObjectLink(roiString(), roiEL);
+
+    ATH_MSG_DEBUG("RoI eta/phi = " << (*roiEL)->eta() << "/" << (*roiEL)->phi());
+    ATH_MSG_DEBUG("Added RoI, previous decision and dummy feature to new decision " << counter);
     ++counter;
   }
 
@@ -114,16 +114,7 @@ StatusCode PEBInfoWriterAlg::execute(const EventContext& eventContext) const {
   // ---------------------------------------------------------------------------
   ATH_CHECK(outputHandle.isValid());
   ATH_MSG_DEBUG("Exit with " << outputHandle->size() << " decisions");
-  if (msgLvl(MSG::DEBUG)) {
-    DecisionIDContainer allPassingIDs;
-    for (const Decision* decisionObject : *outputHandle) {
-      decisionIDs(decisionObject, allPassingIDs);
-    }
-    for (DecisionID id : allPassingIDs) {
-      ATH_MSG_DEBUG(" +++ " << HLT::Identifier(id));
-    }
-  }
-
+  ATH_CHECK( hypoBaseOutputProcessing(outputHandle) );
 
   return StatusCode::SUCCESS;
 }

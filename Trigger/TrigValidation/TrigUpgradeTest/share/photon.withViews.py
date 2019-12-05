@@ -129,10 +129,10 @@ from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT
 mon = TrigSignatureMoniMT()
 mon.FinalDecisions = [ "PhotonL2Decisions", "MuonL2Decisions", "WhateverElse" ]
 from TrigUpgradeTest.TestUtils import MenuTest
-mon.ChainsList = [ x.split(":")[1] for x in  MenuTest.CTPToChainMapping ]
+mon.HLTTriggerMenu = [ x.split(":")[1] for x in  MenuTest.CTPToChainMapping ]
 
 import AthenaPoolCnvSvc.WriteAthenaPool
-from OutputStreamAthenaPool.OutputStreamAthenaPool import  createOutputStream
+from OutputStreamAthenaPool.CreateOutputStreams import  createOutputStream
 StreamESD=createOutputStream("StreamESD","myESD.pool.root",True)
 topSequence.remove( StreamESD )
 

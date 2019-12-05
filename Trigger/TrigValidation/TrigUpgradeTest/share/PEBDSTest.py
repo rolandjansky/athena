@@ -25,9 +25,6 @@ EventBuildingInfo.PartialEventBuildingIdentifiers.append('TestPEBThree')
 EventBuildingInfo.PartialEventBuildingIdentifiers.append('TestPEBFour')
 EventBuildingInfo.DataScoutingIdentifiers['ElectronDSTest'] = 3
 EventBuildingInfo.DataScoutingIdentifiers['ElectronDSPEBTest'] = 3
-EventBuildingInfo.AllowedEventBuildingIdentifiers = []
-EventBuildingInfo.AllowedEventBuildingIdentifiers.extend(EventBuildingInfo.PartialEventBuildingIdentifiers)
-EventBuildingInfo.AllowedEventBuildingIdentifiers.extend(EventBuildingInfo.DataScoutingIdentifiers.keys())
 
 # Override the setupMenu function from LS2_v1
 def myMenu():
@@ -35,30 +32,30 @@ def myMenu():
 
     TriggerFlags.EgammaSlice.signatures = [
         # DS+PEB chain (special HLT result and subset of detector data saved)
-        ChainProp(name='HLT_e3_etcut_ElectronDSPEBTest_L1EM3', stream=['ElectronDSPEBTest']),
+        ChainProp(name='HLT_e3_etcut_ElectronDSPEBTest_L1EM3', stream=['ElectronDSPEBTest'], groups=['RATE:Test','BW:Other']),
 
         # Pure DS chain (only special HLT result saved and no detector data saved)
-        ChainProp(name='HLT_e5_etcut_ElectronDSTest_L1EM3', stream=['ElectronDSTest']),
+        ChainProp(name='HLT_e5_etcut_ElectronDSTest_L1EM3', stream=['ElectronDSTest'], groups=['RATE:Test','BW:Other']),
 
         # PEB chain (full HLT result and fixed subset of detector data saved)
-        ChainProp(name='HLT_e7_etcut_TestPEBOne_L1EM3', stream=['TestPEBOne']),
+        ChainProp(name='HLT_e7_etcut_TestPEBOne_L1EM3', stream=['TestPEBOne'], groups=['RATE:Test','BW:Other']),
 
         # PEB chain (full HLT result and RoI-based subset of detector data saved)
-        ChainProp(name='HLT_e10_etcut_TestPEBThree_L1EM3', stream=['TestPEBThree']),
+        ChainProp(name='HLT_e10_etcut_TestPEBThree_L1EM3', stream=['TestPEBThree'], groups=['RATE:Test','BW:Other']),
 
         # Standard chain (full HLT result and full detector data saved)
-        ChainProp(name='HLT_e12_etcut_L1EM3', stream=['Main']),
+        ChainProp(name='HLT_e12_etcut_L1EM3', stream=['Main'], groups=['RATE:SingleElectron', 'BW:Electron']),
     ]
 
     TriggerFlags.MuonSlice.signatures = [
         # PEB chain (fixed subset of detector data saved and no HLT result)
-        ChainProp(name='HLT_mu6_TestPEBTwo_L1MU6', stream=['TestPEBTwo']),
+        ChainProp(name='HLT_mu6_TestPEBTwo_L1MU6', stream=['TestPEBTwo'], groups=['RATE:Test','BW:Other']),
 
         # PEB chain (RoI-based subset of detector data saved and no HLT result)
-        ChainProp(name='HLT_mu6_TestPEBFour_L1MU6', stream=['TestPEBFour']),
+        ChainProp(name='HLT_mu6_TestPEBFour_L1MU6', stream=['TestPEBFour'], groups=['RATE:Test','BW:Other']),
 
         # Standard chain (full HLT result and full detector data saved)
-        ChainProp(name='HLT_2mu6_L12MU6', stream=['Main']),
+        ChainProp(name='HLT_2mu6_L12MU6', stream=['Main'], groups=['RATE:SingleMuon', 'BW:Muon']),
     ]
 
 LS2_v1.setupMenu = myMenu
@@ -129,34 +126,19 @@ def myPebInfoWriterTool(name, eventBuildType):
 EventBuildingSequenceSetup.pebInfoWriterTool = myPebInfoWriterTool
 
 
-# Define streams and override functions from StreamInfo
-allStreams = [
+# Define streams and override StreamInfo
+myAllStreams = [
     # [name, type, obeysLumiBlock, forceFullEventBuilding]
-    ('Main',                'physics',      'True', 'True'),
-    ('TestPEBOne',          'physics',      'True', 'False'),
-    ('TestPEBTwo',          'calibration',  'True', 'False'),
-    ('TestPEBThree',        'physics',      'True', 'False'),
-    ('TestPEBFour',         'calibration',  'True', 'False'),
-    ('ElectronDSTest',      'physics',      'True', 'False'),
-    ('ElectronDSPEBTest',   'physics',      'True', 'False'),
+    StreamInfo.StreamInfo('Main',               'physics',      True, True),
+    StreamInfo.StreamInfo('TestPEBOne',         'physics',      True, False),
+    StreamInfo.StreamInfo('TestPEBTwo',         'calibration',  True, False),
+    StreamInfo.StreamInfo('TestPEBThree',       'physics',      True, False),
+    StreamInfo.StreamInfo('TestPEBFour',        'calibration',  True, False),
+    StreamInfo.StreamInfo('ElectronDSTest',     'physics',      True, False),
+    StreamInfo.StreamInfo('ElectronDSPEBTest',  'physics',      True, False),
 ]
 
-def myGetStreamTags(streams):
-    log.debug('Executing myGetStreamTags')
-    streamTags = []
-    for stream_name in streams:
-        for stream in allStreams:
-            if stream_name == stream[0]:
-                streamTags.append(stream)
-    log.debug('StreamTags: %s', streamTags)
-    return streamTags
-
-def myGetAllStreams():
-    log.debug('Executing myGetAllStreams')
-    return [s[0] for s in allStreams]
-
-StreamInfo.getStreamTags = myGetStreamTags
-StreamInfo.getAllStreams = myGetAllStreams
+StreamInfo._all_streams = myAllStreams
 
 # Set trigger flags
 TriggerFlags.triggerMenuSetup = 'LS2_v1'

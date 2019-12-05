@@ -322,14 +322,14 @@ StatusCode EMBremCollectionBuilder::createNew(const TrackWithIndex& Info,
   }//End truth
 
   //Now  Slim the TrK::Track for writing to disk   
-  Trk::Track* slimmed = m_slimTool->slim(*track);
+  std::unique_ptr<Trk::Track> slimmed = m_slimTool->slimCopy(*track);
   if(!slimmed){
     ATH_MSG_WARNING ("TrackSlimming failed");
     ElementLink<TrackCollection> dummy;
     aParticle->setTrackLink(dummy);     
   }else{
-    finalTracks->push_back(slimmed);
-    ElementLink<TrackCollection> trackLink( slimmed, *finalTracks);
+    finalTracks->push_back(std::move(slimmed));
+    ElementLink<TrackCollection> trackLink(*finalTracks,finalTracks->size()-1);
     aParticle->setTrackLink( trackLink );     
   }
   return StatusCode::SUCCESS;
@@ -352,12 +352,6 @@ void EMBremCollectionBuilder::updateGSFTrack(const TrackWithIndex& Info,
     uint8_t deadPixel= original->summaryValue(dummy,xAOD::numberOfPixelDeadSensors)?dummy:0;
     summary->update(Trk::numberOfPixelDeadSensors,deadPixel);
     
-    uint8_t expectInnermostPixel= original->summaryValue(dummy,xAOD::expectInnermostPixelLayerHit)?dummy:0;
-    summary->update(Trk::expectInnermostPixelLayerHit,expectInnermostPixel);
-    
-    uint8_t expectNextToInnermostPixel = original->summaryValue(dummy,xAOD::expectNextToInnermostPixelLayerHit)?dummy:0;
-    summary->update(Trk::expectNextToInnermostPixelLayerHit,expectNextToInnermostPixel);
-  
     int nPixHitsRefitted = summary->get(Trk::numberOfPixelHits);
     int nPixOutliersRefitted = summary->get(Trk::numberOfPixelOutliers);
     int nPixHitsOriginal = original->summaryValue(dummy,xAOD::numberOfPixelHits) ? dummy:-1;

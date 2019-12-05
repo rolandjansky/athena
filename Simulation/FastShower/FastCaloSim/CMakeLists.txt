@@ -97,7 +97,7 @@ atlas_install_joboptions( share/*.py )
 atlas_add_test( FastShowerCellBuilderTool_test
   SCRIPT test/FastShowerCellBuilderTool_test.sh
   PROPERTIES TIMEOUT 600
-  EXTRA_PATTERNS "Reading file|FastCaloSimFactory|FileName|default:|DATAPATH|Cache alignment|map from|Database being retired|Resolved path|^Domain|HepPDT Version|from file|AtlasTracking.* INFO|CaloTra.* INFO|TrackingGeometrySvc" )
+  EXTRA_PATTERNS "Reading file|FastCaloSimFactory|FileName|default:|DATAPATH|Cache alignment|map from|Database being retired|Resolved path|^Domain|HepPDT Version|from file|AtlasTracking.* INFO|CaloTra.* INFO|TrackingGeometrySvc|INFO finalize|INFO Disconnecting from" )
 
 
 atlas_add_test( AddNoiseCellBuilderToolConfigTest_test

@@ -63,7 +63,7 @@ StatusCode ZDC_PixelSDTool::Gather()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4VSensitiveDetector*  ZDC_PixelSDTool::makeSD()
+G4VSensitiveDetector*  ZDC_PixelSDTool::makeSD() const
 {
   ATH_MSG_DEBUG( "Initializing SD" );
   // Create a fresh SD

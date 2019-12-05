@@ -159,11 +159,6 @@ const Trk::TrackSummary* Trk::TrackSummaryTool::createSummaryNoHoleSearch( const
   return createSummaryAndUpdateTrack(track, nullptr,          false, false, false);
 }
 //============================================================================================
-const Trk::TrackSummary* Trk::TrackSummaryTool::createSummaryNoHoleSearch( const Track& track,
-                                                                           const Trk::PRDtoTrackMap *prd_to_track_map)  const
-{
-  return createSummaryAndUpdateTrack(track, prd_to_track_map, false, false,false);
-}
 
 const Trk::TrackSummary* Trk::TrackSummaryTool::createSummary( const Track& track,
                                                                bool onlyUpdateTrack ) const
@@ -171,11 +166,15 @@ const Trk::TrackSummary* Trk::TrackSummaryTool::createSummary( const Track& trac
   return createSummaryAndUpdateTrack(track, nullptr,          onlyUpdateTrack, m_doHolesInDet, m_doHolesMuon);
 }
 
-const Trk::TrackSummary* Trk::TrackSummaryTool::createSummary( const Track& track,
-                                                               const Trk::PRDtoTrackMap *prd_to_track_map,
-                                                               bool onlyUpdateTrack ) const
-{
-  return createSummaryAndUpdateTrack(track, prd_to_track_map, onlyUpdateTrack, m_doHolesInDet, m_doHolesMuon);
+void Trk::TrackSummaryTool::computeAndReplaceTrackSummary(Trk::Track &track,
+                                                          const Trk::PRDtoTrackMap *prd_to_track_map,
+                                                          bool suppress_hole_search) const {
+   delete track.m_trackSummary;
+   track.m_trackSummary = nullptr;
+   track.m_trackSummary = createSummary(track,
+                                        prd_to_track_map,
+                                        m_doHolesInDet & !suppress_hole_search,
+                                        m_doHolesMuon  & !suppress_hole_search).release();
 }
 
 std::unique_ptr<Trk::TrackSummary> Trk::TrackSummaryTool::summary( const Track& track) const
@@ -183,11 +182,22 @@ std::unique_ptr<Trk::TrackSummary> Trk::TrackSummaryTool::summary( const Track& 
   return createSummary(track, nullptr, m_doHolesInDet, m_doHolesMuon );
 }
 
+std::unique_ptr<Trk::TrackSummary> Trk::TrackSummaryTool::summary( const Track& track,
+                                                                   const Trk::PRDtoTrackMap *prd_to_track_map) const
+{
+  return createSummary(track, prd_to_track_map, m_doHolesInDet, m_doHolesMuon );
+}
+
 std::unique_ptr<Trk::TrackSummary> Trk::TrackSummaryTool::summaryNoHoleSearch( const Track& track) const
 {
   return createSummary(track, nullptr, false,          false );
 }
 
+std::unique_ptr<Trk::TrackSummary> Trk::TrackSummaryTool::summaryNoHoleSearch( const Track& track,
+                                                                               const Trk::PRDtoTrackMap *prd_to_track_map) const
+{
+  return createSummary(track, prd_to_track_map, false,          false );
+}
 
 std::unique_ptr<Trk::TrackSummary>
 Trk::TrackSummaryTool::createSummary( const Track& track,
@@ -351,88 +361,66 @@ Trk::TrackSummaryTool::createSummary( const Track& track,
 void Trk::TrackSummaryTool::updateTrack(Track& track,const Trk::PRDtoTrackMap *prd_to_track_map) const
 {
   // first check if track has summary already.
-  if (track.m_trackSummary!=nullptr) {
-    delete track.m_trackSummary;
-    track.m_trackSummary = nullptr;
-  }
-
-  createSummary( track, prd_to_track_map, true );
-  return;
+  computeAndReplaceTrackSummary(track,prd_to_track_map,false /*DO NOT suppress hole search*/);
 }
 
 void Trk::TrackSummaryTool::updateTrackNoHoleSearch(Track& track, const Trk::PRDtoTrackMap *prd_to_track_map) const
 {
   // first check if track has summary already.
-  if (track.m_trackSummary!=nullptr) {
-    delete track.m_trackSummary;
-    track.m_trackSummary = nullptr;
-  }
-
-  track.m_trackSummary =  createSummary(track, prd_to_track_map, false, false).release();
-  return;
+  computeAndReplaceTrackSummary(track,prd_to_track_map,true /*suppress hole search*/);
+  m_idTool->updateExpectedHitInfo(track,  *track.m_trackSummary); // @TODO why ? 
 }
- 
-void Trk::TrackSummaryTool::updateSharedHitCount(Track& track, const Trk::PRDtoTrackMap *prd_to_track_map) const
+
+
+void Trk::TrackSummaryTool::updateSharedHitCount(const Track& track, const Trk::PRDtoTrackMap *prd_to_track_map,TrackSummary &summary) const
 {
   // first check if track has no summary - then it is recreated
-  if (track.m_trackSummary==nullptr) {
-      createSummary( track, prd_to_track_map, true );
-      return;
-  } 
-  Trk::TrackSummary* tSummary = track.m_trackSummary;
-  m_idTool->updateSharedHitCount(track, prd_to_track_map, *tSummary);
+  m_idTool->updateSharedHitCount(track, prd_to_track_map, summary);
   return;
 }
 
-void Trk::TrackSummaryTool::updateAdditionalInfo(Track& track, const Trk::PRDtoTrackMap *prd_to_track_map) const
+void Trk::TrackSummaryTool::updateAdditionalInfo(const Track& track, const Trk::PRDtoTrackMap *prd_to_track_map, TrackSummary &summary, bool initialise_to_zero) const
 {
-  // first check if track has no summary - then it is recreated
-  if (track.m_trackSummary==nullptr) {
-      track.m_trackSummary=summary(track).release();
-      return;
-  } 
-  Trk::TrackSummary* tSummary = track.m_trackSummary;
-  
   unsigned int numberOfeProbabilityTypes = Trk::numberOfeProbabilityTypes+1;
   std::vector<float> eProbability(numberOfeProbabilityTypes,0.5); 
   if ( !m_eProbabilityTool.empty() ) eProbability = m_eProbabilityTool->electronProbability(track);
- 
+
   if (!m_trt_dEdxTool.empty()) {
-    if (tSummary->get(Trk::numberOfTRTHits)+tSummary->get(Trk::numberOfTRTOutliers)>=m_minTRThitsForTRTdEdx) {
+    if (summary.get(Trk::numberOfTRTHits)+summary.get(Trk::numberOfTRTOutliers)>=m_minTRThitsForTRTdEdx) {
       int nhits = static_cast<int>( m_trt_dEdxTool->usedHits(&track, m_TRTdEdx_DivideByL, m_TRTdEdx_useHThits) );
       double fvalue = (nhits>0 ? m_trt_dEdxTool->dEdx(&track, m_TRTdEdx_DivideByL, m_TRTdEdx_useHThits, m_TRTdEdx_corrected) : 0.0);
       eProbability.push_back(fvalue);
-      if (!tSummary->update(Trk::numberOfTRTHitsUsedFordEdx, static_cast<uint8_t>(std::max(nhits,0)) )) {
+      if (!summary.update(Trk::numberOfTRTHitsUsedFordEdx, static_cast<uint8_t>(std::max(nhits,0)) )) {
         ATH_MSG_WARNING( "Attempt to update numberOfTRTHitsUsedFordEdx but this summary information is "
-                         "already set. numberOfTRTHitsUsedFordEdx is:" << tSummary->get(numberOfTRTHitsUsedFordEdx)
+                         "already set. numberOfTRTHitsUsedFordEdx is:" << summary.get(numberOfTRTHitsUsedFordEdx)
                          << " =?= should:" << nhits );
       }
     }
     else {
       eProbability.push_back(0.0);
-      if (!tSummary->update(Trk::numberOfTRTHitsUsedFordEdx, 0) ) {
+      if (!summary.update(Trk::numberOfTRTHitsUsedFordEdx, 0) ) {
         ATH_MSG_WARNING( "Attempt to update numberOfTRTHitsUsedFordEdx but this summary information is "
-                         "already set. numberOfTRTHitsUsedFordEdx is:" << tSummary->get(numberOfTRTHitsUsedFordEdx)
+                         "already set. numberOfTRTHitsUsedFordEdx is:" << summary.get(numberOfTRTHitsUsedFordEdx)
                          << " =?= should:" << 0 );
       }
     }
   }
 
-  float dedx=0;
-  int nhitsuseddedx=0;
-  int noverflowhitsdedx=0;
+  float dedx=            (initialise_to_zero ? 0 : -1);
+  int nhitsuseddedx=     (initialise_to_zero ? 0 : -1);
+  int noverflowhitsdedx= (initialise_to_zero ? 0 : -1);
 
   if (track.info().trackFitter() != TrackInfo::Unknown && !m_dedxtool.empty()) {
     dedx = m_dedxtool->dEdx(track, nhitsuseddedx, noverflowhitsdedx);
   }
 
-  m_idTool->updateAdditionalInfo(*tSummary, eProbability,dedx, nhitsuseddedx,noverflowhitsdedx);
-  
-  m_idTool->updateSharedHitCount(track, prd_to_track_map, *tSummary);
+  m_idTool->updateAdditionalInfo(summary, eProbability,dedx, nhitsuseddedx,noverflowhitsdedx);
 
-  m_idTool->updateExpectedHitInfo(track, *tSummary);
-  
-  if (m_addInDetDetailedSummary) m_idTool->addDetailedTrackSummary(track,*tSummary);
+  m_idTool->updateSharedHitCount(track, prd_to_track_map, summary);
+
+  m_idTool->updateExpectedHitInfo(track, summary);
+
+  if (m_addInDetDetailedSummary) m_idTool->addDetailedTrackSummary(track,summary);
   return;
 }
 

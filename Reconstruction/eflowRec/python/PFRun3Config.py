@@ -12,7 +12,8 @@ def getPFTrackSelectorAlgorithm(inputFlags):
 
     from eflowRec.eflowRecConf import eflowTrackCaloExtensionTool
     TrackCaloExtensionTool=eflowTrackCaloExtensionTool(TrackCaloExtensionTool=pcExtensionTool)
-
+    TrackCaloExtensionTool.PFParticleCache=""
+    
     PFTrackSelector.trackExtrapolatorTool = TrackCaloExtensionTool
 
     from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
@@ -162,20 +163,20 @@ def PFCfg(inputFlags,**kwargs):
     from AtlasGeoModel.GeoModelConfig import GeoModelCfg
     result.merge(GeoModelCfg(inputFlags))
 
-    #load folders needed for IBL
-    from IOVDbSvc.IOVDbSvcConfig import addFolders
-    result.merge(addFolders(inputFlags,['/Indet/IBLDist'],'INDET_OFL'))
-    
+    #Setup Pixel geometry including IBL and /Indet(/Onl)/Align folders
+    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
+    result.merge(PixelGeometryCfg(inputFlags))
+
     #Setup Pixel conditions
     from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelAlignCondAlg
-    result.addCondAlgo(PixelAlignCondAlg(name = "PixelAlignCondAlg",UseDynamicAlignFolders = False))
+    result.addCondAlgo(PixelAlignCondAlg(name = "PixelAlignCondAlg",UseDynamicAlignFolders = inputFlags.GeoModel.Align.Dynamic))
 
     from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDetectorElementCondAlg
     result.addCondAlgo(PixelDetectorElementCondAlg(name = "PixelDetectorElementCondAlg"))
 
     #Setup SCT conditions
     from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_AlignCondAlg
-    result.addCondAlgo(SCT_AlignCondAlg(name = "SCT_AlignCondAlg",UseDynamicAlignFolders = False))
+    result.addCondAlgo(SCT_AlignCondAlg(name = "SCT_AlignCondAlg",UseDynamicAlignFolders = inputFlags.GeoModel.Align.Dynamic))
 
     from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DetectorElementCondAlg
     result.addCondAlgo(SCT_DetectorElementCondAlg(name = "SCT_DetectorElementCondAlg"))
@@ -205,8 +206,7 @@ def PFCfg(inputFlags,**kwargs):
     result.merge(acc)
     
     #load folders needed for Run2 ID alignment
-    from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
-    result.merge(addFoldersSplitOnline(inputFlags,"INDET","/Indet/Onl/Align","/Indet/Align",className="AlignableTransformContainer"))
+    from IOVDbSvc.IOVDbSvcConfig import addFolders
     result.merge(addFolders(inputFlags,['/TRT/Align'],'TRT_OFL'))
     
     #Setup up muon geometry

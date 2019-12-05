@@ -22,11 +22,11 @@ template <class T> T* JetTagCalibCondData::retrieveTObject(const std::string& fo
         std::string fname = this->fullHistoName(channelAlias,hname);
         log << MSG::DEBUG << "#BTAG#    folder " << folder << " found in pos " << i
             << " , retrieving " << fname << endmsg;
-        std::map<std::string, TObject*>::const_iterator mI = m_histos[i].find(fname);
-        std::map<std::string, TObject*>::const_iterator mE = m_histos[i].end();
+        std::map<std::string, TH1*>::const_iterator mI = m_histos[i].find(fname);
+        std::map<std::string, TH1*>::const_iterator mE = m_histos[i].end();
         if(mI!=mE) {
           log << MSG::DEBUG << "#BTAG#    histo found: " << hname << endmsg;
-          h = dynamic_cast<T*> ( (*mI).second);
+          h = (*mI).second;
           if(h) {
             log << MSG::DEBUG << "#BTAG#    histo pointer is valid." << endmsg;
           } else {

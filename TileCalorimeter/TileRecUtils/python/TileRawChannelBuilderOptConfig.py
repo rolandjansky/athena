@@ -108,6 +108,6 @@ if __name__ == "__main__":
     print( acc.popToolsAndMerge( TileRawChannelBuilderOF1Cfg(ConfigFlags) ) )
 
     acc.printConfig(withDetails = True, summariseProps = True)
-    acc.store( open('TileRawChannelBuilder.pkl','w') )
+    acc.store( open('TileRawChannelBuilder.pkl','wb') )
 
 

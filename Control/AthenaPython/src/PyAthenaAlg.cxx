@@ -19,7 +19,7 @@
 // AthenaPython includes
 #include "AthenaPython/PyAthenaUtils.h"
 #include "AthenaPython/PyAthenaAlg.h"
-#include "AthenaPython/PyAthenaGILStateEnsure.h"
+#include "RootUtils/PyAthenaGILStateEnsure.h"
 
 // STL includes
 
@@ -48,7 +48,7 @@ Alg::~Alg()
 { 
   ATH_MSG_DEBUG("Calling destructor");
   if ( m_self ) {
-    PyGILStateEnsure ensure;
+    RootUtils::PyGILStateEnsure ensure;
     Py_DECREF( m_self );
     m_self = nullptr;
   }
@@ -142,7 +142,7 @@ bool
 Alg::setPyAttr( PyObject* o )
 {
   // now we tell the PyObject which C++ object it is the cousin of.
-  PyGILStateEnsure ensure;
+  RootUtils::PyGILStateEnsure ensure;
   PyObject* pyobj = TPython::ObjectProxy_FromVoidPtr
     ( (void*)this, this->typeName() );
   if ( !pyobj ) {

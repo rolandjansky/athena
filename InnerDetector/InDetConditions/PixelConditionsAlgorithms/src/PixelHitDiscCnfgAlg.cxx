@@ -56,8 +56,8 @@ StatusCode PixelHitDiscCnfgAlg::execute() {
     ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandle.key());
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("Size of AthenaAttributeList " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-  ATH_MSG_INFO("Range of input is " << rangeW);
+  ATH_MSG_DEBUG("Size of AthenaAttributeList " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
+  ATH_MSG_DEBUG("Range of input is " << rangeW);
 
   // Construct the output Cond Object and fill it in
   std::unique_ptr<PixelHitDiscCnfgData> writeCdo(std::make_unique<PixelHitDiscCnfgData>());

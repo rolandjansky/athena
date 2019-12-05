@@ -6,6 +6,9 @@
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*
+# art-output: *.out
+# art-output: *.err
+# art-output: *.log.tar.gz
 # art-output: *.new
 # art-output: *.json
 # art-output: *.root
@@ -35,6 +38,7 @@ Reco_tf.py \
 --outputAODFile=AOD.pool.root \
 --steering="doRDO_TRIG" \
 --valid=True \
+--postInclude="TriggerTest/disableChronoStatSvcPrintout.py" \
 >${JOB_LOG} 2>&1
 ) 2>&1
 
@@ -56,7 +60,8 @@ Reco_tf.py \
 --inputAODFile=AOD.pool.root \
 --outputNTUP_PHYSVALFile=NTUP_PHYSVAL.pool.root \
 --validationFlags="${VALIDATIONFLAGS}" \
---preExec="TriggerFlags.EDMDecodingVersion.set_Value_and_Lock(3)" \
+--preExec="TriggerFlags.EDMDecodingVersion.set_Value_and_Lock(3); from TrigEDMConfig import ContainerRemapping_Run2Run3; ContainerRemapping_Run2Run3.remapHLTContainerNames()" \
+--postInclude="TriggerTest/disableChronoStatSvcPrintout.py" \
 >${JOB_LOG} 2>&1
 ) 2>&1
 

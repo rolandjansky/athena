@@ -18,13 +18,7 @@
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "TrkParticleBase/TrackParticleBase.h"
 #include "TrkTrack/TrackCollection.h"
-//#include "VxVertex/VxTrackAtVertex.h"
-//#include "VxVertex/VxContainer.h"
-#include "xAODTracking/TrackParticleContainer.h"
-#include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/Vertex.h"
-
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "InDetAlignMonBeamSpot.h"
@@ -35,7 +29,6 @@ InDetAlignMonBeamSpot::InDetAlignMonBeamSpot( const std::string & type, const st
   :ManagedMonitorToolBase( type, name, parent ),
    m_extrapolator("Trk::Extrapolator"),
    m_hasExtrapolator(false),
-   m_beamCondSvc("BeamCondSvc",name),
    m_hasBeamCondSvc(false),
    m_hTrNPt(0),
    m_hTrPt(0),
@@ -65,10 +58,7 @@ InDetAlignMonBeamSpot::InDetAlignMonBeamSpot( const std::string & type, const st
    m_hPvTrackEta(0)
 {
   declareProperty("extrapolator",m_extrapolator);
-  declareProperty("beamCondSvc",m_beamCondSvc);
   declareProperty("useBeamspot",m_useBeamspot=true);
-  declareProperty("trackContainerName",m_trackContainerName="InDetTrackParticles");
-  declareProperty("vxContainerName",m_vxContainerName="PrimaryVertices");
   declareProperty("vxContainerWithBeamConstraint",m_vxContainerWithBeamConstraint=false);
   declareProperty("minTracksPerVtx",m_minTracksPerVtx=10);
   declareProperty("minTrackPt",m_minTrackPt=1500);  // MeV
@@ -93,12 +83,15 @@ StatusCode InDetAlignMonBeamSpot::initialize() {
     ATH_MSG_INFO ("Retrieved tool "+m_extrapolator.typeAndName());
   }
 
-  if ( m_beamCondSvc.retrieve().isFailure() ) {
-    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Failed to retrieve beamspot service " << m_beamCondSvc << " - will use nominal beamspot at (0,0,0)" << endmsg;
+  if ( m_beamSpotKey.initialize().isFailure() ) {
+    ATH_MSG_WARNING( "Failed to retrieve beamspot service - will use nominal beamspot at (0,0,0)" );
   } else {
     m_hasBeamCondSvc = true;
-    msg(MSG::INFO) << "Retrieved service " << m_beamCondSvc << endmsg;
+    ATH_MSG_INFO( "Retrieved service beaspot " );
   }
+
+  ATH_CHECK(m_vxContainerName.initialize());
+  ATH_CHECK(m_trackContainerName.initialize());
 
   return StatusCode::SUCCESS;
 }
@@ -156,9 +149,9 @@ StatusCode InDetAlignMonBeamSpot::bookHistograms() {
       m_hPvXZ         = makeAndRegisterTH2F(al_beamspot_mon,"pvXZ","Primary vertex: x vs z;z (mm);x (mm)",100,-200,200,100,-5,5);
       m_hPvYZ         = makeAndRegisterTH2F(al_beamspot_mon,"pvYZ","Primary vertex: y vs z;z (mm);y (mm)",100,-200,200,100,-5,5);
       m_hPvYX         = makeAndRegisterTH2F(al_beamspot_mon,"pvYX","Primary vertex: y vs x;x (mm);y (mm)",100,-5,5,100,-5,5);
-      m_hPvN          = makeAndRegisterTH1F(al_beamspot_mon,"pvN","Number of vertices ("+m_vxContainerName+", excluding dummy vertex);Number of vertices",10,0,10);
-      m_hPvNPriVtx    = makeAndRegisterTH1F(al_beamspot_mon,"pvNPriVtx","Number of primary vertices ("+m_vxContainerName+");Number of vertices",2,0,2);
-      m_hPvNPileupVtx = makeAndRegisterTH1F(al_beamspot_mon,"pvNPileupVtx","Number of pileup vertices ("+m_vxContainerName+");Number of vertices",10,0,10);
+      m_hPvN          = makeAndRegisterTH1F(al_beamspot_mon,"pvN","Number of vertices ("+m_vxContainerName.key()+", excluding dummy vertex);Number of vertices",10,0,10);
+      m_hPvNPriVtx    = makeAndRegisterTH1F(al_beamspot_mon,"pvNPriVtx","Number of primary vertices ("+m_vxContainerName.key()+");Number of vertices",2,0,2);
+      m_hPvNPileupVtx = makeAndRegisterTH1F(al_beamspot_mon,"pvNPileupVtx","Number of pileup vertices ("+m_vxContainerName.key()+");Number of vertices",10,0,10);
       m_hPvErrX       = makeAndRegisterTH1F(al_beamspot_mon,"pvErrX","Primary vertex: #sigma_{x}; #sigma_{x} (mm)",100,0,.5);
       m_hPvErrY       = makeAndRegisterTH1F(al_beamspot_mon,"pvErrY","Primary vertex: #sigma_{y}; #sigma_{y} (mm)",100,0,.5);
       m_hPvErrZ       = makeAndRegisterTH1F(al_beamspot_mon,"pvErrZ","Primary vertex: #sigma_{z}; #sigma_{z} (mm)",100,0,.5);
@@ -185,26 +178,27 @@ StatusCode InDetAlignMonBeamSpot::fillHistograms() {
   float scaleFactor = 1.;
 
   if (m_useBeamspot && m_hasBeamCondSvc) {
-    Amg::Vector3D bpos = m_beamCondSvc->beamPos();
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+    Amg::Vector3D bpos = beamSpotHandle->beamPos();
     beamSpotX = bpos.x();
     beamSpotY = bpos.y();
     beamSpotZ = bpos.z();
-    beamTiltX = m_beamCondSvc->beamTilt(0);
-    beamTiltY = m_beamCondSvc->beamTilt(1);
+    beamTiltX = beamSpotHandle->beamTilt(0);
+    beamTiltY = beamSpotHandle->beamTilt(1);
     scaleFactor = 1000.;   // Use microns for some histograms when showing distance relative to beamspot
     m_hBsX->Fill(beamSpotX);
     m_hBsY->Fill(beamSpotY);
     m_hBsZ->Fill(beamSpotZ);
     m_hBsTiltX->Fill(1e6*beamTiltX);
     m_hBsTiltY->Fill(1e6*beamTiltY);
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Beamspot from " << m_beamCondSvc << ": x0 = " << beamSpotX << ", y0 = " << beamSpotY
+    ATH_MSG_DEBUG( "Beamspot : x0 = " << beamSpotX << ", y0 = " << beamSpotY
 				  << ", z0 = " << beamSpotZ << ", tiltX = " << beamTiltX
-				  << ", tiltY = " << beamTiltY <<endmsg;
+				  << ", tiltY = " << beamTiltY );
   }
 
-  const xAOD::TrackParticleContainer* trackCollection = evtStore()->tryConstRetrieve<xAOD::TrackParticleContainer>(m_trackContainerName);
-  if(!trackCollection){
-    ATH_MSG_DEBUG ("Could not retrieve TrackParticleContainer container with key "+m_trackContainerName);
+  SG::ReadHandle<xAOD::TrackParticleContainer> trackCollection{m_trackContainerName};
+  if(not trackCollection.isValid()){
+    ATH_MSG_DEBUG ("Could not retrieve TrackParticleContainer container with key "+m_trackContainerName.key());
     return StatusCode::SUCCESS;
   }
 
@@ -258,24 +252,16 @@ StatusCode InDetAlignMonBeamSpot::fillHistograms() {
   // without beam constraint
   if (! m_vxContainerWithBeamConstraint) {
 
-    const xAOD::VertexContainer* vxContainer = 0;
-    if (evtStore()->contains<xAOD::VertexContainer>(m_vxContainerName)) {
-      if (evtStore()->retrieve(vxContainer,m_vxContainerName).isFailure() ) {
-	ATH_MSG_DEBUG ("Could not retrieve primary vertex container with key "+m_vxContainerName);
-	return StatusCode::SUCCESS;
-      }
-    } else {
-      ATH_MSG_DEBUG ("StoreGate doesn't contain primary vertex container with key "+m_vxContainerName);
+    SG::ReadHandle<xAOD::VertexContainer> vxContainer{m_vxContainerName};
+    if (not vxContainer.isValid()) {
+      ATH_MSG_DEBUG ("Could not retrieve primary vertex container with key "+m_vxContainerName.key());
       return StatusCode::SUCCESS;
     }
 
     m_hPvN->Fill(vxContainer->size()-1);  // exclude dummy vertex
     int nPriVtx = 0;
     int nPileupVtx = 0;
-  for(const auto* vx_elem : *vxContainer ) {
-    const xAOD::Vertex* vx = vx_elem;
-
-    //    for (VxContainer::const_iterator vxIter = vxContainer->begin(); vxIter != vxContainer->end(); ++vxIter) {
+    for(const xAOD::Vertex* vx : *vxContainer ) {
 
     // Count different types of vertices
     if (vx->vertexType() == xAOD::VxType::PriVtx) nPriVtx++;

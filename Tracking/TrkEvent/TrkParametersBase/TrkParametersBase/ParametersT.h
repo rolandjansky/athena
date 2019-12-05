@@ -125,9 +125,11 @@ namespace Trk
     virtual bool hasSurface() const override final { return m_surface != nullptr; }
 
     /** Access method for the position */
+    // cppcheck-suppress virtualCallInConstructor
     virtual const Amg::Vector3D& position() const override final {return m_position;}
       
     /** Access method for the momentum */
+    // cppcheck-suppress virtualCallInConstructor
     virtual const Amg::Vector3D& momentum() const override final {return m_momentum;}
 
     /** Return the measurementFrame of the parameters */

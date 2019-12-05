@@ -46,8 +46,7 @@ namespace Muon {
     //remove NSW by default for now, can always be changed in the configuration
     declareProperty("PRD_TruthMaps",m_PRD_TruthNames={"CSC_TruthMap","RPC_TruthMap","TGC_TruthMap","MDT_TruthMap"}); 
 
-    m_CSC_SDO_TruthNames = "CSC_SDO";
-    declareProperty("CSCSDOs",   m_CSC_SDO_TruthNames);
+    declareProperty("CSCSDOs",   m_CSC_SDO_TruthNames="CSC_SDO");
     //declareProperty("SDOs",      m_SDO_TruthNames={"RPC_SDO","TGC_SDO","MDT_SDO","MM_SDO","STGC_SDO"});
     //remove NSW by default for now, can always be changed in the configuration
     declareProperty("SDOs",      m_SDO_TruthNames={"RPC_SDO","TGC_SDO","MDT_SDO"});
@@ -69,7 +68,7 @@ namespace Muon {
     ATH_CHECK(m_trackRecordCollectionNames.initialize());
     ATH_CHECK(m_PRD_TruthNames.initialize());
     ATH_CHECK(m_SDO_TruthNames.initialize());
-    ATH_CHECK(m_CSC_SDO_TruthNames.initialize());
+    if (!m_CSC_SDO_TruthNames.empty()) ATH_CHECK(m_CSC_SDO_TruthNames.initialize());
     ATH_CHECK(m_idHelper.retrieve());
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_truthClassifier.retrieve());
@@ -193,9 +192,8 @@ namespace Muon {
 	}
       }
     }
-    SG::ReadHandle<CscSimDataCollection> cscCollection(m_CSC_SDO_TruthNames);
-    
-    bool useSDO =( !sdoCollections.empty() || cscCollection->size() );
+
+    bool useSDO =( !sdoCollections.empty() || !m_CSC_SDO_TruthNames.empty() );
     std::map<Muon::MuonStationIndex::ChIndex,int> matchMap;
     ATH_MSG_DEBUG(" Creating Truth segments " );
     // loop over chamber layers
@@ -221,10 +219,8 @@ namespace Muon {
 	bool isTrig = m_idHelper->isTrigger(id);
 	bool isEndcap = m_idHelper->isEndcap(id);
 	if( measPhi ) {
-	  if( isCsc ) phiLayers.insert( m_idHelper->gasGap(id) ); // ++nphiLayers;
-	  else        phiLayers.insert( m_idHelper->gasGap(id) );
-          //ATH_MSG_VERBOSE("gasgap " << m_idHelper->gasGap(id) << " phiLayers size " << phiLayers.size() );
-	}else{
+	  phiLayers.insert( m_idHelper->gasGap(id) );
+	} else {
 	  if( !isTrig ) {
 	    if( !chId.is_valid() ) chId = id; // use first precision hit in list
 	    if( isCsc || isMM ) {
@@ -270,6 +266,7 @@ namespace Muon {
 	    }
 	  }
 	  else{
+      SG::ReadHandle<CscSimDataCollection> cscCollection(m_CSC_SDO_TruthNames);
 	    auto pos = cscCollection->find(id);
 	    if( pos != cscCollection->end() ) {
 	      const MuonGM::CscReadoutElement * descriptor = m_muonMgr->getCscReadoutElement(id);

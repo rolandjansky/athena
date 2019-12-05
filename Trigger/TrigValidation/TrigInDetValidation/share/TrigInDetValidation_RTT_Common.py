@@ -157,9 +157,9 @@ include("RecExCond/RecExCommon_flags.py")
 # pre set up trigger monitoring
 TriggerFlags.enableMonitoring = [ 'Validation','Time' ]
 if 'enableCostMonitoring' in dir() and bool(enableCostMonitoring) == True:
-    import TriggerRelease.Modifiers
-    getattr(TriggerRelease.Modifiers,'enableCostMonitoring')().preSetup()
-    getattr(TriggerRelease.Modifiers,'enableCostForCAF')().preSetup()
+    import TriggerJobOpts.Modifiers
+    getattr(TriggerJobOpts.Modifiers,'enableCostMonitoring')().preSetup()
+    getattr(TriggerJobOpts.Modifiers,'enableCostForCAF')().preSetup()
 
 #
 if 'triggerMenuVersion' in dir():
@@ -306,13 +306,13 @@ HLTMonManager.AthenaMonTools += [ TestMonTool ]
 
 # post set up trigger monitoring
 if 'enableCostMonitoring' in dir() and bool(enableCostMonitoring) == True:
-    import TriggerRelease.Modifiers
-    getattr(TriggerRelease.Modifiers,'enableCostMonitoring')().postSetup()
-    getattr(TriggerRelease.Modifiers,'enableCostForCAF')().postSetup()
-    getattr(TriggerRelease.Modifiers,'enableCostD3PD')().postSetup()
+    import TriggerJobOpts.Modifiers
+    getattr(TriggerJobOpts.Modifiers,'enableCostMonitoring')().postSetup()
+    getattr(TriggerJobOpts.Modifiers,'enableCostForCAF')().postSetup()
+    getattr(TriggerJobOpts.Modifiers,'enableCostD3PD')().postSetup()
     # Check if we are debugging the cost mon output - false by default
     if 'enableCostDebug' in dir() and bool(enableCostDebug) == True:
-      getattr(TriggerRelease.Modifiers,'enableCostDebug')().postSetup()
+      getattr(TriggerJobOpts.Modifiers,'enableCostDebug')().postSetup()
 
 print TestMonTool 
 

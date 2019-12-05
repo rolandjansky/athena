@@ -152,7 +152,8 @@ CutIdentifier CutFlowSvc::registerCut( const std::string& name,
                    << "Couldn't find CutBookkeeper with cutID " << cutID );
     return 0;
   }
-  originEBK->addUsedOther( ebk );
+  // TODO: this does not work!
+  // originEBK->addUsedOther( ebk );
 
   return cutID;
 }

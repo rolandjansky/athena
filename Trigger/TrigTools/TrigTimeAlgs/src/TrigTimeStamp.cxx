@@ -5,11 +5,11 @@
 #include "TrigTimeAlgs/TrigTimeStamp.h"
 
 double TrigTimeStamp::millisecondsSince() const { 
-  return std::chrono::duration_cast<std::chrono::microseconds>( std::chrono::high_resolution_clock::now() - m_stamp ).count();
+  return std::chrono::duration_cast<std::chrono::milliseconds>( std::chrono::high_resolution_clock::now() - m_stamp ).count();
 }
 
 double TrigTimeStamp::millisecondsDifference(const TrigTimeStamp& other) const {
-  return std::chrono::duration_cast<std::chrono::microseconds>( other.get() - m_stamp ).count();
+  return std::chrono::duration_cast<std::chrono::milliseconds>( other.get() - m_stamp ).count();
 }
 
 uint64_t TrigTimeStamp::microsecondsSinceEpoch() const {

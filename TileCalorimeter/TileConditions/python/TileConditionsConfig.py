@@ -133,6 +133,6 @@ if __name__ == "__main__":
     acc = ComponentAccumulator()
     acc.merge( tileCondCfg(ConfigFlags) )
 
-    f=open('TileCond.pkl','w')
+    f=open('TileCond.pkl','wb')
     acc.store(f)
     f.close()

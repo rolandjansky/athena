@@ -163,10 +163,10 @@ topSequence += RoIBuilder("RoIBuilder")
 ##################################
 ### DO THE MAIN CONFIGURATION  ###
 ##################################
-# This used to be an include of a modified TriggerRelease/Trigger_topOptions_standalone.py
+# This used to be an include of a modified TriggerJobOpts/Trigger_topOptions_standalone.py
 
 #HLTOutputLevel = 3
-#include("TriggerRelease/Trigger_topOptions_standalone.py")
+#include("TriggerJobOpts/Trigger_topOptions_standalone.py")
 
 
 ##############################
@@ -200,7 +200,7 @@ if not hasattr(svcMgr,"ByteStreamCnvSvc"):
    theApp.ExtSvc += [ "ByteStreamCnvSvc"]
 
 # Online specific setup of BS converters
-include( "TriggerRelease/jobOfragment_ReadBS_standalone.py" )
+include( "TriggerJobOpts/jobOfragment_ReadBS_standalone.py" )
 
 
 

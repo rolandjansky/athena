@@ -248,7 +248,7 @@ StatusCode SensorSim3DTool::finalize() {
 //===============================================
 StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr < SiHit > & phit, SiChargedDiodeCollection & chargedDiodes,
     const InDetDD::SiDetectorElement & Module,
-    const InDetDD::PixelModuleDesign & p_design, std::vector < std::pair < double, double > > & trfHitRecord, std::vector < double > & initialConditions) {
+    const InDetDD::PixelModuleDesign & p_design, std::vector < std::pair < double, double > > & trfHitRecord, std::vector < double > & initialConditions, CLHEP::HepRandomEngine *rndmEngine) {
 
     if (!Module.isBarrel()) {
         return StatusCode::SUCCESS;
@@ -398,13 +398,13 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr < SiHit > & phit, SiC
                         double driftTime = getDriftTime(isHole);
 
                         //Apply drift due to diffusion
-                        double phiRand = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+                        double phiRand = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
 
                         //Apply diffusion. rdif is teh max. diffusion
                         double Dt = getMobility(efield, isHole) * (0.024) * std::min(driftTime, timeToElectrode) * m_temperature / 273.;
                         double rdif = sqrt(Dt) / 1000; //in mm
                         double xposDiff = x_pix + rdif * phiRand;
-                        double etaRand = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+                        double etaRand = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
                         double yposDiff = y_pix + rdif * etaRand;
 
                         // Account for drifting into another pixel 

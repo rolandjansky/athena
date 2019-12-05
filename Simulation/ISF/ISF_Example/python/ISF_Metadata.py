@@ -6,75 +6,77 @@
 from AthenaCommon.Logging import *
 simMDlog = logging.getLogger('Sim_Metadata')
 
-def getAthFile():
-    ## Allow the input check to be skipped.  This should only be done in production
-    ##  jobs, in order to avoid peeking and spoiling performance on some systems
-    inputAthFileObject = None
+def get_metadata(mode='lite'):
+    # Allow the input check to be skipped.  This should only be done in production
+    # jobs, in order to avoid peeking and spoiling performance on some systems
     import os
     if not ('G4ATLAS_SKIPFILEPEEK' in os.environ and os.environ['G4ATLAS_SKIPFILEPEEK']):
         from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
         if athenaCommonFlags.PoolEvgenInput.statusOn:
             try:
-                import PyUtils.AthFile as af
-                inputAthFileObject = af.fopen(athenaCommonFlags.PoolEvgenInput()[0])
+                from PyUtils.MetaReader import read_metadata
+                input_file = athenaCommonFlags.PoolEvgenInput()[0]
+                metadata = read_metadata(input_file, mode = mode)
+                metadata = metadata[input_file]  # promote all keys one level up
+                return metadata
             except:
-                simMDlog.warning("AthFile failed to open %s", athenaCommonFlags.PoolEvgenInput()[0])
+                simMDlog.warning("MetaReader failed to open %s", athenaCommonFlags.PoolEvgenInput()[0])
     else:
         simMDlog.info("G4ATLAS_SKIPFILEPEEK environment variable present, so skipping all input file peeking.")
-    return inputAthFileObject
+    return None
 
-inputAthFileObject = getAthFile()
+
+metadata_lite = get_metadata(mode = 'lite')
+metadata_full = get_metadata(mode = 'full')
+
 
 
 ### Check that we aren't trying to pass a data file as the input to the simulation!
 def inputFileValidityCheck():
-    from ISF_Example.ISF_Metadata import inputAthFileObject
-    if inputAthFileObject is not None:
+    if metadata_lite is not None:
         ## Check that event type is SIMULATION (as it must be)
-        if "evt_type" in inputAthFileObject.infos.keys():
-            evttypes = inputAthFileObject.infos["evt_type"]
-            evttype0 = str(evttypes[0])
-            if not evttype0.startswith("IS_SIMULATION"):
-                msg =  "This input file has incorrect evt_type: %s\n" % str(evttypes)
+        if 'eventTypes' in metadata_lite:
+            evttypes = metadata_lite['eventTypes']
+            if 'IS_SIMULATION' not in evttypes:
+                msg =  "This input file has incorrect eventTypes: %s\n" % str(evttypes)
                 msg += "Please make sure you have set input file metadata correctly - "
                 msg += "consider using the job transforms for earlier steps if you aren't already doing so."
                 simMDlog.fatal(msg)
-                raise SystemExit("Input file evt_type is incorrect: please check your evgen jobs.")
+                raise SystemExit("Input file eventTypes is incorrect: please check your evgen jobs.")
         else:
-            simMDlog.warning("Could not find 'evt_type' key in athfile.infos. Unable to that check evt_type is correct.")
+            simMDlog.warning("Could not find 'eventTypes' key in metadata. Unable to that check 'eventTypes' is correct.")
     else:
-        simMDlog.info("No input Evgen AthFile object available, so skipping check for input file validity.")
+        simMDlog.info("No input Evgen MetaData object available, so skipping check for input file validity.")
+
 
 ### Check whether mc_channel_number is set in tag_info metadata and add if required.
 def patch_mc_channel_numberMetadata(addToFile=True):
-    from ISF_Example.ISF_Metadata import inputAthFileObject
-    if inputAthFileObject is not None:
+    if metadata_lite is not None:
         mc_channel_number=0
-        if 'mc_channel_number' in inputAthFileObject.infos and len(inputAthFileObject.infos['mc_channel_number'])>0:
-            mc_channel_number=inputAthFileObject.infos['mc_channel_number'][0]
-        elif 'mc_channel_number' in inputAthFileObject.infos['tag_info']:
-            mc_channel_number=inputAthFileObject.infos['tag_info']['mc_channel_number']
+        if 'mc_channel_number' in metadata_lite:
+            mc_channel_number = metadata_lite['mc_channel_number']
         else:
-            simMDlog.warning("No mc_channel_number in input file metadata.  Using run number.")
-            mc_channel_number=inputAthFileObject.infos['run_number'][0]
+            simMDlog.warning("No mc_channel_number in input file metadata. Using run number.")
+            mc_channel_number = metadata_lite['runNumbers']
             if addToFile:
-                simMDlog.info('Adding mc channel number to taginfo: %s',str(mc_channel_number))
+                simMDlog.info('Adding mc_channel_number to \TagInfo: %s', str(mc_channel_number))
                 # Initialize tag info management
                 #import EventInfoMgt.EventInfoMgtInit
                 from AthenaCommon.AppMgr import ServiceMgr
-                ServiceMgr.TagInfoMgr.ExtraTagValuePairs += ["mc_channel_number", str(mc_channel_number) ]
+                ServiceMgr.TagInfoMgr.ExtraTagValuePairs += ["mc_channel_number", str(mc_channel_number)]
         return mc_channel_number
     else:
-        simMDlog.info("No input Evgen AthFile object available so skipping patch of mc channel number metadata.")
+        simMDlog.info("No input Evgen MetaData object available so skipping patch of mc_channel_number metadata.")
+
 
 ### Read in special simulation job option fragments based on metadata passed by the evgen stage
 def checkForSpecialConfigurationMetadata():
-    from ISF_Example.ISF_Metadata import inputAthFileObject
-    if inputAthFileObject is not None:
-        if "specialConfiguration" in inputAthFileObject.infos["tag_info"]:
+
+    if metadata_lite is not None:
+        if "specialConfiguration" in metadata_full['/TagInfo']:
             from G4AtlasApps.SimFlags import simFlags
             simFlags.specialConfiguration = dict()
-            item = inputAthFileObject.infos["tag_info"]["specialConfiguration"]
+            item = metadata_full['/TagInfo']['specialConfiguration']
             ## Parse the specialConfiguration string
             ## Format is 'key1=value1;key2=value2;...'. or just '
             spcitems = item.split(";")
@@ -100,7 +102,7 @@ def checkForSpecialConfigurationMetadata():
             for inc in someIncludes:
                 include(inc)
     else:
-        simMDlog.info("No input Evgen AthFile object available so skipping check for specialConfiguration metadata.")
+        simMDlog.info("No input Evgen MetaData object available so skipping check for specialConfiguration metadata.")
 
 def fillCommonMetadata(dbFiller):
     pass
@@ -181,7 +183,6 @@ def fillISFMetadata(dbFiller):
 def createSimulationParametersMetadata():
     from IOVDbMetaDataTools import ParameterDbFiller
     dbFiller = ParameterDbFiller.ParameterDbFiller()
-    from ISF_Example.ISF_Metadata import inputAthFileObject
     ## Set run numbers
     minrunnum = 0
     maxrunnum = 2147483647 # MAX
@@ -191,9 +192,9 @@ def createSimulationParametersMetadata():
        minrunnum = simFlags.RunNumber()
        ## FIXME need to use maxrunnum = 2147483647 for now to keep overlay working but in the future this should be set properly.
        #maxrunnum = minrunnum + 1
-    elif inputAthFileObject is not None:
-       if len(inputAthFileObject.run_numbers) > 0:
-           minrunnum = inputAthFileObject.run_numbers[0]
+    elif metadata_lite is not None:
+       if len(metadata_lite['runNumbers']) > 0:
+           minrunnum = metadata_lite['runNumbers'][0]
            maxrunnum = minrunnum + 1
        else:
            raise Exception('IllegalRunNumber')
@@ -220,7 +221,6 @@ def createSimulationParametersMetadata():
 def createTBSimulationParametersMetadata():
     from IOVDbMetaDataTools import ParameterDbFiller
     dbFiller = ParameterDbFiller.ParameterDbFiller()
-    from ISF_Example.ISF_Metadata import inputAthFileObject
     ## Set run numbers
     minrunnum = 0
     maxrunnum = 2147483647 # MAX
@@ -230,9 +230,9 @@ def createTBSimulationParametersMetadata():
        minrunnum = simFlags.RunNumber()
        ## FIXME need to use maxrunnum = 2147483647 for now to keep overlay working but in the future this should be set properly.
        #maxrunnum = minrunnum + 1
-    elif inputAthFileObject is not None:
-       if len(inputAthFileObject.run_numbers) > 0:
-           minrunnum = inputAthFileObject.run_numbers[0]
+    elif metadata_lite is not None:
+       if len(metadata_lite['runNumbers']) > 0:
+           minrunnum = metadata_lite['runNumbers'][0]
            maxrunnum = minrunnum + 1
        else:
            raise Exception('IllegalRunNumber')
@@ -262,7 +262,6 @@ def configureRunNumberOverrides():
     myRunNumber = 1
     myFirstLB = 1
     myInitialTimeStamp = 0
-    from ISF_Example.ISF_Metadata import inputAthFileObject
     from G4AtlasApps.SimFlags import simFlags
     if hasattr(simFlags, "RunNumber") and simFlags.RunNumber.statusOn:
         myRunNumber = simFlags.RunNumber.get_Value()
@@ -286,7 +285,7 @@ def configureRunNumberOverrides():
         ## FIXME need to use maxRunNumber = 2147483647 for now to keep overlay working but in the future this should be set properly.
         # Using event numbers to avoid "some very large number" setting
         from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-        totalNumber = 1000000 # TODO possibly get this from AthFile??
+        totalNumber = 1000000 # TODO possibly get this from Metadata??
         if athenaCommonFlags.EvtMax() is not None and athenaCommonFlags.EvtMax()>0: totalNumber = athenaCommonFlags.EvtMax()+1
         if athenaCommonFlags.SkipEvents() is not None and athenaCommonFlags.SkipEvents()>0: totalNumber += athenaCommonFlags.SkipEvents()
         try:
@@ -297,15 +296,15 @@ def configureRunNumberOverrides():
           myInitialTimeStamp = 1
         ServiceMgr.EvtIdModifierSvc.add_modifier(run_nbr=myRunNumber, lbk_nbr=myFirstLB, time_stamp=myInitialTimeStamp, nevts=totalNumber)
         if hasattr(ServiceMgr.EventSelector,'OverrideRunNumberFromInput'): ServiceMgr.EventSelector.OverrideRunNumberFromInput = True
-    elif inputAthFileObject is not None:
+    elif metadata_lite is not None:
         ## Get evgen run number and lumi block
-        if len(inputAthFileObject.run_numbers) > 0:
-            myRunNumber = inputAthFileObject.run_numbers[0]
+        if len(metadata_lite['runNumbers']) > 0:
+            myRunNumber = metadata_lite['runNumbers'][0]
             simMDlog.info('Found run number %d in hits file metadata.'% myRunNumber)
         else:
             simMDlog.warning('Failed to find run number in hits file metadata.')
-        if inputAthFileObject.lumi_block:
-            myFirstLB = inputAthFileObject.lumi_block[0]
+        if metadata_lite['lumiBlockNumbers']:
+            myFirstLB = metadata_lite['lumiBlockNumbers'][0]
     else:
         simMDlog.warning('Requires simFlags.RunNumber to be specified in this running mode.\
             Using default value of 1 for RunNumber.')

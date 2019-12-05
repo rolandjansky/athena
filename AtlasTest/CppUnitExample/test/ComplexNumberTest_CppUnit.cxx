@@ -59,6 +59,5 @@ class ComplexNumberTest : public CppUnit::TestFixture
 /// different tests. 
 CPPUNIT_TEST_SUITE_REGISTRATION(ComplexNumberTest);
 /// CppUnit test-driver common for all the cppunit test classes.
-/// In ATLAS sw release it is located in TestPolicy package.
-#include <TestPolicy/CppUnit_testdriver.cxx>
+#include <TestTools/CppUnit_testdriver.cxx>
  

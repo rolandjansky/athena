@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -32,8 +32,8 @@
 TileCablingService * s_cabling = TileCablingService::getInstance();
 
 TileRawData::TileRawData( const Identifier& id )
+  : m_adc_hwid (s_cabling->s2h_adc_id(id))
 {
-    m_adc_hwid = s_cabling->s2h_adc_id(id);
 }
 
 void TileRawData::print() const
@@ -76,40 +76,34 @@ int TileRawData::frag_ID(void)   const {
     return s_cabling->frag(m_adc_hwid);
 }
 
-void TileRawData::print_to_stream ( const std::vector<float> val,
+void TileRawData::print_to_stream ( const std::vector<float>& val,
                                     const std::string & label,
                                     std::ostringstream & text)
 {
     text << label;
-
-    std::vector<float>::const_iterator it1=val.begin();
-    std::vector<float>::const_iterator it2=val.end();
-
-    for ( ; it1!=it2; ++it1) text << " " << (*it1);
+    for (float v : val) {
+      text << " " << v;
+    }
 }
 
 
-void TileRawData::print_to_stream ( const std::vector<double> val,
+void TileRawData::print_to_stream ( const std::vector<double>& val,
                                     const std::string & label,
                                     std::ostringstream & text)
 {
     text << label;
-
-    std::vector<double>::const_iterator it1=val.begin();
-    std::vector<double>::const_iterator it2=val.end();
-
-    for ( ; it1!=it2; ++it1) text << " " << (*it1);
+    for (double v : val) {
+      text << " " << v;
+    }
 }
 
-void TileRawData::print_to_stream ( const std::vector<uint32_t> val,
+void TileRawData::print_to_stream ( const std::vector<uint32_t>& val,
                                     const std::string & label,
                                     std::ostringstream & text)
 {
     text << label;
-
-    std::vector<uint32_t>::const_iterator it1=val.begin();
-    std::vector<uint32_t>::const_iterator it2=val.end();
-
-    for ( ; it1!=it2; ++it1) text << " " << (*it1);
+    for (uint32_t v : val) {
+      text << " " << v;
+    }
 }
 

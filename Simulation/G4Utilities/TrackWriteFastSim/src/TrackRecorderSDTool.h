@@ -30,7 +30,7 @@ class TrackRecorderSDTool : public SensitiveDetectorBase
 
 protected:
   // Make me an SD!
-  G4VSensitiveDetector* makeSD() override final;
+  G4VSensitiveDetector* makeSD() const override final;
 
   int m_SD_type; //TrackRecorderSD=1, CosmicTRSD=2
 };

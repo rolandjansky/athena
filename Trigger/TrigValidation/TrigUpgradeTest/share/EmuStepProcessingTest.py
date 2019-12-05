@@ -33,9 +33,14 @@ from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeHLTTree
 makeHLTTree( triggerConfigHLT=TriggerConfigHLT )
 
-TriggerFlags.outputHLTconfigFile = TriggerFlags.outputHLTconfigFile().replace('config', 'menu')
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
 generateJSON()
+
+from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc, getL1ConfigSvc
+svcMgr += getHLTConfigSvc()
+TriggerFlags.triggerMenuSetup = "LS2_v1"
+svcMgr += getL1ConfigSvc()
+
    
 print "EmuStepProcessing: dump top Sequence after CF/DF Tree build"
 from AthenaCommon.AlgSequence import dumpMasterSequence, dumpSequence

@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file AthContainers/test/copyThinned_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -19,6 +18,7 @@
 #include "AthContainers/DataVector.h"
 #include "AthContainers/AuxStoreInternal.h"
 #include "AthContainers/AuxTypeRegistry.h"
+#include "AthenaKernel/ThinningDecisionBase.h"
 #include <vector>
 #include <iostream>
 #include <cassert>
@@ -104,22 +104,49 @@ void tryitConst (CONTAINER& cont, IThinningSvc* svc, bool thinned = false)
 }
 
 
+template <class CONTAINER>
+void tryit (CONTAINER& cont, const SG::ThinningDecisionBase* dec,
+            bool thinned = false)
+{
+  std::unique_ptr<const CONTAINER> newcont = SG::copyThinned (cont, dec);
+  compare (cont, *newcont, thinned);
+}
+
+
+template <class CONTAINER>
+void tryitConst (CONTAINER& cont, const SG::ThinningDecisionBase* dec,
+                 bool thinned = false)
+{
+  std::unique_ptr<const CONTAINER> newcont = SG::copyThinnedConst (cont, dec);
+  compare (cont, *newcont, thinned);
+}
+
+
 void test1()
 {
   std::cout << "test1\n";
   TestThinningSvc svc;
+  SG::ThinningDecisionBase dec;
 
   SG::AuxStoreInternal store;
   DataVector<int> dv;
   std::vector<int> v;
 
-  tryit (store, 0);
-  tryitConst (dv, 0);
-  tryit (v, 0);
+  tryit (store, static_cast<IThinningSvc*>(nullptr));
+  tryitConst (dv, static_cast<IThinningSvc*>(nullptr));
+  tryit (v, static_cast<IThinningSvc*>(nullptr));
+
+  tryit (store, static_cast<const SG::ThinningDecisionBase*>(nullptr));
+  tryitConst (dv, static_cast<const SG::ThinningDecisionBase*>(nullptr));
+  tryit (v, static_cast<const SG::ThinningDecisionBase*>(nullptr));
 
   tryit (store, &svc);
   tryitConst (dv, &svc);
   tryit (v, &svc);
+
+  tryit (store, &dec);
+  tryitConst (dv, &dec);
+  tryit (v, &dec);
 
   SG::auxid_t ityp = SG::AuxTypeRegistry::instance().getAuxID<int> ("anInt");
   SG::auxid_t ftyp = SG::AuxTypeRegistry::instance().getAuxID<float> ("aFloat");
@@ -134,6 +161,8 @@ void test1()
     dv.push_back (new int(i));
   }
 
+  dec.resize (10);
+
   SG::AuxStoreInternal store2;
   DataVector<int> dv2;
   std::vector<int> v2;
@@ -146,6 +175,10 @@ void test1()
   tryitConst (dv, &svc);
   tryit (v, &svc);
 
+  tryit (store, &dec);
+  tryitConst (dv, &dec);
+  tryit (v, &dec);
+
   for (int i=0, i1=0; i < 10; ++i) {
     if (i%2 == 0) {
       svc.remap (&store, i, i1);
@@ -157,12 +190,18 @@ void test1()
       svc.remap (&store, i, IThinningSvc::RemovedIdx);
       svc.remap (&dv, i, IThinningSvc::RemovedIdx);
       svc.remap (&v, i, IThinningSvc::RemovedIdx);
+      dec.thin (i);
     }
   }
 
+  dec.buildIndexMap();
+
   tryit (store, &svc, true);
-  tryitConst (dv, &svc, true);
   tryit (v, &svc, true);
+
+  tryit (store, &dec, true);
+  tryitConst (dv, &dec, true);
+  tryit (v, &dec, true);
 }
 
 

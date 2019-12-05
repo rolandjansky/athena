@@ -258,10 +258,10 @@ namespace MuonCalib {
 
             m_log << MSG::DEBUG << "looking up channel id for sector " << sector << " stationName " << stationName << " stationEta " << stationEta << " stationPhi " << stationPhi << " chamberLayer " << chamberLayer << " wireLayer " << wireLayer << " measuresPhi " << measuresPhi << " channel " << channel << endmsg;
 
-            Identifier chanId = m_cscId->channelID(stationName, stationEta, stationPhi, 
+            Identifier chanId = m_muonIdHelperTool->cscIdHelper().channelID(stationName, stationEta, stationPhi, 
                 chamberLayer, wireLayer, measuresPhi, channel);
             IdentifierHash hash;
-            m_cscId->get_channel_hash(chanId, hash);
+            m_muonIdHelperTool->cscIdHelper().get_channel_hash(chanId, hash);
             unsigned int index = (int)hash;
 
             m_log << MSG::DEBUG << "Reading index " << index << endmsg;
@@ -340,10 +340,10 @@ namespace MuonCalib {
             //loop through all strips this ASM covers
             for(int layer_i = layerSince; layer_i < layerUntil; layer_i++){
               for(int strip_i = stripSince; strip_i < stripUntil ; strip_i++){
-                Identifier chanId = m_cscId->channelID(stationName, stationEta, stationPhi, 
+                Identifier chanId = m_muonIdHelperTool->cscIdHelper().channelID(stationName, stationEta, stationPhi, 
                     chamberLayer, layer_i, measuresPhi, strip_i);
                 IdentifierHash hash;
-                m_cscId->get_channel_hash(chanId, hash);
+                m_muonIdHelperTool->cscIdHelper().get_channel_hash(chanId, hash);
 
                 //assuming hashId = index
                 int index = hash;

@@ -187,8 +187,15 @@ StatusCode Trk::ReFitTrack::execute()
     if (m_ITrackFitterTRT.name()!="" && m_trkSummaryTool.name()!=""){
       ATH_MSG_VERBOSE ("Creating summary");
       // @TODO does not need PRDtoTrackMap
-      std::unique_ptr<const Trk::TrackSummary> summary(  m_trkSummaryTool->createSummaryNoHoleSearch(**itr, prd_to_track_map.get()));
-      if ( (**itr).measurementsOnTrack()->size() - summary->get(numberOfTRTHits)<3 )
+      unsigned int n_trt_hits;
+      if ((*itr)->trackSummary()) {
+         n_trt_hits = (*itr)->trackSummary()->get(numberOfTRTHits);
+      }
+      else {
+         std::unique_ptr<const Trk::TrackSummary> summary(  m_trkSummaryTool->summaryNoHoleSearch(**itr, prd_to_track_map.get()));
+         n_trt_hits = summary->get(numberOfTRTHits);
+      }
+      if ( (**itr).measurementsOnTrack()->size() - n_trt_hits<3 )
         trtonly=true;
     }
 
@@ -276,12 +283,12 @@ StatusCode Trk::ReFitTrack::execute()
   // now recalculate the summary ... the usual nasty const cast is needed here
   for(std::unique_ptr<Trk::Track> &new_track : new_tracks ) {
     // @TODO need solution which does not modify the Track
-    m_trkSummaryTool->updateTrack(*new_track, prd_to_track_map.get());
+    m_trkSummaryTool->computeAndReplaceTrackSummary(*new_track, prd_to_track_map.get(), false /* DO NOT suppress hole search*/);
     new_track_collection->push_back(std::move(new_track));
   }
 
   ATH_MSG_VERBOSE ("Save tracks");
-  ATH_CHECK(SG::WriteHandle<TrackCollection>().record(std::move(new_track_collection)));
+  ATH_CHECK(SG::WriteHandle<TrackCollection>(m_newTrackName).record(std::move(new_track_collection)));
 
   return StatusCode::SUCCESS;
 }

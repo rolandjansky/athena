@@ -32,8 +32,6 @@
 #include "SGTools/TransientAddress.h"
 #include "SGTools/DataProxy.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 
 #include "IOVEntry.h"
 #include "IOVSvc/IOVAddress.h"
@@ -43,6 +41,7 @@
 #include <stdint.h>
 #include <ctype.h>
 #include <stdexcept>
+#include <atomic>
 
 using SG::DataProxy;
 using SG::TransientAddress;
@@ -58,7 +57,7 @@ std::string toUpper(const std::string& str) {
 }
 
 namespace {
-  bool s_firstRun(true);
+  std::atomic<bool> s_firstRun(true);
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -151,8 +150,6 @@ IOVSvcTool::~IOVSvcTool() {
 StatusCode 
 IOVSvcTool::initialize() {
 
-  StatusCode status;
-
   static const bool CREATEIF(true);
 
   IIOVSvc* p_iovSvc(nullptr);
@@ -167,22 +164,11 @@ IOVSvcTool::initialize() {
   setProperty( iovSvcProp->getProperty("preLoadRanges") ).ignore();
   setProperty( iovSvcProp->getProperty("preLoadData") ).ignore();
   setProperty( iovSvcProp->getProperty("partialPreLoadData") ).ignore();
+  setProperty( iovSvcProp->getProperty("preLoadExtensibleFolders") ).ignore();
   setProperty( iovSvcProp->getProperty("updateInterval") ).ignore();
   setProperty( iovSvcProp->getProperty("sortKeys") ).ignore();
   setProperty( iovSvcProp->getProperty("forceResetAtBeginRun") ).ignore();
   setProperty( iovSvcProp->getProperty("OutputLevel") ).ignore();
-
-  if (m_storeName == "StoreGateSvc") {
-    status = service("StoreGateSvc", p_sgSvc);
-  } else {
-    string sgn = "StoreGateSvc/" + m_storeName;
-    status = service(sgn,p_sgSvc);
-  }
-
-  if (status.isFailure()) {
-    ATH_MSG_ERROR("Unable to get the StoreGateSvc");
-    return status;
-  }
 
   int pri=100;
 
@@ -233,7 +219,7 @@ IOVSvcTool::initialize() {
 
   ATH_MSG_DEBUG("Tool initialized");
 
-  return status;
+  return StatusCode::SUCCESS;
 }
 
 
@@ -262,7 +248,7 @@ IOVSvcTool::handle(const Incident &inc) {
 
   if (m_first) {
     for (auto e : m_ignoredProxyNames) {
-      const DataProxy* proxy = p_cndSvc->proxy(e.first,e.second);
+      DataProxy* proxy = p_cndSvc->proxy(e.first,e.second);
 
       if (proxy == nullptr) {
         ATH_MSG_ERROR("ignoreProxy: could not retrieve proxy "
@@ -274,7 +260,7 @@ IOVSvcTool::handle(const Incident &inc) {
     }
   }
 
-  set< const DataProxy*, SortDPptr > proxiesToReset;
+  set< DataProxy*, SortDPptr > proxiesToReset;
 
   // Forcing IOV checks on the first event in the run for AthenaMP (ATEAM-439)
   if(Gaudi::Concurrency::ConcurrencyFlags::numProcs()==0) {
@@ -395,8 +381,8 @@ IOVSvcTool::handle(const Incident &inc) {
 
       if (msgLvl(MSG::VERBOSE)) {
         std::set< const SG::DataProxy* >::const_iterator pit;
-        for (pit = m_proxies.begin(); pit != m_proxies.end(); ++pit) {
-          msg() << "   " << m_names[*pit] << std::endl;
+        for (SG::DataProxy* p : m_proxies) {
+          msg() << "   " << m_names[p] << std::endl;
         }
         msg() << endmsg;
       }
@@ -432,16 +418,14 @@ IOVSvcTool::handle(const Incident &inc) {
     //// Reset DataProxies, and call associated callback functions
     //// 
     //
-    set< const DataProxy* >::iterator itr;
-    for (itr=proxiesToReset.begin(); itr!=proxiesToReset.end(); ++itr) {
-      DataProxy *prx = const_cast<DataProxy*>( *itr );
+    for (DataProxy* prx : proxiesToReset) {
       ATH_MSG_VERBOSE("clearing proxy payload for " << m_names[prx]);
 
       // Reset proxy except when one wants to reset callbacks
       
       if (!m_resetAllCallbacks) p_cndSvc->clearProxyPayload( prx );
 
-      m_trigTree->cascadeTrigger(true, *itr);
+      m_trigTree->cascadeTrigger(true, prx);
 
       // Load data if preload requested.
 
@@ -519,9 +503,7 @@ IOVSvcTool::handle(const Incident &inc) {
     
     /// Read in the next set of IOVRanges
     std::map<const DataProxy*, IOVEntry*>::iterator pitr;
-    for (itr=proxiesToReset.begin(); itr!=proxiesToReset.end(); ++itr) {
-      DataProxy *prx = const_cast<DataProxy*>( *itr );
-
+    for (DataProxy* prx : proxiesToReset) {
       pitr = m_entries.find( prx );
       if ( pitr != m_entries.end() && pitr->second->range()->isInRange(m_curTime) ) {
         ATH_MSG_VERBOSE("range still valid for " << m_names[prx]);
@@ -562,7 +544,7 @@ IOVSvcTool::handle(const Incident &inc) {
 /// Register a DataProxy with the service
 ///
 StatusCode 
-IOVSvcTool::regProxy( const DataProxy *proxy, const std::string& key) {
+IOVSvcTool::regProxy( DataProxy *proxy, const std::string& key) {
 
 
   if (proxy ==  nullptr) {
@@ -599,7 +581,7 @@ IOVSvcTool::regProxy( const DataProxy *proxy, const std::string& key) {
 /// Deregister a DataProxy with the service
 ///
 StatusCode 
-IOVSvcTool::deregProxy( const DataProxy *proxy) {
+IOVSvcTool::deregProxy( DataProxy *proxy) {
 
 
   if (proxy == nullptr) {
@@ -609,7 +591,7 @@ IOVSvcTool::deregProxy( const DataProxy *proxy) {
 
   ATH_MSG_DEBUG("removing proxy " << fullProxyName(proxy) << " at " << proxy);
 
-  std::set<const SG::DataProxy*, SortDPptr>::iterator itr = m_proxies.find(proxy);
+  std::set<SG::DataProxy*, SortDPptr>::iterator itr = m_proxies.find(proxy);
   if (itr == m_proxies.end()) {
     ATH_MSG_DEBUG("Proxy for " << fullProxyName(proxy)
                   << " not registered: " << proxy->name());
@@ -649,8 +631,8 @@ namespace {
 /// replace a registered DataProxy with a new version
 ///
 StatusCode 
-IOVSvcTool::replaceProxy( const SG::DataProxy *pOld,
-                          const SG::DataProxy *pNew) {
+IOVSvcTool::replaceProxy( SG::DataProxy *pOld,
+                          SG::DataProxy *pNew) {
   assert(nullptr != pOld);
   assert(nullptr != pNew);
     
@@ -700,7 +682,7 @@ IOVSvcTool::replaceProxy( const SG::DataProxy *pOld,
 StatusCode 
 IOVSvcTool::regProxy( const CLID& clid, const std::string& key ) {
 
-  const DataProxy* proxy = p_cndSvc->proxy(clid,key);
+  DataProxy* proxy = p_cndSvc->proxy(clid,key);
 
   if (proxy == nullptr) {
     ATH_MSG_ERROR("regProxy could not retrieve proxy "
@@ -720,7 +702,7 @@ IOVSvcTool::regProxy( const CLID& clid, const std::string& key ) {
 StatusCode 
 IOVSvcTool::deregProxy( const CLID& clid, const std::string& key ) {
 
-  const DataProxy* proxy = p_cndSvc->proxy(clid,key);
+  DataProxy* proxy = p_cndSvc->proxy(clid,key);
 
   if (proxy == nullptr) {
     ATH_MSG_ERROR("regProxy could not retrieve proxy "
@@ -793,7 +775,7 @@ IOVSvcTool::preLoadDataTAD( const TransientAddress *tad_in ) {
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-void IOVSvcTool::setRange_impl (const SG::DataProxy* proxy, IOVRange& iovr)
+void IOVSvcTool::setRange_impl (SG::DataProxy* proxy, IOVRange& iovr)
 {
   if (iovr.start().isTimestamp()) {
     p_startSet = &m_startSet_Clock;
@@ -974,12 +956,12 @@ IOVSvcTool::preLoadProxies() {
   ATH_MSG_DEBUG("preLoadProxies()");
 
   StatusCode scr(StatusCode::SUCCESS);
- 
-  std::set<const DataProxy*>::const_iterator itr;
-  std::map<BFCN*, std::list<std::string> > resetKeys;
-  for(itr = m_proxies.begin(); itr != m_proxies.end(); ++itr) {
 
-    DataProxy *dp = const_cast<DataProxy*> (*itr);
+  IIOVDbSvc *iovDB = nullptr;
+  service("IOVDbSvc", iovDB, false).ignore();
+
+  std::map<BFCN*, std::list<std::string> > resetKeys;
+  for (DataProxy* dp : m_proxies) {
     Gaudi::Guards::AuditorGuard auditor(m_names[dp], auditorSvc(), "preLoadProxy");
     
     if (msgLvl(MSG::VERBOSE)) {
@@ -1011,15 +993,21 @@ IOVSvcTool::preLoadProxies() {
 
     if ( ( m_partialPreLoadData && 
            m_partPreLoad.find(TADkey(*dp)) != m_partPreLoad.end() )
-         ||
-         m_preLoadData ) {
+         || m_preLoadData ) {
 
-      ATH_MSG_VERBOSE("preloading data for ("
-                      << dp->clID() << "/"
-                      << dp->name() << ")");
+      IIOVDbSvc::KeyInfo kinfo;
+      if ( !m_preLoadExtensibleFolders && iovDB &&
+           iovDB->getKeyInfo(dp->name(), kinfo) && kinfo.extensible ) {
+        ATH_MSG_VERBOSE("not preloading data for extensible folder " << dp->name());
+      }
+      else {
+        ATH_MSG_VERBOSE("preloading data for ("
+                        << dp->clID() << "/"
+                        << dp->name() << ")");
 
-      sc =  ( dp->accessData() != nullptr ?
-              StatusCode::SUCCESS : StatusCode::FAILURE );
+        sc =  ( dp->accessData() != nullptr ?
+                StatusCode::SUCCESS : StatusCode::FAILURE );
+      }
     }
 
     if (sc.isFailure()) scr=sc;
@@ -1036,7 +1024,7 @@ IOVSvcTool::preLoadProxies() {
       resetKeys[f].push_back(key);
     }
     
-    CBNode* cn = m_trigTree->findNode( *itr );
+    CBNode* cn = m_trigTree->findNode( dp );
     if (cn != nullptr) {
       m_trigTree->cascadeTrigger(1, cn);
     }
@@ -1177,11 +1165,8 @@ IOVSvcTool::PrintProxyMap(){
   msg() << "------------------------------  IOVSvc Proxy Map  "
         << "------------------------------" << endl;
 
-  std::set<const DataProxy*>::const_iterator itr;
-  for (itr=m_proxies.begin(); itr!=m_proxies.end(); ++itr) {
-
-    PrintProxyMap(*itr);
-    
+  for (DataProxy* p : m_proxies) {
+    PrintProxyMap(p);
   }
   msg() << "----------------------------------------------------------"
         << "---------------------" << endl;
@@ -1467,7 +1452,7 @@ IOVSvcTool::reinitialize(){
 
 void 
 IOVSvcTool::scanStartSet(startSet &pSet, const std::string &type, 
-                         std::set<const SG::DataProxy*, SortDPptr> &proxiesToReset) {
+                         std::set<SG::DataProxy*, SortDPptr> &proxiesToReset) {
 
   std::string objname;
   
@@ -1505,7 +1490,7 @@ IOVSvcTool::scanStartSet(startSet &pSet, const std::string &type,
 
 void 
 IOVSvcTool::scanStopSet(stopSet &pSet, const std::string &type,
-                        std::set<const SG::DataProxy*, SortDPptr> &proxiesToReset) {
+                        std::set<SG::DataProxy*, SortDPptr> &proxiesToReset) {
 
   std::string objname;
 
@@ -1540,7 +1525,7 @@ IOVSvcTool::scanStopSet(stopSet &pSet, const std::string &type,
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 bool
-IOVSvcTool::holdsProxy( const DataProxy* proxy ) const {
+IOVSvcTool::holdsProxy( DataProxy* proxy ) const {
 
   return ! ( m_proxies.find( proxy ) == m_proxies.end() );
 
@@ -1551,7 +1536,7 @@ IOVSvcTool::holdsProxy( const DataProxy* proxy ) const {
 bool
 IOVSvcTool::holdsProxy( const CLID& clid, const std::string& key ) const {
 
-  const DataProxy* proxy = p_cndSvc->proxy(clid,key);
+  DataProxy* proxy = p_cndSvc->proxy(clid,key);
 
   if (proxy == nullptr) {
     ATH_MSG_ERROR("holdsProxy: could not retrieve proxy "
@@ -1588,14 +1573,12 @@ IOVSvcTool::holdsAlgTool( const IAlgTool* ia ) const {
 void
 IOVSvcTool::resetAllProxies() {
 
-  set< const DataProxy* >::iterator itr = m_proxies.begin();
-  for (; itr != m_proxies.end(); ++itr) {
-    DataProxy *prx = const_cast<DataProxy*>( *itr );
+  for (DataProxy* prx : m_proxies) {
     ATH_MSG_VERBOSE("clearing proxy payload for " << m_names[prx]);
     
     p_cndSvc->clearProxyPayload(prx);
     
-    m_trigTree->cascadeTrigger(true, *itr);
+    m_trigTree->cascadeTrigger(true, prx);
 
   }
 

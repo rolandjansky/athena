@@ -47,7 +47,7 @@ public:
   void printHistosStatus() const; 
   void printBdtsStatus() const;
   std::string getChannelAlias(const std::string& originalChannel) const;
-  void addHisto(const unsigned int indexTagger, const std::string& name, TObject *);
+  void addHisto(const unsigned int indexTagger, const std::string& name, TH1*);
   void deleteHistos();
   void deleteBdts();
   void addDL1NN(const std::string& tagger, const std::string& channel, const lwt::JSONConfig& );
@@ -67,7 +67,7 @@ public:
   std::string fullHistoName(const std::string& channel, const std::string& histoName) const;
 
 private:
-  std::vector< std::map<std::string, TObject*> > m_histos;
+  std::vector< std::map<std::string, TH1*> > m_histos;
   std::map< std::string, std::string > m_channelAliasesMap;
   std::vector< std::string> m_taggers;
 

@@ -23,11 +23,11 @@ class ITrigJetHypoInfoCollector;
 class TLAConditionMT: public IConditionMT{
  public:
   TLAConditionMT(const std::vector<double>& etaMins,
-               const std::vector<double>& etaMaxs,
-               const std::vector<double>& ystarMins,
-               const std::vector<double>& ystarMaxs,
-               const std::vector<double>& massMins,
-               const std::vector<double>& massMaxs);
+		 const std::vector<double>& etaMaxs,
+		 const std::vector<double>& ystarMins,
+		 const std::vector<double>& ystarMaxs,
+		 const std::vector<double>& massMins,
+		 const std::vector<double>& massMaxs);
 
   TLAConditionMT(double etaMin,
                double etaMax,

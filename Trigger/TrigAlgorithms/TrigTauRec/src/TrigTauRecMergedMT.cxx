@@ -312,14 +312,10 @@ StatusCode TrigTauRecMergedMT::execute()
     CHECK( CCContainerHandle.isValid() );
 
     RoICaloClusterContainer = CCContainerHandle.get();
-    ATH_MSG_DEBUG( "Found " << RoICaloClusterContainer->size() << " caloClusters, updating the corresponding RoI ... " );
 
     if(RoICaloClusterContainer != nullptr) {
-      ATH_MSG_DEBUG( "REGTEST: Size of vector CaloCluster container is " << RoICaloClusterContainer->size());
-      if(RoICaloClusterContainer->size() == 0) {
-        ATH_MSG_DEBUG( "Cannot proceed, size of vector CaloCluster container is " << RoICaloClusterContainer->size());
-        return StatusCode::SUCCESS;
-      }
+      ATH_MSG_DEBUG( "CaloCluster container found of size: " << RoICaloClusterContainer->size());
+      //If size is zero, don't stop just continue to produce empty TauJetCollection
     }
     else {
       ATH_MSG_DEBUG( "no CaloCluster container found " );
@@ -425,7 +421,7 @@ StatusCode TrigTauRecMergedMT::execute()
   const xAOD::TrackParticleContainer *RoITrackParticleContainer = nullptr;
 
   if ( !TPContainerHandle.isValid() ) {
-    ATH_MSG_INFO("REGTEST: No Track container found.");
+    ATH_MSG_DEBUG("REGTEST: No Track container found.");
     track_errors.push_back(NoTrkCont);
   }
   else {
@@ -440,7 +436,7 @@ StatusCode TrigTauRecMergedMT::execute()
   const xAOD::VertexContainer* RoIVxContainer = nullptr;
 
   if( !VertexContainerHandle.isValid() ) {
-    ATH_MSG_INFO(" No VxContainers retrieved for the trigger element");
+    ATH_MSG_DEBUG(" No VxContainers retrieved for the trigger element");
     track_errors.push_back(NoVtxCont);
   }
   else {

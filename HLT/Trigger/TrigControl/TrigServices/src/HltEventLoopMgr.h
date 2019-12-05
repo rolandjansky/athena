@@ -8,7 +8,6 @@
 // Trigger includes
 #include "TrigKernel/ITrigEventLoopMgr.h"
 #include "TrigKernel/HltPscErrorCode.h"
-#include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc.h"
 #include "TrigOutputHandling/HLTResultMTMaker.h"
 
 // Athena includes
@@ -48,7 +47,6 @@ class IAlgResourcePool;
 class IHiveWhiteBoard;
 class IIncidentSvc;
 class IJobOptionsSvc;
-class IROBDataProviderSvc;
 class IScheduler;
 class ITHistSvc;
 class StoreGateSvc;
@@ -82,33 +80,31 @@ public:
   virtual StatusCode start() override;
   virtual StatusCode stop() override;
   virtual StatusCode finalize() override;
-  virtual StatusCode reinitialize() override;
-  virtual StatusCode restart() override;
   ///@}
 
   /// @name State transitions of ITrigEventLoopMgr interface
   ///@{
-  virtual StatusCode prepareForRun ATLAS_NOT_THREAD_SAFE (const boost::property_tree::ptree& pt);
-  virtual StatusCode hltUpdateAfterFork(const boost::property_tree::ptree& pt);
+  virtual StatusCode prepareForRun ATLAS_NOT_THREAD_SAFE (const boost::property_tree::ptree& pt) override;
+  virtual StatusCode hltUpdateAfterFork(const boost::property_tree::ptree& pt) override;
   ///@}
 
   /**
    * Implementation of IEventProcessor::executeRun which calls IEventProcessor::nextEvent
    * @param maxevt number of events to process, -1 means all
    */
-  virtual StatusCode executeRun(int maxevt=-1);
+  virtual StatusCode executeRun(int maxevt=-1) override;
 
   /**
    * Implementation of IEventProcessor::nextEvent which implements the event loop
    * @param maxevt number of events to process, -1 means all
    */
-  virtual StatusCode nextEvent(int maxevt=-1);
+  virtual StatusCode nextEvent(int maxevt=-1) override;
 
   /**
    * Implementation of IEventProcessor::executeEvent which processes a single event
    * @param ctx the current EventContext
    */
-  virtual StatusCode executeEvent( EventContext &&ctx );
+  virtual StatusCode executeEvent( EventContext &&ctx ) override;
 
   /**
    * create an Event Context object
@@ -118,7 +114,7 @@ public:
   /**
    * Implementation of IEventProcessor::stopRun (obsolete for online runnning)
    */
-  virtual StatusCode stopRun();
+  virtual StatusCode stopRun() override;
 
 private:
   // ------------------------- Helper types ------------------------------------
@@ -189,7 +185,6 @@ private:
   ServiceHandle<StoreGateSvc>        m_evtStore;
   ServiceHandle<StoreGateSvc>        m_detectorStore;
   ServiceHandle<StoreGateSvc>        m_inputMetaDataStore;
-  ServiceHandle<IROBDataProviderSvc> m_robDataProviderSvc;
   ServiceHandle<ITHistSvc>           m_THistSvc;
   ServiceHandle<IIoComponentMgr>     m_ioCompMgr;
   ServiceHandle<IEvtSelector>        m_evtSelector{this, "EvtSel", "EvtSel"};
@@ -201,7 +196,6 @@ private:
   SmartIF<IAlgResourcePool> m_algResourcePool;
   SmartIF<IAlgExecStateSvc> m_aess;
   SmartIF<IScheduler> m_schedulerSvc;
-  SmartIF<ITrigROBDataProviderSvc> m_hltROBDataProviderSvc;
 
   // ------------------------- Other properties --------------------------------------
   Gaudi::Property<std::string> m_schedulerName{
@@ -209,9 +203,6 @@ private:
 
   Gaudi::Property<std::string> m_whiteboardName{
     this, "WhiteboardSvc", "EventDataSvc", "Name of the Whiteboard"};
-
-  Gaudi::Property<std::vector<std::string> > m_topAlgNames{
-    this, "TopAlg", {}, "List of top level algorithms names"};
 
   Gaudi::Property<float> m_hardTimeout{
     this, "HardTimeout", 10*60*1000/*=10min*/, "Hard event processing timeout in milliseconds"};
@@ -235,6 +226,10 @@ private:
     this, "TimeoutDebugStreamName", "HltTimeout",
     "Debug stream name for events with HLT timeout"};
 
+  Gaudi::Property<std::string> m_truncationDebugStreamName{
+    this, "TruncationDebugStreamName", "TruncatedHLTResult",
+    "Debug stream name for events with HLT result truncation"};
+
   Gaudi::Property<std::string> m_sorPath{
     this, "SORPath", "/TDAQ/RunCtrl/SOR_Params", "Path to StartOfRun parameters in detector store"};
 
@@ -246,6 +241,9 @@ private:
 
   Gaudi::Property<unsigned long long> m_forceSOR_ns{
     this, "forceStartOfRunTime", 0, "Override SOR time during prepareForRun (epoch in nano-seconds)"};
+
+  Gaudi::Property<unsigned int> m_dbIdleWait{
+    this, "dbConnIdleWaitSec", 0, "Seconds to wait before cleaning idle DB connections"};
 
   SG::WriteHandleKey<EventContext> m_eventContextWHKey{
     this, "EventContextWHKey", "EventContext", "StoreGate key for recording EventContext"};
@@ -273,8 +271,6 @@ private:
   size_t m_localEventNumber{0};
   /// Event selector context
   IEvtSelector::Context* m_evtSelContext{nullptr};
-  /// Vector of top level algorithms
-  std::vector<SmartIF<IAlgorithm> > m_topAlgList;
   /// Vector of event start-processing time stamps in each slot
   std::vector<std::chrono::steady_clock::time_point> m_eventTimerStartPoint;
   /// Vector of flags to tell if a slot is idle or processing
@@ -294,7 +290,9 @@ private:
   /// Application name
   std::string m_applicationName;
   /// Worker ID
-  std::string m_workerId;
+  int m_workerID{0};
+  /// Worker PID
+  int m_workerPID{0};
 
 };
 

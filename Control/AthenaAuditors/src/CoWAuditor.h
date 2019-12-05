@@ -1,7 +1,7 @@
 //   --*- c++ -*--
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAAUDITORS_COWAUDITOR
@@ -59,10 +59,6 @@ class CoWAuditor : virtual public Auditor, public AthMessaging,public IIncidentL
   virtual void afterReinitialize(INamedInterface* alg);
   virtual void beforeExecute(INamedInterface* alg);
   virtual void afterExecute(INamedInterface* alg, const StatusCode&);
-  virtual void beforeBeginRun(INamedInterface* alg);
-  virtual void afterBeginRun(INamedInterface *alg);
-  virtual void beforeEndRun(INamedInterface* alg);
-  virtual void afterEndRun(INamedInterface *alg);
   virtual void beforeFinalize(INamedInterface* alg);
   virtual void afterFinalize(INamedInterface* alg);
 

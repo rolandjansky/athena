@@ -8,9 +8,7 @@ atlas_subdir( LUCID_RawEvent )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
-                          Control/AthContainers
-                          PRIVATE
-                          TestPolicy )
+                          Control/AthContainers )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )

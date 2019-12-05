@@ -164,7 +164,7 @@ private: // internal member functions
   /// Search for event number evtNum.
   int findEvent(int evtNum, std::vector<int>& numEvt, std::vector<int>& firstEvt, const std::vector<std::string>& inputCollections) const;
 
-  /// Fires the EndInputFile incident (if there is an open file), EndTagFile incident, and LastInputFile incidents at end of selector
+  /// Fires the EndInputFile incident (if there is an open file) at end of selector
   void fireEndFileIncidents(bool processMetadata, const Guid& inputGuid, bool isLastFile, bool& firedIncident) const;
 
   // Disconnect DB if all events from the source FID were processed and the Selector moved to another file

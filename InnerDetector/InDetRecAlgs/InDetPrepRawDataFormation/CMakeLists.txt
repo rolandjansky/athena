@@ -23,13 +23,14 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetRecTools/TRT_DriftCircleTool
                           InnerDetector/InDetConditions/SCT_ConditionsData
+			  InnerDetector/InDetConditions/InDetByteStreamErrors
                         )
 
 # Component(s) in the package:
 atlas_add_component( InDetPrepRawDataFormation
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps StoreGateLib SGtests IRegionSelector Identifier GaudiKernel InDetRawData InDetPrepRawData SiClusterizationToolLib TrigSteeringEvent AtlasDetDescr InDetIdentifier InDetReadoutGeometry AthViews)
+                     LINK_LIBRARIES AthenaBaseComps StoreGateLib SGtests IRegionSelector Identifier GaudiKernel InDetRawData InDetPrepRawData SiClusterizationToolLib TrigSteeringEvent AtlasDetDescr InDetIdentifier InDetReadoutGeometry InDetByteStreamErrors AthViews)
 
 # Install files from the package:
 atlas_install_headers( InDetPrepRawDataFormation )

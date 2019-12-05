@@ -31,6 +31,21 @@ rec.DPDMakerScripts.append(SetupOutputDPDs(runArgs,listOfFlags))
 from AthenaCommon.AppMgr import ServiceMgr; import AthenaPoolCnvSvc.AthenaPool
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
+
+
+## Pre-exec
+if hasattr(runArgs,"preExec"):
+    recoLog.info("transform pre-exec")
+    for cmd in runArgs.preExec:
+        recoLog.info(cmd)
+        exec(cmd)
+
+## Pre-include
+if hasattr(runArgs,"preInclude"): 
+    for fragment in runArgs.preInclude:
+        include(fragment)
+
+
 ## Input
 # BS
 DRAWInputs = [ prop for prop in dir(runArgs) if prop.startswith('inputDRAW') and prop.endswith('File')]
@@ -46,6 +61,7 @@ if len(DRAWInputs) == 1:
     athenaCommonFlags.BSRDOInput.set_Value_and_Lock( getattr(runArgs, DRAWInputs[0]) )
 elif len(DRAWInputs) > 1:
     raise RuntimeError('Impossible to run RAWtoESD with multiple input DRAW files (viz.: {0})'.format(DRAWInputs))
+
 
 # RDO
 if hasattr(runArgs,"inputRDOFile"):
@@ -65,53 +81,16 @@ if hasattr(runArgs,"inputRDO_TRIGFile"):
     DQMonFlags.doHLTMon = False
     DQMonFlags.useTrigger = False
     DQMonFlags.doLVL1CaloMon = False
-    from AthenaCommon.KeyStore import CfgItemList, CfgKeyStore
+    # Configure HLT output
+    from TriggerJobOpts.HLTTriggerResultGetter import HLTTriggerResultGetter
+    hltOutput = HLTTriggerResultGetter()
+    # Add Trigger menu metadata
     from RecExConfig.ObjKeyStore import objKeyStore
-    if TriggerFlags.doMT():
-        recoLog.info("Scheduling temporary ESDtoAOD propagation of Trigger MT EDM collections")
-        recoLog.info("AOD content set according to the AODEDMSet flag: %s and EDM version %d (currently hardcoded to 3)", TriggerFlags.AODEDMSet(), TriggerFlags.EDMDecodingVersion())
-        
-        edmset = TriggerFlags.AODEDMSet()
-        recoLog.info(edmset)
-
-        trigEDMListESD = {}
-        trigEDMListAOD = {}
-
-        from TrigEDMConfig.TriggerEDM import getTriggerEDMList
-        # !!! this needs to be changed!! currently hardcoded to run version 3 corresponding to the Run 3 
-        #trigEDMListESD.update(getTriggerEDMList(TriggerFlags.ESDEDMSet(),  TriggerFlags.EDMDecodingVersion()) )
-        trigEDMListESD.update(getTriggerEDMList(TriggerFlags.ESDEDMSet(),  3) )
-        objKeyStore.addManyTypesStreamESD( trigEDMListESD )
-
-        # !!! this needs to be changed!! currently hardcoded to run version 3 corresponding to the Run 3 
-        #trigEDMListAOD.update(getTriggerEDMList(TriggerFlags.AODEDMSet(),  TriggerFlags.EDMDecodingVersion()) )
-        trigEDMListAOD.update(getTriggerEDMList(TriggerFlags.AODEDMSet(),  3) )
-        objKeyStore.addManyTypesStreamAOD( trigEDMListAOD )
-
-        notIncludedInAOD = [element for element in trigEDMListAOD if element not in trigEDMListESD]
-        if (len(notIncludedInAOD)>0):
-            recoLog.warning ("In AOD list but not in ESD list: ")
-            recoLog.warning(notIncludedInAOD)
-        else:
-            recoLog.info("AOD EDM list is a subset of ESD list - good")
-
-        # We also want to propagate the navigation to ESD and AOD. For now, unconditionally
-        # Note: Not every TrigComposite collection is navigation, there are other use cases too.
-        # So in future we should filter more heavily than this too.
-        from PyUtils.MetaReaderPeeker import convert_itemList
-        rawCollections = convert_itemList(layout='#join')
-        for item in rawCollections:
-            if item.startswith("xAOD::TrigComposite"):
-                objKeyStore.addManyTypesStreamESD( [item] )
-                objKeyStore.addManyTypesStreamAOD( [item] )
-    else: # not TriggerFlags.doMT()
-        _TriggerESDList = {}
-        _TriggerAODList = {}
-        from TrigEDMConfig.TriggerEDM import getTriggerEDMList
-        _TriggerAODList.update( getTriggerEDMList(TriggerFlags.AODEDMSet(),  TriggerFlags.EDMDecodingVersion()) )
-        _TriggerESDList.update( getTriggerEDMList(TriggerFlags.ESDEDMSet(),  TriggerFlags.EDMDecodingVersion()) )
-        objKeyStore.addManyTypesStreamESD( _TriggerESDList )
-        objKeyStore.addManyTypesStreamAOD( _TriggerAODList )
+    if rec.doFileMetaData():
+       metadataItems = [ "xAOD::TriggerMenuContainer#TriggerMenu",
+                        "xAOD::TriggerMenuAuxContainer#TriggerMenuAux." ]
+       objKeyStore.addManyTypesMetaData( metadataItems )
+    # Configure other outputs
     from TrigEDMConfig.TriggerEDM import getLvl1ESDList
     from TrigEDMConfig.TriggerEDM import getLvl1AODList
     from TrigEDMConfig.TriggerEDM import getTrigIDTruthList
@@ -119,10 +98,6 @@ if hasattr(runArgs,"inputRDO_TRIGFile"):
     objKeyStore.addManyTypesStreamAOD(getTrigIDTruthList(TriggerFlags.AODEDMSet()))
     objKeyStore.addManyTypesStreamESD(getLvl1ESDList())
     objKeyStore.addManyTypesStreamAOD(getLvl1AODList())
-    if rec.doFileMetaData():
-       metadataItems = [ "xAOD::TriggerMenuContainer#TriggerMenu",
-                        "xAOD::TriggerMenuAuxContainer#TriggerMenuAux." ]
-       objKeyStore.addManyTypesMetaData( metadataItems )
 
 if hasattr(runArgs,"inputRDO_FILTFile"):
     rec.readRDO.set_Value_and_Lock( True )
@@ -219,18 +194,6 @@ if hasattr(runArgs, 'outputTXT_JIVEXMLTGZFile'):
     
 
 rec.OutputFileNameForRecoStep="RAWtoESD"
-
-## Pre-exec
-if hasattr(runArgs,"preExec"):
-    recoLog.info("transform pre-exec")
-    for cmd in runArgs.preExec:
-        recoLog.info(cmd)
-        exec(cmd)
-
-## Pre-include
-if hasattr(runArgs,"preInclude"): 
-    for fragment in runArgs.preInclude:
-        include(fragment)
 
 #========================================================
 # Central topOptions (this is one is a string not a list)

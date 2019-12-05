@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TOPLEVELTPCONVERTER_H
@@ -40,11 +40,11 @@ public:
 
   // this declaration is repeated here for clarity 
   /// @copydoc TopLevelTPCnvBaseP::setPStorage()
-  virtual void	setPStorage( TL_PERS* persObj) = 0;
+  virtual void	setPStorage( TL_PERS* persObj) override = 0;
 
   /** Constructor. 
   Note: The constructor in the derived class should add all local converters
-  using AddTPConveter()
+  using AddTPConverter()
   */
   TopLevelTPConverter() {}
 
@@ -61,6 +61,24 @@ public:
   TRANS*  createTransient( MsgStream &log ) {
      // 0 is the index of the main and only one top level object
      TRANS *transObj = m_mainConverter.virt_createTransFromPStore( 0, log );
+     this->deleteTLPersObject();
+     return transObj;
+  }
+  
+
+  /** Create transient representation of the persistent object known
+   * to this converter. 
+   NOTE: If the persistent object is @b owned by the converter, it
+   will be deleted
+   @param key [IN] SG key of the object being converted
+   @param log [IN] message stream for output
+   @return TRANS* transient object passed by a pointer
+  */
+  TRANS*  createTransientWithKey( const std::string& key,
+                                  MsgStream &log )
+  {
+     // 0 is the index of the main and only one top level object
+    TRANS *transObj = m_mainConverter.virt_createTransFromPStoreWithKey( 0, key, log );
      this->deleteTLPersObject();
      return transObj;
   }
@@ -97,6 +115,27 @@ public:
      return ret;
   }
 
+  /** Create persistent representation of transObj.
+      @param transObj [IN] pointer to the transient representation
+      @param key [IN] SG key of the object being converted.
+      @param log [IN] message stream for output
+      @return TL_PRES* persistent object passed by a pointer
+  */
+  virtual TL_PERS*  createPersistentWithKey(const TRANS* transObj,
+                                            const std::string& key,
+                                            MsgStream &log)
+  {
+     // create a new persistent object (empty)
+     this->createTLPersObject();
+     // do transToPers conversion, fill in the persistent object
+     m_mainConverter.virt_toPersistentWithKey(transObj, key, log);
+     // take the persistent object away from the TL converter 
+     TL_PERS	*ret = this->getTLPersObject();
+     // important to clear so createTransient() will not try to delete it (and crash)
+     this->clearTLPersObject();
+     return ret;
+  }
+
   /// Add the main TP converter to the internal list - should be
   /// called from user-defined constructor
   void	addMainTPConverter() {  this->addTPConverter( &m_mainConverter ); }
@@ -112,36 +151,54 @@ public:
   /// Returns this converter's ID.  By default it is 0. Should be
   /// overwritten in extending converters
   /// @return this converter's ID
-  virtual unsigned short	getConverterID() { return 0; }
+  virtual unsigned short	getConverterID() override { return 0; }
 
 
   //- --------------------------------------------------------------------------
   // implementation of ITPCnvBase interface
 
   /// @copydoc ITPCnvBase::transientTInfo()
-  virtual const std::type_info& transientTInfo() const { return typeid(TRANS); }
+  virtual const std::type_info& transientTInfo() const override { return typeid(TRANS); }
 
   /// @copydoc ITPCnvBase::persistentTInfo()
-  virtual const std::type_info& persistentTInfo() const { return typeid(PERS); }
+  virtual const std::type_info& persistentTInfo() const override { return typeid(PERS); }
 
 
   /// @copydoc ITPCnvBase::persToTransUntyped()
-  virtual void persToTransUntyped(const void* pers, void* trans, MsgStream& log)  {
+  virtual void persToTransUntyped(const void* pers, void* trans, MsgStream& log) override {
      persToTrans( reinterpret_cast<const PERS*>(pers), reinterpret_cast<TRANS*>(trans), log );
   }
 
   /// @copydoc ITPCnvBase::transToPersUntyped()
-  virtual void transToPersUntyped(const void* trans, void* pers, MsgStream& log)  {
+  virtual void transToPersUntyped(const void* trans, void* pers, MsgStream& log) override {
+     transToPers( reinterpret_cast<const TRANS*>(trans),  reinterpret_cast<PERS*>(pers), log );
+  }
+
+  /// @copydoc ITPCnvBase::persToTransWithKeyUntyped()
+  virtual void persToTransWithKeyUntyped(const void* pers,
+                                         void* trans,
+                                         const std::string& /*key*/,
+                                         MsgStream& log) override
+  {
+     persToTrans( reinterpret_cast<const PERS*>(pers), reinterpret_cast<TRANS*>(trans), log );
+  }
+
+  /// @copydoc ITPCnvBase::transToPersWithKeyUntyped()
+  virtual void transToPersWithKeyUntyped(const void* trans,
+                                         void* pers,
+                                         const std::string& /*key*/,
+                                         MsgStream& log) override
+  {
      transToPers( reinterpret_cast<const TRANS*>(trans),  reinterpret_cast<PERS*>(pers), log );
   }
 
   // ----------------------  methods used by T_TPCnv<> converters
-  virtual void persToTrans (const PERS* pers, TRANS* trans, MsgStream& msg)  {
+  virtual void persToTrans (const PERS* pers, TRANS* trans, MsgStream& msg) {
     setPStorage (const_cast<TL_PERS*> (pers));
     m_mainConverter.pstoreToTrans (0, trans, msg);
   }
   
-  virtual void transToPers(const TRANS* trans, PERS* pers, MsgStream& msg)  {
+  virtual void transToPers(const TRANS* trans, PERS* pers, MsgStream& msg) {
     this->setTLPersObject( pers );
     m_mainConverter.virt_toPersistent(trans, msg);
     this->clearTLPersObject();

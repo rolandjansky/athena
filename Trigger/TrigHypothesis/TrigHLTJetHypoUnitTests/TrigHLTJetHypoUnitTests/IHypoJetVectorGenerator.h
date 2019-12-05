@@ -13,7 +13,7 @@ public:
   DeclareInterfaceID(IHypoJetVectorGenerator, 1, 0);
   virtual ~IHypoJetVectorGenerator(){};
 
-  virtual HypoJetVector get() const = 0;
+  virtual HypoJetVector get()  = 0;
   virtual std::string  toString() const = 0;
 
 };

@@ -16,12 +16,13 @@ DijetConditionMT::DijetConditionMT(double massMin,
                                    double detaMax,
                                    double dphiMin,
                                    double dphiMax) :
+
   m_massMin(massMin),
   m_massMax(massMax),
   m_detaMin(detaMin),
   m_detaMax(detaMax),
   m_dphiMin(dphiMin),
-  m_dphiMax(dphiMax){
+  m_dphiMax(dphiMax) {
 }
   
 
@@ -61,7 +62,7 @@ DijetConditionMT::isSatisfied(const HypoJetVector& ips,
    if(collector){
      std::stringstream ss0;
      const void* address = static_cast<const void*>(this);
-     ss0 << "DijetConditionMT: " << address << " dphi "
+     ss0 << "DijetConditionMT: (" << address << ") dphi "
         << dphi <<  " mass " <<  mass <<  " adeta "  << adeta <<  " pass: " 
         <<std::boolalpha << pass <<  " jet group: \n";
 

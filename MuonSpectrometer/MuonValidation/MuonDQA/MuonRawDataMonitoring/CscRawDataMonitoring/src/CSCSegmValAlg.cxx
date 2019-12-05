@@ -52,8 +52,6 @@ using CLHEP::cm3;
 CSCSegmValAlg::CSCSegmValAlg( const std::string & type, const std::string & name, const IInterface* parent ) 
   : ManagedMonitorToolBase( type, name, parent ), 
     m_trigDec( "" ),
-    m_cscIdHelper(0),
-    m_tgcIdHelper(0),
     m_debuglevel(false),
     m_bookedhistos(false) {
 

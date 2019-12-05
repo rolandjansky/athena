@@ -37,12 +37,10 @@ class ExecStep(Step):
         self.required = True
 
     def construct_name(self):
-        name = ''
-        if self.type is not None:
-            name = self.type
-        else:
-            name = self.executable
-        if self.name is not None:
+        if self.name and self.type == 'other':
+            return self.name
+        name = self.type if self.type else self.executable
+        if self.name:
             name += '.'+self.name
         return name
 
@@ -157,10 +155,11 @@ class ExecStep(Step):
         athenaopts = ''
 
         # Append imf/perfmon
-        if self.imf:
-            athenaopts += ' --imf'
-        if self.perfmon:
-            athenaopts += ' --perfmon'
+        if self.type != 'other':
+            if self.imf:
+                athenaopts += ' --imf'
+            if self.perfmon:
+                athenaopts += ' --perfmon'
 
         # Default threads/concurrent_events/forks
         if test.package_name == 'TrigUpgradeTest':
@@ -218,7 +217,11 @@ class ExecStep(Step):
         # Append input
         if len(self.input) > 0:
             if self.input_object is not None:
-                input_str = ','.join(self.input_object.paths)
+                if self.type == 'athenaHLT':
+                    # athenaHLT can only take one input file
+                    input_str = self.input_object.paths[0]
+                else:
+                    input_str = ','.join(self.input_object.paths)
             else:
                 input_str = self.input
             if self.type == 'athena':

@@ -29,7 +29,6 @@
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 
-#include "RPCcablingInterface/IRPCcablingServerSvc.h" 
  
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
@@ -75,7 +74,6 @@ class MdtVsRpcRawDataValAlg: public ManagedMonitorToolBase
   const MuonGM::MuonDetectorManager* m_muonMgr;
   ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
     "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
-  const IRPCcablingSvc* m_cabling;
    
   void bookMDTvsRPCHistograms(std::string m_hardware_name, std::string m_layer_name, int binz, int binminz, int binmaxz, int binx, int binminx, int binmaxx );
   void bookMDTvsRPCsectorHistograms(std::string m_sector_name, std::string m_layer_name, float stripzmin, float stripzmax,float wirezmin, float wirezmax );

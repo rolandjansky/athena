@@ -2,11 +2,13 @@
 
 # art-description: ttFC_fullHS_fastPU_simDigi
 # art-type: grid
-# specify branches of athena that are being targeted:
-# art-include: 21.0/Athena
 # art-include: 21.3/Athena
 # art-output: config.txt
 # art-output: RAWtoESD_config.txt
+# art-output: *.root
+# art-output: dcube
+
+
 # Run FastChain 'Fast PU, Full HS' and tests: G4HS_FastPileup sim (G4 for HS, Pythia on the fly + FastCaloSim for PU) + fast digi PU/full digi HS + Split reco (truth tracking PU, full HS)
 
 FastChain_tf.py --simulator G4HS_FastPileup \
@@ -28,7 +30,7 @@ FastChain_tf.py --simulator G4HS_FastPileup \
     --preDigiInclude="FastTRT_Digitization/preInclude.FastTRT_Digi.Validation.py" \
     --imf False
 
-echo "art-result: $? EVNTtoRDO step"
+echo "art-result: $? EVNTtoRDO"
 
 FastChain_tf.py --maxEvents 10 \
     --skipEvents 0 \
@@ -40,20 +42,20 @@ FastChain_tf.py --maxEvents 10 \
     --postExec 'RAWtoESD:import AthenaCommon.AlgSequence as acas;job = acas.AlgSequence();del job.InDetSCT_ClusterizationPU;del job.InDetPixelClusterizationPU;del job.InDetPRD_MultiTruthMakerSiPU;del job.InDetPRD_MultiTruthMakerTRTPU;from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("RAWtoESD_config.txt")' \
     --imf False
 
-echo "art-result: $? RDOtoAOD step"
-ArtPackage=$1
-ArtJobName=$2
-art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}
-echo  "art-result: $? regression"
+rc=$?
+rc2=-9999
+echo  "art-result: $rc RDOtoAOD"
+if [ $rc -eq 0 ]
+then
+    ArtPackage=$1
+    ArtJobName=$2
+    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
+    rc2=$?
+fi
+
+echo  "art-result: $rc2 regression"
+
 #add an additional payload from the job (corollary file).
-# art-output: InDetStandardPlots.root
 /cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube TEST_ttFC_reco_Split_fullHS_fastPU_simDigi InDetStandardPlots.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/dcube_configs/config/RDOTruthCompare.xml_ttFC_reco_Split_fullHS_fastPU_simDigi /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/InDetStandardPlots_Refs/test_ttFC_reco_Split_fullHS_fastPU_simDigi_InDetStandardPlots.root
 
-
-
-
-# InDetStandardPlots.root -l dcube.log -p -r   -x dcube.xml -s /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/
-
-# art-output: dcube/
-# dumps the entire dcube directory to output because we need all of it for plots
-echo  "art-result: $? histcomp"
+echo  "art-result: $? dcubeHistComp"

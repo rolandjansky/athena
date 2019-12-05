@@ -104,7 +104,7 @@ StatusCode CaloCellPedestalCorr::process( CaloCellContainer * theCellContainer, 
     bcidavgshift=&(*bcidavgshiftHdl);
   }
 
-  std::pair<unsigned,const CaloCondBlobFlt*> blobCache{999999,nullptr};
+  std::pair<unsigned,std::unique_ptr<const CaloCondBlobFlt> >blobCache{999999,nullptr};
 
   for (CaloCell* theCell : *theCellContainer) {
     float pedestal=0;
@@ -115,10 +115,8 @@ StatusCode CaloCellPedestalCorr::process( CaloCellContainer * theCellContainer, 
       if (iCool!=blobCache.first) {
 	const coral::AttributeList& attrList=pedShiftColl->attributeList(iCool);
 	const coral::Blob& blob = attrList["CaloCondBlob16M"].data<coral::Blob>();
-	//std::unique_ptr<const CaloCondBlobFlt> flt(CaloCondBlobFlt::getInstance(blob));
 	blobCache.first=iCool;
-	delete blobCache.second;
-	blobCache.second=CaloCondBlobFlt::getInstance(blob);
+	blobCache.second.reset(CaloCondBlobFlt::getInstance(blob));
       }
 
       const unsigned int dbGain = CaloCondUtils::getDbCaloGain(theCell->gain());

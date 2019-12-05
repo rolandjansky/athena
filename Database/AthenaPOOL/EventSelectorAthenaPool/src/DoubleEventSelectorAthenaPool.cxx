@@ -483,10 +483,7 @@ void DoubleEventSelectorAthenaPool::fireEndFileIncidents(bool processMetadata, c
         m_incidentSvc->fireIncident(endInputFileIncident);
       }
     }
-    // Fire LastInputFile incident
     if (isLastFile && firedIncident) {
-      FileIncident lastInputFileIncident(name(), "LastInputFile", "end");
-      m_incidentSvc->fireIncident(lastInputFileIncident);
       firedIncident = false;
     }
   }
@@ -583,10 +580,6 @@ StatusCode DoubleEventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) cons
                                                           m_numPrimaryEvt, m_firstPrimaryEvt,
                                                           m_processPrimaryMetadata.value(),true);
       if (m_primaryPoolCollectionConverter == nullptr) {
-        if (m_processPrimaryMetadata.value()) {
-          FileIncident lastInputFileIncident(name(), "LastInputFile", "end");
-          m_incidentSvc->fireIncident(lastInputFileIncident);
-        }
         // Return end iterator
         ctxt = *m_endIter;
         return(StatusCode::FAILURE);
@@ -621,10 +614,6 @@ StatusCode DoubleEventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) cons
                                                             m_numSecondaryEvt, m_firstSecondaryEvt,
                                                             m_processSecondaryMetadata.value(),true);
       if (m_secondaryPoolCollectionConverter == nullptr) {
-        if (m_processSecondaryMetadata.value()) {
-          FileIncident lastInputFileIncident(name(), "LastInputFile", "end");
-          m_incidentSvc->fireIncident(lastInputFileIncident);
-        }
         // Return end iterator
         ctxt = *m_endIter;
         return(StatusCode::FAILURE);
@@ -1038,13 +1027,9 @@ PoolCollectionConverter* DoubleEventSelectorAthenaPool::getCollectionCnv(std::ve
       delete pCollCnv; pCollCnv = nullptr;
       if (!status.isRecoverable()) {
         ATH_MSG_ERROR("Unable to initialize PoolCollectionConverter.");
-        FileIncident inputFileError(name(), "FailInputFile", *inputCollectionsIterator);
-        m_incidentSvc->fireIncident(inputFileError);
         throw GaudiException("Unable to read: " + *inputCollectionsIterator, name(), StatusCode::FAILURE);
       } else {
         ATH_MSG_ERROR("Unable to open: " << *inputCollectionsIterator);
-        FileIncident inputFileError(name(), "FailInputFile", *inputCollectionsIterator);
-        m_incidentSvc->fireIncident(inputFileError);
         throw GaudiException("Unable to open: " + *inputCollectionsIterator, name(), StatusCode::FAILURE);
       }
     } else {
@@ -1217,12 +1202,12 @@ StatusCode DoubleEventSelectorAthenaPool::io_finalize() {
 */
 void DoubleEventSelectorAthenaPool::handle(const Incident& inc)
 {
-  if (not inc.context().hasExtension<Atlas::ExtendedEventContext>()) {
+  if (not Atlas::hasExtendedEventContext(inc.context()) ) {
     ATH_MSG_WARNING("No extended event context available.");
     return;
   }
 
-  const SGImplSvc *sg = static_cast<SGImplSvc *>(inc.context().getExtension<Atlas::ExtendedEventContext>().proxy());
+  const SGImplSvc *sg = static_cast<SGImplSvc *>(Atlas::getExtendedEventContext(inc.context()).proxy());
 
   // Primary guid
   SG::SourceID fid1;

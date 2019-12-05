@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODBTaggingAuxContainerCnv.cxx 566967 2013-10-24 13:24:31Z krasznaa $
@@ -15,49 +15,24 @@
 
 #include "xAODTracking/TrackParticleContainer.h"
 #include "AthContainers/tools/copyThinned.h"
-#include "AthenaKernel/IThinningSvc.h"
 
-xAODBTaggingAuxContainerCnv::xAODBTaggingAuxContainerCnv( ISvcLocator* svcLoc )
-   : xAODBTaggingAuxContainerCnvBase( svcLoc ) {
 
-}
+#define LOAD_DICTIONARY( name ) do {  TClass* cl = TClass::GetClass( name ); \
+    if( ( ! cl ) || ( ! cl->IsLoaded() ) ) {  ATH_MSG_ERROR( "Couldn't load dictionary for type: " << name ); } } while(0)
+
 
 xAOD::BTaggingAuxContainer*
 xAODBTaggingAuxContainerCnv::
-createPersistent( xAOD::BTaggingAuxContainer* trans ) {
-
-  // Make sure that the dictionary for the Athena-only dynamic variable
-  // is loaded:
-  static const char* trackParticleType =
-    "std::vector<std::vector<ElementLink<DataVector<xAOD::TrackParticle_v1> > > >";
-  static bool dictLoaded = false;
-  if( ! dictLoaded ) {
-    TClass* cl = TClass::GetClass( trackParticleType );
-    if( ( ! cl ) || ( ! cl->IsLoaded() ) ) {
-      ATH_MSG_ERROR( "Couldn't load the dictionary for \""
-                     << trackParticleType << "\"" );
-    } else {
-      dictLoaded = true;
-    }
-  }
-
+createPersistentWithKey( xAOD::BTaggingAuxContainer* trans,
+                         const std::string& key)
+{
+  // ??? Still needed?
+  std::once_flag flag;
+  std::call_once (flag,
+                  [this] {
+                    LOAD_DICTIONARY( "std::vector<std::vector<ElementLink<DataVector<xAOD::TrackParticle_v1> > > >" );
+                  });
+                                                
   // Create a copy of the container:
-  return SG::copyThinned (*trans, IThinningSvc::instance());
-}
-
-xAOD::BTaggingAuxContainer* xAODBTaggingAuxContainerCnv::createTransient() {
-
-  // The known ID(s) for this container:
-  const pool::Guid v1_guid( "5E1973D2-D860-4BB1-B8EF-C9AD8E6C66A2" );
-
-  // Check which version of the container we're reading:
-  if( compareClassGuid( v1_guid ) ) {
-    // It's the latest version, read it directly:
-    return poolReadObject< xAOD::BTaggingAuxContainer >();
-  }
-
-  // If we didn't recognise the ID:
-  throw std::runtime_error( "Unsupported version of "
-                            "xAOD::BTaggingAuxContainer found" );
-  return 0;
+  return xAODBTaggingAuxContainerCnvBase::createPersistentWithKey (trans, key);
 }

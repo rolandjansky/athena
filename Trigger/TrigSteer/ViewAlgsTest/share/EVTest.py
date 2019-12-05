@@ -37,8 +37,10 @@ ctpUnpacker = CTPUnpackingEmulationTool( OutputLevel =  DEBUG, ForceEnableAllCha
 #ctpUnpacker.CTPToChainMapping = [ "0:HLT_g100",  "1:HLT_e20", "2:HLT_mu20", "3:HLT_2mu8", "3:HLT_mu8", "33:HLT_2mu8", "15:HLT_mu8_e8" ]
 l1Decoder.ctpUnpacker = ctpUnpacker
 
-emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool", OutputLevel=DEBUG, InputFilename="rois.dat", OutputTrigRoIs="L1EMRoIs", Decisions="L1EM" )
-emUnpacker.ThresholdToChainMapping = ["EM7 : HLT_e8", "EM7 : HLT_mu8_e8", "EM20 : HLT_e20", "EM50 : HLT_2g50",   "EM100 : HLT_g100" ]
+from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection, mapThresholdToL1DecisionCollection
+
+emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool", OutputLevel=DEBUG, InputFilename="rois.dat", OutputTrigRoIs=mapThresholdToL1RoICollection("EM"), Decisions=mapThresholdToL1DecisionCollection("EM") )
+ThresholdToChainMapping = ["EM7 : HLT_e8", "EM7 : HLT_mu8_e8", "EM20 : HLT_e20", "EM50 : HLT_2g50",   "EM100 : HLT_g100" ]
 
 l1Decoder.roiUnpackers = [emUnpacker]
 L1UnpackingSeq += l1Decoder
@@ -52,8 +54,8 @@ viewAlgsContainer = seqAND( "ViewAlgsContainer" )
 
 
 steps = [ parOR("step0Filtering"), parOR("step1InViewReco") ]
-steps[0] += seqFilter( "Step0EM", Inputs=["L1EM"], Outputs=["step0EM"],
-                      Chains=[ x.split(':')[-1].strip() for x in emUnpacker.ThresholdToChainMapping ] ) # all chains
+steps[0] += seqFilter( "Step0EM", Inputs=[mapThresholdToL1DecisionCollection("EM")], Outputs=["step0EM"],
+                      Chains=[ x.split(':')[-1].strip() for x in ThresholdToChainMapping ] ) # all chains
 
 
 from ViewAlgsTest.ViewAlgsTestConf import SchedulerProxyAlg
@@ -64,7 +66,7 @@ viewAlgsContainer += viewAlg
 algs=[ useExisting( "Step0EM" ) ]
 from ViewAlgsTest.ViewAlgsTestConf import TestViewDriver
 EMViewsMaker = TestViewDriver( "EMViewsMaker", OutputLevel = DEBUG, 
-                               RoIsContainer = 'L1EMRoIs', RoIsViewOutput="InViewRoI", 
+                               RoIsContainer = mapThresholdToL1RoICollection("EM"), RoIsViewOutput="InViewRoI", 
                                ClustersViewInput="ViewClusters", Views="EMClusterViews", 
                                ViewNodeName = viewAlgsContainer.name(), Scheduler = AlgScheduler.getScheduler() )
 algs.append( EMViewsMaker )
@@ -83,3 +85,13 @@ steps[1] += seqAND("emViewReco", algs )
 TopHLTSeq += addSteps( steps )
 
 theApp.EvtMax = 4
+
+from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
+generateJSON()
+
+from TriggerJobOpts.TriggerFlags import TriggerFlags    
+hltJsonFile = TriggerFlags.inputHLTconfigFile().replace(".xml",".json").replace("HLTconfig","HLTMenu")
+from TrigConfigSvc.TrigConfigSvcConfig import HLTConfigSvc, findFileInXMLPATH
+hltJsonFile = findFileInXMLPATH(hltJsonFile)
+svcMgr += HLTConfigSvc()
+svcMgr.HLTConfigSvc.JsonFileName = hltJsonFile

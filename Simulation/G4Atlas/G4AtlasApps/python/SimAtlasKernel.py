@@ -49,13 +49,10 @@ class AtlasSimSkeleton(SimSkeleton):
         ## Tidy up DBM DetFlags: temporary measure
         DetFlags.DBM_setOff()
 
-        ## Tidy up NSW DetFlags: temporary measure
-        DetFlags.sTGC_setOff()
-        DetFlags.Micromegas_setOff()
-        from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
-        if ( hasattr(simFlags, 'SimulateNewSmallWheel') and simFlags.SimulateNewSmallWheel() ) or CommonGeometryFlags.Run()=="RUN3" :
-            DetFlags.sTGC_setOn()
-            DetFlags.Micromegas_setOn()
+        from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+        if not MuonGeometryFlags.hasCSC(): DetFlags.CSC_setOff()
+        if not MuonGeometryFlags.hasSTGC(): DetFlags.sTGC_setOff()
+        if not MuonGeometryFlags.hasMM(): DetFlags.Micromegas_setOff()
 
         ## Switch off tasks
         DetFlags.pileup.all_setOff()
@@ -174,23 +171,6 @@ class AtlasSimSkeleton(SimSkeleton):
             from MuonGeoModel.MuonGeoModelConf import MuonDetectorTool
             MuonDetectorTool = MuonDetectorTool()
             MuonDetectorTool.FillCacheInitTime = 0 # default is 1
-            from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
-            if ( hasattr(simFlags, 'SimulateNewSmallWheel') and simFlags.SimulateNewSmallWheel() ) or CommonGeometryFlags.Run()=="RUN3" :
-                AtlasG4Eng.G4Eng.log.info("Removing the original small wheel")
-                MuonDetectorTool.StationSelection  = 2
-                MuonDetectorTool.SelectedStations  = [ "EIL1" ]
-                MuonDetectorTool.SelectedStations  += [ "EIL2" ]
-                MuonDetectorTool.SelectedStations  += [ "EIL6" ]
-                MuonDetectorTool.SelectedStations  += [ "EIL7" ]
-                MuonDetectorTool.SelectedStations  += [ "EIS*" ]
-                MuonDetectorTool.SelectedStations  += [ "EIL10" ]
-                MuonDetectorTool.SelectedStations  += [ "EIL11" ]
-                MuonDetectorTool.SelectedStations  += [ "EIL12" ]
-                MuonDetectorTool.SelectedStations  += [ "EIL17" ]
-                MuonDetectorTool.SelectedStations  += [ "CSS*" ]
-                MuonDetectorTool.SelectedStations  += [ "CSL*" ]
-                MuonDetectorTool.SelectedStations  += [ "T4E*" ]
-                MuonDetectorTool.SelectedStations  += [ "T4F*" ]
 
             ## Additional material in the muon system
             from AGDD2GeoSvc.AGDD2GeoSvcConf import AGDDtoGeoSvc
@@ -199,7 +179,8 @@ class AtlasSimSkeleton(SimSkeleton):
             if not "MuonAGDDTool/MuonSpectrometer" in AGDD2Geo.Builders:
                 ToolSvc += CfgGetter.getPublicTool("MuonSpectrometer", checkType=True)
                 AGDD2Geo.Builders += ["MuonAGDDTool/MuonSpectrometer"]
-            if ( hasattr(simFlags, 'SimulateNewSmallWheel') and simFlags.SimulateNewSmallWheel() ) or CommonGeometryFlags.Run()=="RUN3" :
+            from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+            if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
                 if not "NSWAGDDTool/NewSmallWheel" in AGDD2Geo.Builders:
                     ToolSvc += CfgGetter.getPublicTool("NewSmallWheel", checkType=True)
                     AGDD2Geo.Builders += ["NSWAGDDTool/NewSmallWheel"]

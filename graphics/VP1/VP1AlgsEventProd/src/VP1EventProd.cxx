@@ -9,7 +9,6 @@
 #include "StorageSvc/DbType.h"
 #include "PathResolver/PathResolver.h"
 
-#include "GaudiKernel/FileIncident.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IIncidentSvc.h"

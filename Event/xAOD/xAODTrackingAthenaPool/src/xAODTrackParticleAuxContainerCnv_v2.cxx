@@ -17,6 +17,9 @@
 #include "xAODTrackParticleAuxContainerCnv_v2.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/versions/TrackParticleContainer_v1.h"
+
+// Amg include
+#include "EventPrimitives/EventPrimitivesHelpers.h"
 	
 /// Convenience macro for setting the level of output messages
 #define MSGLVL MSG::DEBUG
@@ -47,6 +50,38 @@ persToTrans(  const xAOD::TrackParticleAuxContainer_v2* oldObj,
   // Copy the payload of the v2 object into the latest one by misusing
   // the thinning code a bit...
   SG::copyAuxStoreThinned( *oldObj, *newObj, 0 );
+
+  // Set up interface containers on top of them:
+
+  //The old  uses v_
+  xAOD::TrackParticleContainer_v1 oldInt;
+  for( size_t i = 0; i < oldObj->size(); ++i ) {
+    oldInt.push_back( new xAOD::TrackParticle_v1() );
+  }
+  oldInt.setStore( oldObj );
+
+  xAOD::TrackParticleContainer newInt;
+  for( size_t i = 0; i < newObj->size(); ++i ) {
+    newInt.push_back( new xAOD::TrackParticle() );
+  }
+  newInt.setStore( newObj );
+
+  std::vector<float> covMatrixVec;
+
+  for( size_t i = 0; i < oldInt.size(); ++i ) {
+
+    static const SG::AuxElement::ConstAccessor< std::vector<float> > definingParametersCovMatrixAcc( "definingParametersCovMatrix" );
+
+    if( definingParametersCovMatrixAcc.isAvailable( *( oldInt[ i ] ) ) ) {
+
+      covMatrixVec = definingParametersCovMatrixAcc( *( oldInt[ i ] ) );
+      xAOD::ParametersCovMatrix_t cov;
+      Amg::expand( covMatrixVec.begin(), covMatrixVec.end(),cov );
+      newInt[ i ]->setDefiningParametersCovMatrix(cov);
+
+    }
+
+  }
 
   
   // FIXME - what do we do about the identifier?

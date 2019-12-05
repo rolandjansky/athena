@@ -1,15 +1,7 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "MuonTrackCleaner.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "TrkToolInterfaces/IUpdator.h"
 
 #include "MuonTrackMakerUtils/MuonTrackMakerStlTools.h"
 #include "MuonTrackMakerUtils/MuonTSOSHelper.h"
@@ -30,13 +22,8 @@
 #include "MuonRIO_OnTrack/RpcClusterOnTrack.h"
 #include "MuonRIO_OnTrack/TgcClusterOnTrack.h"
 #include "MuonRIO_OnTrack/CscClusterOnTrack.h"
-#include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
-#include "MuonRecToolInterfaces/IMuonCompetingClustersOnTrackCreator.h"
 
 #include "TrkTrack/Track.h"
-#include "TrkFitterInterfaces/ITrackFitter.h"
-#include "TrkExInterfaces/IExtrapolator.h"
-#include "TrkToolInterfaces/IResidualPullCalculator.h"
 
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "TrkEventPrimitives/FitQuality.h"
@@ -54,54 +41,13 @@
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
-#include "StoreGate/StoreGateSvc.h"
-
 namespace Muon {
 
   MuonTrackCleaner::MuonTrackCleaner(const std::string& ty,const std::string& na,const IInterface* pa)
-    : AthAlgTool(ty,na,pa),
-      m_trackFitter("Trk::GlobalChi2Fitter/MCTBFitterMaterialFromTrack", this),
-      m_slTrackFitter("Trk::GlobalChi2Fitter/MCTBSLFitterMaterialFromTrack", this),
-      m_measurementUpdator("Trk::KalmanUpdator/MuonMeasUpdator"),
-      m_mdtRotCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator", this),
-      m_compRotCreator("Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator", this),
-      m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
-      m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-      m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-      m_magFieldSvc("AtlasFieldSvc",na),
-      m_extrapolator("Trk::Extrapolator/AtlasExtrapolator")
+    : AthAlgTool(ty,na,pa)
   {
     declareInterface<IMuonTrackCleaner>(this);
-
-    declareProperty("IdHelper",m_idHelper);
-    declareProperty("Printer",m_printer);
-    declareProperty("MdtRotCreator",  m_mdtRotCreator );
-    declareProperty("CompRotCreator", m_compRotCreator );
-    declareProperty("PullCalculator", m_pullCalculator );
-    declareProperty("Extrapolator",   m_extrapolator );
-    declareProperty("MagFieldSvc",    m_magFieldSvc );
-    declareProperty("MeasurementUpdator",   m_measurementUpdator );
-    declareProperty("Chi2Cut",        m_chi2Cut = 100);
-    declareProperty("PullCutPhi",     m_pullCutPhi = 10);
-    declareProperty("PullCut",        m_pullCut = 5);
-    declareProperty("MdtResiCut",     m_mdtResiCut = 1.);
-    declareProperty("AssociationScaleFactor", m_associationScaleFactor = 0.7 );
-    declareProperty("UseMdtResiCut",  m_useMdtResiCut = false );
-    declareProperty("Fitter",         m_trackFitter);
-    declareProperty("SLFitter",       m_slTrackFitter);
-    declareProperty("CleaningCycles", m_ncycles = 5);
-    declareProperty("MaxAvePullSumPerChamber", m_avePullSumPerChamberCut = 3.5);
-    declareProperty("RecoverOutliers", m_recoverOutliers = true );
-    declareProperty("FlipMdtDriftRadii",m_flipMdtDriftRadii = true );
-    declareProperty("CleanCompROTs",  m_cleanCompROTs=true);
-    declareProperty("OnlyUseHitErrorInRecovery", m_onlyUseHitErrorInRecovery = true );
-    declareProperty("AdcCut", m_adcCut = 50 );
-    declareProperty("Iterate", m_iterate = true );
   }
-
-
-  MuonTrackCleaner::~MuonTrackCleaner(){}
-
 
   StatusCode MuonTrackCleaner::initialize()
   {

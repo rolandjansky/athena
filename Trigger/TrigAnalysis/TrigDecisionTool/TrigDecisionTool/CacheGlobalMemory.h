@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGGER_DECISION_TOOL_CACHE_GLOBAL_MEMORY_H
@@ -24,7 +24,6 @@
 #include<unordered_map>
 #include<string>
 #include<mutex>
-#include "boost/foreach.hpp"
 
 #include "TrigConfHLTData/HLTChain.h"
 #include "TrigConfHLTData/HLTChainList.h"
@@ -236,7 +235,7 @@ namespace Trig {
         m_todel.insert(new holder<T>(t));
       }
       void clear() {
-        BOOST_FOREACH(iholder* i, m_todel) {
+        for(iholder* i : m_todel) {
           delete i;
         }    
         m_todel.clear();
@@ -248,7 +247,7 @@ namespace Trig {
     
     mutable AnyTypeDeleter m_deleteAtEndOfEvent;
 
-    mutable std::mutex m_cgmMutex; //!< Temporary R3 MT protection only against --threads > 1, not against events in flight > 1
+    mutable std::recursive_mutex m_cgmMutex; //!< Temporary R3 MT protection only against --threads > 1, not against events in flight > 1
 
 
 

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // PyAthenaAud.cxx 
@@ -19,7 +19,7 @@
 // AthenaPython includes
 #include "AthenaPython/PyAthenaUtils.h"
 #include "AthenaPython/PyAthenaAud.h"
-#include "AthenaPython/PyAthenaGILStateEnsure.h"
+#include "RootUtils/PyAthenaGILStateEnsure.h"
 
 // STL includes
 
@@ -48,7 +48,7 @@ Aud::Aud( const std::string& name, ISvcLocator* svcLocator ) :
 Aud::~Aud()
 { 
   if ( m_self ) {
-    PyGILStateEnsure ensure;
+    RootUtils::PyGILStateEnsure ensure;
     Py_DECREF( m_self );
     m_self = nullptr;
   }
@@ -201,30 +201,6 @@ Aud::afterFinalize(INamedInterface* comp)
   py_after (IAuditor::Finalize, comp->name(), StatusCode::SUCCESS);
 }
 
-void 
-Aud::beforeBeginRun(INamedInterface* comp)
-{
-  py_before (IAuditor::BeginRun, comp->name());
-}
-
-void 
-Aud::afterBeginRun(INamedInterface* comp)
-{
-  py_after (IAuditor::BeginRun, comp->name(), StatusCode::SUCCESS);
-}
-
-void
-Aud::beforeEndRun(INamedInterface* comp)
-{
-  py_before (IAuditor::EndRun, comp->name());
-}
-
-void 
-Aud::afterEndRun(INamedInterface* comp)
-{
-  py_after (IAuditor::EndRun, comp->name(), StatusCode::SUCCESS);
-}
-
 /// Audit the start of a standard "event".
 void 
 Aud::py_before (IAuditor::StandardEventType evt, const std::string& component)
@@ -295,7 +271,7 @@ bool
 Aud::setPyAttr( PyObject* o )
 {
   // now we tell the PyObject which C++ object it is the cousin of.
-  PyGILStateEnsure ensure;
+  RootUtils::PyGILStateEnsure ensure;
   PyObject* pyobj = TPython::ObjectProxy_FromVoidPtr
     ( (void*)this, this->typeName() );
   if ( !pyobj ) {

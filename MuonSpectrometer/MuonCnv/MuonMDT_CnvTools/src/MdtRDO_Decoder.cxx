@@ -7,17 +7,16 @@
 using namespace Muon;
 
 MdtRDO_Decoder::MdtRDO_Decoder(const std::string& type, const std::string& name,const IInterface* parent) :
-  AthAlgTool(type,name,parent),
-  m_mdtIdHelper(0)
+  AthAlgTool(type,name,parent)
 {  
   declareInterface< Muon::IMDT_RDO_Decoder  >( this );
 }
 
 StatusCode MdtRDO_Decoder::initialize() {
    
-  StatusCode status = detStore()->retrieve(m_mdtIdHelper, "MDTIDHELPER");
+  StatusCode status = m_muonIdHelperTool.retrieve();
   if (status.isFailure()) {
-    ATH_MSG_FATAL("Could not get MdtIdHelper !");
+    ATH_MSG_FATAL("Could not get MuonIdHelperTool !");
     return StatusCode::FAILURE;
   } 
   else {

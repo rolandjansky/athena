@@ -37,12 +37,12 @@ StatusCode TauJetBDTEvaluator::initialize(){
   return StatusCode::SUCCESS;
 }
 
-SG::AuxElement::ConstAccessor<float> acc_absTrackEta("ABS_ETA_LEAD_TRACK");
+const SG::AuxElement::ConstAccessor<float> acc_absTrackEta("ABS_ETA_LEAD_TRACK");
 
 //________________________________________
 StatusCode TauJetBDTEvaluator::execute(xAOD::TauJet& xTau){
   //init output variable accessor
-  static SG::AuxElement::Accessor<float> outputVar(m_outputVarName);
+  SG::AuxElement::Accessor<float> outputVar(m_outputVarName);
 
   if(m_myBdt==0) {
     (outputVar)(xTau) = m_dummyValue;

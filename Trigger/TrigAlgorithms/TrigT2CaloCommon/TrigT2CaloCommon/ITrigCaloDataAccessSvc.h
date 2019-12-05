@@ -13,6 +13,7 @@
 #include "IRegionSelector/IRoiDescriptor.h"
 #include "IRegionSelector/RegSelEnums.h"
 #include "CaloEvent/CaloCellContainer.h"
+#include "CaloEvent/CaloConstCellContainer.h"
 #include "ZdcEvent/ZdcRawChannelCollection.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/IService.h"
@@ -77,12 +78,8 @@ class ITrigCaloDataAccessSvc: virtual public IService {
         * @brief Loads the full collection for the missing et computation
         */
 
-/*
-  virtual StatusCode prepareFullCollections( const EventContext& context ) = 0;
-*/
-  
   virtual StatusCode loadFullCollections ( const EventContext& context,
-                                           ConstDataVector<CaloCellContainer>& cont ) = 0;
+                                           CaloConstCellContainer& cont ) = 0;
 
         /* /\** */
         /* * @brief Loads the full collection for the missing et computation */

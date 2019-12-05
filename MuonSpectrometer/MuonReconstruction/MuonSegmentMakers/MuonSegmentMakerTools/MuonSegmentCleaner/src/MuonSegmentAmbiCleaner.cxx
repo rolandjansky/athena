@@ -259,15 +259,15 @@ const Muon::MuonSegment* MuonSegmentAmbiCleaner::resolve(const Muon::MuonSegment
          Identifier id1 = id_phi[i];
          Identifier id2 = id_phi[j];
          if (det_phi[i] == 1 && det_phi[j] == 1 && m_debug) {
-           std::cout << " RPC Station 1 eta " << m_muonIdHelperTool->rpcIdHelper().stationEta(id1) << " phi " <<  m_muonIdHelperTool->rpcIdHelper().stationPhi(id1) << std::endl;
-           std::cout << " RPC Station 2 eta " << m_muonIdHelperTool->rpcIdHelper().stationEta(id2) << " phi " <<  m_muonIdHelperTool->rpcIdHelper().stationPhi(id2) << std::endl;
+           ATH_MSG_INFO(" RPC Station 1 eta " << m_muonIdHelperTool->rpcIdHelper().stationEta(id1) << " phi " <<  m_muonIdHelperTool->rpcIdHelper().stationPhi(id1));
+           ATH_MSG_INFO(" RPC Station 2 eta " << m_muonIdHelperTool->rpcIdHelper().stationEta(id2) << " phi " <<  m_muonIdHelperTool->rpcIdHelper().stationPhi(id2));
          }
          if (det_phi[i] == 2 && det_phi[j] == 2 && m_debug) {
-           std::cout << " TGC Station 1 eta " << m_muonIdHelperTool->tgcIdHelper().stationEta(id1) << " phi " <<  m_muonIdHelperTool->tgcIdHelper().stationPhi(id1) << std::endl;
-           std::cout << " TGC Station 2 eta " << m_muonIdHelperTool->tgcIdHelper().stationEta(id2) << " phi " <<  m_muonIdHelperTool->tgcIdHelper().stationPhi(id2) << std::endl;
+           ATH_MSG_INFO(" TGC Station 1 eta " << m_muonIdHelperTool->tgcIdHelper().stationEta(id1) << " phi " <<  m_muonIdHelperTool->tgcIdHelper().stationPhi(id1));
+           ATH_MSG_INFO(" TGC Station 2 eta " << m_muonIdHelperTool->tgcIdHelper().stationEta(id2) << " phi " <<  m_muonIdHelperTool->tgcIdHelper().stationPhi(id2));
          }
 
-	 if (m_debug) std::cout << " Ambiguous " << " Distance1 " << dis_phi[i] << " Distance1 " << dis_phi[j] << std::endl; 
+	 if (m_debug) { ATH_MSG_DEBUG(" Ambiguous " << " Distance1 " << dis_phi[i] << " Distance1 " << dis_phi[j]); }
 	 if (dis_phi[i]!= 0.&& dis_phi[j]!=0) {
 	   if ( fabs(dis_phi[i]) < fabs(dis_phi[j]) ) {
 	     ok_phi[j] = 0;
@@ -276,10 +276,10 @@ const Muon::MuonSegment* MuonSegmentAmbiCleaner::resolve(const Muon::MuonSegment
 	   }
 	 }
 	 if (m_debug) {
-	   if (det_phi[i] == 1) std::cout<< " RPC Ambiguities " << std::endl;
-	   if (det_phi[i] == 2) std::cout<< " TGC Ambiguities " << std::endl;
-	   std::cout << " index " << i << " strip " << stripcode_phi [i] << " chambercode " << chambercode_phi[i] << " selected " << ok_phi[i] <<  " segment distance " << dis_phi[i] << std::endl;
-	   std::cout << " index " << j << " strip " << stripcode_phi [j] << " chambercode " << chambercode_phi[j] << " selected " << ok_phi[j] <<  " segment distance " << dis_phi[j] << std::endl;
+	   if (det_phi[i] == 1) { ATH_MSG_DEBUG(" RPC Ambiguities "); }
+	   if (det_phi[i] == 2) { ATH_MSG_DEBUG(" TGC Ambiguities "); }
+	   ATH_MSG_DEBUG(" index " << i << " strip " << stripcode_phi [i] << " chambercode " << chambercode_phi[i] << " selected " << ok_phi[i] <<  " segment distance " << dis_phi[i]);
+	   ATH_MSG_DEBUG(" index " << j << " strip " << stripcode_phi [j] << " chambercode " << chambercode_phi[j] << " selected " << ok_phi[j] <<  " segment distance " << dis_phi[j]);
 	 }
        }    
      } 

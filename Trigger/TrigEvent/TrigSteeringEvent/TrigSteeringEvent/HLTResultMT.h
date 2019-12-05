@@ -34,9 +34,12 @@ namespace HLT {
   public:
     /// Standard constructor
     HLTResultMT(std::vector<eformat::helper::StreamTag> streamTags = {},
-                boost::dynamic_bitset<uint32_t> hltBits = boost::dynamic_bitset<uint32_t>(),
+                boost::dynamic_bitset<uint32_t> hltPassRawBits = boost::dynamic_bitset<uint32_t>(),
+                boost::dynamic_bitset<uint32_t> hltPrescaledBits = boost::dynamic_bitset<uint32_t>(),
+                boost::dynamic_bitset<uint32_t> hltRerunBits = boost::dynamic_bitset<uint32_t>(),
                 std::unordered_map<uint16_t, std::vector<uint32_t> > data = {},
-                std::vector<uint32_t> status = {0});
+                std::vector<uint32_t> status = {0},
+                std::set<uint16_t> truncatedModuleIds = {});
 
 
     // ------------------------- Stream tags getters/setters -------------------
@@ -64,24 +67,26 @@ namespace HLT {
 
     // ------------------------- HLT bits getters/setters ----------------------
 
-    /// Const-getter for HLT bits
-    const boost::dynamic_bitset<uint32_t>& getHltBits() const;
+    /// Const-getter for HLT pass raw bits
+    const boost::dynamic_bitset<uint32_t>& getHltPassRawBits() const;
 
-    /// Const-getter for HLT bits as uint32_t array
+    /// Const-getter for HLT prescaled bits
+    const boost::dynamic_bitset<uint32_t>& getHltPrescaledBits() const;
+
+    /// Const-getter for HLT rerun bits
+    const boost::dynamic_bitset<uint32_t>& getHltRerunBits() const;
+
+    /// Const-getter for HLT bits as uint32_t array. Ordering: PassRaw, Prescaled, Rerun.
     const std::vector<uint32_t>& getHltBitsAsWords();
 
-    /// Replace HLT bits with the given bitset
-    void setHltBits(const boost::dynamic_bitset<uint32_t>& bitset);
+    /// Replace HLT pass raw bits with the given bitset
+    void setHltPassRawBits(const boost::dynamic_bitset<uint32_t>& bitset);
 
-    /** @brief Sets bit at the given index to true
-     *  @return FAILURE on memory allocation error
-     **/
-    StatusCode addHltBit(size_t index);
+    /// Replace HLT prescaled bits with the given bitset
+    void setHltPrescaledBits(const boost::dynamic_bitset<uint32_t>& bitset);
 
-    /** @brief Sets bits at the given indices to true
-     *  @return FAILURE on memory allocation error
-     **/
-    StatusCode addHltBits(const std::vector<size_t>& indices);
+    /// Replace HLT rerun raw bits with the given bitset
+    void setHltRerunBits(const boost::dynamic_bitset<uint32_t>& bitset);
 
 
     // ------------------------- Serialised data getters/setters ---------------
@@ -145,6 +150,15 @@ namespace HLT {
                       });
 
 
+    // ------------------------- Truncation information ------------------------
+
+    /// Getter for the truncation information
+    const std::set<uint16_t>& getTruncatedModuleIds() const;
+
+    /// Add module ID to the list of truncated results
+    void addTruncatedModuleId(const uint16_t moduleId);
+
+
   private:
     // ------------------------- Private data members --------------------------
 
@@ -152,12 +166,14 @@ namespace HLT {
     std::vector<eformat::helper::StreamTag> m_streamTags;
 
     /// HLT bits (flagging which chains passed)
-    boost::dynamic_bitset<uint32_t> m_hltBits;
+    boost::dynamic_bitset<uint32_t> m_hltPassRawBits;
+    boost::dynamic_bitset<uint32_t> m_hltPrescaledBits;
+    boost::dynamic_bitset<uint32_t> m_hltRerunBits;
 
     /** @brief Vector storing m_hltBits converted to 4-byte words
      *
      *  HLTResultMT needs to own this vector because its lifetime has to be ensured until the serialisation is finished.
-     *  This vector is updated internally from m_hltBits and does not have a setter method.
+     *  This vector is updated internally from m_hltPassRawBits, m_hltPrescaledBits, m_hltRerunBits and does not have a setter method.
      **/
     std::vector<uint32_t> m_hltBitWords;
 
@@ -166,6 +182,10 @@ namespace HLT {
 
     /// First word is eformat::helper::Status, next words are optional error codes
     std::vector<uint32_t> m_status;
+
+    /// List of module IDs with truncation. Used only by the framework while creating the result.
+    /// It is not stored in ByteStream files.
+    std::set<uint16_t> m_truncatedModuleIds;
   };
 } // namespace HLT
 

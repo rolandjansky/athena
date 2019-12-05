@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -480,7 +480,7 @@ void RDBReaderAtlas::ProcessTGCreadout () {
                                                               &iwgs3[0],
                                                               &roffst[0],
                                                               &nsps[0],
-							      &poffst[0], m_mgr->msgSvc());
+							      &poffst[0]);
                 MYSQL::GetPointer()->StoreTgcRPars(rpar);
                 m_mgr->storeTgcReadoutParams(rpar);
 	  
@@ -596,7 +596,7 @@ void RDBReaderAtlas::ProcessTGCreadout () {
 							  &sshort[0],
 							  &roffst[0],
 							  &nsps[0],
-							  &poffst[0], m_mgr->msgSvc());
+							  &poffst[0]);
 	    MYSQL::GetPointer()->StoreTgcRPars(rpar);                
 	    m_mgr->storeTgcReadoutParams(rpar);
 

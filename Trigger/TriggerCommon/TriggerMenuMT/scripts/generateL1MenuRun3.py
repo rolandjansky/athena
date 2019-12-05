@@ -13,7 +13,6 @@ def parseCmdLine():
     parser.add_argument("-v", "--verbose", help="increase output verbosity", action="count", default=0)
     parser.add_argument("-x", "--xml", dest="writeXML", help="enable xml file creation (currently not implemented)", action="store_true", default=False)
     parser.add_argument("--destdir", dest="dest", help="directory for output files", default = "./")
-    parser.add_argument("--ftk", help="include FTK chains in the menu", action="store_true")
     return parser.parse_args()
     
 
@@ -28,14 +27,12 @@ def generateL1Menu(menu, cmdline):
     # setup
     from TriggerJobOpts.TriggerFlags import TriggerFlags
     TriggerFlags.triggerMenuSetup = menu
-    TriggerFlags.doFTK = cmdline.ftk
-    log.info("doFTK: %s " % TriggerFlags.doFTK())
 
     # L1 menu generation
     from TriggerMenuMT.L1.L1MenuConfig import L1MenuConfig
-    l1cfg = L1MenuConfig( outputFile = TriggerFlags.outputLVL1configFile() )
+    l1cfg = L1MenuConfig()
 
-    l1cfg.writeJSON(destdir=cmdline.dest)
+    l1cfg.writeJSON( outputFile = TriggerFlags.outputLVL1configFile(), destdir = cmdline.dest)
 
     if cmdline.writeXML:
         outfilename = l1cfg.writeXML()
@@ -43,7 +40,7 @@ def generateL1Menu(menu, cmdline):
         checkResult = os.system("get_files -xmls -symlink LVL1config.dtd > /dev/null")
         checkResult = os.system("xmllint --noout --dtdvalid LVL1config.dtd %s" % outfilename)
         if checkResult == 0:
-            log.info("XML file %s is conform with LVL1config.dtd" % outfilename)
+            log.info("XML file %s is conform with LVL1config.dtd", outfilename)
         else:
             log.error("The XML does not follow the document type definition LVL1config.dtd")
 
@@ -61,6 +58,10 @@ def main():
         ("mc"   , "MC_pp_v8"     ),
         ("mcp"  , ["MC_pp_v8_no_prescale", "MC_pp_v8_loose_mc_prescale", "MC_pp_v8_tight_mc_prescale"]),
         ("ls"   , "LS2_v1"       ),
+        ("phyr3v1"   , "Physics_pp_run3_v1"       ),
+        ("phyp1r3v1"   , "PhysicsP1_pp_run3_v1"       ),
+        ("mcr3v1"   , "MC_pp_run3_v1"       ),
+        ("cosmic", "Cosmic_pp_run3_v1"),
         ("hiphy4","Physics_HI_v4"),
         ("hiphy", "Physics_HI_v4"),
         ("himc4", "MC_HI_v4"     ),
@@ -72,7 +73,7 @@ def main():
             if not isinstance(menu,list):
                 menu = [menu]
             for m in menu:
-                l1menu = generateL1Menu(menu=m, cmdline=cmdline)
+                generateL1Menu(menu=m, cmdline=cmdline)
             break
 
     return 0

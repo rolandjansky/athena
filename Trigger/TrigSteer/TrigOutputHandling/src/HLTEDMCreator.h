@@ -24,6 +24,10 @@
 #include "xAODTrigEgamma/TrigElectronAuxContainer.h"
 #include "xAODTrigEgamma/TrigPhotonContainer.h"
 #include "xAODTrigEgamma/TrigPhotonAuxContainer.h"
+#include "xAODEgamma/ElectronContainer.h"
+#include "xAODEgamma/ElectronAuxContainer.h"
+#include "xAODEgamma/PhotonContainer.h"
+#include "xAODEgamma/PhotonAuxContainer.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "xAODTrigCalo/TrigEMClusterAuxContainer.h"
 #include "xAODTrigCalo/TrigCaloClusterContainer.h"
@@ -54,11 +58,11 @@
 #include "xAODTrigCalo/CaloClusterTrigAuxContainer.h"
 
 /**
- * @class Tool capable of creating collections missing (early rejection) after HLT processing
- * @brief It declares output handles for all possible collections produced by the trigger
+ * @class HLTEDMCreator
+ * @brief Tool capable of creating collections missing (early rejection) after HLT processing.
+ * It declares output handles for all possible collections produced by the trigger
  *
- *  
- * to add more classes follow this steps:
+ * to add more classes follow these steps:
  * 1) add EDM pkg in CMakeLists
  * 2) add includes in this file
  * 3) add DEF_*_KEY here
@@ -109,6 +113,8 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
   DEF_XAOD_KEY( TrigEMClusterContainer );
   DEF_XAOD_KEY( TrigCaloClusterContainer );
   DEF_XAOD_KEY( TrigElectronContainer );
+  DEF_XAOD_KEY( ElectronContainer );
+  DEF_XAOD_KEY( PhotonContainer );
   DEF_XAOD_KEY( TrigPhotonContainer );
   DEF_XAOD_KEY( TrackParticleContainer );
   DEF_XAOD_KEY( TrigMissingETContainer );
@@ -136,14 +142,15 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
     SG::ReadHandleKeyArray<T>& in;
     SG::ReadHandleKeyArray< ViewContainer >& views;
   };
+
   /**
    * Init related handles
-   * Fails when they are setup incosistently: the only allowed setup is:
-   * views and in empty - then out can be of any lenth - this is mode to fill missing containers
+   * 
+   * Fails when they are setup inconsistently: the only allowed setup is:
+   * views and in empty - then out can be of any length - this is mode to fill missing containers
    * views and in not empty, have to be the same size - out has to be 1 - this mode is for merging from several views into one output
-   * if merging from several views into several separate outptu containers is required another instance of that tool can be setup
+   * if merging from several views into several separate output containers is required another instance of that tool can be setup
    **/
-
   template<typename T>
   StatusCode initHandles( const HandlesGroup<T>&  handles );
 

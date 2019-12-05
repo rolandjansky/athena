@@ -16,7 +16,6 @@ __author__ = "Sebastien Binet"
 import getopt
 import sys
 import os
-import string
 
 from .Debugging import DbgStage
 
@@ -36,7 +35,7 @@ _userlongopts = [
     "debugWorker",
     "pycintex_minvmem=", "cppyy_minvmem",
     "minimal",                     # private, undocumented
-    "threads=", "concurrent-events=",
+    "threads=", "concurrent-events=", "eventServiceMt",
     "evtMax=",    #will set theApp.EvtMax just before theApp.run() in runbatch.py
     "skipEvents=",#will set svcMgr.EventSelector.SkipEvents just before theApp.run() in runbatch.py 
     "filesInput=" #will set the AthenaCommonFlags.FilesInput job option and lock it
@@ -101,6 +100,7 @@ Accepted command line options:
      --threads=n                      ...  number of threads for AthenaMT
                                            With AthenaMP, number of threads per worker
      --concurrent-events              ...  number of concurrent events for AthenaMT
+     --eventServiceMt                 ...  activate multithreaded Event Service
      --debugWorker                    ...  pause AthenaMP workers at bootstrap until SIGUSR1 signal received
  [<file1>.py [<file2>.py [...]]]      ...  scripts to run
  """
@@ -155,6 +155,7 @@ def parse(chk_tcmalloc=True):
     opts.nprocs = 0              # enable AthenaMP if >= 1 or == -1
     opts.threads = 0             # enable AthenaMT if >= 1
     opts.concurrent_events = 0   # enable AthenaMT if >= 1
+    opts.event_service_mt = False# activate multithreaded Event Service
     opts.debug_worker = False    # pause AthenaMP worker after bootstrap until SIGUSR1 received
     opts.cppyy_minvmem = None    # artificial vmem bump around cppyy's import
     opts.minimal = False         # private, undocumented
@@ -249,14 +250,14 @@ def parse(chk_tcmalloc=True):
             opts.dbg_stage = arg
 
         elif opt in ("-c", "--command"):
-            opts.command = string.strip(arg)
+            opts.command = arg.strip()
 
         elif opt in ("-h", "--help"):
             print (_error_msg)
             sys.exit()
 
         elif opt in ("-l", "--loglevel"):
-            opts.msg_lvl = string.upper(arg)
+            opts.msg_lvl = arg.upper()
             
         elif opt in ("-s", "--showincludes"):
             opts.showincludes = 1
@@ -394,6 +395,9 @@ def parse(chk_tcmalloc=True):
                 print ("ERROR:",err)
                 _help_and_exit()
             opts.concurrent_events = arg
+
+        elif opt in ("--eventServiceMt",):
+            opts.event_service_mt = True
 
         elif opt in ("--debugWorker",):
             opts.debug_worker = True

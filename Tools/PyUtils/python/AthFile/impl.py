@@ -1402,7 +1402,7 @@ class FilePeeker(object):
         ievt = iter(bs)
         for i in range(evtmax):
             try:
-                evt = ievt.next()
+                evt = next(ievt)
                 evt.check() # may raise a RuntimeError
                 stream_tags = [dict(stream_type=tag.type,
                                     stream_name=tag.name,

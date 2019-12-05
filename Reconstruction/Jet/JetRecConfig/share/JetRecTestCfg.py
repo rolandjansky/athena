@@ -200,7 +200,7 @@ if __name__=="__main__":
     cfg.getService("StoreGateSvc").Dump = args.dumpSG
 
     # Save this configuration to a pickle file
-    f=open("JetRecTest.pkl","w")
+    f=open("JetRecTest.pkl","wb")
     cfg.store(f)
     f.close()
 

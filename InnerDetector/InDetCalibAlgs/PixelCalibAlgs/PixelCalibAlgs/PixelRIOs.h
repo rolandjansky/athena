@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelRIOs_h
@@ -195,14 +195,14 @@ public :
    TBranch        *b_NotAssociated_ParticlePt;   //!
    TBranch        *b_NotAssociated_Flag;   //!
 
-   PixelRIOs(std::string starting_tag,
-				std::string input,
-				std::string final_tag,
-				std::string collection = "Validation/PixelRIOs");
+   PixelRIOs(const std::string& starting_tag,
+             const std::string& input,
+             const std::string& final_tag,
+             const std::string& collection = "Validation/PixelRIOs");
    virtual ~PixelRIOs();
    virtual void     Iterate(long nentries);
-   void ReadHistoFile(std::string input);
-   void Analyze(std::string reference, std::string reference_tag);
+   void ReadHistoFile(const std::string& input);
+   void Analyze(const std::string& reference, const std::string& reference_tag);
 
 private:
 

@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODConfigSvc.h 631651 2014-11-27 18:33:16Z lheinric $
@@ -48,26 +48,26 @@ namespace TrigConf {
       xAODConfigSvc( const std::string& name, ISvcLocator* svcLoc );
 
       /// Function initialising the service
-      virtual StatusCode initialize();
+      virtual StatusCode initialize() override;
       /// Function finalising the service
-      virtual StatusCode finalize();
+      virtual StatusCode finalize() override;
 
       /// @name Implementation of the IILVL1ConfigSvc interface
       /// @{
 
       /// Get the LVL1 trigger menu
-      virtual const CTPConfig* ctpConfig() const;
+      virtual const CTPConfig* ctpConfig() const override;
 
       /// Get the LVL1 threshold configuruation (not available from xAOD)
-      virtual const ThresholdConfig* thresholdConfig() const {
+      virtual const ThresholdConfig* thresholdConfig() const override {
          return 0;
       }
 
       /// Get the LVL1 bunch group set
-      virtual const BunchGroupSet* bunchGroupSet() const;
+      virtual const BunchGroupSet* bunchGroupSet() const override;
 
       /// Get the LVL1 prescale key
-      virtual uint32_t lvl1PrescaleKey() const;
+      virtual uint32_t lvl1PrescaleKey() const override;
 
       /// @}
 
@@ -75,20 +75,20 @@ namespace TrigConf {
       /// @{
 
       /// Get the HLT chains
-      virtual const HLTChainList* chainList() const;
+      virtual const HLTChainList* chainList() const override;
       /// Get the HLT chains
-      virtual const HLTChainList& chains() const;
+      virtual const HLTChainList& chains() const override;
 
       /// Get the HLT sequences
-      virtual const HLTSequenceList* sequenceList() const;
+      virtual const HLTSequenceList* sequenceList() const override;
       /// Get the HLT sequences
-      virtual const HLTSequenceList& sequences() const;
+      virtual const HLTSequenceList& sequences() const override;
 
       /// Get the Super Master Key
-      virtual uint32_t masterKey() const;
+      virtual uint32_t masterKey() const override;
 
       /// Get the HLT prescale key
-      virtual uint32_t hltPrescaleKey() const;
+      virtual uint32_t hltPrescaleKey() const override;
 
       /// @}
 
@@ -96,7 +96,7 @@ namespace TrigConf {
       /// @{
 
       /// Get the LVL1 topo menu (not available from xAOD)
-      virtual const TXC::L1TopoMenu* menu() const {
+      virtual const TXC::L1TopoMenu* menu() const override {
          return 0;
       }
 
@@ -106,7 +106,7 @@ namespace TrigConf {
       /// @{
 
       /// Get the MuCTPI's online configuration
-      virtual const Muctpi* muctpiConfig() const {
+      virtual const Muctpi* muctpiConfig() const override {
          return 0;
       }
 
@@ -116,12 +116,12 @@ namespace TrigConf {
       /// @{
 
       /// Loads prescale sets in online running
-      virtual StatusCode updatePrescaleSets( uint /*requestcount*/ ) {
+      virtual StatusCode updatePrescaleSets( uint /*requestcount*/ ) override {
          return StatusCode::FAILURE;
       }
 
       /// Updates the prescales on the chain in online running
-      virtual StatusCode assignPrescalesToChains( uint /*lumiblock*/ ) {
+      virtual StatusCode assignPrescalesToChains( uint /*lumiblock*/ ) override {
          return StatusCode::FAILURE;
       }
 
@@ -129,10 +129,14 @@ namespace TrigConf {
 
       /// Function describing to Gaudi the interface(s) implemented
       virtual StatusCode queryInterface( const InterfaceID& riid,
-                                         void** ppvIf );
+                                         void** ppvIf ) override;
 
       /// Function handling the incoming incidents
-      virtual void handle( const Incident& inc );
+      virtual void handle( const Incident& inc ) override;
+
+      std::string configurationSource() const override {
+         return "";
+      }
 
    private:
       /// Function reading in a new metadata object from the input

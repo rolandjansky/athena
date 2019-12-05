@@ -39,6 +39,7 @@ atlas_add_dictionary( AthenaPythonDict
                       LINK_LIBRARIES ${ROOT_LIBRARIES} ${PYTHON_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel CxxUtils DataModelRoot AthenaPython )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py python/tests )
+atlas_install_python_modules( python/*.py python/tests
+                              POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py share/tests/*.py )
 

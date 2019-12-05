@@ -89,11 +89,6 @@ StatusCode CSC_Digitizer::initialize() {
     *(m_sprob+i) = sump;
   }
 
-  //intialize hash offsets
-  m_hashOffset[0][0] = 0;
-  m_hashOffset[0][1] = 24576;
-  m_hashOffset[1][0] = m_hashOffset[0][1]+6144;
-  m_hashOffset[1][1] = m_hashOffset[0][1]+m_hashOffset[1][0];
   return StatusCode::SUCCESS;
 }
 
@@ -326,7 +321,7 @@ StatusCode CSC_Digitizer::digitize_hit (const CSCSimHit * cscHit,
                         << " wireLayer= "    << wireLayer
                         << " strip = " << j << " charge = " << stripCharge << std::endl;
 
-            IdentifierHash hashId = getHashId(eta, phi, chamberLayer, chamberType, wireLayer, j, maxStrip, measuresPhi);
+            IdentifierHash hashId = getHashId(stationName, eta, phi, chamberLayer, wireLayer, j, measuresPhi);
 	    fillSampleMaps (hashId, driftTime, stripCharge, hashVec, data_SampleMap);
 	    fillSampleMaps (hashId, driftTime, stripCharge, hashVec, data_SampleMapOddPhase, 1);
             //            IdentifierHash hashId = (j-1)+maxStrip*(wireLayer-1)+4*maxStrip*(chamberLayer-1)
@@ -361,7 +356,7 @@ StatusCode CSC_Digitizer::digitize_hit (const CSCSimHit * cscHit,
             //              corrStripId = 47-corrStripId;
             //            }
             
-            IdentifierHash hashId = getHashId(eta, phi, chamberLayer, chamberType, wireLayer, j, maxStrip, measuresPhi);
+            IdentifierHash hashId = getHashId(stationName, eta, phi, chamberLayer, wireLayer, j, measuresPhi);
 	    fillSampleMaps (hashId, driftTime, stripCharge, hashVec, data_SampleMap);
 	    fillSampleMaps (hashId, driftTime, stripCharge, hashVec, data_SampleMapOddPhase, 1);
 
@@ -616,7 +611,7 @@ StatusCode CSC_Digitizer::digitize_hit (const CSCSimHit * cscHit,
                         << " wireLayer= "    << wireLayer
                         << " strip = " << j << " charge = " << stripCharge << std::endl;
 
-            IdentifierHash hashId = getHashId(eta, phi, chamberLayer, chamberType, wireLayer, j, maxStrip, measuresPhi);
+            IdentifierHash hashId = getHashId(stationName, eta, phi, chamberLayer, wireLayer, j, measuresPhi);
 	    fillSampleMaps (hashId, driftTime, stripCharge, hashVec, data_SampleMap);
             //            IdentifierHash hashId = (j-1)+maxStrip*(wireLayer-1)+4*maxStrip*(chamberLayer-1)
             //              +8*maxStrip*(phi-1)+64*maxStrip*(etaIndex-1)+m_hashOffset[chamberType][measuresPhi];
@@ -650,7 +645,7 @@ StatusCode CSC_Digitizer::digitize_hit (const CSCSimHit * cscHit,
             //              corrStripId = 47-corrStripId;
             //            }
             
-            IdentifierHash hashId = getHashId(eta, phi, chamberLayer, chamberType, wireLayer, j, maxStrip, measuresPhi);
+            IdentifierHash hashId = getHashId(stationName, eta, phi, chamberLayer, wireLayer, j, measuresPhi);
 	    fillSampleMaps (hashId, driftTime, stripCharge, hashVec, data_SampleMap);
 
             //	    IdentifierHash hashId = (j-1)+maxStrip*(wireLayer-1)+4*maxStrip*(chamberLayer-1)
@@ -918,7 +913,7 @@ StatusCode CSC_Digitizer::digitize_hit (const CSCSimHit * cscHit,
 
             //            IdentifierHash hashId = (j-1)+maxStrip*(wireLayer-1)+4*maxStrip*(chamberLayer-1)
             //              +8*maxStrip*(phi-1)+64*maxStrip*(etaIndex-1)+m_hashOffset[chamberType][measuresPhi];
-            IdentifierHash hashId = getHashId(eta, phi, chamberLayer, chamberType, wireLayer, j, maxStrip, measuresPhi);
+            IdentifierHash hashId = getHashId(stationName, eta, phi, chamberLayer, wireLayer, j, measuresPhi);
 
             //	    fillMaps (hashId, stripCharge, hashVec, data_map);
 	    fillMaps (hashId, driftTime, stripCharge, hashVec, data_map);
@@ -952,7 +947,7 @@ StatusCode CSC_Digitizer::digitize_hit (const CSCSimHit * cscHit,
             //              corrStripId = 47-corrStripId;
             //            }
             
-            IdentifierHash hashId = getHashId(eta, phi, chamberLayer, chamberType, wireLayer, j, maxStrip, measuresPhi);
+            IdentifierHash hashId = getHashId(stationName, eta, phi, chamberLayer, wireLayer, j, measuresPhi);
 
             //	    IdentifierHash hashId = (j-1)+maxStrip*(wireLayer-1)+4*maxStrip*(chamberLayer-1)
             //              +8*maxStrip*(phi-1)+64*maxStrip*(etaIndex-1)+m_hashOffset[chamberType][measuresPhi];

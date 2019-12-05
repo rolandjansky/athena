@@ -5,7 +5,7 @@
 #include "DataQualityTools/DQTBackgroundMon.h"
 #include "DataQualityTools/DQTDataFlowMonTool.h"
 #include "DataQualityTools/DQTGlobalWZFinderTool.h"
-#include "DataQualityTools/DQTLumiMonTool.h"
+#include "DataQualityTools/DQTLumiMonAlg.h"
 #include "DataQualityTools/DQTDataFlowMonAlg.h"
 #include "DataQualityTools/DQTDetSynchMonAlg.h"
 
@@ -16,7 +16,7 @@ DECLARE_COMPONENT( DQTMuonIDTrackTool )
 DECLARE_COMPONENT( DQTBackgroundMon )
 DECLARE_COMPONENT( DQTDataFlowMonTool )
 DECLARE_COMPONENT( DQTGlobalWZFinderTool )
-DECLARE_COMPONENT( DQTLumiMonTool )
+DECLARE_COMPONENT( DQTLumiMonAlg )
 DECLARE_COMPONENT( DQTDataFlowMonAlg )
 DECLARE_COMPONENT( DQTDetSynchMonAlg )
 

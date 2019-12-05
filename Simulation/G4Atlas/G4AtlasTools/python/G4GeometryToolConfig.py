@@ -12,6 +12,7 @@ from AtlasGeoModel.ForDetGeoModelConfig import ForDetGeometryCfg
 from G4AtlasTools.G4AtlasToolsConf import CylindricalEnvelope, PolyconicalEnvelope, MaterialDescriptionTool,G4AtlasDetectorConstructionTool#, BoxEnvelope #(check)
 
 from AthenaCommon.SystemOfUnits import mm, cm, m
+from past.builtins import xrange
 
 #ToDo - finish migrating this (dnoel)
 #Todo - just return component accumulator

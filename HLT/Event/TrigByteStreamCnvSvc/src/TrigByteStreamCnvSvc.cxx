@@ -259,10 +259,18 @@ void TrigByteStreamCnvSvc::monitorRawEvent(const std::unique_ptr<uint32_t[]>& ra
     return;
   }
 
-  // Associate result sizes to streams
+  // Associate result sizes to streams and fill histograms
+  m_histStreamTagsNum->Fill(streamTags.size());
   std::unordered_map<std::string, uint32_t> resultSizesByStream;
   for (const eformat::helper::StreamTag& st : streamTags) {
     std::string typeName = st.type + "_" + st.name;
+    m_histStreamTags->Fill(typeName.data(), 1.0);
+    m_histStreamTagsType->Fill(st.type.data(), 1.0);
+    if (st.robs.size() > 0 || st.dets.size() >0) { // PEB stream tag
+      m_histPebRobsNum->Fill(st.robs.size());
+      m_histPebSubDetsNum->Fill(st.dets.size());
+    }
+
     bool hasHLTSubDet = st.dets.find(eformat::SubDetector::TDAQ_HLT) != st.dets.end();
     bool includeAll = st.robs.empty() && (st.dets.empty() || hasHLTSubDet);
     if (includeAll) {
@@ -270,8 +278,14 @@ void TrigByteStreamCnvSvc::monitorRawEvent(const std::unique_ptr<uint32_t[]>& ra
       continue;
     }
     uint32_t size = 0;
+    std::set<std::string> sdFromRobList;
+    std::set<std::string> sdFromSubDetList;
+    for (const eformat::SubDetector sd : st.dets) {
+      sdFromSubDetList.insert(eformat::helper::SubDetectorDictionary.string(sd));
+    }
     for (uint32_t robid : st.robs) {
       eformat::helper::SourceIdentifier sid(robid);
+      sdFromRobList.insert(sid.human_detector());
       if (sid.subdetector_id() != eformat::SubDetector::TDAQ_HLT)
         continue;
       if (resultSizes.find(sid.module_id()) == resultSizes.end()) {
@@ -282,18 +296,23 @@ void TrigByteStreamCnvSvc::monitorRawEvent(const std::unique_ptr<uint32_t[]>& ra
       size += resultSizes[sid.module_id()];
     }
     resultSizesByStream[typeName] = size;
+    for (const std::string& sdName : sdFromRobList) {
+      m_histPebSubDetsFromRobList->Fill(sdName.data(), 1.0);
+    }
+    for (const std::string& sdName : sdFromSubDetList) {
+      m_histPebSubDetsFromSubDetList->Fill(sdName.data(), 1.0);
+    }
   }
 
-  // Fill stream tag and result size histograms
+  // Fill result size and stream tag correlation histograms
   for (const auto& [typeName, size] : resultSizesByStream) {
-    m_histStreamTags->Fill(typeName.data(), 1.0);
     m_histResultSizeByStream->Fill(typeName.data(), size*wordsToKiloBytes, 1.0);
     for (const auto& [typeName2, size2] : resultSizesByStream) {
       m_histStreamTagsCorr->Fill(typeName.data(), typeName2.data(), 1.0);
     }
   }
   for (const auto& [moduleId, size] : resultSizes) {
-    m_histResultSizeByModule->Fill(static_cast<float>(moduleId), size*wordsToKiloBytes);
+    m_histResultSizeByModule->Fill(static_cast<float>(moduleId), size*wordsToKiloBytes, 1.0);
   }
   m_histResultSizeTotal->Fill(totalSizeWords*wordsToKiloBytes);
   m_histResultSizeFullEvFrag->Fill(rawEvent.fragment_size_word()*wordsToKiloBytes);
@@ -390,9 +409,41 @@ void TrigByteStreamCnvSvc::bookHistograms() {
   m_histStreamTagsCorr->SetCanExtend(TH1::kAllAxes);
   regHist(m_histStreamTagsCorr);
 
+  m_histStreamTagsNum = new TH1F(
+    "StreamTagsNum", "Number of Stream Tags produced by HLT;Number of Stream Tags;Events", 20, 0, 20);
+  regHist(m_histStreamTagsNum);
+
+  m_histStreamTagsType = new TH1F(
+    "StreamTagsType", "Type of Stream Tags produced by HLT;;Events", 7, 0, 7);
+  m_histStreamTagsType->GetXaxis()->SetBinLabel(1, "physics");
+  m_histStreamTagsType->GetXaxis()->SetBinLabel(2, "calibration");
+  m_histStreamTagsType->GetXaxis()->SetBinLabel(3, "express");
+  m_histStreamTagsType->GetXaxis()->SetBinLabel(4, "monitoring");
+  m_histStreamTagsType->GetXaxis()->SetBinLabel(5, "debug");
+  m_histStreamTagsType->GetXaxis()->SetBinLabel(6, "reserved");
+  m_histStreamTagsType->GetXaxis()->SetBinLabel(7, "unknown");
+  regHist(m_histStreamTagsType);
+
+  m_histPebRobsNum = new TH1F(
+    "StreamTagsPebRobsNum", "Number of ROBs in PEB stream tags;Number of ROBs;Entries", 200, 0, 200);
+  regHist(m_histPebRobsNum);
+
+  m_histPebSubDetsNum = new TH1F(
+    "StreamTagsPebSubDetsNum", "Number of SubDetectors in PEB stream tags;Number of SubDetectors;Entries", 100, 0, 100);
+  regHist(m_histPebSubDetsNum);
+
+  m_histPebSubDetsFromRobList = new TH1F(
+    "StreamTagsPebSubDetsFromRobList", "SubDetectors in PEB stream tags ROB list;;Entries", 1, 0, 1);
+  m_histPebSubDetsFromRobList->SetCanExtend(TH1::kXaxis);
+  regHist(m_histPebSubDetsFromRobList);
+
+  m_histPebSubDetsFromSubDetList = new TH1F(
+    "StreamTagsPebSubDetsFromSubDetList", "SubDetectors in PEB stream tags SubDetector list;;Entries", 1, 0, 1);
+  m_histPebSubDetsFromSubDetList->SetCanExtend(TH1::kXaxis);
+  regHist(m_histPebSubDetsFromSubDetList);
+
   m_histResultSizeByModule = new TH2F(
-    "ResultSizeByModule", "HLT result size by module;Module ID;Size [kB]", 1, 0, 1, 100, 0, 1000);
-  m_histResultSizeByModule->SetCanExtend(TH1::kXaxis);
+    "ResultSizeByModule", "HLT result size by module;Module ID;Size [kB]", 10, 0, 10, 100, 0, 1000);
   regHist(m_histResultSizeByModule);
 
   m_histResultSizeByStream = new TH2F(
@@ -402,7 +453,6 @@ void TrigByteStreamCnvSvc::bookHistograms() {
 
   m_histResultSizeTotal = new TH1F(
     "ResultSizeTotal", "HLT result total size (sum of all modules);Size [kB];Events", 100, 0, 1000);
-  m_histResultSizeTotal->SetCanExtend(TH1::kXaxis);
   regHist(m_histResultSizeTotal);
 
   m_histResultSizeFullEvFrag = new TH1F(

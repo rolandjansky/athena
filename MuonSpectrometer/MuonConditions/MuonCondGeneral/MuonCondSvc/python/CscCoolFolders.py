@@ -54,8 +54,8 @@ def folderList(folderKeys, getOnline = False):
   folders = []
   for folderKey in folderKeys:
     if not (folderKey in dict):
-      print "WARNING folder key " + folderKey + " not recognized! All keys and folder pairs are: "
-      print dict
+      print("WARNING folder key " + folderKey + " not recognized! All keys and folder pairs are: ")
+      print(dict)
     else:
       if(getOnline):
         folders += ['/CSC/ONL/'+ dict[folderKey]]

@@ -32,6 +32,8 @@ class L1MenuJSONConverter(object):
         from collections import OrderedDict as odict
         confObj = odict()
 
+        confObj["filetype"] = "l1menu" 
+
         confObj["name"] = self.menu.menuName
 
         # items

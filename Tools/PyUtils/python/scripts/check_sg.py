@@ -1,9 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils.scripts.check_sg
 # @purpose read a POOL file and dump the DataHeader's content
 # @author Sebastien Binet
 # @date February 2010
+
+from __future__ import print_function
 
 __version__ = "$Revision: 276362 $"
 __doc__ = "read a POOL file and dump the DataHeader's content"
@@ -45,23 +47,23 @@ def main(args):
     for fname in files:
         try:
             import AthenaCommon.KeyStore as acks
-            print "## checking [%s]..." % (fname,)
+            print ("## checking [%s]..." % (fname,))
             ks = acks.loadKeyStoreFromPoolFile(
                 keyStore=osp.basename(fname),
                 pool_file=fname,
                 label='inputFile')
 
-            print "="*80
-            print "%40s%s%-40s" % ("Container type", " | ","StoreGate keys")
-            print "%40s%s%-40s" % ("-"*40, "-+-", "-"*(40-3))
+            print ("="*80)
+            print ("%40s%s%-40s" % ("Container type", " | ","StoreGate keys"))
+            print ("%40s%s%-40s" % ("-"*40, "-+-", "-"*(40-3)))
             for name,sgkeys in ks.inputFile.dict().items():
-                print "%40s%s%-40s" % (name, " | ", ', '.join(sgkeys))
-            print "="*80
+                print ("%40s%s%-40s" % (name, " | ", ', '.join(sgkeys)))
+            print ("="*80)
             if args.output:
                 outFileName = args.output
                 outFileName = osp.expanduser(outFileName)
                 outFileName = osp.expandvars(outFileName)
-                print "## saving report into [%s]..." % (outFileName,)
+                print ("## saving report into [%s]..." % (outFileName,))
                 if osp.splitext(outFileName)[1] in ('.pkl', '.dat'):
                     # we explicitely import 'bsddb' to try to always
                     # get that particular backend for the shelve...
@@ -74,24 +76,26 @@ def main(args):
                     db.close()
                 else:
                     ks.write(outFileName, label='inputFile')
-        except Exception, e:
-            print "## Caught exception [%s] !!" % str(e.__class__)
-            print "## What:",e
-            print sys.exc_info()[0]
-            print sys.exc_info()[1]
+        except Exception as e:
+            print ("## Caught exception [%s] !!" % str(e.__class__))
+            print ("## What:",e)
+            print (sys.exc_info()[0])
+            print (sys.exc_info()[1])
+            import traceback
+            traceback.print_exc()
             exitcode = 1
             pass
 
         except :
-            print "## Caught something !! (don't know what)"
-            print sys.exc_info()[0]
-            print sys.exc_info()[1]
+            print ("## Caught something !! (don't know what)")
+            print (sys.exc_info()[0])
+            print (sys.exc_info()[1])
             exitcode = 10
             pass
         if len(files) > 1:
-            print ""
+            print ("")
         pass # loop over fileNames
     
-    print "## Bye."
+    print ("## Bye.")
     return exitcode
 

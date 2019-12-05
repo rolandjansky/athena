@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
 
 // Boost include(s):
 #include "boost/regex.hpp"
-#include "boost/foreach.hpp"
 
 // Local include(s):
 #include "TrigObjectMatching/TrigMatchToolCore.h"

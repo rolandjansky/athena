@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ### JobOptions to run MuGirlTag in xAOD
 
@@ -15,10 +15,11 @@ from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 from MuonRecExample.MooreTools import MuonSeededSegmentFinder, MuonChamberHoleRecoveryTool
 from MuonRecExample.MuonRecTools import DCMathSegmentMaker
 
-from MuonRecExample.MuonRecFlags import muonRecFlags
-
 ###logfile
 from AthenaCommon.Logging import log
+
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 ###############################################################################
 ### Configure MuGirlTag###
@@ -39,6 +40,8 @@ def TrigMuGirlTagTool( name='TrigMuGirlTagTool', **kwargs ):
    return MuGirlTagToolBase(name=name,configureForTrigger=True,doStau=True,**kwargs)
 
 def MuonInsideOutRecoTool( name="MuonInsideOutRecoTool", **kwargs ):
+   if TriggerFlags.MuonSlice.doTrigMuonConfig:
+      kwargs.setdefault("VertexContainer", "")
    return CfgMgr.MuonCombined__MuonInsideOutRecoTool(name,**kwargs )
 
 def MuonCandidateTrackBuilderTool( name="MuonCandidateTrackBuilderTool",**kwargs):
@@ -61,17 +64,18 @@ def DCMathStauSegmentMaker( name="DCMathStauSegmentMaker", **kwargs ):
 
 def MuonStauChamberHoleRecoveryTool(name="MuonStauChamberHoleRecoveryTool",**kwargs):
    kwargs.setdefault("MdtRotCreator", getPublicTool("MdtDriftCircleOnTrackCreatorStau") )
+   if not MuonGeometryFlags.hasCSC():
+      kwargs.setdefault("CscRotCreator", "" )
+      kwargs.setdefault("CscPrepDataContainer", "" )
    return MuonChamberHoleRecoveryTool(name,**kwargs)
 
 def MuonStauSeededSegmentFinder( name="MuonStauSeededSegmentFinder", **kwargs ):
     kwargs.setdefault("MdtRotCreator", getPublicTool("MdtDriftCircleOnTrackCreatorStau") )
     kwargs.setdefault("SegmentMaker", getPublicTool("DCMathStauSegmentMaker") )
     kwargs.setdefault("SegmentMakerNoHoles", getPublicTool("DCMathStauSegmentMaker") )
-    if muonRecFlags.doNSWNewThirdChain():
-       kwargs.setdefault("CscPrepDataContainer","")
-    else:
-       kwargs.setdefault("sTgcPrepDataContainer","")
-       kwargs.setdefault("MMPrepDataContainer","")
+    if not MuonGeometryFlags.hasCSC(): kwargs.setdefault("CscPrepDataContainer","")
+    if not MuonGeometryFlags.hasSTGC(): kwargs.setdefault("sTgcPrepDataContainer","")
+    if not MuonGeometryFlags.hasMM(): kwargs.setdefault("MMPrepDataContainer","")
 
     return MuonSeededSegmentFinder(name,**kwargs)
 
@@ -97,6 +101,8 @@ def MuonStauCandidateTrackBuilderTool( name="MuonStauCandidateTrackBuilderTool",
 
 def MuonStauInsideOutRecoTool( name="MuonStauInsideOutRecoTool", **kwargs ):
    kwargs.setdefault("MuonCandidateTrackBuilderTool", getPublicTool("MuonStauCandidateTrackBuilderTool") )
+   if TriggerFlags.MuonSlice.doTrigMuonConfig:
+      kwargs.setdefault("VertexContainer", "")
    return CfgMgr.MuonCombined__MuonInsideOutRecoTool(name,**kwargs )
 
 def MuonStauRecoTool( name="MuonStauRecoTool", **kwargs ):

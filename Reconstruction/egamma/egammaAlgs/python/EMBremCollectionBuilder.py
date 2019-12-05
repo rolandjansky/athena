@@ -1,4 +1,4 @@
-# Copyright (C) 2001-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2001-2019 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = "ToolFactory to instantiate  egammaBremCollectionBuilder with default configuration"
 __author__ = "Christos"
@@ -126,7 +126,6 @@ class egammaBremCollectionBuilder ( egammaAlgsConf.EMBremCollectionBuilder ) :
         if DetFlags.haveRIO.pixel_on():                 
             from PixelToTPIDTool.PixelToTPIDToolConf import InDet__PixelToTPIDTool
             GSFBuildPixelToTPIDTool = InDet__PixelToTPIDTool(name = "GSFBuildPixelToTPIDTool")
-            GSFBuildPixelToTPIDTool.ReadFromCOOL = True
             ToolSvc += GSFBuildPixelToTPIDTool
         #
         #  Configrable version of loading the InDetTrackSummaryHelperTool

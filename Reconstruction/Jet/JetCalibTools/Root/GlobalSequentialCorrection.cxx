@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -28,7 +28,7 @@
 
 GlobalSequentialCorrection::GlobalSequentialCorrection()
   : JetCalibrationToolBase::JetCalibrationToolBase("GlobalSequentialCorrection::GlobalSequentialCorrection"),
-    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_dev(false),
+    m_config(NULL), m_jetAlgo(""), m_depthString("auto"), m_calibAreaTag(""), m_dev(false),
     m_binSize(0.1), m_depth(0), 
     m_trackWIDTHMaxEtaBin(25), m_nTrkMaxEtaBin(25), m_Tile0MaxEtaBin(17), m_EM3MaxEtaBin(35), m_chargedFractionMaxEtaBin(27), m_caloWIDTHMaxEtaBin(35), m_N90ConstituentsMaxEtaBin(35),
     m_punchThroughMinPt(50)
@@ -37,16 +37,16 @@ GlobalSequentialCorrection::GlobalSequentialCorrection()
 
 GlobalSequentialCorrection::GlobalSequentialCorrection(const std::string& name)
   : JetCalibrationToolBase::JetCalibrationToolBase( name ),
-    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_dev(false),
+    m_config(NULL), m_jetAlgo(""), m_depthString("auto"), m_calibAreaTag(""), m_dev(false),
     m_binSize(0.1), m_depth(0), 
     m_trackWIDTHMaxEtaBin(25), m_nTrkMaxEtaBin(25), m_Tile0MaxEtaBin(17), m_EM3MaxEtaBin(35), m_chargedFractionMaxEtaBin(27), m_caloWIDTHMaxEtaBin(35), m_N90ConstituentsMaxEtaBin(35),
     m_punchThroughMinPt(50)
    
 { }
 
-GlobalSequentialCorrection::GlobalSequentialCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool dev)
+GlobalSequentialCorrection::GlobalSequentialCorrection(const std::string& name, TEnv * config, TString jetAlgo, std::string depth, TString calibAreaTag, bool dev)
   : JetCalibrationToolBase::JetCalibrationToolBase( name ),
-    m_config(config), m_jetAlgo(jetAlgo), m_calibAreaTag(calibAreaTag), m_dev(dev),
+    m_config(config), m_jetAlgo(jetAlgo), m_depthString(depth), m_calibAreaTag(calibAreaTag), m_dev(dev),
     m_binSize(0.1), m_depth(0),
     m_trackWIDTHMaxEtaBin(25), m_nTrkMaxEtaBin(25), m_Tile0MaxEtaBin(17), m_EM3MaxEtaBin(35), m_chargedFractionMaxEtaBin(27), m_caloWIDTHMaxEtaBin(35), m_N90ConstituentsMaxEtaBin(35),
     m_punchThroughMinPt(50)
@@ -102,7 +102,9 @@ StatusCode GlobalSequentialCorrection::initializeTool(const std::string&) {
     return StatusCode::FAILURE;
   }
 
-  TString depthString = m_config->GetValue("GSCDepth","Full");
+  TString depthString = "";
+  if ( m_depthString != "auto" ) depthString = m_depthString;
+  else depthString = m_config->GetValue("GSCDepth","Full");
   if ( !depthString.Contains("ChargedFraction") && !depthString.Contains("Tile0") && !depthString.Contains("EM3") && !depthString.Contains("nTrk") && !depthString.Contains("trackWIDTH") && !depthString.Contains("PunchThrough") && !depthString.Contains("N90Constituents") && !depthString.Contains("N90Constituents") && !depthString.Contains("caloWIDTH") && !depthString.Contains("Full") ) {
     ATH_MSG_FATAL("depthString flag not properly set, please check your config file.");
     return StatusCode::FAILURE;

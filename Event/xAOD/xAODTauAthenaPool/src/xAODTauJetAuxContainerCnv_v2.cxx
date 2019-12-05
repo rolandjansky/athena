@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODTauJetAuxContainerCnv_v2.cxx 653224 2015-03-11 09:59:03Z will $
@@ -36,9 +36,7 @@
    } while( 0 )
 
 xAODTauJetAuxContainerCnv_v2::xAODTauJetAuxContainerCnv_v2()
-  : T_AthenaPoolTPCnvBase< xAOD::TauJetAuxContainer,
-                           xAOD::TauJetAuxContainer_v2 >() {
-
+{
 }
 
 
@@ -46,9 +44,10 @@ ServiceHandle<StoreGateSvc> evtStore ("StoreGateSvc", "tauJetCnv_v2");
 
 
 void xAODTauJetAuxContainerCnv_v2::
-persToTrans( const xAOD::TauJetAuxContainer_v2* oldObj,
-             xAOD::TauJetAuxContainer* newObj,
-             MsgStream& log ) {
+persToTransWithKey( const xAOD::TauJetAuxContainer_v2* oldObj,
+                    xAOD::TauJetAuxContainer* newObj,
+                    const std::string& key,
+                    MsgStream& log ) const {
 
   if (evtStore.retrieve().isFailure()) {
     ATH_MSG("Cannot get StoreGateHandle");
@@ -61,8 +60,7 @@ persToTrans( const xAOD::TauJetAuxContainer_v2* oldObj,
 
    xAOD::TauTrackContainer* pTracks = nullptr; 
    xAOD::TauTrackAuxContainer* pAuxTracks = nullptr; 
-   if(m_key.length()){
-     //m_key is set in xAODTauJetAuxContainerCnv.cxx
+   if(key.length()){
      //if reading data, then trigger calls T/P converter directly
      //and the key is not set.  In this case, forget about TauTracks
      pTracks = new xAOD::TauTrackContainer();
@@ -266,7 +264,7 @@ persToTrans( const xAOD::TauJetAuxContainer_v2* oldObj,
       newTau->setProtoChargedPFOLinks( oldTau->protoChargedPFOLinks() );
       newTau->setProtoPi0PFOLinks( oldTau->protoPi0PFOLinks() );
 
-      if(m_key.length()==0) continue;
+      if(key.length()==0) continue;
       
       for(unsigned int i = 0; i < oldTau->nTracks(); ++i){
 	ElementLink< xAOD::TrackParticleContainer > linkToTrackParticle = oldTau->trackLinks()[i];
@@ -326,8 +324,8 @@ persToTrans( const xAOD::TauJetAuxContainer_v2* oldObj,
 
    }
    
-   if(m_key.length()){
-     std::string tauTrackContName=m_key;
+   if(key.length()){
+     std::string tauTrackContName=key;
      tauTrackContName.replace(tauTrackContName.find("Aux."),4,"");
      //example names:
      //TauJets : Jets --> Tracks
@@ -361,9 +359,11 @@ persToTrans( const xAOD::TauJetAuxContainer_v2* oldObj,
 /// This function should never be called, as we are not supposed to convert
 /// object before writing.
 ///
-void xAODTauJetAuxContainerCnv_v2::transToPers( const xAOD::TauJetAuxContainer*,
-                                                xAOD::TauJetAuxContainer_v2*,
-                                                MsgStream& log ) {
+void xAODTauJetAuxContainerCnv_v2::
+transToPersWithKey( const xAOD::TauJetAuxContainer*,
+                    xAOD::TauJetAuxContainer_v2*,
+                    const std::string& /*key*/,
+                    MsgStream& log ) const {
 
    log << MSG::ERROR
        << "Somebody called xAODTauJetAuxContainerCnv_v2::transToPers"

@@ -23,13 +23,6 @@ MdtDetectorElement::MdtDetectorElement(GeoVFullPhysVol* pv,
                                        IdentifierHash idHash)
     : MuonDetectorElement(pv, mgr, id, idHash)
 {
-  
-  //m_MsgStream = new MsgStream(mgr->msgSvc(),"MuGM:MdtDetectorElement");
-  //  m_debug = m_MsgStream->level() <= MSG::DEBUG;
-  //  m_verbose = m_MsgStream->level() <= MSG::VERBOSE;
-  //  if (m_debug) reLog() << MSG::DEBUG << "A new MdtDetectorElement was born: idhash = "
-  //                      << (int)idHash << endmsg;
-
   for (unsigned int i=0; i<maxMdtREinDE; ++i) {
     m_mdtRE[i] = 0;
   }
@@ -40,13 +33,9 @@ MdtDetectorElement::MdtDetectorElement(GeoVFullPhysVol* pv,
 void 
 MdtDetectorElement::addMdtReadoutElement (const MdtReadoutElement* x, int ml)
 {
-//   if (m_verbose) reLog() << MSG::VERBOSE << "Adding RE for multilayer " << ml
-//                          << " to MdtDetectorElement with idhash = " << (int)m_idhash
-//                          << endmsg;
-  if( msgLevel(MSG::VERBOSE) ) msg( MSG::VERBOSE ) << "Adding RE for multilayer " << ml
+  (*m_Log) << MSG::VERBOSE << "Adding RE for multilayer " << ml
 						   << " to MdtDetectorElement with idhash = " << (int)m_idhash
 						   << endmsg;
-  //std::cout<<" adding mdtRE with ml = "<<ml<<" to MdtDE with id hash "<< (int)m_idhash<<std::endl;
  
   m_mdtRE[ml-1] = x;
   ++m_nREinDetectorElement;
@@ -60,8 +49,7 @@ MdtDetectorElement::getMdtReadoutElement(Identifier id) const
     unsigned int ml = idh->multilayer(id);
     if ( ml <=0 || ml > nReadoutElements() )
     {
-	msg( MSG::WARNING ) 
-	    //        reLog()<<MSG::WARNING
+	(*m_Log) << MSG::WARNING
 	    <<"getMdtReadoutElement("<<idh->show_to_string(id)
 	    <<"): multilayer out of range 1-"
 	    <<nReadoutElements()
@@ -79,8 +67,7 @@ const MdtReadoutElement*
 MdtDetectorElement::getMdtReadoutElement(int ml) const
 {
   if ( ml <=0 || ml > (int)nReadoutElements() ) {
-      //    reLog() << MSG::WARNING 
-      msg(MSG::WARNING)<< "getMdtReadoutElement(" << ml 
+      (*m_Log) << MSG::WARNING << "getMdtReadoutElement(" << ml 
 		       << "): multilayer out of range 1-"
 		       << nReadoutElements() << " for MdtDetectorElement "
 		       << (manager()->mdtIdHelper())->show_to_string(identify()) 
@@ -142,8 +129,5 @@ const std::vector<const Trk::Surface*>&  MdtDetectorElement::surfaces() const
    }
    return m_detectorSurfaces;
 }
-
-MsgStream& MdtDetectorElement::msg( MSG::Level lvl ) const { return m_msg << lvl ; }
-bool MdtDetectorElement::msgLevel( MSG::Level lvl ) { return m_msg.get().level() <= lvl ; }
 
 }

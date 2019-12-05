@@ -8,10 +8,12 @@
 #include "../PixelSiliconConditionsTestAlg.h"
 #include "../PixelOfflineCalibCondAlg.h"
 #include "../PixelReadoutSpeedAlg.h"
+#include "../PixelDistortionAlg.h"
 #include "../PixelCablingCondAlg.h"
 #include "../PixelHitDiscCnfgAlg.h"
 #include "../PixelAlignCondAlg.h"
 #include "../PixelDetectorElementCondAlg.h"
+#include "../PixeldEdxAlg.h"
 
 DECLARE_COMPONENT( PixelDCSCondHVAlg )
 DECLARE_COMPONENT( PixelDCSCondTempAlg )
@@ -23,7 +25,9 @@ DECLARE_COMPONENT( PixelTDAQCondAlg )
 DECLARE_COMPONENT( PixelSiliconConditionsTestAlg )
 DECLARE_COMPONENT( PixelOfflineCalibCondAlg )
 DECLARE_COMPONENT( PixelReadoutSpeedAlg )
+DECLARE_COMPONENT( PixelDistortionAlg )
 DECLARE_COMPONENT( PixelCablingCondAlg )
 DECLARE_COMPONENT( PixelHitDiscCnfgAlg )
 DECLARE_COMPONENT( PixelAlignCondAlg )
 DECLARE_COMPONENT( PixelDetectorElementCondAlg )
+DECLARE_COMPONENT( PixeldEdxAlg )

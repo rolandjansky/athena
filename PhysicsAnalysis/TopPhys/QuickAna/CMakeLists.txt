@@ -31,7 +31,6 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
    PhysicsAnalysis/D3PDTools/RootCoreUtils
    ${extra_deps}
-   Control/CxxUtils
    Event/EventPrimitives
    Event/xAOD/xAODBase
    Event/xAOD/xAODTracking
@@ -91,7 +90,7 @@ atlas_add_library( QuickAnaLib
    xAODCore xAODMissingET xAODEventInfo xAODTruth AssociationUtilsLib
    IsolationSelectionLib PATInterfaces RootCoreUtils ${extra_public_libs}
    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES}
-   CxxUtils EventPrimitives xAODBase xAODTracking PileupReweightingLib
+   EventPrimitives xAODBase xAODTracking PileupReweightingLib
    ElectronEfficiencyCorrectionLib ElectronPhotonFourMomentumCorrectionLib
    ElectronPhotonShowerShapeFudgeToolLib ElectronPhotonSelectorToolsLib
    IsolationCorrectionsLib PhotonEfficiencyCorrectionLib JetSelectorToolsLib
@@ -166,7 +165,7 @@ if( XAOD_STANDALONE )
       atlas_add_test( ${test}
          SOURCES test/${test}.cxx
          INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-         LINK_LIBRARIES ${ROOT_LIBRARIES} PATInterfaces xAODRootAccess CxxUtils
+         LINK_LIBRARIES ${ROOT_LIBRARIES} PATInterfaces xAODRootAccess 
          xAODEventInfo xAODEgamma xAODMissingET xAODCore RootCoreUtils
          QuickAnaLib )
    endforeach()

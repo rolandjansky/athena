@@ -9,6 +9,7 @@
 
 #include "TrigConfL1Data/ThresholdConfig.h"
 #include "TrigConfL1Data/TriggerThreshold.h"
+#include "TrigConfInterfaces/IHLTConfigSvc.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
 // L1Decoder includes
@@ -28,16 +29,21 @@ class RoIsUnpackingEmulationTool : public RoIsUnpackingToolBase {
                             const HLT::IDSet& activeChains) const override;
   
   virtual StatusCode initialize() override;
+  virtual StatusCode start() override;
   
  private: 
+  // Used indirectly to place the HLT JSON object into the DetStore
+  ServiceHandle<TrigConf::IHLTConfigSvc> m_hltConfigSvc{this, "HLTConfigSvc", "TrigConf::HLTConfigSvc/HLTConfigSvc", ""};
+
 
   ///@{ @name Properties
   SG::WriteHandleKey<TrigRoiDescriptorCollection> m_trigRoIsKey{
-    this, "OutputTrigRoIs", "EMRoIs", "Name of the RoIs object produced by the unpacker"};
+    this, "OutputTrigRoIs", "HLT_EMRoIs", "Name of the RoIs object produced by the unpacker"};
 
   Gaudi::Property<float> m_roIWidth{"RoIWidth", 0.1, "Size of RoI in eta/ phi"};
 
   Gaudi::Property<std::string> m_inputFilename{this, "InputFilename", "RoIEmulation.dat", "FakeROI input filename"};
+  Gaudi::Property<std::string> m_thresholdPrefix{this, "ThresholdPrefix", "EM", "Activate chains that are seed from threshold that have this prefix in the name"};
   ///@}
 
   // emulation

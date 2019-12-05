@@ -127,13 +127,11 @@ BOOST_FIXTURE_TEST_SUITE(Cool2JsonTestSetup , GaudiKernelFixture)
       BOOST_TEST(testObject.close() == "}");
       BOOST_TEST(testObject.delimiter() == ", ");
       std::string referenceDescription=R"delim("node_description" : "<timeStamp>run-lumi</timeStamp><addrHeader><address_header service_type=\"71\" clid=\"1238547719\" /></addrHeader><typeName>CondAttrListCollection</typeName>")delim";
-      referenceDescription+="\n";
       BOOST_CHECK(testObject.description() == referenceDescription);
       std::string referenceSpec=R"delim("folder_payloadspec": "int: Int32")delim";
       BOOST_CHECK(testObject.payloadSpec() == referenceSpec);
       //careful about editing, the following is a multi-line raw string literal:
-      std::string referencePayload = R"delim("data_array" : [{ "0" : [ 1]
-}])delim";
+      std::string referencePayload = R"delim("data_array" : [{ "0" : [ 1]}])delim";
       BOOST_CHECK(testObject.payload() ==  referencePayload);
       std::string referenceIov = R"delim("iov" : [42949672970, 42949672980])delim";
       BOOST_CHECK(testObject.iov() == referenceIov);

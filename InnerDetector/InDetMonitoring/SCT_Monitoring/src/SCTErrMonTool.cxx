@@ -64,13 +64,6 @@ namespace {
   }
 
   bool
-  checkOverThreshold(TH2* pHistogram, const int xbin, const int ybin, const float threshold) {
-    double histogramBinContent{pHistogram->GetBinContent(xbin, ybin)};
-
-    return (histogramBinContent > threshold);
-  }
-
-  bool
   thereAreEnoughEntries(TH2* pHistogramArray[], const float threshold) {
     double histogramEntries0{pHistogramArray[0]->GetEntries()};
     double histogramEntries1{pHistogramArray[1]->GetEntries()};
@@ -96,22 +89,6 @@ namespace {
     for (int xb{1}; xb < xbins; ++xb) {
       for (int yb{1}; yb < ybins; ++yb) {
         if (eitherSideIsOverThreshold(pHistogram, xb, yb, threshold)) {
-          countArray[generalIndex]++;
-          countArray[regionIndex]++;
-        }
-      }
-    }
-  }
-
-  void
-  countNoisyModulesRN(const int regionIndex, const int generalIndex, TH2* pHistogram[],
-                      const float threshold, int countArray[]) {
-    const int xbins{pHistogram[0]->GetNbinsX() + 1};
-    const int ybins{pHistogram[0]->GetNbinsY() + 1};
-
-    for (int xb{1}; xb < xbins; ++xb) {
-      for (int yb{1}; yb < ybins; ++yb) {
-        if (checkOverThreshold(pHistogram[0], xb, yb, threshold)) {
           countArray[generalIndex]++;
           countArray[regionIndex]++;
         }
@@ -1536,11 +1513,6 @@ SCTErrMonTool::fillCondDBMaps() {
       if (failedbooking == false) {
         countNoisyModules(reg, GENERAL_INDEX, hitsHisto_tmp, m_noiseThreshold, NoisyModules);
       }
-      failedbooking = getHisto(lyr, reg, 2, hitsHisto_tmp);
-      if (failedbooking == false) {
-        countNoisyModulesRN(reg, GENERAL_INDEX, hitsHisto_tmp, m_noiseThreshold, RNoisyModules);
-      }
-      //if (m_pnoiseoccupancymapHistoVectorBar[lyr]) countNoisyModulesRN(BARREL_INDEX, GENERAL_INDEX, m_pnoiseoccupancymapHistoVectorBar[lyr], m_noiseThreshold, RNoisyModules);
       // noisy modules recent
       if (m_environment == AthenaMonManager::online) {
         failedbooking = getHistoRecent(lyr, reg, 0, hitsHisto_tmp);
@@ -1723,15 +1695,13 @@ SCTErrMonTool::resetConfigurationDetails() {
 // ====================================================================================================
 bool
 SCTErrMonTool::getHisto(const int layer, const int reg, const int type, TH2* histo[2]) const {
-  static const string trm[3][N_REGIONS] = { // 3 is the number of types (noise, eff, ratio noise)
+  static const string trm[2][N_REGIONS] = { // 2 is the number of types (noise, eff)
     {"SCT/SCTEC/Noise/noiseoccupancymapECm_","SCT/SCTB/Noise/noiseoccupancymap_", "SCT/SCTEA/Noise/noiseoccupancymapECp_"},
-    {"SCT/SCTEC/eff/ineffm_", "SCT/SCTB/eff/ineff_", "SCT/SCTEA/eff/ineffp_"},
-    {"SCT/SCTEC/RatioNoise/noiseoccupancymapECC_", "SCT/SCTB/RatioNoise/noiseoccupancymapBar_", "SCT/SCTEA/RatioNoise/noiseoccupancymapECA_"}
+    {"SCT/SCTEC/eff/ineffm_", "SCT/SCTB/eff/ineff_", "SCT/SCTEA/eff/ineffp_"}
   };
-  static const string trm_trig[3][N_REGIONS] = { // 3 is the number of types (noise, eff, ratio noise)
+  static const string trm_trig[2][N_REGIONS] = { // 2 is the number of types (noise, eff)
     {"SCT/SCTEC/Noise/noiseoccupancymaptriggerECm_", "SCT/SCTB/Noise/noiseoccupancymaptrigger_", "SCT/SCTEA/Noise/noiseoccupancymaptriggerECp_"},
-    {"SCT/SCTEC/eff/ineffm_", "SCT/SCTB/eff/ineff_", "SCT/SCTEA/eff/ineffp_"},
-    {"SCT/SCTEC/RatioNoise/noiseoccupancymapECC_", "SCT/SCTB/RatioNoise/noiseoccupancymapBar_", "SCT/SCTEA/RatioNoise/noiseoccupancymapECA_"}
+    {"SCT/SCTEC/eff/ineffm_", "SCT/SCTB/eff/ineff_", "SCT/SCTEA/eff/ineffp_"}
   };
   string shname1{m_path + trm[type][reg] + to_string(layer)};
   string shname2{m_path + trm[type][reg] + to_string(layer)};

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /* 
@@ -12,8 +12,8 @@
 
 
 
-#ifndef __TJETNET_
-#define __TJETNET_
+#ifndef PIXELCALIBALGS_TJETNET_H
+#define PIXELCALIBALGS_TJETNET_H
 
 //______________________________________________________________________________
 //
@@ -49,12 +49,12 @@ class TJetNet : public TObject
   
   void Print( void );
   
-  Int_t GetTrainSetCnt( void ) const { return mTrainSetCnt; };
-  Int_t GetTestSetCnt( void ) const { return mTestSetCnt; };
-  Int_t GetInputDim( void ) const { return mpLayers[ 0 ]; };
+  Int_t GetTrainSetCnt( void ) const { return m_TrainSetCnt; };
+  Int_t GetTestSetCnt( void ) const { return m_TestSetCnt; };
+  Int_t GetInputDim( void ) const { return m_pLayers[ 0 ]; };
   Int_t GetHiddenLayerDim( void ) const { return mHiddenLayerDim; };
-  Int_t GetHiddenLayerSize(Int_t number) const { return mpLayers[ number ]; };
-  Int_t GetOutputDim( void ) const { return mpLayers[ mLayerCount - 1 ]; };
+  Int_t GetHiddenLayerSize(Int_t number) const { return m_pLayers[ number ]; };
+  Int_t GetOutputDim( void ) const { return m_pLayers[ m_LayerCount - 1 ]; };
 
   void SetInputTrainSet( Int_t aPatternInd, Int_t aInputInd, Double_t aValue );
   void SetOutputTrainSet( Int_t aPatternInd, Int_t aOutputInd, Double_t aValue );
@@ -75,8 +75,8 @@ class TJetNet : public TObject
   Double_t GetWeight( Int_t aLayerInd, Int_t aNodeInd, Int_t aConnectedNodeInd ) const; 
   Double_t GetThreshold( Int_t aLayerInd, Int_t aNodeInd) const;
 
-  Int_t GetEpochs( void ) { return mEpochs; };
-  void SetEpochs( const Int_t aEpochs ) { mEpochs = aEpochs; mCurrentEpoch = 0; };
+  Int_t GetEpochs( void ) { return m_Epochs; };
+  void SetEpochs( const Int_t aEpochs ) { m_Epochs = aEpochs; m_CurrentEpoch = 0; };
   void Init( void );
 
   Double_t Train( void );
@@ -102,7 +102,7 @@ class TJetNet : public TObject
 
   void writeNetworkInfo(Int_t typeOfInfo = 0);
 
-  Int_t GetLayerCount( void ){ return mLayerCount; };
+  Int_t GetLayerCount( void ){ return m_LayerCount; };
   //Number of layers in NN
   Int_t GetUnitCount( Int_t aLayer );
   //Number of units in NN  
@@ -134,8 +134,8 @@ class TJetNet : public TObject
     Double_t GetLearningRateDecrease( void );
     Int_t GetPottsUnits();
     
-    void LockInit( void ){ mInitLocked = kTRUE; };
-    void UnlockInit( void ){ mInitLocked = kFALSE; };
+    void LockInit( void ){ m_InitLocked = kTRUE; };
+    void UnlockInit( void ){ m_InitLocked = kFALSE; };
     Int_t GetMSTJN( Int_t aIndex );
     Double_t GetPARJN( Int_t aIndex );
     void SetMSTJN( Int_t aIndex, Int_t aValue );
@@ -167,27 +167,27 @@ private:
 
 
 
-  TActivationFunction menActFunction;
+  TActivationFunction m_enActFunction;
 
-  Int_t  mLayerCount; // Number of Layers (including the input and output)
-  Int_t* mpLayers; //! Array which contains the number of units in each layer 
+  Int_t  m_LayerCount; // Number of Layers (including the input and output)
+  Int_t* m_pLayers; //! Array which contains the number of units in each layer 
 
-  TNeuralDataSet* mpInputTrainSet;
-  TNeuralDataSet* mpOutputTrainSet;
-  TNeuralDataSet* mpInputTestSet;
-  TNeuralDataSet* mpOutputTestSet;
+  TNeuralDataSet* m_pInputTrainSet;
+  TNeuralDataSet* m_pOutputTrainSet;
+  TNeuralDataSet* m_pInputTestSet;
+  TNeuralDataSet* m_pOutputTestSet;
 
-  Int_t mTrainSetCnt, mTestSetCnt; // Size of Train and Test set
+  Int_t m_TrainSetCnt, m_TestSetCnt; // Size of Train and Test set
 
-  Int_t mInputDim; // Number of the elements in intput layer
-  Int_t mHiddenLayerDim; // Number of Hidden Layers
-  Int_t mOutputDim; // Number of outputs
-  Int_t mEpochs;    // Epochs
-  Int_t mCurrentEpoch;    // Current epoch
-  Bool_t mDebug; // Debug Flag
-  Bool_t mIsInitialized;
-  Bool_t mInitLocked;
-  Bool_t mNormalizeOutput;
+  Int_t m_InputDim; // Number of the elements in intput layer
+  Int_t m_HiddenLayerDim; // Number of Hidden Layers
+  Int_t m_OutputDim; // Number of outputs
+  Int_t m_Epochs;    // Epochs
+  Int_t m_CurrentEpoch;    // Current epoch
+  Bool_t m_Debug; // Debug Flag
+  Bool_t m_IsInitialized;
+  Bool_t m_InitLocked;
+  Bool_t m_NormalizeOutput;
 
 
   ClassDef( TJetNet, 1 )
@@ -196,23 +196,23 @@ private:
 inline void TJetNet::SetOutputTestSet( Int_t aPatternInd, Int_t aOutputInd, Double_t aValue )
 {
   // Changes the value of the cell corresponding to unit aInputInd in pattern aPatternInd into OUTPUT TEST set
-  mpOutputTestSet->SetData( aPatternInd, aOutputInd, aValue );
+  m_pOutputTestSet->SetData( aPatternInd, aOutputInd, aValue );
 }
 //______________________________________________________________________________
 inline Double_t TJetNet::GetInputTrainSet( Int_t aPatternInd, Int_t aInputInd )
 {
   // Returns the value of the cell corresponding to unit aInputInd in pattern aPatternInd into INPUT TRAIN set
-  return mpInputTrainSet->GetData( aPatternInd, aInputInd );
+  return m_pInputTrainSet->GetData( aPatternInd, aInputInd );
 }
 //______________________________________________________________________________
 inline Double_t TJetNet::GetEventWeightTrainSet( Int_t aPatternInd )
 {
-  return mpInputTrainSet->GetEventWeight( aPatternInd);
+  return m_pInputTrainSet->GetEventWeight( aPatternInd);
 }
 //______________________________________________________________________________
 inline Double_t TJetNet::GetEventWeightTestSet( Int_t aPatternInd )
 {
-  return mpInputTestSet->GetEventWeight( aPatternInd);
+  return m_pInputTestSet->GetEventWeight( aPatternInd);
 }
 
 #endif

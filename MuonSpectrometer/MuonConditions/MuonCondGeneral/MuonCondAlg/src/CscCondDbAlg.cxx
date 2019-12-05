@@ -3,6 +3,7 @@
 */
 
 #include "MuonCondAlg/CscCondDbAlg.h"
+#include "AthenaKernel/IOVInfiniteRange.h"
 
 // constructor
 CscCondDbAlg::CscCondDbAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
@@ -69,10 +70,7 @@ CscCondDbAlg::execute(const EventContext& ctx) const {
     writeCdo->setParameters(m_onlineOfflinePhiFlip);
 
     //Start with an infinite range and narrow it down as needed
-    const EventIDBase start{EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT, 0, 0, EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
-    const EventIDBase stop{EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT, EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
-    EventIDRange rangeW{start, stop};
-
+    EventIDRange rangeW=IOVInfiniteRange::infiniteMixed();
     // data only
     if(m_isData) {
         //ATH_CHECK(loadDataHv(rangeW, writeCdo.get(), ctx)); // keep for future development

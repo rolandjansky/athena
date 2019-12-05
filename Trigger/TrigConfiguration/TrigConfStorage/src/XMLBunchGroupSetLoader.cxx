@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./XMLBunchGroupSetLoader.h"
@@ -23,7 +23,7 @@ TrigConf::XMLBunchGroupSetLoader::load( BunchGroupSet& bunchgroupset ) {
 
    XMLBunchGroupLoader* bgldr = new XMLBunchGroupLoader(m_storageMgr, 0);
    BunchGroup bg;
-   BOOST_FOREACH(value_type v, pt()) {
+   for(value_type v : pt()) {
       if(v.first=="<xmlattr>") continue;
       bgldr->setPtree(&v);
       bgldr->load(bg);

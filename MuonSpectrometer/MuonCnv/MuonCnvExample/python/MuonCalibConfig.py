@@ -15,8 +15,8 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon import CfgMgr
 #--------------------------------------------------------------
 
-from MuonCnvUtils import specialAddFolderSplitOnline,mdtCalibWindowNumber
-from MuonCalibFlags import mdtCalibFlags,cscCalibFlags
+from MuonCnvExample.MuonCnvUtils import specialAddFolderSplitOnline,mdtCalibWindowNumber
+from MuonCnvExample.MuonCalibFlags import mdtCalibFlags,cscCalibFlags
 mdtCalibFlags.setDefaults()
 cscCalibFlags.setDefaults()
 
@@ -31,7 +31,7 @@ def setupCscCondDB():
     from MuonCondSvc.CscCondDB import cscCondDB
 
     ## Load Ped File
-    if cscCalibFlags.CscPedFromLocalFile:
+    if cscCalibFlags.CscPedFromLocalFile():
         cscCondDB.useLocalFile( True )     #All following "add" db folder commands are from local files
         cscCondDB.addPedFolder()    #<--- Adds pedestal and noise folders
         cscCondDB.useLocalFile( False )     #To make sure to stop refering to local sqlite DB file
@@ -39,7 +39,7 @@ def setupCscCondDB():
         cscCondDB.addPedFolder()    #<--- Adds pedestal and noise folders
         
     ## Load Noise File
-    if cscCalibFlags.CscNoiseFromLocalFile:
+    if cscCalibFlags.CscNoiseFromLocalFile():
         cscCondDB.useLocalFile( True )     #All following "add" db folder commands are from local files
         cscCondDB.addNoiseFolder()    #<--- Adds pedestal and noise folders
         cscCondDB.useLocalFile( False )     #To make sure to stop refering to local sqlite DB file
@@ -47,7 +47,7 @@ def setupCscCondDB():
         cscCondDB.addNoiseFolder()    #<--- Adds pedestal and noise folders
 
     ## Load PSlope File
-    if cscCalibFlags.CscPSlopeFromLocalFile:
+    if cscCalibFlags.CscPSlopeFromLocalFile():
         cscCondDB.useLocalFile( True )     #All following "add" db folder commands are from local files
         cscCondDB.addPSlopeFolder()    #<--- Adds pedestal and noise folders
         cscCondDB.useLocalFile( False )     #To make sure to stop refering to local sqlite DB file
@@ -55,7 +55,7 @@ def setupCscCondDB():
         cscCondDB.addPSlopeFolder()    #<--- Adds pedestal and noise folders
 
     ## Load Status File
-    if cscCalibFlags.CscStatusFromLocalFile:
+    if cscCalibFlags.CscStatusFromLocalFile():
         cscCondDB.useLocalFile( True )     #All following "add" db folder commands are from local files
         cscCondDB.addStatusFolder()    #<--- Adds pedestal and noise folders
         cscCondDB.useLocalFile( False )     #To make sure to stop refering to local sqlite DB file
@@ -63,7 +63,7 @@ def setupCscCondDB():
         cscCondDB.addStatusFolder()    #<--- Adds pedestal and noise folders
 
     ## Load Rms File
-    if cscCalibFlags.CscRmsFromLocalFile:
+    if cscCalibFlags.CscRmsFromLocalFile():
         cscCondDB.useLocalFile( True )     #All following "add" db folder commands are from local files
         cscCondDB.addRmsFolder()    #<--- Adds pedestal and noise folders
         cscCondDB.useLocalFile( False )     #To make sure to stop refering to local sqlite DB file
@@ -71,7 +71,7 @@ def setupCscCondDB():
         cscCondDB.addRmsFolder()    #<--- Adds pedestal and noise folders
 
     ## Load F001 File
-    if cscCalibFlags.CscF001FromLocalFile:
+    if cscCalibFlags.CscF001FromLocalFile():
         cscCondDB.useLocalFile( True )     #All following "add" db folder commands are from local files
         cscCondDB.addF001Folder()   
         cscCondDB.useLocalFile( False )     #To make sure to stop refering to local sqlite DB file
@@ -84,7 +84,7 @@ def setupCscCondDB():
         log.info("This is for OffLine so T0Base and T0Phase folders are added!!")
 
         ## Load T0Base File
-        if cscCalibFlags.CscT0BaseFromLocalFile:
+        if cscCalibFlags.CscT0BaseFromLocalFile():
             cscCondDB.useLocalFile( True )     #All following "add" db folder commands are from local files
             cscCondDB.addT0BaseFolder()   
             cscCondDB.useLocalFile( False )     #To make sure to stop refering to local sqlite DB file
@@ -93,7 +93,7 @@ def setupCscCondDB():
 
 
         ## Load T0Phase File
-        if cscCalibFlags.CscT0PhaseFromLocalFile:
+        if cscCalibFlags.CscT0PhaseFromLocalFile():
             cscCondDB.useLocalFile( True )     #All following "add" db folder commands are from local files
             cscCondDB.addT0PhaseFolder()   
             cscCondDB.useLocalFile( False )     #To make sure to stop refering to local sqlite DB file

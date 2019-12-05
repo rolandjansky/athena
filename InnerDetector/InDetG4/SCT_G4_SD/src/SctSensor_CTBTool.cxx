@@ -23,7 +23,7 @@ SctSensor_CTBTool::SctSensor_CTBTool(const std::string& type, const std::string&
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4VSensitiveDetector* SctSensor_CTBTool::makeSD()
+G4VSensitiveDetector* SctSensor_CTBTool::makeSD() const
 {
   ATH_MSG_DEBUG( "Initializing SD" );
 

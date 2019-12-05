@@ -11,6 +11,7 @@
 
 #include "Particle/TrackParticle.h"
 #include "MVAUtils/BDT.h" 
+#include "MVAUtils/TMVAToMVAUtils.h"
 #include "GaudiKernel/IChronoStatSvc.h"
 //
 //-------------------------------------------------
@@ -86,9 +87,9 @@ InDetTrkInJetType::InDetTrkInJetType(const std::string& type,
         bool isGrad       = false;
         if(method_bdt->GetOptions().Contains("UseYesNoLeaf=True")) useYesNoLeaf = true;
         if(method_bdt->GetOptions().Contains("BoostType=Grad")) isGrad = true;
-        m_localBDT = new MVAUtils::BDT( method_bdt, isGrad, useYesNoLeaf);
-	if(!m_localBDT){   ATH_MSG_DEBUG("Error! No_BDT from MVAUtils created");
-                           return StatusCode::SUCCESS; }
+        m_localBDT = TMVAToMVAUtils::convert(method_bdt, isGrad, useYesNoLeaf).release();
+        if(!m_localBDT){   ATH_MSG_DEBUG("Error! No_BDT from MVAUtils created");
+          return StatusCode::SUCCESS; }
      }else{
         ATH_MSG_DEBUG("Error! No calibration for TrackClassification found.");
         return StatusCode::SUCCESS;

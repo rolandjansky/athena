@@ -63,7 +63,7 @@ if __name__=="__main__":
     cfg.merge(topoAcc)
 
     cfg.run(10)
-    f=open("DumpEventDataToJSONConfig.pkl","w")
+    f=open("DumpEventDataToJSONConfig.pkl","wb")
     cfg.store(f)
     f.close()
 

@@ -1,6 +1,5 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 ##
-# $Id$
-#
 # @file AthenaPoolUtilities/share/TPCnvTest.py
 # @author sss
 # @date Nov 2015
@@ -19,19 +18,24 @@
 
 import AthenaCommon.AtlasUnixStandardJob
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+from PyUtils.moduleExists import moduleExists
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
 import AthenaPoolCnvSvc.ReadAthenaPool
 
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
+
 # Make sure we don't have a stale file catalog.
 import os
 if os.path.exists ('PoolFileCatalog.xml'):
     os.remove ('PoolFileCatalog.xml')
 
-if (not globals().has_key ('ATLAS_REFERENCE_TAG') and
-    os.environ.has_key ('ATLAS_REFERENCE_TAG')):
+if (not 'ATLAS_REFERENCE_TAG' in globals() and
+    'ATLAS_REFERENCE_TAG' in os.environ):
     ATLAS_REFERENCE_TAG = os.environ['ATLAS_REFERENCE_TAG']
 
 refpaths = [os.environ.get ('ATLAS_REFERENCE_DATA', None),
@@ -62,18 +66,42 @@ if not globals().get ('noID',False):
 from AthenaCommon.JobProperties import jobproperties
 if jobproperties.Global.DetDescrVersion.isDefault():
     jobproperties.Global.DetDescrVersion = 'ATLAS-R1-2012-03-01-00'
-import imp
-have_atlas_geo = True
-try:
-    imp.find_module ('AtlasGeoModel')
-except ImportError:
-    have_atlas_geo = False
+have_atlas_geo = moduleExists ('AtlasGeoModel')
 if have_atlas_geo:
     import AtlasGeoModel.GeoModelInit
     import AtlasGeoModel.SetGeometryVersion
     svcMgr.GeoModelSvc.IgnoreTagDifference = True
 
-if not globals().has_key ('get_dumper_fct'):
+if have_atlas_geo and moduleExists ('TrkEventCnvTools') and moduleExists ('MuonEventCnvTools'):
+    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+    from TrkEventCnvTools import TrkEventCnvToolsConf
+    EventCnvSuperTool = TrkEventCnvToolsConf.Trk__EventCnvSuperTool('EventCnvSuperTool')
+    from MuonIdHelpers.MuonIdHelpersConf import Muon__MuonIdHelperSvc
+    svcMgr += Muon__MuonIdHelperSvc("MuonIdHelperSvc",HasCSC=MuonGeometryFlags.hasCSC(), HasSTgc=MuonGeometryFlags.hasSTGC(), HasMM=MuonGeometryFlags.hasMM())
+    ToolSvc += EventCnvSuperTool
+
+#
+# If a new xAOD variable appears, print a warning, but don't treat
+# it as a failure.
+#
+def checknewvars (output):
+    names = set()
+    for l in output.split ('\n'):
+        if not l: continue
+        if l.startswith ('+++') or l.startswith ('---'): continue
+        if l[0] == '-': return None
+        if l[0] == '+':
+            pos = l.find (':')
+            if l.startswith ('+     ') and pos > 0:
+                names.add (l[6:pos])
+            else:
+                return None
+    l = list(names)
+    l.sort()
+    return l
+            
+
+if not 'get_dumper_fct' in globals():
     from PyDumper.Dumpers import get_dumper_fct
 from AthenaPython import PyAthena
 class Dumper (PyAthena.Alg):
@@ -89,14 +117,14 @@ class Dumper (PyAthena.Alg):
         if not os.path.exists (self.reffile_name):
             self.reffile_name = '../' + self.reffile_name
 
-        if not os.path.exists (self.reffile_name) and globals().has_key ('ATLAS_REFERENCE_TAG'):
+        if not os.path.exists (self.reffile_name) and 'ATLAS_REFERENCE_TAG' in globals():
             from AthenaCommon.Utils.unixtools import find_datafile
             r = find_datafile (ATLAS_REFERENCE_TAG)
             if r:
                 self.reffile_name = os.path.join (r, ATLAS_REFERENCE_TAG,
                                                   refbase)
 
-        if not os.path.exists (self.reffile_name) and globals().has_key ('ATLAS_REFERENCE_TAG'):
+        if not os.path.exists (self.reffile_name) and 'ATLAS_REFERENCE_TAG' in globals():
             self.reffile_name = find_file (os.path.join (ATLAS_REFERENCE_TAG,
                                                          refbase))
 
@@ -106,9 +134,14 @@ class Dumper (PyAthena.Alg):
 
     def finalize (self):
         self.ofile.close()
-        ret = os.system ('diff -u %s %s' % (self.reffile_name, self.ofile_name))
+        ret, output = subprocess.getstatusoutput ('diff -u %s %s' % (self.reffile_name, self.ofile_name))
         if ret != 0:
-            print 'ERROR running diff with reference'
+            newvars = checknewvars (output)
+            if newvars:
+                print 'WARNING: new xAOD variables ', newvars
+            else:
+                print 'ERROR running diff with reference'
+                print output
         return 1
 
     def execute (self):

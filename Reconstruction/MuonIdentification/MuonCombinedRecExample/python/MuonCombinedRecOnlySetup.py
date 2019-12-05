@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """Configure all flags (for RecExCommon) so that only Muon Standalone and Muon Combined reconstruction are run"""
 
@@ -65,7 +65,6 @@ try:
     from ParticleBuilderOptions.AODFlags import AODFlags
     AODFlags.allSetOff()
     AODFlags.Muon = True
-    AODFlags.MuonTrackSlimmer = True
     AODFlags.SpclMC = True
 except ImportError:
     pass

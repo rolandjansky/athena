@@ -108,7 +108,7 @@ if __name__ == "__main__":
 
     ConfigFlags.dump()
     acc.printConfig(withDetails = True, summariseProps = True)
-    acc.store( open('TileDQstatus.pkl','w') )
+    acc.store( open('TileDQstatus.pkl','wb') )
 
     sc = acc.run(maxEvents = 3)
 

@@ -31,6 +31,13 @@ class doTauRec(JobProperty):
     def get_Value(self):
         return self.statusOn and self.StoredValue and jobproperties.tauRecFlags.Enabled()
 
+class tauRecSeedJetCollection(JobProperty):
+    """ jet collection used to seed tau reconstruction
+    """
+    statusOn=True
+    allowedTypes=['string']
+    StoredValue="AntiKt4LCTopoJets"
+
 class tauRecToolsCVMFSPath(JobProperty):
     """ path to cvmfs file location
     """
@@ -53,6 +60,13 @@ class tauRecMVATrackClassification(JobProperty):
     allowedTypes=['bool']
     StoredValue=True
 
+class tauRecRNNTrackClassification(JobProperty):
+    """Run the RNN Track Classifier
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
 #can set from the command line via:
 # --preExec 'RAWtoESD:from tauRec.tauRecFlags import tauFlags;tauFlags.tauRecMVATrackClassificationConfig()[0]=["file", somenumber]'
 class tauRecMVATrackClassificationConfig(JobProperty):
@@ -61,6 +75,13 @@ class tauRecMVATrackClassificationConfig(JobProperty):
     statusOn=True
     allowedTypes=[[[]]]
     StoredValue=[ ["TMVAClassification_BDT_l1.weights.root", 0.0002], ["TMVAClassification_BDT_l2.weights.root", -0.0080], ["TMVAClassification_BDT_l3.r207.weights.root", 0.0005] ]
+
+class tauRecRNNTrackClassificationConfig(JobProperty):
+    """Config file for RNNTrackClassification
+    """
+    statusOn=True
+    allowedTypes=['string']
+    StoredValue=["TauTrackRNN_default_v0.json"]
 
 class tauRecSeedMaxEta(JobProperty):
     """ max allowed abs_eta of jet seed
@@ -171,7 +192,7 @@ class tauRecFlags(JobPropertyContainer):
 jobproperties.add_Container(tauRecFlags)
 
 # I want always the following flags in the Rec container  
-_list_tau=[Enabled,doTauRec,tauRecToolsCVMFSPath,TauDiscriminantCVMFSPath,tauRecMVATrackClassification,tauRecMVATrackClassificationConfig,tauRecSeedMaxEta,tauRecToolsDevToolList,tauRecToolsDevToolListProcessor,doRunTauDiscriminant,useVertexBasedConvFinder,useNewPIDBasedConvFinder,doPanTau,doPi0,pi0EtCuts,pi0MVACuts_1prong,pi0MVACuts_mprong,shotPtCut_1Photon,shotPtCut_2Photons,useOldVertexFitterAPI]
+_list_tau=[Enabled,doTauRec,tauRecSeedJetCollection,tauRecToolsCVMFSPath,TauDiscriminantCVMFSPath,tauRecMVATrackClassification,tauRecRNNTrackClassification,tauRecMVATrackClassificationConfig,tauRecRNNTrackClassificationConfig,tauRecSeedMaxEta,tauRecToolsDevToolList,tauRecToolsDevToolListProcessor,doRunTauDiscriminant,useVertexBasedConvFinder,useNewPIDBasedConvFinder,doPanTau,doPi0,pi0EtCuts,pi0MVACuts_1prong,pi0MVACuts_mprong,shotPtCut_1Photon,shotPtCut_2Photons,useOldVertexFitterAPI]
 for j in _list_tau: 
     jobproperties.tauRecFlags.add_JobProperty(j)
 del _list_tau

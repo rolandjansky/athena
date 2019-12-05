@@ -57,7 +57,8 @@ namespace Trk
       qop = INVALID_QOP;
     }
 
-    // fill the parameters  
+    // fill the parameters
+    // cppcheck-suppress constStatement
     m_parameters << loc1, loc2, phi, theta, qop;
 
     // decide the sign of the charge
@@ -183,6 +184,7 @@ namespace Trk
       lPosition = Amg::Vector2D (INVALID,INVALID);
     
     // fill the vector now
+    // cppcheck-suppress constStatement
     m_parameters << lPosition[Trk::loc1], lPosition[Trk::loc2], phi, theta, qop;   
   }
   
@@ -231,7 +233,9 @@ namespace Trk
     
       // now assign
       m_parameters = rhs.m_parameters;
-      m_covariance = rhs.covariance() ? new AmgSymMatrix(DIM)(*rhs.covariance()) : 0;
+      m_covariance = rhs.covariance() ?
+        (new AmgSymMatrix(DIM)(*rhs.covariance()))
+        : 0;
       m_position   = rhs.position();
       m_momentum   = rhs.momentum();
       m_surface.reset( (rhs.m_surface && rhs.m_surface->isFree()) ? rhs.m_surface->clone() : rhs.m_surface.get());
@@ -377,9 +381,12 @@ namespace Trk
       double phi   = m_parameters[Trk::phi];
       double theta = m_parameters[Trk::theta];
       double p = INVALID_P;
-      if (m_parameters[Trk::qOverP] != 0)
-        p = this->charge()/m_parameters[Trk::qOverP];
-      m_momentum = Amg::Vector3D(p*cos(phi)*sin(theta),p*sin(phi)*sin(theta),p*cos(theta));
+      if (m_parameters[Trk::qOverP] != 0){
+        m_chargeDef = sgn(m_parameters[Trk::qOverP]);
+        p = fabs(1./m_parameters[Trk::qOverP]);
+      }
+      double sinTheta = sin(theta);
+      m_momentum = Amg::Vector3D(p*cos(phi)*sinTheta,p*sin(phi)*sinTheta,p*cos(theta));
     }
   }
 

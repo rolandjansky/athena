@@ -87,20 +87,19 @@ StatusCode electronSuperClusterBuilder::execute(){
 
     // Seed selections
     const xAOD::CaloCluster* clus= egRec->caloCluster();
-    static const  SG::AuxElement::ConstAccessor<float> acc("EMFraction");
-    double emFrac(0.);
-    if (acc.isAvailable(*clus)) {
-      emFrac = acc(*clus);
-    }
-    else if (!clus->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_EM,emFrac)){
-      ATH_MSG_WARNING("NO ENG_FRAC_EM moment available" );
-    }
-    //Require minimum EMFrac
-    if(emFrac<m_EMFracThresholdCut){
+    //The seed should have 2nd sampling   
+    if (!clus->hasSampling(CaloSampling::EMB2) && !clus->hasSampling(CaloSampling::EME2)){
       continue;
     }
+    const double eta2 = fabs(clus->etaBE(2));
+    if(eta2>10){
+      continue;
+    }  
+    //Accordeon Energy samplings 1 to 3
+    const double EMAccEnergy= clus->energyBE(1)+clus->energyBE(2)+clus->energyBE(3);
+    const double EMAccEt = EMAccEnergy/cosh(eta2);
     //Require minimum energy for supercluster seeding.
-    if (clus->et()*emFrac < m_EtThresholdCut){
+    if (EMAccEt < m_EtThresholdCut){
       continue;
     }
     //We need tracks
@@ -108,27 +107,35 @@ StatusCode electronSuperClusterBuilder::execute(){
       continue;
     }
 
-    //with silicon
-    if (xAOD::EgammaHelpers::numberOfSiHits(egRec->trackParticle(0)) < m_numberOfSiHits){
-      continue;
-    } 
-    //And pixel hits
-    uint8_t trkPixelHits(0);
+    //with possible pixel
+    uint8_t nPixelHits(0);
     uint8_t uint8_value(0);
     if (egRec->trackParticle(0)->summaryValue(uint8_value,  xAOD::numberOfPixelDeadSensors)){
-      trkPixelHits+=uint8_value;
+      nPixelHits+=uint8_value;
     }
     if (egRec->trackParticle(0)->summaryValue(uint8_value,  xAOD::numberOfPixelHits)){
-      trkPixelHits+=uint8_value;
+      nPixelHits+=uint8_value;
     }    
-    if (!trkPixelHits){
+    if (nPixelHits<m_numberOfPixelHits){
       continue;
     }
-    
+
+    //and with silicon (add SCT to pixel)
+    uint8_t  nSiHits=nPixelHits;
+    if (egRec->trackParticle(0)->summaryValue(uint8_value, xAOD::numberOfSCTHits)){
+         nSiHits += uint8_value;
+    }
+    if (nSiHits < m_numberOfSiHits){
+      continue;
+    } 
+   
     ATH_MSG_DEBUG("Creating supercluster egammaRec electron using cluster Et = " 
                   << egRec->caloCluster()->et() << " eta " << egRec->caloCluster()->eta() 
-                  << " phi "<< egRec->caloCluster()->phi()  << " EMFraction " << emFrac << " EM Et " 
-                  << egRec->caloCluster()->et()*emFrac << " pixel hits " << static_cast<unsigned int> (trkPixelHits));    
+                  << " phi "<< egRec->caloCluster()->phi()  << 
+                  " EM Accordeon Et " << EMAccEt
+                  <<" pixel hits " << static_cast<unsigned int> (nPixelHits)   
+                  <<" silicon hits " << static_cast<unsigned int> (nSiHits));    
+    
     //Mark seed as used
     isUsed.at(i)=true;     
 
@@ -141,7 +148,7 @@ StatusCode electronSuperClusterBuilder::execute(){
     ATH_MSG_DEBUG("Find secondary clusters");
     const std::vector<std::size_t> secondaryIndices = searchForSecondaryClusters(i, 
                                                                                  egammaRecs.cptr(), 
-                                                                                 emFrac,
+                                                                                 EMAccEnergy,
                                                                                  isUsed);
     for(const auto& secIndex : secondaryIndices){
       const auto secRec = egammaRecs->at(secIndex);
@@ -177,14 +184,13 @@ StatusCode electronSuperClusterBuilder::execute(){
   if (m_doTrackMatching){
     ATH_CHECK(m_trackMatchBuilder->executeRec(Gaudi::Hive::currentContext(),newEgammaRecs.ptr()));
   }
-
   return StatusCode::SUCCESS;
 }
 
 const std::vector<std::size_t> 
 electronSuperClusterBuilder::searchForSecondaryClusters(const std::size_t electronIndex,
                                                         const EgammaRecContainer* egammaRecs,
-                                                        const double emFrac,
+                                                        const double EMEnergy,
                                                         std::vector<bool>& isUsed){
   std::vector<std::size_t>  secondaryClusters;
   if (!egammaRecs) {
@@ -196,7 +202,7 @@ electronSuperClusterBuilder::searchForSecondaryClusters(const std::size_t electr
 
   const xAOD::TrackParticle* seedTrackParticle =seedEgammaRec->trackParticle();
   float qoverp = seedTrackParticle->qOverP();
-  float seedEOverP = seedEgammaRec->caloCluster()->e() * emFrac * fabs(qoverp);
+  float seedEOverP = EMEnergy * fabs(qoverp);
   static const SG::AuxElement::Accessor<float> pgExtrapEta ("perigeeExtrapEta");
   static const SG::AuxElement::Accessor<float> pgExtrapPhi ("perigeeExtrapPhi");
   

@@ -13,16 +13,23 @@ HECCell::~HECCell()
 
 
 unsigned int HECCell::getNumSubgaps() const {
-  if (m_subgap.size()==0) initHV();
+  //if (m_subgap.size()==0) initHV();
+  if(!m_initHVdone) initHV();
   return m_subgap.size();
 }
 
 const HECHVSubgap& HECCell::getSubgap (unsigned int i) const {
-  if (m_subgap.size()==0) initHV();
+  //if (m_subgap.size()==0) initHV();
+  if(!m_initHVdone) initHV();
   return *(m_subgap[i]);
 }
 
 void HECCell::initHV() const {
+
+  if(m_initHVdone) return; // should be done only once
+
+  std::lock_guard<std::mutex> lock(m_mut);
+
 
   const HECHVManager& hvManager=getDescriptor()->getManager()->getHVManager();
 
@@ -42,7 +49,7 @@ void HECCell::initHV() const {
     const HECHVSubgap& hvElec = hvMod.getSubgap(iSubgap);
     m_subgap.push_back(&hvElec);
   }
-
+  m_initHVdone=true;
 } 
 
 

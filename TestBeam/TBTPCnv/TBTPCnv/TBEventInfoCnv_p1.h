@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // -------------------------------------------------------------------
@@ -18,14 +18,17 @@ class MsgStream;
 class TBEventInfo;
 
 
-class TBEventInfoCnv_p1  : public T_AthenaPoolTPCnvBase<TBEventInfo, TBEventInfo_p1>
+class TBEventInfoCnv_p1  : public T_AthenaPoolTPCnvConstBase<TBEventInfo, TBEventInfo_p1>
 {
 public:
+  using base_class::transToPers;
+  using base_class::persToTrans;
+
 
   TBEventInfoCnv_p1() {}
 
-  virtual void          persToTrans(const TBEventInfo_p1* pers, TBEventInfo* trans, MsgStream &log);
-  virtual void          transToPers(const TBEventInfo* trans, TBEventInfo_p1* pers, MsgStream &log);
+  virtual void          persToTrans(const TBEventInfo_p1* pers, TBEventInfo* trans, MsgStream &log) const override;
+  virtual void          transToPers(const TBEventInfo* trans, TBEventInfo_p1* pers, MsgStream &log) const override;
 };
 
 

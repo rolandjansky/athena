@@ -141,7 +141,7 @@ def _make_vbenf_label(chain_parts):
     assert scenario.startswith('vbenf')
     args = _args_from_scenario(scenario)
     if not args:
-        return 'and([]simple([(50et)(70et)])combgen([(2)] dijet([(900mass, 26dphi)])))'        
+        return 'and([]simple([(50et)(70et)])combgen([(2)] dijet([(900djmass, 26djdphi)])))'        
     arg_res = [
         re.compile(r'(?P<lo>\d*)(?P<key>fbet)(?P<hi>\d*)'),
         re.compile(r'(?P<lo>\d*)(?P<key>mass)(?P<hi>\d*)'),
@@ -188,15 +188,14 @@ def _make_vbenf_label(chain_parts):
       )
       combgen
       (
-        # [(2)(10et)]
-        [(10et)]
+        [(10et, 0eta320)]
         dijet
         (
-          [(%(masslo).0fmass, 26dphi)]
+          [(%(masslo).0fdjmass, 26djdphi)]
         ) 
         simple
         (
-          [(10et)(20et)]
+          [(10et, 0eta320)(20et, 0eta320)]
         )
       )
     )""" % argvals
@@ -268,7 +267,7 @@ def _make_dijet_label(chain_parts):
                ]
     
             dijet(
-                  [(%(djmasslo).0fmass)])
+                  [(%(djmasslo).0fdjmass)])
             simple([(%(j1etlo).0fet, %(j1etalo).0feta%(j1etahi).0f)
                     (%(j2etlo).0fet, %(j2etalo).0feta%(j2etahi).0f)])
             )""" % argvals
@@ -338,7 +337,8 @@ def chainDict2jetLabel(chain_dict):
     for k in router: cp_sorter[k] = []
 
     for cp in chain_dict['chainParts']:
-        if cp['signature'] != 'Jet': continue
+        if cp['signature'] != 'Jet' and cp['signature'] != 'Bjet': 
+            continue
         for k in cp_sorter:
             if cp['hypoScenario'].startswith(k):
                 cp_sorter[k].append(cp)
@@ -367,7 +367,7 @@ def _tests():
     print('\n--------- _tests() starts _______')
 
     from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
-    from .ChainLabelParser import ChainLabelParser
+    from TrigHLTJetHypo.ChainLabelParser import ChainLabelParser
 
     chain_names = (
         'HLT_j85_L1J20',
@@ -400,7 +400,7 @@ def _tests1():
     print('\n--------- _tests1() starts _______')
 
     from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
-    from .ChainLabelParser import ChainLabelParser
+    from TrigHLTJetHypo.ChainLabelParser import ChainLabelParser
     
     chain_name = 'HLT_j85_L1J20'
     decodeChainName = DictFromChainName.DictFromChainName()
@@ -422,7 +422,7 @@ def _tests2():
     print('\n--------- _tests2() starts _______')
 
     from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
-    from .ChainLabelParser import ChainLabelParser
+    from TrigHLTJetHypo.ChainLabelParser import ChainLabelParser
     
     chain_name = 'HLT_j85_L1J20'
     decodeChainName = DictFromChainName.DictFromChainName()

@@ -18,6 +18,7 @@
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileEvent/TileDigitsContainer.h" 
 #include "TileEvent/TileRawChannelContainer.h"
+#include "TileConditions/TileInfo.h"
 #include "StoreGate/ReadHandle.h"
 
 #include "TH1S.h"
@@ -45,6 +46,7 @@ TileRawChannelMonTool::TileRawChannelMonTool(const std::string & type, const std
   , m_nEvents(0)
   , m_calibUnit(TileRawChannelUnit::Invalid)
   , m_drawHists(true)
+  , m_tileInfo(0)
 
 /*---------------------------------------------------------*/
 {
@@ -74,6 +76,7 @@ TileRawChannelMonTool::TileRawChannelMonTool(const std::string & type, const std
   declareProperty("ResetAfterSummaryUpdate", m_resetAfterSummaryUpdate = false);
   declareProperty("DoLaserSummaryVsPMT", m_doLaserSummaryVsPMT = false);
   declareProperty("MinAmpForCorrectedTime", m_minAmpForCorrectedTime = 0.5);
+  declareProperty("TileInfoName", m_infoName = "TileInfo");
   declareProperty("TileDQstatus", m_DQstatusKey = "TileDQstatus");
 }
 
@@ -101,6 +104,9 @@ StatusCode TileRawChannelMonTool::initialize()
 
   CHECK(TilePaterMonTool::initialize());
 
+  CHECK( detStore()->retrieve(m_tileInfo, m_infoName) );
+  if (m_tileInfo->ADCmax() == 4095) m_is12bit = true;
+  
   CHECK( m_DQstatusKey.initialize() );
 
   return StatusCode::SUCCESS;
@@ -207,14 +213,17 @@ void TileRawChannelMonTool::bookHists(int ros, int drawer)
         if (m_book2D) {
           std::string Hist2DName[4] = { "_amp_vs_q_100", "_amp_vs_q_5", "_time_vs_time_100", "_time_vs_time_5" };
           std::string Hist2DTitle[4] = { " amp vs charge 100 pF", " amp vs charge 5 pF", " time vs time 100 pF", " time vs time 5 pF" };
+	  float factor_charge = m_is12bit ? 2. : 1.;
+	  float factor_adc    = m_is12bit ? 4. : 1.;
+	  // Below, static_cast<float> is used to avoid warnings from -Wnarrowing
           float LowX_low2D[4] = { -4., -0.5, -0.25, -0.25 };
           float HighX_low2D[4] = { 804., 50.5, 25.25, 25.25 };
-          float LowX_hi2D[4] = { -0.0625, -0.0625, -0.25, -0.25 };
-          float HighX_hi2D[4] = { 12.5625, 12.5625, 25.25, 25.25 };
+          float LowX_hi2D[4] = { static_cast<float>(-0.0625 * factor_charge), static_cast<float>(-0.0625 * factor_charge), -0.25, -0.25 };
+          float HighX_hi2D[4] = { static_cast<float>(12.5625 * factor_charge), static_cast<float>(12.5625 * factor_charge), 25.25, 25.25 };
           float LowY_low2D[4] = { -25., -5.3125, -64.0, -64.0 };
           float HighY_low2D[4] = { 1025., 60.3125, 32.0, 32.0 };
-          float LowY_hi2D[4] = { -25., -25., -64.0, -64.0 };
-          float HighY_hi2D[4] = { 1025., 1025., 32.0, 32.0 };
+          float LowY_hi2D[4] = { static_cast<float>(-25. * factor_adc), static_cast<float>(-25. * factor_adc), -64.0, -64.0 };
+          float HighY_hi2D[4] = { static_cast<float>(1025. * factor_adc), static_cast<float>(1025. * factor_adc), 32.0, 32.0 };
 
           for (int type = 0; type < 4; type++) {
 

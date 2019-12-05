@@ -264,8 +264,8 @@ StatusCode TrigCostMTSvc::checkSlot(const EventContext& context) const {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 int32_t TrigCostMTSvc::getROIID(const EventContext& context) {
-  if (context.hasExtension<Atlas::ExtendedEventContext>()) {
-    const TrigRoiDescriptor* roi = context.getExtension<Atlas::ExtendedEventContext>().roiDescriptor();
+  if (Atlas::hasExtendedEventContext(context)) {
+    const TrigRoiDescriptor* roi = Atlas::getExtendedEventContext(context).roiDescriptor();
     if (roi) return static_cast<int32_t>(roi->roiId());
   }
   return AlgorithmIdentifier::s_noView;

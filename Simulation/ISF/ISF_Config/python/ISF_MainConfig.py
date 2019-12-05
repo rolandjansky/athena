@@ -208,11 +208,17 @@ def getKernel_GenericSimulatorMT(name="ISF_Kernel_GenericSimulatorMT", **kwargs)
     kwargs.setdefault("GeoIDSvc", "ISF_GeoIDSvc" )
     kwargs.setdefault("InputConverter", "ISF_InputConverter")
     kwargs.setdefault("OutputLevel", 1)
-    #from G4AtlasApps.SimFlags import simFlags
-    #kwargs.setdefault("TruthRecordService", simFlags.TruthStrategy.TruthServiceName())
+    from G4AtlasApps.SimFlags import simFlags
+    kwargs.setdefault("TruthRecordService", simFlags.TruthStrategy.TruthServiceName())
     #kwargs.setdefault("MemoryMonitoringTool", "ISF_MemoryMonitor")
     #kwargs.setdefault("DoCPUMonitoring", ISF_Flags.DoTimeMonitoring())
     #kwargs.setdefault("DoMemoryMonitoring", ISF_Flags.DoMemoryMonitoring())
+
+    # Multi-threading settinggs
+    from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
+    is_hive = (concurrencyProps.ConcurrencyFlags.NumThreads() > 0)
+    if is_hive:
+        kwargs.setdefault('Cardinality', concurrencyProps.ConcurrencyFlags.NumThreads())
 
     from ISF_Algorithms.ISF_AlgorithmsConf import ISF__SimKernelMT
     SimKernelMT = ISF__SimKernelMT(name, **kwargs)
@@ -247,6 +253,7 @@ def getKernel_MultiSimTest(name="ISF_Kernel_MultiSimTest", **kwargs):
 
 ############## Simulator: GenericG4Only ###############
 def getKernel_GenericG4Only(name="ISF_Kernel_GenericG4Only", **kwargs):
+    kwargs.setdefault("MaximumParticleVectorSize"   , 1000000)
     kwargs.setdefault("BeamPipeSimulationSelectors" , [ 'ISF_FullGeant4Selector' ] )
     kwargs.setdefault("IDSimulationSelectors"       , [ 'ISF_FullGeant4Selector' ] )
     kwargs.setdefault("CaloSimulationSelectors"     , [ 'ISF_FullGeant4Selector' ] )

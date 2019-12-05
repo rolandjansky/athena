@@ -34,6 +34,7 @@ atlas_add_poolcnv_library( TrkEventAthenaPoolPoolCnv
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
+atlas_install_python_modules( python/*.py )
 
 
 # Set up (a) test(s) for the converter(s):
@@ -45,7 +46,7 @@ find_package( AthenaPoolUtilitiesTest )
 
 if( ATHENAPOOLUTILITIESTEST_FOUND )
   set( TRKEVENTATHENAPOOL_REFERENCE_TAG
-       TrkEventAthenaPoolReference-01-00-00 )
+       TrkEventAthenaPoolReference-03-00-00 )
   run_tpcnv_test( TrkEventTPCnv_14.5.0   AOD-14.5.0-full
                   REQUIRED_LIBRARIES TrackParticleAthenaPoolPoolCnv
                   REFERENCE_TAG ${TRKEVENTATHENAPOOL_REFERENCE_TAG} )
@@ -67,3 +68,8 @@ if( ATHENAPOOLUTILITIESTEST_FOUND )
 else()
    message( WARNING "Couldn't find AthenaPoolUtilitiesTest. No test(s) set up." )
 endif()   
+
+atlas_add_test( TrackCollectionReadConfig_test
+                SCRIPT python -m TrkEventAthenaPool.TrackCollectionReadConfig
+                EXTRA_PATTERNS "-s ComponentAccumulator|^---" )
+

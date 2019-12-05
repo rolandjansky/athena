@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigGenericAlgs/DummyCopyAllTEAlgo.h"
-#include "boost/foreach.hpp"
 #include "TrigConfHLTData/HLTTriggerElement.h"
 /*
  * create TE for each input TE except last

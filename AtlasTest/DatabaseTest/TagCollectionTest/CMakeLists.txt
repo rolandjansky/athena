@@ -8,7 +8,6 @@ atlas_subdir( TagCollectionTest )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/MinimalRunTime
-                          TestPolicy
                         )
 
 # Install files from the package:

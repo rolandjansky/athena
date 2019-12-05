@@ -13,7 +13,6 @@
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "VxVertex/VxContainer.h"
-#include "xAODEventInfo/EventInfo.h"
 #include "BeamSpotConditionsData/BeamSpotData.h"
 
 namespace InDet {
@@ -28,14 +27,11 @@ namespace InDet {
     InDetBeamSpotReader  (const std::string& name, ISvcLocator* pSvcLocator);
     StatusCode initialize() override;
     StatusCode execute(const EventContext& ctx) const override;
-    StatusCode finalize() override;
-
 
   private:
-    SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
+    SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey {
+      this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 
-    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo
-      {this, "EvtInfo", "EventInfo", "EventInfo name"};
     SG::ReadHandleKey<VxContainer> m_vxContainer
       {this, "VxContainer", "VxPrimaryCandidate", "Vertex container name"};
   };

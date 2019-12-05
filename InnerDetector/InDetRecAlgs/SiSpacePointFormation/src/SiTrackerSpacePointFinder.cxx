@@ -138,6 +138,7 @@ StatusCode SiTrackerSpacePointFinder::initialize()
   // create containers (requires the Identifier Helpers)
   if (m_selectPixels){
     ATH_CHECK(detStore()->retrieve(m_idHelperPixel,"PixelID"));
+    ATH_CHECK(m_pixelDetEleCollKey.initialize());
   }
 
   if (m_selectSCTs) {

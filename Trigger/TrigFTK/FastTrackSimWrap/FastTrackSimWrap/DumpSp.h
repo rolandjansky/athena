@@ -41,7 +41,6 @@
 #include "GeneratorObjects/HepMcParticleLink.h"
 #include "TrkToolInterfaces/ITruthToTrack.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "StoreGate/ReadCondHandleKey.h"

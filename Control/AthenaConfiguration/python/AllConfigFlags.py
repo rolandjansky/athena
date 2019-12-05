@@ -5,24 +5,11 @@ from __future__ import print_function
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from AthenaCommon.SystemOfUnits import TeV
 from AthenaConfiguration.AutoConfigFlags import GetFileMD, GetDetDescrInfo
-import six
-
-
-def _moduleExists (modName):
-    if six.PY34:
-        import importlib
-        return importlib.util.find_spec (modName) is not None
-    else:
-        import imp
-        try:
-           imp.find_module (modName)
-        except ImportError:
-            return False
-        return True
+from PyUtils.moduleExists import moduleExists
 
 
 def _addFlagsCategory (acf, name, generator, modName = None):
-    if _moduleExists (modName):
+    if moduleExists (modName):
         return acf.addFlagsCategory (name, generator)
     return None
 
@@ -36,6 +23,7 @@ def _createCfgFlags():
     acf.addFlag('Input.isMC', lambda prevFlags : "IS_SIMULATION" in GetFileMD(prevFlags.Input.Files).get("eventTypes",[]) ) # former global.isMC
     acf.addFlag('Input.RunNumber', lambda prevFlags : list(GetFileMD(prevFlags.Input.Files).get("runNumbers",[]))) # former global.RunNumber
     acf.addFlag('Input.ProjectName', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("project_name","data17_13TeV") ) # former global.ProjectName
+    acf.addFlag('Input.Format', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("file_type","") ) # former global.InputFormat
 
     def _inputCollections(inputFile):
         rawCollections = [type_key[1] for type_key in GetFileMD(inputFile).get("itemList",[])]
@@ -56,7 +44,8 @@ def _createCfgFlags():
     acf.addFlag('Common.isOnline', False ) #  Job runs in an online environment (access only to resources available at P1) # former global.isOnline
     acf.addFlag('Common.useOnlineLumi', lambda prevFlags : prevFlags.Common.isOnline ) #  Use online version of luminosity. ??? Should just use isOnline?
     acf.addFlag('Common.doExpressProcessing', False)
-
+    acf.addFlag('Common.bunchCrossingSource', lambda prevFlags : "MC" if prevFlags.Input.isMC else "TrigConf") # what BunchCrossingTool should we use?
+    
     def _checkProject():
         import os
         if "AthSimulation_DIR" in os.environ:
@@ -74,15 +63,21 @@ def _createCfgFlags():
         (25./prevFlags.Beam.BunchSpacing)) # former flobal.estimatedLuminosity
 
 
-    acf.addFlag('Output.doESD', False) # produce ESD containers
 
-    acf.addFlag('Output.EVNTFileName','myEVNT.pool.root')
-    acf.addFlag('Output.HITSFileName','myHITS.pool.root')
-    acf.addFlag('Output.RDOFileName','myRDO.pool.root')
-    acf.addFlag('Output.ESDFileName','myESD.pool.root')
-    acf.addFlag('Output.AODFileName','myAOD.pool.root')
-    acf.addFlag('Output.HISTFileName','myHIST.root')
+    acf.addFlag('Output.EVNTFileName', '')
+    acf.addFlag('Output.HITSFileName', '')
+    acf.addFlag('Output.RDOFileName',  '')
+    acf.addFlag('Output.ESDFileName',  '')
+    acf.addFlag('Output.AODFileName',  '')
+    acf.addFlag('Output.HISTFileName', '')
     
+
+    acf.addFlag('Output.doWriteRDO', lambda prevFlags: bool(prevFlags.Output.RDOFileName)) # write out RDO file
+    acf.addFlag('Output.doWriteESD', lambda prevFlags: bool(prevFlags.Output.ESDFileName)) # write out ESD file
+    acf.addFlag('Output.doESD',      lambda prevFlags: prevFlags.Output.doWriteESD) # produce ESD containers
+    acf.addFlag('Output.doWriteAOD', lambda prevFlags: bool(prevFlags.Output.AODFileName)) # write out AOD file
+    acf.addFlag('Output.doWriteBS',  False) # write out RDO ByteStream file
+
     # Might move this elsewhere in the future.
     # Some flags from https://gitlab.cern.ch/atlas/athena/blob/master/Tracking/TrkDetDescr/TrkDetDescrSvc/python/TrkDetDescrJobProperties.py
     # (many, e.g. those that set properties of one tool are not needed)
@@ -116,7 +111,7 @@ def _createCfgFlags():
 #Geo Model Flags:
     acf.addFlag('GeoModel.Layout', 'atlas') # replaces global.GeoLayout
     acf.addFlag("GeoModel.AtlasVersion", lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("GeoAtlas",None) or "ATLAS-R2-2016-01-00-01") #
-    acf.addFlag("GeoModel.Align.Dynamic", lambda prevFlags : (not prevFlags.Detector.Simulate))
+    acf.addFlag("GeoModel.Align.Dynamic", lambda prevFlags : (not prevFlags.Detector.Simulate and not prevFlags.Input.isMC))
     acf.addFlag("GeoModel.StripGeoType", lambda prevFlags : GetDetDescrInfo(prevFlags.GeoModel.AtlasVersion).get('StripGeoType',"GMX")) # Based on CommonGeometryFlags.StripGeoType
     acf.addFlag("GeoModel.Run", lambda prevFlags : GetDetDescrInfo(prevFlags.GeoModel.AtlasVersion).get('Run',"RUN2")) # Based on CommonGeometryFlags.Run (InDetGeometryFlags.isSLHC replaced by GeoModel.Run=="RUN4")
     acf.addFlag("GeoModel.Type", lambda prevFlags : GetDetDescrInfo(prevFlags.GeoModel.AtlasVersion).get('GeoType',"UNDEFINED")) # Geometry type in {ITKLoI, ITkLoI-VF, etc...}

@@ -7,6 +7,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep, MenuSeque
 from TrigPartialEventBuilding.TrigPartialEventBuildingConf import PEBInfoWriterAlg
 from TrigPartialEventBuilding.TrigPartialEventBuildingConfig import StaticPEBInfoWriterToolCfg, RoIPEBInfoWriterToolCfg
 from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
+from libpyeformat_helper import SubDetector
 from AthenaCommon.CFElements import seqAND, findAlgorithm
 from AthenaCommon.Logging import logging
 log = logging.getLogger('EventBuildingSequenceSetup')
@@ -43,25 +44,38 @@ def pebInfoWriterTool(name, eventBuildType):
     Create PEBInfoWriterTool configuration for the eventBuildType
     '''
     tool = None
-    if 'LArPEB' in eventBuildType:
+    if 'BeamSpotPEB' in eventBuildType:
+        tool = StaticPEBInfoWriterToolCfg(name)
+        tool.addSubDets([
+            SubDetector.PIXEL_BARREL,
+            SubDetector.PIXEL_DISK_SIDE, # note different name in C++, ADHI-4753
+            SubDetector.PIXEL_B_LAYER,
+            SubDetector.PIXEL_IBL,
+            SubDetector.SCT_BARREL_A_SIDE,
+            SubDetector.SCT_BARREL_C_SIDE,
+            SubDetector.SCT_ENDCAP_A_SIDE,
+            SubDetector.SCT_ENDCAP_C_SIDE,
+            SubDetector.TDAQ_CTP
+        ])
+    elif 'LArPEB' in eventBuildType:
         tool = RoIPEBInfoWriterToolCfg(name)
         tool.DetNames = ['PIXEL', 'SCT', 'TRT', 'TTEM', 'TTHEC', 'FCALEM', 'FCALHAD']
-        # TODO: tool.MaxRoIsPerEvent = 5
+        tool.MaxRoIs = 5
         tool.addHLTResultToROBList()  # add the main (full) HLT result to the list
         tool.addCTPResultToROBList()  # add the CTP result to the list
     elif 'RPCPEBSecondaryReadout' in eventBuildType:
         tool = StaticPEBInfoWriterToolCfg(name)
-        tool.ROBList = [0x610080, 0x620080]
+        tool.addROBs([0x610080, 0x620080])
+    elif eventBuildType in EventBuildingInfo.getAllDataScoutingIdentifiers():
+        # Pure DataScouting configuration
+        tool = StaticPEBInfoWriterToolCfg(name)
+        moduleId = EventBuildingInfo.getDataScoutingResultID(eventBuildType)
+        tool.addHLTResultToROBList(moduleId)
 
     # Name not matched
     if not tool:
         log.error('PEBInfoWriterTool configuration is missing for event building identifier \'%s\'', eventBuildType)
         return None
-
-    # Add Data Scouting HLT result ROB
-    if eventBuildType in EventBuildingInfo.getAllDataScoutingResultIDs():
-        moduleId = EventBuildingInfo.getAllDataScoutingResultIDs()[eventBuildType]
-        tool.addHLTResultToROBList(moduleId)
 
     return tool
 

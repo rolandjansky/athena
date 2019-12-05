@@ -41,13 +41,13 @@ namespace Muon {
     virtual int getPdgId( int barcode ) const = 0;
 
     /** add identifier */
-    virtual void add( const Identifier& id, int level ) = 0;
+    virtual void add( const Identifier& id, int level ) const = 0;
 
     /** add segment */
-    virtual void add( const MuonSegment& seg, int level ) = 0;
+    virtual void add( const MuonSegment& seg, int level ) const = 0;
 
     /** add track */
-    virtual void add( const Trk::Track& track, int level ) = 0;
+    virtual void add( const Trk::Track& track, int level ) const = 0;
 
     /** print summary */
     virtual std::string printSummary() = 0;

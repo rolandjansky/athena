@@ -53,7 +53,8 @@ namespace asg {
       /// Destructor
       ~AsgTool();
 
-
+      AsgTool (const AsgTool&) = delete;
+      AsgTool& operator= (const AsgTool&) = delete;
      
 
 #ifdef ASGTOOL_STANDALONE

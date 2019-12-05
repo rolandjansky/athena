@@ -36,8 +36,8 @@ class ConfiguredTRTSegmentFinding:
     prefix = 'InDetSegment'
     suffix     = extension
     if usePrdAssociationTool:
-      InDetSegmentPRD_Association = TrackingCommon.getInDetTrackPRD_Association(prefix     = prefix,
-                                                                                suffix     = suffix,
+      InDetSegmentPRD_Association = TrackingCommon.getInDetTrackPRD_Association(namePrefix = prefix,
+                                                                                nameSuffix = suffix,
                                                                                 TracksName = list(InputCollections))
       topSequence += InDetSegmentPRD_Association
       if (InDetFlags.doPrintConfigurables()):

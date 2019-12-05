@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -11,7 +11,6 @@
 //====================================================================
 #include "RootDatabase.h"
 #include "RootTreeContainer.h"
-#include "StorageSvc/DbInstanceCount.h"
 #include "StorageSvc/IOODatabase.h"
 #include "StorageSvc/DbDatabase.h"
 #include "StorageSvc/DbOption.h"
@@ -49,12 +48,10 @@ RootDatabase::RootDatabase() :
         m_fileMgr(nullptr)
 {
   m_version = "1.1";
-  DbInstanceCount::increment(this);
   m_counters[READ_COUNTER] = m_counters[WRITE_COUNTER] = m_counters[OTHER_COUNTER] = 0;
 }
 
 RootDatabase::~RootDatabase()  {
-  DbInstanceCount::decrement(this);
   deletePtr(m_file);
 }
 
@@ -137,7 +134,6 @@ DbStatus RootDatabase::open(const DbDomain& domH,const std::string& nam,DbAccess
     
   }
 
-
   // FIXME: hack to avoid issue with setting up RecExCommon links
   if (m_fileMgr != nullptr && m_fileMgr->hasHandler(Io::ROOT).isFailure()) {
     log << DbPrintLvl::Info
@@ -146,6 +142,10 @@ DbStatus RootDatabase::open(const DbDomain& domH,const std::string& nam,DbAccess
 	<< DbPrint::endmsg;
     m_fileMgr = nullptr;
   }
+
+  // Lock ROOT::gCoreMutex before loading any dictionaries to avoid deadlocks
+  // see: https://its.cern.ch/jira/browse/ATR-20263
+  ROOT::TReadLockGuard lock (ROOT::gCoreMutex);
 
   if ( mode == pool::READ )   {
     if (m_fileMgr == nullptr) {

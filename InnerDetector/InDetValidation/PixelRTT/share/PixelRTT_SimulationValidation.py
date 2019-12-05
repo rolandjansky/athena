@@ -133,8 +133,8 @@ else:
 #
 from IOVDbSvc.CondDB import conddb
 if not conddb.folderRequested('/Indet/PixelDist'):
-  conddb.addFolder('PIXEL_OFL','/Indet/PixelDist')
-conddb.addOverride("/Indet/PixelDist","InDetPixelDist-nominal")
+  conddb.addFolder('PIXEL_OFL','/Indet/PixelDist',className="DetCondCFloat")
+conddb.addOverride("/Indet/PixelDist","InDetPixelDist-nominal",className="DetCondCFloat")
 
 
 
@@ -166,7 +166,17 @@ conddb.addOverride("/Indet/PixelDist","InDetPixelDist-nominal")
 # Include clusterization
 # (need to set up services not already configured for digitization) 
 #
-include ("PixelConditionsServices/PixelRecoDb_jobOptions.py")
+from IOVDbSvc.CondDB import conddb
+if not conddb.folderRequested("/PIXEL/PixReco"):
+    conddb.addFolder("PIXEL_OFL", "/PIXEL/PixReco", className="DetCondCFloat")
+
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+if not hasattr(condSeq, 'PixelOfflineCalibCondAlg'):
+    from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelOfflineCalibCondAlg
+    condSeq += PixelOfflineCalibCondAlg(name="PixelOfflineCalibCondAlg", ReadKey="/PIXEL/PixReco")
+    PixelOfflineCalibCondAlg.InputSource = 2
+
 from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__PixelClusterization
 job += InDet__PixelClusterization("PixelClusterization")
 print job.PixelClusterization

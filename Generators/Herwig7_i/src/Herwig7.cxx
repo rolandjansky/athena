@@ -31,8 +31,6 @@
 #include "boost/thread/thread.hpp"
 #include "boost/filesystem.hpp"
 #include "boost/algorithm/string.hpp"
-#include "boost/foreach.hpp"
-#define foreach BOOST_FOREACH
 
 
 // Setup HepMC traits definition for ThePEG's converter to work
@@ -144,7 +142,7 @@ StatusCode Herwig7::genInitialize() {
     const string sharepath = "/InstallArea/" + cmtconfig + "/share";
     const string libpath = "/InstallArea/" + cmtconfig + "/lib";
     // Prepend to the repository and loader command file search paths
-    foreach (const string& p, cmtpaths) {
+    for (const string& p : cmtpaths) {
       const string cmtsharepath = p + sharepath;
       ATH_MSG_DEBUG("Appending " + cmtsharepath + " to ThePEG repository and command file search paths");
       reposearchpaths = reposearchpaths + (reposearchpaths.length() == 0 ? "" : ":") + cmtsharepath;

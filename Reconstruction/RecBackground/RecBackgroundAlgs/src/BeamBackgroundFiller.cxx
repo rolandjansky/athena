@@ -75,7 +75,7 @@ StatusCode BeamBackgroundFiller::initialize() {
   CHECK( m_idHelperTool.retrieve() );
   CHECK( m_idToFixedIdTool.retrieve() );
 
-  ATH_CHECK(m_cscSegmentContainerReadHandleKey.initialize());
+  if (m_idHelperTool->hasCSC()) ATH_CHECK(m_cscSegmentContainerReadHandleKey.initialize());
   ATH_CHECK(m_mdtSegmentContainerReadHandleKey.initialize());
   ATH_CHECK(m_caloClusterContainerReadHandleKey.initialize());
   ATH_CHECK(m_jetContainerReadHandleKey.initialize());
@@ -127,39 +127,41 @@ void BeamBackgroundFiller::FillMatchMatrix()
   m_matchMatrix.clear();
   m_resultClus.clear();
 
-  // select only the CSC segments with the global direction parallel to the beam pipe
-  SG::ReadHandle<Trk::SegmentCollection> cscSegmentReadHandle(m_cscSegmentContainerReadHandleKey);
-  
-  if (!cscSegmentReadHandle.isValid()) {
-    ATH_MSG_WARNING("Invalid ReadHandle to Trk::SegmentCollection with name: " << m_cscSegmentContainerReadHandleKey);
-  }
-  else {
-    ATH_MSG_DEBUG(m_cscSegmentContainerReadHandleKey << " retrieved from StoreGate");
-  
-    unsigned int cscSegmentCounter = 0;
-    for (auto thisCSCSegment : *cscSegmentReadHandle){
-      cscSegmentCounter++;
-      const Muon::MuonSegment* seg = dynamic_cast<const Muon::MuonSegment*>(thisCSCSegment);
-      
-      if (!seg) std::abort();
-      
-      Identifier id = m_edmHelperSvc->chamberId(*seg);
-      if ( !id.is_valid() ) continue;
-      if ( !m_idHelperTool->isMuon(id) ) continue;
-      
-      if ( !m_idHelperTool->isCsc(id) ) continue;
-      
-      const Amg::Vector3D& globalPos = seg->globalPosition();
-      const Amg::Vector3D& globalDir = seg->globalDirection();
-      double thetaPos = globalPos.theta();
-      double thetaDir = globalDir.theta();
-      
-      double d2r = TMath::Pi()/180.;
-      if( TMath::Cos(2.*(thetaPos-thetaDir)) > TMath::Cos(2.*m_cutThetaCsc*d2r) ) continue;
-      
-      ElementLink<Trk::SegmentCollection> segLink;
-      segLink.toIndexedElement(*cscSegmentReadHandle, cscSegmentCounter-1);
-      m_indexSeg.push_back(segLink);
+  if (m_idHelperTool->hasCSC()) {
+    // select only the CSC segments with the global direction parallel to the beam pipe
+    SG::ReadHandle<Trk::SegmentCollection> cscSegmentReadHandle(m_cscSegmentContainerReadHandleKey);
+    
+    if (!cscSegmentReadHandle.isValid()) {
+      ATH_MSG_WARNING("Invalid ReadHandle to Trk::SegmentCollection with name: " << m_cscSegmentContainerReadHandleKey);
+    }
+    else {
+      ATH_MSG_DEBUG(m_cscSegmentContainerReadHandleKey << " retrieved from StoreGate");
+    
+      unsigned int cscSegmentCounter = 0;
+      for (auto thisCSCSegment : *cscSegmentReadHandle){
+        cscSegmentCounter++;
+        const Muon::MuonSegment* seg = dynamic_cast<const Muon::MuonSegment*>(thisCSCSegment);
+        
+        if (!seg) std::abort();
+        
+        Identifier id = m_edmHelperSvc->chamberId(*seg);
+        if ( !id.is_valid() ) continue;
+        if ( !m_idHelperTool->isMuon(id) ) continue;
+        
+        if ( !m_idHelperTool->isCsc(id) ) continue;
+        
+        const Amg::Vector3D& globalPos = seg->globalPosition();
+        const Amg::Vector3D& globalDir = seg->globalDirection();
+        double thetaPos = globalPos.theta();
+        double thetaDir = globalDir.theta();
+        
+        double d2r = TMath::Pi()/180.;
+        if( TMath::Cos(2.*(thetaPos-thetaDir)) > TMath::Cos(2.*m_cutThetaCsc*d2r) ) continue;
+        
+        ElementLink<Trk::SegmentCollection> segLink;
+        segLink.toIndexedElement(*cscSegmentReadHandle, cscSegmentCounter-1);
+        m_indexSeg.push_back(segLink);
+      }
     }
   }
   

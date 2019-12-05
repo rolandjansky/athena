@@ -19,10 +19,11 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           HLT/Trigger/TrigControl/TrigKernel
                           Trigger/TrigDataAccess/TrigDataAccessMonitoring
-                          Trigger/TrigDataAccess/TrigROBDataProviderSvc
                           Trigger/TrigEvent/TrigSteeringEvent
                           PRIVATE
+                          Control/AthenaInterprocess
                           Control/CxxUtils
+                          Control/AthenaMonitoring
                           Database/AthenaPOOL/AthenaPoolUtilities
                           Trigger/TrigConfiguration/TrigConfInterfaces
                           Trigger/TrigSteer/TrigOutputHandling )
@@ -37,11 +38,12 @@ find_package( TBB )
 
 # Component(s) in the package:
 atlas_add_library( TrigServicesLib
-                   NO_PUBLIC_HEADERS
                    src/*.cxx
+                   NO_PUBLIC_HEADERS
                    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${TDAQ_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${TDAQ_LIBRARIES} AthenaBaseComps AthenaKernel AthenaPoolUtilities ByteStreamCnvSvcLib ByteStreamData EventInfoUtils xAODEventInfo GaudiKernel TrigKernel TrigSteeringEvent StoreGateLib ByteStreamCnvSvcBaseLib ByteStreamData_test TrigDataAccessMonitoringLib TrigROBDataProviderSvcLib TrigOutputHandlingLib )
+                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${TDAQ_LIBRARIES} AthenaBaseComps AthenaKernel AthenaPoolUtilities ByteStreamCnvSvcLib ByteStreamData EventInfoUtils xAODEventInfo GaudiKernel TrigKernel TrigSteeringEvent StoreGateLib ByteStreamCnvSvcBaseLib ByteStreamData_test TrigDataAccessMonitoringLib TrigOutputHandlingLib
+                   PRIVATE_LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaInterprocess )
 
 atlas_add_component( TrigServices
                      src/components/*.cxx
@@ -50,5 +52,3 @@ atlas_add_component( TrigServices
 # Install files from the package:
 atlas_install_python_modules( python/*.py
                               POST_BUILD_CMD ${ATLAS_FLAKE8} )
-
-atlas_install_joboptions( share/*.py )

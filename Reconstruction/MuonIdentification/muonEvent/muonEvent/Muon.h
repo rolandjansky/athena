@@ -1,7 +1,7 @@
 // dear emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONEVENT_MUON_H
@@ -222,6 +222,8 @@ class Muon : public ParticleImpl<
   /** get the number of DoF of the track match at perigee */
   int matchNumberDoF() const {return m_matchNumberDoF;}
 
+  int outerMatchNumberDoF() const {return m_outerMatchNumberDoF;}
+
   /** get the chi2 of the track fit */
   double fitChi2() const {
     const Rec::TrackParticle * theTrack = track();
@@ -335,34 +337,75 @@ class Muon : public ParticleImpl<
     return ( (this->hasStatCombinedMuonTrackParticle()) ? *m_statCombinedMuonTrackParticle : 0); }
 
   /** Access to vector smart pointers (ElementLink) to muon segments */
-  const ElementLinkVector<Trk::SegmentCollection> muonSegmentLink() const { return m_muonSegments; }
+  const ElementLinkVector<Trk::SegmentCollection>& muonSegmentLink() const { return m_muonSegments; }
+
+  void setMuonSegmentLink (const ElementLinkVector<Trk::SegmentCollection>& l)
+  { m_muonSegments = l; }
 
   /** Access  to the smart pointer (ElementLink) to a given muon segment in the list */
   const ElementLink<Trk::SegmentCollection> muonSegmentLink(const unsigned int i, bool& validLink) const;
 
   /** Access to the smart pointer to inner detector track */
-  const ElementLink<Rec::TrackParticleContainer> inDetTrackLink() const { return m_inDetTrackParticle; }
+  const ElementLink<Rec::TrackParticleContainer>& inDetTrackLink() const { return m_inDetTrackParticle; }
+
+  void setInDetTrackLink(const ElementLink<Rec::TrackParticleContainer>& l)
+  { m_inDetTrackParticle = l; }
 
   /** Access to the smart pointer to the muon track extrapolated to the vertex */
-  const ElementLink<Rec::TrackParticleContainer> muonExtrapTrackLink() const { return m_muonExtrapolatedTrackParticle; }
+  const ElementLink<Rec::TrackParticleContainer>& muonExtrapTrackLink() const { return m_muonExtrapolatedTrackParticle; }
+
+  void setMuonExtrapTrackLink (const ElementLink<Rec::TrackParticleContainer>& l,
+                               bool isValid)
+  {
+    m_muonExtrapolatedTrackParticle = l;
+    m_hasMuonExtrapolatedTrackParticle = isValid;
+  }
+
+  bool hasMuonExtrapolatedTrackParticleFlag() const
+  { return m_hasMuonExtrapolatedTrackParticle; }
 
   /** Access to the smart pointer to the muon track extrapolated out from the vertex */
-  const ElementLink<Rec::TrackParticleContainer> innerExtrapTrackLink() const { return m_innerExtrapolatedTrackParticle; }
+  const ElementLink<Rec::TrackParticleContainer>& innerExtrapTrackLink() const { return m_innerExtrapolatedTrackParticle; }
+
+  void setInnerExtrapTrackLink (const ElementLink<Rec::TrackParticleContainer>& l)
+  { m_innerExtrapolatedTrackParticle = l; }
 
   /** Access to the smart pointer to the muon combined track */
-  const ElementLink<Rec::TrackParticleContainer> combinedTrackLink() const { return m_combinedMuonTrackParticle; }
+  const ElementLink<Rec::TrackParticleContainer>& combinedTrackLink() const { return m_combinedMuonTrackParticle; }
+
+  void setCombinedTrackLink (const ElementLink<Rec::TrackParticleContainer>& l,
+                             bool isValid)
+  {
+    m_combinedMuonTrackParticle = l;
+    m_hasCombinedMuonTrackParticle = isValid;
+  }
+
+  bool hasCombinedMuonTrackParticleFlag() const
+  { return m_hasCombinedMuonTrackParticle; }
 
   /** Access to the smart pointer to the muon combined track */
-  const ElementLink<Rec::TrackParticleContainer> statCombinedTrackLink() const { return m_statCombinedMuonTrackParticle; }
+  const ElementLink<Rec::TrackParticleContainer>& statCombinedTrackLink() const { return m_statCombinedMuonTrackParticle; }
+
+  void setStatCombinedTrackLink (const ElementLink<Rec::TrackParticleContainer>& l)
+  { m_statCombinedMuonTrackParticle = l; }
 
   /** Access to the smart pointer to the muon spectrometer track */
-  const ElementLink<Rec::TrackParticleContainer> muonSpectrometerTrackLink() const { return m_muonSpectrometerTrackParticle; }
+  const ElementLink<Rec::TrackParticleContainer>& muonSpectrometerTrackLink() const { return m_muonSpectrometerTrackParticle; }
+
+  void setMuonSpectrometerTrackLink (const ElementLink<Rec::TrackParticleContainer>& l)
+  { m_muonSpectrometerTrackParticle = l; }
 
   /*8 Access to the smart pointer to the calo  cluster associated to the muon */
   const ElementLink<CaloClusterContainer>& clusterLink() const { return m_cluster; }
 
+  void setClusterLink (const ElementLink<CaloClusterContainer>& l)
+  { m_cluster = l; }
+
   /** Access to the smart pointer to the calorimeter energy loss objeect associated to the muon */
-  const ElementLink<MuonCaloEnergyContainer> caloEnergyLink() const { return m_caloEnergyLoss; }
+  const ElementLink<MuonCaloEnergyContainer>& caloEnergyLink() const { return m_caloEnergyLoss; }
+
+  void setCaloEnergyLink (const ElementLink<MuonCaloEnergyContainer>& l)
+  { m_caloEnergyLoss = l; }
 
   /** access to the calorimeter info */
   const CaloCluster* cluster() const { return ((this->hasCluster()) ? *m_cluster : 0); }
@@ -558,22 +601,18 @@ class Muon : public ParticleImpl<
   /** set the Calorimeter information */
   void set_cluster( const CaloClusterContainer* cont, const CaloCluster* cluster ) {
     m_cluster.toContainedElement( *cont, const_cast<CaloCluster*> (cluster));
-    m_hasCluster = m_cluster.isValid();
   }
   /** set the Calorimeter information */
   void set_cluster( const CaloCluster* cluster) {
      m_cluster.setElement(const_cast<CaloCluster*>(cluster));
-     m_hasCluster = m_cluster.isValid();
   }
   /** set the Calorimeter information, by link */
   void set_cluster( const ElementLink<CaloClusterContainer>& cluster) {
      m_cluster = cluster;
-     m_hasCluster = m_cluster.isValid();
   }
   /** set the Calorimeter information */
   void set_clusterContainer(const CaloClusterContainer * clusterContainer) {
      m_cluster.setStorableObject(*clusterContainer);
-     m_hasCluster = m_cluster.isValid();
   }
 
   /** Set the inner detector track particle. Does not change the Muon's 4-momentum. */
@@ -610,7 +649,6 @@ class Muon : public ParticleImpl<
   /** set the TrackParticle containers */
   void set_inDetTrackParticleContainer(const Rec::TrackParticleContainer * inDetTPContainer) {
      m_inDetTrackParticle.setStorableObject(*inDetTPContainer);
-     m_hasInDetTrackParticle = m_inDetTrackParticle.isValid();
   }
   /** set the TrackParticle containers */
   void set_muonExtrapolatedTrackParticleContainer(const Rec::TrackParticleContainer *
@@ -622,7 +660,6 @@ class Muon : public ParticleImpl<
   void set_innerExtrapolatedTrackParticleContainer(const Rec::TrackParticleContainer *
                                                    innerExtrapolatedTPContainer) {
      m_innerExtrapolatedTrackParticle.setStorableObject(*innerExtrapolatedTPContainer);
-     m_hasInnerExtrapolatedTrackParticle = m_innerExtrapolatedTrackParticle.isValid();
   }
   /** set the TrackParticle containers */
   void set_combinedMuonTrackParticleContainer(const Rec::TrackParticleContainer * combinedMuonTPContainer) {
@@ -721,17 +758,9 @@ class Muon : public ParticleImpl<
   /** the author of this muon */
   MuonParameters::Author m_author;
 
-  /** was there a successfully combined trach? */
-  bool m_hasCombinedMuon;
-
   /** test for TrackParticles */
-  bool m_hasInDetTrackParticle;
   bool m_hasMuonExtrapolatedTrackParticle;
-  bool m_hasInnerExtrapolatedTrackParticle;
   bool m_hasCombinedMuonTrackParticle;
-
-  /* Calorimeter cluster info */
-  bool m_hasCluster;
 
   /* chi2 of the track matching */
   float m_matchChi2;

@@ -1,13 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILEHITVECTORCNV_P1_H
 #define TILEHITVECTORCNV_P1_H
 
-#define private public
 #include "TileSimEventTPCnv/TileHitVector_p1.h"
-#undef private 
 #include "TileSimEvent/TileHitVector.h"
 #include "TileSimEventTPCnv/TileHitCnv_p1.h"
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"

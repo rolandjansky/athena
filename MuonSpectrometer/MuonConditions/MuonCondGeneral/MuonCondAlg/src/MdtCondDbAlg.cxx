@@ -3,6 +3,7 @@
 */
 
 #include "MuonCondAlg/MdtCondDbAlg.h"
+#include "AthenaKernel/IOVInfiniteRange.h"
 
 // constructor
 MdtCondDbAlg::MdtCondDbAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
@@ -74,9 +75,7 @@ MdtCondDbAlg::execute(const EventContext& ctx) const {
 
 
     //Start with an infinte range and narrow it down as needed
-    const EventIDBase start{EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT, 0, 0, EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
-    const EventIDBase stop{EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT, EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
-    EventIDRange rangeW{start, stop};
+    EventIDRange rangeW=IOVInfiniteRange::infiniteMixed();
 
     // retrieving data
     if(m_isData && m_isRun1) {

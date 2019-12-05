@@ -8,7 +8,6 @@ atlas_subdir( CscCalibAlgs )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/MinimalRunTime
-                          TestPolicy
                           PRIVATE
                           Control/AthenaBaseComps
                           Control/AthContainers

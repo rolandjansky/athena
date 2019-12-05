@@ -4,9 +4,7 @@
 
 from MuonCondSvc.MuonCondSvcConf import MuonCalib__CscCoolStrSvc
 from MuonConfig.MuonCondAlgConfig import CscCondDbAlgCfg
-from MdtCalibSvc.MdtCalibSvcConf import MdtCalibrationDbSvc, MdtCalibrationSvc
 from MdtCalibDbCoolStrTool.MdtCalibDbCoolStrToolConf import MuonCalib__MdtCalibDbCoolStrTool
-from MuonCnvExample.MuonCnvUtils import mdtCalibWindowNumber
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from IOVDbSvc.IOVDbSvcConfig import addFolders, addFoldersSplitOnline
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
@@ -446,52 +444,6 @@ def MdtCalibDbCoolStrToolCfg(flags,name="MdtCalibDbTool",**kwargs):
     kwargs.setdefault("PropagationSpeedBeta", flags.Muon.Calib.mdtPropagationSpeedBeta)
     result.setPrivateTools(MuonCalib__MdtCalibDbCoolStrTool(name,**kwargs))
     return result
-
-def MdtCalibrationDbSvcCfg(flags, **kwargs):
-    
-    result = MdtCalibDbCoolStrToolCfg(flags)
-    db_tool = result.getPrimary()
-    result.addPublicTool(db_tool)
-    
-    kwargs.setdefault( "CreateBFieldFunctions", flags.Muon.Calib.correctMdtRtForBField )
-    kwargs.setdefault( "CreateWireSagFunctions", flags.Muon.Calib.correctMdtRtWireSag )
-    kwargs.setdefault( "CreateSlewingFunctions", flags.Muon.Calib.correctMdtRtForTimeSlewing)
-    kwargs.setdefault( "DBTool", db_tool)
-    
-    mdt_calib_db_svc = MdtCalibrationDbSvc(**kwargs)
-    result.addService(mdt_calib_db_svc,primary=True)
-    
-    return result
-
-def MdtCalibrationSvcCfg(flags, **kwargs):
-    result=ComponentAccumulator()
-    
-    # call dependent tools. TODO: fix in C++ (move to ServiceHandle + declareProperty)
-    # C++ code is missing Property declaration of MagFieldSvc, but it does depend on it.
-    
-    acc = MagneticFieldSvcCfg(flags)
-    result.merge( acc )
-    
-    acc = MdtCalibrationDbSvcCfg(flags)
-    result.merge(acc)
-    
-    kwargs.setdefault( "DoSlewingCorrection",  flags.Muon.Calib.correctMdtRtForTimeSlewing )
-
-# Hack to use DoTemperatureCorrection for applyRtScaling; but applyRtScaling should not be used anyway, since MLRT can be used
-    kwargs.setdefault( "DoTemperatureCorrection", flags.Muon.Calib.applyRtScaling ) #TODO get MDT expert to help fix this.
-    kwargs.setdefault( "DoWireSagCorrection",  flags.Muon.Calib.correctMdtRtWireSag )
-    if flags.Beam.Type== 'collisions':
-        kwargs.setdefault("DoTofCorrection",True)
-        # for collisions cut away hits that are far outside of the MDT time window
-        kwargs.setdefault( "TimeWindowSetting", mdtCalibWindowNumber('Collision_G4') )
-
-    else: # cosmics or single beam
-        kwargs.setdefault("DoTofCorrection",False)
-
-    mdt_calib_svc = MdtCalibrationSvc(**kwargs)
-    result.addService(mdt_calib_svc,primary=True)
-    return result
-
 
 def MdtCalibDbAlgCfg(flags,name="MdtCalibDbAlg",**kwargs):
     result = ComponentAccumulator()

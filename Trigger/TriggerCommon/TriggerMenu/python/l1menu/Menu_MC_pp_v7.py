@@ -2,6 +2,8 @@
 #
 # Run this file in order to print out the empty slots
 
+from __future__ import print_function
+
 def print_available():
     from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
     defineMenu()
@@ -11,8 +13,8 @@ def print_available():
       if i>=509 and i<=511: continue #reserved for CALREQ
       if not i in Lvl1Flags.CtpIdMap().values(): available.append(i)
     available.sort()
-    print "There are %d available CTP IDs:"%len(available),",".join(map(str,available))
-    print "IDs >= 472 go in partition 2, IDs >= 492 go in partition 3"
+    print ("There are %d available CTP IDs:"%len(available),",".join(map(str,available)))
+    print ("IDs >= 472 go in partition 2, IDs >= 492 go in partition 3")
 
 
 def defineMenu():

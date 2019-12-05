@@ -32,7 +32,7 @@
 #include "TileConditions/TileCondToolOfcCool.h"
 #include "TileConditions/TileCondToolMuID.h"
 #include "TileConditions/TileCondToolAutoCr.h"
-
+#include "TileConditions/TileInfo.h"
 
 class ITHistSvc;
 class TileHWID;
@@ -134,6 +134,11 @@ class TileInfoDump: public AthAlgorithm {
     unsigned int m_printOfcRos;
     unsigned int m_printOfcDrawer;
     unsigned int m_printOfcChannel;
+
+    //=== TileInfo
+    std::string m_infoName;
+    const TileInfo* m_tileInfo;
+    int m_i_ADCmax;
 };
 
 #endif 

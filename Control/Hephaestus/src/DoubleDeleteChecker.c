@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Hephaestus/Hephaestus.h"
@@ -286,6 +286,21 @@ static PyMethodDef gDeleteCheckerMethods[] = {
 PyObject* initDoubleDeleteChecker() {
    PyObject* ddcheck;
 
+#if PY_MAJOR_VERSION >= 3
+   static struct PyModuleDef moduledef = {
+     PyModuleDef_HEAD_INIT,
+     "DeleteChecker",     /* m_name */
+     "Double delete checker",  /* m_doc */
+     -1,                  /* m_size */
+     gDeleteCheckerMethods,    /* m_methods */
+     NULL,                /* m_reload */
+     NULL,                /* m_traverse */
+     NULL,                /* m_clear */
+     NULL,                /* m_free */
+   };
+   ddcheck = PyModule_Create (&moduledef);
+#else   
    ddcheck = Py_InitModule( (char*)"DeleteChecker", gDeleteCheckerMethods );
+#endif
    return ddcheck;
 }

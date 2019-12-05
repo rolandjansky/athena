@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 """Provide a  look up tables that connects logical algortihm names to
 factory functions and arguments.
@@ -254,7 +256,7 @@ class AlgFactory(object):
         factory = 'TrigHLTJetRecGroomer'
         # add factory to instance label to facilitate log file searches                      
         name = '"%s_%s"' %(factory, self.fex_params.fex_label)
-        print 'after name' #Nima!
+        print ('after name') #Nima!
         kwds = {
             'name': name,  # instance label                                     
             'merge_param': "'%s'" % merge_param_str,

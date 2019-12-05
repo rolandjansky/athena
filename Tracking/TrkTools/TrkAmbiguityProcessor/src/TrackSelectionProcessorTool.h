@@ -12,8 +12,13 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkToolInterfaces/IAmbiTrackSelectionTool.h"
 
+#include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
+#include "TrkEventUtils/PRDtoTrackMap.h"
+
 //need to include the following, since its a typedef and can't be forward declared.
 #include "TrkTrack/TrackCollection.h"
+
+#include "TrackPtr.h"
 
 #include <map>
 #include <set>
@@ -34,8 +39,7 @@ namespace Trk {
     public:
 
       // public types
-      typedef std::pair< const Track*, const bool > TrackFittedPair;
-      typedef std::multimap< TrackScore, TrackFittedPair > TrackScoreMap;
+      typedef std::multimap< TrackScore, TrackPtr > TrackScoreMap;
     
       typedef std::set<const PrepRawData*> PrdSignature;
       typedef std::set<PrdSignature> PrdSignatureSet;
@@ -47,34 +51,40 @@ namespace Trk {
       virtual StatusCode finalize  () override;
 
       /**Returns a processed TrackCollection from the passed 'tracks' WITHOUT copying or refitting the input tracks.
-	 The pointers of the tracks in the input collection are copied into the output collection which does NOT 
+	 The pointers of the tracks in the input collection are copied into the output collection which does NOT
 	 own the pointers. Clients must ensure that the Input Collection is not deleted before the output collection
 	 else all pointers in the output collection will be invalid!
-	 
-	 @param tracks collection of tracks which will have ambiguities resolved. Will not be 
+
+	 @param tracks collection of tracks which will have ambiguities resolved. Will not be
 	 modified.
-	 @return new collections of tracks, with ambiguities resolved. 
-	  The returned track collection is a SG::VIEW_ELEMENTS container, meaning that it should NOT be written to disk. 
-	  Ownership of the collection is passed on (i.e. client handles deletion)*/
-      virtual TrackCollection*  process(const TrackCollection* tracksCol) override;
+         @param prd_to_track_map on optional prd-to-track map being filled by the processor.
 
-      virtual TrackCollection*  process(TracksScores* /*trackScoreTrackMap*/) override { return nullptr; }
+	 @return new collections of tracks, with ambiguities resolved.
+	  The returned track collection is a SG::VIEW_ELEMENTS container, meaning that it should NOT be written to disk.
+	  Ownership of the collection is passed on (i.e. client handles deletion)
 
+         If no prd-to-track map is given the processor might create one internally (for internal
+         use only, or exported to storegate).
+      */
+      virtual TrackCollection*  process(const TrackCollection* tracksCol,Trk::PRDtoTrackMap *prd_to_track_map) const override;
+
+      virtual TrackCollection*  process(const TracksScores* /*trackScoreTrackMap*/) const override { return nullptr; }
+
+      /** statistics output to be called by algorithm during finalize. */
+      void statistics() override {}
     private:
-      
-      void reset();
-    
+
       /**Add passed TrackCollection, and Trk::PrepRawData from tracks to caches
 	 @param tracks the TrackCollection is looped over, 
 	 and each Trk::Track is added to the various caches. 
 	 The Trk::PrepRawData from each Trk::Track are added to the IPRD_AssociationTool*/
-      void addNewTracks(std::vector<const Track*>* tracks );
+      void addNewTracks(TrackScoreMap &trackScoreTrackMap, Trk::PRDtoTrackMap &prd_to_track_map, const std::vector<const Track*> &tracks ) const;
 
 
-      void solveTracks();
+      void solveTracks(TrackScoreMap &trackScoreTrackMap, Trk::PRDtoTrackMap &prd_to_track_map, TrackCollection &final_tracks) const;
 
       /** print out tracks and their scores for debugging*/
-      void dumpTracks(const TrackCollection& tracks);
+      void dumpTracks(const TrackCollection& tracks) const;
 	
       // private data members
 
@@ -91,16 +101,13 @@ namespace Trk {
       */
       ToolHandle<IAmbiTrackSelectionTool> m_selectionTool;
 
-      /** unsorted container of track and track scores.*/
-      TrackScoreMap m_trackScoreTrackMap;
-	
-      /** signature map to drop double track. */
-      PrdSignatureSet m_prdSigSet;
+      ToolHandle<Trk::IPRDtoTrackMapTool>         m_assoTool
+         {this, "AssociationTool", "Trk::PRDtoTrackMapTool" };
 
-      /**Tracks that will be passed out of AmbiProcessor. 
-	 Recreated anew each time process() is called*/ 
-      TrackCollection* m_finalTracks;
-	
+      /** key for the PRDtoTrackMap to filled by the ambiguity score processor.**/
+      SG::ReadHandleKey<Trk::PRDtoTrackMap>  m_assoMapName
+         {this,"AssociationMapName",""};  ///< the key given to the newly created association map
+
       /** option to disable sorting based on track score and 
 	  use the ordering provided externally*/
       bool m_disableSorting;

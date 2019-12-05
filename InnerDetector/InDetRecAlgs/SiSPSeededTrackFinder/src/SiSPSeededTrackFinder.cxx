@@ -45,7 +45,9 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
 
   // Get track-finding tool
   //
-  ATH_CHECK(m_trackmaker.retrieve());
+  ATH_CHECK( m_trackmaker.retrieve());
+
+  ATH_CHECK( m_trackSummaryTool.retrieve( DisableTool{ m_trackSummaryTool.name().empty()} ));
 
   if (m_useNewStrategy and m_beamSpotKey.key().empty()) {
     m_useNewStrategy = false;
@@ -177,6 +179,11 @@ StatusCode InDet::SiSPSeededTrackFinder::oldStrategy(const EventContext& ctx) co
   //
   for (std::pair<double, Trk::Track*> q: qualityTrack) {
     ++counter[kNTracks];
+    if (m_trackSummaryTool.isEnabled()) {
+       m_trackSummaryTool->computeAndReplaceTrackSummary(*(q.second),
+                                                         trackEventData.combinatorialData().PRDtoTrackMap(),
+                                                         false /* DO NOT suppress hole search*/);
+    }
     outputTracks->push_back(q.second);
   }
 
@@ -292,6 +299,11 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy(const EventContext& ctx) co
   //
   for (std::pair<double, Trk::Track*> q: qualityTrack) {
     ++counter[kNTracks];
+    if (m_trackSummaryTool.isEnabled()) {
+       m_trackSummaryTool->computeAndReplaceTrackSummary(*q.second,
+                                                         trackEventData.combinatorialData().PRDtoTrackMap(),
+                                                         false /* DO NOT suppress hole search*/);
+    }
     outputTracks->push_back(q.second);
   }
 

@@ -155,3 +155,18 @@ def CreateBookkeeperTool( name="CutBookkeepers" ):
 
   return
 
+def CreateBookkeeperDumperTool(name='BookkeeperDumperTool'):
+    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+
+    # Make sure MetaDataSvc is ready
+    if not hasattr(svcMgr, 'MetaDataSvc'):
+        from AthenaServices.AthenaServicesConf import MetaDataSvc
+        svcMgr += MetaDataSvc('MetaDataSvc')
+
+    # Add BookkeeperDumperTool
+    from EventBookkeeperTools.EventBookkeeperToolsConf import BookkeeperDumperTool
+    tool = BookkeeperDumperTool(name)
+    svcMgr.ToolSvc += tool
+
+    # Add tool to MetaDataSvc
+    svcMgr.MetaDataSvc.MetaDataTools += [tool]

@@ -18,6 +18,8 @@
 #include "AthContainers/AuxElement.h"
 #include "AthContainers/AuxStoreInternal.h"
 #include "tbb/task.h"
+#include "CxxUtils/checker_macros.h"
+
 
 namespace ViewHelper
 {
@@ -74,17 +76,32 @@ namespace ViewHelper
     return StatusCode::SUCCESS;
   }
 
+  inline StatusCode ScheduleSingleView( SG::View* view, std::string const& NodeName, EventContext const& SourceContext, Atlas::ExtendedEventContext extendedContext, SmartIF<IScheduler> Scheduler ) {
+
+    //Make a context with the view attached
+    auto viewContext = std::make_unique< EventContext >( SourceContext );
+    Atlas::setExtendedEventContext (*viewContext,
+                                    Atlas::ExtendedEventContext( view, extendedContext.conditionsRun() ) );
+
+    //Attach the view to the named node
+    StatusCode sc = Scheduler->scheduleEventView( &SourceContext, NodeName, std::move( viewContext ) );
+    if ( !sc.isSuccess() ) {
+      return StatusCode::FAILURE;
+    }
+    return StatusCode::SUCCESS;
+  }
+
   //Function to attach a set of views to a graph node
   inline StatusCode ScheduleViews( ViewContainer * ViewVector, std::string const& NodeName,
-                                   EventContext const& SourceContext, SmartIF<IScheduler> Scheduler )
+                                   EventContext const& SourceContext, SmartIF<IScheduler> Scheduler, bool reverseOrder = false  )
   {
     //Prevent view nesting - test if source context has view attached
-    if ( SourceContext.template hasExtension<Atlas::ExtendedEventContext>() ) {
-      if ( dynamic_cast< SG::View* >( SourceContext.template getExtension<Atlas::ExtendedEventContext>().proxy() ) ) {
+    if ( Atlas::hasExtendedEventContext (SourceContext) ) {
+      if ( dynamic_cast< SG::View* >( Atlas::getExtendedEventContext (SourceContext).proxy() ) ) {
         return StatusCode::FAILURE;
       }
     }
-    // Atlas::ExtendedEventContext const* extendedContext = SourceContext.template getExtension<Atlas::ExtendedEventContext>();
+    // Atlas::ExtendedEventContext const* extendedContext = Atlas::getExtendedEventContext(SourceContext);
     // if ( dynamic_cast< SG::View* >( extendedContext->proxy() ) )
     // {
     //   return StatusCode::FAILURE;
@@ -98,19 +115,20 @@ namespace ViewHelper
 
     if ( not ViewVector->empty() )
     {
-      Atlas::ExtendedEventContext const extendedContext = SourceContext.template getExtension<Atlas::ExtendedEventContext>();
-      for ( SG::View* view : *ViewVector )
-      {
-        //Make a context with the view attached
-        auto viewContext = std::make_unique< EventContext >( SourceContext );
-        viewContext->setExtension( Atlas::ExtendedEventContext( view, extendedContext.conditionsRun() ) );
-
-        //Attach the view to the named node
-        StatusCode sc = Scheduler->scheduleEventView( &SourceContext, NodeName, std::move( viewContext ) );
-        if ( !sc.isSuccess() )
-        {
-          return StatusCode::FAILURE;
-        }
+      Atlas::ExtendedEventContext const extendedContext =
+        Atlas::getExtendedEventContext (SourceContext);
+      if ( reverseOrder ) {
+	for ( auto iter = ViewVector->rbegin(); iter != ViewVector->rend(); ++iter ) {
+	  if ( ScheduleSingleView( *iter, NodeName, SourceContext, extendedContext, Scheduler ).isFailure() ) {
+	    return StatusCode::FAILURE;
+	  }
+	}
+      } else {
+	for ( SG::View* view : *ViewVector ) {
+	  if( ScheduleSingleView( view, NodeName, SourceContext, extendedContext, Scheduler ).isFailure() ) {
+	    return StatusCode::FAILURE;
+	  }
+	}
       }
     }
     else
@@ -128,7 +146,7 @@ namespace ViewHelper
     MsgStream& m_msg;
   public:
     ViewMerger(StoreGateSvc* sg, MsgStream& msg ) : m_sg( sg ), m_msg( msg ) {}
-    
+
     //    MsgStream& msg(const MSG::Level lvl) const { return m_msg; }
 
     //Function merging view data into a single collection
@@ -175,9 +193,8 @@ namespace ViewHelper
       SG::ReadHandle< DataVector< T > > queryHandle( QueryKey, SourceContext );
 
       //Make accessor for bookkeeping
-      SG::AuxElement::Accessor< int > viewBookkeeper( "viewIndex" );
+      SG::AuxElement::Accessor< ElementLink<TrigRoiDescriptorCollection> > viewBookkeeper( "viewIndex" );
 
-      
       //Loop over all views
       unsigned int offset = 0;
       for ( unsigned int viewIndex = 0; viewIndex < ViewVector.size(); ++viewIndex )
@@ -209,7 +226,7 @@ namespace ViewHelper
           *outputObject = *inputObject;
 
           //Add aux data for bookkeeping
-          viewBookkeeper( *outputObject ) = viewIndex;
+          viewBookkeeper( *outputObject ) = inputView->getROI();
         }
         m_msg << MSG::DEBUG << "Copied " << queryHandle->size() << " objects from collection in view  " << inputView->name() << endmsg;
 
@@ -221,6 +238,7 @@ namespace ViewHelper
       return StatusCode::SUCCESS;
     }
   };
+
 
   /**
    * @arg unique_index - gets appended to the view name if >= 0
@@ -288,10 +306,10 @@ namespace ViewHelper
 
   template<typename T>
   SG::ReadHandle<T> makeHandle( const SG::View* view , const SG::ReadHandleKey<T>& rhKey, const EventContext& context ) {
-   
-    SG::View* nview = const_cast<SG::View*>(view);  // we need it until reading from const IProxyDict is not supported
 
-    auto handle = SG::makeHandle( rhKey, context );    
+    SG::View* nview ATLAS_THREAD_SAFE = const_cast<SG::View*>(view);  // we need it until reading from const IProxyDict is not supported
+
+    auto handle = SG::makeHandle( rhKey, context );
     if ( handle.setProxyDict( nview ).isFailure() ) { // we ignore it besause the handle will be invalid anyways if this call is unsuccesfull
       throw std::runtime_error("Can't make ReadHandle of key " + rhKey.key() + " type " + ClassID_traits<T>::typeName() + " in view " + view->name() );
     }

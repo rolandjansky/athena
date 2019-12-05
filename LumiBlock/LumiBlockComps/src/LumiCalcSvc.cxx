@@ -278,7 +278,7 @@ void LumiCalcSvc::handle(const Incident& inc) {
   log << MSG::DEBUG << "handle() " << inc.type() << " for file: " << fileName << endmsg;
 
   if (inc.type() == "BeginInputFile") {
-    log << MSG::DEBUG << "BeginTagFile incident fired!" << endmsg;
+    log << MSG::DEBUG << "BeginInputFile incident fired!" << endmsg;
     m_fileCurrentlyOpened = true;
     if(m_UseInputStore == true){
       doDbQuery(m_pInputStore);

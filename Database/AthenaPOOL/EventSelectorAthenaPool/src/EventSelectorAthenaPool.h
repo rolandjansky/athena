@@ -138,7 +138,7 @@ private: // internal member functions
    /// Search for event number evtNum.
    int findEvent(int evtNum) const;
 
-   /// Fires the EndInputFile incident (if there is an open file), EndTagFile incident, and LastInputFile incidents at end of selector
+   /// Fires the EndInputFile incident (if there is an open file) at end of selector
    void fireEndFileIncidents(bool isLastFile) const;
 
    // Disconnect DB if all events from the source FID were processed and the Selector moved to another file

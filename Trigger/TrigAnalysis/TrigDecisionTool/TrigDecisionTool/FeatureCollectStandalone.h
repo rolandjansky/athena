@@ -21,7 +21,6 @@
 
 #include <string>
 #include <set>
-#include "boost/foreach.hpp"
 #include "boost/type_traits/is_same.hpp"
 #include "boost/shared_ptr.hpp"
 #include "boost/lexical_cast.hpp"

@@ -1,6 +1,7 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
+from AthenaConfiguration.AutoConfigFlags import GetDetDescrInfo
 import re
 
 # Some comments from Ed about existing flags
@@ -36,10 +37,9 @@ def createMuonConfigFlags():
     mcf.addFlag("Muon.doMDTs",True)
     mcf.addFlag("Muon.doTGCs",True)
     mcf.addFlag("Muon.doRPCs",True)
-    # TODO auto handle NSW here.
-    mcf.addFlag("Muon.doCSCs",True) 
-    mcf.addFlag("Muon.doMicromegas",False) 
-    mcf.addFlag("Muon.dosTGCs",False) 
+    mcf.addFlag("Muon.doCSCs",lambda prevFlags : GetDetDescrInfo(prevFlags.GeoModel.AtlasVersion).get('HasCSC',"True"))
+    mcf.addFlag("Muon.doMicromegas",lambda prevFlags : GetDetDescrInfo(prevFlags.GeoModel.AtlasVersion).get('HasMM',"True"))
+    mcf.addFlag("Muon.dosTGCs",lambda prevFlags : GetDetDescrInfo(prevFlags.GeoModel.AtlasVersion).get('HasSTGC',"True"))
     
     # stages of processing
     # 1. Digitization
@@ -61,9 +61,8 @@ def createMuonConfigFlags():
     mcf.addFlag("Muon.enableErrorTuning",False) # turn on error tuning to account for misalignments
     mcf.addFlag("Muon.useLooseErrorTuning",False) 
     mcf.addFlag("Muon.useTGCPriorNextBC",False) # Use TGC measurements from Prior and Next Bunch Crossings. These measurements are available in the real data since somewhere in 2008.
-    mcf.addFlag("Muon.useAlignmentCorrections",False) # Apply alignment corrections to MuonGeoModel. The corrections are read from a COOL database
+    mcf.addFlag("Muon.useAlignmentCorrections",True) # Apply alignment corrections to MuonGeoModel. The corrections are read from a COOL database
     mcf.addFlag("Muon.useWireSagCorrections",False) # tApply wire sag corrections.
-    #   doNSWNewThirdChain redundant - check e.g. Detector.GeometryCSC   
     
     # makePRDs - surely this is top level and redundant with makeRIO?
     

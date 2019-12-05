@@ -27,6 +27,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "InDetRecToolInterfaces/ITRT_SegmentToTrackTool.h"
 #include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
+#include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
 #include "TrkEventPrimitives/TrackScore.h"
 
 #include <string>
@@ -102,6 +103,8 @@ namespace InDet {
 
       ToolHandle<Trk::IPRDtoTrackMapTool>  m_assoTool
          {this, "AssociationTool", "InDet::InDetPRDtoTrackMapToolGangedPixels" };
+      ToolHandle<Trk::IExtendedTrackSummaryTool> m_trackSummaryTool
+        {this, "TrackSummaryTool", "InDetTrackSummaryToolNoHoleSearch"};
 
       ToolHandle<Trk::ITrackScoringTool>     m_scoringTool   ;  //!< Track scoring tool
       ServiceHandle<MagField::IMagFieldSvc>  m_magFieldSvc  ;  //!< Magnetic field service

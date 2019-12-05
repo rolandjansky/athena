@@ -8,11 +8,13 @@ set -e
 
 # Function printing the usage information for the script
 usage() {
-    echo "Usage: build_externals.sh [-t build_type] [-b build_dir] [-f] [-c]"
+    echo "Usage: build_externals.sh [-t build_type] [-b build_dir] [-f] [-c] [-x]"
     echo " -f: Force rebuild of externals, otherwise if script"
     echo "     finds an external build present it will simply exit"
     echo " -c: Build the externals for the continuous integration (CI) system,"
     echo "     skipping the build of the externals RPMs."
+    echo " -x: Extra cmake argument(s) to provide for the build(configuration)"
+    echo "     of all externals needed by Athena."
     echo "If a build_dir is not given the default is '../build'"
     echo "relative to the athena checkout"
 }
@@ -22,6 +24,7 @@ BUILDDIR=""
 BUILDTYPE="RelWithDebInfo"
 FORCE=""
 CI=""
+EXTRACMAKE=()
 while getopts ":t:b:fch" opt; do
     case $opt in
         t)
@@ -35,6 +38,9 @@ while getopts ":t:b:fch" opt; do
             ;;
         c)
             CI="1"
+            ;;
+        x)
+            EXTRACMAKE+=($OPTARG)
             ;;
         h)
             usage
@@ -107,4 +113,5 @@ ${scriptsdir}/build_atlasexternals.sh \
     -b ${BUILDDIR}/build/VP1LightExternals \
     -i ${BUILDDIR}/install/VP1LightExternals/${NICOS_PROJECT_VERSION} \
     -p VP1LightExternals ${RPMOPTIONS} -t ${BUILDTYPE} \
-    -v ${NICOS_PROJECT_VERSION}
+    -v ${NICOS_PROJECT_VERSION} \
+    ${EXTRACMAKE[@]/#/-x }

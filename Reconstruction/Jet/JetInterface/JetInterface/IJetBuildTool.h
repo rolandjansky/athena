@@ -28,6 +28,7 @@ public:
   /// Returns 0 for error.
   virtual const xAOD::JetContainer* build() const =0;
 
+
 };
 
 #endif

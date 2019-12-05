@@ -61,9 +61,6 @@ class IdToFixedIdTool : public AthAlgTool, virtual public MuonCalib::IIdToFixedI
     ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool;
 
     int                                 m_print_level; //!< Sets printlevel of output
-    mutable Identifier                  m_identifier;  //!< object to store ATHENA Identifier in
-    mutable MuonFixedId                 m_fixedId;     //!< object to store Calib MuonFixedId in
-   
 };
 }
 

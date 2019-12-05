@@ -831,8 +831,9 @@ StatusCode HLTMuonMonTool::fill()
       ATH_MSG_VERBOSE("fillMuCombDQA failed");
     }
   }
-  catch(...) {
+  catch(std::exception& e) {
     ATH_MSG_ERROR("Exception thrown by fillMuCombDQA");
+    ATH_MSG_WARNING(e.what());
     scMuComb=StatusCode::RECOVERABLE;
   }
 

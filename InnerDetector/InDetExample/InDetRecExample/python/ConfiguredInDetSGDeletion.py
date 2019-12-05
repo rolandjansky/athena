@@ -21,7 +21,7 @@ class InDetSGDeletionAlg:
 
     def deletionAlg(self, container, key):
         if not isinstance(key, str):
-            print "InDetSGDeletionAlg: WARNING Key is not a string, ignoring!"
+            print("InDetSGDeletionAlg: WARNING Key is not a string, ignoring!")
             return
         
         from InDetRecExample.InDetJobProperties import InDetFlags
@@ -36,4 +36,4 @@ class InDetSGDeletionAlg:
         topSequence += InDetDelAlg
 
         if InDetFlags.doPrintConfigurables():
-            print InDetDelAlg
+            print(InDetDelAlg)

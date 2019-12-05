@@ -36,7 +36,7 @@ def createDQConfigFlags():
     for flag in _steeringFlags + _lowLevelSteeringFlags:
         acf.addFlag('DQ.Steering.' + flag, True)
     # HLT steering ...
-    from TrigHLTMonitoring.TrigHLTMonitoringConfig import createHLTDQConfigFlags
+    from TrigHLTMonitoring.TrigHLTMonitorAlgorithm import createHLTDQConfigFlags
     acf.join(createHLTDQConfigFlags())
     return acf
 
@@ -69,7 +69,7 @@ def getEnvironment(flags):
         return 'online'
     else:
         # this could use being rethought to properly encode input and output types perhaps ...
-        return 'tier0'
+        return 'tier0ESD'
 
 def allSteeringFlagsOff():
     from AthenaConfiguration.AllConfigFlags import ConfigFlags

@@ -25,6 +25,10 @@ public:
   { std::abort(); }
   virtual void transToPersUntyped(const void*, void*, MsgStream&) override
   { std::abort(); }
+  virtual void persToTransWithKeyUntyped(const void*, void*, const std::string&, MsgStream&) override
+  { std::abort(); }
+  virtual void transToPersWithKeyUntyped(const void*, void*, const std::string&, MsgStream&) override
+  { std::abort(); }
   virtual const std::type_info& transientTInfo() const override
   { std::abort(); }
   virtual const std::type_info& persistentTInfo() const override

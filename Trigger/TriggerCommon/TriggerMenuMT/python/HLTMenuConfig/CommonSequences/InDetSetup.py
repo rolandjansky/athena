@@ -17,10 +17,11 @@ class InDetCacheNames(object):
   SpacePointCachePix = "PixelSpacePointCache"
   SpacePointCacheSCT = "SctSpacePointCache"
   SCTRDOCacheKey     = "SctRDOCache"
+  SCTBSErrCacheKey   = "SctBSErrCache"
   PixRDOCacheKey     = "PixRDOCache"
 
 
-def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='' ):
+def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'EMViewRoIs' ):
   #If signature specified add suffix to the algorithms
   signature =  "_" + whichSignature if whichSignature else ''
   if signature != "" and separateTrackParticleCreator == "":
@@ -29,7 +30,6 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='' ):
     
 
 
-  eventAlgs = []
   viewAlgs = []
   from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
   from InDetRecExample.InDetKeys import InDetKeys
@@ -48,7 +48,8 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='' ):
 
     from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRawDataProviderTool
     InDetPixelRawDataProviderTool = PixelRawDataProviderTool(name    = "InDetPixelRawDataProviderTool" + signature,
-                                                             Decoder = InDetPixelRodDecoder)
+                                                             Decoder = InDetPixelRodDecoder,
+                                                             checkLVL1ID = False)
     ToolSvc += InDetPixelRawDataProviderTool
 
     if (InDetTrigFlags.doPrintConfigurables()):
@@ -60,7 +61,7 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='' ):
                                                      RDOKey       = InDetKeys.PixelRDOs(),
                                                      ProviderTool = InDetPixelRawDataProviderTool,)
     InDetPixelRawDataProvider.isRoI_Seeded = True
-    InDetPixelRawDataProvider.RoIs = "EMViewRoIs"
+    InDetPixelRawDataProvider.RoIs = rois
     InDetPixelRawDataProvider.RDOCacheKey = InDetCacheNames.PixRDOCacheKey
     
     viewAlgs.append(InDetPixelRawDataProvider)
@@ -89,9 +90,9 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='' ):
                                                  RDOKey       = InDetKeys.SCT_RDOs(),
                                                  ProviderTool = InDetSCTRawDataProviderTool)
     InDetSCTRawDataProvider.isRoI_Seeded = True
-    InDetSCTRawDataProvider.RoIs = "EMViewRoIs"
+    InDetSCTRawDataProvider.RoIs = rois
     InDetSCTRawDataProvider.RDOCacheKey = InDetCacheNames.SCTRDOCacheKey
-    
+    InDetSCTRawDataProvider.BSErrCacheKey = InDetCacheNames.SCTBSErrCacheKey
 
     viewAlgs.append(InDetSCTRawDataProvider)
 
@@ -128,7 +129,7 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='' ):
                                                  RDOKey       = "TRT_RDOs",
                                                   ProviderTool = InDetTRTRawDataProviderTool)
     InDetTRTRawDataProvider.isRoI_Seeded = True
-    InDetTRTRawDataProvider.RoIs = "EMViewRoIs"
+    InDetTRTRawDataProvider.RoIs = rois
 
     viewAlgs.append(InDetTRTRawDataProvider)
 
@@ -170,7 +171,7 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='' ):
                                                         ClustersName            = "PixelTrigClusters")
 
   InDetPixelClusterization.isRoI_Seeded = True
-  InDetPixelClusterization.RoIs = "EMViewRoIs"
+  InDetPixelClusterization.RoIs = rois
   InDetPixelClusterization.ClusterContainerCacheKey = InDetCacheNames.Pixel_ClusterKey 
 
 
@@ -218,7 +219,7 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='' ):
                                                       #SCT_FlaggedCondData     = "SCT_FlaggedCondData_TRIG",
                                                       conditionsTool          = InDetSCT_ConditionsSummaryToolWithoutFlagged)
   InDetSCT_Clusterization.isRoI_Seeded = True
-  InDetSCT_Clusterization.RoIs = "EMViewRoIs"
+  InDetSCT_Clusterization.RoIs = rois
   InDetSCT_Clusterization.ClusterContainerCacheKey = InDetCacheNames.SCT_ClusterKey 
   
 
@@ -261,6 +262,7 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='' ):
 
   from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinderBase
   theFTF = TrigFastTrackFinderBase("TrigFastTrackFinder_" + whichSignature, whichSignature)
+  theFTF.RoIs = rois
   theFTF.TracksName = "TrigFastTrackFinder_Tracks" + separateTrackParticleCreator
   viewAlgs.append(theFTF)
 
@@ -274,7 +276,10 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='' ):
                                                             TrackName = "TrigFastTrackFinder_Tracks" + separateTrackParticleCreator,
                                                             TrackParticlesName = recordable("HLT_xAODTracks" + separateTrackParticleCreator),
                                                             ParticleCreatorTool = InDetTrigParticleCreatorToolFTF)
-  theTrackParticleCreatorAlg.roiCollectionName = "EMViewRoIs"
+  theTrackParticleCreatorAlg.roiCollectionName = rois
   viewAlgs.append(theTrackParticleCreatorAlg)
 
-  return (viewAlgs, eventAlgs)
+
+
+  
+  return viewAlgs

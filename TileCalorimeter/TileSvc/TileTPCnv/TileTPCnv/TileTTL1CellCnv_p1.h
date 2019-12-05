@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TileTTL1CellCnv_p1.h 
@@ -23,9 +23,12 @@
 
 class MsgStream;
 
-class TileTTL1CellCnv_p1 : public T_AthenaPoolTPCnvBase<TileTTL1Cell, TileTTL1Cell_p1> {
+class TileTTL1CellCnv_p1 : public T_AthenaPoolTPCnvConstBase<TileTTL1Cell, TileTTL1Cell_p1> {
 
 public:
+  using base_class::transToPers;
+  using base_class::persToTrans;
+
 
   /** Default constructor: 
    */
@@ -34,12 +37,12 @@ public:
   /** Method creating the transient representation TileTTL1Cell
    *  from its persistent representation TileTTL1Cell_p1
    */
-  virtual void persToTrans(const TileTTL1Cell_p1* persObj, TileTTL1Cell* transObj, MsgStream &log);
+  virtual void persToTrans(const TileTTL1Cell_p1* persObj, TileTTL1Cell* transObj, MsgStream &log) const override;
 
   /** Method creating the persistent representation TileTTL1Cell_p1
    *  from its transient representation TileTTL1Cell
    */
-  virtual void transToPers(const TileTTL1Cell* transObj, TileTTL1Cell_p1* persObj, MsgStream &log);
+  virtual void transToPers(const TileTTL1Cell* transObj, TileTTL1Cell_p1* persObj, MsgStream &log) const override;
 
 };
 

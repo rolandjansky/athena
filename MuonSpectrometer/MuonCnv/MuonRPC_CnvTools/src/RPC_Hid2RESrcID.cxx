@@ -16,15 +16,15 @@ using eformat::helper::SourceIdentifier;
 // Jan-16-2003, BNL
 
 
-RPC_Hid2RESrcID::RPC_Hid2RESrcID(): m_cabling(0), m_rpcHelper(0),m_specialROBNumber(-1)  { 
+RPC_Hid2RESrcID::RPC_Hid2RESrcID(): m_cabling(0), m_muonIdHelperTool(0), m_specialROBNumber(-1)  { 
 }
 
-RPC_Hid2RESrcID::RPC_Hid2RESrcID(int specialROBNumber) : m_cabling(0), m_rpcHelper(0), m_specialROBNumber(specialROBNumber) { 
+RPC_Hid2RESrcID::RPC_Hid2RESrcID(int specialROBNumber) : m_cabling(0), m_muonIdHelperTool(nullptr), m_specialROBNumber(specialROBNumber) { 
 }
 
-void RPC_Hid2RESrcID::set(const IRPCcablingSvc* p_cabling, const RpcIdHelper* rpcHelper) {
+void RPC_Hid2RESrcID::set(const IRPCcablingSvc* p_cabling, const Muon::MuonIdHelperTool* muonIdHelperTool) {
   m_cabling=p_cabling;
-  m_rpcHelper=rpcHelper;
+  m_muonIdHelperTool=muonIdHelperTool;
 }
 
 std::vector<uint32_t> RPC_Hid2RESrcID::getRodIDFromCollID(const Identifier& offlineId) { 
@@ -53,12 +53,12 @@ std::vector<uint32_t> RPC_Hid2RESrcID::getRodIDFromCollID(const Identifier& offl
   CablingRPCBase::RDOmap::const_iterator pad_beg = (pad_map).begin(); 
   CablingRPCBase::RDOmap::const_iterator pad_end = (pad_map).end();
 
-  if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "Looking for collection ID: " + std::string(m_rpcHelper->show_to_string(offlineId)) <<endmsg;
+  if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "Looking for collection ID: " + std::string(m_muonIdHelperTool->rpcIdHelper().show_to_string(offlineId)) <<endmsg;
 
-  int stationName = m_rpcHelper->stationName(offlineId);
-  int stationEta  = m_rpcHelper->stationEta(offlineId);
-  int stationPhi  = m_rpcHelper->stationPhi(offlineId);
-  //int doubletR    = m_rpcHelper->doubletR(offlineId);
+  int stationName = m_muonIdHelperTool->rpcIdHelper().stationName(offlineId);
+  int stationEta  = m_muonIdHelperTool->rpcIdHelper().stationEta(offlineId);
+  int stationPhi  = m_muonIdHelperTool->rpcIdHelper().stationPhi(offlineId);
+  //int doubletR    = m_muonIdHelperTool->rpcIdHelper().doubletR(offlineId);
   bool addRod;
 
 
@@ -109,14 +109,14 @@ std::vector<uint32_t> RPC_Hid2RESrcID::getRodIDFromCollID(const Identifier& offl
   if (rodIDs.size() == 0) {
     msg(MSG::ERROR) 
       << "RPC_Hid2RESrcID: RPC_Could not find Rod ID for the collection "
-      << m_rpcHelper->show_to_string(offlineId) << endmsg;
+      << m_muonIdHelperTool->rpcIdHelper().show_to_string(offlineId) << endmsg;
   }
 
   // FIXME Temp Fix for sector13 test data
   if ( (m_specialROBNumber>0) ) { 
     if (stationPhi==7 && stationEta>0 && stationEta<4 && (stationName==2 || stationName==4) ) {
 
-      //std::cout << m_rpcHelper->show_to_string(offlineId) << std::endl;
+      //std::cout << m_muonIdHelperTool->rpcIdHelper().show_to_string(offlineId) << std::endl;
       rodIDs.clear();
       rodIDs.push_back(m_specialROBNumber);
 
@@ -205,7 +205,7 @@ uint32_t RPC_Hid2RESrcID::getRodID(const Identifier& offlineId) {
   }
   
   if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "RPC_Hid2RESrcID: Could not find a pad with Id = "   
-      << m_rpcHelper->show_to_string(offlineId)<<endmsg;
+      << m_muonIdHelperTool->rpcIdHelper().show_to_string(offlineId)<<endmsg;
   return 0xffffffff;
 }
 
@@ -318,7 +318,7 @@ Identifier RPC_Hid2RESrcID::findPadOfflineId(uint16_t side, uint16_t slogic,
       measures_phi, strip);
 
   // Build the identifier
-  Identifier id = m_rpcHelper->padID(name, eta, phi, doublet_r, 
+  Identifier id = m_muonIdHelperTool->rpcIdHelper().padID(name, eta, phi, doublet_r, 
              doublet_z, doublet_phi);
 
 

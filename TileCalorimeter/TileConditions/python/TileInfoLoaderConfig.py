@@ -96,6 +96,6 @@ if __name__ == "__main__":
 
     acc.printConfig(withDetails = True, summariseProps = True)
     print(acc.getService('TileInfoLoader'))
-    acc.store( open('TileInfoLoader.pkl','w') )
+    acc.store( open('TileInfoLoader.pkl','wb') )
 
     print('All OK')

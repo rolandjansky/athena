@@ -20,8 +20,8 @@ from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
 alg = xAODMaker__EventInfoCnvAlg()
 topSequence += alg
 
-#from AthenaPoolTools.AthenaPoolToolsConf import BookkeeperDumper
-#topSequence += BookkeeperDumper( OutputLevel = INFO)
+# from EventBookkeeperTools.CutFlowHelpers import CreateBookkeeperDumperTool
+# CreateBookkeeperDumperTool()
 
 from AthenaPoolTools.AthenaPoolToolsConf import EventCount
 topSequence += EventCount( OutputLevel = INFO,

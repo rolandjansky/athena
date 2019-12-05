@@ -13,7 +13,7 @@
 
 
 #include "GaudiKernel/ToolHandle.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 #include "MuonRDO/CscRawDataContainer.h"
 
@@ -21,6 +21,8 @@
 #include "MuonCSC_CnvTools/ICSC_RDO_Decoder.h"
 
 #include "AthenaKernel/IAthRNGSvc.h"
+
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 #include <vector>
 #include <string>
@@ -32,20 +34,20 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class CscOverlay : public AthAlgorithm {
+class CscOverlay : public AthReentrantAlgorithm {
 public:
 
   CscOverlay(const std::string &name,ISvcLocator *pSvcLocator);
 
   virtual StatusCode initialize() override final;
-  virtual StatusCode execute() override final;
+  virtual StatusCode execute(const EventContext& ctx) const override final;
 
 private:
 
   /// @brief Overlay signal on the background container and record to the output one
   StatusCode overlayContainer(const CscRawDataContainer *bkgContainer,
                               const CscRawDataContainer *signalContainer,
-                              CscRawDataContainer *outputContainer);
+                              CscRawDataContainer *outputContainer) const;
 
   /// @brief Copy CscRawDataCollection, optionally only copy properties
   std::unique_ptr<CscRawDataCollection> copyCollection(const CscRawDataCollection *collection,
@@ -55,10 +57,10 @@ private:
   void mergeCollections(const CscRawDataCollection *bkgCollection,
                         const CscRawDataCollection *signalCollection,
                         CscRawDataCollection *outputCollection,
-                        CLHEP::HepRandomEngine *rndmEngine);
+                        CLHEP::HepRandomEngine *rndmEngine) const;
 
   /** get the data in one SPU of a chamber */
-  void spuData( const CscRawDataCollection * coll, const uint16_t spuID, std::vector<const CscRawData*>& data);
+  void spuData( const CscRawDataCollection * coll, const uint16_t spuID, std::vector<const CscRawData*>& data) const;
 
   /** data in one gas lauer */
   uint32_t stripData ( const std::vector<const CscRawData*>& data,
@@ -66,7 +68,7 @@ private:
                        std::map< int,std::vector<uint16_t> >& samples,
                        uint32_t& hash,
                        const uint16_t spuID,
-                       const int gasLayer, bool isdata);
+                       const int gasLayer, bool isdata) const;
 
   /** do the overlay - summing the ADC samples on one plane if there is overlap
       between zero bias data and simulation. If there is no overlap, simply
@@ -77,7 +79,7 @@ private:
                                     const uint16_t spuID,
                                     const uint16_t collId,
                                     const uint32_t hash,
-                                    CLHEP::HepRandomEngine *rndmEngine);
+                                    CLHEP::HepRandomEngine *rndmEngine) const;
 
   //Whether the data needs to be fliped by 49-strip for bug#56002
   bool needtoflip(const int address) const;
@@ -92,7 +94,8 @@ private:
   SG::WriteHandleKey<CscRawDataContainer> m_outputKey{this,"OutputKey","CSCRDO",""};
 
   Gaudi::Property<bool> m_isDataOverlay{this, "isDataOverlay", false, ""};
-  const CscIdHelper   * m_cscHelper{nullptr};
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   ToolHandle<ICscCalibTool> m_cscCalibTool{this, "CalibTool", "CscCalibTool", ""};
   PublicToolHandle<Muon::ICSC_RDO_Decoder> m_cscRdoDecoderTool{this, "CscRdoDecoderTool", "Muon::CscRDO_Decoder", ""};
 
