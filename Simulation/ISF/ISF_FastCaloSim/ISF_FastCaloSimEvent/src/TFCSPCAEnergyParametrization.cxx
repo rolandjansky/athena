@@ -50,7 +50,7 @@ void TFCSPCAEnergyParametrization::Print(Option_t *option) const
   TFCSEnergyParametrization::Print(option);
   
   if(longprint) {
-    ATH_MSG(INFO) << optprint <<"  #bins="<<m_numberpcabins<<", layers=";
+    ATH_MSG(INFO) << optprint <<"  #bins="<<m_numberpcabins<<", Enorm="<<m_total_energy_normalization<<", layers=";
     for(unsigned int i=0;i<m_RelevantLayers.size();i++) {
       if(i>0) msg()<<", ";
       msg()<<m_RelevantLayers[i];
@@ -127,7 +127,7 @@ FCSReturnCode TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simuls
     simdata[l]*=scalefactor;
    }
    
-   double total_energy=simdata[layerNr.size()]*simulstate.E()/Ekin_nominal();
+   double total_energy=simdata[layerNr.size()]*simulstate.E()/m_total_energy_normalization;
    simulstate.set_E(total_energy);
    ATH_MSG_DEBUG("set E to total_energy="<<total_energy);
   
