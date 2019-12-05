@@ -440,9 +440,10 @@ void AthenaOutputStream::handle(const Incident& inc)
                strm_iter->second->finalizeOutput().ignore();
                strm_iter->second->finalize().ignore();
                m_streamerMap.erase(strm_iter);
-               //m_toolMutexMap.erase( rangeFN );            
+               //m_toolMutexMap.erase( rangeFN );
+	       m_outSeqSvc->publishRangeReport(rangeFN);            
             }
-            m_slotRangeMap[ slot ].clear();   
+            m_slotRangeMap[ slot ].clear();
          } else {
             ATH_MSG_ERROR("Failed to handle EndProcessing incident");
          }
