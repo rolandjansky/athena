@@ -200,15 +200,11 @@ Trk::PosteriorWeightsCalculator::calculateWeight_2D_3(const TrackParameters* com
                                                       const AmgVector(2) & measPar,
                                                       const AmgSymMatrix(2) & measCov) const
 {
-  std::pair<double, double> result(0, 0);
-
   // Calculate the residual
   AmgVector(2) r = measPar - componentTrackParameters->parameters().block<2, 1>(0, 0);
-
   // Residual covariance. Posterior weights is calculated used predicted state and measurement. Therefore add
   // covariances
   AmgSymMatrix(2) R(measCov + predictedCov->block<2, 2>(0, 0));
-
   // compute determinant of residual
   const double det = R.determinant(); 
   if (det== 0) {
