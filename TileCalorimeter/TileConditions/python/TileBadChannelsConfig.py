@@ -124,6 +124,6 @@ if __name__ == "__main__":
 
     acc.printConfig(withDetails = True, summariseProps = True)
     print(acc.getService('IOVDbSvc'))
-    acc.store( open('TileBadChannels.pkl','w') )
+    acc.store( open('TileBadChannels.pkl','wb') )
 
     print('All OK')

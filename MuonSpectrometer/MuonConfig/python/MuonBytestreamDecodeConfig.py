@@ -249,7 +249,7 @@ if __name__=="__main__":
 
     # Store config as pickle
     log.info('Save Config')
-    with open('MuonBytestreamDecode.pkl','w') as f:
+    with open('MuonBytestreamDecode.pkl','wb') as f:
         cfg.store(f)
         f.close()
 

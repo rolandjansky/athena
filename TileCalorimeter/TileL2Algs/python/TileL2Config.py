@@ -118,7 +118,7 @@ if __name__ == "__main__":
 
     ConfigFlags.dump()
     acc.printConfig(withDetails = True, summariseProps = True)
-    acc.store( open('TileL2.pkl','w') )
+    acc.store( open('TileL2.pkl','wb') )
 
 
     sc = acc.run(maxEvents=3)

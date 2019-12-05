@@ -98,7 +98,7 @@ if __name__ == "__main__":
     acc.merge( TileMuonReceiverDecisionOutputCfg(ConfigFlags, TileMuonReceiverContainer = 'TileMuRcvCntNew') )
 
     acc.printConfig(withDetails = True, summariseProps = True)
-    acc.store( open('TileMuonReceiverDecision.pkl','w') )
+    acc.store( open('TileMuonReceiverDecision.pkl','wb') )
 
     sc = acc.run(maxEvents=3)
     # Success should be 0

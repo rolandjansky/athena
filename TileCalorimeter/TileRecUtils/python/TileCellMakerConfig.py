@@ -143,7 +143,7 @@ if __name__ == "__main__":
 
     ConfigFlags.dump()
     acc.printConfig(withDetails = True, summariseProps = True)
-    acc.store( open('TileCellMaker.pkl','w') )
+    acc.store( open('TileCellMaker.pkl','wb') )
 
     sc = acc.run(maxEvents = 3)
 

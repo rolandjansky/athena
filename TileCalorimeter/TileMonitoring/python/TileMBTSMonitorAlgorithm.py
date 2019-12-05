@@ -264,7 +264,7 @@ if __name__=='__main__':
     cfg.printConfig(withDetails = True, summariseProps = True)
     ConfigFlags.dump()
 
-    cfg.store( open('TileMBTSMonitorAlgorithm.pkl','w') )
+    cfg.store( open('TileMBTSMonitorAlgorithm.pkl','wb') )
 
     sc = cfg.run(maxEvents=3)
 

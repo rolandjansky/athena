@@ -51,4 +51,4 @@ if __name__ == "__main__":
     ConfigFlags.dump()
 
     acc.printConfig(withDetails = True, summariseProps = True)
-    acc.store( open('CaloBadChanTool.pkl','w') )
+    acc.store( open('CaloBadChanTool.pkl','wb') )

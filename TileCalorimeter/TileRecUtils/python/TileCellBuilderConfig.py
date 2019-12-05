@@ -91,4 +91,4 @@ if __name__ == "__main__":
 
     ConfigFlags.dump()
     acc.printConfig(withDetails = True, summariseProps = True)
-    acc.store( open('TileCellBuilder.pkl','w') )
+    acc.store( open('TileCellBuilder.pkl','wb') )
