@@ -26,7 +26,7 @@ void TFCSParametrizationPDGIDSelectChain::recalc()
 
 FCSReturnCode TFCSParametrizationPDGIDSelectChain::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const
 {
-  for(auto param: chain()) {
+  for(const auto& param: chain()) {
     if(param->is_match_pdgid(truth->pdgid())) {
       ATH_MSG_DEBUG("pdgid="<<truth->pdgid()<<", now run: "<<param->GetName()<< ((SimulateOnlyOnePDGID()==true) ? ", abort PDGID loop afterwards" : ", continue PDGID loop afterwards"));
 

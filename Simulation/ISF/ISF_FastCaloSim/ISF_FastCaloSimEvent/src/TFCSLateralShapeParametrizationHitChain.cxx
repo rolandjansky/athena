@@ -66,11 +66,11 @@ FCSReturnCode TFCSLateralShapeParametrizationHitChain::simulate(TFCSSimulationSt
     return FCSFatal;
   }
 
-  float Elayer=simulstate.E(calosample());
-  float Ehit=Elayer/nhit;
+  const float Elayer=simulstate.E(calosample());
+  const float Ehit=Elayer/nhit;
   float sumEhit=0;
 
-  bool debug = msgLvl(MSG::DEBUG);
+  const bool debug = msgLvl(MSG::DEBUG);
   if (debug) {
     ATH_MSG_DEBUG("E("<<calosample()<<")="<<simulstate.E(calosample())<<" #hits~"<<nhit);
   }
