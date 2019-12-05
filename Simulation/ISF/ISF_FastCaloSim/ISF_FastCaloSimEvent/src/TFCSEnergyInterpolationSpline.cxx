@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimEvent/TFCSEnergyInterpolationSpline.h"
@@ -34,7 +34,7 @@ void TFCSEnergyInterpolationSpline::InitFromArrayInEkin(Int_t np, Double_t Ekin[
   InitFromArrayInLogEkin(np,logEkin.data(),response,opt,valbeg,valend);
 }
 
-FCSReturnCode TFCSEnergyInterpolationSpline::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState*)
+FCSReturnCode TFCSEnergyInterpolationSpline::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState*) const
 {
   float Emean;
   float logEkin=TMath::Log(truth->Ekin());

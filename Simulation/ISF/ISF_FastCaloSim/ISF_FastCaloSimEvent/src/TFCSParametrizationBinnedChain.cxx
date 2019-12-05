@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimEvent/TFCSParametrizationBinnedChain.h"
@@ -57,7 +57,7 @@ const std::string TFCSParametrizationBinnedChain::get_bin_text(int bin) const
   return std::string(Form("bin %d",bin));
 }
 
-FCSReturnCode TFCSParametrizationBinnedChain::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol)
+FCSReturnCode TFCSParametrizationBinnedChain::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const
 {
   for(unsigned int ichain=0;ichain<m_bin_start[0];++ichain) {
     ATH_MSG_DEBUG("now run for all bins: "<<chain()[ichain]->GetName());
