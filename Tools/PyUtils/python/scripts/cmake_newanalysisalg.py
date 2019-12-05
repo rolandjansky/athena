@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils.scripts.cmt_newanalysisalg
 # @purpose streamline and ease the creation of new athena algs
@@ -7,7 +7,7 @@
 
 #Note - this code could use a serious rewrite, I just hacked it together to get something working
 
-from __future__ import with_statement
+from __future__ import with_statement, print_function
 
 __version__ = "$Revision: 795362 $"
 __author__ = "Will Buttinger"
@@ -212,13 +212,13 @@ def main(args):
     cwd = os.getcwd()
     #check that src dir exists and CMakeLists.txt exists (i.e. this is a package)
     if not os.path.isdir(cwd+"/src") or not os.path.isfile(cwd+"/CMakeLists.txt"):
-        print "ERROR you must call new-analysisalg from within the package you want to add the algorithm to"
+        print ("ERROR you must call new-analysisalg from within the package you want to add the algorithm to")
         return -1
    
    
     full_pkg_name = os.path.basename(cwd)
-    print textwrap.dedent("""\
-    ::: create alg [%(full_alg_name)s] in pkg [%(full_pkg_name)s]""" %locals())
+    print (textwrap.dedent("""\
+    ::: create alg [%(full_alg_name)s] in pkg [%(full_pkg_name)s]""" %locals()))
 
     
     #first we must check that CMakeLists.txt file has the AthAnalysisBaseComps dependency in it
@@ -266,18 +266,18 @@ def main(args):
     fname = os.path.splitext("src/%s"%namespace_klass)[0]
     #first check doesn't exist 
     if os.path.isfile(fname+'.h'):
-       print ":::  ERROR %s.h already exists" % fname
+       print (":::  ERROR %s.h already exists" % fname)
        return -1
-    print ":::  INFO Creating %s.h" % fname
+    print (":::  INFO Creating %s.h" % fname)
     o_hdr = open(fname+'.h', 'w')
     o_hdr.writelines(hdr%d)
     o_hdr.flush()
     o_hdr.close()
 
     if os.path.isfile(fname+'.cxx'):
-       print ":::  ERROR %s.cxx already exists" % fname
+       print (":::  ERROR %s.cxx already exists" % fname)
        return -1
-    print ":::  INFO Creating %s.cxx" % fname
+    print (":::  INFO Creating %s.cxx" % fname)
     o_cxx = open(fname+'.cxx', 'w')
     o_cxx.writelines(cxx%d)
     o_cxx.flush()
@@ -287,7 +287,7 @@ def main(args):
     #first check they exist
     if not os.path.exists("src/components"): os.mkdir("src/components"); 
     if not os.path.isfile("src/components/%s_load.cxx"%full_pkg_name):
-       print ":::  INFO Creating src/components/%s_load.cxx"%full_pkg_name
+       print (":::  INFO Creating src/components/%s_load.cxx"%full_pkg_name)
        loadFile = open("src/components/%s_load.cxx"%full_pkg_name,'w')
        loadFile.writelines(""" 
 #include "GaudiKernel/LoadFactoryEntries.h"
@@ -297,7 +297,7 @@ LOAD_FACTORY_ENTRIES(%(pkg)s)
        loadFile.close()
       
     if not os.path.isfile("src/components/%s_entries.cxx"%full_pkg_name):
-       print ":::  INFO Creating src/components/%s_entries.cxx"%full_pkg_name
+       print (":::  INFO Creating src/components/%s_entries.cxx"%full_pkg_name)
        loadFile = open("src/components/%s_entries.cxx"%full_pkg_name,'w')
        if len(namespace_begin)>0:
           d["namespace"] = args.algname.split("::")[0]
@@ -336,29 +336,29 @@ DECLARE_FACTORY_ENTRIES( %(pkg)s )
           if len(namespace_begin)>0 and "DECLARE_NAMESPACE_ALGORITHM" in line and d["klass"] in line and d["namespace"]: inFile=True
           
        if not inFile:
-         print ":::  INFO Adding %s to src/components/%s_entries.cxx"% (args.algname,full_pkg_name)
+         print (":::  INFO Adding %s to src/components/%s_entries.cxx"% (args.algname,full_pkg_name))
          nextAdd=False
          for line in fileinput.input("src/components/%s_entries.cxx"%full_pkg_name, inplace=1):
             if nextAdd and not "{" in line:
                nextAdd=False
                if len(namespace_begin)>0:
-                  print """  DECLARE_NAMESPACE_ALGORITHM(%(namespace)s, %(klass)s );"""%d
+                  print ("""  DECLARE_NAMESPACE_ALGORITHM(%(namespace)s, %(klass)s );"""%d)
                else:
-                  print """  DECLARE_ALGORITHM( %(klass)s );"""%d
+                  print ("""  DECLARE_ALGORITHM( %(klass)s );"""%d)
             if line.startswith("DECLARE_FACTORY_ENTRIES"):
                nextAdd=True
                if len(namespace_begin)>0:
                   
-                  print """
+                  print ("""
 #include "../%(namespace_klass)s.h"
 DECLARE_NAMESPACE_ALGORITHM_FACTORY( %(namespace)s, %(klass)s )
-"""%d
+"""%d)
                else:
-                  print """
+                  print ("""
 #include "../%(namespace_klass)s.h"
 DECLARE_ALGORITHM_FACTORY( %(klass)s )
-"""%d
-            print line,
+"""%d)
+            print (line, end='')
    
    
     if args.newJobo:
@@ -366,8 +366,8 @@ DECLARE_ALGORITHM_FACTORY( %(klass)s )
       full_jobo_name = namespace_klass + "JobOptions"
       full_alg_name = namespace_klass
    
-      print textwrap.dedent("""\
-      ::: create jobo [%(full_jobo_name)s] for alg [%(full_alg_name)s]""" %locals())
+      print (textwrap.dedent("""\
+      ::: create jobo [%(full_jobo_name)s] for alg [%(full_alg_name)s]""" %locals()))
    
       #following code borrowed from gen_klass
       from cmt_newjobo import Templates as joboTemplates
@@ -379,7 +379,7 @@ DECLARE_ALGORITHM_FACTORY( %(klass)s )
       fname = 'share/%s.py' % full_jobo_name
       #first check doesn't exist 
       if os.path.isfile(fname):
-         print ":::  WARNING %s already exists .. will not overwrite" % fname
+         print (":::  WARNING %s already exists .. will not overwrite" % fname)
       else:
          o_hdr = open(fname, 'w')
          o_hdr.writelines(jobo%e)
@@ -390,17 +390,17 @@ DECLARE_ALGORITHM_FACTORY( %(klass)s )
     #rely on the WorkDir_DIR env var for this
     workDir = os.environ.get("WorkDir_DIR")
     if workDir == None:
-        print "::: ERROR No WorkDir_DIR env var, did you forget to source the setup.sh script?"
-        print "::: ERROR Please do this and reconfigure cmake manually!"
+        print ("::: ERROR No WorkDir_DIR env var, did you forget to source the setup.sh script?")
+        print ("::: ERROR Please do this and reconfigure cmake manually!")
     else:
-        print ":::  INFO Reconfiguring cmake %s/../." % workDir
+        print (":::  INFO Reconfiguring cmake %s/../." % workDir)
         res = commands.getstatusoutput('cmake %s/../.' % workDir)
         if res[0]!=0:
-            print ":::  WARNING reconfigure unsuccessful. Please reconfigure manually!"
+            print (":::  WARNING reconfigure unsuccessful. Please reconfigure manually!")
         
 
-    print ":::  INFO Please ensure your CMakeLists.txt file has "
-    print ":::       atlas_add_component( %s src/component/*.cxx ... )" % full_pkg_name
-    print ":::  INFO and necessary dependencies declared "
-    print ":::  INFO Minimum dependency is: Control/AthAnalysisBaseComps"
+    print (":::  INFO Please ensure your CMakeLists.txt file has ")
+    print (":::       atlas_add_component( %s src/component/*.cxx ... )" % full_pkg_name)
+    print (":::  INFO and necessary dependencies declared ")
+    print (":::  INFO Minimum dependency is: Control/AthAnalysisBaseComps")
 
