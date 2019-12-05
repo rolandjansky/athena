@@ -273,10 +273,10 @@ namespace DerivationFramework {
 
     if(m_decorateorigincorrection){
       if(m_jetOriginCorrectionTool->modify(*jets_copy))
-        {
+	{
 	  ATH_MSG_ERROR("Problem applying the origin correction tool");
 	  return StatusCode::FAILURE;
-        }
+	}
     }
 
     // Check if GhostTruthAssociation decorations already exist for first jet, and if so skip them //

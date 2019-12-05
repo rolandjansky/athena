@@ -117,9 +117,9 @@
       fjvt_dec(*jetF) = 0;
 
       if (isForwardJet(jetF)){
-	double fjvt = getFJVT(jetF,pileupMomenta);
-	if (fjvt>m_fjvtThresh) (*Dec_outFjvt)(*jetF) = 0;
-	fjvt_dec(*jetF) = fjvt;
+       double fjvt = getFJVT(jetF,pileupMomenta);
+       if (fjvt>m_fjvtThresh) (*Dec_outFjvt)(*jetF) = 0;
+       fjvt_dec(*jetF) = fjvt;
       }
     }
     return 0;
@@ -173,8 +173,8 @@
       }
       
       if(evtStore()->retrieve(vertex_jets,jname.Data()).isFailure()){
-	ATH_MSG_ERROR("Unable to retrieve built PU jets with name \"" << m_jetsName << "\"");
-	return pileupMomenta;
+        ATH_MSG_ERROR("Unable to retrieve built PU jets with name \"" << m_jetsName << "\"");
+        return pileupMomenta;
       }
 
       TVector2 vertex_met;

@@ -25,7 +25,6 @@
 
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h" // QGTaggerTool
 
-
 namespace DerivationFramework {
 
   class JetAugmentationTool : public AthAlgTool, public IAugmentationTool {
