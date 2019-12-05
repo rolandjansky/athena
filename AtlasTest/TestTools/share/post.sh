@@ -282,20 +282,16 @@ else
        fi
 
        if [ -r $reflog ]; then
-	       jobrep=${joblog}-rep
-	       sed -r "$II" $joblog > $jobrep
-	       refrep=`basename ${reflog}`-rep
-	       sed -r "$II" $reflog > $refrep
            jobdiff=${joblog}-todiff
            refdiff=`basename ${reflog}`-todiff
 
            # We either exclude or select lines for the diff
            if [ -z "$selectpatterns" ]; then
-               egrep -a -v "$PP" < $jobrep > $jobdiff
-               egrep -a -v "$PP" < $refrep > $refdiff
+               sed -r "$II" $joblog | egrep -a -v "$PP" > $jobdiff
+               sed -r "$II" $reflog | egrep -a -v "$PP" > $refdiff
            else
-               egrep -a "$selectpatterns" < $jobrep > $jobdiff
-               egrep -a "$selectpatterns" < $refrep > $refdiff
+               sed -r "$II" $joblog | egrep -a "$selectpatterns" > $jobdiff
+               sed -r "$II" $reflog | egrep -a "$selectpatterns" > $refdiff
            fi
            diff -a -b -E -B -u $jobdiff $refdiff
            diffStatus=$?
