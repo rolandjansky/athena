@@ -90,7 +90,7 @@ def makeJetAnalysisSequence( dataType, jetCollection, postfix = '', deepCopyOutp
     seq = AnaAlgSequence( "JetAnalysisSequence"+postfix )
     # Relink original jets in case of b-tagging calibration
     if btIndex != -1:
-        alg = createAlgorithm( 'CP::AsgOriginalObjectLinkAlg', 
+        alg = createAlgorithm( 'CP::AsgOriginalObjectLinkAlg',
             'JetOriginalObjectLinkAlg'+postfix )
         alg.baseContainerName = jetCollection
         seq.append( alg, inputPropName = 'particles', outputPropName = 'particlesOut', stageName = 'calibration' )
