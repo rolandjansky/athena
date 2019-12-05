@@ -16,10 +16,10 @@ from TriggerJobOpts.TriggerFlags import TriggerFlags
 def MuonCombinedInDetExtensionAlg(name="MuonCombinedInDetExtensionAlg",**kwargs):
     tools = []
     if muonCombinedRecFlags.doMuGirl():
-        tools.append(getPublicTool("MuGirlTagTool"))
+        tools.append(getTool("MuGirlTagTool"))
         kwargs.setdefault("TagMap", "muGirlTagMap" )
     if muonCombinedRecFlags.doCaloTrkMuId():
-        tools.append(getPublicTool("MuonCaloTagTool"))
+        tools.append(getTool("MuonCaloTagTool"))
         kwargs.setdefault("TagMap", "caloTagMap" )
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
     kwargs.setdefault("HasCSC", MuonGeometryFlags.hasCSC() )
