@@ -47,6 +47,7 @@ private:
   bool m_killPDG0;    // Kill PDG0 particles?
   bool m_cleanDecays; // Clean decays?
   bool m_loopByBC;    // Detect loops by barcode
+  bool m_setMuonsToProdVtx; // Detect very displaced muons
   //@}
 
   /// @name Cleaned-particle counters
@@ -54,6 +55,7 @@ private:
   long m_loopKilled;
   long m_pdg0Killed;
   long m_decayCleaned;
+  long m_muonVtxChanged;
   long m_totalSeen;
   //@}
 
