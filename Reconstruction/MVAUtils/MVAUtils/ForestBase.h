@@ -53,6 +53,7 @@ namespace MVAUtils
         virtual TTree* WriteTree(TString) const = 0;
         /** Get the number of input variable to be passed with std::vector to Get* methods **/
         virtual int GetNVars() const = 0;
+        virtual ~IForest()=default;
     };
 
 }
