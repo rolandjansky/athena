@@ -31,7 +31,7 @@ namespace MuonCombined {
  
   MuonCombinedDebuggerTool::MuonCombinedDebuggerTool (const std::string& type, const std::string& name, const IInterface* parent)
     :	AthAlgTool(type, name, parent),
-	m_matchQuality("Rec::MuonMatchQuality/MuonMatchQuality"), 
+	m_matchQuality("Rec::MuonMatchQuality/MuonMatchQuality", this), 
 	m_truthToTrack("Trk::TruthToTrack/TruthToTrack"),
 	m_histSvc("THistSvc", name),
 	m_recoTree(0)
