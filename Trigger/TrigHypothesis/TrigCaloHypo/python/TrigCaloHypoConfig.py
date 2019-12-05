@@ -19,8 +19,8 @@ class EFCaloHypoNoiseConfig (TrigEFCaloHypoNoise):
         self.Etcut = ef_thr
         self.BadFEBCut=3
         from LArBadChannelTool.LArBadChannelToolConf import LArBadFebCondAlg
-        conddb.addFolder(LAR_ONL,"/LAR/BadChannels/KnownBADFEBs", className="AthenaAttributeList")
-        conddb.addFolder(LAR_ONL,"/LAR/BadChannels/KnownMNBFEBs", className="AthenaAttributeList")
+        conddb.addFolder('LAR_ONL',"/LAR/BadChannels/KnownBADFEBs", className="AthenaAttributeList")
+        conddb.addFolder('LAR_ONL',"/LAR/BadChannels/KnownMNBFEBs", className="AthenaAttributeList")
         from AthenaCommon.AlgSequence import AthSequencer
         condSeq = AthSequencer("AthCondSeq")
         condSeq+=LArBadFebCondAlg("LArKnownBadFebAlg",ReadKey="/LAR/BadChannels/KnownBADFEBs",WriteKey="LArKnownBadFEBs")
