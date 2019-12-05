@@ -75,8 +75,8 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) {
   
   // Decorate event info
   
-  static SG::AuxElement::Accessor<float> acc_mu("mu");
-  static SG::AuxElement::Accessor<int> acc_nVtxPU("nVtxPU");
+  SG::AuxElement::Accessor<float> acc_mu("mu");
+  SG::AuxElement::Accessor<int> acc_nVtxPU("nVtxPU");
   
   acc_mu(xTau) = m_mu;
   acc_nVtxPU(xTau) = m_nVtxPU;
@@ -164,8 +164,8 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) {
   xTau.setDetail(xAOD::TauJetParameters::ClustersMeanPresamplerFrac, (float) mean_presampler_frac);
 
   // online-specific, not defined in TauDefs enum
-  static SG::AuxElement::Accessor<float> acc_LeadClusterFrac("LeadClusterFrac");
-  static SG::AuxElement::Accessor<float> acc_UpsilonCluster("UpsilonCluster");
+  SG::AuxElement::Accessor<float> acc_LeadClusterFrac("LeadClusterFrac");
+  SG::AuxElement::Accessor<float> acc_UpsilonCluster("UpsilonCluster");
   acc_LeadClusterFrac(xTau) = (float) lead_cluster_frac;
   acc_UpsilonCluster(xTau) = (float) upsilon_cluster;
 
