@@ -706,6 +706,7 @@ void InDet::SiTrackMakerITk_xk::newTrigEvent(bool PIX,bool SCT)
   m_simpleTrack  = true;
   
   setTrackQualityCuts();
+
   // New event for track finder tool
   //
   m_tracksfinder->newEvent(m_trackinfo,m_trackquality);
