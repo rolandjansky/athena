@@ -102,7 +102,6 @@ namespace DerivationFramework {
         dec_jvt  = new SG::AuxElement::Decorator<float>(m_momentPrefix+m_jvtMomentKey);
         dec_passJvt  = new SG::AuxElement::Decorator<char>(m_momentPrefix+"pass"+m_jvtMomentKey);
 
-	ATH_MSG_INFO(" Retrieving mvfjvt tool (" << m_MVfJvtTool <<") for jet collection " << m_containerName);
 	if(!m_MVfJvtTool.empty()) {
 	  CHECK(m_MVfJvtTool.retrieve());
 	  ATH_MSG_INFO("Augmenting jets with MV-fJVT value \"" << m_momentPrefix+m_MVfJvtMomentKey << "\"");
@@ -117,17 +116,13 @@ namespace DerivationFramework {
 	  dec_MVfJvt_LeadclWidth        = std::make_unique< SG::AuxElement::Decorator<float> >(m_momentPrefix+m_MVfJvtMomentKey+"_LeadclWidth");
 	  dec_MVfJvt_LeadclSecondLambda = std::make_unique< SG::AuxElement::Decorator<float> >(m_momentPrefix+m_MVfJvtMomentKey+"_LeadclSecondLambda");
 	}
-	
-	ATH_MSG_INFO(" Retrieving fjvt tool (" << m_fjvtTool <<") for jet collection " << m_containerName);
+
 	if(!m_fjvtTool.empty()) {
 	  CHECK(m_fjvtTool.retrieve());
 	  ATH_MSG_INFO("Augmenting (PFlow) jets with fJVT \"" << m_momentPrefix+m_fjvtMomentKey << "\"");
 	  m_dofjvt = true;
 
 	  dec_fjvt  = std::make_unique< SG::AuxElement::Decorator<float> >(m_momentPrefix+m_fjvtMomentKey);
-
-	} else {
-	  ATH_MSG_INFO(" PFlow fJVT tool is missing ");
 	}
 
         if(!m_btagSelTools.empty()) {
@@ -251,7 +246,7 @@ namespace DerivationFramework {
     // retrieve container
     const xAOD::JetContainer* jets(0);
     if( evtStore()->retrieve( jets, m_containerName ).isFailure() ) {
-      ATH_MSG_WARNING ("Couldn't retrieve jets with key: " << m_containerName );
+      ATH_MSG_ERROR("Couldn't retrieve jets with key: " << m_containerName );
       return StatusCode::FAILURE;
     }
 
@@ -263,7 +258,7 @@ namespace DerivationFramework {
       // if we have a calibration tool, apply the calibration
     if(m_docalib) {
       if(m_jetCalibTool->modify(*jets_copy) ) {
-        ATH_MSG_WARNING("Problem applying jet calibration");
+        ATH_MSG_ERROR("Problem applying jet calibration");
         return StatusCode::FAILURE;
       }
     }
@@ -271,15 +266,15 @@ namespace DerivationFramework {
     if(m_decoratetracksum){
       if( m_jetTrackSumMomentsTool->modify(*jets_copy) )
       {
-	ATH_MSG_WARNING("Problems calculating TrackSumMass and TrackSumPt");
-	return StatusCode::FAILURE;
+        ATH_MSG_ERROR("Problems calculating TrackSumMass and TrackSumPt");
+        return StatusCode::FAILURE;
       }
     }
 
     if(m_decorateorigincorrection){
       if(m_jetOriginCorrectionTool->modify(*jets_copy))
         {
-	  ATH_MSG_WARNING("Problem applying the origin correction tool");
+	  ATH_MSG_ERROR("Problem applying the origin correction tool");
 	  return StatusCode::FAILURE;
         }
     }
@@ -295,7 +290,7 @@ namespace DerivationFramework {
       ATH_MSG_DEBUG("tool running" );
       if( m_jetPtAssociationTool->modify(*jets_copy) )
       {
-        ATH_MSG_WARNING("Problem running the JetPtAssociationTool");
+        ATH_MSG_ERROR("Problem running the JetPtAssociationTool");
         return StatusCode::FAILURE;
       }
     }
@@ -310,7 +305,7 @@ namespace DerivationFramework {
       if(m_doMVfJvt){
 	if(m_MVfJvtTool->modify(*jets_copy))
 	  {
-	    ATH_MSG_WARNING("Problem with MVfJvtTool modify function");
+	    ATH_MSG_ERROR("Problem with MVfJvtTool modify function");
 	    return StatusCode::FAILURE;
 	  }
       }
@@ -318,7 +313,7 @@ namespace DerivationFramework {
       if(m_dofjvt){
        	if(m_fjvtTool->modify(*jets_copy))
 	  {
-	    ATH_MSG_WARNING("Problem computing fJVT");
+	    ATH_MSG_ERROR("Problem computing fJVT");
 	    return StatusCode::FAILURE;
 	  }
       }

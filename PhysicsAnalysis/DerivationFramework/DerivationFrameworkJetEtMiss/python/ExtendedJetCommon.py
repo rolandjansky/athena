@@ -412,15 +412,16 @@ def addJetPtAssociation(jetalg, truthjetalg, sequence, algname):
 def applyMVfJvtAugmentation(jetalg,sequence,algname):
     supportedJets = ['AntiKt4EMTopo']
     if not jetalg in supportedJets:
-        extjetlog.warning('*** MVfJvt augmentation requested for unsupported jet collection {}! ***'.format(jetalg))
+        extjetlog.error('*** MVfJvt augmentation requested for unsupported jet collection {}! ***'.format(jetalg))
         return
     else:
         jetaugtool = getJetAugmentationTool(jetalg)
 
         if(jetaugtool==None or jetaugtool.JetCalibTool=='' or jetaugtool.JetJvtTool==''):
-            extjetlog.warning('*** MVfJvt called but required augmentation tool does not exist! ***')
-            extjetlog.warning('*** You must apply jet calibration and JVT! ***')
-        
+            extjetlog.error('*** MVfJvt called but required augmentation tool does not exist! ***')
+            extjetlog.error('*** You must apply jet calibration and JVT! ***')
+            return
+
         mvfjvttoolname = 'DFJetMVfJvt_'+jetalg    
         
         from AthenaCommon.AppMgr import ToolSvc
@@ -438,7 +439,7 @@ def applyMVfJvtAugmentation(jetalg,sequence,algname):
 def getPFlowfJVT(jetalg,algname,sequence):
     supportedJets = ['AntiKt4EMPFlow']
     if not jetalg in supportedJets:
-        extjetlog.warning('*** pfwarning: PFlow fJvt augmentation requested for unsupported jet collection {}! ***'.format(jetalg))
+        extjetlog.error('*** PFlow fJvt augmentation requested for unsupported jet collection {}! ***'.format(jetalg))
         return
     else:
         applyJetCalibration(jetalg,algname,sequence,suffix='_PFlow_fJVT')
@@ -446,8 +447,9 @@ def getPFlowfJVT(jetalg,algname,sequence):
         jetaugtool = getJetAugmentationTool(jetalg,suffix='_PFlow_fJVT')
 
         if(jetaugtool==None or jetaugtool.JetCalibTool=='' or jetaugtool.JetJvtTool==''):
-            extjetlog.warning('*** PFlow fJvt called but required augmentation tool does not exist! ***')
-            extjetlog.warning('*** Jet calibration and JVT have to be applied ! ***')
+            extjetlog.error('*** PFlow fJvt called but required augmentation tool does not exist! ***')
+            extjetlog.error('*** Jet calibration and JVT have to be applied ! ***')
+            return
 
         pffjvttoolname = 'DFJetPFfJvt_'+jetalg
 

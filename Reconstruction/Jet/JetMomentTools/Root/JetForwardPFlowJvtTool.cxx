@@ -165,7 +165,8 @@
       if( !evtStore()->contains<xAOD::JetContainer>(jname.Data()) ){
 	// if not, build it
 	if( buildPFlowPUjets(*vx,*pfos).isFailure() ){
-	  ATH_MSG_WARNING(" Some issue appeared while building the pflow pileup jets for vertex "<< vx->index() << " (vxType = " << vx->vertexType()<<" )!" );
+	  ATH_MSG_ERROR(" Some issue appeared while building the pflow pileup jets for vertex "<< vx->index() << " (vxType = " << vx->vertexType()<<" )!" );
+	  return pileupMomenta;
 	}
       } else {
 	ATH_MSG_WARNING( jname.Data() << " already exists. Existing container will be used.");
@@ -257,7 +258,7 @@
     }
 
     if( m_pfoJES->modify(*vertjets) ){
-      ATH_MSG_WARNING(" Failed to calibrate PU jet container ");
+      ATH_MSG_ERROR(" Failed to calibrate PU jet container ");
       return StatusCode::FAILURE;
     }
     ATH_CHECK( evtStore()->record(vertjets.release(),newname.Data())    );

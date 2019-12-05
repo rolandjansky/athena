@@ -25,10 +25,6 @@
 
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h" // QGTaggerTool
 
-// PFlow fjvt
-#include "xAODPFlow/PFOContainer.h"
-#include "PFlowUtils/IWeightPFOTool.h"
-#include "PFlowUtils/WeightPFOTool.h"
 
 namespace DerivationFramework {
 
