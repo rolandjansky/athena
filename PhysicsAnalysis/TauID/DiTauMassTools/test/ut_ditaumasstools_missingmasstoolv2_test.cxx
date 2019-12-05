@@ -30,7 +30,7 @@
 #include "xAODRootAccess/TEvent.h"
 #include "xAODRootAccess/tools/ReturnCheck.h"
 #include "xAODRootAccess/tools/Message.h"
-#include "DiTauMassTools/MissingMassTool.h"
+#include "DiTauMassTools/MissingMassToolV2.h"
 
 // Error checking macro
 #define CHECK( ARG )							\
@@ -46,17 +46,16 @@
 int main() {
 
    // Get the name of the application:
-   const char* APP_NAME = "ut_ditaumasstools_missingmasstool_test";
+   const char* APP_NAME = "ut_ditaumasstools_missingmasstoolv2_test";
 
    // Initialise the environment:
    RETURN_CHECK( APP_NAME, xAOD::Init( APP_NAME ) );
 
    // Initialize the tool
-   MissingMassTool missingmassTool("missingmass_tool");
+   MissingMassToolV2 missingmassTool("missingmass_tool");
    CHECK( missingmassTool.setProperty("Decorate", true)) ;
    CHECK( missingmassTool.setProperty("UseVerbose", 1)) ;
    CHECK( missingmassTool.setProperty("CalibSet", "2012"));
-   CHECK( missingmassTool.setProperty("alg_version", 3));
    CHECK( missingmassTool.setProperty("UseTailCleanup", 0));
    CHECK( missingmassTool.setProperty("NiterFit2", 30));
    CHECK( missingmassTool.setProperty("NiterFit3", 10));
