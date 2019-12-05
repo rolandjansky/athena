@@ -328,7 +328,7 @@ def triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg, offline=False):
     pebDecisionKeys = [key for key in summaryAlg.getProperties()['FinalStepDecisions'].values() if 'PEBInfoWriter' in key]
     stmaker.PEBDecisionKeys = pebDecisionKeys
 
-    acc = ComponentAccumulator()
+    acc = ComponentAccumulator(sequenceName="HLTTop")
     if offline:
         # Create HLT result maker and alg
         from TrigOutputHandling.TrigOutputHandlingConfig import HLTResultMTMakerCfg
