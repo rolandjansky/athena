@@ -9,25 +9,20 @@ import AthenaCommon.SystemOfUnits as Units
 
 # general function to get current menu unprescaled triggers for given trigger type
 #def getTriggerList( trigger_type, matching_pattern="", rejection_pattern="", test=[] ):
-def getTriggerList( trigger_type, matching_pattern="", reject_list=[] ):
-        
+def getTriggerList( trigger_type, matching_pattern="", reject_list=[] ):     
     # Gets list of unprescaled triggers from the current/future menu
     # -- uses "list_unprescaled1p8e34" + "list_unprescaled2e34" generated during build
     # Loops through retrieved trigger list to search for given type/pattern
     # -- trigger_type format = TriggerType.(physics object + _ + single/multi)
     # -- physics objects: el, mu, j, bj, tau, g [also xe, ht, exotics]
-
     triggerList = []
-    
     lowestUnprescaled = TriggerAPI.getLowestUnprescaled(
         TriggerPeriod.future, trigger_type, matchPattern=matching_pattern )
     lowestUnprescaledAny = TriggerAPI.getLowestUnprescaledAnyPeriod(
         TriggerPeriod.future, trigger_type, matchPattern=matching_pattern )
     unprescaled = TriggerAPI.getUnprescaled(
         TriggerPeriod.future, trigger_type, matchPattern=matching_pattern )
-    
     unprescaled_triggers = lowestUnprescaled + lowestUnprescaledAny + unprescaled
-
     for trigger in unprescaled_triggers:
         if trigger in triggerList: continue
         isRejected = False
@@ -37,8 +32,7 @@ def getTriggerList( trigger_type, matching_pattern="", reject_list=[] ):
         triggerList.append( trigger )
 
     return triggerList
-
-
+    
 
 # RPVLLTriggers class to call filter-specific functions
 class RPVLLTriggers:
@@ -181,6 +175,20 @@ class RPVLLTriggers:
         HIPsList = getTriggerList( TriggerType.exotics, "hiptrt" )
         return HIPsList
 
+    def getTauSingleTriggers(self):
+        #DV_METFilterFlags.triggers
+        SingleRNNTauList = getTriggerList( TriggerType.tau_single )
+        return SingleRNNTauList
+    
+    def getTauDiTriggers(self):
+        #DV_METFilterFlags.triggers
+        SingleRNNTauList = getTriggerList( TriggerType.tau_multi )
+        return SingleRNNTauList
+
+    def getTauMETTriggers(self):
+        #DV_METFilterFlags.triggers
+        SingleRNNTauList = getTriggerList(  TriggerType.ALL, matching_pattern="HLT_tau.*xe.*" )
+        return SingleRNNTauList
 
     
 # Flags to turn RPVLL TriggerAPI implementation on/off
