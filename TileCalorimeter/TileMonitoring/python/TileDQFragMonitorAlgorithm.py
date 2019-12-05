@@ -108,13 +108,13 @@ def _TileDQFragMonitoringCore(helper, runNumber, **kwargs):
                                     title = '# events with Tile error state in EventInfo;LumiBlock;# events with error',
                                     xbins = 1000, xmin = -0.5, xmax = 999.5)
 
-    # 3) Configure histogram with TileDQFragMonAlg algorithm execution time
+    # 3) Configure histogram with number of consecutive bad Tile modules
     consecutiveBadGroup = helper.addGroup(tileDQFragMonAlg, 'TileConsecutiveBadModules', 'Tile/DMUErrors')
     consecutiveBadGroup.defineHistogram('TileConsecutiveBad', path = 'BadDrawers', type='TH1F',
                                         title = 'Max # Tile consecutive bad modules;# consecutive bad modules;N',
                                         xbins = 17, xmin = -0.5, xmax = 16.5)
 
-    # 4) Configure histogram with TileDQFragMonAlg algorithm execution time
+    # 4) Configure histogram with number of consecutive bad Tile modules per lumi block
     consecutiveBadLBGroup = helper.addGroup(tileDQFragMonAlg, 'TileConsecutiveBadModulesLB', 'Tile/DMUErrors')
     consecutiveBadLBGroup.defineHistogram('lumiBlock,TileConsecutiveBad;TileConsecutiveBadLB', path = 'BadDrawers', type='TH2F',
                                           title = 'Max # Tile consecutive bad modules;LumiBlock;# consecutive bad modules',
@@ -191,33 +191,33 @@ def _TileDQFragMonitoringCore(helper, runNumber, **kwargs):
 
 
 
-    from TileMonitoring.TileMonitoringCfgHelper import addTilePartitionMapsArray
+    from TileMonitoring.TileMonitoringCfgHelper import addTileModuleChannelMapsArray
 
     # 9) Configure histograms with # of jumps errors per Tile partition
-    addTilePartitionMapsArray(helper, tileDQFragMonAlg, path = 'Tile/DMUErrors/BadDrawers',
-                              name = 'TileBadChannelsJumpMap', title = '# Jump errors',
-                              run = run)
+    addTileModuleChannelMapsArray(helper, tileDQFragMonAlg, path = 'Tile/DMUErrors/BadDrawers',
+                                  name = 'TileBadChannelsJumpMap', title = '# Jump errors',
+                                  run = run)
 
     # 10) Configure histograms with # of not masked jumps errors per Tile partition
-    addTilePartitionMapsArray(helper, tileDQFragMonAlg, path = 'Tile/DMUErrors/BadDrawers',
-                              name = 'TileBadChannelsJumpNotMaskMap', title = '# Not masked Jump errors',
-                              run = run)
+    addTileModuleChannelMapsArray(helper, tileDQFragMonAlg, path = 'Tile/DMUErrors/BadDrawers',
+                                  name = 'TileBadChannelsJumpNotMaskMap', title = '# Not masked Jump errors',
+                                  run = run)
 
 
     # 11) Configure histograms with Tile bad pulse shape
-    addTilePartitionMapsArray(helper, tileDQFragMonAlg, path = 'Tile/DMUErrors/BadDrawers',
-                              name = 'TileBadPulseQualityMap', run = run,
-                              title = 'Bad pulse shape or #chi^{2} from Optimal Filtering algirithm')
+    addTileModuleChannelMapsArray(helper, tileDQFragMonAlg, path = 'Tile/DMUErrors/BadDrawers',
+                                  name = 'TileBadPulseQualityMap', run = run,
+                                  title = 'Bad pulse shape or #chi^{2} from Optimal Filtering algirithm')
 
     # 12) Configure histograms with Tile channel negative amplitudes below threshold
-    addTilePartitionMapsArray(helper, tileDQFragMonAlg, path = 'Tile/DMUErrors/BadDrawers',
-                              name = 'TileBadChannelsNegMap', title = '# Negative amplitude',
-                              run = run)
+    addTileModuleChannelMapsArray(helper, tileDQFragMonAlg, path = 'Tile/DMUErrors/BadDrawers',
+                                  name = 'TileBadChannelsNegMap', title = '# Negative amplitude',
+                                  run = run)
 
     # 13) Configure histograms with not masked Tile channel negative amplitudes below threshold
-    addTilePartitionMapsArray(helper, tileDQFragMonAlg, path = 'Tile/DMUErrors/BadDrawers',
-                              name = 'TileBadChannelsNegNotMaskMap', run = run,
-                              title = '# Not masked negative amplitude')
+    addTileModuleChannelMapsArray(helper, tileDQFragMonAlg, path = 'Tile/DMUErrors/BadDrawers',
+                                  name = 'TileBadChannelsNegNotMaskMap', run = run,
+                                  title = '# Not masked negative amplitude')
 
 
 
@@ -266,4 +266,3 @@ if __name__=='__main__':
     import sys
     # Success should be 0
     sys.exit(not sc.isSuccess())
-
