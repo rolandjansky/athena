@@ -456,9 +456,10 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
 
     }
 
-
-    ANA_CHECK( objTool.ApplyPRWTool());
-
+    // Only need to PRW if we aren't running on PHYSLITE
+    if (xStream!="PHYSLITE"){
+      ANA_CHECK( objTool.ApplyPRWTool());
+    }
     //if(debug) Info( APP_NAME, "PRW Weight = %f", objTool.GetPileupWeight());
 
     // Print some event information for fun:
