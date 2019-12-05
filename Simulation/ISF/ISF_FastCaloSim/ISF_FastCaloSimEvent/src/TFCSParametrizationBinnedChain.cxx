@@ -66,7 +66,7 @@ FCSReturnCode TFCSParametrizationBinnedChain::simulate(TFCSSimulationState& simu
     }
   }
   if(get_number_of_bins()>0) {
-    int bin=get_bin(simulstate,truth,extrapol);
+    const int bin=get_bin(simulstate,truth,extrapol);
     if(bin>=0 && bin<(int)get_number_of_bins()) {
       for(unsigned int ichain=m_bin_start[bin];ichain<m_bin_start[bin+1];++ichain) {
         ATH_MSG_DEBUG("for "<<get_variable_text(simulstate,truth,extrapol)<<" run "<<get_bin_text(bin)<<": "<<chain()[ichain]->GetName());

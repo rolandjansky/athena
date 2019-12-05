@@ -37,7 +37,7 @@ void TFCSEnergyInterpolationSpline::InitFromArrayInEkin(Int_t np, Double_t Ekin[
 FCSReturnCode TFCSEnergyInterpolationSpline::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState*) const
 {
   float Emean;
-  float logEkin=TMath::Log(truth->Ekin());
+  const float logEkin=TMath::Log(truth->Ekin());
   if(logEkin<m_spline.GetXmin()) {
     Emean=m_spline.Eval(m_spline.GetXmin())*truth->Ekin();
   } else {
