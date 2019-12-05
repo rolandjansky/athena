@@ -137,7 +137,7 @@ primRPVLLDESDM.add_JobProperty(doSmpMs)
 class doVH(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
-    StoredValue = False
+    StoredValue = True
     pass
 primRPVLLDESDM.add_JobProperty(doVH)
 
