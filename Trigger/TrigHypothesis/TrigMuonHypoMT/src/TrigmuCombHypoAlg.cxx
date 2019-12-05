@@ -79,7 +79,6 @@ StatusCode TrigmuCombHypoAlg::execute(const EventContext& context) const
 
     // set objectLink
     newd->setObjectLink( featureString(), muCombEL );
-    newd->setObjectLink( viewString(), viewEL);
     TrigCompositeUtils::linkToPrevious( newd, previousDecision, context);
 
     // DEBUG
