@@ -28,8 +28,6 @@
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTruth/TruthParticleContainer.h"
-#include "xAODTruth/TruthEventContainer.h"
-#include "xAODTruth/TruthEvent.h"
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthVertex.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
@@ -92,7 +90,7 @@ DQTGlobalWZFinderTool::DQTGlobalWZFinderTool(const std::string & type,
      m_Z_mm_trigger{"CATEGORY_monitoring_muonIso", "CATEGORY_monitoring_muonNonIso"},
      m_Z_ee_trigger{"CATEGORY_primary_single_ele_iso", "CATEGORY_primary_single_ele"},
      m_elTrigMatchTool("Trig::TrigEgammaMatchingTool/TrigEgammaMatchingTool", this),
-     m_truthClassifier("MCTruthClassifier/IMCTruthClassifier")
+     m_truthClassifier("MCTruthClassifier/IMCTruthClassifier", this)
 
 //----------------------------------------------------------------------------------
 

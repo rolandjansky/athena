@@ -23,10 +23,6 @@
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrigEgammaMatchingTool/ITrigEgammaMatchingTool.h"
 
-#include "PATInterfaces/ISystematicsTool.h"
-#include <PATInterfaces/SystematicRegistry.h>
-#include <PATInterfaces/SystematicVariation.h>
-
 #include "MCTruthClassifier/IMCTruthClassifier.h"
 
 #include "TMath.h"
