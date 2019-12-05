@@ -97,7 +97,7 @@ class _ObjKeyStore( object ):
         
 
     def Print(self):
-        print self._store
+        print(self._store)
 
     def __repr__(self):
         return "%r" % self._store

@@ -24,7 +24,7 @@ class ConfiguredNewTrackingCuts :
     from AthenaCommon.DetFlags import DetFlags
     from AthenaCommon.BeamFlags import jobproperties
     from RecExConfig.RecFlags import rec
-    
+
     # --- put defaults to run Pixel/SCT/TRT
     self.__usePixel = DetFlags.haveRIO.pixel_on()
     self.__useSCT   = DetFlags.haveRIO.SCT_on()
@@ -40,7 +40,7 @@ class ConfiguredNewTrackingCuts :
     self.__minSecondaryPt          = 0.4 * Units.GeV  # Pt cut for back tracking + segment finding for these
     self.__minTRTonlyPt            = 0.4 * Units.GeV  # Pt cut for TRT only
 
-    # --- first set kinematic defaults 
+    # --- first set kinematic defaults
     self.__maxPT                   = None            # off !
     self.__minEta                  = -1              # off !
     self.__maxEta                  = 2.7
@@ -49,7 +49,7 @@ class ConfiguredNewTrackingCuts :
     self.__minClusters             = 7                # Igor 6, was 7
     self.__minSiNotShared          = 6
     self.__maxShared               = 1                # cut is now on number of shared modules
-    self.__minPixel                = 0                
+    self.__minPixel                = 0
     self.__maxHoles                = 3                # was 5
     self.__maxPixelHoles           = 2                # was 5
     self.__maxSctHoles             = 2                # was 5
@@ -70,7 +70,7 @@ class ConfiguredNewTrackingCuts :
     self.__Xi2maxNoAdd             = 35.0
     self.__nWeightedClustersMin    = 6
 
-    # --- seeding 
+    # --- seeding
     self.__seedFilterLevel         = 1
     self.__maxdImpactPPSSeeds      = 1.7
     self.__maxdImpactSSSSeeds      = 1000.0
@@ -83,12 +83,12 @@ class ConfiguredNewTrackingCuts :
 
     # --- Z Boundary Seeding
     self.__doZBoundary             = False
-    
+
     # --------------------------------------
     # --- BACK TRACKING cuts
     # --------------------------------------
-    
-    # --- settings for segment finder 
+
+    # --- settings for segment finder
     self.__TRTSegFinderPtBins        = 70
     self.__maxSegTRTShared           = 0.7
     self.__excludeUsedTRToutliers    = False
@@ -125,13 +125,13 @@ class ConfiguredNewTrackingCuts :
     # --------------------------------------
     # --- TRT Only TRACKING cuts
     # --------------------------------------
-    
+
     # --- TRT only
     self.__minTRTonly                = 15
     self.__maxTRTonlyShared          = 0.7
     self.__useTRTonlyParamCuts       = False
     self.__useTRTonlyOldLogic        = True
-    
+
     #
     # --------------------------------------
     # --- now start tighening cuts level by level
@@ -169,10 +169,10 @@ class ConfiguredNewTrackingCuts :
     if self.__indetflags.cutLevel() >= 7:
       # --- more BackTracking cuts
       self.__minSecondaryTRTonTrk      = 15               # let's not allow for short overlap tracks
-      self.__maxSecondaryHoles         = 1                # tighten hole cuts 
-      self.__maxSecondaryPixelHoles    = 1                # tighten hole cuts 
-      self.__maxSecondarySCTHoles      = 1                # tighten hole cuts 
-      self.__maxSecondaryDoubleHoles   = 0                # tighten hole cuts 
+      self.__maxSecondaryHoles         = 1                # tighten hole cuts
+      self.__maxSecondaryPixelHoles    = 1                # tighten hole cuts
+      self.__maxSecondarySCTHoles      = 1                # tighten hole cuts
+      self.__maxSecondaryDoubleHoles   = 0                # tighten hole cuts
       self.__minSecondaryTRTPrecFrac   = 0.3              # default for all tracking now, as well for BackTracking
       self.__rejectShortExtensions     = True             # fall back onto segment if TRT extension is short
       self.__SiExtensionCuts           = True             # use cuts from ambi scoring already early
@@ -182,11 +182,11 @@ class ConfiguredNewTrackingCuts :
       # --- slightly tighen NewTracking cuts
       self.__maxHoles                  = 2                # was 3
       self.__maxPixelHoles             = 1                # was 2
-    
+
 
     if self.__indetflags.cutLevel() >= 9:
       # --- tighten maxZ for the IP parameter
-      self.__maxZImpact              = 250 * Units.mm 
+      self.__maxZImpact              = 250 * Units.mm
 
     if self.__indetflags.cutLevel() >= 10:
       # --- turn on Z Boundary seeding
@@ -198,7 +198,7 @@ class ConfiguredNewTrackingCuts :
 
     if self.__indetflags.cutLevel() >= 12:
       # --- Tighten track reconstruction criteria
-      self.__Xi2max                  = 9.0  # was 15 
+      self.__Xi2max                  = 9.0  # was 15
       self.__Xi2maxNoAdd             = 25.0 # was 35
       self.__nHolesMax               = 2 # was 3
       self.__nHolesGapMax            = 2 # was 3
@@ -211,20 +211,20 @@ class ConfiguredNewTrackingCuts :
       self.__minPT                   = 0.5 * Units.GeV
 
     if self.__indetflags.cutLevel() >= 15 :
-      self.__minClusters             = 8 #based on studies by R.Jansky     
+      self.__minClusters             = 8 #based on studies by R.Jansky
 
     if self.__indetflags.cutLevel() >= 16 :
       self.__maxPrimaryImpact        = 5.0 * Units.mm #based on studies by T.Strebler
 
     if self.__indetflags.cutLevel() >= 17:
-      print '--------> FATAL ERROR, cut level undefined, abort !'
+      print('--------> FATAL ERROR, cut level undefined, abort !')
       import sys
       sys.exit()
-    
+
     # --------------------------------------
     # --- now the overwrites for special setups
     # --------------------------------------
-    
+
     # --- do robust reconstruction
 
     if self.__indetflags.doRobustReco():
@@ -262,14 +262,14 @@ class ConfiguredNewTrackingCuts :
 #      self.__maxSecondaryPixelHoles  = 5
 #      self.__maxSecondarySCTHoles    = 5
 #      self.__maxSecondaryDoubleHoles = 2
-#      self.__SecondaryXi2max         = 50.0 
-#      self.__SecondaryXi2maxNoAdd    = 100.0 
+#      self.__SecondaryXi2max         = 50.0
+#      self.__SecondaryXi2maxNoAdd    = 100.0
 
     # --- SLHC setup
     if mode == "SLHC":
       self.__extension               = "SLHC"
       # --- higher pt cut and impact parameter cut
-      self.__minPT                   = 0.9 * Units.GeV      
+      self.__minPT                   = 0.9 * Units.GeV
       self.__maxPrimaryImpact        = 2.0 * Units.mm # highlumi
       self.__maxZImpact              = 250.0 * Units.mm
 
@@ -281,7 +281,7 @@ class ConfiguredNewTrackingCuts :
       #self.__maxPixelHoles           = D2
       #self.__maxSctHoles             = 2
       #self.__maxDoubleHoles          = 2
-      # --- also tighten pattern cuts 
+      # --- also tighten pattern cuts
       self.__radMax                  = 1000. * Units.mm
       #self.__seedFilterLevel         = 1
       #self.__nHolesMax               = self.__maxHoles
@@ -289,7 +289,7 @@ class ConfiguredNewTrackingCuts :
       #self.__Xi2max                  = 15.0
       #self.__Xi2maxNoAdd             = 35.0
       #self.__nWeightedClustersMin    = self.__minClusters-1
-     
+
     # --- IBL setup
     if mode == "IBL" :
       self.__extension               = "IBL"
@@ -307,7 +307,7 @@ class ConfiguredNewTrackingCuts :
       self.__maxPixelHoles           = 0
 
     # --- mode for min bias, commissioning or doRobustReco
-    if mode == 'MinBias' or self.__indetflags.doRobustReco(): 
+    if mode == 'MinBias' or self.__indetflags.doRobustReco():
       if self.__indetflags.doHIP300():
        self.__minPT                     = 0.300 * Units.GeV
       else:
@@ -322,7 +322,7 @@ class ConfiguredNewTrackingCuts :
       self.__maxSecondaryImpact        = 100.0 * Units.mm # low lumi
 
     # --- mode for high-d0 tracks
-    if mode == "LargeD0": 
+    if mode == "LargeD0":
       self.__extension          = "LargeD0" # this runs parallel to NewTracking
       self.__maxPT              = 1.0 * Units.TeV
       self.__minPT              = 900 * Units.MeV
@@ -334,19 +334,19 @@ class ConfiguredNewTrackingCuts :
       self.__minClusters        = 7
       self.__minSiNotShared     = 5
       self.__maxShared          = 2   # cut is now on number of shared modules
-      self.__minPixel           = 0   
+      self.__minPixel           = 0
       self.__maxHoles           = 2
       self.__maxPixelHoles      = 1
       self.__maxSctHoles        = 2
       self.__maxDoubleHoles     = 1
       self.__radMax             = 600. * Units.mm
       self.__nHolesMax          = self.__maxHoles
-      self.__nHolesGapMax       = self.__maxHoles # not as tight as 2*maxDoubleHoles  
+      self.__nHolesGapMax       = self.__maxHoles # not as tight as 2*maxDoubleHoles
       self.__seedFilterLevel   = 1
       self.__maxTracksPerSharedPRD = 2
 
     # --- mode for high-d0 tracks down to 100 MeV (minPT, minClusters, minSecondaryPt cuts loosened to MinBias level)
-    if mode == "LowPtLargeD0": 
+    if mode == "LowPtLargeD0":
       self.__extension          = "LowPtLargeD0" # this runs parallel to NewTracking
       self.__maxPT              = 1.0 * Units.TeV
       self.__minPT              = 100 * Units.MeV
@@ -358,26 +358,26 @@ class ConfiguredNewTrackingCuts :
       self.__minClusters        = 5
       self.__minSiNotShared     = 5
       self.__maxShared          = 2   # cut is now on number of shared modules
-      self.__minPixel           = 0   
+      self.__minPixel           = 0
       self.__maxHoles           = 2
       self.__maxPixelHoles      = 1
       self.__maxSctHoles        = 2
       self.__maxDoubleHoles     = 1
       self.__radMax             = 600. * Units.mm
       self.__nHolesMax          = self.__maxHoles
-      self.__nHolesGapMax       = self.__maxHoles # not as tight as 2*maxDoubleHoles  
+      self.__nHolesGapMax       = self.__maxHoles # not as tight as 2*maxDoubleHoles
       self.__seedFilterLevel   = 1
       self.__maxTracksPerSharedPRD = 2
-    
-    # --- change defaults for low pt tracking  
-    if mode == "LowPt": 
+
+    # --- change defaults for low pt tracking
+    if mode == "LowPt":
       self.__extension        = "LowPt" # this runs parallel to NewTracking
       self.__maxPT            = self.__minPT + 0.3 * Units.GeV # some overlap
       self.__minPT            = 0.050 * Units.GeV
       self.__minClusters      = 5
       self.__minSiNotShared   = 4
       self.__maxShared        = 1   # cut is now on number of shared modules
-      self.__minPixel         = 2   # At least one pixel hit for low-pt (ass seeded on pixels!)                
+      self.__minPixel         = 2   # At least one pixel hit for low-pt (assoc. seeded on pixels!)
       self.__maxHoles         = 2
       self.__maxPixelHoles    = 1
       self.__maxSctHoles      = 2
@@ -389,41 +389,41 @@ class ConfiguredNewTrackingCuts :
       if self.__indetflags.doMinBias():
         self.__maxPT            = 1000000 * Units.GeV # Won't accept None *NEEDS FIXING*
         self.__maxPrimaryImpact = 100.0 * Units.mm
- 
+
     if mode == "SLHCConversionFinding":
       self.__extension        = "SLHCConversionFinding" # this runs parallel to NewTracking
       self.__minPT                   = 0.9 * Units.GeV
-      self.__maxPrimaryImpact        = 10.0 * Units.mm 
-      self.__maxZImpact              = 150.0 * Units.mm 
-      self.__minClusters             = 6 
-      self.__minSiNotShared          = 4 
-      #self.__maxShared               = 3 
-      self.__maxHoles                = 0 
+      self.__maxPrimaryImpact        = 10.0 * Units.mm
+      self.__maxZImpact              = 150.0 * Units.mm
+      self.__minClusters             = 6
+      self.__minSiNotShared          = 4
+      #self.__maxShared               = 3
+      self.__maxHoles                = 0
       #self.__maxPixelHoles           = D2
       #self.__maxSctHoles             = 2
       #self.__maxDoubleHoles          = 2
       # --- also tighten pattern cuts
-      self.__radMax                  = 1000. * Units.mm 
-      self.__radMin                  = 0. * Units.mm # not turn on this cut for now 
+      self.__radMax                  = 1000. * Units.mm
+      self.__radMin                  = 0. * Units.mm # not turn on this cut for now
       #self.__seedFilterLevel         = 1
       #self.__nHolesMax               = self.__maxHoles
       #self.__nHolesGapMax            = self.__maxHoles
       #self.__Xi2max                  = 15.0
       #self.__Xi2maxNoAdd             = 35.0
       #self.__nWeightedClustersMin    = self.__minClusters-1
-      # --- turn on Z Boundary seeding                                                                                                  
-      self.__doZBoundary              = False # 
+      # --- turn on Z Boundary seeding
+      self.__doZBoundary              = False #
 
 
-    # --- change defaults for very low pt tracking  
-    if mode == "VeryLowPt": 
+    # --- change defaults for very low pt tracking
+    if mode == "VeryLowPt":
       self.__extension        = "VeryLowPt" # this runs parallel to NewTracking
       self.__maxPT            = self.__minPT + 0.3 * Units.GeV # some overlap
       self.__minPT            = 0.050 * Units.GeV
       self.__minClusters      = 3
       self.__minSiNotShared   = 3
       self.__maxShared        = 1   # cut is now on number of shared modules
-      self.__minPixel         = 3   # At least one pixel hit for low-pt (ass seeded on pixels!)                
+      self.__minPixel         = 3   # At least one pixel hit for low-pt (assoc. seeded on pixels!)
       self.__maxHoles         = 1
       self.__maxPixelHoles    = 1
       self.__maxSctHoles      = 1
@@ -475,30 +475,30 @@ class ConfiguredNewTrackingCuts :
 
       self.__useTRT           = False # no TRT for forward tracks
 
-    if mode == "VeryForwardSLHCTracks": 
-      self.__extension        = "VeryForwardSLHCTracks" # this runs parallel to NewTracking 
-      self.__minEta           = 2.4 # restrict to minimal eta 
-      self.__maxEta           = 4.0 
-      self.__minPT            = 0.9 * Units.GeV 
-      self.__minClusters      = 5 
-      self.__minSiNotShared   = 3 
-      self.__maxShared        = 1 
-      self.__minPixel         = 3 
-      self.__maxHoles         = 1 
-      self.__maxPixelHoles    = 1 
-      self.__maxSctHoles      = 0 
+    if mode == "VeryForwardSLHCTracks":
+      self.__extension        = "VeryForwardSLHCTracks" # this runs parallel to NewTracking
+      self.__minEta           = 2.4 # restrict to minimal eta
+      self.__maxEta           = 4.0
+      self.__minPT            = 0.9 * Units.GeV
+      self.__minClusters      = 5
+      self.__minSiNotShared   = 3
+      self.__maxShared        = 1
+      self.__minPixel         = 3
+      self.__maxHoles         = 1
+      self.__maxPixelHoles    = 1
+      self.__maxSctHoles      = 0
       self.__maxDoubleHoles   = 0
       self.__nHolesMax        = self.__maxHoles
       self.__nHolesGapMax     = self.__maxHoles
       self.__radMax           = 600. * Units.mm
       self.__useTRT           = False # no TRT for forward tracks
 
-    # --- change defauls for beam gas tracking 
+    # --- change defauls for beam gas tracking
     if mode == "BeamGas":
       self.__extension        = "BeamGas" # this runs parallel to NewTracking
       self.__minPT            = 0.500 * Units.GeV
-      self.__maxPrimaryImpact = 300. * Units.mm 
-      self.__maxZImpact       = 2000. * Units.mm 
+      self.__maxPrimaryImpact = 300. * Units.mm
+      self.__maxZImpact       = 2000. * Units.mm
       self.__minClusters      = 6
       self.__maxHoles         = 3
       self.__maxPixelHoles    = 3
@@ -534,8 +534,8 @@ class ConfiguredNewTrackingCuts :
   # --- changes for cosmics
     if mode == "Cosmics":
       self.__minPT            = 0.500 * Units.GeV
-      self.__maxPrimaryImpact = 1000. * Units.mm 
-      self.__maxZImpact       = 10000. * Units.mm 
+      self.__maxPrimaryImpact = 1000. * Units.mm
+      self.__maxZImpact       = 10000. * Units.mm
       self.__minClusters      = 4
       self.__minSiNotShared   = 4
       self.__maxHoles         = 3
@@ -554,7 +554,7 @@ class ConfiguredNewTrackingCuts :
 
     # --- changes for heavy ion
     if mode == "HeavyIon":
-      self.__maxZImpact       = 200. * Units.mm 
+      self.__maxZImpact       = 200. * Units.mm
       self.__minPT            = 0.500 * Units.GeV
       self.__minClusters      = 9
       self.__minSiNotShared   = 7
@@ -564,8 +564,8 @@ class ConfiguredNewTrackingCuts :
       self.__maxSctHoles      = 0
       self.__maxDoubleHoles   = 0
       self.__nHolesMax        = self.__maxHoles
-      self.__nHolesGapMax     = self.__maxHoles      
-      self.__Xi2max           = 6. 
+      self.__nHolesGapMax     = self.__maxHoles
+      self.__Xi2max           = 6.
       self.__Xi2maxNoAdd      = 10.
       if self.__indetflags.cutLevel() == 1:
         self.__seedFilterLevel  = 1
@@ -577,18 +577,18 @@ class ConfiguredNewTrackingCuts :
         self.__seedFilterLevel  = 2
         self.__maxdImpactSSSSeeds        = 20.0 # apply cut on SSS seeds
         self.__useParameterizedTRTCuts   = False #Make these false on all HI cut levels >=3, since standard cut levels set it true from levels >=3
-        self.__useNewParameterizationTRT = False 
+        self.__useNewParameterizationTRT = False
       elif self.__indetflags.cutLevel() == 4: # ==CutLevel 2 with loosened hole cuts and chi^2 cuts
        self.__seedFilterLevel  = 2
        self.__maxdImpactSSSSeeds        = 20.0 # apply cut on SSS seeds
        self.__maxdImpactPPSSeeds      = 1.7 #set this to 1.7 for all HI cut levels >=4, since standard cut levels set it to 2.0 from levels >=4. Not sure it has any effect, since we don't usually run mixed seeds (also true for HI?)
        self.__useParameterizedTRTCuts   = False
        self.__useNewParameterizationTRT = False
-       self.__maxHoles               = 2 
-       self.__maxPixelHoles       = 1 
+       self.__maxHoles               = 2
+       self.__maxPixelHoles       = 1
        self.__maxSctHoles         = 1
        self.__maxDoubleHoles   = 0
-       self.__Xi2max                   = 9. 
+       self.__Xi2max                   = 9.
        self.__Xi2maxNoAdd        = 25.
       elif self.__indetflags.cutLevel() == 5: # ==CutLevel 3 with loosened hole cuts and chi^2 cuts
        self.__minPT            = 0.300 * Units.GeV
@@ -601,11 +601,11 @@ class ConfiguredNewTrackingCuts :
        self.__maxPixelHoles       = 1
        self.__maxSctHoles         = 1
        self.__maxDoubleHoles   = 0
-       self.__Xi2max                   = 9. 
+       self.__Xi2max                   = 9.
        self.__Xi2maxNoAdd        = 25.
 
       self.__radMax           = 600. * Units.mm # restrict to pixels + first SCT layer
-      self.__useTRT           = False 
+      self.__useTRT           = False
 
     # --- changes for Pixel/SCT segments
     from AthenaCommon.DetFlags    import DetFlags
@@ -613,7 +613,7 @@ class ConfiguredNewTrackingCuts :
       self.__minClusters = 3
     elif ( DetFlags.haveRIO.SCT_on() and not DetFlags.haveRIO.pixel_on() ):
       self.__minClusters = 6
-      
+
     # --- changes for Pixel segments
     if mode == "Pixel":
       self.__extension        = "Pixel" # this runs parallel to NewTracking
@@ -627,9 +627,9 @@ class ConfiguredNewTrackingCuts :
       self.__maxShared        = 0
       self.__seedFilterLevel  = 2
       self.__nHolesMax        = self.__maxHoles
-      self.__nHolesGapMax     = self.__maxHoles      
+      self.__nHolesGapMax     = self.__maxHoles
       self.__useSCT           = False
-      self.__useTRT           = False 
+      self.__useTRT           = False
 
       if self.__indetflags.doMinBias():
         if self.__indetflags.doHIP300():
@@ -646,21 +646,21 @@ class ConfiguredNewTrackingCuts :
         self.__maxShared        = 0
         self.__seedFilterLevel  = 2
         self.__nHolesMax        = self.__maxHoles
-        self.__nHolesGapMax     = self.__maxHoles      
+        self.__nHolesGapMax     = self.__maxHoles
         self.__useSCT           = False
-        self.__useTRT           = False 
-        
+        self.__useTRT           = False
+
       if self.__indetflags.doCosmics():
         self.__minPT            = 0.500 * Units.GeV
-        self.__maxPrimaryImpact = 1000. * Units.mm 
-        self.__maxZImpact       = 10000. * Units.mm 
+        self.__maxPrimaryImpact = 1000. * Units.mm
+        self.__maxZImpact       = 10000. * Units.mm
         self.__maxHoles         = 3
         self.__maxPixelHoles    = 3
         self.__maxShared        = 0    # no shared hits in cosmics
         self.__roadWidth        = 60.
         self.__seedFilterLevel  = 3 # 2 ?
         self.__nHolesMax        = self.__maxHoles
-        self.__nHolesGapMax     = self.__maxHoles      
+        self.__nHolesGapMax     = self.__maxHoles
         self.__Xi2max           = 60.0
         self.__Xi2maxNoAdd      = 100.0
         self.__nWeightedClustersMin = 6
@@ -678,7 +678,7 @@ class ConfiguredNewTrackingCuts :
       self.__maxShared        = 0
       self.__seedFilterLevel  = 2
       self.__nHolesMax        = self.__maxHoles
-      self.__nHolesGapMax     = self.__maxHoles      
+      self.__nHolesGapMax     = self.__maxHoles
       # self.__useSCT           = False
       self.__useSCT           = True
       # self.__useTRT           = False
@@ -700,9 +700,9 @@ class ConfiguredNewTrackingCuts :
       self.__maxShared        = 0
       self.__seedFilterLevel  = 2
       self.__nHolesMax        = self.__maxHoles
-      self.__nHolesGapMax     = self.__maxHoles      
+      self.__nHolesGapMax     = self.__maxHoles
       self.__usePixel         = False
-      self.__useTRT           = False 
+      self.__useTRT           = False
 
       if self.__indetflags.doMinBias():
         if self.__indetflags.doHIP300():
@@ -712,8 +712,8 @@ class ConfiguredNewTrackingCuts :
 
       if self.__indetflags.doCosmics():
         self.__minPT            = 0.500 * Units.GeV
-        self.__maxPrimaryImpact = 1000. * Units.mm 
-        self.__maxZImpact       = 10000. * Units.mm 
+        self.__maxPrimaryImpact = 1000. * Units.mm
+        self.__maxZImpact       = 10000. * Units.mm
         self.__maxHoles         = 3
         self.__maxPixelHoles    = 0
         self.__maxSctHoles      = 3
@@ -721,7 +721,7 @@ class ConfiguredNewTrackingCuts :
         self.__roadWidth        = 60.
         self.__seedFilterLevel  = 3 # 2 ?
         self.__nHolesMax        = self.__maxHoles
-        self.__nHolesGapMax     = self.__maxHoles      
+        self.__nHolesGapMax     = self.__maxHoles
         self.__Xi2max           = 60.0
         self.__Xi2maxNoAdd      = 100.0
         self.__nWeightedClustersMin = 6
@@ -737,7 +737,7 @@ class ConfiguredNewTrackingCuts :
       self.__minTRTonly              = 15
       self.__maxTRTonlyShared        = 0.7
 
-    # --- mode for SCT and TRT 
+    # --- mode for SCT and TRT
     if mode == "SCTandTRT":
       self.__extension        = "SCTandTRT" # this runs parallel to NewTracking
       self.__minPT            = 0.4 * Units.GeV
@@ -750,14 +750,14 @@ class ConfiguredNewTrackingCuts :
       self.__maxShared        = 0
       self.__seedFilterLevel  = 2
       self.__nHolesMax        = self.__maxHoles
-      self.__nHolesGapMax     = self.__maxHoles      
+      self.__nHolesGapMax     = self.__maxHoles
       self.__usePixel         = False
-      self.__useTRT           = True 
+      self.__useTRT           = True
 
       if self.__indetflags.doCosmics():
         self.__minPT            = 0.500 * Units.GeV
-        self.__maxPrimaryImpact = 1000. * Units.mm 
-        self.__maxZImpact       = 10000. * Units.mm 
+        self.__maxPrimaryImpact = 1000. * Units.mm
+        self.__maxZImpact       = 10000. * Units.mm
         self.__maxHoles         = 3
         self.__maxPixelHoles    = 0
         self.__maxSctHoles      = 3
@@ -765,7 +765,7 @@ class ConfiguredNewTrackingCuts :
         self.__roadWidth        = 60.
         self.__seedFilterLevel  = 3 # 2 ?
         self.__nHolesMax        = self.__maxHoles
-        self.__nHolesGapMax     = self.__maxHoles      
+        self.__nHolesGapMax     = self.__maxHoles
         self.__Xi2max           = 60.0
         self.__Xi2maxNoAdd      = 100.0
         self.__nWeightedClustersMin = 6
@@ -785,7 +785,7 @@ class ConfiguredNewTrackingCuts :
       self.__nWeightedClustersMin    = 0
       self.__seedFilterLevel         = 1
       self.__maxdImpactPPSSeeds      = 100000.0 * Units.mm
-      self.__maxdImpactSSSSeeds      = 100000.0 * Units.mm 
+      self.__maxdImpactSSSSeeds      = 100000.0 * Units.mm
       self.__maxPrimaryImpact        = 100000.0 * Units.mm  # low lumi
       self.__maxZImpact              = 320000.0 * Units.mm  # Was 250 mm
       self.__maxPT            = 100000.0 * Units.GeV # some overlap
@@ -793,7 +793,7 @@ class ConfiguredNewTrackingCuts :
       self.__minClusters      = 0
       self.__minSiNotShared   = 0
       self.__maxShared        = 1000   # cut is now on number of shared modules
-      self.__minPixel         = 0   
+      self.__minPixel         = 0
       self.__maxHoles         = 0
       self.__maxPixelHoles    = 0
       self.__maxSctHoles      = 0
@@ -805,7 +805,7 @@ class ConfiguredNewTrackingCuts :
       self.__useSCT           = False
       self.__usePixel         = True
 
-        
+
 #        elif rec.Commissioning():
 #        self.__minClusters             = 7               # Igor 6, was 7
 #        self.__maxHoles                = 5               # was 5
@@ -813,7 +813,7 @@ class ConfiguredNewTrackingCuts :
 #        self.__maxDoubleHoles          = 4               # was 2
 #        self.__maxPrimaryImpact        = 50.0 * Units.mm # low lumi
 #        self.__maxZImpact              = 500.0 * Units.mm
-        
+
 # ----------------------------------------------------------------------------
 # --- private method
   def __set_indetflags(self):
@@ -864,7 +864,7 @@ class ConfiguredNewTrackingCuts :
     return self.__minClusters
 
   def minPixel( self ) :
-    return self.__minPixel  
+    return self.__minPixel
 
   def minSecondaryClusters( self ) :
     return self.__minSecondaryClusters
@@ -901,7 +901,7 @@ class ConfiguredNewTrackingCuts :
 
   def maxDoubleHoles( self ) :
     return self.__maxDoubleHoles
-    
+
   def maxSecondaryDoubleHoles( self ) :
     return self.__maxSecondaryDoubleHoles
 
@@ -973,7 +973,7 @@ class ConfiguredNewTrackingCuts :
 
   def Xi2max( self ) :
     return self.__Xi2max
-  
+
   def Xi2maxNoAdd( self ) :
     return self.__Xi2maxNoAdd
 
@@ -985,12 +985,12 @@ class ConfiguredNewTrackingCuts :
 
   def SecondaryXi2max( self ) :
     return self.__SecondaryXi2max
-  
+
   def SecondaryXi2maxNoAdd( self ) :
     return self.__SecondaryXi2maxNoAdd
 
   def nWeightedClustersMin( self ) :
-    return self.__nWeightedClustersMin 
+    return self.__nWeightedClustersMin
 
   def maxdImpactPPSSeeds( self ) :
     return self.__maxdImpactPPSSeeds
@@ -1000,7 +1000,7 @@ class ConfiguredNewTrackingCuts :
 
   def usePixel( self ) :
     return self.__usePixel
-  
+
   def useSCT( self ) :
     return self.__useSCT
 
@@ -1009,7 +1009,7 @@ class ConfiguredNewTrackingCuts :
 
   def useTRT( self ) :
     return self.__useTRT
-  
+
   def doZBoundary( self ) :
     return self.__doZBoundary
 
@@ -1017,96 +1017,96 @@ class ConfiguredNewTrackingCuts :
     return self.__RoISeededBackTracking
 
   def printInfo( self ) :
-    print '****** Inner Detector Track Reconstruction Cuts ************************************'
-    print '*'
-    print '* SETUP is  : ',self.__mode
-    print '* extension : ',self.__extension
-    print '*'
-    print '* InDetFlags.cutLevel() = ', self.__indetflags.cutLevel()
-    print '*'
-    print '* Pixel used                  :  ', self.__usePixel
-    print '* SCT used                    :  ', self.__useSCT
-    print '* TRT used                    :  ', self.__useTRT
-    print '*'  
-    print '* min pT                      :  ', self.__minPT, ' MeV'
-    print '* max Z IP                    :  ', self.__maxZImpact, ' mm'
-    print '* min eta                     :  ', self.__minEta
-    print '* max eta                     :  ', self.__maxEta
+    print('****** Inner Detector Track Reconstruction Cuts ************************************')
+    print('*')
+    print('* SETUP is  : ',self.__mode)
+    print('* extension : ',self.__extension)
+    print('*')
+    print('* InDetFlags.cutLevel() = ', self.__indetflags.cutLevel())
+    print('*')
+    print('* Pixel used                  :  ', self.__usePixel)
+    print('* SCT used                    :  ', self.__useSCT)
+    print('* TRT used                    :  ', self.__useTRT)
+    print('*'  )
+    print('* min pT                      :  ', self.__minPT, ' MeV')
+    print('* max Z IP                    :  ', self.__maxZImpact, ' mm')
+    print('* min eta                     :  ', self.__minEta)
+    print('* max eta                     :  ', self.__maxEta)
     if self.__mode=="LowPt":
-      print '* max PT                      :  ', self.__maxPT, ' MeV'
-    print '*'
-    print '* NewTracking cuts:'
-    print '* -----------------'
-    print '* max Rphi IP (primaries)     :  ', self.__maxPrimaryImpact, ' mm'
-    print '* min number of clusters      :  ', self.__minClusters
-    print '* min number of pixel hits    :  ', self.__minPixel
-    print '* min number of NOT shared    :  ', self.__minSiNotShared
-    print '* max number of shared        :  ', self.__maxShared
-    print '* max number of Si holes      :  ', self.__maxHoles
-    print '* max number of Pixel holes   :  ', self.__maxPixelHoles
-    print '* max number of SCT holes     :  ', self.__maxSctHoles
-    print '* max number of double holes  :  ', self.__maxDoubleHoles
-    print '*'
-    print '* seed filter level           :  ', self.__seedFilterLevel  
-    print '* maximal R of SP for seeding :  ', self.__radMax 
-    print '* max holes in pattern        :  ', self.__nHolesMax
-    print '* max holes gap in pattern    :  ', self.__nHolesGapMax
-    print '* Xi2 max                     :  ', self.__Xi2max
-    print '* Xi2 max no add              :  ', self.__Xi2maxNoAdd
-    print '* max impact on seeds PPS/SSS :  ', self.__maxdImpactPPSSeeds,', ',self.__maxdImpactSSSSeeds
-    print '* nWeightedClustersMin        :  ', self.__nWeightedClustersMin 
+      print('* max PT                      :  ', self.__maxPT, ' MeV')
+    print('*')
+    print('* NewTracking cuts:')
+    print('* -----------------')
+    print('* max Rphi IP (primaries)     :  ', self.__maxPrimaryImpact, ' mm')
+    print('* min number of clusters      :  ', self.__minClusters)
+    print('* min number of pixel hits    :  ', self.__minPixel)
+    print('* min number of NOT shared    :  ', self.__minSiNotShared)
+    print('* max number of shared        :  ', self.__maxShared)
+    print('* max number of Si holes      :  ', self.__maxHoles)
+    print('* max number of Pixel holes   :  ', self.__maxPixelHoles)
+    print('* max number of SCT holes     :  ', self.__maxSctHoles)
+    print('* max number of double holes  :  ', self.__maxDoubleHoles)
+    print('*')
+    print('* seed filter level           :  ', self.__seedFilterLevel)
+    print('* maximal R of SP for seeding :  ', self.__radMax)
+    print('* max holes in pattern        :  ', self.__nHolesMax)
+    print('* max holes gap in pattern    :  ', self.__nHolesGapMax)
+    print('* Xi2 max                     :  ', self.__Xi2max)
+    print('* Xi2 max no add              :  ', self.__Xi2maxNoAdd)
+    print('* max impact on seeds PPS/SSS :  ', self.__maxdImpactPPSSeeds,', ',self.__maxdImpactSSSSeeds)
+    print('* nWeightedClustersMin        :  ', self.__nWeightedClustersMin)
     if self.__useTRT:
-      print '* min TRT on track extension  :  ', self.__minTRTonTrk
-      print '* min TRT precision fraction  :  ', self.__minTRTPrecFrac
+      print('* min TRT on track extension  :  ', self.__minTRTonTrk)
+      print('* min TRT precision fraction  :  ', self.__minTRTPrecFrac)
     if self.__indetflags.doBremRecovery() and self.__mode == "Offline":
-      print '*'
-      print "* -> Brem recovery enabled !"
-      print '* min pT for brem reocvery    :  ', self.__minPTBrem, ' MeV'
+      print('*')
+      print("* -> Brem recovery enabled !")
+      print('* min pT for brem reocvery    :  ', self.__minPTBrem, ' MeV')
       if self.__indetflags.doCaloSeededBrem():
-        print "* -> in Calo seeded mode !!!"
-        print '* phi Width of road for brem  :  ', self.__phiWidthBrem
-        print '* eta Width of road for brem  :  ', self.__etaWidthBrem
-    print '*'  
+        print("* -> in Calo seeded mode !!!")
+        print('* phi Width of road for brem  :  ', self.__phiWidthBrem)
+        print('* eta Width of road for brem  :  ', self.__etaWidthBrem)
+    print('*')
     if self.__useTRT and self.__RoISeededBackTracking:
-      print '*'  
-      print '* RoI seeded BackTracking and TRT only !!!'
-      print '*'
+      print('*')
+      print('* RoI seeded BackTracking and TRT only !!!')
+      print('*')
     if self.__useSCT and self.__useTRT:
-      print '* BackTracking cuts:'
-      print '* ------------------'
-      print '* min pt                      :  ', self.__minSecondaryPt, ' MeV'
-      print '* max Rphi IP (secondaries)   :  ', self.__maxSecondaryImpact, ' mm'
-      print '* min number of clusters      :  ', self.__minSecondaryClusters
-      print '* min number of NOT shared    :  ', self.__minSecondarySiNotShared
-      print '* max number of shared        :  ', self.__maxSecondaryShared
-      print '* max number of Si holes      :  ', self.__maxSecondaryHoles
-      print '* max number of Pixel holes   :  ', self.__maxSecondaryPixelHoles
-      print '* max number of SCT holes     :  ', self.__maxSecondarySCTHoles
-      print '* max number of double holes  :  ', self.__maxSecondaryDoubleHoles
-      print '* min TRT on track            :  ', self.__minSecondaryTRTonTrk
-      print '* min TRT precision fraction  :  ', self.__minSecondaryTRTPrecFrac
-      print '* max TRT shared fraction     :  ', self.__maxSecondaryTRTShared
-      print '* max holes in pattern        :  ', self.__SecondarynHolesMax
-      print '* max holes gap in pattern    :  ', self.__SecondarynHolesGapMax
-      print '* Xi2 max                     :  ', self.__SecondaryXi2max
-      print '* Xi2 max no add              :  ', self.__SecondaryXi2maxNoAdd
-      print '* TRT segment finder pt bins  :  ', self.__TRTSegFinderPtBins
-      print '* rejectShortExtensions       :  ', self.__rejectShortExtensions
-      print '* SiExtensionsCuts            :  ', self.__SiExtensionCuts
-      print '*'
+      print('* BackTracking cuts:')
+      print('* ------------------')
+      print('* min pt                      :  ', self.__minSecondaryPt, ' MeV')
+      print('* max Rphi IP (secondaries)   :  ', self.__maxSecondaryImpact, ' mm')
+      print('* min number of clusters      :  ', self.__minSecondaryClusters)
+      print('* min number of NOT shared    :  ', self.__minSecondarySiNotShared)
+      print('* max number of shared        :  ', self.__maxSecondaryShared)
+      print('* max number of Si holes      :  ', self.__maxSecondaryHoles)
+      print('* max number of Pixel holes   :  ', self.__maxSecondaryPixelHoles)
+      print('* max number of SCT holes     :  ', self.__maxSecondarySCTHoles)
+      print('* max number of double holes  :  ', self.__maxSecondaryDoubleHoles)
+      print('* min TRT on track            :  ', self.__minSecondaryTRTonTrk)
+      print('* min TRT precision fraction  :  ', self.__minSecondaryTRTPrecFrac)
+      print('* max TRT shared fraction     :  ', self.__maxSecondaryTRTShared)
+      print('* max holes in pattern        :  ', self.__SecondarynHolesMax)
+      print('* max holes gap in pattern    :  ', self.__SecondarynHolesGapMax)
+      print('* Xi2 max                     :  ', self.__SecondaryXi2max)
+      print('* Xi2 max no add              :  ', self.__SecondaryXi2maxNoAdd)
+      print('* TRT segment finder pt bins  :  ', self.__TRTSegFinderPtBins)
+      print('* rejectShortExtensions       :  ', self.__rejectShortExtensions)
+      print('* SiExtensionsCuts            :  ', self.__SiExtensionCuts)
+      print('*')
     if self.__useTRT:
-      print '* useParameterizedTRTCuts     :  ', self.__useParameterizedTRTCuts
-      print '* useNewParameterizationTRT   :  ', self.__useNewParameterizationTRT
-      print '* excludeUsedTRToutliers      :  ', self.__excludeUsedTRToutliers
-      print '*'  
-      print '* TRT only cuts:'
-      print '* --------------'
-      print '* min pt                      :  ', self.__minTRTonlyPt, ' MeV'
-      print '* min TRT only hits           :  ', self.__minTRTonly
-      print '* max TRT shared fraction     :  ', self.__maxTRTonlyShared
-      print '* useTRTonlyParamCuts         :  ', self.__useTRTonlyParamCuts
-      print '* old transition hit logic    :  ', self.__useTRTonlyOldLogic
-      print '*'
-    print '************************************************************************************'
+      print('* useParameterizedTRTCuts     :  ', self.__useParameterizedTRTCuts)
+      print('* useNewParameterizationTRT   :  ', self.__useNewParameterizationTRT)
+      print('* excludeUsedTRToutliers      :  ', self.__excludeUsedTRToutliers)
+      print('*')
+      print('* TRT only cuts:')
+      print('* --------------')
+      print('* min pt                      :  ', self.__minTRTonlyPt, ' MeV')
+      print('* min TRT only hits           :  ', self.__minTRTonly)
+      print('* max TRT shared fraction     :  ', self.__maxTRTonlyShared)
+      print('* useTRTonlyParamCuts         :  ', self.__useTRTonlyParamCuts)
+      print('* old transition hit logic    :  ', self.__useTRTonlyOldLogic)
+      print('*')
+    print('************************************************************************************')
 
 

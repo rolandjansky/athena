@@ -50,7 +50,7 @@ def _setup():
         try:
             fi = athFile.fopen(inFile)
             inputFileSummary = fi.fileinfos
-        except Exception,err:
+        except Exception as err:
             msg.warning("Unable to open file [%s]"%inFile)
             msg.warning('caught:\n%s',err)
             import traceback
@@ -65,9 +65,8 @@ def _setup():
         #First try to catch the no entries case
         if inputFileSummary['stream_names'] == []:
             try:
-                #print fi.infos['metadata_items'][0][1]
                 inputFileSummary['stream_names'] = [fi.infos['metadata_items'][0][1]]
-            except Exception, err:
+            except Exception as err:
                 msg.info("Unable to find stream names in file metadata.")
 
         #If stream_names still not found, check for bytestream case or give default value
@@ -133,7 +132,7 @@ def _setup():
                 # default PoolFileCatalog would be removed
                 catalog_name += list(svcMgr.PoolSvc.ReadCatalog[:])
                 pass
-        except Exception, err:
+        except Exception as err:
             msg.info(
                 'problem getting ReadCatalog value from svcMgr.PoolSvc:\n%s',
                 err)
@@ -166,7 +165,7 @@ def _setup():
                     newInFile=None
 
         if newInFile is None:
-            raise RuntimeError,"unable to redirect tag to any file. Autoconfiguration fails"
+            raise(RuntimeError,"unable to redirect tag to any file. Autoconfiguration fails")
         else:
             inputFileSummary = fi.fileinfos
             # store information in inputFileSummary

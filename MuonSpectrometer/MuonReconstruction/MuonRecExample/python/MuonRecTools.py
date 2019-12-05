@@ -13,12 +13,12 @@ from AthenaCommon.BeamFlags import jobproperties
 beamFlags = jobproperties.Beam
 
 from MuonCnvExample.MuonCnvUtils import mdtCalibWindowNumber
-from MuonRecUtils import logMuon,ConfiguredBase,uglyHackedInclude,ExtraFlags
+from MuonRecExample.MuonRecUtils import logMuon,ConfiguredBase,uglyHackedInclude,ExtraFlags
 
-from MuonRecFlags import muonRecFlags
+from MuonRecExample.MuonRecFlags import muonRecFlags
 muonRecFlags.setDefaults()
 
-from MuonStandaloneFlags import muonStandaloneFlags
+from MuonRecExample.MuonStandaloneFlags import muonStandaloneFlags
 muonStandaloneFlags.setDefaults()
 
 from MuonCnvExample.MuonCalibFlags import mdtCalibFlags
