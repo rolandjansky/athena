@@ -279,3 +279,29 @@ void TFCSPCAEnergyParametrization::clean()
  for(unsigned int i=0;i<m_EV.size();i++)
   delete m_EV[i];
 }
+
+void TFCSPCAEnergyParametrization::Streamer(TBuffer &R__b)
+{
+   // Stream an object of class TFCSPCAEnergyParametrization
+
+   if (R__b.IsReading()) {
+      UInt_t R__s, R__c;
+      Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
+      R__b.SetBufferOffset(R__s);
+      
+      R__b.ReadClassBuffer(TFCSPCAEnergyParametrization::Class(),this);
+      
+      if(R__v==1) {
+        set_total_energy_normalization(Ekin_nominal());
+        //Check if min and max range is a factor 2 within 1 MeV tolerance
+        //If yes, the nominal to log-avergage
+        if(TMath::Abs(Ekin_max()-2*Ekin_min())<1) {
+          set_Ekin_nominal(Ekin_max()/TMath::Sqrt(2));
+        }
+      }
+   } else {
+      R__b.WriteClassBuffer(TFCSPCAEnergyParametrization::Class(),this);
+   }
+}
+
+
