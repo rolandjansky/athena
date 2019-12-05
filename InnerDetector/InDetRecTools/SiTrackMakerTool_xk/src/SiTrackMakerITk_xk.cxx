@@ -666,15 +666,14 @@ void InDet::SiTrackMakerITk_xk::newEvent(bool PIX,bool SCT)
 
   // Setup for truth infirmation
   //
-
   if(m_usetruth) {
     m_truthPIX = 0;
-    StatusCode  s = evtStore()->retrieve(m_truthPIX,"PRD_MultiTruthPixel");    
-    if (s.isFailure() || !m_truthPIX) m_usetruth = false;
+    if (evtStore()->retrieve(m_truthPIX,"PRD_MultiTruthPixel").isFailure() || !m_truthPIX) 
+      m_usetruth = false;
 
     m_truthSCT = 0;
-    StatusCode  s = evtStore()->retrieve(m_truthSCT,"PRD_MultiTruthSCT");    
-    if (s.isFailure() || !m_truthSCT) m_usetruth = false;
+    if (evtStore()->retrieve(m_truthSCT,"PRD_MultiTruthSCT").isFailure() || !m_truthSCT) 
+      m_usetruth = false;
   }
 
   // Retrieve 
@@ -707,18 +706,7 @@ void InDet::SiTrackMakerITk_xk::newTrigEvent(bool PIX,bool SCT)
   m_simpleTrack  = true;
   
   setTrackQualityCuts();
-  
-  if(m_usetruth) {
-    m_truthPIX = 0;
-    StatusCode  s = evtStore()->retrieve(m_truthPIX,"PRD_MultiTruthPixel");   
-    if (s.isFailure() || !m_truthPIX) m_usetruth = false;
-  }
-  if(m_usetruth) {
-    m_truthSCT = 0;
-    StatusCode  s = evtStore()->retrieve(m_truthSCT,"PRD_MultiTruthSCT");   
-    if (s.isFailure() || !m_truthSCT) m_usetruth = false;
-  }
-  
+      
   // New event for track finder tool
   //
   m_tracksfinder->newEvent(m_trackinfo,m_trackquality);
@@ -726,6 +714,18 @@ void InDet::SiTrackMakerITk_xk::newTrigEvent(bool PIX,bool SCT)
   // Erase cluster to track association
   //
   m_clusterTrack.clear();
+  
+  // Setup for truth infirmation
+  //
+  if(m_usetruth) {
+    m_truthPIX = 0;
+    if (evtStore()->retrieve(m_truthPIX,"PRD_MultiTruthPixel").isFailure() || !m_truthPIX) 
+      m_usetruth = false;
+
+    m_truthSCT = 0;
+    if (evtStore()->retrieve(m_truthSCT,"PRD_MultiTruthSCT").isFailure() || !m_truthSCT) 
+      m_usetruth = false;
+  }
   
   // Retrieve
   //
