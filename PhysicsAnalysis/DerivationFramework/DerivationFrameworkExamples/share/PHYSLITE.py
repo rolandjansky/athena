@@ -222,6 +222,13 @@ PHYSLITETauTPThinningTool = DerivationFramework__TauTrackParticleThinning(name  
                                                                           TauTracksKey           = "TauTracks")
 ToolSvc += PHYSLITETauTPThinningTool
 
+# Only keep the highest sum pT2 primary vertex
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__VertexThinning
+PHYSLITEVertexThinningTool = DerivationFramework__VertexThinning(name = "PHYSLITEVertexThinningTool",
+                                                                 ThinningService = PHYSLITEThinningHelper.ThinningSvc(),
+                                                                 VertexKey = "PrimaryVertices")
+ToolSvc += PHYSLITEVertexThinningTool
+thinningTools.append(PHYSLITEVertexThinningTool)
 
 #==============================================================================
 # Kernel algorithm and LHE3 imports
