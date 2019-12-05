@@ -24,7 +24,8 @@ atlas_add_library( DerivationFrameworkExamplesLib
 
 atlas_add_component( DerivationFrameworkExamples
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps xAODMuon GaudiKernel AthenaKernel xAODTracking DerivationFrameworkExamplesLib )
+                     LINK_LIBRARIES AthenaBaseComps xAODMuon GaudiKernel AthenaKernel
+                     xAODTracking DerivationFrameworkExamplesLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

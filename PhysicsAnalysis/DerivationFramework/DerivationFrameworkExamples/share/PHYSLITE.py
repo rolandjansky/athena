@@ -348,6 +348,25 @@ print( jetSequence ) # For debugging
 
 SeqPHYSLITE += jetSequence
 
+# Make sure the MET knows what we've done
+# First we need to rebuild charged pflow objects
+from eflowRec.ScheduleCHSPFlowMods import scheduleCHSPFlowMods
+scheduleCHSPFlowMods(SeqPHYSLITE)
+# Now build MET from our analysis objects
+from DerivationFrameworkJetEtMiss import METCommon
+from METReconstruction.METAssocConfig import METAssocConfig,AssocConfig
+associators = [AssocConfig('PFlowJet', 'AnalysisJets_NOSYS'),
+               AssocConfig('Muon', 'AnalysisMuons_NOSYS'),
+               AssocConfig('Ele', 'AnalysisElectrons_NOSYS'),
+               AssocConfig('Gamma', 'AnalysisPhotons_NOSYS'),
+               AssocConfig('Tau', 'AnalysisTauJets_NOSYS'),
+               AssocConfig('Soft', '')]
+PHYSLITE_cfg = METAssocConfig('AnalysisMET',
+                              associators,
+                              doPFlow=True)
+METCommon.customMETConfigs.setdefault('AnalysisMET',{})[PHYSLITE_cfg.suffix] = PHYSLITE_cfg
+scheduleMETAssocAlg(sequence=SeqPHYSLITE,configlist="AnalysisMET")
+
 #====================================================================
 # MAIN KERNEL
 #====================================================================
@@ -396,16 +415,13 @@ PHYSLITESlimmingHelper.AppendToDictionary = {
                                          'HardScatterParticles':'xAOD::TruthParticleContainer','HardScatterParticlesAux':'xAOD::TruthParticleAuxContainer',
                                          'HardScatterVertices':'xAOD::TruthVertexContainer','HardScatterVerticesAux':'xAOD::TruthVertexAuxContainer',
                                          'TruthPrimaryVertices':'xAOD::TruthVertexContainer','TruthPrimaryVerticesAux':'xAOD::TruthVertexAuxContainer',
-                                         'AnalysisElectrons_NOSYS':'xAOD::ElectronContainer', 
-                                         'AnalysisElectrons_NOSYSAux':'xAOD::ElectronAuxContainer',
-                                         'AnalysisMuons_NOSYS':'xAOD::MuonContainer', 
-                                         'AnalysisMuons_NOSYSAux':'xAOD::MuonAuxContainer',
-                                         'AnalysisJets_NOSYS':'xAOD::JetContainer',
-                                         'AnalysisJets_NOSYSAux':'xAOD::AuxContainerBase',
-                                         'AnalysisPhotons_NOSYS':'xAOD::PhotonContainer', 
-                                         'AnalysisPhotons_NOSYSAux':'xAOD::PhotonAuxContainer',
-                                         'AnalysisTauJets_NOSYS':'xAOD::TauJetContainer', 
-                                         'AnalysisTauJets_NOSYSAux':'xAOD::TauJetAuxContainer',
+                                         'AnalysisElectrons_NOSYS':'xAOD::ElectronContainer', 'AnalysisElectrons_NOSYSAux':'xAOD::ElectronAuxContainer',
+                                         'AnalysisMuons_NOSYS':'xAOD::MuonContainer', 'AnalysisMuons_NOSYSAux':'xAOD::MuonAuxContainer',
+                                         'AnalysisJets_NOSYS':'xAOD::JetContainer','AnalysisJets_NOSYSAux':'xAOD::AuxContainerBase',
+                                         'AnalysisPhotons_NOSYS':'xAOD::PhotonContainer', 'AnalysisPhotons_NOSYSAux':'xAOD::PhotonAuxContainer',
+                                         'AnalysisTauJets_NOSYS':'xAOD::TauJetContainer', 'AnalysisTauJets_NOSYSAux':'xAOD::TauJetAuxContainer',
+                                         'MET_Core_AnalysisMET':'xAOD::MissingETContainer', 'MET_Core_AnalysisMETAux':'xAOD::MissingETAuxContainer',
+                                         'METAssoc_AnalysisMET':'xAOD::MissingETAssociationMap', 'METAssoc_AnalysisMETAux':'xAOD::MissingETAuxAssociationMap',
                                          }
 
 # Leaving these as smart collections
@@ -430,10 +446,9 @@ PHYSLITESlimmingHelper.ExtraVariables = [
   "AnalysisTauJets_NOSYS.pt.eta.phi.m.tauTrackLinks.jetLink.charge.isTauFlags.BDTJetScore.BDTEleScore.ptFinalCalib.etaFinalCalib.phiFinalCalib.mFinalCalib.ele_match_lhscore.ele_olr_pass.electronLink.IsVeryLoose.EleMatchLikelihoodScore.pt_combined.eta_combined.phi_combined.m_combined.BDTJetScoreSigTrans.BDTEleScoreSigTrans.PanTau_DecayMode.RNNJetScore.RNNJetScoreSigTrans.IsTruthMatched.truthOrigin.truthType.truthParticleLink.truthJetLink",
   "AnalysisJets_NOSYS.pt.eta.phi.m.JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m.NumTrkPt500.SumPtTrkPt500.DetectorEta.Jvt.JVFCorr.JvtRpt.NumTrkPt1000.TrackWidthPt1000.GhostMuonSegmentCount.PartonTruthLabelID.ConeTruthLabelID.HadronConeExclExtendedTruthLabelID.HadronConeExclTruthLabelID.TrueFlavor.DFCommonJets_jetClean_LooseBad.DFCommonJets_jetClean_TightBad.Timing.btagging.btaggingLink",
   "BTagging_AntiKt4EMPFlow_201903.MV2c10_discriminant",
-  "MET_Core_AntiKt4EMPFlow.name.mpx.mpy.sumet.source",
-  "MET_Reference_AntiKt4EMPFlow.name.mpx.mpy.sumet.source",
-  "METAssoc_AntiKt4EMPFlow.",
   "TruthPrimaryVertices.t.x.y.z",
+  "MET_Core_AnalysisMET.name.mpx.mpy.sumet.source",
+  "METAssoc_AnalysisMET.",
   ]
 
 if DerivationFrameworkIsMonteCarlo:

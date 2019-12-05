@@ -9,21 +9,23 @@
 # * Then checks if a correction algorithm was already added to the sequence
 #   based on the algorithm name (only)
 
-from JetRec.JetRecConf import JetToolRunner
-from RecExConfig.AutoConfiguration import IsInInputFile
-containerexists = IsInInputFile("xAOD::PFOContainer","CHSParticleFlowObjects")
+def scheduleCHSPFlowMods( job=None ):
+    from JetRec.JetRecConf import JetToolRunner
+    from RecExConfig.AutoConfiguration import IsInInputFile
+    containerexists = IsInInputFile("xAOD::PFOContainer","CHSParticleFlowObjects")
 
-from AthenaCommon.AlgSequence import AlgSequence
-job = AlgSequence()
-algexists = hasattr(job,"jetalgCHSPFlow")
+    if job is None:
+        from AthenaCommon.AlgSequence import AlgSequence
+        job = AlgSequence()
+    algexists = hasattr(job,"jetalgCHSPFlow")
 
-if not (containerexists or algexists):
-    from JetRec.JetRecStandard import jtm
-    jtm += JetToolRunner("jetconstitCHSPFlow",
-                         EventShapeTools=[],
-                         Tools=[jtm.JetConstitSeq_PFlowCHS],
-                         )
+    if not (containerexists or algexists):
+        from JetRec.JetRecStandard import jtm
+        jtm += JetToolRunner("jetconstitCHSPFlow",
+                             EventShapeTools=[],
+                             Tools=[jtm.JetConstitSeq_PFlowCHS],
+                             )
 
-    from JetRec.JetRecConf import JetAlgorithm
-    job += JetAlgorithm("jetalgCHSPFlow",
-                        Tools=[jtm.jetconstitCHSPFlow])
+        from JetRec.JetRecConf import JetAlgorithm
+        job += JetAlgorithm("jetalgCHSPFlow",
+                            Tools=[jtm.jetconstitCHSPFlow])
