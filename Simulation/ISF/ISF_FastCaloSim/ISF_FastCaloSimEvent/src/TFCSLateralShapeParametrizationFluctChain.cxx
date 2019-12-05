@@ -21,7 +21,7 @@ TFCSLateralShapeParametrizationFluctChain::TFCSLateralShapeParametrizationFluctC
 {
 }
 
-FCSReturnCode TFCSLateralShapeParametrizationFluctChain::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol)
+FCSReturnCode TFCSLateralShapeParametrizationFluctChain::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const
 {
   // Call get_number_of_hits() only once, as it could contain a random number
   float sigma2  = get_sigma2_fluctuation(simulstate, truth, extrapol);

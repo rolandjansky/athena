@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimEvent/TFCSInitWithEkin.h"
@@ -15,7 +15,7 @@ TFCSInitWithEkin::TFCSInitWithEkin(const char* name, const char* title):TFCSPara
   set_match_all_pdgid();
 }
 
-FCSReturnCode TFCSInitWithEkin::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState*)
+FCSReturnCode TFCSInitWithEkin::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState*) const
 {
   ATH_MSG_DEBUG("set E to Ekin="<<truth->Ekin());
   simulstate.set_E(truth->Ekin());
