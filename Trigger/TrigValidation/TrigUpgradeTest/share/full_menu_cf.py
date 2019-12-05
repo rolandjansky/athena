@@ -345,3 +345,7 @@ dumpSequence(topSequence)
 HLTTop = findSubSequence(topSequence, "HLTTop")
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
 generateJSON()
+
+# the generation of the prescale set file from the menu is temporary
+from TrigConfigSvc.TrigConfigSvcCfg import createHLTPrescalesFileFromMenu
+createHLTPrescalesFileFromMenu( ConfigFlags )
