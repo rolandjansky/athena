@@ -1,11 +1,13 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
+
 from AthenaCommon.AppMgr import ToolSvc, ServiceMgr
 from egammaRec import egammaRecFlags as egRecFlags
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.DetFlags import DetFlags
 from InDetRecExample.InDetJobProperties import InDetFlags
-print "EMCommonRefitter.py"
+print ("EMCommonRefitter.py")
 
 egammaRecFlags = egRecFlags.jobproperties.egammaRecFlags
 

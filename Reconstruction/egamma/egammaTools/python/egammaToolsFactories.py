@@ -1,13 +1,15 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = "ToolFactories to instantiate all egammaTools with default configuration"
 __author__ = "Bruno Lenzi"
 
-import egammaToolsConf
+from egammaTools import egammaToolsConf
 from egammaRec.Factories import FcnWrapper, ToolFactory
 from egammaRec import egammaKeys
 from egammaRec.egammaRecFlags import jobproperties # to set jobproperties.egammaRecFlags
 from RecExConfig.RecFlags import rec
+
+import six
 
 def configureClusterCorrections(swTool):
   "Add attributes ClusterCorrectionToolsXX to egammaSwTool object"
@@ -20,7 +22,7 @@ def configureClusterCorrections(swTool):
     Gam35='gam35_unconv', Gam55='gam55_unconv',Gam37='gam37_unconv',
     Econv35='gam35_conv', Econv55='gam55_conv', Econv37='gam37_conv'
   )
-  for attrName, clName in clusterTypes.iteritems():
+  for attrName, clName in six.iteritems (clusterTypes):
     x = 'ClusterCorrectionTools' + attrName
     if not hasattr(swTool, x) or getattr(swTool, x):
       continue
@@ -31,7 +33,7 @@ def configureClusterCorrections(swTool):
 
   #Super cluster position only corrections
   if jobproperties.egammaRecFlags.doSuperclusters():
-    for attrName, clName in clusterTypes.iteritems():
+    for attrName, clName in six.iteritems (clusterTypes):
       n = 'ClusterCorrectionToolsSuperCluster' + attrName
       if not hasattr(swTool, n) or getattr(swTool, n):
         continue
@@ -78,14 +80,14 @@ egammaLargeClusterMakerTool = ToolFactory( egammaToolsConf.egammaLargeClusterMak
                                            )
 
 # Electron Selectors
-from EMPIDBuilderBase import EMPIDBuilderElectronBase
+from .EMPIDBuilderBase import EMPIDBuilderElectronBase
 ElectronPIDBuilder = ToolFactory( EMPIDBuilderElectronBase, name = "ElectronPIDBuilder")
 
 # Photon Selectors
-from EMPIDBuilderBase import EMPIDBuilderPhotonBase
+from .EMPIDBuilderBase import EMPIDBuilderPhotonBase
 PhotonPIDBuilder = ToolFactory( EMPIDBuilderPhotonBase, name = "PhotonPIDBuilder")
 
-# FarwardElectron Selectors
+# ForwardElectron Selectors
 from ElectronPhotonSelectorTools.ConfiguredAsgForwardElectronIsEMSelectors import ConfiguredAsgForwardElectronIsEMSelector
 
 import cppyy
@@ -99,6 +101,6 @@ TightForwardElectronSelector = ToolFactory( ConfiguredAsgForwardElectronIsEMSele
 #-------------------------
 
 # Import the factories that are not defined here
-from EMShowerBuilder import EMShowerBuilder
-from egammaOQFlagsBuilder import egammaOQFlagsBuilder
-from EMTrackMatchBuilder import EMTrackMatchBuilder
+from .EMShowerBuilder import EMShowerBuilder
+from .egammaOQFlagsBuilder import egammaOQFlagsBuilder
+from .EMTrackMatchBuilder import EMTrackMatchBuilder

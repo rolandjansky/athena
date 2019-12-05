@@ -1,5 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
+
 # specifies egamma"standard"
 from AthenaCommon.Logging import logging
 from AthenaCommon.SystemOfUnits import *
@@ -31,10 +33,10 @@ class egammaTrackSlimmer ( Configured ) :
         InDetTrackParticleContainerName=InDetKeys.xAODTrackParticleContainer(), 
         doThinning=True
         )
-      print theEgammaTrackSlimmer
+      print (theEgammaTrackSlimmer)
     except Exception:
       mlog.error("could not get handle to egammaTrackSlimmer")
-      print traceback.format_exc()
+      traceback.print_exc()
       return False
     
     # add to topsequence 
