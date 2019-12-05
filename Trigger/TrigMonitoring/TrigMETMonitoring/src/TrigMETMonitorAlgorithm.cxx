@@ -99,16 +99,13 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     auto pass_HLT1 = Monitored::Scalar<float>("pass_HLT1",0.0);
 
     // access L1 MET values
-    // The following code was commented till we can get a proper input AOD file
-    /*
     if ( l1_roi_cont.isValid() ) {
       if ((l1_roi_cont->energyX())>-9e12 && (l1_roi_cont->energyX())<9e12 && (l1_roi_cont->energyY())>-9e12 && (l1_roi_cont->energyY())<9e12) { 
 	L1_Ex = - (l1_roi_cont->energyX())/1000.;
 	L1_Ey = - (l1_roi_cont->energyY())/1000.;
-	L1_Et = - (l1_roi_cont->energyT())/1000.;
+	L1_Et = (l1_roi_cont->energyT())/1000.;
       }
     }
-    */
 
     // access HLT cell MET values
     if ( hlt_cell_met_cont->size() > 0 && hlt_cell_met_cont.isValid() ) {
@@ -147,11 +144,14 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       TVector3 v(tcpufit_Ex, tcpufit_Ey, tcpufit_Ez);
       tcpufit_eta = v.Eta();
       tcpufit_phi = v.Phi();
-      
-      // temporary fake trigger decision
-      if (tcpufit_Et > 10.) pass_HLT1 = 1.0; 
     }
 
+    // efficiency plots
+    // temporary fake trigger decision
+    if (L1_Et > 150.) pass_HLT1 = 1.0; 
+    ATH_MSG_INFO("pass_HLT1 = " << pass_HLT1);
+    // will be replaced by below
+    //if (m_trigDecTool->isPassed("HLT_xe30_cell_L1XE10")) pass_HLT1 = 1.0;
 
     // TDT test
     ATH_MSG_INFO("MetMon: TST test");

@@ -149,13 +149,14 @@ def TrigMETMonConfig(inputFlags):
                              path='Shifter/tcpufit',xbins=eta_bins,xmin=eta_min,xmax=eta_max)
     metGroup.defineHistogram('tcpufit_phi',title='tcpufit #phi;#phi;Events',
                              path='Shifter/tcpufit',xbins=phi_bins,xmin=phi_min,xmax=phi_max)
-    metGroup.defineHistogram('tcpufit_phi;tcpufit_phi_etweight', title='tcpufit #phi (etweighted);#phi;Events', weight='tcpufit_Et',
+    metGroup.defineHistogram('tcpufit_phi;tcpufit_phi_etweight', title='tcpufit #phi (etweighted);#phi;E_{T} weighted events', 
+                             weight='tcpufit_Et',
                              path='Shifter/tcpufit',xbins=phi_bins,xmin=phi_min,xmax=phi_max)
     metGroup.defineHistogram('tcpufit_eta,tcpufit_phi;tcpufit_eta_phi', type='TH2F', title='tcpufit #eta - #phi;#eta;#phi',
                              path='Shifter/tcpufit',
                              xbins=eta_bins,xmin=eta_min,xmax=eta_max,ybins=phi_bins,ymin=phi_min,ymax=phi_max)
-    metGroup.defineHistogram('pass_HLT1,tcpufit_Et;tcpufit_eff', type='TProfile',title='HLT efficiency;E_{T} [GeV];Efficiency',
-                             path='Shifter/Eff',xbins=eff_bins,xmin=eff_min,xmax=eff_max)
+    metGroup.defineHistogram('L1_Et,pass_HLT1;L1_eff', type='TProfile',title='L1 efficiency;E_{T} [GeV];Efficiency',
+                             path='Shifter/eff',xbins=eff_bins,xmin=eff_min,xmax=eff_max)
     metGroup.defineHistogram('mht_Ex',title='mht Missing E_{x};E_{x} [GeV];Events',
                              path='Expert/mht',xbins=ec_bins,xmin=ec_min,xmax=ec_max)
     metGroup.defineHistogram('mht_Ey',title='mht Missing E_{y};E_{y} [GeV];Events',
