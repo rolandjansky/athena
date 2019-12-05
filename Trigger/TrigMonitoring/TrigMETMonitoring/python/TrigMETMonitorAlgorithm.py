@@ -64,6 +64,9 @@ def TrigMETMonConfig(inputFlags):
     #TrigMETMonAlg.hlt_mt_key = 'HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht'
     #TrigMETMonAlg.hlt_tc_key = 'HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl'
     #TrigMETMonAlg.hlt_tcpufit_key = 'HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl_PUC'
+
+    ### temporary setting till we get a new AOD
+    TrigMETMonAlg.hlt_tcpufit_key = 'HLT_MET_tcPufit'
        
 
 
