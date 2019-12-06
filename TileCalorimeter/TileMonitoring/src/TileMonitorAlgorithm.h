@@ -7,6 +7,9 @@
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
 
+class CaloCell;
+class TileID;
+
 /** @class TileMonitorAlgorithm
  *  @brief Base class for Tile monitoring per L1 trigger type
  */
@@ -68,6 +71,12 @@ class TileMonitorAlgorithm : public AthMonitorAlgorithm {
     * @return true if it is physics event according L1 trigger type
     */
     bool isPhysicsEvent(uint32_t lvl1TriggerType) const;
+
+  /**
+    * @brief Return Partition for Tile cell or MAX_PART otherwise
+    * @param cell Calo cell
+    */
+    Partition getPartition(const CaloCell* cell, const TileID* tileID) const;
 
 
   private:
