@@ -167,7 +167,9 @@ StatusCode InDet::TRT_TrackSegmentsFinder::execute()
         return StatusCode::SUCCESS; // @TODO correct ?
     }
   }
-  m_segmentsMakerTool->endEvent(*event_data_p);
+  if (event_data_p) {
+     m_segmentsMakerTool->endEvent(*event_data_p);
+  }
   m_nsegmentsTotal+=m_nsegments;
 
 
