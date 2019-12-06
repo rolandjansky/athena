@@ -37,6 +37,7 @@ TRTNoise::TRTNoise( const TRTDigSettings* digset,
                     CLHEP::HepRandomEngine* noiseRndmEngine,
                     CLHEP::HepRandomEngine* elecNoiseRndmEngine,
                     CLHEP::HepRandomEngine* elecProcRndmEngine,
+                    CLHEP::HepRandomEngine* elecNoiseResetRndmEngine,
                     TRTDigCondBase* digcond,
                     TRTElectronicsProcessing * ep,
                     TRTElectronicsNoise * electronicsnoise,
@@ -58,7 +59,7 @@ TRTNoise::TRTNoise( const TRTDigSettings* digset,
 {
   if (msgLevel(MSG::VERBOSE)) { msg(MSG::VERBOSE) << "TRTNoise::Constructor begin" << endmsg; }
   InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool(noiseRndmEngine,elecNoiseRndmEngine,elecProcRndmEngine);
-  if ( m_settings->noiseInSimhits() ) m_pElectronicsNoise->reinitElectronicsNoise( 1000, elecNoiseRndmEngine );
+  if ( m_settings->noiseInSimhits() ) m_pElectronicsNoise->reinitElectronicsNoise( 1000, elecNoiseResetRndmEngine );
   if (msgLevel(MSG::VERBOSE)) { msg(MSG::VERBOSE) << "Constructor done" << endmsg; }
 }
 

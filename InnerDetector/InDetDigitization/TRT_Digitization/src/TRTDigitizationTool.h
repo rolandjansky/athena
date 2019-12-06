@@ -107,9 +107,7 @@ private:
   StatusCode update( IOVSVC_CALLBACK_ARGS );        // Update of database entries.
   StatusCode ConditionsDependingInitialization();
 
-  StatusCode lateInitialize(CLHEP::HepRandomEngine *noiseRndmEngine,
-                            CLHEP::HepRandomEngine *elecNoiseRndmEngine,
-                            CLHEP::HepRandomEngine *elecProcRndmEngine);
+  StatusCode lateInitialize();
   StatusCode processStraws(std::set<int>& sim_hitids, std::set<Identifier>& simhitsIdentifiers,
                            CLHEP::HepRandomEngine *rndmEngine,
                            CLHEP::HepRandomEngine *strawRndmEngine,
