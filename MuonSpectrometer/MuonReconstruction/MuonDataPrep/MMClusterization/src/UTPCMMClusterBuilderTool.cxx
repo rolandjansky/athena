@@ -113,7 +113,6 @@ StatusCode Muon::UTPCMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepD
             stripsTime.push_back(MMprd.time()-tof+m_timeOffset); // use time minus tof minus vmm integration time as actual time
             stripsChannel.push_back(m_mmIdHelper->channel(id_prd));
             stripsCharge.push_back(MMprd.charge());
-            stripsTime.push_back(MMprd.time()-tof+m_timeOffset);
             
             ATH_MSG_DEBUG("Hit channel: "<< m_mmIdHelper->channel(id_prd) <<" time "<< MMprd.time()-tof+m_timeOffset << " localPosX "<< MMprd.localPosition().x() << " tof "<<tof <<" angleToIp " << angleToIp<<" gas_gap "<< m_mmIdHelper->gasGap(id_prd) << " multiplet " << m_mmIdHelper->multilayer(id_prd) << " stationname " <<m_mmIdHelper->stationName(id_prd)  << " stationPhi " <<m_mmIdHelper->stationPhi(id_prd) << " stationEta "<<m_mmIdHelper->stationEta(id_prd));
         }
