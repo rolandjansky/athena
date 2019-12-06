@@ -22,7 +22,7 @@ L1CPMTools::L1CPMTools(const std::string& t,
 			  const IInterface*  p )
   :
   AthAlgTool(t,n,p),
-  m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", n),
+  m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", n),
   m_RoI(0)
 {
   declareInterface<IL1CPMTools>(this);

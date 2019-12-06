@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -17,8 +17,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "AthContainers/DataVector.h"
-//#include "TrigConfigSvc/ITrigConfigSvc.h"
-#include "TrigConfInterfaces/ITrigConfigSvc.h"
+#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 #include "TrigT1CaloToolInterfaces/IL1EtTools.h"
 #include "TrigT1CaloToolInterfaces/IL1EnergyCMXTools.h"
 #include "TrigT1CaloToolInterfaces/IL1JetElementTools.h"
@@ -118,7 +117,7 @@ class L1EnergyCMXTools : virtual public IL1EnergyCMXTools, public AthAlgTool
 
     void dumpCrateEnergies(const std::string& msg, const MultiSliceCrateEnergy& crates) const;
     /** trigger configuration service */
-    ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;
+    ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
     /** Tool for JetElement map */
     ToolHandle<LVL1::IL1JetElementTools> m_jeTool;
     /** Tool for energy sums */
