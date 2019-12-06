@@ -10,7 +10,7 @@
 // AUTHORS:   Jahred Adelman (jahred.adelman@cern.ch)
 //            Simon Viel (svielcern.ch)
 //            Koos van Nieuwkoop (jvannieu@cern.ch)
-//	     
+//       
 //
 // ********************************************************************
 #ifndef DQTGlobalWZFinderTool_H
@@ -22,10 +22,11 @@
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrigEgammaMatchingTool/ITrigEgammaMatchingTool.h"
-
+#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 #include "MCTruthClassifier/IMCTruthClassifier.h"
 
 #include "TMath.h"
+#include "TH3.h"
 #include <string>
 #include <iostream>
 
@@ -35,6 +36,7 @@
 class TProfile;
 class TH1F_LW;
 class TH2F_LW;
+class TH3F_LW;
 
 namespace xAOD{
   class EventInfo_v1; typedef EventInfo_v1 EventInfo; 
@@ -78,15 +80,14 @@ private:
   void doMuonLooseTP(std::vector<const xAOD::Muon*>& goodmuonsZ, const xAOD::Vertex* pVtx);
   void doMuonInDetTP(std::vector<const xAOD::Muon*>& goodmuonsZ, const xAOD::Vertex* pVtx);
 
-  //----- Electron START -----//
   void doEleTriggerTP(const xAOD::Electron* el1, const xAOD::Electron* el2, bool os, bool ss);
   void doEleTP(const xAOD::Electron*, const xAOD::Electron*, const xAOD::Vertex*, const xAOD::EventInfo*, bool);
   void doEleContainerTP(std::vector<const xAOD::Electron*>, std::vector<const xAOD::Electron*>);
 
   bool goodElectrons(const xAOD::EventInfo*, const xAOD::Electron*, const xAOD::Vertex*, bool); 
-  bool antiGoodElectrons(const xAOD::EventInfo* thisEventInfo, const xAOD::Electron* electron_itr,
-                         const xAOD::Vertex* pVtx, bool isBad);
+  bool antiGoodElectrons(const xAOD::EventInfo* thisEventInfo, const xAOD::Electron* electron_itr, const xAOD::Vertex* pVtx, bool isBad);
   bool kinematicCuts(const xAOD::Electron*);
+  void fillEleEffHistos(bool tag_good, bool probe_good, bool probe_anti_good, bool os, double mass);
 
 
   bool checkTruthElectron(const xAOD::Electron* electron);
@@ -96,13 +97,67 @@ private:
   bool m_isSimulation;
   bool m_writeTTrees;
 
+  // --- Initialise order ---
+  TH1F_LW *m_muon_Pt;
+  TH1F_LW *m_muon_Eta;
+  TH1F_LW *m_ele_Et;
+  TH1F_LW *m_ele_Eta;
+  std::string m_electronContainerName;
+  std::string m_egDetailContainerName;
+  std::string m_VxPrimContainerName;
+  std::string m_VxContainerName;
+  std::string m_METName;
+  std::string m_muonContainerName;
+  std::string m_jetCollectionName;
+  std::string m_tracksName;
+  float m_electronEtCut;
+  float m_muonPtCut;
+  float m_metCut;
+  float m_zCutLow;
+  float m_zCutHigh;
+  float m_muonMaxEta;
+  ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
+  ToolHandle<CP::IIsolationSelectionTool> m_isolationSelectionTool;
+  ToolHandle<Trig::ITrigMuonMatching> m_muTrigMatchTool;
+  bool m_useOwnMuonSelection;
+  std::vector<std::string> m_Jpsi_mm_trigger;
+  std::vector<std::string> m_Z_mm_trigger;
+  std::vector<std::string> m_Z_ee_trigger;
+  ToolHandle<Trig::ITrigEgammaMatchingTool> m_elTrigMatchTool;
+  ToolHandle<IMCTruthClassifier> m_truthClassifier;
+  ToolHandle<Trig::IBunchCrossingTool> m_bcTool;
+  // ------
+  
+  bool m_doTrigger;
+
   TH1F *m_ZBosonCounter_El_os;
   TH1F *m_ZBosonCounter_El_ss;
 
   TH1F_LW *m_eltrigtp_matches_os;
   TH1F_LW *m_eltrigtp_matches_ss;
+  
+  // BCID info
+  double m_pileup_per_lb;
+  float m_distance_from_front;
+  TH2F_LW *m_BCID_pileup_zee;
+  TH2F_LW *m_BCID_pileup_zmm;
+  // muon channel
+  TH3F *m_mutrigtp_matches_BCID_pileup; 
+  TH3F *m_muloosetp_match_os_BCID_pileup;
+  TH3F *m_muloosetp_match_ss_BCID_pileup;
+  TH3F *m_muloosetp_nomatch_os_BCID_pileup;
+  TH3F *m_muloosetp_nomatch_ss_BCID_pileup;
+  // electron channel
+  TH3F *m_ele_tight_bad_os_BCID_pileup;
+  TH3F *m_ele_tight_bad_ss_BCID_pileup;
+  TH3F *m_ele_tight_good_os_BCID_pileup;
+  TH3F *m_ele_tight_good_ss_BCID_pileup;
+  TH3F *m_ele_template_os_BCID_pileup;
+  TH3F *m_ele_template_ss_BCID_pileup;
+  TH3F *m_eltrigtp_matches_os_BCID_pileup;
+  TH3F *m_eltrigtp_matches_ss_BCID_pileup;
 
-
+  // Electron channel TP histos
   TH1F_LW *m_ele_tight_bad_os;
   TH1F_LW *m_ele_tight_bad_ss;
   TH1F_LW *m_ele_tight_good_os;
@@ -117,8 +172,6 @@ private:
   TH1F_LW *m_totalSumWeights;
   TH1F_LW *m_fiducialSumWeights_el;
   TH1F_LW *m_fiducialSumWeights_mu;
-
-  //----- Electron END ------//
 
   TH1F_LW *m_W_mt_ele;
   TH1F_LW *m_W_mt_mu;
@@ -143,10 +196,6 @@ private:
   TProfile *m_Z_ee_trig_ps;
   TProfile *m_Z_mm_trig_ps;
       
-  TH1F_LW *m_muon_Pt;
-  TH1F_LW *m_muon_Eta;
-  TH1F_LW *m_ele_Et;
-  TH1F_LW *m_ele_Eta;
 
   //Resonance Counters
   float m_minLumiBlock;
@@ -187,33 +236,11 @@ private:
   int m_ZBosonCounterSBG_El[2];
   int m_ZBosonCounterSBG_Mu[2];
 
-  int m_this_lb; //remove _t
-  int m_eventNumber; //remove _t
+
+  int m_this_lb; 
+  int m_eventNumber; 
   float m_evtWeight;
       
-  std::string m_electronContainerName;
-  std::string m_egDetailContainerName;
-
-  std::string m_VxPrimContainerName;
-  std::string m_VxContainerName;
-
-  std::string m_METName;
-  std::string m_muonContainerName;
-  std::string m_jetCollectionName;
-  std::string m_tracksName;
-  float m_electronEtCut;
-  float m_muonPtCut;
-
-  float m_metCut;
-  float m_zCutLow;
-  float m_zCutHigh;
-  float m_muonMaxEta;
-  bool m_doTrigger;
-  ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
-  ToolHandle<CP::IIsolationSelectionTool> m_isolationSelectionTool;
-  ToolHandle<Trig::ITrigMuonMatching> m_muTrigMatchTool;
-
-  bool m_useOwnMuonSelection;
             
   // to guard against endless messages 
   bool m_printedErrorEleContainer;
@@ -221,13 +248,8 @@ private:
   bool m_printedErrorMet;
   bool m_printedErrorTrackContainer;
 
-  std::vector<std::string> m_Jpsi_mm_trigger;
-  std::vector<std::string> m_Z_mm_trigger;
-  std::vector<std::string> m_Z_ee_trigger;
-  ToolHandle<Trig::ITrigEgammaMatchingTool> m_elTrigMatchTool;
 
   // Here we define all the TTree variables
-
   // Muon TTrees
   TTree *m_muontree;
   bool m_muontree_isTruth;
@@ -329,8 +351,6 @@ private:
   int m_electron_trig_tptree_lb;
   int m_electron_trig_tptree_runnumber;
   unsigned long long  m_electron_trig_tptree_eventnumber;
-
-  ToolHandle<IMCTruthClassifier> m_truthClassifier;
 
 };
 

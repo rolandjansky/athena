@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -38,11 +38,6 @@
 
 #include "xAODJet/Jet.h"
 #include "xAODJet/JetContainer.h"
-#include "xAODTruth/TruthEventContainer.h"
-#include "xAODTruth/TruthEvent.h"
-#include "xAODTruth/TruthParticle.h"
-#include "xAODTruth/TruthVertex.h"
-
 #include "MuonSelectorTools/IMuonSelectionTool.h"
 #include "IsolationSelection/IIsolationSelectionTool.h"
 #include "TrigMuonMatching/ITrigMuonMatching.h"
@@ -61,8 +56,8 @@ using namespace MCTruthPartClassifier;
 
 //----------------------------------------------------------------------------------
 DQTGlobalWZFinderTool::DQTGlobalWZFinderTool(const std::string & type, 
-		   const std::string & name,
-		   const IInterface* parent)
+           const std::string & name,
+           const IInterface* parent)
    : DataQualityFatherMonTool(type, name, parent),
      m_muon_Pt(nullptr),
      m_muon_Eta(nullptr),
@@ -90,7 +85,8 @@ DQTGlobalWZFinderTool::DQTGlobalWZFinderTool(const std::string & type,
      m_Z_mm_trigger{"CATEGORY_monitoring_muonIso", "CATEGORY_monitoring_muonNonIso"},
      m_Z_ee_trigger{"CATEGORY_primary_single_ele_iso", "CATEGORY_primary_single_ele"},
      m_elTrigMatchTool("Trig::TrigEgammaMatchingTool/TrigEgammaMatchingTool", this),
-     m_truthClassifier("MCTruthClassifier/IMCTruthClassifier", this)
+     m_truthClassifier("MCTruthClassifier/IMCTruthClassifier", this),
+     m_bcTool("Trig::TrigConfBunchCrossingTool/BunchCrossingTool", this)
 
 //----------------------------------------------------------------------------------
 
@@ -115,6 +111,7 @@ DQTGlobalWZFinderTool::DQTGlobalWZFinderTool(const std::string & type,
   declareProperty("TrigEgammaMatchingTool", m_elTrigMatchTool);
   declareProperty("UseOwnMuonSelection", m_useOwnMuonSelection);
   declareProperty("MuonMaxEta", m_muonMaxEta);
+  declareProperty("BCTool", m_bcTool);
 
   m_W_mt_ele = 0;
   m_W_mt_mu = 0;
@@ -146,6 +143,7 @@ DQTGlobalWZFinderTool::~DQTGlobalWZFinderTool()
 StatusCode DQTGlobalWZFinderTool::initialize() {
   ATH_CHECK(m_muTrigMatchTool.retrieve());
   ATH_CHECK(m_elTrigMatchTool.retrieve());
+  ATH_CHECK(m_bcTool.retrieve());
 
   return ManagedMonitorToolBase::initialize();
 }
@@ -158,6 +156,7 @@ StatusCode DQTGlobalWZFinderTool::bookHistogramsRecurrent()
   updateTriggersForGroups(m_Z_ee_trigger);
   ATH_MSG_DEBUG("Trigger information for WZFinder");
   ATH_MSG_DEBUG("For Z->mm:");
+
 
   bool failure(false);
 
@@ -223,13 +222,13 @@ StatusCode DQTGlobalWZFinderTool::bookHistograms( )
   ATH_MSG_DEBUG("in bookHistograms() and m_doRunCosmics = " << m_doRunCosmics << " and m_doRunBeam = " << m_doRunBeam);
   ATH_MSG_DEBUG("Using base path " << m_path);
      
-  failure = bookDQTGlobalWZFinderTool();
-
+ failure = bookDQTGlobalWZFinderTool();
+  
   if (failure) {return  StatusCode::FAILURE;}
   else {return StatusCode::SUCCESS;}
-}	
+}   
 
-		
+        
 
 //----------------------------------------------------------------------------------
 bool DQTGlobalWZFinderTool::bookDQTGlobalWZFinderTool()
@@ -286,12 +285,17 @@ bool DQTGlobalWZFinderTool::bookDQTGlobalWZFinderTool()
 
       // T&P trigger rate
       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_mutrigtp_matches = TH1F_LW::create("m_mutrigtp_matches", "Muon trigger TP stats", 3, -0.5, 2.5), lumiBlock).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_mutrigtp_matches_BCID_pileup = new TH3F("m_mutrigtp_matches_BCID_pileup", "Muon trigger TP stats", 3, -0.5, 2.5, 50, 0, 50, 200, 0, 100)).isFailure();
 
       // T&P muon eff
       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_muloosetp_match_os = TH1F_LW::create("m_muloosetp_match_os", "Muon loose TP match OS", nzbins, m_zCutLow*GeV, m_zCutHigh*GeV), lumiBlock).isFailure();
       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_muloosetp_match_ss = TH1F_LW::create("m_muloosetp_match_ss", "Muon loose TP match SS", nzbins, m_zCutLow*GeV, m_zCutHigh*GeV), lumiBlock).isFailure();
       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_muloosetp_nomatch_os = TH1F_LW::create("m_muloosetp_nomatch_os", "Muon loose TP nomatch OS", nzbins, m_zCutLow*GeV, m_zCutHigh*GeV), lumiBlock).isFailure();
       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_muloosetp_nomatch_ss = TH1F_LW::create("m_muloosetp_nomatch_ss", "Muon loose TP nomatch SS", nzbins, m_zCutLow*GeV, m_zCutHigh*GeV), lumiBlock).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_muloosetp_match_os_BCID_pileup = new TH3F("m_muloosetp_match_os_BCID_pileup", "Muon loose TP match OS", nzbins, m_zCutLow*GeV, m_zCutHigh*GeV,50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_muloosetp_match_ss_BCID_pileup = new TH3F("m_muloosetp_match_ss_BCID_pileup", "Muon loose TP match SS", nzbins, m_zCutLow*GeV, m_zCutHigh*GeV,50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_muloosetp_nomatch_os_BCID_pileup = new TH3F("m_muloosetp_nomatch_os_BCID_pileup", "Muon loose TP nomatch OS", nzbins, m_zCutLow*GeV, m_zCutHigh*GeV,50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_muloosetp_nomatch_ss_BCID_pileup = new TH3F("m_muloosetp_nomatch_ss_BCID_pileup", "Muon loose TP nomatch SS", nzbins, m_zCutLow*GeV, m_zCutHigh*GeV,50, 0, 50, 200, 0, 100)).isFailure();
 
       // T&P muon inner detector
       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_mu_InDet_tp_match_os = TH1F_LW::create("m_mu_InDet_tp_match_os", "Muon inner detector TP match OS", nzbins, m_zCutLow*GeV, m_zCutHigh*GeV), lumiBlock).isFailure();
@@ -302,8 +306,14 @@ bool DQTGlobalWZFinderTool::bookDQTGlobalWZFinderTool()
       // Clone of above but for electrons
       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_eltrigtp_matches_os = TH1F_LW::create("m_eltrigtp_matches_os", "Electron trigger TP stats", 3, -0.5, 2.5), lumiBlock).isFailure();
       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_eltrigtp_matches_ss = TH1F_LW::create("m_eltrigtp_matches_ss", "Electron trigger TP stats", 3, -0.5, 2.5), lumiBlock).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_eltrigtp_matches_os_BCID_pileup = new TH3F("m_eltrigtp_matches_os_BCID_pileup", "Electron trigger TP stats vs. BCID", 3, -0.5, 2.5, 50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_eltrigtp_matches_ss_BCID_pileup = new TH3F("m_eltrigtp_matches_ss_BCID_pileup", "Electron trigger TP stats vs. BCID", 3, -0.5, 2.5, 50, 0, 50, 200, 0, 100)).isFailure();
+     
+      // Measure Z-count as a function of position in train
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_BCID_pileup_zee = TH2F_LW::create("m_BCID_pileup_zee", "m_BCID_pileup_zee", 50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_BCID_pileup_zmm = TH2F_LW::create("m_BCID_pileup_zmm", "m_BCID_pileup_zmm", 50, 0, 50, 200, 0, 100)).isFailure();
+      
       // T&P electron eff
-
       double m_zCutHigh_elTP = 250; 
       double m_zCutLow_elTP  = 66;
       int nzbins_elTP = int(ceilf(m_zCutHigh_elTP - m_zCutLow_elTP));
@@ -315,11 +325,18 @@ bool DQTGlobalWZFinderTool::bookDQTGlobalWZFinderTool()
                                        lumiBlock).isFailure();
       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_tight_good_ss = TH1F_LW::create("m_ele_tight_good_ss" , "1tight 1good ss",nzbins_elTP, m_zCutLow_elTP*GeV, m_zCutHigh_elTP*GeV),
                                        lumiBlock).isFailure();
-      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_template_os   = TH1F_LW::create("m_ele_template_os"   , "template os"	,nzbins_elTP, m_zCutLow_elTP*GeV, m_zCutHigh_elTP*GeV),
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_template_os   = TH1F_LW::create("m_ele_template_os"   , "template os"   ,nzbins_elTP, m_zCutLow_elTP*GeV, m_zCutHigh_elTP*GeV),
                                        lumiBlock).isFailure();
-      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_template_ss   = TH1F_LW::create("m_ele_template_ss"   , "template ss"	,nzbins_elTP, m_zCutLow_elTP*GeV, m_zCutHigh_elTP*GeV),
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_template_ss   = TH1F_LW::create("m_ele_template_ss"   , "template ss"   ,nzbins_elTP, m_zCutLow_elTP*GeV, m_zCutHigh_elTP*GeV),
                                        lumiBlock).isFailure();
-      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_elContainertp_nomatch = TH1F_LW::create("m_elContainertp_nomatch" , "m_elContainertp_nomatch" ,nzbins_elTP, m_zCutLow_elTP*GeV, 
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_tight_bad_os_BCID_pileup  = new TH3F("m_ele_tight_bad_os_BCID_pileup"  , "1tight 1bad os" ,nzbins_elTP, m_zCutLow_elTP*GeV, m_zCutHigh_elTP*GeV, 50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_tight_bad_ss_BCID_pileup  = new TH3F("m_ele_tight_bad_ss_BCID_pileup"  , "1tight 1bad ss" ,nzbins_elTP, m_zCutLow_elTP*GeV, m_zCutHigh_elTP*GeV, 50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_tight_good_os_BCID_pileup = new TH3F("m_ele_tight_good_os_BCID_pileup" , "1tight 1good os",nzbins_elTP, m_zCutLow_elTP*GeV, m_zCutHigh_elTP*GeV, 50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_tight_good_ss_BCID_pileup = new TH3F("m_ele_tight_good_ss_BCID_pileup" , "1tight 1good ss",nzbins_elTP, m_zCutLow_elTP*GeV, m_zCutHigh_elTP*GeV, 50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_template_os_BCID_pileup   = new TH3F("m_ele_template_os_BCID_pileup"   , "template os"	,nzbins_elTP, m_zCutLow_elTP*GeV, m_zCutHigh_elTP*GeV, 50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_template_ss_BCID_pileup   = new TH3F("m_ele_template_ss_BCID_pileup"   , "template ss"	,nzbins_elTP, m_zCutLow_elTP*GeV, m_zCutHigh_elTP*GeV, 50, 0, 50, 200, 0, 100)).isFailure();
+      
+     failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_elContainertp_nomatch = TH1F_LW::create("m_elContainertp_nomatch" , "m_elContainertp_nomatch" ,nzbins_elTP, m_zCutLow_elTP*GeV, 
                                                                                                             m_zCutHigh_elTP*GeV), lumiBlock).isFailure();
       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_tight_passkine   = TH1F_LW::create("m_ele_tight_passkine" , "m_ele_tight_passkine" ,nzbins_elTP, m_zCutLow_elTP*GeV,
                                                                                                            m_zCutHigh_elTP*GeV), lumiBlock).isFailure();
@@ -327,7 +344,7 @@ bool DQTGlobalWZFinderTool::bookDQTGlobalWZFinderTool()
     }
 
     if (m_isSimulation) {
-      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_mcmatch = TH1F_LW::create("m_mcatch", "Muon matching to truth in acceptance", 2, -0.5, 1.5), lumiBlock).isFailure();
+      // failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_mcmatch = TH1F_LW::create("m_mcatch", "Muon matching to truth in acceptance", 2, -0.5, 1.5), lumiBlock).isFailure();
 
       if (m_writeTTrees){
 
@@ -377,16 +394,18 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
      //Get LumiBlock and EventNumber
      const xAOD::EventInfo* thisEventInfo;
      sc = evtStore()->retrieve(thisEventInfo);
-     if(sc.isFailure()) 
-       {
-	 log << MSG::ERROR << "Could not find EventInfo in evtStore()" << endmsg;
-	 return sc;
-       }
-     else
-       {
-         m_this_lb = thisEventInfo->lumiBlock() ;
-	 m_eventNumber  = thisEventInfo->eventNumber();
-       }
+     if(sc.isFailure()){
+       log << MSG::ERROR << "Could not find EventInfo in evtStore()" << endmsg;
+       return sc;
+     }else{
+       m_this_lb = thisEventInfo->lumiBlock() ;
+       m_eventNumber  = thisEventInfo->eventNumber();
+     }
+     
+     //Get position in train
+     m_distance_from_front = m_bcTool->distanceFromFront(thisEventInfo->bcid(), Trig::IBunchCrossingTool::BunchCrossings);
+     // Get pileup per lb
+     m_pileup_per_lb = lbInteractionsPerCrossing();
 
      m_evtWeight = 1;
      if (thisEventInfo->eventType(xAOD::EventInfo::IS_SIMULATION)) {
@@ -402,14 +421,14 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
        evtStore()->retrieve(missETcont,m_METName);
        missET = (*missETcont)["FinalClus"];
        if (!missET){
-	 ATH_MSG_WARNING("Cannot retrieve xAOD::MissingET " << m_METName);
-	 if (!m_printedErrorMet)
-	   ATH_MSG_WARNING("Cannot retrieve " << m_METName);
-	 m_printedErrorMet = true;
+     ATH_MSG_WARNING("Cannot retrieve xAOD::MissingET " << m_METName);
+     if (!m_printedErrorMet)
+       ATH_MSG_WARNING("Cannot retrieve " << m_METName);
+     m_printedErrorMet = true;
        }
        else {
-	 phiMet = missET->phi();
-	 metMet = missET->met();
+     phiMet = missET->phi();
+     metMet = missET->met();
        }
      }
      else {
@@ -425,7 +444,7 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
      if ( evtStore()->contains<xAOD::ElectronContainer>(m_electronContainerName) ) {
         sc=evtStore()->retrieve( elecTES, m_electronContainerName);
         if( sc.isFailure()  ||  !elecTES ) {
-	  if (!m_printedErrorEleContainer) log << MSG::WARNING << "No electron container" <<  m_electronContainerName << " found in evtStore" << endmsg; 
+      if (!m_printedErrorEleContainer) log << MSG::WARNING << "No electron container" <<  m_electronContainerName << " found in evtStore" << endmsg; 
            m_printedErrorEleContainer = true;
            return StatusCode::SUCCESS;
         }
@@ -468,19 +487,17 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
        sc = evtStore()->retrieve(vertices,m_VxPrimContainerName);
 
        if (sc.isFailure()) {
-	 log << MSG::WARNING << "No collection with name " << m_VxPrimContainerName << " found in evtStore()" << endmsg;
-	 //return StatusCode::SUCCESS;
+         log << MSG::WARNING << "No collection with name " << m_VxPrimContainerName << " found in evtStore()" << endmsg;
        }
        else {
-	 ATH_MSG_DEBUG("Collection with name " << m_VxPrimContainerName << " with size " << vertices->size() << " found in evtStore()");
-	 xAOD::VertexContainer::const_iterator vxItr = vertices->begin();
-	 xAOD::VertexContainer::const_iterator vxItrE = vertices->end();
-	 for (; vxItr != vxItrE; ++vxItr) {
-           //if (! ((*vxItr)->vxTrackAtVertexAvailable())) continue;
-	   if ((*vxItr)->vertexType() == xAOD::VxType::PriVtx) {
-	     pVtx = *vxItr;
-	   }
-	 }
+         ATH_MSG_DEBUG("Collection with name " << m_VxPrimContainerName << " with size " << vertices->size() << " found in evtStore()");
+         xAOD::VertexContainer::const_iterator vxItr = vertices->begin();
+         xAOD::VertexContainer::const_iterator vxItrE = vertices->end();
+         for (; vxItr != vxItrE; ++vxItr) {
+           if ((*vxItr)->vertexType() == xAOD::VxType::PriVtx) {
+             pVtx = *vxItr;
+           }
+         }
        }
      }
 
@@ -514,7 +531,7 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
      for (xAOD::ElectronContainer::const_iterator itr=elecTES->begin(); itr != elecTES->end(); ++itr) {
        allElectrons.push_back(*itr);
 
-	const xAOD::Electron* electron_itr = (*itr);
+    const xAOD::Electron* electron_itr = (*itr);
         if(goodElectrons(thisEventInfo, electron_itr, pVtx, isBad)){
           ATH_MSG_DEBUG("Good electron");
           El_N++;
@@ -542,7 +559,7 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
        try {
          d0sig = xAOD::TrackingHelpers::d0significance(muTrk, thisEventInfo->beamPosSigmaX(), thisEventInfo->beamPosSigmaY(), thisEventInfo->beamPosSigmaXY());
        } catch (...) {
-	   ATH_MSG_DEBUG("Invalid beamspot - muon");
+       ATH_MSG_DEBUG("Invalid beamspot - muon");
          try {
            d0sig = xAOD::TrackingHelpers::d0significance(muTrk);
          } catch (...) {
@@ -550,23 +567,23 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
            continue;
          }
        }
-	 
-	 
-	   ATH_MSG_DEBUG("Muon accept: " << m_muonSelectionTool->accept(**muonItr));
-	   ATH_MSG_DEBUG("Muon pt: " << (*muonItr)->pt() << " " << m_muonPtCut*GeV);
-	   ATH_MSG_DEBUG("Muon iso: " << m_isolationSelectionTool->accept(**muonItr));
-	   ATH_MSG_DEBUG("Muon d0sig: " << d0sig);
-	   ATH_MSG_DEBUG("Muon Good vtx: " << pVtx);
-	   if (pVtx) ATH_MSG_DEBUG("Muon z0sinth: " << fabs((muTrk->z0()+muTrk->vz()-pVtx->z())*std::sin(muTrk->theta())) << " " << 0.5*mm);
-	   ATH_MSG_DEBUG("Muon isBad: " << isBad);
-	 
+     
+     
+       ATH_MSG_DEBUG("Muon accept: " << m_muonSelectionTool->accept(**muonItr));
+       ATH_MSG_DEBUG("Muon pt: " << (*muonItr)->pt() << " " << m_muonPtCut*GeV);
+       ATH_MSG_DEBUG("Muon iso: " << m_isolationSelectionTool->accept(**muonItr));
+       ATH_MSG_DEBUG("Muon d0sig: " << d0sig);
+       ATH_MSG_DEBUG("Muon Good vtx: " << pVtx);
+       if (pVtx) ATH_MSG_DEBUG("Muon z0sinth: " << fabs((muTrk->z0()+muTrk->vz()-pVtx->z())*std::sin(muTrk->theta())) << " " << 0.5*mm);
+       ATH_MSG_DEBUG("Muon isBad: " << isBad);
+     
        if (m_muonSelectionTool->accept(**muonItr) &&
            ((*muonItr)->pt() > 0.8*m_muonPtCut*GeV) &&
-	       m_isolationSelectionTool->accept(**muonItr) &&
-	       fabs(d0sig) < 3 &&
-	       pVtx &&
-	       fabs((muTrk->z0()+muTrk->vz()-pVtx->z())*std::sin(muTrk->theta())) < 0.5*mm &&
-	       !isBad)
+           m_isolationSelectionTool->accept(**muonItr) &&
+           fabs(d0sig) < 3 &&
+           pVtx &&
+           fabs((muTrk->z0()+muTrk->vz()-pVtx->z())*std::sin(muTrk->theta())) < 0.5*mm &&
+           !isBad)
        {
 
            goodmuonsTP.push_back(*muonItr);
@@ -574,7 +591,7 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
            {
              MuZ_N++;
              m_muon_Pt->Fill((*muonItr)->pt()/GeV, m_evtWeight);
-	         m_muon_Eta->Fill((*muonItr)->eta(), m_evtWeight);
+             m_muon_Eta->Fill((*muonItr)->eta(), m_evtWeight);
              goodmuonsZ.push_back(*muonItr);
            }
        }
@@ -586,7 +603,7 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
          Float_t py = (*muonItr)->p4().Py();
          Float_t pz = (*muonItr)->p4().Pz();
          Float_t e = (*muonItr)->p4().E();
-         Int_t charge = 0;//(Int_t)((*muonItr)->charge()); // TODO update when xAODMuon-00-06-00
+         Int_t charge = 0;
 
          CLHEP::HepLorentzVector thislepton;
          thislepton.setPx(px);
@@ -646,7 +663,7 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
      ATH_MSG_DEBUG("Beginning ele loop");
      for (UInt_t iEle = 0; iEle < goodelectrons.size(); iEle++) {
        Float_t pt = goodelectrons[iEle]->pt();
-	   ATH_MSG_DEBUG("Ele pt " << pt);
+       ATH_MSG_DEBUG("Ele pt " << pt);
        if (! leadingEle || pt > leadingEle->pt()) {
          subleadingEle = leadingEle;
          leadingEle = goodelectrons[iEle];
@@ -699,6 +716,8 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
      bool isJPsimumu = (goodmuonsJPsi.size() > 1);
      ATH_MSG_DEBUG("Evaluated Event"); 
 
+     bool zee_os_pass = false;
+     bool zmm_os_pass = false;
 
      if (isZee){ 
        ATH_MSG_DEBUG("Zee found");
@@ -712,11 +731,11 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
        (Zeecharge == 0) ? (os = true) : (ss = true);       
 
        if (inMassWindow){
-	     m_Z_Q_ele->Fill(Zeecharge, m_evtWeight);
-	     ATH_MSG_DEBUG( "Found a Z to ee candidate!  Mass = " << mass << ", and charge = " << Zeecharge );
+         m_Z_Q_ele->Fill(Zeecharge, m_evtWeight);
+         ATH_MSG_DEBUG( "Found a Z to ee candidate!  Mass = " << mass << ", and charge = " << Zeecharge );
        }
        if(inMassWindow && os && ignoreTrig){
-
+         zee_os_pass = true;
          // electrontree                                                                                                                                                    
          if(m_writeTTrees){
            m_electrontree_eta1 = leadingEle->caloCluster()->etaBE(2);
@@ -745,7 +764,7 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
          if (!m_isSimulation){
            m_Z_mass_ssele->Fill(mass, m_evtWeight);
            m_ZBosonCounter_El_ss->Fill(m_this_lb, m_evtWeight);
-         }	 
+         }   
        }
        if(inMassWindow && m_doTrigger){
          doEleTriggerTP(leadingEle, subleadingEle, os, ss);
@@ -760,7 +779,7 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
        Int_t Zmumucharge = leadingMuZ->charge() + subleadingMuZ->charge();
        // potentially ignore trigger...
        bool oktrig = trigChainsArePassed(m_Z_mm_trigger) || !m_doTrigger;
-	   bool inMassWindow = (mass > m_zCutLow*GeV && mass < m_zCutHigh*GeV);
+       bool inMassWindow = (mass > m_zCutLow*GeV && mass < m_zCutHigh*GeV);
        bool os = false;
        bool ss = false;
        (Zmumucharge == 0) ? (os = true) : (ss = true);
@@ -770,7 +789,7 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
          ATH_MSG_DEBUG("Found a Z to mumu candidate!  Mass = " << mass << ", and charge = " << Zmumucharge);        
        }
        if(inMassWindow && os && oktrig){
-
+         zmm_os_pass = true;
          // muontree                                                                                                                                                    
          if(m_writeTTrees){
            m_muontree_eta1 = leadingMuZ->eta();
@@ -807,63 +826,43 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
        }
      }   
 
+     if (zee_os_pass) 
+       m_BCID_pileup_zee->Fill(m_distance_from_front, m_pileup_per_lb, 1); 
+     if (zmm_os_pass)
+       m_BCID_pileup_zmm->Fill(m_distance_from_front, m_pileup_per_lb, 1);
+     
      //JPsi and Upsilon counter
      if (isJPsimumu && trigChainsArePassed(m_Jpsi_mm_trigger)) {
        ATH_MSG_DEBUG("Jpsi mm found");
-         CLHEP::HepLorentzVector JPsimumu = leadingMuJPsi + subleadingMuJPsi;
-         Float_t mass = JPsimumu.m();
-         Int_t JPsimumucharge = leadingMuJPsicharge + subleadingMuJPsicharge;
+       CLHEP::HepLorentzVector JPsimumu = leadingMuJPsi + subleadingMuJPsi;
+       Float_t mass = JPsimumu.m();
+       Int_t JPsimumucharge = leadingMuJPsicharge + subleadingMuJPsicharge;
 
-        
-         if (JPsimumucharge == 0) {
-             m_JPsi_mass_opsmu->Fill(mass, m_evtWeight);
-             m_Upsilon_mass_opsmu->Fill(mass, m_evtWeight);
+       if (JPsimumucharge == 0) {
+         m_JPsi_mass_opsmu->Fill(mass, m_evtWeight);
+         m_Upsilon_mass_opsmu->Fill(mass, m_evtWeight);
 
-		 
-
-             if (mass > 3038 && mass < 3156) {
-                 ++m_JPsiCounterSBG[0];
-		 if(m_doTrigger) {
-		   ATH_MSG_DEBUG("ABOUT TO DO BAD THINGS");
-		   //ATH_MSG_DEBUG("Pointer?" << getTrigDecTool());
-		   if( trigChainsArePassed(m_Jpsi_mm_trigger) ) {
-		     ++m_JPsiCounterSBG[1];
-		   }
-		 }
+         if (mass > 3038 && mass < 3156) {
+           ++m_JPsiCounterSBG[0];
+           if(m_doTrigger) {
+             ATH_MSG_DEBUG("ABOUT TO DO BAD THINGS");
+             if( trigChainsArePassed(m_Jpsi_mm_trigger) ) {
+               ++m_JPsiCounterSBG[1];
              }
-             if ((mass > 2802 && mass < 2920) || (mass > 3274 && mass < 3391)) {
-                 ++m_JPsiCounter2BG[0];
-		 if(m_doTrigger) {
-		   //if( m_trigDecTool->isPassed("EF_2mu6_Jpsimumu") ) {
-		   //  ++JPsiCounter2BG[1];
-		   //}
-		 }
-             }
-             //assuming JPsi mass of 3 097 MeV and range of 2 sigma (sigma = 59 MeV, based on root best fit of distribution)
-	     if (mass > 8242 && mass < 10678) {
-                 ++m_UpsilonCounterSBG[0];
-		 if(m_doTrigger) {
-		   //if( m_trigDecTool->isPassed("EF_2mu6_Upsimumu") ) {
-		   //  ++UpsilonCounterSBG[1];
-		   //}
-		 }
-             }
-             if ((mass > 4588 && mass < 5806) || (mass > 13114 && mass < 14332)) {
-                 ++m_UpsilonCounterBG[0];
-		 if(m_doTrigger) {
-		   //if( m_trigDecTool->isPassed("EF_2mu6_Upsimumu") ) {
-		   //  ++UpsilonCounterBG[1];
-		   //}
-		 }
-             }
-             //assuming Upsilon mass of 9 460 MeV and range of 2 sigma (sigma = 1218 MeV)
-
-
+           }
          }
-         //else {
-         //    m_Z_mass_ssmu->Fill(mass);
-         //}
-         ATH_MSG_DEBUG("Found a JPsi/Upsilon to mumu candidate!  Mass = " << mass << ", and charge = " << JPsimumucharge);
+         if ((mass > 2802 && mass < 2920) || (mass > 3274 && mass < 3391)) {
+           ++m_JPsiCounter2BG[0];
+         }
+         //assuming JPsi mass of 3 097 MeV and range of 2 sigma (sigma = 59 MeV, based on root best fit of distribution)
+         if (mass > 8242 && mass < 10678) {
+           ++m_UpsilonCounterSBG[0];
+         }
+         if ((mass > 4588 && mass < 5806) || (mass > 13114 && mass < 14332)) {
+           ++m_UpsilonCounterBG[0];
+         }
+       }
+       ATH_MSG_DEBUG("Found a JPsi/Upsilon to mumu candidate!  Mass = " << mass << ", and charge = " << JPsimumucharge);
      }  
 
      // W Transverse Mass
@@ -886,9 +885,9 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
        Float_t mt = sqrt(2*(et*metMet-px*metx-py*mety));     
 
        if (mt > mtCut){
-	 m_W_pt_v_met_ele->Fill(leadingEle->pt(), metMet, m_evtWeight);
-	 m_W_mt_ele->Fill(mt, m_evtWeight);
-	 ATH_MSG_DEBUG("Found a W to enu candidate!  M_T = " << mt << ", and MET = " << metMet << ", and ele_pt = " << leadingEle->pt());
+     m_W_pt_v_met_ele->Fill(leadingEle->pt(), metMet, m_evtWeight);
+     m_W_mt_ele->Fill(mt, m_evtWeight);
+     ATH_MSG_DEBUG("Found a W to enu candidate!  M_T = " << mt << ", and MET = " << metMet << ", and ele_pt = " << leadingEle->pt());
        }
      }
 
@@ -902,30 +901,17 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
        Float_t mt = sqrt(2*(et*metMet-px*metx-py*mety));
        
        if (mt > mtCut)
-	 {
-	   m_W_pt_v_met_mu->Fill(leadingMuZ->pt(), metMet, m_evtWeight);
-	   m_W_mt_mu->Fill(mt, m_evtWeight);
-	   ATH_MSG_DEBUG("Found a W to munu candidate!  M_T = " << mt << ", and MET = " << metMet << ", and mu_pt = " << leadingMuZ->pt());
-	 }
+     {
+       m_W_pt_v_met_mu->Fill(leadingMuZ->pt(), metMet, m_evtWeight);
+       m_W_mt_mu->Fill(mt, m_evtWeight);
+       ATH_MSG_DEBUG("Found a W to munu candidate!  M_T = " << mt << ", and MET = " << metMet << ", and mu_pt = " << leadingMuZ->pt());
+     }
      }
 
 
-     //for(int i=0; i<goodelectrons.size(); i++) delete goodelectrons[i];
-     //for(int i=0; i<goodmuonsZ.size(); i++)    delete goodmuonsZ[i];
-     //for(int i=0; i<allElectrons.size(); i++)  delete allElectrons[i];
      goodelectrons.clear();
      goodmuonsZ.clear();
      allElectrons.clear();
-
-
-/*
-     delete leadingEle;
-     delete subleadingEle;
-     delete leadingMuZ;
-     delete subleadingMuZ;
-     delete leadingAllEle;
-     delete subleadingAllEle;
-*/
 
      return sc;
  
@@ -936,10 +922,8 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
 
 //----------------------------------------------------------------------------------
 StatusCode DQTGlobalWZFinderTool::procHistograms( )
-//StatusCode DQTGlobalWZFinderTool::procHistograms( bool isEndOfEventsBlock, bool isEndOfLumiBlock, bool isEndOfRun )
 //----------------------------------------------------------------------------------
 {
-  //if ( endOfEventsBlock || endOfLumiBlock || endOfRun ) {
   if ( endOfLumiBlockFlag() || endOfRunFlag() ) {
   MsgStream log(msgSvc(), name());
 
@@ -959,53 +943,53 @@ StatusCode DQTGlobalWZFinderTool::procHistograms( )
              //Map lumiBlock to corresponding bin
              int binNumber = int((m_this_lb-0.50)/((m_maxLumiBlock - m_minLumiBlock)/m_numBins))+1;
 
-	     //JPsi->mu mu
-	     if(m_JPsiCounterSignal[0] < 0) {
-	       m_JPsiCounterSignal[0] = 0;
-	     }
-	     if(m_JPsiCounterSignal[1] < 0) {
-	       m_JPsiCounterSignal[1] = 0;
-	     }
+         //JPsi->mu mu
+         if(m_JPsiCounterSignal[0] < 0) {
+           m_JPsiCounterSignal[0] = 0;
+         }
+         if(m_JPsiCounterSignal[1] < 0) {
+           m_JPsiCounterSignal[1] = 0;
+         }
 
-	     for(int i = 0 ; i < m_JPsiCounterSignal[0] ; i++) {
-	       m_JPsiCounter_Mu->Fill(m_this_lb); 
-	     }
-	     m_JPsiCounter_Mu->SetBinError(binNumber, TMath::Sqrt(m_JPsiCounter_Mu->GetBinContent( binNumber)));
+         for(int i = 0 ; i < m_JPsiCounterSignal[0] ; i++) {
+           m_JPsiCounter_Mu->Fill(m_this_lb); 
+         }
+         m_JPsiCounter_Mu->SetBinError(binNumber, TMath::Sqrt(m_JPsiCounter_Mu->GetBinContent( binNumber)));
 
-	     //Upsilon->mu mu
+         //Upsilon->mu mu
              if(m_UpsilonCounterSignal[0] < 0) {
-	       m_UpsilonCounterSignal[0]= 0;
+           m_UpsilonCounterSignal[0]= 0;
              }
              if(m_UpsilonCounterSignal[1] < 0) {
-	       m_UpsilonCounterSignal[1]= 0;
+           m_UpsilonCounterSignal[1]= 0;
              }
 
-	     for(int i = 0 ; i < m_UpsilonCounterSignal[0] ; i++) {
-	       m_UpsilonCounter_Mu->Fill(m_this_lb);
-	     }
-	     m_UpsilonCounter_Mu->SetBinError(binNumber, TMath::Sqrt(m_UpsilonCounter_Mu->GetBinContent( binNumber)));
+         for(int i = 0 ; i < m_UpsilonCounterSignal[0] ; i++) {
+           m_UpsilonCounter_Mu->Fill(m_this_lb);
+         }
+         m_UpsilonCounter_Mu->SetBinError(binNumber, TMath::Sqrt(m_UpsilonCounter_Mu->GetBinContent( binNumber)));
 
              //Z->e e
-	     if(m_ZBosonCounterSBG_El[0] < 0) {
-	       m_ZBosonCounterSBG_El[0] = 0;
-	     }
-	     if(m_ZBosonCounterSBG_El[1] < 0) {
-	       m_ZBosonCounterSBG_El[1] = 0;
-	     }
+         if(m_ZBosonCounterSBG_El[0] < 0) {
+           m_ZBosonCounterSBG_El[0] = 0;
+         }
+         if(m_ZBosonCounterSBG_El[1] < 0) {
+           m_ZBosonCounterSBG_El[1] = 0;
+         }
         }
-	 for (int index =0 ; index < 2 ; index++) {
-	   m_JPsiCounterSBG[index]=0;
-	   m_JPsiCounterSBG[index]=0;
-	   m_JPsiCounter2BG[index]=0;
-	   m_JPsiCounterSignal[index]=0;
-	   
-	   m_UpsilonCounterSBG[index]=0;
-	   m_UpsilonCounterBG[index]=0;
-	   m_UpsilonCounterSignal[index]=0;
-	   
-	   m_ZBosonCounterSBG_El[index]=0;
-	   m_ZBosonCounterSBG_Mu[index]=0;
-	 }
+     for (int index =0 ; index < 2 ; index++) {
+       m_JPsiCounterSBG[index]=0;
+       m_JPsiCounterSBG[index]=0;
+       m_JPsiCounter2BG[index]=0;
+       m_JPsiCounterSignal[index]=0;
+       
+       m_UpsilonCounterSBG[index]=0;
+       m_UpsilonCounterBG[index]=0;
+       m_UpsilonCounterSignal[index]=0;
+       
+       m_ZBosonCounterSBG_El[index]=0;
+       m_ZBosonCounterSBG_Mu[index]=0;
+     }
    }
 
 
@@ -1033,8 +1017,15 @@ void DQTGlobalWZFinderTool::doEleTriggerTP(const xAOD::Electron* el1, const xAOD
   }
   
   if (!m_isSimulation){
-    if(os) m_eltrigtp_matches_os->Fill(matched, m_evtWeight);
-    if(ss) m_eltrigtp_matches_ss->Fill(matched, m_evtWeight);
+    if(os){ 
+      m_eltrigtp_matches_os->Fill(matched, m_evtWeight);
+      m_eltrigtp_matches_os_BCID_pileup->Fill(matched, m_distance_from_front, m_pileup_per_lb, m_evtWeight); 
+    }
+      
+    if(ss){
+      m_eltrigtp_matches_ss->Fill(matched, m_evtWeight);
+      m_eltrigtp_matches_ss_BCID_pileup->Fill(matched, m_distance_from_front, m_pileup_per_lb, m_evtWeight);
+    }
   }
 
   // TTree Filling
@@ -1107,133 +1098,137 @@ void DQTGlobalWZFinderTool::doEleTriggerTP(const xAOD::Electron* el1, const xAOD
 
 void 
 DQTGlobalWZFinderTool::doEleTP(const xAOD::Electron* leadingAllEle, 
-				    const xAOD::Electron* subleadingAllEle, 
-				    const xAOD::Vertex* pVtx, 
-				    const xAOD::EventInfo* thisEventInfo, 
-				    bool isBad) {
+                    const xAOD::Electron* subleadingAllEle, 
+                    const xAOD::Vertex* pVtx, 
+                    const xAOD::EventInfo* thisEventInfo, 
+                    bool isBad) {
   // first check we have both electrons
-  if(leadingAllEle){
-    if(subleadingAllEle){
-      // then get all the parameters we will need ready
-      Int_t Zeecharge = leadingAllEle->charge() + subleadingAllEle->charge();
-      auto p1(leadingAllEle->p4());
-      auto p2(subleadingAllEle->p4());  
-      Float_t mass = (p1+p2).M();
+  if(leadingAllEle && subleadingAllEle){
+    // then get all the parameters we will need ready
+    Int_t Zeecharge = leadingAllEle->charge() + subleadingAllEle->charge();
+    auto p1(leadingAllEle->p4());
+    auto p2(subleadingAllEle->p4());  
+    Float_t mass = (p1+p2).M();
 
-      bool leadingPassKinematics = kinematicCuts(leadingAllEle);
-      bool subleadPassKinematics = kinematicCuts(subleadingAllEle);
+    bool leadingPassKinematics = kinematicCuts(leadingAllEle);
+    bool subleadPassKinematics = kinematicCuts(subleadingAllEle);
 
-      if(!leadingPassKinematics || !subleadPassKinematics) return;
+    if(!leadingPassKinematics || !subleadPassKinematics) return;
 
-      bool leading_good    = goodElectrons(thisEventInfo, leadingAllEle, pVtx, isBad);
-      bool subleading_good = goodElectrons(thisEventInfo, subleadingAllEle, pVtx, isBad);
+    bool leading_good    = goodElectrons(thisEventInfo, leadingAllEle, pVtx, isBad);
+    bool subleading_good = goodElectrons(thisEventInfo, subleadingAllEle, pVtx, isBad);
 
-      bool leading_antigood    = antiGoodElectrons(thisEventInfo, leadingAllEle, pVtx, isBad);
-      bool subleading_antigood = antiGoodElectrons(thisEventInfo, subleadingAllEle, pVtx, isBad);
+    bool leading_antigood    = antiGoodElectrons(thisEventInfo, leadingAllEle, pVtx, isBad);
+    bool subleading_antigood = antiGoodElectrons(thisEventInfo, subleadingAllEle, pVtx, isBad);
 
-      // do trigger matching
-      bool leading_trig = false;
-      for (const auto chain: m_Z_ee_trigger) { 
-        if (m_elTrigMatchTool->match(leadingAllEle, chain)){
-          leading_trig = true;
-	  break;
-        }
+    // do trigger matching
+    bool leading_trig = false;
+    for (const auto chain: m_Z_ee_trigger) { 
+      if (m_elTrigMatchTool->match(leadingAllEle, chain)){
+        leading_trig = true;
+        break;
       }
+    }
 
-      bool subleading_trig = false;
-      for (const auto chain: m_Z_ee_trigger) {
-        if (m_elTrigMatchTool->match(subleadingAllEle, chain)){ 
-          subleading_trig = true;
-	  break;
-        }
+    bool subleading_trig = false;
+    for (const auto chain: m_Z_ee_trigger) {
+      if (m_elTrigMatchTool->match(subleadingAllEle, chain)){ 
+        subleading_trig = true;
+        break;
       }
+    }
+   
+    bool tag_good = false;
+    bool opp_sign = false;
+    opp_sign = (Zeecharge==0);
 
-      // now start to do the selection
-      if(leadingAllEle->passSelection("LHTight") && leading_trig && leading_good){
+    if (!m_isSimulation){
+      // leading electron as tag, subleading as probe
+      tag_good = (leadingAllEle->passSelection("LHTight") && leading_trig && leading_good);
+      fillEleEffHistos(tag_good, subleading_good, subleading_antigood, opp_sign, mass);
+      // subleading electron as tag, leading as probe
+      tag_good = (subleadingAllEle->passSelection("LHTight") && subleading_trig && subleading_good);
+      fillEleEffHistos(tag_good, leading_good, leading_antigood, opp_sign, mass);
+      return;
+    }
 
-        m_electron_reco_tptree_pT = subleadingAllEle->pt();
-        m_electron_reco_tptree_phi = subleadingAllEle->phi();
-        m_electron_reco_tptree_eta = subleadingAllEle->caloCluster()->etaBE(2);
-        m_electron_reco_tptree_isTruth = checkTruthElectron(subleadingAllEle);
-        m_electron_reco_tptree_mass = mass;
-        m_electron_reco_tptree_runnumber =  thisEventInfo->runNumber();
-        m_electron_reco_tptree_eventnumber = thisEventInfo->eventNumber();
-        m_electron_reco_tptree_weight = m_evtWeight;
-        m_electron_reco_tptree_lb = m_this_lb;
+    if (!m_writeTTrees)
+      return;
 
-        if(Zeecharge==0){
+    // now fill the trees
+    if(leadingAllEle->passSelection("LHTight") && leading_trig && leading_good){
 
-          (subleading_good) ? m_electron_reco_tptree_mtype = 0 : m_electron_reco_tptree_mtype = 2;
-          if(subleading_antigood){
-            m_electron_reco_tptree_mtype = 4;
-          }
+      m_electron_reco_tptree_pT = subleadingAllEle->pt();
+      m_electron_reco_tptree_phi = subleadingAllEle->phi();
+      m_electron_reco_tptree_eta = subleadingAllEle->caloCluster()->etaBE(2);
+      m_electron_reco_tptree_isTruth = checkTruthElectron(subleadingAllEle);
+      m_electron_reco_tptree_mass = mass;
+      m_electron_reco_tptree_runnumber =  thisEventInfo->runNumber();
+      m_electron_reco_tptree_eventnumber = thisEventInfo->eventNumber();
+      m_electron_reco_tptree_weight = m_evtWeight;
+      m_electron_reco_tptree_lb = m_this_lb;
 
-          if (!m_isSimulation){
-            (subleading_good) ? m_ele_tight_good_os->Fill(mass) : m_ele_tight_bad_os->Fill(mass); 
-            if(subleading_antigood) m_ele_template_os->Fill(mass);
-          }
-        }else{
+      if(opp_sign){
+        if(subleading_good) 
+          m_electron_reco_tptree_mtype = 0;
 
-          (subleading_good) ? m_electron_reco_tptree_mtype = 1 : m_electron_reco_tptree_mtype = 3;
-          if(subleading_antigood){
+        if(!subleading_good)
+          m_electron_reco_tptree_mtype = 2;
+
+        if(subleading_antigood)
+          m_electron_reco_tptree_mtype = 4;
+        
+      }else{
+          if(subleading_good) 
+            m_electron_reco_tptree_mtype = 1;
+
+          if(!subleading_good)
+            m_electron_reco_tptree_mtype = 3;
+
+          if(subleading_antigood)
             m_electron_reco_tptree_mtype = 5;
-          }
-
-          if (!m_isSimulation){
-            (subleading_good) ? m_ele_tight_good_ss->Fill(mass) : m_ele_tight_bad_ss->Fill(mass);  
-            if(subleading_antigood) m_ele_template_ss->Fill(mass);
-          }  
+          
         }
 
-        if (m_writeTTrees){
-          m_electron_reco_tptree->Fill();
-        }
-      }  
+        m_electron_reco_tptree->Fill();
+        
+    }  
 
-      if(subleadingAllEle->passSelection("LHTight") && subleading_trig && subleading_good){
+    if(subleadingAllEle->passSelection("LHTight") && subleading_trig && subleading_good){
 
-        m_electron_reco_tptree_pT = leadingAllEle->pt();
-        m_electron_reco_tptree_phi = leadingAllEle->phi();
-        m_electron_reco_tptree_eta = leadingAllEle->caloCluster()->etaBE(2);
-        m_electron_reco_tptree_isTruth = checkTruthElectron(leadingAllEle);
-        m_electron_reco_tptree_mass = mass;
-        m_electron_reco_tptree_runnumber =  thisEventInfo->runNumber();
-        m_electron_reco_tptree_eventnumber = thisEventInfo->eventNumber();
-        m_electron_reco_tptree_weight = m_evtWeight;
-        m_electron_reco_tptree_lb = m_this_lb;
+      m_electron_reco_tptree_pT = leadingAllEle->pt();
+      m_electron_reco_tptree_phi = leadingAllEle->phi();
+      m_electron_reco_tptree_eta = leadingAllEle->caloCluster()->etaBE(2);
+      m_electron_reco_tptree_isTruth = checkTruthElectron(leadingAllEle);
+      m_electron_reco_tptree_mass = mass;
+      m_electron_reco_tptree_runnumber =  thisEventInfo->runNumber();
+      m_electron_reco_tptree_eventnumber = thisEventInfo->eventNumber();
+      m_electron_reco_tptree_weight = m_evtWeight;
+      m_electron_reco_tptree_lb = m_this_lb;
 
-        if(Zeecharge==0){
-
-          (leading_good) ? m_electron_reco_tptree_mtype = 0 : m_electron_reco_tptree_mtype = 2;
-          if(leading_antigood){
-            m_electron_reco_tptree_mtype = 4;
-          }
-
-          if (!m_isSimulation){
-            (leading_good) ? m_ele_tight_good_os->Fill(mass) : m_ele_tight_bad_os->Fill(mass);   
-            if(leading_antigood) m_ele_template_os->Fill(mass);
-          }
-        }else{
-
-          (leading_good) ?  m_electron_reco_tptree_mtype = 1 : m_electron_reco_tptree_mtype = 3;
-          if(leading_antigood){
-            m_electron_reco_tptree_mtype = 5;
-          }
-
-          if (!m_isSimulation){
-            (leading_good) ? m_ele_tight_good_ss->Fill(mass) : m_ele_tight_bad_ss->Fill(mass); 
-            if(leading_antigood) m_ele_template_ss->Fill(mass);
-          }
-        }
-
-        if (m_writeTTrees){
-          m_electron_reco_tptree->Fill();
-        }
-      } 
-
-    }// subleading pointer exixts
-  }// leading pointer exists
-}// end doEleTP
+      if(opp_sign){
+        if(leading_good) 
+          m_electron_reco_tptree_mtype = 0;
+        
+        if(!leading_good)  
+          m_electron_reco_tptree_mtype = 2;
+          
+        if(leading_antigood)
+          m_electron_reco_tptree_mtype = 4;
+      }else{
+        if(leading_good) 
+          m_electron_reco_tptree_mtype = 1;
+          
+        if(!leading_good)
+          m_electron_reco_tptree_mtype = 3;
+          
+        if(leading_antigood)
+          m_electron_reco_tptree_mtype = 5;
+      }
+        m_electron_reco_tptree->Fill();
+    } 
+  }
+}
 
 
 void DQTGlobalWZFinderTool::doEleContainerTP(std::vector<const xAOD::Electron*> allElectrons, std::vector<const xAOD::Electron*> goodelectrons) {
@@ -1324,9 +1319,9 @@ bool DQTGlobalWZFinderTool::kinematicCuts(const xAOD::Electron* electron){
 }
 
 bool DQTGlobalWZFinderTool::goodElectrons(const xAOD::EventInfo* thisEventInfo, 
-    		   		          const xAOD::Electron* electron_itr, 
-		  			  const xAOD::Vertex* pVtx, 
-		   			  bool isBad){
+                              const xAOD::Electron* electron_itr, 
+                      const xAOD::Vertex* pVtx, 
+                      bool isBad){
   bool isGood = false;
   Float_t m_electronEtCut = m_muonPtCut; 
 
@@ -1428,13 +1423,14 @@ void DQTGlobalWZFinderTool::doMuonTriggerTP(const xAOD::Muon* mu1, const xAOD::M
   for (const auto mu: muons) {
     for (const auto chain: m_Z_mm_trigger) {
       if (m_muTrigMatchTool->match(mu, chain)) {
-	matched++;
-	break;
+        matched++;
+        break;
       }
     }
   }
   if (!m_isSimulation){
     m_mutrigtp_matches->Fill(matched,m_evtWeight); 
+    m_mutrigtp_matches_BCID_pileup->Fill(matched, m_distance_from_front, m_pileup_per_lb, m_evtWeight);
   }
 
 
@@ -1442,7 +1438,7 @@ void DQTGlobalWZFinderTool::doMuonTriggerTP(const xAOD::Muon* mu1, const xAOD::M
     // only consider trigger-matched tags to avoid bias on probes                                                     
     bool matched = false;
     for (const auto chain: m_Z_mm_trigger) {
-      if (m_muTrigMatchTool->match(tagmu, chain) || ! m_doTrigger) {                                                
+      if (m_muTrigMatchTool->match(tagmu, chain)) {
         matched=true;
         break;
       }
@@ -1474,7 +1470,8 @@ void DQTGlobalWZFinderTool::doMuonTriggerTP(const xAOD::Muon* mu1, const xAOD::M
       }
 
       for (const auto chain: m_Z_mm_trigger) {
-        if (m_muTrigMatchTool->match(probemu, chain) || ! m_doTrigger) {                                            
+        //if (m_muTrigMatchTool->match(probemu, chain) || ! m_doTrigger) {                                            
+        if (m_muTrigMatchTool->match(probemu, chain)) {
           matched=true;
           break;
         }
@@ -1532,8 +1529,8 @@ void DQTGlobalWZFinderTool::doMuonTruthEff(std::vector<const xAOD::Muon*>& goodm
     int match = 0;
     for (const auto& foundmu : goodmuonsZ) {
       if (foundmu->p4().DeltaR(truthp4) < 0.05) {
-	match = 1;
-	break;
+        match = 1;
+        break;
       }
     }
     m_mcmatch->Fill(match);
@@ -1556,8 +1553,8 @@ void DQTGlobalWZFinderTool::doMuonLooseTP(std::vector<const xAOD::Muon*>& goodmu
     bool matched = false;
     for (const auto chain: m_Z_mm_trigger) {
       if (m_muTrigMatchTool->match(tagmu, chain) || ! m_doTrigger) {
-	    matched=true;
-	    break;
+        matched=true;
+        break;
       }
     }
 
@@ -1565,7 +1562,7 @@ void DQTGlobalWZFinderTool::doMuonLooseTP(std::vector<const xAOD::Muon*>& goodmu
     auto tagmup4(tagmu->p4());
     for (const auto& trk : *idTracks) {
       if (trk->pt() <  m_muonPtCut*GeV || fabs(trk->eta()) > m_muonMaxEta) continue;     
-      if (fabs((trk->z0()+trk->vz()-pVtx->z())*std::sin(trk->theta())) > 2*mm) 	continue;
+      if (fabs((trk->z0()+trk->vz()-pVtx->z())*std::sin(trk->theta())) > 2*mm)  continue;
       
       auto trkp4(trk->p4());
       Float_t mass = (tagmup4+trkp4).M();
@@ -1579,41 +1576,39 @@ void DQTGlobalWZFinderTool::doMuonLooseTP(std::vector<const xAOD::Muon*>& goodmu
       m_muon_reco_tptree_eventnumber = thisEventInfo->eventNumber();
       m_muon_reco_tptree_weight = m_evtWeight;
       m_muon_reco_tptree_lb = m_this_lb;
-	  
+      
+      bool opp_sign = (trk->charge() != tagmu->charge());
       bool matched = false;
       for (const auto& mu2 : goodmuonsTP) {
         if (tagmu == mu2) continue;
         auto idlink = mu2->inDetTrackParticleLink();
         if (*(idlink.cptr()) == trk) {
-          //if (mu2->author() != 1) { ATH_MSG_WARNING("MATCH WOOO, author " << mu2->author()); };
-          ATH_MSG_DEBUG("MATCH WOOO, authors " << mu2->allAuthors());
-          if (!m_isSimulation){
-            (trk->charge() != tagmu->charge()) ? m_muloosetp_match_os->Fill(mass) : m_muloosetp_match_ss->Fill(mass);
-            m_muon_reco_tptree_mtype = (trk->charge() != tagmu->charge()) ? 0 : 1;
-          }
-          if (m_writeTTrees){
-            m_muon_reco_tptree->Fill();
-          }
           matched = true;
           break;
-        } else { 
-          ATH_MSG_DEBUG("MUON NO MATCH, author " << mu2->author());	        
-          ATH_MSG_DEBUG("MUON NO MATCH, pt " << mu2->pt()/GeV << " " << trk->pt()/GeV << " eta " << mu2->eta() << " " << trk->eta());
-        }
+        } 
       }
 
-      if (!matched) {
-        ATH_MSG_DEBUG("NO MATCH BOOO");
-        ATH_MSG_DEBUG("idtrk pt " << trk->pt()/GeV);
+	  if (matched){
+        m_muon_reco_tptree_mtype = (trk->charge() != tagmu->charge()) ? 0 : 1;
         if (!m_isSimulation){
-          (trk->charge() != tagmu->charge()) ? m_muloosetp_nomatch_os->Fill(mass) : m_muloosetp_nomatch_ss->Fill(mass);
-          m_muon_reco_tptree_mtype = (trk->charge() != tagmu->charge()) ? 2 : 3;
-          
-        } 
+          (opp_sign) ? m_muloosetp_match_os->Fill(mass)   : m_muloosetp_match_ss->Fill(mass);
+          (opp_sign) ? m_muloosetp_match_os_BCID_pileup->Fill(mass, m_distance_from_front, m_pileup_per_lb, m_evtWeight) : m_muloosetp_match_ss_BCID_pileup->Fill(mass, m_distance_from_front, m_pileup_per_lb, m_evtWeight);
+        }
+        if (m_writeTTrees){
+          m_muon_reco_tptree->Fill();
+        }
+      }
+      else { 
+        m_muon_reco_tptree_mtype = (trk->charge() != tagmu->charge()) ? 2 : 3;
+        if (!m_isSimulation){
+          (opp_sign) ? m_muloosetp_nomatch_os->Fill(mass) : m_muloosetp_nomatch_ss->Fill(mass);
+          (opp_sign) ? m_muloosetp_nomatch_os_BCID_pileup->Fill(mass, m_distance_from_front, m_pileup_per_lb, m_evtWeight) : m_muloosetp_nomatch_ss_BCID_pileup->Fill(mass, m_distance_from_front, m_pileup_per_lb, m_evtWeight);
+        }
         if (m_writeTTrees){
           m_muon_reco_tptree->Fill();
         }     
       }
+
     }
   }
 }
@@ -1808,67 +1803,116 @@ void DQTGlobalWZFinderTool::setDQTGlobalWZFinderBranches(){
 
 
 bool DQTGlobalWZFinderTool::checkTruthElectron(const xAOD::Electron* elec){
-  // Check if input electron originates from a ZBoson, following EGamma recipe 
+
+  // Check if input electron originates from a ZBoson, following EGamma recipe
   unsigned int iTypeOfPart;
   unsigned int iPartOrig;
-  bool truthMatched = false;
-  const xAOD::TruthParticle* lastElTruth = xAOD::EgammaHelpers::getBkgElectronMother(elec);
 
+  bool truthMatched = false;
+
+  const xAOD::TruthParticle* lastElTruth = xAOD::EgammaHelpers::getBkgElectronMother(elec);
   if( lastElTruth ){
     auto res = m_truthClassifier->particleTruthClassifier(lastElTruth);
     iTypeOfPart = res.first;
     iPartOrig   = res.second;
-    // (type = IsoElectron and origin = ZBoson) or origin FSRPhoton  
+
     if((iTypeOfPart == 2 && iPartOrig == 13) || (iPartOrig == 40)){
       truthMatched = true;
     }
   }
 
   return truthMatched;
+
 }
 
 
 bool DQTGlobalWZFinderTool::checkTruthMuon(const xAOD::Muon* muon){
-  // Check if input muon originates from a ZBoson 
+
+  // Check if input muon originates from a ZBoson
   bool truthMatched = false;
+  
   std::pair<unsigned int, unsigned int> res;
   ParticleDef partDef;
+
   res=m_truthClassifier->particleTruthClassifier(muon);
+
   unsigned int iTypeOfPart = res.first;
   unsigned int iPartOrig   = res.second;
+
   const auto* thePart = m_truthClassifier->getGenPart();
   
   if(thePart){
-    // (type = IsoMuon and origin = ZBoson)
     if(iTypeOfPart == 6 && iPartOrig == 13){
       truthMatched = true;
     }
   }
 
   return truthMatched;
+
 }
 
 
-
 bool DQTGlobalWZFinderTool::checkTruthTrack(const xAOD::TrackParticle* trk){
-  // Check if input track originates from a ZBoson 
+
+  // Check if input track originates from a ZBoson     
   bool truthMatched = false;
+
   std::pair<unsigned int, unsigned int> res;
   ParticleDef partDef;
+
   res=m_truthClassifier->particleTruthClassifier(trk);
+
   unsigned int iTypeOfPart = res.first;
   unsigned int iPartOrig   = res.second;
+
   const auto* thePart = m_truthClassifier->getGenPart();
 
   if(thePart){
-    // (type = IsoMuon and origin ZBoson)
     if(iTypeOfPart == 6 && iPartOrig == 13){
         truthMatched = true;
     }
   }
 
   return truthMatched;
+
 }
+
+void DQTGlobalWZFinderTool::fillEleEffHistos(bool tag_good, bool probe_good, bool probe_anti_good, bool os, double mass){
+ 
+  if(!tag_good) return; 
+ 
+  
+  if(os){
+    if(probe_good){
+      m_ele_tight_good_os->Fill(mass);  
+      m_ele_tight_good_os_BCID_pileup->Fill(mass, m_distance_from_front, m_pileup_per_lb, m_evtWeight);
+    }
+    else{
+      m_ele_tight_bad_os->Fill(mass);
+      m_ele_tight_bad_os_BCID_pileup->Fill(mass, m_distance_from_front, m_pileup_per_lb, m_evtWeight);
+    }    
+    if(probe_anti_good){
+      m_ele_template_os->Fill(mass);  
+      m_ele_template_os_BCID_pileup->Fill(mass, m_distance_from_front, m_pileup_per_lb, m_evtWeight); 
+    }
+  }
+
+  if (!os){
+    if(probe_good){
+      m_ele_tight_good_ss->Fill(mass);
+      m_ele_tight_good_ss_BCID_pileup->Fill(mass, m_distance_from_front, m_pileup_per_lb, m_evtWeight);
+    }
+    else{
+      m_ele_tight_bad_ss->Fill(mass);
+      m_ele_tight_bad_ss_BCID_pileup->Fill(mass, m_distance_from_front, m_pileup_per_lb, m_evtWeight);
+    }
+    if(probe_anti_good){
+      m_ele_template_ss->Fill(mass);   
+      m_ele_template_ss_BCID_pileup->Fill(mass, m_distance_from_front, m_pileup_per_lb, m_evtWeight);
+    }
+  }
+}
+
 
 //----------------------------------------------------------------------------------
 StatusCode DQTGlobalWZFinderTool::checkHists(bool /* fromFinalize */)
@@ -1880,5 +1924,3 @@ StatusCode DQTGlobalWZFinderTool::checkHists(bool /* fromFinalize */)
 
   return StatusCode::SUCCESS;
 }
-
-
