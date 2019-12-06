@@ -40,7 +40,6 @@ class TrigSignatureMoniMT : public extends<AthReentrantAlgorithm, IIncidentListe
   virtual StatusCode  initialize() override;
   virtual StatusCode  start() override;
   virtual StatusCode  execute( const EventContext& context ) const override;
-  virtual StatusCode  finalize() override;
   virtual StatusCode  stop() override;
   virtual void handle( const Incident& incident ) override;
 
