@@ -266,13 +266,25 @@ namespace top {
     m_btagSelToolsDL1Decor["DL1"] = "BTaggingSelectionTool_forEventSaver_DL1_" + m_config->sgKeyJets();
     m_btagSelToolsDL1Decor["DL1r"] = "BTaggingSelectionTool_forEventSaver_DL1r_" + m_config->sgKeyJets();
     m_btagSelToolsDL1Decor["DL1rmu"] = "BTaggingSelectionTool_forEventSaver_DL1rmu_" + m_config->sgKeyJets();
-    top::check(m_btagSelToolsDL1Decor["DL1"].retrieve(), "Failed to retrieve eventsaver btagging selector");
-    top::check(m_btagSelToolsDL1Decor["DL1r"].retrieve(), "Failed to retrieve eventsaver btagging selector");
-    top::check(m_btagSelToolsDL1Decor["DL1rmu"].retrieve(), "Failed to retrieve eventsaver btagging selector");
+    top::check(m_btagSelToolsDL1Decor["DL1"].retrieve(), "Failed to retrieve eventsaver btagging selector for " + m_config->sgKeyJets());
+    top::check(m_btagSelToolsDL1Decor["DL1r"].retrieve(), "Failed to retrieve eventsaver btagging selector for " + m_config->sgKeyJets());
+    top::check(m_btagSelToolsDL1Decor["DL1rmu"].retrieve(), "Failed to retrieve eventsaver btagging selector for " + m_config->sgKeyJets());
+    if (m_config->useTrackJets()) {
+      m_btagSelToolsDL1Decor["DL1_trkjet"] = "BTaggingSelectionTool_forEventSaver_DL1_" + m_config->sgKeyTrackJets();
+      m_btagSelToolsDL1Decor["DL1r_trkjet"] = "BTaggingSelectionTool_forEventSaver_DL1r_" + m_config->sgKeyTrackJets();
+      m_btagSelToolsDL1Decor["DL1rmu_trkjet"] = "BTaggingSelectionTool_forEventSaver_DL1rmu_" + m_config->sgKeyTrackJets();
+      top::check(m_btagSelToolsDL1Decor["DL1_trkjet"].retrieve(), "Failed to retrieve eventsaver btagging selector for " + m_config->sgKeyTrackJets());
+      top::check(m_btagSelToolsDL1Decor["DL1r_trkjet"].retrieve(), "Failed to retrieve eventsaver btagging selector for " + m_config->sgKeyTrackJets());
+      top::check(m_btagSelToolsDL1Decor["DL1rmu_trkjet"].retrieve(), "Failed to retrieve eventsaver btagging selector for " + m_config->sgKeyTrackJets());
+    }
+
     // Store a lightweight flag to limit error messages if the DL1 weights are not present
     m_DL1Possible = true;
     m_DL1rPossible = true;
     m_DL1rmuPossible = true;
+    m_trkjet_DL1Possible = true;
+    m_trkjet_DL1rPossible = true;
+    m_trkjet_DL1rmuPossible = true;
 
     // initialize boosted jet taggers -- we have to do it here instead pf TopObjectSelectionTools
     // because we have to apply tagger inbetween JES uncertainty tool and the tagging SF tool
@@ -789,22 +801,46 @@ namespace top {
       double DL1_weight, DL1r_weight, DL1rmu_weight = -999;
 
       // Suppress warnings if the DL1 weights do not exist and avoid repeated failed computation
-      if (m_DL1Possible) {
-        if (!m_btagSelToolsDL1Decor["DL1"]->getTaggerWeight(*jet, DL1_weight)) {
-          DL1_weight = -999;
-          m_DL1Possible = false;
+      if(!trackJets)
+      {
+        if (m_DL1Possible) {
+          if (!m_btagSelToolsDL1Decor["DL1"]->getTaggerWeight(*jet, DL1_weight)) {
+            DL1_weight = -999;
+            m_DL1Possible = false;
+          }
+        }
+        if (m_DL1rPossible) {
+          if (!m_btagSelToolsDL1Decor["DL1r"]->getTaggerWeight(*jet, DL1r_weight)) {
+            DL1r_weight = -999;
+            m_DL1rPossible = false;
+          }
+        }
+        if (m_DL1rmuPossible) {
+          if (!m_btagSelToolsDL1Decor["DL1rmu"]->getTaggerWeight(*jet, DL1rmu_weight)) {
+            DL1rmu_weight = -999;
+            m_DL1rmuPossible = false;
+          }
         }
       }
-      if (m_DL1rPossible) {
-        if (!m_btagSelToolsDL1Decor["DL1r"]->getTaggerWeight(*jet, DL1r_weight)) {
-          DL1r_weight = -999;
-          m_DL1rPossible = false;
+      else
+      {
+        if (m_trkjet_DL1Possible) {
+          if (!m_btagSelToolsDL1Decor["DL1_trkjet"]->getTaggerWeight(*jet, DL1_weight)) {
+            DL1_weight = -999;
+            m_trkjet_DL1Possible = false;
+          }
         }
-      }
-      if (m_DL1rmuPossible) {
-        if (!m_btagSelToolsDL1Decor["DL1rmu"]->getTaggerWeight(*jet, DL1rmu_weight)) {
-          DL1rmu_weight = -999;
-          m_DL1rmuPossible = false;
+        if (m_trkjet_DL1rPossible) {
+          if (!m_btagSelToolsDL1Decor["DL1r_trkjet"]->getTaggerWeight(*jet, DL1r_weight)) {
+            DL1r_weight = -999;
+            m_trkjet_DL1rPossible = false;
+          }
+        }
+        if (m_trkjet_DL1rmuPossible) {
+          if (!m_btagSelToolsDL1Decor["DL1rmu_trkjet"]->getTaggerWeight(*jet, DL1rmu_weight)) {
+            DL1rmu_weight = -999;
+            m_trkjet_DL1rmuPossible = false;
+          }
         }
       }
       DL1(*jet) = DL1_weight;
