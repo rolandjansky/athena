@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CLHEP/Random/RandGauss.h"
@@ -59,7 +59,7 @@ void TFCSPCAEnergyParametrization::Print(Option_t *option) const
   }  
 }
 
-FCSReturnCode TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/)
+FCSReturnCode TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/) const
 {
   
   if (!simulstate.randomEngine()) {
@@ -153,12 +153,12 @@ FCSReturnCode TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simuls
   return FCSSuccess;
 }
 
-void TFCSPCAEnergyParametrization::P2X(TVectorD* SigmaValues, TVectorD* MeanValues, TMatrixD *EV, int gNVariables, double *p, double *x, int nTest)
+void TFCSPCAEnergyParametrization::P2X(TVectorD* SigmaValues, TVectorD* MeanValues, TMatrixD *EV, int gNVariables, double *p, double *x, int nTest) const
 {
 
-  double* gSigmaValues  = SigmaValues->GetMatrixArray();
-  double* gMeanValues   = MeanValues->GetMatrixArray();
-  double* gEigenVectors = EV->GetMatrixArray();
+  const double* gSigmaValues  = SigmaValues->GetMatrixArray();
+  const double* gMeanValues   = MeanValues->GetMatrixArray();
+  const double* gEigenVectors = EV->GetMatrixArray();
 
   for(int i = 0; i < gNVariables; i++)
     {

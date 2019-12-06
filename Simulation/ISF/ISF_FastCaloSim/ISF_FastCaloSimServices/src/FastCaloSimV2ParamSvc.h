@@ -29,7 +29,7 @@ namespace ISF {
     virtual StatusCode  initialize() override final;
 
     /** Simulation Call */
-    StatusCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol);
+    virtual StatusCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override final;
 
   private:
 
