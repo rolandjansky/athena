@@ -37,7 +37,10 @@ createMMPrepData ( const Muon::MMPrepData_p1 *persObj,
                          cmat.release(),
                          detEl,
 			 persObj->m_time,
-			 persObj->m_charge);
+			 persObj->m_charge,
+			 persObj->m_stripNumbers,
+			 persObj->m_stripTimes,
+			 persObj->m_stripCharges);
 
   // se the microTPC parameters
   data.setMicroTPC(persObj->m_angle, persObj->m_chisqProb);
@@ -60,11 +63,15 @@ transToPers( const Muon::MMPrepData *transObj, Muon::MMPrepData_p1 *persObj, Msg
     persObj->m_locX     = transObj->localPosition()[Trk::locX];
     persObj->m_errorMat = (transObj->localCovariance())(0,0);
     
-    persObj->m_time     = (int) transObj->time();
+    persObj->m_time     = (short int) transObj->time();
     persObj->m_charge   = (int) transObj->charge();
 
     persObj->m_angle     = (float) transObj->angle();
     persObj->m_chisqProb = (float) transObj->chisqProb();
+
+    persObj->m_stripNumbers = transObj->stripNumbers();
+    persObj->m_stripTimes   = transObj->stripTimes();
+    persObj->m_stripCharges = transObj->stripCharges();
 
     /// store the rdoList in a vector with the difference with respect to the 32-bit cluster identifier
     Identifier32::value_type clusIdCompact = transObj->identify().get_identifier32().get_compact(); // unsigned int
