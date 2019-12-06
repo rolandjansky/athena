@@ -56,6 +56,7 @@ namespace Muon
 		  const short int time,
 		  const uint16_t bcBitMap,
 		  const std::vector<uint16_t>& stripNumbers,
+		  const std::vector<short int>& stripTimes, 
 		  const std::vector<int>& stripCharges );
 
 
@@ -97,8 +98,12 @@ namespace Muon
     /** @brief returns the list of strip numbers */
     const std::vector<uint16_t>& stripNumbers() const;
 
-    /** @brief returns the list of charges */
+    /** @brief returns the list of times */
+    const std::vector<short int>& stripTimes() const;
+    
+     /** @brief returns the list of charges */
     const std::vector<int>& stripCharges() const;
+
 
   private:
 
@@ -110,6 +115,13 @@ namespace Muon
 
     /** @list of strip numbers, time and charge, of the strips associated to the PRD */
     std::vector<uint16_t> m_stripNumbers;
+     /**
+     strip times for the sTGCs will be available for the commissioning of the NSW.
+     Later the tdo (time) will not be in the datastream due to high occupancy.
+     Then this an empty vector which does not take much space
+     Patrick Scholer 3.12.2019
+		 */
+    std::vector<short int> m_stripTimes;
     std::vector<int> m_stripCharges;    
 
   };
@@ -145,6 +157,11 @@ namespace Muon
   inline const std::vector<uint16_t>& sTgcPrepData::stripNumbers() const
   {
     return m_stripNumbers;
+  }
+  
+  inline const std::vector<short int>& sTgcPrepData::stripTimes() const
+  {
+    return m_stripTimes;
   }
 
   inline const std::vector<int>& sTgcPrepData::stripCharges() const
