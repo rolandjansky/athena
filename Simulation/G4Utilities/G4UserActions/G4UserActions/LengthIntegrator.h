@@ -69,7 +69,7 @@ namespace G4UA
       std::string getVolumeType(std::string s);
       std::string getLayerName(double r, double z);
       void fillNtuple();
-      std::string getMaterialClassification(std::string name);
+      std::string getMaterialClassification(std::string name, std::string volName);
 
 
       // Holder for G4 math tools
@@ -108,6 +108,8 @@ namespace G4UA
       std::vector<std::vector<double>> m_collected_material_element_X0;
       std::vector<std::vector<double>> m_collected_material_element_L0;
       std::vector<std::vector<std::string>> m_collected_material_elements;
+
+      std::vector<std::string> m_material_not_found;
 
   }; // class LengthIntegrator
 
