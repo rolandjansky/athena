@@ -11,6 +11,8 @@ __author__ = "Sebastien Binet"
 
 ### imports -------------------------------------------------------------------
 import PyUtils.acmdlib as acmdlib
+from math import isnan
+
 
 ### globals -------------------------------------------------------------------
 g_ALLOWED_MODES = ('summary', 'semi-detailed', 'detailed')
@@ -289,6 +291,11 @@ def main(args):
                 tree_name, ientry, name, iold = d_old
             if d_new:
                 tree_name, jentry, name, inew = d_new
+
+            # for regression testing we should have NAN == NAN
+            if isnan(iold) and isnan(inew):
+                n_good += 1
+                continue
 
             # FIXME: that's a plain (temporary?) hack
             if name[-1] in args.known_hacks:
