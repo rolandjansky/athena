@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -59,7 +59,7 @@ bool InDet::SiTrajectoryElement_xk::set
   m_xi2totalB    = 0.                      ;
   m_tools->electron() ? m_xi2max = m_tools->xi2maxBrem() : m_xi2max = m_tools->xi2max();
   m_detelement->isSCT() ? m_ndf=1 : m_ndf=2;
-
+  
   if(m_tools->heavyion()) {
     if(m_ndf==2) {m_xi2max = 13.; m_xi2maxNoAdd = 13.;}
     else         {m_xi2max =  4.; m_xi2maxNoAdd =  8.;}
@@ -71,13 +71,19 @@ bool InDet::SiTrajectoryElement_xk::set
 
 
   if(!m_detstatus) {
-
     IdentifierHash idHash = m_detelement->identifyHash();
     if(m_ndf==2) {if(!m_tools->pixcond()->isGood(idHash)) m_detstatus = -1;}
     else         {if(!m_tools->sctcond()->isGood(idHash)) m_detstatus = -1;}
   }
   
   const Amg::Transform3D& T  = m_surface->transform();
+  
+  if (m_tools->isITkGeometry()) {
+    m_radlength = .04;
+    if(m_ndf == 2) {
+      fabs(T(2,2)) < .1 ? m_radlength = .04 : m_radlength = .07;
+    }   
+  }
 
   m_Tr[ 0] = T(0,0); m_Tr[ 1]=T(1,0); m_Tr[ 2]=T(2,0);
   m_Tr[ 3] = T(0,1); m_Tr[ 4]=T(1,1); m_Tr[ 5]=T(2,1);
@@ -132,16 +138,30 @@ bool InDet::SiTrajectoryElement_xk::firstTrajectorElement
 
   // Track propagation if need
   //
-  if(m_surface==pl) m_parametersPF = Tp;
-  else  if(!propagate(Tp,m_parametersPF,m_step)) return false;
+  if(m_surface==pl) {
+    m_parametersPF = Tp;
+    if (m_tools->isITkGeometry()) {
+      double Sf,Cf,Ce,Se; 
+      sincos(Tp.par()[2],&Sf,&Cf); 
+      sincos(Tp.par()[3],&Se,&Ce);
+      m_A[0] = Cf*Se; 
+      m_A[1] = Sf*Se;
+      m_A[2] =    Ce;     
+    }
+  } else  if(!propagate(Tp,m_parametersPF,m_step)) return false;
 
   // Initiate track parameters without initial covariance
   //
   double cv[15]={ 1. ,
-		  0. , 1.,
-		  0. , 0.,.001,
-		  0. , 0.,  0.,.001,
-		  0. , 0.,  0.,  0.,.00001};
+                  0. , 1.,
+                  0. , 0.,.001,
+                  0. , 0.,  0.,.001,
+                  0. , 0.,  0.,  0.,.00001};
+                  
+  if (m_tools->isITkGeometry()) {
+    cv[5]=.01; cv[9]=.01;    
+    if(m_ndf==2) {cv[5] = .1; cv[9] = .1;}
+  }     
 
   if(m_detelement->isDBM()) {
 
@@ -153,7 +173,11 @@ bool InDet::SiTrajectoryElement_xk::firstTrajectorElement
   m_parametersPF.setCovariance(cv);
   initiateState(m_parametersPF,m_parametersUF);
 
-  noiseProduction(1,m_parametersUF);
+  if (not m_tools->isITkGeometry())
+    noiseProduction(1,m_parametersUF);
+  else {
+    noiseProduction(1,m_parametersUF,1.);
+  }
 
   m_dist         = -10. ;
   m_step         =  0.  ;
@@ -776,15 +800,17 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithStereo
 
     r1  = fabs(r1+d*((PV1*v2-PV2*v1)*r0+(PV2*v0-PV1*v1)*r1));  
     x  -= (r1*r1)/V(1,1)                                    ;
-    if (m_ndf==1)
-      r1 -= (c->width().z()*.5);
-    
+    r1 -= (c->width().z()*.5)                               ;    
     if(r1 > 0. &&  (x+=((r1*r1)/PV2)) > Xc) continue;
 
     if(x < Xm) {
       InDet::SiClusterLink_xk l(c,x);
       for(int i=0; i!=nl; ++i) L[i].Comparison(l);
-      if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
+      if (not m_tools->isITkGeometry()) {
+        if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
+      } else {
+        if(nl!=3) L[nl++]=l; else Xm=L[2].xi2();
+      }
       Xc = Xm+6.;
     }
     else if(!nl && x < Xl) {Xl = x; Xc = x+6.; cl = c;}
@@ -837,7 +863,11 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoPIX
     if(x < Xm) {
       InDet::SiClusterLink_xk l(c,x);
       for(int i=0; i!=nl; ++i) L[i].Comparison(l);
-      if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
+      if (not m_tools->isITkGeometry()) {
+        if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
+      } else {
+        if(nl!=3) L[nl++]=l; else Xm=L[2].xi2();
+      }
       Xc = Xm;
     }
     else if(!nl) {Xc = x; cl = c;}
@@ -887,7 +917,12 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoSCT
     if(fabs(dP1) > Hl) {
 
       double r1 = M[1]-P1; 
-      dP1 > Hl ? r1 = Hl-P1 : r1 = -(Hl+P1);
+      
+      if (m_tools->isITkGeometry()) {
+        dP1 > Hl ? r1+=Hl : r1-=Hl;
+      } else {
+        dP1 > Hl ? r1 = Hl-P1 : r1 = -(Hl+P1);
+      }
       
       double v1 = PV1;
       double v2 = PV2;  
@@ -899,7 +934,11 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoSCT
     if(x < Xm) {
       InDet::SiClusterLink_xk l(c,x);
       for(int i=0; i!=nl; ++i) L[i].Comparison(l);
-      if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
+      if (not m_tools->isITkGeometry()) {
+        if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
+      } else {
+        if(nl!=3) L[nl++]=l; else Xm=L[2].xi2();
+      }
       Xc = Xm;
     }
     else if(!nl) {Xc = x; cl = c;}
@@ -949,15 +988,18 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithStereoAss
 
     r1  = fabs(r1+d*((PV1*v2-PV2*v1)*r0+(PV2*v0-PV1*v1)*r1));  
     x  -= (r1*r1)/V(1,1)                                    ;
-    if (m_ndf==1)
-      r1 -= (c->width().z()*.5);
+    r1 -= (c->width().z()*.5)                               ;
     
     if(r1 > 0. &&  (x+=((r1*r1)/PV2)) > Xc) continue;
 
     if(x < Xm) {
       InDet::SiClusterLink_xk l(c,x);
       for(int i=0; i!=nl; ++i) L[i].Comparison(l);
-      if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
+      if (not m_tools->isITkGeometry()) {
+        if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
+      } else {
+        if(nl!=3) L[nl++]=l; else Xm=L[2].xi2();
+      }
       Xc = Xm+6.;
     }
     else if(!nl && x < Xl) {Xl = x; Xc = x+6.; cl = c;}
@@ -1011,7 +1053,11 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssPIX
     if(x < Xm) {
       InDet::SiClusterLink_xk l(c,x);
       for(int i=0; i!=nl; ++i) L[i].Comparison(l);
-      if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
+      if (not m_tools->isITkGeometry()) {
+        if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
+      } else {
+        if(nl!=3) L[nl++]=l; else Xm=L[2].xi2();
+      }
       Xc = Xm;
     }
     else if(!nl) {Xc = x; cl = c;}
@@ -1062,7 +1108,11 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssSCT
     if(fabs(dP1) > Hl) {
 
       double r1 = M[1]-P1; 
-      dP1 > Hl ? r1 = Hl-P1 : r1 = -(Hl+P1);
+      if (m_tools->isITkGeometry()) {
+        dP1 > Hl ? r1+=Hl : r1-=Hl;
+      } else {
+        dP1 > Hl ? r1 = Hl-P1 : r1 = -(Hl+P1);
+      }
       
       double v1 = PV1;
       double v2 = PV2;  
@@ -1074,7 +1124,11 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssSCT
     if(x < Xm) {
       InDet::SiClusterLink_xk l(c,x);
       for(int i=0; i!=nl; ++i) L[i].Comparison(l);
-      if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
+      if (not m_tools->isITkGeometry()) {
+        if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
+      } else {
+        if(nl!=3) L[nl++]=l; else Xm=L[2].xi2();
+      }
       Xc = Xm;
     }
     else if(!nl) {Xc = x; cl = c;}
@@ -1261,17 +1315,23 @@ InDet::SiTrajectoryElement_xk::trackParameters(bool cov,int Q)
 ///////////////////////////////////////////////////////////////////
 
 void  InDet::SiTrajectoryElement_xk::noiseProduction
-(int Dir,const Trk::PatternTrackParameters& Tp)
+(int Dir,const Trk::PatternTrackParameters& Tp, double rad_length)
 {
-
   int Model = m_noisemodel; 
   if(Model < 1 || Model > 2) return; 
+  
+  if (rad_length<0.) rad_length=m_radlength;
 
   double q = fabs(Tp.par()[4]);
-  double s = fabs(m_A[0]*m_Tr[6]+m_A[1]*m_Tr[7]+m_A[2]*m_Tr[8]); s  < .05 ? s = 20. : s = 1./s; 
+  double s = fabs(m_A[0]*m_Tr[6]+m_A[1]*m_Tr[7]+m_A[2]*m_Tr[8]); 
+  if (m_tools->isITkGeometry()) {
+    s  < .2 ? s = 5. : s = 1./s;
+  } else {
+    s  < .05 ? s = 20. : s = 1./s; 
+  }
   double d = (1.-m_A[2])*(1.+m_A[2]);   if(d < 1.e-5) d = 1.e-5;
 
-  m_radlengthN = s*m_radlength; 
+  m_radlengthN = s*rad_length; 
   double covariancePola = (134.*m_radlengthN)*(q*q);
   double covarianceAzim = covariancePola/d;
   double covarianceIMom,correctionIMom;
@@ -1502,6 +1562,9 @@ bool InDet::SiTrajectoryElement_xk::transformPlaneToGlobal
   double Sf,Cf,Ce,Se; 
 
   sincos(Tp.par()[3],&Se,&Ce); 
+  if (m_tools->isITkGeometry()) {
+    if(fabs(Se) < fabs(Tp.par()[4])*50.) return false;
+  }
   sincos(Tp.par()[2],&Sf,&Cf);
 
   const Amg::Transform3D& T  = Tp.associatedSurface()->transform();
@@ -1703,9 +1766,9 @@ bool  InDet::SiTrajectoryElement_xk::rungeKuttaToPlane
 
     double A00 = A[0], A11=A[1], A22=A[2];
 
-    R[0]+=(A2+A3+A4)*S3; A[0] = ((A0+2.*A3)+(A5+A6))*(1./3.);
-    R[1]+=(B2+B3+B4)*S3; A[1] = ((B0+2.*B3)+(B5+B6))*(1./3.);
-    R[2]+=(C2+C3+C4)*S3; A[2] = ((C0+2.*C3)+(C5+C6))*(1./3.);
+    R[0]+=(A2+A3+A4)*S3; A[0] = m_tools->isITkGeometry() ? ((A0+2.*A3)+(A5+A6)) : ((A0+2.*A3)+(A5+A6))*(1./3.);
+    R[1]+=(B2+B3+B4)*S3; A[1] = m_tools->isITkGeometry() ? ((B0+2.*B3)+(B5+B6)) : ((B0+2.*B3)+(B5+B6))*(1./3.);
+    R[2]+=(C2+C3+C4)*S3; A[2] = m_tools->isITkGeometry() ? ((C0+2.*C3)+(C5+C6)) : ((C0+2.*C3)+(C5+C6))*(1./3.);
 	
     double D   = 1./sqrt(A[0]*A[0]+A[1]*A[1]+A[2]*A[2]);
     A[0]*=D; A[1]*=D; A[2]*=D;

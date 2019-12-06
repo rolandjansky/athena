@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -239,7 +239,7 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize()
   m_tools.setTools(&(*m_proptool),&(*m_updatortool),riocreator,assoTool,m_fieldService);
   m_tools.setTools(pixcond,sctcond);
   m_tools.setTools(m_pixIdHelper,m_sctIdHelper);
-
+  m_tools.setITkGeometry(m_ITkGeometry);
 
   // Setup callback for magnetic field
   //
@@ -469,6 +469,7 @@ void InDet::SiCombinatorialTrackFinder_xk::newEvent
     m_heavyion = true;
   }
   m_tools.setHeavyIon(m_heavyion);
+  
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -610,12 +611,19 @@ const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracksWi
   if(!m_pix && !m_sct) return m_tracks;
 
   int  FT = findTrack(Tp,Sp,Gp,DE,PT); 
-  if(FT < 4) m_statistic[FT] = 1;
+
+  if(FT < 4){
+    m_statistic[FT] = 1;
+    return m_tracks;
+  }
 
   bool  Q = (FT==5); 
   if(Q) {
     Q = m_trajectory.isNewTrack(PT); 
-    if(!Q) m_statistic[4] = 1;
+    if(!Q) {
+      m_statistic[4] = 1;
+      return m_tracks;
+    }
   }
   else m_statistic[3]=1;
 
