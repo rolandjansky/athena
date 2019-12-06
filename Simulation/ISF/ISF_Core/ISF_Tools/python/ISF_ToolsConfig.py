@@ -137,5 +137,8 @@ def getParticleOrderingTool(name="ISF_ParticleOrderingTool", **kwargs):
     kwargs.setdefault('OrderCavern'      , 1           )
     return CfgMgr.ISF__GenericParticleOrderingTool(name, **kwargs)
 
+def getEnergyParticleOrderingTool(name="ISF_EnergyParticleOrderingTool", **kwargs):
+    return CfgMgr.ISF__EnergyParticleOrderingTool(name, **kwargs)
+
 def getParticleKillerTool(name="ISF_ParticleKillerTool", **kwargs):
     return CfgMgr.ISF__ParticleKillerSimTool(name, **kwargs)
