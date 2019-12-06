@@ -324,9 +324,15 @@ def getKernel_PassBackG4(name="ISF_Kernel_PassBackG4", **kwargs):
 
 ############## Simulator: PassBackG4MT ###############
 def getKernel_PassBackG4MT(name="ISF_Kernel_PassBackG4MT", **kwargs):
-    kwargs.setdefault("SimulationTools", ["ISF_ParticleKillerTool",
-                                          "ISF_PassBackGeant4Tool"])
-    return getKernel_GenericSimulator(name, **kwargs)
+    kwargs.setdefault("BeamPipeSimulationSelectors" , [ 'ISF_PassBackGeant4Selector' ] )
+    kwargs.setdefault("IDSimulationSelectors"       , [ 'ISF_PassBackGeant4Selector' ] )
+    kwargs.setdefault("CaloSimulationSelectors"     , [ 'ISF_PassBackGeant4Selector' ] )
+    kwargs.setdefault("MSSimulationSelectors"       , [ 'ISF_PassBackGeant4Selector' ] )
+    kwargs.setdefault("CavernSimulationSelectors"   , [ 'ISF_DefaultParticleKillerSelector' ] )
+    kwargs.setdefault("SimulationTools"             , [ 'ISF_ParticleKillerTool',
+                                                        'ISF_PassBackGeant4Tool' ] )
+    kwargs.setdefault("ParticleOrderingTool"        , "ISF_EnergyParticleOrderingTool" )
+    return getKernel_GenericSimulatorMT(name, **kwargs)
 
 ############## Simulator: CosmicsG4 ###############
 def getKernel_CosmicsG4(name="ISF_Kernel_CosmicsG4", **kwargs):
