@@ -26,13 +26,13 @@ def makeSequence (dataType, jetContainer="AntiKt4EMPFlowJets") :
 
     # Include, and then set up the jet analysis algorithm sequence:
     from JetAnalysisAlgorithms.JetAnalysisSequence import makeJetAnalysisSequence
-    jetSequence = makeJetAnalysisSequence( dataType, jetContainer )
+    jetSequence = makeJetAnalysisSequence( dataType, jetContainer, enableCutflow=True, enableKinematicHistograms=True )
     jetSequence.configure( inputName = jetContainer, outputName = 'AnalysisJetsBase' )
     print( jetSequence ) # For debugging
 
     # Include, and then set up the jet analysis algorithm sequence:
     from JetAnalysisAlgorithms.JetJvtAnalysisSequence import makeJetJvtAnalysisSequence
-    jvtSequence = makeJetJvtAnalysisSequence( dataType, jetContainer )
+    jvtSequence = makeJetJvtAnalysisSequence( dataType, jetContainer, enableCutflow=True )
     jvtSequence.configure( inputName = { 'eventInfo' : 'EventInfo_%SYS%',
                                          'jets'      : 'AnalysisJetsBase_%SYS%' },
                            outputName = { 'jets'      : 'AnalysisJets_%SYS%' },

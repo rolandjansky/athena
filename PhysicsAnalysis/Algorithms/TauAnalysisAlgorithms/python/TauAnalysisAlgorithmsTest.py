@@ -16,7 +16,8 @@ def makeSequence (dataType) :
 
     # Include, and then set up the tau analysis algorithm sequence:
     from TauAnalysisAlgorithms.TauAnalysisSequence import makeTauAnalysisSequence
-    tauSequence = makeTauAnalysisSequence( dataType, 'Tight', postfix = 'tight' )
+    tauSequence = makeTauAnalysisSequence( dataType, 'Tight', postfix = 'tight',
+                                           enableCutflow=True, enableKinematicHistograms=True )
     tauSequence.configure( inputName = 'TauJets', outputName = 'AnalysisTauJets' )
 
     # Add the sequence to the job:

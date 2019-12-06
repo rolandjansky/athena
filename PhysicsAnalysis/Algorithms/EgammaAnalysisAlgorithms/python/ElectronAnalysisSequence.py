@@ -15,7 +15,9 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
                                   chargeIDSelection = False,
                                   isolationCorrection = False,
                                   crackVeto = False,
-                                  ptSelectionOutput = False ):
+                                  ptSelectionOutput = False,
+                                  enableCutflow = False,
+                                  enableKinematicHistograms = False ):
     """Create an electron analysis algorithm sequence
 
     Keyword arguments:
@@ -35,6 +37,8 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
       crackVeto -- Whether or not to perform eta crack veto
       ptSelectionOutput -- Whether or not to apply pt selection when creating
                            output containers.
+      enableCutflow -- Whether or not to dump the cutflow
+      enableKinematicHistograms -- Whether or not to dump the kinematic histograms
     """
 
     # Make sure we received a valid data type.
@@ -210,23 +214,20 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
     seq.append( alg, inputPropName = 'particles',
                 stageName = 'selection' )
 
-    # Set up an algorithm used for debugging the electron selection:
-    alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg',
-                           'ElectronCutFlowDumperAlg' + postfix )
-    alg.histPattern = 'electron_cflow_%SYS%' + postfix
-    alg.selection = selectionDecorNames[ : ]
-    alg.selectionNCuts = selectionDecorCount[ : ]
-    seq.append( alg, inputPropName = 'input',
-                stageName = 'selection' )
+    # Set up an algorithm used to create electron selection cutflow:
+    if enableCutflow:
+        alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'ElectronCutFlowDumperAlg' + postfix )
+        alg.histPattern = 'electron_cflow_%SYS%' + postfix
+        alg.selection = selectionDecorNames[ : ]
+        alg.selectionNCuts = selectionDecorCount[ : ]
+        seq.append( alg, inputPropName = 'input', stageName = 'selection' )
 
-    # Set up an algorithm dumping the properties of the electrons, for
-    # debugging:
-    alg = createAlgorithm( 'CP::KinematicHistAlg',
-                           'ElectronKinematicDumperAlg' + postfix )
-    alg.preselection = "&&".join (selectionDecorNames)
-    alg.histPattern = 'electron_%VAR%_%SYS%' + postfix
-    seq.append( alg, inputPropName = 'input',
-                stageName = 'selection' )
+    # Set up an algorithm dumping the kinematic properties of the electrons:
+    if enableKinematicHistograms:
+        alg = createAlgorithm( 'CP::KinematicHistAlg', 'ElectronKinematicDumperAlg' + postfix )
+        alg.preselection = "&&".join (selectionDecorNames)
+        alg.histPattern = 'electron_%VAR%_%SYS%' + postfix
+        seq.append( alg, inputPropName = 'input', stageName = 'selection' )
 
     # Set up the output selection
     if shallowViewOutput or deepCopyOutput:
