@@ -43,7 +43,7 @@ namespace EL
     addManager (std::unique_ptr<Manager> manager)
     {
       if (managers.find (manager->getManagerOrder()) != managers.end())
-        throw std::logic_error ("duplicate manager order " + std::to_string (unsigned (manager->getManagerOrder())));
+        throw std::logic_error ("duplicate manager order " + std::to_string (unsigned (manager->getManagerOrder().first)) + " " + manager->getManagerOrder().second);
       managers.insert (std::make_pair (manager->getManagerOrder(), std::move (manager)));
     }
 

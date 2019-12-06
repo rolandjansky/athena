@@ -86,7 +86,7 @@ namespace EL
 
     case Detail::ManagerStep::directSaveOutput:
       {
-        diskOutputSave (data.submitDir, *data.job);
+        diskOutputSave (data);
       }
       break;
 

@@ -22,7 +22,7 @@ namespace EL
     class BaseManager final : public Manager
     {
     public:
-      virtual Detail::ManagerOrder
+      virtual std::pair<Detail::ManagerOrder,std::string>
       getManagerOrder () const noexcept override;
 
     public:

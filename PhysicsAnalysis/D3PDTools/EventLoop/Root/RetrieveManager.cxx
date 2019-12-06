@@ -30,10 +30,10 @@ namespace EL
 {
   namespace Detail
   {
-    Detail::ManagerOrder RetrieveManager ::
+    std::pair<Detail::ManagerOrder,std::string> RetrieveManager ::
     getManagerOrder () const noexcept
     {
-      return ManagerOrder::OPERATION;
+      return std::make_pair (ManagerOrder::OPERATION, "");
     }
 
 
