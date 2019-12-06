@@ -93,7 +93,7 @@ def CSC_DigitizationBasicCfg(flags, **kwargs):
 def CSC_OverlayDigitizationBasicCfg(flags, **kwargs):
     """Return ComponentAccumulator with CSC Overlay digitization"""
     acc = MuonGeoModelCfg(flags)
-    acc.merge(CscCoolStrSvcCfg(flags))
+    acc.merge(CscCondDbAlgCfg(flags))
     if "DigitizationTool" not in kwargs:
         tool = acc.popToolsAndMerge(CSC_OverlayDigitizationToolCfg(flags))
         kwargs["DigitizationTool"] = tool
