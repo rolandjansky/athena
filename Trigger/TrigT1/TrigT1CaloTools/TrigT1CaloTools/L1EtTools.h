@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 ///////////////////////////////////////////////////////////////////
 // L1EtTools.h, 
@@ -20,7 +20,7 @@
 #include "TrigT1CaloUtils/CrateEnergy.h"
 #include "TrigT1CaloUtils/SystemEnergy.h"
 #include "TrigT1CaloEvent/EnergyCMXData.h"
-#include "TrigConfInterfaces/ITrigConfigSvc.h"
+#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 namespace LVL1 
 {
@@ -106,7 +106,7 @@ namespace LVL1
       std::map<int, int>* m_TEMasks;
       
       /** pointer to LVL1ConfigSvc */
-      ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;
+      ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
 
     };
 } // end of namespace

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 ///////////////////////////////////////////////////////////////////
 // L1JEMJetTools.cxx,  
@@ -23,7 +23,7 @@ L1JEMJetTools::L1JEMJetTools(const std::string& t,
 			  const IInterface*  p )
   :
   AthAlgTool(t,n,p),
-  m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", n),
+  m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", n),
   m_RoI(0)
 {
   declareInterface<IL1JEMJetTools>(this);
