@@ -1,6 +1,8 @@
 #====================================================================
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#====================================================================
 # IDTIDE1.py
-# Contact: bnachman@cern.ch
+# Contact: atlas-cp-tracking-denseenvironments@cern.ch
 # 
 # Caveat: This is still under development.
 #       - storing strategy: so far use AddItem() method. But in future,
