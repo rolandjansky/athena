@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "G4UserActions/RadiationMapsMaker.h"
@@ -114,6 +114,12 @@ namespace G4UA{
       m_full_rz_tid_time [i] += maps.m_full_rz_tid_time [i];
     }
     
+    // all element fraction 2d vectors have same size
+    for(unsigned int i=0;i<maps.m_rz_element.size();i++) {
+      m_rz_element     [i] += maps.m_rz_element     [i];
+      m_full_rz_element[i] += maps.m_full_rz_element[i];
+    }
+
     for(unsigned int i=0;i<maps.m_3d_vol.size();i++) {
       // need volume fraction only if particular material is selected
       m_3d_vol [i] += maps.m_3d_vol [i];
@@ -170,6 +176,9 @@ namespace G4UA{
     m_maps.m_rz_tid_time      .resize(0);
     m_maps.m_full_rz_tid_time .resize(0);
 
+    m_maps.m_rz_element       .resize(0);
+    m_maps.m_full_rz_element  .resize(0);
+
     m_maps.m_rz_neut_spec     .resize(0);
     m_maps.m_full_rz_neut_spec.resize(0);
     m_maps.m_rz_gamm_spec     .resize(0);
@@ -220,6 +229,9 @@ namespace G4UA{
 
     m_maps.m_rz_tid_time      .resize(m_config.nBinsz*m_config.nBinsr*m_config.nBinslogT,0.0);
     m_maps.m_full_rz_tid_time .resize(m_config.nBinsz*m_config.nBinsr*m_config.nBinslogT,0.0);
+
+    m_maps.m_rz_element       .resize(m_config.nBinsz*m_config.nBinsr*(m_config.elemZMax-m_config.elemZMin+1),0.0);
+    m_maps.m_full_rz_element  .resize(m_config.nBinsz*m_config.nBinsr*(m_config.elemZMax-m_config.elemZMin+1),0.0);
 
     m_maps.m_rz_neut_spec     .resize(m_config.nBinsz*m_config.nBinsr*m_config.nBinslogEn,0.0);
     m_maps.m_full_rz_neut_spec.resize(m_config.nBinsz*m_config.nBinsr*m_config.nBinslogEn,0.0);
@@ -352,6 +364,8 @@ namespace G4UA{
       double absq = fabs(aStep->GetTrack()->GetDefinition()->GetPDGCharge());
     
       double rho = aStep->GetTrack()->GetMaterial()->GetDensity()/CLHEP::g*CLHEP::cm3; 
+
+      const G4Material * theMaterial = aStep->GetTrack()->GetMaterial();
 
       // get time of step as average between pre- and post-step point
       G4StepPoint* pre_step_point = aStep->GetPreStepPoint();
@@ -542,10 +556,28 @@ namespace G4UA{
 	  if ( pdgid == 999 ) {
 	    m_maps.m_rz_tid [vBinZoom] += dl;
 	    m_maps.m_rz_eion[vBinZoom] += rho*dl;
+	    for (size_t ie=0;ie<theMaterial->GetNumberOfElements();ie++ ) {
+	      const G4Element * theElement = theMaterial->GetElement (ie);
+	      const double mFrac = theMaterial->GetFractionVector()[ie];
+	      const int zElem = theElement->GetZ();
+	      if ( zElem >= m_config.elemZMin && 
+		   zElem <= m_config.elemZMax) {
+		m_maps.m_rz_element[vBinZoom*(m_config.elemZMax-m_config.elemZMin+1)+zElem-m_config.elemZMin] += rho*dl*mFrac;
+	      }
+	    }
 	  }
 	  else {
 	    m_maps.m_rz_tid [vBinZoom] += dE_ION/rho;
 	    m_maps.m_rz_eion[vBinZoom] += dE_ION;
+	    for (size_t ie=0;ie<theMaterial->GetNumberOfElements();ie++ ) {
+	      const G4Element * theElement = theMaterial->GetElement (ie);
+	      const double mFrac = theMaterial->GetFractionVector()[ie];
+	      const int zElem = theElement->GetZ();
+	      if ( zElem >= m_config.elemZMin && 
+		   zElem <= m_config.elemZMax) {
+		m_maps.m_rz_element[vBinZoom*(m_config.elemZMax-m_config.elemZMin+1)+zElem-m_config.elemZMin] += dE_ION*mFrac;
+	      }
+	    }
 	  }
 	}
 	if ( goodMaterial && vBinZoomTime >=0 ) {
@@ -555,10 +587,28 @@ namespace G4UA{
 	  if ( pdgid == 999 ) {
 	    m_maps.m_full_rz_tid [vBinFull] += dl;
 	    m_maps.m_full_rz_eion[vBinFull] += rho*dl;
+	    for (size_t ie=0;ie<theMaterial->GetNumberOfElements();ie++ ) {
+	      const G4Element * theElement = theMaterial->GetElement (ie);
+	      const double mFrac = theMaterial->GetFractionVector()[ie];
+	      const int zElem = theElement->GetZ();
+	      if ( zElem >= m_config.elemZMin && 
+		   zElem <= m_config.elemZMax) {
+		m_maps.m_full_rz_element[vBinFull*(m_config.elemZMax-m_config.elemZMin+1)+zElem-m_config.elemZMin] += rho*dl*mFrac;
+	      }
+	    }
 	  }
 	  else {
 	    m_maps.m_full_rz_tid [vBinFull] += dE_ION/rho;
 	    m_maps.m_full_rz_eion[vBinFull] += dE_ION;
+	    for (size_t ie=0;ie<theMaterial->GetNumberOfElements();ie++ ) {
+	      const G4Element * theElement = theMaterial->GetElement (ie);
+	      const double mFrac = theMaterial->GetFractionVector()[ie];
+	      const int zElem = theElement->GetZ();
+	      if ( zElem >= m_config.elemZMin && 
+		   zElem <= m_config.elemZMax) {
+		m_maps.m_full_rz_element[vBinFull*(m_config.elemZMax-m_config.elemZMin+1)+zElem-m_config.elemZMin] += dE_ION*mFrac;
+	      }
+	    }
 	  }
 	}
 	if ( goodMaterial && vBinFullTime >=0 ) {
