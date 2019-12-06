@@ -239,9 +239,10 @@ StatusCode TRTDigitizationTool::processBunchXing(int bunchXing,
 //_____________________________________________________________________________
 StatusCode TRTDigitizationTool::lateInitialize(CLHEP::HepRandomEngine* noiseRndmEngine,
                                                CLHEP::HepRandomEngine* elecNoiseRndmEngine,
-                                               CLHEP::HepRandomEngine* elecProcRndmEngine,
-                                               CLHEP::HepRandomEngine* fakeCondRndmEngine) {
+                                               CLHEP::HepRandomEngine* elecProcRndmEngine) {
 
+  // setup the RNGs which are constant for each event
+  CLHEP::HepRandomEngine *fakeCondRndmEngine = getRandomEngine("TRT_FakeConditions", m_randomSeedOffset);
   m_first_event=false;
 
   if (m_condDBdigverfoldersexists) {
@@ -464,9 +465,6 @@ StatusCode TRTDigitizationTool::processAllSubEvents() {
 
   // Set the RNGs to use for this event.
   CLHEP::HepRandomEngine *rndmEngine = getRandomEngine("");
-  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this, "TRT_FakeConditions");
-  rngWrapper->setSeed( "TRT_FakeConditions", Gaudi::Hive::currentContext() );
-  CLHEP::HepRandomEngine *fakeCondRndmEngine = *rngWrapper;
   CLHEP::HepRandomEngine *elecNoiseRndmEngine = getRandomEngine("TRT_ElectronicsNoise");
   CLHEP::HepRandomEngine *noiseRndmEngine = getRandomEngine("TRT_Noise");
   CLHEP::HepRandomEngine *strawRndmEngine = getRandomEngine("TRT_ProcessStraw");
@@ -474,7 +472,7 @@ StatusCode TRTDigitizationTool::processAllSubEvents() {
   CLHEP::HepRandomEngine *paiRndmEngine = getRandomEngine("TRT_PAI");
 
   if (m_first_event) {
-    if(this->lateInitialize(noiseRndmEngine,elecNoiseRndmEngine,elecProcRndmEngine,fakeCondRndmEngine).isFailure()) {
+    if(this->lateInitialize(noiseRndmEngine,elecNoiseRndmEngine,elecProcRndmEngine).isFailure()) {
       ATH_MSG_FATAL ( "lateInitialize method failed!" );
       return StatusCode::FAILURE;
     }
@@ -595,6 +593,15 @@ CLHEP::HepRandomEngine* TRTDigitizationTool::getRandomEngine(const std::string& 
 }
 
 //_____________________________________________________________________________
+CLHEP::HepRandomEngine* TRTDigitizationTool::getRandomEngine(const std::string& streamName, unsigned long int randomSeedOffset) const
+{
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this, streamName);
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  rngWrapper->setSeed( streamName, ctx.slot(), randomSeedOffset, ctx.eventID().run_number() );
+  return *rngWrapper;
+}
+
+//_____________________________________________________________________________
 StatusCode TRTDigitizationTool::mergeEvent() {
   std::vector<std::pair<unsigned int, int> >::iterator ii(m_seen.begin());
   std::vector<std::pair<unsigned int, int> >::iterator ee(m_seen.end());
@@ -605,9 +612,6 @@ StatusCode TRTDigitizationTool::mergeEvent() {
 
   // Set the RNGs to use for this event.
   CLHEP::HepRandomEngine *rndmEngine = getRandomEngine("");
-  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this, "TRT_FakeConditions");
-  rngWrapper->setSeed( "TRT_FakeConditions", Gaudi::Hive::currentContext() );
-  CLHEP::HepRandomEngine *fakeCondRndmEngine = *rngWrapper;
   CLHEP::HepRandomEngine *elecNoiseRndmEngine = getRandomEngine("TRT_ElectronicsNoise");
   CLHEP::HepRandomEngine *noiseRndmEngine = getRandomEngine("TRT_Noise");
   CLHEP::HepRandomEngine *strawRndmEngine = getRandomEngine("TRT_ProcessStraw");
@@ -615,7 +619,7 @@ StatusCode TRTDigitizationTool::mergeEvent() {
   CLHEP::HepRandomEngine *paiRndmEngine = getRandomEngine("TRT_PAI");
 
   if (m_first_event) {
-    if(this->lateInitialize(noiseRndmEngine,elecNoiseRndmEngine,elecProcRndmEngine,fakeCondRndmEngine).isFailure()) {
+    if(this->lateInitialize(noiseRndmEngine,elecNoiseRndmEngine,elecProcRndmEngine).isFailure()) {
       ATH_MSG_FATAL ( "lateInitialize method failed!" );
       return StatusCode::FAILURE;
     }
