@@ -16,6 +16,10 @@ TrigSignatureMoniMT                                INFO HLT_2mu10_bUpsimumu_L12M
 TrigSignatureMoniMT                                INFO HLT_2mu10_bUpsimumu_L12MU10 decisions                    18        0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_2mu14_L12MU10             3         3         3         1         1         1         0         0         1
 TrigSignatureMoniMT                                INFO HLT_2mu14_L12MU10 decisions                       18        6         4         4         0         0
+TrigSignatureMoniMT                                INFO HLT_2mu4_bJpsimumu_L12MU4     4         4         4         2         1         1         1         0         1
+TrigSignatureMoniMT                                INFO HLT_2mu4_bJpsimumu_L12MU4 decisions                    24        4         6         6         1         0
+TrigSignatureMoniMT                                INFO HLT_2mu4_bUpsimumu_L12MU4     4         4         4         1         0         0         0         0         0
+TrigSignatureMoniMT                                INFO HLT_2mu4_bUpsimumu_L12MU4 decisions                    24        1         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_2mu6Comb_L12MU6           4         4         4         1         0         0         0         0         1
 TrigSignatureMoniMT                                INFO HLT_2mu6Comb_L12MU6 decisions                     24        6         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_2mu6_10invm70_L1MU6       10        10        4         1         1         1         1         0         1
