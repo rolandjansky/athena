@@ -5,7 +5,6 @@
 #/** @file post.sh
 # @brief sh script that check the return code of an executable and compares
 # its output with a reference (if available).
-# @param test_name
 #
 # @author Scott Snyder <snyder@fnal.gov> - ATLAS Collaboration.
 # @author Paolo Calafiura <pcalafiura@lbl.gov> - ATLAS Collaboration.
@@ -263,17 +262,13 @@ else
          echo "$GREEN post.sh> OK: ${test} exited normally. Output is in $joblog $RESET"
        fi
        reflog=../share/${test}.ref
-       if [ "$reflog_location" != "" ]; then
-         reflog=$reflog_location/${test}.ref
-       fi
 
        # If we can't find the reference file, maybe it's located outside
        # the repo.  With the switch to git, we have to fall back
        # to handling the versioning manually.
        # ATLAS_REFERENCE_TAG should be a string of the form PACKAGE/VERSION.
        # We first look for it in DATAPATH.  If we don't find it,
-       # we then look under ATLAS_REFERENCE_DATA, which falls back
-       # to an afs path if it's not found.
+       # we then look under ATLAS_REFERENCE_DATA.
        if [ \( ! -r $reflog \) -a "$ATLAS_REFERENCE_TAG" != "" ]; then
            # Look for the file in DATAPATH.
            # We have to look for the directory, not the file itself,
@@ -282,29 +277,21 @@ else
            get_files -data -symlink $ATLAS_REFERENCE_TAG > /dev/null
            reflog=`basename $ATLAS_REFERENCE_TAG`/${test}.ref
            if [ ! -r $reflog ]; then
-               testdata=$ATLAS_REFERENCE_DATA
-               if [ "$testdata" = "" ]; then
-                   testdata=/afs/cern.ch/atlas/maxidisk/d33/referencefiles
-               fi
-               reflog=$testdata/$ATLAS_REFERENCE_TAG/${test}.ref
+               reflog=${ATLAS_REFERENCE_DATA}/${ATLAS_REFERENCE_TAG}/${test}.ref
            fi
        fi
 
        if [ -r $reflog ]; then
-	       jobrep=${joblog}-rep
-	       sed -r "$II" $joblog > $jobrep
-	       refrep=`basename ${reflog}`-rep
-	       sed -r "$II" $reflog > $refrep
            jobdiff=${joblog}-todiff
            refdiff=`basename ${reflog}`-todiff
 
            # We either exclude or select lines for the diff
            if [ -z "$selectpatterns" ]; then
-               egrep -a -v "$PP" < $jobrep > $jobdiff
-               egrep -a -v "$PP" < $refrep > $refdiff
+               sed -r "$II" $joblog | egrep -a -v "$PP" > $jobdiff
+               sed -r "$II" $reflog | egrep -a -v "$PP" > $refdiff
            else
-               egrep -a "$selectpatterns" < $jobrep > $jobdiff
-               egrep -a "$selectpatterns" < $refrep > $refdiff
+               sed -r "$II" $joblog | egrep -a "$selectpatterns" > $jobdiff
+               sed -r "$II" $reflog | egrep -a "$selectpatterns" > $refdiff
            fi
            diff -a -b -E -B -u $jobdiff $refdiff
            diffStatus=$?
