@@ -22,15 +22,14 @@ template<typename T,int Alignment>
  * aligned according to Alignment i.e the storage starts at an adrress 
  * that should be divisible with Alignment 
  *
- * This is usefull for arrays of simple types like 
- *
+ * This is usefull for arrays of simple types like int,float,double
  *  
  * Notes :
  * For fixed size buffers i.e when the size is known at runtime prefer : 
  * std::aligned_storage/std::align
  *
- *  In principle in C++17 the call to posix_memalign and the placement new can be avoided 
- *  in favour of the "new operator" alignment aware overloads. Needs some checking on library support.
+ *  In principle in C++17 the call to posix_memalign can be avoided 
+ *  in favour of tne over-aligned operator new
  */
 
 class AlignedDynArray
@@ -39,10 +38,10 @@ public:
   AlignedDynArray() = delete;
   AlignedDynArray(AlignedDynArray const&) = delete;
   AlignedDynArray& operator=(AlignedDynArray const&) = delete;
-  AlignedDynArray(AlignedDynArray&&) = delete;
-  AlignedDynArray& operator=(AlignedDynArray&&) = delete;
-
+ 
   explicit AlignedDynArray(size_t n);
+  AlignedDynArray(AlignedDynArray&&);
+  AlignedDynArray& operator=(AlignedDynArray&&);
   ~AlignedDynArray();
 
   ///conversions to T*
@@ -57,9 +56,10 @@ public:
   std::size_t size() const;
 
 private:
+  void cleanup();
   T*  m_buffer=nullptr;
   void* m_raw=nullptr;
-  size_t const m_size=0;
+  size_t m_size=0;
 }; 
 
 
@@ -68,7 +68,24 @@ inline
 AlignedDynArray<T,Alignment>::AlignedDynArray(size_t n): m_buffer(nullptr), 
                                             m_raw(nullptr),
                                             m_size(n){
-  size_t const size = n * sizeof(T) +alignof(T) ;
+ 
+  /*
+   * posix_memaling:
+   * "The address of the allocated memory will be a multiple of alignment, which must be a
+   * power of two and a multiple of sizeof(void *)"
+   *
+   * Promote to static assert alongside checking that we actually need/do
+   * over-aligned allocation
+   */
+
+  static_assert(Alignment>alignof(T) ,
+                "Required alignment needs to be greater than the alignment requirements for T");
+  static_assert((Alignment&2)==0 ,
+                "Required alignement needs to be multiple of 2");
+  static_assert((Alignment&sizeof(void *))==0 ,
+                "Required alignement needs to be multiple of sizeof(void *)");  
+ 
+  size_t const size = n * sizeof(T) ;
   //create buffer of right size,properly aligned
   posix_memalign(&m_raw, Alignment, size);
   //placement new of elements to the buffer
@@ -77,11 +94,43 @@ AlignedDynArray<T,Alignment>::AlignedDynArray(size_t n): m_buffer(nullptr),
 
 template<typename T, int Alignment>
 inline  
-AlignedDynArray<T,Alignment>::~AlignedDynArray(){
-  for (std::size_t pos = 0; pos < m_size; ++pos) {
-    m_buffer[pos].~T();
+AlignedDynArray<T,Alignment>::AlignedDynArray(AlignedDynArray&& other):m_buffer(nullptr), 
+                                                                      m_raw(nullptr),
+                                                                      m_size(0){
+  //copy over other
+  m_buffer = other.m_buffer;
+  m_raw = other.m_raw;
+  m_size = other.m_size;
+  //set other to invalid
+  other.m_buffer=nullptr; 
+  other.m_raw=nullptr;
+  other.m_size=0; 
+}
+
+template<typename T, int Alignment>
+inline  
+AlignedDynArray<T,Alignment>& 
+AlignedDynArray<T,Alignment>::operator=(AlignedDynArray&& other){ 
+      
+  if (this != &other){
+    //cleanup this object
+    cleanup();
+    //copy over other
+    m_buffer = other.m_buffer;
+    m_raw = other.m_raw;
+    m_size = other.m_size;
+    //set other to invalid
+    other.m_buffer=nullptr; 
+    other.m_raw=nullptr;
+    other.m_size=0; 
   }
-  free(m_buffer);
+  return *this;
+}
+
+template<typename T, int Alignment>
+inline  
+AlignedDynArray<T,Alignment>::~AlignedDynArray(){
+  cleanup();
 }
 
 template<typename T, int Alignment>
@@ -103,6 +152,17 @@ const T& AlignedDynArray<T,Alignment>::operator[] (const std::size_t pos) const 
 template<typename T, int Alignment>
 inline  
 std::size_t AlignedDynArray<T,Alignment>::size() const {return m_size;}
+
+template<typename T, int Alignment>
+inline  
+void AlignedDynArray<T,Alignment>::cleanup() {
+  if(m_buffer){
+    for (std::size_t pos = 0; pos < m_size; ++pos) {
+      m_buffer[pos].~T();
+    }
+    free(m_buffer);
+  }
+}
 
 }//namespace GSFUtils
 
