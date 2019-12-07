@@ -31,6 +31,9 @@
 // Muon EDM
 #include "xAODMuon/MuonContainer.h"
 
+// Truth particles
+#include "xAODTruth/TruthParticle.h"
+
 // Tools
 #include "JetResolution/IJERTool.h"
 #include "JetCalibTools/JetCalibrationTool.h"
@@ -71,8 +74,7 @@ namespace met {
     static SG::AuxElement::ConstAccessor<float> acc_jvt("Jvt");
     static SG::AuxElement::ConstAccessor<float> acc_fjvt("fJvt");
 
-  static const SG::AuxElement::ConstAccessor< std::vector<iplink_t > > dec_constitObjLinks("ConstitObjectLinks");
-
+    static const SG::AuxElement::ConstAccessor< std::vector<iplink_t > > dec_constitObjLinks("ConstitObjectLinks");
     const static MissingETBase::Types::bitmask_t invisSource = 0x100000; // doesn't overlap with any other
 
     ///////////////////////////////////////////////////////////////////
@@ -314,7 +316,12 @@ namespace met {
 	for(const auto& el : dec_constitObjLinks(*met)) {
 	  const IParticle* obj(*el);
 	  float pt_reso=0.0, phi_reso=0.0;
-	  if(obj->type()==xAOD::Type::Muon){
+	  if(!obj){
+	    ATH_MSG_ERROR("Particle pointer is not valid. This will likely result in a crash " << obj);
+	    return StatusCode::FAILURE;
+	  }
+	  ATH_MSG_VERBOSE("pT: " << obj->pt() << " type: " << obj->type() << " truth: " << (obj->type()==xAOD::Type::TruthParticle));
+	  if(obj->type()==xAOD::Type::Muon || (obj->type()==xAOD::Type::TruthParticle && fabs(static_cast<const xAOD::TruthParticle*>(obj)->pdgId())==13)){
 	    ATH_CHECK(AddMuon(obj, pt_reso, phi_reso, avgmu));
 	    metTerm=4;
 	  }else if(obj->type()==xAOD::Type::Jet){
@@ -324,13 +331,13 @@ namespace met {
 
 	    ATH_CHECK(AddJet(obj, pt_reso, phi_reso, avgmu));
 	    metTerm=1;
-	  }else if(obj->type()==xAOD::Type::Electron){
+	  }else if(obj->type()==xAOD::Type::Electron || (obj->type()==xAOD::Type::TruthParticle && fabs(static_cast<const xAOD::TruthParticle*>(obj)->pdgId())==11)){
 	    ATH_CHECK(AddElectron(obj, pt_reso, phi_reso, avgmu));
 	    metTerm=3;
-	  }else if(obj->type()==xAOD::Type::Photon){
-	    AddPhoton(obj, pt_reso, phi_reso);
+	  }else if(obj->type()==xAOD::Type::Photon || (obj->type()==xAOD::Type::TruthParticle && fabs(static_cast<const xAOD::TruthParticle*>(obj)->pdgId())==22)){
+	    ATH_CHECK(AddPhoton(obj, pt_reso, phi_reso));
 	    metTerm=5;
-	  }else if(obj->type()==xAOD::Type::Tau){
+	  }else if(obj->type()==xAOD::Type::Tau || (obj->type()==xAOD::Type::TruthParticle && fabs(static_cast<const xAOD::TruthParticle*>(obj)->pdgId())==15)){
 	    AddTau(obj, pt_reso, phi_reso);
 	    metTerm=6;
 	  }
@@ -491,33 +498,42 @@ namespace met {
   // Muon propagation of resolution
   //
   StatusCode METSignificance::AddMuon(const xAOD::IParticle* obj, float &pt_reso, float &phi_reso, float avgmu){
-    const xAOD::Muon* muon(static_cast<const xAOD::Muon*>(obj));
-
     int dettype = 0;
-    if(muon->muonType()==0){//Combined
-      dettype=3;//CB
-    }
-    else if(muon->muonType()==1){//MuonStandAlone
-      dettype=1;//MS
-    }
-    else if(muon->muonType()>1){//Segment, Calo, Silicon
-      dettype=2;//ID
-    }
-    else{
-      ATH_MSG_VERBOSE("This muon had none of the normal muon types (ID,MS,CB) - check this in detail");
-      return StatusCode::FAILURE;
-    }
-
-    pt_reso=m_muonCalibrationAndSmearingTool->expectedResolution(dettype,*muon,!m_isDataMuon);
-    if(m_doPhiReso) phi_reso = muon->pt()*0.001;
-    ATH_MSG_VERBOSE("muon: " << pt_reso << " dettype: " << dettype << " " << muon->pt() << " " << muon->p4().Eta() << " " << muon->p4().Phi());
-
-    // run the jet resolution for muons. for validation region extrapolation
     bool DoEMuReso = false;
-    if(m_EMuResoAux!=""){
-      static SG::AuxElement::Accessor<bool> acc_EMReso(m_EMuResoAux);
-      DoEMuReso = acc_EMReso.isAvailable(*muon) ? acc_EMReso(*muon) : false;
-    }
+    ATH_MSG_VERBOSE("Particle type: " << obj->type());
+    if(obj->type()==xAOD::Type::TruthParticle){
+      pt_reso =0.01;
+      if(obj->pt()>0.5e6) pt_reso=0.03;
+      if(obj->pt()>1.0e6) pt_reso=0.1;// this is just a rough estimate for the time being until the interface can handle truth muons
+    }else{
+      const xAOD::Muon* muon(static_cast<const xAOD::Muon*>(obj));
+      if(muon->muonType()==0){//Combined
+	dettype=3;//CB
+      }
+      else if(muon->muonType()==1){//MuonStandAlone
+	dettype=1;//MS
+      }
+      else if(muon->muonType()>1){//Segment, Calo, Silicon
+	dettype=2;//ID
+      }
+      else{
+	ATH_MSG_VERBOSE("This muon had none of the normal muon types (ID,MS,CB) - check this in detail");
+	return StatusCode::FAILURE;
+      }
+      
+      pt_reso=m_muonCalibrationAndSmearingTool->expectedResolution(dettype,*muon,!m_isDataMuon);
+      if(m_doPhiReso) phi_reso = muon->pt()*0.001;
+      // run the jet resolution for muons. for validation region extrapolation
+      if(m_EMuResoAux!=""){
+	SG::AuxElement::ConstAccessor<bool>  acc_EMReso(m_EMuResoAux);
+	DoEMuReso = acc_EMReso.isAvailable(*muon) ? acc_EMReso(*muon) : false;
+      }
+      ATH_MSG_VERBOSE("muon: " << pt_reso << " dettype: " << dettype << " " << muon->pt() << " " << muon->p4().Eta() << " " << muon->p4().Phi());
+    }// end reco setup
+    
+    // Common setup
+    if(m_doPhiReso) phi_reso = obj->pt()*0.001;
+    ATH_MSG_VERBOSE("muon: " << pt_reso << " dettype: " << dettype << " " << obj->pt() << " " << obj->p4().Eta() << " " << obj->p4().Phi());
 
     if(m_jerForEMu || DoEMuReso){
       bool treatPUJets = m_treatPUJets;
@@ -534,17 +550,22 @@ namespace met {
   //
   StatusCode METSignificance::AddElectron(const xAOD::IParticle* obj, float &pt_reso, float &phi_reso, float avgmu){
 
-    const xAOD::Electron* ele(static_cast<const xAOD::Electron*>(obj));
-    const auto cl_etaCalo = xAOD::get_eta_calo(*(ele->caloCluster()), ele->author());
-    pt_reso=m_egammaCalibTool->resolution(ele->e(),ele->caloCluster()->eta(),cl_etaCalo,PATCore::ParticleType::Electron);
-    if(m_doPhiReso) phi_reso = ele->pt()*0.004;
-    ATH_MSG_VERBOSE("el: " << pt_reso << " " << ele->pt() << " " << ele->p4().Eta() << " " << ele->p4().Phi());
-
-    // run the jet resolution for muons. for validation region extrapolation
     bool DoEMuReso = false;
-    if(m_EMuResoAux!=""){
-      static SG::AuxElement::Accessor<bool> acc_EMReso(m_EMuResoAux);
-      DoEMuReso = acc_EMReso.isAvailable(*ele) ? acc_EMReso(*ele) : false;
+    if(obj->type()==xAOD::Type::TruthParticle){
+      pt_reso=m_egammaCalibTool->resolution(obj->e(),obj->eta(),obj->eta(),PATCore::ParticleType::Electron);
+      if(m_doPhiReso) phi_reso = obj->pt()*0.004;
+    }else{
+      const xAOD::Electron* ele(static_cast<const xAOD::Electron*>(obj));
+      const auto cl_etaCalo = xAOD::get_eta_calo(*(ele->caloCluster()), ele->author());
+      pt_reso=m_egammaCalibTool->resolution(ele->e(),ele->caloCluster()->eta(),cl_etaCalo,PATCore::ParticleType::Electron);
+      if(m_doPhiReso) phi_reso = ele->pt()*0.004;
+      ATH_MSG_VERBOSE("el: " << pt_reso << " " << ele->pt() << " " << ele->p4().Eta() << " " << ele->p4().Phi());
+
+      // run the jet resolution for muons. for validation region extrapolation
+      if(m_EMuResoAux!=""){
+	SG::AuxElement::ConstAccessor<bool>  acc_EMReso(m_EMuResoAux);
+	DoEMuReso = acc_EMReso.isAvailable(*ele) ? acc_EMReso(*ele) : false;
+      }
     }
 
     if(m_jerForEMu || DoEMuReso){
@@ -559,13 +580,19 @@ namespace met {
   //
   // Photon propagation of resolution
   //
-  void METSignificance::AddPhoton(const xAOD::IParticle* obj, float &pt_reso, float &phi_reso){
+  StatusCode METSignificance::AddPhoton(const xAOD::IParticle* obj, float &pt_reso, float &phi_reso){
 
     // photons
-    const xAOD::Egamma* pho(static_cast<const xAOD::Egamma*>(obj));
-    pt_reso=m_egammaCalibTool->getResolution(*pho);
-    if(m_doPhiReso) phi_reso = pho->pt()*0.004;
-    ATH_MSG_VERBOSE("pho: " << pt_reso << " " << pho->pt() << " " << pho->p4().Eta() << " " << pho->p4().Phi());
+    if(obj->type()==xAOD::Type::TruthParticle){
+      pt_reso=m_egammaCalibTool->resolution(obj->e(),obj->eta(),obj->eta(),PATCore::ParticleType::Electron); // leaving as an electron for the truth implementation rather than declaring a reco photon
+      if(m_doPhiReso) phi_reso = obj->pt()*0.004;
+    }else{
+      const xAOD::Egamma* pho(static_cast<const xAOD::Egamma*>(obj));
+      pt_reso=m_egammaCalibTool->getResolution(*pho);
+      if(m_doPhiReso) phi_reso = pho->pt()*0.004;
+      ATH_MSG_VERBOSE("pho: " << pt_reso << " " << pho->pt() << " " << pho->p4().Eta() << " " << pho->p4().Phi());
+    }
+    return StatusCode::SUCCESS;
   }
 
   //
@@ -612,7 +639,7 @@ namespace met {
     // Add user defined additional resolutions. For example, b-tagged jets
     //
     if(m_JetResoAux!=""){
-      static SG::AuxElement::Accessor<float> acc_extra(m_JetResoAux);
+      SG::AuxElement::ConstAccessor<float> acc_extra(m_JetResoAux);
       if(acc_extra.isAvailable(*jet)){
 	float extra_relative_pt_reso = acc_extra(*jet);
 	pt_reso = sqrt(pt_reso*pt_reso + extra_relative_pt_reso*extra_relative_pt_reso);
@@ -628,12 +655,17 @@ namespace met {
   void METSignificance::AddTau(const xAOD::IParticle* obj, float &pt_reso, float &phi_reso){
 
     // tau objects
-    const xAOD::TauJet* tau(static_cast<const xAOD::TauJet*>(obj));
-    pt_reso = dynamic_cast<CombinedP4FromRecoTaus*>(m_tCombinedP4FromRecoTaus.get())->GetCaloResolution(tau);
-    //for taus, this is not a relative resolution. so we divide by pT
-    pt_reso /=tau->pt();
-    if(m_doPhiReso) phi_reso = tau->pt()*0.01;
-    ATH_MSG_VERBOSE("tau: " << pt_reso << " " << tau->pt() << " " << tau->p4().Eta() << " " << tau->p4().Phi() << " phi reso: " << phi_reso);
+    if(obj->type()==xAOD::Type::TruthParticle){
+      pt_reso= 0.1;
+      if(m_doPhiReso) phi_reso = obj->pt()*0.01;
+    }else{
+      const xAOD::TauJet* tau(static_cast<const xAOD::TauJet*>(obj));
+      pt_reso = dynamic_cast<CombinedP4FromRecoTaus*>(m_tCombinedP4FromRecoTaus.get())->GetCaloResolution(tau);
+      //for taus, this is not a relative resolution. so we divide by pT
+      pt_reso /=tau->pt();
+      if(m_doPhiReso) phi_reso = tau->pt()*0.01;
+      ATH_MSG_VERBOSE("tau: " << pt_reso << " " << tau->pt() << " " << tau->p4().Eta() << " " << tau->p4().Phi() << " phi reso: " << phi_reso);
+    }
   }
 
   //
