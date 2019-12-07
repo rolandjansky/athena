@@ -298,6 +298,7 @@ bool SiTrkAlignDBTool::checkPixelLevel()
   switch(m_pixelAlignLevelBarrel) {
     case 11: case 12: case 15: case 16: case 2: case 22: case 26: case 27: case 3:
       ok = true;
+      msg(MSG::INFO)<<" -- SALVA -- Storing alignment constants for m_pixelAlignLevelBarrel as level "<< m_pixelAlignLevelBarrel  <<endreq;
       break;
     default:
       msg(MSG::ERROR)<<" Storing of alignment constants for level "<<m_pixelAlignLevelBarrel<<" for Pixel Barrel is not implemented."<<endreq;
@@ -334,25 +335,25 @@ bool SiTrkAlignDBTool::checkSCTLevel()
   bool ok = false;
 
   switch(m_sctAlignLevelBarrel) {
-    case 1: case 2: case 27: case 3:
-      ok = true;
-      break;
-    default:
-      msg(MSG::ERROR)<<" Storing of alignment constants for level "<<m_sctAlignLevelBarrel<<" for SCT Barrel is not implemented."<<endreq;
-      m_sctAlignLevelBarrel = -1;
-      ok = false;
-      break;
+  case 1: case 2: case 25: case 27: case 3:
+    ok = true;
+    break;
+  default:
+    msg(MSG::ERROR)<<" SiTrkAlignDBTool-> Storing of alignment constants for level "<<m_sctAlignLevelBarrel<<" for SCT Barrel is not implemented."<<endreq;
+    m_sctAlignLevelBarrel = -1;
+    ok = false;
+    break;
   }
 
   switch(m_sctAlignLevelEndcaps) {
-    case 1: case 2: case 25: case 3:
-      ok = ok && true;
-      break;
-    default:
-      msg(MSG::ERROR)<<" Storing of alignment constants for level "<<m_sctAlignLevelEndcaps<<" for SCT Endcaps is not implemented."<<endreq;
-      m_sctAlignLevelEndcaps = -1;
-      ok = false;
-      break;
+  case 1: case 2: case 25: case 3:
+    ok = ok && true;
+    break;
+  default:
+    msg(MSG::ERROR)<<" SiTrkAlignDBTool-> Storing of alignment constants for level "<<m_sctAlignLevelEndcaps<<" for SCT Endcaps is not implemented."<<endreq;
+    m_sctAlignLevelEndcaps = -1;
+    ok = false;
+    break;
   }
 
   return ok;
