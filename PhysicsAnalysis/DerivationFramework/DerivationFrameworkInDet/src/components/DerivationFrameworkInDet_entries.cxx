@@ -23,6 +23,7 @@
 #include "DerivationFrameworkInDet/VsiTrackThinningTool.h"
 #include "DerivationFrameworkInDet/PixeldEdxTrackParticleThinning.h"
 #include "DerivationFrameworkInDet/VertexParticleThinning.h"
+#include "../VertexThinning.h"
 
 using namespace DerivationFramework;
 
@@ -50,7 +51,7 @@ DECLARE_TOOL_FACTORY( UFOTrackParticleThinning )
 DECLARE_TOOL_FACTORY( VsiTrackThinningTool )
 DECLARE_TOOL_FACTORY( PixeldEdxTrackParticleThinning )
 DECLARE_TOOL_FACTORY( VertexParticleThinning )
-
+DECLARE_TOOL_FACTORY( VertexThinning )
 
 DECLARE_FACTORY_ENTRIES( DerivationFrameworkInDet ) {
    DECLARE_TOOL( InDetTrackSelectionToolWrapper )
@@ -77,5 +78,6 @@ DECLARE_FACTORY_ENTRIES( DerivationFrameworkInDet ) {
    DECLARE_TOOL( VsiTrackThinningTool )
    DECLARE_TOOL( PixeldEdxTrackParticleThinning )
    DECLARE_TOOL( VertexParticleThinning )
+   DECLARE_TOOL( VertexThinning )
 }
 
