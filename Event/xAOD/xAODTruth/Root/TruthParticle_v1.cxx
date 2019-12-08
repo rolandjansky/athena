@@ -109,9 +109,12 @@ namespace xAOD {
    // Accessor for links to children
    static const SG::AuxElement::ConstAccessor< std::vector<ElementLink<xAOD::TruthParticleContainer> > >
       acc_childLinks( "childLinks" );
+   // Note that in some conditions the vertex might be saved in a different collection from
+   // the daughters, causing the vertex to not know how many children or parents the particle has.
+   // An extra test lets us ensure that we avoid this case.
 
    size_t TruthParticle_v1::nParents() const {
-      if (hasProdVtx()){
+      if (hasProdVtx() && prodVtx()->nIncomingParticles()>0){
         return prodVtx()->nIncomingParticles();
       } else if ( acc_parentLinks.isAvailable( *this ) ) {
         return acc_parentLinks( *this ).size();
@@ -120,7 +123,7 @@ namespace xAOD {
    }
 
    const TruthParticle_v1* TruthParticle_v1::parent( size_t i ) const {
-      if (hasProdVtx()){
+      if (hasProdVtx() && prodVtx()->nIncomingParticles()>0){
         return prodVtx()->incomingParticle( i );
       } else if ( acc_parentLinks.isAvailable( *this ) && i<acc_parentLinks( *this ).size() ) {
         return acc_parentLinks( *this )[i].isValid() ? *(acc_parentLinks( *this )[i]) : nullptr;
@@ -129,7 +132,7 @@ namespace xAOD {
    }
 
    size_t TruthParticle_v1::nChildren() const {
-      if (hasDecayVtx()){
+      if (hasDecayVtx() && decayVtx()->nOutgoingParticles()>0){
         return decayVtx()->nOutgoingParticles();
       } else if ( acc_childLinks.isAvailable( *this ) ) {
         return acc_childLinks( *this ).size();
@@ -138,7 +141,7 @@ namespace xAOD {
    }
 
    const TruthParticle_v1* TruthParticle_v1::child( size_t i ) const {
-      if (hasDecayVtx()){
+      if (hasDecayVtx() && decayVtx()->nOutgoingParticles()>0){
         return decayVtx()->outgoingParticle( i );
       } else if ( acc_childLinks.isAvailable( *this ) && i<acc_childLinks( *this ).size() ) {
         return acc_childLinks( *this )[i].isValid() ? *(acc_childLinks( *this )[i]) : nullptr;
