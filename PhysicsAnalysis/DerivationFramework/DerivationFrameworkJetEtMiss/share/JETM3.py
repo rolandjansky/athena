@@ -156,8 +156,6 @@ jetm3Seq += CfgMgr.DerivationFramework__DerivationKernel(	name = "JETM3Kernel",
                                                                 SkimmingTools = [JETM3SkimmingTool],
                                                                 ThinningTools = thinningTools,
                                                                 AugmentationTools = [TrigMatchAug])
-# PFlow augmentation
-applyPFOAugmentation(jetm3Seq)
 
 OutputJets["JETM3"] = []
 
@@ -221,6 +219,9 @@ addQGTaggerTool(jetalg="AntiKt4EMTopo", sequence=jetm3Seq, algname="QGTaggerTool
 
 # MVfJvt #
 #applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=jetm3Seq, algname='JetForwardJvtToolBDTAlg')
+
+# PFlow fJvt #
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=jetm3Seq, algname='JetForwardPFlowJvtToolAlg')
 
 #====================================================================
 # Add the containers to the output stream - slimming done here

@@ -83,26 +83,34 @@
     Dec_outFjvt = std::make_unique<SG::AuxElement::Decorator<char> >(m_outLabelFjvt);
 
     m_pfotool.setTypeAndName("CP::RetrievePFOTool/"+ m_pfoToolName );
-    m_pfotool.retrieve();
+    ATH_CHECK( m_pfotool.retrieve() );
 
     m_wpfotool.setTypeAndName("CP::WeightPFOTool/"+ m_wpfoToolName );
-    m_wpfotool.retrieve();
-  
-    m_pfoJES.setTypeAndName("JetCalibrationTool/"+ m_pfoJESName    );
-    m_pfoJES.setProperty("JetCollection",m_jetAlgo                 );
-    m_pfoJES.setProperty("ConfigFile"   ,m_caliconfig              );
-    m_pfoJES.setProperty("CalibSequence",m_calibSeq                );
-    m_pfoJES.setProperty("CalibArea"    ,m_calibArea               );
-    m_pfoJES.setProperty("IsData"       ,m_isdata                  );
-    m_pfoJES.retrieve();
-  
+    ATH_CHECK( m_wpfotool.retrieve() );
+
+    m_pfoJES.setTypeAndName("JetCalibrationTool/"+ m_pfoJESName   );
+    ATH_CHECK( m_pfoJES.setProperty("JetCollection",m_jetAlgo                ) );
+    ATH_CHECK( m_pfoJES.setProperty("ConfigFile"   ,m_caliconfig             ) );
+    ATH_CHECK( m_pfoJES.setProperty("CalibSequence",m_calibSeq               ) );
+    ATH_CHECK( m_pfoJES.setProperty("CalibArea"    ,m_calibArea              ) );
+    ATH_CHECK( m_pfoJES.setProperty("IsData"       ,m_isdata                 ) );
+    ATH_CHECK( m_pfoJES.retrieve() ) ;
+
     return StatusCode::SUCCESS;
   }
 
   int JetForwardPFlowJvtTool::modify(xAOD::JetContainer& jetCont) const {
     std::vector<TVector2> pileupMomenta;
     pileupMomenta=calculateVertexMomenta(&jetCont,m_pvind, m_vertices);
-    if(pileupMomenta.size()==0) return StatusCode::FAILURE;
+
+    if(pileupMomenta.size()==0) {
+      ATH_MSG_WARNING( "pileupMomenta is empty, fJVT will not be computed." );
+      for(const xAOD::Jet* jetF : jetCont) {
+	(*Dec_outFjvt)(*jetF) = 1;
+	fjvt_dec(*jetF) = -1;
+      }
+      return 1;
+    }
 
     for(const xAOD::Jet* jetF : jetCont) {
       (*Dec_outFjvt)(*jetF) = 1;
@@ -129,7 +137,6 @@
 
   std::vector<TVector2> JetForwardPFlowJvtTool::calculateVertexMomenta(const xAOD::JetContainer *pjets, int pvind, int vertices) const {
     std::vector<TVector2> pileupMomenta;
-
     // -- Retrieve PV index if not provided by user
     const std::size_t pv_index = (pvind==-1) ? getPV() : std::size_t(pvind);
 
@@ -148,12 +155,23 @@
 
     for(const xAOD::Vertex* vx: *vxCont) {
       if(vx->vertexType()!=xAOD::VxType::PriVtx && vx->vertexType()!=xAOD::VxType::PileUp) continue;
-      if(vx->index()==pv_index) continue;
-      // Build and retrieve PU jets
-      buildPFlowPUjets(*vx,*pfos);
+      if(vx->index()==(size_t)pv_index) continue;
+
       TString jname = m_jetsName;
       jname += vx->index();
       const xAOD::JetContainer* vertex_jets  = nullptr;
+
+      // Check if pflow pileup jet container exists
+      if( !evtStore()->contains<xAOD::JetContainer>(jname.Data()) ){
+	// if not, build it
+	if( buildPFlowPUjets(*vx,*pfos).isFailure() ){
+	  ATH_MSG_ERROR(" Some issue appeared while building the pflow pileup jets for vertex "<< vx->index() << " (vxType = " << vx->vertexType()<<" )!" );
+	  return pileupMomenta;
+	}
+      } else {
+	ATH_MSG_WARNING( jname.Data() << " already exists. Existing container will be used.");
+      }
+      
       if(evtStore()->retrieve(vertex_jets,jname.Data()).isFailure()){
         ATH_MSG_ERROR("Unable to retrieve built PU jets with name \"" << m_jetsName << "\"");
         return pileupMomenta;
@@ -189,7 +207,7 @@
     return false;
   }
 
-  void JetForwardPFlowJvtTool::buildPFlowPUjets(const xAOD::Vertex &vx, const xAOD::PFOContainer &pfos) const {
+  StatusCode JetForwardPFlowJvtTool::buildPFlowPUjets(const xAOD::Vertex &vx, const xAOD::PFOContainer &pfos) const {
     
     const std::size_t pv_index = (m_pvind==-1) ? getPV() : std::size_t (m_pvind);
 
@@ -216,7 +234,7 @@
     fastjet::JetDefinition jet_def(fastjet::antikt_algorithm,0.4);
     fastjet::AreaDefinition area_def(fastjet::active_area_explicit_ghosts,fastjet::GhostedAreaSpec(fastjet::SelectorAbsRapMax(m_maxRap)));
     fastjet::ClusterSequenceArea clust_pfo(input_pfo,jet_def,area_def);
-    std::vector<fastjet::PseudoJet> inclusive_jets = sorted_by_pt(clust_pfo.inclusive_jets(0));
+    std::vector<fastjet::PseudoJet> inclusive_jets = sorted_by_pt(clust_pfo.inclusive_jets(5000.));
 
     for (size_t i = 0; i < inclusive_jets.size(); i++) {
       xAOD::Jet* jet=  new xAOD::Jet();
@@ -237,10 +255,15 @@
       }
       xAOD::JetFourMom_t chargejetp4(chargedpart,inclusive_jets[i].eta(),inclusive_jets[i].phi(),inclusive_jets[i].m());
       jet->setJetP4(m_jetchargedp4,chargejetp4);
-    }   
-    m_pfoJES->modify(*vertjets);
-    evtStore()->record(vertjets.release(),newname.Data());
-    evtStore()->record(vertjetsAux.release(),(newname+"Aux.").Data());
+    }
+
+    if( m_pfoJES->modify(*vertjets) ){
+      ATH_MSG_ERROR(" Failed to calibrate PU jet container ");
+      return StatusCode::FAILURE;
+    }
+    ATH_CHECK( evtStore()->record(vertjets.release(),newname.Data())    );
+    ATH_CHECK( evtStore()->record(vertjetsAux.release(),newname.Data()) );
+    return StatusCode::SUCCESS;
   }
 
   fastjet::PseudoJet JetForwardPFlowJvtTool::pfoToPseudoJet(const xAOD::PFO* pfo, const CP::PFO_JetMETConfig_charge& theCharge, const xAOD::Vertex *vx) const {
@@ -248,9 +271,10 @@
     TLorentzVector pfo_p4;
     if (CP::charged == theCharge){
       float pweight = m_weight;
-      m_wpfotool->fillWeight(*pfo,pweight);
-      // Create a PSeudojet with the momentum of the selected IParticle
-      pfo_p4= TLorentzVector(pfo->p4().Px()*pweight,pfo->p4().Py()*pweight,pfo->p4().Pz()*pweight,pfo->e()*pweight);
+      if( (m_wpfotool->fillWeight(*pfo,pweight)).isSuccess() ){
+	// Create a PSeudojet with the momentum of the selected IParticle
+	pfo_p4= TLorentzVector(pfo->p4().Px()*pweight,pfo->p4().Py()*pweight,pfo->p4().Pz()*pweight,pfo->e()*pweight);
+      }
     } else if (CP::neutral == theCharge){ 
       pfo_p4= pfo->GetVertexCorrectedEMFourVec(*vx);
     }

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #********************************************************************
 # ExtendedJetCommon.py
@@ -263,9 +263,9 @@ def getJetExternalAssocTool(jetalg, extjetalg, **options):
 
     return jetassoctool
 
-def applyJetCalibration(jetalg,algname,sequence,fatjetconfig = 'comb'):
+def applyJetCalibration(jetalg,algname,sequence,fatjetconfig = 'comb', suffix = ''):
     calibtoolname = 'DFJetCalib_'+jetalg
-    jetaugtool = getJetAugmentationTool(jetalg)
+    jetaugtool = getJetAugmentationTool(jetalg, suffix)
 
     if '_BTagging' in jetalg:
         jetalg_basename = jetalg[:jetalg.find('_BTagging')]
@@ -345,8 +345,8 @@ def applyJetCalibration_CustomColl(jetalg='AntiKt10LCTopoTrimmedPtFrac5SmallR20'
     else:
         applyJetCalibration(jetalg,'JetCommonKernel_{0}'.format(jetalg),sequence)
 
-def updateJVT(jetalg,algname,sequence):
-    jetaugtool = getJetAugmentationTool(jetalg)
+def updateJVT(jetalg,algname,sequence, suffix = ''):
+    jetaugtool = getJetAugmentationTool(jetalg, suffix)
     if(jetaugtool==None or jetaugtool.JetCalibTool==''):
         extjetlog.warning('*** JVT update called but corresponding augmentation tool does not exist! ***')
         extjetlog.warning('*** You must apply jet calibration before scheduling JVT! ***')
@@ -409,19 +409,19 @@ def addJetPtAssociation(jetalg, truthjetalg, sequence, algname):
     extjetlog.info('ExtendedJetCommon: Adding JetPtAssociationTool for jet collection: '+jetalg+'Jets')
     applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
 
-#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 def applyMVfJvtAugmentation(jetalg,sequence,algname):
     supportedJets = ['AntiKt4EMTopo']
     if not jetalg in supportedJets:
-        extjetlog.warning('*** MVfJvt augmentation requested for unsupported jet collection {}! ***'.format(jetalg))
+        extjetlog.error('*** MVfJvt augmentation requested for unsupported jet collection {}! ***'.format(jetalg))
         return
     else:
-        jetaugtool =  getJetAugmentationTool(jetalg)
-        
+        jetaugtool = getJetAugmentationTool(jetalg)
+
         if(jetaugtool==None or jetaugtool.JetCalibTool=='' or jetaugtool.JetJvtTool==''):
-            extjetlog.warning('*** MVfJvt called but required augmentation tool does not exist! ***')
-            extjetlog.warning('*** You must apply jet calibration and JVT! ***')
-        
+            extjetlog.error('*** MVfJvt called but required augmentation tool does not exist! ***')
+            extjetlog.error('*** You must apply jet calibration and JVT! ***')
+            return
+
         mvfjvttoolname = 'DFJetMVfJvt_'+jetalg    
         
         from AthenaCommon.AppMgr import ToolSvc
@@ -433,9 +433,37 @@ def applyMVfJvtAugmentation(jetalg,sequence,algname):
             ToolSvc += mvfjvttool
             jetaugtool.JetForwardJvtToolBDT = mvfjvttool
             
-        extjetlog.info('ExtendedJetCommon:  Applying MVfJVT augmentation to jet collection: '+jetalg+'Jets')
+        extjetlog.info('ExtendedJetCommon: Applying MVfJVT augmentation to jet collection: '+jetalg+'Jets')
         applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
-#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+def getPFlowfJVT(jetalg,algname,sequence):
+    supportedJets = ['AntiKt4EMPFlow']
+    if not jetalg in supportedJets:
+        extjetlog.error('*** PFlow fJvt augmentation requested for unsupported jet collection {}! ***'.format(jetalg))
+        return
+    else:
+        applyJetCalibration(jetalg,algname,sequence,suffix='_PFlow_fJVT')
+        updateJVT(jetalg,algname,sequence,suffix='_PFlow_fJVT')
+        jetaugtool = getJetAugmentationTool(jetalg,suffix='_PFlow_fJVT')
+
+        if(jetaugtool==None or jetaugtool.JetCalibTool=='' or jetaugtool.JetJvtTool==''):
+            extjetlog.error('*** PFlow fJvt called but required augmentation tool does not exist! ***')
+            extjetlog.error('*** Jet calibration and JVT have to be applied ! ***')
+            return
+
+        pffjvttoolname = 'DFJetPFfJvt_'+jetalg
+
+        from AthenaCommon.AppMgr import ToolSvc
+
+        if hasattr(ToolSvc,pffjvttoolname):
+            jetaugtool.JetForwardPFlowJvtTool = getattr(ToolSvc,pffjvttoolname)
+        else:
+            pffjvttool = CfgMgr.JetForwardPFlowJvtTool(pffjvttoolname)
+            ToolSvc += pffjvttool
+            jetaugtool.JetForwardPFlowJvtTool = pffjvttool
+
+        extjetlog.info('ExtendedJetCommon: Applying PFlow fJvt augmentation to jet collection: '+jetalg+'Jets')
+        applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
 
 def applyBTaggingAugmentation(jetalg,algname='default',sequence=DerivationFrameworkJob,btagtooldict={}):
     if algname == 'default':
