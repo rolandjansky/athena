@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -31,6 +31,8 @@ namespace DerivationFramework {
     m_jvtTool(""),
     m_jetJvtEfficiencyTool(""),
     m_dojvt(false),
+    m_fjvtTool(""),
+    m_dofjvt(false),
     m_MVfJvtTool(""),                 
     m_doMVfJvt(false),                
     m_dobtag(false),
@@ -63,6 +65,9 @@ namespace DerivationFramework {
     declareProperty("JvtMomentKey",   m_jvtMomentKey = "Jvt");
     declareProperty("JetJvtTool",     m_jvtTool);
     declareProperty("JetJvtEffTool",  m_jetJvtEfficiencyTool);
+
+    declareProperty("fJvtMomentKey",   m_fjvtMomentKey = "fJvt");
+    declareProperty("JetForwardPFlowJvtTool",     m_fjvtTool);
 
     declareProperty("MVfJvtMomentKey", m_MVfJvtMomentKey = "MVfJVT");
     declareProperty("JetForwardJvtToolBDT", m_MVfJvtTool);
@@ -97,22 +102,29 @@ namespace DerivationFramework {
         dec_jvt  = new SG::AuxElement::Decorator<float>(m_momentPrefix+m_jvtMomentKey);
         dec_passJvt  = new SG::AuxElement::Decorator<char>(m_momentPrefix+"pass"+m_jvtMomentKey);
 
-      if(!m_MVfJvtTool.empty()) {
-        CHECK(m_MVfJvtTool.retrieve());
-        ATH_MSG_INFO("Augmenting jets with MV-fJVT value \"" << m_momentPrefix+m_MVfJvtMomentKey << "\"");
-        m_doMVfJvt = true;
+	if(!m_MVfJvtTool.empty()) {
+	  CHECK(m_MVfJvtTool.retrieve());
+	  ATH_MSG_INFO("Augmenting jets with MV-fJVT value \"" << m_momentPrefix+m_MVfJvtMomentKey << "\"");
+	  m_doMVfJvt = true;
 
-        dec_MVfJvt                    = std::make_unique< SG::AuxElement::Decorator<float> >(m_momentPrefix+m_MVfJvtMomentKey);
-      	/* MVfJvt inputs. The tagger also requires jet timing and width that are in (resp.) jet & MET cp smartslimming lists
-	  Last needed variable is fjvt that is recomputed in analyses in case the moment below are required */
-	dec_MVfJvt_Sumcle             = std::make_unique< SG::AuxElement::Decorator<float> >(m_momentPrefix+m_MVfJvtMomentKey+"_Sumcle");
-	dec_MVfJvt_SumclIso           = std::make_unique< SG::AuxElement::Decorator<float> >(m_momentPrefix+m_MVfJvtMomentKey+"_SumclIso");
-	dec_MVfJvt_SumclEMprob        = std::make_unique< SG::AuxElement::Decorator<float> >(m_momentPrefix+m_MVfJvtMomentKey+"_SumclEMprob");
-	dec_MVfJvt_LeadclWidth        = std::make_unique< SG::AuxElement::Decorator<float> >(m_momentPrefix+m_MVfJvtMomentKey+"_LeadclWidth");
-	dec_MVfJvt_LeadclSecondLambda = std::make_unique< SG::AuxElement::Decorator<float> >(m_momentPrefix+m_MVfJvtMomentKey+"_LeadclSecondLambda");
-      }
+	  dec_MVfJvt                    = std::make_unique< SG::AuxElement::Decorator<float> >(m_momentPrefix+m_MVfJvtMomentKey);
+	  /* MVfJvt inputs. The tagger also requires jet timing and width that are in (resp.) jet & MET cp smartslimming lists
+	     Last needed variable is fjvt that is recomputed in analyses in case the moment below are required */
+	  dec_MVfJvt_Sumcle             = std::make_unique< SG::AuxElement::Decorator<float> >(m_momentPrefix+m_MVfJvtMomentKey+"_Sumcle");
+	  dec_MVfJvt_SumclIso           = std::make_unique< SG::AuxElement::Decorator<float> >(m_momentPrefix+m_MVfJvtMomentKey+"_SumclIso");
+	  dec_MVfJvt_SumclEMprob        = std::make_unique< SG::AuxElement::Decorator<float> >(m_momentPrefix+m_MVfJvtMomentKey+"_SumclEMprob");
+	  dec_MVfJvt_LeadclWidth        = std::make_unique< SG::AuxElement::Decorator<float> >(m_momentPrefix+m_MVfJvtMomentKey+"_LeadclWidth");
+	  dec_MVfJvt_LeadclSecondLambda = std::make_unique< SG::AuxElement::Decorator<float> >(m_momentPrefix+m_MVfJvtMomentKey+"_LeadclSecondLambda");
+	}
 
-      
+	if(!m_fjvtTool.empty()) {
+	  CHECK(m_fjvtTool.retrieve());
+	  ATH_MSG_INFO("Augmenting (PFlow) jets with fJVT \"" << m_momentPrefix+m_fjvtMomentKey << "\"");
+	  m_dofjvt = true;
+
+	  dec_fjvt  = std::make_unique< SG::AuxElement::Decorator<float> >(m_momentPrefix+m_fjvtMomentKey);
+	}
+
         if(!m_btagSelTools.empty()) {
           size_t ibtag(0);
           for(const auto& tool : m_btagSelTools) {
@@ -140,7 +152,7 @@ namespace DerivationFramework {
     }
 
     // This tool creates the GhostTruthAssociation decorations recommended for truth matching //
-    if(!m_jetPtAssociationTool.empty()) 
+    if(!m_jetPtAssociationTool.empty())
       {
 	CHECK(m_jetPtAssociationTool.retrieve());
 	ATH_MSG_INFO("Augmenting jets with GhostTruthAssociation moments Link and Fraction");
@@ -148,7 +160,7 @@ namespace DerivationFramework {
 	dec_GhostTruthAssociationFraction = new SG::AuxElement::Decorator<float>("GhostTruthAssociationFraction");
 	dec_GhostTruthAssociationLink     = new SG::AuxElement::Decorator< ElementLink<xAOD::JetContainer> >("GhostTruthAssociationLink");
     }
-    
+
     // Here it for ntracks decoration --- QGTaggerTool ---
     // set up InDet selection tool
     if(!m_trkSelectionTool.empty()) {
@@ -234,7 +246,7 @@ namespace DerivationFramework {
     // retrieve container
     const xAOD::JetContainer* jets(0);
     if( evtStore()->retrieve( jets, m_containerName ).isFailure() ) {
-      ATH_MSG_WARNING ("Couldn't retrieve jets with key: " << m_containerName );
+      ATH_MSG_ERROR("Couldn't retrieve jets with key: " << m_containerName );
       return StatusCode::FAILURE;
     }
 
@@ -246,7 +258,7 @@ namespace DerivationFramework {
       // if we have a calibration tool, apply the calibration
     if(m_docalib) {
       if(m_jetCalibTool->modify(*jets_copy) ) {
-        ATH_MSG_WARNING("Problem applying jet calibration");
+        ATH_MSG_ERROR("Problem applying jet calibration");
         return StatusCode::FAILURE;
       }
     }
@@ -254,7 +266,7 @@ namespace DerivationFramework {
     if(m_decoratetracksum){
       if( m_jetTrackSumMomentsTool->modify(*jets_copy) )
       {
-        ATH_MSG_WARNING("Problems calculating TrackSumMass and TrackSumPt");
+        ATH_MSG_ERROR("Problems calculating TrackSumMass and TrackSumPt");
         return StatusCode::FAILURE;
       }
     }
@@ -262,7 +274,7 @@ namespace DerivationFramework {
     if(m_decorateorigincorrection){
       if(m_jetOriginCorrectionTool->modify(*jets_copy))
 	{
-	  ATH_MSG_WARNING("Problem applying the origin correction tool");
+	  ATH_MSG_ERROR("Problem applying the origin correction tool");
 	  return StatusCode::FAILURE;
 	}
     }
@@ -278,22 +290,35 @@ namespace DerivationFramework {
       ATH_MSG_DEBUG("tool running" );
       if( m_jetPtAssociationTool->modify(*jets_copy) )
       {
-        ATH_MSG_WARNING("Problem running the JetPtAssociationTool");
+        ATH_MSG_ERROR("Problem running the JetPtAssociationTool");
         return StatusCode::FAILURE;
       }
     }
 
-    // JVT has to be updated here to get correct (calibrated) values of (MV)fJVT
-    if(m_docalib && m_dojvt && m_doMVfJvt){
+    // JVT has to be updated here to get correct calibrated values of (MV)fJVT
+    if(m_docalib && m_dojvt && (m_doMVfJvt || m_dofjvt) ){
+
       for(const xAOD::Jet *jet : *jets_copy) { 
 	(*dec_jvt)(*jet) = m_jvtTool->updateJvt(*jet);
       }
-      if(m_MVfJvtTool->modify(*jets_copy))
-	{
-	  ATH_MSG_WARNING("Problem with MVfJvtTool modify function");
-	}
-    }   
-      
+
+      if(m_doMVfJvt){
+	if(m_MVfJvtTool->modify(*jets_copy))
+	  {
+	    ATH_MSG_ERROR("Problem with MVfJvtTool modify function");
+	    return StatusCode::FAILURE;
+	  }
+      }
+
+      if(m_dofjvt){
+       	if(m_fjvtTool->modify(*jets_copy))
+	  {
+	    ATH_MSG_ERROR("Problem computing fJVT");
+	    return StatusCode::FAILURE;
+	  }
+      }
+    
+    }
 
     // loop over the copies
     for(const xAOD::Jet *jet : *jets_copy) {
@@ -310,7 +335,7 @@ namespace DerivationFramework {
         ATH_MSG_VERBOSE("Calibrated jet pt: " << (*dec_calibpt)(jet_orig) );
 	
         if(m_dojvt) {
-          if(!m_doMVfJvt)(*dec_jvt)(jet_orig) = m_jvtTool->updateJvt(*jet);
+          if(!m_doMVfJvt && !m_dofjvt)(*dec_jvt)(jet_orig) = m_jvtTool->updateJvt(*jet);
 	  else (*dec_jvt)(jet_orig) = (*dec_jvt)(*jet);
           ATH_MSG_VERBOSE("Calibrated JVT: " << (*dec_jvt)(jet_orig) );
           bool passJVT = m_jetJvtEfficiencyTool->passesJvtCut(jet_orig);
@@ -323,15 +348,19 @@ namespace DerivationFramework {
 	    (*dec_MVfJvt_SumclEMprob)(jet_orig)        = jet->auxdata<float>("SumclEMprob");
 	    (*dec_MVfJvt_LeadclWidth)(jet_orig)        = jet->auxdata<float>("LeadclWidth");
 	    (*dec_MVfJvt_LeadclSecondLambda)(jet_orig) = jet->auxdata<float>("LeadclSecondLambda");
-	    ATH_MSG_VERBOSE("What goes in decoration:  m_cle = " << jet->auxdata<float>("Sumcle")		    
-			    << " || m_cliso = "                  << jet->auxdata<float>("SumclIso")	    
-			    << " || m_clemprob = "               << jet->auxdata<float>("SumclEMprob")	    
-			    << " || m_cletawidth = "             << jet->auxdata<float>("LeadclWidth")	     
+	    ATH_MSG_VERBOSE("What goes in decoration:  m_cle = " << jet->auxdata<float>("Sumcle")
+			    << " || m_cliso = "                  << jet->auxdata<float>("SumclIso")
+			    << " || m_clemprob = "               << jet->auxdata<float>("SumclEMprob")
+			    << " || m_cletawidth = "             << jet->auxdata<float>("LeadclWidth")
 			    << " || m_cllambda2 = "              << jet->auxdata<float>("LeadclSecondLambda")  );
-	    
+
 	  }
-	  
-	  
+
+	  if(m_dofjvt) {
+	    ATH_MSG_DEBUG( "fJvt value = " << jet->auxdata<float>("fJvt") );
+	    (*dec_fjvt)(jet_orig) = jet->auxdata<float>("fJvt");
+	  }
+
 	  if(m_dobtag) {
             size_t ibtag(0);
             for(const auto& tool : m_btagSelTools) {

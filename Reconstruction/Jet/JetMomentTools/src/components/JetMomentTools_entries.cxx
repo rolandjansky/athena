@@ -7,6 +7,7 @@
 #include "JetMomentTools/JetVertexFractionTool.h"
 #include "JetMomentTools/JetVertexTaggerTool.h"
 #include "JetMomentTools/JetForwardJvtTool.h"
+#include "JetMomentTools/JetForwardPFlowJvtTool.h"
 #include "JetMomentTools/JetForwardJvtToolBDT.h"
 #include "JetMomentTools/JetTrackMomentsTool.h"
 #include "JetMomentTools/JetTrackSumMomentsTool.h"
@@ -31,6 +32,7 @@ DECLARE_COMPONENT(JetWidthTool)
 DECLARE_COMPONENT(JetVertexFractionTool)
 DECLARE_COMPONENT(JetVertexTaggerTool)
 DECLARE_COMPONENT(JetForwardJvtTool)
+DECLARE_COMPONENT(JetForwardPFlowJvtTool)
 DECLARE_COMPONENT(JetForwardJvtToolBDT)
 DECLARE_COMPONENT(JetTrackMomentsTool)
 DECLARE_COMPONENT(JetTrackSumMomentsTool)
