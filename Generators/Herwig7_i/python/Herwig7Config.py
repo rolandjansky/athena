@@ -128,7 +128,7 @@ set /Herwig/Generators/EventGenerator:DebugLevel 1
 set /Herwig/Generators/EventGenerator:PrintEvent 2
 set /Herwig/Generators/EventGenerator:UseStdout Yes
 set /Herwig/Generators/EventGenerator:NumberOfEvents 1000000000
-set /Herwig/Generators/EventGenerator:MaxErrors 1000000
+set /Herwig/Generators/EventGenerator:MaxErrors 500
 
 ## Make sampler print out cross sections for each subprocess
 set /Herwig/Samplers/Sampler:Verbose Yes
@@ -399,7 +399,7 @@ set /Herwig/Particles/pomeron:PDF /Herwig/Partons/PomeronPDF
 
 # Technical parameters for this run
 set /Herwig/Generators/EventGenerator:EventHandler:Sampler:Ntry 100000
-set /Herwig/Generators/EventGenerator:MaxErrors 100000
+set /Herwig/Generators/EventGenerator:MaxErrors 500
 
 # MPI doesn't work
 # TODO: Is this a problem?
