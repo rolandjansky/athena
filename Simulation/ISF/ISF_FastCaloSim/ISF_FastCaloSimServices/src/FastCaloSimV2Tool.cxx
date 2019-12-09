@@ -2,12 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// FastCaloSimSvcV2.cxx, (c) ATLAS Detector software             //
-///////////////////////////////////////////////////////////////////
-
 // class header include
-#include "FastCaloSimSvcV2.h"
+#include "FastCaloSimV2Tool.h"
 
 
 // FastCaloSim includes
@@ -44,24 +40,19 @@ using std::abs;
 using std::atan2;
 
 /** Constructor **/
-ISF::FastCaloSimSvcV2::FastCaloSimSvcV2(const std::string& name, ISvcLocator* svc)
-  : BaseSimulationSvc(name, svc)
-  , m_paramSvc("ISF_FastCaloSimV2ParamSvc", name)
-  , m_rndGenSvc("AtRndmGenSvc", name)
+ISF::FastCaloSimV2Tool::FastCaloSimV2Tool( const std::string& type, const std::string& name,  const IInterface* parent)
+  : BaseSimulatorTool(type, name, parent)
 {
-  declareProperty("ParamSvc"                       ,       m_paramSvc);
-  declareProperty("CaloCellsOutputName"            ,       m_caloCellsOutputName) ;
-  declareProperty("CaloCellMakerTools_setup"       ,       m_caloCellMakerToolsSetup) ;
-  declareProperty("CaloCellMakerTools_release"     ,       m_caloCellMakerToolsRelease) ;
-  declareProperty("RandomSvc"                      ,       m_rndGenSvc                );
-  declareProperty("RandomStream"                   ,       m_randomEngineName         );
-  declareProperty("FastCaloSimCaloExtrapolation"   ,       m_FastCaloSimCaloExtrapolation );
 }
 
 /** framework methods */
-StatusCode ISF::FastCaloSimSvcV2::initialize()
+StatusCode ISF::FastCaloSimV2Tool::initialize()
 {
-  ATH_MSG_INFO(m_screenOutputPrefix << "Initializing ...");
+  ATH_CHECK( BaseSimulatorTool::initialize() );
+
+  ATH_CHECK( m_caloCellMakerToolsSetup.retrieve() );
+  ATH_MSG_DEBUG( "Successfully retrieve CaloCellMakerTools: " << m_caloCellMakerToolsSetup );
+  ATH_CHECK( m_caloCellMakerToolsRelease.retrieve() );
 
   ATH_CHECK(m_rndGenSvc.retrieve());
   m_randomEngine = m_rndGenSvc->GetEngine( m_randomEngineName);
@@ -75,82 +66,98 @@ StatusCode ISF::FastCaloSimSvcV2::initialize()
   // Get FastCaloSimCaloExtrapolation
   ATH_CHECK(m_FastCaloSimCaloExtrapolation.retrieve());
 
+  // Output data handle
+  ATH_CHECK( m_caloCellKey.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
-StatusCode ISF::FastCaloSimSvcV2::setupEvent()
+StatusCode ISF::FastCaloSimV2Tool::setupEventST()
 {
-  const EventContext& ctx = Gaudi::Hive::currentContext();
-  ATH_MSG_VERBOSE(m_screenOutputPrefix << "setupEvent NEW EVENT!");
+  ATH_MSG_DEBUG ("setupEventST");
 
   m_theContainer = new CaloCellContainer(SG::VIEW_ELEMENTS);
 
-  StatusCode sc = evtStore()->record(m_theContainer, m_caloCellsOutputName);
-  if (sc.isFailure())
-  {
-    ATH_MSG_FATAL( m_screenOutputPrefix << "cannot record CaloCellContainer " << m_caloCellsOutputName );
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(evtStore()->record(m_theContainer, m_caloCellsOutputName));
 
-  CHECK( m_caloCellMakerToolsSetup.retrieve() );
-  ATH_MSG_DEBUG( "Successfully retrieve CaloCellMakerTools: " << m_caloCellMakerToolsSetup );
+  return this->commonSetup();
+}
+
+StatusCode ISF::FastCaloSimV2Tool::setupEvent()
+{
+  ATH_MSG_DEBUG ("setupEvent");
+
+  m_theContainer = new CaloCellContainer(SG::VIEW_ELEMENTS);
+
+  return this->commonSetup();
+}
+
+StatusCode ISF::FastCaloSimV2Tool::commonSetup()
+{
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   for (const ToolHandle<ICaloCellMakerTool>& tool : m_caloCellMakerToolsSetup)
-  {
-    std::string chronoName=this->name()+"_"+ tool.name();
-    if (m_chrono) m_chrono->chronoStart(chronoName);
-    StatusCode sc = tool->process(m_theContainer, ctx);
-    if (m_chrono) {
-      m_chrono->chronoStop(chronoName);
-      ATH_MSG_DEBUG( m_screenOutputPrefix << "Chrono stop : delta " << m_chrono->chronoDelta (chronoName,IChronoStatSvc::USER) * CLHEP::microsecond / CLHEP::second << " second " );
-    }
-
-    if (sc.isFailure())
     {
-      ATH_MSG_ERROR( m_screenOutputPrefix << "Error executing tool " << tool.name() );
-      return StatusCode::FAILURE;
+      std::string chronoName=this->name()+"_"+ tool.name();
+      if (m_chrono) m_chrono->chronoStart(chronoName);
+      StatusCode sc = tool->process(m_theContainer, ctx);
+      if (m_chrono) {
+        m_chrono->chronoStop(chronoName);
+        ATH_MSG_DEBUG( "Chrono stop : delta " << m_chrono->chronoDelta (chronoName,IChronoStatSvc::USER) * CLHEP::microsecond / CLHEP::second << " second " );
+      }
+
+      if (sc.isFailure())
+        {
+          ATH_MSG_ERROR( "Error executing tool " << tool.name() );
+          return StatusCode::FAILURE;
+        }
     }
-  }
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode ISF::FastCaloSimSvcV2::releaseEvent()
+StatusCode ISF::FastCaloSimV2Tool::releaseEvent()
 {
+  ATH_MSG_VERBOSE( "FastCaloSimV2Tool " << name() << " releaseEvent() " );
+  // Run the version of releaseEvent that returns the output collection
+  // Run the normal method
+  ATH_CHECK(this->releaseEventST());
+  if ( m_theContainer ) {
 
- ATH_MSG_VERBOSE(m_screenOutputPrefix << "release Event");
- const EventContext& ctx = Gaudi::Hive::currentContext();
-
- CHECK( m_caloCellMakerToolsRelease.retrieve() );
-
- //run release tools in a loop
- ToolHandleArray<ICaloCellMakerTool>::iterator itrTool = m_caloCellMakerToolsRelease.begin();
- ToolHandleArray<ICaloCellMakerTool>::iterator endTool = m_caloCellMakerToolsRelease.end();
- for (; itrTool != endTool; ++itrTool)
- {
-  ATH_MSG_VERBOSE( m_screenOutputPrefix << "Calling tool " << itrTool->name() );
-
-  StatusCode sc = (*itrTool)->process(m_theContainer, ctx);
-
-  if (sc.isFailure())
-  {
-   ATH_MSG_ERROR( m_screenOutputPrefix << "Error executing tool " << itrTool->name() );
+    // Record with WriteHandle
+    SG::WriteHandle< CaloCellContainer > caloCellHandle( m_caloCellKey, Gaudi::Hive::currentContext() );
+    ATH_CHECK( caloCellHandle.record( std::make_unique< CaloCellContainer >( *m_theContainer ) ) );
+    return StatusCode::SUCCESS;
   }
- }
+  return StatusCode::FAILURE;
+}
 
- return StatusCode::SUCCESS;
+StatusCode ISF::FastCaloSimV2Tool::releaseEventST()
+{
+  ATH_MSG_VERBOSE("release Event");
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
+  //run release tools in a loop
+  for (const ToolHandle<ICaloCellMakerTool>& tool : m_caloCellMakerToolsRelease)
+    {
+      ATH_MSG_VERBOSE( "Calling tool " << tool.name() );
+
+      ATH_CHECK(tool->process(m_theContainer, ctx));
+    }
+
+  return StatusCode::SUCCESS;
 
 }
 
 /** Simulation Call */
-StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp, McEventCollection*)
+StatusCode ISF::FastCaloSimV2Tool::simulate(const ISF::ISFParticle& isfp, ISFParticleContainer&, McEventCollection*) const
 {
 
-  ATH_MSG_VERBOSE("NEW PARTICLE! FastCaloSimSvcV2 called with ISFParticle: " << isfp);
+  ATH_MSG_VERBOSE("NEW PARTICLE! FastCaloSimV2Tool called with ISFParticle: " << isfp);
 
   Amg::Vector3D particle_position =  isfp.position();
   Amg::Vector3D particle_direction(isfp.momentum().x(),isfp.momentum().y(),isfp.momentum().z());
 
-   //int barcode=isfp.barcode(); // isfp barcode, eta and phi: in case we need them
+  //int barcode=isfp.barcode(); // isfp barcode, eta and phi: in case we need them
   // float eta_isfp = particle_position.eta();
   // float phi_isfp = particle_position.phi();
 
@@ -187,7 +194,7 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp, McEvent
   ATH_MSG_DEBUG("Energy returned: " << simulstate.E());
   ATH_MSG_VERBOSE("Energy fraction for layer: ");
   for (int s = 0; s < CaloCell_ID_FCS::MaxSample; s++)
-  ATH_MSG_VERBOSE(" Sampling " << s << " energy " << simulstate.E(s));
+    ATH_MSG_VERBOSE(" Sampling " << s << " energy " << simulstate.E(s));
 
   //Now deposit all cell energies into the CaloCellContainer
   for(const auto& iter : simulstate.cells()) {
