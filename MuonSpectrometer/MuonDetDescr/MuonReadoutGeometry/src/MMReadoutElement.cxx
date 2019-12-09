@@ -190,7 +190,8 @@ namespace MuonGM {
       m_minHalfY = roParam.activeBottomLength/2;   //0.5*bottom length (active area)
       m_maxHalfY = roParam.activeTopLength/2;       //0.5*top length (active area)
 
-      m_etaDesign[il].type=0;
+      m_etaDesign[il].type=MuonChannelDesign::Type::etaStrip;
+      m_etaDesign[il].detType=MuonChannelDesign::DetType::MM;
 
       m_etaDesign[il].xSize=2*m_halfX;          // radial length (active area)
       m_etaDesign[il].minYSize=2*m_minHalfY;   //bottom length (active area)
