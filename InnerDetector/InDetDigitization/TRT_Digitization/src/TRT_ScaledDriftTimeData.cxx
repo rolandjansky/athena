@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
- ////////////////////////////////////
+////////////////////////////////////
 //                                  //
 //  Class: TRT_ScaledDriftTimeData  //
 //                                  //
@@ -10,13 +10,13 @@
 //                                  //
 //  First Version: January 2006     //
 //                                  //
- ////////////////////////////////////
+////////////////////////////////////
 
 #include "TRT_ScaledDriftTimeData.h"
 
 //______________________________________________________________________________
 TRT_ScaledDriftTimeData::TRT_ScaledDriftTimeData(ITRT_DriftTimeData* pOriginalData,//Assumes ownership of pOriginalData!!
-						 const double& scaleFactor)
+                                                 const double& scaleFactor)
   : m_pOriginalData(pOriginalData), m_scaleFactor(scaleFactor) {}
 
 //______________________________________________________________________________

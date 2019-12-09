@@ -2,7 +2,7 @@
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDict
 from TriggerMenuMT.HLTMenuConfig.Bjet.BjetDef import BjetChainConfiguration as BjetChainConfiguration
-
+from TriggerMenuMT.HLTMenuConfig.Jet.JetChainConfiguration import JetChainConfiguration
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Bjet.GenerateBjetChainConfigs' )
@@ -19,10 +19,14 @@ def generateChainConfigs( chainDict ):
     listOfChainDefs = []
 
     for subChainDict in listOfChainDicts:
-        
-        Bjet = BjetChainConfiguration(subChainDict).assembleChain() 
 
-        listOfChainDefs += [Bjet]
+        subChainDict['chainParts']['signature'] = 'Jet'
+
+        jet = JetChainConfiguration(subChainDict).assembleChain()
+        Bjet = BjetChainConfiguration(subChainDict).assembleChain() 
+        jet.steps = jet.steps + Bjet.steps
+
+        listOfChainDefs += [jet]
         log.debug('length of chaindefs %s', len(listOfChainDefs) )
         
 

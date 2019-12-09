@@ -120,6 +120,7 @@ private: // data
 
    long m_storageType;
    bool m_clearedInputDataStore;
+   bool m_clearedOutputDataStore;
    bool m_allowMetaDataStop;
    bool m_outputPreprared; 
    std::map<std::string, CLID> m_persToClid;

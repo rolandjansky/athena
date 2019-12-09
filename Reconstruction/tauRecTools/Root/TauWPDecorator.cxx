@@ -164,7 +164,7 @@ StatusCode TauWPDecorator::eventInitialize()
 /********************************************************************/
 StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau) 
 { 
-  SG::AuxElement::ConstAccessor<float> acc_score(m_scoreName);
+  const SG::AuxElement::ConstAccessor<float> acc_score(m_scoreName);
   SG::AuxElement::Accessor<float> acc_newScore(m_newScoreName);
 
   // could use detail(TauJetParameters::nChargedTracks) for trigger, but TauIDVarCalculator used nTracks()
@@ -187,7 +187,7 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau)
 
   double y_var = 0.0;
   if(m_electronMode) {
-     static SG::AuxElement::ConstAccessor<float> acc_absEta("ABS_ETA_LEAD_TRACK");
+     const SG::AuxElement::ConstAccessor<float> acc_absEta("ABS_ETA_LEAD_TRACK");
      y_var = std::fabs(acc_absEta(pTau));
   } else {
      y_var = m_mu;

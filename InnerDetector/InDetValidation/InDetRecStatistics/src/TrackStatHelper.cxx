@@ -171,10 +171,14 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
     
     // process track summary
     
-    const Trk::TrackSummary* summary = NULL;
+    std::unique_ptr<Trk::TrackSummary> cleanup;
+    const Trk::TrackSummary* summary = track->trackSummary();
     
     if (useTrackSummary) {
-      summary = trkSummaryTool->createSummary(*track,prd_to_track_map);
+       if (!track->trackSummary()) {
+          cleanup = std::move(trkSummaryTool->summary(*track,prd_to_track_map));
+          summary=cleanup.get();
+       }
 	
       if (summary)
 	{
@@ -293,7 +297,6 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
       }
     }
       
-    if (summary) delete summary;
     // ------------------ hits on reconstructed tracks ---------------
       
     for (const Trk::TrackStateOnSurface* hit : *track->trackStateOnSurfaces()) {

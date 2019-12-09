@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODL2StandAloneMuonAuxContainerCnv_v1.cxx 707606 2015-11-12 19:59:49Z krasznaa $
@@ -30,9 +30,7 @@
    } while( 0 )
 
 xAODL2StandAloneMuonAuxContainerCnv_v1::xAODL2StandAloneMuonAuxContainerCnv_v1()
-  : T_AthenaPoolTPCnvBase< xAOD::L2StandAloneMuonAuxContainer,
-                           xAOD::L2StandAloneMuonAuxContainer_v1 >() {
-
+{
 }
 
 
@@ -63,8 +61,8 @@ void migrateVector (const SG::IConstAuxStore& oldObj,
 void xAODL2StandAloneMuonAuxContainerCnv_v1::
 persToTrans( const xAOD::L2StandAloneMuonAuxContainer_v1* oldObj,
              xAOD::L2StandAloneMuonAuxContainer* newObj,
-             MsgStream& log ) {
-
+             MsgStream& log ) const
+{
    // Greet the user:
    ATH_MSG( "Converting xAOD::L2StandAloneMuonAuxContainer_v1 to current version..." );
 
@@ -94,7 +92,7 @@ persToTrans( const xAOD::L2StandAloneMuonAuxContainer_v1* oldObj,
 void xAODL2StandAloneMuonAuxContainerCnv_v1::
 transToPers( const xAOD::L2StandAloneMuonAuxContainer*,
              xAOD::L2StandAloneMuonAuxContainer_v1*,
-             MsgStream& log ) {
+             MsgStream& log ) const {
 
    log << MSG::ERROR
        << "Somebody called xAODL2StandAloneMuonAuxContainer_v1::transToPers"

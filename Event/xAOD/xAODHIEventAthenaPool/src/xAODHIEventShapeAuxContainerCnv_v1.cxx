@@ -77,16 +77,16 @@ persToTrans( const xAOD::HIEventShapeAuxContainer_v1* oldObj,
       newES->setLayer( oldES->layer() );
 
       // Helper objects to access the auxiliary IDs of the base variables:
-      static SG::AuxElement::TypelessConstAccessor accEt( "Et" );
-      static SG::AuxElement::TypelessConstAccessor accArea( "area" );
-      static SG::AuxElement::TypelessConstAccessor accRho( "rho" );
-      static SG::AuxElement::TypelessConstAccessor accEt_cos( "Et_cos" );
-      static SG::AuxElement::TypelessConstAccessor accEt_sin( "Et_sin" );
-      static SG::AuxElement::TypelessConstAccessor accEtaMin( "etaMin" );
-      static SG::AuxElement::TypelessConstAccessor accEtaMax( "etaMax" );
-      static SG::AuxElement::TypelessConstAccessor accLayer( "layer" );
-      static SG::AuxElement::TypelessConstAccessor accNCells( "nCells" );
-      static std::array< SG::AuxElement::TypelessConstAccessor*, 9 >
+      static const SG::AuxElement::TypelessConstAccessor accEt( "Et" );
+      static const SG::AuxElement::TypelessConstAccessor accArea( "area" );
+      static const SG::AuxElement::TypelessConstAccessor accRho( "rho" );
+      static const SG::AuxElement::TypelessConstAccessor accEt_cos( "Et_cos" );
+      static const SG::AuxElement::TypelessConstAccessor accEt_sin( "Et_sin" );
+      static const SG::AuxElement::TypelessConstAccessor accEtaMin( "etaMin" );
+      static const SG::AuxElement::TypelessConstAccessor accEtaMax( "etaMax" );
+      static const SG::AuxElement::TypelessConstAccessor accLayer( "layer" );
+      static const SG::AuxElement::TypelessConstAccessor accNCells( "nCells" );
+      static const std::array< const SG::AuxElement::TypelessConstAccessor*, 9 >
          knownVars{ { &accEt, &accArea, &accRho, &accEt_cos, &accEt_sin,
                &accEtaMin, &accEtaMax, &accLayer, &accNCells } };
 

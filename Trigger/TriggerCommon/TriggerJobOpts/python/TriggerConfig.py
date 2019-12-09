@@ -79,14 +79,15 @@ def collectFilters( steps ):
 
 def collectL1DecoderDecisionObjects(l1decoder):
     decisionObjects = set()
-    __log.info("Collecting decision objects from L1 decoder instance")
     decisionObjects.update([ d.Decisions for d in l1decoder.roiUnpackers ])
     decisionObjects.update([ d.Decisions for d in l1decoder.rerunRoiUnpackers ])
+    from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
+    decisionObjects.add( mapThresholdToL1DecisionCollection("FS") ) # Include also Full Scan
+    __log.info("Collecting %i decision objects from L1 decoder instance", len(decisionObjects))
     return decisionObjects
 
 def collectHypoDecisionObjects(hypos, inputs = True, outputs = True):
     decisionObjects = set()
-    __log.info("Collecting decision objects from hypos")
     for step, stepHypos in hypos.iteritems():
         for hypoAlg in stepHypos:
             __log.debug( "Hypo %s with input %s and output %s ",
@@ -101,35 +102,47 @@ def collectHypoDecisionObjects(hypos, inputs = True, outputs = True):
                     decisionObjects.add( hypoAlg.HypoInputDecisions )
                 if outputs:
                     decisionObjects.add( hypoAlg.HypoOutputDecisions )
+    __log.info("Collecting %i decision objects from hypos", len(decisionObjects))
     return decisionObjects
 
 def collectFilterDecisionObjects(filters, inputs = True, outputs = True):
     decisionObjects = set()
-    __log.info("Collecting decision objects from filters")
     for step, stepFilters in filters.iteritems():
         for filt in stepFilters:
             if inputs:
                 decisionObjects.update( filt.Input )
             if outputs:
                 decisionObjects.update( filt.Output )
+    __log.info("Collecting %i decision objects from filters", len(decisionObjects))
     return decisionObjects
 
-def collectDecisionObjects(  hypos, filters, l1decoder ):
+def collectHLTSummaryDecisionObjects(hltSummary):
+    decisionObjects = set()
+    decisionObjects.add( hltSummary.DecisionsSummaryKey )
+    __log.info("Collecting %i decision objects from hltSummary", len(decisionObjects))
+    return decisionObjects
+
+def collectDecisionObjects(  hypos, filters, l1decoder, hltSummary ):
     """
     Returns the set of all decision objects of HLT
     """
     decObjL1 = collectL1DecoderDecisionObjects(l1decoder)
-    decObjHypo = collectHypoDecisionObjects(hypos)
-    decObjFilter = collectFilterDecisionObjects(filters)
+    decObjHypo = collectHypoDecisionObjects(hypos, inputs = True, outputs = True)
+    decObjFilter = collectFilterDecisionObjects(filters, inputs = True, outputs = True)
+    # InputMaker are not needed explicitly as the Filter Outputs = InputMaker Inputs
+    # and InputMaker Outputs = Hypo Inputs
+    # Therefore we implicitly collect all navigaiton I/O of all InputMakers
+    decObjSummary = collectHLTSummaryDecisionObjects(hltSummary)
     decisionObjects = set()
     decisionObjects.update(decObjL1)
     decisionObjects.update(decObjHypo)
     decisionObjects.update(decObjFilter)
+    decisionObjects.update(decObjSummary)
     return decisionObjects
 
 def triggerSummaryCfg(flags, hypos):
     """
-    Configures an algorithm(s) that should be run after the section process
+    Configures an algorithm(s) that should be run after the selection process
     Returns: ca, algorithm
     """
     acc = ComponentAccumulator()
@@ -137,13 +150,28 @@ def triggerSummaryCfg(flags, hypos):
     from TrigEDMConfig.TriggerEDMRun3 import recordable
     decisionSummaryAlg = DecisionSummaryMakerAlg()
     allChains = {}
+
+
     for stepName, stepHypos in sorted( hypos.items() ):
         for hypo in stepHypos:
             hypoChains,hypoOutputKey = __decisionsFromHypo( hypo )
             allChains.update( dict.fromkeys( hypoChains, hypoOutputKey ) )
 
+    from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
+    from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
+    if len(TriggerConfigHLT.dicts()) == 0:
+        __log.warning("No HLT menu, chains w/o algorithms are not handled")
+    else:
+        for chainName, chainDict in TriggerConfigHLT.dicts().iteritems():
+            if chainName not in allChains:
+                __log.debug("The chain %s is not mentiond in any step", chainName)
+                # TODO once sequences available in the menu we need to crosscheck it here
+                assert len(chainDict['chainParts'])  == 1, "Chains w/o the steps can not have mutiple parts in chainDict, it makes no sense"
+                allChains[chainName] = mapThresholdToL1DecisionCollection( chainDict['chainParts'][0]['L1threshold'] )
+                __log.info("The chain %s final decisions will be taken from %s", chainName, allChains[chainName] )
+
     for c, cont in allChains.iteritems():
-        __log.info("Final decision of chain  " + c + " will be red from " + cont )
+        __log.info("Final decision of chain  " + c + " will be read from " + cont )
     decisionSummaryAlg.FinalDecisionKeys = list(set(allChains.values()))
     decisionSummaryAlg.FinalStepDecisions = allChains
     decisionSummaryAlg.DecisionsSummaryKey = "HLTNav_Summary" # Output
@@ -180,75 +208,207 @@ def triggerMonitoringCfg(flags, hypos, filters, l1Decoder):
 
     #mon.FinalChainStep = allChains
     mon.L1Decisions  = l1Decoder.getProperties()['L1DecoderSummaryKey'] if l1Decoder.getProperties()['L1DecoderSummaryKey'] != '<no value>' else l1Decoder.getDefaultProperty('L1DecoderSummary')
-    
+
     from DecisionHandling.DecisionHandlingConfig import setupFilterMonitoring
     [ [ setupFilterMonitoring( alg ) for alg in algs ]  for algs in filters.values() ]
 
-    
+
     return acc, mon
 
-def triggerOutputStreamCfg( flags, decObj, outputType ):
+
+
+def triggerOutputCfg(flags, decObj, decObjHypoOut, summaryAlg):
+    # Following cases are considered:
+    # 1) Running in partition or athenaHLT - configure BS output written by the HLT framework
+    # 2) Running offline athena and writing BS - configure BS output written by OutputStream alg
+    # 3) Running offline athena with POOL output - configure POOL output written by OutputStream alg
+    onlineWriteBS = False
+    offlineWriteBS = False
+    writePOOL = False
+
+    isPartition = len(flags.Trigger.Online.partitionName) > 0
+    if flags.Trigger.writeBS:
+        if isPartition:
+            onlineWriteBS = True
+        else:
+            offlineWriteBS = True
+    if flags.Output.doWriteRDO or flags.Output.doWriteESD or flags.Output.doWriteAOD:
+        writePOOL = True
+
+    # Consistency checks
+    if offlineWriteBS and not flags.Output.doWriteBS:
+        __log.error('flags.Trigger.writeBS is True but flags.Output.doWriteBS is False')
+        return None, ''
+    if writePOOL and onlineWriteBS:
+        __log.error("POOL HLT output writing is configured online")
+        return None, ''
+    if writePOOL and offlineWriteBS:
+        __log.error("Writing HLT output to both BS and POOL in one job is not supported at the moment")
+        return None, ''
+
+    # Determine EDM set name
+    edmSet = ''
+    if writePOOL:
+        edmSet = flags.Trigger.AODEDMSet if flags.Output.doWriteAOD else flags.Trigger.ESDEDMSet
+    elif onlineWriteBS or offlineWriteBS:
+        edmSet = 'BS'
+
+    # Create the configuration
+    if onlineWriteBS:
+        __log.info("Configuring online ByteStream HLT output")
+        acc = triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg)
+        # Configure the online HLT result maker to use the above tools
+        # For now use old svcMgr interface as this service is not available from acc.getService()
+        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+        hltEventLoopMgr = svcMgr.HltEventLoopMgr
+        hltEventLoopMgr.ResultMaker.MakerTools = acc.popPrivateTools()
+    elif offlineWriteBS:
+        __log.info("Configuring offline ByteStream HLT output")
+        acc = triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg, offline=True)
+    elif writePOOL:
+        __log.info("Configuring POOL HLT output")
+        acc = triggerPOOLOutputCfg(flags, decObj, decObjHypoOut, edmSet)
+    else:
+        __log.info("No HLT output writing is configured")
+        acc = ComponentAccumulator()
+
+    return acc, edmSet
+
+
+def triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg, offline=False):
     """
-    Configure output stream according to the menu setup (decision objects)
-    and TrigEDMConfig
+    Returns CA with algorithms and/or tools required to do the serialisation
+
+    decObj - list of all naviagtaion objects
+    decObjHypoOut - list of decisions produced by hypos
+    summaryAlg - the instance of algorithm producing final decision
+    offline - if true CA contains algorithms that needs to be merged to output stream sequence,
+              if false the CA contains a tool that needs to be added to HLT EventLoopMgr
     """
-    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    itemsToRecord = []
-    # decision objects and their Aux stores
-    def __TCKeys( name ):
-        return [ "xAOD::TrigCompositeContainer#%s" % name, "xAOD::TrigCompositeAuxContainer#%sAux." % name]
-    [ itemsToRecord.extend( __TCKeys(d) ) for d in decObj ]
-    # the rest of triger EDM
-    itemsToRecord.extend( __TCKeys( "HLTNav_Summary" ) )
+    from TriggerMenuMT.HLTMenuConfig.Menu import EventBuildingInfo
+    from TrigEDMConfig.TriggerEDM import getRun3BSList
 
-    from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3
-    EDMCollectionsToRecord=filter( lambda x: outputType in x[1] and "TrigCompositeContainer" not in x[0],  TriggerHLTListRun3 )
-    itemsToRecord.extend( [ el[0] for el in EDMCollectionsToRecord ] )
+    # handle the collectiosn defined in the EDM config
+    collectionsToBS = getRun3BSList( ["BS"]+ EventBuildingInfo.DataScoutingIdentifiers.keys() )
 
-    # summary objects
-    __log.info( outputType + " trigger content "+str( itemsToRecord ) )
-    acc = OutputStreamCfg( flags, outputType, ItemList=itemsToRecord )
-    streamAlg = acc.getEventAlgo("OutputStream"+outputType)
-    streamAlg.ExtraInputs = [("xAOD::TrigCompositeContainer", "HLTNav_Summary")] # OutputStream has a data dependency on HLTNav_Summary
-
-    return acc
-
-def triggerBSOutputCfg( flags, decObj ):
-    """
-    Configure output to be saved in BS
-    """
-    acc = ComponentAccumulator()
-
-    from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3, persistent
-    from TrigOutputHandling.TrigOutputHandlingConf import HLTResultMTMakerAlg#, TriggerBitsMakerTool, StreamTagMakerTool
-    from TrigOutputHandling.TrigOutputHandlingConfig import TriggerEDMSerialiserToolCfg, HLTResultMTMakerCfg
     
-    serialiser = TriggerEDMSerialiserToolCfg("Serialiser")
-    for coll in decObj:
-        serialiser.addCollectionListToMainResult( [ "{}#remap_{}".format( persistent("xAOD::TrigCompositeContainer"), coll ),
-                                                    "{}#remap_{}Aux.".format( persistent("xAOD::TrigCompositeAuxContainer"), coll )] )
+    from collections import OrderedDict
+    ItemModuleDict = OrderedDict()
+    for typekey, bsfragments in collectionsToBS:
+        # translate readable frament names like BS, CostMonDS names to ROB fragment IDs 0 - for the BS, 1,...- for DS fragments
+        moduleIDs = [ EventBuildingInfo.getFullHLTResultID() if f == 'BS' else EventBuildingInfo.getDataScoutingResultID(f)
+                      for f in bsfragments ]
+        ItemModuleDict[typekey] = moduleIDs
 
-    # EDM
-    EDMCollectionsToRecord=filter( lambda x: "BS" in x[1],  TriggerHLTListRun3 )    
-    for item in EDMCollectionsToRecord:
-        typeName, collName = item[0].split("#")
-        serialisedTypeColl="{}#{}".format(persistent(typeName), collName)
-        __log.info( "Serialising {}".format( serialisedTypeColl ) ) 
-        serialiser.addCollectionListToMainResult( [ serialisedTypeColl ] )
+    # Add decision containers (navigation)
+    for item in decObj:
+        dynamic = '.-' # Exclude dynamic
+        if item in decObjHypoOut:
+            dynamic = '.' # Include dynamic
+        typeName = 'xAOD::TrigCompositeContainer#{:s}'.format(item)
+        typeNameAux = 'xAOD::TrigCompositeAuxContainer#{:s}Aux{:s}'.format(item, dynamic)
+        if typeName not in ItemModuleDict.keys():
+            ItemModuleDict[typeName] = [EventBuildingInfo.getFullHLTResultID()]
+        if typeNameAux not in ItemModuleDict.keys():
+            ItemModuleDict[typeNameAux] = [EventBuildingInfo.getFullHLTResultID()]
+
+    from TrigOutputHandling.TrigOutputHandlingConfig import TriggerEDMSerialiserToolCfg, StreamTagMakerToolCfg, TriggerBitsMakerToolCfg
+
+    # Tool serialising EDM objects to fill the HLT result
+    serialiser = TriggerEDMSerialiserToolCfg('Serialiser')
+    for item, modules in ItemModuleDict.iteritems():
+        __log.debug('adding to serialiser list: %s, modules: %s', item, modules)
+        serialiser.addCollection(item, modules)
+
+    # Tools adding stream tags and trigger bits to HLT result
+    stmaker = StreamTagMakerToolCfg()
+    bitsmaker = TriggerBitsMakerToolCfg()
+
+    # Map decisions producing PEBInfo from DecisionSummaryMakerAlg.FinalStepDecisions to StreamTagMakerTool.PEBDecisionKeys
+    pebDecisionKeys = [key for key in summaryAlg.getProperties()['FinalStepDecisions'].values() if 'PEBInfoWriter' in key]
+    stmaker.PEBDecisionKeys = pebDecisionKeys
+
+    acc = ComponentAccumulator(sequenceName="HLTTop")
+    if offline:
+        # Create HLT result maker and alg
+        from TrigOutputHandling.TrigOutputHandlingConfig import HLTResultMTMakerCfg
+        from TrigOutputHandling.TrigOutputHandlingConf import HLTResultMTMakerAlg
+        hltResultMakerTool = HLTResultMTMakerCfg()
+        hltResultMakerTool.MakerTools = [bitsmaker, stmaker, serialiser] # TODO: stmaker likely not needed for offline BS writing
+        hltResultMakerAlg = HLTResultMTMakerAlg()
+        hltResultMakerAlg.ResultMaker = hltResultMakerTool
+        acc.addEventAlgo( hltResultMakerAlg )
+        # TODO: Decide if stream tags are needed and, if yes, find a way to save updated ones in offline BS saving
+
+        # Transfer trigger bits to xTrigDecision which is read by offline BS writing ByteStreamCnvSvc
+        from TrigDecisionMaker.TrigDecisionMakerConfig import TrigDecisionMakerMT
+        decmaker = TrigDecisionMakerMT('TrigDecMakerMT')
+        acc.addEventAlgo( decmaker )
+
+        # Create OutputStream alg
+        from ByteStreamCnvSvc import WriteByteStream
+        StreamBSFileOutput = WriteByteStream.getStream("EventStorage", "StreamBSFileOutput")
+        StreamBSFileOutput.ItemList += [ "HLT::HLTResultMT#HLTResultMT" ]
+        StreamBSFileOutput.ExtraInputs = [
+            ("HLT::HLTResultMT", "HLTResultMT"),
+            ("xAOD::TrigDecision", "xTrigDecision")]
+        acc.addEventAlgo( StreamBSFileOutput )
+
+    else:
+        acc.setPrivateTools( [bitsmaker, stmaker, serialiser] )
+    return acc
 
 
-    hltResultMakerTool            = HLTResultMTMakerCfg("MakerTool") # want short nme to see in the log
-    hltResultMakerTool.MakerTools = [ serialiser ] 
-    # This should be the following (inc imports, above), pending 
-    #hltResultMakerTool.MakerTools = [ serialiser, StreamTagMakerTool(), TriggerBitsMakerTool() ] 
-    hltResultMakerAlg             = HLTResultMTMakerAlg()
-    hltResultMakerAlg.ResultMaker = hltResultMakerTool
-    acc.addEventAlgo( hltResultMakerAlg )
+def triggerPOOLOutputCfg(flags, decObj, decObjHypoOut, edmSet):
+    # Get the list from TriggerEDM
+    from TrigEDMConfig.TriggerEDM import getTriggerEDMList
+    edmList = getTriggerEDMList(edmSet, flags.Trigger.EDMDecodingVersion)
+
+    # Build the output ItemList
+    itemsToRecord = []
+    for edmType, edmKeys in edmList.iteritems():
+        itemsToRecord.extend([edmType+'#'+collKey for collKey in edmKeys])
+
+    # Add decision containers (navigation)
+    for item in decObj:
+        dynamic = '.-' # Exclude dynamic
+        if item in decObjHypoOut:
+            dynamic = '.' # Include dynamic
+        itemsToRecord.append('xAOD::TrigCompositeContainer#{:s}'.format(item))
+        itemsToRecord.append('xAOD::TrigCompositeAuxContainer#{:s}Aux{:s}'.format(item, dynamic))
+
+    # Create OutputStream
+    outputType = ''
+    if flags.Output.doWriteRDO:
+        outputType = 'RDO'
+    if flags.Output.doWriteESD:
+        outputType = 'ESD'
+    if flags.Output.doWriteAOD:
+        outputType = 'AOD'
+    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+    acc = OutputStreamCfg(flags, outputType, ItemList=itemsToRecord)
+
+    # OutputStream has a data dependency on xTrigDecision
+    streamAlg = acc.getEventAlgo("OutputStream"+outputType)
+    streamAlg.ExtraInputs = [("xAOD::TrigDecision", "xTrigDecision")]
+
+    # Produce the trigger bits
+    from TrigOutputHandling.TrigOutputHandlingConfig import TriggerBitsMakerToolCfg
+    from TrigDecisionMaker.TrigDecisionMakerConfig import TrigDecisionMakerMT
+    bitsmaker = TriggerBitsMakerToolCfg()
+    decmaker = TrigDecisionMakerMT('TrigDecMakerMT')
+    decmaker.BitsMakerTool = bitsmaker
+    acc.addEventAlgo( decmaker )
+
+    # Produce trigger metadata
+    from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODMenuWriterMT
+    menuwriter = TrigConf__xAODMenuWriterMT()
+    acc.addEventAlgo( menuwriter )
 
     return acc
 
 
-def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj ):
+def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj, decObjHypoOut ):
 
     from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreatorAlg, HLTEDMCreator
     from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3
@@ -297,7 +457,7 @@ def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj ):
     if len(edmSet) != 0:
         from collections import defaultdict
         groupedByType = defaultdict( list )
-    
+
         # scan the EDM
         for el in TriggerHLTListRun3:
             if not any([ outputType in el[1].split() for outputType in edmSet ]):
@@ -305,7 +465,7 @@ def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj ):
             collType, collName = el[0].split("#")
             if "Aux" in collType: # the GapFiller crates appropriate Aux obejcts
                 continue
-            groupedByType[collType].append( collName )    
+            groupedByType[collType].append( collName )
 
         for collType, collNameList in groupedByType.iteritems():
             propName = collType.split(":")[-1]
@@ -318,7 +478,7 @@ def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj ):
     __log.debug("The GapFiller is ensuring the creation of all the decision object collections: '{}'".format( decObj ) )
     # Append and hence confirm all TrigComposite collections
     # Gap filler is also used to perform re-mapping of the HypoAlg outputs which is a sub-set of decObj
-    tool.FixLinks = list(collectHypoDecisionObjects(hypos, inputs=False, outputs=True))
+    tool.FixLinks = list(decObjHypoOut)
     tool.TrigCompositeContainer += list(decObj)
     alg.OutputTools += [tool]
 
@@ -334,18 +494,13 @@ def triggerRunCfg( flags, menu=None ):
     """
     acc = ComponentAccumulator()
 
-    if flags.Trigger.doLVL1:
-        from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu, L1ConfigSvcCfg
-        generateL1Menu( flags )
-        acc.merge( L1ConfigSvcCfg(flags) )
+    # L1ConfigSvc needed for L1Decoder
+    from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
+    acc.merge( L1ConfigSvcCfg(flags) )
 
     acc.merge( triggerIDCCacheCreatorsCfg( flags ) )
 
     from L1Decoder.L1DecoderConfig import L1DecoderCfg
-    #TODO
-    # information about the menu has to be injected into L1 decoder config
-    # necessary ingreedient is list of mappings from L1 item to chain
-    # and item to threshold (the later can be maybe extracted from L1 config file)
     l1DecoderAcc, l1DecoderAlg = L1DecoderCfg( flags )
     acc.merge( l1DecoderAcc )
 
@@ -360,7 +515,7 @@ def triggerRunCfg( flags, menu=None ):
     # collect hypothesis algorithms from all sequence
     hypos = collectHypos( HLTSteps )
     filters = collectFilters( HLTSteps )
-    
+
     summaryAcc, summaryAlg = triggerSummaryCfg( flags, hypos )
     acc.merge( summaryAcc )
 
@@ -372,8 +527,10 @@ def triggerRunCfg( flags, menu=None ):
     from TrigCostMonitorMT.TrigCostMonitorMTConfig import TrigCostMonitorMTCfg
     acc.merge( TrigCostMonitorMTCfg( flags ) )
 
-    decObj = collectDecisionObjects( hypos, filters, l1DecoderAlg )
+    decObj = collectDecisionObjects( hypos, filters, l1DecoderAlg, summaryAlg )
+    decObjHypoOut = collectHypoDecisionObjects(hypos, inputs=False, outputs=True)
     __log.info( "Number of decision objects found in HLT CF %d", len( decObj ) )
+    __log.info( "Of which, %d are the outputs of hypos", len( decObjHypoOut ) )
     __log.info( str( decObj ) )
 
     HLTTop = seqOR( "HLTTop", [ l1DecoderAlg, HLTSteps, summaryAlg, monitoringAlg ] )
@@ -381,29 +538,16 @@ def triggerRunCfg( flags, menu=None ):
 
     acc.merge( menuAcc )
 
-    
+
     # configure components need to normalise output before writing out
     viewMakers = collectViewMakers( HLTSteps )
-    edmSet = []
 
-    if flags.Output.ESDFileName != "":
-        __log.debug( "Setting up trigger EDM output for ESD" )
-        acc.merge( triggerOutputStreamCfg( flags, decObj, "ESD" ) )
-        edmSet.append('ESD')
+    outputAcc, edmSet = triggerOutputCfg( flags, decObj, decObjHypoOut, summaryAlg )
+    acc.merge( outputAcc )
 
-    if flags.Output.AODFileName != "":
-        __log.debug( "Setting up trigger EDM output for AOD" )
-        acc.merge( triggerOutputStreamCfg( flags, decObj, "AOD" ) )
-        edmSet.append('AOD')
-        
-    if any( (flags.Output.ESDFileName != "" , flags.Output.AODFileName != "", flags.Trigger.writeBS) ):
-        mergingAlg = triggerMergeViewsAndAddMissingEDMCfg( edmSet , hypos, viewMakers, decObj )
+    if edmSet:
+        mergingAlg = triggerMergeViewsAndAddMissingEDMCfg( [edmSet] , hypos, viewMakers, decObj, decObjHypoOut )
         acc.addEventAlgo( mergingAlg, sequenceName="HLTTop" )
-
-    # configure actual streams
-    if flags.Trigger.writeBS:
-        __log.debug( "Setting up trigger output for ByteStream" )
-        acc.merge( triggerBSOutputCfg( flags, decObj ) )
 
     return acc
 
@@ -447,6 +591,6 @@ if __name__ == "__main__":
 
     acc = triggerRunCfg( ConfigFlags, testMenu )
 
-    f=open("TriggerRunConf.pkl","w")
+    f=open("TriggerRunConf.pkl","wb")
     acc.store(f)
     f.close()

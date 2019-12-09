@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: L1Muctpi.cxx 794528 2017-01-30 12:36:33Z fwinkl $
@@ -28,8 +28,6 @@
 #include "TrigT1Interfaces/TrigT1StoreGateKeys.h"
 #include "TrigT1Interfaces/NimCTP.h"
 
-// The output object of the simulation
-#include "TrigT1Result/MuCTPI_RDO.h"
 
 // Inlcudes for the MuCTPI simulation
 #include "L1Muctpi.h"
@@ -75,7 +73,6 @@ namespace LVL1MUCTPI {
     declareProperty( "InputSource", m_inputSource = "DIGITIZATION" );
     declareProperty( "AODLocID", m_aodLocId = m_DEFAULT_AODLocID );
     declareProperty( "RDOLocID", m_rdoLocId = m_DEFAULT_RDOLocID );
-    declareProperty( "RDOOutputLocID", m_rdoOutputLocId = m_DEFAULT_RDOLocID );
     declareProperty( "RoIOutputLocID", m_roiOutputLocId = LVL1MUCTPI::DEFAULT_MuonRoIBLocation );
     //declareProperty( "CTPOutputLocID", m_ctpOutputLocId = LVL1MUCTPI::DEFAULT_MuonCTPLocation );
     declareProperty( "CTPOutputLocID", m_muctpi2CtpKey );
@@ -131,6 +128,7 @@ namespace LVL1MUCTPI {
     incidentSvc.release().ignore();
 
     ATH_CHECK( m_muctpi2CtpKey.initialize() );
+    if(!m_rdoOutputLocId.empty()) ATH_CHECK( m_rdoOutputLocId.initialize());
 
 
     
@@ -647,10 +645,13 @@ namespace LVL1MUCTPI {
    */
   StatusCode L1Muctpi::saveOutput_MuCTPI_RDO(uint32_t& can, std::vector< uint32_t >& dataWord)
   {
-    MuCTPI_RDO * muCTPI_RDO = new MuCTPI_RDO( can, dataWord );
-    CHECK( evtStore()->record( muCTPI_RDO, m_rdoOutputLocId ) );
-    ATH_MSG_DEBUG( "MuCTPI_RDO object recorded to StoreGate with key: "
-		   << m_rdoOutputLocId );
+    if(!m_rdoOutputLocId.empty()){
+      MuCTPI_RDO * muCTPI_RDO = new MuCTPI_RDO( can, dataWord );
+      auto rdoHandle = SG::makeHandle(m_rdoOutputLocId);
+      ATH_CHECK(rdoHandle.record(std::unique_ptr<MuCTPI_RDO>(muCTPI_RDO)));
+      ATH_MSG_DEBUG( "MuCTPI_RDO object recorded with key: "
+		     << m_rdoOutputLocId.key() );
+    }
     return StatusCode::SUCCESS;
   }
 

@@ -22,7 +22,7 @@ if rec.projectName().startswith("data09") :
     larCondFlags.OFCShapeFolder="5samples3bins17phases"
 
 if svcMgr.MessageSvc.OutputLevel <= DEBUG :
-  print larCondFlags
+  print(larCondFlags)
 
 
 if larCondFlags.LArElecCalibSqlite.statusOn and larCondFlags.LArElecCalibSqlite()!="":
@@ -45,7 +45,7 @@ if larCondFlags.LArForceIOVRunNumber.statusOn and larCondFlags.LArForceIOVRunNum
 #Hack following the Online/Offline split of the BadChannel database:
 #Online applications read from COOLONL_LAR/COMP200, folder /LAR/BadChannels/BadChannels
 #Offline applications read from COOLOFL_LAR/COMP200, folder /LAR/BadChannelsOfl/BadChannels
-#But SG key(=Folder name) is expected to be the same in both cases (default set in LArBadChanTool.cxx)
+#But SG key(=Folder name) is expected to be the same in both cases 
 #Solution: Re-key the object when reading from offline DB
 include( "LArConditionsCommon/LArIdMap_comm_jobOptions.py" ) #Needed by BC cond alog
 rekeyBC="<key>/LAR/BadChannels/BadChannels</key>"
@@ -201,7 +201,7 @@ if larCondFlags.LoadElecCalib():
           pass
       pass
    else:
-      print "In SuperCell case... so far will not initialise folders."   
+      print("In SuperCell case... so far will not initialise folders.")
 
   else: #Run 1 case, no COOL-inline electronic calibration
    if not SuperCells: 
@@ -279,13 +279,13 @@ if larCondFlags.LoadElecCalib():
           pass
       pass
    else:
-      print "In SuperCell case... so far will not initialise folders."   
+      print("In SuperCell case... so far will not initialise folders.")
   pass
 
 
 #special case for overlay jobs: We need LArfSampl 
 if DetFlags.overlay.LAr_on() and larCondFlags.LArfSamplTag()!="":
-   print "Tag=%s" % larCondFlags.LArfSamplTag()
+   print("Tag=%s" % larCondFlags.LArfSamplTag())
    conddb.addFolderWithTag("LAR_OFL","/LAR/ElecCalibMC/fSampl",larCondFlags.LArfSamplTag(),force=True,forceMC=True,className="LArfSamplMC")
    from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArfSamplMC_LArfSamplSym_ as LArfSamplSymAlg
    from LArRecUtils.LArMCSymCondAlg import LArMCSymCondAlgDefault

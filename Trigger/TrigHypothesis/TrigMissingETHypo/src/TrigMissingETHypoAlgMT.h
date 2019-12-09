@@ -23,12 +23,9 @@ class TrigMissingETHypoAlgMT : public ::HypoBase {
 
   TrigMissingETHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator );
 
-  virtual ~TrigMissingETHypoAlgMT(); 
-
   virtual StatusCode  initialize() override;
   virtual StatusCode  execute( const EventContext& context ) const override;
-  virtual StatusCode  finalize() override;
- 
+
  private:
 
   // TODO: Consider taking muonContainer etc in case they are needed in future.

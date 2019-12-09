@@ -31,9 +31,7 @@ class TrigMETMonitorAlgorithm : public AthMonitorAlgorithm {
   SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_tc_met_key;
   SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_tcpufit_met_key;
 
-  ToolHandle<Trig::ITrigDecisionTool> m_trigDecTool;
-  //ToolHandle<Trig::ITrigDecisionTool> m_trigDecTool{this, "TrigDecisionTool",""};
-  
+
 
 };
 #endif

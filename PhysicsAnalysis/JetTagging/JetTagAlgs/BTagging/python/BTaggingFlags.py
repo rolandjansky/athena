@@ -324,7 +324,7 @@ class _BTaggingFlags:
         if attr == 'MV2Flip':
           setattr(self, attr, False)
         if attr == 'JetVertexCharge':
-          setattr(self, attr, True)
+          setattr(self, attr, False) # ATLASRECTS-4506
 
 
       for attr in self._BaselineTagger:

@@ -13,5 +13,5 @@ export TRF_ECHO=True; Reco_tf.py --inputRDOFile /cvmfs/atlas-nightlies.cern.ch/r
 
 RES=$?
 echo "art-result: $RES Reco"
-return $RES
+
 

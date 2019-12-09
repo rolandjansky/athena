@@ -7,7 +7,7 @@
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
 from AthenaCommon import Logging
-from AtlasGeoDBInterface import AtlasGeoDBInterface
+from AtlasGeoModel.AtlasGeoDBInterface import AtlasGeoDBInterface
 
 class CommonGMFlags:
 

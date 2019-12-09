@@ -14,6 +14,8 @@ class  ConfiguredNewTrackingTRTExtension:
       from InDetRecExample.InDetJobProperties import InDetFlags
       from AthenaCommon.DetFlags              import DetFlags
       from InDetRecExample.InDetKeys          import InDetKeys
+      
+      import InDetRecExample.TrackingCommon   as TrackingCommon
       #
       # get ToolSvc and topSequence
       #
@@ -163,6 +165,7 @@ class  ConfiguredNewTrackingTRTExtension:
                                                                     ExtensionMap       = OutputExtendedTracks,
                                                                     NewTrackName       = self.__ForwardTrackCollection,
                                                                     TrackFitter        = InDetExtensionFitter,
+                                                                    TrackSummaryTool   = TrackingCommon.getInDetTrackSummaryTool(),
                                                                     ScoringTool        = InDetExtenScoringTool,
                                                                     suppressHoleSearch = False,  # does not work properly
                                                                     tryBremFit         = InDetFlags.doBremRecovery(),
@@ -188,6 +191,7 @@ class  ConfiguredNewTrackingTRTExtension:
                                                                     ExtensionMap       = OutputExtendedTracks,
                                                                     NewTrackName       = self.__ForwardTrackCollection,
                                                                     TrackFitter        = InDetExtensionFitter,
+                                                                    TrackSummaryTool   = TrackingCommon.getInDetTrackSummaryTool(),
                                                                     ScoringTool        = InDetExtenScoringTool,
                                                                     suppressHoleSearch = False,  # does not work properly
                                                                     tryBremFit         = InDetFlags.doBremRecovery(),

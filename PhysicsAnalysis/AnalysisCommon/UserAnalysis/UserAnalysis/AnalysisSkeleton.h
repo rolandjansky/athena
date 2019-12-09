@@ -71,10 +71,10 @@ class AnalysisSkeleton : public AthAlgorithm  {
    AnalysisSkeleton(const std::string& name, ISvcLocator* pSvcLocator);
    ~AnalysisSkeleton();
 
-   virtual StatusCode beginRun();
-   virtual StatusCode initialize();
-   virtual StatusCode finalize();
-   virtual StatusCode execute();
+   virtual StatusCode start() override;
+   virtual StatusCode initialize() override;
+   virtual StatusCode finalize() override;
+   virtual StatusCode execute() override;
    virtual StatusCode initEvent();
 
  private:

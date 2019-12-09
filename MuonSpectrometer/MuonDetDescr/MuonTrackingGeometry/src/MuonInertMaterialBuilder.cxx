@@ -72,52 +72,10 @@
 // constructor
 Muon::MuonInertMaterialBuilder::MuonInertMaterialBuilder(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
-  Trk::TrackingVolumeManipulator(),
-  m_muonMgr(0),
-  m_muonMgrLocation("MuonMgr"),
-  m_simplify(false),
-  m_simplifyToLayers(false),
-  m_debugMode(false),
-  m_buildBT(true),
-  m_buildECT(true),
-  m_buildFeets(true),
-  m_buildRails(1),
-  m_buildShields(true),
-  m_buildSupports(true),
-  m_buildNSWInert(true),
-  m_blendLimit(3e+09),
-  m_materialConverter(0),
-  m_geoShapeConverter(0),
-  m_rndmGenSvc("RndmGenSvc","randomGen"),
-  m_flatDist(0),
-  m_extraMaterial(false),
-  m_extraX0(0.3),
-  m_extraFraction(0.5),
-  m_extraPos1(13000.),
-  m_extraPos2(15000.)
+  Trk::TrackingVolumeManipulator()
 {
   declareInterface<Trk::IDetachedTrackingVolumeBuilder>(this);
-  declareProperty("MuonDetManagerLocation",           m_muonMgrLocation);
-  declareProperty("SimplifyGeometry",                 m_simplify);
-  declareProperty("SimplifyGeometryToLayers",         m_simplifyToLayers);
-  declareProperty("DebugMode",                        m_debugMode);
-  declareProperty("BuildBarrelToroids",               m_buildBT);
-  declareProperty("BuildEndcapToroids",               m_buildECT);
-  declareProperty("BuildFeets",                       m_buildFeets);
-  declareProperty("BuildRails",                       m_buildRails);
-  declareProperty("BuildShields",                     m_buildShields);
-  declareProperty("BuildSupports",                    m_buildSupports);
-  declareProperty("BlendLimit",                       m_blendLimit);
-  declareProperty("AddMaterial",                      m_extraMaterial);
-  declareProperty("AMradLength",                      m_extraX0);
-  declareProperty("AMsplit",                          m_extraFraction);
-  declareProperty("AMlayerPos1",                      m_extraPos1);
-  declareProperty("AMlayerPos2",                      m_extraPos2);
 }
-
-// destructor
-Muon::MuonInertMaterialBuilder::~MuonInertMaterialBuilder()
-{}
 
 // Athena standard methods
 // initialize
@@ -138,7 +96,15 @@ StatusCode Muon::MuonInertMaterialBuilder::initialize()
 
 // mw
     m_materialConverter= new Trk::GeoMaterialConverter();
+    if(!m_materialConverter){
+      ATH_MSG_FATAL(  "Could not create material converter in " << name() <<" initialize()");
+      return StatusCode::FAILURE;
+    }
     m_geoShapeConverter= new Trk::GeoShapeConverter();
+    if(!m_geoShapeConverter){
+      ATH_MSG_FATAL(  "Could not create shape converter in " << name() <<" initialize()");
+      return StatusCode::FAILURE;
+    }
 
     // random number generator
     if ( m_rndmGenSvc.retrieve().isFailure() ){
@@ -146,12 +112,17 @@ StatusCode Muon::MuonInertMaterialBuilder::initialize()
       return StatusCode::FAILURE;
     }
     m_flatDist = new Rndm::Numbers( &(*m_rndmGenSvc), Rndm::Flat(0.,1.) );
+    if(!m_flatDist){
+      ATH_MSG_FATAL(  "Could not create flat distribution random generator in " << name() <<" initialize()");
+      return StatusCode::FAILURE;
+    }
 
     if (m_simplifyToLayers) {
       ATH_MSG_INFO( name() <<" option Simplify(Muon)GeometryToLayers no longer maintained " );
     }
  
-    m_constituents.clear();   
+    m_constituents =  std::make_shared<std::vector<std::vector<std::pair<const Trk::Volume*,float> >* >> ();
+    (*m_constituents).clear();
     
     ATH_MSG_INFO( name() <<" initialize() successful" );
     
@@ -315,7 +286,7 @@ const std::vector<std::pair<const Trk::DetachedTrackingVolume*,std::vector<Amg::
 	      const Trk::TrackingVolume* newType= new Trk::TrackingVolume( *trObject, mat, 0,0,protoName);
               const Trk::TrackingVolume* simType = simplifyShape(newType,blend);
 	      const Trk::DetachedTrackingVolume* typeStat = new Trk::DetachedTrackingVolume(protoName,simType);
-	      if (blend) typeStat->saveConstituents(m_constituents.back());
+	      if (blend) typeStat->saveConstituents((*m_constituents).back());
 	      objs.push_back(std::pair<const Trk::DetachedTrackingVolume*,std::vector<Amg::Transform3D> >(typeStat,vols[ish].second));
               delete trObject;
 
@@ -343,13 +314,13 @@ const std::vector<std::pair<const Trk::DetachedTrackingVolume*,std::vector<Amg::
 								 dummyLayers,dummyVolumes,"extraMat1");
       const Trk::TrackingVolume* simType1 = simplifyShape(mextra1,blend);
       const Trk::DetachedTrackingVolume* eVol1=new Trk::DetachedTrackingVolume("extraTGCmat1",simType1);
-      if (blend) eVol1->saveConstituents(m_constituents.back());
+      if (blend) eVol1->saveConstituents((*m_constituents).back());
       Trk::VolumeBounds* extraBounds2 = new Trk::CylinderVolumeBounds(850.,13000.,5.);
       const Trk::TrackingVolume* mextra2=new Trk::TrackingVolume(0,extraBounds2,mat2,
                                                                  dummyLayers,dummyVolumes,"extraMat2");
       const Trk::TrackingVolume* simType2 = simplifyShape(mextra2,blend);
       const Trk::DetachedTrackingVolume* eVol2=new Trk::DetachedTrackingVolume("extraTGCmat2",simType2);
-      if (blend) eVol2->saveConstituents(m_constituents.back());
+      if (blend) eVol2->saveConstituents((*m_constituents).back());
       std::vector<Amg::Transform3D> pos1;
       pos1.push_back(Amg::Transform3D(Amg::Translation3D(0.,0.,m_extraPos1)));
       pos1.push_back(Amg::Transform3D(Amg::Translation3D(0.,0.,-m_extraPos1)));
@@ -377,9 +348,9 @@ StatusCode Muon::MuonInertMaterialBuilder::finalize()
     delete m_materialConverter;
     delete m_geoShapeConverter;
     delete m_flatDist;
-    for (unsigned int i=0;i<m_constituents.size();i++) {
-      for (unsigned int iv=0;iv<m_constituents[i]->size();iv++) delete (*(m_constituents[i]))[iv].first;
-      delete m_constituents[i];
+    for (unsigned int i=0;i<(*m_constituents).size();i++) {
+      for (unsigned int iv=0;iv<(*m_constituents)[i]->size();iv++) delete (*((*m_constituents)[i]))[iv].first;
+      delete (*m_constituents)[i];
     }
     ATH_MSG_INFO( name() <<" finalize() successful" );
     return StatusCode::SUCCESS;
@@ -495,7 +466,7 @@ const Trk::TrackingVolume* Muon::MuonInertMaterialBuilder::simplifyShape(const T
       confinedConst.push_back(std::pair<const Trk::Volume*,float>
 			      ( new Trk::Volume(*(constituents[ic].first),newVol->transform().inverse()), scale ) );
     }
-    m_constituents.push_back(new std::vector<std::pair<const Trk::Volume*,float> >(confinedConst));
+    (*m_constituents).push_back(new std::vector<std::pair<const Trk::Volume*,float> >(confinedConst));
   }
   
   delete envelope;

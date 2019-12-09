@@ -8,7 +8,6 @@
 #include "TrigL2MuonOverlapRemoverTool.h"
 #include "DecisionHandling/HypoBase.h"
 
-class TriggerElement;
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------

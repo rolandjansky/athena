@@ -78,7 +78,7 @@ if __name__=="__main__":
     cfg.setAppProperty("EvtMax",10)
     cfg.run()
 
-    #f=open("HelloWorld.pkl","w")
+    #f=open("HelloWorld.pkl","wb")
     #cfg.store(f)
     #f.close()
 

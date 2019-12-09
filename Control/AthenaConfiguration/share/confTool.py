@@ -54,8 +54,12 @@ def __print( fname ):
     print ("... ", fname, "content")
     for n,c in enumerate(conf):
         print ("Item", n, "*"*80)
-        pprint.pprint(dict(c))
-    print ("... EOF", fname)
+        try:
+            pprint.pprint(dict(c))
+        except:
+            print("This item is not a dictionary" )
+            print( c )
+        print ("... EOF", fname)
 
 def __printComps( fname ):
     conf = __loadSingleFile( fname )
@@ -89,7 +93,14 @@ def __printComps( fname ):
 def __diff():
     def __merge( c ):
         confdict = {}
-        [ confdict.update( el ) for el in c  ]
+        def __updateIfDict( data ):
+            emptyDict = {}
+            try:
+                confdict.update(data)
+            except:
+                pass
+            
+        [ __updateIfDict( el ) for el in c  if el ]
         return confdict
 
     confs = [ __merge( __loadSingleFile( f )) for f in args.file ] 

@@ -27,7 +27,8 @@ atlas_add_component(
 )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py 
+                              POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 
 # Unit tests C++:
@@ -41,7 +42,7 @@ foreach ( test_file ${CXX_TEST_FILES} )
         SOURCES ${test_file}
         LINK_LIBRARIES TestTools AthenaMonitoringKernelLib
         ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"
-        POST_EXEC_SCRIPT "true"
+        POST_EXEC_SCRIPT nopost.sh
         PROPERTIES TIMEOUT 300
         PROPERTIES WORKING_DIRECTORY ${rundir}
     )
@@ -56,12 +57,7 @@ foreach ( test_file ${PYTHON_TEST_FILES} )
     file( MAKE_DIRECTORY ${rundir} )
     atlas_add_test( ${name}
         SCRIPT python ${test_file}
-        POST_EXEC_SCRIPT "true"
+        POST_EXEC_SCRIPT nopost.sh
         PROPERTIES WORKING_DIRECTORY ${rundir}
     )
 endforeach()
-
-# Code quality check
-atlas_add_test( flake8
-    SCRIPT flake8 --select=F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python/*.py
-    POST_EXEC_SCRIPT nopost.sh )

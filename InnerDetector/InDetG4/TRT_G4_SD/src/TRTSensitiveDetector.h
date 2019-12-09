@@ -10,6 +10,7 @@
 
 #include "InDetSimEvent/TRTUncompressedHitCollection.h"
 #include "StoreGate/WriteHandle.h"
+#include <gtest/gtest_prod.h>
 
 class TRTParameters;
 class TRTProcessingOfBarrelHits;
@@ -22,6 +23,10 @@ class G4TouchableHistory;
 
 class TRTSensitiveDetector : public G4VSensitiveDetector
 {
+ FRIEND_TEST( TRTSensitiveDetectortest, Initialize);
+ FRIEND_TEST( TRTSensitiveDetectortest, ProcessHits );
+ FRIEND_TEST( TRTSensitiveDetectortest, AddHit );
+
   friend class TRTProcessingOfBarrelHits;
   friend class TRTProcessingOfEndCapHits;
 

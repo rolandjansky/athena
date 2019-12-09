@@ -92,6 +92,7 @@ Trk::TrkMaterialProviderTool::initialize()
   ATH_CHECK(m_elossupdator.retrieve());
   ATH_CHECK(m_scattool.retrieve());
   if(m_useCaloEnergyMeasurement) {
+    ATH_CHECK(m_trackIsolationTool.retrieve());
     if(m_useMuonCaloEnergyTool) {
       ATH_CHECK(m_muonCaloEnergyTool.retrieve());
       m_caloMeasTool.disable();
@@ -106,8 +107,8 @@ Trk::TrkMaterialProviderTool::initialize()
     m_caloMeasTool.disable();
     m_caloParamTool.disable();
     m_muonCaloEnergyTool.disable();
+    m_trackIsolationTool.disable();
   }
-  ATH_CHECK(m_trackIsolationTool.retrieve());
 
   ATH_CHECK(m_magFieldSvc.retrieve());
 
@@ -709,9 +710,9 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm,
 					   const Trk::Surface&		surf,
 					   Trk::PropDirection		dir,
 					   Trk::ParticleHypothesis	mateffects,
-                                           double&                      Eloss,
-                                           double&                      X0ScaleMS,
-                                           double&                      ElossScaleMS,
+             double&                      Eloss,
+             double&                      X0ScaleMS,
+             double&                      ElossScaleMS,
 					   const Trk::TrackParameters*	parms,
 					   bool                         boundaryCheck,
 					   bool                         removeOoC) const 
@@ -733,7 +734,8 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm,
   double pOri  = parm.momentum().mag();
 
   // Get TSOS from extrapolateM (from TG)
-  const std::vector<const Trk::TrackStateOnSurface*>* caloTSOS = m_muonExtrapolator->extrapolateM(parm, surf, dir, boundaryCheck, mateffects);
+  std::vector<const Trk::TrackStateOnSurface*>* caloTSOS = m_muonExtrapolator->extrapolateM(parm, surf, dir, 
+                                                                                            boundaryCheck, mateffects);
   
   ATH_MSG_DEBUG("Retrieved " << caloTSOS->size() << " Calorimeter TSOS from extrapolateM, no-removal");
 
@@ -778,10 +780,10 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm,
   Eloss = ElossCalo;
 
 // remove ID and MS TSOSs
-  if(removeOoC && !caloTSOS->empty()) removeOutOfCalo(const_cast<std::vector<const Trk::TrackStateOnSurface*>*>(caloTSOS));
+  if(removeOoC && !caloTSOS->empty()) removeOutOfCalo(caloTSOS);
   ATH_MSG_DEBUG("Retrieved " << caloTSOS->size() << " Calorimeter TSOS from extrapolateM");
 // remove MS TSOSs
-  if(fremoveMS && !caloTSOS->empty()) removeMS(const_cast<std::vector<const Trk::TrackStateOnSurface*>*>(caloTSOS));
+  if(fremoveMS && !caloTSOS->empty()) removeMS(caloTSOS);
   ATH_MSG_DEBUG("Retrieved " << caloTSOS->size() << " Calorimeter TSOS from extrapolateM");
   
 #ifdef DEBUGON
@@ -941,7 +943,7 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm,
   // Check if we can use the measured eloss in the fit
   bool useMeasuredEnergy = m_useCaloEnergyMeasurement;
   if(pAtCaloEntry*sin(parm.parameters()[Trk::theta]) < m_paramPtCut) useMeasuredEnergy = false; 
-  if(!isIsolatedTrack(eta,phi)) useMeasuredEnergy = false;
+  if(useMeasuredEnergy && !isIsolatedTrack(eta,phi)) useMeasuredEnergy = false;
  
   // Total eloss
   double Eloss_tot=0.0;

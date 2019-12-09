@@ -42,8 +42,6 @@ StatusCode L1Decoder::initialize() {
     ATH_CHECK( m_trigCostSvcHandle.retrieve() );
   }
 
-  ATH_CHECK( m_trigFSRoIKey.initialize() ) ;
-  ATH_CHECK( m_FSDecisions.initialize() );
   return StatusCode::SUCCESS;
 }
 
@@ -80,15 +78,6 @@ StatusCode L1Decoder::execute (const EventContext& ctx) const {
   // this should really be: const ROIB::RoIBResult* roib = SG::INPUT_PTR (m_RoIBResultKey, ctx);
   // or const ROIB::RoIBResult& roib = SG::INPUT_REF (m_RoIBResultKey, ctx);
 
-  {
-    std::unique_ptr<TrigRoiDescriptorCollection> fsRoIsColl = std::make_unique<TrigRoiDescriptorCollection>();
-    TrigRoiDescriptor* fsRoI = new TrigRoiDescriptor( true ); // true == FS
-    fsRoIsColl->push_back( fsRoI );
-
-    auto handle = SG::makeHandle( m_trigFSRoIKey, ctx );
-    ATH_CHECK( handle.record ( std::move( fsRoIsColl ) ) );
-  }
-
 
   SG::WriteHandle<DecisionContainer> handle = TrigCompositeUtils::createAndStore( m_summaryKey, ctx );
   auto chainsInfo = handle.ptr();
@@ -122,14 +111,7 @@ StatusCode L1Decoder::execute (const EventContext& ctx) const {
   // for now all the chains that were pre-scaled out are set to re-run in the second pass
   HLT::IDVec rerunChains = prescaledChains; // Perform copy of vector<uint32_t>
   ATH_CHECK( saveChainsInfo( rerunChains, chainsInfo, "rerun" ) );
-  {
-    SG::WriteHandle<DecisionContainer> handleFSDecisions =    createAndStore(m_FSDecisions, ctx);    
-    auto decision  = TrigCompositeUtils::newDecisionIn( handleFSDecisions.ptr(), "L1" );
-    for ( auto chain: activeChains ) 
-      TrigCompositeUtils::addDecisionID( chain, decision );
-    decision->setObjectLink( "initialRoI", ElementLink<TrigRoiDescriptorCollection>( m_trigFSRoIKey.key(), 0 ) );
 
-  }
   // Do cost monitoring, this utilises the HLT_costmonitor chain
   if (m_doCostMonitoring) {
     const static HLT::Identifier costMonitorChain(m_costMonitoringChain);

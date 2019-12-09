@@ -13,6 +13,7 @@
 #include "tauRecTools/MvaTESEvaluator.h"
 #include "tauRecTools/CombinedP4FromRecoTaus.h"
 #include "tauRecTools/TauTrackClassifier.h"
+#include "tauRecTools/TauTrackRNNClassifier.h"
 #include "tauRecTools/TauChargedPFOCreator.h"
 #include "tauRecTools/TauWPDecorator.h"
 #include "tauRecTools/TauJetBDTEvaluator.h"
@@ -31,7 +32,9 @@ REGISTER_TOOL(MvaTESVariableDecorator)
 REGISTER_TOOL(MvaTESEvaluator)
 REGISTER_TOOL(CombinedP4FromRecoTaus)
 REGISTER_TOOL(tauRecTools::TauTrackClassifier)
+REGISTER_TOOL(tauRecTools::TauTrackRNNClassifier)
 REGISTER_TOOL(tauRecTools::TrackMVABDT)
+REGISTER_TOOL(tauRecTools::TrackRNN)
 REGISTER_TOOL(TauChargedPFOCreator)
 REGISTER_TOOL(TauWPDecorator)
 REGISTER_TOOL(TauJetBDTEvaluator)

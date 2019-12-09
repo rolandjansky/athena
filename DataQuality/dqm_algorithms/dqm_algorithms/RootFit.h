@@ -26,7 +26,7 @@ namespace dqm_algorithms
     void  printDescription(std::ostream& out);             
     private:
     std::string m_name;
-    std::auto_ptr<TF1> m_func;	
+    std::unique_ptr<TF1> m_func;	
   };
 }
 

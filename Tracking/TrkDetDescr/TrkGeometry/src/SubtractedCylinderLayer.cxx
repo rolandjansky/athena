@@ -75,15 +75,9 @@ double Trk::SubtractedCylinderLayer::postUpdateMaterialFactor(const Trk::TrackPa
     return   Trk::Layer::m_layerMaterialProperties->oppositePostFactor();
 }
 
-void Trk::SubtractedCylinderLayer::moveLayer(Amg::Transform3D& shift) const {
-        /*
-        * AthenaMT note . This method
-        * should not be probably const
-        * const_cast / mutable kind of issue
-        * Looks like a const "setter" 
-        */
-       Amg::Transform3D transf = shift * (*m_transform);
-       m_transform.set(std::make_unique<Amg::Transform3D>(transf));
-       m_center.set(std::make_unique<Amg::Vector3D>(m_transform->translation()));
-       m_normal.set(std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2)));
+void Trk::SubtractedCylinderLayer::moveLayer(Amg::Transform3D& shift)  {
+      Amg::Transform3D transf = shift * (*m_transform);
+      m_transform.store(std::make_unique<Amg::Transform3D>(transf));
+      m_center.store(std::make_unique<Amg::Vector3D>(m_transform->translation()));
+      m_normal.store(std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2)));
 }

@@ -44,7 +44,7 @@ fullItemList+=["DMTest::BAuxVec#copy_bauxvec"]
 fullItemList+=["DMTest::BAuxStandalone#copy_b"]
 
 # Stream's output file
-from OutputStreamAthenaPool.OutputStreamAthenaPool import createOutputStream
+from OutputStreamAthenaPool.CreateOutputStreams import createOutputStream
 Stream1 = createOutputStream( "Stream1", noTag = True )
 Stream1.OutputFile =   "auxdata3.root"
 # List of DO's to write out

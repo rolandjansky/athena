@@ -17,18 +17,19 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkAmbiguityProcessor/dRMap.h"
 
+#include "Identifier/Identifier.h"
+#include "InDetIdentifier/PixelID.h"
+
 #include "PixelConditionsData/PixelOfflineCalibData.h"
+#include "PixelConditionsData/PixelDistortionData.h"
 #include "InDetCondTools/ISiLorentzAngleTool.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
+#include "PixelGeoModel/IIBLParameterSvc.h"
+
 #include <atomic>
 #include <mutex>
-
-class PixelID;
-class IModuleDistortionsTool;
-
-class IIBLParameterSvc;
 
 namespace InDet {
 
@@ -122,7 +123,8 @@ public:
   // Private data:
   ///////////////////////////////////////////////////////////////////
 
-  ToolHandle<IModuleDistortionsTool>            m_pixDistoTool    ;
+  SG::ReadCondHandleKey<PixelDistortionData> m_distortionKey
+  {this, "PixelDistortionData", "PixelDistortionData", "Output readout distortion data"};
 
   ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SiLorentzAngleTool", "Tool to retreive Lorentz angle"};
 

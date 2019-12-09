@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -49,10 +49,7 @@ EnergyDepositionTool::EnergyDepositionTool(const std::string& type, const std::s
   m_doBichselBetaGammaCut(0.1),        // replace momentum cut
   m_doDeltaRay(false),                 // need validation
   m_doPU(true),
-  m_pixDistoTool("PixelDistortionsTool"),
-  m_rndmSvc("AtDSFMTGenSvc",name),
-  m_rndmEngineName("PixelDigitization"),
-  m_rndmEngine(0)
+  m_pixelID(nullptr)
 { 
   declareProperty("DeltaRayCut", m_DeltaRayCut = 117.);
   declareProperty("nCols", m_nCols = 1);
@@ -64,8 +61,6 @@ EnergyDepositionTool::EnergyDepositionTool(const std::string& type, const std::s
   declareProperty("doBichselBetaGammaCut", m_doBichselBetaGammaCut, "minimum beta-gamma for particle to be re-simulated through Bichsel Model");
   declareProperty("doDeltaRay", m_doDeltaRay, "whether we simulate delta-ray using Bichsel model");
   declareProperty("doPU", m_doPU, "Whether we apply Bichsel model on PU");
-  declareProperty("RndmSvc", m_rndmSvc, "Random Number Service used in EnergyDepositionTool");
-  declareProperty("RndmEngine", m_rndmEngineName, "Random engine name");
 }
 
 // Destructor:
@@ -77,30 +72,12 @@ EnergyDepositionTool::~EnergyDepositionTool(){}
 StatusCode EnergyDepositionTool::initialize() {
   
   ATH_CHECK(AthAlgTool::initialize());
-  ATH_CHECK(m_rndmSvc.retrieve());
   ATH_MSG_INFO("You are using EnergyDepositionTool for solid-state silicon detectors.");
 
   //Setup distortions tool
   if (!m_disableDistortions) {
     ATH_MSG_DEBUG("Getting distortions tool");
-    if (!m_pixDistoTool.empty()) {
-      ATH_CHECK(m_pixDistoTool.retrieve());
-      ATH_MSG_DEBUG("Distortions tool retrieved");
-    }
-    else {
-      ATH_MSG_DEBUG("No distortions tool selected");
-    }
-  }
-
-  // get the random stream
-  ATH_MSG_DEBUG ( "Getting random number engine : <" << m_rndmEngineName << ">" );
-  m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
-  if (!m_rndmEngine) {
-    ATH_MSG_ERROR("Could not find RndmEngine : " << m_rndmEngineName);
-    return StatusCode::FAILURE;
-  }
-  else {
-    ATH_MSG_DEBUG("Found RndmEngine : " << m_rndmEngineName);
+    ATH_CHECK(m_distortionKey.initialize());
   }
 
   if(m_doBichsel){
@@ -188,7 +165,7 @@ StatusCode EnergyDepositionTool::finalize() {
 //=======================================
 // D E P O S I T  E N E R G Y
 //=======================================
-StatusCode EnergyDepositionTool::depositEnergy(const TimedHitPtr<SiHit> &phit, const InDetDD::SiDetectorElement &Module, std::vector<std::pair<double,double> > &trfHitRecord, std::vector<double> &initialConditions) const {
+StatusCode EnergyDepositionTool::depositEnergy(const TimedHitPtr<SiHit> &phit, const InDetDD::SiDetectorElement &Module, std::vector<std::pair<double,double> > &trfHitRecord, std::vector<double> &initialConditions, CLHEP::HepRandomEngine *rndmEngine) const {
 
   ATH_MSG_DEBUG("Deposit energy in sensor volume.");
   
@@ -296,7 +273,7 @@ StatusCode EnergyDepositionTool::depositEnergy(const TimedHitPtr<SiHit> &phit, c
     //double iTotalLength = pathLength*1000.;   // mm -> micrometer
 
     // begin simulation
-    std::vector<std::pair<double,double> > rawHitRecord = BichselSim(iBetaGamma, iParticleType, iTotalLength, genPart ? (genPart->momentum().e()/CLHEP::MeV) : (phit->energyLoss()/CLHEP::MeV));
+    std::vector<std::pair<double,double> > rawHitRecord = BichselSim(iBetaGamma, iParticleType, iTotalLength, genPart ? (genPart->momentum().e()/CLHEP::MeV) : (phit->energyLoss()/CLHEP::MeV), rndmEngine);
 
     // check if returned simulation result makes sense
     if(rawHitRecord.size() == 0){ // deal with rawHitRecord==0 specifically -- no energy deposition
@@ -338,14 +315,13 @@ StatusCode EnergyDepositionTool::depositEnergy(const TimedHitPtr<SiHit> &phit, c
 void EnergyDepositionTool::simulateBow(const InDetDD::SiDetectorElement * element, double& xi, double& yi, const double zi, double& xf, double& yf, const double zf) const {
 
   // If tool is NONE we apply no correction.
-  if (m_pixDistoTool.empty()) return;
   Amg::Vector3D dir(element->hitPhiDirection()*(xf-xi), element->hitEtaDirection()*(yf-yi), element->hitDepthDirection()*(zf-zi));
 
   Amg::Vector2D locposi = element->hitLocalToLocal(yi, xi);
   Amg::Vector2D locposf = element->hitLocalToLocal(yf, xf);
 
-  Amg::Vector2D newLocposi = m_pixDistoTool->correctSimulation(element->identify(), locposi, dir);
-  Amg::Vector2D newLocposf = m_pixDistoTool->correctSimulation(element->identify(), locposf, dir);
+  Amg::Vector2D newLocposi = SG::ReadCondHandle<PixelDistortionData>(m_distortionKey)->correctSimulation(m_pixelID->wafer_hash(element->identify()), locposi, dir);
+  Amg::Vector2D newLocposf = SG::ReadCondHandle<PixelDistortionData>(m_distortionKey)->correctSimulation(m_pixelID->wafer_hash(element->identify()), locposf, dir);
 
   // Extract new coordinates and convert back to hit frame.
   xi = newLocposi[Trk::x] * element->hitPhiDirection();
@@ -363,7 +339,7 @@ void EnergyDepositionTool::simulateBow(const InDetDD::SiDetectorElement * elemen
 // InciEnergy should be in MeV
 // In case there is any abnormal in runtime, (-1,-1) will be returned indicating old deposition model should be used instead
 //-----------------------------------------------------------
-std::vector<std::pair<double,double> > EnergyDepositionTool::BichselSim(double BetaGamma, int ParticleType, double TotalLength, double InciEnergy) const{
+std::vector<std::pair<double,double> > EnergyDepositionTool::BichselSim(double BetaGamma, int ParticleType, double TotalLength, double InciEnergy, CLHEP::HepRandomEngine *rndmEngine) const{
   ATH_MSG_DEBUG("Begin EnergyDepositionTool::BichselSim");
 
   // prepare hit record (output)
@@ -413,7 +389,7 @@ std::vector<std::pair<double,double> > EnergyDepositionTool::BichselSim(double B
     // sample hit position -- exponential distribution
     double HitPosition = 0.;
     for(int iHit = 0; iHit < m_nCols; iHit++){
-	   HitPosition += CLHEP::RandExpZiggurat::shoot(m_rndmEngine, lambda);
+	   HitPosition += CLHEP::RandExpZiggurat::shoot(rndmEngine, lambda);
     }
     // termination by hit position
     // yes, in case m_nCols > 1, we will loose the last m_nCols collisions. So m_nCols cannot be too big
@@ -423,7 +399,7 @@ std::vector<std::pair<double,double> > EnergyDepositionTool::BichselSim(double B
     // sample single collision
     double TossEnergyLoss = -1.;
     while(TossEnergyLoss <= 0.){ // we have to do this because sometimes TossEnergyLoss will be negative due to too small TossIntX
-      double TossIntX = CLHEP::RandFlat::shoot(m_rndmEngine, 0., IntXUpperBound);
+      double TossIntX = CLHEP::RandFlat::shoot(rndmEngine, 0., IntXUpperBound);
       TossEnergyLoss = GetColE(indices_BetaGammaLog10, TMath::Log10(TossIntX), iData);
     }
 

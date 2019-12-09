@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthLinks
                           Control/AthContainers
                           Control/Navigation
+                          Control/CxxUtils
                           Event/EventKernel
                           Event/FourMom
                           GaudiKernel

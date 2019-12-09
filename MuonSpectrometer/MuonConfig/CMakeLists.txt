@@ -44,11 +44,11 @@ if( NOT SIMULATIONBASE )
                    POST_EXEC_SCRIPT nopost.sh )
 
    atlas_add_test( MuonReconstructionConfigTest
-                   SCRIPT python -m MuonConfig.MuonReconstructionConfig
+                   SCRIPT python -m MuonConfig.MuonReconstructionConfig --run
                    POST_EXEC_SCRIPT nopost.sh )
 
    atlas_add_test( MuonSegmentFindingConfigTest
-                   SCRIPT python -m MuonConfig.MuonSegmentFindingConfig
+                   SCRIPT python -m MuonConfig.MuonSegmentFindingConfig --run
                    POST_EXEC_SCRIPT nopost.sh )
                    
    atlas_add_test( flake8

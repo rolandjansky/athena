@@ -140,6 +140,22 @@ public:
    * @brief Set the store associated with this object.
    * @param store The new store.
    *
+   * This will set both the const and non-const store pointers, and also
+   * clear the cache.
+   *
+   * It is an error to set a store for a container for which index tracking
+   * is disabled.  That will raise an @c ExcUntrackedSetStore exception.
+   *
+   * nb. List the non-const overload before the const one; otherwise,
+   * we can't call the const one from python.
+   */
+  void setStore (SG::IAuxStore* store);
+
+
+  /**
+   * @brief Set the store associated with this object.
+   * @param store The new store.
+   *
    * This will clear the non-const store pointer, and also
    * clear the cache.
    *
@@ -147,19 +163,6 @@ public:
    * is disabled.  That will raise an @c ExcUntrackedSetStore exception.
    */
   void setStore (const SG::IConstAuxStore* store);
-
-
-  /**
-   * @brief Set the store associated with this object.
-   * @param store The new store.
-   *
-   * This will set both the const and non-const store pointers, and also
-   * clear the cache.
-   *
-   * It is an error to set a store for a container for which index tracking
-   * is disabled.  That will raise an @c ExcUntrackedSetStore exception.
-   */
-  void setStore (SG::IAuxStore* store);
 
 
   /**

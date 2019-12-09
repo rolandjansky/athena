@@ -150,7 +150,7 @@ class DsoDb(_Dso.PyDsoDb):
             visitor (rflx_type)
             
         if rflx_type.IsClass() or rflx_type.IsStruct():
-            for i in xrange(rflx_type.BaseSize()):
+            for i in range(rflx_type.BaseSize()):
                 itype = rflx_type.BaseAt(i).ToType()
                 itype_name = itype.Name(RflxEnums.DICTSCOPE)
                 if itype_name != '' and not (itype_name in ctx):
@@ -158,7 +158,7 @@ class DsoDb(_Dso.PyDsoDb):
                     ctx.add (itype_name)
                     ctx.update (self.visit (itype, visitor, ctx))
                             
-        for i in xrange(rflx_type.DataMemberSize()):
+        for i in range(rflx_type.DataMemberSize()):
             itype = rflx_type.DataMemberAt (i).TypeOf()
             itype = itype.RawType() if itype.IsPointer() else itype
             itype_name = itype.Name(RflxEnums.DICTSCOPE)

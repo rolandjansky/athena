@@ -2,8 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRTDIGCONDFAKEMAP_H
-#define TRTDIGCONDFAKEMAP_H
+#ifndef TRT_DIGITIZATION_TRTDIGCONDFAKEMAP_H
+#define TRT_DIGITIZATION_TRTDIGCONDFAKEMAP_H
 
 #include "TRTDigCondBase.h"
 #include "CLHEP/Random/RandomEngine.h"
@@ -16,11 +16,11 @@ class TRTDigCondFakeMap : public TRTDigCondBase {
 public:
   /** Constructor */
   TRTDigCondFakeMap( const TRTDigSettings*,
-		     const InDetDD::TRT_DetectorManager*,
-		     const TRT_ID* trt_id,
-		     int UseGasMix,
-		     ToolHandle<ITRT_StrawStatusSummaryTool> sumTool
- 		   );
+                     const InDetDD::TRT_DetectorManager*,
+                     const TRT_ID* trt_id,
+                     int UseGasMix,
+                     ToolHandle<ITRT_StrawStatusSummaryTool> sumTool
+                     );
 
 protected:
 

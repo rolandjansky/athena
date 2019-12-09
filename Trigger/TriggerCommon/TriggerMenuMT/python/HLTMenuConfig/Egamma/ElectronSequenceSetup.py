@@ -7,7 +7,10 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 # menu components   
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
-from AthenaCommon.CFElements import parOR, seqAND
+# ATR-20453
+# Until such time as FS and RoI collections do not interfere, a hacky fix
+#from AthenaCommon.CFElements import parOR, seqAND
+from AthenaCommon.CFElements import seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
@@ -16,7 +19,7 @@ def fastElectronSequence(ConfigFlags):
     
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
     RoIs = "EMIDRoIs" # contract with the fastCalo
-    (viewAlgs, eventAlgs) = makeInDetAlgs(whichSignature = "Electron", separateTrackParticleCreator="_Electron", rois = RoIs)
+    viewAlgs = makeInDetAlgs(whichSignature = "Electron", separateTrackParticleCreator="_Electron", rois = RoIs)
 
 
     # A simple algorithm to confirm that data has been inherited from parent view
@@ -45,11 +48,14 @@ def fastElectronSequence(ConfigFlags):
     l2ElectronViewsMaker.ViewFallThrough = True
     l2ElectronViewsMaker.RequireParentView = True
 
-    theElectronFex.RoIs = l2ElectronViewsMaker.InViewRoIs    
-    electronInViewAlgs = parOR("electronInViewAlgs", viewAlgs + [ theElectronFex ])
+    theElectronFex.RoIs = l2ElectronViewsMaker.InViewRoIs
+    # ATR-20453
+    # Until such time as FS and RoI collections do not interfere, a hacky fix
+    #electronInViewAlgs = parOR("electronInViewAlgs", viewAlgs + [ theElectronFex ])
+    electronInViewAlgs = seqAND("electronInViewAlgs", viewAlgs + [ theElectronFex ])
     l2ElectronViewsMaker.ViewNodeName = "electronInViewAlgs"
 
-    electronAthSequence = seqAND("electronAthSequence", eventAlgs + [l2ElectronViewsMaker, electronInViewAlgs ] )
+    electronAthSequence = seqAND("electronAthSequence", [l2ElectronViewsMaker, electronInViewAlgs ] )
     return (electronAthSequence, l2ElectronViewsMaker, theElectronFex.ElectronsName)
 
 

@@ -113,6 +113,8 @@ class ShutUp(object):
     def __filterRootMessages(self, fd):
         fd.seek(0)
         for l in fd.readlines():
+            if six.PY3:
+               l = l.decode()
             printOut = True
             for filter in self.filters:
                 if re.match(filter, l):

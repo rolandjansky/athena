@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AcceptAnyInput.h"
-#include "boost/foreach.hpp"
 
 
 AcceptAnyInput::AcceptAnyInput(const std::string& name, ISvcLocator* pSvcLocator) 
@@ -16,16 +15,16 @@ HLT::ErrorCode AcceptAnyInput::hltExecute(std::vector<std::vector<HLT::TriggerEl
 						  unsigned int output) {
   if (m_mergeAll) {
     std::vector<HLT::TriggerElement*> tes;
-    BOOST_FOREACH( std::vector<HLT::TriggerElement*>& vec, input ) {
+    for( std::vector<HLT::TriggerElement*>& vec : input ) {
       tes.insert(tes.end(), vec.begin(), vec.end());      
     }
     config()->getNavigation()->addNode(tes, output);
     ATH_MSG_DEBUG("Created singe output TE seeded by: "<< tes.size() << " TEs");
   } else {
     unsigned counter(0);
-    BOOST_FOREACH( std::vector<HLT::TriggerElement*>& vec, input ) {
+    for( std::vector<HLT::TriggerElement*>& vec : input ) {
       counter += vec.size();
-      BOOST_FOREACH( HLT::TriggerElement* te, vec ) {
+      for( HLT::TriggerElement* te : vec ) {
 	config()->getNavigation()->addNode(te, output);
       }       
     }

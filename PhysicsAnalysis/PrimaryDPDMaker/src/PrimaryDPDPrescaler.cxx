@@ -105,7 +105,6 @@ StatusCode PrimaryDPDPrescaler::initialize()
   ATH_CHECK( incSvc.retrieve() );
   incSvc->addListener(this, "BeginInputFile", 60); // pri has to be < 100 to be after MetaDataSvc.
   incSvc->addListener(this, "EndInputFile", 50); // pri has to be > 10 to be before MetaDataSvc.
-  //incSvc->addListener(this, "LastInputFile", 50); // pri has to be > 10 to be before MetaDataSvc.
 
   ResetSelfDescription(); 
 
@@ -245,7 +244,7 @@ void PrimaryDPDPrescaler::handle(const Incident& inc) {
   
   const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
   if (fileInc == 0) {
-    ATH_MSG_ERROR( " Unable to get FileName from BeginFile/EndFile incident" );
+    ATH_MSG_ERROR( " Unable to get FileName from BeginInputFile/EndInputFile incident" );
     return;
   }
   const std::string fileName = fileInc->fileName();

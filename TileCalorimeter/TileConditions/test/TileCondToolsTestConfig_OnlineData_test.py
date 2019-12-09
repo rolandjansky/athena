@@ -29,6 +29,6 @@ if __name__ == "__main__":
 
     acc.printConfig(withDetails = True, summariseProps = True)
     print(acc.getService('IOVDbSvc'))
-    acc.store( open('TileCondToolsOnlineData.pkl','w') )
+    acc.store( open('TileCondToolsOnlineData.pkl','wb') )
 
     print('All OK')

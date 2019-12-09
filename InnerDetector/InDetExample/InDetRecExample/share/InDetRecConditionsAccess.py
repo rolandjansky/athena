@@ -82,18 +82,18 @@ if DetFlags.haveRIO.pixel_on():
 
     if not athenaCommonFlags.isOnline():
         if not conddb.folderRequested('/PIXEL/PixdEdx'):
-            if (globalflags.DataSource() == 'data'):
-                conddb.addFolder("PIXEL_OFL","/PIXEL/PixdEdx")
-            else:
-                conddb.addFolder("PIXEL_OFL","/PIXEL/PixdEdx")
-                
+            conddb.addFolder("PIXEL_OFL", "/PIXEL/PixdEdx", className="AthenaAttributeList")
+
         if not conddb.folderRequested("/PIXEL/PixReco"):
             conddb.addFolder("PIXEL_OFL", "/PIXEL/PixReco", className="DetCondCFloat")
+
+        if not conddb.folderRequested("/Indet/PixelDist"):
+            conddb.addFolder("INDET", "/Indet/PixelDist", className="DetCondCFloat")
 
     if not hasattr(condSeq, 'PixelOfflineCalibCondAlg'):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelOfflineCalibCondAlg
         condSeq += PixelOfflineCalibCondAlg(name="PixelOfflineCalibCondAlg", ReadKey="/PIXEL/PixReco")
-        if athenaCommonFlags.isOnline() :
+        if athenaCommonFlags.isOnline():
           PixelOfflineCalibCondAlg.InputSource = 1
         else :
           PixelOfflineCalibCondAlg.InputSource = 2
@@ -105,6 +105,23 @@ if DetFlags.haveRIO.pixel_on():
     if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
         from SiLorentzAngleTool.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
         pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
+
+    if not hasattr(condSeq, 'PixelDistortionAlg'):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDistortionAlg
+        condSeq += PixelDistortionAlg(name="PixelDistortionAlg")
+
+    if not hasattr(condSeq, 'PixeldEdxAlg'):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixeldEdxAlg
+        condSeq += PixeldEdxAlg(name="PixeldEdxAlg")
+        if not athenaCommonFlags.isOnline():
+            PixeldEdxAlg.ReadFromCOOL = True
+        else:
+            PixeldEdxAlg.ReadFromCOOL = False
+            if (globalflags.DataSource=='data'):
+                PixeldEdxAlg.CalibrationFile="dtpar_signed_234.txt"
+            else:
+                PixeldEdxAlg.CalibrationFile="mcpar_signed_234.txt"
+
 
 #
 # --- Load SCT Conditions Services
@@ -249,8 +266,11 @@ if DetFlags.haveRIO.SCT_on():
 
     if InDetFlags.doSCTModuleVeto():
         InDetSCT_ConditionsSummaryTool.ConditionsTools += [ sct_MonitorConditionsToolSetup.getTool().getFullName() ]
-        
-    
+
+    # @TODO fix this temporary hack to make the configguration of the InDetSCT_ConditionsSummaryTool accessible to TrackingCommon
+    import InDetRecExample.TrackingCommon as TrackingCommon
+    TrackingCommon.def_InDetSCT_ConditionsSummaryTool=InDetSCT_ConditionsSummaryTool
+
     if (InDetFlags.doPrintConfigurables()):
         print InDetSCT_ConditionsSummaryTool
 

@@ -37,10 +37,10 @@ def PixelGeometryCfg( flags ):
   pixelDetectorTool.useDynamicAlignFolders = flags.GeoModel.Align.Dynamic
   geoModelSvc.DetectorTools += [ pixelDetectorTool ]
   acc.addService(geoModelSvc)
-  # Pixel module distortions
-  acc.merge(addFoldersSplitOnline(flags,"INDET","/Indet/Onl/PixelDist","/Indet/PixelDist")) # Not used ???
-  # IBL stave distortions
+
+  # IBL module distortions
   acc.merge(addFoldersSplitOnline(flags,"INDET","/Indet/Onl/IBLDist","/Indet/IBLDist",className="CondAttrListCollection"))
+
   if flags.GeoModel.Align.Dynamic:
     acc.merge(addFoldersSplitOnline(flags,"INDET","/Indet/Onl/AlignL1/ID","/Indet/AlignL1/ID",className="CondAttrListCollection"))
     acc.merge(addFoldersSplitOnline(flags,"INDET","/Indet/Onl/AlignL2/PIX","/Indet/AlignL2/PIX",className="CondAttrListCollection"))

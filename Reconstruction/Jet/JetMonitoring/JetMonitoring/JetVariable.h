@@ -53,6 +53,7 @@ namespace JetVar {
   public:
     
     Variable(const std::string & name) : m_name(name) {}
+    virtual ~Variable() = default;
     virtual float value(const xAOD::Jet &) const = 0;
 
     /// return true if the underlying variable is of type vector<X>

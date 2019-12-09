@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: IdentifiableCache.h 791541 2017-01-09 10:43:53Z smh $
@@ -45,8 +45,8 @@ public:
   {
   }
 
-  IdentifiableCache (IdentifierHash maxHash, const Maker* maker, size_t /*lockBucketSize*/)
-    : IdentifiableCacheBase (maxHash, maker)
+  IdentifiableCache (IdentifierHash maxHash, const Maker* maker, size_t lockBucketSize)
+    : IdentifiableCacheBase (maxHash, maker, lockBucketSize)
   {
   }
 

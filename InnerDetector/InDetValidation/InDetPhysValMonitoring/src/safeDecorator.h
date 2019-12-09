@@ -37,7 +37,11 @@ namespace IDPVM {
   enum DuplicateBehaviour {
     DO_NOTHING, REJECT_QUIETLY, REJECT_WITH_WARNING, REJECT_WARN_IF_UNEQUAL
   };
-
+  template<class ContainerType, class VariableType>
+  using WriteKeyAccessorPair = std::pair<SG::WriteDecorHandleKey<ContainerType>, SG::AuxElement::ConstAccessor<VariableType> >;
+  //
+  template<class ContainerType, class VariableType>
+  using WriteAccessorRefPair = std::pair<SG::WriteDecorHandle<ContainerType, VariableType>, const SG::AuxElement::ConstAccessor<VariableType> &>;
   // create a pair composed of a WriteDecorHandleKey to create a decorator handle
   // and an accessor to check the availablilty of a decoration
   template <class T_Parent, class T_Cont, class T>
@@ -45,7 +49,7 @@ namespace IDPVM {
                                       const SG::ReadHandleKey<T_Cont> &container_key,
                                       const std::string &prefix,
                                       const std::vector<std::string> &decor_names,
-                                      std::vector<std::pair<SG::WriteDecorHandleKey<T_Cont>, SG::AuxElement::ConstAccessor<T> > > &decor_out) {
+                                      std::vector<WriteKeyAccessorPair<T_Cont, T > > &decor_out) {
     decor_out.clear();
     decor_out.reserve(decor_names.size());
     for (const std::string &a_decor_name: decor_names) {
@@ -58,17 +62,16 @@ namespace IDPVM {
   }
 
   template <class T_Cont, class T>
-  std::vector<std::pair<SG::WriteDecorHandle<T_Cont,T>, const SG::AuxElement::ConstAccessor<T> &> >
-  createDecoratorsWithAccessor(const std::vector<std::pair<SG::WriteDecorHandleKey<T_Cont>,
-                                                           SG::AuxElement::ConstAccessor<T> > > &keys,
+  std::vector<WriteAccessorRefPair<T_Cont, T> >
+  createDecoratorsWithAccessor(const std::vector<WriteKeyAccessorPair<T_Cont, T > > &keys,
                                const EventContext &ctx) {
-    std::vector<std::pair<SG::WriteDecorHandle<T_Cont,T>, const SG::AuxElement::ConstAccessor<T> &> > out;
+    std::vector<WriteAccessorRefPair<T_Cont, T> > out;
     out.reserve(keys.size());
-    for( const std::pair<SG::WriteDecorHandleKey<T_Cont>, SG::AuxElement::ConstAccessor<T> > &a_key : keys) {
+    for( const WriteKeyAccessorPair<T_Cont, T> &a_key : keys) {
       out.push_back(std::make_pair(SG::WriteDecorHandle<T_Cont,T>(a_key.first,ctx), a_key.second));
       if (not out.back().first.isValid()) {
         std::stringstream msg;
-        msg << "Failed to create decorator handdle " << a_key.first.key();
+        msg << "Failed to create decorator handle " << a_key.first.key();
         throw std::runtime_error( msg.str() );
       }
     }
@@ -132,8 +135,7 @@ namespace IDPVM {
 
   /// Safe decorators
   template <class T_Cont, class T_Cont_Elm, class T>
-  void decorateOrRejectWithWarning(const T_Cont_Elm& particle,
-                                   std::pair<SG::WriteDecorHandle<T_Cont,T>, const SG::AuxElement::ConstAccessor<T> &> &decorator,
+  void decorateOrRejectWithWarning(const T_Cont_Elm& particle,WriteAccessorRefPair<T_Cont, T> &decorator,
                                    const T& value) {
     if (decorator.second.isAvailable(particle)) {
       std::cout << "WARNING IDPVM::safeDecorator: " << decorator.first.key() <<
@@ -144,8 +146,7 @@ namespace IDPVM {
   }
 
   template <class T_Cont, class T_Cont_Elm, class T>
-  void decorateOrWarnIfUnequal(const T_Cont_Elm& particle,
-                                   std::pair<SG::WriteDecorHandle<T_Cont,T>, const SG::AuxElement::ConstAccessor<T> &> &decorator,
+  void decorateOrWarnIfUnequal(const T_Cont_Elm& particle,WriteAccessorRefPair<T_Cont, T> &decorator,
                                    const T& value) {
     if (decorator.second.isAvailable(particle)) {
       const T existing = decorator.second(particle);
@@ -159,8 +160,7 @@ namespace IDPVM {
   }
 
   template <class T_Cont, class T_Cont_Elm, class T>
-  void decorateOrRejectQuietly(const T_Cont_Elm& particle,
-                                   std::pair<SG::WriteDecorHandle<T_Cont,T>, const SG::AuxElement::ConstAccessor<T> &> &decorator,
+  void decorateOrRejectQuietly(const T_Cont_Elm& particle,WriteAccessorRefPair<T_Cont, T> &decorator,
                                    const T& value) {
       if (not decorator.second.isAvailable(particle)) {
         decorator.first(particle) = value;
@@ -169,8 +169,7 @@ namespace IDPVM {
 
   // unsafe method for convenience
   template <class T_Cont, class T_Cont_Elm, class T>
-  void decorate(const T_Cont_Elm& particle,
-                std::pair<SG::WriteDecorHandle<T_Cont,T>, const SG::AuxElement::ConstAccessor<T> &> &decorator,
+  void decorate(const T_Cont_Elm& particle,WriteAccessorRefPair<T_Cont, T> &decorator,
                 const T& value) {
     decorator.first(particle) = value;
   }

@@ -7,7 +7,6 @@ from TriggerMenuMT.HLTMenuConfig.Jet.JetRecoSequences import jetAthSequence, jet
 def jetCFSequence(dummyFlags,**recoDict):
     """ Function to create the jet Menu Sequence"""
     
-    ## RoIs = 'FSJETRoI'
     #reco sequence
     (JetAthSequence, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(jetAthSequence,None,**recoDict)
     return (JetAthSequence, InputMakerAlg, sequenceOut) 

@@ -13,8 +13,6 @@ namespace Monitored {
     VecHistogramFiller1DWithOverflows(const HistogramDef& definition, std::shared_ptr<IHistogramProvider> provider)
       : HistogramFiller1D(definition, provider) {}
 
-    virtual VecHistogramFiller1DWithOverflows* clone() override { return new VecHistogramFiller1DWithOverflows(*this); };
-
     virtual unsigned fill() override {
       if (m_monVariables.size() != 1) {
         return 0;

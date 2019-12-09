@@ -158,6 +158,12 @@ class PixelConditionsServicesSetup:
       condSeq += PixelOfflineCalibCondAlg(name="PixelOfflineCalibCondAlg", ReadKey="/PIXEL/PixReco")
       PixelOfflineCalibCondAlg.InputSource = 2
 
+    if not conddb.folderRequested("/Indet/PixelDist"):
+      conddb.addFolderSplitOnline("INDET","/Indet/Onl/PixelDist","/Indet/PixelDist",className="DetCondCFloat") 
+
+    if not hasattr(condSeq, 'PixelDistortionAlg'):
+      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDistortionAlg
+      condSeq += PixelDistortionAlg(name="PixelDistortionAlg", ReadKey="/Indet/PixelDist")
 
     ### configure the special pixel map service
     if not (conddb.folderRequested("/PIXEL/PixMapShort") or conddb.folderRequested("/PIXEL/Onl/PixMapShort")):
@@ -547,6 +553,8 @@ class TRTConditionsServicesSetup:
     from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTHTCondAlg
     TRTHTCondAlg = TRTHTCondAlg(name = "TRTHTCondAlg")
 
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTToTCondAlg
+    TRTToTCondAlg = TRTToTCondAlg(name = "TRTToTCondAlg")
 
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
@@ -560,6 +568,9 @@ class TRTConditionsServicesSetup:
     if not hasattr(condSeq, "TRTHTCondAlg"):
         condSeq += TRTHTCondAlg
 
+    if not hasattr(condSeq, "TRTToTCondAlg"):
+        condSeq += TRTToTCondAlg
+        
 
     from AthenaCommon.GlobalFlags import globalflags
     

@@ -25,6 +25,7 @@ pflowcontexts = {
     "T0":("JES_MC15cRecommendation_PFlow_Aug2016_rel21.config","00-04-77","JetArea_Residual_EtaJES"),
     # Omit smearing, to avoid any efficiency loss
     "AnalysisLatest":("JES_data2017_2016_2015_Consolidated_PFlow_2018_Rel21.config","00-04-82","JetArea_Residual_EtaJES_GSC_Insitu"),
+    "TrigLS2":("JES_MC16Recommendation_Consolidated_PFlow_Apr2019_Rel21_Trigger.config","00-04-82","JetArea_Residual_EtaJES_GSC_Insitu"),
 }
 
 topocontexts = {
@@ -32,6 +33,7 @@ topocontexts = {
     # Omit smearing, to avoid any efficiency loss
     "AnalysisLatest":("JES_data2017_2016_2015_Consolidated_EMTopo_2018_Rel21.config","00-04-82","JetArea_Residual_EtaJES_GSC_Insitu"),
     "TrigRun2":("JES_MC15cRecommendation_May2016_Trigger.config","00-04-77","JetArea_EtaJES_GSC_Insitu"),
+    "TrigRun2GSC":("JES_data2016_data2015_Recommendation_Dec2016_rel21.config","00-04-77","JetArea_EtaJES_GSC_Insitu"),
 }
 
 rscanlc2 = {
@@ -81,7 +83,7 @@ hasInSitu = ["AntiKt4LCTopo", "AntiKt4EMTopo", "AntiKt4EMPFlow", "TrigAntiKt4EMT
 # added to the tool name to ensure uniqueness.
 # Due to the hackiness of DualUseConfig public tool handling, we need to pass
 # an AlgSequence...
-def getJetCalibTool(jetcollection, context, data_type, calibseq = ""):
+def getJetCalibTool(jetcollection, context, data_type, calibseq = "", rhoname = "", gscdepth = "auto"):
     # In principle we could autoconfigure
     if not data_type in ['data','mc','afii']:
         jetcaliblog.error("JetCalibConfig accepts data_type values: 'data', 'mc', 'afii'")
@@ -95,27 +97,28 @@ def getJetCalibTool(jetcollection, context, data_type, calibseq = ""):
 
     jetcontexts = calibcontexts[jetcollection]
     try:
-        configfile, calibarea, calibseq_def = jetcontexts[context]
-        calibseq_tmp = calibseq if calibseq else calibseq_def
+        configfile, calibarea, calibseq_def = jetcontexts[context]        
+        _calibseq = calibseq if calibseq else calibseq_def
+        
         # Check that the calib sequence requests something sensible for the in situ calibration
         # Leave other checks for the tool code.
         # Might need to specialise if we decide MC trigger jets should also have in situ.
-        if calibseq_tmp.endswith("Insitu"):
+        if _calibseq.endswith("Insitu"):
             if data_type == 'data':
                 if not jetcollection in hasInSitu:
                     raise ValueError("In situ calibration does not exist for {0}, context {1}".format(jetcollection,context))
             else:
                 raise ValueError("In situ calibration requested for MC on {0}, context {1}".format(jetcollection,context))
-        configfile_tmp = configfile
+        _configfile = configfile
         if data_type == "afii" and jetcollection in af2configs.keys():
-            configfile_tmp = af2configs[jetcollection]
-        data_type_tmp = data_type
+            _configfile = af2configs[jetcollection]
+        _data_type = data_type
         # Most likely an oversight, but R20/21 JetRecCalibrationFinder did not set the data flag
         # This affects the residual correction by scaling mu.
         # We should revert this later on, set up now for validation purposes
         if context == "T0":
-            data_type_tmp = "data"
-        return defineJetCalibTool(jetcollection, configfile_tmp, calibarea, calibseq_tmp, data_type_tmp)
+            _data_type = "data"
+        return defineJetCalibTool(jetcollection, _configfile, calibarea, _calibseq, _data_type, rhoname, gscdepth)
     except KeyError as e:
         jetcaliblog.error("Context '{0}' not found for jet collection '{1}'".format(context,jetcollection))
         jetcaliblog.error("Options are '{0}".format(','.join(jetcontexts.keys())))
@@ -123,7 +126,7 @@ def getJetCalibTool(jetcollection, context, data_type, calibseq = ""):
     return None
 
 # This method actually sets up the tool
-def defineJetCalibTool(jetcollection, configfile, calibarea, calibseq, data_type):
+def defineJetCalibTool(jetcollection, configfile, calibarea, calibseq, data_type, rhoname, gscdepth):
     # Abbreviate the calib sequence
     calibseqshort = ''.join([ step[0] for step in calibseq.split('_') ])
     toolname = "jetcalib_{0}_{1}".format(jetcollection,calibseqshort)
@@ -133,21 +136,23 @@ def defineJetCalibTool(jetcollection, configfile, calibarea, calibseq, data_type
         ConfigFile = configfile,
         CalibArea = calibarea,
         CalibSequence = calibseq,
-        IsData = (data_type == "data")
+        IsData = (data_type == "data"),
+        RhoKey = rhoname,
+	GSCDepth = gscdepth
     )
     return jct
 
 # This method extends the basic config getter to specify the requisite jet
 # moments or other inputs
 def getJetCalibToolPrereqs(modspec,jetdef):
-    calibcontext, data_type, calibseq = getCalibSpecsFromString(modspec)
+    calibcontext, data_type, calibseq, rhoname, gscdepth = getCalibSpecsFromString(modspec)
     if calibseq=="":
         cfg, calibarea, calibseq = calibcontexts[jetdef.basename][calibcontext]
     # For now, only dependent on calibseq -- can ignore Insitu, which is
     # added when getting the concrete tool
     prereqs = []
     prereqs.append("mod:ConstitFourMom")
-    if "JetArea" in calibseq:
+    if "JetArea" in calibseq: # Will not insert a prefix here
         prereqs.append("input:EventDensity")
     if "GSC" in calibseq:
         prereqs += ["mod:CaloEnergies"]
@@ -160,13 +165,17 @@ def getJetCalibToolPrereqs(modspec,jetdef):
 # This method translates the mod specification string into calibration specifications
 def getCalibSpecsFromString(modspec):
     calibseq = ""
+    rhoname = "auto"
+    gscdepth = "auto"
     calibspecs = modspec.split(':')
     # Probably want data_type to come from elsewhere
     calibcontext, data_type = calibspecs[:2]
     if len(calibspecs)>2: calibseq = calibspecs[2]
-    return calibcontext, data_type, calibseq
+    if len(calibspecs)>3: rhoname = calibspecs[3]
+    if len(calibspecs)>4: gscdepth = calibspecs[4]
+    return calibcontext, data_type, calibseq, rhoname, gscdepth
 
 # This method instantiates the JetCalibTool given the input mod specification
 def getJetCalibToolFromString(modspec,jetdef):
-    calibcontext, data_type, calibseq = getCalibSpecsFromString(modspec)
-    return getJetCalibTool(jetdef.basename,calibcontext,data_type,calibseq)
+    calibcontext, data_type, calibseq, rhoname, gscdepth = getCalibSpecsFromString(modspec)
+    return getJetCalibTool(jetdef.basename,calibcontext,data_type,calibseq,rhoname,gscdepth)

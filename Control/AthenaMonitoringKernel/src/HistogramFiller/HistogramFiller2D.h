@@ -1,14 +1,15 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-*/  
-  
+*/
+
 #ifndef AthenaMonitoringKernel_HistogramFiller_HistogramFiller2D_h
 #define AthenaMonitoringKernel_HistogramFiller_HistogramFiller2D_h
 
 #include "TH2.h"
 
-#include "AthenaMonitoringKernel/HistogramFiller.h"
 #include <boost/range/combine.hpp>
+#include "AthenaMonitoringKernel/HistogramFiller.h"
+
 
 namespace Monitored {
   /**
@@ -18,85 +19,89 @@ namespace Monitored {
   public:
     HistogramFiller2D(const HistogramDef& definition, std::shared_ptr<IHistogramProvider> provider)
       : HistogramFiller(definition, provider) {}
-    
-    virtual HistogramFiller2D* clone() override { return new HistogramFiller2D(*this); };
+
+    virtual HistogramFiller2D* clone() override {
+      return new HistogramFiller2D( *this );
+    }
+
 
     virtual unsigned fill() override {
       if (m_monVariables.size() != 2) {
         return 0;
       }
 
-      unsigned result = 0;
-      const auto vector1 = m_monVariables[0].get().getVectorRepresentation();
-      const auto vector2 = m_monVariables[1].get().getVectorRepresentation();
-      const unsigned size1 = std::size(vector1);
-      const unsigned size2 = std::size(vector2);
-      const bool isAnyVectorEmpty = size1 == 0 || size2 == 0;
-      const bool isAnyVectorScalar = size1 == 1 || size2 == 1;
-      const bool areVectorsSameSize = size1 == size2;
-      const bool areVectorsValid = !isAnyVectorEmpty && (areVectorsSameSize || isAnyVectorScalar);
-
-      if (!areVectorsValid) {
-        return 0;
+      // handling of the weight
+      std::function<double(size_t)> weightAccessor = [] (size_t ){ return 1.0; };  // default is always 1.0
+      std::vector<double> weightVector;
+      if ( m_monWeight != nullptr ) {
+	weightVector = m_monWeight->getVectorRepresentation();
+	weightAccessor = [&](size_t i){
+	  if ( weightVector.size() == 1 )
+	    return weightVector[0];
+	  return weightVector[i];
+	};
       }
 
-      auto histogram = this->histogram<TH2>();
-      std::lock_guard<std::mutex> lock(*(this->m_mutex));
+      struct Extractor {
+	std::function<double(size_t)> doublesAccessor = nullptr;
+	std::function<const char*(size_t)> stringsAccessor = nullptr;
+	std::vector<double> doublesVector;
+	std::vector<std::string> stringsVector;
+	size_t size() const {
+	  return std::max( doublesVector.size(), stringsVector.size() );
+	}
+      };
+      Extractor value1;
+      Extractor value2;
+      auto prepareExtractor = [&]( Extractor& ex, int index ) {
+	if ( not m_monVariables[index].get().hasStringRepresentation() ) {
+	  ex.doublesVector = m_monVariables[index].get().getVectorRepresentation();
+	  ex.doublesAccessor = [&](size_t i){
+	    if ( ex.doublesVector.size() == 1 )
+	      return ex.doublesVector[0];
+	    return ex.doublesVector[i];
+	  };
+	} else {
+	  ex.stringsVector = m_monVariables[index].get().getStringVectorRepresentation();
+	  ex.stringsAccessor = [&]( size_t i) {
+	    if ( ex.stringsVector.size() == 1 )
+	      return ex.stringsVector[0].c_str();
+	    return ex.stringsVector[i].c_str();
+	  };
+	}
+      };
+      prepareExtractor( value1, 0 );
+      prepareExtractor( value2, 1 );
 
-      if (areVectorsSameSize) { // Two equal-size vectors
-        if ( m_monWeight && m_monWeight->getVectorRepresentation().size()==size1 ) {
-          // Weighted fill
-          auto weightVector = m_monWeight->getVectorRepresentation();
-          double value1,value2,weight;
-          for (const auto& zipped : boost::combine(vector1,vector2,weightVector)) {
-            boost::tie(value1,value2,weight) = zipped;
-            histogram->Fill(value1,value2,weight);
-          }
-        } else {
-          // Unweighted fill
-          for (unsigned i = 0; i < size1; ++i) {
-            histogram->Fill(vector1[i], vector2[i]);
-          }
-        }
-        result = size1;
 
-      } else if (size1 == 1) { // Scalar vector1 and vector vector2
-        if ( m_monWeight && m_monWeight->getVectorRepresentation().size()==size2 ) {
-          // Weighted fill
-          auto weightVector = m_monWeight->getVectorRepresentation();
-          double value,weight;
-          for (const auto& zipped : boost::combine(vector2,weightVector)) {
-            boost::tie(value,weight) = zipped;
-            histogram->Fill(vector1[0],value,weight);
-          }
-        } else {
-          // Unweighted fill
-          for (auto value : vector2) {
-            histogram->Fill(vector1[0], value);
-          }
-        }
-        result = size2;
 
-      } else { // Vector vector1 and scalar vector2
-        if ( m_monWeight && m_monWeight->getVectorRepresentation().size()==size1 ) {
-          // Weighted fill
-          auto weightVector = m_monWeight->getVectorRepresentation();
-          double value,weight;
-          for (const auto& zipped : boost::combine(vector1,weightVector)) {
-            boost::tie(value,weight) = zipped;
-            histogram->Fill(value,vector2[0],weight);
-          }
-        } else {
-          // Unweighted fill
-          for (auto value : vector1) {
-            histogram->Fill(value, vector2[0]);
-          }
-        }
-        result = size1;
-      }
 
-      return result;
+      // rather unpleaseant code but I did not want complicate it further
+      // we need to handle now 4 cases,
+      // double-double, string-double, double-string and string-string in calling the fill, we always pass the weigh
+      const size_t maxsize = std::max( value1.size(), value2.size() );
+      if ( value1.doublesAccessor and value2.doublesAccessor )
+	fill( maxsize, value1.doublesAccessor, value2.doublesAccessor, weightAccessor );
+      else if ( value1.stringsAccessor and value2.doublesAccessor )
+	fill( maxsize, value1.stringsAccessor, value2.doublesAccessor, weightAccessor );
+      else if ( value1.doublesAccessor and value2.stringsAccessor )
+	fill( maxsize, value1.doublesAccessor, value2.stringsAccessor, weightAccessor );
+      else
+	fill( maxsize, value1.stringsAccessor, value2.stringsAccessor, weightAccessor );
+      return maxsize;
     }
+
+  protected:
+    template<typename F1, typename F2, typename F3>
+    void fill( size_t n, F1 f1, F2 f2, F3 f3 ) {
+
+      std::lock_guard<std::mutex> lock(*(this->m_mutex));
+      auto histogram = this->histogram<TH2>();
+      for ( size_t i = 0; i < n; ++i ) {
+	histogram->Fill( f1(i), f2(i), f3(i) );
+      }
+    }
+
   };
 }
 

@@ -2,7 +2,6 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloCellLinkContainerCnv_p2_test.cxx,v 1.2 2008-12-18 19:34:49 ssnyder Exp $
 /* @file CaloCellLinkContainerCnv_p2_test.cxx
  * @author scott snyder <snyder@bnl.gov>
  * @date Feb, 2008
@@ -15,9 +14,14 @@
 #include "CaloEvent/CaloCellLinkContainer.h"
 #include "SGTools/TestStore.h"
 #include "AthenaKernel/errorcheck.h"
+#include "AthenaKernel/ThinningDecisionBase.h"
+#include "AthenaKernel/ThinningCache.h"
+#include "AthenaKernel/ExtendedEventContext.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include "TestTools/random.h"
 #include "TestTools/leakcheck.h"
+#include "TestTools/FLOATassert.h"
 #include <vector>
 #include <algorithm>
 #include <cassert>
@@ -253,10 +257,10 @@ void runtest  (int nclus_max,
                                   wmin, wmax));
   if (print)
     dump_celllinkcontainer (c1);
-  cnv.transToPers (&c1, &pers, log);
+  cnv.transToPersWithKey (&c1, &pers, "key", log);
   if (print)
     dump_pers (pers);
-  cnv.persToTrans (&pers, &c1out, log);
+  cnv.persToTransWithKey (&pers, &c1out, "key", log);
   if (print)
     dump_celllinkcontainer (c1out);
   compare (c1, c1out);
@@ -278,7 +282,7 @@ void test_pack_errors()
     lnk->push (1, 1, "cells2");
     lnk->push (2, 1, "cells1");
     c1.push_back (lnk);
-    cnv.transToPers (&c1, &p1, log);
+    cnv.transToPersWithKey (&c1, &p1, "key", log);
     dump_pers (p1);
   }
 
@@ -291,7 +295,7 @@ void test_pack_errors()
     lnk->push (1, 1e10);
     lnk->push (2, 1);
     c1.push_back (lnk);
-    cnv.transToPers (&c1, &p1, log);
+    cnv.transToPersWithKey (&c1, &p1, "key", log);
     dump_pers (p1);
   }
 
@@ -304,7 +308,7 @@ void test_pack_errors()
     lnk->push (500000, 1);
     lnk->push (2, 1);
     c1.push_back (lnk);
-    cnv.transToPers (&c1, &p1, log);
+    cnv.transToPersWithKey (&c1, &p1, "key", log);
     dump_pers (p1);
   }
 }
@@ -321,7 +325,7 @@ void test_unpack_errors()
     CaloCellLinkContainer_p2 p1;
     p1.m_contName = "cellx";
     p1.m_nClusters = 1;
-    cnv.persToTrans (&p1, &c1, log);
+    cnv.persToTransWithKey (&p1, &c1, "key", log);
   }
 
   {
@@ -332,7 +336,7 @@ void test_unpack_errors()
     p1.m_nClusters = 1;
     p1.m_vISizes.push_back (1);
     p1.m_vWSizes.push_back (1);
-    cnv.persToTrans (&p1, &c1, log);
+    cnv.persToTransWithKey (&p1, &c1, "key", log);
   }
 
   {
@@ -344,7 +348,7 @@ void test_unpack_errors()
     p1.m_vISizes.push_back (1);
     p1.m_vWSizes.push_back (1);
     p1.m_linkI.push_back ((1<<18) + 1);
-    cnv.persToTrans (&p1, &c1, log);
+    cnv.persToTransWithKey (&p1, &c1, "key", log);
   }
 
   {
@@ -357,7 +361,7 @@ void test_unpack_errors()
     p1.m_vWSizes.push_back (1);
     p1.m_linkI.push_back ((1<<18) + 1);
     p1.m_linkW.push_back (2001);
-    cnv.persToTrans (&p1, &c1, log);
+    cnv.persToTransWithKey (&p1, &c1, "key", log);
   }
 
   {
@@ -371,7 +375,7 @@ void test_unpack_errors()
     p1.m_linkI.push_back ((1<<18) + 1);
     p1.m_linkW.push_back (1001);
     p1.m_linkW.push_back (1002);
-    cnv.persToTrans (&p1, &c1, log);
+    cnv.persToTransWithKey (&p1, &c1, "key", log);
   }
 
   {
@@ -383,8 +387,62 @@ void test_unpack_errors()
     p1.m_vWSizes.push_back (2);
     p1.m_linkI.push_back ((1<<18) + 1);
     p1.m_linkW.push_back (1001);
-    cnv.persToTrans (&p1, &c1, log);
+    cnv.persToTransWithKey (&p1, &c1, "key", log);
   }
+}
+
+
+void test_thinning()
+{
+  std::cout << "test_thinning\n";
+
+  CaloCellLinkContainer c1;
+  for (int i = 0; i < 2; i++) {
+    auto lnk = std::make_unique<CaloCellLinkTest>();
+    for (int j = 0; j < 200; j++) {
+      lnk->push ((i+1)*1000 + j, static_cast<float>(j+1)/100);
+    }
+    c1.push_back (std::move (lnk));
+  }
+
+  SG::ThinningDecisionBase dec;
+  dec.resize (10000);
+  dec.thin (1100);
+  dec.thin (1101);
+  dec.buildIndexMap();
+
+  ElementLink<CaloCellContainer> el_link (cont_name, 0);
+  SG::ThinningCache cache;
+  cache.addThinning (cont_name, std::vector<SG::sgkey_t> {el_link.key()}, &dec);
+
+  EventContext ctx;
+  Atlas::ExtendedEventContext ectx;
+  ectx.setThinningCache (&cache);
+  Atlas::setExtendedEventContext (ctx, std::move (ectx));
+  Gaudi::Hive::setCurrentContext (ctx);
+
+  MsgStream log (nullptr, "test");
+  CaloCellLinkContainerCnv_p2 cnv;
+  CaloCellLinkContainer_p2 pers;
+  cnv.transToPersWithKey (&c1, &pers, "key", log);
+  CaloCellLinkContainer c1out;
+  cnv.persToTransWithKey (&pers, &c1out, "key", log);
+
+  assert (c1out.size() == 2);
+  assert (c1out[0]->size() == 0);
+  assert (c1out[1]->size() == 200);
+
+  std::vector<cell_t> v = celllink_to_vec (*c1out[1]);
+  assert (v.size() == 200);
+  for (int j = 0; j < 200; j++) {
+    assert (v[j].cell == 1998 + j);
+    assert( Athena_test::isEqual (v[j].weight, static_cast<float>(j+1)/100,
+                                  1e-3) );
+  }
+
+  ectx.setThinningCache (nullptr);
+  Atlas::setExtendedEventContext (ctx, std::move (ectx));
+  Gaudi::Hive::setCurrentContext (ctx);
 }
 
 
@@ -398,26 +456,33 @@ void tests()
   ElementLink<CaloCellContainer> dum3 ("cells2", 0);
   ElementLink<CaloCellContainer> dum4 ("cellx", 0);
   ElementLink<CaloCellContainer> dum5 ("", 0);
-  Athena_test::Leakcheck check;
-  runtest (10, 100, 100, 4, 4, 4, 4, 0.5, 2);
-  std::cout << "test2\n";
-  runtest (10, 100, 100, 1, 1, 1, 1, 1, 1);
-  for (int i = 0; i < 10; i++) {
-    std::cout << "test3 " << i << "\n";
-    runtest (10, 100, 10000, 1, 50, 1, 20, 0.5, 2, false);
-  }
-  std::cout << "test4\n";
-  runtest (10, 20000, 20000, 1, 1, 4, 4, 0.5, 2,  false);
-  std::cout << "test5\n";
-  runtest (10, 0, 0, 1, 1, 1, 1, 0.5, 2,  false);
 
-  test_pack_errors();
-  test_unpack_errors();
+  {
+    Athena_test::Leakcheck check;
+    runtest (10, 100, 100, 4, 4, 4, 4, 0.5, 2);
+    std::cout << "test2\n";
+    runtest (10, 100, 100, 1, 1, 1, 1, 1, 1);
+    for (int i = 0; i < 10; i++) {
+      std::cout << "test3 " << i << "\n";
+      runtest (10, 100, 10000, 1, 50, 1, 20, 0.5, 2, false);
+    }
+    std::cout << "test4\n";
+    runtest (10, 20000, 20000, 1, 1, 4, 4, 0.5, 2,  false);
+    std::cout << "test5\n";
+    runtest (10, 0, 0, 1, 1, 1, 1, 0.5, 2,  false);
+
+    test_pack_errors();
+    test_unpack_errors();
+  }
+
+  test_thinning();
 }
 
 
 int main()
 {
+  std::cout << "CaloTPCnv/CaloCellLinkContainerCnv_p2\n";
+
   errorcheck::ReportMessage::hideErrorLocus();
   SGTest::initTestStore();
   tests();

@@ -855,7 +855,7 @@ S'[]'
 p102
 sS'Format'
 p103
-S'% F%40W%S%4W%e%s%7W%R%T %0W%M'
+S'% F%40W%S%4W%R%e%s%8W%R%T %0W%M'
 p104
 sS'defaultLimit'
 p105

@@ -7,11 +7,9 @@
 @brief Python configuration of TileDQFragMonitorAlgorithm algorithm for the Run III
 '''
 
-
 def TileDQFragMonitoringConfig(flags, **kwargs):
 
     ''' Function to configure TileDQFragMonitorAlgorithm algorithm in the monitoring system.'''
-
 
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     result = ComponentAccumulator()
@@ -25,25 +23,78 @@ def TileDQFragMonitoringConfig(flags, **kwargs):
     from TileRecUtils.TileDQstatusConfig import TileDQstatusAlgCfg
     result.merge( TileDQstatusAlgCfg(flags) )
 
-    if flags.Tile.useDCS:
-        from TileConditions.TileDCSConfig import TileDCSCondAlgCfg
-        result.merge( TileDCSCondAlgCfg(flags) )
+    from TileConditions.TileInfoLoaderConfig import TileInfoLoaderCfg
+    result.merge( TileInfoLoaderCfg(flags) )
 
     from TileConditions.TileBadChannelsConfig import TileBadChanToolCfg
     badChanTool = result.popToolsAndMerge( TileBadChanToolCfg(flags) )
+    kwargs['TileBadChanTool'] = badChanTool
 
+    kwargs.setdefault('CheckDCS', flags.Tile.useDCS)
+    if kwargs['CheckDCS']:
+        from TileConditions.TileDCSConfig import TileDCSCondAlgCfg
+        result.merge( TileDCSCondAlgCfg(flags) )
+
+    rawChannelContainer = flags.Tile.RawChannelContainer
+    if flags.Input.Format.lower() == 'pool':
+        kwargs.setdefault('TileDigitsContainer', 'TileDigitsFlt')
+        if rawChannelContainer not in flags.Input.Collections:
+            rawChannelContainer = ''
+
+    kwargs.setdefault('TileRawChannelContainer', rawChannelContainer)
 
     # The following class will make a sequence, configure algorithms, and link
     # them to GenericMonitoringTools
     from AthenaMonitoring import AthMonitorCfgHelper
-    helper = AthMonitorCfgHelper(flags,'TileMonitoring')
+    helper = AthMonitorCfgHelper(flags, 'TileDQFragMonAlgCfg')
+
+    runNumber = flags.Input.RunNumber[0]
+    _TileDQFragMonitoringCore(helper, runNumber, **kwargs)
+
+    accumalator = helper.result()
+    result.merge(accumalator)
+    return result
+
+
+def TileDQFragMonitoringConfigOld(flags, **kwargs):
+
+    ''' Function to configure TileDQFragMonitorAlgorithm algorithm in the old monitoring system.'''
+
+    from AthenaMonitoring import AthMonitorCfgHelperOld
+    from AthenaCommon.GlobalFlags import globalflags
+
+    if globalflags.InputFormat().lower() == 'pool':
+        kwargs.setdefault('TileDigitsContainer', 'TileDigitsFlt')
+
+    from TileRecUtils.TileRecFlags import jobproperties
+    rawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
+    kwargs.setdefault('TileRawChannelContainer', rawChannelContainer)
+
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSequence = AthSequencer("AthCondSeq")
+    kwargs.setdefault('CheckDCS', hasattr(condSequence, 'TileDCSCondAlg'))
+
+    helper = AthMonitorCfgHelperOld(flags, 'TileDQFragMonAlgCfg')
+
+    from RecExConfig.AutoConfiguration import GetRunNumber
+    runNumber = GetRunNumber()
+
+    _TileDQFragMonitoringCore(helper, runNumber, **kwargs)
+
+    return helper.result()
+
+def _TileDQFragMonitoringCore(helper, runNumber, **kwargs):
+
+    ''' Function to configure TileDQFragMonitorAlgorithm algorithm in the monitoring system.'''
+
+    run = str(runNumber)
 
     # Adding an TileDQFragMonitorAlgorithm algorithm to the helper
     from TileMonitoring.TileMonitoringConf import TileDQFragMonitorAlgorithm
     tileDQFragMonAlg = helper.addAlgorithm(TileDQFragMonitorAlgorithm, 'TileDQFragMonAlg')
 
-    tileDQFragMonAlg.TileBadChanTool = badChanTool
-    tileDQFragMonAlg.CheckDCS = flags.Tile.useDCS
+    for k, v in kwargs.items():
+        setattr(tileDQFragMonAlg, k, v)
 
     # 1) Configure histogram with TileDQFragMonAlg algorithm execution time
     executeTimeGroup = helper.addGroup(tileDQFragMonAlg, 'TileDQFragMonExecuteTime', 'Tile/')
@@ -57,20 +108,18 @@ def TileDQFragMonitoringConfig(flags, **kwargs):
                                     title = '# events with Tile error state in EventInfo;LumiBlock;# events with error',
                                     xbins = 1000, xmin = -0.5, xmax = 999.5)
 
-    # 3) Configure histogram with TileDQFragMonAlg algorithm execution time
+    # 3) Configure histogram with number of consecutive bad Tile modules
     consecutiveBadGroup = helper.addGroup(tileDQFragMonAlg, 'TileConsecutiveBadModules', 'Tile/DMUErrors')
     consecutiveBadGroup.defineHistogram('TileConsecutiveBad', path = 'BadDrawers', type='TH1F',
                                         title = 'Max # Tile consecutive bad modules;# consecutive bad modules;N',
                                         xbins = 17, xmin = -0.5, xmax = 16.5)
 
-    # 4) Configure histogram with TileDQFragMonAlg algorithm execution time
+    # 4) Configure histogram with number of consecutive bad Tile modules per lumi block
     consecutiveBadLBGroup = helper.addGroup(tileDQFragMonAlg, 'TileConsecutiveBadModulesLB', 'Tile/DMUErrors')
     consecutiveBadLBGroup.defineHistogram('lumiBlock,TileConsecutiveBad;TileConsecutiveBadLB', path = 'BadDrawers', type='TH2F',
                                           title = 'Max # Tile consecutive bad modules;LumiBlock;# consecutive bad modules',
                                           xbins = 1000, xmin = -0.5, xmax = 999.5, ybins = 17, ymin = -0.5, ymax = 16.5)
 
-
-    run = str(flags.Input.RunNumber[0])
 
     from TileMonitoring.TileMonitoringCfgHelper import getPartitionName
     from TileCalibBlobObjs.Classes import TileCalibUtils as Tile
@@ -83,7 +132,7 @@ def TileDQFragMonitoringConfig(flags, **kwargs):
     mismatchedLVL1Group.defineHistogram('module,ROS;TileMismatchedL1TiggerType', path = 'DMUErrors',
                                         title = run + ': Tile mismatched L1 Trigger Type;Module;Partition',
                                         type = 'TH2F', labels = modulePartitionLabels,
-                                        xbins = Tile.MAX_DRAWER, xmin = 0.0, xmax = Tile.MAX_DRAWER,
+                                        xbins = Tile.MAX_DRAWER, xmin = -0.5, xmax = Tile.MAX_DRAWER - 0.5,
                                         ybins = Tile.MAX_ROS - 1, ymin = 1.0, ymax = Tile.MAX_ROS)
 
 
@@ -142,40 +191,35 @@ def TileDQFragMonitoringConfig(flags, **kwargs):
 
 
 
-    from TileMonitoring.TileMonitoringCfgHelper import addTilePartitionMapsArray
+    from TileMonitoring.TileMonitoringCfgHelper import addTileModuleChannelMapsArray
 
     # 9) Configure histograms with # of jumps errors per Tile partition
-    addTilePartitionMapsArray(helper, tileDQFragMonAlg, path = 'Tile/DMUErrors/BadDrawers',
-                              name = 'TileBadChannelsJumpMap', title = '# Jump errors',
-                              run = run)
+    addTileModuleChannelMapsArray(helper, tileDQFragMonAlg, path = 'Tile/DMUErrors/BadDrawers',
+                                  name = 'TileBadChannelsJumpMap', title = '# Jump errors',
+                                  run = run)
 
     # 10) Configure histograms with # of not masked jumps errors per Tile partition
-    addTilePartitionMapsArray(helper, tileDQFragMonAlg, path = 'Tile/DMUErrors/BadDrawers',
-                              name = 'TileBadChannelsJumpNotMaskMap', title = '# Not masked Jump errors',
-                              run = run)
+    addTileModuleChannelMapsArray(helper, tileDQFragMonAlg, path = 'Tile/DMUErrors/BadDrawers',
+                                  name = 'TileBadChannelsJumpNotMaskMap', title = '# Not masked Jump errors',
+                                  run = run)
 
-
-    tileDQFragMonAlg.TileRawChannelContainer = flags.Tile.RawChannelContainer
 
     # 11) Configure histograms with Tile bad pulse shape
-    addTilePartitionMapsArray(helper, tileDQFragMonAlg, path = 'Tile/DMUErrors/BadDrawers',
-                              name = 'TileBadPulseQualityMap', run = run,
-                              title = 'Bad pulse shape or #chi^{2} from Optimal Filtering algirithm')
+    addTileModuleChannelMapsArray(helper, tileDQFragMonAlg, path = 'Tile/DMUErrors/BadDrawers',
+                                  name = 'TileBadPulseQualityMap', run = run,
+                                  title = 'Bad pulse shape or #chi^{2} from Optimal Filtering algirithm')
 
     # 12) Configure histograms with Tile channel negative amplitudes below threshold
-    addTilePartitionMapsArray(helper, tileDQFragMonAlg, path = 'Tile/DMUErrors/BadDrawers',
-                              name = 'TileBadChannelsNegMap', title = '# Negative amplitude',
-                              run = run)
+    addTileModuleChannelMapsArray(helper, tileDQFragMonAlg, path = 'Tile/DMUErrors/BadDrawers',
+                                  name = 'TileBadChannelsNegMap', title = '# Negative amplitude',
+                                  run = run)
 
     # 13) Configure histograms with not masked Tile channel negative amplitudes below threshold
-    addTilePartitionMapsArray(helper, tileDQFragMonAlg, path = 'Tile/DMUErrors/BadDrawers',
-                              name = 'TileBadChannelsNegNotMaskMap', run = run,
-                              title = '# Not masked negative amplitude')
+    addTileModuleChannelMapsArray(helper, tileDQFragMonAlg, path = 'Tile/DMUErrors/BadDrawers',
+                                  name = 'TileBadChannelsNegNotMaskMap', run = run,
+                                  title = '# Not masked negative amplitude')
 
 
-    accumalator = helper.result()
-    result.merge(accumalator)
-    return result
 
 
 if __name__=='__main__':
@@ -215,11 +259,10 @@ if __name__=='__main__':
 
     cfg.printConfig(withDetails = True, summariseProps = True)
 
-    cfg.store( open('TileDQFragMonitorAlgorithm.pkl','w') )
+    cfg.store( open('TileDQFragMonitorAlgorithm.pkl','wb') )
 
     sc = cfg.run(maxEvents = 3)
 
     import sys
     # Success should be 0
     sys.exit(not sc.isSuccess())
-

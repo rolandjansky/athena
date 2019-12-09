@@ -47,7 +47,8 @@ namespace NSWL1 {
     virtual int channelId()   const = 0;   //!< get the channel
     virtual int padEtaId()    const = 0;   //!< get the pad eta channel 
     virtual int padPhiId()    const = 0;   //!< get the pad phi channel 
-
+    virtual int padNumber()   const = 0;
+    virtual int triggerSectorNumber()  const=0;
   };  // end of PadData class
 
   inline PadData::PadData() {}

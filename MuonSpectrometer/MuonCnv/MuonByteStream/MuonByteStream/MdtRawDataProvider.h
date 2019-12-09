@@ -17,7 +17,6 @@
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "MuonAlignmentData/CorrContainer.h"
 
 namespace Muon {
 class IMuonRawDataProviderTool;
@@ -55,7 +54,6 @@ private:
   /// ReadHandle for the input RoIs
   SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey{ this, "RoIs", "OutputRoIs",  "Name of RoI collection to read in" };
 
-  SG::ReadCondHandleKey<ALineMapContainer> m_ALineKey{this, "ALineMapContainer", "ALineMapContainer", "Name of muon alignment ALine condition data"};
     
 };
 } // ns end

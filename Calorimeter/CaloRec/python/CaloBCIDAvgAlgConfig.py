@@ -44,8 +44,8 @@ def CaloBCIDAvgAlgCfg (flags):
                               ShapeKey = 'LArShape32Sym')
 
     else:
-        from LArRecUtils.LArRecUtilsConfig import \
-            LArADC2MeVCondAlgCfg, LArOFCCondAlgCfg, LArAutoCorrTotalCondAlgCfg
+        from LArRecUtils.LArADC2MeVCondAlgConfig import LArADC2MeVCondAlgCfg
+        from LArRecUtils.LArRecUtilsConfig import LArOFCCondAlgCfg, LArAutoCorrTotalCondAlgCfg
         result.merge (LArADC2MeVCondAlgCfg (flags))
         result.merge (LArOFCCondAlgCfg (flags))
         result.merge (LArAutoCorrTotalCondAlgCfg (flags))

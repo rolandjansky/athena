@@ -5,7 +5,6 @@
 #/** @file post.sh
 # @brief sh script that check the return code of an executable and compares
 # its output with a reference (if available).
-# @param test_name
 #
 # @author Scott Snyder <snyder@fnal.gov> - ATLAS Collaboration.
 # @author Paolo Calafiura <pcalafiura@lbl.gov> - ATLAS Collaboration.
@@ -103,6 +102,10 @@ PP="$PP"'|CLID: .* - type name:'
 PP="$PP"'|ClassIDSvc .* setTypeNameForID: .* already set for'
 # ignore ClassIDSvc finalize output
 PP="$PP"'|ClassIDSvc .* finalize: wrote .*'
+# PoolSvc
+PP="$PP"'|^PoolSvc.*INFO'
+# ignore any finalize output
+PP="$PP"'|^.*INFO [Ff]inali[sz]'
 # ignore rcs version comments
 PP="$PP"'|Id: .+ Exp \$'
 # ignore plugin count
@@ -157,8 +160,8 @@ PP="$PP"'|^TimelineSvc +INFO'
 PP="$PP"'|VERBOSE ServiceLocatorHelper::service: found service IncidentSvc'
 PP="$PP"'|VERBOSE ServiceLocatorHelper::service: found service ProxyProviderSvc'
 # Pathnames / versions / times / hosts
-PP="$PP"'|^IOVDb(Svc|Folder) +INFO (Folder|Connection|Total payload|.*bytes in)'
-PP="$PP"'|^DBReplicaSvc +INFO Read replica configuration'
+PP="$PP"'|^IOVDb(Svc|Folder).*INFO (Folder|Connection|Total payload|.*bytes in)'
+PP="$PP"'|^DBReplicaSvc.*INFO Read replica configuration'
 PP="$PP"'|^EventInfoMgtInit: Got release version'
 PP="$PP"'|^Py:Athena +INFO using release'
 PP="$PP"'|servers found for host'
@@ -167,11 +170,14 @@ PP="$PP"'|INFO Database being retired|^Domain.*INFO'
 PP="$PP"'|SZ='
 PP="$PP"'|using job opts'
 
+# Hive ordering.
+PP="$PP"'|Terminating thread-pool resources|Joining Scheduler thread|Disconnecting from sqlite|Opening COOL connection|Initializing CondInputLoader|preLoadAddresses: Removing|IOVRanges will be checked|User session with|ConnectionService I[nN][fF][oO]|Disconnect from the database|RalSessionMgr I[nN][fF][oO]|Connect to the database'
+
 # Outputs dependent on whether or not a file catalog already exists.
 PP="$PP"'|XMLFileCatalog|File is not in Catalog|Failed to open container to check POOL collection|Open     DbSession|Access   DbDomain|Access   DbDatabase|^RootDatabase.open|Deaccess DbDatabase'
 
 PP="$PP"'|^Py:ConfigurableDb'
-PP="$PP"'|^DBReplicaSvc +INFO'
+PP="$PP"'|^DBReplicaSvc.*INFO'
 PP="$PP"'|INFO ... COOL  exception caught: The database does not exist|Create a new conditions database'
 PP="$PP"'|SetGeometryVersion.py obtained'
 PP="$PP"'|^ConditionStore +INFO Start ConditionStore'
@@ -237,7 +243,8 @@ PP="$PP"'|Found HelperTools'
 # Ignore ID helper verbosity.
 PP="$PP"'|filling address for'
 
-
+# MetaInputLoader addresses and SIDs
+PP="$PP"'|MetaInputLoader *INFO ( address|.*is still valid for|.*and sid)'
 
 if [ "$extrapatterns" != "" ]; then
  PP="$PP""|$extrapatterns"
@@ -255,17 +262,13 @@ else
          echo "$GREEN post.sh> OK: ${test} exited normally. Output is in $joblog $RESET"
        fi
        reflog=../share/${test}.ref
-       if [ "$reflog_location" != "" ]; then
-         reflog=$reflog_location/${test}.ref
-       fi
 
        # If we can't find the reference file, maybe it's located outside
        # the repo.  With the switch to git, we have to fall back
        # to handling the versioning manually.
        # ATLAS_REFERENCE_TAG should be a string of the form PACKAGE/VERSION.
        # We first look for it in DATAPATH.  If we don't find it,
-       # we then look under ATLAS_REFERENCE_DATA, which falls back
-       # to an afs path if it's not found.
+       # we then look under ATLAS_REFERENCE_DATA.
        if [ \( ! -r $reflog \) -a "$ATLAS_REFERENCE_TAG" != "" ]; then
            # Look for the file in DATAPATH.
            # We have to look for the directory, not the file itself,
@@ -274,29 +277,21 @@ else
            get_files -data -symlink $ATLAS_REFERENCE_TAG > /dev/null
            reflog=`basename $ATLAS_REFERENCE_TAG`/${test}.ref
            if [ ! -r $reflog ]; then
-               testdata=$ATLAS_REFERENCE_DATA
-               if [ "$testdata" = "" ]; then
-                   testdata=/afs/cern.ch/atlas/maxidisk/d33/referencefiles
-               fi
-               reflog=$testdata/$ATLAS_REFERENCE_TAG/${test}.ref
+               reflog=${ATLAS_REFERENCE_DATA}/${ATLAS_REFERENCE_TAG}/${test}.ref
            fi
        fi
 
        if [ -r $reflog ]; then
-	       jobrep=${joblog}-rep
-	       sed -r "$II" $joblog > $jobrep
-	       refrep=`basename ${reflog}`-rep
-	       sed -r "$II" $reflog > $refrep
            jobdiff=${joblog}-todiff
            refdiff=`basename ${reflog}`-todiff
 
            # We either exclude or select lines for the diff
            if [ -z "$selectpatterns" ]; then
-               egrep -a -v "$PP" < $jobrep > $jobdiff
-               egrep -a -v "$PP" < $refrep > $refdiff
+               sed -r "$II" $joblog | egrep -a -v "$PP" > $jobdiff
+               sed -r "$II" $reflog | egrep -a -v "$PP" > $refdiff
            else
-               egrep -a "$selectpatterns" < $jobrep > $jobdiff
-               egrep -a "$selectpatterns" < $refrep > $refdiff
+               sed -r "$II" $joblog | egrep -a "$selectpatterns" > $jobdiff
+               sed -r "$II" $reflog | egrep -a "$selectpatterns" > $refdiff
            fi
            diff -a -b -E -B -u $jobdiff $refdiff
            diffStatus=$?

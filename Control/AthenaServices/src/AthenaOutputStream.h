@@ -167,7 +167,7 @@ public:
    IDataSelector* selectedObjects() {
       return &m_objects;
    }
-   /// Incident service handle listening for LastInputFile
+   /// Incident service handle listening for MetaDataStop 
    virtual void handle(const Incident& incident) override;
    /// Callback method to reinitialize the internal state of the component for I/O purposes (e.g. upon @c fork(2))
    virtual StatusCode io_reinit() override;

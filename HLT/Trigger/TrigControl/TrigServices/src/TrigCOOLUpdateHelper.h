@@ -35,9 +35,7 @@ class IIOVDbSvc;
  * Struct to hold CLID <-> folder name mapping
  */
 struct FolderInfo {
-  FolderInfo() : clid(CLID_NULL) {}
-  FolderInfo(const CLID& cl, const std::string& k) : clid(cl), key(k) {}
-  CLID clid;
+  CLID clid{CLID_NULL};
   std::string key;
 };
 
@@ -134,7 +132,10 @@ private:
   ToolHandle<GenericMonitoringTool> m_monTool{this, "MonTool", {}, "Monitoring tool"};
 
   Gaudi::Property<std::string> m_coolFolderName{
-    this, "coolFolder", {}, "Name of COOL folder containing folder map"};
+    this, "CoolFolderMap", {}, "Name of COOL folder containing folder map"};
+
+  Gaudi::Property<std::vector<std::string>> m_folders{
+    this, "Folders", {}, "List of folders that can be updated during the run"};
 
   Gaudi::Property<uint32_t> m_ctpRobId{
     this, "CtpRobId", 0x770001, "ROB ID of CTP fragment containing the extra payload"};

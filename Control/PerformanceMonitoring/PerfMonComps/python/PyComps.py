@@ -1,8 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file:    PerfMonComps/python/PyComps.py
 # @purpose: a set of python components to perform performance monitoring
 # @author:  Sebastien Binet <binet@cern.ch>
+from __future__ import print_function
 
 __doc__     = 'a set of python components to perform performance monitoring'
 __version__ = '$Revision: 298807 $'
@@ -62,8 +63,8 @@ class PyStorePayloadMon (PyAthena.Svc):
         self.ostream = open(self.oname, 'w')
 
         # describe data format
-        print >> self.ostream, "#data format: [[(bytes_0, bytes_1, delta, clid, sg_key),]]"
-        print >> self.ostream, "data = ["
+        print("#data format: [[(bytes_0, bytes_1, delta, clid, sg_key),]]", file=self.ostream)
+        print("data = [", file=self.ostream)
         
         # register incident handles
         incsvc = PyAthena.py_svc('IncidentSvc', iface='IIncidentSvc')
@@ -99,21 +100,19 @@ class PyStorePayloadMon (PyAthena.Svc):
         clid2name = self.clidsvc.typename
         fmt = "   (%10i, %10i, %10i, \"%s\", \"%s\"),"
         
-        print >> fd, " [ ## new-event"
+        print(" [ ## new-event", file=fd)
         for p, mem_0, mem_1 in data:
             tp_name = clid2name(p.clID())
-            print >> fd, fmt % (
-                mem_0, mem_1, mem_0 - mem_1, tp_name, p.name()
-                )
+            print(fmt, (mem_0, mem_1, mem_0 - mem_1, tp_name, p.name()), file=fd)
             pass
         mem_store_0 = long(mem_store_0)
         mem_store_1 = long(mem_store_1)
         
-        print >> fd, fmt % (
+        print(fmt, (
             mem_store_0, mem_store_1, mem_store_0 - mem_store_1,
             "StoreGateSvc", self.sg_name
-            )
-        print >> fd, " ],"
+            ), file=fd)
+        print(" ],", file=fd)
 
         self.msg.info('flush-store: %10d -> %10d -- delta= %10d',
                       mem_store_0, mem_store_1, mem_store_0 - mem_store_1)
@@ -130,15 +129,15 @@ class PyStorePayloadMon (PyAthena.Svc):
         self._sg_clear(self.sg, p)
         mem_1, ncalls_1 = fs.stat()
         
-        ## print "::: %f -> %f ==> %f [%i -> %i] (%s/%s)" % (
+        ## print("::: %f -> %f ==> %f [%i -> %i] (%s/%s)" % (
         ##     mem_0, mem_1, mem_1 - mem_0, ncalls_0, ncalls_1,
         ##     p.clID(), p.name()
-        ##     )
+        ##     ))
         return (p, long(mem_0), long(mem_1))
     
     def finalize(self):
         self.msg.info('==> finalize...')
-        print >> self.ostream, "] # data"
+        print("] # data", file=self.ostream)
         self.heph_stats.stop()
         
         return StatusCode.Success

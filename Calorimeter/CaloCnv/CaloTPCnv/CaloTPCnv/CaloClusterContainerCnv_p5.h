@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOTPCNV_CaloClusterContainerCnv_p5_H
@@ -9,7 +9,6 @@
 
 #include "CaloEvent/CaloClusterContainer.h"
 #include "CaloEvent/CaloSamplingData.h"
-#include "AthenaKernel/ITPCnvBase.h"
 #include "CaloTPCnv/CaloTowerSegCnv_p1.h"
 #include "EventCommonTPCnv/P4EEtaPhiMCnv_p2.h"
 #include "CaloEvent/CaloShowerContainer.h"
@@ -18,37 +17,48 @@
 
 #include "DataModelAthenaPool/ElementLinkCnv_p2.h"
 #include "AthLinks/ElementLink.h"
-#include "AthenaPoolCnvSvc/ITPConverter.h"
+#include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
 class CaloClusterContainer;
 class CaloCluster;
 
-class CaloClusterContainerCnv_p5 : public ITPCnvBase {
+class CaloClusterContainerCnv_p5
+  : public T_AthenaPoolTPCnvConstBase<CaloClusterContainer, CaloClusterContainer_p5>
+{
 public:
-  CaloClusterContainerCnv_p5() {};
-  virtual ~CaloClusterContainerCnv_p5() {}; 
+  using base_class::transToPers;
+  using base_class::persToTrans;
 
-  // Methods for invoking conversions on objects given by generic pointers.
-  virtual void persToTransUntyped(const void* pers,
-                                  void* trans,
-                                  MsgStream& log);
-  virtual void transToPersUntyped(const void* trans,
-                                  void* pers,
-                                  MsgStream& log);
-  virtual const std::type_info& transientTInfo() const;
 
-  /** return C++ type id of the persistent class this converter is for
-      @return std::type_info&
-  */
-  virtual const std::type_info& persistentTInfo() const;
+  virtual
+  void persToTrans (const CaloClusterContainer_p5* pers,
+                    CaloClusterContainer* trans,
+                    MsgStream &log) const override;
 
-  void persToTrans(const CaloClusterContainer_p5*, CaloClusterContainer*, MsgStream &log);
-  void transToPers(const CaloClusterContainer*, CaloClusterContainer_p5*, MsgStream &log);
+
+  virtual
+  void transToPers (const CaloClusterContainer* trans,
+                    CaloClusterContainer_p5* pers,
+                    MsgStream &log) const override;
+
 
 private:
+  typedef ElementLinkCnv_p2<ElementLink<CaloShowerContainer> >::State
+    ShowerLinkState;
+  typedef ElementLinkCnv_p2<ElementLink<CaloCellLinkContainer> >::State
+    CellLinkState;
+
   //Conversion function for individual clusters (called in a loop over the container)
-  void persToTrans(const CaloClusterContainer_p5::CaloCluster_p*, CaloCluster*, MsgStream &);
-  void transToPers(const CaloCluster*, CaloClusterContainer_p5::CaloCluster_p*, MsgStream &);
+  void persToTrans (const CaloClusterContainer_p5::CaloCluster_p* pers,
+                    CaloCluster* trans,
+                    ShowerLinkState& showerLinkState,
+                    CellLinkState& cellLinkState,
+                    MsgStream &) const;
+  void transToPers (const CaloCluster* trans,
+                    CaloClusterContainer_p5::CaloCluster_p* pers,
+                    ShowerLinkState& showerLinkState,
+                    CellLinkState& cellLinkState,
+                    MsgStream &) const;
 
   //Sub-Converters:
   CaloTowerSegCnv_p1                                     m_caloTowerSegCnv;

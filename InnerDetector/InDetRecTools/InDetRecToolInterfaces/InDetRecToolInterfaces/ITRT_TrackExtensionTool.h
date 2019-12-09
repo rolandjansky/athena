@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -36,6 +36,10 @@ namespace InDet {
       ///////////////////////////////////////////////////////////////////
       
     public:
+      class IEventData {
+      public:
+         virtual ~IEventData() {}
+      };
 
       ///////////////////////////////////////////////////////////////////
       // Standard tool methods
@@ -50,28 +54,34 @@ namespace InDet {
       ///////////////////////////////////////////////////////////////////
 
       ///////////////////////////////////////////////////////////////////
-      // Pixles and sct track extension to TRT  
+      // Pixles and sct track extension to TRT
       ///////////////////////////////////////////////////////////////////
 
       virtual std::vector<const Trk::MeasurementBase*>& extendTrack
-	(const Trk::Track&) = 0;
+        (const Trk::Track&,
+         InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const = 0;
+
       virtual std::vector<const Trk::MeasurementBase*>& extendTrack
-	(const Trk::TrackParameters&) = 0;
+        (const Trk::TrackParameters&,
+         InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const = 0;
+
       virtual Trk::Track* newTrack
-	(const Trk::Track&) = 0;
- 
+        (const Trk::Track&,
+         InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const = 0;
+
       ///////////////////////////////////////////////////////////////////
-      // TRT seed extension to TRT  
+      // TRT seed extension to TRT
       ///////////////////////////////////////////////////////////////////
-      
+
       virtual Trk::TrackSegment* findSegment
-	(const Trk::TrackParameters&) = 0;
+        (const Trk::TrackParameters&,
+         InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const = 0;
 
       ///////////////////////////////////////////////////////////////////
       //  Tool initialisation  for new eevent
       ///////////////////////////////////////////////////////////////////
 
-      virtual void newEvent()=0;
+      virtual std::unique_ptr<InDet::ITRT_TrackExtensionTool::IEventData> newEvent() const = 0;
 
       ///////////////////////////////////////////////////////////////////
       // Print internal tool parameters and status

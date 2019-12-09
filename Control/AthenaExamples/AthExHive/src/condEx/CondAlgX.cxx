@@ -19,7 +19,6 @@
 CondAlgX::CondAlgX( const std::string& name, 
             ISvcLocator* pSvcLocator ) : 
   ::AthAlgorithm( name, pSvcLocator ),
-  m_cs("CondSvc",name),
   m_cds("ASCIICondDbSvc",name)
 {
 }
@@ -31,10 +30,6 @@ StatusCode CondAlgX::initialize() {
 
   ATH_CHECK( m_evt.initialize() );
 
-  if (m_cs.retrieve().isFailure()) {
-    ATH_MSG_ERROR("unable to retrieve CondSvc");
-  }
-
   if (m_cds.retrieve().isFailure()) {
     ATH_MSG_ERROR("unable to retrieve ASCIICondDbSvc");
   }
@@ -43,12 +38,6 @@ StatusCode CondAlgX::initialize() {
 
   if (m_wchk.initialize().isFailure()) {
     ATH_MSG_ERROR("unable to initialize WriteCondHandle with key" << m_wchk.key() );
-    return StatusCode::FAILURE;
-  }
-
-  if (m_cs->regHandle(this, m_wchk).isFailure()) {
-    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_wchk.fullKey() 
-                  << " with CondSvc");
     return StatusCode::FAILURE;
   }
 

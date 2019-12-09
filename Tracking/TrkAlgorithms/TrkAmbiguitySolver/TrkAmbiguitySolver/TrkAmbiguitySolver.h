@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -53,9 +53,9 @@ namespace Trk
       bool              m_applySolve; 
       
       /**Number of tracks input. Useful for debugging*/
-      long int          m_trackInCount; 
+       std::atomic<long int>          m_trackInCount;
       /**Number of tracks passing Ambi solving. Useful for debugging*/
-      long int          m_trackOutCount; 
+       std::atomic<long int>          m_trackOutCount;
       
       /** Save the processed tracks. If ambiguity process has not been called then they will 
 	  still be the original converted tracks */

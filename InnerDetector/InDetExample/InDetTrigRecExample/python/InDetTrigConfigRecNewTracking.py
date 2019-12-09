@@ -329,10 +329,13 @@ class TrigAmbiguitySolver_EF( InDet__InDetTrigAmbiguitySolver ):
       
       from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__SimpleAmbiguityProcessorTool
 
+      import InDetRecExample.TrackingCommon as TrackingCommon
       InDetTrigAmbiguityProcessor = \
           Trk__SimpleAmbiguityProcessorTool(name = 'InDetTrigAmbiguityProcessor_'+slice,
                                             #AssoTool    = InDetTrigPrdAssociationTool,
                                             Fitter      = InDetTrigTrackFitter,
+                                            AssociationTool = TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels(),
+                                            TrackSummaryTool = InDetTrigTrackSummaryTool,
                                             SelectionTool = InDetTrigAmbiTrackSelectionTool,
                                             RefitPrds   = not InDetTrigFlags.refitROT()
                                             )
@@ -377,10 +380,18 @@ class TrigAmbiguitySolver_EF( InDet__InDetTrigAmbiguitySolver ):
          print InDetTrigAmbiguityProcessor
 
       self.AmbiguityProcessor = InDetTrigAmbiguityProcessor
+      self.AssociationTool = TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels()
       if lowPt:
         from InDetTrigRecExample.InDetTrigConfigRecLoadToolsLowPt import InDetTrigAmbiguityProcessorLowPt
         self.AmbiguityProcessor = InDetTrigAmbiguityProcessorLowPt
         self.OutputTracksLabel = "AmbigSolvLowPt"
+        self.OutputPRDMapLabel = "AmbigSolvPRDMapLowPt"
+      else :
+        self.OutputPRDMapLabel = "AmbigSolvPRDMap"
+
+      # hack to recover run2 behavior
+      from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigPRDtoTrackMapExchangeTool
+      self.PRDToTrackMapExchange = InDetTrigPRDtoTrackMapExchangeTool
 
       #use either SPSeeded or FTF tracks
       self.InputTracksLabel = ""

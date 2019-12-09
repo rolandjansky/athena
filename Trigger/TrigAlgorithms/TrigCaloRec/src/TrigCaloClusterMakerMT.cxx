@@ -97,9 +97,11 @@ TrigCaloClusterMakerMT::TrigCaloClusterMakerMT(const std::string& name, ISvcLoca
   ATH_CHECK( m_clusterMakers.retrieve() );
   ATH_CHECK( m_clusterCorrections.retrieve() );
  
+#if 0
   ATH_CHECK( m_inputCaloQualityKey.initialize() );
-  ATH_CHECK( m_inputCellsKey.initialize() );
   ATH_CHECK( m_inputTowersKey.initialize() );
+#endif
+  ATH_CHECK( m_inputCellsKey.initialize() );
   ATH_CHECK( m_outputClustersKey.initialize() );
   ATH_CHECK( m_clusterCellLinkOutput.initialize() );
 
@@ -162,11 +164,12 @@ StatusCode TrigCaloClusterMakerMT::execute()
 					    mon_badCells, mon_engFrac, mon_size);	    
 
 
+#if 0
   auto  pTrigCaloQuality =   SG::makeHandle (m_inputCaloQualityKey, ctx); 
   //TrigCaloQuality*  pTrigCaloQuality = trigCaloQuality.ptr();
 
   ATH_MSG_VERBOSE(" Input CaloQuality : " <<  pTrigCaloQuality.name());
-
+#endif
 
   // Looping over cluster maker tools... 
   
@@ -175,8 +178,10 @@ StatusCode TrigCaloClusterMakerMT::execute()
   auto cells = SG::makeHandle(m_inputCellsKey, ctx);
   ATH_MSG_VERBOSE(" Input Cells : " << cells.name() <<" of size " <<cells->size() );
 
+#if 0
   auto towers = SG::makeHandle(m_inputTowersKey, ctx);
   //  ATH_MSG_DEBUG(" Input Towers : " << towers.name() <<" of size "<< towers->size());
+#endif
 
   for (ToolHandle<CaloClusterCollectionProcessor>& clproc : m_clusterMakers) {
     
@@ -195,7 +200,9 @@ StatusCode TrigCaloClusterMakerMT::execute()
 	return StatusCode::SUCCESS;
       }
       
-    } else if(clproc->name().find("trigslw") != std::string::npos){
+    }
+#if 0
+    else if(clproc->name().find("trigslw") != std::string::npos){
       if(!algtool || algtool->setProperty( StringProperty("CaloCellContainer",cells.name()) ).isFailure()) { 
 	ATH_MSG_ERROR ("ERROR setting the CaloCellContainer name in the offline tool" ); 
         //return HLT::TOOL_FAILURE; 
@@ -207,6 +214,7 @@ StatusCode TrigCaloClusterMakerMT::execute()
 	return StatusCode::SUCCESS;
       }
     }
+#endif
       
 
     if ( (clproc->name()).find("trigslw") != std::string::npos ) isSW=true;

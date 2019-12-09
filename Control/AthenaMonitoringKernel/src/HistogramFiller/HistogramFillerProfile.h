@@ -18,7 +18,9 @@ namespace Monitored {
     HistogramFillerProfile(const HistogramDef& definition, std::shared_ptr<IHistogramProvider> provider)
       : HistogramFiller(definition, provider) {}
 
-    virtual HistogramFillerProfile* clone() override { return new HistogramFillerProfile(*this); };
+    virtual HistogramFillerProfile* clone() override {
+      return new HistogramFillerProfile( *this );
+    }
 
     virtual unsigned fill() override {
       if (m_monVariables.size() != 2) {

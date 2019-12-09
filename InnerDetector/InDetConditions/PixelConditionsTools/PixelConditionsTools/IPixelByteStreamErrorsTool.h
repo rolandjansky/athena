@@ -69,7 +69,7 @@ class IPixelByteStreamErrorsTool: virtual public IInterface, virtual public IAlg
     virtual void addBadFE(IdentifierHash hashID, int badFE) const =0;
     virtual unsigned int getBadFE(IdentifierHash hashID) const =0;
     virtual StatusCode readData()=0;
-    virtual StatusCode recordData()=0;
+    virtual StatusCode recordData() const =0;
 
     // FE-I4B
     virtual void addLinkMaskedByPPC() const =0;

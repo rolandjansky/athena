@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_SLHC_GeoModel_SCT_FWDRING_H
@@ -48,14 +48,14 @@ private:
   void getParameters();
   virtual const GeoLogVol * preBuild();
 
-  int     m_iWheel;
+  //  int     m_iWheel;
   int     m_iRing;
   int     m_numModules;
   int     m_doubleSided;
   double  m_moduleStagger;
   int     m_stereoSign;
   double  m_refStartAngle;
-  int     m_refFirstStagger;
+  //  int     m_refFirstStagger;
 
   double m_innerRadius;
   double m_middleRadius;

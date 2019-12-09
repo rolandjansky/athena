@@ -6,6 +6,7 @@
 #ifndef TGCPatchPanel_hh
 #define TGCPatchPanel_hh
 
+#include "TrigT1TGC/TGCArguments.hh"
 #include "TrigT1TGC/TGCConnectionPPToSB.hh"
 #include "TrigT1TGC/TGCNumbering.hh"
 #include <fstream>
@@ -69,12 +70,14 @@ public:
   void connect();
   std::string getTypeName(int typeIn) const;
 
-  TGCPatchPanel();
+  TGCPatchPanel( TGCArguments* );
   ~TGCPatchPanel();
 
   TGCPatchPanel(const TGCPatchPanel& right);
   TGCPatchPanel& operator=(const TGCPatchPanel& right);
 
+  TGCArguments* tgcArgs() const;
+  
 private:
   void showResult() const;
   void doBID();
@@ -98,8 +101,14 @@ private:
   TGCBIDOut* m_BIDOut[NChOfPPOutputConnector][MaxNumberOfConnector][NumberOfBunchKeptInPP];
   TGCPatchPanel* m_PPAdj[2]; // pointer to adjacent board.
   TGCConnectionInPP* m_connectionInPP;
+  
+  TGCArguments* m_tgcArgs;
+  
 };
 
+  inline TGCArguments* TGCPatchPanel::tgcArgs() const {
+    return m_tgcArgs;
+  }
 
 } //end of namespace bracket
 

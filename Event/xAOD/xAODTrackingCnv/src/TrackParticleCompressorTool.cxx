@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TrackParticleCompressorTool.cxx 789658 2016-12-14 14:28:40Z krasznaa $
@@ -25,6 +25,9 @@ namespace xAODMaker {
       declareProperty( "DiagonalCovMatrixBits", m_diagCovMatrixBits = 23,
                        "Bits kept for the diagonal covariance matrix "
                        "elements" );
+      declareProperty( "UseOffDiagCompr", m_useOffDiagCompr = false,
+                       "Flag to control the off-diagonal compression "
+                       "scheme" );
    }
 
    StatusCode TrackParticleCompressorTool::initialize() {
@@ -33,10 +36,10 @@ namespace xAODMaker {
       ATH_MSG_INFO( "Initialising - Package version: " << PACKAGE_VERSION );
       ATH_MSG_INFO( "  OffDiagCovMatrixBits = " << m_offDiagCovMatrixBits );
       ATH_MSG_INFO( "  DiagCovMatrixBits    = " << m_diagCovMatrixBits );
+      ATH_MSG_INFO( "  UseOffDiagCompr = " << m_useOffDiagCompr );
+
 
       // Create the helper objects:
-      m_offDiagCovMatrixCompressor.reset(
-               new xAOD::FloatCompressor( m_offDiagCovMatrixBits ) );
       m_diagCovMatrixCompressor.reset(
                new xAOD::FloatCompressor( m_diagCovMatrixBits ) );
 
@@ -47,25 +50,48 @@ namespace xAODMaker {
    StatusCode
    TrackParticleCompressorTool::compress( xAOD::TrackParticle& tp ) const {
 
-      // Get the uncompressed covariance matrix:
-      xAOD::ParametersCovMatrix_t covMatrix = tp.definingParametersCovMatrix();
-      for( xAOD::ParametersCovMatrix_t::Index i = 0; i < covMatrix.rows();
-           ++i ) {
-         for( xAOD::ParametersCovMatrix_t::Index j = 0; j < covMatrix.cols();
-              ++j ) {
-            // Decide which compressor to use:
-            const xAOD::FloatCompressor& fc =
-                  ( ( i == j ) ? *m_diagCovMatrixCompressor :
-                                 *m_offDiagCovMatrixCompressor );
-            // Compress the matrix element:
-            covMatrix( i, j ) = fc.reduceFloatPrecision( covMatrix( i, j ) );
-         }
-      }
-      // Clear the current values, as the next call will only add to the
-      // existing matrix elements:
-      tp.setDefiningParametersCovMatrixVec( std::vector< float >() );
-      // Overwrite the matrix with the compressed value:
-      tp.setDefiningParametersCovMatrix( covMatrix );
+     xAOD::ParametersCovMatrix_t covMatrix = tp.definingParametersCovMatrix();
+     tp.setDefiningParametersCovMatrix(covMatrix); //Separate diag and offdiag cov matrix vectors may not have been set before
+     if(m_useOffDiagCompr) tp.compressDefiningParametersCovMatrixOffDiag();
+
+     //Check if determinant got negative after compression
+     //If so, undo
+     xAOD::ParametersCovMatrix_t covMatrixCompr = tp.definingParametersCovMatrix();
+     if(covMatrixCompr.determinant()<=0.) tp.setDefiningParametersCovMatrix(covMatrix);
+
+     const std::vector< float > diagVec = tp.definingParametersCovMatrixDiagVec();
+     std::vector< float > diagVecCompr;
+
+     for( unsigned int i = 0; i < diagVec.size(); ++i ) {
+       const xAOD::FloatCompressor& fc = *m_diagCovMatrixCompressor;
+       diagVecCompr.push_back(fc.reduceFloatPrecision( diagVec[i] ));
+     }
+
+     tp.setDefiningParametersCovMatrixDiagVec( diagVecCompr );
+
+     const std::vector< float > offDiagVec = tp.definingParametersCovMatrixOffDiagVec();
+     float det = -1.;
+     int offDiagComprBits = m_offDiagCovMatrixBits;
+
+     // Compress off-diagonal terms as much as possible, as long as the determinant stays positive
+     while(det<=0. && offDiagComprBits<=m_diagCovMatrixBits){
+
+       const xAOD::FloatCompressor& fc = xAOD::FloatCompressor( offDiagComprBits);
+
+       std::vector< float > offDiagVecCompr;
+       for( unsigned int i = 0; i < offDiagVec.size(); ++i ) {
+	 offDiagVecCompr.push_back(fc.reduceFloatPrecision( offDiagVec[i] ));
+       }
+
+       tp.setDefiningParametersCovMatrixOffDiagVec( offDiagVecCompr );
+
+       covMatrixCompr = tp.definingParametersCovMatrix();
+       det = covMatrixCompr.determinant();
+
+       offDiagComprBits++;
+
+     }
+
 
       // Return gracefully:
       return StatusCode::SUCCESS;

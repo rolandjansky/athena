@@ -63,6 +63,12 @@ private:
   TH1I* m_histPscErrorCode{nullptr}; //< Histogram of PSC error codes
   TH1F* m_histStreamTags{nullptr}; //< Histogram of stream tags
   TH2F* m_histStreamTagsCorr{nullptr}; //< Histogram of stream tags correlation
+  TH1F* m_histStreamTagsNum{nullptr}; //< Histogram of number of stream tags
+  TH1F* m_histStreamTagsType{nullptr}; //< Histogram of stream tags type
+  TH1F* m_histPebRobsNum{nullptr}; //< Histogram of the number of ROBs in PEB stream tag
+  TH1F* m_histPebSubDetsNum{nullptr}; //< Histogram of the number of SubDetectors in PEB stream tag
+  TH1F* m_histPebSubDetsFromRobList{nullptr}; //< Histogram of SubDetectors from ROB list in PEB stream tag
+  TH1F* m_histPebSubDetsFromSubDetList{nullptr}; //< Histogram of SubDetectors from SubDetector list in PEB stream tag
   TH2F* m_histResultSizeByModule{nullptr}; //< Histogram of HLT result size per module ID
   TH2F* m_histResultSizeByStream{nullptr}; //< Histogram of HLT result size per stream
   TH1F* m_histResultSizeTotal{nullptr}; //< Histogram of total HLT result size (all modules)

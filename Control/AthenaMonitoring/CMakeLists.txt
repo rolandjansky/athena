@@ -25,10 +25,13 @@ atlas_depends_on_subdirs(
         Tools/LWHists
         Trigger/TrigAnalysis/TrigDecisionTool
         Trigger/TrigAnalysis/TrigAnalysisInterfaces
+        MuonSpectrometer/MuonAlignment/MuonAlignmentData
 )
 
 # External dependencies:
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
+find_package( Boost )
+find_package( ROOT COMPONENTS Core )
 
 # Component(s) in the package:
 atlas_add_library(
@@ -61,10 +64,11 @@ atlas_add_library(
 
 atlas_add_component(
     AthenaMonitoring
-    src/*.cxx src/components/*.cxx
+    src/components/*.cxx
     INCLUDE_DIRS
         ${CORAL_INCLUDE_DIRS}
     LINK_LIBRARIES
+        AthenaMonitoringLib
         AthenaMonitoringKernelLib
         LumiBlockData
         LWHists
@@ -73,6 +77,7 @@ atlas_add_component(
 )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py 
+                              POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
-atlas_install_scripts( share/Run3DQTestingDriver.py )
+atlas_install_scripts( share/Run3DQTestingDriver.py share/hist_file_dump.py share/hist_diff.sh )

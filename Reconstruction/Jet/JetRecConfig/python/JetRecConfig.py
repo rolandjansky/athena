@@ -25,7 +25,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 # So, import package conf modules rather than a dozen individual classes
 from JetRec import JetRecConf
 
-__all__ = ["JetRecCfg", "resolveDependencies"]
+__all__ = ["JetRecCfg", "resolveDependencies", "JetInputCfg"]
 
 ########################################################################
 # Top-level function for running jet finding
@@ -225,7 +225,7 @@ def configureContainerName(modifiers, containerName):
 #
 def getEventShapeAlg( constit, constitpjkey, nameprefix="" ):
 
-    rhokey = "Kt4"+constit.label+"EventShape"
+    rhokey = nameprefix+"Kt4"+constit.label+"EventShape"
     rhotoolname = "EventDensity_Kt4"+constit.label
     
     from EventShapeTools import EventShapeToolsConf

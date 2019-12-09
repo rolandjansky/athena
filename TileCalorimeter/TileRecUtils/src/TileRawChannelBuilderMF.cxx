@@ -508,14 +508,14 @@ bool TileRawChannelBuilderMF::are3FF(float &dmin, float &dmax) {
         dmax = dig;
       else if (dig < dmin) dmin = dig;
     }
-    allSaturated = (dmin > 1022.99);
+    allSaturated = (dmin > m_ADCmaxMinusEps);
 
     // FIXME:: set these 2 parameters from JobOptions
     // FIXME:: move this method to base class 
     const float epsilon = 2.1; // allow 1 count fluctuations around const value
     const float delta = 99.9;  // consider jumps by 100 counts only
     const float level0 = 39.9; // jump from this level to zero is bad
-    const float level1 = 99.9; // jump from this level to 1023 is bad 
+    const float level1 = 99.9; // jump from this level to m_i_ADCmax is bad 
 
     if (!allSaturated && (dmax - dmin) > delta) {
       float abovemin = dmax;
@@ -542,11 +542,11 @@ bool TileRawChannelBuilderMF::are3FF(float &dmin, float &dmax) {
         }
       }
 
-      if (dmin < 0.01 && dmax > 1022.99) { // jump from zero to saturation
+      if (dmin < 0.01 && dmax > m_ADCmaxMinusEps) { // jump from zero to saturation
         jump = true;
       } else if (dmin < 0.01 && abovemin > level0 && nmin > 1) { // at least two samples at zero, others - above pedestal
         jump = true;
-      } else if (dmax > 1022.99 && belowmax < level1 && nmax > 1) { // at least two saturated. others - close to pedestal
+      } else if (dmax > m_ADCmaxMinusEps && belowmax < level1 && nmax > 1) { // at least two saturated. others - close to pedestal
         jump = true;
       } else if (nmax + nmin == nSamp) {
         if (nmax > 1 && nmin > 1) { // at least 2 samples at two distinct levels

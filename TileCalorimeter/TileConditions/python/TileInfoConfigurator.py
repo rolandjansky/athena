@@ -49,12 +49,12 @@ class _TileInfoConfigurator( TileInfoLoader ):
 
     @property
     #_______________________________________________________________
-    def _msg(self):
+    def msg(self):
         """
         Returns logging.
         """
         #=== One can use loggers but not as a datamember of configurables as loggers'
-        #=== instances can't be pickled. Hence we use _msg as a property
+        #=== instances can't be pickled. Hence we use msg as a property
 
         #=== initialize logger with INFO level
         import AthenaCommon.Logging as L
@@ -73,38 +73,38 @@ class _TileInfoConfigurator( TileInfoLoader ):
 
         #=== prevent a second initialization
         if self._coolIsConfigured:
-            self._msg.info("setupCOOL already called previously, ignoring this repeated call!")
+            self.msg.info("setupCOOL already called previously, ignoring this repeated call!")
             return
         self._coolIsConfigured = True
 
         #=== connect all tools to COOL
         from AthenaCommon.AppMgr import ToolSvc
 
-        self._msg.info("Changing default TileBadChanTool configuration to COOL source")
+        self.msg.info("Changing default TileBadChanTool configuration to COOL source")
         from .TileCondToolConf import getTileBadChanTool
         ToolSvc += getTileBadChanTool('COOL')
 
-        self._msg.info("Changing default TileCondToolEmscale configuration to COOL source")
+        self.msg.info("Changing default TileCondToolEmscale configuration to COOL source")
         from .TileCondToolConf import getTileCondToolEmscale
         ToolSvc += getTileCondToolEmscale('COOL')
 
-        self._msg.info("Changing default TileCondToolNoiseSample configuration to COOL source")
+        self.msg.info("Changing default TileCondToolNoiseSample configuration to COOL source")
         from .TileCondToolConf import getTileCondToolNoiseSample
         ToolSvc += getTileCondToolNoiseSample('COOL')
 
-#        self._msg.info("Changing default TileCondToolNoiseAutoCr configuration to COOL source")
+#        self.msg.info("Changing default TileCondToolNoiseAutoCr configuration to COOL source")
 #        from .TileCondToolConf import getTileCondToolAutoCr
 #        ToolSvc += getTileCondToolAutoCr('COOL')
 
-        #self._msg.info("Changing default TileCondToolNoiseRawChn configuration to COOL source")
+        #self.msg.info("Changing default TileCondToolNoiseRawChn configuration to COOL source")
         #from .TileCondToolConf import getTileCondToolNoiseRawChn
         #ToolSvc += getTileCondToolNoiseRawChn('COOL')
 
-        self._msg.info("Changing default TileCondToolTiming configuration to COOL source")
+        self.msg.info("Changing default TileCondToolTiming configuration to COOL source")
         from .TileCondToolConf import getTileCondToolTiming
         ToolSvc += getTileCondToolTiming('COOL',type)
 
- #       self._msg.info("Changing default TileCondToolPulseShape configuration to COOL source")
+ #       self.msg.info("Changing default TileCondToolPulseShape configuration to COOL source")
  #       from .TileCondToolConf import getTileCondToolPulseShape
  #       ToolSvc += getTileCondToolPulseShape('COOL')
 
@@ -130,17 +130,17 @@ class _TileInfoConfigurator( TileInfoLoader ):
         #=== prevent a second initialization
         if ofcType == 'OF2':
             if self._coolofcIsConfigured:
-                self._msg.info("setupCOOLOFC already called previously, ignoring this repeated call!")
+                self.msg.info("setupCOOLOFC already called previously, ignoring this repeated call!")
                 return True
             self._coolofcIsConfigured = True
         elif ofcType == 'OF1':
             if self._coolof1ofcIsConfigured:
-                self._msg.info("setupCOOLOFC for OF1 already called previously, ignoring this repeated call!")
+                self.msg.info("setupCOOLOFC for OF1 already called previously, ignoring this repeated call!")
                 return True
             self._coolof1ofcIsConfigured = True
             name = 'TileCondToolOfcCoolOF1'
         else:
-            self._msg.info("setupCOOLOFC: not known OFC type: %s! Nothing will be done!", ofcType)
+            self.msg.info("setupCOOLOFC: not known OFC type: %s! Nothing will be done!", ofcType)
             return False
 
         #=== connect TileCondToolOfcCool to COOL
@@ -148,7 +148,7 @@ class _TileInfoConfigurator( TileInfoLoader ):
         from .TileCondToolConf import getTileCondToolOfcCool
         toolOfcCool = getTileCondToolOfcCool('COOL', type, ofcType, name )
         if toolOfcCool is not None:
-            self._msg.info("Changing default TileCondToolOfcCool configuration to COOL source for %s", ofcType)
+            self.msg.info("Changing default TileCondToolOfcCool configuration to COOL source for %s", ofcType)
             ToolSvc += toolOfcCool
             return True
         elif ofcType == 'OF1':
@@ -174,12 +174,12 @@ class _TileInfoConfigurator( TileInfoLoader ):
         #=== prevent a second initialization
         if not online:
             if self._cooltimeIsConfigured:
-                self._msg.info("setupCOOLTIME already called previously, ignoring this repeated call!")
+                self.msg.info("setupCOOLTIME already called previously, ignoring this repeated call!")
                 return
             self._cooltimeIsConfigured = True
         else:
             if self._coolonlinetimeIsConfigured:
-                self._msg.info("setupCOOLTIME for online already called previously, ignoring this repeated call!")
+                self.msg.info("setupCOOLTIME for online already called previously, ignoring this repeated call!")
                 return
             self._coolonlinetimeIsConfigured = True
             name = 'TileCondToolOnlineTiming'
@@ -187,7 +187,7 @@ class _TileInfoConfigurator( TileInfoLoader ):
         #=== connect TileCondToolTiming to COOL
         from AthenaCommon.AppMgr import ToolSvc
 
-        self._msg.info("Changing default TileCondToolTiming configuration to COOL source")
+        self.msg.info("Changing default TileCondToolTiming configuration to COOL source")
         from .TileCondToolConf import getTileCondToolTiming
         ToolSvc += getTileCondToolTiming('COOL', type, online, name )
 
@@ -221,14 +221,14 @@ class _TileInfoConfigurator( TileInfoLoader ):
 
         #=== prevent a second initialization
         if self._coolcispulseIsConfigured:
-            self._msg.info("setupCOOLCISPULSE already called previously, ignoring this repeated call!")
+            self.msg.info("setupCOOLCISPULSE already called previously, ignoring this repeated call!")
             return
         self._coolcispulseIsConfigured = True
 
         #=== connect all tools to COOL
         from AthenaCommon.AppMgr import ToolSvc
 
-        self._msg.info("Changing default TileCondToolPulseShape configuration to COOL source")
+        self.msg.info("Changing default TileCondToolPulseShape configuration to COOL source")
         from .TileCondToolConf import getTileCondToolPulseShape
         ToolSvc += getTileCondToolPulseShape('COOL','CISPULSE100','TileCondToolPulseShape')
         ToolSvc += getTileCondToolPulseShape('COOL','CISPULSE5P2','TileCondToolPulse5p2Shape')
@@ -246,14 +246,14 @@ class _TileInfoConfigurator( TileInfoLoader ):
 
         #=== prevent a second initialization
         if self._coollaspulseIsConfigured:
-            self._msg.info("setupCOOLLASPULSE already called previously, ignoring this repeated call!")
+            self.msg.info("setupCOOLLASPULSE already called previously, ignoring this repeated call!")
             return
         self._coollaspulseIsConfigured = True
 
         #=== connect TileCondToolOfcCool to COOL
         from AthenaCommon.AppMgr import ToolSvc
 
-        self._msg.info("Changing default TileCondToolPulseShape configuration to COOL source")
+        self.msg.info("Changing default TileCondToolPulseShape configuration to COOL source")
         from .TileCondToolConf import getTileCondToolPulseShape
         ToolSvc += getTileCondToolPulseShape('COOL','LAS','TileCondToolPulseShape')
 
@@ -268,14 +268,14 @@ class _TileInfoConfigurator( TileInfoLoader ):
 
         #=== prevent a second initialization
         if self._coolphypulseIsConfigured:
-            self._msg.info("setupCOOLPHYPULSE already called previously, ignoring this repeated call!")
+            self.msg.info("setupCOOLPHYPULSE already called previously, ignoring this repeated call!")
             return
         self._coolphypulseIsConfigured = True
 
         #=== connect TileCondToolOfcCool to COOL
         from AthenaCommon.AppMgr import ToolSvc
 
-        self._msg.info("Changing default TileCondToolPHYPULSECool configuration to COOL source")
+        self.msg.info("Changing default TileCondToolPHYPULSECool configuration to COOL source")
         from .TileCondToolConf import getTileCondToolPulseShape
         ToolSvc += getTileCondToolPulseShape('COOL')
 
@@ -290,14 +290,14 @@ class _TileInfoConfigurator( TileInfoLoader ):
 
         #=== prevent a second initialization
         if self._coolintegratorIsConfigured:
-            self._msg.info("setupCOOLINTEGRATOR already called previously, ignoring this repeated call!")
+            self.msg.info("setupCOOLINTEGRATOR already called previously, ignoring this repeated call!")
             return
         self._coolintegratorIsConfigured = True
 
         #=== connect TileCondToolIntegrator to COOL
         from AthenaCommon.AppMgr import ToolSvc
 
-        self._msg.info("Changing default TileCondToolIntegrator configuration to COOL source")
+        self.msg.info("Changing default TileCondToolIntegrator configuration to COOL source")
         from .TileCondToolConf import getTileCondToolIntegrator
         ToolSvc += getTileCondToolIntegrator('COOL','TileCondToolIntegrator')
 
@@ -312,14 +312,14 @@ class _TileInfoConfigurator( TileInfoLoader ):
 
         #=== prevent a second initialization
         if self._coolmuidIsConfigured:
-            self._msg.info("setupCOOLMUID already called previously, ignoring this repeated call!")
+            self.msg.info("setupCOOLMUID already called previously, ignoring this repeated call!")
             return
         self._coolmuidIsConfigured = True
 
         #=== connect TileCondToolMuID to COOL
         from AthenaCommon.AppMgr import ToolSvc
 
-        self._msg.info("Changing default TileCondToolMuID configuration to COOL source")
+        self.msg.info("Changing default TileCondToolMuID configuration to COOL source")
         from .TileCondToolConf import getTileCondToolMuID
         ToolSvc += getTileCondToolMuID('COOL','TileCondToolMuID')
 
@@ -335,14 +335,14 @@ class _TileInfoConfigurator( TileInfoLoader ):
 
         #=== prevent a second initialization
         if self._coolacrIsConfigured:
-            self._msg.info("setupCOOLAutoCr already called previously, ignoring this repeated call!")
+            self.msg.info("setupCOOLAutoCr already called previously, ignoring this repeated call!")
             return
         self._coolacrIsConfigured = True
 
         #=== connect TileCondToolMuID to COOL
         from AthenaCommon.AppMgr import ToolSvc
 
-        self._msg.info("Changing default TileCondToolNoiseAutoCr configuration to COOL source")
+        self.msg.info("Changing default TileCondToolNoiseAutoCr configuration to COOL source")
         from .TileCondToolConf import getTileCondToolAutoCr
         ToolSvc += getTileCondToolAutoCr('COOL','TileCondToolAutoCr')
 
@@ -357,14 +357,14 @@ class _TileInfoConfigurator( TileInfoLoader ):
 
         #=== prevent a second initialization
         if self._coolEmExpertIsConfigured:
-            self._msg.info("setupCOOLEMEXPERT already called previously, ignoring this repeated call!")
+            self.msg.info("setupCOOLEMEXPERT already called previously, ignoring this repeated call!")
             return
         self._coolEmExpertIsConfigured = True
 
         #=== connect TileExpertToolEmscale to COOL
         from AthenaCommon.AppMgr import ToolSvc
 
-        self._msg.info("Changing default TileExpertToolEmscale configuration to COOL source")
+        self.msg.info("Changing default TileExpertToolEmscale configuration to COOL source")
         from .TileCondToolConf import getTileExpertToolEmscale
         ToolSvc += getTileExpertToolEmscale('COOL')
 
@@ -383,7 +383,7 @@ class _TileInfoConfigurator( TileInfoLoader ):
 
         #=== prevent a second initialization
         if self._coolDCSIsConfigured:
-            self._msg.info("setupCOOLDCS already called previously, ignoring this repeated call!")
+            self.msg.info("setupCOOLDCS already called previously, ignoring this repeated call!")
             return
         self._coolDCSIsConfigured = True
 
@@ -396,7 +396,7 @@ class _TileInfoConfigurator( TileInfoLoader ):
         dcs = 'TileDCS'
         dcsCondAlg = dcs + 'CondAlg'
         if TileUseDCS and not hasattr(condSequence, dcsCondAlg):
-            self._msg.info("setting up DCS TileCal conditions data")
+            self.msg.info("setting up DCS TileCal conditions data")
             dbConnStr = 'DCS_OFL'
             from IOVDbSvc.CondDB import conddb
             if useHV:
@@ -425,7 +425,7 @@ class _TileInfoConfigurator( TileInfoLoader ):
 
         #=== prevent a second initialization
         if self._coolDspThresholdIsConfigured:
-            self._msg.info("setupCOOLDspThrehsold already called previously, ignoring this repeated call!")
+            self.msg.info("setupCOOLDspThrehsold already called previously, ignoring this repeated call!")
             return True
 
         #=== connect TileCondToolMuID to COOL
@@ -433,7 +433,7 @@ class _TileInfoConfigurator( TileInfoLoader ):
         from .TileCondToolConf import getTileCondToolDspThreshold
         toolDspThreshold = getTileCondToolDspThreshold('COOL','TileCondToolDspThreshold')
         if toolDspThreshold is not None:
-            self._msg.info("Changing default TileCondToolDspThreshold configuration to COOL source")
+            self.msg.info("Changing default TileCondToolDspThreshold configuration to COOL source")
             ToolSvc += toolDspThreshold
             self._coolDspThresholdIsConfigured = True
             return True
@@ -442,7 +442,27 @@ class _TileInfoConfigurator( TileInfoLoader ):
 
 
     #_______________________________________________________________
+    def setupAdcRange(self, Nbits = 10):
+        """
+        Call this function to setup maximum range of ADC counts
+        Input parameters:
+        - Nbits : Number of bits of an ADC (either 10 or 12)
+        """
+        self.msg.info("Setting {0}-bit Tile ADC".format(Nbits))
+        if Nbits == 10:
+            self.ADCmax = 1023
+            self.ADCmaskValue = 2047
+        elif Nbits == 12:
+            self.ADCmax = 4095
+            self.ADCmaskValue = 4800
+        # NOTE: For self.ADCmaskValue, value 4800 should work both for 10-bit and 12-bit settings.
+        #       It has to be a value between the interval of possible opt filter output values and
+        #       the interval of possible fit method output values. In case of 12-bit settings:
+        #         - opt filter values: (-500, 4600)
+        #         - fit method values: (5000, 9095) (here, 5000 is added to the output of the fit method itself to indicate that the fit method was used)
+        return
 
+    #_______________________________________________________________
 def TileInfoConfigurator(name="TileInfoLoader", **kwargs):
     """
     factory function to create readily configured TileInfoLoader instances
@@ -473,60 +493,60 @@ def TileInfoConfigurator(name="TileInfoLoader", **kwargs):
 
     #=== ensure the availability of TileCablingSvc
     if not hasattr(svcMgr, "TileCablingSvc"):
-        svc._msg.info("Adding TileCablingSvc to ServiceMgr")
+        svc.msg.info("Adding TileCablingSvc to ServiceMgr")
         svcMgr += CfgMgr.TileCablingSvc()
 
     #=== ensure the configuration of all needed tools
 
 
 #    if not hasattr(ToolSvc, "TileBadChanTool"):
-#        svc._msg.info("Adding default TileBadChanTool to ToolSvc")
+#        svc.msg.info("Adding default TileBadChanTool to ToolSvc")
 #        from .TileCondToolConf import getTileBadChanTool
 #        ToolSvc += getTileBadChanTool()
 #    if not hasattr(ToolSvc, "TileCondToolOfc"):
-#        svc._msg.info("Adding default TileCondToolOfc to ToolSvc")
+#        svc.msg.info("Adding default TileCondToolOfc to ToolSvc")
 #        from .TileConditionsConf import TileCondToolOfc
 #        ToolSvc += TileCondToolOfc()
 #    if not hasattr(ToolSvc, "TileCondToolEmscale"):
-#        svc._msg.info("Adding default TileCondToolEmscale to ToolSvc")
+#        svc.msg.info("Adding default TileCondToolEmscale to ToolSvc")
 #        from .TileCondToolConf import getTileCondToolEmscale
 #        ToolSvc += getTileCondToolEmscale()
 
 
     #if not hasattr(ToolSvc, "TileCondToolIntegrator"):
-    #    svc._msg.info("Adding default TileCondToolIntegrator to ToolSvc")
+    #    svc.msg.info("Adding default TileCondToolIntegrator to ToolSvc")
     #    from .TileCondToolConf import getTileCondToolIntegrator
     #    ToolSvc += getTileCondToolIntegrator()
 
 
 #    if not hasattr(ToolSvc, "TileCondToolNoiseSample"):
-#        svc._msg.info("Adding default TileCondToolNoiseSample to ToolSvc")
+#        svc.msg.info("Adding default TileCondToolNoiseSample to ToolSvc")
 #        from .TileCondToolConf import getTileCondToolNoiseSample
 #        ToolSvc += getTileCondToolNoiseSample()
 
 
  #   if not hasattr(ToolSvc, "TileCondToolNoiseAutoCr"):
- #       svc._msg.info("Adding default TileCondToolNoiseAutoCr to ToolSvc")
+ #       svc.msg.info("Adding default TileCondToolNoiseAutoCr to ToolSvc")
  #       from .TileCondToolConf import getTileCondToolAutoCr
  #       ToolSvc += getTileCondToolAutoCr()
     #if not hasattr(ToolSvc, "TileCondToolNoiseRawChn"):
-    #    svc._msg.info("Adding default TileCondToolNoiseRawChn to ToolSvc")
+    #    svc.msg.info("Adding default TileCondToolNoiseRawChn to ToolSvc")
     #    from .TileCondToolConf import getTileCondToolNoiseRawChn
     #    ToolSvc += getTileCondToolNoiseRawChn()
 
 
 #    if not hasattr(ToolSvc, "TileCondToolTiming"):
-#        svc._msg.info("Adding default TileCondToolTiming to ToolSvc")
+#        svc.msg.info("Adding default TileCondToolTiming to ToolSvc")
 #        from .TileCondToolConf import getTileCondToolTiming
 #        ToolSvc += getTileCondToolTiming()
 
 
 #    if not hasattr(ToolSvc, "TileCondToolPulseShape"):
-#        svc._msg.info("Adding default TileCondToolPulseShape to ToolSvc")
+#        svc.msg.info("Adding default TileCondToolPulseShape to ToolSvc")
 #        from .TileCondToolConf import getTileCondToolPulseShape
 #        ToolSvc += getTileCondToolPulseShape()
     #if not hasattr(ToolSvc, "TileCondToolOfcCool"):
-    #    svc._msg.info("Adding default TileCondToolOfcCool to ToolSvc")
+    #    svc.msg.info("Adding default TileCondToolOfcCool to ToolSvc")
     #    from .TileCondToolConf import getTileCondToolOfcCool
     #    ToolSvc += getTileCondToolOfcCool()
 

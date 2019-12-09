@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """
 
@@ -48,7 +48,7 @@ class DictFromChainName(object):
 
         # for additional options: mergingStrategy and topoStartFrom
         if len(chainInfo) > 6:
-            for i in xrange(6, len(chainInfo)):
+            for i in range(6, len(chainInfo)):
                 mergingInfoFilled = False
                 tsfInfoFilled = False
                 if (type(chainInfo[i]) is list):
@@ -104,7 +104,7 @@ class DictFromChainName(object):
         Function to obtain the chain configuration dictionay from the short name 
         by parsing its components and finding the corrsponding properties which 
         are defined in SliceDicts
-        The naming ocnvention is defined inthis document http://
+        The naming convention is defined in this document http://
         """
         chainName_orig = chainName
 
@@ -349,7 +349,7 @@ class DictFromChainName(object):
                     chainparts = chainparts[:allL1indices[1]]
                     
                 if (allL1items[0] not in L1items_chainParts):
-                    logDict.error("L1 chain part " +L1items_chainParts+" item does not seem to match the one in the chain name "+llL1items[0])
+                    logDict.error("L1 chain part " +L1items_chainParts+" item does not seem to match the one in the chain name "+allL1items[0])
 
 
 

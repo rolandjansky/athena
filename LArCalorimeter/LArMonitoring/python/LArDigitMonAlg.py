@@ -226,7 +226,7 @@ if __name__=='__main__':
    cfg.merge(aff_acc)
 
    ConfigFlags.dump()
-   f=open("LArDigitMon.pkl","w")
+   f=open("LArDigitMon.pkl","wb")
    cfg.store(f)
    f.close()
 

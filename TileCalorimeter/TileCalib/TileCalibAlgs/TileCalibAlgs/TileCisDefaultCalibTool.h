@@ -22,7 +22,7 @@
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileMonitoring/ITileStuckBitsProbsTool.h"
-
+#include "TileConditions/TileInfo.h"
 
 #include "TString.h"
 #include <stdint.h>
@@ -155,7 +155,14 @@ class TileCisDefaultCalibTool: public AthAlgTool
     //  TList *scanList;  // This is now deprecated and replaced by the map for speed -CT March 09
     TMap* m_scanMap;
     TMap* m_scanMapRMS;
+    
+    double m_dac2ChargeSmall;
+    double m_dac2ChargeLarge;
 
+    // TileInfo
+    std::string m_infoName;
+    const TileInfo* m_tileInfo;
+    
     // Functions
     inline int chanIsConnected(int ros, int chan) {
       if (m_cabling->channel2hole(ros, chan) < 0) return 0; //negative means not connected

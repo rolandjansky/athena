@@ -2,7 +2,6 @@
 
 from AthenaCommon.JobProperties import jobproperties
 from AthenaCommon.DetFlags      import DetFlags
-from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 from AthenaCommon import Logging
 
@@ -15,8 +14,8 @@ elif ( DetFlags.detdescr.Muon_on() ):
 
     from MuonGeoModel.MuonGeoModelConf import MuonDetectorTool
     GeoModelSvc.DetectorTools += [ MuonDetectorTool(HasCSC=MuonGeometryFlags.hasCSC(),
-                                                    HasSTgc=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"]),
-                                                    HasMM=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"])) ]
+                                                    HasSTgc=MuonGeometryFlags.hasSTGC(),
+                                                    HasMM=MuonGeometryFlags.hasMM()) ]
     import os
     GeoModelSvc.DetectorTools[ "MuonDetectorTool" ].BuildFromNova = 0
     if ( ( not DetFlags.simulate.any_on() or DetFlags.overlay.any_on() ) and "AthSimulation_DIR" not in os.environ ):

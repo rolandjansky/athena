@@ -11,7 +11,6 @@
 #include "CLHEP/Units/PhysicalConstants.h"
 
 #include "Identifier/IdentifierHash.h"
-#include "MuonContainerManager/MuonRdoContainerAccess.h"
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonPrepRawData/MdtPrepDataContainer.h"

@@ -221,11 +221,14 @@ void GeoExporter::init()
   // Dump the tree volumes into a DB
   DumpGeoModelActionLocal dumpGeoModelGraph(db); // init the GeoModel node action
   world->exec(&dumpGeoModelGraph); // visit all GeoModel nodes
+  std::cout << "Saving the GeoModel tree to the DB." << std::endl;
   dumpGeoModelGraph.saveToDB(); // save to the SQlite DB file
   std::cout << "DONE. Geometry saved." <<std::endl;
 
   std::cout << "\nTest - list of all the GeoMaterial nodes in the persistified geometry:" << std::endl;
   db.printAllMaterials();
+  std::cout << "\nTest - list of all the GeoElement nodes in the persistified geometry:" << std::endl;
+  db.printAllElements();
 
   VP1Msg::messageDebug("end of GeoExporter::init().");
 }

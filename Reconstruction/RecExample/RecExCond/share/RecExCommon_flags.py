@@ -898,8 +898,6 @@ if not rec.doMuon:
    recAlgs.doTrackRecordFilter=False
    from MuonRecExample.MuonRecFlags import muonRecFlags
    jobproperties.MuonRec.Enabled=False
-   if _AODFlagsAvailable:
-      AODFlags.MuonTrackSlimmer=False
 
 if not rec.doMuon and not rec.doCalo and not rec.doInDet:
    rec.doTagRawSummary=False

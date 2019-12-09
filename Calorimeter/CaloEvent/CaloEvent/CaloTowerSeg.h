@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOEVENT_CALOTOWERSEG_H
@@ -386,6 +386,9 @@ class CaloTowerSeg
 
 
  private:
+  friend class CaloTowerSegCnv_p1;
+
+
   // --------------------------
   // Segmentation parameters 
   // ------------------------
@@ -411,7 +414,7 @@ class CaloTowerSeg
 
   // Can get rid of this when we move to the new CaloDetDescr
   // in which all CaloPhiRange methods are static.
-  static CaloPhiRange s_range;
+  static const CaloPhiRange s_range;
 };
 
 // ----------------------------------------

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -15,6 +15,8 @@ ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 
 #include "RootUtils/PyROOTPickle.h"
+#include "RootUtils/PyGetString.h"
+#include "Utility.h"
 #include "Python.h"
 #include "TClass.h"
 #include "TBufferFile.h"
@@ -48,14 +50,15 @@ PyObject* ObjectProxyReduce( PyObject* self, PyObject* )
   PyObject* pyname = PyObject_Str( nattr );
   Py_DECREF( nattr );
 
-  TClass* klass = TClass::GetClass( PyString_AS_STRING( pyname ) );
+  std::string klassname = PyGetString( pyname ).first;
+  TClass* klass = TClass::GetClass( klassname.c_str() );
 
   // no cast is needed, but WriteObject taking a TClass argument is protected,
   // so use WriteObjectAny()
   TBufferFile buf( TBuffer::kWrite );
   if ( buf.WriteObjectAny( vself, klass ) != 1 ) {
      PyErr_Format( PyExc_IOError,
-        "could not stream object of type %s", PyString_AS_STRING( pyname ) );
+                   "could not stream object of type %s", klassname.c_str() );
      Py_DECREF( pyname );
      return 0;
   }
@@ -64,7 +67,7 @@ PyObject* ObjectProxyReduce( PyObject* self, PyObject* )
   // the buffer contents; use a string for the class name, used when casting
   // on reading back in
   PyObject* res2 = PyTuple_New( 2 );
-  PyTuple_SET_ITEM( res2, 0, PyString_FromStringAndSize( buf.Buffer(), buf.Length() ) );
+  PyTuple_SET_ITEM( res2, 0, PyROOT_PyUnicode_FromStringAndSize( buf.Buffer(), buf.Length() ) );
   PyTuple_SET_ITEM( res2, 1, pyname );
 
   PyObject* result = PyTuple_New( 2 );
@@ -86,13 +89,15 @@ PyObject* ObjectProxyExpand( PyObject*, PyObject* args )
   PyObject* pybuf = 0;
   const char* clname = 0;
   if ( ! PyArg_ParseTuple( args, const_cast< char* >( "O!s:__expand__" ),
-           &PyString_Type, &pybuf, &clname ) )
+           &PyROOT_PyUnicode_Type, &pybuf, &clname ) )
     return 0;
 
   // use the PyString macros to by-pass error checking; do not adopt the buffer,
   // as the local TBufferFile can go out of scope (there is no copying)
   TBufferFile buf( TBuffer::kRead,
-     PyString_GET_SIZE( pybuf ), PyString_AS_STRING( pybuf ), kFALSE );
+                   PyROOT_PyUnicode_GET_SIZE( pybuf ),
+                   (char*)PyGetString( pybuf ).first.c_str(),
+                   kFALSE );
 
   void* result = buf.ReadObjectAny( 0 );
   return TPython::ObjectProxy_FromVoidPtr( result, clname );
@@ -112,7 +117,7 @@ void PyROOTPickle::Initialize( PyObject* libpyroot_pymodule, PyObject* objectpro
   static PyMethodDef s_pdefExp = { (char*)"_ObjectProxy__expand__",
             (PyCFunction)ObjectProxyExpand, METH_VARARGS, (char*)"internal function" };
 
-  PyObject* pymname = PyString_FromString( PyModule_GetName( libpyroot_pymodule ) );
+  PyObject* pymname = PyROOT_PyUnicode_FromString( PyModule_GetName( libpyroot_pymodule ) );
   gExpand = PyCFunction_NewEx( &s_pdefExp, NULL, pymname );
   Py_DECREF( pymname );
   Bool_t isOk = PyObject_SetAttrString( libpyroot_pymodule, s_pdefExp.ml_name, gExpand ) == 0;

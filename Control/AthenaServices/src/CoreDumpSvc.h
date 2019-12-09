@@ -13,7 +13,6 @@
 
 // Package includes
 #include "AthenaKernel/ICoreDumpSvc.h"
-#include "AthenaKernel/AlgorithmTimer.h"
 
 // FrameWork includes
 #include "AthenaBaseComps/AthService.h"
@@ -115,7 +114,7 @@ private:
 
   Gaudi::Property<double> m_timeout{this, "TimeOut", 30.0*60*1e9,
       "Terminate job after it this reaches the time out in Wallclock time, "
-      "usually due to hanging during stack unwinding. Timeout given in Nanoseconds."};
+      "usually due to hanging during stack unwinding. Timeout given in nanoseconds despite seconds precision"};
 	   
   ///@}
 
@@ -133,9 +132,6 @@ private:
   
   /// Uninstall signal handlers
   StatusCode uninstallSignalHandler(); 
-  
-  /// Algorithm timer to terminate job if it's looping during stack unwinding
-  Athena::AlgorithmTimer m_abortTimer;  
 }; 
 
 

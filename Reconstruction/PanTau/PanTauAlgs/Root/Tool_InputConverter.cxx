@@ -96,7 +96,7 @@ StatusCode PanTau::Tool_InputConverter::ConvertToTauConstituent2(xAOD::PFO* pfo,
     //! ==================================================
     //! Check whether neutral input pfo has pion mass (it may have if xAOD is being reprocessed)
     //! If it does, make it massless again and use that
-    if(pfo->charge() == 0 && pfo->m() != 0) {
+    if(!pfo->isCharged() && pfo->m() != 0) {
         TLorentzVector tlvUpdate; 
         PanTau::SetP4EEtaPhiM( tlvUpdate, pfo->e(), pfo->eta(), pfo->phi(), 0);
         pfo->setP4(tlvUpdate.Pt(), pfo->eta(), pfo->phi(), 0);
@@ -118,7 +118,7 @@ StatusCode PanTau::Tool_InputConverter::ConvertToTauConstituent2(xAOD::PFO* pfo,
     if(m_Config_UsePionMass == true) {
         
         //clusters: don't touch the measured energy. set mass to pion mass, so momentum will be altered
-        if(pfoCharge == 0) {
+      if(!pfo->isCharged()) {
             constituentMass = 134.98;
         }
    }
@@ -139,11 +139,11 @@ StatusCode PanTau::Tool_InputConverter::ConvertToTauConstituent2(xAOD::PFO* pfo,
     double deltaR_toTauJet = tlv_intAxis.DeltaR( pfo->p4() );
     
     if(deltaR_toTauJet > m_Config_TauConstituents_Types_DeltaRCore) {
-        if(pfoCharge != 0) {
+        if(pfo->isCharged()) {
 	  //itsTypeFlags.at((int)PanTau::TauConstituent2::t_OutChrg) = 1;
             itsTypeFlags.at((int)PanTau::TauConstituent2::t_Charged) = 1;
         }
-        if(pfoCharge == 0) {
+        if(!pfo->isCharged()) {
             itsTypeFlags.at((int)PanTau::TauConstituent2::t_OutNeut) = 1;
             mvaValue = pfo->bdtPi0Score();
         }
@@ -151,10 +151,10 @@ StatusCode PanTau::Tool_InputConverter::ConvertToTauConstituent2(xAOD::PFO* pfo,
     
     if(deltaR_toTauJet <= m_Config_TauConstituents_Types_DeltaRCore) {
     
-        if(pfoCharge != 0) {
+        if(pfo->isCharged()) {
             itsTypeFlags.at((int)PanTau::TauConstituent2::t_Charged) = 1;
         }
-        if(pfoCharge == 0) {
+        if(!pfo->isCharged()) {
             itsTypeFlags.at((int)PanTau::TauConstituent2::t_Neutral) = 1;
             itsTypeFlags.at((int)PanTau::TauConstituent2::t_NeutLowA) = 1;
             itsTypeFlags.at((int)PanTau::TauConstituent2::t_NeutLowB) = 1;

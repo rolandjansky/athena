@@ -49,7 +49,7 @@ def setupCommonServices():
 
     from GaudiHive.GaudiHiveConf import AlgResourcePool
     svcMgr += AlgResourcePool( OutputLevel = INFO,
-                               TopAlg=["AthMasterSeq"])       # this should enable control flow
+                               TopAlg=["AthSequencer/AthMasterSeq"] )
 
     from AthenaCommon.AlgSequence import AlgSequence
     from SGComps.SGCompsConf import SGInputLoader
@@ -121,6 +121,9 @@ def setupCommonServices():
     svcMgr.HltEventLoopMgr.EvtSel = svcMgr.EventSelector
     svcMgr.HltEventLoopMgr.OutputCnvSvc = svcMgr.ByteStreamCnvSvc
 
+    # Time to wait before closing DB connections (see ATR-8907)
+    svcMgr.HltEventLoopMgr.dbConnIdleWaitSec = 6
+
     from TrigOutputHandling.TrigOutputHandlingConfig import HLTResultMTMakerCfg
     svcMgr.HltEventLoopMgr.ResultMaker = HLTResultMTMakerCfg()
 
@@ -187,8 +190,9 @@ def setupCommonServicesEnd():
     svcMgr.StatusCodeSvc.AbortOnError = False
         
     svcMgr.IOVSvc.updateInterval = "RUN"
-    svcMgr.IOVSvc.preLoadData = True  
-    svcMgr.IOVSvc.forceResetAtBeginRun = False 
+    svcMgr.IOVSvc.preLoadData = True
+    svcMgr.IOVSvc.preLoadExtensibleFolders = False  # ATR-19392
+    svcMgr.IOVSvc.forceResetAtBeginRun = False
 
     if hasattr(svcMgr,'IOVDbSvc'):
         svcMgr.IOVDbSvc.CacheAlign = 0  # VERY IMPORTANT to get unique queries for folder udpates (see Savannah #81092)

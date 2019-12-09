@@ -68,6 +68,7 @@ if __name__ == "__main__":
     log.setLevel(DEBUG)
 
     ConfigFlags.Input.Files = defaultTestFiles.RAW
+    ConfigFlags.Output.ESDFileName = "myESD.pool.root"
     ConfigFlags.Tile.RunType = 'PHY'
     ConfigFlags.lock()
 
@@ -82,7 +83,7 @@ if __name__ == "__main__":
 
     ConfigFlags.dump()
     acc.printConfig(withDetails = True, summariseProps = True)
-    acc.store( open('TileDigitsFilter.pkl','w') )
+    acc.store( open('TileDigitsFilter.pkl','wb') )
 
     sc = acc.run(maxEvents = 3)
 

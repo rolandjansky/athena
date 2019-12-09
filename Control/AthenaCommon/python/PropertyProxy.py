@@ -54,7 +54,7 @@ def _isCompatible( tp, value ):
  # compatibility check that relies on conversion (which will always fail
  # for configurables) is acceptable.
 
-   if six.PY2 and type(value) == unicode:
+   if six.PY2 and type(value) == unicode: # noqa: F821
       value = value.encode()
    if ( tp == str or type(value) == str ) and not isinstance( value, tp ):
     # special case, insist on exact match for str (no conversions allowed)

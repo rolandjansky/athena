@@ -13,7 +13,7 @@ def _algoTauRoiUpdater(inputRoIs, clusters):
     from TrigTauHypo.TrigTauHypoConf import TrigTauCaloRoiUpdaterMT
     algo = TrigTauCaloRoiUpdaterMT("TauCaloRoiUpdater")
     algo.RoIInputKey  = inputRoIs
-    algo.RoIOutputKey = recordable("HLT_RoiForTau")
+    algo.RoIOutputKey = "HLT_RoiForTau"
     algo.CaloClustersKey = clusters
     return algo
 
@@ -41,7 +41,7 @@ def _algoTauTrackRoiUpdater(inputRoIs, tracks):
     from TrigTauHypo.TrigTauHypoConf import TrigTauTrackRoiUpdaterMT
     algo = TrigTauTrackRoiUpdaterMT("TrackRoiUpdater")
     algo.RoIInputKey   = inputRoIs
-    algo.RoIOutputKey  = recordable("HLT_RoiForID2")
+    algo.RoIOutputKey  = "HLT_RoiForID2"
     algo.fastTracksKey = tracks
     return algo
 
@@ -115,7 +115,7 @@ def tauCoreTrackSequence( RoIs, name ):
     tauCoreTrackSequence = parOR(name)
 
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
-    (viewAlgs, eventAlgs) = makeInDetAlgs(whichSignature='TauCore',separateTrackParticleCreator="_TauCore",rois = RoIs)
+    viewAlgs = makeInDetAlgs(whichSignature='TauCore',separateTrackParticleCreator="_TauCore",rois = RoIs)
 
     for viewAlg in viewAlgs:
        if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
@@ -149,7 +149,7 @@ def tauIsoTrackSequence( RoIs , name):
     tauIsoTrackSequence = parOR(name)
 
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
-    (viewAlgs, eventAlgs) = makeInDetAlgs(whichSignature='TauIso',separateTrackParticleCreator="_TauIso",rois = RoIs)
+    viewAlgs = makeInDetAlgs(whichSignature='TauIso',separateTrackParticleCreator="_TauIso",rois = RoIs)
 
     ViewVerify = CfgMgr.AthViews__ViewDataVerifier("tauViewDataVerifierIsoFTF")
     ViewVerify.DataObjects = [('xAOD::TauJetContainer','StoreGateSvc+HLT_TrigTauRecMerged')]

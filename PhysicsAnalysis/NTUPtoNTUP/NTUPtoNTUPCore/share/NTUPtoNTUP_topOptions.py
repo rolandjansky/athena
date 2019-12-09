@@ -20,17 +20,7 @@ try:
 except Exception:
     treatException("Could not set EventSelector.SkipEvents")
 
-
-#### Schedule EventCounterAlg
-#from EventBookkeeperTools.EventCounterAlg import EventCounterAlg
-#topSequence+=EventCounterAlg("AllExecutedEvents")
-#
-####EventBookkeepers
-#if not hasattr(ServiceMgr,"CutFlowSvc"):
-#    from EventBookkeeperTools.EventBookkeeperToolsConf import CutFlowSvc
-#    ServiceMgr+=CutFlowSvc()
-#    theApp.CreateSvc+=['CutFlowSvc']
-#    pass
+# TODO: event bookkeeping?
 
 ### NTUP->NTUP
 ntupFlags=jobproperties.NTUPtoNTUPProdFlags

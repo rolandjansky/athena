@@ -18,3 +18,6 @@ class TrigByteStreamInputSvc(_TrigByteStreamInputSvc):
         self.MonTool.defineHistogram('L1Result_FullEvFragSize', path='EXPERT', type='TH1F',
                                      title='Size of L1 result FullEventFragment;Size [kB];N events',
                                      xbins=100, xmin=0, xmax=100)
+        self.MonTool.defineHistogram('L1Result_SubDets', path='EXPERT', type='TH1F',
+                                     title='Source of ROBs in L1 result passed to HLT;;Total number of ROBs',
+                                     xbins=1, xmin=0, xmax=1)

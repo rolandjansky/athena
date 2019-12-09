@@ -133,8 +133,8 @@ else:
 #
 from IOVDbSvc.CondDB import conddb
 if not conddb.folderRequested('/Indet/PixelDist'):
-  conddb.addFolder('PIXEL_OFL','/Indet/PixelDist')
-conddb.addOverride("/Indet/PixelDist","InDetPixelDist-nominal")
+  conddb.addFolder('PIXEL_OFL','/Indet/PixelDist',className="DetCondCFloat")
+conddb.addOverride("/Indet/PixelDist","InDetPixelDist-nominal",className="DetCondCFloat")
 
 
 

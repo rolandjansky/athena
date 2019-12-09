@@ -246,7 +246,8 @@ namespace Trk
     {
       double phi   = updatedParameters[Trk::phi];
       double theta = updatedParameters[Trk::theta];
-      double p     = this->charge()/updatedParameters[Trk::qOverP];
+      double p     = fabs(1./updatedParameters[Trk::qOverP]);
+      this->m_chargeDef.setCharge( sgn(updatedParameters[Trk::qOverP]) );
       // assign them and update the momentum 3 vector
       this->m_parameters[Trk::phi]    = phi;
       this->m_parameters[Trk::theta]  = theta;

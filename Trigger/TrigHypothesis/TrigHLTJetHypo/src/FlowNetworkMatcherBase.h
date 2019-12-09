@@ -57,7 +57,16 @@ public:
   // Derived classes customise initialisation
   void setFlowNetworkBuilder(std::unique_ptr<IFlowNetworkBuilder> );
   void setTotalCapacity(double c){m_totalCapacity = c;}
+
   std::string toString() const {return m_flowNetworkBuilder -> toString();}
+
+  virtual void
+    reportPassingJets(const std::map<int, pHypoJet>&,
+		      const std::unique_ptr<FlowNetwork>&,
+		      const std::unique_ptr<ITrigJetHypoInfoCollector>&,
+		      xAODJetCollector&
+		      ) const = 0;
+
  private:
   std::size_t m_nConditions{0};    
 

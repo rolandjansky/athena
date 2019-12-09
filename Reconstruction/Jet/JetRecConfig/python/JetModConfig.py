@@ -88,7 +88,7 @@ def getModifier(jetdef, moddef, modspec):
     try:
         modtool = moddef.helperfn(**kwargs)
     except Exception as e:
-        modlog.error( "Unhandled modifier specification {0} for {1}!".format(moddef,jetdef.basename) )
+        modlog.error( "Unhandled modifier specification {0} for mod {1} acting on jet def {2}!".format(modspec,moddef,jetdef.basename) )
         modlog.error( "Received exception \"{0}\"".format(e) )
         modlog.error( "Helper function is \"{0}\"".format(moddef.helperfn) )
         raise ValueError( "JetModConfig unable to handle mod {0}".format(moddef) )

@@ -91,19 +91,19 @@ void testPtErr() {
      try {
        // std::cout << "DEBUG check pTErr2 "  << *pt_err2_iter << " vs " << xAOD::TrackingHelpers::pTErr2(tp)
        //           << " -> " << std::abs( (*pt_err2_iter - xAOD::TrackingHelpers::pTErr2(tp)))/ (*pt_err2_iter)
-       //           << " <? " << std::numeric_limits<double>::epsilon()
+       //           << " <? " << std::numeric_limits<float>::epsilon()
        //           << " | qOverp=" << (tp ? tp->qOverP() : 0 ) << " theta=" << (tp ? tp->theta() : 0)
        //           << std::endl;
-       assert( std::abs( (*pt_err2_iter - xAOD::TrackingHelpers::pTErr2(tp)))/ (*pt_err2_iter) < std::numeric_limits<double>::epsilon() );
-       assert( std::abs( (sqrt(*pt_err2_iter) - xAOD::TrackingHelpers::pTErr(tp)))/sqrt(*pt_err2_iter) < 2*std::numeric_limits<double>::epsilon() );
+       assert( std::abs( (*pt_err2_iter - xAOD::TrackingHelpers::pTErr2(tp)))/ (*pt_err2_iter) < std::numeric_limits<float>::epsilon() );
+       assert( std::abs( (sqrt(*pt_err2_iter) - xAOD::TrackingHelpers::pTErr(tp)))/sqrt(*pt_err2_iter) < 2*std::numeric_limits<float>::epsilon() );
      }
      catch (std::exception &err) {
        assert( *valid_iter == false );
      }
 
      if (*valid_iter ) {
-       assert( std::abs( (*pt_err2_iter - xAOD::TrackingHelpers::pTErr2Unsafe(tp)))/ (*pt_err2_iter) < std::numeric_limits<double>::epsilon() );
-       assert( std::abs( (sqrt(*pt_err2_iter) - xAOD::TrackingHelpers::pTErrUnsafe(tp)))/sqrt(*pt_err2_iter) < 2*std::numeric_limits<double>::epsilon() );
+       assert( std::abs( (*pt_err2_iter - xAOD::TrackingHelpers::pTErr2Unsafe(tp)))/ (*pt_err2_iter) < std::numeric_limits<float>::epsilon() );
+       assert( std::abs( (sqrt(*pt_err2_iter) - xAOD::TrackingHelpers::pTErrUnsafe(tp)))/sqrt(*pt_err2_iter) < 2*std::numeric_limits<float>::epsilon() );
      }
 
      ++pt_err2_iter;
@@ -215,9 +215,9 @@ void test_d0significance() {
       double phi2 =p->phi();
       assert( checkEqual<float>(phi2, phi));
       assert( checkEqual<float>(ref_d0, p->d0()));
-      double d0_uncert2 = p->definingParametersCovMatrixVec()[0];
+      double d0_uncert2 = p->definingParametersCovMatrixDiagVec()[0];
       assert( checkEqual<float>(sqr(ref_d0_uncert), d0_uncert2));
-      expected_d0_uncert_2=p->definingParametersCovMatrixVec()[0]  + sin(phi2)*(sin(phi2)*sqr(vx_cov)-cos(phi2)*vxy_cov)+cos(phi2)*(cos(phi2)*sqr(vy_cov)-sin(phi2)*vxy_cov);
+      expected_d0_uncert_2=p->definingParametersCovMatrixDiagVec()[0]  + sin(phi2)*(sin(phi2)*sqr(vx_cov)-cos(phi2)*vxy_cov)+cos(phi2)*(cos(phi2)*sqr(vy_cov)-sin(phi2)*vxy_cov);
 
       assert( expected_d0_uncert_2 >= 0.);
       double expected_d0_significance = ref_d0 / sqrt( expected_d0_uncert_2);

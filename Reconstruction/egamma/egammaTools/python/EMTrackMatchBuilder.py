@@ -1,9 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = "ToolFactory to instantiate EMTrackMatchBuilder with default configuration"
 __author__ = "Bruno Lenzi"
 
-import egammaToolsConf
+from egammaTools import egammaToolsConf
 from egammaRec.Factories import FcnWrapper, ToolFactory
 from egammaRec import egammaKeys
 from RecExConfig.RecFlags import rec

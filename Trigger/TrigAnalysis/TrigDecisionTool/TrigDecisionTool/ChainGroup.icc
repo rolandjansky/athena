@@ -1,7 +1,7 @@
 template<class CONTAINER>
 std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::features(EventPtr_t eventStore,
-        unsigned int condition, const std::string& container,
-        const unsigned int featureCollectionMode, const std::string& featureName) const {
+        unsigned int condition, const std::string& containerSGKey,
+        const unsigned int featureCollectionMode, const std::string& navElementLinkKey) const {
 
 
   bool errState = false;
@@ -12,10 +12,10 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::feature
     errState = true;
   }
 
-  if ( featureCollectionMode != TrigDefs::oneFeaturePerLeg && featureCollectionMode != TrigDefs::allFeaturesPerLeg ) {
+  if ( featureCollectionMode != TrigDefs::lastFeatureOfType && featureCollectionMode != TrigDefs::allFeaturesOfType ) {
     ATH_MSG_ERROR("featureCollectionMode may only be called with: "
-      "TrigDefs::oneFeaturePerLeg - stop exploring each route through the navigation once a feature matching all requirements is found. "
-      "TrigDefs::allFeaturesPerLeg - always fully explore each route throught the navigation graph and collect all matching features.");
+      "TrigDefs::lastFeatureOfType - stop exploring each route through the navigation once a feature matching all requirements is found. "
+      "TrigDefs::allFeaturesOfType - always fully explore each route throught the navigation graph and collect all matching features.");
     errState = true;
   }
 
@@ -89,20 +89,22 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::feature
     ATH_MSG_DEBUG("No navigation paths found for this chain group of " << names().size() << " chains.");
   }
 
-  const bool oneFeaturePerLeg = (featureCollectionMode == TrigDefs::oneFeaturePerLeg);
+
+  const bool lastFeatureOfTypeFlag = (featureCollectionMode == TrigDefs::lastFeatureOfType);
   std::vector<TrigCompositeUtils::LinkInfo<CONTAINER>> returnVector =
-    TrigCompositeUtils::getFeaturesOfType<CONTAINER>(allLinearNavigationPaths, oneFeaturePerLeg, featureName, chainIDs);
+    TrigCompositeUtils::getFeaturesOfType<CONTAINER>(allLinearNavigationPaths, containerSGKey, lastFeatureOfTypeFlag, navElementLinkKey, chainIDs);
 
-  // Perform name-filtering
-  if (container != "") {
-    auto it = std::remove_if(returnVector.begin(), returnVector.end(), [&](const TrigCompositeUtils::LinkInfo<CONTAINER>& linkInfo) {
-      bool toRemove = (linkInfo.link.dataID().find(container) == std::string::npos);
-      if (toRemove) ATH_MSG_DEBUG("Removing link which came from " << linkInfo.link.dataID() << " as user requested the container:" << container);
-      return toRemove;
-      });
-
-    // Collection has been re-ordered to put the bad elements at the end
-    returnVector.erase(it, returnVector.end());
+  // Check for missing navigation data if requesting the default "feature" links
+  if (navElementLinkKey == TrigCompositeUtils::featureString()) {
+    const auto& ctx = Gaudi::Hive::currentContext();
+    for (const TrigCompositeUtils::LinkInfo<CONTAINER>& linkInfo : returnVector) {
+      if (linkInfo.link.isValid()) continue; // We're looking for invalid links...
+      if (linkInfo.source->isRemapped()) continue; // ... which do not have remapping data. 
+      ElementLink<TrigCompositeUtils::DecisionContainer> sourceEL = TrigCompositeUtils::decisionToElementLink( linkInfo.source, ctx );
+      ATH_MSG_WARNING("A link to a feature from " << sourceEL.dataID() << " is invalid, "
+        "this is due to this container not having its 'remap_linkColIndices' and 'remap_linkColKeys' decorations.");
+      break;
+    } 
   }
 
   return returnVector;

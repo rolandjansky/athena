@@ -73,7 +73,7 @@ if __name__ == "__main__":
     acc.merge( TileTriggerDigitizationCfg(ConfigFlags) )
 
     acc.printConfig(withDetails = True, summariseProps = True)
-    acc.store( open('TileDigitization.pkl','w') )
+    acc.store( open('TileDigitization.pkl','wb') )
 
     sc = acc.run(maxEvents=3)
     # Success should be 0

@@ -2,6 +2,7 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
+from six import iteritems
 from AthenaCommon.Logging import logging
 log = logging.getLogger('L1DecoderConfig')
 
@@ -10,50 +11,70 @@ def mapThresholdToL1DecisionCollection(threshold):
     Translates L1 threshold  name of the DecisionsContainer name in the L1Decoder unpacking tools
     """
     if threshold == "" or threshold == "FS":
-        return "L1FS"
+        return "HLTNav_L1FS"
 
-    mapThresholdToL1Decoder = { "EM" : "L1EM",
-                                "MU" : "L1MU",
-                                "J"  : "L1J",
-                                "TAU": "L1TAU",
-                                "XE" : "L1MET",
-                                "XS" : "L1MET",
-                                "TE" : "L1MET" }
+    mapThresholdToL1Decoder = { "EM" : "HLTNav_L1EM",
+                                "MU" : "HLTNav_L1MU",
+                                "J"  : "HLTNav_L1J",
+                                "TAU": "HLTNav_L1TAU",
+                                "XE" : "HLTNav_L1MET",
+                                "XS" : "HLTNav_L1MET",
+                                "TE" : "HLTNav_L1MET" }
 
     # remove actual threshold value from L1 threshold string
-    for thresholdType, l1Collection in mapThresholdToL1Decoder.iteritems():
+    for (thresholdType, l1Collection) in iteritems(mapThresholdToL1Decoder):
         if threshold.startswith( thresholdType ):
             return l1Collection
 
-    log.error("Threshold "+ threshold + " not mapped to any Decision objects! Available are: " + str(mapThresholdToL1Decoder.values()))
+    log.error("Threshold "+ threshold + " not mapped to any Decision collection! Available are: " + str(mapThresholdToL1Decoder.values()))
 
+def mapThresholdToL1RoICollection(threshold):
+    """
+    Translates L1 threshold  name of the RoIDescriptor name in the L1Decoder unpacking tools
+    """
+    if threshold == "" or threshold == "FS":
+        return "HLT_FSRoI"
 
+    mapThresholdToL1Decoder = { "EM" : "HLT_EMRoIs",
+                                "MU" : "HLT_MURoIs",
+                                "J"  : "HLT_JETRoI",
+                                "TAU": "HLT_TAURoI",
+                                "XE" : "HLT_FSRoI",
+                                "XS" : "HLT_FSRoI",
+                                "TE" : "HLT_FSRoI" }
+
+    # remove actual threshold value from L1 threshold string
+    for (thresholdType, l1Collection) in iteritems(mapThresholdToL1Decoder):
+        if threshold.startswith( thresholdType ):
+            return l1Collection
+
+    log.error("Threshold "+ threshold + " not mapped to any ROI collection! Available are: " + str(mapThresholdToL1Decoder.values()))
 
 
 def createCaloRoIUnpackers():
     from L1Decoder.L1DecoderConf import EMRoIsUnpackingTool, METRoIsUnpackingTool, JRoIsUnpackingTool, RerunRoIsUnpackingTool, TAURoIsUnpackingTool
     from L1Decoder.L1DecoderMonitoring import RoIsUnpackingMonitoring
     from TrigEDMConfig.TriggerEDMRun3 import recordable
-    emUnpacker = EMRoIsUnpackingTool(Decisions = recordable("L1EM"),
-                                     OutputTrigRoIs = recordable("EMRoIs"),
+    emUnpacker = EMRoIsUnpackingTool(Decisions = mapThresholdToL1DecisionCollection("EM"),
+                                     OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("EM")),
                                      MonTool = RoIsUnpackingMonitoring( prefix="EM", maxCount=30 ))
 
     #            emUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="EM", maxCount=30 )
 
     emRerunUnpacker = RerunRoIsUnpackingTool("EMRerunRoIsUnpackingTool",
-                                             SourceDecisions="L1EM",
-                                             Decisions="RerunL1EM" )
+                                             SourceDecisions=mapThresholdToL1DecisionCollection("EM"),
+                                             Decisions="HLTNav_RerunL1EM" )
 
-    metUnpacker = METRoIsUnpackingTool(Decisions = recordable("L1MET"))
+    metUnpacker = METRoIsUnpackingTool(Decisions = mapThresholdToL1DecisionCollection("XE"))
 
 
-    tauUnpacker = TAURoIsUnpackingTool(Decisions = "L1TAU",
-                                       OutputTrigRoIs = "TAURoIs")
+    tauUnpacker = TAURoIsUnpackingTool(Decisions = mapThresholdToL1DecisionCollection("TAU"),
+                                       OutputTrigRoIs = recordable("HLT_TAURoI"))
 
     tauUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="TAU", maxCount=30 )
 
-    jUnpacker = JRoIsUnpackingTool(Decisions = recordable("L1J"),
-                                   OutputTrigRoIs = recordable("JETRoI") )
+    jUnpacker = JRoIsUnpackingTool(Decisions = mapThresholdToL1DecisionCollection("J"),
+                                   OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("J")) )
 
     jUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="J", maxCount=30 )
 
@@ -65,14 +86,14 @@ def createMuonRoIUnpackers():
     from L1Decoder.L1DecoderMonitoring import RoIsUnpackingMonitoring
 
     from TrigEDMConfig.TriggerEDMRun3 import recordable
-    muUnpacker = MURoIsUnpackingTool(Decisions = recordable("L1MU"),
-                                     OutputTrigRoIs = recordable("MURoIs"))
+    muUnpacker = MURoIsUnpackingTool(Decisions = mapThresholdToL1DecisionCollection("MU"),
+                                     OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("MU")))
 
     muUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="MU", maxCount=20 )
 
     muRerunUnpacker =  RerunRoIsUnpackingTool("MURerunRoIsUnpackingTool",
-                                              SourceDecisions="L1MU",
-                                              Decisions="RerunL1MU" )
+                                              SourceDecisions=mapThresholdToL1DecisionCollection("MU"),
+                                              Decisions="HLTNav_RerunL1MU" )
     return [muUnpacker],[muRerunUnpacker]
 
 
@@ -92,6 +113,8 @@ class L1Decoder(L1Decoder) :
                                        ForceEnableAllChains = True)
 
         self.ctpUnpacker = ctpUnpacker
+        from L1Decoder.L1DecoderConf import FSRoIsUnpackingTool
+        self.roiUnpackers += [ FSRoIsUnpackingTool("FSRoIsUnpackingTool", Decisions=mapThresholdToL1DecisionCollection("FS") ) ]
 
         # EM unpacker
         if TriggerFlags.doID() or TriggerFlags.doCalo():
@@ -114,7 +137,6 @@ class L1Decoder(L1Decoder) :
 
 def L1DecoderCfg(flags):
 
-    from TrigEDMConfig.TriggerEDMRun3 import recordable
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
     from L1Decoder.L1DecoderConf import L1Decoder, CTPUnpackingTool
@@ -122,11 +144,17 @@ def L1DecoderCfg(flags):
 
     acc = ComponentAccumulator()
     decoderAlg = L1Decoder()
-    decoderAlg.L1DecoderSummaryKey = recordable("L1DecoderSummary")
+    decoderAlg.L1DecoderSummaryKey = "L1DecoderSummary" # Transient, consumed by DecisionSummaryMakerAlg
     decoderAlg.ctpUnpacker = CTPUnpackingTool( ForceEnableAllChains = flags.Trigger.L1Decoder.forceEnableAllChains,
                                                MonTool = CTPUnpackingMonitoring(512, 200) )
 
-    decoderAlg.roiUnpackers, decoderAlg.rerunRoiUnpackers = createCaloRoIUnpackers()
+
+    from L1Decoder.L1DecoderConf import FSRoIsUnpackingTool
+    decoderAlg.roiUnpackers += [ FSRoIsUnpackingTool("FSRoIsUnpackingTool", Decisions=mapThresholdToL1DecisionCollection("FS") ) ]
+
+    unpackers, rerunUnpackers = createCaloRoIUnpackers()
+    decoderAlg.roiUnpackers += unpackers
+    decoderAlg.rerunRoiUnpackers += rerunUnpackers
 
     from MuonConfig.MuonCablingConfig import RPCCablingConfigCfg, TGCCablingConfigCfg
     acc.merge( TGCCablingConfigCfg( flags ) )
@@ -158,6 +186,6 @@ if __name__ == "__main__":
     acc, alg = L1DecoderCfg( ConfigFlags )
     acc.addEventAlgo(alg)
 
-    f=open("L1DecoderConf.pkl","w")
+    f=open("L1DecoderConf.pkl","wb")
     acc.store(f)
     f.close()

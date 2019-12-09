@@ -50,6 +50,9 @@ MuonAlignAlg.ParlineFolders = ["/MUONALIGN/MDT/BARREL",
 from AtlasGeoModel.MuonGM import GeoModelSvc
 MuonDetectorTool = GeoModelSvc.DetectorTools[ "MuonDetectorTool" ]
 
+# Disable caching. This will have some memory impact (TBC) but is necessary for the moment to make this thread safe.
+MuonDetectorTool.FillCacheInitTime = 1
+
 # Condition DB is needed only if A-lines or B-lines are requested
 if not (muonAlignFlags.UseAlines=='none' and muonAlignFlags.UseBlines=='none'):
     MuonDetectorTool.UseConditionDb = 1
@@ -66,7 +69,7 @@ if not (muonAlignFlags.UseAlines=='none' and muonAlignFlags.UseBlines=='none'):
 # here define if I-lines (CSC internal alignment) are enabled
 if muonAlignFlags.UseIlines: 
     MuonDetectorTool.EnableCscInternalAlignment = True
-    if conddb.dbdata == 'COMP200' and 'HLT' in globalflags.ConditionsTag() :
+    if 'HLT' in globalflags.ConditionsTag() :
         logMuon.info("Reading CSC I-Lines from layout - special configuration for COMP200 in HLT setup.")
         MuonDetectorTool.UseIlinesFromGM = True
     else :

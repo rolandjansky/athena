@@ -95,6 +95,8 @@ TileDigitsFromPulse::TileDigitsFromPulse(std::string name, ISvcLocator* pSvcLoca
 	declareProperty("BunchSpacing", m_BunchSpacing = 25.); // 25, 50 or 75
 	declareProperty("SimulateQIE", m_simQIE = kFALSE);
 
+	declareProperty("TileInfoName", m_infoName = "TileInfo");
+
 //   declareProperty("nSamples", nSamp = 7); //TBD
 //   declareProperty("nPulses", nPul = 21);  //TBD
 
@@ -140,7 +142,8 @@ StatusCode TileDigitsFromPulse::initialize() {
 	ATH_MSG_DEBUG("in initialize()");
 
 	ATH_CHECK(detStore()->retrieve(m_tileHWID, "TileHWID"));
-	ATH_CHECK(detStore()->retrieve(m_tileInfo, "TileInfo"));
+	ATH_CHECK(detStore()->retrieve(m_tileInfo, m_infoName));
+ 	m_i_ADCmax = m_tileInfo->ADCmax();
 
         ATH_CHECK(m_tileToolNoiseSample.retrieve());
 
@@ -333,7 +336,7 @@ StatusCode TileDigitsFromPulse::execute() {
 						}
 
 						for (unsigned int i = 0; i < samples.size(); ++i) {
-							if (samples[i] >= 1023)
+							if (samples[i] >= m_i_ADCmax)
 								isHGSaturated = true;
 						}
 						if (!isHGSaturated)

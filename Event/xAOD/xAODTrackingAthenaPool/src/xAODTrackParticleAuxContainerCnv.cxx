@@ -20,6 +20,7 @@
 #include "xAODTrackParticleAuxContainerCnv_v1.h"
 #include "xAODTrackParticleAuxContainerCnv_v2.h"
 #include "xAODTrackParticleAuxContainerCnv_v3.h"
+#include "xAODTrackParticleAuxContainerCnv_v4.h"
 
 // EDM include(s):
 #include "xAODTracking/TrackParticleContainer.h"
@@ -50,9 +51,9 @@ createPersistentWithKey( xAOD::TrackParticleAuxContainer* trans,
                          const std::string& key ) {
 
    // Load the necessary ROOT class(es):
-   static const char* NAME =
+   static char const* const NAME =
      "std::vector<ElementLink<DataVector<Trk::Track> > >";
-   static const TClass* cls = TClass::GetClass( NAME );
+   static TClass const* const cls = TClass::GetClass( NAME );
    if( ! cls ) {
      ATH_MSG_ERROR( "Couldn't load dictionary for type: " << NAME );
    }

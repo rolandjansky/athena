@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TDTExample.cxx 779433 2016-10-20 15:22:56Z rwhite $
@@ -9,9 +9,6 @@
 #include <cmath>
 #include <algorithm>
 #include <iomanip>
-
-// Boost include(s):
-#include <boost/foreach.hpp>
 
 // Athena/Gaudi include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -620,8 +617,8 @@ void set( T*& dest, T* src ) {
 StatusCode  Trig::TDTExample::addChainInfo( std::vector< JetInfo >& jetRoIs, const ChainGroup* cg ) {
   
    Trig::FeatureContainer f = cg->features(TrigDefs::alsoDeactivateTEs);
-   BOOST_FOREACH( const Trig::Combination& comb, f.getCombinations() ) {
-      BOOST_FOREACH( const HLT::TriggerElement* te, comb.tes() ) {
+   for( const Trig::Combination& comb : f.getCombinations() ) {
+      for( const HLT::TriggerElement* te : comb.tes() ) {
 
          // get bunch of objects
          const TrigRoiDescriptor *l1roi = m_trigDec->ancestor<TrigRoiDescriptor>(te, "initialRoI");
@@ -630,7 +627,7 @@ StatusCode  Trig::TDTExample::addChainInfo( std::vector< JetInfo >& jetRoIs, con
          const xAOD::JetContainer *jet = m_trigDec->ancestor<xAOD::JetContainer>(te);
          
          bool alreadypresent = false;
-         BOOST_FOREACH( JetInfo& j, jetRoIs ) {
+         for( JetInfo& j : jetRoIs ) {
             if ( j.l1roi == l1roi ) {
                // we got new reco path
                alreadypresent = true;
@@ -669,13 +666,13 @@ StatusCode Trig::TDTExample::jetRoItoChains( std::vector< JetInfo >& jetRoIs ) {
    std::string chains_regex( "(HLT)_[1-4]?j[0-9]+" );
    std::vector< std::string > chains = m_trigDec->getChainGroup( chains_regex )->getListOfTriggers();
 
-   BOOST_FOREACH( const std::string& ch, chains ) {
+   for( const std::string& ch : chains ) {
       ATH_MSG_DEBUG( "Iterating over " << ch );
       const ChainGroup *cg = m_trigDec->getChainGroup( ch );
       CHECK( addChainInfo( jetRoIs, cg ) );
    }
 
-   BOOST_FOREACH( const JetInfo& j, jetRoIs ) {
+   for( const JetInfo& j : jetRoIs ) {
       if( j.l1roi )     ATH_MSG_INFO( "L1 RoI : " << *( j.l1roi ) );
       if( j.efcluster ) ATH_MSG_INFO( "EF Cluster : " << j.efcluster );
       if( j.jet ) ATH_MSG_INFO( "Jet : " << j.jet );

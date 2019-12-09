@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ITRKAMBIGUITYSCOREPROCESSORTOOL_H
@@ -28,10 +28,11 @@ class ITrackAmbiguityScoreProcessorTool : virtual public IAlgTool
 	@param tracks collection of tracks which will have ambiguities resolved. Will not be modified.
 	@return  map of score and track. Ownership is passed on 
 	(i.e. client handles deletion)*/
-        virtual void process(std::vector<const Track*>* tracks , TracksScores* scoredTracks) = 0;
+        virtual void process(std::vector<const Track*>* tracks , TracksScores* scoredTracks) const = 0;
 
-        /** statistics */
-        virtual void statistics() {};
+        /** Print statistics at the end of the processing.
+        */
+        virtual void statistics() = 0;
 
 };
 

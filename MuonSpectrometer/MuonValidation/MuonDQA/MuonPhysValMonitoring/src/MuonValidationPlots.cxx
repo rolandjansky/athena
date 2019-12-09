@@ -8,8 +8,8 @@
 typedef ElementLink< xAOD::TrackParticleContainer > TrackLink;
 typedef ElementLink< xAOD::MuonContainer > MuonLink;
 
-MuonValidationPlots::MuonValidationPlots(PlotBase* pParent, std::string sDir,std::vector<int> wps,std::vector<unsigned int> authors, bool isData, bool doBinnedResolutionPlots, bool doSeparateSAFMuons, bool /*doMuonTree*/):
-  PlotBase(pParent, sDir),  m_selectedWPs(wps), m_selectedAuthors(authors), m_truthSelections(2,""), m_oTruthRelatedMuonPlots(NULL), m_isData(isData), m_doSeparateSAFMuons(doSeparateSAFMuons)
+MuonValidationPlots::MuonValidationPlots(PlotBase* pParent, std::string sDir,std::vector<int> wps,std::vector<unsigned int> authors, bool isData, bool doBinnedResolutionPlots, bool doSeparateSAFMuons, bool doMuonTree):
+  PlotBase(pParent, sDir),  m_selectedWPs(wps), m_selectedAuthors(authors), m_truthSelections(2,""), m_oTruthRelatedMuonPlots(nullptr), m_isData(isData), m_doSeparateSAFMuons(doSeparateSAFMuons), m_MuonTree(nullptr)
 {
   if (!m_isData) {
     m_truthSelections[0] = "all"; //no selection on truth muons (minimum selection is |eta|<2.5, pt>5 GeV, defined in MuonPhysValMonitoringTool::handleTruthMuon() 
@@ -66,6 +66,7 @@ MuonValidationPlots::MuonValidationPlots(PlotBase* pParent, std::string sDir,std
     if (!m_isData) m_oTruthRelatedMuonPlots_SiAssocFwrdMu.push_back(new Muon::TruthRelatedMuonPlotOrganizer(this, "matched/SiAssocForward", doBinnedResolutionPlots));
   }
 
+  if (doMuonTree) 	m_MuonTree = new Muon::MuonTree(this, "", !m_isData);
 }
 
 MuonValidationPlots::~MuonValidationPlots()
@@ -108,7 +109,8 @@ MuonValidationPlots::~MuonValidationPlots()
     delete truthRelatedMuonPlots;
     truthRelatedMuonPlots = 0;
   }
-    
+   
+  if(m_MuonTree) { delete m_MuonTree; m_MuonTree=nullptr; } 
 }
 
 void MuonValidationPlots::fillRecoMuonPlots(const xAOD::Muon& mu)
@@ -205,6 +207,39 @@ void MuonValidationPlots::fill(const xAOD::TruthParticle* truthMu, const xAOD::M
   }
 
 }
+
+
+Muon::MuonTree* MuonValidationPlots::getMuonTree(){
+	return m_MuonTree;
+}
+
+void MuonValidationPlots::fillTreeBranches(const xAOD::Muon& mu) {
+  if(m_MuonTree) m_MuonTree->fillRecoMuonBranches(mu);
+}
+
+void MuonValidationPlots::fillTreeBranches(const xAOD::TruthParticle &truthMu){
+  if(m_MuonTree) m_MuonTree->fillTruthMuonBranches(truthMu, isGoodTruthTrack(truthMu));
+}
+
+void MuonValidationPlots::fillTreeBranches(const xAOD::TruthParticle* truthMu, const xAOD::Muon* mu, const xAOD::TrackParticleContainer* MSTracks)
+{
+  if (!m_MuonTree) return;
+  if (mu)      m_MuonTree->fillRecoMuonBranches(*mu);
+  if (truthMu) m_MuonTree->fillTruthMuonBranches(*truthMu, isGoodTruthTrack(*truthMu));
+
+  if( truthMu && mu )	{
+  	m_MuonTree->fillTruthMuonBranches(*truthMu, *mu, MSTracks,  isGoodTruthTrack(*truthMu));
+  }
+}
+
+void MuonValidationPlots::fillTree(const xAOD::EventInfo* eventInfo, bool isData)
+{
+  if(!m_MuonTree) return;
+  m_MuonTree->fillEventBranches(eventInfo, isData);
+  m_MuonTree->getTree()->Fill();
+  m_MuonTree->postFillTreeActions();
+}  
+
 
 bool MuonValidationPlots::isGoodTruthTrack(const xAOD::TruthParticle& truthMu) {
   std::string hitTypes[6]={"innerSmallHits","innerLargeHits","middleSmallHits","middleLargeHits","outerSmallHits","outerLargeHits"}; //MDT + CSC

@@ -34,6 +34,74 @@ int check_hash_retrieval(MuonIdHelper *idhelp) {
     return 0;
 }
 
+// for the CSCs, also test the geometrical hash to real hash conversion
+int check_CSC_hash_conversion(CscIdHelper *idhelp) {
+    IdentifierHash hash;
+    IdentifierHash geo_hash;
+    Identifier id;
+    // check detectorElement Identifiers
+    IdContext context = idhelp->detectorElement_context();
+    for (unsigned int i=0; i<idhelp->detectorElement_hash_max(); ++i) {
+        if (idhelp->get_id(i, id, &context)) {
+            std::cout << "ERROR: Failed to retrieve identifier from hash=" << i << std::endl;
+            return 1;
+        }
+        if (idhelp->get_geo_detectorElement_hash(id, geo_hash)) {
+            std::cout << "ERROR: Failed to retrieve geometrical identifier hash from identifier=" << id.get_compact() << std::endl;
+            return 1;
+        }
+        if (idhelp->get_hash_fromGeoHash(geo_hash, hash, &context)) {
+            std::cout << "ERROR: Failed to retrieve real identifier hash from geometrical identifier hash=" << geo_hash << std::endl;
+            return 1;
+        }
+        if (hash!=i) {
+            std::cout << "ERROR: Identifier hash from identifier=" << id.get_compact() << " (" << hash << ") differs from original hash=" << i << std::endl;
+            return 1;
+        }
+    }
+    // check module Identifiers
+    context = idhelp->module_context();
+    for (unsigned int i=0; i<idhelp->module_hash_max(); ++i) {
+        if (idhelp->get_id(i, id, &context)) {
+            std::cout << "ERROR: Failed to retrieve identifier from hash=" << i << std::endl;
+            return 1;
+        }
+        if (idhelp->get_geo_module_hash(id, geo_hash)) {
+            std::cout << "ERROR: Failed to retrieve geometrical identifier hash from identifier=" << id.get_compact() << std::endl;
+            return 1;
+        }
+        if (idhelp->get_hash_fromGeoHash(geo_hash, hash, &context)) {
+            std::cout << "ERROR: Failed to retrieve real identifier hash from geometrical identifier hash=" << geo_hash << std::endl;
+            return 1;
+        }
+        if (hash!=i) {
+            std::cout << "ERROR: Identifier hash from identifier=" << id.get_compact() << " (" << hash << ") differs from original hash=" << i << std::endl;
+            return 1;
+        }
+    }
+    // check channel Identifiers
+    context = idhelp->channel_context();
+    for (unsigned int i=0; i<idhelp->channel_hash_max(); ++i) {
+        if (idhelp->get_id(i, id, &context)) {
+            std::cout << "ERROR: Failed to retrieve identifier from hash=" << i << std::endl;
+            return 1;
+        }
+        if (idhelp->get_geo_channel_hash(id, geo_hash)) {
+            std::cout << "ERROR: Failed to retrieve geometrical identifier hash from identifier=" << id.get_compact() << std::endl;
+            return 1;
+        }
+        if (idhelp->get_hash_fromGeoHash(geo_hash, hash, &context)) {
+            std::cout << "ERROR: Failed to retrieve real identifier hash from geometrical identifier hash=" << geo_hash << std::endl;
+            return 1;
+        }
+        if (hash!=i) {
+            std::cout << "ERROR: Identifier hash from identifier=" << id.get_compact() << " (" << hash << ") differs from original hash=" << i << std::endl;
+            return 1;
+        }
+    }
+    return 0;
+}
+
 int check_muon_decoding(IdDictMgr& idd, bool hasCSC, bool hasSTgc, bool hasMM)
 {
 
@@ -65,6 +133,7 @@ int check_muon_decoding(IdDictMgr& idd, bool hasCSC, bool hasSTgc, bool hasMM)
             return 1;
         }
         if (check_hash_retrieval(&csc_id)) return 1;
+        if (check_CSC_hash_conversion(&csc_id)) return 1;
     }
 
     if (hasSTgc) {

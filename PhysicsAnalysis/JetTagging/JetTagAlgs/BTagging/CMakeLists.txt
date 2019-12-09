@@ -43,6 +43,8 @@ atlas_add_library( BTaggingLib
                    src/JetBTaggerAlg.cxx
                    src/StandAloneJetBTaggerAlg.cxx
                    src/BTagJetPtScaling.cxx
+                   src/JetParticleAssociationAlg.cxx
+                   src/JetSecVertexingAlg.cxx
                    src/BTagTrackAugmenterAlg.cxx
                    PUBLIC_HEADERS BTagging
                    PRIVATE_INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}

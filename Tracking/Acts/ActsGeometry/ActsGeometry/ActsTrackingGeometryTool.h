@@ -52,7 +52,7 @@ private:
   ServiceHandle<IActsTrackingGeometrySvc> m_trackingGeometrySvc;
 
   SG::ReadCondHandleKey<ActsGeometryContext> m_rchk{
-      this, "ActsAlignmentKey", "ActsAlignment", "cond read key"};
+      this, "ActsAlignmentKey", "ActsAlignment", "cond read key for the alignment"};
 };
 
 #endif

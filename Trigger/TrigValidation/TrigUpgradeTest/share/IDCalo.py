@@ -14,7 +14,8 @@ from AthenaCommon.AlgSequence import AthSequencer
 viewSeq = AthSequencer("AthViewSeq", Sequential=True, ModeOR=False, StopOverride=False)
 topSequence += viewSeq
 
-roiCollectionName =  "EMRoIs"  
+from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
+roiCollectionName =  mapThresholdToL1RoICollection("EM")  
 
 # View maker alg
 from AthenaCommon import CfgMgr
@@ -35,10 +36,7 @@ if TriggerFlags.doID:
 
   from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
   
-  (viewAlgs, eventAlgs) = makeInDetAlgs("FS")
-
-  for eventAlg in eventAlgs:
-    viewSeq += eventAlg
+  viewAlgs = makeInDetAlgs("FS")
 
   for viewAlg in viewAlgs:
     allViewAlgorithms += viewAlg

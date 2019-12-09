@@ -97,7 +97,7 @@ namespace IOVDbNamespace{
   std::string
   quote(const std::string & sentence);
   
-  ///Replace the '/' of a file path with '_'
+  ///Replace the '/' of a file path with '^'
   std::string 
   sanitiseFilename(const std::string & fname);
   
@@ -114,6 +114,9 @@ namespace IOVDbNamespace{
   std::string
   sanitiseXml(const std::string & pseudoXmlString);
   
+  ///Sanitise json string, escaping raw carriage returns
+  std::string
+  sanitiseJsonString(const std::string & dataString);
   
   ///Looks like it should be magic
   bool

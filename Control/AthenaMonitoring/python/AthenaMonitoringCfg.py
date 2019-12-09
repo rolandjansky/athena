@@ -8,10 +8,15 @@ def AthenaMonitoringCfg(flags):
     info = local_logger.info
     result = ComponentAccumulator()
 
+    if flags.DQ.Steering.doPixelMon:
+        info('Set up Pixel monitoring')
+        from PixelMonitoring.PixelMonitoringConfig import PixelMonitoringConfig
+        result.merge(PixelMonitoringConfig(flags))
+    
     if flags.DQ.Steering.doSCTMon:
         info('Set up SCT monitoring')
-        from SCT_Monitoring.SCTLorentzMonAlg import SCTLorentzMonAlgConfig
-        result.merge(SCTLorentzMonAlgConfig(flags))
+        from SCT_Monitoring.SCTMonitoringConfig import SCTMonitoringConfig
+        result.merge(SCTMonitoringConfig(flags))
 
     if flags.DQ.Steering.doTRTMon:
         info('Set up TRT monitoring')
@@ -25,8 +30,8 @@ def AthenaMonitoringCfg(flags):
 
     if flags.DQ.Steering.doTileMon:
         info('Set up Tile monitoring')
-        from TileMonitoring.TileJetMonitorAlgorithm import TileJetMonitoringConfig
-        result.merge(TileJetMonitoringConfig(flags))
+        from TileMonitoring.TileMonitoringConfig import TileMonitoringCfg
+        result.merge(TileMonitoringCfg(flags))
 
     if flags.DQ.Steering.doMuonMon:
         info('Set up Muon monitoring')
@@ -45,8 +50,13 @@ def AthenaMonitoringCfg(flags):
 
     if flags.DQ.Steering.doJetMon:
         info('Set up Jet monitoring')
-        from JetMonitoring.JetMonitoringExample import jetMonitoringExampleConfig
-        result.merge(jetMonitoringExampleConfig(flags))
+        from JetMonitoring.JetMonitoringStandard import standardJetMonitoring
+        result.merge(standardJetMonitoring(flags))
+
+    if flags.DQ.Steering.doMissingEtMon:
+        info("Set up MET monitoring")
+        from MissingETMonitoring.METMonitorAlgorithm import METMonitoringConfig
+        result.merge(METMonitoringConfig(flags))
 
     if flags.DQ.Steering.doGlobalMon:
         info('Set up Global monitoring')
@@ -54,7 +64,7 @@ def AthenaMonitoringCfg(flags):
         result.merge(DataQualityToolsConfig(flags))
 
     if flags.DQ.Steering.doTauMon:
-        local_logger.info('Set up Tau monitoring')
+        info('Set up Tau monitoring')
         from tauMonitoring.TauMonitoringConfig import TauMonitoringConfig
         result.merge(TauMonitoringConfig(flags))
 

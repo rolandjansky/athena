@@ -72,7 +72,7 @@ L1TriggerTowerTool::L1TriggerTowerTool(const std::string& t,
   m_ttSvc("CaloTriggerTowerService/CaloTriggerTowerService"),
   m_mappingTool("LVL1::PpmCoolOrBuiltinMappingTool/PpmCoolOrBuiltinMappingTool"),
   m_l1CondSvc("L1CaloCondSvc", n),
-  m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", n),
+  m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", n),
   m_dbFineTimeRefsTowers(0),
   m_correctFir(false)
 {

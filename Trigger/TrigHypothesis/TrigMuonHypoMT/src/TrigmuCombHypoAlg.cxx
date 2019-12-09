@@ -16,31 +16,14 @@ TrigmuCombHypoAlg::TrigmuCombHypoAlg( const std::string& name,
   ::HypoBase( name, pSvcLocator )
 {} 
 
-TrigmuCombHypoAlg::~TrigmuCombHypoAlg() 
-{}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
 
 StatusCode TrigmuCombHypoAlg::initialize()
 {
-  ATH_MSG_INFO ( "Initializing " << name() << "..." );
   ATH_CHECK(m_hypoTools.retrieve());
 
   renounce(m_muCombKey);
   ATH_CHECK(m_muCombKey.initialize());
 
-  ATH_MSG_INFO( "Initialization completed successfully" );
-  return StatusCode::SUCCESS;
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-StatusCode TrigmuCombHypoAlg::finalize() 
-{   
-  ATH_MSG_INFO( "Finalizing " << name() << "..." );
-  ATH_MSG_INFO( "Finalization completed successfully" );
   return StatusCode::SUCCESS;
 }
 
@@ -96,7 +79,6 @@ StatusCode TrigmuCombHypoAlg::execute(const EventContext& context) const
 
     // set objectLink
     newd->setObjectLink( featureString(), muCombEL );
-    newd->setObjectLink( viewString(), viewEL);
     TrigCompositeUtils::linkToPrevious( newd, previousDecision, context);
 
     // DEBUG

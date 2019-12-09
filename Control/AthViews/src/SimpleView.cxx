@@ -77,6 +77,22 @@ SG::DataProxy * SimpleView::findProxy( const CLID& id, const std::string& key, c
   
   //Look in the default store if cound not find in any view - for instance for event-wise IDCs
   if ( (not isValid( localProxy )) and allowFallThrough ) {
+
+    //Apply filtering
+    if ( m_fallFilter.size() ) {
+      bool filterPass = false;
+
+      //Filter passes if the key contains one of the possible values
+      for ( auto& entry : m_fallFilter ) {
+        if ( key.find( entry ) != std::string::npos ) {
+          filterPass = true;
+          break;
+        }
+      }
+
+      if ( !filterPass ) return nullptr;
+    }
+
     auto mainStoreProxy = m_store->proxy( id, key );
     return mainStoreProxy;
   }

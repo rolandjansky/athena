@@ -30,6 +30,34 @@ public:
   /// @brief Create ATLAS worker run manager
   G4WorkerRunManager* CreateWorkerRunManager() const;
 
+  /// @name Methods to pass configuration in from G4AtlasAlg
+  /// @{
+  /// Configure the user action service handle
+  void SetUserActionSvc(const std::string& typeAndName) {
+    m_userActionSvcName = typeAndName;
+  }
+
+  /// Configure the detector geometry service handle
+  void SetDetGeoSvc(const std::string& typeAndName) {
+    m_detGeoSvcName = typeAndName;
+  }
+
+  /// Configure the Sensitive Detector Master Tool handle
+  void SetSDMasterTool(const std::string& typeAndName) {
+    m_senDetToolName = typeAndName;
+  }
+
+  /// Configure the Fast Simulation Master Tool handle
+  void SetFastSimMasterTool(const std::string& typeAndName) {
+    m_fastSimToolName = typeAndName;
+  }
+
+private:
+  std::string m_detGeoSvcName{"DetectorGeometrySvc"};
+  std::string m_senDetToolName{"SensitiveDetectorMasterTool"};
+  std::string m_fastSimToolName{"FastSimulationMasterTool"};
+  std::string m_userActionSvcName{"G4UA::UserActionSvc"};
+
 }; // class G4AtlasUserWorkerThreadInitialization
 
 #endif // G4MULTITHREADED

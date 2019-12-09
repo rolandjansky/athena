@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.CfgGetter import addAlgorithm,addTool,addService
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
@@ -35,6 +35,7 @@ addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_OutwardsMuonTrackCleaner","TMEF_Outwar
 addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonCombinedTrackFitter","TMEF_MuonCombinedTrackFitter")
 addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_OutwardsCombinedMuonTrackBuilder","TMEF_OutwardsCombinedMuonTrackBuilder")
 addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonCombinedFitTagTool","TMEF_MuonCombinedFitTagTool")
+addTool("TrigMuonEF.TrigMuonEFConfig.TrigMuonAmbiProcessor","TrigMuonAmbiProcessor")
 addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonCreatorTool","TMEF_MuonCreatorTool")
 addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonCandidateTool","TMEF_MuonCandidateTool")
 addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_TrkMaterialProviderTool", "TMEF_TrkMaterialProviderTool")

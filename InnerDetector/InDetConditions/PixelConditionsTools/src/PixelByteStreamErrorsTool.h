@@ -35,8 +35,8 @@ class PixelByteStreamErrorsTool: public AthAlgTool, public IPixelByteStreamError
 
     PixelByteStreamErrorsTool(const std::string& type, const std::string& name, const IInterface* parent);
     virtual ~PixelByteStreamErrorsTool(){}
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
     virtual bool isGood(const IdentifierHash & elementIdHash) const override final;
 
@@ -71,8 +71,8 @@ class PixelByteStreamErrorsTool: public AthAlgTool, public IPixelByteStreamError
     virtual void addBadFE(IdentifierHash hashID, int badFE) const override final;
     virtual unsigned int getBadFE(IdentifierHash hashID) const override final;
 
-    virtual StatusCode readData();
-    virtual StatusCode recordData();
+    virtual StatusCode readData() override;
+    virtual StatusCode recordData() const override;
 
     // FE-I4B trailer errors
     virtual void addLinkMaskedByPPC() const override final;
@@ -83,8 +83,8 @@ class PixelByteStreamErrorsTool: public AthAlgTool, public IPixelByteStreamError
   private:
     const PixelID* m_pixelID;
 
-    SG::ReadHandleKey<InDetBSErrContainer>  m_BSErrContReadKey;
-    SG::WriteHandleKey<InDetBSErrContainer> m_BSErrContWriteKey;
+    SG::ReadHandleKey<InDetBSErrContainer>  m_BSErrContReadKey {this, "PixelByteStreamErrsRead", "PixelByteStreamErrs", "PixelByteStreamErrs container key"};
+    SG::WriteHandleKey<InDetBSErrContainer> m_BSErrContWriteKey {this, "PixelByteStreamErrsWrite", "PixelByteStreamErrs", "PixelByteStreamErrs container key"};
 
     mutable std::vector<unsigned int> m_module_errors;
     mutable std::vector<unsigned int> m_moduleROD_errors;
@@ -119,7 +119,6 @@ class PixelByteStreamErrorsTool: public AthAlgTool, public IPixelByteStreamError
     mutable unsigned int m_ServiceRecords[32];
 
     bool m_readESD;
-    std::string m_BSErrContainerKey;
 };
 
 inline InterfaceID& PixelByteStreamErrorsTool::interfaceID() {

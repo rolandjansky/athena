@@ -60,13 +60,13 @@ StatusCode Muon::MuonEventCnvTool::initialize()
         ATH_MSG_DEBUG( "Found MuonReadoutGeometry DetectorDescription manager at :"<<m_muonMgr);
     }
 
-    ATH_CHECK(m_idHelperTool.retrieve());
+    ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_rpcPrdKey.initialize());
-    ATH_CHECK(m_cscPrdKey.initialize());
+    ATH_CHECK(m_cscPrdKey.initialize(!m_cscPrdKey.empty())); // check for layouts without CSCs
     ATH_CHECK(m_tgcPrdKey.initialize());
     ATH_CHECK(m_mdtPrdKey.initialize());
-    ATH_CHECK(m_mmPrdKey.initialize());
-    ATH_CHECK(m_stgcPrdKey.initialize());
+    ATH_CHECK(m_mmPrdKey.initialize(!m_mmPrdKey.empty())); // check for layouts without MicroMegas
+    ATH_CHECK(m_stgcPrdKey.initialize(!m_stgcPrdKey.empty())); // check for layouts without STGCs
 
     return StatusCode::SUCCESS;
 }
@@ -93,7 +93,7 @@ void
 
 
 std::pair<const Trk::TrkDetElementBase*, const Trk::PrepRawData*> 
-    Muon::MuonEventCnvTool::getLinks( const Trk::RIO_OnTrack& rioOnTrack ) const
+    Muon::MuonEventCnvTool::getLinks( Trk::RIO_OnTrack& rioOnTrack ) const
 {
     using namespace Trk;
     using namespace MuonGM;
@@ -104,29 +104,29 @@ std::pair<const Trk::TrkDetElementBase*, const Trk::PrepRawData*>
 
     if ( m_muonMgr!=0) {
         //TODO Check that these are in the most likely ordering, for speed. EJWM.
-      if (m_idHelperTool->isRpc(id)){
+      if (m_idHelperSvc->isRpc(id)){
         detEl =  m_muonMgr->getRpcReadoutElement( id ) ;
         if (m_manuallyFindPRDs) prd = rpcClusterLink(id, rioOnTrack.idDE());
-      } else if(m_idHelperTool->isCsc(id)){
+      } else if(m_idHelperSvc->isCsc(id)){
         detEl =  m_muonMgr->getCscReadoutElement( id ) ;
         if (m_manuallyFindPRDs) prd = cscClusterLink(id, rioOnTrack.idDE());
-      } else if(m_idHelperTool->isTgc(id)){
+      } else if(m_idHelperSvc->isTgc(id)){
         detEl = m_muonMgr->getTgcReadoutElement( id ) ;
         if ( m_manuallyFindPRDs) prd = tgcClusterLink(id, rioOnTrack.idDE());
         if ( m_fixTGCs && !rioOnTrack.prepRawData() ) {
           // Okay, so we might have hit the nasty issue that the TGC EL is broken in some samples
           // Need to fix by pointing to the key defined here (assumung it has been configured correctly for this sample)
-          const Muon::TgcClusterOnTrack* tgc = dynamic_cast<const Muon::TgcClusterOnTrack*>(&rioOnTrack);
-          ElementLinkToIDC_TGC_Container& el = const_cast<ElementLinkToIDC_TGC_Container&>( tgc->m_rio );
+          Muon::TgcClusterOnTrack* tgc = dynamic_cast<Muon::TgcClusterOnTrack*>(&rioOnTrack);
+          ElementLinkToIDC_TGC_Container& el = tgc->m_rio;
           el.resetWithKeyAndIndex(m_tgcPrdKey.key(), el.index());
         }
-      }else if(m_idHelperTool->isMdt(id)){
+      }else if(m_idHelperSvc->isMdt(id)){
         detEl =  m_muonMgr->getMdtReadoutElement( id ) ;
         if (m_manuallyFindPRDs) prd = mdtDriftCircleLink(id, rioOnTrack.idDE());
-      } else if(m_idHelperTool->isMM(id)){
+      } else if(m_idHelperSvc->isMM(id)){
         detEl = m_muonMgr->getMMReadoutElement( id ) ;
         if (m_manuallyFindPRDs) prd = mmClusterLink(id, rioOnTrack.idDE());
-      } else if(m_idHelperTool->issTgc(id)){
+      } else if(m_idHelperSvc->issTgc(id)){
         detEl = m_muonMgr->getsTgcReadoutElement( id ) ;
         if (m_manuallyFindPRDs) prd = stgcClusterLink(id, rioOnTrack.idDE());
       }else{
@@ -196,17 +196,17 @@ Muon::MuonEventCnvTool::getDetectorElement(const Identifier& id) const
     if ( m_muonMgr!=0 ) 
     {
         //TODO Check that these are in the most likely ordering, for speed. EJWM.
-      if (m_idHelperTool->isRpc(id)) {
+      if (m_idHelperSvc->isRpc(id)) {
         detEl =  m_muonMgr->getRpcReadoutElement( id ) ;
-      }else if(m_idHelperTool->isCsc(id)){
+      }else if(m_idHelperSvc->isCsc(id)){
         detEl =  m_muonMgr->getCscReadoutElement( id ) ;
-      }else if(m_idHelperTool->isTgc(id)){
+      }else if(m_idHelperSvc->isTgc(id)){
         detEl = m_muonMgr->getTgcReadoutElement( id ) ;
-      }else if(m_idHelperTool->isMdt(id)) {
+      }else if(m_idHelperSvc->isMdt(id)) {
         detEl =  m_muonMgr->getMdtReadoutElement( id ) ;
-      }else if(m_idHelperTool->issTgc(id)){
+      }else if(m_idHelperSvc->issTgc(id)){
         detEl = m_muonMgr->getsTgcReadoutElement( id ) ;
-      }else if(m_idHelperTool->isMM(id)){
+      }else if(m_idHelperSvc->isMM(id)){
         detEl = m_muonMgr->getMMReadoutElement( id ) ;
       }
     }

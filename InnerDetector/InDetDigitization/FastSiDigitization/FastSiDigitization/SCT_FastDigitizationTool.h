@@ -28,8 +28,6 @@
 
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 
-#include "TrkEventTPCnv/TrkEventPrimitives/HepSymMatrix_p1.h"
-
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 
 #include "EventPrimitives/EventPrimitives.h"
@@ -131,7 +129,6 @@ private:
 
   ToolHandle<InDet::ClusterMakerTool>  m_clusterMaker;
   ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SiLorentzAngleTool/SCTLorentzAngleTool", "Tool to retreive Lorentz angle"};
-  bool m_sctUseClusterMaker;       //!< use the pixel cluster maker or not
 
   typedef std::multimap<IdentifierHash, InDet::SCT_Cluster*> SCT_detElement_RIO_map;
   SCT_detElement_RIO_map* m_sctClusterMap;

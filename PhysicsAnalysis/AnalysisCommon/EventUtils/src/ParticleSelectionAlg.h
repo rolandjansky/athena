@@ -52,17 +52,17 @@ class ParticleSelectionAlg
 
 
   /// Athena algorithm's initalize hook
-  virtual StatusCode  initialize();
+  virtual StatusCode  initialize() override;
 
   /// Athena algorithm's beginRun hook
   /// (called once before running over the events, after initialize)
-  virtual StatusCode  beginRun();
+  virtual StatusCode  start() override;
 
   /// Athena algorithm's execute hook
-  virtual StatusCode  execute();
+  virtual StatusCode  execute() override;
 
   /// Athena algorithm's finalize hook
-  virtual StatusCode  finalize();
+  virtual StatusCode  finalize() override;
 
 
  private:

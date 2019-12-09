@@ -5,11 +5,6 @@
 from AthenaCommon.Logging import logging
 __log = logging.getLogger('full_menu')
 
-# import flags
-from RecExConfig.RecFlags  import rec
-rec.doESD=True
-rec.doWriteESD=True
-
 createHLTMenuExternally=True # menu will be build up explicitly here 
 include("TrigUpgradeTest/testHLT_MT.py")
 
@@ -174,46 +169,59 @@ if opt.doJetSlice == True:
 # bjet chains
 ##################################################################
 if opt.doBjetSlice == True:
+    from TrigUpgradeTest.jetMenuHelper import jetMenuSequenceFromString
     from TriggerMenuMT.HLTMenuConfig.Bjet.BjetSequenceSetup import getBJetSequence
 
+    jetSequence = jetMenuSequenceFromString("a4_tc_em_subjesgscIS_ftf")
+
+    step0 = ChainStep("Step0_bjet", [jetSequence] )
     step1 = ChainStep("Step1_bjet", [getBJetSequence('j')])
     step2 = ChainStep("Step2_bjet", [getBJetSequence('gsc')])
 
     bjetChains  = [                                                                                                                                                                         
-          makeChain(name='HLT_j35_gsc45_boffperf_split_L1J20' , L1Thresholds=["J20"], ChainSteps=[step1,step2] ),
-          makeChain(name='HLT_j35_gsc45_bmv2c1070_split_L1J20', L1Thresholds=["J20"], ChainSteps=[step1,step2] ),
-          makeChain(name='HLT_j35_gsc45_bmv2c1070_L1J20'      , L1Thresholds=["J20"], ChainSteps=[step1,step2] )
+          makeChain(name='HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20' , L1Thresholds=["J20"], ChainSteps=[step0,step1,step2] ),
+          makeChain(name='HLT_j45_ftf_subjesgscIS_bmv2c1070_split_L1J20', L1Thresholds=["J20"], ChainSteps=[step0,step1,step2] ),
+          makeChain(name='HLT_j45_ftf_subjesgscIS_bmv2c1070_L1J20'      , L1Thresholds=["J20"], ChainSteps=[step0,step1,step2] )
         ]
     testChains += bjetChains
-    
+
+"""
+Commenting out tau chains for now    
 ##################################################################
 # tau chains
 ##################################################################
 if opt.doTauSlice == True:
-  from TriggerMenuMT.HLTMenuConfig.Tau.TauMenuSequences import getTauSequence
-  step1=ChainStep("Step1_tau", [getTauSequence('calo')])
-  step1MVA=ChainStep("Step1MVA_tau", [getTauSequence('calo_mva')])
-  #This runs the tau-preselection(TP) step
-  step2TP=ChainStep("Step2TP_tau", [getTauSequence('track_core')])
-  #This runs the EFTauMV hypo on top of fast tracks 
-  step2PT=ChainStep("Step2PT_tau", [getTauSequence('precision')])
+    from TriggerMenuMT.HLTMenuConfig.Tau.TauMenuSequences import getTauSequence
+
+    step1=ChainStep("Step1_tau", [getTauSequence('calo')])
+    step1MVA=ChainStep("Step1MVA_tau", [getTauSequence('calo_mva')])
+
+    #This runs the tau-preselection(TP) step
+    step2TP=ChainStep("Step2TP_tau", [getTauSequence('track_core')])
+
+    #This runs the EFTauMV hypo on top of fast tracks 
+    step2PT=ChainStep("Step2PT_tau", [getTauSequence('precision')])    
   
-  
-  tauChains  = [
-      makeChain(name='HLT_tau0_perf_ptonly_L1TAU12',              L1Thresholds=["TAU12"], ChainSteps=[step1, step2] ),
-      makeChain(name='HLT_tau25_medium1_tracktwo_L1TAU12IM',      L1Thresholds=["TAU12IM"],  ChainSteps=[step1, step2TP] ),
-      makeChain(name='HLT_tau35_mediumRNN_tracktwoMVA_L1TAU12IM', L1Thresholds=["TAU20IM"], ChainSteps=[step1MVA, step2PT]),
+    tauChains  = [
+          makeChain(name='HLT_tau0_perf_ptonly_L1TAU12',              L1Thresholds=["TAU12"], ChainSteps=[step1, step2] ),
+          makeChain(name='HLT_tau25_medium1_tracktwo_L1TAU12IM',      L1Thresholds=["TAU12IM"],  ChainSteps=[step1, step2TP] ),
+          makeChain(name='HLT_tau35_mediumRNN_tracktwoMVA_L1TAU12IM', L1Thresholds=["TAU20IM"], ChainSteps=[step1MVA, step2PT])
       ]
-  testChains += tauChains
+    testChains += tauChains
+"""
 
 ##################################################################
 # MET chains
 ##################################################################
 if opt.doMETSlice == True:
-    from TriggerMenuMT.HLTMenuConfig.MET.METMenuSequences import metCellMenuSequence, metClusterPufitMenuSequence
+    from TriggerMenuMT.HLTMenuConfig.MET.METMenuSequences import metMenuSequence
+    from TriggerMenuMT.HLTMenuConfig.MET.ConfigHelpers import extractMETRecoDict
 
-    metCellSeq = metCellMenuSequence()
-    metClusterPufitSeq = metClusterPufitMenuSequence()
+    cellRecoDict = extractMETRecoDict({'EFrecoAlg': "cell"})
+    metCellSeq = metMenuSequence(None, **cellRecoDict)
+
+    pufitRecoDict = extractMETRecoDict({'EFrecoAlg': "tcpufit"})
+    metClusterPufitSeq = metMenuSequence(None, **pufitRecoDict)
 
     metCellStep = ChainStep("Step1_met_cell", [metCellSeq])
     metClusterPufitStep          = ChainStep("Step1_met_clusterpufit", [metClusterPufitSeq])
@@ -289,63 +297,55 @@ from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeHLTTree
 from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
 makeHLTTree( triggerConfigHLT=TriggerConfigHLT )
 
+##########################################
+# Configure trigger output using parts of the NewJO configuration
+# in a somewhat hacky way - copy-pasted from full_menu.py
+##########################################
+from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectDecisionObjects, collectHypoDecisionObjects, triggerOutputCfg
+from AthenaCommon.CFElements import findAlgorithm,findSubSequence
+hypos = collectHypos(findSubSequence(topSequence, "HLTAllSteps"))
+filters = collectFilters(findSubSequence(topSequence, "HLTAllSteps"))
+
+# find DecisionSummaryMakerAlg
+summaryMakerAlg = findAlgorithm(topSequence, "DecisionSummaryMakerAlg")
+if not summaryMakerAlg:
+    __log.warning("Failed to find DecisionSummaryMakerAlg")
+
+# try to find L1Decoder
+l1decoder = findAlgorithm(topSequence,'L1Decoder')
+if not l1decoder:
+    l1decoder = findAlgorithm(topSequence,'L1EmulationTest')
+if l1decoder and summaryMakerAlg:
+    decObj = collectDecisionObjects( hypos, filters, l1decoder, summaryMakerAlg )
+    decObjHypoOut = collectHypoDecisionObjects(hypos, inputs=False, outputs=True)
+    __log.debug("Decision Objects to write to output [hack method - should be replaced with triggerRunCfg()]")
+    __log.debug(decObj)
+else:
+    __log.warning("Failed to find L1Decoder or summaryMakerAlg, cannot determine Decision names for output configuration")
+    decObj = []
+    decObjHypoOut = []
+
+
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaCommon.Configurable import Configurable
+Configurable.configurableRun3Behavior+=1
+acc, edmSet = triggerOutputCfg(ConfigFlags, decObj, decObjHypoOut, summaryMakerAlg)
+Configurable.configurableRun3Behavior-=1
+acc.appendToGlobals()
 
 ##########################################
-# Some debug
+# Print top sequence for debugging
 ##########################################
 from AthenaCommon.AlgSequence import dumpSequence, AthSequencer
 dumpSequence(topSequence)
 
-
-import DecisionHandling
-from AthenaCommon.CFElements import findAlgorithm,findSubSequence
-for a in findSubSequence(topSequence, "HLTAllSteps").getChildren():
-    if isinstance(a, DecisionHandling.DecisionHandlingConf.TriggerSummaryAlg):
-        a.OutputLevel = DEBUG
-
-
-# this part uses parts from the NewJO configuration, it is very hacky for the moment
-
-from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectDecisionObjects, triggerOutputStreamCfg
-hypos = collectHypos(findSubSequence(topSequence, "HLTAllSteps"))
-filters = collectFilters(findSubSequence(topSequence, "HLTAllSteps"))
-
-# try to find L1Decoder
-l1decoder = findAlgorithm(topSequence,'L1Decoder')
-l1decoder.OutputLevel=DEBUG
-
-
-
-if not l1decoder:
-    l1decoder = findAlgorithm(topSequence,'L1EmulationTest')
-
-if l1decoder:
-    decObj = collectDecisionObjects( hypos, filters, l1decoder )
-    __log.debug("Decision Objects to export to ESD [hack method - should be replaced with triggerRunCfg()]")
-    __log.debug(decObj)
-
-    from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3
-    ItemList  = [ 'xAOD::TrigCompositeContainer#{}'.format(d) for d in decObj ]
-    ItemList += [ 'xAOD::TrigCompositeAuxContainer#{}Aux.'.format(d) for d in decObj ]
-    ItemList += [ k[0] for k in TriggerHLTListRun3 if 'ESD' in k[1] and "TrigComposite" not in k[0] ]
-    ItemList += [ k[0] for k in TriggerHLTListRun3 if 'ESD' in k[1] and "TrigComposite" in k[0] ]
-    ItemList += [ 'xAOD::TrigCompositeAuxContainer#{}Aux.'.format(k[0].split("#")[1]) for k in TriggerHLTListRun3 if 'ESD' in k[1] and "TrigComposite" in k[0] ]
-    ItemList += [ "xAOD::EventInfo#EventInfo" ]
-
-    ItemList = list(set(ItemList))
-
-else:
-    ItemList = []
-
-
-import AthenaPoolCnvSvc.WriteAthenaPool
-from OutputStreamAthenaPool.OutputStreamAthenaPool import  createOutputStream
-StreamESD=createOutputStream("StreamESD","myESD.pool.root",True)
-StreamESD.ItemList = ItemList
-
-
+##########################################
+# Write menu JSON
+##########################################
 HLTTop = findSubSequence(topSequence, "HLTTop")
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
 generateJSON()
 
-
+# the generation of the prescale set file from the menu is temporary
+from TrigConfigSvc.TrigConfigSvcCfg import createHLTPrescalesFileFromMenu
+createHLTPrescalesFileFromMenu( ConfigFlags )

@@ -12,13 +12,10 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 // typedefs for A/BLineMapContainer
 #include "MuonAlignmentData/CorrContainer.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
-class Identifier; 
 class StoreGateSvc; 
-class MdtIdHelper;
-class CscIdHelper;
-class RpcIdHelper;
-class TgcIdHelper;
 class StatusCode;
 
 namespace MuonGM
@@ -76,13 +73,10 @@ class MuonAlignmentCondAlg: public AthAlgorithm {
                                                                                   "MdtAsBuiltMapContainer", 
                                                                                   "Key of output muon alignment MDT/AsBuilt condition data"};
 
-  const MuonGM::MuonDetectorManager*  m_muonMgr;
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+  const MuonGM::MuonDetectorManager* m_muonMgr;
   ServiceHandle<ICondSvc> m_condSvc;
-  std::string m_geometryVersion;    
-  const MdtIdHelper* m_mdtIdHelper;
-  const CscIdHelper* m_cscIdHelper;
-  const RpcIdHelper* m_rpcIdHelper;
-  const TgcIdHelper* m_tgcIdHelper;
+  std::string m_geometryVersion;
 
   std::vector<std::string>       m_parlineFolder;
   bool m_dumpALines;

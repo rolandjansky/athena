@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRTDigCondFakeMap.h"
@@ -21,12 +21,12 @@
 
 //________________________________________________________________________________
 TRTDigCondFakeMap::TRTDigCondFakeMap( const TRTDigSettings* digset,
-				      const InDetDD::TRT_DetectorManager* detmgr,
-				      const TRT_ID* trt_id,
-				      int UseGasMix,
-				      ToolHandle<ITRT_StrawStatusSummaryTool> sumTool
-				    )
-  : TRTDigCondBase(digset, detmgr, trt_id, UseGasMix, sumTool)
+                                      const InDetDD::TRT_DetectorManager* detmgr,
+                                      const TRT_ID* trt_id,
+                                      int UseGasMix,
+                                      ToolHandle<ITRT_StrawStatusSummaryTool> sumTool
+                                      )
+: TRTDigCondBase(digset, detmgr, trt_id, UseGasMix, sumTool)
 {
   m_average_noiselevel = m_settings->averageNoiseLevel();
 }
@@ -35,8 +35,8 @@ TRTDigCondFakeMap::TRTDigCondFakeMap( const TRTDigSettings* digset,
 //________________________________________________________________________________
 void TRTDigCondFakeMap::setStrawStateInfo(Identifier& TRT_Identifier,
                                           const double& strawlength,
-					  double& noiselevel,
-					  double& relative_noiseamplitude,
+                                          double& noiselevel,
+                                          double& relative_noiseamplitude,
                                           CLHEP::HepRandomEngine* rndmEngine) {
 
   noiselevel = m_average_noiselevel; // Not used here, but returned to caller

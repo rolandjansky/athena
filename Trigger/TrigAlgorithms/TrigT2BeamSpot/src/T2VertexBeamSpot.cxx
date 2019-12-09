@@ -477,12 +477,7 @@ StatusCode T2VertexBeamSpot::execute(){
       //Loop over track collections and select tracks
       for (SG::ReadHandleKey<TrackCollection> trackCollectionKey : m_trackCollections) {
          SG::ReadHandle<TrackCollection> trackCollection (trackCollectionKey); 
-
-         //Check whether collection can be retrieved if not skip the particular collection
-         if( !trackCollection.isValid() ){
-            ATH_MSG_WARNING( "Tracks: " << trackCollectionKey.key() << " Not found. Skiping the collection!" );
-            continue;
-         }
+         ATH_CHECK(trackCollection.isValid());
 
          //Dereference tracks
          const TrackCollection* tracks = trackCollection.cptr();

@@ -18,8 +18,6 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 
-//Events infos:
-#include "xAODEventInfo/EventInfo.h"
 #include "LArRecEvent/LArNoisyROSummary.h"
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArCabling/LArOnOffIdMapping.h"
@@ -29,7 +27,6 @@
 class LArEM_ID;
 class LArOnlineID;
 class HWIdentifier;
-class LArOnlineIDStrHelper;
 class LArOnOffIdMapping;
 
 class LArDigitMonAlg: public AthMonitorAlgorithm
@@ -67,7 +64,6 @@ private:
   Gaudi::Property<int>         m_NumberBadFebs     {this, "NumberBadFebs", 5};
   /**bool use to mask the bad channels*/
   Gaudi::Property<bool>        m_ignoreKnownBadChannels{this, "IgnoreBadChannels", false};
-  bool m_PercComputed;
   /** Switch to online/offline mode*/
   Gaudi::Property<bool>        m_IsOnline      {this, "IsOnline", false}; 
   /** Treshold to declare a bad event*/

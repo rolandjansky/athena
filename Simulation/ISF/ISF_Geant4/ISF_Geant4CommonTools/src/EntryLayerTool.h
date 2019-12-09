@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// EntryLayerTool.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef ISF_GEANT4COMMONTOOLS_ENTRYLAYERTOOL_H
 #define ISF_GEANT4COMMONTOOLS_ENTRYLAYERTOOL_H 1
@@ -49,26 +45,27 @@ namespace ISF {
     EntryLayerTool( const std::string& t, const std::string& n, const IInterface* p );
 
     /** Destructor */
-    ~EntryLayerTool();
+    virtual ~EntryLayerTool() = default;
 
     /** Athena algtool's Hooks */
-    StatusCode  initialize();
-    StatusCode  finalize();
+    virtual StatusCode  initialize() override final;
 
     /** handle for incident service */
     void handle(const Incident& inc);
 
     /** Check if given particle passes the EntryLayer filters */
-    virtual bool passesFilters( const ISFParticle& particle);
+    virtual bool passesFilters( const ISFParticle& particle) override final;
 
     /** Identify the corresponding entry layer for the given particle (may return 
         ISF::fUnsetEntryLayere if particle is not on an entry layer surface) */
-    virtual ISF::EntryLayer identifyEntryLayer( const ISFParticle& particle);
+    virtual ISF::EntryLayer identifyEntryLayer( const ISFParticle& particle) override final;
 
     /** Add the given particle to the corresponding Entry/Exit layer if applicable */
     virtual ISF::EntryLayer registerParticle( const ISF::ISFParticle &particle,
-                                              ISF::EntryLayer entryLayer);
- 
+                                              ISF::EntryLayer entryLayer) override final;
+
+    /** Register the TrackRecordCollection pointer for a layer */
+    virtual StatusCode registerTrackRecordCollection(TrackRecordCollection* collection, EntryLayer layer) override final;
 
   private:
     /** used to setup a TrackRecordCollection on storegate */

@@ -25,25 +25,25 @@
 #include <utility>
 
 class ISCT_CalibModuleListTool : virtual public IAlgTool {
- public:
-  //@name Service methods, reimplemented
-  //@{
-  ISCT_CalibModuleListTool() {/**nop**/};
-  virtual ~ISCT_CalibModuleListTool() = default;
-  static const InterfaceID& interfaceID();
-  //@}
-  virtual StatusCode readModuleList(std::map<Identifier, std::set<Identifier>>& moduleList) const =0;
+   public:
+      //@name Service methods, reimplemented
+      //@{
+      ISCT_CalibModuleListTool() {/**nop**/};
+      virtual ~ISCT_CalibModuleListTool() = default;
+      static const InterfaceID& interfaceID();
+      //@}
+      virtual StatusCode readModuleList(std::map<Identifier, std::set<Identifier>>& moduleList) const =0;
 
- protected:
-  template<class T>
-    std::pair<std::string, bool> retrievedTool(T& tool) const {
-    if (tool.retrieve().isFailure()) return std::make_pair(std::string{"Unable to retrieve "}+tool.name(), false);
-    return std::make_pair("", true);
-  }
+   protected:
+      template<class T>
+      std::pair<std::string, bool> retrievedTool(T& tool) const {
+         if (tool.retrieve().isFailure()) return std::make_pair(std::string{"Unable to retrieve "}+tool.name(), false);
+         return std::make_pair("", true);
+      }
 };
 
 inline const InterfaceID& ISCT_CalibModuleListTool::interfaceID() {
-  static const InterfaceID IID{"ISCT_CalibModuleListTool", 1, 0};
-  return IID;
+   static const InterfaceID IID{"ISCT_CalibModuleListTool", 1, 0};
+   return IID;
 }
 #endif

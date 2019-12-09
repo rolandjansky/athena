@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """Module of factory functions to control the instantiation of Algorithms.
 
@@ -73,7 +73,7 @@ class Instantiator(object):
 
         try:
             s = a.asString()  # convert alg to a string to be eval'd
-        except Exception, e:
+        except Exception as e:
             m = '%s() call to asString failed for object %s\n%s ' % (
                 self.err_hdr, str(a), str(e))
             raise RuntimeError(m)
@@ -85,14 +85,14 @@ class Instantiator(object):
 
         try:
             alg = eval(s)
-        except Exception, e:
+        except Exception as e:
             tb = exc2string2()
             m = '%s() Error instantiating  Algorithm: eval(%s) '\
                 '%s\nTraceback: \n%s'
             m = m % (self.__class__.__name__, s, str(e), tb)
             try:
                 alg = a.alg
-            except:
+            except Exception:
                 m += '\nAttempt to retrieve pre-instantiated Algorithm failed'
 
                 raise RuntimeError(m)
@@ -101,14 +101,14 @@ class Instantiator(object):
 
             try:
                 val = eval(v)
-            except Exception, e:
+            except Exception as e:
                 m = '%s() Error running  eval: '\
                     'name %s value: eval(%s) \n%s' % (err_hdr, k, v, str(e))
                 raise RuntimeError(m)
 
             try:
                 alg.__setattr__(k, val)
-            except Exception, e:
+            except Exception as e:
                 m = '%s() Error inserting a new Algorithm attribute: '\
                     'name %s value: eval(%s) \n%s' % (err_hdr, k, v, str(e))
                 raise RuntimeError(m)

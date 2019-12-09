@@ -24,7 +24,7 @@ from MuonClusterSegmentMakerTools.MuonClusterSegmentMakerToolsConf import Muon__
 from MuonCnvExample.MuonCnvUtils import mdtCalibWindowNumber # TODO - should maybe move this somewhere else?
 
 #Local
-from MuonConfig.MuonCalibConfig import MdtCalibrationDbSvcCfg
+from MuonConfig.MuonCalibConfig import MdtCalibDbAlgCfg
 from MuonConfig.MuonRecToolsConfig import MCTBFitterCfg, MuonAmbiProcessorCfg, MuonStationIntersectSvcCfg, MuonTrackCleanerCfg
 
 def MuonHoughPatternFinderTool(flags, **kwargs):
@@ -162,7 +162,7 @@ def DCMathSegmentMakerCfg(flags, **kwargs):
     kwargs.setdefault("AssumePointingPhi", beamType != 'cosmics')
     kwargs.setdefault("OutputFittedT0", True)
 
-    acc = MdtCalibrationDbSvcCfg(flags) # Needed by MdtSegmentT0Fitter
+    acc = MdtCalibDbAlgCfg(flags) # Needed by MdtSegmentT0Fitter
     result.merge(acc)
 
     mdt_segment_t0_fitter = TrkDriftCircleMath__MdtSegmentT0Fitter()
@@ -722,13 +722,19 @@ if __name__=="__main__":
     parser.add_argument("--run", help="Run directly from the python. If false, just stop once the pickle is written.",
                         action="store_true")
                         
+    parser.add_argument("--forceclone", help="Override default cloneability of algorithms to force them to run in parallel",
+                        action="store_true")
+
     args = parser.parse_args()
     
     from AthenaCommon.Configurable import Configurable
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaCommon.Logging import log
-    from AthenaConfiguration.TestDefaults import defaultTestFiles
+    # from AthenaConfiguration.TestDefaults import defaultTestFiles
+    # ConfigFlags.Input.Files = defaultTestFiles.ESD
+    ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/ESD.16747874._000011_100events.pool.root']
+    
 
     ConfigFlags.Concurrency.NumThreads=args.threads
     ConfigFlags.Concurrency.NumConcurrentEvents=args.threads # Might change this later, but good enough for the moment.
@@ -740,7 +746,6 @@ if __name__=="__main__":
     ConfigFlags.Detector.GeometryCSC   = True     
     ConfigFlags.Detector.GeometryRPC   = True 
     
-    ConfigFlags.Input.Files = defaultTestFiles.ESD
     ConfigFlags.Output.ESDFileName=args.output
     
     from AthenaCommon.Constants import DEBUG
@@ -755,6 +760,8 @@ if __name__=="__main__":
     if args.run:
         from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
         cfg = MainServicesThreadedCfg(ConfigFlags)
+        msgService = cfg.getService('MessageSvc')
+        msgService.Format = "S:%s E:%e % F%58W%S%7W%R%T  %0W%M"
     else:
         cfg=ComponentAccumulator()
 
@@ -764,10 +771,13 @@ if __name__=="__main__":
     acc = MuonSegmentFindingCfg(ConfigFlags, cardinality=args.threads)
     cfg.merge(acc)
     
-    if args.threads>1:
+    if args.threads>1 and args.forceclone:
+        log.info('Forcing segment finding cardinality to be equal to '+str(args.threads))
         # We want to force the algorithms to run in parallel (eventually the algorithm will be marked as cloneable in the source code)
         from GaudiHive.GaudiHiveConf import AlgResourcePool
         cfg.addService(AlgResourcePool( OverrideUnClonable=True ) )
+        segment_finder = acc.getPrimary()
+        segment_finder.Cardinality=args.threads
 
     # This is a temporary fix - it should go someplace central as it replaces the functionality of addInputRename from here:
     # https://gitlab.cern.ch/atlas/athena/blob/master/Control/SGComps/python/AddressRemappingSvc.py
@@ -787,18 +797,18 @@ if __name__=="__main__":
 
     cfg.merge( OutputStreamCfg( ConfigFlags, 'ESD', ItemList=itemsToRecord) )
     outstream = cfg.getEventAlgo("OutputStreamESD")
-    outstream.OutputLevel=DEBUG
+    # outstream.OutputLevel=DEBUG
     outstream.ForceRead = True
 
     # Fix for ATLASRECTS-5151
-    from MuonEventCnvTools.MuonEventCnvToolsConf import Muon__MuonEventCnvTool
-    cnvTool = Muon__MuonEventCnvTool(name='MuonEventCnvTool')
-    cnvTool.FixTGCs = True
+    from  TrkEventCnvTools.TrkEventCnvToolsConf import Trk__EventCnvSuperTool
+    cnvTool = Trk__EventCnvSuperTool(name = 'EventCnvSuperTool')
+    cnvTool.MuonCnvTool.FixTGCs = True 
     cfg.addPublicTool(cnvTool)
     
     # cfg.getService("StoreGateSvc").Dump = True
     cfg.printConfig()
-    f=open("MuonSegmentFinding.pkl","w")
+    f=open("MuonSegmentFinding.pkl","wb")
     cfg.store(f)
     f.close()
 

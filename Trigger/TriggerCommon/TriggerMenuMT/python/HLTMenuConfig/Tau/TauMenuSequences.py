@@ -77,7 +77,7 @@ def tauCoreTrackSequence():
 
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
     RoIs = "TCoreViewRoIs"
-    (viewAlgsTP, eventAlgs) = makeInDetAlgs(whichSignature='TauCore',separateTrackParticleCreator="_TauCore", rois = RoIs)
+    viewAlgsTP = makeInDetAlgs(whichSignature='TauCore',separateTrackParticleCreator="_TauCore", rois = RoIs)
 
     # A simple algorithm to confirm that data has been inherited from parent view
     # Required to satisfy data dependencies
@@ -88,8 +88,7 @@ def tauCoreTrackSequence():
 
     from TrigTauHypo.TrigTauHypoConf import TrigTauTrackRoiUpdaterMT
     TrackRoiUpdater = TrigTauTrackRoiUpdaterMT("TrackRoiUpdater")
-    #TrackRoiUpdater.RoIInputKey  = "TAUCaloRoIs"
-    TrackRoiUpdater.RoIOutputKey = recordable("HLT_RoiForID")
+    TrackRoiUpdater.RoIOutputKey = "HLT_RoiForID"
 
 
     fastTrackViewsMaker = EventViewCreatorAlgorithm("IMTauFastTrack")
@@ -111,7 +110,7 @@ def tauCoreTrackSequence():
 
     fastTrackViewsMaker.ViewNodeName = tauInViewAlgs.name()
 
-    tauCoreTrkAthSequence = seqAND("tauCoreTrkAthSequence", eventAlgs + [fastTrackViewsMaker, tauInViewAlgs ] )
+    tauCoreTrkAthSequence = seqAND("tauCoreTrkAthSequence", [fastTrackViewsMaker, tauInViewAlgs ] )
 
     from TrigTauHypo.TrigTauHypoConf import  TrigTrackPreSelHypoAlgMT
     fastTrkHypo = TrigTrackPreSelHypoAlgMT("TrackPreSelHypoAlg")
@@ -132,7 +131,7 @@ def tauPrecisionSequence():
 
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
     RoIs = "TCoreViewRoIs" # contract with the fastCalo
-    (viewAlgsPT, eventAlgs) = makeInDetAlgs(whichSignature='Tau',separateTrackParticleCreator="_Tau", rois = RoIs)
+    viewAlgsPT = makeInDetAlgs(whichSignature='Tau',separateTrackParticleCreator="_Tau", rois = RoIs)
 
     TrackParticlesName = ""
     for viewAlg in viewAlgsPT:
@@ -147,10 +146,8 @@ def tauPrecisionSequence():
 
     from TrigTauHypo.TrigTauHypoConf import TrigTauTrackRoiUpdaterMT
     precisionTRU = TrigTauTrackRoiUpdaterMT("precisionTRU")
-    #TrackRoiUpdater.RoIInputKey  = "TAUCaloRoIs"
-    precisionTRU.RoIOutputKey = recordable("HLT_RoiForID1")
+    precisionTRU.RoIOutputKey = "HLT_RoiForID1"
     precisionTRU.fastTracksKey = TrackCollection
-    #"TrigFastTrackFinder_Tracks"
 
     from TrigTauRec.TrigTauRecConfigMT import TrigTauRecMerged_TauPrecisionMVA
     trigTauMVA = TrigTauRecMerged_TauPrecisionMVA(doMVATES=True, doTrackBDT=False, doRNN=True)
@@ -160,7 +157,6 @@ def tauPrecisionSequence():
     trigTauMVA.TrigTauJet = "HLT_TrigTauRecMerged"
     trigTauMVA.Key_trackPartInputContainer = TrackParticlesName
     trigTauMVA.UseCaloClusters = False
-    #trigTauMVA.clustersKey = "caloclusters"
     trigTauMVA.Key_vertexInputContainer = "VxPrimaryCandidate"
     trigTauMVA.TrigTauTrkOutputKey = recordable("HLT_tautrack_MVA")
 
@@ -177,7 +173,7 @@ def tauPrecisionSequence():
 
     precisionViewsMaker.ViewNodeName = tauPInViewAlgs.name()
 
-    tauPrecisionAthSequence = seqAND("tauPrecisionAthSequence", eventAlgs + [precisionViewsMaker, tauPInViewAlgs ] )
+    tauPrecisionAthSequence = seqAND("tauPrecisionAthSequence", [precisionViewsMaker, tauPInViewAlgs ] )
 
 
     from TrigTauHypo.TrigTauHypoConf import  TrigEFTauMVHypoAlgMT

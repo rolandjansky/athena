@@ -59,7 +59,7 @@ Updated:  30 Jun, 2005 S.Menke
 #include <algorithm>
 //#include <iostream>
 
-double CaloCluster::m_errorValue = -999.;
+const double CaloCluster::m_errorValue = -999.;
 
 /////////////////
 // Constructor //

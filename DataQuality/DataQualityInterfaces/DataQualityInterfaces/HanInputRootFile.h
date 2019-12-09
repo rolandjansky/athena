@@ -34,7 +34,7 @@ public:
 
 protected:
 
-  std::auto_ptr<TFile>  m_rootFile;
+  std::unique_ptr<TFile>  m_rootFile;
   TDirectory*           m_basedir;
 
   std::vector<std::string> m_histNames;

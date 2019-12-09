@@ -131,11 +131,12 @@ ToolSvc += InDetTrigSiTrackMakerLowPt
 
 if InDetTrigFlags.doAmbiSolving():
 
+  import InDetRecExample.TrackingCommon as TrackingCommon
   from InDetAmbiTrackSelectionTool.InDetAmbiTrackSelectionToolConf import InDet__InDetAmbiTrackSelectionTool
   InDetTrigAmbiTrackSelectionToolLowPt = \
       InDet__InDetAmbiTrackSelectionTool(name               = 'InDetTrigAmbiTrackSelectionToolLowPt',
-                                         AssociationTool    = InDetTrigPrdAssociationTool,
                                          DriftCircleCutTool = InDetTrigTRTDriftCircleCut,
+                                         AssociationTool    = TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels(),
                                          minHits         = EFIDTrackingCutsLowPt.minClusters()-2,
                                          minNotShared    = EFIDTrackingCutsLowPt.minSiNotShared(),
                                          maxShared       = EFIDTrackingCutsLowPt.maxShared(),
@@ -172,11 +173,14 @@ if InDetTrigFlags.doAmbiSolving():
                                                          )
   ToolSvc += InDetTrigScoringToolLowPt
 
+  import InDetRecExample.TrackingCommon as TrackingCommon
   from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__SimpleAmbiguityProcessorTool
   InDetTrigAmbiguityProcessorLowPt = \
                                    Trk__SimpleAmbiguityProcessorTool(name = 'InDetTrigAmbiguityProcessorLowPt',
                                                                      #AssoTool    = InDetTrigPrdAssociationTool,
                                                                      Fitter      = InDetTrigTrackFitterLowPt,
+                                                                     AssociationTool = TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels(),
+                                                                     TrackSummaryTool   = InDetTrigTrackSummaryTool,
                                                                      ScoringTool = InDetTrigScoringToolLowPt,
                                                                      SelectionTool = InDetTrigAmbiTrackSelectionToolLowPt,
                                                                      SuppressHoleSearch = False,

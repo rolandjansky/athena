@@ -222,6 +222,13 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
       condSeq += PixelOfflineCalibCondAlg(name="PixelOfflineCalibCondAlg", ReadKey="/PIXEL/PixReco")
       PixelOfflineCalibCondAlg.InputSource = 2
 
+    if not conddb.folderRequested("/Indet/PixelDist"):
+      conddb.addFolder("INDET", "/Indet/PixelDist", className="DetCondCFloat")
+
+    if not hasattr(condSeq, 'PixelDistortionAlg'):
+      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDistortionAlg
+      condSeq += PixelDistortionAlg(name="PixelDistortionAlg", ReadKey="/Indet/PixelDist")
+
     chargeTools = []
     feSimTools = []
     if InDetGeometryFlags.isSLHC():
@@ -304,4 +311,10 @@ def PixelDigitizationPU(name="PixelDigitizationPU",**kwargs):
 
 def PixelOverlayDigitization(name="PixelOverlayDigitization",**kwargs):
     kwargs.setdefault("DigitizationTool", "PixelOverlayDigitizationTool")
+    # Multi-threading settinggs
+    from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
+    is_hive = (concurrencyProps.ConcurrencyFlags.NumThreads() > 0)
+    if is_hive:
+        kwargs.setdefault('Cardinality', concurrencyProps.ConcurrencyFlags.NumThreads())
+
     return CfgMgr.PixelDigitization(name,**kwargs)

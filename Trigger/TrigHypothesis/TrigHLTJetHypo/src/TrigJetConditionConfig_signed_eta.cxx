@@ -38,3 +38,10 @@ StatusCode TrigJetConditionConfig_signed_eta::checkVals() const {
 }
 
 
+bool TrigJetConditionConfig_signed_eta::addToCapacity(std::size_t) {
+  return false;
+}
+
+std::size_t TrigJetConditionConfig_signed_eta::capacity() const {
+  return getCondition()->capacity();
+}

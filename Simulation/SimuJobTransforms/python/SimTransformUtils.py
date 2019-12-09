@@ -31,12 +31,13 @@ def makeBkgInputCol(initialList, nBkgEvtsPerCrossing, correctForEmptyBunchCrossi
         logger.info('Number of signal events (from athenaCommonFlags.EvtMax) = %s.', nSignalEvts )
     else:
         nSignalEvts = 0
-        import PyUtils.AthFile as athFile
+        from PyUtils.MetaReader import read_metadata
         for inFile in athenaCommonFlags.PoolHitsInput.get_Value():
             try:
-                inputFile = athFile.fopen(inFile)
-                nSignalEvts += int(inputFile.nentries)
-                del inputFile
+                metadata = read_metadata(inFile)
+                metadata = metadata[inFile]  # promote all keys one level up
+                nSignalEvts += int(metadata['nentries'])
+                print('{} -> __Test__001__:\n{}'.format(__file__, nSignalEvts))
             except:
                 logger.warning("Unable to open file [%s]"%inFile)
                 logger.warning('caught:\n%s',err)
@@ -46,11 +47,12 @@ def makeBkgInputCol(initialList, nBkgEvtsPerCrossing, correctForEmptyBunchCrossi
 
     nBkgEventsPerFile = 5000
     try:
-        import PyUtils.AthFile as athFile
-        inputFile = athFile.fopen(initialList[0])
-        nBkgEventsPerFile = int(inputFile.nentries)
+        from PyUtils.MetaReader import read_metadata
+        metadata = read_metadata(initialList[0])
+        metadata = metadata[initialList[0]]  # promote all keys one level up
+        nBkgEventsPerFile = int(metadata['nentries'])
+        print('{} -> __Test__001__:\n{}'.format(__file__, nBkgEventsPerFile))
         logger.info('Number of background events per file (read from file) = %s.', nBkgEventsPerFile )
-        del inputFile
     except:
         import traceback
         traceback.print_exc()

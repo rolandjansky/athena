@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 780174 2016-10-25 07:53:15Z elmsheus $
 ################################################################################
 # Package: ByteStreamStoragePlugins
 ################################################################################
@@ -8,7 +7,6 @@ atlas_subdir( ByteStreamStoragePlugins )
 
 # External dependencies:
 find_package( Boost COMPONENTS system )
-find_package( CASTOR COMPONENTS rfio )
 find_package( Xrootd COMPONENTS Posix PosixPreload )
 find_package( dcap )
 find_package( tdaq-common COMPONENTS ers )

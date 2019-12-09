@@ -60,160 +60,125 @@ void PixelAthMonitoringBase::fill2DProfLayerAccum( const VecAccumulator2DMap& ac
   }
 }
   
-//////////////////////////////////////////////
-///
-/// filling 2D(Prof) per-layer histogram, one of ["ECA","ECC","B0","B1","B2","IBL","DBMA","DBMC"]
-///
-StatusCode PixelAthMonitoringBase::fill2DProfLayer( const std::string& prof2Dname, const std::string& layer, Identifier& id, const PixelID* pid, float value, bool copy2DFEval) const {
-  ATH_MSG_VERBOSE( "in fill2DProfLayer()" );
-
-  // Define the monitored variables
-  auto pm  = Monitored::Scalar<int>(   prof2Dname + "_pm", pid->phi_module(id));
-  auto val = Monitored::Scalar<float>( prof2Dname + "_val", value);
-
-  int ld  = pid->layer_disk(id);
-  auto em  = Monitored::Scalar<int>(   prof2Dname + "_em", ld);
-  bool copy = false;
-  if (pid->barrel_ec(id) == 0) {
-    em = pid->eta_module(id);
-    if (ld == 0) {
-      int feid = 0;
-      int emf = 0;
-      if (em < -6) {
-        emf = em - 6;
-      } else if (em > -7 && em < 6) {
-        if (pid->eta_index(id) >= 80) feid = 1;
-        emf = 2 * em + feid;
-        copy = true;
-      } else {
-        emf = em + 6;
-      }
-      em = emf;
-    }
-  }
-  fill(layer, em, pm, val);
-  // next line is only for IBL: fill the (per-FE) histogram again to avoid holes in the histogram in case 
-  // the filled information is available per module (and not per FE)
-  if ( copy2DFEval && copy ) {
-    em++;
-    fill(layer, em, pm, val);
-  }
-  return StatusCode::SUCCESS;
-}
-//////////////////////////////////////////////
-
 ///
 /// filling 1DProf per-lumi per-layer histograms ["ECA","ECC","B0","B1","B2","IBL","DBMA","DBMC"]
 ///
-StatusCode PixelAthMonitoringBase::fill1DProfLumiLayers( std::string prof1Dname, int lumiblock, float* values) const {
+void PixelAthMonitoringBase::fill1DProfLumiLayers( const std::string& prof1Dname, int lumiblock, float* values) const {
   ATH_MSG_VERBOSE( "in fill1DProfLumiLayers()" );
 
   // Define the monitored variables
-  auto lb = Monitored::Scalar<int>( Form("%s_%s", prof1Dname.c_str(), "lb"), lumiblock );
-  auto val = Monitored::Scalar<float>( Form("%s_%s", prof1Dname.c_str(), "val"), 1.0);
+  auto lb = Monitored::Scalar<int>( prof1Dname + "_lb", lumiblock );
+  auto val = Monitored::Scalar<float>( prof1Dname + "_val", 1.0);
 
   for (int i = 0; i < PixLayers::COUNT; i++) {
     val = values[i];
     fill( pixLayersLabel[i], lb, val);
   }
-
-  return StatusCode::SUCCESS;
-}
-//////////////////////////////////////////////
-
-///
-/// filling 1D per-layer histograms ["ECA","ECC","B0","B1","B2","IBL","DBMA","DBMC"]
-///
-StatusCode PixelAthMonitoringBase::fill1DProfLayers( std::string name, float* values) const {
-  ATH_MSG_VERBOSE( "in fill1DProfLayers()" );
-
-  // Define the monitored variables
-  auto val = Monitored::Scalar<float>( Form("%s_%s", name.c_str(), "val"), -999. );
-  for (int i = 0; i < PixLayers::COUNT; i++) {
-    val = values[i];
-    fill(pixLayersLabel[i], val);
-  }
-  return StatusCode::SUCCESS;
 }
 //////////////////////////////////////////////
 
 ///
 /// filling 1DProfile per-pp0(ROD) histograms for ["ECA","ECC","B0","B1","B2","IBLA","IBLC"]
 ///
-StatusCode PixelAthMonitoringBase::fillPP0Histos( std::string name, int(&D_A)[PixMon::kNumModulesDisk][PixMon::kNumLayersDisk], int(&D_C)[PixMon::kNumModulesDisk][PixMon::kNumLayersDisk], int(&B0)[PixMon::kNumStavesL0][PixMon::kNumModulesBarrel], int(&B1)[PixMon::kNumStavesL1][PixMon::kNumModulesBarrel], int(&B2)[PixMon::kNumStavesL2][PixMon::kNumModulesBarrel], int(&IBL)[PixMon::kNumStavesIBL][PixMon::kNumFEsIBL]) const {
-  ATH_MSG_VERBOSE( "in fillPP0Histos()" );
+void PixelAthMonitoringBase::fillFromArrays( const std::string& namePP0, AccumulatorArrays& pixarrays, const std::string& name2DMap) const {
+  ATH_MSG_VERBOSE( "in fillFromArrays()" );
 
+  const float weightPix  = 1.0 / 46080.0;
+  const float weightIBL  = 1.0 / 26880.0;
 
-  std::string posvar = Form("%s_%s", name.c_str(), "pos");
-  std::string valvar = Form("%s_%s", name.c_str(), "val");
+  bool fillPP0only(name2DMap == "");
+  std::string pospp0varx = namePP0 + "_pospp0x";
+  std::string valvarp    = namePP0 + "_val";
+  std::string posvarx    = name2DMap + "_em";
+  std::string posvary    = name2DMap + "_pm";
+  std::string valvarm    = name2DMap + "_val";
 
-  for (unsigned int x = 0; x < PixMon::kNumModulesDisk; ++x) {
-    for (unsigned int y = 0; y < PixMon::kNumLayersDisk; ++y) {
-      auto pos = Monitored::Scalar<int>( posvar, (y-1)*8 + (x-1)/6 + 1);
-      auto val = Monitored::Scalar<float>( valvar, D_A[x][y]);
-      if (D_A[x][y]>-1) {
-	fill(name + "_ECA", pos, val);
-	D_A[x][y] = 0;
+  for (unsigned int a = 0; a < PixMon::kNumModulesDisk; ++a) {
+    auto posy = Monitored::Scalar<int>( posvary, a);
+    for (unsigned int b = 0; b < PixMon::kNumLayersDisk; ++b) {
+      // to find out (and fill together into one PP0-histogram bin)
+      // array content of the modules belonging to the same sector (or PP0)
+      // the translation (a-1)/6 is used
+      // to show PP0 values from other disks of the same endcap
+      // in the same plot 
+      // the shift (b-1)*8 applies per disk counter b
+      // (there are in total 8 sectors/disk)
+      auto pospp0x = Monitored::Scalar<int>( pospp0varx, (a-1)/6 + (b-1)*8 + 1);
+      auto posx    = Monitored::Scalar<int>( posvarx, b);
+      auto valp    = Monitored::Scalar<float>( valvarp, pixarrays.DA[a][b]);
+      auto valm    = Monitored::Scalar<float>( valvarm, pixarrays.DA[a][b]*weightPix);
+      if (pixarrays.DA[a][b]>-1) {
+	fill("ECA", pospp0x, valp);
+	if (!fillPP0only) fill("ECA", posx, posy, valm);
+      }
+      valp = pixarrays.DC[a][b];
+      valm = pixarrays.DC[a][b]*weightPix;
+      if (pixarrays.DC[a][b]>-1) {
+	fill("ECC", pospp0x, valp);
+	if (!fillPP0only) fill("ECC", posx, posy, valm);
+      } 
+    }
+  }
+
+  for (unsigned int b = 0; b < PixMon::kNumModulesBarrel; ++b) {
+    // translating array index into old Pixel module eta on a stave
+    // i.e. 0..12 into -6..6 so that standard per-layer histograms 
+    // declared by define2DProfHist method can be filled
+    auto posx  = Monitored::Scalar<int>( posvarx, b-6);
+
+    for (unsigned int a = 0; a < PixMon::kNumStavesL0; ++a) {
+      auto posy    = Monitored::Scalar<int>( posvary, a);
+      auto pospp0x = Monitored::Scalar<int>( pospp0varx, a);
+      auto valp  = Monitored::Scalar<float>( valvarp, pixarrays.B0[a][b]);
+      auto valm  = Monitored::Scalar<float>( valvarm, pixarrays.B0[a][b]*weightPix);
+      if (pixarrays.B0[a][b]>-1) {
+	fill("B0", pospp0x, valp);
+	if (!fillPP0only) fill("B0", posx, posy, valm);
+      }
+    }
+    for (unsigned int a = 0; a < PixMon::kNumStavesL1; ++a) {
+      auto posy    = Monitored::Scalar<int>( posvary, a);
+      auto pospp0x = Monitored::Scalar<int>( pospp0varx, a);
+      auto valp  = Monitored::Scalar<float>( valvarp, pixarrays.B1[a][b]);
+      auto valm  = Monitored::Scalar<float>( valvarm, pixarrays.B1[a][b]*weightPix);
+      if (pixarrays.B1[a][b]>-1) {
+	fill("B1", pospp0x, valp);
+	if (!fillPP0only) fill("B1", posx, posy, valm);
+      }
+    }
+    for (unsigned int a = 0; a < PixMon::kNumStavesL2; ++a) {
+      auto posy    = Monitored::Scalar<int>( posvary, a);
+      auto pospp0x = Monitored::Scalar<int>( pospp0varx, a);
+      auto valp  = Monitored::Scalar<float>( valvarp, pixarrays.B2[a][b]);
+      auto valm  = Monitored::Scalar<float>( valvarm, pixarrays.B2[a][b]*weightPix);
+      if (pixarrays.B2[a][b]>-1) {
+	fill("B2", pospp0x, valp);
+	if (!fillPP0only) fill("B2", posx, posy, valm);
       }
     }
   }
-  for (unsigned int x = 0; x < PixMon::kNumModulesDisk; ++x) {
-    for (unsigned int y = 0; y < PixMon::kNumLayersDisk; ++y) {
-      auto pos = Monitored::Scalar<int>( posvar, (y-1)*8 + (x-1)/6 + 1);
-      auto val = Monitored::Scalar<float>( valvar, D_C[x][y]);
-      if (D_C[x][y]>-1) {
-	fill(name + "_ECC", pos, val);
-	D_C[x][y] = 0;
-      }
-    }
-  }
-  for (unsigned int x = 0; x < PixMon::kNumStavesL0; ++x) {
-    auto pos = Monitored::Scalar<int>( posvar, x);
-    for (unsigned int y = 0; y < PixMon::kNumModulesBarrel; ++y) {
-      auto val = Monitored::Scalar<float>( valvar, B0[x][y]);
-      if (B0[x][y]>-1) {
-	fill(name + "_B0", pos, val);
-	B0[x][y] = 0;
-      }
-    }
-  }
-  for (unsigned int x = 0; x < PixMon::kNumStavesL1; ++x) {
-    auto pos = Monitored::Scalar<int>( posvar, x);
-    for (unsigned int y = 0; y < PixMon::kNumModulesBarrel; ++y) {
-      auto val = Monitored::Scalar<float>( valvar, B1[x][y]);
-      if (B1[x][y]>-1) {
-	fill(name + "_B1", pos, val);
-	B1[x][y] = 0;
-      }
-    }
-  }
-  for (unsigned int x = 0; x < PixMon::kNumStavesL2; ++x) {
-    auto pos = Monitored::Scalar<int>( posvar, x);
-    for (unsigned int y = 0; y < PixMon::kNumModulesBarrel; ++y) {
-      auto val = Monitored::Scalar<float>( valvar, B2[x][y]);
-      if (B2[x][y]>-1) {
-	fill(name + "_B2", pos, val);
-	B2[x][y] = 0;
-      }
-    }
-  }
-  unsigned int nbinx = PixMon::kNumStavesIBL;
-  unsigned int nbiny = PixMon::kNumFEsIBL;
-  for (unsigned int x = 0; x < nbinx; ++x) {
-    auto pos = Monitored::Scalar<int>( posvar, x);
-    for (unsigned int y = 0; y < nbiny; ++y) {
-      auto val = Monitored::Scalar<float>( valvar, IBL[x][y]);
-      if (IBL[x][y]>-1) {
-	if (y>0.5*nbiny) {
-	  fill(name + "_IBLA", pos, val);
+  unsigned int nbina = PixMon::kNumStavesIBL;
+  unsigned int nbinb = PixMon::kNumFEsIBL;
+  for (unsigned int a = 0; a < nbina; ++a) {
+    auto posy    = Monitored::Scalar<int>( posvary, a);
+    auto pospp0x = Monitored::Scalar<int>( pospp0varx, a);
+    for (unsigned int b = 0; b < nbinb; ++b) {
+      // translating array index into IBL frontend eta on a stave
+      // i.e. 0..31 into -16..15 so that standard per-layer histograms 
+      // declared by define2DProfHist method can be filled 
+      auto posx  = Monitored::Scalar<int>( posvarx, b-16);
+      auto valp  = Monitored::Scalar<float>( valvarp, pixarrays.IBL[a][b]);
+      auto valm  = Monitored::Scalar<float>( valvarm, pixarrays.IBL[a][b]*weightIBL);
+      if (pixarrays.IBL[a][b]>-1) {
+	if (b>0.5*nbinb) {
+	  fill("IBLA", pospp0x, valp);
 	} else {
-	  fill(name + "_IBLC", pos, val);
+	  fill("IBLC", pospp0x, valp);
 	}
-	IBL[x][y] = 0;
+	if (!fillPP0only) fill("IBL", posx, posy, valm);
       }
     }
   }
-  return StatusCode::SUCCESS;
 }
 //////////////////////////////////////////////
 
@@ -237,17 +202,6 @@ int PixelAthMonitoringBase::getPixLayersID(int ec, int ld) const {
     if (ec == -4) layer = PixLayers::kDBMC;
   }
   return layer;
-}
-//////////////////////////////////////////////
-
-///
-/// helper function to (optionally) append histogram title
-///
-std::string PixelAthMonitoringBase::addTxt(std::string title, bool ontrack) const {
-  if (ontrack) {
-    title+="_OnTrack";
-  }
-  return title;
 }
 //////////////////////////////////////////////
 

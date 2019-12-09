@@ -6,13 +6,6 @@
 # Set the minimum required CMake version:
 cmake_minimum_required( VERSION 3.6 FATAL_ERROR )
 
-# Temporary hack until ATLINFR-3229 is deployed:
-set( ATLAS_FLAKE8 "flake8_atlas --select ATL,F,E7,E9,W6 --enable-extension ATL902 --extend-ignore E701,E702,E741"
-   CACHE STRING "Default flake8 command" )
-
-set( ATLAS_PYTHON_CHECKER "${ATLAS_FLAKE8} --filterFiles AthenaConfiguration"
-   CACHE STRING "Python checker command to run during Python module compilation" )
-
 # Let the user pick up updated AtlasCMake/AtlasLCG versions for testing.
 # Remember that it's not a problem if AtlasCMake is not found, that's why
 # we use the QUIET keyword.
@@ -59,6 +52,11 @@ endif()
 
 # Set up CTest:
 atlas_ctest_setup()
+
+# Generate a compile_commands.json file, which VS Code can use to interpret
+# our code correctly.
+set( CMAKE_EXPORT_COMPILE_COMMANDS TRUE CACHE BOOL
+   "Create compile_commands.json" FORCE )
 
 # Set up a work directory project:
 set( _useFortran )

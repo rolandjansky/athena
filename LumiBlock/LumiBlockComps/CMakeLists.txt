@@ -108,3 +108,8 @@ atlas_add_test( LBDurationCondAlgConfig_test
 atlas_add_test( TrigLiveFractionCondAlgConfig_test
                 SCRIPT python -m LumiBlockComps.TrigLiveFractionCondAlgConfig
                 EXTRA_PATTERNS "-s ComponentAccumulator|^---|^IOVDbSvc" )
+
+
+atlas_add_test( BunchCrossingCondAlg 
+                SCRIPT python ${CMAKE_CURRENT_SOURCE_DIR}/python/BunchCrossingCondAlgTest.py
+                POST_EXEC_SCRIPT " /usr/bin/diff BCData.txt ${CMAKE_CURRENT_SOURCE_DIR}/share/BCData.txt.ref > BC_diff.log " )

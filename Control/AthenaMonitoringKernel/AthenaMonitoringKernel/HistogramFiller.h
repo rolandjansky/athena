@@ -16,27 +16,27 @@
 
 namespace Monitored {
   /**
-   * @brief Base class for all histogram fillers 
+   * @brief Base class for all histogram fillers
    */
   class HistogramFiller {
   public:
     /**
      * @brief Default constructor
-     * 
+     *
      * @param histDef Histogram definition of ROOT object
      */
-    HistogramFiller(const HistogramDef& histDef, std::shared_ptr<IHistogramProvider> histogramProvider) 
-      : m_mutex(std::make_shared<std::mutex>()), 
+    HistogramFiller(const HistogramDef& histDef, std::shared_ptr<IHistogramProvider> histogramProvider)
+      : m_mutex(std::make_shared<std::mutex>()),
         m_histDef(new HistogramDef(histDef)),
         m_histogramProvider(histogramProvider),
         m_monWeight(nullptr) {}
     /**
      * @brief Copy constructor
-     * 
+     *
      * @param hf Other HistogramFiller
      */
-    HistogramFiller(const HistogramFiller& hf) 
-      : m_mutex(hf.m_mutex), 
+    HistogramFiller(const HistogramFiller& hf)
+      : m_mutex(hf.m_mutex),
         m_histDef(hf.m_histDef),
         m_histogramProvider(hf.m_histogramProvider),
         m_monWeight(hf.m_monWeight) {}
@@ -44,7 +44,7 @@ namespace Monitored {
      * @brief Move constructor
      */
     HistogramFiller(HistogramFiller&&) = default;
-  
+
     /**
      * @brief Virtual destructor
      */
@@ -53,18 +53,20 @@ namespace Monitored {
      * @brief Method that actually fills the ROOT object
      */
     virtual unsigned fill() = 0;
+
+
     /**
-     * @brief Clones the filler
-     * 
-     * @return Clone of the current instance
+     * @brief clone filler for actual filling
+     * Note that this operation is very chip as the this class is effectively a flyweight
      */
     virtual HistogramFiller* clone() = 0;
-  
+
+
     void setMonitoredVariables(const std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>& monitoredVariables) {
       m_monVariables = monitoredVariables;
     }
 
-    /** 
+    /**
      * @brief Stores histogram weight
      * @param monitoredWeight weight to use
      */
@@ -79,7 +81,7 @@ namespace Monitored {
     const std::string& histogramWeightName() const {
       return m_histDef->weight;
     }
-    
+
   protected:
     template <class H>
     H* histogram() {
@@ -90,8 +92,8 @@ namespace Monitored {
     std::shared_ptr<HistogramDef> m_histDef;
     std::shared_ptr<IHistogramProvider> m_histogramProvider;
     std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> m_monVariables;
-    Monitored::IMonitoredVariable* m_monWeight;
-    
+    Monitored::IMonitoredVariable* m_monWeight; // bare pointer instead of reference as it can be null
+
   private:
     HistogramFiller& operator=(HistogramFiller const&) = delete;
   };

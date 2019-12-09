@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file D3PDMakerUtils/src/VectorFillerToolBase.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -20,7 +18,6 @@
 #include "TROOT.h"
 #include "TDataType.h"
 #include "TVirtualCollectionProxy.h"
-#include "boost/foreach.hpp"
 #include <cstring>
 #include <cassert>
 
@@ -44,7 +41,7 @@ void VectorFillerToolBase::Var::next()
 inline
 void VectorFillerToolBase::Vars::next_all ()
 {
-  BOOST_FOREACH (Var& v, *this) {
+  for (Var& v : *this) {
     v.next();
   }
 }
@@ -552,7 +549,7 @@ void VectorFillerToolBase::Var::free ()
  */
 VectorFillerToolBase::Vars::~Vars()
 {
-  BOOST_FOREACH (Var& v, *this) {
+  for (Var& v : *this) {
     v.free();
   }
 }
@@ -565,7 +562,7 @@ VectorFillerToolBase::Vars::~Vars()
  */
 void VectorFillerToolBase::Vars::resize_all (size_t sz, size_t pos /*= 0*/)
 {
-  BOOST_FOREACH (Var& v, *this) {
+  for (Var& v : *this) {
     v.resize (sz, pos);
   }
 }

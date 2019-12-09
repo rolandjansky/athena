@@ -34,6 +34,7 @@ atlas_add_poolcnv_library( TrkEventAthenaPoolPoolCnv
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
+atlas_install_python_modules( python/*.py )
 
 
 # Set up (a) test(s) for the converter(s):
@@ -67,3 +68,8 @@ if( ATHENAPOOLUTILITIESTEST_FOUND )
 else()
    message( WARNING "Couldn't find AthenaPoolUtilitiesTest. No test(s) set up." )
 endif()   
+
+atlas_add_test( TrackCollectionReadConfig_test
+                SCRIPT python -m TrkEventAthenaPool.TrackCollectionReadConfig
+                EXTRA_PATTERNS "-s ComponentAccumulator|^---" )
+

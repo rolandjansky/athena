@@ -26,11 +26,10 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/VertexContainer.h"
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 class TH1F;
 class TH2F;
-
-class IBeamCondSvc;
 
 namespace Trk {
   class IExtrapolator;
@@ -53,7 +52,7 @@ protected:
         ToolHandle<Trk::IExtrapolator> m_extrapolator;
         bool m_hasExtrapolator;
 
-        ServiceHandle<IBeamCondSvc> m_beamCondSvc;
+        SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
         bool m_hasBeamCondSvc;
 
         TH1F* m_hTrNPt;
@@ -61,11 +60,11 @@ protected:
         TH2F* m_hTrDPhi;
         TH2F* m_hTrDPhiCorr;
 
-	TH1F* m_hBsX;
-	TH1F* m_hBsY;
-	TH1F* m_hBsZ;
-	TH1F* m_hBsTiltX;
-	TH1F* m_hBsTiltY;
+        TH1F* m_hBsX;
+        TH1F* m_hBsY;
+        TH1F* m_hBsZ;
+        TH1F* m_hBsTiltX;
+        TH1F* m_hBsTiltY;
 
         TH1F* m_hPvN;
         TH1F* m_hPvNPriVtx;
@@ -94,13 +93,13 @@ private:
 				  int nBinsX, float minX, float maxX,
 				  int nBinsY, float minY, float maxY);
 
-	std::string m_stream;
+	      std::string m_stream;
         bool m_useBeamspot;
         SG::ReadHandleKey<xAOD::VertexContainer> m_vxContainerName{this, "vxContainerName", "PrimaryVertices"};
         bool m_vxContainerWithBeamConstraint;
         SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackContainerName{this, "trackContainerName", "InDetTrackParticles"};
         std::string m_histFolder;
-	std::string m_triggerChainName;
+	      std::string m_triggerChainName;
         unsigned int m_minTracksPerVtx;
         float m_minTrackPt;
 };

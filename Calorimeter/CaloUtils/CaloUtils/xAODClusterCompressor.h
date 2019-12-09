@@ -15,7 +15,9 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCore/tools/FloatCompressor.h"
 
-class xAODClusterCompressor : 
+#include "CxxUtils/checker_macros.h"
+
+class ATLAS_CHECK_THREAD_SAFETY xAODClusterCompressor : 
   virtual public IxAODClusterCompressor, public AthService { 
   
  protected:   

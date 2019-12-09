@@ -213,8 +213,8 @@ class ConfiguredSecondaryVertexCuts :
         self.__SingleTrk_MinRatioOfHLhits           = 0.85             # e-prob cut single-TRT converison 
 
     else:
-      print "*********************** ERROR, wrong configuration for Configured Secondary Vertex Cuts !!!"
-      print " mode given : ", mode
+      print("*********************** ERROR, wrong configuration for Configured Secondary Vertex Cuts !!!")
+      print(" mode given : ", mode)
       
 # ----------------------------------------------------------------------------
 # --- private method
@@ -374,77 +374,77 @@ class ConfiguredSecondaryVertexCuts :
     return self.__Finder_MinInitVtxR
 
   def printInfo( self ) :
-    print '****** Inner Detector Secondary Vertex Reconstruction Cuts ****************************'
-    print '*'
-    print '* secondary vertex mode               : ',self.__mode 
-    print '*'
-    print '* Vertex Fitter settings'
-    print '* - Iteration Number                  : ',self.__Fitter_IterationNumber 
-    print '* - Make Extended Vertex              : ',self.__Fitter_MakeExtendedVertex  
-    print '* - First Measured Point              : ',self.__Fitter_FirstMeasuredPoint  
-    print '* - Robustness                        : ',self.__Fitter_Robustness          
-    print '* - Input Particle Masses             : ',self.__Fitter_InputParticleMasses 
-    print '* - Vertex for constraint             : ',self.__Fitter_VertexForConstraint 
-    print '* - Cov for constraint                : ',self.__Fitter_CovVrtForConstraint 
-    print '* - First measured point limit        : ',self.__Fitter_FirstMeasuredPointLimit
-    print '* - use Phi constraint                : ',self.__Fitter_usePhiCnst
-    print '* - use Theta constraint              : ',self.__Fitter_useThetaCnst
-    print '*'    
-    print '* cuts for Track selector tool'
-    print '* - Track max Si  d0                  : ',self.__TrkSel_maxSiD0           
-    print '* - Track max TRT d0                  : ',self.__TrkSel_maxTrtD0          
-    print '* - Track max Si  Z0                  : ',self.__TrkSel_maxSiZ0           
-    print '* - Track max TRT Z0                  : ',self.__TrkSel_maxTrtZ0          
-    print '* - Track min pt                      : ',self.__TrkSel_minPt 
-    print '* - Track Ratio Cut1                  : ',self.__TrkSel_RatioCut1         
-    print '* - Track Ratio Cut2                  : ',self.__TrkSel_RatioCut2         
-    print '* - Track Ratio Cut3                  : ',self.__TrkSel_RatioCut3         
-    print '* - Track Ratio TRT                   : ',self.__TrkSel_RatioTRT
-    print '* - Track IsConverion                 : ',self.__TrkSel_IsConversion      
-    print '* - track Si sig d0                   : ',self.__TrkSel_significanceD0_Si 
-    print '* - Track Ratio V0                    : ',self.__TrkSel_RatioV0           
-    print '*'    
-    print '* Track pairs selector [SI+SI,SI+TRT,TRT+TRT]'
-    print '* - Track Pair Max First Hit Radius   : ',self.__TrkPairSel_MaxFirstHitRadius    
-    print '* - Track Pair Max Dist btw Tracks    : ',self.__TrkPairSel_MaxDistBetweenTracks 
-    print '* - Track Pair Max Eta                : ',self.__TrkPairSel_MaxEta               
-    print '* - Track Pair Max Init Distance      : ',self.__TrkPairSel_MaxInitDistance      
-    print '* - Track Pair Min Track Angle        : ',self.__TrkPairSel_MinTrackAngle        
-    print '*'
-    print '* Vertex point estimator'
-    print '* - Vertex Point Min Delta R          : ',self.__VtxPt_MinDeltaR
-    print '* - Vertex Point Max Delta R          : ',self.__VtxPt_MaxDeltaR
-    print '* - Vertex Point Max Phi              : ',self.__VtxPt_MaxPhi   
-    print '*'
-    print '* Secondary Vertex post selector'
-    print '* - SVPostSel Max Chi2 Vtx            : ',self.__SecVtxPost_MaxChi2Vtx      
-    print '* - SVPostSel Max Inv Mass            : ',self.__SecVtxPost_MaxInvariantMass
-    print '* - SVPostSel Max Min Fit P           : ',self.__SecVtxPost_MinFitMomentum
-    print '* - SVPostSel Min Pt                  : ',self.__SecVtxPost_MinPt
-    print '* - SVPostSel Min Radius              : ',self.__SecVtxPost_MinRadius       
-    print '* - SVPostSel Max dR                  : ',self.__SecVtxPost_MaxdR
-    print '* - SVPostSel Max Phi Vtx             : ',self.__SecVtxPost_MaxPhiVtxTrk    
-    print '*'
-    print '* Single track secondary vertex tool'
-    print '* - Max Blayer hits for conversions   : ',self.__SingleTrk_MaxBLayerHits  
-    print '* - Single tr. Min Initial Hit Radius : ',self.__SingleTrk_MinInitialHitRadius
-    print '*     - same for no blayer            : ',self.__SingleTrk_MinInitialHitRadius_noBlay
-    print '* - Single tr. Min Ratio HL hits      : ',self.__SingleTrk_MinRatioOfHLhits   
-    print '*'
-    print '* InDetSecVtxFinderTool '
-    print '* - Finder Remove TRT Tracks          : ',self.__Finder_RemoveTrtTracks   
-    print '* - Finder IsConversions              : ',self.__Finder_IsConversion      
-    print '* - Finder Min Dist Vtx Hit           : ',self.__Finder_MinDistVtxHit     
-    print '* - Finder Max Dist Vtx Hit           : ',self.__Finder_MaxDistVtxHit     
-    print '* - Finder Min Flight Angle           : ',self.__Finder_MinFlightAngle    
-    print '* - Finder Min Init Vtx R             : ',self.__Finder_MinInitVtxR       
-    print '*'
-    print '************************ General Configuration *************************************'
-    if self.__mode == "StartUp": 
-      print 'No luminosity mode: single collision, loosen cuts to get as many V0 as possible'  
-       
-    if self.__mode == "PileUp": 
-      print 'Pile Up luminosity mode: multiple collisions'   
-   
-    print '************************************************************************************'
+    print('****** Inner Detector Secondary Vertex Reconstruction Cuts ****************************')
+    print('*')
+    print('* secondary vertex mode               : ',self.__mode )
+    print('*')
+    print('* Vertex Fitter settings')
+    print('* - Iteration Number                  : ',self.__Fitter_IterationNumber )
+    print('* - Make Extended Vertex              : ',self.__Fitter_MakeExtendedVertex  )
+    print('* - First Measured Point              : ',self.__Fitter_FirstMeasuredPoint  )
+    print('* - Robustness                        : ',self.__Fitter_Robustness          )
+    print('* - Input Particle Masses             : ',self.__Fitter_InputParticleMasses )
+    print('* - Vertex for constraint             : ',self.__Fitter_VertexForConstraint )
+    print('* - Cov for constraint                : ',self.__Fitter_CovVrtForConstraint )
+    print('* - First measured point limit        : ',self.__Fitter_FirstMeasuredPointLimit)
+    print('* - use Phi constraint                : ',self.__Fitter_usePhiCnst)
+    print('* - use Theta constraint              : ',self.__Fitter_useThetaCnst)
+    print('*'    )
+    print('* cuts for Track selector tool')
+    print('* - Track max Si  d0                  : ',self.__TrkSel_maxSiD0           )
+    print('* - Track max TRT d0                  : ',self.__TrkSel_maxTrtD0          )
+    print('* - Track max Si  Z0                  : ',self.__TrkSel_maxSiZ0           )
+    print('* - Track max TRT Z0                  : ',self.__TrkSel_maxTrtZ0          )
+    print('* - Track min pt                      : ',self.__TrkSel_minPt )
+    print('* - Track Ratio Cut1                  : ',self.__TrkSel_RatioCut1         )
+    print('* - Track Ratio Cut2                  : ',self.__TrkSel_RatioCut2         )
+    print('* - Track Ratio Cut3                  : ',self.__TrkSel_RatioCut3         )
+    print('* - Track Ratio TRT                   : ',self.__TrkSel_RatioTRT)
+    print('* - Track IsConverion                 : ',self.__TrkSel_IsConversion      )
+    print('* - track Si sig d0                   : ',self.__TrkSel_significanceD0_Si )
+    print('* - Track Ratio V0                    : ',self.__TrkSel_RatioV0           )
+    print('*'    )
+    print('* Track pairs selector [SI+SI,SI+TRT,TRT+TRT]')
+    print('* - Track Pair Max First Hit Radius   : ',self.__TrkPairSel_MaxFirstHitRadius    )
+    print('* - Track Pair Max Dist btw Tracks    : ',self.__TrkPairSel_MaxDistBetweenTracks )
+    print('* - Track Pair Max Eta                : ',self.__TrkPairSel_MaxEta               )
+    print('* - Track Pair Max Init Distance      : ',self.__TrkPairSel_MaxInitDistance      )
+    print('* - Track Pair Min Track Angle        : ',self.__TrkPairSel_MinTrackAngle        )
+    print('*')
+    print('* Vertex point estimator')
+    print('* - Vertex Point Min Delta R          : ',self.__VtxPt_MinDeltaR)
+    print('* - Vertex Point Max Delta R          : ',self.__VtxPt_MaxDeltaR)
+    print('* - Vertex Point Max Phi              : ',self.__VtxPt_MaxPhi   )
+    print('*')
+    print('* Secondary Vertex post selector')
+    print('* - SVPostSel Max Chi2 Vtx            : ',self.__SecVtxPost_MaxChi2Vtx      )
+    print('* - SVPostSel Max Inv Mass            : ',self.__SecVtxPost_MaxInvariantMass)
+    print('* - SVPostSel Max Min Fit P           : ',self.__SecVtxPost_MinFitMomentum)
+    print('* - SVPostSel Min Pt                  : ',self.__SecVtxPost_MinPt)
+    print('* - SVPostSel Min Radius              : ',self.__SecVtxPost_MinRadius       )
+    print('* - SVPostSel Max dR                  : ',self.__SecVtxPost_MaxdR)
+    print('* - SVPostSel Max Phi Vtx             : ',self.__SecVtxPost_MaxPhiVtxTrk    )
+    print('*')
+    print('* Single track secondary vertex tool')
+    print('* - Max Blayer hits for conversions   : ',self.__SingleTrk_MaxBLayerHits  )
+    print('* - Single tr. Min Initial Hit Radius : ',self.__SingleTrk_MinInitialHitRadius)
+    print('*     - same for no blayer            : ',self.__SingleTrk_MinInitialHitRadius_noBlay)
+    print('* - Single tr. Min Ratio HL hits      : ',self.__SingleTrk_MinRatioOfHLhits   )
+    print('*')
+    print('* InDetSecVtxFinderTool ')
+    print('* - Finder Remove TRT Tracks          : ',self.__Finder_RemoveTrtTracks   )
+    print('* - Finder IsConversions              : ',self.__Finder_IsConversion      )
+    print('* - Finder Min Dist Vtx Hit           : ',self.__Finder_MinDistVtxHit     )
+    print('* - Finder Max Dist Vtx Hit           : ',self.__Finder_MaxDistVtxHit     )
+    print('* - Finder Min Flight Angle           : ',self.__Finder_MinFlightAngle    )
+    print('* - Finder Min Init Vtx R             : ',self.__Finder_MinInitVtxR       )
+    print('*')
+    print('************************ General Configuration *************************************')
+    if self.__mode == "StartUp":
+      print('No luminosity mode: single collision, loosen cuts to get as many V0 as possible')
+
+    if self.__mode == "PileUp":
+      print('Pile Up luminosity mode: multiple collisions')
+
+    print('************************************************************************************')
 

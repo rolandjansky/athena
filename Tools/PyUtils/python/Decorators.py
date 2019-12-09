@@ -186,7 +186,7 @@ class Async(object):
                 return func.on_success(result)
             finally:
                 func.on_closing()
-        name = '%s-%s' % (func.__name__, func.counter.next())
+        name = '%s-%s' % (func.__name__, next(func.counter))
         thread = self.threadfactory(None, func_wrapper, name)
         thread.start()
         return thread

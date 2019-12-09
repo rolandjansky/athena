@@ -10,9 +10,17 @@ def LArMonitoringConfig(inputFlags):
     from LArMonitoring.LArDigitMonAlg import LArDigitMonConfig
     from LArMonitoring.LArRODMonAlg import LArRODMonConfig
 
-    # algos which could run anytime:
-    acc = LArAffectedRegionsConfig(inputFlags)
-    acc.merge(LArCollisionTimeMonConfig(inputFlags))
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    acc = ComponentAccumulator()
+    
+    # algos which could run anytime (therefore should not in tier0Raw):
+    if inputFlags.DQ.Environment != 'tier0Raw':
+        if not inputFlags.Input.isMC:
+            acc.merge(LArAffectedRegionsConfig(inputFlags))
+
+    # algos which can run in ESD but not AOD:
+    if inputFlags.DQ.Environment != 'AOD':
+        acc.merge(LArCollisionTimeMonConfig(inputFlags))
 
     # and others on RAW data only
     if inputFlags.DQ.Environment in ('online', 'tier0', 'tier0Raw'):
@@ -58,7 +66,7 @@ if __name__=='__main__':
    cfg.printConfig()
 
    ConfigFlags.dump()
-   f=open("LArMonitoring.pkl","w")
+   f=open("LArMonitoring.pkl","wb")
    cfg.store(f)
    f.close()
 

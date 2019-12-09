@@ -64,6 +64,10 @@ atlas_add_test( flake8
                 SCRIPT flake8 --select=ATL,F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python ${CMAKE_CURRENT_SOURCE_DIR}/test/*.py
                 POST_EXEC_SCRIPT nopost.sh )
 
+atlas_add_test( TileCellMonitorAlgorithm_test
+                SCRIPT python -m TileMonitoring.TileCellMonitorAlgorithm
+                PROPERTIES TIMEOUT 300
+                POST_EXEC_SCRIPT nopost.sh)
 
 atlas_add_test( TileJetMonitorAlgorithm_test
                 SCRIPT python -m TileMonitoring.TileJetMonitorAlgorithm
@@ -77,5 +81,10 @@ atlas_add_test( TileDQFragMonitorAlgorithm_test
 
 atlas_add_test( TileMBTSMonitorAlgorithm_test
                 SCRIPT python -m TileMonitoring.TileMBTSMonitorAlgorithm
+                PROPERTIES TIMEOUT 300
+                POST_EXEC_SCRIPT nopost.sh)
+
+atlas_add_test( TileMonitoringConfig_test
+                SCRIPT python -m TileMonitoring.TileMonitoringConfig
                 PROPERTIES TIMEOUT 300
                 POST_EXEC_SCRIPT nopost.sh)

@@ -7,22 +7,22 @@
 @brief Top configuration of Pixel Monitoring in Run 3 style but in Run 2 environment
 '''
 
-doHitMonTool       = False
-doClusterMonTool   = True
-doErrorMonTool     = True
+doHitMonAlg       = True
+doClusterMonAlg   = True
+doErrorMonAlg     = True
 
-from PixelMonitoring.PixelMonitoringConf import PixelAthHitMonTool
-from PixelMonitoring.PixelAthHitMonToolCfg import PixelAthHitMonToolCfg
+from PixelMonitoring.PixelMonitoringConf import PixelAthHitMonAlg
+from PixelMonitoring.PixelAthHitMonAlgCfg import PixelAthHitMonAlgCfg
 
-from PixelMonitoring.PixelMonitoringConf import PixelAthClusterMonTool
-from PixelMonitoring.PixelAthClusterMonToolCfg import PixelAthClusterMonToolCfg
+from PixelMonitoring.PixelMonitoringConf import PixelAthClusterMonAlg
+from PixelMonitoring.PixelAthClusterMonAlgCfg import PixelAthClusterMonAlgCfg
 
-from PixelMonitoring.PixelMonitoringConf import PixelAthErrorMonTool
-from PixelMonitoring.PixelAthErrorMonToolCfg import PixelAthErrorMonToolCfg
+from PixelMonitoring.PixelMonitoringConf import PixelAthErrorMonAlg
+from PixelMonitoring.PixelAthErrorMonAlgCfg import PixelAthErrorMonAlgCfg
 
 from InDetRecExample.InDetKeys import InDetKeys                                                                                     
 
-kwargsHitMonTool = { 'doOnline'        : True if athenaCommonFlags.isOnline() else False,      #Histograms for online (athenaPT) running
+kwargsHitMonAlg = { 'doOnline'        : True if athenaCommonFlags.isOnline() else False,      #Histograms for online (athenaPT) running
                      'doModules'       : True if athenaCommonFlags.isOnline() else False, #Turn on/off the sets of 1744 module histograms (for dqmf)
                      'doLumiBlock'     : False if athenaCommonFlags.isOnline() else True,       #Turn on/off histograms stored for each lumi block
                      'doLowOccupancy'  : False,      #Turn on/off histograms with binning for cosmics/single beam                    
@@ -31,7 +31,7 @@ kwargsHitMonTool = { 'doOnline'        : True if athenaCommonFlags.isOnline() el
                      'RDOName'         : InDetKeys.PixelRDOs()
 }
 
-kwargsClusMonTool = { 'doOnline'        : True if athenaCommonFlags.isOnline() else False,      #Histograms for online (athenaPT) running
+kwargsClusMonAlg = { 'doOnline'        : True if athenaCommonFlags.isOnline() else False,      #Histograms for online (athenaPT) running
                       'doModules'       : True if athenaCommonFlags.isOnline() else False, #Turn on/off the sets of 1744 module histograms (for dqmf)
                       'doLumiBlock'     : False if athenaCommonFlags.isOnline() else True,       #Turn on/off histograms stored for each lumi block
                       'doLowOccupancy'  : False,      #Turn on/off histograms with binning for cosmics/single beam
@@ -42,7 +42,7 @@ kwargsClusMonTool = { 'doOnline'        : True if athenaCommonFlags.isOnline() e
                       'TrackName'       : InDetKeys.Tracks()
 }
 
-kwargsErrMonTool = { 'doOnline'        : True if athenaCommonFlags.isOnline() else False,      #Histograms for online (athenaPT) running
+kwargsErrMonAlg = { 'doOnline'        : True if athenaCommonFlags.isOnline() else False,      #Histograms for online (athenaPT) running
                      'doModules'       : True if athenaCommonFlags.isOnline() else False, #Turn on/off the sets of 1744 module histograms (for dqmf)
                      'doLumiBlock'     : False if athenaCommonFlags.isOnline() else True,       #Turn on/off histograms stored for each lumi block
                      'doLowOccupancy'  : False,      #Turn on/off histograms with binning for cosmics/single beam                    
@@ -56,35 +56,32 @@ from AthenaMonitoring.DQMonFlags import DQMonFlags
 from AthenaMonitoring import AthMonitorCfgHelperOld
 helper = AthMonitorCfgHelperOld(DQMonFlags, "NewPixelMonitoring")
 
+if doHitMonAlg:
+  pixelAthMonAlgHitMonAlg = helper.addAlgorithm(PixelAthHitMonAlg, 'PixelAthHitMonAlg')
+  for k, v in kwargsHitMonAlg.items():
+    setattr(pixelAthMonAlgHitMonAlg, k, v)
+  PixelAthHitMonAlgCfg(helper, pixelAthMonAlgHitMonAlg, **kwargsHitMonAlg)
 
-if doHitMonTool:
-  pixelAthMonAlgHitMonTool = helper.addAlgorithm(PixelAthHitMonTool, 'PixelAthHitMonTool', 'PixelAthHitMonTool')
-  for k, v in kwargsHitMonTool.items():
-    setattr(pixelAthMonAlgHitMonTool, k, v)
-  PixelAthHitMonToolCfg(helper, pixelAthMonAlgHitMonTool, **kwargsHitMonTool)
-
-
-if doClusterMonTool:
-  pixelAthClusterMonTool = helper.addAlgorithm(PixelAthClusterMonTool, 'PixelAthClusterMonTool', 'PixelAthClusterMonTool')
-  for k, v in kwargsClusMonTool.items():
-    setattr(pixelAthClusterMonTool, k, v)
-  pixelAthClusterMonTool.TrackSelectionTool.UseTrkTrackTools = True
-  pixelAthClusterMonTool.TrackSelectionTool.CutLevel         = "TightPrimary"
-  pixelAthClusterMonTool.TrackSelectionTool.maxNPixelHoles   = 1
-  pixelAthClusterMonTool.TrackSelectionTool.maxD0            = 2
-  pixelAthClusterMonTool.TrackSelectionTool.maxZ0            = 150
-  pixelAthClusterMonTool.TrackSelectionTool.TrackSummaryTool = InDetTrackSummaryTool
-  pixelAthClusterMonTool.TrackSelectionTool.Extrapolator     = InDetExtrapolator
+if doClusterMonAlg:
+  pixelAthClusterMonAlg = helper.addAlgorithm(PixelAthClusterMonAlg, 'PixelAthClusterMonAlg')
+  for k, v in kwargsClusMonAlg.items():
+    setattr(pixelAthClusterMonAlg, k, v)
+  pixelAthClusterMonAlg.TrackSelectionTool.UseTrkTrackTools = True
+  pixelAthClusterMonAlg.TrackSelectionTool.CutLevel         = "TightPrimary"
+  pixelAthClusterMonAlg.TrackSelectionTool.maxNPixelHoles   = 1
+  pixelAthClusterMonAlg.TrackSelectionTool.maxD0            = 2
+  pixelAthClusterMonAlg.TrackSelectionTool.maxZ0            = 150
+  pixelAthClusterMonAlg.TrackSelectionTool.TrackSummaryTool = InDetTrackSummaryTool
+  pixelAthClusterMonAlg.TrackSelectionTool.Extrapolator     = InDetExtrapolator
   
-  #print getattr(pixelAthClusterMonTool, 'onTrack') 
-  PixelAthClusterMonToolCfg(helper, pixelAthClusterMonTool, **kwargsClusMonTool)
+  #print getattr(pixelAthClusterMonAlg, 'onTrack') 
+  PixelAthClusterMonAlgCfg(helper, pixelAthClusterMonAlg, **kwargsClusMonAlg)
 
-if doErrorMonTool:
-  pixelAthMonAlgErrorMonTool = helper.addAlgorithm(PixelAthErrorMonTool, 'PixelAthErrorMonTool', 'PixelAthErrorMonTool')
-  for k, v in kwargsErrMonTool.items():
-    setattr(pixelAthMonAlgErrorMonTool, k, v)
-  PixelAthErrorMonToolCfg(helper, pixelAthMonAlgErrorMonTool, **kwargsErrMonTool)
-
+if doErrorMonAlg:
+  pixelAthMonAlgErrorMonAlg = helper.addAlgorithm(PixelAthErrorMonAlg, 'PixelAthErrorMonAlg')
+  for k, v in kwargsErrMonAlg.items():
+    setattr(pixelAthMonAlgErrorMonAlg, k, v)
+  PixelAthErrorMonAlgCfg(helper, pixelAthMonAlgErrorMonAlg, **kwargsErrMonAlg)
 
 topSequence += helper.result()
 

@@ -2,8 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGMUONEFMSONLYHYPO_TRIGMUONEFMSONLYHYPOTOOL_H 
-#define TRIGMUONEFMSONLYHYPO_TRIGMUONEFMSONLYHYPOTOOL_H 1
+#ifndef TRIGMUONHYPOMT_TRIGMUONEFMSONLYHYPOTOOL_H 
+#define TRIGMUONHYPOMT_TRIGMUONEFMSONLYHYPOTOOL_H 1
 #include "DecisionHandling/HLTIdentifier.h"
 #include "DecisionHandling/TrigCompositeUtils.h" 
 #include "AthenaMonitoring/GenericMonitoringTool.h"
@@ -11,7 +11,6 @@
 #include "xAODMuon/MuonContainer.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 class StoreGateSvc;
-class TriggerElement;
 class TrigMuonEFMSonlyHypoTool: public ::AthAlgTool {
   enum { MaxNumberTools = 20 };  
  public:

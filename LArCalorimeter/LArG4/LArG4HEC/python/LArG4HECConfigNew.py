@@ -29,7 +29,9 @@ def HECWheelCalculatorCfg(ConfigFlags, name="HECWheelCalculator", **kwargs):
 
 
 def LArHECCalibrationWheelCalculatorCfg(ConfigFlags, name="LArHECCalibrationWheelCalculator", **kwargs):
-    return LArG4__HEC__LArHECCalibrationWheelCalculator(name, **kwargs)
+    result = ComponentAccumulator()
+    result.addService( LArG4__HEC__LArHECCalibrationWheelCalculator(name, **kwargs) )
+    return result
 
 
 def HECCalibrationWheelActiveCalculatorCfg(ConfigFlags, name="HECCalibrationWheelActiveCalculator", **kwargs):

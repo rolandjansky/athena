@@ -23,13 +23,18 @@ def _createCfgFlags():
     acf.addFlag('Input.isMC', lambda prevFlags : "IS_SIMULATION" in GetFileMD(prevFlags.Input.Files).get("eventTypes",[]) ) # former global.isMC
     acf.addFlag('Input.RunNumber', lambda prevFlags : list(GetFileMD(prevFlags.Input.Files).get("runNumbers",[]))) # former global.RunNumber
     acf.addFlag('Input.ProjectName', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("project_name","data17_13TeV") ) # former global.ProjectName
+    acf.addFlag('Input.Format', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("file_type","") ) # former global.InputFormat
 
     def _inputCollections(inputFile):
+        if not inputFile:
+            return []
+
         rawCollections = [type_key[1] for type_key in GetFileMD(inputFile).get("itemList",[])]
         collections = filter(lambda col: not col.endswith('Aux.'), rawCollections)
         return collections
 
     acf.addFlag('Input.Collections', lambda prevFlags : _inputCollections(prevFlags.Input.Files) )
+    acf.addFlag('Input.SecondaryCollections', lambda prevFlags : _inputCollections(prevFlags.Input.SecondaryFiles) )
 
     acf.addFlag('Concurrency.NumProcs', 0)
     acf.addFlag('Concurrency.NumThreads', 0)
@@ -43,7 +48,8 @@ def _createCfgFlags():
     acf.addFlag('Common.isOnline', False ) #  Job runs in an online environment (access only to resources available at P1) # former global.isOnline
     acf.addFlag('Common.useOnlineLumi', lambda prevFlags : prevFlags.Common.isOnline ) #  Use online version of luminosity. ??? Should just use isOnline?
     acf.addFlag('Common.doExpressProcessing', False)
-
+    acf.addFlag('Common.bunchCrossingSource', lambda prevFlags : "MC" if prevFlags.Input.isMC else "TrigConf") # what BunchCrossingTool should we use?
+    
     def _checkProject():
         import os
         if "AthSimulation_DIR" in os.environ:
@@ -61,15 +67,23 @@ def _createCfgFlags():
         (25./prevFlags.Beam.BunchSpacing)) # former flobal.estimatedLuminosity
 
 
-    acf.addFlag('Output.doESD', False) # produce ESD containers
 
-    acf.addFlag('Output.EVNTFileName','myEVNT.pool.root')
-    acf.addFlag('Output.HITSFileName','myHITS.pool.root')
-    acf.addFlag('Output.RDOFileName','myRDO.pool.root')
-    acf.addFlag('Output.ESDFileName','myESD.pool.root')
-    acf.addFlag('Output.AODFileName','myAOD.pool.root')
-    acf.addFlag('Output.HISTFileName','myHIST.root')
+    acf.addFlag('Output.EVNTFileName', '')
+    acf.addFlag('Output.HITSFileName', '')
+    acf.addFlag('Output.RDOFileName',  '')
+    acf.addFlag('Output.RDO_SGNLFileName', '')
+    acf.addFlag('Output.ESDFileName',  '')
+    acf.addFlag('Output.AODFileName',  '')
+    acf.addFlag('Output.HISTFileName', '')
     
+
+    acf.addFlag('Output.doWriteRDO', lambda prevFlags: bool(prevFlags.Output.RDOFileName)) # write out RDO file
+    acf.addFlag('Output.doWriteRDO_SGNL', lambda prevFlags: bool(prevFlags.Output.RDO_SGNLFileName)) # write out RDO_SGNL file
+    acf.addFlag('Output.doWriteESD', lambda prevFlags: bool(prevFlags.Output.ESDFileName)) # write out ESD file
+    acf.addFlag('Output.doESD',      lambda prevFlags: prevFlags.Output.doWriteESD) # produce ESD containers
+    acf.addFlag('Output.doWriteAOD', lambda prevFlags: bool(prevFlags.Output.AODFileName)) # write out AOD file
+    acf.addFlag('Output.doWriteBS',  False) # write out RDO ByteStream file
+
     # Might move this elsewhere in the future.
     # Some flags from https://gitlab.cern.ch/atlas/athena/blob/master/Tracking/TrkDetDescr/TrkDetDescrSvc/python/TrkDetDescrJobProperties.py
     # (many, e.g. those that set properties of one tool are not needed)

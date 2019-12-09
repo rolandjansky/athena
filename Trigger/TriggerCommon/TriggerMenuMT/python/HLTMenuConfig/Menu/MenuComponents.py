@@ -3,7 +3,7 @@
 
 import copy
 from AthenaCommon.Logging import logging
-log = logging.getLogger('MenuComponents')
+log = logging.getLogger( __name__ )
 
 from DecisionHandling.DecisionHandlingConf import RoRSeqFilter
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
@@ -439,7 +439,7 @@ class Chain(object):
     def setSeedsToSequences(self):
         """ Set the L1 seeds to the menu sequences """
         
-        # check if the number of seeds is enought for all the seuqences, no action of no steps are configured
+        # check if the number of seeds is sufficient for all the seuqences, no action of no steps are configured
         if len(self.steps) == 0:
             return
         max_seq  = max(len(step.sequences) for step in self.steps)

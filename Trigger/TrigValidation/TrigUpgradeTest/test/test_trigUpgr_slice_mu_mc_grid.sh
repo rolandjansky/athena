@@ -5,6 +5,9 @@
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*
+# art-output: *.out
+# art-output: *.err
+# art-output: *.log.tar.gz
 # art-output: *.new
 # art-output: *.json
 # art-output: *.root
@@ -17,7 +20,7 @@ export SLOTS=1
 export INPUT="run2mc_ttbar"
 export JOBOPTION="TrigUpgradeTest/full_menu.py"
 export REGTESTEXP="TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*|TrigSignatureMoniMT.*HLT_.*"
-export EXTRA="doL1Sim=True;doEmptyMenu=True;doMuonSlice=True"
+export EXTRA="doL1Sim=True;doEmptyMenu=True;doMuonSlice=True;doWriteBS=False;doWriteRDOTrigger=True;"
 
 
 source exec_TrigUpgradeTest_art_athenaMT.sh

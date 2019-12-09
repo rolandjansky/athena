@@ -1,8 +1,8 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-
 from AthenaCommon.Logging import logging
-logging.getLogger().info("Importing %s",__name__)
-logSignatureDict = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Menu.SignatureDicts")
+log = logging.getLogger( __name__ )
+log.info("Importing %s",__name__)
+
 from copy import deepcopy
 
 #==========================================================
@@ -92,14 +92,16 @@ JetChainParts = {
     'threshold'    : '',
     'multiplicity' : '',
     'etaRange'     : ['0eta320', '320eta490', '0eta240'],
-    'gscThreshold' : ['gsc'],
+    # May need to reinstate in the event that preselection is
+    # needed before running tracking
+    #'gscThreshold' : ['gsc'],
     'trigType'     : ['j'],
     'extra'        : [],
     'cleaning'     : ['noCleaning',],
     'recoAlg'      : ['a4', 'a10', 'a10r', 'a10t'],
-    'dataType'     : ['tc'],
+    'dataType'     : ['tc','sktc','pf'],
     'calib'        : ['em', 'lcw'],
-    'jetCalib'     : ['jes', 'subjes', 'subjesIS', 'nojcalib'],
+    'jetCalib'     : ['jes', 'subjes', 'subjesIS', 'subjesgscIS', 'nojcalib'],
     'scan'         : ['FS',],
     'addInfo'      : ['perf'],    
 
@@ -115,7 +117,7 @@ JetChainParts = {
     'bTracking'    : [],
     'bConfig'      : ['split',],
     'bMatching'    : ['antimatchdr05mu'],
-    'trkopt'       : [],
+    'trkopt'       : ['notrk','ftk','ftkrefit','ftf'],
     'hypoScenario' : ['simple', 'vbenf',
                       'vbenfSEP30etSEP34mass35SEP50fbet',
                       'dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass'],
@@ -183,7 +185,7 @@ MuonChainParts = {
     'IDinfo'         : [],
     'isoInfo'        : ['ivar','ivarmedium'],
     'invMassInfo'    : ['10invm70'],
-    'addInfo'        : ['1step','idperf','3layersEC'],
+    'addInfo'        : ['1step','idperf','3layersEC','cosmic'],
     'topo'           : AllowedTopos_mu,
     'flavour'        : [],
     }
@@ -274,7 +276,7 @@ METChainParts = {
     'extra'        : ['noL1'],
     'calib'        : ['lcw',],    
     'L2recoAlg'    : [],
-    'EFrecoAlg'    : ['cell', 'tcpufit', 'mht'],
+    'EFrecoAlg'    : ['cell', 'tcpufit', 'mht', 'trkmht'],
     'L2muonCorr'   : [],
     'EFmuonCorr'   : [],
     'addInfo'      : ['FStracks'],
@@ -288,7 +290,7 @@ METChainParts_Default = {
     'extra'          : '',
     'calib'          : 'lcw',
     'L2recoAlg'      : '',
-    'EFrecoAlg'      : 'cell',
+    'EFrecoAlg'      : '',
     'L2muonCorr'     : '',
     'EFmuonCorr'     : '',
     'addInfo'        : '',
@@ -700,7 +702,7 @@ BeamspotChainParts = {
     'location'       : ['vtx'],
     'addInfo'        : ['trkFS', 'allTE', 'activeTE','idperf'],
     'hypo'           : [],
-    'l2IDAlg'        : ['L2StarB','trkfast','FTK','FTKRefit'],
+    'l2IDAlg'        : ['L2StarB','trkfast'],
     'threshold'      : '',
     'multiplicity'   : '',
     'trigType'       : 'beamspot',
@@ -759,10 +761,10 @@ def getSignatureNameFromToken(chainpart):
     theToken = max(theMatchingTokens, key=len) # gets the longest string in t
     if len(theMatchingTokens)>0:
         if len(theMatchingTokens)>1:
-            logSignatureDict.info('There are several signatures tokens, %s, matching this chain part %s. Picked %s.',
+            log.info('There are several signatures tokens, %s, matching this chain part %s. Picked %s.',
                                   theMatchingTokens,chainpart,theToken)
         return reverseSliceIDDict[theToken]
-    logSignatureDict.error('No signature matching chain part %s was found.', chainpart)
+    log.error('No signature matching chain part %s was found.', chainpart)
     return False
 
 

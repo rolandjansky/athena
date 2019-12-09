@@ -4,8 +4,6 @@
 
 #include "MuonSegmentRegionRecoveryTool.h"
 
-#include "MuonChamberHoleRecoveryTool.h"
-#include "MuonRecToolInterfaces/IMuonSeededSegmentFinder.h"
 #include "MuonTrackMakerUtils/MuonGetClosestParameters.h"
 #include "MuonTrackMakerUtils/SortTracksByHitNumber.h"
 #include "MuonTrackMakerUtils/SortMeasurementsByPosition.h"
@@ -16,12 +14,7 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonIdHelpers/MuonStationIndex.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 
-#include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
-#include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
-#include "MuonRecToolInterfaces/IMuonHitSummaryTool.h"
 
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
@@ -46,7 +39,6 @@
 #include "MuonSegment/MuonSegment.h"
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
 
-#include "MuonStationIntersectSvc/MuonStationIntersectSvc.h"
 #include "MuonStationIntersectSvc/MuonStationIntersect.h"
 
 #include "TrkMeasurementBase/MeasurementBase.h"
@@ -54,20 +46,12 @@
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkSurfaces/StraightLineSurface.h"
-#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
-
-#include "TrkExInterfaces/IExtrapolator.h"
-
-#include "TrkToolInterfaces/ITrackHoleSearchTool.h"
-#include "TrkToolInterfaces/IResidualPullCalculator.h"
-#include "TrkFitterInterfaces/ITrackFitter.h"
 
 #include "TrkEventPrimitives/ResidualPull.h"
 #include "TrkEventPrimitives/LocalDirection.h"
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkEventUtils/TrackStateOnSurfaceComparisonFunction.h"
 
-#include "IRegionSelector/IRegSelSvc.h"
 #include "RoiDescriptor/RoiDescriptor.h"
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
@@ -79,38 +63,10 @@
 namespace Muon {
 
 MuonSegmentRegionRecoveryTool::MuonSegmentRegionRecoveryTool(const std::string& ty, const std::string& na, const IInterface* pa)
-  : AthAlgTool(ty, na, pa),
-    m_seededSegmentFinder("Muon::MuonSeededSegmentFinder/MuonSeededSegmentFinder"),
-    m_trackSegmentMatchingTool("Muon::MooCandidateMatchingTool/MooCandidateMatchingTool"),
-    m_chamberHoleRecoveryTool("Muon::MuonChamberHoleRecoveryTool/MuonChamberHoleRecoveryTool"),
-    m_extrapolator("Trk::Extrapolator/MuonExtrapolator"),
-    m_fitter("Rec::CombinedMuonTrackBuilder/CombinedMuonTrackBuilder"),
-    m_intersectSvc("MuonStationIntersectSvc", name()),
-    m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-    m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_hitSummaryTool("Muon::MuonHitSummaryTool/MuonHitSummaryTool"),
-    m_regionSelector("RegSelSvc", name())
+  : AthAlgTool(ty, na, pa)
 {
   declareInterface<IMuonHoleRecoveryTool>(this);
-  declareProperty("SeededSegmentFinder",     m_seededSegmentFinder);
-  declareProperty("TrackSegmentMatchingTool", m_trackSegmentMatchingTool);
-  declareProperty("ChamberHoleRecoveryTool", m_chamberHoleRecoveryTool);
-  declareProperty("Extrapolator",            m_extrapolator);
-  declareProperty("Fitter",                  m_fitter );
-  declareProperty("MuonStationIntersectSvc", m_intersectSvc);
-  declareProperty("IdHelper",                m_idHelperTool);
-  declareProperty("EDMPrinter",              m_printer);
-  declareProperty("HitSummaryTool",          m_hitSummaryTool);
-  declareProperty("RegionSelector",          m_regionSelector);
-
-  declareProperty("DeltaEtaRegion",  m_deta = 0.05);
-  declareProperty("DeltaPhiRegion",  m_dphi = 0.1);
-  declareProperty("ExcludeEES",  m_excludeEES = true);
-  declareProperty("OnlyEO",      m_onlyEO = false);
-  declareProperty("UseFitterOutlierLogic", m_useFitterOutlierLogic = true );
 }
-
-MuonSegmentRegionRecoveryTool::~MuonSegmentRegionRecoveryTool() {}
 
 StatusCode MuonSegmentRegionRecoveryTool::initialize()
 {
@@ -365,12 +321,12 @@ void MuonSegmentRegionRecoveryTool::collectCrossedChambers( const Trk::Track& tr
 
   RoiDescriptor roi( etamin, etamax, phimin, phimax );
 
-  if ((&(m_idHelperTool->mdtIdHelper())) && (m_idHelperTool->mdtIdHelper().isInitialized())) addHashes(MDT, roi, data.mdt, data.mdtTrack);
-  if ((&(m_idHelperTool->rpcIdHelper())) && (m_idHelperTool->rpcIdHelper().isInitialized())) addHashes(RPC, roi, data.rpc, data.rpcTrack);
-  if ((&(m_idHelperTool->tgcIdHelper())) && (m_idHelperTool->tgcIdHelper().isInitialized())) addHashes(TGC, roi, data.tgc, data.tgcTrack);
-  if ((&(m_idHelperTool->cscIdHelper())) && (m_idHelperTool->cscIdHelper().isInitialized())) addHashes(CSC, roi, data.csc, data.cscTrack);
-  if ((&(m_idHelperTool->stgcIdHelper())) && (m_idHelperTool->stgcIdHelper().isInitialized())) addHashes(STGC, roi, data.stgc, data.stgcTrack);
-  if ((&(m_idHelperTool->mmIdHelper())) && (m_idHelperTool->mmIdHelper().isInitialized())) addHashes(MM, roi, data.mm, data.mmTrack);
+  if (m_idHelperTool->hasMdtIdHelper() && (m_idHelperTool->mdtIdHelper().isInitialized())) addHashes(MDT, roi, data.mdt, data.mdtTrack);
+  if (m_idHelperTool->hasRpcIdHelper() && (m_idHelperTool->rpcIdHelper().isInitialized())) addHashes(RPC, roi, data.rpc, data.rpcTrack);
+  if (m_idHelperTool->hasTgcIdHelper() && (m_idHelperTool->tgcIdHelper().isInitialized())) addHashes(TGC, roi, data.tgc, data.tgcTrack);
+  if (m_idHelperTool->hasCscIdHelper() && (m_idHelperTool->cscIdHelper().isInitialized())) addHashes(CSC, roi, data.csc, data.cscTrack);
+  if (m_idHelperTool->hasSTgcIdHelper() && (m_idHelperTool->stgcIdHelper().isInitialized())) addHashes(STGC, roi, data.stgc, data.stgcTrack);
+  if (m_idHelperTool->hasMmIdHelper() && (m_idHelperTool->mmIdHelper().isInitialized())) addHashes(MM, roi, data.mm, data.mmTrack);
 
   std::set<IdentifierHash>::iterator hsit = data.mdt.begin();
   std::set<IdentifierHash>::iterator hsit_end = data.mdt.end();
@@ -990,7 +946,7 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::addMissingChambers( const Trk::
     }
     data.tgcCols = newtcols;
 
-    if ((&(m_idHelperTool->cscIdHelper())) && (m_idHelperTool->cscIdHelper().isInitialized())) {
+    if (m_idHelperTool->hasCscIdHelper() && (m_idHelperTool->cscIdHelper().isInitialized())) {
       m_seededSegmentFinder->extractCscPrdCols( data.csc, data.cscCols );
       std::vector<const CscPrepDataCollection*>::const_iterator cit = data.cscCols.begin();
       std::vector<const CscPrepDataCollection*>::const_iterator cit_end = data.cscCols.end();
@@ -1015,7 +971,7 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::addMissingChambers( const Trk::
   }
 
   unsigned int nstates = states.size();
-  if ((&(m_idHelperTool->stgcIdHelper())) && (m_idHelperTool->stgcIdHelper().isInitialized())) {
+  if (m_idHelperTool->hasSTgcIdHelper() && (m_idHelperTool->stgcIdHelper().isInitialized())) {
     m_seededSegmentFinder->extractsTgcPrdCols( data.stgc, data.stgcCols );
     std::vector<const sTgcPrepDataCollection*>::const_iterator stit = data.stgcCols.begin();
     std::vector<const sTgcPrepDataCollection*>::const_iterator stit_end = data.stgcCols.end();
@@ -1040,7 +996,7 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::addMissingChambers( const Trk::
     data.stgcCols = newstcols;
   }
 
-  if ((&(m_idHelperTool->mmIdHelper())) && (m_idHelperTool->mmIdHelper().isInitialized())) {
+  if (m_idHelperTool->hasMmIdHelper() && (m_idHelperTool->mmIdHelper().isInitialized())) {
     m_seededSegmentFinder->extractMMPrdCols( data.mm, data.mmCols );
     ATH_MSG_DEBUG(" extractMMPrdCols data.mmCols.size() " << data.mmCols.size());
     std::vector<const MMPrepDataCollection*>::const_iterator mit = data.mmCols.begin();

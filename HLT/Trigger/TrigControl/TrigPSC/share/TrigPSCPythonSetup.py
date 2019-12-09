@@ -195,6 +195,9 @@ else:
          log.info('Dumping joboptions to "%s.json"', fname)
          create_joboptions_json(jocat, fname+".json")
 
+      if PscConfig.exitAfterDump:
+         theApp.exit(0)
+
    del log
 
    ### setup everything ---------------------------------------------------------

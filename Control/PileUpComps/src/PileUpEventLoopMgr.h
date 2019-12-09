@@ -7,7 +7,6 @@
 /** @file PileUpEventLoopMgr.h
     @brief The ATLAS event loop for pile-up applications.
     @author Paolo Calafiura
-    $Id: PileUpEventLoopMgr.h,v 1.9 2008-04-23 22:48:29 calaf Exp $
 */
 
 // Base class headers
@@ -83,12 +82,6 @@ private:
 
   /// Run the algorithms for the current event
   virtual StatusCode executeAlgorithms(const EventContext& ctx);
-
-  /// Run the algorithms beginRun hook
-  StatusCode beginRunAlgorithms();
-
-  /// Run the algorithms endRun hook
-  StatusCode endRunAlgorithms();
 
   ///return the 'fake BCID' corresponding to bunchXing
   inline unsigned int getBCID(int bunchXing, unsigned int centralBCID) const {

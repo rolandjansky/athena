@@ -49,8 +49,8 @@ class ATLAS_NOT_THREAD_SAFE Svc
   //@{
   virtual StatusCode initialize() override;
   virtual StatusCode reinitialize() override;
-  virtual StatusCode beginRun();
-  virtual StatusCode endRun();
+  virtual StatusCode start() override;
+  virtual StatusCode stop() override;
   virtual StatusCode finalize() override;
   //@}
 

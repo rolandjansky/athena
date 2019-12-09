@@ -4,6 +4,8 @@
 
 # Technical package(s) that should not show up in packages.txt:
 - Build
+- .devcontainer
+- .vscode
 
 # Ignore the Projects directory:
 - Projects/.*

@@ -12,9 +12,9 @@ from AthenaCommon.DetFlags import DetFlags
 from AthenaCommon.BeamFlags import jobproperties
 beamFlags = jobproperties.Beam
 from RecExConfig.RecFlags import rec
-from MuonRecUtils import logMuon,logMuonResil,RecConfigInfo,fillJobPropertyContainer,SummaryJobProperty
+from MuonRecExample.MuonRecUtils import logMuon,logMuonResil,RecConfigInfo,fillJobPropertyContainer,SummaryJobProperty
 
-from MuonStandaloneFlags import muonStandaloneFlags
+from MuonRecExample.MuonStandaloneFlags import muonStandaloneFlags
 
 from MuonCnvExample.MuonCalibFlags import mdtCalibFlags
 
@@ -391,7 +391,7 @@ class MuonRec(JobPropertyContainer):
     def setDefaults(self):
         global globalflags
 
-        from MuonRecUtils import setJobPropertyDefault as setDefault
+        from MuonRecExample.MuonRecUtils import setJobPropertyDefault as setDefault
 
         # as long as rec.Commissioning is alive, sync the default to it
         # in case of BS->RDO, RDO->RDO, RDO->BS, BS->BS: don't run RIO (i.e RDO->PRD)
@@ -565,12 +565,12 @@ class MuonRec(JobPropertyContainer):
                     if not isOn:
                         cmd = "DetFlags.%s.%s_setOn()" % (f,tech)
                         logMuon.info(cmd)
-                        exec cmd
+                        exec(cmd)
                 else: # set off
                     if isOn:
                         cmd = "DetFlags.%s.%s_setOff()" % (f,tech)
                         logMuon.info(cmd)
-                        exec cmd
+                        exec(cmd)
 
         # Turn off Muon flags (row in DetFlags printout)
         for f in flagsOff:
@@ -578,7 +578,7 @@ class MuonRec(JobPropertyContainer):
             if isOn:
                 cmd = "DetFlags.%s.Muon_setOff()" % f
                 logMuon.info(cmd)
-                exec cmd
+                exec(cmd)
 
         # Turn off Technology flags (column in DetFlags printout)  Too drastic???
 ##         for tech in techList:
@@ -587,7 +587,7 @@ class MuonRec(JobPropertyContainer):
 ##             if setOff and isOn:
 ##                 cmd = "DetFlags.%s_setOff()" % tech
 ##                 logMuon.info(cmd)
-##                 exec cmd
+##                 exec(cmd)
                 
     
 

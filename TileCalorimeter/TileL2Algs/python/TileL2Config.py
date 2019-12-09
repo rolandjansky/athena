@@ -102,8 +102,8 @@ if __name__ == "__main__":
     log.setLevel(DEBUG)
 
     ConfigFlags.Input.Files = defaultTestFiles.RAW
-
     ConfigFlags.fillFromArgs()
+    ConfigFlags.Output.ESDFileName = "myESD.pool.root"
     ConfigFlags.lock()
 
     # Construct our accumulator to run
@@ -118,7 +118,7 @@ if __name__ == "__main__":
 
     ConfigFlags.dump()
     acc.printConfig(withDetails = True, summariseProps = True)
-    acc.store( open('TileL2.pkl','w') )
+    acc.store( open('TileL2.pkl','wb') )
 
 
     sc = acc.run(maxEvents=3)

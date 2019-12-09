@@ -31,7 +31,7 @@ def _setupAtlasUnixGeneratorJob():
     from AthenaCommon.AlgSequence import AthSequencer
     topSequence = AthSequencer("AthAlgSeq")
     from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
-    topSequence += xAODMaker__EventInfoCnvAlg(DoBeginRun = False, AODKey = 'McEventInfo')
+    topSequence += xAODMaker__EventInfoCnvAlg(AODKey = 'McEventInfo')
 
     return
 
