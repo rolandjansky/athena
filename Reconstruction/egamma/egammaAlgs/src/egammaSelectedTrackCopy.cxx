@@ -58,12 +58,10 @@ StatusCode egammaSelectedTrackCopy::initialize() {
   ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
   /* the extrapolation tool*/
-  if(m_extrapolationTool.retrieve().isFailure()){
-    ATH_MSG_ERROR("initialize: Cannot retrieve extrapolationTool " << m_extrapolationTool);
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_extrapolationTool.retrieve());
+  ATH_CHECK(m_extrapolationToolCommonCache.retrieve());
 
-  ATH_CHECK( m_egammaCaloClusterSelector.retrieve() );
+  ATH_CHECK( m_egammaCaloClusterSelector.retrieve());
 
   return StatusCode::SUCCESS;
 }  
@@ -130,7 +128,7 @@ StatusCode egammaSelectedTrackCopy::execute()
   //Extrapolation Cache
   IEMExtrapolationTools::Cache cache{};
   for(const xAOD::TrackParticle* track : *trackTES){
-    
+
     ATH_MSG_DEBUG ("Check Track with Eta "<< track->eta()<< " Phi " << track->phi()<<" Pt " <<track->pt());
     ++allTracks;
     bool isTRT=false;
@@ -152,9 +150,9 @@ StatusCode egammaSelectedTrackCopy::execute()
 
     for(const xAOD::CaloCluster* cluster : passingClusters ){
       /*
-       check if it the track is selected due to this cluster.
-       If not continue to next cluster
-       */
+         check if it the track is selected due to this cluster.
+         If not continue to next cluster
+         */
       if(!Select(Gaudi::Hive::currentContext(), cluster,track,cache,isTRT)){
         ATH_MSG_DEBUG ("Track did not match cluster");
         continue;
@@ -252,8 +250,8 @@ bool egammaSelectedTrackCopy::Select(const EventContext& ctx,
    */
   //Broad phi check
   if ((fabs(deltaPhiRescaled) > 2*m_broadDeltaPhi) 
-       && (fabs(deltaPhiTrack) > 2.*m_broadDeltaPhi) 
-       && (fabs(deltaPhiStd) > 2*m_broadDeltaPhi)){
+      && (fabs(deltaPhiTrack) > 2.*m_broadDeltaPhi) 
+      && (fabs(deltaPhiStd) > 2*m_broadDeltaPhi)){
     ATH_MSG_DEBUG("FAILS broad window phi match (track phi, phirotCluster , phiRotTrack , "
                   <<"cluster phi corrected, cluster phi): ( " 
                   << trkPhi << ", " << phiRotRescaled<< ", "<<phiRotTrack<< ", " 
@@ -279,18 +277,28 @@ bool egammaSelectedTrackCopy::Select(const EventContext& ctx,
   std::vector<double>  phi(4, -999.0);
   std::vector<double>  deltaEta(4, -999.0);
   std::vector<double>  deltaPhi(4, -999.0);
-  if (m_extrapolationTool->getMatchAtCalo (ctx,
-                                           cluster, 
-                                           track, 
-                                           Trk::alongMomentum, 
-                                           eta,
-                                           phi,
-                                           deltaEta, 
-                                           deltaPhi, 
-                                           IEMExtrapolationTools::fromLastMeasurement,
-                                           &cache).isFailure()) {
-    return false;
-  }  
+  if (m_extrapolationToolCommonCache->getMatchAtCalo (ctx,
+                                                      cluster, 
+                                                      track, 
+                                                      Trk::alongMomentum, 
+                                                      eta,
+                                                      phi,
+                                                      deltaEta, 
+                                                      deltaPhi, 
+                                                      IEMExtrapolationTools::fromLastMeasurement).isFailure()){
+    if(m_extrapolationTool->getMatchAtCalo (ctx,
+                                            cluster, 
+                                            track, 
+                                            Trk::alongMomentum, 
+                                            eta,
+                                            phi,
+                                            deltaEta, 
+                                            deltaPhi, 
+                                            IEMExtrapolationTools::fromLastMeasurement,
+                                            &cache).isFailure()) {
+      return false;
+    }  
+  }
 
   // Selection in narrow eta/phi window from last measurement
   if(fabs(deltaEta[2]) < m_narrowDeltaEta && 
@@ -313,16 +321,16 @@ bool egammaSelectedTrackCopy::Select(const EventContext& ctx,
     std::vector<double>  phi1(4, -999.0);
     std::vector<double>  deltaEta1(4, -999.0);
     std::vector<double>  deltaPhi1(5, -999.0); // Set size to 5 to store deltaPhiRot
- 
-    if (m_extrapolationTool->getMatchAtCalo (ctx,
-                                             cluster, 
-                                             track, 
-                                             Trk::alongMomentum, 
-                                             eta1,
-                                             phi1,
-                                             deltaEta1, 
-                                             deltaPhi1, 
-                                             IEMExtrapolationTools::fromPerigeeRescaled).isFailure()) {
+
+    if(m_extrapolationTool->getMatchAtCalo (ctx,
+                                            cluster, 
+                                            track, 
+                                            Trk::alongMomentum, 
+                                            eta1,
+                                            phi1,
+                                            deltaEta1, 
+                                            deltaPhi1, 
+                                            IEMExtrapolationTools::fromPerigeeRescaled).isFailure()) {
       return false;
     }
     //Redo the check with rescale
