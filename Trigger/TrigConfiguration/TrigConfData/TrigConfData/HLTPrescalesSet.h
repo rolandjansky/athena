@@ -20,13 +20,15 @@ namespace TrigConf {
    public:
 
       struct HLTPrescale {
-         std::string name {""};
-         double   prescale { 1 };
-         uint32_t namehash { 0 };
+         bool     enabled  { false }; // chain enabled
+         double   prescale { 1 };     // prescale value
       };
 
       /** Constructor */
       HLTPrescalesSet();
+
+      /** Copy constructor */
+      HLTPrescalesSet(const HLTPrescalesSet &);
 
       /** Constructor initialized with configuration data 
        * @param data The data containing the HLT prescales 
@@ -58,6 +60,8 @@ namespace TrigConf {
 
       // maps HLT chain hashes to prescales 
       std::unordered_map<uint32_t, HLTPrescale> m_prescalesByHash {1024};
+
+      std::string m_name;
 
    };
 }

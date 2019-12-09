@@ -10,7 +10,7 @@ TrigMETMonitorAlgorithm::TrigMETMonitorAlgorithm( const std::string& name, ISvcL
   , m_hlt_cell_met_key("HLT_MET_cell")
   , m_hlt_mht_met_key("HLT_MET_mht")
   , m_hlt_tc_met_key("HLT_MET_tc")
-  , m_hlt_tcpufit_met_key("HLT_MET_tcPufit")
+  , m_hlt_tcpufit_met_key("HLT_MET_tcpufit")
 {
   declareProperty("l1_roi_key", m_lvl1_roi_key);
   declareProperty("hlt_cell_key", m_hlt_cell_met_key);
@@ -124,7 +124,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       tc_Et = sqrt(tc_Ex*tc_Ex + tc_Ey*tc_Ey);
     }
 
-    // access HLT tcPufit MET values
+    // access HLT tcpufit MET values
     if ( hlt_tcpufit_met_cont->size() > 0 && hlt_tcpufit_met_cont.isValid() ) {
       hlt_met = hlt_tcpufit_met_cont->at(0);
       tcpufit_Ex = (hlt_met->ex())/1000.;

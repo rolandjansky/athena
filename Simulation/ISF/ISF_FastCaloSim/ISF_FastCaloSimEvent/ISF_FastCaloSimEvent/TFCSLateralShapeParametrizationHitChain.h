@@ -14,7 +14,7 @@ public:
   TFCSLateralShapeParametrizationHitChain(const char* name=nullptr, const char* title=nullptr);
   TFCSLateralShapeParametrizationHitChain(TFCSLateralShapeParametrizationHitBase* hitsim);
 
-  virtual FCSReturnCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) override;
+  virtual FCSReturnCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override;
 
   virtual void set_geometry(ICaloGeometry* geo) override;
 

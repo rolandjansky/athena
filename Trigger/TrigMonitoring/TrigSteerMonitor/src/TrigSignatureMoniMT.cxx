@@ -92,13 +92,18 @@ StatusCode TrigSignatureMoniMT::start() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigSignatureMoniMT::finalize() {
-  
-  /**
-   * This should really be done during stop(). However, at the moment
-   * the EventContext is printed for each message in the stop transition
-   * making the use of the count printout in regtests impossible (!20776).
-   */
+StatusCode TrigSignatureMoniMT::stop() {
+  //publish final rate histogram
+  if (m_timer) {
+    m_timer->stop();
+    time_t t = time(0);
+    unsigned int interval;
+    unsigned int duration = m_timeDivider->forcePassed(t, interval);
+    updatePublished(duration); //divide by time that really passed not by interval duration
+  }
+  m_timer.reset();
+  delete m_rateBufferHistogram.get();
+
   if (m_chainIDToBinMap.empty()) {
     ATH_MSG_INFO( "No chains configured, no counts to print" );
     return StatusCode::SUCCESS;
@@ -118,11 +123,9 @@ StatusCode TrigSignatureMoniMT::finalize() {
     return v;
   };
   
-  
   auto fixedWidth = [](const std::string& s, size_t sz) {
     return s.size() < sz ?
     s+ std::string(sz - s.size(), ' ') : s; };
-
 
   std::string v;
   for ( int bin = 1; bin <= m_passHistogram->GetYaxis()->GetNbins()-3; ++bin ) {
@@ -133,7 +136,6 @@ StatusCode TrigSignatureMoniMT::finalize() {
   
   ATH_MSG_INFO( "Chains passing step (1st row events & 2nd row decision counts):" );  
   ATH_MSG_INFO( "Chain name                   L1,      AfterPS,  "<<v<<"Output"  );
-
 
   /*
     comment for future dev:
@@ -149,22 +151,8 @@ StatusCode TrigSignatureMoniMT::finalize() {
     if ( chainName.find("All") == 0 ){
       ATH_MSG_INFO( fixedWidth(chainName, 30)  << collToString( bin, m_passHistogram) );
     }
-  }		 
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TrigSignatureMoniMT::stop() {
-  //publish final rate histogram
-  if (m_timer) {
-    m_timer->stop();
-    time_t t = time(0);
-    unsigned int interval;
-    unsigned int duration = m_timeDivider->forcePassed(t, interval);
-    updatePublished(duration); //divide by time that really passed not by interval duration
   }
-  m_timer.reset();
-  delete m_rateBufferHistogram.get();
+
   return StatusCode::SUCCESS;
 }
 

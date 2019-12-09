@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //--------------------------------------------------------------------------
@@ -18,6 +18,8 @@
 // Pythia Common access method
 #ifndef PYMSRV_H
 #define PYMSRV_H
+
+#include "CxxUtils/unused.h"
 
 extern "C" {
   void* pymsrv_address_(void);
@@ -49,8 +51,8 @@ private:
     double rvlamb[3][3][3];
   };
 
-  double m_dummy;
-  double m_realdummy;
+  double ATH_UNUSED_MEMBER(m_dummy);
+  double ATH_UNUSED_MEMBER(m_realdummy);
 
   static PYMSRV* s_pymsrv;
 };

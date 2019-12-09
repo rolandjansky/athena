@@ -23,7 +23,7 @@ def _setup():
     from CoolConvUtilities.MagFieldUtils import getFieldForRun
 
     if lb==None:
-        print rn
+        logGetCool.info(rn)  
         cool=getFieldForRun(rn)
     else:
         # MagFieldDCSInfo

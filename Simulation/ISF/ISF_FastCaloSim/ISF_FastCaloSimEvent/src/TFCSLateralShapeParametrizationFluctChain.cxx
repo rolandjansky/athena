@@ -21,7 +21,7 @@ TFCSLateralShapeParametrizationFluctChain::TFCSLateralShapeParametrizationFluctC
 {
 }
 
-FCSReturnCode TFCSLateralShapeParametrizationFluctChain::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol)
+FCSReturnCode TFCSLateralShapeParametrizationFluctChain::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const
 {
   // Call get_number_of_hits() only once, as it could contain a random number
   float sigma2  = get_sigma2_fluctuation(simulstate, truth, extrapol);
@@ -33,17 +33,17 @@ FCSReturnCode TFCSLateralShapeParametrizationFluctChain::simulate(TFCSSimulation
   //Limit to relative precision of 10^-4=0.01%. ATLAS calorimeter is ~0.1% at best
   if(sigma2<1e-8) sigma2=1e-8; 
 
-  float Elayer=simulstate.E(calosample());
-  int nhit = 1.0 / sigma2;
+  const float Elayer=simulstate.E(calosample());
+  const int nhit = 1.0 / sigma2;
 
   //Make a good guess of the needed hit energy, assuming all hits would have the same energy
-  float Eavghit=Elayer/nhit;
-  float Eavghit_tenth=Eavghit/10;
+  const float Eavghit=Elayer/nhit;
+  const float Eavghit_tenth=Eavghit/10;
   float sumEhit=0;
   float error2_sumEhit=0;
   float error2=2*s_max_sigma2_fluctuation;
 
-  bool debug = msgLvl(MSG::DEBUG);
+  const bool debug = msgLvl(MSG::DEBUG);
   if (debug) {
     ATH_MSG_DEBUG("E("<<calosample()<<")="<<Elayer<<" sigma2="<<sigma2);
   }
@@ -78,7 +78,7 @@ FCSReturnCode TFCSLateralShapeParametrizationFluctChain::simulate(TFCSSimulation
     if(!failed) {
       ifail=0;
       ++ihit;
-      float Ehit=hit.E();
+      const float Ehit=hit.E();
       sumEhit+=Ehit;
       error2_sumEhit+=Ehit*Ehit;
       if(sumEhit>0) error2=error2_sumEhit/(sumEhit*sumEhit);

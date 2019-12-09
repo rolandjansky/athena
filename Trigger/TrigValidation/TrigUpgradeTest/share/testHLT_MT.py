@@ -449,8 +449,19 @@ if not opt.createHLTMenuExternally:
         import sys
         sys.exit(0)
 
-from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc
+
+
+from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc, setupHLTPrescaleCondAlg
 svcMgr += getHLTConfigSvc()
+setupHLTPrescaleCondAlg()
+
+if not opt.createHLTMenuExternally:
+    # the generation of the prescale set file from the menu (with all prescales set to 1)
+    # is not really needed. If no file is provided all chains are either enabled or disabled,
+    # depending on the property L1Decoder.PrescalingTool.KeepUnknownChains being True or False
+    from TrigConfigSvc.TrigConfigSvcCfg import createHLTPrescalesFileFromMenu
+    createHLTPrescalesFileFromMenu()
+
 
 
 # ---------------------------------------------------------------

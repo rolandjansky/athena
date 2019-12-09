@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOSIMEVENT_TFCSPCAEnergyParametrization_h
@@ -19,7 +19,7 @@ class TFCSPCAEnergyParametrization:public TFCSEnergyParametrization
  public:
   TFCSPCAEnergyParametrization(const char* name=nullptr, const char* title=nullptr);
 
-  virtual FCSReturnCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) override;
+  virtual FCSReturnCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override;
   
   int n_pcabins() const { return m_numberpcabins; };
   virtual int n_bins() const override {return m_numberpcabins;};
@@ -30,7 +30,7 @@ class TFCSPCAEnergyParametrization:public TFCSEnergyParametrization
   virtual bool is_match_all_Ekin_bin() const override {return true;};
   virtual bool is_match_all_calosample() const override {return false;};
   
-  void P2X(TVectorD*, TVectorD* , TMatrixD* , int, double* , double* , int);
+  void P2X(TVectorD*, TVectorD* , TMatrixD* , int, double* , double* , int) const;
   bool loadInputs(TFile* file);
   bool loadInputs(TFile* file,std::string);
   

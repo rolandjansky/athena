@@ -1,21 +1,21 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef OVERLAYCOPYALGS_COPYJETTRUTHINFO_H
 #define OVERLAYCOPYALGS_COPYJETTRUTHINFO_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "xAODJet/JetContainer.h"
 
-class CopyJetTruthInfo : public AthAlgorithm
+class CopyJetTruthInfo : public AthReentrantAlgorithm
 {
 public:
 
   CopyJetTruthInfo(const std::string &name, ISvcLocator *pSvcLocator);
 
   virtual StatusCode initialize();
-  virtual StatusCode execute();
+  virtual StatusCode execute(const EventContext& ctx) const override;
 
 private:
   SG::ReadHandleKey<xAOD::JetContainer> m_bkgInputKey{ this, "BkgInputKey", "", "ReadHandleKey for Background Jet Containers" };

@@ -35,5 +35,6 @@ addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastCaloSim
 addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastHitConvAlgFastCaloSimSvc",               "ISF_FastHitConvFastCaloSimSvc")
 addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getLegacyAFIIFastCaloSimSvc",                   "ISF_LegacyAFIIFastCaloSimSvc")
 addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastHitConvAlgLegacyAFIIFastCaloSimSvc",     "ISF_FastHitConvAlgLegacyAFIIFastCaloSimSvc")
+addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastCaloSimV2ParamSvc",                      "ISF_FastCaloSimV2ParamSvc")
 addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastCaloSimSvcV2",                           "ISF_FastCaloSimSvcV2")
 addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getDNNCaloSimSvc",                           "ISF_DNNCaloSimSvc")

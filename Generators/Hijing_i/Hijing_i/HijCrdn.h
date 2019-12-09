@@ -1,10 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #ifndef HijCrdn_h
 #define HijCrdn_h
+
+#include "CxxUtils/unused.h"
 
 extern "C" { void* hijcrdn_address_(void); }
 /**
@@ -41,8 +43,8 @@ private:
 	float  	yt	[s_lenJ][s_lenI];
     };
 
-    int  m_dummy;
-    float  m_realdummy;
+    int  ATH_UNUSED_MEMBER(m_dummy);
+    float  ATH_UNUSED_MEMBER(m_realdummy);
 
     static HIJCRDN* s_hijcrdn;
 };

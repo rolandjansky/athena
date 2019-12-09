@@ -2175,7 +2175,7 @@ void Muon::MuonTrackingGeometryBuilder::getZParts() const
   if (m_inertAdjustLevel>0) { (*m_zPartitions).push_back(-1347.);  (*m_zPartitionsType).push_back(1); }   //  cryoring 
   if (m_activeAdjustLevel>0){ (*m_zPartitions).push_back(-800.);   (*m_zPartitionsType).push_back(1); }  //  cryoring 
   if (m_inertAdjustLevel>1) { (*m_zPartitions).push_back(-300.);   (*m_zPartitionsType).push_back(0); }   //   
-  if (m_inertAdjustLevel+m_activeAdjustLevel<1) { (*m_zPartitions).push_back(-0.7*m_diskShieldZ);   (*m_zPartitionsType).push_back(0); }   //
+  if (static_cast<int>(m_inertAdjustLevel)+static_cast<int>(m_activeAdjustLevel)<1) { (*m_zPartitions).push_back(-0.7*m_diskShieldZ);   (*m_zPartitionsType).push_back(0); }   //
 
   unsigned int zSiz = (*m_zPartitions).size();
   for (unsigned int i = 0; i<zSiz ; i++) {
@@ -2290,7 +2290,7 @@ void Muon::MuonTrackingGeometryBuilder::getHParts() const
   // BT sector
   std::vector<std::pair<int,float> >  barrelZ1F0;
   barrelZ1F0.push_back( std::pair<int,float>(0,(*m_innerBarrelRadius)) );
-  if (m_activeAdjustLevel+m_inertAdjustLevel>0) barrelZ1F0.push_back( std::pair<int,float>(0,4450.) );                
+  if (static_cast<int>(m_activeAdjustLevel)+static_cast<int>(m_inertAdjustLevel)>0) barrelZ1F0.push_back( std::pair<int,float>(0,4450.) );                
   if (m_inertAdjustLevel>0) {
     barrelZ1F0.push_back( std::pair<int,float>(1,5800.) );
     barrelZ1F0.push_back( std::pair<int,float>(1,6500.) );
@@ -2332,7 +2332,7 @@ void Muon::MuonTrackingGeometryBuilder::getHParts() const
   if (m_activeAdjustLevel>1) {
     swZ0F0.push_back( std::pair<int,float>(0,2700.) );                
   }
-  if (m_activeAdjustLevel+m_inertAdjustLevel>0) swZ0F0.push_back( std::pair<int,float>(0,4450.) );                
+  if (static_cast<int>(m_activeAdjustLevel)+static_cast<int>(m_inertAdjustLevel)>0) swZ0F0.push_back( std::pair<int,float>(0,4450.) );                
   if (m_activeAdjustLevel>0) {
     swZ0F0.push_back( std::pair<int,float>(0,6560.) );                // BI/BM
     swZ0F0.push_back( std::pair<int,float>(0,8900.) );                // BM/BO
@@ -2343,7 +2343,7 @@ void Muon::MuonTrackingGeometryBuilder::getHParts() const
   std::vector<std::pair<int,float> >  swZ0F1;
   swZ0F1.push_back( std::pair<int,float>(0,m_innerShieldRadius) );
   if (m_activeAdjustLevel>1) swZ0F1.push_back( std::pair<int,float>(0,2700.) );               
-  if (m_inertAdjustLevel+m_activeAdjustLevel>0) swZ0F1.push_back( std::pair<int,float>(0,4450.) );
+  if (static_cast<int>(m_inertAdjustLevel)+static_cast<int>(m_activeAdjustLevel)>0) swZ0F1.push_back( std::pair<int,float>(0,4450.) );
   if (m_inertAdjustLevel>0) swZ0F1.push_back( std::pair<int,float>(1,5900.) );
   if (m_activeAdjustLevel>0) swZ0F1.push_back( std::pair<int,float>(0,6560.) );
   if (m_inertAdjustLevel>0) {

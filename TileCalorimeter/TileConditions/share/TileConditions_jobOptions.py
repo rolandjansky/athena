@@ -1,6 +1,7 @@
 # Author: N. Gollub (nils.gollub@cern.ch)
 # main job option to setup TileConditions
 #
+from __future__ import division
 include.block ("TileConditions/TileConditions_jobOptions.py")
 from AthenaCommon.Logging import logging
 msg = logging.getLogger( 'TileConditions_jobOptions.py' )
@@ -94,7 +95,7 @@ if TileUseDCS or ('TileCheckOFC' in dir() and TileCheckOFC) or ('RunOflOFC' in d
 
 msg.info("Adjusting TileInfo for %s samples" % TileFrameLength )
 tileInfoConfigurator.NSamples = TileFrameLength
-tileInfoConfigurator.TrigSample = (TileFrameLength-1)/2
+tileInfoConfigurator.TrigSample = (TileFrameLength-1)//2 # Floor division
 
 if athenaCommonFlags.isOnline():
     #=== setup reading from COOL DB

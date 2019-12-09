@@ -9,7 +9,7 @@ from MuonByteStream.MuonByteStreamFlags import muonByteStreamFlags
 from AthenaCommon.AppMgr import theApp,ToolSvc,ServiceMgr
 from AthenaCommon.DetFlags import DetFlags
 from RecExConfig.RecFlags import rec as recFlags
-from MuonCnvFlags import muonCnvFlags
+from MuonCnvExample.MuonCnvFlags import muonCnvFlags
 
 from AthenaCommon.AlgSequence import AthSequencer
 from MuonMDT_Cabling.MuonMDT_CablingConf import MuonMDT_CablingAlg
