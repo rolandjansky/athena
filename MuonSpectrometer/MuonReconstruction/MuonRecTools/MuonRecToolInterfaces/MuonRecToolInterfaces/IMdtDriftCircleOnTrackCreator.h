@@ -39,8 +39,10 @@ namespace Muon {
         virtual MdtDriftCircleOnTrack* createRIO_OnTrack( const MdtPrepData& DC, 
                                                                 const Amg::Vector3D& GP,
                                                                 const Amg::Vector3D* GD = 0,
-								float t0Shift = 0,
-                                                                const MuonDriftCircleErrorStrategy* strategy = 0 ) const = 0;
+                                                                float t0Shift = 0,
+                                                                const MuonDriftCircleErrorStrategy* strategy = 0,
+                                                                const double beta = 1,
+                                                                const double tTrack = 0) const = 0;
 
         /** @brief Update of the sign of the drift radius. 
         @param DCT reference to the Muon::MdtDriftCircleOnTrack of which the sign should be updated.
@@ -77,7 +79,9 @@ namespace Muon {
         */
         virtual MdtDriftCircleOnTrack* correct( const Trk::PrepRawData& prd, 
                                                       const Trk::TrackParameters& tp, 
-                                                      const MuonDriftCircleErrorStrategy* strategy ) const = 0;
+                                                      const MuonDriftCircleErrorStrategy* strategy,
+                                                      const double beta = 1,
+                                                      const double tTrack = 0 ) const = 0;
 
         /** @brief Keep base class version of correct for use with default error strategy object */
         virtual MdtDriftCircleOnTrack* correct( const Trk::PrepRawData& prd,

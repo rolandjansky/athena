@@ -70,7 +70,6 @@ namespace MuonCombined {
     m_muonPRDSelectionToolStau("Muon::MuonPRDSelectionTool/MuonPRDSelectionToolStau"),
     m_mdtCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"),
     m_mdtCreatorStau("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreatorStau"),
-    m_stauTofTool("MuGirlNS::StauBetaTofTool/StauBetaTofTool"),
     m_insideOutRecoTool("MuonCombined::MuonInsideOutRecoTool/MuonInsideOutRecoTool"),
     m_updator("Trk::KalmanUpdator/KalmanUpdator"),
     m_calibrationDbTool("MdtCalibrationDbTool", this)
@@ -90,7 +89,6 @@ namespace MuonCombined {
     declareProperty("MuonPRDSelectionToolStau", m_muonPRDSelectionToolStau );
     declareProperty("MdtDriftCircleOnTrackCreator", m_mdtCreator );
     declareProperty("MdtDriftCircleOnTrackCreatorStau", m_mdtCreatorStau );
-    declareProperty("MuonTofTool",m_stauTofTool);
     declareProperty("Updator", m_updator );
     declareProperty("MuonInsideOutRecoTool", m_insideOutRecoTool );
     declareProperty("MdtCalibrationDbTool", m_calibrationDbTool );
@@ -134,7 +132,6 @@ namespace MuonCombined {
     ATH_CHECK(m_muonPRDSelectionToolStau.retrieve());
     ATH_CHECK(m_mdtCreator.retrieve());
     ATH_CHECK(m_mdtCreatorStau.retrieve());
-    ATH_CHECK(m_stauTofTool.retrieve());
     ATH_CHECK(m_insideOutRecoTool.retrieve());
     ATH_CHECK(m_updator.retrieve());
     ATH_CHECK(m_calibrationDbTool.retrieve());
@@ -332,11 +329,6 @@ namespace MuonCombined {
       
       ATH_MSG_DEBUG("   candidate: betaseed beta" << candidate->betaSeed.beta<<", error"<< candidate->betaSeed.error<< " layerDataVec size" << candidate->layerDataVec.size()<<" hits size" <<candidate->hits.size() );
       
-      // get beta from candidate and pass it to TOF tool
-      float beta = candidate->betaFitResult.beta;
-      m_stauTofTool->setBeta(beta);
-      ATH_MSG_DEBUG("   candidate: beta " << beta << " associated layers with maxima " << candidate->layerDataVec.size() );
-      
       // loop over layers and perform segment finding, collect segments per layer
       for( const auto& layerData : candidate->layerDataVec ) {
         
@@ -404,13 +396,10 @@ namespace MuonCombined {
     
     // select around seed
     float betaSeed = candidate.betaFitResult.beta;
-    m_stauTofTool->setBeta(betaSeed);
     
     // fitter + hits
-    Muon::MuonBetaCalculationUtils muonBetaCalculationUtils;
-    Muon::TimePointBetaFit fitter;
-    //fitter.setDebugLevel(20);
-    Muon::TimePointBetaFit::HitVec hits;
+    Muon::TimePointBetaFitter fitter;
+    Muon::TimePointBetaFitter::HitVec hits;
 
     // loop over track and calculate residuals
     const DataVector<const Trk::TrackStateOnSurface>* states = combinedTrack->trackStateOnSurfaces();
@@ -476,7 +465,7 @@ namespace MuonCombined {
           float sh = 0;
           bool isEta = !m_idHelper->measuresPhi(id); 
           float propTime = 0;
-          float tof = muonBetaCalculationUtils.calculateTof(1,distance);
+          float tof = calculateTof(1,distance);
 
 
 
@@ -493,7 +482,7 @@ namespace MuonCombined {
           float tres = rres/drdt;
           float TlocR = rtRelation->tr()->tFromR(fabs(locR), out_of_bound_flag);
           float trackTimeRes = errR/drdt;
-          float tofShiftFromBeta = muonBetaCalculationUtils.calculateTof(betaSeed,distance)-tof;
+          float tofShiftFromBeta = calculateTof(betaSeed,distance)-tof;
           er = sqrt(tres*tres+trackTimeRes*trackTimeRes);
           mdtTimeCalibration(id,driftTime,er);
           time = driftTime - TlocR + tofShiftFromBeta;
@@ -520,12 +509,12 @@ namespace MuonCombined {
                           << " diff " << driftTime - TlocR << " tofShift " << tofShiftFromBeta << " time " << time  
                           << " err " << er << " intrinsic " << tres << " track " << trackTimeRes );
 
-          float beta = muonBetaCalculationUtils.calculateBeta(time+tof,distance);
+          float beta = calculateBeta(time+tof,distance);
           ATH_MSG_VERBOSE("  adding " << m_idHelper->toString(id) << " distance " << distance << " time " << time << " beta" << beta << " diff " << fabs(beta-betaSeed));
           if( fabs(beta-betaSeed) > m_mdttBetaAssociationCut ) continue;
 
 
-          hits.push_back(Muon::TimePointBetaFit::Hit(distance,time,er));
+          hits.push_back(Muon::TimePointBetaFitter::Hit(distance,time,er));
           candidate.stauHits.push_back(MuGirlNS::StauHit(tech, time+tof, ix, iy, iz, id, ie, er,sh, isEta, propTime));
         }
       }else if( m_idHelper->isRpc(id) ){
@@ -564,12 +553,12 @@ namespace MuonCombined {
         float sh = 0;
         bool isEta = !m_idHelper->measuresPhi(id); 
         float propTime = 0;
-        float tof = muonBetaCalculationUtils.calculateTof(1,distance);
+        float tof = calculateTof(1,distance);
         candidate.stauHits.push_back(MuGirlNS::StauHit(tech, time+tof, ix, iy, iz, id, ie, er,sh, isEta, propTime));
       }
     }
 
-    auto insertRpcs = [&muonBetaCalculationUtils,betaSeed,this]( const Trk::TrackParameters& pars, const RpcClVec& clusters, MuonStauRecoTool::Candidate& candidate, Muon::TimePointBetaFit::HitVec& hits){
+    auto insertRpcs = [betaSeed,this]( const Trk::TrackParameters& pars, const RpcClVec& clusters, MuonStauRecoTool::Candidate& candidate, Muon::TimePointBetaFitter::HitVec& hits){
 
       if( clusters.empty() ) return;
 
@@ -599,13 +588,13 @@ namespace MuonCombined {
       bool isEta = !m_idHelper->measuresPhi(id); 
       if(isEta) tech=MuGirlNS::RPCETA_STAU_HIT;
       float propTime = 0;
-      float tof = muonBetaCalculationUtils.calculateTof(1,distance);
-      float beta = muonBetaCalculationUtils.calculateBeta(time+tof,distance);
+      float tof = calculateTof(1,distance);
+      float beta = calculateBeta(time+tof,distance);
       ATH_MSG_VERBOSE("  adding " << m_idHelper->toString(id) << " distance " << distance << " time " << time << " beta" << beta << " diff " << fabs(beta-betaSeed));
 
       if( fabs(beta-betaSeed) > m_mdttBetaAssociationCut ) return;
 
-      hits.push_back(Muon::TimePointBetaFit::Hit(distance,time,er));
+      hits.push_back(Muon::TimePointBetaFitter::Hit(distance,time,er));
       candidate.stauHits.push_back(MuGirlNS::StauHit(tech, time+tof, ix, iy, iz, id, ie, er,sh, isEta, propTime));
     };
     
@@ -668,7 +657,7 @@ namespace MuonCombined {
         const Muon::MdtDriftCircleOnTrack& mdt = *entry.second;
         Identifier id = mdt.identify();
         // calibrate MDT
-        std::shared_ptr<const Muon::MdtDriftCircleOnTrack> calibratedMdt(m_mdtCreatorStau->correct( *mdt.prepRawData(), pars, &calibrationStrategy )); 
+        std::shared_ptr<const Muon::MdtDriftCircleOnTrack> calibratedMdt(m_mdtCreatorStau->correct( *mdt.prepRawData(), pars, &calibrationStrategy, betaSeed )); 
         if( !calibratedMdt.get() ){
           ATH_MSG_WARNING("Failed to recalibrate existing MDT on track " << m_idHelper->toString(id) );
           continue;
@@ -743,7 +732,7 @@ namespace MuonCombined {
 
 
         // calibrate MDT with nominal timing
-        std::shared_ptr<const Muon::MdtDriftCircleOnTrack> calibratedMdt(m_mdtCreator->correct( *mdt->prepRawData(), *pars, &calibrationStrategy )); 
+        std::shared_ptr<const Muon::MdtDriftCircleOnTrack> calibratedMdt(m_mdtCreator->correct( *mdt->prepRawData(), *pars, &calibrationStrategy, betaSeed )); 
         if( !calibratedMdt.get() ){
           ATH_MSG_WARNING("Failed to recalibrate existing MDT on track " << m_idHelper->toString(id) );
           continue;
@@ -762,7 +751,7 @@ namespace MuonCombined {
         float sh = 0;
         bool isEta = !m_idHelper->measuresPhi(id); 
         float propTime = 0;
-        float tof = muonBetaCalculationUtils.calculateTof(1,distance);
+        float tof = calculateTof(1,distance);
       
 
         
@@ -786,7 +775,7 @@ namespace MuonCombined {
         propTime = driftTime;
         ie = trackTimeRes;
 
-        float beta = muonBetaCalculationUtils.calculateBeta(time+tof,distance);
+        float beta = calculateBeta(time+tof,distance);
         bool isSelected = fabs(beta-betaSeed) < m_mdttBetaAssociationCut;
 
         if( msgLvl(MSG::DEBUG) ){
@@ -803,12 +792,12 @@ namespace MuonCombined {
 
         if( !isSelected ) continue;
         
-        hits.push_back(Muon::TimePointBetaFit::Hit(distance,time,er));
+        hits.push_back(Muon::TimePointBetaFitter::Hit(distance,time,er));
         candidate.stauHits.push_back(MuGirlNS::StauHit(MuGirlNS::MDTT_STAU_HIT, time+tof, ix, iy, iz, id, ie, er,sh, isEta, propTime));
       }
     }
     // fit data 
-    Muon::TimePointBetaFit::FitResult betaFitResult = fitter.fitWithOutlierLogic(hits);
+    Muon::TimePointBetaFitter::FitResult betaFitResult = fitter.fitWithOutlierLogic(hits);
     ATH_MSG_DEBUG(" extractTimeMeasurementsFromTrack: extracted " << candidate.stauHits.size() << " time measurements "
                   << " status fit " << betaFitResult.status << " beta " << betaFitResult.beta << " chi2/ndof " << betaFitResult.chi2PerDOF() );
     
@@ -932,11 +921,6 @@ namespace MuonCombined {
     // loop over candidates and redo segments using beta estimate from candidate
     ATH_MSG_DEBUG("Combining candidates " << candidates.size());
     for( auto& candidate : candidates ){
-      
-      // get beta from candidate and pass it to TOF tool
-      float beta = candidate->betaFitResult.beta;
-      m_stauTofTool->setBeta(beta);
-      ATH_MSG_DEBUG("   candidate: beta " << beta << " associated layers with segments " << candidate->allLayers.size() );
 
       // find best matching track
       std::pair<std::unique_ptr<const Muon::MuonCandidate>,Trk::Track*> result = 
@@ -1009,8 +993,7 @@ namespace MuonCombined {
     std::stable_sort(seedMaximumDataVec.begin(),seedMaximumDataVec.end(),SortMaximumDataVec);
     
     // loop over seeds and create candidates
-    Muon::TimePointBetaFit fitter;
-    //fitter.setDebugLevel(20);
+    Muon::TimePointBetaFitter fitter;
     std::set<const MaximumData*> usedMaximumData;
     MaximumDataVec::iterator sit = seedMaximumDataVec.begin();
     MaximumDataVec::iterator sit_end = seedMaximumDataVec.end();
@@ -1079,13 +1062,13 @@ namespace MuonCombined {
 
       // copy content of the candidate for reference
       LayerDataVec layerDataVec = candidate->layerDataVec; 
-      Muon::TimePointBetaFit::HitVec hits = candidate->hits;
+      Muon::TimePointBetaFitter::HitVec hits = candidate->hits;
 
       // loop over maximumDataVec of the layer
       for( const auto& maximumData : layerData.maximumDataVec ){
         
         // create new hit vector
-        Muon::TimePointBetaFit::HitVec newhits; // create new hits vector and add the ones from the maximum
+        Muon::TimePointBetaFitter::HitVec newhits; // create new hits vector and add the ones from the maximum
         if(  extractTimeHits(*maximumData,newhits,&candidate->betaSeed) ) {
           
           // decide which candidate to update, create a new candidate if a maximum was already selected in the layer
@@ -1196,21 +1179,20 @@ namespace MuonCombined {
     return !associatedData.layerData.empty();
   }
 
-  bool MuonStauRecoTool::extractTimeHits( const MaximumData& maximumData, Muon::TimePointBetaFit::HitVec& hits,
+  bool MuonStauRecoTool::extractTimeHits( const MaximumData& maximumData, Muon::TimePointBetaFitter::HitVec& hits,
                                           const BetaSeed* seed ) const {
 
-    Muon::MuonBetaCalculationUtils muonBetaCalculationUtils;
     unsigned int nstart = hits.size();
 
     auto addHit = [&]( float distance, float time, float error, float cut ){
       if( seed ){
-        float beta = muonBetaCalculationUtils.calculateBeta(time+muonBetaCalculationUtils.calculateTof(1,distance),distance);
+        float beta = calculateBeta(time+calculateTof(1,distance),distance);
         ATH_MSG_VERBOSE("  matching hit: distance " << distance << " time " << time << " beta" << beta << " diff " << fabs(beta-seed->beta));
         if( fabs(beta-seed->beta) > cut ) return;
       }else{
-        ATH_MSG_VERBOSE("  addHit: distance " << distance << " time " << time << " beta" << muonBetaCalculationUtils.calculateBeta(time+muonBetaCalculationUtils.calculateTof(1,distance),distance));
+        ATH_MSG_VERBOSE("  addHit: distance " << distance << " time " << time << " beta" << calculateBeta(time+calculateTof(1,distance),distance));
       }
-      hits.push_back(Muon::TimePointBetaFit::Hit(distance,time,error));
+      hits.push_back(Muon::TimePointBetaFitter::Hit(distance,time,error));
     };
 
     // add rpc measurements
@@ -1240,7 +1222,7 @@ namespace MuonCombined {
         if( !seg->hasFittedT0() ) continue;
         float distance = seg->globalPosition().mag();
         float time = seg->time();
-        float beta = muonBetaCalculationUtils.calculateBeta(time+muonBetaCalculationUtils.calculateTof(1,distance),distance);
+        float beta = calculateBeta(time+calculateTof(1,distance),distance);
         float residual = fabs(beta-seed->beta);
         
         if( residual < smallestResidual ){
@@ -1264,12 +1246,11 @@ namespace MuonCombined {
     if( maximumData.rpcTimeMeasurements.empty() && maximumData.t0fittedSegments.empty() ) return;
 
     // fitter + hits
-    Muon::TimePointBetaFit fitter;
-    //    fitter.setDebugLevel(20);
-    Muon::TimePointBetaFit::HitVec hits;
+    Muon::TimePointBetaFitter fitter;
+    Muon::TimePointBetaFitter::HitVec hits;
     extractTimeHits(maximumData,hits);
     
-    Muon::TimePointBetaFit::FitResult result = fitter.fitWithOutlierLogic(hits);
+    Muon::TimePointBetaFitter::FitResult result = fitter.fitWithOutlierLogic(hits);
     float chi2ndof = result.chi2PerDOF();
 
     ATH_MSG_DEBUG(" fitting beta for maximum: time measurements " << hits.size() << " status " << result.status 
