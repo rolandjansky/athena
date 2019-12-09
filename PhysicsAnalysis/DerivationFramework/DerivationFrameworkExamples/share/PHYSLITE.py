@@ -222,6 +222,13 @@ PHYSLITETauTPThinningTool = DerivationFramework__TauTrackParticleThinning(name  
                                                                           TauTracksKey           = "TauTracks")
 ToolSvc += PHYSLITETauTPThinningTool
 
+# Only keep the highest sum pT2 primary vertex
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__VertexThinning
+PHYSLITEVertexThinningTool = DerivationFramework__VertexThinning(name = "PHYSLITEVertexThinningTool",
+                                                                 ThinningService = PHYSLITEThinningHelper.ThinningSvc(),
+                                                                 VertexKey = "PrimaryVertices")
+ToolSvc += PHYSLITEVertexThinningTool
+thinningTools.append(PHYSLITEVertexThinningTool)
 
 #==============================================================================
 # Kernel algorithm and LHE3 imports
@@ -348,6 +355,25 @@ print( jetSequence ) # For debugging
 
 SeqPHYSLITE += jetSequence
 
+# Make sure the MET knows what we've done
+# First we need to rebuild charged pflow objects
+from eflowRec.ScheduleCHSPFlowMods import scheduleCHSPFlowMods
+scheduleCHSPFlowMods(SeqPHYSLITE)
+# Now build MET from our analysis objects
+from DerivationFrameworkJetEtMiss import METCommon
+from METReconstruction.METAssocConfig import METAssocConfig,AssocConfig
+associators = [AssocConfig('PFlowJet', 'AnalysisJets_NOSYS'),
+               AssocConfig('Muon', 'AnalysisMuons_NOSYS'),
+               AssocConfig('Ele', 'AnalysisElectrons_NOSYS'),
+               AssocConfig('Gamma', 'AnalysisPhotons_NOSYS'),
+               AssocConfig('Tau', 'AnalysisTauJets_NOSYS'),
+               AssocConfig('Soft', '')]
+PHYSLITE_cfg = METAssocConfig('AnalysisMET',
+                              associators,
+                              doPFlow=True)
+METCommon.customMETConfigs.setdefault('AnalysisMET',{})[PHYSLITE_cfg.suffix] = PHYSLITE_cfg
+scheduleMETAssocAlg(sequence=SeqPHYSLITE,configlist="AnalysisMET")
+
 #====================================================================
 # MAIN KERNEL
 #====================================================================
@@ -387,19 +413,22 @@ PHYSLITESlimmingHelper.AppendToDictionary = {
                                          'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
                                          'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer',
                                          'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
-                                         'TruthWbosonWithDecayParticles':'xAOD::TruthParticleContainer','TruthWbosonWithDecayParticlesAux':'xAOD::TruthParticleAuxContainer',
-                                         'TruthWbosonWithDecayVertices':'xAOD::TruthVertexContainer','TruthWbosonWithDecayVerticesAux':'xAOD::TruthVertexAuxContainer',
+                                         'TruthForwardProtons':'xAOD::TruthParticleContainer','TruthForwardProtonsAux':'xAOD::TruthParticleAuxContainer',
+                                         'BornLeptons':'xAOD::TruthParticleContainer','BornLeptonsAux':'xAOD::TruthParticleAuxContainer',
+                                         'TruthBosonsWithDecayParticles':'xAOD::TruthParticleContainer','TruthBosonsWithDecayParticlesAux':'xAOD::TruthParticleAuxContainer',
+                                         'TruthBosonsWithDecayVertices':'xAOD::TruthVertexContainer','TruthBosonsWithDecayVerticesAux':'xAOD::TruthVertexAuxContainer',
+                                         'TruthBSMWithDecayParticles':'xAOD::TruthParticleContainer','TruthBSMWithDecayParticlesAux':'xAOD::TruthParticleAuxContainer',
+                                         'TruthBSMWithDecayVertices':'xAOD::TruthVertexContainer','TruthBSMWithDecayVerticesAux':'xAOD::TruthVertexAuxContainer',
+                                         'HardScatterParticles':'xAOD::TruthParticleContainer','HardScatterParticlesAux':'xAOD::TruthParticleAuxContainer',
+                                         'HardScatterVertices':'xAOD::TruthVertexContainer','HardScatterVerticesAux':'xAOD::TruthVertexAuxContainer',
                                          'TruthPrimaryVertices':'xAOD::TruthVertexContainer','TruthPrimaryVerticesAux':'xAOD::TruthVertexAuxContainer',
-                                         'AnalysisElectrons_NOSYS':'xAOD::ElectronContainer', 
-                                         'AnalysisElectrons_NOSYSAux':'xAOD::ElectronAuxContainer',
-                                         'AnalysisMuons_NOSYS':'xAOD::MuonContainer', 
-                                         'AnalysisMuons_NOSYSAux':'xAOD::MuonAuxContainer',
-                                         'AnalysisJets_NOSYS':'xAOD::JetContainer',
-                                         'AnalysisJets_NOSYSAux':'xAOD::AuxContainerBase',
-                                         'AnalysisPhotons_NOSYS':'xAOD::PhotonContainer', 
-                                         'AnalysisPhotons_NOSYSAux':'xAOD::PhotonAuxContainer',
-                                         'AnalysisTauJets_NOSYS':'xAOD::TauJetContainer', 
-                                         'AnalysisTauJets_NOSYSAux':'xAOD::TauJetAuxContainer',
+                                         'AnalysisElectrons_NOSYS':'xAOD::ElectronContainer', 'AnalysisElectrons_NOSYSAux':'xAOD::ElectronAuxContainer',
+                                         'AnalysisMuons_NOSYS':'xAOD::MuonContainer', 'AnalysisMuons_NOSYSAux':'xAOD::MuonAuxContainer',
+                                         'AnalysisJets_NOSYS':'xAOD::JetContainer','AnalysisJets_NOSYSAux':'xAOD::AuxContainerBase',
+                                         'AnalysisPhotons_NOSYS':'xAOD::PhotonContainer', 'AnalysisPhotons_NOSYSAux':'xAOD::PhotonAuxContainer',
+                                         'AnalysisTauJets_NOSYS':'xAOD::TauJetContainer', 'AnalysisTauJets_NOSYSAux':'xAOD::TauJetAuxContainer',
+                                         'MET_Core_AnalysisMET':'xAOD::MissingETContainer', 'MET_Core_AnalysisMETAux':'xAOD::MissingETAuxContainer',
+                                         'METAssoc_AnalysisMET':'xAOD::MissingETAssociationMap', 'METAssoc_AnalysisMETAux':'xAOD::MissingETAuxAssociationMap',
                                          }
 
 # Leaving these as smart collections
@@ -419,15 +448,14 @@ PHYSLITESlimmingHelper.ExtraVariables = [
   "egammaClusters.calE.calEta.calPhi.e_sampl.eta_sampl.etaCalo.phiCalo.ETACALOFRAME.PHICALOFRAME.ETA2CALOFRAME.PHI2CALOFRAME.constituentClusterLinks",
   "AnalysisMuons_NOSYS.pt.eta.phi.truthType.truthOrigin.author.muonType.quality.inDetTrackParticleLink.muonSpectrometerTrackParticleLink.combinedTrackParticleLink.InnerDetectorPt.MuonSpectrometerPt.DFCommonGoodMuon.ptcone20.ptcone30.ptcone40.ptvarcone20.ptvarcone30.ptvarcone40.topoetcone20.topoetcone30.topoetcone40.truthParticleLink.charge.extrapolatedMuonSpectrometerTrackParticleLink.allAuthors.ptcone20_TightTTVA_pt1000.ptcone20_TightTTVA_pt500.ptvarcone30_TightTTVA_pt1000.ptvarcone30_TightTTVA_pt500",
   "CombinedMuonTrackParticles.qOverP.d0.z0.vz.phi.theta.truthOrigin.truthType.definingParametersCovMatrix",  
-  "ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType.qOverP",
+  "ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType.qOverP.theta.phi",
   "MuonSpectrometerTrackParticles.phi.d0.z0.vz.definingParametersCovMatrix.vertexLink.theta.qOverP.truthParticleLink",
   "AnalysisTauJets_NOSYS.pt.eta.phi.m.tauTrackLinks.jetLink.charge.isTauFlags.BDTJetScore.BDTEleScore.ptFinalCalib.etaFinalCalib.phiFinalCalib.mFinalCalib.ele_match_lhscore.ele_olr_pass.electronLink.IsVeryLoose.EleMatchLikelihoodScore.pt_combined.eta_combined.phi_combined.m_combined.BDTJetScoreSigTrans.BDTEleScoreSigTrans.PanTau_DecayMode.RNNJetScore.RNNJetScoreSigTrans.IsTruthMatched.truthOrigin.truthType.truthParticleLink.truthJetLink",
   "AnalysisJets_NOSYS.pt.eta.phi.m.JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m.NumTrkPt500.SumPtTrkPt500.DetectorEta.Jvt.JVFCorr.JvtRpt.NumTrkPt1000.TrackWidthPt1000.GhostMuonSegmentCount.PartonTruthLabelID.ConeTruthLabelID.HadronConeExclExtendedTruthLabelID.HadronConeExclTruthLabelID.TrueFlavor.DFCommonJets_jetClean_LooseBad.DFCommonJets_jetClean_TightBad.Timing.btagging.btaggingLink",
-  "BTagging_AntiKt4EMPFlow_201903.MV2c10_discriminant",
-  "MET_Core_AntiKt4EMPFlow.name.mpx.mpy.sumet.source",
-  "MET_Reference_AntiKt4EMPFlow.name.mpx.mpy.sumet.source",
-  "METAssoc_AntiKt4EMPFlow.",
+  "BTagging_AntiKt4EMPFlow_201903.DL1r_pu.DL1rmu_pu.DL1r_pb.DL1rmu_pb.DL1r_pc.DL1rmu_pc",
   "TruthPrimaryVertices.t.x.y.z",
+  "MET_Core_AnalysisMET.name.mpx.mpy.sumet.source",
+  "METAssoc_AnalysisMET.",
   ]
 
 if DerivationFrameworkIsMonteCarlo:

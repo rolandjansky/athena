@@ -369,7 +369,7 @@ auto Calculator::globalEfficiency(const LeptonList& leptons, unsigned runNumber,
 	for(auto& lepton : leptons)
 	{
 		std::size_t loosestLeg;
-		if(Trig1L_obj1::relevantFor(lepton)) loosestLeg = getLoosestLegAboveThreshold(lepton, trigs2, success);
+		if(Trig1L_obj1::relevantFor(lepton)) loosestLeg = getLoosestLegAboveThreshold(lepton, trigs1, success);
 		else if(Trig1L_obj2::relevantFor(lepton)) loosestLeg = getLoosestLegAboveThreshold(lepton, trigs2, success);
 		else continue;
 		if(loosestLeg && success)

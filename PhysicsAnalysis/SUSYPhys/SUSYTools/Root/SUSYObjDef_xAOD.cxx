@@ -117,6 +117,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_tauTerm(""),
     m_jetTerm(""),
     m_muonTerm(""),
+    m_inputMETSuffix(""),
     m_outMETTerm(""),
     m_metRemoveOverlappingCaloTaggedMuons(true),
     m_metDoSetMuonJetEMScale(true),
@@ -171,6 +172,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_BtagWP(""),
     m_BtagTagger(""),
     m_BtagTimeStamp(""),
+    m_BtagKeyOverride(""),
     m_BtagSystStrategy(""),
     m_BtagWP_trkJet(""),
     m_BtagTagger_trkJet(""),
@@ -431,6 +433,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "METTauTerm",     m_tauTerm   );
   declareProperty( "METJetTerm",     m_jetTerm   );
   declareProperty( "METMuonTerm",    m_muonTerm  );
+  declareProperty( "METInputSuffix", m_inputMETSuffix );
   declareProperty( "METOutputTerm",  m_outMETTerm );
   declareProperty( "METDoTrkSyst",   m_trkMETsyst  );
   declareProperty( "METDoCaloSyst",  m_caloMETsyst );
@@ -466,6 +469,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "BtagWPOR", m_orBtagWP); //the one used in the Overlap Removal
   declareProperty( "BtagWP", m_BtagWP);     //the one used in FillJet() afterwards
   declareProperty( "BtagTimeStamp", m_BtagTimeStamp); /// Time stamp of the b-tagging containers introduced in p3954
+  declareProperty( "BtagKeyOverride", m_BtagKeyOverride); /// Override for the b-tagging jet collection
   declareProperty( "BtagCalibPath", m_bTaggingCalibrationFilePath);
   declareProperty( "BtagTaggerTrkJet", m_BtagTagger_trkJet);
   declareProperty( "BtagWPTrkJet", m_BtagWP_trkJet);  //the one used in FillTrackJet() afterwards
@@ -820,8 +824,10 @@ StatusCode SUSYObjDef_xAOD::initialize() {
     return StatusCode::FAILURE;
   }
 
-  m_inputMETSuffix = "AntiKt4" + xAOD::JetInput::typeName(xAOD::JetInput::Type(m_jetInputType));
-  m_defaultJets = m_inputMETSuffix + "Jets";
+  if (m_inputMETSuffix==""){
+    m_inputMETSuffix = "AntiKt4" + xAOD::JetInput::typeName(xAOD::JetInput::Type(m_jetInputType));
+  }
+  m_defaultJets = "AntiKt4" + xAOD::JetInput::typeName(xAOD::JetInput::Type(m_jetInputType)) + "Jets";
   ATH_MSG_INFO( "Configured for jet collection " << m_defaultJets );
 
   m_inputMETCore = "MET_Core_" + m_inputMETSuffix;
@@ -1087,7 +1093,7 @@ void SUSYObjDef_xAOD::configFromFile(int& property, const std::string& propname,
 
 
 void SUSYObjDef_xAOD::configFromFile(std::string& property, const std::string& propname, TEnv& rEnv,
-                                     const std::string& defaultValue)
+                                     const std::string& defaultValue, bool allowEmpty)
 {
   // ignore if already configured
   if (!property.empty()){
@@ -1096,7 +1102,7 @@ void SUSYObjDef_xAOD::configFromFile(std::string& property, const std::string& p
     return;
   }
   property = rEnv.GetValue(propname.c_str(), defaultValue.c_str());
-  if (property.empty()) {
+  if (property.empty() && !allowEmpty) {
     ATH_MSG_FATAL("Read empty string property from text file (property name: " << propname << ")");
   }
 
@@ -1343,6 +1349,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_BtagWP_trkJet, "BtagTrkJet.WP", rEnv, "FixedCutBEff_77");
   configFromFile(m_BtagTimeStamp_trkJet, "BtagTrkJet.TimeStamp", rEnv, "None");
   configFromFile(m_BtagMinPt_trkJet, "BtagTrkJet.MinPt", rEnv, 20e3);
+  configFromFile(m_BtagKeyOverride, "Btag.KeyOverride", rEnv, "", true);
   //
   configFromFile(m_orDoBoostedElectron, "OR.DoBoostedElectron", rEnv, true);
   configFromFile(m_orBoostedElectronC1, "OR.BoostedElectronC1", rEnv, -999.); // set to positive number to override default
@@ -1388,6 +1395,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_tauTerm, "MET.TauTerm", rEnv, "RefTau");
   configFromFile(m_jetTerm, "MET.JetTerm", rEnv, "RefJet");
   configFromFile(m_muonTerm, "MET.MuonTerm", rEnv, "Muons");
+  configFromFile(m_inputMETSuffix, "MET.InputSuffix", rEnv, "", true); // May be empty
   configFromFile(m_outMETTerm, "MET.OutputTerm", rEnv, "Final");
   configFromFile(m_metRemoveOverlappingCaloTaggedMuons, "MET.RemoveOverlappingCaloTaggedMuons", rEnv, true);
   configFromFile(m_metDoSetMuonJetEMScale, "Met.DoSetMuonJetEMScale", rEnv, true);

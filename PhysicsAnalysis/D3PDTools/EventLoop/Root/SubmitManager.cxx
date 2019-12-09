@@ -36,10 +36,10 @@ namespace EL
 {
   namespace Detail
   {
-    Detail::ManagerOrder SubmitManager ::
+    std::pair<Detail::ManagerOrder,std::string> SubmitManager ::
     getManagerOrder () const noexcept
     {
-      return ManagerOrder::OPERATION;
+      return std::make_pair (ManagerOrder::OPERATION, "");
     }
 
 

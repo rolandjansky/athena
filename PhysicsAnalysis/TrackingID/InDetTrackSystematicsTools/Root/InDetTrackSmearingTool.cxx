@@ -275,8 +275,8 @@ namespace InDet {
     if (runNumber <= 0) {
         ATH_MSG_WARNING( "Run number not set." );
     }
-    if (runNumber >= 311481 && runNumber <= 341649) {
-      ATH_MSG_INFO( "runNumber corresponds to 2017 - using the Data17 smearing maps where appropriate" );
+    if (runNumber >= 311481) {
+      ATH_MSG_INFO( "runNumber corresponds to 2017/2018 - using the Data17 smearing maps where appropriate" );
       useData17Maps = true;
     } else {
       ATH_MSG_INFO( "using the Data16 smearing maps where appropriate" );

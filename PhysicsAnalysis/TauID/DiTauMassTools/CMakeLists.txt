@@ -20,8 +20,9 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODMissingET
    Event/xAOD/xAODEventInfo
    Event/xAOD/xAODBase
-   PRIVATE
    Event/xAOD/xAODTau
+   PRIVATE
+   Tools/PathResolver
    ${extra_dep} )
 
 # Find the external(s):
@@ -33,7 +34,8 @@ atlas_add_library( DiTauMassToolsLib
    PUBLIC_HEADERS DiTauMassTools
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES AsgTools PATInterfaces xAODMissingET xAODEventInfo xAODBase
-   PRIVATE_LINK_LIBRARIES xAODTau )
+   xAODTau
+   PRIVATE_LINK_LIBRARIES PathResolver )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( DiTauMassTools

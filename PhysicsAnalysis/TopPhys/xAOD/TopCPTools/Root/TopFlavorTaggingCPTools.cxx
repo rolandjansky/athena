@@ -142,6 +142,31 @@ namespace top {
                  "Failed to initialize b-tagging selection tool");
       m_btagging_selection_tools.push_back(btagsel);
     }
+    if (m_config->useTrackJets()) {
+      for (auto alg : DL1_algorithms) {
+        std::string btagsel_tool_name = "BTaggingSelectionTool_forEventSaver_" + alg + "_" + m_config->sgKeyTrackJets();
+        BTaggingSelectionTool* btagsel = new BTaggingSelectionTool(btagsel_tool_name);
+        top::check(btagsel->setProperty("TaggerName", alg),
+                   "Failed to set b-tagging selecton tool TaggerName");
+        top::check(btagsel->setProperty("JetAuthor", m_config->sgKeyTrackJets()),
+                   "Failed to set b-tagging selection JetAuthor");
+        top::check(btagsel->setProperty("FlvTagCutDefinitionsFileName",
+                                        m_cdi_file),
+                   "Failed to set b-tagging selection tool CDI file");
+        // OP doesn't matter, just need the tool to always exist even if the user does not cut on btag
+        top::check(btagsel->setProperty("OperatingPoint", "FixedCutBEff_60"),
+                   "Failed to set b-tagging selection tool OperatingPoint");
+        top::check(btagsel->setProperty("MinPt",
+                                        static_cast<double>(m_config->trackJetPtcut())),
+                   "Failed to set b-tagging selection tool MinPt");
+        top::check(btagsel->setProperty("MaxEta",
+                                        static_cast<double>(m_config->trackJetEtacut())),
+                   "Failed to set b-tagging selection tool MaxEta");
+        top::check(btagsel->initialize(),
+                   "Failed to initialize b-tagging selection tool");
+        m_btagging_selection_tools.push_back(btagsel);
+      }
+    }
 
 
     const std::string calib_file_path = PathResolverFindCalibFile(m_cdi_file);

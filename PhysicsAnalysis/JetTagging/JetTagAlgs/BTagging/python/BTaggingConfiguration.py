@@ -446,7 +446,8 @@ class Configuration:
         SetupScheme = BTaggingFlags.ConfigurationScheme
       from BTagging.BTaggingConfiguration_LoadTools import SetupJetCollection
       from BTagging.JetCollectionToTrainingMaps import (
-          preTagDL2JetToTrainingMap, postTagDL2JetToTrainingMap
+          preTagDL2JetToTrainingMap, postTagDL2JetToTrainingMap,
+          btagAugmentedJetCollectionList
           )
       import sys
       if Verbose is None:
@@ -499,7 +500,6 @@ class Configuration:
           self._BTaggingConfig_MainAssociatorTools[jetcol] = assoc
           options.setdefault('BTagTrackAssocTool', assoc)
 
-
           # utility function to make a unique name
           def get_training_name(path):
               suf = self.GeneralToolSuffix()
@@ -516,6 +516,7 @@ class Configuration:
           flip_tag_config = 'FLIP_SIGN'
 
           options.setdefault("preBtagToolModifiers", [])
+
           if jetcol in preTagDL2JetToTrainingMap and BTaggingFlags.Do2019Retraining:
               aug = MuonTool(get_training_name('BTagMuonAugmenterTool'))
               ToolSvc += aug
@@ -534,8 +535,18 @@ class Configuration:
                       ToolSvc += rnn
                       options['preBtagToolModifiers'].append(rnn)
 
-          # add dl1 tools
+          # some collections only need augmentation
           options.setdefault("postBtagToolModifiers", [])
+          if jetcol in btagAugmentedJetCollectionList:
+              mods = options['postBtagToolModifiers']
+              mu_aug = MuonTool('BTagMuonAugmenterTool_' + jetcol)
+              ToolSvc += mu_aug
+              mods.append(mu_aug)
+              btag_aug = AugTool('BTagAugmenterTool_' + jetcol)
+              ToolSvc += btag_aug
+              mods.append(btag_aug)
+
+          # add dl1 tools
           if jetcol in postTagDL2JetToTrainingMap and BTaggingFlags.Do2019Retraining:
               modifiers = options['postBtagToolModifiers']
               aug = AugTool(name=get_training_name('BTagAugmenterTool'))

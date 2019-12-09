@@ -6,6 +6,9 @@ from RecExConfig.ObjKeyStore import objKeyStore
 from xAODTruthCnv.xAODTruthCnvConf import xAODMaker__xAODTruthCnvAlg
 from DerivationFrameworkMCTruth.TruthDerivationTools import *
 
+from AthenaCommon import Logging
+dfcommontruthlog = Logging.logging.getLogger('DFCommonTruth')
+
 # Execute this only for MC
 from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo
 if DerivationFrameworkIsMonteCarlo:
@@ -336,6 +339,7 @@ def addParentAndDownstreamParticles(kernel=None,
     kernel_name = 'MCTruthCommon'+prefix+'AndDecaysKernel'
     if hasattr(kernel,kernel_name):
         # Already there!  Carry on...
+        dfcommontruthlog.warning("Attempt to add a duplicate "+kernel_name+". Failing.")
         return
     collection_name=collection_prefix+'WithDecay' if collection_prefix!=None else 'Truth'+prefix+'WithDecay'
     # Set up a tool to keep the W/Z/H bosons and all downstream particles
@@ -400,25 +404,26 @@ def addEgammaAndDownstreamParticles(kernel=None, generations=1):
                                            prefix='Egamma')
 
 # Add b/c-hadrons and their downstream particles (immediate and further decay products) in a special collection
-def addHFAndDownstreamParticles(kernel=None, addB=True, addC=True, generations=-1):
+def addHFAndDownstreamParticles(kernel=None, addB=True, addC=True, generations=-1, prefix=''):
     # Ensure that we are adding it to something
     if kernel is None:
         from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
         kernel = DerivationFrameworkJob
-    if hasattr(kernel,'MCTruthCommonHFAndDecaysKernel'):
+    if hasattr(kernel,prefix+'MCTruthCommonHFAndDecaysKernel'):
         # Already there!  Carry on...
+        dfcommontruthlog.warning("Attempt to add a duplicate "+prefix+"MCTruthCommonHFAndDecaysKernel. Failing.")
         return
     # Set up a tool to keep b- and c-quarks and all downstream particles
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthDecayCollectionMaker
-    DFCommonHFAndDecaysTool = DerivationFramework__TruthDecayCollectionMaker( name="DFCommonHFAndDecaysTool",
-                                                                   NewCollectionName="TruthHFWithDecay",
-                                                                        KeepBHadrons=addB,
-                                                                        KeepCHadrons=addC,
-                                                                         Generations=generations)
+    DFCommonHFAndDecaysTool = DerivationFramework__TruthDecayCollectionMaker( name=prefix+"DFCommonHFAndDecaysTool",
+                                                                              NewCollectionName=prefix+"TruthHFWithDecay",
+                                                                              KeepBHadrons=addB,
+                                                                              KeepCHadrons=addC,
+                                                                              Generations=generations)
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc += DFCommonHFAndDecaysTool
     from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
-    kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonHFAndDecaysKernel",
+    kernel += CfgMgr.DerivationFramework__CommonAugmentation(prefix+"MCTruthCommonHFAndDecaysKernel",
                                                              AugmentationTools = [DFCommonHFAndDecaysTool] )
 
 # Add a one-vertex-per event "primary vertex" container
@@ -429,6 +434,7 @@ def addPVCollection(kernel=None):
         kernel = DerivationFrameworkJob
     if hasattr(kernel,'MCTruthCommonTruthPVCollKernel'):
         # Already there!  Carry on...
+        dfcommontruthlog.warning("Attempt to add a duplicate MCTruthCommonTruthPVCollKernel. Failing.")
         return
     # Set up a tool to keep the primary vertices
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthPVCollectionMaker
@@ -448,6 +454,7 @@ def addHardScatterCollection(kernel=None, generations=1):
         kernel = DerivationFrameworkJob
     if hasattr(kernel,'MCTruthCommonHSCollectionKernel'):
         # Already there!  Carry on...
+        dfcommontruthlog.warning("Attempt to add a duplicate MCTruthCommonHSCollectionKernel. Failing.")
         return
     # Set up a tool to keep the taus and all downstream particles
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__HardScatterCollectionMaker
@@ -461,23 +468,24 @@ def addHardScatterCollection(kernel=None, generations=1):
                                                              AugmentationTools = [DFCommonHSCollectionTool] )
 
 # Add navigation decorations on the truth collections
-def addTruthCollectionNavigationDecorations(kernel=None,TruthCollections=[]):
+def addTruthCollectionNavigationDecorations(kernel=None,TruthCollections=[], prefix=''):
     if len(TruthCollections)==0: return
     # Ensure that we are adding it to something
     if kernel is None:
         from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
         kernel = DerivationFrameworkJob
-    if hasattr(kernel,'MCTruthNavigationDecoratorKernel'):
+    if hasattr(kernel,prefix+'MCTruthNavigationDecoratorKernel'):
         # Already there, no need for duplication
+        dfcommontruthlog.warning("Attempt to add a duplicate "+prefix+"MCTruthNavigationDecoratorKernel. Failing.")
         return
     # Set up a tool to add the navigation decorations
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthNavigationDecorator
-    DFCommonTruthNavigationDecorator = DerivationFramework__TruthNavigationDecorator( name='DFCommonTruthNavigationDecorator',
-                                           InputCollections=TruthCollections)
+    DFCommonTruthNavigationDecorator = DerivationFramework__TruthNavigationDecorator( name=prefix+'DFCommonTruthNavigationDecorator',
+                                                                                      InputCollections=TruthCollections)
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc += DFCommonTruthNavigationDecorator
     from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
-    kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthNavigationDecoratorKernel",
+    kernel += CfgMgr.DerivationFramework__CommonAugmentation(prefix+"MCTruthNavigationDecoratorKernel",
                                                              AugmentationTools = [DFCommonTruthNavigationDecorator] )
 
 # Add BSM particles and their downstream particles (immediate and further decay products) in a special collection
@@ -488,6 +496,7 @@ def addBSMAndDownstreamParticles(kernel=None, generations=-1):
         kernel = DerivationFrameworkJob
     if hasattr(kernel,'MCTruthCommonBSMAndDecaysKernel'):
         # Already there!  Carry on...
+        dfcommontruthlog.warning("Attempt to add a duplicate MCTruthCommonBSMAndDecaysKernel. Failing.")
         return
     # Set up a tool to keep the taus and all downstream particles
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthDecayCollectionMaker
@@ -509,6 +518,7 @@ def addBornLeptonCollection(kernel=None):
         kernel = DerivationFrameworkJob
     if hasattr(kernel,'MCTruthCommonBornLeptonsKernel'):
         # Already there!  Carry on...
+        dfcommontruthlog.warning("Attempt to add a duplicate MCTruthCommonBornLeptonsKernel. Failing.")
         return
     # Set up a tool to keep the taus and all downstream particles
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthBornLeptonCollectionMaker
@@ -527,13 +537,14 @@ def addLargeRJetD2(kernel=None):
         kernel = DerivationFrameworkJob
     if hasattr(kernel,'TRUTHD2Kernel'):
         # Already there!  Carry on...
+        dfcommontruthlog.warning("Attempt to add a duplicate TRUTHD2Kernel. Failing.")
         return
 
     #Extra classifier for D2 variable
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthD2Decorator
     TruthD2Decorator= DerivationFramework__TruthD2Decorator("TruthD2Decorator",
-                                                             JetContainerKey = "AntiKt10TruthTrimmedPtFrac5SmallR20Jets",
-                                                             DecorationName = "D2")
+                                                            JetContainerKey = "AntiKt10TruthTrimmedPtFrac5SmallR20Jets",
+                                                            DecorationName = "D2")
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc += TruthD2Decorator
     kernel +=CfgMgr.DerivationFramework__DerivationKernel("TRUTHD2Kernel",
@@ -547,27 +558,30 @@ def addTruthEnergyDensity(kernel=None):
         kernel = DerivationFrameworkJob
     if hasattr(kernel,'DFCommonTruthEDKernel'):
         # Already there!  Carry on...
+        dfcommontruthlog.warning("Attempt to add a duplicate DFCommonTruthEDKernel. Failing.")
         return
     # Truth energy density tools
     from EventShapeTools.EventDensityConfig import configEventDensityTool,EventDensityAthAlg
     from AthenaCommon.AppMgr import ToolSvc
     from JetRec.JetRecStandard import jtm
-    DFCommonTruthCentralEDTool = configEventDensityTool("DFCommonTruthCentralEDTool", jtm.truthget,
-                                                        0.5,
-                                                        AbsRapidityMax      = 1.5,
-                                                        OutputContainer     = "TruthIsoCentralEventShape",
-                                                       )
-    ToolSvc += DFCommonTruthCentralEDTool
-    DFCommonTruthForwardEDTool = configEventDensityTool("DFCommonTruthForwardEDTool", jtm.truthget,
-                                                        0.5,
-                                                        AbsRapidityMin      = 1.5,
-                                                        AbsRapidityMax      = 3.0,
-                                                        OutputContainer     = "TruthIsoForwardEventShape",
-                                                       )
-    ToolSvc += DFCommonTruthForwardEDTool
-    # Algorithms for the energy density
-    kernel += EventDensityAthAlg("DFCommonTruthCentralEDAlg", EventDensityTool = DFCommonTruthCentralEDTool )
-    kernel += EventDensityAthAlg("DFCommonTruthForwardEDAlg", EventDensityTool = DFCommonTruthForwardEDTool )
+    # Algorithms for the energy density - needed only if e/gamma hasn't set things up already
+    if not hasattr(ToolSvc,'EDTruthCentralTool'):
+        DFCommonTruthCentralEDTool = configEventDensityTool("DFCommonTruthCentralEDTool", jtm.truthget,
+                                                            0.5,
+                                                            AbsRapidityMax      = 1.5,
+                                                            OutputContainer     = "TruthIsoCentralEventShape",
+                                                           )
+        ToolSvc += DFCommonTruthCentralEDTool
+        kernel += EventDensityAthAlg("DFCommonTruthCentralEDAlg", EventDensityTool = DFCommonTruthCentralEDTool )
+    if not hasattr(ToolSvc,'EDTruthForwardTool'):
+        DFCommonTruthForwardEDTool = configEventDensityTool("DFCommonTruthForwardEDTool", jtm.truthget,
+                                                            0.5,
+                                                            AbsRapidityMin      = 1.5,
+                                                            AbsRapidityMax      = 3.0,
+                                                            OutputContainer     = "TruthIsoForwardEventShape",
+                                                           )
+        ToolSvc += DFCommonTruthForwardEDTool
+        kernel += EventDensityAthAlg("DFCommonTruthForwardEDAlg", EventDensityTool = DFCommonTruthForwardEDTool )
 
     # Now add the tool to do the decoration
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthEDDecorator
@@ -590,6 +604,7 @@ def addMiniTruthCollectionLinks(kernel=None, doElectrons=True, doPhotons=True, d
         kernel = DerivationFrameworkJob
     if hasattr(kernel,'MiniCollectionTruthLinkKernel'):
         # Already there!  Carry on...
+        dfcommontruthlog.warning("Attempt to add a duplicate MiniCollectionTruthLinkKernel. Failing.")
         return
     # Truth link setup for electrons, photons, and muons
     from AthenaCommon.AppMgr import ToolSvc

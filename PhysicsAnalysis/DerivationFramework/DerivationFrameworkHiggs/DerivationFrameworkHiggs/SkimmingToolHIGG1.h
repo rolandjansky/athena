@@ -113,6 +113,7 @@ namespace DerivationFramework {
       double m_maxInvariantMass;
 
       double m_minElectronPt;
+      double m_minMergedElectronPt;
       double m_minMuonPt;
       double m_maxMuonEta;
      

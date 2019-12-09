@@ -11,7 +11,7 @@ DECLARE_TOOL_FACTORY( SkimmingToolExample )
 DECLARE_TOOL_FACTORY( ThinningToolExample )
 DECLARE_TOOL_FACTORY( AugmentationToolExample )
 DECLARE_TOOL_FACTORY( PHYSLITEThinningTool )
-DECLARE_ALGORITHM_FACTORY(FloatCompressionAlg )
+DECLARE_ALGORITHM_FACTORY( FloatCompressionAlg )
 
 DECLARE_FACTORY_ENTRIES( DerivationFrameworkExamples ) {
    DECLARE_TOOL( SkimmingToolExample )

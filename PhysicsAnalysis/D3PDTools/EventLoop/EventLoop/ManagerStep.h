@@ -103,6 +103,12 @@ namespace EL
       /// the initial resubmit step
       initialResubmit,
 
+      /// read the configuration for resubmit
+      readConfigResubmit,
+
+      /// read the job status in batch driver
+      batchJobStatusResubmit,
+
       /// do everything the batch driver needs to do before the resubmit
       batchPreResubmit,
 
@@ -114,6 +120,12 @@ namespace EL
 
       /// the initial retrieve step
       initialRetrieve,
+
+      /// read the configuration for retrieve
+      readConfigRetrieve,
+
+      /// read the job status in batch driver
+      batchJobStatusRetrieve,
 
       /// call the actual doRetrieve method
       doRetrieve,

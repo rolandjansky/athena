@@ -75,6 +75,9 @@ namespace ORUtils
       /// Input jet decoration which labels a bjet
       std::string m_bJetLabel;
 
+      /// Max electron PT for b-tag aware OR
+      double m_maxElePtForBJetAwareOR;
+
       /// Toggle PT ratio criteria
       bool m_applyPtRatio;
       /// Minimum e/jet pt ratio to remove a jet
