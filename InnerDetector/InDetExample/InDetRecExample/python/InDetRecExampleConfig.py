@@ -375,11 +375,11 @@ def GaussianSumFitter(name='GaussianSumFitter', **kwargs) :
     if 'ToolForExtrapolation' not in kwargs :
         kwargs=setDefaults(kwargs, ToolForExtrapolation = TrackingCommon.getInDetGsfExtrapolator())
 
-    if 'MeasurementUpdatorType' not in kwargs :
-        kwargs=setDefaults(kwargs, MeasurementUpdatorType = TrackingCommon.getInDetGsfMeasurementUpdator())
+    #if 'MeasurementUpdatorType' not in kwargs :
+    #    kwargs=setDefaults(kwargs, MeasurementUpdatorType = InDetGsfMeasurementUpdator #TrackingCommon.getInDetGsfMeasurementUpdator())
 
     from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GaussianSumFitter
-    return Trk__GaussianSumFitter(name = the_name, **setDefaults(kwargs,
+    return Trk__GaussianSumFitter(name = name, **setDefaults(kwargs,
                                                                  ReintegrateOutliers     = False,
                                                                  MakePerigee             = True,
                                                                  RefitOnMeasurementBase  = True,

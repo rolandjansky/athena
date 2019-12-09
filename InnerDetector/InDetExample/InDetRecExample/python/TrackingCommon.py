@@ -299,7 +299,7 @@ def getInDetPixelClusterOnTrackToolBase(name, **kwargs) :
                          NNIBLcorrection          = ( InDetFlags.doPixelClusterSplitting() and
                                                       InDetFlags.pixelClusterSplittingType() == 'NeuralNet' and not InDetFlags.doSLHC()),
                          SplitClusterAmbiguityMap = InDetKeys.SplitClusterAmbiguityMap() + split_cluster_map_extension,
-                         RunningTIDE_Ambi         = InDetFlags.doTIDE_Ambi())
+                         RunningTIDE_Ambi         = InDetFlags.doTIDE_Ambi() )
 
     return InDet__PixelClusterOnTrackTool(the_name , **kwargs)
 
@@ -316,11 +316,14 @@ def getInDetPixelClusterOnTrackToolNNSplitting(name='InDetPixelClusterOnTrackToo
 def getInDetPixelClusterOnTrackTool(name='InDetPixelClusterOnTrackTool', **kwargs) :
     if 'LorentzAngleTool' not in kwargs :
         kwargs = setDefaults(kwargs, LorentzAngleTool = getPixelLorentzAngleTool())
-
-    return getInDetPixelClusterOnTrackToolNNSplitting(name=name, **kwargs)
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    if InDetFlags.doDigitalROTCreation() :  
+        return getInDetPixelClusterOnTrackToolDigital(name=name, **kwargs) 
+    else:
+        return getInDetPixelClusterOnTrackToolNNSplitting(name=name, **kwargs)
 
 def getInDetPixelClusterOnTrackToolPattern(name='InDetPixelClusterOnTrackToolPattern', **kwargs) :
-    return getInDetPixelClusterOnTrackToolNNSplitting(name=name, **kwargs)
+    return getInDetPixelClusterOnTrackTool(name=name, **kwargs)
 
 def getInDetPixelClusterOnTrackToolDigital(name='InDetPixelClusterOnTrackToolDigital', **kwargs) :
     from InDetRecExample.InDetJobProperties import InDetFlags
@@ -332,7 +335,8 @@ def getInDetPixelClusterOnTrackToolDigital(name='InDetPixelClusterOnTrackToolDig
                              applyNNcorrection = False,
                              NNIBLcorrection   = False,
                              ErrorStrategy     = 2,
-                             PositionStrategy  = 1)
+                             PositionStrategy  = 1,
+                             SplitClusterAmbiguityMap = "")
     else :
         kwargs = setDefaults(kwargs,
                              SplitClusterAmbiguityMap = "")
