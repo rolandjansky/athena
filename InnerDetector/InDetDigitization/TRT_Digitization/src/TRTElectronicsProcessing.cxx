@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRTElectronicsProcessing.h"
@@ -18,7 +18,7 @@
 
 //___________________________________________________________________________
 TRTElectronicsProcessing::TRTElectronicsProcessing( const TRTDigSettings* digset,
-						    TRTElectronicsNoise * electronicsnoise )
+                                                    TRTElectronicsNoise * electronicsnoise )
   : m_settings(digset),
     m_pElectronicsNoise(electronicsnoise),
     m_msg("TRTElectronicsProcessing")
@@ -214,15 +214,15 @@ void TRTElectronicsProcessing::TabulateSignalShape() {
 //___________________________________________________________________________
 
 void TRTElectronicsProcessing::ProcessDeposits( const std::vector<TRTElectronicsProcessing::Deposit>& deposits,
-						const int& hitID,
-						TRTDigit& outdigit,
-						double lowthreshold,
-						const double& noiseamplitude,
-						int strawGasType,
+                                                const int& hitID,
+                                                TRTDigit& outdigit,
+                                                double lowthreshold,
+                                                const double& noiseamplitude,
+                                                int strawGasType,
                                                 CLHEP::HepRandomEngine* rndmEngine,
                                                 CLHEP::HepRandomEngine* elecNoiseRndmEngine,
-						double highthreshold
-					      ) {
+                                                double highthreshold
+                                                ) {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Process the timed energy deposits at the FE for this straw:                                            //
   // - Put energy deposits in a fine-time array 0.0 < time < m_timeInterval.                                //
@@ -326,19 +326,19 @@ void TRTElectronicsProcessing::SignalShaping(int strawGasType) {
 
   int i, j, k;
   for (i = 0; i < m_totalNumberOfBins; ++i)
-  {
-    if (m_energyDistribution[i] > 0.)
     {
-      const double energyInBin(m_energyDistribution[i]);
-      for (j = i; j < m_totalNumberOfBins; ++j)
-      {
-        k = j - i;
-        if (k == m_numberOfPostZeroBins) { break; }
-         m_lowThresholdSignal[j] +=  m_lowThresholdSignalShape[strawGasType][k] * energyInBin;
-        m_highThresholdSignal[j] += m_highThresholdSignalShape[strawGasType][k] * energyInBin;
-      }
+      if (m_energyDistribution[i] > 0.)
+        {
+          const double energyInBin(m_energyDistribution[i]);
+          for (j = i; j < m_totalNumberOfBins; ++j)
+            {
+              k = j - i;
+              if (k == m_numberOfPostZeroBins) { break; }
+              m_lowThresholdSignal[j] +=  m_lowThresholdSignalShape[strawGasType][k] * energyInBin;
+              m_highThresholdSignal[j] += m_highThresholdSignalShape[strawGasType][k] * energyInBin;
+            }
+        }
     }
-  }
 
 }
 
@@ -362,101 +362,101 @@ void TRTElectronicsProcessing::DiscriminatorResponse(const double& lowthreshold,
   int highThresholdAdditionalBins(0);
 
   for (int i(0); i < m_totalNumberOfBins; ++i)
-  {
-    // ----- low threshold -----
-    if (lowThresholdBins == 0)
     {
-      if (m_lowThresholdSignal[i] > lowthreshold)
-      {
-	m_lowThresholdDiscriminator[i] = 1;
-	++lowThresholdBins;
-      }
-    }
-    else if (lowThresholdBins > 0)
-    {
-      if (m_lowThresholdSignal[i] > lowthreshold)
-      {
-	m_lowThresholdDiscriminator[i] = 1;
-	++lowThresholdBins;
-	lowThresholdAdditionalBins = 0;
-      }
+      // ----- low threshold -----
+      if (lowThresholdBins == 0)
+        {
+          if (m_lowThresholdSignal[i] > lowthreshold)
+            {
+              m_lowThresholdDiscriminator[i] = 1;
+              ++lowThresholdBins;
+            }
+        }
+      else if (lowThresholdBins > 0)
+        {
+          if (m_lowThresholdSignal[i] > lowthreshold)
+            {
+              m_lowThresholdDiscriminator[i] = 1;
+              ++lowThresholdBins;
+              lowThresholdAdditionalBins = 0;
+            }
+          else
+            {
+              if (lowThresholdAdditionalBins == 0)
+                {
+                  if (lowThresholdBins < m_minWidthMinusSettlingTimeInBinWidths)
+                    {
+                      lowThresholdAdditionalBins = m_minDiscriminatorWidthInBinWidths - lowThresholdBins;
+                    }
+                  else
+                    {
+                      lowThresholdAdditionalBins = m_discriminatorSettlingTimeInBinWidths;
+                    }
+                }
+              m_lowThresholdDiscriminator[i] = 1;
+              ++lowThresholdBins;
+              --lowThresholdAdditionalBins;
+              if (lowThresholdAdditionalBins == 0)
+                {
+                  if (!(m_lowThresholdSignal[i] > lowthreshold))
+                    {
+                      lowThresholdBins = -m_discriminatorDeadTimeInBinWidths;
+                    }
+                }
+            }
+        }
       else
-      {
-	if (lowThresholdAdditionalBins == 0)
-	{
-	  if (lowThresholdBins < m_minWidthMinusSettlingTimeInBinWidths)
-	  {
-	    lowThresholdAdditionalBins = m_minDiscriminatorWidthInBinWidths - lowThresholdBins;
-	  }
-	  else
-	  {
-	    lowThresholdAdditionalBins = m_discriminatorSettlingTimeInBinWidths;
-	  }
-	}
-	m_lowThresholdDiscriminator[i] = 1;
-	++lowThresholdBins;
-	--lowThresholdAdditionalBins;
-	if (lowThresholdAdditionalBins == 0)
-	{
-	  if (!(m_lowThresholdSignal[i] > lowthreshold))
-	  {
-	    lowThresholdBins = -m_discriminatorDeadTimeInBinWidths;
-	  }
-	}
-      }
-    }
-    else
-    {
-      ++lowThresholdBins;
-    }
+        {
+          ++lowThresholdBins;
+        }
 
-    //----- high threshold -----
-    if (highThresholdBins == 0)
-    {
-      if (m_highThresholdSignal[i] > highthreshold)
-      {
-	m_highThresholdDiscriminator[i] = 1;
-	++highThresholdBins;
-      }
-    }
-    else if (highThresholdBins > 0)
-    {
-      if (m_highThresholdSignal[i] > highthreshold)
-      {
-	m_highThresholdDiscriminator[i] = 1;
-	++highThresholdBins;
-	highThresholdAdditionalBins = 0;
-      }
+      //----- high threshold -----
+      if (highThresholdBins == 0)
+        {
+          if (m_highThresholdSignal[i] > highthreshold)
+            {
+              m_highThresholdDiscriminator[i] = 1;
+              ++highThresholdBins;
+            }
+        }
+      else if (highThresholdBins > 0)
+        {
+          if (m_highThresholdSignal[i] > highthreshold)
+            {
+              m_highThresholdDiscriminator[i] = 1;
+              ++highThresholdBins;
+              highThresholdAdditionalBins = 0;
+            }
+          else
+            {
+              if (highThresholdAdditionalBins == 0)
+                {
+                  if (highThresholdBins < m_minWidthMinusSettlingTimeInBinWidths)
+                    {
+                      highThresholdAdditionalBins = m_minDiscriminatorWidthInBinWidths - highThresholdBins;
+                    }
+                  else
+                    {
+                      highThresholdAdditionalBins = m_discriminatorSettlingTimeInBinWidths;
+                    }
+                }
+              m_highThresholdDiscriminator[i] = 1;
+              ++highThresholdBins;
+              --highThresholdAdditionalBins;
+              if (highThresholdAdditionalBins == 0)
+                {
+                  if (!(m_highThresholdSignal[i] > highthreshold))
+                    {
+                      highThresholdBins = -m_discriminatorDeadTimeInBinWidths;
+                    }
+                }
+            }
+        }
       else
-      {
-	if (highThresholdAdditionalBins == 0)
-	{
-	  if (highThresholdBins < m_minWidthMinusSettlingTimeInBinWidths)
-	  {
-	    highThresholdAdditionalBins = m_minDiscriminatorWidthInBinWidths - highThresholdBins;
-	  }
-	  else
-	  {
-	    highThresholdAdditionalBins = m_discriminatorSettlingTimeInBinWidths;
-	  }
-	}
-	m_highThresholdDiscriminator[i] = 1;
-	++highThresholdBins;
-	--highThresholdAdditionalBins;
-	if (highThresholdAdditionalBins == 0)
-	{
-	  if (!(m_highThresholdSignal[i] > highthreshold))
-	  {
-	    highThresholdBins = -m_discriminatorDeadTimeInBinWidths;
-	  }
-	}
-      }
+        {
+          ++highThresholdBins;
+        }
     }
-    else
-    {
-      ++highThresholdBins;
-    }
-  }
   return;
 }
 
@@ -473,30 +473,30 @@ unsigned TRTElectronicsProcessing::EncodeDigit() const {
   int i, j, k;
 
   for (i = 0; i < 24; ++i)
-  {
-    j = i * 4 + m_numberOfPreZeroBins;
-    for (k = 0; k < 4; ++k)
     {
-      if (m_lowThresholdDiscriminator[j + k] == 1)
-      {
-        digit += one << (25 - i - i / 8);
-        break;
-      }
+      j = i * 4 + m_numberOfPreZeroBins;
+      for (k = 0; k < 4; ++k)
+        {
+          if (m_lowThresholdDiscriminator[j + k] == 1)
+            {
+              digit += one << (25 - i - i / 8);
+              break;
+            }
+        }
     }
-  }
 
   for (i = 0; i < 3; ++i)
-  {
-    j = i * 32 + m_numberOfPreZeroBins;
-    for (k = 0; k < 32; ++k)
     {
-      if (m_highThresholdDiscriminator[j + k] == 1)
-      {
-        digit += one << (26 - i * 9);
-        break;
-      }
+      j = i * 32 + m_numberOfPreZeroBins;
+      for (k = 0; k < 32; ++k)
+        {
+          if (m_highThresholdDiscriminator[j + k] == 1)
+            {
+              digit += one << (26 - i * 9);
+              break;
+            }
+        }
     }
-  }
 
   return digit;
 }
@@ -537,13 +537,13 @@ unsigned int TRTElectronicsProcessing::getRegion(int hitID) {
 double TRTElectronicsProcessing::getHighThreshold ( int hitID, int strawGasType ) {
   double highthreshold(0.);
   switch ( getRegion(hitID) ) {
-    case 1: highthreshold = m_settings->highThresholdBarShort(strawGasType);  break;
-    case 2: highthreshold = m_settings->highThresholdBarLong(strawGasType);   break;
-    case 3: highthreshold = m_settings->highThresholdECAwheels(strawGasType); break;
-    case 4: highthreshold = m_settings->highThresholdECBwheels(strawGasType); break;
-    default:
-      if (msgLevel(MSG::WARNING)) {msg(MSG::WARNING) << "TRTDigitization::TRTElectronicsProcessing - getRegion is zero!" <<  endmsg; }
-      break;
+  case 1: highthreshold = m_settings->highThresholdBarShort(strawGasType);  break;
+  case 2: highthreshold = m_settings->highThresholdBarLong(strawGasType);   break;
+  case 3: highthreshold = m_settings->highThresholdECAwheels(strawGasType); break;
+  case 4: highthreshold = m_settings->highThresholdECBwheels(strawGasType); break;
+  default:
+    if (msgLevel(MSG::WARNING)) {msg(MSG::WARNING) << "TRTDigitization::TRTElectronicsProcessing - getRegion is zero!" <<  endmsg; }
+    break;
   }
   return highthreshold;
 }
@@ -557,13 +557,13 @@ void TRTElectronicsProcessing::HTt0Shift(int hitID) {
 
   int t0Shift(0); // in 0.78125 ns steps
   switch ( getRegion(hitID) ) {
-    case 1: t0Shift = m_settings->htT0shiftBarShort();  break;
-    case 2: t0Shift = m_settings->htT0shiftBarLong();   break;
-    case 3: t0Shift = m_settings->htT0shiftECAwheels(); break;
-    case 4: t0Shift = m_settings->htT0shiftECBwheels(); break;
-    default:
-      if (msgLevel(MSG::WARNING)) {msg(MSG::WARNING) << "TRTDigitization::TRTElectronicsProcessing - getRegion is zero!" <<  endmsg; }
-      break;
+  case 1: t0Shift = m_settings->htT0shiftBarShort();  break;
+  case 2: t0Shift = m_settings->htT0shiftBarLong();   break;
+  case 3: t0Shift = m_settings->htT0shiftECAwheels(); break;
+  case 4: t0Shift = m_settings->htT0shiftECBwheels(); break;
+  default:
+    if (msgLevel(MSG::WARNING)) {msg(MSG::WARNING) << "TRTDigitization::TRTElectronicsProcessing - getRegion is zero!" <<  endmsg; }
+    break;
   }
 
   if (!t0Shift) return; // skip this process if there is no shift
@@ -574,19 +574,19 @@ void TRTElectronicsProcessing::HTt0Shift(int hitID) {
 
   if (t0Shift<0) { // for negative shifts
 
-      for (int i=0; i<m_totalNumberOfBins; ++i) {
-        if (i-t0Shift>=m_totalNumberOfBins) break;
-        m_highThresholdDiscriminator[i]=m_highThresholdDiscriminator[i-t0Shift];
-      }
-      for (int i=m_totalNumberOfBins+t0Shift; i<m_totalNumberOfBins; ++i) if (i>=0) m_highThresholdDiscriminator[i]=0; // the last t0Shift bins are set to zero
+    for (int i=0; i<m_totalNumberOfBins; ++i) {
+      if (i-t0Shift>=m_totalNumberOfBins) break;
+      m_highThresholdDiscriminator[i]=m_highThresholdDiscriminator[i-t0Shift];
+    }
+    for (int i=m_totalNumberOfBins+t0Shift; i<m_totalNumberOfBins; ++i) if (i>=0) m_highThresholdDiscriminator[i]=0; // the last t0Shift bins are set to zero
 
   } else {  // for positive shifts
 
-      for (int i=m_totalNumberOfBins-1; i>0; --i) {
-        if (i-t0Shift<0) break;
-        m_highThresholdDiscriminator[i]=m_highThresholdDiscriminator[i-t0Shift];
-      }
-      for (int i=0; i<t0Shift; ++i) if (i<m_totalNumberOfBins) m_highThresholdDiscriminator[i]=0; // the first t0Shift bins are set to zero
+    for (int i=m_totalNumberOfBins-1; i>0; --i) {
+      if (i-t0Shift<0) break;
+      m_highThresholdDiscriminator[i]=m_highThresholdDiscriminator[i-t0Shift];
+    }
+    for (int i=0; i<t0Shift; ++i) if (i<m_totalNumberOfBins) m_highThresholdDiscriminator[i]=0; // the first t0Shift bins are set to zero
 
   }
 
@@ -603,13 +603,13 @@ void TRTElectronicsProcessing::LTt0Shift( int hitID, int strawGasType ) {
 
   int t0Shift(0); // in 0.78125 ns steps
   switch ( getRegion(hitID) ) {
-    case 1: t0Shift = m_settings->ltT0shiftBarShort(strawGasType);  break;
-    case 2: t0Shift = m_settings->ltT0shiftBarLong(strawGasType);   break;
-    case 3: t0Shift = m_settings->ltT0shiftECAwheels(strawGasType); break;
-    case 4: t0Shift = m_settings->ltT0shiftECBwheels(strawGasType); break;
-    default:
-      if (msgLevel(MSG::WARNING)) {msg(MSG::WARNING) << "TRTDigitization::TRTElectronicsProcessing - getRegion is zero!" <<  endmsg; }
-      break;
+  case 1: t0Shift = m_settings->ltT0shiftBarShort(strawGasType);  break;
+  case 2: t0Shift = m_settings->ltT0shiftBarLong(strawGasType);   break;
+  case 3: t0Shift = m_settings->ltT0shiftECAwheels(strawGasType); break;
+  case 4: t0Shift = m_settings->ltT0shiftECBwheels(strawGasType); break;
+  default:
+    if (msgLevel(MSG::WARNING)) {msg(MSG::WARNING) << "TRTDigitization::TRTElectronicsProcessing - getRegion is zero!" <<  endmsg; }
+    break;
   }
 
   if (!t0Shift) return; // skip this process if there is no shift
@@ -620,19 +620,19 @@ void TRTElectronicsProcessing::LTt0Shift( int hitID, int strawGasType ) {
 
   if (t0Shift<0) { // for negative shifts
 
-      for (int i=0; i<m_totalNumberOfBins; ++i) {
-        if (i-t0Shift>=m_totalNumberOfBins) break;
-        m_lowThresholdDiscriminator[i]=m_lowThresholdDiscriminator[i-t0Shift];
-      }
-      for (int i=m_totalNumberOfBins+t0Shift; i<m_totalNumberOfBins; ++i) if (i>=0) m_lowThresholdDiscriminator[i]=0; // the last t0Shift bins are set to zero
+    for (int i=0; i<m_totalNumberOfBins; ++i) {
+      if (i-t0Shift>=m_totalNumberOfBins) break;
+      m_lowThresholdDiscriminator[i]=m_lowThresholdDiscriminator[i-t0Shift];
+    }
+    for (int i=m_totalNumberOfBins+t0Shift; i<m_totalNumberOfBins; ++i) if (i>=0) m_lowThresholdDiscriminator[i]=0; // the last t0Shift bins are set to zero
 
   } else {  // for positive shifts
 
-      for (int i=m_totalNumberOfBins-1; i>0; --i) {
-        if (i-t0Shift<0) break;
-        m_lowThresholdDiscriminator[i]=m_lowThresholdDiscriminator[i-t0Shift];
-      }
-      for (int i=0; i<t0Shift; ++i) if (i<m_totalNumberOfBins) m_lowThresholdDiscriminator[i]=0; // the first t0Shift bins are set to zero
+    for (int i=m_totalNumberOfBins-1; i>0; --i) {
+      if (i-t0Shift<0) break;
+      m_lowThresholdDiscriminator[i]=m_lowThresholdDiscriminator[i-t0Shift];
+    }
+    for (int i=0; i<t0Shift; ++i) if (i<m_totalNumberOfBins) m_lowThresholdDiscriminator[i]=0; // the first t0Shift bins are set to zero
 
   }
 

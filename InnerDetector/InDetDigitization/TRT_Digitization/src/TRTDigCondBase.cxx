@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRTDigCondBase.h"
@@ -24,12 +24,14 @@
 
 //________________________________________________________________________________
 TRTDigCondBase::TRTDigCondBase( const TRTDigSettings* digset,
-				const InDetDD::TRT_DetectorManager* detmgr,
-				const TRT_ID* trt_id,
-				int UseGasMix,
-				ToolHandle<ITRT_StrawStatusSummaryTool> sumTool
-			      )
-  : m_settings(digset), m_detmgr(detmgr), m_id_helper(trt_id),
+                                const InDetDD::TRT_DetectorManager* detmgr,
+                                const TRT_ID* trt_id,
+                                int UseGasMix,
+                                ToolHandle<ITRT_StrawStatusSummaryTool> sumTool
+                                )
+  : m_settings(digset),
+    m_detmgr(detmgr),
+    m_id_helper(trt_id),
     m_averageNoiseLevel(-1.0),
     m_crosstalk_noiselevel(-1.0),
     m_crosstalk_noiselevel_other_end(-1.0),
@@ -90,14 +92,14 @@ void TRTDigCondBase::initialize(CLHEP::HepRandomEngine* rndmEngine) {
 
     int endcap, isneg;
     switch ( side ) {
-      case -2:  endcap = 1; isneg = 1; break;
-      case -1:  endcap = 0; isneg = 1; break;
-      case  1:  endcap = 0; isneg = 0; break;
-      case  2:  endcap = 1; isneg = 0; break;
-      default:
-        std::cout << "TRTDigitization::TRTDigCondBase::createListOfValidStraws "
-		  << "FATAL - identifier problems - skipping detector element!!" << std::endl;
- 	continue;
+    case -2:  endcap = 1; isneg = 1; break;
+    case -1:  endcap = 0; isneg = 1; break;
+    case  1:  endcap = 0; isneg = 0; break;
+    case  2:  endcap = 1; isneg = 0; break;
+    default:
+      std::cout << "TRTDigitization::TRTDigCondBase::createListOfValidStraws "
+                << "FATAL - identifier problems - skipping detector element!!" << std::endl;
+      continue;
     }
 
     for (unsigned int iStraw(0); iStraw <(*it)->nStraws(); ++iStraw) {
@@ -150,8 +152,8 @@ void TRTDigCondBase::initialize(CLHEP::HepRandomEngine* rndmEngine) {
   if ( m_UseGasMix==2) std::cout << "TRTDigCondBase  INFO Gas Geometry: UseGasMix==2; expect Krypton in the entire detector." << std::endl;
   if ( m_UseGasMix==3) std::cout << "TRTDigCondBase  INFO Gas Geometry: UseGasMix==3; expect Argon in the entire detector." << std::endl;
   if ( m_UseGasMix<0 || m_UseGasMix>3) {
-     std::cout << "TRTDigCondBase  ERROR Gas Geometry: UseGasMix==" << m_UseGasMix << ", must be 0,1,2or 3!" << std::endl;
-     throw std::exception();
+    std::cout << "TRTDigCondBase  ERROR Gas Geometry: UseGasMix==" << m_UseGasMix << ", must be 0,1,2or 3!" << std::endl;
+    throw std::exception();
   }
   std::cout << "TRTDigCondBase  INFO Gas Geometry: strawcount=" << strawcount << std::endl;
 
@@ -247,7 +249,7 @@ int TRTDigCondBase::StrawGasType(Identifier& TRT_Identifier) const {
     // and emulate argon later with reduced TR eff.
     else { std::cout << "FATAL: TRTCond::StrawStatus, " << m_sumTool->getStatusHT(TRT_Identifier)
                      << ", must be 'Good(2)||Xenon(3)' or 'Dead(1)||Argon(4)' or 'Krypton(5)!'"
-		     << ", or 'EmulateArgon(6)' or 'EmulateKrypton(7)'" << std::endl;
+                     << ", or 'EmulateArgon(6)' or 'EmulateKrypton(7)'" << std::endl;
     }
   }
   else if (m_UseGasMix==1) { strawGasType = 0; } // force whole detector to Xe
@@ -255,8 +257,8 @@ int TRTDigCondBase::StrawGasType(Identifier& TRT_Identifier) const {
   else if (m_UseGasMix==3) { strawGasType = 2; } // force whole detector to Ar
 
   if ( strawGasType<0 || strawGasType>2 ) {
-      std::cout << "FATAL: strawGasType value" << strawGasType << " must be 0(Xe), 1(Kr) or 2(Ar)!" << std::endl;
-      throw std::exception();
+    std::cout << "FATAL: strawGasType value" << strawGasType << " must be 0(Xe), 1(Kr) or 2(Ar)!" << std::endl;
+    throw std::exception();
   }
 
   return strawGasType;

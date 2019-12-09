@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRT_DRIFTCIRCLE_H
-#define TRT_DRIFTCIRCLE_H
+#ifndef TRT_DIGITIZATION_TRT_DRIFTCIRCLE_H
+#define TRT_DIGITIZATION_TRT_DRIFTCIRCLE_H
 
 // driftCircle.h
 // This local copy is only for development/debugging purposes
@@ -66,15 +66,15 @@ int trailingEdge(unsigned int m_word) {
   bool SawZero=false;
   int i;
   for (i = 0; i < 24; ++i)
-  {
-    if ( (m_word & mask) && SawZero )
-      break;
-    else if ( !(m_word & mask) )
-      SawZero = true;
-    mask <<= 1;
-    if (i == 7 || i == 15)
+    {
+      if ( (m_word & mask) && SawZero )
+        break;
+      else if ( !(m_word & mask) )
+        SawZero = true;
       mask <<= 1;
-  }
+      if (i == 7 || i == 15)
+        mask <<= 1;
+    }
 
   if ( 24 == i )
     return i;
@@ -145,23 +145,23 @@ void print_mword_properties(unsigned int mword) {
 }
 
 /*
-bool driftTimeValid(unsigned int m_word) {
+  bool driftTimeValid(unsigned int m_word) {
   return m_word & 0x08000000;
-}
+  }
 
-void setDriftTimeValid(bool valid) {
+  void setDriftTimeValid(bool valid) {
   unsigned maskfalse = 0xF7FFFFFF;
   unsigned masktrue = 0x08000000;
   if( valid ) {
-    m_word |= masktrue;
+  m_word |= masktrue;
   } else {
-    m_word &= maskfalse; }
-}
+  m_word &= maskfalse; }
+  }
 
-bool isNoise(unsigned int m_word) {
+  bool isNoise(unsigned int m_word) {
   if( timeOverThreshold(unsigned int m_word) < 5. || timeOverThreshold(unsigned int m_word) > 60. ) return true;
   return false;
-}
+  }
 */
 
 #endif

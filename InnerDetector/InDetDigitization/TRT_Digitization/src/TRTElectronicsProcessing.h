@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRTELECTRONICSPROCESSING_H
-#define TRTELECTRONICSPROCESSING_H
+#ifndef TRT_DIGITIZATION_TRTELECTRONICSPROCESSING_H
+#define TRT_DIGITIZATION_TRTELECTRONICSPROCESSING_H
 
 #include <vector>
 
@@ -21,7 +21,7 @@ class TRTDigSettings;
 class TRTElectronicsProcessing {
 public:
   TRTElectronicsProcessing( const TRTDigSettings* digset,
-			    TRTElectronicsNoise * electronicsnoise );
+                            TRTElectronicsNoise * electronicsnoise );
   ~TRTElectronicsProcessing();
 
   MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
@@ -62,15 +62,15 @@ public:
    * @param highthreshold:  discriminator value, high threshold
    */
   void ProcessDeposits( const std::vector<Deposit>&,
-			const int& hitID,
-			TRTDigit& outdigit,
-			double lowthreshold,
-			const double& noiseamplitude,
-			int strawGasType,
+                        const int& hitID,
+                        TRTDigit& outdigit,
+                        double lowthreshold,
+                        const double& noiseamplitude,
+                        int strawGasType,
                         CLHEP::HepRandomEngine* rndmEngine,
                         CLHEP::HepRandomEngine* elecNoiseRndmEngine,
-			double highthreshold = -1.0
-		      );
+                        double highthreshold = -1.0
+                        );
 
   double getHighThreshold ( int hitID, int strawGasType );
   unsigned int getRegion  ( int hitID );
@@ -114,7 +114,7 @@ private:
    * @param highthreshold: high threshold discriminator setting
    */
   void DiscriminatorResponse(const double& lowthreshold,
-			     const double& highthreshold) const;
+                             const double& highthreshold) const;
 
   /**
    * Encode 27 bit digit from discriminator response
