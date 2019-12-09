@@ -104,12 +104,12 @@
     pileupMomenta=calculateVertexMomenta(&jetCont,m_pvind, m_vertices);
 
     if(pileupMomenta.size()==0) {
-      ATH_MSG_WARNING( "pileupMomenta is empty, fJVT will not be computed." );
+      ATH_MSG_WARNING( "pileupMomenta is empty, this can happen for events with no PU vertices. fJVT can't be computed for this event." );
       for(const xAOD::Jet* jetF : jetCont) {
 	(*Dec_outFjvt)(*jetF) = 1;
 	fjvt_dec(*jetF) = -1;
       }
-      return 1;
+      return 0;
     }
 
     for(const xAOD::Jet* jetF : jetCont) {
