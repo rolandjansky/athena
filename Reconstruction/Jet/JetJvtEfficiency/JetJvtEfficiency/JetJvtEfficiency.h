@@ -83,6 +83,7 @@ private:
     bool m_doTruthRequirement;
     std::string m_ORdec;
     bool m_doOR;
+    bool m_muBinningSF;
 };
 
 } /* namespace CP */

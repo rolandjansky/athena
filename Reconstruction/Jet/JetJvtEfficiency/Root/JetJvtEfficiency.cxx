@@ -37,6 +37,7 @@ JetJvtEfficiency::JetJvtEfficiency( const std::string& name): asg::AsgTool( name
     declareProperty( "DoTruthReq",                m_doTruthRequirement   = true                                   );
     declareProperty( "TruthLabel",                m_isHS_decoration_name  = "isJvtHS"                             );
     declareProperty( "TruthJetContainerName",     m_truthJetContName = "AntiKt4TruthJets"                         );
+    declareProperty( "UseMuSFFormat",             m_muBinningSF = false                                           );
     applySystematicVariation(CP::SystematicSet()).ignore();
 }
 
@@ -142,7 +143,7 @@ CorrectionCode JetJvtEfficiency::getEfficiencyScaleFactor( const xAOD::Jet& jet,
     }
 
     int jetbin = 0;
-    if((m_dofJVT && !std::strstr(m_file.c_str(),"Moriond")) || m_doMVfJVT){ // fJVT SFs stored in 'Moriond' directory use (pT,eta) binning, new SFs binned in (eta,mu)
+    if( m_muBinningSF ){ // fJVT SFs stored in 'Moriond' directory use (pT,eta) binning, new SFs binned in (eta,mu)
       const xAOD::EventInfo *eventInfo = nullptr;
       if ( evtStore()->retrieve(eventInfo, "EventInfo").isFailure() )
 	{
@@ -186,7 +187,7 @@ CorrectionCode JetJvtEfficiency::getInefficiencyScaleFactor( const xAOD::Jet& je
     }
 
     int jetbin = 0;
-    if((m_dofJVT && !strstr(m_file.c_str(),"Moriond")) || m_doMVfJVT){
+    if( m_muBinningSF ){
       const xAOD::EventInfo *eventInfo = nullptr;
       if ( evtStore()->retrieve(eventInfo, "EventInfo").isFailure() )
 	{
@@ -284,7 +285,7 @@ bool JetJvtEfficiency::passesJvtCut(const xAOD::Jet& jet) {
 
 bool JetJvtEfficiency::isInRange(const xAOD::Jet& jet) {
   if (m_doOR && !jet.getAttribute<char>(m_ORdec)) return false;
-  if ( (m_dofJVT && !std::strstr(m_file.c_str(),"Moriond")) || m_doMVfJVT ){
+  if ( m_muBinningSF ){
     if (fabs(jet.getAttribute<float>(m_jetEtaName))<2.5) return false;
     if (fabs(jet.getAttribute<float>(m_jetEtaName))>4.5) return false;
   } else {
