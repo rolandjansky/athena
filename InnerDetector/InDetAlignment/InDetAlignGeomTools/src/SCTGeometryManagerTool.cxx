@@ -655,7 +655,7 @@ namespace InDet {
     ATH_MSG_DEBUG("maxHash for the SCT "<<maxHash);
 
     if(!m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT))
-      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT) = new Trk::AlignModuleList((size_t)(maxHash),0);
+      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT) = new Trk::AlignModuleList(static_cast<size_t>(maxHash),0);
     Trk::AlignModuleList * sctIdHashMap = m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT);
 
     for (int iLayer = 0; iLayer < m_detManager->numerology().numLayers(); iLayer++) {
