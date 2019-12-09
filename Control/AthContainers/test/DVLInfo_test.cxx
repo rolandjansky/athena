@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: DVLInfo_test.cxx 508150 2012-06-29 10:25:42Z ssnyder $
@@ -306,7 +306,7 @@ void test_dvl_convert1()
   assert (contb->size() == 10);
   typename CONTB::iterator it = contb->begin();
   for (int i=0; i < 10; i++) {
-    assert ((*it)->bb = i+10);
+    assert ((*it)->bb == i+10);
     ++it;
   }
 
@@ -317,17 +317,17 @@ void test_dvl_convert1()
   assert (contb->size() == 10);
   it = contb->begin();
   for (int i=0; i < 10; i++) {
-    assert ((*it)->bb = i+10);
+    assert ((*it)->bb == i+10);
     ++it;
   }
 
   CONTD contd2 (SG::VIEW_ELEMENTS);
   for (int i=9; i >= 0; i--)
-    contd.push_back (new D(i));
+    contd2.push_back (new D(i));
   DataModel_detail::dvl_update (contd2, newp, info2);
   it = contb->begin();
   for (int i=9; i >= 0; i--) {
-    assert ((*it)->bb = i+10);
+    assert ((*it)->bb == i + 10);
     ++it;
   }
 }
