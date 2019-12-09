@@ -720,6 +720,7 @@ if __name__=="__main__":
     cfg.merge(acc)
     
     if args.threads>1 and args.forceclone:
+        from AthenaCommon.Logging import log
         log.info('Forcing segment finding cardinality to be equal to '+str(args.threads))
         # We want to force the algorithms to run in parallel (eventually the algorithm will be marked as cloneable in the source code)
         from GaudiHive.GaudiHiveConf import AlgResourcePool
