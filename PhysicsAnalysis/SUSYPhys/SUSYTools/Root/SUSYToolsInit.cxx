@@ -1515,10 +1515,18 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   
 
   if (!m_trigMatchingTool.isUserConfigured()) {
-    m_trigMatchingTool.setTypeAndName("Trig::MatchingTool/TrigMatchingTool");
-    ATH_CHECK( m_trigMatchingTool.setProperty("TrigDecisionTool", m_trigDecTool.getHandle()) );
-    ATH_CHECK( m_trigMatchingTool.setProperty("OutputLevel", this->msg().level()) );
-    ATH_CHECK( m_trigMatchingTool.retrieve() );
+    std::cout << "ZLM found " << m_simpleTriggerMatching << std::endl;
+    if (!m_simpleTriggerMatching){
+      m_trigMatchingTool.setTypeAndName("Trig::MatchingTool/TrigMatchingTool");
+      ATH_CHECK( m_trigMatchingTool.setProperty("TrigDecisionTool", m_trigDecTool.getHandle()) );
+      ATH_CHECK( m_trigMatchingTool.setProperty("OutputLevel", this->msg().level()) );
+      ATH_CHECK( m_trigMatchingTool.retrieve() );
+    } else {
+      m_trigMatchingTool.setTypeAndName("Trig::MatchFromCompositeTool/TrigMatchFromCompositeTool");
+      //ATH_CHECK( m_trigMatchingTool.setProperty("TrigDecisionTool", m_trigDecTool.getHandle()) );
+      ATH_CHECK( m_trigMatchingTool.setProperty("OutputLevel", this->msg().level()) );
+      ATH_CHECK( m_trigMatchingTool.retrieve() );
+    }
   } else  ATH_CHECK( m_trigMatchingTool.retrieve() );
   
 

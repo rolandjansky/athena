@@ -97,6 +97,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_force_noMuId(false),
     m_doTTVAsf(true),
     m_doModifiedEleId(false),
+    m_simpleTriggerMatching(false),
     m_useBtagging(false),
     m_debug(false),
     m_strictConfigCheck(false),
@@ -424,7 +425,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "DoFatJetOR", m_orDoFatjets);
   declareProperty( "OREleFatJetDR", m_EleFatJetDR);
   declareProperty( "ORJetFatJetDR", m_JetFatJetDR);
-
+  declareProperty( "TriggerSimpleMatching", m_simpleTriggerMatching);
 
   //--- Object definitions
   //MET
@@ -1190,6 +1191,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   m_conf_to_prop["OR.RemoveCaloMuons"] = "ORRemoveCaloMuons";
   m_conf_to_prop["OR.MuJetApplyRelPt"] = "ORMuJetApplyRelPt";
   m_conf_to_prop["OR.InputLabel"] = "ORInputLabel";
+  m_conf_to_prop["Trigger.SimpleMatching"] = "TriggerSimpleMatching";
 
   m_conf_to_prop["SigLep.RequireIso"] = "SigLepRequireIso";
   m_conf_to_prop["SigEl.RequireIso"] = "SigElRequireIso";
@@ -1381,6 +1383,8 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_orDoFatjets, "OR.DoFatJets", rEnv, false);
   configFromFile(m_EleFatJetDR, "OR.EleFatJetDR", rEnv, -999.);
   configFromFile(m_JetFatJetDR, "OR.JetFatJetDR", rEnv, -999.);
+  ///
+  configFromFile(m_simpleTriggerMatching, "Trigger.SimpleMatching", rEnv, false);
   //
   configFromFile(m_doIsoSignal, "SigLep.RequireIso", rEnv, true);
   configFromFile(m_doElIsoSignal, "SigEl.RequireIso", rEnv, m_doIsoSignal);
