@@ -11,7 +11,7 @@
 
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
-
+#include "GaudiKernel/IMessageSvc.h"
 
 #include "G4PrimaryVertex.hh"
 #include "G4PrimaryParticle.hh"
@@ -32,6 +32,8 @@
 
 // Framework includes
 #include "GaudiKernel/GaudiException.h"
+#include "AthenaBaseComps/AthMessaging.h"
+
 
 // Anonymous namespace for file-global mutexes and helper functions
 namespace
@@ -100,7 +102,8 @@ namespace G4UA
   // Constructor
   //---------------------------------------------------------------------------
   LengthIntegrator::LengthIntegrator(const std::string& histSvcName, const Config& config)
-    : m_g4pow(0),
+    : AthMessaging(Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc" ), histSvcName),
+      m_g4pow(0),
       m_hSvc(histSvcName, "LengthIntegrator"),
       m_tree(nullptr),
       m_config(config)
@@ -177,7 +180,7 @@ namespace G4UA
   //---------------------------------------------------------------------------
   std::string LengthIntegrator::getMaterialClassification(std::string name, std::string volName)
   {
-
+    ATH_MSG_DEBUG("test " + name +  "  vol:" +  volName);
 /*
     if(pixelonly){
       if(name.find("SCT") != std::string::npos ) continue;
@@ -412,6 +415,7 @@ namespace G4UA
 
 
 
+
     //TODO Are these necessary?
     /*
     if(searchstring=="M_"){
@@ -424,7 +428,9 @@ namespace G4UA
 
     if(std::find(m_material_not_found.begin(),m_material_not_found.end(),name) == m_material_not_found.end()){
       m_material_not_found.push_back(name);
-      std::cout << "Material not found: " << name << "  vol:" << volName << std::endl;
+     
+      ATH_MSG_DEBUG("Material not found: " + name +  "  vol:" +  volName);
+      //std::cout << "Material not found: " << name << "  vol:" << volName << std::endl;
     }
     
     return "NONE";
@@ -497,6 +503,8 @@ namespace G4UA
     double thickstepRL = radl != 0 ? stepl/radl : DBL_MAX;
     double thickstepIL = intl != 0 ? stepl/intl : DBL_MAX;
 
+    // The following condition was active in 20.20, but hides a significant amount of material 
+    // that is located in the beampipe model at very eta ~ 6. This condition should not be used
     //if(fabs(hitPoint.z()) > 3450.) return;
 
 

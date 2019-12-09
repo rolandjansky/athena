@@ -8,6 +8,8 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 
+#include "AthenaBaseComps/AthMessaging.h"
+
 #include "G4Pow.hh"
 #include "TString.h"
 
@@ -40,7 +42,8 @@ namespace G4UA
   /// finalization of the LengthIntegratorTool.
   ///
   class LengthIntegrator final : public G4UserEventAction,
-                                 public G4UserSteppingAction
+                                 public G4UserSteppingAction,
+                                 public AthMessaging
   {
 
     public:
