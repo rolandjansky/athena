@@ -142,11 +142,10 @@ private:
   using AbortConditions = Acts::AbortList<EndOfWorld>;
 
   using Options = Acts::PropagatorOptions<ActionList, AbortConditions>;
-  using Corrector = Acts::detail::RelativePathCorrector;
 
   using VariantPropagator = boost::variant<
-    Acts::Propagator<Acts::EigenStepper<ATLASMagneticFieldWrapper, Corrector>, Acts::Navigator>,
-    Acts::Propagator<Acts::EigenStepper<Acts::ConstantBField, Corrector>, Acts::Navigator>
+    Acts::Propagator<Acts::EigenStepper<ATLASMagneticFieldWrapper>, Acts::Navigator>,
+    Acts::Propagator<Acts::EigenStepper<Acts::ConstantBField>, Acts::Navigator>
   >;
 
   std::unique_ptr<VariantPropagator> m_varProp;
