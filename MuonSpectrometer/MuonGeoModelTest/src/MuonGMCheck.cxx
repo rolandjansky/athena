@@ -17,9 +17,6 @@
 
 #include "MuonGeoModelTest/MuonGMCheck.h"
 
-#include "MuonDigitContainer/TgcDigitContainer.h"
-#include "MuonDigitContainer/TgcDigitCollection.h"
-#include "MuonDigitContainer/TgcDigit.h"
 #include "MuonDigitContainer/RpcDigitContainer.h"
 #include "MuonDigitContainer/RpcDigitCollection.h"
 #include "MuonDigitContainer/RpcDigit.h"
