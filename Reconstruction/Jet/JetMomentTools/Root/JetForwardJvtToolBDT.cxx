@@ -43,7 +43,7 @@ JetForwardJvtToolBDT::JetForwardJvtToolBDT(const std::string& name) :
     declareProperty( "VtxContName",       m_vtxcont          = "PrimaryVertices"                            );
     declareProperty( "PVIndexHS",         m_pvind            = -1                                           );
     declareProperty( "WPfile",            m_wpFile           = "MVfJVT_WPs.Nov2019.root"                    );
-    declareProperty( "configDir",         m_configDir        = "JetPileupTag/MVfJVT/"                       ); // This should ultimately be replaced by a more official calibArea
+    declareProperty( "configDir",         m_configDir        = "JetPileupTag/MVfJVT/"                       );
     declareProperty( "ConfigFiles",       m_MVconfig         = {
 	  "weights/MVfJVT_pt2030_etaHigh_muHigh.May2019.weights.xml",
 	  "weights/MVfJVT_pt2030_etaLow_muHigh.May2019.weights.xml",
