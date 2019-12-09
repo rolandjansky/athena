@@ -16,9 +16,11 @@ def makeSequence (dataType, jetContainer="AntiKt4EMPFlowJets") :
 
     # Include, and then set up the jet analysis algorithm sequence:
     from JetAnalysisAlgorithms.JetAnalysisSequence import makeJetAnalysisSequence
-    jetSequence = makeJetAnalysisSequence( dataType, jetContainer )
+    jetSequence = makeJetAnalysisSequence( dataType, jetContainer,
+                                           enableCutflow=True, enableKinematicHistograms=True )
     from FTagAnalysisAlgorithms.FTagAnalysisSequence import makeFTagAnalysisSequence
-    makeFTagAnalysisSequence( jetSequence, dataType, jetContainer, noEfficiency = True, legacyRecommendations = True )
+    makeFTagAnalysisSequence( jetSequence, dataType, jetContainer, noEfficiency = True, legacyRecommendations = True,
+                              enableCutflow=True )
     jetSequence.configure( inputName = jetContainer, outputName = 'AnalysisJets' )
 
     # Add the sequence to the job:

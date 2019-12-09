@@ -8,15 +8,17 @@ def makeJetJvtAnalysisSequence( dataType, jetCollection,
                                 preselection = '',
                                 disableFJvt = False,
                                 globalSF = True,
-                                runSelection = True ):
+                                runSelection = True,
+                                enableCutflow = False ):
     """Create a jet JVT analysis algorithm sequence
 
     Keyword arguments:
       dataType -- The data type to run on ("data", "mc" or "afii")
       jetCollection -- The jet container to run on
-      disableFJvt -- Wether to disable forward JVT calculations
-      globalSF -- Wether to calculate per event scale factors
-      runSelection -- Wether to run selection
+      disableFJvt -- Whether to disable forward JVT calculations
+      globalSF -- Whether to calculate per event scale factors
+      runSelection -- Whether to run selection
+      enableCutflow -- Whether or not to dump the cutflow
     """
 
     if not dataType in ["data", "mc", "afii"] :
@@ -68,12 +70,13 @@ def makeJetJvtAnalysisSequence( dataType, jetCollection,
             cutlist.append('fjvt_selection')
             cutlength.append(1)
 
-        # Set up an algorithm used for debugging the jet selection:
-        alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'JetJvtCutFlowDumperAlg' )
-        alg.histPattern = 'jet_cflow_jvt_%SYS%'
-        alg.selection = cutlist
-        alg.selectionNCuts = cutlength
-        seq.append( alg, inputPropName = { 'jets' : 'input' })
+        # Set up an algorithm used to create jet JVT selection cutflow:
+        if enableCutflow:
+            alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'JetJvtCutFlowDumperAlg' )
+            alg.histPattern = 'jet_cflow_jvt_%SYS%'
+            alg.selection = cutlist
+            alg.selectionNCuts = cutlength
+            seq.append( alg, inputPropName = { 'jets' : 'input' })
 
         # Set up an algorithm that makes a view container using the selections
         # performed previously:

@@ -10,7 +10,9 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
                               shallowViewOutput = True,
                               postfix = '',
                               ptSelectionOutput = False,
-                              qualitySelectionOutput = True ):
+                              qualitySelectionOutput = True,
+                              enableCutflow = False,
+                              enableKinematicHistograms = False ):
     """Create a muon analysis algorithm sequence
 
     Keyword arguments:
@@ -28,6 +30,8 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
                            output containers.
       qualitySelectionOutput -- Whether or not to apply muon quality selection
                                 when creating output containers.
+      enableCutflow -- Whether or not to dump the cutflow
+      enableKinematicHistograms -- Whether or not to dump the kinematic histograms
     """
 
     if not dataType in ["data", "mc", "afii"] :
@@ -162,14 +166,13 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
     seq.append( alg, inputPropName = 'particles',
                 stageName = 'selection' )
 
-    # Set up an algorithm used for debugging the muon selection:
-    alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg',
-                           'MuonCutFlowDumperAlg' + postfix )
-    alg.histPattern = 'muon' + postfix + '_cflow_%SYS%'
-    alg.selection = selectionDecorNames[ : ]
-    alg.selectionNCuts = selectionDecorCount[ : ]
-    seq.append( alg, inputPropName = 'input',
-                stageName = 'selection' )
+    # Set up an algorithm used to create muon selection cutflow:
+    if enableCutflow:
+        alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'MuonCutFlowDumperAlg' + postfix )
+        alg.histPattern = 'muon' + postfix + '_cflow_%SYS%'
+        alg.selection = selectionDecorNames[ : ]
+        alg.selectionNCuts = selectionDecorCount[ : ]
+        seq.append( alg, inputPropName = 'input', stageName = 'selection' )
 
     # Set up the output selection
     if shallowViewOutput or deepCopyOutput:
@@ -204,12 +207,12 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
                     affectingSystematics = '(^MUON_EFF_RECO.*)',
                     stageName = 'efficiency' )
 
-    # Set up an algorithm dumping the properties of the muons, for debugging:
-    alg = createAlgorithm( 'CP::KinematicHistAlg',
-                           'MuonKinematicDumperAlg' + postfix )
-    alg.histPattern = 'muon' + postfix + '_%VAR%_%SYS%'
-    seq.append( alg, inputPropName = 'input',
-                stageName = 'selection' )
+    # Set up an algorithm dumping the kinematic properties of the muons:
+    if enableKinematicHistograms:
+        alg = createAlgorithm( 'CP::KinematicHistAlg', 'MuonKinematicDumperAlg' + postfix )
+        alg.preselection = "&&".join (selectionDecorNames)
+        alg.histPattern = 'muon' + postfix + '_%VAR%_%SYS%'
+        seq.append( alg, inputPropName = 'input', stageName = 'selection' )
 
     # Set up a final deep copy making algorithm if requested:
     if deepCopyOutput:

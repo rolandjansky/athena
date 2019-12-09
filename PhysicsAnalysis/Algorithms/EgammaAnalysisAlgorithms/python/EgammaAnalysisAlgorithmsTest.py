@@ -22,7 +22,8 @@ def makeSequence (dataType) :
     # Include, and then set up the electron analysis sequence:
     from EgammaAnalysisAlgorithms.ElectronAnalysisSequence import \
         makeElectronAnalysisSequence
-    electronSequence = makeElectronAnalysisSequence( dataType, 'LooseLHElectron.GradientLoose', postfix = 'loose', recomputeLikelihood=True )
+    electronSequence = makeElectronAnalysisSequence( dataType, 'LooseLHElectron.GradientLoose', postfix = 'loose',
+                                                     recomputeLikelihood=True, enableCutflow=True, enableKinematicHistograms=True )
     electronSequence.configure( inputName = 'Electrons',
                                 outputName = 'AnalysisElectrons' )
     algSeq += electronSequence
@@ -30,7 +31,8 @@ def makeSequence (dataType) :
     # Include, and then set up the photon analysis sequence:
     from EgammaAnalysisAlgorithms.PhotonAnalysisSequence import \
         makePhotonAnalysisSequence
-    photonSequence = makePhotonAnalysisSequence( dataType, 'Tight.FixedCutTight', postfix = 'tight', recomputeIsEM=True )
+    photonSequence = makePhotonAnalysisSequence( dataType, 'Tight.FixedCutTight', postfix = 'tight',
+                                                 recomputeIsEM=True, enableCutflow=True, enableKinematicHistograms=True )
     photonSequence.configure( inputName = 'Photons',
                               outputName = 'AnalysisPhotons' )
     algSeq += photonSequence

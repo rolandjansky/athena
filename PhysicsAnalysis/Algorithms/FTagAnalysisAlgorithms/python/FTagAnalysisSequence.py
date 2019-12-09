@@ -11,7 +11,8 @@ def makeFTagAnalysisSequence( seq, dataType, jetCollection,
                               preselection=None,
                               kinematicSelection = False,
                               noEfficiency = False,
-                              legacyRecommendations = False ):
+                              legacyRecommendations = False,
+                              enableCutflow = False ):
     """Create a ftag analysis algorithm sequence
 
     for now the sequence is passed in, I'm unsure if I can concatenate
@@ -25,6 +26,7 @@ def makeFTagAnalysisSequence( seq, dataType, jetCollection,
       kinematicSelection -- Wether to run kinematic selection
       noEfficiency -- Wether to run efficiencies calculation
       legacyRecommendations -- Use legacy recommendations without shallow copied containers
+      enableCutflow -- Whether or not to dump the cutflow
     """
 
     if not dataType in ["data", "mc", "afii"] :
@@ -98,13 +100,14 @@ def makeFTagAnalysisSequence( seq, dataType, jetCollection,
                     stageName = 'efficiency' )
         pass
 
-    # Set up an algorithm used for debugging the f-tag selection:
-    alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'FTagCutFlowDumperAlg' + btagger + btagWP + postfix )
-    alg.histPattern = 'ftag_cflow_' + btagger + '_' + btagWP + '_%SYS%'
-    alg.selection = ['ftag_select_' + btagger + '_' + btagWP + ',as_char']
-    alg.selectionNCuts = [1] # really we have 4 cuts, but we use char
-    seq.append( alg, inputPropName = 'input',
-                stageName = 'selection' )
+    # Set up an algorithm used to create f-tag selection cutflow:
+    if enableCutflow:
+        alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'FTagCutFlowDumperAlg' + btagger + btagWP + postfix )
+        alg.histPattern = 'ftag_cflow_' + btagger + '_' + btagWP + '_%SYS%'
+        alg.selection = ['ftag_select_' + btagger + '_' + btagWP + ',as_char']
+        alg.selectionNCuts = [1] # really we have 4 cuts, but we use char
+        seq.append( alg, inputPropName = 'input',
+                    stageName = 'selection' )
 
     # Return the sequence:
     return seq

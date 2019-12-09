@@ -10,7 +10,9 @@ from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
 def makePhotonAnalysisSequence( dataType, workingPoint,
                                 deepCopyOutput = False,
                                 postfix = '',
-                                recomputeIsEM = False ):
+                                recomputeIsEM = False,
+                                enableCutflow = False,
+                                enableKinematicHistograms = False ):
     """Create a photon analysis algorithm sequence
 
     Keywrod arguments:
@@ -24,6 +26,8 @@ def makePhotonAnalysisSequence( dataType, workingPoint,
                  sequence with multiple working points to ensure all
                  names are unique.
       recomputeIsEM -- Whether to rerun the cut-based selection. If not, use derivation flags
+      enableCutflow -- Whether or not to dump the cutflow
+      enableKinematicHistograms -- Whether or not to dump the kinematic histograms
     """
 
     # Make sure we received a valid data type.
@@ -176,14 +180,15 @@ def makePhotonAnalysisSequence( dataType, workingPoint,
         selectionDecorCount.append( 1 )
         pass
 
-    # Set up an algorithm used for debugging the photon selection:
-    alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg',
-                           'PhotonCutFlowDumperAlg' + postfix )
-    alg.histPattern = 'photon_cflow_%SYS%' + postfix
-    alg.selection = selectionDecorNames[ : ]
-    alg.selectionNCuts = selectionDecorCount[ : ]
-    seq.append( alg, inputPropName = 'input',
-                stageName = 'selection' )
+    # Set up an algorithm used to create photon selection cutflow:
+    if enableCutflow:
+        alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg',
+                            'PhotonCutFlowDumperAlg' + postfix )
+        alg.histPattern = 'photon_cflow_%SYS%' + postfix
+        alg.selection = selectionDecorNames[ : ]
+        alg.selectionNCuts = selectionDecorCount[ : ]
+        seq.append( alg, inputPropName = 'input',
+                    stageName = 'selection' )
 
     # Set up an algorithm that makes a view container using the selections
     # performed previously:
@@ -193,11 +198,13 @@ def makePhotonAnalysisSequence( dataType, workingPoint,
     seq.append( alg, inputPropName = 'input', outputPropName = 'output',
                 stageName = 'selection' )
 
-    # Set up an algorithm dumping the properties of the photons, for debugging:
-    alg = createAlgorithm( 'CP::KinematicHistAlg', 'PhotonKinematicDumperAlg' + postfix )
-    alg.histPattern = 'photon_%VAR%_%SYS%' + postfix
-    seq.append( alg, inputPropName = 'input',
-                stageName = 'selection' )
+    # Set up an algorithm dumping the kinematic properties of the photons:
+    if enableKinematicHistograms:
+        alg = createAlgorithm( 'CP::KinematicHistAlg', 'PhotonKinematicDumperAlg' + postfix )
+        alg.preselection = "&&".join (selectionDecorNames)
+        alg.histPattern = 'photon_%VAR%_%SYS%' + postfix
+        seq.append( alg, inputPropName = 'input',
+                    stageName = 'selection' )
 
     # Set up a final deep copy making algorithm if requested:
     if deepCopyOutput:
