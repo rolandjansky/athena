@@ -8,13 +8,16 @@
 #include "EventContainers/IdentifiableValueCache.h"
 
 
+class IdentifiableValueContainerBase {};
+
+
 /*
 *  This class is the view specific container that can link to the IdentifiableValueCache
 *  It allows you to link to an external cache and keep a mask to track the items in your specific view
 */
 
 template<class T>
-class IdentifiableValueContainer{
+class IdentifiableValueContainer : IdentifiableValueContainerBase{
 
 public:
 
