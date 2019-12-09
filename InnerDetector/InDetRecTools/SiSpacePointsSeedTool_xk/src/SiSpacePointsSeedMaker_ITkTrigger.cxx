@@ -1,8 +1,9 @@
-     
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+  
 ///////////////////////////////////////////////////////////////////
 //   Implementation file for class SiSpacePointsSeedMaker_ITkTrigger
-///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 // Version 1.0 21/04/2004 I.Gavrilenko
 ///////////////////////////////////////////////////////////////////
@@ -185,33 +186,24 @@ InDet::SiSpacePointsSeedMaker_ITkTrigger::~SiSpacePointsSeedMaker_ITkTrigger()
 
 StatusCode InDet::SiSpacePointsSeedMaker_ITkTrigger::initialize()
 {
-  StatusCode sc = AlgTool::initialize(); 
+  ATH_CHECK( AlgTool::initialize() );  
 
   // Get beam geometry
   //
   p_beam = 0;
   if(m_beamconditions!="") {
-    sc = service(m_beamconditions,p_beam);
+    ATH_CHECK(service(m_beamconditions,p_beam));
   }
 
   // Get magnetic field service
   //
-  if( !m_fieldServiceHandle.retrieve() ){
-    ATH_MSG_FATAL("Failed to retrieve " << m_fieldServiceHandle );
-    return StatusCode::FAILURE;
-  }    
-  ATH_MSG_DEBUG("Retrieved " << m_fieldServiceHandle );
+  ATH_CHECK(m_fieldServiceHandle.retrieve());
   m_fieldService = &*m_fieldServiceHandle;
 
   // Get tool for track-prd association
   //
   if( m_useassoTool ) {
-    if( m_assoTool.retrieve().isFailure()) {
-      msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_assoTool<<endmsg; 
-      return StatusCode::FAILURE;
-    } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_assoTool << endmsg;
-    }
+    ATH_CHECK(m_assoTool.retrieve());
   }
 
   // Build framework
@@ -222,10 +214,11 @@ StatusCode InDet::SiSpacePointsSeedMaker_ITkTrigger::initialize()
   //
   m_outputlevel = msg().level()-MSG::DEBUG;
   if(m_outputlevel<=0) {
-    m_nprint=0; msg(MSG::DEBUG)<<(*this)<<endmsg;
+    m_nprint=0; ATH_MSG_DEBUG((*this));
   }
   m_umax = 100.-fabs(m_umax)*300.;
-  return sc;
+  
+  return StatusCode::SUCCESS;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -234,7 +227,8 @@ StatusCode InDet::SiSpacePointsSeedMaker_ITkTrigger::initialize()
 
 StatusCode InDet::SiSpacePointsSeedMaker_ITkTrigger::finalize()
 {
-   StatusCode sc = AlgTool::finalize(); return sc;
+   ATH_CHECK(AlgTool::finalize());
+   return StatusCode::SUCCESS;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -368,7 +362,7 @@ void InDet::SiSpacePointsSeedMaker_ITkTrigger::find2Sp(const std::list<Trk::Vert
   i_seed  = l_seeds.begin();
   
   if(m_outputlevel<=0) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
+    m_nprint=1; ATH_MSG_DEBUG((*this));
   }
 }
 
@@ -399,7 +393,7 @@ void InDet::SiSpacePointsSeedMaker_ITkTrigger::find3Sp(const std::list<Trk::Vert
   m_seed  = m_seeds.begin();
 
   if(m_outputlevel<=0) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
+    m_nprint=1; ATH_MSG_DEBUG((*this));
   }
 }
 
@@ -430,7 +424,7 @@ void InDet::SiSpacePointsSeedMaker_ITkTrigger::find3Sp(const std::list<Trk::Vert
   m_seed  = m_seeds.begin();
 
   if(m_outputlevel<=0) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
+    m_nprint=1; ATH_MSG_DEBUG((*this));
   }
 }
 
@@ -463,7 +457,7 @@ void InDet::SiSpacePointsSeedMaker_ITkTrigger::findVSp (const std::list<Trk::Ver
   m_seed  = m_seeds.begin();
 
   if(m_outputlevel<=0) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
+    m_nprint=1; ATH_MSG_DEBUG((*this));
   }
 }
 
@@ -642,37 +636,7 @@ MsgStream& InDet::SiSpacePointsSeedMaker_ITkTrigger::dumpEvent( MsgStream& out )
      <<"                              |"<<std::endl;
   out<<"|---------------------------------------------------------------------|"
      <<std::endl;
-  /*
-  if(m_outputlevel==0) return out; 
 
-  out<<"|-------------|--------|-------|-------|-------|-------|-------|";
-  out<<"-------|-------|-------|-------|-------|-------|"
-     <<std::endl;
-
-  out<<"|  Azimuthal  |    n   | z[ 0] | z[ 1] | z[ 2] | z[ 3] | z[4]  |";
-  out<<" z[ 5] | z[ 6] | z[ 7] | z[ 8] | z[ 9] | z[10] |"
-     <<std::endl;
-  out<<"|-------------|--------|-------|-------|-------|-------|-------|";
-  out<<"-------|-------|-------|-------|-------|-------|"
-     <<std::endl;
-  
-  float sF1 = pi2/float(m_fNmax+1);
-  
-  
-  for(int f=0; f<=m_fNmax; ++f) {
-    out<<"|  "
-       <<std::setw(10)<<std::setprecision(4)<<sF1*float(f)<<" | "
-       <<std::setw(6)<<rf_map[f]<<" |";
-    for(int z=0; z!=11; ++z) {
-      out<<std::setw(6)<<rfz_map[(f*11+z)]<<" |";
-    }
-    out<<std::endl;
-  } 
-  out<<"|-------------|--------|-------|-------|-------|-------|-------|";
-  out<<"-------|-------|-------|-------|-------|-------|"
-     <<std::endl;
-  out<<std::endl;
-  */
   return out;
 }
 

@@ -592,7 +592,7 @@ StatusCode InDet::SiSPSeededTrackFinder::convStrategy()
 
   const CaloClusterROI_Collection* calo = 0;
   StatusCode sc = evtStore()->retrieve(calo,m_inputClusterContainerName);
-  std::unique_ptr<RoiDescriptor> roiComp = std::make_unique<RoiDescriptor>(true);
+  std::unique_ptr<RoiDescriptor> roiComp = CxxUtils::make_unique<RoiDescriptor>(true);
 
   if(sc == StatusCode::SUCCESS && calo) {
     RoiDescriptor * roi =0;
