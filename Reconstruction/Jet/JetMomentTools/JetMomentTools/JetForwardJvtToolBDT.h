@@ -48,9 +48,6 @@ class JetForwardJvtToolBDT
   public:
 
 
-  /// Default constructor
-  JetForwardJvtToolBDT();
-
   /// Constructor with parameters:
   JetForwardJvtToolBDT(const std::string& name);
 
