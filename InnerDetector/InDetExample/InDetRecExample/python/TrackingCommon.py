@@ -496,6 +496,33 @@ def getInDetRefitRotCreator(name='InDetRefitRotCreator', **kwargs) :
     return getInDetRotCreator(name = name, **kwargs)
 
 @makePublicTool
+def getInDetUpdator(name = 'InDetUpdator', **kwargs) :
+    the_name = makeName( name, kwargs ) 
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    if InDetFlags.kalmanUpdator() == "fast" :
+        from TrkMeasurementUpdator_xk.TrkMeasurementUpdator_xkConf import Trk__KalmanUpdator_xk as Updator
+    elif InDetFlags.kalmanUpdator() == "weight" :
+        from TrkMeasurementUpdator.TrkMeasurementUpdatorConf import Trk__KalmanWeightUpdator as Updator
+    elif InDetFlags.kalmanUpdator() == "smatrix" :
+        from TrkMeasurementUpdator.TrkMeasurementUpdatorConf import Trk__KalmanUpdatorSMatrix as Updator
+    elif InDetFlags.kalmanUpdator() == "amg" :
+        from TrkMeasurementUpdator.TrkMeasurementUpdatorConf import Trk__KalmanUpdatorAmg as Updator
+    else :
+        from TrkMeasurementUpdator.TrkMeasurementUpdatorConf import Trk__KalmanUpdator as Updator
+    return Updator(name = the_name, **kwargs)
+
+
+
+@makePublicTool
+def getInDetGsfMeasurementUpdator(name='InDetGsfMeasurementUpdator', **kwargs) :
+    the_name = makeName( name, kwargs )
+    if 'Updator' not in kwargs  :
+       kwargs=setDefaults(kwargs, Updator = getInDetUpdator() )
+    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMeasurementUpdator
+    return Trk__GsfMeasurementUpdator( name = the_name, **kwargs )
+
+
+@makePublicTool
 def getInDetGsfMaterialUpdator(name='InDetGsfMaterialUpdator', **kwargs) :
     the_name = makeName( name, kwargs)
     if 'MultiComponentStateMerger' not in kwargs :

@@ -123,6 +123,7 @@ def InDetMeasRecalibST(name='InDetMeasRecalibST',**kwargs) :
     return Trk__MeasRecalibSteeringTool(name,**kwargs)
 
 def InDetKalmanTrackFitterBase(name='InDetKalmanTrackFitterBase',**kwargs) :
+    from InDetRecExample import TrackingCommon as TrackingCommon
     from TrkKalmanFitter.TrkKalmanFitterConf import Trk__KalmanFitter
     from AthenaCommon.AppMgr import ToolSvc
     split_cluster_map_extension = kwargs.get('SplitClusterMapExtension','')
@@ -375,8 +376,8 @@ def GaussianSumFitter(name='GaussianSumFitter', **kwargs) :
     if 'ToolForExtrapolation' not in kwargs :
         kwargs=setDefaults(kwargs, ToolForExtrapolation = TrackingCommon.getInDetGsfExtrapolator())
 
-    #if 'MeasurementUpdatorType' not in kwargs :
-    #    kwargs=setDefaults(kwargs, MeasurementUpdatorType = InDetGsfMeasurementUpdator #TrackingCommon.getInDetGsfMeasurementUpdator())
+    if 'MeasurementUpdatorType' not in kwargs :
+        kwargs=setDefaults(kwargs, MeasurementUpdatorType = TrackingCommon.getInDetGsfMeasurementUpdator())
 
     from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GaussianSumFitter
     return Trk__GaussianSumFitter(name = name, **setDefaults(kwargs,
