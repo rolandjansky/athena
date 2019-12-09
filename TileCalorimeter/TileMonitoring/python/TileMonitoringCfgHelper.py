@@ -428,10 +428,10 @@ def addTileModuleDigitizerMapsArray(helper, algorithm, name, title, path, weight
 
     return array
 
-
-def addTileEtaPhiMapsArray(helper, algorithm, name, title, path, weight = '',
-                           type = 'TH2D', value = '', run = '', triggers = [],
-                           perSample = True, perGain = False, separator = ''):
+def addTileEtaPhiMapsArray(helper, algorithm, name, title, path, weight = '', type = 'TH2D', value = '',
+                           run = '', triggers = [], perSample = True, perGain = False, separator = '',
+                           etaTitle= '#eta', etabins = 21, etamin = -2.025, etamax = 2.025,
+                           phiTitle = '#phi', phibins = Tile.MAX_DRAWER, phimin = -3.15, phimax = 3.15):
     '''
     This function configures 2D histograms (maps) with Tile monitored value vs eta and phi.
 
@@ -463,11 +463,11 @@ def addTileEtaPhiMapsArray(helper, algorithm, name, title, path, weight = '',
         fullName += getTileHistogramName(name = name, separator = separator, **kwargs)
 
         fullPath = getTileHistogramPath(path = path, **kwargs)
-        fullTitle = getTileHistogramTitle(title = title, run = run, **kwargs) + ';#eta;#phi'
+        fullTitle = getTileHistogramTitle(title = title, run = run, **kwargs) + ';' + etaTitle + ';' + phiTitle
 
         tool.defineHistogram( fullName, path = fullPath, type = type, title = fullTitle,
-                              xbins = 21, xmin = -2.025, xmax = 2.025,
-                              ybins = Tile.MAX_DRAWER, ymin = -3.15, ymax = 3.15,
+                              xbins = etabins, xmin = etamin, xmax = etamax,
+                              ybins = phibins, ymin = phimin, ymax = phimax,
                               weight = weight )
 
     return array
