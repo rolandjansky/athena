@@ -5,8 +5,6 @@
 ///////////////////////////////////////////////////////////////////
 // PixelDiodeMatrix.h
 ///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef INDETREADOUTGEOMETRY_PIXELDIODEMATRIX_H
 #define INDETREADOUTGEOMETRY_PIXELDIODEMATRIX_H
@@ -79,6 +77,10 @@ namespace InDetDD {
     no range check in these methods. The methods are called from PixelDiodeMap
     where it first checks that is within range of the top level cell (refered to
     as the top level matrix).
+
+    PixelDiodeMatrix might inherit std::shared_ptr but needs to return std::shared_ptr of this pointer.
+    To do this, std::enable_shared_from_this and shared_from_this() have to be used.
+    https://en.cppreference.com/w/cpp/memory/enable_shared_from_this
     
     See the description of these methods for more details.
     
