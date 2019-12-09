@@ -9,7 +9,6 @@
 #include "TrkTrack/TrackCollection.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkPatternParameters/PatternTrackParameters.h"
-#include "CxxUtils/make_unique.h"
 
 #include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
 #include "RoiDescriptor/RoiDescriptor.h"
@@ -198,7 +197,7 @@ StatusCode InDet::SiSPSeededTrackFinder::execute()
 
 StatusCode InDet::SiSPSeededTrackFinder::oldStrategy()
 { 
-  m_outputTracks = CxxUtils::make_unique<TrackCollection>();
+  m_outputTracks = std::make_unique<TrackCollection>();
   // For HI events we can use MBTS information from calorimeter
   //
   if(!isGoodEvent()) {
@@ -285,7 +284,7 @@ StatusCode InDet::SiSPSeededTrackFinder::oldStrategy()
 
 StatusCode InDet::SiSPSeededTrackFinder::newStrategy()
 { 
-  m_outputTracks = CxxUtils::make_unique<TrackCollection>();
+  m_outputTracks = std::make_unique<TrackCollection>();
 
   // For HI events we can use MBTS information from calorimeter
   //
@@ -398,7 +397,7 @@ StatusCode InDet::SiSPSeededTrackFinder::itkStrategy()
 {
   if (m_doFastTracking) return itkFastTrackingStrategy();
   
-  m_outputTracks = CxxUtils::make_unique<TrackCollection>();
+  m_outputTracks = std::make_unique<TrackCollection>();
   
   // For HI events we can use MBTS information from calorimeter
   //
@@ -508,7 +507,7 @@ StatusCode InDet::SiSPSeededTrackFinder::itkStrategy()
    
 StatusCode InDet::SiSPSeededTrackFinder::itkFastTrackingStrategy()
 { 
-  m_outputTracks = CxxUtils::make_unique<TrackCollection>();
+  m_outputTracks = std::make_unique<TrackCollection>();
 
   std::multimap<double,Trk::Track*>    qualityTrack;
   std::list    <Trk::Track*>           outputTrack ;
@@ -579,7 +578,7 @@ StatusCode InDet::SiSPSeededTrackFinder::itkFastTrackingStrategy()
 
 StatusCode InDet::SiSPSeededTrackFinder::convStrategy()
 {
-  m_outputTracks = CxxUtils::make_unique<TrackCollection>();
+  m_outputTracks = std::make_unique<TrackCollection>();
 
   // For HI events we can use MBTS information from calorimeter
   //
@@ -592,7 +591,7 @@ StatusCode InDet::SiSPSeededTrackFinder::convStrategy()
 
   const CaloClusterROI_Collection* calo = 0;
   StatusCode sc = evtStore()->retrieve(calo,m_inputClusterContainerName);
-  std::unique_ptr<RoiDescriptor> roiComp = CxxUtils::make_unique<RoiDescriptor>(true);
+  std::unique_ptr<RoiDescriptor> roiComp = std::make_unique<RoiDescriptor>(true);
 
   if(sc == StatusCode::SUCCESS && calo) {
     RoiDescriptor * roi =0;
