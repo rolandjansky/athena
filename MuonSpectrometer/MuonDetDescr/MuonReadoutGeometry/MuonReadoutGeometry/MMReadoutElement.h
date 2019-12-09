@@ -13,7 +13,6 @@
 #include "MuonReadoutGeometry/MuonClusterReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MuonChannelDesign.h"
-//#include "MuonIdHelpers/MmIdHelper.h"
 #include <cmath>
 
 class StoreGateSvc;
