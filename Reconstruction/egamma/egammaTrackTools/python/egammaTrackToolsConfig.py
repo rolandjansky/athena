@@ -44,9 +44,11 @@ def EMExtrapolationToolsCfg(flags, **kwargs):
     acc.setPrivateTools(emExtrapolationTools)
     return acc
 
+
 def EMExtrapolationToolsCacheCfg(flags, **kwargs):
     kwargs.setdefault("name", "EMExtrapolationToolsCache")
     kwargs.setdefault("useCaching", True)
+    kwargs.setdefault("useLastCaching", True)
     return EMExtrapolationToolsCfg(flags, **kwargs)
 
 
