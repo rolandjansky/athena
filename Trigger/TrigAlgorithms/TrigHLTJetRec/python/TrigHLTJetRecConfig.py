@@ -1573,6 +1573,8 @@ class TrigHLTSoftKiller(TrigHLTJetRecConf.TrigHLTSoftKiller):
                  OutputLevel=INFO,
                 ):
 
+        global jtm
+
         TrigHLTJetRecConf.TrigHLTSoftKiller.__init__(self,name=name)
 
         self.OutputLevel = OutputLevel
@@ -1593,7 +1595,6 @@ class TrigHLTSoftKiller(TrigHLTJetRecConf.TrigHLTSoftKiller):
             self.emTool = emTool
             modifiers.append(self.emTool)
         
-        global jtm
         skTool =  SoftKillerWeightTool( name+cluster_calib, SKGridSize=0.6, isCaloSplit=False, SKRapMin=0, SKRapMax=2.5, InputType=xaodtype_calocluster)
         jtm.add(skTool)
         self.skWeightTool = skTool
