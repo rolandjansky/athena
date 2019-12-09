@@ -1515,7 +1515,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   
 
   if (!m_trigMatchingTool.isUserConfigured()) {
-    std::cout << "ZLM found " << m_simpleTriggerMatching << std::endl;
     if (!m_simpleTriggerMatching){
       m_trigMatchingTool.setTypeAndName("Trig::MatchingTool/TrigMatchingTool");
       ATH_CHECK( m_trigMatchingTool.setProperty("TrigDecisionTool", m_trigDecTool.getHandle()) );
