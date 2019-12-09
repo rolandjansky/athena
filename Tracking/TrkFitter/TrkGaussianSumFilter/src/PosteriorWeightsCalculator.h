@@ -67,7 +67,7 @@ PosteriorWeightsCalculator::calculateWeight_T(const TrackParameters* componentTr
                                               int paramKey) const
 {
 
-  const ProjectionMatricesSet reMatrices(5); //!< expansion and reduction matrices set
+  static const ProjectionMatricesSet reMatrices(5); //!< expansion and reduction matrices set
   // Define the expansion matrix
   const AmgMatrix(DIM, 5) H = reMatrices.expansionMatrix(paramKey).block<DIM, 5>(0, 0);
 
