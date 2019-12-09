@@ -2,4 +2,4 @@
 
 from AthenaCommon.CfgGetter import addAlgorithm
 
-addAlgorithm("OverlayCommonAlgs.OverlayCommonAlgsConfig.getEventInfoOverlay", "EventInfoOverlay")
+addAlgorithm("xAODEventInfoCnv.xAODEventInfoCnvConfigLegacy.getEventInfoOverlay", "EventInfoOverlay")

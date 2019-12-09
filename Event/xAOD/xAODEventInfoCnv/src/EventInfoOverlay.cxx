@@ -9,6 +9,10 @@
 #include <xAODEventInfo/EventAuxInfo.h>
 
 
+namespace xAODMaker
+{
+
+
 EventInfoOverlay::EventInfoOverlay(const std::string &name, ISvcLocator *pSvcLocator)
   : AthReentrantAlgorithm(name, pSvcLocator) {}
 
@@ -93,3 +97,6 @@ StatusCode EventInfoOverlay::execute(const EventContext& ctx) const
   ATH_MSG_DEBUG("execute() end");
   return StatusCode::SUCCESS;
 }
+
+
+} // namespace xAODMaker
