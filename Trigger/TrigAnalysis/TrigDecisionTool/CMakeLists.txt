@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 786880 2016-11-28 13:00:09Z krasznaa $
 ################################################################################
 # Package: TrigDecisionTool
 ################################################################################
@@ -124,7 +123,7 @@ if( NOT XAOD_STANDALONE AND NOT XAOD_ANALYSIS )
       LINK_LIBRARIES TrigNavigationLib AthenaKernel GaudiKernel AthContainers
       AnalysisTriggerEvent TrigSteeringEvent TrigMuonEvent 
       TrigDecisionToolLib
-      EXTRA_PATTERNS ".*" )
+      POST_EXEC_SCRIPT nopost.sh )
 endif()
 
 # Install files from the package:
