@@ -20,6 +20,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Reconstruction/MET/METRecoInterface
                           PRIVATE
                           Calorimeter/CaloInterface
+                          Calorimeter/CaloConditions
                           Event/FourMomUtils
                           InnerDetector/InDetRecTools/InDetTrackSelectionTool
                           InnerDetector/InDetRecTools/TrackVertexAssociationTool
