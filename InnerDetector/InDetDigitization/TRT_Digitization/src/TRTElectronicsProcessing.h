@@ -73,7 +73,6 @@ public:
                         );
 
   double getHighThreshold ( int hitID, int strawGasType );
-  unsigned int getRegion  ( int hitID );
   void LTt0Shift          ( int hitID, int strawGasType );
   void HTt0Shift          ( int hitID );
 

@@ -146,9 +146,6 @@ protected:
   const InDetDD::TRT_DetectorManager* m_detmgr;
   const TRT_ID* m_id_helper;
 
-  // The straw's gas mix: 1=Xe, 2=Kr, 3=Ar
-  int StrawGasType(Identifier& TRT_Identifier) const;
-
 private:
   /** Straw state */
   struct StrawState {
@@ -187,6 +184,7 @@ private:
   /** Iterator used for caching */
   std::map<int,StrawState>::iterator m_all_it_hitid_to_StrawState_previous;
 
+protected:
   mutable Athena::MsgStreamMember m_msg;
 
   int m_UseGasMix;

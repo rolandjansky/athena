@@ -118,10 +118,6 @@ private:
                            CLHEP::HepRandomEngine *paiRndmEngine);
   StatusCode createAndStoreRDOs();
 
-  // The straw's gas mix: 1=Xe, 2=Kr, 3=Ar
-  int StrawGasType(Identifier& TRT_Identifier) const;
-
-  unsigned int getRegion(int hitID);
   double getCosmicEventPhase(CLHEP::HepRandomEngine *rndmEngine);
 
   /// Configurable properties
