@@ -72,14 +72,15 @@ namespace InDet{
       const bool&                         heavyion   () const {return m_heavyion   ;}
       const bool&                         cleanSCTClus() const {return m_cleanSCTClus;}
       const bool&                         useFastTracking() const {return m_doFastTracking;}
+      const bool&                         isITkGeometry() const {return m_ITkGeometry;}
 
       void setTools
-	(Trk::IPatternParametersPropagator* ,
-	 Trk::IPatternParametersUpdator*    , 
-	 Trk::IRIO_OnTrackCreator*          , 
-	 Trk::IPRD_AssociationTool*         ,
-	 MagField::IMagFieldSvc* 
-	 );  
+      (Trk::IPatternParametersPropagator* ,
+       Trk::IPatternParametersUpdator*    , 
+       Trk::IRIO_OnTrackCreator*          , 
+       Trk::IPRD_AssociationTool*         ,
+       MagField::IMagFieldSvc* 
+      );  
       
       void setTools
 	(const Trk::MagneticFieldProperties&);
@@ -96,6 +97,7 @@ namespace InDet{
       void setCleanSCTClus(const int&);
       void setHeavyIon   (bool);
       void setFastTracking (bool);
+      void setITkGeometry(bool);
 
     protected:
       
@@ -130,6 +132,7 @@ namespace InDet{
       bool                            m_heavyion   ;  // Is it heavy ion event
       bool                            m_cleanSCTClus; // Clean spurious SCT clusters in forward extension
       bool                            m_doFastTracking; // Do Fast Tracking setup
+      bool                            m_ITkGeometry; // Is ITk geometry 
 
       ///////////////////////////////////////////////////////////////////
       // Methods
@@ -168,6 +171,7 @@ namespace InDet{
       m_cleanSCTClus = false;
       m_fieldService = 0    ;
       m_doFastTracking = false;
+      m_ITkGeometry = false;
     }
 
   inline SiTools_xk::SiTools_xk(const SiTools_xk& T)
@@ -204,6 +208,7 @@ namespace InDet{
         m_cleanSCTClus = T.m_cleanSCTClus;
         m_heavyion    = T.m_heavyion   ;
         m_doFastTracking = T.m_doFastTracking;
+        m_ITkGeometry = T.m_ITkGeometry;
       }
       return(*this);
     }
@@ -290,6 +295,11 @@ namespace InDet{
   inline void SiTools_xk::setFastTracking (bool FT) 
   {
     m_doFastTracking = FT;
+  }
+
+  inline void SiTools_xk::setITkGeometry(bool isITk)
+  {
+    m_ITkGeometry = isITk;
   }
 
 } // end of name space

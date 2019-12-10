@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
      
@@ -438,20 +438,20 @@ void InDet::SiSpacePointsSeedMaker_TrkSeeded::newRegion
       // Loop through all trigger collections
       //
       for(; l!=le; ++l) {
-	
-	SpacePointContainer::const_iterator  w =  m_spacepointsPixel->indexFind((*l));
-	if(w==spce) continue;
-	SpacePointCollection::const_iterator sp = (*w)->begin(), spe = (*w)->end();
-
-	for(; sp != spe; ++sp) {
-
-	  float r = (*sp)->r(); if(r > r_rmax) continue;
-	  InDet::SiSpacePointForSeed* sps = newSpacePoint((*sp)); 
-	  int   ir = int(sps->radius()*irstep); if(ir>irmax) ir = irmax;
-	  r_Sorted[ir].push_back(sps); ++r_map[ir];
-	  if(r_map[ir]==1) r_index[m_nr++] = ir;
-	  ++m_ns;
-	}
+        
+        SpacePointContainer::const_iterator  w =  m_spacepointsPixel->indexFind((*l));
+        if(w==spce) continue;
+        SpacePointCollection::const_iterator sp = (*w)->begin(), spe = (*w)->end();
+        
+        for(; sp != spe; ++sp) {
+        
+          float r = (*sp)->r(); if(r > r_rmax) continue;
+          InDet::SiSpacePointForSeed* sps = newSpacePoint((*sp)); 
+          int   ir = int(sps->radius()*irstep); if(ir>irmax) ir = irmax;
+          r_Sorted[ir].push_back(sps); ++r_map[ir];
+          if(r_map[ir]==1) r_index[m_nr++] = ir;
+          ++m_ns;
+        }
       }
     }
   }
@@ -473,19 +473,19 @@ void InDet::SiSpacePointsSeedMaker_TrkSeeded::newRegion
       //
       for(; l!=le; ++l) {
 
-	SpacePointContainer::const_iterator  w =  m_spacepointsSCT->indexFind((*l));
-	if(w==spce) continue;
-	SpacePointCollection::const_iterator sp = (*w)->begin(), spe = (*w)->end();
-
-	for(; sp != spe; ++sp) {
-
-	  float r = (*sp)->r(); if(r > r_rmax) continue;
-	  InDet::SiSpacePointForSeed* sps = newSpacePoint((*sp)); 
-	  int   ir = int(sps->radius()*irstep); if(ir>irmax) ir = irmax;
-	  r_Sorted[ir].push_back(sps); ++r_map[ir];
-	  if(r_map[ir]==1) r_index[m_nr++] = ir;
-	  ++m_ns;
-	}
+        SpacePointContainer::const_iterator  w =  m_spacepointsSCT->indexFind((*l));
+        if(w==spce) continue;
+        SpacePointCollection::const_iterator sp = (*w)->begin(), spe = (*w)->end();
+        
+        for(; sp != spe; ++sp) {
+        
+          float r = (*sp)->r(); if(r > r_rmax) continue;
+          InDet::SiSpacePointForSeed* sps = newSpacePoint((*sp)); 
+          int   ir = int(sps->radius()*irstep); if(ir>irmax) ir = irmax;
+          r_Sorted[ir].push_back(sps); ++r_map[ir];
+          if(r_map[ir]==1) r_index[m_nr++] = ir;
+          ++m_ns;
+        }
       }
     }
   }
@@ -1325,7 +1325,6 @@ void InDet::SiSpacePointsSeedMaker_TrkSeeded::production2Sp()
       // Loop through trigger space points
       //
       for(; r0!=r0e; ++r0) {
-        
         float X  = (*r0)->x();
         float Y  = (*r0)->y();
         float R  = (*r0)->radius();

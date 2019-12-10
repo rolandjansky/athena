@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+(C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -16,7 +16,6 @@
 #include "TrkSurfaces/CylinderSurface.h"
 #include "TrkSurfaces/StraightLineSurface.h"
 #include "TrkPatternParameters/PatternTrackParameters.h"
-#include "TrkParametersBase/ChargeDefinition.h"
 
 ///////////////////////////////////////////////////////////////////
 // Conversion Trk::PatternTrackParameters to  Trk::TrackParameters
@@ -84,13 +83,16 @@ void Trk::PatternTrackParameters::newCovarianceMatrix
 (Trk::PatternTrackParameters& Tp,double* Jac)
 {
   double* V  = &Tp.m_covariance[0];
+
+  m_iscovariance = false;
+
   double a11 = (Jac[ 0]*V[ 0]+Jac[ 1]*V[ 1]+Jac[ 2]*V[ 3])+(Jac[ 3]*V[ 6]+Jac[ 4]*V[10]);
   double a12 = (Jac[ 0]*V[ 1]+Jac[ 1]*V[ 2]+Jac[ 2]*V[ 4])+(Jac[ 3]*V[ 7]+Jac[ 4]*V[11]);  
   double a13 = (Jac[ 0]*V[ 3]+Jac[ 1]*V[ 4]+Jac[ 2]*V[ 5])+(Jac[ 3]*V[ 8]+Jac[ 4]*V[12]);   
   double a14 = (Jac[ 0]*V[ 6]+Jac[ 1]*V[ 7]+Jac[ 2]*V[ 8])+(Jac[ 3]*V[ 9]+Jac[ 4]*V[13]);   
   double a15 = (Jac[ 0]*V[10]+Jac[ 1]*V[11]+Jac[ 2]*V[12])+(Jac[ 3]*V[13]+Jac[ 4]*V[14]);   
 
-  m_covariance[ 0] = (a11*Jac[ 0]+a12*Jac[ 1]+a13*Jac[ 2])+(a14*Jac[ 3]+a15*Jac[ 4]);
+  m_covariance[ 0] = (a11*Jac[ 0]+a12*Jac[ 1]+a13*Jac[ 2])+(a14*Jac[ 3]+a15*Jac[ 4]); if(m_covariance[ 0] <=0.) return;
   
   double a21 = (Jac[ 5]*V[ 0]+Jac[ 6]*V[ 1]+Jac[ 7]*V[ 3])+(Jac[ 8]*V[ 6]+Jac[ 9]*V[10]);   
   double a22 = (Jac[ 5]*V[ 1]+Jac[ 6]*V[ 2]+Jac[ 7]*V[ 4])+(Jac[ 8]*V[ 7]+Jac[ 9]*V[11]);   
@@ -98,8 +100,8 @@ void Trk::PatternTrackParameters::newCovarianceMatrix
   double a24 = (Jac[ 5]*V[ 6]+Jac[ 6]*V[ 7]+Jac[ 7]*V[ 8])+(Jac[ 8]*V[ 9]+Jac[ 9]*V[13]);   
   double a25 = (Jac[ 5]*V[10]+Jac[ 6]*V[11]+Jac[ 7]*V[12])+(Jac[ 8]*V[13]+Jac[ 9]*V[14]);   
 
+  m_covariance[ 2] = (a21*Jac[ 5]+a22*Jac[ 6]+a23*Jac[ 7])+(a24*Jac[ 8]+a25*Jac[ 9]); if(m_covariance[ 2] <=0.) return;
   m_covariance[ 1] = (a21*Jac[ 0]+a22*Jac[ 1]+a23*Jac[ 2])+(a24*Jac[ 3]+a25*Jac[ 4]);
-  m_covariance[ 2] = (a21*Jac[ 5]+a22*Jac[ 6]+a23*Jac[ 7])+(a24*Jac[ 8]+a25*Jac[ 9]);
   
   double a31 = (Jac[10]*V[ 0]+Jac[11]*V[ 1]+Jac[12]*V[ 3])+(Jac[13]*V[ 6]+Jac[14]*V[10]);   
   double a32 = (Jac[10]*V[ 1]+Jac[11]*V[ 2]+Jac[12]*V[ 4])+(Jac[13]*V[ 7]+Jac[14]*V[11]);   
@@ -107,9 +109,9 @@ void Trk::PatternTrackParameters::newCovarianceMatrix
   double a34 = (Jac[10]*V[ 6]+Jac[11]*V[ 7]+Jac[12]*V[ 8])+(Jac[13]*V[ 9]+Jac[14]*V[13]);   
   double a35 = (Jac[10]*V[10]+Jac[11]*V[11]+Jac[12]*V[12])+(Jac[13]*V[13]+Jac[14]*V[14]);   
   
+  m_covariance[ 5] = (a31*Jac[10]+a32*Jac[11]+a33*Jac[12])+(a34*Jac[13]+a35*Jac[14]); if(m_covariance[ 5] <=0.) return;
   m_covariance[ 3] = (a31*Jac[ 0]+a32*Jac[ 1]+a33*Jac[ 2])+(a34*Jac[ 3]+a35*Jac[ 4]);
   m_covariance[ 4] = (a31*Jac[ 5]+a32*Jac[ 6]+a33*Jac[ 7])+(a34*Jac[ 8]+a35*Jac[ 9]);
-  m_covariance[ 5] = (a31*Jac[10]+a32*Jac[11]+a33*Jac[12])+(a34*Jac[13]+a35*Jac[14]);
 
   double a41 = (Jac[15]*V[ 0]+Jac[16]*V[ 1]+Jac[17]*V[ 3])+(Jac[18]*V[ 6]+Jac[19]*V[10]);   
   double a42 = (Jac[15]*V[ 1]+Jac[16]*V[ 2]+Jac[17]*V[ 4])+(Jac[18]*V[ 7]+Jac[19]*V[11]);   
@@ -117,10 +119,10 @@ void Trk::PatternTrackParameters::newCovarianceMatrix
   double a44 = (Jac[15]*V[ 6]+Jac[16]*V[ 7]+Jac[17]*V[ 8])+(Jac[18]*V[ 9]+Jac[19]*V[13]);   
   double a45 = (Jac[15]*V[10]+Jac[16]*V[11]+Jac[17]*V[12])+(Jac[18]*V[13]+Jac[19]*V[14]);   
 
+  m_covariance[ 9] = (a41*Jac[15]+a42*Jac[16]+a43*Jac[17])+(a44*Jac[18]+a45*Jac[19]); if(m_covariance[ 9] <=0.) return;
   m_covariance[ 6] = (a41*Jac[ 0]+a42*Jac[ 1]+a43*Jac[ 2])+(a44*Jac[ 3]+a45*Jac[ 4]);
   m_covariance[ 7] = (a41*Jac[ 5]+a42*Jac[ 6]+a43*Jac[ 7])+(a44*Jac[ 8]+a45*Jac[ 9]);
   m_covariance[ 8] = (a41*Jac[10]+a42*Jac[11]+a43*Jac[12])+(a44*Jac[13]+a45*Jac[14]);
-  m_covariance[ 9] = (a41*Jac[15]+a42*Jac[16]+a43*Jac[17])+(a44*Jac[18]+a45*Jac[19]);
   
   double a51 = Jac[20]*V[10];   
   double a52 = Jac[20]*V[11];   
@@ -128,11 +130,11 @@ void Trk::PatternTrackParameters::newCovarianceMatrix
   double a54 = Jac[20]*V[13];   
   double a55 = Jac[20]*V[14];   
 
+  m_covariance[14] =                                                    a55*Jac[20];  if(m_covariance[14] <=0.) return;
   m_covariance[10] = (a51*Jac[ 0]+a52*Jac[ 1]+a53*Jac[ 2])+(a54*Jac[ 3]+a55*Jac[ 4]);
   m_covariance[11] = (a51*Jac[ 5]+a52*Jac[ 6]+a53*Jac[ 7])+(a54*Jac[ 8]+a55*Jac[ 9]);
   m_covariance[12] = (a51*Jac[10]+a52*Jac[11]+a53*Jac[12])+(a54*Jac[13]+a55*Jac[14]);
   m_covariance[13] = (a51*Jac[15]+a52*Jac[16]+a53*Jac[17])+(a54*Jac[18]+a55*Jac[19]);
-  m_covariance[14] =                                                    a55*Jac[20];
   m_iscovariance   = true;
 }
 

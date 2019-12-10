@@ -1,7 +1,5 @@
-///////////////////////// -*- C++ -*- /////////////////////////////
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // MuonMeanMDTdADCFillerTool.h,  Header file for class MuonMeanMDTdADCFillerTool
@@ -15,12 +13,10 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonCombinedToolInterfaces/IMuonMeanMDTdADCFiller.h"
 
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonCalibITools/IIdToFixedIdTool.h"
-
-// class IIncidentSvc;
-namespace Trk {}
+namespace Muon {
+  class MuonEDMHelperTool;
+  class MuonIdHelperTool;
+}
 
 namespace Rec
 {
@@ -56,12 +52,8 @@ namespace Rec
     double     meanMDTdADCFiller (const Trk::Track& track) const;
  
  private: 
-  
-    // tools and services 
-	ToolHandle<Muon::MuonEDMHelperTool> m_helperTool;
-    ToolHandle<Muon::MuonIdHelperTool>  m_idHelperTool;
-    ToolHandle<MuonCalib::IIdToFixedIdTool> m_idToFixedIdTool;
-
+  ToolHandle<Muon::MuonEDMHelperTool> m_helperTool;
+  ToolHandle<Muon::MuonIdHelperTool>  m_idHelperTool;
 
   }; 
 
