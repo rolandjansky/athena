@@ -9,10 +9,6 @@
 #include "TProfile2D.h"
 #include "TTree.h"
 
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/IMessageSvc.h"
-
 #include "G4PrimaryVertex.hh"
 #include "G4PrimaryParticle.hh"
 #include "G4Event.hh"
@@ -32,7 +28,10 @@
 
 // Framework includes
 #include "GaudiKernel/GaudiException.h"
-#include "AthenaBaseComps/AthMessaging.h"
+#include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/IMessageSvc.h"
+//#include "AthenaBaseComps/AthMessaging.h"
 
 
 // Anonymous namespace for file-global mutexes and helper functions
@@ -102,13 +101,19 @@ namespace G4UA
   // Constructor
   //---------------------------------------------------------------------------
   LengthIntegrator::LengthIntegrator(const std::string& histSvcName, const Config& config)
-    : AthMessaging(Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc" ), histSvcName),
+    : AthMessaging(Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc" ), "LengthIntegrator"),
       m_g4pow(0),
       m_hSvc(histSvcName, "LengthIntegrator"),
       m_tree(nullptr),
       m_config(config)
   {
+    // FIXME: By default, only "INFO" messages are printed.
+    // To view Debug messages, it is neccesary to explicitly set the log level for this service
+    // There has to be a more elegant way of assigning the global Sim_tf log level
+    AthMessaging::msg().setLevel(MSG::Level::DEBUG);
     
+
+
     // Protect concurrent access to the non-thread-safe hist svc
     std::lock_guard<std::mutex> lock(gHistSvcMutex);
 
@@ -156,7 +161,7 @@ namespace G4UA
   //---------------------------------------------------------------------------
   void LengthIntegrator::BeginOfEventAction(const G4Event* event)
   {
-    
+    ATH_MSG_DEBUG("NATHAN READIOFF ");
     G4PrimaryVertex* vert = event->GetPrimaryVertex(0);
     G4PrimaryParticle* part = vert->GetPrimary();
     G4ThreeVector mom = part->GetMomentum();
@@ -179,8 +184,7 @@ namespace G4UA
   // Setup hists for one detector
   //---------------------------------------------------------------------------
   std::string LengthIntegrator::getMaterialClassification(std::string name, std::string volName)
-  {
-    ATH_MSG_DEBUG("test " + name +  "  vol:" +  volName);
+  { 
 /*
     if(pixelonly){
       if(name.find("SCT") != std::string::npos ) continue;
