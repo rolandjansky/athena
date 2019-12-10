@@ -415,15 +415,17 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   if (!m_jetFJvtEfficiencyTool.isUserConfigured()) {
     toolName = m_doFwdJVT ? m_metJetSelection+"_fJVT" : m_metJetSelection+"_NOfJVT";
     m_jetFJvtEfficiencyTool.setTypeAndName("CP::JetJvtEfficiency/FJVTEfficiencyTool_"+toolName);
-    if(m_fwdjetTightOp)
-      ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("WorkingPoint","Tight") );
+    if(m_fwdjetTightOp || m_fwdjetTighterOp){
+      if(m_fwdjetTighterOp) ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("WorkingPoint","Tighter") );
+      else ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("WorkingPoint","Tight") );
+    }
     else
-      ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("WorkingPoint","Medium") );
+      ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("WorkingPoint","Loose") );
     ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("MaxPtForJvt",m_fwdjetPtMax) );
     ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("JetfJvtMomentName","passFJvt") );
     // Set the decoration to the name we used to use
     ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("ScaleFactorDecorationName","fJVTSF") );
-    ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("SFFile","JetJvtEfficiency/Moriond2018/fJvtSFFile.root"));
+    ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("SFFile","JetJvtEfficiency/Nov2019/fJvtSFFile.EMtopo.root"));
     ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_jetFJvtEfficiencyTool.retrieve() );
   } else  ATH_CHECK( m_jetFJvtEfficiencyTool.retrieve() );

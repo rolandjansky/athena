@@ -641,6 +641,7 @@ namespace ST {
     double m_fwdjetEtaMin;
     double m_fwdjetPtMax;
     bool   m_fwdjetTightOp;
+    bool   m_fwdjetTighterOp;
 
     bool m_JMScalib;
 
