@@ -1,5 +1,5 @@
 /* 
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TARJetTool.h
@@ -51,6 +51,7 @@ class TARJetTool
 
     // Configurable parameters
     std::string m_inTrackColl;
+    std::string m_inSelTrackColl;
     std::string m_outTrackColl;
     std::string m_assocTracksOutName;
     float m_dRmatch;
