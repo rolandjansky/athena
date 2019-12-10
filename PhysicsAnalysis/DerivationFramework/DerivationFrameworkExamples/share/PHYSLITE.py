@@ -67,7 +67,7 @@ trigger_names = list(dict.fromkeys(trigger_names))
 # Create trigger matching decorations
 PHYSLITE_trigmatching_helper = TriggerMatchingHelper(matching_tool = "PHYSLITETriggerMatchingTool",
                                                  trigger_list = trigger_names)
-AugmentationTools += PHYSLITE_trigmatching_helper.matching_tool
+AugmentationTools.append( PHYSLITE_trigmatching_helper.matching_tool )
 
 #==============================================================================
 # HEAVY FLAVOR DECORATION
@@ -461,6 +461,9 @@ PHYSLITESlimmingHelper.ExtraVariables = [
 if DerivationFrameworkIsMonteCarlo:
     from DerivationFrameworkMCTruth.MCTruthCommon import addTruth3ContentToSlimmerTool
     addTruth3ContentToSlimmerTool(PHYSLITESlimmingHelper)
+
+# Extra trigger collections
+PHYSLITE_trigmatching_helper.add_to_slimming(PHYSLITESlimmingHelper)
 
 PHYSLITESlimmingHelper.AppendContentToStream(PHYSLITEStream)
 
