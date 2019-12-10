@@ -46,6 +46,7 @@
 #include "GeneratorFilters/DecayModeFilter.h"
 #include "GeneratorFilters/DiLeptonMassFilter.h"
 #include "GeneratorFilters/DirectPhotonFilter.h"
+#include "GeneratorFilters/SUSYGGMHiggsinoPhotonFilter.h"
 #include "GeneratorFilters/HeavyFlavorHadronFilter.h"
 #include "GeneratorFilters/DstD0K3piFilter.h"
 #include "GeneratorFilters/FourLeptonMassFilter.h"
@@ -133,6 +134,7 @@ DECLARE_ALGORITHM_FACTORY(ChargedTracksFilter)
 DECLARE_ALGORITHM_FACTORY(DecayModeFilter)
 DECLARE_ALGORITHM_FACTORY(DiLeptonMassFilter)
 DECLARE_ALGORITHM_FACTORY(DirectPhotonFilter)
+DECLARE_ALGORITHM_FACTORY(SUSYGGMHiggsinoPhotonFilter)
 DECLARE_ALGORITHM_FACTORY(HeavyFlavorHadronFilter)
 DECLARE_ALGORITHM_FACTORY(DstD0K3piFilter)
 DECLARE_ALGORITHM_FACTORY(FourLeptonMassFilter)
@@ -220,6 +222,7 @@ DECLARE_FACTORY_ENTRIES(GeneratorFilters) {
     DECLARE_ALGORITHM(DecayModeFilter)
     DECLARE_ALGORITHM(DiLeptonMassFilter)
     DECLARE_ALGORITHM(DirectPhotonFilter)
+    DECLARE_ALGORITHM(SUSYGGMHiggsinoPhotonFilter)
     DECLARE_ALGORITHM(HeavyFlavorHadronFilter)
     DECLARE_ALGORITHM(DstD0K3piFilter)
     DECLARE_ALGORITHM(FourLeptonMassFilter)
