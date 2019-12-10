@@ -650,15 +650,20 @@ const Amg::Vector3D MdtReadoutElement::tubePos(int multilayer, int tubelayer, in
                <<"inserted multilayer is not the multilayer of the RE." <<endmsg;
         throw;
     }
-
+    #ifndef NDEBUG
       (*m_Log) <<MSG::VERBOSE<<"in tubePos-- id "<<(manager()->mdtIdHelper())->show_to_string(identify())
        <<" ml, tl, t = "<<multilayer<<", "<<tubelayer<<", "<<tube<<endmsg;
       (*m_Log) <<MSG::VERBOSE<<" MdtReadoutElement::tubePos(ml,tl,t) going to look for local coord.s"<<endmsg;    
-        const Amg::Vector3D lp = localTubePos(multilayer, tubelayer, tube);
+    #endif
+      const Amg::Vector3D lp = localTubePos(multilayer, tubelayer, tube);
+    #ifndef NDEBUG
     (*m_Log) <<MSG::VERBOSE<<" MdtReadoutElement::tubePos(ml,tl,t) going to look for det transform"<<endmsg;
+    #endif
     const Amg::Transform3D mdtTrans = absTransform();
+    #ifndef NDEBUG
     (*m_Log) <<MSG::VERBOSE<<" MdtReadoutElement::tubePos(ml,tl,t) got localP and trans "<<endmsg;
-    
+    #endif
+
     return mdtTrans * lp;
 
 }
@@ -898,22 +903,28 @@ const Amg::Transform3D & MdtReadoutElement::fromIdealToDeformed(int multilayer, 
       if (!m_deformTransfs) 
 	{
 	  m_deformTransfs  = new std::vector<Amg::Transform3D *>( 1 );
+    #ifndef NDEBUG
 	    (*m_Log)  << MSG::VERBOSE <<"RE "<< idh->show_to_string(identify())<<" created vector of deform-trasf with size 1 - pointer "<<(uintptr_t)m_deformTransfs<<endmsg;
+    #endif
 	}
       Amg::Transform3D * transf =  (*m_deformTransfs)[0];
       if( transf ) return *transf;
       transf = new Amg::Transform3D(Amg::Transform3D::Identity());
       (*m_deformTransfs)[0] = transf;	
+      #ifndef NDEBUG
 	(*m_Log)  << MSG::VERBOSE <<"RE "<< idh->show_to_string(identify())<<" creating deform-trasf as identity for tLayer, tube "<<tubelayer<<" "<<tube
 		<<" globalIndex = "<<0<<" pointer "<<(uintptr_t)transf<<endmsg;
+    #endif
       return *transf;
     }
   
    
   int ntot_tubes = m_nlayers * m_ntubesperlayer;
   if (!m_deformTransfs ) {	
+    #ifndef NDEBUG
       (*m_Log)  << MSG::VERBOSE <<"Creating vector of deform-Transformations for RE "<< idh->show_to_string(identify())
 	      <<" with "<<ntot_tubes << " components"<<endmsg;
+    #endif
       m_deformTransfs  = new std::vector<Amg::Transform3D *>( ntot_tubes );
       for (int j=0; j<ntot_tubes; ++j)  (*m_deformTransfs)[j] = 0;
   }
@@ -924,8 +935,10 @@ const Amg::Transform3D & MdtReadoutElement::fromIdealToDeformed(int multilayer, 
   }
   Amg::Transform3D * transf =  (*m_deformTransfs)[itube];
   if( transf ) {
+    #ifndef NDEBUG
     (*m_Log)  << MSG::VERBOSE <<"RE "<< idh->show_to_string(identify())
 						 <<" reusing deform-trasf for tLayer, tube "<<tubelayer<<" "<<tube<<" globalIndex = "<<itube<<endmsg;
+    #endif
       return *transf;
   }
   
@@ -1743,12 +1756,15 @@ void MdtReadoutElement::fillBLineCache() const
 }
 void MdtReadoutElement::clearBLineCache() const
 {
+    #ifndef NDEBUG
         (*m_Log) <<MSG::VERBOSE<<"Clearing BLine cache for ReadoutElement "<<getStationName()<<"/"<<getTechnologyName()
                <<" eta/phi "<<getStationEta()<<"/"<<getStationPhi()
                <<" ml "<<m_multilayer<<" pointer to vector or deform-transfs "<<(uintptr_t)m_deformTransfs<<endmsg;
-
+    #endif
     if (m_deformTransfs) {
+      #ifndef NDEBUG
 	(*m_Log) <<MSG::VERBOSE<<"non null pointer to the vector of deform-transfs"<<endmsg;
+      #endif
       if (!m_deformTransfs->empty())
 	{
 	    (*m_Log) <<MSG::VERBOSE<<"vector of deform-transfs has size "<< m_deformTransfs->size()<<endmsg;
