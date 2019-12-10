@@ -41,9 +41,13 @@ namespace Trig {
       double, bool)
   {
     const xAOD::TrigCompositeContainer* composites(nullptr);
-    if (evtStore()->retrieve(composites, m_inputPrefix+chain).isFailure() )
+    if (evtStore()->retrieve(composites, m_inputPrefix+chain).isFailure() ){
+      ATH_MSG_ERROR("Failed to retrieve composite container for chain "+chain);
+      ATH_MSG_ERROR("Please check your derivation to see if the container is there");
+      ATH_MSG_ERROR("Always be sure to check the trigger decision before matching!");
       throw std::runtime_error(
           "Failed to retrieve composite corresponding to chain " + chain);
+    }
     for (const xAOD::TrigComposite* composite : *composites) {
       static constAcc_t<vecLink_t<xAOD::IParticleContainer>> accMatched(
           "TrigMatchedObjects");
