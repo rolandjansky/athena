@@ -29,6 +29,7 @@ DFCommonTauWrapperTools = []
 DFCommonTausSelectorLoose = TauAnalysisTools__TauSelectionTool(name="DFCommonTausSelectorLoose")
 DFCommonTausSelectorLoose.JetIDWP = 2
 DFCommonTausSelectorLoose.SelectionCuts = 1<<6
+DFCommonTausSelectorLoose.ConfigPath = ''
 #TauAnalysisTools::CutJetIDWP should be used but issue with the dictionnary
 ToolSvc += DFCommonTausSelectorLoose
 DFCommonTausLooseWrapper = DerivationFramework__AsgSelectionToolWrapper( name = "DFCommonTausLooseWrapper",
@@ -43,6 +44,7 @@ DFCommonTauWrapperTools.append(DFCommonTausLooseWrapper)
 DFCommonTausSelectorMedium = TauAnalysisTools__TauSelectionTool(name="DFCommonTausSelectorMedium")
 DFCommonTausSelectorMedium.JetIDWP = 3
 DFCommonTausSelectorMedium.SelectionCuts = 1<<6
+DFCommonTausSelectorMedium.ConfigPath = ''
 ToolSvc += DFCommonTausSelectorMedium
 DFCommonTausMediumWrapper = DerivationFramework__AsgSelectionToolWrapper( name = "DFCommonTausMediumWrapper",
                                                                          AsgSelectionTool = DFCommonTausSelectorMedium,
@@ -56,6 +58,7 @@ DFCommonTauWrapperTools.append(DFCommonTausMediumWrapper)
 DFCommonTausSelectorTight = TauAnalysisTools__TauSelectionTool(name="DFCommonTausSelectorTight")
 DFCommonTausSelectorTight.JetIDWP = 4
 DFCommonTausSelectorTight.SelectionCuts = 1<<6
+DFCommonTausSelectorTight.ConfigPath = ''
 ToolSvc += DFCommonTausSelectorTight
 DFCommonTausTightWrapper = DerivationFramework__AsgSelectionToolWrapper( name = "DFCommonTausTightWrapper",
                                                                          AsgSelectionTool = DFCommonTausSelectorTight,

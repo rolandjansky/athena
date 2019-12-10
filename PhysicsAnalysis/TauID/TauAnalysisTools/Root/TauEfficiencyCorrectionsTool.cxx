@@ -42,7 +42,7 @@ TauEfficiencyCorrectionsTool::TauEfficiencyCorrectionsTool( const std::string& s
   declareProperty( "VarNameEleOLRHadTau",          m_sVarNameEleOLRHadTau          = "" );
   declareProperty( "VarNameEleOLRElectron",        m_sVarNameEleOLRElectron        = "" );
   declareProperty( "VarNameJetIDHadTau",           m_sVarNameJetIDHadTau           = "" );
-  declareProperty( "VarNameRecoHadTau",            m_sVarNameDecayModeHadTau       = "" );
+  declareProperty( "VarNameDecayModeHadTau",       m_sVarNameDecayModeHadTau       = "" );
   declareProperty( "VarNameContJetIDHadTau",       m_sVarNameContJetIDHadTau       = "" );
   declareProperty( "VarNameEleIDHadTau",           m_sVarNameEleIDHadTau           = "" );
   declareProperty( "VarNameTriggerHadTau",         m_sVarNameTriggerHadTau         = "" );
