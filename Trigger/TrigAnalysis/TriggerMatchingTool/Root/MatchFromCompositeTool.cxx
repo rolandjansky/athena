@@ -44,7 +44,7 @@ namespace Trig {
     if (evtStore()->retrieve(composites, m_inputPrefix+chain).isFailure() ){
       ATH_MSG_ERROR("Failed to retrieve composite container for chain "+chain);
       ATH_MSG_ERROR("Please check your derivation to see if the container is there");
-      ATH_MSG_ERROR("Always be sure to check the trigger decision before matching!");
+      ATH_MSG_ERROR("This likely means the trigger is not in your file's menu");
       throw std::runtime_error(
           "Failed to retrieve composite corresponding to chain " + chain);
     }

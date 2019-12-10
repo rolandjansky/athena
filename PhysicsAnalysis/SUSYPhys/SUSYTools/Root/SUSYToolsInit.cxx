@@ -1515,7 +1515,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   
 
   if (!m_trigMatchingTool.isUserConfigured()) {
-    if (!m_simpleTriggerMatching){
+    if (!m_upstreamTriggerMatching){
       m_trigMatchingTool.setTypeAndName("Trig::MatchingTool/TrigMatchingTool");
       ATH_CHECK( m_trigMatchingTool.setProperty("TrigDecisionTool", m_trigDecTool.getHandle()) );
       ATH_CHECK( m_trigMatchingTool.setProperty("OutputLevel", this->msg().level()) );
