@@ -2680,7 +2680,8 @@ StatusCode SUSYObjDef_xAOD::ApplyPRWTool(bool muDependentRRN) {
 
   const xAOD::EventInfo* evtInfo = 0;
   ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
-  ATH_CHECK( m_prwTool->apply( *evtInfo, muDependentRRN ) );
+  if(!evtInfo->isAvailable<unsigned int>("RandomRunNumber"))
+    ATH_CHECK( m_prwTool->apply( *evtInfo, muDependentRRN ) );
   return StatusCode::SUCCESS;
 }
 
