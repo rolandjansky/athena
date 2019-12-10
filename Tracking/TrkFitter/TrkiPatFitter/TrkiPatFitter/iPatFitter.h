@@ -16,6 +16,7 @@
 
 #include <vector>
 #include <memory>
+#include <mutex>
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -162,6 +163,7 @@ protected:
 
     // class implementing the algorithmic code for fitting
     std::unique_ptr<FitProcedure> m_fitProcedure;
+    mutable std::mutex m_fitProcedureMutex;
 
     // flag to indicate global fitter, only used for logging
     const bool m_globalFit = false;
