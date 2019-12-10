@@ -56,6 +56,9 @@ namespace DerivationFramework {
     declareProperty("CheckEmptyChainGroups", m_checkEmptyChainGroups = true,
         "If set, discard any empty chain groups. Otherwise these will cause "
         "a job failure.");
+    declareProperty("InputDependentConfig", m_inputDependentConfig=false,
+        "Warn when a trigger is removed (if the configuration is dependent "
+        "on the inputs, removal is not expected).");
   }
 
   StatusCode TriggerMatchingTool::initialize()
@@ -77,9 +80,11 @@ namespace DerivationFramework {
       auto itr = m_chainNames.begin();
       while (itr != m_chainNames.end() ) {
         const Trig::ChainGroup* cg = m_tdt->getChainGroup(*itr);
-        if (cg->getListOfTriggers().size() == 0)
+        if (cg->getListOfTriggers().size() == 0){
+          if (m_inputDependentConfig)
+            ATH_MSG_WARNING("Removing trigger " << (*itr) << " -- suggests a bad tool configuration (asking for triggers not in the menu)");
           itr = m_chainNames.erase(itr);
-        else
+        } else
           ++itr;
       }
     }

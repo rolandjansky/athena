@@ -79,6 +79,10 @@ namespace DerivationFramework {
       /// otherwise).
       bool m_checkEmptyChainGroups;
 
+      /// If using an input-file-dependent config then we warn when triggers
+      /// are removed
+      bool m_inputDependentConfig;
+
       /// The trig decision tool
       ToolHandle<Trig::TrigDecisionTool> m_tdt
       {"Trig::TrigDecisionTool/TrigDecisionTool"};
