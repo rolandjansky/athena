@@ -202,8 +202,8 @@ private:
     Gaudi::Property<bool> m_fullCombinedFit {this, "FullCombinedFit", true};
     Gaudi::Property<bool> m_lineFit {this, "LineFit", false};
     Gaudi::Property<double> m_lineMomentum {this, "LineMomentum", 100. * Gaudi::Units::GeV};
-    mutable ToolHandle<IMaterialAllocator>		m_materialAllocator;
-    mutable ToolHandle<IIntersector>			m_rungeKuttaIntersector;
+    ToolHandle<IMaterialAllocator>			m_materialAllocator;
+    ToolHandle<IIntersector>				m_rungeKuttaIntersector;
     ToolHandle<IIntersector>				m_solenoidalIntersector;
     ToolHandle<IPropagator>				m_stepPropagator;
     ToolHandle<IIntersector>				m_straightLineIntersector;
@@ -240,7 +240,7 @@ private:
     mutable std::atomic<unsigned> m_countRefitIterations = 0;
 
     // count warnings
-    mutable std::unique_ptr<MessageHelper> m_messageHelper;
+    mutable std::unique_ptr<MessageHelper> m_messageHelper ATLAS_THREAD_SAFE; // MessageHelper is thread-safe
 
 };
 
