@@ -37,7 +37,7 @@ atlas_add_test( TimerSvc_test
                 test/TimerSvc_test.cxx
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel AthContainers GaudiKernel TestTools TrigTimeAlgsLib
-                EXTRA_PATTERNS ".*" 
+                POST_EXEC_SCRIPT nopost.sh
                 ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 # Install files from the package:
