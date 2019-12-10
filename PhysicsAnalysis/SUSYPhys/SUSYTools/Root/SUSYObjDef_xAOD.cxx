@@ -425,7 +425,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "DoFatJetOR", m_orDoFatjets);
   declareProperty( "OREleFatJetDR", m_EleFatJetDR);
   declareProperty( "ORJetFatJetDR", m_JetFatJetDR);
-  declareProperty( "TriggerUpstreamMatching", m_upstreamTriggerMatching);
+  declareProperty( "TriggerUpstreamMatching", m_upstreamTriggerMatching, "Use alternative trigger matching tool based on upstream (in-derivation) matching");
 
   //--- Object definitions
   //MET
