@@ -52,7 +52,7 @@ class  ConfiguredNewTrackingSiPattern:
          # --- Space points seeds maker, use different ones for cosmics and collisions
          #
          if NewTrackingCuts.mode() == "DBM":
-            #from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_ATLxk as SiSpacePointsSeedMaker
+            from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_ATLxk as SiSpacePointsSeedMaker
          elif InDetFlags.doCosmics():
             from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_Cosmic as SiSpacePointsSeedMaker
          elif InDetFlags.doHeavyIon():
