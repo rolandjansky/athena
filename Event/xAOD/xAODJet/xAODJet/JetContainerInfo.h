@@ -59,7 +59,8 @@ namespace xAOD {
       Truth,        // Truth jets -- normally no muons or neutrinos
       TruthWZ,      // Truth jets without prompt e/mu/gamma
       Track,
-      PFlow,      
+      PFlow,
+      PFlowCustomVtx,
       LCPFlow,      // LC PFlow
       EMPFlow,      // EM Pflow at EM scale
       EMCPFlow,     // EM Pflow calibrated to LC scale
