@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #
 # read alignment constants from DB to update MuonGeoModel
@@ -12,7 +12,7 @@ from MuonCondAlg.MuonCondAlgConf import MuonAlignmentErrorDbAlg
 from MuonRecExample.MuonRecUtils import logMuon
 from IOVDbSvc.CondDB import conddb
 
-from MuonAlignFlags import muonAlignFlags
+from .MuonAlignFlags import muonAlignFlags
 
 # defaults have to be re-set maybe 
 muonAlignFlags.setDefaults()
