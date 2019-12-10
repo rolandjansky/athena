@@ -101,7 +101,6 @@ def getBuilder(config,suffix,doTracks,doCells,doTriggerMET,doOriginCorrClus):
         tool = CfgMgr.met__METSoftTermsTool('MET_SoftPFlowTool_'+suffix)
         tool.InputComposition = 'PFlow'
         pfotool = CfgMgr.CP__RetrievePFOTool('MET_PFOTool_'+suffix)
-        from AthenaCommon.AppMgr import ToolSvc
         tool.PFOTool = pfotool
     if suffix == 'Truth':
         tool = CfgMgr.met__METTruthTool('MET_TruthTool_'+config.objType)
@@ -260,18 +259,12 @@ class METConfig:
                                                               maxZ0SinTheta=3,
                                                               maxD0=2,
                                                               minPt=500)
-        if not hasattr(ToolSvc,self.trkseltool.name()):
-            ToolSvc += self.trkseltool
         #
         self.trkvxtool=CfgMgr.CP__LooseTrackVertexAssociationTool("LooseTrackVertexAssociationTool_MET")
         #self.trkvxtool=CfgMgr.CP__TightTrackVertexAssociationTool("TightTrackVertexAssociationTool_MET", dzSinTheta_cut=3, doPV=False)
-        if not hasattr(ToolSvc,self.trkvxtool.name()):
-            ToolSvc += self.trkvxtool
         #
         self.trkisotool = CfgMgr.xAOD__TrackIsolationTool("TrackIsolationTool_MET")
         self.trkisotool.TrackSelectionTool = self.trkseltool # As configured above
-        if not hasattr(ToolSvc,self.trkisotool.name()):
-            ToolSvc += self.trkisotool
         #
         from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool, Rec__ParticleCaloCellAssociationTool            
         from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
@@ -282,8 +275,6 @@ class METConfig:
                                                           addCaloExtensionDecoration=False,
                                                           ParticleCaloExtensionTool = CaloExtensionTool,
                                                           ParticleCaloCellAssociationTool = CaloCellAssocTool)
-        if not hasattr(ToolSvc,self.caloisotool.name()):
-            ToolSvc += self.caloisotool
 
         self.setupBuilders(buildconfigs)
         self.setupRefiners(refconfigs)
@@ -317,21 +308,17 @@ def getMETRecoAlg(algName='METReconstruction',configs={},tools=[]):
 
     recoTools = []
     recoTools += tools
-
-    from METReconstruction.METRecoFlags import metFlags
-    if configs=={} and tools==[]:
-        print prefix, 'Taking configurations from METRecoFlags'
-        configs = metFlags.METConfigs()
-
+    print 'Setting up MET Reconstruction'
     for key,conf in configs.iteritems():
         print prefix, 'Generate METRecoTool for MET_'+key
         recotool = getMETRecoTool(conf)
+	print recotool
         recoTools.append(recotool)
-        metFlags.METRecoTools()[key] = recotool
+        #metFlags.METRecoTools()[key] = recotool
         if conf.doRegions:
             regiontool = getRegionRecoTool(conf)
             recoTools.append(regiontool)
-
+	    print "Added region tool"
     for tool in recoTools:
         print prefix, 'Added METRecoTool \''+tool.name()+'\' to alg '+algName
 

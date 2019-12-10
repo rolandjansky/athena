@@ -114,18 +114,17 @@ class JetConstit(object):
         # Jets could specify a filter e.g. pt cut or JVT??
         modstring = ""
         if self.__modifiers:
-            for mod in self.__modifiers:
-                # Handle special case of topocluster state
-                if mod in ["EM","LC"]:
-                    self.label += mod
-                else:
-                    modstring += mod
+            modstring = "".join(self.__modifiers)
 
         self.label += labelnames[self.basetype]
         if self.basetype!=xAODType.Jet:
             self.label += modstring
         if self.basetype==xAODType.TruthParticle:
             self.label = self.label.replace("NoWZ","WZ")
+
+	if self.basetype==xAODType.CaloCluster:
+	    self.label = self.label.replace("TopoEM","EMTopo")
+	    self.label = self.label.replace("TopoLC","LCTopo")
 
         containernames = {
             xAODType.CaloCluster:      "TopoClusters",

@@ -46,6 +46,12 @@ namespace met {
   ////////////////
   METTruthAssociator::METTruthAssociator(const std::string& name) : 
     AsgTool(name),
+    m_recoElKey(""),
+    m_recoJetKey(""),
+    m_recoMuKey(""),
+    m_recoGamKey(""),
+    m_recoTauKey(""),
+    m_truthEventKey(""),
     METAssociator(name)
   {
 
