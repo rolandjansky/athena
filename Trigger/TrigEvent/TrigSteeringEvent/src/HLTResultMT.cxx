@@ -12,13 +12,19 @@
 // Standard constructor
 // =============================================================================
 HLT::HLTResultMT::HLTResultMT(std::vector<eformat::helper::StreamTag> streamTags,
-                              boost::dynamic_bitset<uint32_t> hltBits,
+                              boost::dynamic_bitset<uint32_t> hltPassRawBits,
+                              boost::dynamic_bitset<uint32_t> hltPrescaledBits,
+                              boost::dynamic_bitset<uint32_t> hltRerunBits,
                               std::unordered_map<uint16_t, std::vector<uint32_t> > data,
-                              std::vector<uint32_t> status)
+                              std::vector<uint32_t> status,
+                              std::set<uint16_t> truncatedModuleIds)
 : m_streamTags(streamTags),
-  m_hltBits(hltBits),
+  m_hltPassRawBits(hltPassRawBits),
+  m_hltPrescaledBits(hltPrescaledBits),
+  m_hltRerunBits(hltRerunBits),
   m_data(data),
-  m_status(status) {}
+  m_status(status),
+  m_truncatedModuleIds(truncatedModuleIds) {}
 
 // =============================================================================
 // Getter/setter methods for stream tags
@@ -70,49 +76,49 @@ StatusCode HLT::HLTResultMT::addStreamTag(const eformat::helper::StreamTag& stre
 // =============================================================================
 // Getter/setter methods for trigger bits
 // =============================================================================
-const boost::dynamic_bitset<uint32_t>& HLT::HLTResultMT::getHltBits() const {
-  return m_hltBits;
+const boost::dynamic_bitset<uint32_t>& HLT::HLTResultMT::getHltPassRawBits() const {
+  return m_hltPassRawBits;
+}
+
+// -----------------------------------------------------------------------------
+const boost::dynamic_bitset<uint32_t>& HLT::HLTResultMT::getHltPrescaledBits() const {
+  return m_hltPrescaledBits;
+}
+
+// -----------------------------------------------------------------------------
+const boost::dynamic_bitset<uint32_t>& HLT::HLTResultMT::getHltRerunBits() const {
+  return m_hltRerunBits;
 }
 
 // -----------------------------------------------------------------------------
 const std::vector<uint32_t>& HLT::HLTResultMT::getHltBitsAsWords() {
   m_hltBitWords.clear();
-  m_hltBitWords.resize(m_hltBits.num_blocks());
-  boost::to_block_range(m_hltBits,m_hltBitWords.begin());
+  if (m_hltPassRawBits.num_blocks() != m_hltPrescaledBits.num_blocks() || m_hltPassRawBits.num_blocks() != m_hltRerunBits.num_blocks()) {
+    throw std::runtime_error("Must have the same number of bits in m_hltPassRawBits, m_hltPrescaledBits and m_hltRerunBits.");
+  }
+  m_hltBitWords.resize(m_hltPassRawBits.num_blocks() + m_hltPrescaledBits.num_blocks() + m_hltRerunBits.num_blocks());
+  boost::to_block_range(m_hltPassRawBits, m_hltBitWords.begin());
+  boost::to_block_range(m_hltPrescaledBits, m_hltBitWords.begin() + m_hltPassRawBits.num_blocks());
+  boost::to_block_range(m_hltRerunBits, m_hltBitWords.begin() + m_hltPassRawBits.num_blocks() + m_hltPrescaledBits.num_blocks());
   return m_hltBitWords;
 }
 
 // -----------------------------------------------------------------------------
-void HLT::HLTResultMT::setHltBits(const boost::dynamic_bitset<uint32_t>& bitset) {
+void HLT::HLTResultMT::setHltPassRawBits(const boost::dynamic_bitset<uint32_t>& bitset) {
   // copy assignment
-  m_hltBits = bitset;
+  m_hltPassRawBits = bitset;
 }
 
 // -----------------------------------------------------------------------------
-StatusCode HLT::HLTResultMT::addHltBit(size_t index) {
-  try {
-    if (m_hltBits.size() <= index) m_hltBits.resize(index+1);
-    m_hltBits.set(index);
-  }
-  catch (const std::exception& ex) {
-    ATH_REPORT_ERROR_WITH_CONTEXT(StatusCode::FAILURE, CONTEXT_NAME)
-      << "Failed to add HLT bit, likely memory allocation failed. std::exception caught: " << ex.what();
-    return StatusCode::FAILURE;
-  }
-  catch (...) {
-    ATH_REPORT_ERROR_WITH_CONTEXT(StatusCode::FAILURE, CONTEXT_NAME)
-      << "Failed to add HLT bit, likely memory allocation failed. Unknown exception caught.";
-    return StatusCode::FAILURE;
-  }
-  return StatusCode::SUCCESS;
+void HLT::HLTResultMT::setHltPrescaledBits(const boost::dynamic_bitset<uint32_t>& bitset) {
+  // copy assignment
+  m_hltPrescaledBits = bitset;
 }
 
 // -----------------------------------------------------------------------------
-StatusCode HLT::HLTResultMT::addHltBits(const std::vector<size_t>& indices) {
-  for (const size_t index : indices) {
-    ATH_CHECK(addHltBit(index));
-  }
-  return StatusCode::SUCCESS;
+void HLT::HLTResultMT::setHltRerunBits(const boost::dynamic_bitset<uint32_t>& bitset) {
+  // copy assignment
+  m_hltRerunBits = bitset;
 }
 
 // =============================================================================
@@ -210,6 +216,18 @@ void HLT::HLTResultMT::addErrorCode(const uint32_t& errorCode,
 }
 
 // =============================================================================
+// Getter/setter methods for truncation information
+// =============================================================================
+const std::set<uint16_t>& HLT::HLTResultMT::getTruncatedModuleIds() const {
+  return m_truncatedModuleIds;
+}
+
+// -----------------------------------------------------------------------------
+void HLT::HLTResultMT::addTruncatedModuleId(const uint16_t moduleId) {
+  m_truncatedModuleIds.insert(moduleId);
+}
+
+// =============================================================================
 std::ostream& operator<<(std::ostream& str, const HLT::HLTResultMT& hltResult) {
   auto printWord = [&str](const uint32_t word, const size_t width=8){
     str << "0x" << std::hex << std::setw(width) << std::setfill('0') << word << " " << std::dec;
@@ -238,11 +256,23 @@ std::ostream& operator<<(std::ostream& str, const HLT::HLTResultMT& hltResult) {
   if (hltResult.getStreamTags().empty()) str << std::endl;
 
   // HLT bits
-  std::vector<uint32_t> hltBitWords;
-  hltBitWords.resize(hltResult.getHltBits().num_blocks());
-  boost::to_block_range(hltResult.getHltBits(),hltBitWords.begin());
+  std::vector<uint32_t> hltPassRawBitWords;
+  std::vector<uint32_t> hltPrescaledBitWords;
+  std::vector<uint32_t> hltRerunBitWords;
+  hltPassRawBitWords.resize(hltResult.getHltPassRawBits().num_blocks());
+  hltPrescaledBitWords.resize(hltResult.getHltPrescaledBits().num_blocks());
+  hltRerunBitWords.resize(hltResult.getHltRerunBits().num_blocks());
+  boost::to_block_range(hltResult.getHltPassRawBits(),hltPassRawBitWords.begin());
+  boost::to_block_range(hltResult.getHltPrescaledBits(),hltPrescaledBitWords.begin());
+  boost::to_block_range(hltResult.getHltRerunBits(),hltRerunBitWords.begin());
   str << "--> HLT bits     = ";
-  for (const uint32_t word : hltBitWords) {
+  for (const uint32_t word : hltPassRawBitWords) {
+    printWord(word);
+  }
+  for (const uint32_t word : hltPrescaledBitWords) {
+    printWord(word);
+  }
+  for (const uint32_t word : hltRerunBitWords) {
     printWord(word);
   }
   str << std::endl;
@@ -254,6 +284,18 @@ std::ostream& operator<<(std::ostream& str, const HLT::HLTResultMT& hltResult) {
     if (first) first=false;
     else str << "                   ";
     str << "{module " << p.first << ": " << p.second.size() << " words}" << std::endl;
+  }
+
+  // Truncation information
+  if (!hltResult.getTruncatedModuleIds().empty()) {
+    str << "--> Truncated results = ";
+    first = true;
+    for (const uint16_t moduleId : hltResult.getTruncatedModuleIds()) {
+      if (first) first=false;
+      else str << ", ";
+      str << moduleId;
+    }
+    str << std::endl;
   }
 
   return str;

@@ -43,7 +43,8 @@ atlas_add_dictionary( AthenaKernelDict
    AthenaKernel/selection.xml
    LINK_LIBRARIES GaudiKernel AthenaKernel )
 
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py 
+                              POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.txt )
 
 # Test(s) in the package:
@@ -140,3 +141,19 @@ atlas_add_test( RecyclableDataObject_test
   SOURCES test/RecyclableDataObject_test.cxx
   INCLUDE_DIRS ${TBB_INCLUDE_DIRS}
   LINK_LIBRARIES AthenaKernel TestTools ${TBB_LIBRARIES} )
+
+atlas_add_test( ExtendedEventContext_test
+  SOURCES test/ExtendedEventContext_test.cxx
+  LINK_LIBRARIES AthenaKernel TestTools )
+
+atlas_add_test( ThinningDecisionBase_test
+  SOURCES test/ThinningDecisionBase_test.cxx
+  LINK_LIBRARIES AthenaKernel TestTools )
+
+atlas_add_test( ThinningCache_test
+  SOURCES test/ThinningCache_test.cxx
+  LINK_LIBRARIES AthenaKernel TestTools )
+
+atlas_add_test( getThinningCache_test
+  SOURCES test/getThinningCache_test.cxx
+  LINK_LIBRARIES AthenaKernel TestTools )

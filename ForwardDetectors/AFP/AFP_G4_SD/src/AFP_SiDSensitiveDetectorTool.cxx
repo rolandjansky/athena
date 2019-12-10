@@ -64,7 +64,7 @@ StatusCode AFP_SiDSensitiveDetectorTool::Gather()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4VSensitiveDetector* AFP_SiDSensitiveDetectorTool::makeSD()
+G4VSensitiveDetector* AFP_SiDSensitiveDetectorTool::makeSD() const
 {
   ATH_MSG_DEBUG( "Initializing SD" );
   // Create a fresh SD

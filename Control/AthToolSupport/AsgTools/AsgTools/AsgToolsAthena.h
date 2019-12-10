@@ -22,6 +22,5 @@
 #include "GaudiKernel/IAlgTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaKernel/CLASS_DEF.h"
-#include "IOVDbDataModel/IOVMetaDataContainer.h"
 
 #endif // ASGTOOLS_ASGTOOLSATHENA_H

@@ -12,6 +12,7 @@ def egammaTrackSlimmerCfg(flags, name='egammaTrackSlimmer', **kwargs):
 
     acc = ComponentAccumulator()
 
+    kwargs.setdefault("StreamName", 'StreamAOD')
     kwargs.setdefault("InputElectronContainerName", flags.Egamma.Keys.Output.Electrons)
     kwargs.setdefault("InputPhotonContainerName", flags.Egamma.Keys.Output.Photons)
     kwargs.setdefault("TrackParticleContainerName", flags.Egamma.Keys.Output.GSFTrackParticles)

@@ -71,9 +71,6 @@ MdtVsTgcRawDataValAlg::MdtVsTgcRawDataValAlg( const std::string & type, const st
   declareProperty("MdtTdcCut",        m_MdtTdcCut=1600);
   
   // initialize class members
-  m_muonMgr = 0;
-  m_mdtIdHelper = 0;
-  m_tgcIdHelper = 0;
    
   for(int ac=0; ac<2; ac++){
 	m_mvt_cutspassed[ac] = 0;
@@ -130,8 +127,7 @@ MdtVsTgcRawDataValAlg::initialize(){
   ATH_CHECK( detStore()->retrieve(m_muonMgr) );
   ATH_MSG_DEBUG( " Found the MuonDetectorManager from detector store. "  );
 
-  ATH_CHECK( detStore()->retrieve(m_tgcIdHelper,"TGCIDHELPER") );
-  ATH_CHECK( detStore()->retrieve(m_mdtIdHelper,"MDTIDHELPER") );
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
   /*
     if ( m_checkCabling ) {

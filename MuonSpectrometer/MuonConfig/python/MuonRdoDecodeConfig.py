@@ -1,7 +1,7 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaCommon.Constants import VERBOSE, DEBUG
+from AthenaCommon.Constants import DEBUG, INFO
 
 ## Small class to hold the names for cache containers, should help to avoid copy / paste errors
 class MuonPrdCacheNames(object):
@@ -47,8 +47,8 @@ def RpcRDODecodeCfg(flags, forTrigger=False):
     acc.merge(MuonGeoModelCfg(flags))
 
     # Get the RDO -> PRD tool
-    from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
-    RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataTool(name = "RpcRdoToRpcPrepDataTool")
+    from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataToolMT
+    RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataToolMT(name = "RpcRdoToRpcPrepDataTool")
     if flags.Common.isOnline: 
         RpcRdoToRpcPrepDataTool.ReadKey = "" ## cond data not needed online
     acc.addPublicTool( RpcRdoToRpcPrepDataTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
@@ -62,7 +62,8 @@ def RpcRDODecodeCfg(flags, forTrigger=False):
     if forTrigger:
         # Set the algorithm to RoI mode
         RpcRdoToRpcPrepData.DoSeededDecoding = True
-        RpcRdoToRpcPrepData.RoIs = "MURoIs"
+        from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
+        RpcRdoToRpcPrepData.RoIs = mapThresholdToL1RoICollection("MU")
 
 
     acc.addEventAlgo(RpcRdoToRpcPrepData)
@@ -80,8 +81,8 @@ def TgcRDODecodeCfg(flags, forTrigger=False):
     acc.merge(MuonGeoModelCfg(flags))
 
     # Get the RDO -> PRD tool
-    from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TgcRdoToPrepDataTool
-    TgcRdoToTgcPrepDataTool = Muon__TgcRdoToPrepDataTool(name           = "TgcRdoToTgcPrepDataTool")
+    from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TgcRdoToPrepDataToolMT
+    TgcRdoToTgcPrepDataTool = Muon__TgcRdoToPrepDataToolMT(name           = "TgcRdoToTgcPrepDataTool")
     acc.addPublicTool( TgcRdoToTgcPrepDataTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
     # Get the RDO -> PRD alorithm
@@ -93,7 +94,8 @@ def TgcRDODecodeCfg(flags, forTrigger=False):
     if forTrigger:
         # Set the algorithm to RoI mode
         TgcRdoToTgcPrepData.DoSeededDecoding = True
-        TgcRdoToTgcPrepData.RoIs = "MURoIs"
+        from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
+        TgcRdoToTgcPrepData.RoIs = mapThresholdToL1RoICollection("MU")
 
     acc.addEventAlgo(TgcRdoToTgcPrepData)
     return acc
@@ -113,8 +115,8 @@ def MdtRDODecodeCfg(flags, forTrigger=False):
     acc.merge(MuonGeoModelCfg(flags))
 
     # Get the RDO -> PRD tool
-    from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MdtRdoToPrepDataTool
-    MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataTool(name = "MdtRdoToMdtPrepDataTool")
+    from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MdtRdoToPrepDataToolMT
+    MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataToolMT(name = "MdtRdoToMdtPrepDataTool")
     acc.addPublicTool( MdtRdoToMdtPrepDataTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
     # Get the RDO -> PRD alorithm
@@ -126,7 +128,8 @@ def MdtRDODecodeCfg(flags, forTrigger=False):
     if forTrigger:
         # Set the algorithm to RoI mode
         MdtRdoToMdtPrepData.DoSeededDecoding = True
-        MdtRdoToMdtPrepData.RoIs = "MURoIs"
+        from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
+        MdtRdoToMdtPrepData.RoIs = mapThresholdToL1RoICollection("MU")
 
     acc.addEventAlgo(MdtRdoToMdtPrepData)
     return acc
@@ -146,8 +149,8 @@ def CscRDODecodeCfg(flags, forTrigger=False):
     acc.merge(MuonGeoModelCfg(flags))
 
     # Get the RDO -> PRD tool
-    from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscRdoToCscPrepDataTool
-    CscRdoToCscPrepDataTool = Muon__CscRdoToCscPrepDataTool(name           = "CscRdoToCscPrepDataTool")
+    from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscRdoToCscPrepDataToolMT
+    CscRdoToCscPrepDataTool = Muon__CscRdoToCscPrepDataToolMT(name           = "CscRdoToCscPrepDataTool")
     acc.addPublicTool( CscRdoToCscPrepDataTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
     # Get the RDO -> PRD alorithm
@@ -159,7 +162,8 @@ def CscRDODecodeCfg(flags, forTrigger=False):
     if forTrigger:
         # Set the algorithm to RoI mode
         CscRdoToCscPrepData.DoSeededDecoding = True
-        CscRdoToCscPrepData.RoIs = "MURoIs"
+        from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
+        CscRdoToCscPrepData.RoIs = mapThresholdToL1RoICollection("MU")
 
     acc.addEventAlgo(CscRdoToCscPrepData)
     return acc
@@ -169,15 +173,14 @@ def CscClusterBuildCfg(flags, forTrigger=False):
 
     # Get cluster creator tool
     from CscClusterization.CscClusterizationConf import CscThresholdClusterBuilderTool
-    CscClusterBuilderTool = CscThresholdClusterBuilderTool(name = "CscThesholdClusterBuilderTool" )
+    CscClusterBuilderTool = CscThresholdClusterBuilderTool(name = "CscThresholdClusterBuilderTool" )
     acc.addPublicTool( CscClusterBuilderTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
   
     #CSC cluster building
-    if not forTrigger:
-        from CscClusterization.CscClusterizationConf import CscThresholdClusterBuilder
-        CscClusterBuilder = CscThresholdClusterBuilder(name            = "CscThesholdClusterBuilder",
-                                                       cluster_builder = CscClusterBuilderTool )
-        acc.addEventAlgo(CscClusterBuilder)
+    from CscClusterization.CscClusterizationConf import CscThresholdClusterBuilder
+    CscClusterBuilder = CscThresholdClusterBuilder(name            = "CscThresholdClusterBuilder",
+                                                   cluster_builder = CscClusterBuilderTool )
+    acc.addEventAlgo(CscClusterBuilder)
 
     return acc
 
@@ -201,8 +204,8 @@ def muonRdoDecodeTestData( forTrigger = False ):
 
     from AthenaCommon.Logging import log
 
-    log.setLevel(DEBUG)
-    log.info('About to setup Rpc Raw data decoding')
+    log.setLevel(INFO)
+    log.info('About to setup Raw data decoding')
     
     cfg=ComponentAccumulator()
 
@@ -219,29 +222,19 @@ def muonRdoDecodeTestData( forTrigger = False ):
     # Schedule Rpc bytestream data decoding 
     from MuonConfig.MuonBytestreamDecodeConfig import RpcBytestreamDecodeCfg
     rpcdecodingAcc  = RpcBytestreamDecodeCfg( ConfigFlags, forTrigger ) 
-    if forTrigger:
-        rpcdecodingAcc().ProviderTool.OutputLevel = DEBUG
     cfg.merge( rpcdecodingAcc )
 
     # Schedule Mdt bytestream data decoding 
     from MuonConfig.MuonBytestreamDecodeConfig import TgcBytestreamDecodeCfg
     tgcdecodingAcc = TgcBytestreamDecodeCfg( ConfigFlags, forTrigger ) 
-    if forTrigger:
-        tgcdecodingAcc().ProviderTool.OutputLevel = DEBUG    
     cfg.merge( tgcdecodingAcc )
 
     from MuonConfig.MuonBytestreamDecodeConfig import MdtBytestreamDecodeCfg
     mdtdecodingAcc = MdtBytestreamDecodeCfg( ConfigFlags, forTrigger )
-    # Put into a verbose logging mode to check the caching
-    if forTrigger:
-        mdtdecodingAcc().ProviderTool.OutputLevel = VERBOSE    
     cfg.merge( mdtdecodingAcc )
 
     from MuonConfig.MuonBytestreamDecodeConfig import CscBytestreamDecodeCfg
     cscdecodingAcc  = CscBytestreamDecodeCfg( ConfigFlags, forTrigger) 
-    # Put into a verbose logging mode to check the caching
-    if forTrigger:
-        cscdecodingAcc().ProviderTool.OutputLevel = VERBOSE 
     cfg.merge( cscdecodingAcc )
 
     # Schedule RDO conversion 
@@ -275,7 +268,7 @@ def muonRdoDecodeTestData( forTrigger = False ):
 
     # Store config as pickle
     log.info('Save Config')
-    with open(pklName,'w') as f:
+    with open(pklName,'wb') as f:
         cfg.store(f)
         f.close()
     return cfg
@@ -327,7 +320,7 @@ def muonRdoDecodeTestMC():
 
     # Store config as pickle
     log.info('Save Config')
-    with open('MuonRdoDecode.pkl','w') as f:
+    with open('MuonRdoDecode.pkl','wb') as f:
         cfg.store(f)
         f.close()
     return cfg

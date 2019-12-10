@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -20,6 +20,7 @@
 #include "TileMonitoring/ITileStuckBitsProbsTool.h"
 
 class TileCondToolNoiseSample;
+class TileInfo;
 
 
 /** @class TileDigitsMonTool
@@ -163,6 +164,17 @@ class TileDigitsMonTool: public TilePaterMonTool
     //int hb;
     bool m_fillPedestalDifference;
     std::string m_digitsContainerName;
+
+    // TileInfo
+    std::string m_infoName;
+    const TileInfo* m_tileInfo;
+    int m_i_ADCmax;
+    float m_f_ADCmax;
+    float m_ADCmaxMinusEps;
+
+    bool m_is12bit;
+    int m_shiftnbins;
+
     SG::ReadHandleKey<TileDQstatus> m_DQstatusKey;
 };
 

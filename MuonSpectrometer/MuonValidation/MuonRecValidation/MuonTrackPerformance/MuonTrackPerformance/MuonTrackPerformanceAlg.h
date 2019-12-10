@@ -297,7 +297,6 @@ private:
   bool m_isCombined;
   bool m_doSegments;
   bool m_writeToFile;
-  bool m_doNSW;
   bool m_doStau;
 
   ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool;

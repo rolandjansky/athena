@@ -51,7 +51,9 @@ private:
   SG::ReadHandleKey<CscSimDataCollection> m_cscSimData{this,"CSC_SDO_Container","CSC_SDO","CSC SDO"};
   SG::ReadHandleKey<TrackRecordCollection> m_trackRecord{this,"TrackRecord","MuonEntryLayerFilter","Track Record Collection"};
   int m_barcodeOffset;
-  bool m_useNSW;
+  bool m_hasCSC;
+  bool m_hasSTgc;
+  bool m_hasMM;
 };
 
 } // namespace Muon

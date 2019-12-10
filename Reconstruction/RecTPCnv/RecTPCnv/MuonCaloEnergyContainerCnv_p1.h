@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // MuonCaloEnergyContainerCnv_p1.h 
@@ -25,7 +25,7 @@
 #include "RecTPCnv/MuonCaloEnergyContainer_p1.h"
 #include "RecTPCnv/CaloEnergyCnv_p2.h"
 
-typedef T_AthenaPoolTPCnvVector< 
+typedef T_AthenaPoolTPCnvVectorConst< 
             MuonCaloEnergyContainer, 
             MuonCaloEnergyContainer_p1, 
             CaloEnergyCnv_p2 

@@ -19,6 +19,7 @@ SCTLorentzMonAlg::SCTLorentzMonAlg(const std::string& name, ISvcLocator* pSvcLoc
 
 StatusCode SCTLorentzMonAlg::initialize() {
   ATH_CHECK(detStore()->retrieve(m_pSCTHelper, "SCT_ID"));
+  ATH_CHECK(m_trackSummaryTool.retrieve());
   ATH_CHECK(m_tracksName.initialize());
   ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
@@ -56,7 +57,6 @@ StatusCode SCTLorentzMonAlg::fillHistograms(const EventContext& ctx) const {
     ATH_MSG_WARNING(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
     return StatusCode::SUCCESS;
   }
-
   SG::ReadHandle<TrackCollection> tracks{m_tracksName, ctx};
   if (not tracks.isValid()) {
     ATH_MSG_WARNING(" TrackCollection not found: Exit SCTLorentzTool" << m_tracksName.key());
@@ -77,9 +77,15 @@ StatusCode SCTLorentzMonAlg::fillHistograms(const EventContext& ctx) const {
     }
 
     const Trk::TrackSummary* summary{track->trackSummary()};
+    bool ownSummary{false};
     if (summary==nullptr) {
-      ATH_MSG_WARNING(" null trackSummary");
-      //      continue; // NEED TO FIX THIS 2019-04-02 TrackSummary is not available if input is ESD /////////////////////////////////
+      summary = m_trackSummaryTool->createSummary(*track);
+      if (summary==nullptr) {
+        ATH_MSG_WARNING("Trk::TrackSummary is null and cannot be created by " << m_trackSummaryTool.name());
+        continue;
+      } else {
+        ownSummary = true;
+      }
     }
 
     for (const Trk::TrackStateOnSurface* tsos: *trackStates) {
@@ -117,7 +123,6 @@ StatusCode SCTLorentzMonAlg::fillHistograms(const EventContext& ctx) const {
               ATH_MSG_WARNING(" Null pointer to MeasuredTrackParameters");
               continue;
             }
-
             const Trk::Perigee* perigee{track->perigeeParameters()};
 
             if (perigee) {
@@ -137,15 +142,15 @@ StatusCode SCTLorentzMonAlg::fillHistograms(const EventContext& ctx) const {
 
               bool passesCuts{true};
               if ((dataType() == AthMonitorAlgorithm::DataType_t::cosmics) and
-                  (trkp->momentum().mag() > 500.) // and  // Pt > 500MeV
-                  // (summary->get(Trk::numberOfSCTHits) > 6)// and // #SCTHits >6 // NEED TO FIX THIS 2019-04-02 TrackSummary is not available if input is ESD /////////////////////////////////
+                  (trkp->momentum().mag() > 500.) and  // Pt > 500MeV
+                  (summary->get(Trk::numberOfSCTHits) > 6) // #SCTHits >6
                   ) {
                 passesCuts = true;
               } else if ((track->perigeeParameters()->parameters()[Trk::qOverP] < 0.) and // use negative track only
                          (fabs(perigee->parameters()[Trk::d0]) < 1.) and // d0 < 1mm
                          (fabs(perigee->parameters()[Trk::z0] * sin(perigee->parameters()[Trk::theta])) < 1.) and // d0 < 1mm
-                         (trkp->momentum().mag() > 500.) // and  // Pt > 500MeV
-                         // (summary->get(Trk::numberOfSCTHits) > 6)// and // #SCTHits >6 // NEED TO FIX THIS 2019-04-02 TrackSummary is not available if input is ESD /////////////////////////////////
+                         (trkp->momentum().mag() > 500.) and  // Pt > 500MeV
+                         (summary->get(Trk::numberOfSCTHits) > 6)// and // #SCTHits >6
                          ) {
                 passesCuts = true;
               } else {
@@ -154,27 +159,38 @@ StatusCode SCTLorentzMonAlg::fillHistograms(const EventContext& ctx) const {
 
               if (passesCuts) {
                 // Fill profile
-                std::string sideNames[nSidesInclBoth]{"_0", "_1", ""};
-                std::string surfaceNames[nSurfaces]{"_100",   "_111",   ""};
-                static const unsigned int nTmp{2};
-                unsigned int tmpSides[nTmp]{static_cast<unsigned int>(side), bothSides};
-                // Fill (surface and all surfaces) x (side and both sides)
-                unsigned int tmpSurfaces[nTmp]{surface, allSurfaces};
-                for (unsigned int iSide{0}; iSide<nTmp; iSide++) {
-                  for (unsigned int iSurface{0}; iSurface<nTmp; iSurface++) {
-                    std::string xVar{"phiToWafer_"+std::to_string(layer)+surfaceNames[tmpSurfaces[iSurface]]+sideNames[tmpSides[iSide]]};
-                    std::string yVar{"nStrip_"+std::to_string(layer)+surfaceNames[tmpSurfaces[iSurface]]+sideNames[tmpSides[iSide]]};
-                    auto phiToWaferAcc{Monitored::Scalar<float>(xVar, phiToWafer)};
-                    auto nStripAcc{Monitored::Scalar<int>(yVar, nStrip)};
-                    fill("SCTLorentzMonitor", phiToWaferAcc, nStripAcc);
-                  }
+                std::string xVar{"phiToWafer_"+std::to_string(layer)};
+                std::string yVar{"nStrip_"+std::to_string(layer)};
+                if(surface == surface100){
+                    xVar += "_100";
+                    yVar += "_100";
                 }
+                if(surface == surface111){
+                    xVar += "_111";
+                    yVar += "_111";
+                }
+                if(side == side0){
+                    xVar += "_0";
+                    yVar += "_0";
+                }
+                if(side == side1){
+                    xVar += "_1";
+                    yVar += "_1";
+                }
+                auto phiToWaferAcc{Monitored::Scalar<float>(xVar, phiToWafer)};
+                auto nStripAcc{Monitored::Scalar<int>(yVar, nStrip)};
+                fill("SCTLorentzMonitor", phiToWaferAcc, nStripAcc);
               }// end if passesCuts
             }// end if mtrkp
           } // end if SCT..
         } // end if (clus)
       } // if (tsos->type(Trk::TrackStateOnSurface::Measurement)) {
     }// end of loop on TrackStatesonSurface (they can be SiClusters, TRTHits,..)
+
+    if (ownSummary) {
+      delete summary;
+      summary = nullptr;
+    }
   } // end of loop on tracks
 
     

@@ -6,6 +6,7 @@
 # @date November 2009
 
 from __future__ import with_statement, print_function
+from past.builtins import xrange
 
 __doc__ = "a few utils to ease the day-to-day work with ROOT"
 __version__ = "$Revision: 739816 $"

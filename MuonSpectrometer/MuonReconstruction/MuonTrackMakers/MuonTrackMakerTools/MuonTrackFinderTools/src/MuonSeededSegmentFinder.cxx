@@ -77,11 +77,11 @@ namespace Muon {
     ATH_CHECK( m_printer.retrieve() );
 
     ATH_CHECK(m_key_mdt.initialize());
-    if(m_key_csc.key()!="") ATH_CHECK(m_key_csc.initialize());
+    ATH_CHECK(m_key_csc.initialize(!m_key_csc.empty())); // check for layouts without CSCs
     ATH_CHECK(m_key_tgc.initialize());
     ATH_CHECK(m_key_rpc.initialize());
-    if(m_key_stgc.key()!="") ATH_CHECK(m_key_stgc.initialize());
-    if(m_key_mm.key()!="") ATH_CHECK(m_key_mm.initialize());
+    ATH_CHECK(m_key_stgc.initialize(!m_key_stgc.empty())); // check for layouts without STGCs
+    ATH_CHECK(m_key_mm.initialize(!m_key_mm.empty())); // check for layouts without MicroMegas
 
     return StatusCode::SUCCESS;
   }
@@ -245,7 +245,7 @@ namespace Muon {
       ATH_MSG_WARNING("Cannot retrieve mdtPrepDataContainer " << m_key_mdt.key());
       return;
     }
-
+    if(mdtPrdContainer->size()==0) return;
 
     // loop over chambers and get collections
     std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
@@ -277,7 +277,7 @@ namespace Muon {
       ATH_MSG_WARNING("Cannot retrieve rpcPrepDataContainer " << m_key_rpc.key());
       return;
     }
-
+    if(rpcPrdContainer->size()==0) return;
       
     // loop over chambers and get collections
     std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
@@ -311,7 +311,7 @@ namespace Muon {
       ATH_MSG_WARNING("Cannot retrieve tgcPrepDataContainer " << m_key_tgc.key());
       return;
     }
-
+    if(tgcPrdContainer->size()==0) return;
 
     // loop over chambers and get collections
     std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
@@ -350,7 +350,7 @@ namespace Muon {
       ATH_MSG_WARNING("Cannot retrieve cscPrepDataContainer " << m_key_csc.key());
       return;
     }
-
+    if(cscPrdContainer->size()==0) return;
 
     // loop over chambers and get collections
     std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
@@ -392,7 +392,7 @@ namespace Muon {
       ATH_MSG_WARNING("Cannot retrieve stgcPrepDataContainer " << m_key_stgc.key());
       return;
     }
-
+    if(stgcPrdContainer->size()==0) return;
 
     // loop over chambers and get collections                                                                                                                                                          
     std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
@@ -446,6 +446,7 @@ namespace Muon {
       ATH_MSG_WARNING("Cannot retrieve mmPrepDataContainer " << m_key_mm.key());
       return;
     }
+    if(mmPrdContainer->size()==0) return;
 
     // loop over chambers and get collections
     std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();

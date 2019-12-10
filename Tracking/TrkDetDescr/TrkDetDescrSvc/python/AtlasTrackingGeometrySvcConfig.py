@@ -9,7 +9,7 @@ from SubDetectorEnvelopes.SubDetectorEnvelopesConfig import getEnvelopeDefSvc
 # This file is a placeholder - the entire way we build geometry needs to be rewritten so this is to unblock new configuration developments for the moment.
 # It is based on: https://gitlab.cern.ch/atlas/athena/blob/master/Tracking/TrkDetDescr/TrkDetDescrSvc/python/AtlasTrackingGeometrySvc.py#L112
 
-def _setupCondDB(flags, CoolDataBaseFolder):
+def _setupCondDB(flags, CoolDataBaseFolder, quiet=True):
     result=ComponentAccumulator()
     
     # the tag names
@@ -20,11 +20,12 @@ def _setupCondDB(flags, CoolDataBaseFolder):
     AtlasMaterialTag = materialTagBase+str(version)+sub_version+'_'
     cfolder = CoolDataBaseFolder +'<tag>TagInfoMajor/'+AtlasMaterialTag+'/GeoAtlas</tag>'
 
-    print('[ TrackingGeometrySvc ]     base material tag : ' + AtlasMaterialTag)
-    print('[ TrackingGeometrySvc ]     translated to COOL: ' + cfolder)
+    # if not quiet:
+    #   print('[ TrackingGeometrySvc ]     base material tag : ' + AtlasMaterialTag)
+    #   print('[ TrackingGeometrySvc ]     translated to COOL: ' + cfolder)
 
     # load the right folders
-    result.merge( addFoldersSplitOnline(flags,'GLOBAL',[cfolder],[cfolder]) )
+    result.merge( addFoldersSplitOnline(flags,'GLOBAL',[cfolder],[cfolder],splitMC=True) )
     return result
     
 def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, namePrefix='', setLayerAssociation = True, buildTrtStrawLayers = False):
@@ -286,6 +287,6 @@ if __name__ == '__main__':
 
     acc = TrackingGeometrySvcCfg(ConfigFlags )
 
-    f=open('TrackingGeometrySvcCfg.pkl','w')
+    f=open('TrackingGeometrySvcCfg.pkl','wb')
     acc.store(f)
     f.close()

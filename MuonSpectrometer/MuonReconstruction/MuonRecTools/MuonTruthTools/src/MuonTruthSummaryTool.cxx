@@ -48,7 +48,7 @@ namespace Muon {
       ATH_CHECK( service("THistSvc", m_thistSvc) );
     
       m_tree = new TTree(m_treeName.c_str(), "Ntuple of MuonTruthSummary");
-      static unsigned int numLevels=3;// Hardcoding to 3 levels for the moment.
+      constexpr int NUM_LEVELS = 3;// Hardcoding to 3 levels for the moment.
       
       std::string treePathAndName ("/");
       treePathAndName+=m_histStream;
@@ -58,7 +58,7 @@ namespace Muon {
       ATH_CHECK( m_thistSvc->regTree(treePathAndName.c_str(), m_tree) );
       ATH_MSG_VERBOSE("Registered tree as "<<treePathAndName);
       
-      initChamberVariables(numLevels); 
+      initChamberVariables(NUM_LEVELS); 
     }
     if( m_selectedPdgId < 0 ) {
       ATH_MSG_WARNING("SelectedPdgId should be positive, taking the absolute value");
@@ -83,65 +83,68 @@ namespace Muon {
   }
 
   void MuonTruthSummaryTool::clear() {
+    std::scoped_lock lock(m_mutex);
     m_wasInit = false;
     m_truthHits.clear();
     m_truthDataPerLevel.clear();
   }
 
   void MuonTruthSummaryTool::init() const {
-    getTruth();
-    
-    m_wasInit = true;
-    ATH_MSG_DEBUG(" Total collected muon truth hits " << m_truthHits.size() ); 
-  }
-
-  void MuonTruthSummaryTool::getTruth() const {
-
-    for(SG::ReadHandle<PRD_MultiTruthCollection>& col : m_TruthNames.makeHandles()){
-      if(!col.isValid() || !col.isPresent()) continue;
-      ATH_MSG_DEBUG(  "PRD_MultiTruthCollection " << col.key() << " found");
-      PRD_MultiTruthCollection::const_iterator it = col->begin();
-      PRD_MultiTruthCollection::const_iterator it_end = col->end();
-      for( ;it!=it_end;++it ){
-	const HepMcParticleLink& link = it->second;
-	if( link.cptr() && 
-	    (abs(link.cptr()->pdg_id()) ==  m_selectedPdgId || abs(link.cptr()->pdg_id()) == 13 ) ) {
-	  m_truthHits[it->first] = link.cptr()->barcode();
-	  m_pdgIdLookupFromBarcode[link.cptr()->barcode()]=link.cptr()->pdg_id();
-	}
+    std::scoped_lock lock(m_mutex);
+    if (!m_wasInit) {
+      for(SG::ReadHandle<PRD_MultiTruthCollection>& col : m_TruthNames.makeHandles()){
+        if(!col.isValid() || !col.isPresent()) continue;
+        ATH_MSG_DEBUG(  "PRD_MultiTruthCollection " << col.key() << " found");
+        PRD_MultiTruthCollection::const_iterator it = col->begin();
+        PRD_MultiTruthCollection::const_iterator it_end = col->end();
+        for( ;it!=it_end;++it ){
+          const HepMcParticleLink& link = it->second;
+          if( link.cptr() && 
+              (abs(link.cptr()->pdg_id()) ==  m_selectedPdgId || abs(link.cptr()->pdg_id()) == 13 ) ) {
+            m_truthHits[it->first] = link.cptr()->barcode();
+            m_pdgIdLookupFromBarcode[link.cptr()->barcode()]=link.cptr()->pdg_id();
+          }
+        }
       }
+      m_wasInit = true;
+      ATH_MSG_DEBUG(" Total collected muon truth hits " << m_truthHits.size() ); 
     }
   }
 
   int MuonTruthSummaryTool::getPdgId( int barcode ) const {
-    if( !m_wasInit) init();
+    init();
+    std::scoped_lock lock(m_mutex);
     auto pos = m_pdgIdLookupFromBarcode.find(barcode);
     if( pos == m_pdgIdLookupFromBarcode.end() ) return 0;
     return pos->second;    
   }
 
   int MuonTruthSummaryTool::getBarcode( const Identifier& id ) const {
-    if( !m_wasInit) init();
+    init();
+    std::scoped_lock lock(m_mutex);
     auto pos = m_truthHits.find(id);
     if( pos == m_truthHits.end() ) return -1;
     return pos->second;
   }
 
-  void MuonTruthSummaryTool::add( const Identifier& id, int level ) {
-    if( !m_wasInit) init();
+  void MuonTruthSummaryTool::add( const Identifier& id, int level ) const {
+    init();
+    std::scoped_lock lock(m_mutex);
     if( m_truthHits.count(id) ) m_truthDataPerLevel[level].insert(id);
   }
 
-  void MuonTruthSummaryTool::add( const MuonSegment& seg, int level ) {
+  void MuonTruthSummaryTool::add( const MuonSegment& seg, int level ) const {
     add(seg.containedMeasurements(),level);
   }
 
-  void MuonTruthSummaryTool::add( const Trk::Track& track, int level ) {
+  void MuonTruthSummaryTool::add( const Trk::Track& track, int level ) const {
+    std::scoped_lock lock(m_mutex);
     const DataVector<const Trk::MeasurementBase>* meas = track.measurementsOnTrack();                
     if( meas ) add(meas->stdcont(),level);
   }
 
-  void MuonTruthSummaryTool::add( const std::vector<const Trk::MeasurementBase*>& measurements, int level ) {
+  void MuonTruthSummaryTool::add( const std::vector<const Trk::MeasurementBase*>& measurements, int level ) const {
+    std::scoped_lock lock(m_mutex);
     for( std::vector<const Trk::MeasurementBase*>::const_iterator it = measurements.begin();it!=measurements.end();++it ){
       Identifier id = m_edmHelperSvc->getIdentifier(**it);
       if( id.is_valid() && m_idHelper->isMuon(id) ) add(id,level);
@@ -149,23 +152,22 @@ namespace Muon {
   }
   
   std::string MuonTruthSummaryTool::printSummary()  {
+    std::scoped_lock lock(m_mutex);
     if( m_truthHits.empty() )  return "Event without truth hits";
     if( m_truthDataPerLevel.empty() ) return "No hits added";
     ATH_MSG_DEBUG( "Have " << m_truthHits.size() << " truth hits and "<< m_truthDataPerLevel.size()<<" levels filled."  );
 
-    std::set<Identifier> truthHits;
+    std::unordered_set<Identifier, IdentifierHash> truthHits;
     for( auto it = m_truthHits.begin();it!=m_truthHits.end();++it ) truthHits.insert(it->first);
 
     m_truthHitsTotal+=truthHits.size();
     std::ostringstream sout;
     sout << " Summarizing: truth hits " << truthHits.size() << " levels filled " << m_truthDataPerLevel.size()<<std::endl;
-    std::map<int,std::set<Identifier> >::const_iterator it = m_truthDataPerLevel.begin();
-    std::map<int,std::set<Identifier> >::const_iterator it_end = m_truthDataPerLevel.end();
-    for( ;it!=it_end;++it ){
-      m_level=it->first-1;
+    for (auto& pair : m_truthDataPerLevel) {
+      m_level=pair.first-1;
       if (m_writeTree) clearChamberVariables( m_level );
-      sout << " Comparing truth to level " << m_level << std::endl << printSummary( truthHits, it->second );
-      m_lossesPerLevel[it->first]+=(truthHits.size()-it->second.size());
+      sout << " Comparing truth to level " << m_level << std::endl << printSummary( truthHits, pair.second );
+      m_lossesPerLevel[pair.first]+=(truthHits.size()-pair.second.size());
     }
     if (m_writeTree) {
       std::cout<<"About to try to fill try tree "<<m_tree->GetName()<<std::endl;
@@ -176,7 +178,9 @@ namespace Muon {
     return sout.str();
   }
 
-  std::string MuonTruthSummaryTool::printSummary( const std::set<Identifier>& truth, const std::set<Identifier>& found )  {
+  std::string MuonTruthSummaryTool::printSummary( const std::unordered_set<Identifier, IdentifierHash>& truth, 
+      const std::unordered_set<Identifier, MuonTruthSummaryTool::IdentifierHash>& found )  {
+    std::scoped_lock lock(m_mutex);
     std::ostringstream sout;
     if( truth.size() != found.size() ){
       sout << " Some truth hits not found: truth " << truth.size() << " found " << found.size() << std::endl;
@@ -205,6 +209,7 @@ namespace Muon {
   }
   
   void MuonTruthSummaryTool::initChamberVariables(const unsigned int levels){
+    std::scoped_lock lock(m_mutex);
     if (!m_tree) {
       ATH_MSG_WARNING("Trying to write ntuple, but tree is zero. Setting WriteNtuple to False");
       m_writeTree=false;
@@ -258,6 +263,7 @@ namespace Muon {
   }
   
   void MuonTruthSummaryTool::clearChamberVariables( const unsigned int level){
+    std::scoped_lock lock(m_mutex);
     ATH_MSG_DEBUG("clearChamberVariables: Level = "<<level+1);
     m_numChambers[level] = 0;
     m_numMissedHits[level]->clear();
@@ -272,6 +278,7 @@ namespace Muon {
   }
   
   void MuonTruthSummaryTool::fillChamberVariables(const Identifier& chamberId, const unsigned int numMissedHits){
+    std::scoped_lock lock(m_mutex);
     ATH_MSG_DEBUG("fillChamberVariables: Level = "<<(m_level+1)<<" \t chamber = "<<m_idHelper->toStringChamber(chamberId)<<" numMissedHits="<<numMissedHits );
     
     m_numChambers[m_level]++;

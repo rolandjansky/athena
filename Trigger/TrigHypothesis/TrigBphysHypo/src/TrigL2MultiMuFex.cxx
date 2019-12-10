@@ -24,7 +24,6 @@
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
 #include "TrigInDetEvent/TrigInDetTrackFitPar.h"
 
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
 

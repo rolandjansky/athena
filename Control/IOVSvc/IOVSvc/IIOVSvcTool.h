@@ -51,16 +51,16 @@ public:
                               IOVRange& iov) const = 0;
 
   // Subscribe method for DataProxy. key StoreGate key
-  virtual StatusCode regProxy( const SG::DataProxy *proxy, 
+  virtual StatusCode regProxy(       SG::DataProxy *proxy, 
                                const std::string& key ) = 0;
 
-  virtual StatusCode deregProxy( const SG::DataProxy *proxy ) = 0;
+  virtual StatusCode deregProxy( SG::DataProxy *proxy ) = 0;
   virtual StatusCode deregProxy( const CLID& clid, const std::string& key ) = 0;
 
 
   // Replace a registered proxy with a new version
-  virtual StatusCode replaceProxy( const SG::DataProxy *pOld,
-                                   const SG::DataProxy *pNew ) = 0;
+  virtual StatusCode replaceProxy( SG::DataProxy *pOld,
+                                   SG::DataProxy *pNew ) = 0;
 
   // Another way to subscribe
   virtual StatusCode regProxy( const CLID& clid, const std::string& key ) = 0;
@@ -92,14 +92,14 @@ public:
   virtual StatusCode getTriggeredTools(const std::string& key,
                                        std::set<std::string>& tools) = 0;
 
-  virtual bool holdsProxy( const SG::DataProxy* proxy ) const = 0;
+  virtual bool holdsProxy( SG::DataProxy* proxy ) const = 0;
   virtual bool holdsProxy( const CLID& clid, const std::string& key ) const = 0;
   virtual bool holdsCallback( const CallBackID& ) const = 0;
   virtual bool holdsAlgTool( const IAlgTool* ia ) const = 0;
 
   virtual void resetAllProxies() = 0;
 
-  virtual void ignoreProxy(const SG::DataProxy* proxy)  = 0;
+  virtual void ignoreProxy(SG::DataProxy* proxy)  = 0;
   virtual void ignoreProxy( const CLID& clid, const std::string& key)  = 0;
 
 };

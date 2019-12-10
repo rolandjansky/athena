@@ -50,7 +50,7 @@ def createDigitizationCfgFlags():
     flags.addFlag("Digitization.SpecialConfiguration", getSpecialConfiguration)
     # Run Calorimeter noise simulation
     flags.addFlag("Digitization.DoCaloNoise", True)
-    # Run pile-up premixing
+    # Compute and store DigiTruth information
     flags.addFlag("Digitization.DoDigiTruth", True)
     # Use high-gain Forward Calorimeters
     flags.addFlag("Digitization.HighGainFCal", False)
@@ -58,5 +58,9 @@ def createDigitizationCfgFlags():
     flags.addFlag("Digitization.HighGainEMECIW", True)
     # Do global pileup digitization
     flags.addFlag("Digitization.Pileup", True)
+    # TRT Range cut used in simulation in mm. Should be 0.05 or 30.
+    flags.addFlag("Digitization.TRTRangeCut", 0.05)
+    # Write out truth information?
+    flags.addFlag("Digitization.TruthOutput", False)
     return flags
 

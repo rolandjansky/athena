@@ -122,7 +122,7 @@ class Test(object):
         for exec_step in self.exec_steps:
             if exec_step.timeout is None:
                 # 3h for grid tests, 1h for build tests
-                exec_step.timeout = 3*3600 if self.art_type == 'grid' else 3600
+                exec_step.timeout = 12*3600 if self.art_type == 'grid' else 3600
         for check_step in self.check_steps:
             if check_step.timeout is None:
                 # 5 min for all check steps

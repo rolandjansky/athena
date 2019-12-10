@@ -24,6 +24,7 @@ Reco_tf.py \
 --outputAODFile=AOD.pool.root \
 --steering="doRDO_TRIG" \
 --valid=True \
+--postInclude="TriggerTest/disableChronoStatSvcPrintout.py" \
 >${JOB_LOG} 2>&1
 ) 2>&1
 
@@ -45,6 +46,7 @@ Reco_tf.py \
 --inputAODFile=AOD.pool.root \
 --outputNTUP_PHYSVALFile=NTUP_PHYSVAL.pool.root \
 --validationFlags="${VALIDATIONFLAGS}" \
+--postInclude="TriggerTest/disableChronoStatSvcPrintout.py" \
 >${JOB_LOG} 2>&1
 ) 2>&1
 

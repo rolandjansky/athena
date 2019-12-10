@@ -40,7 +40,6 @@ TrigJetHypoToolMT::~TrigJetHypoToolMT(){
 }
 
 StatusCode TrigJetHypoToolMT::initialize(){
-  CHECK(m_evt.initialize());
   DebugInfoCollector collector(name());
   CHECK(m_helper->getDescription(collector));
   auto s = collector.toString();

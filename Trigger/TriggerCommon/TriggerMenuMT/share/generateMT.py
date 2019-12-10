@@ -1,29 +1,7 @@
-# import flags
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+setMenu             = "LS2_v1"
+endJobAfterGenerate = False
+
 include("TrigUpgradeTest/testHLT_MT.py")
-
-#################################
-# Configure L1Decoder
-#################################
-
-# provide a minimal menu information
-if globalflags.InputFormat.is_bytestream():
-   topSequence.L1Decoder.ctpUnpacker.OutputLevel=DEBUG
-
-
-##########################################
-# Menu and CF construction
-##########################################
-
-from TriggerJobOpts.TriggerFlags import TriggerFlags
-TriggerFlags.triggerMenuSetup = "LS2_v1"
-
-
-
-from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
-g = GenerateMenuMT()
-g.generateMT()
-
-
-
-
 

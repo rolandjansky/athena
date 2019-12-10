@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -15,7 +15,6 @@
 #include "TestTools/leakcheck.h"
 #include "ParticleEvent/TrackParticleAssocs.h"
 #include "SGTools/TestStore.h"
-#include "CxxUtils/make_unique.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -52,7 +51,7 @@ void test1()
 
   Rec::TrackParticleContainer* tpc = new Rec::TrackParticleContainer;
   for (int i=0; i < 10; i++)
-    tpc->push_back (CxxUtils::make_unique<Rec::TrackParticle>());
+    tpc->push_back (std::make_unique<Rec::TrackParticle>());
   SGTest::store.record (tpc, "tpc");
       
   TrackParticleAssocs* xstore = new TrackParticleAssocs;

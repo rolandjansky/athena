@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -25,6 +25,7 @@ class ITileBadChanTool;
 class TileDQstatus;
 class TileRawChannel;
 class TileRawChannelCollection;
+class TileInfo;
 
 
 /** @class TileDQFragMonTool
@@ -137,6 +138,13 @@ class TileDQFragMonTool: public TileFatherMonTool {
     float m_qualityCut;
     SG::ReadHandleKey<TileDQstatus> m_DQstatusKey;
     unsigned int m_nEventsWithAllDigits;
+
+    // TileInfo
+    std::string m_infoName;
+    const TileInfo* m_tileInfo;
+    int m_i_ADCmax;
+    float m_ADCmaxMinusEps;
+    float m_ADCmaskValueMinusEps;
     /*---------------------------------------------------------*/
 
 };

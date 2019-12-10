@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -61,6 +61,7 @@ Update:  Sep 18, 2005 P Loch
 #include <vector>
 
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "CxxUtils/checker_macros.h"
 
 
 class CaloCell ; 
@@ -70,11 +71,11 @@ class CaloCluster;
 struct CaloClusterSignalState;
 
 
-class CaloCluster :  public CaloCompositeKineBase,
-		     public CaloCompositeCellBase<CaloClusterNavigable>,
-		     virtual public INavigable4Momentum,
-                     public ISignalState,
-                     public AthenaBarCodeBase
+class ATLAS_NOT_THREAD_SAFE CaloCluster :  public CaloCompositeKineBase,
+                            public CaloCompositeCellBase<CaloClusterNavigable>,
+		                        virtual public INavigable4Momentum,
+                            public ISignalState,
+                            public AthenaBarCodeBase
 {
 
  public:
@@ -463,7 +464,7 @@ class CaloCluster :  public CaloCompositeKineBase,
   CaloClusterLinkTemplate<CaloShowerContainer>::link_type data_link_type;
 
   /*! \brief Internal error return for real numbers */
-  static double m_errorValue;
+  static const double m_errorValue;
 
   /*!{\ brief Cached Stores */
   CaloSamplingData                    m_dataStore;   /*!< sampling data */
@@ -725,7 +726,7 @@ private:
   /// Disallow (avoid coverity warning).
   CaloCluster& operator= (const CaloCluster&);
 
-  friend class CaloClusterContainerCnv;
+  friend class CaloClusterContainerCnv_p1;
   friend class CaloClusterContainerCnv_p2;
   friend class CaloClusterContainerCnv_p3;
   friend class CaloClusterContainerCnv_p4;

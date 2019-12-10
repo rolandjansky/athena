@@ -19,7 +19,7 @@
 #include "TrigMultiVarHypo/tools/procedures/MultiLayerPerceptron.h"
 #include "TrigMultiVarHypo/tools/procedures/Norm1.h"
 
-#include "AthenaMonitoring/MonitoredTimer.h"
+#include "AthenaMonitoringKernel/MonitoredTimer.h"
 #include "AsgTools/AsgMessaging.h"
 #include <memory>
 #include <string>
@@ -50,8 +50,8 @@ namespace Ringer{
       double  calculate( std::vector<float>& rings, double et, double eta, double mu) const; 
       
       double  calculate( std::vector<float>& rings, double et, double eta, double mu, 
-                         Monitored::Timer &propagate_time,
-                         Monitored::Timer &preproc_time) const;
+                         Monitored::Timer<> &propagate_time,
+                         Monitored::Timer<> &preproc_time) const;
   
       double  calculate( std::vector<float>& rings, double et, double eta, double mu,
                          double deltaeta1, double deltaPoverP, double deltaPhiReescaled,

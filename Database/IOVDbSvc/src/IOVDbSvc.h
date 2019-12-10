@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -53,7 +53,6 @@ class IPoolSvc;
 
 class EventID;
 class ITagInfoMgr;
-class IIncidentSvc;
 
 class IOVDbFolder;
 
@@ -158,15 +157,10 @@ public:
   // return list of SG keys being provided by IOVDbSvc
   virtual std::vector<std::string> getKeyList() override;
 
-  // return information about one SG key
-  // - folder, tag, IOVRange and whether data has been retrieved
-  // (if not, range and tag may not be meaningful)
-  // return false if this key is not known to IOVDbSvc
+  /// Return information about SG key
+  /// return false if this key is not known to IOVDbSvc
   virtual
-  bool getKeyInfo(const std::string& key, std::string& foldername,
-                  std::string& tag, IOVRange& range, bool& retrieved,
-                  unsigned long long& bytesRead, float& readTime) override;
-
+  bool getKeyInfo(const std::string& key, IIOVDbSvc::KeyInfo& info) override;
 
   // drop an IOVDbSvc-managed object from Storegate, indicating we will
   // not read it again and can free up memory 

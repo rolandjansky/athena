@@ -44,9 +44,11 @@ def EMExtrapolationToolsCfg(flags, **kwargs):
     acc.setPrivateTools(emExtrapolationTools)
     return acc
 
+
 def EMExtrapolationToolsCacheCfg(flags, **kwargs):
     kwargs.setdefault("name", "EMExtrapolationToolsCache")
     kwargs.setdefault("useCaching", True)
+    kwargs.setdefault("useLastCaching", True)
     return EMExtrapolationToolsCfg(flags, **kwargs)
 
 
@@ -77,6 +79,6 @@ if __name__ == "__main__":
     acc.popPrivateTools()
     cfg.merge(acc)
 
-    f = open("egtracktools.pkl", "w")
+    f = open("egtracktools.pkl", "wb")
     cfg.store(f)
     f.close()

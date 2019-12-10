@@ -107,9 +107,7 @@ Trig::TrigDecisionTool::initialize() {
      return StatusCode::FAILURE;
    }
 
-   if (m_navigationFormat == "TrigComposite") {
-     ATH_CHECK(m_HLTSummaryKeyIn.initialize());
-   }
+   ATH_CHECK(m_HLTSummaryKeyIn.initialize(m_navigationFormat == "TrigComposite"));
 
    s_instances.push_back(name());
    if ( s_instances.size() > 1) {
@@ -145,11 +143,12 @@ Trig::TrigDecisionTool::initialize() {
      }
    }
 
-
-   StatusCode sc = m_fullNavigation.retrieve();
-   if ( sc.isFailure() ) {
-     ATH_MSG_FATAL( "Unable to get Navigation tool");
-     return sc;
+   if (m_navigationFormat == "TriggerElement") {
+     StatusCode sc = m_fullNavigation.retrieve();
+     if ( sc.isFailure() ) {
+       ATH_MSG_FATAL( "Unable to get Navigation tool");
+       return sc;
+     }
    }
 #else
    ATH_CHECK(m_configTool.retrieve());
@@ -266,13 +265,17 @@ Trig::TrigDecisionTool::handle(const Incident& inc) {
    // an update configuration incident triggers the update of the configuration
    ATH_MSG_DEBUG("got  incident type:" << inc.type()  << " source: " << inc.source() );
    
-   if ( inc.type()=="TrigConf" ) {
-     ATH_MSG_INFO("updating config via config svc");
+   if ( inc.type()=="TrigConf") {
+      if(m_configSvc.isSet()) {
+         ATH_MSG_INFO("updating config via config svc");
      
      
-     configurationUpdate( m_configSvc->chainList(), 
+         configurationUpdate( m_configSvc->chainList(), 
      			  m_configSvc->ctpConfig() 
      			  );
+      } else {
+         ATH_MSG_DEBUG("No TrigConfigSvc, ignoring TrigConf incident.");
+      }
    }
    else {
      //call the parent handle

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CaloCellLinkContainerCnv_p2.cxx,v 1.9 2009-02-18 22:50:08 hma Exp $
@@ -12,6 +12,9 @@
 
 #include "AthLinks/ElementLink.h"
 #include "CaloTPCnv/CaloCellLinkContainerCnv_p2.h"
+#include "AthenaKernel/getThinningCache.h"
+#include "AthenaKernel/ThinningCache.h"
+#include "AthenaKernel/ThinningDecisionBase.h"
 #include "AthenaKernel/errorcheck.h"
 
 #include "AthenaKernel/IThinningSvc.h"
@@ -72,9 +75,10 @@ const unsigned int ISEQ_MAX = (1 << ISEQ_BITS) - 1;
  * @param log Error logging stream.
  */
 void
-CaloCellLinkContainerCnv_p2::persToTrans(const CaloCellLinkContainer_p2* pers,
-                                         CaloCellLinkContainer* trans,
-                                         MsgStream &/*log*/)
+CaloCellLinkContainerCnv_p2::persToTransWithKey (const CaloCellLinkContainer_p2* pers,
+                                                 CaloCellLinkContainer* trans,
+                                                 const std::string& /*key*/,
+                                                 MsgStream& /*log*/) const
 {
   trans->clear();
   trans->resize(pers->m_nClusters);
@@ -120,7 +124,6 @@ CaloCellLinkContainerCnv_p2::persToTrans(const CaloCellLinkContainer_p2* pers,
       ncells += (*(cIterI+iCell)) >> INDEX_BITS;
     }
     if (ncells > 1000) ncells = 1000; // Don't go crazy.
-    lnk->m_constituents.reserve (ncells);
 
     // Unpacking indices and making links
     for(unsigned iCell=0; iCell<pers->m_vISizes[iCluster]; iCell++) {
@@ -142,7 +145,7 @@ CaloCellLinkContainerCnv_p2::persToTrans(const CaloCellLinkContainer_p2* pers,
         }
 
         ElementLink<CaloCellContainer> el_link(pers->m_contName, realI+seq);
-        lnk->m_constituents.push_back(std::make_pair (el_link,weight));
+        lnk->insertElement (el_link, weight, ncells);
         --nw;
       }
     }//End loop over cells in cluster
@@ -173,7 +176,7 @@ CaloCellLinkContainerCnv_p2::persToTrans(const CaloCellLinkContainer_p2* pers,
       REPORT_MESSAGE_WITH_CONTEXT (MSG::WARNING,
                                    "CaloCellLinkContainerCnv_p2")
         << "Discarding cluster cells";
-      lnk->m_constituents.clear();
+      lnk->removeAll();
     }
     
   } // End loop over clusters
@@ -187,9 +190,10 @@ CaloCellLinkContainerCnv_p2::persToTrans(const CaloCellLinkContainer_p2* pers,
  * @param log Error logging stream.
  */
 void
-CaloCellLinkContainerCnv_p2::transToPers(const CaloCellLinkContainer* trans,
-                                         CaloCellLinkContainer_p2* pers,
-                                         MsgStream & /*log*/)
+CaloCellLinkContainerCnv_p2::transToPersWithKey (const CaloCellLinkContainer* trans,
+                                                 CaloCellLinkContainer_p2* pers,
+                                                 const std::string& /*key*/,
+                                                 MsgStream& /*log*/) const
 {
   unsigned int nclus = trans->size();
   pers->m_nClusters = nclus; // number of clusters in container
@@ -209,6 +213,8 @@ CaloCellLinkContainerCnv_p2::transToPers(const CaloCellLinkContainer* trans,
 
   IThinningSvc * thinningSvc = IThinningSvc::instance();
   const bool thinning = thinningSvc && thinningSvc->thinningOccurred();
+
+  const SG::ThinningCache* thinningCache = SG::getThinningCache();
 
   // Declare this outside the loop to save on memory allocations.
   std::vector<cell_t> cells;
@@ -261,6 +267,25 @@ CaloCellLinkContainerCnv_p2::transToPers(const CaloCellLinkContainer* trans,
 	     //			       << " cell index changed from  "<< index << " to " <<persIdx <<endmsg ;
             index = persIdx;
 	  }
+      }
+
+      // Handle thinning.
+      if (thinningCache){
+        const SG::ThinningDecisionBase* dec =
+          thinningCache->thinning (citer->first.key());
+        if (dec) {
+          size_t persIdx = dec->index (index);
+
+          if( SG::ThinningDecisionBase::RemovedIdx == persIdx ) {
+            // Cell index has been thinned away; skip all cells.
+            cells.clear();
+            break; 
+
+          }else
+	  {
+            index = persIdx;
+	  }
+        }
       }
 
       SG::sgkey_t key = citer->first.key();
@@ -352,54 +377,3 @@ CaloCellLinkContainerCnv_p2::transToPers(const CaloCellLinkContainer* trans,
     }
   } // End loop over clusters
 }
-
-
-/**
- * @brief Convert from persistent to transient object, with untyped pointers.
- * @param pers The persistent object to convert.
- * @param trans The transient object to which to convert.
- * @param log Error logging stream.
- */
-void CaloCellLinkContainerCnv_p2::persToTransUntyped(const void* pers,
-                                                     void* trans,
-                                                     MsgStream& log)
-{
-  persToTrans (reinterpret_cast<const CaloCellLinkContainer_p2*> (pers),
-               reinterpret_cast<CaloCellLinkContainer*> (trans),
-               log);
-}
-
-
-/**
- * @brief Convert from transient to persistent object, with untyped pointers.
- * @param trans The transient object to convert.
- * @param pers The persistent object to which to convert.
- * @param log Error logging stream.
- */
-void CaloCellLinkContainerCnv_p2::transToPersUntyped(const void* trans,
-                                                     void* pers,
-                                                     MsgStream& log)
-{
-  transToPers (reinterpret_cast<const CaloCellLinkContainer*> (trans),
-               reinterpret_cast<CaloCellLinkContainer_p2*> (pers),
-               log);
-}
-
-
-/**
- * @brief Return the @c std::type_info for the transient type.
- */
-const std::type_info& CaloCellLinkContainerCnv_p2::transientTInfo() const
-{
-  return typeid (CaloCellLinkContainer);
-}
-
-/** return C++ type id of the persistent class this converter is for
-    @return std::type_info&
-*/
-const std::type_info& CaloCellLinkContainerCnv_p2::persistentTInfo() const
-{
-  return typeid (CaloCellLinkContainer_p2);
-}
-
-

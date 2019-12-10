@@ -2,8 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRTPROCESSINGOFSTRAW_H
-#define TRTPROCESSINGOFSTRAW_H
+#ifndef TRT_DIGITIZATION_TRTPROCESSINGOFSTRAW_H
+#define TRT_DIGITIZATION_TRTPROCESSINGOFSTRAW_H
 
 //Hit classes
 #include "HitManagement/TimedHitCollection.h"
@@ -51,21 +51,22 @@ class TRTProcessingOfStraw {
 public:
   /** Constructor: Calls Initialize method */
   TRTProcessingOfStraw( const TRTDigSettings*,
-			const InDetDD::TRT_DetectorManager*,
-			ITRT_PAITool*,
-			ITRT_SimDriftTimeTool*,
-			TRTElectronicsProcessing * ep,
-			TRTNoise * noise,
-			TRTDigCondBase* digcond,
-			const HepPDT::ParticleDataTable*,
-			const TRT_ID*,
-		        ITRT_PAITool* = NULL,
-		        ITRT_PAITool* = NULL);
+                        const InDetDD::TRT_DetectorManager*,
+                        ITRT_PAITool*,
+                        ITRT_SimDriftTimeTool*,
+                        MagField::IMagFieldSvc * magfieldsvc,
+                        TRTElectronicsProcessing * ep,
+                        TRTNoise * noise,
+                        TRTDigCondBase* digcond,
+                        const HepPDT::ParticleDataTable*,
+                        const TRT_ID*,
+                        ITRT_PAITool* = NULL,
+                        ITRT_PAITool* = NULL);
   /** Destructor */
   ~TRTProcessingOfStraw();
 
   typedef TimedHitCollection<TRTUncompressedHit>::const_iterator
-    hitCollConstIter;
+  hitCollConstIter;
 
   /**
    * Process this straw all the way from Geant4 @e hit to output @e digit.@n
@@ -87,13 +88,13 @@ public:
    * (bits: 8 low + 1 high + 8 low + 1 high + 8 low + 1 high)
    */
   void ProcessStraw (hitCollConstIter i,
-		     hitCollConstIter e,
-		     TRTDigit& outdigit,
-		     bool & m_alreadyPrintedPDGcodeWarning,
-		     double m_cosmicEventPhase, //const ComTime* m_ComTime,
+                     hitCollConstIter e,
+                     TRTDigit& outdigit,
+                     bool & m_alreadyPrintedPDGcodeWarning,
+                     double m_cosmicEventPhase, //const ComTime* m_ComTime,
                      int strawGasType,
-		     bool emulationArflag,
-		     bool emulationKrflag,
+                     bool emulationArflag,
+                     bool emulationKrflag,
                      CLHEP::HepRandomEngine* rndmEngine,
                      CLHEP::HepRandomEngine* elecProcRndmEngine,
                      CLHEP::HepRandomEngine* elecNoiseRndmEngine,
@@ -155,14 +156,14 @@ private:
 
   /** Primary ionisation cluster */
   class cluster {
-    public:
-      cluster(double e, double t, double x, double y, double z) :
-        energy(e), time(t), xpos(x), ypos(y), zpos(z) {};
-      double energy;
-      double time;
-      double xpos;
-      double ypos;
-      double zpos;
+  public:
+    cluster(double e, double t, double x, double y, double z) :
+      energy(e), time(t), xpos(x), ypos(y), zpos(z) {};
+    double energy;
+    double time;
+    double xpos;
+    double ypos;
+    double zpos;
   };
 
   std::vector<cluster> m_clusterlist;
@@ -189,16 +190,16 @@ private:
    * @param clusterlist:         List of ionisation clusters along step
    */
   void addClustersFromStep ( const double& scaledKineticEnergy,
-			     const double& particleCharge,
-			     const double& timeOfHit,
-			     const double& prex,
-			     const double& prey,
-			     const double& prez,
-			     const double& postx,
-			     const double& posty,
-			     const double& postz,
-			     std::vector<cluster>& clusterlist,
-			     int strawGasType,
+                             const double& particleCharge,
+                             const double& timeOfHit,
+                             const double& prex,
+                             const double& prey,
+                             const double& prez,
+                             const double& postx,
+                             const double& posty,
+                             const double& postz,
+                             std::vector<cluster>& clusterlist,
+                             int strawGasType,
                              CLHEP::HepRandomEngine* rndmEngine,
                              CLHEP::HepRandomEngine* paiRndmEngine);
   /**
@@ -218,9 +219,9 @@ private:
    * @param deposits: energy deposits on wire
    */
   void ClustersToDeposits (const int& hitID,
-			   const std::vector<cluster>& clusters,
-			   std::vector<TRTElectronicsProcessing::Deposit>& deposits,
-			   Amg::Vector3D TRThitGlobalPos,
+                           const std::vector<cluster>& clusters,
+                           std::vector<TRTElectronicsProcessing::Deposit>& deposits,
+                           Amg::Vector3D TRThitGlobalPos,
                            double m_cosmicEventPhase, // const ComTime* m_ComTime
                            int strawGasType,
                            CLHEP::HepRandomEngine* rndmEngine);
@@ -236,7 +237,7 @@ private:
   unsigned int getRegion(int hitID);
 
   //Magnetic field stuff
-  ServiceHandle < MagField::IMagFieldSvc > m_magneticfieldsvc;
+  MagField::IMagFieldSvc* m_magneticfieldsvc;
   mutable Athena::MsgStreamMember m_msg;
 
 protected:

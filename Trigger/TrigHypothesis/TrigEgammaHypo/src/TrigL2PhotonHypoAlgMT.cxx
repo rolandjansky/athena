@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/Property.h"
@@ -14,17 +14,15 @@ using TrigCompositeUtils::DecisionIDContainer;
 using TrigCompositeUtils::decisionIDs; 
 using TrigCompositeUtils::newDecisionIn; 
 using TrigCompositeUtils::linkToPrevious;
+using TrigCompositeUtils::viewString;
+using TrigCompositeUtils::featureString;
 
 TrigL2PhotonHypoAlgMT::TrigL2PhotonHypoAlgMT( const std::string& name, 
 				      ISvcLocator* pSvcLocator ) :
   ::HypoBase( name, pSvcLocator ) {}
 
-TrigL2PhotonHypoAlgMT::~TrigL2PhotonHypoAlgMT() {}
 
 StatusCode TrigL2PhotonHypoAlgMT::initialize() {
-  ATH_MSG_INFO ( "Initializing " << name() << "..." );
-
-  
   ATH_CHECK( m_hypoTools.retrieve() );
   
   ATH_CHECK( m_photonsKey.initialize() );
@@ -33,12 +31,7 @@ StatusCode TrigL2PhotonHypoAlgMT::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigL2PhotonHypoAlgMT::finalize() {   
-  return StatusCode::SUCCESS;
-}
-
-  
-StatusCode TrigL2PhotonHypoAlgMT::execute( const EventContext& context ) const {  
+StatusCode TrigL2PhotonHypoAlgMT::execute( const EventContext& context ) const {
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
   if( not previousDecisionsHandle.isValid() ) {//implicit
@@ -76,20 +69,20 @@ StatusCode TrigL2PhotonHypoAlgMT::execute( const EventContext& context ) const {
  
   for ( auto previousDecision: *previousDecisionsHandle ) {
     //previousDecision->objectLink< ViewContainer >( "view" );
-    auto viewELInfo = TrigCompositeUtils::findLink< ViewContainer >( previousDecision, "view" );
+    const auto viewEL = previousDecision->objectLink<ViewContainer>( viewString() );
       
-    ATH_CHECK( viewELInfo.isValid() );
+    ATH_CHECK( viewEL.isValid() );
     
     // get electron from that view:
     size_t photonCounter = 0;
-    auto photonsHandle = ViewHelper::makeHandle( *viewELInfo.link, m_photonsKey, context );  
+    auto photonsHandle = ViewHelper::makeHandle( *viewEL, m_photonsKey, context );  
 
     ATH_CHECK( photonsHandle.isValid() );
     ATH_MSG_DEBUG ( "electron handle size: " << photonsHandle->size() << "..." );
 
     for ( auto photonIter = photonsHandle->begin(); photonIter != photonsHandle->end(); ++photonIter, photonCounter++ ) {
       auto d = newDecisionIn( decisions, name() );
-      d->setObjectLink( "feature", ViewHelper::makeLink<xAOD::TrigPhotonContainer>( *viewELInfo.link, photonsHandle, photonCounter ) );
+      d->setObjectLink( featureString(), ViewHelper::makeLink<xAOD::TrigPhotonContainer>( *viewEL, photonsHandle, photonCounter ) );
       
       auto clusterPtr = (*photonIter)->emCluster();
       ATH_CHECK( clusterPtr != nullptr );

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # ------------------------------------------------------------
 #
@@ -57,8 +57,7 @@ class SiTrigTrackFinder_EF( InDet__SiTrigSPSeededTrackFinder ):
                                                SpacePointsPixelName   = 'SCT_CosmicsTrigSpacePoints',
                                                SpacePointsSCTName     = 'PixelCosmicsTrigSpacePoints',
                                                #SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
-                                               UseAssociationTool     = False,
-                                               AssociationTool        =  InDetTrigPrdAssociationTool)
+                                               PRDtoTrackMap          = '')
     elif lowPt:
       from InDetTrigRecExample.InDetTrigConfigRecLoadToolsLowPt import InDetTrigSiSpacePointsSeedMakerLowPt
       InDetTrigSiSpacePointsSeedMaker = InDetTrigSiSpacePointsSeedMakerLowPt
@@ -161,7 +160,6 @@ class SiTrigTrackFinder_EF( InDet__SiTrigSPSeededTrackFinder ):
       InDetTrigSiTrackMaker.pTmin = EFIDTrackingCutsBeamGas.minPT()
       InDetTrigSiTrackMaker.nClustersMin = EFIDTrackingCutsBeamGas.minClusters()
       InDetTrigSiTrackMaker.nHolesMax = EFIDTrackingCutsBeamGas.nHolesMax()
-      InDetTrigSiTrackMaker.UseAssociationTool = True       #for BG and LowPt
     elif type=="cosmicsN":   
       #create an additional for cosmics
       from InDetTrigRecExample.InDetTrigConfigRecLoadToolsCosmics import InDetTrigSiDetElementsRoadMakerCosmics
@@ -331,10 +329,13 @@ class TrigAmbiguitySolver_EF( InDet__InDetTrigAmbiguitySolver ):
       
       from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__SimpleAmbiguityProcessorTool
 
+      import InDetRecExample.TrackingCommon as TrackingCommon
       InDetTrigAmbiguityProcessor = \
           Trk__SimpleAmbiguityProcessorTool(name = 'InDetTrigAmbiguityProcessor_'+slice,
                                             #AssoTool    = InDetTrigPrdAssociationTool,
                                             Fitter      = InDetTrigTrackFitter,
+                                            AssociationTool = TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels(),
+                                            TrackSummaryTool = InDetTrigTrackSummaryTool,
                                             SelectionTool = InDetTrigAmbiTrackSelectionTool,
                                             RefitPrds   = not InDetTrigFlags.refitROT()
                                             )
@@ -379,10 +380,18 @@ class TrigAmbiguitySolver_EF( InDet__InDetTrigAmbiguitySolver ):
          print InDetTrigAmbiguityProcessor
 
       self.AmbiguityProcessor = InDetTrigAmbiguityProcessor
+      self.AssociationTool = TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels()
       if lowPt:
         from InDetTrigRecExample.InDetTrigConfigRecLoadToolsLowPt import InDetTrigAmbiguityProcessorLowPt
         self.AmbiguityProcessor = InDetTrigAmbiguityProcessorLowPt
         self.OutputTracksLabel = "AmbigSolvLowPt"
+        self.OutputPRDMapLabel = "AmbigSolvPRDMapLowPt"
+      else :
+        self.OutputPRDMapLabel = "AmbigSolvPRDMap"
+
+      # hack to recover run2 behavior
+      from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigPRDtoTrackMapExchangeTool
+      self.PRDToTrackMapExchange = InDetTrigPRDtoTrackMapExchangeTool
 
       #use either SPSeeded or FTF tracks
       self.InputTracksLabel = ""

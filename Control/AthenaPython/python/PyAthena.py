@@ -69,8 +69,8 @@ def find_library(libname):
      >>> find_library('AthenaServices')
      '/afs/cern.ch/.../AtlasCore/[release]/InstallArea/.../libAthenaServices.so
     """
-    import os, sys
-    import ctypes.util as cu
+    import os
+    ## import ctypes.util as cu
     ## # ctypes.util.find_library does not return the path
     ## # to the library, just the basename of the so-name...
     ## lib = cu._findLib_ldconfig(libname) or cu._findLib_gcc(libname)
@@ -99,9 +99,10 @@ def reload_module (modname):
      >>> PyAthena.reload_module (Foo)   # will work too
     """
     import sys, types
+    from imp import reload
     if isinstance (modname, types.ModuleType):
         modname = modname.__name__
-    if sys.modules.has_key(modname):
+    if modname in sys.modules:
         return reload (sys.modules[modname])
     raise ValueError('no module [%s] could be found'%modname)
 
@@ -118,6 +119,7 @@ def py_reload (*args):
     ... # of both alg1 and alg2
     """
     import types, sys
+    from imp import reload
     for i,arg in enumerate(args):
         if isinstance (arg, types.ModuleType):
 ##             print (" ==> moduletype")
@@ -149,14 +151,13 @@ def py_reload (*args):
             from AthenaCommon.Configurable import Configurable
             cfg_methods = dir(Configurable)
             d = (k for k in dir(klass)
-                 if not k.startswith('__') and
-                    not k in cfg_methods)
+                 if not k.startswith('__') and k not in cfg_methods)
             for k in d:
                 if not hasattr (arg, k):
                     v = getattr (klass, k)
                     try:
                         v = v.__get__ (arg)
-                    except AttributeError as err:
+                    except AttributeError:
                         # 'handle' not-yet-set gaudi properties
                         continue
                     setattr (arg, k, v.__get__(arg))

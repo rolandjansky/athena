@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header file for class CutFlowSvc
@@ -16,13 +16,11 @@
  * @brief This implementes the methods for ICutFlowSvc
  */
 
-// for size_t
-#include <cassert>
-
 // STL includes
-#include <string>
-#include <vector>
 #include <mutex>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 // FrameWork includes
 #include "GaudiKernel/ISvcLocator.h"
@@ -39,20 +37,6 @@
 #include "xAODCutFlow/CutBookkeeperContainer.h"
 #include "xAODCutFlow/CutBookkeeperAuxContainer.h"
 
-// STL include(s):
-#if __cplusplus < 201100
-#   include <tr1/unordered_map>
-namespace MAP_NS = std::tr1;
-#else
-#   include <unordered_map>
-namespace MAP_NS = std;
-#endif // C++
-
-// forward declarations
-class EventBookkeeperCollection;
-class EventBookkeeper;
-
-
 
 class CutFlowSvc :
   virtual public ICutFlowSvc,
@@ -61,23 +45,20 @@ class CutFlowSvc :
 {
 
 public:
-
-/// Constructor
+  /// Constructor
   CutFlowSvc(const std::string& name, ISvcLocator* pSvcLocator );
-
-  /// Destructor
-  virtual ~CutFlowSvc();
 
   /// Gaudi Service Implementation
   //@{
   virtual StatusCode initialize() override;
-  virtual StatusCode stop() override;
-  virtual StatusCode finalize() override;
   virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvi ) override;
+
+  /// Publish the interface for this service
+  static const InterfaceID& interfaceID();
   //@}
 
 
-  /// Incident service handle listening for BeginFile and EndFile.
+  /// Incident service handle listening for BeginInputFile, EndInputFile and MetaDataStop
   virtual void handle(const Incident& incident) override;
 
   ///////////////////////////////////////////////////////////////////
@@ -117,12 +98,6 @@ public:
   void setFilterDescription( CutIdentifier cutID,
                              const std::string& descr ) override final;
 
-  /// Tells CutFlowSvc to update the event counter of a CutIdentifier cutID,
-  /// using the CutIdentifier returned by selfRegisterFilter or registerCut
-  /// Internally, the Monte Carlo event weight will be retrieved from the
-  /// xAOD::EventInfo object as evtWeight = evtInfo->mcEventWeight();
-  void addEvent( CutIdentifier cutID ) override final;
-
   /// Tells CutFlowSvc to update the weighted event counter of a CutIdentifier cutID,
   /// using CutIdentifier returned by selfRegisterFilter or registerCut
   void addEvent( CutIdentifier cutID, double weight ) override final;
@@ -144,47 +119,32 @@ private:
   StatusCode recordCollection( xAOD::CutBookkeeperContainer* coll,
                                const std::string &collName );
 
-  /// Create a typedef
-  typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
-
   /// The output meta-data store
-  StoreGateSvc_t m_outMetaDataStore;
+  ServiceHandle<StoreGateSvc> m_outMetaDataStore{this, "OutputMetaDataStore", "StoreGateSvc/MetaDataStore", ""};
 
   /// The input meta-data store
-  StoreGateSvc_t m_inMetaDataStore;
-
-  /// The event store
-  StoreGateSvc_t m_eventStore;
+  ServiceHandle<StoreGateSvc> m_inMetaDataStore{this, "InputMetaDataStore", "StoreGateSvc/InputMetaDataStore", ""};
 
   /// The name of the completed, i.e., fully processed, CutBookkeeperContainer
-  std::string m_completeCollName;
-
-  /// The name of the incomplete, i.e., not fully processed (e.g. failed job), CutBookkeeperContainer
-  std::string m_incompleteCollName;
-
-  /// The current skimming cycle, i.e., how many processing stages we already had
-  int m_skimmingCycle;
+  Gaudi::Property<std::string> m_completeCollName{this, "OutputCollName", "CutBookkeepers", ""};
 
   /// The name of the container in storegate with cutflow values for a file. 
-  std::string m_fileCollName;
+  std::string m_fileCollName{"CutBookkeepersFile"};
+
+  /// The current skimming cycle, i.e., how many processing stages we already had
+  int m_skimmingCycle{};
 
   /// The name of the currently used input file stream
-  std::string m_inputStream;
+  Gaudi::Property<std::string> m_inputStream{this, "InputStream", "N/A", "The name of the input file stream"};
 
   /// Declare a simple typedef for the internal map
-  typedef MAP_NS::unordered_map<CutIdentifier, xAOD::CutBookkeeper*> CutIDMap_t;
+  typedef std::unordered_map<CutIdentifier, xAOD::CutBookkeeper*> CutIDMap_t;
 
   /// This internal map keeps the association between the instance identifier of each algorithm
   /// to the pointer of associated CutBookkeeper
   CutIDMap_t m_ebkMap;
 
   mutable std::recursive_mutex m_addeventMutex;
-
-public:
-
-  /// Publish the interface for this service
-  static const InterfaceID& interfaceID();
-
 };
 
 

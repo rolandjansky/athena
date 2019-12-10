@@ -18,9 +18,9 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "TrkParameters/TrackParameters.h"
+#include "TrkTrack/TrackCollection.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "StoreGate/ReadHandleKey.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "CommissionEvent/ComTime.h"
@@ -117,8 +117,6 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
 
 
  protected:
-  const ComTime *m_theComTime;
-  std::string m_comTimeObjectName;
   ServiceHandle<ITRT_CalDbSvc> m_trtcaldbSvc ;
  private:
 
@@ -143,7 +141,7 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   void SetMinWindow(TH1* h1, float min, float max);
 
   std::string m_stream{};
-  std::string m_tracksName{};
+  SG::ReadHandleKey<TrackCollection> m_tracksName{this, "tracksName", "ExtendedTracks"};
   std::string m_triggerChainName{};
   std::string m_Pixel_Manager{};
   std::string m_SCT_Manager{};
@@ -891,6 +889,7 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
 
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey
   { this, "EventInfoKey", "EventInfo", "" };
+  SG::ReadHandleKey<ComTime> m_comTimeObjectName{this, "ComTimeObjectName", "TRT_Phase"};
 };
 
 #endif

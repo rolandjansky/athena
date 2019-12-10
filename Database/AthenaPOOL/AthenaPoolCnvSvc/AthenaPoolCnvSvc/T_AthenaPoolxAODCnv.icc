@@ -9,6 +9,19 @@
  */
 
 
+#include "AthContainers/tools/copyThinned.h"
+#include "AthenaKernel/getThinningCache.h"
+
+
+namespace DMTest {
+class BAuxVec;
+}
+namespace SG {
+DMTest::BAuxVec* copyThinned (DMTest::BAuxVec& v,
+                              const SG::ThinningDecisionBase* dec);
+}
+
+
 /**
  * @brief Constructor.
  * @param svcLoc Gaudi service locator.
@@ -31,10 +44,11 @@ T_AthenaPoolxAODCnv<XAOD, TPCNVS...>::T_AthenaPoolxAODCnv( ISvcLocator* svcLoc )
 template <class XAOD, class ... TPCNVS>
 XAOD*
 T_AthenaPoolxAODCnv<XAOD, TPCNVS...>::createPersistentWithKey( XAOD* trans,
-                                                               const std::string& /*key*/)
+                                                               const std::string& key)
 {
   AthenaPoolCnvSvc::debugCreatePersistent (ClassID_traits<XAOD>::ID());
-  return new XAOD (*trans);
+  const SG::ThinningDecisionBase* dec = SG::getThinningDecision (key);
+  return SG::copyThinned (*trans, dec).release();
 }
 
 
@@ -58,7 +72,7 @@ T_AthenaPoolxAODCnv<XAOD, TPCNVS...>::createTransientWithKey (const std::string&
   }
   else {
     // Try a converter.
-    c = m_tpcnvs.createTransient (*this, this->msg());
+    c = m_tpcnvs.createTransient (*this, key, this->msg()).release();
   }
 
   if (c) {

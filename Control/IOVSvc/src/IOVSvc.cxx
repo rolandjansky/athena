@@ -72,6 +72,7 @@ IOVSvc::IOVSvc( const std::string& name, ISvcLocator* svc )
   declareProperty("preLoadRanges",m_preLoadRanges=false);
   declareProperty("preLoadData",m_preLoadData=false);
   declareProperty("partialPreLoadData",m_partialPreLoadData=true);
+  declareProperty("preLoadExtensibleFolders", m_preLoadExtensibleFolders=true);
   declareProperty("updateInterval", m_updateInterval="Event");
   declareProperty("sortKeys",m_sortKeys=true);
   declareProperty("forceResetAtBeginRun", m_forceReset=false);
@@ -126,7 +127,7 @@ StatusCode IOVSvc::finalize()
 /// Register a DataProxy with the service
 ///
 StatusCode 
-IOVSvc::regProxy( const DataProxy *proxy, const std::string& key,
+IOVSvc::regProxy( DataProxy *proxy, const std::string& key,
                   const std::string& storeName ) {
 
   std::lock_guard<std::recursive_mutex> lock(m_lock);
@@ -201,7 +202,7 @@ IOVSvc::regProxy( const CLID& clid, const std::string& key,
 /// Deregister a DataProxy with the service
 ///
 StatusCode 
-IOVSvc::deregProxy( const DataProxy *proxy ) {
+IOVSvc::deregProxy( DataProxy *proxy ) {
 
 
   std::lock_guard<std::recursive_mutex> lock(m_lock);
@@ -264,7 +265,7 @@ IOVSvc::ignoreProxy( const CLID& clid, const std::string& key,
 /// Replace a registered DataProxy with a new version
 ///
 StatusCode 
-IOVSvc::replaceProxy( const DataProxy* pOld, const DataProxy* pNew, 
+IOVSvc::replaceProxy( DataProxy* pOld, DataProxy* pNew, 
                       const std::string& storeName ) {
 
   StatusCode sc(StatusCode::FAILURE);
@@ -636,7 +637,7 @@ IOVSvc::getTool( const std::string& storeName, bool createIF ) {
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 IIOVSvcTool* 
-IOVSvc::getTool( const DataProxy* proxy ) const {
+IOVSvc::getTool( DataProxy* proxy ) const {
 
 
   IIOVSvcTool *ist(0);

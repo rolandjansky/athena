@@ -26,13 +26,8 @@ if 'doIDNewTracking' in dir() and doIDNewTracking==True:
 rBperf=False
 if 'doBperf' in dir() and doBperf==True:
   rBperf = True
-rFTK=False
-if 'doFTK' in dir() and doFTK==True:
-  from TriggerJobOpts.TriggerFlags import TriggerFlags
-  TriggerFlags.doFTK=True
-  rFTK=True
 
-(idtrigChainlist, tidaAnalysischains) = bjetChains(rID,rFTK,rBperf)
+(idtrigChainlist, tidaAnalysischains) = bjetChains(rID,rBperf)
 
 
 def resetSigs():
@@ -92,7 +87,7 @@ if 'bjetDynamicEtFactor' in dir():
 print theSuperRoi
 
 if 'splitZHalfWidth' in dir() :
-  from TrigBjetHypo.TrigJetSplitterAllTEConfig import getJetSplitterAllTEInstance, getJetSplitterFTKAllTEInstance
+  from TrigBjetHypo.TrigJetSplitterAllTEConfig import getJetSplitterAllTEInstance
   theJetSplit=getJetSplitterAllTEInstance()
 
 # Vary z half-width of RoIs used for b-tagging.  Suggest zHalfWidth = 20, 15, 10, 9, 8, 7, 6, 5 mm

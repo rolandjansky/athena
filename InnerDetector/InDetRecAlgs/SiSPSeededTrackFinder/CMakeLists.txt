@@ -16,6 +16,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkDetDescr/TrkSurfaces
                           Tracking/TrkEvent/TrkSpacePoint
                           Tracking/TrkEvent/TrkTrack
+                          Tracking/TrkEvent/TrkEventUtils
+                          Tracking/TrkTools/TrkToolInterfaces
                           Tracking/TrkExtrapolation/TrkExInterfaces
                           PRIVATE
                           Control/CxxUtils
@@ -28,7 +30,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( SiSPSeededTrackFinder
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps StoreGateLib SGtests GaudiKernel InDetRecToolInterfaces TrkGeometry TrkSurfaces TrkSpacePoint TrkTrack TrkExInterfaces CxxUtils xAODEventInfo SiSPSeededTrackFinderData TrkPatternParameters TrkRIO_OnTrack )
+                     LINK_LIBRARIES AthenaBaseComps StoreGateLib SGtests GaudiKernel InDetRecToolInterfaces TrkGeometry TrkSurfaces TrkSpacePoint TrkTrack TrkExInterfaces CxxUtils xAODEventInfo SiSPSeededTrackFinderData TrkPatternParameters TrkRIO_OnTrack TrkEventUtils TrkToolInterfaces)
 
 # Run tests:
 atlas_add_test( SiSPSeededTracksStandalone

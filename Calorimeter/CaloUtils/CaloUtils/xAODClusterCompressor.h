@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -15,7 +15,9 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCore/tools/FloatCompressor.h"
 
-class xAODClusterCompressor : 
+#include "CxxUtils/checker_macros.h"
+
+class ATLAS_CHECK_THREAD_SAFETY xAODClusterCompressor : 
   virtual public IxAODClusterCompressor, public AthService { 
   
  protected:   
@@ -34,10 +36,10 @@ class xAODClusterCompressor :
   virtual StatusCode  initialize() override;
   static const InterfaceID& interfaceID() { return IID_IxAODClusterCompressor;}
 
-  void compress(xAOD::CaloClusterContainer* clustercontainer) const;
+  virtual void compress(xAOD::CaloClusterContainer* clustercontainer) const override;
   
  virtual StatusCode queryInterface( const InterfaceID& riid, 
-				    void** ppvInterface );
+				    void** ppvInterface ) override;
 
   //List of all moments
   typedef std::array< xAOD::CaloCluster::MomentType,60> momentList_t;

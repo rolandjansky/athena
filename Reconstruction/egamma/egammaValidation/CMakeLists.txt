@@ -20,7 +20,6 @@ atlas_depends_on_subdirs( PRIVATE
         PhysicsAnalysis/AnalysisCommon/PATCore
 	PhysicsAnalysis/MCTruthClassifier
 	PhysicsAnalysis/IsolationSelection
-	TestPolicy 
 	Tracking/TrkValidation/TrkValHistUtils ) 
 
 # add the Module/component library :

@@ -7,13 +7,10 @@
 from __future__ import print_function
 
 ### data
-__version__ = "$Revision: 1.6 $"
 __author__  = """
 Wim Lavrijsen (WLavrijsen@lbl.gov),
 Sebastien Binet (binet@cern.ch)
 """
-
-from PyUtils.Decorators import memoize
 
 ### pythonizations for StoreGateSvc
 def _setup():
@@ -24,7 +21,7 @@ def _setup():
     cppyy.loadDictionary( "libStoreGateBindings" ) # not linked from libStoreGateBindingsDict in ROOT6
 
     # make sure the global C++ namespace has been created
-    gbl = cppyy.makeNamespace('')
+    gbl = cppyy.makeNamespace('')  # noqa: F841
     _ath= cppyy.makeNamespace('AthenaInternal')
 
     # ROOT6 workaround, kick the loading of headers
@@ -68,6 +65,7 @@ def _setup():
     # add specialized contains method
     def contains( self, klass_or_clid, key ):
         print ("---- StoreGateSvc.contains() ",  klass_or_clid, key)
+        from builtins import int
         if isinstance(klass_or_clid, str):
             try:
                 clid = int(klass_or_clid)
@@ -75,7 +73,7 @@ def _setup():
             except ValueError:
                 klass = str(klass_or_clid)
                 pass
-        elif isinstance(klass_or_clid, (int, long)):
+        elif isinstance(klass_or_clid, int):
             klass = self._pyclidsvc.typename(klass_or_clid)
         elif isinstance(klass_or_clid, type):
             klass = klass_or_clid.__name__

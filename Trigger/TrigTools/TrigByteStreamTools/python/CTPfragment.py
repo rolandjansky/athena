@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """
 Minimal python module for CTP fragment access/modification
@@ -18,7 +18,6 @@ cppyy.loadDictionary('TrigByteStreamToolsDict')
 cppyy.loadDictionary('CTPfragment')
 from ROOT import CTPdataformat
 from ROOT import CTPfragment as _CTPfragment
-from ROOT.CTPfragment import getFolderUpdates
 
 # Import classes from C++ namespace
 FolderEntry = _CTPfragment.FolderEntry
@@ -30,7 +29,8 @@ def _versioned(obj, name, version):
    v = version
    while v>=0:   # decrement version until found
       attr = '%s_v%d' % (name, v)
-      if hasattr(obj,attr): break
+      if hasattr(obj,attr):
+         break
       v -= 1
    return getattr(obj,attr) 
 
@@ -42,9 +42,10 @@ def _setBits32(bitset, value, shift, mask):
 
 def decodeTriggerBits(info):
    """Return list of bits [0,1,1,0,...] from list of 32-bit trigger words"""
-   if type(info)==int: info=[info]
+   if type(info)==int:
+      info=[info]
    bits=[]
-   cnt=0;
+   cnt=0
    for word in info:
       for i in range(32):
          if word&(1<<i):
@@ -85,8 +86,8 @@ def lumiBlock(rob):
    return (rob.rod_detev_type() >> CTPdataformat.LumiBlockShift & CTPdataformat.LumiBlockMask)
 
 def setLumiBlock(rob, lb):
-   l = _setBits32(rob.rod_detev_type(), lb, CTPdataformat.LumiBlockShift, CTPdataformat.LumiBlockMask)
-   rob.rod_detev_type(l)
+   lbits = _setBits32(rob.rod_detev_type(), lb, CTPdataformat.LumiBlockShift, CTPdataformat.LumiBlockMask)
+   rob.rod_detev_type(lbits)
 
 def numberExtraPayloadWords(rob):
    """Number extra payload words (this includes the time since last L1A)"""
@@ -104,7 +105,8 @@ def numberHltExtraPayloadWords(rob):
 def hltExtraPayloadWords(rob):
    n = numberHltExtraPayloadWords(rob)
    offset = 0
-   if ctpFormatVersion(rob)>=3: offset = 1  # for turn counter
+   if ctpFormatVersion(rob)>=3:
+      offset = 1  # for turn counter
    return rob.rod_data()[-numberHltExtraPayloadWords(rob)+offset:] if n>0 else []
 
 def getExtraPayloadObject(rob):
@@ -123,7 +125,8 @@ def setHltExtraPayloadWords(rob, extraWords):
    # Copy ROD data, except extra words
    data = [d for d in wrob.rod_data()]
    n = numberHltExtraPayloadWords(rob)   
-   if n>0: data = data[:-n]
+   if n>0:
+      data = data[:-n]
    # Append new extra words and set in ROB
    v = ctpFormatVersion(wrob)
    if v<2:
@@ -134,7 +137,8 @@ def setHltExtraPayloadWords(rob, extraWords):
    
    # Set new payload length (including words reserved by CTP)
    ctp_extras = 1           # time since last L1A
-   if v>=3: ctp_extras = 2  # turn counter
+   if v>=3:
+      ctp_extras = 2  # turn counter
    V = _setBits32(wrob.rod_minor_version(), len(extraWords)+ctp_extras,
                   _versioned(CTPdataformat,'ProgrammableExtraWordsShift',v),
                   _versioned(CTPdataformat,'ProgrammableExtraWordsMask',v))
@@ -162,7 +166,8 @@ def getTriggerWords(rob,name='TAV'):
    # No TAP in RoI ROB
    if v>4 and rob.source_id().module_id()==1:
       pos = _versioned(CTPdataformat,name+'pos',5)
-      if name=='TAP': return []
+      if name=='TAP':
+         return []
 
    l1abunch = 0 if rob.source_id().module_id()==1 else lvl1AcceptBunch(rob)
    
@@ -188,12 +193,12 @@ def main():
       return 1
 
    for event in eformat.istream(args[0]):
-      ctp_robs = [rob for rob in event.children() \
-                     if rob.source_id().subdetector_id() == eformat.helper.SubDetector.TDAQ_CTP \
-                     and rob.source_id().module_id() == opt.moduleid]
+      ctp_robs = [rob for rob in event.children()
+                  if rob.source_id().subdetector_id() == eformat.helper.SubDetector.TDAQ_CTP
+                  and rob.source_id().module_id() == opt.moduleid]
 
       if len(ctp_robs)==0:
-         print "Cannot find CTP ROB with module ID %d" % opt.moduleid
+         print("Cannot find CTP ROB with module ID %d" % opt.moduleid)
          continue
 
       rob = ctp_robs[0]
@@ -230,7 +235,7 @@ def main():
       for f in folderUpdates:
          upd += ('[%d,%d]' % (f.second.folderIndex,f.second.lumiBlock))
 
-      print "L1ID %10d, LB %4d, Version %d, Bunch %d, HLT counter: %3d, Payload #%d %s L1PSK %d BGK %d COOLUPD %s" % (
+      print("L1ID %10d, LB %4d, Version %d, Bunch %d, HLT counter: %3d, Payload #%d %s L1PSK %d BGK %d COOLUPD %s" % (
          event.lvl1_id(),
          event.lumi_block(),
          ctpFormatVersion(rob),
@@ -241,7 +246,7 @@ def main():
          x.getL1PSK(),
          x.getBGK(),
          upd
-         )
+      ))
 
 if __name__ == "__main__":
   sys.exit(main())

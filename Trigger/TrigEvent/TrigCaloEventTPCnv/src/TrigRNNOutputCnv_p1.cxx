@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigCaloEvent/TrigRNNOutput.h"
@@ -13,7 +13,7 @@
 
 void TrigRNNOutputCnv_p1::transToPers(const TrigRNNOutput *trans, 
                                     TrigRNNOutput_p1 *pers,
-				    MsgStream &log) {
+				    MsgStream &log) const {
 
   log << MSG::DEBUG << "TrigRNNOutputCnv_p1::tranToPers" << endmsg;
   
@@ -30,7 +30,7 @@ void TrigRNNOutputCnv_p1::transToPers(const TrigRNNOutput *trans,
 
 void TrigRNNOutputCnv_p1::persToTrans(const TrigRNNOutput_p1 *pers, 
                                     TrigRNNOutput *trans,
-				    MsgStream &log) {
+				    MsgStream &log) const {
 
   log << MSG::DEBUG << "TrigRNNOutputCnv_p1::persToTrans" << endmsg;
 

@@ -153,8 +153,6 @@ febSummaryMaker.CheckAllFEB=False
 #    "lowNoiseLG","highNoiseLG","unstableNoiseLG"
 #    ]
 #ToolSvc+=theLArRCBMasker
-#from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-#ToolSvc+=LArBadChanTool()
 #theLArRawChannelBuilderToolBadChannel.BadChannelMask=theLArRCBMasker
 #theLArRawChannelBuilder.BuilderTools += [theLArRawChannelBuilderToolBadChannel,]#[theLArRawChannelBuilderToolBadChannel.getFullName()]
 #ToolSvc+=theLArRawChannelBuilderToolBadChannel

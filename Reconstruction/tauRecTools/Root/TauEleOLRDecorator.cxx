@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -11,7 +11,6 @@
 
 #include "tauRecTools/TauEleOLRDecorator.h"
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
-#include "CxxUtils/make_unique.h"
 #include "TFile.h"
 
 TauEleOLRDecorator::TauEleOLRDecorator(const std::string& name):
@@ -49,7 +48,7 @@ StatusCode TauEleOLRDecorator::initialize()
   ATH_CHECK( m_electronInputContainer.initialize() );
 
   std::string confDir = "ElectronPhotonSelectorTools/offline/mc15_20150712/";
-  m_tEMLHTool = CxxUtils::make_unique<AsgElectronLikelihoodTool>(name()+"_ELHTool");
+  m_tEMLHTool = std::make_unique<AsgElectronLikelihoodTool>(name()+"_ELHTool");
   m_tEMLHTool->msg().setLevel( msg().level() );
   if (m_tEMLHTool->setProperty("primaryVertexContainer","PrimaryVertices").isFailure())
     {

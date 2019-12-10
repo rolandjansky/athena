@@ -958,7 +958,6 @@ if doTileWiener and tileRawChannelBuilderWienerFilter:
         if TileCompareMode or TileEmulateDSP:
             tileRawChannelBuilderWienerFilter.EmulateDSP = True # use dsp emulation
     tileRawChannelBuilderWienerFilter.UseDSPCorrection = not TileBiGainRun
-    tileRawChannelBuilderWienerFilter.OutputLevel = 1
 
     print tileRawChannelBuilderWienerFilter
 

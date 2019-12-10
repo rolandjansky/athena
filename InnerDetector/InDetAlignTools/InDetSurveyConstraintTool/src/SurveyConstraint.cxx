@@ -26,9 +26,8 @@
 #include "InDetAlignGenTools/IInDetAlignDBTool.h"
 #include "GaudiKernel/IRndmGenSvc.h"
 #include "GaudiKernel/RndmGenerators.h"
-// CLHEP includes
 
-
+#include <cmath>
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -1081,12 +1080,12 @@ int SurveyConstraint::SectorNumber(int phi_module) {
 
 
 double SurveyConstraint::PhiModuleToSector(int phi_module) {
-  if(phi_module%6 == 0) return ( 7.5 - 26.25) * (3.14159265/180.);
-  if(phi_module%6 == 1) return (15   - 26.25) * (3.14159265/180.);
-  if(phi_module%6 == 2) return (22.5 - 26.25) * (3.14159265/180.);
-  if(phi_module%6 == 3) return (30   - 26.25) * (3.14159265/180.);
-  if(phi_module%6 == 4) return (37.5 - 26.25) * (3.14159265/180.);
-  if(phi_module%6 == 5) return (45   - 26.25) * (3.14159265/180.);
+  if(phi_module%6 == 0) return ( 7.5 - 26.25) * (M_PI/180.);
+  if(phi_module%6 == 1) return (15   - 26.25) * (M_PI/180.);
+  if(phi_module%6 == 2) return (22.5 - 26.25) * (M_PI/180.);
+  if(phi_module%6 == 3) return (30   - 26.25) * (M_PI/180.);
+  if(phi_module%6 == 4) return (37.5 - 26.25) * (M_PI/180.);
+  if(phi_module%6 == 5) return (45   - 26.25) * (M_PI/180.);
   return -1;
 }
 

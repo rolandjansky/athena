@@ -12,26 +12,41 @@ namespace InDetDD {
   // Inline methods:
   ///////////////////////////////////////////////////////////////////
     
-  inline Identifier SiDetectorElement::identify() const
+  inline void SiDetectorElement::invalidate()
   {
-    return m_id;
+    m_cacheValid = false;
   }
-    
-  inline IdentifierHash SiDetectorElement::identifyHash() const
+
+  inline void SiDetectorElement::setCache()
   {
-    return m_idHash;
+    updateCache();
   }
-        
-  inline const AtlasDetectorID* SiDetectorElement::getIdHelper() const
+
+  inline void SiDetectorElement::setNextInEta(const SiDetectorElement* element)
   {
-    return m_commonItems->getIdHelper();
+    m_nextInEta = element;
   }
-    
-  inline bool SiDetectorElement::isEndcap() const
+
+  inline void SiDetectorElement::setPrevInEta(const SiDetectorElement* element)
   {
-    return (!isBarrel()&&!isDBM());
+    m_prevInEta = element;
   }
-    
+
+  inline void SiDetectorElement::setNextInPhi(const SiDetectorElement* element)
+  {
+    m_nextInPhi = element;
+  }
+
+  inline void SiDetectorElement::setPrevInPhi(const SiDetectorElement* element)
+  {
+    m_prevInPhi = element;
+  }
+
+  inline void SiDetectorElement::setOtherSide(const SiDetectorElement* element) // For SCT only
+  {
+    m_otherSide = element;
+  }
+
   inline const SiDetectorElement * SiDetectorElement::nextInEta() const
   {
     return m_nextInEta;
@@ -57,6 +72,41 @@ namespace InDetDD {
     return m_otherSide;
   }
     
+  inline const SiCommonItems* SiDetectorElement::getCommonItems() const
+  {
+    return m_commonItems;
+  }
+
+  inline Identifier SiDetectorElement::identify() const
+  {
+    return m_id;
+  }
+
+  inline IdentifierHash SiDetectorElement::identifyHash() const
+  {
+    return m_idHash;
+  }
+
+  inline const AtlasDetectorID* SiDetectorElement::getIdHelper() const
+  {
+    return m_commonItems->getIdHelper();
+  }
+
+  inline bool SiDetectorElement::isEndcap() const
+  {
+    return (!isBarrel() && !isDBM());
+  }
+
+  inline const Trk::Surface& SiDetectorElement::surface(const Identifier&) const
+  {
+    return surface();
+  }
+
+  inline const Amg::Transform3D& SiDetectorElement::transform(const Identifier&) const
+  {
+    return transform();
+  }
+
   inline double SiDetectorElement::hitDepthDirection() const
   {
     if (!m_cacheValid) {
@@ -87,6 +137,16 @@ namespace InDetDD {
     return (m_etaDirection) ? 1. : -1.;
   }
     
+  inline const Amg::Vector3D& SiDetectorElement::normal(const Identifier&) const
+  {
+    return normal();
+  }
+
+  inline const Amg::Vector3D& SiDetectorElement::center(const Identifier&) const
+  {
+    return center();
+  }
+
   inline HepGeom::Point3D<double> SiDetectorElement::globalPositionHit(const HepGeom::Point3D<double>& simulationLocalPos) const
   {
     return Amg::EigenTransformToCLHEP(transformHit())*simulationLocalPos;
@@ -214,6 +274,11 @@ namespace InDetDD {
     return *m_design;
   }
     
+  inline const Trk::SurfaceBounds& SiDetectorElement::bounds(const Identifier&) const
+  {
+    return bounds();
+  }
+
   inline double SiDetectorElement::width() const
   {
     return m_design->width();
@@ -239,11 +304,6 @@ namespace InDetDD {
     return m_design->thickness();
   }
     
-  inline InDetDD::CarrierType SiDetectorElement::carrierType() const
-  {
-    return m_design->carrierType();
-  }
-    
   inline double SiDetectorElement::etaPitch() const
   {
     return m_design->etaPitch();
@@ -259,6 +319,11 @@ namespace InDetDD {
     return m_design->phiPitch(localPosition);
   }
     
+  inline InDetDD::CarrierType SiDetectorElement::carrierType() const
+  {
+    return m_design->carrierType();
+  }
+
   inline bool SiDetectorElement::swapPhiReadoutDirection() const
   {
     if (m_firstTime) {
@@ -286,71 +351,6 @@ namespace InDetDD {
     return m_design->gangedCell(cellId);
   }
     
-  inline void SiDetectorElement::invalidate()
-  {
-    m_cacheValid = false;
-  }
-    
-  inline void SiDetectorElement::setCache()
-  {
-    updateCache();
-  } 
-    
-  inline const Amg::Transform3D& SiDetectorElement::transform(const Identifier&) const
-  {
-    return transform();
-  }
-
-  inline const Trk::Surface& SiDetectorElement::surface(const Identifier&) const
-  {
-    return surface();
-  }
-
-  inline const Amg::Vector3D& SiDetectorElement::center(const Identifier&) const
-  {
-    return center();
-  }
-
-  inline const Amg::Vector3D& SiDetectorElement::normal(const Identifier&) const
-  {
-    return normal();
-  }
-
-  inline const Trk::SurfaceBounds& SiDetectorElement::bounds(const Identifier&) const
-  {
-    return bounds();
-  }
-
-  inline void SiDetectorElement::setNextInEta(const SiDetectorElement* element)
-  {
-    m_nextInEta = element;
-  }
-    
-  inline void SiDetectorElement::setPrevInEta(const SiDetectorElement* element)
-  {
-    m_prevInEta = element;
-  }
-    
-  inline void SiDetectorElement::setNextInPhi(const SiDetectorElement* element)
-  {
-    m_nextInPhi = element;
-  }
-    
-  inline void SiDetectorElement::setPrevInPhi(const SiDetectorElement* element)
-  {
-    m_prevInPhi = element;
-  }
-    
-  inline void SiDetectorElement::setOtherSide(const SiDetectorElement* element) // For SCT only
-  {
-    m_otherSide = element;
-  }
-
-  inline const SiCommonItems* SiDetectorElement::getCommonItems() const
-  {
-    return m_commonItems;
-  }
-
   inline MsgStream& SiDetectorElement::msg(MSG::Level lvl) const
   {
     return m_commonItems->msg(lvl);

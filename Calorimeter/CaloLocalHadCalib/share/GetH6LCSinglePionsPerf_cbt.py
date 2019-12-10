@@ -147,17 +147,6 @@ if doTopoClusterAgain:
       print "Removing: ",x," from CaloTopoCluster.ClusterCorrectionTools" 
   topSequence.CaloTopoCluster.ClusterCorrectionTools = tlist
 
-  #from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-  #ToolSvc+=LArBadChanTool()
-
-  #ToolSvc.LArBadChanTool.ReadFromASCII = True 
-  #ToolSvc.LArBadChanTool.CoolFolder = ""
-  #ToolSvc.LArBadChanTool.ComplementaryCoolFolder = ""
-  #ToolSvc.LArBadChanTool.CoolMissingFEBsFolder = ""
-  #ToolSvc.LArBadChanTool.WriteEmptyFolders = True
-  #ToolSvc.LArBadChanTool.FCALAfile = "H6BadChannels.txt"
-  #ToolSvc.LArBadChanTool.HECAfile = "H6BadChannels.txt"
-  #ToolSvc.LArBadChanTool.EMECAfile = "H6BadChannels.txt"
   ## and removing TileBadChanTool
   #ToolSvc.remove("TileBadChanTool/TileBadChanTool")
 

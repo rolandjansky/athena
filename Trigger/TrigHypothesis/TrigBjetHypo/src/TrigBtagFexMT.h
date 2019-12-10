@@ -96,7 +96,7 @@ class TrigBtagFexMT: public AthAlgorithm {
   //  SG::ReadHandleKey< xAOD::VertexContainer > m_BackUpVertexContainerKey {this,"PriVtxKeyBackup","EFHistoPrmVtx","Back-Up Key of primary vertexes"};
   SG::ReadHandleKey< xAOD::TrackParticleContainer > m_trkContainerKey {this,"TracksKey","tracks__COLL","Key for track particle container"};
 
-  //  SG::WriteHandleKey< xAOD::BTaggingContainer > m_outputBTaggingContainerKey {this,"OutputBTagKey","HLTBjetFex","Output Btagging Container Key"};
+  SG::WriteHandleKey< xAOD::BTaggingContainer > m_outputBTaggingContainerKey {this,"OutputBTagging","Undefined","Output Btagging Container Key"};
   //  SG::WriteHandleKey< xAOD::VertexContainer > m_outputVertexContainerKey {this,"OutputVtxKey","HLT_BjetVertexFex","Output Vertex Container Key"};
   //  SG::WriteHandleKey< xAOD::BTagVertexContainer > m_outputBtagVertexContainerKey {this,"OutputBtagVtxKey","HLT_BjetSecondaryVertexFex","Output Btag Vertex Container Key"};
 };

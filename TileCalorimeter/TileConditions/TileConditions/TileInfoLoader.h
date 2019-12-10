@@ -42,6 +42,7 @@
 #include <string>
 
 class TilePulseShapes;
+class TileWienerFilterWeights;
 class StoreGateSvc;
 class TileCablingSvc;
 template<class TYPE> class SvcFactory;
@@ -115,7 +116,13 @@ private:
     double m_emscaleMBTS[3]; //!< 1/sampling fraction for inner/outer MBTS and also for E4'
     int    m_nPhElec;
     int    m_nPhElecVec[7];
+    int    m_ADCmax;
+    int    m_ADCmaskValue;
+    
 
+
+    /** Pointer to Wiener Filtering weights*/
+    TileWienerFilterWeights* m_WFWeights;
 
     /** Filenames of input files */
     std::string m_digitsShapeFileHi;
@@ -124,6 +131,8 @@ private:
     std::string m_MuRcvShapeFile;
     std::string m_MuL1ShapeFile;
     std::string m_DecoCovaFilePrefix;
+
+    bool m_loadWienerFilterWeights;
 
     // name of TileCalibContainer in detector store
     std::string m_calibCntName;

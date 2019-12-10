@@ -115,6 +115,7 @@ namespace Trk
       m_useTrackSummaryTool (true),
       m_useMuonSummaryTool  (false),
       m_forceTrackSummaryUpdate (false),
+      m_computeAdditionalInfo (false),
       m_keepParameters      (false),
       m_keepFirstParameters(false),
       m_keepAllPerigee      (false),
@@ -124,6 +125,8 @@ namespace Trk
       declareProperty("TrackSummaryTool",       m_trackSummaryTool );
       declareProperty("MuonSummaryTool",       m_hitSummaryTool );
       declareProperty("ForceTrackSummaryUpdate",  m_forceTrackSummaryUpdate );
+      declareProperty("ComputeAdditionalInfo",  m_computeAdditionalInfo);
+      declareProperty("UpdateTrack",  m_updateTrack=true );
       declareProperty("Extrapolator",   m_extrapolator );
       declareProperty("TrackToVertex",            m_trackToVertex );
       declareProperty("MagFieldSvc",              m_magFieldSvc);
@@ -386,6 +389,9 @@ namespace Trk
         summary.reset(new Trk::TrackSummary);
       }
     }
+    if (m_forceTrackSummaryUpdate || m_updateTrack) {
+       ATH_MSG_WARNING("Updating tracks violates const-ness and is most likely not thread safe!");
+    }
 
     // find the first and the last hit in track
     // we do that the same way as in the track slimming tool!
@@ -480,7 +486,8 @@ namespace Trk
   xAOD::TrackParticle* TrackParticleCreatorTool::createParticle( const Trk::Track& track,
                                                                  xAOD::TrackParticleContainer* container,
                                                                  const xAOD::Vertex* vxCandidate,
-                                                                 xAOD::ParticleHypothesis prtOrigin) const {
+                                                                 xAOD::ParticleHypothesis prtOrigin,
+                                                                 const Trk::PRDtoTrackMap *prd_to_track_map) const {
     const Trk::Perigee* aPer = nullptr;
     const Trk::TrackParameters* parsToBeDeleted = nullptr;
     // the default way; I left it as it was because it is working fine!!
@@ -535,19 +542,31 @@ namespace Trk
         aPer = result; 
       }
     }
-    std::unique_ptr<const Trk::TrackSummary> cleanup_summary;
-    const Trk::TrackSummary *summary=cleanup_summary.get();
+    std::unique_ptr<Trk::TrackSummary> cleanup_summary;
+    const Trk::TrackSummary *summary=track.trackSummary();
     if (m_trackSummaryTool.get() != nullptr) {
-      if (m_forceTrackSummaryUpdate){
-        // Do we really need to update const Trk::Track& track?
-        Trk::Track& nonConstTrack = const_cast<Trk::Track&>(track);
-        m_trackSummaryTool->updateTrack(nonConstTrack);
+      if (m_updateTrack) {
+          if (m_forceTrackSummaryUpdate || !track.trackSummary()){
+             // Do we really need to update const Trk::Track& track?
+             Trk::Track& nonConstTrack = const_cast<Trk::Track&>(track);
+             m_trackSummaryTool->updateTrack(nonConstTrack); // @TODO will not take PRD-to-track map into account.
+          }
+          summary=track.trackSummary();
       }
-      cleanup_summary.reset( m_trackSummaryTool->createSummary(track));
-      summary = cleanup_summary.get();
+      else if (!track.trackSummary()) {
+         cleanup_summary = m_trackSummaryTool->summary(track, prd_to_track_map);
+         summary=cleanup_summary.get();
+      }
+      else if (m_computeAdditionalInfo) {
+          cleanup_summary = std::make_unique<Trk::TrackSummary>(*track.trackSummary());
+          m_trackSummaryTool->updateAdditionalInfo(track, prd_to_track_map,*cleanup_summary);
+          summary = cleanup_summary.get();
+      }
     }else{
       ATH_MSG_VERBOSE ("No proper TrackSummaryTool found. Creating TrackParticle with a TrackSummary on track");
-      summary = track.trackSummary();
+    }
+    if (!summary) {
+      ATH_MSG_WARNING ("Track particle created for a track without a track summary");
     }
 
     // find the first and the last hit in track
@@ -816,9 +835,10 @@ namespace Trk
   xAOD::TrackParticle* TrackParticleCreatorTool::createParticle( const ElementLink<TrackCollection>& trackLink,
                                                                  xAOD::TrackParticleContainer* container,
                                                                  const xAOD::Vertex* vxCandidate,
-                                                                 xAOD::ParticleHypothesis prtOrigin) const {
+                                                                 xAOD::ParticleHypothesis prtOrigin,
+                                                                 const Trk::PRDtoTrackMap *prd_to_track_map) const {
    
-    xAOD::TrackParticle* trackparticle = createParticle( **trackLink, container, vxCandidate, prtOrigin );
+    xAOD::TrackParticle* trackparticle = createParticle( **trackLink, container, vxCandidate, prtOrigin, prd_to_track_map );
  
     if (!trackparticle){
       ATH_MSG_WARNING( "WARNING: Problem creating TrackParticle - Returning 0");

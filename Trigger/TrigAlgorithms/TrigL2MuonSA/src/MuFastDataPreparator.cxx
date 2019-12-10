@@ -6,8 +6,6 @@
 
 #include "CLHEP/Units/PhysicalConstants.h"
 
-#include "MuonContainerManager/MuonRdoContainerAccess.h"
-
 #include "Identifier/IdentifierHash.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonIdHelpers/MdtIdHelper.h"
@@ -41,12 +39,8 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::initialize()
 
    ATH_CHECK( m_recRPCRoiSvc.retrieve() );
    ATH_MSG_INFO("Retrieved Service " << m_recRPCRoiSvc);
-   
-   // retrieve the ID helper and the region selector
-   const MuonGM::MuonDetectorManager* muonMgr;
-   ATH_CHECK( detStore()->retrieve( muonMgr,"Muon" ) );
-   ATH_MSG_DEBUG("Retrieved GeoModel from DetectorStore.");
-   m_mdtIdHelper = muonMgr->mdtIdHelper();
+
+   ATH_CHECK( m_muonIdHelperTool.retrieve() );
   
    ATH_CHECK( m_regionSelector.retrieve() );
    ATH_MSG_DEBUG("Retrieved the RegionSelector service ");
@@ -75,8 +69,8 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::initialize()
    ATH_MSG_DEBUG("Retrieved service " << m_rpcPatFinder);
 
    // set the geometry tools
-   m_rpcRoadDefiner->setMdtGeometry(m_regionSelector,m_mdtIdHelper);
-   m_tgcRoadDefiner->setMdtGeometry(m_regionSelector,m_mdtIdHelper);
+   m_rpcRoadDefiner->setMdtGeometry(m_regionSelector,m_muonIdHelperTool.get());
+   m_tgcRoadDefiner->setMdtGeometry(m_regionSelector,m_muonIdHelperTool.get());
 
    // 
    return StatusCode::SUCCESS; 

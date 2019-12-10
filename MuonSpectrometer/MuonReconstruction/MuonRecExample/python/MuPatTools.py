@@ -23,6 +23,7 @@ from MuonStandaloneFlags import muonStandaloneFlags
 from MuonRecUtils import logMuon,ConfiguredBase
 
 from AthenaCommon.CfgGetter import getPrivateTool,getPrivateToolClone,getPublicTool,getPublicToolClone,getService,getServiceClone
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 #==============================================================
 
@@ -34,9 +35,9 @@ class MuPatCandidateTool(CfgMgr.Muon__MuPatCandidateTool,ConfiguredBase):
 
     def __init__(self,name='MuPatCandidateTool',**kwargs):
         self.applyUserDefaults(kwargs,name)
-        super(MuPatCandidateTool,self).__init__(name,**kwargs)
-MuPatCandidateTool.setDefaultProperties( SegmentExtender = "" )
-        
+        if not MuonGeometryFlags.hasCSC():
+            kwargs["CscRotCreator"] = ""
+        super(MuPatCandidateTool,self).__init__(name,**kwargs)        
 
 
 class MuPatHitTool(CfgMgr.Muon__MuPatHitTool,ConfiguredBase):
@@ -46,13 +47,13 @@ class MuPatHitTool(CfgMgr.Muon__MuPatHitTool,ConfiguredBase):
         self.applyUserDefaults(kwargs,name)
         if not muonRecFlags.doCSCs():
             # overwrite whatever is set
-            kwargs["CscRotCreator"] = None
+            kwargs["CscRotCreator"] = ""
         super(MuPatHitTool,self).__init__(name,**kwargs)
         getPublicTool("ResidualPullCalculator")
 
 
 MuPatHitTool.setDefaultProperties(
-    CscRotCreator = "FixedErrorMuonClusterOnTrackCreator" ,
+    CscRotCreator = ("FixedErrorMuonClusterOnTrackCreator" if MuonGeometryFlags.hasCSC() else ""),
     MdtRotCreator = "MdtDriftCircleOnTrackCreatorPreFit" )
 # end of class MuPatHitTool
 

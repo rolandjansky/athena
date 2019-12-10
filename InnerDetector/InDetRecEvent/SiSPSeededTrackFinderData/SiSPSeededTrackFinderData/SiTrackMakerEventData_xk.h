@@ -50,7 +50,11 @@ namespace InDet {
     std::array<double, 2>& xybeam();
     SeedToTrackConversionData& conversionData();
     SiCombinatorialTrackFinderData_xk& combinatorialData();
-    
+
+  protected:
+    virtual void dummy() = 0; // make sure this cannot be instantiated (for testing)
+    void setPRDtoTrackMap(const Trk::PRDtoTrackMap* prd_to_track_map) { m_combinatorialData.setPRDtoTrackMap(prd_to_track_map); }
+
   private:
     // Counters
     int m_inputseeds{0}; // Number input seeds
@@ -82,9 +86,19 @@ namespace InDet {
 
     // SeedToTrackConversionData to hold the event dependent data of SeedToTrackConversionTool.
     SeedToTrackConversionData m_conversionData;
+    class ExtendedSiCombinatorialTrackFinderData_xk : public SiCombinatorialTrackFinderData_xk {
+    public:
+      ExtendedSiCombinatorialTrackFinderData_xk() {};
+
+      void setPRDtoTrackMap(const Trk::PRDtoTrackMap *prd_to_track_map) {
+        SiCombinatorialTrackFinderData_xk::setPRDtoTrackMap(prd_to_track_map);
+      }
+    protected:
+      void dummy() override {}
+    };
 
     // SiCombinatorialTrackFinderData_xk to hold the event dependent data of SiCombinatorialTrackFinder_xk.
-    SiCombinatorialTrackFinderData_xk m_combinatorialData;
+    ExtendedSiCombinatorialTrackFinderData_xk m_combinatorialData;
   };
 
 } // end of name space

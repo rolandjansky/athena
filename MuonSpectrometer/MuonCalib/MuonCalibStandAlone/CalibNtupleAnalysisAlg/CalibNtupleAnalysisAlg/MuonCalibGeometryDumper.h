@@ -18,8 +18,7 @@ namespace coral {
   class ITableDataEditor;
 }
  
-//class MdtIdHelper;
-#include "MuonIdHelpers/MdtIdHelper.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 namespace MuonGM {
   class MuonDetectorManager;
   class MdtReadoutElement;
@@ -65,7 +64,8 @@ class MuonCalibGeometryDumper : public AthAlgorithm {
   std::string m_MDT_ID_helper;       // name of the MDT ID helper
   std::string m_idToFixedIdToolType; // type of the muon fixed id tool
   std::string m_idToFixedIdToolName; // name of the muon fixed id tool
-  const MdtIdHelper *m_MdtIdHelper;  // pointer to the MDT ID helper
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   const MuonGM::MuonDetectorManager *m_detMgr; // pointer to the muon detector manager
   const IIdToFixedIdTool *m_id_tool; // identifier converter
   inline bool dump_mdt_geometry();

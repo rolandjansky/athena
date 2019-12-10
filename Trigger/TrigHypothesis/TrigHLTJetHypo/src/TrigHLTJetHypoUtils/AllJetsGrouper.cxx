@@ -12,6 +12,13 @@ std::vector<HypoJetGroupVector> AllJetsGrouper::group(HypoJetIter& begin,
   return std::vector<HypoJetGroupVector>{hjgv};
 }
 
+std::optional<HypoJetGroupVector> AllJetsGrouper::next(HypoJetIter& begin,
+						       HypoJetIter& end
+						       ) const {
+  HypoJetGroupVector hjgv{HypoJetVector(begin, end)};
+  return std::make_optional<HypoJetGroupVector>(hjgv);
+}
+
 std::string AllJetsGrouper::getName() const {
   return "AllJetsGrouper";
 }

@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGGER_DECISION_TOOL_Feature_H
@@ -21,7 +21,6 @@
 
 #include <string>
 #include <set>
-#include "boost/foreach.hpp"
 #include "boost/type_traits/is_same.hpp"
 #include "boost/shared_ptr.hpp"
 #include "boost/lexical_cast.hpp"

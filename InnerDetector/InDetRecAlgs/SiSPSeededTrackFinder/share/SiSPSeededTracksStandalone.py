@@ -201,6 +201,9 @@ if doPixel:
     if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
         from SiLorentzAngleTool.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
         pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
+    if not hasattr(condSeq, 'PixelDistortionAlg'):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDistortionAlg
+        condSeq += PixelDistortionAlg(name="PixelDistortionAlg")
     # Takne from InDetRecExample/share/InDetRecLoadTools.py
     from InDetRecExample.TrackingCommon import createAndAddCondAlg,getPixelClusterNnCondAlg,getPixelClusterNnWithTrackCondAlg
     createAndAddCondAlg( getPixelClusterNnCondAlg,         "PixelClusterNnCondAlg",          GetInputsInfo = do_runI)
@@ -410,9 +413,12 @@ if (NewTrackingCuts.mode() == "LowPt" or
     NewTrackingCuts.mode() == "Disappearing" or
     NewTrackingCuts.mode() == "VeryForwardSLHCTracks" or
     NewTrackingCuts.mode() == "SLHCConversionFinding"):
+
     usePrdAssociationTool = True
+
 else:
     usePrdAssociationTool = False
+
 InDetPrdAssociationTool = None
 if usePrdAssociationTool:
     # Taken from InDetRecExample/share/InDetRecLoadTools.py
@@ -438,8 +444,7 @@ InDetSiSpacePointsSeedMaker = SiSpacePointsSeedMaker(name                   = "I
                                                      SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
                                                      radMax                 = NewTrackingCuts.radMax(),
                                                      RapidityCut            = NewTrackingCuts.maxEta(),
-                                                     UseAssociationTool     = usePrdAssociationTool,
-                                                     AssociationTool        = InDetPrdAssociationTool,
+                                                     PRDtoTrackMap          = "", # @TODO
                                                      maxdImpactPPS = NewTrackingCuts.maxdImpactPPSSeeds(),
                                                      maxdImpactSSS = NewTrackingCuts.maxdImpactSSSSeeds())
 if not doBeamSpot:
@@ -526,7 +531,6 @@ InDetSiComTrackFinder = InDet__SiCombinatorialTrackFinder_xk(name               
                                                              UpdatorTool           = InDetPatternUpdator,
                                                              RIOonTrackTool        = InDetRotCreator,
                                                              SctSummaryTool        = SCT_ConditionsSummaryTool,
-                                                             AssosiationTool       = InDetPrdAssociationTool,
                                                              usePixel              = DetFlags.haveRIO.pixel_on(),
                                                              useSCT                = DetFlags.haveRIO.SCT_on(),
                                                              PixelClusterContainer = InDetKeys.PixelClusters(),
@@ -574,6 +578,7 @@ if not doBeamSpot:
 
 # Set up SiSPSeededTrackFinder (alg)
 # InDetRecExample/share/ConfiguredNewTrackingSiPattern.py
+from InDetRecExample import TrackingCommon as TrackingCommon
 from SiSPSeededTrackFinder.SiSPSeededTrackFinderConf import InDet__SiSPSeededTrackFinder
 InDetSiSPSeededTrackFinder = InDet__SiSPSeededTrackFinder(name           = "InDetSiSpTrackFinder"+NewTrackingCuts.extension(),
                                                           TrackTool      = InDetSiTrackMaker,
@@ -581,6 +586,7 @@ InDetSiSPSeededTrackFinder = InDet__SiSPSeededTrackFinder(name           = "InDe
                                                           SeedsTool      = InDetSiSpacePointsSeedMaker,
                                                           useZvertexTool = InDetFlags.useZvertexTool() and NewTrackingCuts.mode() != "DBM",
                                                           ZvertexTool    = InDetZvertexMaker,
+                                                          TrackSummaryTool = TrackingCommon.getInDetTrackSummaryToolNoHoleSearch(), 
                                                           useNewStrategy = InDetFlags.useNewSiSPSeededTF() and NewTrackingCuts.mode() != "DBM",
                                                           useMBTSTimeDiff = InDetFlags.useMBTSTimeDiff(),
                                                           useZBoundFinding = NewTrackingCuts.doZBoundary() and NewTrackingCuts.mode() != "DBM")

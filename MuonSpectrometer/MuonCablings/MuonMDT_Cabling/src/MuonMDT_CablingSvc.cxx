@@ -8,7 +8,6 @@
 //#include "MDTcabling/IMDTcablingSvc.h"
 
 #include "GaudiKernel/ServiceHandle.h" 
-#include "GaudiKernel/IIncidentSvc.h" 
 
 #include "StoreGate/StoreGateSvc.h"
 #include "Identifier/IdentifierHash.h"

@@ -53,6 +53,7 @@ namespace SimTesting {
     virtual void SetUp() override {
       m_alg = new Simulation::BeamEffectsAlg{"BeamEffectsAlg", g_svcLoc};
       ASSERT_TRUE( m_alg->setProperties().isSuccess() );
+      ASSERT_TRUE( g_svcLoc->service("StoreGateSvc", m_sg) );
     }
 
     virtual void TearDown() override {
@@ -79,14 +80,17 @@ namespace SimTesting {
     // void mergeCollections(Args&&... args) const {
     //   m_alg->mergeCollections(std::forward<Args>(args)...);
     // }
-    Simulation::BeamEffectsAlg* m_alg;
+    Simulation::BeamEffectsAlg* m_alg{};
+    StoreGateSvc* m_sg{};
   };   // BeamEffectsAlg_test fixture
 
 
   TEST_F(BeamEffectsAlg_test, empty_alg_execute) {
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
+    EventContext ctx(0,0);
+    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
     // expected to fail as input collection doesn't exist
-    ASSERT_TRUE( m_alg->execute().isFailure() );
+    ASSERT_TRUE( m_alg->execute(ctx).isFailure() );
   }
 
   TEST_F(BeamEffectsAlg_test, set_properties) {
@@ -140,7 +144,11 @@ namespace SimTesting {
 
   TEST_F(BeamEffectsAlg_test, execute_pass_through) {
     // create dummy input McEventCollection containing a dummy GenEvent
-    SG::WriteHandle<McEventCollection> inputTestDataHandle{"GEN_EVENT"};
+    EventContext ctx(0,0);
+    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
+    SG::WriteHandleKey<McEventCollection> inputTestDataKey{"GEN_EVENT"};
+    ASSERT_TRUE( inputTestDataKey.initialize().isSuccess() );
+    SG::WriteHandle<McEventCollection> inputTestDataHandle{inputTestDataKey, ctx};
     inputTestDataHandle = std::make_unique<McEventCollection>();
     inputTestDataHandle->push_back(new HepMC::GenEvent());
     HepMC::GenEvent& ge = *(inputTestDataHandle->at(0));
@@ -163,8 +171,10 @@ namespace SimTesting {
     ge.set_beam_particles(inParticle1,inParticle2);
     //
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
-    ASSERT_TRUE( m_alg->execute().isSuccess() );
-    SG::ReadHandle<McEventCollection>     outputTestDataHandle{"BeamTruthEvent"};
+    ASSERT_TRUE( m_alg->execute(ctx).isSuccess() );
+    SG::ReadHandleKey<McEventCollection>     outputTestDataKey{"BeamTruthEvent"};
+    ASSERT_TRUE( outputTestDataKey.initialize().isSuccess() );
+    SG::ReadHandle<McEventCollection>     outputTestDataHandle{outputTestDataKey,ctx};
     ASSERT_TRUE( outputTestDataHandle.isValid() );
     ASSERT_EQ(*(outputTestDataHandle->at(0)->signal_process_vertex()), *(inputTestDataHandle->at(0)->signal_process_vertex()));
     ASSERT_EQ(**(outputTestDataHandle->at(0)->vertices_begin()), **(inputTestDataHandle->at(0)->vertices_begin()));

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGBJETHYPO_TRIGBJETBTAGHYPOALGMT_H
@@ -24,15 +24,10 @@ class TrigBjetBtagHypoAlgMT : public TrigBjetHypoAlgBaseMT {
  public:
   TrigBjetBtagHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator );
   
-  virtual ~TrigBjetBtagHypoAlgMT();
-  
   virtual StatusCode  initialize();
   virtual StatusCode  execute( const EventContext& context ) const;
-  virtual StatusCode  finalize();
 
  private: 
-  TrigBjetBtagHypoAlgMT();
-
   StatusCode retrieveBtagging( const EventContext&,
 			       ElementLinkVector< xAOD::BTaggingContainer >&,
 			       const SG::ReadHandleKey< xAOD::BTaggingContainer >&,
@@ -45,7 +40,7 @@ class TrigBjetBtagHypoAlgMT : public TrigBjetHypoAlgBaseMT {
  private:
   ToolHandleArray< TrigBjetBtagHypoTool > m_hypoTools {this,"HypoTools",{},"Hypo Tools"};
 
-  SG::ReadHandleKey< xAOD::BTaggingContainer> m_bTagKey {this,"BTaggingKey","BTagging","Key for BTagging"};
+  SG::ReadHandleKey< xAOD::BTaggingContainer> m_bTagKey {this,"BTagging","Unspecified","Key for BTagging"};
   SG::WriteHandleKey< TrigCompositeUtils::DecisionContainer > m_decisionsKey {this,"DecisionsKey","BjetHypoDecisions","Output key for Btag Kypo Decisions"};
 }; 
 

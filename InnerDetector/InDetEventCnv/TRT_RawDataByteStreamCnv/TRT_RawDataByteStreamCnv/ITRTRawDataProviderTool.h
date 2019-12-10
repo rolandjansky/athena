@@ -25,7 +25,7 @@ class ITRTRawDataProviderTool : virtual public IAlgTool
   
   
   //! this is the main decoding method
-  virtual StatusCode convert( std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs,
+  virtual StatusCode convert(const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs,
 		      TRT_RDO_Container*               rdoIdc ) = 0;
 
 };

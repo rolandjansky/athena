@@ -1,11 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
 // SiDetectorDesign.h
-///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
 #ifndef INDETREADOUTGEOMETRY_SIDETECTORDESIGN_H
@@ -18,7 +16,6 @@
 #include "CLHEP/Geometry/Vector3D.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "GeoModelKernel/RCBase.h"
 #include "InDetDD_Defs.h"
 
 #include <list>
@@ -48,11 +45,12 @@ enum DetectorShape {
    Base class for the detector design classes for Pixel and SCT.
    These hold the local description of the detector elements which are
    shared by a number of detector elements.
+   Objects are owned by SiDetectorManager.
 
     @author A. Calvet, Grant Gorfine
  */
 
-class SiDetectorDesign: public RCBase {
+class SiDetectorDesign {
 public:
     enum Axis {
         xAxis=0, yAxis, zAxis

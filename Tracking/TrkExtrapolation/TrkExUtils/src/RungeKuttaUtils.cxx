@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -66,7 +66,7 @@ bool Trk::RungeKuttaUtils::transformLocalToGlobal
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::RungeKuttaUtils::transformGlobalToLocal 
-(double* P,double* par) const 
+(double*ATH_RESTRICT P,double*ATH_RESTRICT par) const 
 {
   par[2]  = atan2(P[4],P[3]);
   par[3]  = acos (P[5]);
@@ -74,7 +74,7 @@ void Trk::RungeKuttaUtils::transformGlobalToLocal
 }
 
 void Trk::RungeKuttaUtils::transformGlobalToLocal 
-(const Trk::Surface* su,bool useJac, double* P,double* par,double* Jac) const 
+(const Trk::Surface* su,bool useJac, double*ATH_RESTRICT P,double*ATH_RESTRICT par,double*ATH_RESTRICT Jac) const 
 {
   par[2]  = atan2(P[4],P[3]);
   par[3]  = acos (P[5]);
@@ -113,7 +113,7 @@ void Trk::RungeKuttaUtils::transformGlobalToLocal
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::RungeKuttaUtils::transformGlobalToPlane
-(const Trk::Surface* su,bool useJac,double* P,double* par,double* Jac) const 
+(const Trk::Surface* su,bool useJac,double*ATH_RESTRICT P,double*ATH_RESTRICT par,double*ATH_RESTRICT Jac) const 
 {  
   const Amg::Transform3D&  T = su->transform();  
 
@@ -171,7 +171,7 @@ void Trk::RungeKuttaUtils::transformGlobalToPlane
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::RungeKuttaUtils::transformGlobalToDisc
-(const Trk::Surface* su,bool useJac,double* P,double* par,double* Jac) const 
+(const Trk::Surface* su,bool useJac,double*ATH_RESTRICT P,double*ATH_RESTRICT par,double*ATH_RESTRICT Jac) const 
 {
   const Amg::Transform3D&  T = su->transform();  
 
@@ -240,7 +240,7 @@ void Trk::RungeKuttaUtils::transformGlobalToDisc
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::RungeKuttaUtils::transformGlobalToCylinder
-(const Trk::Surface* su,bool useJac,double* P,double* par,double* Jac) const 
+(const Trk::Surface* su,bool useJac,double*ATH_RESTRICT P,double*ATH_RESTRICT par,double*ATH_RESTRICT Jac) const 
 {
 
   const Amg::Transform3D&  T = su->transform();  
@@ -310,7 +310,7 @@ void Trk::RungeKuttaUtils::transformGlobalToCylinder
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::RungeKuttaUtils::transformGlobalToLine
-(const Trk::Surface* su,bool useJac,double* P,double* par,double* Jac) const 
+(const Trk::Surface* su,bool useJac,double*ATH_RESTRICT P,double*ATH_RESTRICT par,double*ATH_RESTRICT Jac) const 
 {
   const Amg::Transform3D&  T = su->transform();  
   
@@ -375,7 +375,7 @@ void Trk::RungeKuttaUtils::transformGlobalToLine
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::RungeKuttaUtils::transformGlobalToCone
-(const Trk::Surface* su,bool useJac,double* P,double* par,double* Jac) const 
+(const Trk::Surface* su,bool useJac,double*ATH_RESTRICT P,double*ATH_RESTRICT par,double*ATH_RESTRICT Jac) const 
 {
 
   const Amg::Transform3D&  T = su->transform();  
@@ -426,7 +426,7 @@ double Trk::RungeKuttaUtils::stepEstimator
 /////////////////////////////////////////////////////////////////////////////////
 
 double Trk::RungeKuttaUtils::stepEstimatorToPlane 
-(double* S,const double* P,bool& Q) const
+(double*ATH_RESTRICT S,const double*ATH_RESTRICT P,bool& Q) const
 {
   const double* r = &P[0];          // Start coordinate
   const double* a = &P[3];          // Start direction
@@ -441,7 +441,7 @@ double Trk::RungeKuttaUtils::stepEstimatorToPlane
 /////////////////////////////////////////////////////////////////////////////////
 
 double Trk::RungeKuttaUtils::stepEstimatorToCylinder
-(double* S,const double* P,bool& Q) const 
+(double*ATH_RESTRICT S,const double*ATH_RESTRICT P,bool& Q) const 
 {
   const double* r = &P[0];          // Start coordinate
   const double* a = &P[3];          // Start direction
@@ -505,7 +505,7 @@ double Trk::RungeKuttaUtils::stepEstimatorToCylinder
 /////////////////////////////////////////////////////////////////////////////////
 
 double Trk::RungeKuttaUtils::stepEstimatorToStraightLine
-(double* S,const double* P,bool& Q) const
+(double*ATH_RESTRICT S,const double*ATH_RESTRICT P,bool& Q) const
 {
   const double* r = &P[0];          // Start coordinate
   const double* a = &P[3];          // Start direction
@@ -523,7 +523,7 @@ double Trk::RungeKuttaUtils::stepEstimatorToStraightLine
 /////////////////////////////////////////////////////////////////////////////////
 
 double Trk::RungeKuttaUtils::stepEstimatorToCone
-(double* S,const double* P,bool& Q) const 
+(double*ATH_RESTRICT S,const double*ATH_RESTRICT P,bool& Q) const 
 {
   const double* r = &P[0];          // Start coordinate
   const double* a = &P[3];          // Start direction
@@ -611,7 +611,7 @@ double Trk::RungeKuttaUtils::stepEstimatorToCone
 
 std::pair<double,int> Trk::RungeKuttaUtils::stepEstimator 
 (std::vector<std::pair<const Trk::Surface*,Trk::BoundaryCheck> >& SU,std::multimap<double,int>& DN,
- const double* Pinp,const double* Pout,double W,double So,int Nv,bool& next) const
+ const double*ATH_RESTRICT Pinp,const double*ATH_RESTRICT Pout,double W,double So,int Nv,bool& next) const
 {
   W             = fabs(W)                                          ;
   next          = false                                            ;
@@ -691,40 +691,40 @@ std::pair<double,int> Trk::RungeKuttaUtils::stepEstimator
 /////////////////////////////////////////////////////////////////////////////////
 
 AmgSymMatrix(5)* Trk::RungeKuttaUtils::newCovarianceMatrix
-(double* J,const AmgSymMatrix(5)& M) const 
+(const double* J,const AmgSymMatrix(5)& M) const 
 {
-  double V[15]={M(0,0),
-		M(1,0),M(1,1),
+  AmgSymMatrix(5)* nM = new AmgSymMatrix(5);
+  AmgSymMatrix(5)& m = (*nM);
+
+  const double V[15]={M(0,0),
+    M(1,0),M(1,1),
 		M(2,0),M(2,1),M(2,2),
 		M(3,0),M(3,1),M(3,2),M(3,3),
 		M(4,0),M(4,1),M(4,2),M(4,3),M(4,4)};
 
-  AmgSymMatrix(5)* nM = new AmgSymMatrix(5);
-  AmgSymMatrix(5)& m = (*nM);
-
-  double a11 = (J[ 0]*V[ 0]+J[ 1]*V[ 1]+J[ 2]*V[ 3])+(J[ 3]*V[ 6]+J[ 4]*V[10]);   
-  double a12 = (J[ 0]*V[ 1]+J[ 1]*V[ 2]+J[ 2]*V[ 4])+(J[ 3]*V[ 7]+J[ 4]*V[11]);   
-  double a13 = (J[ 0]*V[ 3]+J[ 1]*V[ 4]+J[ 2]*V[ 5])+(J[ 3]*V[ 8]+J[ 4]*V[12]);   
-  double a14 = (J[ 0]*V[ 6]+J[ 1]*V[ 7]+J[ 2]*V[ 8])+(J[ 3]*V[ 9]+J[ 4]*V[13]);   
-  double a15 = (J[ 0]*V[10]+J[ 1]*V[11]+J[ 2]*V[12])+(J[ 3]*V[13]+J[ 4]*V[14]);   
+  const double a11 = (J[ 0]*V[ 0]+J[ 1]*V[ 1]+J[ 2]*V[ 3])+(J[ 3]*V[ 6]+J[ 4]*V[10]);   
+  const double a12 = (J[ 0]*V[ 1]+J[ 1]*V[ 2]+J[ 2]*V[ 4])+(J[ 3]*V[ 7]+J[ 4]*V[11]);   
+  const double a13 = (J[ 0]*V[ 3]+J[ 1]*V[ 4]+J[ 2]*V[ 5])+(J[ 3]*V[ 8]+J[ 4]*V[12]);   
+  const double a14 = (J[ 0]*V[ 6]+J[ 1]*V[ 7]+J[ 2]*V[ 8])+(J[ 3]*V[ 9]+J[ 4]*V[13]);   
+  const double a15 = (J[ 0]*V[10]+J[ 1]*V[11]+J[ 2]*V[12])+(J[ 3]*V[13]+J[ 4]*V[14]);   
 
   m(0,0) = (a11*J[ 0]+a12*J[ 1]+a13*J[ 2])+(a14*J[ 3]+a15*J[ 4]);
   
-  double a21 = (J[ 5]*V[ 0]+J[ 6]*V[ 1]+J[ 7]*V[ 3])+(J[ 8]*V[ 6]+J[ 9]*V[10]);   
-  double a22 = (J[ 5]*V[ 1]+J[ 6]*V[ 2]+J[ 7]*V[ 4])+(J[ 8]*V[ 7]+J[ 9]*V[11]);   
-  double a23 = (J[ 5]*V[ 3]+J[ 6]*V[ 4]+J[ 7]*V[ 5])+(J[ 8]*V[ 8]+J[ 9]*V[12]);   
-  double a24 = (J[ 5]*V[ 6]+J[ 6]*V[ 7]+J[ 7]*V[ 8])+(J[ 8]*V[ 9]+J[ 9]*V[13]);   
-  double a25 = (J[ 5]*V[10]+J[ 6]*V[11]+J[ 7]*V[12])+(J[ 8]*V[13]+J[ 9]*V[14]);   
+  const double a21 = (J[ 5]*V[ 0]+J[ 6]*V[ 1]+J[ 7]*V[ 3])+(J[ 8]*V[ 6]+J[ 9]*V[10]);   
+  const double a22 = (J[ 5]*V[ 1]+J[ 6]*V[ 2]+J[ 7]*V[ 4])+(J[ 8]*V[ 7]+J[ 9]*V[11]);   
+  const double a23 = (J[ 5]*V[ 3]+J[ 6]*V[ 4]+J[ 7]*V[ 5])+(J[ 8]*V[ 8]+J[ 9]*V[12]);   
+  const double a24 = (J[ 5]*V[ 6]+J[ 6]*V[ 7]+J[ 7]*V[ 8])+(J[ 8]*V[ 9]+J[ 9]*V[13]);   
+  const double a25 = (J[ 5]*V[10]+J[ 6]*V[11]+J[ 7]*V[12])+(J[ 8]*V[13]+J[ 9]*V[14]);   
 
   m(1,0) = (a21*J[ 0]+a22*J[ 1]+a23*J[ 2])+(a24*J[ 3]+a25*J[ 4]);
   m(1,1) = (a21*J[ 5]+a22*J[ 6]+a23*J[ 7])+(a24*J[ 8]+a25*J[ 9]);
   m(0,1) = m(1,0);
   
-  double a31 = (J[10]*V[ 0]+J[11]*V[ 1]+J[12]*V[ 3])+(J[13]*V[ 6]+J[14]*V[10]);   
-  double a32 = (J[10]*V[ 1]+J[11]*V[ 2]+J[12]*V[ 4])+(J[13]*V[ 7]+J[14]*V[11]);   
-  double a33 = (J[10]*V[ 3]+J[11]*V[ 4]+J[12]*V[ 5])+(J[13]*V[ 8]+J[14]*V[12]);   
-  double a34 = (J[10]*V[ 6]+J[11]*V[ 7]+J[12]*V[ 8])+(J[13]*V[ 9]+J[14]*V[13]);   
-  double a35 = (J[10]*V[10]+J[11]*V[11]+J[12]*V[12])+(J[13]*V[13]+J[14]*V[14]);   
+  const double a31 = (J[10]*V[ 0]+J[11]*V[ 1]+J[12]*V[ 3])+(J[13]*V[ 6]+J[14]*V[10]);   
+  const double a32 = (J[10]*V[ 1]+J[11]*V[ 2]+J[12]*V[ 4])+(J[13]*V[ 7]+J[14]*V[11]);   
+  const double a33 = (J[10]*V[ 3]+J[11]*V[ 4]+J[12]*V[ 5])+(J[13]*V[ 8]+J[14]*V[12]);   
+  const double a34 = (J[10]*V[ 6]+J[11]*V[ 7]+J[12]*V[ 8])+(J[13]*V[ 9]+J[14]*V[13]);   
+  const double a35 = (J[10]*V[10]+J[11]*V[11]+J[12]*V[12])+(J[13]*V[13]+J[14]*V[14]);   
 
   m(2,0) = (a31*J[ 0]+a32*J[ 1]+a33*J[ 2])+(a34*J[ 3]+a35*J[ 4]);
   m(2,1) = (a31*J[ 5]+a32*J[ 6]+a33*J[ 7])+(a34*J[ 8]+a35*J[ 9]);
@@ -732,11 +732,11 @@ AmgSymMatrix(5)* Trk::RungeKuttaUtils::newCovarianceMatrix
   m(0,2) = m(2,0);
   m(1,2) = m(2,1);
 
-  double a41 = (J[15]*V[ 0]+J[16]*V[ 1]+J[17]*V[ 3])+(J[18]*V[ 6]+J[19]*V[10]);   
-  double a42 = (J[15]*V[ 1]+J[16]*V[ 2]+J[17]*V[ 4])+(J[18]*V[ 7]+J[19]*V[11]);   
-  double a43 = (J[15]*V[ 3]+J[16]*V[ 4]+J[17]*V[ 5])+(J[18]*V[ 8]+J[19]*V[12]);   
-  double a44 = (J[15]*V[ 6]+J[16]*V[ 7]+J[17]*V[ 8])+(J[18]*V[ 9]+J[19]*V[13]);   
-  double a45 = (J[15]*V[10]+J[16]*V[11]+J[17]*V[12])+(J[18]*V[13]+J[19]*V[14]);   
+  const double a41 = (J[15]*V[ 0]+J[16]*V[ 1]+J[17]*V[ 3])+(J[18]*V[ 6]+J[19]*V[10]);   
+  const double a42 = (J[15]*V[ 1]+J[16]*V[ 2]+J[17]*V[ 4])+(J[18]*V[ 7]+J[19]*V[11]);   
+  const double a43 = (J[15]*V[ 3]+J[16]*V[ 4]+J[17]*V[ 5])+(J[18]*V[ 8]+J[19]*V[12]);   
+  const double a44 = (J[15]*V[ 6]+J[16]*V[ 7]+J[17]*V[ 8])+(J[18]*V[ 9]+J[19]*V[13]);   
+  const double a45 = (J[15]*V[10]+J[16]*V[11]+J[17]*V[12])+(J[18]*V[13]+J[19]*V[14]);   
   
   m(3,0) = (a41*J[ 0]+a42*J[ 1]+a43*J[ 2])+(a44*J[ 3]+a45*J[ 4]);
   m(3,1) = (a41*J[ 5]+a42*J[ 6]+a43*J[ 7])+(a44*J[ 8]+a45*J[ 9]);
@@ -746,11 +746,11 @@ AmgSymMatrix(5)* Trk::RungeKuttaUtils::newCovarianceMatrix
   m(1,3) = m(3,1);
   m(2,3) = m(3,2);
 
-  double a51 =                                                    J[20]*V[10];   
-  double a52 =                                                    J[20]*V[11];   
-  double a53 =                                                    J[20]*V[12];   
-  double a54 =                                                    J[20]*V[13];   
-  double a55 =                                                    J[20]*V[14];   
+  const double a51 =                                                    J[20]*V[10];   
+  const double a52 =                                                    J[20]*V[11];   
+  const double a53 =                                                    J[20]*V[12];   
+  const double a54 =                                                    J[20]*V[13];   
+  const double a55 =                                                    J[20]*V[14];   
 
   m(4,0) = (a51*J[ 0]+a52*J[ 1]+a53*J[ 2])+(a54*J[ 3]+a55*J[ 4]);
   m(4,1) = (a51*J[ 5]+a52*J[ 6]+a53*J[ 7])+(a54*J[ 8]+a55*J[ 9]);
@@ -769,11 +769,11 @@ AmgSymMatrix(5)* Trk::RungeKuttaUtils::newCovarianceMatrix
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::RungeKuttaUtils::transformPlaneToGlobal
-(bool useJac,const Trk::Surface* Su,const double* p,double* P) const 
+(bool useJac,const Trk::Surface* Su, const double*ATH_RESTRICT p ,double*ATH_RESTRICT P) const 
 {
   const Amg::Transform3D& T = Su->transform();
-  double Ax[3] = {T(0,0),T(1,0),T(2,0)};
-  double Ay[3] = {T(0,1),T(1,1),T(2,1)};
+  const double Ax[3] = {T(0,0),T(1,0),T(2,0)};
+  const double Ay[3] = {T(0,1),T(1,1),T(2,1)};
 
   P[ 0] = p[0]*Ax[0]+p[1]*Ay[0]+T(0,3);                            // X
   P[ 1] = p[0]*Ax[1]+p[1]*Ay[1]+T(1,3);                            // Y
@@ -794,16 +794,16 @@ void Trk::RungeKuttaUtils::transformPlaneToGlobal
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::RungeKuttaUtils::transformDiscToGlobal 
-(bool useJac,const Trk::Surface* Su,const double* p, double* P) const 
+(bool useJac,const Trk::Surface* Su,const double*ATH_RESTRICT p, double*ATH_RESTRICT P) const 
 {
   const Amg::Transform3D& T = Su->transform();
-  double Ax[3] = {T(0,0),T(1,0),T(2,0)};
-  double Ay[3] = {T(0,1),T(1,1),T(2,1)};
+  const double Ax[3] = {T(0,0),T(1,0),T(2,0)};
+  const double Ay[3] = {T(0,1),T(1,1),T(2,1)};
   double Sf,Cf; sincos(p[1],&Sf,&Cf);
 
-  double d0 = Cf*Ax[0]+Sf*Ay[0]; 
-  double d1 = Cf*Ax[1]+Sf*Ay[1]; 
-  double d2 = Cf*Ax[2]+Sf*Ay[2];
+  const double d0 = Cf*Ax[0]+Sf*Ay[0]; 
+  const double d1 = Cf*Ax[1]+Sf*Ay[1]; 
+  const double d2 = Cf*Ax[2]+Sf*Ay[2];
   P[ 0]     = p[0]*d0+T(0,3)   ;                                    // X
   P[ 1]     = p[0]*d1+T(1,3)   ;                                    // Y
   P[ 2]     = p[0]*d2+T(2,3)   ;                                    // Z
@@ -821,16 +821,16 @@ void Trk::RungeKuttaUtils::transformDiscToGlobal
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::RungeKuttaUtils::transformCylinderToGlobal    
-(bool useJac,const Trk::Surface* Su,const double* p,double* P) const 
+(bool useJac,const Trk::Surface* Su,const double*ATH_RESTRICT p,double*ATH_RESTRICT P) const 
 {
   const Amg::Transform3D& T = Su->transform();
-  double Ax[3] = {T(0,0),T(1,0),T(2,0)};
-  double Ay[3] = {T(0,1),T(1,1),T(2,1)};
-  double Az[3] = {T(0,2),T(1,2),T(2,2)};
+  const double Ax[3] = {T(0,0),T(1,0),T(2,0)};
+  const double Ay[3] = {T(0,1),T(1,1),T(2,1)};
+  const double Az[3] = {T(0,2),T(1,2),T(2,2)};
 
-  double  R = static_cast<const Trk::CylinderSurface*>(Su)->bounds().r();
+  const double  R = static_cast<const Trk::CylinderSurface*>(Su)->bounds().r();
 
-  double fr = p[0]/R;
+  const double fr = p[0]/R;
   double Sf,Cf; sincos(fr,&Sf,&Cf);
 
   P[ 0]     = R*(Cf*Ax[0]+Sf*Ay[0])+p[1]*Az[0]+T(0,3);              // X
@@ -850,7 +850,7 @@ void Trk::RungeKuttaUtils::transformCylinderToGlobal
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::RungeKuttaUtils::transformLineToGlobal
-(bool useJac,const Trk::Surface* Su,const double* p,double* P) const
+(bool useJac,const Trk::Surface* Su,const double*ATH_RESTRICT p,double*ATH_RESTRICT P) const
 {
   const Amg::Transform3D& T = Su->transform();
   double A[3] = {T(0,2),T(1,2),T(2,2)};
@@ -884,7 +884,7 @@ void Trk::RungeKuttaUtils::transformLineToGlobal
 /////////////////////////////////////////////////////////////////////////////////
 
 bool Trk::RungeKuttaUtils::transformLocalToGlobal
-(bool useJac,const Trk::Surface* su,const double* p,double* P) const
+(bool useJac,const Trk::Surface* su,const double*ATH_RESTRICT p,double*ATH_RESTRICT P) const
 {
   if(!su) return false;
 
@@ -925,30 +925,30 @@ bool Trk::RungeKuttaUtils::transformLocalToGlobal
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::RungeKuttaUtils::transformGlobalToCurvilinear
-(bool useJac,double* P,double* par,double* Jac) const 
+(bool useJac,double*ATH_RESTRICT P,double*ATH_RESTRICT par,double*ATH_RESTRICT Jac) const 
 {
   par[0] = 0.;
   par[1] = 0.;
 
   if(!useJac) return;
 
-  double An    = sqrt(P[3]*P[3]+P[4]*P[4]);
+  const double An    = sqrt(P[3]*P[3]+P[4]*P[4]);
   double Ax[3];
   if(An!=0.) {Ax[0] = -P[4]/An; Ax[1] = P[3]/An; Ax[2] = 0.;}
   else       {Ax[0] =       1.; Ax[1] = 0.;      Ax[2] = 0.;}
 
-  double Ay[3] = {-Ax[1]*P[5],Ax[0]*P[5],An  };
+  const double Ay[3] = {-Ax[1]*P[5],Ax[0]*P[5],An  };
   double S [3] = {    P[3]   , P[4]     ,P[5]};
 
   double    A = P[3]*S[0]+P[4]*S[1]+P[5]*S[2];
   if(A!=0.) A=1./A;
   S[0]*=A; S[1]*=A; S[2]*=A;
    
-  double s0 = P[ 7]*S[0]+P[ 8]*S[1]+P[ 9]*S[2];
-  double s1 = P[14]*S[0]+P[15]*S[1]+P[16]*S[2]; 
-  double s2 = P[21]*S[0]+P[22]*S[1]+P[23]*S[2];
-  double s3 = P[28]*S[0]+P[29]*S[1]+P[30]*S[2];
-  double s4 = P[35]*S[0]+P[36]*S[1]+P[37]*S[2]; 
+  const double s0 = P[ 7]*S[0]+P[ 8]*S[1]+P[ 9]*S[2];
+  const double s1 = P[14]*S[0]+P[15]*S[1]+P[16]*S[2]; 
+  const double s2 = P[21]*S[0]+P[22]*S[1]+P[23]*S[2];
+  const double s3 = P[28]*S[0]+P[29]*S[1]+P[30]*S[2];
+  const double s4 = P[35]*S[0]+P[36]*S[1]+P[37]*S[2]; 
 
   P[ 7]-=(s0*P[ 3]); P[ 8]-=(s0*P[ 4]); P[ 9]-=(s0*P[ 5]); 
   P[10]-=(s0*P[42]); P[11]-=(s0*P[43]); P[12]-=(s0*P[44]);
@@ -995,12 +995,12 @@ void Trk::RungeKuttaUtils::transformGlobalToCurvilinear
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::RungeKuttaUtils::transformCurvilinearToGlobal
-(double* p, double* P) const 
+(double*ATH_RESTRICT p, double*ATH_RESTRICT P) const 
 {
   double Sf,Cf,Ce,Se; sincos(p[2],&Sf,&Cf);  sincos(p[3],&Se,&Ce);
 
-  double Ax[3] = {-Sf   , Cf   , 0.};
-  double Ay[3] = {-Cf*Ce,-Sf*Ce, Se};
+  const double Ax[3] = {-Sf   , Cf   , 0.};
+  const double Ay[3] = {-Cf*Ce,-Sf*Ce, Se};
 
   //   /dL1     |   /dL2       |    /dPhi     |    /dThe     |    /dCM     |
   //
@@ -1053,7 +1053,7 @@ void Trk::RungeKuttaUtils::jacobianTransformCurvilinearToLocal
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::RungeKuttaUtils::jacobianTransformCurvilinearToLocal
-(double* P, const Trk::Surface* su,double* Jac)
+(double*ATH_RESTRICT P, const Trk::Surface* su,double*ATH_RESTRICT Jac)
 {
   // Common for all surfaces terms of jacobian
   //
@@ -1102,7 +1102,7 @@ void Trk::RungeKuttaUtils::jacobianTransformCurvilinearToLocal
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::RungeKuttaUtils::jacobianTransformCurvilinearToPlane
-(double* P,double* Jac) const 
+(double*ATH_RESTRICT P,double*ATH_RESTRICT Jac) const 
 {
   double* At = &P[ 4];
   double* Au = &P[ 7];
@@ -1136,7 +1136,7 @@ void Trk::RungeKuttaUtils::jacobianTransformCurvilinearToPlane
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::RungeKuttaUtils::jacobianTransformCurvilinearToDisc
-(double* P,double* Jac) const 
+(double*ATH_RESTRICT P,double*ATH_RESTRICT Jac) const 
 {
   double* p  = &P[ 0];
   double* At = &P[ 4];
@@ -1185,7 +1185,7 @@ void Trk::RungeKuttaUtils::jacobianTransformCurvilinearToDisc
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::RungeKuttaUtils::jacobianTransformCurvilinearToCylinder
-(double* P,double* Jac) const 
+(double*ATH_RESTRICT P,double*ATH_RESTRICT Jac) const 
 {
   double* p  = &P[ 0];
   double* At = &P[ 4];
@@ -1238,7 +1238,7 @@ void Trk::RungeKuttaUtils::jacobianTransformCurvilinearToCylinder
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::RungeKuttaUtils::jacobianTransformCurvilinearToStraightLine
-(double* P,double* Jac) const 
+(double*ATH_RESTRICT P,double*ATH_RESTRICT Jac) const 
 {
   double* p  = &P[ 0];
   double* At = &P[ 4];
@@ -1286,7 +1286,7 @@ void Trk::RungeKuttaUtils::jacobianTransformCurvilinearToStraightLine
 int Trk::RungeKuttaUtils::fillDistancesMap
 (std::vector<std::pair<const Trk::Surface*,Trk::BoundaryCheck> >& SU,
  std::multimap<double,int>& DN,
- const double* Pinp,double W,const Trk::Surface* So,double* Step) const 
+ const double*ATH_RESTRICT Pinp,double W,const Trk::Surface* So,double*ATH_RESTRICT Step) const 
 {
   int Ns = -1;
   DN.erase(DN.begin(),DN.end()); 

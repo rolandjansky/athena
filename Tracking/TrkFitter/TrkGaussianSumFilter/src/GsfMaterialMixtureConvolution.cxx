@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*************************************************************************************
@@ -49,6 +49,13 @@ Trk::GsfMaterialMixtureConvolution::initialize()
     ATH_MSG_ERROR("Could not retrieve the multi-component state assembler... Exiting");
     return StatusCode::FAILURE;
   }
+
+  // Retrieve the state merge 
+  if (m_stateMerger.retrieve().isFailure()) {
+    ATH_MSG_ERROR("Could not retrieve the multi-component state merger... Exiting");
+    return StatusCode::FAILURE;
+  }
+  
   return StatusCode::SUCCESS;
 }
 
@@ -82,18 +89,14 @@ Trk::GsfMaterialMixtureConvolution::update(const Trk::MultiComponentState& multi
 
   // Assembler Cache
   IMultiComponentStateAssembler::Cache cache;
-  // Reset the assembler and check
-  bool isAssemblerReset = m_stateAssembler->reset(cache);
+  // Reset the assembler 
+  m_stateAssembler->reset(cache);
 
-  if (!isAssemblerReset) {
-    ATH_MSG_ERROR("Could not reset the state assembler... returning clone of original state");
-    return std::unique_ptr<Trk::MultiComponentState> (multiComponentState.clone());
-  }
 
   // Check the multi-component state is populated
   if (multiComponentState.empty()) {
     ATH_MSG_DEBUG("Multi component state passed to extrapolateInsideVolume is not populated... returning 0");
-    return 0;
+    return nullptr;
   }
 
   // Loop over all components and perform material effects update separately
@@ -114,15 +117,15 @@ Trk::GsfMaterialMixtureConvolution::update(const Trk::MultiComponentState& multi
     }
   }
 
-  std::unique_ptr<Trk::MultiComponentState> assembledState = m_stateAssembler->assembledState(cache);
-
-  if (!assembledState) {
+  std::unique_ptr<Trk::MultiComponentState> mergedState = m_stateMerger->merge( std::move(cache.multiComponentState) ); 
+  
+  if (!mergedState) {
     return nullptr;
   }
   // Renormalise state
-  assembledState->renormaliseState();
+  mergedState->renormaliseState();
 
-  return assembledState;
+  return mergedState;
 }
 
 /* ==========================================
@@ -145,13 +148,8 @@ Trk::GsfMaterialMixtureConvolution::preUpdate(const Trk::MultiComponentState& mu
      ------------------------------------- */
   // Assembler Cache
   IMultiComponentStateAssembler::Cache cache;
-  // Reset the assembler and check
-  bool isAssemblerReset = m_stateAssembler->reset(cache);
-
-  if (!isAssemblerReset) {
-    ATH_MSG_ERROR("Could not reset the state assembler... returning clone of original state");
-    return std::unique_ptr<Trk::MultiComponentState>(multiComponentState.clone());
-  }
+  // Reset the assembler 
+  m_stateAssembler->reset(cache);
 
   // Check the multi-component state is populated
   if (multiComponentState.empty()) {
@@ -176,17 +174,15 @@ Trk::GsfMaterialMixtureConvolution::preUpdate(const Trk::MultiComponentState& mu
       ATH_MSG_WARNING("Component could not be added to the state in the assembler");
   }
 
-  std::unique_ptr<Trk::MultiComponentState> assembledState = m_stateAssembler->assembledState(cache);
-
-  if (!assembledState) {
+  std::unique_ptr<Trk::MultiComponentState> mergedState = m_stateMerger->merge( std::move(cache.multiComponentState) ); 
+  
+  if (!mergedState) {
     return nullptr;
   }
-
   // Renormalise state
-  assembledState->renormaliseState();
+  mergedState->renormaliseState();
 
-  // Clean up memory
-  return assembledState;
+  return mergedState;
 }
 
 /* ==========================================
@@ -211,18 +207,13 @@ Trk::GsfMaterialMixtureConvolution::postUpdate(const Trk::MultiComponentState& m
 
   // Assembler Cache
   IMultiComponentStateAssembler::Cache cache;
-  // Reset the assembler and check
-  bool isAssemblerReset = m_stateAssembler->reset(cache);
-
-  if (!isAssemblerReset) {
-    ATH_MSG_WARNING("Could not reset the state assembler... returning clone of original state");
-    return std::unique_ptr<Trk::MultiComponentState>(multiComponentState.clone());
-  }
+  // Reset the assembler  
+  m_stateAssembler->reset(cache);
 
   // Check the multi-component state is populated
   if (multiComponentState.empty()) {
     ATH_MSG_DEBUG("Multi component state passed to extrapolateInsideVolume is not populated... returning 0");
-    return 0;
+    return nullptr;
   }
 
   // Loop over all components and perform material effects update separately
@@ -243,15 +234,15 @@ Trk::GsfMaterialMixtureConvolution::postUpdate(const Trk::MultiComponentState& m
     }
   }
 
-  std::unique_ptr<Trk::MultiComponentState> assembledState = m_stateAssembler->assembledState(cache);
-
-  if (!assembledState) {
+  std::unique_ptr<Trk::MultiComponentState> mergedState = m_stateMerger->merge( std::move(cache.multiComponentState) ); 
+  
+  if (!mergedState) {
     return nullptr;
   }
+  // Renormalise state
+  mergedState->renormaliseState();
 
-  assembledState->renormaliseState();
-
-  return assembledState;
+  return mergedState;
 }
 
 /* ==========================================
@@ -268,18 +259,14 @@ Trk::GsfMaterialMixtureConvolution::simpliedMaterialUpdate(const Trk::MultiCompo
      ------------------------------------- */
   // Assembler Cache
   IMultiComponentStateAssembler::Cache cache;
-  // Reset the assembler and check
-  bool isAssemblerReset = m_stateAssembler->reset(cache);
+  // Reset the assembler 
+  m_stateAssembler->reset(cache);
 
-  if (!isAssemblerReset) {
-    ATH_MSG_WARNING("Could not reset the state assembler... returning clone of original state");
-    return std::unique_ptr<Trk::MultiComponentState> (multiComponentState.clone());
-  }
 
   // Check the multi-component state is populated
   if (multiComponentState.empty()) {
     ATH_MSG_DEBUG("Multi component state passed to extrapolateInsideVolume is not populated... returning 0");
-    return 0;
+    return nullptr;
   }
 
   // Hardwired material effects based on approximate material distribution
@@ -334,16 +321,13 @@ Trk::GsfMaterialMixtureConvolution::simpliedMaterialUpdate(const Trk::MultiCompo
 
   } // end loop over components
 
-  std::unique_ptr<Trk::MultiComponentState> assembledState = m_stateAssembler->assembledState(cache);
-  // Renormalise the state
-  if(!assembledState)
-  {
-    delete materialProperties;
+  std::unique_ptr<Trk::MultiComponentState> mergedState = m_stateMerger->merge( std::move(cache.multiComponentState) ); 
+  
+  if (!mergedState) {
     return nullptr;
   }
+  // Renormalise state
+  mergedState->renormaliseState();
 
-  assembledState->renormaliseState();
-
-  // Clean up memory
-  return assembledState;
+  return mergedState;
 }

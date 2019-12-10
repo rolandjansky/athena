@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -60,7 +60,7 @@ public:
     bool assemblyDone;
   };
   /** Resets the AlgTool */
-  virtual bool reset(Cache& cache) const = 0;
+  virtual void  reset(Cache& cache) const = 0;
 
   /** Print the status of the assembler */
   virtual void status(const Cache& cache) const = 0;

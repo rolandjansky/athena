@@ -10,9 +10,8 @@
 class TrigBjetEtHypoAlgEVMT : public TrigBjetEtHypoAlgMT {
  public: 
   TrigBjetEtHypoAlgEVMT( const std::string& name, ISvcLocator* pSvLocator );
-  virtual ~TrigBjetEtHypoAlgEVMT();
 
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
  protected:
   TrigBjetEtHypoAlgEVMT();
@@ -20,17 +19,17 @@ class TrigBjetEtHypoAlgEVMT : public TrigBjetEtHypoAlgMT {
   virtual StatusCode retrieveJets( const EventContext&,
 				   ElementLinkVector< xAOD::JetContainer >&,
                                    const SG::ReadHandleKey< xAOD::JetContainer >&,
-                                   const TrigCompositeUtils::DecisionContainer* ) const;
+                                   const TrigCompositeUtils::DecisionContainer* ) const override;
 
   virtual StatusCode retrieveRoIs( const EventContext&,
                                    const TrigRoiDescriptorCollection*&,
-                                   const SG::ReadHandleKey< TrigRoiDescriptorCollection >& ) const;
+                                   const SG::ReadHandleKey< TrigRoiDescriptorCollection >& ) const override;
 
   virtual StatusCode setJetLink( const EventContext&,
                                  const SG::ReadHandleKey< xAOD::JetContainer >&,
                                  const unsigned int,
                                  const TrigCompositeUtils::DecisionContainer*&,
-                                 std::vector< TrigCompositeUtils::Decision* >& ) const;
+                                 std::vector< TrigCompositeUtils::Decision* >& ) const override;
 
   virtual StatusCode setTracksLink( const EventContext&,
 				    const SG::ReadHandleKey< xAOD::TrackParticleContainer >&,
@@ -38,11 +37,11 @@ class TrigBjetEtHypoAlgEVMT : public TrigBjetEtHypoAlgMT {
 				    const TrigCompositeUtils::DecisionContainer*&,
 				    std::vector< TrigCompositeUtils::Decision* >& ) const;
 
-  virtual const TrigCompositeUtils::Decision* getPreviousDecision( const TrigCompositeUtils::DecisionContainer*,unsigned int ) const;
+  virtual const TrigCompositeUtils::Decision* getPreviousDecision( const TrigCompositeUtils::DecisionContainer*,unsigned int ) const override;
 
   virtual StatusCode attachLinkToDecisions( const EventContext&,
                                             const TrigCompositeUtils::DecisionContainer*,
-                                            std::vector< TrigCompositeUtils::Decision* >& ) const;
+                                            std::vector< TrigCompositeUtils::Decision* >& ) const override;
 
  private:
   Gaudi::Property< std::string > m_trackLink {this,"TracksLink","Undefined","Link for track particle container in the output decision"};

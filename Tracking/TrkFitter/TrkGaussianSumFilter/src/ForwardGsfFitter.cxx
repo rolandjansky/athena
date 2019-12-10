@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /* *******************************************************************************
@@ -18,7 +18,6 @@ decription           : Implementation code for ForwardGsfFitter class
 #include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
 #include "TrkGaussianSumFilter/IMultiStateMeasurementUpdator.h"
 
-#include "CxxUtils/make_unique.h"
 #include "TrkDetElementBase/TrkDetElementBase.h"
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
@@ -291,7 +290,7 @@ Trk::ForwardGsfFitter::stepForwardFit(ForwardTrajectory* forwardTrajectory,
   // =================================================================
 
   const Trk::MultiComponentState* extrapolatedState =
-    m_extrapolator->extrapolate(*updatedState, surface, Trk::alongMomentum, false, particleHypothesis);
+    m_extrapolator->extrapolate(*updatedState, surface, Trk::alongMomentum, false, particleHypothesis).release(); 
 
   if (extrapolatedState && extrapolatedState != updatedState) {
     delete updatedState;
@@ -370,7 +369,7 @@ Trk::ForwardGsfFitter::stepForwardFit(ForwardTrajectory* forwardTrajectory,
 
     ATH_MSG_DEBUG("Update with new measurement caused track to fail Chi Squared test, removing the object");
 
-    fitQuality = CxxUtils::make_unique<FitQuality>(1, 1);
+    fitQuality = std::make_unique<FitQuality>(1, 1);
 
     std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> type(0);
     type.set(TrackStateOnSurface::Outlier);

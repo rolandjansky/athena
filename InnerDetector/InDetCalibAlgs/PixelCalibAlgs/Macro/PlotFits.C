@@ -1,7 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifdef __CPPCHECK__
+void PlotFits()
+#endif
 {
 std::vector<std::string> filenames;
 std::string parameter;
@@ -87,7 +90,8 @@ if(G4){
 }
 
 
-for(int ics = 0; ics < clustersizes.size(); ics++){
+size_t nclustersizes = clustersizes.size();
+for(int ics = 0; ics < nclustersizes; ics++){
 	for(int ibin = 0;  ibin < bins.size(); ibin++){
 		iglobal++;
 		TFile *file = TFile::Open((filenames[0] + ".root").c_str());

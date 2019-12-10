@@ -143,6 +143,8 @@ StatusCode TrigL2PattRecoStrategyT::initialize()
     return StatusCode::FAILURE;  
   }
 
+  ATH_CHECK( m_prdToTrackMap.initialize(m_prdToTrackMap.key().empty() ));
+
   m_filteredDriftCircleContainer = new InDet::TRT_DriftCircleContainer(m_trtId->straw_layer_hash_max());
   m_filteredDriftCircleContainer->addRef();
 
@@ -191,6 +193,45 @@ TrigL2PattRecoStrategyT::~TrigL2PattRecoStrategyT() {
 
 }
 
+namespace InDet {
+    class ExtendedSiCombinatorialTrackFinderData_xk : public SiCombinatorialTrackFinderData_xk {
+    public:
+      ExtendedSiCombinatorialTrackFinderData_xk(const SG::ReadHandleKey<Trk::PRDtoTrackMap> &key) {
+        if (!key.key().empty()) {
+          m_prdToTrackMap = SG::ReadHandle<Trk::PRDtoTrackMap>(key);
+          if (!m_prdToTrackMap.isValid()) {
+            throw std::runtime_error(std::string("Failed to get PRD to track map:") + key.key());
+          }
+          setPRDtoTrackMap(m_prdToTrackMap.cptr());
+        }
+      }
+
+    protected:
+      void dummy() override {}
+      SG::ReadHandle<Trk::PRDtoTrackMap> m_prdToTrackMap;
+    };
+
+    // Alternative veriosn with direct access if read handles do not work here:
+    // InDet::AltExtendedSiCombinatorialTrackFinderData_xk combinatorialData(evtStore(),m_prdToTrackMap.key());
+    class AltExtendedSiCombinatorialTrackFinderData_xk : public SiCombinatorialTrackFinderData_xk {
+    public:
+      AltExtendedSiCombinatorialTrackFinderData_xk(ServiceHandle<StoreGateSvc> &event_store,
+                                                   const std::string &key) {
+        if (!key.empty()) {
+          const Trk::PRDtoTrackMap *prd_to_track_map_cptr = nullptr;
+          if (event_store->retrieve(prd_to_track_map_cptr, key).isFailure()) {
+            throw std::runtime_error(std::string("Failed to get PRD to track map:") + key);
+          }
+          setPRDtoTrackMap(prd_to_track_map_cptr);
+        }
+      }
+
+    protected:
+      void dummy() override {}
+    };
+
+}
+
 HLT::ErrorCode TrigL2PattRecoStrategyT::findTracks(const TrigInDetTrackCollection&  inputTrackColl,
 						   const std::vector<const TrigSiSpacePoint*>& //vsp
 						   , 
@@ -225,8 +266,9 @@ HLT::ErrorCode TrigL2PattRecoStrategyT::findTracks(const TrigInDetTrackCollectio
     return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
   }
 
-  m_segmentsmaker->newRegion(listOfFilteredTrtIds);
-  m_segmentsmaker->find(); 
+  std::unique_ptr<InDet::ITRT_TrackSegmentsMaker::IEventData>
+     event_data = m_segmentsmaker->newRegion(listOfFilteredTrtIds);
+  m_segmentsmaker->find(*event_data);
 
   Trk::Segment* segment = 0;
   int nsegments = 0;
@@ -235,11 +277,11 @@ HLT::ErrorCode TrigL2PattRecoStrategyT::findTracks(const TrigInDetTrackCollectio
   
   Trk::SegmentCollection* foundSegments  = new Trk::SegmentCollection;
   
-  while((segment = m_segmentsmaker->next())) {
+  while((segment = m_segmentsmaker->next(*event_data))) {
     ++nsegments; foundSegments->push_back(segment);
   }
   
-  m_segmentsmaker->endEvent();
+  m_segmentsmaker->endEvent(*event_data);
 
   if (outputLevel <= MSG::INFO) 
     athenaLog << MSG::INFO << "REGTEST: Found " << nsegments << " TRT segments" << endmsg;
@@ -252,9 +294,12 @@ HLT::ErrorCode TrigL2PattRecoStrategyT::findTracks(const TrigInDetTrackCollectio
   
   m_regionSelector->DetHashIDList(SCT, roi, listOfSCTIds );
   m_regionSelector->DetHashIDList(PIXEL, roi, listOfPixIds);
-
-  InDet::SiCombinatorialTrackFinderData_xk combinatorialData;
-  m_trackmaker->newRegion(combinatorialData, listOfPixIds, listOfSCTIds); //RoI-based reconstruction
+  
+  InDet::AltExtendedSiCombinatorialTrackFinderData_xk combinatorialData_alt(evtStore(),m_prdToTrackMap.key());
+  InDet::ExtendedSiCombinatorialTrackFinderData_xk    combinatorialData(m_prdToTrackMap);
+  std::unique_ptr<InDet::ITRT_SeededTrackFinder::IEventData> event_data_p( m_trackmaker->newRegion(combinatorialData,
+                                                                                                   listOfPixIds,
+                                                                                                   listOfSCTIds) ); //RoI-based reconstruction
 
   TrackCollection* tempTracks = new TrackCollection;           //Temporary track collection per event
   
@@ -277,7 +322,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyT::findTracks(const TrigInDetTrackCollectio
     }
 
     nTrtSegGood++;
-    std::list<Trk::Track*> trackSi = m_trackmaker->getTrack(combinatorialData, *trtTrack); //Get the possible Si extensions
+    std::list<Trk::Track*> trackSi = m_trackmaker->getTrack(*event_data_p, *trtTrack); //Get the possible Si extensions
       
     if(trackSi.size()==0){
       if (outputLevel <= MSG::INFO) 

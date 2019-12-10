@@ -157,7 +157,7 @@ const xAOD::EventInfo* PileUpMergeSvc::getPileUpEvent( StoreGateSvc* sg, const s
          std::unique_ptr< xAOD::EventAuxInfo > pxAODEventAuxInfo(new xAOD::EventAuxInfo());
          pxAODEventInfo->setStore( pxAODEventAuxInfo.get() );
          pxAODEventInfo->setEvtStore( sg );
-         if( !m_xAODCnvTool->convert( pEvent, pxAODEventInfo.get(), false, false ).isSuccess() ) {
+         if( !m_xAODCnvTool->convert( pEvent, pxAODEventInfo.get(), true, false ).isSuccess() ) {
             ATH_MSG_ERROR("Failed to convert  xAOD::EventInfo in SG");
             return nullptr;
          }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FourMom/ErrorMatrixBase.h"
@@ -14,10 +14,10 @@ template < class FourMom>
 FourMomentumError< FourMom>::FourMomentumError(const ErrorMatrixPxPyPzE& m, 
 					       const FourMom& p4) :
   m_p4(p4),
-  m_PxPyPzE( new ErrorMatrixPxPyPzE(m)), 
-  m_EEtaPhiM(0),
-  m_PtEtaPhiM(0),
-  m_PtCotThPhiM(0),
+  m_PxPyPzE(std::make_unique<ErrorMatrixPxPyPzE>(m)), 
+  m_EEtaPhiM(nullptr),
+  m_PtEtaPhiM(nullptr),
+  m_PtCotThPhiM(nullptr),
   m_originalType(PxPyPzE)
 {}
 
@@ -25,10 +25,10 @@ template < class FourMom>
 FourMomentumError< FourMom>::FourMomentumError(const ErrorMatrixEEtaPhiM& m, 
 					       const FourMom& p4) :
   m_p4(p4),
-  m_PxPyPzE(0), 
-  m_EEtaPhiM( new ErrorMatrixEEtaPhiM(m)),
-  m_PtEtaPhiM(0),
-  m_PtCotThPhiM(0),
+  m_PxPyPzE(nullptr), 
+  m_EEtaPhiM(std::make_unique<ErrorMatrixEEtaPhiM>(m)),
+  m_PtEtaPhiM(nullptr),
+  m_PtCotThPhiM(nullptr),
   m_originalType(EEtaPhiM)
 {}
 
@@ -36,10 +36,10 @@ template < class FourMom>
 FourMomentumError< FourMom>::FourMomentumError(const ErrorMatrixPtEtaPhiM& m, 
 					       const FourMom& p4) :
   m_p4(p4),
-  m_PxPyPzE(0), 
-  m_EEtaPhiM(0),
-  m_PtEtaPhiM( new ErrorMatrixPtEtaPhiM(m)),
-  m_PtCotThPhiM(0),
+  m_PxPyPzE(nullptr), 
+  m_EEtaPhiM(nullptr),
+  m_PtEtaPhiM(std::make_unique<ErrorMatrixPtEtaPhiM>(m)),
+  m_PtCotThPhiM(nullptr),
   m_originalType(PtEtaPhiM)
 {}
 
@@ -47,10 +47,10 @@ template < class FourMom>
 FourMomentumError< FourMom>::FourMomentumError(const ErrorMatrixPtCotThPhiM& m, 
 					       const FourMom& p4) :
   m_p4(p4),
-  m_PxPyPzE(0), 
-  m_EEtaPhiM(0),
-  m_PtEtaPhiM(0),
-  m_PtCotThPhiM(new ErrorMatrixPtCotThPhiM(m)),
+  m_PxPyPzE(nullptr), 
+  m_EEtaPhiM(nullptr),
+  m_PtEtaPhiM(nullptr),
+  m_PtCotThPhiM(std::make_unique<ErrorMatrixPtCotThPhiM>(m)),
   m_originalType(PtCotThPhiM)
 {}
 
@@ -59,25 +59,25 @@ FourMomentumError< FourMom>::FourMomentumError( const CLHEP::HepSymMatrix& m,
 						ParamType t, 
 						const FourMom& p4) :
   m_p4(p4),
-  m_PxPyPzE(0), 
-  m_EEtaPhiM(0),
-  m_PtEtaPhiM(0),
-  m_PtCotThPhiM(0)
+  m_PxPyPzE(nullptr), 
+  m_EEtaPhiM(nullptr),
+  m_PtEtaPhiM(nullptr),
+  m_PtCotThPhiM(nullptr)
 {
   if ( t == PxPyPzE) {
-    m_PxPyPzE = new ErrorMatrixPxPyPzE( m);
+    m_PxPyPzE = std::make_unique<ErrorMatrixPxPyPzE>( m);
     m_originalType = PxPyPzE;
   }
   if ( t == EEtaPhiM) {
-    m_EEtaPhiM = new ErrorMatrixEEtaPhiM( m);
+    m_EEtaPhiM = std::make_unique<ErrorMatrixEEtaPhiM>( m);
     m_originalType = EEtaPhiM;
   }
   if ( t == PtEtaPhiM) {
-    m_PtEtaPhiM = new ErrorMatrixPtEtaPhiM( m);
+    m_PtEtaPhiM = std::make_unique<ErrorMatrixPtEtaPhiM>( m);
     m_originalType = PtEtaPhiM;
   }
   if ( t == PtCotThPhiM) {
-    m_PtCotThPhiM = new ErrorMatrixPtCotThPhiM( m);
+    m_PtCotThPhiM = std::make_unique<ErrorMatrixPtCotThPhiM>( m);
     m_originalType = PtCotThPhiM;
   }
 }
@@ -86,10 +86,10 @@ template < class FourMom>
 FourMomentumError< FourMom>::FourMomentumError( const FourMomentumError& other) :
   I4MomentumError(),
   m_p4( other.m_p4),
-  m_PxPyPzE(0), 
-  m_EEtaPhiM(0),
-  m_PtEtaPhiM(0),
-  m_PtCotThPhiM(0),
+  m_PxPyPzE(nullptr), 
+  m_EEtaPhiM(nullptr),
+  m_PtEtaPhiM(nullptr),
+  m_PtCotThPhiM(nullptr),
   m_originalType( other.originalType())
 {
   if (other.originalType() == PxPyPzE) {
@@ -112,11 +112,11 @@ FourMomentumError< FourMom> &FourMomentumError<FourMom>::operator=( const FourMo
 {
   if (this!=&other){
     m_p4( other.m_p4);
-    m_PxPyPzE = DeepCopyPointer<ErrorMatrixPxPyPzE>();
-    m_EEtaPhiM = DeepCopyPointer<ErrorMatrixEEtaPhiM>();
-    m_PtEtaPhiM = DeepCopyPointer<ErrorMatrixPtEtaPhiM>();
-    m_PtCotThPhiM = DeepCopyPointer<ErrorMatrixPtCotThPhiM>();
-    m_originalType( other.originalType());
+    m_PxPyPzE = std::make_unique<ErrorMatrixPxPyPzE>();
+    m_EEtaPhiM = std::make_unique<ErrorMatrixEEtaPhiM>();
+    m_PtEtaPhiM = std::make_unique<ErrorMatrixPtEtaPhiM>();
+    m_PtCotThPhiM = std::make_unique<ErrorMatrixPtCotThPhiM>();
+    m_originalType = other.originalType();
 
     if (other.originalType() == PxPyPzE) {
       m_PxPyPzE = new ErrorMatrixPxPyPzE( *other.pxPyPzEMatrix());
@@ -137,28 +137,28 @@ FourMomentumError< FourMom> &FourMomentumError<FourMom>::operator=( const FourMo
 template < class FourMom>
 const ErrorMatrixPxPyPzE* FourMomentumError< FourMom>::pxPyPzEMatrix() const
 {
-  if (m_PxPyPzE == static_cast<DeepCopyPointer<ErrorMatrixPxPyPzE> >( 0)) computePxPyPzEMatrix();
-  return &(*m_PxPyPzE);
+  if (!m_PxPyPzE) computePxPyPzEMatrix();
+  return m_PxPyPzE.get();
 }
 
 template < class FourMom>
 const ErrorMatrixEEtaPhiM* FourMomentumError< FourMom>::eEtaPhiMMatrix() const
 {
-  if (m_EEtaPhiM == static_cast<DeepCopyPointer<ErrorMatrixEEtaPhiM> >(0)) computeEEtaPhiMMatrix();
-  return &(*m_EEtaPhiM);
+  if (!m_EEtaPhiM) computeEEtaPhiMMatrix();
+  return m_EEtaPhiM.get();
 }
 
 template < class FourMom>
 const ErrorMatrixPtEtaPhiM* FourMomentumError< FourMom>::ptEtaPhiMMatrix() const
 {
-  if (m_PtEtaPhiM == static_cast<DeepCopyPointer<ErrorMatrixPtEtaPhiM> >(0)) computePtEtaPhiMMatrix();
-  return &(*m_PtEtaPhiM);
+  if (!m_PtEtaPhiM) computePtEtaPhiMMatrix();
+  return m_PtEtaPhiM.get();
 }
 
 template < class FourMom>
 const ErrorMatrixPtCotThPhiM* FourMomentumError< FourMom>::ptCotThPhiMMatrix() const
 {
-  return &(*m_PtCotThPhiM);
+  return m_PtCotThPhiM.get();
   // FIXME not implemented yet
 }
 
@@ -168,7 +168,7 @@ bool FourMomentumError< FourMom>::computePxPyPzEMatrix() const
   using namespace P4ErrorTransforms;
 
   if (m_originalType == EEtaPhiM) {
-    m_PxPyPzE = toPxPyPzE( *m_EEtaPhiM, m_p4.e(), m_p4.eta(), m_p4.phi(), m_p4.m());
+    m_PxPyPzE.set(toPxPyPzE( *m_EEtaPhiM, m_p4.e(), m_p4.eta(), m_p4.phi(), m_p4.m()));
     return true;
   }
   else if (m_originalType == PtEtaPhiM) {
@@ -187,7 +187,7 @@ bool FourMomentumError< FourMom>::computeEEtaPhiMMatrix() const
   using namespace P4ErrorTransforms;
 
   if (m_originalType == PxPyPzE) {
-    m_EEtaPhiM = toEEtaPhiM( *m_PxPyPzE, m_p4.px(), m_p4.py(), m_p4.pz(), m_p4.e());
+    m_EEtaPhiM.set(toEEtaPhiM( *m_PxPyPzE, m_p4.px(), m_p4.py(), m_p4.pz(), m_p4.e()));
     return true;
   }
   else if (m_originalType == PtEtaPhiM) {

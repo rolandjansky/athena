@@ -1,6 +1,7 @@
 #!/usr/bin/env python
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
 
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
@@ -1598,8 +1599,10 @@ class ItemDef:
 
                     LVL1MenuItem('L1_TAU60_DR-TAU20ITAU12I' ).setLogic( HA60 & TOPO_0DR28_TAU20abi_TAU12abi & physcond)
 
-            except Exception, ex:
-                    print "Creation of L1Topo item failed, will abort! Exception is : " , ex
+            except Exception as ex:
+                    print ("Creation of L1Topo item failed, will abort! Exception is : " , ex)
+                    import traceback
+                    traceback.print_exc()
                     raise RuntimeError("Creation of L1Topo item failed, will not continue")
         
         

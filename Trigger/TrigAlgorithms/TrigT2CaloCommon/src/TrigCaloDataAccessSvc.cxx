@@ -65,7 +65,6 @@ StatusCode TrigCaloDataAccessSvc::loadCollections ( const EventContext& context,
                                                     LArTT_Selector<LArCellCont>& loadedCells ) {
 
   std::vector<IdentifierHash> requestHashIDs;  
-  SG::ReadHandle<CaloBCIDAverage> avg (m_bcidAvgKey, context);
 
   ATH_MSG_DEBUG( "LArTT requested for event " << context << " and RoI " << roi );  
   unsigned int sc = prepareLArCollections( context, roi, sampling, detID );
@@ -143,10 +142,8 @@ StatusCode TrigCaloDataAccessSvc::loadCollections ( const EventContext& context,
 
 
 StatusCode TrigCaloDataAccessSvc::loadFullCollections ( const EventContext& context,
-                                                        ConstDataVector<CaloCellContainer>& cont ) {
+                                                        CaloConstCellContainer& cont ) {
 
-
-  SG::ReadHandle<CaloBCIDAverage> avg (m_bcidAvgKey, context);
   // Gets all data
   {
   std::lock_guard<std::mutex> dataPrepLock { m_dataPrepMutex };
@@ -169,9 +166,10 @@ StatusCode TrigCaloDataAccessSvc::loadFullCollections ( const EventContext& cont
   CaloCellContainer* cont_to_copy = m_hLTCaloSlot.get(context)->fullcont ;
   cont.clear();
   cont.reserve( cont_to_copy->size() );
-  for( const CaloCell* c : *cont_to_copy ) cont.push_back( c );
+  for( const CaloCell* c : *cont_to_copy ) cont.push_back_fast( c );
       
   ATH_CHECK( sc == 0 );
+  
   return StatusCode::SUCCESS;
 }
 
@@ -192,6 +190,10 @@ unsigned int TrigCaloDataAccessSvc::prepareLArFullCollections( const EventContex
 
   if ( cache->lastFSEvent == context.evt() ) return 0x0; // dummy code
        cache->larContainer->eventNumber( context.evt() ) ;
+  if ( m_applyOffsetCorrection && cache->larContainer->lumiBCIDCheck( context ) ) {
+	SG::ReadHandle<CaloBCIDAverage> avg (m_bcidAvgKey, context);
+	if ( avg.cptr() ) cache->larContainer->updateBCID( *avg.cptr() ); 
+  }
 
   unsigned int status(0);
 
@@ -212,7 +214,6 @@ unsigned int TrigCaloDataAccessSvc::prepareLArFullCollections( const EventContex
         //status |= 0x1; // dummy code
         clearMissing( vrodid32fullDet, robFrags, ( cache->larContainer ) );
       }
-
   } // end of for m_vrodid32fullDetHG.size()
 
   int detid(0);
@@ -317,7 +318,7 @@ unsigned int TrigCaloDataAccessSvc::lateInit() { // non-const this thing
   ec.setSlot( slot );
   HLTCaloEventCache *cache = m_hLTCaloSlot.get( ec );
   cache->larContainer = new LArCellCont();
-  if ( cache->larContainer->initialize( m_applyOffsetCorrection ).isFailure() )
+  if ( cache->larContainer->initialize( ).isFailure() )
 	return 0x1; // dummy code 
   std::vector<CaloCell*> local_cell_copy;
   local_cell_copy.reserve(200000);
@@ -567,6 +568,10 @@ unsigned int TrigCaloDataAccessSvc::prepareLArCollections( const EventContext& c
   // if it is the same the unpacking will not be repeated
   // same in prepareLArFullCollections
   cache->larContainer->eventNumber( context.evt() );
+  if ( m_applyOffsetCorrection && cache->larContainer->lumiBCIDCheck( context ) ) {
+	SG::ReadHandle<CaloBCIDAverage> avg (m_bcidAvgKey, context);
+	if ( avg.isValid() ) cache->larContainer->updateBCID( *avg.cptr() ); 
+  }
   
   unsigned int status = convertROBs( robFrags, ( cache->larContainer ) );
 

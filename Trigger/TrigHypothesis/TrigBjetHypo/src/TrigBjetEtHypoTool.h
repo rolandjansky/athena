@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ************************************************
@@ -24,9 +24,6 @@
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetAuxContainer.h"
 
-static const InterfaceID IID_TrigBjetEtHypoTool("TrigBjetEtHypoTool",1,0);
-
-
 class TrigBjetEtHypoTool : virtual public ::AthAlgTool {
 
  public:
@@ -42,13 +39,8 @@ class TrigBjetEtHypoTool : virtual public ::AthAlgTool {
   TrigBjetEtHypoTool (const std::string& type,
 		      const std::string& name,
 		      const IInterface* parent );
-  /** @brief Destructor. */
-  virtual ~TrigBjetEtHypoTool ();
 
-  StatusCode initialize() override;
-  StatusCode finalize() override;
-
-  static const InterfaceID& interfaceID();
+  virtual StatusCode initialize() override;
 
   TrigCompositeUtils::DecisionID decisionId() const;
   const HLT::Identifier getId() const;
@@ -68,8 +60,4 @@ class TrigBjetEtHypoTool : virtual public ::AthAlgTool {
   Gaudi::Property< float > m_maxEtaThreshold {this,"MaxEtaThreshold",0.0,"Max Eta threshold cut"};
 };
 
-inline const InterfaceID& TrigBjetEtHypoTool::interfaceID() { return IID_TrigBjetEtHypoTool; }
-
-
-#endif  // !TRIGBJETHYPO_TRIGBJETETHYPOTOOL_H   
-
+#endif  // !TRIGBJETHYPO_TRIGBJETETHYPOTOOL_H

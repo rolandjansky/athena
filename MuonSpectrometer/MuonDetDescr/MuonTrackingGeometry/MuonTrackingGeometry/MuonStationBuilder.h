@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -9,8 +9,11 @@
 #ifndef MUONTRACKINGGEOMETRY_MUONSTATIONBUILDER_H
 #define MUONTRACKINGGEOMETRY_MUONSTATIONBUILDER_H
 
+//Muon
+#include "MuonTrackingGeometry/MuonStationTypeBuilder.h"
 //Trk
 #include "TrkDetDescrInterfaces/IDetachedTrackingVolumeBuilder.h"
+#include "TrkDetDescrInterfaces/ITrackingVolumeHelper.h"
 #include "TrkGeometry/DetachedTrackingVolume.h"
 #include "TrkGeometry/TrackingVolume.h"
 // Gaudi
@@ -35,7 +38,6 @@ namespace Trk {
  class Layer;
  class ITrackingVolumeBuilder;
  class ITrackingVolumeArrayCreator;
- class ITrackingVolumeHelper;
  class ILayerBuilder;
  class ILayerArrayCreator;
  class MaterialProperties;
@@ -48,7 +50,6 @@ namespace MuonGM {
  
 namespace Muon {
 
-  class MuonStationTypeBuilder;      
   
   /** @class MuonStationBuilder
   
@@ -64,7 +65,7 @@ namespace Muon {
       /** Constructor */
       MuonStationBuilder(const std::string&,const std::string&,const IInterface*);
       /** Destructor */
-      ~MuonStationBuilder();
+      virtual ~MuonStationBuilder() = default;
       /** AlgTool initailize method.*/
       StatusCode initialize();
       /** AlgTool finalize method */
@@ -88,21 +89,19 @@ namespace Muon {
       const TgcIdHelper*            m_tgcIdHelper;           //!< 
       const sTgcIdHelper*           m_stgcIdHelper;           //!< 
       const MmIdHelper*             m_mmIdHelper;           //!< 
-      std::string                   m_muonMgrLocation;       //!< the location of the Muon Manager
+      Gaudi::Property<std::string>  m_muonMgrLocation{this,"MuonDetManagerLocation","MuonMgr"}; //!< the location of the Muon Manager
 
-      ToolHandle<Muon::MuonStationTypeBuilder>  m_muonStationTypeBuilder; //!< Helper Tool to create TrackingVolume Arrays
+      ToolHandle<Muon::MuonStationTypeBuilder>  m_muonStationTypeBuilder
+	{this,"StationTypeBuilder","Muon::MuonStationTypeBuilder/MuonStationTypeBuilder"}; //!< Helper Tool to create TrackingVolume Arrays
+      ToolHandle<Trk::ITrackingVolumeHelper>    m_trackingVolumeHelper{this,"TrackingVolumeHelper","Trk::TrackingVolumeHelper/TrackingVolumeHelper"};   //!< Helper Tool to create TrackingVolumes
 
-      ToolHandle<Trk::ITrackingVolumeHelper>    m_trackingVolumeHelper;   //!< Helper Tool to create TrackingVolumes
-
-      mutable Trk::Material                   m_muonMaterial;               //!< the material
-      //mutable std::pair<bool,Trk::Material>   m_sTgcMaterial;  //!< the material
-      //mutable std::pair<bool,Trk::Material>   m_mmMaterial;    //!< the material
+      Trk::Material                   m_muonMaterial;               //!< the material
       Trk::GeoShapeConverter*             m_geoShapeConverter;          //!< shape converter
       Trk::GeoMaterialConverter*          m_materialConverter;          //!< material converter
-      bool                                m_buildBarrel;
-      bool                                m_buildEndcap;
-      bool                                m_buildCsc;
-      bool                                m_buildTgc;  
+      Gaudi::Property<bool>               m_buildBarrel{this,"BuildBarrelStations",true};
+      Gaudi::Property<bool>               m_buildEndcap{this,"BuildEndcapStations",true};
+      Gaudi::Property<bool>               m_buildCsc{this,"BuildCSCStations",true};
+      Gaudi::Property<bool>               m_buildTgc{this,"BuildTGCStations",true};  
     };
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimEvent/DoubleArray.h"
@@ -43,6 +43,7 @@
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitBase.h"
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitChain.h"
+#include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationFluctChain.h"
 #include "ISF_FastCaloSimEvent/TFCSCenterPositionCalculation.h"
 #include "ISF_FastCaloSimEvent/TFCSFlatLateralShapeParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSHistoLateralShapeParametrization.h"
@@ -80,11 +81,11 @@
 #pragma link C++ class TFCS1DFunction_Numeric<double,float>+;
 #pragma link C++ class TFCS1DFunction_Numeric<double,double>+;
 
-#pragma link C++ class TFCS1DFunction_Array<float>+;
-#pragma link C++ class TFCS1DFunction_Array<double>+;
-#pragma link C++ class TFCS1DFunction_Array<uint8_t>+;
-#pragma link C++ class TFCS1DFunction_Array<uint16_t>+;
-#pragma link C++ class TFCS1DFunction_Array<uint32_t>+;
+#pragma link C++ class TFCS1DFunction_Array<float>-;
+#pragma link C++ class TFCS1DFunction_Array<double>-;
+#pragma link C++ class TFCS1DFunction_Array<uint8_t>-;
+#pragma link C++ class TFCS1DFunction_Array<uint16_t>-;
+#pragma link C++ class TFCS1DFunction_Array<uint32_t>-;
 
 #pragma link C++ class TFCS1DFunction_HistogramContent<float,float>+;
 #pragma link C++ class TFCS1DFunction_HistogramContent<double,float>+;
@@ -196,12 +197,13 @@
 #pragma link C++ class TFCSParametrizationAbsEtaSelectChain+;
 
 #pragma link C++ class TFCSEnergyParametrization+;
-#pragma link C++ class TFCSPCAEnergyParametrization+;
+#pragma link C++ class TFCSPCAEnergyParametrization-;
 #pragma link C++ class TFCSEnergyBinParametrization+;
 
 #pragma link C++ class TFCSLateralShapeParametrization+;
 #pragma link C++ class TFCSLateralShapeParametrizationHitBase+;
 #pragma link C++ class TFCSLateralShapeParametrizationHitChain+;
+#pragma link C++ class TFCSLateralShapeParametrizationFluctChain+;
 #pragma link C++ class TFCSCenterPositionCalculation+;
 #pragma link C++ class TFCSFlatLateralShapeParametrization+;
 #pragma link C++ class TFCSHistoLateralShapeParametrization+;

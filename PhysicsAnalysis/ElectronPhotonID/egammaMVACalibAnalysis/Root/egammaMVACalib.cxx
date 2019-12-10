@@ -34,9 +34,10 @@
 
 #include "egammaMVACalib/egammaMVALayerDepth.h"
 #include "egammaMVACalibAnalysis/egammaMVACalib.h"
-#include "MVAUtils/BDT.h"
 #include "PathResolver/PathResolver.h"
 
+#include "MVAUtils/BDT.h"
+#include "MVAUtils/TMVAToMVAUtils.h"
 using namespace MVAUtils;
 
 #define CHECK_SETUPBDT(EXP) { \
@@ -1509,12 +1510,11 @@ void egammaMVACalib::addReaderInfoToArrays(TMVA::Reader *reader,
 
   TMVA::MethodBDT* tbdt = dynamic_cast<TMVA::MethodBDT*>(reader->FindMVA("BDTG"));
   assert(tbdt);
-  BDT *bdt = new BDT(tbdt);
+  std::unique_ptr<BDT> bdt = TMVAToMVAUtils::convert(tbdt);
   TTree *tree = bdt->WriteTree(Form("BDT%d", index));
 
   variables->AddAtAndExpand(new TObjString(*vars), index);
   trees->AddAtAndExpand(tree, index);
-  delete bdt;
 }
 
 
@@ -1539,7 +1539,7 @@ double egammaMVACalib::get_shower_depth(double eta,
 TMVA::Reader* egammaMVACalib::getDummyReader(const TString &xmlFileName)
 {
   float dummyFloat;
-  TMVA::Reader *reader = new TMVA::Reader("Silent");
+  auto reader = std::make_unique<TMVA::Reader>("Silent");
 
   std::vector<egammaMVACalib::XmlVariableInfo> variable_infos = parseXml(xmlFileName);
   for (std::vector<egammaMVACalib::XmlVariableInfo>::const_iterator itvar = variable_infos.begin();
@@ -1570,7 +1570,7 @@ TMVA::Reader* egammaMVACalib::getDummyReader(const TString &xmlFileName)
   }
 
   reader->BookMVA("BDTG", xmlFileName);
-  return reader;
+  return reader.release();
 }
 
 //  LocalWords:  TObjArray

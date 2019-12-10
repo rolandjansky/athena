@@ -68,6 +68,7 @@ class TileDetDescrManager;
 class TileCellCollection;
 class CaloCellContainer;
 class TileDQstatus;
+class TileInfo;
 
 
 
@@ -159,7 +160,6 @@ private:
                                                              "Output Tile E4 prime container key"};
 
 
-    std::string m_infoName;
     std::string m_dspRawChannelContainer;
 
     float m_eneForTimeCut;        //!< keep time for channels with energy above cut
@@ -377,6 +377,12 @@ private:
     int m_towerE1 = E1_TOWER;
     bool m_notUpgradeCabling;
     bool m_run2;
+
+    // TileInfo
+    std::string m_infoName;
+    const TileInfo* m_tileInfo;
+    float m_ADCmaskValueMinusEps;
+    float m_ADCmaskValuePlusEps;
     bool m_run2plus;
 };
 

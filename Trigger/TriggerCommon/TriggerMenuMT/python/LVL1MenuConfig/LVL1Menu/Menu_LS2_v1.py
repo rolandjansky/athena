@@ -857,22 +857,6 @@ def defineMenu():
          'L1_AFP_C_ANY_MBTS_A',
          'L1_AFP_C_MU4',
 
-
-        #item with FTK trigger type, for FTK commissioning
-        'L1_MU6_FTK',
-        'L1_MU15_FTK',
-        'L1_MU20_FTK',
-        'L1_TAU12IM_FTK', 
-        'L1_TAU20IM_FTK',
-        'L1_MU20_TAU12IM_FTK', 
-        'L1_TAU20IM_2TAU12IM_J25_2J20_3J12_FTK',
-        'L1_DR-TAU20ITAU12I-J25_FTK',
-        'L1_4J15_FTK',
-        'L1_4J15.0ETA25_FTK',
-        'L1_J15_FTK',
-        'L1_J40_FTK',
-        'L1_J100_FTK'
-                
         ]
     
 
@@ -1517,19 +1501,6 @@ def defineMenu():
          'L1_ALFA_B7R1L' : 496,
 
         
-        'L1_MU6_FTK'                           : 499,
-        'L1_MU15_FTK'                          : 497,
-        'L1_MU20_FTK'                          : 500,
-        'L1_TAU12IM_FTK'                       : 501,
-        'L1_TAU20IM_FTK'                       : 86,
-        'L1_TAU20IM_2TAU12IM_J25_2J20_3J12_FTK': 502,
-        'L1_DR-TAU20ITAU12I-J25_FTK'           : 503,
-        'L1_4J15_FTK'                          : 504,
-        'L1_4J15.0ETA25_FTK'                   : 505,
-        'L1_J15_FTK'                           : 506,
-        'L1_J40_FTK'                           : 507,
-        'L1_J100_FTK'                          : 508,           
-        'L1_MU20_TAU12IM_FTK'                  : 498,
 #        'L1_ALFA_B7L1U_OD' : 497,
 #        'L1_ALFA_B7L1L_OD' : 498,
 #        'L1_ALFA_A7L1U_OD' : 499,

@@ -24,6 +24,7 @@
 #include "TileConditions/TileCablingSvc.h"
 #include "TileConditions/TileCablingService.h"
 #include "TileConditions/TilePulseShapes.h"
+#include "TileConditions/TileWienerFilterWeights.h"
 
 // Calo includes
 #include "CaloIdentifier/TileID.h"
@@ -37,7 +38,6 @@
 #include "AthenaKernel/errorcheck.h"
 
 // Gaudi includes
-#include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -56,6 +56,7 @@ TileInfoLoader::TileInfoLoader(const std::string& name,
   : AthService(name, pSvcLocator)
   , m_detStore("DetectorStore", name)
   , m_pulsevar(new TilePulseShapes())
+  , m_WFWeights(new TileWienerFilterWeights())
 {
 
   //==========================================================
@@ -188,12 +189,25 @@ TileInfoLoader::TileInfoLoader(const std::string& name,
   //==========================================================
   declareProperty("filename_DecoCovaFilePrefix" ,m_DecoCovaFilePrefix  = "DecoCovaMatrix");
 
+  //==========================================================
+  //=== Digitization
+  //==========================================================
+  declareProperty("ADCmax"                     ,m_ADCmax = 1023);
+  declareProperty("ADCmaskValue"               ,m_ADCmaskValue = 2047);
+
+  //==========================================================
+  //=== TileWienerFilterWeights configuration
+  //==========================================================
+  declareProperty("LoadWienerFilterWeights"    ,m_loadWienerFilterWeights    = false);
+  declareProperty("WienerFilterPhysicsNSamples",m_WFWeights->m_NSamples_Phys = 7);
+  declareProperty("WienerFilterLuminosity"     ,m_WFWeights->m_Luminosity    = 40);
 }
 
 //*****************************************************************************
 TileInfoLoader::~TileInfoLoader() {
 //*****************************************************************************
   delete m_pulsevar;
+  delete m_WFWeights;
 }
 
 //*****************************************************************************
@@ -240,8 +254,11 @@ StatusCode TileInfoLoader::initialize() {
   std::copy (std::begin(m_emscaleE), std::end(m_emscaleE), std::begin(info->m_emscaleE));
   std::copy (std::begin(m_emscaleMBTS), std::end(m_emscaleMBTS), std::begin(info->m_emscaleMBTS));
   std::copy (std::begin(m_nPhElecVec), std::end(m_nPhElecVec), std::begin(info->m_nPhElecVec));
+  info->m_ADCmax = m_ADCmax;
+  info->m_ADCmaskValue = m_ADCmaskValue;
 
-  
+  m_WFWeights->m_NSamples_Phys = info->m_nSamples; // to make sure that everything is consistent
+
   //=== Find the detector store service.
   CHECK( m_detStore.retrieve() );
 
@@ -376,6 +393,9 @@ StatusCode TileInfoLoader::initialize() {
   // put pointer to new TilePulseShapes in TileInfo
   // only if we want to use them (i.e. when we also read all calib files)
   info->m_pulseShapes = m_pulsevar;
+
+  // point to WienerFilterWeights
+  if (m_loadWienerFilterWeights) info->m_WienerFilterWeights=m_WFWeights;
 
   //=== Initialize and register TileInfo object
   CHECK( info->initialize() );

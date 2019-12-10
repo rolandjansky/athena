@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGGER_DECISION_TOOL_FeatureContainer_H
@@ -21,9 +21,9 @@
  * @author Joerg Stelzer   <Joerg.Stelzer@cern.ch>  - DESY
  *
  ***********************************************************************************/
-#include "boost/foreach.hpp"
 #include "boost/type_traits/is_same.hpp"
 #include "boost/type_traits/is_base_of.hpp"
+#include "boost/range/adaptor/reversed.hpp"
 
 #include "TrigDecisionTool/Combination.h"
 #include "TrigDecisionTool/Conditions.h"
@@ -176,7 +176,7 @@ Trig::FeatureContainer::get(const std::string& label, unsigned int condition, co
   std::set<Trig::Feature<T>, Trig::FeatureContainer::ordering_by_objects_attached2 > uniqnessHelper;
 
   
-  BOOST_FOREACH(const Trig::Combination& comb, m_combinations ) {
+  for(const Trig::Combination& comb : m_combinations ) {
     //std::cout << "   ---- combination has size " << comb.tes().size() << " tes[0] " << comb.tes()[0] << std::endl;
     //  for (std::vector<Trig::Combination>::const_iterator it = m_combinations.begin(); it != m_combinations.end(); ++it){
     if (condition == TrigDefs::Physics) {
@@ -187,7 +187,7 @@ Trig::FeatureContainer::get(const std::string& label, unsigned int condition, co
     //typedef std::vector< Trig::Feature<T> > FTV;
     //typename FTV::const_iterator fIt;
     //for (fIt = features.begin(); fIt != features.end(); ++fIt ) {
-    BOOST_REVERSE_FOREACH(const Trig::Feature<T>& f,  features) {      
+    for(const Trig::Feature<T>& f :  boost::adaptors::reverse(features)) {      
       //std::cout << "in FC::get, insertion of feature " << std::endl;
       uniqnessHelper.insert(f);
 

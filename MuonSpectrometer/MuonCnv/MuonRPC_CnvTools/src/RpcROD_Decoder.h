@@ -19,7 +19,7 @@
 #include "MuonRDO/RpcFiredChannel.h"
 #include "MuonRDO/RpcSectorLogicContainer.h"
 
-#include "MuonIdHelpers/RpcIdHelper.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 #include "eformat/Issue.h"
 #include "eformat/SourceIdentifier.h"
@@ -133,7 +133,9 @@ namespace Muon
     
     //RpcPadIdHash*                      m_hashfunc;
     const IRPCcablingSvc*              m_cabling;
-    const RpcIdHelper*                 m_pRpcIdHelper;
+
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
     
     // re-define the ROB number
     IntegerProperty m_specialROBNumber;
@@ -689,7 +691,7 @@ namespace Muon
     
     if (msgLvl(MSG::VERBOSE ) )
       msg(MSG::VERBOSE) << "The offline ID request for conversion is "
-      << m_pRpcIdHelper->show_to_string(thisPadOfflineId) << endmsg;
+      << m_muonIdHelperTool->rpcIdHelper().show_to_string(thisPadOfflineId) << endmsg;
     
     bool isSLHeader    =false;
     bool isSLSubHeader =false;
@@ -1075,7 +1077,7 @@ namespace Muon
             << sectorLogic << endmsg;
           } else {
             if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) 
-            << "ID " << m_pRpcIdHelper->show_to_string(padOfflineId)
+            << "ID " << m_muonIdHelperTool->rpcIdHelper().show_to_string(padOfflineId)
             << " associated to PAD n. " << PadID << " at side " 
             << side << " and  sector " << sectorLogic << endmsg; 
           }
@@ -1085,7 +1087,7 @@ namespace Muon
             
             if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) 
             << " match found with ID " 
-            << m_pRpcIdHelper->show_to_string(thisPadOfflineId)
+            << m_muonIdHelperTool->rpcIdHelper().show_to_string(thisPadOfflineId)
             << " requested for the conversion; return this collection" 
             << endmsg; 
             
@@ -1102,7 +1104,7 @@ namespace Muon
           {
             if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) 
             << " match NOT found with ID "  
-            << m_pRpcIdHelper->show_to_string(thisPadOfflineId)
+            << m_muonIdHelperTool->rpcIdHelper().show_to_string(thisPadOfflineId)
             << " requested for the conversion" << endmsg;  
           }
           
@@ -1302,7 +1304,7 @@ namespace Muon
     bool foundPad=false;
     
     
-    ATH_MSG_VERBOSE( "The offline ID request for conversion is " << m_pRpcIdHelper->show_to_string(thisPadOfflineId) );
+    ATH_MSG_VERBOSE( "The offline ID request for conversion is " << m_muonIdHelperTool->rpcIdHelper().show_to_string(thisPadOfflineId) );
     
     
     bool isSLHeader    =false;
@@ -1578,7 +1580,7 @@ namespace Muon
           else 
             if (msgLvl(MSG::VERBOSE) ) 
               msg(MSG::VERBOSE) 
-              << "ID " << m_pRpcIdHelper->show_to_string(padOfflineId)
+              << "ID " << m_muonIdHelperTool->rpcIdHelper().show_to_string(padOfflineId)
               << " associated to PAD n. " << PadID << " at side " 
               << side << " and  sector " << sectorLogic << endmsg; 
           
@@ -1588,7 +1590,7 @@ namespace Muon
             if (msgLvl(MSG::VERBOSE) ) 
               msg(MSG::VERBOSE) 
               << " match found with ID " 
-              << m_pRpcIdHelper->show_to_string(thisPadOfflineId)
+              << m_muonIdHelperTool->rpcIdHelper().show_to_string(thisPadOfflineId)
               << " requested for the conversion; return this collection" 
               << endmsg; 
             
@@ -1609,7 +1611,7 @@ namespace Muon
             if (msgLvl(MSG::VERBOSE) ) 
               msg(MSG::VERBOSE) 
               << " match NOT found with ID " 
-              << m_pRpcIdHelper->show_to_string(thisPadOfflineId)
+              << m_muonIdHelperTool->rpcIdHelper().show_to_string(thisPadOfflineId)
               << " requested for the conversion" << endmsg; 
           } 
         }
@@ -2075,7 +2077,7 @@ namespace Muon
           else 
             if (msgLvl(MSG::VERBOSE) ) 
               msg(MSG::VERBOSE) 
-              << "ID " << m_pRpcIdHelper->show_to_string(padOfflineId)
+              << "ID " << m_muonIdHelperTool->rpcIdHelper().show_to_string(padOfflineId)
               << " associated to PAD n. " << PadID << " at side " 
               << side << " and  sector " << sectorLogic << endmsg;
           
@@ -2084,7 +2086,7 @@ namespace Muon
             if (msgLvl(MSG::VERBOSE) ) 
               msg(MSG::VERBOSE) 
               << " match found with ID " 
-              << m_pRpcIdHelper->show_to_string(thisPadOfflineId)
+              << m_muonIdHelperTool->rpcIdHelper().show_to_string(thisPadOfflineId)
               << " requested for the conversion; return this collection" 
               << endmsg; 
             
@@ -2105,7 +2107,7 @@ namespace Muon
             if (msgLvl(MSG::VERBOSE) ) 
               msg(MSG::VERBOSE) 
               << " match NOT found with ID " 
-              << m_pRpcIdHelper->show_to_string(thisPadOfflineId)
+              << m_muonIdHelperTool->rpcIdHelper().show_to_string(thisPadOfflineId)
               << " requested for the conversion" << endmsg;
           } 
         }
@@ -2252,7 +2254,7 @@ namespace Muon
     
     if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) 
       << "The offline ID request for conversion is " 
-      << m_pRpcIdHelper->show_to_string(thisPadOfflineId) 
+      << m_muonIdHelperTool->rpcIdHelper().show_to_string(thisPadOfflineId) 
       << endmsg;
     
     // remove the rod header and footer then
@@ -2347,7 +2349,7 @@ namespace Muon
         else 
           if (msgLvl(MSG::VERBOSE) ) 
             msg(MSG::VERBOSE) 
-            << "ID " << m_pRpcIdHelper->show_to_string(padOfflineId)
+            << "ID " << m_muonIdHelperTool->rpcIdHelper().show_to_string(padOfflineId)
             << " associated to PAD n. " << padId << " at side " 
             << side << " and  sector " << slogic << endmsg;
         
@@ -2359,15 +2361,15 @@ namespace Muon
         if (thisPadOfflineId == padOfflineId) {
           if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) 
             << "Found the collection to return " 
-            << m_pRpcIdHelper->show_to_string(thisPadOfflineId) 
+            << m_muonIdHelperTool->rpcIdHelper().show_to_string(thisPadOfflineId) 
             << endmsg;
           v.setOnlineId(padId);
           v.setStatus(status);
           v.setSector(sectorID);
         } else {
           if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) 
-            << m_pRpcIdHelper->show_to_string(thisPadOfflineId) 
-            << "!=" << m_pRpcIdHelper->show_to_string(padOfflineId)
+            << m_muonIdHelperTool->rpcIdHelper().show_to_string(thisPadOfflineId) 
+            << "!=" << m_muonIdHelperTool->rpcIdHelper().show_to_string(padOfflineId)
             << endmsg;
         } 
         char cmaHeader    = 'U';

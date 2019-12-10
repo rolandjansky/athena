@@ -31,7 +31,7 @@ TgcDigitToTgcRDO::TgcDigitToTgcRDO(const std::string& name, ISvcLocator* pSvcLoc
 StatusCode TgcDigitToTgcRDO::initialize()
 {
   ATH_MSG_DEBUG( " in initialize()"  );
-  ATH_CHECK( detStore()->retrieve( m_tgcIdHelper, "TGCIDHELPER") );
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
   ATH_CHECK( m_tgc_cabling_server.retrieve() );
 
   ATH_MSG_DEBUG( "standard digitization job: "
@@ -106,7 +106,7 @@ StatusCode TgcDigitToTgcRDO::fill_TGCdata(const EventContext& ctx) const
             bctag = 0;
           }
 
-	  if (m_tgcIdHelper->valid(channelId))
+	  if (m_muonIdHelperTool->tgcIdHelper().valid(channelId))
 	    {
 	      // Get the online Id of the channel
 	      int subDetectorID;
@@ -140,19 +140,19 @@ StatusCode TgcDigitToTgcRDO::fill_TGCdata(const EventContext& ctx) const
 		    {
 		      ATH_MSG_DEBUG( "ITGCcablingSvc can't return an online ID for the channel : "
                                      << MSG::dec
-                                     << " N_" << m_tgcIdHelper->stationName(channelId)
-                                     << " E_" << m_tgcIdHelper->stationEta(channelId)
-                                     << " P_" << m_tgcIdHelper->stationPhi(channelId)
-                                     << " G_" << m_tgcIdHelper->gasGap(channelId)
-                                     << " C_" << m_tgcIdHelper->channel(channelId) );
+                                     << " N_" << m_muonIdHelperTool->tgcIdHelper().stationName(channelId)
+                                     << " E_" << m_muonIdHelperTool->tgcIdHelper().stationEta(channelId)
+                                     << " P_" << m_muonIdHelperTool->tgcIdHelper().stationPhi(channelId)
+                                     << " G_" << m_muonIdHelperTool->tgcIdHelper().gasGap(channelId)
+                                     << " C_" << m_muonIdHelperTool->tgcIdHelper().channel(channelId) );
 		      continue;
 		    }
 
 		  // Create the new Tgc RawData
 //           TgcRawData* rawData
 //             = new TgcRawData(bctag,subDetectorID,rodID,sswID,slbID,0,0,channelID);
-                  bool isStrip = m_tgcIdHelper->isStrip(channelId);
-                  std::string name = m_tgcIdHelper->stationNameString(m_tgcIdHelper->stationName(channelId));
+                  bool isStrip = m_muonIdHelperTool->tgcIdHelper().isStrip(channelId);
+                  std::string name = m_muonIdHelperTool->tgcIdHelper().stationNameString(m_muonIdHelperTool->tgcIdHelper().stationName(channelId));
                   TgcRawData::SlbType type = TgcRawData::SLB_TYPE_UNKNOWN;
                   if (name[1] == '4')
                     type = isStrip ? TgcRawData::SLB_TYPE_INNER_STRIP : TgcRawData::SLB_TYPE_INNER_WIRE;

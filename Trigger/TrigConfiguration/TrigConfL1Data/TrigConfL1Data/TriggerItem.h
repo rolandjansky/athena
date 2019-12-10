@@ -43,7 +43,7 @@ namespace TrigConf {
       void setTopNode(TriggerItemNode* ptrnode ) { m_TopNode = ptrnode; }
       void setTriggerType(unsigned int tt) { m_TriggerType = (tt & 0xff); }
       void setCtpId (int id) { m_CtpId = id; }
-      void setDefinition(std::string def) { m_Definition = def; }
+      void setDefinition(const std::string& def) { m_Definition = def; }
 
       bool isTriggerTypeBitOn(int ibit) const { return ( (m_TriggerType & (1<<ibit) )!=0); }
 

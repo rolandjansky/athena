@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
 # ------------------------------------------------------------
@@ -565,11 +565,6 @@ if InDetTrigFlags.loadFitter():
       InDetTrigTrackFitterTRT.MaxOutliers=99
             
   elif InDetTrigFlags.trackFitterType() is 'GaussianSumFilter' :
-    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMaterialMixtureConvolution
-    InDetTrigGsfMaterialUpdator = Trk__GsfMaterialMixtureConvolution (name = 'InDetTrigGsfMaterialUpdator')
-    ToolSvc += InDetTrigGsfMaterialUpdator
-    if (InDetTrigFlags.doPrintConfigurables()):
-      print      InDetTrigGsfMaterialUpdator
     #
     # component Reduction
     #
@@ -580,6 +575,13 @@ if InDetTrigFlags.loadFitter():
     ToolSvc += InDetTrigGsfComponentReduction
     if (InDetTrigFlags.doPrintConfigurables()):
       print      InDetTrigGsfComponentReduction
+    
+    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMaterialMixtureConvolution
+    InDetTrigGsfMaterialUpdator = Trk__GsfMaterialMixtureConvolution (name = 'InDetTrigGsfMaterialUpdator',
+                                                                      MultiComponentStateMerger = InDetTrigGsfComponentReduction)
+    ToolSvc += InDetTrigGsfMaterialUpdator
+    if (InDetTrigFlags.doPrintConfigurables()):
+      print      InDetTrigGsfMaterialUpdator
     #
     # declare the extrapolator
     #
@@ -590,7 +592,6 @@ if InDetTrigFlags.loadFitter():
                                                     StickyConfiguration           = True,
                                                     Navigator                     = InDetTrigNavigator,
                                                     GsfMaterialConvolution        = InDetTrigGsfMaterialUpdator,
-                                                    ComponentMerger               = InDetTrigGsfComponentReduction,
                                                     SurfaceBasedMaterialEffects   = False )
     ToolSvc += InDetTrigGsfExtrapolator
     if (InDetTrigFlags.doPrintConfigurables()):
@@ -694,13 +695,6 @@ if InDetTrigFlags.loadSummaryTool():
 
   #prevent loading of the pixel dE/dx tool  
   InDetTrigPixelToTPIDTool = None
-#   try:
-#     from PixelToTPIDTool.PixelToTPIDToolConf import InDet__PixelToTPIDTool
-#     InDetTrigPixelToTPIDTool = InDet__PixelToTPIDTool(name = "InDetTrigPixelToTPIDTool")
-#     ToolSvc += InDetTrigPixelToTPIDTool
-    
-#   except:
-#     log.info("InDetTrigPixelToTPIDTool requested but not available")
   if (InDetTrigFlags.doPrintConfigurables()):
     print     'InDetTrigPixelToTPIDTool ', InDetTrigPixelToTPIDTool
 
@@ -918,7 +912,6 @@ if InDetTrigFlags.doNewTracking():
                                                                  PropagatorTool	= InDetTrigPatternPropagator,
                                                                  UpdatorTool	= InDetTrigPatternUpdator,
                                                                  RIOonTrackTool   = InDetTrigRotCreator,
-                                                                 AssosiationTool  = InDetTrigPrdAssociationTool,
                                                                  usePixel         = DetFlags.haveRIO.pixel_on(),
                                                                  useSCT           = DetFlags.haveRIO.SCT_on(),   
                                                                  PixelClusterContainer = 'PixelTrigClusters',
@@ -946,11 +939,12 @@ if InDetTrigFlags.doNewTracking():
                                                             WriteKey = "SCT_DetElementBoundaryLinks_xk")
       #to here
 
+import InDetRecExample.TrackingCommon as TrackingCommon
 from InDetAmbiTrackSelectionTool.InDetAmbiTrackSelectionToolConf import InDet__InDetAmbiTrackSelectionTool
 InDetTrigAmbiTrackSelectionTool = \
     InDet__InDetAmbiTrackSelectionTool(name               = 'InDetTrigAmbiTrackSelectionTool',
-                                       AssociationTool    = InDetTrigPrdAssociationTool,
                                        DriftCircleCutTool = InDetTrigTRTDriftCircleCut,
+                                       AssociationTool = TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels(),
                                        minHits         = InDetTrigCutValues.minClusters(),
                                        minNotShared    = InDetTrigCutValues.minSiNotShared(),
                                        maxShared       = InDetTrigCutValues.maxShared(),

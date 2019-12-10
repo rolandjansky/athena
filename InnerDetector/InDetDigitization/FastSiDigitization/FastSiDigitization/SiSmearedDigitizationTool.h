@@ -50,7 +50,6 @@ typedef std::tuple< Amg::Vector2D, InDet::SiWidth, Amg::MatrixX * > ClusterInfo;
 
 class PixelID;
 class SCT_ID;
-class IModuleDistortionsTool;
 class TTree;
 class TFile;
 

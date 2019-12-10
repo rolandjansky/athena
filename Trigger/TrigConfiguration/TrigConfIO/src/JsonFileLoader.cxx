@@ -24,7 +24,7 @@ TrigConf::JsonFileLoader::~JsonFileLoader()
 StatusCode
 TrigConf::JsonFileLoader::loadFile( const std::string & filename,
                                     boost::property_tree::ptree & data,
-                                    const std::string & pathToChild )
+                                    const std::string & pathToChild ) const 
 {
 
    /*
@@ -91,7 +91,7 @@ TrigConf::JsonFileLoader::loadFile( const std::string & filename,
 StatusCode
 TrigConf::JsonFileLoader::loadFile( const std::string & filename,
                                     DataStructure & data,
-                                    const std::string & pathToChild )
+                                    const std::string & pathToChild ) const
 {
    boost::property_tree::ptree pt;
 
@@ -103,4 +103,40 @@ TrigConf::JsonFileLoader::loadFile( const std::string & filename,
    data.setData(pt);
 
    return StatusCode::SUCCESS;
+}
+
+
+std::string
+TrigConf::JsonFileLoader::getFileType( const std::string & filename ) const {
+   std::string ft = "UNKNOWN";
+
+   DataStructure data;
+   StatusCode sc = this -> loadFile ( filename, data );
+
+   if (sc == StatusCode::SUCCESS) {
+      ft = data.getAttribute("filetype", /*ignoreIfMissing*/ true, ft);
+   }
+
+   return ft;
+}
+
+
+StatusCode
+TrigConf::JsonFileLoader::checkTriggerLevel( const std::string & filename,
+                                             std::string & level ) const {
+   level = "UNKNOWN";
+
+   DataStructure data;
+
+   StatusCode sc = this -> loadFile ( filename, data );
+
+   if (sc == StatusCode::SUCCESS) {
+      if (data.hasChild("chains")) {
+         level = "HLT";
+      } else if (data.hasChild("items")) {
+         level = "L1";
+      }
+   }
+
+   return sc;
 }

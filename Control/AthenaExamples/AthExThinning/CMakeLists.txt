@@ -33,7 +33,6 @@ atlas_add_library( AthExThinningEvent
                    src_lib/AthExElephantino.cxx
                    src_lib/AthExDecay.cxx
                    src_lib/AthExFatObject.cxx
-                   src_lib/AthExFatObjectSlimmer.cxx
                    src_lib/AthExElephantino_p1.cxx
                    src_lib/AthExDecay_p1.cxx
                    src_lib/AthExParticles_p1.cxx
@@ -48,7 +47,6 @@ atlas_add_component( AthExThinningAlgs
                      src_lib/CreateData.cxx
                      src_lib/WriteThinnedData.cxx
                      src_lib/ReadThinnedData.cxx
-                     src_lib/SlimmerAlg.cxx
                      src_lib/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers AthLinks AthenaBaseComps AthenaKernel DataModelAthenaPoolLib AthenaPoolUtilities GaudiKernel StoreGateLib SGtests AthenaPoolCnvSvcLib AthExThinningEvent )
@@ -67,7 +65,8 @@ atlas_add_dictionary( AthExThinningEventDict
                       ELEMENT_LINKS  AthExParticles AthExIParticles )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py
+                              POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 atlas_install_runtime( test/*.ref )
 
@@ -83,10 +82,3 @@ atlas_add_test( test_pythinning
                 EXTRA_PATTERNS ":::running" )
 set_tests_properties( AthExThinning_test_pythinning_ctest
                       PROPERTIES DEPENDS AthExThinning_test_thinning_ctest )
-
-atlas_add_test( test_slimming
-                SCRIPT test/test_slimming.sh
-                PROPERTIES TIMEOUT 900
-                EXTRA_PATTERNS ":::running" )
-set_tests_properties( AthExThinning_test_slimming_ctest
-                      PROPERTIES DEPENDS AthExThinning_test_pythinning_ctest )

@@ -11,7 +11,8 @@
 #include "MuonCSC_CnvTools/ICSC_RDO_Decoder.h"
 #include "MuonRDO/CscRawDataContainer.h"
 #include "MuonDigitContainer/CscDigitContainer.h"
-class CscIdHelper;
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 // class CscDigitContainer;
 // class CscDigitCollection;
 // class CscRawDataCollection;
@@ -35,7 +36,8 @@ class CscRdoToCscDigit : public AthReentrantAlgorithm {
 
   ToolHandle<ICscCalibTool>     m_cscCalibTool{this, "cscCalibTool", "CscCalibTool", ""};
   ToolHandle<Muon::ICSC_RDO_Decoder>  m_cscRdoDecoderTool{this, "cscRdoDecoderTool", "Muon::CscRDO_Decoder", ""};
-  const CscIdHelper *   m_cscHelper{};
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   SG::ReadHandleKey<CscRawDataContainer> m_cscRdoKey{this, "CscRdoContainer", "CSCRDO", "Csc RDO Input"};
   SG::WriteHandleKey<CscDigitContainer> m_cscDigitKey{this, "CscDigitContainer", "CSC_DIGITS", "Csc Digit Output"};
 };

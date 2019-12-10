@@ -14,10 +14,8 @@ TrigTauCaloHypoAlgMT::TrigTauCaloHypoAlgMT( const std::string& name,
 				      ISvcLocator* pSvcLocator ) :
   ::HypoBase( name, pSvcLocator ) {}
 
-TrigTauCaloHypoAlgMT::~TrigTauCaloHypoAlgMT() {}
 
 StatusCode TrigTauCaloHypoAlgMT::initialize() {
-  ATH_MSG_INFO ( "Initializing " << name() << "..." );  
   ATH_CHECK( m_hypoTools.retrieve() );
   ATH_CHECK( m_tauJetKey.initialize() );
   renounce( m_tauJetKey );// clusters are made in views, so they are not in the EvtStore: hide them
@@ -25,9 +23,6 @@ StatusCode TrigTauCaloHypoAlgMT::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigTauCaloHypoAlgMT::finalize() {   
-  return StatusCode::SUCCESS;
-}
 
 StatusCode TrigTauCaloHypoAlgMT::execute( const EventContext& context ) const {  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
@@ -52,15 +47,15 @@ StatusCode TrigTauCaloHypoAlgMT::execute( const EventContext& context ) const {
     counter++;
 
     //get RoI
-    auto roiELInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( previousDecision, "initialRoI" );
+    auto roiELInfo = findLink<TrigRoiDescriptorCollection>( previousDecision, initialRoIString() );
     ATH_CHECK( roiELInfo.isValid() );
     const TrigRoiDescriptor* roi = *(roiELInfo.link);
 
     // get View
-    auto viewELInfo = TrigCompositeUtils::findLink< ViewContainer >( previousDecision, "view" );
-    ATH_CHECK( viewELInfo.isValid() );
+    const auto viewEL = previousDecision->objectLink<ViewContainer>( viewString() );
+    ATH_CHECK( viewEL.isValid() );
 
-    auto clusterHandle = ViewHelper::makeHandle( *(viewELInfo.link), m_tauJetKey, context);
+    auto clusterHandle = ViewHelper::makeHandle( *viewEL, m_tauJetKey, context);
     ATH_CHECK( clusterHandle.isValid() );
     ATH_MSG_DEBUG ( "Cluster handle size: " << clusterHandle->size() << "..." );
 
@@ -72,15 +67,15 @@ StatusCode TrigTauCaloHypoAlgMT::execute( const EventContext& context ) const {
     // create new decision
     auto d = newDecisionIn( decisions, name() );
     TrigCompositeUtils::linkToPrevious( d, previousDecision, context );
-    d->setObjectLink( "roi", roiELInfo.link );
+    d->setObjectLink( roiString(), roiELInfo.link );
 
-    auto el = ViewHelper::makeLink( *(viewELInfo.link), clusterHandle, 0 );
+    auto el = ViewHelper::makeLink( *viewEL, clusterHandle, 0 );
     ATH_CHECK( el.isValid() );
-    d->setObjectLink( "feature",  el );
+    d->setObjectLink( featureString(),  el );
 
     toolInput.emplace_back( d, roi, clusterHandle.cptr(), previousDecision );
 
-    ATH_MSG_DEBUG( "Added view, roi, cluster, previous decision to new decision " << counter << " for view " << (*viewELInfo.link)->name()  );
+    ATH_MSG_DEBUG( "Added view, roi, cluster, previous decision to new decision " << counter << " for view " << (*viewEL)->name()  );
   }
 
   ATH_MSG_DEBUG( "Found "<<toolInput.size()<<" inputs to tools");

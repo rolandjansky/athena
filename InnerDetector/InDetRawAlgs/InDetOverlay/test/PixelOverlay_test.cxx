@@ -37,18 +37,23 @@ namespace OverlayTesting {
     virtual void SetUp() override {
       m_alg = new PixelOverlay{"PixelOverlay", g_svcLoc};
       ASSERT_TRUE( m_alg->setProperties().isSuccess() );
+      ASSERT_TRUE( g_svcLoc->service("StoreGateSvc", m_sg) );
     }
 
     virtual void TearDown() override {
       ASSERT_TRUE( m_alg->finalize().isSuccess() );
       delete m_alg;
+      ASSERT_TRUE( m_sg->clearStore().isSuccess() );
     }
 
-    PixelOverlay* m_alg;
+    PixelOverlay* m_alg{};
+    StoreGateSvc* m_sg{};
   };   // PixelOverlay_test fixture
 
 
   TEST_F(PixelOverlay_test, set_properties) {
+    EventContext ctx(0,0);
+    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
     // ordering A, C, B is on purpose to test for unintended alphabetic ordering
     std::string  inputSigPropertyValue = "'StoreGateSvc+PixelRDOs_SIG'";
     std::string  inputBkgPropertyValue = "'StoreGateSvc+PixelRDOs_BKG'";
@@ -57,10 +62,12 @@ namespace OverlayTesting {
     ASSERT_TRUE( m_alg->setProperty( "BkgInputKey",   inputBkgPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->setProperty( "OutputKey", outputPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
-    ASSERT_TRUE( m_alg->execute().isFailure() ); //inputs don't exist
+    ASSERT_TRUE( m_alg->execute(ctx).isFailure() ); //inputs don't exist
   }
 
   TEST_F(PixelOverlay_test, empty_containers_alg_execute) {
+    EventContext ctx(0,0);
+    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
     SG::WriteHandle<PixelRDO_Container> inputSigDataHandle{"StoreGateSvc+PixelRDOs_SIG"};
     const unsigned int containerSize(1188);
     inputSigDataHandle = std::make_unique<PixelRDO_Container>(containerSize);
@@ -75,10 +82,12 @@ namespace OverlayTesting {
     ASSERT_TRUE( m_alg->setProperty( "BkgInputKey",   inputBkgPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->setProperty( "OutputKey", outputPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
-    ASSERT_TRUE( m_alg->execute().isSuccess() );
+    ASSERT_TRUE( m_alg->execute(ctx).isSuccess() );
   }
 
   TEST_F(PixelOverlay_test, containers_with_matching_empty_collections) {
+    EventContext ctx(0,0);
+    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
     SG::WriteHandle<PixelRDO_Container> inputSigDataHandle{"StoreGateSvc+PixelRDOs_SIG1"};
     const unsigned int containerSize(1188);
     IdentifierHash sigElementHash(1);
@@ -101,7 +110,7 @@ namespace OverlayTesting {
     ASSERT_TRUE( m_alg->setProperty( "BkgInputKey",   inputBkgPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->setProperty( "OutputKey", outputPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
-    ASSERT_TRUE( m_alg->execute().isSuccess() );
+    ASSERT_TRUE( m_alg->execute(ctx).isSuccess() );
     // check output makes sense
     SG::ReadHandle<PixelRDO_Container> outputDataHandle{"StoreGateSvc+PixelRDOs1"};
     ASSERT_TRUE( outputDataHandle.isValid() );
@@ -111,6 +120,8 @@ namespace OverlayTesting {
   }
 
   TEST_F(PixelOverlay_test, containers_with_different_empty_collections) {
+    EventContext ctx(0,0);
+    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
     SG::WriteHandle<PixelRDO_Container> inputSigDataHandle{"StoreGateSvc+PixelRDOs_SIG2"};
     const unsigned int containerSize(1188);
     IdentifierHash sigElementHash(1);
@@ -133,7 +144,7 @@ namespace OverlayTesting {
     ASSERT_TRUE( m_alg->setProperty( "BkgInputKey",   inputBkgPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->setProperty( "OutputKey", outputPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
-    ASSERT_TRUE( m_alg->execute().isSuccess() );
+    ASSERT_TRUE( m_alg->execute(ctx).isSuccess() );
     // check output makes sense
     SG::ReadHandle<PixelRDO_Container> outputDataHandle{"StoreGateSvc+PixelRDOs2"};
     ASSERT_TRUE( outputDataHandle.isValid() );
@@ -146,6 +157,8 @@ namespace OverlayTesting {
   }
 
   TEST_F(PixelOverlay_test, containers_with_matching_collections_one_with_an_RDO) {
+    EventContext ctx(0,0);
+    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
     SG::WriteHandle<PixelRDO_Container> inputSigDataHandle{"StoreGateSvc+PixelRDOs_SIG3"};
     const unsigned int containerSize(1188);
     const IdentifierHash sigElementHash(1);
@@ -173,7 +186,7 @@ namespace OverlayTesting {
     ASSERT_TRUE( m_alg->setProperty( "BkgInputKey",   inputBkgPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->setProperty( "OutputKey", outputPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
-    ASSERT_TRUE( m_alg->execute().isSuccess() );
+    ASSERT_TRUE( m_alg->execute(ctx).isSuccess() );
     // check output makes sense
     SG::ReadHandle<PixelRDO_Container> outputDataHandle{"StoreGateSvc+PixelRDOs3"};
     ASSERT_TRUE( outputDataHandle.isValid() );
@@ -187,6 +200,8 @@ namespace OverlayTesting {
   }
 
   TEST_F(PixelOverlay_test, containers_with_different_collections_one_RDO_each) {
+    EventContext ctx(0,0);
+    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
     SG::WriteHandle<PixelRDO_Container> inputSigDataHandle{"StoreGateSvc+PixelRDOs_SIG4"};
     const unsigned int containerSize(1188);
     const IdentifierHash sigElementHash(1);
@@ -219,7 +234,7 @@ namespace OverlayTesting {
     ASSERT_TRUE( m_alg->setProperty( "BkgInputKey",   inputBkgPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->setProperty( "OutputKey", outputPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
-    ASSERT_TRUE( m_alg->execute().isSuccess() );
+    ASSERT_TRUE( m_alg->execute(ctx).isSuccess() );
     // check output makes sense
     SG::ReadHandle<PixelRDO_Container> outputDataHandle{"StoreGateSvc+PixelRDOs4"};
     ASSERT_TRUE( outputDataHandle.isValid() );
@@ -240,6 +255,8 @@ namespace OverlayTesting {
   }
 
   TEST_F(PixelOverlay_test, containers_with_matching_collections_one_different_RDO_each) {
+    EventContext ctx(0,0);
+    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
     SG::WriteHandle<PixelRDO_Container> inputSigDataHandle{"StoreGateSvc+PixelRDOs_SIG5"};
     const unsigned int containerSize(1188);
     const IdentifierHash sigElementHash(1);
@@ -272,7 +289,7 @@ namespace OverlayTesting {
     ASSERT_TRUE( m_alg->setProperty( "BkgInputKey",   inputBkgPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->setProperty( "OutputKey", outputPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
-    ASSERT_TRUE( m_alg->execute().isSuccess() );
+    ASSERT_TRUE( m_alg->execute(ctx).isSuccess() );
     // check output makes sense
     SG::ReadHandle<PixelRDO_Container> outputDataHandle{"StoreGateSvc+PixelRDOs5"};
     ASSERT_TRUE( outputDataHandle.isValid() );
@@ -290,6 +307,8 @@ namespace OverlayTesting {
   }
 
   TEST_F(PixelOverlay_test, containers_with_matching_collections_one_matching_RDO_each) {
+    EventContext ctx(0,0);
+    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
     SG::WriteHandle<PixelRDO_Container> inputSigDataHandle{"StoreGateSvc+PixelRDOs_SIG6"};
     const unsigned int containerSize(1188);
     const IdentifierHash sigElementHash(1);
@@ -322,7 +341,7 @@ namespace OverlayTesting {
     ASSERT_TRUE( m_alg->setProperty( "BkgInputKey",   inputBkgPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->setProperty( "OutputKey", outputPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
-    ASSERT_TRUE( m_alg->execute().isSuccess() );
+    ASSERT_TRUE( m_alg->execute(ctx).isSuccess() );
 
     // check output makes sense
     SG::ReadHandle<PixelRDO_Container> outputDataHandle{"StoreGateSvc+PixelRDOs6"};
@@ -337,6 +356,8 @@ namespace OverlayTesting {
   }
 
   TEST_F(PixelOverlay_test, two_RDOs_with_matching_id_signal_first) {
+    EventContext ctx(0,0);
+    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
     SG::WriteHandle<PixelRDO_Container> inputSigDataHandle{"StoreGateSvc+PixelRDOs_SIG7"};
     const unsigned int containerSize(1188);
     const IdentifierHash sigElementHash(1);
@@ -369,7 +390,7 @@ namespace OverlayTesting {
     ASSERT_TRUE( m_alg->setProperty( "BkgInputKey",   inputBkgPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->setProperty( "OutputKey", outputPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
-    ASSERT_TRUE( m_alg->execute().isSuccess() );
+    ASSERT_TRUE( m_alg->execute(ctx).isSuccess() );
     // check output makes sense
     SG::ReadHandle<PixelRDO_Container> outputDataHandle{"StoreGateSvc+PixelRDOs7"};
     ASSERT_TRUE( outputDataHandle.isValid() );
@@ -383,6 +404,8 @@ namespace OverlayTesting {
   }
 
   TEST_F(PixelOverlay_test, two_RDOs_with_matching_id_bkg_first) {
+    EventContext ctx(0,0);
+    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
     SG::WriteHandle<PixelRDO_Container> inputSigDataHandle{"StoreGateSvc+PixelRDOs_SIG8"};
     const unsigned int containerSize(1188);
     const IdentifierHash sigElementHash(1);
@@ -415,7 +438,7 @@ namespace OverlayTesting {
     ASSERT_TRUE( m_alg->setProperty( "BkgInputKey",   inputBkgPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->setProperty( "OutputKey", outputPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
-    ASSERT_TRUE( m_alg->execute().isSuccess() );
+    ASSERT_TRUE( m_alg->execute(ctx).isSuccess() );
     // check output makes sense
     SG::ReadHandle<PixelRDO_Container> outputDataHandle{"StoreGateSvc+PixelRDOs8"};
     ASSERT_TRUE( outputDataHandle.isValid() );
@@ -429,6 +452,8 @@ namespace OverlayTesting {
   }
 
   TEST_F(PixelOverlay_test, containers_with_matching_collections_one_different_RDO_each_v2) {
+    EventContext ctx(0,0);
+    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
     SG::WriteHandle<PixelRDO_Container> inputSigDataHandle{"StoreGateSvc+PixelRDOs_SIG9"};
     const unsigned int containerSize(1188);
     const IdentifierHash sigElementHash(1);
@@ -461,7 +486,7 @@ namespace OverlayTesting {
     ASSERT_TRUE( m_alg->setProperty( "BkgInputKey",   inputBkgPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->setProperty( "OutputKey", outputPropertyValue).isSuccess() );
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
-    ASSERT_TRUE( m_alg->execute().isSuccess() );
+    ASSERT_TRUE( m_alg->execute(ctx).isSuccess() );
     // check output makes sense
     SG::ReadHandle<PixelRDO_Container> outputDataHandle{"StoreGateSvc+PixelRDOs9"};
     ASSERT_TRUE( outputDataHandle.isValid() );

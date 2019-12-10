@@ -19,31 +19,19 @@ TrigMufastHypoAlg::TrigMufastHypoAlg( const std::string& name,
 {}
 
 
-TrigMufastHypoAlg::~TrigMufastHypoAlg() 
-{}
-
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
 StatusCode TrigMufastHypoAlg::initialize()
 {
-  ATH_MSG_INFO ( "Initializing " << name() << "..." );
   ATH_CHECK(m_hypoTools.retrieve());
 
   renounce(m_muFastKey);
   ATH_CHECK(m_muFastKey.initialize());
- 
-  ATH_MSG_INFO( "Initialization completed successfully" );
-  return StatusCode::SUCCESS;
-}
 
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
+  renounce(m_forIDKey);
+  ATH_CHECK(m_forIDKey.initialize());
 
-StatusCode TrigMufastHypoAlg::finalize() 
-{   
-  ATH_MSG_INFO( "Finalizing " << name() << "..." );
-  ATH_MSG_INFO( "Finalization completed successfully" );
   return StatusCode::SUCCESS;
 }
 
@@ -82,7 +70,7 @@ StatusCode TrigMufastHypoAlg::execute( const EventContext& context ) const
     auto viewEL = previousDecision->objectLink< ViewContainer >( viewString() );
     ATH_CHECK( viewEL.isValid() );
 
-    //// get info of that view
+    //// get info of that view (MuonL2SAInfo)
     auto muFastHandle = ViewHelper::makeHandle( *viewEL, m_muFastKey, context );
     ATH_CHECK( muFastHandle.isValid() );
     ATH_MSG_DEBUG ( "Muinfo handle size: " << muFastHandle->size() << "..." );
@@ -91,6 +79,14 @@ StatusCode TrigMufastHypoAlg::execute( const EventContext& context ) const
     ATH_CHECK( muonEL.isValid() );
     const xAOD::L2StandAloneMuon* muon = *muonEL;
 
+    //// get info of that view (forID)
+    auto forIDHandle = ViewHelper::makeHandle( *viewEL, m_forIDKey, context );
+    ATH_CHECK( forIDHandle.isValid() );
+    ATH_MSG_DEBUG ( "Muinfo handle size: " << forIDHandle->size() << "..." );
+
+    auto forIDEL = ViewHelper::makeLink( *viewEL, forIDHandle, 0 );
+    ATH_CHECK( forIDEL.isValid() );
+
     // create new decision
     auto newd = newDecisionIn( decisions );
 
@@ -98,7 +94,7 @@ StatusCode TrigMufastHypoAlg::execute( const EventContext& context ) const
     toolInput.emplace_back( newd, roi, muon, previousDecision );
     
     newd->setObjectLink( featureString(), muonEL );
-    newd->setObjectLink( viewString(),    viewEL);
+    newd->setObjectLink( roiString(), forIDEL );
     TrigCompositeUtils::linkToPrevious( newd, previousDecision, context );
     
     ATH_MSG_DEBUG("REGTEST: " << m_muFastKey.key() << " pT = " << (*muonEL)->pt() << " GeV");

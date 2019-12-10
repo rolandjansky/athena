@@ -59,8 +59,8 @@ namespace TrigConf {
        */
       void clear();
 
-      /** Access to the underlying data, if needed */ 
-      const ptree & data() const { return m_data; }
+      /** Access to the underlying data, if needed */
+      ptree data() const { return m_data; }
 
       /** Check for attribute
        * @return true if the structure is just a value
@@ -77,9 +77,15 @@ namespace TrigConf {
 
       /** Check for attribute
        * @param key The path to the attribute name, relative to the current one in form "path.to.child"
-       * @return true if key exists
+       * @return true if path @c key exists and is an attribute
        */
       bool hasAttribute(const std::string & key) const;
+
+      /** Check for attribute
+       * @param path The path to the child, relative to the current one in form "path.to.child"
+       * @return true if path exists
+       */
+      bool hasChild(const std::string & path) const;
 
       /** Access to simple attribute
        * @param key The path to the attribute name, relative to the current one in form "path.to.child"
@@ -90,7 +96,7 @@ namespace TrigConf {
        * @param key The path to the attribute name, relative to the current one in form "path.to.child"
        * @param ignoreIfMissing Controls the behavior in case of missing configuration child
        */
-      std::string getAttribute(const std::string & key, bool ignoreIfMissing = false) const;
+      std::string getAttribute(const std::string & key, bool ignoreIfMissing = false, const std::string & def = "") const;
 
       /** Access to array structure
        * @param pathToChild The path to the configuration child, relative to the current one in form "path.to.child"
@@ -116,6 +122,14 @@ namespace TrigConf {
        **/
       DataStructure getObject(const std::string & pathToChild, bool ignoreIfMissing = false) const;
 
+
+      /** Access to the keys of an DataStructure which presents a dictionary 
+       *
+       * In case the DataStructure is a list or a simple attribute, an empty vector is returned
+       **/
+      std::vector<std::string> getKeys() const;
+
+
       /** Access to initialized state */
       explicit operator bool() const { return m_initialized; }
       bool isValid() const { return m_initialized; }
@@ -140,6 +154,12 @@ namespace TrigConf {
                                std::ostream & os = std::cout);
 
    protected:
+
+      /** Update the internal data after modification of the data object
+       * 
+       * to be implemented by the derived class
+       */
+      virtual void update() {};
 
       bool m_initialized { false }; //!< if initialized, the underlying ptree is has been assigned to (can be empty)
 

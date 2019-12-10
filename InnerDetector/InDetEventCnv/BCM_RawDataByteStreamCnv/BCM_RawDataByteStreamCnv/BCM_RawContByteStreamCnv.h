@@ -32,7 +32,6 @@ class BCM_RawContByteStreamCnv: public Converter {
 
  public:
 
-  // ~BCM_RawContByteStreamCnv();
 
   BCM_RawContByteStreamCnv(ISvcLocator* svcloc);
 
@@ -58,7 +57,6 @@ private:
 
   IByteStreamEventAccess* m_ByteStreamEventAccess; 
 
-  StoreGateSvc* m_StoreGate;
 
   //Declaring private message stream member.
   mutable Athena::MsgStreamMember m_msg;

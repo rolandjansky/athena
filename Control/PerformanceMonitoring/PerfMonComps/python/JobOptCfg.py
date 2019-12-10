@@ -5,6 +5,7 @@
 # @author: Sebastien Binet <binet@cern.ch>
 
 ## import the automatically generated Configurables
+from __future__ import print_function
 from PerfMonComps.PerfMonCompsConf import PerfMonSvc as _PerfMonSvc
 
 class PerfMonSvc( _PerfMonSvc ):
@@ -106,7 +107,7 @@ class PerfMonSvc( _PerfMonSvc ):
                     
             ## make sure the AthenaPoolCnvSvc is correctly configured
             try:   svcMgr.AthenaPoolCnvSvc.UseDetailChronoStat = True
-            except AttributeError, err:
+            except AttributeError:
                 # ok... maybe not a 'writeAthenaPool' job...
                 pass
 
@@ -161,11 +162,11 @@ class PerfMonSvc( _PerfMonSvc ):
             #Collect the start-time (in jiffies) of the configuration process
             try:
                 j=open('/proc/self/stat').readline().split()[21]
-            except Exception, err:
+            except Exception as err:
                 #Not worth stopping the job over missing diagnostics.
                 #We should notice the missing info in any case.
                 j=""
-                print "PMonSD WARNING: Could not determine job start time:",err
+                print("PMonSD WARNING: Could not determine job start time:",err)
                 pass
             handle.JobStartJiffies=j
         handle.ExtraPrintouts=jobproperties.PerfMonFlags.doExtraPrintouts()

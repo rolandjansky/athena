@@ -3,12 +3,12 @@
 #include "CaloMonitoring/CaloClusterVecMon.h"
 #include "CaloMonitoring/CaloTowerVecMon.h"
 #include "CaloMonitoring/CaloTransverseBalanceVecMon.h"
-#include "CaloMonitoring/CaloBaselineMon.h"
+#include "../CaloBaselineMonAlg.h"
 
 DECLARE_COMPONENT(TileCalCellMonTool)
 DECLARE_COMPONENT(LArCellMonTool)
 DECLARE_COMPONENT(CaloClusterVecMon)
 DECLARE_COMPONENT(CaloTowerVecMon)
 DECLARE_COMPONENT(CaloTransverseBalanceVecMon)
-DECLARE_COMPONENT(CaloBaselineMon)
+DECLARE_COMPONENT(CaloBaselineMonAlg)
 

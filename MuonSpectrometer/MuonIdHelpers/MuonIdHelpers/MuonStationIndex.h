@@ -111,20 +111,6 @@ namespace Muon {
     /** convert ChIndex name string to enum */
     static ChIndex chIndex( const std::string& index );
 
-  private:
-    /** helper arrays for conversions */
-    static std::vector<std::string> m_chamberIndexNames;
-    static std::vector<std::string> m_stationIndexNames;
-    static std::vector<std::string> m_phiIndexNames;
-    static std::vector<std::string> m_layerIndexNames;
-    static std::vector<std::string> m_detectorRegionIndexNames;
-    static std::vector<std::string> m_technologyIndexNames;
-    static std::vector<StIndex>     m_chamberToStationIndex;
-    static std::vector<LayerIndex>  m_chamberToLayerIndex;
-    static std::vector<LayerIndex>  m_stationToLayerIndex;
-    static std::vector<StIndex>     m_regionLayerToStationIndex;
-    static std::vector<ChIndex>     m_regionLayerToChamberIndexSmall;
-    static std::vector<ChIndex>     m_regionLayerToChamberIndexLarge;
   };
 }
 

@@ -11,9 +11,10 @@
 
 #include "TrigPSC/Config.h"
 #include "TrigPSC/PscIssues.h"
-#include "TrigConfBase/TrigDBConnectionConfig.h"
 #include "GaudiKernel/IMessageSvc.h"
 #include "eformat/SourceIdentifier.h"
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/optional.hpp>
 #include <array>
@@ -23,7 +24,6 @@
 using std::string;
 using std::array;
 using std::ostringstream;
-using TrigConf::TrigDBConnectionConfig;
 using namespace boost::property_tree;
 
 namespace
@@ -261,9 +261,15 @@ void psc::Config::fillopt_jo(const ptree& hlt)
 {
   optmap["JOBOPTIONSPATH"]  = hlt.get_child("jobOptionsPath").data();
   optmap["PYTHONSETUPFILE"] = hlt.get_child("pythonSetupFile").data();
-  optmap["JOBOPTIONSTYPE"]  = "NONE";
-  optmap["LOGLEVEL"]        = plevelToStr(hlt.get_child_optional("logLevels"),
-                                          ',');
+
+  // Special case for running directly from JSON file
+  if (boost::algorithm::ends_with(boost::algorithm::to_lower_copy(optmap["JOBOPTIONSPATH"]), ".json")) {
+    optmap["JOBOPTIONSTYPE"]  = "FILE";
+  }
+  else {
+    optmap["JOBOPTIONSTYPE"]  = "NONE";
+  }
+  optmap["LOGLEVEL"] = plevelToStr(hlt.get_child_optional("logLevels"),',');
 
   fillopt_py(hlt);
   fillopt_common(hlt);
@@ -272,10 +278,14 @@ void psc::Config::fillopt_jo(const ptree& hlt)
 ////////////////////////////////////////////////////////////////////////////////
 void psc::Config::fillopt_db(const ptree& hlt)
 {
-  TrigDBConnectionConfig dbconf;
-  fill_dbCon(hlt, dbconf);
+  const auto& db = m_config.get_child(db_path);
+  std::ostringstream s;
+  s << "server=" << db.get_child("Alias").data()
+    << ";smkey=" << db.get_child("SuperMasterKey").data()
+    << ";lvl1key=" << m_config.get_child(l1_path + ".Lvl1PrescaleKey").data()
+    << ";hltkey=" << hlt.get_child("hltPrescaleKey").data();
 
-  optmap["JOBOPTIONSPATH"] = dbconf.toString();
+  optmap["JOBOPTIONSPATH"] = s.str();
   optmap["JOBOPTIONSTYPE"] = "DB";
 
   fillopt_common(hlt);
@@ -318,6 +328,7 @@ void psc::Config::fillopt_common(const ptree& hlt)
   optmap["SOFTTIMEOUTFRACTION"] = hltmppu.get_child("softTimeoutFraction").data();
   optmap["NEVENTSLOTS"]         = hltmppu.get_child("numberOfEventSlots").data();
   optmap["NTHREADS"]            = hltmppu.get_child("numberOfAthenaMTThreads").data();
+  optmap["MAXEVENTSIZEMB"]      = hltmppu.get_child("maximumHltResultMb").data();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -372,30 +383,6 @@ void psc::Config::fill_enabled_dets(const ptree& r2r)
 
   enabled_SubDets.reserve(set_enabled_subDets.size());
   for(const auto& it_det: set_enabled_subDets) enabled_SubDets.push_back(it_det);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void psc::Config::fill_dbCon(const ptree& hlt, TrigDBConnectionConfig& dbcon)
-{
-  const auto& dbpt = m_config.get_child(db_path);
-  const auto& alias = dbpt.get_child("Alias").data();
-
-  if(alias.empty())
-  {
-    dbcon.m_server = dbpt.get_child("Server").data();
-    dbcon.m_user = dbpt.get_child("User").data();
-    dbcon.m_password = dbpt.get_child("Password").data();
-    dbcon.m_schema = dbpt.get_child("Name").data();
-  }
-  else
-    dbcon.m_server = alias;
-
-  dbcon.setTypeFromStr(dbpt.get_child("Type").data());
-  dbcon.setSmKeyFromStr(dbpt.get_child("SuperMasterKey").data());
-  dbcon.setHltKeysFromStr(hlt.get_child("hltPrescaleKey").data());
-  dbcon.setLvl1KeyFromStr(m_config.get_child(l1_path + ".Lvl1PrescaleKey").data());
-  dbcon.diggestStr(plevelToStr(
-        hlt.get_child_optional("additionalConnectionParameters"), ':'));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

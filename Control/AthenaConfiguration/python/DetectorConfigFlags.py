@@ -3,7 +3,7 @@
 from __future__ import print_function
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
-
+from AthenaConfiguration.AutoConfigFlags import GetDetDescrInfo
 # This module is based upon Control/AthenaCommon/python/DetFlags.py
 # Only some flags have been migrated. A full list of what the old
 # DetFlags provided is given for reference below:
@@ -49,12 +49,12 @@ def createDetectorConfigFlags():
     dcf.addFlag('Detector.GeometryLAr',   False) # Add separate em HEC and FCAL flags?
     dcf.addFlag('Detector.GeometryTile',  False)
     dcf.addFlag('Detector.GeometryCalo',  lambda prevFlags : (prevFlags.Detector.GeometryLAr or prevFlags.Detector.GeometryTile))
-    dcf.addFlag('Detector.GeometryCSC',   False)
+    dcf.addFlag('Detector.GeometryCSC',   lambda prevFlags : GetDetDescrInfo(prevFlags.GeoModel.AtlasVersion).get('HasCSC',"True"))
     dcf.addFlag('Detector.GeometryMDT',   False)
     dcf.addFlag('Detector.GeometryRPC',   False)
     dcf.addFlag('Detector.GeometryTGC',   False)
-    dcf.addFlag('Detector.GeometrysTGC',  False) # Set default according to prevFlags.GeoModel.Run?
-    dcf.addFlag('Detector.GeometryMM',    False) # Set default according to prevFlags.GeoModel.Run?
+    dcf.addFlag('Detector.GeometrysTGC',  lambda prevFlags : GetDetDescrInfo(prevFlags.GeoModel.AtlasVersion).get('HasSTGC',"True")) # Set default according to prevFlags.GeoModel.Run?
+    dcf.addFlag('Detector.GeometryMM',    lambda prevFlags : GetDetDescrInfo(prevFlags.GeoModel.AtlasVersion).get('HasMM',"True")) # Set default according to prevFlags.GeoModel.Run?
     dcf.addFlag('Detector.GeometryMuon',  lambda prevFlags : (prevFlags.Detector.GeometryCSC or prevFlags.Detector.GeometryMDT or
                                                               prevFlags.Detector.GeometryRPC or prevFlags.Detector.GeometryTGC or
                                                               prevFlags.Detector.GeometrysTGC or prevFlags.Detector.GeometryMM))

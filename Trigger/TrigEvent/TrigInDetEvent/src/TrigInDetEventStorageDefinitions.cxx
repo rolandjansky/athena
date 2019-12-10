@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
@@ -19,9 +19,13 @@
 #include "ParticleTruth/TrackParticleTruthCollection.h"
 #include "ParticleTruth/TrackParticleTruthCollectionContainer.h"
 #include "VxSecVertex/VxSecVertexInfo.h" 
+#include "TrkEventUtils/PRDtoTrackMap.h"
 
 typedef DataVector<TrackExtensionMap> TrackExtensionMapContainer;
 CLASS_DEF( TrackExtensionMapContainer , 1280217485 , 1 )
+
+typedef DataVector<Trk::PRDtoTrackMap> PRDtoTrackMapContainer;
+CLASS_DEF(PRDtoTrackMapContainer, 1286059839, 1 )
 
 #include "TrigNavigation/TypeRegistration.h"
 REGISTER_PACKAGE_WITH_NAVI(TrigInDetEvent)

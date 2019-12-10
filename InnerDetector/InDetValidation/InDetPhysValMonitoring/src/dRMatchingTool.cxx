@@ -9,8 +9,6 @@
 
 namespace { // Placing utility functions in anonymous namespace.
 // Utility definitions.
-  const float pi = 3.14159265359;
-  const float twopi = 6.28318530718;
 
 // Accessor utility function, for getting the best available value of pT.
   template<class U>
@@ -46,11 +44,11 @@ namespace { // Placing utility functions in anonymous namespace.
     // Ensures that $\Delta\phi \in [-pi, pi)$, and takes absolute value.
     float dphi = phi(p1) - phi(p2);
 
-    while (dphi >= pi) {
-      dphi -= twopi;
+    while (dphi >= M_PI) {
+      dphi -= 2.*M_PI;
     }
-    while (dphi < -pi) {
-      dphi += twopi;
+    while (dphi < -M_PI) {
+      dphi += 2.*M_PI;
     }
     return std::fabs(dphi);
   }
@@ -282,20 +280,20 @@ dRMatchingTool::sortedMatch(const U* p,
 
   // Dealing with cyclic nature of phi: Determining whether phi range wraps
   // around +-pi.
-  bool wrapLow = phi(p) - m_dRmax < -pi;
-  bool wrapHigh = phi(p) + m_dRmax > pi;
+  bool wrapLow = phi(p) - m_dRmax < -M_PI;
+  bool wrapHigh = phi(p) + m_dRmax > M_PI;
   bool wrap = wrapLow or wrapHigh;
 
   auto it_phi_lower = m_dRmax < 0 ? vec_phi.begin() :
                       std::lower_bound(vec_phi.begin(), vec_phi.end(),
-                                       phi(p) - m_dRmax + (wrapLow ? twopi : 0),
+                                       phi(p) - m_dRmax + (wrapLow ? 2.*M_PI : 0),
                                        [](const V* o, const float& val) -> bool {
     return phi(o) < val;
   });
 
   auto it_phi_upper = m_dRmax < 0 ? vec_phi.end() :
                       std::upper_bound(vec_phi.begin(), vec_phi.end(),
-                                       phi(p) + m_dRmax + (wrapHigh ? -twopi : 0),
+                                       phi(p) + m_dRmax + (wrapHigh ? -2.*M_PI : 0),
                                        [](const float& val, const V* o) -> bool {
     return val < phi(o);
   });

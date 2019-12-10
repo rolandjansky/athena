@@ -23,7 +23,6 @@
 #include "InDetIdentifier/TRT_ID.h"
 //#include "TrkEventPrimitives/GlobalPosition.h"
 #include "TrkSurfaces/Surface.h"
-#include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include "RoiDescriptor/RoiDescriptor.h"
 
 ///////////////////////////////////////////////////////////////////
@@ -33,8 +32,6 @@
 InDet::SimpleTRT_SeededSpacePointFinder_ATL::SimpleTRT_SeededSpacePointFinder_ATL
 (const std::string& t,const std::string& n,const IInterface* p)
   : AthAlgTool(t,n,p),
-    m_assoTool("InDet::InDetPRD_AssociationToolGangedPixels"),
-    m_useAssoTool(true),
     m_useROI(true),
     m_maxLayers(3),
     m_maxHoles(1),
@@ -52,7 +49,6 @@ InDet::SimpleTRT_SeededSpacePointFinder_ATL::SimpleTRT_SeededSpacePointFinder_AT
   declareInterface<ITRT_SeededSpacePointFinder>(this);
 
   declareProperty("RestrictROI"           ,m_useROI                );
-  declareProperty("AssociationTool"       ,m_assoTool              );
   declareProperty("MaxLayers"             ,m_maxLayers             );
   declareProperty("MaxHoles"              ,m_maxHoles              );
   declareProperty("PerigeeCut"            ,m_perigeeCut            );
@@ -79,27 +75,11 @@ StatusCode InDet::SimpleTRT_SeededSpacePointFinder_ATL::initialize()
 
   // msg().setLevel(outputLevel());
 
-  // Get association tool
-  //
-
-  StatusCode sc = AthAlgTool::initialize(); 
-
-  m_useAssoTool = false;
-
-  if(!m_assoTool.empty())
-    {
-      sc = m_assoTool.retrieve(); 
-      if(sc.isFailure()) 
-	{
-	  msg(MSG::FATAL)<<"Could not get "<<m_assoTool<<endmsg; 
-	  return StatusCode::FAILURE;
-	}
-      else
-	m_useAssoTool=true;
-    }	
+  // PRD-to-track association (optional)
+  ATH_CHECK( m_prdToTrackMap.initialize( !m_prdToTrackMap.key().empty()));
 
   // get region selector
-  sc = m_pRegionSelector.retrieve();
+  StatusCode sc = m_pRegionSelector.retrieve();
   if( sc.isFailure() ) 
     {
       msg(MSG::FATAL) << "Failed to retrieve RegionSelector Service";
@@ -143,13 +123,14 @@ StatusCode InDet::SimpleTRT_SeededSpacePointFinder_ATL::finalize()
 // Initialize tool for new region
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SimpleTRT_SeededSpacePointFinder_ATL::newRegion
-(const std::vector<IdentifierHash>& /*vPixel*/, const std::vector<IdentifierHash>& /*vSCT*/)
+std::unique_ptr<InDet::ITRT_SeededSpacePointFinder::IEventData> InDet::SimpleTRT_SeededSpacePointFinder_ATL::newRegion
+(const std::vector<IdentifierHash>& /*vPixel*/, const std::vector<IdentifierHash>& /*vSCT*/) const
 {
+   return std::unique_ptr<InDet::ITRT_SeededSpacePointFinder::IEventData>();
 }
 
-std::list<std::pair<const Trk::SpacePoint*, const Trk::SpacePoint*> >* 
-InDet::SimpleTRT_SeededSpacePointFinder_ATL::find2Sp(const Trk::TrackParameters& directionTRT)
+std::list<std::pair<const Trk::SpacePoint*, const Trk::SpacePoint*> >
+InDet::SimpleTRT_SeededSpacePointFinder_ATL::find2Sp(const Trk::TrackParameters& directionTRT, InDet::ITRT_SeededSpacePointFinder::IEventData &) const
 {
   /** The main method. This method is called from outside to form pairs of SCT SpacePoints which could seed
       Si tracks linked to the TRT TrackParameter given as input. iModus is a dummy variable to satisfy the 
@@ -175,7 +156,8 @@ InDet::SimpleTRT_SeededSpacePointFinder_ATL::find2Sp(const Trk::TrackParameters&
   msg(MSG::VERBOSE) << directionTRT << endmsg;
 
   // clear output buffer
-  m_listOfSpacePointPairsBuffer.clear();
+
+  std::list<std::pair<const Trk::SpacePoint*, const Trk::SpacePoint*> > listOfSpacePointPairsBuffer;
 
   // IdHash in ROI
   std::set<IdentifierHash> setOfSCT_Hashes;
@@ -199,22 +181,22 @@ InDet::SimpleTRT_SeededSpacePointFinder_ATL::find2Sp(const Trk::TrackParameters&
       msg(MSG::VERBOSE) << "Retrieved " << relevantSpacePoints.size() << " potentially interesting SpacePoints" << endmsg;
 
       // build pairs of the relevant SP according to the look-up table
-      combineSpacePoints(relevantSpacePoints, directionTRT, modulTRT);
+      combineSpacePoints(relevantSpacePoints, directionTRT, modulTRT, listOfSpacePointPairsBuffer);
 
       /* output for debug purposes, deactivated now. Once development is finished, it will be removed.
        */
       Amg::Vector3D r0 = directionTRT.position();
       Amg::Vector3D v0(directionTRT.momentum());
       msg(MSG::VERBOSE) << "------------------------------------------------------------------------------------------" << endmsg;
-      msg(MSG::VERBOSE) << "Final SpacePoint pairs: " << m_listOfSpacePointPairsBuffer.size() << endmsg;
+      msg(MSG::VERBOSE) << "Final SpacePoint pairs: " << listOfSpacePointPairsBuffer.size() << endmsg;
       msg(MSG::VERBOSE) << "   Position of initial vector:  ( " << r0.x() << ", " << r0.y() << ", "<< r0.z() << " ) " << endmsg;
       msg(MSG::VERBOSE) << "   Direction of initial vector:  ( " << v0.unit().x() << ", " << v0.unit().y() << ", "<< v0.unit().z() << " ) , phi = " 
 	    << v0.phi() <<  "   theta = " << v0.theta() << "    eta = "<< v0.eta() << endmsg;
       msg(MSG::VERBOSE) << "------------------------------------------------------------------------------------------" << endmsg;
       msg(MSG::VERBOSE) << "   Direction of space Point vectors: "<< endmsg;
       msg(MSG::VERBOSE) << ". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . " << endmsg;
-      for (std::list<std::pair<const Trk::SpacePoint*, const Trk::SpacePoint*> >::iterator it = m_listOfSpacePointPairsBuffer.begin();
-	   it != m_listOfSpacePointPairsBuffer.end(); ++it)
+      for (std::list<std::pair<const Trk::SpacePoint*, const Trk::SpacePoint*> >::iterator it = listOfSpacePointPairsBuffer.begin();
+	   it != listOfSpacePointPairsBuffer.end(); ++it)
 	{
 	  Amg::Vector3D s1 = it->first->globalPosition();
 	  Amg::Vector3D s2 = it->second->globalPosition();
@@ -229,12 +211,12 @@ InDet::SimpleTRT_SeededSpacePointFinder_ATL::find2Sp(const Trk::TrackParameters&
       msg(MSG::VERBOSE) << "------------------------------------------------------------------------------------------" << endmsg;
     }
 
-  return &m_listOfSpacePointPairsBuffer;
+  return listOfSpacePointPairsBuffer;
 }
 
 //=====================================================================================================
 
-void InDet::SimpleTRT_SeededSpacePointFinder_ATL::getHashesInROI(const Trk::TrackParameters& directionTRT, std::set<IdentifierHash>& setOfSCT_Hashes)
+void InDet::SimpleTRT_SeededSpacePointFinder_ATL::getHashesInROI(const Trk::TrackParameters& directionTRT, std::set<IdentifierHash>& setOfSCT_Hashes) const
 {
   /** This Method finds the IdHashes of SCT modules inside a Region Of Interest around the TRT track parameter. 
       First the allowed tolerance in phi and eta is inquired, then a vector with the relevant hashes is retrieved from the RegionSelectorService.
@@ -270,7 +252,7 @@ void InDet::SimpleTRT_SeededSpacePointFinder_ATL::getHashesInROI(const Trk::Trac
 
 //=====================================================================================================
 
-void InDet::SimpleTRT_SeededSpacePointFinder_ATL::getSpacePointsInROI(std::set<IdentifierHash>& setOfSCT_Hashes, int modulTRT, std::multimap<int,const Trk::SpacePoint*>& relevantSpacePoints)
+void InDet::SimpleTRT_SeededSpacePointFinder_ATL::getSpacePointsInROI(std::set<IdentifierHash>& setOfSCT_Hashes, int modulTRT, std::multimap<int,const Trk::SpacePoint*>& relevantSpacePoints) const
 {
   /** This method retrieves the SpacePoints in a given region of interest. The region of interest is defined by the hashes in the first argument of the method.
 
@@ -291,6 +273,16 @@ void InDet::SimpleTRT_SeededSpacePointFinder_ATL::getSpacePointsInROI(std::set<I
 
   const std::set<IdentifierHash>::const_iterator endSCT_Hashes = setOfSCT_Hashes.end();
   
+  SG::ReadHandle<Trk::PRDtoTrackMap>  prd_to_track_map;
+  const Trk::PRDtoTrackMap *prd_to_track_map_cptr = nullptr;
+  if (!m_prdToTrackMap.key().empty()) {
+    prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap);
+    if (!prd_to_track_map.isValid()) {
+      ATH_MSG_ERROR("Failed to read PRD to track association map: " << m_prdToTrackMap.key());
+    }
+    prd_to_track_map_cptr = prd_to_track_map.cptr();
+  }
+
   // retrieve SP Container
   SG::ReadHandle<SpacePointContainer> spacepointsSCT(m_spacepointsSCTname);
   if(spacepointsSCT.isValid()) 
@@ -354,9 +346,9 @@ void InDet::SimpleTRT_SeededSpacePointFinder_ATL::getSpacePointsInROI(std::set<I
 	      SpacePointCollection::const_iterator itColl  = (*itCont)->begin();
 	      SpacePointCollection::const_iterator endColl = (*itCont)->end  ();
 	      for(; itColl != endColl; ++itColl) 
-		if (    !m_useAssoTool 
-			|| !(    m_assoTool->isUsed(*((*itColl)->clusterList().first))
-				 || m_assoTool->isUsed(*((*itColl)->clusterList().second)) ) )
+		if (    !prd_to_track_map_cptr
+			|| !(    prd_to_track_map_cptr->isUsed(*((*itColl)->clusterList().first))
+				 || prd_to_track_map_cptr->isUsed(*((*itColl)->clusterList().second)) ) )
 		  {
 		    relevantSpacePoints.insert(std::make_pair( SCT_LayerNumber   ,*itColl));
 		    msg(MSG::VERBOSE) << "Added SpacePoint for layer " << SCT_LayerNumber << " at  ( " 
@@ -386,14 +378,14 @@ void InDet::SimpleTRT_SeededSpacePointFinder_ATL::getSpacePointsInROI(std::set<I
 	  {
 
 	    // find out if one of the Clusters has already been used, if relevant
-	    if(m_useAssoTool)
+	    if(prd_to_track_map_cptr)
 	      {
 		bool u1=false; 
 		bool u2=false;
 		const Trk::PrepRawData* p1=(*itColl)->clusterList().first; 
-		u1=m_assoTool->isUsed(*p1);
+		u1=prd_to_track_map->isUsed(*p1);
 		const Trk::PrepRawData* p2=(*itColl)->clusterList().second;
-		u2=m_assoTool->isUsed(*p2);
+		u2=prd_to_track_map->isUsed(*p2);
 		if(u1 || u2) continue;
 	      }
 	    
@@ -430,7 +422,7 @@ void InDet::SimpleTRT_SeededSpacePointFinder_ATL::getSpacePointsInROI(std::set<I
 //=====================================================================================================
 
 //void InDet::SimpleTRT_SeededSpacePointFinder_ATL::getSearchRange(const Trk::TrackParameters& directionTRT, double& deltaPhi, double& deltaEta)
-void InDet::SimpleTRT_SeededSpacePointFinder_ATL::getSearchRange(double& deltaPhi, double& deltaEta)
+void InDet::SimpleTRT_SeededSpacePointFinder_ATL::getSearchRange(double& deltaPhi, double& deltaEta) const
 {
   /** This method defines the tolerance for the ROI around the TRT track parameter. At the moment it is set constant, but it should be considered to
       define it in dependence on the track parameter. In order to suppress warnings for unused variables, the method signature including the track parameter
@@ -445,7 +437,8 @@ void InDet::SimpleTRT_SeededSpacePointFinder_ATL::getSearchRange(double& deltaPh
 //=====================================================================================================
 
 void InDet::SimpleTRT_SeededSpacePointFinder_ATL::combineSpacePoints(const std::multimap<int,const Trk::SpacePoint*>& relevantSpacePoints,
-								     const Trk::TrackParameters& directionTRT, int modulNumber)
+								     const Trk::TrackParameters& directionTRT, int modulNumber,
+                                                                     std::list<std::pair<const Trk::SpacePoint*, const Trk::SpacePoint*> > &listOfSpacePointPairsBuffer) const
 {
   /** This method combines SpacePoints contained in the first argument to pairs which are then stored in the internal list of SpacePoint pairs.
 
@@ -484,7 +477,7 @@ void InDet::SimpleTRT_SeededSpacePointFinder_ATL::combineSpacePoints(const std::
 	    for ( std::multimap<int,const Trk::SpacePoint*>::const_iterator it2 = range2.first; 
 		  it2 != range2.second ; ++it2 )	      
 	      if ( pairIsOk(it1->second,it2->second,directionTRT) )
-		m_listOfSpacePointPairsBuffer.push_back(std::make_pair(it2->second,it1->second));
+		listOfSpacePointPairsBuffer.push_back(std::make_pair(it2->second,it1->second));
 
 	}
     }
@@ -494,7 +487,7 @@ void InDet::SimpleTRT_SeededSpacePointFinder_ATL::combineSpacePoints(const std::
 }
 //=====================================================================================================
 
-bool InDet::SimpleTRT_SeededSpacePointFinder_ATL::pairIsOk(const Trk::SpacePoint* sp1, const Trk::SpacePoint* sp2, const Trk::TrackParameters& directionTRT)
+bool InDet::SimpleTRT_SeededSpacePointFinder_ATL::pairIsOk(const Trk::SpacePoint* sp1, const Trk::SpacePoint* sp2, const Trk::TrackParameters& directionTRT) const
 {
   /** This method applies quality cuts on a given pairing of SpacePoints. The quality cuts at the moment are:
 
@@ -827,7 +820,7 @@ std::ostream& InDet::SimpleTRT_SeededSpacePointFinder_ATL::dump( std::ostream& o
  
 //=====================================================================================================
 
-void InDet::SimpleTRT_SeededSpacePointFinder_ATL::printLookupTable()
+void InDet::SimpleTRT_SeededSpacePointFinder_ATL::printLookupTable() const
 {
   /** This method provides a printout of the look-up table for debugging purposes. It is called in the setup. */
 
@@ -858,7 +851,7 @@ void InDet::SimpleTRT_SeededSpacePointFinder_ATL::printLookupTable()
 
 //=====================================================================================================
 
-int InDet::SimpleTRT_SeededSpacePointFinder_ATL::TRT_Module(const Trk::TrackParameters& directionTRT)
+int InDet::SimpleTRT_SeededSpacePointFinder_ATL::TRT_Module(const Trk::TrackParameters& directionTRT) const
 {
   /** This method returns the id number of the TRT part, the given trackparameter comes from following the
       numbering scheme applied in this Tool (see documentation to setupLookupTable).

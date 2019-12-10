@@ -28,9 +28,10 @@
 #include "TrkDetElementBase/TrkDetElementBase.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
-#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 
+class IMessageSvc;
 class MsgStream;
 class GeoPhysVol;
 
@@ -56,11 +57,6 @@ public:
 
    MuonDetectorElement(GeoVFullPhysVol* pv, MuonDetectorManager* mgr, Identifier id, IdentifierHash idHash);
    virtual ~MuonDetectorElement();
-    
-    //Declaring the Message method for further use
-    MsgStream& msg( MSG::Level lvl ) const ;
-    //Declaring the Method providing Verbosity Level
-    bool msgLevel( MSG::Level lvl ) ;
 
    // Identification methods
    Identifier identify() const {return m_id;}//!< returns the collection extended identifier (EDM granularity)
@@ -78,10 +74,10 @@ public:
    virtual unsigned int nTGCinStation() const = 0; 
    virtual unsigned int nRPCinStation() const = 0;     
 
-    //   inline MsgStream& reLog() const;
-
 protected:    
-
+   // Gaudi message service
+   IMessageSvc* m_msgSvc;
+   mutable std::unique_ptr<MsgStream> m_Log ATLAS_THREAD_SAFE;
    // compute from MuonStation ---- 
    //    double m_Ssize, m_Rsize, m_Zsize, m_LongSsize, 
    //    m_LongRsize, m_LongZsize; //!< size in the specified direction
@@ -92,11 +88,7 @@ protected:
    IdentifierHash    m_idhash;   //!< data-collection hash identifier
 
    unsigned int m_nREinDetectorElement;
-    
-    //Declaring private message stream member.
-    mutable Athena::MsgStreamMember m_msg ;
 
-    //MsgStream*      m_MsgStream;
    bool m_debug;
    bool m_verbose;
     
@@ -106,8 +98,6 @@ private:
 
 };
 
-// MsgStream& MuonDetectorElement::reLog() const
-//   {return *m_MsgStream;} 
 const MuonDetectorManager* MuonDetectorElement::manager() const
   {return m_muon_mgr;}
  

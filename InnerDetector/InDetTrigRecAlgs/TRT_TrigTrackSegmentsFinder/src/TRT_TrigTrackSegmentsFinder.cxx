@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -109,6 +109,7 @@ HLT::ErrorCode InDet::TRT_TrigTrackSegmentsFinder::hltExecute(const HLT::Trigger
   //----------------------------------------------------------------------
 
 
+  std::unique_ptr<InDet::ITRT_TrackSegmentsMaker::IEventData> event_data;
   if(!m_doFullScan){
 
     // Get RoiDescriptor
@@ -135,17 +136,17 @@ HLT::ErrorCode InDet::TRT_TrigTrackSegmentsFinder::hltExecute(const HLT::Trigger
     if(doTiming()) m_timerRegSel->stop();
 
     if(doTiming()) m_timerSegMaker->resume();
-    m_segmentsMakerTool->newRegion(listOfTRTIds);
+    event_data = m_segmentsMakerTool->newRegion(listOfTRTIds);
     if(doTiming()) m_timerSegMaker->stop();
   } 
   else{
     if(doTiming()) m_timerSegMaker->resume();
-    m_segmentsMakerTool->newEvent();
+    event_data = m_segmentsMakerTool->newEvent();
     if(doTiming()) m_timerSegMaker->stop();
   }
 
   if(doTiming()) m_timerFind->resume();
-  m_segmentsMakerTool->find    (); 
+  m_segmentsMakerTool->find    (*event_data);
   if(doTiming()) m_timerFind->stop();
 
   if(doTiming()) m_timerMainLoop->resume();
@@ -157,12 +158,12 @@ HLT::ErrorCode InDet::TRT_TrigTrackSegmentsFinder::hltExecute(const HLT::Trigger
 
   Trk::SegmentCollection* foundSegments  = new Trk::SegmentCollection;
 
-  while((segment = m_segmentsMakerTool->next())) {
+  while((segment = m_segmentsMakerTool->next(*event_data))) {
     ++m_nsegments; foundSegments->push_back(segment);
   }
 
   m_nsegmentsTotal+= m_nsegments;
-  m_segmentsMakerTool->endEvent();
+  m_segmentsMakerTool->endEvent(*event_data);
 
   if(doTiming()) m_timerMainLoop->stop();
 

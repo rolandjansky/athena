@@ -138,6 +138,7 @@ StatusCode SiTrackerSpacePointFinder::initialize()
   // create containers (requires the Identifier Helpers)
   if (m_selectPixels){
     ATH_CHECK(detStore()->retrieve(m_idHelperPixel,"PixelID"));
+    ATH_CHECK(m_pixelDetEleCollKey.initialize());
   }
 
   if (m_selectSCTs) {
@@ -364,12 +365,14 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
     ATH_MSG_DEBUG( spacepointoverlapCollection->size() <<" overlap space points registered." );
   }
   if (m_selectPixels) {
-    m_numberOfPixel += spacePointContainerPixel->numberOfCollections();
-    nPIXspacePoints  = spacePointContainerPixel->numberOfCollections();
+    auto c = spacePointContainerPixel->numberOfCollections();
+    m_numberOfPixel += c;
+    nPIXspacePoints  = c;
   }
   if (m_selectSCTs) {
-    m_numberOfSCT   += spacePointContainer_SCT->numberOfCollections();
-    nSCTspacePoints  = spacePointContainer_SCT->numberOfCollections();
+    auto c = spacePointContainer_SCT->numberOfCollections();
+    m_numberOfSCT   += c;
+    nSCTspacePoints  = c;
   }
   if(m_cachemode)//Prevent unnecessary atomic counting
   {

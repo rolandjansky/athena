@@ -10,9 +10,7 @@
 
 namespace LVL1TGCTrigger {
 
-extern bool g_STRICTST;
-
-TGCStripTripletSB::TGCStripTripletSB():TGCSlaveBoard()
+TGCStripTripletSB::TGCStripTripletSB( TGCArguments* tgcargs ):TGCSlaveBoard(tgcargs)
 {}
 
 void TGCStripTripletSB::createSlaveBoardOut()
@@ -112,7 +110,7 @@ void TGCStripTripletSB::doCoincidence()
        +b &  d & !c
 */
 
-      if(g_STRICTST){
+      if(tgcArgs()->STRICTST()){
 	for(int i=base+1; i<base+length; i++){
 	  m_coincidenceOut->setChannel(i,( b[i-1] & b[i] ));
 	}

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -12,10 +12,7 @@
 #ifndef TRKEVENTATHENAPOOL_TRACKCOLLECTIONCNV_H
 #define TRKEVENTATHENAPOOL_TRACKCOLLECTIONCNV_H
 
-// Hack so we can access the private data. EJWM
-#define protected public
 #include "GaudiKernel/MsgStream.h"
-#undef protected
 
 #include "TrkEventCnvTools/ITrkEventCnvTool.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
@@ -38,7 +35,7 @@
 
 typedef Trk::TrackCollection_tlp6   TrackCollection_PERS;
 
-typedef T_AthenaPoolCustomCnv<TrackCollection, TrackCollection_PERS>  TrackCollectionCnvBase;
+typedef T_AthenaPoolCustomCnvWithKey<TrackCollection, TrackCollection_PERS>  TrackCollectionCnvBase;
 
 //-----------------------------------------------------------------------------
 // Converter for TrackCollection object
@@ -53,17 +50,17 @@ public:
   TrackCollectionCnv( ISvcLocator *svcloc );
 
 protected:
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
-  virtual TrackCollection_PERS *createPersistent( TrackCollection *transCont);
-  virtual TrackCollection      *createTransient();
+  virtual TrackCollection_PERS *createPersistentWithKey( TrackCollection *transCont,
+                                                         const std::string& key) override;
+  virtual TrackCollection      *createTransientWithKey (const std::string& key) override;
 
-  virtual AthenaPoolTopLevelTPCnvBase*  getTopLevelTPCnv() { return & m_TPConverter; }
+  virtual AthenaPoolTopLevelTPCnvBase*  getTopLevelTPCnv() override { return & m_TPConverter; }
 
 
 private: 
   void    initializeOldExtConverters();  //!< setup old extended converters when reading old data
-  void    updateLog(); //!< This method modifies m_log to indicate the current key being converted
     
   IMessageSvc*              m_msgSvc;
   MsgStream                 m_log;

@@ -8,7 +8,9 @@
 
 #include "tauRecTools/TauRecToolBase.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "ITrackToVertex/ITrackToVertex.h"
+#include "TrkCaloExtension/CaloExtensionCollection.h"
 
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticle.h"
@@ -64,7 +66,7 @@ public:
     virtual StatusCode execute(xAOD::TauJet& pTau);
     virtual StatusCode executeShotFinder(xAOD::TauJet&, xAOD::CaloClusterContainer&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
     virtual StatusCode executePi0CreateROI(xAOD::TauJet&, CaloCellContainer&) { return StatusCode::SUCCESS; }
-    virtual StatusCode executePi0ClusterCreator(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&, xAOD::CaloClusterContainer&) { return StatusCode::SUCCESS; }
+    virtual StatusCode executePi0ClusterCreator(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&, xAOD::CaloClusterContainer&, const xAOD::CaloClusterContainer&) { return StatusCode::SUCCESS; }
     virtual StatusCode executeVertexVariables(xAOD::TauJet&, xAOD::VertexContainer&) { return StatusCode::SUCCESS; }
     virtual StatusCode executePi0ClusterScaler(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
     virtual StatusCode executePi0nPFO(xAOD::TauJet&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
@@ -112,6 +114,9 @@ private:
     ToolHandle< Trk::IParticleCaloExtensionTool >  m_caloExtensionTool;
     ToolHandle<Trk::ITrackSelectorTool> m_trackSelectorTool_tau;
     ToolHandle<Reco::ITrackToVertex> m_trackToVertexTool;
+    //output particle calo extension collection
+    SG::ReadHandleKey<CaloExtensionCollection>  m_ParticleCacheKey{this,
+      "tauParticleCache", "ParticleCaloExtension", "Name of the particle measurement extrapolation cache for TauTrackFinder"};
     
     //-------------------------------------------------------------
     //! Input parameters for algorithm
@@ -135,6 +140,7 @@ private:
 
     bool m_bypassSelector;
     bool m_bypassExtrapolator;
+    Gaudi::Property<bool> m_useOldCalo{this,"useOldCalo",false,"If true, it uses the CaloExtensionTool for calculating track extrapolation. Otherwise, it allows the code to read from the cache created by CaloExtensionBuilderalg."};
 
     //-------------------------------------------------------------
     // Sets of EM/Had samplings for track extrapolation 

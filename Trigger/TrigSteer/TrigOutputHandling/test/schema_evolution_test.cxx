@@ -47,17 +47,16 @@ StatusCode tester( TriggerEDMSerialiserTool* ser) {
      
     auto status = ser->serialiseContainer( (void*)em, interfaceAddress, serialisedData );
     VALUE( status ) EXPECTED( StatusCode::SUCCESS );
+
+    const EventContext ctx = Gaudi::Hive::currentContext();  
+    SGImplSvc* evtStore = static_cast<SGImplSvc*>(Atlas::getExtendedEventContext(ctx).proxy());
         
-    status = ser->serialisexAODAuxContainer( (void*)emAux, auxAddress, serialisedData );
+    status = ser->serialisexAODAuxContainer( (void*)emAux, auxAddress, serialisedData, evtStore );
     VALUE( status ) EXPECTED( StatusCode::SUCCESS );  
 
     return StatusCode::SUCCESS;
 }
 
-/*StatusCode tester( TriggerEDMDeserialiserAlg* ser) {
-  return StatusCode::SUCCESS;
-}
-*/
 int main() {
   using namespace std;
   ISvcLocator* pSvcLoc;
@@ -79,6 +78,15 @@ int main() {
   TriggerEDMSerialiserTool* ser = dynamic_cast< TriggerEDMSerialiserTool*>(algTool);
   VALUE( ser == nullptr ) EXPECTED ( false );
 
+  TriggerEDMDeserialiserAlg deser ("deserialiser", pSvcLoc);  deser.addRef();
+  deser.sysInitialize();
+
+  IProxyDict* xdict = &*deser.evtStore();
+  xdict = deser.evtStore()->hiveProxyDict();
+  EventContext ctx;
+  ctx.setExtension( Atlas::ExtendedEventContext(xdict) );
+  Gaudi::Hive::setCurrentContext (ctx);
+
   VALUE( tester( ser ) ) EXPECTED( StatusCode::SUCCESS );
 
   auto result = new HLT::HLTResultMT();
@@ -86,19 +94,6 @@ int main() {
 
   VALUE( pStore->record(result, "HLTResultMT") ) EXPECTED ( StatusCode::SUCCESS );
 
-
-  TriggerEDMDeserialiserAlg deser ("deserialiser", pSvcLoc);  deser.addRef();
-  deser.sysInitialize();
-
-  
-  IProxyDict* xdict = &*deser.evtStore();
-  xdict = deser.evtStore()->hiveProxyDict();
-  EventContext ctx;
-  ctx.setExtension( Atlas::ExtendedEventContext(xdict) );
-  Gaudi::Hive::setCurrentContext (ctx);  
   VALUE( deser.execute( ctx ) ) EXPECTED ( StatusCode::SUCCESS );
-
-
-  
 
 }

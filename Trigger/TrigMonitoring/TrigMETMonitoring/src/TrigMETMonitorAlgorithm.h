@@ -13,6 +13,8 @@
 #include "xAODTrigMissingET/TrigMissingETContainer.h" 
 #include "xAODTrigMissingET/TrigMissingETAuxContainer.h" 
 
+//#include "TrigDecisionTool/TrigDecisionTool.h"
+#include "TrigDecisionInterface/ITrigDecisionTool.h"
 
 class TrigMETMonitorAlgorithm : public AthMonitorAlgorithm {
  public:
@@ -23,8 +25,11 @@ class TrigMETMonitorAlgorithm : public AthMonitorAlgorithm {
 
  private:
   SG::ReadHandleKey<xAOD::EnergySumRoI> m_lvl1_roi_key;
+
   SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_cell_met_key;
   SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_mht_met_key;
+  SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_tc_met_key;
+  SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_tcpufit_met_key;
 
 
 

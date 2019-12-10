@@ -1,10 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = "ToolFactories to instantiate all egammaCaloTools with default configuration"
 __author__ = "Bruno Lenzi"
 
 from egammaRec.Factories import FcnWrapper, ToolFactory
-import egammaCaloToolsConf
+from egammaCaloTools import egammaCaloToolsConf
 from egammaRec import egammaKeys
 
 #---------------------------------------
@@ -32,12 +32,7 @@ CaloFillRectangularCluster = ToolFactory( Cccc.CaloFillRectangularCluster,
 
 egammaIso = ToolFactory(egammaCaloToolsConf.egammaIso)
 
-egammaCheckEnergyDepositTool = ToolFactory(egammaCaloToolsConf.egammaCheckEnergyDepositTool,
-                                           ThrF0max=0.9,
-                                           ThrF1max=0.8,
-                                           ThrF2max=0.98,
-                                           ThrF3max=0.8)
-
+egammaCheckEnergyDepositTool = ToolFactory(egammaCaloToolsConf.egammaCheckEnergyDepositTool)
 
 
 #---------------------------------------

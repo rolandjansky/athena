@@ -41,6 +41,7 @@ useMCShape                        bool
 useOFCOnlyCoolChannelSelection    bool
 ua2MeVFolder                      str
 MphysOverMcalFolder               str
+fSamplTag                         str #Only used in overlay
 methods
 -------------------------------------------
 config_ElecCalibMC(): sets flags for MC calibration constants 
@@ -163,6 +164,12 @@ class LArCondFolderTags(JobProperty):
     statusOn=True
     allowedTypes=['dict']
     StoredValue={}
+
+class LArfSamplTag(JobProperty):
+    ## Used only in overlay! 
+    statusOn=True
+    allowedTypes=['str']
+    StoredValue=""
 
 class DDVtoElecCalibMCTag(JobProperty):
     ### explicit tag for some folders 
@@ -324,7 +331,7 @@ class LArCondFlags(JobPropertyContainer):
 
         from AthenaCommon.JobProperties import jobproperties
         theDDV =  jobproperties.Global.DetDescrVersion()
-        print theDDV
+        self._log.info(theDDV)
         # set up sampling fraction according to physics list in digit configuration
         from AthenaCommon.DetFlags import DetFlags
         _digiFlagAvailable=True
@@ -332,7 +339,7 @@ class LArCondFlags(JobPropertyContainer):
         try:
             from Digitization.DigitizationFlags import jobproperties
         except Exception:
-            print " failed to import Digitization.DigitizationFlags, will not get physics list from Digitization.DigitizationFlags " 
+            self._log.warning(" failed to import Digitization.DigitizationFlags, will not get physics list from Digitization.DigitizationFlags ")
             _digiFlagAvailable=False              
 
         if _digiFlagAvailable  and DetFlags.digitize.any_on() :
@@ -497,7 +504,7 @@ jobproperties.add_Container(LArCondFlags)
 
 _list_LArCond=[LArfSamplG4Phys,LArDBConnection,
                LArCoolChannelSelection,LArForceIOVRunNumber,OFCShapeFolder,LArElecCalibSqlite,
-               LArCondFolderTags,DDVtoElecCalibMCTag,hasMphys,hasHVCorr,SingleVersion,useShape,useMCShape,
+               LArCondFolderTags,DDVtoElecCalibMCTag,hasMphys,hasHVCorr,SingleVersion,useShape,useMCShape,LArfSamplTag,
                DDVtoOnOffIdMCTag,DDVtoFebRodIdMCTag, DDVtoCalibIdMCTag, LoadElecCalib,useOFCOnlyCoolChannelSelection,ua2MeVFolder,useLArFEBGainThresholds,MphysOverMcalFolder
               ]
 

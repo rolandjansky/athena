@@ -31,45 +31,50 @@ def getHITSFile(runArgs):
         raise SystemExit("No HITS file in runArgs!!")
 
 def HitsFilePeeker(runArgs, skeletonLog):
-    import PyUtils.AthFile as af
+    from PyUtils.MetaReader import read_metadata
     try:
-        f = af.fopen(getHITSFile(runArgs))
+        input_file = getHITSFile(runArgs)
+        metadata_peeker = read_metadata(input_file, mode = 'peeker')
+        metadata_peeker = metadata_peeker[input_file]  # promote all keys one level up
+
+        metadata_full = read_metadata(input_file, mode = 'full')
+        metadata_full = metadata_full[input_file]  # promote all keys one level up
     except AssertionError:
         skeletonLog.error("Failed to open input file: %s", getHITSFile(runArgs))
-    #check evt_type of input file
-    if 'evt_type' in f.infos:
+    # check eventTypes of input file
+    if 'eventTypes' in metadata_peeker:
         import re
-        if not re.match(str(f.infos['evt_type'][0]), 'IS_SIMULATION') :
-            skeletonLog.error('This input file has incorrect evt_type: %s',str(f.infos['evt_type']))
+        if 'IS_SIMULATION' not in metadata_peeker['eventTypes']:
+            skeletonLog.error('This input file has incorrect evt_type: %s', metadata_peeker['eventTypes'])
             skeletonLog.info('Please make sure you have set input file metadata correctly.')
             skeletonLog.info('Consider using the job transforms for earlier steps if you aren\'t already.')
             #then exit gracefully
-            raise SystemExit("Input file evt_type is incorrect, please check your g4sim and evgen jobs.")
+            raise SystemExit("Input file eventTypes is incorrect, please check your g4sim and evgen jobs.")
     else :
-        skeletonLog.warning('Could not find \'evt_type\' key in athfile.infos. Unable to that check evt_type is correct.')
+        skeletonLog.warning('Could not find \'eventTypes\' key in metadata. Unable to that check eventTypes is correct.')
+
     metadatadict = dict()
-    if 'metadata' in f.infos:
-        if '/Simulation/Parameters' in f.infos['metadata']:
-            metadatadict = f.infos['metadata']['/Simulation/Parameters']
-            if isinstance(metadatadict, list):
-                skeletonLog.warning("%s inputfile: %s contained %s sets of Simulation Metadata. Using the final set in the list.",inputtype,inputfile,len(metadatadict))
-                metadatadict=metadatadict[-1]
+
+    if metadata_full:
+        if '/Simulation/Parameters' in metadata_full:
+            metadatadict = metadata_full['/Simulation/Parameters']
+
         ##Get IOVDbGlobalTag
         if 'IOVDbGlobalTag' not in metadatadict:
             try:
-                assert f.fileinfos['metadata']['/TagInfo']['IOVDbGlobalTag'] is not None
-                metadatadict['IOVDbGlobalTag'] = f.fileinfos['metadata']['/TagInfo']['IOVDbGlobalTag']
+                assert metadata_full['/TagInfo']['IOVDbGlobalTag'] is not None
+                metadatadict['IOVDbGlobalTag'] = metadata_full['/TagInfo']['IOVDbGlobalTag']
             except:
                 try:
-                    assert f.fileinfos['conditions_tag'] is not None
-                    metadatadict['IOVDbGlobalTag'] = f.fileinfos['conditions_tag']
+                    assert metadata_full['/Digitization/Parameters']['IOVDbGlobalTag'] is not None
+                    metadatadict['IOVDbGlobalTag'] = metadata_full['/Digitization/Parameters']['IOVDbGlobalTag']
                 except:
                     skeletonLog.warning("Failed to find IOVDbGlobalTag.")
     else:
         ##Patch for older hit files
         if 'SimulatedDetectors' not in metadatadict:
-            if 'eventdata_items' in f.infos:
-                metadatadict['SimulatedDetectors'] = hitColls2SimulatedDetectors(f.infos['eventdata_items'])
+            if 'itemList' in metadata_peeker:
+                metadatadict['SimulatedDetectors'] = hitColls2SimulatedDetectors(metadata_peeker['itemList'])
             else :
                 metadatadict['SimulatedDetectors'] = ['pixel','SCT','TRT','BCM','Lucid','LAr','Tile','MDT','CSC','TGC','RPC','Truth']
 
@@ -136,5 +141,5 @@ def HitsFilePeeker(runArgs, skeletonLog):
         DetFlags.writeBS.all_setOff()
         DetFlags.writeRDOPool.all_setOff()
         DetFlags.writeRIOPool.all_setOff()
-
+        print('{} -> __Test__001__:\n{}'.format(__file__, metadatadict))
     return

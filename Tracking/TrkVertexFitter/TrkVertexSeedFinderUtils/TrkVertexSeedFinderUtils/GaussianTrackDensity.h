@@ -71,6 +71,10 @@ namespace Trk
     globalMaximum (const std::vector<const TrackParameters*>& perigeeList,
                    std::unique_ptr<ITrackDensity>& density) const override;
 
+    virtual
+    std::pair<double,double> globalMaximumWithWidth (const std::vector<const TrackParameters*>& perigeeList/*,
+                                                  std::unique_ptr<ITrackDensity>& density*/) const override;
+
 
   private:
     class TrackDensity;
@@ -83,6 +87,15 @@ namespace Trk
      */
     double
     globalMaximumImpl (const std::vector<const TrackParameters*>& perigeeList,
+                       TrackDensity& density) const;
+
+    /**
+     * @brief Find position of global maximum with Gaussian width for density function.
+     * @param pergigeeList List of input tracks.
+     * @param density Helper density object.
+     */
+    std::pair<double,double>
+    globalMaximumWithWidthImpl (const std::vector<const TrackParameters*>& perigeeList,
                        TrackDensity& density) const;
 
 
@@ -187,6 +200,12 @@ namespace Trk
        */
       double globalMaximum (MsgStream& msg) const;
 
+      /**
+       * @brief Return position of global maximum with Gaussian width for density function.
+       * @param msg Message stream.
+       */
+      std::pair<double,double> globalMaximumWithWidth (MsgStream& msg) const;
+
 
       /**
        * @brief Add a track to the set being considered.
@@ -202,8 +221,8 @@ namespace Trk
 
 
     private:
-      inline void updateMaximum(double trialZ, double trialValue, double& maxZ, double& maxValue) const
-      { if (trialValue > maxValue) { maxZ = trialZ; maxValue = trialValue; } }
+      inline void updateMaximum(double trialZ, double trialValue, double secondDerivative, double& maxZ, double& maxValue, double& maxSecondDerivative) const
+      { if (trialValue > maxValue) { maxZ = trialZ; maxValue = trialValue; maxSecondDerivative=secondDerivative;} }
 
       inline double stepSize(double y, double dy, double ddy) const
       { return ( m_gaussStep ? (y * dy)/(dy * dy - y * ddy) : -dy/ddy ); }

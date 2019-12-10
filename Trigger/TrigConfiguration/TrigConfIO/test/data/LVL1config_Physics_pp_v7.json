@@ -2,67 +2,63 @@
     "ctpVersion": 4,
     "version": 1,
     "name": "Physics_pp_v7",
-    "menu": {
-        "name": "Physics_pp_v7",
-        "phase": "lumi",
-        "items": [
-            {
-                "complexDeadtime": 0,
-                "ctpId": 11,
-                "definition": "(EM22VHI[x1]&BGRP0&BGRP1)",
-                "monitor": "LF:111|HF:000",
-                "name": "L1_EM22VHI",
-                "partition": 1,
-                "triggerType": "10000100",
-                "AND": [
-                    {
-                        "TriggerCondition": {
-                            "multi": 1,
-                            "name": "EM22VHI_x1",
-                            "triggerThreshold": "EM22VHI"
-                        }
-                    },
-                    {
-                        "InternalTrigger": {
-                            "name": "BGRP0"
-                        }
-                    },
-                    {
-                        "InternalTrigger": {
-                            "name": "BGRP1"
-                        }
+    "items": {
+        "L1_EM22VHI": {
+            "complexDeadtime": 0,
+            "ctpid": 11,
+            "definition": "(EM22VHI[x1]&BGRP0&BGRP1)",
+            "monitor": "LF:111|HF:000",
+            "name": "L1_EM22VHI",
+            "partition": 1,
+            "triggerType": "10000100",
+            "AND": [
+                {
+                    "TriggerCondition": {
+                        "multi": 1,
+                        "name": "EM22VHI_x1",
+                        "triggerThreshold": "EM22VHI"
                     }
-                ]
-            },
-            {
-                "complexDeadtime": 0,
-                "ctpId": 392,
-                "definition": "(EM24VHI[x1]&BGRP0&BGRP1)",
-                "monitor": "LF:111|HF:000",
-                "name": "L1_EM24VHI",
-                "partition": 1,
-                "triggerType": "10000100",
-                "AND": [
-                    {
-                        "TriggerCondition": {
-                            "multi": 1,
-                            "name": "EM24VHI_x1",
-                            "triggerThreshold": "EM24VHI"
-                        }
-                    },
-                    {
-                        "InternalTrigger": {
-                            "name": "BGRP0"
-                        }
-                    },
-                    {
-                        "InternalTrigger": {
-                            "name": "BGRP1"
-                        }
+                },
+                {
+                    "InternalTrigger": {
+                        "name": "BGRP0"
                     }
-                ]
-            }
-        ]
+                },
+                {
+                    "InternalTrigger": {
+                        "name": "BGRP1"
+                    }
+                }
+            ]
+        },
+        "L1_EM24VHI": {
+            "complexDeadtime": 0,
+            "ctpid": 392,
+            "definition": "(EM24VHI[x1]&BGRP0&BGRP1)",
+            "monitor": "LF:111|HF:000",
+            "name": "L1_EM24VHI",
+            "partition": 1,
+            "triggerType": "10000100",
+            "AND": [
+                {
+                    "TriggerCondition": {
+                        "multi": 1,
+                        "name": "EM24VHI_x1",
+                        "triggerThreshold": "EM24VHI"
+                    }
+                },
+                {
+                    "InternalTrigger": {
+                        "name": "BGRP0"
+                    }
+                },
+                {
+                    "InternalTrigger": {
+                        "name": "BGRP1"
+                    }
+                }
+            ]
+        }
     },
     "thresholds": [
         {

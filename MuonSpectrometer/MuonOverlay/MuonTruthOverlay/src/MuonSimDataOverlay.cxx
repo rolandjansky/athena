@@ -12,7 +12,7 @@
 
 
 MuonSimDataOverlay::MuonSimDataOverlay(const std::string &name, ISvcLocator *pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator) {}
+  : AthReentrantAlgorithm(name, pSvcLocator) {}
 
 StatusCode MuonSimDataOverlay::initialize()
 {
@@ -40,7 +40,7 @@ StatusCode MuonSimDataOverlay::initialize()
 }
 
 
-StatusCode MuonSimDataOverlay::execute()
+StatusCode MuonSimDataOverlay::execute(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG("execute() begin");
 
@@ -48,7 +48,7 @@ StatusCode MuonSimDataOverlay::execute()
   
   const MuonSimDataCollection *bkgContainerPtr = nullptr;
   if (!m_bkgInputKey.key().empty()) {
-    SG::ReadHandle<MuonSimDataCollection> bkgContainer(m_bkgInputKey);
+    SG::ReadHandle<MuonSimDataCollection> bkgContainer(m_bkgInputKey, ctx);
     if (!bkgContainer.isValid()) {   
       ATH_MSG_ERROR("Could not get background MuonSimDataCollection container " << bkgContainer.name() << " from store " << bkgContainer.store());
       return StatusCode::FAILURE;
@@ -58,7 +58,7 @@ StatusCode MuonSimDataOverlay::execute()
     ATH_MSG_DEBUG("Found background MuonSimDataCollection container " << bkgContainer.name() << " in store " << bkgContainer.store());
   }
 
-  SG::ReadHandle<MuonSimDataCollection> signalContainer(m_signalInputKey);
+  SG::ReadHandle<MuonSimDataCollection> signalContainer(m_signalInputKey, ctx);
   if (!signalContainer.isValid()) {
     ATH_MSG_ERROR("Could not get signal MuonSimDataCollection container " << signalContainer.name() << " from store " << signalContainer.store());
     return StatusCode::FAILURE;
@@ -66,7 +66,7 @@ StatusCode MuonSimDataOverlay::execute()
   ATH_MSG_DEBUG("Found signal MuonSimDataCollection container " << signalContainer.name() << " in store " << signalContainer.store());
 
   // Creating output RDO container
-  SG::WriteHandle<MuonSimDataCollection> outputContainer(m_outputKey);
+  SG::WriteHandle<MuonSimDataCollection> outputContainer(m_outputKey, ctx);
   ATH_CHECK(outputContainer.record(std::make_unique<MuonSimDataCollection>()));
   if (!outputContainer.isValid()) {
     ATH_MSG_ERROR("Could not record output MuonSimDataCollection container " << outputContainer.name() << " to store " << outputContainer.store());

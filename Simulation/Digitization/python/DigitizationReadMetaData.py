@@ -1,4 +1,5 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
 
 from AthenaCommon.Logging import logging
 logDigitizationReadMetadata = logging.getLogger( 'DigitizationReadMetadata' )
@@ -38,9 +39,9 @@ def checkTileCalibrationHitFormat(inputlist):
     elif nold > 0:
         from Digitization.DigitizationFlags import digitizationFlags
         digitizationFlags.experimentalDigi += ['OldTileCalibHitContainers']
-        logDigitizationReadMetadata.info("Input file uses old TileCalibHitContainers names: %s", oldnames);
+        logDigitizationReadMetadata.info("Input file uses old TileCalibHitContainers names: %s", oldnames)
     elif nnew > 0:
-        logDigitizationReadMetadata.info("Input file uses new TileCalibHitContainers names: %s", newnames);
+        logDigitizationReadMetadata.info("Input file uses new TileCalibHitContainers names: %s", newnames)
     return
 
 ## Helper functions
@@ -73,13 +74,13 @@ def expandPileUpType(shortpileuptype):
     return "Unknown Pile-Up Type"
 
 def doMC_channel_number(f,pileUpType):
-    print "doMC_channel_number for %s", pileUpType
+    print ("doMC_channel_number for %s", pileUpType)
     if "mc_channel_number" in f.infos.keys():
         params = dict()
         from Digitization.DigitizationFlags import digitizationFlags
         if digitizationFlags.pileupDSID.statusOn:
             params = digitizationFlags.pileupDSID.get_Value()
-        print "MC channel number from AthFile %s", f.infos["mc_channel_number"]
+        print ("MC channel number from AthFile %s", f.infos["mc_channel_number"])
         params[pileUpType]= f.infos["mc_channel_number"]
         digitizationFlags.pileupDSID = params
         del params
@@ -90,7 +91,7 @@ def doSpecialConfiguration(f):
     if "tag_info" in f.infos.keys():
         if "specialConfiguration" in f.infos["tag_info"]:
             item = f.infos["tag_info"]["specialConfiguration"]
-            logDigitizationReadMetadata.info("specialConfiguration directive: %s" % item)
+            logDigitizationReadMetadata.info("specialConfiguration directive: %s" , item)
             spcitems = item.split(";")
             preIncludes=[]
             params = {}
@@ -107,7 +108,7 @@ def doSpecialConfiguration(f):
                     spcitem = "preInclude=" + spcitem
                 ## Handle k=v directives
                 k, v = spcitem.split("=")
-                logDigitizationReadMetadata.info("specialConfiguration metadata item: %s => %s" % (k, v))
+                logDigitizationReadMetadata.info("specialConfiguration metadata item: %s => %s" , (k, v))
                 ## Store preIncludes for including later.
                 if k == "preInclude":
                     incfiles = v.split(",")
@@ -118,7 +119,7 @@ def doSpecialConfiguration(f):
             ## Now that we've looked at and stored all the evgen metadata keys, we should do any requested preIncludes
             from AthenaCommon.Include import include
             for incfile in preIncludes:
-                logDigitizationReadMetadata.info("Including %s as instructed by specialConfiguration metadata" % incfile)
+                logDigitizationReadMetadata.info("Including %s as instructed by specialConfiguration metadata" , incfile)
                 include(incfile)
             del preIncludes
             del params
@@ -154,7 +155,7 @@ def buildDict(inputtype, inputfile):
         ##if '/TagInfo' in f.infos['metadata'].keys():
         ##    taginfometadata=f.infos['metadata']['/TagInfo']
         ##    assert taginfometadata['beam_energy'] is not None
-        ##    print "beamEnergy=%s"%taginfometadata['beam_energy']
+        ##    print ("beamEnergy=%s"%taginfometadata['beam_energy'])
         if '/Simulation/Parameters' in f.infos['metadata'].keys():
             metadatadict = f.infos['metadata']['/Simulation/Parameters']
             if isinstance(metadatadict, list):
@@ -165,11 +166,11 @@ def buildDict(inputtype, inputfile):
             try:
                 assert f.fileinfos['metadata']['/TagInfo']['IOVDbGlobalTag'] is not None
                 metadatadict['IOVDbGlobalTag'] = f.fileinfos['metadata']['/TagInfo']['IOVDbGlobalTag']
-            except:
+            except AssertionError:
                 try:
                     assert f.fileinfos['conditions_tag'] is not None
                     metadatadict['IOVDbGlobalTag'] = f.fileinfos['conditions_tag']
-                except:
+                except AssertionError:
                     logDigitizationReadMetadata.warning("Failed to find IOVDbGlobalTag.")
                     return metadatadict,False
     Nkvp = len(metadatadict)
@@ -191,6 +192,7 @@ def buildDict(inputtype, inputfile):
         if 'eventdata_items' in f.infos.keys():
             checkTileCalibrationHitFormat(f.infos['eventdata_items'])
         else :
+            from Digitization.DigitizationFlags import digitizationFlags
             digitizationFlags.experimentalDigi += ['OldTileCalibHitContainers']
         ##End of Patch for older hit files
         logDigitizationReadMetadata.debug("%s Simulation MetaData Dictionary Successfully Created.",inputtype)
@@ -226,7 +228,7 @@ def signalMetaDataCheck(metadatadict):
                 logDigitizationReadMetadata.warning("Input DetDescrVersion does not match the value used in the Simulation step!")
                 from AthenaCommon.AppMgr import ServiceMgr
                 ## FIXME - should not be relying on GeoModelSvc being initialized at this point.
-                if hasattr( ServiceMgr, "GeoModelSvc") and ServiceMgr.GeoModelSvc.IgnoreTagDifference==True:
+                if hasattr( ServiceMgr, "GeoModelSvc") and ServiceMgr.GeoModelSvc.IgnoreTagDifference is True:
                     logDigitizationReadMetadata.warning("Global jobproperties: [DetDescrVersion = %s], Signal Simulation MetaData: [SimLayout = %s]",
                                                   globalflags.DetDescrVersion.get_Value(), metadatadict['SimLayout'])
                     logDigitizationReadMetadata.warning("Ignore Tag Difference Requested - doing nothing.")
@@ -286,7 +288,7 @@ def signalMetaDataCheck(metadatadict):
             possibleSubDetectors=['pixel','SCT','TRT','BCM','Lucid','ZDC','ALFA','AFP','FwdRegion','LAr','HGTD','Tile','MDT','CSC','TGC','RPC','Micromegas','sTGC','Truth']
             switchedOffSubDetectors=[]
             for subdet in possibleSubDetectors:
-                if not subdet in metadatadict['SimulatedDetectors']:
+                if subdet not in metadatadict['SimulatedDetectors']:
                     attrname = subdet+"_setOff"
                     checkfn = getattr(DetFlags, attrname, None)
                     if checkfn is not None:
@@ -368,7 +370,7 @@ def pileupMetaDataCheck(pileuptype, pileupfile, simdict):
         if (not skipPileUpCheck('SimulatedDetectors', pileuptype)) and ('SimulatedDetectors' in simkeys):
             switchedOffSubDetectors=[]
             for subdet in simdict['SimulatedDetectors']:
-                if not subdet in metadatadict['SimulatedDetectors']:
+                if subdet not in metadatadict['SimulatedDetectors']:
                     switchedOffSubDetectors+=[subdet]
             if switchedOffSubDetectors:
                 logDigitizationReadMetadata.error("%s sub-detectors were sinmulated in the signal sample, but not in the %s background sample: %s", len(switchedOffSubDetectors), longpileuptype, switchedOffSubDetectors)
@@ -381,7 +383,6 @@ def pileupMetaDataCheck(pileuptype, pileupfile, simdict):
 
 def readHITSFileMetadata():
     logDigitizationReadMetadata.info("Checking for Signal Simulation MetaData...")
-    import re
     import PyUtils.AthFile as af
     af.server.load_cache('digitization-afcache.ascii')
 
@@ -415,7 +416,7 @@ def readHITSFileMetadata():
             ## For MC11 the cavern background will use a different physics
             ## list to the signal samples, so it is necessary to override
             ## the requirement that the PhysicsLists match.
-            if not 'cavern_PhysicsList' in digitizationFlags.overrideMetadata.get_Value():
+            if 'cavern_PhysicsList' not in digitizationFlags.overrideMetadata.get_Value():
                 digitizationFlags.overrideMetadata += ['cavern_PhysicsList']
             if pileupMetaDataCheck(pileuptype, digitizationFlags.cavernInputCols.get_Value()[0],metadatadict):
                 logDigitizationReadMetadata.info("Cavern Background Simulation MetaData matches Signal Simulation MetaData.")

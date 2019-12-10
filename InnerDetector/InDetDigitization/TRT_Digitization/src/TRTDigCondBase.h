@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRTDIGCONDBASE_H
-#define TRTDIGCONDBASE_H
+#ifndef TRT_DIGITIZATION_TRTDIGCONDBASE_H
+#define TRT_DIGITIZATION_TRTDIGCONDBASE_H
 
 #include "CLHEP/Random/RandomEngine.h"
 #include <set>
@@ -30,11 +30,11 @@ public:
 
   /** Constructor */
   TRTDigCondBase( const TRTDigSettings*,
-		  const InDetDD::TRT_DetectorManager*,
-		  const TRT_ID*,
-		  int UseGasMix,
-		  ToolHandle<ITRT_StrawStatusSummaryTool> sumTool
-		);
+                  const InDetDD::TRT_DetectorManager*,
+                  const TRT_ID*,
+                  int UseGasMix,
+                  ToolHandle<ITRT_StrawStatusSummaryTool> sumTool
+                  );
 
   /** Destructor */
   virtual ~TRTDigCondBase() {};
@@ -60,8 +60,8 @@ public:
    * @param noiseamplitude: noise amplitude
    */
   void getStrawData( const int& hitID,
-		     double& lowthreshold,
-		     double& noiseamplitude ) const;
+                     double& lowthreshold,
+                     double& noiseamplitude ) const;
 
   //--- For noise in unhit straws:
 
@@ -104,23 +104,23 @@ public:
    * @param noiseamplitude: noise amplitude
    */
   void setRefinedStrawParameters( const int& hitID,
-				  const double& lowthreshold,
-				  const double& noiseamplitude );
+                                  const double& lowthreshold,
+                                  const double& noiseamplitude );
 
   MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
   bool msgLevel (MSG::Level lvl)    { return m_msg.get().level() <= lvl; }
 
- MsgStream& msg() const { return m_msg.get(); }
- void display (const std::string& msg, int lvl = (int)MSG::INFO) const;
- void info (const std::string& msg) const
-   { display (msg, (int)MSG::INFO); }
- void debug (const std::string& msg) const
-   { display (msg, (int)MSG::DEBUG); }
- void warning (const std::string& msg) const
-   { display (msg, (int)MSG::WARNING); }
- void setLvl (int lvl = (int)MSG::INFO);
- void setLvl (const std::string& lvl);
- protected:
+  MsgStream& msg() const { return m_msg.get(); }
+  void display (const std::string& msg, int lvl = (int)MSG::INFO) const;
+  void info (const std::string& msg) const
+  { display (msg, (int)MSG::INFO); }
+  void debug (const std::string& msg) const
+  { display (msg, (int)MSG::DEBUG); }
+  void warning (const std::string& msg) const
+  { display (msg, (int)MSG::WARNING); }
+  void setLvl (int lvl = (int)MSG::INFO);
+  void setLvl (const std::string& lvl);
+protected:
 
   /**
    * Get straw state info based on hitid and strawlength.
@@ -136,8 +136,8 @@ public:
    *                                 Should never be put to zero!
    */
   virtual void setStrawStateInfo(Identifier& TRT_Identifier,
-				  const double& strawlength,
-				  double& noiselevel,
+                                 const double& strawlength,
+                                 double& noiselevel,
                                  double& relative_noiseamplitude,
                                  CLHEP::HepRandomEngine *rndmEngine) = 0;
 
@@ -201,8 +201,8 @@ private:
 
 //___________________________________________________________________________
 inline void TRTDigCondBase::getStrawData( const int& hitID,
-					  double& lowthreshold,
-					  double& noiseamplitude ) const {
+                                          double& lowthreshold,
+                                          double& noiseamplitude ) const {
   //fixme: do we actually benefit from this caching?
   if (m_it_hitid_to_StrawState_Last->first != hitID)
     m_it_hitid_to_StrawState_Last = m_hitid_to_StrawState.find(hitID);
@@ -223,8 +223,8 @@ inline void TRTDigCondBase::resetGetNextStraw() {
 
 //___________________________________________________________________________
 inline bool TRTDigCondBase::getNextStraw( int& hitID,
-					  float& noiselevel,
-					  float& noiseamp ) {
+                                          float& noiselevel,
+                                          float& noiseamp ) {
   m_all_it_hitid_to_StrawState_previous = m_all_it_hitid_to_StrawState;
   if ( ++m_all_it_hitid_to_StrawState == m_it_hitid_to_StrawState_End) {
     hitID      = 0;
@@ -240,8 +240,8 @@ inline bool TRTDigCondBase::getNextStraw( int& hitID,
 
 //___________________________________________________________________________
 inline void TRTDigCondBase::setRefinedStrawParameters( const int& hitID,
-						       const double& lowthreshold,
-						       const double& noiseamplitude ) {
+                                                       const double& lowthreshold,
+                                                       const double& noiseamplitude ) {
   //we might have the iterator cached already (fixme... nah)
   if (hitID == m_all_it_hitid_to_StrawState_previous->first) {
     m_all_it_hitid_to_StrawState_previous->second.lowthreshold = lowthreshold;

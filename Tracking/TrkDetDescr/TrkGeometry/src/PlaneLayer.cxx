@@ -182,17 +182,11 @@ double Trk::PlaneLayer::postUpdateMaterialFactor(const Trk::TrackParameters& par
     return   Trk::Layer::m_layerMaterialProperties->oppositePostFactor();
 }
 
-void Trk::PlaneLayer::moveLayer(Amg::Transform3D& shift) const {
+void Trk::PlaneLayer::moveLayer(Amg::Transform3D& shift)  {
        Amg::Transform3D transf = shift * (*m_transform);
-       /*
-        * AthenaMT note . This method
-        * should not be probably const
-        * const_cast / mutable kind of issue
-        * Looks like a const "setter" 
-        */
-       m_transform.set(std::make_unique<Amg::Transform3D>(transf));
-       m_center.set(std::make_unique<Amg::Vector3D>(m_transform->translation()));
-       m_normal.set(std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2)));
+       m_transform.store(std::make_unique<Amg::Transform3D>(transf));
+       m_center.store(std::make_unique<Amg::Vector3D>(m_transform->translation()));
+       m_normal.store(std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2)));
 }
 
 

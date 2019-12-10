@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CTMONITORING_DERIVESIMULATIONINPUTS_H
@@ -7,11 +7,10 @@
 
 // Basic includes:
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/Property.h"
-//#include "TrigConfigSvc/ITrigConfigSvc.h"
-//#include "TrigConfigSvc/ILVL1ConfigSvc.h"
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
@@ -61,14 +60,12 @@ namespace TrigT1CTMonitoring {
       DeriveSimulationInputs( const std::string& name, ISvcLocator* pSvcLocator );
       StatusCode DeriveL1CaloInput();
       StatusCode DeriveL1CaloInput_fromSim();
-      //StatusCode ReadPitConfigFromCool();
-      StatusCode ReadInputMappingFromCool();
+      StatusCode ReadInputMappingFromCool( IOVSVC_CALLBACK_ARGS );
       StatusCode fillPitMap(unsigned int pitNum);
       StatusCode fillFPIMap(unsigned int bitNum);
       StatusCode fillStoreGate(unsigned int ctpVersionNum);
 
       virtual StatusCode initialize();
-      virtual StatusCode beginRun();
       virtual StatusCode execute();
       virtual StatusCode finalize();
         
@@ -93,7 +90,7 @@ namespace TrigT1CTMonitoring {
     
       std::vector<std::string> m_par_atrlist;   
       std::vector<std::string> m_par_atrcollist;
-    
+      const DataHandle<CondAttrListCollection> m_ctpCoreMapping;
    }; 
 }
 #endif //

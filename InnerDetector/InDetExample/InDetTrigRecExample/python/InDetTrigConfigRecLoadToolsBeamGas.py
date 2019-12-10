@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """ Beam gas specific tools setup
 """
@@ -13,11 +13,12 @@ from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
 from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPrdAssociationTool
 
 from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCutsBeamGas
+import InDetRecExample.TrackingCommon as TrackingCommon
 
 if InDetTrigFlags.doAmbiSolving():
   InDetTrigAmbiTrackSelectionToolBeamGas = \
       InDet__InDetAmbiTrackSelectionTool(name            = 'InDetTrigAmbiTrackSelectionToolBeamGas',
-                                         AssociationTool = InDetTrigPrdAssociationTool,
+                                         AssociationTool = TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels(),
                                          minHits         = InDetTrigCutValuesBeamGas.minClusters(),
                                          minNotShared    = InDetTrigCutValuesBeamGas.minSiNotShared(),
                                          maxShared       = InDetTrigCutValuesBeamGas.maxShared(),
@@ -45,8 +46,7 @@ if InDetTrigFlags.doSiSPSeededTrackFinder():
     SpacePointsPixelName   = 'SCT_TrigSpacePoints',
     SpacePointsSCTName     = 'PixelTrigSpacePoints',
     #SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
-    UseAssociationTool     = True,
-    AssociationTool        = InDetTrigPrdAssociationTool,
+    PRDtoTrackMap          = "?", # @TODO
     radMax                 = EFIDTrackingCutsBeamGas.radMax()
     )
   

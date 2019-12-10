@@ -13,7 +13,6 @@ atlas_depends_on_subdirs(
    Control/AthenaExamples/AthExFortranAlgorithm
    Control/AthenaExamples/AthExStoreGateExample
    Control/AthenaPython
-   TestPolicy
    PRIVATE
    Control/AthContainers
    Control/AthLinks
@@ -132,6 +131,9 @@ atlas_add_test( test_cfgItemList
 
 atlas_add_test( test_keyStore
                 SCRIPT test/test_keyStore.sh )
+
+atlas_add_test( test_handleTest
+                SCRIPT test/test_handleTest.sh )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

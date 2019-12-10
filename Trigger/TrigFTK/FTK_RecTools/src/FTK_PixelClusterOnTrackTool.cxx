@@ -14,9 +14,7 @@
 #include "FTK_RecTools/FTK_PixelClusterOnTrackTool.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
 #include "InDetIdentifier/PixelID.h"
-#include "PixelConditionsTools/IModuleDistortionsTool.h"
 #include "TrkSurfaces/PlaneSurface.h"
-#include "GaudiKernel/IIncidentSvc.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "PixelGeoModel/IIBLParameterSvc.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
@@ -67,7 +65,6 @@ namespace
 FTK_PixelClusterOnTrackTool::FTK_PixelClusterOnTrackTool
   (const std::string &t, const std::string &n, const IInterface *p) :
   ::AthAlgTool(t, n, p),
-  m_pixDistoTool("PixelDistortionsTool", this),
   m_disableDistortions(false),
   m_rel13like(false),
   m_pixelid(nullptr),
@@ -85,7 +82,6 @@ FTK_PixelClusterOnTrackTool::FTK_PixelClusterOnTrackTool
   m_splitClusterMapName("SplitClusterAmbiguityMap") {
   declareInterface<IRIO_OnTrackCreator>(this);
 
-  declareProperty("PixelDistortionsTool", m_pixDistoTool, "Tool to retrieve pixel distortions");
   declareProperty("PositionStrategy", m_positionStrategy = 1, "Which calibration of cluster positions");
   declareProperty("ErrorStrategy", m_errorStrategy = 2, "Which calibration of cluster position errors");
   declareProperty("DisableDistortions", m_disableDistortions, "Disable simulation of module distortions");
@@ -143,16 +139,7 @@ FTK_PixelClusterOnTrackTool::initialize() {
 
   // get the module distortions tool
   if (!m_disableDistortions) {
-    if (!m_pixDistoTool.empty()) {
-      sc = m_pixDistoTool.retrieve();
-      if (sc != StatusCode::SUCCESS) {
-        msg(MSG::ERROR) << "Can't get pixel distortions tool " << endmsg;
-      } else {
-        ATH_MSG_INFO("Pixel distortions tool retrieved");
-      }
-    } else {
-      ATH_MSG_INFO("No PixelDistortionsTool selected.");
-    }
+    ATH_CHECK(m_distortionKey.initialize());
   } else {
     ATH_MSG_INFO("No PixelDistortions will be simulated.");
   }
@@ -626,8 +613,7 @@ void
 FTK_PixelClusterOnTrackTool::correctBow(const Identifier &id, Amg::Vector2D &localpos, const double phi,
                                            const double theta) const {
   Amg::Vector3D dir(tan(phi), tan(theta), 1.);
-  Amg::Vector2D newpos =
-    m_pixDistoTool->correctReconstruction(id, localpos, dir);
+  Amg::Vector2D newpos = SG::ReadCondHandle<PixelDistortionData>(m_distortionKey)->correctReconstruction(m_pixelid->wafer_hash(id), localpos, dir);
 
   localpos = newpos;
   return;

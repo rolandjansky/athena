@@ -12,7 +12,7 @@ def CaloRecoCfg(configFlags):
 
 
         from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
-        result.merge( ByteStreamReadCfg(ConfigFlags,typeNames=['TileDigitsContainer/TileDigitsCnt','TileRawChannelContainer/TileRawChannelCnt']))
+        result.merge( ByteStreamReadCfg(configFlags,typeNames=['TileDigitsContainer/TileDigitsCnt','TileRawChannelContainer/TileRawChannelCnt']))
 
 
         from LArROD.LArRawChannelBuilderAlgConfig import LArRawChannelBuilderAlgCfg
@@ -37,7 +37,7 @@ def CaloRecoCfg(configFlags):
 if __name__=="__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaCommon.Logging import log
-    from AthenaCommon.Constants import DEBUG
+    from AthenaCommon.Constants import DEBUG,WARNING
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1
     log.setLevel(DEBUG)
@@ -45,8 +45,10 @@ if __name__=="__main__":
     ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/data17_13TeV.00330470.physics_Main.daq.RAW._lb0310._SFO-1._0001.data",]
     ConfigFlags.lock()
 
+    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
+    acc = MainServicesSerialCfg()
 
-    acc=CaloRecoCfg(ConfigFlags)
+    acc.merge(CaloRecoCfg(ConfigFlags))
 
 
     from CaloRec.CaloRecConf import CaloCellDumper
@@ -55,6 +57,8 @@ if __name__=="__main__":
     from xAODCaloEventCnv.xAODCaloEventCnvConf import ClusterDumper
     acc.addEventAlgo(ClusterDumper("TopoDumper",ContainerName="CaloCalTopoClusters",FileName="TopoCluster.txt"))
 
-    f=open("CaloRec.pkl","w")
+    f=open("CaloRec.pkl","wb")
     acc.store(f)
     f.close()
+
+    acc.run(10,OutputLevel=WARNING)

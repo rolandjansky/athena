@@ -51,7 +51,7 @@ namespace TrigConf {
        */
       StatusCode loadFile( const std::string & filename,
                            boost::property_tree::ptree & data,
-                           const std::string & pathToChild = "");
+                           const std::string & pathToChild = "") const;
 
       /**
        * @brief Load content of json file into a ptree
@@ -61,8 +61,22 @@ namespace TrigConf {
        */
       StatusCode loadFile( const std::string & filename,
                            DataStructure & data,
-                           const std::string & pathToChild = "");
+                           const std::string & pathToChild = "") const;
 
+
+      /**
+       * @brief Checks the trigger level of a given json file
+       * @param filename [in] Name of the json file
+       */
+      std::string getFileType( const std::string & filename ) const;
+
+      /**
+       * @brief Checks the trigger level of a given json file
+       * @param filename [in] Name of the json file
+       * @param level [out] either "L1", "HLT" or "UNKNOWN"
+       */
+      StatusCode checkTriggerLevel( const std::string & filename,
+                                    std::string & level ) const;
 
       void setLevel(MSGTC::Level lvl) { msg().setLevel(lvl); }
 

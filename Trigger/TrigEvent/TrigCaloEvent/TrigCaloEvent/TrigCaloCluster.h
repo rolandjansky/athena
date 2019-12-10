@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCALOCLUSTER_H
@@ -30,6 +30,8 @@ DATE:		October 17th, 2005
 #include "CaloGeoHelpers/CaloSampling.h"
 // CLID for persistency
 #include "AthenaKernel/CLASS_DEF.h"
+#include "CxxUtils/copy_bounded.h"
+#include <algorithm>
 
 const int MAXSIZE = CaloSampling::CaloSample::Unknown;
 
@@ -56,6 +58,14 @@ public:
 	/**  set Raw Energy (no calibration)   */
 	inline void setRawEnergy( float energy  )
 			{ m_rawEnergy = energy;      };
+        template <class ITERATOR>
+        void setRawEnergies (ITERATOR beg, ITERATOR end)
+        {
+          auto out = CxxUtils::copy_bounded (beg, end,
+                                             std::begin(m_rawEnergyS),
+                                             std::end(m_rawEnergyS));
+          std::fill (out, std::end(m_rawEnergyS), 0);
+        }
 	/**  set Raw Et (no calibration)   */
 	inline void setRawEt( float et          )
 			{ m_rawEt = et;              };
@@ -83,6 +93,14 @@ public:
 	/**  get Raw Energy (no calibration)   */
 	inline float rawEnergy( ) const
 			{ return m_rawEnergy       ;};
+        template <class ITERATOR>
+        void rawEnergies (ITERATOR beg, ITERATOR end) const
+        {
+          auto out = CxxUtils::copy_bounded (std::begin(m_rawEnergyS),
+                                             std::end(m_rawEnergyS),
+                                             beg, end);
+          std::fill (out, end, 0);
+        }
 	/**  get Raw Et (no calibration)   */
 	inline float rawEt    ( ) const
 			{ return m_rawEt           ;};

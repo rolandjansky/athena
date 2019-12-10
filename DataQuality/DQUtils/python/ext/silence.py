@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import with_statement
 
@@ -41,7 +41,7 @@ def fifo():
     filename = pjoin(tmpdir, 'myfifo')
     try:
         mkfifo(filename)
-    except OSError, e:
+    except OSError as e:
         print_("Failed to create FIFO: %s" % e, file=stderr)
         raise
     else:

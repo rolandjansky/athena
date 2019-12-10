@@ -1,5 +1,3 @@
-//#include "BTagging/BJetBuilder.h"
-//#include "BTagging/BJetBuilderFast.h"
 #include "BTagging/BTagTool.h"
 #include "BTagging/BTagTrackAssociation.h"
 #include "BTagging/BTagSecVertexing.h"
@@ -7,16 +5,21 @@
 #include "BTagging/JetBTaggerTool.h"
 #include "BTagging/JetBTaggerAlg.h"
 #include "BTagging/StandAloneJetBTaggerAlg.h"
+#include "BTagging/JetParticleAssociationAlg.h"
+#include "BTagging/JetSecVertexingAlg.h"
+#include "BTagging/BTagTrackAugmenterAlg.h"
 
 using namespace Analysis ;
 
 DECLARE_COMPONENT( StandAloneJetBTaggerAlg )
 DECLARE_COMPONENT( BTagTrackAssociation )
 DECLARE_COMPONENT( BTagSecVertexing )
+DECLARE_COMPONENT( JetSecVertexingAlg )
 DECLARE_COMPONENT( BTagJetPtScaling )
 DECLARE_COMPONENT( BTagTool )
 DECLARE_COMPONENT( JetBTaggerTool )
 DECLARE_COMPONENT( JetBTaggerAlg )
-
+DECLARE_COMPONENT( JetParticleAssociationAlg )
+DECLARE_COMPONENT( BTagTrackAugmenterAlg )
 /** factory entries need to have the name of the package */
 

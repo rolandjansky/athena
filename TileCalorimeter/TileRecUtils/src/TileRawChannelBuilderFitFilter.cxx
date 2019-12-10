@@ -63,7 +63,7 @@ TileRawChannelBuilderFitFilter::TileRawChannelBuilderFitFilter(const std::string
   declareProperty("RMSChannelNoise",m_channelNoiseRMS = 3);
   declareProperty("ExtraSamplesLeft",m_extraSamplesLeft=0);   // increase window on left side
   declareProperty("ExtraSamplesRight",m_extraSamplesRight=0); // increase window on right side
-  declareProperty("SaturatedSample",m_saturatedSample = 1023.0);
+  declareProperty("SaturatedSample",m_saturatedSample = -1.0);
   declareProperty("SaturatedSampleError",m_saturatedSampleError = 6.0);
   declareProperty("ZeroSampleError",m_zeroSampleError = 100.0);
   declareProperty("NoiseThresholdRMS",m_noiseThresholdRMS = 3.0);
@@ -168,6 +168,9 @@ StatusCode TileRawChannelBuilderFitFilter::initialize() {
         break;
     }
   }
+
+  // TileInfo
+  if (m_saturatedSample < 0) m_saturatedSample = m_f_ADCmax;
 
   return StatusCode::SUCCESS;
 }

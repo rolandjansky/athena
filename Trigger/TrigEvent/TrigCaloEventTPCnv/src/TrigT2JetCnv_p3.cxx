@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigCaloEvent/TrigT2Jet.h"
@@ -11,7 +11,7 @@
 //-----------------------------------------------------------------------------
 void TrigT2JetCnv_p3::persToTrans( const TrigT2Jet_p3 *persObj,
 					     TrigT2Jet    *transObj,
-					     MsgStream       &log )
+					     MsgStream       &log ) const
 {
   log << MSG::DEBUG << "TrigT2JetCnv_p3::persToTrans called " << endmsg;
 
@@ -35,7 +35,7 @@ void TrigT2JetCnv_p3::persToTrans( const TrigT2Jet_p3 *persObj,
 //-----------------------------------------------------------------------------
 void TrigT2JetCnv_p3::transToPers( const TrigT2Jet    *transObj,
 					     TrigT2Jet_p3 *persObj,
-					     MsgStream       &log )
+					     MsgStream       &log ) const
 {
   log << MSG::DEBUG << "TrigT2JetCnv_p3::transToPers called " << endmsg;
 

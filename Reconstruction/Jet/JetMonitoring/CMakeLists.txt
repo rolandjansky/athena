@@ -9,13 +9,16 @@ atlas_subdir( JetMonitoring )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthToolSupport/AsgTools
                           Event/xAOD/xAODHIEvent
-                          Event/xAOD/xAODJet
+                          Event/xAOD/xAODJet 
                           GaudiKernel
-                          Reconstruction/Jet/JetInterface
+                          Reconstruction/Jet/JetInterface 
+                          Trigger/TrigEvent/TrigDecisionInterface 
+                          Control/AthenaMonitoring
                           PRIVATE
                           Control/AthContainers
-                          Control/AthenaMonitoring
-                          Reconstruction/Jet/JetUtils )
+                          Trigger/TrigAnalysis/TrigDecisionTool
+                          Reconstruction/Jet/JetUtils
+                          )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )

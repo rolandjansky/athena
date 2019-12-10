@@ -34,8 +34,7 @@ class TrigValInput(object):
         else:
             self.source = source
 
-        allowed_formats = ['RAW', 'RAW_FTK', 'HITS', 'RDO',
-                           'RDO_FTK', 'RDO_TRIG', 'ESD', 'AOD', 'NTUP_PHYSVAL']
+        allowed_formats = ['BS', 'HITS', 'RDO', 'ESD', 'AOD']
         if format not in allowed_formats:
             self.log.error('format has to be one of %s', allowed_formats)
             self.format = None

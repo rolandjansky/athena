@@ -24,9 +24,6 @@
 
 namespace LVL1TGCTrigger {
 
- extern bool        g_DEBUGLEVEL;
- extern bool        g_USE_CONDDB;
-
 bool TGCRPhiCoincidenceMap::test(int octantId, int moduleId, int subsector, 
 				 int type, int pt, 
 				 int dr, int dphi) const
@@ -44,7 +41,7 @@ bool TGCRPhiCoincidenceMap::test(int octantId, int moduleId, int subsector,
 
   std::map<int, std::map<int, int> > readMap;
 
-  if (g_USE_CONDDB) {
+  if (tgcArgs()->USE_CONDDB()){
     readMap = readCdo->getReadMapBw(m_side, m_octant, pt);
   } else {
     readMap = m_mapDB[pt];
@@ -63,7 +60,8 @@ bool TGCRPhiCoincidenceMap::test(int octantId, int moduleId, int subsector,
   else return false;
 }
 
-TGCRPhiCoincidenceMap::TGCRPhiCoincidenceMap(const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
+TGCRPhiCoincidenceMap::TGCRPhiCoincidenceMap(TGCArguments* tgcargs,
+					     const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
                                              const std::string& version,
 					     int   sideId, int octantId)
   :m_numberOfDR(0), m_numberOfDPhi(0),
@@ -71,15 +69,22 @@ TGCRPhiCoincidenceMap::TGCRPhiCoincidenceMap(const SG::ReadCondHandleKey<TGCTrig
    m_side(sideId),
    m_octant(octantId),
    m_fullCW(false),
+   m_tgcArgs(tgcargs),
    m_readCondKey(readCondKey)
 {
-  if (!g_USE_CONDDB) {
+  if (!tgcArgs()->USE_CONDDB()) {
     if (!checkVersion()){
       m_verName = "NA";
       return;
     }
-    this->readMap();  // read Coincidence Map 
-  
+
+    if(!tgcArgs()->useRun3Config()){
+      this->readMap();  // read Coincidence Map for Run2 (6 thresholds)
+    }
+    else{
+      //this -> readMap_Run3(); This function will be implemented. // read Coincidence Map for Run3 (15 thresholds)
+    }
+
   } 
 }
 
@@ -101,7 +106,7 @@ bool TGCRPhiCoincidenceMap::checkVersion()
   fullName = PathResolver::find_file( dbname.c_str(), "DATAPATH" );
   bool isFound =( fullName.length() > 0 );
   if (!isFound) {
-    if (g_DEBUGLEVEL) {
+    if (tgcArgs()->DEBUGLEVEL()) {
       log << MSG::DEBUG 
 	  << " Could not found " << dbname.c_str() 
 	  << " Default set is chosen !!" << endmsg;
@@ -164,7 +169,8 @@ TGCRPhiCoincidenceMap::TGCRPhiCoincidenceMap(const TGCRPhiCoincidenceMap& right)
   m_side=right.m_side;
   m_octant=right.m_octant;
   m_fullCW=right.m_fullCW;
-  if (m_verName!="NA") this->readMap();  // read Coincidence Map 
+  if(m_verName!="NA" && !tgcArgs()->useRun3Config()) this->readMap();  // read Coincidence Map for Run2 (6 thresholds)
+  if(m_verName!="NA" &&  tgcArgs()->useRun3Config()){/*this -> readMap_Run3(); This function will be implemented. */}// read Coincidence Map for Run3 (15 thresholds)
 }
 
 
@@ -177,7 +183,8 @@ TGCRPhiCoincidenceMap& TGCRPhiCoincidenceMap::operator=(const TGCRPhiCoincidence
     m_side=right.m_side;
     m_octant=right.m_octant;
     m_fullCW=right.m_fullCW;
-    if (m_verName!="NA") this->readMap();  // read Coincidence Map 
+    if(m_verName!="NA" && !tgcArgs()->useRun3Config()) this->readMap();  // read Coincidence Map for Run2 (6 thresholds)
+    if(m_verName!="NA" &&  tgcArgs()->useRun3Config()){ /*this -> readMap_Run3(); This function will be implemented.*/} // read Coincidence Map for Run3 (15 thresholds)
    }
 
   return *this;
@@ -263,7 +270,7 @@ bool TGCRPhiCoincidenceMap::readMap()
 	}
 	// Warning : no window 
 	if (aWindow.size()==0) {
-	  if (g_DEBUGLEVEL) {
+	  if (tgcArgs()->DEBUGLEVEL()) {
 	    log << MSG::DEBUG
 		<< " No window is opened for (ptLevel,ssId,mod) = (" 
 		<< ptLevel << ", " << ssId << ", " << mod << ")" 
@@ -272,7 +279,7 @@ bool TGCRPhiCoincidenceMap::readMap()
 	}
 	int addr = SUBSECTORADD(ssId,mod,phimod2,type);
 	if (m_mapDB[ptLevel-1].find(addr)!=m_mapDB[ptLevel-1].end()) {
-	  if (g_DEBUGLEVEL) {
+	  if (tgcArgs()->DEBUGLEVEL()) {
 	    log << MSG::DEBUG
 		<< "This subsector was already reserved." 
 		<< endmsg;

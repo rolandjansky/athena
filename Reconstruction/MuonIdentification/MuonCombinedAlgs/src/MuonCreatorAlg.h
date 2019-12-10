@@ -15,15 +15,17 @@
 #include "MuonCombinedEvent/MuonCandidateCollection.h"
 #include "MuonCombinedEvent/InDetCandidateToTagMap.h"
 
+#include "MuonCombinedToolInterfaces/IMuonCreatorTool.h"
+
 #include "xAODMuon/MuonContainer.h"
 #include "xAODMuon/SlowMuonContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "TrkTrack/TrackCollection.h"
 #include "MuonSegment/MuonSegment.h"
 
-namespace MuonCombined {
-  class IMuonCreatorTool;
-}
+#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoring/Monitored.h"
+
 
 class MuonCreatorAlg : public AthAlgorithm
 {
@@ -38,7 +40,7 @@ class MuonCreatorAlg : public AthAlgorithm
 
  private:
 
-  ToolHandle<MuonCombined::IMuonCreatorTool> m_muonCreatorTool;
+  ToolHandle<MuonCombined::IMuonCreatorTool> m_muonCreatorTool{this,"MuonCreatorTool","MuonCombined::MuonCreatorTool/MuonCreatorTool","Muon creator tool"};
   SG::WriteHandleKey<xAOD::MuonContainer> m_muonCollectionName{this,"MuonContainerLocation", "Muons", "Muon Container"};
   SG::WriteHandleKey<xAOD::SlowMuonContainer> m_slowMuonCollectionName{this, "SlowMuonContainerLocation", "SlowMuons", "Slow Muon Container"};
   SG::WriteHandleKey<xAOD::TrackParticleContainer> m_combinedCollectionName{this, "CombinedLocation", "CombinedMuon", "Combined muons"};
@@ -53,6 +55,9 @@ class MuonCreatorAlg : public AthAlgorithm
   bool m_buildSlowMuon;
   bool m_doSA;
   bool m_makeClusters;
+
+  // Monitoring tool
+  ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
 
 };
 

@@ -77,6 +77,8 @@ StatusCode HLTEDMCreator::initialize()
   INIT_XAOD( TrigEMClusterContainer );
   INIT_XAOD( TrigCaloClusterContainer );
   INIT_XAOD( TrigElectronContainer ); 
+  INIT_XAOD( ElectronContainer ); 
+  INIT_XAOD( PhotonContainer ); 
   INIT_XAOD( TrigPhotonContainer );
   INIT_XAOD( TrackParticleContainer );
   INIT_XAOD( TrigMissingETContainer );
@@ -174,7 +176,7 @@ StatusCode HLTEDMCreator::fixLinks() const {
     // Only increment this index for the sub-set of the TrigComposite collections that we are fixing. Mirror the initialize() logic.
     ++writeHandleArrayIndex;
 
-    ATH_MSG_DEBUG("Fixing links: confirm collection is there: " << writeHandleKey.key() << ", write hand array index: " << writeHandleArrayIndex);
+    ATH_MSG_DEBUG("Fixing links: confirm collection is there: " << writeHandleKey.key() << ", write handle array index: " << writeHandleArrayIndex);
     SG::ReadHandle<xAOD::TrigCompositeContainer> readHandle( writeHandleKey.key() );
     if ( not readHandle.isValid() ) { // object missing, this is now an error as we should have literally just created it
       ATH_MSG_ERROR("  Collection is not present. " << writeHandleKey.key() << " should have been created by createIfMissing.");
@@ -304,6 +306,8 @@ StatusCode HLTEDMCreator::createOutput(const EventContext& context) const {
   
   CREATE_XAOD_NO_MERGE( TrigCompositeContainer, TrigCompositeAuxContainer )
   CREATE_XAOD( TrigElectronContainer, TrigElectronAuxContainer )
+  CREATE_XAOD( ElectronContainer, ElectronAuxContainer )
+  CREATE_XAOD( PhotonContainer, PhotonAuxContainer )
   CREATE_XAOD( TrigPhotonContainer, TrigPhotonAuxContainer )
   CREATE_XAOD( TrigEMClusterContainer, TrigEMClusterAuxContainer )
   CREATE_XAOD( TrigCaloClusterContainer, TrigCaloClusterAuxContainer )

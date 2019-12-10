@@ -428,7 +428,7 @@ namespace InDet {
                   m_truth_pt = 1. / std::fabs(m_truth_qoverpt);
                   m_truth_charge = 1;
                   if (m_truth_qoverpt < 0) m_truth_charge = -1;
-                  if (m_truth_phi0 < 0) m_truth_phi0 += 2 * 3.1415926;
+                  if (m_truth_phi0 < 0) m_truth_phi0 += 2 * M_PI;
                   ATH_MSG_DEBUG("Found matched truth track with phi, PT = " << m_truth_phi0 << ", " << m_truth_pt);
                 }
               }

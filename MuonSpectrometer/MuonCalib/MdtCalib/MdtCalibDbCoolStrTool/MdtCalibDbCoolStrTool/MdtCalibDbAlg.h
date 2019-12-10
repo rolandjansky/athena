@@ -27,6 +27,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "AthenaKernel/IAthRNGSvc.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 //c - c++
 #include "zlib.h"
@@ -36,7 +37,6 @@
 
 class MdtCalibrationRegionSvc;
 class Identifier; 
-class MdtIdHelper;
 class IIOVDbSvc;
 class MsgStream;
 
@@ -74,7 +74,8 @@ class MdtCalibDbAlg: public AthAlgorithm {
   StatusCode loadTube();
   StatusCode defaultT0s(std::unique_ptr<MdtTubeCalibContainerCollection>& writeCdoTube);
 
-  const MdtIdHelper *m_mdtIdHelper;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   const MuonGM::MuonDetectorManager *m_detMgr;
   ToolHandle<MuonCalib::IIdToFixedIdTool> m_idToFixedIdTool;
   ServiceHandle<MdtCalibrationRegionSvc> m_regionSvc;

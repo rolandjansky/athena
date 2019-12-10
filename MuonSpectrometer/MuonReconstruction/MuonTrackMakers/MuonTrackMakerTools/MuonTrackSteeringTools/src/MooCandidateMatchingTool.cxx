@@ -3,28 +3,11 @@
 */
 
 #include "MooCandidateMatchingTool.h"
-#include "MuPatCandidateTool.h"
-#include "MuonTrackFindingEvent/MuPatTrack.h"
-#include "MuonTrackFindingEvent/MuPatCandidateBase.h"
-#include "MuonTrackFindingEvent/MuPatSegment.h"
-
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonTrackMakerUtils/SortMeasurementsByPosition.h"
-
-#include "MuonSegmentMakerToolInterfaces/IMuonSegmentMatchingTool.h"
-#include "MuonRecToolInterfaces/IMuonTrackSegmentMatchingTool.h"
+#include "MuPatTrack.h"
+#include "MuPatCandidateBase.h"
+#include "MuPatSegment.h"
 
 #include "MuonSegment/MuonSegment.h"
-
-#include "TrkTrack/Track.h"
-#include "TrkTrack/TrackStateOnSurface.h"
-
-#include "TrkParameters/TrackParameters.h"
-
-#include "TrkExInterfaces/IExtrapolator.h"
 
 #include "TrkEventPrimitives/LocalDirection.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
@@ -91,34 +74,11 @@ namespace Muon {
   
   
   MooCandidateMatchingTool::MooCandidateMatchingTool(const std::string& t, const std::string& n, const IInterface* p)    
-    : AthAlgTool(t,n,p),
-      m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-      m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-      m_slExtrapolator("Trk::Extrapolator/MuonStraightLineExtrapolator"),
-      m_atlasExtrapolator("Trk::Extrapolator/AtlasExtrapolator"), 
-      m_segmentMatchingTool("Muon::MuonSegmentMatchingTool/MuonSegmentMatchingTool"),
-      m_segmentMatchingToolTight("Muon::MuonSegmentMatchingTool/MuonSegmentMatchingToolTight"),
-      m_magFieldSvc("AtlasFieldSvc",n),
-      m_candidateTool("Muon::MuPatCandidateTool/MuPatCandidateTool"),
-      m_goodSegmentMatches(0),
-      m_goodSegmentMatchesTight(0),
-      m_segmentMatches(0),
-      m_segmentMatchesTight(0),
-      m_goodSegmentTrackMatches(0),
-      m_goodSegmentTrackMatchesTight(0),
-      m_sameSideOfPerigee(0),
-      m_otherSideOfPerigee(0),
-      m_sameSideOfPerigeeTrk(0),
-      m_otherSideOfPerigeeTrk(0),
-      m_segmentTrackMatches(0),
-      m_segmentTrackMatchesTight(0)
+    : AthAlgTool(t,n,p)
   {
     declareInterface<MooCandidateMatchingTool>(this);
     declareInterface<IMuonTrackSegmentMatchingTool>(this);
 
-    declareProperty("SLExtrapolator",           m_slExtrapolator );
-    declareProperty("Extrapolator",             m_atlasExtrapolator );
-    declareProperty("MagFieldSvc",    m_magFieldSvc );
     declareProperty("RequireSameSide",          m_requireSameSide = false, "require entries to be on the same side of the Perigee or Calorimeter" );
     declareProperty("MinimumRadiusSideMatch",   m_minimumSideMatchRadius = 4000., "All intersects outside the radius will be accepted");
     declareProperty("CaloMatchZ",               m_caloMatchZ = 6500., "limit in Z to determine Calo crossing");
@@ -135,10 +95,6 @@ namespace Muon {
     declareProperty("AlignmentErrorPosY",       m_alignErrorPosY = 0.0, "Alignment precision in local Y direction");
     declareProperty("AlignmentErrorAngleX",     m_alignErrorAngleX = 0.0, "Alignment precision in local X angle");
     declareProperty("AlignmentErrorAngleY",     m_alignErrorAngleY = 0.0, "Alignment precision in local Y angle");
-    declareProperty("SegmentMatchingTool",      m_segmentMatchingTool);
-    declareProperty("SegmentMatchingToolTight", m_segmentMatchingToolTight);
-    declareProperty("DoTrackSegmentMatching",   m_doTrackSegmentMatching = false, "Apply dedicated track-segment matching");
-    declareProperty("TrackSegmentPreMatching",  m_trackSegmentPreMatchingStrategy = 0, "0=no segments match,1=any segment match,2=all segment match");
 
     for (unsigned int i=0; i<TrackSegmentMatchResult::NumberOfReasons; i++) {
       m_reasonsForMatchOk[i].store(0, std::memory_order_relaxed);
@@ -158,7 +114,8 @@ namespace Muon {
     ATH_CHECK( m_magFieldSvc.retrieve() );
     ATH_CHECK( m_segmentMatchingTool.retrieve() );
     ATH_CHECK( m_segmentMatchingToolTight.retrieve() );
-
+    ATH_CHECK( m_candidateTool.retrieve() );
+    
     return StatusCode::SUCCESS;
   }
 

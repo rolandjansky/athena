@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigBjetBtagHypoAlgMT.h"
@@ -9,30 +9,21 @@ TrigBjetBtagHypoAlgMT::TrigBjetBtagHypoAlgMT( const std::string& name,
 						ISvcLocator* pSvcLocator ) : 
   TrigBjetHypoAlgBaseMT( name, pSvcLocator ) {}
 
-TrigBjetBtagHypoAlgMT::~TrigBjetBtagHypoAlgMT() {}
-
 
 StatusCode TrigBjetBtagHypoAlgMT::initialize() {
-  ATH_MSG_INFO ( "Initializing " << name() << "..." );
 
-  ATH_MSG_DEBUG( "Initializing Tools" );
   ATH_CHECK( m_hypoTools.retrieve() );
-
-  ATH_MSG_DEBUG( "Initializing HandleKeys" );
   CHECK( m_bTagKey.initialize() );
 
   ATH_MSG_DEBUG(  "declareProperty review:"   );
   ATH_MSG_DEBUG(  "   " << m_bTagKey          );
 
+  renounce( m_bTagKey );
+
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigBjetBtagHypoAlgMT::finalize() {
-  ATH_MSG_INFO( "Finalizing " << name() <<" ... " );
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TrigBjetBtagHypoAlgMT::execute( const EventContext& context ) const {  
+StatusCode TrigBjetBtagHypoAlgMT::execute( const EventContext& context ) const {
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
 
   // ========================================================================================================================== 

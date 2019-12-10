@@ -19,9 +19,13 @@ class G4Step;
 // use of the hits
 #include "InDetSimEvent/SiHitCollection.h"
 #include "StoreGate/WriteHandle.h"
+#include <gtest/gtest_prod.h>
 
 class BCMSensorSD : public G4VSensitiveDetector
 {
+ FRIEND_TEST( BCMSensorSDtest, Initialize );
+ FRIEND_TEST( BCMSensorSDtest, ProcessHits );
+ FRIEND_TEST( BCMSensorSDtest, AddHit );
  public:
   // Constructor
   BCMSensorSD(const std::string& name, const std::string& hitCollectionName);

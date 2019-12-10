@@ -1,12 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // My header first
 #include <QuickAna/ORTool.h>
-
-// Toolkit infrastructure includes
-#include <CxxUtils/make_unique.h>
 
 // Local includes
 #include <QuickAna/DefinitionArgs.h>
@@ -205,7 +202,7 @@ namespace
   {
     using namespace ana::msgObjectDefinition;
 
-    auto orTool = CxxUtils::make_unique<ana::ORTool>( args.prefix() );
+    auto orTool = std::make_unique<ana::ORTool>( args.prefix() );
     auto config = args.configuration();
     auto inLabel = config->selectionName(ana::SelectionStep::OR);
     auto anaLabel = config->selectionName(ana::SelectionStep::ANALYSIS);

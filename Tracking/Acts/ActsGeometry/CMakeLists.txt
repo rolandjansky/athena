@@ -16,6 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/EventInfo
                           GaudiKernel
                           MagneticField/MagFieldInterfaces
+                          Calorimeter/CaloDetDescr
                           Tracking/Acts/ActsGeometryInterfaces
                           Tracking/Acts/ActsInterop )
 
@@ -46,19 +47,23 @@ atlas_add_library( ActsGeometryLib
 atlas_add_component( ActsGeometry
                      src/ActsExtrapolationAlg.cxx
                      src/ActsWriteTrackingGeometry.cxx
+                     src/ActsWriteTrackingGeometryTransforms.cxx
                      src/ActsExtrapolationTool.cxx
                      src/ActsObjWriterTool.cxx
                      #src/ActsExCellWriterSvc.cxx
                      #src/ActsMaterialTrackWriterSvc.cxx
                      #src/GeomShiftCondAlg.cxx
+                     src/ActsAlignmentCondAlg.cxx
                      src/NominalAlignmentCondAlg.cxx
                      src/ActsTrackingGeometryTool.cxx
                      src/ActsPropStepRootWriterSvc.cxx
+                     src/ActsCaloTrackingVolumeBuilder.cxx
                      src/components/*.cxx
                      PUBLIC_HEADERS ActsGeometry
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${BOOST_INCLUDE_DIRS}
                      LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} 
                      EventInfo
+                     CaloDetDescrLib
                      ActsInteropLib 
                      ActsGeometryLib
                      ActsGeometryInterfacesLib

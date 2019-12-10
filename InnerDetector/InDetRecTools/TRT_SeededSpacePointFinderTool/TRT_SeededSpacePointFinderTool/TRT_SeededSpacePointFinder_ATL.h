@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************************
@@ -18,7 +18,6 @@
 
 //Tool Handle
 //
-#include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -26,9 +25,12 @@
 #include "TrkSpacePoint/SpacePointOverlapCollection.h" 
 
 #include "InDetRecToolInterfaces/ITRT_SeededSpacePointFinder.h"
+#include "TrkEventUtils/EventDataBase.h"
 
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
+
+#include "TrkEventUtils/PRDtoTrackMap.h"
 
 #include <list>
 #include <vector>
@@ -37,10 +39,6 @@
 class MsgStream   ;
 class SCT_ID      ;
 class SiSpacePointsSeed;
-
-namespace Trk{
-  class IPRD_AssociationTool;
-}
 
 namespace InDet{
 
@@ -86,21 +84,23 @@ namespace InDet{
       /** Method to initialize tool for new event                      */
       ///////////////////////////////////////////////////////////////////
 
-      void newEvent ();
-      void newRegion
-	(const std::vector<IdentifierHash>&,const std::vector<IdentifierHash>&);
+      std::unique_ptr<InDet::ITRT_SeededSpacePointFinder::IEventData> newEvent () const;
+      std::unique_ptr<InDet::ITRT_SeededSpacePointFinder::IEventData> newRegion
+	(const std::vector<IdentifierHash>&,
+         const std::vector<IdentifierHash>&) const;
       
       ///////////////////////////////////////////////////////////////////
       /** Main method of seed production                               */
       ///////////////////////////////////////////////////////////////////
 
-      std::list<std::pair<const Trk::SpacePoint*,const Trk::SpacePoint*> >* find2Sp (const Trk::TrackParameters&);
+      std::list<std::pair<const Trk::SpacePoint*,const Trk::SpacePoint*> > find2Sp (const Trk::TrackParameters&,
+                                                                                    ITRT_SeededSpacePointFinder::IEventData &event_data) const;
 
       ///////////////////////////////////////////////////////////////////
       /** Iterator through seed collection.Not used in this implementation */
       ///////////////////////////////////////////////////////////////////
       
-      const SiSpacePointsSeed* next();
+      const SiSpacePointsSeed* next(ITRT_SeededSpacePointFinder::IEventData &event_data) const;
       
       ///////////////////////////////////////////////////////////////////
       /** Print internal tool parameters and status                    */
@@ -120,12 +120,8 @@ namespace InDet{
 
       MagField::IMagFieldSvc*                m_fieldService;
 
-      ToolHandle<Trk::IPRD_AssociationTool>  m_assotool              ;  /** Association tool  */
       Trk::MagneticFieldProperties           m_fieldprop             ;  /** Magnetic field properties  */
-      int                                    m_nprint                ;
 
-      /** List of produced space point seeds  */
-      std::list<std::pair<const Trk::SpacePoint*,const Trk::SpacePoint*> > m_outputListBuffer;
 
       /**ID SCT helper*/
       const SCT_ID* m_sctId;
@@ -147,24 +143,49 @@ namespace InDet{
       double                         m_xiTC                          ;  /** theta based chi2 cut  */
       double                         m_xiFC                          ;  /** phi based chi2 cut  */
       bool                           m_search                        ;  /** Do full neighbor search  */
-      bool                           m_useasso                       ;  /** Use Si cluster association tool  */
       bool                           m_loadFull                      ;  /** Load full Si space point container  */
       bool                           m_doCosmics                     ;  /** Disable seed selection cuts during reconstruction of cosmics tracks  */
 
       ///////////////////////////////////////////////////////////////////
       /** Tables for 2 space points seeds search                       */
       ///////////////////////////////////////////////////////////////////
-     
-      int m_r_size                                                   ;
-      std::list<const Trk::SpacePoint*>*          m_r_Sorted         ;
-      std::list<std::pair<const Trk::SpacePoint*,int> > m_rf_Sorted[530]   ;
-      std::list<std::pair<const Trk::SpacePoint*,int> > m_newRfi_Sorted    ;
 
-      int m_ns                                                       ;
-      int m_fNmax                                                    ;
-      int  m_nr       ; int* m_r_index   ; int* m_r_map              ;
-      int  m_nrf     , m_rf_index   [ 530], m_rf_map   [ 530]        ;
-      double m_sF                                                    ;
+       class EventData;
+       class EventData : public Trk::EventDataBase<EventData,InDet::ITRT_SeededSpacePointFinder::IEventData>
+       {
+         friend class TRT_SeededSpacePointFinder_ATL;
+      public:
+         EventData()
+            : m_r_size(0),
+              m_ns(0),
+              m_fNmax(0),
+              m_nr(0),
+              m_nrf(0),
+              m_sF(0.)
+         {
+            m_r_index     = 0     ;
+            m_r_map       = 0     ;
+         }
+         ~EventData() {
+              if(m_r_index)  delete [] m_r_index;
+              if(m_r_map  )  delete [] m_r_map  ;
+         }
+
+      protected:
+         void buildFrameWork(double r_rmax, double r_rstep, double ptmin);
+         void erase(); // unused?
+
+         int m_r_size                                                   ;
+         std::list<std::pair<const Trk::SpacePoint*,int> > m_rf_Sorted[530]   ;
+         std::list<std::pair<const Trk::SpacePoint*,int> > m_newRfi_Sorted    ;
+
+         int m_ns=0                                                     ;
+         int m_fNmax=0                                                  ;
+         int  m_nr=0     ; int* m_r_index=nullptr; int* m_r_map=nullptr ;
+         int  m_nrf=0   , m_rf_index   [ 530], m_rf_map   [ 530]        ;
+         double m_sF;
+
+      };
 
       ///////////////////////////////////////////////////////////////////
       /** Space points containers                                      */
@@ -173,34 +194,37 @@ namespace InDet{
       SG::ReadHandleKey<SpacePointContainer>         m_spacepointsPixname {this,"SpacePointsPixelName","PixelSpacePoints","RHK to retrieve Pixel SpacePointContainer"}            ;  
       SG::ReadHandleKey<SpacePointContainer>         m_spacepointsSCTname {this,"SpacePointsSCTName","SCT_SpacePoints","RHK to retrieve SCT SpacePointContainer"}           ;         
       SG::ReadHandleKey<SpacePointOverlapCollection> m_spacepointsOverlapname {this,"SpacePointsOverlapName","OverlapSpacePoints","RHK to retrieve OverlapCollection"}        ; 
+      SG::ReadHandleKey<Trk::PRDtoTrackMap>          m_prdToTrackMap
+         {this,"PRDtoTrackMap",""};
 
       ///////////////////////////////////////////////////////////////////
       /** Protected methods                                            */
       ///////////////////////////////////////////////////////////////////
 
       MsgStream&    dumpConditions(MsgStream   & out) const;
-      MsgStream&    dumpEvent     (MsgStream   & out) const;
+      MsgStream&    dumpEvent     (MsgStream   & out,InDet::TRT_SeededSpacePointFinder_ATL::EventData &event_data) const;
 
-      /** Build framework to hold Si space points at beginning of run */
-      void buildFrameWork()  
-                                        ;
+
       /** Fill the space point container lists at beginning of each event */
-      void fillLists     ()                                          ;
+      void fillLists     (std::vector< std::vector<const Trk::SpacePoint*> > &r_Sorted,
+                          InDet::TRT_SeededSpacePointFinder_ATL::EventData &event_data) const;
 
-      /** Clean-up space point container lists at beginning of each event */
-      void erase()                                                   ;
 
       /** Form possible space point combinations within allowed radial and pseudorapidity ranges */
 
       // // // // // // // // // // // // // // // // //
-      void production2Spb (const Trk::TrackParameters&,int)           ;
+      void production2Spb (const Trk::TrackParameters&,
+                           int,
+                           std::list<std::pair<const Trk::SpacePoint*,const Trk::SpacePoint*> > &outputListBuffer,
+                           InDet::TRT_SeededSpacePointFinder_ATL::EventData &event_data) const;
       // // // // // // // // // // // // // // // // //
 
       /** Obtain geo model info for a specific space point  */
-      void geoInfo(const Trk::SpacePoint*, int&, int&)               ;
+      void geoInfo(const Trk::SpacePoint*, int&, int&) const          ;
+
 
       /** Get magnetic field properties  */
-      void magneticFieldInit(); 
+      void magneticFieldInit();
 
       // ptr to SP-specific data to be stored after calculated only once
       // instead of repeating the same computations many times in the
@@ -221,20 +245,17 @@ namespace InDet{
       /** Cut on chi2 based on TRT segment qOverP, theta and phi track parameters */
  
       // // // // // // // // // // // // // // // // //
-      bool cutTPb(const invar_bypass_struct &invar_bypass, const std::vector<bypass_struct> &prod_bypass,long, long, double);
+      bool cutTPb(const invar_bypass_struct &invar_bypass, const std::vector<bypass_struct> &prod_bypass,long, long, double) const;
       // // // // // // // // // // // // // // // // //
 
     };
-
-  MsgStream&    operator << (MsgStream&   ,const TRT_SeededSpacePointFinder_ATL&);
-  std::ostream& operator << (std::ostream&,const TRT_SeededSpacePointFinder_ATL&); 
 
   ///////////////////////////////////////////////////////////////////
   /** Inline methods                                               */
   ///////////////////////////////////////////////////////////////////
 
   /** Method to iterate through seeds.Not implemented              */
-  inline const SiSpacePointsSeed* TRT_SeededSpacePointFinder_ATL::next()
+  inline const SiSpacePointsSeed* TRT_SeededSpacePointFinder_ATL::next(ITRT_SeededSpacePointFinder::IEventData &) const
     {
       return 0;
     }

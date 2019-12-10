@@ -12,7 +12,7 @@ from GaudiKernel.GaudiHandles import \
 from AthenaCommon.JobProperties import JobProperty,jobproperties
 
 
-import os,sys,copy,re,commands
+import os,sys,copy,re,subprocess
 
 # for backwards compat of clients. TO BE REMOVED !!!
 from AthenaCommon.ConfiguredFactory import getProperty
@@ -84,7 +84,7 @@ class ConfiguredBaseMeta(ConfigurableMeta):
 
         # add default class members
         d = '_userDefaults'
-##        print "%r: adding new class member %s" % (newclass,d)
+##        print("%r: adding new class member %s" % (newclass,d))
         setattr(newclass,d,{})
         # fill in the missing defaults from bases
         for b in bases:
@@ -92,7 +92,7 @@ class ConfiguredBaseMeta(ConfigurableMeta):
                 newd = getattr(newclass,d)
                 for n,v in getattr(b,d).items():
                     if n not in newd:
-##                        print "%r.%s: adding default %s=%r from %r" % (newclass,d,n,v,b)
+##                        print("%r.%s: adding default %s=%r from %r" % (newclass,d,n,v,b))
                         newd[n] = v
             except AttributeError:
                 pass
@@ -247,9 +247,9 @@ class ConfiguredBase(object):
                 
     @classmethod
     def printUserDefaults(cls):
-        print "User default properties of class %s" % cls.__name__
+        print("User default properties of class %s" % cls.__name__)
         for n,v in cls._userDefaults.items():
-            print "  %s = %r" % (n,v)
+            print("  %s = %r" % (n,v))
 
 
         
@@ -337,7 +337,7 @@ class AutoLoadContainerJobProperty(JobProperty):
         global logMuon
         try:
             self.Loader.load()
-        except ImportError,AttributeError:
+        except (ImportError,AttributeError):
             from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
             if athenaCommonFlags.AllowIgnoreConfigError():
                 logMuonResil.error("Error importing %s. Switching off %s", self.Loader._moduleName,self.__name__)
@@ -469,7 +469,6 @@ def _whoWins( prop1, prop2, logger = logMuon ):
         winner = prop1
         loser  = prop2
         reason = 'it has precedence (both not locked and not set)'
-    # print out message
     logger.debug('%s=%r vs %s=%r : %s=%r wins because %s',
                  JobPropertyFullName(prop1), prop1.get_Value(),
                  JobPropertyFullName(prop2), prop2.get_Value(),
@@ -536,7 +535,7 @@ def dumpDetFlags(filename='config.txt'):
     confFile = open(filename,'a')
     # redirect stdout to file
     sys.stdout, confFile = confFile, sys.stdout 
-    print "Detector flags:"
+    print("Detector flags:")
     DetFlags.Print()
     # put back stdout to screen
     sys.stdout, confFile = confFile, sys.stdout 
@@ -806,8 +805,8 @@ def assertCastorStager(required_STAGE_HOST, required_STAGE_SVCCLASS):
                            "export STAGE_HOST=%s\n"
                            "export STAGE_SVCCLASS=%s\n"
                            "Please set these environment variables and run job again" % (err, required_STAGE_HOST, required_STAGE_SVCCLASS))
-    print "STAGE_HOST=%s" % STAGE_HOST
-    print "STAGE_SVCCLASS=%s" % STAGE_SVCCLASS
+    print("STAGE_HOST=%s" % STAGE_HOST)
+    print("STAGE_SVCCLASS=%s" % STAGE_SVCCLASS)
 
 
 
@@ -929,10 +928,7 @@ class FileList:
         prefixToRemove = FileList.castorPrefix(dir)
         dir=dir[len(prefixToRemove):]
         cmd = 'nsls '+opts+' '+dir
-##        print cmd
-        status,output = commands.getstatusoutput( cmd )
-        if status != 0:
-            raise IOError(output)
+        output = subprocess.check_output( cmd )
         # turn multiline string into list with one line per entry
         output = output.split(os.linesep)
         # add back prefix to filename (last column)

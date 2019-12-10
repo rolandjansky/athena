@@ -99,4 +99,10 @@ def Mdt_OverlayDigitizationTool(name="Mdt_OverlayDigitizationTool",**kwargs):
 
 def getMDT_OverlayDigitizer(name="MDT_OverlayDigitizer", **kwargs):
     kwargs.setdefault("DigitizationTool","Mdt_OverlayDigitizationTool")
+    # Multi-threading settinggs
+    from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
+    is_hive = (concurrencyProps.ConcurrencyFlags.NumThreads() > 0)
+    if is_hive:
+        kwargs.setdefault('Cardinality', concurrencyProps.ConcurrencyFlags.NumThreads())
+
     return CfgMgr.MDT_Digitizer(name,**kwargs)

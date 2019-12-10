@@ -18,7 +18,6 @@ atlas_depends_on_subdirs( PUBLIC
                           LArCalorimeter/LArRawConditions
                           LArCalorimeter/LArRawUtils
                           LArCalorimeter/LArTools
-                          TestPolicy
                           PRIVATE
                           Calorimeter/CaloDetDescr
                           Calorimeter/CaloEvent

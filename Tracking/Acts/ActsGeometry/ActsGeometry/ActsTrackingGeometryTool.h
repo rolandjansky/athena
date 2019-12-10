@@ -7,9 +7,10 @@
 
 // ATHENA
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/ReadCondHandleKey.h"
-#include "GaudiKernel/EventContext.h"
 
 // PACKAGE
 #include "ActsGeometry/ActsAlignmentStore.h" // ReadCondHandleKey wants complete type
@@ -32,8 +33,8 @@ class ActsTrackingGeometryTool : public extends<AthAlgTool, IActsTrackingGeometr
 public:
   StatusCode initialize() override;
 
-  ActsTrackingGeometryTool(const std::string& type, const std::string& name,
-	           const IInterface* parent);
+  ActsTrackingGeometryTool(const std::string &type, const std::string &name,
+                           const IInterface *parent);
 
   virtual
   std::shared_ptr<const Acts::TrackingGeometry>
@@ -47,14 +48,11 @@ public:
   ActsGeometryContext
   getNominalGeometryContext() const override;
 
-
 private:
-
   ServiceHandle<IActsTrackingGeometrySvc> m_trackingGeometrySvc;
 
-  SG::ReadCondHandleKey<ActsGeometryContext> m_rchk {this, "PixelAlignmentKey", "PixelAlignment", "cond read key"};
-
-
+  SG::ReadCondHandleKey<ActsGeometryContext> m_rchk{
+      this, "ActsAlignmentKey", "ActsAlignment", "cond read key for the alignment"};
 };
 
 #endif

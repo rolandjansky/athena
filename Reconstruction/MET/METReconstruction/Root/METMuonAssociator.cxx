@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // METMuonAssociator.cxx 
@@ -173,7 +173,7 @@ namespace met {
 
     // One loop over PFOs
     for(const auto& pfo : *constits.pfoCont) {
-      if(fabs(pfo->charge())>1e-9) {
+      if(pfo->isCharged()) {
 	// get charged PFOs by matching the muon ID track
 	// We set a small -ve pt for cPFOs that were rejected
 	// by the ChargedHadronSubtractionTool

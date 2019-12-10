@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -110,6 +110,28 @@ void MissingEtRegions::setEtSumReg(MissingEtRegions::RegionIndex theReg,
   if ( theReg < Size ) m_etReg[(size_t)theReg] = theEtSum;
 }
 
+
+void MissingEtRegions::setExRegVec(std::vector<double>&& exVec)
+{
+  assert (exVec.size() == Size);
+  m_exReg = std::move (exVec);
+}
+
+
+void MissingEtRegions::setEyRegVec(std::vector<double>&& eyVec)
+{
+  assert (eyVec.size() == Size);
+  m_eyReg = std::move (eyVec);
+}
+
+
+void MissingEtRegions::setEtSumRegVec(std::vector<double>&& etSumVec)
+{
+  assert (etSumVec.size() == Size);
+  m_etReg = std::move (etSumVec);
+}
+
+
 // get methods
 
 double MissingEtRegions::exReg(MissingEtRegions::RegionIndex theReg) const
@@ -125,6 +147,27 @@ double MissingEtRegions::eyReg(MissingEtRegions::RegionIndex theReg) const
 double MissingEtRegions::etSumReg(MissingEtRegions::RegionIndex theReg) const
 {
   return m_etReg[theReg] ;
+}
+
+
+const std::vector<double>&
+MissingEtRegions::exRegVec() const
+{
+  return m_exReg;
+}
+
+
+const std::vector<double>&
+MissingEtRegions::eyRegVec() const
+{
+  return m_eyReg;
+}
+
+
+const std::vector<double>&
+MissingEtRegions::etSumRegVec() const
+{
+  return m_etReg;
 }
 
 

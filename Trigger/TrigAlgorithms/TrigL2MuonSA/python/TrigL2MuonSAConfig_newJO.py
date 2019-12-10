@@ -29,10 +29,10 @@ def RpcDataPreparatorCfg( flags, roisKey ):
 
     # Set Rpc data preparator for MuFast data preparator
     from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__RpcDataPreparator
-    RpcDataPreparator = TrigL2MuonSA__RpcDataPreparator( RpcPrepDataProvider  = acc.getPublicTool( "RpcRdoToRpcPrepDataTool" ),
-                                                         RpcRawDataProvider   = acc.getPublicTool( "RPC_RawDataProviderToolMT" ),
-                                                         #DecodeBS = DetFlags.readRDOBS.RPC_on() ) # This should be used flags
-                                                         DecodeBS = True )
+    RpcDataPreparator = TrigL2MuonSA__RpcDataPreparator( RpcPrepDataProvider  = "",
+                                                         RpcRawDataProvider   = "",
+                                                         DecodeBS = False,
+                                                         DoDecoding = False )
     acc.addPublicTool( RpcDataPreparator, primary=True ) # Now this is needed, but should be removed
  
     return acc, RpcDataPreparator
@@ -56,9 +56,11 @@ def TgcDataPreparatorCfg( flags, roisKey ):
 
     # Set Tgc data preparator for MuFast data preparator
     from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__TgcDataPreparator
-    TgcDataPreparator = TrigL2MuonSA__TgcDataPreparator( TgcPrepDataProvider  = acc.getPublicTool( "TgcRdoToTgcPrepDataTool" ) ,
-                                                         TgcRawDataProvider   = acc.getPublicTool( "TGC_RawDataProviderToolMT" ) )
-                                                         #DecodeBS = DetFlags.readRDOBS.TGC_on() ) # This should be used flags
+    TgcDataPreparator = TrigL2MuonSA__TgcDataPreparator( TgcPrepDataProvider  = "",
+                                                         TgcRawDataProvider   = "",
+                                                         DecodeBS = False,
+                                                         DoDecoding = False )
+
  
     return acc, TgcDataPreparator
 
@@ -81,10 +83,10 @@ def MdtDataPreparatorCfg( flags, roisKey ):
 
     # Set Mdt data preparator for MuFast data preparator
     from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MdtDataPreparator
-    MdtDataPreparator = TrigL2MuonSA__MdtDataPreparator( MdtPrepDataProvider  = acc.getPublicTool( "MdtRdoToMdtPrepDataTool" ),
-                                                         MDT_RawDataProvider   = acc.getPublicTool( "MDT_RawDataProviderToolMT" ),
-                                                         #DecodeBS = DetFlags.readRDOBS.MDT_on() ) # This should be used flags
-                                                         DecodeBS = True )
+    MdtDataPreparator = TrigL2MuonSA__MdtDataPreparator( MdtPrepDataProvider  = "",
+                                                         MDT_RawDataProvider   = "",
+                                                         DecodeBS = False,
+                                                         DoDecoding = False )
  
     return acc, MdtDataPreparator
 
@@ -112,10 +114,12 @@ def CscDataPreparatorCfg( flags, roisKey ):
 
     # Set Csc data preparator for MuFast data preparator
     from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__CscDataPreparator
-    CscDataPreparator = TrigL2MuonSA__CscDataPreparator( CscPrepDataProvider  = acc.getPublicTool( "CscRdoToCscPrepDataTool" ),
-                                                         CscClusterProvider   = acc.getPublicTool( "CscThesholdClusterBuilderTool" ),
-                                                         CscRawDataProvider   = acc.getPublicTool( "CSC_RawDataProviderToolMT" ) )
-                                                         #DecodeBS = DetFlags.readRDOBS.CSC_on() ) # This should be used flags
+    CscDataPreparator = TrigL2MuonSA__CscDataPreparator( CscPrepDataProvider  = "",
+                                                         CscClusterProvider   = "",
+                                                         CscRawDataProvider   = "",
+                                                         DecodeBS = False,
+                                                         DoDecoding = False )
+
     acc.addPublicTool( CscDataPreparator, primary=True ) # This should be removed
  
     return acc, CscDataPreparator
@@ -269,14 +273,18 @@ def AlignmentBarrelLUTSvcCfg( flags ):
 
 # In the future, above functions should be moved to TrigL2MuonSA package(?)
 
-def l2MuFastAlgCfg( flags, roisKey="MURoIs" ):
+def l2MuFastAlgCfg( flags, roisKey="" ):
 
     acc = ComponentAccumulator()
+
+    if not roisKey:
+        from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
+        roisKey = mapThresholdToL1RoICollection("MU")
 
     # Get Reco alg of muFast step
     muFastAcc, muFastFex = muFastSteeringCfg( flags, roisKey )  
     muFastFex.MuRoIs = roisKey
-    muFastFex.RecMuonRoI = "RecMURoIs"
+    muFastFex.RecMuonRoI = "HLT_RecMURoIs"
     muFastFex.MuonL2SAInfo = muFastInfo
     muFastFex.forID = "forID"
     muFastFex.forMS = "forMS"

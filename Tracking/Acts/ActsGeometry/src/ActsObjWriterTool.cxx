@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ActsGeometry/ActsObjWriterTool.h"
@@ -32,6 +32,18 @@ StatusCode
 ActsObjWriterTool::initialize()
 {
 
+
+  return StatusCode::SUCCESS;
+}
+
+void
+ActsObjWriterTool::write(const ActsGeometryContext& gctx, const Acts::TrackingGeometry& tg) const
+{
+
+  const auto& ctx = Gaudi::Hive::currentContext();
+  std::stringstream ss;
+  ss << ctx.eventID().run_number() << "_" << ctx.eventID().event_number();
+
   using namespace std::string_literals;
 
   std::vector<std::shared_ptr<Acts::ObjSurfaceWriter>> subWriters;
@@ -39,7 +51,7 @@ ActsObjWriterTool::initialize()
 
   for (const auto& sdet : m_subDetectors) {
     auto        sdStream = std::shared_ptr<std::ofstream>(new std::ofstream);
-    std::string sdOutputName = m_outputDirectory + "/"s + sdet + ".obj"s;
+    std::string sdOutputName = m_outputDirectory + "/"s + sdet + "_" + ss.str() + ".obj"s;
     sdStream->open(sdOutputName);
     // object surface writers
     Acts::ObjSurfaceWriter::Config sdObjWriterConfig(sdet,
@@ -59,6 +71,7 @@ ActsObjWriterTool::initialize()
     subStreams.push_back(sdStream);
   }
 
+
   // configure the tracking geometry writer
   Acts::ObjTrackingGeometryWriter::Config tgObjWriterConfig(
       "ObjTrackingGeometryWriter", Acts::Logging::INFO);
@@ -67,14 +80,8 @@ ActsObjWriterTool::initialize()
   tgObjWriterConfig.sensitiveGroupPrefix = "";
   tgObjWriterConfig.layerPrefix          = "";
   // the tracking geometry writers
-  m_tgObjWriter
+  auto tgObjWriter
     = std::make_shared<Acts::ObjTrackingGeometryWriter>(tgObjWriterConfig);
 
-  return StatusCode::SUCCESS;
-}
-
-void
-ActsObjWriterTool::write(const ActsGeometryContext& gctx, const Acts::TrackingGeometry& tg)
-{
-  m_tgObjWriter->write(gctx.any(), tg);
+  tgObjWriter->write(gctx.any(), tg);
 }

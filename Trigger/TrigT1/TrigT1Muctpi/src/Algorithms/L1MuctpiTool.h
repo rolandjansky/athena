@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1MUCTPI_L1MUCTPITOOL_H
@@ -10,7 +10,6 @@
 #include <vector>
 #include <string>
 
-#include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ToolHandle.h"
 
 namespace TrigConf {
@@ -24,7 +23,7 @@ namespace LVL1MUCTPI {
   // Forward declaration(s):
   class MuctpiSim;
 
-  class L1MuctpiTool : public extends2<AthAlgTool, IMuctpiSimTool, IIncidentListener> {
+  class L1MuctpiTool : public extends<AthAlgTool, IMuctpiSimTool> {
    public:
       L1MuctpiTool(const std::string& type, const std::string& name, 
                          const IInterface* parent);
@@ -35,9 +34,6 @@ namespace LVL1MUCTPI {
 
       virtual StatusCode fillMuCTPIL1Topo(LVL1::MuCTPIL1Topo&, int bcidOffset=0) const override;
 
-      virtual void handle(const Incident&) override;
-
-
       // left over from ALgorithm implementation ... can I just leave them in here
       // and use them as normal funcitons?
       /// Regular Gaudi algorithm finalization function
@@ -45,7 +41,7 @@ namespace LVL1MUCTPI {
       /// Regular Gaudi algorithm execute function
       virtual StatusCode execute();
       /// Regular Gaudi algorithm beginRun function
-      virtual StatusCode beginRun();
+      virtual StatusCode start() override;
 
 
    private:

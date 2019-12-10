@@ -189,7 +189,7 @@ StatusCode LArCaliWaveBuilder::executeWithAccumulatedDigits()
    
    const float delayScale = larAccumulatedCalibDigitContainer->getDelayScale();
    const float deltaDelay = 25*ns/(delayScale*m_NStep);
-   
+
    for (;it!=it_end; ++it) { // Loop over all cells
 
      if ( (!m_recAll) && (!(*it)->isPulsed()) ) {
@@ -197,6 +197,7 @@ StatusCode LArCaliWaveBuilder::executeWithAccumulatedDigits()
         continue; // Check if cell is pulsed
      }
      ATH_MSG_DEBUG( "Pulsed cell " << m_onlineID->channel_name((*it)->hardwareID()) ); 
+     ATH_MSG_DEBUG( "with " << (*it)->sampleSum().size() << " samples " << (*it)->DAC() << " DAC " << (*it)->delay() << " delay " << (*it)->isPulsed(1) << " line 1 pulsed " ); 
      HWIdentifier chid=(*it)->hardwareID();
      HWIdentifier febid=m_onlineID->feb_Id(chid);
      if (febErrSum) {
@@ -256,6 +257,7 @@ StatusCode LArCaliWaveBuilder::executeWithAccumulatedDigits()
        LArCaliWave wave(samplesum.size()*m_NStep, m_dt, dacPulsed);
        wave.setFlag( LArWave::meas );
        itm = (waveMap.insert(WaveMap::value_type(index,wave))).first;
+       ATH_MSG_DEBUG("index: "<<index<<" new wave inserted");
      }
      (*itm).second.addAccumulatedEvent((int)roundf((*it)->delay()/deltaDelay), m_NStep, 
 	                                samplesum, sample2sum, (*it)->nTriggers());
@@ -468,7 +470,6 @@ StatusCode LArCaliWaveBuilder::stop()
 
     } //end loop over m_keyList
 
-    //ATH_MSG_INFO( " Summary : Number of cells with a CaliWave  reconstructed : " << caliWaveContainer->totalNumberOfConditions()  );
     ATH_MSG_INFO( " Summary : Number of cells with a CaliWave  reconstructed : " << NCaliWave  );    
     ATH_MSG_INFO( " Summary : Number of Barrel PS cells side A or C (connected+unconnected):   3904+ 192 =  4096 " );
     ATH_MSG_INFO( " Summary : Number of Barrel    cells side A or C (connected+unconnected):  50944+2304 = 53248 " );

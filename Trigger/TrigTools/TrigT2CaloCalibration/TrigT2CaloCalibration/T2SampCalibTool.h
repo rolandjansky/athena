@@ -39,7 +39,6 @@
 
 class IAthenaOutputStreamTool;//Needed to write to POOL/root file
 class IIOVRegistrationSvc;//Needed for register with COOL
-class IIncidentSvc;//Need to retrieve dB at initialize
 
 class T2SampCalibTool : virtual public IT2HadCalibTool, public AthAlgTool, virtual public IIncidentListener  {
  public:

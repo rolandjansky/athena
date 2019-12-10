@@ -14,9 +14,7 @@ Muon::SimpleSTgcClusterBuilderTool::SimpleSTgcClusterBuilderTool(const std::stri
 								 const std::string& n,
 								 const IInterface*  p )
   :  
-  AthAlgTool(t,n,p),
-  m_muonMgr(nullptr),
-  m_stgcIdHelper(nullptr)
+  AthAlgTool(t,n,p)
 {
   declareProperty("ChargeCut", m_chargeCut=0.0);
   declareProperty("AllowHoles",m_allowHoles=true);
@@ -30,10 +28,7 @@ Muon::SimpleSTgcClusterBuilderTool::~SimpleSTgcClusterBuilderTool()
 
 StatusCode Muon::SimpleSTgcClusterBuilderTool::initialize()
 {
-
-  ATH_CHECK(detStore()->retrieve(m_muonMgr));  
-  m_stgcIdHelper = m_muonMgr->stgcIdHelper();
-
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
   return StatusCode::SUCCESS;
 }
 
@@ -61,7 +56,7 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
   if ( stripsVect.size()>0 ) {
     resolution = stripsVect.at(0).localCovariance()(0,0);
     Identifier chanId = stripsVect.at(0).identify();
-    if ( m_stgcIdHelper->channelType(chanId)==2 ) isWire = true;
+    if ( m_muonIdHelperTool->stgcIdHelper().channelType(chanId)==2 ) isWire = true;
     ATH_MSG_DEBUG("isWire: " << isWire << "Single channel resolution: " << resolution);
   }
   else {
@@ -99,6 +94,10 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
         // loop on the strips and set the cluster weighted position and charge
         //
         std::vector<Identifier> rdoList;
+        //vectors to hold the properties of the elements of a cluster
+        std::vector<int> elementsCharge;
+        std::vector<short int> elementsTime;
+        std::vector<uint16_t> elementsChannel;
         Identifier clusterId;
         double weightedPosX = 0.0;
         double posY = (cluster.at(0)).localPosition().y();
@@ -107,6 +106,9 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
         double totalCharge  = 0.0;
         for ( auto it : cluster ) {
           rdoList.push_back(it.identify());
+          elementsCharge.push_back(it.charge());
+          elementsChannel.push_back(m_muonIdHelperTool->stgcIdHelper().channel(it.identify()));
+          elementsTime.push_back(it.time());
           double weight = 0.0;
           isWire ? weight = 1.0 : weight = it.charge(); 
           ATH_MSG_DEBUG("isWire: " << isWire << " weight: " << weight);
@@ -154,7 +156,8 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
         // memory allocated dynamically for the PrepRawData is managed by Event Store in the converters
         //
         sTgcPrepData* prdN = new sTgcPrepData(clusterId,hash,localPosition,
-            rdoList, covN, cluster.at(0).detectorElement());
+            rdoList, covN, cluster.at(0).detectorElement(),
+            std::accumulate(elementsCharge.begin(),elementsCharge.end(),0),(short int)0,(uint16_t) 0,elementsChannel,elementsTime,elementsCharge);
         clustersVect.push_back(prdN);   
       }
     }
@@ -170,10 +173,10 @@ bool Muon::SimpleSTgcClusterBuilderTool::addStrip(Muon::sTgcPrepData& strip)
 {
 
   Identifier prd_id = strip.identify();
-  int channelType = m_stgcIdHelper->channelType(prd_id);
-  int multilayer = m_stgcIdHelper->multilayer(prd_id);
-  int gasGap = m_stgcIdHelper->gasGap(prd_id);
-  unsigned int stripNum = m_stgcIdHelper->channel(prd_id);
+  int channelType = m_muonIdHelperTool->stgcIdHelper().channelType(prd_id);
+  int multilayer = m_muonIdHelperTool->stgcIdHelper().multilayer(prd_id);
+  int gasGap = m_muonIdHelperTool->stgcIdHelper().gasGap(prd_id);
+  unsigned int stripNum = m_muonIdHelperTool->stgcIdHelper().channel(prd_id);
 
   ATH_MSG_DEBUG(">>>>>>>>>>>>>> In addStrip: channelType, multilayer, gasGap, stripNum: " << channelType 
       << " " << multilayer << " " 
@@ -215,17 +218,17 @@ bool Muon::SimpleSTgcClusterBuilderTool::addStrip(Muon::sTgcPrepData& strip)
       unsigned int diffFirst = (stripNum-firstStrip) > 0 ? stripNum - firstStrip : firstStrip-stripNum ;
       unsigned int diffLast  = (stripNum-lastStrip)  > 0 ? stripNum - lastStrip  : lastStrip-stripNum ;
       if ( (stripNum==lastStrip+1 || stripNum==firstStrip-1) 
-	   || (m_allowHoles && ( diffFirst<=2 || diffLast<=2 ))) {
-
+       || (m_allowHoles && ( diffFirst<=2 || diffLast<=2 ))) {
+       
         ATH_MSG_DEBUG(">> inserting a new strip");
-	m_clustersStripNum[multilayer][gasGap].at(i).insert(stripNum);
-	m_clusters[multilayer][gasGap].at(i).push_back(strip);
+	      m_clustersStripNum[multilayer][gasGap].at(i).insert(stripNum);
+	      m_clusters[multilayer][gasGap].at(i).push_back(strip);
 
         ATH_MSG_DEBUG("size after inserting is: " << m_clustersStripNum[multilayer][gasGap].at(i).size());
         ATH_MSG_DEBUG("and the first and last strip are: " 
           << *(m_clustersStripNum[multilayer][gasGap].at(i).begin()) << " "  
           << *(--m_clustersStripNum[multilayer][gasGap].at(i).end())); 
-	return true;
+	      return true;
       }
     }
     // if not, build a new cluster starting from it
@@ -254,13 +257,13 @@ void SimpleSTgcClusterBuilderTool::dumpStrips( std::vector<Muon::sTgcPrepData>& 
   ATH_MSG_INFO("====> Dumping all strips:  ");
   for ( auto it : stripsVect ) {
     Identifier stripId = it.identify(); 
-    ATH_MSG_INFO("Strip identifier: " << m_stgcIdHelper->show_to_string(stripId) ); 
+    ATH_MSG_INFO("Strip identifier: " << m_muonIdHelperTool->stgcIdHelper().show_to_string(stripId) ); 
   }
 
   ATH_MSG_INFO("Dumping all clusters:  ");
   for ( auto it : clustersVect ) {
     Identifier clusterId = it->identify(); 
-    ATH_MSG_INFO("***> New cluster identifier: " << m_stgcIdHelper->show_to_string(clusterId) ); 
+    ATH_MSG_INFO("***> New cluster identifier: " << m_muonIdHelperTool->stgcIdHelper().show_to_string(clusterId) ); 
     ATH_MSG_INFO("Cluster size: " << it->rdoList().size() );
     ATH_MSG_INFO("List of associated RDO's: ");
 

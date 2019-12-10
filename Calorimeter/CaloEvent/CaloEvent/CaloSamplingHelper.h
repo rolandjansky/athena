@@ -75,12 +75,12 @@ private:
    CaloSamplingHelper( const CaloSamplingHelper& rhs);
    CaloSamplingHelper& operator =( const CaloSamplingHelper& rhs);
 
-   static unsigned int m_EMMask;
-   static unsigned int m_HADMask;
-   static unsigned int m_BarrelMask;
-   static unsigned int m_EndCapMask;
-   static unsigned int m_LArMask;
-   static unsigned int m_TileMask;
+   static const unsigned int m_EMMask;
+   static const unsigned int m_HADMask;
+   static const unsigned int m_BarrelMask;
+   static const unsigned int m_EndCapMask;
+   static const unsigned int m_LArMask;
+   static const unsigned int m_TileMask;
 
    static bool matchPattern(const CaloSample& rSample, 
 			    const unsigned int& mask);   

@@ -16,12 +16,15 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "CSCcabling/CSCcablingSvc.h"
 
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 #include <inttypes.h>
 #include <vector>
 #include <string>
+#include <mutex>
+
 #include "CscRODReadOut.h"
 
-class CscIdHelper;
 class Identifier;
 class CscRawData;
 
@@ -53,15 +56,16 @@ namespace Muon {
 
   private:
     std::string m_detdescr;
-    const CscIdHelper *               m_cscHelper;
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
     ServiceHandle<CSCcablingSvc>      m_cabling;
     ToolHandle<ICscCalibTool>         m_cscCalibTool;
     double   m_timeOffset   ;
     double   m_samplingTime ;
     double   m_signalWidth  ;
     // the read out structure
-    mutable CscRODReadOut m_rodReadOut;
-
+    mutable CscRODReadOut m_rodReadOut ATLAS_THREAD_SAFE; // guarded by m_mutex
+    mutable std::mutex m_mutex;
   };
 }
 

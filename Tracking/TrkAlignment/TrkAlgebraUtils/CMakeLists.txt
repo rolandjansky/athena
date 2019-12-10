@@ -7,8 +7,7 @@ atlas_subdir( TrkAlgebraUtils )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PRIVATE
-                          GaudiKernel
-                          TestPolicy )
+                          GaudiKernel )
 
 # External dependencies:
 find_package( BLAS )

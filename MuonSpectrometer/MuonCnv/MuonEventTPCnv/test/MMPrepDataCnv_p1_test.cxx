@@ -23,8 +23,9 @@ void compare (const Trk::PrepRawData& p1,
 {
   assert (p1.localPosition()[0] == p2.localPosition()[0]);
   assert (p1.localCovariance() == p2.localCovariance());
-  assert (p2.rdoList().size() == 1);
-  //  assert (p2.rdoList()[0] == p2.identify());
+
+  assert (p1.rdoList().size()==p2.rdoList().size());
+
 }
 
 
@@ -69,9 +70,9 @@ void test1()
   Amg::MatrixX cov(1,1);
   cov(0,0) = 101;
 
-  std::vector<Identifier> rdoList { Identifier(5432),
-                                    Identifier(5361),
-                                    Identifier(6456) };
+  std::vector<Identifier> rdoList { Identifier(1274),
+                                    Identifier(1234),
+                                    Identifier(1178) };
 
   Muon::MMPrepData trans1 (Identifier (1234),
                            IdentifierHash (1234),
@@ -79,7 +80,7 @@ void test1()
                            rdoList,
                            new Amg::MatrixX(cov),
                            nullptr);
-                            
+                          
   testit (trans1);
 }
 

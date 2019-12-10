@@ -12,16 +12,19 @@
 /** Top algorithm class for TRT digitization */
 class TRTDigitization : public AthAlgorithm {
 
- public:
+public:
 
   /** Constructor with parameters */
   TRTDigitization(const std::string &name,ISvcLocator *pSvcLocator);
 
+  virtual ~TRTDigitization() = default;
+
   /** Basic algorithm methods */
   virtual StatusCode initialize() override final;
   virtual StatusCode execute() override final;
+  virtual bool isClonable() const override final { return true; }
 
- private:
+private:
   ToolHandle<IPileUpTool> m_digTool{this,"DigitizationTool", "TRTDigitizationTool", "AthAlgTool which performs the TRT digitization"};
 };
 

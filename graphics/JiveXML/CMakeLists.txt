@@ -12,8 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           Event/EventInfo
                           Event/xAOD/xAODEventInfo
-                          GaudiKernel
-                          TestPolicy )
+                          GaudiKernel )
 
 # Component(s) in the package:
 atlas_add_library( JiveXMLLib

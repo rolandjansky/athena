@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cmath>
-#include "boost/foreach.hpp"
 #include <AthenaKernel/errorcheck.h>
 #include "TrigSteering/ResultBuilder.h"
 #include "TrigSteeringEvent/HLTResult.h"
@@ -359,11 +358,11 @@ ErrorCode ResultBuilder::fillTriggerInfo(const std::vector<SteeringChain*>& acti
 
          // loop over all active chains:
          //for (std::vector<HLT::SteeringChain*>::const_iterator chain = activeChains.begin();
-         BOOST_FOREACH( const HLT::SteeringChain* chain, activeChains ) {
+         for( const HLT::SteeringChain* chain : activeChains ) {
             // take only those that passed:
             if ( chain->chainPassed() ) {
                // and get all streams from the chain
-               BOOST_FOREACH ( const HLT::StreamTag& chain_stream, chain->getStreamTags() ) {
+               for ( const HLT::StreamTag& chain_stream : chain->getStreamTags() ) {
                   //	for (std::vector<HLT::StreamTag>::const_iterator chain_stream = (*chain)->getStreamTags().begin();
                   //	     chain_stream !=  (*chain)->getStreamTags().end(); ++chain_stream ) {
                   // if stream is not prescaled!
@@ -454,7 +453,7 @@ ErrorCode ResultBuilder::fillTriggerInfo(const std::vector<SteeringChain*>& acti
    if (msgLvl(MSG::DEBUG)) {
       ATH_MSG_DEBUG(m_uniqueStreams.size() << " StreamTags of this event: "
                << m_config->getInstance().substr(1,3));
-      BOOST_FOREACH(const TriggerInfo::StreamTag& st, m_uniqueStreams ) {
+      for(const TriggerInfo::StreamTag& st : m_uniqueStreams ) {
 
          ATH_MSG_DEBUG("REGTEST " << "Stream name = " << st.name() << " type = " << st.type() << " obeyLB = "
                     << st.obeysLumiblock());

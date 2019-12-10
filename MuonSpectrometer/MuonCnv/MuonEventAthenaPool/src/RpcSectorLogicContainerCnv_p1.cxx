@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonRDO/RpcSectorLogic.h"
@@ -8,7 +8,6 @@
 #include "RpcSectorLogicContainerCnv_p1.h"
 
 
-#include "MuonIdHelpers/RpcIdHelper.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 // Gaudi
@@ -17,16 +16,12 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IIncidentSvc.h"
 
 // Athena
 #include "StoreGate/StoreGateSvc.h"
 
 #include "AthAllocators/DataPool.h"
 
-#include "RPCcablingInterface/IRPCcablingServerSvc.h"
-#include "RPCcablingInterface/RpcPadIdHash.h"
-#include "RPCcablingInterface/IRPCcablingSvc.h"
 #include "boost/range/iterator_range.hpp"
 #include <assert.h>
 

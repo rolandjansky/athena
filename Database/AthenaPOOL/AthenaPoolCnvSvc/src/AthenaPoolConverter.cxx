@@ -158,13 +158,23 @@ void AthenaPoolConverter::setPlacementWithType(const std::string& tname, const s
    }
    m_placement->setTechnology(m_athenaPoolCnvSvc->technologyType(containerName).type());
    //  Remove Technology from containerName
-   if (containerName.find("ROOTKEY:") == 0) {
+#if __cplusplus >= 201709
+   if (containerName.starts_with("ROOTKEY:")) {
       containerName.erase(0, 8);
-   } else if (containerName.find("ROOTTREE:") == 0) {
+   } else if (containerName.starts_with("ROOTTREE:")) {
       containerName.erase(0, 9);
-   } else if (containerName.find("ROOTTREEINDEX:") == 0) {
+   } else if (containerName.starts_with("ROOTTREEINDEX:")) {
       containerName.erase(0, 14);
    }
+#else
+   if (containerName.compare(0, 8, "ROOTKEY:", 8) == 0) {
+      containerName.erase(0, 8);
+   } else if (containerName.compare(0, 9, "ROOTTREE:", 9) == 0) {
+      containerName.erase(0, 9);
+   } else if (containerName.compare(0, 14, "ROOTTREEINDEX:", 14) == 0) {
+      containerName.erase(0, 14);
+   }
+#endif
    m_placement->setContainerName(containerName);
 }
 //__________________________________________________________________________

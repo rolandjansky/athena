@@ -1,13 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
 // IDAlignMonEfficiencies.cxx
 // AUTHORS: Beate Heinemann, Tobias Golling, John Alison, Lauren Tompkins
 // **********************************************************************
-
-#include "xAODEventInfo/EventInfo.h"
 
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/MsgStream.h"
@@ -31,7 +29,6 @@
 
 #include "TrkTrack/Track.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
-#include "TrkTrack/TrackCollection.h"
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 #include "InDetPrepRawData/SiCluster.h"
 
@@ -199,7 +196,6 @@ IDAlignMonEfficiencies::IDAlignMonEfficiencies( const std::string & type, const 
   m_holeSearchTool = ToolHandle<Trk::ITrackHoleSearchTool>("InDetHoleSearchTool");
   m_trackSumTool        = ToolHandle<Trk::ITrackSummaryTool>("Trk::TrackSummaryTool/InDetTrackSummaryTool");
     
-  m_tracksName = "ExtendedTracks";
   m_minSiliconEffWindow = 0.8;
   m_maxSiliconEffWindow = 1.05;
   m_triggerChainName = "NoTriggerSelection";
@@ -209,7 +205,6 @@ IDAlignMonEfficiencies::IDAlignMonEfficiencies( const std::string & type, const 
 
   InitializeHistograms();
   
-  declareProperty("tracksName"             , m_tracksName);
   declareProperty("CheckRate"              , m_checkrate=1000);
   declareProperty("HoleSearch"             , m_holeSearchTool);
   declareProperty("doHoleSearch"           , m_doHoleSearch);
@@ -412,6 +407,10 @@ StatusCode IDAlignMonEfficiencies::initialize()
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved tool " << m_trackSumTool << endmsg;
   }
 
+  // ReadHandleKey initialization
+  ATH_CHECK(m_eventInfoKey.initialize());
+  ATH_CHECK(m_tracksName.initialize());
+
   return StatusCode::SUCCESS;
 }
 
@@ -425,7 +424,7 @@ StatusCode IDAlignMonEfficiencies::bookHistograms()
     // book histograms that are only relevant for cosmics data...
   }
 
-  std::string outputDirName = "IDAlignMon/" + m_tracksName + "_" + m_triggerChainName + "/HitEfficiencies";
+  std::string outputDirName = "IDAlignMon/" + m_tracksName.key() + "_" + m_triggerChainName + "/HitEfficiencies";
   MonGroup al_mon ( this, outputDirName, run );
   MonGroup al_mon_ls ( this, outputDirName, lowStat );
   
@@ -794,22 +793,20 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 {
   m_events++;
 
-
-  const DataHandle<xAOD::EventInfo> eventInfo;
-  if (StatusCode::SUCCESS != evtStore()->retrieve( eventInfo ) ){
+  SG::ReadHandle<xAOD::EventInfo> eventInfo{m_eventInfoKey};
+  if (not eventInfo.isValid()) {
     msg(MSG::ERROR) << "Cannot get event info." << endmsg;
     return StatusCode::FAILURE;
   }
   unsigned int LumiBlock = eventInfo->lumiBlock();
   
-  if (!evtStore()->contains<TrackCollection>(m_tracksName)) {
-    if(m_events == 1) {if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to get " << m_tracksName << " TrackCollection" << endmsg;}
-    else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get " << m_tracksName << " TrackCollection" << endmsg;
-    return StatusCode::SUCCESS;
-  }
-  
   // get TrackCollection
-  const DataVector<Trk::Track>* trks = m_trackSelection->selectTracks(m_tracksName);
+  SG::ReadHandle<TrackCollection> tracks{m_tracksName};
+  if (not tracks.isValid()) {
+    ATH_MSG_ERROR(m_tracksName.key() << " could not be retrieved");
+    return StatusCode::RECOVERABLE;
+  }
+  const DataVector<Trk::Track>* trks = m_trackSelection->selectTracks(tracks);
   DataVector<Trk::Track>::const_iterator trksItr  = trks->begin();
   DataVector<Trk::Track>::const_iterator trksItrE = trks->end();
   for (; trksItr != trksItrE; ++trksItr) {

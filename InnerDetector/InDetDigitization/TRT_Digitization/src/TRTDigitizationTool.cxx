@@ -65,7 +65,7 @@
 TRTDigitizationTool::TRTDigitizationTool(const std::string& type,
                                          const std::string& name,
                                          const IInterface* parent)
-  : PileUpToolBase(type, name, parent)
+: PileUpToolBase(type, name, parent)
 {
   m_settings = new TRTDigSettings();
   m_settings->addPropertiesForOverrideableParameters(static_cast<AlgTool*>(this));
@@ -148,6 +148,8 @@ StatusCode TRTDigitizationTool::initialize()
   //Retrieve TRT_StrawNeighbourService.
   ATH_CHECK(m_TRTStrawNeighbourSvc.retrieve());
 
+  // Get the magnetic field service
+  ATH_CHECK(m_magneticfieldsvc.retrieve());
 
   m_minpileuptruthEkin = m_settings->pileUpSDOsMinEkin();
 
@@ -207,13 +209,13 @@ StatusCode TRTDigitizationTool::processBunchXing(int bunchXing,
   TimedHitCollList hitCollList;
 
   if (!(m_mergeSvc->retrieveSubSetEvtData(m_dataObjectName, hitCollList, bunchXing,
-					  bSubEvents, eSubEvents).isSuccess()) &&
+                                          bSubEvents, eSubEvents).isSuccess()) &&
       hitCollList.size() == 0) {
     ATH_MSG_ERROR("Could not fill TimedHitCollList");
     return StatusCode::FAILURE;
   } else {
     ATH_MSG_VERBOSE(hitCollList.size() << " TRTUncompressedHitCollection with key " <<
-		    m_dataObjectName << " found");
+                    m_dataObjectName << " found");
   }
 
   TimedHitCollList::iterator iColl(hitCollList.begin());
@@ -223,10 +225,10 @@ StatusCode TRTDigitizationTool::processBunchXing(int bunchXing,
     TRTUncompressedHitCollection  *hitCollPtr = new TRTUncompressedHitCollection(*iColl->second);
     PileUpTimeEventIndex timeIndex(iColl->first);
     ATH_MSG_DEBUG("TRTUncompressedHitCollection found with " << hitCollPtr->size() <<
-		  " hits");
+                  " hits");
     ATH_MSG_VERBOSE("time index info. time: " << timeIndex.time()
-		    << " index: " << timeIndex.index()
-		    << " type: " << timeIndex.type());
+                    << " index: " << timeIndex.index()
+                    << " type: " << timeIndex.type());
     m_thpctrt->insert(timeIndex, hitCollPtr);
     m_trtHitCollList.push_back(hitCollPtr);
   }
@@ -266,10 +268,10 @@ StatusCode TRTDigitizationTool::lateInitialize(CLHEP::HepRandomEngine* noiseRndm
   m_pElectronicsProcessing = new TRTElectronicsProcessing( m_settings, electronicsNoise );
 
   m_pDigConditions = new TRTDigCondFakeMap(m_settings,
-					   m_manager,
-					   m_trt_id,
-					   m_UseGasMix,
-					   m_sumTool);
+                                           m_manager,
+                                           m_trt_id,
+                                           m_UseGasMix,
+                                           m_sumTool);
 
   m_pDigConditions->initialize(fakeCondRndmEngine);
 
@@ -281,16 +283,16 @@ StatusCode TRTDigitizationTool::lateInitialize(CLHEP::HepRandomEngine* noiseRndm
     //   iii) figures out exact low thresholds needed to reproduce actual
     //        straw noise-frequencies:
     m_pNoise = new TRTNoise( m_settings,
-			     m_manager,
-			     noiseRndmEngine,
+                             m_manager,
+                             noiseRndmEngine,
                              elecNoiseRndmEngine,
                              elecProcRndmEngine,
-			     m_pDigConditions,
-			     m_pElectronicsProcessing,
-			     electronicsNoise,
-			     m_trt_id,
-			     m_UseGasMix,
-			     m_sumTool);
+                             m_pDigConditions,
+                             m_pElectronicsProcessing,
+                             electronicsNoise,
+                             m_trt_id,
+                             m_UseGasMix,
+                             m_sumTool);
 
     ATH_MSG_DEBUG ( "Average straw noise level is " << m_pDigConditions->strawAverageNoiseLevel() );
 
@@ -304,18 +306,21 @@ StatusCode TRTDigitizationTool::lateInitialize(CLHEP::HepRandomEngine* noiseRndm
 
   ITRT_SimDriftTimeTool *pTRTsimdrifttimetool = &(*m_TRTsimdrifttimetool);
 
+  MagField::IMagFieldSvc *pMagfieldsvc = &(*m_magneticfieldsvc);
+
   m_pProcessingOfStraw =
     new TRTProcessingOfStraw( m_settings,
-			      m_manager,
-			      TRTpaiToolXe,
-			      pTRTsimdrifttimetool,
-			      m_pElectronicsProcessing,
-			      m_pNoise,
-			      m_pDigConditions,
-			      m_particleTable,
-			      m_trt_id,
-			      TRTpaiToolAr,
-			      TRTpaiToolKr);
+                              m_manager,
+                              TRTpaiToolXe,
+                              pTRTsimdrifttimetool,
+                              pMagfieldsvc,
+                              m_pElectronicsProcessing,
+                              m_pNoise,
+                              m_pDigConditions,
+                              m_particleTable,
+                              m_trt_id,
+                              TRTpaiToolAr,
+                              TRTpaiToolKr);
 
   ATH_MSG_INFO ( "Gas Property:             UseGasMix is " << m_UseGasMix );
 
@@ -392,7 +397,7 @@ StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::se
       // create a new deposit
       InDetSimData::Deposit deposit( HepMcParticleLink((*hit_iter)->GetTrackID(), hit_iter->eventId()), (*hit_iter)->GetEnergyDeposit() );
       if(deposit.first.barcode()==0 || deposit.first.barcode() == m_vetoThisBarcode){
-          continue;
+        continue;
       }
       ATH_MSG_VERBOSE ( "Deposit: trackID " << deposit.first << " energyDeposit " << deposit.second );
       depositVector.push_back(deposit);
@@ -403,8 +408,8 @@ StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::se
 
     // Add the simdata object to the map.
     if ( depositVector.size() &&
-	 (evtIndex == 0 || ((*i)->GetKineticEnergy()>m_minpileuptruthEkin))  &&
-	 (bunchCrossingTime < m_maxCrossingTimeSDO) && (bunchCrossingTime > m_minCrossingTimeSDO) ) {
+         (evtIndex == 0 || ((*i)->GetKineticEnergy()>m_minpileuptruthEkin))  &&
+         (bunchCrossingTime < m_maxCrossingTimeSDO) && (bunchCrossingTime > m_minCrossingTimeSDO) ) {
       simDataMap->insert(std::make_pair(idStraw, InDetSimData(depositVector)));
     }
     ///// END OF SDO CREATION
@@ -429,8 +434,8 @@ StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::se
                                        m_alreadyPrintedPDGcodeWarning,
                                        m_cosmicEventPhase, //m_ComTime,
                                        StrawGasType(idStraw),
-				       emulateArFlag,
-				       emulateKrFlag,
+                                       emulateArFlag,
+                                       emulateKrFlag,
                                        strawRndmEngine,
                                        elecProcRndmEngine,
                                        elecNoiseRndmEngine,
@@ -718,16 +723,16 @@ StatusCode TRTDigitizationTool::createAndStoreRDOs()
 
       // Add to the container
       if (m_trtrdo_container->addCollection(RDOColl, RDOColl->identifyHash()).isFailure()) {
-	      ATH_MSG_FATAL ( "Container " << m_outputRDOCollName.key() << " could not be registered in StoreGate !" );
-	      return StatusCode::FAILURE;
+        ATH_MSG_FATAL ( "Container " << m_outputRDOCollName.key() << " could not be registered in StoreGate !" );
+        return StatusCode::FAILURE;
       } else {
-	      ATH_MSG_DEBUG ( "Container " << m_outputRDOCollName.key() << " registered in StoreGate" );
+        ATH_MSG_DEBUG ( "Container " << m_outputRDOCollName.key() << " registered in StoreGate" );
       }
     }
 
     // Put RDO into Collection
     TRT_LoLumRawData *p_rdo(new TRT_LoLumRawData(idStraw, TRTDigitIter->GetDigit()));
-    if (RDOColl) { 
+    if (RDOColl) {
       RDOColl->push_back(p_rdo);
     } else {
       ATH_MSG_FATAL ( "Failed to create the TRT_RDO_Collection before trying to add an RDO to it! IdHash = " << static_cast<int>(IdHash) );
@@ -744,9 +749,9 @@ StatusCode TRTDigitizationTool::createAndStoreRDOs()
 
 //_____________________________________________________________________________
 Identifier TRTDigitizationTool::getIdentifier ( int hitID,
-						IdentifierHash& hashId,
-						Identifier& IdLayer,
-						bool & statusok ) const
+                                                IdentifierHash& hashId,
+                                                Identifier& IdLayer,
+                                                bool & statusok ) const
 {
   statusok = true;
 
@@ -777,9 +782,9 @@ Identifier TRTDigitizationTool::getIdentifier ( int hitID,
       IdStraw = m_trt_id->straw_id(IdLayer, strawID);
     } else {
       ATH_MSG_ERROR ( "Could not find detector element for barrel identifier with "
-		      << "(ipos,iring,imod,ilayer,istraw) = ("
-		      << trtID << ", " << ringID << ", " << moduleID << ", "
-		      << layerID << ", " << strawID << ")" );
+                      << "(ipos,iring,imod,ilayer,istraw) = ("
+                      << trtID << ", " << ringID << ", " << moduleID << ", "
+                      << layerID << ", " << strawID << ")" );
       statusok = false;
     }
   } else {                           // endcap
@@ -804,9 +809,9 @@ Identifier TRTDigitizationTool::getIdentifier ( int hitID,
       IdStraw = m_trt_id->straw_id(IdLayer, strawID);
     } else {
       ATH_MSG_ERROR ( "Could not find detector element for endcap identifier with "
-		      << "(ipos,iwheel,isector,iplane,istraw) = ("
-		      << trtID << ", " << wheelID << ", " << sectorID << ", "
-		      << planeID << ", " << strawID << ")" );
+                      << "(ipos,iwheel,isector,iplane,istraw) = ("
+                      << trtID << ", " << wheelID << ", " << sectorID << ", "
+                      << planeID << ", " << strawID << ")" );
       ATH_MSG_ERROR ( "If this happens very rarely, don't be alarmed (it is a Geant4 'feature')" );
       ATH_MSG_ERROR ( "If it happens a lot, you probably have misconfigured geometry in the sim. job." );
       statusok = false;
@@ -843,7 +848,7 @@ StatusCode TRTDigitizationTool::update( IOVSVC_CALLBACK_ARGS_P(I,keys) ) {
     std::list<std::string>::const_iterator itr;
     if (msgLvl(MSG::INFO)) {
       for( itr=keys.begin(); itr !=keys.end(); ++itr) {
-	msg(MSG::INFO)<< "IOVCALLBACK for key "<< *itr << " number " << I << endmsg;
+        msg(MSG::INFO)<< "IOVCALLBACK for key "<< *itr << " number " << I << endmsg;
       }
     }
     m_dig_vers_from_condDB =(*atrlist)["TRT_Dig_Vers"].data<int>();
@@ -890,7 +895,7 @@ StatusCode TRTDigitizationTool::ConditionsDependingInitialization() {
 
     if (StatusCode::SUCCESS == m_settings->DigSettingsFromCondDB(m_dig_vers_from_condDB)) {
       ATH_MSG_INFO ( "Retrieved TRT_Settings from CondDB with TRT digitization version: digversion = " <<
-                      m_dig_vers_from_condDB );
+                     m_dig_vers_from_condDB );
     } else {
       ATH_MSG_WARNING ( "Unknown TRT digitization version: digversion = " << m_dig_vers_from_condDB <<
                         " read from CondDB. Overriding to use default from Det Desc tag: " <<
@@ -910,7 +915,7 @@ StatusCode TRTDigitizationTool::ConditionsDependingInitialization() {
 //_____________________________________________________________________________
 unsigned int TRTDigitizationTool::getRegion(int hitID) {
 
-// 1=barrelShort, 2=barrelLong, 3=ECA, 4=ECB
+  // 1=barrelShort, 2=barrelLong, 3=ECA, 4=ECB
 
   const int mask(0x0000001F);
   const int word_shift(5);

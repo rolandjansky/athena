@@ -19,6 +19,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/PhysicalConstants.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "MuonRIO_OnTrack/MuonDriftCircleErrorStrategy.h"
@@ -38,7 +39,6 @@ class MsgStream;
 
 namespace Muon {
 
-    class IMuonTofTool;
     class MdtPrepData;
     class MuonIdHelperTool;
 
@@ -68,7 +68,6 @@ namespace Muon {
        JobOptions Flags:
        - doMDT: switch on/off ROT creation (default = true)
        - TimingMode: select timing mode (default = ATLTIME)
-       - MuonTofTool: Tool to be used to calculate time of flight (default = "Muon::MuonCosmicTofTool/MuonCosmicTofTool")
        - DoWireSag: Flag to turn on application of geometrical wire sagging correstions (default = false)
        - CreateTubeHit: Flag to turn on the creation of tube hits (default = false)
     */
@@ -102,8 +101,10 @@ namespace Muon {
       virtual MdtDriftCircleOnTrack* createRIO_OnTrack( const MdtPrepData& prd,
                                                               const Amg::Vector3D& globalPos,
                                                               const Amg::Vector3D* gdir = 0,
-							      float t0Shift = 0,
-                                                              const MuonDriftCircleErrorStrategy* strategy = 0 ) const;
+                                                              float t0Shift = 0,
+                                                              const MuonDriftCircleErrorStrategy* strategy = 0,
+                                                              const double beta = 1,
+                                                              const double tTrack = 1 ) const;
 
       /** @brief Update of the sign of the drift radius. The method creates a new MdtDriftCircleOnTrack, the old input MdtDriftCircleOnTrack is 
              not deleted. The user should take care of the memory managment of both MdtDriftCircleOnTracks.
@@ -144,7 +145,9 @@ namespace Muon {
       */
       virtual MdtDriftCircleOnTrack* correct( const Trk::PrepRawData& prd, 
                                                     const Trk::TrackParameters& tp,
-                                                    const MuonDriftCircleErrorStrategy* strategy ) const; 
+                                                    const MuonDriftCircleErrorStrategy* strategy,
+                                                    const double beta,
+                                                    const double tTrack ) const; 
 
       /** @brief Base class method for correct. */
       virtual MdtDriftCircleOnTrack* correct( const Trk::PrepRawData& prd,
@@ -157,6 +160,7 @@ namespace Muon {
       const MuonDriftCircleErrorStrategy& errorStrategy() const { return m_errorStrategy; };
       
     private:
+      double timeOfFlight(const Amg::Vector3D& pos, const double beta, const double tTrack, const double tShift) const;
 
       /** struct to hold output of calibration */
       struct CalibrationOutput {
@@ -177,7 +181,9 @@ namespace Muon {
 					     const Amg::Vector3D* gdir,
 					     MdtCalibrationSvcInput& inputData,
 					     const MuonDriftCircleErrorStrategy* strategy = 0,
-					     float t0Shift = 0) const;
+					     float t0Shift = 0,
+               const double beta = 1,
+               const double tTrack = 0) const;
       
       /** currently returns 0. */
       double getTriggerTime() const { return 0.; }
@@ -198,7 +204,6 @@ namespace Muon {
       ToolHandle<Muon::MuonIdHelperTool>   m_idHelper;
       ToolHandle<MdtCalibrationTool> m_mdtCalibrationTool;
       ToolHandle<MdtCalibrationDbTool> m_mdtCalibrationDbTool;
-      ToolHandle<IMuonTofTool>             m_tofTool; //!<Time of flight tool (handle tof if not coming from IP)
 
       // Configuration variables
       bool                                 m_doMdt; //!< Process MDT ROTs
@@ -228,8 +233,10 @@ namespace Muon {
       bool                                m_doIndividualChamberReweights; //!< Deweight individual chambers
       bool                                m_isMC; //!< toggle between MC and data alignment errors (to be removed in rel. 21!)
       bool                                m_looseErrors; //!< toggle between loose errors (initial before alignment) and tight after alignment
+    
+      const double m_inverseSpeedOfLight = 1e6 / Gaudi::Units::c_light; // Gaudi::Units::c_light=2.99792458e+8, but need 299.792458, needed inside timeOfFlight()
     };
 
-} // End of muon namewpace
+} // End of muon namespace
 
 #endif

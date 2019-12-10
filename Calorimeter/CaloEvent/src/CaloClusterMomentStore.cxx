@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -19,7 +19,6 @@ CaloClusterMomentStore::CaloClusterMomentStore(const CaloClusterMomentStore*
 					       pMomStore)
   : m_store (pMomStore->m_store)
 {
-  m_store = pMomStore->m_store;
 }
 
 CaloClusterMomentStore&
@@ -62,7 +61,7 @@ bool CaloClusterMomentStore::retrieveMomentTypes(moment_type_list&
   size_t oldSize = rMomList.size();
   moment_store_const_iter fMom = m_store.begin();
   moment_store_const_iter lMom = m_store.end();
-  for ( ; fMom != lMom; fMom++ )
+  for ( ; fMom != lMom; ++fMom )
     {
       rMomList.push_back((moment_type)(*fMom).first);
     } 

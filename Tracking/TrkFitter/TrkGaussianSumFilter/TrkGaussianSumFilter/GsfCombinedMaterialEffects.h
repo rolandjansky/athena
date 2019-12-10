@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
@@ -20,8 +20,6 @@ decription           : Class definition for consideration of multiple scatter an
 #include "GaudiKernel/ToolHandle.h"
 
 namespace Trk {
-
-class IGSFMaterialEffects;
 
 class GsfCombinedMaterialEffects
   : public AthAlgTool
@@ -48,13 +46,13 @@ public:
                        ParticleHypothesis = nonInteracting) const;
 
 private:
-  ToolHandle<IGSFMaterialEffects> m_multipleScatterEffects{ this,
-                                                            "MultipleScatteringUpdator",
-                                                            "Trk::MultipleScatterUpdator/MultipleScatterUpdator",
+  ToolHandle<IMultiStateMaterialEffects> m_multipleScatterEffects{ this,
+                                                            "MultipleScatteringEffects",
+                                                            "Trk::MultipleScatteringEffects/MultipleScatterEffects",
                                                                 "" };
-  ToolHandle<IGSFMaterialEffects> m_energyLossEffects{ this,
-                                                      "EnergyLossUpdator",
-                                                      "Trk::GsfEnergyLossUpdator/MyGsfEnergyLossUpdator",
+  ToolHandle<IMultiStateMaterialEffects> m_energyLossEffects{ this,
+                                                      "EnergyLossEffects",
+                                                      "Trk::GsfEnergyLossEffects/GsfEnergyLossEffects",
                                                       "" };
   ToolHandle<IMultiStateMaterialEffects> m_betheHeitlerEffects{ this,
                                                                 "BetheHeitlerEffects",

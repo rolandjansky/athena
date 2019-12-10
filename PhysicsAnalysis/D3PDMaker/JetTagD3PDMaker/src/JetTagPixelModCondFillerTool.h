@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -13,7 +13,7 @@
 #define JetTagD3PDMaker_JetTagPixelModCondFillerTool_H
 
 #include "D3PDMakerUtils/BlockFillerTool.h"
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
+#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 
 #include <vector>
 
@@ -59,7 +59,7 @@ private:
   bool selectModule(const InDetDD::SiDetectorElement*);
 
   const PixelID* m_pixId;
-  ServiceHandle< IInDetConditionsSvc > m_pixelCondSummarySvc;
+  ToolHandle<IInDetConditionsTool> m_pixelCondSummaryTool{this, "PixelConditionsTool", "PixelConditionsSummaryTool/InDetPixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"};
 
   std::vector<short> *m_idHash;
   int *m_ndead;

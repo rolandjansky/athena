@@ -1,9 +1,10 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from Limits import CaloLimits as CL
 IsolationOff = CL.IsolationOff
 
 from copy import deepcopy
+from past.builtins import cmp
 
 class ThresholdValue:
 
@@ -232,7 +233,7 @@ class LVL1TopoInput(LVL1Threshold):
     """
 
     import re
-    multibitPattern = re.compile("(?P<line>.*)\[(?P<bit>\d+)\]")
+    multibitPattern = re.compile(r"(?P<line>.*)\[(?P<bit>\d+)\]")
 
     #<TriggerThreshold active="1" bitnum="1" id="148" mapping="0" name="4INVM9999-AJ0s6-AJ0s6" type="TOPO" input="ctpcore" version="1">
     #  <Cable connector="CON1" input="CTPCORE" name="TOPO1">
@@ -334,7 +335,7 @@ class LVL1Thresholds:
         # If both mappings are -1 sort by threshold value and then threshold name
         import re
         thrv1, thrv2 = 0, 0
-        re_thrv = re.compile('(\d+)')
+        re_thrv = re.compile(r'(\d+)')
         mg = re_thrv.search(thr1.name)
         if mg: thrv1 = int(mg.group(1))
         mg = re_thrv.search(thr2.name)

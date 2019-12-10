@@ -183,6 +183,6 @@ class TrigHisto2DTest : public CppUnit::TestFixture
 
 CPPUNIT_TEST_SUITE_REGISTRATION (TrigHisto2DTest);
 
-#include <TestPolicy/CppUnit_testdriver.cxx>
+#include <TestTools/CppUnit_testdriver.cxx>
 
 #endif // ROOTCORE

@@ -41,7 +41,7 @@ StatusCode RpcDigitToRpcRDO::initialize()
 {
   ATH_MSG_DEBUG( " in initialize()"  );
 
-  ATH_CHECK( detStore()->retrieve(m_rpcHelper, "RPCIDHELPER") );
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
   ATH_CHECK( detStore()->retrieve(m_MuonMgr) );
 
   ATH_CHECK( m_cabling.retrieve()) ;
@@ -129,7 +129,7 @@ StatusCode RpcDigitToRpcRDO::execute(const EventContext& ctx) const {
 
   std::unique_ptr<RpcByteStreamDecoder> padDecoder = std::make_unique<RpcByteStreamDecoder>(&bytestream,
                                                                                             &*m_cabling,
-                                                                                            m_rpcHelper,
+                                                                                            m_muonIdHelperTool.get(),
                                                                                             &msg());
   if (padDecoder->decodeByteStream().isFailure()) {
     ATH_MSG_ERROR( "Fail to decode RPC byte stream"  );
@@ -153,9 +153,7 @@ StatusCode RpcDigitToRpcRDO::fill_RPCdata(RPCsimuData& data, const EventContext&
 
   ATH_MSG_DEBUG( "in execute(): fill RPC data"  );
 
-  IdContext rpcContext = m_rpcHelper->module_context();
-
-  typedef RpcDigitCollection::const_iterator digit_iterator;
+  IdContext rpcContext = m_muonIdHelperTool->rpcIdHelper().module_context();
 
   SG::ReadHandle<RpcDigitContainer> container (m_digitContainerKey, ctx);
   if (!container.isValid()) {
@@ -172,20 +170,20 @@ StatusCode RpcDigitToRpcRDO::fill_RPCdata(RPCsimuData& data, const EventContext&
     Identifier moduleId;
 
     //if (m_digit_position->initialize(moduleId))
-    if (!m_rpcHelper->get_id(moduleHash, moduleId, &rpcContext)) {
+    if (!m_muonIdHelperTool->rpcIdHelper().get_id(moduleHash, moduleId, &rpcContext)) {
       for (const RpcDigit* rpcDigit : *rpcCollection) {
-        if (rpcDigit->is_valid(m_rpcHelper)) {
+        if (rpcDigit->is_valid(m_muonIdHelperTool->rpcIdHelper())) {
           Identifier channelId = rpcDigit->identify();
-          int stationType         = m_rpcHelper->stationName(channelId);
-          std::string StationName = m_rpcHelper->stationNameString(stationType);
-          int StationEta          = m_rpcHelper->stationEta(channelId);
-          int StationPhi          = m_rpcHelper->stationPhi(channelId);
-          int DoubletR            = m_rpcHelper->doubletR(channelId);
-          int DoubletZ            = m_rpcHelper->doubletZ(channelId);
-          int DoubletP            = m_rpcHelper->doubletPhi(channelId);
-          int GasGap              = m_rpcHelper->gasGap(channelId);
-          int MeasuresPhi         = m_rpcHelper->measuresPhi(channelId);
-          int Strip               = m_rpcHelper->strip(channelId);
+          int stationType         = m_muonIdHelperTool->rpcIdHelper().stationName(channelId);
+          std::string StationName = m_muonIdHelperTool->rpcIdHelper().stationNameString(stationType);
+          int StationEta          = m_muonIdHelperTool->rpcIdHelper().stationEta(channelId);
+          int StationPhi          = m_muonIdHelperTool->rpcIdHelper().stationPhi(channelId);
+          int DoubletR            = m_muonIdHelperTool->rpcIdHelper().doubletR(channelId);
+          int DoubletZ            = m_muonIdHelperTool->rpcIdHelper().doubletZ(channelId);
+          int DoubletP            = m_muonIdHelperTool->rpcIdHelper().doubletPhi(channelId);
+          int GasGap              = m_muonIdHelperTool->rpcIdHelper().gasGap(channelId);
+          int MeasuresPhi         = m_muonIdHelperTool->rpcIdHelper().measuresPhi(channelId);
+          int Strip               = m_muonIdHelperTool->rpcIdHelper().strip(channelId);
 
           ATH_MSG_DEBUG( "RPC Digit Type, Eta, Phi, dbR, dbZ, dbP, gg, mPhi, Strip "<<stationType<<" "<<StationEta<<" "<<StationPhi<<" "<<DoubletR<<" "<<DoubletZ<<" "<<DoubletP<<" "<<GasGap<<" "<<MeasuresPhi<<" "<<Strip );
           const MuonGM::RpcReadoutElement* descriptor =

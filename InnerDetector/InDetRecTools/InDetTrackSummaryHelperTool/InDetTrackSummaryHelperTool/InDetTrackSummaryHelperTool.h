@@ -8,7 +8,7 @@
 #define INDETTRACKSUMMARYHELPERTOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
+#include "TrkToolInterfaces/IExtendedTrackSummaryHelperTool.h"
 
 #include "InDetRecToolInterfaces/IInDetTestBLayerTool.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
@@ -37,7 +37,7 @@ namespace Trk {
 
 namespace InDet {
 
-  class InDetTrackSummaryHelperTool : public extends<AthAlgTool, Trk::ITrackSummaryHelperTool> {
+  class InDetTrackSummaryHelperTool : public extends<AthAlgTool, Trk::IExtendedTrackSummaryHelperTool> {
   public:
 
     /** constructor */
@@ -55,16 +55,34 @@ namespace InDet {
         Input quantities rot, tsos are used to increment the counts for hits and outliers in information and to set the proper bits in hitPattern.
     */
     virtual void analyse(const Trk::Track& track,
+                         const Trk::PRDtoTrackMap *prd_to_track_map,
                          const Trk::RIO_OnTrack* rot,
                          const Trk::TrackStateOnSurface* tsos,
                          std::vector<int>& information, 
                          std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const override;
 
     virtual void analyse(const Trk::Track& track,
+                         const Trk::PRDtoTrackMap *prd_to_track_map,
                          const Trk::CompetingRIOsOnTrack* crot,
                          const Trk::TrackStateOnSurface* tsos,
                          std::vector<int>& information, 
                          std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const override;
+
+    virtual void analyse(const Trk::Track& track,
+                         const Trk::RIO_OnTrack* rot,
+                         const Trk::TrackStateOnSurface* tsos,
+                         std::vector<int>& information,
+                         std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const override {
+      analyse(track,nullptr,rot,tsos,information,hitPattern);
+    }
+
+    virtual void analyse(const Trk::Track& track,
+                         const Trk::CompetingRIOsOnTrack* crot,
+                         const Trk::TrackStateOnSurface* tsos,
+                         std::vector<int>& information,
+                         std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const override {
+      analyse(track,nullptr, crot,tsos,information,hitPattern);
+    }
 
     /** Input : track, partHyp
         Output: Changes in information
@@ -78,7 +96,16 @@ namespace InDet {
                         const Trk::ParticleHypothesis partHyp = Trk::pion) const override;
 
     /** this method simply updaes the shared hit content - it is designed/optimised for track collection merging */
-    virtual void updateSharedHitCount(const Trk::Track& track, Trk::TrackSummary& summary) const override;
+    virtual void updateSharedHitCount(const Trk::Track& track,
+                                      const Trk::PRDtoTrackMap *prd_to_track_map,
+                                      Trk::TrackSummary& summary) const override;
+
+    /** this method simply updaes the shared hit content - it is designed/optimised for track collection merging */
+    virtual void updateSharedHitCount(const Trk::Track& track,
+                                      Trk::TrackSummary& summary) const override {
+      updateSharedHitCount(track,nullptr,summary);
+    }
+
     /** this method simply updaes the electron PID content - it is designed/optimised for track collection merging */
     virtual void updateAdditionalInfo(Trk::TrackSummary& summary,std::vector<float>& eprob,float& dedx, int& nclus, int& noverflowclus) const override;
     /** This method updates the expect... hit info*/

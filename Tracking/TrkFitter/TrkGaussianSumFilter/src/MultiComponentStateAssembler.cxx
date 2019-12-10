@@ -40,7 +40,7 @@ Trk::MultiComponentStateAssembler::finalize()
   return StatusCode::SUCCESS;
 }
 
-bool
+void
 Trk::MultiComponentStateAssembler::reset(Cache& cache) const
 {
   ATH_MSG_VERBOSE("Resetting the MultiComponentStateAssembler: " << name() << "\n");
@@ -50,7 +50,6 @@ Trk::MultiComponentStateAssembler::reset(Cache& cache) const
   }
   cache.validWeightSum = 0.;
   cache.invalidWeightSum = 0.;
-  return true;
 }
 
 void
@@ -72,6 +71,7 @@ Trk::MultiComponentStateAssembler::addComponent(Cache& cache, SimpleComponentPar
     ATH_MSG_WARNING("Trying to add state after assembly... returning false \n");
     return false;
   }
+  
   cache.validWeightSum += componentParameters.second; 
   cache.multiComponentState.emplace_back(componentParameters.first.release(),componentParameters.second);
   return true;

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TileMuCnv_p1.h 
@@ -23,9 +23,12 @@
 
 class MsgStream;
 
-class TileMuCnv_p1 : public T_AthenaPoolTPCnvBase<TileMu, TileMu_p1> {
+class TileMuCnv_p1 : public T_AthenaPoolTPCnvConstBase<TileMu, TileMu_p1> {
 
 public:
+  using base_class::transToPers;
+  using base_class::persToTrans;
+
 
   /** Default constructor: 
    */
@@ -34,12 +37,12 @@ public:
   /** Method creating the transient representation TileMu
    *  from its persistent representation TileMu_p1
    */
-  virtual void persToTrans(const TileMu_p1* persObj, TileMu* transObj, MsgStream &log);
+  virtual void persToTrans(const TileMu_p1* persObj, TileMu* transObj, MsgStream &log) const override;
 
   /** Method creating the persistent representation TileMu_p1
    *  from its transient representation TileMu
    */
-  virtual void transToPers(const TileMu* transObj, TileMu_p1* persObj, MsgStream &log);
+  virtual void transToPers(const TileMu* transObj, TileMu_p1* persObj, MsgStream &log) const override;
 
 };
 

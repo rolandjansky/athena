@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODTrigNavigationAuxInfoCnv.cxx 710840 2015-11-26 08:45:42Z will $
@@ -41,7 +41,8 @@ ITrigNavigationThinningSvc* iface_cast(IThinningSvc* base)  {
 
 xAOD::TrigNavigationAuxInfo*
 xAODTrigNavigationAuxInfoCnv::
-createPersistent( xAOD::TrigNavigationAuxInfo* trans ) {
+createPersistentWithKey( xAOD::TrigNavigationAuxInfo* trans,
+                         const std::string& /*key*/) {
 
   // see if the ThinningSvc implements an interface capable of slimming the navation 
   xAOD::TrigNavigationAuxInfo* result = new xAOD::TrigNavigationAuxInfo();
@@ -69,25 +70,3 @@ createPersistent( xAOD::TrigNavigationAuxInfo* trans ) {
   return result;
 }
 
-xAOD::TrigNavigationAuxInfo*
-xAODTrigNavigationAuxInfoCnv::createTransient() {
-
-   // The known ID(s) for this object:
-   static const pool::Guid v1_guid( "924049A6-25B4-4406-A70A-CCAC2E4233E1" );
-
-   // Check which version of the container we're reading:
-   if( compareClassGuid( v1_guid ) ) {
-
-      // Read in the v1 object:
-      xAOD::TrigNavigationAuxInfo_v1* obj =
-         poolReadObject< xAOD::TrigNavigationAuxInfo_v1 >();
-
-      // Return the object:
-      return obj;
-   }
-
-   // If we didn't recognise the ID:
-   throw std::runtime_error( "Unsupported version of "
-                             "xAOD::TrigNavigationAuxInfo found" );
-   return 0;
-}

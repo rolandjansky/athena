@@ -2,6 +2,17 @@
 
 import ispy
 
+
+def GetAtlasReady():
+   from ispy import ISObject, IPCPartition
+   try:
+      r4p = ISObject(IPCPartition("ATLAS"), 'RunParams.Ready4Physics', 'RunParams')
+      r4p.checkout()
+      return r4p.ready4physics
+   except:
+      print "#### Failed to determine if we are ready for physics"
+      raise
+
 def GetRunType():
   """Get the run type by reading the run-type setting in the partition from IS """
 

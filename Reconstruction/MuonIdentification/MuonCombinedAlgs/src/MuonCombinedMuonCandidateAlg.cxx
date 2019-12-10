@@ -5,8 +5,11 @@
 #include "MuonCombinedMuonCandidateAlg.h"
 
 MuonCombinedMuonCandidateAlg::MuonCombinedMuonCandidateAlg(const std::string& name, ISvcLocator* pSvcLocator):
-  AthAlgorithm(name,pSvcLocator)
-{}
+  AthAlgorithm(name,pSvcLocator),
+  m_muonCandidateTool("MuonCombined::MuonCandidateTool/MuonCandidateTool", this)
+{
+  declareProperty("MuonCandidateTool", m_muonCandidateTool);
+}
 
 MuonCombinedMuonCandidateAlg::~MuonCombinedMuonCandidateAlg()
 {}

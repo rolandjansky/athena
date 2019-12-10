@@ -9,6 +9,11 @@
 #include "MuonReadoutGeometry/MuonDetectorElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
+#include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/IMessageSvc.h"
+
 namespace MuonGM {
 
 MuonDetectorElement::MuonDetectorElement(GeoVFullPhysVol* pv, 
@@ -21,13 +26,15 @@ MuonDetectorElement::MuonDetectorElement(GeoVFullPhysVol* pv,
   m_id = id;
   m_idhash = idHash;
   m_nREinDetectorElement = 0;
+  ISvcLocator* svcLocator = Gaudi::svcLocator();
+  StatusCode sc = svcLocator->service("MessageSvc", m_msgSvc);
+  if (sc.isFailure()) std::cout << "Fail to locate Message Service" << std::endl;
+  m_Log = std::make_unique<MsgStream>(m_msgSvc, "MuonDetectorElement");
 }
 
 
 MuonDetectorElement::~MuonDetectorElement()
 {
-    //    if (m_MsgStream) delete m_MsgStream;
-    //  m_MsgStream=0;  
 }
     
 }

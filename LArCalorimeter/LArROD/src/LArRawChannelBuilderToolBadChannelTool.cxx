@@ -11,15 +11,13 @@
 LArRawChannelBuilderToolBadChannelTool::LArRawChannelBuilderToolBadChannelTool(const std::string& type,
 									       const std::string& name,
 									       const IInterface* parent):
-  LArRawChannelBuilderToolBase(type,name,parent),
-  m_badChannelMask("BadLArRawChannelMask",this)
+  LArRawChannelBuilderToolBase(type,name,parent)
 {
   m_helper = new LArRawChannelBuilderStatistics( 2,      // number of possible errors
 					       0x01);  // bit pattern special for this tool,
                                                        // to be stored in "int quality"
   m_helper->setErrorString(0, "no errors");
   m_helper->setErrorString(1, "known bad channel");
-  declareProperty("BadChannelMask",m_badChannelMask);
 
 }
 

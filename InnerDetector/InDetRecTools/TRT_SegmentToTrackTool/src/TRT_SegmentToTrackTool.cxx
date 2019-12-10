@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_SegmentToTrackTool/TRT_SegmentToTrackTool.h"
@@ -12,8 +12,6 @@
 #include "TrkFitterInterfaces/ITrackFitter.h"
 //Extrapolator tool
 #include "TrkExInterfaces/IExtrapolator.h"
-//Association tool
-#include "TrkToolInterfaces/IPRD_AssociationTool.h"
 //Scoring tool
 #include "TrkToolInterfaces/ITrackScoringTool.h"
 //Magnetic field tool
@@ -32,7 +30,6 @@ namespace InDet {
     m_fieldUnitConversion(1000.),
     m_fitterTool("Trk::KalmanFitter/InDetTrackFitter"),
     m_extrapolator ("Trk::Extrapolator/InDetExtrapolator"),
-    m_assotool("InDet::InDetPRD_AssociationToolGangedPixels"),
     m_scoringTool("Trk::TrackScoringTool/TrackScoringTool"),
     m_magFieldSvc("AtlasFieldSvc", name),
     m_trtId(nullptr),
@@ -44,20 +41,17 @@ namespace InDet {
     declareInterface<InDet::ITRT_SegmentToTrackTool>( this );
 
     m_doRefit            = false                                ;       //Do a final careful refit of tracks
-    m_useasso            = false                                ;       //Use association tool to clean up the seeds
 
     m_suppressHoleSearch = false                                ;       //Suppress hole search
     m_sharedFrac         = 0.3                                  ;       //Maximum fraction of shared hits !!!!!!!!!!!!!!!!!!!!!! offline 0.3!!!!!!!!!!!!!!!!!!!!!!!
 
     declareProperty("FinalRefit"                 ,m_doRefit           ); //Do a final careful refit of tracks
-    declareProperty("UseAssociationTool"         ,m_useasso           ); //Use the association tool
 
     declareProperty("SuppressHoleSearch"         ,m_suppressHoleSearch); //Suppress hole search during the track summary creation
     declareProperty("MaxSharedHitsFraction"      ,m_sharedFrac        ); //Maximum fraction of shared drift circles
 
     declareProperty("RefitterTool"               ,m_fitterTool        ); //Track refit tool
     declareProperty("Extrapolator"               ,m_extrapolator      ); //Extrapolator tool
-    declareProperty("AssociationTool"            ,m_assotool          ); //Association tool
     declareProperty("ScoringTool"                ,m_scoringTool       ); //Track scoring tool
 
     declareProperty( "MagFieldSvc"              ,m_magFieldSvc      ); //Magnetic field tool
@@ -85,9 +79,8 @@ namespace InDet {
 
     // Get association tool
     //
-    if(m_useasso){
-      ATH_CHECK( m_assotool.retrieve() );
-    }
+    ATH_CHECK(m_assoTool.retrieve( DisableTool{m_assoTool.name().empty()} ));
+    ATH_CHECK(m_trackSummaryTool.retrieve( DisableTool{m_trackSummaryTool.name().empty()} ));
 
     // Get the scoring tool
     //
@@ -127,7 +120,7 @@ namespace InDet {
   {
     int n = 65-m_fitterTool.type().size();
     std::string s1; for(int i=0; i<n; ++i) s1.append(" "); s1.append("|");
-    n     = 65-m_assotool.type().size();
+    n     = 65-m_assoTool.type().size();
     std::string s2; for(int i=0; i<n; ++i) s2.append(" "); s2.append("|");
     n     = 65-m_scoringTool.type().size();
     std::string s5; for(int i=0; i<n; ++i) s5.append(" "); s5.append("|");
@@ -138,7 +131,7 @@ namespace InDet {
        <<"-------------------|"<<std::endl;
     out<<"| Tool for final track refitting    | "<<m_fitterTool.type()   <<s1<<std::endl;
     out<<"| Tool for track scoring            | "<<m_scoringTool.type()  <<s5<<std::endl;
-    out<<"| Association tool                  | "<<m_assotool.type()     <<s2<<std::endl;
+    out<<"| Association service               | "<<m_assoTool.type()     <<s2<<std::endl;
     out<<"|----------------------------------------------------------------------"
        <<"-------------------|";
     return out;
@@ -634,7 +627,7 @@ namespace InDet {
   }
 
 
-  bool TRT_SegmentToTrackTool::segIsUsed(const Trk::TrackSegment& tS ) {
+  bool TRT_SegmentToTrackTool::segIsUsed(const Trk::TrackSegment& tS, const Trk::PRDtoTrackMap *prd_to_track_map ) {
 
     ATH_MSG_DEBUG ("Checking whether the TRT segment has already been used...");
 
@@ -642,6 +635,7 @@ namespace InDet {
     int nShared = 0;  // Shared drift circles in segment
     int nHits   = 0;  // Number of TRT measurements
 
+    if (!m_assoTool.name().empty() && !prd_to_track_map) ATH_MSG_ERROR("PRDtoTrackMap to be used but not provided by the client");
     // loop over the track states
     for(int it=0; it<int(tS.numberOfMeasurementBases()); ++it){
   
@@ -660,7 +654,7 @@ namespace InDet {
       // count up number of hits
       nHits++;
   
-      if(m_useasso && m_assotool->isUsed(*RawDataClus)) nShared++;
+      if(!m_assoTool.name().empty() && prd_to_track_map && prd_to_track_map->isUsed(*RawDataClus)) nShared++;
     }
   
     if(nShared >= int(m_sharedFrac * nHits)) {
@@ -735,15 +729,18 @@ namespace InDet {
   }
 
   void TRT_SegmentToTrackTool::resetAssoTool() {
-
-    if(m_useasso) m_assotool->reset();
     return;
 
   }
 
   void TRT_SegmentToTrackTool::addNewTrack(Trk::Track* trk) {
-
+    // @TODO avoid non const member m_trackScoreTrackMap
     ATH_MSG_DEBUG ("Add track to the scoring multimap...");
+    if (m_trackSummaryTool.isEnabled()) {
+       m_trackSummaryTool->computeAndReplaceTrackSummary(*trk,
+                                                         nullptr,
+                                                         m_suppressHoleSearch);
+    }
 
     //Score the track under investigation
     Trk::TrackScore score = m_scoringTool->score(*trk,m_suppressHoleSearch);
@@ -765,7 +762,7 @@ namespace InDet {
   }
 
 
-  TrackCollection* TRT_SegmentToTrackTool::resolveTracks() {
+  TrackCollection* TRT_SegmentToTrackTool::resolveTracks(const Trk::PRDtoTrackMap *prd_to_track_map_in) {
 
     ATH_MSG_DEBUG ("Resolving the TRT tracks in score map...");
 
@@ -774,6 +771,16 @@ namespace InDet {
 
     // now loop as long as map is not empty
     TrackScoreMap::iterator itnext;
+    //    if (m_assoTool.name().empty() && !prd_to_track_map_in) ATH_MSG_ERROR("PRDtoTrackMap to be used but not provided by the client");
+
+    std::unique_ptr<Trk::PRDtoTrackMap> prd_to_track_map;
+    if (!m_assoTool.name().empty()) {
+      prd_to_track_map=m_assoTool->createPRDtoTrackMap();
+      if (prd_to_track_map_in) {
+        *prd_to_track_map = *prd_to_track_map_in;
+      }
+    }
+
     for ( itnext = m_trackScoreTrackMap.begin(); itnext != m_trackScoreTrackMap.end(); ++itnext ) {
    
       ATH_MSG_DEBUG ("--- Trying next track "<<itnext->second<<"\t with score "<<-itnext->first);
@@ -786,12 +793,10 @@ namespace InDet {
       const DataVector<const Trk::TrackStateOnSurface>* tsos = (itnext->second)->trackStateOnSurfaces();
    
       // loop over vector of TSOS
-      DataVector<const Trk::TrackStateOnSurface>::const_iterator iTsos    = tsos->begin();
-      DataVector<const Trk::TrackStateOnSurface>::const_iterator iTsosEnd = tsos->end();
-      for ( ; iTsos != iTsosEnd ; ++iTsos) {
+      for ( const Trk::TrackStateOnSurface *a_tsos : *tsos) {
    
 	// get measurment from TSOS
-	const Trk::MeasurementBase* meas = (*iTsos)->measurementOnTrack();
+	const Trk::MeasurementBase* meas = a_tsos->measurementOnTrack();
 	if (!meas) continue;
    
 	// make sure it is a TRT_DC and not a pseudo measurement 
@@ -806,7 +811,7 @@ namespace InDet {
 	nHits++;
    
 	// count up number of shared hits
-	if(m_useasso && m_assotool->isUsed(*RawDataClus)) nShared++;
+	if(!m_assoTool.name().empty() && prd_to_track_map->isUsed(*RawDataClus)) nShared++;
       }
    
       ATH_MSG_DEBUG ("TRT-only has " << nHits << " hits and " << nShared << " of them are shared");
@@ -828,9 +833,8 @@ namespace InDet {
       ATH_MSG_DEBUG ("TRT-only is accepted");
    
       //Register the track with the association tool
-      if(m_useasso) {
-	StatusCode sc=m_assotool->addPRDs(*(itnext->second));
-	if(sc.isFailure()) {
+      if(!m_assoTool.name().empty()) {
+        if(m_assoTool->addPRDs(*prd_to_track_map,*(itnext->second)).isFailure()) {
 	  ATH_MSG_WARNING ("addPRDs() failed!");
 	}
       }

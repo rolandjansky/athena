@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TJetNet.h"
@@ -19,30 +19,29 @@ ClassImp( TJetNet )
 //Constructors
 //______________________________________________________________________________
 TJetNet::TJetNet()
+  : m_LayerCount(0),
+    m_pLayers(0),
+    m_pInputTrainSet(nullptr),
+    m_pOutputTrainSet(nullptr),
+    m_pInputTestSet(nullptr),
+    m_pOutputTestSet(nullptr),
+    m_TrainSetCnt(0),
+    m_TestSetCnt(0),
+    m_Epochs(0),
+    m_CurrentEpoch(0),
+    m_IsInitialized(kFalse),
+    m_InitLocked(kFALSE),
+    m_NormalizeOutput(false)
 {
-  // Default Constructor
-  mTestSetCnt = 0;
-  mTrainSetCnt = 0;
-  mLayerCount = 0;
-  
-  mNormalizeOutput=false;
-  
-  mpLayers = 0;
-
-  mIsInitialized = kFALSE;
-  mInitLocked = kFALSE;
-
-  mpInputTrainSet = 0;
-  mpInputTestSet = 0;
-  mpOutputTrainSet = 0;
-  mpOutputTestSet = 0;
-
-  mEpochs = 0;
-  mCurrentEpoch = 0;
 }
 //______________________________________________________________________________
 TJetNet::TJetNet( Int_t aTestCount, Int_t aTrainCount,
 	 const Int_t aLayersCnt, const Int_t* aLayers )
+#ifdef _DEBUG
+  : m_Debug (kTRUE)
+#else
+  : m_Debug (kFALSE)
+#endif
 {
   // Creates neural network with aLayersCnt number of layers,
   // aTestCount number of patterns for the test set,
@@ -50,59 +49,55 @@ TJetNet::TJetNet( Int_t aTestCount, Int_t aTrainCount,
   // aLayers contains the information for number of the units in the different layers
 
   int i;
-  mDebug = kFALSE;
-#ifdef _DEBUG
-  mDebug = kTRUE;
-#endif
   
-  if( mDebug ){ std::cout << "=====> Entering TJetNet::TJetNet(...)" << std::endl; }
+  if( m_Debug ){ std::cout << "=====> Entering TJetNet::TJetNet(...)" << std::endl; }
 
-  mTestSetCnt  = aTestCount;
-  mTrainSetCnt = aTrainCount;
-  mLayerCount  = aLayersCnt; // Get the number of layers
+  m_TestSetCnt  = aTestCount;
+  m_TrainSetCnt = aTrainCount;
+  m_LayerCount  = aLayersCnt; // Get the number of layers
   
-  if( mLayerCount > 0 )
+  if( m_LayerCount > 0 )
   {  
-   //Perform deep copy of the array holding Layers count
-    mpLayers = new Int_t[ mLayerCount ];
-    for( i = 0; i < mLayerCount; ++i )
+    //Perform deep copy of the array holding Layers count
+    m_pLayers = new Int_t[ m_LayerCount ];
+    for( i = 0; i < m_LayerCount; ++i )
     {
-      mpLayers[ i ] = aLayers[ i ];
+      m_pLayers[ i ] = aLayers[ i ];
     }
   }
 
-  mInputDim = mpLayers[ 0 ];
-  mOutputDim = mpLayers[ mLayerCount - 1 ];
-  mHiddenLayerDim = mLayerCount-2;
+  m_InputDim = m_pLayers[ 0 ];
+  m_OutputDim = m_pLayers[ m_LayerCount - 1 ];
+  m_HiddenLayerDim = m_LayerCount-2;
   
 
-  mIsInitialized = kFALSE;
-  mInitLocked = kFALSE;
+  m_IsInitialized = kFALSE;
+  m_InitLocked = kFALSE;
 
-  mpInputTrainSet  = new TNeuralDataSet( mTrainSetCnt, GetInputDim() );
-  mpInputTestSet = new TNeuralDataSet( mTestSetCnt, GetInputDim() );
-  mpOutputTrainSet = new TNeuralDataSet( mTrainSetCnt, GetOutputDim() );
-  mpOutputTestSet = new TNeuralDataSet( mTestSetCnt, GetOutputDim() );
+  m_pInputTrainSet  = new TNeuralDataSet( m_TrainSetCnt, GetInputDim() );
+  m_pInputTestSet = new TNeuralDataSet( m_TestSetCnt, GetInputDim() );
+  m_pOutputTrainSet = new TNeuralDataSet( m_TrainSetCnt, GetOutputDim() );
+  m_pOutputTestSet = new TNeuralDataSet( m_TestSetCnt, GetOutputDim() );
   
-  mNormalizeOutput=false;
+  m_NormalizeOutput=false;
 
-  menActFunction=afSigmoid;
+  m_enActFunction=afSigmoid;
 
   SetEpochs( -1 );
 
-  if( mDebug ){ std::cout << "=====> Leaving TJetNet::TJetNet(...)" << std::endl; }
+  if( m_Debug ){ std::cout << "=====> Leaving TJetNet::TJetNet(...)" << std::endl; }
 }
 //______________________________________________________________________________
 TJetNet::~TJetNet( void )
 {
   // Default destructor
-  if( mDebug ){ std::cout << "=====> Entering TJetNet::~TJetNet(...)" << std::endl; }
-  delete [] mpLayers;
-  delete mpInputTestSet;
-  delete mpInputTrainSet;
-  delete mpOutputTestSet;
-  delete mpOutputTrainSet;
-  if( mDebug ){ std::cout << "=====> Leaving TJetNet::~TJetNet(...)" << std::endl; }
+  if( m_Debug ){ std::cout << "=====> Entering TJetNet::~TJetNet(...)" << std::endl; }
+  delete [] m_pLayers;
+  delete m_pInputTestSet;
+  delete m_pInputTrainSet;
+  delete m_pOutputTestSet;
+  delete m_pOutputTrainSet;
+  if( m_Debug ){ std::cout << "=====> Leaving TJetNet::~TJetNet(...)" << std::endl; }
 }
 //______________________________________________________________________________
 //by Giacinto Piacquadio (18-02-2008)
@@ -125,24 +120,24 @@ TTrainedNetwork* TJetNet::createTrainedNetwork() const
 
   for (Int_t o=0;o<nHidden+1;++o)
   {
-     int sizeActualLayer=(o<nHidden)?nHiddenLayerSize[o]:nOutput;
-     int sizePreviousLayer=(o==0)?nInput:nHiddenLayerSize[o-1];
-     thresholdVectors.push_back(new TVectorD(sizeActualLayer));
-     weightMatrices.push_back(new TMatrixD(sizePreviousLayer,sizeActualLayer));
+    int sizeActualLayer=(o<nHidden)?nHiddenLayerSize[o]:nOutput;
+    int sizePreviousLayer=(o==0)?nInput:nHiddenLayerSize[o-1];
+    thresholdVectors.push_back(new TVectorD(sizeActualLayer));
+    weightMatrices.push_back(new TMatrixD(sizePreviousLayer,sizeActualLayer));
   }
 
   for (Int_t o=0;o<nHidden+1;++o)
   {
 
-    if (mDebug)
-    if (o<nHidden)
-    {
-      cout << " Iterating on hidden layer n.: " << o << endl;
-    }
-    else
-    {
-      cout << " Considering output layer " << endl;
-    }
+    if (m_Debug)
+      if (o<nHidden)
+      {
+        cout << " Iterating on hidden layer n.: " << o << endl;
+      }
+      else
+      {
+        cout << " Considering output layer " << endl;
+      }
     
     int sizeActualLayer=(o<nHidden)?nHiddenLayerSize[o]:nOutput;
 
@@ -150,21 +145,21 @@ TTrainedNetwork* TJetNet::createTrainedNetwork() const
     {
       if (o<nHidden)
       {
-	if (mDebug)
-	cout << " To hidden node: " << s << endl;
+	if (m_Debug)
+          cout << " To hidden node: " << s << endl;
       }
       else
       {
-	if (mDebug)
-	cout << " To output node: " << s << endl;
+	if (m_Debug)
+          cout << " To output node: " << s << endl;
       }
       if (o==0)
       {
 	for (Int_t p=0;p<nInput;++p)
 	{
-	  if (mDebug)
-	  cout << " W from inp nod: " << p << "weight: " <<
-	    GetWeight(o+1,s+1,p+1) << endl;
+	  if (m_Debug)
+            cout << " W from inp nod: " << p << "weight: " <<
+              GetWeight(o+1,s+1,p+1) << endl;
 	  weightMatrices[o]->operator() (p,s) = GetWeight(o+1,s+1,p+1);
         }
       }
@@ -172,16 +167,16 @@ TTrainedNetwork* TJetNet::createTrainedNetwork() const
       {
 	for (Int_t p=0;p<nHiddenLayerSize[o-1];++p)
 	{
-	  if (mDebug)
-	  cout << " W from lay : " << o-1 << " nd: " << 
-	    p << " weight: " <<
-	    GetWeight(o+1,s+1,p+1) << endl;
+	  if (m_Debug)
+            cout << " W from lay : " << o-1 << " nd: " << 
+              p << " weight: " <<
+              GetWeight(o+1,s+1,p+1) << endl;
 	  weightMatrices[o]->operator() (p,s)=GetWeight(o+1,s+1,p+1);
 	}
       }
-      if (mDebug)
-      cout << " Threshold for node " << s << " : " << 
-	GetThreshold(o+1,s+1) << endl;
+      if (m_Debug)
+        cout << " Threshold for node " << s << " : " << 
+          GetThreshold(o+1,s+1) << endl;
       thresholdVectors[o]->operator() (s) = GetThreshold(o+1,s+1);
     }
   }
@@ -189,7 +184,7 @@ TTrainedNetwork* TJetNet::createTrainedNetwork() const
   bool linearOutput=false;
   if (this->GetActivationFunction(nHidden)==4) 
   {
-//    cout << " Creating TTrainedNetwork with linear output function" << endl;
+    //    cout << " Creating TTrainedNetwork with linear output function" << endl;
     linearOutput=true;
   }
 
@@ -200,9 +195,9 @@ TTrainedNetwork* TJetNet::createTrainedNetwork() const
 			nHiddenLayerSize,
 			thresholdVectors,
 			weightMatrices,
-			menActFunction,
+			m_enActFunction,
                         linearOutput,
-                        mNormalizeOutput);
+                        m_NormalizeOutput);
 						
   return trainedNetwork;
 
@@ -303,11 +298,11 @@ void TJetNet::Print( void )
   Int_t i;
 
   std::cout << "TJetNet" << std::endl;
-  std::cout << "Number of layers: " << mLayerCount << std::endl;
+  std::cout << "Number of layers: " << m_LayerCount << std::endl;
 
-  for( i = 0; i < mLayerCount; i++ )
+  for( i = 0; i < m_LayerCount; i++ )
   {
-      std::cout << "\t\tNumber of units in layer " << i << " : " <<  mpLayers[ i ] << std::endl;
+    std::cout << "\t\tNumber of units in layer " << i << " : " <<  m_pLayers[ i ] << std::endl;
   }
 
   std::cout << "Epochs: " << GetEpochs() << std::endl;
@@ -334,32 +329,32 @@ Double_t TJetNet::Test( void )
   for( Int_t iPattern = 0; iPattern < NPatterns; iPattern++ )
   {
 
-      for( Int_t i = 0; i < GetInputDim(); i++ )
-      {
-	JNDAT1.OIN[ i ] = float ( GetInputTestSet( iPattern, i ) );
-      }
-
-      NWJNWGT.OWGT = GetEventWeightTestSet( iPattern );
-
-      JNTEST();
-
-      for( Int_t j = 0; j < GetOutputDim(); j++ )
-      {
-	fMeanError+= NWJNWGT.OWGT * 
-	  std::pow(JNDAT1.OUT[ j ]-float( GetOutputTestSet( iPattern, j )),2)/(float)GetOutputDim();
-      }
-
-
-
-      if( mDebug ) std::cout << "Testing [ " << iPattern << " ] - "  << JNDAT1.OIN[ 0 ] 
-			     << " => " << JNDAT1.OUT[ 0 ] << std::endl;
-
+    for( Int_t i = 0; i < GetInputDim(); i++ )
+    {
+      JNDAT1.OIN[ i ] = float ( GetInputTestSet( iPattern, i ) );
     }
+
+    NWJNWGT.OWGT = GetEventWeightTestSet( iPattern );
+
+    JNTEST();
+
+    for( Int_t j = 0; j < GetOutputDim(); j++ )
+    {
+      fMeanError+= NWJNWGT.OWGT * 
+        std::pow(JNDAT1.OUT[ j ]-float( GetOutputTestSet( iPattern, j )),2)/(float)GetOutputDim();
+    }
+
+
+
+    if( m_Debug ) std::cout << "Testing [ " << iPattern << " ] - "  << JNDAT1.OIN[ 0 ] 
+                           << " => " << JNDAT1.OUT[ 0 ] << std::endl;
+
+  }
 
   fMeanError/=2.*NPatterns;
 
-  if (mDebug)
-  std::cout << " Test error: " << fMeanError << endl;
+  if (m_Debug)
+    std::cout << " Test error: " << fMeanError << endl;
 
   return fMeanError;
 }
@@ -410,98 +405,98 @@ Double_t TJetNet::TestBTAG( void )
   for( Int_t iPattern = 0; iPattern < NPatterns; iPattern++ )
   {
 
-      for( Int_t i = 0; i < GetInputDim(); i++ )
+    for( Int_t i = 0; i < GetInputDim(); i++ )
+    {
+      if (!test)
       {
-        if (!test)
-        {
-          JNDAT1.OIN[ i ] = float ( GetInputTestSet( iPattern, i ) );
-          NWJNWGT.OWGT = GetEventWeightTestSet( iPattern );
-        }
-        else
-        {
-          JNDAT1.OIN[ i ] = float (GetInputTrainSet( iPattern, i ) );
-          NWJNWGT.OWGT = GetEventWeightTrainSet( iPattern );
-        }
-
+        JNDAT1.OIN[ i ] = float ( GetInputTestSet( iPattern, i ) );
+        NWJNWGT.OWGT = GetEventWeightTestSet( iPattern );
+      }
+      else
+      {
+        JNDAT1.OIN[ i ] = float (GetInputTrainSet( iPattern, i ) );
+        NWJNWGT.OWGT = GetEventWeightTrainSet( iPattern );
       }
 
-      JNTEST();
+    }
 
-      int active=0;
-      for( Int_t j = 0; j < GetOutputDim(); j++ )
+    JNTEST();
+
+    int active=0;
+    for( Int_t j = 0; j < GetOutputDim(); j++ )
+    {
+      if (!test)
       {
-        if (!test)
-        {
-          fMeanError+= NWJNWGT.OWGT * 
-              std::pow(JNDAT1.OUT[ j ]-float( GetOutputTestSet( iPattern, j )),2)/(float)GetOutputDim();
-        }
-        else
-        {
-           fMeanError+= NWJNWGT.OWGT * 
-               std::pow(JNDAT1.OUT[ j ]-float( GetOutputTrainSet( iPattern, j )),2)/(float)GetOutputDim();
-        }
+        fMeanError+= NWJNWGT.OWGT * 
+          std::pow(JNDAT1.OUT[ j ]-float( GetOutputTestSet( iPattern, j )),2)/(float)GetOutputDim();
+      }
+      else
+      {
+        fMeanError+= NWJNWGT.OWGT * 
+          std::pow(JNDAT1.OUT[ j ]-float( GetOutputTrainSet( iPattern, j )),2)/(float)GetOutputDim();
+      }
         
 
-//        std::cout << " j " <<  j << " is " << GetOutputTestSet( iPattern, j) << std::endl;
+      //        std::cout << " j " <<  j << " is " << GetOutputTestSet( iPattern, j) << std::endl;
 
-        if (!test)
+      if (!test)
+      {
+        if (fabs(float( GetOutputTestSet( iPattern, j)) - 1) < 1e-4)
         {
-          if (fabs(float( GetOutputTestSet( iPattern, j)) - 1) < 1e-4)
-          {
-            active = j;
-          }
-        }
-        else
-        {
-          if (fabs(float( GetOutputTrainSet( iPattern, j)) - 1) < 1e-4)
-          {
-            active = j;
-          }
+          active = j;
         }
       }
-
-//      if (mDebug) std::cout << " active is: " << active << std::endl;
-
-//      if (mDebug) std::cout << " filling histograms " << std::endl;
-
-      if (JNDAT1.OUT[ 0 ] + JNDAT1.OUT[ 1 ] >= 0)
+      else
       {
-        histoEfficienciesC[active]->Fill( JNDAT1.OUT[ 0 ] / 
-                                          ( JNDAT1.OUT[ 0 ] + JNDAT1.OUT[ 1 ]),
-                                          NWJNWGT.OWGT);
+        if (fabs(float( GetOutputTrainSet( iPattern, j)) - 1) < 1e-4)
+        {
+          active = j;
+        }
+      }
+    }
+
+    //      if (m_Debug) std::cout << " active is: " << active << std::endl;
+
+    //      if (m_Debug) std::cout << " filling histograms " << std::endl;
+
+    if (JNDAT1.OUT[ 0 ] + JNDAT1.OUT[ 1 ] >= 0)
+    {
+      histoEfficienciesC[active]->Fill( JNDAT1.OUT[ 0 ] / 
+                                        ( JNDAT1.OUT[ 0 ] + JNDAT1.OUT[ 1 ]),
+                                        NWJNWGT.OWGT);
                                                                                 
-//        if( mDebug ) std::cout << "Filled: " << JNDAT1.OUT[ 0 ] / 
-//                         ( JNDAT1.OUT[ 0 ] + JNDAT1.OUT[ 2 ]) << std::endl;
+      //        if( m_Debug ) std::cout << "Filled: " << JNDAT1.OUT[ 0 ] / 
+      //                         ( JNDAT1.OUT[ 0 ] + JNDAT1.OUT[ 2 ]) << std::endl;
       
-      }
-      else
-      {
-        std::cout << " Filled 0 " << std::endl;
-        histoEfficienciesC[active]->Fill( 0 );
-      }
+    }
+    else
+    {
+      std::cout << " Filled 0 " << std::endl;
+      histoEfficienciesC[active]->Fill( 0 );
+    }
       
         
-      if (JNDAT1.OUT[ 0 ] + JNDAT1.OUT[ 2 ] >= 0)
-      {
-        histoEfficienciesL[active]->Fill( JNDAT1.OUT[ 0 ] / 
-                                          ( JNDAT1.OUT[ 0 ] + JNDAT1.OUT[ 2 ]),
-                                          NWJNWGT.OWGT);
-//        if( mDebug ) std::cout << "Filled: " << JNDAT1.OUT[ 0 ] / 
-//                         ( JNDAT1.OUT[ 0 ] + JNDAT1.OUT[ 1 ]) << std::endl;
+    if (JNDAT1.OUT[ 0 ] + JNDAT1.OUT[ 2 ] >= 0)
+    {
+      histoEfficienciesL[active]->Fill( JNDAT1.OUT[ 0 ] / 
+                                        ( JNDAT1.OUT[ 0 ] + JNDAT1.OUT[ 2 ]),
+                                        NWJNWGT.OWGT);
+      //        if( m_Debug ) std::cout << "Filled: " << JNDAT1.OUT[ 0 ] / 
+      //                         ( JNDAT1.OUT[ 0 ] + JNDAT1.OUT[ 1 ]) << std::endl;
       
-     }
-      else
-      {
-        std::cout << " Filled 0 " << std::endl;
-        histoEfficienciesL[active]->Fill( 0 );
-      }
+    }
+    else
+    {
+      std::cout << " Filled 0 " << std::endl;
+      histoEfficienciesL[active]->Fill( 0 );
+    }
 
-      if( mDebug ) std::cout << "Testing [ " << iPattern << " ] - "  << JNDAT1.OIN[ 0 ] 
-                             << " => " << JNDAT1.OUT[ 0 ] << std::endl;
+    if( m_Debug ) std::cout << "Testing [ " << iPattern << " ] - "  << JNDAT1.OIN[ 0 ] 
+                           << " => " << JNDAT1.OUT[ 0 ] << std::endl;
       
   }// finish patterns
   
-  if (mDebug) std::cout << " Finished patterns... " << std::endl;
+  if (m_Debug) std::cout << " Finished patterns... " << std::endl;
   
   TFile* newFile=new TFile("test.root","recreate");
   histoEfficienciesL[0]->Write();
@@ -530,13 +525,13 @@ Double_t TJetNet::TestBTAG( void )
     }
     
       
-    if (mDebug) std::cout << " 1 " << std::endl;
+    if (m_Debug) std::cout << " 1 " << std::endl;
     
     Double_t allb=(*myVectorHistos)[0]->GetEntries();
     Double_t allc=(*myVectorHistos)[1]->GetEntries();
     Double_t allu=(*myVectorHistos)[2]->GetEntries();
     
-    if (mDebug) std::cout << " allb " << allb << std::endl;
+    if (m_Debug) std::cout << " allb " << allb << std::endl;
 
     Double_t allbsofar=0;
     
@@ -556,14 +551,14 @@ Double_t TJetNet::TestBTAG( void )
  
       for (int r=0;r<eff.size();r++)
       {
-        if (mDebug) std::cout << " actual eff: " << allbsofar / allb << std::endl;
+        if (m_Debug) std::cout << " actual eff: " << allbsofar / allb << std::endl;
 
         if ((!ok_eff[r]) && allbsofar / allb > eff[r])
         {
           binN_Eff[r]=s;
           ok_eff[r]=true;
-          if (mDebug) std::cout << " bin: " << s << " eff: " << allbsofar / allb << std::endl;
-//          std::cout << " Cut value: " << (*myVectorHistos)[0]->GetBinCenter(s) << std::endl;
+          if (m_Debug) std::cout << " bin: " << s << " eff: " << allbsofar / allb << std::endl;
+          //          std::cout << " Cut value: " << (*myVectorHistos)[0]->GetBinCenter(s) << std::endl;
         }
         else if (allbsofar / allb <= eff[r])
         {
@@ -581,7 +576,7 @@ Double_t TJetNet::TestBTAG( void )
 
       std::cout << " check: " << (double)(*myVectorHistos)[0]->Integral((*myVectorHistos)[0]->GetNbinsX()-binN_Eff[r],
                                                                         (*myVectorHistos)[1]->GetNbinsX()+1)
-          / (double)allb;
+        / (double)allb;
       
       double effc=(*myVectorHistos)[1]->Integral((*myVectorHistos)[0]->GetNbinsX()-binN_Eff[r],
                                                  (*myVectorHistos)[1]->GetNbinsX()+1);
@@ -603,20 +598,20 @@ Double_t TJetNet::TestBTAG( void )
     std::cout << std::endl;
   }
   
-   for( Int_t j = 0; j < GetOutputDim(); j++ )
-    {
-      delete histoEfficienciesC[j];
-      delete histoEfficienciesL[j];
-    }
+  for( Int_t j = 0; j < GetOutputDim(); j++ )
+  {
+    delete histoEfficienciesC[j];
+    delete histoEfficienciesL[j];
+  }
    
 
   fMeanError/=2.*NPatterns;
 
-  if (mDebug)
-  std::cout << " Test error: " << fMeanError << endl;
+  if (m_Debug)
+    std::cout << " Test error: " << fMeanError << endl;
 
   return fMeanError;
-  }
+}
 
 
 //______________________________________________________________________________
@@ -637,11 +632,11 @@ Double_t TJetNet::Train( void )
   if (updatesPerEpoch*patternsPerUpdate<1./2.*NPatterns) 
   {
     cout << "Using only: " << updatesPerEpoch*patternsPerUpdate << 
-        " patterns on available: " << NPatterns << endl;
+      " patterns on available: " << NPatterns << endl;
   } else if (updatesPerEpoch*patternsPerUpdate>NPatterns) 
   {
     cout << " Trying to use " << updatesPerEpoch*patternsPerUpdate << 
-        " patterns, but available: " << NPatterns << endl;
+      " patterns, but available: " << NPatterns << endl;
     return -100;
   }
   
@@ -676,26 +671,26 @@ void TJetNet::Init( void )
 {
   // Initializes the neuaral network
   Int_t i;
-  JNDAT1.MSTJN[ 0 ] = mLayerCount; // Set the number of layers
+  JNDAT1.MSTJN[ 0 ] = m_LayerCount; // Set the number of layers
 
   // Set the number of nodes for each layer
-  for( i = 0; i < mLayerCount; i++ )
+  for( i = 0; i < m_LayerCount; i++ )
   {
-    if ( mDebug ) std::cout << "Layer " << i + 1 << " has " << mpLayers[ i ] << " units." << std::endl; 
-    JNDAT1.MSTJN[ 9 + i ] = mpLayers[ i ]; 
+    if ( m_Debug ) std::cout << "Layer " << i + 1 << " has " << m_pLayers[ i ] << " units." << std::endl; 
+    JNDAT1.MSTJN[ 9 + i ] = m_pLayers[ i ]; 
   }
    
   cout << " calling JNINIT " << endl;
   JNINIT();
 
-  if (mNormalizeOutput)  
+  if (m_NormalizeOutput)  
   {
     std::cout << " Setting to normalize output nodes: POTT nodes " << std::endl;
-    SetPottsUnits(mpLayers[mLayerCount-1]); 
+    SetPottsUnits(m_pLayers[m_LayerCount-1]); 
   }
   
   cout << " finishing calling JNINIT " << endl;
-  mIsInitialized = kTRUE;
+  m_IsInitialized = kTRUE;
 }
 //______________________________________________________________________________
 Int_t TJetNet::Epoch( void )
@@ -703,78 +698,78 @@ Int_t TJetNet::Epoch( void )
   // Initiate one train/test step the network. 
 
   Double_t aTrain, aTest;
-  if ( mCurrentEpoch < mEpochs )
+  if ( m_CurrentEpoch < m_Epochs )
   {
-      mCurrentEpoch++;
-      aTrain = Train();
+    m_CurrentEpoch++;
+    aTrain = Train();
 
-      //      if (mCurrentEpoch%2)
+    //      if (m_CurrentEpoch%2)
 
-      //      std::cout << " Calls to MSTJN: " << GetMSTJN(6) << 
-      //	std::endl;
+    //      std::cout << " Calls to MSTJN: " << GetMSTJN(6) << 
+    //	std::endl;
 
-      if ( mDebug ) 
-      {
+    if ( m_Debug ) 
+    {
 
 
-	std::cout << "[ " << mCurrentEpoch << " ] Train: " << aTrain << std::endl;
-      }
-      if ( ( mCurrentEpoch % 2 ) == 0 )
-      {
-	  aTest = Test();
-	  //	  if ( mDebug )
-	  std::cout << "[" << mCurrentEpoch << "]: " << GetPARJN(8) << " ";
-	  std::cout << "Test: " << aTest << std::endl;
-      }
+      std::cout << "[ " << m_CurrentEpoch << " ] Train: " << aTrain << std::endl;
+    }
+    if ( ( m_CurrentEpoch % 2 ) == 0 )
+    {
+      aTest = Test();
+      //	  if ( m_Debug )
+      std::cout << "[" << m_CurrentEpoch << "]: " << GetPARJN(8) << " ";
+      std::cout << "Test: " << aTest << std::endl;
+    }
   }
-  return mCurrentEpoch;
+  return m_CurrentEpoch;
 }
 //______________________________________________________________________________
 void TJetNet::SetInputTrainSet( Int_t aPatternInd, Int_t aInputInd, Double_t aValue )
 {
   // Changes the value of the cell corresponding to unit aInputInd in pattern aPatternInd into INPUT TRAIN set
-  mpInputTrainSet->SetData( aPatternInd, aInputInd, aValue );
+  m_pInputTrainSet->SetData( aPatternInd, aInputInd, aValue );
 }
 //______________________________________________________________________________
 void TJetNet::SetOutputTrainSet( Int_t aPatternInd, Int_t aOutputInd, Double_t aValue )
 {
   // Changes the value of the cell corresponding to unit aInputInd in pattern aPatternInd into OUTPUT TRAIN set
-  mpOutputTrainSet->SetData( aPatternInd, aOutputInd, aValue );
+  m_pOutputTrainSet->SetData( aPatternInd, aOutputInd, aValue );
 }
 //______________________________________________________________________________
 void TJetNet::SetInputTestSet( Int_t aPatternInd, Int_t aInputInd, Double_t aValue )
 {
   // Changes the value of the cell corresponding to unit aInputInd in pattern aPatternInd into INPUT TEST set
-  mpInputTestSet->SetData( aPatternInd, aInputInd, aValue );
+  m_pInputTestSet->SetData( aPatternInd, aInputInd, aValue );
 }
 //______________________________________________________________________________
 Double_t TJetNet::GetOutputTrainSet( Int_t aPatternInd, Int_t aOutputInd )
 {
   // Returns the value of the cell corresponding to unit aInputInd in pattern aPatternInd into OUTPUT TRAIN set
-  return mpOutputTrainSet->GetData( aPatternInd, aOutputInd );
+  return m_pOutputTrainSet->GetData( aPatternInd, aOutputInd );
 }
 //______________________________________________________________________________
 void TJetNet::SetEventWeightTrainSet( Int_t aPatternInd, Double_t aValue )
 {
-  mpInputTrainSet->SetEventWeight(aPatternInd,aValue);
+  m_pInputTrainSet->SetEventWeight(aPatternInd,aValue);
 }
 //______________________________________________________________________________
 
 void TJetNet::SetEventWeightTestSet( Int_t aPatternInd, Double_t aValue )
 {
-  mpInputTestSet->SetEventWeight(aPatternInd,aValue);
+  m_pInputTestSet->SetEventWeight(aPatternInd,aValue);
 }
 //______________________________________________________________________________
 Double_t TJetNet::GetInputTestSet( Int_t aPatternInd, Int_t aInputInd )
 {
   // Returns the value of the cell corresponding to unit aInputInd in pattern aPatternInd into INPUT TEST set
-  return mpInputTestSet->GetData( aPatternInd, aInputInd );
+  return m_pInputTestSet->GetData( aPatternInd, aInputInd );
 }
 //______________________________________________________________________________
 Double_t TJetNet::GetOutputTestSet( Int_t aPatternInd, Int_t aOutputInd )
 {
   // Returns the value of the cell corresponding to unit aInputInd in pattern aPatternInd into OUTPUT TEST set
-  return mpOutputTestSet->GetData( aPatternInd, aOutputInd );
+  return m_pOutputTestSet->GetData( aPatternInd, aOutputInd );
 }
 //______________________________________________________________________________
 void  TJetNet::SaveDataAscii( TString aFileName )
@@ -787,30 +782,30 @@ void  TJetNet::SaveDataAscii( TString aFileName )
   out.open( aFileName );
 
   //Write the number of layers, including the input and output
-  out << mLayerCount << std::endl;
+  out << m_LayerCount << std::endl;
 
   // Write into the file the number of units in input, hidden and output layers  
-  for ( i = 0; i < mLayerCount; i++ ) out << mpLayers[ i ] << " ";
+  for ( i = 0; i < m_LayerCount; i++ ) out << m_pLayers[ i ] << " ";
   out << std::endl;
 
   // Write the size of Train and Test sets 
-  out << mTrainSetCnt << " " << mTestSetCnt << std::endl;
+  out << m_TrainSetCnt << " " << m_TestSetCnt << std::endl;
 
   // Dump the Train set : Input1 Input2 ... InputN Output1 Output2 ... OutputN
-  for ( i = 0; i < mTrainSetCnt; i++ )
+  for ( i = 0; i < m_TrainSetCnt; i++ )
   {
     out << GetInputTrainSet( i, 0 );
-    for( j = 1; j < mpLayers[ 0 ]; j++ ) out << " " << GetInputTrainSet( i, j );
-    for( j = 0; j < mpLayers[ mLayerCount - 1 ]; j++ ) out << " " << GetOutputTrainSet( i, j );
+    for( j = 1; j < m_pLayers[ 0 ]; j++ ) out << " " << GetInputTrainSet( i, j );
+    for( j = 0; j < m_pLayers[ m_LayerCount - 1 ]; j++ ) out << " " << GetOutputTrainSet( i, j );
     out << std::endl;
   }
 
  // Dump the Test set : Input1 Input2 ... InputN Output1 Output2 ... OutputN
-  for ( i = 0; i < mTestSetCnt; i++ )
+  for ( i = 0; i < m_TestSetCnt; i++ )
   {
     out << GetInputTestSet( i, 0 );
-    for( j = 1; j < mpLayers[ 0 ]; j++ ) out << " " << GetInputTestSet( i, j );
-    for( j = 0; j < mpLayers[ mLayerCount - 1 ]; j++ ) out << " " << GetOutputTestSet( i, j );
+    for( j = 1; j < m_pLayers[ 0 ]; j++ ) out << " " << GetInputTestSet( i, j );
+    for( j = 0; j < m_pLayers[ m_LayerCount - 1 ]; j++ ) out << " " << GetOutputTestSet( i, j );
     out << std::endl;
   }
   // Close the file
@@ -831,54 +826,54 @@ void  TJetNet::LoadDataAscii( TString aFileName )
   bFlag = Bool_t( in.is_open() );
   if ( in )
   { 
-    in >> mLayerCount;
-    if( mDebug ){ std::cout << "Layers Count Set to " << mLayerCount << std::endl;}
+    in >> m_LayerCount;
+    if( m_Debug ){ std::cout << "Layers Count Set to " << m_LayerCount << std::endl;}
     i = 0;
 
-    delete [] mpLayers;
-    mpLayers = new Int_t[ mLayerCount ];
+    delete [] m_pLayers;
+    m_pLayers = new Int_t[ m_LayerCount ];
 
-    if( mDebug ){ std::cout << "Updating the Layers Nodes Counters..." << std::endl; }
-    while( ( i < mLayerCount ) && ( !in.eof() ) )
+    if( m_Debug ){ std::cout << "Updating the Layers Nodes Counters..." << std::endl; }
+    while( ( i < m_LayerCount ) && ( !in.eof() ) )
     {
-      in >> mpLayers[ i ];
-      if( mDebug ){ std::cout << "Layer [ " << i + 1 << " ] has " << mpLayers[ i ] << " units" << std::endl; }
+      in >> m_pLayers[ i ];
+      if( m_Debug ){ std::cout << "Layer [ " << i + 1 << " ] has " << m_pLayers[ i ] << " units" << std::endl; }
       i++;
     }
 
-    mInputDim = mpLayers[ 0 ];
-    mOutputDim = mpLayers[ mLayerCount - 1 ];
-    mHiddenLayerDim = mLayerCount-2;
+    m_InputDim = m_pLayers[ 0 ];
+    m_OutputDim = m_pLayers[ m_LayerCount - 1 ];
+    m_HiddenLayerDim = m_LayerCount-2;
 
     //Get the patterns count per line 
-    iPatternLength = mInputDim + mOutputDim;
-    if( mDebug ){ std::cout << "Patterns per line = " << iPatternLength << std::endl; } 
-    in >> mTrainSetCnt;
-    if( mDebug ){ std::cout << "Train Set has " << mTrainSetCnt << " patterns." << std::endl; }
-    in >> mTestSetCnt;
-    if( mDebug ){ std::cout << "Test Set has " << mTestSetCnt << " patterns." << std::endl; }
+    iPatternLength = m_InputDim + m_OutputDim;
+    if( m_Debug ){ std::cout << "Patterns per line = " << iPatternLength << std::endl; } 
+    in >> m_TrainSetCnt;
+    if( m_Debug ){ std::cout << "Train Set has " << m_TrainSetCnt << " patterns." << std::endl; }
+    in >> m_TestSetCnt;
+    if( m_Debug ){ std::cout << "Test Set has " << m_TestSetCnt << " patterns." << std::endl; }
     
-    delete mpInputTestSet;
-    delete mpInputTrainSet;
-    delete mpOutputTestSet;
-    delete mpOutputTrainSet;
+    delete m_pInputTestSet;
+    delete m_pInputTrainSet;
+    delete m_pOutputTestSet;
+    delete m_pOutputTrainSet;
     
-    mpInputTrainSet  = new TNeuralDataSet( mTrainSetCnt, GetInputDim() );
-    mpInputTestSet   = new TNeuralDataSet( mTestSetCnt, GetInputDim() );
-    mpOutputTrainSet = new TNeuralDataSet( mTrainSetCnt, GetOutputDim() );
-    mpOutputTestSet  = new TNeuralDataSet( mTestSetCnt, GetOutputDim() );
+    m_pInputTrainSet  = new TNeuralDataSet( m_TrainSetCnt, GetInputDim() );
+    m_pInputTestSet   = new TNeuralDataSet( m_TestSetCnt, GetInputDim() );
+    m_pOutputTrainSet = new TNeuralDataSet( m_TrainSetCnt, GetOutputDim() );
+    m_pOutputTestSet  = new TNeuralDataSet( m_TestSetCnt, GetOutputDim() );
 
     i = 0;
     j = 0;
     
-    while( ( i < ( mTrainSetCnt + mTestSetCnt ) ) && ( !in.eof() ) )
+    while( ( i < ( m_TrainSetCnt + m_TestSetCnt ) ) && ( !in.eof() ) )
     {
       j = 0;
       while( ( j < iPatternLength ) && ( !in.eof() ) )
       {
-	if( i < mTrainSetCnt )
+	if( i < m_TrainSetCnt )
 	{
-	  if( j < mInputDim )
+	  if( j < m_InputDim )
 	  {
 	    //Train Input Set
 	    in >> tmp;
@@ -887,15 +882,15 @@ void  TJetNet::LoadDataAscii( TString aFileName )
 	  else 
 	  {
 	    //Train Output Set 
-	    m = j - mInputDim;
+	    m = j - m_InputDim;
 	    in >> tmp;
 	    SetOutputTrainSet( i, m, tmp );
 	  }
 	}
 	else
 	{
-	  l = i - mTrainSetCnt;
-	  if( j < mInputDim )
+	  l = i - m_TrainSetCnt;
+	  if( j < m_InputDim )
 	    {
 	      //Test Input Set
 	      in >> tmp;
@@ -904,7 +899,7 @@ void  TJetNet::LoadDataAscii( TString aFileName )
           else
 	    {
 	      //Test Output Set
-	      m = j - mInputDim;
+	      m = j - m_InputDim;
 	      in >> tmp;
 	      SetOutputTestSet( l, m, tmp );
 	    }
@@ -993,7 +988,7 @@ void TJetNet::SelectiveFields( Int_t aLayerA, Int_t aNodeA1, Int_t aNodeA2, Int_
   // JetNet Selective Fields
   Int_t tmp, i1, i2, j1, j2;
 
-  if( ( aLayerA > 0 ) && ( aLayerA < mLayerCount ) )
+  if( ( aLayerA > 0 ) && ( aLayerA < m_LayerCount ) )
   {
     i1 = TMath::Abs( aNodeA1 ); 
     i2 = TMath::Abs( aNodeA2 );
@@ -1014,8 +1009,8 @@ void TJetNet::SelectiveFields( Int_t aLayerA, Int_t aNodeA1, Int_t aNodeA2, Int_
       i2 = i1;
     }//if
 
-    if( ( i1 < mpLayers[ aLayerA ] ) && ( i2 < mpLayers[ aLayerA ] ) && 
-	( j1 < mpLayers[ aLayerA - 1 ] ) && ( j2 < mpLayers[ aLayerA - 1 ] ) )
+    if( ( i1 < m_pLayers[ aLayerA ] ) && ( i2 < m_pLayers[ aLayerA ] ) && 
+	( j1 < m_pLayers[ aLayerA - 1 ] ) && ( j2 < m_pLayers[ aLayerA - 1 ] ) )
     {
       JNSEFI( aLayerA, i1, i2, j1, j2, aSwitch );
     }//if
@@ -1027,25 +1022,25 @@ void TJetNet::Reinitialize( void )
   //Initializes the settings of the network
     Int_t i;
     
-   mLayerCount = JNDAT1.MSTJN[ 0 ]; // Set the number of layers
+   m_LayerCount = JNDAT1.MSTJN[ 0 ]; // Set the number of layers
    
-   delete [] mpLayers;
-   mpLayers = new Int_t[ mLayerCount ];
+   delete [] m_pLayers;
+   m_pLayers = new Int_t[ m_LayerCount ];
    
   // Set the number of nodes for each layer
-  for( i = 0; i < mLayerCount; i++ )
+  for( i = 0; i < m_LayerCount; i++ )
   {
-    mpLayers[ i ] = JNDAT1.MSTJN[ 9 + i ]; 
+    m_pLayers[ i ] = JNDAT1.MSTJN[ 9 + i ]; 
   }
   
-  mpInputTrainSet  = new TNeuralDataSet( mTrainSetCnt, GetInputDim() );
-  mpInputTestSet   = new TNeuralDataSet( mTestSetCnt, GetInputDim() );
-  mpOutputTrainSet = new TNeuralDataSet( mTrainSetCnt, GetOutputDim() );
-  mpOutputTestSet  = new TNeuralDataSet( mTestSetCnt, GetOutputDim() );
+  m_pInputTrainSet  = new TNeuralDataSet( m_TrainSetCnt, GetInputDim() );
+  m_pInputTestSet   = new TNeuralDataSet( m_TestSetCnt, GetInputDim() );
+  m_pOutputTrainSet = new TNeuralDataSet( m_TrainSetCnt, GetOutputDim() );
+  m_pOutputTestSet  = new TNeuralDataSet( m_TestSetCnt, GetOutputDim() );
 
-  mInputDim = mpLayers[ 0 ];
-  mOutputDim = mpLayers[ mLayerCount - 1 ];
-  mHiddenLayerDim = mLayerCount-2;
+  m_InputDim = m_pLayers[ 0 ];
+  m_OutputDim = m_pLayers[ m_LayerCount - 1 ];
+  m_HiddenLayerDim = m_LayerCount-2;
 
 
 }  
@@ -1053,23 +1048,23 @@ void TJetNet::Reinitialize( void )
 void TJetNet::Normalize( void )
 {
   // Normilizes Inputs (both test and train)
-  mpInputTrainSet->Normalize();
-  mpInputTestSet->Normalize();
+  m_pInputTrainSet->Normalize();
+  m_pInputTestSet->Normalize();
 }
 //______________________________________________________________________________
 void TJetNet::Randomize( void )
 {
   // Randomizes Inputs and Outputs of both train and test sets
-  mpInputTrainSet->Randomize();
-  mpInputTestSet->Randomize();
-  mpOutputTrainSet->Randomize();
-  mpOutputTestSet->Randomize();
+  m_pInputTrainSet->Randomize();
+  m_pInputTestSet->Randomize();
+  m_pOutputTrainSet->Randomize();
+  m_pOutputTestSet->Randomize();
 }
 //______________________________________________________________________________
 Int_t TJetNet::GetUnitCount( Int_t aLayer )
 { 
   // Returns the number of the units in specfic layer
-  if( ( aLayer > -1 ) && ( aLayer < mLayerCount ) ) 
+  if( ( aLayer > -1 ) && ( aLayer < m_LayerCount ) ) 
     return JNDAT1.MSTJN[ 9 + aLayer ]; 
 }
 //______________________________________________________________________________
@@ -1077,65 +1072,65 @@ void TJetNet::SetUpdatesPerEpoch( Int_t aValue )
 { 
   // Sets the number of the updates per epoch
   JNDAT1.MSTJN[ 8 ] = aValue; 
-  if( !mInitLocked ) this->Init();
+  if( !m_InitLocked ) this->Init();
 }
 //______________________________________________________________________________
 void TJetNet::SetUpdatingProcedure( Int_t aValue )
 {  
   // Set specific weights update function
   JNDAT1.MSTJN[ 4 ] = aValue; 
-  if( !mInitLocked ) this->Init();
+  if( !m_InitLocked ) this->Init();
 }
 //______________________________________________________________________________
 void TJetNet::SetErrorMeasure( Int_t aValue )
 {  
   JNDAT1.MSTJN[ 3 ] = aValue; 
-  if( !mInitLocked ) this->Init();
+  if( !m_InitLocked ) this->Init();
 }
 //______________________________________________________________________________
 void TJetNet::SetActivationFunction( Int_t aValue )
 { 
   // Set the kind of activation function used
   JNDAT1.MSTJN[ 2 ] = aValue; 
-  if( !mInitLocked ) this->Init();
+  if( !m_InitLocked ) this->Init();
 }
 //______________________________________________________________________________
 void TJetNet::SetActivationFunction( Int_t aValue, Int_t layerN )//layer 0 is first hidden layer
 { 
   // Set the kind of activation function used
   JNDAT2.IGFN[ layerN ] = aValue; 
-  if( !mInitLocked ) this->Init();
+  if( !m_InitLocked ) this->Init();
 }
 //______________________________________________________________________________
 void TJetNet::SetPatternsPerUpdate( Int_t aValue )
 { 
   JNDAT1.MSTJN[ 1 ] = aValue; 
-  if( !mInitLocked ) this->Init();
+  if( !m_InitLocked ) this->Init();
 }
 //______________________________________________________________________________
 void TJetNet::SetLearningRate( Double_t aValue )
 { 
   // Change the Learning Rate
   JNDAT1.PARJN[ 0 ] = aValue; 
-  if( !mInitLocked ) this->Init();
+  if( !m_InitLocked ) this->Init();
 }
 //______________________________________________________________________________
 void TJetNet::SetMomentum( Double_t aValue )
 { 
   JNDAT1.PARJN[ 1 ] = aValue; 
-  if( !mInitLocked ) this->Init();
+  if( !m_InitLocked ) this->Init();
 }
 //______________________________________________________________________________
 void TJetNet::SetInitialWeightsWidth( Double_t aValue )
 { 
   JNDAT1.PARJN[ 3 ] = aValue; 
-  if( !mInitLocked ) this->Init();
+  if( !m_InitLocked ) this->Init();
 }
 //______________________________________________________________________________
 void TJetNet::SetLearningRateDecrease( Double_t aValue )
 { 
   JNDAT1.PARJN[ 10 ] = aValue; 
-  if( !mInitLocked ) this->Init();
+  if( !m_InitLocked ) this->Init();
 }
 //______________________________________________________________________________
 void TJetNet::SetPottsUnits(Int_t aValue)
@@ -1145,7 +1140,7 @@ void TJetNet::SetPottsUnits(Int_t aValue)
 //_____________________________________________________________________________
 void TJetNet::NormalizeOutput(bool isTrue)
 {
-  mNormalizeOutput=isTrue;
+  m_NormalizeOutput=isTrue;
 }
 //______________________________________________________________________________
 Int_t TJetNet::GetUpdatesPerEpoch( void )
@@ -1232,15 +1227,15 @@ void TJetNet::Shuffle( Bool_t aShuffleTrainSet, Bool_t aShuffleTestSet )
   if ( aShuffleTrainSet )
   {
     
-    mpInputTrainSet->Shuffle( Seed );
-    mpOutputTrainSet->Shuffle( Seed );
+    m_pInputTrainSet->Shuffle( Seed );
+    m_pOutputTrainSet->Shuffle( Seed );
   }
   //Shuffle Test Set
   if ( aShuffleTestSet )
   {
     Seed = ts.GetSec();
-    mpInputTestSet->Shuffle( Seed );
-    mpOutputTestSet->Shuffle( Seed );
+    m_pInputTestSet->Shuffle( Seed );
+    m_pOutputTestSet->Shuffle( Seed );
   }
 
   return;

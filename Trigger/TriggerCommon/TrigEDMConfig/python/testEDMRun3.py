@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from TriggerEDMRun3 import TriggerHLTListRun3, EDMDetails
+from TriggerEDMRun3 import TriggerHLTListRun3, EDMDetailsRun3, AllowedOutputFormats
 from AthenaCommon.Logging import logging
 log = logging.getLogger('testEDMRun3')
 
@@ -35,10 +35,8 @@ def main():
 
     file_types = TriggerSerializable[1].split(" ")
 
-    allowed_file_types = ("", "BS", "DS", "ESD", "AODFULL", "AODSLIM", "AODVERYSLIM", "AODBLSSLIM")
-
     for file_type in file_types:
-      if file_type not in allowed_file_types:
+      if file_type not in AllowedOutputFormats:
         log.error("unknown file type " + file_type + " for " + serializable_name)
         return 1
 
@@ -46,7 +44,7 @@ def main():
     serializable_names_no_label.append(serializable_name_no_label)
 
   #check EDMDetails
-  for EDMDetail in EDMDetails.keys():
+  for EDMDetail in EDMDetailsRun3.keys():
     if EDMDetail not in serializable_names_no_label:
       log.warning("EDMDetail for " + EDMDetail + " does not correspond to any name in TriggerList")
 

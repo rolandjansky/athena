@@ -54,7 +54,6 @@
 
 
 #include <math.h>
-#include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
 
 
 // temporary

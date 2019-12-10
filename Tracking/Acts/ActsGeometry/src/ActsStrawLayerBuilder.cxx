@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ATHENA
@@ -77,7 +77,7 @@ ActsStrawLayerBuilder::centralLayers(const Acts::GeometryContext& gctx)
 
   for(size_t iring=0; iring < nBarrelRings;iring++) {
     ACTS_VERBOSE("- Collecting elements for ring " << iring);
-  
+
     // were calculating min/max radius while were at it.
     Acts::ProtoLayer pl;
     pl.minR = std::numeric_limits<double>::max();
@@ -101,7 +101,7 @@ ActsStrawLayerBuilder::centralLayers(const Acts::GeometryContext& gctx)
         // what is this?
         for (size_t iposneg=0;iposneg<2;iposneg++) {
 
-          const InDetDD::TRT_BarrelElement* brlElem 
+          const InDetDD::TRT_BarrelElement* brlElem
             = m_cfg.mng->getBarrelElement(iposneg, iring, iphisec, ilayer);
 
           unsigned int nStraws = brlElem->nStraws();
@@ -111,15 +111,15 @@ ActsStrawLayerBuilder::centralLayers(const Acts::GeometryContext& gctx)
             auto trf = std::make_shared<Transform3D>(brlElem->strawTransform(istraw));
             // need to convert translation to length unit
             trf->translation() *= 1_mm;
-            auto code = brlElem->getCode(); 
-            Identifier straw_id = m_cfg.idHelper->straw_id(code.isPosZ() == 1 ? 1 : -1, 
-                                                    code.getPhiIndex(), 
+            auto code = brlElem->getCode();
+            Identifier straw_id = m_cfg.idHelper->straw_id(code.isPosZ() == 1 ? 1 : -1,
+                                                    code.getPhiIndex(),
                                                     code.getModuleIndex(),
-                                                    code.getStrawLayerIndex(), 
+                                                    code.getStrawLayerIndex(),
                                                     istraw);
 
             auto elem = std::make_shared<const ActsDetectorElement>(
-                trf, brlElem, straw_id, m_cfg.trackingGeometrySvc);
+                trf, brlElem, straw_id);
 
             m_cfg.elementStore->push_back(elem);
 
@@ -187,7 +187,7 @@ ActsStrawLayerBuilder::endcapLayers(const Acts::GeometryContext& gctx, int side)
     for(size_t ilayer=0;ilayer<nEndcapLayers;++ilayer) {
       std::vector<std::shared_ptr<const Acts::Surface>> wheelSurfaces;
 
-            
+
       Acts::ProtoLayer pl;
       pl.minR = std::numeric_limits<double>::max();
       pl.maxR = std::numeric_limits<double>::lowest();
@@ -198,7 +198,7 @@ ActsStrawLayerBuilder::endcapLayers(const Acts::GeometryContext& gctx, int side)
       pl.envR = {0_mm, 0_mm};
 
       for (unsigned int iphisec=0; iphisec<nEndcapPhiSectors; ++iphisec) {
-      
+
         size_t iposneg = side < 0 ? 0 : 1;
         const InDetDD::TRT_EndcapElement* ecElem = m_cfg.mng->getEndcapElement(iposneg, iwheel, ilayer, iphisec);
         unsigned int nStraws = ecElem->nStraws();
@@ -209,16 +209,16 @@ ActsStrawLayerBuilder::endcapLayers(const Acts::GeometryContext& gctx, int side)
           // need to convert translation to length unit
           trf->translation() *= 1_mm;
 
-          auto code = ecElem->getCode(); 
-          Identifier straw_id = m_cfg.idHelper->straw_id(code.isPosZ() == 1 ? 2 : -2, 
-                                                  code.getPhiIndex(), 
+          auto code = ecElem->getCode();
+          Identifier straw_id = m_cfg.idHelper->straw_id(code.isPosZ() == 1 ? 2 : -2,
+                                                  code.getPhiIndex(),
                                                   code.getWheelIndex(),
-                                                  code.getStrawLayerIndex(), 
+                                                  code.getStrawLayerIndex(),
                                                   istraw);
 
 
           auto elem = std::make_shared<const ActsDetectorElement>(
-              trf, ecElem, straw_id, m_cfg.trackingGeometrySvc);
+              trf, ecElem, straw_id);
 
           m_cfg.elementStore->push_back(elem);
 
@@ -247,10 +247,9 @@ ActsStrawLayerBuilder::endcapLayers(const Acts::GeometryContext& gctx, int side)
       layers.push_back(layer);
       ACTS_VERBOSE("  - Collected " << wheelSurfaces.size() << " straws");
     }
-    
+
   }
-  
+
   ACTS_VERBOSE(" - Built " << layers.size() << " straw endcap layers");
   return layers;
 }
-

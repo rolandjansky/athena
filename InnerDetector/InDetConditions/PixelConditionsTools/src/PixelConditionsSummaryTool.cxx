@@ -73,9 +73,13 @@ StatusCode PixelConditionsSummaryTool::initialize(){
   return StatusCode::SUCCESS;
 }
 
-bool PixelConditionsSummaryTool::isBSError(const IdentifierHash & moduleHash) const {
+bool PixelConditionsSummaryTool::isBSError([[maybe_unused]] const IdentifierHash & moduleHash) const {
 #ifndef SIMULATIONBASE
   SG::ReadHandle<InDetBSErrContainer> errCont(m_BSErrContReadKey);
+  if (!errCont.isValid()) {
+    ATH_MSG_ERROR("BSErrContainer is not valid!");
+    return true;
+  }
   if (m_pixelID->wafer_hash_max()==2048) {   // RUN-2 setup
     if ((m_pixelID->barrel_ec(m_pixelID->wafer_id(moduleHash))==0 && m_pixelID->layer_disk(m_pixelID->wafer_id(moduleHash))==0) 
         || m_pixelID->is_dbm(m_pixelID->wafer_id(moduleHash))) {
@@ -106,7 +110,7 @@ bool PixelConditionsSummaryTool::isBSError(const IdentifierHash & moduleHash) co
   return true;
 }
 
-bool PixelConditionsSummaryTool::isBSActive(const IdentifierHash & moduleHash) const {
+bool PixelConditionsSummaryTool::isBSActive([[maybe_unused]] const IdentifierHash & moduleHash) const {
 #ifndef SIMULATIONBASE
   SG::ReadHandle<InDetBSErrContainer> errCont(m_BSErrContReadKey);
   for (const auto* elt : *errCont) {

@@ -22,29 +22,34 @@ def openDatabase(dbstring):
   myDbString=formDbString(technology, server, schema, dbname)
   try:
       db=dbSvc.openDatabase(myDbString)
-  except Exception,e:
-      print 'Problem opening %s in GetRunList'%myDbString
-      print e
+  except Exception as e:
+      print('Problem opening %s in GetRunList'%myDbString)
+      print(e)
       sys.exit(-1)
   return db
   
-def formIov(runNumber):
-  s,u=(runNumber << 32), ((runNumber + 1) << 32) - 1
-  return s,u
+#def formIov(runNumber):
+#  s,u=(runNumber << 32), ((runNumber + 1) << 32) - 1
+#  return s,u
   
+def formIov(runNumber):
+  runNumberSave = 362345
+  s,u=(runNumberSave << 32), ((runNumber + 1) << 32) - 1
+  return s,u
+
 #############################################################################################
 def GetRunList(dbstring, folder, tag, runNumber, k):
     db=openDatabase(dbstring)
-    print 'TAG   ',tag,'   TAG'
+    print('TAG   ',tag,'   TAG')
     folderlist=db.listAllNodes()
-    print '    folderlist=db.listAllNodes()'
+    print('    folderlist=db.listAllNodes()')
 
-    for i in folderlist: print i
+    for i in folderlist: print(i)
 
     myfolder=db.getFolder(folder)
     taglist=myfolder.listTags()
-    print '    taglist=myfolder.listTags()'
-    for i in taglist: print i
+    print('    taglist=myfolder.listTags()')
+    for i in taglist: print(i)
     
     iovSince, iovUntil = formIov(runNumber)
  
@@ -58,14 +63,14 @@ def GetRunList(dbstring, folder, tag, runNumber, k):
     db.closeDatabase()
     
     Temp=sorted(temp)
-    # print 'array is', Temp
+    # print('array is', Temp)
     ls=[]
     for i in range(len(Temp)-1):
         if (Temp[i] != Temp[i+1]):
              ls.append(Temp[i])
    
 #    ls.append(Temp[len(Temp)-1])
-    print ls
+    print(ls)
 
     list=[]
     for i in range(k): list.append( ls[len(ls)-i-1] )
@@ -139,7 +144,7 @@ def GetNumNoisyStrips(dbstring, folder, tag, runNumber):
 # RunList=GetRunList(dbstring, folder, tag, RunNumber, k)
 
 # sumNoisyModulesInDB=0
-# print "------------> Runs to compare in COOL DB <--------------------------------------"
+# print("------------> Runs to compare in COOL DB <--------------------------------------")
 # for i in range(len(RunList)):
 
     # numNoisyMods=GetNumNoisyMods(dbstring, folder, tag, RunList[i])
@@ -147,7 +152,7 @@ def GetNumNoisyStrips(dbstring, folder, tag, runNumber):
 
     # if (i==0): NoisyStripLastRunInDB = numNoisyStrips
 
-    # print "", "Run: ", RunList[i], "Noisy Modules: ", numNoisyMods, "Noisy Strips: ", numNoisyStrips 
+    # print("", "Run: ", RunList[i], "Noisy Modules: ", numNoisyMods, "Noisy Strips: ", numNoisyStrips)
         
     # sumNoisyModulesInDB = sumNoisyModulesInDB + numNoisyMods
 
@@ -156,8 +161,8 @@ def GetNumNoisyStrips(dbstring, folder, tag, runNumber):
 # else:
     # NoisyModuleAverageInDB=-999.
 
-# print ""
-# print "--> The average value of the number of noisy modules over the above runs is ", NoisyModuleAverageInDB
-# print "--> The number of nosiy strips in the last uploaded run, ", RunList[0],", is ", NoisyStripLastRunInDB
-# print "--------------------------------------------------------------------------------"
+# print("")
+# print("--> The average value of the number of noisy modules over the above runs is ", NoisyModuleAverageInDB)
+# print("--> The number of nosiy strips in the last uploaded run, ", RunList[0],", is ", NoisyStripLastRunInDB)
+# print("--------------------------------------------------------------------------------")
 

@@ -404,9 +404,8 @@ const StatusCode RadDam::RadDamageUtil::generateDistanceTimeMap( TH2F* &distance
 		        drift_e += dz*tanLorentzAngle; //Increment the total drift parallel to plane of sensor
 		        distanceTravelled_e += dz; //mm (travelled in z)
 		        lorentzMap_e->SetBinContent(i,j,drift_e/distanceTravelled_e); 
-
-			    lorentzMap_h->SetBinContent(i,j,drift_h/distanceTravelled_h);
 		    }
+		    timeMap_e->SetBinContent(i,time_e);
 	    }
             //Mainly copied from l416 ff changed naming k=>j
             //https://gitlab.cern.ch/radiationDamageDigitization/radDamage_athena_rel22/blob/rel22_radDamageDev_master/scripts/SaveMapsForAthena.C

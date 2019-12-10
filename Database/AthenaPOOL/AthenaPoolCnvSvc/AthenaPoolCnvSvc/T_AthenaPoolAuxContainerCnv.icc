@@ -9,6 +9,10 @@
  */
 
 
+#include "AthContainers/tools/copyThinned.h"
+#include "AthenaKernel/getThinningCache.h"
+
+
 /**
  * @brief Constructor.
  * @param svcLoc Gaudi service locator.
@@ -31,10 +35,16 @@ T_AthenaPoolAuxContainerCnv<AUXSTORE, TPCNVS...>::T_AthenaPoolAuxContainerCnv( I
 template <class AUXSTORE, class ... TPCNVS>
 AUXSTORE*
 T_AthenaPoolAuxContainerCnv<AUXSTORE, TPCNVS...>::createPersistentWithKey( AUXSTORE* trans,
-                                                                           const std::string& /*key*/)
+                                                                           const std::string& key)
 {
   AthenaPoolCnvSvc::debugCreatePersistent (ClassID_traits<AUXSTORE>::ID());
-  return SG::copyThinned (*trans, IThinningSvc::instance());
+  std::string key2 = key;
+  if (key2.size() >= 4 && key2.substr (key2.size()-4, 4) == "Aux.")
+  {
+    key2.erase (key2.size()-4, 4);
+  }
+  const SG::ThinningDecisionBase* dec = SG::getThinningDecision (key2);
+  return SG::copyThinned (*trans, dec).release();
 }
 
 
@@ -47,7 +57,7 @@ T_AthenaPoolAuxContainerCnv<AUXSTORE, TPCNVS...>::createPersistentWithKey( AUXST
  */
 template <class AUXSTORE, class ... TPCNVS>
 AUXSTORE*
-T_AthenaPoolAuxContainerCnv<AUXSTORE, TPCNVS...>::createTransientWithKey (const std::string& /*key*/)
+T_AthenaPoolAuxContainerCnv<AUXSTORE, TPCNVS...>::createTransientWithKey (const std::string& key)
 {
   AthenaPoolCnvSvc::debugCreateTransient (ClassID_traits<AUXSTORE>::ID());
   if ( this->compareClassGuid( m_guid ) ) {
@@ -56,9 +66,9 @@ T_AthenaPoolAuxContainerCnv<AUXSTORE, TPCNVS...>::createTransientWithKey (const 
   }
 
   // Try a converter.
-  AUXSTORE* c = m_tpcnvs.createTransient (*this, this->msg());
+  std::unique_ptr<AUXSTORE> c = m_tpcnvs.createTransient (*this, key, this->msg());
   if (c)
-    return c;
+    return c.release();
 
   // Didn't recognize the GUID.
   AthenaPoolCnvSvc::throwExcUnsupportedVersion (typeid(AUXSTORE),

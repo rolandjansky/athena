@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 ################################################################################
 # TrigUpgradeTest/testHLT_MT.py
 #
@@ -13,11 +14,11 @@
 #
 # Additional "modifiers" can be specified by using
 #   -c "myModifier=True/False"
-# Existing modifiers can be found in "TriggerRelease/python/Modifiers.py"
+# Existing modifiers can be found in "TriggerJobOpts/python/Modifiers.py"
 #
 class opt:
     setupForMC       = None           # force MC setup
-    setLVL1XML       = 'TriggerMenuMT/LVL1config_LS2_v1.xml' # 'TriggerMenu/LVL1config_Physics_pp_v7.xml' # default for legacy
+    setMenu          = 'LS2_v1'
     setDetDescr      = None           # force geometry tag
     setGlobalTag     = None           # force global conditions tag
     useCONDBR2       = True           # if False, use run-1 conditions DB
@@ -29,14 +30,17 @@ class opt:
     doDBConfig       = None           # dump trigger configuration
     trigBase         = None           # file name for trigger config dump
     enableCostD3PD   = False          # enable cost monitoring
-    doWriteESD       = True           # Write out an ESD?
+    doWriteRDOTrigger = False         # Write out RDOTrigger?
+    doWriteBS        = True           # Write out BS?
     doL1Unpacking    = True           # decode L1 data in input file if True, else setup emulation
     doL1Sim          = False          # (re)run L1 simulation
     isOnline         = False          # isOnline flag (TEMPORARY HACK, should be True by default)
     doEmptyMenu      = False          # Disable all chains, except those re-enabled by specific slices
+    createHLTMenuExternally = False   # Set to True if the menu is build manually outside testHLT_MT.py
+    endJobAfterGenerate = False       # Finish job after menu generation
+    failIfNoProxy     = False         # Sets the SGInputLoader.FailIfNoProxy property
 #Individual slice flags
-    doElectronSlice   = True
-    doPhotonSlice     = True
+    doEgammaSlice     = True
     doMuonSlice       = True
     doJetSlice        = True
     doMETSlice        = True
@@ -45,8 +49,14 @@ class opt:
     doCombinedSlice   = True
     doBphysicsSlice   = True
     doStreamingSlice  = True
+    doMonitorSlice    = True
+    doBeamspotSlice   = True
+    reverseViews      = False
+    filterViews       = False
     enabledSignatures = []
     disabledSignatures = []
+
+
 #
 ################################################################################
 from TriggerJobOpts.TriggerFlags import TriggerFlags
@@ -68,6 +78,7 @@ for option in defaultOptions:
 
 
 import re
+
 sliceRe = re.compile("^do.*Slice")
 slices = [a for a in dir(opt) if sliceRe.match(a)]
 if opt.doEmptyMenu is True:
@@ -81,14 +92,11 @@ if opt.doEmptyMenu is True:
 else:
     for s in slices:
         setattr(opt, s, True)
-    opt.doTauSlice =False #Wait for ATR-17399
 
 # Setting the TriggerFlags.XXXSlice to use in TriggerMenuMT
 # This is temporary and will be re-worked for after M3.5
 for s in slices:
     signature = s[2:].replace('Slice', '')
-    if 'Electron' in s or 'Photon' in s:
-        signature = 'Egamma'
 
     if eval('opt.'+s) is True:
         enabledSig = 'TriggerFlags.'+signature+'Slice.setAll()'
@@ -103,7 +111,7 @@ for s in slices:
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.BeamFlags import jobproperties
-import TriggerRelease.Modifiers
+import TriggerJobOpts.Modifiers
 
 # Auto-configuration for athena
 if len(athenaCommonFlags.FilesInput())>0:
@@ -116,7 +124,7 @@ if len(athenaCommonFlags.FilesInput())>0:
     if opt.setGlobalTag is None:
         opt.setGlobalTag = af.fileinfos.get('conditions_tag',None) or \
             (TriggerFlags.OnlineCondTag() if opt.isOnline else 'CONDBR2-BLKPA-2018-13')
-    TriggerRelease.Modifiers._run_number = af.fileinfos['run_number'][0]
+    TriggerJobOpts.Modifiers._run_number = af.fileinfos['run_number'][0]
 
 else:   # athenaHLT
     globalflags.InputFormat = 'bytestream'
@@ -127,7 +135,7 @@ else:   # athenaHLT
         af = athFile.fopen(athenaCommonFlags.BSRDOInput()[0])
         _run_number = af.run_number[0]
 
-    TriggerRelease.Modifiers._run_number = _run_number   # noqa, set by athenaHLT
+    TriggerJobOpts.Modifiers._run_number = _run_number   # noqa, set by athenaHLT
 
     from RecExConfig.RecFlags import rec
     rec.RunNumber =_run_number
@@ -146,6 +154,11 @@ athenaCommonFlags.isOnline.set_Value_and_Lock(opt.isOnline)
 
 log.info('Configured the following global flags:')
 globalflags.print_JobProperties()
+
+# Set default doL1Sim option depending on input type (if not set explicitly)
+if 'doL1Sim' not in globals():
+    opt.doL1Sim = globalflags.DataSource != 'data'
+    log.info('Setting default doL1Sim=%s because globalflags.DataSource=%s', opt.doL1Sim, globalflags.DataSource())
 
 #-------------------------------------------------------------
 # Transfer flags into TriggerFlags
@@ -213,8 +226,8 @@ modifierList=[]
 from TrigConfigSvc.TrigConfMetaData import TrigConfMetaData
 meta = TrigConfMetaData()
     
-for mod in dir(TriggerRelease.Modifiers):
-    if not hasattr(getattr(TriggerRelease.Modifiers,mod),'preSetup'): continue
+for mod in dir(TriggerJobOpts.Modifiers):
+    if not hasattr(getattr(TriggerJobOpts.Modifiers,mod),'preSetup'): continue
     if mod in dir():  #allow turning on and off modifiers by variable of same name
         if globals()[mod]:
             if mod not in setModifiers:
@@ -222,7 +235,7 @@ for mod in dir(TriggerRelease.Modifiers):
         else:
             if mod in setModifiers: setModifiers.remove(mod)
     if mod in setModifiers:
-        modifierList+=[getattr(TriggerRelease.Modifiers,mod)()]
+        modifierList+=[getattr(TriggerJobOpts.Modifiers,mod)()]
         meta.Modifiers += [mod]    # store in trig conf meta data
         setModifiers.remove(mod)
 
@@ -270,8 +283,6 @@ rec.doESD = False
 rec.doAOD = False
 rec.doTruth = False
 
-TriggerFlags.writeBS = True
-
 #-------------------------------------------------------------
 # Apply modifiers
 #-------------------------------------------------------------
@@ -288,15 +299,22 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
 #--------------------------------------------------------------
-# Thread-specific setup
+# Increase scheduler checks and verbosity
 #--------------------------------------------------------------
-from AthenaCommon.ConcurrencyFlags import jobproperties
-if jobproperties.ConcurrencyFlags.NumThreads() > 0:
-    from AthenaCommon.AlgScheduler import AlgScheduler
-    AlgScheduler.CheckDependencies( True )
-    AlgScheduler.ShowControlFlow( True )
-    AlgScheduler.ShowDataDependencies( True )
-    AlgScheduler.EnableVerboseViews( True )
+from AthenaCommon.AlgScheduler import AlgScheduler
+AlgScheduler.CheckDependencies( True )
+AlgScheduler.ShowControlFlow( True )
+AlgScheduler.ShowDataDependencies( True )
+AlgScheduler.EnableVerboseViews( True )
+
+#--------------------------------------------------------------
+# Set the FailIfNoProxy property of SGInputLoader
+#--------------------------------------------------------------
+if not hasattr(topSequence,"SGInputLoader"):
+    log.error('Cannot set FailIfNoProxy property because SGInputLoader not found in topSequence')
+    theApp.exit(1)
+topSequence.SGInputLoader.FailIfNoProxy = opt.failIfNoProxy
+
 
 #--------------------------------------------------------------
 # Event Info setup
@@ -327,8 +345,11 @@ if TriggerFlags.doID():
 if TriggerFlags.doCalo():
     from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigDataAccess
     svcMgr.ToolSvc += TrigDataAccess()
+    if globalflags.InputFormat.is_pool():
+        TriggerFlags.writeBS = True # enable transient BS if TrigDataAccess is used with pool data
 
 if TriggerFlags.doMuon():
+    TriggerFlags.MuonSlice.doTrigMuonConfig=True
     import MuonCnvExample.MuonCablingConfig  # noqa: F401
     import MuonRecExample.MuonReadCalib      # noqa: F401
     if globalflags.InputFormat.is_pool():
@@ -346,7 +367,7 @@ if globalflags.InputFormat.is_pool():
     # enable transient BS 
     if TriggerFlags.writeBS():
         log.info("setting up transient BS")
-        include( "TriggerRelease/jobOfragment_TransBS_standalone.py" )
+        include( "TriggerJobOpts/jobOfragment_TransBS_standalone.py" )
      
 # ----------------------------------------------------------------
 # ByteStream input
@@ -361,30 +382,40 @@ elif globalflags.InputFormat.is_bytestream():
         theApp.ExtSvc += [ "ByteStreamCnvSvc"]
 
     # Online specific setup of BS converters
-    include( "TriggerRelease/jobOfragment_ReadBS_standalone.py" )    
+    include( "TriggerJobOpts/jobOfragment_ReadBS_standalone.py" )    
 
 
 # ---------------------------------------------------------------
 # Trigger config
 # ---------------------------------------------------------------
-TriggerFlags.inputLVL1configFile = opt.setLVL1XML
+TriggerFlags.triggerMenuSetup = opt.setMenu
 TriggerFlags.readLVL1configFromXML = True
 TriggerFlags.outputLVL1configFile = None
-from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc, findFileInXMLPATH
-svcMgr += LVL1ConfigSvc()
-svcMgr.LVL1ConfigSvc.XMLMenuFile = findFileInXMLPATH(TriggerFlags.inputLVL1configFile())
 
+from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu
+l1JsonFile = generateL1Menu()
+
+from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc
+svcMgr += getL1ConfigSvc()
+
+
+# ---------------------------------------------------------------
+# Level 1 simulation
+# ---------------------------------------------------------------
 if opt.doL1Sim:
     from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationSequence
     topSequence += Lvl1SimulationSequence()
 
+
+# ---------------------------------------------------------------
+# HLT prep: RoIBResult and L1Decoder
+# ---------------------------------------------------------------
 if opt.doL1Unpacking:
     if globalflags.InputFormat.is_bytestream():
         from TrigT1ResultByteStream.TrigT1ResultByteStreamConf import RoIBResultByteStreamDecoderAlg
         from L1Decoder.L1DecoderConfig import L1Decoder
         topSequence += RoIBResultByteStreamDecoderAlg() # creates RoIBResult (input for L1Decoder) from ByteStream
         topSequence += L1Decoder("L1Decoder")
-        #topSequence.L1Decoder.ChainToCTPMapping = MenuTest.CTPToChainMapping
     elif opt.doL1Sim:
         from L1Decoder.L1DecoderConfig import L1Decoder
         topSequence += L1Decoder("L1Decoder")
@@ -392,6 +423,50 @@ if opt.doL1Unpacking:
         from TrigUpgradeTest.TestUtils import L1EmulationTest
         topSequence += L1EmulationTest()
 
+
+# ---------------------------------------------------------------
+# HLT generation
+# ---------------------------------------------------------------
+
+if not opt.createHLTMenuExternally:
+
+    from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
+    menu = GenerateMenuMT()
+
+    # define the function that enable the signatures
+    def signaturesToGenerate():
+        TriggerFlags.Slices_all_setOff()
+        for sig in opt.enabledSignatures:
+            eval(sig)
+
+    menu.overwriteSignaturesWith(signaturesToGenerate)
+
+    # generating the HLT structure requires 
+    # the L1Decoder to be defined in the topSequence
+    menu.generateMT()
+
+    if opt.endJobAfterGenerate:
+        import sys
+        sys.exit(0)
+
+
+
+from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc, setupHLTPrescaleCondAlg
+svcMgr += getHLTConfigSvc()
+setupHLTPrescaleCondAlg()
+
+if not opt.createHLTMenuExternally:
+    # the generation of the prescale set file from the menu (with all prescales set to 1)
+    # is not really needed. If no file is provided all chains are either enabled or disabled,
+    # depending on the property L1Decoder.PrescalingTool.KeepUnknownChains being True or False
+    from TrigConfigSvc.TrigConfigSvcCfg import createHLTPrescalesFileFromMenu
+    createHLTPrescalesFileFromMenu()
+
+
+
+# ---------------------------------------------------------------
+# ID conditions
+# ---------------------------------------------------------------
 
 if TriggerFlags.doID:
     from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
@@ -405,7 +480,7 @@ if TriggerFlags.doID:
 # ---------------------------------------------------------------
 # Monitoring
 # ---------------------------------------------------------------
-if not hasattr(svcMgr, 'THistSvc'):        
+if not hasattr(svcMgr, 'THistSvc'):
     from GaudiSvc.GaudiSvcConf import THistSvc
     svcMgr += THistSvc()
 if hasattr(svcMgr.THistSvc, "Output"):
@@ -431,14 +506,32 @@ if svcMgr.MessageSvc.OutputLevel<INFO:
     jobproperties.print_JobProperties('tree&value')
     print(svcMgr)
 
-
+#-------------------------------------------------------------
+# Use parts of NewJO
+#-------------------------------------------------------------
 from AthenaCommon.Configurable import Configurable
-Configurable.configurableRun3Behavior=True
+Configurable.configurableRun3Behavior+=1
 from TriggerJobOpts.TriggerConfig import triggerIDCCacheCreatorsCfg
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
+# Output flags
+isPartition = len(ConfigFlags.Trigger.Online.partitionName) > 0
+if opt.doWriteRDOTrigger:
+    if isPartition:
+        log.error('Cannot use doWriteRDOTrigger in athenaHLT or partition')
+        theApp.exit(1)
+    rec.doWriteRDO = False  # RecExCommon flag
+    ConfigFlags.Output.doWriteRDO = True  # new JO flag
+    ConfigFlags.Output.RDOFileName = 'RDO_TRIG.pool.root'  # new JO flag
+if opt.doWriteBS:
+    rec.doWriteBS = True  # RecExCommon flag
+    TriggerFlags.writeBS = True  # RecExCommon flag
+    ConfigFlags.Output.doWriteBS = True  # new JO flag
+    ConfigFlags.Trigger.writeBS = True  # new JO flag
+
+# ID Cache Creators
 ConfigFlags.lock()
 triggerIDCCacheCreatorsCfg(ConfigFlags).appendToGlobals()
-Configurable.configurableRun3Behavior=False
+Configurable.configurableRun3Behavior-=1
 
 #-------------------------------------------------------------
 # Non-ComponentAccumulator Cost Monitoring
@@ -456,3 +549,8 @@ if ConfigFlags.Trigger.CostMonitoring.doCostMonitoring:
     #
     ServiceMgr.AuditorSvc += TrigCostMTAuditor()
     theApp.AuditAlgorithms=True
+
+#-------------------------------------------------------------
+# Disable overly verbose and problematic ChronoStatSvc print-out
+#-------------------------------------------------------------
+include("TriggerTest/disableChronoStatSvcPrintout.py")

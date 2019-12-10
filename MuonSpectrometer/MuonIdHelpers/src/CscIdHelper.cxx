@@ -20,17 +20,13 @@
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IMessageSvc.h"
-
-inline void CscIdHelper::create_mlog() const
-{
-  if(!m_Log) m_Log=new MsgStream(m_msgSvc, "CscIdHelper");
-}
+#include <mutex>
 
 
 /// Constructor/Destructor
 
-CscIdHelper::CscIdHelper() : MuonIdHelper(), m_CHAMBERLAYER_INDEX(0),
-  m_WIRELAYER_INDEX(0), m_MEASURESPHI_INDEX(0), m_etaStripMax(0), m_phiStripMax(0) {}
+CscIdHelper::CscIdHelper() : MuonIdHelper("CscIdHelper"), m_CHAMBERLAYER_INDEX(0),
+  m_WIRELAYER_INDEX(0), m_MEASURESPHI_INDEX(0), m_etaStripMax(0), m_phiStripMax(0), m_hasChamLay1(false) {}
 
 /// Destructor
 
@@ -45,8 +41,6 @@ CscIdHelper::~CscIdHelper()
 
 int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 {
-  create_mlog();
-
   int status = 0;
 
   // Check whether this helper should be reinitialized
@@ -324,6 +318,19 @@ int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
       status = 1;
     }
 
+  // initialise the arrays of the geometrical module and detectorElement hashes to values !=0
+  // otherwise, it will be impossible to distinguish the hash 0 from an uninitialized array element
+  unsigned int* modhash = &m_module_hashes[0][0][0];
+  const unsigned int* end_modhash = modhash + sizeof(m_module_hashes) / sizeof(unsigned int);
+  for ( ; modhash != end_modhash; ++modhash){
+    (*modhash) = UINT_MAX;
+  }
+  unsigned int* dethash = &m_detectorElement_hashes[0][0][0][0];
+  const unsigned int* end_dethash = dethash + sizeof(m_detectorElement_hashes) / sizeof(unsigned int);
+  for ( ; dethash != end_dethash; ++dethash){
+    (*dethash) = UINT_MAX;
+  }
+
   /// Setup the hash tables for CSC
 
   (*m_Log) << MSG::INFO
@@ -340,6 +347,8 @@ int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 	   << "Initializing CSC hash indices for finding neighbors ... " << endmsg;
   status = init_neighbors();
   
+  // check whether the current layout contains chamberLayer 1 Identifiers (pre-Run3) in the vector of module Identifiers
+  if (m_module_vec.size() && chamberLayer(m_module_vec.at(0))==1) m_hasChamLay1 = true;
   m_init = true;
   return (status);
 }
@@ -367,11 +376,24 @@ int CscIdHelper::init_id_to_hashes() {
   return 0;
 }
 
-int CscIdHelper::get_module_hash(const Identifier& id,
-                                 IdentifierHash& hash_id) const {
-  //Identifier moduleId = elementID(id);
-  //IdContext context = module_context();
-  //return get_hash(moduleId,hash_id,&context);
+
+int CscIdHelper::get_module_hash(const Identifier& id, IdentifierHash& hash_id) const {
+  // if the current layout contains Identifiers for CSC chamberLayer 1, need to call the
+  // get_module_hash function with an Identifier which is actually from chamberLayer 1
+  if (m_hasChamLay1) return MuonIdHelper::get_module_hash(parentID(id), hash_id);
+  // otherwise just use the default implementation
+  return MuonIdHelper::get_module_hash(id, hash_id);
+}
+int CscIdHelper::get_detectorElement_hash(const Identifier& id, IdentifierHash& hash_id) const {
+  // if the current layout contains Identifiers for CSC chamberLayer 1, need to call the
+  // get_detectorElement_hash function with an Identifier which is actually from chamberLayer 1
+  if (m_hasChamLay1) return MuonIdHelper::get_detectorElement_hash(parentID(id), hash_id);
+  // otherwise just use the default implementation
+  return MuonIdHelper::get_detectorElement_hash(id, hash_id);
+}
+  
+int CscIdHelper::get_geo_module_hash(const Identifier& id,
+                                   IdentifierHash& hash_id) const {
   int station   = this->stationName(id);
   int eta       = this->stationEta(id) + 2; // for negative etas
   int phi       = this->stationPhi(id);
@@ -379,7 +401,7 @@ int CscIdHelper::get_module_hash(const Identifier& id,
   return 0;
 }
 
-int CscIdHelper::get_detectorElement_hash(const Identifier& id,
+int CscIdHelper::get_geo_detectorElement_hash(const Identifier& id,
                                           IdentifierHash& hash_id) const {
   //Identifier multilayerId = multilayerID(id);
   //IdContext context = multilayer_context();
@@ -392,9 +414,97 @@ int CscIdHelper::get_detectorElement_hash(const Identifier& id,
   return 0;
 }
 
-int CscIdHelper::get_channel_hash(const Identifier& id, IdentifierHash& hash_id) const {
+int CscIdHelper::get_geo_channel_hash(const Identifier& id, IdentifierHash& hash_id) const {
   const IdContext context=this->channel_context();
-  return get_hash_calc(id,hash_id,&context);
+  return get_geo_hash_calc(id,hash_id,&context);
+}
+int CscIdHelper::get_hash_fromGeoHash(const IdentifierHash& geoHash, IdentifierHash& realHash, const IdContext* context) const {
+  int result = 1;
+  size_t begin = (context) ? context->begin_index(): 0;
+  // cannot get hash if end is 0:
+  size_t end   = (context) ? context->end_index()  : 0;
+  if (0 == begin) {
+    Identifier id;
+    // No hashes yet for ids with prefixes
+    if (m_MODULE_INDEX == end) {
+      // need to compute module identifier from geoHash (inversion of get_geo_module_hash())
+      // m_module_hashes[station][eta-1][phi-1];
+      // array size: m_module_hashes[60][3][8]
+      for (unsigned int station=50; station<52; ++station) { // only check stations 50/51 since those are CSCs
+        for (unsigned int eta=0; eta<3; ++eta) { // stationEtaMax() ranges from 0 to 1
+          for (unsigned int phi=0; phi<(unsigned int)stationPhiMax(); ++phi) {
+            if (geoHash==m_module_hashes[station][eta][phi]) {
+              id = this->elementID(station, eta-1, phi+1);
+              break;
+            }
+          }
+        }
+      }
+      result = MuonIdHelper::get_module_hash(id, realHash);
+    } else if (m_DETECTORELEMENT_INDEX == end) {
+      // need to compute detector-element identifier from geoHash (inversion of get_geo_detectorElement_hash())
+      // hash_id = m_detectorElement_hashes[station][eta-1][phi-1][multilayer-1];
+      // array size: m_detectorElement_hashes[60][3][8][2]
+      for (unsigned int station=50; station<52; ++station) { // only check stations 50/51 since those are CSCs
+        for (unsigned int eta=0; eta<3; ++eta) { // stationEtaMax() ranges from 0 to 1
+          for (unsigned int phi=0; phi<(unsigned int)stationPhiMax(); ++phi) {
+            for (unsigned int ml=0; ml<(unsigned int)chamberLayerMax(); ++ml) {
+              if (geoHash==m_detectorElement_hashes[station][eta][phi][ml]) {
+                // take wireLayer=strip=1, measuresPhi=0
+                id = this->channelID(station, eta-1, phi+1, ml+1, 1, 0, 1);
+                break;
+              }
+            }
+          }
+        }
+      }
+      result = MuonIdHelper::get_detectorElement_hash(id, realHash);
+    } else if (m_CHANNEL_INDEX == end) {
+      // need to compute channel identifier from geoHash (inversion of get_geo_hash_calc())
+      // hash_id = offset + (stripNumber-1)+maxStrip*(wireLayer-1)+4*maxStrip*(chamberLayer-1)+8*maxStrip*(phi-1)+64*maxStrip*(etaIndex-1);
+      // first, find offset:
+      unsigned int offset = 0;
+      int chamberType(0), orientation(0);
+      if (geoHash<(unsigned int)m_hashOffset[0][1]) {
+        offset = 0;
+        chamberType = 0;
+        orientation = 0;
+      } else if (geoHash<(unsigned int)m_hashOffset[1][0]) {
+        offset = m_hashOffset[0][1];
+        chamberType = 0;
+        orientation = 1;
+      } else if (geoHash<(unsigned int)m_hashOffset[1][1]) {
+        offset = m_hashOffset[1][0];
+        chamberType = 1;
+        orientation = 0;
+      } else {
+        offset = m_hashOffset[1][1];
+        chamberType = 1;
+        orientation = 1;
+      }
+      unsigned int geoHashNoOff = geoHash - offset;
+      // orientation equals measuresPhi
+      // second, get maxStrip (cf. stripMax() function)
+      int maxStrip = (orientation) ? m_phiStripMax : m_etaStripMax;
+      // next, get the station (cf. get_geo_hash_calc()):
+      // if chamberType is 0, it is a small station, i.e. station 50, else 51
+      // (cf. DetectorDescription/IdDictParser/data/IdDictMuonSpectrometer_R.03.xml)
+      int station = (chamberType) ? 51 : 50;
+      // now, invert get_geo_hash_calc()
+      int etaIndex = (int)(geoHashNoOff)/(64*maxStrip);
+      geoHashNoOff -= etaIndex*64*maxStrip;
+      int phiIndex = (int)(geoHashNoOff)/(8*maxStrip);
+      geoHashNoOff -= phiIndex*8*maxStrip;
+      int chamberLayerIndex = (int)(geoHashNoOff)/(4*maxStrip);
+      geoHashNoOff -= chamberLayerIndex*4*maxStrip;
+      int wireLayerIndex = (int)(geoHashNoOff)/(maxStrip);
+      geoHashNoOff -= wireLayerIndex*maxStrip;
+      int eta = (etaIndex==0) ? -1 : 1;
+      id = this->channelID(station, eta, phiIndex+1, chamberLayerIndex+1, wireLayerIndex+1, orientation, geoHashNoOff+1);
+      result = MuonIdHelper::get_hash(id, realHash, context);
+    }
+  } else realHash = UINT_MAX;
+  return result;
 }
 
 void CscIdHelper::idChannels (const Identifier& id, std::vector<Identifier>& vect) const {
@@ -700,9 +810,13 @@ int CscIdHelper::stripMax(const Identifier& id) const
 	      if (phi_field.has_maximum())
 		{  
 		  if (measuresPhi(id)){
-		    m_phiStripMax=phi_field.get_maximum(); return m_phiStripMax;
+        auto max = phi_field.get_maximum();
+		    m_phiStripMax = max;
+        return max;
 		  } else {
-		    m_etaStripMax=phi_field.get_maximum(); return m_etaStripMax;
+        auto max = phi_field.get_maximum();
+		    m_etaStripMax = max;
+        return max;
 		  } 
 		}
 	    }
@@ -716,8 +830,6 @@ int CscIdHelper::stripMax(const Identifier& id) const
 
 bool CscIdHelper::valid(const Identifier& id) const
 {
-  create_mlog();
-
   if (! validElement(id)) return false;
 
   int cLayer  = chamberLayer(id);
@@ -773,8 +885,6 @@ bool CscIdHelper::valid(const Identifier& id) const
 
 bool CscIdHelper::validElement(const Identifier& id) const
 {
-  create_mlog();
-
   int station = stationName(id);
   std::string name = stationNameString(station);
   if ('C' != name[0])
@@ -820,8 +930,6 @@ bool CscIdHelper::validElement(const Identifier& id) const
 bool CscIdHelper::validElement(const Identifier& id, int stationName,
 			       int stationEta, int stationPhi) const
 {
-  create_mlog();
-      
   std::string name = stationNameString(stationName);
 
   if ('C' != name[0])
@@ -835,12 +943,14 @@ bool CscIdHelper::validElement(const Identifier& id, int stationName,
       (stationEta > stationEtaMax(id)) ||
       (0 == stationEta)                 )
     {
-      (*m_Log) << MSG::WARNING
-	       << "Invalid stationEta=" << stationEta
-	       << " for stationName=" << name
-	       << " stationEtaMin=" << stationEtaMin(id)
-	       << " stationEtaMax=" << stationEtaMax(id)
-	       << endmsg;
+      static std::once_flag flag ATLAS_THREAD_SAFE;
+      std::call_once(flag, [&](){
+        (*m_Log) << MSG::WARNING
+         << "Invalid stationEta=" << stationEta
+         << " for stationName=" << name
+         << " stationEtaMin=" << stationEtaMin(id)
+         << " stationEtaMax=" << stationEtaMax(id)
+         << endmsg; });
       return false;
     }
   if ((stationPhi < stationPhiMin(id)) ||
@@ -861,8 +971,6 @@ bool CscIdHelper::validChannel(const Identifier& id, int stationName, int statio
 			       int stationPhi,int chamberLayer, int wireLayer, 
 			       int measuresPhi, int strip) const
 {
-  create_mlog();
-
   if (! validElement(id, stationName, stationEta, stationPhi)) return false;
 
   if ((chamberLayer < chamberLayerMin(id)) ||
@@ -909,7 +1017,7 @@ bool CscIdHelper::validChannel(const Identifier& id, int stationName, int statio
 }
 
 // Create hash from compact
-int CscIdHelper::get_hash_calc   (const Identifier& compact_id,
+int CscIdHelper::get_geo_hash_calc   (const Identifier& compact_id,
 				  IdentifierHash& hash_id,
 				  const IdContext* context) const
 {
@@ -922,10 +1030,10 @@ int CscIdHelper::get_hash_calc   (const Identifier& compact_id,
   if (0 == begin) {
     // No hashes yet for ids with prefixes
     if (m_MODULE_INDEX == end) {
-      result = this->get_module_hash(compact_id, hash_id);
+      result = get_geo_module_hash(compact_id, hash_id);
     }
     else if (m_DETECTORELEMENT_INDEX == end) {
-      result = this->get_detectorElement_hash(compact_id, hash_id);
+      result = get_geo_detectorElement_hash(compact_id, hash_id);
     }
     else if (m_CHANNEL_INDEX == end) {
       int stationIndex         = stationName(compact_id);
@@ -935,13 +1043,11 @@ int CscIdHelper::get_hash_calc   (const Identifier& compact_id,
       int wireLayer            = this->wireLayer(compact_id);
       int orientation          = this->measuresPhi(compact_id);
       int stripNumber          = this->strip(compact_id);
-      int etaIndex = -1;
-      (eta == -1) ? etaIndex = 1 : etaIndex = 2;
+      int etaIndex = (eta == -1) ?  1 : 2;
       int chamberType = -1;
       isSmall(stationIndex) ? chamberType = 0 : chamberType = 1;
       int maxStrip = this->stripMax(compact_id);
       int offset = m_hashOffset[chamberType][orientation];
-      //std::cout<<"station: "<<stationIndex<<", z: "<<eta<<", phi: "<<phi<<", chamber: "<<chamberLayer<<", wire: "<<wireLayer<<", mphi: "<<orientation<<", type: "<<chamberType<<", strip: "<<stripNumber<<", max: "<<maxStrip<<", offset: "<<offset<<std::endl;
  
       hash_id = offset + (stripNumber-1)+maxStrip*(wireLayer-1)+4*maxStrip*(chamberLayer-1)+8*maxStrip*(phi-1)+64*maxStrip*(etaIndex-1);
 

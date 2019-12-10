@@ -35,13 +35,14 @@ StatusCode MURoIsUnpackingTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode MURoIsUnpackingTool::updateConfiguration( const IRoIsUnpackingTool::SeedingMap& seeding ) {
+StatusCode MURoIsUnpackingTool::start() {
+  ATH_CHECK( decodeMapping( [](const std::string& name ){ return name.find("MU") == 0;  } ) );
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode MURoIsUnpackingTool::updateConfiguration() {
   using namespace TrigConf;
-
-  ATH_CHECK( decodeMapping( [](const TriggerThreshold* th){ return th->ttype() == L1DataDef::MUON; }, 
-			    m_configSvc->ctpConfig()->menu().itemVector(),
-			    seeding ) );
-
   const ThresholdConfig* thresholdConfig = m_configSvc->thresholdConfig();
   for ( TriggerThreshold * th : thresholdConfig->getThresholdVector( L1DataDef::MUON ) ) {
     if ( th != nullptr ) {

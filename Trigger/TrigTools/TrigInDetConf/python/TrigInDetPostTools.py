@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """
 #
@@ -63,7 +63,8 @@ InDetTrigParticleCreatorToolWithSummary = \
                                    Extrapolator = InDetTrigExtrapolator,
                                    TrackSummaryTool = InDetTrigTrackSummaryToolSharedHits,
                                    KeepParameters = True,
-                                   ForceTrackSummaryUpdate = True,
+                                   ComputeAdditionalInfo = True,
+                                   UpdateTrack = False
                                    )
 
 ToolSvc += InDetTrigParticleCreatorToolWithSummary
@@ -75,7 +76,8 @@ InDetTrigParticleCreatorToolWithSummaryTRTPid = \
                                    Extrapolator = InDetTrigExtrapolator,
                                    TrackSummaryTool = InDetTrigTrackSummaryToolSharedHitsWithTRTPid,
                                    KeepParameters = True,
-                                   ForceTrackSummaryUpdate = True,
+                                   ComputeAdditionalInfo = True,
+                                   UpdateTrack = False
                                    )
 
 ToolSvc += InDetTrigParticleCreatorToolWithSummaryTRTPid
@@ -88,6 +90,7 @@ InDetTrigParticleCreatorToolParams = \
                                    Extrapolator = InDetTrigExtrapolator,
                                    TrackSummaryTool = InDetTrigTrackSummaryToolSharedHits,
                                    KeepParameters = True,
+                                   UpdateTrack = False
                                    )
 
 ToolSvc += InDetTrigParticleCreatorToolParams
@@ -99,7 +102,8 @@ InDetTrigParticleCreatorToolFTF = \
                                    Extrapolator = InDetTrigExtrapolator,
                                    TrackSummaryTool = InDetTrigFastTrackSummaryTool,
                                    KeepParameters = True,
-                                   ForceTrackSummaryUpdate = False,
+                                   ComputeAdditionalInfo = True,
+                                   UpdateTrack = False
                                    )
 
 ToolSvc += InDetTrigParticleCreatorToolFTF

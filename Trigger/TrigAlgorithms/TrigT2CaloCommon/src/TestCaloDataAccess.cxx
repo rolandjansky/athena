@@ -35,7 +35,7 @@ public:
       m_svc( svc ),
       m_msg( msg ),
       m_roi ( roi ) {
-    m_colRef = new ConstDataVector<CaloCellContainer>(SG::VIEW_ELEMENTS);
+    m_colRef = new CaloConstCellContainer(SG::VIEW_ELEMENTS);
   }
   ~AskForRoI() {
     if ( m_colRef ) { m_colRef->clear(); delete m_colRef; }
@@ -53,7 +53,7 @@ public:
     }
   }
 
-  StatusCode request( ConstDataVector<CaloCellContainer>& c ) const {
+  StatusCode request( CaloConstCellContainer& c ) const {
     if ( m_roi.isFullscan() ){
       return m_svc->loadFullCollections( m_context, c );
     }
@@ -108,7 +108,7 @@ public:
 
     Gaudi::Hive::setCurrentContext (m_context);
     LArTT_Selector<LArCellCont> sel;
-    ConstDataVector<CaloCellContainer> col(SG::VIEW_ELEMENTS);
+    CaloConstCellContainer col(SG::VIEW_ELEMENTS);
     double etSum  = 0;      
     size_t count = 0;
     double minEta = 100;
@@ -186,7 +186,7 @@ private:
   const TrigRoiDescriptor m_roi;
 
   LArTT_Selector<LArCellCont> m_selRef;
-  ConstDataVector<CaloCellContainer>* m_colRef;
+  CaloConstCellContainer* m_colRef;
   StatusCode m_statusRef;
   double m_etSumRef = 0;
   size_t m_countRef = 0;

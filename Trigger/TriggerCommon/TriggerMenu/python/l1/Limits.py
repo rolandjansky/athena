@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 """
 This temporarily holds CTP sizes
@@ -63,11 +65,11 @@ class Limits:
     def setLimits(CTPVersion, verbose = False):
         Limits.CTPVersion = CTPVersion
         Limits.L1CommonVersion = 0 if CTPVersion <= 3 else 1
-        #print "Setting limits for CTP version %i and L1Common Version %i" % (Limits.CTPVersion, Limits.L1CommonVersion)
+        #print ("Setting limits for CTP version %i and L1Common Version %i" % (Limits.CTPVersion, Limits.L1CommonVersion))
         Limits.ctpDataFormat = Limits.getCTPdataformat( Limits.CTPVersion )
         Limits.l1common = Limits.getL1Common( Limits.L1CommonVersion )
         if verbose:
-            print Limits
+            print (Limits)
 
     
 

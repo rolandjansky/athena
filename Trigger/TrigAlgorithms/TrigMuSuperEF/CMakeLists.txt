@@ -8,7 +8,6 @@ atlas_subdir( TrigMuSuperEF )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PRIVATE
                           Calorimeter/CaloEvent
-                          Control/CxxUtils
                           Control/AthenaKernel
                           Event/xAOD/xAODMuon
                           Event/xAOD/xAODTracking
@@ -38,7 +37,7 @@ include_directories(src)
 atlas_add_component( TrigMuSuperEF
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES CaloEvent CxxUtils xAODMuon xAODTracking FourMomUtils GaudiKernel MuonPattern MuonSegment MuonRecToolInterfaces MuidEvent MuonCombinedEvent MuonCombinedToolInterfaces Particle TrkSegment TrkToolInterfaces TrigConfHLTData TrigMuonEvent TrigNavigationLib TrigSteeringEvent TrigInterfacesLib TrigT1Interfaces TrigTimeAlgsLib )
+                     LINK_LIBRARIES CaloEvent xAODMuon xAODTracking FourMomUtils GaudiKernel MuonPattern MuonSegment MuonRecToolInterfaces MuidEvent MuonCombinedEvent MuonCombinedToolInterfaces Particle TrkSegment TrkToolInterfaces TrigConfHLTData TrigMuonEvent TrigNavigationLib TrigSteeringEvent TrigInterfacesLib TrigT1Interfaces TrigTimeAlgsLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

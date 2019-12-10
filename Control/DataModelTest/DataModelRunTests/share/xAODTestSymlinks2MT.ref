@@ -1,7 +1,7 @@
-Sun Jan 20 16:48:30 CET 2019
+Fri Sep 13 19:45:28 CEST 2019
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [WorkDir-22.0.1] [x86_64-slc6-gcc8-opt] [atlas-work3/7fb5304f19] -- built on [2019-01-19T2316]
+Py:Athena            INFO using release [WorkDir-22.0.5] [x86_64-centos7-gcc8-opt] [atlas-work3/85aadd0a07c] -- built on [2019-09-13T1706]
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO configuring AthenaHive with [1] concurrent threads and [1] concurrent events
@@ -9,25 +9,30 @@ Py:AlgScheduler      INFO setting up AvalancheSchedulerSvc/AvalancheSchedulerSvc
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "DataModelRunTests/xAODTestSymlinks2MT_jo.py"
 Py:Athena            INFO including file "DataModelRunTests/xAODTestSymlinks2_jo.py"
-Py:ConfigurableDb    INFO Read module info for 5455 configurables from 55 genConfDb files
-Py:ConfigurableDb    INFO No duplicates have been found: that's good !
+Py:ConfigurableDb    INFO Read module info for 5537 configurables from 45 genConfDb files
+Py:ConfigurableDb WARNING Found 2 duplicates among the 45 genConfDb files :
+Py:ConfigurableDb WARNING --------------------------------------------------
+Py:ConfigurableDb WARNING   -<component name>: <module> - [ <duplicates> ]
+Py:ConfigurableDb WARNING --------------------------------------------------
+Py:ConfigurableDb WARNING   -DMTest__xAODTestWriteCVec: DataModelTestDataCommon.DataModelTestDataCommonConf - ['DataModelTestDataWrite.DataModelTestDataWriteConf']
+Py:ConfigurableDb WARNING   -DMTest__xAODTestReadCVec: DataModelTestDataCommon.DataModelTestDataCommonConf - ['DataModelTestDataRead.DataModelTestDataReadConf']
+Py:ConfigurableDb WARNING Fix your cmt/requirements file !!
 Py:Athena            INFO including file "DataModelRunTests/loadReadDicts.py"
 Py:Athena            INFO including file "DataModelRunTests/setCatalog.py"
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
-[?1034hApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 MessageSvc           INFO Activating in a separate thread
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r5)
-                                          running on lxplus076.cern.ch on Sun Jan 20 16:48:57 2019
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v32r1)
+                                          running on lxplus737.cern.ch on Fri Sep 13 19:45:38 2019
 ====================================================================================================================================
-ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
 ApplicationMgr                                     INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 AthDictLoaderSvc                                   INFO in initialize...
 AthDictLoaderSvc                                   INFO acquired Dso-registry
-ClassIDSvc                                         INFO  getRegistryEntries: read 3685 CLIDRegistry entries for module ALL
+ClassIDSvc                                         INFO  getRegistryEntries: read 3920 CLIDRegistry entries for module ALL
 CoreDumpSvc                                        INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc                                        INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 AthenaHiveEventLoopMgr                             INFO Initializing AthenaHiveEventLoopMgr - package version AthenaServices-00-00-00
@@ -36,16 +41,14 @@ AthenaPoolCnvSvc                                   INFO Initializing AthenaPoolC
 PoolSvc                                            INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc                                            INFO Frontier compression level set to 5
 DBReplicaSvc                                       INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
-DBReplicaSvc                                       INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-01-18T2347/Athena/22.0.1/InstallArea/x86_64-slc6-gcc8-opt/share/dbreplica.config
-DBReplicaSvc                                       INFO Total of 10 servers found for host lxplus076.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc                                       INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-09-12T2129/Athena/22.0.5/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
+DBReplicaSvc                                       INFO Total of 10 servers found for host lxplus737.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc                                            INFO Successfully setup replica sorting algorithm
 PoolSvc                                            INFO Setting up APR FileCatalog and Streams
 PoolSvc                                            INFO POOL WriteCatalog is file:xAODTestSymlinks2MT_catalog.xml
 DbSession                                          INFO     Open     DbSession    
 Domain[ROOT_All]                                   INFO >   Access   DbDomain     READ      [ROOT_All] 
 MetaDataSvc                                        INFO Found MetaDataTools = PublicToolHandleArray(['IOVDbMetaDataTool'])
-EventSelector                                      INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-00-00
-EventSelector                                      INFO reinitialization...
 EventSelector                                      INFO EventSelection with query 
 PoolSvc                                            INFO File is not in Catalog! Attempt to open it anyway.
 Warning in <TClass::Init>: no dictionary for class DMTest::C_v1 is available
@@ -67,7 +70,7 @@ Warning in <TClass::Init>: no dictionary for class DataVector<DMTest::H_v1> is a
 DbSession                                          INFO     Open     DbSession    
 Domain[ROOT_All]                                   INFO ->  Access   DbDatabase   READ      [ROOT_All] 1AA9ED5E-1E4B-3A55-A718-BF5CAC995112
 Domain[ROOT_All]                                   INFO                           xaoddata.root
-RootDatabase.open                                  INFO xaoddata.root File version:61404
+RootDatabase.open                                  INFO xaoddata.root File version:61800
 xaoddata.root                                      INFO Database being retired...
 Domain[ROOT_All]                                   INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 1AA9ED5E-1E4B-3A55-A718-BF5CAC995112
 Domain[ROOT_All]                                   INFO >   Deaccess DbDomain     READ      [ROOT_All] 
@@ -76,18 +79,18 @@ DbSession                                          INFO     Open     DbSession
 Domain[ROOT_All]                                   INFO >   Access   DbDomain     READ      [ROOT_All] 
 Domain[ROOT_All]                                   INFO ->  Access   DbDatabase   READ      [ROOT_All] 1AA9ED5E-1E4B-3A55-A718-BF5CAC995112
 Domain[ROOT_All]                                   INFO                           xaoddata.root
-RootDatabase.open                                  INFO xaoddata.root File version:61404
+RootDatabase.open                                  INFO xaoddata.root File version:61800
 xaoddata.root                                      INFO Database being retired...
 Domain[ROOT_All]                                   INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 1AA9ED5E-1E4B-3A55-A718-BF5CAC995112
 Domain[ROOT_All]                                   INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 DbSession                                          INFO     Open     DbSession    
 Domain[ROOT_All]                                   INFO >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All]                                   INFO ->  Access   DbDatabase   READ      [ROOT_All] 3DBE1653-BF86-AC4E-A00F-345568060F1D
+Domain[ROOT_All]                                   INFO ->  Access   DbDatabase   READ      [ROOT_All] FF15630F-659B-5842-A6A6-3FD55164A668
 Domain[ROOT_All]                                   INFO                           xaoddata.root
-RootDatabase.open                                  INFO xaoddata.root File version:61404
-ClassIDSvc                                         INFO  getRegistryEntries: read 2050 CLIDRegistry entries for module ALL
+RootDatabase.open                                  INFO xaoddata.root File version:61800
+ClassIDSvc                                         INFO  getRegistryEntries: read 2112 CLIDRegistry entries for module ALL
 EventPersistencySvc                                INFO Added successfully Conversion service:AthenaPoolCnvSvc
-ClassIDSvc                                  0      INFO  getRegistryEntries: read 1139 CLIDRegistry entries for module ALL
+ClassIDSvc                                  0      INFO  getRegistryEntries: read 1326 CLIDRegistry entries for module ALL
 PyComponentMgr                              0      INFO Initializing PyComponentMgr...
 LoadReadDicts                               0      INFO Initializing LoadReadDicts...
 ThreadPoolSvc                               0      INFO no thread init tools attached
@@ -130,83 +133,83 @@ AthenaHiveEventLoopMgr                      0      INFO Setup EventSelector serv
 ApplicationMgr                              0      INFO Application Manager Initialized successfully
 PoolSvc                                     0      INFO Enabled implicit multithreading in ROOT via PersistencySvc to: 1
 xaoddata.root                               0      INFO Database being retired...
-Domain[ROOT_All]                            0      INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 3DBE1653-BF86-AC4E-A00F-345568060F1D
+Domain[ROOT_All]                            0      INFO ->  Deaccess DbDatabase   READ      [ROOT_All] FF15630F-659B-5842-A6A6-3FD55164A668
 Domain[ROOT_All]                            0      INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 DbSession                                   0      INFO     Open     DbSession    
 Domain[ROOT_All]                            0      INFO >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All]                            0      INFO ->  Access   DbDatabase   READ      [ROOT_All] 3DBE1653-BF86-AC4E-A00F-345568060F1D
+Domain[ROOT_All]                            0      INFO ->  Access   DbDatabase   READ      [ROOT_All] FF15630F-659B-5842-A6A6-3FD55164A668
 Domain[ROOT_All]                            0      INFO                           xaoddata.root
-RootDatabase.open                           0      INFO xaoddata.root File version:61404
+RootDatabase.open                           0      INFO xaoddata.root File version:61800
 ApplicationMgr                              0      INFO Application Manager Started successfully
 AthenaHiveEventLoopMgr                      0      INFO Starting loop on events
-ClassIDSvc                              0   0      INFO  getRegistryEntries: read 6971 CLIDRegistry entries for module ALL
+ClassIDSvc                              0   0      INFO  getRegistryEntries: read 7101 CLIDRegistry entries for module ALL
 AthenaPoolConverter                     0   0      INFO massageEventInfo: unable to get OverrideRunNumberFromInput property from EventSelector 
 AthenaHiveEventLoopMgr                  0   0      INFO   ===>>>  start of run 0    <<<===
 AthenaHiveEventLoopMgr                  0   0      INFO   ===>>>  start processing event #0, run #0 on slot 0,  0 events processed so far  <<<===
 ClassIDSvc                              0   0      INFO  getRegistryEntries: read 15 CLIDRegistry entries for module ALL
 xAODTestReadSymlink                     0   0      INFO C (as AuxElement): 1000; S 0
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #0, run #0 on slot 0,  1 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  0   0      INFO   ===>>>  done processing event #0, run #0 on slot 0,  1 events processed so far  <<<===
+ClassIDSvc                              1   0      INFO  getRegistryEntries: read 54 CLIDRegistry entries for module ALL
 AthenaHiveEventLoopMgr                  1   0      INFO   ===>>>  start processing event #1, run #0 on slot 0,  1 events processed so far  <<<===
-ClassIDSvc                              1   0      INFO  getRegistryEntries: read 50 CLIDRegistry entries for module ALL
 xAODTestReadSymlink                     1   0      INFO C (as AuxElement): 2000; S 100
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1, run #0 on slot 0,  2 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  1   0      INFO   ===>>>  done processing event #1, run #0 on slot 0,  2 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  2   0      INFO   ===>>>  start processing event #2, run #0 on slot 0,  2 events processed so far  <<<===
 xAODTestReadSymlink                     2   0      INFO C (as AuxElement): 3000; S 200
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #2, run #0 on slot 0,  3 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  2   0      INFO   ===>>>  done processing event #2, run #0 on slot 0,  3 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  3   0      INFO   ===>>>  start processing event #3, run #0 on slot 0,  3 events processed so far  <<<===
 xAODTestReadSymlink                     3   0      INFO C (as AuxElement): 4000; S 300
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #3, run #0 on slot 0,  4 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  3   0      INFO   ===>>>  done processing event #3, run #0 on slot 0,  4 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  4   0      INFO   ===>>>  start processing event #4, run #0 on slot 0,  4 events processed so far  <<<===
 xAODTestReadSymlink                     4   0      INFO C (as AuxElement): 5000; S 400
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #4, run #0 on slot 0,  5 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  4   0      INFO   ===>>>  done processing event #4, run #0 on slot 0,  5 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  5   0      INFO   ===>>>  start processing event #5, run #0 on slot 0,  5 events processed so far  <<<===
 xAODTestReadSymlink                     5   0      INFO C (as AuxElement): 6000; S 500
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #5, run #0 on slot 0,  6 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  5   0      INFO   ===>>>  done processing event #5, run #0 on slot 0,  6 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  6   0      INFO   ===>>>  start processing event #6, run #0 on slot 0,  6 events processed so far  <<<===
 xAODTestReadSymlink                     6   0      INFO C (as AuxElement): 7000; S 600
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #6, run #0 on slot 0,  7 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  6   0      INFO   ===>>>  done processing event #6, run #0 on slot 0,  7 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  7   0      INFO   ===>>>  start processing event #7, run #0 on slot 0,  7 events processed so far  <<<===
 xAODTestReadSymlink                     7   0      INFO C (as AuxElement): 8000; S 700
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #7, run #0 on slot 0,  8 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  7   0      INFO   ===>>>  done processing event #7, run #0 on slot 0,  8 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  8   0      INFO   ===>>>  start processing event #8, run #0 on slot 0,  8 events processed so far  <<<===
 xAODTestReadSymlink                     8   0      INFO C (as AuxElement): 9000; S 800
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #8, run #0 on slot 0,  9 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  8   0      INFO   ===>>>  done processing event #8, run #0 on slot 0,  9 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  9   0      INFO   ===>>>  start processing event #9, run #0 on slot 0,  9 events processed so far  <<<===
 xAODTestReadSymlink                     9   0      INFO C (as AuxElement): 10000; S 900
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #9, run #0 on slot 0,  10 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  9   0      INFO   ===>>>  done processing event #9, run #0 on slot 0,  10 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  10  0      INFO   ===>>>  start processing event #10, run #0 on slot 0,  10 events processed so far  <<<===
 xAODTestReadSymlink                     10  0      INFO C (as AuxElement): 11000; S 1000
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #10, run #0 on slot 0,  11 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  10  0      INFO   ===>>>  done processing event #10, run #0 on slot 0,  11 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  11  0      INFO   ===>>>  start processing event #11, run #0 on slot 0,  11 events processed so far  <<<===
 xAODTestReadSymlink                     11  0      INFO C (as AuxElement): 12000; S 1100
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #11, run #0 on slot 0,  12 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  11  0      INFO   ===>>>  done processing event #11, run #0 on slot 0,  12 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  12  0      INFO   ===>>>  start processing event #12, run #0 on slot 0,  12 events processed so far  <<<===
 xAODTestReadSymlink                     12  0      INFO C (as AuxElement): 13000; S 1200
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #12, run #0 on slot 0,  13 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  12  0      INFO   ===>>>  done processing event #12, run #0 on slot 0,  13 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  13  0      INFO   ===>>>  start processing event #13, run #0 on slot 0,  13 events processed so far  <<<===
 xAODTestReadSymlink                     13  0      INFO C (as AuxElement): 14000; S 1300
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #13, run #0 on slot 0,  14 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  13  0      INFO   ===>>>  done processing event #13, run #0 on slot 0,  14 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  14  0      INFO   ===>>>  start processing event #14, run #0 on slot 0,  14 events processed so far  <<<===
 xAODTestReadSymlink                     14  0      INFO C (as AuxElement): 15000; S 1400
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #14, run #0 on slot 0,  15 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  14  0      INFO   ===>>>  done processing event #14, run #0 on slot 0,  15 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  15  0      INFO   ===>>>  start processing event #15, run #0 on slot 0,  15 events processed so far  <<<===
 xAODTestReadSymlink                     15  0      INFO C (as AuxElement): 16000; S 1500
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #15, run #0 on slot 0,  16 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  15  0      INFO   ===>>>  done processing event #15, run #0 on slot 0,  16 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  16  0      INFO   ===>>>  start processing event #16, run #0 on slot 0,  16 events processed so far  <<<===
 xAODTestReadSymlink                     16  0      INFO C (as AuxElement): 17000; S 1600
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #16, run #0 on slot 0,  17 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  16  0      INFO   ===>>>  done processing event #16, run #0 on slot 0,  17 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  17  0      INFO   ===>>>  start processing event #17, run #0 on slot 0,  17 events processed so far  <<<===
 xAODTestReadSymlink                     17  0      INFO C (as AuxElement): 18000; S 1700
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #17, run #0 on slot 0,  18 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  17  0      INFO   ===>>>  done processing event #17, run #0 on slot 0,  18 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  18  0      INFO   ===>>>  start processing event #18, run #0 on slot 0,  18 events processed so far  <<<===
 xAODTestReadSymlink                     18  0      INFO C (as AuxElement): 19000; S 1800
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #18, run #0 on slot 0,  19 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  18  0      INFO   ===>>>  done processing event #18, run #0 on slot 0,  19 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  19  0      INFO   ===>>>  start processing event #19, run #0 on slot 0,  19 events processed so far  <<<===
 xAODTestReadSymlink                     19  0      INFO C (as AuxElement): 20000; S 1900
-AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #19, run #0 on slot 0,  20 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO ---> Loop Finished (seconds): 0.186005
+AthenaHiveEventLoopMgr                  19  0      INFO   ===>>>  done processing event #19, run #0 on slot 0,  20 events processed so far  <<<===
+AthenaHiveEventLoopMgr                  19  0      INFO ---> Loop Finished (seconds): 0.313385
 xaoddata.root                                      INFO Database being retired...
-Domain[ROOT_All]                                   INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 3DBE1653-BF86-AC4E-A00F-345568060F1D
+Domain[ROOT_All]                                   INFO ->  Deaccess DbDatabase   READ      [ROOT_All] FF15630F-659B-5842-A6A6-3FD55164A668
 ApplicationMgr                                     INFO Application Manager Stopped successfully
 IncidentProcAlg1                                   INFO Finalize
 SGInputLoader                                      INFO Finalizing SGInputLoader...

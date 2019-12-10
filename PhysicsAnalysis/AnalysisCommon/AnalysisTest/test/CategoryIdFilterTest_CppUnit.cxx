@@ -762,5 +762,4 @@ public:
 CPPUNIT_TEST_SUITE_REGISTRATION( CategoryIdFilterTest );
 
 /// CppUnit test-driver common for all the cppunit test classes.
-/// In ATLAS sw release it is located in TestPolicy package
-#include <TestPolicy/CppUnit_SGtestdriver.cxx>
+#include <TestTools/CppUnit_SGtestdriver.cxx>

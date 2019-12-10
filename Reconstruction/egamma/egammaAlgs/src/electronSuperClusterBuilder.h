@@ -35,7 +35,7 @@ class electronSuperClusterBuilder : public egammaSuperClusterBuilder {
 
   const std::vector<std::size_t> searchForSecondaryClusters(const size_t i,
                                                             const EgammaRecContainer*,
-                                                            const double emFrac,
+                                                            const double EMEnergy,
                                                             std::vector<bool>& isUsed);
   
   bool passesSimpleBremSearch(const xAOD::CaloCluster& sec,
@@ -56,21 +56,26 @@ class electronSuperClusterBuilder : public egammaSuperClusterBuilder {
   
   float m_maxDelEta;
   float m_maxDelPhi;
+  /** @brief Use Brem search when the seed E/P is less than thi value */ 
+  Gaudi::Property<float> m_secEOverPCut {this,
+      "BremSearchEOverPCut",  1.5,
+      "Maximum E/P seed requirement for doing brem search"};
   
+  /** @brief Delta Eta for matching a cluster to the extrapolated position of the a possible brem photon */ 
   Gaudi::Property<float> m_bremExtrapMatchDelEta {this,
       "BremExtrapDelEtaCut",  0.05,
       "maximum DelEta for brem search"};
 
-  Gaudi::Property<float> m_secEOverPCut {this,
-      "BremSearchEOverPCut",  1.5,
-      "Maximum E/P seed requirement for doing brem search"};
- 
+  /** @brief Delta Phi for matching a cluster to the extrapolated position of the a possible brem photon */ 
   Gaudi::Property<float> m_bremExtrapMatchDelPhi {this,
       "BremExtrapDelPhiCut", 0.075,
       "maximum DelPhi for brem search"};
 
+  Gaudi::Property<std::size_t> m_numberOfPixelHits {this, 
+      "NumberOfReqPixelHits", 1, "Number of required pixel hits for electrons"};
+
   Gaudi::Property<std::size_t> m_numberOfSiHits {this, 
-      "NumberOfReqSiHits", 4, "Number of required silicon hits for electrons"};
+      "NumberOfReqSiHits", 7, "Number of required silicon hits for electrons"};
 
   /** @brief Key for input egammaRec container */
   SG::ReadHandleKey<EgammaRecContainer> m_inputEgammaRecContainerKey {this,

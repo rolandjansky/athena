@@ -64,9 +64,6 @@ public:
     m_visitDebug {this, "visit_debug", false, "debug flag"};
   
   
-  SG::ReadHandleKey<xAOD::EventInfo> m_evt{
-    this, "Event", "Event", "read handle key for event info object"};
-  
   std::unique_ptr<EventSN> m_eventSN;
  
 };

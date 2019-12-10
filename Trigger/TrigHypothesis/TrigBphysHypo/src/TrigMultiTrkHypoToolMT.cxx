@@ -16,19 +16,9 @@
 
 #include "TrigMultiTrkHypoToolMT.h"
 
-#include "StoreGate/DataHandle.h"
-
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include <math.h>
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
-#include "xAODTrigger/TrigPassBits.h"
-#include "TrigNavigation/Navigation.h"
 
 // additions of xAOD objects
-#include "xAODEventInfo/EventInfo.h"
-#include "xAODMuon/Muon.h"
 #include "xAODTracking/TrackParticle.h"
 
 #include "xAODTrigBphys/TrigBphys.h"
@@ -36,7 +26,6 @@
 
 #include "AthenaMonitoring/Monitored.h"
 
-#include "DecisionHandling/Combinators.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 
 class ISvcLocator;

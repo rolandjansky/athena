@@ -1,0 +1,4 @@
+report-to:
+  mail: shaun.roe@cern.ch
+  jira:
+    ATLIDTRKCP: https://its.cern.ch/jira/projects/ATLIDTRKCP/summary

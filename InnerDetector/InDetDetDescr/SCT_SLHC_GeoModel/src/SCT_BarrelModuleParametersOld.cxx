@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_SLHC_GeoModel/SCT_BarrelModuleParametersOld.h"
@@ -39,7 +39,7 @@ void barrelModSplitString(const std::string& str, std::vector<std::string>& str_
 // A few hard wired numbers (some of which should go in NOVA)
 //
 
-
+/*
 const double PITCH = 80*Gaudi::Units::micrometer;
 const double HALF_ACTIVE_STRIP_LENGTH = 31*Gaudi::Units::mm;
 const double NOMINAL_WAFER_LENGTH = 63.960*Gaudi::Units::mm;
@@ -49,7 +49,7 @@ const double DISTANCE_CORNER_MARK_TO_FIDUCIAL = 0.8*Gaudi::Units::mm;
 const double DISTANCE_CENTER_TO_CENTER = 2*(DISTANCE_CORNER_MARK_TO_CENTER - 
 					      DISTANCE_CORNER_MARK_TO_FIDUCIAL)
                                          + REF_DISTANCE_BETWEEN_FIDUCIALS;
-
+*/
 
 SCT_BarrelModuleParametersOld::SCT_BarrelModuleParametersOld(const SCT_DataBase * sctdb, const SCT_GeoModelAthenaComps * athenaComps)
   : SCT_BarrelModuleParameters(sctdb, athenaComps)

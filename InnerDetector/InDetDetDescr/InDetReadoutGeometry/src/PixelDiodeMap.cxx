@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -24,16 +24,14 @@ namespace InDetDD {
 
 
 // Implicit constructor:
-PixelDiodeMap::PixelDiodeMap(const PixelDiodeMatrix * matrix) :
+PixelDiodeMap::PixelDiodeMap(std::shared_ptr<const PixelDiodeMatrix> matrix) :
   m_matrix(matrix),
   m_generalLayout(false) 
 {
-  m_matrix->ref();
 }
 
 PixelDiodeMap::~PixelDiodeMap()
 {
-  m_matrix->unref();
 }
 
 
@@ -59,10 +57,10 @@ PixelDiodeMap::~PixelDiodeMap()
   // The cellId returned will be added to this so we must start with 0,0.
   SiCellId cellId(0,0);
 
-  const PixelDiodeMatrix * cell = m_matrix->cellIdOfPosition(relativePos, cellId);
+  std::shared_ptr<const PixelDiodeMatrix> cell = m_matrix->cellIdOfPosition(relativePos, cellId);
 
   // return invalid Id if there was a problem (don't expect this to be the case).
-  if (!cell) {
+  if (cell==nullptr) {
     return SiCellId(); // Invalid id.
   } 
 
@@ -93,7 +91,7 @@ PixelDiodeMap::parameters(const SiCellId & cellId) const
   // Position is relative to left bottom corner.
   //
   Amg::Vector2D position(-halfWidth, -halfLength);
-  const PixelDiodeMatrix * cell = m_matrix->positionOfCell(cellId, position);
+  std::shared_ptr<const PixelDiodeMatrix> cell = m_matrix->positionOfCell(cellId, position);
   
   if (cell) {
     

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTPCnv/CaloClusterCellLinkContainerCnv_p1.h" 
@@ -13,10 +13,12 @@ namespace {
 } //anonymous namespace
 
 
-void  CaloClusterCellLinkContainerCnv_p1::persToTrans(const CaloClusterCellLinkContainer_p1* pers,
-						      CaloClusterCellLinkContainer* trans,
-						      MsgStream& msg) {
-
+void
+CaloClusterCellLinkContainerCnv_p1::persToTransWithKey (const CaloClusterCellLinkContainer_p1* pers,
+                                                        CaloClusterCellLinkContainer* trans,
+                                                        const std::string& /*key*/,
+                                                        MsgStream& msg) const
+{
   const size_t nClusters=pers->m_nCellsPerCluster.size();
   size_t maxPersIdx=pers->m_indices.size();
 
@@ -48,9 +50,12 @@ void  CaloClusterCellLinkContainerCnv_p1::persToTrans(const CaloClusterCellLinkC
 }
 
 
-void  CaloClusterCellLinkContainerCnv_p1::transToPers(const CaloClusterCellLinkContainer* trans,
-						      CaloClusterCellLinkContainer_p1* pers,
-						      MsgStream &msg) {
+void
+CaloClusterCellLinkContainerCnv_p1::transToPersWithKey (const CaloClusterCellLinkContainer* trans,
+                                                        CaloClusterCellLinkContainer_p1* pers,
+                                                        const std::string& /*key*/,
+                                                        MsgStream &msg) const
+{
   const size_t nClusters=trans->size();
   if (nClusters>0) {
     //we assume here all clusters in a container are built from the same cell container
@@ -80,48 +85,3 @@ void  CaloClusterCellLinkContainerCnv_p1::transToPers(const CaloClusterCellLinkC
   
   return;
 }
-
-
-void CaloClusterCellLinkContainerCnv_p1::persToTransUntyped(const void* pers,
-                                                     void* trans,
-                                                     MsgStream& log)
-{
-  persToTrans (reinterpret_cast<const CaloClusterCellLinkContainer_p1*> (pers),
-               reinterpret_cast<CaloClusterCellLinkContainer*> (trans),
-               log);
-}
-
-
-/**
- * @brief Convert from transient to persistent object, with untyped pointers.
- * @param trans The transient object to convert.
- * @param pers The persistent object to which to convert.
- * @param log Error logging stream.
- */
-void CaloClusterCellLinkContainerCnv_p1::transToPersUntyped(const void* trans,
-							    void* pers,
-							    MsgStream& log)
-{
-  transToPers (reinterpret_cast<const CaloClusterCellLinkContainer*> (trans),
-               reinterpret_cast<CaloClusterCellLinkContainer_p1*> (pers),
-               log);
-}
-
-
-/**
- * @brief Return the @c std::type_info for the transient type.
- */
-const std::type_info& CaloClusterCellLinkContainerCnv_p1::transientTInfo() const
-{
-  return typeid (CaloClusterCellLinkContainer);
-}
-
-/** return C++ type id of the persistent class this converter is for
-    @return std::type_info&
-*/
-const std::type_info& CaloClusterCellLinkContainerCnv_p1::persistentTInfo() const
-{
-  return typeid (CaloClusterCellLinkContainer_p1);
-}
-
-

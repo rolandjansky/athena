@@ -30,10 +30,10 @@
 #include "xAODEventInfo/EventInfo.h"
 
 // trigger/configuration stuff
-#include "xAODTrigger/TrigCompositeContainer.h"
 #include "xAODTrigger/TrigDecision.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
 #include "TrigT1Result/RoIBResult.h"
+#include "TrigSteeringEvent/HLTResultMT.h"
+#include "TrigOutputHandling/ITriggerBitsMakerTool.h"
 
 // containers
 #include <vector>
@@ -79,40 +79,11 @@ namespace TrigDec {
     virtual StatusCode execute( const EventContext& context ) const override; //!< Re-entrant execute to create the xAOD::TrigDecision
     virtual StatusCode finalize() override;    //!< std Gaudi finalize method -> print out statistics
 
-    StatusCode getL1Result (const LVL1CTP::Lvl1Result*& result, const EventContext& context) const; //!< retrieve LVL1 result (called in execute)
-    StatusCode getHLTResult(const TrigCompositeUtils::DecisionContainer*& result, const EventContext& context) const; //!< retrieve HLT results (called in execute)
-
-    char getBGByte(int BCId) const; //!< to get the BG byte encoded for a given BC
-
   private:
 
-    /**
-     * @brief Ensures that the supplied vectors have sufficient capacity to store the given bit, where bits are packed into uint32_t.
-     * @param bit The bit we wish the vectors to be large enough to store
-     * @param vectors Set of pointers to all vectors which need resizing. Note, while the set of pointers is const, the vectors are not const.
-     **/  
-    void resizeVectors(const size_t bit, const std::set< std::vector<uint32_t>* >& vectors) const;
+    StatusCode getL1Result (const LVL1CTP::Lvl1Result*& result, const EventContext& context) const; //!< retrieve LVL1 result (called in execute)
 
-    /**
-     * @param bit The bit to set to 1 (bit 0 equates to the first bit). Requires the vector to have already been resized to be large enough.
-     * @param bits The vector to set the bit in.
-     **/
-    void setBit(const size_t bit, std::vector<uint32_t>& bits) const;
-
-    /**
-     * @param chainID The identifier (name hash) of the chain to fetch the ChainCounter for.
-     * @return the Chain Counter or -1 if error.
-     **/
-    int32_t getChainCounter(const TrigCompositeUtils::DecisionID chainID) const;
-
-    /**
-     * @param passedIDs Set of IDs of passed chains.
-     * @param bitsVector Vector to set passed-bits in based off of passedIDs
-     * @param allOutputVectors Set of pointers to *all* output vectors, keeps them all the same size
-     * @return the number of positive bits set in the vector, should be the same as passedIDs.size()
-     **/
-    size_t makeBitMap(const TrigCompositeUtils::DecisionIDContainer& passedIDs,
-      std::vector<uint32_t>& bitsVector, std::set< std::vector<uint32_t>* >& allOutputVectors) const;
+    char getBGByte(int BCId) const; //!< to get the BG byte encoded for a given BC
 
     Gaudi::Property<bool> m_doL1{this, "doL1",  true, "Read L1 trigger information"};
     Gaudi::Property<bool> m_doHLT{this, "doHLT", true, "Read HLT trigger information"};
@@ -124,9 +95,10 @@ namespace TrigDec {
     ToolHandle<HLT::ILvl1ResultAccessTool> m_lvl1Tool;  //!< tool to ease the access to the L1 results (RoIs, items, etc)
     Gaudi::Property<std::string> m_lvl1ToolLocation{this, "Lvl1ToolLocation", "HLT::Lvl1ResultAccessTool/Lvl1ResultAccessTool", "L1 tool to fetch"};
 
+    ToolHandle<ITriggerBitsMakerTool> m_bitsMakerTool{this, "BitsMakerTool", "", "Tool to create trigger bits for MC"};
+
     // Input keys configuration
-    SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_HLTSummaryKeyIn {this, "HLTSummary", "HLTNav_Summary", "HLT summary container Key"};
-    SG::ReadHandleKey<LVL1CTP::Lvl1Result> m_L1ResultKeyIn {this, "Lvl1Result", "Lvl1Result", "Lvl1 Result Object Key"};
+    SG::ReadHandleKey<HLT::HLTResultMT> m_hltResultKeyIn {this, "HLTResultMT", "HLTResultMT", "Key of the HLTResultMT object to get bits from online bytestream" };
     SG::ReadHandleKey<ROIB::RoIBResult> m_ROIBResultKeyIn {this, "RoIBResult", "RoIBResult", "RoIB Result Object Key"};
     SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKeyIn {this, "EventInfo", "EventInfo", "Event Info Object Key"};
 

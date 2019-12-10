@@ -1,6 +1,7 @@
 # Author: N. Gollub (nils.gollub@cern.ch)
 # main job option to setup TileConditions
 #
+from __future__ import division
 include.block ("TileConditions/TileConditions_jobOptions.py")
 from AthenaCommon.Logging import logging
 msg = logging.getLogger( 'TileConditions_jobOptions.py' )
@@ -94,7 +95,7 @@ if TileUseDCS or ('TileCheckOFC' in dir() and TileCheckOFC) or ('RunOflOFC' in d
 
 msg.info("Adjusting TileInfo for %s samples" % TileFrameLength )
 tileInfoConfigurator.NSamples = TileFrameLength
-tileInfoConfigurator.TrigSample = (TileFrameLength-1)/2
+tileInfoConfigurator.TrigSample = (TileFrameLength-1)//2 # Floor division
 
 if athenaCommonFlags.isOnline():
     #=== setup reading from COOL DB
@@ -160,3 +161,12 @@ if TileCommissioning:
 else:
     msg.info("Adjusting TileInfo to return cell noise for Opt.Filter without iterations")
     tileInfoConfigurator.NoiseScaleIndex = 1; # Noise for Optimal Filter without iterations
+
+# setup for 12-bit ADCs
+TileUse12bit = False
+if not TileUse12bit:
+    msg.info("Setting 10-bit ADC configuration")
+    tileInfoConfigurator.setupAdcRange(10)
+else:
+    msg.info("Setting 12-bit ADC configuration")
+    tileInfoConfigurator.setupAdcRange(12)

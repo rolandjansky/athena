@@ -8,7 +8,7 @@
 #include "AthenaInterprocess/SharedQueue.h"
 #include "AthenaInterprocess/Utilities.h"
 #include "GaudiKernel/IIncidentSvc.h"
-#include "GaudiKernel/FileIncident.h"
+#include "GaudiKernel/Incident.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIoComponentMgr.h"
 #include "GaudiKernel/IIoComponent.h"

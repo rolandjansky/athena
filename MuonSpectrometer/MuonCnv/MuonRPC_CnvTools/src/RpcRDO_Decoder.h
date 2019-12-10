@@ -7,8 +7,11 @@
 
 #include "MuonRPC_CnvTools/IRPC_RDO_Decoder.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ToolHandle.h"
 
 #include "AthenaKernel/MsgStreamMember.h"
+
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 #include <inttypes.h>
 #include <vector>
@@ -46,7 +49,9 @@ class RpcRDO_Decoder : virtual public IRPC_RDO_Decoder, public AthAlgTool
 
   const MuonGM::MuonDetectorManager* m_muonMgr;
 
-  const RpcIdHelper*    m_rpcIdHelper;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+
   const IRPCcablingSvc* m_cablingSvc;
 
 };

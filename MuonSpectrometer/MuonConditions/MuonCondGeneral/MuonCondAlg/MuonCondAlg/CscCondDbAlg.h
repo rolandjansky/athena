@@ -16,7 +16,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 //Athena includes
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
@@ -38,23 +38,23 @@ namespace Muon {
 
 
 
-class CscCondDbAlg: public AthAlgorithm{
+class CscCondDbAlg: public AthReentrantAlgorithm{
 
 public:
 
     CscCondDbAlg( const std::string & name, ISvcLocator* svc);
     virtual ~CscCondDbAlg() = default;
     virtual StatusCode initialize() override;
-    virtual StatusCode execute   () override;
+    virtual StatusCode execute   (const EventContext&) const override;
 
  
 private:
 
-    virtual StatusCode loadDataHv   (EventIDRange &, std::unique_ptr<CscCondDbData>&);
-    virtual StatusCode loadDataStat (EventIDRange &, std::unique_ptr<CscCondDbData>&);
-    virtual StatusCode cacheVersion1(std::string   , std::unique_ptr<CscCondDbData>&);
-    virtual StatusCode cacheVersion2(std::string   , std::unique_ptr<CscCondDbData>&);
-	virtual StatusCode onlineToOfflineIds(const unsigned int &, Identifier &, Identifier &) const;
+    StatusCode loadDataHv   (EventIDRange &, CscCondDbData*, const EventContext&) const;
+    StatusCode loadDataStat (EventIDRange &, CscCondDbData*, const EventContext&) const;
+    StatusCode cacheVersion1(std::string   , CscCondDbData*) const;
+    StatusCode cacheVersion2(std::string   , CscCondDbData*) const;
+	StatusCode onlineToOfflineIds(const unsigned int &, Identifier &, Identifier &) const;
 
     bool m_isOnline{false};
     bool m_isData{false};  

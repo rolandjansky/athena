@@ -80,7 +80,7 @@ atlas_add_library( JetTagToolsLib
     src/JetFitterInputWriter.cxx src/JetFitterDummyClassifier.cxx
     src/MV1Tag.cxx src/MV2Tag.cxx
     src/JetFitterVariablesFactory.cxx src/MSVVariablesFactory.cxx
-    src/MultiSVTag.cxx src/JetVertexCharge.cxx src/SoftMuonTag.cxx
+    src/MultiSVTag.cxx src/SoftMuonTag.cxx
     src/ExKtbbTagTool.cxx src/MultivariateTagManager.cxx
     src/DL1Tag.cxx src/TagNtupleDumper.cxx src/RNNIPTag.cxx
 

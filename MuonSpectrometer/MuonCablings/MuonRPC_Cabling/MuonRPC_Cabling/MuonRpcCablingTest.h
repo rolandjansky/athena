@@ -14,6 +14,7 @@
 # define MUONGEOMODEL_MUONRPCCABLINGTEST_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 class StoreGateSvc;
 class RpcIdHelper;
@@ -41,7 +42,6 @@ public:
 private:
 
     bool m_first;
-    const RpcIdHelper*            m_idHelper;
     const IRPCcablingSvc*         m_cablingSvc;
     // RpcPadIdHash helper 	
     RpcPadIdHash* m_padHashIdHelper;
@@ -54,7 +54,8 @@ private:
     std::vector<int> m_selPadVec;
     bool m_firstLastChannel;
     
-
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 };
 
 #endif // MUONGEOMODEL_MUONRPCCABLINGTEST_H

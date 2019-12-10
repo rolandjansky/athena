@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IFastCaloSimCaloExtrapolation_H
@@ -19,7 +19,7 @@ class IFastCaloSimCaloExtrapolation : virtual public IAlgTool
    /** AlgTool interface methods */
    static const InterfaceID& interfaceID() { return IID_IFastCaloSimCaloExtrapolation; }
 
-   virtual void extrapolate(TFCSExtrapolationState& result,const TFCSTruthState* truth) = 0;
+   virtual void extrapolate(TFCSExtrapolationState& result,const TFCSTruthState* truth) const = 0;
 };
 
 #endif // IFastCaloSimCaloExtrapolation_H

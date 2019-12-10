@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -17,6 +17,9 @@
 #include "xAODTrackParticleAuxContainerCnv_v3.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/versions/TrackParticleContainer_v1.h"
+
+// Amg include
+#include "EventPrimitives/EventPrimitivesHelpers.h"
 	
 /// Convenience macro for setting the level of output messages
 #define MSGLVL MSG::DEBUG
@@ -30,14 +33,13 @@ do {                                         \
 } while( 0 )
 	
 xAODTrackParticleAuxContainerCnv_v3::xAODTrackParticleAuxContainerCnv_v3()
-    : T_AthenaPoolTPCnvBase< xAOD::TrackParticleAuxContainer, xAOD::TrackParticleAuxContainer_v3 >() 
 {
 }
 	
 void xAODTrackParticleAuxContainerCnv_v3::
 persToTrans(  const xAOD::TrackParticleAuxContainer_v3* oldObj, 
               xAOD::TrackParticleAuxContainer* newObj,
-              MsgStream& log ) {
+              MsgStream& log ) const {
 	
   // Greet the user:
   ATH_MSG( "Converting xAOD::TrackParticleAuxContainer_v3 to current version..." );
@@ -49,6 +51,37 @@ persToTrans(  const xAOD::TrackParticleAuxContainer_v3* oldObj,
   // the thinning code a bit...
   SG::copyAuxStoreThinned( *oldObj, *newObj, 0 );
 
+  // Set up interface containers on top of them:
+
+  //The old  uses v_
+  xAOD::TrackParticleContainer_v1 oldInt;
+  for( size_t i = 0; i < oldObj->size(); ++i ) {
+    oldInt.push_back( new xAOD::TrackParticle_v1() );
+  }
+  oldInt.setStore( oldObj );
+
+  xAOD::TrackParticleContainer newInt;
+  for( size_t i = 0; i < newObj->size(); ++i ) {
+    newInt.push_back( new xAOD::TrackParticle() );
+  }
+  newInt.setStore( newObj );
+
+  std::vector<float> covMatrixVec;
+
+  for( size_t i = 0; i < oldInt.size(); ++i ) {
+
+    static const SG::AuxElement::ConstAccessor< std::vector<float> > definingParametersCovMatrixAcc( "definingParametersCovMatrix" );
+
+    if( definingParametersCovMatrixAcc.isAvailable( *( oldInt[ i ] ) ) ) {
+
+      covMatrixVec = definingParametersCovMatrixAcc( *( oldInt[ i ] ) );
+      xAOD::ParametersCovMatrix_t cov;
+      Amg::expand( covMatrixVec.begin(), covMatrixVec.end(),cov );
+      newInt[ i ]->setDefiningParametersCovMatrix(cov);
+
+    }
+
+  }
   
   // FIXME - what do we do about the identifier?
 	
@@ -64,7 +97,7 @@ persToTrans(  const xAOD::TrackParticleAuxContainer_v3* oldObj,
 ///
 void xAODTrackParticleAuxContainerCnv_v3::transToPers( const xAOD::TrackParticleAuxContainer*,
                                                        xAOD::TrackParticleAuxContainer_v3*,
-                                                       MsgStream& log ) {
+                                                       MsgStream& log ) const {
 	
   log << MSG::ERROR
       << "Somebody called xAODTrackParticleAuxContainerCnv_v3::transToPers"

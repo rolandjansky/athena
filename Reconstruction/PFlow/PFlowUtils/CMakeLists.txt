@@ -15,6 +15,7 @@ endif()
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
   PUBLIC
+  Calorimeter/CaloCalibHitRec
   Control/AthToolSupport/AsgTools  
   Event/xAOD/xAODPFlow
   PRIVATE
@@ -37,3 +38,4 @@ endif()
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
+atlas_install_joboptions( share/*.py )

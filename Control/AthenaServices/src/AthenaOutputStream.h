@@ -133,8 +133,8 @@ protected:
    /// mutex for this Stream write() and handle() methods
    typedef std::recursive_mutex mutex_t;
    mutable mutex_t  m_mutex;    // mutable so const functions can lock
-   /// mutexes for streamerTools
-   std::map< std::string, std::mutex > m_toolMutexMap;
+   /// mutexes for event slots when writing
+   static std::map< EventContext::ContextID_t, std::mutex > m_toolMutexMap;
 
 protected:
    /// Handler for ItemNames Property
@@ -167,7 +167,7 @@ public:
    IDataSelector* selectedObjects() {
       return &m_objects;
    }
-   /// Incident service handle listening for LastInputFile
+   /// Incident service handle listening for MetaDataStop 
    virtual void handle(const Incident& incident) override;
    /// Callback method to reinitialize the internal state of the component for I/O purposes (e.g. upon @c fork(2))
    virtual StatusCode io_reinit() override;

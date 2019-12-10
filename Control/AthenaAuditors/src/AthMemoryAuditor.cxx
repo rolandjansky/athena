@@ -709,52 +709,6 @@ void AthMemoryAuditor::beforeExecute(INamedInterface* comp)
   collectStacktraces=bool(stacktraceDepth);
 }
 
-void AthMemoryAuditor::beforeBeginRun(INamedInterface* comp)
-{
-  context=(uintptr_t)(&(comp->name()));
-  
-  stacktraceDepth=m_defaultStacktraceDepth;
-  auto fit=arrayAlgIndex.find(comp->name());
-  if ( fit == arrayAlgIndex.end() )
-    {
-      // this allocation would show up as memory leak - suppress later printout by setting stage to zero
-      current_stage=0;
-      collectStacktraces=false;
-      arrayAlgIndex[comp->name()]=aiStruct(curIndex= ++curMaxIndex,m_defaultStacktraceDepth);
-    }
-  else
-    {
-      curIndex=fit->second.index;
-      stacktraceDepth=fit->second.stacktrace;
-    }
-  algorithms[curIndex]=comp->name();
-  current_stage=1E6-10;
-  collectStacktraces=bool(stacktraceDepth);
-}
-
-void AthMemoryAuditor::beforeEndRun(INamedInterface* comp)
-{
-  context=(uintptr_t)(&(comp->name()));
-  
-  stacktraceDepth=m_defaultStacktraceDepth;
-  auto fit=arrayAlgIndex.find(comp->name());
-  if ( fit == arrayAlgIndex.end() )
-    {
-      // this allocation would show up as memory leak - suppress later printout by setting stage to zero
-      current_stage=0;
-      collectStacktraces=false;
-      arrayAlgIndex[comp->name()]=aiStruct(curIndex= ++curMaxIndex,m_defaultStacktraceDepth);
-    }
-  else
-    {
-      curIndex=fit->second.index;
-      stacktraceDepth=fit->second.stacktrace;
-    }
-  algorithms[curIndex]=comp->name();
-  current_stage=9E7;
-  collectStacktraces=bool(stacktraceDepth);
-}
-
 void AthMemoryAuditor::beforeFinalize(INamedInterface* comp)
 {
   context=(uintptr_t)(&(comp->name()));
@@ -793,20 +747,6 @@ void AthMemoryAuditor::afterReinitialize(INamedInterface* /* comp */)
 }
 
 void AthMemoryAuditor::afterExecute(INamedInterface* /* comp */, const StatusCode& /* sc */)
-{
-  curIndex=1;
-  stacktraceDepth=m_defaultStacktraceDepth;
-  collectStacktraces=bool(m_defaultStacktraceDepth);
-}
-
-void AthMemoryAuditor::afterBeginRun(INamedInterface* /* comp */)
-{
-  curIndex=1;
-  stacktraceDepth=m_defaultStacktraceDepth;
-  collectStacktraces=bool(m_defaultStacktraceDepth);
-}
-
-void AthMemoryAuditor::afterEndRun(INamedInterface* /* comp */)
 {
   curIndex=1;
   stacktraceDepth=m_defaultStacktraceDepth;

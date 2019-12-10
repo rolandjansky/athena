@@ -25,13 +25,13 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigSteeringEvent
                           Trigger/TrigTools/TrigTimeAlgs
                           Trigger/TrigMonitoring/TrigCostMonitorMT
-			  Control/AthenaMonitoring )
+                          Control/AthenaMonitoringKernel )
 
 atlas_add_library( DecisionHandlingLib
                    src/*.cxx
                    PUBLIC_HEADERS DecisionHandling
                    LINK_LIBRARIES xAODTrigger GaudiKernel TrigSteeringEvent
-                   PRIVATE_LINK_LIBRARIES AthenaBaseComps CxxUtils TrigConfHLTData TrigTimeAlgsLib AthenaMonitoringLib )
+                   PRIVATE_LINK_LIBRARIES AthenaBaseComps CxxUtils TrigConfHLTData TrigTimeAlgsLib AthenaMonitoringKernelLib )
 
 # Component(s) in the package:
 atlas_add_component( DecisionHandling
@@ -55,5 +55,5 @@ atlas_add_test( Combinators_test
                 LINK_LIBRARIES TestTools xAODTrigger DecisionHandlingLib AthContainers )
 
 atlas_add_test( flake8
-   SCRIPT flake8 --select=F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python/*.py
+   SCRIPT flake8 --select=ATL,F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python/*.py
    POST_EXEC_SCRIPT nopost.sh )

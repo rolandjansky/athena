@@ -65,5 +65,5 @@ if __name__ == "__main__":
     acc = LArOnOffIdMappingCfg( ConfigFlags )
     acc.merge(LArFebRodMappingCfg(ConfigFlags))
     acc.merge(LArCalibIdMappingCfg(ConfigFlags))
-    acc.store( file( "test.pkl", "w" ) )
+    acc.store( open( "test.pkl", "wb" ) )
     print ("All OK")

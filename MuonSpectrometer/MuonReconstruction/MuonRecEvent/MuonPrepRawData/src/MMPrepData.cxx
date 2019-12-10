@@ -14,14 +14,39 @@ namespace Muon
                           const std::vector<Identifier>& rdoList,
                           const Amg::MatrixX* locErrMat,
                           const MuonGM::MMReadoutElement* detEl,
-			  const int time, 
+			  const short int time, 
+			  const int charge,
+			  const std::vector<uint16_t>& stripNumbers, 
+			  const std::vector<short int>& stripTimes, 
+			  const std::vector<int>& stripCharges ) :
+    MuonCluster(RDOId, idDE, locpos, rdoList, locErrMat), //call base class constructor
+    m_detEl(detEl),
+    m_time(time),
+    m_charge(charge),
+    m_angle(0.0),
+    m_chisqProb(0.0),
+    m_stripNumbers(stripNumbers),
+    m_stripTimes(stripTimes),
+    m_stripCharges(stripCharges)
+  { }
+
+  MMPrepData::MMPrepData( const Identifier& RDOId,
+                          const IdentifierHash &idDE,
+                          const Amg::Vector2D& locpos,
+                          const std::vector<Identifier>& rdoList,
+                          const Amg::MatrixX* locErrMat,
+                          const MuonGM::MMReadoutElement* detEl,
+			  const short int time, 
 			  const int charge ) :
     MuonCluster(RDOId, idDE, locpos, rdoList, locErrMat), //call base class constructor
     m_detEl(detEl),
     m_time(time),
     m_charge(charge),
     m_angle(0.0),
-    m_chisqProb(0.0)
+    m_chisqProb(0.0),
+    m_stripNumbers(),
+    m_stripTimes(),
+    m_stripCharges()
   { }
 
   MMPrepData::MMPrepData( const Identifier& RDOId,
@@ -35,7 +60,10 @@ namespace Muon
     m_time(0),
     m_charge(0),
     m_angle(0.0),
-    m_chisqProb(0.0)
+    m_chisqProb(0.0),
+    m_stripNumbers(),
+    m_stripTimes(),
+    m_stripCharges()
   { }
 
   // Destructor:
@@ -51,7 +79,10 @@ namespace Muon
     m_time(0),
     m_charge(0),
     m_angle(0.0),
-    m_chisqProb(0.0)
+    m_chisqProb(0.0),
+    m_stripNumbers(),
+    m_stripTimes(),
+    m_stripCharges()
   { }
 
   //copy constructor:
@@ -61,7 +92,10 @@ namespace Muon
     m_time(RIO.m_time),
     m_charge(RIO.m_charge),
     m_angle(RIO.m_angle),
-    m_chisqProb(RIO.m_chisqProb)
+    m_chisqProb(RIO.m_chisqProb),
+    m_stripNumbers(RIO.m_stripNumbers),
+    m_stripTimes(RIO.m_stripTimes),
+    m_stripCharges(RIO.m_stripCharges)
   { }
 
   //move constructor:
@@ -71,11 +105,14 @@ namespace Muon
     m_time(RIO.m_time),
     m_charge(RIO.m_charge),
     m_angle(RIO.m_angle),
-    m_chisqProb(RIO.m_chisqProb)
+    m_chisqProb(RIO.m_chisqProb),
+    m_stripNumbers(RIO.m_stripNumbers),
+    m_stripTimes(RIO.m_stripTimes),
+    m_stripCharges(RIO.m_stripCharges)
   { }
 
   /// set the micro-tpc quantities
-  void MMPrepData::setMicroTPC(double angle, double chisqProb)
+  void MMPrepData::setMicroTPC(float angle, float chisqProb)
   {
     m_angle = angle;
     m_chisqProb = chisqProb;

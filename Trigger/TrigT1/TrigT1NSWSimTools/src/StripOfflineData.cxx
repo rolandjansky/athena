@@ -7,7 +7,7 @@
 #include "TrigT1NSWSimTools/StripOfflineData.h"
 
 #include <string>
-
+#include <TVector3.h>
 
 namespace NSWL1 {
 
@@ -75,7 +75,7 @@ namespace NSWL1 {
     }
 
     int StripOfflineData::moduleId()    const {
-        if (m_helper)  return m_helper->stationEta(m_id);
+        if (m_helper)  return std::abs(m_helper->stationEta(m_id ) );
         return -1;
     }
 
@@ -103,6 +103,10 @@ namespace NSWL1 {
         }
         return -1;
     }
+
+  int StripOfflineData::sectorType() const{ 
+    return m_sectorType;
+  }
 
 
   int StripOfflineData::isSmall() const {
@@ -138,7 +142,12 @@ namespace NSWL1 {
       }
   float StripOfflineData::globZ()   const {
     return  m_z; 
-      }
+  }
+
+  float StripOfflineData::etaCenter() const{
+    return TVector3(globX(),globY(),globZ()).Eta();
+  }
+
 
   void StripOfflineData::set_globX(float pos)    {
       m_x=pos; 
@@ -179,6 +188,26 @@ namespace NSWL1 {
   void StripOfflineData::set_locZ(float pos)    {
       m_lz=pos; 
   }
+
+    void StripOfflineData::setSideId(int id){
+      m_sideId=id;
+    }
+    void StripOfflineData::setSectorType(int t){
+      m_sectorType=t;
+    }
+    void StripOfflineData::setSectorId(int id){
+      m_sectorId=id;
+    }
+    void StripOfflineData::setModuleId(int mod){
+      m_moduleId=mod;
+    }
+    void StripOfflineData::setWedgeId(int wg){
+      m_wedgeId=wg;
+    }
+    void StripOfflineData::setLayerId(int lr){
+      m_layerId=lr;
+    }
+
 
 
 

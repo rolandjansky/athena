@@ -4,7 +4,7 @@ from PyJobTransforms.trfJobOptions import RunArguments
 runArgs = RunArguments()
 runArgs.trfSubstepName = 'RAWtoESD' 
 
-runArgs.postcommand = ['include("TriggerRelease/dbmod_BFieldAutoConfig.py")']
+runArgs.postcommand = ['include("TriggerJobOpts/dbmod_BFieldAutoConfig.py")']
 runArgs.writeBS = False
 runArgs.beamType = 'collisions'
 #runArgs.AMITag = 'r10188'

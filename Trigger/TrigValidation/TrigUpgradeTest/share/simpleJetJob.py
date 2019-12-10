@@ -18,27 +18,28 @@ if TriggerFlags.doCalo:
 
      from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
 
+     testChains = ["HLT_j85_L1J20", "HLT_j45_L1J20"]
+     from TrigUpgradeTest.TestUtils import makeChain
+     for c in  testChains:
+       makeChain(  name=c, L1Thresholds=["J20"], ChainSteps=[])
 
-    # menu items
-     CTPToChainMapping = {
-       "HLT_j85":       "L1_J20"  ,
-       "HLT_j45" : "L1_J20"
-     }
-     testChains =[x for x, y in CTPToChainMapping.items()]
-     topSequence.L1Decoder.ChainToCTPMapping = CTPToChainMapping
-     print testChains
+     from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
+     generateJSON()
 
-     # get L1 decisions
+     from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc
+     svcMgr += getHLTConfigSvc()
+
+     # get L1 decisins
      for unpack in topSequence.L1Decoder.roiUnpackers:
          if unpack.name() is "JRoIsUnpackingTool":
              L1JetDecisions=unpack.Decisions
-             
 
-     inputRoIs="FSRoI"
+     from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
+     inputRoIs=mapThresholdToL1RoICollection("FS")
      hypoDecisions=L1JetDecisions
 
      addFiltering=True
-     
+
      if addFiltering:
          #filter
          from DecisionHandling.DecisionHandlingConf import RoRSeqFilter
@@ -46,10 +47,12 @@ if TriggerFlags.doCalo:
          filterL1RoIsAlg.Input = [hypoDecisions]
          filterL1RoIsAlg.Output = ["FilteredL1JET"]
          filterL1RoIsAlg.Chains = testChains
-       
+
 
      from TrigUpgradeTest.jetMenuHelper import jetCFSequenceFromString
      (recoSequence, InputMakerAlg, sequenceOut) = jetCFSequenceFromString("a4_tc_em_subjes")
+     InputMakerAlg.InputMakerInputDecisions = filterL1RoIsAlg.Output
+     InputMakerAlg.InputMakerOutputDecisions = [ x+"Out" for x in InputMakerAlg.InputMakerInputDecisions ]
      inputRoIs= InputMakerAlg.RoIs
      hypoDecisions= InputMakerAlg.InputMakerOutputDecisions[0]
 
@@ -60,21 +63,17 @@ if TriggerFlags.doCalo:
      hypo.Jets = sequenceOut
      hypo.HypoInputDecisions = hypoDecisions
      hypo.HypoOutputDecisions = "jetDecisions"
-     
-     def make_dict(chain_name):
-       from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
-       chainNameDecoder = DictFromChainName.DictFromChainName()
-       return chainNameDecoder.getChainDict(chain_name)
-       
-     hypo.HypoTools = [trigJetHypoToolFromDict(make_dict(c))
-                       for c in testChains] 
+
+     from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
+     hypo.HypoTools = [trigJetHypoToolFromDict(c)
+                       for c in TriggerConfigHLT.dicts().values()]
      print hypo
      for tool in hypo.HypoTools:
          print tool
 
 
-    
-         
+
+
      ### CF construction ###
      def summarySteps ( name, decisions ):
         from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg
@@ -86,11 +85,11 @@ if TriggerFlags.doCalo:
 
      # finalize tree
      if addFiltering:
-        jetSequence = parOR("jetSequence", [ InputMakerAlg, recoSequence, hypo ])    
+        jetSequence = parOR("jetSequence", [ InputMakerAlg, recoSequence, hypo ])
         jetStep = seqAND("jetStep", [filterL1RoIsAlg, jetSequence ] )
 
      else:
-       jetStep = seqAND("jetSequence", [ recoSequence, hypo ])  
+       jetStep = seqAND("jetSequence", [ recoSequence, hypo ])
 
 
      summary0 = summarySteps("Step1", [hypo.HypoOutputDecisions] )
@@ -98,19 +97,18 @@ if TriggerFlags.doCalo:
      if addFiltering:
         step0filter = parOR("step0filter", [ filterL1RoIsAlg ] )
         HLTsteps = seqAND("HLTsteps", [ step0filter, step0 ]  )
-     else:        
+     else:
         HLTsteps = seqAND("HLTsteps", [ step0 ]  )
 
-    ### final monitor algorithm
+     ### final monitor algorithm
      from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
      from TrigOutputHandling.TrigOutputHandlingConf import DecisionSummaryMakerAlg
      summMaker = DecisionSummaryMakerAlg()
      summMaker.FinalDecisionKeys = [ hypo.HypoOutputDecisions ]
      summMaker.FinalStepDecisions = dict.fromkeys( testChains, hypo.HypoOutputDecisions )
 
+
      mon = TrigSignatureMoniMT()
-     from TrigUpgradeTest.TestUtils import MenuTest
-     mon.ChainsList = list( set( MenuTest.CTPToChainMapping.keys() ) )
 
      hltTop = seqOR( "hltTop", [ HLTsteps, summMaker, mon ] )
      topSequence += hltTop

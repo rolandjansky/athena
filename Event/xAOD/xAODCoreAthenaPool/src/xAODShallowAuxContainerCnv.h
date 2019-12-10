@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODCOREATHENAPOOL_XAODSHALLOWAUXCONTAINERCNV_H
@@ -9,12 +9,11 @@
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 
 // EDM include(s):
-#define private public
 #include "xAODCore/ShallowAuxContainer.h"
 
 /// Base class for the converter
-typedef T_AthenaPoolCustomCnv< xAOD::ShallowAuxContainer,
-                               xAOD::ShallowAuxContainer >
+typedef T_AthenaPoolCustomCnvWithKey< xAOD::ShallowAuxContainer,
+                                      xAOD::ShallowAuxContainer >
    xAODShallowAuxContainerCnvBase;
 
 /**
@@ -35,9 +34,12 @@ public:
 
 protected:
    /// Function preparing the container to be written out
-   virtual xAOD::ShallowAuxContainer* createPersistent( xAOD::ShallowAuxContainer* trans );
+   virtual
+   xAOD::ShallowAuxContainer* createPersistentWithKey( xAOD::ShallowAuxContainer* trans,
+                                                       const std::string& key) override;
    /// Function reading in the object from the input file
-   virtual xAOD::ShallowAuxContainer* createTransient();
+   virtual
+   xAOD::ShallowAuxContainer* createTransientWithKey (const std::string& key) override;
 
 
 }; // class xAODShallowAuxContainerCnv

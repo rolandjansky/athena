@@ -5,7 +5,6 @@
 #include "EventInfoUnlocker.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEventInfo/EventAuxInfo.h"
-#include "CxxUtils/make_unique.h"
 //================ Constructor =================================================
 
 EventInfoUnlocker::EventInfoUnlocker(const std::string& name, ISvcLocator* pSvcLocator)

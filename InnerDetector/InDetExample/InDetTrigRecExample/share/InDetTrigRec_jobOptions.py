@@ -75,7 +75,7 @@ RegSelSvc.SCTConditionsTool = "SCT_ConditionsSummaryTool/"+SCT_ConditionsSetup.i
 RegSelSvc.TRTConditionsSvc = "TRT_ConditionsSummarySvc/"+TRT_ConditionsSetup.instanceName("InDetTRTConditionsSummaryService")
 
 #this should be our common cabling setup/
-# online running data are dealt with in the TriggerRelease 
+# online running data are dealt with in the TriggerJobOpts 
 include ("InDetRecExample/InDetRecCabling.py")
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -27,7 +27,10 @@ public:
 
 
    /*! \brief Get number of available samplings */
-   static unsigned int getNumberOfSamplings();
+   static constexpr unsigned int getNumberOfSamplings()
+   {
+     return static_cast<unsigned int>(Unknown);
+   }
 
    /*! \brief Get a unsigned with one bit set  */
    static unsigned int getSamplingPattern(const CaloSample s) {
@@ -36,16 +39,12 @@ public:
 
    /*! \brief Get the bit-pattern for barrel samplings */
    static
-#if __cplusplus >= 201100
    constexpr
-#endif // C++11
    unsigned int barrelPattern();
 
    /*! \brief Get the bit-pattern for endcap samplings */
    static
-#if __cplusplus >= 201100
    constexpr
-#endif // C++11
    unsigned int endcapPattern();
 
    /*! \brief Returns a string (name) for each CaloSampling
@@ -60,14 +59,19 @@ public:
     * @param[in] theSample \p CaloSampling::CaloSample enumerator value
     */
    static std::string getSamplingName (unsigned int theSample);
+
+
+   /*! \brief Return the sampling code for a given name.
+    *
+    * @param[in] name The name to translate.
+    *
+    * Returns @c Unknown if the name is not known.
+    */
+   static CaloSample getSampling (const std::string& name);
 };
 
 
-#if __cplusplus >= 201100
 constexpr
-#else
-inline
-#endif // C++11
 unsigned int CaloSampling::barrelPattern() {
   return (//EM Barrel
 #define CALOSAMPLING(NAME, ISBARREL, ISENDCAP) (((unsigned)ISBARREL)<<NAME) |
@@ -76,11 +80,7 @@ unsigned int CaloSampling::barrelPattern() {
 	  0 );
 }
 
-#if __cplusplus >= 201100
 constexpr
-#else
-inline
-#endif // C++11
 unsigned int CaloSampling::endcapPattern() {
   return (//EMEC:
 #define CALOSAMPLING(NAME, ISBARREL, ISENDCAP) (((unsigned)ISENDCAP)<<NAME) |

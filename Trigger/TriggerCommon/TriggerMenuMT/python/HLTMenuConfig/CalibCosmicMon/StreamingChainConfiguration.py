@@ -6,9 +6,11 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.CalibCosmicMon.StreamingCha
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 from TrigStreamerHypo.TrigStreamerHypoConfigMT import StreamerHypoToolMTgenerator
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from TrigStreamerHypo.TrigStreamerHypoConf import TrigStreamerHypoAlgMT
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
+from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
+from AthenaCommon.CFElements import seqAND
+
 
 #----------------------------------------------------------------
 # fragments generating configuration will be functions in New JO, 
@@ -19,11 +21,10 @@ def StreamingSequenceCfg( flags ):
     return StreamingMenuSequence()
 
 def StreamingMenuSequence():
-    from TriggerMenuMT.HLTMenuConfig.MET.METRecoSequences import metCellAthSequence
-    #(streamingSequence, inputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(EmptySequence,ConfigFlags)
-    #need some dummy reco but it will not be used at all by the algorithm
-    #for the moment running the metCell reco
-    (streamingSequence, inputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(metCellAthSequence,ConfigFlags)
+
+    inputMakerAlg = InputMakerForRoI("IM_streamerInputMaker", mergeOutputs=False)
+    inputMakerAlg.RoIs="streamerInputRoIs"
+    streamingSequence = seqAND("streamerSequence", [inputMakerAlg])
 
     #hypo
     streamerHypoAlg = TrigStreamerHypoAlgMT("StreamerHypoAlg")
@@ -48,28 +49,4 @@ class StreamingChainConfiguration(ChainConfigurationBase):
     # Assemble the chain depending on information from chainName
     # ----------------------
     def assembleChain(self):                            
-        chainSteps = []
-        log.debug("Assembling chain for " + self.chainName)
-        # --------------------
-        # define here the names of the steps and obtain the chainStep configuration 
-        # --------------------
-        stepDictionary = {
-            "noalg":[self.getNoalgStep()],
-        }
-
-        #key = self.chainPart['EFrecoAlg']
-        key = 'noalg'
-        steps=stepDictionary[key]
-        for step in steps:
-            chainSteps+=[step]
-            
-        myChain = self.buildChain(chainSteps)
-        return myChain
-
-   
-    # --------------------
-    # Configuration of noalg
-    # --------------------
-    def getNoalgStep(self):
-        return self.getStep(1,"noalg", [StreamingSequenceCfg] )
-
+        return self.buildChain([]) # empty list of steps and the chain requires none

@@ -2,8 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGMUONEFINVMASSHYPO_TRIGMUONEFINVMASSHYPOALG_H 
-#define TRIGMUONEFINVMASSHYPO_TRIGMUONEFINVMASSHYPOALG_H 1 
+#ifndef TRIGMUONHYPOMT_TRIGMUONEFINVMASSHYPOALG_H 
+#define TRIGMUONHYPOMT_TRIGMUONEFINVMASSHYPOALG_H 1 
 
 #include <string>
 
@@ -12,7 +12,6 @@
 #include "DecisionHandling/HypoBase.h"
 
 class StoreGateSvc;
-class TriggerElement;
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------

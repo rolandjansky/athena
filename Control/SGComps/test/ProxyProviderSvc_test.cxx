@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file SGComps/test/ProxyProviderSvc_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -155,10 +153,9 @@ TestProxyRegistry::addToStore (const CLID& id, SG::DataProxy* proxy)
 
 
 static const int NPROVIDERS = 4;
-TestProvider providers[NPROVIDERS];
 
 
-void checkStore (const TestProxyRegistry& store)
+void checkStore (const TestProxyRegistry& store, TestProvider providers[NPROVIDERS])
 {
   typedef SG::DataProxy::CLIDCont_t CLIDCont_t;
 
@@ -192,6 +189,8 @@ void test1 (IProxyProviderSvc& svc)
 {
   std::cout << "test1\n";
 
+  TestProvider providers[NPROVIDERS];
+
   providers[1].add (10, "x1");
   providers[1].add (11, "x2");
   providers[3].add (12, "y1", {5, 20});
@@ -202,14 +201,14 @@ void test1 (IProxyProviderSvc& svc)
   TestProxyRegistry store;
   
   assert (svc.preLoadProxies (store).isSuccess());
-  checkStore (store);
+  checkStore (store, providers);
 
   for (TestProvider& p : providers)
     p.tListLen = -1;
   store.proxies.clear();
 
   assert (svc.loadProxies (store).isSuccess());
-  checkStore (store);
+  checkStore (store, providers);
 }
 
 

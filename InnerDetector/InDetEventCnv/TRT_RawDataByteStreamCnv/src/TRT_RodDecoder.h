@@ -86,14 +86,14 @@ public:
   //! destructor 
   virtual ~TRT_RodDecoder(); 
   //! initialize
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
   //! finalize
-  virtual StatusCode finalize();
+  virtual StatusCode finalize() override;
 
   //! the method to fill the IDC
-  StatusCode fillCollection ( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* robFrag,
+  virtual StatusCode fillCollection ( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* robFrag,
 			      TRT_RDO_Container* rdoIdc,
-			      std::vector<IdentifierHash>* vecHash = 0);
+			      const std::vector<IdentifierHash>* vecHash = 0) override;
 
 
  private:
@@ -167,16 +167,16 @@ private:
 
    StatusCode int_fillExpanded ( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* robFrag,
 				TRT_RDO_Container* rodIdc,
-				std::vector<IdentifierHash>* vecHash = 0);
+				const std::vector<IdentifierHash>* vecHash = 0);
 
    StatusCode int_fillMinimalCompress ( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* robFrag,
 				       TRT_RDO_Container* rdoIdo,
-				       std::vector<IdentifierHash>* vecHash = 0);
+				       const std::vector<IdentifierHash>* vecHash = 0);
 
    StatusCode int_fillFullCompress ( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* robFrag,
 				     TRT_RDO_Container* rdoIdo,
 				     t_CompressTable* Ctable,
-				     std::vector<IdentifierHash>* vecHash = 0);
+				     const std::vector<IdentifierHash>* vecHash = 0);
 
    StatusCode ReadCompressTableFile( std::string TableFilename );
    StatusCode ReadCompressTableDB( std::string Tag );

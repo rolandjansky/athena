@@ -112,7 +112,7 @@ const Trk::Perigee* GlobalFitTool::calculateTrackParameters(const MuonSegmentLis
  
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"in GlobalFitTool::calculateTrackParameters" << endmsg;
     msg(MSG::DEBUG) << "in GlobalFitTool::calculateTrackParameters"<<endmsg;
-    const Trk::TrackParameters* Track = NULL;
+    const Trk::TrackParameters* Track = nullptr;
 
 
     double radius = 4200.;
@@ -207,8 +207,8 @@ const Trk::Perigee* GlobalFitTool::calculateTrackParameters(const MuonSegmentLis
 
 
     Amg::Vector3D    origin( pEntranceIsect->position());
-    Trk::PerigeeSurface* perigeeSurface = new Trk::PerigeeSurface(origin); 
-    const Trk::Perigee* trkPerigee = new Trk::Perigee(origin,Track->momentum(),Track->charge(),*perigeeSurface);
+    Trk::PerigeeSurface perigeeSurface(origin); 
+    const Trk::Perigee* trkPerigee = new Trk::Perigee(origin,Track->momentum(),Track->charge(),perigeeSurface);
     delete Track;
     return trkPerigee;
 }

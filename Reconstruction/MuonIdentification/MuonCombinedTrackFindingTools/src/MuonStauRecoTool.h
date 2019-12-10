@@ -10,12 +10,10 @@
 #include "MuonHoughPatternTools/MuonLayerHoughTool.h" 
 #include "MuonLayerHough/MuonLayerHough.h"
 #include "MuonDetDescrUtils/MuonSectorMapping.h"
-#include "MuGirlStau/TimePointBetaFit.h"
-#include "MuGirlStau/IStauBetaTofTool.h"
+#include "TimePointBetaFitter.h"
 #include "MuonLayerEvent/MuonLayerRecoData.h"
 #include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
 #include "MuonClusterization/RpcHitClustering.h"
-#include "MuGirlStau/MuonBetaCalculationUtils.h"
 #include "MuonLayerEvent/MuonCandidate.h"
 #include "TrkTrack/Track.h"
 #include "MuonCombinedEvent/MuGirlLowBetaTag.h"
@@ -26,6 +24,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/PhysicalConstants.h"
 
 namespace Muon {
 
@@ -118,8 +117,8 @@ namespace MuonCombined {
       
       // information filled by createCandidates: associated layers with MaximumData, time measurements and final beta fit result
       LayerDataVec                      layerDataVec;
-      Muon::TimePointBetaFit::HitVec    hits;
-      Muon::TimePointBetaFit::FitResult betaFitResult;
+      Muon::TimePointBetaFitter::HitVec    hits;
+      Muon::TimePointBetaFitter::FitResult betaFitResult;
 
       // information filled by refineCandidates: segments found using the beta of the final fit
       std::vector< Muon::MuonLayerRecoData > allLayers;
@@ -128,7 +127,7 @@ namespace MuonCombined {
       std::unique_ptr<const Muon::MuonCandidate> muonCandidate;
       std::unique_ptr<Trk::Track>                combinedTrack;
       MuGirlNS::StauHits                         stauHits;
-      Muon::TimePointBetaFit::FitResult          finalBetaFitResult;
+      Muon::TimePointBetaFitter::FitResult          finalBetaFitResult;
 
     };
     typedef std::vector< std::shared_ptr<Candidate> > CandidateVec;
@@ -196,7 +195,7 @@ namespace MuonCombined {
     void getBetaSeeds( MaximumData& maximumData ) const;
 
     /** extract hits for the beta fit, returns true if hits were added */
-    bool extractTimeHits( const MaximumData& maximumData, Muon::TimePointBetaFit::HitVec& hits, const BetaSeed* seed=0 ) const;
+    bool extractTimeHits( const MaximumData& maximumData, Muon::TimePointBetaFitter::HitVec& hits, const BetaSeed* seed=0 ) const;
 
     /** refine candidates: find segments for the given beta */
     bool refineCandidates( CandidateVec& candidates );
@@ -231,6 +230,9 @@ namespace MuonCombined {
     void rpcTimeCalibration( const Identifier& id, float& time, float& error ) const;
     void segmentTimeCalibration( const Identifier& id, float& time, float& error ) const;
 
+    float calculateTof(const float beta, const float dist) const;
+    float calculateBeta(const float time, const float dist) const;
+
     /** storegate */
     SG::ReadHandleKey<Muon::MuonLayerHoughTool::HoughDataPerSectorVec> m_houghDataPerSectorVecKey {this, 
         "Key_MuonLayerHoughToolHoughDataPerSectorVec", "HoughDataPerSectorVec", "HoughDataPerSectorVec key"};
@@ -252,7 +254,6 @@ namespace MuonCombined {
     ToolHandle<Muon::IMuonPRDSelectionTool>          m_muonPRDSelectionToolStau;
     ToolHandle<Muon::IMdtDriftCircleOnTrackCreator>  m_mdtCreator;
     ToolHandle<Muon::IMdtDriftCircleOnTrackCreator>  m_mdtCreatorStau;
-    ToolHandle<MuGirlNS::IStauBetaTofTool>           m_stauTofTool;
     ToolHandle<MuonCombined::MuonInsideOutRecoTool>  m_insideOutRecoTool;
     ToolHandle<Trk::IUpdator>                        m_updator;
     ToolHandle<MdtCalibrationDbTool> m_calibrationDbTool;
@@ -299,11 +300,19 @@ namespace MuonCombined {
     bool m_segmentMDTT;
     double m_ptThreshold;
     double m_houghAssociationPullCut;
-    double m_mdttBetaAssociationCut;    
-    double m_rpcBetaAssociationCut;    
-    double m_segmentBetaAssociationCut;    
+    double m_mdttBetaAssociationCut;
+    double m_rpcBetaAssociationCut;
+    double m_segmentBetaAssociationCut;
     bool m_ignoreSiAssocated;
+    const double m_inverseSpeedOfLight = 1e6 / Gaudi::Units::c_light; // Gaudi::Units::c_light=2.99792458e+8, but need 299.792458, needed inside calculateTof()/calculateBeta()
   };
+
+  inline float MuonStauRecoTool::calculateTof(const float beta, const float dist) const {
+    return dist*m_inverseSpeedOfLight/beta;
+  }
+  inline float MuonStauRecoTool::calculateBeta(const float time, const float dist) const {
+    return dist*m_inverseSpeedOfLight/time;
+  }
 }
 
 
