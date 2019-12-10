@@ -333,8 +333,8 @@ bool DQTGlobalWZFinderTool::bookDQTGlobalWZFinderTool()
       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_tight_bad_ss_BCID_pileup  = new TH3F("m_ele_tight_bad_ss_BCID_pileup"  , "1tight 1bad ss" ,nzbins_elTP, m_zCutLow_elTP*GeV, m_zCutHigh_elTP*GeV, 50, 0, 50, 200, 0, 100)).isFailure();
       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_tight_good_os_BCID_pileup = new TH3F("m_ele_tight_good_os_BCID_pileup" , "1tight 1good os",nzbins_elTP, m_zCutLow_elTP*GeV, m_zCutHigh_elTP*GeV, 50, 0, 50, 200, 0, 100)).isFailure();
       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_tight_good_ss_BCID_pileup = new TH3F("m_ele_tight_good_ss_BCID_pileup" , "1tight 1good ss",nzbins_elTP, m_zCutLow_elTP*GeV, m_zCutHigh_elTP*GeV, 50, 0, 50, 200, 0, 100)).isFailure();
-      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_template_os_BCID_pileup   = new TH3F("m_ele_template_os_BCID_pileup"   , "template os"	,nzbins_elTP, m_zCutLow_elTP*GeV, m_zCutHigh_elTP*GeV, 50, 0, 50, 200, 0, 100)).isFailure();
-      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_template_ss_BCID_pileup   = new TH3F("m_ele_template_ss_BCID_pileup"   , "template ss"	,nzbins_elTP, m_zCutLow_elTP*GeV, m_zCutHigh_elTP*GeV, 50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_template_os_BCID_pileup   = new TH3F("m_ele_template_os_BCID_pileup"   , "template os"  ,nzbins_elTP, m_zCutLow_elTP*GeV, m_zCutHigh_elTP*GeV, 50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_template_ss_BCID_pileup   = new TH3F("m_ele_template_ss_BCID_pileup"   , "template ss"  ,nzbins_elTP, m_zCutLow_elTP*GeV, m_zCutHigh_elTP*GeV, 50, 0, 50, 200, 0, 100)).isFailure();
       
      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_elContainertp_nomatch = TH1F_LW::create("m_elContainertp_nomatch" , "m_elContainertp_nomatch" ,nzbins_elTP, m_zCutLow_elTP*GeV, 
                                                                                                             m_zCutHigh_elTP*GeV), lumiBlock).isFailure();
@@ -344,7 +344,7 @@ bool DQTGlobalWZFinderTool::bookDQTGlobalWZFinderTool()
     }
 
     if (m_isSimulation) {
-      // failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_mcmatch = TH1F_LW::create("m_mcatch", "Muon matching to truth in acceptance", 2, -0.5, 1.5), lumiBlock).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_mcmatch = TH1F_LW::create("m_mcatch", "Muon matching to truth in acceptance", 2, -0.5, 1.5), lumiBlock).isFailure();
 
       if (m_writeTTrees){
 
@@ -845,7 +845,7 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
          if (mass > 3038 && mass < 3156) {
            ++m_JPsiCounterSBG[0];
            if(m_doTrigger) {
-             ATH_MSG_DEBUG("ABOUT TO DO BAD THINGS");
+             ATH_MSG_DEBUG("ABOUT TO CHECK JPSI TRIGGER");
              if( trigChainsArePassed(m_Jpsi_mm_trigger) ) {
                ++m_JPsiCounterSBG[1];
              }
@@ -1470,7 +1470,6 @@ void DQTGlobalWZFinderTool::doMuonTriggerTP(const xAOD::Muon* mu1, const xAOD::M
       }
 
       for (const auto chain: m_Z_mm_trigger) {
-        //if (m_muTrigMatchTool->match(probemu, chain) || ! m_doTrigger) {                                            
         if (m_muTrigMatchTool->match(probemu, chain)) {
           matched=true;
           break;
@@ -1588,7 +1587,7 @@ void DQTGlobalWZFinderTool::doMuonLooseTP(std::vector<const xAOD::Muon*>& goodmu
         } 
       }
 
-	  if (matched){
+      if (matched){
         m_muon_reco_tptree_mtype = (trk->charge() != tagmu->charge()) ? 0 : 1;
         if (!m_isSimulation){
           (opp_sign) ? m_muloosetp_match_os->Fill(mass)   : m_muloosetp_match_ss->Fill(mass);
