@@ -17,7 +17,7 @@ DGeo    =  jobproperties.Global.DetGeo()
 # LArTTCellMap (maintained by F. Ledroit)
 
 if (DGeo == "ctbh8"):
-    print(" No trigger mapping needed for CTB simulation")
+    printfunc (" No trigger mapping needed for CTB simulation")
 else:
     include( "CaloConditions/LArTTCellMap_ATLAS_jobOptions.py")
     # TT online-offline & online-attributes maps (maintained by D. Prieur)
