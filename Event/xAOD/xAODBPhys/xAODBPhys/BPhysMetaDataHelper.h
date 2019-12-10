@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -110,11 +110,13 @@ namespace xAOD {
     /// @note applies prefix to each variable name
     ///
     bool value(const std::string& name, int&                      val) const;
+    bool value(const std::string& name, long&                     val) const;
     bool value(const std::string& name, float&                    val) const;
     bool value(const std::string& name, double&                   val) const;
     bool value(const std::string& name, bool&                     val) const;
     bool value(const std::string& name, std::string&              val) const;
     bool value(const std::string& name, std::vector<int>&         val) const;
+    bool value(const std::string& name, std::vector<long>&        val) const;
     bool value(const std::string& name, std::vector<float>&       val) const;
     bool value(const std::string& name, std::vector<double>&      val) const;
     bool value(const std::string& name, std::vector<bool>&        val) const;
@@ -126,11 +128,13 @@ namespace xAOD {
     /// @{
     ///
     std::map<std::string, int>                       valuesI()  const;
+    std::map<std::string, long>                      valuesL()  const;
     std::map<std::string, float>                     valuesF()  const;
     std::map<std::string, double>                    valuesD()  const;
     std::map<std::string, bool>                      valuesB()  const;
     std::map<std::string, std::string>               valuesS()  const;
     std::map<std::string, std::vector<int> >         valuesVI() const;
+    std::map<std::string, std::vector<long> >        valuesVL() const;
     std::map<std::string, std::vector<float> >       valuesVF() const;
     std::map<std::string, std::vector<double> >      valuesVD() const;
     std::map<std::string, std::vector<bool> >        valuesVB() const;
