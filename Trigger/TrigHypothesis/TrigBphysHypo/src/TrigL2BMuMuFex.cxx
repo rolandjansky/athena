@@ -12,17 +12,8 @@
 
 #include <math.h>
 
-#include "GaudiKernel/StatusCode.h"
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
-//#include "TrigMuonEvent/CombinedMuonFeature.h"
 
 #include "TrigL2BMuMuFex.h"
-
-#include "TrigInDetEvent/TrigInDetTrackCollection.h"
-#include "TrigInDetEvent/TrigInDetTrackFitPar.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
@@ -37,7 +28,6 @@
 #include "BtrigUtils.h"
 
 // additions of xAOD objects
-#include "xAODEventInfo/EventInfo.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTrigMuon/L2StandAloneMuon.h"

@@ -106,11 +106,32 @@ class RPVLLTriggers:
         EmergingList = getTriggerList( TriggerType.j_multi, "HLT_4j", ["boffperf_split"] )
         return EmergingList
 
-    # HNL
-    def getHNLTriggers(self):
-        #HnlFilterTool.Triggers
-        HNLList = getTriggerList( TriggerType.mu_single, "ivarmedium" )
-        return HNLList
+    # HNL (single prompt muon)
+    def getHNLSingleMuonTriggers(self):
+        #HnlSkimmingTool.Triggers
+        HNLSingleMuonList = getTriggerList( TriggerType.mu_single, "ivarmedium" )
+        return HNLSingleMuonList
+
+    # HNL (single prompt electron)
+    def getHNLSingleElectronTriggers(self):
+        #HnlSkimmingTool.Triggers
+        HNLSingleElectronList = getTriggerList( TriggerType.el_single, "",
+            ["etcut", "lhloose", "noringer"] ) # Copied from getKinkedTrackZeeTriggers
+        return HNLSingleElectronList
+
+    # HNL (multi muons)
+    def getHNLMultiMuonTriggers(self):
+        #HnlSkimmingTool.Triggers
+        HNLMultiMuonList = getTriggerList( TriggerType.mu_multi, "" )
+        # We may need to restrict di-muon triggers.
+        return HNLMultiMuonList
+
+    # HNL (multi electrons)
+    def getHNLMultiElectronTriggers(self):
+        #HnlSkimmingTool.Triggers
+        HNLMultiElectronList = getTriggerList( TriggerType.el_multi, "" )
+        # We may need to restrict di-electron triggers.
+        return HNLMultiElectronList
 
     # HV Muvtx
     def getHVMuvtxTriggers(self):

@@ -9,6 +9,7 @@ from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger(__name__)
 
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 from TriggerMenu.menu.HltConfig import L2EFChainDef, mergeRemovingOverlap
 
 from TrigT2MinBias.TrigT2MinBiasConfig import MbMbtsHypo, L2MbMbtsFex, L2MbSpFex, L2MbSpUPC
@@ -300,9 +301,9 @@ class L2EFChain_HI(L2EFChainDef):
             chainSuffix = 'tight_upc'
         if 'gg' in self.chainPart['hypoL2Info']:
             minPixel=0
-            maxPixel=15
+            if 'HI_v3' in TriggerFlags.triggerMenuSetup(): maxPixel=10
+            else: maxPixel=15
             chainSuffix = 'gg_upc'
-
         theL2PixelHypo  = L2MbSpUPC("MbPixelSpUPC_min"+str(minPixel)+'_max'+str(maxPixel), minPixel, maxPixel)
         
         if self.doggFgap:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -13,8 +13,7 @@
 #include "MuonReadoutGeometry/MuonClusterReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MuonChannelDesign.h"
-//#include "MuonIdHelpers/MmIdHelper.h"
-
+#include <cmath>
 
 class StoreGateSvc;
 
@@ -57,6 +56,8 @@ namespace MuonGM {
 	If the strip number is outside the range of valid strips, the function will return false */
     bool stripPosition(       const Identifier& id, Amg::Vector2D& pos )  const;
     bool stripGlobalPosition( const Identifier& id, Amg::Vector3D& gpos ) const;
+      
+      double stripLength( const Identifier& id) const;
 
     /** number of layers in phi/eta projection */
     int numberOfLayers( bool ) const;
@@ -122,16 +123,16 @@ namespace MuonGM {
     //MuonChannelDesign m_phiDesign;
     std::vector<MuonChannelDesign> m_etaDesign;
 
-    std::vector<int> m_nStrips;
-    int m_nlayers;
+    std::vector<int> m_nStrips; // #of active strips
+    int m_nlayers;  // #of gas gaps
     
-    int m_ml; 
+    int m_ml; // multilayer (values: 1,2)
     Identifier m_parentId;
  
     // surface dimensions
-    double m_halfX;
-    double m_minHalfY;
-    double m_maxHalfY;
+    double m_halfX;   // 0.5*radial_size
+    double m_minHalfY; // 0.5*bottom length (active area)
+    double m_maxHalfY; // 0.5*top length (active area)
 
     // transforms (RE->layer)
     Amg::Transform3D m_Xlg[4];
@@ -184,6 +185,12 @@ namespace MuonGM {
     if( !design ) return false;
     return design->channelPosition(manager()->mmIdHelper()->channel(id),pos);
   }
+    
+    inline double MMReadoutElement::stripLength( const Identifier& id) const {
+        const MuonChannelDesign* design = getDesign(id);
+        if(!design) return -1;
+        return design->channelLength(manager()->mmIdHelper()->channel(id));
+    }
 
   inline bool MMReadoutElement::stripGlobalPosition( const Identifier& id, Amg::Vector3D& gpos ) const {
     Amg::Vector2D lpos(0., 0.);

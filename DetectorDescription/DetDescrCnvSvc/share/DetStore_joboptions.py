@@ -22,6 +22,7 @@ DetDescrCnvSvc.HasCSC = MuonGeometryFlags.hasCSC()
 DetDescrCnvSvc.HasSTgc = MuonGeometryFlags.hasSTGC()
 DetDescrCnvSvc.HasMM = MuonGeometryFlags.hasMM()
 
+
 # Specify the tag to be used
 # DetDescrCnvSvc.IdDictGlobalTag = "initial_layout"
 

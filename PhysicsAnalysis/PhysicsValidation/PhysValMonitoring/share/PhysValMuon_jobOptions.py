@@ -67,6 +67,9 @@ tool1.EnableLumi = False
 tool1.OutputLevel = WARNING
 tool1.DetailLevel = 10
 
+#Flag for saving a ROOT TTree in an output ntuple... default value is False --> no TTree is saved
+#tool1.DoMuonTree = True
+
 from AthenaCommon.AppMgr import ToolSvc
 ToolSvc += tool1
 

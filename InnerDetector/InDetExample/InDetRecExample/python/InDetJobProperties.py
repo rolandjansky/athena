@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
 
@@ -1170,7 +1170,7 @@ class doTrackSegmentsPixelFourLayer(InDetFlagsJobProperty):
     StoredValue  = False
 
 class doTrackSegmentsPixelThreeLayer(InDetFlagsJobProperty):
-    """Turn running of pixel stablet creation in pixel after NewTracking, using all available hits, on and off"""
+    """Turn running of pixel stablet creation in pixel after NewTracking, using unassociated hits, on and off"""
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False

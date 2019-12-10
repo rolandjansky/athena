@@ -271,9 +271,8 @@ int main(int argc, char const *argv[]) {
          // read pattern bank(s)
          // either read one subregion or read nSub subregions
 
-         // this variable will contain the number of patterns per sector
-         //   first : patterns per sector
-         //   second :  1 if at limit, -1 or 0 otherwise
+         // this variable will contain the number of patterns
+         //  and the maximum number of patterns per sector
          map<int,SectorPatternData> patternsPerSector;
 
          // this variable will contain the total number of patterns
@@ -328,13 +327,15 @@ int main(int argc, char const *argv[]) {
             TTree *tree;
             patternBank->GetObject("Sector",tree);
             if(tree) {
-               int sector,first,last,allPatternsUsed;
+               int sector,first,last,allPatternsUsed,maxNumPatterns;
                tree->SetBranchAddress("sector",&sector);
                tree->SetBranchAddress("first",&first);
                tree->SetBranchAddress("last",&last);
                tree->SetBranchAddress("allPatternsUsed",&allPatternsUsed);
+               tree->SetBranchAddress("maxNumPatterns",&maxNumPatterns);
                for(int i=0;i<tree->GetEntries();i++) {
                   allPatternsUsed=0;
+                  maxNumPatterns=-1;
                   tree->GetEntry(i);
                   int n=last+1-first;
                   for(int special=((first-1) & 0xfffe0000)+0x20000;special<=last;special += 0x20000) {
@@ -342,7 +343,11 @@ int main(int argc, char const *argv[]) {
                   }
                   SectorPatternData &pps=patternsPerSector[sector];
                   pps.fNPattern = n;
-                  pps.fNMax = (allPatternsUsed==1) ? n : PartitionSteering::Instance()->GetNPattern();
+                  if(maxNumPatterns>=0) {
+                     pps.fNMax=maxNumPatterns;
+                  } else {
+                     pps.fNMax = (allPatternsUsed==1) ? n : PartitionSteering::Instance()->GetNPattern();
+                  }
                   nPatternSub+=n;                  
                }
             } else {
@@ -387,7 +392,7 @@ int main(int argc, char const *argv[]) {
             <<"total sectors (bank): "<<patternsPerSector.size()
             <<" total patterns: "<<nPatternRead<<"\n";
 
-         // add information abount known maxima
+         // add information about known maxima
          for(map<int,int>::const_iterator i=knownMax[reg].begin();
              i!=knownMax[reg].end();i++) {
             map<int,SectorPatternData>::iterator

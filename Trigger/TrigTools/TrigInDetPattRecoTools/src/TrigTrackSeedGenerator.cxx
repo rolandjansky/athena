@@ -13,6 +13,7 @@
 #include "TrigInDetPattRecoTools/TrigTrackSeedGenerator.h"
 #include "IRegionSelector/IRoiDescriptor.h"
 #include "IRegionSelector/RoiUtil.h"
+#include "InDetPrepRawData/PixelCluster.h"
 
 TrigTrackSeedGenerator::TrigTrackSeedGenerator(const TrigCombinatorialSettings& tcs) 
   : m_settings(tcs), 
@@ -32,6 +33,7 @@ TrigTrackSeedGenerator::TrigTrackSeedGenerator(const TrigCombinatorialSettings& 
   const double ptCoeff = 0.29997*1.9972/2.0;// ~0.3*B/2 - assumes nominal field of 2*T
   m_minR_squ = m_settings.m_tripletPtMin*m_settings.m_tripletPtMin/std::pow(ptCoeff,2);
   m_dtPreCut = std::tan(2.0*m_settings.m_tripletDtCut*sqrt(m_CovMS));
+  
 }
 
 TrigTrackSeedGenerator::~TrigTrackSeedGenerator() {
@@ -133,7 +135,15 @@ void TrigTrackSeedGenerator::createSeeds() {
     if(S.m_nSP==0) continue;
 
     bool isSct = (m_settings.m_layerGeometry[layerI].m_subdet == 2);
-    
+    bool isBarrel = (m_settings.m_layerGeometry[layerI].m_type == 0);
+    bool checkWidth = (!isSct) && isBarrel;
+
+    const TrigSeedML_LUT* pLUT = 0;
+
+    if(checkWidth && m_settings.m_useTrigSeedML > 0) {
+      pLUT = *m_settings.m_vLUT.begin();
+    }
+
     for(int phiI=0;phiI<m_settings.m_nMaxPhiSlice;phiI++) {
 
       /*      
@@ -158,6 +168,21 @@ void TrigTrackSeedGenerator::createSeeds() {
 	float rm = spm->r();
 
 	//    const std::pair<IdentifierHash, IdentifierHash>& deIds = spm->offlineSpacePoint()->elementIdList();
+
+	bool hasValidRange = false;
+	float minTauRange = 0.0;
+	float maxTauRange = 100.0;
+
+	if(checkWidth) {
+	  float cluster_width = 0.0;
+	  const Trk::SpacePoint* osp = spm->offlineSpacePoint();
+	  const InDet::PixelCluster* pCL = dynamic_cast<const InDet::PixelCluster*>(osp->clusterList().first);
+	  cluster_width = pCL->width().widthPhiRZ().y();
+	  if(pLUT != 0) {
+	    hasValidRange = pLUT->getValidRange(cluster_width, minTauRange, maxTauRange);
+	    //std::cout<<"cluster width "<<cluster_width<<" range "<<minTauRange<<" "<<maxTauRange<<" valid ? "<<std::alphabool(hasValidRange)<<std::endl;
+	  }
+	}
 	    
 	int nSP=0;
 
@@ -190,7 +215,7 @@ void TrigTrackSeedGenerator::createSeeds() {
 	  int nI = m_nInner;
 	  int nO = m_nOuter;
 	      
-	  nSP += processSpacepointRange(layerJ, rm, zm, checkPSS, delta);
+	  nSP += processSpacepointRange(layerJ, rm, zm, checkPSS, delta, hasValidRange, minTauRange, maxTauRange);
 
 	  if(m_nInner > nI) m_innerMarkers.push_back(m_nInner);
 	  if(m_nOuter > nO) m_outerMarkers.push_back(m_nOuter);
@@ -245,7 +270,15 @@ void TrigTrackSeedGenerator::createSeedsZv() {
     if(S.m_nSP==0) continue;
 
     bool isSct = (m_settings.m_layerGeometry[layerI].m_subdet == 2);
-    
+    bool isBarrel = (m_settings.m_layerGeometry[layerI].m_type == 0);
+    bool checkWidth = (!isSct) && isBarrel;
+
+    const TrigSeedML_LUT* pLUT = 0;
+
+    if(checkWidth && m_settings.m_useTrigSeedML > 0) {
+      pLUT = *m_settings.m_vLUT.begin();
+    }
+
     for(int phiI=0;phiI<m_settings.m_nMaxPhiSlice;phiI++) {
 
 	std::vector<int> phiVec;
@@ -267,6 +300,21 @@ void TrigTrackSeedGenerator::createSeedsZv() {
 
 	  float zm = spm->z();
 	  float rm = spm->r();
+
+	  bool hasValidRange = false;
+	  float minTauRange = 0.0;
+	  float maxTauRange = 100.0;
+
+          if(checkWidth) {
+	    float cluster_width = 0.0;
+            const Trk::SpacePoint* osp = spm->offlineSpacePoint();
+            const InDet::PixelCluster* pCL = dynamic_cast<const InDet::PixelCluster*>(osp->clusterList().first);
+            cluster_width = pCL->width().widthPhiRZ().y();
+	    if(pLUT != 0) {
+	      hasValidRange = pLUT->getValidRange(cluster_width, minTauRange, maxTauRange);
+	      //std::cout<<"cluster width "<<cluster_width<<" range "<<minTauRange<<" "<<maxTauRange<<" valid ? "<<std::alphabool(hasValidRange)<<std::endl;
+	    }
+          }
 
 	  INTERNAL_TRIPLET_BUFFER tripletVec;
 
@@ -296,7 +344,7 @@ void TrigTrackSeedGenerator::createSeedsZv() {
 
 		if(!getSpacepointRange(layerJ, spVec, delta)) continue;
 	      
-		nSP += processSpacepointRangeZv(rm, zm, checkPSS, delta);
+		nSP += processSpacepointRangeZv(rm, zm, checkPSS, delta, hasValidRange, minTauRange, maxTauRange);
 	      }//loop over phi bins
 
 	    }//loop over inner/outer layers
@@ -523,7 +571,7 @@ bool TrigTrackSeedGenerator::getSpacepointRange(int lJ, const std::vector<const 
   return true;
 }
 
-int TrigTrackSeedGenerator::processSpacepointRange(int lJ, float rm, float zm, bool checkPSS, const SP_RANGE& delta) {
+int TrigTrackSeedGenerator::processSpacepointRange(int lJ, float rm, float zm, bool checkPSS, const SP_RANGE& delta, bool checkWidth, float minTau, float maxTau) {
 
   int nSP=0;
 
@@ -533,6 +581,7 @@ int TrigTrackSeedGenerator::processSpacepointRange(int lJ, float rm, float zm, b
   float dZ = refCoord-zm;
   float dR_i = isBarrel ? 1.0/(refCoord-rm) : 1.0;
 
+  
   for(std::vector<const TrigSiSpacePointBase*>::const_iterator spIt=delta.first; spIt!=delta.second; ++spIt) {
     // if(deIds == (*spIt)->offlineSpacePoint()->elementIdList()) continue;
     float zsp = (*spIt)->z();
@@ -549,8 +598,12 @@ int TrigTrackSeedGenerator::processSpacepointRange(int lJ, float rm, float zm, b
     
     float dz = zsp - zm;
     float tau = dz/dr;
-    if (fabs(tau) > 7.41) continue;
+    float ftau = fabs(tau);
+    if (ftau > 7.41) continue;
     
+    if(checkWidth) {
+      if(ftau < minTau || ftau > maxTau) continue;
+    }
     
     float z0  = zm - rm*tau;
     if (m_settings.m_doubletFilterRZ) {
@@ -575,8 +628,9 @@ int TrigTrackSeedGenerator::processSpacepointRange(int lJ, float rm, float zm, b
   return nSP;
 }
 
-int TrigTrackSeedGenerator::processSpacepointRangeZv(float rm, float zm, bool checkPSS, const SP_RANGE& delta) {
+int TrigTrackSeedGenerator::processSpacepointRangeZv(float rm, float zm, bool checkPSS, const SP_RANGE& delta, bool checkWidth, float minTau, float maxTau) {
 
+  
   int nSP=0;	    
   for(std::vector<const TrigSiSpacePointBase*>::const_iterator spIt=delta.first; spIt!=delta.second; ++spIt) {
 
@@ -593,7 +647,13 @@ int TrigTrackSeedGenerator::processSpacepointRangeZv(float rm, float zm, bool ch
  
     float dz = zsp - zm;
     float tau = dz/dr;
-    if (fabs(tau) > 7.41) continue;//|eta|<2.7
+    float ftau = fabs(tau);
+    
+    if (ftau > 7.41) continue;//|eta|<2.7
+
+    if(checkWidth) {
+      if(ftau < minTau || ftau > maxTau) continue;
+    }
 
     if(dr<0) {
       m_SoA.m_spi[m_nInner++] = *spIt;

@@ -86,8 +86,9 @@ def defineMenu():
 
         # 8 x JETs and central jets
         'J12', 'J12.0ETA23', 'J15', 'J15.0ETA25','J20', 'J25','J25.0ETA23','J30',
-        # 2 x VBF
-        'J20.0ETA49', 'J30.0ETA49',
+        # ATR-20450
+        # 2 x Central Jets
+        'J12.0ETA25', 'J12.0ETA28',
 
 
         #----------------------
@@ -112,6 +113,12 @@ def defineMenu():
         'jJ40', 'jJ50', 'jJ85', 'jJ100',
         'jJ15.31ETA49', 'jJ20.31ETA49', 'jJ75.31ETA49', 
 
+        #large R jets from gFEX
+        'gLJ100', 'gLJ120', 'gLJ140', 'gLJ160', 'gLJ180',
+
+        'jLJ100', 'jLJ120', 'jLJ140', 'jLJ160', 'jLJ180',
+
+        #'jLJ100', 'jLJ120, jLJ140, jLJ160, jLJ180
         #---------------------
         # SLOT 8 / CON 2 (EN1)
         #---------------------
@@ -429,7 +436,9 @@ def defineMenu():
         #ATR-17320
         'CEP-CJ60s6',
         'CEP-CJ50s6',
-        'CEP-CJ50s6ETA21'
+       
+        #ATR-20174
+        '8INVM15-2CMU4ab'
         ]
 
     
@@ -509,6 +518,8 @@ def defineMenu():
 
         "L1_TAU20IM_2TAU12IM_J25_2J20_3J12",
         "L1_TAU20IM_2TAU12IM_4J12.0ETA23",
+        "L1_TAU20IM_2TAU12IM_4J12.0ETA25",
+        "L1_TAU20IM_2TAU12IM_4J12.0ETA28",
         "L1_TAU25IM_2TAU20IM_2J25_3J20", 
         'L1_DR-MU10TAU12I_TAU12I-J25',
         'L1_eTAU20IM_2jJ20_gXERHO45',
@@ -559,7 +570,7 @@ def defineMenu():
         
 
         # combined mu - jet
-        'L1_MU6_J20', 'L1_MU6_J30.0ETA49_2J20.0ETA49', 'L1_MU6_J40', 'L1_MU6_J75',
+        'L1_MU6_J20', 'L1_MU6_J40', 'L1_MU6_J75',
 #ATR-13743        'L1_MU4_J30',
         #'L1_MU4_J50',
         'L1_MU10_2J20','L1_MU10_3J20', 'L1_MU10_2J15_J20',
@@ -593,19 +604,28 @@ def defineMenu():
 	"L1_J45.0ETA20_3J15.0ETA25",
 	"L1_J50_2J40.0ETA25_3J15.0ETA25",
            "L1_3J50", "L1_4J15", "L1_4J20",
-        "L1_4J20.0ETA49",
         "L1_3J15.0ETA25_XE40",
         
         #"L1_3J75",
         #"L1_4J30",
         "L1_6J15",
         "L1_J85_3J30",
-        "L1_J30.0ETA49_2J20.0ETA49",
         'L1_3jJ50',
         'L1_4jJ15',
         'L1_jJ25.0ETA23_2jJ15.31ETA49',
         'L1_jJ40.0ETA25_2jJ25_jJ20.31ETA49',
         'L1_jJ75.31ETA49',
+        #ATR-20408: gFEX
+        'L1_gLJ100',
+        'L1_gLJ120',
+        'L1_gLJ140',
+        'L1_gLJ160',
+        'L1_gLJ180',
+        'L1_jLJ100',
+        'L1_jLJ120',
+        'L1_jLJ140',
+        'L1_jLJ160',
+        'L1_jLJ180',
         'L1_jJ85_3jJ30',
        # multi jet forward
         "L1_J25.0ETA23_2J15.31ETA49",
@@ -942,7 +962,9 @@ def defineMenu():
         #ATR-17320
         'L1_CEP-CJ60',
         'L1_CEP-CJ50' ,
-        'L1_CEP-CJ50.ETA21'
+
+        #ATR-20174
+        'L1_BPH-8M15-2MU4-BO'
 
         ]
     
@@ -1062,6 +1084,8 @@ def defineMenu():
         'L1_TAU20IM_2TAU12IM_J25_2J20_3J12' : 70,
         'L1_TAU25IM_2TAU20IM_2J25_3J20' : 398,
         'L1_TAU20IM_2TAU12IM_4J12.0ETA23' : 316,
+        'L1_TAU20IM_2TAU12IM_4J12.0ETA25' : 317,
+        'L1_TAU20IM_2TAU12IM_4J12.0ETA28' : 319,
         'L1_DR-MU10TAU12I_TAU12I-J25' : 72,
         'L1_TAU20IM_2J20_XE45' : 74,
         'L1_TAU20IM_2J20_XE50' : 48,
@@ -1115,6 +1139,17 @@ def defineMenu():
         'L1_jJ25.0ETA23_2jJ15.31ETA49' : 125,
         'L1_jJ40.0ETA25_2jJ25_jJ20.31ETA49' : 126,
         'L1_jJ75.31ETA49' : 127,
+        #ATR-20408: gFEX
+        'L1_gLJ100' : 77,
+        'L1_gLJ120' : 79,
+        'L1_gLJ140' : 129,
+        'L1_gLJ160' : 227,
+        'L1_gLJ180' : 195,
+        'L1_jLJ100' : 228,
+        'L1_jLJ120' : 238,
+        'L1_jLJ140' : 241,
+        'L1_jLJ160' : 242,
+        'L1_jLJ180' : 243,
         'L1_jJ85_3jJ30' : 128,
         'L1_J20.31ETA49' : 103,
         'L1_J30.31ETA49' : 104,
@@ -1152,7 +1187,6 @@ def defineMenu():
 #        'L1_4J30' : 134,
         'L1_6J15' : 135,
         'L1_J85_3J30' : 480,
-        'L1_J30.0ETA49_2J20.0ETA49' : 137,
 
        
         'L1_5J15.0ETA25' : 140,
@@ -1379,8 +1413,6 @@ def defineMenu():
         #'L1_XS40' : 377,
         #'L1_XS50' : 378,
         #'L1_XS60' : 379,
-        'L1_MU6_J30.0ETA49_2J20.0ETA49' : 382,
-        'L1_4J20.0ETA49' : 383,
         'L1_HT150-JJ15.ETA49_MJJ-400' : 416,
 
         ### ATR-15062
@@ -1466,7 +1498,9 @@ def defineMenu():
         #ATR-17320
         'L1_CEP-CJ60' : 203,
         'L1_CEP-CJ50' : 210,
-        'L1_CEP-CJ50.ETA21': 211
+      
+        #ATR-20174
+        'L1_BPH-8M15-2MU4-BO' : 71
 
 }
 

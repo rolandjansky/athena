@@ -107,6 +107,7 @@ namespace InDet {
     constexpr static Int_t LOCAL_MAX_INT = std::numeric_limits<Int_t>::max();
 
     Double_t m_minPt = -1.; //!< Minimum p_T of tracks
+    Double_t m_maxPt = -1.; //!< Maximum p_T of tracks (negative -> no cut)
     Double_t m_maxAbsEta = LOCAL_MAX_DOUBLE; //!< Maximum magnitude of pseudorapidity
     Double_t m_maxZ0SinTheta = LOCAL_MAX_DOUBLE; //!< Maximum |z0*sin(theta)| of tracks
     Double_t m_maxZ0 = LOCAL_MAX_DOUBLE; //!< Maximum |z0| of tracks

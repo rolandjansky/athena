@@ -337,7 +337,8 @@ void StripClusterTool::fill_strip_validation_id(std::vector<std::unique_ptr<Stri
 
       auto stripClOfflData=std::make_unique<StripClusterOfflineData>(
                m_clusters.at(cl_i)->at(0)->bandId(),
-               m_clusters.at(cl_i)->at(0)->trig_BCID(),                                         
+               m_clusters.at(cl_i)->at(0)->trig_BCID(),  
+               m_clusters.at(cl_i)->at(0)->sideId(),                                       
                m_clusters.at(cl_i)->at(0)->phiId(),
 						   m_clusters.at(cl_i)->at(0)->isSmall(),
 						   m_clusters.at(cl_i)->at(0)->moduleId(),

@@ -12,12 +12,10 @@
 
 #include <math.h>
 
-#include "GaudiKernel/StatusCode.h"
-
 #include "TrigL2TrkMassFex.h"
 
-#include "TrigInDetEvent/TrigInDetTrackCollection.h"
-#include "TrigInDetEvent/TrigInDetTrackFitPar.h"
+//#include "TrigInDetEvent/TrigInDetTrackCollection.h"
+//#include "TrigInDetEvent/TrigInDetTrackFitPar.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
@@ -35,8 +33,8 @@
 #include "TrigBphysHelperUtilsTool.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
-#include "xAODTrigMuon/L2StandAloneMuon.h"
-#include "xAODTrigMuon/L2StandAloneMuonContainer.h"
+//#include "xAODTrigMuon/L2StandAloneMuon.h"
+//#include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 #include "xAODTrigMuon/L2CombinedMuon.h"
 #include "xAODTrigMuon/L2CombinedMuonContainer.h"
 

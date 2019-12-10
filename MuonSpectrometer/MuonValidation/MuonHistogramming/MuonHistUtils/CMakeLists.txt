@@ -7,6 +7,7 @@ atlas_subdir( MuonHistUtils )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
+                          Event/xAOD/xAODEventInfo
                           Event/xAOD/xAODMuon
                           Event/xAOD/xAODTracking
                           Event/xAOD/xAODTrigMuon
@@ -29,6 +30,6 @@ atlas_add_library( MuonHistUtils
                    PUBLIC_HEADERS MuonHistUtils
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODMuon xAODTracking xAODTrigMuon xAODTrigger xAODTruth TrkEventPrimitives TrkValHistUtils MuonIdHelpersLib
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEventInfo xAODMuon xAODTracking xAODTrigMuon xAODTrigger xAODTruth TrkEventPrimitives TrkValHistUtils MuonIdHelpersLib
                    PRIVATE_LINK_LIBRARIES ${EIGEN_LIBRARIES} GeoPrimitives )
 

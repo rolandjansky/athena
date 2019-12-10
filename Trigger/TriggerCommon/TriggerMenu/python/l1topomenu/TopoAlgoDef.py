@@ -1969,8 +1969,8 @@ class TopoAlgoDef:
             for bitid,minDphi in enumerate(minDphiList):  # noqa: F821
                 alg.addvariable('MinET1', ocut1, bitid)# noqa: F821
                 alg.addvariable('MinET2', ocut2, bitid)# noqa: F821
-                alg.addvariable('MinMSqr', minInvm*minInvm , bitid)        # noqa: F821         
-                alg.addvariable('MaxMSqr', maxInvm*maxInvm , bitid)        # noqa: F821
+                alg.addvariable('MinMSqr', minInvm*minInvm*_emscale_for_decision , bitid)        # noqa: F821 #ATR-18824 only one factor is needed as there is one EM object         
+                alg.addvariable('MaxMSqr', maxInvm*maxInvm*_emscale_for_decision , bitid)        # noqa: F821 #ATR-18824 only one factor is needed as there is one EM object
                 alg.addvariable('MinDeltaPhi', minDphi, bitid) # noqa: F821
                 alg.addvariable('MaxDeltaPhi', maxDphi, bitid) # noqa: F821
 
@@ -2118,30 +2118,52 @@ class TopoAlgoDef:
             alg.addvariable('DeltaRMin', 0)
             alg.addvariable('DeltaRMax', 15*15)
             tm.registerAlgo(alg)
-            
+
+        #ATR-20174, L1BPH-8M15-2MU4-BO
         if usev8:
-          for x in [50,60]:
-            toponame = "CEP-CJ%is6" % x 
+            toponame = "8INVM15-2CMU4ab"
             log.info("Define %s" % toponame)
+   
+            inputList = ['CMUab']
+
+            alg = AlgConf.InvariantMassInclusive1( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId ); currentAlgoId += 1
+            alg.addgeneric('InputWidth', HW.OutputWidthSelectMU)
+            alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)
+            alg.addgeneric('NumResultBits', 1)
+            alg.addvariable('MinMSqr', 8*8)
+            alg.addvariable('MaxMSqr', 15*15)
+            alg.addvariable('MinET1', 4)
+            alg.addvariable('MinET2', 4)
             
-            inputList = ['CJs']
-            
-            alg = AlgConf.ExclusiveJets( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId); currentAlgoId += 1
-            alg.addvariable('MinET1', x)
-            alg.addvariable('MinXi', 13000.0*0.02)
-            alg.addvariable('MaxXi', 13000.0*0.05)
             tm.registerAlgo(alg)
 
-        if usev8:            
-          x = 50
-          toponame = "CEP-CJ%is6ETA21" % x 
-          log.info("Define %s" % toponame)
+
+        #CEP algorithms    
+        if usev8:
+            CEPmap = [{"algoname": 'CEP_CJ', "minETlist": [50, 60]}]
+
+        else:    
+            CEPmap = []
+
+        for x in CEPmap:    
+
+            for k in x:
+                exec("%s = x[k]" % k)
+
+            inputList = ['CJs']
+            toponames=[]            
+
+            for minET in minETlist:  # noqa: F821
+                toponames.append ("CEP-CJ%is6" % (minET))     # noqa: F821 
             
-          inputList = ['CJsETA21']
-            
-          alg = AlgConf.ExclusiveJets( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId); currentAlgoId += 1
-          alg.addvariable('MinET1', x)
-          alg.addvariable('MinXi', 13000.0*0.02)
-          alg.addvariable('MaxXi', 13000.0*0.05)
-          tm.registerAlgo(alg)
+            alg = AlgConf.ExclusiveJets( name = algoname, inputs = inputList, outputs = toponames, algoId = currentAlgoId); currentAlgoId += 1 # noqa: F821
+            alg.addgeneric('InputWidth', HW.InputWidthJET) # noqa: F821
+            alg.addgeneric('MaxTob', HW.InputWidthJET)       # noqa: F821
+            alg.addgeneric('NumResultBits',  len(toponames)) # noqa: F821
+            alg.addvariable('MinXi', 13000.0*0.02) # noqa: F821
+            alg.addvariable('MaxXi', 13000.0*0.05) # noqa: F821
+            for bitid,minET in enumerate(minETlist):  # noqa: F821
+                alg.addvariable('MinET1', minET, bitid)# noqa: F821
+            tm.registerAlgo(alg)
+
         
