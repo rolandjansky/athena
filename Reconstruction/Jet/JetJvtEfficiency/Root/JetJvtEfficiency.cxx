@@ -37,7 +37,7 @@ JetJvtEfficiency::JetJvtEfficiency( const std::string& name): asg::AsgTool( name
     declareProperty( "DoTruthReq",                m_doTruthRequirement   = true                                   );
     declareProperty( "TruthLabel",                m_isHS_decoration_name  = "isJvtHS"                             );
     declareProperty( "TruthJetContainerName",     m_truthJetContName = "AntiKt4TruthJets"                         );
-    applySystematicVariation(CP::SystematicSet()).ignore();
+    declareProperty( "UseMuSFFormat",             m_useMuBinsSF = false , "Use (mu,pT) or (|eta|,pT) binning for fJVT SFs" );
 }
 
 StatusCode JetJvtEfficiency::initialize(){
@@ -51,6 +51,7 @@ StatusCode JetJvtEfficiency::initialize(){
 
   bool ispflow = (m_file.find("EMPFlow") != std::string::npos);
   
+  if (m_wp=="Default" && m_useMuBinsSF) m_wp = "Loose";
   if (m_wp=="Default" && !ispflow) m_wp = "Medium";
   if (m_wp=="Default" && ispflow) m_wp = "Tight";
 
@@ -91,11 +92,28 @@ StatusCode JetJvtEfficiency::initialize(){
   else if (m_wp=="Tight")  histname+="Tight";
   else if (m_wp=="Tighter")  histname+="Tighter";
 
+
   h_JvtHist.reset( dynamic_cast<TH2*>(infile->Get(histname.c_str())) );
   h_JvtHist->SetDirectory(0);
   histname.replace(0,3,"Eff");
   h_EffHist.reset( dynamic_cast<TH2*>(infile->Get(histname.c_str())) );
   h_EffHist->SetDirectory(0);
+
+  // Check consistency between config file and requested SF binning
+  if ( !(m_dofJVT || m_doMVfJVT) && m_useMuBinsSF ){
+    ATH_MSG_ERROR( "Mismatch in SF format. Please set UseMuSFFormat to false for JVT.");
+    return StatusCode::FAILURE;
+  }
+  if( m_dofJVT || m_doMVfJVT ){
+    if (m_useMuBinsSF && h_JvtHist->GetYaxis()->GetBinUpEdge(h_JvtHist->GetNbinsY())<=5. ){
+      ATH_MSG_ERROR( "Mismatch in fJVT SF format. Please set UseMuSFFormat to false to match the current configuration file.");
+      return StatusCode::FAILURE;
+    }
+    if (!m_useMuBinsSF && h_JvtHist->GetYaxis()->GetBinUpEdge(h_JvtHist->GetNbinsY())>5. ){
+      ATH_MSG_ERROR( "Mismatch in fJVT SF format. Please set UseMuSFFormat to true to match the current configuration file");
+      return StatusCode::FAILURE;
+    }
+  }
 
   if(h_JvtHist.get()==nullptr || h_EffHist.get()==nullptr) {
     ATH_MSG_ERROR("Failed to retrieve histograms.");
@@ -121,6 +139,13 @@ StatusCode JetJvtEfficiency::initialize(){
 	  return StatusCode::FAILURE;
       }
   }
+
+  // Configure for nominal systematics
+  if (applySystematicVariation(CP::SystematicSet()) != CP::SystematicCode::Ok) {
+    ATH_MSG_ERROR("Could not configure for nominal settings");
+    return StatusCode::FAILURE;
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -142,7 +167,7 @@ CorrectionCode JetJvtEfficiency::getEfficiencyScaleFactor( const xAOD::Jet& jet,
     }
 
     int jetbin = 0;
-    if((m_dofJVT && !std::strstr(m_file.c_str(),"Moriond")) || m_doMVfJVT){ // fJVT SFs stored in 'Moriond' directory use (pT,eta) binning, new SFs binned in (eta,mu)
+    if( m_useMuBinsSF ){ // fJVT SFs used (pT,eta) binning, changed to (pT,mu) starting with 'Nov2019' calibration
       const xAOD::EventInfo *eventInfo = nullptr;
       if ( evtStore()->retrieve(eventInfo, "EventInfo").isFailure() )
 	{
@@ -186,7 +211,7 @@ CorrectionCode JetJvtEfficiency::getInefficiencyScaleFactor( const xAOD::Jet& je
     }
 
     int jetbin = 0;
-    if((m_dofJVT && !strstr(m_file.c_str(),"Moriond")) || m_doMVfJVT){
+    if( m_useMuBinsSF ){
       const xAOD::EventInfo *eventInfo = nullptr;
       if ( evtStore()->retrieve(eventInfo, "EventInfo").isFailure() )
 	{
@@ -284,7 +309,7 @@ bool JetJvtEfficiency::passesJvtCut(const xAOD::Jet& jet) {
 
 bool JetJvtEfficiency::isInRange(const xAOD::Jet& jet) {
   if (m_doOR && !jet.getAttribute<char>(m_ORdec)) return false;
-  if ( (m_dofJVT && !std::strstr(m_file.c_str(),"Moriond")) || m_doMVfJVT ){
+  if ( m_useMuBinsSF ){
     if (fabs(jet.getAttribute<float>(m_jetEtaName))<2.5) return false;
     if (fabs(jet.getAttribute<float>(m_jetEtaName))>4.5) return false;
   } else {

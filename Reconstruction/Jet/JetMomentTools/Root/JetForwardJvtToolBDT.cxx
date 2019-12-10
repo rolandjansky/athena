@@ -42,25 +42,25 @@ JetForwardJvtToolBDT::JetForwardJvtToolBDT(const std::string& name) :
     declareProperty( "AnaToolMode",       m_isAna            = false                                        );// false: computes all input moments from scratch, true: retrieve precomputed moments
     declareProperty( "VtxContName",       m_vtxcont          = "PrimaryVertices"                            );
     declareProperty( "PVIndexHS",         m_pvind            = -1                                           );
-    declareProperty( "WPfile",            m_wpFile           = "MVfJVT_WPs.May2019.root"                    );
-    declareProperty( "configDir",         m_configDir        = "/afs/cern.ch/work/l/lportale/public/MVfJVTconfig/"); // This should ultimately be replaced by a more official calibArea
+    declareProperty( "WPfile",            m_wpFile           = "MVfJVT_WPs.Nov2019.root"                    );
+    declareProperty( "configDir",         m_configDir        = "JetPileupTag/MVfJVT/"                       );
     declareProperty( "ConfigFiles",       m_MVconfig         = {
-	  "MVfJVT_pt2030_etaHigh_muHigh.May2019.weights.xml",
-	  "MVfJVT_pt2030_etaLow_muHigh.May2019.weights.xml",
-	  "MVfJVT_pt3040_etaHigh_muHigh.May2019.weights.xml",
-	  "MVfJVT_pt3040_etaLow_muHigh.May2019.weights.xml",
-	  "MVfJVT_pt4050_etaHigh_muHigh.May2019.weights.xml",
-	  "MVfJVT_pt4050_etaLow_muHigh.May2019.weights.xml",
-	  "MVfJVT_pt50plus_etaHigh_muHigh.May2019.weights.xml",
-	  "MVfJVT_pt50plus_etaLow_muHigh.May2019.weights.xml",
-	  "MVfJVT_pt2030_etaHigh_muLow.May2019.weights.xml",
-	  "MVfJVT_pt2030_etaLow_muLow.May2019.weights.xml",
-	  "MVfJVT_pt3040_etaHigh_muLow.May2019.weights.xml",
-	  "MVfJVT_pt3040_etaLow_muLow.May2019.weights.xml",
-	  "MVfJVT_pt4050_etaHigh_muLow.May2019.weights.xml",
-	  "MVfJVT_pt4050_etaLow_muLow.May2019.weights.xml",
-	  "MVfJVT_pt50plus_etaHigh_muLow.May2019.weights.xml",
-	  "MVfJVT_pt50plus_etaLow_muLow.May2019.weights.xml"}); // pt [20,30,40,50,120] || |eta| [2.5,3.2,4.5] || mu [0,50,inf.]
+	  "weights/MVfJVT_pt2030_etaHigh_muHigh.May2019.weights.xml",
+	  "weights/MVfJVT_pt2030_etaLow_muHigh.May2019.weights.xml",
+	  "weights/MVfJVT_pt3040_etaHigh_muHigh.May2019.weights.xml",
+	  "weights/MVfJVT_pt3040_etaLow_muHigh.May2019.weights.xml",
+	  "weights/MVfJVT_pt4050_etaHigh_muHigh.May2019.weights.xml",
+	  "weights/MVfJVT_pt4050_etaLow_muHigh.May2019.weights.xml",
+	  "weights/MVfJVT_pt50plus_etaHigh_muHigh.May2019.weights.xml",
+	  "weights/MVfJVT_pt50plus_etaLow_muHigh.May2019.weights.xml",
+	  "weights/MVfJVT_pt2030_etaHigh_muLow.May2019.weights.xml",
+	  "weights/MVfJVT_pt2030_etaLow_muLow.May2019.weights.xml",
+	  "weights/MVfJVT_pt3040_etaHigh_muLow.May2019.weights.xml",
+	  "weights/MVfJVT_pt3040_etaLow_muLow.May2019.weights.xml",
+	  "weights/MVfJVT_pt4050_etaHigh_muLow.May2019.weights.xml",
+	  "weights/MVfJVT_pt4050_etaLow_muLow.May2019.weights.xml",
+	  "weights/MVfJVT_pt50plus_etaHigh_muLow.May2019.weights.xml",
+	  "weights/MVfJVT_pt50plus_etaLow_muLow.May2019.weights.xml"}); // pt [20,30,40,50,120] || |eta| [2.5,3.2,4.5] || mu [0,50,inf.]
 }
 
 // Destructor
