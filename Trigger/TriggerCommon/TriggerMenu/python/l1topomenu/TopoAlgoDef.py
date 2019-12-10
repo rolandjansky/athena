@@ -2160,10 +2160,10 @@ class TopoAlgoDef:
             alg.addgeneric('InputWidth', HW.InputWidthJET) # noqa: F821
             alg.addgeneric('MaxTob', HW.InputWidthJET)       # noqa: F821
             alg.addgeneric('NumResultBits',  len(toponames)) # noqa: F821
-            alg.addvariable('MinXi', 13000.0*0.02) # noqa: F821
-            alg.addvariable('MaxXi', 13000.0*0.05) # noqa: F821
             for bitid,minET in enumerate(minETlist):  # noqa: F821
                 alg.addvariable('MinET1', minET, bitid)# noqa: F821
+                alg.addvariable('MinXi', 13000.0*0.02, bitid) # noqa: F821
+                alg.addvariable('MaxXi', 13000.0*0.05, bitid) # noqa: F821
             tm.registerAlgo(alg)
 
         
