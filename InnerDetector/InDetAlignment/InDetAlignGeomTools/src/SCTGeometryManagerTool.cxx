@@ -641,7 +641,7 @@ namespace InDet {
     ATH_MSG_INFO("Preparing the SCT Barrel geometry for L25: 48 rings (12 eta rings x 4 layers)");
 
     if(!m_alignBarrel) {
-      ATH_MSG_DEBUG("Not aligning barrel");
+      ATH_MSG_INFO("Warning SCT barrel not being aligned");
       return;
     }
 
