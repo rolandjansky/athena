@@ -11,13 +11,15 @@
 // Version 1.0 21/04/2004 I.Gavrilenko
 ///////////////////////////////////////////////////////////////////
 
-#include <list>
+
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "InDetRecToolInterfaces/ITRT_DetElementsRoadMaker.h" 
 #include "TRT_TrackExtensionTool_xk/TRT_TrackExtensionTool_xk.h"
 #include "InDetRecToolInterfaces/ITrtDriftCircleCutTool.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "InDetPrepRawData/SCT_Cluster.h"
+#include <list>
+#include <iostream>
 
 ///////////////////////////////////////////////////////////////////
 // Constructor
@@ -165,14 +167,7 @@ StatusCode InDet::TRT_TrackExtensionTool_xk::initialize()
     msg(MSG::INFO) << "Retrieved tool " << m_selectortool << endmsg;
   }
 
-  // Get  TRT Detector Manager
-  /*
-  const InDetDD::TRT_DetectorManager* trtmanager;
-  sc = detStore()->retrieve(trtmanager,m_trtmanager);
-  if (sc.isFailure()) {
-    msg(MSG::FATAL)<<"Could not get TRT_DetectorManager"<<endmsg; return sc;
-  }
-  */
+ 
 
   // TRT
   if (detStore()->retrieve(m_trtid,"TRT_ID").isFailure()) {
@@ -180,23 +175,6 @@ StatusCode InDet::TRT_TrackExtensionTool_xk::initialize()
     return StatusCode::FAILURE;
   }
 
-  // Setup callback for magnetic field
-  //
-  // std::string folder( "/EXT/DCS/MAGNETS/SENSORDATA" );
-  // if (detStore()->contains<CondAttrListCollection>(folder)){
-  //   const DataHandle<CondAttrListCollection> currentHandle;
-  //   sc = detStore()->regFcn(&InDet::TRT_TrackExtensionTool_xk::magneticFieldInit,this,currentHandle,folder);
-    
-  //   if(sc==StatusCode::SUCCESS) {
-  //     msg(MSG::INFO) << "Registered callback from MagneticFieldSvc for " << name() << endmsg;
-  //   } else {
-  //     msg(MSG::ERROR) << "Could not book callback from MagneticFieldSvc for " << name () << endmsg;
-  //     return StatusCode::FAILURE;
-  //   }
-  // } else {
-  //   magneticFieldInit();
-  //   ATH_MSG_INFO("Folder " << folder << " not present, magnetic field callback not set up. Not a problem if AtlasFieldSvc.useDCS=False");
-  // }
 
   //Initialize container
   ATH_CHECK(m_trtname.initialize());
