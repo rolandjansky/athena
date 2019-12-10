@@ -46,6 +46,8 @@ namespace G4UA
       /// Initialize the user actions for the current thread
       StatusCode initializeActions() override final;
 
+      StatusCode getSecondaryActions( std::vector< G4UserSteppingAction* >& actions ) override final;
+
     private:
 
       /// @name Handles to ATLAS action tools
