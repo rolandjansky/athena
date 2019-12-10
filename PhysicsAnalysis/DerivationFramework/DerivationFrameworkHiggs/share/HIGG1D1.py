@@ -264,29 +264,21 @@ fileName   = buildFileName( derivationFlags.WriteDAOD_HIGG1D1Stream )
 HIGG1D1Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 HIGG1D1Stream.AcceptAlgs(["HIGG1D1Kernel"])
 
-## Do not use this variable at the derivation stage
-#HIGG1D1Stream.AddItem("std::vector<int>#leadingV")
-# I would want to add this container to the derivations...
-#HIGG1D1Stream.AddItem("xAOD::VertexContainer#HggPrimaryVertices")
-
 # Thinning service name must match the one passed to the thinning tools
 from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
 svcMgr += createThinningSvc( svcName="HIGG1D1ThinningSvc", outStreams=[evtStream] )
 
-
- #====================================================================
+#====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 HIGG1D1SlimmingHelper = SlimmingHelper("HIGG1D1SlimmingHelper")
 
-#HIGG1D1Stream.AddItem("xAOD::VertexContainer#HggPrimaryVertices")
-#HIGG1D1Stream.AddItem("xAOD::VertexAuxContainer#HggPrimaryVerticesAux.")
 HIGG1D1Stream.AddItem("xAOD::EventShape#*")
 HIGG1D1Stream.AddItem("xAOD::EventShapeAuxInfo#*")
-HIGG1D1SlimmingHelper.AppendToDictionary = {'HggPrimaryVertices': 'xAOD::VertexContainer','HggPrimaryVerticesAux': 'xAOD::VertexAuxContainer',
+HIGG1D1SlimmingHelper.AppendToDictionary = {'HggPrimaryVertices': 'xAOD::VertexContainer','HggPrimaryVerticesAux': 'xAOD::ShallowAuxContainer',
                                            'TruthTaus':'xAOD::TruthParticleContainer','TruthTausAux':'xAOD::TruthParticleAuxContainer',
                                            'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer',
                                            'TruthPrimaryVertices': 'xAOD::VertexContainer','TruthPrimaryVerticesAux': 'xAOD::VertexAuxContainer'}
@@ -310,6 +302,7 @@ HIGG1D1SlimmingHelper.SmartCollections = ["Electrons",
 
 
 HIGG1D1SlimmingHelper.AllVariables = ["HLT_xAOD__PhotonContainer_egamma_Iso_Photons","Electrons","Photons","TruthPrimaryVertices","egammaClusters","GSFConversionVertices","TruthEvents", "TruthParticles", "TruthVertices", "AntiKt4TruthJets","AntiKt4TruthWZJets","TruthElectrons","TruthPhotons","TruthMuons","TruthTaus","TruthBoson","PrimaryVertices","MET_Truth", "MET_Track","egammaTruthParticles","CaloCalTopoClusters","HggPrimaryVertices"]
+
 
 HIGG1D1SlimmingHelper.ExtraVariables = ["Muons.quality.EnergyLoss.energyLossType",
                                         "GSFTrackParticles.parameterY.parameterZ.vx.vy",
@@ -348,4 +341,3 @@ addMETOutputs(HIGG1D1SlimmingHelper,["AntiKt4EMPFlow"])
 HIGG1D1SlimmingHelper.IncludeEGammaTriggerContent = True
 
 HIGG1D1SlimmingHelper.AppendContentToStream(HIGG1D1Stream)
-

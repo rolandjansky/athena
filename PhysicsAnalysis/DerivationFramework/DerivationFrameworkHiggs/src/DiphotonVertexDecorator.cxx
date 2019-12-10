@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -13,12 +13,15 @@
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
+#include "xAODCore/ShallowCopy.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODTracking/TrackingPrimitives.h"
 #include "xAODTracking/VertexAuxContainer.h"
 #include "PhotonVertexSelection/IPhotonVertexSelectionTool.h"
 #include "AthContainers/ConstDataVector.h"
 #include "PhotonVertexSelection/IPhotonPointingTool.h"
+
+typedef ElementLink<xAOD::PhotonContainer> phlink_t;
 
 // Constructor
 DerivationFramework::DiphotonVertexDecorator::DiphotonVertexDecorator(const std::string& t,
@@ -60,14 +63,20 @@ StatusCode DerivationFramework::DiphotonVertexDecorator::finalize()
 
 StatusCode DerivationFramework::DiphotonVertexDecorator::addBranches() const
 {
-  // Create and record a vertex container with a copy of the diphoton vertex
-  // or the hardest vertex
-  xAOD::VertexContainer* vxContainer = new xAOD::VertexContainer;
-  xAOD::VertexAuxContainer* vxAuxContainer  = new xAOD::VertexAuxContainer;
-  vxContainer->setStore(vxAuxContainer);   
+  const xAOD::VertexContainer *PV(0); 
+  ATH_CHECK( evtStore()->retrieve(PV, m_primaryVertexSGKey) );
+  if (PV->size() && PV->at(0)) {
+    ATH_MSG_DEBUG( "Default PV " << PV->at(0) << ", type = " << PV->at(0)->vertexType() << " , z = " << PV->at(0)->z()  );
+  } else {
+    ATH_MSG_WARNING( "No vertex in " << m_primaryVertexSGKey );
+  }
+  
+  // Create shallow copy of the PrimaryVertices container
+  std::pair< xAOD::VertexContainer*, xAOD::ShallowAuxContainer* > HggPV = xAOD::shallowCopyContainer( *PV );
+  
+  ATH_CHECK(evtStore()->record( HggPV.first, m_diphotonVertexSGKey ));
+  ATH_CHECK(evtStore()->record( HggPV.second, m_diphotonVertexSGKey + "Aux."));
 
-  ATH_CHECK(evtStore()->record(vxContainer, m_diphotonVertexSGKey));
-  ATH_CHECK(evtStore()->record(vxAuxContainer, m_diphotonVertexSGKey + "Aux."));
 
   // Select the two highest pt photons that pass a preselection
   const xAOD::PhotonContainer *photons(0);
@@ -92,53 +101,59 @@ StatusCode DerivationFramework::DiphotonVertexDecorator::addBranches() const
 
   // Get the photon vertex if possible
   std::vector<std::pair<const xAOD::Vertex*, float> > vxResult;
-  bool fromDiphoton = false;
+  const xAOD::Vertex *newPV = nullptr;
+  
   if (ph1 and ph2)
   {
     vxResult = m_photonVertexSelectionTool->getVertex( *( vertexPhotons.asDataVector()) , m_ignoreConv);
-    if(vxResult.size()) fromDiphoton = true;
-  }
-
-  // Add the hardest vertex if needed
-  if (not vxResult.size())
-  {
-    const xAOD::VertexContainer *PV(0); 
-    ATH_CHECK( evtStore()->retrieve(PV, m_primaryVertexSGKey) );
-    for (const xAOD::Vertex* vx : *PV) {
-      if (vx->vertexType()==xAOD::VxType::PriVtx) {
-        vxResult.push_back( std::make_pair(vx, -9999.) );
-        break;
-      }
-     }
+    if(vxResult.size()) {
+      newPV = vxResult[0].first; //output of photon vertex selection tool must be sorted according to score
+    }
   }
 
   // Decorate the vertices with the NN score
-  for (const auto vxR: vxResult)
-  {
-    vxR.first->auxdecor<float>("vertexScore") = vxR.second;
-    vxR.first->auxdecor<int>("vertexFailType") = m_photonVertexSelectionTool->getFail();
-    vxR.first->auxdecor<int>("vertexCase") = m_photonVertexSelectionTool->getCase();
-    
-    // Make a deep copy of the first vertex (the selected one) and add to the container
-    if (not vxContainer->size())
-    {  
-      vxContainer->push_back( new xAOD::Vertex() );
-      *( vxContainer->back() ) = *(vxR.first);
-      // Make it a primary vertex for the MET tool
-      vxContainer->back()->setVertexType( xAOD::VxType::PriVtx );
-      
-      // Decorate vertex with element link to the original one,
-      // links to the photons and flag that tells if it used them
-      typedef ElementLink<xAOD::VertexContainer> vxlink_t;
-      vxContainer->back()->auxdecor<vxlink_t>("originalVertexLink") = vxlink_t(m_primaryVertexSGKey, vxR.first->index());
-      
-      typedef ElementLink<xAOD::PhotonContainer> phlink_t;
-      vxContainer->back()->auxdecor<phlink_t>("leadingPhotonLink") =\
-        (ph1 ? phlink_t(*photons, ph1->index()) : phlink_t() );
-      vxContainer->back()->auxdecor<phlink_t>("subleadingPhotonLink") =\
-        (ph2 ? phlink_t(*photons, ph2->index()) : phlink_t() );
-      vxContainer->back()->auxdecor<int>("fromDiphoton") = fromDiphoton;
+  ATH_MSG_DEBUG("PhotonVertexSelection returns vertex " << newPV << " " << (newPV? Form(" with z = %g", newPV->z()) : "") );
+  
+  if (newPV) {
+    //loop over vertex container; shallow copy has the same order
+    for (unsigned int iPV=0; iPV<PV->size(); iPV++) {
+      auto vx = PV->at(iPV);
+      auto yyvx = (HggPV.first)->at(iPV);
+      //reset vertex type
+      if (vx == newPV) { //is this the diphoton primary vertex returned from the tool?
+	yyvx->setVertexType( xAOD::VxType::PriVtx );
+      } else if ( vx->vertexType()==xAOD::VxType::PriVtx || vx->vertexType()==xAOD::VxType::PileUp ) {
+	//not overriding the type of dummy vertices of type 0 (NoVtx)
+	yyvx->setVertexType( xAOD::VxType::PileUp );
+      }
+      //decorate score
+      for (const auto vxR: vxResult) {
+	//find vertex in output from photonVertexSelectionTool
+	if ( vx == vxR.first ) {
+	  yyvx->auxdata<float>("vertexScore") = vxR.second;
+	  yyvx->auxdata<int>("vertexFailType") = m_photonVertexSelectionTool->getFail();
+	  yyvx->auxdata<int>("vertexCase") = m_photonVertexSelectionTool->getCase();
+	  yyvx->auxdata<phlink_t>("leadingPhotonLink") = phlink_t(*photons, ph1->index());
+	  yyvx->auxdata<phlink_t>("subleadingPhotonLink") = phlink_t(*photons, ph2->index());
+	  break;
+	}
+      }
     }
+  }
+  else {
+    //no vertex returned by photonVertexSelectionTool, decorate default PV with fit information
+    xAOD::VertexContainer::iterator yyvx_itr;
+    xAOD::VertexContainer::iterator yyvx_end = (HggPV.first)->end();
+    for(yyvx_itr = (HggPV.first)->begin(); yyvx_itr != yyvx_end; ++yyvx_itr ) {
+      if ( (*yyvx_itr)->vertexType()==xAOD::VxType::PriVtx ) {
+	(*yyvx_itr)->auxdata<float>("vertexScore") = -9999;
+	(*yyvx_itr)->auxdata<int>("vertexFailType") = m_photonVertexSelectionTool->getFail();
+	(*yyvx_itr)->auxdata<int>("vertexCase") = m_photonVertexSelectionTool->getCase();
+	(*yyvx_itr)->auxdata<phlink_t>("leadingPhotonLink") = (phlink_t()) ;
+	(*yyvx_itr)->auxdata<phlink_t>("subleadingPhotonLink") = (phlink_t());
+      }
+    }
+
   }
 
   return StatusCode::SUCCESS;
