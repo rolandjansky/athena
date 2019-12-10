@@ -60,7 +60,6 @@ namespace xAOD {
       TruthWZ,      // Truth jets without prompt e/mu/gamma
       Track,
       PFlow,
-      PFlowCustomVtx,
       LCPFlow,      // LC PFlow
       EMPFlow,      // EM Pflow at EM scale
       EMCPFlow,     // EM Pflow calibrated to LC scale
@@ -97,6 +96,7 @@ namespace xAOD {
       EMPFlowSKTime,
       EMPFlowCSSKTime,
       EMPFlowVorSKTime,
+      PFlowCustomVtx,
       Other = 100,
       Uncategorized= 1000
     };
