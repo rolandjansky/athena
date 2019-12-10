@@ -35,6 +35,7 @@ Sherpa_i::Sherpa_i(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("MemoryMB", m_memorymb=2500.);
   declareProperty("PluginCode", m_plugincode = "");
 
+  declareProperty("VariationWeightCap", m_variation_weight_cap=10.0);
   declareProperty("CrossSectionScaleFactor", m_xsscale=1.0);
   declareProperty("CleanupGeneratedFiles", m_cleanup=true);
 }
@@ -122,6 +123,13 @@ StatusCode Sherpa_i::fillEvt(HepMC::GenEvent* event) {
     double weight_normalisation = event->weights()[2];
     for (size_t i=0; i<event->weights().size(); ++i) {
       if (i==0 || i>3) event->weights()[i] /= weight_normalisation;
+      if (i>3) { // cap variation weights
+        // cap variation weights at m_variation_weight_cap*nominal to avoid spikes from numerical instability
+        if (fabs(event->weights()[i]) > m_variation_weight_cap*fabs(event->weights()[0])) {
+          ATH_MSG_INFO("Capping variation" << i << " = " << event->weights()[i]/event->weights()[0] << "*nominal");
+          event->weights()[i] *= m_variation_weight_cap*fabs(event->weights()[0])/fabs(event->weights()[i]);
+        }
+      }
       ATH_MSG_DEBUG("Sherpa WEIGHT " << i << " value="<< event->weights()[i]);
     }
   }
