@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthContainers/DataVector.h"
@@ -663,9 +663,7 @@ namespace InDet {
         ATH_MSG_INFO("  Layer "<<iLayer<<" not present");
       for (int iEta = m_detManager->numerology().beginEtaModuleForLayer(iLayer); iEta < m_detManager->numerology().endEtaModuleForLayer(iLayer); iEta++) {
 	if (!iEta && m_detManager->numerology().skipEtaZeroForLayer(iLayer))
-	  // iEta=0 is not defined for the SCT
 	  continue;
-	//for (int iPhi = 0; iPhi < m_detManager->numerology().numPhiModulesForLayer(iLayer); iPhi++) {
         ATH_MSG_DEBUG("iEta "<<iEta);
 
         // create the AlignModule
@@ -691,7 +689,6 @@ namespace InDet {
         // rotation of the stave alignment frame
         Amg::RotationMatrix3D rotation; rotation.setIdentity();
 
-        //for (int iEta = m_detManager->numerology().beginEtaModuleForLayer(iLayer); iEta < m_detManager->numerology().endEtaModuleForLayer(iLayer); iEta++) {
 	for (int iPhi = 0; iPhi < m_detManager->numerology().numPhiModulesForLayer(iLayer); iPhi++) {
           ATH_MSG_DEBUG("iPhi "<<iPhi);
           for (int is = 0; is < 2; is++) { // module side
@@ -700,11 +697,6 @@ namespace InDet {
             const Trk::TrkDetElementBase * element = (const Trk::TrkDetElementBase*) element2;
 
             if (element) {
-              // get element location for debugging
-              // HepGeom::Point3D<double> center = element->transform() * HepGeom::Point3D<double>();
-              // ATH_MSG_DEBUG(" SCTDetectorElement id: " << id << " with center = " << center);
-              // ATH_MSG_DEBUG(" Is Barrel: "<< m_idHelper->is_barrel(id));
-
               // add element to the AlignModule
               mod->addDetElement(Trk::AlignModule::SCT,element,transform);
               // and fill the corresponding map

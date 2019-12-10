@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -113,7 +113,6 @@ StatusCode SiTrkAlignDBTool::initialize() {
 
   // get AlignModuleTool
   if( m_alignModuleTool.retrieve().isFailure() ) {
-    //msg(MSG::FATAL) << " Could not retrieve " << m_alignModuleTool << endreq;
     ATH_MSG_FATAL("SiTrkAlignDBTool::initialize() ->  Could not retrieve " << m_alignModuleTool);
     return StatusCode::FAILURE;
   }
@@ -176,7 +175,7 @@ StatusCode SiTrkAlignDBTool::initialize() {
       m_pixelAlignLevel = m_pixelGeoManager->alignLevel();
       m_pixelAlignLevelBarrel = m_pixelGeoManager->alignLevelBarrel();
       m_pixelAlignLevelEndcaps = m_pixelGeoManager->alignLevelEndcaps();
-//      m_pixelaAlignDBM = m_pixelGeoManager->alignDBM();
+
       ATH_MSG_DEBUG("Retrieved Pixel Global alignment level: "<<m_pixelAlignLevel);
       ATH_MSG_DEBUG("Retrieved Pixel Barrel alignment level: "<<m_pixelAlignLevelBarrel);
       ATH_MSG_DEBUG("Retrieved Pixel Endcap alignment level: "<<m_pixelAlignLevelEndcaps);
@@ -192,7 +191,6 @@ StatusCode SiTrkAlignDBTool::initialize() {
        // check alignment level but don't stop on error
       if(!checkPixelLevel()) {
         ATH_MSG_FATAL("SiTrkAlignDBTool::initialize() ->  Pixel alignment level not given.");
-        // return StatusCode::FAILURE; 
       }
     }
 
@@ -211,7 +209,7 @@ StatusCode SiTrkAlignDBTool::initialize() {
       ATH_MSG_DEBUG("Retrieved SCT Barrel alignment level: "<<m_sctAlignLevelBarrel);
       ATH_MSG_DEBUG("Retrieved SCT Endcap alignment level: "<<m_sctAlignLevelEndcaps);
 
-		if(m_sctAlignLevel == 0)
+      if(m_sctAlignLevel == 0)
         ATH_MSG_INFO(" Requested update of Level "<<m_sctAlignLevel<<" alignment constants for SCT");
       else {
         ATH_MSG_INFO(" Requested update of Level "<<m_sctAlignLevelBarrel<<" alignment constants for SCT Barrel");
@@ -221,7 +219,6 @@ StatusCode SiTrkAlignDBTool::initialize() {
        // check alignment level but don't stop on error
       if(!checkSCTLevel()) {
         ATH_MSG_FATAL("SiTrkAlignDBTool::initialize() -> SCT alignment level not given.");
-//        return StatusCode::FAILURE;
       }
     }
 
@@ -248,9 +245,8 @@ StatusCode SiTrkAlignDBTool::initialize() {
   if(!m_doPixel && !m_doSCT && !m_doSi) {
     ATH_MSG_FATAL(" No geometry manager available or alignment level not given.");
     ATH_MSG_FATAL(" WARNING -> DB not updated.");
-//    return;
   }
-  ATH_MSG_DEBUG("Made it till here..... "<<m_doSi<<" "<<m_doPixel<<" "<<m_doSCT);
+  ATH_MSG_DEBUG("SiTrkAlignDBTool::initialize() -> Made it till here..... "<<m_doSi<<" "<<m_doPixel<<" "<<m_doSCT);
   ATH_MSG_DEBUG("update constants..... "<<m_updateConstants);
   return StatusCode::SUCCESS;
 }
