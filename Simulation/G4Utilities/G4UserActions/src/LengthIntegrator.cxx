@@ -161,7 +161,6 @@ namespace G4UA
   //---------------------------------------------------------------------------
   void LengthIntegrator::BeginOfEventAction(const G4Event* event)
   {
-    ATH_MSG_DEBUG("NATHAN READIOFF ");
     G4PrimaryVertex* vert = event->GetPrimaryVertex(0);
     G4PrimaryParticle* part = vert->GetPrimary();
     G4ThreeVector mom = part->GetMomentum();
@@ -433,8 +432,7 @@ namespace G4UA
     if(std::find(m_material_not_found.begin(),m_material_not_found.end(),name) == m_material_not_found.end()){
       m_material_not_found.push_back(name);
      
-      ATH_MSG_DEBUG("Material not found: " + name +  "  vol:" +  volName);
-      //std::cout << "Material not found: " << name << "  vol:" << volName << std::endl;
+      ATH_MSG_DEBUG("Material not found: " << name << "  vol:" <<  volName);
     }
     
     return "NONE";
