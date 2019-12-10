@@ -997,7 +997,6 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
             bool passTM=false;
             for(const auto& t : el_triggers){
               passTM |= (objTool.IsTrigPassed(t) && objTool.IsTrigMatched(el, t));
-              //passTM |= objTool.IsTrigMatchedDeco(el, t);
             }
             if(passTM)
               el_idx[trgmatch]++;
