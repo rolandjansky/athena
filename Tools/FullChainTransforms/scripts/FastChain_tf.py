@@ -23,7 +23,7 @@ from PyJobTransforms.trfDecorators import stdTrfExceptionHandler, sigUsrStackTra
 from RecJobTransforms.recTransformUtils import addRecoSubsteps, addAllRecoArgs
 from SimuJobTransforms.simTrfArgs import addForwardDetTrfArgs, addCommonSimTrfArgs, addBasicDigiArgs, addCommonSimDigTrfArgs, addTrackRecordArgs, addSim_tfArgs, addPileUpTrfArgs
 
-from PyJobTransforms.trfArgClasses import argFactory,argList
+from PyJobTransforms.trfArgClasses import argFactory, argList, argRDOFile
 
 @stdTrfExceptionHandler
 @sigUsrStackTrace
@@ -49,6 +49,11 @@ def getTransform():
                                    substep = 'simdigi', tryDropAndReload = False, perfMonFile = 'ntuple.pmon.gz',
                                    inData=['NULL','EVNT'],
                                    outData=['RDO','NULL'] ))
+    # Overlay
+    from EventOverlayJobTransforms.overlayTransformUtils import addOverlay_PoolSubstep, addOverlay_PoolArguments
+    executorSet.add(athenaExecutor(name = 'OverlayPool', skeletonFile = 'EventOverlayJobTransforms/skeleton.OverlayPool_tf.py',
+                                   substep = 'overlayPOOL', tryDropAndReload = False, perfMonFile = 'ntuple.pmon.gz',
+                                   inData = [('HITS', 'RDO_BKG')], outData = ['RDO', 'RDO_SGNL']))
 
     trf = transform(executor = executorSet, description = 'Fast chain ATLAS transform with ISF simulation, digitisation'
                     ' and reconstruction. Inputs can be EVNT, with outputs of RDO, ESD, AOD or DPDs.'
@@ -71,6 +76,9 @@ def getTransform():
     addPileUpTrfArgs(trf.parser)
     addTrackRecordArgs(trf.parser)
     addFastChainTrfArgs(trf.parser)
+
+    # Overlay
+    addOverlay_PoolArguments(trf.parser)
 
     return trf
 
@@ -95,6 +103,10 @@ def addFastChainTrfArgs(parser):
     parser.add_argument('--preDigiInclude',type=argFactory(argList),nargs='+',
                         help='preInclude before digitisation step',
                         group='FastChain')
+    parser.defineArgGroup('EventOverlayPool', 'Event Overlay Options')
+    parser.add_argument('--inputRDO_BKGFile', nargs='+',
+                        type=argFactory(argRDOFile, io='input'),
+                        help='Input RAW RDO for pileup overlay', group='EventOverlayPool')
 
 if __name__ == '__main__':
     main()
