@@ -377,7 +377,7 @@ namespace InDet {
       // get the element via hash
       SiDetectorElement * element2 = m_detManager->getDetectorElement(id);
       if (element2) {
-        const Trk::TrkDetElementBase * element = (const Trk::TrkDetElementBase*) element2;
+	const Trk::TrkDetElementBase * element = dynamic_cast<const Trk::TrkDetElementBase *> (element2);
 
         // add element to respective AlignModule
 
@@ -457,7 +457,7 @@ namespace InDet {
           for (int is = 0; is < 2; is++) { // module side
 
             const SiDetectorElement * element2 = m_detManager->getDetectorElement(0, iLayer, iPhi, iEta, is);
-            const Trk::TrkDetElementBase * element = (const Trk::TrkDetElementBase*) element2;
+            const Trk::TrkDetElementBase * element = dynamic_cast<const Trk::TrkDetElementBase *> (element2);
 
             if (element) {
               // get element location for debugging
@@ -531,7 +531,7 @@ namespace InDet {
             for(int is=0; is<2; is++) { // module side
 
               const SiDetectorElement * element2 = m_detManager->getDetectorElement(iSide, iWheel, iPhi, iEta, is);
-              const Trk::TrkDetElementBase * element = (const Trk::TrkDetElementBase*) element2;
+	      const Trk::TrkDetElementBase * element = dynamic_cast<const Trk::TrkDetElementBase *> (element2);
               if (element) {
                 // get element location for debugging
                 // HepGeom::Point3D<double> center = element->transform() * HepGeom::Point3D<double>();
@@ -612,7 +612,7 @@ namespace InDet {
           for (int is = 0; is < 2; is++) { // module side
 
             const SiDetectorElement * element2 = m_detManager->getDetectorElement(0, iLayer, iPhi, iEta, is);
-            const Trk::TrkDetElementBase * element = (const Trk::TrkDetElementBase*) element2;
+            const Trk::TrkDetElementBase * element = dynamic_cast<const Trk::TrkDetElementBase *> (element2);
 
             if (element) {
               // get element location for debugging
@@ -694,7 +694,7 @@ namespace InDet {
           for (int is = 0; is < 2; is++) { // module side
 
             const SiDetectorElement * element2 = m_detManager->getDetectorElement(0, iLayer, iPhi, iEta, is);
-            const Trk::TrkDetElementBase * element = (const Trk::TrkDetElementBase*) element2;
+            const Trk::TrkDetElementBase * element = dynamic_cast<const Trk::TrkDetElementBase *> (element2);
 
             if (element) {
               // add element to the AlignModule
@@ -791,7 +791,7 @@ namespace InDet {
           for (int is = 0; is < 2; is++) { // module side
 
             const SiDetectorElement * element2 = m_detManager->getDetectorElement(0, iLayer, iPhi, iEta, is);
-            const Trk::TrkDetElementBase * element = (const Trk::TrkDetElementBase*) element2;
+            const Trk::TrkDetElementBase * element = dynamic_cast<const Trk::TrkDetElementBase *> (element2);
 
             if (element) {
               // get element location for debugging
@@ -884,7 +884,7 @@ namespace InDet {
             for(int is=0; is<2; is++) { // module side
 
               const SiDetectorElement * element2 = m_detManager->getDetectorElement(iSide, iWheel, iPhi, iEta, is);
-              const Trk::TrkDetElementBase * element = (const Trk::TrkDetElementBase*) element2;
+	      const Trk::TrkDetElementBase * element = dynamic_cast<const Trk::TrkDetElementBase *> (element2);
               if (element) {
                 // get element location for debugging
                 // HepGeom::Point3D<double> center = element->transform() * HepGeom::Point3D<double>();
@@ -968,7 +968,7 @@ namespace InDet {
             for(int is=0; is<2; is++) { // module side
 
               const SiDetectorElement * element2 = m_detManager->getDetectorElement(iSide, iWheel, iPhi, iEta, is);
-              const Trk::TrkDetElementBase * element = (const Trk::TrkDetElementBase*) element2;
+	      const Trk::TrkDetElementBase * element = dynamic_cast<const Trk::TrkDetElementBase *> (element2);
               if (element) {
                 // get element location for debugging
                 // HepGeom::Point3D<double> center = element->transform() * HepGeom::Point3D<double>();
@@ -1041,7 +1041,7 @@ namespace InDet {
           ATH_MSG_DEBUG("iPhi "<<iPhi);
           for(int is=0; is<2; is++) { // module side
             const SiDetectorElement * element2 = m_detManager->getDetectorElement(iSide, iWheel, iPhi, iEta, is);
-            const Trk::TrkDetElementBase * element = (const Trk::TrkDetElementBase*) element2;
+            const Trk::TrkDetElementBase * element = dynamic_cast<const Trk::TrkDetElementBase *> (element2);
             if (element) {
               // get element location for debugging
               // HepGeom::Point3D<double> center = element->transform() * HepGeom::Point3D<double>();
@@ -1098,7 +1098,7 @@ namespace InDet {
           for (int is = 0; is < 2; is++) { // module side
 
             const SiDetectorElement * element2 = m_detManager->getDetectorElement(0, iLayer, iPhi, iEta, is);
-            const Trk::TrkDetElementBase * element = (const Trk::TrkDetElementBase*) element2;
+            const Trk::TrkDetElementBase * element = dynamic_cast<const Trk::TrkDetElementBase *> (element2);
 
             if (element) {
               // get element location for debugging
@@ -1147,7 +1147,7 @@ namespace InDet {
           ATH_MSG_DEBUG("iPhi "<<iPhi);
           for(int is=0; is<2; is++) { // module side
             const SiDetectorElement * element2 = m_detManager->getDetectorElement(iSide, iWheel, iPhi, iEta, is);
-            const Trk::TrkDetElementBase * element = (const Trk::TrkDetElementBase*) element2;
+            const Trk::TrkDetElementBase * element = dynamic_cast<const Trk::TrkDetElementBase *> (element2);
             if (element) {
               // get element location for debugging
               // HepGeom::Point3D<double> center = element->transform() * HepGeom::Point3D<double>();
@@ -1224,7 +1224,7 @@ namespace InDet {
           for(int is=0;is<2;is++) { // module side
 
             const SiDetectorElement * element2 = m_detManager->getDetectorElement(0, iLayer, iPhi, iEta, is);
-            const Trk::TrkDetElementBase * element = (const Trk::TrkDetElementBase*) element2;
+            const Trk::TrkDetElementBase * element = dynamic_cast<const Trk::TrkDetElementBase *> (element2);
 
             if (element) {
               // get element location for debugging
@@ -1311,7 +1311,7 @@ namespace InDet {
             for(int is=0; is<2; is++) { // module side
 
               const SiDetectorElement * element2 = m_detManager->getDetectorElement(iSide, iWheel, iPhi, iEta, is);
-              const Trk::TrkDetElementBase * element = (const Trk::TrkDetElementBase*) element2;
+	      const Trk::TrkDetElementBase * element = dynamic_cast<const Trk::TrkDetElementBase *> (element2);
               if (element) {
                 // get element location for debugging
                 // HepGeom::Point3D<double> center = element->transform() * HepGeom::Point3D<double>();
