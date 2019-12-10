@@ -956,7 +956,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::buildFrameWork()
   if(m_diversss < m_diver   ) m_diversss = m_diver   ; 
   if(m_diverpps < m_diver   ) m_diverpps = m_diver   ;
   if(m_divermax < m_diversss) m_divermax = m_diversss;
-
+  
   if(fabs(m_etamin) < .1) m_etamin = -m_etamax ;
   m_dzdrmax0  = 1./tan(2.*atan(exp(-m_etamax)));
   m_dzdrmin0  = 1./tan(2.*atan(exp(-m_etamin)));
