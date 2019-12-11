@@ -464,6 +464,7 @@ namespace ST {
     bool m_force_noMuId;
     bool m_doTTVAsf;
     bool m_doModifiedEleId;
+    bool m_upstreamTriggerMatching; /// Use composite trigger matching tool if matching was done upstream
 
     std::string m_jetUncertaintiesConfig;
     std::string m_jetUncertaintiesCalibArea;
