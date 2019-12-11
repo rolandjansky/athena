@@ -11,7 +11,7 @@ def fillAtlasMetadata(ConfigFlags, dbFiller):
     #add all ConfigFlags to the metadata
     #todo - only add certain ones?
     #in future this should be a ConfigFlags method...?
-    for flag in sorted(ConfigFlags._flagdict):
+    for flag in sorted(ConfigFlags._flagdict): #only sim
         key = flag.split(".")[-1] #use final part of flag as the key
 
         if not isinstance(flag, str):

@@ -4,6 +4,10 @@
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 if __name__ == '__main__':
+
+  import time
+  a = time.time()
+
   from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
   import os
 
@@ -25,7 +29,7 @@ if __name__ == '__main__':
   #Sim ConfigFlags
   ConfigFlags.Sim.WorldRRange = 15000
   ConfigFlags.Sim.WorldZRange = 27000 #change defaults?
-  ConfigFlags.Sim.CalibrationRun = 'DeadLAr'
+  ConfigFlags.Sim.CalibrationRun = False # 'DeadLAr'
   ConfigFlags.Sim.RecordStepInfo = False
   ConfigFlags.Sim.CavernBG = "Signal"
   ConfigFlags.Sim.ISF.Run = False 
@@ -146,9 +150,14 @@ if __name__ == '__main__':
 
   # Execute and finish
   sc = cfg.run(maxEvents=1)
-  # Success should be 0
-  #os.sys.exit(not sc.isSuccess())
 
-  f=open("test.pkl","w")
+
+  b = time.time()
+  print("Run G4AtlasAlg in ", b-a, " seconds")
+
+  # Success should be 0
+  os.sys.exit(not sc.isSuccess())
+
+  f=open("test.pkl","wb")
   cfg.store(f) 
   f.close()
