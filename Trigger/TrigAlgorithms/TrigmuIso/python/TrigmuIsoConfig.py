@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from TrigmuIso.TrigmuIsoConf import *
 from TrigmuIso.TrigmuIsoMonitoring import *
@@ -50,7 +52,7 @@ class TrigmuIsoMTConfig (muIso):
 
        #MC/Data specific configurations
        if globalflags.DataSource != 'data':
-           print 'DataSource not data (assuming MC)'
+           print ('DataSource not data (assuming MC)')
 
        # ID track collection
        #self.IDalgo='InDetTrigTrackingxAODCnv_Muon_FTF'
@@ -66,11 +68,11 @@ class TrigmuIsoMTConfig (muIso):
        #def setDefaults(cls,handle):
           #if hasattr(handle,'BackExtrapolatorLUT'):
              #if handle.BackExtrapolatorLUT.name().find("AlignedBackExtrapolator")!=-1:
-                #print self.name," using BackExtrapolatorLUT for Aligned Detector"
+                #print (self.name," using BackExtrapolatorLUT for Aligned Detector")
              #if handle.BackExtrapolatorLUT.name().find("MisalignedBackExtrapolator")!=-1:
-                #print self.name," using BackExtrapolatorLUT for Misligned Detector" 
+                #print (self.name," using BackExtrapolatorLUT for Misligned Detector" )
              #if handle.BackExtrapolatorLUT.name().find("DataBackExtrapolator")!=-1:
-                #print self.name," using BackExtrapolatorLUT for Data"
+                #print (self.name," using BackExtrapolatorLUT for Data")
 
 
 class muIsoConfig (muIso):
@@ -103,7 +105,7 @@ class muIsoConfig (muIso):
 
        #MC/Data specific configurations
        if globalflags.DataSource != 'data':
-           print 'DataSource not data (assuming MC)'
+           print ('DataSource not data (assuming MC)')
 
        # ID track collection
        self.IDalgo='InDetTrigTrackingxAODCnv_Muon_FTF'
@@ -119,8 +121,8 @@ class muIsoConfig (muIso):
        #def setDefaults(cls,handle):
           #if hasattr(handle,'BackExtrapolatorLUT'):
              #if handle.BackExtrapolatorLUT.name().find("AlignedBackExtrapolator")!=-1:
-                #print self.name," using BackExtrapolatorLUT for Aligned Detector"
+                #print (self.name," using BackExtrapolatorLUT for Aligned Detector")
              #if handle.BackExtrapolatorLUT.name().find("MisalignedBackExtrapolator")!=-1:
-                #print self.name," using BackExtrapolatorLUT for Misligned Detector" 
+                #print (self.name," using BackExtrapolatorLUT for Misligned Detector" )
              #if handle.BackExtrapolatorLUT.name().find("DataBackExtrapolator")!=-1:
-                #print self.name," using BackExtrapolatorLUT for Data"
+                #print (self.name," using BackExtrapolatorLUT for Data")
