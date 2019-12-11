@@ -46,6 +46,9 @@ def getPassBackG4TrackProcessorUserActionTool(name='PassBackG4TrackProcessorUser
     return getTrackProcessorUserActionTool(name, **kwargs)
 
 def getAFII_G4TrackProcessorUserActionTool(name='AFII_G4TrackProcessorUserActionTool', **kwargs):
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    if ISF_Flags.Simulator.get_Value() in ['PassBackG4MT', 'ATLFASTIIMT', 'G4FastCaloMT']:
+        kwargs.setdefault('ParticleBroker', '')
     from AthenaCommon.SystemOfUnits import MeV
     kwargs.setdefault('GeoIDSvc'                           , 'ISF_AFIIGeoIDSvc'         )
     kwargs.setdefault('PassBackEkinThreshold'              , 0.05*MeV                   )
