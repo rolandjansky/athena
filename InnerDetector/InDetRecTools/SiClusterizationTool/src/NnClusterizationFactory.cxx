@@ -25,6 +25,7 @@
 #include <TH1.h>
 #include <TH1F.h>
 #include <TH2F.h>
+#include <TFile.h>
 #include "TrkNeuralNetworkUtils/NeuralNetworkToHistoTool.h"
 #include "TrkNeuralNetworkUtils/TTrainedNetwork.h"
 #include "SiClusterizationTool/NnClusterizationFactory.h"
@@ -42,6 +43,9 @@
 #include "PixelConditionsServices/IPixelCalibSvc.h"
 #include "DetDescrCondTools/ICoolHistSvc.h"
 
+// utilities
+#include "PathResolver/PathResolver.h"
+
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 //get std::isnan()
@@ -55,8 +59,8 @@ namespace InDet {
                                                    const std::string& n, const IInterface* p):
           AthAlgTool(name, n,p),
           m_loadTTrainedNetworks(true),
+          m_configTTrainedNetwork("/cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000130.gen.COND/cond09_mc.000130.gen.COND._0001.pool.root"),
           m_NetworkEstimateNumberParticles(0),
-          m_coolFolder("/PIXEL/PixelClustering/PixelClusNNCalib"),
           m_layerInfoHistogram("LayersInfo"),
           m_layerPrefix("Layer"), 
           m_weightIndicator("_weights"),
@@ -64,29 +68,21 @@ namespace InDet {
           m_networkToHistoTool("Trk::NeuralNetworkToHistoTool/NeuralNetworkToHistoTool"),
           m_calibSvc("PixelCalibSvc", name),
           m_useToT(true),
-          m_addIBL(false),
           m_doRunI(false),
-          m_useRecenteringNNWithouTracks(false),
-          m_useRecenteringNNWithTracks(false),
-          m_correctLorShiftBarrelWithoutTracks(0.),
           m_correctLorShiftBarrelWithTracks(0.)
   {
-    // histogram loading from COOL
-    declareProperty("CoolFolder",                   m_coolFolder);
+    // histogram loading, TTrainedNetwork format
+    declareProperty("TTrainedNetwork_configFile",   m_configTTrainedNetwork);
     declareProperty("LayerInfoHistogram",           m_layerInfoHistogram);
     declareProperty("LayerPrefix",                  m_layerPrefix);
     declareProperty("LayerWeightIndicator",         m_weightIndicator);
     declareProperty("LayerThresholdIndicator",      m_thresholdIndicator);
+    declareProperty("NetworkToHistoTool",m_networkToHistoTool);    
     // further properties
-    declareProperty("NetworkToHistoTool",m_networkToHistoTool);
     declareProperty("PixelCalibSvc",m_calibSvc);
     declareProperty("LoadTTrainedNetworks",m_loadTTrainedNetworks);
     declareProperty("useToT",m_useToT);
-    declareProperty("addIBL",m_addIBL);
     declareProperty("doRunI",m_doRunI);
-    declareProperty("useRecenteringNNWithoutTracks",m_useRecenteringNNWithouTracks);
-    declareProperty("useRecenteringNNWithTracks",m_useRecenteringNNWithTracks);
-    declareProperty("correctLorShiftBarrelWithoutTracks",m_correctLorShiftBarrelWithoutTracks);
     declareProperty("correctLorShiftBarrelWithTracks",m_correctLorShiftBarrelWithTracks);
         
     declareInterface<NnClusterizationFactory>(this);
@@ -118,52 +114,39 @@ namespace InDet {
       delete m_NetworkEstimateImpactPointErrorsY[i];
       m_NetworkEstimateImpactPointErrorsY[i]=0;
     }
+
   }
   
   StatusCode NnClusterizationFactory::initialize() {
         
-    //here you have to initialize the histograms needed for the fit...
-    // get the CoolHistSvc
-    if (service("CoolHistSvc",m_coolHistSvc).isFailure()) {
-      ATH_MSG_ERROR("Could not get CoolHistSvc");
-      return StatusCode::FAILURE;
-    }
-    
+    // Moving from CoolHistSvc to reading from cvmfs.
+    // Eventually this will be a CalibArea
+    // For now I am just going to access the mirrored files
+    // from COOL which are stored there.
+    m_configTTrainedNetwork = PathResolverFindCalibFile(m_configTTrainedNetwork);
+    ATH_MSG_INFO("NN file resolved to: " << m_configTTrainedNetwork);    
+
+    // We will use this to read the TTrainedNetwork-based inputs    
     if (m_networkToHistoTool.retrieve().isFailure())
     {
       ATH_MSG_ERROR("Could not load: " << m_networkToHistoTool);
       return StatusCode::FAILURE;
     }
-     // register IOV callback function for the COOL folder
-     const DataHandle<CondAttrListCollection> aptr;
-     if ( (detStore()->regFcn(&NnClusterizationFactory::nnSetup,this,aptr,m_coolFolder)).isFailure() ){
-         ATH_MSG_ERROR("Registration of IOV callback for " << m_coolFolder << "failed.");
-         return StatusCode::FAILURE;
-     } else 
-        ATH_MSG_INFO("Registered IOV callback for " << m_coolFolder);
-    
+
+    // Set them up:
+    if (! nnSetup()) return StatusCode::FAILURE;
+
+    // We will use this to retrieve pixel conditions.    
     if (m_calibSvc.retrieve().isFailure()){
         ATH_MSG_ERROR("Could not retrieve " << m_calibSvc);
         return StatusCode::FAILURE;
     }
-    
+
     return StatusCode::SUCCESS;
   }
   
   
 std::vector<double> NnClusterizationFactory::assembleInput(NNinput& input,
-                                                             int sizeX,
-                                                             int sizeY)
-{
-
-if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }else{   return assembleInputRunII(  input, sizeX, sizeY    );     }
-
-
-}
-
-
-
-  std::vector<double> NnClusterizationFactory::assembleInputRunII(NNinput& input,
                                                              int sizeX,
                                                              int sizeY)
 {
@@ -195,46 +178,6 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
     
     return inputData;
 
-}
-
-
-
-
-  std::vector<double> NnClusterizationFactory::assembleInputRunI(NNinput& input,
-                                                             int sizeX,
-                                                             int sizeY)
-  {
-    std::vector<double> inputData;
-    for (int u=0;u<sizeX;u++)
-    {
-      for (int s=0;s<sizeY;s++)
-      {
-        if (m_useToT)
-        {
-          inputData.push_back(norm_rawToT(input.matrixOfToT[u][s]));
-        }
-        else
-        {
-          inputData.push_back(norm_ToT(input.matrixOfToT[u][s]));
-        }
-      }
-    }
-    for (int s=0;s<sizeY;s++)
-    {
-      const double rawPitch(input.vectorOfPitchesY[s]);
-    	const double normPitch(norm_pitch(rawPitch,m_addIBL));
-    	if (std::isnan(normPitch)){
-    	  ATH_MSG_ERROR("NaN returned from norm_pitch, rawPitch = "<<rawPitch<<" addIBL = "<<m_addIBL);
-    	}
-      inputData.push_back(normPitch);
-    }
-    inputData.push_back(norm_layerNumber(input.ClusterPixLayer));
-    inputData.push_back(norm_layerType(input.ClusterPixBarrelEC));
-
-    inputData.push_back(norm_phi(input.phi));
-    inputData.push_back(norm_theta(input.theta));
-
-    return inputData;
   }
   
   std::vector<double> NnClusterizationFactory::estimateNumberOfParticles(const InDet::PixelCluster& pCluster,
@@ -267,11 +210,7 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
 
     std::vector<double> resultNN;
 
-    if(m_doRunI){
-      resultNN = m_NetworkEstimateNumberParticles->calculateOutputValues(inputData);
-    }else{
-      resultNN = m_NetworkEstimateNumberParticles->calculateNormalized(inputData);
-    }
+    resultNN = m_NetworkEstimateNumberParticles->calculateNormalized(inputData);
 
     ATH_MSG_VERBOSE(" Prob of n. particles (1): " << resultNN[0] << " (2): " << resultNN[1] << " (3): " << resultNN[2]);
 
@@ -311,25 +250,15 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
 
     std::vector<double> inputData=assembleInput(*input,sizeX,sizeY);
 
-    bool applyRecentering=false;
-    if (m_useRecenteringNNWithTracks)
-    {
-      applyRecentering=true;
-    }
-
     std::vector<Amg::Vector2D> allPositions;
 
     if (numberSubClusters==1)
     {
       std::vector<double> position1P;
       
-    	if(m_doRunI){
-    	  position1P=m_NetworkEstimateImpactPoints[0]->calculateOutputValues(inputData);
-    	}else{
-    	  position1P=m_NetworkEstimateImpactPoints[0]->calculateNormalized(inputData);
-    	}
+    	position1P=m_NetworkEstimateImpactPoints[0]->calculateNormalized(inputData);
 
-      ATH_MSG_VERBOSE(" RAW Estimated positions (1) x: " << back_posX(position1P[0],applyRecentering) << " y: " << back_posY(position1P[1]));
+      ATH_MSG_VERBOSE(" RAW Estimated positions (1) x: " << back_posX(position1P[0],false) << " y: " << back_posY(position1P[1]));
 
       std::vector<Amg::Vector2D> myPosition1=getPositionsFromOutput(position1P,*input,pCluster,sizeX,sizeY);
 
@@ -341,13 +270,8 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
       std::vector<double> errors1PX;
       std::vector<double> errors1PY;
 
-  	  if(m_doRunI){
-  	    errors1PX=m_NetworkEstimateImpactPointErrorsX[0]->calculateOutputValues(inputDataNew);
-  	    errors1PY=m_NetworkEstimateImpactPointErrorsY[0]->calculateOutputValues(inputDataNew);
-  	  }else{
-  	    errors1PX=m_NetworkEstimateImpactPointErrorsX[0]->calculateNormalized(inputDataNew);
-  	    errors1PY=m_NetworkEstimateImpactPointErrorsY[0]->calculateNormalized(inputDataNew);
-  	  }
+  	  errors1PX=m_NetworkEstimateImpactPointErrorsX[0]->calculateNormalized(inputDataNew);
+  	  errors1PY=m_NetworkEstimateImpactPointErrorsY[0]->calculateNormalized(inputDataNew);
  
       std::vector<Amg::MatrixX> errorMatrices1;
       getErrorMatrixFromOutput(errors1PX,errors1PY,errorMatrices1,1);
@@ -363,14 +287,10 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
       {
 	    std::vector<double> positions2P;
 
-	    if(m_doRunI){
-	      positions2P=m_NetworkEstimateImpactPoints[1]->calculateOutputValues(inputData);
-	    }else{
-	      positions2P=m_NetworkEstimateImpactPoints[1]->calculateNormalized(inputData);
-	    }
+	    positions2P=m_NetworkEstimateImpactPoints[1]->calculateNormalized(inputData);
       
-	ATH_MSG_VERBOSE(" RAW Estimated positions (2) x1: " << back_posX(positions2P[0],applyRecentering) << " y1: " << positions2P[1] << 
-			" x2: " << back_posX(positions2P[2],applyRecentering) << " y2: " << back_posY(positions2P[3]));
+	ATH_MSG_VERBOSE(" RAW Estimated positions (2) x1: " << back_posX(positions2P[0],false) << " y1: " << positions2P[1] << 
+			" x2: " << back_posX(positions2P[2],false) << " y2: " << back_posY(positions2P[3]));
 	
 	std::vector<Amg::Vector2D> myPositions2=getPositionsFromOutput(positions2P,*input,pCluster,sizeX,sizeY);
 	
@@ -386,13 +306,8 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
 	std::vector<double> errors2PX;
 	std::vector<double> errors2PY;
 	
-	    if(m_doRunI){ 
-	      errors2PX=m_NetworkEstimateImpactPointErrorsX[1]->calculateOutputValues(inputDataNew);
-	      errors2PY=m_NetworkEstimateImpactPointErrorsY[1]->calculateOutputValues(inputDataNew);
-	    }else{
-	      errors2PX=m_NetworkEstimateImpactPointErrorsX[1]->calculateNormalized(inputDataNew);
-	      errors2PY=m_NetworkEstimateImpactPointErrorsY[1]->calculateNormalized(inputDataNew);
-	    }
+	errors2PX=m_NetworkEstimateImpactPointErrorsX[1]->calculateNormalized(inputDataNew);
+	errors2PY=m_NetworkEstimateImpactPointErrorsY[1]->calculateNormalized(inputDataNew);
 	
 	std::vector<Amg::MatrixX> errorMatrices2;
 	getErrorMatrixFromOutput(errors2PX,errors2PY,errorMatrices2,2);
@@ -408,15 +323,10 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
       {
 	std::vector<double> positions3P;
 	
-	    if(m_doRunI){
-	      positions3P=m_NetworkEstimateImpactPoints[2]->calculateOutputValues(inputData);
-	    }else{
-	      positions3P=m_NetworkEstimateImpactPoints[2]->calculateNormalized(inputData);
-	      
-	    }
+	   positions3P=m_NetworkEstimateImpactPoints[2]->calculateNormalized(inputData);
 	
-	ATH_MSG_VERBOSE(" RAW Estimated positions (3) x1: " << back_posX(positions3P[0],applyRecentering) << " y1: " << back_posY(positions3P[1]) << 
-			" x2: " << back_posX(positions3P[2],applyRecentering) << " y2: " << back_posY(positions3P[3]) << " x3: " << back_posX(positions3P[4],applyRecentering) << " y3: " << back_posY(positions3P[5]));
+	ATH_MSG_VERBOSE(" RAW Estimated positions (3) x1: " << back_posX(positions3P[0],false) << " y1: " << back_posY(positions3P[1]) << 
+			" x2: " << back_posX(positions3P[2],false) << " y2: " << back_posY(positions3P[3]) << " x3: " << back_posX(positions3P[4],false) << " y3: " << back_posY(positions3P[5]));
 	
 	std::vector<Amg::Vector2D> myPositions3=getPositionsFromOutput(positions3P,*input,pCluster,sizeX,sizeY);
 	
@@ -433,13 +343,8 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
 	std::vector<double> errors3PX;
 	std::vector<double> errors3PY;
 	
-	    if(m_doRunI){
-	      errors3PX=m_NetworkEstimateImpactPointErrorsX[2]->calculateOutputValues(inputDataNew);
-	      errors3PY=m_NetworkEstimateImpactPointErrorsY[2]->calculateOutputValues(inputDataNew);
-	    }else{
-	      errors3PX=m_NetworkEstimateImpactPointErrorsX[2]->calculateNormalized(inputDataNew);
-	      errors3PY=m_NetworkEstimateImpactPointErrorsY[2]->calculateNormalized(inputDataNew);
-	    }
+  errors3PX=m_NetworkEstimateImpactPointErrorsX[2]->calculateNormalized(inputDataNew);
+  errors3PY=m_NetworkEstimateImpactPointErrorsY[2]->calculateNormalized(inputDataNew);
 	
 	std::vector<Amg::MatrixX> errorMatrices3;
 	getErrorMatrixFromOutput(errors3PX,errors3PY,errorMatrices3,3);
@@ -590,13 +495,6 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
     int rowWeightedPosition=input.rowWeightedPosition;
     
     ATH_MSG_VERBOSE(" REF POS columnWeightedPos: " << columnWeightedPosition << " rowWeightedPos: " << rowWeightedPosition );
-    
-    
-    bool applyRecentering=false;
-    if (m_useRecenteringNNWithTracks)
-    {
-      applyRecentering=true;
-    }
 
     std::vector<Amg::Vector2D> positions;
     for (int u=0;u<numParticles;u++)
@@ -604,13 +502,8 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
       double posXid;
       double posYid;
 
-      if(m_doRunI){
-	posXid=back_posX(output[2*u],applyRecentering)+rowWeightedPosition;
-	posYid=back_posY(output[2*u+1])+columnWeightedPosition;
-      }else{
-	posXid=output[2*u]+rowWeightedPosition;
-	posYid=output[2*u+1]+columnWeightedPosition;
-      }
+	    posXid=output[2*u]+rowWeightedPosition;
+	    posYid=output[2*u+1]+columnWeightedPosition;
       
       ATH_MSG_VERBOSE(" N. particle: " << u << " idx posX " << posXid << " posY " << posYid );
 
@@ -966,20 +859,17 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
     else
     {
       input->matrixOfToT[absrow][abscol]=(double)(*tot);
-      // in case to RunI setup to make IBL studies
-      if(m_doRunI){
+      
+      // No IBL if running on Run 1 data (except certain simulation samples).
+      // For Run 2, consider IBL.
+      if(! m_doRunI){
 	
-	if (m_addIBL && input->ClusterPixLayer==0 && input->ClusterPixBarrelEC==0)
-	  {
-	    input->matrixOfToT[absrow][abscol]*=3;
-	  }
-      }else{
-	// for RunII IBL is always present
-	if ( input->ClusterPixLayer==0 && input->ClusterPixBarrelEC==0)
-	  {
-	    input->matrixOfToT[absrow][abscol]*=3;
-	  }
+      	if ( input->ClusterPixLayer==0 && input->ClusterPixBarrelEC==0)
+      	  {
+      	    input->matrixOfToT[absrow][abscol]*=3;
+      	  }
       }
+    
     } 
     
 
@@ -1033,126 +923,116 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
 }//end create NNinput function
 
 
-  TTrainedNetwork* NnClusterizationFactory::retrieveNetwork(const std::string& folder, const std::string& subfolder)
+  TTrainedNetwork* NnClusterizationFactory::retrieveNetwork(std::unique_ptr<TFile> & ifile, const std::string & folder)
   {
     
     std::vector<TH1*> retrievedHistos;
-    // keep the channel hard-coded as 1, no channels needed in this context
-    const unsigned int channel = 1;
-    // the information about the layers
-    TH1* histolayers = 0;
-    
-    if (m_coolHistSvc->getHist(folder, channel,subfolder+m_layerInfoHistogram,histolayers).isFailure() || !histolayers)
+
+    // the information about the layers    
+    TH1* histolayers = (TH1*) ifile->Get((folder+m_layerInfoHistogram).c_str());
+
+    if (!histolayers)
     {
-        ATH_MSG_ERROR("Could not get histogram " << subfolder+m_layerInfoHistogram << " from dir: " << folder);
+        ATH_MSG_ERROR("Could not get histogram " << folder+m_layerInfoHistogram << " from file: " << m_configTTrainedNetwork);
         return 0;
     }
     retrievedHistos.push_back(histolayers);
-
     
-    TH2* histoinputs = 0;
-    
-    if(!m_doRunI){	
-      
-      std::string InputInfoHistogram("InputsInfo");
-      
-      if (m_coolHistSvc->getHist(folder, channel,subfolder+InputInfoHistogram,histoinputs).isFailure() || !histoinputs)
-	{
-	  ATH_MSG_ERROR("Could not get histogram " << subfolder+InputInfoHistogram << " from dir: " << folder);
-	  return 0;
-	}
-      retrievedHistos.push_back(histoinputs);
+    std::string InputInfoHistogram("InputsInfo");
+    TH2* histoinputs = (TH2*) ifile->Get((folder+InputInfoHistogram).c_str());
+    if (!histoinputs) {
+      ATH_MSG_ERROR("Could not get histogram " << folder+InputInfoHistogram << " from file: " << m_configTTrainedNetwork);
+      return 0;        
     }
-    
-
+    retrievedHistos.push_back(histoinputs);
 
     // retrieve the number of hidden layers from the LayerInfo histogram
     Int_t nHidden = histolayers->GetNbinsX()-2;
-    ATH_MSG_VERBOSE(" Retrieving calibration: " << folder << "/" << subfolder << " for NN with: " << nHidden << " hidden layers.");
+    ATH_MSG_VERBOSE(" Retrieving calibration: " << folder << " for NN with: " << nHidden << " hidden layers.");
 
     // loop and retrieve the hidden layer histograms
     for (Int_t i=0; i<nHidden+1; ++i)
     {
       // weights histograms
-      TH2* myWeightHisto = 0;
       TString weightName(m_layerPrefix);
       weightName+=i;
       weightName+=m_weightIndicator;
       std::string weightNameStr(weightName.Data());
+
+      TH2* myWeightHisto = (TH2*) ifile->Get((folder+weightNameStr).c_str());
+
       // get them from the cool HistSvc
-      if (m_coolHistSvc->getHist(folder,channel,subfolder+weightNameStr,myWeightHisto).isFailure() || !myWeightHisto)
+      if (!myWeightHisto)
       {
           ATH_MSG_ERROR(" Cannot retrieve histogram: " << weightNameStr);
       } else {
-          ATH_MSG_VERBOSE(" Retrieved histo: " << weightNameStr << " for network : " << subfolder << 
+          ATH_MSG_VERBOSE(" Retrieved histo: " << weightNameStr << " for network : " << folder << 
                           " the first bin content of the weight 2d histo is: " << myWeightHisto->GetBinContent(1,1));
       }
       // threshold histograms to be retrieved
-      TH1* myThresholdHisto = 0;
       TString thresholdName(m_layerPrefix);
       thresholdName+=i;
       thresholdName+=m_thresholdIndicator;
       std::string thresholdNameStr(thresholdName.Data());
-      if (m_coolHistSvc->getHist(folder,channel,subfolder+thresholdNameStr,myThresholdHisto).isFailure() || !myThresholdHisto)
+
+      TH1* myThresholdHisto = (TH1*) ifile->Get((folder+thresholdNameStr).c_str());
+
+      if (!myThresholdHisto)
       {
           ATH_MSG_ERROR(" Cannot retrieve histogram: " << thresholdNameStr);
       } else {
-          ATH_MSG_VERBOSE(" Retrieved histo: " << thresholdNameStr << " for network : " << subfolder );
+          ATH_MSG_VERBOSE(" Retrieved histo: " << thresholdNameStr << " for network : " << folder );
       }
       // 
       retrievedHistos.push_back(myWeightHisto);
       retrievedHistos.push_back(myThresholdHisto);
+
     }//end iterating on hidden layers
     
   
      
-     TTrainedNetwork* NN=m_networkToHistoTool->fromHistoToTrainedNetwork(retrievedHistos);
+    TTrainedNetwork* NN=m_networkToHistoTool->fromHistoToTrainedNetwork(retrievedHistos);
 
-     
-     ATH_MSG_VERBOSE(   subfolder << " " <<  NN->getnInput()     );
+   
+    ATH_MSG_VERBOSE(folder << " " <<  NN->getnInput());
 
-     if (NN==0)
-     {
-       ATH_MSG_ERROR(" TTrained Network results in 0 pointer! No network loaded...");
-     }
-     return NN;
-   }
+    if (NN==0)
+    {
+      ATH_MSG_ERROR(" TTrained Network results in 0 pointer! No network loaded...");
+    }
+    return NN;
+  }
 
 
-    /** Callback for nnSetup */
-    StatusCode NnClusterizationFactory::nnSetup( IOVSVC_CALLBACK_ARGS_P(I,keys) ){
-        
-        ATH_MSG_INFO("Callback invoked for keys:");
-        
-        // avoid warning of unused parameter
-        (void) I;
-        
-        for (std::list<std::string>::const_iterator itr=keys.begin(); itr!=keys.end();++itr) {
-            ATH_MSG_INFO(" -- " << *itr);
-           if ( (*itr)==m_coolFolder ){
-              // is a memory leak for now : NNs need to be deleted
-              clearCache(m_NetworkEstimateImpactPoints);
-              clearCache(m_NetworkEstimateImpactPointErrorsX);
-              clearCache(m_NetworkEstimateImpactPointErrorsY);
-              
-              //now read all Histograms
-              if (m_loadTTrainedNetworks)
-              {
-                ATH_MSG_VERBOSE("Loading 10 networks for number estimate, position estimate and error PDF estimate (with track info)");
-                m_NetworkEstimateNumberParticles=retrieveNetwork(m_coolFolder,"NumberParticles/");
-                m_NetworkEstimateImpactPoints.push_back(retrieveNetwork(m_coolFolder,"ImpactPoints1P/"));
-                m_NetworkEstimateImpactPoints.push_back(retrieveNetwork(m_coolFolder,"ImpactPoints2P/"));
-                m_NetworkEstimateImpactPoints.push_back(retrieveNetwork(m_coolFolder,"ImpactPoints3P/"));
-                m_NetworkEstimateImpactPointErrorsX.push_back(retrieveNetwork(m_coolFolder,"ImpactPointErrorsX1/"));
-                m_NetworkEstimateImpactPointErrorsX.push_back(retrieveNetwork(m_coolFolder,"ImpactPointErrorsX2/"));
-                m_NetworkEstimateImpactPointErrorsX.push_back(retrieveNetwork(m_coolFolder,"ImpactPointErrorsX3/"));
-                m_NetworkEstimateImpactPointErrorsY.push_back(retrieveNetwork(m_coolFolder,"ImpactPointErrorsY1/"));
-                m_NetworkEstimateImpactPointErrorsY.push_back(retrieveNetwork(m_coolFolder,"ImpactPointErrorsY2/"));
-                m_NetworkEstimateImpactPointErrorsY.push_back(retrieveNetwork(m_coolFolder,"ImpactPointErrorsY3/"));
-              }        
-          }
-       }
-       return StatusCode::SUCCESS;        
+  StatusCode NnClusterizationFactory::nnSetup(){
+    
+    // Open input file
+    std::unique_ptr< TFile > ifile( TFile::Open( m_configTTrainedNetwork.c_str(), "READ" ) );
+
+    // is a memory leak for now : NNs need to be deleted
+    clearCache(m_NetworkEstimateImpactPoints);
+    clearCache(m_NetworkEstimateImpactPointErrorsX);
+    clearCache(m_NetworkEstimateImpactPointErrorsY);
+    
+    //now read all Histograms
+    if (m_loadTTrainedNetworks)
+    {
+      ATH_MSG_VERBOSE("Loading 10 networks for number estimate, position estimate and error PDF estimate (with track info)");
+      m_NetworkEstimateNumberParticles=retrieveNetwork(ifile,"NumberParticles/");
+      m_NetworkEstimateImpactPoints.push_back(retrieveNetwork(ifile,"ImpactPoints1P/"));
+      m_NetworkEstimateImpactPoints.push_back(retrieveNetwork(ifile,"ImpactPoints2P/"));
+      m_NetworkEstimateImpactPoints.push_back(retrieveNetwork(ifile,"ImpactPoints3P/"));
+      m_NetworkEstimateImpactPointErrorsX.push_back(retrieveNetwork(ifile,"ImpactPointErrorsX1/"));
+      m_NetworkEstimateImpactPointErrorsX.push_back(retrieveNetwork(ifile,"ImpactPointErrorsX2/"));
+      m_NetworkEstimateImpactPointErrorsX.push_back(retrieveNetwork(ifile,"ImpactPointErrorsX3/"));
+      m_NetworkEstimateImpactPointErrorsY.push_back(retrieveNetwork(ifile,"ImpactPointErrorsY1/"));
+      m_NetworkEstimateImpactPointErrorsY.push_back(retrieveNetwork(ifile,"ImpactPointErrorsY2/"));
+      m_NetworkEstimateImpactPointErrorsY.push_back(retrieveNetwork(ifile,"ImpactPointErrorsY3/"));
+    }
+
+    ifile->Close();
+
+    return StatusCode::SUCCESS;        
   }
   
   void  NnClusterizationFactory::clearCache(std::vector<TTrainedNetwork*>& ttnn){

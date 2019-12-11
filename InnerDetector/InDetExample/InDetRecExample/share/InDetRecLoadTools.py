@@ -56,9 +56,6 @@ if InDetFlags.doPixelClusterSplitting() and not InDetFlags.doSLHC():
                                                                       NetworkToHistoTool   = NeuralNetworkToHistoTool,
                                                                       doRunI = True,
                                                                       useToT = False,
-                                                                      useRecenteringNNWithoutTracks = True,
-                                                                      useRecenteringNNWithTracks = False,
-                                                                      correctLorShiftBarrelWithoutTracks = 0,
                                                                       correctLorShiftBarrelWithTracks = 0.030,
                                                                       LoadTTrainedNetworks   = True)
 
