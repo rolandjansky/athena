@@ -112,7 +112,7 @@ def tauCaloMVASequence(ConfigFlags):
 def tauCoreTrackSequence( RoIs, name ):
     import AthenaCommon.CfgMgr as CfgMgr
 
-    tauCoreTrackSequence = parOR(name)
+    tauCoreTrackSequence = seqAND(name)
 
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
     viewAlgs = makeInDetAlgs(whichSignature='TauCore',separateTrackParticleCreator="_TauCore",rois = RoIs)
@@ -146,7 +146,7 @@ def tauCoreTrackSequence( RoIs, name ):
 def tauIsoTrackSequence( RoIs , name):
     import AthenaCommon.CfgMgr as CfgMgr
 
-    tauIsoTrackSequence = parOR(name)
+    tauIsoTrackSequence = seqAND(name)
 
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
     viewAlgs = makeInDetAlgs(whichSignature='TauIso',separateTrackParticleCreator="_TauIso",rois = RoIs)
