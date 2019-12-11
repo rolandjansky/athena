@@ -28,6 +28,7 @@ def MuonGeoModelCfg(flags):
 
         from IOVDbSvc.IOVDbSvcConfig import addFolders
         from MuonCondAlg.MuonCondAlgConf import MuonAlignmentCondAlg
+
         if (flags.Common.isOnline and not flags.Input.isMC):                
             acc.merge(addFolders( flags, ['/MUONALIGN/Onl/MDT/BARREL'], 'MUONALIGN', className='CondAttrListCollection'))
             acc.merge(addFolders( flags, ['/MUONALIGN/Onl/MDT/ENDCAP/SIDEA'], 'MUONALIGN', className='CondAttrListCollection'))
@@ -49,6 +50,10 @@ def MuonGeoModelCfg(flags):
                                     "/MUONALIGN/TGC/SIDEC"]
 
         acc.addCondAlgo(MuonAlign)
+
+        from MuonGeoModel.MuonGeoModelConf import MuonDetectorCondAlg
+        MuonDetectorManagerCond = MuonDetectorCondAlg()
+        acc.addCondAlgo(MuonDetectorManagerCond)
  
         # Condition DB is needed only if A-lines or B-lines are requested
         if not (not flags.Muon.Align.UseALines and flags.Muon.Align.UseBLines=='none'):

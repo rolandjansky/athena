@@ -47,6 +47,10 @@ MuonAlignAlg.ParlineFolders = ["/MUONALIGN/MDT/BARREL",
                                "/MUONALIGN/TGC/SIDEA",
                                "/MUONALIGN/TGC/SIDEC"]
 
+from MuonGeoModel.MuonGeoModelConf import MuonDetectorCondAlg
+MuonDetectorManagerCond = MuonDetectorCondAlg()
+condSequence+=MuonDetectorManagerCond
+
 from AtlasGeoModel.MuonGM import GeoModelSvc
 MuonDetectorTool = GeoModelSvc.DetectorTools[ "MuonDetectorTool" ]
 
@@ -68,14 +72,15 @@ if not (muonAlignFlags.UseAlines=='none' and muonAlignFlags.UseBlines=='none'):
 
 # here define if I-lines (CSC internal alignment) are enabled
 if muonAlignFlags.UseIlines: 
-    MuonDetectorTool.EnableCscInternalAlignment = True
     if 'HLT' in globalflags.ConditionsTag() :
         logMuon.info("Reading CSC I-Lines from layout - special configuration for COMP200 in HLT setup.")
         MuonDetectorTool.UseIlinesFromGM = True
+        MuonDetectorTool.EnableCscInternalAlignment = False
     else :
         logMuon.info("Reading CSC I-Lines from conditions database.")
         conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/CSC/ILINES','/MUONALIGN/CSC/ILINES',className='CondAttrListCollection')
         MuonDetectorTool.UseIlinesFromGM = False
+        MuonDetectorTool.EnableCscInternalAlignment = True
         MuonAlignAlg.ParlineFolders += ["/MUONALIGN/CSC/ILINES"]
         MuonAlignAlg.ILinesFromCondDB = True
 
