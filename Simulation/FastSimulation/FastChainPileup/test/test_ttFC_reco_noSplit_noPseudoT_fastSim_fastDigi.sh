@@ -13,9 +13,9 @@ inputRefDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/D
 inputXmlDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-configs"
 art_dcube="/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube"
 dcubeName="ttFC_reco_noSplit_noPseudoT_fastSim_fastDigi"
-dcubeXmlID="${inputXmlDir}/dcube_indetplots.xml"
+dcubeXmlID="${inputXmlDir}/dcube_ID.xml"
 dcubeRefID="${inputRefDir}/InDetStandardPlots.root"
-dcubeXmlRDO="${inputXmlDir}/dcube_RDO_truth.xml"
+dcubeXmlRDO="${inputXmlDir}/dcube_RDO_truth_pileup.xml"
 dcubeRefRDO="${inputRefDir}/RDO_truth.root"
 
 FastChain_tf.py --simulator ATLFASTIIF_PileUp \
