@@ -9,10 +9,6 @@
 #include "TProfile2D.h"
 #include "TTree.h"
 
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
-
-
 #include "G4PrimaryVertex.hh"
 #include "G4PrimaryParticle.hh"
 #include "G4Event.hh"
@@ -32,6 +28,11 @@
 
 // Framework includes
 #include "GaudiKernel/GaudiException.h"
+#include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/IMessageSvc.h"
+//#include "AthenaBaseComps/AthMessaging.h"
+
 
 // Anonymous namespace for file-global mutexes and helper functions
 namespace
@@ -100,12 +101,19 @@ namespace G4UA
   // Constructor
   //---------------------------------------------------------------------------
   LengthIntegrator::LengthIntegrator(const std::string& histSvcName, const Config& config)
-    : m_g4pow(0),
+    : AthMessaging(Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc" ), "LengthIntegrator"),
+      m_g4pow(0),
       m_hSvc(histSvcName, "LengthIntegrator"),
       m_tree(nullptr),
       m_config(config)
   {
+    // FIXME: By default, only "INFO" messages are printed.
+    // To view Debug messages, it is neccesary to explicitly set the log level for this service
+    // There has to be a more elegant way of assigning the global Sim_tf log level
+    AthMessaging::msg().setLevel(MSG::Level::DEBUG);
     
+
+
     // Protect concurrent access to the non-thread-safe hist svc
     std::lock_guard<std::mutex> lock(gHistSvcMutex);
 
@@ -153,7 +161,6 @@ namespace G4UA
   //---------------------------------------------------------------------------
   void LengthIntegrator::BeginOfEventAction(const G4Event* event)
   {
-    
     G4PrimaryVertex* vert = event->GetPrimaryVertex(0);
     G4PrimaryParticle* part = vert->GetPrimary();
     G4ThreeVector mom = part->GetMomentum();
@@ -175,9 +182,8 @@ namespace G4UA
   //---------------------------------------------------------------------------
   // Setup hists for one detector
   //---------------------------------------------------------------------------
-  std::string LengthIntegrator::getMaterialClassification(std::string name)
-  {
-
+  std::string LengthIntegrator::getMaterialClassification(std::string name, std::string volName)
+  { 
 /*
     if(pixelonly){
       if(name.find("SCT") != std::string::npos ) continue;
@@ -320,7 +326,11 @@ namespace G4UA
 
       if(name.find("N2") != std::string::npos) return "DryNitrogen";
 
-      if(name.find("Aluminium") != std::string::npos) return "BeamPipe";
+      if(name.find("Aluminium") != std::string::npos) {
+	if(volName.find("BeamPipe") != std::string::npos) return "BeamPipe";
+	else if(volName.find("PP1") != std::string::npos) return "PP1";
+	else { return "NONE"; }
+      }
     } //End of ITk loop
 
     // Do you want to split cooling and services where possible?
@@ -377,7 +387,7 @@ namespace G4UA
       if(name.find("Titanium") != std::string::npos) return "Services";
      // if(name.find("ArCO2O2") != std::string::npos) return "ActiveSensors"; //Overwritten by some other statement...
      // if(name.find("XeCO2O2") != std::string::npos) return "ActiveSensors";  //Overwritten by some other statement...
-    }else{ //Why though
+    }else{ //FIXME Why though
       if(name.find("PP0") != std::string::npos) return "PP1"; //Grouping PP0 and PP1
     }
       
@@ -399,6 +409,16 @@ namespace G4UA
     if(name.find("Pigtail") != std::string::npos) return "Services"; //Overwritten by some other statement...
   
 
+    if(name.find("IPT") != std::string::npos) return "IPT";     
+    if(name.find("PixType2") != std::string::npos) return "PP1"; // Strip PP1 type2 volumes
+    if(name.find("AlMetal") != std::string::npos) return "PP1"; //SCT::pixPP1outer
+    if(name.find("PixRed") != std::string::npos) return "PP1"; //SCT::pixSvc PP1 data readout?
+    if(name.find("SS304") != std::string::npos) return "SupportStructure"; //SCT::RailSquare ?? Guess this is encasing for pp1?
+    if(volName.find("BeamPipe") != std::string::npos) return "BeamPipe"; //Cases of Valmat/VespelRing/PyrogelXT/Pump_Ti
+
+
+
+
     //TODO Are these necessary?
     /*
     if(searchstring=="M_"){
@@ -409,6 +429,12 @@ namespace G4UA
     */
     //if(name.find("Iron") != std::string::npos) return "BeamPipe";
 
+    if(std::find(m_material_not_found.begin(),m_material_not_found.end(),name) == m_material_not_found.end()){
+      m_material_not_found.push_back(name);
+     
+      ATH_MSG_DEBUG("Material not found: " << name << "  vol:" <<  volName);
+    }
+    
     return "NONE";
 
   }
@@ -466,7 +492,7 @@ namespace G4UA
 
     std::string volName = lv->GetName();
     std::string matName = mat->GetName();
-    std::string groupmaterial = getMaterialClassification(matName); //Groups material into "general" categories, supports/sensors/pixels/cooling/etc
+    std::string groupmaterial = getMaterialClassification(matName, volName); //Groups material into "general" categories, supports/sensors/pixels/cooling/etc
     std::string volumetype = getVolumeType(matName);
 
     double radl = mat->GetRadlen();
@@ -478,6 +504,11 @@ namespace G4UA
     // FIXME: using DBL_MAX just ensures double overflow below.
     double thickstepRL = radl != 0 ? stepl/radl : DBL_MAX;
     double thickstepIL = intl != 0 ? stepl/intl : DBL_MAX;
+
+    // The following condition was active in 20.20, but hides a significant amount of material 
+    // that is located in the beampipe model at very eta ~ 6. This condition should not be used
+    //if(fabs(hitPoint.z()) > 3450.) return;
+
 
     // Get Elements for the material only do this if m_config.doElements is set
     if(m_config.doElements){
