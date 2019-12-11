@@ -10,6 +10,7 @@
       <field name="m_storeIO" transient="true" />
       <field name="m_ownsStore" transient="true" />
       <field name="m_selection" transient="true" />
+      <field name="m_compression" transient="true" />
       <field name="m_mutex" transient="true" />
       <field name="m_locked" transient="true" />
       <field name="m_name" transient="true" />
