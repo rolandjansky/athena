@@ -7,6 +7,7 @@
 
 #include "GeoModelUtilities/GeoModelTool.h"
 #include "GaudiKernel/IIncidentListener.h"
+#include "MuonGeoModel/MuonDetectorFactory001.h"
 
 namespace MuonGM
 {
@@ -29,6 +30,7 @@ public:
 
   // build the geometry 
   virtual StatusCode create() override final;
+  StatusCode createFactory(MuonGM::MuonDetectorFactory001& theFactory);
 
   // Dereference tree tops and drop readout objects
   virtual StatusCode clear() override final;
