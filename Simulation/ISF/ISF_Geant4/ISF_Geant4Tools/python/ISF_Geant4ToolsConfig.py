@@ -80,7 +80,7 @@ def getGeant4Tool(name="ISF_Geant4Tool", **kwargs):
     kwargs.setdefault('FastSimMasterTool', 'FastSimulationMasterTool')
     from AthenaCommon import CfgMgr
     # Workaround to keep other simulation flavours working while we migrate everything to be AthenaMT-compatible.
-    if ISF_Flags.Simulator.get_Value() in ['FullG4', 'FullG4MT', 'PassBackG4', 'PassBackG4MT']:
+    if ISF_Flags.Simulator.get_Value() in ['FullG4', 'FullG4MT', 'PassBackG4', 'PassBackG4MT', 'G4FastCaloSim', 'G4FastCaloSimMT']:
         return CfgMgr.iGeant4__G4TransportTool(name, **kwargs)
     else:
         return CfgMgr.iGeant4__G4LegacyTransportTool(name, **kwargs)
