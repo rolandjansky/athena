@@ -69,13 +69,12 @@ namespace ST {
     }
 
     // Need a timestamped key to copy btagging links
-    std::string jetkey_btag = m_BtagKeyOverride;
-    bool jetkeyhastimestamp = jetkey_tmp.find("_BTagging")!=std::string::npos;
-    if (m_BtagKeyOverride.empty()){
-     
-      
-      ATH_MSG_DEBUG("Central timestamp: m_BtagTimeStamp = " << m_BtagTimeStamp);
-    }
+    std::string jetkey_btag = m_BtagKeyOverride;  
+    if (jetkey_tmp.find("_BTagging")!=std::string::npos) {
+         if (m_BtagTimeStamp.empty()) jetkey_btag = jetkey_tmp;         
+         jetkey_tmp = jetkey_tmp.substr(0, jetkey_tmp.find("_BTagging"));                   
+         if (jetkey_btag.empty()) jetkey_btag = jetkey_tmp+"_BTagging"+m_BtagTimeStamp;              
+    }    
     ATH_MSG_DEBUG("Key for retrieving jet collection:        jetkey      = " << jetkey_tmp);
     ATH_MSG_DEBUG("Key for retrieving jet collection (bjet): jetkey_btag = " << jetkey_btag);
 
