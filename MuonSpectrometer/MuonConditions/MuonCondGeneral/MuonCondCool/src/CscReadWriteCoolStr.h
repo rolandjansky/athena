@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDCOOL_CSCREADWRITECOOLSTR_H
@@ -86,7 +86,6 @@ namespace MuonCalib {
 
       bool m_forceChanCat;
 
-      bool m_done;
       // properties
       bool m_write;
       std::vector<std::string> m_ifiles;
