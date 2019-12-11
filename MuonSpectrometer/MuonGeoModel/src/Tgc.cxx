@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -126,7 +126,7 @@ Tgc::build(int minimalgeo, int cutoutson, std::vector<Cutout*> vcutdef)
 	// button supports
 	GeoTube* stubesup = new GeoTube(0., t->radiusButton,
 					    t->tck[i]/2.+0.005*Gaudi::Units::mm);
-	GeoTrf::RotateY3D rotY(M_PI/2.*Gaudi::Units::rad);
+	GeoTrf::RotateY3D rotY(M_PI_2*Gaudi::Units::rad);
 	  
 	int iymin = int( -(widthActive/2. + lengthActive*tan(t->angleTilt) - t->widthWireSupport/2.
 			  + t->offsetWireSupport[iSenLyr])/t->distanceWireSupport );

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 /// a simple testing macro for the MuonEfficiencyCorrections_xAOD package
@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <string>
 #include <map>
+#include <cmath>
 
 // ROOT include(s):
 #include <TFile.h>
@@ -50,8 +51,8 @@ int main(int argc, char* argv[]) {
 
     const char* APP_NAME = argv[0];
 
-    TH2F *h_mask = new TH2F("Mask Regions", "Mask Regions", 200, -5, 5, 32, -3.14, 3.14);
-    TH2F *h_masked = new TH2F("Masked Regions", "Masked View", 200, -5, 5, 32, -3.14, 3.14);
+    TH2F *h_mask = new TH2F("Mask Regions", "Mask Regions", 200, -5, 5, 32, -M_PI, M_PI);
+    TH2F *h_masked = new TH2F("Masked Regions", "Masked View", 200, -5, 5, 32, -M_PI, M_PI);
     if (argc < 2) {
         Error(APP_NAME, "No file name received!");
         Error(APP_NAME, "  Usage: %s [xAOD file name]", APP_NAME);

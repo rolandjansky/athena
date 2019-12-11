@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 /*
@@ -14,6 +14,7 @@
 
 #include <sstream>
 #include <TRandom3.h>
+#include <cmath>
 
 #include "xAODMuon/MuonContainer.h"
 #include "xAODMuon/MuonAuxContainer.h"
@@ -199,7 +200,7 @@ namespace CP {
                                     const int xbins = tmp_h2.GetNbinsX(), ybins = tmp_h2.GetNbinsY();
                                     for (int x_i = 0; x_i <= xbins; ++x_i) {
                                         for (int y_i = 0; y_i <= ybins; ++y_i) {
-                                            double statErr = fabs(tmp_h2.GetBinContent(x_i, y_i) - m_efficiencyMap[histname + "_stat_up"]->GetBinContent(x_i, y_i));
+                                            double statErr = std::fabs(tmp_h2.GetBinContent(x_i, y_i) - m_efficiencyMap[histname + "_stat_up"]->GetBinContent(x_i, y_i));
                                             // std::cout<<tmp_h2.GetBinContent(x_i, y_i)<<" "<<m_efficiencyMap[histname+"_stat_up"]->GetBinContent(x_i, y_i)<<" "<<statErr<<std::endl;
                                             tmp_h2.SetBinError(x_i, y_i, statErr);
                                         }
@@ -407,9 +408,9 @@ namespace CP {
     }
 
     double MuonTriggerScaleFactors::dR(const double eta1, const double phi1, const double eta2, const double phi2) {
-        double deta = fabs(eta1 - eta2);
-        double dphi = fabs(phi1 - phi2) < TMath::Pi() ? fabs(phi1 - phi2) : 2 * TMath::Pi() - fabs(phi1 - phi2);
-        return sqrt(deta * deta + dphi * dphi);
+        double deta = std::fabs(eta1 - eta2);
+        double dphi = std::fabs(phi1 - phi2) < M_PI ? std::fabs(phi1 - phi2) : 2 * M_PI - std::fabs(phi1 - phi2);
+        return std::sqrt(deta * deta + dphi * dphi);
     }
 
     ///////////////////////
@@ -448,7 +449,7 @@ namespace CP {
         const double mu_phi = muon.phi();
 
         const std::string type = (configuration.isData ? "_data" : "_mc");
-        const std::string region = ((fabs(mu_eta) < muon_barrel_endcap_boundary) ? "_barrel" : "_endcap");
+        const std::string region = ((std::fabs(mu_eta) < muon_barrel_endcap_boundary) ? "_barrel" : "_endcap");
         const std::string quality = m_muonquality;
 
         const std::string isolation = (m_isolation.empty() ? "" : "_" + m_isolation);
@@ -493,27 +494,8 @@ namespace CP {
         }
 
         double mu_phi_corr = mu_phi;
-        if (mu_phi_corr < eff_h2->GetYaxis()->GetXmin()) mu_phi_corr += 2.0 * TMath::Pi();
-        if (mu_phi_corr > eff_h2->GetYaxis()->GetXmax()) mu_phi_corr -= 2.0 * TMath::Pi();
-
-        /*
-         if( mu_phi_corr > eff_h2->GetYaxis()->GetXmax() ||
-         mu_phi_corr < eff_h2->GetYaxis()->GetXmin() ||
-         mu_eta > eff_h2->GetYaxis()->GetXmax() ||
-         mu_eta < eff_h2->GetYaxis()->GetXmin() ){
-         ATH_MSG_ERROR("MuonTriggerScaleFactors::getMuonEfficiency ; eta/phi is out of bound in the SF map. muon eta/phi="
-         << mu_eta << "/" << mu_phi_corr
-         << " map range eta/phi=["
-         << eff_h2->GetXaxis()->GetXmin()
-         << ","
-         << eff_h2->GetXaxis()->GetXmax()
-         << "]/["
-         << eff_h2->GetYaxis()->GetXmin()
-         << ","
-         << eff_h2->GetYaxis()->GetXmax()
-         << "]");
-         }
-         */
+        if (mu_phi_corr < eff_h2->GetYaxis()->GetXmin()) mu_phi_corr += 2.0 * M_PI;
+        if (mu_phi_corr > eff_h2->GetYaxis()->GetXmax()) mu_phi_corr -= 2.0 * M_PI;
 
         const int bin = eff_h2->FindFixBin(mu_eta, mu_phi_corr);
         const double efficiency = eff_h2->GetBinContent(bin);
@@ -605,7 +587,7 @@ namespace CP {
 
         double event_SF = 1.;
 
-        if (fabs(1. - eff_mc) > 0.0001) {
+        if (std::fabs(1. - eff_mc) > 0.0001) {
             event_SF = eff_data / eff_mc;
         }
 
@@ -691,7 +673,7 @@ namespace CP {
 
         double event_SF = 1.;
         if (1 - rate_not_fired_data == 0) event_SF = 0;
-        if ((mucont.size()) and (fabs(1. - rate_not_fired_mc) > 0.0001)) {
+        if ((mucont.size()) and (std::fabs(1. - rate_not_fired_mc) > 0.0001)) {
 
             event_SF = (1. - rate_not_fired_data) / (1. - rate_not_fired_mc);
 
