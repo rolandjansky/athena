@@ -24,6 +24,7 @@
 #include "InDetRawData/PixelRDORawData.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "PixelGeoModel/IBLParameterSvc.h"
+#include "TrkSurfaces/RectangleBounds.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
 #include "GaudiKernel/ServiceHandle.h"
@@ -38,12 +39,37 @@ namespace InDetDD {
 }
 
 namespace InDet {
+  
+  class rowcolID {
+  public:
+    int        NCL;
+    int        ROW;
+    int        COL;
+    int        TOT;
+    int       LVL1;
+    Identifier ID ;
+  };
 
+  class network {
+  public:
+    int        NC;
+    int    CON[4];
+    int   LVL1MIN;
+  };
+  
+  class pixel_less {
+  public:
+    bool operator() (rowcolID& id1,rowcolID& id2) {
+      if(id1.COL == id2.COL) 
+        return id1.ROW < id2.ROW;
+      return id1.COL < id2.COL;
+    }
+  };
+  
   class PixelCluster;
   class IPixelClusterSplitter;
   class IPixelClusterSplitProbTool;
-
-
+  
   class MergedPixelsTool : public PixelClusteringToolBase
   {
   public:
@@ -109,8 +135,6 @@ namespace InDet {
     // The second argument is the pixel module the hit belongs to.
 
     bool isGanged(const Identifier& rdoID,
-                  //  const Identifier& elementID,
-                  //  const PixelID& pixelID,
                   const InDetDD::SiDetectorElement* element,
                   Identifier & gangedID) const;
 
@@ -125,6 +149,26 @@ namespace InDet {
                        TOT_GroupVector::iterator lvl1Group,
                        const InDetDD::SiDetectorElement* element,
                        const PixelID& pixelID) const;
+    
+    // Check if cluster has to be split                     
+    StatusCode checkClusterSplitting(PixelCluster* cluster,
+                                     std::vector<InDet::PixelCluster*>& splitClusters,
+                                     const InDetDD::SiDetectorElement* element,
+                                     const Trk::RectangleBounds* mybounds,
+                                     const PixelID& pixelID,
+                                     int groupSize,
+                                     int& clusterNumber) const;
+                       
+    // Checks if RDOs would be merged. This is based on a 4 cell connected component finding. 
+    PixelClusterCollection* clusterizeFast(const InDetRawDataCollection<PixelRDORawData> &collection,
+                                           const PixelID& pixelID) const;                   
+
+                                          
+    void addClusterNumber(int r, 
+                          int Ncluster,
+                          std::vector<network> connections,    
+                          std::vector<rowcolID>& collectionID) const;
+                       
 
     ServiceHandle<IBLParameterSvc>                      m_IBLParameterSvc;
     /// for cluster splitting
@@ -135,6 +179,7 @@ namespace InDet {
     ToolHandle<InDet::IPixelClusterSplitProbTool> m_splitProbTool{this, "SplitProbTool", "", "ToolHandle for the split probability tool"};
     ToolHandle<InDet::IPixelClusterSplitter> m_clusterSplitter{this, "ClusterSplitter", "", "ToolHandle for the split probability tool"};
     BooleanProperty m_doIBLSplitting{this, "DoIBLSplitting", false};
+    BooleanProperty m_doFastClustering{this, "DoFastClustering", true};
 
     SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
 

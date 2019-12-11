@@ -28,7 +28,6 @@
 #include "InDetIdentifier/PixelID.h"
 #include "SiClusterizationTool/ClusterMakerTool.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
-#include "TrkSurfaces/RectangleBounds.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
@@ -37,7 +36,7 @@ using CLHEP::micrometer;
 
 
 namespace InDet {
-
+  
   // Constructor with parameters:
   MergedPixelsTool::MergedPixelsTool(const std::string &type,
                                      const std::string &name,
@@ -90,6 +89,9 @@ namespace InDet {
   PixelClusterCollection* MergedPixelsTool::clusterize( const InDetRawDataCollection<PixelRDORawData> &collection,
                                                         const PixelID& pixelID) const
   {
+    // call the fast clusterizetion method if required
+    if (m_doFastClustering) return clusterizeFast(collection, pixelID);    
+    
     // Get the messaging service, print where you are
 
     Identifier elementID = collection.identify();
@@ -282,16 +284,7 @@ namespace InDet {
     // (MAIN CLUSTERIZATION LOOP after connected component finding)
     
     for(std::vector<RDO_Vector *>::iterator group = rdoGroups.begin() ; group!= rdoGroups.end() ; ++group) {
-      
-      // the split probabilities
-      // writing the split boolean is done the following way
-      // - if in emulation mode: always write the output of the splitter for validation
-      // - if in pseudo-emulation mode (1-pixel clusters): set boolean to false, but keep split probs
-      bool   clusterModified    = false;
-      bool   clusterSplit       = false;
-      double clusterSplitP1     = 0.;
-      double clusterSplitP2     = 0.;
-      bool singlePixelSplitCase = 0;
+
       // the size of the inition rdo group
       size_t groupSize = (**group).size();
       
@@ -308,185 +301,17 @@ namespace InDet {
                                             ++clusterNumber);
         // check for splitting
         if ( groupSize >= m_minSplitSize && groupSize <= m_maxSplitSize ) {
-          
-          // prepare for the return value of the pixel cluster 
-          std::vector<InDet::PixelClusterParts> splitClusterParts;
-          if ( !m_splitProbTool.empty() && (m_doIBLSplitting || m_IBLAbsent || !element->isBlayer())) {
-            InDet::PixelClusterSplitProb splitProbObj = m_splitProbTool->splitProbability(*cluster);
-            clusterSplitP1 = splitProbObj.splitProbability(2);
-            clusterSplitP2 = splitProbObj.splitProbability(3);
-            ATH_MSG_VERBOSE( "Obtained split prob object with split prob: " << splitProbObj.splitProbability());
-            if ( splitProbObj.splitProbability() >  m_minSplitProbability ) {
-              ATH_MSG_VERBOSE( "Trying to split cluster ... ");
-              splitClusterParts = m_clusterSplitter->splitCluster(*cluster,splitProbObj);
+          std::vector<InDet::PixelCluster*> splitClusters;
+          if (checkClusterSplitting(cluster, splitClusters, element, mybounds, pixelID, groupSize, clusterNumber).isFailure()) {
+            delete clusterCollection;
+            return nullptr;
+          } else {            
+            if (splitClusters.size()>0) {
+              for (auto& splitCluster : splitClusters) {
+                splitCluster->setHashAndIndex(clusterCollection->identifyHash(), clusterCollection->size());
+                clusterCollection->push_back(splitCluster);          
+              }
             }
-          } else if ( !m_clusterSplitter.empty() && (m_doIBLSplitting || m_IBLAbsent || !element->isBlayer())) 
-            splitClusterParts = m_clusterSplitter->splitCluster(*cluster);
-          // check if splitting worked
-          clusterModified      = !m_emulateSplitter && splitClusterParts.size() > 0;
-          clusterSplit         = (splitClusterParts.size() > 1);
-          // exclusion: do not allow 
-          singlePixelSplitCase = (groupSize==1) && clusterSplit;
-          
-          // CASE A: perform the actual split & create new clusters 
-          if (clusterModified && !singlePixelSplitCase){
-            if ( splitClusterParts.size() > 1)
-              ATH_MSG_VERBOSE( "--> Cluster with " << groupSize << " pixels is split into " << splitClusterParts.size() << " parts.");
-            else 
-              ATH_MSG_VERBOSE( "--> Cluster is not actually split, but eventually modified, filling isSplit as: " << (clusterSplit || groupSize == 1));
-            
-            std::vector<InDet::PixelCluster*> splitClusters;
-            // statistics output                
-            if (clusterSplit) {
-              ++m_splitOrigClusters;
-              m_splitProdClusters += splitClusterParts.size();                                
-            } else 
-              ++m_modifiedOrigClusters;
-            
-            ATH_MSG_VERBOSE( "--> Non-zero cluster split size. Try to use new clusterization...");
-            // iterate and make clusters
-            std::vector<InDet::PixelClusterParts>::iterator splitClusterPartsIter    = splitClusterParts.begin();
-            std::vector<InDet::PixelClusterParts>::iterator splitClusterPartsIterEnd = splitClusterParts.end();
-            // use internal clustering if no position is estimated by clustersplitter
-            if ( !(*splitClusterPartsIter).localPosition()){
-              ATH_MSG_VERBOSE( "--> Position estimate from new clusterization not available... Use old clusterization");
-              for ( ; splitClusterPartsIter != splitClusterPartsIterEnd; ++splitClusterPartsIter ) {
-                // make a new cluster, use standard clusterization to have a consistent clustering used
-                PixelCluster* splitCluster =  makeCluster((*splitClusterPartsIter).identifierGroup(),
-                                                          (*splitClusterPartsIter).totGroup(),
-                                                          (*splitClusterPartsIter).lvl1Group(),
-                                                          element,
-                                                          pixelID,
-                                                          ++clusterNumber,
-                                                          (clusterSplit || groupSize == 1),
-                                                          clusterSplitP1,
-                                                          clusterSplitP2);
-                splitCluster->setHashAndIndex(clusterCollection->identifyHash(), clusterCollection->size());
-                /** end new stuff */
-                clusterCollection->push_back(splitCluster);
-                // @TODO: fill these clusters into an ambiguity map
-                splitClusters.push_back(splitCluster);
-              }
-            } else {
-              std::vector<InDet::PixelClusterParts>::iterator splitClusterPartsIter    = splitClusterParts.begin();
-              std::vector<InDet::PixelClusterParts>::iterator splitClusterPartsIterEnd = splitClusterParts.end();
-              
-              ATH_MSG_VERBOSE( "--> Processing new splitCluster with n. " << splitClusterParts.size() << " subClusters. ");
-              const InDetDD::PixelModuleDesign* design (dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design()));
-              if (not design){
-                ATH_MSG_ERROR("Dynamic cast failed at "<<__LINE__<<" of MergedPixelsTool.cxx.");
-                delete cluster;
-                delete clusterCollection;
-                return nullptr;
-              }
-              for ( size_t iclus = 0 ; splitClusterPartsIter != splitClusterPartsIterEnd; ++splitClusterPartsIter, ++iclus ){
-                const Amg::Vector2D& position=(*(*splitClusterPartsIter).localPosition());
-                const Amg::MatrixX&   error=(*(*splitClusterPartsIter).errorMatrix());
-                const std::vector<int>&   totGroup=(*splitClusterPartsIter).totGroup();
-                const std::vector<int>&   lvl1Group=(*splitClusterPartsIter).lvl1Group();
-                const std::vector<Identifier>& identifierGroup=(*splitClusterPartsIter).identifierGroup();
-                
-                ATH_MSG_VERBOSE( "--> New Cluster :" << iclus << " - Position: " << position << " error: " << error );
-                
-                InDetDD::SiLocalPosition subPos(position);
-                if (std::abs(subPos.xPhi())>mybounds->halflengthPhi()) {
-                  double newxphi= (subPos.xPhi()>0) ? mybounds->halflengthPhi()-0.001 : -mybounds->halflengthPhi()+0.001;
-                  subPos.xPhi(newxphi);
-                }
-                if (std::abs(subPos.xEta())>mybounds->halflengthEta()) {
-                  double newxeta= (subPos.xEta()>0) ? mybounds->halflengthEta()-0.001 : -mybounds->halflengthEta()+0.001;
-                  subPos.xEta(newxeta);
-                }
-                
-                const Identifier idSubCluster = element->identifierOfPosition(subPos);
-                
-                std::vector<Identifier>::const_iterator rdosBegin = identifierGroup.begin();
-                std::vector<Identifier>::const_iterator rdosEnd = identifierGroup.end();
-                
-                int rowMin = int(2*(element->width()/element->phiPitch()))+1;
-                int rowMax = 0;
-                int colMin = int(2*(element->length()/element->etaPitch()))+1;
-                int colMax = 0;
-          
-                for (; rdosBegin!= rdosEnd; ++rdosBegin) {
-                  Identifier rId =  *rdosBegin;
-                  int row = pixelID.phi_index(rId);
-                  int col = pixelID.eta_index(rId);
-                  
-                  if (row < rowMin) { 
-                    rowMin = row; 
-                  }
-                  if (row > rowMax) {
-                    rowMax = row;
-                  }
-                  if (col < colMin) {
-                    colMin = col;
-                  }
-                  if (col > colMax) {
-                    colMax = col;
-                  }
-                }
-                
-                int colWidth = colMax-colMin+1;
-                int rowWidth = rowMax-rowMin+1;
-                double etaWidth = design->widthFromColumnRange(colMin, colMax);
-                double phiWidth = design->widthFromRowRange(rowMin, rowMax);
-                SiWidth siWidth(Amg::Vector2D(rowWidth,colWidth), Amg::Vector2D(phiWidth,etaWidth) );
-                
-                // create the new cluster
-                PixelCluster* splitCluster = new PixelCluster( idSubCluster,
-                                                               position,
-                                                               identifierGroup,
-                                                               lvl1Group[0], 
-                                                               totGroup,
-                                                               cluster->chargeList(),
-                                                               siWidth,
-                                                               element,
-                                                               new Amg::MatrixX(error),
-                                                               cluster->omegax(),cluster->omegay(),
-                                                               (clusterSplit || groupSize == 1),
-                                                               clusterSplitP1,
-                                                               clusterSplitP2);
-                
-                splitCluster->setHashAndIndex(clusterCollection->identifyHash(), clusterCollection->size());
-                clusterCollection->push_back(splitCluster);
-                splitClusters.push_back(splitCluster);
-               
-              } //end iteration on split clusters
-            } //end if no content in split clusters
-            
-            // delete the original cluster
-            delete cluster; cluster = 0;
-            
-          } //end if split clusters size is 0
-          else if (m_emulateSplitter || singlePixelSplitCase) {
-            // create a new cluser with updated split information
-            if (singlePixelSplitCase)
-              ATH_MSG_VERBOSE( "--> Cluster is a single pixel cluser - no split performed, only fill split information - do not flag as split.");
-            else 
-              ATH_MSG_VERBOSE( "--> Emulation mode: no split performed, only fill split information - flagged split.");
-            
-            PixelCluster* emulatedCluster = new PixelCluster( cluster->identify(),
-                                                              cluster->localPosition(),
-                                                              cluster->rdoList(),
-                                                              cluster->LVL1A(), 
-                                                              cluster->totList(),
-                                                              cluster->chargeList(),
-                                                              cluster->width(),
-                                                              element,
-                                                              new Amg::MatrixX(cluster->localCovariance()),
-                                                              cluster->omegax(),cluster->omegay(),
-                                                              (m_emulateSplitter ? clusterSplit : false),
-                                                              clusterSplitP1,
-                                                              clusterSplitP2);
-        
-            emulatedCluster->setHashAndIndex(clusterCollection->identifyHash(), clusterCollection->size());
-            clusterCollection->push_back(emulatedCluster);
-
-            // delete the original cluster
-            delete cluster; cluster = 0;
-          } else {
-            ATH_MSG_VERBOSE( "ZERO cluster split size is. Not replacing old cluster...");
           }
         }
         // no merging has been done;
@@ -516,6 +341,7 @@ namespace InDet {
       *lvl1group=0;
       lvl1group++;
     }
+    
     return clusterCollection;
   }
 
@@ -802,6 +628,463 @@ namespace InDet {
       nextTotGroup++;
       nextLvl1Group++;
     }  
+  }
+  
+  //-----------------------------------------------------------------------
+  
+  
+  
+ 
+  //-----------------------------------------------------------------------
+  // Called by the clusterize method if fast clustering is switched on.
+  // Runs for every pixel module (with non-empty RDO collection...). 
+  // It clusters together the RDOs with a pixell cell side in common
+  // using connected component analysis based on four-cell connectivity  
+  PixelClusterCollection*  MergedPixelsTool::clusterizeFast(const InDetRawDataCollection<PixelRDORawData> &collection,
+                                                            const PixelID& pixelID) const {
+    
+    // Size of RDO's collection:
+    unsigned int RDO_size = collection.size();
+    if ( RDO_size==0) {
+        // Empty RDO collection
+        ATH_MSG_DEBUG (" areNeighbours - problems ");
+        return nullptr;
+    }
+    
+    // Get Identifier and IdentifierHash for these RDOs
+    Identifier elementID = collection.identify();
+    IdentifierHash idHash = collection.identifyHash();
+    
+    // If module is bad, do not create a cluster collection
+    if (m_useModuleMap && !(m_summaryTool->isGood(idHash))) 
+      return nullptr;
+    
+    // Get detector info.
+    // Find detector element for these RDOs
+
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+    const InDetDD::SiDetectorElementCollection* pixelDetEle(*pixelDetEleHandle);
+    if (not pixelDetEleHandle.isValid() or pixelDetEle==nullptr) {
+      ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " is not available.");
+      return nullptr;
+    }
+    const InDetDD::SiDetectorElement* element = pixelDetEle->getDetectorElement(idHash);
+    
+    const Trk::RectangleBounds *mybounds=dynamic_cast<const Trk::RectangleBounds *>(&element->surface().bounds());
+    if (not mybounds) {
+      ATH_MSG_ERROR("Dynamic cast failed at "<<__LINE__<<" of MergedPixelsTool.cxx.");
+      return nullptr;
+    }
+    
+    std::vector<rowcolID> collectionID;
+    std::vector<network> connections;
+
+    InDetRawDataCollection<PixelRDORawData>::const_iterator RD = collection.begin(), RDE = collection.end();
+
+    for(; RD!=RDE; ++RD) {
+
+      Identifier rdoID= (*RD)->identify();
+      if (m_usePixelMap and !(m_summaryTool->isGood(idHash,rdoID))) continue;
+          
+      int tot = (*RD)->getToT  ();
+      int lvl1= (*RD)->getLVL1A();
+      
+      rowcolID   RCI; network    NET;    
+          
+      RCI.NCL = -1                      ;
+      RCI.ROW = pixelID.phi_index(rdoID);
+      RCI.COL = pixelID.eta_index(rdoID);
+      RCI.TOT = tot;
+      RCI.LVL1 = lvl1;
+      RCI.ID  = rdoID;
+      NET.NC  = 0;
+      collectionID.push_back(RCI);
+      connections .push_back(NET);
+      
+      // check if this is a ganged pixel    
+      Identifier gangedID;
+      bool ganged = isGanged(rdoID, element, gangedID);  
+            
+      if (not ganged) continue;
+          
+      // if it is a ganged pixel, add its ganged RDO id to the collections
+      rowcolID   RCI_ganged; network    NET_ganged;    
+          
+      RCI_ganged.NCL = -1                      ;
+      RCI_ganged.ROW = pixelID.phi_index(gangedID);
+      RCI_ganged.COL = pixelID.eta_index(gangedID);
+      RCI_ganged.TOT = tot;
+      RCI_ganged.LVL1 = lvl1;
+      RCI_ganged.ID  = gangedID;
+      NET_ganged.NC  = 0;  
+      collectionID.push_back(RCI_ganged);
+      connections .push_back(NET_ganged);
+      
+    }
+
+    // Sort pixels in ascending columns order
+    // 
+    if(collectionID.empty()) return 0; 
+    if(collectionID.size() > 1) std::sort(collectionID.begin(),collectionID.end(),pixel_less());
+
+    // Network production
+    //
+    int r = 0, re = collectionID.size();
+
+    for(; r!=re-1; ++r) {
+
+      int NB  = 0;
+      int row = collectionID[r].ROW  ;
+      int col = collectionID[r].COL+1; 
+
+      for(int rn = r+1; rn!=re; ++rn) {
+        int dc = collectionID[rn].COL - col;
+        
+        if( dc > 0) break;
+        
+        if( fabs(collectionID[rn].ROW-row)+dc == 0 ) {
+          connections[ r].CON[connections[r ].NC++] = rn;
+          connections[rn].CON[connections[rn].NC++] = r ;
+          if(++NB==2) break;
+        }
+      }
+    }
+
+    // Pixels clusterization
+    //
+    int Ncluster = 0;
+    for(r=0; r!=re; ++r) {
+      if(collectionID[r].NCL < 0) {
+        collectionID[r].NCL = Ncluster;
+        addClusterNumber(r,Ncluster,connections,collectionID);
+        ++Ncluster;
+      }
+    }
+
+    // Clusters sort in Ncluster order
+    //
+    if(--re > 1) {
+      for(int i(1); i<re; ++i ) {
+        rowcolID U  = collectionID[i+1];
+        
+        int j(i);
+        while(collectionID[j].NCL > U.NCL) {
+          collectionID[j+1]=collectionID[j]; 
+          --j;
+        }
+        collectionID[j+1]=U;
+      }
+    }
+
+    // Make a new pixel cluster collection
+    //
+    PixelClusterCollection  *clusterCollection = new PixelClusterCollection(idHash);
+    clusterCollection->setIdentifier(elementID);
+    clusterCollection->reserve(Ncluster);
+
+    std::vector<Identifier> DVid;
+    std::vector<int> Totg;
+    std::vector<int> Lvl1;
+    
+    DVid.push_back(collectionID[0].ID );
+    Totg.push_back(collectionID[0].TOT);
+    Lvl1.push_back(collectionID[0].LVL1);
+   
+    int clusterNumber = 0;
+    int NCL0          = 0;
+
+    ++re;    
+    for(int i=1; i<=re; ++i) {
+
+      if(i!=re and collectionID[i].NCL==NCL0) {
+        DVid.push_back(collectionID[i].ID );
+        Totg.push_back(collectionID[i].TOT);
+        Lvl1.push_back(collectionID[i].LVL1);
+      
+      } else {
+        
+        // Cluster production
+        ++m_processedClusters;
+        PixelCluster* cluster = makeCluster(DVid,
+                                            Totg,
+                                            Lvl1,
+                                            element,
+                                            pixelID, 
+                                            ++clusterNumber);
+        
+        size_t groupSize = DVid.size();        
+        
+        // check for splitting
+        if ( groupSize >= m_minSplitSize && groupSize <= m_maxSplitSize ) {
+          std::vector<InDet::PixelCluster*> splitClusters;
+          if (checkClusterSplitting(cluster, splitClusters, element, mybounds, pixelID, groupSize, clusterNumber).isFailure()) {
+            delete clusterCollection;
+            return nullptr;
+          } else {            
+            if (splitClusters.size()>0) {
+              for (auto& splitCluster : splitClusters) {
+                splitCluster->setHashAndIndex(clusterCollection->identifyHash(), clusterCollection->size());
+                clusterCollection->push_back(splitCluster);          
+              }
+            }
+          }
+        }
+        
+        // no merging has been done;
+        if (cluster) { 
+          // statistics output
+          if (groupSize >= m_maxSplitSize ) ++m_largeClusters;
+          /** new: store hash id and index in the cluster:
+           * hash can be obtained from collection
+           * index is just the size of the coll before the push back
+           * this is needed for later to make the EL to IDC valid in the 
+           * RIO_OnTrack objects set method might be temporary, this tool 
+           * (MergedPixelsTool could be friend of the cluster objects)
+           */
+          cluster->setHashAndIndex(clusterCollection->identifyHash(), clusterCollection->size());
+          /** end new stuff */
+          clusterCollection->push_back(cluster);
+        }      
+        
+        
+        // Preparation for next cluster
+        if (i!=re) {
+          NCL0   = collectionID[i].NCL                     ;
+          DVid.clear(); DVid.push_back(collectionID[i].ID );
+          Totg.clear(); Totg.push_back(collectionID[i].TOT);
+          Lvl1.clear(); Lvl1.push_back(collectionID[i].LVL1);
+        }
+      }
+    }
+    
+    return clusterCollection;
+  }
+
+  ///////////////////////////////////////////////////////////////////
+  // Clusterization for fast mode 
+  ///////////////////////////////////////////////////////////////////
+  
+  void MergedPixelsTool::addClusterNumber(int r, 
+                                          int Ncluster,
+                                          std::vector<network> connections,                                         
+                                          std::vector<rowcolID>& collectionID) const {
+                                            
+      for(int i=0; i!=connections[r].NC; ++i) {      
+        int k = connections[r].CON[i];
+        if(collectionID[k].NCL < 0) {
+          collectionID[k].NCL = Ncluster;
+          addClusterNumber(k, Ncluster, connections, collectionID);
+        }
+      }
+    }
+    
+    
+  /////////////////////////////////////////////////////////////////////
+  // Check if cluster has to be split
+  /////////////////////////////////////////////////////////////////////
+  // ----------------------------------------------------------------
+  // Logics in splitting is: the splitter is only activated clusters within min/max split size,
+  //  single pixel clusters are not split into more clusters, but can be modified if included by split size req.
+  //  additionally:
+  // (1) split size > m_minSplitSize : just follow output of the splitter
+  // (2) split size <= m_minSplitSize && no split done by the splitter : 
+  //      take position update of splitter if available (profit from NN), flag as split 
+  // (3) split size <= m_minSplitSize && split done : fallback to pseudo-emulation mode 
+  //      (i.e. do not allow splitting, but write split probabilities, do not flag as split)
+  // (E) if configured to run in emulation mode, flag as split, save split information, but never split
+  
+  // prepare for the return value of the pixel cluster 
+  StatusCode MergedPixelsTool::checkClusterSplitting(PixelCluster* cluster,
+                                                     std::vector<InDet::PixelCluster*>& splitClusters,
+                                                     const InDetDD::SiDetectorElement* element,
+                                                     const Trk::RectangleBounds* mybounds,
+                                                     const PixelID& pixelID,
+                                                     int groupSize,
+                                                     int& clusterNumber) const 
+  {
+    
+    // the split probabilities
+    double clusterSplitP1     = 0.;
+    double clusterSplitP2     = 0.;
+    
+    std::vector<InDet::PixelClusterParts> splitClusterParts;
+    
+    
+    if ( !m_splitProbTool.empty() && (m_doIBLSplitting || m_IBLAbsent || !element->isBlayer())) {
+      InDet::PixelClusterSplitProb splitProbObj = m_splitProbTool->splitProbability(*cluster);
+      clusterSplitP1 = splitProbObj.splitProbability(2);
+      clusterSplitP2 = splitProbObj.splitProbability(3);
+      ATH_MSG_VERBOSE( "Obtained split prob object with split prob: " << splitProbObj.splitProbability());
+      if (!m_clusterSplitter.empty() && splitProbObj.splitProbability() >  m_minSplitProbability ) {
+        ATH_MSG_VERBOSE( "Trying to split cluster ... ");
+        splitClusterParts = m_clusterSplitter->splitCluster(*cluster,splitProbObj);
+      }
+    } else if ( !m_clusterSplitter.empty() && (m_doIBLSplitting || m_IBLAbsent || !element->isBlayer())) 
+      splitClusterParts = m_clusterSplitter->splitCluster(*cluster);
+    
+    // writing the split boolean is done the following way
+    // - if in emulation mode: always write the output of the splitter for validation
+    // - if in pseudo-emulation mode (1-pixel clusters): set boolean to false, but keep split probs
+    
+    // check if splitting worked
+    bool clusterModified      = !m_emulateSplitter && splitClusterParts.size() > 0;
+    bool clusterSplit         = (splitClusterParts.size() > 1);
+    
+    // exclusion: do not allow 
+    bool singlePixelSplitCase = (groupSize==1) && clusterSplit;
+    
+    // CASE A: perform the actual split & create new clusters 
+    if (clusterModified && !singlePixelSplitCase){
+      if ( splitClusterParts.size() > 1)
+        ATH_MSG_VERBOSE( "--> Cluster with " << groupSize << " pixels is split into " << splitClusterParts.size() << " parts.");
+      else 
+        ATH_MSG_VERBOSE( "--> Cluster is not actually split, but eventually modified, filling isSplit as: " << (clusterSplit || groupSize == 1));
+      
+      // statistics output                
+      if (clusterSplit) {
+        ++m_splitOrigClusters;
+        m_splitProdClusters += splitClusterParts.size();                                
+      } else 
+        ++m_modifiedOrigClusters;
+      
+      ATH_MSG_VERBOSE( "--> Non-zero cluster split size. Try to use new clusterization...");
+      // iterate and make clusters
+      std::vector<InDet::PixelClusterParts>::iterator splitClusterPartsIter    = splitClusterParts.begin();
+      std::vector<InDet::PixelClusterParts>::iterator splitClusterPartsIterEnd = splitClusterParts.end();
+      // use internal clustering if no position is estimated by clustersplitter
+      if ( !(*splitClusterPartsIter).localPosition()) {
+        ATH_MSG_VERBOSE( "--> Position estimate from new clusterization not available... Use old clusterization");
+        for ( ; splitClusterPartsIter != splitClusterPartsIterEnd; ++splitClusterPartsIter ) {
+          // make a new cluster, use standard clusterization to have a consistent clustering used
+          PixelCluster* splitCluster =  makeCluster((*splitClusterPartsIter).identifierGroup(),
+                                                    (*splitClusterPartsIter).totGroup(),
+                                                    (*splitClusterPartsIter).lvl1Group(),
+                                                    element,
+                                                    pixelID,
+                                                    ++clusterNumber,
+                                                    (clusterSplit || groupSize == 1),
+                                                    clusterSplitP1,
+                                                    clusterSplitP2);
+          // fill the vectors with the clusters to add to the cluster collection
+          splitClusters.push_back(splitCluster);          
+        }
+      } else {
+        std::vector<InDet::PixelClusterParts>::iterator splitClusterPartsIter    = splitClusterParts.begin();
+        std::vector<InDet::PixelClusterParts>::iterator splitClusterPartsIterEnd = splitClusterParts.end();
+
+        ATH_MSG_VERBOSE( "--> Processing new splitCluster with n. " << splitClusterParts.size() << " subClusters. ");
+        const InDetDD::PixelModuleDesign* design (dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design()));
+        if (not design){
+          ATH_MSG_ERROR("Dynamic cast failed at "<<__LINE__<<" of MergedPixelsTool.cxx.");
+          delete cluster;
+          return StatusCode::FAILURE;
+        }
+        for ( size_t iclus = 0 ; splitClusterPartsIter != splitClusterPartsIterEnd; ++splitClusterPartsIter, ++iclus ){
+          const Amg::Vector2D& position=(*(*splitClusterPartsIter).localPosition());
+          const Amg::MatrixX&   error=(*(*splitClusterPartsIter).errorMatrix());
+          const std::vector<int>&   totGroup=(*splitClusterPartsIter).totGroup();
+          const std::vector<int>&   lvl1Group=(*splitClusterPartsIter).lvl1Group();
+          const std::vector<Identifier>& identifierGroup=(*splitClusterPartsIter).identifierGroup();
+          
+          ATH_MSG_VERBOSE( "--> New Cluster :" << iclus << " - Position: " << position << " error: " << error );
+          
+          InDetDD::SiLocalPosition subPos(position);
+          if (std::abs(subPos.xPhi())>mybounds->halflengthPhi()) {
+            double newxphi= (subPos.xPhi()>0) ? mybounds->halflengthPhi()-0.001 : -mybounds->halflengthPhi()+0.001;
+            subPos.xPhi(newxphi);
+          }
+          if (std::abs(subPos.xEta())>mybounds->halflengthEta()) {
+            double newxeta= (subPos.xEta()>0) ? mybounds->halflengthEta()-0.001 : -mybounds->halflengthEta()+0.001;
+            subPos.xEta(newxeta);
+          }
+          
+          const Identifier idSubCluster = element->identifierOfPosition(subPos);
+          
+          std::vector<Identifier>::const_iterator rdosBegin = identifierGroup.begin();
+          std::vector<Identifier>::const_iterator rdosEnd = identifierGroup.end();
+          
+          int rowMin = int(2*(element->width()/element->phiPitch()))+1;
+          int rowMax = 0;
+          int colMin = int(2*(element->length()/element->etaPitch()))+1;
+          int colMax = 0;
+          
+          for (; rdosBegin!= rdosEnd; ++rdosBegin) {
+            Identifier rId =  *rdosBegin;
+            int row = pixelID.phi_index(rId);
+            int col = pixelID.eta_index(rId);
+            
+            if (row < rowMin) { 
+              rowMin = row; 
+            }
+            if (row > rowMax) {
+              rowMax = row;
+            }
+            if (col < colMin) {
+              colMin = col;
+            }
+            if (col > colMax) {
+              colMax = col;
+            }
+          }
+          
+          int colWidth = colMax-colMin+1;
+          int rowWidth = rowMax-rowMin+1;
+          double etaWidth = design->widthFromColumnRange(colMin, colMax);
+          double phiWidth = design->widthFromRowRange(rowMin, rowMax);
+          SiWidth siWidth(Amg::Vector2D(rowWidth,colWidth), Amg::Vector2D(phiWidth,etaWidth) );
+          
+          // create the new cluster
+          PixelCluster* splitCluster = new PixelCluster( idSubCluster,
+                                                         position,
+                                                         identifierGroup,
+                                                         lvl1Group[0], 
+                                                         totGroup,
+                                                         cluster->chargeList(),
+                                                         siWidth,
+                                                         element,
+                                                         new Amg::MatrixX(error),                                                             
+                                                         cluster->omegax(),cluster->omegay(),
+                                                         (clusterSplit || groupSize == 1),
+                                                         clusterSplitP1,
+                                                         clusterSplitP2);
+          // fill the vectors with the clusters to add to the cluster collection
+          splitClusters.push_back(splitCluster);          
+        } //end iteration on split clusters
+      } //end if no content in split clusters
+      
+      // delete the original cluster
+      delete cluster; cluster = 0;
+    
+    }//end if split clusters size is 0
+    else if (m_emulateSplitter || singlePixelSplitCase) {
+      // create a new cluser with updated split information
+      if (singlePixelSplitCase)
+        ATH_MSG_VERBOSE( "--> Cluster is a single pixel cluser - no split performed, only fill split information - do not flag as split.");
+      else 
+        ATH_MSG_VERBOSE( "--> Emulation mode: no split performed, only fill split information - flagged split.");
+      
+      PixelCluster* emulatedCluster = new PixelCluster( cluster->identify(),
+                                                        cluster->localPosition(),
+                                                        cluster->rdoList(),
+                                                        cluster->LVL1A(), 
+                                                        cluster->totList(),
+                                                        cluster->chargeList(),
+                                                        cluster->width(),
+                                                        element,
+                                                        new Amg::MatrixX(cluster->localCovariance()),
+                                                        cluster->omegax(),cluster->omegay(),
+                                                        (m_emulateSplitter ? clusterSplit : false),
+                                                        clusterSplitP1,
+                                                        clusterSplitP2);
+      // fill the vectors with the clusters to add to the cluster collection
+      splitClusters.push_back(emulatedCluster);          
+      // delete the original cluster
+      delete cluster; cluster = 0;
+    } else {
+      ATH_MSG_VERBOSE( "ZERO cluster split size is. Not replacing old cluster...");
+    }
+    
+    return StatusCode::SUCCESS;
   }
 }
 //----------------------------------------------------------------------------
