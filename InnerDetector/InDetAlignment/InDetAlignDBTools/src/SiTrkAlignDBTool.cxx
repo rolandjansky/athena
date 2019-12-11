@@ -738,17 +738,16 @@ void SiTrkAlignDBTool::updateAsL3(const Trk::AlignModule * module, const Amg::Tr
       // This should work as Bowing is in DB frame, i.e. local module frame
       // This implementation is need in the CL as of Oct2015; 
       // For now, just comment for offline
-      /**
       if (apBowX!=0){
 	double z = sielem->center()[2];        
 	const double  y0y0  = 366.5*366.5;
-	//ATH_MSG_DEBUG("Z position : "<< z);
 	double bowx = apBowX * ( z*z - y0y0 ) / y0y0;
+	ATH_MSG_DEBUG("Z position: "<< z << "   apBowX:" << apBowX << "    bowx: " << bowx);
 	// This is in the module frame, as bowing corrections are directly L3
-	Amg::Translation3D translation_bow(bowx , 0, 0 );
-	dbtransform *= translation_bow;
-	}
-      **/
+	// Amg::Translation3D translation_bow(bowx , 0, 0 );
+	// dbtransform *= translation_bow;
+      }
+      
       ATH_MSG_DEBUG("DB transform");
       printTransform(dbtransform);
 
