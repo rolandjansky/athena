@@ -80,11 +80,9 @@ bool InDet::SiTrajectoryElement_xk::set
   
   if (m_tools->isITkGeometry()) {
     m_radlength = .04;
-    if(m_ndf == 2) {
-      fabs(T(2,2)) < .1 ? m_radlength = .04 : m_radlength = .07;
-    }   
+    if(m_ndf == 2 and fabs(T(2,2)) > .1) m_radlength = .07;
   }
-
+  
   m_Tr[ 0] = T(0,0); m_Tr[ 1]=T(1,0); m_Tr[ 2]=T(2,0);
   m_Tr[ 3] = T(0,1); m_Tr[ 4]=T(1,1); m_Tr[ 5]=T(2,1);
   m_Tr[ 6] = T(0,2); m_Tr[ 7]=T(1,2); m_Tr[ 8]=T(2,2);
@@ -306,7 +304,7 @@ bool InDet::SiTrajectoryElement_xk::ForwardPropagationWithoutSearch
   if(m_inside<=0) {
 
     if(m_cluster) noiseProduction(1,m_parametersUF);
-    else          noiseProduction(1,m_parametersPF);
+    else { m_tools->useFastTracking() ? noiseInitiate() : noiseProduction(1,m_parametersPF); }
   }
   else            {
     noiseInitiate();
@@ -724,6 +722,7 @@ bool InDet::SiTrajectoryElement_xk::addNextClusterB
 
     if(m_inside < 0) {++m_nholesB; ++m_dholesB;} m_xi2B = 0.;
     if(m_dist < -2.) ++m_ndist;
+    if(m_tools->useFastTracking()) noiseInitiate();
   }
   return true;
 } 
@@ -845,17 +844,26 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoPIX
     
     const InDet::SiCluster*  c  = (*p); 
     const Amg::Vector2D&     M = c->localPosition();
-
-    double MV0 = c->width().phiR();
-    double MV2 = c->width().z   ();
-
+    
     double r0  = M[0]-P0, r02 = r0*r0; 
     double r1  = M[1]-P1, r12 = r1*r1;
+    
+    double V0 = 0.; double V2 = 0.; 
+    if (m_tools->useFastTracking()) {
+      const Amg::MatrixX& V = c->localCovariance();
+      V0 = V(0,0);
+      V2 = V(1,1);      
+    } else {
+      double MV0 = c->width().phiR();
+      double MV2 = c->width().z   ();
+      V0 = .08333*(MV0*MV0);
+      V2 = .08333*(MV2*MV2);      
+    }
 
-    double v0  = .08333*(MV0*MV0)+PV0; if(r02 >(Xc*v0)) continue;
-    double v2  = .08333*(MV2*MV2)+PV2; if(r12 >(Xc*v2)) continue;
-    double v1  =                  PV1;
-    double d   = v0*v2-v1*v1;          if(   d<=0.    ) continue;
+    double v0  = V0+PV0; if(r02>(Xc*v0)) continue;
+    double v2  = V2+PV2; if(r12>(Xc*v2)) continue;
+    double v1  = PV1;
+    double d   = v0*v2-v1*v1; if(d<=0.) continue;
     double x   = ((r02*v2+r12*v0)-(r0*r1)*(2.*v1))/d;
 
     if(x>Xc) continue;
@@ -903,8 +911,16 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoSCT
     const InDet::SiCluster*      c = (*p); 
     const Amg::Vector2D&         M = c->localPosition();
 
-    double MV0 = c->width().phiR()   ;
-    double v0  = .08333*(MV0*MV0)+PV0;   
+    double V0 = 0.;
+    if (m_tools->useFastTracking()) {
+      const Amg::MatrixX& V = c->localCovariance();
+      V0 = V(0,0);
+    } else {
+      double MV0 = c->width().phiR();
+      V0 = .08333*(MV0*MV0);
+    }
+    
+    double v0  = V0+PV0;   
     double r0  = M[0]-P0;
     double d   = 1./v0;
     double x   = (r0*r0)*d;
@@ -1035,17 +1051,26 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssPIX
     const InDet::SiCluster*  c  = (*p);  
     if(m_assoTool->isUsed(*c)) continue;
     const Amg::Vector2D&     M = c->localPosition();
-
-    double MV0 = c->width().phiR();
-    double MV2 = c->width().z   ();
-
+    
     double r0  = M[0]-P0, r02 = r0*r0; 
     double r1  = M[1]-P1, r12 = r1*r1;
+    
+    double V0 = 0.; double V2 = 0.; 
+    if (m_tools->useFastTracking()) {
+      const Amg::MatrixX& V = c->localCovariance();
+      V0 = V(0,0);
+      V2 = V(1,1);      
+    } else {
+      double MV0 = c->width().phiR();
+      double MV2 = c->width().z   ();
+      V0 = .08333*(MV0*MV0);
+      V2 = .08333*(MV2*MV2);      
+    }
 
-    double v0  = .08333*(MV0*MV0)+PV0; if(r02 >(Xc*v0)) continue;
-    double v2  = .08333*(MV2*MV2)+PV2; if(r12 >(Xc*v2)) continue;
-    double v1  =                  PV1;
-    double d   = v0*v2-v1*v1;          if(   d<=0.    ) continue;
+    double v0  = V0+PV0; if(r02>(Xc*v0)) continue;
+    double v2  = V2+PV2; if(r12>(Xc*v2)) continue;
+    double v1  = PV1;
+    double d   = v0*v2-v1*v1; if(d<=0.) continue;
     double x   = ((r02*v2+r12*v0)-(r0*r1)*(2.*v1))/d;
 
     if(x>Xc) continue;
@@ -1094,8 +1119,16 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssSCT
     if(m_assoTool->isUsed(*c)) continue;
     const Amg::Vector2D&         M = c->localPosition();
 
-    double MV0 = c->width().phiR()   ;
-    double v0  = .08333*(MV0*MV0)+PV0;   
+    double V0 = 0.;
+    if (m_tools->useFastTracking()) {
+      const Amg::MatrixX& V = c->localCovariance();
+      V0 = V(0,0);
+    } else {
+      double MV0 = c->width().phiR();
+      V0 = .08333*(MV0*MV0);
+    }
+    
+    double v0  = V0+PV0;   
     double r0  = M[0]-P0;
     double d   = 1./v0;
     double x   = (r0*r0)*d;

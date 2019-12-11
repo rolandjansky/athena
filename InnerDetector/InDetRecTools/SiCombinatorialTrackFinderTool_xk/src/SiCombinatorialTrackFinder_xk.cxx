@@ -66,6 +66,7 @@ InDet::SiCombinatorialTrackFinder_xk::SiCombinatorialTrackFinder_xk
   m_pTminBrem   = 2000.              ;
   m_fieldService = 0                 ; 
   m_passThroughExtension = false     ;
+  m_doFastTracking = false           ;
   m_outputlevel  = 0                 ;
   m_nprint       = 0                 ;
   m_goodseeds    = 0                 ;
@@ -102,6 +103,7 @@ InDet::SiCombinatorialTrackFinder_xk::SiCombinatorialTrackFinder_xk
   declareProperty("TrackQualityCut"      ,m_qualityCut         );
   declareProperty("MagFieldSvc"          ,m_fieldServiceHandle );
   declareProperty("PassThroughExtension" ,m_passThroughExtension);
+  declareProperty("doFastTracking"       ,m_doFastTracking      );
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -239,6 +241,12 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize()
   m_tools.setTools(&(*m_proptool),&(*m_updatortool),riocreator,assoTool,m_fieldService);
   m_tools.setTools(pixcond,sctcond);
   m_tools.setTools(m_pixIdHelper,m_sctIdHelper);
+
+  // Set the Fast Tracking setup
+  // 
+  m_tools.setFastTracking(m_doFastTracking);
+  
+  // Set the ITk Geometry setup
   m_tools.setITkGeometry(m_ITkGeometry);
 
   // Setup callback for magnetic field
@@ -745,7 +753,7 @@ int InDet::SiCombinatorialTrackFinder_xk::findTrack
   if(!Q)  { return 2; }
   ++m_inittracks;
   bool pixseed = m_trajectory.isLastPixel();
-  int itmax    = 30; if(m_simpleTrack) itmax = 10; if(m_heavyion) itmax = 50;
+  int itmax    = 30; if(m_heavyion) itmax = 50;
 
   // Track finding
   //
@@ -756,12 +764,16 @@ int InDet::SiCombinatorialTrackFinder_xk::findTrack
     if(!m_trajectory.backwardSmoother (false)      ) return 3;
     if(!m_trajectory.backwardExtension(itmax)      ) return 3;
 
-    if(m_trajectory.difference() > 0) {
-      if(!m_trajectory.forwardFilter()          ) return 3;
-      if(!m_trajectory.backwardSmoother (false) ) return 3;
-    } 
-    int na = m_trajectory.nclustersNoAdd();
-    if(m_trajectory.nclusters()+na < m_nclusmin || m_trajectory.ndf() < m_nwclusmin) return 4;
+    if (m_doFastTracking) {
+      if(m_trajectory.nclusters() < m_nclusmin || m_trajectory.ndf() < m_nwclusmin) return 4;
+    } else {
+      if(m_trajectory.difference() > 0) {
+        if(!m_trajectory.forwardFilter()          ) return 3;
+        if(!m_trajectory.backwardSmoother (false) ) return 3;
+      }
+      int na = m_trajectory.nclustersNoAdd();
+      if(m_trajectory.nclusters()+na < m_nclusmin || m_trajectory.ndf() < m_nwclusmin) return 4;
+    }
   }
   else        {      // Strategy for mixed seeds
 

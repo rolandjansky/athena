@@ -656,7 +656,8 @@ void InDet::SiSpacePointsSeedMaker_TrkSeeded::findVSp (const std::list<Trk::Vert
 
 MsgStream& InDet::SiSpacePointsSeedMaker_TrkSeeded::dump( MsgStream& out ) const
 {
-  if(m_nprint)  return dumpEvent(out); 
+  if(m_nprint)  
+    return dumpEvent(out); 
   return dumpConditions(out);
 }
 
@@ -1324,7 +1325,6 @@ void InDet::SiSpacePointsSeedMaker_TrkSeeded::production2Sp()
       // Loop through trigger space points
       //
       for(; r0!=r0e; ++r0) {
-
         float X  = (*r0)->x();
         float Y  = (*r0)->y();
         float R  = (*r0)->radius();
@@ -1354,9 +1354,10 @@ void InDet::SiSpacePointsSeedMaker_TrkSeeded::production2Sp()
             if(dR<m_drminv) break; 
             if(dR>m_drmax) continue;
             float dZ = Z-(*r)->z();
-            float Tz = dZ/dR; if(Tz<m_dzdrmin || Tz>m_dzdrmax) continue;
-            float Zo = Z-R*Tz;	          
-        
+            float Tz = dZ/dR; 
+            if(Tz<m_dzdrmin || Tz>m_dzdrmax) continue;
+            float Zo = Z-R*Tz;
+            
             // Comparison with vertices Z coordinates
             //
             if(!isZCompatible(Zo,Rb,Tz)) continue;
@@ -1365,15 +1366,15 @@ void InDet::SiSpacePointsSeedMaker_TrkSeeded::production2Sp()
             //
             float dx =(*r)->x()-X; 
             float dy =(*r)->y()-Y; 
-            float x  = dx*ax+dy*ay          ;
-            float y  =-dx*ay+dy*ax          ;
-            float xy = x*x+y*y              ; if(xy == 0.) continue;
-            float r2 = 1./xy                ;
-            float Ut = x*r2                 ;
-            float Vt = y*r2                 ;
-            float UR = Ut*R+1.              ; if(UR == 0.) continue;
-            float A  = Vt*R/UR              ;
-            float B  = Vt-A*Ut              ;
+            float x  = dx*ax+dy*ay;
+            float y  =-dx*ay+dy*ax;
+            float xy = x*x+y*y    ; if(xy == 0.) continue;
+            float r2 = 1./xy      ;
+            float Ut = x*r2       ;
+            float Vt = y*r2       ;
+            float UR = Ut*R+1.    ; if(UR == 0.) continue;
+            float A  = Vt*R/UR    ;
+            float B  = Vt-A*Ut    ;
             if(fabs(B*m_K) > m_ipt*sqrt(1.+A*A)) continue; 
             ++nseed;
             newSeed((*r),(*r0),Zo);

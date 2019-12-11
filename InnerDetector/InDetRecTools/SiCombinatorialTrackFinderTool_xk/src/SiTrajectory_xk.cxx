@@ -378,79 +378,66 @@ std::ostream& InDet::SiTrajectory_xk::dump( std::ostream& out ) const
       double tz = 0.;
       double fa = 0.;
 
-      if(m_elements[m].status()==1) {
-
-	if(m_elements[m].cluster()) {
-
-	  Amg::Vector3D gp = m_elements[m].parametersUF().position();
-	  ra = sqrt(gp.x()*gp.x()+gp.y()*gp.y());
-	  fa = atan2(gp.y(),gp.x()); 
-	  pt = m_elements[m].parametersUF().pT      ();
-	  tz = m_elements[m].parametersUF().cotTheta();
-	}
-	else {
-
-	  Amg::Vector3D gp = m_elements[m].parametersPF().position();
-	  ra = sqrt(gp.x()*gp.x()+gp.y()*gp.y());
-	  fa = atan2(gp.y(),gp.x()); 
-	  pt = m_elements[m].parametersPF().pT      ();
-	  tz = m_elements[m].parametersPF().cotTheta();
-	}
+      if(m_elements[m].status()==1) {        
+        if(m_elements[m].cluster()) {
+          Amg::Vector3D gp = m_elements[m].parametersUF().position();
+          ra = sqrt(gp.x()*gp.x()+gp.y()*gp.y());
+          fa = atan2(gp.y(),gp.x()); 
+          pt = m_elements[m].parametersUF().pT      ();
+          tz = m_elements[m].parametersUF().cotTheta();
+        } else {
+          Amg::Vector3D gp = m_elements[m].parametersPF().position();
+          ra = sqrt(gp.x()*gp.x()+gp.y()*gp.y());
+          fa = atan2(gp.y(),gp.x()); 
+          pt = m_elements[m].parametersPF().pT      ();
+          tz = m_elements[m].parametersPF().cotTheta();
+        }
+      } else if((m_tools->useFastTracking() and m_elements[m].status()>2) or (m_elements[m].status()==2)) {
+        if(m_elements[m].cluster()) {
+          Amg::Vector3D gp = m_elements[m].parametersUB().position();
+          ra = sqrt(gp.x()*gp.x()+gp.y()*gp.y());
+          fa = atan2(gp.y(),gp.x()); 
+          pt = m_elements[m].parametersUB().pT      ();
+          tz = m_elements[m].parametersUB().cotTheta();
+        } else {
+          Amg::Vector3D gp = m_elements[m].parametersPB().position();
+          ra = sqrt(gp.x()*gp.x()+gp.y()*gp.y());
+          fa = atan2(gp.y(),gp.x()); 
+          pt = m_elements[m].parametersPB().pT      ();
+          tz = m_elements[m].parametersPB().cotTheta();
+        }
+      } else {
+        bool QA; Trk::PatternTrackParameters S1,SM,S2(m_elements[m].parametersPF()); 
+        
+        if(m_elements[m].cluster()) S1 = m_elements[m].parametersUB();
+        else                        S1 = m_elements[m].parametersPB();
+        
+        QA = m_tools->updatorTool()->combineStates(S1,S2,SM);
+        
+        if(QA) {
+          Amg::Vector3D gp = SM.position();
+          ra = sqrt(gp.x()*gp.x()+gp.y()*gp.y());
+          fa = atan2(gp.y(),gp.x()); 
+          pt = SM.pT      ();
+          tz = SM.cotTheta();
+        }
       }
-      else if(m_elements[m].status()==2) {
-
-	if(m_elements[m].cluster()) {
-
-	  Amg::Vector3D gp = m_elements[m].parametersUB().position();
-	  ra = sqrt(gp.x()*gp.x()+gp.y()*gp.y());
-	  fa = atan2(gp.y(),gp.x()); 
-	  pt = m_elements[m].parametersUB().pT      ();
-	  tz = m_elements[m].parametersUB().cotTheta();
-	}
-	else {
-
-	  Amg::Vector3D gp = m_elements[m].parametersPB().position();
-	  ra = sqrt(gp.x()*gp.x()+gp.y()*gp.y());
-	  fa = atan2(gp.y(),gp.x()); 
-	  pt = m_elements[m].parametersPB().pT      ();
-	  tz = m_elements[m].parametersPB().cotTheta();
-	}
-      }
-      else {
-
-	bool QA; Trk::PatternTrackParameters S1,SM,S2(m_elements[m].parametersPF()); 
- 
-	if(m_elements[m].cluster()) S1 = m_elements[m].parametersUB();
-	else                        S1 = m_elements[m].parametersPB();
-
-	QA = m_tools->updatorTool()->combineStates(S1,S2,SM);
-
-	if(QA) {
-
-	  Amg::Vector3D gp = SM.position();
-	  ra = sqrt(gp.x()*gp.x()+gp.y()*gp.y());
-	  fa = atan2(gp.y(),gp.x()); 
-	  pt = SM.pT      ();
-	  tz = SM.cotTheta();
-	}
-      }
-     out<<std::setw( 9)<<std::setprecision(4)<<fa     <<"|";
-     out<<std::setw( 9)<<std::setprecision(4)<<ra     <<"|";
-     out<<std::setw(10)<<std::setprecision(4)<<pt*.001<<"|";
-     out<<std::setw( 9)<<std::setprecision(4)<<tz     <<"|";
-     out<<std::setw(1)<<unsigned(m_elements[m].noiseModel())<<"|";
-     out<<std::setw(2)<<m_elements[m].inside()<<"|";
-     out<<std::setw(2)<<unsigned(m_elements[m].nlinksF())<<"|";
-     out<<std::setw(2)<<unsigned(m_elements[m].nlinksB())<<"|";
-     out<<std::setw(1)<<unsigned(m_elements[m].status())<<"|";
-     out<<std::setw(1)<<unsigned(m_elements[m].difference())<<"|";
-     out<<std::setw(1)<<unsigned(m_elements[m].nholesF())<<"|";
-     out<<std::setw(1)<<unsigned(m_elements[m].dholesF())<<"|";
-     out<<std::setw(1)<<unsigned(m_elements[m].nholesB())<<"|";
-     out<<std::setw(1)<<unsigned(m_elements[m].dholesB())<<"|";
-     out<<std::setw(9)<<std::setprecision(4)<<m_elements[m].step()<<"|";
-    }
-    else                       {
+      out<<std::setw( 9)<<std::setprecision(4)<<fa     <<"|";
+      out<<std::setw( 9)<<std::setprecision(4)<<ra     <<"|";
+      out<<std::setw(10)<<std::setprecision(4)<<pt*.001<<"|";
+      out<<std::setw( 9)<<std::setprecision(4)<<tz     <<"|";
+      out<<std::setw(1)<<unsigned(m_elements[m].noiseModel())<<"|";
+      out<<std::setw(2)<<m_elements[m].inside()<<"|";
+      out<<std::setw(2)<<unsigned(m_elements[m].nlinksF())<<"|";
+      out<<std::setw(2)<<unsigned(m_elements[m].nlinksB())<<"|";
+      out<<std::setw(1)<<unsigned(m_elements[m].status())<<"|";
+      out<<std::setw(1)<<unsigned(m_elements[m].difference())<<"|";
+      out<<std::setw(1)<<unsigned(m_elements[m].nholesF())<<"|";
+      out<<std::setw(1)<<unsigned(m_elements[m].dholesF())<<"|";
+      out<<std::setw(1)<<unsigned(m_elements[m].nholesB())<<"|";
+      out<<std::setw(1)<<unsigned(m_elements[m].dholesB())<<"|";
+      out<<std::setw(9)<<std::setprecision(4)<<m_elements[m].step()<<"|";
+    } else {
       out<<"         |";
       out<<"         |";
       out<<"         |";
@@ -469,7 +456,7 @@ std::ostream& InDet::SiTrajectory_xk::dump( std::ostream& out ) const
       out<<" |";
       out<<std::setw(9)<<std::setprecision(4)<<m_elements[m].step();
       out<<"|";
-  }
+    }
     out<<std::endl;
   }
   out<<"|---|--|---|-----|-|-|---------|---------|---------|---------|----------|---------|-|--|--|--|-|-|-|-|-|-|---------|"
@@ -950,6 +937,9 @@ bool InDet::SiTrajectory_xk::backwardExtension(int itmax)
   int                     MPbest[300]         ;
   int                     TE    [100]         ;  
   const InDet::SiCluster* CL    [100]         ;
+  double                  XI2B  [100]         ;
+  Trk::PatternTrackParameters PUB[100]        ;
+  
   Trk::PatternTrackParameters  PA             ;
  
   int    maxholes       = m_tools->maxholes ();
@@ -1027,7 +1017,13 @@ bool InDet::SiTrajectory_xk::backwardExtension(int itmax)
           
           if(Ei.inside() <= 0 ) {
             MPbest[++lbest] = i;
-            if(Ei.cluster()) {CL[nbest]=Ei.cluster(); TE[nbest++]=lbest; ndfbest+=Ei.ndf();}
+            if(Ei.cluster()) {
+              CL[nbest]   = Ei.cluster(); 
+              XI2B[nbest] = Ei.xi2B(); 
+              PUB[nbest]  = Ei.parametersUB();
+              TE[nbest++] = lbest; 
+              ndfbest += Ei.ndf();
+            }
           }
         }
       
@@ -1042,9 +1038,11 @@ bool InDet::SiTrajectory_xk::backwardExtension(int itmax)
           if(Ei.inside() <= 0 && ++lbest >=0 ) {
             MPbest[lbest] = lbest;
             if(Ei.cluster()) {
-              CL[nbest]=Ei.cluster(); 
-              TE[nbest++]=lbest; 
-              ndfbest+=Ei.ndf(); 
+              CL[nbest]   = Ei.cluster(); 
+              XI2B[nbest] = Ei.xi2B(); 
+              PUB[nbest]  = Ei.parametersUB();
+              TE[nbest++] = lbest; 
+              ndfbest += Ei.ndf(); 
               if(l<0) l=lbest;
             }
             m_elementsMap[lbest] = m_elementsMap[i];
@@ -1115,10 +1113,17 @@ bool InDet::SiTrajectory_xk::backwardExtension(int itmax)
     for(; m>=0; --m) if(TE[m]==n) break;
 
     if(m>=0) {
-      En.setCluster(CL[m]); if(--nbest==0) break;
+      if (m_tools->useFastTracking()) {
+        En.setClusterB(CL[m],XI2B[m]); En.setParametersB(PUB[m]);
+      } else
+        En.setCluster(CL[m]);
+      if(--nbest==0) break;
     }
     else     {
-      En.setCluster(  0  );                      
+      if (m_tools->useFastTracking())
+        En.setClusterB(  0  ,10000.);
+      else
+        En.setCluster(  0  );        
     }
   } 
   return true;
@@ -1387,7 +1392,6 @@ bool InDet::SiTrajectory_xk::forwardExtensionDefault(bool smoother,int itmax)
 
 bool InDet::SiTrajectory_xk::forwardExtensionTracklet(bool smoother,int itmax)
 {
-
   if(m_firstElement >= m_lastElement) return false;
 
   int L = m_lastElement, lElement = m_nElements-1;

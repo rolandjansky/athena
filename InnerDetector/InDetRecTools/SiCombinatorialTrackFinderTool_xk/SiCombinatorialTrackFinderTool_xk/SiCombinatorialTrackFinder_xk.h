@@ -178,6 +178,8 @@ namespace InDet{
       std::vector<InDet::SiDetElementBoundaryLink_xk> m_boundarySCT;
 
       bool                           m_passThroughExtension;
+      
+      bool                           m_doFastTracking; // define the Fast Tracking setup
 
       ///////////////////////////////////////////////////////////////////
       // Methods 
