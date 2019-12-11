@@ -1,12 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // 13.08.2008, AUTHORs: SILVESTRO DI LUISE -  MAURO IODICE
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-#define PI 3.14159265
 
 #include "MuonCalibStandAloneExtraTools/MdtDqaNtupleAnalysis.h"
 

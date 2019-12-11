@@ -237,11 +237,14 @@ StatusCode TRTDigitizationTool::processBunchXing(int bunchXing,
 }
 
 //_____________________________________________________________________________
-StatusCode TRTDigitizationTool::lateInitialize(CLHEP::HepRandomEngine* noiseRndmEngine,
-                                               CLHEP::HepRandomEngine* elecNoiseRndmEngine,
-                                               CLHEP::HepRandomEngine* elecProcRndmEngine,
-                                               CLHEP::HepRandomEngine* fakeCondRndmEngine) {
+StatusCode TRTDigitizationTool::lateInitialize() {
 
+  // setup the RNGs which are only used in the first event
+  CLHEP::HepRandomEngine *fakeCondRndmEngine = getRandomEngine("TRT_FakeConditions", m_randomSeedOffset);
+  CLHEP::HepRandomEngine *noiseInitRndmEngine = getRandomEngine("TRT_Noise", m_randomSeedOffset);
+  CLHEP::HepRandomEngine *noiseElecRndmEngine = getRandomEngine("TRT_Noise_Electronics", m_randomSeedOffset);
+  CLHEP::HepRandomEngine *noiseThreshRndmEngine = getRandomEngine("TRT_Noise_ThresholdFluctuations", m_randomSeedOffset);
+  CLHEP::HepRandomEngine *noiseElecResetRndmEngine = getRandomEngine("TRT_ElectronicsNoiseReset", m_randomSeedOffset);
   m_first_event=false;
 
   if (m_condDBdigverfoldersexists) {
@@ -261,7 +264,7 @@ StatusCode TRTDigitizationTool::lateInitialize(CLHEP::HepRandomEngine* noiseRndm
 
   TRTElectronicsNoise *electronicsNoise(nullptr);
   if ( m_settings->noiseInUnhitStraws() || m_settings->noiseInSimhits() ) {
-    electronicsNoise = new TRTElectronicsNoise(m_settings, elecNoiseRndmEngine);
+    electronicsNoise = new TRTElectronicsNoise(m_settings, noiseElecRndmEngine);
   }
   // ElectronicsProcessing is needed for the regular straw processing,
   // but also for the noise (it assumes ownership of electronicsnoise )
@@ -284,9 +287,10 @@ StatusCode TRTDigitizationTool::lateInitialize(CLHEP::HepRandomEngine* noiseRndm
     //        straw noise-frequencies:
     m_pNoise = new TRTNoise( m_settings,
                              m_manager,
-                             noiseRndmEngine,
-                             elecNoiseRndmEngine,
-                             elecProcRndmEngine,
+                             noiseInitRndmEngine,
+                             noiseElecRndmEngine,
+                             noiseThreshRndmEngine,
+                             noiseElecResetRndmEngine,
                              m_pDigConditions,
                              m_pElectronicsProcessing,
                              electronicsNoise,
@@ -464,15 +468,14 @@ StatusCode TRTDigitizationTool::processAllSubEvents() {
 
   // Set the RNGs to use for this event.
   CLHEP::HepRandomEngine *rndmEngine = getRandomEngine("");
-  CLHEP::HepRandomEngine *fakeCondRndmEngine = getRandomEngine("TRT_FakeConditions");
   CLHEP::HepRandomEngine *elecNoiseRndmEngine = getRandomEngine("TRT_ElectronicsNoise");
-  CLHEP::HepRandomEngine *noiseRndmEngine = getRandomEngine("TRT_Noise");
+  CLHEP::HepRandomEngine *noiseRndmEngine = getRandomEngine("TRT_NoiseDigitPool");
   CLHEP::HepRandomEngine *strawRndmEngine = getRandomEngine("TRT_ProcessStraw");
   CLHEP::HepRandomEngine *elecProcRndmEngine = getRandomEngine("TRT_ThresholdFluctuations");
   CLHEP::HepRandomEngine *paiRndmEngine = getRandomEngine("TRT_PAI");
 
   if (m_first_event) {
-    if(this->lateInitialize(noiseRndmEngine,elecNoiseRndmEngine,elecProcRndmEngine,fakeCondRndmEngine).isFailure()) {
+    if(this->lateInitialize().isFailure()) {
       ATH_MSG_FATAL ( "lateInitialize method failed!" );
       return StatusCode::FAILURE;
     }
@@ -593,6 +596,15 @@ CLHEP::HepRandomEngine* TRTDigitizationTool::getRandomEngine(const std::string& 
 }
 
 //_____________________________________________________________________________
+CLHEP::HepRandomEngine* TRTDigitizationTool::getRandomEngine(const std::string& streamName, unsigned long int randomSeedOffset) const
+{
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this, streamName);
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  rngWrapper->setSeed( streamName, ctx.slot(), randomSeedOffset, ctx.eventID().run_number() );
+  return *rngWrapper;
+}
+
+//_____________________________________________________________________________
 StatusCode TRTDigitizationTool::mergeEvent() {
   std::vector<std::pair<unsigned int, int> >::iterator ii(m_seen.begin());
   std::vector<std::pair<unsigned int, int> >::iterator ee(m_seen.end());
@@ -603,15 +615,14 @@ StatusCode TRTDigitizationTool::mergeEvent() {
 
   // Set the RNGs to use for this event.
   CLHEP::HepRandomEngine *rndmEngine = getRandomEngine("");
-  CLHEP::HepRandomEngine *fakeCondRndmEngine = getRandomEngine("TRT_FakeConditions");
   CLHEP::HepRandomEngine *elecNoiseRndmEngine = getRandomEngine("TRT_ElectronicsNoise");
-  CLHEP::HepRandomEngine *noiseRndmEngine = getRandomEngine("TRT_Noise");
+  CLHEP::HepRandomEngine *noiseRndmEngine = getRandomEngine("TRT_NoiseDigitPool");
   CLHEP::HepRandomEngine *strawRndmEngine = getRandomEngine("TRT_ProcessStraw");
   CLHEP::HepRandomEngine *elecProcRndmEngine = getRandomEngine("TRT_ThresholdFluctuations");
   CLHEP::HepRandomEngine *paiRndmEngine = getRandomEngine("TRT_PAI");
 
   if (m_first_event) {
-    if(this->lateInitialize(noiseRndmEngine,elecNoiseRndmEngine,elecProcRndmEngine,fakeCondRndmEngine).isFailure()) {
+    if(this->lateInitialize().isFailure()) {
       ATH_MSG_FATAL ( "lateInitialize method failed!" );
       return StatusCode::FAILURE;
     }

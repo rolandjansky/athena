@@ -23,8 +23,6 @@
 #include "GaudiKernel/NTuple.h"
 #include "GaudiKernel/INTupleSvc.h"
 
-
-#define pi 3.141592654
 static const int maxPad           =   50;
 static const int maxCMA           =  400;
 static const int maxFiredChannels = 20000;

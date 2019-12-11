@@ -44,6 +44,7 @@ public:
             CLHEP::HepRandomEngine* noiseRndmEngine,
             CLHEP::HepRandomEngine* elecNoiseRndmEngine,
             CLHEP::HepRandomEngine* elecProcRndmEngine,
+            CLHEP::HepRandomEngine* elecNoiseResetRndmEngine,
             TRTDigCondBase* digcond,
             TRTElectronicsProcessing * ep,
             TRTElectronicsNoise * electronicsnoise,

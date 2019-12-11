@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -19,6 +19,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonCalibITools/IIdToFixedIdTool.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
+#include <cmath>
 
 class Identifier;
 
@@ -151,8 +152,8 @@ private:
     void testTgcDetectorElementHash();
     void testCscDetectorElementHash();
     
-    
+    void coercePositivePhi(double& phi);
 };
-
+inline void MuonGMCheck::coercePositivePhi(double& phi){ if (phi<0) phi += 2*M_PI; }
 
 #endif // MUONGEOMODEL_MUONGMCHECK_H

@@ -97,6 +97,7 @@ public:
 
 private:
   CLHEP::HepRandomEngine* getRandomEngine(const std::string& streamName) const;
+  CLHEP::HepRandomEngine* getRandomEngine(const std::string& streamName, unsigned long int randomSeedOffset) const;
 
   Identifier getIdentifier( int hitID,
                             IdentifierHash& hashId,
@@ -106,10 +107,7 @@ private:
   StatusCode update( IOVSVC_CALLBACK_ARGS );        // Update of database entries.
   StatusCode ConditionsDependingInitialization();
 
-  StatusCode lateInitialize(CLHEP::HepRandomEngine *noiseRndmEngine,
-                            CLHEP::HepRandomEngine *elecNoiseRndmEngine,
-                            CLHEP::HepRandomEngine *elecProcRndmEngine,
-                            CLHEP::HepRandomEngine *fakeCondRndmEngine);
+  StatusCode lateInitialize();
   StatusCode processStraws(std::set<int>& sim_hitids, std::set<Identifier>& simhitsIdentifiers,
                            CLHEP::HepRandomEngine *rndmEngine,
                            CLHEP::HepRandomEngine *strawRndmEngine,
@@ -142,6 +140,7 @@ private:
   Gaudi::Property<bool> m_printUsedDigSettings{this, "PrintDigSettings", true, "Print ditigization settings"};
   Gaudi::Property<int> m_HardScatterSplittingMode{this, "HardScatterSplittingMode", 0, ""};
   Gaudi::Property<int> m_UseGasMix{this, "UseGasMix", 0, ""};
+  Gaudi::Property<unsigned long int> m_randomSeedOffset{this, "RandomSeedOffset", 678910, ""};
 
   TRTDigSettings* m_settings{};
 

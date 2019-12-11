@@ -49,3 +49,6 @@ atlas_add_test( RootUtils
    SCRIPT test/test_RootUtils.py
    PROPERTIES TIMEOUT 300
    EXTRA_PATTERNS "Ran 1 test in |CheckABICompatibility|standard library|import imp|imp module" )
+
+atlas_add_test( fprint_test
+                SCRIPT python -m PyUtils.fprint )
