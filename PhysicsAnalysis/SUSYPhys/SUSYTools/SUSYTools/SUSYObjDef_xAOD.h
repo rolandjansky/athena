@@ -640,8 +640,7 @@ namespace ST {
     bool   m_doFwdJVT;
     double m_fwdjetEtaMin;
     double m_fwdjetPtMax;
-    bool   m_fwdjetTightOp;
-    bool   m_fwdjetTighterOp;
+    std::string m_fwdjetOp;
 
     bool m_JMScalib;
 

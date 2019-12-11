@@ -229,8 +229,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_doFwdJVT(false),
     m_fwdjetEtaMin(-99.),
     m_fwdjetPtMax(-99.),
-    m_fwdjetTightOp(false),
-    m_fwdjetTighterOp(false),
+    m_fwdjetOp(""),
     m_JMScalib(false),
     //
     m_orDoTau(false),
@@ -459,8 +458,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "JetInputType",  m_jetInputType );
 
   declareProperty( "FwdJetDoJVT",  m_doFwdJVT );
-  declareProperty( "FwdJetUseTightOP",  m_fwdjetTightOp );
-  declareProperty( "FwdJetUseTighterOP",  m_fwdjetTighterOp );
+  declareProperty( "FwdJet.JvtOP",  m_fwdjetOp );
 
   declareProperty( "JetJMSCalib",  m_JMScalib );
   declareProperty( "JetLargeRcollection",  m_fatJets );
@@ -1173,9 +1171,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   m_conf_to_prop["Photon.CrackVeto"] = "PhotonCrackVeto";
   m_conf_to_prop["Photon.AllowLate"] = "PhotonAllowLate";
 
-
   m_conf_to_prop["FwdJet.doJVT"] = "FwdJetDoJVT";
-  m_conf_to_prop["FwdJet.JvtUseTightOP"] = "FwdJetUseTightOP";
 
   m_conf_to_prop["OR.DoBoostedElectron"] = "DoBoostedElectronOR";
   m_conf_to_prop["OR.DoBoostedMuon"] = "DoBoostedMuonOR";
@@ -1337,8 +1333,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_doFwdJVT, "FwdJet.doJVT", rEnv, false); // Tight and Tenacious MET WPs can be used with fJVT by default
   configFromFile(m_fwdjetEtaMin, "FwdJet.JvtEtaMin", rEnv, 2.5);
   configFromFile(m_fwdjetPtMax, "FwdJet.JvtPtMax", rEnv, 50e3);
-  configFromFile(m_fwdjetTightOp, "FwdJet.JvtUseTightOP", rEnv, false);
-  configFromFile(m_fwdjetTighterOp, "FwdJet.JvtUseTighterOP", rEnv, false);
+  configFromFile(m_fwdjetOp, "FwdJet.JvtOp", rEnv, "Loose");
   configFromFile(m_JMScalib, "Jet.JMSCalib", rEnv, false);
   //
   configFromFile(m_useBtagging, "Btag.enable", rEnv, true);

@@ -415,12 +415,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   if (!m_jetFJvtEfficiencyTool.isUserConfigured()) {
     toolName = m_doFwdJVT ? m_metJetSelection+"_fJVT" : m_metJetSelection+"_NOfJVT";
     m_jetFJvtEfficiencyTool.setTypeAndName("CP::JetJvtEfficiency/FJVTEfficiencyTool_"+toolName);
-    if(m_fwdjetTightOp || m_fwdjetTighterOp){
-      if(m_fwdjetTighterOp) ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("WorkingPoint","Tighter") );
-      else ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("WorkingPoint","Tight") );
-    }
-    else
-      ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("WorkingPoint","Loose") );
+    ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("WorkingPoint",m_fwdjetOp) );
     ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("MaxPtForJvt",m_fwdjetPtMax) );
     ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("JetfJvtMomentName","passFJvt") );
     // Set the decoration to the name we used to use
@@ -444,7 +439,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     } else if (m_doFwdJVT && (m_metJetSelection == "Tenacious" || m_metJetSelection == "TenaciousJVT641")) {
       ATH_CHECK( m_jetFwdJvtTool.setProperty("UseTightOP", false) ); // Loose
     } else {
-      ATH_CHECK( m_jetFwdJvtTool.setProperty("UseTightOP", m_fwdjetTightOp) ); // Tight or Loose
+      ATH_CHECK( m_jetFwdJvtTool.setProperty("UseTightOP", (m_fwdjetOp=="Tight")) ); // Tight or Loose
     }
     ATH_CHECK( m_jetFwdJvtTool.setProperty("EtaThresh", m_fwdjetEtaMin) );   //Eta dividing central from forward jets
     ATH_CHECK( m_jetFwdJvtTool.setProperty("ForwardMaxPt", m_fwdjetPtMax) ); //Max Pt to define fwdJets for JVT
