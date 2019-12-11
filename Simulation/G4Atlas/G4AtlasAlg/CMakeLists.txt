@@ -45,9 +45,9 @@ atlas_add_component( G4AtlasAlg
                      LINK_LIBRARIES ${GEANT4_LIBRARIES} ${EIGEN_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel G4AtlasInterfaces G4AtlasAlgLib SGTools StoreGateLib SGtests EventInfo GeneratorObjects MCTruthBaseLib )
 
 #Test G4AtlasAlg
-atlas_add_test( G4AtlasAlgConfigNew_Test
-                SCRIPT test/G4AtlasAlgConfigNew_Test.py
-                PROPERTIES TIMEOUT 300 )
+#atlas_add_test( G4AtlasAlgConfigNew_Test
+#                SCRIPT test/G4AtlasAlgConfigNew_Test.py
+#                PROPERTIES TIMEOUT 300 )
 
 
 # Install files from the package:
