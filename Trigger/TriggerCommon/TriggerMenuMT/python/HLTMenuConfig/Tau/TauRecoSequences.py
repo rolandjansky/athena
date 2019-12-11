@@ -178,7 +178,7 @@ def tauIsoTrackSequence( RoIs , name):
     #Pass verifier as an argument and it will automatically append necessary DataObjects
     #@NOTE: Don't provide any verifier if loaded in the same view as FTF
 
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "taus",  ViewVerify, inputFTFtracks= TrackCollection )
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "taus", inputFTFtracks= TrackCollection )
     PTSeq = seqAND("precisionTrackingInTaus", PTAlgs  )
     #Get last tracks from the list as input for other alg
 
