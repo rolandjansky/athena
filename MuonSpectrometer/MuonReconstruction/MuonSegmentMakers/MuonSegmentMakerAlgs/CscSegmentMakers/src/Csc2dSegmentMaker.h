@@ -16,6 +16,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h" // separately...
 #include "GaudiKernel/ServiceHandle.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "Identifier/Identifier.h"
 #include "CscSegmentMakers/ICscSegmentFinder.h"
 //#include "MuonCondInterface/CscICoolStrSvc.h"
@@ -27,9 +28,6 @@ class ICscStripFitter;
 class ICscSegmentUtilTool;
 class ICSCConditionsSvc;
 
-namespace MuonGM {
-  class MuonDetectorManager;
-}
 
 namespace Muon {
   class IMuonClusterOnTrackCreator;
@@ -70,13 +68,10 @@ private:  // methods
 
 private:  // data
 
-  // Pointer muon geometry manager.
-  const MuonGM::MuonDetectorManager* m_pgm;
-  
   // Output container.
   //  MuonSegmentCombinationCollection* m_psegs;
-  const CscIdHelper* m_phelper;
- 
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+
   std::string m_cscdig_sg_inkey;
 
   ToolHandle<ICscSegmentUtilTool> m_segmentTool;  
