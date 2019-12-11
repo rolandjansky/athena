@@ -1388,6 +1388,45 @@ class argHITSFile(argPOOLFile):
         self._resetMetadata(inputs + [output])
         return myMerger
 
+
+class argEVNT_TRFile(argPOOLFile):
+
+    integrityFunction = "returnIntegrityOfPOOLFile"
+
+    ## @brief Method which can be used to merge EVNT_TR files
+    def selfMerge(self, output, inputs, counter=0, argdict={}):
+        msg.debug('selfMerge attempted for {0} -> {1} with {2}'.format(inputs, output, argdict))
+        
+        # First do a little sanity check
+        for fname in inputs:
+            if fname not in self._value:
+                raise trfExceptions.TransformMergeException(trfExit.nameToCode('TRF_FILEMERGE_PROBLEM'), 
+                                                            "File {0} is not part of this agument: {1}".format(fname, self))
+        
+        ## @note Modify argdict
+        mySubstepName = 'EVNT_TRMergeAthenaMP{0}'.format(counter)
+        myargdict = self._mergeArgs(argdict)
+        
+        from PyJobTransforms.trfExe import athenaExecutor, executorConfig
+        myDataDictionary = {'EVNT_TR' : argEVNT_TRFile(inputs, type=self.type, io='input'),
+                            'EVNT_TR_MRG' : argEVNT_TRFile(output, type=self.type, io='output')}
+        myMergeConf = executorConfig(myargdict, myDataDictionary)
+        myMerger = athenaExecutor(name = mySubstepName, skeletonFile = 'SimuJobTransforms/skeleton.EVNT_TRMerge.py',
+                                  conf=myMergeConf, 
+                                  inData=set(['EVNT_TR']), outData=set(['EVNT_TR_MRG']), disableMP=True)
+        myMerger.doAll(input=set(['EVNT_TR']), output=set(['EVNT_TR_MRG']))
+        
+        # OK, if we got to here with no exceptions, we're good shape
+        # Now update our own list of files to reflect the merge
+        for fname in inputs:
+            self._value.remove(fname)
+        self._value.append(output)
+
+        msg.debug('Post self-merge files are: {0}'.format(self._value))
+        self._resetMetadata(inputs + [output])
+        return myMerger
+
+
 class argRDOFile(argPOOLFile):
 
     integrityFunction = "returnIntegrityOfPOOLFile"

@@ -31,7 +31,8 @@ from TrigMuonHypo.TrigMuonHypoConfig import (TrigMuonEFTrackIsolationHypoConfig,
                                              TrigMuonEFTrackIsolationMultiHypoConfig,
                                              TrigMuonEFCombinerHypoConfig,
                                              TrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig,
-                                             TrigMuonEFCaloIsolationHypoConfig)
+                                             TrigMuonEFCaloIsolationHypoConfig,
+                                             TrigMuonEFQualityHypoConfig)
 
 from TrigHIHypo.HFMuonHypos import hiHFMuonHypos
 from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyCopyAllTEAlgo
@@ -402,9 +403,22 @@ class L2EFChain_mu(L2EFChainDef):
                              trkprec,
                              'EF_mu_step1']]
 
-    self.EFsequenceList += [[['EF_mu_step1'],
+
+    if "muonqualL" in self.chainName:
+      theTrigMuonEFQualityHypoConfig = TrigMuonEFQualityHypoConfig("Muon","Loose")
+      self.EFsequenceList += [[['EF_mu_step1'],
+                             [theEFAlg,theTrigMuonEFCombinerHypoConfig,theTrigMuonEFQualityHypoConfig],
+                             'EF_mu_step2']]
+    elif "muonqualM" in self.chainName:
+      theTrigMuonEFQualityHypoConfig = TrigMuonEFQualityHypoConfig("Muon","Medium")
+      self.EFsequenceList += [[['EF_mu_step1'],
+                             [theEFAlg,theTrigMuonEFCombinerHypoConfig,theTrigMuonEFQualityHypoConfig],
+                             'EF_mu_step2']] 
+    else:
+      self.EFsequenceList += [[['EF_mu_step1'],
                              [theEFAlg,theTrigMuonEFCombinerHypoConfig],
                              'EF_mu_step2']]
+
 
     if self.chainPart['flavour'] != '':
       self.EFsequenceList += [[['EF_mu_step2'],
@@ -1053,13 +1067,16 @@ class L2EFChain_mu(L2EFChainDef):
                               trkfast+trkprec,
                               'EF_mu_step1']]
 
+
     self.EFsequenceList += [[['EF_mu_step1'],
     	  		       [theEFAlg],
                              'EF_mu_step2']]
+
+
     self.EFsequenceList += [[['EF_mu_step2'],
                              [theTrigMuonEFCombinerHypoConfig],
                              'EF_mu_hypo1']]
-       
+
     #--- adding signatures ----
     self.L2signatureList += [ [['L2_mu_step1']*self.mult] ]
     self.L2signatureList += [ [['L2_mu_hypo1']*self.mult] ]
@@ -2407,10 +2424,22 @@ class L2EFChain_mu(L2EFChainDef):
     self.EFsequenceList += [[[EFinputTE],
                              trkprec,
                              'EF_mu_step1']]
-    
-    self.EFsequenceList += [[['EF_mu_step1'],
-                             [theTrigMuSuperEF],
+ 
+    if "muonqualL" in self.chainName and self.thisIsBphysChain:
+      theTrigMuonEFQualityHypoConfig = TrigMuonEFQualityHypoConfig("Muon","Loose")
+      self.EFsequenceList += [[['EF_mu_step1'],
+                             [theTrigMuSuperEF,theTrigMuonEFQualityHypoConfig],
                              'EF_mu_step2']]
+    elif "muonqualM" in self.chainName and self.thisIsBphysChain:
+      theTrigMuonEFQualityHypoConfig = TrigMuonEFQualityHypoConfig("Muon","Medium")
+      self.EFsequenceList += [[['EF_mu_step1'],
+                               [theTrigMuSuperEF,theTrigMuonEFQualityHypoConfig],
+                               'EF_mu_step2']]
+    else:
+      self.EFsequenceList += [[['EF_mu_step1'],
+                               [theTrigMuSuperEF],
+                               'EF_mu_step2']]
+    
     self.EFsequenceList += [[['EF_mu_step2'],
                              [theTrigMuonEFCombinerHypoConfig],
                              'EF_mu_hypo1']]

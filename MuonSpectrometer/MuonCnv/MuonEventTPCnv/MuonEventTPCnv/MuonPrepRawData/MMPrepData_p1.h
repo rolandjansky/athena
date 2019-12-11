@@ -33,11 +33,16 @@ namespace Muon
         float               m_locX; //!< Equivalent to localPosition (locX) in the base class.
         float               m_errorMat; //!< 1-d ErrorMatrix in the base class.
 
-        int                 m_time;      // for single-strip PRD, that's the time measured
-        int                 m_charge;    // for single-strip PRD, that's the charge measured
+	short int           m_time;      // for single-strip PRD, that's the time measured
+	int                 m_charge;    // for single-strip PRD, that's the charge measured
 
-        float               m_angle;          ///
-        float               m_chisqProb;      /// these are the parameters of the muTPC reconstruction
+	float               m_angle;          ///
+	float               m_chisqProb;      /// these are the parameters of the muTPC reconstruction
+
+	/// information about clusters strips
+	std::vector<uint16_t>  m_stripNumbers;
+	std::vector<short int> m_stripTimes;
+	std::vector<int>       m_stripCharges;
         
         //@}
         

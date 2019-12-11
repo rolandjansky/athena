@@ -17,8 +17,6 @@
 
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODMuon/Muon.h"
 #include "xAODTrigBphys/TrigBphys.h"

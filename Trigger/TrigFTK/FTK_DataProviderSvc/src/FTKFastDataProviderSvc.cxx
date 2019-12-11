@@ -67,7 +67,6 @@ FTKFastDataProviderSvc::FTKFastDataProviderSvc(const std::string& name, ISvcLoca
   m_got_refit_vertex(false),
   m_got_fast_vertex_refit(false),
   m_got_fast_vertex_conv(false),
-  m_newEvent(true),
   m_trackCacheName("FTK_TrackCollection"),
   m_trackParticleCacheName("FTK_TrackParticleContainer"),
   m_vertexCacheName("FTK_VertexContainer"),

@@ -22,7 +22,6 @@
 #include "TrigL2BMuMuXHypo.h"
 
 #include "xAODTrigger/TrigPassBits.h"
-#include "TrigNavigation/Navigation.h"
 
 // additions of xAOD objects
 #include "TrigBphysHelperUtilsTool.h"
@@ -107,6 +106,16 @@ HLT::ErrorCode TrigL2BMuMuXHypo::hltFinalize()
   return HLT::OK;
 }
 
+std::string getDecayName(xAOD::TrigBphys::pType decayType){
+    std::string decayName("Unknown");
+    if(decayType == xAOD::TrigBphys::BKMUMU)      decayName = "B+ -> mu mu K+";
+    if(decayType == xAOD::TrigBphys::BDKSTMUMU)   decayName = "Bd -> mu mu K*";
+    if(decayType == xAOD::TrigBphys::BSPHIMUMU)   decayName = "Bs -> mu mu Phi";
+    if(decayType == xAOD::TrigBphys::LBLMUMU)     decayName = "Lambda_b -> mu mu Lambda";
+    if(decayType == xAOD::TrigBphys::BCDSMUMU)    decayName = "Bc -> mu mu Ds";
+    return decayName;
+}
+
 //-----------------------------------------------------------------------------------------------
 HLT::ErrorCode TrigL2BMuMuXHypo::hltExecute(const HLT::TriggerElement* outputTE, bool& pass)
 {
@@ -182,14 +191,7 @@ HLT::ErrorCode TrigL2BMuMuXHypo::hltExecute(const HLT::TriggerElement* outputTE,
     
     //determine decay mode
     xAOD::TrigBphys::pType decayType = (*bphysIter)->particleType();
-    std::string decayName("Unknown");
-    if(decayType == xAOD::TrigBphys::BKMUMU)      decayName = "B+ -> mu mu K+";
-    if(decayType == xAOD::TrigBphys::BDKSTMUMU)   decayName = "Bd -> mu mu K*";
-    if(decayType == xAOD::TrigBphys::BSPHIMUMU)   decayName = "Bs -> mu mu Phi";
-    if(decayType == xAOD::TrigBphys::LBLMUMU)     decayName = "Lambda_b -> mu mu Lambda";
-    if(decayType == xAOD::TrigBphys::BCDSMUMU)    decayName = "Bc -> mu mu Ds";
-    
-    ATH_MSG_DEBUG("Bphys particle type " << decayName << ", " << decayType << " with mass " << (*bphysIter)->mass() );
+    ATH_MSG_DEBUG("Bphys particle type " << getDecayName(decayType) << ", " << decayType << " with mass " << (*bphysIter)->mass() );
 
 
     if (decayType == xAOD::TrigBphys::BKMUMU    || decayType == xAOD::TrigBphys::BDKSTMUMU ||

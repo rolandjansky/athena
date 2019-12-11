@@ -767,19 +767,18 @@ if ISF_Flags.UsingGeant4():
     ## Protects GeoModelSvc in the simulation from the AlignCallbacks
     gms.AlignCallbacks = False
 
-        ## Additional material in the muon system
-        from AGDD2GeoSvc.AGDD2GeoSvcConf import AGDDtoGeoSvc
-        AGDD2Geo = AGDDtoGeoSvc()
-        if not "MuonAGDDTool/MuonSpectrometer" in AGDD2Geo.Builders:
-            ToolSvc += CfgGetter.getPublicTool("MuonSpectrometer", checkType=True)
-            AGDD2Geo.Builders += ["MuonAGDDTool/MuonSpectrometer"]
-        from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
-        if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
-            if not "NSWAGDDTool/NewSmallWheel" in AGDD2Geo.Builders:
-                ToolSvc += CfgGetter.getPublicTool("NewSmallWheel", checkType=True)
-                AGDD2Geo.Builders += ["NSWAGDDTool/NewSmallWheel"]
-        theApp.CreateSvc += ["AGDDtoGeoSvc"]
-        ServiceMgr += AGDD2Geo
+    ## Additional material in the muon system
+    from AGDD2GeoSvc.AGDD2GeoSvcConf import AGDDtoGeoSvc
+    AGDD2Geo = AGDDtoGeoSvc()
+    if not "MuonAGDDTool/MuonSpectrometer" in AGDD2Geo.Builders:
+        ToolSvc += CfgGetter.getPublicTool("MuonSpectrometer", checkType=True)
+        AGDD2Geo.Builders += ["MuonAGDDTool/MuonSpectrometer"]
+    if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
+        if not "NSWAGDDTool/NewSmallWheel" in AGDD2Geo.Builders:
+            ToolSvc += CfgGetter.getPublicTool("NewSmallWheel", checkType=True)
+            AGDD2Geo.Builders += ["NSWAGDDTool/NewSmallWheel"]
+    theApp.CreateSvc += ["AGDDtoGeoSvc"]
+    ServiceMgr += AGDD2Geo
 
     ## Add configured GeoModelSvc to service manager
     ServiceMgr += gms

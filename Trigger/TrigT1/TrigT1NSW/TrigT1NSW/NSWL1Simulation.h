@@ -25,6 +25,7 @@
 #include "TrigT1NSWSimTools/IMMStripTdsTool.h"
 #include "TrigT1NSWSimTools/IMMTriggerTool.h"
 #include "TrigT1NSWSimTools/IPadTriggerLogicTool.h"
+#include "TrigT1NSWSimTools/IPadTriggerLookupTool.h"
 
 // Forward includes
 class StoreGateSvc;
@@ -77,6 +78,7 @@ namespace NSWL1 {
     ToolHandleArray < IMonitorToolBase > m_monitors;        //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink 
     ToolHandle < IPadTdsTool >           m_pad_tds;         //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
     ToolHandle < IPadTriggerLogicTool >  m_pad_trigger;     //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
+    ToolHandle < IPadTriggerLookupTool >  m_pad_trigger_lookup;
     ToolHandle < IStripTdsTool >         m_strip_tds;       //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
     ToolHandle < IStripClusterTool >     m_strip_cluster;   //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
     ToolHandle < IStripSegmentTool >     m_strip_segment;   //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
@@ -95,6 +97,7 @@ namespace NSWL1 {
 
     // properties: steering flags
     bool        m_doOffline;                                //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
+    bool        m_useLookup;
     bool        m_doNtuple;                                 //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
     bool        m_doMM;                                     //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink 
     bool        m_dosTGC;                                   //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -50,6 +50,7 @@ EFTauMVHypo::EFTauMVHypo(const std::string& name,
   declareProperty("HighptIDThr",   m_highptidthr       = 330000.);
   declareProperty("HighptJetThr",  m_highptjetthr      = 440000.); 
   declareProperty("ApplyIDon0p",   m_applyIDon0p       = true);
+  declareProperty("RejectRNN0p",   m_rejectRNN0p       = false);
 
   declareMonitoredVariable("CutCounter",m_cutCounter=0);
   declareMonitoredVariable("NTrack",m_mon_nTrackAccepted=0);
@@ -96,6 +97,7 @@ HLT::ErrorCode EFTauMVHypo::hltInitialize()
   msg() << MSG::INFO << " REGTEST: param Method " << m_method <<endmsg;
   msg() << MSG::INFO << " REGTEST: param Highpt with thrs " << m_highpt << " " << m_highpttrkthr <<  " " << m_highptidthr << " " << m_highptjetthr <<endmsg;
   msg() << MSG::INFO << " REGTEST: param ApplyIDon0p " << m_applyIDon0p <<endmsg;
+  msg() << MSG::INFO << " REGTEST: param RejectRNN0p " << m_rejectRNN0p <<endmsg;
   msg() << MSG::INFO << " REGTEST: ------ "<<endmsg;
   
   if( (m_numTrackMin >  m_numTrackMax) || m_level == -1 || (m_highptidthr > m_highptjetthr) )
@@ -262,6 +264,19 @@ HLT::ErrorCode EFTauMVHypo::hltExecute(const HLT::TriggerElement* outputTE, bool
     
     // handled transparently whether using standard or MVA track counting
     m_numTrack = (*tauIt)->nTracks();
+
+    // reject candidates with >=1 charged track before RNN track classification, but which are classified as 0p by the RNN
+    if(m_numTrack==0 && m_rejectRNN0p) {
+
+      int nChargedTracksNoMVA = 0;
+      if(! (*tauIt)->detail(xAOD::TauJetParameters::nChargedTracksNoMVA, nChargedTracksNoMVA) ) {
+	ATH_MSG_WARNING("Could not retrieve TauJetParameters::nChargedTracksNoMVA. Make sure RNN track classification is run. Skipping candidate.");
+	continue;
+      }
+      
+      if(nChargedTracksNoMVA!=0) continue;
+    }
+
 #ifndef XAODTAU_VERSIONS_TAUJET_V3_H
     m_numWideTrack = (*tauIt)->nWideTracks();
 #else

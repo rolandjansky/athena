@@ -31,11 +31,7 @@
 
 #include "TrigEFBMuMuXFex.h"
 
-#include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 
-#include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
-#include <math.h>
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
@@ -44,7 +40,6 @@
 
 #include "TrkTrack/TrackCollection.h"
 #include "TrkParameters/TrackParameters.h"
-#include "VxVertex/VxCandidate.h"
 
 // additions of xAOD objects
 #include "xAODEventInfo/EventInfo.h"
@@ -2630,12 +2625,12 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDs(const ElementLink<xAOD::TrackPar
             ATH_MSG_DEBUG(" " << "B_c -> Ds" << " candidate accepted by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu );
             m_countPassedBcVtxChi2++;
 
-            const std::vector< std::vector<TLorentzVector> > cascadeMomenta = result->getParticleMoms();
+            const std::vector< std::vector<TLorentzVector> > &cascadeMomenta = result->getParticleMoms();
 
-            std::vector<TLorentzVector> bcTrkMom = cascadeMomenta[1];
-            std::vector<TLorentzVector> dsTrkMom = cascadeMomenta[0];
+            const std::vector<TLorentzVector> &bcTrkMom = cascadeMomenta[1];
+            const std::vector<TLorentzVector> &dsTrkMom = cascadeMomenta[0];
 
-            std::vector<TLorentzVector>::iterator momItr;
+            std::vector<TLorentzVector>::const_iterator momItr;
 
             TLorentzVector dsMom, bcMom;
             for(momItr=dsTrkMom.begin(); momItr!=dsTrkMom.end(); ++momItr) { dsMom += *momItr; }
@@ -2895,12 +2890,12 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDplus(const ElementLink<xAOD::Track
             ATH_MSG_DEBUG(" " << "B_c -> Dplus" << " candidate accepted by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu );
             m_countPassedBcDplusVtxChi2++;
 
-            const std::vector< std::vector<TLorentzVector> > cascadeMomenta = result->getParticleMoms();
+            const std::vector< std::vector<TLorentzVector> > &cascadeMomenta = result->getParticleMoms();
 
-            std::vector<TLorentzVector> bcTrkMom = cascadeMomenta[1];
-            std::vector<TLorentzVector> dcTrkMom = cascadeMomenta[0];
+            const std::vector<TLorentzVector> &bcTrkMom = cascadeMomenta[1];
+            const std::vector<TLorentzVector> &dcTrkMom = cascadeMomenta[0];
 
-            std::vector<TLorentzVector>::iterator momItr;
+            std::vector<TLorentzVector>::const_iterator momItr;
 
             TLorentzVector dcMom, bcMom;
             for(momItr=dcTrkMom.begin(); momItr!=dcTrkMom.end(); ++momItr) { dcMom += *momItr; }
@@ -3203,12 +3198,12 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDstar(const ElementLink<xAOD::Track
             ATH_MSG_DEBUG(" " << "B_c -> Dstar" << " candidate accepted by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu );
             m_countPassedBcDstarVtxChi2++;
 
-            const std::vector< std::vector<TLorentzVector> > cascadeMomenta = result->getParticleMoms();
+            const std::vector< std::vector<TLorentzVector> > &cascadeMomenta = result->getParticleMoms();
 
-            std::vector<TLorentzVector> bcTrkMom = cascadeMomenta[1];
-            std::vector<TLorentzVector> d0TrkMom = cascadeMomenta[0];
+            const std::vector<TLorentzVector> &bcTrkMom = cascadeMomenta[1];
+            const std::vector<TLorentzVector> &d0TrkMom = cascadeMomenta[0];
 
-            std::vector<TLorentzVector>::iterator momItr;
+            std::vector<TLorentzVector>::const_iterator momItr;
 
             TLorentzVector d0Mom, bcMom;
             for(momItr=d0TrkMom.begin(); momItr!=d0TrkMom.end(); ++momItr) { d0Mom += *momItr; }
@@ -3499,12 +3494,12 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuD0(const ElementLink<xAOD::TrackPar
             ATH_MSG_DEBUG(" B_c -> D0 candidate accepted by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu );
             m_countPassedBcD0VtxChi2++;
 
-            const std::vector< std::vector<TLorentzVector> > cascadeMomenta = result->getParticleMoms();
+            const std::vector< std::vector<TLorentzVector> > &cascadeMomenta = result->getParticleMoms();
 
-            std::vector<TLorentzVector> bcTrkMom = cascadeMomenta[1];
-            std::vector<TLorentzVector> d0TrkMom = cascadeMomenta[0];
+            const std::vector<TLorentzVector> &bcTrkMom = cascadeMomenta[1];
+            const std::vector<TLorentzVector> &d0TrkMom = cascadeMomenta[0];
 
-            std::vector<TLorentzVector>::iterator momItr;
+            std::vector<TLorentzVector>::const_iterator momItr;
 
             TLorentzVector d0Mom, bcMom;
             for(momItr=d0TrkMom.begin(); momItr!=d0TrkMom.end(); ++momItr) { d0Mom += *momItr; }
@@ -3759,12 +3754,12 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkLbMuMuLambda(const ElementLink<xAOD::Trac
             ATH_MSG_DEBUG(" L_b -> Lambda candidate accepted by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu );
             m_countPassedLbVtxChi2++;
 
-            const std::vector< std::vector<TLorentzVector> > cascadeMomenta = result->getParticleMoms();
+            const std::vector< std::vector<TLorentzVector> > &cascadeMomenta = result->getParticleMoms();
 
-            std::vector<TLorentzVector> lbTrkMom = cascadeMomenta[1];
-            std::vector<TLorentzVector> laTrkMom = cascadeMomenta[0];
+            const std::vector<TLorentzVector> &lbTrkMom = cascadeMomenta[1];
+            const std::vector<TLorentzVector> &laTrkMom = cascadeMomenta[0];
 
-            std::vector<TLorentzVector>::iterator momItr;
+            std::vector<TLorentzVector>::const_iterator momItr;
 
             TLorentzVector laMom, lbMom;
             for(momItr=laTrkMom.begin(); momItr!=laTrkMom.end(); ++momItr) { laMom += *momItr; }

@@ -21,9 +21,7 @@ def defineMenu():
         TopoOutput( algoname='2DISAMB-J25ab-0DR25-TAU20abi-TAU12abi',       module=0, fpga=0, clock=0, firstbit=1 ),
         TopoOutput( algoname='INVM_DPHI_NFF',                               module=0, fpga=0, clock=0, firstbit=2 ), # 4 bits
         TopoOutput( algoname='0INVM10-3MU4ab',                              module=0, fpga=0, clock=0, firstbit=6 ),
-        TopoOutput( algoname='CEP-CJ50s6ETA21',                             module=0, fpga=0, clock=0, firstbit=7 ),
-        TopoOutput( algoname='CEP-CJ60s6',                                  module=0, fpga=0, clock=0, firstbit=8 ),
-        TopoOutput( algoname='CEP-CJ50s6',                                  module=0, fpga=0, clock=0, firstbit=9 ),
+        TopoOutput( algoname='CEP_CJ',                                      module=0, fpga=0, clock=0, firstbit=8 ), # 2 bits
 
         # module: 1, FPGA: 1
         TopoOutput( algoname='KF-XE-AJall',                                 module=0, fpga=1, clock=0, firstbit=0 ), # 6 bits
@@ -77,7 +75,7 @@ def defineMenu():
         TopoOutput( algoname='0INVM70-27DPHI32-EM12his1-EM12his6',          module=1, fpga=1, clock=1, firstbit=12 ),
         TopoOutput( algoname='0INVM10-0DR15-EM8abi-MU10ab',                 module=1, fpga=1, clock=1, firstbit=13 ),
         TopoOutput( algoname='0INVM10-0DR15-EM12abi-MU6ab',                 module=1, fpga=1, clock=1, firstbit=14 ),
-
+        TopoOutput( algoname='8INVM15-2CMU4ab',                             module=1, fpga=1, clock=1, firstbit=15 ),
 
     ]      
         

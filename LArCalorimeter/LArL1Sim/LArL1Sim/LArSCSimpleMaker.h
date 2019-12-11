@@ -19,13 +19,14 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "AthAllocators/DataPool.h"
 #include "AthenaKernel/IOVSvcDefs.h"
+#include "CaloDetDescr/ICaloSuperCellIDTool.h"
+#include "CaloEvent/CaloCellContainer.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
+#include "CaloIdentifier/CaloIdManager.h"
+#include "CaloIdentifier/CaloCell_SuperCell_ID.h"
+#include "CaloInterface/ICaloNoiseTool.h"
+#include "CaloInterface/ICaloLumiBCIDTool.h"
 
-
-class CaloSuperCellDetDescrManager;
-class ICaloSuperCellIDTool;
-class CaloDetDescrElement;
-class CaloCell;
-class CaloIdManager;
 
 /**
  * @brief Make a dummy supercell @c LArRawChannelContainer from a
@@ -36,6 +37,7 @@ class LArSCSimpleMaker : public AthAlgorithm
 public:
   /// Standard Gaudi algorithm constructor.
   LArSCSimpleMaker(const std::string& name, ISvcLocator* pSvcLocator);
+  ~LArSCSimpleMaker() { m_noise_per_cell.clear(); }
 
   
   /// Standard Gaudi initialize method.
@@ -60,6 +62,25 @@ private:
 
   /// Entry point for calorimeter ID helpers.
   const CaloIdManager* m_calo_id_manager;
+
+  /// Calo Noise tool for unfolding the noise
+  ToolHandle<ICaloNoiseTool> m_noisetool;
+
+  /// CaloLumiBCIDTool to unfold correction
+  ToolHandle<ICaloLumiBCIDTool> m_caloLumiBCIDTool;
+
+  /// accumulate noise information
+  std::vector<float> m_noise_per_cell;
+
+  // in first event we will have to work a bit further (not good for MT)
+  bool m_first;
+
+  // compensate for Noise (superCell from cells with high gain
+  bool m_compNoise;
+
+  // compensate for BCID effect
+  bool m_addBCID;
+
 };
 
 

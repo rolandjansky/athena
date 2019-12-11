@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
 ##
@@ -758,7 +758,7 @@ def getTauGenericPi0Cone():
     return TauGenericPi0Cone
 
 ########################################################################
-# TauTrackClassifier
+# TauTrackClassifier - deprecated
 def getTauTrackClassifier():
 
     _name = sPrefix + 'TauTrackClassifier'
@@ -800,6 +800,34 @@ def getTauTrackClassifier():
 
     cached_instances[_name] = classifier
     return classifier
+
+########################################################################
+# TauTrackRNNClassifier
+def getTauTrackRNNClassifier():
+    _name = sPrefix + 'TauTrackRNNClassifier'
+    
+    if _name in cached_instances:
+        return cached_instances[_name]
+    
+    from AthenaCommon.AppMgr import ToolSvc
+    from tauRecTools.tauRecToolsConf import tauRecTools__TauTrackRNNClassifier as TauTrackRNNClassifier
+    from tauRecTools.tauRecToolsConf import tauRecTools__TrackRNN as TrackRNN
+
+    import cppyy
+    cppyy.loadDictionary('xAODTau_cDict')
+
+    _RNN = TrackRNN(name = _name + "_0",
+                    InputWeightsPath = "TauTrackRNN_default_v0.json",
+                    calibFolder = "tauRecTools/00-02-00/")
+    ToolSvc += _RNN
+    cached_instances[_RNN.name] = _RNN
+    
+    # create tool alg
+    myTauTrackClassifier = TauTrackRNNClassifier( name = _name,
+                                                  Classifiers = [_RNN] )
+    ToolSvc += myTauTrackClassifier
+    cached_instances[_name] = myTauTrackClassifier
+    return myTauTrackClassifier
 
 ########################################################################
 # TauIDVarCalculator

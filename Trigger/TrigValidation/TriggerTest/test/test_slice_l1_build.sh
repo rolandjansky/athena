@@ -11,8 +11,9 @@
 
 export NAME="slice_l1_build"
 export EVENTS="10"
-export JOBOPTIONS="TriggerTest/testLVL1CTPAthenaTrigRDO.py"
+export JOBOPTION="TriggerTest/testLVL1CTPAthenaTrigRDO.py"
 export COST_MONITORING="False"
+export SKIP_CHAIN_DUMP=1
 
 source exec_athena_art_trigger_validation.sh
 source exec_art_triggertest_post.sh

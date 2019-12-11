@@ -46,46 +46,46 @@ class FTKFastDataProviderSvc : public extends<AthService, IFTK_DataProviderSvc, 
 
  virtual const FTK_RawTrackContainer* getRawTracks() override;
 
- virtual TrackCollection* getTracksInRoi(const IRoiDescriptor&, const bool withRefit);
- virtual TrackCollection* getTracksInRoi(const IRoiDescriptor&, const bool withRefit, unsigned int& nErrors);
+ virtual TrackCollection* getTracksInRoi(const IRoiDescriptor&, const bool withRefit) override;
+ virtual TrackCollection* getTracksInRoi(const IRoiDescriptor&, const bool withRefit, unsigned int& nErrors) override;
 
- virtual TrackCollection* getTracks(const bool withRefit);
- virtual TrackCollection* getTracks(const bool withRefit,unsigned int& nErrors);
+ virtual TrackCollection* getTracks(const bool withRefit) override;
+ virtual TrackCollection* getTracks(const bool withRefit,unsigned int& nErrors) override;
 
- virtual xAOD::TrackParticleContainer* getTrackParticles(const bool withRefit);
- virtual xAOD::TrackParticleContainer* getTrackParticles(const bool withRefit, unsigned int& nErrors);
+ virtual xAOD::TrackParticleContainer* getTrackParticles(const bool withRefit) override;
+ virtual xAOD::TrackParticleContainer* getTrackParticles(const bool withRefit, unsigned int& nErrors) override;
 
- virtual xAOD::TrackParticleContainer* getTrackParticlesInRoi(const IRoiDescriptor&, const bool withRefit);
- virtual xAOD::TrackParticleContainer* getTrackParticlesInRoi(const IRoiDescriptor&, const bool withRefit, unsigned int& nErrors);
+ virtual xAOD::TrackParticleContainer* getTrackParticlesInRoi(const IRoiDescriptor&, const bool withRefit) override;
+ virtual xAOD::TrackParticleContainer* getTrackParticlesInRoi(const IRoiDescriptor&, const bool withRefit, unsigned int& nErrors) override;
 
- virtual  xAOD::VertexContainer* getFastVertices(const ftk::FTK_TrackType trackType=ftk::RawTrack);
+ virtual  xAOD::VertexContainer* getFastVertices(const ftk::FTK_TrackType trackType=ftk::RawTrack) override;
  
- virtual xAOD::VertexContainer* getVertexContainer(const bool withRefit);
+ virtual xAOD::VertexContainer* getVertexContainer(const bool withRefit) override;
  
- virtual StatusCode getVertexContainer(xAOD::VertexContainer* vertex, const bool withRefit);
+ virtual StatusCode getVertexContainer(xAOD::VertexContainer* vertex, const bool withRefit) override;
 
- virtual std::string getTrackParticleCacheName(const bool withRefit);
+ virtual std::string getTrackParticleCacheName(const bool withRefit) override;
 
- virtual std::string getTrackCacheName(const bool withRefit);
+ virtual std::string getTrackCacheName(const bool withRefit) override;
  
- virtual std::string getVertexCacheName(const bool withRefit);
+ virtual std::string getVertexCacheName(const bool withRefit) override;
 
- virtual std::string getFastVertexCacheName(const bool withRefit);
+ virtual std::string getFastVertexCacheName(const bool withRefit) override;
 
- virtual Trk::Track* getCachedTrack(const unsigned int track, const bool withRefit);
+ virtual Trk::Track* getCachedTrack(const unsigned int track, const bool withRefit) override;
 
- virtual void handle( const Incident &incident );
+ virtual void handle( const Incident &incident ) override;
 
- virtual unsigned int nRawTracks();
- virtual unsigned int nTracks(const bool withRefit);
- virtual unsigned int nTrackParticles(const bool withRefit);
- virtual unsigned int nTrackErrors(const bool withRefit);
- virtual unsigned int nTrackParticleErrors(const bool withRefit);
+ virtual unsigned int nRawTracks() override;
+ virtual unsigned int nTracks(const bool withRefit) override;
+ virtual unsigned int nTrackParticles(const bool withRefit) override;
+ virtual unsigned int nTrackErrors(const bool withRefit) override;
+ virtual unsigned int nTrackParticleErrors(const bool withRefit) override;
  
- virtual std::vector<unsigned int> nMissingSCTClusters();
- virtual std::vector<unsigned int> nMissingPixelClusters();
- virtual std::vector<unsigned int> nFailedSCTClusters();
- virtual std::vector<unsigned int> nFailedPixelClusters();
+ virtual std::vector<unsigned int> nMissingSCTClusters() override;
+ virtual std::vector<unsigned int> nMissingPixelClusters() override;
+ virtual std::vector<unsigned int> nFailedSCTClusters() override;
+ virtual std::vector<unsigned int> nFailedPixelClusters() override;
 
  private:
 
@@ -130,7 +130,6 @@ class FTKFastDataProviderSvc : public extends<AthService, IFTK_DataProviderSvc, 
   bool m_got_fast_vertex_refit;
   bool m_got_fast_vertex_conv;
   
-  bool m_newEvent;
   std::string m_trackCacheName;
   std::string m_trackParticleCacheName;
   std::string  m_vertexCacheName;

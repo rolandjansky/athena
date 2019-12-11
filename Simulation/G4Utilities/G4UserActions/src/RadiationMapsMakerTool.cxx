@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include "TH2D.h"
 #include "TH3D.h"
@@ -58,6 +58,9 @@ namespace G4UA{
     /// for logT in time-dependent TID 2D maps
     declareProperty("LogTMin"        , m_config.logTMin);
     declareProperty("LogTMax"        , m_config.logTMax);
+    /// for elements mass fracion 2D maps
+    declareProperty("ElemZMin"       , m_config.elemZMin);
+    declareProperty("ElemZMax"       , m_config.elemZMax);
   }
 
   //---------------------------------------------------------------------------
@@ -85,7 +88,9 @@ namespace G4UA{
                                          m_config.rMinZoom   << " < r/cm < "                                      << m_config.rMaxZoom   << ", " <<
                                          m_config.phiMinZoom << " < phi/degrees < "                               << m_config.phiMaxZoom << "\n" <<
                   "Time TID Maps:   " << m_config.nBinslogT  << " Time-cut bins, "                                <<
-		                         m_config.logTMin    << " < log10(t_cut/s) < "                            << m_config.logTMax );
+		                         m_config.logTMin    << " < log10(t_cut/s) < "                            << m_config.logTMax << "\n" <<
+                  "Mass frac. Maps: " << m_config.elemZMax-m_config.elemZMin+1 << " Element bins, "                                <<
+		                         m_config.elemZMin    << " <= Z <= < "                            << m_config.elemZMax );
       
     return StatusCode::SUCCESS;
   }
@@ -137,6 +142,9 @@ namespace G4UA{
 
     m_report.m_rz_tid_time      .resize(0);
     m_report.m_full_rz_tid_time .resize(0);
+
+    m_report.m_rz_element       .resize(0);
+    m_report.m_full_rz_element  .resize(0);
 
     if (!m_config.material.empty()) {
       // need volume fraction only if particular material is selected
@@ -191,6 +199,9 @@ namespace G4UA{
 
     m_report.m_rz_tid_time      .resize(m_config.nBinsz*m_config.nBinsr*m_config.nBinslogT,0.0);
     m_report.m_full_rz_tid_time .resize(m_config.nBinsz*m_config.nBinsr*m_config.nBinslogT,0.0);
+
+    m_report.m_rz_element       .resize(m_config.nBinsz*m_config.nBinsr*(m_config.elemZMax-m_config.elemZMin+1),0.0);
+    m_report.m_full_rz_element  .resize(m_config.nBinsz*m_config.nBinsr*(m_config.elemZMax-m_config.elemZMin+1),0.0);
 
     if (!m_config.material.empty()) {
       // need volume fraction only if particular material is selected
@@ -411,6 +422,16 @@ namespace G4UA{
     h_rz_tid_time     ->SetZTitle("log_{10}(t_{cut}/s)");
     h_full_rz_tid_time->SetZTitle("log_{10}(t_{cut}/s)");
 
+    // element mass fraction maps
+    TH3D * h_rz_element       = new TH3D("rz_element" ,"rz_element"           ,m_config.nBinsz,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr,m_config.rMinZoom,m_config.rMaxZoom,m_config.elemZMax-m_config.elemZMin+1,m_config.elemZMin-0.5,m_config.elemZMax+0.5);
+    TH3D * h_full_rz_element  = new TH3D("full_rz_element" ,"full_rz_element" ,m_config.nBinsz,m_config.zMinFull,m_config.zMaxFull,m_config.nBinsr,m_config.rMinFull,m_config.rMaxFull,m_config.elemZMax-m_config.elemZMin+1,m_config.elemZMin-0.5,m_config.elemZMax+0.5);
+    h_rz_element     ->SetXTitle(xtitle);
+    h_full_rz_element->SetXTitle(xtitle);
+    h_rz_element     ->SetYTitle("r [cm]");
+    h_full_rz_element->SetYTitle("r [cm]");
+    h_rz_element     ->SetZTitle("Z");
+    h_full_rz_element->SetZTitle("Z");
+
     TH2D * h_rz_vol  = 0;
     TH2D * h_rz_norm = 0;
     TH2D * h_full_rz_vol  = 0;
@@ -520,6 +541,13 @@ namespace G4UA{
 	  val =m_report.m_rz_tid_time[vBinT];
 	  h_rz_tid_time->SetBinContent(kBin,val/vol);
 	}
+	// Element mass fraction maps
+	for(int k=0;k<h_rz_element->GetNbinsZ();k++) { 
+	  int kBin = h_rz_element->GetBin(i+1,j+1,k+1); 
+	  int vBinElem = m_config.nBinsr*(m_config.elemZMax-m_config.elemZMin+1)*i+j*(m_config.elemZMax-m_config.elemZMin+1)+k;
+	  val =m_report.m_rz_element[vBinElem];
+	  h_rz_element->SetBinContent(kBin,val/vol);
+	}
 	if (!m_config.material.empty()) {
 	  // need volume fraction only if particular material is selected
 	  // VOL
@@ -545,6 +573,7 @@ namespace G4UA{
     h_rz_prot_spec->Write();
     h_rz_rest_spec->Write();
     h_rz_tid_time->Write();
+    h_rz_element->Write();
     
     // normalize to volume element per bin
     for(int i=0;i<h_full_rz_tid->GetNbinsX();i++) { 
@@ -608,6 +637,13 @@ namespace G4UA{
 	  val =m_report.m_full_rz_tid_time[vBinT];
 	  h_full_rz_tid_time->SetBinContent(kBin,val/vol);
 	}
+	// Element mass fraction maps
+	for(int k=0;k<h_full_rz_element->GetNbinsZ();k++) { 
+	  int kBin = h_full_rz_element->GetBin(i+1,j+1,k+1); 
+	  int vBinElem = m_config.nBinsr*(m_config.elemZMax-m_config.elemZMin+1)*i+j*(m_config.elemZMax-m_config.elemZMin+1)+k;
+	  val =m_report.m_full_rz_element[vBinElem];
+	  h_full_rz_element->SetBinContent(kBin,val/vol);
+	}
 	if (!m_config.material.empty()) {
 	  // need volume fraction only if particular material is selected
 	  // VOL
@@ -633,6 +669,7 @@ namespace G4UA{
     h_full_rz_prot_spec->Write();
     h_full_rz_rest_spec->Write();
     h_full_rz_tid_time->Write();
+    h_full_rz_element->Write();
 
     // normalize to volume element per bin
     for(int i=0;i<h_3d_tid->GetNbinsX();i++) { /* |z| */

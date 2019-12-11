@@ -17,7 +17,6 @@
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
 
-//#include "MuonSelectorTools/MuonSelectionTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AsgTools/ToolHandle.h" 
 #include "MuonSelectorTools/IMuonSelectionTool.h"
@@ -34,7 +33,6 @@ class MuonSelector : public EventAnalysis
 
   bool passSelection( const xAOD::Muon* pxMuon );
   void setDebug(bool debug){m_doDebug = debug;}
-  // CP::MuonSelectionTool m_muonSelectionTool;
   ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
  
   // Override functions from EventAnalysis

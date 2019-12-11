@@ -38,14 +38,12 @@ namespace NSWL1 {
 
   private:
     const Identifier    m_id;      //!< offline identifier of the PAD hit
-    const sTgcIdHelper* m_helper;  //!< helper for the identifier decoding
-
+    const MuonGM::MuonDetectorManager* m_detMgr;
     float               m_time;    //!< signal arrival time after electronics delay is applied
     uint16_t            m_bc_tag;  //!< BC Tag
     
   public:
-    PadOfflineData(Identifier id, float time, uint16_t bc_tag, const sTgcIdHelper* helper);
-    //PadOfflineData(Identifier id, float time, uint16_t bc_tag, bool isdead, bool ispileup, const sTgcIdHelper* helper);
+    PadOfflineData(Identifier id, float time, uint16_t bc_tag, const MuonGM::MuonDetectorManager* detMgr);
     ~PadOfflineData();
 
     //! methods for retrieving the bare data
@@ -67,6 +65,12 @@ namespace NSWL1 {
     int channelId()            const;  //!< get the channel
     int padEtaId()             const;  //!< get the pad eta channel  
     int padPhiId()             const;  //!< get the pad phi channel
+    int padNumber()            const;
+    int triggerSectorNumber()  const;
+    float stationPhiAngle() const;
+    void fillGeometricInformation();
+
+
     float m_cornerXyz[4][3];
   };  // end of PadOfflineData class
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ##
 ## @file InDetRecExample/python/InDetKeys.py
@@ -559,19 +559,19 @@ class PixelFourLayerDetailedTracksTruth(JobProperty):
     StoredValue  = 'PixelFourLayerTracksDetailedTruth'
 
 class SiSpSeededPixelThreeLayerTracks(JobProperty):
-    """StoreGate key for pixel stublets with 3 SPs run after new tracking on all PRDs"""
+    """StoreGate key for pixel stublets with 3 SPs run after new tracking on unassociated PRDs"""
     statusOn     = True
     allowedTypes = ['str']
     StoredValue  = 'SiSPSeededPixelThreeLayerTracks'
 
 class PixelThreeLayerTracksTruth(JobProperty):
-    """StoreGate key for pixel stublets with 3 SPs truth run after New Tracking on all PRDs"""
+    """StoreGate key for pixel stublets with 3 SPs truth run after New Tracking on unassociated PRDs"""
     statusOn     = True
     allowedTypes = ['str']
     StoredValue  = 'PixelThreeLayerTracksTruthCollection'
 
 class PixelThreeLayerDetailedTracksTruth(JobProperty):
-    """StoreGate key for detailed pixel stublets with 3 SPs truth run after New Tracking on all PRDs"""
+    """StoreGate key for detailed pixel stublets with 3 SPs truth run after New Tracking on unassociated PRDs"""
     statusOn     = True
     allowedTypes = ['str']
     StoredValue  = 'PixelThreeLayerTracksDetailedTruth'
@@ -650,7 +650,7 @@ class ExtendedTracksMapPixelFourLayer(JobProperty):
     StoredValue  = 'ExtendedTracksMapPixelFourLayer'
 
 class ResolvedPixelThreeLayerTracks(JobProperty):
-    """StoreGate key for resolved pixel tracks run after New Tracking on all PRDs"""
+    """StoreGate key for resolved pixel tracks run after New Tracking on unassociated PRDs"""
     statusOn     = True
     allowedTypes = ['str']
     StoredValue  = 'ResolvedPixelThreeLayerTracks'
@@ -662,7 +662,7 @@ class ExtendedTracksPixelThreeLayer(JobProperty):
     StoredValue  = 'ExtendedTracksPixelThreeLayer'
 
 class PixelThreeLayerTracks(JobProperty):
-    """StoreGate key for rfinal pixel tracks run after New Tracking on all PRDs"""
+    """StoreGate key for final pixel tracks run after New Tracking on unassociated PRDs"""
     statusOn     = True
     allowedTypes = ['str']
     StoredValue  = 'PixelThreeLayerTracks'
@@ -1204,13 +1204,13 @@ class xAODPixelFourLayerExtendedTrackParticleContainer(JobProperty):
     StoredValue = "InDetPixelFourLayerExtendedTrackParticles"
 
 class xAODPixelThreeLayerTrackParticleContainer(JobProperty):
-    """xAOD PixelTrackParticle on all hits using three layers"""
+    """xAOD PixelTrackParticle on unassociated hits using three layers"""
     statusOn = True
     allowedTypes = ['str']
     StoredValue = "InDetPixelThreeLayerTrackParticles"
 
 class xAODPixelThreeLayerExtendedTrackParticleContainer(JobProperty):
-    """xAOD Extended PixelTrackParticle on all hits using four layers"""
+    """xAOD Extended PixelTrackParticle on unassociated hits using three layers"""
     statusOn = True
     allowedTypes = ['str']
     StoredValue = "InDetPixelThreeLayerExtendedTrackParticles"

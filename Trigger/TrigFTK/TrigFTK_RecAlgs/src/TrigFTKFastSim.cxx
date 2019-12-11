@@ -171,18 +171,18 @@ HLT::ErrorCode TrigFTKFastSim::hltInitialize() {
   }
   TTreeReader reader("Tree_Efficiency_Smearing_function", smearing);
 
-  TTreeReaderArray<double> *fraction[ntp];
-  TTreeReaderArray<double> *mean[ntp];
-  TTreeReaderArray<double> *narrow[ntp];
-  TTreeReaderArray<double> *wide[ntp];
+  std::unique_ptr< TTreeReaderArray<double> > fraction[ntp];
+  std::unique_ptr< TTreeReaderArray<double> > mean[ntp];
+  std::unique_ptr< TTreeReaderArray<double> > narrow[ntp];
+  std::unique_ptr< TTreeReaderArray<double> > wide[ntp];
 
   for( int itp=0; itp<ntp; itp++ ) {
-    fraction[itp] = new TTreeReaderArray<double>(reader,tp_name[itp]+"_Smearing_Function_Fraction");
-    mean[itp] = new TTreeReaderArray<double>(reader,tp_name[itp]+"_Smearing_Function_Mean");
-    narrow[itp] = new TTreeReaderArray<double>(reader,tp_name[itp]+"_Smearing_Function_NarrowSigma");
-    wide[itp] = new TTreeReaderArray<double>(reader,tp_name[itp]+"_Smearing_Function_WideSigma");
+    fraction[itp].reset( new TTreeReaderArray<double>(reader,tp_name[itp]+"_Smearing_Function_Fraction") );
+    mean[itp].reset( new TTreeReaderArray<double>(reader,tp_name[itp]+"_Smearing_Function_Mean") );
+    narrow[itp].reset( new TTreeReaderArray<double>(reader,tp_name[itp]+"_Smearing_Function_NarrowSigma") );
+    wide[itp].reset( new TTreeReaderArray<double>(reader,tp_name[itp]+"_Smearing_Function_WideSigma") );
   }
-  TTreeReaderArray<double> *eff_reader = new TTreeReaderArray<double>(reader,"m_Efficiency_byRegion");
+  std::unique_ptr< TTreeReaderArray<double> > eff_reader( new TTreeReaderArray<double>(reader,"m_Efficiency_byRegion") );
   reader.Next();
   
   for( int itp=0; itp<ntp; itp++ ) {
@@ -206,18 +206,12 @@ HLT::ErrorCode TrigFTKFastSim::hltInitialize() {
       for( int id0=0; id0<Eff::nd0; id0++ ) {
         for( int iz0=0; iz0<Eff::nz0; iz0++ ) {
           efficiency[iQoP][ieta][id0][iz0] = (*eff_reader)[iRegion];
+          iRegion++;
         }
       }
     }
   }
 
-  for( int itp=0; itp<ntp; itp++ ) {
-    delete fraction[itp];
-    delete mean[itp];
-    delete narrow[itp];
-    delete wide[itp];
-  }
-  delete eff_reader;
   smearing->Close();
 
   ATH_MSG_INFO("Smeared track collection name " << m_collection_name);

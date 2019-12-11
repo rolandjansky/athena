@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigSteer/TrigInterfaces
                           Trigger/TrigTools/TrigInDetPattRecoTools
                           PRIVATE
+			  Tools/PathResolver
                           Control/AthenaBaseComps
                           Control/CxxUtils
                           Control/StoreGate
@@ -42,9 +43,9 @@ atlas_add_component( TrigFastTrackFinder
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TBB_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TBB_LIBRARIES} GaudiKernel TrkEventPrimitives TrigInDetEvent TrigSteeringEvent TrigInterfacesLib TrigInDetPattRecoTools AthenaBaseComps CxxUtils IRegionSelector InDetIdentifier InDetPrepRawData InDetRIO_OnTrack SiSpacePointsSeed InDetRecToolInterfaces TrkParameters TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkToolInterfaces TrigInDetPattRecoEvent FTK_DataProviderInterfaces TrigTimeAlgsLib )
+                     LINK_LIBRARIES ${TBB_LIBRARIES} GaudiKernel PathResolver TrkEventPrimitives TrigInDetEvent TrigSteeringEvent TrigInterfacesLib TrigInDetPattRecoTools AthenaBaseComps CxxUtils IRegionSelector InDetIdentifier InDetPrepRawData InDetRIO_OnTrack SiSpacePointsSeed InDetRecToolInterfaces TrkParameters TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkToolInterfaces TrigInDetPattRecoEvent FTK_DataProviderInterfaces TrigTimeAlgsLib )
 
 # Install files from the package:
 atlas_install_headers( TrigFastTrackFinder )
 atlas_install_python_modules( python/*.py )
-
+atlas_install_runtime( share/trigseed_ML_loose.lut share/trigseed_ML_strict.lut share/trigseed_ML_medium.lut )
