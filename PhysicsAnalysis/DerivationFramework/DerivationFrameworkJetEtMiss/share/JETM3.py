@@ -172,6 +172,9 @@ addCSSKSoftDropJets(jetm3Seq, "JETM3")
 if DerivationFrameworkIsMonteCarlo:
   addSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.1, mods="truth_groomed", algseq=jetm3Seq, outputGroup="JETM3", writeUngroomed=True)
 
+# Add the BCID info
+addDistanceInTrain(jetm1Seq)
+
 #=======================================
 # SCHEDULE SMALL-R JETS WITH LOW PT CUT
 #=======================================

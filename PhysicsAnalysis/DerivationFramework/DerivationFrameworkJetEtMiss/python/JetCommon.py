@@ -510,6 +510,40 @@ def addBadBatmanFlag(sequence=DerivationFrameworkJob):
             batmanaug.AugmentationTools.append(batmanaugtool)
 
 ##################################################################
+# Schedule the adding of BCID info
+##################################################################
+def addDistanceInTrain(sequence=DerivationFrameworkJob):
+    # simple set up -- either the alg exists and contains the tool, in which case we exit
+    if hasattr(sequence,"DistanceInTrainAugmentation"):
+        dfjetlog.warning( "DistanceInTrainAugmentation: DistanceInTrainAugmentation already scheduled on sequence"+sequence.name )
+        return
+    else:
+        isMC = False
+        if globalflags.DataSource() == 'geant4':
+          isMC = True
+
+        distanceintrainaug = CfgMgr.DerivationFramework__CommonAugmentation("DistanceInTrainAugmentation")
+        sequence += distanceintrainaug
+
+        distanceintrainaugtool = None
+        from AthenaCommon.AppMgr import ToolSvc        
+        # create and add the tool to the alg if needed
+        if hasattr(ToolSvc,"DistanceInTrainAugmentationTool"):
+            distanceintrainaugtool = getattr(ToolSvc,"DistanceInTrainAugmentationTool")
+        else:
+            distanceintrainaugtool = CfgMgr.DerivationFramework__DistanceInTrainAugmentationTool("DistanceInTrainAugmentationTool")
+            from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
+            if isMC:
+                ToolSvc += BunchCrossingTool( "MC" )
+                distanceintrainaugtool.BCTool = "Trig::MCBunchCrossingTool/BunchCrossingTool"
+            else:
+                ToolSvc += BunchCrossingTool( "LHC" )
+                distanceintrainaugtool.BCTool = "Trig::LHCBunchCrossingTool/BunchCrossingTool"
+            ToolSvc += distanceintrainaugtool
+        if not distanceintrainaugtool in distanceintrainaug.AugmentationTools:
+            distanceintrainaug.AugmentationTools.append(distanceintrainaugtool)
+
+##################################################################
 
 ##################################################################
 #       Set up helpers for adding jets to the output streams
