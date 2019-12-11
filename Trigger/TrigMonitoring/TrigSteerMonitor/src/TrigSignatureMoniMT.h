@@ -86,11 +86,12 @@ class TrigSignatureMoniMT : public extends<AthReentrantAlgorithm, IIncidentListe
   void updatePublished(unsigned int duration) const;
   StatusCode initHist(std::unique_ptr<TH2>&, SG::ReadHandle<TrigConf::HLTMenu>&, bool = true);
   StatusCode initBunchHist(std::unique_ptr<TH2>&, SG::ReadHandle<TrigConf::HLTMenu>&, SG::ReadHandle<TrigConf::L1Menu>&);
-  StatusCode fillDecisionCount(const std::vector<TrigCompositeUtils::DecisionID>& dc, int row) const;
-  StatusCode fillPassEvents(const TrigCompositeUtils::DecisionIDContainer& dc, int row, LockedHandle<TH2>& histogram) const;
-  StatusCode fillRate(const TrigCompositeUtils::DecisionIDContainer& dc, int row) const;
+  StatusCode fillDecisionCount(const std::vector<TrigCompositeUtils::DecisionID>& , int) const;
+  StatusCode fillPassEvents(const TrigCompositeUtils::DecisionIDContainer&, int) const;
+  StatusCode fillRate(const TrigCompositeUtils::DecisionIDContainer&, int) const;
+  StatusCode fillHistogram(const TrigCompositeUtils::DecisionIDContainer&, int, LockedHandle<TH2>&) const;
   StatusCode fillBunchGroups(const TrigCompositeUtils::DecisionIDContainer&) const;
-  StatusCode fillStreamsAndGroups(const std::map<std::string, TrigCompositeUtils::DecisionIDContainer>& map, const TrigCompositeUtils::DecisionIDContainer& dc) const;
+  StatusCode fillStreamsAndGroups(const std::map<std::string, TrigCompositeUtils::DecisionIDContainer>&, const TrigCompositeUtils::DecisionIDContainer&) const;
 };
 
 #endif //> !TRIGSTEERMONITOR_TRIGSIGNATUREMONIMT_H
