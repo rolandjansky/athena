@@ -391,7 +391,7 @@ def getKernel_G4FastCaloMT(name="ISF_Kernel_G4FastCaloMT", **kwargs):
                                                        'ISF_FastCaloSimV2Tool',
                                                        'ISF_AFIIGeant4Tool'])
     kwargs.setdefault("ParticleOrderingTool"       , 'ISF_ParticleOrderingTool' )
-    #kwargs.setdefault('EntryLayerTool'             , 'ISF_AFIIEntryLayerTool')
+    kwargs.setdefault('EntryLayerTool'             , 'ISF_AFIIEntryLayerToolMT')
     from G4AtlasApps.SimFlags import simFlags #
     simFlags.SimulationFlavour = "G4FastCalo"
     return getKernel_GenericSimulatorMT(name, **kwargs)
