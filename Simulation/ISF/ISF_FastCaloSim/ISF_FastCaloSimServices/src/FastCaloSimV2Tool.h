@@ -61,7 +61,7 @@ namespace ISF {
 
     virtual StatusCode releaseEventST() override final;
 
-    virtual SimulationFlavor simFlavor() const override final { return ISF::FastCaloSim; };
+    virtual SimulationFlavor simFlavor() const override final { return ISF::FastCaloSimV2; };
   private:
     StatusCode commonSetup();
 
