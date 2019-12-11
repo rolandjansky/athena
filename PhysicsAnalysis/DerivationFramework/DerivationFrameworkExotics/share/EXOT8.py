@@ -453,6 +453,7 @@ emcsskufoAlg = runUFOReconstruction(exot8Seq, ToolSvc, PFOPrefix="CSSK")
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 OutputJets["EXOT8"] = []
 reducedJetList = [
+    "AntiKt2TruthJets",
     "AntiKt2LCTopoJets",
     "AntiKt2PV0TrackJets",
     "AntiKt4PV0TrackJets",
@@ -469,9 +470,8 @@ addDefaultTrimmedJets(exot8Seq,"EXOT8")
 
 # Adds a new jet collection for SoftDrop with constituent modifiers CS and SK applied
 if globalflags.DataSource()=="geant4":
-    addSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.1, mods="truth_groomed", algseq=exot8Seq, outputGroup="EXOT8", writeUngroomed=True)
+    addSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.1, mods="truth_groomed", algseq=exot8Seq, outputGroup="EXOT8", writeUngroomed=False)
 
-#addCSSKSoftDropJets(exot8Seq, "EXOT8")
 addSoftDropJets("AntiKt", 1.0, "UFOCSSK", beta=1.0, zcut=0.1, algseq=exot8Seq, outputGroup="EXOT8", writeUngroomed=False, mods="tcc_groomed")
 
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
@@ -533,6 +533,7 @@ EXOT8SlimmingHelper.SmartCollections = ["PrimaryVertices",
                                         "Muons",
                                         "Photons",
                                         "InDetTrackParticles",
+                                        "AntiKt2TruthJets",
                                         "AntiKt2LCTopoJets",
                                         "BTagging_AntiKtVR30Rmax4Rmin02Track",
                                         "BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag",
@@ -625,8 +626,6 @@ EXOT8SlimmingHelper.ExtraVariables += [
 ]
 
 addJetOutputs(EXOT8SlimmingHelper,["AntiKt4EMPFlowJets",
-                                   "AntiKt4TruthJets",
-                                   "AntiKt4TruthWZJets",
                                    "EXOT8"],
                                    EXOT8SlimmingHelper.SmartCollections,
                                    ["AntiKt2PV0TrackJets",
@@ -634,14 +633,12 @@ addJetOutputs(EXOT8SlimmingHelper,["AntiKt4EMPFlowJets",
 
 
 if globalflags.DataSource()=="geant4":
-    EXOT8SlimmingHelper.AppendToDictionary = {
-      "TruthTop"                                 :   "xAOD::TruthParticleContainer"   ,
-      "TruthTopAux"                              :   "xAOD::TruthParticleAuxContainer",
-      "TruthBSM"                                 :   "xAOD::TruthParticleContainer"   ,
-      "TruthBSMAux"                              :   "xAOD::TruthParticleAuxContainer",
-      "TruthBoson"                               :   "xAOD::TruthParticleContainer"   ,
-      "TruthBosonAux"                            :   "xAOD::TruthParticleAuxContainer"
-    }
+    EXOT8SlimmingHelper.AppendToDictionary["TruthTop"]      = "xAOD::TruthParticleContainer"
+    EXOT8SlimmingHelper.AppendToDictionary["TruthTopAux"]   = "xAOD::TruthParticleAuxContainer"
+    EXOT8SlimmingHelper.AppendToDictionary["TruthBSM"]      = "xAOD::TruthParticleContainer"
+    EXOT8SlimmingHelper.AppendToDictionary["TruthBSMAux"]   = "xAOD::TruthParticleAuxContainer"
+    EXOT8SlimmingHelper.AppendToDictionary["TruthBoson"]    = "xAOD::TruthParticleContainer"
+    EXOT8SlimmingHelper.AppendToDictionary["TruthBosonAux"] = "xAOD::TruthParticleAuxContainer"
 
 EXOT8SlimmingHelper.IncludeJetTriggerContent = True
 EXOT8SlimmingHelper.IncludeBJetTriggerContent = True
