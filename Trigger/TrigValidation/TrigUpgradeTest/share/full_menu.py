@@ -35,7 +35,7 @@ if opt.reverseViews or opt.filterViews:
     viewMakers = collectViewMakers( topSequence )
     theFilter = []
     if opt.filterViews:
-        theFilter = [ "Cache", "EventInfo" ]
+        theFilter = [ "Cache", "EventInfo", "HLT_EFHistoPrmVtx" ]
     for alg in viewMakers:
         alg.ReverseViewsDebug = opt.reverseViews
         alg.FallThroughFilter = theFilter
