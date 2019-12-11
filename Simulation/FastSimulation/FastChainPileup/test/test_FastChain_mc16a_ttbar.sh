@@ -48,7 +48,7 @@ inputRefDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/D
 inputXmlDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-configs"
 art_dcube="/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube"
 dcubeName="FastChain_mc16a_ttbar"
-dcubeXmlRDO="${inputXmlDir}/dcube_RDO_truth.xml"
+dcubeXmlRDO="${inputXmlDir}/dcube_RDO_truth_ATLFASTII.xml"
 dcubeRefRDO="${inputRefDir}/RDO_truth.root"
 
 if [ ${rc} -eq 0 ]
