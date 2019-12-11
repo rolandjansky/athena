@@ -185,6 +185,9 @@ addConstModJets("AntiKt",0.4,"EMTopo",["CS","SK"],jetm1Seq,"JETM1",
 addConstModJets("AntiKt",0.4,"EMPFlow",["CS","SK"],jetm1Seq,"JETM1",
                 ptmin=2000,ptminFilter=2000)
 
+# Add the BCID info
+addDistanceInTrain(jetm1Seq)
+
 #=======================================
 # SCHEDULE SMALL-R JETS WITH LOW PT CUT
 #=======================================
