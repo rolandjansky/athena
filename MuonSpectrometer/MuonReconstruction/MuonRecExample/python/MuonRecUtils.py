@@ -1,7 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s", __name__)
+
+from six import with_metaclass
 
 from GaudiKernel.GaudiHandles import \
      GaudiHandle,GaudiHandleArray,\
@@ -127,9 +129,8 @@ class ConfiguredBaseMeta(ConfigurableMeta):
 #
 # NB This functionality should ideally be added directly to class Configurable
 #
-class ConfiguredBase(object):
+class ConfiguredBase (with_metaclass (ConfiguredBaseMeta, object)):
     __slots__ = ()
-    __metaclass__ = ConfiguredBaseMeta
 
 
     def __init__(self,name,args):

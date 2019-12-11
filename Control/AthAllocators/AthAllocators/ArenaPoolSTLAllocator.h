@@ -347,10 +347,6 @@ public:
   typedef std::allocator<T*> base;
 
   /// Standard STL allocator typedefs.
-  typedef typename base::pointer         pointer;
-  typedef typename base::const_pointer   const_pointer;
-  typedef typename base::reference       reference;
-  typedef typename base::const_reference const_reference;
   typedef typename base::value_type      value_type;
   typedef typename base::size_type       size_type;
   typedef typename base::difference_type difference_type;
@@ -413,10 +409,6 @@ public:
   typedef std::allocator<T> base;
 
   /// Standard STL allocator typedefs.
-  typedef typename base::pointer         pointer;
-  typedef typename base::const_pointer   const_pointer;
-  typedef typename base::reference       reference;
-  typedef typename base::const_reference const_reference;
   typedef typename base::value_type      value_type;
   typedef typename base::size_type       size_type;
   typedef typename base::difference_type difference_type;

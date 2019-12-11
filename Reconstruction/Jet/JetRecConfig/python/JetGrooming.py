@@ -126,7 +126,7 @@ class JetTrimming(GroomingDefinition):
         ptfrac = self.groomspec["PtFrac"]
         ptfracstr = int(ptfrac*100) # Not usually smaller than %
         smallR = self.groomspec["RClus"]
-        from JetDefinition import formatRvalue
+        from .JetDefinition import formatRvalue
         smallRstr = formatRvalue(smallR*10)
         
         groomstr = "TrimmedPtFrac{}SmallR{}".format(ptfracstr,smallRstr)

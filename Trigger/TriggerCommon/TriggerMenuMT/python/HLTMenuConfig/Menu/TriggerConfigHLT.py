@@ -110,3 +110,4 @@ if __name__ == "__main__": # selftest
             log.info("ok, unregistered chain handling works")
         else:
             log.error("unhandled missing chain")
+            

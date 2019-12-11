@@ -96,3 +96,36 @@ atlas_add_test( CaloTopoClusterConfig_test
                 SCRIPT python -m CaloRec.CaloTopoClusterConfig
                 PROPERTIES TIMEOUT 300
                 POST_EXEC_SCRIPT nopost.sh)
+
+
+atlas_add_test( CaloCellContainerAliasAlg_test
+                SCRIPT python -m CaloRec.CaloCellContainerAliasAlg_test
+                PROPERTIES TIMEOUT 300
+                EXTRA_PATTERNS "-s ERROR|error|WARNING [^U]|FATAL|processing" )
+
+
+atlas_add_test( CaloThinCellsBySamplingAlg_test
+                SCRIPT python -m CaloRec.CaloThinCellsBySamplingAlg_test
+                PROPERTIES TIMEOUT 300
+                EXTRA_PATTERNS "-s ERROR|error|WARNING [^U]|FATAL|processing" )
+
+
+atlas_add_test( CaloThinCellsByClusterAlg_test
+                SCRIPT python -m CaloRec.CaloThinCellsByClusterAlg_test
+                PROPERTIES TIMEOUT 300
+                EXTRA_PATTERNS "-s ERROR|error|WARNING [^U]|FATAL|processing" )
+
+
+atlas_add_test( CaloCellContainerAliasAlgConfig_test
+                SCRIPT python -m CaloRec.CaloCellContainerAliasAlgConfig
+                EXTRA_PATTERNS "-s ComponentAccumulator" )
+
+
+atlas_add_test( CaloThinCellsByClusterAlgConfig_test
+                SCRIPT python -m CaloRec.CaloThinCellsByClusterAlgConfig
+                EXTRA_PATTERNS "-s ComponentAccumulator" )
+
+
+atlas_add_test( CaloThinCellsBySamplingAlgConfig_test
+                SCRIPT python -m CaloRec.CaloThinCellsBySamplingAlgConfig
+                EXTRA_PATTERNS "-s ComponentAccumulator" )

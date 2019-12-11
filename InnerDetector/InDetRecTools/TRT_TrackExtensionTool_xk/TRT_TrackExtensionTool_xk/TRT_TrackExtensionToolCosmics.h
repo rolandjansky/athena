@@ -15,20 +15,22 @@
 #ifndef TRT_TrackExtensionToolCosmics_H
 #define TRT_TrackExtensionToolCosmics_H
 
-#include <vector>
+
 
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "InDetRecToolInterfaces/ITRT_TrackExtensionTool.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
-#include "TrkEventPrimitives/PropDirection.h"
 #include "TrkEventUtils/EventDataBase.h"
 
 #include "StoreGate/ReadHandleKey.h"
+#include <iosfwd>
+#include <vector>
 
 class MsgStream;
 class TRT_ID;
 class AtlasDetectorID;
+class PropDirection;
 
 namespace Trk{
 
@@ -62,8 +64,8 @@ namespace InDet {
       TRT_TrackExtensionToolCosmics
 	(const std::string&,const std::string&,const IInterface*);
       virtual ~TRT_TrackExtensionToolCosmics();
-      virtual StatusCode initialize();
-      virtual StatusCode finalize  ();
+      virtual StatusCode initialize() override;
+      virtual StatusCode finalize  () override;
 
       ///////////////////////////////////////////////////////////////////
       // Main methods for track extension to TRT
@@ -91,8 +93,8 @@ namespace InDet {
       // Print internal tool parameters and status
       ///////////////////////////////////////////////////////////////////
 
-      MsgStream&    dump(MsgStream&    out) const;
-      std::ostream& dump(std::ostream& out) const;
+      MsgStream&    dump(MsgStream&    out) const override;
+      std::ostream& dump(std::ostream& out) const override;
 
     protected:
       
@@ -113,7 +115,6 @@ namespace InDet {
       bool                             m_searchNeighbour; // Also search neighbouring detector elements?
       bool                             m_boundarycheck  ; // Do a boundary check in the extrapolation?
       std::string                      m_trtmanager     ; // Name of TRT det. manager 
-      //std::string                      m_trtname        ; // Name container with TRT clusters
 
       SG::ReadHandleKey<TRT_DriftCircleContainer> m_trtname {this,"TRT_ClustersContainer","TRT_DriftCircles","RHK to retrieve TRT_DriftCircles"};
 

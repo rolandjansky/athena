@@ -25,5 +25,5 @@ if __name__ == "__main__":
     ConfigFlags.lock()
 
     acc = TileGMCfg( ConfigFlags )
-    acc.store( open( "test.pkl", "w" ) )
+    acc.store( open( "test.pkl", "wb" ) )
     print("All OK")

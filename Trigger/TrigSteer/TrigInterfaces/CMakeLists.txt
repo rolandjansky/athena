@@ -43,19 +43,18 @@ atlas_add_test( Templates_test
                 test/Templates_test.cxx
                 INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
                 LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaMonitoringLib AthContainers AthLinks GaudiKernel TrigNavigationLib TrigSteeringEvent TrigStorageDefinitions TestTools AthenaKernel StoreGateLib SGtests xAODTrigger TrigTimeAlgsLib TrigInterfacesLib
-                EXTRA_PATTERNS ".*" )
+                POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( MonitoredAlgo_test
                 SOURCES
                 test/MonitoredAlgo_test.cxx
                 INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
                 LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaMonitoringLib AthContainers AthLinks GaudiKernel TrigNavigationLib TrigSteeringEvent TrigStorageDefinitions TestTools AthenaKernel StoreGateLib SGtests xAODTrigger TrigTimeAlgsLib TrigInterfacesLib
-                EXTRA_PATTERNS ".*" )
+                POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( HLTCheck_test
                 SOURCES
                 test/HLTCheck_test.cxx
                 INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
                 LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaMonitoringLib AthContainers AthLinks GaudiKernel TrigNavigationLib TrigSteeringEvent TrigStorageDefinitions TestTools AthenaKernel StoreGateLib SGtests xAODTrigger TrigTimeAlgsLib TrigInterfacesLib
-                EXTRA_PATTERNS ".*" )
-
+                POST_EXEC_SCRIPT nopost.sh )

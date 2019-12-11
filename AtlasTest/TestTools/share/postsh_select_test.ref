@@ -4,3 +4,5 @@ MyAlg                INFO Whitespace changes
 MyAlg            3 4 INFO Line with slot/event number
 MyAlg                INFO A line with XYZ marker
 MyAlg                INFO Line with package version MyPkg-00-00-00
+MySvc               ERROR An unrelated error message
+MySvc               FATAL An unrelated fatal message

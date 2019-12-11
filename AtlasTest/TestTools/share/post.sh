@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 #
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
@@ -8,14 +8,21 @@
 #
 # @author Scott Snyder <snyder@fnal.gov> - ATLAS Collaboration.
 # @author Paolo Calafiura <pcalafiura@lbl.gov> - ATLAS Collaboration.
+# @author Frank Winklmeier - ATLAS Collaboration.
 # **/
 
 usage() {
     cat <<EOF
-Syntax: post.sh TESTNAME [EXTRAPATTERNS] [-s PATTERNS]
+Syntax: post.sh TESTNAME [EXTRAPATTERNS] [-s REGEX] [-i REGEX]
     TESTNAME       name of unit test
-    EXTRAPATTERNS  additional regex patterns to exlude in diff
-    -s             use PATTERNS to select lines for diff
+    EXTRAPATTERNS  additional regex patterns to exlude in diff (deprecated, use -i)
+    -s             lines matching REGEX will be selected for the diff
+    -i             lines matching REGEX will be ignored for the diff
+    -h             help
+
+The select pattern is always extended to include common ERROR patterns.
+If both select and ignore are specified, the lines are first selected and
+then filtered by the ignore pattern. In all cases, a default ignore list is applied.
 EOF
 }
 
@@ -23,17 +30,35 @@ if [ "$#" -lt 1 ]; then
     usage
     exit 1
 fi
-
 test=$1
+shift
 
-# When used from cmake $2 and $3 will arrive as a single quoted argument, i.e. $2.
-# Concatenate them here so the same code works also from the command line.
-pat="$2 $3"
-if [[ "$pat" = "-s "* ]]; then
-    selectpatterns=`echo "$pat" | sed 's/-s\s*//' | sed 's/ $//'`
-else
-    extrapatterns="$2"
+# Backwards-compatible code for use with EXTRA_PATTERNS where the '-s' and
+# patterns arrived as one argument. This can be removed once EXTRA_PATTERNS
+# support has been removed in atlas_add_test.
+if [ "$#" -eq 1 ]; then
+    if [[ "$1" = "-s "* ]]; then
+        selectpatterns=`echo "$1" | sed 's/-s\s*//' | sed 's/ $//'`
+    else
+        ignorepatterns=$1
+    fi
+    shift
 fi
+
+while getopts ":s:i:h" opt; do
+    case $opt in
+        s)
+            selectpatterns=$OPTARG
+            ;;
+        i)
+            ignorepatterns=$OPTARG
+            ;;
+        h)
+            usage
+            exit 0
+            ;;
+    esac
+done
 
 #verbose="1"
 if [ "$POST_SH_NOCOLOR" = "" ]; then
@@ -52,6 +77,9 @@ if [ "$ATLAS_CTEST_PACKAGE" = "" ]; then
   ATLAS_CTEST_PACKAGE="__NOPACKAGE__"
 fi
 
+########################################## START ####################################################
+## Definition of default patterns
+
 # consider these name pairs identical in the diff
 read -d '' II <<EOF
 s/^StoreGateSvc_Impl VERBOSE/StoreGateSvc      VERBOSE/
@@ -67,6 +95,9 @@ s/([0-9][0-9]* ms total)/(xx ms total)/
 s/[[][0-9;]*m//g
 s/INFO set[(][)]/INFO set([])/  #py2 vs py3
 EOF
+
+# Patterns that cannot be ignored
+ERRORS="^ERROR | ERROR | FATAL "
 
 # ignore diff annotations
 PP='^---|^[[:digit:]]+[acd,][[:digit:]]+'
@@ -246,12 +277,21 @@ PP="$PP"'|filling address for'
 # MetaInputLoader addresses and SIDs
 PP="$PP"'|MetaInputLoader *INFO ( address|.*is still valid for|.*and sid)'
 
-if [ "$extrapatterns" != "" ]; then
- PP="$PP""|$extrapatterns"
+########################################### END #####################################################
+
+# Always use default ignore list
+if [ -n "$ignorepatterns" ]; then
+    ignorepatterns="$PP|$ignorepatterns"
+else
+    ignorepatterns=$PP
 fi
 
-if [ -z "$testStatus" ]
-   then
+# Make sure errors are not filtered
+if [ -n "$selectpatterns" ]; then
+    selectpatterns="$selectpatterns|$ERRORS"
+fi
+
+if [ -z "$testStatus" ]; then
    echo "$YELLOW post.sh> Warning: athena exit status is not available $RESET"
 else
    # check exit status
@@ -259,7 +299,7 @@ else
    if [ "$testStatus" = 0 ]
        then
        if [ "$verbose" != "" ]; then
-         echo "$GREEN post.sh> OK: ${test} exited normally. Output is in $joblog $RESET"
+         echo "$GREEN post.sh> OK: ${test} exited normally. Output is in `realpath $joblog` $RESET"
        fi
        reflog=../share/${test}.ref
 
@@ -285,14 +325,15 @@ else
            jobdiff=${joblog}-todiff
            refdiff=`basename ${reflog}`-todiff
 
-           # We either exclude or select lines for the diff
-           if [ -z "$selectpatterns" ]; then
-               sed -r "$II" $joblog | egrep -a -v "$PP" > $jobdiff
-               sed -r "$II" $reflog | egrep -a -v "$PP" > $refdiff
-           else
-               sed -r "$II" $joblog | egrep -a "$selectpatterns" > $jobdiff
-               sed -r "$II" $reflog | egrep -a "$selectpatterns" > $refdiff
-           fi
+           # Process/filter log and reference file
+           process() {
+               sed -r "$II" $1 |
+                   ( [[ "$selectpatterns" ]] && egrep -a "$selectpatterns" || tee ) |
+                   ( [[ "$ignorepatterns" ]] && egrep -av "$ignorepatterns" || tee ) > $2
+           }
+           process $joblog $jobdiff
+           process $reflog $refdiff
+
            diff -a -b -E -B -u $jobdiff $refdiff
            diffStatus=$?
            if [ $diffStatus != 0 ] ; then

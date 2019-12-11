@@ -6,6 +6,7 @@
 #define AFP_TDLocRecoEventCnv_p1_h
 
 #include "AFP_EventTPCnv/AFP_TDLocRecoEvent_p1.h"
+#include "AFP_LocRecoEv/AFP_TDLocRecoEvent.h"
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
  

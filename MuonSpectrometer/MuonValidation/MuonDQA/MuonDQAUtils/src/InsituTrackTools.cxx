@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -7,7 +7,8 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "MuonDQAUtils/InsituTrackTools.h"
-#include "EventKernel/INavigable4Momentum.h" 
+#include "EventKernel/INavigable4Momentum.h"
+#include <cmath>
 
 //================ Constructor =================================================
 namespace Muon {
@@ -76,7 +77,7 @@ namespace Muon {
     if (isCloseTrack(track1, track2)==true) return false;
 
     /// Invariant mass cut
-    if (fabs(getInvariantMass(track1, track2)-91187.6)>m_MaximalMassDifferenceToZBoson) return false;
+    if (std::fabs(getInvariantMass(track1, track2)-91187.6)>m_MaximalMassDifferenceToZBoson) return false;
 
     if ((isIsolatedTrack(track1)==true) && (isIsolatedTrack(track2)==true)) return true;
     return false;
@@ -141,10 +142,9 @@ namespace Muon {
 
   double InsituTrackTools::getDistance(const INavigable4Momentum *track1, const INavigable4Momentum *track2)
   {
-    double dphi = fabs(track1->phi()-track2->phi());
-    double pi = 3.14159265;
-    if (dphi>pi)	dphi = fabs(dphi-2.0*pi);
-    return sqrt(pow(track1->eta()-track2->eta(),2)+pow(dphi,2));
+    double dphi = std::fabs(track1->phi()-track2->phi());
+    if (dphi>M_PI)	dphi = std::fabs(dphi-2.0*M_PI);
+    return std::sqrt(std::pow(track1->eta()-track2->eta(),2)+std::pow(dphi,2));
   }
 
   bool	InsituTrackTools::getTrackIsolation(const INavigable4Momentum *trackParticle, float &PtIsolation, int &NIsolation)
@@ -173,7 +173,7 @@ namespace Muon {
 	id_eta = (*trackItr)->eta();
 	id_phi = (*trackItr)->phi();
 		
-	dr = sqrt(pow(id_eta-track_eta,2)+pow(id_phi-track_phi,2));
+	dr = std::sqrt(std::pow(id_eta-track_eta,2)+std::pow(id_phi-track_phi,2));
 	if ((0.01<dr) && (dr<0.4))
 	  {
 	    NIsolation++;
@@ -231,7 +231,7 @@ namespace Muon {
 	jet_eta = (*jetItr)->eta();
 	jet_phi = (*jetItr)->phi();
 		
-	dr = sqrt(pow(jet_eta-track_eta,2)+pow(jet_phi-track_phi,2));
+	dr = std::sqrt(std::pow(jet_eta-track_eta,2)+std::pow(jet_phi-track_phi,2));
 	if ((0.01<dr) && (dr<0.4)) jet_energy+=(*jetItr)->pt();
       }
 	

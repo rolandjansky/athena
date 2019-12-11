@@ -1,16 +1,13 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAVALIDATION_RECOPHOTONHISTOGRAMS_H
 #define EGAMMAVALIDATION_RECOPHOTONHISTOGRAMS_H
 
-#include "xAODEgamma/Photon.h"
-#include "xAODEgamma/PhotonContainer.h"
-
+#include "xAODEgamma/Photon.h" //typedef
 #include "ParticleHistograms.h"
-
-#include "TH1.h"
+class StatusCode;
 
 namespace egammaMonitoring {
 

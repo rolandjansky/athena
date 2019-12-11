@@ -18,10 +18,8 @@
 #define TRT_TrackSegmentsMaker_ECcosmics_H
 
 #include <list>
-#include <map>
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-
 
 #include "InDetRecToolInterfaces/ITRT_TrackSegmentsMaker.h"
 
@@ -30,6 +28,7 @@
 #include "TrkEventUtils/EventDataBase.h"
 
 #include "CxxUtils/checker_macros.h"
+#include <iosfwd>
 
 class MsgStream;
 
@@ -108,8 +107,8 @@ namespace InDet{
       // Print internal tool parameters and status
       ///////////////////////////////////////////////////////////////////
 
-      MsgStream&    dump          (MsgStream   & out) const;
-      std::ostream& dump          (std::ostream& out) const;
+      MsgStream&    dump          (MsgStream   & out) const override;
+      std::ostream& dump          (std::ostream& out) const override;
 
     protected:
       class EventData;
@@ -167,7 +166,6 @@ namespace InDet{
       std::string                              m_multiTruthCollectionTRTName; //!< Name of TRT TruthCollection
       bool                                     m_phaseMode   ; //!< Switch to destinguish between phase calculation and full reco
       std::string                              m_ntrtmanager ; //!< Name of TRT det. manager 
-      const InDetDD::TRT_DetectorManager*      m_trtmanager  ; //!< TRT DetectorManager
       const TRT_ID*                            m_trtid       ; 
 
       SG::ReadHandleKey<InDet::TRT_DriftCircleContainer> m_trtname{this,"TRT_ClustersContainer","TRT_DriftCircles","RHK to retrieve TRT_DriftCircles"}; //!< TRTs   container 

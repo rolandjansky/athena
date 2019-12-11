@@ -506,17 +506,17 @@ bool InDet::SiCombinatorialTrackFinder_xk::findTrack
 
   // Retrieve cached pointers to SG collections, or create the cache
   //
-  const InDet::PixelClusterContainer* p_pixcontainer = data.pixcontainer;
+  const InDet::PixelClusterContainer* p_pixcontainer = data.pixContainer();
   if (m_usePIX && !p_pixcontainer) {
     SG::ReadHandle<InDet::PixelClusterContainer> pixcontainer(m_pixcontainerkey);
     p_pixcontainer = pixcontainer.ptr();
-    data.pixcontainer = p_pixcontainer;
+    data.setPixContainer(p_pixcontainer);
   }
-  const InDet::SCT_ClusterContainer* p_sctcontainer = data.sctcontainer;
+  const InDet::SCT_ClusterContainer* p_sctcontainer = data.sctContainer();
   if (m_useSCT && !p_sctcontainer) {
     SG::ReadHandle<InDet::SCT_ClusterContainer> sctcontainer(m_sctcontainerkey);
     p_sctcontainer = sctcontainer.ptr();
-    data.sctcontainer = p_sctcontainer;
+    data.setSctContainer(p_sctcontainer);
   }
 
   // List cluster preparation

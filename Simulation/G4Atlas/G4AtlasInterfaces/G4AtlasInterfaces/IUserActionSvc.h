@@ -9,6 +9,9 @@
 // Framework includes
 #include "GaudiKernel/IService.h"
 
+#include <vector>
+#include "G4UserSteppingAction.hh"
+
 namespace G4UA
 {
 
@@ -24,6 +27,9 @@ namespace G4UA
 
     /// @brief Initialize all the user actions for the current thread.
     virtual StatusCode initializeActions() = 0;
+
+    // For ISF, get UserActions that could have stored secondary particles
+    virtual StatusCode getSecondaryActions( std::vector< G4UserSteppingAction* >& actions ) = 0;
 
     /// Creates the InterfaceID and interfaceID() method
     DeclareInterfaceID(G4UA::IUserActionSvc, 1, 0);

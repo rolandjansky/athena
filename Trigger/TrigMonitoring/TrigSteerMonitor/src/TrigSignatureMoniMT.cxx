@@ -70,11 +70,10 @@ StatusCode TrigSignatureMoniMT::start() {
   std::string outputName ("Rate" + std::to_string(m_duration) + "s");
   std::unique_ptr<TH2> hSA = std::make_unique<TH2I>("SignatureAcceptance", "Raw acceptance of signatures in;chain;step", x, 1, x + 1, y, 1, y + 1);
   std::unique_ptr<TH2> hDC = std::make_unique<TH2I>("DecisionCount", "Positive decisions count per step;chain;step", x, 1, x + 1, y, 1, y + 1);
-  std::unique_ptr<TH2> hR = std::make_unique<TH2F>(outputName.c_str(), "Rate of positive decisions", x, 1, x + 1, yr, 1, yr + 1);
+  std::unique_ptr<TH2> hR = std::make_unique<TH2F>(outputName.c_str(), "Rate of positive decisions;chain;step", x, 1, x + 1, yr, 1, yr + 1);
   std::unique_ptr<TH2> hRB = std::make_unique<TH2I>("RateCountBuffer", "Rate of positive decisions buffer", x, 1, x + 1, yr, 1, yr + 1);
-  std::unique_ptr<TH2> hBG = std::make_unique<TH2I>("BunchGroupCount", "Bunch group count per chain", xb, 1, xb + 1, yb, 1, yb + 1);
+  std::unique_ptr<TH2> hBG = std::make_unique<TH2I>("BunchGroupCount", "Bunch group count per chain;chain;bunchgroup", xb, 1, xb + 1, yb, 1, yb + 1);
   
-
   ATH_CHECK( initHist( hSA, hltMenuHandle ) );
   ATH_CHECK( initHist( hDC, hltMenuHandle ) );
   ATH_CHECK( initHist( hR, hltMenuHandle, false ) );
@@ -156,7 +155,7 @@ StatusCode TrigSignatureMoniMT::stop() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigSignatureMoniMT::fillPassEvents(const TrigCompositeUtils::DecisionIDContainer& dc, int row, LockedHandle<TH2>& histogram) const {
+StatusCode TrigSignatureMoniMT::fillHistogram(const TrigCompositeUtils::DecisionIDContainer& dc, int row, LockedHandle<TH2>& histogram) const {
   for ( auto id : dc )  {
     auto id2bin = m_chainIDToBinMap.find( id );
     if ( id2bin == m_chainIDToBinMap.end() && HLT::Identifier(id).name().find("leg") != 0 ) {
@@ -166,6 +165,14 @@ StatusCode TrigSignatureMoniMT::fillPassEvents(const TrigCompositeUtils::Decisio
     }
   }
   return StatusCode::SUCCESS;
+}
+
+StatusCode TrigSignatureMoniMT::fillRate(const TrigCompositeUtils::DecisionIDContainer& dc, int row) const {
+  return fillHistogram(dc, row, m_rateBufferHistogram);
+}
+
+StatusCode TrigSignatureMoniMT::fillPassEvents(const TrigCompositeUtils::DecisionIDContainer& dc, int row) const {
+  return fillHistogram(dc, row, m_passHistogram);
 }
 
 StatusCode TrigSignatureMoniMT::fillDecisionCount(const std::vector<TrigCompositeUtils::DecisionID>& dc, int row) const {
@@ -191,10 +198,6 @@ StatusCode TrigSignatureMoniMT::fillBunchGroups(const TrigCompositeUtils::Decisi
     }
   }
   return StatusCode::SUCCESS;
-}
-
-StatusCode TrigSignatureMoniMT::fillRate(const TrigCompositeUtils::DecisionIDContainer& dc, int row) const {
-  return fillPassEvents(dc, row, m_rateBufferHistogram); 
 }
 
 StatusCode TrigSignatureMoniMT::fillStreamsAndGroups(const std::map<std::string, TrigCompositeUtils::DecisionIDContainer>& map, const TrigCompositeUtils::DecisionIDContainer& dc) const {
@@ -272,7 +275,7 @@ StatusCode TrigSignatureMoniMT::execute( const EventContext& context ) const {
     TrigCompositeUtils::DecisionIDContainer ids;    
     TrigCompositeUtils::decisionIDs( l1Decisions->at( index ), ids );
     ATH_MSG_DEBUG( "L1 " << index << " N positive decisions " << ids.size()  );
-    ATH_CHECK( fillPassEvents( ids, index + 1, m_passHistogram ));
+    ATH_CHECK( fillPassEvents( ids, index + 1 ));
     ATH_CHECK( fillRate( ids, index + 1) );
     if ( not ids.empty() ){
       m_passHistogram->Fill( 1, double(index + 1) );
@@ -290,7 +293,7 @@ StatusCode TrigSignatureMoniMT::execute( const EventContext& context ) const {
     ctool->getDecisions( stepSum );
     ATH_MSG_DEBUG( " Step " << step << " decisions " << stepSum.size() );
     TrigCompositeUtils::DecisionIDContainer stepUniqueSum( stepSum.begin(), stepSum.end() );
-    ATH_CHECK( fillPassEvents( stepUniqueSum, 3+step, m_passHistogram ) );
+    ATH_CHECK( fillPassEvents( stepUniqueSum, 3+step ) );
     ATH_CHECK( fillDecisionCount( stepSum, 3+step ) );
     ++step;
   }
@@ -309,7 +312,7 @@ StatusCode TrigSignatureMoniMT::execute( const EventContext& context ) const {
   
   ATH_CHECK( fillStreamsAndGroups( m_streamToChainMap, finalIDs ) );
   ATH_CHECK( fillStreamsAndGroups( m_groupToChainMap, finalIDs ) );
-  ATH_CHECK( fillPassEvents( finalIDs, row, m_passHistogram ) );
+  ATH_CHECK( fillPassEvents( finalIDs, row ) );
   ATH_CHECK( fillRate( finalIDs, rateRow ) );
   ATH_CHECK( fillBunchGroups( finalIDs ) );
 

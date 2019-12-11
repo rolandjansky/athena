@@ -48,38 +48,38 @@ atlas_install_scripts( test/*.sh test/ref.* test/*.py )
 
 atlas_add_test( test_athena_ntuple_dumper_multiple
                 SCRIPT test/test_athena_ntuple_dumper_multiple.sh
-                EXTRA_PATTERNS ".*"
+                POST_EXEC_SCRIPT nopost.sh
                 PROPERTIES TIMEOUT 600 )
 
 
 atlas_add_test( test_athena_ntuple_dumper_varhandles_nooutput
                 SCRIPT test/test_athena_ntuple_dumper_varhandles_nooutput.sh
-                EXTRA_PATTERNS ".*"
+                POST_EXEC_SCRIPT nopost.sh
                 PROPERTIES TIMEOUT 600 )
 
 atlas_add_test( test_athena_ntuple_dumper_varhandles
                 SCRIPT test/test_athena_ntuple_dumper_varhandles.sh
-                EXTRA_PATTERNS ".*"
+                POST_EXEC_SCRIPT nopost.sh
                 PROPERTIES TIMEOUT 600 )
 
 atlas_add_test( test_athena_ntuple_dumper_novarhandles
                 SCRIPT test/test_athena_ntuple_dumper_novarhandles.sh
-                EXTRA_PATTERNS ".*"
+                POST_EXEC_SCRIPT nopost.sh
                 PROPERTIES TIMEOUT 600 )
 
 atlas_add_test( test_athena_variable_shape1
                 SCRIPT test/test_athena_variable_shape1.sh
-                EXTRA_PATTERNS ".*"
+                POST_EXEC_SCRIPT nopost.sh
                 PROPERTIES TIMEOUT 600 )
 
 atlas_add_test( test_athena_variable_shape2
                 SCRIPT test/test_athena_variable_shape2.sh
-                EXTRA_PATTERNS ".*"
+                POST_EXEC_SCRIPT nopost.sh
                 PROPERTIES TIMEOUT 600 )
 
 atlas_add_test( test_athena_variable_shape3
                 SCRIPT test/test_athena_variable_shape3.sh
-                EXTRA_PATTERNS ".*"
+                POST_EXEC_SCRIPT nopost.sh
                 PROPERTIES TIMEOUT 600 )
 
 configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/test/test_athena_variable_shape_merged.sh.in
@@ -87,7 +87,7 @@ configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/test/test_athena_variable_shape_merg
                 @ONLY )
 atlas_add_test( test_athena_variable_shape_merged
                 SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/test_athena_variable_shape_merged_script.sh
-                EXTRA_PATTERNS ".*"
+                POST_EXEC_SCRIPT nopost.sh
                 PROPERTIES TIMEOUT 600 )
 set_tests_properties( AthenaRootComps_test_athena_variable_shape_merged_ctest
                       PROPERTIES DEPENDS
@@ -95,11 +95,11 @@ set_tests_properties( AthenaRootComps_test_athena_variable_shape_merged_ctest
                     
 atlas_add_test( test_athena_multtuple
                 SCRIPT test/test_athena_multtuple.sh
-                EXTRA_PATTERNS ".*"
+                POST_EXEC_SCRIPT nopost.sh
                 PROPERTIES TIMEOUT 600 )
                     
 atlas_add_test( test_athena_multtuple_seek
                 SCRIPT test/test_athena_multtuple_seek.sh
-                EXTRA_PATTERNS ".*"
+                POST_EXEC_SCRIPT nopost.sh
                 PROPERTIES TIMEOUT 600 )
 

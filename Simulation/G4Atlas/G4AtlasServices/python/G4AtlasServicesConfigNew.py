@@ -18,7 +18,6 @@ def getATLAS_RegionCreatorList(ConfigFlags):
     isUpgrade = ConfigFlags.GeoModel.Run =="RUN4"
     isRUN2 = (ConfigFlags.GeoModel.Run in ["RUN2", "RUN3"]) or (ConfigFlags.GeoModel.Run=="UNDEFINED" and ConfigFlags.GeoModel.IBLLayout not in ["noIBL", "UNDEFINED"])
 
-    from G4AtlasApps.SimFlags import simFlags
     if ConfigFlags.Beam.Type == 'cosmics' or ConfigFlags.Sim.CavernBG != 'Signal':
         regionCreatorList += [SX1PhysicsRegionToolCfg(ConfigFlags), BedrockPhysicsRegionToolCfg(ConfigFlags), CavernShaftsConcretePhysicsRegionToolCfg(ConfigFlags)]
         #regionCreatorList += ['CavernShaftsAirPhysicsRegionTool'] # Not used currently
@@ -41,15 +40,16 @@ def getATLAS_RegionCreatorList(ConfigFlags):
                 regionCreatorList += [FWDBeamLinePhysicsRegionToolCfg(ConfigFlags)]
     if ConfigFlags.Detector.SimulateCalo:
         if ConfigFlags.Detector.GeometryLAr:
-            ## Shower parameterization overrides the calibration hit flag
-            if simFlags.LArParameterization.statusOn and simFlags.LArParameterization() > 0 \
-                    and ConfigFlags.Sim.CalibrationRun in ['LAr','LAr+Tile','DeadLAr']:
-                print('You requested both calibration hits and frozen showers / parameterization in the LAr.')
-                print('  Such a configuration is not allowed, and would give junk calibration hits where the showers are modified.')
-                print('  Please try again with a different value of either simFlags.LArParameterization (' + str(simFlags.LArParameterization()) + ') or simFlags.CalibrationRun ('+str(ConfigFlags.Sim.CalibrationRun)+')')
-                raise RuntimeError('Configuration not allowed')
-
+            pass
             #TODO - migrate below>>
+            ## Shower parameterization overrides the calibration hit flag
+            #if simFlags.LArParameterization.statusOn and simFlags.LArParameterization() > 0 \
+            #        and ConfigFlags.Sim.CalibrationRun in ['LAr','LAr+Tile','DeadLAr']:
+            #    print('You requested both calibration hits and frozen showers / parameterization in the LAr.')
+            #    print('  Such a configuration is not allowed, and would give junk calibration hits where the showers are modified.')
+            #    print('  Please try again with a different value of either simFlags.LArParameterization (' + str(simFlags.LArParameterization()) + ') or simFlags.CalibrationRun ('+str(ConfigFlags.Sim.CalibrationRun)+')')
+            #    raise RuntimeError('Configuration not allowed')
+
             #if simFlags.LArParameterization() > 0:
             #    regionCreatorList += [EMBPhysicsRegionTool(ConfigFlags), EMECPhysicsRegionTool(ConfigFlags),
             #                          HECPhysicsRegionTool(ConfigFlags), FCALPhysicsRegionTool(ConfigFlags)]

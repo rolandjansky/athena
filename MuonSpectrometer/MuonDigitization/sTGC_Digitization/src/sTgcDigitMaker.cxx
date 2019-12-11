@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -39,7 +39,7 @@
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 #include "TF1.h" 
-#include "TMath.h"
+#include <cmath>
 
 //---------------------------------------------------
 //  Constructor and Destructor
@@ -209,8 +209,8 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const sTGCSimHit* hit, const fl
   Trk::LocalDirection LocDirection;
   SURF_STRIP.globalToLocalDirection(GLODIRE, LocDirection);
 
-  float inAngle_space = fabs( LocDirection.angleXZ() / CLHEP::degree);
-  float inAngle_time = fabs( LocDirection.angleYZ() / CLHEP::degree);
+  float inAngle_space = std::fabs( LocDirection.angleXZ() / CLHEP::degree);
+  float inAngle_time = std::fabs( LocDirection.angleYZ() / CLHEP::degree);
 
   if(inAngle_time > 90)  inAngle_time  = inAngle_time  -90.; 
   if(inAngle_space > 90) inAngle_space = inAngle_space -90.; 
@@ -292,7 +292,7 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const sTGCSimHit* hit, const fl
   //************************************ spread charge among readout element ************************************** 
   //spread charge to a gaussian distribution
   float charge_width = CLHEP::RandGauss::shoot(m_engine, m_GausMean, m_GausSigma);
-  float norm = 1000. * energyDeposit/(charge_width*TMath::Sqrt(2.*TMath::Pi())); //normalization: 1Kev --> Intergral=1
+  float norm = 1000. * energyDeposit/(charge_width*std::sqrt(2.*M_PI)); //normalization: 1Kev --> Intergral=1
   TF1 *charge_spread = new TF1("fgaus", "gaus(0)", -1000., 1000.); 
   charge_spread->SetParameters(norm, posOnSurf_strip.x(), charge_width);
   
@@ -300,7 +300,7 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const sTGCSimHit* hit, const fl
   double tan_theta = GLODIRE.perp()/GLODIRE.z();
   // The angle dependance on strip resolution goes as tan^2(angle)
   // We add the resolution in quadrature following sTGC test beam papers
-  m_ChargeSpreadFactor = m_StripResolution*sqrt(1+12.*tan_theta*tan_theta);
+  m_ChargeSpreadFactor = m_StripResolution*std::sqrt(1+12.*tan_theta*tan_theta);
 
   int stripnum = -1;
   for(int neighbor=0; neighbor<=3; neighbor++){  // spread the charge to 7 strips for the current algorithm
@@ -323,11 +323,11 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const sTGCSimHit* hit, const fl
           for(int crosstalk=1; crosstalk<=3; crosstalk++){ // up to the third nearest neighbors
             if((stripnum-crosstalk)>=1&&(stripnum-crosstalk)<=NumberOfStrips){
               newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum-crosstalk, true, &isValid);
-              if(isValid) addDigit(newId, bctag, sDigitTimeStrip, charge*TMath::Power(m_CrossTalk, crosstalk), channelType);
+              if(isValid) addDigit(newId, bctag, sDigitTimeStrip, charge*std::pow(m_CrossTalk, crosstalk), channelType);
             }
             if((stripnum+crosstalk)>=1&&(stripnum+crosstalk)<=NumberOfStrips){
               newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum+crosstalk, true, &isValid);
-              if(isValid) addDigit(newId, bctag, sDigitTimeStrip, charge*TMath::Power(m_CrossTalk, crosstalk), channelType);
+              if(isValid) addDigit(newId, bctag, sDigitTimeStrip, charge*std::pow(m_CrossTalk, crosstalk), channelType);
             }
           }// end of introduce cross talk
       } // end isValid
@@ -353,11 +353,11 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const sTGCSimHit* hit, const fl
           for(int crosstalk=1; crosstalk<=3; crosstalk++){ // up to the third nearest neighbors
             if((stripnum-crosstalk)>=1&&(stripnum-crosstalk)<=NumberOfStrips){
              newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum-crosstalk, true, &isValid);
-             if(isValid) addDigit(newId, bctag, sDigitTimeStrip, charge*TMath::Power(m_CrossTalk, crosstalk), channelType);
+             if(isValid) addDigit(newId, bctag, sDigitTimeStrip, charge*std::pow(m_CrossTalk, crosstalk), channelType);
             }
             if((stripnum+crosstalk)>=1&&(stripnum+crosstalk)<=NumberOfStrips){
               newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum+crosstalk, true, &isValid);
-              if(isValid) addDigit(newId, bctag, sDigitTimeStrip, charge*TMath::Power(m_CrossTalk, crosstalk), channelType);
+              if(isValid) addDigit(newId, bctag, sDigitTimeStrip, charge*std::pow(m_CrossTalk, crosstalk), channelType);
             }
           }// end of introduce cross talk
       } // end isValid
