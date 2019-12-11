@@ -171,10 +171,8 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
 
      // add punch-through particles to the ISF particle broker
      if (isfpVec) {
-       ISF::ISFParticleContainer::const_iterator partIt    = isfpVec->begin();
-       ISF::ISFParticleContainer::const_iterator partItEnd = isfpVec->end();
-       for ( ; partIt!=partItEnd; ++partIt) {
-         m_particleBroker->push( *partIt, &isfp);
+       for (ISF::ISFParticle *particle : *isfpVec) {
+         m_particleBroker->push( particle, &isfp);
        }
      }
    }

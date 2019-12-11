@@ -8,12 +8,6 @@
 // ISF includes
 #include "ISF_Interfaces/BaseSimulationSvc.h"
 
-// Framework includes
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/IChronoStatSvc.h"
-#include "AthenaBaseComps/AthService.h"
-
 // FastCaloSim includes
 #include "IFastCaloSimParamSvc.h"
 #include "ISF_FastCaloSimParametrization/IFastCaloSimCaloExtrapolation.h"
