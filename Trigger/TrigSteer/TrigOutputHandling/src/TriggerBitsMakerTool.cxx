@@ -177,6 +177,10 @@ StatusCode TriggerBitsMakerTool::setBit(const TrigCompositeUtils::DecisionID cha
   const BitCategory category,
   boost::dynamic_bitset<uint32_t>& resultToFill) const
 {
+  // FP TMP chain ID manipulation for leg Identifiers/ to be checked by Tim
+  if (TrigCompositeUtils::isLegId(HLT::Identifier(chain)) )
+    return StatusCode::SUCCESS;
+
   auto mappingIter = m_mapping.find( chain );
   // each chain has to have the counter
   if( mappingIter == m_mapping.end() ) {

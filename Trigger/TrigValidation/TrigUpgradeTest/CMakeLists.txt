@@ -50,7 +50,7 @@ function( _add_test name )
 endfunction( _add_test )
 
 
-_add_test( emu_step_processing EXTRA_PATTERNS "-s TrigSignatureMoniMT.*INFO HLT_.*|TriggerSummaryStep.* chains passed:|TriggerSummaryStep.*+++ HLT_.*") # should be moved to TriggerMenuMT
+_add_test( emu_step_processing EXTRA_PATTERNS "-s TrigSignatureMoniMT.*INFO HLT_.*|TriggerSummaryStep.* chains passed:|TriggerSummaryStep.*+++ HLT_.*|TriggerSummaryStep.*+++ leg.*") # should be moved to TriggerMenuMT
 
 # Unit tests of the test scripts
 atlas_add_test( flake8_test_dir
