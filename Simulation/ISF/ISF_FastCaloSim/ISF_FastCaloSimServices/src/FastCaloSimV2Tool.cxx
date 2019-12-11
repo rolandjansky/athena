@@ -13,6 +13,8 @@
 #include "ISF_FastCaloSimEvent/TFCSExtrapolationState.h"
 #include "ISF_FastCaloSimParametrization/CaloGeometryFromCaloDDM.h"
 
+#include "AthenaKernel/RNGWrapper.h"
+
 //!
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "IdDictParser/IdDictParser.h"
@@ -54,12 +56,7 @@ StatusCode ISF::FastCaloSimV2Tool::initialize()
   ATH_MSG_DEBUG( "Successfully retrieve CaloCellMakerTools: " << m_caloCellMakerToolsSetup );
   ATH_CHECK( m_caloCellMakerToolsRelease.retrieve() );
 
-  ATH_CHECK(m_rndGenSvc.retrieve());
-  m_randomEngine = m_rndGenSvc->GetEngine( m_randomEngineName);
-  if (!m_randomEngine) {
-    ATH_MSG_ERROR("Could not get random number engine from RandomNumberService. Abort.");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_rndmGenSvc.retrieve());
 
   ATH_CHECK(m_paramSvc.retrieve());
 
@@ -95,6 +92,11 @@ StatusCode ISF::FastCaloSimV2Tool::setupEvent()
 StatusCode ISF::FastCaloSimV2Tool::commonSetup()
 {
   const EventContext& ctx = Gaudi::Hive::currentContext();
+  // Set the RNG to use for this event. We need to reset it for MT jobs
+  // because of the mismatch between Gaudi slot-local and G4 thread-local RNG.
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this);
+  rngWrapper->setSeed( m_randomEngineName, Gaudi::Hive::currentContext() );
+
   for (const ToolHandle<ICaloCellMakerTool>& tool : m_caloCellMakerToolsSetup)
     {
       std::string chronoName=this->name()+"_"+ tool.name();
@@ -185,7 +187,8 @@ StatusCode ISF::FastCaloSimV2Tool::simulate(const ISF::ISFParticle& isfp, ISFPar
 
   TFCSExtrapolationState extrapol;
   m_FastCaloSimCaloExtrapolation->extrapolate(extrapol,&truth);
-  TFCSSimulationState simulstate(m_randomEngine);
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this);
+  TFCSSimulationState simulstate(*rngWrapper);
 
   ATH_MSG_DEBUG(" particle: " << isfp.pdgCode() << " Ekin: " << isfp.ekin() << " position eta: " << particle_position.eta() << " direction eta: " << particle_direction.eta() << " position phi: " << particle_position.phi() << " direction phi: " << particle_direction.phi());
 

@@ -14,7 +14,7 @@
 
 #include "CaloInterface/ICaloCellMakerTool.h"
 
-#include "AthenaKernel/IAtRndmGenSvc.h" /// TODO: Update to thread-safe version
+#include "AthenaKernel/IAthRNGSvc.h"
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "CaloIdentifier/LArEM_ID.h"
@@ -75,8 +75,7 @@ namespace ISF {
     CaloCellContainer*        m_theContainer{};
     SG::WriteHandleKey< CaloCellContainer > m_caloCellKey{ this, "CaloCells", "DefaultCaloCellContainer", "The name of the output CaloCellContainer" };
 
-    ServiceHandle<IAtRndmGenSvc>    m_rndGenSvc{this, "RandomSvc", "AtRndmGenSvc"};
-    CLHEP::HepRandomEngine*         m_randomEngine{};
+    ServiceHandle<IAthRNGSvc> m_rndmGenSvc{this, "RandomSvc", "AthRNGSvc", ""};
     Gaudi::Property<std::string>    m_randomEngineName{this, "RandomStream", ""};
     Gaudi::Property<std::string>    m_caloCellsOutputName{this, "CaloCellsOutputName", "AllCalo"};
   };
