@@ -45,7 +45,7 @@ namespace InDetDD {
     std::string phiDelta() const {return m_phiDelta;}
     std::string phiStep() const {return m_phiStep;}
     std::string radialDiv() const {return m_radialDiv;}
-    std::string volId() const {return m_volId;}
+
     
     void set_rmin        (const std::string & s) {m_rmin = s;}
     void set_rmax        (const std::string & s) {m_rmax = s;}
@@ -64,10 +64,8 @@ namespace InDetDD {
     void set_phiDelta    (const std::string & s) {m_phiDelta = s;}
     void set_phiStep     (const std::string & s) {m_phiStep = s;}
     void set_radialDiv   (const std::string & s) {m_radialDiv = s;}
-    void set_volId       (const std::string & s) {m_volId = s;}
     
     bool simple() const {return m_rmin2.empty();}
-    bool has_volId() const {return !m_volId.empty();}
     bool has_shapeType() const {return !m_shapeType.empty();}
     bool has_width() const {return !m_width.empty();}
     bool has_radial() const {return !m_radialDiv.empty();}
@@ -91,7 +89,6 @@ namespace InDetDD {
     std::string m_phiDelta;
     std::string m_phiStep;
     std::string m_radialDiv;
-    std::string m_volId;
   };
 
   class SimpleServiceVolumeMakerMgr : public GeoXMLUtils, public PixelGeoBuilder {
@@ -114,7 +111,6 @@ namespace InDetDD {
     bool   zsymm(int index) const;
     int    repeat(int index) const;
     int    radialDiv(int index) const;
-    int    volId(int index) const;
     std::string shapeType(int index) const;
     std::string volName(int index) const;
     std::string materialName(int index) const;
