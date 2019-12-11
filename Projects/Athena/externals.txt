@@ -9,4 +9,4 @@
 AthenaExternalsVersion = 2.0.48
 
 # The version of atlas/Gaudi to use:
-GaudiVersion = v32r2.003
+GaudiVersion = v32r2.004

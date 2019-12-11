@@ -258,7 +258,7 @@ bool TrigMonTHistSvc::isObjectAllowed(const std::string& path, const TObject* o)
   return true;
 }
 
-bool TrigMonTHistSvc::exists(const std::string& name) const
+bool TrigMonTHistSvc::existsHist(const std::string& name) const
 {
   return (getHist_i<TH1>(name, 0, true) != nullptr);
 }

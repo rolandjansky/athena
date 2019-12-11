@@ -116,9 +116,8 @@ TEfficiency* HistogramFactory::createEfficiency(const HistogramDef& def) {
 
   // Check if efficiency exists already
   TEfficiency* e = nullptr;
-  if ( m_histSvc->exists(fullName) ) {
-    TGraph* g = reinterpret_cast<TGraph*>(e);
-    if ( !m_histSvc->getGraph(fullName,g) ) {
+  if ( m_histSvc->existsEfficiency(fullName) ) {
+    if ( !m_histSvc->getEfficiency(fullName,e) ) {
       throw HistogramException("Histogram >"+ fullName + "< seems to exist but can not be obtained from THistSvc");
     }
     return e;
@@ -126,9 +125,8 @@ TEfficiency* HistogramFactory::createEfficiency(const HistogramDef& def) {
 
   // Otherwise, create the efficiency and register it
   e = new TEfficiency(def.alias.c_str(),def.title.c_str(),def.xbins,def.xmin,def.xmax);
-  TGraph* g = reinterpret_cast<TGraph*>(e);
   e->SetDirectory(gROOT);
-  if ( !m_histSvc->regGraph(fullName,g) ) {
+  if ( !m_histSvc->regEfficiency(fullName,e) ) {
     delete e;
     throw HistogramException("Histogram >"+ fullName + "< can not be registered in THistSvc");
   }
