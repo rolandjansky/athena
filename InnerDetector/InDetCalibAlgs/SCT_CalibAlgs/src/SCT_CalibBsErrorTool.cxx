@@ -119,22 +119,18 @@ SCT_CalibBsErrorTool::fill(const bool fromData) {
 
 bool
 SCT_CalibBsErrorTool::fillFromData() {
-   bool result{true};
-   //--- Number of event
-   m_numberOfEventsHisto->Fill( 1 );
-   //--- Loop over BSErrors
-   for (int type{0}; type < SCT_ByteStreamErrors::NUM_ERROR_TYPES; ++type) {
-      const std::set<IdentifierHash>* errorSet{m_bytestreamErrorsTool->getErrorSet(type)};
-      if ( errorSet != 0 ) {
-         std::set<IdentifierHash>::const_iterator it{errorSet->begin()};
-         std::set<IdentifierHash>::const_iterator itE{errorSet->end()};
-         for ( ; it != itE; ++it ) {
-            Identifier waferId{m_pSCTHelper->wafer_id(*it)};
-            fillBsErrorsForWafer(waferId, type);
-         }
-      }
-   }
-   return result;
+  bool result{true};
+  //--- Number of event
+  m_numberOfEventsHisto->Fill( 1 );
+  //--- Loop over BSErrors
+  for (int type = 0; type < SCT_ByteStreamErrors::NUM_ERROR_TYPES; ++type) {
+    const std::set<IdentifierHash> errorSet{m_bytestreamErrorsTool->getErrorSet(type)};
+    for(const auto& idHash : errorSet) {
+      Identifier waferId{m_pSCTHelper->wafer_id(idHash)};
+      fillBsErrorsForWafer(waferId, type);
+    }
+  }
+  return result;
 }
 
 void
