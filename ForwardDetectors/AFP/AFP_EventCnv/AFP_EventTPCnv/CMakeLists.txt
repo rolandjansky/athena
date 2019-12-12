@@ -34,3 +34,68 @@ atlas_add_dictionary( AFP_EventTPCnvDict
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                       LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib AthenaPoolUtilities AFP_DigiEv AFP_LocRecoEv AFP_SimEv AFP_RawEv Identifier GaudiKernel AFP_EventTPCnv )
 
+
+atlas_add_test( AFP_RawDataCnv_p1_test
+                SOURCES
+                test/AFP_RawDataCnv_p1_test.cxx
+                LINK_LIBRARIES AFP_EventTPCnv )
+
+
+atlas_add_test( AFP_RawDataCollectionCnv_p1_test
+                SOURCES
+                test/AFP_RawDataCollectionCnv_p1_test.cxx
+                LINK_LIBRARIES AFP_EventTPCnv )
+
+
+atlas_add_test( AFP_RawDataContainerCnv_p1_test
+                SOURCES
+                test/AFP_RawDataContainerCnv_p1_test.cxx
+                LINK_LIBRARIES AFP_EventTPCnv )
+
+
+atlas_add_test( AFP_SiDigiCnv_p1_test
+                SOURCES
+                test/AFP_SiDigiCnv_p1_test.cxx
+                LINK_LIBRARIES AFP_EventTPCnv )
+
+
+atlas_add_test( AFP_SIDLocRecoEventCnv_p1_test
+                SOURCES
+                test/AFP_SIDLocRecoEventCnv_p1_test.cxx
+                LINK_LIBRARIES AFP_EventTPCnv )
+
+
+atlas_add_test( AFP_SIDLocRecoEvCollectionCnv_p1_test
+                SOURCES
+                test/AFP_SIDLocRecoEvCollectionCnv_p1_test.cxx
+                LINK_LIBRARIES AFP_EventTPCnv )
+
+
+atlas_add_test( AFP_SIDSimHitCnv_p1_test
+                SOURCES
+                test/AFP_SIDSimHitCnv_p1_test.cxx
+                LINK_LIBRARIES AFP_EventTPCnv )
+
+
+atlas_add_test( AFP_TDDigiCnv_p1_test
+                SOURCES
+                test/AFP_TDDigiCnv_p1_test.cxx
+                LINK_LIBRARIES AFP_EventTPCnv )
+
+
+atlas_add_test( AFP_TDLocRecoEventCnv_p1_test
+                SOURCES
+                test/AFP_TDLocRecoEventCnv_p1_test.cxx
+                LINK_LIBRARIES AFP_EventTPCnv )
+
+
+atlas_add_test( AFP_TDLocRecoEvCollectionCnv_p1_test
+                SOURCES
+                test/AFP_TDLocRecoEvCollectionCnv_p1_test.cxx
+                LINK_LIBRARIES AFP_EventTPCnv )
+
+
+atlas_add_test( AFP_TDSimHitCnv_p1_test
+                SOURCES
+                test/AFP_TDSimHitCnv_p1_test.cxx
+                LINK_LIBRARIES AFP_EventTPCnv )

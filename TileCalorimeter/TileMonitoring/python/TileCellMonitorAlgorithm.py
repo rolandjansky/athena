@@ -15,7 +15,7 @@ def TileCellMonitoringConfig(flags, **kwargs):
     result = ComponentAccumulator()
 
     from TileRecUtils.TileDQstatusConfig import TileDQstatusAlgCfg
-    result.merge( TileDQstatusAlgCfg(flags, TileRawChannelContainer = '', TileDigitsContainer = '') )
+    result.merge( TileDQstatusAlgCfg(flags) )
 
     from TileGeoModel.TileGMConfig import TileGMCfg
     result.merge(TileGMCfg(flags))

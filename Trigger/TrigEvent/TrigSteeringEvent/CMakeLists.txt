@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 790888 2016-12-22 22:12:11Z ssnyder $
 ################################################################################
 # Package: TrigSteeringEvent
 ################################################################################
@@ -113,27 +112,26 @@ endif()
 atlas_add_test( Enums_test
    SOURCES test/Enums_test.cxx
    LINK_LIBRARIES TrigSteeringEvent
-   EXTRA_PATTERNS ".*" )
+   POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( TrigPassBits_test
    SOURCES test/TrigPassBits_test.cxx
    LINK_LIBRARIES TrigSteeringEvent
-   EXTRA_PATTERNS ".*" )
+   POST_EXEC_SCRIPT nopost.sh )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_test( Operators_test
       SOURCES test/Operators_test.cxx
       LINK_LIBRARIES AthenaKernel GaudiKernel TrigSteeringEvent
-      EXTRA_PATTERNS ".*" )
+      POST_EXEC_SCRIPT nopost.sh )
 
    atlas_add_test( Truncation_test
       SOURCES test/Truncation_test.cxx
       LINK_LIBRARIES AthenaKernel GaudiKernel TrigSteeringEvent
-      EXTRA_PATTERNS ".*" )
+      POST_EXEC_SCRIPT nopost.sh )
 
    atlas_add_test( HLTExtraData_test
       SOURCES test/HLTExtraData_test.cxx
       LINK_LIBRARIES TrigSteeringEvent
-      EXTRA_PATTERNS ".*" )
+      POST_EXEC_SCRIPT nopost.sh )
 endif()
-

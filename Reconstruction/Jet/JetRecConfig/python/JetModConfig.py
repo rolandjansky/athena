@@ -59,7 +59,7 @@ def getFinalModifierListAndPrereqs(mods_initial, jetdef):
 # Translate modifier string into JetModifier if necessary
 # Extracts the modspec from the string or the config object
 def getModDefAndSpec(mod):
-    from StandardJetMods import jetmoddict
+    from .StandardJetMods import jetmoddict
     moddef = mod
     modspec = ""
     if mod.__class__ == type("str"):

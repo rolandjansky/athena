@@ -4,6 +4,7 @@
 
 #include "TRTDigCondBase.h"
 #include "TRTDigSettings.h"
+#include "TRTDigiHelper.h"
 
 #include <cmath>
 #include <cstdlib>
@@ -80,6 +81,7 @@ void TRTDigCondBase::initialize(CLHEP::HepRandomEngine* rndmEngine) {
   unsigned int nECA[14][3] = {{0}}; // [ringwheel=0--13][strawGasType=0,1,2]
   unsigned int nECC[14][3] = {{0}}; // [ringwheel=0--13][strawGasType=0,1,2]
 
+  MsgStream* amsg = &(m_msg.get());
   for (;it!=itE;++it) { // loop over straws
 
     const double strawLength((*it)->strawLength());
@@ -107,7 +109,8 @@ void TRTDigCondBase::initialize(CLHEP::HepRandomEngine* rndmEngine) {
       // get ID of the straw, and the gas mix
       const int hitid(hitid_helper->buildHitId( endcap, isneg, ringwheel, phisector, layer, iStraw));
       Identifier strawId = m_id_helper->straw_id(side, phisector, ringwheel, layer, iStraw);
-      int strawGasType = StrawGasType(strawId);
+      const int statusHT = m_sumTool->getStatusHT(strawId);
+      const int strawGasType = TRTDigiHelper::StrawGasType(statusHT,m_UseGasMix, amsg);
 
       //Get info about the straw conditions, then create and fill the strawstate
       double noiselevel, relative_noiseamplitude;
@@ -225,42 +228,4 @@ void TRTDigCondBase::setLvl (const std::string& lvl)
     return;
   }
   msg().setLevel (new_lvl);
-}
-
-//_____________________________________________________________________________
-int TRTDigCondBase::StrawGasType(Identifier& TRT_Identifier) const {
-
-  // TRT/Cond/StatusHT provides:
-  // enum { Undefined, Dead(Ar), Good(Xe), Xenon(Xe), Argon(Ar), Krypton(Kr) , EmulatedArgon(Xe, see below) }
-  // The m_UseGasMix default behaviour (0) is to use TRT/Cond/StatusHT, other values can be set to force
-  // the whole detector to (1)Xenon, (2)Krypton, (3)Argon:
-
-  int strawGasType=99;
-
-  if (m_UseGasMix==0) { // use StatusHT
-
-    int stat =  m_sumTool->getStatusHT(TRT_Identifier);
-    if       ( stat==2 || stat==3 ) { strawGasType = 0; } // Xe
-    else if  ( stat==5 )            { strawGasType = 1; } // Kr
-    else if  ( stat==1 || stat==4 ) { strawGasType = 2; } // Ar
-    else if  ( stat==6 )            { strawGasType = 0; } // Xe
-    else if  ( stat==7 )            { strawGasType = 0; } // Xe
-    // stat==6 is emulate argon, make it xenon here,
-    // and emulate argon later with reduced TR eff.
-    else { std::cout << "FATAL: TRTCond::StrawStatus, " << m_sumTool->getStatusHT(TRT_Identifier)
-                     << ", must be 'Good(2)||Xenon(3)' or 'Dead(1)||Argon(4)' or 'Krypton(5)!'"
-                     << ", or 'EmulateArgon(6)' or 'EmulateKrypton(7)'" << std::endl;
-    }
-  }
-  else if (m_UseGasMix==1) { strawGasType = 0; } // force whole detector to Xe
-  else if (m_UseGasMix==2) { strawGasType = 1; } // force whole detector to Kr
-  else if (m_UseGasMix==3) { strawGasType = 2; } // force whole detector to Ar
-
-  if ( strawGasType<0 || strawGasType>2 ) {
-    std::cout << "FATAL: strawGasType value" << strawGasType << " must be 0(Xe), 1(Kr) or 2(Ar)!" << std::endl;
-    throw std::exception();
-  }
-
-  return strawGasType;
-
 }

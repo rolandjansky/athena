@@ -298,7 +298,7 @@ StatusCode Muon::UTPCMMClusterBuilderTool::selectTrack(std::vector<std::tuple<do
             }
         }
         if(true){
-            ATH_MSG_DEBUG("Angle estimate         ="<< std::get<0>(track)<<" "<<std::get<0>(track)/3.1415*180.);
+            ATH_MSG_DEBUG("Angle estimate         ="<< std::get<0>(track)<<" "<<std::get<0>(track)/M_PI*180.);
             ATH_MSG_DEBUG("restimate              ="<< std::get<1>(track));
             ATH_MSG_DEBUG("slope estimate         ="<< slope);
             ATH_MSG_DEBUG("intercept estimate     ="<< intercept);
@@ -391,7 +391,7 @@ StatusCode Muon::UTPCMMClusterBuilderTool::finalFit(std::vector<double>& xpos, s
         ATH_MSG_DEBUG("Fit intercept:" << ffit->GetParameter(0));
         ATH_MSG_DEBUG("Fit status: "<<s);
         ATH_MSG_DEBUG("Cluster position "<< x0 << " +- " << sigmaX0);
-        ATH_MSG_DEBUG("Fit angle: "<<fitAngle <<" "<<fitAngle*180./3.1415);
+        ATH_MSG_DEBUG("Fit angle: "<<fitAngle <<" "<<fitAngle*180./M_PI);
         ATH_MSG_DEBUG("ChisSqProb"<< chiSqProb);
         ATH_MSG_DEBUG("nStrips:"<<idxSelected.size());
     }

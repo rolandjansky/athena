@@ -1,79 +1,130 @@
-TriggerSummaryStep1                     1   0     DEBUG In summary 5 chains passed:
-TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_e5_v3_L1EM7 ID#1502850332
-TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_e5_e8_L1EM3_EM5 ID#1658488232
-TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_e8_L1EM7 ID#2914644523
-TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_e5_L1EM7 ID#3386155124
-TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_g5_L1EM7 ID#3537091008
-TriggerSummaryStep2                     1   0     DEBUG In summary 4 chains passed:
-TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_e5_v3_L1EM7 ID#1502850332
-TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_e5_e8_L1EM3_EM5 ID#1658488232
-TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_e8_L1EM7 ID#2914644523
-TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_e5_L1EM7 ID#3386155124
-TriggerSummaryStep3                     1   0     DEBUG In summary 1 chains passed:
-TriggerSummaryStep3                     1   0     DEBUG  +++ HLT_e8_L1EM7 ID#2914644523
-TriggerSummaryStep1                     2   0     DEBUG In summary 7 chains passed:
-TriggerSummaryStep1                     2   0     DEBUG  +++ HLT_mu8_e8_L1MU6_EM7 ID#813774658
-TriggerSummaryStep1                     2   0     DEBUG  +++ HLT_2mu6_L12MU6 ID#1747073535
-TriggerSummaryStep1                     2   0     DEBUG  +++ HLT_2mu6Comb_L12MU6 ID#2046267508
-TriggerSummaryStep1                     2   0     DEBUG  +++ HLT_mu8_L1MU10 ID#2258266078
-TriggerSummaryStep1                     2   0     DEBUG  +++ HLT_mu6_L1MU6 ID#2560542253
-TriggerSummaryStep1                     2   0     DEBUG  +++ HLT_e8_L1EM7 ID#2914644523
-TriggerSummaryStep1                     2   0     DEBUG  +++ HLT_mu8_1step_L1MU6 ID#3380352717
-TriggerSummaryStep2                     2   0     DEBUG In summary 4 chains passed:
-TriggerSummaryStep2                     2   0     DEBUG  +++ HLT_2mu6_L12MU6 ID#1747073535
-TriggerSummaryStep2                     2   0     DEBUG  +++ HLT_2mu6Comb_L12MU6 ID#2046267508
-TriggerSummaryStep2                     2   0     DEBUG  +++ HLT_mu6_L1MU6 ID#2560542253
-TriggerSummaryStep2                     2   0     DEBUG  +++ HLT_e8_L1EM7 ID#2914644523
-TriggerSummaryStep3                     2   0     DEBUG In summary 2 chains passed:
-TriggerSummaryStep3                     2   0     DEBUG  +++ HLT_mu6_L1MU6 ID#2560542253
-TriggerSummaryStep3                     2   0     DEBUG  +++ HLT_e8_L1EM7 ID#2914644523
-TriggerSummaryStep4                     2   0     DEBUG In summary 1 chains passed:
-TriggerSummaryStep4                     2   0     DEBUG  +++ HLT_mu6_L1MU6 ID#2560542253
-TriggerSummaryStep1                     3   0     DEBUG In summary 5 chains passed:
-TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_mu10_L1MU10 ID#209090273
-TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_mu20_L1MU10 ID#361599135
-TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_mu8_L1MU10 ID#2258266078
-TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_e8_L1EM7 ID#2914644523
-TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_mu8_1step_L1MU6 ID#3380352717
-TriggerSummaryStep2                     3   0     DEBUG In summary 4 chains passed:
-TriggerSummaryStep2                     3   0     DEBUG  +++ HLT_mu10_L1MU10 ID#209090273
-TriggerSummaryStep2                     3   0     DEBUG  +++ HLT_mu20_L1MU10 ID#361599135
-TriggerSummaryStep2                     3   0     DEBUG  +++ HLT_mu8_L1MU10 ID#2258266078
-TriggerSummaryStep2                     3   0     DEBUG  +++ HLT_e8_L1EM7 ID#2914644523
-TriggerSummaryStep3                     3   0     DEBUG In summary 4 chains passed:
-TriggerSummaryStep3                     3   0     DEBUG  +++ HLT_mu10_L1MU10 ID#209090273
-TriggerSummaryStep3                     3   0     DEBUG  +++ HLT_mu20_L1MU10 ID#361599135
-TriggerSummaryStep3                     3   0     DEBUG  +++ HLT_mu8_L1MU10 ID#2258266078
-TriggerSummaryStep3                     3   0     DEBUG  +++ HLT_e8_L1EM7 ID#2914644523
-TriggerSummaryStep4                     3   0     DEBUG In summary 1 chains passed:
-TriggerSummaryStep4                     3   0     DEBUG  +++ HLT_mu8_L1MU10 ID#2258266078
-TrigSignatureMoniMT                                INFO HLT_2mu4_bDimu_L12MU4         1         1         0         0         0         0         0         
-TrigSignatureMoniMT                                INFO HLT_2mu4_bDimu_L12MU4 decisions                    0         0         0         0         
-TrigSignatureMoniMT                                INFO HLT_2mu6Comb_L12MU6           1         1         0         1         0         0         1         
-TrigSignatureMoniMT                                INFO HLT_2mu6Comb_L12MU6 decisions                     0         4         0         0         
-TrigSignatureMoniMT                                INFO HLT_2mu6_L12MU6               1         1         1         1         0         0         1         
-TrigSignatureMoniMT                                INFO HLT_2mu6_L12MU6 decisions                         4         4         0         0         
-TrigSignatureMoniMT                                INFO HLT_e5_L1EM7                  2         2         1         1         0         0         1         
-TrigSignatureMoniMT                                INFO HLT_e5_L1EM7 decisions                            2         2         0         0         
-TrigSignatureMoniMT                                INFO HLT_e5_e8_L1EM3_EM5           2         2         1         1         0         0         1         
-TrigSignatureMoniMT                                INFO HLT_e5_e8_L1EM3_EM5 decisions                     6         6         0         0         
-TrigSignatureMoniMT                                INFO HLT_e5_v2_L1EM7               0         0         0         0         0         0         0         
-TrigSignatureMoniMT                                INFO HLT_e5_v2_L1EM7 decisions                         0         0         0         0         
-TrigSignatureMoniMT                                INFO HLT_e5_v3_L1EM7               1         1         1         1         0         0         1         
-TrigSignatureMoniMT                                INFO HLT_e5_v3_L1EM7 decisions                         2         2         0         0         
-TrigSignatureMoniMT                                INFO HLT_e8_L1EM7                  4         4         3         3         3         0         3         
-TrigSignatureMoniMT                                INFO HLT_e8_L1EM7 decisions                            5         5         5         0         
-TrigSignatureMoniMT                                INFO HLT_g5_L1EM7                  1         1         1         0         0         0         1         
-TrigSignatureMoniMT                                INFO HLT_g5_L1EM7 decisions                            2         0         0         0         
-TrigSignatureMoniMT                                INFO HLT_mu10_L1MU10               2         2         1         1         1         0         1         
-TrigSignatureMoniMT                                INFO HLT_mu10_L1MU10 decisions                         1         1         1         0         
-TrigSignatureMoniMT                                INFO HLT_mu20_L1MU10               1         1         1         1         1         0         1         
-TrigSignatureMoniMT                                INFO HLT_mu20_L1MU10 decisions                         1         1         1         0         
-TrigSignatureMoniMT                                INFO HLT_mu6_L1MU6                 1         1         1         0         1         1         1         
-TrigSignatureMoniMT                                INFO HLT_mu6_L1MU6 decisions                           2         0         2         2         
-TrigSignatureMoniMT                                INFO HLT_mu8_1step_L1MU6           2         2         2         0         0         0         2         
-TrigSignatureMoniMT                                INFO HLT_mu8_1step_L1MU6 decisions                     2         0         0         0         
-TrigSignatureMoniMT                                INFO HLT_mu8_L1MU10                2         2         2         1         1         1         1         
-TrigSignatureMoniMT                                INFO HLT_mu8_L1MU10 decisions                          2         1         1         1         
-TrigSignatureMoniMT                                INFO HLT_mu8_e8_L1MU6_EM7          1         1         1         1         0         0         0         
-TrigSignatureMoniMT                                INFO HLT_mu8_e8_L1MU6_EM7 decisions                    4         2         0         0         
+TriggerSummaryStep1                        1   0   DEBUG In summary 7 chains passed:
+TriggerSummaryStep1                        1   0   DEBUG  +++ leg001_HLT_e5_e8_L1EM3_EM5 ID#959816505
+TriggerSummaryStep1                        1   0   DEBUG  +++ leg000_HLT_e5_e8_L1EM3_EM5 ID#1022379709
+TriggerSummaryStep1                        1   0   DEBUG  +++ HLT_e5_v3_L1EM7 ID#1502850332
+TriggerSummaryStep1                        1   0   DEBUG  +++ HLT_e5_e8_L1EM3_EM5 ID#1658488232
+TriggerSummaryStep1                        1   0   DEBUG  +++ HLT_e8_L1EM7 ID#2914644523
+TriggerSummaryStep1                        1   0   DEBUG  +++ HLT_e5_L1EM7 ID#3386155124
+TriggerSummaryStep1                        1   0   DEBUG  +++ HLT_g5_L1EM7 ID#3537091008
+TriggerSummaryStep2                        1   0   DEBUG In summary 6 chains passed:
+TriggerSummaryStep2                        1   0   DEBUG  +++ leg001_HLT_e5_e8_L1EM3_EM5 ID#959816505
+TriggerSummaryStep2                        1   0   DEBUG  +++ leg000_HLT_e5_e8_L1EM3_EM5 ID#1022379709
+TriggerSummaryStep2                        1   0   DEBUG  +++ HLT_e5_v3_L1EM7 ID#1502850332
+TriggerSummaryStep2                        1   0   DEBUG  +++ HLT_e5_e8_L1EM3_EM5 ID#1658488232
+TriggerSummaryStep2                        1   0   DEBUG  +++ HLT_e8_L1EM7 ID#2914644523
+TriggerSummaryStep2                        1   0   DEBUG  +++ HLT_e5_L1EM7 ID#3386155124
+TriggerSummaryStep3                        1   0   DEBUG In summary 1 chains passed:
+TriggerSummaryStep3                        1   0   DEBUG  +++ HLT_e8_L1EM7 ID#2914644523
+TriggerSummaryStep1                        2   0   DEBUG In summary 21 chains passed:
+TriggerSummaryStep1                        2   0   DEBUG  +++ leg002_HLT_e5_e8_2mu6_L1EM3_EM5_L12MU6 ID#345317877
+TriggerSummaryStep1                        2   0   DEBUG  +++ leg001_HLT_e5_e8_L1EM3_EM5 ID#959816505
+TriggerSummaryStep1                        2   0   DEBUG  +++ leg000_HLT_e5_e8_L1EM3_EM5 ID#1022379709
+TriggerSummaryStep1                        2   0   DEBUG  +++ leg000_HLT_mu6Comb_e8_L1MU6_EM5 ID#1248852240
+TriggerSummaryStep1                        2   0   DEBUG  +++ leg001_HLT_mu6_e8_L1MU6_EM5 ID#1567806656
+TriggerSummaryStep1                        2   0   DEBUG  +++ HLT_e5_e8_L1EM3_EM5 ID#1658488232
+TriggerSummaryStep1                        2   0   DEBUG  +++ HLT_2mu4_bDimu_L12MU4 ID#1730084172
+TriggerSummaryStep1                        2   0   DEBUG  +++ HLT_2mu6_L12MU6 ID#1747073535
+TriggerSummaryStep1                        2   0   DEBUG  +++ HLT_mu6_e8_L1MU6_EM5 ID#2038386564
+TriggerSummaryStep1                        2   0   DEBUG  +++ HLT_2mu6Comb_L12MU6 ID#2046267508
+TriggerSummaryStep1                        2   0   DEBUG  +++ HLT_mu8_L1MU10 ID#2258266078
+TriggerSummaryStep1                        2   0   DEBUG  +++ HLT_mu6Comb_e8_L1MU6_EM5 ID#2371747463
+TriggerSummaryStep1                        2   0   DEBUG  +++ leg001_HLT_e5_e8_2mu6_L1EM3_EM5_L12MU6 ID#2467396139
+TriggerSummaryStep1                        2   0   DEBUG  +++ leg000_HLT_mu6_e8_L1MU6_EM5 ID#2542671571
+TriggerSummaryStep1                        2   0   DEBUG  +++ HLT_mu6_L1MU6 ID#2560542253
+TriggerSummaryStep1                        2   0   DEBUG  +++ leg000_HLT_e5_e8_2mu6_L1EM3_EM5_L12MU6 ID#2627130263
+TriggerSummaryStep1                        2   0   DEBUG  +++ leg000_HLT_mu6_mu6noL1_L1MU6 ID#2893452617
+TriggerSummaryStep1                        2   0   DEBUG  +++ HLT_e8_L1EM7 ID#2914644523
+TriggerSummaryStep1                        2   0   DEBUG  +++ HLT_mu8_1step_L1MU6 ID#3380352717
+TriggerSummaryStep1                        2   0   DEBUG  +++ leg001_HLT_mu6Comb_e8_L1MU6_EM5 ID#3495876895
+TriggerSummaryStep1                        2   0   DEBUG  +++ HLT_e5_e8_2mu6_L1EM3_EM5_L12MU6 ID#4130483534
+TriggerSummaryStep2                        2   0   DEBUG In summary 18 chains passed:
+TriggerSummaryStep2                        2   0   DEBUG  +++ leg002_HLT_e5_e8_2mu6_L1EM3_EM5_L12MU6 ID#345317877
+TriggerSummaryStep2                        2   0   DEBUG  +++ leg001_HLT_e5_e8_L1EM3_EM5 ID#959816505
+TriggerSummaryStep2                        2   0   DEBUG  +++ leg000_HLT_e5_e8_L1EM3_EM5 ID#1022379709
+TriggerSummaryStep2                        2   0   DEBUG  +++ leg000_HLT_mu6Comb_e8_L1MU6_EM5 ID#1248852240
+TriggerSummaryStep2                        2   0   DEBUG  +++ leg001_HLT_mu6_e8_L1MU6_EM5 ID#1567806656
+TriggerSummaryStep2                        2   0   DEBUG  +++ HLT_e5_e8_L1EM3_EM5 ID#1658488232
+TriggerSummaryStep2                        2   0   DEBUG  +++ HLT_2mu4_bDimu_L12MU4 ID#1730084172
+TriggerSummaryStep2                        2   0   DEBUG  +++ HLT_2mu6_L12MU6 ID#1747073535
+TriggerSummaryStep2                        2   0   DEBUG  +++ HLT_mu6_e8_L1MU6_EM5 ID#2038386564
+TriggerSummaryStep2                        2   0   DEBUG  +++ HLT_2mu6Comb_L12MU6 ID#2046267508
+TriggerSummaryStep2                        2   0   DEBUG  +++ HLT_mu6Comb_e8_L1MU6_EM5 ID#2371747463
+TriggerSummaryStep2                        2   0   DEBUG  +++ leg001_HLT_e5_e8_2mu6_L1EM3_EM5_L12MU6 ID#2467396139
+TriggerSummaryStep2                        2   0   DEBUG  +++ leg000_HLT_mu6_e8_L1MU6_EM5 ID#2542671571
+TriggerSummaryStep2                        2   0   DEBUG  +++ HLT_mu6_L1MU6 ID#2560542253
+TriggerSummaryStep2                        2   0   DEBUG  +++ leg000_HLT_e5_e8_2mu6_L1EM3_EM5_L12MU6 ID#2627130263
+TriggerSummaryStep2                        2   0   DEBUG  +++ HLT_e8_L1EM7 ID#2914644523
+TriggerSummaryStep2                        2   0   DEBUG  +++ leg001_HLT_mu6Comb_e8_L1MU6_EM5 ID#3495876895
+TriggerSummaryStep2                        2   0   DEBUG  +++ HLT_e5_e8_2mu6_L1EM3_EM5_L12MU6 ID#4130483534
+TriggerSummaryStep3                        2   0   DEBUG In summary 3 chains passed:
+TriggerSummaryStep3                        2   0   DEBUG  +++ HLT_2mu4_bDimu_L12MU4 ID#1730084172
+TriggerSummaryStep3                        2   0   DEBUG  +++ HLT_mu6_L1MU6 ID#2560542253
+TriggerSummaryStep3                        2   0   DEBUG  +++ HLT_e8_L1EM7 ID#2914644523
+TriggerSummaryStep4                        2   0   DEBUG In summary 1 chains passed:
+TriggerSummaryStep4                        2   0   DEBUG  +++ HLT_mu6_L1MU6 ID#2560542253
+TriggerSummaryStep1                        3   0   DEBUG In summary 11 chains passed:
+TriggerSummaryStep1                        3   0   DEBUG  +++ HLT_mu10_L1MU10 ID#209090273
+TriggerSummaryStep1                        3   0   DEBUG  +++ HLT_mu20_L1MU10 ID#361599135
+TriggerSummaryStep1                        3   0   DEBUG  +++ leg000_HLT_mu6Comb_e8_L1MU6_EM5 ID#1248852240
+TriggerSummaryStep1                        3   0   DEBUG  +++ leg001_HLT_mu6_e8_L1MU6_EM5 ID#1567806656
+TriggerSummaryStep1                        3   0   DEBUG  +++ HLT_mu6_e8_L1MU6_EM5 ID#2038386564
+TriggerSummaryStep1                        3   0   DEBUG  +++ HLT_mu8_L1MU10 ID#2258266078
+TriggerSummaryStep1                        3   0   DEBUG  +++ HLT_mu6Comb_e8_L1MU6_EM5 ID#2371747463
+TriggerSummaryStep1                        3   0   DEBUG  +++ leg000_HLT_mu6_e8_L1MU6_EM5 ID#2542671571
+TriggerSummaryStep1                        3   0   DEBUG  +++ HLT_e8_L1EM7 ID#2914644523
+TriggerSummaryStep1                        3   0   DEBUG  +++ HLT_mu8_1step_L1MU6 ID#3380352717
+TriggerSummaryStep1                        3   0   DEBUG  +++ leg001_HLT_mu6Comb_e8_L1MU6_EM5 ID#3495876895
+TriggerSummaryStep2                        3   0   DEBUG In summary 10 chains passed:
+TriggerSummaryStep2                        3   0   DEBUG  +++ HLT_mu10_L1MU10 ID#209090273
+TriggerSummaryStep2                        3   0   DEBUG  +++ HLT_mu20_L1MU10 ID#361599135
+TriggerSummaryStep2                        3   0   DEBUG  +++ leg000_HLT_mu6Comb_e8_L1MU6_EM5 ID#1248852240
+TriggerSummaryStep2                        3   0   DEBUG  +++ leg001_HLT_mu6_e8_L1MU6_EM5 ID#1567806656
+TriggerSummaryStep2                        3   0   DEBUG  +++ HLT_mu6_e8_L1MU6_EM5 ID#2038386564
+TriggerSummaryStep2                        3   0   DEBUG  +++ HLT_mu8_L1MU10 ID#2258266078
+TriggerSummaryStep2                        3   0   DEBUG  +++ HLT_mu6Comb_e8_L1MU6_EM5 ID#2371747463
+TriggerSummaryStep2                        3   0   DEBUG  +++ leg000_HLT_mu6_e8_L1MU6_EM5 ID#2542671571
+TriggerSummaryStep2                        3   0   DEBUG  +++ HLT_e8_L1EM7 ID#2914644523
+TriggerSummaryStep2                        3   0   DEBUG  +++ leg001_HLT_mu6Comb_e8_L1MU6_EM5 ID#3495876895
+TriggerSummaryStep3                        3   0   DEBUG In summary 4 chains passed:
+TriggerSummaryStep3                        3   0   DEBUG  +++ HLT_mu10_L1MU10 ID#209090273
+TriggerSummaryStep3                        3   0   DEBUG  +++ HLT_mu20_L1MU10 ID#361599135
+TriggerSummaryStep3                        3   0   DEBUG  +++ HLT_mu8_L1MU10 ID#2258266078
+TriggerSummaryStep3                        3   0   DEBUG  +++ HLT_e8_L1EM7 ID#2914644523
+TriggerSummaryStep4                        3   0   DEBUG In summary 1 chains passed:
+TriggerSummaryStep4                        3   0   DEBUG  +++ HLT_mu8_L1MU10 ID#2258266078
+TrigSignatureMoniMT                                 INFO HLT_2mu4_bDimu_L12MU4         1         1         1         1         1         0         1         
+TrigSignatureMoniMT                                 INFO HLT_2mu4_bDimu_L12MU4 decisions                    4         4         4         0         
+TrigSignatureMoniMT                                 INFO HLT_2mu6Comb_L12MU6           1         1         0         1         0         0         1         
+TrigSignatureMoniMT                                 INFO HLT_2mu6Comb_L12MU6 decisions                     0         4         0         0         
+TrigSignatureMoniMT                                 INFO HLT_2mu6_L12MU6               2         2         1         1         0         0         1         
+TrigSignatureMoniMT                                 INFO HLT_2mu6_L12MU6 decisions                         4         4         0         0         
+TrigSignatureMoniMT                                 INFO HLT_e5_L1EM7                  2         2         1         1         0         0         1         
+TrigSignatureMoniMT                                 INFO HLT_e5_L1EM7 decisions                            1         1         0         0         
+TrigSignatureMoniMT                                 INFO HLT_e5_e8_2mu6_L1EM3_EM5_L12MU61         1         1         1         0         0         1         
+TrigSignatureMoniMT                                 INFO HLT_e5_e8_2mu6_L1EM3_EM5_L12MU6 decisions                    2         2         0         0         
+TrigSignatureMoniMT                                 INFO HLT_e5_e8_L1EM3_EM5           3         3         2         2         0         0         2         
+TrigSignatureMoniMT                                 INFO HLT_e5_e8_L1EM3_EM5 decisions                     4         4         0         0         
+TrigSignatureMoniMT                                 INFO HLT_e5_v2_L1EM7               0         0         0         0         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_e5_v2_L1EM7 decisions                         0         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_e5_v3_L1EM7               1         1         1         1         0         0         1         
+TrigSignatureMoniMT                                 INFO HLT_e5_v3_L1EM7 decisions                         1         1         0         0         
+TrigSignatureMoniMT                                 INFO HLT_e8_L1EM7                  4         4         3         3         3         0         3         
+TrigSignatureMoniMT                                 INFO HLT_e8_L1EM7 decisions                            3         3         3         0         
+TrigSignatureMoniMT                                 INFO HLT_g5_L1EM7                  1         1         1         0         0         0         1         
+TrigSignatureMoniMT                                 INFO HLT_g5_L1EM7 decisions                            1         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_mu10_L1MU10               2         2         1         1         1         0         1         
+TrigSignatureMoniMT                                 INFO HLT_mu10_L1MU10 decisions                         1         1         1         0         
+TrigSignatureMoniMT                                 INFO HLT_mu20_L1MU10               1         1         1         1         1         0         1         
+TrigSignatureMoniMT                                 INFO HLT_mu20_L1MU10 decisions                         1         1         1         0         
+TrigSignatureMoniMT                                 INFO HLT_mu6Comb_e8_L1MU6_EM5      2         2         2         2         0         0         2         
+TrigSignatureMoniMT                                 INFO HLT_mu6Comb_e8_L1MU6_EM5 decisions                    3         3         0         0         
+TrigSignatureMoniMT                                 INFO HLT_mu6_L1MU6                 1         1         1         0         1         1         1         
+TrigSignatureMoniMT                                 INFO HLT_mu6_L1MU6 decisions                           2         0         2         2         
+TrigSignatureMoniMT                                 INFO HLT_mu6_e8_L1MU6_EM5          2         2         2         2         0         0         2         
+TrigSignatureMoniMT                                 INFO HLT_mu6_e8_L1MU6_EM5 decisions                    3         3         0         0         
+TrigSignatureMoniMT                                 INFO HLT_mu6_mu6noL1_L1MU6         1         1         0         0         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_mu6_mu6noL1_L1MU6 decisions                    0         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_mu8_1step_L1MU6           2         2         2         0         0         0         2         
+TrigSignatureMoniMT                                 INFO HLT_mu8_1step_L1MU6 decisions                     2         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_mu8_L1MU10                2         2         2         1         1         1         1         
+TrigSignatureMoniMT                                 INFO HLT_mu8_L1MU10 decisions                          2         1         1         1         

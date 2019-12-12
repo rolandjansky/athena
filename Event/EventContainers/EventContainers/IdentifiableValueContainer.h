@@ -21,6 +21,8 @@ class IdentifiableValueContainer : IdentifiableValueContainerBase{
 
 public:
 
+  typedef IdentifiableValueCache<T> Cache;
+
    //Prevent accidental copying
    IdentifiableValueContainer(const IdentifiableValueContainer<T>&) = delete;
 
@@ -69,9 +71,12 @@ public:
    ///Get read only access to the whole external cache. This could be useful for special situations
    const std::vector<std::atomic<T>>& wholeEventReadAccess() const { return m_cache->rawReadAccess(); }
 
+   /// Obtain const access to the cache
+   const Cache* cache() const { return m_cache; }
+
 private:
    std::vector<bool> m_mask;
-   IdentifiableValueCache<T> *m_cache;
+   Cache *m_cache;
    bool m_own;
 };
 

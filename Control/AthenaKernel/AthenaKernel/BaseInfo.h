@@ -245,6 +245,7 @@
       typedef B Base1;           \
       typedef NoBase Base2;      \
       typedef NoBase Base3;      \
+      typedef NoBase Base4;      \
     };                           \
     template struct RegisterBaseInit<D >; \
     template struct BaseInit<D >; \
@@ -268,6 +269,7 @@
       typedef B1 Base1;          \
       typedef B2 Base2;          \
       typedef NoBase Base3;      \
+      typedef NoBase Base4;      \
     };                           \
     template struct RegisterBaseInit<D >; \
     template struct BaseInit<D >; \
@@ -292,11 +294,37 @@
       typedef B1 Base1;          \
       typedef B2 Base2;          \
       typedef B3 Base3;          \
+      typedef NoBase Base4;          \
     };                           \
     template struct RegisterBaseInit<D >; \
     template struct BaseInit<D >; \
 } struct sg_dummy // to swallow semicolon
 
+
+/**
+ * @brief Declare that class @a D derives from classes @a B1, @a B2, @a B3, and @a B4.
+ *        Example:
+ *
+ *@code
+ *   struct B1 {};
+ *   struct B2 {};
+ *   struct B3 {};
+ *   struct B4 {};
+ *   struct D : public B1, public B2, public B3, public B4 {};
+ *   SG_BASES4 (D, B1, B2, B3, B4);
+ @endcode
+ */
+#define SG_BASES4(D, B1, B2, B3, B4) \
+  namespace SG        {          \
+    template<> struct Bases<D >{ \
+      typedef B1 Base1;          \
+      typedef B2 Base2;          \
+      typedef B3 Base3;          \
+      typedef B4 Base4;          \
+    };                           \
+    template struct RegisterBaseInit<D >; \
+    template struct BaseInit<D >; \
+} struct sg_dummy // to swallow semicolon
 
 
 /**

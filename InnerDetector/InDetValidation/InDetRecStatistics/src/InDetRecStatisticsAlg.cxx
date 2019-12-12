@@ -69,16 +69,10 @@
 #include "IdDictDetDescr/IdDictManager.h" 
 
 
-//static const int s_n_maxPrimVertex= 1500;
-//static const int s_n_maxtracksRec = 100000;
-//static const int s_n_maxtracksMC  = 100000;
-//static const int s_n_maxHits      = 500000;
-//static const int s_n_maxEventHits = 1000000;
-//static const int s_n_maxMatches   = 100;
+
 
 static const char *s_linestr  = "----------------------------------------------------------------------------------------------------------------------------------------------";
 static const char *s_linestr2 = "..............................................................................................................................................";
-//static const int s_ERRORVALUE = -999999;
 
 InDet::InDetRecStatisticsAlg::InDetRecStatisticsAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
@@ -682,7 +676,6 @@ void InDet :: InDetRecStatisticsAlg :: printStatistics() {
   ATH_MSG_INFO("For documentation see https://twiki.cern.ch/twiki/bin/view/Atlas/InDetRecStatistics");
   ATH_MSG_INFO("(or for guaranteed latest version: http://atlas-sw.cern.ch/cgi-bin/viewcvs-atlas.cgi/offline/InnerDetector/InDetValidation/InDetRecStatistics/doc/mainpage.h?&view=markup )");
   ATH_MSG_INFO(" ********************************************************************");
-  //  if(msgSvc.outputLevel() >= MSG::INFO){
   const auto prec=std::cout.precision();
   StreamState restore_precision (std::cout);
   std::cout << MSG::INFO 

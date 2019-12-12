@@ -642,7 +642,7 @@ namespace Muon {
 
       if( wasExtended ) {
         // refind maximum
-        MuonHough::MuonPhiLayerHough localHough(60, -TMath::Pi(), TMath::Pi(), ( (*pit)->hough ? (*pit)->hough->m_region : MuonStationIndex::DetectorRegionUnknown ) );
+        MuonHough::MuonPhiLayerHough localHough(60, -M_PI, M_PI, ( (*pit)->hough ? (*pit)->hough->m_region : MuonStationIndex::DetectorRegionUnknown ) );
         std::vector<MuonHough::PhiHit*> hits = phiMaximum.hits;
         /* too ambiguous producing irreproducibilities because of sorting by pointer value
         std::stable_sort(hits.begin(),hits.end(),[]( const MuonHough::PhiHit* h1,
@@ -1518,7 +1518,7 @@ namespace Muon {
       // go to global
       double sign = 1.;
       if(isBarrel) {
-        theta += 0.5*TMath::Pi();
+        theta += M_PI_2;
         sign = -1.;
       }
 

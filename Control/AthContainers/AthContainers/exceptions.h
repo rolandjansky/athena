@@ -1,10 +1,8 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: exceptions.h 794113 2017-01-26 22:01:47Z ssnyder $
 /**
  * @file AthContainers/exceptions.h
  * @author scott snyder <snyder@bnl.gov>
@@ -18,6 +16,7 @@
 
 
 #include "AthContainersInterfaces/AuxTypes.h"
+#include "GaudiKernel/ClassID.h"
 #include <stdexcept>
 #include <typeinfo>
 #include <string>
@@ -381,6 +380,26 @@ public:
    */
   ExcAtomicMismatch (SG::auxid_t auxid,
                      const std::type_info& type);
+};
+
+
+/**
+ * @brief Exception --- ThinningHandle target does not exist.
+ *
+ * The target container referenced by a ThinningHandle does not exist
+ * in the event store.
+ */
+class ExcInvalidThinningTarget
+  : public std::runtime_error
+{
+public:
+  /**
+   * @brief Constructor.
+   * @param clid The CLID of the requested container.
+   * @param key The StoreGate key of the requested container.
+   */
+  ExcInvalidThinningTarget (CLID clid,
+                            const std::string& key);
 };
 
 

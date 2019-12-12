@@ -44,6 +44,7 @@ public:
             CLHEP::HepRandomEngine* noiseRndmEngine,
             CLHEP::HepRandomEngine* elecNoiseRndmEngine,
             CLHEP::HepRandomEngine* elecProcRndmEngine,
+            CLHEP::HepRandomEngine* elecNoiseResetRndmEngine,
             TRTDigCondBase* digcond,
             TRTElectronicsProcessing * ep,
             TRTElectronicsNoise * electronicsnoise,
@@ -207,10 +208,6 @@ private:
 
   Identifier getStrawIdentifier (int hitID);
 
-  // The straw's gas mix: 1=Xe, 2=Kr, 3=Ar
-  int StrawGasType(Identifier TRT_Identifier);
-
-  unsigned int getRegion(int hitID,const TRT_ID* trt_id);
   int m_UseGasMix;
   ToolHandle<ITRT_StrawStatusSummaryTool> m_sumTool; // need for Argon
 

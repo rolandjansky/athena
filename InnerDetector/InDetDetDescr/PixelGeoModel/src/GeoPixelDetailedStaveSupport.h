@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELDETAILEDSTAVESUPPORT_H
@@ -80,6 +80,8 @@ private:
   GeoTrf::Vector3D NeighbourPoint_Perp(GeoTrf::Vector3D p, GeoTrf::Vector3D v, double delta, int iDir);
   double ComputeAngle(double ux, double uy, double vx, double vy);
   double ComputeDistance(GeoTrf::Vector3D p, GeoTrf::Vector3D q);
+
+  const double m_oneDegree = 180.0/M_PI;
 
 };
 

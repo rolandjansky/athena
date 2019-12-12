@@ -6,6 +6,7 @@
 #define TRT_PAI_gasMixture_h
 
 #include "AthenaKernel/MsgStreamMember.h"
+#include "CxxUtils/checker_macros.h"
 
 #include "TRT_PAI_gasComponent.h"
 
@@ -112,7 +113,7 @@ private:
   std::vector<double> m_elemWeights;
   std::string m_name;
   bool m_gasFrozen;
-  mutable Athena::MsgStreamMember m_msg;
+  mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
 };
 
 #endif
