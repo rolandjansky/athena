@@ -35,7 +35,6 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonReconstruction/MuonRecUtils/MuonLayerHough
                           MuonSpectrometer/MuonReconstruction/MuonSegmentMakers/MuonSegmentMakerTools/MuonSegmentMakerToolInterfaces
                           MuonSpectrometer/MuonValidation/MuonRecValidation/MuonRecValidationNtuples
-                          Reconstruction/MuonIdentification/MuGirlStau
                           Reconstruction/MuonIdentification/MuonCombinedEvent
                           Reconstruction/MuonIdentification/MuonSegmentTaggers/MuonSegmentTaggerToolInterfaces
                           Tracking/TrkEvent/TrkMeasurementBase
@@ -51,7 +50,7 @@ atlas_add_component( MuonTrackPerformance
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps xAODEventInfo GaudiKernel MuonIdHelpersLib MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces TrkParameters TrkTrack TrkTrackSummary TrkTruthData TrkToolInterfaces StoreGateLib SGtests Identifier EventPrimitives xAODMuon xAODTracking xAODTruth MuonReadoutGeometry MuonClusterizationLib MuonCompetingRIOsOnTrack MuonLayerEvent MuonPrepRawData MuonRIO_OnTrack MuonLayerHough MuonRecValidationNtuples MuGirlStauLib MuonCombinedEvent TrkMeasurementBase TrkPrepRawData TrkExInterfaces )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps xAODEventInfo GaudiKernel MuonIdHelpersLib MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces TrkParameters TrkTrack TrkTrackSummary TrkTruthData TrkToolInterfaces StoreGateLib SGtests Identifier EventPrimitives xAODMuon xAODTracking xAODTruth MuonReadoutGeometry MuonClusterizationLib MuonCompetingRIOsOnTrack MuonLayerEvent MuonPrepRawData MuonRIO_OnTrack MuonLayerHough MuonRecValidationNtuples MuonCombinedEvent TrkMeasurementBase TrkPrepRawData TrkExInterfaces )
 
 # Install files from the package:
 atlas_install_headers( MuonTrackPerformance )

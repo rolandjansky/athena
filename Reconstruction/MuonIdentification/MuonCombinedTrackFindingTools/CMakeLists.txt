@@ -8,6 +8,7 @@ atlas_subdir( MuonCombinedTrackFindingTools )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
+                          MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecHelperTools
                           PRIVATE
                           Control/AthenaBaseComps
                           Event/EventPrimitives
@@ -43,5 +44,5 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( MuonCombinedTrackFindingTools
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES GaudiKernel AthenaBaseComps EventPrimitives xAODTracking xAODTruth MdtCalibData MdtCalibSvcLib MuonDetDescrUtils MuonIdHelpersLib MuonClusterizationLib MuonHoughPatternToolsLib MuonCompetingRIOsOnTrack MuonLayerEvent MuonRIO_OnTrack MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces MuonLayerHough MuidInterfaces MuonCombinedEvent MuonCombinedToolInterfaces MuonPrepRawDataProviderToolsLib TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrkToolInterfaces TrkDriftCircleMath )
+                     LINK_LIBRARIES GaudiKernel AthenaBaseComps EventPrimitives xAODTracking xAODTruth MdtCalibData MdtCalibSvcLib MuonDetDescrUtils MuonIdHelpersLib MuonClusterizationLib MuonHoughPatternToolsLib MuonCompetingRIOsOnTrack MuonLayerEvent MuonRIO_OnTrack MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces MuonLayerHough MuidInterfaces MuonCombinedEvent MuonCombinedToolInterfaces MuonPrepRawDataProviderToolsLib TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrkToolInterfaces TrkDriftCircleMath MuonRecHelperToolsLib )
 

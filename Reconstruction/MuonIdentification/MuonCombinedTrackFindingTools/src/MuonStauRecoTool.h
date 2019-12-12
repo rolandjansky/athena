@@ -10,7 +10,7 @@
 #include "MuonHoughPatternTools/MuonLayerHoughTool.h" 
 #include "MuonLayerHough/MuonLayerHough.h"
 #include "MuonDetDescrUtils/MuonSectorMapping.h"
-#include "TimePointBetaFitter.h"
+#include "MuonRecHelperTools/TimePointBetaFitter.h"
 #include "MuonLayerEvent/MuonLayerRecoData.h"
 #include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
 #include "MuonClusterization/RpcHitClustering.h"
