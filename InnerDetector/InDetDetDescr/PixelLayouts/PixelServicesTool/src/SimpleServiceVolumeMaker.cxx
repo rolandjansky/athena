@@ -19,11 +19,6 @@ namespace InDetDD {
 
 SimpleServiceVolumeSchema::SimpleServiceVolumeSchema() 
 {
-  setSimpleSchema();
-}
-
-void SimpleServiceVolumeSchema::setPixelSchema()
-{
   m_rmin = "RIN";
   m_rmax = "ROUT";
   m_rmin2 = "RIN2";
@@ -42,66 +37,22 @@ void SimpleServiceVolumeSchema::setPixelSchema()
   m_phiStep = "";
 }
 
-void SimpleServiceVolumeSchema::setDefaultSchema()
-{
-  m_rmin = "RMIN";
-  m_rmax = "RMAX";
-  m_rmin2 = "RMIN2";
-  m_rmax2 = "RMAX2";
-  m_zmin = "ZMIN";
-  m_zmax = "ZMAX";
-  m_zsymm = "ZSYMM";
-  m_materialName = "MATERIAL";
-  m_repeat = "NREPEAT";
-  m_phiStart = "PHISTART";
-  m_phiDelta = "PHIDELTA";
-  m_width = "";
-  m_shapeType = "";
-  m_volName = "NAME";
-  m_radialDiv = "RADIAL";
-  m_phiStep = "PHISTEP";
-}
-
-void SimpleServiceVolumeSchema::setSimpleSchema()
-{
-  m_rmin = "RMIN";
-  m_rmax = "RMAX";
-  m_rmin2 = "";
-  m_rmax2 = "";
-  m_zmin = "ZMIN";
-  m_zmax = "ZMAX";
-  m_zsymm = "ZSYMM";
-  m_materialName = "MATERIAL";
-  m_repeat = "";
-  m_phiStart = "";
-  m_phiDelta = "";
-  m_width = "";
-  m_shapeType = "";
-  m_volName = "NAME";
-  m_radialDiv = "";
-  m_phiStep = "";
-}
-
-  SimpleServiceVolumeMakerMgr::SimpleServiceVolumeMakerMgr(const std::string & table, const SimpleServiceVolumeSchema & schema, 
-							 bool readDataFromDB,
-							 const PixelGeoBuilderBasics* basics)
+SimpleServiceVolumeMakerMgr::SimpleServiceVolumeMakerMgr(const std::string & table, bool readDataFromDB, const PixelGeoBuilderBasics* basics)
   : GeoXMLUtils(),
     PixelGeoBuilder(basics),
     m_table(table),
-    m_schema(schema),
     m_simpleSrvXMLHelper(0),
     m_readFromDB(readDataFromDB),
     m_XMLdefined(false)
- {
-
+{
   if(!m_readFromDB){
-    m_simpleSrvXMLHelper = new PixelSimpleServiceXMLHelper(table,schema, basics);
+    m_simpleSrvXMLHelper = new PixelSimpleServiceXMLHelper(table, basics);
     m_XMLdefined = true;
   }
 }
 
-const IGeometryDBSvc *
-SimpleServiceVolumeMakerMgr::db() const {
+// Question - why does the db() getter never return the database?
+const IGeometryDBSvc *SimpleServiceVolumeMakerMgr::db() const {
   //  return m_athenaComps->geomDB();
   return 0;
 }
@@ -146,10 +97,7 @@ double SimpleServiceVolumeMakerMgr::phiDelta(int index) const
 
 double SimpleServiceVolumeMakerMgr::width(int index) const
 {
-  if (m_schema.has_width()) {
-    return m_simpleSrvXMLHelper->width(index);
-  }
-  return 0;
+  return m_simpleSrvXMLHelper->width(index);
 }
 
 double SimpleServiceVolumeMakerMgr::phiStart(int index) const
@@ -159,9 +107,6 @@ double SimpleServiceVolumeMakerMgr::phiStart(int index) const
 
 double SimpleServiceVolumeMakerMgr::phiStep(int index) const
 {
-  if (m_schema.has_phiStep()) {
-    return m_simpleSrvXMLHelper->phiStep(index);
-  } 
   return 0;
 }
 
@@ -178,35 +123,22 @@ int SimpleServiceVolumeMakerMgr::repeat(int index) const
 
 int SimpleServiceVolumeMakerMgr::radialDiv(int index) const
 {
-  if (m_schema.has_radial()) {  
-    return m_simpleSrvXMLHelper->radialDiv(index);
-  } else { 
-    return 0;
-  }
+  return 0;
 }
 
 std::string SimpleServiceVolumeMakerMgr::shapeType(int index) const
 {
-  if (m_schema.has_shapeType()) {  
-    std::string tmp=m_simpleSrvXMLHelper->shapeType(index);
-    tmp.erase(std::remove(tmp.begin(),tmp.end(),' '),tmp.end());
-    return tmp;
-  }
-  return "UNKNOWN";
+  return m_simpleSrvXMLHelper->shapeType(index);
 }
 
 std::string SimpleServiceVolumeMakerMgr::volName(int index) const
 {
-  std::string tmp = m_simpleSrvXMLHelper->volName(index);
-  tmp.erase(std::remove(tmp.begin(),tmp.end(),' '),tmp.end());
-  return tmp;
+  return m_simpleSrvXMLHelper->volName(index);
 }
 
 std::string SimpleServiceVolumeMakerMgr::materialName(int index) const
 {
-  std::string tmp=m_simpleSrvXMLHelper->materialName(index);
-  tmp.erase(std::remove(tmp.begin(),tmp.end(),' '),tmp.end());
-  return tmp;
+  return m_simpleSrvXMLHelper->materialName(index);
 }
 
 unsigned int SimpleServiceVolumeMakerMgr::numElements() const
@@ -215,15 +147,11 @@ unsigned int SimpleServiceVolumeMakerMgr::numElements() const
 }
 
 
-SimpleServiceVolumeMaker::SimpleServiceVolumeMaker(const std::string & table,
-						   const std::string & label,
-						   const SimpleServiceVolumeSchema & schema, 
-						   const PixelGeoBuilderBasics* basics,
-						   bool readDataFromDB) 
+SimpleServiceVolumeMaker::SimpleServiceVolumeMaker(const std::string & table, const std::string & label, const PixelGeoBuilderBasics* basics, bool readDataFromDB) 
   : m_table(table),
     m_label(label)
 {
-  m_mgr = new SimpleServiceVolumeMakerMgr(table, schema, readDataFromDB, basics);
+  m_mgr = new SimpleServiceVolumeMakerMgr(table, readDataFromDB, basics);
 }
 
 SimpleServiceVolumeMaker::~SimpleServiceVolumeMaker()
@@ -265,7 +193,7 @@ InDetDD::ServiceVolume *SimpleServiceVolumeMaker::make(int ii)
   
   // For TUBE there is no need to read the rest 
   std::string shapeType = m_mgr->shapeType(ii);
-  if (!m_mgr->schema().simple() && !shapeType.empty() && shapeType != "TUBE") {
+  if (!shapeType.empty() && shapeType != "TUBE") {
       
     double rmin2 = m_mgr->rmin2(ii);
     double rmax2 = m_mgr->rmax2(ii);

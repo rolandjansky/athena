@@ -5,7 +5,7 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #define PixelSimpleServiceXMLHelper_H
 
 #include "PixelGeoModel/PixelGeoBuilder.h"
-#include "PixelServicesTool/SimpleServiceVolumeMaker.h"
+//#include "PixelServicesTool/SimpleServiceVolumeMaker.h"
 
 // XML library
 #include "PixelLayoutUtils/GeoXMLUtils.h"
@@ -13,8 +13,8 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 class PixelSimpleServiceXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder  {
 
  public:
-  PixelSimpleServiceXMLHelper(IRDBRecordset_ptr table, const InDetDD::SimpleServiceVolumeSchema & schema, const PixelGeoBuilderBasics* basics);
-  PixelSimpleServiceXMLHelper(const std::string& envName, const InDetDD::SimpleServiceVolumeSchema & schema, const PixelGeoBuilderBasics* basics);
+  PixelSimpleServiceXMLHelper(IRDBRecordset_ptr table, const PixelGeoBuilderBasics* basics);
+  PixelSimpleServiceXMLHelper(const std::string& envName, const PixelGeoBuilderBasics* basics);
   ~PixelSimpleServiceXMLHelper();
   
     double rmin(int index) const;
@@ -45,7 +45,6 @@ class PixelSimpleServiceXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder 
 
  private:
 
-    InDetDD::SimpleServiceVolumeSchema m_schema;
     bool m_bXMLdefined;
 
 };

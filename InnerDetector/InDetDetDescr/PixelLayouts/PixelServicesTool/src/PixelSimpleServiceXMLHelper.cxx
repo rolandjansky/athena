@@ -6,10 +6,9 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #include "PathResolver/PathResolver.h"
 #include "PixelLayoutUtils/DBXMLUtils.h"
 
-PixelSimpleServiceXMLHelper::PixelSimpleServiceXMLHelper(IRDBRecordset_ptr table, const InDetDD::SimpleServiceVolumeSchema & schema, const PixelGeoBuilderBasics* basics):
+PixelSimpleServiceXMLHelper::PixelSimpleServiceXMLHelper(IRDBRecordset_ptr table, const PixelGeoBuilderBasics* basics):
   GeoXMLUtils(),
   PixelGeoBuilder(basics),
-  m_schema(schema),
   m_bXMLdefined(true)
 {
   std::string nodeName = table->nodeName();
@@ -25,40 +24,35 @@ PixelSimpleServiceXMLHelper::PixelSimpleServiceXMLHelper(IRDBRecordset_ptr table
 
   bool readXMLfromDB = getBasics()->ReadInputDataFromDB();
   bool bParsed=false;
-  if(readXMLfromDB)
-    {
-      msg(MSG::DEBUG)<<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
-      DBXMLUtils dbUtils(getBasics());
-      std::string XMLtext = dbUtils.readXMLFromDB(fileName);
-      setSchemaVersion(dbUtils.getSchemaVersion(fileName));
-      InitializeXML();
-      bParsed = ParseBuffer(XMLtext,std::string(""));
-    }
-  else
-    {
-      msg(MSG::DEBUG)<<"XML input : from file "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
-      std::string file = PathResolver::find_file (fileName, "DATAPATH");
-      InitializeXML();
-      bParsed = ParseFile(file);
-    }
+  if(readXMLfromDB){
+    msg(MSG::DEBUG)<<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
+    DBXMLUtils dbUtils(getBasics());
+    std::string XMLtext = dbUtils.readXMLFromDB(fileName);
+    setSchemaVersion(dbUtils.getSchemaVersion(fileName));
+    InitializeXML();
+    bParsed = ParseBuffer(XMLtext,std::string(""));
+  } else {
+    msg(MSG::DEBUG)<<"XML input : from file "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
+    std::string file = PathResolver::find_file (fileName, "DATAPATH");
+    InitializeXML();
+    bParsed = ParseFile(file);
+  }
   
   if(!bParsed){
     m_bXMLdefined = false;
-    msg(MSG::ERROR)<<"XML file "<<fileName<<" not found"<<endmsg;
+    msg(MSG::ERROR)<<"XML file " << fileName << " not found" << endmsg;
     return;
-    }
+  }
 }
 
-PixelSimpleServiceXMLHelper::PixelSimpleServiceXMLHelper(const std::string& envName, const InDetDD::SimpleServiceVolumeSchema & schema, const PixelGeoBuilderBasics* basics):
+// TODO: function appears to be same as above (minus first three lines), can this be cleaned up to avoid code duplication?
+PixelSimpleServiceXMLHelper::PixelSimpleServiceXMLHelper(const std::string& envName, const PixelGeoBuilderBasics* basics):
   GeoXMLUtils(),
   PixelGeoBuilder(basics),
-  m_schema(schema),
   m_bXMLdefined(true)
 {
-
-  msg(MSG::DEBUG)<<"XML helper - PixelSimpleServiceXMLHelper"<<endmsg;
-    
-  msg(MSG::DEBUG)<<"SimpleServiceVolumeMakerMgr : env name "<<envName<<endmsg;
+  msg(MSG::DEBUG) << "XML helper - PixelSimpleServiceXMLHelper" << endmsg;   
+  msg(MSG::DEBUG) << "SimpleServiceVolumeMakerMgr : env name " << envName<<endmsg;
   
   std::string fileName;
   if(const char* env_p = std::getenv(envName.c_str())) fileName = std::string(env_p);
@@ -67,27 +61,24 @@ PixelSimpleServiceXMLHelper::PixelSimpleServiceXMLHelper(const std::string& envN
   msg(MSG::DEBUG)<<"Build material table from XML  (DB XML file : "<<readXMLfromDB<<" )"<<endmsg;
 
   bool bParsed=false;
-  if(readXMLfromDB)
-    {
-      DBXMLUtils dbUtils(getBasics());
-      std::string XMLtext = dbUtils.readXMLFromDB(fileName);
-      setSchemaVersion(dbUtils.getSchemaVersion(fileName));
-      InitializeXML();
-      bParsed = ParseBuffer(XMLtext,std::string(""));
-    }
-  else
-    {
-      std::string file = PathResolver::find_file (fileName, "DATAPATH");
-      msg(MSG::DEBUG)<< " PixelServices : "<<file<<endmsg;
-      InitializeXML();
-      bParsed = ParseFile(file);
-    }
+  if(readXMLfromDB) {
+    DBXMLUtils dbUtils(getBasics());
+    std::string XMLtext = dbUtils.readXMLFromDB(fileName);
+    setSchemaVersion(dbUtils.getSchemaVersion(fileName));
+    InitializeXML();
+    bParsed = ParseBuffer(XMLtext,std::string(""));
+  } else {
+    std::string file = PathResolver::find_file (fileName, "DATAPATH");
+    msg(MSG::DEBUG)<< " PixelServices : "<<file<<endmsg;
+    InitializeXML();
+    bParsed = ParseFile(file);
+  }
   
   if(!bParsed){
     m_bXMLdefined = false;
     msg(MSG::WARNING)<<"XML file "<<fileName<<" not found"<<endmsg;
     return;
-    }
+  }
 }
 
 PixelSimpleServiceXMLHelper::~PixelSimpleServiceXMLHelper()
@@ -97,132 +88,130 @@ PixelSimpleServiceXMLHelper::~PixelSimpleServiceXMLHelper()
 
 double PixelSimpleServiceXMLHelper::rmin(int index) const
 {
-  return getDouble("SimpleService", index, m_schema.rmin().c_str());
+  return getDouble("SimpleService", index, "RIN");
 }
 
 
 double PixelSimpleServiceXMLHelper::rmax(int index) const
 {
-  return getDouble("SimpleService", index, m_schema.rmax().c_str());
+  return getDouble("SimpleService", index, "ROUT");
 }
 
 
 double PixelSimpleServiceXMLHelper::rmin2(int index) const
 {
   if(getSchemaVersion() > 4){
-    return getDouble("SimpleService", index, m_schema.rmin2().c_str());
+    return getDouble("SimpleService", index, "RIN2");
   }
-  else msg(MSG::DEBUG)<<"XML: SimpleService rmin2 not fully defined in old schema ("<<getSchemaVersion()<<") returning 0 except for CONE shapes..."<<endreq;
-  if (shapeType(index)=="CONE") return getDouble("SimpleService", index, m_schema.rmin2().c_str());
+  
+  msg(MSG::DEBUG)<<"XML: SimpleService rmin2 not fully defined in old schema ("<<getSchemaVersion()<<") returning 0 except for CONE shapes..."<<endreq;
+  if (shapeType(index)=="CONE") return getDouble("SimpleService", index, "RIN2");
   return 0.0;
 }
 
 double PixelSimpleServiceXMLHelper::rmax2(int index) const
 {
   if(getSchemaVersion() > 4){
-    return getDouble("SimpleService", index, m_schema.rmax2().c_str());
+    return getDouble("SimpleService", index, "ROUT2");
   }
-  else msg(MSG::DEBUG)<<"XML: SimpleService rmax2 not fully defined in old schema ("<<getSchemaVersion()<<") returning 0 except for CONE shapes..."<<endreq;
-  if (shapeType(index)=="CONE") return getDouble("SimpleService", index, m_schema.rmax2().c_str());
+
+  msg(MSG::DEBUG)<<"XML: SimpleService rmax2 not fully defined in old schema ("<<getSchemaVersion()<<") returning 0 except for CONE shapes..."<<endreq;
+  if (shapeType(index)=="CONE") return getDouble("SimpleService", index, "ROUT2");
   return 0.0;
 }
 
 double PixelSimpleServiceXMLHelper::zmin(int index) const
 {
-  return getDouble("SimpleService", index, m_schema.zmin().c_str());
+  return getDouble("SimpleService", index, "ZIN");
 }
 
 double PixelSimpleServiceXMLHelper::zmax(int index) const
 {
-  return getDouble("SimpleService", index, m_schema.zmax().c_str());
+  return getDouble("SimpleService", index, "ZOUT");
 }
 
+// TODO: change xml tag from WIDTH to PHIDELTA
 double PixelSimpleServiceXMLHelper::phiDelta(int index) const
 {
   if(getSchemaVersion() > 4){
-    return getDouble("SimpleService", index, m_schema.phiDelta().c_str());
+    return getDouble("SimpleService", index, "WIDTH");
   }
-  else msg(MSG::DEBUG)<<"XML: SimpleService phiDelta not fully defined in old schema ("<<getSchemaVersion()<<") returning 0 except for TUBS shapes..."<<endreq;
-  if (shapeType(index)=="TUBS") return getDouble("SimpleService", index, m_schema.phiDelta().c_str());
+  
+  msg(MSG::DEBUG)<<"XML: SimpleService phiDelta not fully defined in old schema ("<<getSchemaVersion()<<") returning 0 except for TUBS shapes..."<<endreq;
+  if (shapeType(index)=="TUBS") return getDouble("SimpleService", index, "WIDTH");
   return 0.0;
 }
 
 double PixelSimpleServiceXMLHelper::width(int index) const
 {
   if(getSchemaVersion() > 4){
-    return getDouble("SimpleService", index, m_schema.width().c_str());
+    return getDouble("SimpleService", index, "WIDTH");
   }
-  else msg(MSG::DEBUG)<<"XML: SimpleService width not fully defined in old schema ("<<getSchemaVersion()<<") returning 0 except for TUBS shapes..."<<endreq;
-  if (shapeType(index)=="TUBS") return getDouble("SimpleService", index, m_schema.width().c_str());
+  
+  msg(MSG::DEBUG)<<"XML: SimpleService width not fully defined in old schema ("<<getSchemaVersion()<<") returning 0 except for TUBS shapes..."<<endreq;
+  if (shapeType(index)=="TUBS") return getDouble("SimpleService", index, "WIDTH");
   return 0.0;
 }
 
+// TODO: change ml tag from Phi to PhiStart
 double PixelSimpleServiceXMLHelper::phiStart(int index) const
 {
    if(getSchemaVersion() > 4){
-     return getDouble("SimpleService", index, m_schema.phiStart().c_str());
-  }
-   else msg(MSG::DEBUG)<<"XML: SimpleService phiStart not fully defined in old schema ("<<getSchemaVersion()<<") returning 0 except for TUBS shapes..."<<endreq;
-   if (shapeType(index)=="TUBS") return getDouble("SimpleService", index, m_schema.phiStart().c_str());
+     return getDouble("SimpleService", index, "PHI");
+   }
+   
+   msg(MSG::DEBUG)<<"XML: SimpleService phiStart not fully defined in old schema ("<<getSchemaVersion()<<") returning 0 except for TUBS shapes..."<<endreq;
+   if (shapeType(index)=="TUBS") return getDouble("SimpleService", index, "PHI");
    return 0.0;
 }
 
+// TODO: Always zero - delete function?
 double PixelSimpleServiceXMLHelper::phiStep(int index) const
 {
-  if (m_schema.has_phiStep()) {
-    return getDouble("SimpleService", index, m_schema.phiStep().c_str());
-  } 
   return 0;
 }
 
 bool PixelSimpleServiceXMLHelper::zsymm(int index) const
 {
-  return getBoolean("SimpleService", index, m_schema.zsymm().c_str());
+  return getBoolean("SimpleService", index, "ZSYMM");
 }
 
 
 int PixelSimpleServiceXMLHelper::repeat(int index) const
 {
   if(getSchemaVersion() > 4){
-    return getInt("SimpleService", index, m_schema.repeat().c_str());
+    return getInt("SimpleService", index, "REPEAT");
   }
   else msg(MSG::DEBUG)<<"XML: SimpleService repeat not fully defined in old schema ("<<getSchemaVersion()<<") returning 0 except for TUBS shapes..."<<endreq;
-  if (shapeType(index)=="TUBS") return getDouble("SimpleService", index, m_schema.repeat().c_str());
+  if (shapeType(index)=="TUBS") return getDouble("SimpleService", index, "REPEAT");
   return 0;
 }
 
+// TODO: Radial divisions not currently used - delete function?
 int PixelSimpleServiceXMLHelper::radialDiv(int index) const
 {
-  if (m_schema.has_radial()) {  
-    return getInt("SimpleService", index, m_schema.radialDiv().c_str());
-  } else { 
-    return 0;
-  }
+  return 0;
 }
 
 std::string PixelSimpleServiceXMLHelper::shapeType(int index) const
 {
-  if (m_schema.has_shapeType()) {  
-    std::string tmp=getString("SimpleService", index, m_schema.shapeType().c_str(),0);
-    tmp.erase(std::remove(tmp.begin(),tmp.end(),' '),tmp.end());
-    return tmp;
-    }
-  return "UNKNOWN";
+  std::string tmp=getString("SimpleService", index, "SHAPE", 0);
+  tmp.erase(std::remove(tmp.begin(),tmp.end(),' '),tmp.end());
+  return tmp;
 }
 
 std::string PixelSimpleServiceXMLHelper::volName(int index) const
 {
-  std::string tmp=getString("SimpleService", index, m_schema.volName().c_str(),0);
+  std::string tmp=getString("SimpleService", index, "VOLNAME", 0);
   tmp.erase(std::remove(tmp.begin(),tmp.end(),' '),tmp.end());
   return tmp;
 }
 
 std::string PixelSimpleServiceXMLHelper::materialName(int index) const
 {
-  std::string tmp=getString("SimpleService", index, m_schema.materialName().c_str());
+  std::string tmp=getString("SimpleService", index, "MATERIALNAME");
   tmp.erase(std::remove(tmp.begin(),tmp.end(),' '),tmp.end());
   return tmp;
-
 }
 
 unsigned int PixelSimpleServiceXMLHelper::numElements() const
@@ -234,30 +223,23 @@ unsigned int PixelSimpleServiceXMLHelper::numElements() const
 
 int PixelSimpleServiceXMLHelper::getServiceIndex( const std::string& srvName) const
 {
-
-  int srvIndex = getChildValue_Index("SimpleService",
-				     m_schema.volName().c_str(),
-				     -1,
-				     srvName);
+  int srvIndex = getChildValue_Index("SimpleService", "VOLNAME", -1, srvName);
   return srvIndex;
 }
 
 
-
+// FIXME: too specific, returns info on any named volume, not just support tubes
 bool PixelSimpleServiceXMLHelper::SupportTubeExists(const std::string& srvName) const
 {
   int index=getServiceIndex(srvName);
   if(index<0) return false;
-
   return true;
 }
 
 double PixelSimpleServiceXMLHelper::SupportTubeRMin(const std::string& srvName) const
 {
-
   int index=getServiceIndex(srvName);
   if(index<0) return -1;
-
   return rmin(index);
 }
 
@@ -281,9 +263,7 @@ double PixelSimpleServiceXMLHelper::SupportTubeZMin(const std::string& srvName) 
 
 double PixelSimpleServiceXMLHelper::SupportTubeZMax(const std::string& srvName) const
 {
-
   int index=getServiceIndex(srvName);
   if(index<0) return -1;
-
   return zmax(index);
 }
