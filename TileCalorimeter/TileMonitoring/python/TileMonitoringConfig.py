@@ -40,6 +40,9 @@ def TileMonitoringCfg(flags):
         from TileMonitoring.TileClusterMonitorAlgorithm import TileClusterMonitoringConfig
         acc.merge( TileClusterMonitoringConfig(flags) )
 
+        from TileMonitoring.TileMuIdMonitorAlgorithm import TileMuIdMonitoringConfig
+        acc.merge( TileMuIdMonitoringConfig(flags) )
+
         from TileMonitoring.TileJetMonitorAlgorithm import TileJetMonitoringConfig
         acc.merge( TileJetMonitoringConfig(flags) )
 
