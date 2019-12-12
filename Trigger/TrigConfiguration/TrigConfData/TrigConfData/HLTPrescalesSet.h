@@ -66,10 +66,14 @@ namespace TrigConf {
    };
 }
 
+#ifndef TRIGCONF_STANDALONE
+
 #include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( TrigConf::HLTPrescalesSet , 134177107 , 1 )
 
 #include "AthenaKernel/CondCont.h"
 CONDCONT_DEF( TrigConf::HLTPrescalesSet , 130966407 );
+
+#endif
 
 #endif
