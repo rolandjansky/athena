@@ -53,16 +53,18 @@ DerivationFrameworkJob += SeqPHYSLITE
 # Get single and multi mu, e, photon triggers
 # Jet, tau, multi-object triggers not available in the matching code
 allperiods = TriggerPeriod.y2015 | TriggerPeriod.y2016 | TriggerPeriod.y2017 | TriggerPeriod.y2018 | TriggerPeriod.future2e34
-trig_el = TriggerAPI.getAllHLT(allperiods, triggerType=TriggerType.el,livefraction=0.9)
-trig_mu = TriggerAPI.getAllHLT(allperiods, triggerType=TriggerType.mu,livefraction=0.9)
-trig_g  = TriggerAPI.getAllHLT(allperiods, triggerType=TriggerType.g, livefraction=0.9)
+trig_el  = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el,  livefraction=0.8)
+trig_mu  = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.mu,  livefraction=0.8)
+trig_g   = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.g,   livefraction=0.8)
+trig_tau = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.tau, livefraction=0.8)
+# Add cross-triggers for some sets
+trig_em = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el, additionalTriggerType=TriggerType.mu,  livefraction=0.8)
+trig_et = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el, additionalTriggerType=TriggerType.tau, livefraction=0.8)
+trig_mt = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.mu, additionalTriggerType=TriggerType.tau, livefraction=0.8)
+# Note that this seems to pick up both isolated and non-isolated triggers already, so no need for extra grabs
 
-trigger_names = []
-for item in trig_el,trig_mu,trig_g:
-   for triggers in item.keys(): trigger_names += item.keys()     
-
-# Remove duplicates
-trigger_names = list(dict.fromkeys(trigger_names))
+# Merge and remove duplicates
+trigger_names = list(set(trig_el+trig_mu+trig_g+trig_tau+trig_em+trig_et+trig_mt))
 
 # Create trigger matching decorations
 PHYSLITE_trigmatching_helper = TriggerMatchingHelper(matching_tool = "PHYSLITETriggerMatchingTool",
@@ -392,14 +394,14 @@ PHYSLITESlimmingHelper = SlimmingHelper("PHYSLITESlimmingHelper")
 
 PHYSLITESlimmingHelper.IncludeTriggerNavigation = False
 PHYSLITESlimmingHelper.IncludeJetTriggerContent = False
-PHYSLITESlimmingHelper.IncludeMuonTriggerContent = True
-PHYSLITESlimmingHelper.IncludeEGammaTriggerContent = True
+PHYSLITESlimmingHelper.IncludeMuonTriggerContent = False
+PHYSLITESlimmingHelper.IncludeEGammaTriggerContent = False
 PHYSLITESlimmingHelper.IncludeJetTauEtMissTriggerContent = False
-PHYSLITESlimmingHelper.IncludeTauTriggerContent = True
+PHYSLITESlimmingHelper.IncludeTauTriggerContent = False #True
 PHYSLITESlimmingHelper.IncludeEtMissTriggerContent = False
 PHYSLITESlimmingHelper.IncludeBJetTriggerContent = False
 PHYSLITESlimmingHelper.IncludeBPhysTriggerContent = False
-PHYSLITESlimmingHelper.IncludeMinBiasTriggerContent = True
+PHYSLITESlimmingHelper.IncludeMinBiasTriggerContent = False
 
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
 PHYSLITESlimmingHelper.AppendToDictionary = {
