@@ -136,6 +136,7 @@ for trackCollection in trackCollections:
                 maxTRTResidualWindow =  0.550,
                 NSplitMap = 4,
                 RangeOfPullHistos  =   5,
+                PtRange = 50., # GeV
                 applyHistWeight = useWeightInMonitoring,
                 hWeightHistName = "h_eventMuVsTrkEta",
                 hWeightInFileName = "usr/WorkDir/21.0.68/InstallArea/x86_64-slc6-gcc62-opt/src/InnerDetector/InDetMonitoring/InDetPerformanceMonitoring/share/hWeight.root"
