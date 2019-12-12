@@ -79,14 +79,13 @@
 
   int JetForwardJvtTool::modify(xAOD::JetContainer& jetCont) const {
     getPV();
-    m_pileupMomenta.clear();
+    if (jetCont.size() > 0) calculateVertexMomenta(&jetCont);
     for(const auto& jetF : jetCont) {
       (*Dec_out)(*jetF) = 1;
       (*Dec_outFjvt)(*jetF) = 1;
       (*Dec_outTiming)(*jetF) = 1;
       fjvt_dec(*jetF) = 0;
       if (!forwardJet(jetF)) continue;
-      if (m_pileupMomenta.size()==0) calculateVertexMomenta(&jetCont);
       double fjvt = getFJVT(jetF)/jetF->pt();
       if (fjvt>m_fjvtThresh) (*Dec_outFjvt)(*jetF) = 0;
       if (fabs(jetF->auxdata<float>("Timing"))>m_timingCut) (*Dec_outTiming)(*jetF) = 0;
