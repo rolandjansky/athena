@@ -20,6 +20,7 @@ from AthenaCommon.Logging import log
 
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 from TriggerJobOpts.TriggerFlags import TriggerFlags
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
 ###############################################################################
 ### Configure MuGirlTag###
@@ -83,6 +84,8 @@ def MuonStauSegmentRegionRecoveryTool(name="MuonStauSegmentRegionRecoveryTool",*
    kwargs.setdefault("SeededSegmentFinder", getPublicTool("MuonStauSeededSegmentFinder") )
    kwargs.setdefault("ChamberHoleRecoveryTool", getPublicTool("MuonStauChamberHoleRecoveryTool") )
    kwargs.setdefault("Fitter",  getPublicTool("CombinedStauTrackBuilderFit") )
+   if TriggerFlags.MuonSlice.doTrigMuonConfig and athenaCommonFlags.isOnline:
+      kwargs.setdefault('MdtCondKey', "")
    return MuidSegmentRegionRecoveryTool(name,**kwargs)
 
 def CombinedStauTrackBuilderFit( name='CombinedStauTrackBuilderFit', **kwargs ):
