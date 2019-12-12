@@ -173,7 +173,7 @@ if DerivationFrameworkIsMonteCarlo:
   addSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.1, mods="truth_groomed", algseq=jetm3Seq, outputGroup="JETM3", writeUngroomed=True)
 
 # Add the BCID info
-addDistanceInTrain(jetm1Seq)
+addDistanceInTrain(jetm3Seq)
 
 #=======================================
 # SCHEDULE SMALL-R JETS WITH LOW PT CUT
@@ -219,9 +219,10 @@ FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'],Sequencer = jetm3Seq)
 
 # QGTaggerTool ###
 addQGTaggerTool(jetalg="AntiKt4EMTopo", sequence=jetm3Seq, algname="QGTaggerToolAlg")
+addQGTaggerTool(jetalg="AntiKt4EMPFlow", sequence=jetm3Seq, algname="QGTaggerToolAlg")
 
 # MVfJvt #
-#applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=jetm3Seq, algname='JetForwardJvtToolBDTAlg')
+applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=jetm3Seq, algname='JetForwardJvtToolBDTAlg')
 
 # PFlow fJvt #
 getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=jetm3Seq, algname='JetForwardPFlowJvtToolAlg')
