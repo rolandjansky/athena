@@ -27,6 +27,7 @@ SingleTauGroup = ['RATE:SingleTau', 'BW:Tau']
 BphysicsGroup = ['RATE:Bphysics', 'BW:Bphysics']
 MinBiasGroup = ['RATE:MinBias', 'BW:MinBias']
 EgammaStreamersGroup = ['RATE:SeededStreamers', 'BW:Egamma']
+BCIDmonGroup = ['MON:BCID']
 
 def setupMenu():
 
@@ -56,20 +57,20 @@ def setupMenu():
 
     TriggerFlags.EgammaSlice.signatures = [
         # ElectronChains----------
-        ChainProp(name='HLT_e26_etcut_L1EM22VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e26_etcut_L1EM22VHI', groups=SingleElectronGroup + BCIDmonGroup),
         ChainProp(name='HLT_2e17_etcut_L12EM15VH', stream=[PhysicsStream], groups=MultiElectronGroup),
         ChainProp(name='HLT_g140_etcut_L1EM24VHI', groups=SinglePhotonGroup),
         ChainProp(name='HLT_2g35_etcut_L12EM20VH', groups=MultiPhotonGroup),
     ]
 
     TriggerFlags.METSlice.signatures = [
-        ChainProp(name='HLT_xe65_cell_L1XE50', groups=SingleMETGroup),
+        ChainProp(name='HLT_xe65_cell_L1XE50', groups=SingleMETGroup + BCIDmonGroup),
         # MultiMET Chain
     ]
 
     TriggerFlags.JetSlice.signatures = [
         # ATR-20049
-        ChainProp(name='HLT_j420_L1J100', groups=SingleJetGroup),
+        ChainProp(name='HLT_j420_L1J100', groups=SingleJetGroup + BCIDmonGroup),
         ChainProp(name='HLT_j260_320eta490_L1J75_31ETA49', groups=SingleJetGroup),
         ChainProp(name='HLT_j460_a10r_L1J100',  groups=SingleJetGroup),
         ChainProp(name='HLT_j460_a10_lcw_subjes_L1J100', groups=SingleJetGroup),
