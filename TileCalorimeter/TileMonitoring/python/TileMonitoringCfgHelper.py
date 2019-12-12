@@ -494,7 +494,7 @@ def addTileEtaPhiMapsArray(helper, algorithm, name, title, path, weight = '', ty
 
 def addTile1DHistogramsArray(helper, algorithm, name = '', xvalue = '', value = '', title = '', path = '',
                              xbins = 0, xmin = 0, xmax = 0, type = 'TH1D', run = '', triggers = [],
-                             subDirectory = False, perPartition = True, perSample = False,
+                             subDirectory = False, perPartition = True, perSample = False, opt = '',
                              perGain = False, labels = (), allPartitions = False, separator = '_' ):
     '''
     This function configures 1D histograms with Tile monitored value per L1 trigger, partition, sample, gain.
@@ -540,7 +540,7 @@ def addTile1DHistogramsArray(helper, algorithm, name = '', xvalue = '', value = 
         fullTitle = getTileHistogramTitle(title = title, run = run, **kwargs)
 
         tool.defineHistogram( fullName, path = fullPath, type = type, title = fullTitle,
-                              labels = labels, xbins = xbins, xmin = xmin, xmax = xmax)
+                              labels = labels, xbins = xbins, xmin = xmin, xmax = xmax, opt = opt)
 
     return array
 
