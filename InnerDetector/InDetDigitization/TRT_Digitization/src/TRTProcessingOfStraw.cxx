@@ -11,7 +11,7 @@
 #include "TRTDigCondBase.h"
 
 #include "TRT_PAI_Process/ITRT_PAITool.h"
-#include "TRT_Digitization/ITRT_SimDriftTimeTool.h"
+#include "ITRT_SimDriftTimeTool.h"
 #include "TRTDigSettings.h"
 #include "TRTDigiHelper.h"
 
