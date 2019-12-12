@@ -8,15 +8,16 @@
 #include <vector>
 #include "GaudiKernel/PhysicalConstants.h"
 
-namespace Muon {
+static constexpr double const& invSpeedOfLight = 1e6 / Gaudi::Units::c_light; // Gaudi::Units::c_light=2.99792458e+8, but need 299.792458
 
+namespace Muon {
   
   class TimePointBetaFitter {
   public:
     /** simple struct holding the input to the fit */
     struct Hit {
       /** constructor, takes the distance of the point to the IP, the measured time with tof subtracted and the error on the measurement */
-      Hit(float distance_, float time_, float error_ ) : distance(distance_), time(time_+distance*m_invSpeedOfLight), error(error_), useInFit(true), residual(0.) { weight2 = 1./(error*error); }
+      Hit(float distance_, float time_, float error_ ) : distance(distance_), time(time_+distance*invSpeedOfLight), error(error_), useInFit(true), residual(0.) { weight2 = 1./(error*error); }
 
       /** data memebers */
       float distance;  /// distance from time reference point use to calculate TOF
@@ -53,8 +54,6 @@ namespace Muon {
     /// fit beta with outlier logic 
     FitResult fitWithOutlierLogic( HitVec& hits ) const;
 
-  private:
-    static double m_invSpeedOfLight;
   };
 
 }

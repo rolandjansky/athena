@@ -2,15 +2,12 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "MuonRecHelperTools/TimePointBetaFitter.h"
+
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaKernel/getMessageSvc.h"
 
-#include "TimePointBetaFitter.h"
-#include <iostream>
-
 namespace Muon {
-
-  double TimePointBetaFitter::m_invSpeedOfLight = 1e6 / Gaudi::Units::c_light; // Gaudi::Units::c_light=2.99792458e+8, but need 299.792458
 
   TimePointBetaFitter::FitResult TimePointBetaFitter::fit( TimePointBetaFitter::HitVec& hits ) const {
     
@@ -35,14 +32,14 @@ namespace Muon {
     float maxInvBeta = 5; // cut at a beta of 0.2
     float pullCut = 2.5;
     for( HitVec::iterator it=hits.begin(); it!=hits.end(); ++it ){
-      float a = it->distance*m_invSpeedOfLight;
+      float a = it->distance*invSpeedOfLight;
       float invBeta = it->time/a;
       float invBetaError = it->error/a;
       if (log.level()<=MSG::VERBOSE) {
         const char* text = it->useInFit ? "    hit " : " outlier ";
-        float beta = it->distance*m_invSpeedOfLight/it->time;
-        float dbeta = it->distance*m_invSpeedOfLight/(it->time*it->time)*it->error;
-        log << MSG::VERBOSE << " TimePointBetaFitter:" << text << ", d " << it->distance << " tof " << it->distance*m_invSpeedOfLight << " time " << it->time
+        float beta = it->distance*invSpeedOfLight/it->time;
+        float dbeta = it->distance*invSpeedOfLight/(it->time*it->time)*it->error;
+        log << MSG::VERBOSE << text << ", d " << it->distance << " tof " << it->distance*invSpeedOfLight << " time " << it->time
                   << " error " << it->error << " beta " <<  beta << " error " << dbeta 
                   << " 1./beta " << invBeta << " error " << invBetaError << " use " << it->useInFit << endmsg;
       }
@@ -51,7 +48,7 @@ namespace Muon {
         it->useInFit = false;
       }
       if( !it->useInFit ) continue;
-      sum1 += it->distance*it->distance*m_invSpeedOfLight*it->weight2;
+      sum1 += it->distance*it->distance*invSpeedOfLight*it->weight2;
       sum2 += it->distance*it->time*it->weight2;
     } 
     // check if sum2 is none zero
@@ -65,7 +62,7 @@ namespace Muon {
     float chi2 = 0;
     int ndof = 0;
     for( HitVec::iterator it=hits.begin(); it!=hits.end(); ++it ){
-      float res = it->time - it->distance*m_invSpeedOfLight*invBeta;
+      float res = it->time - it->distance*invSpeedOfLight*invBeta;
       it->residual = res;
       if (log.level()<=MSG::VERBOSE) {
         const char* text = it->useInFit ? "    hit " : " outlier ";
@@ -92,7 +89,7 @@ namespace Muon {
     
     // return result if the fit failed, there were less than three hits or we are happy with the chi2
     if( result.status == 0 || hits.size() < 3 || result.chi2PerDOF() < 5 ) {
-      if (log.level()<=MSG::VERBOSE) log << " TimePointBetaFit: no outlier logic applied: hits " << hits.size() 
+      if (log.level()<=MSG::VERBOSE) log << "no outlier logic applied: hits " << hits.size() 
                                        << " chi2/ndof " << result.chi2PerDOF() << endmsg;
       return result;
     }
@@ -123,12 +120,12 @@ namespace Muon {
     
     // if we didn't find an improvement return the initial result
     if( worstHit == -1 ) {
-      if (log.level()<=MSG::VERBOSE) log << " TimePointBetaFitter: unable to improve result, keep initial result " << endmsg;
+      if (log.level()<=MSG::VERBOSE) log << "unable to improve result, keep initial result " << endmsg;
       return result;
     }
     // now refit once more removing the worst hit and return the result so the residuals are calculated correctly
     hits[worstHit].useInFit = false;
-    if (log.level()<=MSG::VERBOSE) log << " TimePointBetaFitter: removed hit " << worstHit << " new chi2 " << bestChi2Ndof << endmsg;
+    if (log.level()<=MSG::VERBOSE) log << "removed hit " << worstHit << " new chi2 " << bestChi2Ndof << endmsg;
     return fitWithOutlierLogic( hits );      
   }
 

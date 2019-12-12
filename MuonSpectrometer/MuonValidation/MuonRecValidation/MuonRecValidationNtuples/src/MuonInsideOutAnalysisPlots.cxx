@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonRecValidationNtuples/MuonInsideOutAnalysisPlots.h"
-#include "MuGirlStau/MuonBetaCalculationUtils.h"
+#include "MuonRecValidationNtuples/MuonBetaCalculationUtils.h"
 
 #include "TH1.h"
 #include "TH2.h"
