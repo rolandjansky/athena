@@ -34,28 +34,16 @@ allViewAlgorithms = AthSequencer(viewNodeName, Sequential=False, ModeOR=False, S
 
 if TriggerFlags.doID:
 
-  from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
+  from TrigInDetConfig.InDetSetup import makeInDetAlgs
   
-  viewAlgs = makeInDetAlgs("FS")
+  viewAlgs = makeInDetAlgs("FS", rois= roiCollectionName)
 
   for viewAlg in viewAlgs:
     allViewAlgorithms += viewAlg
 
 
-
-  for viewAlg in viewAlgs:
-        if "RoIs" in viewAlg.properties():
-            viewAlg.RoIs = roiCollectionName
-        if "roiCollectionName" in viewAlg.properties():
-            viewAlg.roiCollectionName = roiCollectionName
-
-
-   #Adding vertexing
-  #from TrigInDetConfig.TrigInDetPriVtxConfig import makeVertices 
+  #Adding vertexing
   from TrigInDetConfig.TrigInDetPriVtxConfig import makeVertices
-  #from TrigInDetConfig.TrigInDetPriVtxConfig
-  #from TrigUpgradeTest.TrigInDetPriVtxConfig import makeVertices
-#TrigInDetConfig/TrigInDetPriVtxConfig
 
   #TODO need to change the name of the output vertex collection to something recordable
   vtxAlgs = makeVertices( "egamma", "HLT_xAODTracks_FS", "HLT_xPrimVx"  )
@@ -68,7 +56,7 @@ if TriggerFlags.doID:
 
   allViewAlgorithms += PTAlgs
 
-   #Testing BeamSpotAlg in Run3 configuration
+  #Testing BeamSpotAlg in Run3 configuration
   prefixName = "InDetTrigMT"
   from TrigVertexFitter.TrigVertexFitterConf import TrigPrimaryVertexFitter
   primaryVertexFitter = TrigPrimaryVertexFitter(  name = prefixName + "VertexFitter",
