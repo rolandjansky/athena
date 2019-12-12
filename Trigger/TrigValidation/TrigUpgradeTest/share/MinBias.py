@@ -10,7 +10,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep
 chainName = "HLT_mb_sptrk_L1RD0_FILLED"
 
 
-from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
+from TrigInDetConfig.InDetSetup import makeInDetAlgs
 from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection, mapThresholdToL1DecisionCollection
 
 idAlgs = makeInDetAlgs(whichSignature='MinBias', separateTrackParticleCreator='MinBias', rois=mapThresholdToL1RoICollection('FS'))

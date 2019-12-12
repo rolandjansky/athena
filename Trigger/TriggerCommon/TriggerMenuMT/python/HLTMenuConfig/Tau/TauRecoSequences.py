@@ -114,7 +114,7 @@ def tauCoreTrackSequence( RoIs, name ):
 
     tauCoreTrackSequence = seqAND(name)
 
-    from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
+    from TrigInDetConfig.InDetSetup import makeInDetAlgs
     viewAlgs = makeInDetAlgs(whichSignature='TauCore',separateTrackParticleCreator="_TauCore",rois = RoIs)
 
     for viewAlg in viewAlgs:
@@ -148,7 +148,7 @@ def tauIsoTrackSequence( RoIs , name):
 
     tauIsoTrackSequence = seqAND(name)
 
-    from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
+    from TrigInDetConfig.InDetSetup import makeInDetAlgs
     viewAlgs = makeInDetAlgs(whichSignature='TauIso',separateTrackParticleCreator="_TauIso",rois = RoIs)
 
     ViewVerify = CfgMgr.AthViews__ViewDataVerifier("tauViewDataVerifierIsoFTF")

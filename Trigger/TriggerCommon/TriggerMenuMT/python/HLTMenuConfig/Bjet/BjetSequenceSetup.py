@@ -4,7 +4,7 @@
 # menu components
 from AthenaCommon.CFElements import parOR, seqAND
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
-from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
+from TrigInDetConfig.InDetSetup import makeInDetAlgs
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 #from AthenaCommon.Constants import DEBUG
@@ -190,6 +190,7 @@ def bJetStep2SequenceALLTE():
     InputMakerAlg = InputMakerForRoI("IMBJet_step2_ALLTE", RoIsLink="initialRoI")
 
     from TrigUpgradeTest.InDetPT import makeInDetPrecisionTracking
+    #FIXME: There should be a last parameter as RoI, but this code will be removed anyway
     PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "bjets", inputFTFtracks="TrigFastTrackFinder_Tracks_FS" )
 
     # gsc correction
