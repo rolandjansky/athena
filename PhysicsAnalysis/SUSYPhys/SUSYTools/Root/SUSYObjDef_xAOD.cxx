@@ -458,7 +458,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "JetInputType",  m_jetInputType );
 
   declareProperty( "FwdJetDoJVT",  m_doFwdJVT );
-  declareProperty( "FwdJet.JvtOp",  m_fwdjetOp );
 
   declareProperty( "JetJMSCalib",  m_JMScalib );
   declareProperty( "JetLargeRcollection",  m_fatJets );
