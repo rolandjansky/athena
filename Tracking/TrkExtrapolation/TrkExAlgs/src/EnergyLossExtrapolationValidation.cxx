@@ -12,7 +12,6 @@
 #include "TrkSurfaces/CylinderSurface.h"
 #include "TrkSurfaces/DiscSurface.h"
 #include "TrkSurfaces/PlaneSurface.h"
-//#include "TrkParameters/AtaPlane.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkGeometry/TrackingVolume.h"
@@ -77,7 +76,6 @@ Trk::EnergyLossExtrapolationValidation::EnergyLossExtrapolationValidation(const 
   m_breaksBack(0),
   m_collectedLayerForward(0),
   m_collectedLayerBack(0),
-  m_isValid(false),
   m_cylinderR{},
   m_cylinderZ{},
   m_theCylinders(0),
@@ -94,10 +92,7 @@ Trk::EnergyLossExtrapolationValidation::EnergyLossExtrapolationValidation(const 
     declareProperty("ValidationRunTreeDescription" , m_validationRunTreeDescription);
     declareProperty("ValidationTreeFolder"      , m_validationTreeFolder);
     declareProperty("ValidationRunTreeFolder"   , m_validationRunTreeFolder);
-    // algorithm steering
-//    declareProperty("StartPerigeeSigmaLoc"      , m_sigmaLoc);
-//    declareProperty("StartPerigeeSigmaR"        , m_sigmaR);
-//    declareProperty("StartPerigeeSigmaZ"        , m_sigmaZ);
+
     declareProperty("StartPerigeeMinEta"        , m_minEta);
     declareProperty("StartPerigeeMaxEta"        , m_maxEta);
     declareProperty("StartPerigeeUsePt"         , m_usePt);
@@ -110,12 +105,6 @@ Trk::EnergyLossExtrapolationValidation::EnergyLossExtrapolationValidation(const 
 
     declareProperty("ParticleType"              , m_particleType);
 
-
-    //    // initialize arrays
-//    for (size_t lay=0; lay<m_cylinders+1; ++lay) {
-//        m_cylinderR[lay] = 0.;
-//        m_cylinderZ[lay] = 0.;
-//    }
 }
 
 //================ Destructor =================================================
@@ -296,13 +285,11 @@ StatusCode Trk::EnergyLossExtrapolationValidation::execute()
         m_maximumZ = cylBounds->halflengthZ();
     }
 
-    // initialize the values
-//    m_isValid      = false;
+
     m_entries      = 0;
     for (size_t par=0; par<TRKEXALGS_MAXPARAMETERS; ++par) {
         // -----------> start parameters
-//        m_parameterLoc1[par]     = 0.;
-//        m_parameterLoc2[par]     = 0.;
+
         m_parameterP[par]        = 0.;
         m_energy[par]            = 0.;
         m_energyLoss[par]        = 0.;
@@ -319,15 +306,11 @@ StatusCode Trk::EnergyLossExtrapolationValidation::execute()
     }
 
     // the local start parameters
-//    m_parameterLoc1[0]  = m_sigmaLoc ? m_sigmaLoc * m_gaussDist->shoot() : 0;
-//    m_parameterLoc2[0]  = m_sigmaLoc ? m_sigmaLoc * m_gaussDist->shoot() : 0;
     // are adopted for planar and straight line surfaces
     m_parameterPhi[0]   = M_PI * (2 * m_flatDist->shoot() - 1);
     m_parameterEta[0]   = m_minEta + m_flatDist->shoot()*(m_maxEta-m_minEta);
     m_parameterTheta[0] = 2.*atan(exp(-m_parameterEta[0]));
 
-    // this is fine
-    //	double charge = (m_flatDist->shoot() > 0.5 ) ? -1. : 1.;
     double charge = -1.;
     m_parameterP[0] = m_momentum;
     // convert transverse momentum (pt) to momentum (p) if flag is set: p = pt/sin(theta)
@@ -506,18 +489,14 @@ StatusCode Trk::EnergyLossExtrapolationValidation::execute()
 		    // get the current surface intersection position
 		    const Amg::Vector3D& newPosition = newParameters->position();
             ATH_MSG_VERBOSE( "execute() Track Parameters at layer " << lay << ": " << *newParameters );
-//		    ATH_MSG_VERBOSE( "execute() Intersection Position: " << newPosition );
             ATH_MSG_DEBUG( "execute() Track Parameters at layer " << lay << ": [r,z] = [ " << newPosition.perp() << ", " << newPosition.z() );
 
 		    // record the surface parameters
 		    ++m_triesForward;
 		    ++m_entries;
-//		    m_parameterLoc1[m_entries]   = newParameters->parameters()[Trk::loc1];
-//		    m_parameterLoc2[m_entries]   = newParameters->parameters()[Trk::loc2];
 		    m_parameterPhi[m_entries]    = newParameters->parameters()[Trk::phi];
 		    m_parameterEta[m_entries]    = newParameters->momentum().eta();
 		    m_parameterTheta[m_entries]  = newParameters->parameters()[Trk::theta];
-//		    m_parameterQoverP[m_entries] = newParameters->parameters()[Trk::qOverP];
 		    m_parameterP[m_entries]      = newParameters->momentum().mag();
 		    m_parameterX0[m_entries]     = (float)newX0;
             ATH_MSG_DEBUG( "execute() Layer " << lay << ": cumulated X0 = " << m_parameterX0[m_entries] );
@@ -541,9 +520,6 @@ StatusCode Trk::EnergyLossExtrapolationValidation::execute()
 
 	}
 
-//	// do we have equal amount of layer intersections and cylinders?
-//	if (m_entries == m_cylinders)
-//	    m_isValid = true;
 
     m_totalRecordedLayers += m_entries;
     ++m_events;
