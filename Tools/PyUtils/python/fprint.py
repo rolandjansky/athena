@@ -35,6 +35,7 @@
 
 
 from __future__ import print_function
+import string
 
 
 def _formatFloat (x):
@@ -48,6 +49,10 @@ asd
 2.0
 >>> print (_formatFloat (2e30))
 2e+30
+>>> print (_formatFloat (float('nan')))
+nan
+>>> print (_formatFloat (float('inf')))
+inf
 """
     # No change if it's not a float.
     if not isinstance (x, float):
@@ -56,7 +61,7 @@ asd
     # with 12 significant figures --- except that the g format removes
     # a trailing `.0' while py2 preserves it.
     s = '%.12g' % x
-    if s.find('.') < 0 and s.find('e') < 0:
+    if s.find('.') < 0 and s.find('e') < 0 and s[-1] in string.digits:
         return s + '.0'
     return s
 
