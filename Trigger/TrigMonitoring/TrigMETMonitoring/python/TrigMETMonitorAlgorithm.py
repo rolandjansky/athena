@@ -65,8 +65,9 @@ def TrigMETMonConfig(inputFlags):
     #TrigMETMonAlg.hlt_tc_key = 'HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl'
     #TrigMETMonAlg.hlt_tcpufit_key = 'HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl_PUC'
 
-    ### temporary setting till we get a new AOD
-    TrigMETMonAlg.hlt_tcpufit_key = 'HLT_MET_tcPufit'
+    ### use the follwoing if you run on older Run3 AOD
+    #TrigMETMonAlg.hlt_tcpufit_key = 'HLT_MET_tcPufit'
+    #TrigMETMonAlg.hlt_trkmht_key = 'HLT_MET_mht'
        
 
 
@@ -111,10 +112,12 @@ def TrigMETMonConfig(inputFlags):
     sume_bins=153 #sumE
     sume_min=-27.0
     sume_max=24003.0
-    phi_bins=32 # phi
+    phi_bins=100 # phi
+    phi_bins_2d=24 # phi
     phi_min=-3.1416
     phi_max=3.1416
-    eta_bins=24 # eta
+    eta_bins=100 # eta
+    eta_bins_2d=24# eta
     eta_min=-4.8
     eta_max=4.8
     eff_bins=42 # efficiency
@@ -133,6 +136,12 @@ def TrigMETMonConfig(inputFlags):
                              path='Shifter/cell',xbins=ec_bins,xmin=ec_min,xmax=ec_max)
     metGroup.defineHistogram('cell_Et',title='cell Missing E_{T};E_{T} [GeV];Events',
                              path='Shifter/cell',xbins=et_bins,xmin=et_min,xmax=et_max)
+    metGroup.defineHistogram('trkmht_Ex',title='trkmht Missing E_{x};E_{x} [GeV];Events',
+                             path='Shifter/trkmht',xbins=ec_bins,xmin=ec_min,xmax=ec_max)
+    metGroup.defineHistogram('trkmht_Ey',title='trkmht Missing E_{y};E_{y} [GeV];Events',
+                             path='Shifter/trkmht',xbins=ec_bins,xmin=ec_min,xmax=ec_max)
+    metGroup.defineHistogram('trkmht_Et',title='trkmht Missing E_{T};E_{T} [GeV];Events',
+                             path='Shifter/trkmht',xbins=et_bins,xmin=et_min,xmax=et_max)
     metGroup.defineHistogram('tcpufit_Ex',title='tcpufit Missing E_{x};E_{x} [GeV];Events',
                              path='Shifter/tcpufit',xbins=ec_bins,xmin=ec_min,xmax=ec_max)
     metGroup.defineHistogram('tcpufit_Ey',title='tcpufit Missing E_{y};E_{y} [GeV];Events',
@@ -154,7 +163,7 @@ def TrigMETMonConfig(inputFlags):
                              path='Shifter/tcpufit',xbins=phi_bins,xmin=phi_min,xmax=phi_max)
     metGroup.defineHistogram('tcpufit_eta,tcpufit_phi;tcpufit_eta_phi', type='TH2F', title='tcpufit #eta - #phi;#eta;#phi',
                              path='Shifter/tcpufit',
-                             xbins=eta_bins,xmin=eta_min,xmax=eta_max,ybins=phi_bins,ymin=phi_min,ymax=phi_max)
+                             xbins=eta_bins_2d,xmin=eta_min,xmax=eta_max,ybins=phi_bins_2d,ymin=phi_min,ymax=phi_max)
     metGroup.defineHistogram('L1_Et,pass_HLT1;L1_eff', type='TProfile',title='L1 efficiency;E_{T} [GeV];Efficiency',
                              path='Shifter/eff',xbins=eff_bins,xmin=eff_min,xmax=eff_max)
     metGroup.defineHistogram('mht_Ex',title='mht Missing E_{x};E_{x} [GeV];Events',
@@ -197,9 +206,8 @@ if __name__=='__main__':
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     nightly = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/'
     file = 'data16_13TeV.00311321.physics_Main.recon.AOD.r9264/AOD.11038520._000001.pool.root.1'
-    #ConfigFlags.Input.Files = [nightly+file]
-    ConfigFlags.Input.Files = ['/hep300/data/khamano/mc16_athenaMT/fromElin/AOD.pool.root']
-    ConfigFlags.Input.isMC = True
+    ConfigFlags.Input.Files = [nightly+file]
+    ConfigFlags.Input.isMC = False
     ConfigFlags.Output.HISTFileName = 'TrigMETMonitorOutput.root'
     
     ConfigFlags.lock()
