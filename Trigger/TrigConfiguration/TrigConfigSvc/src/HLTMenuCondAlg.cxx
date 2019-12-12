@@ -45,7 +45,7 @@ TrigConf::HLTMenuCondAlg::execute(const EventContext& ctx) const {
    fileLoader.setLevel(TrigConf::MSGTC::WARNING); 
    TrigConf::HLTMenu * hltmenu = new TrigConf::HLTMenu;
    if( m_inputType == "file" ) {
-      if( fileLoader.loadFile( m_fileName, *hltmenu ).isSuccess() ) {
+      if( fileLoader.loadFile( m_fileName, *hltmenu ) ) {
          ATH_MSG_INFO( "Loaded HLT menu file " << m_fileName );
       } else {
          ATH_MSG_WARNING( "Failed loading HLT menu file " << m_fileName.value() );

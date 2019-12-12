@@ -45,7 +45,7 @@ TrigConf::L1MenuCondAlg::execute(const EventContext& ctx) const {
    fileLoader.setLevel(TrigConf::MSGTC::WARNING); 
    TrigConf::L1Menu * l1menu = new TrigConf::L1Menu;
    if( m_inputType == "file" ) {
-      if( fileLoader.loadFile( m_fileName, *l1menu ).isSuccess() ) {
+      if( fileLoader.loadFile( m_fileName, *l1menu ) ) {
          ATH_MSG_INFO( "Loaded L1 menu file " << m_fileName );
       } else {
          ATH_MSG_ERROR( "Failed loading L1 menu file " << m_fileName.value() );
