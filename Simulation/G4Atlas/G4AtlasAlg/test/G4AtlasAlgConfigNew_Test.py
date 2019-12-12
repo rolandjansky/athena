@@ -32,7 +32,7 @@ if __name__ == '__main__':
   ConfigFlags.Sim.CalibrationRun = False # 'DeadLAr'
   ConfigFlags.Sim.RecordStepInfo = False
   ConfigFlags.Sim.CavernBG = "Signal"
-  ConfigFlags.Sim.ISF.Run = False 
+  ConfigFlags.Sim.ISFRun = False
 
   ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"
   ConfigFlags.GeoModel.Align.Dynamic = False

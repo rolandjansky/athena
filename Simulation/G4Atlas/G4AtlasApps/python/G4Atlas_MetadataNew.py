@@ -71,7 +71,7 @@ def writeSimulationParametersMetadata(ConfigFlags):
     dbFiller.setEndRun(myEndRunNumber)
 
     fillAtlasMetadata(ConfigFlags, dbFiller)
-    if ConfigFlags.Sim.ISF.Run:
+    if ConfigFlags.Sim.ISFRun:
         #fillISFMetadata(dbFiller) #add later
         pass
     #-------------------------------------------------

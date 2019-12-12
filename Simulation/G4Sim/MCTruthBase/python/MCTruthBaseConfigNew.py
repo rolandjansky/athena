@@ -37,7 +37,7 @@ def getEnvelopeMap(ConfigFlags):
                             envelopeMap['SCT::ThShieldOuterCly'] = 'SCTBarrelEntryLayer'# could be ThShieldInnerCly or Cyl..
                         elif simFlags.CosmicFilterVolumeName2 == "Pixel":
                             envelopeMap['Pixel::Pixel'] = 'PixelEntryLayer'"""
-    if not ConfigFlags.Sim.ISF.Run:
+    if not ConfigFlags.Sim.ISFRun:
         if ConfigFlags.Detector.SimulateID:
             envelopeMap['IDET::IDET'] = 'CaloEntryLayer'
         if ConfigFlags.Detector.SimulateCalo:

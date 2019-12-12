@@ -5,7 +5,7 @@ from MCTruthBase.MCTruthBaseConfigNew import MCTruthSteppingActionToolCfg
 
 from G4AtlasServices.G4AtlasServicesConf import G4UA__UserActionSvc
 
-from G4UserActions.G4UserActionsConfigNew import AthenaStackingActionToolCfg, AthenaTrackingActionToolCfg
+from G4UserActions.G4UserActionsConfigNew import AthenaStackingActionToolCfg#, AthenaTrackingActionToolCfg
 
 
 # New function for all user action types
@@ -19,9 +19,9 @@ def getDefaultActions(ConfigFlags):
     actions += [result.popToolsAndMerge( AthenaStackingActionToolCfg(ConfigFlags)  )]
 
     # Some truth handling actions (and timing)
-    if not ConfigFlags.Sim.ISF.Run:
+    if not ConfigFlags.Sim.ISFRun:
         actions += [
-                    #result.popToolsAndMerge( AthenaTrackingActionToolCfg(ConfigFlags) ), # G4AtlasAlg runs slowly( if at all) with this
+                    #result.popToolsAndMerge( AthenaTrackingActionToolCfg(ConfigFlags) ),
                     result.popToolsAndMerge( MCTruthSteppingActionToolCfg(ConfigFlags) )
                     #'G4UA::G4SimTimerTool']
                     ]
@@ -32,7 +32,7 @@ def getDefaultActions(ConfigFlags):
     if ConfigFlags.Beam.Type == 'cosmics' and ConfigFlags.Sim.CavernBG:
         actions += ['G4UA::CosmicPerigeeActionTool']
     # Cosmic filter
-    if ConfigFlags.Beam.Type == 'cosmics' and not ConfigFlags.Sim.ISF.Run:
+    if ConfigFlags.Beam.Type == 'cosmics' and not ConfigFlags.Sim.ISFRun:
         actions += ['G4UA::G4CosmicFilterTool']
     if ConfigFlags.Sim.StoppedParticleFile:
         actions += ['G4UA::StoppedParticleFilterTool',

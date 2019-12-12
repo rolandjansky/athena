@@ -69,11 +69,11 @@ def getATLAS_RegionCreatorList(ConfigFlags):
     #if simFlags.ForwardDetectors.statusOn:
     #    if DetFlags.geometry.FwdRegion_on():
     #        regionCreatorList += ['FwdRegionPhysicsRegionTool']
-    if ConfigFlags.Detector.GeometryMuon:
+    #if ConfigFlags.Detector.GeometryMuon:
         #todo - add the line below
         #regionCreatorList += [DriftWallPhysicsRegionTool(ConfigFlags), DriftWall1PhysicsRegionTool(ConfigFlags), DriftWall2PhysicsRegionTool(ConfigFlags)]
-        if ConfigFlags.Sim.CavernBG != 'Read' and not (simFlags.RecordFlux.statusOn and simFlags.RecordFlux()):
-            pass
+        #if ConfigFlags.Sim.CavernBG != 'Read' and not (simFlags.RecordFlux.statusOn and simFlags.RecordFlux()):
+            #pass
             #todo - add the line below
             #regionCreatorList += [MuonSystemFastPhysicsRegionTool(ConfigFlags)]
     return regionCreatorList

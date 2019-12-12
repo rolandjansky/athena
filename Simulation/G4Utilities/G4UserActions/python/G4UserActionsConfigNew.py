@@ -29,7 +29,7 @@ def AthenaStackingActionToolCfg(ConfigFlags, name='G4UA::AthenaStackingActionToo
             raise NotImplementedError("Photon Russian Roulette should not be used in Calibration Runs.")
         kwargs.setdefault('PRRThreshold',  ConfigFlags.Sim.PRRThreshold)
         kwargs.setdefault('PRRWeight',  ConfigFlags.Sim.PRRWeight)
-    kwargs.setdefault('IsISFJob', ConfigFlags.Sim.ISF.Run)
+    kwargs.setdefault('IsISFJob', ConfigFlags.Sim.ISFRun)
 
     result.setPrivateTools( G4UA__AthenaStackingActionTool(name,**kwargs) )
     return result
