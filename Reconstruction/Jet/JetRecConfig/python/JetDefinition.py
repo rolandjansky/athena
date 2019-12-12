@@ -17,8 +17,11 @@ jetlog = Logging.logging.getLogger('JetDefinition')
 import cppyy
 try:
     cppyy.loadDictionary('xAODBaseObjectTypeDict')
+    print "Yay"
 except:
+    print "No"
     pass
+import ROOT
 from ROOT import xAODType
 xAODType.ObjectType
 
