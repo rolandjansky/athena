@@ -67,7 +67,8 @@ void copyAuxStoreThinned NO_SANITIZE_UNDEFINED
 
   // Get the auxiliary IDs of the variables that should be compressed
   SG::auxid_set_t comp_auxids;
-  if (const IAuxStoreCompression* icomp = dynamic_cast<const IAuxStoreCompression*> (&orig)) {
+  const IAuxStoreCompression* icomp = dynamic_cast<const IAuxStoreCompression*> (&orig);
+  if (icomp != nullptr) {
     comp_auxids = icomp->getCompressedAuxIDs();
   }
 
@@ -109,6 +110,7 @@ void copyAuxStoreThinned NO_SANITIZE_UNDEFINED
     // Get the element size and the type name for the current auxid
     const size_t eltSize{r.getEltSize(auxid)};
     const std::string typeName{r.getTypeName(auxid)};
+    const bool compressed{comp_auxids.test(auxid)};
 
     // Create the target variable:
     void* dst = copy.getData (auxid, nremaining, nremaining);
@@ -118,19 +120,14 @@ void copyAuxStoreThinned NO_SANITIZE_UNDEFINED
       if (!thinned || !flags[isrc]) {
         r.copyForOutput (auxid, dst, idst, src, isrc);
         // Compression BEGINS
-        if (comp_auxids.test(auxid)) {
-          // Get the IAuxStoreCompression
-          const IAuxStoreCompression* icomp = dynamic_cast<const IAuxStoreCompression*> (&orig);
-
+        if (compressed) {
           // Get the pointer to the memory
           void* eltPtr = reinterpret_cast<char*>(dst) + idst*eltSize;
 
           // Here comes the actual compression
           // By now we should only have either float or std::vector<float>
           if(typeName.find("vector") == std::string::npos) {
-            float val = *(float*) eltPtr;
-            val = icomp->getCompressedValue(val);
-            *(float*) eltPtr = val;
+            *(float*) eltPtr = icomp->getCompressedValue(*(float*) eltPtr);
           } else {
             std::vector<float> &vals = *(reinterpret_cast<std::vector<float>*>(eltPtr));
             for(auto &val: vals) {
@@ -188,7 +185,8 @@ void copyAuxStoreThinned NO_SANITIZE_UNDEFINED
 
   // Get the auxiliary IDs of the variables that should be compressed
   SG::auxid_set_t comp_auxids;
-  if (const IAuxStoreCompression* icomp = dynamic_cast<const IAuxStoreCompression*> (&orig)) {
+  const IAuxStoreCompression* icomp = dynamic_cast<const IAuxStoreCompression*> (&orig);
+  if (icomp != nullptr) {
     comp_auxids = icomp->getCompressedAuxIDs();
   }
 
@@ -230,6 +228,7 @@ void copyAuxStoreThinned NO_SANITIZE_UNDEFINED
     // Get the element size and the type name for the current auxid
     const size_t eltSize{r.getEltSize(auxid)};
     const std::string typeName{r.getTypeName(auxid)};
+    const bool compressed{comp_auxids.test(auxid)};
 
     // Create the target variable:
     void* dst = copy.getData (auxid, nremaining, nremaining);
@@ -239,19 +238,14 @@ void copyAuxStoreThinned NO_SANITIZE_UNDEFINED
       if (!dec || !dec->thinned(isrc)) {
         r.copyForOutput (auxid, dst, idst, src, isrc);
         // Compression BEGINS
-        if (comp_auxids.test(auxid)) {
-          // Get the IAuxStoreCompression
-          const IAuxStoreCompression* icomp = dynamic_cast<const IAuxStoreCompression*> (&orig);
-
+        if (compressed) {
           // Get the pointer to the memory
           void* eltPtr = reinterpret_cast<char*>(dst) + idst*eltSize;
 
           // Here comes the actual compression
           // By now we should only have either float or std::vector<float>
           if(typeName.find("vector") == std::string::npos) {
-            float val = *(float*) eltPtr;
-            val = icomp->getCompressedValue(val);
-            *(float*) eltPtr = val;
+            *(float*) eltPtr = icomp->getCompressedValue(*(float*) eltPtr);
           } else {
             std::vector<float> &vals = *(reinterpret_cast<std::vector<float>*>(eltPtr));
             for(auto &val: vals) {
