@@ -63,7 +63,7 @@ class TileBeamElemContByteStreamCnv
     //        existing ByteStreamSvc interfaces.
     inline const eformat::FullEventFragment<const uint32_t*> * eventFragment() const { return m_event.get(); }
     inline const eformat::ROBFragment<const uint32_t*> * robFragment() const { return m_robFrag.get(); }
-    inline bool  validBeamFrag() const { return m_robFrag != 0; }
+    inline bool  validBeamFrag() const { return m_robFrag.isValid(); }
   
   private: 
     
