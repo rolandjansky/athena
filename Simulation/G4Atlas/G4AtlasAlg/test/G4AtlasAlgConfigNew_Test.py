@@ -153,7 +153,8 @@ if __name__ == '__main__':
 
 
   b = time.time()
-  print("Run G4AtlasAlg in ", b-a, " seconds")
+  from AthenaCommon import Logging
+  log.info("Run G4AtlasAlg in " + str(b-a) + " seconds")
 
   # Success should be 0
   os.sys.exit(not sc.isSuccess())
