@@ -490,8 +490,7 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
 
   size_t firstWeight = (m_doLHE3Weights)? 1: 0;
 
-
-  for(int iw = firstWeight; iw != m_pythia.info.PYTHIA8_NWEIGHTS(); ++iw){
+  for(int iw = firstWeight; iw < m_pythia.info.PYTHIA8_NWEIGHTS(); ++iw){
 
     std::string wtName = ((int)m_showerWeightNames.size() == m_pythia.info.PYTHIA8_NWEIGHTS())? m_showerWeightNames[iw]: "ShowerWt_" + std::to_string(iw);
 
