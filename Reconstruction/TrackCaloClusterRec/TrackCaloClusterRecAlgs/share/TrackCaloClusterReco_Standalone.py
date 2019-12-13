@@ -103,22 +103,22 @@ TrackCaloClusterWeights = TrackCaloClusterWeightsTool(name                 = "Tr
 ToolSvc+=TrackCaloClusterWeights
 print      TrackCaloClusterWeights
 
-loosetrackvertexassotool=CfgMgr.CP__LooseTrackVertexAssociationTool("LooseTrackVertexAssociationTool", dzSinTheta_cut=3, d0_cut=2) 
-ToolSvc+=loosetrackvertexassotool 
+trackvertexassotool=CfgMgr.CP__TrackVertexAssociationTool("TrackVertexAssociationTool", WorkingPoint="Nominal")
+ToolSvc+=trackvertexassotool
 
 from JetRecTools.JetRecToolsConf import TrackVertexAssociationTool
 jettva  =   TrackVertexAssociationTool( name                    = "tvassoc",
                                         TrackParticleContainer  = "InDetTrackParticles",
                                         TrackVertexAssociation  = "JetTrackVtxAssoc",
                                         VertexContainer         = "PrimaryVertices",
-                                        TrackVertexAssoTool     = loosetrackvertexassotool
+                                        TrackVertexAssoTool     = trackvertexassotool
                                     )
 ToolSvc+=jettva 
 print      jettva
 
 #from TrackCaloClusterRecTools.TrackCaloClusterRecToolsConf import ClusterFilterTool
 #clusterfiltertool = ClusterFilterTool(name                       = "clusterfiltertool",
-#                                      LooseTrackVertexAssoTool   = loosetrackvertexassotool,
+#                                      LooseTrackVertexAssoTool   = trackvertexassotool,
 #                                      TrackParticleContainerName = "InDetTrackParticles",
 #                                      ConeSize                   = 0.2,
 #                                      StoreParameters            = False)
@@ -130,7 +130,7 @@ print      jettva
 from TrackCaloClusterRecTools.TrackCaloClusterRecToolsConf import TrackCaloClusterCreatorTool
 TrackCaloClusterCreator = TrackCaloClusterCreatorTool(name                      = "TrackCaloClusterCreator",
                                                       VertexContainerName       = "PrimaryVertices",
-                                                      LooseTrackVertexAssoTool  = loosetrackvertexassotool,
+                                                      LooseTrackVertexAssoTool  = trackvertexassotool,
                                                       ApplyClusterFilter        = False  )
 # TrackCaloClusterCreator.OutputLevel = VERBOSE
 ToolSvc+=TrackCaloClusterCreator
