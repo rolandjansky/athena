@@ -34,15 +34,11 @@ StatusCode EventViewCreatorAlgorithmWithJets::execute( const EventContext& conte
   ATH_CHECK (decisionInputToOutput(context, outputHandles));
 
   // make the views
-  auto viewsHandle = SG::makeHandle( m_viewsKey, context ); 
+  auto viewsHandle = SG::makeHandle( m_viewsKey, context );
   auto viewVector1 = std::make_unique< ViewContainer >();
   ATH_CHECK( viewsHandle.record(  std::move( viewVector1 ) ) );
   auto viewVector = viewsHandle.ptr();
-
-  //  auto viewVector = std::make_unique< ViewContainer >();
-  auto contexts = std::vector<EventContext>( );
   unsigned int viewCounter = 0;
-  unsigned int conditionsRun = Atlas::getExtendedEventContext(context).conditionsRun();
 
   //map all RoIs that are stored
   std::vector <ElementLink<TrigRoiDescriptorCollection> > RoIsFromDecision;
@@ -80,7 +76,7 @@ StatusCode EventViewCreatorAlgorithmWithJets::execute( const EventContext& conte
         // check if already found
         auto roiIt=find(RoIsFromDecision.begin(), RoIsFromDecision.end(), roiEL);
         if ( roiIt == RoIsFromDecision.end() ){
-          RoIsFromDecision.push_back(roiEL); // just to keep track of which we have used 
+          RoIsFromDecision.push_back(roiEL); // just to keep track of which we have used
           const TrigRoiDescriptor* roi = *roiEL;
           ATH_MSG_DEBUG("Found RoI:" <<*roi<<" FS="<<roi->isFullscan());
           ATH_MSG_DEBUG( "Positive decisions on RoI, preparing view" );
@@ -95,16 +91,13 @@ StatusCode EventViewCreatorAlgorithmWithJets::execute( const EventContext& conte
           }
 
           viewVector->push_back( newView );
-          contexts.emplace_back( context );
-          Atlas::setExtendedEventContext (contexts.back(),
-                                          Atlas::ExtendedEventContext( viewVector->back(), conditionsRun, roi ) );
           
           // link decision to this view
           outputDecision->setObjectLink( TrigCompositeUtils::viewString(), ElementLink< ViewContainer >(m_viewsKey.key(), viewVector->size()-1 ));//adding view to TC
           ATH_MSG_DEBUG( "Adding new view to new decision; storing view in viewVector component " << viewVector->size()-1 );
           ATH_CHECK( linkViewToParent( inputDecision, viewVector->back() ) );
-          ATH_CHECK( placeRoIInView( roiEL, viewVector->back(), contexts.back() ) );
-          ATH_CHECK( placeJetInView( jet, viewVector->back(), contexts.back() ) );
+          ATH_CHECK( placeRoIInView( roiEL, viewVector->back(), context ) );
+          ATH_CHECK( placeJetInView( jet, viewVector->back(), context ) );
         }
         else {
           int iview = roiIt-RoIsFromDecision.begin();
@@ -112,7 +105,7 @@ StatusCode EventViewCreatorAlgorithmWithJets::execute( const EventContext& conte
           ATH_MSG_DEBUG( "Adding already mapped view " << iview << " in ViewVector , to new decision");
         }
       }// loop over previous inputs
-    } // loop over decisions   
+    } // loop over decisions
   }// loop over output keys
 
   ATH_MSG_DEBUG( "Launching execution in " << viewVector->size() << " views" );
@@ -132,16 +125,16 @@ StatusCode EventViewCreatorAlgorithmWithJets::execute( const EventContext& conte
 }
 
 StatusCode EventViewCreatorAlgorithmWithJets::placeJetInView( const xAOD::Jet* theObject, SG::View* view, const EventContext& context ) const {
-  // fill the Jet output collection  
+  // fill the Jet output collection
   ATH_MSG_DEBUG( "Adding Jet To View : " << m_inViewJets.key() );
   auto oneObjectCollection = std::make_unique< ConstDataVector< xAOD::JetContainer > >();
-  oneObjectCollection->clear( SG::VIEW_ELEMENTS ); 
+  oneObjectCollection->clear( SG::VIEW_ELEMENTS );
   oneObjectCollection->push_back( theObject );
 
-  //store in the view 
+  //store in the view
   auto handle = SG::makeHandle( m_inViewJets,context );
   ATH_CHECK( handle.setProxyDict( view ) );
-  ATH_CHECK( handle.record( std::move( oneObjectCollection ) ) ); 
+  ATH_CHECK( handle.record( std::move( oneObjectCollection ) ) );
   return StatusCode::SUCCESS;
 }
 
