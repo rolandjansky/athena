@@ -71,6 +71,8 @@ namespace ST {
     // Need a timestamped key to copy btagging links
     std::string jetkey_btag = m_BtagKeyOverride;  
     if (jetkey_tmp.find("_BTagging")!=std::string::npos) {
+         ATH_MSG_WARNING("Time-stamped container key "<<jetkey_tmp<<" is given. These containers only contain b-tagging information and cannot be used for calibration. "<<
+         " Will remove the time stamp and use the key to attach the b-tagging information to the actual container");
          if (m_BtagTimeStamp.empty()) jetkey_btag = jetkey_tmp;         
          jetkey_tmp = jetkey_tmp.substr(0, jetkey_tmp.find("_BTagging"));                   
          if (jetkey_btag.empty()) jetkey_btag = jetkey_tmp+"_BTagging"+m_BtagTimeStamp;              
