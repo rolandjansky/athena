@@ -132,8 +132,8 @@ if not hasattr(postSeq, "CountHepMC"):
 #postSeq.CountHepMC.RequestedOutput = evgenConfig.nEventsPerJob if runArgs.maxEvents == -1 else runArgs.maxEvents
 
 postSeq.CountHepMC.FirstEvent = runArgs.firstEvent
-postSeq.CountHepMC.CorrectHepMC = False
-postSeq.CountHepMC.CorrectEventID = False
+postSeq.CountHepMC.CorrectHepMC = True
+postSeq.CountHepMC.CorrectEventID = True
 
 ## Print out the contents of the first 5 events (after filtering)
 # TODO: Allow configurability from command-line/exec/include args
@@ -198,24 +198,12 @@ print "Using JOBOPTSEARCHPATH (as seen in skeleton) = '%s'" % (os.environ["JOBOP
 FIRST_DIR = (os.environ['JOBOPTSEARCHPATH']).split(":")[0]
 #print "The first search dir = ", FIRST_DIR
 
-dsid_param = runArgs.jobConfig[0]
-#evgenLog.info("dsid_param " + dsid_param)
-dsid = os.path.basename(dsid_param)
-#evgenLog.info("dsid " + dsid)
-#BaseCvmfsPath = "/cvmfs/atlas.cern.ch/repo/sw/Generators/MC16JobOptions/"
-##if len(dsid)==6 and dsid.isdigit(): #only dsid is provided, add cvmfs folder like 123xxx to JOBOPTSEARCHPATH
-#dsid_part=dsid
-#Jodir = dsid[:3]+'xxx'
-#JoCvmfsPath = os.path.join(BaseCvmfsPath, Jodir)
-#JoCvmfsDsid = os.path.join(JoCvmfsPath, dsid)
-#jofiles = [f for f in os.listdir(JoCvmfsDsid) if (f.startswith('mc') and f.endswith('.py'))]
 jofiles = [f for f in os.listdir(FIRST_DIR) if (f.startswith('mc') and f.endswith('.py'))]
 #print "JO file ",jofiles
 ## Only permit one JO file in each dsid folder
 if len(jofiles) !=1:
     evgenLog.error("You must supply one and only one jobOption file in DSID directory")
     sys.exit(1)
-#jofile = dsid + '/' + jofiles[0]
 jofile = jofiles[0]
 
 joparts = (os.path.basename(jofile)).split(".")
@@ -471,6 +459,9 @@ for removeItem in evgenConfig.doNotSaveItems: StreamEVGEN.ItemList.remove( remov
 for addItem in evgenConfig.extraSaveItems: StreamEVGEN.ItemList += [ addItem ]
 
 ## Set the run numbers
+dsid = os.path.basename(runArgs.jobConfig[0])
+if not dsid.isdigit():
+    dsid = "999999"
 svcMgr.EventSelector.RunNumber = int(dsid)
 #runArgs.runNumber
 # TODO: set EventType::mc_channel_number = runArgs.runNumber
@@ -486,6 +477,7 @@ svcMgr.TagInfoMgr.ExtraTagValuePairs += ["evgenTune", evgenConfig.tune]
 if hasattr( evgenConfig, "hardPDF" ) : svcMgr.TagInfoMgr.ExtraTagValuePairs += ["hardPDF", evgenConfig.hardPDF]
 if hasattr( evgenConfig, "softPDF" ) : svcMgr.TagInfoMgr.ExtraTagValuePairs += ["softPDF", evgenConfig.softPDF]
 if hasattr( runArgs, "randomSeed") :  svcMgr.TagInfoMgr.ExtraTagValuePairs += ["randomSeed", str(runArgs.randomSeed)]
+if hasattr( runArgs, "AMITag") and runArgs.AMITag != "NONE": svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", runArgs.AMITag]
 
 ## Handle beam info
 svcMgr.TagInfoMgr.ExtraTagValuePairs += ["beam_energy", str(int(runArgs.ecmEnergy*Units.GeV/2.0))]

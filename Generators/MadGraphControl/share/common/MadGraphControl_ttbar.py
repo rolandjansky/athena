@@ -292,7 +292,7 @@ outputDS=arrange_output(run_name=name,
 # Run Pythia 8 Showering
 # --------------------------------------------------------------
 
-if not runArgs.runNumber in herwig_dsids:
+if not thisDSID in herwig_dsids:
     evgenConfig.generators    += ["aMcAtNlo", "Pythia8"]
     evgenConfig.description    = 'MG5_aMC@NLO+Pythia8+EvtGen '+name+' OTF, A14 NNPDF 2.3 LO, ME NNPDF 3.0 NLO, using scale sqrt(sum_i mT(i)**2/2)), for i = top quarks'
     evgenConfig.keywords      += [ 'SM', 'top']
@@ -300,7 +300,7 @@ if not runArgs.runNumber in herwig_dsids:
     runArgs.inputGeneratorFile=outputDS    
     include("Pythia8_i/Pythia8_A14_NNPDF23LO_EvtGen_Common.py")
     include("Pythia8_i/Pythia8_aMcAtNlo.py")
-elif runArgs.runNumber in herwig_dsids:
+elif thisDSID in herwig_dsids:
     runArgs.inputGeneratorFile=outputDS
     evgenConfig.generators += ["aMcAtNlo", "Herwig7"]
     evgenConfig.description = 'MG5_aMC@NLO+Herwig7+EvtGen '+name+' OTF, H7p1 default tune, ME NNPDF 3.0 NLO, using scale sqrt(sum_i mT(i)**2/2)), for i = top quarks'

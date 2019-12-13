@@ -684,7 +684,8 @@ def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,r
         mglog.info( sorted( os.listdir( currdir ) ) )
         mglog.info('For your information, ls of '+gridpack_dir+':')
         mglog.info( sorted( os.listdir( gridpack_dir ) ) )
-
+        if is_version_or_newer([2,6,3]):
+            modify_run_card(gridpack_dir+'/Cards/run_card.dat',gridpack_dir+'/Cards/run_card.backup',{'python_seed' : random_seed})
         run_card_consistency_check(isNLO=isNLO,path=gridpack_dir)
         generate = subprocess.Popen([gridpack_dir+'/bin/run.sh',str(int(nevents)),str(int(random_seed))],stdin=subprocess.PIPE)
         generate.communicate()
@@ -850,15 +851,7 @@ def getMadGraphVersion():
 def setupFastjet(isNLO, proc_dir=None):
 
     mglog.info('Path to fastjet install dir:%s'%os.environ['FASTJETPATH'])
-
-
-    getfjconfig = subprocess.Popen(['get_files','-data','fastjet-config'])
-    getfjconfig.wait()
-    #Get custom fastjet-config
-    if not os.access(os.getcwd()+'/fastjet-config',os.X_OK):
-        mglog.error('Failed to get fastjet-config from MadGraphControl')
-        return 1
-    fastjetconfig = os.getcwd()+'/fastjet-config'
+    fastjetconfig = os.environ['FASTJETPATH']+'/bin/fastjet-config'
 
     mglog.info('fastjet-config --version:      %s'%str(subprocess.Popen([fastjetconfig, '--version'],stdout = subprocess.PIPE).stdout.read().strip()))
     mglog.info('fastjet-config --prefix:       %s'%str(subprocess.Popen([fastjetconfig, '--prefix'],stdout = subprocess.PIPE).stdout.read().strip()))
@@ -1304,7 +1297,7 @@ output -f"""
     return
 
 
-def arrange_output(run_name='Test',proc_dir='PROC_mssm_0',outputDS='madgraph_OTF._00001.events.tar.gz',lhe_version=None,saveProcDir=False,runArgs=None,madspin_card_loc=None):
+def arrange_output(run_name='Test',proc_dir='PROC_mssm_0',outputDS='madgraph_OTF._00001.events.tar.gz',lhe_version=None,saveProcDir=False,runArgs=None,madspin_card_loc=None,fixEventWeightsForBridgeMode=False):
     try:
         from __main__ import opts
         if opts.config_only:
@@ -1324,6 +1317,9 @@ def arrange_output(run_name='Test',proc_dir='PROC_mssm_0',outputDS='madgraph_OTF
     hasRunMadSpin=False
     madspinDirs=sorted(glob.glob(proc_dir+'/Events/'+run_name+'_decayed_*/'))
     if len(madspinDirs): hasRunMadSpin=True
+    if hasRunMadSpin and not hasUnweighted:
+        # check again:
+        hasUnweighted = os.access(madspinDirs[-1]+'/unweighted_events.lhe.gz',os.R_OK)
 
     if madspin_card_loc or hasRunMadSpin:
         if len(madspinDirs):
@@ -1352,6 +1348,109 @@ def arrange_output(run_name='Test',proc_dir='PROC_mssm_0',outputDS='madgraph_OTF
             raise RuntimeError('MadSpin was run but can\'t find output folder %s.'%(proc_dir+'/Events/'+run_name+'_decayed_1/'))
 
 
+
+        if fixEventWeightsForBridgeMode:
+            mglog.info("Fixing event weights after MadSpin... initial checks.")
+
+            # get the cross section from the undecayed LHE file
+            spinmodenone=False
+            MGnumevents=-1
+            MGintweight=-1
+
+            if hasUnweighted:
+                eventsfilename="unweighted_events"
+            else:
+                eventsfilename="events"
+            unzip = subprocess.Popen(['gunzip','-f',proc_dir+'/Events/'+run_name+'/%s.lhe.gz' % eventsfilename])
+            unzip.wait()
+
+            for line in open(proc_dir+'/Events/'+run_name+'/%s.lhe'%eventsfilename):
+                if "Number of Events" in line:
+                    sline=line.split()
+                    MGnumevents=int(sline[-1])
+                elif "Integrated weight (pb)" in line:
+                    sline=line.split()
+                    MGintweight=float(sline[-1])
+                elif "set spinmode none" in line:
+                    spinmodenone=True
+                elif "</header>" in line:
+                    break
+
+            
+
+            if spinmodenone and MGnumevents>0 and MGintweight>0:
+                mglog.info("Fixing event weights after MadSpin... modifying LHE file.")
+                newlhe=open(proc_dir+'/Events/'+run_name+'/%s_fixXS.lhe'%eventsfilename,'w')
+                initlinecount=0
+                eventlinecount=0
+                inInit=False
+                inEvent=False
+
+                # new default for MG 2.6.1+ (https://its.cern.ch/jira/browse/AGENE-1725)
+                # but verified from LHE below.
+                event_norm_setting="average" 
+
+                for line in open(proc_dir+'/Events/'+run_name+'/%s.lhe'%eventsfilename):
+
+                    newline=line
+                    if "<init>" in line:                         
+                        inInit=True
+                        initlinecount=0
+                    elif "</init>" in line:
+                        inInit=False
+                    elif inInit and initlinecount==0:
+                        initlinecount=1
+                        # check event_norm setting in LHE file, deteremines how Pythia interprets event weights
+                        sline=line.split()
+                        if abs(int(sline[-2])) == 3:
+                            event_norm_setting="sum"
+                        elif abs(int(sline[-2])) == 4:
+                            event_norm_setting="average"
+                    elif inInit and initlinecount==1:
+                        sline=line.split()
+                        # update the global XS info
+                        relunc=float(sline[1])/float(sline[0])
+                        sline[0]=str(MGintweight)                
+                        sline[1]=str(float(sline[0])*relunc)     
+                        if event_norm_setting=="sum":
+                            sline[2]=str(MGintweight/MGnumevents)
+                        elif event_norm_setting=="average":
+                            sline[2]=str(MGintweight)            
+                        newline=' '.join(sline)
+                        newline+="\n"
+                        initlinecount+=1
+                    elif inInit and initlinecount>1:
+                        initlinecount+=1
+                    elif "<event>" in line:                      
+                        inEvent=True
+                        eventlinecount=0
+                    elif "</event>" in line:
+                        inEvent=False
+                    elif inEvent and eventlinecount==0:
+                        sline=line.split()
+                        # next change the per-event weights
+                        if event_norm_setting=="sum":
+                            sline[2]=str(MGintweight/MGnumevents)
+                        elif event_norm_setting=="average":
+                            sline[2]=str(MGintweight)            
+                        newline=' '.join(sline)
+                        newline+="\n"
+                        eventlinecount+=1
+                    newlhe.write(newline)
+                newlhe.close()
+
+                mglog.info("Fixing event weights after MadSpin... cleaning up.")
+                shutil.copyfile(proc_dir+'/Events/'+run_name+'/%s.lhe' % eventsfilename,
+                                proc_dir+'/Events/'+run_name+'/%s_badXS.lhe' % eventsfilename)
+
+                shutil.move(proc_dir+'/Events/'+run_name+'/%s_fixXS.lhe' % eventsfilename,
+                            proc_dir+'/Events/'+run_name+'/%s.lhe' % eventsfilename)
+
+                rezip = subprocess.Popen(['gzip',proc_dir+'/Events/'+run_name+'/%s.lhe' % eventsfilename])
+                rezip.wait()
+
+                rezip = subprocess.Popen(['gzip',proc_dir+'/Events/'+run_name+'/%s_badXS.lhe' % eventsfilename])
+                rezip.wait()
 
     # Clean up in case a link or file was already there
     if os.path.exists(os.getcwd()+'/events.lhe'): os.remove(os.getcwd()+'/events.lhe')
@@ -1791,7 +1890,7 @@ def SUSY_StrongSM_Generation(runArgs = None, gentype='SS',decaytype='direct',mas
 def SUSY_SM_Generation(runArgs = None, process='', gentype='SS',decaytype='direct',masses=None,\
                        nevts=None, syst_mod=None,xqcut=None, SLHAonly=False, keepOutput=False, SLHAexactCopy=False,\
                        writeGridpack=False,gridpackDirName=None,MSSMCalc=False,pdlabel="'cteq6l1'",lhaid=10042,\
-                       madspin_card=None,decays={},extras=None,paramCardPrefix='param_card.SM'):
+                       madspin_card=None,decays={},extras=None,paramCardPrefix='param_card.SM',fixEventWeightsForBridgeMode=False):
     # Set beam energy
     beamEnergy = 6500.
     if hasattr(runArgs,'ecmEnergy'): beamEnergy = runArgs.ecmEnergy * 0.5
@@ -1911,7 +2010,7 @@ output -f
             return -1
 
     # Move output files into the appropriate place, with the appropriate name
-    the_spot = arrange_output(run_name='Test',proc_dir=thedir,outputDS='madgraph_OTF._00001.events.tar.gz',saveProcDir=keepOutput,runArgs=runArgs)
+    the_spot = arrange_output(run_name='Test',proc_dir=thedir,outputDS='madgraph_OTF._00001.events.tar.gz',saveProcDir=keepOutput,runArgs=runArgs,fixEventWeightsForBridgeMode=fixEventWeightsForBridgeMode)
     if the_spot == '':
         mglog.error('Error arranging output dataset!')
         return -1
@@ -2216,6 +2315,7 @@ def build_run_card(run_card_old='run_card.SM.dat',run_card_new='run_card.dat',
     oldcard = open(run_card_old,'r')
     newcard = open(run_card_new,'w')
     used_options = []
+    python_seed_set=False
     for line in oldcard:
         if '= xqcut ' in line:
             newcard.write('%f   = xqcut   ! minimum kt jet measure between partons \n'%(xqcut))
@@ -2223,6 +2323,9 @@ def build_run_card(run_card_old='run_card.SM.dat',run_card_new='run_card.dat',
             newcard.write('  %i       = nevents ! Number of unweighted events requested \n'%(nevts))
         elif ' iseed ' in line:
             newcard.write('   %i      = iseed   ! rnd seed (0=assigned automatically=default)) \n'%(rand_seed))
+        elif ' python_seed ' in line:
+            python_seed_set=True
+            newcard.write('   %i      = python_seed   ! python seed (hidden parameter) \n'%(rand_seed))
         elif ' ebeam1 ' in line:
             newcard.write('   %i      = ebeam1  ! beam 1 energy in GeV \n'%(int(beamEnergy)))
         elif ' ebeam2 ' in line:
@@ -2233,7 +2336,7 @@ def build_run_card(run_card_old='run_card.SM.dat',run_card_new='run_card.dat',
             newcard.write(' %3.2f     = alpsfact         ! scale factor for QCD emission vx \n'%(alpsfact))
         else:
             for ak in extras:
-                excludeList=['xqcut','nevents','iseed','ebeam1','ebeam2','scalefact','alpsfact']
+                excludeList=['xqcut','nevents','iseed','ebeam1','ebeam2','scalefact','alpsfact','python_seed']
                 if ak in excludeList:
                     mglog.error('You are trying to set "%s" with the extras parameter in build_run_card, this must be set in the build_run_card arguments instead.'%ak)
                     raise RuntimeError('You are trying to set "%s" with the extras parameter in build_run_card, this must be set in the build_run_card arguments instead.'%ak)
@@ -2262,6 +2365,8 @@ def build_run_card(run_card_old='run_card.SM.dat',run_card_new='run_card.dat',
                 newcard.write(line)
     # Clean up options that weren't used
     newcard.write('\n')
+    if not python_seed_set and not isNLO and is_version_or_newer([2,6,3]):
+        newcard.write('   %i      = python_seed   ! python seed (hidden parameter) \n'%(rand_seed))
     for ak in extras:
         if ak in used_options: continue
         mglog.warning('Option '+ak+' was not in the default run_card.  Adding by hand a setting to '+str(extras[ak]) )
@@ -2506,6 +2611,13 @@ def run_card_consistency_check(isNLO=False,path='.'):
         # still need to set pdf and systematics
         syst_settings=MadGraphSystematicsUtils.get_pdf_and_systematic_settings(MADGRAPH_PDFSETTING,isNLO)
         modify_run_card(cardpath,cardpath.replace('.dat','_before_syst.dat'),syst_settings)
+
+    if not isNLO and is_version_or_newer([2,6,3]):
+        if not 'python_seed' in mydict:
+            mglog.warning('No python seed set in run_card -- adding one with same value as iseed')
+            modify_run_card(cardpath,cardpath+'.iseed.backup',{'python_seed' : mydict['iseed']})
+        elif int(mydict['python_seed'])!=int(mydict['iseed']):
+            raise RuntimeError('python_seed and iseed do not agree')
 
     mglog.info('Finished checking run card - All OK!')
     return

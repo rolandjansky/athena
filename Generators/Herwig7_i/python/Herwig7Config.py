@@ -128,7 +128,7 @@ set /Herwig/Generators/EventGenerator:DebugLevel 1
 set /Herwig/Generators/EventGenerator:PrintEvent 2
 set /Herwig/Generators/EventGenerator:UseStdout Yes
 set /Herwig/Generators/EventGenerator:NumberOfEvents 1000000000
-set /Herwig/Generators/EventGenerator:MaxErrors 1000000
+set /Herwig/Generators/EventGenerator:MaxErrors 500
 
 ## Make sampler print out cross sections for each subprocess
 set /Herwig/Samplers/Sampler:Verbose Yes
@@ -291,7 +291,7 @@ set /Herwig/Partons/RemnantPDF:MaxFlav {}
   ## \param[in] ps_tune_name name identifying the PS/hadronization tune
   ## \param[in] ue_tune_name name identifying the UE/MPI tune
   ## \return    Nothing, adds the corresponding commands directly to the generator configuration object
-  def tune_commands(self, ps_tune_name = "H7-PS-MMHT2014LO", ue_tune_name = "H7-UE-MMHT"):
+  def tune_commands(self, ps_tune_name = "H7-PS-MMHT2014LO", ue_tune_name = "H7.1-Default"):
 
     cmds = """
 ## -------------
@@ -299,7 +299,7 @@ set /Herwig/Partons/RemnantPDF:MaxFlav {}
 ## -------------
 """
 
-    self.ps_tune_commands(tune_name = ps_tune_name)
+    # self.ps_tune_commands(tune_name = ps_tune_name) # the name of the default PS tune may be obsolete
     self.ue_tune_commands(tune_name = ue_tune_name)
 
 
@@ -337,15 +337,15 @@ set /Herwig/Partons/RemnantPDF:MaxFlav {}
   ##
   ## \param[in] tune_name name identifying the UE/MPI tune
   ## \return    Nothing, adds the corresponding commands directly to the generator configuration object
-  def ue_tune_commands(self, tune_name = "H7-UE-MMHT"):
+  def ue_tune_commands(self, tune_name = "H7.1-Default"):
 
     cmds = """
 ## Underlying event tune settings
 """
 
-    if tune_name == "H7-UE-MMHT":
+    if tune_name == "H7.1-Default":
       cmds += """
-# > The underlying event tune "H7-UE-MMHT" is already
+# > The underlying event tune "H7.1-Default" is already
 # > configured in Herwig7 via the default settings.
 """
     # elif tune_name == "some-other-name":
@@ -399,7 +399,7 @@ set /Herwig/Particles/pomeron:PDF /Herwig/Partons/PomeronPDF
 
 # Technical parameters for this run
 set /Herwig/Generators/EventGenerator:EventHandler:Sampler:Ntry 100000
-set /Herwig/Generators/EventGenerator:MaxErrors 100000
+set /Herwig/Generators/EventGenerator:MaxErrors 500
 
 # MPI doesn't work
 # TODO: Is this a problem?

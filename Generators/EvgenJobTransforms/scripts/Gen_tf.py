@@ -21,13 +21,13 @@ import PyJobTransforms.trfArgClasses as trfArgClasses
 ListOfDefaultPositionalKeys=['--AMIConfig', '--AMITag', '--argJSON', '--asetup', '--athena', '--athenaMPMergeTargetSize', '--athenaopts', '--attempt', '--checkEventCount', '--command', '--dumpJSON', '--dumpPickle', '--ecmEnergy', '--env', '--eventAcceptanceEfficiency', '--evgenJobOpts', '--execOnly', '--fileValidation', '--firstEvent', '--ignoreErrors', '--ignoreFiles', '--ignorePatterns', '--imf', '--inputEVNT_PreFile', '--inputFileValidation', '--inputGenConfFile', '--inputGeneratorFile', '--jobConfig', '--jobid', '--maxEvents', '--orphanKiller', '--outputEVNTFile', '--outputEVNT_PreFile', '--outputFileValidation', '--outputNTUP_TRUTHFile', '--outputTXTFile', '--parallelFileValidation', '--postExec', '--postInclude', '--preExec', '--preInclude', '--printEvts', '--randomSeed', '--reportName', '--reportType', '--rivetAnas', '--runNumber', '--showGraph', '--showPath', '--showSteps', '--skipEvents', '--skipFileValidation', '--skipInputFileValidation', '--skipOutputFileValidation', '--steering', '--taskid', '--tcmalloc', '--valgrind', '--valgrindbasicopts', '--valgrindextraopts', '--lheOnly', '--localPath', '--cleanOut', '--saveList']
 
 class EvgenExecutor(athenaExecutor):
-    "Specialised trf executor class for event generation jobs"
-    def __init__(self, name="generate", skeleton=None, substep=None, inData=set(), outData=set()):
-        athenaExecutor.__init__(self, name=name, skeletonFile=skeleton, substep=substep, tryDropAndReload=False, inData=inData, outData=outData)
+  "Specialised trf executor class for event generation jobs"
+  def __init__(self, name="generate", skeleton=None, substep=None, inData=set(), outData=set()):
+        athenaExecutor.__init__(self, name=name, skeletonFile=skeleton, substep=substep, inputEventTest=False, tryDropAndReload=False, inData=inData, outData=outData)
 #    def __init__(self, name="generate", skeleton="EvgenJobTransforms/skel.GENtoEVGEN.py", substep=None, inData=["inNULL"], outData=["EVNT", "EVNT_Pre", "TXT"]):
 #        athenaExecutor.__init__(self, name=name, skeletonFile=skeleton, substep=substep, tryDropAndReload=False, inData=inData, outData=outData)
 
-    def preExecute(self, input=set(), output=set()):
+  def preExecute(self, input=set(), output=set()):
         "Get input tarball, unpack and set up env if an evgenJobOpts arg was provided."
 
         ## First call the base class preExecute
@@ -174,7 +174,7 @@ def getTransform():
     exeSet = set()
     msg.info("Transform arguments %s" % sys.argv[1:])
     if "--outputEVNTFile" in str(sys.argv[1:]):
-       exeSet.add(EvgenExecutor(name="generate", skeleton="EvgenJobTransforms/skel.GENtoEVGEN.py", inData=["inNULL"], outData=["EVNT"]))
+       exeSet.add(EvgenExecutor(name="generate", skeleton="EvgenJobTransforms/skel.GENtoEVGEN.py", inData=["inNULL"], outData=["EVNT", "EVNT_Pre", "TXT" ]))
        msg.info("Output EVNT file")
     elif "--outputTXTFile" in str(sys.argv[1:]):
        exeSet.add(EvgenExecutor(name="generate", skeleton="EvgenJobTransforms/skel.GENtoTXT.py", inData=["inNULL"], outData=["TXT"]))

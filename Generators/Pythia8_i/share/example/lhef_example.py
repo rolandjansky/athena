@@ -1,3 +1,6 @@
+# Note that these are job options, so they can be run like
+# athena lhef_example.py
+
 #import AthenaCommon.AtlasUnixGeneratorJob
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
@@ -21,12 +24,12 @@ topSequence = AlgSequence()
 from Pythia8_i.Pythia8_iConf import Pythia8_i
 
 topSequence+=Pythia8_i()
-topSequence.Pythia8_i.CollisionEnergy = 7000
+topSequence.Pythia8_i.CollisionEnergy = 13000
 
 topSequence.Pythia8_i.LHEFile = "Powheg.ZMu.MC11.events"
 
 
-from TruthExamples.TruthExamplesConf import DumpMC
+from TruthIO.TruthIOConf import DumpMC
 topSequence += DumpMC()
 
 

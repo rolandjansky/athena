@@ -47,8 +47,8 @@ if (verph8 >= 226):
                              isr:muRfac=1.0_fsr:muRfac=0.875 isr:muRfac=1.0 fsr:muRfac=0.875,\
                              hardHi fsr:cNS=2.0 isr:cNS=2.0,\
                              hardLo fsr:cNS=-2.0 isr:cNS=-2.0,\
-                             isr:PDF:plus=1,\
-                             isr:PDF:minus=2\
+                             isr:PDF:plus isr:PDF:plus=1,\
+                             isr:PDF:minus isr:PDF:minus=2\
                              }'] 
 
          genSeq.Pythia8.ShowerWeightNames = [ 
