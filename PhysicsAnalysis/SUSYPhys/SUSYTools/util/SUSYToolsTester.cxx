@@ -996,8 +996,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
 
             bool passTM=false;
             for(const auto& t : el_triggers){
-              passTM |= objTool.IsTrigMatched(el, t);
-              //passTM |= objTool.IsTrigMatchedDeco(el, t);
+              passTM |= (objTool.IsTrigPassed(t) && objTool.IsTrigMatched(el, t));
             }
             if(passTM)
               el_idx[trgmatch]++;
@@ -1023,6 +1022,9 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
       TString muTrig2015 = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50"; //"HLT_mu18_mu8noL1"; //"HLT_mu20_iloose_L1MU15_OR_HLT_mu50";
       TString muTrig2016 = "HLT_mu26_ivarmedium_OR_HLT_mu50";
       TString muTrig2017 = "HLT_mu26_ivarmedium_OR_HLT_mu50";
+      std::vector<std::string> muTrigs2015 = {"HLT_mu20_iloose_L1MU15","HLT_mu50"}; //"HLT_mu18_mu8noL1"; //"HLT_mu20_iloose_L1MU15_OR_HLT_mu50";
+      std::vector<std::string> muTrigs2016 = {"HLT_mu26_ivarmedium","HLT_mu50"};
+      std::vector<std::string> muTrigs2017 = {"HLT_mu26_ivarmedium","HLT_mu50"};
 
       for (const auto& mu : *muons) {
         if ( mu->auxdata<char>("passOR") == 0  ) {
@@ -1042,25 +1044,28 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
 
             bool passTM=false;
             for(const auto& t : mu_triggers){
-              ANA_MSG_DEBUG("Pass " << t << " : " << (int)objTool.IsTrigMatched(mu, t));
-              passTM |= objTool.IsTrigMatched(mu, t);
+              if (objTool.IsTrigPassed(t)) ANA_MSG_DEBUG("Pass " << t << " : " << (int)objTool.IsTrigMatched(mu, t));
+              else ANA_MSG_DEBUG("Pass " << t << " : " << 0);
+              passTM |= (objTool.IsTrigPassed(t) && objTool.IsTrigMatched(mu, t));
             }
             if(passTM)
               mu_idx[trgmatch]++;
 
           }
 
+          std::vector<std::string> my_mu_trigs;
           if(!isData){
             if(objTool.treatAsYear()==2015)
-              passTMtest |= objTool.IsTrigMatched(mu, muTrig2015.Copy().ReplaceAll("_OR_","").Data());
+              my_mu_trigs=muTrigs2015;
             else if(objTool.treatAsYear()==2016)
-              passTMtest |= objTool.IsTrigMatched(mu, muTrig2016.Copy().ReplaceAll("_OR_","").Data());
+              my_mu_trigs=muTrigs2016;
             else
-              passTMtest |= objTool.IsTrigMatched(mu, muTrig2017.Copy().ReplaceAll("_OR_","").Data());
+              my_mu_trigs=muTrigs2017;
           }
           else{
-            passTMtest |= objTool.IsTrigMatched(mu, muTrig2016.Copy().ReplaceAll("_OR_","").Data());
+            my_mu_trigs=muTrigs2016;
           }
+          for (auto t : my_mu_trigs) passTMtest |= (objTool.IsTrigPassed(t) && objTool.IsTrigMatched(mu,t));
         }
       }
 

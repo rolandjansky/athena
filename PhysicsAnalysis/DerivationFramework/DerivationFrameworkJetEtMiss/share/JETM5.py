@@ -5,7 +5,7 @@
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
-#from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 #
 from DerivationFrameworkJetEtMiss.METCommon import *
 #
@@ -114,6 +114,16 @@ jetm5Seq += CfgMgr.DerivationFramework__DerivationKernel(	name = "JETM5Kernel",
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'],Sequencer = jetm5Seq)
 
+# QGTaggerTool ###
+addQGTaggerTool(jetalg="AntiKt4EMTopo", sequence=jetm5Seq, algname="QGTaggerToolAlg")
+addQGTaggerTool(jetalg="AntiKt4EMPFlow", sequence=jetm5Seq, algname="QGTaggerToolAlg")
+
+# MVfJvt #
+applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=jetm5Seq, algname='JetForwardJvtToolBDTAlg')
+
+# PFlow fJvt #
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=jetm5Seq, algname='JetForwardPFlowJvtToolAlg')
+
 #====================================================================
 # SET UP STREAM   
 #====================================================================
@@ -152,6 +162,11 @@ JETM5SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
                                     ]
 JETM5SlimmingHelper.ExtraVariables = ["JetETMissNeutralParticleFlowObjects.m.mEM.pfo_TrackLinks.eflowRec_ISOLATION.pfo_ClusterLinks.eflowRec_TIMING.eflowRec_AVG_LAR_Q.eflowRec_EM_PROBABILITY.eflowRec_CENTER_LAMBDA.centerMag.pt.ptEM.phi.eta",
 "JetETMissChargedParticleFlowObjects.pt.eta.phi.m.eflowRec_tracksExpectedEnergyDeposit.pfo_vertex.charge.eflowRec_isInDenseEnvironment.pfo_TrackLinks.DFCommonPFlow_z0.DFCommonPFlow_vz.DFCommonPFlow_d0.DFCommonPFlow_theta.DFCommonPFlow_envWeight",]
+
+
+# Add QG tagger variables
+JETM5SlimmingHelper.ExtraVariables  += ["AntiKt4EMTopoJets.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1",
+                                        "AntiKt4EMPFlowJets.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1"]
 
 for truthc in [
     "TruthMuons",

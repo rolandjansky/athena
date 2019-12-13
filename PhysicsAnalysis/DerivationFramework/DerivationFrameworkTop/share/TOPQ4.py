@@ -47,7 +47,8 @@ if DFisMC:
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 import DerivationFrameworkTop.TOPQCommonThinning
 TOPQ4ThinningHelper = ThinningHelper("TOPQ4ThinningHelper")
-TOPQ4ThinningHelper.TriggerChains =  DerivationFrameworkTop.TOPQCommonThinning.TOPQTriggerChains('hadronicTriggers' if globalflags.DataSource()!='geant4' else 'jetTriggers')
+#TOPQ4ThinningHelper.TriggerChains =  DerivationFrameworkTop.TOPQCommonThinning.TOPQTriggerChains('hadronicTriggers' if globalflags.DataSource()!='geant4' else 'jetTriggers')
+TOPQ4ThinningHelper.TriggerChains = "" # temporarily disable trigger thinning for TOPQ4; this will only affect data derivation
 TOPQ4ThinningHelper.AppendToStream(TOPQ4Stream)
 
 #====================================================================
