@@ -1,0 +1,9 @@
+CaloCluster :  1
+Jet :  2
+ParticleFlow :  3
+TrackParticle :  4
+NeutralParticle :  5
+Electron :  6
+Photon :  7
+Muon :  8
+Tau :  9
