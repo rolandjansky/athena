@@ -863,6 +863,7 @@ else:
                                                         RotCreatorTool      = InDetRotCreator,
                                                         BroadRotCreatorTool = BroadInDetRotCreator,
                                                         MinDegreesOfFreedom = 1,
+                                                        MatEffects          =  InDetFlags.materialInteractionsType(), 
                                                         MinSiHits           =  InDetNewTrackingCuts.minClusters() )
         if InDetFlags.doForwardTracks() and InDetFlags.doSLHC():
             InDetTruthTrackBuilder.MinSiHitsForward = InDetNewTrackingCutsForwardTracks.minClusters()
