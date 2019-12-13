@@ -415,15 +415,13 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   if (!m_jetFJvtEfficiencyTool.isUserConfigured()) {
     toolName = m_doFwdJVT ? m_metJetSelection+"_fJVT" : m_metJetSelection+"_NOfJVT";
     m_jetFJvtEfficiencyTool.setTypeAndName("CP::JetJvtEfficiency/FJVTEfficiencyTool_"+toolName);
-    if(m_fwdjetTightOp)
-      ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("WorkingPoint","Tight") );
-    else
-      ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("WorkingPoint","Medium") );
+    ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("WorkingPoint",m_fwdjetOp) );
     ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("MaxPtForJvt",m_fwdjetPtMax) );
     ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("JetfJvtMomentName","passFJvt") );
     // Set the decoration to the name we used to use
     ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("ScaleFactorDecorationName","fJVTSF") );
-    ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("SFFile","JetJvtEfficiency/Moriond2018/fJvtSFFile.root"));
+    ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("UseMuSFFormat",true) );
+    ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("SFFile","JetJvtEfficiency/Nov2019/fJvtSFFile.EMtopo.root"));
     ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_jetFJvtEfficiencyTool.retrieve() );
   } else  ATH_CHECK( m_jetFJvtEfficiencyTool.retrieve() );
@@ -442,7 +440,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     } else if (m_doFwdJVT && (m_metJetSelection == "Tenacious" || m_metJetSelection == "TenaciousJVT641")) {
       ATH_CHECK( m_jetFwdJvtTool.setProperty("UseTightOP", false) ); // Loose
     } else {
-      ATH_CHECK( m_jetFwdJvtTool.setProperty("UseTightOP", m_fwdjetTightOp) ); // Tight or Loose
+      ATH_CHECK( m_jetFwdJvtTool.setProperty("UseTightOP", (m_fwdjetOp=="Tight")) ); // Tight or Loose
     }
     ATH_CHECK( m_jetFwdJvtTool.setProperty("EtaThresh", m_fwdjetEtaMin) );   //Eta dividing central from forward jets
     ATH_CHECK( m_jetFwdJvtTool.setProperty("ForwardMaxPt", m_fwdjetPtMax) ); //Max Pt to define fwdJets for JVT

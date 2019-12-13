@@ -70,8 +70,11 @@ StatusCode JetJvtEfficiency::initialize(){
     m_wp = "Medium";
   }
   else {
-    ATH_MSG_ERROR("Invalid jvt working point name");
-    return StatusCode::FAILURE;
+    // don't crash for fjvt WP names
+    if(!(m_dofJVT || m_doMVfJVT)){
+      ATH_MSG_ERROR("Invalid jvt working point name");
+      return StatusCode::FAILURE;
+    }
   }
 
   if (m_file.empty()) return StatusCode::SUCCESS;
@@ -88,12 +91,16 @@ StatusCode JetJvtEfficiency::initialize(){
   std::string histname = "Jvt";
 
   if (m_wp=="Loose") histname+="Loose";
-  else if (m_wp=="Medium") histname+="Default";
+  else if (m_wp=="Medium") histname+="Default";//this is a legacy working point
   else if (m_wp=="Tight")  histname+="Tight";
   else if (m_wp=="Tighter")  histname+="Tighter";
 
 
   h_JvtHist.reset( dynamic_cast<TH2*>(infile->Get(histname.c_str())) );
+  if(!h_JvtHist){
+    ATH_MSG_ERROR("Histogram does not exist! " << histname << " If you are using Default please update to Loose");
+    return StatusCode::FAILURE;
+  }
   h_JvtHist->SetDirectory(0);
   histname.replace(0,3,"Eff");
   h_EffHist.reset( dynamic_cast<TH2*>(infile->Get(histname.c_str())) );

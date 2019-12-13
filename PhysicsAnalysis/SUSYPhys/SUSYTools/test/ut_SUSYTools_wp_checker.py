@@ -84,7 +84,7 @@ Jet.JVT_WP: Default
 FwdJet.doJVT: false
 FwdJet.JvtEtaMin: 2.5
 FwdJet.JvtPtMax: 50e3
-FwdJet.JvtUseTightOP: false
+FwdJet.JvtOp: Loose
 #
 Jet.LargeRcollection: AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets
 Jet.LargeRuncConfig: rel21/Spring2019/R10_GlobalReduction.config
