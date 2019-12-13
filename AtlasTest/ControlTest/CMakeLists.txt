@@ -98,11 +98,13 @@ endif()
 
 atlas_add_test( StoreGateReentrant
    SCRIPT test/StoreGateReentrant.sh
-   PROPERTIES TIMEOUT 300 )
+   PROPERTIES TIMEOUT 300
+   EXTRA_PATTERNS "Retrieved const handle to default|type EventInfo|^StoreGateSvc +DEBUG|^ of type|object modifiable when retrieved" )
 
 atlas_add_test( StoreGateGen
    SCRIPT test/StoreGateGen.sh
-   PROPERTIES TIMEOUT 300 )
+   PROPERTIES TIMEOUT 300
+   EXTRA_PATTERNS "Retrieved const handle to default|type EventInfo|^StoreGateSvc +DEBUG|^ of type|object modifiable when retrieved" )
 
 atlas_add_test( StoreGateDFlow
    SCRIPT test/StoreGateDFlow.sh
