@@ -62,7 +62,7 @@ def getATLAS_RegionCreatorList(ConfigFlags):
                     pass
                     #todo - add the line below
                     #regionCreatorList += [PreSampLArPhysicsRegionToolCfg(ConfigFlags), DeadMaterialPhysicsRegionToolCfg(ConfigFlags)]
-            elif simFlags.LArParameterization() is None or simFlags.LArParameterization() == 0:
+            elif False: # simFlags.LArParameterization() is None or simFlags.LArParameterization() == 0:
                 regionCreatorList += [EMBPhysicsRegionToolCfg(ConfigFlags), EMECPhysicsRegionToolCfg(ConfigFlags),
                                       HECPhysicsRegionToolCfg(ConfigFlags), FCALPhysicsRegionToolCfg(ConfigFlags)]
     ## FIXME _initPR never called for FwdRegion??
