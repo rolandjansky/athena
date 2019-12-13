@@ -22,6 +22,7 @@
 #include "MuonCombinedEvent/MuonSegmentInfo.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 class StoreGateSvc;
 
@@ -34,10 +35,6 @@ class StoreGateSvc;
 
 namespace Muon {
   class MuonEDMPrinterTool;
-}
-
-namespace MuonGM {
-  class MuonDetectorManager;
 }
 
 namespace Trk{
@@ -150,7 +147,10 @@ class MuTagMatchingTool : virtual public IMuTagMatchingTool, public AthAlgTool{
    std::string m_t0Location;
    StoreGateSvc* p_StoreGateSvc ; //!< Pointer On StoreGateSvc
    
-   const MuonGM::MuonDetectorManager* m_detMgr;
+   // MuonDetectorManager from the conditions store
+   SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+       "MuonDetectorManager", 
+       "Key of input MuonDetectorManager condition data"};    
 
    bool m_assumeLocalErrors;
    bool m_extrapolatePerigee;
