@@ -50,6 +50,22 @@ ToolSvc += InDetxAODParticleCreatorTool
 if InDetFlags.doPrintConfigurables(): 
     print InDetxAODParticleCreatorTool 
 
+def createTrackParticlesFromTracks(track_collection, track_particle_collection) :
+        creator_alg = xAODMaker__TrackParticleCnvAlg(track_particle_collection+"Creator",
+                                                     xAODContainerName                         = track_particle_collection,
+                                                     xAODTrackParticlesFromTracksContainerName = track_particle_collection,
+                                                     TrackContainerName                        = track_collection,
+                                                     TrackParticleCreator                      = InDetxAODParticleCreatorTool,
+                                                     AODContainerName                          = "",
+                                                     AODTruthContainerName                     = "",
+                                                     ConvertTrackParticles                     = doConversion,
+                                                     ConvertTracks                             = doCreation,
+                                                     AddTruthLink                              = False,
+                                                     TrackTruthContainerName                   = "",
+                                                     PrintIDSummaryInfo                        = True)
+        return creator_alg
+
+
 if (doCreation or doConversion):# or InDetFlags.useExistingTracksAsInput()) : <---- [XXX JDC Should we included this?
                                 #                                                    problems appear when nothing should
                                 #                                                    be done but
@@ -74,6 +90,13 @@ if (doCreation or doConversion):# or InDetFlags.useExistingTracksAsInput()) : <-
         xAODTrackParticleCnvAlg.TrackTruthContainerName = InputTrackCollectionTruth
         xAODTrackParticleCnvAlg.PrintIDSummaryInfo = True 
         topSequence += xAODTrackParticleCnvAlg 
+
+        from  InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags
+        from  InDetPhysValMonitoring.ConfigUtils import extractCollectionPrefix
+        for col in InDetPhysValFlags.validateExtraTrackCollections() :
+            prefix=extractCollectionPrefix(col)
+            topSequence += createTrackParticlesFromTracks(prefix+"Tracks",prefix+"TrackParticles")
+
     if InDetFlags.doDBMstandalone() or InDetFlags.doDBM(): 
         xAODDBMTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg(InDetKeys.xAODDBMTrackParticleContainer()) 
         xAODDBMTrackParticleCnvAlg.xAODContainerName = InDetKeys.xAODDBMTrackParticleContainer() 
@@ -106,6 +129,7 @@ if not InDetFlags.doVertexFinding():
         xAODVertexCnvAlgDBM.AODContainerName = InDetKeys.PrimaryVertices()
         xAODVertexCnvAlgDBM.TPContainerName = InDetKeys.xAODDBMTrackParticleContainer()
         topSequence += xAODVertexCnvAlgDBM
+
 
 #For forward tracks, no separate collection for ITK, since they are already merged
 if (InDetFlags.doForwardTracks() and InDetFlags.doParticleCreation() and not InDetFlags.doSLHC()) or doConversion:       
