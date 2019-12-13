@@ -105,7 +105,7 @@ def TileCellMonitoringConfig(flags, **kwargs):
                                   subDirectory = True, run = run, triggers = l1Triggers, separator = '_')
 
     # 6) Configure histograms with everagy Tile digitizer time per partition
-    digiTimeTitle = ('TileCal Average Digitizer Time [ns].  E_{ch} > %s MeV;;Digitizer' % kwargs['EnergyThresholdForTime'])
+    digiTimeTitle = ('TileCal Average Digitizer Time [ns].  E_{ch} > %s MeV' % kwargs['EnergyThresholdForTime'])
     addTileModuleDigitizerMapsArray(helper, tileCellMonAlg, name = 'TileDigiPartTime', type='TProfile2D',
                                     value = 'time', title = digiTimeTitle, path = 'Tile/Cell',
                                     subDirectory = True, run = run, triggers = l1Triggers, separator = '_')

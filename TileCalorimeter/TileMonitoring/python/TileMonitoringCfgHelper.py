@@ -321,7 +321,7 @@ def addTile2DHistogramsArray(helper, algorithm, name = '', xvalue = '', yvalue =
 
         tool.defineHistogram( fullName, path = fullPath, type = type, title = fullTitle,
                               labels = labels, xbins = xbins, xmin = xmin, xmax = xmax,
-                              ybins = ybins, ymin = ymin, ymax = ymax)
+                              ybins = ybins, ymin = ymin, ymax = ymax, weight = weight)
 
     return array
 
@@ -495,7 +495,7 @@ def addTileEtaPhiMapsArray(helper, algorithm, name, title, path, weight = '', ty
 def addTile1DHistogramsArray(helper, algorithm, name = '', xvalue = '', value = '', title = '', path = '',
                              xbins = 0, xmin = 0, xmax = 0, type = 'TH1D', run = '', triggers = [],
                              subDirectory = False, perPartition = True, perSample = False, opt = '',
-                             perGain = False, labels = (), allPartitions = False, separator = '_' ):
+                             perGain = False, xlabels = (), allPartitions = False, separator = '_' ):
     '''
     This function configures 1D histograms with Tile monitored value per L1 trigger, partition, sample, gain.
 
@@ -516,7 +516,7 @@ def addTile1DHistogramsArray(helper, algorithm, name = '', xvalue = '', value = 
         perPartition -- Configure histograms per partition (if True partition name will be put into the title)
         perSample -- Configure histograms per sample (if True sample name will be put into the title)
         perGain   -- Configure histograms per gain (if True gain name will be put into the title)
-        labels    -- List of bin labels
+        xlabels    -- List of bin labels
         allPartitions  -- Configure additional histogram with information from all partitions
         separator -- Given it will be used as separtor between name and trigger
     '''
@@ -531,7 +531,7 @@ def addTile1DHistogramsArray(helper, algorithm, name = '', xvalue = '', value = 
                                perSample = perSample, perGain = perGain)
 
         partition = kwargs['partition'] if 'partition' in kwargs else ''
-        labels = getLabels(labels, partition)
+        labels = getLabels(xlabels, partition)
 
         fullName = xvalue + (',' + value if 'Profile' in type else '') + ';'
         fullName += getTileHistogramName(name = name,separator = separator, **kwargs)
@@ -572,4 +572,4 @@ def addTileModuleArray(helper, algorithm, name, title, path,
                                     xvalue = 'module', value = value, title = title, path = path,
                                     xbins = Tile.MAX_DRAWER, xmin = -0.5, xmax = Tile.MAX_DRAWER - 0.5,
                                     run = run, triggers = triggers, subDirectory = subDirectory,
-                                    labels = ('modules'), perPartition = True, separator = separator )
+                                    xlabels = ('modules'), perPartition = True, separator = separator )
