@@ -1,4 +1,6 @@
-/* Dear emacs, this is -*-c++-*- */
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
 #ifndef _PRDtoTrackMapExchangeTool_H_
 #define _PRDtoTrackMapExchangeTool_H_
 
@@ -19,8 +21,8 @@ namespace Trk {
       virtual StatusCode initialize() override;
       virtual void handle(const Incident& incident) override;
 
-      virtual void setPRDtoTrackMap ATLAS_NOT_THREAD_SAFE (Trk::PRDtoTrackMap *a_map) { m_prdToTrackMap.reset(a_map); }
-      virtual const Trk::PRDtoTrackMap *getPRDtoTrackMap() const { return m_prdToTrackMap.get(); }
+      virtual void setPRDtoTrackMap ATLAS_NOT_THREAD_SAFE (Trk::PRDtoTrackMap *a_map) override { m_prdToTrackMap.reset(a_map); }
+      virtual const Trk::PRDtoTrackMap *getPRDtoTrackMap() const override { return m_prdToTrackMap.get(); }
 
    private:
       std::unique_ptr<Trk::PRDtoTrackMap> m_prdToTrackMap;
