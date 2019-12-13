@@ -221,7 +221,7 @@ MM_DigitizationTool::MM_DigitizationTool(const std::string& type, const std::str
   declareProperty("vmmARTMode",                 m_vmmARTMode     = "threshold" ); // For ART (trigger) path. Can be "peak" or "threshold"
   
   // Constants vars for the MM_ElectronicsResponseSimulation
-  declareProperty("peakTime",                m_peakTime = 50.);                 // The VMM peak time setting.
+  declareProperty("peakTime",                m_peakTime = 100.);                 // The VMM peak time setting.
   declareProperty("electronicsThreshold",    m_electronicsThreshold = 15000.0);  // 2*(Intrinsic noise ~3k e)
   declareProperty("StripDeadTime",           m_stripdeadtime = 200.0);          // default value 200 ns = 8 BCs
   declareProperty("ARTDeadTime",             m_ARTdeadtime   = 200.0);          // default value 200 ns = 8 BCs
