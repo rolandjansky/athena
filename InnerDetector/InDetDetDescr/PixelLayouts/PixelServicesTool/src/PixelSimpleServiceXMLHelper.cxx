@@ -225,16 +225,6 @@ std::string PixelSimpleServiceXMLHelper::materialName(int index) const
 
 }
 
-int PixelSimpleServiceXMLHelper::volId(int index) const
-{  
-  if(getSchemaVersion() > 4){
-    return getInt("SimpleService", index, m_schema.volId().c_str(),0);
-  }
-  else msg(MSG::DEBUG)<<"XML: SimpleService volId not defined in old schema ("<<getSchemaVersion()<<") returning -1..."<<endreq;
-
-  return -1;
-}
-
 unsigned int PixelSimpleServiceXMLHelper::numElements() const
 {
   if (!m_bXMLdefined) return 0;

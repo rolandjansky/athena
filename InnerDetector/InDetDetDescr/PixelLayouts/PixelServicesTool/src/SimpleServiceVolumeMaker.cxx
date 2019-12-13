@@ -40,7 +40,6 @@ void SimpleServiceVolumeSchema::setPixelSchema()
   m_volName = "VOLNAME";
   m_radialDiv = "";
   m_phiStep = "";
-  m_volId = "FRAMENUM";
 }
 
 void SimpleServiceVolumeSchema::setDefaultSchema()
@@ -61,7 +60,6 @@ void SimpleServiceVolumeSchema::setDefaultSchema()
   m_volName = "NAME";
   m_radialDiv = "RADIAL";
   m_phiStep = "PHISTEP";
-  m_volId = "";
 }
 
 void SimpleServiceVolumeSchema::setSimpleSchema()
@@ -82,7 +80,6 @@ void SimpleServiceVolumeSchema::setSimpleSchema()
   m_volName = "NAME";
   m_radialDiv = "";
   m_phiStep = "";
-  m_volId = "";
 }
 
   SimpleServiceVolumeMakerMgr::SimpleServiceVolumeMakerMgr(const std::string & table, const SimpleServiceVolumeSchema & schema, 
@@ -217,11 +214,6 @@ unsigned int SimpleServiceVolumeMakerMgr::numElements() const
   return m_simpleSrvXMLHelper->numElements();
 }
 
-int SimpleServiceVolumeMakerMgr::volId(int index) const
-{
-  return m_simpleSrvXMLHelper->volId(index);
-}
-
 
 SimpleServiceVolumeMaker::SimpleServiceVolumeMaker(const std::string & table,
 						   const std::string & label,
@@ -268,8 +260,6 @@ InDetDD::ServiceVolume *SimpleServiceVolumeMaker::make(int ii)
   param->setZsymm(m_mgr->zsymm(ii));
   param->setVolName(m_mgr->volName(ii));
   
-  int volId = m_mgr->volId(ii);
-  if (volId == 0) volId = ii+1;
   
   bool needsRotation = false;
   
@@ -375,7 +365,7 @@ InDetDD::ServiceVolume *SimpleServiceVolumeMaker::make(int ii)
     param->setZsymm(false);
   }	
   
-  param->setLabel(m_label, volId); 
+  param->setLabel(m_label); 
 
 //   std::cout<<"SimpleServiceVoluemMaker "<<ii<<std::endl;
 //   param->print();

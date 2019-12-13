@@ -30,7 +30,6 @@ class PixelSimpleServiceXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder 
     bool   zsymm(int index) const;
     int    repeat(int index) const;
     int    radialDiv(int index) const;
-    int    volId(int index) const;
     std::string shapeType(int index) const;
     std::string volName(int index) const;
     std::string materialName(int index) const;
