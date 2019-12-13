@@ -15,7 +15,7 @@
 #ifndef TRT_DIGITIZATION_TRT_BARRELDRIFTTIMEDATA_H
 #define TRT_DIGITIZATION_TRT_BARRELDRIFTTIMEDATA_H
 
-#include "TRT_Digitization/ITRT_DriftTimeData.h"
+#include "ITRT_DriftTimeData.h"
 
 #include <vector>
 

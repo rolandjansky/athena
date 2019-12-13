@@ -14,7 +14,7 @@
 
 #ifndef TRT_DIGITIZATION_TRT_SIMDRIFTTIMETOOL_H
 #define TRT_DIGITIZATION_TRT_SIMDRIFTTIMETOOL_H
-#include "TRT_Digitization/ITRT_SimDriftTimeTool.h"
+#include "ITRT_SimDriftTimeTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"

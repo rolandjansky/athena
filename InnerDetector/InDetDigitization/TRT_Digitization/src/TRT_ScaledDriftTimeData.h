@@ -15,7 +15,7 @@
 #ifndef TRT_DIGITIZATION_TRT_SCALEDDRIFTTIMEDATA_H
 #define TRT_DIGITIZATION_TRT_SCALEDDRIFTTIMEDATA_H
 
-#include "TRT_Digitization/ITRT_DriftTimeData.h"
+#include "ITRT_DriftTimeData.h"
 
 #include <vector>
 
