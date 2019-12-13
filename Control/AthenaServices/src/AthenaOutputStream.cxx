@@ -689,19 +689,32 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
    // tokenize by "." and build an std::set of these to be
    // communicated to IAuxStoreCompression down below
    std::set<std::string> comp_attr;
-   for (SG::IFolder::const_iterator iter = m_compressionDecoder->begin(), iterEnd = m_compressionDecoder->end();
-          iter != iterEnd; iter++) {
-      if (iter->id() == item.id()) {
-        // Anything after a dot is a list of attributes to be compressed or not, separated by dots
-        size_t seppos = iter->key().find(".");
-        if ( seppos != string::npos ) {
-          std::stringstream ss(iter->key().substr(seppos+1));
-          std::string attr;
-          while( std::getline(ss, attr, '.') ) {
-             comp_attr.insert(attr);
-          }
-        }
-      }
+   if(item_key.find("Aux.") != string::npos) {
+     for (SG::IFolder::const_iterator iter = m_compressionDecoder->begin(), iterEnd = m_compressionDecoder->end();
+            iter != iterEnd; iter++) {
+       // First match the IDs for early rejection.
+       if (iter->id() != item.id()) {
+         continue;
+       }
+       // Then find the compression item key and the compression list string
+       size_t seppos = iter->key().find(".");
+       string comp_item_key{""}, comp_str{""};
+       if(seppos != string::npos) {
+         comp_item_key = iter->key().substr(0, seppos+1);
+         comp_str = iter->key().substr(seppos+1);
+       } else {
+         comp_item_key = iter->key();
+       }
+       // Proceed only if the keys match and the
+       // compression list string is not empty
+       if (!comp_str.empty() && comp_item_key == item_key) {
+         std::stringstream ss(comp_str);
+         std::string attr;
+         while( std::getline(ss, attr, '.') ) {
+            comp_attr.insert(attr);
+         }
+       }
+     }
    }
    ATH_MSG_DEBUG("     Comp Attr: " << comp_attr.size());
    if ( comp_attr.size() > 0 ) {
