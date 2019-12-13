@@ -49,6 +49,7 @@ argdict = {'runArgs'  : runArgs,
            'decaytype': decaytype,
            'masses'   : masses,
            'decays'   : decays,
+           'fixEventWeightsForBridgeMode': fixEventWeightsForBridgeMode,
            'madspin_card' : madspin_card,
            }
 
