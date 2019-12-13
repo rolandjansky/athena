@@ -61,6 +61,8 @@ class TrigBphysHelperUtilsTool: virtual public ::AthAlgTool
   // Const methods: 
   ///////////////////////////////////////////////////////////////////
 
+    static int sumCharge(const xAOD::TrackParticle *p1, const xAOD::TrackParticle* p2);
+
     double deltaPhi( double phi1, double phi2) const;
     double deltaEta( double eta1, double eta2) const;
 
