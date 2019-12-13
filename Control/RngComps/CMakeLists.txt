@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 729159 2016-03-11 12:58:15Z krasznaa $
 ################################################################################
 # Package: RngComps
 ################################################################################
@@ -35,7 +34,6 @@ atlas_add_test( AtRndmGen_test
    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
    LINK_LIBRARIES ${CLHEP_LIBRARIES} TestTools AthenaKernel StoreGateLib
    GaudiKernel
-   EXTRA_PATTERNS "//GP:|^IncidentSvc *DEBUG Adding .* listener|^JobOptionsSvc +INFO|DEBUG Property update for OutputLevel"
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 atlas_add_test( AtRanlux_test
@@ -43,7 +41,6 @@ atlas_add_test( AtRanlux_test
    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
    LINK_LIBRARIES ${CLHEP_LIBRARIES} TestTools AthenaKernel StoreGateLib
    GaudiKernel
-   EXTRA_PATTERNS "^IncidentSvc *DEBUG Adding .* listener|^JobOptionsSvc +INFO|DEBUG Property update for OutputLevel"
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 atlas_add_test( AtDSFMT_test
@@ -51,14 +48,13 @@ atlas_add_test( AtDSFMT_test
    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
    LINK_LIBRARIES ${CLHEP_LIBRARIES} TestTools AthenaKernel StoreGateLib
    GaudiKernel
-   EXTRA_PATTERNS "^IncidentSvc *DEBUG Adding .* listener|^JobOptionsSvc +INFO|DEBUG Property update for OutputLevel|^ServiceManager *DEBUG Initializing service"
+   EXTRA_PATTERNS "^ServiceManager *DEBUG Initializing service"
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"  )
 set_property( TEST RngComps_AtDSFMT_test_ctest APPEND PROPERTY
               ENVIRONMENT "ATLAS_REFERENCE_TAG=${RNGCOMPS_REFERENCE_TAG}" )
 
 atlas_add_test( TestSeedRunEvent
    SCRIPT test/TestSeedRunEvent.sh
-   EXTRA_PATTERNS "SGAudSvc +INFO Finalizing|Py:Athena +INFO executing ROOT6Setup|SGAudSvc +INFO Initializing|No duplicates have been found|duplicate entry.*ignored|^Py:ConfigurableDb WARNING|Read module info for|^ToolSvc.* INFO( finalize:)? Removing all tools|^CoreDumpSvc *INFO Handling signals|types added|including file|^(Mon|Tue|Wed|Thu|Fri|Sat|Sun) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)|local .* libGaudiKernelDict.so|^Number of My|^Py:Athena +INFO using release|^StoreGateSvc +INFO Start|^Py:AthenaDsoDb +INFO could not install alias|Bindings.py:660newobj = object.__new__|Updating ROOT::Reflex::PluginService::SetDebug|DEBUG Calling destructor|DEBUG Property update for OutputLevel"
    ENVIRONMENT "ATLAS_REFERENCE_TAG=${RNGCOMPS_REFERENCE_TAG}"
    PROPERTIES TIMEOUT 500 )
 
@@ -72,5 +68,5 @@ atlas_add_test( RandomServices_test
                 SCRIPT test/RandomServices_test.py )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py test/*.py )

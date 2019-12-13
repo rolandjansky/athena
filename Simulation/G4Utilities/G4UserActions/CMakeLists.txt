@@ -42,7 +42,6 @@ atlas_add_component( G4UserActions
 
 
 # Install files from the package:
-atlas_install_headers( G4UserActions )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_runtime( share/*.dat )

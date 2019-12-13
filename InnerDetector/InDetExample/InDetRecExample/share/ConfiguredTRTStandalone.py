@@ -16,6 +16,8 @@ class ConfiguredTRTStandalone:
     from InDetRecExample.InDetJobProperties import InDetFlags
     from InDetRecExample.InDetKeys          import InDetKeys
     from AthenaCommon.DetFlags              import DetFlags
+
+    import InDetRecExample.TrackingCommon   as TrackingCommon
     #
     # get ToolSvc and topSequence
     #
@@ -31,11 +33,14 @@ class ConfiguredTRTStandalone:
     #
     # --- get list of already associated hits (always do this, even if no other tracking ran before)
     #
-    if usePrdAssociationTool:
-      from InDetTrackPRD_Association.InDetTrackPRD_AssociationConf import InDet__InDetTrackPRD_Association
-      InDetTRTonly_PRD_Association = InDet__InDetTrackPRD_Association(name            = 'InDetTRTonly_PRD_Association'+extension,
-                                                                      AssociationTool = InDetPrdAssociationTool,
-                                                                      TracksName      = list(InputCollections)) 
+    prd_to_track_map = ''
+    if usePrdAssociationTool and extension != "_TRT" :
+      prefix='InDetTRTonly_'
+      InDetTRTonly_PRD_Association = TrackingCommon.getInDetTrackPRD_Association(namePrefix = prefix,
+                                                                                 nameSuffix = extension,
+                                                                                 TracksName = list(InputCollections))
+
+      prd_to_track_map = prefix+'PRDtoTrackMap'+extension
       topSequence += InDetTRTonly_PRD_Association
       if (InDetFlags.doPrintConfigurables()):
         print InDetTRTonly_PRD_Association
@@ -58,7 +63,7 @@ class ConfiguredTRTStandalone:
     #
     from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetTrtTrackScoringTool
     InDetTRT_StandaloneScoringTool = InDet__InDetTrtTrackScoringTool(name                = 'InDetTRT_StandaloneScoringTool'+extension,
-                                                                     SummaryTool         = InDetTrackSummaryTool,
+                                                                     SummaryTool         = TrackingCommon.getInDetTrackSummaryTool(),
                                                                      DriftCircleCutTool  = InDetTRTDriftCircleCut,
                                                                      useAmbigFcn         = True,
                                                                      useSigmaChi2        = False,
@@ -77,17 +82,19 @@ class ConfiguredTRTStandalone:
     #
     # set up TRT_SegmentToTrackTool
     #
+    from AthenaCommon import CfgGetter
     from TRT_SegmentToTrackTool.TRT_SegmentToTrackToolConf import InDet__TRT_SegmentToTrackTool
+    asso_tool = TrackingCommon.getInDetPRDtoTrackMapToolGangedPixels() if usePrdAssociationTool else None
     InDetTRT_SegmentToTrackTool = InDet__TRT_SegmentToTrackTool(name = 'InDetTRT_SegmentToTrackTool'+extension,
-                                                                    RefitterTool          = InDetTrackFitterTRT,
-                                                                    UseAssociationTool    = usePrdAssociationTool,
-                                                                    AssociationTool       = InDetPrdAssociationTool,
-                                                                    ScoringTool           = InDetTRT_StandaloneScoringTool,
-                                                                    Extrapolator          = InDetExtrapolator,
-                                                                    FinalRefit            = True,
-                                                                    MaxSharedHitsFraction = NewTrackingCuts.maxTRTonlyShared(),
-                                                                    SuppressHoleSearch    = True
-                                                                    )
+                                                                RefitterTool          = CfgGetter.getPublicTool('InDetTrackFitterTRT'),
+                                                                AssociationTool       = asso_tool,
+                                                                TrackSummaryTool      = TrackingCommon.getInDetTrackSummaryTool(),
+                                                                ScoringTool           = InDetTRT_StandaloneScoringTool,
+                                                                Extrapolator          = TrackingCommon.getInDetExtrapolator(),
+                                                                FinalRefit            = True,
+                                                                MaxSharedHitsFraction = NewTrackingCuts.maxTRTonlyShared(),
+                                                                SuppressHoleSearch    = True)
+
     ToolSvc += InDetTRT_SegmentToTrackTool
     if (InDetFlags.doPrintConfigurables()):
       print InDetTRT_SegmentToTrackTool
@@ -103,7 +110,7 @@ class ConfiguredTRTStandalone:
                                                                         MinPt                 = NewTrackingCuts.minTRTonlyPt(),
                                                                         InputSegmentsLocation = BarrelSegments,
                                                                         MaterialEffects       = 0,
-                                                                        ResetPRD              = True if extension == "_TRT" else False,
+                                                                        PRDtoTrackMap         = prd_to_track_map,
                                                                         OldTransitionLogic    = NewTrackingCuts.useTRTonlyOldLogic(),
                                                                         OutputTracksLocation  = self.__TRTStandaloneTracks,
                                                                         TRT_SegToTrackTool    = InDetTRT_SegmentToTrackTool
@@ -121,12 +128,12 @@ class ConfiguredTRTStandalone:
       #
       # --- cosmics segment to track conversion for Barrel
       #
-
+      from AthenaCommon import CfgGetter
       from TRT_SegmentsToTrack.TRT_SegmentsToTrackConf import InDet__TRT_SegmentsToTrack
       InDetTrkSegmenttoTrk = InDet__TRT_SegmentsToTrack(name                      = "InDetTRT_SegmentsToTrack_Barrel"+extension,
                                                         InputSegmentsCollection   = BarrelSegments,
                                                         OutputTrackCollection     = self.__TRTStandaloneTracks,
-                                                        TrackFitter               = InDetTrackFitter,
+                                                        TrackFitter               = CfgGetter.getPublicTool('InDetTrackFitter'),
                                                         MinNHit                   = NewTrackingCuts.minTRTonly(),
                                                         CombineTracks             = False,
                                                         OutputCombiCollection     = "",

@@ -11,7 +11,7 @@ namespace LVL1TGCTrigger {
 
 class TGCStripDoubletSB : public TGCDoubletSB {
 public:
-  TGCStripDoubletSB(){
+  TGCStripDoubletSB(TGCArguments* tgcargs):TGCDoubletSB(tgcargs){
     m_maxDev=3;
     m_nChAdj=0;
     m_iChBase=1;

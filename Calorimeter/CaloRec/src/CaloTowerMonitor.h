@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOREC_CALOTOWERMONITOR_H
@@ -24,8 +24,6 @@
 #include <string>
 #include <vector>
 #include <map>
-
-class StoreGateSvc;
 
 namespace AIDA {
 class IHistogram1D;

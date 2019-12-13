@@ -102,15 +102,9 @@ CscRdoValAlg::~CscRdoValAlg() {
 StatusCode CscRdoValAlg::initialize() {
 
   ATH_MSG_DEBUG ( "CscRdoValAlg : in initialize()"  );
-  StatusCode sc;
 
-  sc = detStore()->retrieve(m_cscIdHelper,"CSCIDHELPER");
-  if (sc.isFailure()) { 
-    ATH_MSG_ERROR ( "Cannot get CscIdHelper"  ); 
-    return sc; 
-  }
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
   ATH_MSG_DEBUG ( " Found the CscIdHelper. "  );
-
 
   ATH_CHECK(m_cscRdoDecoderTool.retrieve());
 
@@ -544,13 +538,13 @@ StatusCode CscRdoValAlg::fillHistograms() {
         // Identify side(A/C), sector(1-16)/layer(1-4)
         stationId = m_cscRdoDecoderTool->stationIdentifier(raw);
         channelId = m_cscRdoDecoderTool->channelIdentifier(raw,0);
-        int stationName = m_cscIdHelper->stationName(channelId);
-        std::string stationString = m_cscIdHelper->stationNameString(stationName);
+        int stationName = m_muonIdHelperTool->cscIdHelper().stationName(channelId);
+        std::string stationString = m_muonIdHelperTool->cscIdHelper().stationNameString(stationName);
         int chamberType = stationString == "CSS" ? 0 : 1;
-        int stationEta  = m_cscIdHelper->stationEta(channelId);
-        int stationPhi  = m_cscIdHelper->stationPhi(channelId);
-        int wireLayer = m_cscIdHelper->wireLayer(channelId);
-        int measuresPhi = m_cscIdHelper->measuresPhi(channelId);
+        int stationEta  = m_muonIdHelperTool->cscIdHelper().stationEta(channelId);
+        int stationPhi  = m_muonIdHelperTool->cscIdHelper().stationPhi(channelId);
+        int wireLayer = m_muonIdHelperTool->cscIdHelper().wireLayer(channelId);
+        int measuresPhi = m_muonIdHelperTool->cscIdHelper().measuresPhi(channelId);
 
         // determine the sector number
 
@@ -600,7 +594,7 @@ StatusCode CscRdoValAlg::fillHistograms() {
 
           // identify this strip
           Identifier chID = m_cscRdoDecoderTool->channelIdentifier(raw, n);
-          int strip = m_cscIdHelper->strip(chID);
+          int strip = m_muonIdHelperTool->cscIdHelper().strip(chID);
           float stripId = strip * xfac;         // x-axis fill value
 
           m_h2csc_rdo_hitmap->Fill(stripId, secLayer);  // fill hitmap 

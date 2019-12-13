@@ -24,7 +24,7 @@ TrackRecorderSDTool::TrackRecorderSDTool(const std::string& type, const std::str
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4VSensitiveDetector* TrackRecorderSDTool::makeSD()
+G4VSensitiveDetector* TrackRecorderSDTool::makeSD() const
 {
   ATH_MSG_DEBUG( "Initializing SD" );
   //SD name has to be the same as the collection name for now in order

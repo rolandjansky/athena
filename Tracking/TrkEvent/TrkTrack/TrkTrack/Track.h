@@ -172,14 +172,23 @@ namespace Trk
        const DataVector<const MeasurementBase>* outliersOnTrack() const;	            
 
        /**									            
-        * return a pointer to a vector of TrackStateOnSurfaces. 		            
-        *									            
+        * return a pointer to a const DataVector of TrackStateOnSurfaces. 		            
+        *		
         * The pointer will be NULL (==0) if the track was created without	            
         * TrackStateOnSurfaces. 						            
         */									            
        const DataVector<const TrackStateOnSurface>* trackStateOnSurfaces() const{
          return m_trackStateVector;
        }
+       /** 
+        * return a pointer to a non-const DataVector of TrackStateOnSurfaces. 		            
+        * The pointer will be NULL (==0) if the track was created without   
+        * TrackStateOnSurfaces.			            
+        */				            
+       DataVector<const TrackStateOnSurface>* trackStateOnSurfaces() {
+         return m_trackStateVector;
+       }
+ 
        /**									            
         * returns a const info for const tracks.           
         */									            

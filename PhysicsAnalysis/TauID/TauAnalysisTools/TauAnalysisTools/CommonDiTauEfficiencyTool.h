@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUANALYSISTOOLS_COMMONDITAUEFFICIENCYTOOL_H
@@ -43,7 +43,7 @@ class CommonDiTauEfficiencyTool
 
 public:
 
-  CommonDiTauEfficiencyTool(std::string sName);
+  CommonDiTauEfficiencyTool(const std::string& sName);
 
   ~CommonDiTauEfficiencyTool();
 
@@ -53,8 +53,8 @@ public:
   virtual CP::CorrectionCode getEfficiencyScaleFactor(const xAOD::DiTauJet& xDiTau, double& dEfficiencyScaleFactor);
   virtual CP::CorrectionCode applyEfficiencyScaleFactor(const xAOD::DiTauJet& xDiTau);
 
-  double (*m_fX)(const xAOD::DiTauJet& xDiTau);
-  double (*m_fY)(const xAOD::DiTauJet& xDiTau);
+  double (*m_fDiX)(const xAOD::DiTauJet& xDiTau);
+  double (*m_fDiY)(const xAOD::DiTauJet& xDiTau);
 
   void ReadInputs(TFile* fFile);
 
@@ -65,8 +65,8 @@ public:
 
   e_TruthMatchedParticleType checkTruthMatch(const xAOD::DiTauJet& xDiTau) const;
 
-  bool m_bSFIsAvailable;
-  bool m_bSFIsAvailableChecked;
+  bool m_bDiSFIsAvailable;
+  bool m_bDiSFIsAvailableChecked;
 
 };
 } // namespace TauAnalysisTools

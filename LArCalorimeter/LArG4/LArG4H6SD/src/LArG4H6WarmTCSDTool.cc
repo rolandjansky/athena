@@ -12,7 +12,7 @@ LArG4H6WarmTCSDTool::LArG4H6WarmTCSDTool(const std::string& type, const std::str
 {
 }
 
-G4VSensitiveDetector* LArG4H6WarmTCSDTool::makeSD()
+G4VSensitiveDetector* LArG4H6WarmTCSDTool::makeSD() const
 {
   ATH_MSG_DEBUG( "Initializing SD" );
   //FIXME use configurable properties here

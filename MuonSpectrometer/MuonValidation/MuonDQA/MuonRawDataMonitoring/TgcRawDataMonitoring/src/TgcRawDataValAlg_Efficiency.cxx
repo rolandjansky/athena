@@ -27,8 +27,6 @@
 #include "MuonRDO/TgcRdoIdHash.h"
 #include "MuonRDO/TgcRdoContainer.h"
 
-#include "MuonDigitContainer/TgcDigitContainer.h"
-
 #include "MuonDQAUtils/MuonChamberNameConverter.h"
 #include "MuonDQAUtils/MuonChambersRange.h"
 #include "MuonDQAUtils/MuonCosmicSetup.h"
@@ -472,7 +470,7 @@ TgcRawDataValAlg::fillEfficiency(){
             // If exactly one channel with hit
             if(m_hitIdVects[CURR][ac][ws][eta][phi48][l].size()==1){
               // Fill channel variables
-              chIds[ws][l] = m_tgcIdHelper->channel(m_hitIdVects[CURR][ac][ws][eta][phi48][l].at(0)) + m_SLBoffset[ws][ac][eta][l];
+              chIds[ws][l] = m_muonIdHelperTool->tgcIdHelper().channel(m_hitIdVects[CURR][ac][ws][eta][phi48][l].at(0)) + m_SLBoffset[ws][ac][eta][l];
               const MuonGM::TgcReadoutElement*  pReadoutElementTGC = m_muonMgr->getTgcReadoutElement(m_hitIdVects[CURR][ac][ws][eta][phi48][l].at(0));
               const Amg::Vector3D channelPos = pReadoutElementTGC->channelPos(m_hitIdVects[CURR][ac][ws][eta][phi48][l].at(0)); //global position 
               chEtas[ws][l] = channelPos.eta();
@@ -486,10 +484,10 @@ TgcRawDataValAlg::fillEfficiency(){
           // Flag wire edge hits
           int wsize = m_hitIdVects[CURR][ac][WIRE][eta][phi48][l].size();
           for(int hit=0;hit<wsize;hit++){
-            int stationName = m_tgcIdHelper->stationName(m_hitIdVects[CURR][ac][WIRE][eta][phi48][l].at(hit));
-            int stationEta  = abs(m_tgcIdHelper->stationEta(m_hitIdVects[CURR][ac][WIRE][eta][phi48][l].at(hit)));
-            int channel     = m_tgcIdHelper->channel(m_hitIdVects[CURR][ac][WIRE][eta][phi48][l].at(hit));
-            int stationPhi  = m_tgcIdHelper->stationPhi(m_hitIdVects[CURR][ac][WIRE][eta][phi48][l].at(hit));
+            int stationName = m_muonIdHelperTool->tgcIdHelper().stationName(m_hitIdVects[CURR][ac][WIRE][eta][phi48][l].at(hit));
+            int stationEta  = abs(m_muonIdHelperTool->tgcIdHelper().stationEta(m_hitIdVects[CURR][ac][WIRE][eta][phi48][l].at(hit)));
+            int channel     = m_muonIdHelperTool->tgcIdHelper().channel(m_hitIdVects[CURR][ac][WIRE][eta][phi48][l].at(hit));
+            int stationPhi  = m_muonIdHelperTool->tgcIdHelper().stationPhi(m_hitIdVects[CURR][ac][WIRE][eta][phi48][l].at(hit));
             // Flag as edge hit if within 3 channels of chamber edge
             if(channel<=3 || channel>=getNumberOfWires(stationName, l, stationEta, stationPhi)-3){
               edgehit[WIRE][l] = true;
@@ -499,7 +497,7 @@ TgcRawDataValAlg::fillEfficiency(){
           // Flag strip edge hits
           int ssize = m_hitIdVects[CURR][ac][STRP][eta][phi48][l].size();
           for(int hit=0;hit<ssize;hit++){
-            int ch = m_tgcIdHelper->channel(m_hitIdVects[1][ac][1][eta][phi48][l].at(hit));
+            int ch = m_muonIdHelperTool->tgcIdHelper().channel(m_hitIdVects[1][ac][1][eta][phi48][l].at(hit));
             // Flag as edge hit if within 3 channels of chamber edge
             if(ch<= 3 || ch>=30){
               edgehit[STRP][l] = true;
@@ -707,7 +705,7 @@ TgcRawDataValAlg::calculateEfficiency(int ac, int ws, int eta, int phi48, int la
   else if(layer==8) refLayer = 7;
   else refLayer = 2;
 
-  int referenceChannel = m_tgcIdHelper->channel(m_hitIdVects[CURR][ac][ws][eta][phi48][refLayer].at(0));
+  int referenceChannel = m_muonIdHelperTool->tgcIdHelper().channel(m_hitIdVects[CURR][ac][ws][eta][phi48][refLayer].at(0));
   referenceChannel+=m_SLBoffset[ws][ac][eta][refLayer];
   
   // Loop over Current PRD
@@ -715,7 +713,7 @@ TgcRawDataValAlg::calculateEfficiency(int ac, int ws, int eta, int phi48, int la
   for(std::vector<Identifier>::const_iterator it=m_hitIdVects[CURR][ac][ws][eta][phi48][layer].begin();
       it!=itc_end;
       it++){
-    int prdChannel = m_tgcIdHelper->channel(*it) + m_SLBoffset[ws][ac][eta][layer];
+    int prdChannel = m_muonIdHelperTool->tgcIdHelper().channel(*it) + m_SLBoffset[ws][ac][eta][layer];
     int dmin       = m_dchmin[layer][refLayer][ws][ac] - dch_extra;
     int dmax       = m_dchmax[layer][refLayer][ws][ac] + dch_extra;
     if(compareID(prdChannel, referenceChannel, dmin, dmax)){
@@ -734,7 +732,7 @@ TgcRawDataValAlg::calculateEfficiency(int ac, int ws, int eta, int phi48, int la
   for(std::vector<Identifier>::const_iterator it=m_hitIdVects[PREV][ac][ws][eta][phi48][layer].begin();
       it!=itp_end;
       it++){
-    int prdChannel = m_tgcIdHelper->channel(*it) + m_SLBoffset[ws][ac][eta][layer];
+    int prdChannel = m_muonIdHelperTool->tgcIdHelper().channel(*it) + m_SLBoffset[ws][ac][eta][layer];
     int dmin       = m_dchmin[layer][refLayer][ws][ac] - dch_extra;
     int dmax       = m_dchmax[layer][refLayer][ws][ac] + dch_extra;
     if(compareID(prdChannel, referenceChannel, dmin, dmax)){
@@ -751,7 +749,7 @@ TgcRawDataValAlg::calculateEfficiency(int ac, int ws, int eta, int phi48, int la
   for(std::vector<Identifier>::const_iterator it=m_hitIdVects[NEXT][ac][ws][eta][phi48][layer].begin();
       it!=itn_end;
       it++){
-    int prdChannel = m_tgcIdHelper->channel(*it) + m_SLBoffset[ws][ac][eta][layer];
+    int prdChannel = m_muonIdHelperTool->tgcIdHelper().channel(*it) + m_SLBoffset[ws][ac][eta][layer];
     int dmin       = m_dchmin[layer][refLayer][ws][ac] - dch_extra;
     int dmax       = m_dchmax[layer][refLayer][ws][ac] + dch_extra;
     if(compareID(prdChannel, referenceChannel, dmin, dmax)){

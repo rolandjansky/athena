@@ -2,11 +2,6 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <math.h>
-
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/StatusCode.h"
-#include "AthLinks/ElementLink.h"
 #include "TrigMuisoHypoAlg.h"
 #include "AthViews/ViewHelper.h"
 
@@ -21,31 +16,16 @@ TrigMuisoHypoAlg::TrigMuisoHypoAlg( const std::string& name,
 {}
 
 
-TrigMuisoHypoAlg::~TrigMuisoHypoAlg() 
-{}
-
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
 StatusCode TrigMuisoHypoAlg::initialize()
 {
-  ATH_MSG_INFO( "Initializing " << name() << " - package version " << PACKAGE_VERSION );
-
   ATH_CHECK(m_hypoTools.retrieve());
 
   renounce( m_muIsoKey );
   ATH_CHECK( m_muIsoKey.initialize() );
 
-  return StatusCode::SUCCESS;
-}
-
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-StatusCode TrigMuisoHypoAlg::finalize()
-{
-  ATH_MSG_INFO( "Finalizing " << name() << "..." );
   return StatusCode::SUCCESS;
 }
 

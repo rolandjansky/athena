@@ -11,10 +11,14 @@
 #include "./ConditionsDefsMT.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/FlowEdge.h"
 
+#include <string>
+
 class MultijetFlowNetworkBuilder: 
 virtual public IFlowNetworkBuilder, private FlowNetworkBuilderBase{
  public:
   MultijetFlowNetworkBuilder(ConditionsMT);
+  ~MultijetFlowNetworkBuilder(){}
+  virtual std::string toString() const override;
  protected:
   virtual std::optional<std::vector<std::shared_ptr<FlowEdge>>>
     make_flowEdges(const HypoJetGroupCIter& groups_b,

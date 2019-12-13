@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """ChainDef is a simple object with state but no behaviour.
 It serves to vehical information from trigger slice menu software,
@@ -57,7 +57,7 @@ class ChainDef:
 
         #safety: if asked to insert with sig_counter -1, use addSignature
         if signature_counter == -1:
-            addSignature(signature_counter,listOfTriggerElements)
+            self.addSignature(signature_counter,listOfTriggerElements)
         else:
             pos_newSeq = -1
             

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -27,6 +27,9 @@
 #include "TrkTrack/TrackExtensionMap.h"
 #include "TrkTrack/TrackCollection.h"
 
+#include "CxxUtils/checker_macros.h"
+#include <atomic>
+
 namespace InDet {
 
 	class TRT_TrackExtensionAlg : public AthAlgorithm {
@@ -51,23 +54,26 @@ namespace InDet {
 		// Print internal algorithm parameters and status
 		///////////////////////////////////////////////////////////////////
 
-		MsgStream& dump (MsgStream& out) const;
-		std::ostream& dump (std::ostream& out) const;
-
 	protected:
+		StatusCode execute_r(const EventContext& ctx) const;
+
 
 		///////////////////////////////////////////////////////////////////
 		// Protected data 
 		///////////////////////////////////////////////////////////////////
 
-		int m_outputlevel;  // Print level for debug
-		int m_nprint;  // Kind of  print    
-		int m_nTracks;  // Number input  tracks
-		int m_nTracksExtended;  // Number output tracks
-		int m_nTracksTotal;  // Number input  tracks
-		int m_nTracksExtendedTotal;  // Number output tracks
-		//		std::string m_tracksLocation;  // Input  tracks location
-		//		std::string m_extendedTracksLocation;  // Output tracks location
+                struct Counter_t {
+                   int m_nTracks = 0 ;  // Number input  tracks
+                   int m_nTracksExtended = 0;  // Number output tracks
+                   Counter_t &operator += (const Counter_t &a) {
+                      m_nTracks         +=a.m_nTracks;
+                      m_nTracksExtended +=a.m_nTracksExtended;
+                      return *this;
+                   }
+                };
+                mutable std::mutex m_counterMutex ATLAS_THREAD_SAFE;
+                mutable Counter_t  m_totalCounts  ATLAS_THREAD_SAFE;
+
 		ToolHandle<ITRT_TrackExtensionTool> m_trtExtension{this, "TrackExtensionTool", "InDet::TRT_TrackExtensionTool_xk", "TRT track extension tool"};
 
 		// Data handle keys
@@ -79,11 +85,8 @@ namespace InDet {
 		///////////////////////////////////////////////////////////////////
 
 		MsgStream& dumpConditions(MsgStream& out) const;
-		MsgStream& dumpEvent(MsgStream& out) const;
+                MsgStream& dumpEvent(MsgStream& out, const Counter_t &counter) const;
 
 	};
-
-	MsgStream& operator << (MsgStream&, const TRT_TrackExtensionAlg&);
-	std::ostream& operator << (std::ostream&, const TRT_TrackExtensionAlg&); 
 }
 #endif // TRT_TrackExtensionAlg_H

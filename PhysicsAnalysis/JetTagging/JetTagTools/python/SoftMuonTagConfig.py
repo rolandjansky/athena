@@ -14,10 +14,10 @@ def SoftMuonTagCfg( flags, name = 'SoftMu', useBTagFlagsDefaults = True, **optio
 
     The following options have BTaggingFlags defaults:
 
-    Runmodus                            default: BTaggingFlags.Runmodus
+    Runmodus                            default: BTagging.RunModus
     jetCollectionList                   default: BTaggingFlags.Jets
     originalMuCollectionName            default: BTaggingFlags.MuonCollectionName
-    BTagJetEtamin                       default: 2.5 (only if BTaggingFlags.Runmodus == 'reference')
+    BTagJetEtamin                       default: 2.5 (only if BTagging.RunModus == 'reference')
     MuonQuality                         default: xAOD::Muon::Medium
 
     input:             name: The name of the tool (should be unique).
@@ -26,24 +26,18 @@ def SoftMuonTagCfg( flags, name = 'SoftMu', useBTagFlagsDefaults = True, **optio
     output: The actual tool."""
     acc = ComponentAccumulator()
     if useBTagFlagsDefaults:
-        accBTagTrackToVertexIPEstimator = BTagTrackToVertexIPEstimatorCfg(flags, 'TrkToVxIPEstimator')
-        trackToVertexIPEstimator = accBTagTrackToVertexIPEstimator.popPrivateTools()
-        acc.merge(accBTagTrackToVertexIPEstimator)
-        accMuonSelector = MuonSelectorToolCfg('MuonSelectorTool')
-        muonSelectorTool = accMuonSelector.popPrivateTools()
-        acc.merge(accMuonSelector)
-        accLikelihood = NewLikelihoodToolCfg('SoftMuonTagNewLikelihoodTool', 'SMT')
-        likelihood = accLikelihood.popPrivateTools()
-        acc.merge(accLikelihood)
+        trackToVertexIPEstimator = acc.popToolsAndMerge(BTagTrackToVertexIPEstimatorCfg(flags, 'TrkToVxIPEstimator'))
+        muonSelectorTool = acc.popToolsAndMerge(MuonSelectorToolCfg('MuonSelectorTool'))
+        likelihood = acc.popToolsAndMerge(NewLikelihoodToolCfg(flags, 'SoftMuonTagNewLikelihoodTool', 'SMT'))
         defaults = {
-                     'Runmodus'                         : BTaggingFlags.Runmodus,
+                     'Runmodus'                         : flags.BTagging.RunModus,
                      'jetCollectionList'                : BTaggingFlags.Jets,
                      'originalMuCollectionName'         : BTaggingFlags.MuonCollectionName,
                      'MuonQuality'                      : 2,
                      'muonSelectorTool'                 : muonSelectorTool,
                      'LikelihoodTool'                   : likelihood,
                      'TrackToVertexIPEstimator'         : trackToVertexIPEstimator, }
-        if(BTaggingFlags.Runmodus == 'reference'):
+        if(flags.BTagging.RunModus == 'reference'):
             defaults['BTagJetEtamin'] = 2.5
         for option in defaults:
             options.setdefault(option, defaults[option])

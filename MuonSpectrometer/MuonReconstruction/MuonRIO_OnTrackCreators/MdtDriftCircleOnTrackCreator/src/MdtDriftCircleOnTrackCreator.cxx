@@ -29,7 +29,6 @@
 #include "MuonCalibEvent/MdtCalibHit.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 
-#include "MuonRecToolInterfaces/IMuonTofTool.h"
 #include "MuonPrepRawData/MdtPrepData.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "MuonRIO_OnTrack/MuonDriftCircleErrorStrategy.h"
@@ -46,7 +45,6 @@ Muon::MdtDriftCircleOnTrackCreator::MdtDriftCircleOnTrackCreator(const std::stri
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_mdtCalibrationTool("MdtCalibrationTool", this),
     m_mdtCalibrationDbTool("MdtCalibrationDbTool", this),
-    m_tofTool(""), // Must be public because MuGirlStau modifies this on the fly. FIXME!
     m_invSpeed(1./299.792458),
     m_mdtCalibSvcSettings( 0 ),
     m_errorStrategy(Muon::MuonDriftCircleErrorStrategyInput())
@@ -61,7 +59,6 @@ Muon::MdtDriftCircleOnTrackCreator::MdtDriftCircleOnTrackCreator(const std::stri
   // --- if any of those false, then just copy, but no update.
   declareProperty("doMDT",  m_doMdt = true);
   declareProperty("TimingMode", m_timeCorrectionType = 0 );
-  declareProperty("MuonTofTool", m_tofTool );
   declareProperty("FixedError",m_fixedError = 1.);
   declareProperty("DiscardMaskedHits",m_discardMaskedHits = true);
   declareProperty("GlobalToLocalTolerance",m_globalToLocalTolerance = 1000., "Tolerance used for the Surface::globalToLocal" );
@@ -160,8 +157,6 @@ StatusCode Muon::MdtDriftCircleOnTrackCreator::initialize()
   ATH_CHECK( m_idHelper.retrieve() );
 
   if( m_timeCorrectionType == COSMICS_TOF ){
-    if( m_tofTool.empty() ) ATH_MSG_DEBUG("no TOF tool, TOF will be calculated directly from T0 shift provided");
-    else ATH_CHECK(m_tofTool.retrieve());
     if( !m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::TofCorrection) ){
       ATH_MSG_WARNING( "Detected bad default configuration, using Cosmic TOF witout time of flight corrections does not work" );
     }
@@ -185,8 +180,10 @@ Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::createRIO_OnTra
                                                                                          const MdtPrepData& mdtPrd,
                                                                                          const Amg::Vector3D& GP, 
                                                                                          const Amg::Vector3D* GD,
-											 float t0Shift,
-                                                                                         const MuonDriftCircleErrorStrategy* strategy ) const
+                                                                                         float t0Shift,
+                                                                                         const MuonDriftCircleErrorStrategy* strategy,
+                                                                                         const double beta,
+                                                                                         const double tTrack ) const
 {
   const MuonDriftCircleErrorStrategy* myStrategy = 0==strategy?&m_errorStrategy:strategy;
   
@@ -248,7 +245,7 @@ Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::createRIO_OnTra
   inputData.trackDirection = GD;
   inputData.nominalWireSurface = nominalSurf;
   inputData.wireSurface = saggedSurf;
-  CalibrationOutput calibOutput = getLocalMeasurement( mdtPrd, GP, GD,inputData, myStrategy, t0Shift );
+  CalibrationOutput calibOutput = getLocalMeasurement( mdtPrd, GP, GD,inputData, myStrategy, t0Shift, beta, tTrack);
   // This basically determines the error etc and is where the bulk of the work is done.
   
   // hack to determine whether we are before or after the spectrum, until we sort this out properly 
@@ -326,12 +323,12 @@ Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::createRIO_OnTra
 }
 
 void Muon::MdtDriftCircleOnTrackCreator::updateSign( 
-                                                    MdtDriftCircleOnTrack& caliDriftCircle, 
-                                                    Trk::DriftCircleSide si) const
+						    MdtDriftCircleOnTrack& caliDriftCircle, 
+						    Trk::DriftCircleSide si) const
 {
   // ************************
   // Apply additional corrections to local position 
-  Trk::LocalParameters& lpos =  const_cast<Trk::LocalParameters&>(caliDriftCircle.localParameters()) ;
+  Trk::LocalParameters lpos(caliDriftCircle.localParameters()) ;
   
   // set sign LocalPosition
   if ( si == Trk::LEFT ){
@@ -352,7 +349,9 @@ Muon::MdtDriftCircleOnTrackCreator::getLocalMeasurement(const MdtPrepData& DC,
                                                         const Amg::Vector3D* /**gdir*/,
                                                         MdtCalibrationSvcInput& inputData,
                                                         const MuonDriftCircleErrorStrategy* strategy,
-							float t0Shift) const
+                                                        float t0Shift,
+                                                        const double beta,
+                                                        const double tTrack) const
 {
   const MuonDriftCircleErrorStrategy* myStrategy = 0==strategy?&m_errorStrategy:strategy;
   
@@ -402,9 +401,7 @@ Muon::MdtDriftCircleOnTrackCreator::getLocalMeasurement(const MdtPrepData& DC,
                         << inputData.triggerOffset );
         break;
       case COSMICS_TOF:
-        // case for normal cosmic data with rpc trigger or simulation including TOF
-        if(!m_tofTool.empty()) inputData.tof = m_tofTool->timeOfFlight( DC.identify(), gpos );
-	else inputData.tof=t0Shift+gpos.mag()/299.792458;
+        inputData.tof = timeOfFlight(gpos, beta, tTrack, (double)t0Shift);
         ATH_MSG_VERBOSE( " running in COSMICS_TOF mode, tof: " << inputData.tof );
         break;
       default:
@@ -484,7 +481,9 @@ Muon::MdtDriftCircleOnTrackCreator::getLocalMeasurement(const MdtPrepData& DC,
 Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::correct(
                                                                                const Trk::PrepRawData& prd, 
                                                                                const Trk::TrackParameters& tp,
-                                                                               const MuonDriftCircleErrorStrategy* strategy ) const
+                                                                               const MuonDriftCircleErrorStrategy* strategy,
+                                                                               const double beta,
+                                                                               const double tTrack ) const
 {
   const MdtPrepData* mdtPrd = dynamic_cast<const MdtPrepData*>(&prd);
   if( !mdtPrd ){
@@ -492,7 +491,7 @@ Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::correct(
     return 0;
   }
   
-  return createRIO_OnTrack(*mdtPrd,tp.position(),&tp.momentum(),0,strategy);
+  return createRIO_OnTrack(*mdtPrd,tp.position(),&tp.momentum(),0,strategy,beta,tTrack);
 }
 
 
@@ -504,12 +503,6 @@ Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::correct(
   if( !mdtPrd ){
     ATH_MSG_WARNING( " Incorrect hit type:  Trk::PrepRawData not a Muon::MdtPrepData!! No rot created " );
     return 0;
-  }
-  
-  static bool firstTime = true;
-  if (firstTime){
-   ATH_MSG_DEBUG( "Called correct using the base class implementation.  Will use the default error strategy" );
-    firstTime = false;
   }
   
   return createRIO_OnTrack(*mdtPrd,tp.position(),&tp.momentum());
@@ -677,6 +670,10 @@ Muon::MdtDriftCircleStatus Muon::MdtDriftCircleOnTrackCreator::driftCircleStatus
   // check whether drift time is within range, if not fix them to the min/max range
   double t = DCT.driftTime();
   return m_mdtCalibrationTool->driftTimeStatus(t, rtRelation, *m_mdtCalibSvcSettings);
+}
+
+double Muon::MdtDriftCircleOnTrackCreator::timeOfFlight(const Amg::Vector3D& pos, const double beta, const double tTrack, const double tShift) const {
+  return (pos.mag() * m_inverseSpeedOfLight / beta + tTrack + tShift);
 }
 
 double Muon::MdtDriftCircleOnTrackCreator::parametrisedSigma( double r ) const {

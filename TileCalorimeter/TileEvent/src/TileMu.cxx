@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //========================================
@@ -13,7 +13,7 @@
 #include <sstream>
 #include <iomanip>
 
-TileMu::TileMu ( float eta, float phi, std::vector<float> & ener, float qual )
+TileMu::TileMu ( float eta, float phi, const std::vector<float> & ener, float qual )
   : m_eta(eta)
   , m_phi(phi)
   , m_energy_deposited(ener)
@@ -21,7 +21,7 @@ TileMu::TileMu ( float eta, float phi, std::vector<float> & ener, float qual )
 { 
 }
 
-void TileMu::Set( float eta, float phi, std::vector<float> & ener, float qual )
+void TileMu::Set( float eta, float phi, const std::vector<float> & ener, float qual )
 {
   m_eta = eta;
   m_phi = phi;

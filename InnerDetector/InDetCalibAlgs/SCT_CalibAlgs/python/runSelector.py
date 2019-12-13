@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 import os
 import sys
@@ -13,27 +13,27 @@ def main( runNum = None, procType = None, forceSkipQueue = 0, Stream = None ):
 #def main( runNum = None, procType = None, forceSkipQueue = 0 ):
     #===== Run number =====
     if runNum == None:
-        print 'ERROR no run number given'
+        print('ERROR no run number given')
         return False
     Run0 = runNum
     #===== procType =====
     if procType == None:
-        print 'ERROR no process type given'
+        print('ERROR no process type given')
         return False
     if Stream == None:
-        print 'ERROR no stream given'
+        print('ERROR no stream given')
         return False
     for iType in procType:
         if not iType in ['doNoisyStrip','doNoiseOccupancy','doDeadChip','doDeadStrip','doHV','doBSErrorDB','doRawOccupancy','doEfficiency','doLorentzAngle']:
-            print 'ERROR process type does not match any possible candidates'
+            print('ERROR process type does not match any possible candidates')
             return False
         else :
             pType = iType
 
     #run RunQuery only if the stream _is not_ cosmics
     
-    print 'STREAM'
-    print Stream
+    print('STREAM')
+    print(Stream)
     #===== Check the stable beam flag in Run0 =====
     #--- RunQuery
     runQuery  = 'AtlRunQuery.py '
@@ -73,11 +73,11 @@ def main( runNum = None, procType = None, forceSkipQueue = 0, Stream = None ):
 
     runQuery += '--show run --show projecttag --show events --show time --show \"lhc\" '
     runQuery += '--noroot --nohtml --verbose'
-    print runQuery
+    print(runQuery)
     os.system(runQuery)
     
 
-    print Run0
+    print(Run0)
 
 #    --- Check stable beam flag if stream _is not_ cosmics
     if 'cos' not in Stream:
@@ -89,16 +89,16 @@ def main( runNum = None, procType = None, forceSkipQueue = 0, Stream = None ):
             while line:
                 if "Metadata" in line and "RunList" in line and str(Run0) in line:
                     StableBeam = True
-                    print "Run %s : run selection passed ---> job will be launched" %(Run0)
+                    print("Run %s : run selection passed ---> job will be launched" %(Run0))
                 line = f.readline()
             f.close()
 
         else: 
-            print "ERROR problem in access to /data/MyLBCollection.xml file produced by AtlRunQuery.py --- probably due to AtlRunQuery crash..."
+            print("ERROR problem in access to /data/MyLBCollection.xml file produced by AtlRunQuery.py --- probably due to AtlRunQuery crash...")
             sys.exit( -1 )
             
         if not StableBeam:
-            print "Run %s : run selection didn't pass Stable Beam check--- job will be finished" %(Run0)
+            print("Run %s : run selection didn't pass Stable Beam check--- job will be finished" %(Run0))
             return False
     
     #===== Read last run uploaded : only for NoisyStrip =====
@@ -118,11 +118,11 @@ def main( runNum = None, procType = None, forceSkipQueue = 0, Stream = None ):
                 RunLast = line
                 line = f.readline()
             f.close()
-            print "Run %s : the last run uploaded" %(RunLast)[:-1]
+            print("Run %s : the last run uploaded" %(RunLast)[:-1])
 
 #        --- Check last run is before Run0
         if int(RunLast) > int(Run0) :
-            print "Run %s : taken later than the current run ---> job will not be run" %(RunLast)[:-1]
+            print("Run %s : taken later than the current run ---> job will not be run" %(RunLast)[:-1])
             return False
                     
         #--- RunQuery
@@ -150,7 +150,7 @@ def main( runNum = None, procType = None, forceSkipQueue = 0, Stream = None ):
         runQuery += '--show \"streams *calibration_SCTNoise\" '
         runQuery += '--show run --show projecttag --show events --show time --show \"lhc\" '
         runQuery += '--noroot --nohtml --verbose'
-        print runQuery
+        print(runQuery)
         os.system(runQuery)
 
         #--- Check Run0 and RunLast
@@ -182,12 +182,12 @@ def main( runNum = None, procType = None, forceSkipQueue = 0, Stream = None ):
             for iRun in range( int(RunLast)+1, int(Run0) ):
                 if str(iRun) in runList:
                     RunWait += 1
-                    print "Run %s: this run has to be processed/uploaded ---> job in pending state " %(iRun)
+                    print("Run %s: this run has to be processed/uploaded ---> job in pending state " %(iRun))
 
 
             if RunWait == 0:
                 Wait = False
-                print "Run %s : checked the last run uploaded ---> job will be launched" %(Run0)
+                print("Run %s : checked the last run uploaded ---> job will be launched" %(Run0))
 
         # if os.path.exists("./data/MyLBCollection.xml") :
         #     f = open('./data/MyLBCollection.xml')
@@ -199,22 +199,22 @@ def main( runNum = None, procType = None, forceSkipQueue = 0, Stream = None ):
         #             for iRun in range( int(RunLast)+1, int(Run0) ):
         #                 if str(iRun) in line:
         #                     RunWait += 1
-        #                     print "Run %s : this run has to be processed/uploaded ---> job in pending state " %(iRun)
+        #                     print("Run %s : this run has to be processed/uploaded ---> job in pending state " %(iRun))
 
         #             if RunWait == 0:
         #                 Wait = False
-        #                 print "Run %s : checked the last run uploaded ---> job will be launched" %(Run0)
+        #                 print("Run %s : checked the last run uploaded ---> job will be launched" %(Run0))
 
         #         line = f.readline()
         #     f.close()
 
         #--- Wait for RunLast update
         if Wait:
-            print 'Run %s : waiting for previous run(s) processed/uploaded' %(Run0)
+            print('Run %s : waiting for previous run(s) processed/uploaded' %(Run0))
             time.sleep(5)
 
     #--- Start processing
-    print 'Run %s : job starts running now' %(Run0)
+    print('Run %s : job starts running now' %(Run0))
     return True
 
 #===== Execute     
@@ -222,17 +222,17 @@ if __name__ == "__main__":
     try :
         runNumber = int( sys.argv[1] )
     except :
-        print "Failed to read run number" %(sys.argv[1])
+        print("Failed to read run number" %(sys.argv[1]))
         sys.exit( -1 )
     try :
         processType = str( sys.argv[2] )
     except :
-        print "Failed to read proces type" %(sys.argv[2])
+        print("Failed to read proces type" %(sys.argv[2]))
         sys.exit( -1 )
     try :
         skipQueue = int( sys.argv[3] )
     except :
-        print "Setting skipqueue to default (wait until previous runs are analysed)"
+        print("Setting skipqueue to default (wait until previous runs are analysed)")
         skipQueue = 0
 
     main( runNum = runNumber, procType = processType, forceSkipQueue = skipQueue )

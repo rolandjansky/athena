@@ -118,8 +118,6 @@ class CSCSegmValAlg : public ManagedMonitorToolBase {
   std::vector<std::string> m_sampSelTriggers;
   bool m_doEvtSel;
 
-  const CscIdHelper* m_cscIdHelper;
-  const TgcIdHelper* m_tgcIdHelper;
   SG::ReadHandleKey<Trk::SegmentCollection> m_segmKey{this,"SegmentKey","MuonSegments","muon segments"};
   double m_segmSlope;
 
@@ -192,7 +190,8 @@ class CSCSegmValAlg : public ManagedMonitorToolBase {
   ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
     "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
     "Handle to the service providing the IMuonEDMHelperSvc interface" };
-  ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 };
 
 #endif

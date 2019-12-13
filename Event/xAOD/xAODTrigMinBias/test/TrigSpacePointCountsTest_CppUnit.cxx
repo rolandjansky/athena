@@ -151,6 +151,6 @@ class TrigSpacePointCountsTest : public CppUnit::TestFixture
 
 CPPUNIT_TEST_SUITE_REGISTRATION (TrigSpacePointCountsTest);
 
-#include <TestPolicy/CppUnit_testdriver.cxx>
+#include <TestTools/CppUnit_testdriver.cxx>
 
 #endif // ROOTCORE

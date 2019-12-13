@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CaloCellPacker_400_500.cxx,v 1.5 2009-03-31 19:04:04 ssnyder Exp $
@@ -19,6 +19,7 @@
 #include "TileEvent/TileCell.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "AthenaKernel/errorcheck.h"
+#include "AthenaKernel/ThinningDecisionBase.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
 
@@ -449,10 +450,12 @@ void CaloCellPacker_400_500::finish_seq
  * @brief Pack cells.
  * @param cells The input cell container.
  * @param packed The output packed cell container.
+ * @param dec If non-null, specification of elements to be thinned.
  * @param version The version of the header to initialize.
  */
 void CaloCellPacker_400_500::pack (const CaloCellContainer& cells,
                                    CaloCompactCellContainer& packed,
+                                   const SG::ThinningDecisionBase* dec,
                                    int version) const
 {
   // Set up the header and derived parameters.
@@ -510,8 +513,15 @@ void CaloCellPacker_400_500::pack (const CaloCellContainer& cells,
     pars.m_status |= header::STATUS_IS_SUPERCELL;
 
   // Loop over input cells.
+  size_t icell = static_cast<size_t>(-1);;
   for (const CaloCell* cell : cells)
   {
+    // Check for thinning.
+    ++icell;
+    if (dec && dec->thinned (icell)) {
+      continue;
+    }
+
     // Pick up values from the cell.
     const CaloDetDescrElement* dde = cell->caloDDE();
     unsigned int hash = dde->calo_hash();

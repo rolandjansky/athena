@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -28,8 +28,6 @@
 #include "PathResolver/PathResolver.h"
 
 #include <boost/algorithm/string.hpp>
-#include "boost/foreach.hpp"
-#define foreach BOOST_FOREACH
 
 
 // Setup HepMC traits definition for ThePEG's converter to work
@@ -123,7 +121,7 @@ StatusCode Herwigpp::genInitialize() {
     const string sharepath = "/InstallArea/" + cmtconfig + "/share";
     const string libpath = "/InstallArea/" + cmtconfig + "/lib";
     // Prepend to the repository and loader command file search paths
-    foreach (const string& p, cmtpaths) {
+    for (const string& p : cmtpaths) {
       const string cmtsharepath = p + sharepath;
       ATH_MSG_DEBUG("Appending " + cmtsharepath + " to ThePEG repository and command file search paths");
       reposearchpaths = reposearchpaths + (reposearchpaths.length() == 0 ? "" : ":") + cmtsharepath;
@@ -171,7 +169,7 @@ StatusCode Herwigpp::genInitialize() {
   // Apply the config commands
   ATH_MSG_DEBUG("Processing default and job option commands");
   string commands = "";
-  foreach (const string& cmd, cmds) {
+  for (const string& cmd : cmds) {
     commands += "\n" + cmd;
     const size_t iNonSpace = cmd.find_first_not_of(" ");
     // Only run the command if it's not just whitespace or a comment

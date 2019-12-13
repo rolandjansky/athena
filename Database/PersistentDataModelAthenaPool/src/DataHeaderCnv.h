@@ -39,7 +39,7 @@ public:
    /// Extend base-class conversion methods
    virtual StatusCode updateRep(IOpaqueAddress* pAddress, DataObject* pObject) override;
 
-   virtual StatusCode updateRepRefs(IOpaqueAddress* pAddress, DataObject* pObject);
+   virtual StatusCode updateRepRefs(IOpaqueAddress* pAddress, DataObject* pObject) override;
 
    virtual StatusCode DataObjectToPool(DataObject* pObj, const std::string& tname) override;
 
@@ -52,7 +52,7 @@ public:
    [[deprecated("this converter uses createPersistent() with 2 arguments")]]
    virtual DataHeader_p6* createPersistent(DataHeader*) override { return nullptr; }
 
-   /// Incident service handle listening for EndFile.
+   /// Incident service handle listening for EndInputFile.
    virtual void handle(const Incident& incident) override;
  
 protected:
@@ -71,7 +71,8 @@ protected:
 
    /// cached values for use with SharedWriter server
    DataHeader_p6*                       m_sharedWriterCachedDH = nullptr;  // no ownership
-   std::unique_ptr<DataHeaderForm_p6>   m_sharedWriterCachedDHForm;
+   /// map of cached DHForms for DataHeader ID
+   std::map< std::string, std::unique_ptr<DataHeaderForm_p6> >  m_sharedWriterCachedDHForm;
    std::string                          m_sharedWriterCachedDHKey;
    std::string                          m_sharedWriterCachedDHToken;
 };

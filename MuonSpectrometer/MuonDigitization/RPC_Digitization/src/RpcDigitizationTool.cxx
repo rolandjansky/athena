@@ -524,17 +524,9 @@ StatusCode RpcDigitizationTool::doDigitization(RpcDigitContainer* digitContainer
 
       ATH_MSG_DEBUG  ( "Global time " << globalHitTime << " G4 time " << G4Time  << " Bunch time " << bunchTime       );
 
-      //std::cout << "Global time " << globalHitTime << " G4 time " << G4Time
-      //          << " Bunch time " << bunchTime      <<  std::endl;
-
       if (m_validationSetup){
-	  RPCSimHit* copyHit = new RPCSimHit(idHit, globalHitTime, hit.localPosition(), hit.trackNumber(),
-					     hit.postLocalPosition(), hit.energyDeposit(), hit.stepLength(), 
-					     hit.particleEncoding(), hit.kineticEnergy());
-	  ATH_MSG_VERBOSE("Validation:  globalHitTime, G4Time, BCtime = "<<globalHitTime<<" "<<G4Time<<" "<<bunchTime);
-	  ATH_MSG_VERBOSE("Validation:  "<<copyHit->print());
-	  
-	inputSimHitColl->Insert(*copyHit);
+        ATH_MSG_VERBOSE("Validation:  globalHitTime, G4Time, BCtime = "<<globalHitTime<<" "<<G4Time<<" "<<bunchTime);	  
+        inputSimHitColl->Emplace(idHit, globalHitTime, hit.localPosition(), hit.trackNumber(), hit.postLocalPosition(), hit.energyDeposit(), hit.stepLength(), hit.particleEncoding(), hit.kineticEnergy());
       }
 
       // convert sim id helper to offline id
@@ -2084,9 +2076,6 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const Identifier* IdRpcStrip, flo
   // float FracClusterSize1norm  = 1  ; // not used
   float FracClusterSize2norm  = 0  ;
 
-  SG::ReadCondHandle<RpcCondDbData> readHandle{m_readKey};
-  const RpcCondDbData* readCdo{*readHandle};
-
   //2=BML,3=BMS,4=BOL,5=BOS,8=BMF,9=BOF,10=BOG
   int stationName  = m_idHelper->stationName(*IdRpcStrip);
   int stationEta   = m_idHelper->stationEta (*IdRpcStrip);
@@ -2126,6 +2115,9 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const Identifier* IdRpcStrip, flo
     }
   }
   else{
+    SG::ReadCondHandle<RpcCondDbData> readHandle{m_readKey};
+    const RpcCondDbData* readCdo{*readHandle};
+
     Identifier Id  = m_idHelper->panelID(*IdRpcStrip);
 
     int    RPC_ProjectedTracks = 0;

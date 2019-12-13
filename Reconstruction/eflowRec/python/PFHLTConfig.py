@@ -92,11 +92,8 @@ def getPFCellLevelSelectionTool():
 
     from eflowRec.eflowRecConf import PFTrackClusterMatchingTool
     MatchingTool = PFTrackClusterMatchingTool("CalObjBldMatchingTool")
-    MatchingTool.OutputLevel=1
     MatchingTool_Pull_02 = PFTrackClusterMatchingTool("MatchingTool_Pull_02")
-    MatchingTool_Pull_02.OutputLevel=1
     MatchingTool_Pull_015 = PFTrackClusterMatchingTool("MatchingTool_Pull_015")
-    MatchingTool_Pull_015.OutputLevel=1
 
     MatchingTool_Pull_015.TrackPositionType   = 'EM2EtaPhi' # str
     MatchingTool_Pull_015.ClusterPositionType = 'PlainEtaPhi' # str

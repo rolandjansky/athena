@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -41,8 +41,13 @@ class SpacePointCollection
 	///////////////////////////////////////////////////////////////////
 	// Public methods:
 	///////////////////////////////////////////////////////////////////
-	public:	
-	// Constructor with parameters:
+	public:
+
+        // Standard thinning code won't work on this type because
+        // we have no default constructor.
+        static bool constexpr supportsThinning = false;
+
+        // Constructor with parameters:
 	//   Hashed offline identifier of the DE
 	SpacePointCollection(const IdentifierHash idHash);
 	

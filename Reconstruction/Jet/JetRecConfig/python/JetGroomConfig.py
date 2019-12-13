@@ -17,12 +17,14 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 # So, import package conf modules rather than a dozen individual classes
 from JetRec import JetRecConf
 
+import six
+
 ########################################################################
 # Get a jet groomer class given a tool name and the grooming definition object
 #
 def getJetGroomer(groomdef):
     tooltype = groomdef.groomspec["ToolType"]
-    toolprops = {key:val for key,val in groomdef.groomspec.iteritems() if key not in ["groomalg","ToolType"]}
+    toolprops = {key:val for key,val in six.iteritems (groomdef.groomspec) if key not in ["groomalg","ToolType"]}
     return tooltype(groomdef.basename,**toolprops)
 
 
@@ -33,13 +35,13 @@ def getJetGroomer(groomdef):
 def getJetGroomAlg(jetname,groomdef,modlist):
     jetlog.debug("Configuring JetAlgorithm \"jetalg_{0}\"".format(jetname))
 
-    import JetRecConfig
+    from . import JetRecConfig
     builder = JetRecConfig.getJetBuilder()
 
     groomer = getJetGroomer(groomdef)
     groomer.JetBuilder = builder
 
-    import JetModConfig
+    from . import JetModConfig
     mods = []
     # Dependency resolution should be done externally
     for moddef,modspec in modlist:
@@ -76,7 +78,7 @@ def JetGroomCfg(groomdef, configFlags, jetnameprefix="",jetnamesuffix=""):
     # If not, we need to configure their reconstruction.
     filecontents = configFlags.Input.Collections
     if groomdef.ungroomedname not in filecontents:
-        from JetRecConfig import JetRecCfg
+        from . import JetRecCfg
         components.merge(JetRecCfg(groomdef.ungroomeddef, configFlags,
                                    jetnameoverride=groomdef.ungroomedname))
     else:

@@ -217,6 +217,9 @@ def make_photon_fraction_plot(f_base, f_nightly, result_file):
             nightly = f_nightly.Get(folder['name'] + '/' + folder['name'] + "_" + variable_name)
             nightly.SetDirectory(0)
 
+            baseline.SetMinimum(min(baseline.GetMinimum(), baseline.GetMinimum()) * 0.7)
+            baseline.SetMaximum(max(baseline.GetMaximum(), baseline.GetMaximum()) * 1.3)
+
             baseline.GetYaxis().SetTitle("Efficiency and fraction")
 
             baseline.SetLineColor(folder['color'])
@@ -329,13 +332,11 @@ def make_ratio_plot(h_base, h_nightly, name, result_file, y_axis_label=None):
     h1clone.Divide(h_base)
     h1clone.SetMarkerColor(1)
     h1clone.SetMarkerStyle(20)
-    if "Efficiency" in histogram_name:
-        h1clone.GetYaxis().SetRangeUser(h1clone.GetMinimum() * 0.7, h1clone.GetMaximum() * 1.3)
-        gStyle.SetOptStat(0)
+    h1clone.GetYaxis().SetRangeUser( 0.95, 1.05)
+    gStyle.SetOptStat(0)
     h1clone.GetXaxis().SetLabelSize(0.10)
     h1clone.GetXaxis().SetTitleSize(0.17)
     h1clone.GetYaxis().SetLabelSize(0.10)
-    h1clone.GetYaxis().SetRangeUser(0.75, 1.25)
     h1clone.GetYaxis().SetTitle("Ratio")
     h1clone.GetYaxis().CenterTitle(1)
     h1clone.GetYaxis().SetTitleSize(0.15)

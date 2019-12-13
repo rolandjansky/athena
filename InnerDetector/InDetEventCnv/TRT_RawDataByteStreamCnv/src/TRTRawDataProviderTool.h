@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_RAWDATABYTESTREAMCNV_TRTRAWDATAPROVIDERTOOL_H
@@ -7,15 +7,16 @@
 
 #include "TRT_RawDataByteStreamCnv/ITRTRawDataProviderTool.h"
 
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaKernel/SlotSpecificObj.h"
 #include "ByteStreamData/RawEvent.h" 
-
 #include "InDetRawData/InDetTimeCollection.h"
-#include "TRT_RawDataByteStreamCnv/ITRT_RodDecoder.h"
 #include "TRT_ConditionsServices/ITRT_ByteStream_ConditionsSvc.h"
+#include "TRT_RawDataByteStreamCnv/ITRT_RodDecoder.h"
 #include "StoreGate/WriteHandleKey.h"
 
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
 #include <set>
 #include <string>
@@ -23,7 +24,7 @@
 // the tool to decode a ROB frament
 
 class TRTRawDataProviderTool : virtual public ITRTRawDataProviderTool, 
-                                public AthAlgTool //, virtual IIncidentListener
+                                public AthAlgTool
 {
 
  public:
@@ -39,17 +40,14 @@ class TRTRawDataProviderTool : virtual public ITRTRawDataProviderTool,
   virtual ~TRTRawDataProviderTool() ;
 
   //! initialize
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   //! finalize
-  virtual StatusCode finalize();
+  virtual StatusCode finalize() override;
   
   //! this is the main decoding method
-  StatusCode convert( std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs,
-		      TRT_RDO_Container*               rdoIdc );
-
-  //! Incident listener
-  //virtual void handle( const Incident &incident );
+  virtual StatusCode convert(const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs,
+		      TRT_RDO_Container*               rdoIdc ) override;
 
 private: 
   TRTRawDataProviderTool( ); //Not implemented
@@ -59,13 +57,18 @@ private:
   ServiceHandle<ITRT_ByteStream_ConditionsSvc>   m_bsErrSvc;
 
   // bookkeeping if we have decoded a ROB already
-  std::set<uint32_t> m_robIdSet;
-  uint32_t      m_LastLvl1ID;
-  InDetTimeCollection* m_LVL1Collection;
-  InDetTimeCollection* m_BCCollection;
-  bool  m_storeInDetTimeColls;
+  mutable std::mutex m_mutex;
+  struct CacheEntry {
+    EventContext::ContextEvt_t m_evt{EventContext::INVALID_CONTEXT_EVT};
+    uint32_t m_LastLvl1ID{0xffffffff};
+  };
+  mutable SG::SlotSpecificObj<CacheEntry> m_cache ATLAS_THREAD_SAFE; // Guarded by m_mutex
+  
+
   SG::WriteHandleKey<InDetTimeCollection> m_lvl1idkey{this,"LVL1IDKey","TRT_LVL1ID","TRT_LVL1ID out-key"};
   SG::WriteHandleKey<InDetTimeCollection> m_bcidkey{this,"BCIDKey","TRT_BCID","TRT_BCID out-key"};
+  bool  m_storeInDetTimeColls;
+  bool  m_doEventCheck;
 };
 
 #endif

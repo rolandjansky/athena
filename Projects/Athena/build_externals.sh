@@ -5,7 +5,7 @@
 
 # Function printing the usage information for the script
 usage() {
-    echo "Usage: build_externals.sh [-t build_type] [-b build_dir] [-f] [-c] [-d] [-x]"
+    echo "Usage: build_externals.sh [-t build_type] [-b build_dir] [-f] [-c] [-x]"
     echo " -f: Force rebuild of externals from scratch, otherwise if script"
     echo "     finds an external build present it will only do an incremental"
     echo "     build"
@@ -57,9 +57,12 @@ while getopts ":t:b:x:fch" opt; do
     esac
 done
 
-# Stop on errors from here on out
-set -e
-set -o pipefail
+# Only stop on errors if we are in the CI. Otherwise just count them.
+if [ "$CI" = "1" ]; then
+    set -e
+    set -o pipefail
+fi
+ERROR_COUNT=0
 
 # We are in BASH, get the path of this script in a simple way:
 thisdir=$(dirname ${BASH_SOURCE[0]})
@@ -143,7 +146,7 @@ ${scriptsdir}/build_atlasexternals.sh \
     -i ${BUILDDIR}/install/AthenaExternals/${NICOS_PROJECT_VERSION} \
     -p AthenaExternals ${RPMOPTIONS} -t ${BUILDTYPE} \
     -v ${NICOS_PROJECT_VERSION} \
-    ${EXTRACMAKE[@]/#/-x }
+    ${EXTRACMAKE[@]/#/-x } || ((ERROR_COUNT++))
 
 {
  test "X${NIGHTLY_STATUS}" != "X" && {
@@ -182,7 +185,7 @@ ${scriptsdir}/build_Gaudi.sh \
     -i ${BUILDDIR}/install/GAUDI/${NICOS_PROJECT_VERSION} \
     -e ${BUILDDIR}/install/AthenaExternals/${NICOS_PROJECT_VERSION}/InstallArea/${platform} \
     -p AthenaExternals -f ${platform} ${RPMOPTIONS} -t ${BUILDTYPE} \
-    ${EXTRACMAKE[@]/#/-x }
+    ${EXTRACMAKE[@]/#/-x } || ((ERROR_COUNT++))
 
 {
  test "X${NIGHTLY_STATUS}" != "X" && {
@@ -192,3 +195,9 @@ ${scriptsdir}/build_Gaudi.sh \
    )
  } || true
 }
+
+# Exit with the error count taken into account.
+if [ ${ERROR_COUNT} -ne 0 ]; then
+    echo "Athena externals build encountered ${ERROR_COUNT} error(s)"
+fi
+exit ${ERROR_COUNT}

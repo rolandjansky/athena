@@ -36,6 +36,5 @@ atlas_add_component( ISF_PunchThroughTools
                      LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives ISF_FastCaloSimInterfaces AthContainers GaudiKernel ISF_Event ISF_Interfaces PathResolver )
 
 # Install files from the package:
-atlas_install_headers( ISF_PunchThroughTools )
 atlas_install_runtime( Data/*.root )
 

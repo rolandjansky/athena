@@ -1095,12 +1095,13 @@ double TRT_ToT_dEdx::fitFuncBarrelLong_corrRZ(EGasType gasType, double driftRadi
   double T0 =  fitFuncPol_corrRZ(gasType, 0,driftRadius,Layer,StrawLayer,sign,0);
   double  v =  fitFuncPol_corrRZ(gasType, 1,driftRadius,Layer,StrawLayer,sign,0);
   double  s =  fitFuncPol_corrRZ(gasType, 2,driftRadius,Layer,StrawLayer,sign,0);
-  //For IEEE-compatible type double, argument causes exp to overflow if outside [-708.4, 709.8]
+  //_in theory_ For IEEE-compatible type double, argument causes exp to overflow if outside [-708.4, 709.8]
+  //however, overflow still seen when argument is 702; so I restrict these to -600, 600
   const double expArg=(z-l)/s;
-  if (not inRange(expArg, -708.4,709.8)){
+  if (not inRange(expArg, -600.0,600.0)){
     return expArg>0 ? std::numeric_limits<double>::infinity():0.;
   }
-  return T0+z/v*exp(expArg);
+  return T0+(z/v)*exp(expArg);
 }
 
 

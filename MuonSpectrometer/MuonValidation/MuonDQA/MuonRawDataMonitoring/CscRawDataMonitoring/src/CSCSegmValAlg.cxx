@@ -52,11 +52,8 @@ using CLHEP::cm3;
 CSCSegmValAlg::CSCSegmValAlg( const std::string & type, const std::string & name, const IInterface* parent ) 
   : ManagedMonitorToolBase( type, name, parent ), 
     m_trigDec( "" ),
-    m_cscIdHelper(0),
-    m_tgcIdHelper(0),
     m_debuglevel(false),
     m_bookedhistos(false) {
-  m_idHelperTool   = ToolHandle<Muon::MuonIdHelperTool>("Muon::MuonIdHelperTool/MuonIdHelperTool");
 
   //declareProperty( "UseCollections", m_segmCollectionFlag);
   declareProperty( "SegmentSlopeCut",  m_segmSlope);
@@ -139,20 +136,6 @@ StatusCode CSCSegmValAlg::initialize() {
   if (m_debuglevel) ATH_MSG_DEBUG(  "Defined DetectorStore" );
 
 
-  sc = detStore->retrieve(m_cscIdHelper,"CSCIDHELPER");
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL( "Cannot get CscIdHelper" );
-    return sc;
-  }  
-  if (m_debuglevel) ATH_MSG_DEBUG( " Found the CscIdHelper " );
-
-  sc = detStore->retrieve(m_tgcIdHelper,"TGCIDHELPER");
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL( "Can't retrieve TgcIdHelper" );
-    return sc;
-  }	   
-  if (m_debuglevel) ATH_MSG_DEBUG( " Found the TgcIdHelper " );
-
   // Retrieve helper tools
   sc = m_edmHelperSvc.retrieve();
   if (sc.isFailure()){
@@ -161,12 +144,12 @@ StatusCode CSCSegmValAlg::initialize() {
   }
   if (m_debuglevel) ATH_MSG_DEBUG( "Retrieved " << m_edmHelperSvc );
 
-  sc = m_idHelperTool.retrieve();
+  sc = m_muonIdHelperTool.retrieve();
   if (sc.isFailure()){
-    ATH_MSG_FATAL( "Could not get " << m_idHelperTool ); 
+    ATH_MSG_FATAL( "Could not get " << m_muonIdHelperTool ); 
     return sc;
   }
-  if (m_debuglevel) ATH_MSG_DEBUG( "Retrieved " << m_idHelperTool );
+  if (m_debuglevel) ATH_MSG_DEBUG( "Retrieved " << m_muonIdHelperTool );
 
   ATH_CHECK(m_segmKey.initialize());
 
@@ -599,10 +582,10 @@ StatusCode CSCSegmValAlg::fillHistograms() {
 	const Trk::MeasurementBase* rio = meas.at(0);
 	Identifier segmId = m_edmHelperSvc->getIdentifier(*rio);
 	
-	int segm_stationPhi  = m_cscIdHelper->stationPhi(segmId);
-	int segm_stationEta  = m_cscIdHelper->stationEta(segmId);
-	int segm_stationName = m_cscIdHelper->stationName(segmId);
-	std::string segm_stationString = m_cscIdHelper->stationNameString(segm_stationName);
+	int segm_stationPhi  = m_muonIdHelperTool->cscIdHelper().stationPhi(segmId);
+	int segm_stationEta  = m_muonIdHelperTool->cscIdHelper().stationEta(segmId);
+	int segm_stationName = m_muonIdHelperTool->cscIdHelper().stationName(segmId);
+	std::string segm_stationString = m_muonIdHelperTool->cscIdHelper().stationNameString(segm_stationName);
 	int segm_chamberType = segm_stationString == "CSS" ? 0 : 1;
 	int segm_sectorNo  = segm_stationEta * (2 * segm_stationPhi - segm_chamberType); // [-16 -> -1] and [+1 -> +16]
 	int segm_isec = segm_sectorNo < 0 ? segm_sectorNo*(-1) : segm_sectorNo+16; // [-16 -> -1] shifted to [1 -> 16] and [+1 -> +16] shifted to [+17 -> +32]
@@ -628,13 +611,13 @@ StatusCode CSCSegmValAlg::fillHistograms() {
 	    Identifier clusId = m_edmHelperSvc->getIdentifier(*clust_rot);
 	    
 	    // get the cluster coordinates
-	    int clus_stationName = m_cscIdHelper->stationName(clusId);
-	    std::string clus_stationString = m_cscIdHelper->stationNameString(clus_stationName);
+	    int clus_stationName = m_muonIdHelperTool->cscIdHelper().stationName(clusId);
+	    std::string clus_stationString = m_muonIdHelperTool->cscIdHelper().stationNameString(clus_stationName);
 	    int clus_chamberType = clus_stationString == "CSS" ? 0 : 1;
-	    int clus_stationEta  = m_cscIdHelper->stationEta(clusId);
-	    int clus_stationPhi  = m_cscIdHelper->stationPhi(clusId);
-	    int clus_wireLayer = m_cscIdHelper->wireLayer(clusId);
-	    int clus_measuresPhi = m_cscIdHelper->measuresPhi(clusId);
+	    int clus_stationEta  = m_muonIdHelperTool->cscIdHelper().stationEta(clusId);
+	    int clus_stationPhi  = m_muonIdHelperTool->cscIdHelper().stationPhi(clusId);
+	    int clus_wireLayer = m_muonIdHelperTool->cscIdHelper().wireLayer(clusId);
+	    int clus_measuresPhi = m_muonIdHelperTool->cscIdHelper().measuresPhi(clusId);
 	    
 	    // convert to my coordinates
 	    int clus_sectorNo  = clus_stationEta * (2 * clus_stationPhi - clus_chamberType);   // [-16 -> -1] and [+1 -> +16]
@@ -877,7 +860,7 @@ bool CSCSegmValAlg::isCscSegment( const Muon::MuonSegment* seg ) const {
     if( !rot ) {
       continue;
     }
-    if( m_cscIdHelper->is_csc( rot->identify() ) ) isCsc=true;
+    if( m_muonIdHelperTool->cscIdHelper().is_csc( rot->identify() ) ) isCsc=true;
   }
 
   return isCsc;
@@ -900,7 +883,7 @@ unsigned int CSCSegmValAlg::cscHits( const Muon::MuonSegment* seg ) const {
     if( !rot ) {
       continue;
     }
-    if( m_cscIdHelper->is_csc( rot->identify() ) ) ++nrHits;
+    if( m_muonIdHelperTool->cscIdHelper().is_csc( rot->identify() ) ) ++nrHits;
   }
 
   return nrHits ;

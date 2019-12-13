@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 from __future__ import print_function
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, ConfigurationError
@@ -46,5 +48,5 @@ if __name__ == "__main__":
     ConfigFlags.lock()
     acc, tagInfoMgr = TagInfoMgrCfg( ConfigFlags )
     print (tagInfoMgr)
-    acc.store( file( "test.pkl", "w" ) )
+    acc.store( open( "test.pkl", "wb" ) )
     print("All OK")

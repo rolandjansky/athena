@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
@@ -18,8 +18,6 @@ decription           : Class for performing updates on multi-component states fo
 #include "TrkEventPrimitives/FitQualityOnSurface.h"
 #include "TrkGaussianSumFilter/IMultiComponentStateAssembler.h"
 #include "TrkGaussianSumFilter/IMultiStateMeasurementUpdator.h"
-#include "TrkGaussianSumFilter/IPosteriorWeightsCalculator.h"
-
 #include "TrkToolInterfaces/IUpdator.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -72,7 +70,7 @@ public:
                                const MeasurementBase&) const override final;
 
   /** Method for determining the chi2 of the multi-component state and the number of degrees of freedom */
-  virtual const FitQualityOnSurface* fitQuality(const MultiComponentState&, const MeasurementBase&) const;
+  virtual const FitQualityOnSurface* fitQuality(const MultiComponentState&, const MeasurementBase&) const override;
 
 private:
   std::unique_ptr<MultiComponentState> calculateFilterStep(const MultiComponentState&,
@@ -89,12 +87,6 @@ private:
 
 private:
   ToolHandle<IUpdator> m_updator{ this, "Updator", "Trk::KalmanUpdator/KalmanUpdator", "" };
-  ToolHandle<IPosteriorWeightsCalculator> m_posteriorWeightsCalculator{
-    this,
-    "PosteriorWeightsCalculator",
-    "Trk::PosteriorWeightsCalculator/PosteriorWeightsCalculator",
-    ""
-  };
   ToolHandle<IMultiComponentStateAssembler> m_stateAssembler{
     this,
     "MultiComponentStateAssembler",

@@ -8,38 +8,39 @@ from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq, findAlgorithm
 from AthenaCommon.AlgSequence import dumpMasterSequence
 from AthenaCommon.AppMgr import theApp
 
-
-
 from AthenaCommon.Configurable import Configurable
 Configurable.configurableRun3Behavior=1
 
-flags.Detector.GeometryPixel = True     
-flags.Detector.GeometrySCT   = True 
-flags.Detector.GeometryTRT   = True 
-flags.Detector.GeometryLAr   = True     
+#Temporarily turning off ID geometery until the configuration is fully migrated 
+flags.Detector.GeometryPixel = False
+flags.Detector.GeometrySCT   = False 
+flags.Detector.GeometryTRT   = False 
+flags.Detector.GeometryLAr   = True
 flags.Detector.GeometryTile  = True     
 flags.Detector.GeometryMDT   = True 
 flags.Detector.GeometryTGC   = True
 flags.Detector.GeometryCSC   = True     
 flags.Detector.GeometryRPC   = True     
-flags.Trigger.writeBS=True # switches on HLTResultMT creation
+
+# Output configuration - currently testing offline workflow
+flags.Trigger.writeBS = False
+flags.Output.doWriteRDO = True
+flags.Output.RDOFileName = 'RDO_TRIG.pool.root'
 
 flags.Trigger.CostMonitoring.doCostMonitoring = True
 
 
 import importlib
-setupMenuPath = "TriggerMenuMT.HLTMenuConfig.Menu."+flags.Trigger.triggerMenuSetup
+setupMenuPath = "TriggerMenuMT.HLTMenuConfig.Menu."+flags.Trigger.triggerMenuSetup+"_newJO"
 setupMenuModule = importlib.import_module( setupMenuPath )
 assert setupMenuModule != None, "Could not import module {}".format(setupMenuPath)
 assert setupMenuModule.setupMenu != None, "Could not import setupMenu from {}".format(setupMenuPath)
 flags.needFlagsCategory('Trigger')
 setupMenuModule.setupMenu(flags)
 
-
 flags.Input.isMC = False
 flags.Input.Files= ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"] 
 
-flags.Trigger.LVL1ConfigFile = "LVL1config_Physics_pp_v7.xml" 
 flags.Trigger.L1Decoder.forceEnableAllChains = True
 
 
@@ -55,16 +56,15 @@ acc.merge(TrigBSReadCfg(flags ))
 from TrigUpgradeTest.TriggerHistSvcConfig import TriggerHistSvcConfig
 acc.merge(TriggerHistSvcConfig(flags ))
 
-
-from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT_newJO import generateMenu
+from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT_newJO import generateMenu as generateHLTMenu
 from TriggerJobOpts.TriggerConfig import triggerRunCfg
-acc.merge( triggerRunCfg( flags, generateMenu ) )
+acc.merge( triggerRunCfg( flags, menu=generateHLTMenu ) )
 
 from RegionSelector.RegSelConfig import regSelCfg
 acc.merge( regSelCfg( flags ) )
 
 
-from TrigUpgradeTest.InDetConfig import TrigInDetCondConfig
+from TrigInDetConfig.InDetConfig import TrigInDetCondConfig
 acc.merge( TrigInDetCondConfig( flags ) )
 
 acc.getEventAlgo( "TrigSignatureMoniMT" ).OutputLevel=DEBUG
@@ -86,6 +86,6 @@ acc.printConfig()
 
 fname = "newJOtest.pkl"
 print "Storing config in the config", fname
-with file(fname, "w") as p:
-    acc.store( p, nEvents=10, useBootStrapFile=False, threaded=True )
+with open(fname, "wb") as p:
+    acc.store( p, nEvents=20, useBootStrapFile=False, threaded=True )
     p.close()

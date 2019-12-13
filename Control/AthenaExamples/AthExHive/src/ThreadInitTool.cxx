@@ -1,11 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "unistd.h"
-#include "sys/syscall.h"
-
 #include "ThreadInitTool.h"
+#include "unistd.h"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -13,10 +11,8 @@ ThreadInitTool::ThreadInitTool( const std::string& type, const std::string& name
                         const IInterface* parent ) 
   : base_class(type, name, parent),
     m_nInitThreads(0)
-
 {
 }
-
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -26,9 +22,7 @@ ThreadInitTool::initThread()
   ATH_MSG_INFO ("initThread in thread 0x" << std::hex << pthread_self() 
 		<< " at " << this << std::dec );
 
-
   // Thread Local initializations would go here.
-
 
   m_nInitThreads++;
 }
@@ -40,7 +34,6 @@ ThreadInitTool::terminateThread()
 {
   ATH_MSG_INFO ("terminateThread in thread 0x"
 		<< std::hex << pthread_self() << std::dec );
-
 
   m_nInitThreads--;
 

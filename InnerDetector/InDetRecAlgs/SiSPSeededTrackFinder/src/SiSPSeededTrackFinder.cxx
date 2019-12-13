@@ -35,6 +35,9 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
   }
   ATH_CHECK(m_outputTracksKey.initialize());
 
+  // optional PRD to track association map
+  ATH_CHECK( m_prdToTrackMap.initialize( !m_prdToTrackMap.key().empty() ) );
+
   // Get tool for space points seed maker
   //
   ATH_CHECK( m_seedsmaker.retrieve() );
@@ -42,7 +45,9 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
 
   // Get track-finding tool
   //
-  ATH_CHECK(m_trackmaker.retrieve());
+  ATH_CHECK( m_trackmaker.retrieve());
+
+  ATH_CHECK( m_trackSummaryTool.retrieve( DisableTool{ m_trackSummaryTool.name().empty()} ));
 
   if (m_useNewStrategy and m_beamSpotKey.key().empty()) {
     m_useNewStrategy = false;
@@ -102,6 +107,23 @@ StatusCode InDet::SiSPSeededTrackFinder::execute(const EventContext& ctx) const
 // Execute with old strategy
 ///////////////////////////////////////////////////////////////////
 
+namespace InDet {
+  class ExtendedSiTrackMakerEventData_xk : public InDet::SiTrackMakerEventData_xk
+  {
+  public:
+    ExtendedSiTrackMakerEventData_xk(const SG::ReadHandleKey<Trk::PRDtoTrackMap> &key) { 
+      if (!key.key().empty()) {
+        m_prdToTrackMap = SG::ReadHandle<Trk::PRDtoTrackMap>(key);
+        setPRDtoTrackMap(m_prdToTrackMap.cptr());
+      }
+    }
+  private:
+    void dummy() {}
+    SG::ReadHandle<Trk::PRDtoTrackMap> m_prdToTrackMap;
+  };
+}
+
+
 StatusCode InDet::SiSPSeededTrackFinder::oldStrategy(const EventContext& ctx) const
 {
   SG::WriteHandle<TrackCollection> outputTracks{m_outputTracksKey, ctx};
@@ -126,7 +148,7 @@ StatusCode InDet::SiSPSeededTrackFinder::oldStrategy(const EventContext& ctx) co
 
   const bool PIX = true;
   const bool SCT = true;
-  InDet::SiTrackMakerEventData_xk trackEventData;
+  InDet::ExtendedSiTrackMakerEventData_xk trackEventData(m_prdToTrackMap);
   m_trackmaker->newEvent(trackEventData, PIX, SCT);
 
   bool ERR = false;
@@ -157,6 +179,11 @@ StatusCode InDet::SiSPSeededTrackFinder::oldStrategy(const EventContext& ctx) co
   //
   for (std::pair<double, Trk::Track*> q: qualityTrack) {
     ++counter[kNTracks];
+    if (m_trackSummaryTool.isEnabled()) {
+       m_trackSummaryTool->computeAndReplaceTrackSummary(*(q.second),
+                                                         trackEventData.combinatorialData().PRDtoTrackMap(),
+                                                         false /* DO NOT suppress hole search*/);
+    }
     outputTracks->push_back(q.second);
   }
 
@@ -207,7 +234,7 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy(const EventContext& ctx) co
 
   const bool PIX = true ;
   const bool SCT = true ;
-  InDet::SiTrackMakerEventData_xk trackEventData;
+  InDet::ExtendedSiTrackMakerEventData_xk trackEventData(m_prdToTrackMap);
   m_trackmaker->newEvent(trackEventData, PIX, SCT);
 
   std::vector<int> nhistogram(m_histsize, 0);
@@ -272,6 +299,11 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy(const EventContext& ctx) co
   //
   for (std::pair<double, Trk::Track*> q: qualityTrack) {
     ++counter[kNTracks];
+    if (m_trackSummaryTool.isEnabled()) {
+       m_trackSummaryTool->computeAndReplaceTrackSummary(*q.second,
+                                                         trackEventData.combinatorialData().PRDtoTrackMap(),
+                                                         false /* DO NOT suppress hole search*/);
+    }
     outputTracks->push_back(q.second);
   }
 

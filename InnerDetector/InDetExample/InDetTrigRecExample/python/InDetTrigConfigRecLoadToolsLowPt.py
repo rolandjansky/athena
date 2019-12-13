@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 """ Instantiates tools for LowPt tracking
 """
@@ -34,8 +36,7 @@ InDetTrigSiSpacePointsSeedMakerLowPt =  \
                                                SpacePointsSCTName = 'SCT_TrigSpacePoints',
                                                SpacePointsPixelName = 'PixelTrigSpacePoints',
                                                SpacePointsOverlapName = 'SPTrigOverlap',
-                                               UseAssociationTool     = True,
-                                               AssociationTool        = InDetTrigPrdAssociationTool,
+                                               PRDtoTrackMap = "", # @TODO
                                                radMax = EFIDTrackingCutsLowPt.radMax(),
                                                mindRadius = 4.0
                                                )
@@ -81,7 +82,6 @@ InDetTrigSiComTrackFinderLowPt = \
                                          PropagatorTool	= InDetTrigPatternPropagator,
                                          UpdatorTool	= InDetTrigPatternUpdator,
                                          RIOonTrackTool   = InDetTrigRotCreator,
-                                         AssosiationTool  = InDetTrigPrdAssociationTool,
                                          usePixel         = DetFlags.haveRIO.pixel_on(),
                                          useSCT           = DetFlags.haveRIO.SCT_on(),   
                                          PixelClusterContainer = 'PixelTrigClusters',
@@ -133,11 +133,12 @@ ToolSvc += InDetTrigSiTrackMakerLowPt
 
 if InDetTrigFlags.doAmbiSolving():
 
+  import InDetRecExample.TrackingCommon as TrackingCommon
   from InDetAmbiTrackSelectionTool.InDetAmbiTrackSelectionToolConf import InDet__InDetAmbiTrackSelectionTool
   InDetTrigAmbiTrackSelectionToolLowPt = \
       InDet__InDetAmbiTrackSelectionTool(name               = 'InDetTrigAmbiTrackSelectionToolLowPt',
-                                         AssociationTool    = InDetTrigPrdAssociationTool,
                                          DriftCircleCutTool = InDetTrigTRTDriftCircleCut,
+                                         AssociationTool    = TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels(),
                                          minHits         = EFIDTrackingCutsLowPt.minClusters()-2,
                                          minNotShared    = EFIDTrackingCutsLowPt.minSiNotShared(),
                                          maxShared       = EFIDTrackingCutsLowPt.maxShared(),
@@ -149,7 +150,7 @@ if InDetTrigFlags.doAmbiSolving():
    
   ToolSvc += InDetTrigAmbiTrackSelectionToolLowPt
   if (InDetTrigFlags.doPrintConfigurables()):
-    print InDetTrigAmbiTrackSelectionToolLowPt
+    print (InDetTrigAmbiTrackSelectionToolLowPt)
 
 
   from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetAmbiScoringTool
@@ -174,11 +175,14 @@ if InDetTrigFlags.doAmbiSolving():
                                                          )
   ToolSvc += InDetTrigScoringToolLowPt
 
+  import InDetRecExample.TrackingCommon as TrackingCommon
   from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__SimpleAmbiguityProcessorTool
   InDetTrigAmbiguityProcessorLowPt = \
                                    Trk__SimpleAmbiguityProcessorTool(name = 'InDetTrigAmbiguityProcessorLowPt',
                                                                      #AssoTool    = InDetTrigPrdAssociationTool,
                                                                      Fitter      = InDetTrigTrackFitterLowPt,
+                                                                     AssociationTool = TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels(),
+                                                                     TrackSummaryTool   = InDetTrigTrackSummaryTool,
                                                                      ScoringTool = InDetTrigScoringToolLowPt,
                                                                      SelectionTool = InDetTrigAmbiTrackSelectionToolLowPt,
                                                                      SuppressHoleSearch = False,
@@ -186,7 +190,7 @@ if InDetTrigFlags.doAmbiSolving():
                                             )
   ToolSvc += InDetTrigAmbiguityProcessorLowPt
   if (InDetTrigFlags.doPrintConfigurables()):
-    print InDetTrigAmbiguityProcessorLowPt
+    print (InDetTrigAmbiguityProcessorLowPt)
   
 
 #indetambiscoringtool lowpt

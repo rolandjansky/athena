@@ -16,13 +16,13 @@
 // Gaudi includes
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ToolHandle.h"
 
 // Other stuff
 #include "TrigT1Interfaces/SlinkWord.h"
 #include "TrigT1Interfaces/Lvl1MuCTPIInput.h"
+#include "TrigT1Interfaces/Lvl1MuCTPIInputPhase1.h"
 #include "Identifier/Identifier.h"
 
 // EIFI-SL connection
@@ -31,17 +31,18 @@
 #include "StoreGate/ReadCondHandle.h"
 #include "MuonCondSvc/TGCTriggerData.h"
 
+#include "MuonDigitContainer/TgcDigit.h"
+#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
+
+#include "TrigT1TGC/TGCArguments.hh"
+
 class TgcRdo;
 class TgcRawData;
 class ITGCcablingSvc;
 class TgcDigitContainer; 
 
-namespace TrigConf {
-  class ILVL1ConfigSvc;
-}
-
 namespace LVL1TGCTrigger {
-
+  
   /**
    *
    *  @short Dump LVL1TGCTrigger::LVL1TGCTrigger for main algorithm
@@ -59,128 +60,138 @@ namespace LVL1TGCTrigger {
    *
    * 
    */
-class TGCSector;
-class TGCSLSelectorOut;
-class TGCElectronicsSystem;
-class TGCTimingManager;
-class TGCDatabaseManager;
-class TGCEvent; 
-
-class LVL1TGCTrigger : public AthAlgorithm
-{
- public:
-
-  /** standard constructor and destructor for algorithms
-   */
-  LVL1TGCTrigger( const std::string& name, ISvcLocator* pSvcLocator ) ;
-  ~LVL1TGCTrigger();
+  class TGCSector;
+  class TGCSLSelectorOut;
+  class TGCElectronicsSystem;
+  class TGCTimingManager;
+  class TGCDatabaseManager;
+  class TGCEvent;
   
-  // standard algorithm methods:
-  StatusCode initialize() ;
-  StatusCode execute() ;
-  StatusCode finalize() ;
+  class LVL1TGCTrigger : public AthAlgorithm
+  {
+  public:
+    
+    /** standard constructor and destructor for algorithms
+     */
+    LVL1TGCTrigger( const std::string& name, ISvcLocator* pSvcLocator ) ;
+    ~LVL1TGCTrigger();
+    
+    // standard algorithm methods:
+    StatusCode initialize() ;
+    StatusCode execute() ;
+    StatusCode finalize() ;
+    
+  private:
+    StatusCode processOneBunch(const DataHandle<TgcDigitContainer>&,
+			       LVL1MUONIF::Lvl1MuCTPIInput*,
+			       LVL1MUONIF::Lvl1MuCTPIInputPhase1*);
+    void doMaskOperation(const DataHandle<TgcDigitContainer>& ,std::map<Identifier, int>& );
+    void fillTGCEvent(std::map<Identifier, int>& ,  TGCEvent&);
+    
+    // Fill TMDB event data
+    StatusCode fillTMDB();
+    
+    // record bare-RDO for LowPT coincidences (on m_OutputTgcRDO=True):
+    void recordRdoSLB(TGCSector *);
+    
+    // record bare-RDO for HighPT coincidences (on OutputTgcRDO=True):
+    void recordRdoHPT(TGCSector *);
+    
+    // record bare-RDO for Inner coincidences (on OutputTgcRDO=True):
+    void recordRdoInner(TGCSector *);
+    
+    // record bare-RDO for R-phi coincidences (on m_OutputTgcRDO=True):
+    void recordRdoSL(TGCSector *, unsigned int );
+    
+    std::map<std::pair<int, int>, TgcRdo*>  m_tgcrdo;
+    
+    // Retrieve Masked channel list
+    StatusCode getMaskedChannel();
+    std::map<Identifier, int> m_MaskedChannel;
+    
+    // pointers to various external services
+    const ITGCcablingSvc*       m_cabling ;
+    
+    // useful functions
+    int getCharge(int dR, int Zdir);
+    void extractFromString(std::string, std::vector<int>&);
+    bool addRawData(TgcRawData *);
+    int getLPTTypeInRawData(int type);
+    void FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData* sldata,
+			     const TGCSLSelectorOut *selectorOut,
+			     unsigned int subsystem);
+    void FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicDataPhase1* sldata,
+			     const TGCSLSelectorOut *selectorOut,
+			     unsigned int subsystem);
+    
+    
+    // Properties
+    
+    // Location of LVL1MUONIF::Lvl1MuSectorLogicData (output from SL)
+    StringProperty m_keyMuCTPIInput_TGC{this,"MuCTPIInput_TGC","L1MuctpiStoreTGC"};
+    
+    // Version of Coincidence Window
+    StringProperty m_VerCW{this,"VersionCW","00_07_0022"};
+    
+    // Location of TgcDigitContainer
+    StringProperty m_keyTgcDigit{this,"InputData_perEvent","TGC_DIGITS"};
+    
+    // Location of TileMuonReceiverContainer
+    StringProperty m_keyTileMu{this,"TileMuRcv_Input","TileMuRcvCnt"};
+    
+    StringProperty    m_MaskFileName{this,"MaskFileName",""};   //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink
+    StringProperty    m_MaskFileName12{this,"MaskFileName12",""};   //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink
+    ShortProperty     m_CurrentBunchTag{this,"CurrentBunchTag",TgcDigit::BC_CURRENT};  //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink
+    BooleanProperty   m_ProcessAllBunches{this,"ProcessAllBunhes",true};
+    BooleanProperty   m_OutputTgcRDO{this,"OutputTgcRDO",true};   //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink
+    
+    // expert usage
+    BooleanProperty   m_STRICTWD{this,"STRICTWD",false};
+    BooleanProperty   m_STRICTWT{this,"STRICTWT",false};
+    BooleanProperty   m_STRICTSD{this,"STRICTSD",false};
+    BooleanProperty   m_STRICTST{this,"STRICTST",false};
+    BooleanProperty   m_OUTCOINCIDENCE{this,"OUTCOINCIDENCE",false}; //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink
+    BooleanProperty   m_SINGLEBEAM{this,"SINGLEBEAM",false}; // for the single beam run
+    BooleanProperty   m_MUHALO{this,"MUHALO",false}; // flag for including MUHALO (i.e. 2-st coin ) in pt=1
+    BooleanProperty   m_SHPTORED{this,"SHPTORED",true}; // flag for E1/E2 chamber ORED in Strip HPT
+    BooleanProperty   m_USEINNER{this,"USEINNER",true}; // flag for using Inner Station for SL
+    BooleanProperty   m_INNERVETO{this,"INNERVETO",true}; // flag for using VETO by Inner Station for SL
+    BooleanProperty   m_FULLCW{this,"FULLCW",true};   // flag for using differne CW for each octant
+    BooleanProperty   m_TILEMU{this,"TILEMU",false};   // flag for using TileMu
+    BooleanProperty   m_useRun3Config{this,"useRun3Config",false}; // flag for using switch between Run3 and Run2 algorithms
+    
+    
+    uint16_t          m_bctagInProcess;
+    
+    TGCDatabaseManager *m_db;
+    ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc{this, "LVL1ConfigSvc", "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", ""};
+    TGCTimingManager *m_TimingManager;
+    TGCElectronicsSystem *m_system;
+    
+    int m_nEventInSector;
+    
+    // EIFI-SL connection
+    TGCInnerTrackletSlotHolder m_innerTrackletSlotHolder;
+    
+    // getCabling method
+    StatusCode getCabling();
+    
+    // log
+    mutable MsgStream   m_log;
+    bool                m_debuglevel;
+    
+    TGCArguments m_tgcArgs;
+    TGCArguments* tgcArgs();
+      
+    SG::ReadCondHandleKey<TGCTriggerData> m_readCondKey{this,"ReadCondKey","TGCTriggerData"};
+    SG::WriteHandleKey<LVL1MUONIF::Lvl1MuCTPIInput> m_muctpiKey{this, "MuctpiLocationTGC", "L1MuctpiStoreTGC", "Location of muctpi for Tgc"};
+    SG::WriteHandleKey<LVL1MUONIF::Lvl1MuCTPIInputPhase1> m_muctpiPhase1Key{this, "MuctpiPhase1LocationTGC", "L1MuctpiStoreTGC", "Location of muctpiPhase1 for Tgc"};
+  }; // class LVL1TGCTrigger
 
- private:
-  // Process one bunch 
-  StatusCode processOneBunch(const DataHandle<TgcDigitContainer>&  , 
-                             LVL1MUONIF::Lvl1MuCTPIInput* ); 
-  void doMaskOperation(const DataHandle<TgcDigitContainer>& ,std::map<Identifier, int>& );
-  void fillTGCEvent(std::map<Identifier, int>& ,  TGCEvent&); 
-
-  // Fill TMDB event data
-  StatusCode fillTMDB();
-
-  // record bare-RDO for LowPT coincidences (on m_OutputTgcRDO=True):
-  void recordRdoSLB(TGCSector *);
-
-  // record bare-RDO for HighPT coincidences (on OutputTgcRDO=True):
-  void recordRdoHPT(TGCSector *);
-
-  // record bare-RDO for Inner coincidences (on OutputTgcRDO=True):
-  void recordRdoInner(TGCSector *);
+  inline TGCArguments* LVL1TGCTrigger::tgcArgs() {
+    return &m_tgcArgs;
+  }
   
-  // record bare-RDO for R-phi coincidences (on m_OutputTgcRDO=True):
-  void recordRdoSL(TGCSector *, unsigned int );
-
-  std::map<std::pair<int, int>, TgcRdo*>  m_tgcrdo;
-  
-  // Retrieve Masked channel list 
-  StatusCode getMaskedChannel();
-  std::map<Identifier, int> m_MaskedChannel;   
-
-  // pointers to various external services
-  ServiceHandle<StoreGateSvc> m_sgSvc;  
-  StoreGateSvc *m_detectorStore;
-  const ITGCcablingSvc*       m_cabling ;
-
-  // useful functions
-  int getCharge(int dR, int Zdir);  
-  void extractFromString(std::string, std::vector<int>&);    
-  bool addRawData(TgcRawData *);
-  int getLPTTypeInRawData(int type);
-  void FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData* sldata,
-			   const TGCSLSelectorOut *selectorOut, 
-			   unsigned int subsystem);
- 
-
- 
-  // Properties
- 
-  // Location of LVL1MUONIF::Lvl1MuSectorLogicData (output from SL)
-  StringProperty m_keyMuCTPIInput_TGC;
-
-  // Version of Coincidence Window
-  StringProperty m_VerCW;
-
-  // Location of TgcDigitContainer
-  StringProperty m_keyTgcDigit ;
-
-  // Location of TileMuonReceiverContainer
-  StringProperty m_keyTileMu ;
-  
-  StringProperty    m_MaskFileName ;   //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink 
-  StringProperty    m_MaskFileName12 ;   //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink 
-  ShortProperty     m_CurrentBunchTag;  //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink 
-  BooleanProperty   m_ProcessAllBunches; 
-  BooleanProperty   m_OutputTgcRDO;   //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink  
-
-  // expert usage
-  BooleanProperty   m_STRICTWD;
-  BooleanProperty   m_STRICTWT;
-  BooleanProperty   m_STRICTSD;
-  BooleanProperty   m_STRICTST;
-  BooleanProperty   m_OUTCOINCIDENCE; //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink
-  BooleanProperty   m_SINGLEBEAM; // for the single beam run
-  BooleanProperty   m_MUHALO; // flag for including MUHALO (i.e. 2-st coin ) in pt=1
-  BooleanProperty   m_SHPTORED; // flag for E1/E2 chamber ORED in Strip HPT
-  BooleanProperty   m_USEINNER; // flag for using Inner Station for SL
-  BooleanProperty   m_INNERVETO; // flag for using VETO by Inner Station for SL
-  BooleanProperty   m_FULLCW;   // flag for using differne CW for each octant
-  BooleanProperty   m_TILEMU;   // flag for using TileMu
-
-  uint16_t          m_bctagInProcess;
-
-  TGCDatabaseManager *m_db;
-  ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
-  TGCTimingManager *m_TimingManager;
-  TGCElectronicsSystem *m_system;
-  
-  int m_nEventInSector;
-
-  // EIFI-SL connection
-  TGCInnerTrackletSlotHolder m_innerTrackletSlotHolder;
-  
-  // getCabling method 
-  StatusCode getCabling();
-
-  // log 
-  mutable MsgStream   m_log;
-  bool                m_debuglevel;
-
-  SG::ReadCondHandleKey<TGCTriggerData> m_readCondKey;
-}; // class LVL1TGCTrigger
-
-
 } // namespace LVL1TGCTrigger
 
 #endif // not TRIGT1TGC_LVL1TGCTRIGGER_H

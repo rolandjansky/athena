@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // INav4MomAssocsCnv_p1.h 
@@ -30,16 +30,14 @@
 class MsgStream;
 class StoreGateSvc;
 
-class INav4MomAssocsCnv_p1 : public T_AthenaPoolTPCnvBase<
+class INav4MomAssocsCnv_p1 : public T_AthenaPoolTPCnvConstBase<
                                               INav4MomAssocs, 
                                               INav4MomAssocs_p1
                                             >  
 { 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
  public: 
+  using base_class::transToPers; 
+  using base_class::persToTrans;
 
   /** Default constructor: 
    */
@@ -53,33 +51,23 @@ class INav4MomAssocsCnv_p1 : public T_AthenaPoolTPCnvBase<
    */
   virtual ~INav4MomAssocsCnv_p1();
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
 
   /** Method creating the transient representation of @c INav4MomAssocs
    *  from its persistent representation @c INav4MomAssocs_p1
    */
   virtual void persToTrans( const INav4MomAssocs_p1* persObj, 
                             INav4MomAssocs* transObj, 
-                            MsgStream &log );
+                            MsgStream &log ) const override;
 
   /** Method creating the persistent representation @c INav4MomAssocs_p1
    *  from its transient representation @c INav4MomAssocs
    */
   virtual void transToPers( const INav4MomAssocs* transObj, 
                             INav4MomAssocs_p1* persObj, 
-                            MsgStream &log );
+                            MsgStream &log ) const override;
 
-  /////////////////////////////////////////////////////////////////// 
-  // Protected method: 
-  /////////////////////////////////////////////////////////////////// 
- protected: 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Protected data: 
-  /////////////////////////////////////////////////////////////////// 
- protected: 
+  
+protected: 
 
   /** Pointer to the StoreGateSvc: we need this as we'll have to fetch
    *  the @c INav4MomAssocs which is the parent collection (the
@@ -87,12 +75,8 @@ class INav4MomAssocsCnv_p1 : public T_AthenaPoolTPCnvBase<
    *  @c TruthParticleContainer has been created.
    */
   StoreGateSvc* m_storeGate;
-
 }; 
 
-/////////////////////////////////////////////////////////////////// 
-/// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
 
 inline INav4MomAssocsCnv_p1::INav4MomAssocsCnv_p1() :
   m_storeGate ( 0 )

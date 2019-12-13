@@ -36,10 +36,6 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::initialize()
    ATH_CHECK( m_regionSelector.retrieve() );
    ATH_MSG_DEBUG("Retrieved service RegionSelector");
 
-   ATH_CHECK( detStore()->retrieve( m_muonMgr ) );
-   ATH_MSG_DEBUG("Retrieved GeoModel from DetectorStore.");
-   m_rpcIdHelper = m_muonMgr->rpcIdHelper();
- 
    // consistency check for decoding flag settings
    if(m_decodeBS && !m_doDecoding) {
      ATH_MSG_FATAL("Inconsistent setup, you tried to enable BS decoding but disable all decoding. Please fix the configuration");
@@ -50,8 +46,8 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::initialize()
    ATH_CHECK( m_rpcPrepDataProvider.retrieve(DisableTool{!m_doDecoding}) );
    ATH_MSG_DEBUG("Retrieved " << m_rpcPrepDataProvider);
 
-   ATH_CHECK( m_idHelperTool.retrieve() );
-   ATH_MSG_DEBUG("Retrieved " << m_idHelperTool);
+   ATH_CHECK( m_muonIdHelperTool.retrieve() );
+   ATH_MSG_DEBUG("Retrieved " << m_muonIdHelperTool);
 
    // Retreive PRC raw data provider tool
    ATH_MSG_DEBUG("Decode BS set to " << m_decodeBS);
@@ -213,13 +209,13 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
 
        const Identifier id = prd->identify();
 
-       const int doubletR      = m_rpcIdHelper->doubletR(id);
-       const int doubletPhi    = m_rpcIdHelper->doubletPhi(id);
-       const int doubletZ      = m_rpcIdHelper->doubletZ(id);
-       const int gasGap        = m_rpcIdHelper->gasGap(id);
-       const bool measuresPhi  = m_rpcIdHelper->measuresPhi(id);
-       const int stationEta    = m_rpcIdHelper->stationEta(id);
-       std::string stationName = m_rpcIdHelper->stationNameString(m_rpcIdHelper->stationName(id));
+       const int doubletR      = m_muonIdHelperTool->rpcIdHelper().doubletR(id);
+       const int doubletPhi    = m_muonIdHelperTool->rpcIdHelper().doubletPhi(id);
+       const int doubletZ      = m_muonIdHelperTool->rpcIdHelper().doubletZ(id);
+       const int gasGap        = m_muonIdHelperTool->rpcIdHelper().gasGap(id);
+       const bool measuresPhi  = m_muonIdHelperTool->rpcIdHelper().measuresPhi(id);
+       const int stationEta    = m_muonIdHelperTool->rpcIdHelper().stationEta(id);
+       std::string stationName = m_muonIdHelperTool->rpcIdHelper().stationNameString(m_muonIdHelperTool->rpcIdHelper().stationName(id));
 
        int layer = 0;
        // BO

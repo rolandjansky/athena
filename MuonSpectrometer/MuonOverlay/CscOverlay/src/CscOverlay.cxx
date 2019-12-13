@@ -19,7 +19,7 @@ namespace {
 
 //================================================================
 CscOverlay::CscOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator)
+  AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 
@@ -29,8 +29,8 @@ StatusCode CscOverlay::initialize()
   ATH_MSG_DEBUG("CscOverlay initialized");
 
   /** access to the CSC Identifier helper */
-  ATH_CHECK(detStore()->retrieve(m_cscHelper, "CSCIDHELPER"));
-  ATH_MSG_DEBUG(" Found the CscIdHelper. ");
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  ATH_MSG_DEBUG(" Found the MuonIdHelperTool. ");
 
   /** CSC calibratin tool for the Condtiions Data base access */
   ATH_CHECK(m_cscCalibTool.retrieve());
@@ -49,25 +49,25 @@ StatusCode CscOverlay::initialize()
 }
 
 //================================================================
-StatusCode CscOverlay::execute() {
+StatusCode CscOverlay::execute(const EventContext& ctx) const {
   ATH_MSG_DEBUG("execute() begin");
 
 
-  SG::ReadHandle<CscRawDataContainer> bkgContainer(m_bkgInputKey);
+  SG::ReadHandle<CscRawDataContainer> bkgContainer(m_bkgInputKey, ctx);
   if(!bkgContainer.isValid()) {
     ATH_MSG_ERROR("Could not get background CscRawDataContainer called " << bkgContainer.name() << " from store " << bkgContainer.store());
     return StatusCode::FAILURE;
   }
   ATH_MSG_DEBUG("Found background CscRawDataContainer called " << bkgContainer.name() << " in store " << bkgContainer.store());
 
-  SG::ReadHandle<CscRawDataContainer> signalContainer(m_signalInputKey);
+  SG::ReadHandle<CscRawDataContainer> signalContainer(m_signalInputKey, ctx);
   if(!signalContainer.isValid()) {
     ATH_MSG_ERROR("Could not get signal CscRawOverlayContainer called " << signalContainer.name() << " from store " << signalContainer.store());
     return StatusCode::FAILURE;
   }
   ATH_MSG_DEBUG("Found signal CscRawOverlayContainer called " << signalContainer.name() << " in store " << signalContainer.store());
 
-  SG::WriteHandle<CscRawDataContainer> outputContainer(m_outputKey);
+  SG::WriteHandle<CscRawDataContainer> outputContainer(m_outputKey, ctx);
   ATH_CHECK(outputContainer.record(std::make_unique<CscRawDataContainer>(bkgContainer->size())));
   if (!outputContainer.isValid()) {
     ATH_MSG_ERROR("Could not record output CscRawOverlayContainer called " << outputContainer.name() << " to store " << outputContainer.store());
@@ -86,7 +86,7 @@ StatusCode CscOverlay::execute() {
 //================================================================
 StatusCode CscOverlay::overlayContainer(const CscRawDataContainer *bkgContainer,
                                         const CscRawDataContainer *signalContainer,
-                                        CscRawDataContainer *outputContainer)
+                                        CscRawDataContainer *outputContainer) const
 {
   ATH_MSG_DEBUG("overlayContainer() begin");
 
@@ -202,7 +202,7 @@ StatusCode CscOverlay::overlayContainer(const CscRawDataContainer *bkgContainer,
         bool good = true;
         for (uint16_t j = 0; j < width; ++j) {
           const Identifier channelId = m_cscRdoDecoderTool->channelIdentifier(rdo.get(), j);
-          if (!m_cscHelper->valid(channelId)) {
+          if (!m_muonIdHelperTool->cscIdHelper().valid(channelId)) {
             ATH_MSG_WARNING("Invalid CSC Identifier! - skipping " << channelId);
             good = false;
             break;
@@ -260,7 +260,8 @@ CscOverlay::copyCollection(const CscRawDataCollection *collection,
   return outputCollection;
 }
 
-void CscOverlay::spuData( const CscRawDataCollection * coll, const uint16_t spuID, std::vector<const CscRawData*>& data) {
+void CscOverlay::spuData( const CscRawDataCollection * coll, const uint16_t spuID, std::vector<const CscRawData*>& data) const
+{
   data.clear();  if ( !coll ) return;
   CscRawDataCollection::const_iterator idata = coll->begin();
   CscRawDataCollection::const_iterator edata = coll->end();
@@ -270,7 +271,8 @@ void CscOverlay::spuData( const CscRawDataCollection * coll, const uint16_t spuI
   ATH_MSG_DEBUG("spuData(): made data vector of size "<<data.size()<<" for SPU "<<spuID);
 }
 
-bool CscOverlay::needtoflip(const int address) const {
+bool CscOverlay::needtoflip(const int address) const
+{
          int measuresPhi  = ( (address & 0x00000100) >>  8);
          if (address<2147483640 && measuresPhi) {
            int stationEta  =  ( ((address & 0x00001000) >> 12 ) == 0x0) ? -1 : 1;
@@ -284,7 +286,7 @@ bool CscOverlay::needtoflip(const int address) const {
 void CscOverlay::mergeCollections(const CscRawDataCollection *bkgCollection,
                                   const CscRawDataCollection *signalCollection,
                                   CscRawDataCollection *outputCollection,
-                                  CLHEP::HepRandomEngine *rndmEngine)
+                                  CLHEP::HepRandomEngine *rndmEngine) const
 {
   ATH_MSG_DEBUG("mergeCollection() begin");
 
@@ -386,7 +388,7 @@ void CscOverlay::mergeCollections(const CscRawDataCollection *bkgCollection,
           int stationName =  ( ( address & 0x00010000) >> 16 ) + 50;
           int stationEta  =  ( ((address & 0x00001000) >> 12 ) == 0x0) ? -1 : 1;
           int stationPhi  =  ( ( address & 0x0000E000) >> 13 ) + 1;
-          Identifier me= m_cscHelper->elementID(stationName,stationEta,stationPhi);
+          Identifier me= m_muonIdHelperTool->cscIdHelper().elementID(stationName,stationEta,stationPhi);
           ATH_MSG_VERBOSE("stationName,Eta,Phi="<<stationName<<","<<stationEta<<","<<stationPhi<<" - me="<<me);
           bool good=true;
           for (unsigned int j=0; j<datum->width(); ++j) {
@@ -404,10 +406,10 @@ void CscOverlay::mergeCollections(const CscRawDataCollection *bkgCollection,
               }
             }
             insertedstrips.insert(strip);//for checks
-            Identifier mechan= m_cscHelper->channelID(me,chamberLayer,wireLayer,measuresPhi,strip);
+            Identifier mechan= m_muonIdHelperTool->cscIdHelper().channelID(me,chamberLayer,wireLayer,measuresPhi,strip);
             ATH_MSG_VERBOSE("mechan="<<mechan);
             const Identifier channelId = m_cscRdoDecoderTool->channelIdentifier(datum, j);
-            if(!(m_cscHelper->valid(channelId))) {
+            if(!(m_muonIdHelperTool->cscIdHelper().valid(channelId))) {
               ATH_MSG_WARNING("Invalid CSC Identifier in merge! - skipping " << channelId );
               good=false;
             }
@@ -446,12 +448,12 @@ uint32_t CscOverlay::stripData ( const std::vector<const CscRawData*>& data,
                                  std::map< int,std::vector<uint16_t> >& samples,
                                  uint32_t& hash,
                                  const uint16_t spuID,
-                                 const int gasLayer, bool isdata)
+                                 const int gasLayer, bool isdata) const
 {
   ATH_MSG_DEBUG("stripData<>() begin: gasLayer="<<gasLayer<<" spuID="<<spuID<<" isdata="<<isdata);
 
   samples.clear();
-  IdContext context = m_cscHelper->channel_context();
+  IdContext context = m_muonIdHelperTool->cscIdHelper().channel_context();
 
   uint32_t maxInt  = 2147483640;
   uint32_t address = maxInt;
@@ -469,9 +471,9 @@ uint32_t CscOverlay::stripData ( const std::vector<const CscRawData*>& data,
 
     /** find the strip Identifier given the strip hash ID */
     Identifier stripId;
-    m_cscHelper->get_id(hashOffset, stripId, &context);
-    unsigned int strip = static_cast<unsigned int> ( m_cscHelper->strip( stripId ) );
-    int layer          = m_cscHelper->wireLayer( stripId );
+    m_muonIdHelperTool->cscIdHelper().get_id(hashOffset, stripId, &context);
+    unsigned int strip = static_cast<unsigned int> ( m_muonIdHelperTool->cscIdHelper().strip( stripId ) );
+    int layer          = m_muonIdHelperTool->cscIdHelper().wireLayer( stripId );
     uint16_t width = datum->width();
 
     /** create the map only layer by layer
@@ -547,7 +549,7 @@ std::vector<CscRawData*> CscOverlay::overlay( const std::map< int,std::vector<ui
                                               const uint16_t spuID,
                                               const uint16_t collId,
                                               const uint32_t hash,
-                                              CLHEP::HepRandomEngine *rndmEngine)
+                                              CLHEP::HepRandomEngine *rndmEngine) const
 {
   ATH_MSG_DEBUG("overlay<>() begin: hash="<<hash<<" address="<<address);
   std::vector<CscRawData*> datas;

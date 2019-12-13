@@ -8,6 +8,7 @@
 
 SimpleView::SimpleView( std::string Name, bool AllowFallThrough, std::string const& storeName ) :
   m_store( storeName, "SimpleView" ),
+  m_roi(),
   m_name( Name ),
   m_allowFallThrough( AllowFallThrough )
 {
@@ -62,25 +63,40 @@ SG::DataProxy * SimpleView::findProxy( const CLID& id, const std::string& key, c
   auto isValid = [](const SG::DataProxy* p) { return p != nullptr and p->isValid(); };
   const std::string viewKey = m_name + "_" + key;
   auto localProxy = m_store->proxy( id, viewKey );
+  if ( isValid( localProxy ) ) {
+    return localProxy;
+  }
   
   for ( auto parent: m_parents ) {
     // Don't allow parents to access whole-event store independently of this view
     auto inParentProxy = parent->findProxy( id, key, false );
     if ( isValid( inParentProxy ) ) {
-      if ( isValid( localProxy ) ) {
-        throw std::runtime_error("Duplicate object CLID:"+ std::to_string(id) + " key: " + key + " found in views: " + name()+ " and parent " + parent->name() );
-      }
-      localProxy = inParentProxy;
-      break;
+      return inParentProxy;
     }
   }
   
   //Look in the default store if cound not find in any view - for instance for event-wise IDCs
   if ( (not isValid( localProxy )) and allowFallThrough ) {
+
+    //Apply filtering
+    if ( m_fallFilter.size() ) {
+      bool filterPass = false;
+
+      //Filter passes if the key contains one of the possible values
+      for ( auto& entry : m_fallFilter ) {
+        if ( key.find( entry ) != std::string::npos ) {
+          filterPass = true;
+          break;
+        }
+      }
+
+      if ( !filterPass ) return nullptr;
+    }
+
     auto mainStoreProxy = m_store->proxy( id, key );
     return mainStoreProxy;
   }
-  return localProxy; // can be the nullptr still
+  return nullptr;
 }
 
 
@@ -217,6 +233,13 @@ void SimpleView::registerKey( IStringPool::sgkey_t key, const std::string& str, 
 	m_store->registerKey( key, viewKey, clid );
 }
 
+void SimpleView::setROI(const ElementLink<TrigRoiDescriptorCollection>& roi) {
+  m_roi = roi;
+}
+
+const ElementLink<TrigRoiDescriptorCollection>& SimpleView::getROI() const {
+  return m_roi;
+}
 
 std::string SimpleView::dump( const std::string& indent ) const {
 

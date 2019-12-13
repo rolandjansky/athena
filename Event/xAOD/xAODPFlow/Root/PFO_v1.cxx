@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // EDM include(s):
@@ -143,7 +143,7 @@ namespace xAOD {
 
   PFO_v1::FourMom_t PFO_v1::p4EM() const { 
 
-    if (fabs(this->charge()) > FLT_MIN) return p4();
+    if (this->isCharged()) return p4();
 
     FourMom_t p4EM;
 
@@ -159,7 +159,7 @@ namespace xAOD {
 
   PFO_v1::GenVecFourMom_t PFO_v1::genvecP4EM() const { 
 
-    if (fabs(this->charge()) > FLT_MIN) return genvecP4();
+    if (this->isCharged()) return genvecP4();
 
     //change to use pt, eta, phi ,e 
     const static ConstAccessor<float> accPt("ptEM");
@@ -203,7 +203,7 @@ namespace xAOD {
 
    double PFO_v1::ptEM() const {
 
-     if (fabs(this->charge()) > FLT_MIN) return this->pt();
+     if (this->isCharged()) return this->pt();
 
      const static ConstAccessor<float> accPt("ptEM");
      float pt = accPt(*this);
@@ -223,7 +223,7 @@ namespace xAOD {
 
    double PFO_v1::mEM() const {
 
-     if (fabs(this->charge()) > FLT_MIN) return this->m();
+     if (this->isCharged()) return this->m();
      const static ConstAccessor<float> accM("mEM");
      float M = accM(*this);
 
@@ -232,7 +232,7 @@ namespace xAOD {
 
    double PFO_v1::eEM() const {
 
-     if (fabs(this->charge()) > FLT_MIN) return this->e();
+     if (this->isCharged()) return this->e();
 
      const static ConstAccessor<float> accPt("ptEM");
      float pt = accPt(*this);
@@ -246,8 +246,10 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(PFO_v1, float, centerMag, setCenterMag)
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(PFO_v1, float, charge, setCharge)
 
+  // Define function to avoid issues due to numeric precision when comparing pFO charge to zero
+  // Discussed in https://its.cern.ch/jira/browse/ATLJETMET-796
   bool PFO_v1::isCharged() const{
-     return (fabs(this->charge())>FLT_MIN);
+     return (fabs(this->charge())>1e-6);
   }
 
   /** specaial implementations for floats, for eflowRec JetETMiss variables, to reduce disk space usage */

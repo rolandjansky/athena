@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -12,7 +12,7 @@
 
 #undef NDEBUG
 #include "TrkDetDescrTPCnv/TrkDetDescrUtils/BinUtilityCnv_p1.h"
-#include "CxxUtils/make_unique.h"
+#include "TestTools/leakcheck.h"
 #include "TestTools/FLOATassert.h"
 #include "GaudiKernel/MsgStream.h"
 #include <iostream>
@@ -63,6 +63,7 @@ void testit (const Trk::BinUtility& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
   Trk::BinUtility bin1 (10, 0, 10);
   testit (bin1);
 

@@ -28,7 +28,6 @@ atlas_depends_on_subdirs( PRIVATE
                           InnerDetector/InDetRecEvent/InDetPrepRawData
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack
                           LArCalorimeter/LArRecEvent
-                          TestPolicy
                           Tracking/TrkDetDescr/TrkSurfaces
                           Tracking/TrkEvent/TrkCompetingRIOsOnTrack
                           Tracking/TrkEvent/TrkEventPrimitives
@@ -63,7 +62,6 @@ atlas_add_component( AthenaPoolTest
                      LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaPoolTestData CaloDetDescrLib CaloEvent CaloIdentifier AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities GeoPrimitives Identifier EventInfo GaudiKernel InDetIdentifier InDetReadoutGeometry InDetRawData InDetCompetingRIOsOnTrack InDetPrepRawData InDetRIO_OnTrack LArRecEvent TrkSurfaces TrkCompetingRIOsOnTrack TrkEventPrimitives TrkMaterialOnTrack TrkParameters TrkTrack TrkVertexOnTrack )
 
 # Install files from the package:
-atlas_install_headers( AthenaPoolTest )
 atlas_install_joboptions( share/*.py )
 
 
@@ -160,7 +158,7 @@ athenapooltest_run_test( ReadCombinedRDO ReadCombinedRDO
 
 # Test basic overlay algorithms with DoubleEventSelector
 athenapooltest_run_test( DoubleEventSelectorOverlayTest DoubleEventSelectorOverlayTest
-                         "'^..DoubleEvent|^..AthenaPoolAddr|^..Stream1'"
+                         "'^..DoubleEvent|^..AthenaPoolAddr|^..Stream1|Found HelperTools'"
                          DEPENDS ReadCombinedRDO )
 
 # AthenaMT test for DoubleEventSelector

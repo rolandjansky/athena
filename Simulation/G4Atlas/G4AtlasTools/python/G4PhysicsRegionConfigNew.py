@@ -1,4 +1,5 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
 from G4AtlasTools.G4AtlasToolsConf import RegionCreator
 
 # Beampipe Regions
@@ -192,7 +193,7 @@ def PreSampLArPhysicsRegionToolCfg(ConfigFlags, name='PreSampLArPhysicsRegionToo
 def DeadMaterialPhysicsRegionToolCfg(ConfigFlags, name='DeadMaterialPhysicsRegionTool', **kwargs):
     kwargs.setdefault("RegionName", 'DeadMaterial')
     volumeList = []
-    sectionList = range(16,49) # does not include 49
+    sectionList = list(range(16,49)) # does not include 49
     sectionList += [ 51, 52, 53, 54 ]
     for section in sectionList:
         volumeList += ['BeamPipe::SectionF'+str(section)]

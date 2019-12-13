@@ -1,10 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @author: Sebastien Binet <binet@cern.ch>
 # @date:   March 2007
 #
 #
-from __future__ import with_statement
+from __future__ import with_statement, print_function
+
 
 __version__ = "$Revision$"
 __author__  = "Sebastien Binet <binet@cern.ch>"
@@ -104,7 +105,7 @@ class PoolFileCatalog(object):
                 return u.FindFile(x,
                                   os.environ['DATAPATH'].split(os.pathsep),
                                   os.R_OK)
-            except ImportError,err:
+            except ImportError:
                 return x
 
         def _handle_file(x):
@@ -160,7 +161,7 @@ class PoolFileCatalog(object):
                 if isinstance(files, dict):
                     files = [files]
                 cat['POOLFILECATALOG']['File'].extend(files)
-            except Exception, err:
+            except Exception as err:
                 errors.append(err)
 
         if errors:
@@ -299,14 +300,14 @@ def extract_streams_from_tag (fname,
     import PyUtils.RootUtils as ru
     ROOT = ru.import_root()
 
-    print "::: opening file [%s]..." % fname
+    print("::: opening file [%s]..." % fname)
     # get the "final" file name (handles all kind of protocols)
     import PyUtils.AthFile as af
     try:
         protocol, fname = af.server.fname(fname)
-    except Exception,err:
-        print "::: warning: problem extracting file name from PoolFileCatalog"
-        print "::: warning: will use [%s]" % fname
+    except Exception:
+        print("::: warning: problem extracting file name from PoolFileCatalog")
+        print("::: warning: will use [%s]" % fname)
     
     f = ROOT.TFile.Open (fname, "read")
     assert not f.IsZombie() and f.IsOpen(), \
@@ -319,7 +320,7 @@ def extract_streams_from_tag (fname,
     if tree_name not in keys and "CollectionTree" not in keys:
         err= "::: error: neither [%s] nor [CollectionTree] in file [%s]" % (
             tree_name, fname)
-        print err
+        print(err)
         raise RuntimeError(err)
     # try the backward compat. hack
     if tree_name not in keys:
@@ -339,13 +340,13 @@ def extract_streams_from_tag (fname,
         stream_refs = []
         for ref in _streams:
             if not ref in branches:
-                print "::: discarding [%s] from file chasing..."%ref
+                print("::: discarding [%s] from file chasing..."%ref)
             else:
                 stream_refs.append (ref)
     if nentries <= 0: nentries = t.GetEntries()
     else:             nentries = min (nentries, t.GetEntries())
-    print "::: chasing streams: %s" % stream_refs
-    print "::: ...over entries: %r" % nentries
+    print("::: chasing streams: %s" % stream_refs)
+    print("::: ...over entries: %r" % nentries)
     
     # disable everything...
     t.SetBranchStatus ("*", 0)
@@ -374,21 +375,20 @@ def extract_streams_from_tag (fname,
         for ref in stream_refs:
             try:
                 token_str = getattr(t, ref)
-            except (AttributeError, TypeError) as err:
+            except (AttributeError, TypeError):
                 # MN: TypeError is a bug in ROOT 5.34.25, fixed in 5.34.30
                 # filthy work-around...
                 try:
                     token_branch = t.GetBranch (ref)
                     token_branch.GetEntry(i)
                     token_str = token_branch.GetLeaf("Token").GetValueString()
-                except Exception,new_err:
-                    print "::: could not access stream-ref [%s] (entry #%i)"%(
-                        ref, i
-                        )
+                except Exception:
+                    print("::: could not access stream-ref [%s] (entry #%i)",
+                          (ref, i))
                     continue
             tok = token.match (token_str)
             if not tok:
-                print "::: invalid POOL token: [%s]" % token_str
+                print("::: invalid POOL token: [%s]" % token_str)
                 continue
             streams[ref].append (tok.group('FID'))
 
@@ -444,7 +444,7 @@ def retrieveBranchInfos( branch, poolRecord, ident = "" ):
                       branch.GetTotBytes(),
                       branch.GetZipBytes(),
                       branch.GetName() )
-        print out
+        print(out)
         
     branches  = branch.GetListOfBranches()
     for b in branches:
@@ -484,7 +484,7 @@ def extract_items(pool_file, verbose=True, items_type='eventdata'):
             "got: [%s] " % items_type,
             "(allowed values: %r)" % _allowed_values
             ])
-        raise ValueError, err
+        raise ValueError(err)
     import PyUtils.AthFile as af
     f = af.fopen(pool_file)
     key = '%s_items' % items_type
@@ -543,8 +543,8 @@ class PoolFile(object):
         try:
             import PyUtils.AthFile as af
             protocol, fileName = af.server.fname(fileName)
-        except Exception,err:
-            print "## warning: problem opening PoolFileCatalog:\n%s"%err
+        except Exception as err:
+            print("## warning: problem opening PoolFileCatalog:\n%s"%err)
             import traceback
             traceback.print_exc(err)
             pass
@@ -553,10 +553,10 @@ class PoolFile(object):
         dbFileName = whichdb.whichdb( fileName )
         if not dbFileName in ( None, '' ):
             if self.verbose==True:
-                print "## opening file [%s]..." % str(fileName)
+                print("## opening file [%s]..." % str(fileName))
             db = shelve.open( fileName, 'r' )
             if self.verbose==True:
-                print "## opening file [OK]"
+                print("## opening file [OK]")
             report = db['report']
             self._fileInfos = report['fileInfos']
             self.dataHeader = report['dataHeader']
@@ -565,10 +565,10 @@ class PoolFile(object):
             import PyUtils.Helpers as _H
             projects = 'AtlasCore' if PoolOpts.FAST_MODE else None
             if self.verbose==True:
-                print "## opening file [%s]..." % str(fileName)
+                print("## opening file [%s]..." % str(fileName))
             self.__openPoolFile( fileName )
             if self.verbose==True:
-                print "## opening file [OK]"
+                print("## opening file [OK]")
             self.__processFile()
             
         return
@@ -577,11 +577,11 @@ class PoolFile(object):
         # hack to prevent ROOT from loading graphic libraries and hence bother
         # our fellow Mac users
         if self.verbose==True:
-            print "## importing ROOT..."
+            print("## importing ROOT...")
         import PyUtils.RootUtils as ru
         ROOT = ru.import_root()
         if self.verbose==True:
-            print "## importing ROOT... [DONE]"
+            print("## importing ROOT... [DONE]")
         # prevent ROOT from being too verbose
         rootMsg = ShutUp()
         rootMsg.mute()
@@ -590,20 +590,20 @@ class PoolFile(object):
         poolFile = None
         try:
             poolFile = ROOT.TFile.Open( fileName, PoolOpts.READ_MODE )
-        except Exception, e:
+        except Exception as e:
             rootMsg.unMute()
-            print "## Failed to open file [%s] !!" % fileName
-            print "## Reason:"
-            print e
-            print "## Bailing out..."
-            raise IOError, "Could not open file [%s]" % fileName
+            print("## Failed to open file [%s] !!" % fileName)
+            print("## Reason:")
+            print(e)
+            print("## Bailing out...")
+            raise IOError("Could not open file [%s]" % fileName)
 
         rootMsg.unMute()
 
         if poolFile == None:
-            print "## Failed to open file [%s] !!" % fileName
+            print("## Failed to open file [%s] !!" % fileName)
             msg = "Could not open file [%s]" % fileName
-            raise IOError, msg
+            raise IOError(msg)
 
         self.poolFile = poolFile
         assert self.poolFile.IsOpen() and not self.poolFile.IsZombie(), \
@@ -703,8 +703,8 @@ class PoolFile(object):
                     ##                                     "" )
                     self.data += [ poolRecord ]
             else:
-                print "WARNING: Don't know how to deal with branch [%s]" % \
-                      name
+                print("WARNING: Don't know how to deal with branch [%s]" % \
+                      name)
 
             pass # loop over keys
         
@@ -720,7 +720,7 @@ class PoolFile(object):
     
     def checkFile(self, sorting = PoolRecord.Sorter.DiskSize):
         if self.verbose==True:
-            print self.fileInfos()
+            print(self.fileInfos())
 
         ## sorting data
         data = self.data
@@ -742,14 +742,14 @@ class PoolFile(object):
             return num/den   
                  
         if self.verbose==True:
-            print ""
-            print "="*80
-            print PoolOpts.HDR_FORMAT % ( "Mem Size", "Disk Size","Size/Evt",
+            print("")
+            print("="*80)
+            print(PoolOpts.HDR_FORMAT % ( "Mem Size", "Disk Size","Size/Evt",
                                           "MissZip/Mem","items",
-                                          "(X) Container Name (X=Tree|Branch)" )
-            print "="*80
+                                          "(X) Container Name (X=Tree|Branch)" ))
+            print("="*80)
             
-            print PoolOpts.ROW_FORMAT % (
+            print(PoolOpts.ROW_FORMAT % (
                 _get_val (self.dataHeader.memSize),
                 self.dataHeader.diskSize,
                 _safe_div(self.dataHeader.diskSize,float(self.dataHeader.nEntries)),
@@ -757,43 +757,43 @@ class PoolFile(object):
                                     self.dataHeader.memSize)),
                 self.dataHeader.nEntries,
                 "("+self.dataHeader.dirType+") "+self.dataHeader.name
-                )
-            print "-"*80
+                ))
+            print("-"*80)
 
         for d in data:
             totMemSize  += 0. if PoolOpts.FAST_MODE else d.memSize
             totDiskSize += d.diskSize
             memSizeNoZip = d.memSizeNoZip/d.memSize if d.memSize != 0. else 0.
             if self.verbose==True:
-                print PoolOpts.ROW_FORMAT % (
+                print(PoolOpts.ROW_FORMAT % (
                     _get_val (d.memSize),
                     d.diskSize,
                     _safe_div(d.diskSize, float(self.dataHeader.nEntries)),
                     _get_val (memSizeNoZip),
                     d.nEntries,
                     "("+d.dirType+") "+d.name
-                    )
+                    ))
 
         if self.verbose==True:
-            print "="*80
-            print PoolOpts.ROW_FORMAT % (
+            print("="*80)
+            print(PoolOpts.ROW_FORMAT % (
                 totMemSize,
                 totDiskSize,
                 _safe_div(totDiskSize, float(self.dataHeader.nEntries)),
                 0.0,
                 self.dataHeader.nEntries,
                 "TOTAL (POOL containers)"
-                )
-            print "="*80
+                ))
+            print("="*80)
             if PoolOpts.FAST_MODE:
-                print "::: warning: FAST_MODE was enabled: some columns' content ",
-                print "is meaningless..."
+                print("::: warning: FAST_MODE was enabled: some columns' content ",)
+                print("is meaningless...")
         return
 
     def detailedDump(self, bufferName = sys.stdout.name ):
         if self.poolFile == None or \
            self.keys     == None:
-            print "Can't perform a detailedDump with a shelve file as input !"
+            print("Can't perform a detailedDump with a shelve file as input !")
             return
                   
         if bufferName == sys.stdout.name:
@@ -816,7 +816,7 @@ class PoolFile(object):
                 try:
                     print >> sys.stderr, "=== [%s] ===" % name
                     tree.Print()
-                except Exception, err:
+                except Exception as err:
                     print >> sys.stderr, "Caught:",err
                     print >> sys.stderr, sys.exc_info()[0]
                     print >> sys.stderr, sys.exc_info()[1]
@@ -844,7 +844,7 @@ class PoolFile(object):
         for data in self.data:
             if data.name == name:
                 return data
-        raise KeyError, "No PoolRecord with name [%s]" % name
+        raise KeyError("No PoolRecord with name [%s]" % name)
 
     def saveReport (self, fileName):
         """
@@ -947,8 +947,8 @@ class PoolFile(object):
             try:
                 self.poolFile.Close()
                 self.poolFile = None
-            except Exception,err:
-                print "WARNING:",err
+            except Exception as err:
+                print("WARNING:",err)
                 pass
             
     pass # class PoolFile
@@ -973,20 +973,20 @@ class DiffFiles(object):
             self.refFile = PoolFile( refFileName )
             self.chkFile = PoolFile( chkFileName )
             self.ignList = sorted( ignoreList )
-        except Exception, err:
-            print "## Caught exception [%s] !!" % str(err.__class__)
-            print "## What:",err
-            print sys.exc_info()[0]
-            print sys.exc_info()[1]
-            raise err
+        except Exception as err:
+            print("## Caught exception [%s] !!" % str(err.__class__))
+            print("## What:",err)
+            print(sys.exc_info()[0])
+            print(sys.exc_info()[1])
+            raise(err)
         except :
-            print "## Caught something !! (don't know what)"
-            print sys.exc_info()[0]
-            print sys.exc_info()[1]
+            print("## Caught something !! (don't know what)")
+            print(sys.exc_info()[0])
+            print(sys.exc_info()[1])
             err  = "Error while opening POOL files !"
             err += " chk : %s%s" % ( chkFileName, os.linesep )
             err += " ref : %s%s" % ( refFileName, os.linesep )
-            raise Exception, err
+            raise Exception(err)
         
         self.allGood = True
         self.summary = []
@@ -1117,7 +1117,7 @@ def merge_pool_files(input_files, output_file,
     import PyUtils.AthFile as af
     try:
         af.server
-    except (RuntimeError,), err:
+    except (RuntimeError,) as err:
         # FIXME: we should not rely on such fragile error detection
         if err.message == "AthFileServer already shutdown":
             af.restart_server()
@@ -1126,7 +1126,7 @@ def merge_pool_files(input_files, output_file,
     try:
         _af_cache_fname = 'recexcommon-afserver-cache.ascii'
         af.server.load_cache(_af_cache_fname)
-    except (IOError,), err:
+    except (IOError,) as err:
         msg.info('could not load AthFile.server cache from [%s]:\n%s',
                  _af_cache_fname, err)
 

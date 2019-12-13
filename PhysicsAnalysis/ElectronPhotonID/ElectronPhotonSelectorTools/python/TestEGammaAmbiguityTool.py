@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 __doc__ = "Class / methods to test EGammaAmbiguityTool. Scripts in test/ directory"
 __author__ = "Bruno Lenzi"
@@ -6,7 +8,7 @@ __author__ = "Bruno Lenzi"
 import os
 
 def printMethod(x): 
-  print x
+  print (x)
 
 def printAmbiguityInfo(egamma, tool, printMethod = printMethod):
   "printAmbiguityInfo(egamma, tool) -> print author and ambiguity result"

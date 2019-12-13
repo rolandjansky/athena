@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -22,6 +22,7 @@ class MsgStream;
 #include "TrkDetDescrUtils/Intersection.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkNeutralParameters/NeutralParameters.h"
+#include "CxxUtils/checker_macros.h"
 
 namespace Trk {
   
@@ -213,11 +214,15 @@ namespace Trk {
     /** get the layerIndex */
     const LayerIndex&  layerIndex() const;
 
-    /** get the Layer codinging */
+    /** get the Layer coding */
     int layerType() const;
 
-    /** set the Layer codinging */
-    void setLayerType(int identifier) const;
+    /** set the Layer coding */
+   void setLayerType(int identifier);
+
+    /** set the Layer coding */
+    void setLayerType ATLAS_NOT_THREAD_SAFE (int identifier) const;
+
 
     /** boolean method to check if the layer needs a LayerMaterialProperties */
     bool needsMaterialProperties() const;
@@ -226,16 +231,26 @@ namespace Trk {
     void assignMaterialProperties(const LayerMaterialProperties&, double scale=1.0) const;    
 
     /** move the Layer */
-    virtual void moveLayer( Amg::Transform3D& ) const {};
+    virtual void moveLayer( Amg::Transform3D& ) {};
+
+    /** move the Layer */
+    virtual void moveLayer ATLAS_NOT_THREAD_SAFE ( Amg::Transform3D& ) const {};
 
     /**register Volume associated to the layer */
-    void registerRepresentingVolume(const Volume *theVol) const;
+    void registerRepresentingVolume(const Volume *theVol);
+  
+    /**register Volume associated to the layer */
+    void registerRepresentingVolume ATLAS_NOT_THREAD_SAFE (const Volume *theVol) const;
     
     /** get the Volume associated to the layer */
     const Volume* representingVolume() const;
 
     /** set the reference measure */
-    void setRef(double ) const;
+   void setRef(double );
+
+    /** set the reference measure */
+    void setRef ATLAS_NOT_THREAD_SAFE (double ) const;
+
 
     /** get the reference measure */
     double getRef() const;
@@ -261,17 +276,29 @@ namespace Trk {
         - MaterialProperties dimensions are resized
         - SubSurface array boundaries are NOT resized
     */
-    void encloseTrackingVolume(const TrackingVolume& tvol) const;
+    void encloseTrackingVolume  (const TrackingVolume& tvol) ;
+    void encloseTrackingVolume ATLAS_NOT_THREAD_SAFE (const TrackingVolume& tvol) const;
     
-    void encloseDetachedTrackingVolume(const DetachedTrackingVolume& tvol) const;   //!< private method to set the enclosed detached TV
+    void encloseDetachedTrackingVolume(const DetachedTrackingVolume& tvol) ;   //!< private method to set the enclosed detached TV
+    void encloseDetachedTrackingVolume ATLAS_NOT_THREAD_SAFE (const DetachedTrackingVolume& tvol) const;   //!< private method to set the enclosed detached TV
 
   protected:
 
     /** resize layer to the TrackingVolume dimensions - to be overloaded by the extended classes*/
-    virtual void resizeLayer(const VolumeBounds&, double) const {}
+    virtual void resizeLayer  (const VolumeBounds&, double) {}
+
+    /** resize layer to the TrackingVolume dimensions const not thread safe */
+    virtual void resizeLayer ATLAS_NOT_THREAD_SAFE (const VolumeBounds&, double) const {}
 
     /** resize and reposition layer : dedicated for entry layers */
-    virtual void resizeAndRepositionLayer(const VolumeBounds& vBounds, const Amg::Vector3D& vCenter, double envelope=1.) const = 0;
+    virtual void resizeAndRepositionLayer (const VolumeBounds& vBounds, 
+                                                                 const Amg::Vector3D& vCenter, 
+                                                                 double envelope=1.) = 0;
+
+    /** resize and reposition layer : dedicated for entry layers */
+    virtual void resizeAndRepositionLayer ATLAS_NOT_THREAD_SAFE (const VolumeBounds& vBounds, 
+                                                                 const Amg::Vector3D& vCenter, 
+                                                                 double envelope=1.) const = 0;
 
     SurfaceArray*                                   m_surfaceArray;              //!< SurfaceArray on this layer Surface
     mutable SharedObject<LayerMaterialProperties>   m_layerMaterialProperties;   //!< MaterialPoperties of this layer Surface
@@ -284,17 +311,17 @@ namespace Trk {
     mutable const Layer*                            m_nextLayer;                 //!< next Layer according to BinGenUtils 
     mutable const BinUtility*                       m_binUtility;                //!< BinUtility for next/previous decission
                                                     
-    mutable const TrackingVolume*                   m_enclosingTrackingVolume;   //!< Enclosing TrackingVolume
+    const TrackingVolume*                           m_enclosingTrackingVolume;   //!< Enclosing TrackingVolume
                                                     
-    mutable const DetachedTrackingVolume*           m_enclosingDetachedTrackingVolume; //!< Enclosing DetachedTrackingVolume   
+    const DetachedTrackingVolume*                   m_enclosingDetachedTrackingVolume; //!< Enclosing DetachedTrackingVolume   
                                                     
     mutable LayerIndex                              m_index;                     //!< LayerIndex
                                                     
-    mutable int                                     m_layerType;                 //!< active passive layer
+    int                                             m_layerType;                 //!< active passive layer
                                                     
-    mutable const Volume*                           m_representingVolume;        //!< Representing Volume
+    const Volume*                                   m_representingVolume;        //!< Representing Volume
                                                     
-    mutable double                                  m_ref;                       //!< reference measure for local coordinate convertors
+    double                                          m_ref;                       //!< reference measure for local coordinate convertors
   };
 
   
@@ -420,16 +447,23 @@ namespace Trk {
   inline const TrackingVolume* Layer::enclosingTrackingVolume() const 
     { return m_enclosingTrackingVolume; }
 
-  inline void Layer::encloseTrackingVolume(const TrackingVolume& tvol) const 
+  inline void Layer::encloseTrackingVolume(const TrackingVolume& tvol)  
     { 
      m_enclosingTrackingVolume = &(tvol); 
+    }
+  inline void Layer::encloseTrackingVolume(const TrackingVolume& tvol) const 
+    { 
+     const_cast<Layer*>(this)->encloseTrackingVolume(tvol); 
     }
 
   inline const DetachedTrackingVolume* Layer::enclosingDetachedTrackingVolume() const 
     { return m_enclosingDetachedTrackingVolume; }
 
-  inline void Layer::encloseDetachedTrackingVolume(const DetachedTrackingVolume& tvol) const 
+  inline void Layer::encloseDetachedTrackingVolume(const DetachedTrackingVolume& tvol)
     { m_enclosingDetachedTrackingVolume = &(tvol); }
+
+  inline void Layer::encloseDetachedTrackingVolume(const DetachedTrackingVolume& tvol) const 
+    { const_cast<Layer*>(this)->encloseDetachedTrackingVolume(tvol); }
 
   inline const LayerIndex& Layer::layerIndex() const
     { return m_index; }
@@ -437,14 +471,21 @@ namespace Trk {
   inline int Layer::layerType() const
     { return m_layerType; }
 
-  inline void Layer::setLayerType( int id ) const
+  inline void Layer::setLayerType( int id ) 
     { m_layerType = id; }
+
+  inline void Layer::setLayerType( int id ) const
+    { const_cast<Layer*>(this)->setLayerType(id); }
+
 
   inline const Volume* Layer::representingVolume() const
     { return m_representingVolume; }
 
-  inline void Layer::registerRepresentingVolume(const Volume *theVol) const
+  inline void Layer::registerRepresentingVolume(const Volume *theVol)
     { m_representingVolume = theVol; }
+ 
+  inline void Layer::registerRepresentingVolume(const Volume *theVol) const
+    { const_cast<Layer*>(this)->registerRepresentingVolume(theVol); }
   
    inline void Layer::registerLayerIndex(const LayerIndex& lIdx) const
     { m_index = lIdx; }  
@@ -452,8 +493,11 @@ namespace Trk {
   inline double Layer::getRef() const
     { return m_ref; }
   
-  inline void Layer::setRef(double x) const
+  inline void Layer::setRef(double x)
     { m_ref = x; }
+ 
+  inline void Layer::setRef(double x) const
+    { const_cast<Layer*>(this)->setRef(x); }
   
 } // end of namespace
 

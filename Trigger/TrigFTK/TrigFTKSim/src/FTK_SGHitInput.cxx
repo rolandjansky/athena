@@ -19,7 +19,6 @@
 #include <boost/bind.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <boost/format.hpp>
-#include <boost/foreach.hpp>
 #include <boost/iostreams/filter/bzip2.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/device/file.hpp>
@@ -42,7 +41,6 @@
 #include "InDetSimData/InDetSimDataCollection.h"
 #include "InDetSimData/SCT_SimHelper.h"
 #include "InDetSimData/PixelSimHelper.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SiCellId.h"
 #include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
 
@@ -150,10 +148,6 @@ StatusCode FTK_SGHitInput::initialize(){
     m_log << MSG::ERROR << "Could not get IdDictManager !" << endmsg;
     return StatusCode::FAILURE;
   }
-  if( detStore()->retrieve(m_PIX_mgr, "Pixel").isFailure() ) {
-    m_log << MSG::ERROR << "Unable to retrieve Pixel manager from DetectorStore" << endmsg;
-    return StatusCode::FAILURE;
-  }
   if( detStore()->retrieve(m_pixelId, "PixelID").isFailure() ) {
     m_log << MSG::ERROR << "Unable to retrieve Pixel helper from DetectorStore" << endmsg;
     return StatusCode::FAILURE;
@@ -164,6 +158,7 @@ StatusCode FTK_SGHitInput::initialize(){
   }
 
   // ReadCondHandleKey
+  ATH_CHECK(m_pixelDetEleCollKey.initialize());
   ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
   // open output to .bz2 using streams for debug //
@@ -301,6 +296,12 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
   FTKRawHit tmpSGhit;
   //tmporary debug to output variables to text file for developer.
 
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* pixelElements(*pixelDetEleHandle);
+  if (not pixelDetEleHandle.isValid() or pixelElements==nullptr) {
+    ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " is not available.");
+    return;
+  }
 
   if( m_storeGate->retrieve(pixel_rdocontainer_iter, "PixelRDOs").isSuccess()  ) {
     pixel_rdocontainer_iter->clID(); // anything to dereference the DataHandle
@@ -312,8 +313,11 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
       // loop on all RDOs
       for( DataVector<PixelRDORawData>::const_iterator iRDO=pixel_rdoCollection->begin(), fRDO=pixel_rdoCollection->end(); iRDO!=fRDO; ++iRDO ) {
         Identifier rdoId = (*iRDO)->identify();
+        const Identifier wafer_id = m_pixelId->wafer_id(rdoId);        
+        const IdentifierHash wafer_hash = m_pixelId->wafer_hash(wafer_id);
         // get the det element from the det element collection
-        const InDetDD::SiDetectorElement* sielement = m_PIX_mgr->getDetectorElement(rdoId); assert( sielement);
+        const InDetDD::SiDetectorElement* sielement = pixelElements->getDetectorElement(wafer_hash);
+        assert( sielement);
         Amg::Vector2D localPos2D = sielement->rawLocalPositionOfCell(rdoId);
         localPos2D[Trk::distPhi] += m_pixelLorentzAngleTool->getLorentzShift(sielement->identifyHash());
         const InDetDD::SiLocalPosition localPos(localPos2D);
@@ -469,8 +473,11 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
         if( !pixel_rdoCollection ) { continue; }
         for( DataVector<PixelRDORawData>::const_iterator iRDO=pixel_rdoCollection->begin(), fRDO=pixel_rdoCollection->end(); iRDO!=fRDO; ++iRDO ) {
           Identifier rdoId = (*iRDO)->identify();
-          // get the det element from the det element collection
-          const InDetDD::SiDetectorElement* sielement = m_PIX_mgr->getDetectorElement(rdoId); assert( sielement);
+          const Identifier wafer_id = m_pixelId->wafer_id(rdoId);
+          const IdentifierHash wafer_hash = m_pixelId->wafer_hash(wafer_id);
+          // get the det element from the det element collection          
+          const InDetDD::SiDetectorElement* sielement = pixelElements->getDetectorElement(wafer_hash);
+          assert( sielement);
           Amg::Vector2D localPos2D = sielement->rawLocalPositionOfCell(rdoId);
           localPos2D[Trk::distPhi] += m_pixelLorentzAngleTool->getLorentzShift(sielement->identifyHash());
           const InDetDD::SiLocalPosition localPos(localPos2D);
@@ -767,7 +774,9 @@ if (m_dooutFileRawHits) {
       if( have_pixel_sdo && pixelSimDataMap ) {
         for( std::vector<Identifier>::const_iterator rdoIter = (*iCluster)->rdoList().begin();
             rdoIter != (*iCluster)->rdoList().end(); rdoIter++ ) {
-          const InDetDD::SiDetectorElement* sielement = m_PIX_mgr->getDetectorElement(*rdoIter);
+          const Identifier wafer_id = m_pixelId->wafer_id(*rdoIter);
+          const IdentifierHash wafer_hash = m_pixelId->wafer_hash(wafer_id);
+          const InDetDD::SiDetectorElement* sielement = pixelElements->getDetectorElement(wafer_hash);
           assert( sielement);
           const InDetDD::SiLocalPosition rawPos = sielement->rawLocalPositionOfCell(*rdoIter);
           const int nCells = sielement->numberOfConnectedCells( sielement->cellIdOfPosition(rawPos) );

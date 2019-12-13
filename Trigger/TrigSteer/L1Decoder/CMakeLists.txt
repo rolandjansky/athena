@@ -13,10 +13,10 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/AthViews
                           Control/AthenaBaseComps
-                          Control/CxxUtils
                           Control/AthenaMonitoring
                           Event/xAOD/xAODTrigger
                           Trigger/TrigConfiguration/TrigConfHLTData
+                          Trigger/TrigConfiguration/TrigConfData
                           Trigger/TrigConfiguration/TrigConfInterfaces
                           Trigger/TrigConfiguration/TrigConfL1Data
                           Trigger/TrigEvent/TrigSteeringEvent
@@ -34,7 +34,7 @@ atlas_add_library( L1DecoderLib
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PUBLIC_HEADERS L1Decoder
                    LINK_LIBRARIES GaudiKernel AthViews AthenaBaseComps AthenaMonitoringLib 
-                   CxxUtils xAODTrigger TrigConfHLTData TrigConfL1Data
+                   xAODTrigger TrigConfHLTData TrigConfData TrigConfL1Data
                    TrigSteeringEvent TrigT1Interfaces TrigT1Result DecisionHandlingLib
                    LINK_LIBRARIES ${CLHEP_LIBRARIES}
                    )

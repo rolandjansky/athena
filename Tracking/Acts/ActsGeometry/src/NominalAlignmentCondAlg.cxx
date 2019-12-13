@@ -12,7 +12,7 @@
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 
 // PACKAGE
-#include "ActsGeometry/IActsTrackingGeometrySvc.h"
+#include "ActsGeometryInterfaces/IActsTrackingGeometrySvc.h"
 #include "ActsGeometry/ActsDetectorElement.h"
 #include "ActsGeometry/ActsAlignmentStore.h"
 #include "ActsGeometry/ActsGeometryContext.h"

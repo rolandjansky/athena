@@ -21,7 +21,6 @@ Created: 10 October 2013
 #include "GaudiKernel/ToolHandle.h"
 
 
-class StoreGateSvc;
 //C++
 #include <string>
 
@@ -44,8 +43,6 @@ class eflowOverlapRemoval : public AthAlgorithm {
 
   std::string m_PFOName;
 
-  StoreGateSvc* m_storeGate;
-  
   std::string m_egammaContainerName;
   /** Name of electron container built by eflowRec/eflowPreparation */
   std::string m_eflowElectronContainerName;

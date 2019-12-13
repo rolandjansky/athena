@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """Configuration of tools for Moore muon reconstruction"""
 
@@ -29,12 +29,13 @@ from IOVDbSvc.CondDB import conddb
 
 from MuonCnvExample.MuonCnvUtils import mdtCalibWindowNumber
 
-from MuonRecTools import MuonExtrapolator, MuonChi2TrackFitter, MdtDriftCircleOnTrackCreator, MuonRK_Propagator
-from MuonRecUtils import logMuon,ConfiguredBase,ExtraFlags
+from .MuonRecTools import MuonExtrapolator, MuonChi2TrackFitter, MdtDriftCircleOnTrackCreator, MuonRK_Propagator
+from .MuonRecUtils import logMuon,ConfiguredBase,ExtraFlags
 
 
-from MuonRecFlags import muonRecFlags
-from MuonStandaloneFlags import muonStandaloneFlags
+from .MuonRecFlags import muonRecFlags
+from .MuonStandaloneFlags import muonStandaloneFlags
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 #==============================================================
 
 # call  setDefaults to update flags
@@ -118,8 +119,8 @@ class MooSegmentCombinationFinder(CfgMgr.Muon__MooSegmentCombinationFinder,Confi
             kwargs.setdefault( "Csc2dSegmentMaker","Csc2dSegmentMaker" )
             kwargs.setdefault( "Csc4dSegmentMaker", "Csc4dSegmentMaker" )
         else:
-            kwargs.setdefault( "Csc2dSegmentMaker", None )
-            kwargs.setdefault( "Csc4dSegmentMaker", None )
+            kwargs.setdefault( "Csc2dSegmentMaker", "" )
+            kwargs.setdefault( "Csc4dSegmentMaker", "" )
         if muonStandaloneFlags.printSummary():
             kwargs.setdefault( "DoSummary", True )
 
@@ -171,7 +172,9 @@ def MooCandidateMatchingTool(name,extraFlags=None,**kwargs):
         kwargs.setdefault("AlignmentErrorPosY", 5.0)
         kwargs.setdefault("AlignmentErrorAngleX", 0.004)
         kwargs.setdefault("AlignmentErrorAngleY", 0.002)
-
+ 
+    kwargs.setdefault("MuPatCandidateTool", getPublicTool("MuPatCandidateTool"))
+    
     return CfgMgr.Muon__MooCandidateMatchingTool(name,**kwargs)
 
 
@@ -333,11 +336,9 @@ def MuonSeededSegmentFinder(name="MuonSeededSegmentFinder",**kwargs):
         kwargs.setdefault("SegmentMaker", segMaker)
         kwargs.setdefault("SegmentMakerNoHoles", segMaker)
 
-        if muonRecFlags.doNSWNewThirdChain():
-            kwargs.setdefault("CscPrepDataContainer","")
-        else:
-            kwargs.setdefault("sTgcPrepDataContainer","")
-            kwargs.setdefault("MMPrepDataContainer","")
+        if not MuonGeometryFlags.hasCSC(): kwargs.setdefault("CscPrepDataContainer","")
+        if not MuonGeometryFlags.hasSTGC(): kwargs.setdefault("sTgcPrepDataContainer","")
+        if not MuonGeometryFlags.hasMM(): kwargs.setdefault("MMPrepDataContainer","")
     
     return CfgMgr.Muon__MuonSeededSegmentFinder(name,**kwargs)
 
@@ -346,7 +347,7 @@ def MuonSeededSegmentFinder(name="MuonSeededSegmentFinder",**kwargs):
 
 def MuonRefitTool(name,**kwargs):
     if not muonRecFlags.doCSCs():
-        kwargs["CscRotCreator"] = None	   
+        kwargs["CscRotCreator"] = ""	   
     # To activate the tuning of meas. errors using alignment constants from DB
     # kwargs.setdefault("AlignmentErrorTool", getPublicTool("MuonAlignmentErrorTool"))
     # kwargs.setdefault("DeweightBEE", False)
@@ -363,7 +364,8 @@ def MuonErrorOptimisationTool(name,extraFlags=None,**kwargs):
     fitter=getattr(extraFlags,"Fitter",None)
     if fitter is not None:
         cloneArgs["Fitter"] = fitter
-
+    if not MuonGeometryFlags.hasCSC():
+        cloneArgs["CscRotCreator"] = ""
     if "RefitTool" not in kwargs:
         if namePrefix or namePostfix:
             cloneName = namePrefix+"MuonRefitTool"+namePostfix
@@ -403,21 +405,21 @@ def MuonChamberHoleRecoveryTool(name="MuonChamberHoleRecoveryTool",extraFlags=No
     if doSegmentT0Fit:
         kwargs.setdefault("AddMeasurements", False)
 
-    if muonRecFlags.doCSCs:
+    if muonRecFlags.doCSCs():
         if muonRecFlags.enableErrorTuning() or globalflags.DataSource() == 'data':
             kwargs.setdefault("CscRotCreator","CscBroadClusterOnTrackCreator")
         else:
             kwargs.setdefault("CscRotCreator","CscClusterOnTrackCreator")
     else: # no CSCs
         # switch off whatever is set
-        kwargs["CscRotCreator"] = None
+        kwargs["CscRotCreator"] = ""
+        kwargs["CscPrepDataContainer"] = ""
 
     # add in missing C++ dependency. TODO: fix in C++
     getPublicTool("ResidualPullCalculator")
 
-    if not muonRecFlags.doNSWNewThirdChain():
-        kwargs.setdefault("sTgcPrepDataContainer","")
-        kwargs.setdefault("MMPrepDataContainer","")
+    if not MuonGeometryFlags.hasSTGC(): kwargs.setdefault("sTgcPrepDataContainer","")
+    if not MuonGeometryFlags.hasMM(): kwargs.setdefault("MMPrepDataContainer","")
 
     #MDT conditions information not available online
     if(athenaCommonFlags.isOnline):
@@ -521,7 +523,10 @@ getPublicTool("MCTBFitter")
 getPublicTool("MCTBSLFitter")
 getPublicTool("MCTBFitterMaterialFromTrack")
 getPublicTool("MuonSeededSegmentFinder")
-getPublicTool("MuonChamberHoleRecoveryTool")
+mCHRT = getPublicTool("MuonChamberHoleRecoveryTool")
+if not MuonGeometryFlags.hasCSC():
+    mCHRT.CscRotCreator = ""
+    mCHRT.CscPrepDataContainer = ""
 getPublicTool("MuonTrackSelectorTool")
 getPublicTool("MuonTrackExtrapolationTool")
 getPublicTool("MuonSegmentRegionRecoveryTool")

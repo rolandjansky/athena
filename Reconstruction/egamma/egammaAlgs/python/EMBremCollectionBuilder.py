@@ -1,4 +1,4 @@
-# Copyright (C) 2001-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2001-2019 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = "ToolFactory to instantiate  egammaBremCollectionBuilder with default configuration"
 __author__ = "Christos"
@@ -50,15 +50,6 @@ class egammaBremCollectionBuilder ( egammaAlgsConf.EMBremCollectionBuilder ) :
         GSFBuildInDetPrdAssociationTool = InDet__InDetPRD_AssociationToolGangedPixels(name = "GSFBuildInDetPrdAssociationTool",
                                                                                       PixelClusterAmbiguitiesMapName = 'PixelClusterAmbiguitiesMap')
         ToolSvc += GSFBuildInDetPrdAssociationTool        
-        #
-        # Loading Configurable HoleSearchTool
-        #
-        from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleSearchTool
-        GSFBuildHoleSearchTool = InDet__InDetTrackHoleSearchTool(name = "GSFBuildHoleSearchTool",
-                                                                 Extrapolator = GSFBuildInDetExtrapolator,
-                                                                 usePixel      = DetFlags.haveRIO.pixel_on(),
-                                                                 useSCT        = DetFlags.haveRIO.SCT_on(),
-                                                                 CountDeadModulesAfterLastHit = True)
 
         if DetFlags.haveRIO.pixel_on():
             from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
@@ -77,20 +68,12 @@ class egammaBremCollectionBuilder ( egammaAlgsConf.EMBremCollectionBuilder ) :
                 InDetPixelConditionsSummaryTool.IsActiveStates = [ 'READY', 'ON', 'UNKNOWN', 'TRANSITION', 'UNDEFINED' ]
                 InDetPixelConditionsSummaryTool.IsActiveStatus = [ 'OK', 'WARNING', 'ERROR', 'FATAL' ]
 
-            GSFBuildHoleSearchTool.PixelSummaryTool = InDetPixelConditionsSummaryTool
-        else:
-            GSFBuildHoleSearchTool.PixelSummaryTool = None
  
         if (DetFlags.haveRIO.SCT_on()):
             from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
             sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup()
             sct_ConditionsSummaryToolSetup.setup()
             InDetSCT_ConditionsSummaryTool = sct_ConditionsSummaryToolSetup.getTool()
-            GSFBuildHoleSearchTool.SctSummaryTool = InDetSCT_ConditionsSummaryTool
-        else:
-            GSFBuildHoleSearchTool.SctSummaryTool = None
-            
-        ToolSvc += GSFBuildHoleSearchTool
         #
         #  Load BLayer tool
         #
@@ -143,7 +126,6 @@ class egammaBremCollectionBuilder ( egammaAlgsConf.EMBremCollectionBuilder ) :
         if DetFlags.haveRIO.pixel_on():                 
             from PixelToTPIDTool.PixelToTPIDToolConf import InDet__PixelToTPIDTool
             GSFBuildPixelToTPIDTool = InDet__PixelToTPIDTool(name = "GSFBuildPixelToTPIDTool")
-            GSFBuildPixelToTPIDTool.ReadFromCOOL = True
             ToolSvc += GSFBuildPixelToTPIDTool
         #
         #  Configrable version of loading the InDetTrackSummaryHelperTool
@@ -154,7 +136,6 @@ class egammaBremCollectionBuilder ( egammaAlgsConf.EMBremCollectionBuilder ) :
                                                                             PixelToTPIDTool = GSFBuildPixelToTPIDTool,
                                                                             TestBLayerTool  = GSFBuildTestBLayerTool,
                                                                             DoSharedHits    = False,
-                                                                            HoleSearch      = GSFBuildHoleSearchTool,
                                                                             usePixel        = DetFlags.haveRIO.pixel_on(),
                                                                             useSCT          = DetFlags.haveRIO.SCT_on(),
                                                                             useTRT          = DetFlags.haveRIO.TRT_on())
@@ -166,7 +147,7 @@ class egammaBremCollectionBuilder ( egammaAlgsConf.EMBremCollectionBuilder ) :
         GSFBuildInDetTrackSummaryTool = Trk__TrackSummaryTool(name = "GSFBuildInDetTrackSummaryTool",
                                                               InDetSummaryHelperTool = GSFBuildTrackSummaryHelperTool,
                                                               doSharedHits           = False,
-                                                              doHolesInDet           = True,
+                                                              doHolesInDet           = False,
                                                               TRT_ElectronPidTool    = GSFBuildTRT_ElectronPidTool,
                                                               PixelToTPIDTool        = GSFBuildPixelToTPIDTool)
         ToolSvc += GSFBuildInDetTrackSummaryTool
@@ -202,5 +183,7 @@ EMBremCollectionBuilder = AlgFactory( egammaBremCollectionBuilder,
                                       TrackParticleContainerName=InDetKeys.xAODTrackParticleContainer(),
                                       OutputTrkPartContainerName=egammaKeys.outputTrackParticleKey(),
                                       OutputTrackContainerName=egammaKeys.outputTrackKey(),  
-                                      DoTruth=rec.doTruth()
+                                      DoTruth=rec.doTruth(),
+                                      usePixel      = DetFlags.haveRIO.pixel_on(),
+                                      useSCT        = DetFlags.haveRIO.SCT_on()
                                       )

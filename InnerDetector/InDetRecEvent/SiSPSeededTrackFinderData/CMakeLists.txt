@@ -16,6 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkDetDescr/TrkGeometry
                           Tracking/TrkEvent/TrkPatternParameters
                           Tracking/TrkEvent/TrkTrack
+                          Tracking/TrkEvent/TrkEventUtils
                           Tracking/TrkTools/TrkToolInterfaces
                           PRIVATE
                           GaudiKernel
@@ -31,6 +32,6 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_library( SiSPSeededTrackFinderData
                    src/*.cxx
                    PUBLIC_HEADERS SiSPSeededTrackFinderData
-                   LINK_LIBRARIES InDetPrepRawData InDetReadoutGeometry MagFieldInterfaces TrkEventPrimitives TrkExInterfaces TrkGeometry TrkPatternParameters TrkTrack TrkToolInterfaces
+                   LINK_LIBRARIES InDetPrepRawData InDetReadoutGeometry MagFieldInterfaces TrkEventPrimitives TrkExInterfaces TrkGeometry TrkPatternParameters TrkTrack TrkToolInterfaces TrkEventUtils
                    PRIVATE_LINK_LIBRARIES GaudiKernel InDetRIO_OnTrack SiSpacePointsSeed TrkSurfaces TrkMaterialOnTrack TrkPrepRawData TrkRIO_OnTrack TrkSpacePoint )
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONRDOTOMUONDIGITTOOL_H
@@ -17,16 +17,8 @@
 #include "MuonDigitContainer/sTgcDigitContainer.h"
 #include "MuonRDO/MM_RawDataContainer.h"
 #include "MuonDigitContainer/MmDigitContainer.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
-class MdtIdHelper;
-class CscIdHelper;
-class RpcIdHelper;
-class TgcIdHelper;
-class sTgcIdHelper;
-class MmIdHelper;
-
-//class MDTcablingSvc;
-class IRPCcablingSvc;
 class ITGCcablingSvc;
 
 class MdtDigitContainer;
@@ -61,6 +53,7 @@ namespace Muon {
   class ITGC_RDO_Decoder;
   class ISTGC_RDO_Decoder;
   class IMM_RDO_Decoder;
+  class MuonIdHelperTool;
 }
 // Author: Ketevi A. Assamagan
 // BNL, January 24, 2004
@@ -79,31 +72,30 @@ class MuonRdoToMuonDigitTool : virtual public IMuonDigitizationTool, public AthA
   MuonRdoToMuonDigitTool(const std::string& type, const std::string& name, const IInterface* pIID);
   ~MuonRdoToMuonDigitTool();
     
-  StatusCode initialize();
-  StatusCode digitize();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode digitize()   override;
 
  private:
 
   // private method for the decoding RDO --> digits
-  StatusCode decodeMdtRDO();
-  StatusCode decodeMdt( const MdtCsm *, MdtDigitCollection*&, Identifier& );
+  StatusCode decodeMdtRDO(MdtDigitContainer*);
+  StatusCode decodeMdt(MdtDigitContainer*, const MdtCsm *, MdtDigitCollection*&, Identifier& );
 
-  StatusCode decodeCscRDO();
+  StatusCode decodeCscRDO(CscDigitContainer*);
   //  StatusCode decodeCsc( const CscRawDataCollection *, CscDigitCollection*, Identifier&, CscRDO_Decoder& decoder );
-  StatusCode decodeCsc( const CscRawDataCollection *, CscDigitCollection*&, Identifier&);
+  StatusCode decodeCsc(CscDigitContainer*, const CscRawDataCollection *, CscDigitCollection*&, Identifier&);
 
-  StatusCode decodeRpcRDO();
-  StatusCode decodeRpc( const RpcPad *, RpcDigitCollection*& );
+  StatusCode decodeRpcRDO(RpcDigitContainer*);
+  StatusCode decodeRpc(RpcDigitContainer*, const RpcPad *, RpcDigitCollection*& );
  
-  StatusCode decodeTgcRDO();
-  StatusCode decodeTgc( const TgcRdo *, Identifier&);
+  StatusCode decodeTgcRDO(TgcDigitContainer*);
+  StatusCode decodeTgc(TgcDigitContainer*, const TgcRdo *, Identifier&);
 
-  StatusCode decodeSTGC_RDO();
-  StatusCode decodeSTGC( const Muon::STGC_RawDataCollection *, sTgcDigitCollection*&, Identifier&);
+  StatusCode decodeSTGC_RDO(sTgcDigitContainer*);
+  StatusCode decodeSTGC(sTgcDigitContainer*, const Muon::STGC_RawDataCollection *, sTgcDigitCollection*&, Identifier&);
 
-  StatusCode decodeMM_RDO();
-  StatusCode decodeMM( const Muon::MM_RawDataCollection *, MmDigitCollection*&, Identifier&);
+  StatusCode decodeMM_RDO(MmDigitContainer*);
+  StatusCode decodeMM(MmDigitContainer*, const Muon::MM_RawDataCollection *, MmDigitCollection*&, Identifier&);
 
   StatusCode getTgcCabling();
 
@@ -118,27 +110,12 @@ class MuonRdoToMuonDigitTool : virtual public IMuonDigitizationTool, public AthA
   ToolHandle<Muon::ITGC_RDO_Decoder>  m_tgcRdoDecoderTool;
   ToolHandle<Muon::ISTGC_RDO_Decoder>  m_stgcRdoDecoderTool;
   ToolHandle<Muon::IMM_RDO_Decoder>  m_mmRdoDecoderTool;
-
-  // identifier helpers
-  const MdtIdHelper *   m_mdtHelper;
-  const CscIdHelper *   m_cscHelper;
-  const RpcIdHelper *   m_rpcHelper;
-  const TgcIdHelper *   m_tgcHelper;
-  const sTgcIdHelper *   m_stgcHelper;
-  const MmIdHelper *   m_mmHelper;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
   // cabling service
   //  const MDTcablingSvc  * m_mdtCabling;
-  const IRPCcablingSvc * m_rpcCabling;
   const ITGCcablingSvc * m_tgcCabling;
-
-  // digit containers
-  MdtDigitContainer *   m_mdtContainer;
-  CscDigitContainer *   m_cscContainer;
-  RpcDigitContainer *   m_rpcContainer;
-  TgcDigitContainer *   m_tgcContainer;
-  sTgcDigitContainer *   m_stgcContainer;
-  MmDigitContainer *   m_mmContainer;
 
   // algorithm properties
   bool m_decodeMdtRDO;

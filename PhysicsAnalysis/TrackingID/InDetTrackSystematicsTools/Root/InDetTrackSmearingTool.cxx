@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ROOT include(s):
@@ -8,7 +8,6 @@
 #include <TFile.h>
 
 // EDM include(s):
-#include "CxxUtils/make_unique.h"
 #include "xAODEventInfo/EventInfo.h"
 //#include "AthenaBaseComps/AthCheckMacros.h"
 
@@ -17,7 +16,7 @@
 
 using std::string;
 using std::vector;
-using CxxUtils::make_unique;
+using std::make_unique;
 
 namespace {
   using TrackCorrTool_t = CP::CorrectionTool< xAOD::TrackParticleContainer >;

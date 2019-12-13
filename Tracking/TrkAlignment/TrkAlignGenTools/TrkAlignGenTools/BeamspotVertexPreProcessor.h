@@ -20,6 +20,7 @@
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 /**
    @brief Tool used to create a collection of AlignTracks from Tracks
@@ -109,8 +110,7 @@ namespace Trk {
     /** Pointer to AlignModuleTool*/
     ToolHandle <Trk::IAlignModuleTool> m_alignModuleTool;
     
-
-    ServiceHandle<IBeamCondSvc>       m_beamCondSvc;     //!< condition service for beam-spot retrieval
+    SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 
     std::string m_PVContainerName;                       //!< the name of the primary vertex container
     bool m_runOutlierRemoval;                            //!< switch whether to run outlier logics or not

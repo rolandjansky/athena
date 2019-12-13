@@ -1,0 +1,2 @@
+ApplicationMgr.ExtSvc += { "StoreGateSvc/DetectorStore", "StoreGateSvc/HistoryStore" };
+AuditorSvc.Auditors  += { "AlgContextAuditor"};

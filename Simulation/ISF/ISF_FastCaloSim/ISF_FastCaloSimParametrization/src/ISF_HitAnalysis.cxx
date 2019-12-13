@@ -36,8 +36,6 @@
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ITHistSvc.h"
 
-#include "StoreGate/StoreGateSvc.h"
-
 #include "ISF_FastCaloSimEvent/FCS_StepInfoCollection.h"
 
 #include "EventInfo/EventInfo.h"
@@ -76,7 +74,6 @@
 
 ISF_HitAnalysis::ISF_HitAnalysis(const std::string& name, ISvcLocator* pSvcLocator)
    : AthAlgorithm(name, pSvcLocator)
-   //, m_storeGate(0)
    , m_geoModel(0)
    , m_tileInfo(0)
    , m_larEmID(0)

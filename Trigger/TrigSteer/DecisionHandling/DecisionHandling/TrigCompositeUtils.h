@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DecisionHandling_TrigCompositeUtils_h
@@ -21,6 +21,8 @@
 #include "AthContainers/AuxElement.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
+
+#include "HLTIdentifier.h"
 
 namespace TrigCompositeUtils {
 
@@ -141,6 +143,11 @@ namespace TrigCompositeUtils {
    * @brief checks if required decision ID is in the set of IDs in the container
    **/
   bool passed( DecisionID id, const DecisionIDContainer& );
+
+  /**
+   * @brief Takes a raw pointer to a Decision and returns an ElementLink to the Decision. The Decision must already be in a container in SG.
+   **/
+  ElementLink<DecisionContainer> decisionToElementLink(const Decision* d, const EventContext& ctx = Gaudi::Hive::currentContext());
   
   /**
    * @brief Links to the previous object, location of previous 'seed' decision supplied by hand
@@ -169,6 +176,29 @@ namespace TrigCompositeUtils {
    **/
   bool copyLinks(const Decision* src, Decision* dest);
 
+  /**
+   * @brief Generate the HLT::Identifier which corresponds to a specific leg of a given chain. This can be queried for its DecisionID.
+   * @param chainIdentifier The HLT::Identifier corresponding to the chain.
+   * @param counter The numeral of the leg.
+   * @return HLT::Identifier corresponding to the specified leg. Call .numeric() on this to get the DecisionID.
+   **/
+  HLT::Identifier createLegName(const HLT::Identifier& chainIdentifier, size_t counter);
+
+ /**
+   * @brief Generate the HLT::Identifier which corresponds to the chain name from the leg name. This can be queried for its DecisionID.
+   * @param chainIdentifier The HLT::Identifier corresponding to the specifci leg.
+   * @return HLT::Identifier corresponding to the chain. Call .numeric() on this to get the DecisionID.
+   **/
+  HLT::Identifier getIDFromLeg(const HLT::Identifier& legIdentifier);
+ 
+/**
+   * @brief Recognise whether the chain ID is a leg ID
+   * @param chainIdentifier The HLT::Identifier corresponding to the specifci ID.
+   * @return True if leg-ID, else false
+   **/
+  bool isLegId(const HLT::Identifier& legIdentifier);
+
+    
   /**
    * @brief traverses TC links for another TC fufilling the prerequisite specified by the filter
    * @return matching TC or nullptr
@@ -287,11 +317,18 @@ namespace TrigCompositeUtils {
   const std::string& seedString();
   /// @}
 
+  /**
+   * @brief Removes ElementLinks from the supplied vector if they do not come from the specified collection (sub-string match).
+   * @param[in] containerSGKey The StoreGate key of the collection to match against. Performs sub-string matching. Passing "" performs no filtering.
+   * @param[in,out] vector Mutible vector of ElementLinks on which to filter.
+   **/
+  template<class CONTAINER>
+  void filterLinkVectorByContainerKey(const std::string& containerSGKey, ElementLinkVector<CONTAINER>& vector);
 
   /**
    * @brief Extract features from the supplied linkVector (obtained through recursiveGetDecisions).
    * @param[in] linkVector Vector of paths through the navigation which are to be considered.
-   * @param[in] oneFeaturePerLeg True for TrigDefs::oneFeaturePerLeg. stops at the first feature (of the correct type) found per path through the navigation.
+   * @param[in] lastFeatureOfType True for TrigDefs::lastFeatureOfType. stops at the first feature (of the correct type) found per path through the navigation.
    * @param[in] featureName Optional name of feature link as saved online. The "feature" link is enforced, others may have been added. 
    * @param[in] chains Optional set of Chain IDs which features are being requested for. Used to set the ActiveState of returned LinkInfo objects.
    * @return Typed vector of LinkInfo. Each LinkInfo wraps an ElementLink to a feature and a pointer to the feature's Decision object in the navigation.
@@ -299,8 +336,9 @@ namespace TrigCompositeUtils {
   template<class CONTAINER>
   const std::vector< LinkInfo<CONTAINER> > getFeaturesOfType( 
     const std::vector<ElementLinkVector<DecisionContainer>>& linkVector, 
-    const bool oneFeaturePerLeg = true,
-    const std::string& featureName = featureString(),
+    const std::string containerSGKey = "",
+    const bool lastFeatureOfType = true,
+    const std::string& navElementLinkKey = featureString(),
     const DecisionIDContainer chainIDs = DecisionIDContainer());
 
   /**
@@ -344,6 +382,8 @@ namespace TrigCompositeUtils {
    **/  
   std::string dump( const xAOD::TrigComposite*  tc, std::function< std::string( const xAOD::TrigComposite* )> printerFnc );
 
+
+  
 
 
 

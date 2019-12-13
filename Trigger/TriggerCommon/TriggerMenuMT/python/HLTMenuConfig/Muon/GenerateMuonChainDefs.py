@@ -19,20 +19,35 @@ def generateChainConfigs(chainDict):
     listOfChainDefs=[]
 
     for subChainDict in listOfChainDicts:
-        
+        log.debug('Assembling subChainsDict %s for chain %s', len(listOfChainDefs), subChainDict['chainName'] )        
         Muon = MuonChainConfiguration(subChainDict).assembleChain() 
 
         listOfChainDefs += [Muon]
-        log.debug('length of chaindefs %s', len(listOfChainDefs) )
+
         
 
     if len(listOfChainDefs)>1:
-        theChainDef = mergeChainDefs(listOfChainDefs, chainDict)
+         ## if 'noL1' in chainDict['chainName']:
+         ##    theChainDef = mergeSerial(listOfChainDefs)
+         ## else:
+            theChainDef = mergeChainDefs(listOfChainDefs, chainDict)
     else:
         theChainDef = listOfChainDefs[0]
 
-    log.debug("theChainDef %s" , theChainDef)
-
     return theChainDef
+
+def mergeSerial(listOfChainDefs):
+
+    chaindef = listOfChainDefs[0]
+    listOfChainDefs.pop(0)
+    steps = chaindef.steps
+
+    for cdef in listOfChainDefs:
+        csteps = cdef.steps 
+        for step in csteps:
+            steps.append(step)
+
+    return chaindef
+
 
 

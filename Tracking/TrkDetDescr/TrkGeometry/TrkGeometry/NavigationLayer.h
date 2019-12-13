@@ -80,14 +80,19 @@ namespace Trk {
         const Surface* overlapSurface(const TrackParameters& tp, const Surface* sf = 0) const;
         
         /** move the Layer */
-        void moveLayer( Amg::Transform3D&  ) const override;
-
+        virtual void moveLayer( Amg::Transform3D&  )  override;
+        /** move the Layer */
+        virtual void moveLayer ATLAS_NOT_THREAD_SAFE ( Amg::Transform3D&  ) const override;
     protected:
-       /** Resize the layer to the tracking volume - not implemented */ 
-       void resizeLayer(const VolumeBounds&, double) const  override {}      
+      /** Resize the layer to the tracking volume - not implemented */ 
+       virtual void resizeLayer(const VolumeBounds&, double)  override {}      
+        /** Resize the layer to the tracking volume - not implemented */ 
+       virtual void resizeLayer ATLAS_NOT_THREAD_SAFE (const VolumeBounds&, double) const override {}      
        
        /** Resize the layer to the tracking volume - not implemented */ 
-       virtual void resizeAndRepositionLayer(const VolumeBounds&, const Amg::Vector3D&, double) const  override {}
+       virtual void resizeAndRepositionLayer(const VolumeBounds&, const Amg::Vector3D&, double)  override {}
+       /** Resize the layer to the tracking volume - not implemented */ 
+       virtual void resizeAndRepositionLayer ATLAS_NOT_THREAD_SAFE (const VolumeBounds&, const Amg::Vector3D&, double) const override {}
 
         Surface*  m_surfaceRepresentation;       //!< for the navigation Volume the surface is a private member */
       
@@ -111,8 +116,12 @@ inline double NavigationLayer::postUpdateMaterialFactor(const TrackParameters&, 
 inline const Surface* NavigationLayer::overlapSurface(const TrackParameters&, const Surface*) const
 { return 0; }
 
+inline void NavigationLayer::moveLayer( Amg::Transform3D& ) 
+{ }
+
 inline void NavigationLayer::moveLayer( Amg::Transform3D& ) const
 { }
+
 
 } // end of namespace
 

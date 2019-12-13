@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Header:
@@ -8,14 +8,17 @@
 #ifndef TRTREC_TRTHISTOGRAMMER_H
 #define TRTREC_TRTHISTOGRAMMER_H
 
-#include <list>
+
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "iPatInterfaces/ITRT_Histogrammer.h"
-#include "TRT_Rec/TRT_Fit.h"
-#include "TRT_Rec/TRT_RoadData.h"
+#include <list>
+#include <vector>
 
 class MsgStream;
+class TRT_Fit;
+class TRT_RoadData;
+
 namespace Trk
 {
     class IIntersector;
@@ -74,7 +77,6 @@ private:
     const int					m_n1Corr;
     const int					m_n2Corr;
     const double				m_wbin0;
-    const double				m_wbinPt;
 
     // for internal communication:
     TRT_Fit*					m_fit;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -28,7 +28,6 @@
 #include "TrkExUtils/TrackSurfaceIntersection.h"
 //#include "TrkParameters/AtaCylinder.h"
 //#include "TrkParameters/AtaDisc.h"
-#include "MuonRecToolInterfaces/IMuonTrackFinder.h"
 #include "MuonRecToolInterfaces/IMuonSegmentMaker.h"
 #include "TrkTrack/TrackCollection.h"
 
@@ -113,7 +112,7 @@ const Trk::Perigee* GlobalFitTool::calculateTrackParameters(const MuonSegmentLis
  
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"in GlobalFitTool::calculateTrackParameters" << endmsg;
     msg(MSG::DEBUG) << "in GlobalFitTool::calculateTrackParameters"<<endmsg;
-    const Trk::TrackParameters* Track = NULL;
+    const Trk::TrackParameters* Track = nullptr;
 
 
     double radius = 4200.;
@@ -208,8 +207,8 @@ const Trk::Perigee* GlobalFitTool::calculateTrackParameters(const MuonSegmentLis
 
 
     Amg::Vector3D    origin( pEntranceIsect->position());
-    Trk::PerigeeSurface* perigeeSurface = new Trk::PerigeeSurface(origin); 
-    const Trk::Perigee* trkPerigee = new Trk::Perigee(origin,Track->momentum(),Track->charge(),*perigeeSurface);
+    Trk::PerigeeSurface perigeeSurface(origin); 
+    const Trk::Perigee* trkPerigee = new Trk::Perigee(origin,Track->momentum(),Track->charge(),perigeeSurface);
     delete Track;
     return trkPerigee;
 }

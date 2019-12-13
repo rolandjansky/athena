@@ -24,6 +24,7 @@
 #include "TrkPatternParameters/PatternTrackParameters.h"
 #include "TrkPatternParameters/NoiseOnSurface.h"
 #include "TrkTrack/TrackStateOnSurface.h"
+#include "TrkEventUtils/PRDtoTrackMap.h"
 
 #include <any>
 
@@ -75,9 +76,9 @@ namespace InDet{
       bool isNextClusterHoleF(bool&,double&);
 
       ///////////////////////////////////////////////////////////////////
-      // Methods update with cluster information
+      /// @name Methods update with cluster information
       ///////////////////////////////////////////////////////////////////
- 
+      //@{ 
       bool addCluster
 	(Trk::PatternTrackParameters&,Trk::PatternTrackParameters&,double&);
       bool addCluster
@@ -87,11 +88,12 @@ namespace InDet{
 	(Trk::PatternTrackParameters&,
 	 Trk::PatternTrackParameters&,
 	 Trk::PatternTrackParameters&);
+      //@}
 
       ///////////////////////////////////////////////////////////////////
-      // Methods noise calculation
+      /// @name Methods noise calculation
       ///////////////////////////////////////////////////////////////////
-
+      //@{
       void noiseProduction
 	(int,const Trk::PatternTrackParameters&);
       void noiseInitiate();
@@ -123,14 +125,18 @@ namespace InDet{
       const Trk::Surface*  surface()  const {return m_surface;}
       const InDet::SiClusterLink_xk& linkF (int i) const {return m_linkF[i];}
       const InDet::SiClusterLink_xk& linkB (int i) const {return m_linkB[i];}
+      //@}
  
       ///////////////////////////////////////////////////////////////////
-      // Main methods
+      /// @name Main methods
       ///////////////////////////////////////////////////////////////////
+      //@{
 
-      // T = InDet::SiClusterCollection::const_iterator or
-      //     InDet::PixelClusterCollection::const_iterator or
-      //     InDet::SCT_ClusterCollection::const_iterator
+      /**
+       * T = InDet::SiClusterCollection::const_iterator or
+       *     InDet::PixelClusterCollection::const_iterator or
+       *     InDet::SCT_ClusterCollection::const_iterator
+       */
       template <typename T>
       void set(int st,
 	       const InDet::SiDetElementBoundaryLink_xk*& dl,
@@ -141,24 +147,28 @@ namespace InDet{
       void setTools(const InDet::SiTools_xk*); 
       void setParameters(); 
       void bremNoiseModel();
+      //@}
 
       ///////////////////////////////////////////////////////////////////
-      // Update first trajectory element on the trajectory with track 
-      // parameters
+      /// @name Update first trajectory element on the trajectory with
+      /// track parameters
       ///////////////////////////////////////////////////////////////////
-
+      //@{
       bool firstTrajectorElement(const Trk::TrackParameters&);
       bool firstTrajectorElement();
+      //@}
 
       ///////////////////////////////////////////////////////////////////
-      // Forward propagation  
+      // @name Forward propagation  
       ///////////////////////////////////////////////////////////////////
-
+      //@{
       bool ForwardPropagationWithoutSearch(SiTrajectoryElement_xk&);
       bool ForwardPropagationWithSearch(SiTrajectoryElement_xk&);
-      // T = InDet::SiClusterCollection::const_iterator or
-      //     InDet::PixelClusterCollection::const_iterator or
-      //     InDet::SCT_ClusterCollection::const_iterator
+      /**
+       * T = InDet::SiClusterCollection::const_iterator or
+       *     InDet::PixelClusterCollection::const_iterator or
+       *     InDet::SCT_ClusterCollection::const_iterator
+       */
       template <typename T>
         bool ForwardPropagationForClusterSeach
 	(int n,
@@ -166,10 +176,13 @@ namespace InDet{
 	 const InDet::SiDetElementBoundaryLink_xk*& dl,
 	 const T& sb,
 	 const T& se);
-      
-      // T = InDet::SiClusterCollection::const_iterator or
-      //     InDet::PixelClusterCollection::const_iterator or
-      //     InDet::SCT_ClusterCollection::const_iterator
+      //@}
+
+      /**
+       * T = InDet::SiClusterCollection::const_iterator or
+       *     InDet::PixelClusterCollection::const_iterator or
+       *     InDet::SCT_ClusterCollection::const_iterator
+       */
       template <typename T>
         void CloseClusterSeach
 	(Trk::PatternTrackParameters& Tpa,
@@ -180,22 +193,24 @@ namespace InDet{
       void eraseClusterForwardPropagation();
 
       ///////////////////////////////////////////////////////////////////
-      // For last detector element initiate smoother  
+      /// @name For last detector element initiate smoother  
       ///////////////////////////////////////////////////////////////////
-
+      //@{
       bool lastTrajectorElement();
+      //@}
 
       ///////////////////////////////////////////////////////////////////
-      // Backward propagation for smoother  
+      /// @name Backward propagation for smoother  
       ///////////////////////////////////////////////////////////////////
-
+      //@{
       bool BackwardPropagationSmoother(SiTrajectoryElement_xk&,bool);
       bool BackwardPropagationFilter  (SiTrajectoryElement_xk&);
+      //@}
 
       ///////////////////////////////////////////////////////////////////
-      // Search clusters compatible with track  
+      /// @name Search clusters compatible with track  
       ///////////////////////////////////////////////////////////////////
-
+      //@{
       int searchClusters                (Trk::PatternTrackParameters&,SiClusterLink_xk*);
       template <typename T> 
         int searchClustersSub             (Trk::PatternTrackParameters&,SiClusterLink_xk*);
@@ -206,93 +221,105 @@ namespace InDet{
         int searchClustersWithoutStereoSCT(Trk::PatternTrackParameters&,SiClusterLink_xk*);
       template <typename T>
         int searchClustersWithStereo      (Trk::PatternTrackParameters&,SiClusterLink_xk*);
+      //@}
 
       ///////////////////////////////////////////////////////////////////
-      // Search only clusters without track assosiation compatible with track  
+      /// @name Search only clusters without track assosiation compatible with track  
       ///////////////////////////////////////////////////////////////////
+      //@{
+      template <typename T>
+        int searchClustersWithoutStereoAssPIX(Trk::PatternTrackParameters&,SiClusterLink_xk*, const Trk::PRDtoTrackMap &);
+      template <typename T>
+        int searchClustersWithoutStereoAssSCT(Trk::PatternTrackParameters&,SiClusterLink_xk*, const Trk::PRDtoTrackMap &);
+      template <typename T>
+        int searchClustersWithStereoAss      (Trk::PatternTrackParameters&,SiClusterLink_xk*, const Trk::PRDtoTrackMap &);
+      //@}
 
-      template <typename T>
-        int searchClustersWithoutStereoAssPIX(Trk::PatternTrackParameters&,SiClusterLink_xk*); 
-      template <typename T>
-        int searchClustersWithoutStereoAssSCT(Trk::PatternTrackParameters&,SiClusterLink_xk*);
-      template <typename T>
-        int searchClustersWithStereoAss      (Trk::PatternTrackParameters&,SiClusterLink_xk*);
-
       ///////////////////////////////////////////////////////////////////
-      // Is difference between forward and backward propagation   
+      /// @name Is difference between forward and backward propagation   
       ///////////////////////////////////////////////////////////////////
-      
+      //@{
       bool difference() const;
+      //@}
 
       ///////////////////////////////////////////////////////////////////
-      // TrackStateOnSurface production  
+      // @name TrackStateOnSurface production  
       ///////////////////////////////////////////////////////////////////
-
+      //@{
       Trk::TrackStateOnSurface* trackStateOnSurface(bool,bool,bool,int);
       Trk::TrackStateOnSurface* trackSimpleStateOnSurface(bool,bool,int);
       Trk::TrackStateOnSurface* trackPerigeeStateOnSurface();
+      //@}
 
       ///////////////////////////////////////////////////////////////////
-      // TrackParameters production  
+      /// @name TrackParameters production  
       ///////////////////////////////////////////////////////////////////
-
+      //@{
       const Trk::TrackParameters* trackParameters(bool,int);
       const Trk::TrackParameters* trackParametersWithNewDirection(bool,int);
       const Trk::TrackParameters* trackParameters(Trk::PatternTrackParameters&,bool);
+      //@}
 
       ///////////////////////////////////////////////////////////////////
-      // Initiate state
+      // @name Initiate state
       ///////////////////////////////////////////////////////////////////
-
+      //@{
       bool initiateState(Trk::PatternTrackParameters&,Trk::PatternTrackParameters&);
+      //@}
 
       ///////////////////////////////////////////////////////////////////
-      // Last detector elements with clusters
+      // @name Last detector elements with clusters
       ///////////////////////////////////////////////////////////////////
-      
+      //@{
       void lastActive();
+      //@}
 
       ///////////////////////////////////////////////////////////////////
-      // Step of trajectory calculation
+      /// @name Step of trajectory calculation
       ///////////////////////////////////////////////////////////////////
-      
+      //@{
       double step(SiTrajectoryElement_xk&);
       double stepToPerigee();
+      //@}
 
       ///////////////////////////////////////////////////////////////////
-      // Global position of the track parameters
+      /// @name Global position of the track parameters
       ///////////////////////////////////////////////////////////////////
-
+      //@{
       Amg::Vector3D globalPosition();
+      //@}
 
       ///////////////////////////////////////////////////////////////////
-      // Quality of the trajectory element
+      /// @name Quality of the trajectory element
       ///////////////////////////////////////////////////////////////////
-
+      //@{
       double quality(int&) const;
+      //@}
 
       ///////////////////////////////////////////////////////////////////
-      // Propagate parameters with covariance
+      /// @name Propagate parameters with covariance
       ///////////////////////////////////////////////////////////////////
-
+      //@{
       bool propagate
 	(Trk::PatternTrackParameters  &,
 	 Trk::PatternTrackParameters  &,
 	 double                       &);
+      //@}
 
+      ////////////////////////////////////////////////////////////////////
+      /// @name Propagate parameters without covariance
       ///////////////////////////////////////////////////////////////////
-      // Propagate parameters without covariance
-      ///////////////////////////////////////////////////////////////////
-
+      //@{
       bool propagateParameters
 	(Trk::PatternTrackParameters&,
 	 Trk::PatternTrackParameters&,
 	 double                     &);
+      //@}
 
       ///////////////////////////////////////////////////////////////////
-      // Work methods for propagation
+      /// @name Work methods for propagation
       ///////////////////////////////////////////////////////////////////
-
+      //@{
       void transformPlaneToGlobal
 	(bool,Trk::PatternTrackParameters&,double*);
       bool transformGlobalToPlane
@@ -301,11 +328,12 @@ namespace InDet{
 	(bool,double*);
       bool straightLineStepToPlane
 	(bool,double*);
+      //@}
 
     private:
       
       ///////////////////////////////////////////////////////////////////
-      // Private Data
+      /// Private Data
       ///////////////////////////////////////////////////////////////////
  
       enum IteratorType {
@@ -318,9 +346,9 @@ namespace InDet{
       bool                                        m_stereo      ;
       bool                                        m_utsos[3]    ;
       bool                                        m_fieldMode   ;
-      bool                                        m_useassoTool ;  // Use assosiation tool
+      bool                                        m_useassoTool = false ;
       int                                         m_status      ;  
-      int                                         m_detstatus   ; // 0 (no clusters) 
+      int                                         m_detstatus   ; //!< 0 (no clusters) 
       int                                         m_inside      ;
       int                                         m_ndist       ;
       int                                         m_nlinksF     ;
@@ -359,8 +387,18 @@ namespace InDet{
       const InDetDD::SiDetectorElement*           m_detelement  ;
       const InDet::SiDetElementBoundaryLink_xk*   m_detlink     ;
       const Trk::Surface*                         m_surface     ;
+      /**
+       * @name Data members using std::any
+       * std::any is used to cover 
+       * - InDet::PixelClusterCollection::const_iterator
+       * - InDet::SCT_ClusterCollection::const_iterator
+       * - InDet::SiClusterCollection::const_iterator
+       * used in SiTrajectoryElement_xk.cxx.
+       */
+      //@{
       std::any                                    m_sibegin     ;
       std::any                                    m_siend       ;
+      //@}
       const InDet::SiCluster*                     m_cluster     ;
       const InDet::SiCluster*                     m_clusterOld  ;
       const InDet::SiCluster*                     m_clusterNoAdd;
@@ -376,15 +414,15 @@ namespace InDet{
       const MagField::IMagFieldSvc*               m_fieldService;
       const Trk::IPatternParametersUpdator*       m_updatorTool ;
       const Trk::IPatternParametersPropagator*    m_proptool    ;
-      const Trk::IPRD_AssociationTool*            m_assoTool    ; 
       const Trk::IRIO_OnTrackCreator*             m_riotool     ;
+      const Trk::PRDtoTrackMap                   *m_prdToTrackMap;
       Trk::TrackStateOnSurface*                   m_tsos[3]     ;
       Amg::MatrixX                                m_covariance  ;
 
       IteratorType m_itType{Invalid};
 
       ///////////////////////////////////////////////////////////////////
-      // Methods
+      /// Private Methods
       ///////////////////////////////////////////////////////////////////
       
       void patternCovariances(const InDet::SiCluster*,double&,double&,double&);

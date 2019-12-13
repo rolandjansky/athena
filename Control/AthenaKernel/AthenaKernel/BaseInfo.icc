@@ -53,6 +53,7 @@ struct Bases
   typedef NoBase Base1;
   typedef NoBase Base2;
   typedef NoBase Base3;
+  typedef NoBase Base4;
 };
 
 
@@ -203,6 +204,7 @@ struct BaseInfo_init
     BaseInfo_init<typename Bases<B>::Base1>::init (c, is_virtual);
     BaseInfo_init<typename Bases<B>::Base2>::init (c, is_virtual);
     BaseInfo_init<typename Bases<B>::Base3>::init (c, is_virtual);
+    BaseInfo_init<typename Bases<B>::Base4>::init (c, is_virtual);
   }
 };
 

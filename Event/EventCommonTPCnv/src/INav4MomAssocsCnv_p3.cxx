@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // INav4MomAssocsCnv_p3.cxx 
@@ -22,22 +22,11 @@
 // EventCommonTPCnv includes
 #include "EventCommonTPCnv/INav4MomAssocsCnv_p3.h"
 
+#include "AthenaKernel/getThinningCache.h"
+
 // some useful typedefs
 typedef INav4MomAssocs::object_link INav4MomLink_t;
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
-
-// Destructor
-///////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
 
 #define LOG_MSG(log,lvl,msg) \
    log << lvl; \
@@ -46,7 +35,7 @@ typedef INav4MomAssocs::object_link INav4MomLink_t;
 void 
 INav4MomAssocsCnv_p3::persToTrans( const INav4MomAssocs_p3* pers, 
                                    INav4MomAssocs* trans, 
-                                   MsgStream& msg )
+                                   MsgStream& msg ) const
 {
    LOG_MSG(msg, MSG::DEBUG, "Loading INav4MomAssocs from persistent state..." );
 
@@ -85,7 +74,7 @@ INav4MomAssocsCnv_p3::persToTrans( const INav4MomAssocs_p3* pers,
 void 
 INav4MomAssocsCnv_p3::transToPers( const INav4MomAssocs* trans, 
                                    INav4MomAssocs_p3* pers, 
-                                   MsgStream& msg )
+                                   MsgStream& msg ) const
 {
   LOG_MSG(msg, MSG::DEBUG, "Creating persistent state of INav4MomAssocs...");
   
@@ -98,6 +87,8 @@ INav4MomAssocsCnv_p3::transToPers( const INav4MomAssocs* trans,
     ++j;
   }
   
+  const SG::ThinningCache* cache = SG::getThinningCache();
+
   j = 0;
   pers->m_assocs.resize( trans->size() );
   INav4MomAssocs::object_iterator begObj = trans->beginObject();
@@ -106,7 +97,7 @@ INav4MomAssocsCnv_p3::transToPers( const INav4MomAssocs* trans,
   {
     const INav4MomLink_t& key = begObj.getObjectLink();
     INav4MomAssocs_p3::AssocElem_t& persAssoc = pers->m_assocs[j];
-    m_inav4MomLinkCnv.transToPers( &key, &persAssoc.first, msg );
+    m_inav4MomLinkCnv.transToPers( key, persAssoc.first, cache, msg );
     persAssoc.second.resize( begObj.getNumberOfAssociations() );
 
     INav4MomAssocs::asso_iterator begAsso = begObj.getFirstAssociation();
@@ -114,7 +105,7 @@ INav4MomAssocsCnv_p3::transToPers( const INav4MomAssocs* trans,
     size_t i = 0;
     for (; begAsso != endAsso; ++begAsso) {
       const INav4MomAssocs::asso_link asso = begAsso.getLink();
-      m_inav4MomLinkCnv.transToPers( &asso, &persAssoc.second[i], msg );
+      m_inav4MomLinkCnv.transToPers( asso, persAssoc.second[i], cache, msg );
       ++i;
     }
 
@@ -124,19 +115,3 @@ INav4MomAssocsCnv_p3::transToPers( const INav4MomAssocs* trans,
   LOG_MSG(msg, MSG::DEBUG, "Created persistent state of INav4MomAssocs [OK]"); 
   return;
 }
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 

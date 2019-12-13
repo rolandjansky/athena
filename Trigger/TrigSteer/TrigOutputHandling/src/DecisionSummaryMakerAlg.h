@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGOUTPUTHANDLING_DECISIONTSUMMARYMAKERALG_H
-#define TRIGOUTPUTHANDLING_DECISIONTSUMMARYMAKERALG_H
+#ifndef TRIGOUTPUTHANDLING_DECISIONSUMMARYMAKERALG_H
+#define TRIGOUTPUTHANDLING_DECISIONSUMMARYMAKERALG_H
 
 #include <string>
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
@@ -12,7 +12,7 @@
 
 /**
  * @class DecisionsSummaryMakerAlg
- * @brief Executes after both the first-pass and secon-pass (rerun) chains have finished.
+ * @brief Executes after both the first-pass and second-pass (rerun) chains have finished.
  *        Makes decision objects containing decision IDs per passing chain, prescaled chain and rerun chain.
  *        Sends end-of-HLT processing trigger to cost monitoring. Writes HLTNav_Summary container.
  **/
@@ -27,13 +27,13 @@ public:
 
 private:
   SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_summaryKey{ this, "DecisionsSummaryKey", "HLTNav_Summary", 
-      "location of final decision" };
+      "Location of final decision" };
 
   SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_finalDecisionKeys{ this, "FinalDecisionKeys", {}, 
       "Final stage of all decisions" };
 
   SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_costWriteHandleKey { this, "CostWriteHandleKey", "HLT_TrigCostContainer",
-    "Trig composite collections summarising the HLT execution" };
+    "TrigComposite collections summarising the HLT execution" };
 
   SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_l1SummaryKey { this, "L1DecoderSummaryKey", "L1DecoderSummary",
     "Chains status after L1 and prescaling" };
@@ -51,4 +51,4 @@ private:
 
 };
 
-#endif // TRIGOUTPUTHANDLING_DECISIONSSUMMARYMAKERALG_H
+#endif // TRIGOUTPUTHANDLING_DECISIONSUMMARYMAKERALG_H

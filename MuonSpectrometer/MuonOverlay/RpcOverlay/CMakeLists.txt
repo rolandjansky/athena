@@ -22,8 +22,7 @@ find_package( GTest )
 atlas_add_test( RpcOverlay_test
                 SOURCES src/*.cxx test/RpcOverlay_test.cxx
                 INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
-                LINK_LIBRARIES GaudiKernel TestTools MuonDigitContainer MuonOverlayBase StoreGateLib SGtests MuonIdHelpersLib ${GTEST_LIBRARIES}
-                EXTRA_PATTERNS "[0-9]+ ms")
+                LINK_LIBRARIES GaudiKernel TestTools MuonDigitContainer MuonOverlayBase StoreGateLib SGtests MuonIdHelpersLib ${GTEST_LIBRARIES} )
 
 # Component(s) in the package:
 atlas_add_component( RpcOverlay

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TLorentzVector.h"
@@ -52,9 +52,7 @@ using namespace std;
 
 int fGetIndex(float myvar,Float_t *vvarBin, Int_t nbins);
 
-TH2F fBinning(string myfile, Int_t nxbins, Float_t *xbins, Int_t nybins, Float_t *ybins, Int_t nxbinsAlpha, Float_t *xbinsAlpha, Int_t nybinsR, Float_t *ybinsR, string mycase, float layer, string dopart, TH1F &halpha, TH1F &hdr, TH1F &halphaE, TH1F &hdrE, TMatrixD &mEnergy, TMatrixD &mxEnergy, TMatrixD &myEnergy);
-
-TH2F fBinning(string myfile, Int_t nxbins, Float_t *xbins, Int_t nybins, Float_t *ybins, Int_t nxbinsAlpha, Float_t *xbinsAlpha, Int_t nybinsR, Float_t *ybinsR, string mycase, float layer, string doPart, TH1F &halpha, TH1F& hdr, TH1F &halphaE, TH1F &hdrE, TMatrixD &mEnergy, TMatrixD &mxEnergy, TMatrixD &myEnergy){
+TH2F fBinning(const string& myfile, Int_t nxbins, Float_t *xbins, Int_t nybins, Float_t *ybins, Int_t nxbinsAlpha, Float_t *xbinsAlpha, Int_t nybinsR, Float_t *ybinsR, const string& mycase, float layer, const string& doPart, TH1F &halpha, TH1F& hdr, TH1F &halphaE, TH1F &hdrE, TMatrixD &mEnergy, TMatrixD &mxEnergy, TMatrixD &myEnergy){
 
   TH1::SetDefaultSumw2(kTRUE);
 
@@ -202,19 +200,19 @@ TH2F fBinning(string myfile, Int_t nxbins, Float_t *xbins, Int_t nybins, Float_t
     T->GetEntry(i);
     
     // One energy histo per event
-    char *histname = new char[10];
+    char histname[80];
     sprintf(histname, "halphadrEvec2_%d",i);
     halphadrEvec2[i] = new TH2F(histname,"",nxbinsAlpha-1,xbinsAlpha,nybinsR-1,ybinsR) ;
     
-    char *histname2 = new char[10];
+    char histname2[80];
     sprintf(histname2, "halphaEvec_%d",i);
     halphaEvec[i] = new TH1F(histname2,"",nxbinsAlpha-1,xbinsAlpha) ;
 
-    char *histname3 = new char[10];
+    char histname3[80];
     sprintf(histname3, "hdrEvec_%d",i);
     hdrEvec[i] = new TH1F(histname3,"",nybinsR-1,ybinsR) ;
 
-    char *histname4 = new char[10];
+    char histname4[80];
     sprintf(histname4, "hdrEAllvec_%d",i);
     hdrEAllvec[i] = new TH1F(histname4,"",40,0,4) ;
 

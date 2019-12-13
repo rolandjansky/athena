@@ -7,6 +7,15 @@ def LArCollisionTimeMonConfig(inputFlags):
     from AthenaMonitoring import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags,'LArCollisionTimeMonCfg')
 
+    # need to set up the following
+    from LArCellRec.LArCollisionTimeConfig import LArCollisionTimeCfg
+    cfg = LArCollisionTimeCfg(inputFlags)
+    from CaloTools.CaloNoiseCondAlgConfig import CaloNoiseCondAlgCfg
+    cfg.merge(CaloNoiseCondAlgCfg(inputFlags))
+    from LArGeoAlgsNV.LArGMConfig import LArGMCfg
+    cfg.merge(LArGMCfg(inputFlags))
+    from TileGeoModel.TileGMConfig import TileGMCfg
+    cfg.merge(TileGMCfg(inputFlags))
 
     from LArMonitoring.LArMonitoringConf import LArCollisionTimeMonAlg
     larCollTimeMonAlg = helper.addAlgorithm(LArCollisionTimeMonAlg,'larCollTimeMonAlg')
@@ -17,8 +26,10 @@ def LArCollisionTimeMonConfig(inputFlags):
     larCollTimeMonAlg.CollTimeGroupName=collTimeGroupName
 
     from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
-    larCollTimeMonAlg.BunchCrossingTool = BunchCrossingTool()
-
+    # FIXME when bunch crossing tool config is improved
+    bct =  BunchCrossingTool(inputFlags.Common.bunchCrossingSource)
+    cfg.addPublicTool(bct)
+    larCollTimeMonAlg.BunchCrossingTool = bct
 
     collTimeGroup = helper.addGroup(
         larCollTimeMonAlg,
@@ -192,7 +203,8 @@ def LArCollisionTimeMonConfig(inputFlags):
         pass #end of if isOnline
 
 
-    return helper.result()
+    cfg.merge(helper.result())
+    return cfg
     
 
 if __name__=='__main__':
@@ -252,7 +264,7 @@ if __name__=='__main__':
     collmon.getEventAlgo("larCollTimeMonAlg").nCells=1
     collmon.getEventAlgo("larCollTimeMonAlg").TrainFrontDistance=30
     cfg.merge(collmon) 
-    f=open("CollTimeMon.pkl","w")
+    f=open("CollTimeMon.pkl","wb")
     cfg.store(f)
     f.close()
    

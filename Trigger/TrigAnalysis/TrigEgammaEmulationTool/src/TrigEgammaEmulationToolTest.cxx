@@ -44,16 +44,6 @@ StatusCode TrigEgammaEmulationToolTest::initialize() {
       ATH_MSG_ERROR("Could not retrieve Trigger Decision Tool! Can't work");
       return StatusCode::FAILURE;
   }
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
-  if(sc.isFailure()) {
-      ATH_MSG_ERROR( "Unable to locate Service StoreGateSvc" );
-      return sc;
-  }
-
-  if(sc.isFailure()){
-    ATH_MSG_ERROR("FAILURE to initialize the emulator tool!");
-    return sc;
-  }
 
   m_accept.addCut("L1Calo","");
   m_accept.addCut("L2Calo","");
@@ -86,7 +76,7 @@ float TrigEgammaEmulationToolTest::ratio(float a, float b) {
 //**********************************************************************
 StatusCode TrigEgammaEmulationToolTest::execute() {  
   
-  if ( (m_storeGate->retrieve(m_offElectrons,"Electrons")).isFailure() ){
+  if ( (evtStore()->retrieve(m_offElectrons,"Electrons")).isFailure() ){
     ATH_MSG_ERROR("Failed to retrieve offline Electrons ");
     return StatusCode::FAILURE;
   }

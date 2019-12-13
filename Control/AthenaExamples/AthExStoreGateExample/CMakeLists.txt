@@ -60,5 +60,5 @@ atlas_add_dictionary( AthExStoreGateExampleDict
                       LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel SGTools TestTools AthContainers AthLinks AthenaBaseComps CxxUtils PileUpToolsLib StoreGateLib SGtests EventInfo xAODEventInfo GaudiKernel SGTutorialLib SGTutorial )
 
 # Install files from the package:
-atlas_install_joboptions( share/StoreGateExample_Gen_jobOptions.txt share/StoreGateExample_Gen_jobOptions.py share/StoreGateExample_Del_jobOptions.py share/StoreGateExample_Reentrant_jobOptions.py share/dflow_jobo.py share/StoreGateHiveExample.py )
+atlas_install_joboptions( share/StoreGateExample_Gen_jobOptions.txt share/StoreGateExample_Gen_jobOptions.py share/StoreGateExample_Del_jobOptions.py share/StoreGateExample_Reentrant_jobOptions.py share/dflow_jobo.py share/StoreGateHiveExample.py share/HandleTest_jobOptions.py )
 

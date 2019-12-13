@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthExDecayCnv_p1.cxx 
@@ -14,6 +14,7 @@
 
 // Framework includes
 #include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getThinningCache.h"
 
 // AthExThinning includes
 #include "AthExThinning/AthExDecay.h"
@@ -75,20 +76,27 @@ AthExDecayCnv_p1::transToPers( const AthExDecay* transObj,
       << "Creating persistent state of Decay..."
       << endmsg;
 
+  const SG::ThinningCache* thinningCache =
+    SG::getThinningCache();
+
   // convert the ElementLink<Particles>
-  m_partLinkCnv.transToPers( &transObj->m_p1,
-			     &persObj->m_p1,
+  m_partLinkCnv.transToPers( transObj->m_p1,
+			     persObj->m_p1,
+                             thinningCache,
 			     msg );
-  m_partLinkCnv.transToPers( &transObj->m_p2,
-			     &persObj->m_p2,
+  m_partLinkCnv.transToPers( transObj->m_p2,
+			     persObj->m_p2,
+                             thinningCache,
 			     msg );
 
   // convert the ElementLink<Particles> (known to be thinned away)
-  m_partLinkCnv.transToPers( &transObj->m_l1,
-			     &persObj->m_l1,
+  m_partLinkCnv.transToPers( transObj->m_l1,
+			     persObj->m_l1,
+                             thinningCache,
 			     msg );
-  m_partLinkCnv.transToPers( &transObj->m_l2,
-			     &persObj->m_l2,
+  m_partLinkCnv.transToPers( transObj->m_l2,
+			     persObj->m_l2,
+                             thinningCache,
 			     msg );
   msg << MSG::DEBUG 
       << "Created persistent state of Decay [OK]"

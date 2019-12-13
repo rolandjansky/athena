@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 """
 #
@@ -24,7 +26,7 @@ from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummar
 #                                                       )
 # ToolSvc += InDetTrigFastTrackSummaryTool
 # if (InDetTrigFlags.doPrintConfigurables()):
-#     print      InDetTrigFastTrackSummaryTool
+#     print      (InDetTrigFastTrackSummaryTool)
 
 
 # from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigHoleSearchTool
@@ -36,7 +38,7 @@ from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummar
 #                                                       )
 # ToolSvc += InDetTrigTrackSummaryToolWithHoleSearch
 # if (InDetTrigFlags.doPrintConfigurables()):
-#     print      InDetTrigTrackSummaryToolWithHoleSearch
+#     print      (InDetTrigTrackSummaryToolWithHoleSearch)
 
 
 from InDetTrigRecExample.InDetTrigConfigRecLoadTools import \
@@ -56,31 +58,33 @@ InDetTrigParticleCreatorTool = \
 
 ToolSvc += InDetTrigParticleCreatorTool
 if (InDetTrigFlags.doPrintConfigurables()):
-    print InDetTrigParticleCreatorTool
+    print (InDetTrigParticleCreatorTool)
 
 InDetTrigParticleCreatorToolWithSummary = \
     Trk__TrackParticleCreatorTool( name = "InDetTrigParticleCreatorToolWithSummary",
                                    Extrapolator = InDetTrigExtrapolator,
                                    TrackSummaryTool = InDetTrigTrackSummaryToolSharedHits,
                                    KeepParameters = True,
-                                   ForceTrackSummaryUpdate = True,
+                                   ComputeAdditionalInfo = True,
+                                   UpdateTrack = False
                                    )
 
 ToolSvc += InDetTrigParticleCreatorToolWithSummary
 if (InDetTrigFlags.doPrintConfigurables()):
-    print InDetTrigParticleCreatorToolWithSummary
+    print (InDetTrigParticleCreatorToolWithSummary)
 
 InDetTrigParticleCreatorToolWithSummaryTRTPid = \
     Trk__TrackParticleCreatorTool( name = "InDetTrigParticleCreatorToolWithSummaryTRTPid",
                                    Extrapolator = InDetTrigExtrapolator,
                                    TrackSummaryTool = InDetTrigTrackSummaryToolSharedHitsWithTRTPid,
                                    KeepParameters = True,
-                                   ForceTrackSummaryUpdate = True,
+                                   ComputeAdditionalInfo = True,
+                                   UpdateTrack = False
                                    )
 
 ToolSvc += InDetTrigParticleCreatorToolWithSummaryTRTPid
 if (InDetTrigFlags.doPrintConfigurables()):
-    print InDetTrigParticleCreatorToolWithSummaryTRTPid
+    print (InDetTrigParticleCreatorToolWithSummaryTRTPid)
 
 
 InDetTrigParticleCreatorToolParams = \
@@ -88,21 +92,23 @@ InDetTrigParticleCreatorToolParams = \
                                    Extrapolator = InDetTrigExtrapolator,
                                    TrackSummaryTool = InDetTrigTrackSummaryToolSharedHits,
                                    KeepParameters = True,
+                                   UpdateTrack = False
                                    )
 
 ToolSvc += InDetTrigParticleCreatorToolParams
 if (InDetTrigFlags.doPrintConfigurables()):
-    print InDetTrigParticleCreatorToolParams
+    print (InDetTrigParticleCreatorToolParams)
 
 InDetTrigParticleCreatorToolFTF = \
     Trk__TrackParticleCreatorTool( name = "InDetTrigParticleCreatorToolFTF",
                                    Extrapolator = InDetTrigExtrapolator,
                                    TrackSummaryTool = InDetTrigFastTrackSummaryTool,
                                    KeepParameters = True,
-                                   ForceTrackSummaryUpdate = False,
+                                   ComputeAdditionalInfo = True,
+                                   UpdateTrack = False
                                    )
 
 ToolSvc += InDetTrigParticleCreatorToolFTF
 if (InDetTrigFlags.doPrintConfigurables()):
-    print InDetTrigParticleCreatorToolFTF
+    print (InDetTrigParticleCreatorToolFTF)
 

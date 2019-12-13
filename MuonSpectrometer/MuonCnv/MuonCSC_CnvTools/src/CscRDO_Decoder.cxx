@@ -11,7 +11,6 @@
 Muon::CscRDO_Decoder::CscRDO_Decoder
 ( const std::string& type, const std::string& name,const IInterface* parent )
   :  base_class(type,name,parent),
-     m_cscHelper(0),
      m_cabling( "CSCcablingSvc" ,name),
      m_cscCalibTool( "CscCalibTool") {
   
@@ -23,14 +22,7 @@ StatusCode Muon::CscRDO_Decoder::initialize()
   
   ATH_MSG_DEBUG ( "CscRDO_Decoder::initialize"); 
   
-  // Get the CSC id helper from the detector store
-  if (detStore()->retrieve(m_cscHelper, "CSCIDHELPER").isFailure()) {
-    ATH_MSG_FATAL ( "CscRDO_Decoder : Could not get CscIdHelper !" );
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG ( "CscRDO_Decoder :  Found the CscIdHelper. " );
-  }
-  
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
   // get the cabling service
   if ( m_cabling.retrieve().isFailure() )  {
@@ -54,7 +46,7 @@ StatusCode Muon::CscRDO_Decoder::initialize()
   ATH_MSG_DEBUG (" Initialization is done!");
   
   /** initialize CSC Id Helper :: it is needed now! */
-  m_rodReadOut.set(m_cscHelper);
+  m_rodReadOut.set(m_muonIdHelperTool.get());
   m_rodReadOut.setChamberBitVaue(1);
 
   
@@ -66,6 +58,7 @@ void Muon::CscRDO_Decoder::getDigit(const CscRawData * rawData,
                                     Identifier& moduleId, Identifier& channelId, 
                                     double& adc, double& time) const {
 
+  std::lock_guard<std::mutex> lockGuard(m_mutex);
   // get the raw data
   uint32_t address = rawData->address();
 
@@ -83,8 +76,9 @@ void Muon::CscRDO_Decoder::getDigit(const CscRawData * rawData,
 
 
 
-Identifier Muon::CscRDO_Decoder::stationIdentifier(const CscRawData * rawData) const
+Identifier Muon::CscRDO_Decoder::stationIdentifier(const CscRawData * rawData) const 
 {
+  std::lock_guard<std::mutex> lockGuard(m_mutex);
   /** get the raw data */
   uint32_t address = rawData->address();
 
@@ -96,8 +90,9 @@ Identifier Muon::CscRDO_Decoder::stationIdentifier(const CscRawData * rawData) c
   return m_rodReadOut.decodeAddress();
 }
 
-Identifier Muon::CscRDO_Decoder::channelIdentifier(const CscRawData * rawData, int j) const
+Identifier Muon::CscRDO_Decoder::channelIdentifier(const CscRawData * rawData, int j) const 
 {
+  std::lock_guard<std::mutex> lockGuard(m_mutex);
   /** get the raw data */
   uint32_t address = rawData->address();
 
@@ -110,7 +105,7 @@ Identifier Muon::CscRDO_Decoder::channelIdentifier(const CscRawData * rawData, i
   
   ATH_MSG_DEBUG ( " CscRDO_Decoder OUTPUT ::: "
                   << m_timeOffset << "  " << m_samplingTime << " " << m_signalWidth << " "
-                  << m_cscHelper << "  " << m_detdescr << "  " << address << "   "
+                  << "  " << m_detdescr << "  " << address << "   "
                   << moduleId << " " << j );
 
   return m_rodReadOut.decodeAddress(moduleId, j);

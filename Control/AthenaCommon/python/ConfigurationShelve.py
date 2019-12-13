@@ -49,7 +49,10 @@ def _monkeypatch_bug_34752():
          del GaudiHandleArray.__setstate__
       except AttributeError: pass # already done, or not relevant anymore
    return
-_monkeypatch_bug_34752()
+try:
+   _monkeypatch_bug_34752()
+except: # noqa: E722 
+   pass
 del _monkeypatch_bug_34752
 
 
@@ -199,19 +202,10 @@ def storeJobOptionsCatalogue( cfg_fname ):
 
  # now assume that if these services carry configuration, then they should exist
  # on the service manager configurable
-   cfgSvcs = []
-   for s in svcs:
-      if hasattr( svcMgr, s ):
-         cfgSvcs.append( s )
-
- # make sure to get the values for these special cases
-   for svcname in cfgSvcs:
-      svc = theApp.service( svcname )
-      props = []
-      for k,v in six.iteritems(svc.properties()):
-         if v.value() != C.propertyNoValue:
-            props.append( (k,v.value()) )
-      _fillCfg( svcname, props )
+   for svcname in svcs:
+      svc = getattr( svcMgr, svcname, None )
+      if svc:
+         _fillCfg( svcname, svc.getValuedProperties().items() )
 
  # make sure to propagate the EventLoop properties through the josvc
    try:
@@ -228,7 +222,7 @@ def storeJobOptionsCatalogue( cfg_fname ):
       pass    # no properties defined for EventLoop type
 
  # get the values for all other components (these may contain duplicates of
- # the ones above in cfgSvcs, and there may even be conflicts)
+ # the ones above in svcs, and there may even be conflicts)
    import AthenaPython.PyAthena as PyAthena
    josvc = PyAthena.py_svc( 'JobOptionsSvc', iface = 'IJobOptionsSvc' )
 

@@ -8,6 +8,7 @@ atlas_subdir( TRT_TrackSegmentsTool_xk )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
+                          DetectorDescription/GeoModel/GeoModelInterfaces
                           GaudiKernel
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetRecEvent/InDetPrepRawData
@@ -16,9 +17,9 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkDetDescr/TrkGeometry
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkParameters
+                          Tracking/TrkEvent/TrkEventUtils
                           Tracking/TrkTools/TrkToolInterfaces
                           PRIVATE
-                          Event/EventInfo
                           Tracking/TrkDetDescr/TrkSurfaces
                           Tracking/TrkEvent/TrkPseudoMeasurementOnTrack
                           Tracking/TrkEvent/TrkRIO_OnTrack

@@ -13,7 +13,7 @@ public:
   LArG4H6BeamSDTool(const std::string& type, const std::string& name, const IInterface *parent);
   virtual ~LArG4H6BeamSDTool() {}
 
-  G4VSensitiveDetector* makeSD() override final;
+  G4VSensitiveDetector* makeSD() const override final;
 };
 
 #endif // __LArG4H6BeamSDTool_h__

@@ -184,7 +184,7 @@ if __name__ == "__main__":
     acc.merge( TileDigitsMakerOutputCfg(ConfigFlags) )
 
     acc.printConfig(withDetails = True, summariseProps = True)
-    acc.store( open('TileDigitsMaker.pkl','w') )
+    acc.store( open('TileDigitsMaker.pkl','wb') )
 
     sc = acc.run(maxEvents=3)
     # Success should be 0

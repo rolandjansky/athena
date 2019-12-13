@@ -43,7 +43,6 @@ MuonCalibGeometryDumper::MuonCalibGeometryDumper(const std::string &name, ISvcLo
   declareProperty("RootFile", m_rootFile);
 		
   //for the sake of coverity
-  m_MdtIdHelper=NULL;
   m_detMgr =NULL;
   m_id_tool=NULL;
 }  //end MuonCalibGeometryDumper::MuonCalibGeometryDumper
@@ -54,7 +53,7 @@ MuonCalibGeometryDumper::~MuonCalibGeometryDumper() {
 StatusCode MuonCalibGeometryDumper::initialize() {
 
 // MDT ID helper //
-  ATH_CHECK( detStore()->retrieve(m_MdtIdHelper, m_MDT_ID_helper) );
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
 // muon detector manager //
   ATH_CHECK( detStore()->retrieve(m_detMgr) );
@@ -87,21 +86,21 @@ inline bool MuonCalibGeometryDumper::dump_mdt_geometry() {
   mdt_station->Branch("id", &station_id, "id/i");
   station_row.CreateBranches(mdt_station);
 //loop on chambers
-  MdtIdHelper::const_id_iterator it     = m_MdtIdHelper->module_begin();
-  MdtIdHelper::const_id_iterator it_end = m_MdtIdHelper->module_end();
+  MdtIdHelper::const_id_iterator it     = m_muonIdHelperTool->mdtIdHelper().module_begin();
+  MdtIdHelper::const_id_iterator it_end = m_muonIdHelperTool->mdtIdHelper().module_end();
   for( ; it!=it_end;++it ) {
     std::cout<<"."<<std::flush;
-    const MuonGM::MdtReadoutElement *detEl = m_detMgr->getMdtReadoutElement( m_MdtIdHelper->channelID(*it,1,1,1));
+    const MuonGM::MdtReadoutElement *detEl = m_detMgr->getMdtReadoutElement( m_muonIdHelperTool->mdtIdHelper().channelID(*it,1,1,1));
     if(!detEl) continue;
     station_row.ReadHepTransform(detEl->AmdbLRSToGlobalTransform());
     MuonFixedId fixed_id(m_id_tool->idToFixedId(*it));
     station_id=fixed_id.mdtChamberId().getIdInt();
     mdt_station->Fill();
     //get number of mls;
-    int n_mls=m_MdtIdHelper->numberOfMultilayers(*it);
+    int n_mls=m_muonIdHelperTool->mdtIdHelper().numberOfMultilayers(*it);
     //loop on multilayers
     for(int ml=1; ml<=n_mls; ml++) {
-      const MuonGM::MdtReadoutElement *detEl_ml = m_detMgr->getMdtReadoutElement(m_MdtIdHelper->channelID(*it,ml ,1,1));
+      const MuonGM::MdtReadoutElement *detEl_ml = m_detMgr->getMdtReadoutElement(m_muonIdHelperTool->mdtIdHelper().channelID(*it,ml ,1,1));
       int n_layers=detEl_ml->getNLayers();
 //			if(detEl_ml==NULL) {
 //				std::cerr<<"detEl_ml==NULL"<<std::endl;
@@ -119,7 +118,7 @@ const MuonGM::MdtReadoutElement *detEl, MdtTubeGeomertyRow &row, TTree *tree, co
 //	std::cout<<"fillTubePos for "<<ml<<", "<<ly<<", "<<tb<<std::endl;
   int n_tubes=detEl->getNtubesperlayer();
   for(int tb=1; tb<=n_tubes; tb++) {
-    Identifier tid(m_MdtIdHelper->channelID(ch_id ,ml ,ly, tb));
+    Identifier tid(m_muonIdHelperTool->mdtIdHelper().channelID(ch_id ,ml ,ly, tb));
     MuonFixedId fixed_id(m_id_tool->idToFixedId(tid));
     row.tube_id=fixed_id.getIdInt();
     Amg::Vector3D tube_pos_g=detEl->tubePos(ml, ly, tb);

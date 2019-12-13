@@ -13,13 +13,16 @@ ex.input = 'data'
 ex.forks = 2
 ex.threads = 2
 ex.concurrent_events = 2
-ex.args = '-c "doEmptyMenu=True;BFieldAutoConfig=False;doWriteESD=False"'
+ex.args = '-c "doEmptyMenu=True;BFieldAutoConfig=False;"'
 ex.perfmon = False # perfmon with athenaHLT doesn't work at the moment
 
 test = Test.Test()
 test.art_type = 'build'
 test.exec_steps = [ex]
 test.check_steps = CheckSteps.default_check_steps(test)
+
+# Skip ZeroCounts check because empty menu has no counts
+test.check_steps.remove(test.get_step("ZeroCounts"))
 
 import sys
 sys.exit(test.run())

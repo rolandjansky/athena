@@ -12,7 +12,6 @@
 #define CALOTOOLS_SIMPLENOISETOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/IIncidentListener.h"
 
 #include "CaloGeoHelpers/CaloSampling.h"
 

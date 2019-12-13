@@ -1,13 +1,13 @@
 #!/bin/sh
 #
-# art-description: Athena runs topoclustering from an ESD file
+# art-description: Athena runs topoclustering, particle flow and particle flow jet reconstruction from an ESD file
 # art-type: grid
 # art-include: master/Athena
 # art-athena-mt: 8
-# art-output: athenaSerial.log
-# art-output: athenaOneThread.log
-# art-output: athenaTwoThreads.log
-# art-output: athenaFiveThreads.log
+# art-output: serial
+# art-output: threadOne
+# art-output: threadTwo
+# art-output: threadFive
 
 export ATHENA_CORE_NUMBER=8
 

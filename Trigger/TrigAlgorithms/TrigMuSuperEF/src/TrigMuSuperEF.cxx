@@ -61,7 +61,6 @@
 
 // utility functions
 #include "TrigMuSuperEFUtils.icc"
-#include "CxxUtils/make_unique.h"
 #include "AthenaKernel/Units.h"
 
 class ISvcLocator;
@@ -516,7 +515,7 @@ TrigMuSuperEF::hltExecute(const HLT::TriggerElement* inputTE, HLT::TriggerElemen
   //
   for(auto tMap : m_tagMaps) delete tMap;
   m_tagMaps.clear();
-  auto muonContainerOwn = CxxUtils::make_unique<xAOD::MuonContainer>();
+  auto muonContainerOwn = std::make_unique<xAOD::MuonContainer>();
   m_muonContainer = muonContainerOwn.get();
   xAOD::MuonAuxContainer muonAuxContainer;
   muonContainerOwn->setStore( &muonAuxContainer );

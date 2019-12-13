@@ -13,6 +13,9 @@ def TileRawChannelMakerCfg(flags, **kwargs):
 
     acc = ComponentAccumulator()
 
+    from TileConditions.TileInfoLoaderConfig import TileInfoLoaderCfg
+    acc.merge( TileInfoLoaderCfg(flags) )
+
     kwargs.setdefault('name', 'TileRChMaker')
     name = kwargs['name']
 
@@ -158,7 +161,7 @@ if __name__ == "__main__":
     ConfigFlags.Tile.doOpt2 = True
     ConfigFlags.Tile.doOptATLAS = True
     ConfigFlags.Tile.NoiseFilter = 1
-
+    ConfigFlags.Output.ESDFileName = "myESD.pool.root"
     ConfigFlags.fillFromArgs()
 
     ConfigFlags.lock()
@@ -174,7 +177,7 @@ if __name__ == "__main__":
 
     ConfigFlags.dump()
     acc.printConfig(withDetails = True, summariseProps = True)
-    acc.store( open('TileRawChannelMaker.pkl','w') )
+    acc.store( open('TileRawChannelMaker.pkl','wb') )
 
     sc = acc.run(maxEvents = 3)
 

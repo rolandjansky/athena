@@ -12,7 +12,6 @@
 #define CALOTOOLS_SIMPLENOISETOOLFROMTEXTFILE_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/IIncidentListener.h"
 
 #include "CaloIdentifier/CaloGain.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"

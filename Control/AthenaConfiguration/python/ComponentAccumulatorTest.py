@@ -494,12 +494,13 @@ class TestSequencesMerging( unittest.TestCase ):
         ca1 = ComponentAccumulator()
         ca1.addEventAlgo(ConfigurablePyAlgorithm("alg1"))
         ca1.printConfig()
+        ca1.addSequence(seqAND("someSequence"))
 
         print("ca2")
-        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg	
-	ca2 = OutputStreamCfg(ConfigFlags, "RDO", ItemList = [    
-	    "SCT_RDO_Container#SCT_RDOs",
-	    "InDetSimDataCollection#SCT_SDO_Map"	    
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        ca2 = OutputStreamCfg(ConfigFlags, "RDO", ItemList = [
+            "SCT_RDO_Container#SCT_RDOs",
+            "InDetSimDataCollection#SCT_SDO_Map"	    
 	])
         ca2.printConfig()
 
@@ -510,13 +511,10 @@ class TestSequencesMerging( unittest.TestCase ):
         self.assertEqual( len(ca1._allSequences), 2, "Dangling sequences not maintained" )
                 
         print("Instantiating top CA")
-        from MainServicesConfig import MainServicesThreadedCfg
+        from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
         topca = MainServicesThreadedCfg( ConfigFlags )
         topca.printConfig()
 
-        
-
-        
         print("Merging to the top level CA")        
         topca.merge( ca1 )
         topca.printConfig()

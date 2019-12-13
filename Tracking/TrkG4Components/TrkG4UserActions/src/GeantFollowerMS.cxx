@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -25,7 +25,6 @@ namespace G4UA
 
   GeantFollowerMS::GeantFollowerMS(const Config& config)
     : m_config(config)
-    , m_trackingGeometry(nullptr)
     , m_helperPointer(nullptr)
   {}
 
@@ -92,7 +91,6 @@ namespace G4UA
         // the position information
         double X0             = mat->GetRadlen();
         // update the track follower
-        //std::cout << " particle PDG " << g4DynParticle->GetPDGcode() << " charge " << g4DynParticle->GetCharge() << std::endl;
         m_helperPointer->trackParticle(g4Position, g4Momentum,
                                        g4DynParticle->GetPDGcode(),
                                        g4DynParticle->GetCharge(),

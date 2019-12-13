@@ -71,6 +71,9 @@ def IOVDbSvcCfg(configFlags):
     if not isMC:
         result.addService(DBReplicaSvc(COOLSQLiteVetoPattern="/DBRelease/"))
 
+    # Get TagInfoMgr
+    from EventInfoMgt.TagInfoMgrConfig import TagInfoMgrCfg 
+    result.merge(TagInfoMgrCfg(configFlags)[0])
     
     return result
 
@@ -143,10 +146,12 @@ def addFolderList(configFlags,listOfFolderInfoTuple,extensible=False):
 
     return result
     
-def addFoldersSplitOnline(configFlags, detDb, online_folders, offline_folders, className=None, addMCString="_OFL"):
+def addFoldersSplitOnline(configFlags, detDb, online_folders, offline_folders, className=None, addMCString="_OFL", splitMC=False):
     "Add access to given folder, using either online_folder  or offline_folder. For MC, add addMCString as a postfix (default is _OFL)"
     
     if configFlags.Common.isOnline and not configFlags.Input.isMC:
+        folders = online_folders
+    elif splitMC and not configFlags.Input.isMC:
         folders = online_folders
     else:
         # MC, so add addMCString
@@ -248,6 +253,6 @@ if __name__ == "__main__":
 
     acc  = IOVDbSvcCfg(ConfigFlags)
 
-    f=open('test.pkl','w')
+    f=open('test.pkl','wb')
     acc.store(f)
     f.close()

@@ -74,13 +74,15 @@ if not jobproperties.Beam.beamType()=='cosmics':
                                                                           #PassAllTracks           = True, ## Uncomment this line to bypass track slection
                                                                           IDTrackSelectionTool     = m_alignMonTrackSelectorTool[0],
                                                                           PrimVtxContainerName     = InDetKeys.xAODVertexContainer(),
-                                                                          UseIDTrackSelectionTool  = True))
+                                                                          UseIDTrackSelectionTool  = True,
+                                                                          DoEventPhaseCut          = InDetFlags.doTRTPhaseCalculation()))
     
     m_alignMonTrackSelectionTool.append(InDetAlignMon__TrackSelectionTool(name                     = "InDetAlignMonTrackSelectionTool_LoosePrimary_NoTRT",
                                                                           #PassAllTracks           = True, ## Uncomment this line to bypass track slection
                                                                           IDTrackSelectionTool     = m_alignMonTrackSelectorTool[1],
                                                                           PrimVtxContainerName     = InDetKeys.xAODVertexContainer(),
-                                                                          UseIDTrackSelectionTool  = True))
+                                                                          UseIDTrackSelectionTool  = True,
+                                                                          DoEventPhaseCut          = InDetFlags.doTRTPhaseCalculation()))
 
     
     #Adding the TrackSelectionTools to the Tool Service
@@ -170,9 +172,9 @@ else:
         m_alignMonTrackSelectionTool.append(InDetAlignMon__TrackSelectionTool(name                = m_alignMonTrackSelectionToolName[i],
                                                                               ## Uncomment this line to bypass track selection
                                                                               #PassAllTracks      = True,
-                                                                              #DoEventPhaseCut    = True,
                                                                               UseIDTrackSelectionTool  = True,
-                                                                              IDTrackSelectionTool     = m_alignMonTrackSelectorTool[i]))
+                                                                              IDTrackSelectionTool     = m_alignMonTrackSelectorTool[i],
+                                                                              DoEventPhaseCut = InDetFlags.doTRTPhaseCalculation()))
         
         if jobproperties.Beam.beamType()=='singlebeam':
             m_alignMonTrackSelectionTool[i].PassAllTracks = True
@@ -192,7 +194,9 @@ InDetAlignMonResiduals_noTrig = IDAlignMonResiduals (name           = "InDetAlig
                                                      propagator     = InDetPropagator,
                                                      Pixel_Manager  = InDetKeys.PixelManager(),
                                                      SCT_Manager    = InDetKeys.SCT_Manager(),
-                                                     TRT_Manager    = InDetKeys.TRT_Manager())  
+                                                     TRT_Manager    = InDetKeys.TRT_Manager())
+if not InDetFlags.doTRTPhaseCalculation():
+    InDetAlignMonResiduals_noTrig.ComTimeObjectName = ""
 
 if jobproperties.Beam.beamType()=='cosmics' or jobproperties.Beam.beamType()=='singlebeam':
     InDetAlignMonResiduals_noTrig.tracksName = InDetKeys.Tracks()
@@ -276,10 +280,12 @@ if jobproperties.Beam.beamType()=='cosmics':
     m_deltaPhi2D             = [ 0.02, 0.02, 0.02, 0.02,0.05]
     m_deltaQoverPt           = [ 0.05,  0.2, 0.05, 0.04, 0.1]
     m_deltaQoverPt2D         = [ 0.05,  0.2, 0.05, 0.04, 0.1]
+    from AthenaCommon import CfgGetter
 
+    indet_track_fitter = CfgGetter.getPublicTool('InDetTrackFitter')
     for i in range(5):
         m_trackSplitter.append(InDet__InDetTrackSplitterTool(name                  = m_trackSplitterName[i],
-                                                             TrackFitter           = InDetTrackFitter,
+                                                             TrackFitter           = indet_track_fitter,
                                                              OutputUpperTracksName = m_upperTracksName[i],
                                                              OutputLowerTracksName = m_lowerTracksName[i]))
         
@@ -363,7 +369,9 @@ else:
                                                   tracksName     = InDetKeys.ExtendedTracks(),
                                                   Pixel_Manager  = InDetKeys.PixelManager(),
                                                   SCT_Manager    = InDetKeys.SCT_Manager(),
-                                                  TRT_Manager    = InDetKeys.TRT_Manager())   
+                                                  TRT_Manager    = InDetKeys.TRT_Manager())
+    if not InDetFlags.doTRTPhaseCalculation():
+        InDetAlignMonResiduals.ComTimeObjectName = ""
 
     InDetAlignMonEfficiencies = IDAlignMonEfficiencies (name           = "InDetAlignMonEfficiencies",
                                                         trackSelection = m_alignMonTrackSelectionTool[1],

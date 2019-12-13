@@ -37,7 +37,6 @@
 // #include "TrkParameters/CurvilinearParameters.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkExUtils/ExtrapolationCache.h"
-#include "CxxUtils/make_unique.h"
 // for the comparison with a pointer
 #include <stdint.h>
 // Amg
@@ -2278,7 +2277,7 @@ Trk::Extrapolator::extrapolateToVolume(const Trk::TrackParameters &parm,
   return 0;
 }
 
-const std::vector<const Trk::TrackStateOnSurface *> *
+std::vector<const Trk::TrackStateOnSurface *> *
 Trk::Extrapolator::extrapolateM(const TrackParameters &parameters,
                                 const Surface &sf,
                                 PropDirection dir,
@@ -2308,9 +2307,9 @@ Trk::Extrapolator::extrapolateM(const TrackParameters &parameters,
       delete (*tsosIter);
     }
     delete cache.m_matstates;
-    cache.m_matstates = 0;
+    cache.m_matstates = nullptr;
     // bail out
-    return 0;
+    return nullptr;
   }
   if (parameterAtDestination) {
     ATH_MSG_VERBOSE("  [+] Adding the destination surface to the TSOS vector in extrapolateM() ");
@@ -2320,12 +2319,12 @@ Trk::Extrapolator::extrapolateM(const TrackParameters &parameters,
   }
   // assign the temporary states
   std::vector<const Trk::TrackStateOnSurface *> *tmpMatStates = cache.m_matstates;
-  cache.m_matstates = 0;
+  cache.m_matstates = nullptr;
   // retunr the material states
   return tmpMatStates;
 }
 
-const std::vector<const Trk::TrackParameters *> *
+std::vector<const Trk::TrackParameters *> *
 Trk::Extrapolator::extrapolateM(const TrackParameters &,
                                 const Surface &,
                                 PropDirection,
@@ -2335,7 +2334,7 @@ Trk::Extrapolator::extrapolateM(const TrackParameters &,
                                 ParticleHypothesis,
                                 Trk::ExtrapolationCache *) const {
   ATH_MSG_DEBUG("C-[" << ++m_methodSequence << "] extrapolateM(..) with jacobian collection - Not implemented yet.");
-  return 0;
+  return nullptr;
 }
 
 // the validation action -> propagated to the SubTools
@@ -4501,7 +4500,7 @@ Trk::Extrapolator::extrapolate(
   // reset the path
   cache.m_path = 0.;
   // initialize parameters vector
-  cache.m_identifiedParameters = CxxUtils::make_unique<identifiedParameters_t>();
+  cache.m_identifiedParameters = std::make_unique<identifiedParameters_t>();
   // initialize material collection
   cache.m_matstates = material;
   // dummy input

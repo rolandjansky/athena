@@ -3,27 +3,26 @@
 */
 
 #include "MdtRdoToMdtDigit.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
 
 MdtRdoToMdtDigit::MdtRdoToMdtDigit(const std::string& name,
                                    ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator)
+  : AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 
 StatusCode MdtRdoToMdtDigit::initialize()
 {
-  ATH_CHECK( detStore()->retrieve(m_mdtHelper, "MDTIDHELPER") );
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
   ATH_CHECK( m_mdtRdoDecoderTool.retrieve() );
   ATH_CHECK(m_mdtRdoKey.initialize());
   ATH_CHECK(m_mdtDigitKey.initialize());
   return StatusCode::SUCCESS;
 }
 
-StatusCode MdtRdoToMdtDigit::execute()
+StatusCode MdtRdoToMdtDigit::execute(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG( "in execute()"  );
-  SG::ReadHandle<MdtCsmContainer> rdoRH(m_mdtRdoKey);
+  SG::ReadHandle<MdtCsmContainer> rdoRH(m_mdtRdoKey, ctx);
   if (!rdoRH.isValid()) {
     ATH_MSG_WARNING( "No MDT RDO container found!"  );
     return StatusCode::SUCCESS;
@@ -31,8 +30,8 @@ StatusCode MdtRdoToMdtDigit::execute()
   const MdtCsmContainer* rdoContainer = rdoRH.cptr();
   ATH_MSG_DEBUG( "Retrieved " << rdoContainer->size() << " MDT RDOs." );
 
-  SG::WriteHandle<MdtDigitContainer> wh_mdtDigit(m_mdtDigitKey);
-  ATH_CHECK(wh_mdtDigit.record(std::make_unique<MdtDigitContainer>(m_mdtHelper->module_hash_max())));
+  SG::WriteHandle<MdtDigitContainer> wh_mdtDigit(m_mdtDigitKey, ctx);
+  ATH_CHECK(wh_mdtDigit.record(std::make_unique<MdtDigitContainer>(m_muonIdHelperTool->mdtIdHelper().module_hash_max())));
   ATH_MSG_DEBUG( "Decoding MDT RDO into MDT Digit"  );
 
   // retrieve the collection of RDO
@@ -49,7 +48,7 @@ StatusCode MdtRdoToMdtDigit::execute()
 
 StatusCode MdtRdoToMdtDigit::decodeMdt( const MdtCsm * rdoColl, MdtDigitContainer * mdtContainer, MdtDigitCollection*& collection, Identifier& oldId ) const
 {
-  const IdContext mdtContext = m_mdtHelper->module_context();
+  const IdContext mdtContext = m_muonIdHelperTool->mdtIdHelper().module_context();
 
   if ( rdoColl->size() > 0 ) {
     ATH_MSG_DEBUG( " Number of AmtHit in this Csm "
@@ -72,9 +71,9 @@ StatusCode MdtRdoToMdtDigit::decodeMdt( const MdtCsm * rdoColl, MdtDigitContaine
 
       // find here the Proper Digit Collection identifier, using the rdo-hit id
       // (since RDO collections are not in a 1-to-1 relation with digit collections)
-      const Identifier elementId = m_mdtHelper->elementID(newDigit->identify());
+      const Identifier elementId = m_muonIdHelperTool->mdtIdHelper().elementID(newDigit->identify());
       IdentifierHash coll_hash;
-      if (m_mdtHelper->get_hash(elementId, coll_hash, &mdtContext)) {
+      if (m_muonIdHelperTool->mdtIdHelper().get_hash(elementId, coll_hash, &mdtContext)) {
         ATH_MSG_WARNING( "Unable to get MDT digit collection hash id "
                          << "context begin_index = " << mdtContext.begin_index()
                          << " context end_index  = " << mdtContext.end_index()
@@ -95,7 +94,7 @@ StatusCode MdtRdoToMdtDigit::decodeMdt( const MdtCsm * rdoColl, MdtDigitContaine
                              << " in StoreGate!"  );
         }
         else {
-          MdtDigitCollection * oldCollection = const_cast<MdtDigitCollection*>( *it_coll );
+          MdtDigitCollection * oldCollection ATLAS_THREAD_SAFE = const_cast<MdtDigitCollection*>( *it_coll ); // FIXME
           oldCollection->push_back(newDigit);
           collection = oldCollection;
         }

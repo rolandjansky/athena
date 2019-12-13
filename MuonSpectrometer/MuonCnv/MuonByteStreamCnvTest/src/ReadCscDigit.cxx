@@ -3,7 +3,6 @@
 */
 
 #include "MuonByteStreamCnvTest/ReadCscDigit.h"
-#include "MuonIdHelpers/CscIdHelper.h"
 #include "MuonDigitContainer/CscDigitCollection.h"
 #include "MuonDigitContainer/CscDigitContainer.h"
 
@@ -14,8 +13,7 @@ const int MAXDIGIT = 4096;
 
 ReadCscDigit::ReadCscDigit(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator), m_ntuplePtr(0),
-    m_activeStore("ActiveStoreSvc", name),
-    m_cscHelper(0)
+    m_activeStore("ActiveStoreSvc", name)
 {
   // Declare the properties
   declareProperty("NtupleLocID",m_NtupleLocID);
@@ -28,7 +26,7 @@ StatusCode ReadCscDigit::initialize()
 {
   ATH_MSG_DEBUG( " in initialize()"  );
   ATH_CHECK( m_activeStore.retrieve() );
-  ATH_CHECK( detStore()->retrieve(m_cscHelper, "CSCIDHELPER") );
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
   if (!m_cscNtuple) return StatusCode::SUCCESS;
 
@@ -82,15 +80,15 @@ StatusCode ReadCscDigit::execute()
 	    Identifier id = (*dig)->identify();
 
 	    // ID information
-	    m_stationName[m_nDig]  = m_cscHelper->stationName(id);
-	    m_stationEta [m_nDig]  = m_cscHelper->stationEta(id);
-	    m_stationPhi [m_nDig]  = m_cscHelper->stationPhi(id);
-	    m_chamberLayer[m_nDig] = m_cscHelper->chamberLayer(id);
-	    m_wireLayer[m_nDig]    = m_cscHelper->wireLayer(id);
-	    m_measuresPhi[m_nDig]  = m_cscHelper->measuresPhi(id);
-	    m_strip[m_nDig]        = m_cscHelper->strip(id); 
+	    m_stationName[m_nDig]  = m_muonIdHelperTool->cscIdHelper().stationName(id);
+	    m_stationEta [m_nDig]  = m_muonIdHelperTool->cscIdHelper().stationEta(id);
+	    m_stationPhi [m_nDig]  = m_muonIdHelperTool->cscIdHelper().stationPhi(id);
+	    m_chamberLayer[m_nDig] = m_muonIdHelperTool->cscIdHelper().chamberLayer(id);
+	    m_wireLayer[m_nDig]    = m_muonIdHelperTool->cscIdHelper().wireLayer(id);
+	    m_measuresPhi[m_nDig]  = m_muonIdHelperTool->cscIdHelper().measuresPhi(id);
+	    m_strip[m_nDig]        = m_muonIdHelperTool->cscIdHelper().strip(id); 
 	    m_charge[m_nDig]       = (*dig)->charge(); 
-            ATH_MSG_DEBUG( "Digit = " << m_cscHelper->show_to_string(id) << " charge = " 
+            ATH_MSG_DEBUG( "Digit = " << m_muonIdHelperTool->cscIdHelper().show_to_string(id) << " charge = " 
                            << m_charge[m_nDig]  );
 	    ++m_nDig;
 	  }

@@ -10,11 +10,6 @@
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
-
-#include "Identifier/IdentifierHash.h"
-#include "Identifier/Identifier.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
-
 #include "PathResolver/PathResolver.h"
 #include <fstream>
 #include <string>
@@ -32,6 +27,7 @@ TGC_STATUSConditionsTool::TGC_STATUSConditionsTool (const std::string& type,
 				      const std::string& name,
 				      const IInterface* parent)
   : AthAlgTool(type, name, parent), 
+    m_muonIdHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_IOVSvc(0),
     m_chronoSvc(0),
     m_log( msgSvc(), name ),
@@ -42,7 +38,6 @@ TGC_STATUSConditionsTool::TGC_STATUSConditionsTool (const std::string& type,
         
   m_tgcDqStatusDataLocation="TgcDqStatusKey";
 
-  m_tgcIdHelper = 0;
   declareProperty("TgcDqFolder",m_FolderName="TGC/1/DetectorStatus");
 
 }
@@ -96,16 +91,7 @@ StatusCode TGC_STATUSConditionsTool::initialize()
   }
   if(sc.isFailure()) return StatusCode::FAILURE;
 
-  sc = detStore()->retrieve(m_tgcIdHelper, "TGCIDHELPER" );
-  if (sc.isFailure())
-    {
-      m_log<< MSG::FATAL << " Cannot retrieve TgcIdHelper " << endmsg;
-      return sc;
-    }
-  
-    
-  return StatusCode::SUCCESS;
- 
+  return m_muonIdHelperTool.retrieve();
 
 }
 
@@ -176,7 +162,7 @@ StatusCode TGC_STATUSConditionsTool::loadTgcDqStatus(IOVSVC_CALLBACK_ARGS_P(I,ke
 
      if (detector_status!=0){
        int channum=itr->first;
-       Identifier chamberId = m_tgcIdHelper->elementID(Identifier(channum));
+       Identifier chamberId = m_muonIdHelperTool->tgcIdHelper().elementID(Identifier(channum));
        //m_cachedDeadStationsId.push_back(Identifier(channum));
        m_cachedDeadStationsId.push_back(chamberId);
      }

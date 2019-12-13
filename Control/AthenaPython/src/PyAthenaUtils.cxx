@@ -15,7 +15,7 @@
 
 // AthenaPython includes
 #include "AthenaPython/PyAthenaUtils.h"
-#include "AthenaPython/PyAthenaGILStateEnsure.h"
+#include "RootUtils/PyAthenaGILStateEnsure.h"
 #include "RootUtils/PyGetString.h"
 
 // Framework includes
@@ -54,7 +54,7 @@ fetchInterfaceId( PyObject* klass,
 {
   Py_INCREF( klass );
 
-  PyAthena::PyGILStateEnsure ensure;
+  RootUtils::PyGILStateEnsure ensure;
   PyObject* idObj = PyObject_CallMethod( klass, 
 					 const_cast<char*>("interfaceID"), 
 					 const_cast<char*>("") );
@@ -106,7 +106,7 @@ std::string
 PyAthena::repr( PyObject* o )
 {
   // PyObject_Repr returns a new ref.
-  PyGILStateEnsure ensure;
+  RootUtils::PyGILStateEnsure ensure;
   PyObject* py_repr = PyObject_Repr( o );
 
   auto [cpp_repr, flag] = RootUtils::PyGetString (py_repr);
@@ -121,7 +121,7 @@ std::string
 PyAthena::str( PyObject* o )
 {
   // PyObject_Str returns a new ref.
-  PyGILStateEnsure ensure;
+  RootUtils::PyGILStateEnsure ensure;
   PyObject* py_str = PyObject_Str( o );
   auto [cpp_str, flag] = RootUtils::PyGetString (py_str);
   Py_DECREF( py_str );
@@ -134,7 +134,7 @@ PyAthena::str( PyObject* o )
 void PyAthena::throw_py_exception (bool display)
 {
   if (display) {
-    PyGILStateEnsure ensure;
+    RootUtils::PyGILStateEnsure ensure;
     // fetch error
     PyObject* pytype = 0, *pyvalue = 0, *pytrace = 0;
     PyErr_Fetch (&pytype, &pyvalue, &pytrace);
@@ -161,7 +161,7 @@ PyAthena::callPyMethod ATLAS_NOT_THREAD_SAFE ( PyObject* self,
   if ( 0 == self || 0 == method ) { return StatusCode::FAILURE; }
   
   // call Python 
-  PyGILStateEnsure ensure;
+  RootUtils::PyGILStateEnsure ensure;
   PyObject* r;
   if (arg)
     r = PyObject_CallMethod( self, method, const_cast<char*>("O"), arg );
@@ -172,8 +172,13 @@ PyAthena::callPyMethod ATLAS_NOT_THREAD_SAFE ( PyObject* self,
     throw_py_exception();
   }
   
+#if PY_VERSION_HEX < 0x03000000
   if ( PyInt_Check( r ) || PyLong_Check(r) ) {
     StatusCode sc(PyInt_AS_LONG( r ));
+#else
+  if ( PyLong_Check( r ) ) {
+    StatusCode sc(PyLong_AS_LONG( r ));
+#endif
     Py_DECREF( r );
     return sc;
   }
@@ -236,7 +241,7 @@ StatusCode PyAthena::queryInterface ATLAS_NOT_THREAD_SAFE
       << std::endl;
   }
 
-  PyGILStateEnsure ensure;
+  RootUtils::PyGILStateEnsure ensure;
   PyObject* type = PyObject_GetAttrString( self, 
 					   const_cast<char*>("__class__") );
   if ( !type ) {
@@ -340,7 +345,7 @@ void PyAthena::pyAudit ATLAS_NOT_THREAD_SAFE
    const char* evt, 
    const char* component )
 {
-  PyGILStateEnsure ensure;
+  RootUtils::PyGILStateEnsure ensure;
   PyObject* call = PyObject_CallMethod(self,
 				       (char*)method,
 				       (char*)"ss", evt, component);
@@ -360,7 +365,7 @@ void PyAthena::pyAudit ATLAS_NOT_THREAD_SAFE
     const char* component,
     const StatusCode& sc )
 {
-  PyGILStateEnsure ensure;
+  RootUtils::PyGILStateEnsure ensure;
   PyObject* pySc = TPython::ObjectProxy_FromVoidPtr((void*)&sc,
 						    "StatusCode");
   if ( !pySc ) {

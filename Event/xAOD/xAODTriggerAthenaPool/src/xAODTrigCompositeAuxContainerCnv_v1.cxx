@@ -32,15 +32,13 @@
    } while( 0 )
 
 xAODTrigCompositeAuxContainerCnv_v1::xAODTrigCompositeAuxContainerCnv_v1()
-  : T_AthenaPoolTPCnvBase< xAOD::TrigCompositeAuxContainer,
-                           xAOD::TrigCompositeAuxContainer_v1 >() {
-
+{
 }
 
 void xAODTrigCompositeAuxContainerCnv_v1::
 persToTrans( const xAOD::TrigCompositeAuxContainer_v1* oldObj,
              xAOD::TrigCompositeAuxContainer* newObj,
-             MsgStream& log ) {
+             MsgStream& log ) const {
 
    // Greet the user:
    ATH_MSG( "Converting xAOD::TrigCompositeAuxContainer_v1 to current version..." );
@@ -73,7 +71,7 @@ persToTrans( const xAOD::TrigCompositeAuxContainer_v1* oldObj,
 ///
 void xAODTrigCompositeAuxContainerCnv_v1::transToPers( const xAOD::TrigCompositeAuxContainer*,
                                                        xAOD::TrigCompositeAuxContainer_v1*,
-                                                       MsgStream& log ) {
+                                                       MsgStream& log ) const {
 
    log << MSG::ERROR
        << "Somebody called xAODTrigCompositeAuxContainerCnv_v1::transToPers"

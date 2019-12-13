@@ -5,6 +5,7 @@
 # @date January 2010
 
 from __future__ import print_function
+from past.builtins import basestring
 
 __doc__ = "functions to ease the configuration of reading/copying files"
 __version__ = "$Revision: 285924 $"
@@ -124,7 +125,7 @@ def _copy_file_impl(cfg, hints):
         if do_write is not None:
             try:
                 cfg.rec["doWrite"+do_write] = True
-            except AttributeError:
+            except AttributeError as err:
                 cfg.msg.info(err)
                 pass
             
@@ -141,7 +142,7 @@ def _copy_file_impl(cfg, hints):
             cfg.acf['PoolRDOOutput'] = dst
         try:
             cfg.rec["doWrite"+do_write] = True
-        except AttributeError:
+        except AttributeError as err:
             cfg.msg.info(err)
             pass
         pass 
@@ -286,7 +287,7 @@ class AutoCfg(object):
             return auto.ConfigureFromListOfKeys(rec.AutoConfiguration())
         else:
             from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-            import AthenaPoolCnvSvc.ReadAthenaPool
+            import AthenaPoolCnvSvc.ReadAthenaPool  # noqa: F401
             svcMgr.EventSelector.InputCollections = acf.FilesInput()
 
     @property

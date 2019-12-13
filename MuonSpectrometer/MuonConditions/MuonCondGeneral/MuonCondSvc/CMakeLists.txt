@@ -16,7 +16,6 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondData
                           MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondInterface
                           PRIVATE
-                          Event/EventInfo
                           MuonSpectrometer/MuonIdHelpers )
 
 # External dependencies:
@@ -30,12 +29,12 @@ atlas_add_library( MuonCondSvcLib
                    INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel AthenaPoolUtilities Identifier GaudiKernel MuonCondData MuonCondInterface StoreGateLib SGtests MuonIdHelpersLib
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} EventInfo )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_component( MuonCondSvc
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities Identifier GaudiKernel MuonCondData MuonCondInterface EventInfo MuonIdHelpersLib MuonCondSvcLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities Identifier GaudiKernel MuonCondData MuonCondInterface MuonIdHelpersLib MuonCondSvcLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

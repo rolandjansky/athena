@@ -97,6 +97,6 @@ if __name__ == "__main__":
 
 
     acc.printConfig(withDetails = True, summariseProps = True)
-    acc.store( open('TileRawChannelBuilder.pkl','w') )
+    acc.store( open('TileRawChannelBuilder.pkl','wb') )
 
 

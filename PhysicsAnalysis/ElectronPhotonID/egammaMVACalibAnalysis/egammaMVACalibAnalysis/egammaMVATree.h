@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAMVACALIBANALYSIS_EGAMMAMVATREE
@@ -112,7 +112,7 @@ protected:
   }
 
   template<typename T, typename MAPSTRINGFUNCTION, typename CONTAINER>
-  void create_structure(const std::set<std::string> vars,
+  void create_structure(const std::set<std::string>& vars,
                         const MAPSTRINGFUNCTION& map_string_function,
                         CONTAINER& container)
   {

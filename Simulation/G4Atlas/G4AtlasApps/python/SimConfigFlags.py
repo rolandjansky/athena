@@ -7,7 +7,7 @@ from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 def createSimConfigFlags():
     scf=AthConfigFlags()
 
-    scf.addFlag("Sim.ISF.Run",False)
+    scf.addFlag("Sim.ISFRun",False)
     scf.addFlag("Sim.ISF.HITSMergingRequired", True)
     scf.addFlag("Sim.ParticleID",False)
     scf.addFlag("Sim.CalibrationRun", "DeadLAr") # "LAr", "Tile", "LAr+Tile", "DeadLAr"
@@ -43,6 +43,18 @@ def createSimConfigFlags():
 
     scf.addFlag("Sim.G4Version", "geant4.10.1.patch03.atlas02")
     scf.addFlag("Sim.PhysicsList", "FTFP_BERT_ATL")
+    scf.addFlag("Sim.NeutronTimeCut", 150.) # Sets the value for the neutron out of time cut in G4
+    scf.addFlag("Sim.NeutronEnergyCut", -1.) # Sets the value for the neutron energy cut in G4
+    scf.addFlag("Sim.ApplyEMCuts", False) # Turns on the G4 option to apply cuts for EM physics
 
+    #For G4AtlasToolsConfig
+    scf.addFlag('Sim.RecordStepInfo',False) 
+    scf.addFlag('Sim.StoppedParticleFile', False) 
+
+    # For G4FieldConfigNew
+    scf.addFlag('Sim.G4Stepper', 'AtlasRK4')
+    scf.addFlag('Sim.G4EquationOfMotion', '')
+
+    scf.addFlag('Sim.UsingGeant4', True)
     return scf
 

@@ -27,7 +27,6 @@
 #include "CaloEvent/CaloCluster.h"
 #include "CaloEvent/CaloClusterContainer.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-//#include "CaloUtils/ICaloNoiseTool.h"
 #include "CaloInterface/ICaloNoiseTool.h"
 
 #include "LArRawEvent/LArDigitContainer.h"

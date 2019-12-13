@@ -169,9 +169,12 @@ if InDetFlags.doxKalman() or InDetFlags.doiPatRec() or InDetFlags.doNewTracking(
       #
       OutputTrackCollection = "RefittedTracks"
       #
+      # @TODO set SummaryTool property
+      from InDetRecExample.TrackingCommon import getInDetPRDtoTrackMapToolGangedPixels
       from TrkRefitAlg.TrkRefitAlgConf import Trk__ReFitTrack
       InDetReFitTrack = Trk__ReFitTrack (name           = "InDetRefitTrack",
                                          FitterTool     = InDetTrackFitter,
+                                         AssociationTool= getInDetPRDtoTrackMapToolGangedPixels(),
                                          TrackName      = InputTrackCollection,
                                          NewTrackName   = OutputTrackCollection,
                                          fitRIO_OnTrack = InDetFlags.refitROT())

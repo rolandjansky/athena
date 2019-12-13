@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOEVENT_CALOBINDESCRIPTOR_H
@@ -115,7 +115,7 @@ class CaloBinDescriptor
   std::vector<T> m_bins;
 
   /*! \brief Out-of-range marker (convention) */
-  static size_t m_outOfRange;  
+  static const size_t m_outOfRange;  
 };
 
 template<typename T>
@@ -134,7 +134,7 @@ CaloBinDescriptor<T>::operator=(const CaloBinDescriptor& theBins)
 }
 
 template<typename T>
-size_t CaloBinDescriptor<T>::m_outOfRange = size_t(-1);
+const size_t CaloBinDescriptor<T>::m_outOfRange = size_t(-1);
 
 template<typename T>
 CaloBinDescriptor<T>::CaloBinDescriptor(const std::vector<T>& theBins)
@@ -210,7 +210,7 @@ template<typename T>
 size_t CaloBinDescriptor<T>::getIndex(const T& theData) const
 {
   size_t theIndex = 0;
-  while ( theData > m_bins[theIndex] && theIndex < this->getNumberOfBins() )
+  while ( theIndex < this->getNumberOfBins() && theData > m_bins[theIndex] )
     {
       theIndex++;
     }

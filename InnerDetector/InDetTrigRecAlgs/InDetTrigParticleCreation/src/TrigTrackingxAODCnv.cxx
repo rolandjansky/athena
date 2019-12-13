@@ -30,6 +30,8 @@
 #include <algorithm>
 
 #include "TrigTimeAlgs/TrigTimerSvc.h"
+#include "TrigNavigation/NavigationCore.icc"
+#include "TrkEventUtils/PRDtoTrackMap.h"
 
 namespace InDet
 {
@@ -53,6 +55,7 @@ namespace InDet
     declareProperty("ParticleCreatorTool", m_particleCreatorTool);
     declareProperty("ResidualPullCalculator", m_residualCalc);
     declareProperty("doIBLresidual", m_doIBLresidual);
+    declareProperty("doSharedHits", m_doSharedHits=false);
 
     //+++ DQM (SA): monitoring
     declareProperty("MonSliceSpecific", m_mon_doSliceSpecific);
@@ -152,6 +155,10 @@ namespace InDet
       msg() << MSG::INFO << "Retrieved tool " << m_particleCreatorTool << endmsg;
     }
 
+    if (m_prdToTrackMapExchange.retrieve( DisableTool{m_prdToTrackMapExchange.name().empty()} ).isFailure()) {
+       msg() << MSG::FATAL << "Failed to retrieve tool " << m_prdToTrackMapExchange << endmsg;
+       return HLT::BAD_ALGO_CONFIG;
+    }
 
     //+++ DQM (SA): monitoring
     std::string tmp_alg_name = this->name();
@@ -238,7 +245,18 @@ namespace InDet
     }
     
     
-    //convert tracks
+    const Trk::PRDtoTrackMap *prd_to_track_map=nullptr;
+    if (m_doSharedHits) {
+       if (m_prdToTrackMapExchange.isEnabled()) {
+          prd_to_track_map = m_prdToTrackMapExchange->getPRDtoTrackMap();
+       }
+       else if ( HLT::OK != getFeature(outputTE, prd_to_track_map) ) {
+          ATH_MSG_ERROR( "No PRD-to-track map int output TE. Cannot compute shared hits.");
+          runAlg = false;
+          statCode = HLT::NAV_ERROR;
+       }
+    }
+   //convert tracks
     
     xAOD::TrackParticleContainer* tpCont = new xAOD::TrackParticleContainer();
     xAOD::TrackParticleAuxContainer tpAuxCont; // = new xAOD::TrackParticleAuxContainer();      //this guy should allow reset
@@ -257,7 +275,11 @@ namespace InDet
 	if (m_doIBLresidual) fillIBLResidual(m_tracks->at(idtr));
 
 	if(doTiming()) m_timerTrackConversion->start();
-        xAOD::TrackParticle* tp = m_particleCreatorTool->createParticle( trackLink, tpCont);
+        xAOD::TrackParticle* tp = m_particleCreatorTool->createParticle( trackLink,
+                                                                         tpCont,
+                                                                         nullptr /* no primary vertex */,
+                                                                         xAOD::noHypothesis,
+                                                                         prd_to_track_map);
 	if(doTiming()) m_timerTrackConversion->stop();
 
         if((outputLevel <= MSG::DEBUG) && (tp != 0)){

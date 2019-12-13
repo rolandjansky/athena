@@ -6,15 +6,14 @@
 #define MUONBYTESTREAMCNVTEST_RPCRDOTORPCDIGIT_H
 
 #include "GaudiKernel/ToolHandle.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "MuonRPC_CnvTools/IRPC_RDO_Decoder.h"
 #include "MuonRDO/RpcPadContainer.h"
 #include "MuonDigitContainer/RpcDigitContainer.h"
 #include "RPCcablingInterface/IRPCcablingServerSvc.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
-class RpcIdHelper;
-
-class RpcRdoToRpcDigit : public AthAlgorithm {
+class RpcRdoToRpcDigit : public AthReentrantAlgorithm {
 
  public:
 
@@ -22,13 +21,14 @@ class RpcRdoToRpcDigit : public AthAlgorithm {
   virtual ~RpcRdoToRpcDigit() = default;
 
   virtual StatusCode initialize() override final;
-  virtual StatusCode execute() override final;
+  virtual StatusCode execute(const EventContext& ctx) const override final;
 
  private:
   StatusCode decodeRpc( const RpcPad *, RpcDigitContainer *, RpcDigitCollection*& ) const;
   ToolHandle<Muon::IRPC_RDO_Decoder>  m_rpcRdoDecoderTool{this,"rpcRdoDecoderTool","Muon::RpcRDO_Decoder",""};
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   ServiceHandle<IRPCcablingServerSvc> m_rpcCablingServerSvc{this, "RPCcablingServerSvc", "RPCcablingServerSvc", ""};
-  const RpcIdHelper *   m_rpcHelper{};
   const IRPCcablingSvc * m_rpcCabling{};
   SG::ReadHandleKey<RpcPadContainer> m_rpcRdoKey{this, "RpcRdoContainer", "RPCPAD", "Rpc RDO Input"};
   SG::WriteHandleKey<RpcDigitContainer> m_rpcDigitKey{this, "RpcDigitContainer", "RPC_DIGITS", "Rpc Digit Output"};

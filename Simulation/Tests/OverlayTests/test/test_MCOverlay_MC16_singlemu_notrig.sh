@@ -12,7 +12,7 @@
 
 OverlayPool_tf.py \
 --inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc16_13TeV.424000.ParticleGun_single_mu_Pt100.simul.HITS.e3580_s3126/HITS.11330296._000376.pool.root.1 \
---inputRDO_BKGFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/PileupPremixing/22.0/v1/RDO.merged-pileup.100events.pool.root \
+--inputRDO_BKGFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/PileupPremixing/22.0/v4/RDO.merged-pileup.100events.pool.root \
 --outputRDOFile MC_plus_MC.RDO.pool.root \
 --maxEvents 20 --skipEvents 10  --digiSeedOffset1 511 --digiSeedOffset2 727 \
 --conditionsTag OFLCOND-MC16-SDR-20 \
@@ -43,7 +43,7 @@ if [ $rc -eq 0 ]
 then
     ArtPackage=$1
     ArtJobName=$2
-    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
+    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary --file *RDO.pool.root --diff-root
     rc3=$?
 fi
 echo "art-result: $rc3 regression"

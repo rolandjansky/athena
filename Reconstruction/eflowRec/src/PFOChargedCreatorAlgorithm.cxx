@@ -131,9 +131,15 @@ void PFOChargedCreatorAlgorithm::createChargedPFO(const eflowCaloObject& energyF
 	else usedClusterList.push_back(theOriginalClusterLink);
 
 	ElementLink<xAOD::CaloClusterContainer> theSisterClusterLink = (*theOriginalClusterLink)->getSisterClusterLink();
-	ATH_MSG_DEBUG("PFO with e and eta of " << thisPFO->e() << " and " << thisPFO->eta() << " is adding cluster with e, eta of " << (*theSisterClusterLink)->e() << " and " << (*theSisterClusterLink)->eta() << " an sistser has " << (*theOriginalClusterLink)->e() << " and " << (*theOriginalClusterLink)->eta());
-	bool isSet = thisPFO->addClusterLink(theSisterClusterLink);
-	 if (!isSet) ATH_MSG_WARNING("Could not set Cluster in PFO");
+	if(theSisterClusterLink.isValid()) {
+	  ATH_MSG_DEBUG("PFO with e and eta of " << thisPFO->e() << " and " << thisPFO->eta() << " is adding cluster with e, eta of " << (*theSisterClusterLink)->e() << " and " << (*theSisterClusterLink)->eta() << " an sistser has " << (*theOriginalClusterLink)->e() << " and " << (*theOriginalClusterLink)->eta());
+	  bool isSet = thisPFO->setClusterLink(theSisterClusterLink);
+	  if (!isSet) { ATH_MSG_WARNING( "Could not set Cluster in PFO " ); }
+	} else {
+	  ATH_MSG_DEBUG("PFO with e and eta of " << thisPFO->e() << " and " << thisPFO->eta() << " is adding cluster with e, eta of " << (*theOriginalClusterLink)->e() << " and " << (*theOriginalClusterLink)->eta());
+	  bool isSet = thisPFO->setClusterLink(theOriginalClusterLink);
+	  if (!isSet) { ATH_MSG_WARNING( "Could not set Cluster in PFO " ); }
+	}
       }//track-cluster link loop
     }//addClusters is set to true - so we added the clusters to the xAOD::PFO   
 

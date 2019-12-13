@@ -14,8 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Database/AthenaPOOL/AthenaPoolUtilities
                           Event/ByteStreamCnvSvc
                           Event/ByteStreamData
-                          GaudiKernel
-                          TestPolicy )
+                          GaudiKernel )
 
 # Component(s) in the package:
 atlas_add_component( ByteStreamTest

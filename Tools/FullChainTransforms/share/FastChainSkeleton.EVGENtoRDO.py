@@ -21,7 +21,7 @@ fast_chain_log.info( str(runArgs) )
 
 from AthenaCommon import CfgGetter
 import AthenaCommon.SystemOfUnits as Units
-
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 ### Start of Sim
 
@@ -281,23 +281,18 @@ except:
 DetFlags.LVL1_setOff()
 DetFlags.Truth_setOn()
 DetFlags.Forward_setOff() # Forward dets are off by default
-DetFlags.Micromegas_setOff()
-DetFlags.sTGC_setOff()
 DetFlags.FTK_setOff()
 checkHGTDOff = getattr(DetFlags, 'HGTD_setOff', None)
 if checkHGTDOff is not None:
     checkHGTDOff() #Default for now
 
-# from AthenaCommon.DetFlags import DetFlags
-
-# from AthenaCommon.DetFlags import DetFlags
     ## Tidy up DBM DetFlags: temporary measure
 DetFlags.DBM_setOff()
 
-if hasattr(simFlags, 'SimulateNewSmallWheel'):
-    if simFlags.SimulateNewSmallWheel():
-        DetFlags.sTGC_setOn()
-        DetFlags.Micromegas_setOn()
+# turn off DetFlags for muon detectors which are not part of the layout
+if not MuonGeometryFlags.hasCSC(): DetFlags.CSC_setOff()
+if not MuonGeometryFlags.hasSTGC(): DetFlags.sTGC_setOff()
+if not MuonGeometryFlags.hasMM(): DetFlags.Micromegas_setOff()
 
 #if simFlags.ForwardDetectors.statusOn:
 #    if DetFlags.geometry.FwdRegion_on():
@@ -308,12 +303,16 @@ if hasattr(simFlags, 'SimulateNewSmallWheel'):
 DetFlags.digitize.all_setOn()
 DetFlags.digitize.LVL1_setOff()
 DetFlags.digitize.ZDC_setOff()
-DetFlags.digitize.Micromegas_setOff()
-DetFlags.digitize.sTGC_setOff()
 DetFlags.digitize.Forward_setOff()
 DetFlags.digitize.Lucid_setOff()
 DetFlags.digitize.AFP_setOff()
 DetFlags.digitize.ALFA_setOff()
+
+# turn off DetFlags.digitize for muon detectors which are not part of the layout
+# (since DetFlags.digitize.all_setOn() is called a few lines above)
+if not MuonGeometryFlags.hasCSC(): DetFlags.digitize.CSC_setOff()
+if not MuonGeometryFlags.hasSTGC(): DetFlags.digitize.sTGC_setOff()
+if not MuonGeometryFlags.hasMM(): DetFlags.digitize.Micromegas_setOff()
 
 #set all detdescr on except fwd.
 #DetFlags.detdescr.all_setOn()
@@ -771,36 +770,14 @@ if ISF_Flags.UsingGeant4():
     gms.AlignCallbacks = False
     ## Muon GeoModel tweaks
     if DetFlags.Muon_on():
-        ## Turn off caching in the muon system
-        from MuonGeoModel.MuonGeoModelConf import MuonDetectorTool
-        MuonDetectorTool = MuonDetectorTool()
-        MuonDetectorTool.FillCacheInitTime = 0 # default is 1
-        if hasattr(simFlags, 'SimulateNewSmallWheel'):
-            if simFlags.SimulateNewSmallWheel():
-                MuonDetectorTool.StationSelection  = 2
-                MuonDetectorTool.SelectedStations  = [ "EIL1" ]
-                MuonDetectorTool.SelectedStations  += [ "EIL2" ]
-                MuonDetectorTool.SelectedStations  += [ "EIL6" ]
-                MuonDetectorTool.SelectedStations  += [ "EIL7" ]
-                MuonDetectorTool.SelectedStations  += [ "EIS*" ]
-                MuonDetectorTool.SelectedStations  += [ "EIL10" ]
-                MuonDetectorTool.SelectedStations  += [ "EIL11" ]
-                MuonDetectorTool.SelectedStations  += [ "EIL12" ]
-                MuonDetectorTool.SelectedStations  += [ "EIL17" ]
-                MuonDetectorTool.SelectedStations  += [ "CSS*" ]
-                MuonDetectorTool.SelectedStations  += [ "CSL*" ]
-                MuonDetectorTool.SelectedStations  += [ "T4E*" ]
-                MuonDetectorTool.SelectedStations  += [ "T4F*" ]
-
         ## Additional material in the muon system
         from AGDD2GeoSvc.AGDD2GeoSvcConf import AGDDtoGeoSvc
         AGDD2Geo = AGDDtoGeoSvc()
         if not "MuonAGDDTool/MuonSpectrometer" in AGDD2Geo.Builders.__str__():
             AGDD2Geo.Builders += [CfgGetter.getPrivateTool("MuonSpectrometer", checkType=True)]
-        if hasattr(simFlags, 'SimulateNewSmallWheel'):
-            if simFlags.SimulateNewSmallWheel():
-                if not "NSWAGDDTool/NewSmallWheel" in AGDD2Geo.Builders.__str__():
-                    AGDD2Geo.Builders += [CfgGetter.getPrivateTool("NewSmallWheel", checkType=True)]
+        if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
+            if not "NSWAGDDTool/NewSmallWheel" in AGDD2Geo.Builders.__str__():
+                AGDD2Geo.Builders += [CfgGetter.getPrivateTool("NewSmallWheel", checkType=True)]
         theApp.CreateSvc += ["AGDDtoGeoSvc"]
         ServiceMgr += AGDD2Geo
 

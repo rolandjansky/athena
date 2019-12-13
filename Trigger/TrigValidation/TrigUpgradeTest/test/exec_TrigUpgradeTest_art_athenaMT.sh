@@ -24,7 +24,7 @@ if [ -z ${SKIPEVENTS} ]; then
 fi
 
 if [ -z ${JOBOPTION} ]; then
-  export JOBOPTION="TriggerRelease/runHLT_standalone.py"
+  export JOBOPTION="TriggerJobOpts/runHLT_standalone.py"
 fi
 
 if [ -z ${JOB_LOG} ]; then
@@ -86,7 +86,11 @@ fi
 ######################################
 
 # Generate empty PoolFileCatalog.xml - this prevents incorrect handling of crashes on the grid
-art.py createpoolfile
+ART_AVAILABLE=`which art.py >/dev/null 2>&1; echo $?`
+if [[ $ART_AVAILABLE == "0" ]]; then
+  echo "Executing art.py createpoolfile"
+  art.py createpoolfile
+fi
 
 ######################################
 

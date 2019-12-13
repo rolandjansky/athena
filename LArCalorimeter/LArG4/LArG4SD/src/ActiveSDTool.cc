@@ -91,7 +91,7 @@ namespace LArG4
   //---------------------------------------------------------------------------
   // Create SD wrapper for current thread
   //---------------------------------------------------------------------------
-  G4VSensitiveDetector* ActiveSDTool::makeSD()
+  G4VSensitiveDetector* ActiveSDTool::makeSD() const
   {
     const std::string deadHitCollName=m_hitCollName+"_DEAD";
     // Create the wrapper

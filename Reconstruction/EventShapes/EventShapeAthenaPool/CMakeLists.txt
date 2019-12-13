@@ -19,7 +19,3 @@ atlas_add_poolcnv_library( EventShapeAthenaPoolPoolCnv
                            FILES EventShapeEvent/EventShapeStore.h
                            TYPES_WITH_NAMESPACE 
                            LINK_LIBRARIES AthenaPoolUtilities AthenaPoolCnvSvcLib EventShapeEvent EventShapeTPCnv )
-
-# Install files from the package:
-atlas_install_headers( EventShapeAthenaPool )
-

@@ -97,7 +97,6 @@ IOVDbMetaDataTool::initialize()
     }
     incSvc->addListener(this, "FirstInputFile", 60); // pri has to be < 100 to be after MetaDataSvc.
     incSvc->addListener(this, "BeginInputFile", 60); // pri has to be < 100 to be after MetaDataSvc.
-    //incSvc->addListener(this, "EndFile", 50); // pri has to be > 10 to be before MetaDataSvc.
 
     // Check whether folders need to be modified
     m_modifyFolders = false;
@@ -149,9 +148,7 @@ IOVDbMetaDataTool::handle(const Incident& inc) {
             ATH_MSG_ERROR(" Could not process input file meta data");
             throw std::exception();
         }
-    } else if (inc.type() == "EndFile") {
-        // Do nothing
-    }
+    } 
 }
 
 
@@ -480,12 +477,8 @@ IOVDbMetaDataTool::processInputFileMetaData(const std::string& fileName)
 
     // Retrieve all meta data containers from InputMetaDataStore
 
-    // Before migrating to SG::ConstIterator, the 'key' method needs to be defined! RDS 08/2010
-    // SG::ConstIterator<IOVMetaDataContainer> cont;
-    // SG::ConstIterator<IOVMetaDataContainer> contEnd;
-    const DataHandle<IOVMetaDataContainer> cont;
-    const DataHandle<IOVMetaDataContainer> contEnd;
-
+    SG::ConstIterator<IOVMetaDataContainer> cont;
+    SG::ConstIterator<IOVMetaDataContainer> contEnd;
 
     StatusCode sc = m_inputStore->retrieve(cont, contEnd);
     if (!sc.isSuccess()) {

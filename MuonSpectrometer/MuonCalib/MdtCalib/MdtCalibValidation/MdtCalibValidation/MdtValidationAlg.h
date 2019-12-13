@@ -30,9 +30,10 @@
 //MdtCalibData
 #include "MdtCalibData/MdtTubeFitContainer.h"
 
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 class RegionSelectionSvc;
 
-class MdtIdHelper;
 namespace MuonGM {
   class MuonDetectorManager;
 }
@@ -110,7 +111,8 @@ namespace MuonCalib {
     // helpers //
     std::string m_MDT_ID_helper; // name of the MDT ID helper
     
-    const MdtIdHelper *m_MdtIdHelper; // pointer to the MDT ID helper
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
     
     const MuonGM::MuonDetectorManager *m_detMgr; // pointer to the muon
     // detector manager

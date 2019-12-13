@@ -12,18 +12,13 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "MuonCombinedToolInterfaces/IMuonMeanMDTdADCFiller.h"
 
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonCalibITools/IIdToFixedIdTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "xAODEventInfo/EventInfo.h"
 
 #include "StoreGate/ReadHandleKey.h"
-
-// class IIncidentSvc;
-namespace Trk {}
 
 namespace Rec
 {
@@ -60,14 +55,11 @@ namespace Rec
  
  private: 
   
-    // tools and services 
-	ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
-      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+    ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper",
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
       "Handle to the service providing the IMuonEDMHelperSvc interface" };
-    ToolHandle<Muon::MuonIdHelperTool>  m_idHelperTool;
-    ToolHandle<MuonCalib::IIdToFixedIdTool> m_idToFixedIdTool;
-
-      SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"EventInfo","EventInfo","event info"};
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"EventInfo","EventInfo","event info"};
 
   }; 
 

@@ -247,7 +247,6 @@ class RpcIdHelper : public MuonIdHelper
       StripMin       =  1,
       StripMax       = 99
     };
-  inline virtual void create_mlog() const;
 
 };
 

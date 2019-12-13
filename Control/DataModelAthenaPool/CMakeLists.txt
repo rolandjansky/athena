@@ -81,25 +81,20 @@ atlas_add_test( NavigableCnv_p2_test
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers AthLinks AthenaBaseComps AthenaKernel Navigation RootUtils RootUtilsPyROOT GaudiKernel TestTools SGTools AthenaPoolCnvSvcLib AthenaPoolUtilities RootConversions DataModelAthenaPoolLib )
 
-atlas_add_test( NavigableVectorCnv_p1_test
-                SOURCES
-                test/NavigableVectorCnv_p1_test.cxx
-                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers AthLinks AthenaBaseComps AthenaKernel Navigation RootUtils RootUtilsPyROOT GaudiKernel TestTools SGTools AthenaPoolCnvSvcLib AthenaPoolUtilities RootConversions DataModelAthenaPoolLib )
-
-atlas_add_test( NavigableVectorCnv_p2_test
-                SOURCES
-                test/NavigableVectorCnv_p2_test.cxx
-                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers AthLinks AthenaBaseComps AthenaKernel Navigation RootUtils RootUtilsPyROOT GaudiKernel TestTools SGTools AthenaPoolCnvSvcLib AthenaPoolUtilities RootConversions DataModelAthenaPoolLib )
-
 atlas_add_test( ElementLinkVectorCnv_p1_test
                 SOURCES
                 test/ElementLinkVectorCnv_p1_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers AthLinks AthenaBaseComps AthenaKernel Navigation RootUtils RootUtilsPyROOT GaudiKernel TestTools SGTools AthenaPoolCnvSvcLib AthenaPoolUtilities RootConversions DataModelAthenaPoolLib )
 
+atlas_add_test( VectorElementLinkCnv_p1_test
+                SOURCES
+                test/VectorElementLinkCnv_p1_test.cxx
+                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
+                LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers AthLinks AthenaBaseComps AthenaKernel Navigation RootUtils RootUtilsPyROOT GaudiKernel TestTools SGTools AthenaPoolCnvSvcLib AthenaPoolUtilities RootConversions DataModelAthenaPoolLib )
+
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py
+                              POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/DataModelAthenaPool_jobOptions.py )
 

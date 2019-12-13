@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file TruthD3PDAnalysis/src/TruthParticleFilterBase.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -19,7 +17,7 @@
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenVertex.h"
 #include "HepMC/GenParticle.h"
-#include "boost/foreach.hpp"
+#include "boost/range/iterator_range_core.hpp"
 #include <utility>
 
 
@@ -139,7 +137,7 @@ TruthParticleFilterBase::buildMcAod (const McEventCollection* mc_in,
 {
   // Loop over GenEvent's.
   mc_out->reserve (mc_in->size());
-  BOOST_FOREACH (const HepMC::GenEvent* ev_in, *mc_in) {
+  for (const HepMC::GenEvent* ev_in : *mc_in) {
     if (!ev_in) continue;
 
     // Copy the GenEvent.
@@ -180,7 +178,7 @@ TruthParticleFilterBase::filterEvent (const HepMC::GenEvent* ev_in,
                                       HepMC::GenEvent* ev_out)
 {
   // Loop over particles.
-  // (FOREACH doesn't work here because particle_const_iterator
+  // (range-based for doesn't work here because particle_const_iterator
   // isn't consistent in the use of const...)
   for (HepMC::GenEvent::particle_const_iterator ip = ev_in->particles_begin();
        ip != ev_in->particles_end();
@@ -255,18 +253,18 @@ TruthParticleFilterBase::addVertex (const HepMC::GenVertex* v,
     ev->add_vertex (vnew);
 
     // Fill in the existing relations of the new vertex.
-    BOOST_FOREACH(const HepMC::GenParticle* p,
-                  std::make_pair (v->particles_in_const_begin(),
-                                  v->particles_in_const_end()))
+    for (const HepMC::GenParticle* p :
+           boost::make_iterator_range (v->particles_in_const_begin(),
+                                       v->particles_in_const_end()))
     {
       HepMC::GenParticle* pnew = ev->barcode_to_particle (p->barcode());
       if (pnew)
         vnew->add_particle_in (pnew);
     }
 
-    BOOST_FOREACH(const HepMC::GenParticle* p,
-                  std::make_pair (v->particles_out_const_begin(),
-                                  v->particles_out_const_end()))
+    for (const HepMC::GenParticle* p :
+           boost::make_iterator_range (v->particles_out_const_begin(),
+                                       v->particles_out_const_end()))
     {
       HepMC::GenParticle* pnew = ev->barcode_to_particle (p->barcode());
       if (pnew)

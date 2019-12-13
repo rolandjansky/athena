@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 from __future__ import print_function
 from AtlasGeoModel.GeoModelConfig import GeoModelCfg
 from AthenaCommon.Configurable import Configurable
@@ -23,5 +25,5 @@ if __name__ == "__main__":
     ConfigFlags.lock()
 
     acc = TileGMCfg( ConfigFlags )
-    acc.store( file( "test.pkl", "w" ) )
+    acc.store( open( "test.pkl", "wb" ) )
     print("All OK")

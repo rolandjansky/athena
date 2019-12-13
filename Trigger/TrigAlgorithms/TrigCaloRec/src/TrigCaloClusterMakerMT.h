@@ -54,7 +54,6 @@ class TrigCaloClusterMakerMT : public AthAlgorithm {
   ToolHandleArray<CaloClusterProcessor> m_clusterCorrections
   { this, "ClusterCorrectionTools", {}, "" };
 
-
   // Following used for testing only :
   //bool        m_useMeaningfullNames;      
   std::string m_clustersOutputName;
@@ -74,25 +73,33 @@ class TrigCaloClusterMakerMT : public AthAlgorithm {
 //   double m_EMFraction;
 //   double m_EdRFraction;
 
-  SG::ReadHandleKey<TrigCaloQuality> m_inputCaloQualityKey{ this,
-      "CaloQuality",                  // property name
-      "caloquality",                                             // default value of StoreGate key
-      "input TrigCaloQuality"};
-
   SG::ReadHandleKey<CaloCellContainer> m_inputCellsKey{ this,
       "Cells",                  // property name
       "cells",                                             // default value of StoreGate key
       "input CaloCellContainer "};
 
+#if 0
+  SG::ReadHandleKey<TrigCaloQuality> m_inputCaloQualityKey{ this,
+      "CaloQuality",                  // property name
+      "caloquality",                                             // default value of StoreGate key
+      "input TrigCaloQuality"};
+
   SG::ReadHandleKey<CaloTowerContainer> m_inputTowersKey{ this,
       "CaloTowers",                  // property name
       "calotowers",                                             // default value of StoreGate key
       "output CaloTowerContainer"};
+#endif
 
   SG::WriteHandleKey<xAOD::CaloClusterContainer> m_outputClustersKey{ this,
       "CaloClusters",                  // property name
       "caloclusters",                                             // default value of StoreGate key
       "output CaloClusterContainer"};
+
+  // This is to write out the cells container so it is available at later steps
+  SG::WriteHandleKey<CaloClusterCellLinkContainer> m_clusterCellLinkOutput{ this,
+      "CellLinks",
+      "celllinks",
+      "Output cell links"};
 
 
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };

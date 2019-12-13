@@ -14,7 +14,7 @@
 
 #include "TrigMuonBackExtrapolator/ITrigMuonBackExtrapolator.h"
 
-#include "MuonIdHelpers/MdtIdHelper.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 #include "TrigL2MuonSA/RpcData.h"
 #include "TrigL2MuonSA/RpcPatFinder.h"
@@ -56,7 +56,7 @@ class RpcRoadDefiner: public AthAlgTool
 			double                       roiEtaMaxHigh);
 
   void setMdtGeometry( const ServiceHandle<IRegSelSvc>& regionSelector, 
-                       const MdtIdHelper* mdtIdHelper);
+                       const Muon::MuonIdHelperTool* muonIdHelperTool);
   void setRoadWidthForFailure(double rWidth_RPC_Failed);
   void setRpcGeometry(bool use_rpc);
 
@@ -71,7 +71,7 @@ class RpcRoadDefiner: public AthAlgTool
   bool m_use_rpc;
 
   ServiceHandle<IRegSelSvc> m_regionSelector;
-  const MdtIdHelper* m_mdtIdHelper;
+  const Muon::MuonIdHelperTool* m_muonIdHelperTool;
 };
 
 // --------------------------------------------------------------------------------

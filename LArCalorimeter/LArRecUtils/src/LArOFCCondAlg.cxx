@@ -31,8 +31,8 @@ LArOFCCondAlg::LArOFCCondAlg(const std::string &name,
     m_LArAutoCorrTotalObjKey("LArAutoCorrTotal"),
     m_LArOFCObjKey("LArOFC"),
     m_condSvc("CondSvc", name), m_Nminbias(0), m_isMC(true),
-    m_isSuperCell(false), m_firstSample(0), m_useDelta(0),
-    m_deltaBunch(1), m_useHighestGainAutoCorr(false), m_Dump(false) {
+    m_isSuperCell(false), m_firstSample(0), 
+    m_useHighestGainAutoCorr(false), m_Dump(false) {
         declareProperty("LArOnOffIdMappingObjKey", m_LArOnOffIdMappingObjKey,
                 "Key to read LArOnOffIdMapping object");
         declareProperty("LArShapeObjKey", m_LArShapeObjKey,
@@ -51,11 +51,6 @@ LArOFCCondAlg::LArOFCCondAlg(const std::string &name,
         declareProperty(
                 "firstSample", m_firstSample,
                 "First sample to use for in-time event on the full pulse shape");
-        declareProperty("UseDelta",
-                m_useDelta,
-                "0 = not use Delta, 1 = only EMECIW/HEC/FCAL, 2 = all , 3 = only EMECIW/HEC/FCAL1+high eta FCAL2-3");
-        declareProperty("DeltaBunch", m_deltaBunch,
-                "Delta between filled bunches in 25 ns units");
         declareProperty("useHighestGainAutoCorr",m_useHighestGainAutoCorr);
         declareProperty("DumpOFCCondAlg",m_Dump);
     }
@@ -125,20 +120,6 @@ StatusCode LArOFCCondAlg::execute() {
         ATH_CHECK(detStore()->retrieve(idhelper, "LArOnlineID"));
         larOnlineID = idhelper; // cast to base-class
     }
-
-    // retrieve CaloDetDescrManager only for m_delta=3
-    const CaloDetDescrManager_Base* caloDetDescrMan = nullptr;
-    if (m_useDelta == 3 ){
-        if ( m_isSuperCell ){
-            const CaloSuperCellDetDescrManager* cc;
-            ATH_CHECK(  detStore()->retrieve(cc) );
-            caloDetDescrMan = (const CaloDetDescrManager_Base*) cc;
-        }else{
-            const CaloDetDescrManager* cc;
-            ATH_CHECK(  detStore()->retrieve(cc) );
-            caloDetDescrMan = (const CaloDetDescrManager_Base*) cc;
-        }
-    }  
 
 
     EventIDRange rangeMapping;
@@ -247,40 +228,7 @@ StatusCode LArOFCCondAlg::execute() {
             count2++;
             for (size_t igain = 0; igain < m_nGains; igain++) {
 
-                bool thisChan_useDelta = false;
-
                 std::vector<float> OFCa_tmp, OFCb_tmp;
-
-                if (m_useDelta==2) {
-                    thisChan_useDelta = true; 
-                }
-                else if (m_useDelta==1) { // only HEC/EMECIW/FCAL
-                    if (larOnlineID->isEMECIW(chid) || larOnlineID->isFCALchannel(chid) || larOnlineID->isHECchannel(chid)) {
-                        thisChan_useDelta = true; 
-                    }
-                }
-                else if (m_useDelta==3) { // only HEC/EMECIW/FCAL1 and high eta FCAL2-3 
-                    if (larOnlineID->isEMECIW(chid) ||  larOnlineID->isHECchannel(chid)) {
-                        thisChan_useDelta = true; 
-                    }
-                    else if (larOnlineID->isFCALchannel(chid) && caloDetDescrMan) {       
-                        Identifier ofl_id = larOnOffIdMapping->cnvToIdentifier(chid);
-                        const CaloDetDescrElement* dde = caloDetDescrMan->get_element(ofl_id);
-                        if (!dde) {
-                            ATH_MSG_ERROR( " dde = 0 , onl_id, ofl_id= "<< chid << " "<< ofl_id  );
-                            //return (m_OFCtmp);
-                        }
-                        CaloCell_ID::CaloSample sampling = dde->getSampling();
-                        float eta = dde->eta();
-                        if (sampling==CaloCell_ID::FCAL0){
-                            thisChan_useDelta = true;
-                        } else {
-                            if (fabs(eta)>4.0) {
-                                thisChan_useDelta = true;
-                            }
-                        }    
-                    }     
-                }
 
                 //:::::::::::::::::::::::::::::::
                 //retrieve the data
@@ -377,37 +325,36 @@ StatusCode LArOFCCondAlg::execute() {
                 ACinv=AC.inverse();
                 //:::::::::::::::::::::::::::::::           
 
-                if (!thisChan_useDelta) { // STANDARD CALCULATION
 
-                    float ACinv_PS[32];//ACinv_PS
-                    float ACinv_PSD[32]; //ACinv_PSD
-                    //Q1 Q2 Q3 DELTA
-                    float Q1=0.;
-                    float Q2=0.;
-                    float Q3=0.;
+                float ACinv_PS[32];//ACinv_PS
+                float ACinv_PSD[32]; //ACinv_PSD
+                //Q1 Q2 Q3 DELTA
+                float Q1=0.;
+                float Q2=0.;
+                float Q3=0.;
 
-                    for(l=0;l<nsamples_AC_OFC;++l)
-                    {
-                        ACinv_PS[l]=0.; ACinv_PSD[l]=0.;
-                        for(c=0;c<nsamples_AC_OFC;++c){
-                            ACinv_PS[l]+=ACinv(l,c)*Shape[c+iBeginOfNSamples];
-                            ACinv_PSD[l]+=ACinv(l,c)*ShapeDer[c+iBeginOfNSamples];
-                        }
-                        Q1+=Shape[l+iBeginOfNSamples]*ACinv_PS[l];
-                        Q2+=ShapeDer[l+iBeginOfNSamples]*ACinv_PSD[l];
-                        Q3+=ShapeDer[l+iBeginOfNSamples]*ACinv_PS[l];
-                    } 
-                    float DELTA=Q1*Q2-Q3*Q3;  
-                    //:::::::::::::::::::::::::::::::
-                    //OFCa  
-                    for(i=0;i<nsamples_AC_OFC;++i) 
-                        OFCa_tmp.push_back( (ACinv_PS[i]*Q2-ACinv_PSD[i]*Q3)/DELTA );
-                    //OFCb  
-                    for(i=0;i<nsamples_AC_OFC;++i) 
-                        OFCb_tmp.push_back( (ACinv_PS[i]*Q3-ACinv_PSD[i]*Q1)/DELTA ); 
+                for(l=0;l<nsamples_AC_OFC;++l)
+                {
+                    ACinv_PS[l]=0.; ACinv_PSD[l]=0.;
+                    for(c=0;c<nsamples_AC_OFC;++c){
+                        ACinv_PS[l]+=ACinv(l,c)*Shape[c+iBeginOfNSamples];
+                        ACinv_PSD[l]+=ACinv(l,c)*ShapeDer[c+iBeginOfNSamples];
+                    }
+                    Q1+=Shape[l+iBeginOfNSamples]*ACinv_PS[l];
+                    Q2+=ShapeDer[l+iBeginOfNSamples]*ACinv_PSD[l];
+                    Q3+=ShapeDer[l+iBeginOfNSamples]*ACinv_PS[l];
+                } 
+                float DELTA=Q1*Q2-Q3*Q3;  
+                //:::::::::::::::::::::::::::::::
+                //OFCa  
+                for(i=0;i<nsamples_AC_OFC;++i) 
+                    OFCa_tmp.push_back( (ACinv_PS[i]*Q2-ACinv_PSD[i]*Q3)/DELTA );
+                //OFCb  
+                for(i=0;i<nsamples_AC_OFC;++i) 
+                    OFCb_tmp.push_back( (ACinv_PS[i]*Q3-ACinv_PSD[i]*Q1)/DELTA ); 
 
-                    //for debugging only
-                    if(m_Dump)
+                //for debugging only
+                if(m_Dump)
                     { 
                         std::cout<<larOnlineID
                             ->show_to_string(larOnOffIdMapping->cnvToIdentifier(chid))
@@ -433,116 +380,7 @@ StatusCode LArOFCCondAlg::execute() {
                         for(i=0;i<nsamples_AC_OFC;++i) 
                             std::cout<<(ACinv_PS[i]*Q2-ACinv_PSD[i]*Q3)/DELTA<<" ";
                         std::cout<<std::endl;
-                    }
-                } else { // OPTIMIZATION WRT NOISE AND PEDESTAL SHIFTS
-                    ATH_MSG_DEBUG( " Computing pulse averages for " 
-                            << chid << " at gain " << igain );
-
-                    std::vector<float> averages = getShapeAverages(nsamples_AC_OFC,m_deltaBunch,Shape.asVector(),firstSample);
-
-                    // Fill shape, derivative and delta vectors as HepVector
-                    //HepVector gResp(nsamples_AC_OFC);
-                    //HepVector gDerivResp(nsamples_AC_OFC);
-                    //HepVector gDelta(nsamples_AC_OFC);
-                    Eigen::VectorXf gResp = Eigen::VectorXf::Zero(nsamples_AC_OFC);
-                    Eigen::VectorXf gDerivResp = Eigen::VectorXf::Zero(nsamples_AC_OFC);
-                    Eigen::VectorXf gDelta = Eigen::VectorXf::Zero(nsamples_AC_OFC);
-                    for(c=0;c<nsamples_AC_OFC;++c){
-                        gResp(c)      = Shape[c+iBeginOfNSamples];
-                        gDerivResp(c) = ShapeDer[c+iBeginOfNSamples];
-                        gDelta(c)     = averages[c];
-                    }
-
-                    ATH_MSG_DEBUG( " Computing OFC optimized for noise and offsets for " 
-                            << chid << " at gain " << igain );
-
-                    //HepMatrix isol(3,3); 
-                    Eigen::Matrix3f isol = Eigen::Matrix3f::Zero(); 
-
-                    isol(0,0) = (gResp.transpose()*ACinv*gResp)(0);
-                    isol(0,1) = (gResp.transpose()*ACinv*gDerivResp)(0);
-                    isol(0,2) = (gResp.transpose()*ACinv*gDelta)(0);
-
-                    isol(1,0) = (gDerivResp.transpose()*ACinv*gResp)(0);
-                    isol(1,1) = (gDerivResp.transpose()*ACinv*gDerivResp)(0);
-                    isol(1,2) = (gDerivResp.transpose()*ACinv*gDelta)(0);
-
-                    isol(2,0) = (gDelta.transpose()*ACinv*gResp)(0);
-                    isol(2,1) = (gDelta.transpose()*ACinv*gDerivResp)(0);
-                    isol(2,2) = (gDelta.transpose()*ACinv*gDelta)(0);
-
-                    //int ifail;
-                    //HepMatrix isolInv = isol.inverse(ifail);
-                    Eigen::Matrix3f isolInv = isol.inverse();
-                    //if(ifail != 0) {
-                    // do something 
-                    //} 
-
-                    //for debugging only
-                    if(m_Dump)
-                    {
-                        std::cout<<larOnlineID
-                            ->show_to_string(larOnOffIdMapping->cnvToIdentifier(chid))
-                            <<" gain="<<igain<<" Nminbias="<<m_Nminbias<<std::endl;
-                        std::cout<<"Shape: ";
-                        for(c=0;c<nsamples_shape;++c)
-                            std::cout<<Shape[c]<<" ";
-                        std::cout<<std::endl;
-                        std::cout<<"ShapeDer: ";
-                        for(c=0;c<nsamples_shape;++c)
-                            std::cout<<ShapeDer[c]<<" ";
-                        std::cout<<std::endl;
-                        std::cout << " Shape for the n samples ";
-                        for(c=0;c<nsamples_AC_OFC;++c)
-                            std::cout<<Shape[c+iBeginOfNSamples]<<" ";
-                        std::cout<<" <- "<<iBeginOfNSamples<<std::endl;
-                        std::cout << " averages: ";
-                        for(i=0;i<nsamples_AC_OFC;++i)
-                            std::cout<<averages[i]<< " ";
-                        std::cout<<std::endl;
-                    }
-
-
-                    // OFCa 
-                    {
-                        //HepVector Amp(3); 
-                        Eigen::Vector3f Amp = Eigen::Vector3f::Zero(); 
-                        //HepVector Ktemp(3);
-                        Eigen::Vector3f Ktemp = Eigen::Vector3f::Zero();
-                        Ktemp(0) = 1.;
-                        Ktemp(1) = 0.;
-                        Ktemp(2) = 0.;
-                        Amp = isolInv*Ktemp;
-                        //HepVector OFCa_vec(nsamples_AC_OFC);
-                        Eigen::VectorXf OFCa_vec = Eigen::VectorXf::Zero(nsamples_AC_OFC);
-                        OFCa_vec = Amp(0)*ACinv*gResp + Amp(1)*ACinv*gDerivResp + Amp(2)*ACinv * gDelta;
-                        for(i=0;i<nsamples_AC_OFC;++i) {
-                            OFCa_tmp.push_back( OFCa_vec(i) );
-                        }
-                        if (m_Dump) {
-                            std::cout << "OFCa: ";
-                            for(i=0;i<nsamples_AC_OFC;++i) std::cout << OFCa_vec(i) << " ";
-                            std::cout << std::endl;
-                        }
-                    }
-
-                    // OFCb
-                    {
-                        //HepVector Atau(3);
-                        Eigen::Vector3f Atau = Eigen::Vector3f::Zero();
-                        //HepVector Ktemp(3);
-                        Eigen::Vector3f Ktemp = Eigen::Vector3f::Zero();
-                        Ktemp(0) = 0.; 
-                        Ktemp(1) = -1.;
-                        Ktemp(2) = 0.;
-                        Atau = isolInv*Ktemp;
-                        //HepVector OFCb_vec(nsamples_AC_OFC);
-                        Eigen::VectorXf OFCb_vec = Eigen::VectorXf::Zero(nsamples_AC_OFC);
-                        OFCb_vec = Atau(0)*ACinv*gResp + Atau(1)*ACinv*gDerivResp + Atau(2)*ACinv * gDelta  ;
-                        for(i=0;i<nsamples_AC_OFC;++i) 
-                            OFCb_tmp.push_back( OFCb_vec(i) );
-                    }
-                } // finish optimization wrt pedestal and noise
+                }
                 bool stat = larOFC->setOFC(hid, igain, std::make_pair(OFCa_tmp, OFCb_tmp));
             	if (!stat) {
 	                msg(MSG::ERROR) << "LArOFC::setOFC fails for gain " << igain << ", hash " << hid << endmsg;
@@ -564,22 +402,6 @@ StatusCode LArOFCCondAlg::execute() {
     ATH_CHECK(writeHandle.record(rangeIntersection,larOFC.release()));
     ATH_MSG_INFO("Wrote LArOFC obj to CondStore");
     return StatusCode::SUCCESS;
-}
-
-std::vector<float> LArOFCCondAlg::getShapeAverages( const unsigned n_samples, 
-						 const unsigned n_deltaBunch, // in unit of 25 ns
-						 const std::vector<float>& shape, unsigned int firstSample ) const
-{
-  std::vector<float> averages(n_samples);
-  for (unsigned int i=0;i<n_samples;++i) {
-    float sumShape = 0.;
-    for (unsigned int j=0;j<shape.size();++j) {
-      int k=i-j+firstSample;
-      if (k%n_deltaBunch == 0 ) sumShape += shape[j];
-    }
-    averages[i] = sumShape;
-  }
-  return averages;
 }
 
 unsigned int LArOFCCondAlg::findTheNSamples(ILArShape::ShapeRef_t Shape,

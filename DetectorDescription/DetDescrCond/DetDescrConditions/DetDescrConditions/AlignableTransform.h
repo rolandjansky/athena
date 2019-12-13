@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DETDESCRCOND_ALIGNTRANS_H
@@ -24,7 +24,7 @@
 class AlignableTransform {
  public:
   AlignableTransform();
-  AlignableTransform(std::string tag);
+  AlignableTransform(const std::string& tag);
   virtual ~AlignableTransform();
 
   // embedded class AlignTransMember holds the information for one module
@@ -95,7 +95,9 @@ inline bool operator< (const AlignableTransform::AlignTransMember& lhs,
   return (lhs.identify() < rhs.identify());
 }
 
-inline AlignableTransform::AlignableTransform() { m_tag="null"; }
+inline AlignableTransform::AlignableTransform()
+  : m_tag ("null")
+{}
 inline AlignableTransform::~AlignableTransform() {}
 
 inline AlignableTransform::AlignTransMem_citr

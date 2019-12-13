@@ -2,11 +2,6 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <math.h>
-
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/StatusCode.h"
-
 #include "TrigMuonEFMSonlyHypoAlg.h"
 #include "AthViews/ViewHelper.h"
 
@@ -17,37 +12,21 @@ using namespace TrigCompositeUtils;
 
 TrigMuonEFMSonlyHypoAlg::TrigMuonEFMSonlyHypoAlg( const std::string& name,
 						  ISvcLocator* pSvcLocator ) :
-//  ::AthReentrantAlgorithm( name, pSvcLocator )
   ::HypoBase( name, pSvcLocator )
 {
 
 } 
-
-TrigMuonEFMSonlyHypoAlg::~TrigMuonEFMSonlyHypoAlg() 
-{}
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
 StatusCode TrigMuonEFMSonlyHypoAlg::initialize()
 {
-  ATH_MSG_INFO ( "Initializing " << name() << "..." );
   ATH_CHECK(m_hypoTools.retrieve());
 
   renounce(m_muonKey);
   ATH_CHECK(m_muonKey.initialize());
 
-  ATH_MSG_INFO( "Initialization completed successfully" );
-  return StatusCode::SUCCESS;
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-StatusCode TrigMuonEFMSonlyHypoAlg::finalize() 
-{   
-  ATH_MSG_INFO( "Finalizing " << name() << "..." );
-  ATH_MSG_INFO( "Finalization completed successfully" );
   return StatusCode::SUCCESS;
 }
 

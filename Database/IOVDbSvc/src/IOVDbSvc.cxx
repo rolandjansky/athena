@@ -46,19 +46,6 @@ namespace {
     return false;
   }
 
-
-  /**
-   * @brief Helper to check if a range is open-ended.
-   */
-  bool 
-  isOpenEnded (const IOVRange& range, bool isTimeStamp){
-    if (isTimeStamp) {
-      return range.stop().timestamp() >= IOVTime::MAXTIMESTAMP;
-    }else {
-      return range.stop().re_time() >= IOVTime::MAXRETIME;
-    }
-  }
-  
   bool
   refersToConditionsFolder(const TagInfo::NameTagPair & thisPair){
     return thisPair.first.front() == '/';
@@ -600,11 +587,9 @@ StatusCode IOVDbSvc::getRange( const CLID&        clid,
     }
   }
 
- 
-
-  // Special handling for open-ended ranges in extensible folders:
-  if (folder->extensible() && isOpenEnded (range, folder->timeStamp())) {
-    // Set the end time to just past the current event.
+  // Special handling for extensible folders:
+  if (folder->extensible()) {
+    // Set the end time to just past the current event or lumiblock.
     IOVTime extStop = range.stop();
     if (folder->timeStamp()) {
       extStop.setTimestamp (time.timestamp() + 1);
@@ -643,7 +628,7 @@ StatusCode IOVDbSvc::signalBeginRun(const IOVTime& beginRunTime,
   // number with the conditions run number from the event context,
   // if it is defined.
   EventIDBase::number_type conditionsRun =
-    ctx.template getExtension<Atlas::ExtendedEventContext>().conditionsRun();
+    Atlas::getExtendedEventContext(ctx).conditionsRun();
   if (conditionsRun != EventIDBase::UNDEFNUM) {
     m_iovTime.setRunEvent (conditionsRun, m_iovTime.event());
   }
@@ -795,23 +780,22 @@ IOVDbSvc::getKeyList() {
   return keys;
 }
 
-bool IOVDbSvc::getKeyInfo(const std::string& key,std::string& foldername,
-                          std::string& tag, IOVRange& range, bool& retrieved,
-                          unsigned long long& bytesRead, float& readTime) {
+bool IOVDbSvc::getKeyInfo(const std::string& key, IIOVDbSvc::KeyInfo& info) {
   // return information about given SG key
   // first attempt to find the folder object for this key
-  FolderMap::const_iterator itr=m_foldermap.find(key);
+  FolderMap::const_iterator itr = m_foldermap.find(key);
   if (itr!=m_foldermap.end()) {
-    IOVDbFolder* folder=itr->second;
-    foldername=folder->folderName();
-    tag=folder->resolvedTag();
-    range=folder->currentRange();
-    retrieved=folder->retrieved();
-    bytesRead=folder->bytesRead();
-    readTime=folder->readTime();
+    const IOVDbFolder* f=itr->second;
+    info.folderName = f->folderName();
+    info.tag = f->resolvedTag();
+    info.range = f->currentRange();
+    info.retrieved = f->retrieved();
+    info.bytesRead = f->bytesRead();
+    info.readTime = f->readTime();
+    info.extensible = f->extensible();
     return true;
   } else {
-    retrieved=false;
+    info.retrieved = false;
     return false;
   }
 }
@@ -1162,16 +1146,12 @@ void IOVDbSvc::dumpKeys() {
   std::vector<std::string> keys=getKeyList();
   ATH_MSG_INFO( "Total of " << keys.size() << " keys to list" );
   for (const auto & thisKey: keys) {
-    std::string foldername,tag;
-    IOVRange range;
-    bool retrieved;
-    unsigned long long nread;
-    float rtime;
-    if (getKeyInfo(thisKey,foldername,tag,range,retrieved,nread,rtime)) {
-      if (retrieved) {
+    IIOVDbSvc::KeyInfo info;
+    if (getKeyInfo(thisKey,info)) {
+      if (info.retrieved) {
         ATH_MSG_INFO( "Data for key " << thisKey << " : foldername " <<
-          foldername << ", tag" << tag << ", range " << range << 
-          " read " << nread << " bytes in " << rtime << " seconds" );
+          info.folderName << ", tag" << info.tag << ", range " << info.range <<
+          " read " << info.bytesRead << " bytes in " << info.readTime << " seconds" );
       } else {
         ATH_MSG_INFO( "Key " << thisKey << " was not yet retrieved from StoreGate" );
       }

@@ -22,7 +22,7 @@
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/StatusCode.h"
 
-#include "TrigBphysHypo/Constants.h"
+#include "Constants.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DecisionHandling/HLTIdentifier.h"

@@ -6,14 +6,16 @@
 #define MUONCONDTOOL_RPCCABLINGDBTOOL_H
 
 #include "GaudiKernel/AlgTool.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "MuonCondInterface/IRPCCablingDbTool.h"
 #include "GaudiKernel/IChronoStatSvc.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
 
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 class Identifier; 
 
-class RpcIdHelper;
 class IIOVSvc;
 class StatusCode;
 
@@ -52,9 +54,8 @@ public:
     
   IIOVSvc* m_IOVSvc;
 
-
-  const RpcIdHelper* m_rpcIdHelper;
-  
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
   std::string      m_DataLocation;
   

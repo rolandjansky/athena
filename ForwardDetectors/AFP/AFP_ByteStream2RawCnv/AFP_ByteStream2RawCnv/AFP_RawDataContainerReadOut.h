@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AFP_RAWDATACONTAINERREADOUT_H
@@ -13,7 +13,6 @@ class AFP_RawDataContainerReadOut : public AFP_ReadOut {
 
 private:
   uint32_t m_wordMarker;
-  uint32_t m_dataWord;
   uint16_t m_subdetId;
   uint16_t m_mrodId;
   uint32_t m_lvl1Id;

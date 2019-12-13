@@ -15,9 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Trigger/TrigAnalysis/TrigDecisionTool
                           Trigger/TrigEvent/TrigParticle
-                          Trigger/TrigEvent/TrigSteeringEvent
-                          PRIVATE
-                          TestPolicy )
+                          Trigger/TrigEvent/TrigSteeringEvent )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )

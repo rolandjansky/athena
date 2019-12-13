@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """
 Tools configurations for ISF_FastCaloSimServices
@@ -851,10 +851,8 @@ def getCaloNoiseTool(name="ISF_FCS_CaloNoiseTool", **kwargs):
     return CaloNoiseToolDefault(name, **kwargs )
 
 def getAddNoiseCellBuilderTool(name="ISF_AddNoiseCellBuilderTool", **kwargs):
-    kwargs.setdefault("CaloNoiseTool" , getPublicTool('ISF_FCS_CaloNoiseTool').getFullName())
-
-    from FastCaloSim.FastCaloSimConf import AddNoiseCellBuilderTool
-    return AddNoiseCellBuilderTool(name, **kwargs )
+    from FastCaloSim.AddNoiseCellBuilderToolDefault import AddNoiseCellBuilderToolDefault
+    return AddNoiseCellBuilderToolDefault(name, **kwargs )
 
 def getCaloCellContainerFinalizerTool(name="ISF_CaloCellContainerFinalizerTool", **kwargs):
     from CaloRec.CaloRecConf import CaloCellContainerFinalizerTool
@@ -908,3 +906,21 @@ def getLegacyAFIIFastCaloTool(name="ISF_LegacyAFIIFastCaloTool", **kwargs):
     kwargs.setdefault("BatchProcessMcTruth" , True )
     kwargs.setdefault("CaloCellMakerTools_simulate"      , [ 'ISF_LegacyFastShowerCellBuilderTool' ] )
     return getFastCaloToolBase(name, **kwargs)
+
+def getFastCaloSimV2Tool(name="ISF_FastCaloSimV2Tool", **kwargs):
+    from ISF_FastCaloSimServices.ISF_FastCaloSimJobProperties import ISF_FastCaloSimFlags
+
+    kwargs.setdefault("CaloCellsOutputName"              , ISF_FastCaloSimFlags.CaloCellsName()   )
+    kwargs.setdefault("CaloCellMakerTools_setup"         , [ 'ISF_EmptyCellBuilderTool' ] )
+    kwargs.setdefault("CaloCellMakerTools_release"       , [ 'ISF_CaloCellContainerFCSFinalizerTool',
+                                                           'ISF_FastHitConvertTool' ])
+    kwargs.setdefault("FastCaloSimCaloExtrapolation"     , 'FastCaloSimCaloExtrapolation')
+
+    kwargs.setdefault("ParamSvc", "ISF_FastCaloSimV2ParamSvc")
+    # register the FastCaloSim random number streams
+    from G4AtlasApps.SimFlags import simFlags
+    kwargs.setdefault("RandomStream"                     , ISF_FastCaloSimFlags.RandomStreamName())
+    kwargs.setdefault("RandomSvc"                        , simFlags.RandomSvcMT())
+
+    return CfgMgr.ISF__FastCaloSimV2Tool(name, **kwargs )
+

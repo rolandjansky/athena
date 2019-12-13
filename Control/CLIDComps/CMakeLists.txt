@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 787831 2016-12-02 10:18:34Z krasznaa $
 ################################################################################
 # Package: CLIDComps
 ################################################################################
@@ -36,7 +35,6 @@ endif()
 atlas_add_test( ClassIDSvc_test
    SOURCES test/ClassIDSvc_test.cxx
    LINK_LIBRARIES AthenaKernel GaudiKernel TestTools
-   EXTRA_PATTERNS "WARNING Could not resolve clid DB|^JobOptionsSvc +INFO|DEBUG Property update for OutputLevel"
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 atlas_add_test( clid
@@ -44,7 +42,7 @@ atlas_add_test( clid
                 EXTRA_PATTERNS "Ran 3 tests in" )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_runtime( share/Gaudi_clid.db )
 atlas_install_scripts( share/clid test/_clid_unittest.py )
 atlas_install_joboptions( share/*.opts )

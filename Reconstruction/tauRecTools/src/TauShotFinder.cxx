@@ -253,7 +253,7 @@ StatusCode TauShotFinder::executeShotFinder(xAOD::TauJet& pTau, xAOD::CaloCluste
         
         // create seed cluster
         xAOD::CaloCluster* shotCluster = CaloClusterStoreHelper::makeCluster(pCellContainer);
-        shotCluster->getCellLinks()->reserve(windowNeighbours.size()+1);
+        shotCluster->getOwnCellLinks()->reserve(windowNeighbours.size()+1);
         shotCluster->addCell(pCellContainer->findIndex(seedHash), 1.);
         cellItr = windowNeighbours.begin();
         for( ; cellItr!=windowNeighbours.end(); ++cellItr)

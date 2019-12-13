@@ -12,7 +12,7 @@ if( NOT SIMULATIONBASE )
   # DO NOT ADD A DEPENDENCY ON PixelConditionsServices UNLESS YOU ALSO REMOVE
   # THE DEPENDENCY OF PixelConditionsServices ON THIS PACKAGE!!!!
   set( extra_dep InnerDetector/InDetConditions/InDetConditionsSummaryService InnerDetector/InDetDetDescr/PixelGeoModel InnerDetector/InDetConditions/InDetByteStreamErrors )
-set( extra_lib PixelGeoModelLib InDetByteStreamErrors )
+  set( extra_lib PixelGeoModelLib InDetByteStreamErrors )
 endif()
 
 # Declare the package's dependencies:
@@ -35,7 +35,6 @@ atlas_depends_on_subdirs( PUBLIC
   InnerDetector/InDetDetDescr/InDetIdentifier
   InnerDetector/InDetDetDescr/InDetReadoutGeometry
   InnerDetector/InDetDetDescr/PixelCabling
-  TestPolicy
   Tools/PathResolver
   ${extra_dep} )
 

@@ -328,7 +328,7 @@ def GetProjectName():
         project=rec.projectName()
     if not project in KnownProjects:
         logAutoConfiguration.warning("Project '%s' is not part of the KnownProjects list."%project)
-        #print KnownProjects
+        #print(KnownProjects)
 
     return project
 
@@ -589,18 +589,18 @@ def GetDefaultTagRefStream(streams):
         elif 'StreamRAW_ref' in streams:
             return  'StreamRAW_ref'
         else:
-            raise RuntimeError," readRDO locked True and no Stream1 nor StreamRDO nor StreamRAW !"
+            raise RuntimeError(" readRDO locked True and no Stream1 nor StreamRDO nor StreamRAW !")
     if rec.readESD.is_locked() and rec.readESD():
         if 'StreamESD_ref' in streams:
             return  'StreamESD_ref'
         else:
-            raise RuntimeError," readESD locked True and no StreamESD !"
+            raise RuntimeError(" readESD locked True and no StreamESD !")
 
     if rec.readAOD.is_locked() and rec.readAOD():
         if 'StreamAOD_ref' in streams:
             return  'StreamAOD_ref'
         else:
-            raise RuntimeError," readAOD locked True and no StreamAOD !"
+            raise RuntimeError(" readAOD locked True and no StreamAOD !")
 
 
     # now deal with default case    
@@ -615,7 +615,7 @@ def GetDefaultTagRefStream(streams):
     elif 'StreamRAW_ref' in streams:
         return 'StreamRAW_ref'
     else:
-        raise RuntimeError, " no known streams !" 
+        raise RuntimeError(" no known streams !")
 
     return None
 
@@ -777,7 +777,7 @@ def ConfigureConditionsTag():
         try:
             year=int(rec.projectName()[4:6])
         except:
-            logAutoConfiguration.warning("Failed to extract year from project tag "+ projectName+". Guessing 2015")
+            logAutoConfiguration.warning("Failed to extract year from project tag "+ rec.projectName() +". Guessing 2015")
             year=15
         if (year<14): #Run1
             globalflags.ConditionsTag.set_Value_and_Lock("COMCOND-BLKPA-RUN1-09")
@@ -856,7 +856,7 @@ def IsInInputFile(collectionname,key=None):
                 ItemDic = convert_itemList(layout='dict')
                 if ItemDic.has_key(collectionname):
                     logAutoConfiguration.info("found collection with name %s in input file." % collectionname)
-                    print ItemDic[collectionname]
+                    print(ItemDic[collectionname])
                     if key is None:
                         logAutoConfiguration.info("no explicit storegate key given. Returning True")
                         return True

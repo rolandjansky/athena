@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TileMuonReceiverObjCnv_p1.cxx 
@@ -11,31 +11,27 @@
 /////////////////////////////////////////////////////////////////// 
 
 // TileEvent includes
-#define private public
-#define protected public
 #include "TileEvent/TileMuonReceiverObj.h"
-#undef private
-#undef protected
 
 // TileTPCnv includes
 #include "TileTPCnv/TileMuonReceiverObjCnv_p1.h"
 
 //#define DEBUG_OUTPUT 1
 
-void TileMuonReceiverObjCnv_p1::transToPers(const TileMuonReceiverObj* transObj, TileMuonReceiverObj_p1* persObj, MsgStream &/*log*/) {
+void TileMuonReceiverObjCnv_p1::transToPers(const TileMuonReceiverObj* transObj, TileMuonReceiverObj_p1* persObj, MsgStream &/*log*/) const {
 
   // module id
-  persObj->m_id = std::max(std::min(transObj->m_id,0xFFF),0);
+  persObj->m_id = std::max(std::min(transObj->identify(),0xFFF),0);
 
   if (persObj->m_id > 0 && persObj->m_id < 0xFFF) { // standard object with decision
 
     size_t maxsize=8; // keep only 8 decision bits maximum
 
     // decision 
-    if (transObj->m_TileMuRcvDecision.size()>0) {
-      persObj->m_id |= std::min(transObj->m_TileMuRcvDecision.size(),maxsize) << 20;
+    if (transObj->GetDecision().size()>0) {
+      persObj->m_id |= std::min(transObj->GetDecision().size(),maxsize) << 20;
       unsigned int bit=0x1000;
-      for (std::vector<bool>::const_iterator it = transObj->m_TileMuRcvDecision.begin(); it != transObj->m_TileMuRcvDecision.end(); ++it) {
+      for (std::vector<bool>::const_iterator it = transObj->GetDecision().begin(); it != transObj->GetDecision().end(); ++it) {
         if (*it) {
           persObj->m_id |= bit;
         }
@@ -47,21 +43,21 @@ void TileMuonReceiverObjCnv_p1::transToPers(const TileMuonReceiverObj* transObj,
     maxsize=15; // keep only 15 vords from every vector maximum
 
     // energy 
-    if (transObj->m_TileMuRcvEne.size()>0) {
-        persObj->m_id |= std::min(transObj->m_TileMuRcvEne.size(),maxsize) << 24;
+    if (!transObj->GetEne().empty()) {
+      persObj->m_id |= std::min(transObj->GetEne().size(),maxsize) << 24;
       size_t cnt=0;
-      for (std::vector<float>::const_iterator it = transObj->m_TileMuRcvEne.begin(); it != transObj->m_TileMuRcvEne.end(); ++it) {
-        persObj->m_data.push_back(*it);
+      for (float f : transObj->GetEne()) {
+        persObj->m_data.push_back(f);
         if ((++cnt)>=maxsize) break;
       }
     }
 
     // time 
-    if (transObj->m_TileMuRcvTime.size()>0) {
-      persObj->m_id |= std::min(transObj->m_TileMuRcvTime.size(),maxsize) << 28;
+    if (!transObj->GetTime().empty()) {
+      persObj->m_id |= std::min(transObj->GetTime().size(),maxsize) << 28;
       size_t cnt=0;
-      for (std::vector<float>::const_iterator it = transObj->m_TileMuRcvTime.begin(); it != transObj->m_TileMuRcvTime.end(); ++it) {
-        persObj->m_data.push_back(*it);
+      for (float f : transObj->GetTime()) {
+        persObj->m_data.push_back(f);
         if ((++cnt)>=maxsize) break;
       }
     }
@@ -71,11 +67,11 @@ void TileMuonReceiverObjCnv_p1::transToPers(const TileMuonReceiverObj* transObj,
     size_t maxsize=255; // upper limit for word counter (but keep all threshold words anyway)
 
     // thresholds
-    if ( transObj->m_id==0 && transObj->m_TileMuRcvThresholds.size()>0) {
-      persObj->m_id |= std::min(transObj->m_TileMuRcvThresholds.size(),maxsize) << 24;
-      for (std::vector<float>::const_iterator it = transObj->m_TileMuRcvThresholds.begin(); it != transObj->m_TileMuRcvThresholds.end(); ++it) {
-        persObj->m_data.push_back(*it);
-      }
+    if ( transObj->identify()==0 && !transObj->GetThresholds().empty()) {
+      persObj->m_id |= std::min(transObj->GetThresholds().size(),maxsize) << 24;
+      persObj->m_data.insert (persObj->m_data.end(),
+                              transObj->GetThresholds().begin(),
+                              transObj->GetThresholds().end());
     }
 
   }
@@ -96,17 +92,18 @@ void TileMuonReceiverObjCnv_p1::transToPers(const TileMuonReceiverObj* transObj,
 }
 
 
-void TileMuonReceiverObjCnv_p1::persToTrans(const TileMuonReceiverObj_p1* persObj, TileMuonReceiverObj* transObj, MsgStream &/*log*/) {
+void TileMuonReceiverObjCnv_p1::persToTrans(const TileMuonReceiverObj_p1* persObj, TileMuonReceiverObj* transObj, MsgStream &/*log*/) const {
 
   unsigned int id=persObj->m_id;
-
-  // module id
-  transObj->m_id = id & 0xFFF;
+  int trans_id = id & 0xFFF;
 
   size_t n_elements = persObj->m_data.size();
   std::vector<float>::const_iterator it = persObj->m_data.begin(); 
 
-  if (transObj->m_id > 0 && transObj->m_id < 0xFFF) { // standard object with decision
+  std::vector<bool> decision;
+  std::vector<float> ene;
+  std::vector<float> time;
+  if (trans_id > 0 && trans_id < 0xFFF) { // standard object with decision
       
     size_t n0 = (id >> 20) & 0xF;
     size_t n1 = (id >> 24) & 0xF;
@@ -114,44 +111,34 @@ void TileMuonReceiverObjCnv_p1::persToTrans(const TileMuonReceiverObj_p1* persOb
   
     if (n0) {
       id >>= 12;
-      transObj->m_TileMuRcvDecision.reserve(n0); 
+      decision.reserve(n0); 
       for (size_t i=0; i<n0; ++i) {
-        transObj->m_TileMuRcvDecision.push_back((bool) (id & 1) );
+        decision.push_back((bool) (id & 1) );
         id >>= 1;
       }
     }
 
     // energy
-    if (n1) {
-      if (n1>n_elements) n1=n_elements;
-      transObj->m_TileMuRcvEne.reserve(n1); 
-      for (size_t i=0; i<n1; ++i) {
-        transObj->m_TileMuRcvEne.push_back(*it);
-        ++it;
-      }
-      n_elements -= n1;
-    }
+    if (n1>n_elements) n1=n_elements;
+    ene.assign (it, it+n1);
+    it += n1;
+    n_elements -= n1;
   
     // time
-    if (n2) {
-      if (n2>n_elements) n2=n_elements;
-      transObj->m_TileMuRcvTime.reserve(n2);
-      for (size_t i=0; i<n2; ++i) {
-        transObj->m_TileMuRcvTime.push_back(*it);
-        ++it;
-      }
-      n_elements -= n2;
-    }
-    
+    if (n2>n_elements) n2=n_elements;
+    time.assign (it, it+n2);
+    it += n2;
+    n_elements -= n2;
   }
 
   // remaining elements go to thresholds
-  if (n_elements) {
-    transObj->m_TileMuRcvThresholds.reserve(n_elements); 
-    for ( ; it != persObj->m_data.end(); ++it) {
-      transObj->m_TileMuRcvThresholds.push_back(*it);
-    }
-  }
+  std::vector<float> thresholds (it, persObj->m_data.end());
+
+  *transObj = TileMuonReceiverObj (trans_id,
+                                   std::move(ene),
+                                   std::move(time),
+                                   std::move(decision),
+                                   std::move(thresholds));
 
 #ifdef DEBUG_OUTPUT
   transObj->print();

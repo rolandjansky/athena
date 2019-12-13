@@ -19,7 +19,7 @@ def DumpEventDataToJSONAlgCfg(configFlags, doExtrap=False, **kwargs):
       
       kwargs.setdefault('Extrapolator', extrapolationEngine)
       
-    dumpAlg = DumpEventDataToJsonAlg(ExtrapolateTracks=doExtrap, **kwargs )
+    dumpAlg = DumpEventDataToJsonAlg(ExtrapolateTrackParticles=doExtrap, **kwargs )
     result.addEventAlgo(dumpAlg)
     return result
 
@@ -63,7 +63,7 @@ if __name__=="__main__":
     cfg.merge(topoAcc)
 
     cfg.run(10)
-    f=open("DumpEventDataToJSONConfig.pkl","w")
+    f=open("DumpEventDataToJSONConfig.pkl","wb")
     cfg.store(f)
     f.close()
 

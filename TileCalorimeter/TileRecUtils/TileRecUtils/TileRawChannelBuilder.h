@@ -123,7 +123,7 @@ class TileRawChannelBuilder: public AthAlgTool {
     static double correctTime( double phase, bool of2 = true); //!< Time correction factor
 
     static int CorruptedData(int ros, int drawer, int channel, int gain,
-        const std::vector<float> & digits, float &dmin, float &dmax);
+			     const std::vector<float> & digits, float &dmin, float &dmax, float ADCmaxMinusEps, float ADCmaskValueMinusEps);
 
     static const char* BadPatternName(float ped);
 
@@ -180,7 +180,6 @@ class TileRawChannelBuilder: public AthAlgTool {
     // Tile objects
     const TileID* m_tileID;
     const TileHWID* m_tileHWID;
-    const TileInfo* m_tileInfo;
 
     ToolHandleArray<ITileRawChannelTool> m_noiseFilterTools{this,
         "NoiseFilterTools", {}, "Tile noise filter tools"};
@@ -228,6 +227,16 @@ class TileRawChannelBuilder: public AthAlgTool {
     static bool s_badDrawer;
     
     bool m_notUpgradeCabling;
+
+    // TileInfo
+    std::string m_infoName;
+    const TileInfo* m_tileInfo;
+    int m_i_ADCmax;
+    float m_f_ADCmax;
+    int m_i_ADCmaxPlus1;
+    float m_f_ADCmaxPlus1;
+    float m_ADCmaxMinusEps;
+    float m_ADCmaskValueMinusEps; //!< indicates channels which were masked in background dataset
 
 private:
     // find all bad patterns in a drawer and fill internal static arrays

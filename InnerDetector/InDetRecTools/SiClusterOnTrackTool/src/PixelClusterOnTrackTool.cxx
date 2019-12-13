@@ -15,19 +15,11 @@
 #include "SiClusterOnTrackTool/PixelClusterOnTrackTool.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
 #include "InDetIdentifier/PixelID.h"
-#include "PixelConditionsTools/IModuleDistortionsTool.h"
 #include "TrkSurfaces/PlaneSurface.h"
-#include "GaudiKernel/IIncidentSvc.h"
 #include "SiClusterizationTool/NnClusterizationFactory.h"
 #include "EventPrimitives/EventPrimitives.h"
-#include "PixelGeoModel/IIBLParameterSvc.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
-#include "CoralBase/AttributeListSpecification.h"
-#include "CoralBase/Attribute.h"
-#include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "AthenaPoolUtilities/AthenaAttributeList.h"
-#include "StoreGate/ReadCondHandle.h"
 #include <cmath>
 #include "TrkRIO_OnTrack/check_cast.h"
 
@@ -65,7 +57,6 @@ namespace
 InDet::PixelClusterOnTrackTool::PixelClusterOnTrackTool
   (const std::string &t, const std::string &n, const IInterface *p) :
   ::AthAlgTool(t, n, p),
-  m_pixDistoTool("PixelDistortionsTool", this),
   m_disableDistortions(false),
   m_rel13like(false),
   m_pixelid(nullptr),
@@ -82,7 +73,6 @@ InDet::PixelClusterOnTrackTool::PixelClusterOnTrackTool
   m_splitClusterMapKey("") {
   declareInterface<IRIO_OnTrackCreator>(this);
 
-  declareProperty("PixelDistortionsTool", m_pixDistoTool, "Tool to retrieve pixel distortions");
   declareProperty("PositionStrategy", m_positionStrategy = 1, "Which calibration of cluster positions");
   declareProperty("DisableDistortions", m_disableDistortions, "Disable simulation of module distortions");
   declareProperty("Release13like", m_rel13like, "Activate release-13 like settigs");
@@ -136,11 +126,7 @@ InDet::PixelClusterOnTrackTool::initialize() {
 
   // get the module distortions tool
   if (!m_disableDistortions) {
-    if (!m_pixDistoTool.empty()) {
-      ATH_CHECK( m_pixDistoTool.retrieve());
-    } else {
-      ATH_MSG_INFO("No PixelDistortionsTool selected.");
-    }
+    ATH_CHECK(m_distortionKey.initialize());
   } else {
     ATH_MSG_INFO("No PixelDistortions will be simulated.");
   }
@@ -632,8 +618,7 @@ void
 InDet::PixelClusterOnTrackTool::correctBow(const Identifier &id, Amg::Vector2D &localpos, const double phi,
                                            const double theta) const {
   Amg::Vector3D dir(tan(phi), tan(theta), 1.);
-  Amg::Vector2D newpos =
-    m_pixDistoTool->correctReconstruction(id, localpos, dir);
+  Amg::Vector2D newpos = SG::ReadCondHandle<PixelDistortionData>(m_distortionKey)->correctReconstruction(m_pixelid->wafer_hash(id), localpos, dir);
 
   localpos = newpos;
   return;

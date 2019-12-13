@@ -27,7 +27,7 @@ namespace Trk{
 TrkVKalVrtFitter:: TrkVKalVrtFitter(const std::string& type,
                                     const std::string& name,
                                     const IInterface* parent):
-    AthAlgTool(type,name,parent),
+    base_class(type,name,parent),
     m_Robustness(0),
     m_RobustScale(1.),
     m_cascadeCnstPrecision(1.e-4),
@@ -248,7 +248,7 @@ void TrkVKalVrtFitter::initState (State& state) const
    /** Interface for Track with starting point */
 
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const Track*> & vectorTrk,
-                                    const Amg::Vector3D & firstStartingPoint)
+                                    const Amg::Vector3D & firstStartingPoint) const
 {
     State state;
     initState (state);
@@ -283,7 +283,7 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const Track*> & vectorTrk
 
 
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParticleBase*> & vectorTrk,
-                                    const Amg::Vector3D & firstStartingPoint)
+                                    const Amg::Vector3D & firstStartingPoint) const
 {
     State state;
     initState (state);
@@ -326,7 +326,7 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParticleBase*>
  
 
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const Track*>& vectorTrk,
-                                                 const xAOD::Vertex& firstStartingPoint)
+                                     const xAOD::Vertex& firstStartingPoint) const
 {   
     State state;
     initState (state);
@@ -379,7 +379,7 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const Track*>& vectorTrk,
 //    return  new VxCandidate(*m_tmpRecV,*m_tmpVTAV);
 }
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParticleBase*>& vectorTrk,
-                                    const xAOD::Vertex & firstStartingPoint)
+                                     const xAOD::Vertex & firstStartingPoint) const
 {   
     State state;
     initState (state);
@@ -471,7 +471,7 @@ VxCandidate * TrkVKalVrtFitter::fit(const vector<const ParametersBase*> & perige
 
      /** Interface for MeasuredPerigee with starting point */
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*> & perigeeListC,
-                                    const Amg::Vector3D & startingPoint)
+                                     const Amg::Vector3D & startingPoint) const
 {
     State state;
     initState (state);
@@ -500,7 +500,7 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*> &
 
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*>   & perigeeListC,
                                     const std::vector<const NeutralParameters*> & perigeeListN,
-                                    const Amg::Vector3D & startingPoint)
+                                    const Amg::Vector3D & startingPoint) const
 {
     State state;
     initState (state);
@@ -533,7 +533,7 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*>  
      /** Interface for MeasuredPerigee with vertex constraint */
      /** the position of the constraint is ALWAYS the starting point */
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*> & perigeeListC,
-                                    const xAOD::Vertex & constraint)
+                                     const xAOD::Vertex & constraint) const
 {
     State state;
     initState (state);
@@ -582,7 +582,7 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*> &
 
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*>   & perigeeListC,
                                     const std::vector<const NeutralParameters*> & perigeeListN,
-                                    const xAOD::Vertex & constraint)
+                                    const xAOD::Vertex & constraint) const
 {
     State state;
     initState (state);
@@ -632,7 +632,7 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*>  
 
      /** Interface for xAOD::TrackParticle with starting point */
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle*> & xtpListC,
-                                     const Amg::Vector3D & startingPoint)
+                                     const Amg::Vector3D & startingPoint) const
 {
   State state;
   initState (state);
@@ -675,7 +675,7 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle
 
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle*>   & xtpListC,
                                      const std::vector<const xAOD::NeutralParticle*> & xtpListN,
-                                     const Amg::Vector3D & startingPoint)
+                                     const Amg::Vector3D & startingPoint) const
 {
     State state;
     initState (state);
@@ -716,7 +716,7 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle
      /** Interface for xAOD::TrackParticle with vertex constraint */
      /** the position of the constraint is ALWAYS the starting point */
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle*> & xtpListC,
-                                     const xAOD::Vertex & constraint)
+                                     const xAOD::Vertex & constraint) const
 {
     State state;
     initState (state);
@@ -769,7 +769,7 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle
 
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle*>   & xtpListC,
                                      const std::vector<const xAOD::NeutralParticle*> & xtpListN,
-                                     const xAOD::Vertex & constraint)
+                                     const xAOD::Vertex & constraint) const
 {
     State state;
     initState (state);
@@ -824,7 +824,7 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle
 
 
 
-xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const Track*> & vectorTrk)
+xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const Track*> & vectorTrk) const
 {
     State state;
     initState (state);
@@ -858,7 +858,7 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const Track*> & vectorTrk
     return tmpVertex;
 }
 
-xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const  TrackParameters*> & perigeeListC)
+xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const  TrackParameters*> & perigeeListC) const
 {
     State state;
     initState (state);
@@ -884,7 +884,7 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const  TrackParameters*> 
 }
 
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const  TrackParameters*>   & perigeeListC,
-                                    const std::vector<const  NeutralParameters*> & perigeeListN)
+                                    const std::vector<const  NeutralParameters*> & perigeeListN) const
 {
     State state;
     initState (state);

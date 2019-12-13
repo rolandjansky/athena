@@ -255,12 +255,12 @@ MdtCondDbData::isGood(const Identifier & Id) const{
 
 // isGoodChannel
 bool 
-MdtCondDbData::isGoodChannel(const Identifier & Id) const{
+MdtCondDbData::isGoodChannel(const MdtIdHelper* idHelper, const Identifier & Id) const{
     // probing channel and all associated entities
-    //Identifier layerId      = m_idHelper->layerID     (Id); 
-    Identifier multilayerId = m_idHelper->multilayerID(Id); 
-    Identifier chamberId    = m_idHelper->elementID   (Id); 
-    //Identifier stationId    = m_idHelper->stationID   (Id); 
+    //Identifier layerId      = idHelper->layerID     (Id); 
+    Identifier multilayerId = idHelper->multilayerID(Id); 
+    Identifier chamberId    = idHelper->elementID   (Id); 
+    //Identifier stationId    = idHelper->stationID   (Id); 
     if(not isGoodTube      (Id          )) return false;
     //if(not isGoodLayer     (layerId     )) return false;
     if(not isGoodMultilayer(multilayerId)) return false;

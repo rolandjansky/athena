@@ -152,7 +152,7 @@ if __name__ == "__main__":
 
     acc.printConfig(withDetails = True, summariseProps = True)
     ConfigFlags.dump()
-    acc.store( open('TileMuonReceiver.pkl','w') )
+    acc.store( open('TileMuonReceiver.pkl','wb') )
 
     sc = acc.run(maxEvents=3)
     # Success should be 0

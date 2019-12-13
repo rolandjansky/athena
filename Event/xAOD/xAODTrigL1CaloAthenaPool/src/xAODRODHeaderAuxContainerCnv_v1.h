@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODRODHeaderAuxContainerCnv_v1.h 694352 2015-09-11 12:05:29Z krasznaa $
@@ -26,21 +26,25 @@
 /// $Date: 2015-09-11 14:05:29 +0200 (Fri, 11 Sep 2015) $
 ///
 class xAODRODHeaderAuxContainerCnv_v1 :
-   public T_AthenaPoolTPCnvBase< xAOD::RODHeaderAuxContainer,
-                                 xAOD::RODHeaderAuxContainer_v1 > {
+   public T_AthenaPoolTPCnvConstBase< xAOD::RODHeaderAuxContainer,
+                                      xAOD::RODHeaderAuxContainer_v1 > {
 
 public:
+   using base_class::persToTrans;
+   using base_class::transToPers;
+
+
    /// Default constructor
    xAODRODHeaderAuxContainerCnv_v1();
 
    /// Function converting from the old type to the current one
    virtual void persToTrans( const xAOD::RODHeaderAuxContainer_v1* oldObj,
                              xAOD::RODHeaderAuxContainer* newObj,
-                             MsgStream& log );
+                             MsgStream& log ) const override;
    /// Dummy function inherited from the base class
    virtual void transToPers( const xAOD::RODHeaderAuxContainer*,
                              xAOD::RODHeaderAuxContainer_v1*,
-                             MsgStream& log );
+                             MsgStream& log ) const override;
 
 }; // class xAODRODHeaderAuxContainerCnv_v1
 

@@ -57,7 +57,8 @@ class BphysicsChainConfiguration(MuonChainConfiguration):
 
         for mu_step_level, bphys_step_level in zip(muon_steps, bphys_steps):
             for step in mu_step_level:
-                chainSteps += [step]
+                chainstep = getattr(self, step)()
+                chainSteps += [chainstep]
             for step in bphys_step_level:
                 chainSteps += [step]
 
@@ -94,11 +95,11 @@ class BphysicsChainConfiguration(MuonChainConfiguration):
         stepName = 'Step2_l2Dimu'
         log.debug("Configuring step " + stepName)
         bphySeq = RecoFragmentsPool.retrieve( dimuL2SequenceCfg, None)
-        return ChainStep(stepName, [bphySeq], multiplicity=1)
+        return ChainStep(stepName, [bphySeq], multiplicity=[1])
 
     def getdimuEF(self):
         stepName = 'Step5_efDimu'
         log.debug("Configuring step " + stepName)
         bphySeq = RecoFragmentsPool.retrieve( dimuEFSequenceCfg, None)
-        return ChainStep(stepName, [bphySeq], multiplicity=1)
+        return ChainStep(stepName, [bphySeq], multiplicity=[1])
 

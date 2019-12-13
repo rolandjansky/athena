@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // P4ImplIPtCotThPhiMCnv_p1.cxx 
@@ -21,24 +21,11 @@
 // EventCommonTPCnv includes
 #include "EventCommonTPCnv/P4ImplIPtCotThPhiMCnv_p1.h"
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
-
-// Destructor
-///////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
 
 void 
 P4ImplIPtCotThPhiMCnv_p1::persToTrans( const P4ImplIPtCotThPhiM_p1* persObj, 
 				       P4ImplIPtCotThPhiM* transObj, 
-				       MsgStream &/*msg*/ )
+				       MsgStream &/*msg*/ ) const
 {
   transObj->m_iPt   = persObj->m_iPt;
   transObj->m_cotTh = persObj->m_cotTh;
@@ -50,7 +37,7 @@ P4ImplIPtCotThPhiMCnv_p1::persToTrans( const P4ImplIPtCotThPhiM_p1* persObj,
 void 
 P4ImplIPtCotThPhiMCnv_p1::transToPers( const P4ImplIPtCotThPhiM* transObj, 
 				       P4ImplIPtCotThPhiM_p1* persObj, 
-				       MsgStream &/*log*/ )
+				       MsgStream &/*log*/ ) const
 {
   persObj->m_iPt   = transObj->m_iPt;
   persObj->m_cotTh = transObj->m_cotTh;
@@ -58,19 +45,3 @@ P4ImplIPtCotThPhiMCnv_p1::transToPers( const P4ImplIPtCotThPhiM* transObj,
   persObj->m_mass  = transObj->m_m;
   return;
 }
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 

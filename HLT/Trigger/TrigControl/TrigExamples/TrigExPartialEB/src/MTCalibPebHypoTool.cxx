@@ -106,7 +106,6 @@ namespace {
 // =============================================================================
 MTCalibPebHypoTool::MTCalibPebHypoTool(const std::string& type, const std::string& name, const IInterface* parent)
 : AthAlgTool(type,name,parent),
-  m_robDataProviderSvc("ROBDataProviderSvc", name),
   m_decisionId (HLT::Identifier::fromToolName(name)) {}
 
 // =============================================================================
@@ -120,6 +119,7 @@ MTCalibPebHypoTool::~MTCalibPebHypoTool() {}
 StatusCode MTCalibPebHypoTool::initialize() {
   ATH_MSG_INFO("Initialising " << name());
   ATH_CHECK(m_robDataProviderSvc.retrieve());
+  if (m_doCrunch) ATH_CHECK(m_cpuCrunchSvc.retrieve());
 
   // Copy keys from map<string,uint> to WriteHandleKeyArray
   std::transform(m_createRandomData.begin(),
@@ -172,7 +172,8 @@ StatusCode MTCalibPebHypoTool::decide(const MTCalibPebHypoTool::Input& input) co
                             ? randomInteger<unsigned int>(0, m_burnTimePerCycleMillisec)
                             : m_burnTimePerCycleMillisec.value();
     ATH_MSG_VERBOSE("CPU time burning cycle # " << iCycle+1 << ", burn time [ms] = " << burnTime);
-    std::this_thread::sleep_for(std::chrono::milliseconds(burnTime));
+    if (m_doCrunch) m_cpuCrunchSvc->crunch_for(std::chrono::milliseconds(burnTime));
+    else std::this_thread::sleep_for(std::chrono::milliseconds(burnTime));
   }
 
   // ---------------------------------------------------------------------------

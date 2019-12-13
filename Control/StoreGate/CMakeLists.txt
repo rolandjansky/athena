@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 795192 2017-02-02 17:18:15Z ssnyder $
 ################################################################################
 # Package: StoreGate
 ################################################################################
@@ -45,7 +44,6 @@ atlas_add_library( SGtests test/SGtests.cxx
 atlas_add_test( ActiveStore_test
    SOURCES test/ActiveStore_test.cxx
    LINK_LIBRARIES SGtests
-   EXTRA_PATTERNS "JobOptionsSvc +INFO"
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
    set( _hivePatterns "JobOptionsSvc +INFO|StoreGateSvc.*DEBUG|HiveMgrSvc +DEBUG" )
@@ -64,13 +62,11 @@ atlas_add_test( SGHive_test
 
 atlas_add_test( DataHandle_test
    SOURCES test/DataHandle_test.cxx
-   LINK_LIBRARIES SGtests
-   EXTRA_PATTERNS "ClassIDSvc Initialized successfully|^HistogramPersis.* INFO" )
+   LINK_LIBRARIES SGtests )
 
 atlas_add_test( SGIterator_test
    SOURCES test/SGIterator_test.cxx
-   LINK_LIBRARIES SGtests
-   EXTRA_PATTERNS "^HistogramPersis.* INFO" )
+   LINK_LIBRARIES SGtests )
 
 atlas_add_test( KeyConcept_test
    SOURCES test/KeyConcept_test.cxx
@@ -82,8 +78,7 @@ atlas_add_test( StoreClearedIncident_test
 
 atlas_add_test( SegMemSvc_test
    SOURCES test/SegMemSvc_test.cxx
-   LINK_LIBRARIES SGtests
-   EXTRA_PATTERNS "^HistogramPersis.* INFO" )
+   LINK_LIBRARIES SGtests )
 
 atlas_add_test( exceptions_test
    SOURCES test/exceptions_test.cxx
@@ -187,6 +182,12 @@ atlas_add_test( CondHandleKeyArray_test
    LINK_LIBRARIES StoreGateLib AthContainers TestTools
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
+atlas_add_test( WriteCondHandle_test
+   SOURCES test/WriteCondHandle_test.cxx
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
+   LINK_LIBRARIES StoreGateLib AthContainers TestTools
+   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+ 
 atlas_add_test( WriteDecorHandleKeyArray_test
    SOURCES test/WriteDecorHandleKeyArray_test.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
@@ -199,8 +200,25 @@ atlas_add_test( ReadDecorHandleKeyArray_test
    LINK_LIBRARIES StoreGateLib TestTools
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
+atlas_add_test( ThinningHandleKey_test
+   SOURCES test/ThinningHandleKey_test.cxx
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
+   LINK_LIBRARIES StoreGateLib AthContainers TestTools
+   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+
+atlas_add_test( ThinningHandleBase_test
+   SOURCES test/ThinningHandleBase_test.cxx
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
+   LINK_LIBRARIES StoreGateLib AthContainers TestTools
+   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+
+atlas_add_test( ThinningHandle_test
+   SOURCES test/ThinningHandle_test.cxx
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
+   LINK_LIBRARIES StoreGateLib AthContainers TestTools
+   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/StoreGate_jobOptions.txt
    share/StoreGate_jobOptions.py
    share/SGHive_test.txt

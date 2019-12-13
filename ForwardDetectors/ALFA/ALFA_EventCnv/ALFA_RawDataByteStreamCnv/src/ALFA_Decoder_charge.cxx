@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ALFA_RawDataByteStreamCnv/ALFA_Decoder_charge.h"
@@ -19,7 +19,7 @@ const InterfaceID& ALFA_Decoder_charge::interfaceID()
 ALFA_Decoder_charge::ALFA_Decoder_charge ( const std::string& type, const std::string& name,const IInterface* parent)  
 : AthAlgTool(type,name,parent),
 m_robDataProvider ("ROBDataProviderSvc",name)
-//,m_EvtStore(0) , m_ALFA_RawDataContainerReadOut(0), m_ALFA_RawDataCollectionReadOut(0), m_ALFA_RawDataReadOut_charge(0) 
+//, m_ALFA_RawDataContainerReadOut(0), m_ALFA_RawDataCollectionReadOut(0), m_ALFA_RawDataReadOut_charge(0) 
 {
 declareInterface<ALFA_Decoder_charge>(this);
 
@@ -50,13 +50,8 @@ StatusCode ALFA_Decoder_charge::initialize() {
   if (m_robDataProvider.retrieve().isFailure()) {
     msg(MSG::FATAL) << "Failed to retrieve service " << m_robDataProvider << endmsg;
     return StatusCode::FAILURE;
-  } else
+  } else {
     msg(MSG::DEBUG) << "Retrieved service " << m_robDataProvider << endmsg;
- 
-
-  if(StatusCode::SUCCESS !=serviceLocator()->service("StoreGateSvc", m_EvtStore)) {
-   msg(MSG::FATAL) <<"Can't get StoreGateSvc "<< endmsg;
-    return StatusCode::FAILURE; 
   }
 
   

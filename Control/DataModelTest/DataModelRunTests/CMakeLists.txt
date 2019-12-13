@@ -5,10 +5,6 @@
 # Declare the package name:
 atlas_subdir( DataModelRunTests )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          TestPolicy )
-
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
 
@@ -34,8 +30,8 @@ function (datamodel_run_test testName)
   atlas_add_test( ${testName}
                   SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/datamodel_${testName}.sh
                   PROPERTIES TIMEOUT 300
+                  EXTRA_PATTERNS "has different type than the branch|no dictionary for class|^StorageSvc +INFO|Cache alignment|Unable to locate catalog"
                   ENVIRONMENT "ATLAS_REFERENCE_TAG=DataModelRunTests/DataModelRunTestsReference-01-00-03"
-                  POST_EXEC_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/test/post.sh ${testName}"
                    )
   if( ARG_DEPENDS )
     set_tests_properties( DataModelRunTests_${testName}_ctest
@@ -105,6 +101,9 @@ datamodel_run_test (CondReaderMT
                     DEPENDS CondWriter)
 
 datamodel_run_test (CondReadWrite)
+
+datamodel_run_test (xAODTestWriteThinned)
+datamodel_run_test (xAODTestReadThinned DEPENDS xAODTestWriteThinned)
 
 
 

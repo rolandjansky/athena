@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigCaloEvent/TrigTauCluster.h"
@@ -8,7 +8,7 @@
 
 void TrigTauClusterCnv_p2 :: persToTrans( const TrigTauCluster_p2 *persObj,
                                             TrigTauCluster    *transObj,
-                                            MsgStream& log )
+                                            MsgStream& log ) const
 {
 
   log << MSG::DEBUG << "TrigTauClusterCnv_p2::persToTrans" << endmsg;
@@ -27,13 +27,14 @@ void TrigTauClusterCnv_p2 :: persToTrans( const TrigTauCluster_p2 *persObj,
   ElementLink<TrigTauClusterDetailsContainer> clusterDetails;
   m_ELinkTauClusterDetailsCnv.persToTrans( &persObj->m_details, &clusterDetails, log );
   transObj->setClusterDetails (clusterDetails);
-  fillTransFromPStore( &m_trigCaloClusterCnv, persObj->m_trigCaloCluster, transObj, log );
+  ITPConverterFor<TrigCaloCluster>*    cnv = nullptr;
+  fillTransFromPStore( &cnv, persObj->m_trigCaloCluster, transObj, log );
 
 }
 
 void TrigTauClusterCnv_p2 :: transToPers( const TrigTauCluster    *transObj,
                                             TrigTauCluster_p2 *persObj,
-                                            MsgStream& log )
+                                            MsgStream& log ) const
 {
 
   log << MSG::DEBUG << "TrigTauClusterCnv_p2::transToPers" << endmsg;
@@ -51,6 +52,7 @@ void TrigTauClusterCnv_p2 :: transToPers( const TrigTauCluster    *transObj,
 
 
   m_ELinkTauClusterDetailsCnv.transToPers( &transObj->clusterDetailsLink(), &persObj->m_details, log );
-  persObj->m_trigCaloCluster = baseToPersistent( &m_trigCaloClusterCnv, transObj, log );
+  ITPConverterFor<TrigCaloCluster>*    cnv = nullptr;
+  persObj->m_trigCaloCluster = baseToPersistent( &cnv, transObj, log );
 
 }

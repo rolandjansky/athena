@@ -19,7 +19,6 @@
 #include "StorageSvc/DbTypeInfo.h"
 #include "StorageSvc/DbDatabase.h"
 #include "StorageSvc/DbContainer.h"
-#include "StorageSvc/DbInstanceCount.h"
 #include <stdexcept>
 
 using namespace std;

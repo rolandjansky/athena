@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ut_xaodtrigger_trigcomposite_test.cxx 761887 2016-07-14 13:16:16Z tbold $
@@ -193,7 +193,7 @@ int main() {
    populateObject(obj);
 
    // Standalone with copy constructor. Should get own store.
-   xAOD::TrigComposite* copyConstructor = new xAOD::TrigComposite(*obj);
+   std::unique_ptr<xAOD::TrigComposite> copyConstructor = std::make_unique<xAOD::TrigComposite>(*obj);
 
    // Standalone with assignment operator. Should get own store.
    xAOD::TrigComposite* assignmentOperator = new xAOD::TrigComposite();
@@ -221,13 +221,14 @@ int main() {
    xAOD::TrigComposite* obj_edm_b = new xAOD::TrigComposite();
    c_edm_b.push_back(obj_edm_b);
    // Copy
-   SG::copyAuxStoreThinned( aux_v1, aux_vlatest, 0 ); 
+   SG::copyAuxStoreThinned( aux_v1, aux_vlatest,
+                            static_cast<const SG::ThinningDecisionBase*>(nullptr)); 
 
    std::cout << "Testing initial TC object" << std::endl;
    SIMPLE_ASSERT( testObject(obj) == 0 );
 
    std::cout << "Testing copy constructor" << std::endl;
-   SIMPLE_ASSERT( testObject(copyConstructor) == 0 );
+   SIMPLE_ASSERT( testObject(copyConstructor.get()) == 0 );
 
    std::cout << "Testing assignment operator (standalone object)" << std::endl;
    SIMPLE_ASSERT( testObject(assignmentOperator) == 0 );

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDCOOL_CSCREADWRITECOOLSTR_H
@@ -14,6 +14,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/DataHandle.h"
 
 #include "MuonCondData/CscCondDataCollection.h"
@@ -22,7 +23,9 @@
 #include "MuonCondInterface/CscICoolStrSvc.h"
 #include "AthenaKernel/errorcheck.h"
 
-class CscIdHelper;
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
+
 class StoreGateSvc;
 
 namespace MuonCalib {
@@ -83,7 +86,6 @@ namespace MuonCalib {
 
       bool m_forceChanCat;
 
-      bool m_done;
       // properties
       bool m_write;
       std::vector<std::string> m_ifiles;
@@ -99,7 +101,9 @@ namespace MuonCalib {
 
       /**CscIdHelper is used to convert from identifiers to hash ids. MuonDetector manager is a
         requirement on CscIdHelper*/
-      const CscIdHelper* m_cscId;
+      ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+        "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+
   };
 
 

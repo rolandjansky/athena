@@ -39,7 +39,7 @@ namespace TrigConf {
       const std::vector<TriggerItemNode*>& children() const { return m_Children; }
 
       // setters
-      void setThresholdName(const std::string thrname) { m_ThresholdName = thrname; }
+      void setThresholdName(const std::string& thrname) { m_ThresholdName = thrname; }
       void setPosition(int pos)                        { m_Position = pos; }
       void setMultiplicity(int mult)                   { m_Multiplicity = mult; }
       void setTriggerThreshold(TriggerThreshold* thr);

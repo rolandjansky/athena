@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 from AtlasGeoModel.GeoModelConfig import GeoModelCfg
 from IOVDbSvc.IOVDbSvcConfig import addFolders
 
@@ -33,6 +35,6 @@ if __name__ == "__main__":
     ConfigFlags.lock()
 
     acc = LArGMCfg(ConfigFlags)
-    f=open('LArGMCfg.pkl','w')
+    f=open('LArGMCfg.pkl','wb')
     acc.store(f)
     f.close()

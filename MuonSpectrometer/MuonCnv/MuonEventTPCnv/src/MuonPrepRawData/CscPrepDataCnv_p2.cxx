@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -10,7 +10,6 @@
 
 #include "MuonPrepRawData/CscPrepData.h"
 #include "MuonEventTPCnv/MuonPrepRawData/CscPrepDataCnv_p2.h"
-#include "CxxUtils/make_unique.h"
 
 Muon::CscPrepData
 CscPrepDataCnv_p2::createCscPrepData( const Muon::CscPrepData_p2 *persObj,
@@ -27,7 +26,7 @@ CscPrepDataCnv_p2::createCscPrepData( const Muon::CscPrepData_p2 *persObj,
     std::vector<Identifier> rdoList(1);
     rdoList[0]=clusId;
 
-    auto cmat = CxxUtils::make_unique<Amg::MatrixX>(1,1);
+    auto cmat = std::make_unique<Amg::MatrixX>(1,1);
     (*cmat)(0,0) = static_cast<double>(persObj->m_errorMat);
 
     Muon::CscPrepData data (clusId,

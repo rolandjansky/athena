@@ -8,7 +8,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "MuonTrackFindingEvent/MuPatHit.h"
+#include "MuPatHit.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"

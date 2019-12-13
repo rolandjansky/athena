@@ -39,9 +39,8 @@ InDet::TRT_SeededTrackFinder::TRT_SeededTrackFinder
     m_ntracks(0),
     m_trackmaker("InDet::TRT_SeededTrackFinderTool"),
     m_fitterTool("Trk::KalmanFitter/InDetTrackFitter"),
-    m_trtExtension("InDet::TRT_TrackExtensionTool_xk"),
-    m_Segments("TRTSegments"),
-    m_outTracks("TRTSeededTracks")
+    m_SegmentsKey("TRTSegments"),
+    m_outTracksKey("TRTSeededTracks")
 {
   m_doRefit          = false                                ;       //Do a final careful refit of tracks
   m_doExtension      = false                                ;       //Find the track TRT extension
@@ -52,9 +51,8 @@ InDet::TRT_SeededTrackFinder::TRT_SeededTrackFinder
 
   declareProperty("TrackTool"                  ,m_trackmaker       ); //Back tracking tool
   declareProperty("RefitterTool"               ,m_fitterTool       ); //Track refit tool
-  declareProperty("TrackExtensionTool"         ,m_trtExtension     ); //TRT track extension tool
-  declareProperty("InputSegmentsLocation"      ,m_Segments         ); //Input track collection
-  declareProperty("OutputTracksLocation"       ,m_outTracks        ); //Output track collection
+  declareProperty("InputSegmentsLocation"      ,m_SegmentsKey      ); //Input track collection
+  declareProperty("OutputTracksLocation"       ,m_outTracksKey     ); //Output track collection
   declareProperty("FinalRefit"                 ,m_doRefit          ); //Do a final careful refit of tracks
   declareProperty("TrtExtension"               ,m_doExtension      ); //Find the TRT extension of the track
   declareProperty("RejectShortExtension"       ,m_rejectShortExten ); //Reject short extensions
@@ -88,109 +86,105 @@ StatusCode InDet::TRT_SeededTrackFinder::initialize()
 
   //Get the refitting tool
   //
-  if(m_doRefit){
-    ATH_CHECK(m_fitterTool.retrieve());
-  } else {
-    m_fitterTool.disable();
-  }
+  ATH_CHECK( m_fitterTool.retrieve(      DisableTool{ !m_doRefit } ));
+  ATH_CHECK( m_extrapolator.retrieve(    DisableTool{ !m_SiExtensionCuts } ));
+  ATH_CHECK( m_beamSpotKey.initialize(   m_SiExtensionCuts) );
 
-  if (m_SiExtensionCuts) {
-    // get extrapolator
-    ATH_CHECK( m_extrapolator.retrieve());
-    // get beam spot service
-    ATH_CHECK( m_beamSpotKey.initialize() );
-  } else {
-    m_extrapolator.disable();
-    //disable m_beamSpotKey when able to
-  }
+  // optional PRD to track association map
+  ATH_CHECK( m_prdToTrackMap.initialize( !m_prdToTrackMap.key().empty() ) );
+
+  ATH_CHECK( m_trackSummaryTool.retrieve( DisableTool{ m_trackSummaryTool.name().empty() } ) );
 
   // Get tool for track extension to TRT
   //
-  if(m_doExtension){
-    ATH_CHECK( m_trtExtension.retrieve());
-  } else {
-    m_trtExtension.disable();
-  }
+  ATH_CHECK( m_trtExtension.retrieve(    DisableTool{ !m_doExtension} ));
+
+
+  ATH_CHECK(  m_SegmentsKey.initialize()) ;  /** TRT segments to use */
+  ATH_CHECK( m_outTracksKey.initialize());
 
   // Get output print level
   //
-  if(msgLvl(MSG::DEBUG)){m_nprint=0; msg(MSG::DEBUG) << (*this) << endmsg;}
-
-  //Global counters. See the include file for definitions
-  m_nTrtSegTotal      = 0;
-  m_nTrtFailSelTotal  = 0;
-  m_nTrtSegGoodTotal  = 0;
-  m_nTrtLimitTotal    = 0;
-  m_nTrtNoSiExtTotal  = 0;
-  m_nExtCutTotal      = 0;
-  m_nBckTrkTrtTotal   = 0;
-  m_nTrtExtCallsTotal = 0;
-  m_nTrtExtTotal      = 0;
-  m_nTrtExtBadTotal   = 0;
-  m_nTrtExtFailTotal  = 0;
-  m_nBckTrkSiTotal    = 0;
-  m_nBckTrkTotal      = 0;
-
+  if(msgLvl(MSG::DEBUG)) {
+     dumptools(msg(MSG::DEBUG));
+  }
+   //Global counters. See the include file for definitions
+  m_totalStat = Stat_t();
   return sc;
 
+}
+
+namespace InDet {
+  class MyPRDtoTrackMap  : public Trk::PRDtoTrackMap {
+  public:
+    unsigned int size() const {
+      return m_prepRawDataTrackMap.size();
+    }
+  };
+
+  class ExtendedSiCombinatorialTrackFinderData_xk : public InDet::SiCombinatorialTrackFinderData_xk
+  {
+  public:
+    ExtendedSiCombinatorialTrackFinderData_xk(const SG::ReadHandleKey<Trk::PRDtoTrackMap> &key) { 
+      if (!key.key().empty()) {
+        m_prdToTrackMap = SG::ReadHandle<Trk::PRDtoTrackMap>(key);
+        setPRDtoTrackMap(m_prdToTrackMap.cptr());
+      }
+    }
+  private:
+    void dummy() {}
+    SG::ReadHandle<Trk::PRDtoTrackMap> m_prdToTrackMap;
+  };
 }
 
 ///////////////////////////////////////////////////////////////////
 // Execute
 ///////////////////////////////////////////////////////////////////
-StatusCode InDet::TRT_SeededTrackFinder::execute()
+StatusCode InDet::TRT_SeededTrackFinder::execute() {
+   return execute_r( Gaudi::Hive::currentContext() );
+}
+
+StatusCode InDet::TRT_SeededTrackFinder::execute_r (const EventContext& ctx) const
 {
 
   //Counters. See the include file for definitions
-  m_nTrtSeg      = 0;
-  m_nTrtFailSel  = 0;
-  m_nTrtSegGood  = 0;
-  m_nTrtLimit    = 0;
-  m_nTrtNoSiExt  = 0;
-  m_nExtCut      = 0;
-  m_nBckTrkTrt   = 0;
-  m_nTrtExtCalls = 0;
-  m_nTrtExt      = 0;
-  m_nTrtExtBad   = 0;
-  m_nTrtExtFail  = 0;
-  m_nBckTrkSi    = 0;
-  m_nBckTrk      = 0;
+  Stat_t ev_stat;
 
   // counter
   int nTrtSegCur = 0;
 
-  // Retrieve segments from StoreGate
-  if(!m_Segments.isValid()){
-    ATH_MSG_FATAL ("No segment with name " << m_Segments.name() << " found in StoreGate!");
+  SG::ReadHandle<Trk::SegmentCollection>  segments(m_SegmentsKey,ctx);
+  if(!segments.isValid()){
+    ATH_MSG_FATAL ("No segment with name " << segments.name() << " found in StoreGate!");
     return StatusCode::FAILURE;
   }else{
-    ATH_MSG_DEBUG ("Found segments collection " << m_Segments.name() << " in StoreGate!");
+    ATH_MSG_DEBUG ("Found segments collection " << segments.name() << " in StoreGate!");
   }
 
 
   // number of segments + statistics
-  m_nTrtSeg = int(m_Segments->size());
-  ATH_MSG_DEBUG ("TRT track container size " << m_nTrtSeg);
-  if(m_nTrtSeg>m_MaxSegNum) {
+  ev_stat.m_counter[Stat_t::kNTrtSeg] = int(segments->size());
+  ATH_MSG_DEBUG ("TRT track container size " << ev_stat.m_counter[Stat_t::kNTrtSeg]);
+  if(ev_stat.m_counter[Stat_t::kNTrtSeg]>m_MaxSegNum) {
     ATH_MSG_DEBUG ("TRT track container size huge; will process event partially if number of max segments reached !!!");
   }
 
   // Event dependent data of SiCombinatorialTrackFinder_xk
-  InDet::SiCombinatorialTrackFinderData_xk combinatorialData;
+  InDet::ExtendedSiCombinatorialTrackFinderData_xk combinatorialData(m_prdToTrackMap);
 
   // Initialize the TRT seeded track tool's new event
-  m_trackmaker  ->newEvent(combinatorialData);
-  m_trtExtension->newEvent();
+  std::unique_ptr<InDet::ITRT_SeededTrackFinder::IEventData> event_data_p( m_trackmaker  ->newEvent(combinatorialData));
+  std::unique_ptr<InDet::ITRT_TrackExtensionTool::IEventData> ext_event_data_p( m_trtExtension->newEvent() );
 
 //  TrackCollection* outTracks  = new TrackCollection;           //Tracks to be finally output
-  m_outTracks = std::make_unique<TrackCollection>();
+  std::unique_ptr<TrackCollection> outTracks = std::make_unique<TrackCollection>();
 
   std::vector<Trk::Track*> tempTracks;                           //Temporary track collection
   tempTracks.reserve(128);
   // loop over event
   ATH_MSG_DEBUG ("Begin looping over all TRT segments in the event");
-  Trk::SegmentCollection::const_iterator iseg    = m_Segments->begin();
-  Trk::SegmentCollection::const_iterator isegEnd = m_Segments->end();
+  Trk::SegmentCollection::const_iterator iseg    = segments->begin();
+  Trk::SegmentCollection::const_iterator isegEnd = segments->end();
   for(; iseg != isegEnd; ++ iseg) {
 
     // Get the track segment
@@ -207,7 +201,7 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
 	ATH_MSG_DEBUG ("TRT segment fails nTRT hit cut, reject.");
 
 	// statistics
-	m_nTrtFailSel++;
+	ev_stat.m_counter[Stat_t::kNTrtFailSel]++;
 
       }	else {
 
@@ -216,7 +210,7 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
 	if(nTrtSegCur>=m_MaxSegNum) {
 	  ATH_MSG_INFO ("====> Reached maximal number of segments in event, stop !!!");
 	  // statistics
-	  m_nTrtLimit++;
+	  ev_stat.m_counter[Stat_t::kNTrtLimit]++;
 	  break;
 	}
 
@@ -224,16 +218,16 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
 	ATH_MSG_DEBUG ("=> New segment to process, number Of TRT ROTs : " << (trackTRT->numberOfMeasurementBases()));
 
 	// statistics
-        m_nTrtSegGood++;
+        ev_stat.m_counter[Stat_t::Stat_t::kNTrtSegGood]++;
 
 	// ok, call track maker and get list of possible track candidates
-        std::list<Trk::Track*> trackSi = m_trackmaker->getTrack(combinatorialData, *trackTRT); //Get the possible Si extensions
+        std::list<Trk::Track*> trackSi = m_trackmaker->getTrack(*event_data_p, *trackTRT); //Get the possible Si extensions
 
         if (trackSi.size()==0) {
           ATH_MSG_DEBUG ("No Si track candidates associated to the TRT track ");
 
 	  // statistics
-	  m_nTrtNoSiExt++;
+	  ev_stat.m_counter[Stat_t::kNTrtNoSiExt]++;
 
 	  // obsolete backup of TRT only
           if(m_saveTRT && trackTRT->numberOfMeasurementBases() > m_minTRTonly){
@@ -244,9 +238,9 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
 	      continue;
 	    }
 	    // statistics
-            m_nBckTrk++; m_nBckTrkTrt++;
+            ev_stat.m_counter[Stat_t::kNBckTrk]++; ev_stat.m_counter[Stat_t::Stat_t::kNBckTrkTrt]++;
 	    // add track to output list
-	    m_outTracks->push_back(trtSeg);
+	    outTracks->push_back(trtSeg);
           }
           continue;
 
@@ -287,7 +281,7 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
 	        // delete *itt;
 	        delete input;
 	        // statistics
-	        m_nExtCut++;
+	        ev_stat.m_counter[Stat_t::kNExtCut]++;
 	        continue;
 	      }
 	      if (fabs(input->eta()) > m_maxEta) {
@@ -296,16 +290,16 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
 	        // delete *itt;
 	        delete input;
 	        // statistics
-	        m_nExtCut++;
+	        ev_stat.m_counter[Stat_t::kNExtCut]++;
 	        continue;
 	      }
 
 	      // --- beam spot position
 	      Amg::Vector3D beamSpotPosition(0,0,0);
 	      if (m_SiExtensionCuts){
-              SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
-              beamSpotPosition = beamSpotHandle->beamVtx().position();
-          }
+                 SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
+                 beamSpotPosition = beamSpotHandle->beamVtx().position();
+              }
 	      // --- create surface
 	      Trk::PerigeeSurface perigeeSurface(beamSpotPosition);
 
@@ -320,7 +314,7 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
 	        // delete *itt;
 	        delete parm;
 	        // statistics
-	        m_nExtCut++;
+	        ev_stat.m_counter[Stat_t::kNExtCut]++;
 	        continue;
 	      }
 
@@ -333,7 +327,7 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
 	        // delete *itt;
 	        delete extrapolatedPerigee;
 	        // statistics
-	        m_nExtCut++;
+	        ev_stat.m_counter[Stat_t::kNExtCut]++;
 	        continue;
 	      }
 	      // if (fabs(extrapolatedPerigee->parameters()[Trk::z0]*extrapolatedPerigee->sinTheta()) > m_maxZImp) {
@@ -343,7 +337,7 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
 	        // delete *itt;
 	        delete extrapolatedPerigee;
 	        // statistics
-	        m_nExtCut++;
+	        ev_stat.m_counter[Stat_t::kNExtCut]++;
 	        continue;
 	      }
 	      delete extrapolatedPerigee;
@@ -359,10 +353,10 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
 	      ATH_MSG_DEBUG ("Try to improve TRT calling extension tool.");
 
 	      // statistics
-	      m_nTrtExtCalls++;
+	      ev_stat.m_counter[Stat_t::Stat_t::kNTrtExtCalls]++;
 
 	      // call extension tool
-              std::vector<const Trk::MeasurementBase*>& tn = m_trtExtension->extendTrack(*(*itt));
+              std::vector<const Trk::MeasurementBase*>& tn = m_trtExtension->extendTrack(*(*itt), *ext_event_data_p);
 
               if(!tn.size()) {
 
@@ -370,7 +364,7 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
 		ATH_MSG_DEBUG ("No new segment found, use input segment as fallback.");
 
 		// statistics
-		m_nTrtExtFail++;
+		ev_stat.m_counter[Stat_t::Stat_t::kNTrtExtFail]++;
 
 		// merge Si with input track segments
 		globalTrackNew = mergeSegments(**itt,*trackTRT);
@@ -386,7 +380,7 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
 		// Add the track to the list of tracks in the event
 		ATH_MSG_DEBUG ("Merged extension with Si segment");
 		// statistics
-		m_nTrtExt++;
+		ev_stat.m_counter[Stat_t::kNTrtExt]++;
 
 		// clean up
 		std::vector<const Trk::MeasurementBase*>::const_iterator iv, ive=tn.end();
@@ -404,7 +398,7 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
 		ATH_MSG_DEBUG ("Merged TRT segment with Si segment");
 
 		// statistics
-		m_nTrtExtBad++;
+		ev_stat.m_counter[Stat_t::Stat_t::kNTrtExtBad]++;
 
 		// clean up
 		std::vector<const Trk::MeasurementBase*>::const_iterator iv, ive=tn.end();
@@ -433,10 +427,15 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
 		ATH_MSG_DEBUG ("Add TRT only to output list");
 
 		// statistis
-                m_nBckTrk++; m_nBckTrkTrt++;
+                ev_stat.m_counter[Stat_t::kNBckTrk]++; ev_stat.m_counter[Stat_t::Stat_t::kNBckTrkTrt]++;
 
 		// add it to output list
-		m_outTracks->push_back(trtSeg);
+                if (m_trackSummaryTool.isEnabled()) {
+                   m_trackSummaryTool->computeAndReplaceTrackSummary(*trtSeg,
+                                                                     combinatorialData.PRDtoTrackMap(),
+                                                                     false /* DO NOT suppress hole search*/);
+                }
+		outTracks->push_back(trtSeg);
               }
 
 	    } else {
@@ -444,10 +443,15 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
               ATH_MSG_DEBUG ("Save merged TRT+Si track segment!");
 
 	      // statistics
-	      m_nBckTrk++; m_nBckTrkSi++;
+	      ev_stat.m_counter[Stat_t::kNBckTrk]++; ev_stat.m_counter[Stat_t::Stat_t::kNBckTrkSi]++;
 
 	      // add it to output list
-	      m_outTracks->push_back(globalTrackNew);
+              if (m_trackSummaryTool.isEnabled()) {
+                 m_trackSummaryTool->computeAndReplaceTrackSummary(*globalTrackNew,
+                                                                   combinatorialData.PRDtoTrackMap(),
+                                                                   false /* DO NOT suppress hole search*/);
+              }
+	      outTracks->push_back(globalTrackNew);
             }
 	  }
         }
@@ -457,33 +461,28 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
 
   // further debugging of results
   if(m_doStat){
-    Analyze(m_outTracks.ptr());
+    Analyze(outTracks.get());
+  }
+
+  if (SG::WriteHandle<TrackCollection>(m_outTracksKey,ctx).record(std::move(outTracks)).isFailure()){
+     ATH_MSG_ERROR("Failed to record " << m_outTracksKey.key());
+     return StatusCode::FAILURE;
   }
 
   // Update the total counters
-  m_nTrtSegTotal      += m_nTrtSeg;
-  m_nTrtFailSelTotal  += m_nTrtFailSel;
-  m_nTrtSegGoodTotal  += m_nTrtSegGood;
-  m_nTrtLimitTotal    += m_nTrtLimit;
-  m_nTrtNoSiExtTotal  += m_nTrtNoSiExt;
-  m_nExtCutTotal      += m_nExtCut;
-  m_nBckTrkTrtTotal   += m_nBckTrkTrt;
-  m_nTrtExtCallsTotal += m_nTrtExtCalls;
-  m_nTrtExtTotal      += m_nTrtExt;
-  m_nTrtExtBadTotal   += m_nTrtExtBad;
-  m_nTrtExtFailTotal  += m_nTrtExtFail;
-  m_nBckTrkSiTotal    += m_nBckTrkSi;
-  m_nBckTrkTotal      += m_nBckTrk;
-
+  {
+     std::lock_guard<std::mutex> lock(m_statMutex);
+     m_totalStat += ev_stat;
+  }
 
   for (auto p : tempTracks){
     delete p;
   }
-  m_trackmaker->endEvent(combinatorialData);
+  m_trackmaker->endEvent(*event_data_p);
 
   //Print common event information
   if(msgLvl(MSG::DEBUG)){
-    m_nprint=1; msg(MSG::DEBUG) << (*this) << endmsg;
+     dumpevent(msg(MSG::DEBUG), ev_stat);
   }
 
   return StatusCode::SUCCESS;
@@ -495,21 +494,15 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
 
 StatusCode InDet::TRT_SeededTrackFinder::finalize()
 {
-  m_nprint=2; msg(MSG::INFO)<<(*this)<<endmsg;
-
+  if(msgLvl(MSG::INFO)){
+     msg(MSG::INFO) << std::endl;
+     dumpevent(msg(MSG::INFO), m_totalStat);
+     // dumptools(msg(MSG::INFO));
+     msg(MSG::INFO) << endmsg;
+  }
   return StatusCode::SUCCESS;
 }
 
-///////////////////////////////////////////////////////////////////
-// Dumps relevant information into the MsgStream
-///////////////////////////////////////////////////////////////////
-
-MsgStream&  InDet::TRT_SeededTrackFinder::dump( MsgStream& out ) const
-{
-  out<<std::endl;
-  if(m_nprint)  return dumpevent(out);
-  return dumptools(out);
-}
 
 ///////////////////////////////////////////////////////////////////
 // Dumps conditions information into the MsgStream
@@ -523,9 +516,9 @@ MsgStream& InDet::TRT_SeededTrackFinder::dumptools( MsgStream& out ) const
   std::string s2; for(int i=0; i<n; ++i) s2.append(" "); s2.append("|");
   n     = 65-m_trtExtension.type().size();
   std::string s3; for(int i=0; i<n; ++i) s3.append(" "); s3.append("|");
-  n     = 65-m_Segments.name().size();
+  n     = 65-m_SegmentsKey.key().size();
   std::string s4; for(int i=0; i<n; ++i) s4.append(" "); s4.append("|");
-  n     = 65-m_outTracks.name().size();
+  n     = 65-m_outTracksKey.key().size();
   std::string s5; for(int i=0; i<n; ++i) s5.append(" "); s5.append("|");
 
   out<<"|----------------------------------------------------------------------"
@@ -534,8 +527,8 @@ MsgStream& InDet::TRT_SeededTrackFinder::dumptools( MsgStream& out ) const
   out<<"| Tool for TRT seeded track finding | "<<m_trackmaker.type()    <<s1<<std::endl;
   out<<"| Tool for final track refitting    | "<<m_fitterTool.type()    <<s2<<std::endl;
   out<<"| Tool for TRT trac extension       | "<<m_trtExtension.type()  <<s3<<std::endl;
-  out<<"| Location of input tracks          | "<<m_Segments.name()      <<s4<<std::endl;
-  out<<"| Location of output tracks         | "<<m_outTracks.name()     <<s5<<std::endl;
+  out<<"| Location of input tracks          | "<<m_SegmentsKey.key()      <<s4<<std::endl;
+  out<<"| Location of output tracks         | "<<m_outTracksKey.key()     <<s5<<std::endl;
   out<<"|----------------------------------------------------------------------"
      <<"-------------------|"
       <<std::endl;
@@ -546,113 +539,56 @@ MsgStream& InDet::TRT_SeededTrackFinder::dumptools( MsgStream& out ) const
 // Dumps event information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::TRT_SeededTrackFinder::dumpevent( MsgStream& out ) const
+MsgStream& InDet::TRT_SeededTrackFinder::dumpevent( MsgStream& out, const InDet::TRT_SeededTrackFinder::Stat_t &stat ) const
 {
-  int ns   = m_nTrtSeg;
-  int nsf  = m_nTrtFailSel;
-  int nsg  = m_nTrtSegGood;
-  int nlim = m_nTrtLimit;
-  int nnsi = m_nTrtNoSiExt;
-  int nsic = m_nExtCut;
-  int ntrt = m_nBckTrkTrt;
-  int next = m_nTrtExtCalls;
-  int ngex = m_nTrtExt;
-  int nbex = m_nTrtExtBad;
-  int nfex = m_nTrtExtFail;
-  int nsi  = m_nBckTrkSi;
-  int nt   = m_nBckTrk;
-
-  if(m_nprint > 1) {
-    ns   = m_nTrtSegTotal;
-    nsf  = m_nTrtFailSelTotal;
-    nsg  = m_nTrtSegGoodTotal;
-    nlim = m_nTrtLimitTotal;
-    nnsi = m_nTrtNoSiExtTotal;
-    nsic = m_nExtCutTotal;
-    ntrt = m_nBckTrkTrtTotal;
-    next = m_nTrtExtCallsTotal;
-    ngex = m_nTrtExtTotal;
-    nbex = m_nTrtExtBadTotal;
-    nfex = m_nTrtExtFailTotal;
-    nsi  = m_nBckTrkSiTotal;
-    nt   = m_nBckTrkTotal;
-  }
-
   out<<"|-------------------------------------------------------------------"<<std::endl;
   out<<"|  Investigated :"<<std::endl
-     <<"| "<<std::setw(7)<<ns  <<" TRT Segments on input"<<std::endl
-     <<"| "<<std::setw(7)<<nsf <<" TRT Segments fail selection on input"<<std::endl
-     <<"| "<<std::setw(7)<<nsg <<" TRT Segments after selection"<<std::endl;
-  if (nlim>0) {
+     <<"| "<<std::setw(7)<<stat.m_counter[Stat_t::kNTrtSeg]       <<" TRT Segments on input"<<std::endl
+     <<"| "<<std::setw(7)<<stat.m_counter[Stat_t::kNTrtFailSel]   <<" TRT Segments fail selection on input"<<std::endl
+     <<"| "<<std::setw(7)<<stat.m_counter[Stat_t::Stat_t::kNTrtSegGood]   <<" TRT Segments after selection"<<std::endl;
+  if (stat.m_counter[Stat_t::kNTrtLimit]>0) {
     out<<"|-------------------------------------------------------------------"<<std::endl;
-    out<<"| "<<std::setw(7)<<nlim<<" TRT segments lost because of processing limit"<<std::endl;
+    out<<"| "<<std::setw(7)<<stat.m_counter[Stat_t::kNTrtLimit]   <<" TRT segments lost because of processing limit"<<std::endl;
   }
   out<<"|-------------------------------------------------------------------"<<std::endl;
-  out<<"| "<<std::setw(7)<<nnsi<<" TRT segments without Si extension"<<std::endl;
+  out<<"| "<<std::setw(7)<<stat.m_counter[Stat_t::kNTrtNoSiExt]   <<" TRT segments without Si extension"<<std::endl;
   if (m_SiExtensionCuts) {
-    out<<"| "<<std::setw(7)<<nsic<<" number of Si extension failing cuts"<<std::endl;
+    out<<"| "<<std::setw(7)<<stat.m_counter[Stat_t::kNExtCut]     <<" number of Si extension failing cuts"<<std::endl;
   }
-  if (ntrt>0) {
-    out<<"| "<<std::setw(7)<<ntrt <<" number ot TRT only tracks created"<<std::endl;
+  if (stat.m_counter[Stat_t::Stat_t::kNBckTrkTrt]>0) {
+    out<<"| "<<std::setw(7)<<stat.m_counter[Stat_t::Stat_t::kNBckTrkTrt]  <<" number ot TRT only tracks created"<<std::endl;
   }
   if (m_doExtension) {
     out<<"|-------------------------------------------------------------------"<<std::endl;
-    out<<"| "<<std::setw(7)<<next<<" number of times TRT extension is called"<<std::endl
-       <<"| "<<std::setw(7)<<ngex<<" number of good TRT extension"<<std::endl;
+    out<<"| "<<std::setw(7)<<stat.m_counter[Stat_t::Stat_t::kNTrtExtCalls]<<" number of times TRT extension is called"<<std::endl
+       <<"| "<<std::setw(7)<<stat.m_counter[Stat_t::kNTrtExt]     <<" number of good TRT extension"<<std::endl;
     if (m_rejectShortExten) {
-      out<<"| "<<std::setw(7)<<nbex<<" number of bad TRT extension"<<std::endl;
+      out<<"| "<<std::setw(7)<<stat.m_counter[Stat_t::Stat_t::kNTrtExtBad]<<" number of bad TRT extension"<<std::endl;
     }
-    out<<"| "<<std::setw(7)<<nfex<<" number of failed TRT extension and fallback"<<std::endl;
+    out<<"| "<<std::setw(7)<<stat.m_counter[Stat_t::Stat_t::kNTrtExtFail]<<" number of failed TRT extension and fallback"<<std::endl;
   }
   out<<"|-------------------------------------------------------------------"<<std::endl;
-  out<<"| "<<std::setw(7)<<nsi <<" TRT+Si tracks created of output"<<std::endl;
-  if (nt != nsi) {
-    out<<"| "<<std::setw(7)<<nt  <<" total number of tracks on output"<<std::endl;
+  out<<"| "<<std::setw(7)<<stat.m_counter[Stat_t::Stat_t::kNBckTrkSi]    <<" TRT+Si tracks created of output"<<std::endl;
+  if (stat.m_counter[Stat_t::kNBckTrkSi] != stat.m_counter[Stat_t::kNBckTrk]) {
+    out<<"| "<<std::setw(7)<<stat.m_counter[Stat_t::kNBckTrk]    <<" total number of tracks on output"<<std::endl;
   }
   out<<"|-------------------------------------------------------------------";
   return out;
 }
 
-///////////////////////////////////////////////////////////////////
-// Dumps relevant information into the ostream
-///////////////////////////////////////////////////////////////////
-
-std::ostream& InDet::TRT_SeededTrackFinder::dump( std::ostream& out ) const
-{
-  return out;
-}
-
-///////////////////////////////////////////////////////////////////
-// Overload of << operator MsgStream
-///////////////////////////////////////////////////////////////////
-
-MsgStream& InDet::operator    <<
-  (MsgStream& sl,const InDet::TRT_SeededTrackFinder& se)
-{
-  return se.dump(sl);
-}
-
-///////////////////////////////////////////////////////////////////
-// Overload of << operator std::ostream
-///////////////////////////////////////////////////////////////////
-
-std::ostream& InDet::operator <<
-  (std::ostream& sl,const InDet::TRT_SeededTrackFinder& se)
-{
-  return se.dump(sl);
-}
 
 ///////////////////////////////////////////////////////////////////
 // Merge a Si extension and a TRT segment.Refit at the end
 ///////////////////////////////////////////////////////////////////
 
-Trk::Track* InDet::TRT_SeededTrackFinder::mergeSegments(const Trk::Track& tT, const Trk::TrackSegment& tS) {
+Trk::Track* InDet::TRT_SeededTrackFinder::mergeSegments(const Trk::Track& tT, const Trk::TrackSegment& tS) const {
 	// TSOS from the track
 	const DataVector<const Trk::TrackStateOnSurface>* stsos = tT.trackStateOnSurfaces();
 	// fitQuality from track
 	const Trk::FitQuality* fq = tT.fitQuality()->clone();
 	// output datavector of TSOS
-	DataVector<const Trk::TrackStateOnSurface>* ntsos = new DataVector<const Trk::TrackStateOnSurface>;
+	std::unique_ptr<DataVector<const Trk::TrackStateOnSurface> >
+           ntsos(std::make_unique< DataVector<const Trk::TrackStateOnSurface> >());
 
 	int siHits = 0;
 	// copy track Si states into track
@@ -683,42 +619,37 @@ Trk::Track* InDet::TRT_SeededTrackFinder::mergeSegments(const Trk::Track& tT, co
 	///Construct the new track
 	Trk::TrackInfo info;
 	info.setPatternRecognitionInfo(Trk::TrackInfo::TRTSeededTrackFinder);
-	Trk::Track* newTrack = new Trk::Track(info, ntsos, fq);
+        std::unique_ptr<Trk::Track> newTrack(std::make_unique<Trk::Track>(info, ntsos.release(), fq));
 
 	//Careful refitting at the end
 	if (m_doRefit) {
-		Trk::Track* fitTrack = m_fitterTool->fit(*newTrack, false, Trk::pion);
-		delete newTrack;
-		if (!fitTrack) {
+                newTrack=std::unique_ptr<Trk::Track>( m_fitterTool->fit(*newTrack, false, Trk::pion) );
+		if (!newTrack) {
 			ATH_MSG_DEBUG ("Refit of TRT+Si track segment failed!");
-			delete ntsos;
-			return 0;
+			return nullptr;
 		}
 
 		//Protect for tracks that have no really defined locz and theta parameters
-		//const Trk::MeasuredPerigee* perTrack=dynamic_cast<const Trk::MeasuredPerigee*>(fitTrack->perigeeParameters());
+		//const Trk::MeasuredPerigee* perTrack=dynamic_cast<const Trk::MeasuredPerigee*>(newTrack->perigeeParameters());
 
-		const Trk::Perigee* perTrack=fitTrack->perigeeParameters();
+		const Trk::Perigee* perTrack=newTrack->perigeeParameters();
 
 		if (perTrack) {
 			//const Trk::CovarianceMatrix& CM = perTrack->localErrorMatrix().covariance();
 			const AmgSymMatrix(5)* CM = perTrack->covariance();
 			if (!CM || sqrt((*CM)(1,1)) == 0. || sqrt((*CM)(3,3)) == 0.) {
-				delete fitTrack;
-        delete ntsos;
-        return 0;
-      }
-    }
-    return fitTrack;
-  }
-  return newTrack;
+                                return nullptr;
+                        }
+                }
+        }
+        return newTrack.release();
 }
 
 ///////////////////////////////////////////////////////////////////
 // Transform a TRT segment to track
 ///////////////////////////////////////////////////////////////////
 
-Trk::Track* InDet::TRT_SeededTrackFinder::segToTrack(const Trk::TrackSegment& tS) {
+Trk::Track* InDet::TRT_SeededTrackFinder::segToTrack(const Trk::TrackSegment& tS) const {
 	ATH_MSG_DEBUG ("Transforming the TRT segment into a track...");
 
 	//Get the track segment information and build the initial track parameters
@@ -729,7 +660,8 @@ Trk::Track* InDet::TRT_SeededTrackFinder::segToTrack(const Trk::TrackSegment& tS
 	const AmgVector(5)& p = tS.localParameters();
 	AmgSymMatrix(5)* ep = new AmgSymMatrix(5)(tS.localCovariance());
 
-	DataVector<const Trk::TrackStateOnSurface>* ntsos = new DataVector<const Trk::TrackStateOnSurface>;
+        std::unique_ptr<DataVector<const Trk::TrackStateOnSurface> > 
+           ntsos = std::make_unique<DataVector<const Trk::TrackStateOnSurface> >();
 
 	std::unique_ptr<const Trk::TrackParameters> segPar(surf->createParameters<5, Trk::Charged>(p(0), p(1), p(2), p(3), p(4), ep));
 	if (segPar) {
@@ -740,8 +672,7 @@ Trk::Track* InDet::TRT_SeededTrackFinder::segToTrack(const Trk::TrackSegment& tS
 		if (msgLvl(MSG::DEBUG)) {
 			msg(MSG::DEBUG) << "Could not get initial TRT segment parameters! " << endmsg;
 		}
-		delete ntsos;
-		return 0;
+		return nullptr;
 	}
 
 	for (int it = 0; it < int(tS.numberOfMeasurementBases()); it++) {
@@ -761,32 +692,27 @@ Trk::Track* InDet::TRT_SeededTrackFinder::segToTrack(const Trk::TrackSegment& tS
 
 	Trk::TrackInfo info;
 	info.setPatternRecognitionInfo(Trk::TrackInfo::TRTSeededTrackFinder);
-	Trk::Track* newTrack = new Trk::Track(info, ntsos, 0);
+        std::unique_ptr<Trk::Track> newTrack = std::make_unique<Trk::Track>(info, ntsos.release(), nullptr);
 
 	// Careful refitting of the TRT stand alone track
 	if (m_doRefit) {
-		Trk::Track* fitTrack = m_fitterTool->fit(*newTrack, false, Trk::pion);
-		delete newTrack; // cleanup
-		if (!fitTrack) {
+                newTrack = std::unique_ptr<Trk::Track>( m_fitterTool->fit(*newTrack, false, Trk::pion));
+		if (!newTrack) {
 			ATH_MSG_DEBUG ("Refit of TRT track segment failed!");
-			delete ntsos;
-			return 0;
+			return nullptr;
 		}
 
 		//Protect for tracks that have no really defined locz and theta parameters
-		const Trk::Perigee* perTrack=fitTrack->perigeeParameters();
+		const Trk::Perigee* perTrack=newTrack->perigeeParameters();
 		if (perTrack) {
 			const AmgSymMatrix(5)* CM = perTrack->covariance();
-      if (!CM || sqrt((*CM)(1,1)) == 0. || sqrt((*CM)(3,3)) == 0.) {
-	      delete fitTrack;
-	      delete ntsos;
-	      return 0;
-      }
-    }
-    return fitTrack;
-  }
+                        if (!CM || sqrt((*CM)(1,1)) == 0. || sqrt((*CM)(3,3)) == 0.) {
+                           return nullptr;
+                        }
+                }
+        }
 
-  return newTrack;
+        return newTrack.release();
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -794,13 +720,14 @@ Trk::Track* InDet::TRT_SeededTrackFinder::segToTrack(const Trk::TrackSegment& tS
 ///////////////////////////////////////////////////////////////////
 
 Trk::Track* InDet::TRT_SeededTrackFinder::
-mergeExtension(const Trk::Track& tT, std::vector<const Trk::MeasurementBase*>& tS) {
+mergeExtension(const Trk::Track& tT, std::vector<const Trk::MeasurementBase*>& tS) const {
   // TSOS from the track
   const DataVector<const Trk::TrackStateOnSurface>* stsos = tT.trackStateOnSurfaces();
   // fitQuality from track
   const Trk::FitQuality* fq = tT.fitQuality()->clone();
   // output datavector of TSOS
-  DataVector<const Trk::TrackStateOnSurface>* ntsos = new DataVector<const Trk::TrackStateOnSurface>;
+  std::unique_ptr<DataVector<const Trk::TrackStateOnSurface> >
+     ntsos = std::make_unique<DataVector<const Trk::TrackStateOnSurface> >();
 
   int siHits = 0;
   // copy track Si states into track
@@ -822,41 +749,37 @@ mergeExtension(const Trk::Track& tT, std::vector<const Trk::MeasurementBase*>& t
 
   Trk::TrackInfo info;
   info.setPatternRecognitionInfo(Trk::TrackInfo::TRTSeededTrackFinder);
-  Trk::Track* newTrack = new Trk::Track(info, ntsos, fq);
+  std::unique_ptr<Trk::Track> newTrack( std::make_unique<Trk::Track>(info, ntsos.release(), fq) );
 
   //Careful refitting at the end
   if (m_doRefit) {
-    Trk::Track* fitTrack = m_fitterTool->fit(*newTrack, false, Trk::pion);
-    delete newTrack;
-    if (!fitTrack) {
+    newTrack = std::unique_ptr<Trk::Track>( m_fitterTool->fit(*newTrack, false, Trk::pion) ) ;
+    if (!newTrack) {
       ATH_MSG_DEBUG ("Refit of TRT+Si track segment failed!");
-      delete ntsos;
-      return 0;
+      return nullptr;
     }
 
     //Protect for tracks that have no really defined locz and theta parameters
-    const Trk::Perigee* perTrack=fitTrack->perigeeParameters();
+    const Trk::Perigee* perTrack=newTrack->perigeeParameters();
     if (perTrack) {
       const AmgSymMatrix(5)* CM = perTrack->covariance();
       if (!CM || sqrt((*CM)(1,1)) == 0. || sqrt((*CM)(3,3)) == 0.) {
-	      delete fitTrack; 
-	      delete ntsos;
-	      return 0;
+	      return nullptr;
       }
     }
-    return fitTrack;
   }
 
-  return newTrack;
+  return newTrack.release();
 }
 
 ///////////////////////////////////////////////////////////////////
 // Analysis of tracks
 ///////////////////////////////////////////////////////////////////
 
-void InDet::TRT_SeededTrackFinder::Analyze(TrackCollection* tC)
+void InDet::TRT_SeededTrackFinder::Analyze(TrackCollection* tC) const
 {
 
+  if(msgLvl(MSG::DEBUG)) {
   if(msgLvl(MSG::DEBUG)) {msg(MSG::DEBUG) << "Analyzing tracks..." << endmsg;}
 
   if(msgLvl(MSG::DEBUG)) {msg(MSG::DEBUG) << "Number of back tracks " << (tC->size()) << endl;}
@@ -901,9 +824,8 @@ void InDet::TRT_SeededTrackFinder::Analyze(TrackCollection* tC)
     npixTot1+=npix1; npixTot2+=npix2; npixTot3+=npix3;
     //cout << "HITS IN TRACK " << nhits << " OUTLIERS " << noutl << " HOLES " << nholes << endl;
   }
-  if(msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG)<<"Total hits on 1st SCT: "<<nsctTot1<<" 2nd SCT: "<<nsctTot2<<" 3rd SCT: "<<nsctTot3<<" 4th SCT: "<<nsctTot4<<endmsg;
-    msg(MSG::DEBUG)<<"Total hits on 1st Pixel: "<<npixTot1<<" 2nd Pixel: "<<npixTot2<<" 3rd Pixel: "<<npixTot3<<endmsg;
+  msg(MSG::DEBUG)<<"Total hits on 1st SCT: "<<nsctTot1<<" 2nd SCT: "<<nsctTot2<<" 3rd SCT: "<<nsctTot3<<" 4th SCT: "<<nsctTot4<<endmsg;
+  msg(MSG::DEBUG)<<"Total hits on 1st Pixel: "<<npixTot1<<" 2nd Pixel: "<<npixTot2<<" 3rd Pixel: "<<npixTot3<<endmsg;
   }
 
 }

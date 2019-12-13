@@ -1,22 +1,28 @@
-#!/bin/sh
+#!/usr/bin/env bash
 #
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 #/** @file post.sh
 # @brief sh script that check the return code of an executable and compares
 # its output with a reference (if available).
-# @param test_name
 #
 # @author Scott Snyder <snyder@fnal.gov> - ATLAS Collaboration.
 # @author Paolo Calafiura <pcalafiura@lbl.gov> - ATLAS Collaboration.
+# @author Frank Winklmeier - ATLAS Collaboration.
 # **/
 
 usage() {
     cat <<EOF
-Syntax: post.sh TESTNAME [EXTRAPATTERNS] [-s PATTERNS]
+Syntax: post.sh TESTNAME [EXTRAPATTERNS] [-s REGEX] [-i REGEX]
     TESTNAME       name of unit test
-    EXTRAPATTERNS  additional regex patterns to exlude in diff
-    -s             use PATTERNS to select lines for diff
+    EXTRAPATTERNS  additional regex patterns to exlude in diff (deprecated, use -i)
+    -s             lines matching REGEX will be selected for the diff
+    -i             lines matching REGEX will be ignored for the diff
+    -h             help
+
+The select pattern is always extended to include common ERROR patterns.
+If both select and ignore are specified, the lines are first selected and
+then filtered by the ignore pattern. In all cases, a default ignore list is applied.
 EOF
 }
 
@@ -24,17 +30,35 @@ if [ "$#" -lt 1 ]; then
     usage
     exit 1
 fi
-
 test=$1
+shift
 
-# When used from cmake $2 and $3 will arrive as a single quoted argument, i.e. $2.
-# Concatenate them here so the same code works also from the command line.
-pat="$2 $3"
-if [[ "$pat" = "-s "* ]]; then
-    selectpatterns=`echo "$pat" | sed 's/-s\s*//' | sed 's/ $//'`
-else
-    extrapatterns="$2"
+# Backwards-compatible code for use with EXTRA_PATTERNS where the '-s' and
+# patterns arrived as one argument. This can be removed once EXTRA_PATTERNS
+# support has been removed in atlas_add_test.
+if [ "$#" -eq 1 ]; then
+    if [[ "$1" = "-s "* ]]; then
+        selectpatterns=`echo "$1" | sed 's/-s\s*//' | sed 's/ $//'`
+    else
+        ignorepatterns=$1
+    fi
+    shift
 fi
+
+while getopts ":s:i:h" opt; do
+    case $opt in
+        s)
+            selectpatterns=$OPTARG
+            ;;
+        i)
+            ignorepatterns=$OPTARG
+            ;;
+        h)
+            usage
+            exit 0
+            ;;
+    esac
+done
 
 #verbose="1"
 if [ "$POST_SH_NOCOLOR" = "" ]; then
@@ -53,6 +77,9 @@ if [ "$ATLAS_CTEST_PACKAGE" = "" ]; then
   ATLAS_CTEST_PACKAGE="__NOPACKAGE__"
 fi
 
+########################################## START ####################################################
+## Definition of default patterns
+
 # consider these name pairs identical in the diff
 read -d '' II <<EOF
 s/^StoreGateSvc_Impl VERBOSE/StoreGateSvc      VERBOSE/
@@ -68,6 +95,9 @@ s/([0-9][0-9]* ms total)/(xx ms total)/
 s/[[][0-9;]*m//g
 s/INFO set[(][)]/INFO set([])/  #py2 vs py3
 EOF
+
+# Patterns that cannot be ignored
+ERRORS="^ERROR | ERROR | FATAL "
 
 # ignore diff annotations
 PP='^---|^[[:digit:]]+[acd,][[:digit:]]+'
@@ -103,6 +133,10 @@ PP="$PP"'|CLID: .* - type name:'
 PP="$PP"'|ClassIDSvc .* setTypeNameForID: .* already set for'
 # ignore ClassIDSvc finalize output
 PP="$PP"'|ClassIDSvc .* finalize: wrote .*'
+# PoolSvc
+PP="$PP"'|^PoolSvc.*INFO'
+# ignore any finalize output
+PP="$PP"'|^.*INFO [Ff]inali[sz]'
 # ignore rcs version comments
 PP="$PP"'|Id: .+ Exp \$'
 # ignore plugin count
@@ -157,8 +191,8 @@ PP="$PP"'|^TimelineSvc +INFO'
 PP="$PP"'|VERBOSE ServiceLocatorHelper::service: found service IncidentSvc'
 PP="$PP"'|VERBOSE ServiceLocatorHelper::service: found service ProxyProviderSvc'
 # Pathnames / versions / times / hosts
-PP="$PP"'|^IOVDb(Svc|Folder) +INFO (Folder|Connection|Total payload|.*bytes in)'
-PP="$PP"'|^DBReplicaSvc +INFO Read replica configuration'
+PP="$PP"'|^IOVDb(Svc|Folder).*INFO (Folder|Connection|Total payload|.*bytes in)'
+PP="$PP"'|^DBReplicaSvc.*INFO Read replica configuration'
 PP="$PP"'|^EventInfoMgtInit: Got release version'
 PP="$PP"'|^Py:Athena +INFO using release'
 PP="$PP"'|servers found for host'
@@ -167,13 +201,16 @@ PP="$PP"'|INFO Database being retired|^Domain.*INFO'
 PP="$PP"'|SZ='
 PP="$PP"'|using job opts'
 
+# Hive ordering.
+PP="$PP"'|Terminating thread-pool resources|Joining Scheduler thread|Disconnecting from sqlite|Opening COOL connection|Initializing CondInputLoader|preLoadAddresses: Removing|IOVRanges will be checked|User session with|ConnectionService I[nN][fF][oO]|Disconnect from the database|RalSessionMgr I[nN][fF][oO]|Connect to the database'
+
 # Outputs dependent on whether or not a file catalog already exists.
 PP="$PP"'|XMLFileCatalog|File is not in Catalog|Failed to open container to check POOL collection|Open     DbSession|Access   DbDomain|Access   DbDatabase|^RootDatabase.open|Deaccess DbDatabase'
 
 PP="$PP"'|^Py:ConfigurableDb'
-PP="$PP"'|^DBReplicaSvc +INFO'
+PP="$PP"'|^DBReplicaSvc.*INFO'
 PP="$PP"'|INFO ... COOL  exception caught: The database does not exist|Create a new conditions database'
-PP="$PP"'|^SetGeometryVersion.py obtained'
+PP="$PP"'|SetGeometryVersion.py obtained'
 PP="$PP"'|^ConditionStore +INFO Start ConditionStore'
 PP="$PP"'|^ConditionStore +INFO Stop ConditionStore'
 PP="$PP"'|INFO Found XML file:|INFO copying from'
@@ -231,13 +268,30 @@ PP="$PP"'|Ran [0-9]+ tests in'
 # Verbosity cleanup in TileInfoLoader.
 PP="$PP"'|^TileInfoLoader +INFO'
 
+# Ignore new output stream helper tools.
+PP="$PP"'|Found HelperTools'
 
-if [ "$extrapatterns" != "" ]; then
- PP="$PP""|$extrapatterns"
+# Ignore ID helper verbosity.
+PP="$PP"'|filling address for'
+
+# MetaInputLoader addresses and SIDs
+PP="$PP"'|MetaInputLoader *INFO ( address|.*is still valid for|.*and sid)'
+
+########################################### END #####################################################
+
+# Always use default ignore list
+if [ -n "$ignorepatterns" ]; then
+    ignorepatterns="$PP|$ignorepatterns"
+else
+    ignorepatterns=$PP
 fi
 
-if [ -z "$testStatus" ]
-   then
+# Make sure errors are not filtered
+if [ -n "$selectpatterns" ]; then
+    selectpatterns="$selectpatterns|$ERRORS"
+fi
+
+if [ -z "$testStatus" ]; then
    echo "$YELLOW post.sh> Warning: athena exit status is not available $RESET"
 else
    # check exit status
@@ -245,20 +299,16 @@ else
    if [ "$testStatus" = 0 ]
        then
        if [ "$verbose" != "" ]; then
-         echo "$GREEN post.sh> OK: ${test} exited normally. Output is in $joblog $RESET"
+         echo "$GREEN post.sh> OK: ${test} exited normally. Output is in `realpath $joblog` $RESET"
        fi
        reflog=../share/${test}.ref
-       if [ "$reflog_location" != "" ]; then
-         reflog=$reflog_location/${test}.ref
-       fi
 
        # If we can't find the reference file, maybe it's located outside
        # the repo.  With the switch to git, we have to fall back
        # to handling the versioning manually.
        # ATLAS_REFERENCE_TAG should be a string of the form PACKAGE/VERSION.
        # We first look for it in DATAPATH.  If we don't find it,
-       # we then look under ATLAS_REFERENCE_DATA, which falls back
-       # to an afs path if it's not found.
+       # we then look under ATLAS_REFERENCE_DATA.
        if [ \( ! -r $reflog \) -a "$ATLAS_REFERENCE_TAG" != "" ]; then
            # Look for the file in DATAPATH.
            # We have to look for the directory, not the file itself,
@@ -267,30 +317,23 @@ else
            get_files -data -symlink $ATLAS_REFERENCE_TAG > /dev/null
            reflog=`basename $ATLAS_REFERENCE_TAG`/${test}.ref
            if [ ! -r $reflog ]; then
-               testdata=$ATLAS_REFERENCE_DATA
-               if [ "$testdata" = "" ]; then
-                   testdata=/afs/cern.ch/atlas/maxidisk/d33/referencefiles
-               fi
-               reflog=$testdata/$ATLAS_REFERENCE_TAG/${test}.ref
+               reflog=${ATLAS_REFERENCE_DATA}/${ATLAS_REFERENCE_TAG}/${test}.ref
            fi
        fi
 
        if [ -r $reflog ]; then
-	       jobrep=${joblog}-rep
-	       sed -r "$II" $joblog > $jobrep
-	       refrep=`basename ${reflog}`-rep
-	       sed -r "$II" $reflog > $refrep
            jobdiff=${joblog}-todiff
            refdiff=`basename ${reflog}`-todiff
 
-           # We either exclude or select lines for the diff
-           if [ -z "$selectpatterns" ]; then
-               egrep -a -v "$PP" < $jobrep > $jobdiff
-               egrep -a -v "$PP" < $refrep > $refdiff
-           else
-               egrep -a "$selectpatterns" < $jobrep > $jobdiff
-               egrep -a "$selectpatterns" < $refrep > $refdiff
-           fi
+           # Process/filter log and reference file
+           process() {
+               sed -r "$II" $1 |
+                   ( [[ "$selectpatterns" ]] && egrep -a "$selectpatterns" || tee ) |
+                   ( [[ "$ignorepatterns" ]] && egrep -av "$ignorepatterns" || tee ) > $2
+           }
+           process $joblog $jobdiff
+           process $reflog $refdiff
+
            diff -a -b -E -B -u $jobdiff $refdiff
            diffStatus=$?
            if [ $diffStatus != 0 ] ; then

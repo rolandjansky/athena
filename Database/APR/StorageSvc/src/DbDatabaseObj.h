@@ -150,7 +150,7 @@ namespace pool    {
 
     /// read an object referenced by the token
     DbStatus read(const Token& token, ShapeH shape, void** object);
-    /// Calculate required OID modification (shift) for source OID (oid) for a given merge section 
+    /// Calculate new OID from the source OID (oid) for a given merge section
     DbStatus getRedirection(const Token::OID_t& oid, int merge_section, Token::OID_t& shift);
     /// Expand OID into a full Token, based on the Links table. For merged files provide links section#
     DbStatus getLink(const Token::OID_t& oid, int merge_section, Token* pTok);

@@ -1,9 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ##
 ## @file MuonCombinedRecExample/python/MuonCombinedKeys.py
 ## @brief Python module to hold uniform collection names for muon combined reconstruction
 ##
+
+from __future__ import print_function
 
 """ MuonCombinedContainerKeys
     Python module to hold storegate keys of MuonCombined objects.
@@ -254,7 +256,7 @@ class MuonCombinedContainerKeys(JobPropertyContainer):
 
     def lockAllExceptAlias(self):
         # Lock everything except one thing (do it this way to avoid a warning when unlocking one thing)
-        print "MuonCombinedKeys: Locking all keys except one thing"
+        print("MuonCombinedKeys: Locking all keys except one thing")
         # MuonCombinedKeys.lock_JobProperties()
         [k.lock() for k in MuonCombinedKeys.__dict__.values() if hasattr(k,'is_locked') and not isinstance(k,type(MuonCombinedKeys.OneThing))]
         return 

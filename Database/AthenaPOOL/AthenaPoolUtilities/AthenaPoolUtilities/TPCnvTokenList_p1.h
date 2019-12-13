@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TPCnvTokenList_p1_h
@@ -67,7 +67,7 @@ public:
       @return token to the extending persistent object
   */
   const std::string&	findToken(unsigned short id) {
-     for( const_iterator it = begin();  it != end(); it++ ) {
+     for( const_iterator it = begin();  it != end(); ++it ) {
 	if( it->converterID() == id )
 	   return it->token();
      }

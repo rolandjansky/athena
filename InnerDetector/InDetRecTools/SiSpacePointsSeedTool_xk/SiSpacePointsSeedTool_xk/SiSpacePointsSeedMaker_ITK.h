@@ -7,11 +7,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //  Header file for class SiSpacePointsSeedMaker_ITK
 /////////////////////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-/////////////////////////////////////////////////////////////////////////////////
-// Class for track candidates generation using space points information
-// for standard Atlas geometry
-/////////////////////////////////////////////////////////////////////////////////
 // Version 1.0 3/10/2004 I.Gavrilenko
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -27,9 +22,9 @@
 #include "SiSPSeededTrackFinderData/SiSpacePointsSeedMakerEventData.h"
 #include "TrkSpacePoint/SpacePointContainer.h" 
 #include "TrkSpacePoint/SpacePointOverlapCollection.h"
+#include "TrkEventUtils/PRDtoTrackMap.h"
 
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
 
 #include <iosfwd>
 #include <list>
@@ -37,13 +32,21 @@
 
 class MsgStream;
 
-namespace Trk {
-  class IPRD_AssociationTool;
-}
 
 namespace InDet {
 
   using EventData = SiSpacePointsSeedMakerEventData;
+
+  /**
+   * @class SiSpacePointsSeedMaker_ATLxk
+   * Class for track candidates generation using space points information
+   * for standard Atlas geometry
+   *
+   * In AthenaMT, event dependent cache inside SiSpacePointsSeedMaker_ITK
+   * is not preferred. SiSpacePointsSeedMakerEventData = EventData class
+   * holds event dependent data for SiSpacePointsSeedMaker_ITK.
+   * Its object is instantiated in SiSPSeededTrackFinder::execute.
+   */
 
   class SiSpacePointsSeedMaker_ITK : 
     public extends<AthAlgTool, ISiSpacePointsSeedMaker>
@@ -55,63 +58,65 @@ namespace InDet {
   public:
       
     ///////////////////////////////////////////////////////////////////
-    // Standard tool methods
+    /// @name Standard tool methods
     ///////////////////////////////////////////////////////////////////
-
+    //@{
     SiSpacePointsSeedMaker_ITK
     (const std::string&,const std::string&,const IInterface*);
     virtual ~SiSpacePointsSeedMaker_ITK() = default;
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
+    //@}
 
     ///////////////////////////////////////////////////////////////////
-    // Methods to initialize tool for new event or region
+    /// @name Methods to initialize tool for new event or region
     ///////////////////////////////////////////////////////////////////
-
+    //@{
     virtual void newEvent(EventData& data, int iteration) const override;
     virtual void newRegion(EventData& data,
                            const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT) const override;
     virtual void newRegion(EventData& data,
                            const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT,
                            const IRoiDescriptor& iRD) const override;
-      
-    ///////////////////////////////////////////////////////////////////
-    // Methods to initilize different strategies of seeds production
-    // with two space points with or without vertex constraint
-    ///////////////////////////////////////////////////////////////////
+    //@}
 
+    ///////////////////////////////////////////////////////////////////
+    /// @name Methods to initilize different strategies of seeds production
+    ///////////////////////////////////////////////////////////////////
+    //@{
+
+    /// with two space points with or without vertex constraint
     virtual void find2Sp(EventData& data, const std::list<Trk::Vertex>& lv) const override;
 
-    ///////////////////////////////////////////////////////////////////
-    // Methods to initilize different strategies of seeds production
-    // with three space points with or without vertex constraint
-    ///////////////////////////////////////////////////////////////////
-
+    /// with three space points with or without vertex constraint
     virtual void find3Sp(EventData& data, const std::list<Trk::Vertex>& lv) const override;
+
+    /// with three space points with or without vertex constraint
+    /// with information about min and max Z of the vertex
     virtual void find3Sp(EventData& data, const std::list<Trk::Vertex>& lv, const double* zVertex) const override;
 
-    ///////////////////////////////////////////////////////////////////
-    // Methods to initilize different strategies of seeds production
-    // with variable number space points with or without vertex constraint
-    // Variable means (2,3,4,....) any number space points
-    ///////////////////////////////////////////////////////////////////
- 
+    /// with variable number space points with or without vertex constraint
+    /// Variable means (2,3,4,....) any number space points
     virtual void findVSp(EventData& data, const std::list<Trk::Vertex>& lv) const override;
+    //@}
       
     ///////////////////////////////////////////////////////////////////
-    // Iterator through seeds pseudo collection produced accordingly
-    // methods find    
+    /// @name Iterator through seeds pseudo collection
+    /// produced accordingly methods find    
     ///////////////////////////////////////////////////////////////////
-
+    //@{
     virtual const SiSpacePointsSeed* next(EventData& data) const override;
+    //@}
 
     ///////////////////////////////////////////////////////////////////
-    // Print internal tool parameters and status
+    /// @name Print internal tool parameters and status
     ///////////////////////////////////////////////////////////////////
-
+    //@{
     virtual MsgStream& dump(EventData& data, MsgStream& out) const override;
+    //@}
 
   private:
+    /// enum for array sizes
     enum Size {SizeRF=53,
                SizeZ=11,
                SizeRFZ=SizeRF*SizeZ,
@@ -124,23 +129,26 @@ namespace InDet {
     ///////////////////////////////////////////////////////////////////
     // Private data and methods
     ///////////////////////////////////////////////////////////////////
-  
+
+    /// @name Service handles
+    //@{
     ServiceHandle<MagField::IMagFieldSvc> m_fieldServiceHandle{this, "MagFieldSvc", "AtlasFieldSvc"};
-    PublicToolHandle<Trk::IPRD_AssociationTool> m_assoTool{this, "AssociationTool", "InDet::InDetPRD_AssociationToolGangedPixels"};
-        
-    ///////////////////////////////////////////////////////////////////
-    // Space points container
-    ///////////////////////////////////////////////////////////////////
-    SG::ReadHandleKey<SpacePointContainer> m_spacepointsSCT{this, "SpacePointsSCTName", "SCT_SpacePoints"};
-    SG::ReadHandleKey<SpacePointContainer> m_spacepointsPixel{this, "SpacePointsPixelName", "PixelSpacePoints"};
+    //@}
+
+    /// @name Data handles
+    //@{
+    SG::ReadHandleKey<SpacePointContainer> m_spacepointsSCT{this, "SpacePointsSCTName", "SCT_SpacePoints", "SCT space points container"};
+    SG::ReadHandleKey<SpacePointContainer> m_spacepointsPixel{this, "SpacePointsPixelName", "PixelSpacePoints", "Pixel space points container"};
     SG::ReadHandleKey<SpacePointOverlapCollection> m_spacepointsOverlap{this, "SpacePointsOverlapName", "OverlapSpacePoints"};
-
+    SG::ReadHandleKey<Trk::PRDtoTrackMap> m_prdToTrackMap{this,"PRDtoTrackMap","","option PRD-to-track association"};
     SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey{this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot"};
+    //@}
 
+    /// @name Properties, which will not be changed after construction
+    //@{
     BooleanProperty m_pixel{this, "usePixel", true};
     BooleanProperty m_sct{this, "useSCT", true};
     BooleanProperty m_useOverlap{this, "useOverlapSpCollection", true};
-    BooleanProperty m_useassoTool{this, "UseAssociationTool", false};
     IntegerProperty m_maxsize{this, "maxSize", 50000};
     IntegerProperty m_maxsizeSP{this, "maxSizeSP", 5000};
     IntegerProperty m_maxOneSize{this, "maxSeedsForSpacePoint", 5};
@@ -161,17 +169,23 @@ namespace InDet {
     FloatProperty m_diversss{this, "maxdImpactSSS", 20.};
     FloatProperty m_divermax{this, "maxdImpactForDecays", 20.};
     FloatProperty m_dzmaxPPP{this, "dZmaxForPPPSeeds", 600.};
+    //@}
 
-    // Properties, which will be updated in initialize
+    /// @name Properties, which will be updated in initialize
+    //@{
     FloatProperty m_etamin{this, "etaMin", 0.};
     FloatProperty m_r_rmax{this, "radMax", 1100.};
     FloatProperty m_ptmin{this, "pTmin", 500.};
     FloatProperty m_umax{this, "minSeedsQuality", 0.};
+    //@}
 
-    // Properties, which will be updated in event methods, checketa is prepared in EventData.
+    /// @name Properties, which will be updated in event methods, checketa is prepared in EventData.
+    //@{
     BooleanProperty m_checketa{this, "checkEta", false};
+    //@}
 
-    // Properties, which are not used in this implementation of SiSpacePointsSeedMaker_ITK class
+    /// @name Properties, which are not used in this implementation of SiSpacePointsSeedMaker_ITK class
+    //@{
     BooleanProperty m_dbm{this, "useDBM", false};
     UnsignedIntegerProperty m_maxNumberVertices{this, "maxNumberVertices", 99};
     FloatProperty m_r1min{this, "minRadius1", 0.};
@@ -182,11 +196,15 @@ namespace InDet {
     FloatProperty m_r3max{this, "maxRadius3", 600.};
     FloatProperty m_rapcut{this, "RapidityCut", 2.7};
     FloatProperty m_diverpps{this, "maxdImpactPPS", 1.7};
+    //@}
 
-    // Not updated at all
+    /// @name Data member, which is not updated at all
+    //@{
     float m_drminv{20.};
+    //@}
 
-    // Updated only in initialize
+    /// @name Data members, which are updated only in initialize
+    //@{
     bool m_initialized{false};
     int m_outputlevel{0};
     int m_r_size{0};
@@ -205,11 +223,12 @@ namespace InDet {
     float m_COF{0.};
     float m_sF{0.};
     float m_sFv{0.};
+    //@}
 
     ///////////////////////////////////////////////////////////////////
     // Private methods
     ///////////////////////////////////////////////////////////////////
-    /**    @name Disallow default instantiation, copy, assignment */
+    /// @name Disallow default instantiation, copy, assignment
     //@{
     SiSpacePointsSeedMaker_ITK() = delete;
     SiSpacePointsSeedMaker_ITK(const SiSpacePointsSeedMaker_ITK&) = delete;
@@ -268,7 +287,7 @@ namespace InDet {
     void findNext(EventData& data) const;
     bool isZCompatible(EventData& data, float&,float&,float&) const;
     void convertToBeamFrameWork(EventData& data, const Trk::SpacePoint*const&,float*) const;
-    bool isUsed(const Trk::SpacePoint*) const;
+    bool isUsed(const Trk::SpacePoint*, const Trk::PRDtoTrackMap &prd_to_track_map) const;
 
     void initializeEventData(EventData& data) const;
   };
@@ -288,5 +307,25 @@ public:
     return i1.first < i2.first;
   }
 };
+
+
+///////////////////////////////////////////////////////////////////
+// Test is space point used
+///////////////////////////////////////////////////////////////////
+
+namespace InDet {
+  inline
+  bool SiSpacePointsSeedMaker_ITK::isUsed(const Trk::SpacePoint* sp, const Trk::PRDtoTrackMap &prd_to_track_map) const
+  {
+    const Trk::PrepRawData* d = sp->clusterList().first;
+    if (!d || !prd_to_track_map.isUsed(*d)) return false;
+
+    d = sp->clusterList().second;
+    if (!d || prd_to_track_map.isUsed(*d)) return true;
+
+    return false;
+  }
+}
+
 
 #endif // SiSpacePointsSeedMaker_ITK_H

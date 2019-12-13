@@ -2,18 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <math.h>
-#include <algorithm>
-
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/StatusCode.h"
 #include "AthenaMonitoring/Monitored.h"
-
 #include "DecisionHandling/Combinators.h"
-
-#include "xAODTrigMuon/L2CombinedMuonContainer.h"
-#include "xAODTrigMuon/versions/L2CombinedMuonContainer_v1.h"
-#include "xAODTrigMuon/L2CombinedMuon.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "TrigmuCombHypoTool.h"
 
@@ -37,13 +27,10 @@ TrigmuCombHypoTool::~TrigmuCombHypoTool(){
 
 StatusCode TrigmuCombHypoTool::initialize()
 {
-   ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
- 
    ATH_MSG_DEBUG( "Tool configured for chain/id: " << m_decisionId );
  
    if (m_acceptAll) {
-      ATH_MSG_DEBUG("AcceptAll = True");
-      ATH_MSG_INFO("Accepting all the events with not cut!");
+      ATH_MSG_INFO("Accepting all the events!");
    } else {
       ATH_MSG_DEBUG("AcceptAll = False");
       m_bins.resize (m_ptBins.size());
@@ -66,8 +53,6 @@ StatusCode TrigmuCombHypoTool::initialize()
       ATH_CHECK( m_monTool.retrieve() );
       ATH_MSG_DEBUG("MonTool name: " << m_monTool);
    }
- 
-   ATH_MSG_INFO("Initializing" << name() << "successfully");
  
    return StatusCode::SUCCESS;
 }

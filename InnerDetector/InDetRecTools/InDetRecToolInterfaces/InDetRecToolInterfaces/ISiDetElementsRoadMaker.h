@@ -5,11 +5,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //  Header file for class ISiDetElementsRoadMaker
 /////////////////////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-/////////////////////////////////////////////////////////////////////////////////
-//  Base class for detector elements road builder in Pixels and SCT
-//  All detector elements should be destributed in propagation order.
-/////////////////////////////////////////////////////////////////////////////////
 // Version 1.0 26/02/2005 I.Gavrilenko
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -33,6 +28,12 @@ namespace InDetDD {
 
 namespace InDet {
 
+  /**
+   * @class ISiDetElementsRoadMaker
+   * Base class for detector elements road builder in Pixels and SCT.
+   * All detector elements should be destributed in propagation order.
+   */
+
   class ISiDetElementsRoadMaker : virtual public IAlgTool 
     {
       ///////////////////////////////////////////////////////////////////
@@ -41,13 +42,15 @@ namespace InDet {
       
     public:
 
-      // InterfaceID
+      /// @name InterfaceID
+      //@{
       DeclareInterfaceID(ISiDetElementsRoadMaker, 1, 0);
+      //@}
 
       ///////////////////////////////////////////////////////////////////
-      // Main methods for road builder
+      /// @name Main methods for road builder
       ///////////////////////////////////////////////////////////////////
-
+      //@{
       virtual void detElementsRoad
 	(const std::list<const Trk::SpacePoint*>&,
 	std::list<const InDetDD::SiDetectorElement*>&) const=0;
@@ -59,13 +62,15 @@ namespace InDet {
       virtual void detElementsRoad
 	(const Trk::TrackParameters&,Trk::PropDirection, 
 	 std::list<const InDetDD::SiDetectorElement*>&) const=0;
- 
-      ///////////////////////////////////////////////////////////////////
-      // Print internal tool parameters and status
-      ///////////////////////////////////////////////////////////////////
+      //@} 
 
+      ///////////////////////////////////////////////////////////////////
+      /// @name Print internal tool parameters and status
+      ///////////////////////////////////////////////////////////////////
+      //@{
       virtual MsgStream&    dump(MsgStream&    out) const=0;
       virtual std::ostream& dump(std::ostream& out) const=0;
+      //@}
 
     };
   

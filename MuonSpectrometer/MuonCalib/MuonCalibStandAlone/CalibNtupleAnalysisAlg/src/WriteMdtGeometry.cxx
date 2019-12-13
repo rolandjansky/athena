@@ -54,7 +54,6 @@ WriteMdtGeometry::WriteMdtGeometry(const std::string &name, ISvcLocator *pSvcLoc
 	
   //for the sake of coverity
   m_session=NULL;
-  m_MdtIdHelper=NULL;
   m_detMgr =NULL;
   m_id_tool=NULL;
 }  //end WriteMdtGeometry::WriteMdtGeometry
@@ -64,7 +63,7 @@ WriteMdtGeometry::~WriteMdtGeometry() {
 
 StatusCode WriteMdtGeometry::initialize() {
 // MDT ID helper //
-  ATH_CHECK( detStore()->retrieve(m_MdtIdHelper, m_MDT_ID_helper) );
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
 // muon detector manager //
   ATH_CHECK( detStore()->retrieve(m_detMgr) );
@@ -123,21 +122,21 @@ inline bool WriteMdtGeometry::fill_db(coral::ITableDataEditor &editor) {
   rowBuffer.extend<float>("LOC_Z");
   rowBuffer.extend<float>("Y_SPACING");
   //loop on chambers
-  MdtIdHelper::const_id_iterator it     = m_MdtIdHelper->module_begin();
-  MdtIdHelper::const_id_iterator it_end = m_MdtIdHelper->module_end();
+  MdtIdHelper::const_id_iterator it     = m_muonIdHelperTool->mdtIdHelper().module_begin();
+  MdtIdHelper::const_id_iterator it_end = m_muonIdHelperTool->mdtIdHelper().module_end();
   for( ; it!=it_end;++it ) {
     std::cout<<"."<<std::flush;
-    const MuonGM::MdtReadoutElement *detEl = m_detMgr->getMdtReadoutElement( m_MdtIdHelper->channelID(*it,1,1,1));
+    const MuonGM::MdtReadoutElement *detEl = m_detMgr->getMdtReadoutElement( m_muonIdHelperTool->mdtIdHelper().channelID(*it,1,1,1));
     if(!detEl) continue;
     //get number of mls;
-    int n_mls=m_MdtIdHelper->numberOfMultilayers(*it);
+    int n_mls=m_muonIdHelperTool->mdtIdHelper().numberOfMultilayers(*it);
     //fixed id
     MuonFixedId fixed_id(m_id_tool->idToFixedId(*it));
     rowBuffer["CHAMBER"].data<int>() = fixed_id.mdtChamberId().getIdInt();
     //loop on multilayers
     for(int ml=1; ml<=n_mls; ml++) {
       rowBuffer["ML"].data<int>()=ml;
-      const MuonGM::MdtReadoutElement *detEl_ml = m_detMgr->getMdtReadoutElement(m_MdtIdHelper->channelID(*it,ml ,1,1));
+      const MuonGM::MdtReadoutElement *detEl_ml = m_detMgr->getMdtReadoutElement(m_muonIdHelperTool->mdtIdHelper().channelID(*it,ml ,1,1));
       int n_layers=detEl_ml->getNLayers();
       int n_tubes=detEl_ml->getNtubesperlayer();
       //			if(detEl_ml==NULL) {

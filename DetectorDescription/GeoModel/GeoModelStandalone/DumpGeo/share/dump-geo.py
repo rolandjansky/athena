@@ -89,7 +89,7 @@ if (vp1InputFiles == []):
 
     # # Set geometry version
     if (not "DetDescrVersion" in dir()):
-        DetDescrVersion = "ATLAS-R2-2015-03-01-00" # for the new Rel. 21
+        DetDescrVersion = "ATLAS-R2-2016-01-00-01" # "ATLAS-R2-2015-03-01-00" for Rel. 21
         os.environ["DUMPGEODETDESCRTAGDEFAULT"] = "1" # save to an env var, for later use in GeoModelStandalone/GeoExporter
         os.environ["DUMPGEODETDESCRTAG"] = DetDescrVersion # save to an env var, for later use in GeoModelStandalone/GeoExporter
     globalflags.DetDescrVersion = DetDescrVersion
@@ -121,7 +121,7 @@ else:
 
         # Set geometry version
         if (not "DetDescrVersion" in dir()):
-            DetDescrVersion = "ATLAS-R2-2015-03-01-00" # for the new Rel. 21
+            DetDescrVersion = "ATLAS-R2-2016-01-00-01" # "ATLAS-R2-2015-03-01-00" for Rel. 21
 
         globalflags.DetDescrVersion = DetDescrVersion
 

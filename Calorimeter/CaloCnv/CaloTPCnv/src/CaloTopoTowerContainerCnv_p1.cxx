@@ -1,17 +1,18 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTPCnv/CaloTopoTowerContainerCnv_p1.h"
 
 #include "CaloTPCnv/CaloTopoTowerContainer_p1.h"
-#define private public
 #include "CaloEvent/CaloTopoTowerContainer.h"
-#undef private
 
 #include <iostream>
 
-void CaloTopoTowerContainerCnv_p1::persToTrans(const CaloTopoTowerContainer_p1* pers, CaloTopoTowerContainer* trans,MsgStream& msg) {
+void CaloTopoTowerContainerCnv_p1::persToTrans (const CaloTopoTowerContainer_p1* pers,
+                                                CaloTopoTowerContainer* trans,
+                                                MsgStream& msg) const
+{
   CaloTowerSeg seg;
   m_caloTowerSegCnv.persToTrans(&(pers->m_towerSeg),&seg);
   CaloTopoTowerContainer ctmp (seg, true);
@@ -37,7 +38,10 @@ void CaloTopoTowerContainerCnv_p1::persToTrans(const CaloTopoTowerContainer_p1* 
 }
 
 
-void CaloTopoTowerContainerCnv_p1::transToPers(const CaloTopoTowerContainer* trans, CaloTopoTowerContainer_p1* pers,MsgStream& msg)  {
+void CaloTopoTowerContainerCnv_p1::transToPers (const CaloTopoTowerContainer* trans,
+                                                CaloTopoTowerContainer_p1* pers,
+                                                MsgStream& msg) const
+{
   m_caloTowerSegCnv.transToPers(&(trans->towerseg()),&(pers->m_towerSeg));
   std::vector<CaloCell_ID::SUBCALO> reg;
   (void)trans->getCalos (reg);
@@ -58,49 +62,3 @@ void CaloTopoTowerContainerCnv_p1::transToPers(const CaloTopoTowerContainer* tra
   pers->m_cellESignificanceThreshold=trans->m_cellESignificanceThreshold;
   pers->m_caloSelection=trans->m_caloSelection;
 }
-
-
-/** Convert persistent object representation to transient
-    @param pers [IN] void* pointer to the persistent object
-    @param trans [OUT] void* pointer to the empty transient object
-    @param log [IN] output message stream
-*/
-void CaloTopoTowerContainerCnv_p1::persToTransUntyped(const void* pers,
-                                                  void* trans,
-                                                  MsgStream& log)
-{
-  persToTrans (reinterpret_cast<const CaloTopoTowerContainer_p1*> (pers),
-               reinterpret_cast<CaloTopoTowerContainer*> (trans), log);
-}
-
-
-/** Convert transient object representation to persistent
-    @param trans [IN] void* pointer to the transient object
-    @param pers [OUT] void* pointer to the empty persistent object
-    @param log [IN] output message stream
-*/  
-void CaloTopoTowerContainerCnv_p1::transToPersUntyped(const void* trans,
-                                                  void* pers,
-                                                  MsgStream& log)
-{
-  transToPers (reinterpret_cast<const CaloTopoTowerContainer*> (trans),
-               reinterpret_cast<CaloTopoTowerContainer_p1*> (pers),log);
-}
-
-
-/** return C++ type id of the transient class this converter is for
-    @return std::type_info&
-*/
-const std::type_info& CaloTopoTowerContainerCnv_p1::transientTInfo() const
-{
-  return typeid (CaloTopoTowerContainer);
-}
-
-/** return C++ type id of the persistent class this converter is for
-    @return std::type_info&
-*/
-const std::type_info& CaloTopoTowerContainerCnv_p1::persistentTInfo() const
-{
-  return typeid (CaloTopoTowerContainer_p1);
-}
-

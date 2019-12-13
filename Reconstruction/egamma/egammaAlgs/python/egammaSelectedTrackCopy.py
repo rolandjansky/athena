@@ -9,8 +9,7 @@ from egammaRec.egammaRecFlags import jobproperties # to set jobproperties.egamma
 from egammaRec import egammaKeys
 from InDetRecExample.InDetKeys import InDetKeys
 
-from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
-from egammaCaloTools.egammaCaloToolsFactories import egammaCheckEnergyDepositTool
+from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools, EMExtrapolationToolsCommonCache
 from egammaCaloTools import egammaCaloToolsConf
 
 egammaCaloClusterGSFSelector = ToolFactory( egammaCaloToolsConf.egammaCaloClusterSelector,
@@ -22,6 +21,7 @@ egammaCaloClusterGSFSelector = ToolFactory( egammaCaloToolsConf.egammaCaloCluste
 egammaSelectedTrackCopy = AlgFactory( egammaAlgsConf.egammaSelectedTrackCopy,
                                       name = 'egammaSelectedTrackCopy' ,
                                       ExtrapolationTool = EMExtrapolationTools,
+                                      ExtrapolationToolCommonCache = EMExtrapolationToolsCommonCache,
                                       ClusterContainerName=jobproperties.egammaRecFlags.egammaTopoClusterCollection(),
                                       TrackParticleContainerName=InDetKeys.xAODTrackParticleContainer(),
                                       minNoSiHits=4,

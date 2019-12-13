@@ -148,12 +148,6 @@ class SCT_ByteStreamErrs(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'SCT_ByteStreamErrs'
 
-class SCT_ByteStreamFrac(JobProperty):
-    """StoreGate key for SCT BS fractions"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'SCT_ByteStreamFrac'
-
 class TRT_ByteStreamErrs(JobProperty):
     """StoreGate key for TRT BS errors"""
     statusOn     = True
@@ -1077,10 +1071,10 @@ class InDetContainerKeys(JobPropertyContainer):
 
     def lockAllExceptAlias(self):
         # Lock everything except AliasToTracks (do it this way to avoid a warning when unlocking AliasToTracks)
-        print "InDetKeys: Locking all keys except aliases"
+        print("InDetKeys: Locking all keys except aliases")
         # InDetKeys.lock_JobProperties()
         # InDetKeys.AliasToTracks.unlock()
-        [k.lock() for k in InDetKeys.__dict__.values() if hasattr(k,'is_locked') and not isinstance(k,type(InDetKeys.AliasToTracks))]
+        [k.lock() for k in list(InDetKeys.__dict__.values()) if hasattr(k,'is_locked') and not isinstance(k,type(InDetKeys.AliasToTracks))]
         return 
     pass
 
@@ -1105,7 +1099,6 @@ jobproperties.InDetContainerKeys.add_JobProperty(BCM_RDOs)
 jobproperties.InDetContainerKeys.add_JobProperty(BCM_CompactDOs)
 jobproperties.InDetContainerKeys.add_JobProperty(PixelByteStreamErrs)
 jobproperties.InDetContainerKeys.add_JobProperty(SCT_ByteStreamErrs)
-jobproperties.InDetContainerKeys.add_JobProperty(SCT_ByteStreamFrac)
 jobproperties.InDetContainerKeys.add_JobProperty(TRT_ByteStreamErrs)
 jobproperties.InDetContainerKeys.add_JobProperty(TRT_ByteStreamIdErrs)
 jobproperties.InDetContainerKeys.add_JobProperty(GangedPixelMap)

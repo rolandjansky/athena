@@ -2,11 +2,9 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGMUFASTHYPO_TRIGMUFASTHYPOTOOL_H 
-#define TRIGMUFASTHYPO_TRIGMUFASTHYPOTOOL_H 1
+#ifndef TRIGMUONHYPOMT_TRIGMUFASTHYPOTOOL_H 
+#define TRIGMUONHYPOMT_TRIGMUFASTHYPOTOOL_H 1
 
-#include <string>
-#include "AthenaBaseComps/AthAlgTool.h" 
 #include "DecisionHandling/HLTIdentifier.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
@@ -15,10 +13,7 @@
 #include "DecisionHandling/TrigCompositeUtils.h" 
 #include "AthenaMonitoring/GenericMonitoringTool.h"
 
-#include "DecisionHandling/Combinators.h"
-
 class StoreGateSvc;
-class TriggerElement;
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -61,7 +56,11 @@ class TrigMufastHypoTool: public ::AthAlgTool {
     virtual StatusCode initialize() override;    
 
     virtual StatusCode decide(std::vector<TrigMufastHypoTool::MuonClusterInfo>& toolInput) const;
+    
+  private:
 
+    HLT::Identifier m_decisionId;
+    
     bool decideOnSingleObject(TrigMufastHypoTool::MuonClusterInfo& input, size_t cutIndex) const;
 
     // for single muon event
@@ -69,11 +68,7 @@ class TrigMufastHypoTool: public ::AthAlgTool {
 
     // for multipul muon event    
     StatusCode multiplicitySelection(std::vector<TrigMufastHypoTool::MuonClusterInfo>& toolInput) const;
-    
-  private:
 
-    HLT::Identifier m_decisionId;
-    
     float getLocalPhi(float, float, float) const;
     //TrigMufastHypoToolConsts::ECRegions whichECRegion(const float eta, const float phi) const;
     

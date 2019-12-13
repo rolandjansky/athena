@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AFP_RawEv/AFP_RawData.h"
@@ -7,7 +7,7 @@
 #include "AFP_EventTPCnv/AFP_RawDataCnv_p1.h"
 
 void AFP_RawDataCnv_p1::persToTrans(const AFP_RawData_p1* persObj,
-AFP_RawData* transObj, MsgStream &log) {
+AFP_RawData* transObj, MsgStream &log) const {
 
 
   log << MSG::DEBUG << "In AFP_RawDataCnv_p1:persToTrans called" << endmsg;
@@ -26,7 +26,7 @@ AFP_RawData* transObj, MsgStream &log) {
 	 
 	  }
 
-void AFP_RawDataCnv_p1::transToPers(const AFP_RawData* transObj, AFP_RawData_p1* persObj, MsgStream &log) {
+void AFP_RawDataCnv_p1::transToPers(const AFP_RawData* transObj, AFP_RawData_p1* persObj, MsgStream &log) const {
 
  
   log << MSG::DEBUG << "In AFP_RawDataCnv_p1:transToPers called" << endmsg;

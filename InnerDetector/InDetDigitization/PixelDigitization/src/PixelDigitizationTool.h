@@ -22,6 +22,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "PileUpTools/PileUpMergeSvc.h"
@@ -31,7 +32,7 @@
 #include "FrontEndSimTool.h"
 #include "EnergyDepositionTool.h"
 
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 
 class PixelDigitizationTool : public PileUpToolBase {
 
@@ -60,6 +61,7 @@ class PixelDigitizationTool : public PileUpToolBase {
 
     Gaudi::Property<bool> m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
     SG::ReadHandleKey<SiHitCollection>         m_hitsContainerKey{this, "InputObjectName", "", "Input HITS collection name"};
+    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
     std::string                                m_inputObjectName{""};
     SG::WriteHandleKey<PixelRDO_Container>     m_rdoContainerKey{this, "RDOCollName", "PixelRDOs", "RDO collection name"};
     SG::WriteHandle<PixelRDO_Container>        m_rdoContainer{};
@@ -83,7 +85,6 @@ class PixelDigitizationTool : public PileUpToolBase {
     ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};  //!< Random number service
     ServiceHandle <PileUpMergeSvc> m_mergeSvc{this, "PileUpMergeSvc", "PileUpMergeSvc", ""};
 
-    const InDetDD::PixelDetectorManager *m_detManager{};
     Gaudi::Property<bool>          m_createNoiseSDO{this, "CreateNoiseSDO",   false,  "Set create noise SDO flag"};
 
 };

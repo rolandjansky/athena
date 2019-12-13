@@ -1,18 +1,28 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 from LArROD.LArRODConf import LArRawChannelBuilderAlg
-from LArRecUtils.LArRecUtilsConfig import LArADC2MeVCondAlgCfg
+from LArRecUtils.LArADC2MeVCondAlgConfig import LArADC2MeVCondAlgCfg
 from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDbCfg
+from LArRecUtils.LArRecUtilsConfig import LArOFCCondAlgCfg
 
-def LArRawChannelBuilderAlgCfg(configFlags):
-    acc=LArADC2MeVCondAlgCfg(configFlags)
-    acc.merge(LArElecCalibDbCfg(configFlags,("OFC","Shape","Pedestal")))
+def LArRawChannelBuilderAlgCfg(configFlags, **kwargs):
 
+    acc = LArADC2MeVCondAlgCfg(configFlags)
 
     if configFlags.Input.isMC:
-        #defaults are fine .. 
-        acc.addEventAlgo(LArRawChannelBuilderAlg())
+        # need OFC configuration, which includes appropriate ElecCalibDb
+        acc.merge(LArOFCCondAlgCfg(configFlags))
+        kwargs.setdefault("LArRawChannelKey", "LArRawChannels")
+        kwargs.setdefault("ShapeKey", "LArShapeSym")
+        if configFlags.Digitization.PileUpPremixing:
+            kwargs.setdefault("LArDigitKey", configFlags.Overlay.BkgPrefix() + "LArDigitContainer_MC")
+        else:
+            kwargs.setdefault("LArDigitKey", "LArDigitContainer_MC")
     else:
-        acc.addEventAlgo(LArRawChannelBuilderAlg(LArRawChannelKey="LArRawChannels_fromDigits"))
+        acc.merge(LArElecCalibDbCfg(configFlags,("OFC","Shape","Pedestal")))
+        kwargs.setdefault("LArRawChannelKey", "LArRawChannels_FromDigits")
+
+    acc.addEventAlgo(LArRawChannelBuilderAlg(**kwargs))
+
     return acc
 
 
@@ -38,6 +48,6 @@ if __name__=="__main__":
     acc.merge(LArRawChannelBuilderAlgCfg(ConfigFlags))
     
     from LArEventTest.LArEventTestConf import DumpLArRawChannels
-    acc.addEventAlgo(DumpLArRawChannels(LArRawChannelContainerName="LArRawChannels_fromDigits",),sequenceName="AthAlgSeq")
+    acc.addEventAlgo(DumpLArRawChannels(LArRawChannelContainerName="LArRawChannels_FromDigits",),sequenceName="AthAlgSeq")
 
     acc.run(3)

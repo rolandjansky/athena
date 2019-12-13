@@ -17,8 +17,7 @@ atlas_depends_on_subdirs( PRIVATE
                           PhysicsAnalysis/TruthParticleID/McParticleAlgs
                           PhysicsAnalysis/TruthParticleID/McParticleEvent
                           PhysicsAnalysis/TruthParticleID/McParticleKernel
-                          PhysicsAnalysis/TruthParticleID/McParticleUtils
-                          TestPolicy )
+                          PhysicsAnalysis/TruthParticleID/McParticleUtils )
 
 # External dependencies:
 find_package( CLHEP )
@@ -33,7 +32,6 @@ atlas_add_component( McParticleTests
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps StoreGateLib SGtests EventKernel NavFourMom GaudiKernel GeneratorObjects McParticleEvent McParticleKernel McParticleUtils )
 
 # Install files from the package:
-atlas_install_headers( McParticleTests )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_runtime( test/*.ref )

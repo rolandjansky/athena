@@ -10,7 +10,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFr
 from AthenaCommon.CFElements import parOR, seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from TrigEDMConfig.TriggerEDMRun3 import recordable
-from TriggerMenuMT.HLTMenuConfig.Tau.TauRecoSequences import tauCaloSequence, tauCaloMVASequence
+from TriggerMenuMT.HLTMenuConfig.Tau.TauRecoSequences import tauCaloSequence, tauCaloMVASequence, tauFTFCoreSequence, tauFTFIsoSequence
 
 # ====================================================================================================  
 #    Get MenuSequences
@@ -25,6 +25,10 @@ def getTauSequence( step ):
         return tauCoreTrackSequence()
     if step == "precision":
         return tauPrecisionSequence()
+    if step == "track_twostep_core":
+        return tauTwoStepTrackSeqCore()
+    if step == "track_twostep_iso":
+        return tauTwoStepTrackSeqIso()
     return None
 
 # ===============================================================================================
@@ -71,8 +75,10 @@ def tauCaloMVAMenuSequence(name):
 
 def tauCoreTrackSequence():
 
-    from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
-    (viewAlgsTP, eventAlgs) = makeInDetAlgs(whichSignature='TauCore',separateTrackParticleCreator="_TauCore")
+    from TrigInDetConfig.InDetSetup import makeInDetAlgs
+
+    RoIs = "TCoreViewRoIs"
+    viewAlgsTP = makeInDetAlgs(whichSignature='TauCore',separateTrackParticleCreator="_TauCore", rois = RoIs)
 
     # A simple algorithm to confirm that data has been inherited from parent view
     # Required to satisfy data dependencies
@@ -83,26 +89,20 @@ def tauCoreTrackSequence():
 
     from TrigTauHypo.TrigTauHypoConf import TrigTauTrackRoiUpdaterMT
     TrackRoiUpdater = TrigTauTrackRoiUpdaterMT("TrackRoiUpdater")
-    #TrackRoiUpdater.RoIInputKey  = "TAUCaloRoIs"
-    TrackRoiUpdater.RoIOutputKey = "RoiForID2"
+    TrackRoiUpdater.RoIOutputKey = "HLT_RoiForID"
 
 
     fastTrackViewsMaker = EventViewCreatorAlgorithm("IMTauFastTrack")
     fastTrackViewsMaker.RoIsLink = "roi" # -||-
-    fastTrackViewsMaker.InViewRoIs = "TCoreViewRoIs" # contract with the fastCalo
+    fastTrackViewsMaker.InViewRoIs = RoIs
     fastTrackViewsMaker.Views = "TAUIDViews"
     fastTrackViewsMaker.ViewFallThrough = True
     fastTrackViewsMaker.RequireParentView = True
 
 
     for viewAlg in viewAlgsTP:
-       if "RoIs" in viewAlg.properties():
-         viewAlg.RoIs = fastTrackViewsMaker.InViewRoIs
-       if "roiCollectionName" in viewAlg.properties():
-         viewAlg.roiCollectionName = fastTrackViewsMaker.InViewRoIs
        if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
          TrackCollection = viewAlg.TrackName
-
 
     TrackRoiUpdater.RoIInputKey = fastTrackViewsMaker.InViewRoIs
     TrackRoiUpdater.fastTracksKey = TrackCollection
@@ -111,7 +111,7 @@ def tauCoreTrackSequence():
 
     fastTrackViewsMaker.ViewNodeName = tauInViewAlgs.name()
 
-    tauCoreTrkAthSequence = seqAND("tauCoreTrkAthSequence", eventAlgs + [fastTrackViewsMaker, tauInViewAlgs ] )
+    tauCoreTrkAthSequence = seqAND("tauCoreTrkAthSequence", [fastTrackViewsMaker, tauInViewAlgs ] )
 
     from TrigTauHypo.TrigTauHypoConf import  TrigTrackPreSelHypoAlgMT
     fastTrkHypo = TrigTrackPreSelHypoAlgMT("TrackPreSelHypoAlg")
@@ -130,9 +130,10 @@ def tauCoreTrackSequence():
 
 def tauPrecisionSequence():
 
-    from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
-    (viewAlgsPT, eventAlgs) = makeInDetAlgs("Tau")
-    (viewAlgs, eventAlgs) = makeInDetAlgs(whichSignature='Tau',separateTrackParticleCreator="_Tau")
+    from TrigInDetConfig.InDetSetup import makeInDetAlgs
+
+    RoIs = "TCoreViewRoIs" # contract with the fastCalo
+    viewAlgsPT = makeInDetAlgs(whichSignature='Tau',separateTrackParticleCreator="_Tau", rois = RoIs)
 
     TrackParticlesName = ""
     for viewAlg in viewAlgsPT:
@@ -147,35 +148,26 @@ def tauPrecisionSequence():
 
     from TrigTauHypo.TrigTauHypoConf import TrigTauTrackRoiUpdaterMT
     precisionTRU = TrigTauTrackRoiUpdaterMT("precisionTRU")
-    #TrackRoiUpdater.RoIInputKey  = "TAUCaloRoIs"
-    precisionTRU.RoIOutputKey = "RoiForID2"
+    precisionTRU.RoIOutputKey = "HLT_RoiForID1"
     precisionTRU.fastTracksKey = TrackCollection
-    #"TrigFastTrackFinder_Tracks"
 
     from TrigTauRec.TrigTauRecConfigMT import TrigTauRecMerged_TauPrecisionMVA
     trigTauMVA = TrigTauRecMerged_TauPrecisionMVA(doMVATES=True, doTrackBDT=False, doRNN=True)
-    trigTauMVA.RoIInputKey = "RoiForID2"
+    trigTauMVA.RoIInputKey = precisionTRU.RoIOutputKey
     trigTauMVA.L1RoIKey    = "TAUCaloRoIs"
     trigTauMVA.TrigTauRecOutputKey = recordable("HLT_TrigTauRecMerged_MVA")
     trigTauMVA.TrigTauJet = "HLT_TrigTauRecMerged"
     trigTauMVA.Key_trackPartInputContainer = TrackParticlesName
     trigTauMVA.UseCaloClusters = False
-    #trigTauMVA.clustersKey = "caloclusters"
     trigTauMVA.Key_vertexInputContainer = "VxPrimaryCandidate"
     trigTauMVA.TrigTauTrkOutputKey = recordable("HLT_tautrack_MVA")
 
     precisionViewsMaker = EventViewCreatorAlgorithm("IMPrecisionTau")
     precisionViewsMaker.RoIsLink = "roi" # -||-
-    precisionViewsMaker.InViewRoIs = "TCoreViewRoIs" # contract with the fastCalo
+    precisionViewsMaker.InViewRoIs = "TPrecViewRoIs" # contract with the fastCalo
     precisionViewsMaker.Views = "TAUID2Views"
     precisionViewsMaker.ViewFallThrough = True
     precisionViewsMaker.RequireParentView = True
-
-    for viewAlg in viewAlgsPT:
-       if "RoIs" in viewAlg.properties():
-         viewAlg.RoIs = precisionViewsMaker.InViewRoIs
-       if "roiCollectionName" in viewAlg.properties():
-         viewAlg.roiCollectionName = precisionViewsMaker.InViewRoIs
 
     precisionTRU.RoIInputKey = precisionViewsMaker.InViewRoIs
 
@@ -183,12 +175,12 @@ def tauPrecisionSequence():
 
     precisionViewsMaker.ViewNodeName = tauPInViewAlgs.name()
 
-    tauPrecisionAthSequence = seqAND("tauPrecisionAthSequence", eventAlgs + [precisionViewsMaker, tauPInViewAlgs ] )
+    tauPrecisionAthSequence = seqAND("tauPrecisionAthSequence", [precisionViewsMaker, tauPInViewAlgs ] )
 
 
     from TrigTauHypo.TrigTauHypoConf import  TrigEFTauMVHypoAlgMT
     precisionHypo = TrigEFTauMVHypoAlgMT("EFTauMVHypoAlg")
-    precisionHypo.taujetcontainer = "HLT_TrigTauRecMerged_MVA"
+    precisionHypo.taujetcontainer = trigTauMVA.TrigTauRecOutputKey
 
     from TrigTauHypo.TrigEFTauMVHypoTool import TrigEFTauMVHypoToolFromDict
 
@@ -196,3 +188,41 @@ def tauPrecisionSequence():
                           Maker       = precisionViewsMaker,
                           Hypo        = precisionHypo,
                           HypoToolGen = TrigEFTauMVHypoToolFromDict )
+
+
+# ===============================================================================================
+#      Fast, precision tracking and ID step (altogether) / Precision tracking not included yet
+# ===============================================================================================
+
+def tauTwoStepTrackSeqCore():
+
+    (sequence, ftfCoreViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(tauFTFCoreSequence,ConfigFlags)    
+
+    from TrigTauHypo.TrigTauHypoConf import  TrigTrackPreSelHypoAlgMT
+    fastTrkHypo = TrigTrackPreSelHypoAlgMT("TrackPreSelHypoAlg_RejectEmpty")
+    fastTrkHypo.trackcollection = sequenceOut
+
+    from TrigTauHypo.TrigTrackPreSelHypoTool import TrigTauTrackHypoToolFromDict
+
+    return  MenuSequence( Sequence    = sequence,
+                          Maker       = ftfCoreViewsMaker,
+                          Hypo        = fastTrkHypo,
+                          HypoToolGen = TrigTauTrackHypoToolFromDict )
+
+
+def tauTwoStepTrackSeqIso():
+
+    (sequence, ftfIsoViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(tauFTFIsoSequence,ConfigFlags )
+
+    from TrigTauHypo.TrigTauHypoConf import  TrigEFTauMVHypoAlgMT
+    precisionHypo = TrigEFTauMVHypoAlgMT("EFTauMVHypoAlgFinal")
+    precisionHypo.taujetcontainer = sequenceOut
+
+    from TrigTauHypo.TrigEFTauMVHypoTool import TrigEFTauMVHypoToolFromDict
+
+    return  MenuSequence( Sequence    = sequence,
+                          Maker       = ftfIsoViewsMaker,
+                          Hypo        = precisionHypo,
+                          HypoToolGen = TrigEFTauMVHypoToolFromDict )
+
+

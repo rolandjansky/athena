@@ -1,10 +1,12 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon import CfgMgr
 
 def setupScaleCalibrationInput():
-    print "Setting up setupScaleCalibrationInput"
+    print("Setting up setupScaleCalibrationInput")
 
     topSequence = AlgSequence()
     # THistSvc configuration

@@ -22,14 +22,13 @@
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ToolHandle.h"
 
-#include "MuonIdHelpers/RpcIdHelper.h"
-#include "MuonIdHelpers/MdtIdHelper.h" 
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 
-#include "RPCcablingInterface/IRPCcablingServerSvc.h" 
  
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
@@ -40,7 +39,6 @@
 #include "StoreGate/ReadHandleKey.h"
 
 class TFile;
-class RpcIdHelper;
 template <class ConcreteAlgorithm> class AlgFactory;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -63,8 +61,6 @@ class MdtVsRpcRawDataValAlg: public ManagedMonitorToolBase
   // Private function to add the clusters to the ntuple
   StatusCode addClusters(std::string clusterContainerName);  
    
-  //mdt stuff
-  const MdtIdHelper* m_mdtIdHelper;
   //m_chambersIdmdt;
   int m_mdt_eventstotal;
 
@@ -76,8 +72,8 @@ class MdtVsRpcRawDataValAlg: public ManagedMonitorToolBase
   std::vector<Identifier>* m_padsId;
   
   const MuonGM::MuonDetectorManager* m_muonMgr;
-  const RpcIdHelper* m_rpcIdHelper; 
-  const IRPCcablingSvc* m_cabling;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
    
   void bookMDTvsRPCHistograms(std::string m_hardware_name, std::string m_layer_name, int binz, int binminz, int binmaxz, int binx, int binminx, int binmaxx );
   void bookMDTvsRPCsectorHistograms(std::string m_sector_name, std::string m_layer_name, float stripzmin, float stripzmax,float wirezmin, float wirezmax );

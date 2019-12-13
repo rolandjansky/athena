@@ -14,8 +14,18 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-#include "MuonEDM_AssociationObjects/MuonSegmentCombPatternCombAssociationMap.h"
 #include "MuonSegmentCombinerToolInterfaces/IMooSegmentCombinationFinder.h"
+#include "CscSegmentMakers/ICscSegmentFinder.h"
+#include "MuonRecToolInterfaces/IMuonHoughPatternFinderTool.h"
+#include "MuonSegmentMakerToolInterfaces/IMuonPatternSegmentMaker.h"
+#include "MuonSegmentCombinerToolInterfaces/IMuonSegmentCombinationCleanerTool.h"
+#include "MuonSegmentCombinerToolInterfaces/IMuonCurvedSegmentCombiner.h"
+#include "MuonSegmentMakerToolInterfaces/IMuonSegmentSelectionTool.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
+#include "MuonEDM_AssociationObjects/MuonSegmentCombPatternCombAssociationMap.h"
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
 #include "MuonPattern/MuonPatternCombinationCollection.h"
 #include "TrkSegment/SegmentCollection.h"
@@ -31,7 +41,6 @@
 
 
 class ICscSegmentFinder;
-class StoreGateSvc;
 class MdtIdHelper;
 
 namespace Muon 
@@ -45,12 +54,6 @@ namespace Muon
     class MuonIdHelperTool;
 
   /** @class MooSegmentCombinationFinder 
-
-      This is for the Doxygen-Documentation.  
-      Please delete these lines and fill in information about
-      the Algorithm!
-      Please precede every member function declaration with a
-      short Doxygen comment stating the purpose of this function.
       
       @author  Edward Moyse <edward.moyse@cern.ch>
   */  
@@ -61,18 +64,20 @@ namespace Muon
       MooSegmentCombinationFinder(const std::string&,const std::string&,const IInterface*);
 
        /** default destructor */
-      virtual ~MooSegmentCombinationFinder ();
+      virtual ~MooSegmentCombinationFinder () = default;
       
        /** standard Athena-Algorithm method */
       virtual StatusCode initialize();
        /** standard Athena-Algorithm method */
       virtual StatusCode finalize  ();
       
+      /** This method cannot currently be const, since it needs to call non-const methods of child tools. 
+      However this should be okay for MT as long as this tool is a private tool of the parent Algorithm.*/
       void findSegments(const std::vector<const MdtPrepDataCollection*>& mdtCols,
-			const std::vector<const CscPrepDataCollection*>& cscCols,
-			const std::vector<const TgcPrepDataCollection*>& tgcCols,
-			const std::vector<const RpcPrepDataCollection*>& rpcCols,
-			IMooSegmentCombinationFinder::Output& output);
+                  			const std::vector<const CscPrepDataCollection*>& cscCols,
+                  			const std::vector<const TgcPrepDataCollection*>& tgcCols,
+                  			const std::vector<const RpcPrepDataCollection*>& rpcCols,
+                  			IMooSegmentCombinationFinder::Output& output);
       
     private:
 
@@ -83,7 +88,7 @@ namespace Muon
       void printSummary( std::string stageTag, const Trk::SegmentCollection* col ) const;
 
       /** helper functions to write out intermediate results */
-      void postProcess(  MuonSegmentCombinationCollection* col);
+      void postProcess(  MuonSegmentCombinationCollection* col, MuonSegmentCombPatternCombAssociationMap& segmentPatternMap) ;
 
       /** extract a segment collection from a segment combination collection */
       void extractSegmentCollection( const MuonSegmentCombinationCollection* combiCol, Trk::SegmentCollection& segments  ) const;
@@ -93,54 +98,39 @@ namespace Muon
       std::pair<int,int> hitsInMultilayer( const Muon::MuonSegment& segment ) const;
       bool firstIsBest( const Muon::MuonSegment& seg1, const Muon::MuonSegment& seg2 ) const;
 
-      template<class I>
-      void auditorBefore( ToolHandle< I >& tool ) {
-	auditorBefore( &*tool );
-      }
-      template<class I, class T>
-      void auditorAfter( ToolHandle< I >& tool, const T* result ) {
-	auditorAfter( &*tool, result );
-      }
-      void auditorBefore( IAlgTool* tool );
-      void auditorAfter( IAlgTool* tool, bool status );
-
-      /** class member version of retrieving MsgStream */
-      bool                                            m_doSummary; //<! print summary after each stage
+      Gaudi::Property<bool> m_doSummary                     {this, "DoSummary", false, "Print summary after each stage"};
+      Gaudi::Property<bool> m_doCscSegments                 {this, "DoCscSegments", true, "Run CSC segment finding"};
+      Gaudi::Property<bool> m_doMdtSegments                 {this, "DoMdtSegments", true, "Run MDT segment finding"};
+      Gaudi::Property<bool> m_doSegmentCombinations         {this, "DoSegmentCombinations", false, "Run segment combination finding"};
+      Gaudi::Property<bool> m_doSegmentCombinationCleaning  {this, "DoSegmentCombinationCleaning", false, "Run segment combination cleaning"};
+      Gaudi::Property<bool> m_cloneSegments                 {this, "CloneSegments", false, ""};
       
-      bool                                            m_doCscSegments; //<! run CSC segment finding
-      bool                                            m_doMdtSegments; //<! run MDT segment finding
-      bool                                            m_doSegmentCombinations; //<! run segment combination finding
-      bool                                            m_doSegmentCombinationCleaning; //<! run segment combination cleaning
-      bool                                            m_auditorExecute; //<! audit the subtools during "execute"
-      
-      ToolHandle<MuonEDMPrinterTool>                 m_edmPrinter;
+      ToolHandle<MuonEDMPrinterTool>                 m_edmPrinter {"Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
       ServiceHandle<IMuonEDMHelperSvc>               m_edmHelperSvc {this, "edmHelper", 
         "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
         "Handle to the service providing the IMuonEDMHelperSvc interface" };
-      ToolHandle<MuonIdHelperTool>                   m_idHelperTool;
-      ToolHandle<ICscSegmentFinder>                  m_csc2dSegmentFinder;
-      ToolHandle<ICscSegmentFinder>                  m_csc4dSegmentFinder;
-      ToolHandle<IMuonHoughPatternFinderTool>        m_houghPatternFinder;
-      ToolHandle<IMuonPatternSegmentMaker>           m_patternSegmentMaker;
-      ToolHandle<IMuonCurvedSegmentCombiner>         m_curvedSegmentCombiner;
-      ToolHandle<IMuonSegmentCombinationCleanerTool> m_segmentCombinationCleaner;
-      ToolHandle<IMuonSegmentSelectionTool>          m_segmentSelector;    
+      ToolHandle<MuonIdHelperTool>                   m_idHelperTool {"Muon::MuonIdHelperTool/MuonIdHelperTool"};
+      ToolHandle<ICscSegmentFinder>                  m_csc2dSegmentFinder{this, "Csc2dSegmentMaker", "Csc2dSegmentMaker/Csc2dSegmentMaker"}; 
+      ToolHandle<ICscSegmentFinder>                  m_csc4dSegmentFinder{this, "Csc4dSegmentMaker", "Csc4dSegmentMaker/Csc4dSegmentMaker"};       
+      ToolHandle<IMuonHoughPatternFinderTool>        m_houghPatternFinder; 
+      ToolHandle<IMuonPatternSegmentMaker>           m_patternSegmentMaker{this, "MdtSegmentMaker", "Muon::MuonPatternSegmentMaker/MuonPatternSegmentMaker"};       
+      ToolHandle<IMuonCurvedSegmentCombiner>         m_curvedSegmentCombiner{this, "SegmentCombiner", "Muon::MuonCurvedSegmentCombiner/MuonCurvedSegmentCombiner"};       
+      ToolHandle<IMuonSegmentCombinationCleanerTool> m_segmentCombinationCleaner{this, "SegmentCombinationCleaner","Muon::MuonSegmentCombinationCleanerTool/MuonSegmentCombinationCleanerTool"};       
+      ToolHandle<IMuonSegmentSelectionTool>          m_segmentSelector{this, "SegmentSelector", "Muon::MuonSegmentSelectionTool/MuonSegmentSelectionTool"};         
 
-      MuonSegmentCombPatternCombAssociationMap m_segmentPatternMap;
-      bool m_cloneSegments;
 
       /** counters */
-      unsigned int m_nevents;
-      mutable unsigned int m_ncsc2SegmentCombinations;
-      mutable unsigned int m_ncsc4SegmentCombinations;
-      mutable unsigned int m_npatternCombinations;
-      mutable unsigned int m_nmdtSegmentCombinations;
-      mutable unsigned int m_ncombinedSegmentCombinations;
-      mutable unsigned int m_ncleanedSegmentCombinations;
-      mutable unsigned int m_nsegments;
-      mutable unsigned int m_nsegmentsStraight;
-      mutable unsigned int m_nsegmentsCurved;
-      mutable unsigned int m_nremovedBadSegments;
+      mutable std::atomic_uint m_nevents{0};
+      mutable std::atomic_uint m_ncsc2SegmentCombinations{0}; 
+      mutable std::atomic_uint m_ncsc4SegmentCombinations{0};
+      mutable std::atomic_uint m_npatternCombinations{0};
+      mutable std::atomic_uint m_nmdtSegmentCombinations{0};
+      mutable std::atomic_uint m_ncombinedSegmentCombinations{0};
+      mutable std::atomic_uint m_ncleanedSegmentCombinations{0};
+      mutable std::atomic_uint m_nsegments{0};
+      mutable std::atomic_uint m_nsegmentsStraight{0};
+      mutable std::atomic_uint m_nsegmentsCurved{0};
+      mutable std::atomic_uint m_nremovedBadSegments{0};
 
     };
 

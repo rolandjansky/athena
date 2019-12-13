@@ -6,10 +6,6 @@
 #include "PixelCalibAlgs/NoiseMapBuilder.h"
 #include "PixelCalibAlgs/PixelConvert.h"
 
-// PixelConditions
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
-#include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
-
 // Gaudi
 #include "GaudiKernel/ITHistSvc.h"
 
@@ -36,8 +32,6 @@
 NoiseMapBuilder::NoiseMapBuilder(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
   m_tHistSvc("THistSvc", name),
-  m_pixelConditionsSummarySvc("PixelConditionsSummarySvc", name),
-  m_BSErrorsSvc("PixelByteStreamErrorsSvc",name),
   m_pixelID(0),
   m_pixelRDOKey("PixelRDOs"),
   m_nEvents(0.),
@@ -87,8 +81,6 @@ NoiseMapBuilder::NoiseMapBuilder(const std::string& name, ISvcLocator* pSvcLocat
   declareProperty("OccupancyPerBC", m_occupancyPerBC, "Calculate occupancy per BC or per event");
   declareProperty("CalculateNoiseMaps", m_calculateNoiseMaps, "If false only build hit maps");
   declareProperty("THistSvc", m_tHistSvc, "THistSvc");
-  declareProperty("PixelConditionsSummarySvc", m_pixelConditionsSummarySvc, "PixelConditionsSummarySvc");
-  declareProperty("PixelByteStreamSummarySvc", m_BSErrorsSvc, "PixelBSErrorsSvc");
 }
 
 NoiseMapBuilder::~NoiseMapBuilder(){}
@@ -161,19 +153,7 @@ StatusCode NoiseMapBuilder::initialize(){
     return StatusCode::FAILURE;
   }
 
-  // retrieve PixelConditionsSummarySvc
-  sc = m_pixelConditionsSummarySvc.retrieve();
-  if(!sc.isSuccess()){
-    ATH_MSG_FATAL("Unable to retrieve PixelConditionsSummarySvc");
-    return StatusCode::FAILURE;
-  }
-
-  // retrieve PixelByteStreamErrorsSvc
-  sc = m_BSErrorsSvc.retrieve();
-  if(!sc.isSuccess()){
-    ATH_MSG_FATAL("Unable to retrieve bytestream errors service");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_pixelConditionsTool.retrieve());
 
   // retrieve PixelID helper
   sc = detStore()->retrieve(m_pixelID, "PixelID");
@@ -368,15 +348,14 @@ StatusCode NoiseMapBuilder::execute(){
       IdentifierHash modHash = m_pixelID->wafer_hash(moduleID);
       ATH_MSG_VERBOSE("moduleID, modHash = " << moduleID << " , " << modHash);
       
-      // exclude module if reported as not good by PixelConditionsSummarySvc
-      if( !(m_pixelConditionsSummarySvc->isGood(modHash)) ) {
-	ATH_MSG_VERBOSE("Module excluded as reported not good by PixelConditionsSummarySvc");
+      // exclude module if reported as not good by PixelConditionsSummaryTool
+      if( !(m_pixelConditionsTool->isGood(modHash)) ) {
+	ATH_MSG_VERBOSE("Module excluded as reported not good by PixelConditionsSummaryTool");
         continue;
       }
 
       // exclude module if containg FE synch errors
-      int errors = m_BSErrorsSvc->getModuleErrors(modHash);
-      if ( ( errors & 0x0001C000 ) ) {
+      if (m_pixelConditionsTool->isBSError(modHash)) {
 	ATH_MSG_VERBOSE("Module excluded as containing FE synch errors");
 	continue;
       }
@@ -401,7 +380,7 @@ StatusCode NoiseMapBuilder::execute(){
 
   // [sgs] why is this done in every event ???
   for(unsigned int moduleHash = 0; moduleHash < m_pixelID->wafer_hash_max(); moduleHash++) {
-    if( !m_pixelConditionsSummarySvc->isActive( moduleHash ) ){
+    if( !m_pixelConditionsTool->isActive( moduleHash ) ){
       m_disabledModules->Fill( moduleHash );
     }
   }
@@ -600,7 +579,7 @@ StatusCode NoiseMapBuilder::finalize() {
         else if(layer == 3) { cut=m_layer2Cut; nhitsNoNoisePlot=nhitsNoNoisePlotB2; comp="Layer2";  }
     } 
 
-    if( m_BSErrorsSvc->getReadEvents(modHash)==0 && m_hitMaps[modHash]->GetEntries()==0 ) {
+    if (!m_pixelConditionsTool->isBSActive(modHash) && m_hitMaps[modHash]->GetEntries()==0) {
       if(bec == 0) {
 	if(layer == 0)      { disablePlotBI->Fill(modEta, modPhi, -1); }
 	else if(layer == 1) { disablePlotB0->Fill(modEta, modPhi, -1); }

@@ -3,27 +3,26 @@
 */
 
 #include "STGC_RdoToDigit.h"
-#include "MuonIdHelpers/sTgcIdHelper.h"
 
 STGC_RdoToDigit::STGC_RdoToDigit(const std::string& name,
                                    ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator)
+  : AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 
 StatusCode STGC_RdoToDigit::initialize()
 {
-  ATH_CHECK( detStore()->retrieve(m_stgcHelper, "STGCIDHELPER") );
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
   ATH_CHECK( m_stgcRdoDecoderTool.retrieve() );
   ATH_CHECK(m_stgcRdoKey.initialize());
   ATH_CHECK(m_stgcDigitKey.initialize());
   return StatusCode::SUCCESS;
 }
 
-StatusCode STGC_RdoToDigit::execute()
+StatusCode STGC_RdoToDigit::execute(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG( "in execute()"  );
-  SG::ReadHandle<Muon::STGC_RawDataContainer> rdoRH(m_stgcRdoKey);
+  SG::ReadHandle<Muon::STGC_RawDataContainer> rdoRH(m_stgcRdoKey, ctx);
   if (!rdoRH.isValid()) {
     ATH_MSG_ERROR( "No STGC RDO container found!"  );
     return StatusCode::FAILURE;
@@ -31,8 +30,8 @@ StatusCode STGC_RdoToDigit::execute()
   const Muon::STGC_RawDataContainer* rdoContainer = rdoRH.cptr();
   ATH_MSG_DEBUG( "Retrieved " << rdoContainer->size() << " sTGC RDOs." );
 
-  SG::WriteHandle<sTgcDigitContainer> wh_stgcDigit(m_stgcDigitKey);
-  ATH_CHECK(wh_stgcDigit.record(std::make_unique<sTgcDigitContainer>(m_stgcHelper->detectorElement_hash_max())));
+  SG::WriteHandle<sTgcDigitContainer> wh_stgcDigit(m_stgcDigitKey, ctx);
+  ATH_CHECK(wh_stgcDigit.record(std::make_unique<sTgcDigitContainer>(m_muonIdHelperTool->stgcIdHelper().detectorElement_hash_max())));
   ATH_MSG_DEBUG( "Decoding sTGC RDO into sTGC Digit"  );
 
   // retrieve the collection of RDO
@@ -48,7 +47,7 @@ StatusCode STGC_RdoToDigit::execute()
 
 StatusCode STGC_RdoToDigit::decodeSTGC( const Muon::STGC_RawDataCollection * rdoColl, sTgcDigitContainer * stgcContainer, sTgcDigitCollection*& collection, Identifier& oldId ) const
 {
-  const IdContext stgcContext = m_stgcHelper->module_context();
+  const IdContext stgcContext = m_muonIdHelperTool->stgcIdHelper().module_context();
 
   if ( rdoColl->size() > 0 ) {
     ATH_MSG_DEBUG( " Number of RawData in this rdo "
@@ -65,9 +64,9 @@ StatusCode STGC_RdoToDigit::decodeSTGC( const Muon::STGC_RawDataCollection * rdo
 
       // find here the Proper Digit Collection identifier, using the rdo-hit id
       // (since RDO collections are not in a 1-to-1 relation with digit collections)
-      const Identifier elementId = m_stgcHelper->elementID(newDigit->identify());
+      const Identifier elementId = m_muonIdHelperTool->stgcIdHelper().elementID(newDigit->identify());
       IdentifierHash coll_hash;
-      if (m_stgcHelper->get_hash(elementId, coll_hash, &stgcContext)) {
+      if (m_muonIdHelperTool->stgcIdHelper().get_hash(elementId, coll_hash, &stgcContext)) {
         ATH_MSG_WARNING( "Unable to get STGC digit collection hash id "
                          << "context begin_index = " << stgcContext.begin_index()
                          << " context end_index  = " << stgcContext.end_index()
@@ -88,7 +87,7 @@ StatusCode STGC_RdoToDigit::decodeSTGC( const Muon::STGC_RawDataCollection * rdo
                              << " in StoreGate!"  );
         }
         else {
-          sTgcDigitCollection * oldCollection = (sTgcDigitCollection*) *it_coll;
+          sTgcDigitCollection * oldCollection ATLAS_THREAD_SAFE = const_cast<sTgcDigitCollection*>(*it_coll); //FIXME
           oldCollection->push_back(newDigit);
           collection = oldCollection;
         }

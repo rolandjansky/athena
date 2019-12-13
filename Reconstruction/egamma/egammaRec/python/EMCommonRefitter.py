@@ -1,11 +1,13 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
+
 from AthenaCommon.AppMgr import ToolSvc, ServiceMgr
 from egammaRec import egammaRecFlags as egRecFlags
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.DetFlags import DetFlags
 from InDetRecExample.InDetJobProperties import InDetFlags
-print "EMCommonRefitter.py"
+print ("EMCommonRefitter.py")
 
 egammaRecFlags = egRecFlags.jobproperties.egammaRecFlags
 
@@ -136,13 +138,14 @@ def getGSFTrackFitter():
     egTrkNavigator = Trk__Navigator(name='egTrkNavigator')
 
     # Set up the GSF
-    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMaterialMixtureConvolution
-    GsfMaterialUpdator = Trk__GsfMaterialMixtureConvolution(name='GsfMaterialUpdator')
-
     # component Reduction
     from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__QuickCloseComponentsMultiStateMerger
     GsfComponentReduction = Trk__QuickCloseComponentsMultiStateMerger(name='GsfComponentReduction',
                                                                       MaximumNumberOfComponents=12)
+
+    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMaterialMixtureConvolution
+    GsfMaterialUpdator = Trk__GsfMaterialMixtureConvolution(name='GsfMaterialUpdator',
+                                                            MultiComponentStateMerger = GsfComponentReduction)
 
     from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfExtrapolator
     GsfExtrapolator = Trk__GsfExtrapolator(name='GsfExtrapolator',
@@ -151,7 +154,6 @@ def getGSFTrackFitter():
                                            StickyConfiguration=True,
                                            Navigator=egTrkNavigator,
                                            GsfMaterialConvolution=GsfMaterialUpdator,
-                                           ComponentMerger=GsfComponentReduction,
                                            SurfaceBasedMaterialEffects=False)
 
     from TrkMeasurementUpdator.TrkMeasurementUpdatorConf import Trk__KalmanUpdatorAmg as ConfiguredKalmanUpdator

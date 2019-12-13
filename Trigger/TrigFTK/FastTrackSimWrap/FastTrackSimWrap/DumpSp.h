@@ -41,7 +41,6 @@
 #include "GeneratorObjects/HepMcParticleLink.h"
 #include "TrkToolInterfaces/ITruthToTrack.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "StoreGate/ReadCondHandleKey.h"
@@ -60,9 +59,6 @@ class PixelID;
 class SCT_ID;
 class EventID;
 
-namespace InDetDD {
-  class PixelDetectorManager;
-}
 namespace HepPDT { 
   class ParticleDataTable; 
 }
@@ -121,8 +117,6 @@ private:
   const PixelID*   m_pixelId;
   const SCT_ID*    m_sctId;
 
-  const InDetDD::PixelDetectorManager*     m_PIX_mgr;
-
   const InDet::SiClusterContainer*  m_pixelContainer;
   const InDet::SiClusterContainer*  m_sctContainer;
 
@@ -133,9 +127,10 @@ private:
 
   //#ifdef HAVE_VERSION_15
   ToolHandle<Trig::TrigDecisionTool>        m_trigDecTool; // tool to retrieve trigger decision
-  ServiceHandle<IInDetConditionsSvc>        m_pixelCondSummarySvc; // tool to retrieve pixel conditions db
-  ToolHandle<IInDetConditionsTool>          m_sctCondSummaryTool{this, "SctSummaryTool",
-      "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT Conditions Summary"}; // tool to retrieve SCT conditions db
+  ToolHandle<IInDetConditionsTool>          m_pixelCondSummaryTool
+  {this, "PixelSummaryTool", "PixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"};
+  ToolHandle<IInDetConditionsTool>          m_sctCondSummaryTool
+  {this, "SctSummaryTool", "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT Conditions Summary"}; // tool to retrieve SCT conditions db
   ToolHandle<ISiLorentzAngleTool>           m_pixelLorentzAngleTool{this, "PixelLorentzAngleTool", "SiLorentzAngleTool/PixelLorentzAngleTool", "Tool to retreive Lorentz angle of Pixel"};
   ToolHandle<ISiLorentzAngleTool>           m_sctLorentzAngleTool{this, "SCTLorentzAngleTool", "SiLorentzAngleTool/SCTLorentzAngleTool", "Tool to retreive Lorentz angle of Pixel"};
   //#else
@@ -145,6 +140,7 @@ private:
 
   SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   // job configuration 

@@ -11,6 +11,7 @@
 #include "GeoModelKernel/RCBase.h"
 #include "LArHV/EMECHVElectrode.h"
 #include "LArHV/EMECPresamplerHVModule.h"
+#include <mutex>
 
 /**
  * @class EMECCell
@@ -164,6 +165,10 @@ class EMECCell : public RCBase
   friend class ImaginaryFriend;
 
   void initHV() const;
+
+  mutable std::mutex m_mut;
+
+  mutable bool m_initHVdone;
   
 };
 
@@ -172,7 +177,7 @@ class EMECCell : public RCBase
 
 inline EMECCell::EMECCell (unsigned int endcap, const EMECDetDescr *emecDescriptor, unsigned int eta, unsigned int phi)
   // 8 bits are needed for phi index, 6 for eta, 1 for endcap.
- :m_emecDetDescr(emecDescriptor),m_clockwork(phi | (eta<<8) | (endcap <<15) )
+ :m_emecDetDescr(emecDescriptor),m_clockwork(phi | (eta<<8) | (endcap <<15) ),m_initHVdone(false)
 {
   
 }

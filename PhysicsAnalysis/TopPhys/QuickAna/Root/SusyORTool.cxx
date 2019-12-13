@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -21,9 +21,6 @@
 #include <QuickAna/IEventObjects.h>
 #include <QuickAna/InternalConfiguration.h>
 #include <QuickAna/MessageCheck.h>
-
-// Framework includes
-#include "CxxUtils/make_unique.h"
 
 // Same helper function as OR tool in an anonymous namespace
 namespace
@@ -103,7 +100,7 @@ namespace ana
     // Might not need this now, but let's try with it in first.
     const bool outPassVal = false; /*true;*/ // back to default for now.
     m_decHelper =
-      CxxUtils::make_unique<ORUtils::OverlapDecorationHelper>
+      std::make_unique<ORUtils::OverlapDecorationHelper>
         (m_orInputLabel, "overlaps", outPassVal);
     // Make sure the output pass value is set to TRUE!
 

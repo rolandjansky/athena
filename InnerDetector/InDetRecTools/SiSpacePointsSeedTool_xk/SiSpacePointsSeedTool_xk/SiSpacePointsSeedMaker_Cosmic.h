@@ -7,11 +7,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //  Header file for class SiSpacePointsSeedMaker_Cosmic
 /////////////////////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-/////////////////////////////////////////////////////////////////////////////////
-// Class for track candidates generation using space points information
-// for standard Atlas geometry
-/////////////////////////////////////////////////////////////////////////////////
 // Version 1.0 3/10/2004 I.Gavrilenko
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -26,9 +21,9 @@
 #include "SiSPSeededTrackFinderData/SiSpacePointsSeedMakerEventData.h"
 #include "TrkSpacePoint/SpacePointContainer.h" 
 #include "TrkSpacePoint/SpacePointOverlapCollection.h"
+#include "TrkEventUtils/PRDtoTrackMap.h"
 
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
 
 #include <iosfwd>
 #include <list>
@@ -36,13 +31,20 @@
 
 class MsgStream;
 
-namespace Trk {
-  class IPRD_AssociationTool;
-}
-
 namespace InDet {
 
   using EventData = SiSpacePointsSeedMakerEventData;
+
+  /**
+   * @class SiSpacePointsSeedMaker_Cosmic
+   * Class for track candidates generation using space points information
+   * for standard Atlas geometry
+   *
+   * In AthenaMT, event dependent cache inside SiSpacePointsSeedMaker_Cosmic
+   * is not preferred. SiSpacePointsSeedMakerEventData = EventData class
+   * holds event dependent data for SiSpacePointsSeedMaker_Cosmic.
+   * Its object is instantiated in SiSPSeededTrackFinder::execute.
+   */
 
   class SiSpacePointsSeedMaker_Cosmic : 
     public extends<AthAlgTool, ISiSpacePointsSeedMaker>
@@ -54,62 +56,65 @@ namespace InDet {
   public:
       
     ///////////////////////////////////////////////////////////////////
-    // Standard tool methods
+    /// @name Standard tool methods
     ///////////////////////////////////////////////////////////////////
-
+    //@{
     SiSpacePointsSeedMaker_Cosmic
     (const std::string&, const std::string&, const IInterface*);
     virtual ~SiSpacePointsSeedMaker_Cosmic() = default;
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
+    //@}
 
     ///////////////////////////////////////////////////////////////////
-    // Methods to initialize tool for new event or region
+    /// @name Methods to initialize tool for new event or region
     ///////////////////////////////////////////////////////////////////
+    //@{
     virtual void newEvent(EventData& data, int iteration) const override;
     virtual void newRegion(EventData& data,
                            const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT) const override;
     virtual void newRegion(EventData& data,
                            const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT,
                            const IRoiDescriptor& iRD) const override;
-      
-    ///////////////////////////////////////////////////////////////////
-    // Methods to initilize different strategies of seeds production
-    // with two space points with or without vertex constraint
-    ///////////////////////////////////////////////////////////////////
+    //@}
 
+    ///////////////////////////////////////////////////////////////////
+    /// @name Methods to initilize different strategies of seeds production
+    ///////////////////////////////////////////////////////////////////
+    //@{
+
+    /// with two space points with or without vertex constraint
     virtual void find2Sp(EventData& data, const std::list<Trk::Vertex>& lv) const override;
 
-    ///////////////////////////////////////////////////////////////////
-    // Methods to initilize different strategies of seeds production
-    // with three space points with or without vertex constraint
-    ///////////////////////////////////////////////////////////////////
-
+    /// with three space points with or without vertex constraint
     virtual void find3Sp(EventData& data, const std::list<Trk::Vertex>& lv) const override;
+
+    /// with three space points with or without vertex constraint
+    /// with information about min and max Z of the vertex
     virtual void find3Sp(EventData& data, const std::list<Trk::Vertex>& lv, const double* zVertex) const override;
 
-    ///////////////////////////////////////////////////////////////////
-    // Methods to initilize different strategies of seeds production
-    // with variable number space points with or without vertex constraint
-    // Variable means (2,3,4,....) any number space points
-    ///////////////////////////////////////////////////////////////////
- 
+    /// with variable number space points with or without vertex constraint
+    /// Variable means (2,3,4,....) any number space points
     virtual void findVSp(EventData& data, const std::list<Trk::Vertex>& lv) const override;
+    //@}
 
     ///////////////////////////////////////////////////////////////////
-    // Iterator through seeds pseudo collection produced accordingly
-    // methods find    
+    /// @name Iterator through seeds pseudo collection
+    /// produced accordingly methods find    
     ///////////////////////////////////////////////////////////////////
-      
+    //@{
     virtual const SiSpacePointsSeed* next(EventData& data) const override;
+    //@}
 
     ///////////////////////////////////////////////////////////////////
-    // Print internal tool parameters and status
+    /// @name Print internal tool parameters and status
     ///////////////////////////////////////////////////////////////////
-
+    //@{
     virtual MsgStream& dump(EventData& data, MsgStream& out) const override;
+    //@}
 
   private:
+    /// enum for array sizes
     enum Size {SizeRF=53,
                SizeZ=11,
                SizeRFZ=SizeRF*SizeZ,
@@ -118,34 +123,41 @@ namespace InDet {
     ///////////////////////////////////////////////////////////////////
     // Private data and methods
     ///////////////////////////////////////////////////////////////////
-      
-    ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle{this, "MagFieldSvc", "AtlasFieldSvc"};
-    PublicToolHandle<Trk::IPRD_AssociationTool> m_assoTool{this, "AssociationTool", "InDet::InDetPRD_AssociationToolGangedPixels"};
 
-    ///////////////////////////////////////////////////////////////////
-    // Space points container
-    ///////////////////////////////////////////////////////////////////
+    /// @name Service handles
+    //@{
+    ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle{this, "MagFieldSvc", "AtlasFieldSvc"};
+    //@}
+
+    /// @name Data handles
+    //@{
     SG::ReadHandleKey<SpacePointContainer> m_spacepointsSCT{this, "SpacePointsSCTName", "SCT_SpacePoints"};
     SG::ReadHandleKey<SpacePointContainer> m_spacepointsPixel{this, "SpacePointsPixelName", "PixelSpacePoints"};
     SG::ReadHandleKey<SpacePointOverlapCollection> m_spacepointsOverlap{this, "SpacePointsOverlapName", "OverlapSpacePoints"};
+    SG::ReadHandleKey<Trk::PRDtoTrackMap>m_prdToTrackMap{this,"PRDtoTrackMap","","option PRD-to-track association"};
+    //@}
 
-    // Properties, which will not be changed after construction
+    /// @name Properties, which will not be changed after construction
+    //@{
     BooleanProperty m_pixel{this, "usePixel", true};
     BooleanProperty m_sct{this, "useSCT", true};
     BooleanProperty m_useOverlap{this, "useOverlapSpCollection", false};
-    BooleanProperty m_useassoTool{this, "UseAssociationTool", false};
     IntegerProperty m_maxsize{this, "maxSize", 100};
     IntegerProperty m_maxsizeSP{this, "maxSizeSP", 1500};
     FloatProperty m_drmin{this, "mindRadius", 5.};
     FloatProperty m_drmax{this, "maxdRadius", 1000.};
     FloatProperty m_r_rmax{this, "radMax", 600.};
     FloatProperty m_r_rstep{this, "radStep", 5.};
+    //@}
 
-    // Properties, which can be updated in initialize
+    /// @name Properties, which can be updated in initialize
+    //@{
     FloatProperty m_ptmin{this, "pTmin", 500.};
     FloatProperty m_rapcut{this, "RapidityCut", 2.3};
+    //@}
 
-    // Properties, which are not used in this implementation of SiSpacePointsSeedMaker_Cosmic class
+    /// @name Properties, which are not used in this implementation of SiSpacePointsSeedMaker_Cosmic class
+    //@{
     BooleanProperty m_checketa{this, "checkEta", false};
     FloatProperty m_zmin{this, "minZ", -10000.};
     FloatProperty m_zmax{this, "maxZ", +10000.};
@@ -154,8 +166,10 @@ namespace InDet {
     FloatProperty m_diversss{this, "maxdImpactSSS", 0.};
     FloatProperty m_etamin{this, "etaMin", 0.};
     FloatProperty m_etamax{this, "etaMax", 0.};
+    //@}
 
-    // Updated in only initialize
+    /// @name Data members, which are updated in only initialize
+    //@{
     bool m_initialized{false};
     int m_outputlevel{};
     int m_r_size{};
@@ -167,11 +181,12 @@ namespace InDet {
     float m_dzdrmin{};
     float m_dzdrmax{};
     float m_sF{};
+    //@}
 
     ///////////////////////////////////////////////////////////////////
     // Private methods
     ///////////////////////////////////////////////////////////////////
-    /**    @name Disallow default instantiation, copy, assignment */
+    /// @name Disallow default instantiation, copy, assignment
     //@{
     SiSpacePointsSeedMaker_Cosmic() = delete;
     SiSpacePointsSeedMaker_Cosmic(const SiSpacePointsSeedMaker_Cosmic&) = delete;
@@ -216,11 +231,27 @@ namespace InDet {
      std::list<InDet::SiSpacePointForSeed*>::iterator*,
      int,int,float) const;
 
-    bool isUsed(const Trk::SpacePoint*) const;
+    bool isUsed(const Trk::SpacePoint*, const Trk::PRDtoTrackMap &prd_to_track_map) const;
 
     void initializeEventData(EventData& data) const;
   };
 
 } // end of name space
+
+
+namespace InDet {
+
+  inline
+  bool InDet::SiSpacePointsSeedMaker_Cosmic::isUsed(const Trk::SpacePoint* sp, const Trk::PRDtoTrackMap &prd_to_track_map) const {
+    const Trk::PrepRawData* d = sp->clusterList().first;
+    if (!d || !prd_to_track_map.isUsed(*d)) return false;
+
+    d = sp->clusterList().second;
+    if (!d || prd_to_track_map.isUsed(*d)) return true;
+
+    return false;
+
+  }
+}
 
 #endif // SiSpacePointsSeedMaker_Cosmic_H

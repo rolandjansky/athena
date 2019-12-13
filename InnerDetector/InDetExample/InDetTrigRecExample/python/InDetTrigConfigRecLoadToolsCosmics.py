@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 """ InDetTrigConfigRecLoadToolsCosmics
     various tools for cosmicsN slice
@@ -28,7 +30,7 @@ InDetTrigTrackSummaryHelperToolCosmics = \
 ToolSvc += InDetTrigTrackSummaryHelperToolCosmics
 
 if (InDetTrigFlags.doPrintConfigurables()):
-  print      InDetTrigTrackSummaryHelperToolCosmics                                                    
+  print (     InDetTrigTrackSummaryHelperToolCosmics )
 
 from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
 InDetTrigTrackSummaryToolCosmics = \
@@ -37,7 +39,7 @@ InDetTrigTrackSummaryToolCosmics = \
                           doHolesInDet           = True)
 ToolSvc += InDetTrigTrackSummaryToolCosmics
 if (InDetTrigFlags.doPrintConfigurables()):
-  print      InDetTrigTrackSummaryToolCosmics
+  print (     InDetTrigTrackSummaryToolCosmics)
 
 from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetCosmicScoringTool
 InDetTrigScoringToolCosmics_SiPattern = \
@@ -49,16 +51,16 @@ InDetTrigScoringToolCosmics_SiPattern.minTRTHits = 0
 ToolSvc += InDetTrigScoringToolCosmics_SiPattern
 
 if (InDetTrigFlags.doPrintConfigurables()):
-  print      InDetTrigScoringToolCosmics_SiPattern
+  print (     InDetTrigScoringToolCosmics_SiPattern)
 
 
 from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPrdAssociationTool
 from InDetAmbiTrackSelectionTool.InDetAmbiTrackSelectionToolConf import InDet__InDetAmbiTrackSelectionTool
 from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTRTDriftCircleCut
+import InDetRecExample.TrackingCommon as TrackingCommon
 
 InDetTrigAmbiTrackSelectionToolCosmicsN = InDet__InDetAmbiTrackSelectionTool \
   (name = 'InDetTrigAmbiTrackSelectionToolCosmicsN',
-   AssociationTool = InDetTrigPrdAssociationTool,
    minHits         = 0,
    minNotShared    = 3,
    maxShared       = 0,
@@ -66,7 +68,8 @@ InDetTrigAmbiTrackSelectionToolCosmicsN = InDet__InDetAmbiTrackSelectionTool \
    Cosmics=True,
    maxTracksPerSharedPRD = 10,
    UseParameterization = False,
-   DriftCircleCutTool = InDetTrigTRTDriftCircleCut)
+   DriftCircleCutTool = InDetTrigTRTDriftCircleCut,
+   AssociationTool    = TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels())
 
 ToolSvc += InDetTrigAmbiTrackSelectionToolCosmicsN
 
@@ -97,7 +100,7 @@ InDetTrigSiSpacePointMakerToolCosmics = InDet__SiSpacePointMakerTool(name = 'InD
                                                                      StripLengthTolerance = 0.05,
                                                                      UsePerpendicularProjection = True)
 if (InDetTrigFlags.doPrintConfigurables()):
-  print InDetTrigSiSpacePointMakerToolCosmics
+  print (InDetTrigSiSpacePointMakerToolCosmics)
 ToolSvc += InDetTrigSiSpacePointMakerToolCosmics
 
 from SiTrigSpacePointFormation.SiTrigSpacePointFormationConf import InDet__SCT_TrigSpacePointTool
@@ -112,5 +115,5 @@ SCT_TrigSpacePointToolCosmics = InDet__SCT_TrigSpacePointTool(name='InDetTrigSCT
                                                               )
 
 if (InDetTrigFlags.doPrintConfigurables()):
-  print SCT_TrigSpacePointToolCosmics
+  print (SCT_TrigSpacePointToolCosmics)
 ToolSvc +=  SCT_TrigSpacePointToolCosmics

@@ -26,7 +26,6 @@
 #include "TrigNavigation/Navigation.h"
 
 // additions of xAOD objects
-#include "xAODEventInfo/EventInfo.h"
 #include "xAODMuon/Muon.h"
 #include "xAODTracking/TrackParticle.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
@@ -82,9 +81,11 @@ StatusCode TrigMultiTrkHypoMT::initialize()
     if(m_particleType == 0){
         ATH_CHECK( m_trackParticleContainerKey.initialize() );
         renounce(m_trackParticleContainerKey);
+        ATH_CHECK( m_muonContainerKey.initialize(false) );//Not using muons
     } else if (m_particleType == 1){
         ATH_CHECK( m_muonContainerKey.initialize() );
         renounce(m_muonContainerKey);
+        ATH_CHECK( m_trackParticleContainerKey.initialize(false) ); //Not using tracks
     } else{
         ATH_MSG_ERROR("Particle type > 1 requested, we are not configured for that yet!");
     }
@@ -97,6 +98,19 @@ StatusCode TrigMultiTrkHypoMT::initialize()
     ATH_CHECK(m_hypoTools.retrieve());
 
     ATH_CHECK(m_bphysObjContKey.initialize());
+    
+    // set m_trigLevel
+    if (m_trigLevelString == "L2") {
+      m_trigLevel = xAOD::TrigBphys::L2;
+    }
+    else if (m_trigLevelString == "EF") {
+      m_trigLevel = xAOD::TrigBphys::EF;
+    }
+    else {
+      m_trigLevel = xAOD::TrigBphys::UNKOWNLEVEL;
+      ATH_MSG_ERROR("trigLevelString should be L2 or EF, but " << m_trigLevelString << " provided.");
+      return StatusCode::FAILURE;
+    }
 
   return StatusCode::SUCCESS;
 }
@@ -138,6 +152,7 @@ StatusCode TrigMultiTrkHypoMT::execute( const EventContext& context) const
     auto mon_NTrkMass  		   = Monitored::Collection("nTrkMass", ini_nTrkMass);
     auto mon_NTrkFitMass	   = Monitored::Collection("nTrkFitMass", ini_nTrkFitMass);
     auto mon_NTrkChi2          = Monitored::Collection("nTrkChi2", ini_nTrkChi2);
+    auto mon_pairMass          = Monitored::Collection("pairMass", ini_pairMass);
 
     auto mon_NTrk          	     = Monitored::Scalar<int>("nTrk", 0);
     auto mon_accepted_highptNTrk = Monitored::Scalar<int>("accepted_highptNTrk", 0);
@@ -145,7 +160,7 @@ StatusCode TrigMultiTrkHypoMT::execute( const EventContext& context) const
     auto mon_acceptedNPair       = Monitored::Scalar<int>("accepted_nPair", 0);
 
     auto monitorIt = Monitored::Group( m_monTool, mon_NTrk, 
-  			mon_accepted_highptNTrk, mon_NTrkMass, mon_NTrkFitMass, mon_NTrkChi2,
+  			mon_accepted_highptNTrk, mon_NTrkMass, mon_NTrkFitMass, mon_NTrkChi2, mon_pairMass,
   			mon_NPair, mon_acceptedNPair );
 
     auto bphysColl = SG::makeHandle( m_bphysObjContKey, context );
@@ -163,8 +178,8 @@ StatusCode TrigMultiTrkHypoMT::execute( const EventContext& context) const
     std::vector< ElementLink<xAOD::TrackParticleContainer> > all_tracks;
 
     for (const Decision* previousDecision: *previousDecisionsHandle) {
-		const auto viewELInfo = findLink< ViewContainer >( previousDecision, "view" );
-  		ATH_CHECK( viewELInfo.isValid() );
+		  const auto viewEL = previousDecision->objectLink<ViewContainer>( viewString() );
+  		ATH_CHECK( viewEL.isValid() );
   		
   		//could implement something templated for tracks/muon tracks/electron tracks
   		//auto tracks = get_correct_tracks();//templated in some .icc file, hide away all
@@ -173,27 +188,25 @@ StatusCode TrigMultiTrkHypoMT::execute( const EventContext& context) const
   		
   		//tracks are SG::ReadHandle<xAOD::TrackParticleContainer>	
   		if(m_particleType == 0){
-  		auto tracks = ViewHelper::makeHandle( *viewELInfo.link, m_trackParticleContainerKey, context );
+  		auto tracks = ViewHelper::makeHandle( *viewEL, m_trackParticleContainerKey, context );
   		ATH_CHECK( tracks.isValid() );
     	 //so each time the loop starts, tracks is reset to contain tracks from a different view
     	 ATH_MSG_DEBUG( "Made handle " << m_trackParticleContainerKey << " size: "
                   << tracks->size() );  
  
          if(tracks->size() == 0) continue;
-         
-         const xAOD::TrackParticleContainer* tpcont = dynamic_cast<const xAOD::TrackParticleContainer* > (tracks->at(0)->container());
-          
+
          for(auto track : *tracks){
         
             const ElementLink<xAOD::TrackParticleContainer> track_link = 
-                     ElementLink<xAOD::TrackParticleContainer>(*tpcont, track->index(), context);       
+                     ElementLink<xAOD::TrackParticleContainer>(*tracks, track->index(), context);
             ATH_CHECK(track_link.isValid());
 
         	all_tracks.push_back(track_link);
         	track_decision_map[track_link] = previousDecision;
          }
          } else if(m_particleType == 1){
-             auto muons = ViewHelper::makeHandle( *viewELInfo.link, m_muonContainerKey, context );
+             auto muons = ViewHelper::makeHandle( *viewEL, m_muonContainerKey, context );
   		     ATH_CHECK( muons.isValid() );
     	     //so each time the loop starts, tracks is reset to contain tracks from a different view
     	     ATH_MSG_DEBUG( "Made handle " << m_muonContainerKey << " size: "
@@ -202,16 +215,19 @@ StatusCode TrigMultiTrkHypoMT::execute( const EventContext& context) const
              if(muons->size() == 0) continue;
                    
              for(auto muon : *muons){
-        
-                const ElementLink<xAOD::TrackParticleContainer> track_link = muon->inDetTrackParticleLink();       
-                ATH_CHECK(track_link.isValid());
+                //check if this is a combined muon
+                const xAOD::TrackParticle* tr = muon->trackParticle(xAOD::Muon::TrackParticleType::CombinedTrackParticle);
+                if (!tr) {
+                    ATH_MSG_DEBUG("No CombinedTrackParticle found.");
+                    continue;
+                } else {
+                    const ElementLink<xAOD::TrackParticleContainer> track_link = muon->inDetTrackParticleLink();
+                    ATH_CHECK(track_link.isValid());
 
-            	all_tracks.push_back(track_link);
-                track_decision_map[track_link] = previousDecision;
-         }
-
-         
-         
+            	    all_tracks.push_back(track_link);
+                    track_decision_map[track_link] = previousDecision;
+                }
+             } 
          }           
     }
     mon_NTrk = all_tracks.size();
@@ -222,7 +238,6 @@ StatusCode TrigMultiTrkHypoMT::execute( const EventContext& context) const
     }  
     mon_accepted_highptNTrk = good_tracks.size();
 
-    TLorentzVector tlv0, tlv1;
     ATH_MSG_DEBUG("Passed NTrack and track pT cuts: " << mon_accepted_highptNTrk << " tracks sent to vertexing");
     
     const auto nTracks = good_tracks.size();
@@ -264,7 +279,7 @@ StatusCode TrigMultiTrkHypoMT::execute( const EventContext& context) const
           trigBphys->makePrivateStore(); //need this so the aux variables are accessible with initialize
           //could just add to container, but don't want to bother storing vertices with gigantic chi2
           
-          trigBphys->initialise(0, 0., 0. ,0., xAOD::TrigBphys::MULTIMU, totalMass, xAOD::TrigBphys::L2);  
+          trigBphys->initialise(0, 0., 0. ,0., xAOD::TrigBphys::MULTIMU, totalMass, m_trigLevel);  
 
           std::vector<ElementLink<xAOD::TrackParticleContainer> > thisIterationTracks = {good_tracks.at(it0), good_tracks.at(it1)};
           if (m_bphysHelperTool->vertexFit(trigBphys,thisIterationTracks,m_trkMasses,*state).isFailure()) {
@@ -283,7 +298,9 @@ StatusCode TrigMultiTrkHypoMT::execute( const EventContext& context) const
           
           ini_nTrkFitMass.push_back(trigBphys->fitmass()*0.001);
           ini_nTrkChi2.push_back(trigBphys->fitchi2());
+          double dimass = m_bphysHelperTool->invariantMass(tp0, tp1, m_trkMasses[0], m_trkMasses[1]);
 
+          ini_pairMass.push_back(dimass);
           bphysColl->push_back(trigBphys);
 
           //need to add some duplicate BPhys object removal here? isUnique(trigBphys)?

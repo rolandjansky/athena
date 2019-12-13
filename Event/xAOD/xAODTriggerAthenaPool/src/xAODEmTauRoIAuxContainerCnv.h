@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -12,52 +12,16 @@
 #define EmTauRoIAuxContainerCnv_H
 
 // Gaudi/Athena include(s):
-#include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
+#include "AthenaPoolCnvSvc/T_AthenaPoolAuxContainerCnv.h"
 
 // EDM include(s):
 #include "xAODTrigger/EmTauRoIAuxContainer.h"
+#include "xAODEmTauRoIAuxContainerCnv_v1.h"
 
 /// Base class for the converter
-typedef T_AthenaPoolCustomCnv< xAOD::EmTauRoIAuxContainer,
-                               xAOD::EmTauRoIAuxContainer >
-   xAODEmTauRoIAuxContainerCnvBase;
-
-/**
- *  @short POOL converter for the xAOD::EmTauRoIAuxContainer class
- *
- *         This is the converter doing the actual schema evolution
- *         of the package... The converter for xAOD::EmTauRoIContainer
- *         doesn't do much, as the "interface classes" don't contain
- *         too much/any payload. Most of the payload is in the auxiliary
- *         containers like this one.
- *
- * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
- * @author John Morris <john.morris@cern.ch>
- * @author Alan Watson <Alan.Watson@CERN.CH>
- *
- * $Revision$
- * $Date$
- */
-class xAODEmTauRoIAuxContainerCnv :
-   public xAODEmTauRoIAuxContainerCnvBase {
-
-   // Declare the factory as our friend:
-   friend class CnvFactory< xAODEmTauRoIAuxContainerCnv >;
-
-protected:
-   /// Converter constructor
-public:
-   xAODEmTauRoIAuxContainerCnv( ISvcLocator* svcLoc );
-protected:
-
-   /// Function preparing the container to be written out
-   virtual xAOD::EmTauRoIAuxContainer*
-   createPersistent( xAOD::EmTauRoIAuxContainer* trans );
-   /// Function reading in the object from the input file
-   virtual xAOD::EmTauRoIAuxContainer* createTransient();
-
-}; // class xAODEmTauRoIAuxContainerCnv
-
+typedef T_AthenaPoolAuxContainerCnv< xAOD::EmTauRoIAuxContainer,
+                                     xAODEmTauRoIAuxContainerCnv_v1 >
+   xAODEmTauRoIAuxContainerCnv;
 
 #endif
 

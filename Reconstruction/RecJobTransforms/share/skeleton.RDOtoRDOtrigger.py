@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from future.utils import iteritems
 
 ####################################################################
@@ -121,12 +122,19 @@ if TriggerFlags.doMT():
     recoLog.info( "Configuring LVL1 simulation (MT)" )
     from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationSequence
     topSequence += Lvl1SimulationSequence(None)
+
     recoLog.info( "Configuring HLT (MT)" )
+    from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc
+    svcMgr += getHLTConfigSvc()
+
+    from TrigConfigSvc.TrigConfigSvcConfig import TrigConfigSvc
+    svcMgr += TrigConfigSvc("TrigConfigSvc")
+    svcMgr.TrigConfigSvc.PriorityList = ["none", "ds", "xml"]
 
     from L1Decoder.L1DecoderConfig import L1Decoder
     topSequence += L1Decoder()
     
-    include( "TriggerRelease/jobOfragment_TransBS_standalone.py" )
+    include( "TriggerJobOpts/jobOfragment_TransBS_standalone.py" )
     topSequence.StreamBS.ItemList =     [ x for x in topSequence.StreamBS.ItemList if 'RoIBResult' not in x ] # eliminate RoIBResult
 
     # add a fake data dependency assuring that the StreamBS runs before the L1 decoder of HLT
@@ -158,6 +166,7 @@ if TriggerFlags.doMT():
         TriggerFlags.TauSlice.setAll()
         TriggerFlags.BjetSlice.setAll()
         TriggerFlags.CombinedSlice.setAll()
+        TriggerFlags.BphysicsSlice.setAll()
 
     menu.overwriteSignaturesWith(signaturesToGenerate)
     allChainConfigs = menu.generateMT()
@@ -223,53 +232,55 @@ for i in outSequence.getAllChildren():
 
     if "StreamRDO" in i.getName() and TriggerFlags.doMT():
 
+        ### Produce the trigger bits:
+        from TrigOutputHandling.TrigOutputHandlingConf import TriggerBitsMakerTool
         from TrigDecisionMaker.TrigDecisionMakerConfig import TrigDecisionMakerMT
-        topSequence += TrigDecisionMakerMT('TrigDecMakerMT') # Replaces TrigDecMaker and finally deprecates Run 1 EDM
-        from AthenaCommon.Logging import logging
-        log = logging.getLogger( 'WriteTrigDecisionToAOD' )
-        log.info('TrigDecision writing enabled')
+        bitsmakerTool = TriggerBitsMakerTool()
+        tdm = TrigDecisionMakerMT('TrigDecMakerMT') # Replaces TrigDecMaker and finally deprecates Run 1 EDM
+        tdm.BitsMakerTool = bitsmakerTool
+        topSequence += tdm
+        log.info('xTrigDecision writing enabled')
 
-        # Note: xAODMaker__TrigDecisionCnvAlg no longer needed. TrigDecisionMakerMT goes straight to xAOD
-        # Note: xAODMaker__TrigNavigationCnvAlg no longer needed. MT navigation is natively xAOD 
-        
-        # *** June 2019 TEMPORARY *** for use with TrigDecMakerMT until a proper config svc is available
-        from TrigConfigSvc.TrigConfigSvcConfig import TrigConfigSvc
-        ServiceMgr += TrigConfigSvc("TrigConfigSvc")
-        ServiceMgr.TrigConfigSvc.PriorityList = ["run3_dummy", "ds", "xml"]
+        ### Produce the metadata:
+        from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODMenuWriterMT
+        md = TrigConf__xAODMenuWriterMT()
+        topSequence += md
+        log.info('TriggerMenu Metadata writing enabled')
 
         # Still need to produce Run-2 style L1 xAOD output
         topSequence += RoIBResultToAOD("RoIBResultToxAOD")
 
-        from TrigEDMConfig.TriggerEDM import getLvl1ESDList
-        StreamRDO.ItemList += preplist(getLvl1ESDList())
-        StreamRDO.ItemList += ["TrigInDetTrackTruthMap#*"]
+        from TrigEDMConfig.TriggerEDM import getTriggerEDMList
 
-        from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3
-        for item in TriggerHLTListRun3:
-            if "ESD" in item[1] or "AOD" in item[1]:
-                StreamRDO.ItemList += [item[0]]
+        trigEDMListESD = {}
+        trigEDMListAOD = {}
+        # do the two lines above this need to be changed to this?
+        trigEDMListESD.update(getTriggerEDMList(TriggerFlags.ESDEDMSet(),  3) )
+        trigEDMListAOD.update(getTriggerEDMList(TriggerFlags.AODEDMSet(),  3) ) 
+
+        StreamRDO.ItemList += preplist(trigEDMListESD)
+        StreamRDO.ItemList += preplist(trigEDMListAOD)
 
         from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectDecisionObjects
         hypos = collectHypos( findSubSequence(topSequence, "HLTAllSteps") )
         filters = collectFilters( findSubSequence(topSequence, "HLTAllSteps") )
-        decObj = collectDecisionObjects( hypos, filters, findAlgorithm(topSequence, "L1Decoder") )
+        decObj = collectDecisionObjects( hypos, filters, 
+            findAlgorithm(topSequence, "L1Decoder"), 
+            findAlgorithm(topSequence, "DecisionSummaryMakerAlg") )
         StreamRDO.ItemList += [ "xAOD::TrigCompositeContainer#"+obj for obj in decObj ]
         StreamRDO.ItemList += [ "xAOD::TrigCompositeAuxContainer#"+obj+"Aux." for obj in decObj ]
-
-        StreamRDO.ItemList += [ "xAOD::TrigDecision#xTrigDecision" ]            # TODO - move this back in to TrigEDMRun3
-        StreamRDO.ItemList += [ "xAOD::TrigDecisionAuxInfo#xTrigDecisionAux." ] # TODO - move this back in to TrigEDMRun3
         StreamRDO.MetadataItemList +=  [ "xAOD::TriggerMenuContainer#*", "xAOD::TriggerMenuAuxContainer#*" ]
 
 from AthenaCommon.AppMgr import ServiceMgr, ToolSvc
-from TrigDecisionTool.TrigDecisionToolConf import *
+
 
 if hasattr(ToolSvc, 'TrigDecisionTool'):
     if TriggerFlags.doMT():
-        ToolSvc.TrigDecisionTool.NavigationFormat = "TrigComposite"
-        # To pick up hacked config svc
-        ToolSvc.TrigDecisionTool.TrigConfigSvc = "Trig::TrigConfigSvc/TrigConfigSvc"
+        # No functional TDT in MT in RDOtoRDOTrigger
+        pass
     else:
     	# Causes TDT to use Run-1 style behaviour in this part of the transform
+        from TrigDecisionTool.TrigDecisionToolConf import *
         ToolSvc.TrigDecisionTool.TrigDecisionKey = "TrigDecision"
         ToolSvc.TrigDecisionTool.UseAODDecision = True
 

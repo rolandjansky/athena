@@ -28,8 +28,6 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/AGDD/AGDDKernel
                           DetectorDescription/AGDD/AGDDModel
                           DetectorDescription/GeoModel/GeoModelInterfaces
-                          Event/EventInfo
-                          Event/EventInfoMgt
                           MuonSpectrometer/MuonDetDescr/MuonAGDDBase
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
                           ${extra_dep} )
@@ -43,7 +41,7 @@ atlas_add_component( MuonAGDD
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AGDDControl GaudiKernel StoreGateLib SGtests AGDDKernel AGDDModel EventInfo MuonAGDDBase MuonReadoutGeometry ${extra_lib} )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AGDDControl GaudiKernel StoreGateLib SGtests AGDDKernel AGDDModel MuonAGDDBase MuonReadoutGeometry ${extra_lib} )
 
 # Install files from the package:
 atlas_install_headers( MuonAGDD )

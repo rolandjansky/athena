@@ -10,6 +10,7 @@ import sys
 import os
 import re
 import subprocess
+import json
 
 from TrigValTools.TrigValSteering.Step import Step
 from TrigValTools.TrigValSteering.Common import art_input_eos, art_input_cvmfs
@@ -195,6 +196,8 @@ class ZipStep(Step):
 
     def configure(self, test=None):
         self.args += ' '+self.zip_output+' '+self.zip_input
+        # Remove the file after zipping
+        self.args += ' && rm ' + self.zip_input
         super(ZipStep, self).configure(test)
 
 
@@ -203,7 +206,7 @@ class CheckLogStep(Step):
 
     def __init__(self, name):
         super(CheckLogStep, self).__init__(name)
-        self.executable = 'check_log.pl'
+        self.executable = 'check_log.py'
         self.log_file = None
         self.check_errors = True
         self.check_warnings = False
@@ -225,8 +228,8 @@ class CheckLogStep(Step):
                 self.log_file = test.exec_steps[0].name+'.log'
             else:
                 self.log_file = 'athena.log'
-        if not self.check_errors:
-            self.args += ' --noerrors'
+        if self.check_errors:
+            self.args += ' --errors'
         if self.check_warnings:
             self.args += ' --warnings'
         if self.check_errors and not self.check_warnings:
@@ -272,7 +275,10 @@ class RegTestStep(RefComparisonStep):
 
     def rename_ref(self):
         try:
-            new_name = os.path.basename(self.reference) + '.new'
+            if self.reference:
+                new_name = os.path.basename(self.reference) + '.new'
+            else:
+                new_name = os.path.basename(self.input_file) + '.new'
             os.rename(self.input_file, new_name)
             self.log.debug('Renamed %s to %s', self.input_file, new_name)
         except OSError:
@@ -280,15 +286,17 @@ class RegTestStep(RefComparisonStep):
                              self.input_file, new_name)
 
     def run(self, dry_run=False):
-        if self.reference is None:
-            self.log.error('Missing reference for %s', self.name)
-            self.result = 999
-            if self.auto_report_result:
-                self.report_result()
-            return self.result, '# (internal) {} -> failed'.format(self.name)
         if not dry_run and not self.prepare_inputs():
             self.log.error('%s failed in prepare_inputs()', self.name)
             self.result = 1
+            if self.auto_report_result:
+                self.report_result()
+            return self.result, '# (internal) {} -> failed'.format(self.name)
+        if self.reference is None:
+            self.log.error('Missing reference for %s', self.name)
+            if not dry_run:
+                self.rename_ref()
+            self.result = 999
             if self.auto_report_result:
                 self.report_result()
             return self.result, '# (internal) {} -> failed'.format(self.name)
@@ -507,6 +515,85 @@ class ZeroCountsStep(Step):
         return self.result, cmd
 
 
+class MessageCountStep(Step):
+    '''Count messages printed inside event loop'''
+
+    def __init__(self, name='MessageCount'):
+        super(MessageCountStep, self).__init__(name)
+        self.executable = 'messageCounter.py'
+        self.log_regex = r'(athena\..*log$|athenaHLT:.*\.out$|^log\..*to.*)'
+        self.start_pattern = r'(HltEventLoopMgr|AthenaHiveEventLoopMgr).*INFO Starting loop on events'
+        self.end_pattern = r'(HltEventLoopMgr.*INFO All events processed|AthenaHiveEventLoopMgr.*INFO.*Loop Finished)'
+        self.info_threshold = None
+        self.debug_threshold = None
+        self.verbose_threshold = None
+        self.other_threshold = None
+        self.auto_report_result = True
+
+    def configure(self, test):
+        self.args += ' -s "{:s}"'.format(self.start_pattern)
+        self.args += ' -e "{:s}"'.format(self.end_pattern)
+        if self.info_threshold is None:
+            self.info_threshold = test.exec_steps[0].max_events
+        if self.debug_threshold is None:
+            self.debug_threshold = 0
+        if self.verbose_threshold is None:
+            self.verbose_threshold = 0
+        if self.other_threshold is None:
+            self.other_threshold = test.exec_steps[0].max_events
+        super(MessageCountStep, self).configure(test)
+
+    def run(self, dry_run=False):
+        files = os.listdir('.')
+        r = re.compile(self.log_regex)
+        log_files = filter(r.match, files)
+        self.args += ' ' + ' '.join(log_files)
+        auto_report = self.auto_report_result
+        self.auto_report_result = False
+        ret, cmd = super(MessageCountStep, self).run(dry_run)
+        self.auto_report_result = auto_report
+        if ret != 0:
+            self.log.error('%s failed')
+            self.result = 1
+            if self.auto_report_result:
+                self.report_result()
+            return self.result, cmd
+        (num_info, num_debug, num_verbose, num_other) = (0, 0, 0, 0)
+        for log_file in log_files:
+            json_file = 'MessageCount.{:s}.json'.format(log_file)
+            if not os.path.isfile(json_file):
+                self.log.warning('%s cannot open file %s', self.name, json_file)
+            with open(json_file) as f:
+                summary = json.load(f)
+                num_info += summary['INFO']
+                num_debug += summary['DEBUG']
+                num_verbose += summary['VERBOSE']
+                num_other += summary['other']
+        if num_info > self.info_threshold:
+            self.log.info(
+                '%s Number of INFO messages %s is higher than threshold %s',
+                self.name, num_info, self.info_threshold)
+            self.result += 1
+        if num_debug > self.debug_threshold:
+            self.log.info(
+                '%s Number of DEBUG messages %s is higher than threshold %s',
+                self.name, num_debug, self.debug_threshold)
+            self.result += 1
+        if num_verbose > self.verbose_threshold:
+            self.log.info(
+                '%s Number of VERBOSE messages %s is higher than threshold %s',
+                self.name, num_verbose, self.verbose_threshold)
+            self.result += 1
+        if num_other > self.other_threshold:
+            self.log.info(
+                '%s Number of "other" messages %s is higher than threshold %s',
+                self.name, num_other, self.other_threshold)
+            self.result += 1
+        if self.auto_report_result:
+            self.report_result()
+        return self.result, cmd
+
+
 def default_check_steps(test):
     '''
     Create the default list of check steps for a test. The configuration
@@ -534,14 +621,17 @@ def default_check_steps(test):
         logmerge.log_files = []
         for exec_step in test.exec_steps:
             logmerge.log_files.append(exec_step.get_log_file_name())
+            if exec_step.type == 'athenaHLT':
+                logmerge.extra_log_regex = 'athenaHLT:.*(.out|.err)'
         check_steps.append(logmerge)
     log_to_check = None
+    log_to_zip = None
     if len(check_steps) > 0 and isinstance(check_steps[-1], LogMergeStep):
         log_to_check = check_steps[-1].merged_name
+        log_to_zip = check_steps[-1].merged_name
 
     # Reco_tf log merging
     step_types = [step.type for step in test.exec_steps]
-    log_to_zip = None
     if 'Reco_tf' in step_types:
         reco_tf_logmerge = LogMergeStep('LogMerge_Reco_tf')
         reco_tf_logmerge.warn_if_missing = False
@@ -553,6 +643,7 @@ def default_check_steps(test):
         if log_to_check is not None:
             reco_tf_logmerge.log_files.append(log_to_check)
             log_to_check = reco_tf_logmerge.merged_name
+        log_to_check = reco_tf_logmerge.merged_name
         check_steps.append(reco_tf_logmerge)
 
     # Histogram merging for athenaHLT forks
@@ -578,10 +669,16 @@ def default_check_steps(test):
         checkwarn.log_file = log_to_check
     check_steps.append(checkwarn)
 
+    # MessageCount
+    msgcount = MessageCountStep('MessageCount')
+    check_steps.append(msgcount)
+
     # RegTest
     regtest = RegTestStep()
     if log_to_check is not None:
         regtest.input_base_name = os.path.splitext(log_to_check)[0]
+    if 'athenaHLT' in step_types:
+        regtest.regex = r'(?:HltEventLoopMgr(?!.*athenaHLT-)|REGTEST)'
     check_steps.append(regtest)
 
     # Tail (probably not so useful these days)

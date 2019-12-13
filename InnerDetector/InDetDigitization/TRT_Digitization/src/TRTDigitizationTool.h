@@ -17,13 +17,16 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TRT_PAI_Process/ITRT_PAITool.h"
-#include "TRT_Digitization/ITRT_SimDriftTimeTool.h"
+#include "ITRT_SimDriftTimeTool.h"
 #include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
 
 #include "InDetRawData/TRT_RDO_Container.h"
 #include "InDetSimData/InDetSimDataCollection.h"
 #include "TRTDigit.h"
+
+// For magneticfield
+#include "MagFieldInterfaces/IMagFieldSvc.h"
 
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
@@ -94,6 +97,7 @@ public:
 
 private:
   CLHEP::HepRandomEngine* getRandomEngine(const std::string& streamName) const;
+  CLHEP::HepRandomEngine* getRandomEngine(const std::string& streamName, unsigned long int randomSeedOffset) const;
 
   Identifier getIdentifier( int hitID,
                             IdentifierHash& hashId,
@@ -103,10 +107,7 @@ private:
   StatusCode update( IOVSVC_CALLBACK_ARGS );        // Update of database entries.
   StatusCode ConditionsDependingInitialization();
 
-  StatusCode lateInitialize(CLHEP::HepRandomEngine *noiseRndmEngine,
-                            CLHEP::HepRandomEngine *elecNoiseRndmEngine,
-                            CLHEP::HepRandomEngine *elecProcRndmEngine,
-                            CLHEP::HepRandomEngine *fakeCondRndmEngine);
+  StatusCode lateInitialize();
   StatusCode processStraws(std::set<int>& sim_hitids, std::set<Identifier>& simhitsIdentifiers,
                            CLHEP::HepRandomEngine *rndmEngine,
                            CLHEP::HepRandomEngine *strawRndmEngine,
@@ -115,10 +116,6 @@ private:
                            CLHEP::HepRandomEngine *paiRndmEngine);
   StatusCode createAndStoreRDOs();
 
-  // The straw's gas mix: 1=Xe, 2=Kr, 3=Ar
-  int StrawGasType(Identifier& TRT_Identifier) const;
-
-  unsigned int getRegion(int hitID);
   double getCosmicEventPhase(CLHEP::HepRandomEngine *rndmEngine);
 
   /// Configurable properties
@@ -130,6 +127,7 @@ private:
   ServiceHandle<PileUpMergeSvc> m_mergeSvc{this, "MergeSvc", "PileUpMergeSvc", "Merge service"};
   ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};  //!< Random number service
   ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc{this, "TRT_StrawNeighbourSvc", "TRT_StrawNeighbourSvc", ""};
+  ServiceHandle < MagField::IMagFieldSvc > m_magneticfieldsvc{this, "MagFieldSvc", "AtlasFieldSvc", "MagFieldSvc used by TRTProcessingOfStraw"};
 
   Gaudi::Property<bool> m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
   SG::ReadHandleKey<TRTUncompressedHitCollection> m_hitsContainerKey{this, "DataObjectName", "TRTUncompressedHits", "Data Object Name"};
@@ -142,6 +140,7 @@ private:
   Gaudi::Property<bool> m_printUsedDigSettings{this, "PrintDigSettings", true, "Print ditigization settings"};
   Gaudi::Property<int> m_HardScatterSplittingMode{this, "HardScatterSplittingMode", 0, ""};
   Gaudi::Property<int> m_UseGasMix{this, "UseGasMix", 0, ""};
+  Gaudi::Property<unsigned long int> m_randomSeedOffset{this, "RandomSeedOffset", 678910, ""};
 
   TRTDigSettings* m_settings{};
 

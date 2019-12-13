@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 from __future__ import print_function
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -76,7 +78,7 @@ if __name__=="__main__":
     cfg.setAppProperty("EvtMax",10)
     cfg.run()
 
-    #f=open("HelloWorld.pkl","w")
+    #f=open("HelloWorld.pkl","wb")
     #cfg.store(f)
     #f.close()
 

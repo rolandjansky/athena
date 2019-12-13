@@ -30,16 +30,24 @@ if DetFlags.overlay.LVL1_on():
         job.LArTTL1Maker.PileUp = True
         # If we are doing MC overlay
         if not overlayFlags.isDataOverlay():
-            job.LArTTL1Maker.EmTTL1ContainerName = overlayFlags.evtStore() + "+LArTTL1EM"
-            job.LArTTL1Maker.HadTTL1ContainerName = overlayFlags.evtStore() + "+LArTTL1HAD"
-    
+            if overlayFlags.isOverlayMT():
+                job.LArTTL1Maker.EmTTL1ContainerName = overlayFlags.sigPrefix() + "LArTTL1EM"
+                job.LArTTL1Maker.HadTTL1ContainerName = overlayFlags.sigPrefix() + "LArTTL1HAD"
+            else:
+                job.LArTTL1Maker.EmTTL1ContainerName = overlayFlags.evtStore() + "+LArTTL1EM"
+                job.LArTTL1Maker.HadTTL1ContainerName = overlayFlags.evtStore() + "+LArTTL1HAD"
+
     if DetFlags.simulateLVL1.Tile_on():
         include( "TileSimAlgs/TileTTL1_jobOptions.py" )
 
         # If we are doing MC overlay
         if not overlayFlags.isDataOverlay():
-            job.TileHitToTTL1.TileTTL1Container = overlayFlags.evtStore() + '+TileTTL1Cnt'
-            job.TileHitToTTL1.TileMBTSTTL1Container = overlayFlags.evtStore() + '+TileTTL1MBTS'
+            if overlayFlags.isOverlayMT():
+                job.TileHitToTTL1.TileTTL1Container = overlayFlags.sigPrefix() + 'TileTTL1Cnt'
+                job.TileHitToTTL1.TileMBTSTTL1Container = overlayFlags.sigPrefix() + 'TileTTL1MBTS'
+            else:
+                job.TileHitToTTL1.TileTTL1Container = overlayFlags.evtStore() + '+TileTTL1Cnt'
+                job.TileHitToTTL1.TileMBTSTTL1Container = overlayFlags.evtStore() + '+TileTTL1MBTS'
 
         include( "TileSimAlgs/TileMuonReceiver_jobOptions.py" )
 

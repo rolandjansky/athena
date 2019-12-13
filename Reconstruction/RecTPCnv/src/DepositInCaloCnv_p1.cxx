@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // DepositInCaloCnv_p1.cxx 
@@ -16,38 +16,24 @@
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
 // muonEvent includes
-#define private public
-#define protected public
 #include "muonEvent/DepositInCalo.h"
-#undef private
-#undef protected
 
 // RecTPCnv includes
 #include "RecTPCnv/DepositInCaloCnv_p1.h"
 
-/////////////////////////////////////////////////////////////////// 
-// Non-Const methods: 
-///////////////////////////////////////////////////////////////////
 
 void DepositInCaloCnv_p1::persToTrans( const DepositInCalo_p1* pers,
 				       DepositInCalo* trans, 
-				       MsgStream& /*msg*/ ) 
+				       MsgStream& /*msg*/ ) const
 {
 //   msg << MSG::DEBUG << "Loading DepositInCalo from persistent state..."
 //       << endmsg;
 
-  // calorimeter sampling identifier
-  trans->m_subCaloId = static_cast<CaloCell_ID::CaloSample>(pers->m_subCaloId);
-
-  // energy deposited
-  trans->m_energyDeposited = pers->m_energyDeposited;
-
-  // energy Loss of the muons computed using the extrapolator
-  trans->m_muonEnergyLoss = pers->m_muonEnergyLoss;
-
-  // energy deposited et - not available in the p1 versions
-  trans->m_etDeposited = 0.0;
-
+  *trans = DepositInCalo(static_cast<CaloCell_ID::CaloSample>(pers->m_subCaloId),
+                         pers->m_energyDeposited,
+                         pers->m_muonEnergyLoss,
+                         0.0); // energy deposited et - not available in the p1 versions
+                         
 //   msg << MSG::DEBUG << "Loaded DepositInCalo from persistent state [OK]"
 //       << endmsg;
 
@@ -56,7 +42,7 @@ void DepositInCaloCnv_p1::persToTrans( const DepositInCalo_p1* pers,
 
 void DepositInCaloCnv_p1::transToPers( const DepositInCalo* trans, 
 				       DepositInCalo_p1* pers, 
-				       MsgStream& msg ) 
+				       MsgStream& msg ) const
 {
 
   msg << MSG::ERROR << "DepositInCalo at " << trans << " Persistent DepositInCalo_p1 at " << pers 

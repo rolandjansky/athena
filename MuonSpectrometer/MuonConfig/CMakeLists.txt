@@ -44,14 +44,14 @@ if( NOT SIMULATIONBASE )
                    POST_EXEC_SCRIPT nopost.sh )
 
    atlas_add_test( MuonReconstructionConfigTest
-                   SCRIPT python -m MuonConfig.MuonReconstructionConfig
+                   SCRIPT python -m MuonConfig.MuonReconstructionConfig --run
                    POST_EXEC_SCRIPT nopost.sh )
 
    atlas_add_test( MuonSegmentFindingConfigTest
-                   SCRIPT python -m MuonConfig.MuonSegmentFindingConfig
+                   SCRIPT python -m MuonConfig.MuonSegmentFindingConfig --run
                    POST_EXEC_SCRIPT nopost.sh )
                    
    atlas_add_test( flake8
-                   SCRIPT flake8 --select=F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python
+                   SCRIPT flake8 --select=ATL,F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python
                    POST_EXEC_SCRIPT nopost.sh )
 endif()

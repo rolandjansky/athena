@@ -6,12 +6,13 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 from MuonConfig.MuonCalibConfig import CscCoolStrSvcCfg
-from CSC_Digitization.CSC_DigitizationConf import (
-    CscDigitizationTool, CscDigitBuilder,
-)
+from CSC_Digitization.CSC_DigitizationConf import CscDigitizationTool, CscDigitBuilder
 from PileUpComps.PileUpCompsConf import PileUpXingFolder
 from MuonConfig.MuonByteStreamCnvTestConfig import CscDigitToCscRDOCfg, CscOverlayDigitToCscRDOCfg
 from MuonConfig.MuonCablingConfig import CSCCablingConfigCfg
+from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
+from Digitization.PileUpToolsConfig import PileUpToolsCfg
+
 
 # The earliest and last bunch crossing times for which interactions will be sent
 # to the CscDigitizationTool.
@@ -67,45 +68,65 @@ def CSC_OverlayDigitizationToolCfg(flags, name="CSC_OverlayDigitizationTool",**k
     return acc
 
 
-def CSC_DigitBuilderBasicCfg(toolCfg, flags, name, **kwargs):
-    """Return a ComponentAccumulator with toolCfg configured CscDigitBuilder algorithm"""
+def CSC_OutputCfg(flags):
+    """Return ComponentAccumulator with Output for CSC. Not standalone."""
+    acc = ComponentAccumulator()
+    ItemList = ["CscRawDataContainer#*"]
+    if flags.Digitization.TruthOutput:
+        ItemList += ["MuonSimDataCollection#*", "CscSimDataCollection#CSC_SDO"]
+        acc.merge(TruthDigitizationOutputCfg(flags))
+    acc.merge(OutputStreamCfg(flags, "RDO", ItemList))
+    return acc
+
+
+def CSC_DigitizationBasicCfg(flags, **kwargs):
+    """Return ComponentAccumulator for CSC digitization"""
     acc = MuonGeoModelCfg(flags)
     acc.merge(CscCoolStrSvcCfg(flags))
-    tool = acc.popToolsAndMerge(toolCfg(flags))
-    kwargs.setdefault("DigitizationTool", tool)
-    acc.addEventAlgo(CscDigitBuilder(name, **kwargs))
+    if "PileUpTools" not in kwargs:
+        PileUpTools = acc.popToolsAndMerge(CSC_DigitizationToolCfg(flags))
+        kwargs["PileUpTools"] = PileUpTools
+    acc.merge(PileUpToolsCfg(flags, **kwargs))
     return acc
 
 
-def CSC_DigitBuilderOutputCfg(toolCfg, flags, name, **kwargs):
-    """Return ComponentAccumulator with toolCfg configured CscDigitBuilder algorithm and OutputStream"""
-    acc = CSC_DigitBuilderBasicCfg(toolCfg, flags, name, **kwargs)
-    acc.merge(OutputStreamCfg(flags, "RDO", ["MuonSimDataCollection#*", "CscSimDataCollection#CSC_SDO", "CscRawDataContainer#*"]))
+def CSC_OverlayDigitizationBasicCfg(flags, **kwargs):
+    """Return ComponentAccumulator with CSC Overlay digitization"""
+    acc = MuonGeoModelCfg(flags)
+    acc.merge(CscCoolStrSvcCfg(flags))
+    if "DigitizationTool" not in kwargs:
+        tool = acc.popToolsAndMerge(CSC_OverlayDigitizationToolCfg(flags))
+        kwargs["DigitizationTool"] = tool
+    acc.addEventAlgo(CscDigitBuilder(**kwargs))
     return acc
 
 
-def CSC_DigitBuilderCfg(flags, name="CSC_DigitBuilder", **kwargs):
-    """Return ComponentAccumulator with configured CSC_Digitizer algorithm and Output"""
-    return CSC_DigitBuilderOutputCfg(CSC_DigitizationToolCfg, flags, name, **kwargs)
+# with output defaults
+def CSC_DigitizationCfg(flags, **kwargs):
+    """Return ComponentAccumulator for CSC digitization and Output"""
+    acc = CSC_DigitizationBasicCfg(flags, **kwargs)
+    acc.merge(CSC_OutputCfg(flags))
+    return acc
 
 
-def CSC_DigitBuilderOverlayCfg(flags, name="CSC_OverlayDigitBuilder", **kwargs):
-    """Return DigitBuilderOutputCfg with Overlay configured CSC_Digitizer algorithm and Output"""
-    return CSC_DigitBuilderBasicCfg(CSC_OverlayDigitizationToolCfg, flags, name, **kwargs)
+def CSC_OverlayDigitizationCfg(flags, **kwargs):
+    """Return ComponentAccumulator with CSC Overlay digitization and Output"""
+    acc = CSC_OverlayDigitizationBasicCfg(flags, **kwargs)
+    acc.merge(CSC_OutputCfg(flags))
+    return acc
 
 
-def CSC_DigitBuilderDigitToRDOCfg(flags):
+def CSC_DigitizationDigitToRDOCfg(flags):
     """Return ComponentAccumulator with CSC Digitization and Digit to CSCRDO"""
-    acc = CSC_DigitBuilderCfg(flags)
+    acc = CSC_DigitizationCfg(flags)
     acc.merge(CSCCablingConfigCfg(flags))
     acc.merge(CscDigitToCscRDOCfg(flags))
     return acc
 
 
-def CSC_DigitBuilderOverlayDigitToRDOCfg(flags):
-    """Return ComponentAccumulator with CSC Digitization and Digit to CSCRDO for Overlay"""
-    acc = CSC_DigitBuilderOverlayCfg(flags)
+def CSC_OverlayDigitizationDigitToRDOCfg(flags):
+    """Return ComponentAccumulator with CSC Overlay Digitization and Digit to CSCRDO"""
+    acc = CSC_OverlayDigitizationCfg(flags)
     acc.merge(CSCCablingConfigCfg(flags))
     acc.merge(CscOverlayDigitToCscRDOCfg(flags))
     return acc
-

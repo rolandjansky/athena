@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "./LVL1ConfigSvc.h"
+#include "./Verifyer.h"
 
-// STL includes:
-#include <exception>
-#include <vector>
 
 // Athena/Gaudi includes:
 #include "PathResolver/PathResolver.h"
@@ -16,10 +15,11 @@
 
 #include "StoreGate/StoreGateSvc.h"
 
-// Local includes:
-#include "TrigConfigSvc/Verifyer.h"
 
 // Trigger database interface includes:
+#include "TrigConfIO/JsonFileLoader.h"
+#include "TrigConfIO/TrigDBMenuLoader.h"
+#include "TrigConfData/L1Menu.h"
 
 #include "TrigConfL1Data/DeadTime.h"
 #include "TrigConfL1Data/CTPConfig.h"
@@ -38,10 +38,13 @@
 #include "TrigConfL1Data/JetThresholdValue.h"
 #include "TrigConfL1Data/L1DataDef.h"
 
-#include "TrigConfigSvc/LVL1ConfigSvc.h"
+#include "TrigConfInterfaces/IJobOptionsSvc.h"
 
 #include "boost/algorithm/string/case_conv.hpp"
-#include "boost/lexical_cast.hpp"
+
+// STL includes:
+#include <exception>
+#include <vector>
 
 using namespace std;
 using namespace TrigConf;
@@ -69,7 +72,78 @@ LVL1ConfigSvc::~LVL1ConfigSvc()
 
 
 StatusCode
+LVL1ConfigSvc::writeConfigToDetectorStore() {
+
+   TrigConf::L1Menu * l1menu = new TrigConf::L1Menu;
+
+   if( m_inputType == "db" ) {
+
+      // db menu loader
+      TrigConf::TrigDBMenuLoader dbloader(m_dbConnection);
+      dbloader.setLevel(TrigConf::MSGTC::WARNING);
+
+      if( dbloader.loadL1Menu( m_smk, *l1menu ) ) {
+         ATH_MSG_INFO( "Loaded L1 menu from DB " << m_dbConnection << " for SMK " << m_smk.value() );
+      } else {
+         ATH_MSG_WARNING( "Failed loading L1 menu from DB for SMK " << m_smk.value());
+         return StatusCode::RECOVERABLE;
+      }
+
+   } else if ( m_inputType == "file" ) {
+
+      // json file menu loader
+      TrigConf::JsonFileLoader fileLoader;
+      fileLoader.setLevel(TrigConf::MSGTC::WARNING);
+
+      if( fileLoader.loadFile( m_l1FileName, *l1menu ) ) {
+         ATH_MSG_INFO( "Loaded L1 menu file " << m_l1FileName.value() );
+      } else {
+         ATH_MSG_WARNING( "Failed loading L1 menu file " << m_l1FileName.value());
+         return StatusCode::RECOVERABLE;
+      }
+
+   } else if( m_inputType == "cool" ) {
+      ATH_MSG_FATAL( "Loading of L1 menu from COOL + DB not implemented");
+      return StatusCode::FAILURE;
+   }
+
+   // auto writeHandle = SG::makeHandle(m_l1MenuKey);
+   // ATH_MSG_INFO("Recording L1 menu with " << m_l1MenuKey);
+   // ATH_CHECK( writeHandle.record( std::unique_ptr<TrigConf::L1Menu>(l1menu) ));
+
+   ServiceHandle<StoreGateSvc> detStore( "StoreGateSvc/DetectorStore", name() );   
+   ATH_CHECK( detStore.retrieve() );
+   if( detStore->record(l1menu,"L1TriggerMenu").isSuccess() ) {
+      ATH_MSG_INFO( "Recorded L1 menu with key 'L1TriggerMenu' in the detector store" );
+   }
+
+   return StatusCode::SUCCESS;
+} 
+
+
+
+StatusCode
 LVL1ConfigSvc::initialize() {
+
+   /// Handle to JobOptionsSvc used to retrieve the DataFlowConfig property
+
+   // ATH_CHECK( m_l1MenuKey.initialize() );
+
+   if( auto joSvc = serviceLocator()->service<TrigConf::IJobOptionsSvc>( "JobOptionsSvc" ) ) {
+      if( joSvc->superMasterKey()>0 ) {
+         m_inputType = "db";
+         m_smk = joSvc->superMasterKey();
+         m_dbConnection = joSvc->server();
+         m_configSourceString = "NONE";
+      }
+   } else {
+      ATH_MSG_INFO("Did not locate TrigConf::JobOptionsSvc, not running athenaHLT");
+   }
+
+   StatusCode sc = writeConfigToDetectorStore();
+   if( !sc.isSuccess() ) {
+          ATH_MSG_INFO( "This previous WARNING message is being ignored in the current transition phase. Once we rely entirely on the new menu providing mechanism, this will become a reason to abort.");
+   }
 
    CHECK(ConfigSvcBase::initialize());
    
@@ -86,7 +160,7 @@ LVL1ConfigSvc::initialize() {
       ATH_MSG_INFO("  DB BunchGroupSetKey  = " << m_bunchgroupSetID);
    }
 
-   CHECK(initStorageMgr());
+   CHECK( initStorageMgr() );
 
    try {
 

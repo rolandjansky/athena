@@ -2,18 +2,14 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGMUONEFCOMBINERHYPO_TRIGMUONEFCOMBINERHYPOTOOL_H 
-#define TRIGMUONEFCOMBINERHYPO_TRIGMUONEFCOMBINERHYPOTOOL_H 1
-#include <string>
-#include "AthenaBaseComps/AthAlgTool.h" 
+#ifndef TRIGMUONHYPOMT_TRIGMUONEFCOMBINERHYPOTOOL_H 
+#define TRIGMUONHYPOMT_TRIGMUONEFCOMBINERHYPOTOOL_H 1
 #include "DecisionHandling/HLTIdentifier.h"
 #include "DecisionHandling/TrigCompositeUtils.h" 
 #include "AthenaMonitoring/GenericMonitoringTool.h"
-#include "TrigSteeringEvent/TrigRoiDescriptor.h" 
 #include "xAODMuon/MuonContainer.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 class StoreGateSvc;
-class TriggerElement;
 class TrigMuonEFCombinerHypoTool: public ::AthAlgTool {
   enum { MaxNumberTools = 20 };  
  public:
@@ -37,12 +33,13 @@ class TrigMuonEFCombinerHypoTool: public ::AthAlgTool {
     const xAOD::Muon* muon;
     const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs;
   };
-  StatusCode initialize() override;    
+  virtual StatusCode initialize() override;    
   StatusCode decide(std::vector<TrigMuonEFCombinerHypoTool::MuonEFInfo>& toolInput) const ;
+ private:
   bool decideOnSingleObject(TrigMuonEFCombinerHypoTool::MuonEFInfo& input, size_t cutIndex) const;
   StatusCode inclusiveSelection(std::vector<TrigMuonEFCombinerHypoTool::MuonEFInfo>& toolInput) const;
   StatusCode multiplicitySelection(std::vector<TrigMuonEFCombinerHypoTool::MuonEFInfo>& toolInput) const;
- private:
+
   HLT::Identifier m_decisionId;
   // Properties:
   Gaudi::Property< std::vector<std::vector<double>> > m_ptBins {

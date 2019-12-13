@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -105,7 +105,7 @@ bool ISF::GenParticleSimWhiteList::pass(const HepMC::GenParticle& particle , std
   // See if the particle is in the white list
   bool passFilter = std::binary_search( m_pdgId.begin() , m_pdgId.end() , particle.pdg_id() ) || MC::PID::isNucleus( particle.pdg_id() );
   // Remove documentation particles
-  passFilter = passFilter && particle.status()!=3;
+  passFilter = passFilter && particle.status()<3;
   // Test all daughter particles
   if (particle.end_vertex() && m_qs && passFilter){
     // Break loops
@@ -121,7 +121,7 @@ bool ISF::GenParticleSimWhiteList::pass(const HepMC::GenParticle& particle , std
       } // Loop over daughters
     } // Break loops
   } // particle had daughters
-  else if (!particle.end_vertex() && !passFilter && particle.status()!=3) { // no daughters... No end vertex... Check if this isn't trouble
+  else if (!particle.end_vertex() && !passFilter && particle.status()<3) { // no daughters... No end vertex... Check if this isn't trouble
     ATH_MSG_ERROR( "Found a particle with no end vertex that does not appear in the white list." );
     ATH_MSG_ERROR( "This is VERY likely pointing to a problem with either the configuration you ");
     ATH_MSG_ERROR( "are using, or a bug in the generator.  Either way it should be fixed.  The");

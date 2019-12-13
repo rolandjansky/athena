@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file AthenaPoolCnvSvc/test/TPCnvList_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -16,6 +14,7 @@
 #include "AthenaPoolCnvSvcTestDict.h"
 #include "GaudiKernel/MsgStream.h"
 #include "TSystem.h"
+#include "TestConverterBase.h"
 #include <iostream>
 #include <typeinfo>
 #include <cassert>
@@ -25,11 +24,16 @@ using namespace AthenaPoolCnvSvcTest;
 
 
 class XCnv_p1
+  : public TestConverterBase
 {
 public:
   typedef X Trans_t;
   typedef X_p1 Pers_t;
   
+  X* createTransientWithKey (const X_p1* pers, const std::string&, MsgStream& log)
+  {
+    return createTransient (pers, log);
+  }
   X* createTransient (const X_p1* pers, MsgStream&)
   { return new X(pers->m_a*2); }
 
@@ -41,11 +45,16 @@ public:
 
 
 class XCnv_p2
+  : public TestConverterBase
 {
 public:
   typedef X Trans_t;
   typedef X_p2 Pers_t;
   
+  X* createTransientWithKey (const X_p2* pers, const std::string&, MsgStream& log)
+  {
+    return createTransient (pers, log);
+  }
   X* createTransient (const X_p2* pers, MsgStream&)
   { return new X(pers->m_a*3); }
 
@@ -88,36 +97,38 @@ void test1()
                               XCnv_p1,
                               T_TPCnvNull<X> > tpcnv;
 
-  X* x = nullptr;
   X x2(0);
 
   TestConverter cnv1 (X_p1_guid);
-  x = tpcnv.createTransient (cnv1, msg);
-  assert (x->m_a == 20);
-  delete x;
+  {
+    std::unique_ptr<X> xptr = tpcnv.createTransient (cnv1, "key", msg);
+    assert (xptr->m_a == 20);
+  }
 
-  assert (tpcnv.persToTrans (cnv1, &x2, msg));
+  assert (tpcnv.persToTrans (cnv1, &x2, "key", msg));
   assert (x2.m_a == 20);
 
   TestConverter cnv2 (X_p2_guid);
-  x = tpcnv.createTransient (cnv2, msg);
-  assert (x->m_a == 30);
-  delete x;
+  {
+    std::unique_ptr<X> xptr = tpcnv.createTransient (cnv2, "key", msg);
+    assert (xptr->m_a == 30);
+  }
 
-  assert (tpcnv.persToTrans (cnv2, &x2, msg));
+  assert (tpcnv.persToTrans (cnv2, &x2, "key", msg));
   assert (x2.m_a == 30);
 
   TestConverter cnv0 (X_guid);
-  x = tpcnv.createTransient (cnv0, msg);
-  assert (x->m_a == 10);
-  delete x;
+  {
+    std::unique_ptr<X> xptr = tpcnv.createTransient (cnv0, "key", msg);
+    assert (xptr->m_a == 10);
+  }
 
-  assert (tpcnv.persToTrans (cnv0, &x2, msg));
+  assert (tpcnv.persToTrans (cnv0, &x2, "key", msg));
   assert (x2.m_a == 10);
 
   TestConverter cnvx ("B3FCEE90-66FC-4AE1-A81B-5257A0306EF8");
-  assert (tpcnv.createTransient (cnvx, msg) == nullptr);
-  assert (!tpcnv.persToTrans (cnvx, &x2, msg));
+  assert (tpcnv.createTransient (cnvx, "key", msg) == nullptr);
+  assert (!tpcnv.persToTrans (cnvx, &x2, "key", msg));
 }
 
 

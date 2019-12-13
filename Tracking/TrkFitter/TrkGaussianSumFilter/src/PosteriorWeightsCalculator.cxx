@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
@@ -11,60 +11,28 @@ email                : Anthony.Morley@cern.ch, Tom.Atkinson@cern.ch
 description          : Implementation code for PosteriorWeightsCalculator class
 *********************************************************************************/
 
-#include "TrkGaussianSumFilter/PosteriorWeightsCalculator.h"
+#include "PosteriorWeightsCalculator.h"
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkParameters/TrackParameters.h"
-#include "TrkToolInterfaces/IUpdator.h"
 
-Trk::PosteriorWeightsCalculator::PosteriorWeightsCalculator(const std::string& type,
-                                                            const std::string& name,
-                                                            const IInterface* parent)
-  : AthAlgTool(type, name, parent)
-  , m_reMatrices(5)
-{
-
-  declareInterface<IPosteriorWeightsCalculator>(this);
-}
-
-StatusCode
-Trk::PosteriorWeightsCalculator::initialize()
-{
-
-  ATH_MSG_INFO("Initialisation of " << name() << " was successful");
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode
-Trk::PosteriorWeightsCalculator::finalize()
-{
-
-  ATH_MSG_INFO("Finalisation of " << name() << " was successful");
-
-  return StatusCode::SUCCESS;
-}
-
-std::unique_ptr<Trk::MultiComponentState>
+std::unique_ptr<std::vector<Trk::ComponentParameters>>
 Trk::PosteriorWeightsCalculator::weights(const MultiComponentState& predictedState,
                                          const MeasurementBase& measurement) const
 {
 
-  ATH_MSG_VERBOSE("Calculating Posterior Weights");
-
-  if (predictedState.empty()) {
-    ATH_MSG_WARNING("Predicted state is empty... Exiting!");
+  const size_t predictedStateSize=predictedState.size();
+  if (predictedStateSize==0) {
     return nullptr;
   }
-
-  ATH_MSG_VERBOSE("State for update is valid!");
-
-  std::unique_ptr<Trk::MultiComponentState> returnMultiComponentState = std::make_unique<Trk::MultiComponentState>();
-
+  auto returnMultiComponentState = std::make_unique<std::vector<Trk::ComponentParameters> >();
   std::vector<double> componentDeterminantR;
   std::vector<double> componentChi2;
-
+  returnMultiComponentState->reserve(predictedStateSize);
+  componentDeterminantR.reserve(predictedStateSize);
+  componentChi2.reserve(predictedStateSize);
+  
   // Calculate chi2 and determinant of each component.
   double minimumChi2(10.e10); // Initalise high
 
@@ -76,18 +44,14 @@ Trk::PosteriorWeightsCalculator::weights(const MultiComponentState& predictedSta
     const Trk::TrackParameters* componentTrackParameters = (*component).first;
 
     if (!componentTrackParameters) {
-      ATH_MSG_DEBUG("Component in the state prepared for update is invalid... Ignoring!");
       continue;
     }
 
     const AmgSymMatrix(5)* predictedCov = componentTrackParameters->covariance();
 
     if (!predictedCov) {
-      ATH_MSG_WARNING("No measurement associated with track parameters... Ignoring!");
       continue;
     }
-
-    ATH_MSG_VERBOSE("Component for update is valid!");
 
     const Trk::LocalParameters& measurementLocalParameters = measurement.localParameters();
     std::pair<double, double> result(0, 0);
@@ -130,18 +94,13 @@ Trk::PosteriorWeightsCalculator::weights(const MultiComponentState& predictedSta
                                     measurement.localCovariance().block<5, 5>(0, 0),
                                     measurementLocalParameters.parameterKey());
     } else {
-      ATH_MSG_ERROR("Dimension error in PosteriorWeightsCalculator::weights.");
       break;
     }
 
     if (result.first == 0) {
-      ATH_MSG_WARNING("Determinant is 0, cannot invert matrix... Ignoring component");
       continue;
     }
     // Compute Chi2
-
-    ATH_MSG_VERBOSE("determinant R / chiSquared: " << result.first << '\t' << result.second);
-
     componentDeterminantR.push_back(result.first);
     componentChi2.push_back(result.second);
 
@@ -151,7 +110,6 @@ Trk::PosteriorWeightsCalculator::weights(const MultiComponentState& predictedSta
   } // end loop over components
 
   if (componentDeterminantR.size() != predictedState.size() || componentChi2.size() != predictedState.size()) {
-    ATH_MSG_WARNING("Inconsistent number of components in chi2 and detR vectors... Exiting!");
     returnMultiComponentState.reset();
     return nullptr;
   }
@@ -178,14 +136,11 @@ Trk::PosteriorWeightsCalculator::weights(const MultiComponentState& predictedSta
     else
       updatedWeight = 1e-10;
 
-    ATH_MSG_VERBOSE(" Prior Weight: " << priorWeight << "  Updated Weight:  " << updatedWeight);
-    Trk::ComponentParameters componentWithNewWeight(component->first->clone(), updatedWeight);
-    returnMultiComponentState->push_back(componentWithNewWeight);
+    returnMultiComponentState->emplace_back(component->first, updatedWeight);
     sumWeights += updatedWeight;
   }
 
   if (returnMultiComponentState->size() != predictedState.size()) {
-    ATH_MSG_WARNING("Inconsistent number of components between initial and final states... Exiting!");
     returnMultiComponentState.reset();
     return nullptr;
   }
@@ -194,13 +149,17 @@ Trk::PosteriorWeightsCalculator::weights(const MultiComponentState& predictedSta
   Trk::MultiComponentState::iterator returnComponent = returnMultiComponentState->begin();
   component = predictedState.begin();
 
-  for (; returnComponent != returnMultiComponentState->end(); ++returnComponent, ++component) {
-    if (sumWeights > 0.) {
+  if (sumWeights > 0.) {
+    for (; returnComponent != returnMultiComponentState->end(); ++returnComponent, ++component) {
       (*returnComponent).second /= sumWeights;
-    } else {
+    }
+  }
+  else {
+    for (; returnComponent != returnMultiComponentState->end(); ++returnComponent, ++component) {
       (*returnComponent).second = component->second;
     }
   }
+
 
   return returnMultiComponentState;
 }
@@ -212,7 +171,6 @@ Trk::PosteriorWeightsCalculator::calculateWeight_1D(const TrackParameters* compo
                                                     const double measCov,
                                                     int paramKey) const
 {
-  std::pair<double, double> result(0, 0);
   // use measuring coordinate (variable "mk") instead of reduction matrix
   int mk = 0;
   if (paramKey != 1)
@@ -222,26 +180,18 @@ Trk::PosteriorWeightsCalculator::calculateWeight_1D(const TrackParameters* compo
         break;
       }
 
-  // Extract predicted state track parameters
-  const AmgVector(5)& trackParameters = componentTrackParameters->parameters();
-
   // Calculate the residual
-  double r = measPar - trackParameters(mk);
+  const double r = measPar - (componentTrackParameters->parameters())(mk);
 
-  // Residual covariance. Posterior weights is calculated used predicted state and measurement. Therefore add
-  // covariances
-  double R = measCov + (*predictedCov)(mk, mk);
+  // Residual covariance. Posterior weights is calculated used predicted state and measurement. 
+  // Therefore add covariances
+  const double R = measCov + (*predictedCov)(mk, mk);
 
-  // compute determinant of residual
-  result.first = R;
-
-  if (result.first == 0) {
-    // ATH_MSG_WARNING( "Determinant is 0, cannot invert matrix... Ignoring component" );
-    return result;
+  if (R == 0) {
+    return std::pair<double,double>(0,0);
   }
   // Compute Chi2
-  result.second = r * r / R;
-  return result;
+  return std::pair<double,double>(R,r * r / R);
 }
 
 std::pair<double, double>
@@ -250,25 +200,17 @@ Trk::PosteriorWeightsCalculator::calculateWeight_2D_3(const TrackParameters* com
                                                       const AmgVector(2) & measPar,
                                                       const AmgSymMatrix(2) & measCov) const
 {
-  std::pair<double, double> result(0, 0);
-  // Extract predicted state track parameters
-  const AmgVector(5)& trackParameters = componentTrackParameters->parameters();
-
   // Calculate the residual
-  AmgVector(2) r = measPar - trackParameters.block<2, 1>(0, 0);
-
+  AmgVector(2) r = measPar - componentTrackParameters->parameters().block<2, 1>(0, 0);
   // Residual covariance. Posterior weights is calculated used predicted state and measurement. Therefore add
   // covariances
   AmgSymMatrix(2) R(measCov + predictedCov->block<2, 2>(0, 0));
-
   // compute determinant of residual
-  result.first = R.determinant();
-
-  if (result.first == 0) {
+  const double det = R.determinant(); 
+  if (det== 0) {
     // ATH_MSG_WARNING( "Determinant is 0, cannot invert matrix... Ignoring component" );
-    return result;
+    return std::pair<double,double>(0,0);
   }
   // Compute Chi2
-  result.second = 0.5 * ((r.transpose() * R.inverse() * r)(0, 0));
-  return result;
+  return std::pair<double,double> (det,0.5 * ((r.transpose() * R.inverse() * r)(0, 0)));
 }

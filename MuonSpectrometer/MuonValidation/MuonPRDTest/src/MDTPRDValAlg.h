@@ -15,6 +15,8 @@
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "TrkParameters/TrackParameters.h"
 
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 #include <sstream>   
 #include <string>
 #include <vector>
@@ -26,7 +28,6 @@ class MuonSimData;
 class Identifier;
 class TTree;
 class TFile;
-class MdtIdHelper;
 class ITHistSvc;
 class MsgStream;
 
@@ -124,7 +125,6 @@ class MDTPRDValAlg: public AthAlgorithm {
   /**MDT barrel eta cut, applicable to the MDT 2D cross section plot */
   double m_BarrelEtaCut;
 
-  bool m_histo_flag;
   std::string m_chamberName;
   std::string m_StationSize;
   int m_StationEta;
@@ -132,12 +132,11 @@ class MDTPRDValAlg: public AthAlgorithm {
   int m_LastEvent;
 
   /**Pointer On MuonDetectorManager */
-  const MuonGM::MdtReadoutElement* m_descriptor;
   const MuonGM::MuonDetectorManager* m_pMuonMgr;
 
-  /**Pointers On Helpers */
-  const MdtIdHelper*  m_mdtIdHelper;
-  
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+
   MsgStream*          m_log;
   bool                m_debug;
   bool                m_verbose;

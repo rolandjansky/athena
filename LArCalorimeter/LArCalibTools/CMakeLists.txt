@@ -17,8 +17,8 @@ atlas_depends_on_subdirs( PUBLIC
                           LArCalorimeter/LArRawConditions
                           LArCalorimeter/LArRecConditions
                           LArCalorimeter/LArRawEvent
-                          Trigger/TrigAnalysis/TrigDecisionTool
                           LumiBlock/LumiBlockComps
+                          Trigger/TrigAnalysis/TrigDecisionTool
                           PRIVATE
                           Calorimeter/CaloCondBlobObjs
                           Control/AthenaKernel
@@ -39,8 +39,8 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minui
 atlas_add_component( LArCalibTools
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} CaloIdentifier AthenaBaseComps StoreGateLib SGtests GaudiKernel LArCablingLib LArIdentifier LArRawConditions LArRecConditions CaloCondBlobObjs AthenaKernel AthenaPoolUtilities EventInfo LArCOOLConditions LArRawEvent LArToolsLib TrigDecisionToolLib LumiBlockCompsLib LumiBlockData )
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} 
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} CaloIdentifier AthenaBaseComps StoreGateLib SGtests GaudiKernel LArCablingLib LArIdentifier LArRawConditions LArRecConditions CaloCondBlobObjs AthenaKernel AthenaPoolUtilities EventInfo LArCOOLConditions LArRawEvent LArToolsLib TrigDecisionToolLib LumiBlockCompsLib )
 
 # Install files from the package:
 atlas_install_headers( LArCalibTools )

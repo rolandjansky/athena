@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RECVERTEX_P2_H
@@ -20,7 +20,7 @@ namespace Trk
      
 //Vertex  
     // TPObjRef vtx;// need to move to this! spare 3 baskets per collection  
-    float  m_position[3];
+    float  m_position[3] = {0, 0, 0};
     
 //Error matrix    
     TPObjRef m_positionError;

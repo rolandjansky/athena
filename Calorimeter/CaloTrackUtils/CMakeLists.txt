@@ -13,7 +13,6 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/GeoPrimitives
                           Event/xAOD/xAODCaloEvent
                           Reconstruction/Particle
-                          TestPolicy
                           Tracking/TrkDetDescr/TrkSurfaces
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkEvent/TrkParticleBase

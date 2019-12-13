@@ -15,44 +15,25 @@
 // ********************************************************************
 //
 
-#include "./IGroupsMatcherMT.h"
+#include "./FlowNetworkMatcherBase.h"
 #include "./ConditionsDefsMT.h"
-#include "./IFlowNetworkBuilder.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJet.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/FlowEdge.h"
-#include <optional>
-
-class ITrigJetHypoInfoCollector;
-class xAODJetCollector;
 
 class MaximumBipartiteGroupsMatcherMT:
-virtual public IGroupsMatcherMT {
-
-  /* Used to find jets pass multithreshold,
-     possibly overlapping eta regions
-     where any particular jet can be assigned to at most
-     one threshold. Uses the Ford Fulkerson Alg.
-     See Algorithms, Sedgewick and Wayne 4th edition */
-
-public:
+public virtual IGroupsMatcherMT, private FlowNetworkMatcherBase {
+  
+  /* An initialiser for FlowNetwork base */
+  
+ public:
   MaximumBipartiteGroupsMatcherMT(ConditionsMT&& cs);
-  ~MaximumBipartiteGroupsMatcherMT(){}
-
-  // cannot match if internal problem (eg FlowNetwork error)
-  std::optional<bool> match(const HypoJetGroupCIter&,
-			    const HypoJetGroupCIter&,
-			    xAODJetCollector&,
-			    const std::unique_ptr<ITrigJetHypoInfoCollector>&,
-			    bool debug=false) const override;
-  std::string toString() const override;
-
-private:
-  ConditionsMT m_conditions;
-  std::size_t m_nConditions{0};
-    
-  std::unique_ptr<IFlowNetworkBuilder> m_flowNetworkBuilder;
-  double m_totalCapacity{0};  // min number of jets to satisfy  all Conditions
+  virtual std::string toString() const override;
+ private:
+ 
+  virtual void
+    reportPassingJets(const std::map<int, pHypoJet>& nodeToJet,
+		      const std::unique_ptr<FlowNetwork>& G,
+		      const std::unique_ptr<ITrigJetHypoInfoCollector>&,
+		      xAODJetCollector&
+		      ) const override;
 };
 
 #endif

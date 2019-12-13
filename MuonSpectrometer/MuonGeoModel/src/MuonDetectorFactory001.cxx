@@ -1,10 +1,8 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
-#include "GaudiKernel/MsgStream.h"
-#include "AthenaKernel/getMessageSvc.h"
 #include "MuonGeoModel/MuonDetectorFactory001.h"
 
 #include "RDBAccessSvc/IRDBAccessSvc.h"
@@ -24,13 +22,6 @@
 #include "MuonReadoutGeometry/MuonStation.h"
 
 #include "IdDictDetDescr/IdDictManager.h" 
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
-#include "MuonIdHelpers/CscIdHelper.h"
-// for nSW
-#include "MuonIdHelpers/sTgcIdHelper.h"
-#include "MuonIdHelpers/MmIdHelper.h"
 
 #include "GeoModelKernel/GeoBox.h"
 #include "GeoModelKernel/GeoTube.h"
@@ -57,6 +48,8 @@
 
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/SystemOfUnits.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 #include "GeoGenericFunctions/Variable.h"
 
@@ -90,10 +83,9 @@ namespace MuonGM {
     : m_includeCutouts(0), m_includeCutoutsBog(0), m_includeCtbBis(0), m_rdb(1), m_controlAlines(0),
       m_minimalGeoFlag(0), m_controlCscIntAlines(0), m_dumpAlines(false), m_dumpCscIntAlines(false),
       m_useCscIntAlinesFromGM(true), m_caching(0), m_cacheFillingFlag(0), m_mdtDeformationFlag(0),
-      m_mdtAsBuiltParaFlag(0), m_dumpMemoryBreakDown(false), m_useCSC(true), m_muon(NULL), m_manager(NULL),
+      m_mdtAsBuiltParaFlag(0), m_dumpMemoryBreakDown(false), m_hasCSC(true), m_hasSTgc(true), m_hasMM(true), m_muon(NULL), m_manager(NULL),
       m_pDetStore(pDetStore), m_pRDBAccess(0)
   {
-    MsgStream log(Athena::getMessageSvc(), "MuonGeoModel");
     m_muon = new MuonSystemDescription( "MuonSystem" );
     m_muon->barrelInnerRadius =  4.30*Gaudi::Units::m;
     m_muon->innerRadius       =  0.07*Gaudi::Units::m;
@@ -111,9 +103,9 @@ namespace MuonGM {
 
     m_enableFineClashFixing = 0;
   
-    log<<MSG::INFO<<"MuonDetectorFactory - constructor "<<" MuonSystem OuterRadius "<< m_muon->outerRadius
+    MsgStream log(Athena::getMessageSvc(),"MuonGeoModel");
+    log << MSG::INFO << "MuonDetectorFactory - constructor "<<" MuonSystem OuterRadius "<< m_muon->outerRadius
        <<" Length "<< m_muon->length <<endmsg;
-    //std::cerr<<"MuonDetectorFactory - constructor/// size of vectors "<<m_selectedStations.size()<<" "<<m_selectedStEta.size()<<" "<<m_selectedStPhi.size()<<std::endl;
   }
 
   MuonDetectorFactory001::~MuonDetectorFactory001() 
@@ -128,7 +120,7 @@ namespace MuonGM {
 
   void MuonDetectorFactory001::create( GeoPhysVol* world )
   {
-    MsgStream log(Athena::getMessageSvc(), "MuGM:MuonFactory");
+    MsgStream log(Athena::getMessageSvc(),"MuGM:MuonFactory");
 
     int mem  = 0;
     float cpu  = 0;
@@ -185,149 +177,52 @@ namespace MuonGM {
        <<m_manager->geometryVersion()<<" from DB MuonVersion <"<<m_manager->get_DBMuonVersion()<<">"<<endmsg;
   
     // here create the MYSQL singleton and assign to it the geometry version
-    MYSQL *mysql=  MYSQL::GetPointer();	
+    MYSQL *mysql=  MYSQL::GetPointer();
     mysql->setGeometryVersion(m_layout);
     mysql->set_amdb_from_RDB(m_rdb == 1);
     mysql->set_DBMuonVersion(m_DBMuonVersion);
     log<<MSG::INFO<<"Mysql helper class created here for geometry version "
        <<mysql->getGeometryVersion()<<" from DB MuonVersion <"<<mysql->get_DBMuonVersion()<<">"<<endmsg;
-        
-  
+
     StatusCode sc =StatusCode::SUCCESS;
 
-    //     if (m_idhfromconverters != 0)
-    //     {
-
-    const MdtIdHelper*  mdtidh = nullptr;
+    const DataHandle<MdtIdHelper> mdtidh;
     sc = m_pDetStore->retrieve(mdtidh,"MDTIDHELPER");
     if (sc.isFailure())log<<MSG::ERROR<<" not found MDT "<<endmsg;
     else log<<MSG::INFO<<"MDTIDHELPER retrieved from DetStore"<<endmsg;
     m_manager->set_mdtIdHelper(mdtidh);
-    const RpcIdHelper* rpcidh = nullptr;
+    const DataHandle<RpcIdHelper> rpcidh;
     sc = m_pDetStore->retrieve(rpcidh,"RPCIDHELPER");
     if (sc.isFailure() )log<<MSG::ERROR<<" not found RPC "<<endmsg;
     else log<<MSG::INFO<<"RPCIDHELPER retrieved from DetStore"<<endmsg;
     m_manager->set_rpcIdHelper(rpcidh);
-    const TgcIdHelper* tgcidh = nullptr;
+    const DataHandle<TgcIdHelper> tgcidh;
     sc = m_pDetStore->retrieve(tgcidh,"TGCIDHELPER");
     if (sc.isFailure() )log<<MSG::ERROR<<" not found TGC "<<endmsg;
     else log<<MSG::INFO<<"TGCIDHELPER retrieved from DetStore"<<endmsg;
     m_manager->set_tgcIdHelper(tgcidh);
-    if (m_useCSC) {
+    if (m_hasCSC) {
         const DataHandle<CscIdHelper> cscidh;
         sc = m_pDetStore->retrieve(cscidh,"CSCIDHELPER");
         if (sc.isFailure() )log<<MSG::ERROR<<" not found CSC "<<endmsg;
         else log<<MSG::INFO<<"CSCIDHELPER retrieved from DetStore"<<endmsg;
         m_manager->set_cscIdHelper(cscidh);
     }
+    if (m_hasSTgc) {
+        const DataHandle<sTgcIdHelper> stgcidh;
+        sc = m_pDetStore->retrieve(stgcidh,"STGCIDHELPER");
+        if (sc.isFailure() )log<<MSG::ERROR<<" not found sTGC "<<endmsg;
+        else log<<MSG::INFO<<"STGCIDHELPER retrieved from DetStore"<<endmsg;
+        m_manager->set_stgcIdHelper(stgcidh);
+    }
+    if (m_hasMM) {
+        const DataHandle<MmIdHelper> mmidh;
+        sc = m_pDetStore->retrieve(mmidh,"MMIDHELPER");
+        if (sc.isFailure() )log<<MSG::ERROR<<" not found MicroMegas "<<endmsg;
+        else log<<MSG::INFO<<"MMIDHELPER retrieved from DetStore"<<endmsg;
+        m_manager->set_mmIdHelper(mmidh);
+    }
 
-    //for nSW
-    const sTgcIdHelper* stgcidh = nullptr;
-    sc = m_pDetStore->retrieve(stgcidh,"STGCIDHELPER");
-    if (sc.isFailure() )log<<MSG::ERROR<<" not found sTGC "<<endmsg;
-    else log<<MSG::INFO<<"STGCIDHELPER retrieved from DetStore"<<endmsg;
-    m_manager->set_stgcIdHelper(stgcidh);
-
-    const MmIdHelper* mmidh = nullptr;
-    sc = m_pDetStore->retrieve(mmidh,"MMIDHELPER");
-    if (sc.isFailure() )log<<MSG::ERROR<<" not found MicroMegas "<<endmsg;
-    else log<<MSG::INFO<<"MMIDHELPER retrieved from DetStore"<<endmsg;
-    m_manager->set_mmIdHelper(mmidh);
-
-
-
-    //     }
-    //     else 
-    //     {
-
-    // // hand-made IdHelper Initialization 
-    // // MdtIdHelper
-    // bool mdtidhInitialized=false;
-    // MdtIdHelper *mdtidh = new MdtIdHelper;
-    // const IdDictManager * idDictMgr = 0; 
-    // sc = m_pDetStore->retrieve(idDictMgr, "IdDict");
-    // if (sc.isFailure()) {
-    //   log<<MSG::ERROR << " Could not get IdDictManager !" << endmsg;
-    //   throw std::runtime_error("Error in MuonDetectorFactory, could not get IdDictManager");
-    // }
-    
-    
-    // //  if (StatusCode::SUCCESS == sc) {
-    // if (idDictMgr) {
-    //   if (!idDictMgr->initializeHelper(*mdtidh)) { // Returns 1 if there is a problem
-    //     mdtidhInitialized=true;
-    //     log<<MSG::INFO << " MdtIdHelper has been initialised! "
-    //        << endmsg;
-    //   }
-    //   else 
-    //   {
-    //     log<<MSG::WARNING<<" IdDictManager found BUT initializeHelper ="
-    //        <<idDictMgr->initializeHelper(*mdtidh)<<endmsg;
-    //   }
-    // }
-    // else log<<MSG::WARNING<<" IdDictManager not found in the Detector Store"<<endmsg;
-    // //  }
-    // //  else log<<MSG::ERROR<<" FAILURE:: IdDictManager not found in the Detector Store"
-    // //<<endmsg;
-    // if (!mdtidhInitialized) {
-    //   log<<MSG::ERROR << " Cannot initialize MdtIdHelper ! "
-    //      << endmsg;
-    //   delete mdtidh;
-    //   mdtidh=NULL;
-    //   throw std::runtime_error("Error in MuonDetectorFactory, cannot initialize MdtIdHelper");
-    // }
-    // m_manager->set_mdtIdHelper(mdtidh);
-    
-    // // CscIdHelper
-    // bool cscidhInitialized=false;
-    // CscIdHelper *cscidh = new CscIdHelper;
-    // if (!idDictMgr->initializeHelper(*cscidh)) { // Returns 1 if there is a problem
-    //   cscidhInitialized=true;
-    //   log<<MSG::INFO << " CscIdHelper has been initialised! "
-    //      << endmsg;
-    // }
-    // if (!cscidhInitialized) {
-    //   log<<MSG::ERROR << " Cannot initialize CscIdHelper ! " << endmsg;
-    //   delete cscidh;
-    //   cscidh=NULL;
-    //   throw std::runtime_error("Error in MuonDetectorFactory, cannot initialize CscIdHelper");
-    //   return;
-    // }  
-    // m_manager->set_cscIdHelper(cscidh);
-  
-    // // RpcIdHelper
-    // bool rpcidhInitialized=false;
-    // RpcIdHelper *rpcidh = new RpcIdHelper;
-    // if (!idDictMgr->initializeHelper(*rpcidh)) { // Returns 1 if there is a problem
-    //   rpcidhInitialized=true;
-    //   log<<MSG::INFO << " RpcIdHelper has been initialised! " << endmsg;
-    // }
-    // if (!rpcidhInitialized) {
-    //   log<<MSG::ERROR << " Cannot initialize RpcIdHelper ! " << endmsg;
-    //   delete rpcidh;
-    //   rpcidh=NULL;
-    //   throw std::runtime_error("Error in MuonDetectorFactory, cannot initialize RpcIdHelper");
-    //   return;
-    // }  
-    // m_manager->set_rpcIdHelper(rpcidh);
-
-    // // TgcIdHelper
-    // bool tgcidhInitialized=false;
-    // TgcIdHelper *tgcidh = new TgcIdHelper;
-    // if (!idDictMgr->initializeHelper(*tgcidh)) { // Returns 1 if there is a problem
-    //   tgcidhInitialized=true;
-    //   log<<MSG::INFO << " TgcIdHelper has been initialised! " << endmsg;
-    // }
-    // if (!tgcidhInitialized) {
-    //   log<<MSG::ERROR << " Cannot initialize TgcIdHelper ! " << endmsg;
-    //   delete tgcidh;
-    //   tgcidh=NULL;
-    //   throw std::runtime_error("Error in MuonDetectorFactory, cannot initialize TgcIdHelper");
-    //   return;
-    // }  
-    // m_manager->set_tgcIdHelper(tgcidh);
-    // //}
-  
 
     if (m_dumpMemoryBreakDown)
       {
@@ -568,9 +463,8 @@ namespace MuonGM {
     
 
     // create the fullphysvol map to allow cloning and save memory
-    FPVMAP* savemem = FPVMAP::GetPointer();
-  
-  
+    FPVMAP* savemem = new FPVMAP();
+
     int nstat_ss = 0;
     int ntpos_ss = 0;
     int npos_ss = 0;
@@ -593,7 +487,7 @@ namespace MuonGM {
         std::string stname(station->GetName(), 0, 3);
         if (m_selectedStations.size()<=0) 
 	  if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE<<"Processing Stations named <"<<station->GetName()<<"> "
-					    <<nstat_ss<<" built until now"<<endmsg;
+	   				    <<nstat_ss<<" built until now"<<endmsg;
 
 	if ((skip_chambers) && (stname.substr(0,1)!="X")) continue;
 
@@ -602,6 +496,7 @@ namespace MuonGM {
 	// BIR have multilayers of diff. length and overall station volume clashes with toroids    
 	if (stname=="BIR") isAssembly = true;
 	MuonChamber l(station);  // here is where we start to create a MuonChamber with all readoutelements
+	l.setFPVMAP(savemem);
         l.setFineClashFixingFlag(m_enableFineClashFixing);
 
         PositionIterator pit;
@@ -651,12 +546,10 @@ namespace MuonGM {
             
             if ((m_selectedStPhi.size() + m_selectedStEta.size()) >0)
 	      log<<MSG::INFO<<"Build selected Station <"<<station->GetName()<<"> at Jzz = "<<zi<<" Jff = "<<fi+1<<" ******* "
-		 <<nstat_ss<<" stat.types built until now"<<endmsg;
-            
+	       	 <<nstat_ss<<" stat.types built until now"<<endmsg;
 
             // here define GeoNameTag 
             GeoNameTag   *nm = new GeoNameTag( station->GetName() + "_station" );
-
             // here build the physical volume (tree) associated to the chamber 
             bool is_mirrored =  ((*pit).second).isMirrored;
             int mirsign = 0;
@@ -887,8 +780,6 @@ namespace MuonGM {
       }
     
 
-
-    
     // delete the fullphysvol map
     delete savemem;
     savemem = NULL;

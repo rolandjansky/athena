@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 //  AlgFactory.cxx
 //  L1TopoCoreSimulation
@@ -8,8 +8,6 @@
 #include "L1TopoInterfaces/AlgFactory.h"
 #include "L1TopoInterfaces/ConfigurableAlg.h"
 #include "L1TopoCommon/Exception.h"
-
-#include "boost/foreach.hpp"
 
 using namespace std;
 
@@ -103,7 +101,7 @@ TCS::AlgFactory::algorithm(const std::string & algName) {
 
 void
 TCS::AlgFactory::PrintAlgorithmNames() {
-   BOOST_FOREACH(AlgMap_t::value_type entry, instance().m_algs) {
+   for(AlgMap_t::value_type entry : instance().m_algs) {
       cout << entry.first << " --> " << entry.second->fullname() << endl;
    }
 }

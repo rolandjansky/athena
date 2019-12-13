@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -216,7 +216,7 @@ TClass* objectIsA (PyObject* obj)
 {
   PyObject* repr = PyObject_Repr (obj);
   if (!repr) return nullptr;
-  const char* s = PyString_AsString (repr);
+  const char* s = PyROOT_PyUnicode_AsString (repr);
   if (*s == '<') ++s;
   if (strncmp (s, "ROOT.", 5) == 0)
     s += 5;

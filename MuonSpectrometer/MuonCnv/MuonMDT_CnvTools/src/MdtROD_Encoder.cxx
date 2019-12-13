@@ -24,7 +24,7 @@
 /** constructor 
 */ 
 
-MdtROD_Encoder::MdtROD_Encoder() : m_mdtIdHelper(0), m_mdm(0), m_BMGid(-1)
+MdtROD_Encoder::MdtROD_Encoder() : m_mdm(0), m_BMGid(-1)
 {
   StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
   if(detStore->retrieve(m_mdm,"Muon").isSuccess())

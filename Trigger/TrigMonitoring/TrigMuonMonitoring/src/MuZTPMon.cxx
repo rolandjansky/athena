@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**    @Afile MuZTPMon.cxx
@@ -20,15 +20,6 @@
 #include "TrigMuonEvent/IsoMuonFeature.h"
 #include "TrigMuonEvent/CombinedMuonFeatureContainer.h"
 
-// #include "TrigMuonEvent/IsoMuonFeatureContainer.h"
-// #include "TrigMuonEvent/TrigMuonEFIsolation.h"
-#include "TrigMuonEvent/TrigMuonEFIsolationContainer.h"
-// #include "TrigMuonEvent/TrigMuonEFInfoContainer.h"
-// #include "TrigMuonEvent/TrigMuonEFInfoTrackContainer.h"
-// #include "TrigMuonEvent/TrigMuonEF.h"
-// #include "TrigMuonEvent/TrigMuonEFInfo.h"
-// #include "TrigMuonEvent/TrigMuonEFTrack.h"
-// #include "TrigMuonEvent/TrigMuonEFCbTrack.h"
 #include "TrigSteeringEvent/TrigPassBits.h"
 
 #include "xAODMuon/MuonContainer.h"
@@ -46,9 +37,6 @@
 #include "AnalysisTriggerEvent/LVL1_ROI.h"
 #include "AnalysisTriggerEvent/Muon_ROI.h"
 
-// #include "muonEvent/Muon.h"
-// #include "muonEvent/MuonContainer.h"
-
 #include "TROOT.h"
 #include "TH1I.h"
 #include "TH1F.h"
@@ -61,6 +49,8 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
+
+#include <boost/algorithm/string.hpp> 
 
 #include "TrigMuonMonitoring/HLTMuonMonTool.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -305,33 +295,36 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
     for(std::map<std::string, std::string>::iterator itmap=m_ztpmap.begin();itmap!=m_ztpmap.end();++itmap){
       string chainname;
       chainname += itmap->first;
-      const TrigConf::HLTChain* chain = getTDT()->ExperimentalAndExpertMethods()->getChainConfigurationDetails(chainname);
+      if (getTDT()->getNavigationFormat() == "TriggerElement") {
+        // code for legacy run-2
+        const TrigConf::HLTChain* chain = getTDT()->ExperimentalAndExpertMethods()->getChainConfigurationDetails(chainname);
       
-      if(chain) {
-	
-	//	ATH_MSG_DEBUG( chainname << ", L2 chain = " << chain->lower_chain_name() );
-	//	m_ztp_l2map[itmap->first] = chain->lower_chain_name();
+        if(chain) {
+          
+          ATH_MSG_DEBUG( "L1 seed = " << chain->lower_chain_name() );
+          newmap[itmap->first] = chain->lower_chain_name();
+          
+          
+        } else {
+          msg(MSG::INFO) << "Could not get TrigConf::HLTChain for " << chainname << ", won't process this event" << endmsg;
+          return StatusCode::SUCCESS;
+        }
+      }// run 2 code
+      else {
+        // run 3 case, we can just read the L1 seed from the end of the chain name
+        vector<string> chainbits, chainbits2;
+        boost::split(chainbits, chainname, boost::is_any_of("_"));
+        boost::split(chainbits2, chainbits.back(),  boost::is_any_of("L1"));
+        newmap[itmap->first] = std::string("L1_") + chainbits2.back() ;
+        ATH_MSG_DEBUG( chainbits.back() << " " << " L1 seed = " << newmap[itmap->first] );
 
-	// const TrigConf::HLTChain* l2chain = getTDT()->ExperimentalAndExpertMethods()->getChainConfigurationDetails(chain->lower_chain_name());
-	// if(l2chain) {
 
-	ATH_MSG_DEBUG( "L1 seed = " << chain->lower_chain_name() );
-	// newmap[itmap->first] = l2chain->lower_chain_name();
-	newmap[itmap->first] = chain->lower_chain_name();
-
-	//	} else {
-	//	  msg(MSG::INFO) << "Could not get TrigConf::HLTChain for " << chain->lower_chain_name() << ", won't process this event" << endmsg;
-	//	  return StatusCode::SUCCESS;
-	//      }
-
-      } else {
-	msg(MSG::INFO) << "Could not get TrigConf::HLTChain for " << chainname << ", won't process this event" << endmsg;
-	return StatusCode::SUCCESS;
-      }
-    }
+      }// run 3 code
+    }// trigger chain loop
     // copy new map to the private one
     m_ztp_l1map = newmap;
     m_ztp_newrun = false;
+   
   }
 
   //LOOP OVER ALL TRIGGER CHAINS
@@ -355,10 +348,9 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
     //    std::string L2_chainName = m_ztp_l2map[itmap->first];
 
     //CHECK IF TRIGGER HAS FIRED EVENT TO START
-    bool isTriggered_L1 = false;
-    const Trig::ChainGroup* ChainGroupL1 = getTDT()->getChainGroup(m_ztp_l1map[itmap->first]);
-    isTriggered_L1 = ChainGroupL1->isPassed();
-    //ATH_MSG_WARNING("check if Fired L1 trigger or not: "<<isTriggered_L1); // attention
+    const Trig::ChainGroup* ChainGroupEF = getTDT()->getChainGroup(itmap->first);
+    const bool isTriggered_L1 = (ChainGroupEF->isPassedBits() & TrigDefs::L1_isPassedAfterVeto);
+    ATH_MSG_DEBUG("check if Fired L1 trigger " << m_ztp_l1map[itmap->first] << " or not: "<<isTriggered_L1); // attention
     //if (isTriggered_L1 == false){
     //  return StatusCode::SUCCESS;
     //} 
@@ -370,31 +362,11 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
     // const Trig::ChainGroup* ChainGroupL2 = getTDT()->getChainGroup(L2_chainName);
     // isTriggered_L2 = ChainGroupL2->isPassed();
     
-    bool isTriggered_EF = false;
-    const Trig::ChainGroup* ChainGroupEF = getTDT()->getChainGroup(itmap->first);
-    isTriggered_EF = ChainGroupEF->isPassed();
-
+    const bool isTriggered_EF = ChainGroupEF->isPassed();
+    ATH_MSG_DEBUG("EF passed = " << isTriggered_EF);
     
 
     ///////////////////////////////////// get ONLINE Objects //////////////////////////////////////////
-
-    Trig::FeatureContainer fL1 = getTDT()->features(m_ztp_l1map[itmap->first]);
-    Trig::FeatureContainer fHLT = getTDT()->features(itmap->first,TrigDefs::alsoDeactivateTEs);
-    
-    std::vector<Trig::Combination>::const_iterator jL2;    
-    std::vector<Trig::Combination>::const_iterator jEF;    
-        
-    //    int iroiL1=1;
-    int iroiL2=1;
-    int iroiEF=1;
-
-    std::vector<float> EFIsopt, EFIsoeta, EFIsophi;
-    std::vector<float> EFCbpt, EFCbeta, EFCbphi;
-    std::vector<float> EFExpt, EFExeta, EFExphi;
-    std::vector<float> L2Cbpt, L2Cbeta, L2Cbphi;
-    //    std::vector<float> L2Isopt, L2Isoeta, L2Isophi;
-    std::vector<float> L2Expt, L2Exeta, L2Exphi;
-    std::vector<float> L1pt, L1eta, L1phi;
 
     /////// L1 /////////////
 
@@ -402,6 +374,7 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
     // YY moved to xAOD 2 Oct 2014
     // const LVL1_ROI* lvl1Roi;
     // StatusCode sc = evtStore()->retrieve(lvl1Roi,"LVL1_ROI");
+    std::vector<float> L1pt, L1eta, L1phi;
     const xAOD::MuonRoIContainer* lvl1Roi;
     std::string muonKeyL1 = "LVL1MuonRoIs"; // MuidMuonCollection
 
@@ -415,6 +388,7 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
 	xAOD::MuonRoIContainer::const_iterator it = lvl1Roi->begin(); 
 	xAOD::MuonRoIContainer::const_iterator it_end = lvl1Roi->end(); 
 	for ( ; it != it_end ; ++it ) {
+          ATH_MSG_DEBUG("L1 ROI pT = " << (*it)->thrValue() << " " << (*it)->thrName());
 	  if(!m_HI_pp_mode){
 	    if (
 		("L1_MU0"==m_ztp_l1map[itmap->first] && ((*it)->thrName() == "MU0" || (*it)->thrName() == "MU4" || (*it)->thrName() == "MU6"|| (*it)->thrName() == "MU10"|| (*it)->thrName() == "MU11"|| (*it)->thrName() == "MU15"|| (*it)->thrName() == "MU20")) ||
@@ -426,7 +400,7 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
 	      L1pt.push_back((*it)->thrValue());
 	      L1eta.push_back((*it)->eta());
 	      L1phi.push_back((*it)->phi());
-	    }
+	    } 
 	  }else{
 
 	    if (
@@ -443,15 +417,26 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
 	}
       }
     }
-    // end the code add by Yuan
+    // end the code add by Yuan       
+
+    std::vector<float> EFIsopt, EFIsoeta, EFIsophi;
+    std::vector<float> EFCbpt, EFCbeta, EFCbphi;
+    std::vector<float> EFExpt, EFExeta, EFExphi;
+    std::vector<float> L2Cbpt, L2Cbeta, L2Cbphi;
+    std::vector<float> L2Expt, L2Exeta, L2Exphi;
+
 
     // 2 Oct 2014 YY: not simple to find an active TE? think about it
     bool L2CBActive = false;
     bool L2SAActive = false;
-    
+
+    if (getTDT()->getNavigationFormat() == "TriggerElement") { // run 2 access
+
+    Trig::FeatureContainer fHLT = getTDT()->features(itmap->first,TrigDefs::alsoDeactivateTEs);
+
     /////// L2 /////////////
     // 2 Oct 2014 - YY: getting CombinedMuonFeature from HLT combinations
-    for (jL2 = fHLT.getCombinations().begin(); jL2 != fHLT.getCombinations().end(); ++jL2, ++iroiL2) {
+    for (std::vector<Trig::Combination>::const_iterator jL2 = fHLT.getCombinations().begin(); jL2 != fHLT.getCombinations().end(); ++jL2) {
       if (!isMSonlychain) {
 	//muComb
 	//	if(!ismuIsochain)
@@ -510,7 +495,7 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
     ATH_MSG_DEBUG("Starting to extract EF objects, N(EF) Combinations = " << fHLT.getCombinations().size());
 
     /////// EF /////////////
-    for (jEF=fHLT.getCombinations().begin() ; jEF!=fHLT.getCombinations().end() ; ++jEF, ++iroiEF){
+    for (std::vector<Trig::Combination>::const_iterator jEF=fHLT.getCombinations().begin() ; jEF!=fHLT.getCombinations().end() ; ++jEF){
 
 
       // make sure this ROI triggered the event
@@ -586,7 +571,81 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
 	} // ief
       } //active ROI
     } // jEF
-	  
+    }//run 2 access
+    else { // code for run-3 access
+
+      // L2 muons
+      const std::vector< TrigCompositeUtils::LinkInfo<xAOD::L2StandAloneMuonContainer> > fcl2 = getTDT()->features<xAOD::L2StandAloneMuonContainer>(itmap->first,TrigDefs::includeFailedDecisions);
+      ATH_MSG_DEBUG("N(L2 muon LinkInfo) for chain " <<itmap->first << " = " << fcl2.size() << " passed = " << getTDT()->isPassed(itmap->first));
+      for(auto muonLinkInfo : fcl2) {
+        ATH_CHECK( muonLinkInfo.isValid() );
+        ElementLink<xAOD::L2StandAloneMuonContainer> muonLink = muonLinkInfo.link;
+        ATH_CHECK( muonLink.isValid() );
+        
+        ATH_MSG_DEBUG("L2 muon pt " << (*muonLink)->pt());
+        if( muonLinkInfo.state == TrigCompositeUtils::ActiveState::ACTIVE) {
+          // only want active L2 muons
+          ATH_MSG_DEBUG("   L2 muon is active, trig passed = " << getTDT()->isPassed(itmap->first));
+          L2Expt.push_back( (*muonLink)->pt());
+          L2Exeta.push_back( (*muonLink)->eta());
+          L2Exphi.push_back( (*muonLink)->phi());
+        }
+
+      }//loop on l2 muons
+
+      if(!isMSonlychain) {
+        // L2 CB muons
+        const std::vector< TrigCompositeUtils::LinkInfo<xAOD::L2CombinedMuonContainer> > fcl2cb = getTDT()->features<xAOD::L2CombinedMuonContainer>(itmap->first,TrigDefs::includeFailedDecisions);
+        ATH_MSG_DEBUG("N(L2 CB muon LinkInfo) for chain " <<itmap->first << " = " << fcl2cb.size() << " passed = " << getTDT()->isPassed(itmap->first));
+        for(auto muonLinkInfo : fcl2cb) {
+          ATH_CHECK( muonLinkInfo.isValid() );
+          ElementLink<xAOD::L2CombinedMuonContainer> muonLink = muonLinkInfo.link;
+          ATH_CHECK( muonLink.isValid() );
+          
+          ATH_MSG_DEBUG("L2 CB muon pt " << (*muonLink)->pt());
+          if( muonLinkInfo.state == TrigCompositeUtils::ActiveState::ACTIVE) {
+            // only want active L2 muons
+            ATH_MSG_DEBUG("   L2 CB muon is active, trig passed = " << getTDT()->isPassed(itmap->first));
+            L2Cbpt.push_back( (*muonLink)->pt());
+            L2Cbeta.push_back( (*muonLink)->eta());
+            L2Cbphi.push_back( (*muonLink)->phi());
+          }
+          
+        }//loop on l2 muons
+      }//not MS only chain
+
+      // EF muons
+      ATH_MSG_DEBUG("Run 3 access to EF " << itmap->first << " = " << getTDT()->isPassed(itmap->first));
+      const std::vector< TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> > fc = getTDT()->features<xAOD::MuonContainer>(itmap->first,TrigDefs::Physics,"",TrigDefs::lastFeatureOfType);
+      ATH_MSG_DEBUG("N(EF muon LinkInfo) for chain " <<itmap->first << " = " << fc.size() << " passed = " << getTDT()->isPassed(itmap->first));
+      for(auto muonLinkInfo : fc) {
+        ATH_CHECK( muonLinkInfo.isValid() );
+        ElementLink<xAOD::MuonContainer> muonLink = muonLinkInfo.link;
+        ATH_CHECK( muonLink.isValid() );
+        ATH_MSG_DEBUG("Muon SG " << muonLinkInfo.link.dataID() << " index:" << muonLinkInfo.link.index());
+
+        auto ef_cb_trk = (*muonLink)->trackParticle(xAOD::Muon::TrackParticleType::CombinedTrackParticle);
+        if(ef_cb_trk) {
+          ATH_MSG_DEBUG("CB track pT " << ef_cb_trk->pt());
+          EFCbpt.push_back(fabs(ef_cb_trk->pt()) / CLHEP::GeV * ef_cb_trk->charge());
+          EFCbeta.push_back(ef_cb_trk->eta());
+          EFCbphi.push_back(ef_cb_trk->phi());
+          if(isefIsochain) { // in run-3 the per-object checking is automatic
+            EFIsopt.push_back(fabs(ef_cb_trk->pt()) / CLHEP::GeV * ef_cb_trk->charge());
+            EFIsoeta.push_back(ef_cb_trk->eta());
+            EFIsophi.push_back(ef_cb_trk->phi());
+          }
+        }
+
+        auto ef_sa_trk = (*muonLink)->trackParticle(xAOD::Muon::TrackParticleType::ExtrapolatedMuonSpectrometerTrackParticle);
+        if(ef_sa_trk) {
+          EFExpt.push_back(fabs(ef_sa_trk->pt()) / CLHEP::GeV * ef_sa_trk->charge());
+          EFExeta.push_back(ef_sa_trk->eta());
+          EFExphi.push_back(ef_sa_trk->phi());
+        }
+
+      }//loop on EF muon links
+    }// run 3 access
 
     //  check if there is at least one activated L2 object to determine L2 trigger decision  
     if(isMSonlychain) isTriggered_L2 = ( L2Expt.size() > 0) ;
@@ -672,13 +731,14 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
 	  RecCBphi.push_back(phi);
 	
 	  //match offline object to online trigger object
-	  passedchainL1.push_back(CheckMuonTriggerMatch(eta,phi, L1eta, L1phi));  
+	  passedchainL1.push_back(CheckMuonTriggerMatch(eta,phi, L1eta, L1phi));            
 	  passedSAchainL2.push_back(CheckMuonTriggerMatch(eta,phi, L2Exeta, L2Exphi));
 	  passedCBchainL2.push_back(CheckMuonTriggerMatch(eta,phi, L2Cbeta, L2Cbphi));
 	  //	  passedisochainL2.push_back(CheckMuonTriggerMatch(eta,phi, L2Isoeta, L2Isophi));
 	  passedSAchainEF.push_back(CheckMuonTriggerMatch(eta,phi, EFExeta, EFExphi));
 	  passedCBchainEF.push_back(CheckMuonTriggerMatch(eta,phi, EFCbeta, EFCbphi));
 	  passedisochainEF.push_back(CheckMuonTriggerMatch(eta,phi, EFIsoeta, EFIsophi));
+          ATH_MSG_DEBUG("Pass EFSA = " << passedSAchainEF.back() << " pass EFCB = " << passedCBchainEF.back() << " pass EF iso = " << passedisochainEF.back());
 	}
       }	      
     }///offline loop

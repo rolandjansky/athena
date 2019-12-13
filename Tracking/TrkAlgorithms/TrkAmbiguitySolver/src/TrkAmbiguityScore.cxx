@@ -2,7 +2,6 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "StoreGate/StoreGateSvc.h"
 #include "TrkAmbiguitySolver/TrkAmbiguityScore.h"
 #include "TrkToolInterfaces/ITrackAmbiguityScoreProcessorTool.h"
 
@@ -50,8 +49,11 @@ Trk::TrkAmbiguityScore::execute()
   std::vector<const Track*> originTracks;
   originTracks.reserve(totalsize);
   for (SG::ReadHandle<TrackCollection>& trackColHandle : handles) {
-    for(const Track* trk: *trackColHandle )
-      originTracks.push_back(trk);
+    for(const Track* trk: *trackColHandle ) {
+       if (std::find(originTracks.begin(), originTracks.end(),trk) == originTracks.end()) {
+          originTracks.push_back(trk);
+       }
+    }
   }
 
   std::unique_ptr<TracksScores> scoredTracks(new TracksScores);
@@ -60,7 +62,7 @@ Trk::TrkAmbiguityScore::execute()
   }
   else{
     for(const Track* trk: originTracks ){
-      scoredTracks->push_back( std::pair<Track*, float>(new Track(*trk), 0));//TODO: logpT
+       scoredTracks->push_back( std::pair<const Track*, float>(trk, 0));//TODO: logpT
     }
   }
 
@@ -75,6 +77,8 @@ Trk::TrkAmbiguityScore::execute()
 StatusCode
 Trk::TrkAmbiguityScore::finalize()
 {
-
+  if (m_scoreTool.isEnabled()) {
+     m_scoreTool->statistics();
+  }
   return StatusCode::SUCCESS;
 }

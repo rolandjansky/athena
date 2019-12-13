@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
 # Filters for roughly mapping algorithms to domains. Originally based
@@ -76,7 +76,6 @@ def filter_alg_to_pmbdomains_rawtoesd(a):
              'ThinMuonTracksInEGammaStream',
              'MUONCommStream_MuonFilterTrackID']: return 'out'
     if a in ['KinkedTrack_MultiJetMetFilter']: return 'out'
-    if e('MuonTrackSlimmer'): return 'muonex'
     if c('Stream_') or e('Stream'): return 'out'
     if a=='nonalg': return None
     if a=='SlimTrackParticles': return 'idex'

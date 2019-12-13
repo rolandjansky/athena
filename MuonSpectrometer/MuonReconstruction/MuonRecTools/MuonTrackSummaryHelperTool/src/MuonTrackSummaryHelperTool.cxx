@@ -35,7 +35,7 @@ Muon::MuonTrackSummaryHelperTool::MuonTrackSummaryHelperTool(
 							     const std::string& t,
 							     const std::string& n,
 							     const IInterface*  p )
-  : AthAlgTool(t,n,p)
+  : base_class(t,n,p)
 {
   declareInterface<ITrackSummaryHelperTool>(this);
 }
@@ -69,49 +69,8 @@ StatusCode Muon::MuonTrackSummaryHelperTool::initialize()
     return StatusCode::FAILURE;
   }
 
-  if( m_edmHelperSvc.retrieve().isFailure() ){
-    ATH_MSG_ERROR("Could not get " << m_edmHelperSvc);      
-    return StatusCode::FAILURE;
-  }
-
-  // if you try loading a tool when the DLL isn't there, an annoying warning message is printed.
-  // this code attempts to check if the DLL exists before attempting to load the files
-  //    IObjManager* objMgr;
-  //    sc = service("ApplicationMgr", objMgr);
-  //    if ( sc.isSuccess() ) 
-  //    {
-  //     if( objMgr->existsObjFactory( "MuonTGRecTools" ) ) 
-  //     {    
-
-  // eventually there will be no need for this, as the Geometry should always be there, but whilst we're
-  // debugging it all I want a way to turn off the hole search if it does wrong.
-  if (m_doHoles){
-    StatusCode sc = m_muonTgTool.retrieve();
-    if (sc.isFailure()) {
-      msg (MSG::FATAL) << "Could not get MuonHolesOnTrackTool :"<< endmsg;
-      return StatusCode::FAILURE;
-      //m_doHoles=false;
-    } else {
-      msg (MSG::VERBOSE) << "MuonHolesOnTrackTool "<< endmsg;
-    }   
-  } else {
-    msg (MSG::VERBOSE) << "Hole search turned off, so MuonHolesOnTrackTool not loaded" << endmsg;        
-    m_muonTgTool.disable();
-  }
-
   ATH_CHECK(m_mdtKey.initialize());
-
-  //      }else{ 
-  //        msg << MSG::FATAL << "MuonTGRecTools library doesn't seem to be loaded." << endmsg;
-  //      	return StatusCode::FAILURE;
-  //      }
-  //      objMgr->release();
-  //    }
-  msg (MSG::INFO) << "Initialise successful in  MuonTrackSummaryHelperTool (Hole search turned ";
-  if (m_doHoles) 
-    msg (MSG::INFO)<<"ON)"<<endmsg;
-  else
-    msg (MSG::INFO)<<"OFF)"<<endmsg;
+  
   return StatusCode::SUCCESS;
 }
 
@@ -190,76 +149,11 @@ void Muon::MuonTrackSummaryHelperTool::increment(int& type) const
 }
 
 void Muon::MuonTrackSummaryHelperTool::searchForHoles (
-						       const Trk::Track& track,
-						       std::vector<int>& information, 
+						       const Trk::Track& /**track*/,
+						       std::vector<int>& /**information*/, 
 						       Trk::ParticleHypothesis /**hyp*/) const 
 {
-  ATH_MSG_VERBOSE( "Entering searchForHoles");
-
-  if (!m_doHoles) {
-    msg (MSG::WARNING) << "SearchForHoles turned off!" << endmsg;
-    return;
-  }
-
-  //    DataVector<const Trk::TrackStateOnSurface>* holes = m_muonTgTool->getHolesOnTrack(track, Trk::muon);
-  const Trk::ITrackHoleSearchTool* constTool = &(*m_muonTgTool); 
-  // the * triggers the de-ref of ToolHandle. Not as crazy as it looks! Ed
-  Trk::ITrackHoleSearchTool* nonConstTool = const_cast<Trk::ITrackHoleSearchTool*>(constTool);
-  const DataVector<const Trk::TrackStateOnSurface>* holes = nonConstTool->getHolesOnTrack(track);
-
-  if (holes==0) {
-    msg (MSG::WARNING) <<"Hole tool returns zero pointer! Aborting."<<endmsg;
-    return;
-  }
-  // 
-  if (!m_trackingGeometry) {   
-    StatusCode sc = detStore()->retrieve(m_trackingGeometry, m_trackingGeometryName);
-    if (sc.isFailure()) {
-      msg (MSG::FATAL)<<"Could not find geometry "<< m_trackingGeometryName<<". Exiting."
-		      << endmsg;
-    } else {
-      msg (MSG::INFO) << "  geometry Svc \""<<m_trackingGeometryName<<"\" booked "
-		      << endmsg;
-    }
-  } 
-
-  ATH_MSG_VERBOSE("Got "<<holes->size()<<" holes from tool");
-  DataVector<const Trk::TrackStateOnSurface>::const_iterator it    = holes->begin();
-  DataVector<const Trk::TrackStateOnSurface>::const_iterator itEnd = holes->end();
-  for (;it!=itEnd;++it)
-    {
-      const Trk::TrackParameters* trackPara = (*it)->trackParameters();
-      if (trackPara!=0)
-	{
-	  //       assert( trackPara!=0 );
-	  // const Identifier& id = trackPara->associatedSurface()->associatedDetectorElementIdentifier();
-	  const Trk::Layer* assocLayer = m_trackingGeometry->associatedLayer(trackPara->position());
-	  int idl=0;
-	  if (assocLayer) idl = assocLayer->layerType();
-	  const Identifier id(idl);
-
-	  if(m_idHelperTool->isRpc(id)){
-	    if( m_idHelperTool->rpcIdHelper().measuresPhi(id) ) increment(information[Trk::numberOfRpcPhiHoles]);
-	    else                           increment(information[Trk::numberOfRpcEtaHoles]);
-	  }else if(m_idHelperTool->isCsc(id)){
-	    if( m_idHelperTool->cscIdHelper().measuresPhi(id) ) increment(information[Trk::numberOfCscPhiHoles]);
-	    else                           increment(information[Trk::numberOfCscEtaHoles]);
-	  }else if(m_idHelperTool->isTgc(id)){
-	    if( m_idHelperTool->tgcIdHelper().isStrip(id) )     increment(information[Trk::numberOfTgcPhiHoles]);
-	    else                           increment(information[Trk::numberOfTgcEtaHoles]);
-	  }else if(m_idHelperTool->isMdt(id)){  
-	    increment(information[Trk::numberOfMdtHoles]);
-	  }else{
-	    msg (MSG::ERROR) << "searchForHoles: Unknown muon detector type " << endmsg;
-	    msg (MSG::ERROR) << "Dumping TrackStateOnSurface "<<*it << endmsg;
-	  }
-	}else{
-	msg (MSG::WARNING) <<"No TrackParameter on TP returned from MuonMeasurementMgr::getHolesOnTrack"<<endmsg;
-      }
-    }
-
-  delete holes;    
-  return;
+  ATH_MSG_WARNING( "searchForHoles is not implemented in MuonTrackSummaryHelperTool");
 }
 
 void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track& track, Trk::TrackSummary& summary ) const {
@@ -404,55 +298,55 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
       // we need a special bound check for MDTs so we cast to SL surface
       const Trk::StraightLineSurface* slSurf = dynamic_cast<const Trk::StraightLineSurface*>(&meas->associatedSurface());
       if( slSurf ) {
-	// perform bound check only for second coordinate
-	inBounds = slSurf->bounds().insideLoc2(locPos,tol2);
+        // perform bound check only for second coordinate
+        inBounds = slSurf->bounds().insideLoc2(locPos,tol2);
       }else{
-	inBounds = meas->associatedSurface().insideBounds(locPos,tol1,tol2);
+        inBounds = meas->associatedSurface().insideBounds(locPos,tol1,tol2);
       }
 
       Identifier layId =  m_idHelperTool->layerId( id );
       layIds.insert(layId);
       const MdtDriftCircleOnTrack* mdtdc = dynamic_cast<const MdtDriftCircleOnTrack*>(rot);
       if(mdtdc){
-	MuonDriftCircleErrorStrategy errStrat=mdtdc->errorStrategy();
-	if(!errStrat.creationParameter(MuonDriftCircleErrorStrategy::FixedError) && !errStrat.creationParameter(MuonDriftCircleErrorStrategy::StationError)){
-	  goodLayIds.insert(layId);
-	}
+        MuonDriftCircleErrorStrategy errStrat=mdtdc->errorStrategy();
+        if(!errStrat.creationParameter(MuonDriftCircleErrorStrategy::FixedError) && !errStrat.creationParameter(MuonDriftCircleErrorStrategy::StationError)){
+          goodLayIds.insert(layId);
+        }
       }
       else if(m_idHelperTool->isCsc(id)){
-	const Muon::CscClusterOnTrack* cscClus = dynamic_cast<const Muon::CscClusterOnTrack*>(rot);
-	if(cscClus->status()==0 || cscClus->status()==10) goodLayIds.insert(layId);
+        const Muon::CscClusterOnTrack* cscClus = dynamic_cast<const Muon::CscClusterOnTrack*>(rot);
+        if(cscClus->status()==0 || cscClus->status()==10) goodLayIds.insert(layId);
       }
       else if(m_idHelperTool->isMM(id)) {
-	// MM quality requirements to be inserted here if needed
-	goodLayIds.insert(layId);
+        // MM quality requirements to be inserted here if needed
+        goodLayIds.insert(layId);
       }
       else if(m_idHelperTool->issTgc(id)) {
-	// sTGC quality requirements to be inserted here if needed
-	goodLayIds.insert(layId);
+        // sTGC quality requirements to be inserted here if needed
+        goodLayIds.insert(layId);
       }
     }else{
       const Muon::CompetingMuonClustersOnTrack* crot = dynamic_cast<const Muon::CompetingMuonClustersOnTrack*>(meas);
       if( crot ){
-	if( crot->containedROTs().empty() ) continue;
+        if( crot->containedROTs().empty() ) continue;
 
-	// take id of first ROT 
-	id = crot->containedROTs().front()->identify();
+        // take id of first ROT 
+        id = crot->containedROTs().front()->identify();
 
-	// count layers in competing rot
-	std::vector<const Muon::MuonClusterOnTrack*>::const_iterator clit = crot->containedROTs().begin();
-	std::vector<const Muon::MuonClusterOnTrack*>::const_iterator clit_end = crot->containedROTs().end();
-	for( ;clit!=clit_end;++clit ){
-	  // get layer Identifier and insert it into set
-	  Identifier layId =  m_idHelperTool->layerId( (*clit)->identify() );
-	  layIds.insert(layId);
-	  if(m_idHelperTool->isCsc(id)){
-	    const Muon::CscClusterOnTrack* cscClus = dynamic_cast<const Muon::CscClusterOnTrack*>(rot);
-	    if(cscClus->status()==0 || cscClus->status()==10) goodLayIds.insert(layId);
-	  }
-	}
+        // count layers in competing rot
+        std::vector<const Muon::MuonClusterOnTrack*>::const_iterator clit = crot->containedROTs().begin();
+        std::vector<const Muon::MuonClusterOnTrack*>::const_iterator clit_end = crot->containedROTs().end();
+        for( ;clit!=clit_end;++clit ){
+          // get layer Identifier and insert it into set
+          Identifier layId =  m_idHelperTool->layerId( (*clit)->identify() );
+          layIds.insert(layId);
+          if(m_idHelperTool->isCsc(id)){
+            const Muon::CscClusterOnTrack* cscClus = dynamic_cast<const Muon::CscClusterOnTrack*>(rot);
+            if(cscClus->status()==0 || cscClus->status()==10) goodLayIds.insert(layId);
+          }
+        }
       }else{
-	continue;
+        continue;
       }
     }
 
@@ -468,14 +362,13 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
     if( !currentChamberSummary || currentChamberSummary->m_chId != chId ){
 
       if( m_calculateCloseHits && currentChamberSummary && currentChamberPars)  {
-	ATH_MSG_VERBOSE(" Calculating close hits (last hit a measurement)");
-	calculateRoadHits(*currentChamberSummary, *currentChamberPars);
-
+      	ATH_MSG_VERBOSE(" Calculating close hits (last hit a measurement)");
+      	calculateRoadHits(*currentChamberSummary, *currentChamberPars);
       }
 
       // given that we cannot separate eta/phi holes, redo the assignment before moving to the next chamber
       if( currentChamberSummary  && !currentChamberSummary->isMdt() ){
-	updateHoleContent(*currentChamberSummary);
+	      updateHoleContent(*currentChamberSummary);
       }
 
 
@@ -493,13 +386,13 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
 
       // MDTs: count outlier as delta electron if rDrift < rTrack < innerTubeRadius
       if( isMdt && pars ) {
-	double rDrift = fabs(meas->localParameters()[Trk::locR]);
-	double rTrack = fabs(pars->parameters()[Trk::locR]);
-	double innerRadius = m_detMgr->getMdtReadoutElement(id)->innerTubeRadius();
-	if( rTrack > rDrift && rTrack < innerRadius ) {
-	  ++proj.ndeltas;
-	  continue;
-	}
+        double rDrift = fabs(meas->localParameters()[Trk::locR]);
+        double rTrack = fabs(pars->parameters()[Trk::locR]);
+        double innerRadius = m_detMgr->getMdtReadoutElement(id)->innerTubeRadius();
+        if( rTrack > rDrift && rTrack < innerRadius ) {
+          ++proj.ndeltas;
+          continue;
+        }
       }
       ++proj.noutliers;
 
@@ -512,7 +405,7 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
   } //end of for loop over Track State on Surfaces      
 
   /** calculate road hits for last chamber on track
-      (otherwise it would have been skipped) */
+  (otherwise it would have been skipped) */
   if( m_calculateCloseHits && currentChamberSummary && currentChamberPars ) {
     ATH_MSG_VERBOSE(" Calculating close hits (end of hit list)");
     calculateRoadHits(*currentChamberSummary, *currentChamberPars);
@@ -714,7 +607,6 @@ bool Muon::MuonTrackSummaryHelperTool::isFirstProjection( const Identifier& id )
 }
 
 const Muon::MdtPrepDataCollection* Muon::MuonTrackSummaryHelperTool::findMdtPrdCollection( const Identifier& chId ) const {
-
   SG::ReadHandle<Muon::MdtPrepDataContainer> mdtPrdContainer(m_mdtKey);
 
   if(!mdtPrdContainer.isValid()){

@@ -12,9 +12,7 @@ Muon::SimpleMMClusterBuilderTool::SimpleMMClusterBuilderTool(const std::string& 
 							     const std::string& n,
 							     const IInterface*  p )
   :  
-  AthAlgTool(t,n,p),
-  m_muonMgr(nullptr),
-  m_mmIdHelper(nullptr)
+  AthAlgTool(t,n,p)
 {
   declareInterface<IMMClusterBuilderTool>(this);
 
@@ -28,16 +26,7 @@ Muon::SimpleMMClusterBuilderTool::~SimpleMMClusterBuilderTool()
 
 StatusCode Muon::SimpleMMClusterBuilderTool::initialize()
 {
-
-  /// get the detector descriptor manager
-  StatusCode sc = detStore()->retrieve( m_muonMgr );
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL(" Cannot retrieve MuonReadoutGeometry ");
-    return sc;
-  }
-  
-  m_mmIdHelper = m_muonMgr->mmIdHelper();
-  
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
   return StatusCode::SUCCESS;
 }
 
@@ -75,16 +64,16 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
     
     unsigned int jmerge = -1;
     Identifier id_prd = MMprds[i].identify();
-    int strip = m_mmIdHelper->channel(id_prd);
-    int gasGap  = m_mmIdHelper->gasGap(id_prd);
-    int layer   = m_mmIdHelper->multilayer(id_prd);
+    int strip = m_muonIdHelperTool->mmIdHelper().channel(id_prd);
+    int gasGap  = m_muonIdHelperTool->mmIdHelper().gasGap(id_prd);
+    int layer   = m_muonIdHelperTool->mmIdHelper().multilayer(id_prd);
     ATH_MSG_VERBOSE("  MMprds " <<  MMprds.size() <<" index "<< i << " strip " << strip 
 		    << " gasGap " << gasGap << " layer " << layer << " z " << MMprds[i].globalPosition().z() );
     for (unsigned int j=i+1; j<MMprds.size(); ++j){
       Identifier id_prdN = MMprds[j].identify();
-      int stripN = m_mmIdHelper->channel(id_prdN);
-      int gasGapN  = m_mmIdHelper->gasGap(id_prdN);
-      int layerN   = m_mmIdHelper->multilayer(id_prdN);
+      int stripN = m_muonIdHelperTool->mmIdHelper().channel(id_prdN);
+      int gasGapN  = m_muonIdHelperTool->mmIdHelper().gasGap(id_prdN);
+      int layerN   = m_muonIdHelperTool->mmIdHelper().multilayer(id_prdN);
       if( gasGapN==gasGap && layerN==layer ) {
 	ATH_MSG_VERBOSE(" next MMprds strip same gasGap and layer index " << j << " strip " << stripN << " gasGap " << gasGapN << " layer " << layerN );
 	if(abs(strip-stripN)<2) {
@@ -97,21 +86,27 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
     unsigned int nmerge = 0;
     std::vector<Identifier> rdoList;
     std::vector<unsigned int> mergeIndices;
-    std::vector<int> mergeStrips;
+    std::vector<uint16_t> mergeStrips;
+    std::vector<short int> mergeStripsTime;
+    std::vector<int> mergeStripsCharge;
+
     rdoList.push_back(id_prd);
     MMflag[i] = 1;
     mergeIndices.push_back(i);
     mergeStrips.push_back(strip);
+    mergeStripsTime.push_back(MMprds[i].time()-MMprds[i].globalPosition().norm()/299.792);
+    mergeStripsCharge.push_back(MMprds[i].charge());
+
     unsigned int nmergeStrips = 1;
     unsigned int nmergeStripsMax = 50;
     for (unsigned int k=0; k < nmergeStripsMax; ++k) {
       for (unsigned int j=jmerge; j<MMprds.size(); ++j){
 	if(MMflag[j] == 1) continue;
 	Identifier id_prdN = MMprds[j].identify();
-	int stripN = m_mmIdHelper->channel(id_prdN);
+	int stripN = m_muonIdHelperTool->mmIdHelper().channel(id_prdN);
 	if( abs(mergeStrips[k]-stripN) <= 1 ) {
-	  int gasGapN  = m_mmIdHelper->gasGap(id_prdN);
-	  int layerN   = m_mmIdHelper->multilayer(id_prdN);
+	  int gasGapN  = m_muonIdHelperTool->mmIdHelper().gasGap(id_prdN);
+	  int layerN   = m_muonIdHelperTool->mmIdHelper().multilayer(id_prdN);
 	  if( gasGapN==gasGap && layerN==layer ) {
 	    if(mergeStrips[k]==stripN) {
 	      MMflag[j] = 1;
@@ -122,6 +117,8 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
 	    MMflag[j] = 1;
 	    mergeIndices.push_back(j);
 	    mergeStrips.push_back(stripN);
+      mergeStripsTime.push_back(MMprds[j].time()-MMprds[j].globalPosition().norm()/299.792);
+      mergeStripsCharge.push_back(MMprds[j].charge());
 	    nmergeStrips++;
 	  }
 	}
@@ -175,12 +172,13 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
     covN->setIdentity();
     (*covN)(0,0) = 6.*(nmerge + 1.)*covX;
     if(nmerge<=1) (*covN)(0,0) = covX;
-    ATH_MSG_VERBOSE(" make merged prepData at strip " << m_mmIdHelper->channel(MMprds[j].identify()) << " nmerge " << nmerge << " sqrt covX " << sqrt((*covN)(0,0)));
+    ATH_MSG_VERBOSE(" make merged prepData at strip " << m_muonIdHelperTool->mmIdHelper().channel(MMprds[j].identify()) << " nmerge " << nmerge << " sqrt covX " << sqrt((*covN)(0,0)));
     
     ///
     /// memory allocated dynamically for the PrepRawData is managed by Event Store
     ///
-    MMPrepData* prdN = new MMPrepData(MMprds[j].identify(), hash, clusterLocalPosition, rdoList, covN, MMprds[j].detectorElement());
+    MMPrepData* prdN = new MMPrepData(MMprds[j].identify(), hash, clusterLocalPosition, rdoList, covN, MMprds[j].detectorElement(),
+                                      (short int)0,int(totalCharge),mergeStrips,mergeStripsTime,mergeStripsCharge);
     clustersVect.push_back(prdN);
   } // end loop MMprds[i]
   //clear vector and delete elements

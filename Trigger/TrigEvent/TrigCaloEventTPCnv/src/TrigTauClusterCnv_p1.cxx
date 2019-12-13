@@ -8,7 +8,7 @@
 
 void TrigTauClusterCnv_p1 :: persToTrans( const TrigTauCluster_p1 *persObj,
                                             TrigTauCluster    *transObj,
-                                            MsgStream& log )
+                                            MsgStream& log ) const
 {
 
   log << MSG::DEBUG << "TrigTauClusterCnv_p1::persToTrans" << endmsg;
@@ -24,7 +24,8 @@ void TrigTauClusterCnv_p1 :: persToTrans( const TrigTauCluster_p1 *persObj,
   transObj->setStripWidth        (persObj->m_stripWidth)    ;
   transObj->setStripWidthOffline (persObj->m_EMenergyWidth[1])    ;
 
-  fillTransFromPStore( &m_trigCaloClusterCnv, persObj->m_trigCaloCluster, transObj, log );
+  ITPConverterFor<TrigCaloCluster>*    cnv = nullptr;
+  fillTransFromPStore( &cnv, persObj->m_trigCaloCluster, transObj, log );
 
   transObj->setEta(persObj->m_Eta);
   transObj->setPhi(persObj->m_Phi);
@@ -32,7 +33,7 @@ void TrigTauClusterCnv_p1 :: persToTrans( const TrigTauCluster_p1 *persObj,
 
 void TrigTauClusterCnv_p1 :: transToPers( const TrigTauCluster */*transObj*/,
                                           TrigTauCluster_p1 */*persObj*/,
-					  MsgStream& log )
+					  MsgStream& log ) const
 {
 
   log << MSG::DEBUG << "TrigTauClusterCnv_p1::transToPers" << endmsg;

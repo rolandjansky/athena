@@ -1,14 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArG4Code/SDWrapper.h"
 
 // Geant4 includes
 #include "G4SDManager.hh"
-
-// Framework utilities
-#include "CxxUtils/make_unique.h"
 
 // Project includes
 #include "LArSimEvent/LArHitContainer.h"
@@ -75,14 +72,14 @@ namespace LArG4
           G4cout << GetName() << " \tDEBUG\t" << "Initializing hit container: "
                  << m_hitCollName << G4endl;
         }
-        m_hitColl = CxxUtils::make_unique<HitContainerType>(m_hitCollName);
+        m_hitColl = std::make_unique<HitContainerType>(m_hitCollName);
       }
       if(!m_deadHitCollName.empty() && !m_deadHitColl.isValid()) {
         if(verboseLevel >= 5) {
           G4cout << GetName() << " \tDEBUG\t" << "Initializing hit container: "
                  << m_deadHitCollName << G4endl;
         }
-        m_deadHitColl = CxxUtils::make_unique<HitContainerType>(m_deadHitCollName);
+        m_deadHitColl = std::make_unique<HitContainerType>(m_deadHitCollName);
       }
     }
 

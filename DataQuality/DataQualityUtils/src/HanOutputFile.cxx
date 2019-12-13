@@ -835,10 +835,14 @@ saveAllHistograms( std::string location, bool drawRefs, std::string run_min_LB ,
       completeDir += hisPath;
       completeDir += "/";
       std::cout << "Saving " << completeDir << " " << hisName << "\n" << std::flush;
-      bool isSaved = saveHistogramToFile(hisName,completeDir,idir->second,drawRefs,run_min_LB,
-                                         (hisPath + "/" + hisName),cnvsType);
-      if( isSaved )
-        ++nSaved;
+      try {
+	bool isSaved = saveHistogramToFile(hisName,completeDir,idir->second,drawRefs,run_min_LB,
+					   (hisPath + "/" + hisName),cnvsType);
+	if( isSaved )
+	  ++nSaved;
+      } catch (std::exception& e) {
+	std::cerr << "Exception caught: " << e.what() << std::endl;
+      }
     }
   }
   return nSaved;
@@ -887,7 +891,7 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
   dqi::DisableMustClean disabled;
   groupDir->cd();
  
-  int iMarkerStyle = 20; 
+  int iMarkerStyle = 20;
   gStyle->SetFrameBorderMode(0);
   gStyle->SetFrameFillColor(0);
   gStyle->SetCanvasBorderMode(0);
@@ -911,7 +915,7 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
   char* x;
   int y;
   std::string json;
-  TImage* img = TImage::Create();  
+  TImage* img = TImage::Create();
 
   gROOT->SetBatch();
   std::string pathname( groupDir->GetPath() );
@@ -1000,7 +1004,7 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
   TH2* h2 = dynamic_cast<TH2*>( h );
   TGraph* g = dynamic_cast<TGraph*>( hobj );
   TEfficiency* e = dynamic_cast<TEfficiency*>( hobj );
-
+  
   std::string name=nameHis;
   /*  name+=".png";
   std::string::size_type i = location.find_last_of( '/' );
@@ -1020,7 +1024,7 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
   }
 
   if( h!=0 ){     
-    TCanvas *myC = new TCanvas( nameHis.c_str(), "myC", ww, wh );
+    auto myC = std::make_unique<TCanvas>( nameHis.c_str(), "myC", ww, wh );
 
     // if(  h->GetMinimum() >= 0) {
     //       gPad->SetLogy(display.find("LogY")!=std::string::npos );
@@ -1138,7 +1142,7 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
 	  found1 = display.find("gausplusexpo");
 	  if (found1!=std::string::npos) {
 	    std::size_t found2 = display.find("(",found1+1);
-	    if (found2!=std::string::npos) {
+    if (found2!=std::string::npos) {
 	      std::size_t found3 = display.find(")",found2+1);
 	      if (found3 != std::string::npos){
 		std::string range = display.substr(found2+1,found3-found2-1);
@@ -1194,7 +1198,7 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
 
     
     if( h2 != 0 ) {
-      formatTH2( myC, h2 );
+      formatTH2( myC.get(), h2 );
       myC->cd();
       if(  h2->GetMinimum() >= 0 && h2->GetMaximum()>0.) {
         gPad->SetLogy(display.find("LogY")!=std::string::npos );
@@ -1232,19 +1236,19 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
 	  h2Ref = dynamic_cast<TH2*>(colln->MakeIterator()->Next());
 	}
 	if (h2Ref && (drawrefopt2D!="")){
-	  formatTH2( myC, h2Ref );
+	  formatTH2( myC.get(), h2Ref );
 	  h2Ref->Draw(drawrefopt2D.c_str());
 	}
       }
 
       h2->Draw(("SAME"+drawopt).c_str());
-      displayExtra(myC,display);
+      displayExtra(myC.get(),display);
       if (drawopt.find("lego") == std::string::npos) {
 	myC->RedrawAxis();
       }
-      if (h2Ref) ratioplot2D(myC, h2, h2Ref, display);
+      if (h2Ref) ratioplot2D(myC.get(), h2, h2Ref, display);
 
-      polynomial(myC,display,h2);
+      polynomial(myC.get(),display,h2);
       TLatex t;
       t.SetNDC();
       t.SetTextSize(0.03);
@@ -1254,10 +1258,10 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
       tt.SetTextSize(0.03);
       tt.DrawLatex(0.02,0.01,pathName.c_str());
       
-      convertToGraphics(cnvsType,myC,json,img,&x,&y);
+      convertToGraphics(cnvsType,myC.get(),json,img,&x,&y);
 
     } else if( h != 0 ){
-      formatTH1( myC, h );
+      formatTH1( myC.get(), h );
       if(display.find("StatBox")!=std::string::npos){
 	h->SetStats(kTRUE);
       }
@@ -1289,7 +1293,11 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
 	    TObject* ref2;
 	    while ((ref2=icolln->Next())) {
 	      hRef = dynamic_cast<TH1*>(ref2);
-	      if (hRef) hRefs.push_back(hRef);
+	      if (hRef) {
+		if (hRef->GetDimension() == h->GetDimension()) {
+		  hRefs.push_back(hRef);
+		}
+	      }
 	      else std::cout << "hRef cast failed!!!" << std::endl;
 	    }
 	  }
@@ -1307,7 +1315,7 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
 	for (auto hRef : hRefs) {
 	  int local_color = root_color_choices[itrcolor];
 	  itrcolor++;
-	  formatTH1( myC, hRef );
+	  formatTH1( myC.get(), hRef );
 	  TProfile* pRef = dynamic_cast<TProfile*>( hRef );
 	  if( pRef != 0 ) {
 	    hRef->SetMarkerColor(local_color);
@@ -1381,7 +1389,7 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
 	      xmin = ( BINLOEDGE(hRef, 1) <  BINLOEDGE(h, 1)) ?   BINLOEDGE(hRef, 1) : BINLOEDGE(h, 1);
 	      xmax = ( BINLOEDGE(hRef, hRef->GetNbinsX()) +  BINWIDTH(hRef, hRef->GetNbinsX()) >   BINLOEDGE(h, h->GetNbinsX()) +  BINWIDTH(h, h->GetNbinsX()) ) ?  BINLOEDGE(hRef, hRef->GetNbinsX()) + BINWIDTH(hRef, hRef->GetNbinsX()):  BINLOEDGE(h, h->GetNbinsX()) + BINWIDTH(h, h->GetNbinsX()) ;
 	    }
-
+	    
 	    // 	  double y_av = (ymax + ymin)/2;
 	    // 	  double y_halv = (ymax-ymin)*0.6;
 	    bool isLogY=(display.find("LogY")!=std::string::npos);
@@ -1439,14 +1447,14 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
         h->Draw(drawopt.c_str());
       }
       myC->cd();
-      displayExtra(myC,display);
+      displayExtra(myC.get(),display);
       myC->RedrawAxis();
 
       if (hRef) {
-	ratioplot(myC ,h,hRef,display);      //RatioPad
+	ratioplot(myC.get() ,h,hRef,display);      //RatioPad
       }
       myC->cd();//might be unnecessary
-      polynomial(myC,display,h); //draw polynome for TH1
+      polynomial(myC.get(),display,h); //draw polynome for TH1
 
       TLatex t;
       t.SetNDC();
@@ -1457,10 +1465,10 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
       tt.SetTextSize(0.03);
       tt.DrawLatex(0.02,0.01,pathName.c_str());
 
-      convertToGraphics(cnvsType,myC,json,img,&x,&y);
+      convertToGraphics(cnvsType,myC.get(),json,img,&x,&y);
 
     }
-    delete myC;
+    //delete myC;
     gStyle->Reset();
   }
 
@@ -1468,7 +1476,7 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
 
     
   if( g ) {
-    TCanvas *myC = new TCanvas( nameHis.c_str(), "myC", ww, wh );
+    auto myC = std::make_unique<TCanvas>( nameHis.c_str(), "myC", ww, wh );
     myC->cd();
     if(  g->GetMinimum() >= 0. && g->GetMaximum()>0.) {
       gPad->SetLogy(display.find("LogY")!=std::string::npos );
@@ -1477,10 +1485,10 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
 // 	gPad->SetLogx(display.find("LogX")!=std::string::npos );
 //       }
 //     gPad->SetLogz(display.find("LogZ")!=std::string::npos );
-    formatTGraph( myC, g );
+    formatTGraph( myC.get(), g );
 //       axisOption(display,g);
     g->Draw((std::string("AP") + drawopt).c_str());
-    displayExtra(myC,display);
+    displayExtra(myC.get(),display);
     TLatex t;
     t.SetNDC();
     t.SetTextSize(0.03);
@@ -1491,19 +1499,18 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
     tt.DrawLatex(0.02,0.01,pathName.c_str());
     //myC->SaveAs( name.c_str() );
    
-    convertToGraphics(cnvsType,myC,json,img,&x,&y);
+    convertToGraphics(cnvsType,myC.get(),json,img,&x,&y);
 
-    delete myC;
     gStyle->Reset();
   }
 
   /*************************************************************************************************************/
   if( e != 0 ) {
-    TCanvas *myC = new TCanvas( nameHis.c_str(), "myC", ww, wh );
+    auto myC = std::make_unique<TCanvas>( nameHis.c_str(), "myC", ww, wh );
     myC->cd();
-    formatTEfficiency( myC, e );
+    formatTEfficiency( myC.get(), e );
     e->Draw((std::string("AP") + drawopt).c_str());
-    displayExtra(myC,display);
+    displayExtra(myC.get(),display);
     TLatex t;
     t.SetNDC();
     t.SetTextSize(0.03);
@@ -1512,8 +1519,7 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
     tt.SetNDC();
     tt.SetTextSize(0.03);
     tt.DrawLatex(0.02,0.01,pathName.c_str());
-    convertToGraphics(cnvsType,myC,json,img,&x,&y);
-    delete myC;
+    convertToGraphics(cnvsType,myC.get(),json,img,&x,&y);
     gStyle->Reset();
   }
 
@@ -1617,7 +1623,7 @@ bool HanOutputFile::saveHistogramToFileSuperimposed( std::string nameHis, std::s
   }
 
   if( (h = dynamic_cast<TH1*>( hobj ))!=0 &&  (hist2= dynamic_cast<TH1*>( hobj2 ))!=0 ){
-    TCanvas *myC = new TCanvas( nameHis.c_str(), "myC", ww, wh );
+    auto myC = std::make_unique<TCanvas>( nameHis.c_str(), "myC", ww, wh );
     setupCanvas(drawopt,display);
     attachFits(h,drawopt,display);
     /******************* for plotting fit function on top of histogram ******************/
@@ -1640,7 +1646,7 @@ bool HanOutputFile::saveHistogramToFileSuperimposed( std::string nameHis, std::s
       h2Diff->Add(h2,h2_2,1.0,-1.0);
       h2Diff->SetLineColor(2);
       h2Diff->SetMarkerColor(2);
-      if(!drawH2(myC,h2Diff,tmpdraw,display))return false;
+      if(!drawH2(myC.get(),h2Diff,tmpdraw,display))return false;
       TLatex t;
       t.SetNDC();
       t.SetTextSize(0.03);
@@ -1650,7 +1656,7 @@ bool HanOutputFile::saveHistogramToFileSuperimposed( std::string nameHis, std::s
       tt.SetTextSize(0.03);
       tt.DrawLatex(0.02,0.01,pathName.c_str());
 
-      convertToGraphics(cnvsType,myC,namePNG,nameJSON);
+      convertToGraphics(cnvsType,myC.get(),namePNG,nameJSON);
 
     } else if( h != 0 && hist2!=0){
       h->SetMarkerColor(1);
@@ -1665,9 +1671,9 @@ bool HanOutputFile::saveHistogramToFileSuperimposed( std::string nameHis, std::s
 	gDirectory->GetObject("Reference;1",hRef);
 	groupDir1->cd();
       }
-      if(!drawH1(myC,h,hRef,tmpdraw,display,AlgoName))return false;
+      if(!drawH1(myC.get(),h,hRef,tmpdraw,display,AlgoName))return false;
       tmpdraw+="same";
-      if(!drawH1(myC,hist2,0,tmpdraw,display,AlgoName))return false;
+      if(!drawH1(myC.get(),hist2,0,tmpdraw,display,AlgoName))return false;
       legend = new TLegend(0.55,0.77,0.87,0.87);
       legend->SetTextFont(62);
       legend->SetMargin(0.15);
@@ -1689,25 +1695,24 @@ bool HanOutputFile::saveHistogramToFileSuperimposed( std::string nameHis, std::s
       tt.SetTextSize(0.03);
       tt.DrawLatex(0.02,0.01,pathName.c_str());
 
-      convertToGraphics(cnvsType,myC,namePNG,nameJSON);
+      convertToGraphics(cnvsType,myC.get(),namePNG,nameJSON);
 
     } //end histogram drawing
-    delete myC;
     delete h2Diff;
     gStyle->Reset();
   }
 
 /*************************************************************************************************************/
   if(((g = dynamic_cast<TGraph*>(hobj))!=0 ) && ((g2=dynamic_cast<TGraph*>(hobj2))!=0) ){
-    TCanvas *myC = new TCanvas( nameHis.c_str(), "myC", ww, wh );
+    auto myC = std::make_unique<TCanvas>( nameHis.c_str(), "myC", ww, wh );
     myC->cd();
     if(  g->GetMinimum() >= 0. && g2->GetMinimum() >=0. && g->GetMaximum() > 0. && g2->GetMaximum() >0.) {
       gPad->SetLogy(display.find("LogY")!=std::string::npos );
     }
-    formatTGraph( myC, g );
-    formatTGraph( myC, g2 );
+    formatTGraph( myC.get(), g );
+    formatTGraph( myC.get(), g2 );
     g->Draw((std::string("AP") + drawopt).c_str());
-    displayExtra(myC,display);
+    displayExtra(myC.get(),display);
     g2->SetMarkerColor(2);
     g2->SetLineColor(2);
     g2->Draw((std::string("P") + drawopt+" same").c_str());
@@ -1720,20 +1725,19 @@ bool HanOutputFile::saveHistogramToFileSuperimposed( std::string nameHis, std::s
     tt.SetTextSize(0.03);
     tt.DrawLatex(0.02,0.01,pathName.c_str());
 
-    convertToGraphics(cnvsType,myC,namePNG,nameJSON);
+    convertToGraphics(cnvsType,myC.get(),namePNG,nameJSON);
     
-    delete myC;
     gStyle->Reset();
   }
 
   if(((e = dynamic_cast<TEfficiency*>(hobj))!=0 ) && ((e2=dynamic_cast<TEfficiency*>(hobj2))!=0) ){
-    TCanvas *myC = new TCanvas( nameHis.c_str(), "myC", ww, wh );
+    auto myC = std::make_unique<TCanvas>( nameHis.c_str(), "myC", ww, wh );
     myC->cd();
 
-    formatTEfficiency( myC, e );
-    formatTEfficiency( myC, e2 );
+    formatTEfficiency( myC.get(), e );
+    formatTEfficiency( myC.get(), e2 );
     e->Draw((std::string("AP") + drawopt).c_str());
-    displayExtra(myC,display);
+    displayExtra(myC.get(),display);
     e2->SetMarkerColor(2);
     e2->SetLineColor(2);
     e2->Draw((std::string("P") + drawopt+" same").c_str());
@@ -1746,9 +1750,8 @@ bool HanOutputFile::saveHistogramToFileSuperimposed( std::string nameHis, std::s
     tt.SetTextSize(0.03);
     tt.DrawLatex(0.02,0.01,pathName.c_str());
     
-    convertToGraphics(cnvsType,myC,namePNG,nameJSON);
+    convertToGraphics(cnvsType,myC.get(),namePNG,nameJSON);
     
-    delete myC;
     gStyle->Reset();
   }
 
@@ -2229,8 +2232,8 @@ void HanOutputFile::ratioplot (TCanvas* myC_upperpad ,TH1* h,TH1* hRef,std::stri
     unsigned int wh = myC_upperpad->GetWh();
     std::string padname="PAD";
     std::string padname_ratio ="PAD_main";
-    TCanvas *myC_ratiopad = new TCanvas( padname_ratio.c_str(), "myC_ratiopad", ww, wh );
-    TCanvas *myC_main =  new TCanvas( padname.c_str(), "myC_main", ww, wh );
+    auto myC_ratiopad = std::make_unique<TCanvas>( padname_ratio.c_str(), "myC_ratiopad", ww, wh );
+    auto myC_main = std::make_unique<TCanvas>( padname.c_str(), "myC_main", ww, wh );
     myC_main->cd();
     //producing ratio histogram and plotting it on to myC_ratiopad
     myC_ratiopad->cd();
@@ -2238,7 +2241,7 @@ void HanOutputFile::ratioplot (TCanvas* myC_upperpad ,TH1* h,TH1* hRef,std::stri
     myC_ratiopad->SetLogx(display.find("LogX")!=std::string::npos );
     //TH1F *clonehist=(TH1F*)h->Clone();
     //clonehist->Divide(hRef);
-
+    
     ///////
     ///Fixing Error Bars
     //////
@@ -2259,11 +2262,12 @@ void HanOutputFile::ratioplot (TCanvas* myC_upperpad ,TH1* h,TH1* hRef,std::stri
       clonehistref=(TH1F*)hRef->Clone();
       clonehistref->Sumw2();
     }
+    if (!clonehist or !clonehistref) { return; }
     clonehist->Divide(clonehistref);
     ///Error Bars fixed
     //////
     
-    formatTH1( myC_ratiopad, clonehist);
+    formatTH1( myC_ratiopad.get(), clonehist);
     clonehist->SetTitle("");
 
     // extract delta value from string that holds the draw options
@@ -2313,8 +2317,6 @@ void HanOutputFile::ratioplot (TCanvas* myC_upperpad ,TH1* h,TH1* hRef,std::stri
     myC_upperpad->cd();
     myC_upperpad->Clear();
     myC_main->DrawClonePad();
-    delete myC_ratiopad;
-    delete myC_main;
 }
 
 void HanOutputFile::ratioplot2D (TCanvas* canvas_top, TH2* h2, TH2* h2Ref, std::string display) {
@@ -2323,8 +2325,8 @@ void HanOutputFile::ratioplot2D (TCanvas* canvas_top, TH2* h2, TH2* h2Ref, std::
         )
         return;
 
-    TCanvas *canvas_bot = new TCanvas("canvas_bottom", "canvas_bottom", canvas_top->GetWw(), canvas_top->GetWh());
-    TCanvas *canvas_all = new TCanvas("canvas_all",    "canvas_all",    canvas_top->GetWw(), canvas_top->GetWh());
+    auto canvas_bot = std::make_unique<TCanvas>("canvas_bottom", "canvas_bottom", canvas_top->GetWw(), canvas_top->GetWh());
+    auto canvas_all = std::make_unique<TCanvas>("canvas_all",    "canvas_all",    canvas_top->GetWw(), canvas_top->GetWh());
 
     canvas_bot->cd();
     canvas_bot->SetTopMargin(0);
@@ -2334,7 +2336,7 @@ void HanOutputFile::ratioplot2D (TCanvas* canvas_top, TH2* h2, TH2* h2Ref, std::
     TH2* comparison = (TH2*)(h2->Clone());
     comparison->Divide(h2, h2Ref, 1.0, 1.0);
     comparison->SetTitle("");
-    formatTH2(canvas_bot, comparison);
+    formatTH2(canvas_bot.get(), comparison);
 
     if (display.find("Ref2DRatio") != std::string::npos){
 

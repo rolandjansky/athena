@@ -3,6 +3,7 @@
 */
 
 #include "CaloBCIDAvgAlg.h" 
+#include "AthenaMonitoring/Monitored.h"
 
 //#define DONTDO
 
@@ -32,6 +33,7 @@ StatusCode CaloBCIDAvgAlg::initialize() {
   ATH_CHECK(m_cablingKey.initialize());
   ATH_CHECK(m_mcSym.initialize());
   ATH_CHECK(m_lumiDataKey.initialize(!m_isMC));
+  if (! m_monTool.empty() ) ATH_CHECK( m_monTool.retrieve() );
 
   ATH_CHECK(detStore()->retrieve(m_lar_on_id,"LArOnlineID"));
   return StatusCode::SUCCESS;
@@ -44,6 +46,9 @@ StatusCode  CaloBCIDAvgAlg::finalize() {
 //----------------------------------------------------------------------------------------
 
 StatusCode CaloBCIDAvgAlg::execute(const EventContext& ctx) const {
+
+  auto timer = Monitored::Timer("TIME_exec");
+  auto monitoring = Monitored::Group( m_monTool, timer);
 
   SG::ReadHandle<xAOD::EventInfo> ei(m_eventInfoKey,ctx);
 

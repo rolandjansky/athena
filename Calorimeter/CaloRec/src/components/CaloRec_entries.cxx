@@ -29,6 +29,10 @@
 #include "../CaloTowerxAODFromClusters.h"
 #include "../CaloClusterSnapshot.h"
 #include "../CaloBCIDAvgAlg.h"
+#include "../CaloCellDumper.h"
+#include "../CaloThinCellsByClusterAlg.h"
+#include "../CaloThinCellsBySamplingAlg.h"
+#include "../CaloCellContainerAliasAlg.h"
 
 
 DECLARE_COMPONENT( CaloTowerMonitor )
@@ -66,3 +70,9 @@ DECLARE_COMPONENT( CaloCellFastCopyTool )
 DECLARE_COMPONENT( CaloClusterSnapshot )
 
 DECLARE_COMPONENT( CaloBCIDAvgAlg )
+
+DECLARE_COMPONENT (CaloCellDumper)
+
+DECLARE_COMPONENT (CaloThinCellsByClusterAlg)
+DECLARE_COMPONENT (CaloThinCellsBySamplingAlg)
+DECLARE_COMPONENT (CaloCellContainerAliasAlg)

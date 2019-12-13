@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //        
@@ -31,7 +31,6 @@
 #include <TH1.h>
 #include <chrono>
 #include <xAODRootAccess/Init.h>
-#include <CxxUtils/make_unique.h>
 
 //
 // main program
@@ -90,7 +89,7 @@ int main (int argc, char ** argv)
   ANA_CHECK( event.readFrom(&inputFile) );
 
   // create a new QuickAna tool
-  auto quickAna = CxxUtils::make_unique<ana::QuickAna>("quickana_" + scheduler);
+  auto quickAna = std::make_unique<ana::QuickAna>("quickana_" + scheduler);
 
   // request the actual object definitions to use
   quickAna->eventinfoDef = "default";

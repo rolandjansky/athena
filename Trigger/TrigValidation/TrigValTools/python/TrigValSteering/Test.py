@@ -9,6 +9,8 @@ Definition of a Trigger ART test to be configured and executed
 import sys
 import os
 import json
+import subprocess
+from collections import OrderedDict
 
 from TrigValTools.TrigValSteering.Common import get_logger, art_result, clear_art_summary, package_prefix_dict
 from TrigValTools.TrigValSteering.Step import get_step_from_list
@@ -71,10 +73,15 @@ class Test(object):
         clear_art_summary()
 
         # Store the executed commands
-        commands = {
-            'exec_steps': [],
-            'check_steps': []
-        }
+        commands = OrderedDict()
+
+        # Pre-exec - a useful hook for some workarounds
+        pre_exec_cmd = self.pre_exec()
+        if len(pre_exec_cmd) > 0:
+            commands['pre_exec'] = pre_exec_cmd
+
+        commands['exec_steps'] = []
+        commands['check_steps'] = []
 
         # Run the exec steps
         for step in self.exec_steps:
@@ -115,7 +122,7 @@ class Test(object):
         for exec_step in self.exec_steps:
             if exec_step.timeout is None:
                 # 3h for grid tests, 1h for build tests
-                exec_step.timeout = 3*3600 if self.art_type == 'grid' else 3600
+                exec_step.timeout = 12*3600 if self.art_type == 'grid' else 3600
         for check_step in self.check_steps:
             if check_step.timeout is None:
                 # 5 min for all check steps
@@ -168,3 +175,17 @@ class Test(object):
         if step is None:
             step = get_step_from_list(step_name, self.check_steps)
         return step
+
+    def pre_exec(self):
+        '''Extra pre-exec function executed just before the steps'''
+        cmd_list = []
+        # Create empty POOL File Catalog to avoid incorrect grid failure handling
+        if self.art_type == 'grid':
+            cmd = 'which art.py >/dev/null 2>&1'
+            art_available = subprocess.call(cmd, shell=True)
+            if art_available == 0:
+                cmd = 'art.py createpoolfile'
+                self.log.debug('Executing pre-exec command %s', cmd)
+                subprocess.call(cmd, shell=True)
+                cmd_list.append(cmd)
+        return cmd_list

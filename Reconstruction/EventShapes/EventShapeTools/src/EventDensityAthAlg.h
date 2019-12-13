@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /// \class EventDensityAthAlg 
@@ -15,54 +15,28 @@
 #include <string>
 
 // FrameWork includes
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 #include "EventShapeInterface/IEventShapeTool.h"
 #include "AsgTools/ToolHandle.h"
 
 
-class EventDensityAthAlg
-  : public ::AthAlgorithm
-{ 
+class EventDensityAthAlg : public AthReentrantAlgorithm { 
 
   /////////////////////////////////////////////////////////////////// 
   // Public methods: 
   /////////////////////////////////////////////////////////////////// 
  public: 
-
-  // Copy constructor: 
-
-  /// Constructor with parameters: 
-  EventDensityAthAlg( const std::string& name, ISvcLocator* pSvcLocator );
-
-  /// Destructor: 
-  virtual ~EventDensityAthAlg(); 
-
+  /// Using base-class constructor
+  using AthReentrantAlgorithm::AthReentrantAlgorithm;
 
   // Athena algorithm's Hooks
-  virtual StatusCode  initialize();
-  virtual StatusCode  execute();
-  virtual StatusCode  finalize();
+  virtual StatusCode  initialize() override;
+  virtual StatusCode  execute( const EventContext&) const override;
+  virtual StatusCode  finalize() override;
 
- private: 
-  
-  /// Default constructor: 
-  //  EventDensityAthAlg();
-  
-  /// Containers
-  
-  
-  ToolHandle<IEventShapeTool> m_densityTool;  
-  
-
+ private:   
+  ToolHandle<IEventShapeTool> m_densityTool{this,"EventDensityTool",""};
 }; 
-
-// I/O operators
-//////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
-
 
 #endif //> !EVENTSHAPETOOLS_EVENTDENSITYATHALG_H

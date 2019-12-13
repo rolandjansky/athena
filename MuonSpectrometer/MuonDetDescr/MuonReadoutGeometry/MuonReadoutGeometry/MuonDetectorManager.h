@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonDetectorManager_H
@@ -719,6 +719,7 @@ namespace MuonGM {
   class MuonDetectorManager;
 }
 CLASS_DEF(MuonGM::MuonDetectorManager, 4500, 1)
+CLASS_DEF( CondCont<MuonGM::MuonDetectorManager>, 205781622, 0)
 #endif
 
 #endif

@@ -28,7 +28,6 @@ typedef std::istringstream mystream;
 
 MuonRpcCablingTest::MuonRpcCablingTest(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm            ( name, pSvcLocator ),
-    m_idHelper              ( 0 ),
     m_cablingSvc            ( NULL ),
     m_padHashIdHelper       ( NULL ),
     m_selSideStr            ( "" ),
@@ -66,10 +65,9 @@ MuonRpcCablingTest::initialize()
 // 	msg() << MSG::DEBUG << " Id Helpers are obtained from MuonDetectorManager " << endmsg;	
 //     }	
 
-    status = detStore()->retrieve( m_idHelper, "RPCIDHELPER" );
-    if ( status.isFailure() ) 
-    {
- 	msg()<< MSG::ERROR << " Cannot retrieve RpcIdHelper " << endmsg;
+    if( m_muonIdHelperTool.retrieve().isFailure() ){
+      ATH_MSG_FATAL("Could not get " << m_muonIdHelperTool);      
+      return StatusCode::FAILURE;
     }
 
     // get RPC cablingSvc
@@ -119,7 +117,7 @@ MuonRpcCablingTest::execute()
     }
 
     IdentifierHash Idhash;
-    IdContext rpcModuleContext = m_idHelper->module_context();
+    IdContext rpcModuleContext = m_muonIdHelperTool->rpcIdHelper().module_context();
     //const RpcPadContainer* tmpRdoContainer = new RpcPadContainer(1000);
 
     // this is the right thing to do !!!!!!!
@@ -211,7 +209,7 @@ MuonRpcCablingTest::execute()
                 {
 		    pad_idId = pad_id;
                     ATH_MSG_DEBUG("pad_id, PadId ------------------------ "
-				 <<  (int)pad_idId.get_identifier32().get_compact() <<" "<< PadId<<" "<<m_idHelper->show_to_string(PadId));
+				 <<  (int)pad_idId.get_identifier32().get_compact() <<" "<< PadId<<" "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(PadId));
                     
                     if (PadId_previous == PadId)
                     {
@@ -246,10 +244,10 @@ MuonRpcCablingTest::execute()
 				    {
 					for (std::list<Identifier>::const_iterator it=myOfflineList.begin(); it!=myOfflineList.end(); ++it)
 					{
-					    ATH_MSG_DEBUG("ijk = "<<ijk<<" channel = "<<Channel<<" id offline = "<<m_idHelper->show_to_string(*it));
-					    //Identifier idp = m_idHelper->parentID(*it);
-					    fout<<m_idHelper->show_to_string(*it)<<" ";
-					    ATH_MSG_DEBUG(m_idHelper->show_to_string(*it)<<" ");
+					    ATH_MSG_DEBUG("ijk = "<<ijk<<" channel = "<<Channel<<" id offline = "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(*it));
+					    //Identifier idp = m_muonIdHelperTool->rpcIdHelper().parentID(*it);
+					    fout<<m_muonIdHelperTool->rpcIdHelper().show_to_string(*it)<<" ";
+					    ATH_MSG_DEBUG(m_muonIdHelperTool->rpcIdHelper().show_to_string(*it)<<" ");
 					}
 				    }
 				    fout<<std::endl;

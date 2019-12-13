@@ -13,9 +13,11 @@ addAlgorithm("MuonByteStreamCnvTest.MuonByteStreamCnvTestConfig.getRpcDigitToRpc
 addAlgorithm("MuonByteStreamCnvTest.MuonByteStreamCnvTestConfig.getTgcDigitToTgcRDO" , "TgcDigitToTgcRDO")
 addAlgorithm("MuonByteStreamCnvTest.MuonByteStreamCnvTestConfig.getSTGC_DigitToRDO" , "STGC_DigitToRDO")
 addAlgorithm("MuonByteStreamCnvTest.MuonByteStreamCnvTestConfig.getMM_DigitToRDO" , "MM_DigitToRDO")
+
 addAlgorithm("MuonByteStreamCnvTest.MuonByteStreamCnvTestConfig.getSigMdtDigitToMdtRDO" , "SigMdtDigitToMdtRDO")
 addAlgorithm("MuonByteStreamCnvTest.MuonByteStreamCnvTestConfig.getSigRpcDigitToRpcRDO" , "SigRpcDigitToRpcRDO")
 addAlgorithm("MuonByteStreamCnvTest.MuonByteStreamCnvTestConfig.getSigTgcDigitToTgcRDO" , "SigTgcDigitToTgcRDO")
+
 addAlgorithm("MuonByteStreamCnvTest.MuonByteStreamCnvTestConfig.getOverlayCscDigitToCscRDO" , "OverlayCscDigitToCscRDO")
 addAlgorithm("MuonByteStreamCnvTest.MuonByteStreamCnvTestConfig.getOverlayMdtDigitToMdtRDO" , "OverlayMdtDigitToMdtRDO")
 addAlgorithm("MuonByteStreamCnvTest.MuonByteStreamCnvTestConfig.getOverlayRpcDigitToRpcRDO" , "OverlayRpcDigitToRpcRDO")

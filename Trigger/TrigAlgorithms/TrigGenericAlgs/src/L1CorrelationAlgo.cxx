@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -19,7 +19,6 @@
 #include <sstream>
 #include <algorithm>
 
-#include <boost/foreach.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/tokenizer.hpp>
 
@@ -320,7 +319,7 @@ HLT::ErrorCode L1CorrelationAlgo::hltExecute(std::vector<HLT::TEVec>& /*fake_see
   if (msgLvl(MSG::DEBUG)) {
     ostringstream os;
     os << hex;
-    BOOST_FOREACH(uint32_t rob, roblist) os << " 0x" << rob;
+    for(uint32_t rob : roblist) os << " 0x" << rob;
     ATH_MSG_DEBUG(roblist.size() << "/" << robFragments.size()
 		 << " ROBs requested/retrieved:" << os.str());
   }
@@ -490,39 +489,46 @@ HLT::ErrorCode L1CorrelationAlgo::hltExecute(std::vector<HLT::TEVec>& /*fake_see
       /// now try to take a look into out of time muons:
       
       if(debugoutput)
-	std::cout <<  "===> execute() TrigMuonRoITool Test Algorithm: print out of time RoIs" << std::endl;
+	ATH_MSG_DEBUG(  "===> execute() TrigMuonRoITool Test Algorithm: print out of time RoIs" );
+
+      //get muon RoIs
+      auto roiVectors = m_trigMuonRoITool->decodeMuCTPi();
+      if(!roiVectors){
+	ATH_MSG_VERBOSE("No RoIs found");
+	return HLT::OK;
+      }
 
       bool hasValidOutOfTime_ROI=false;
-      for  (std::vector< std::pair<ROIB::MuCTPIRoI,int> >::const_iterator it = m_trigMuonRoITool->begin_OutOfTimeRoIs();
-	    it != m_trigMuonRoITool->end_OutOfTimeRoIs(); ++it) {
+      //loop over out of time RoIs
+      for(auto it : *(roiVectors->outOfTimeRois)){
 
 	// only look at the highest pt thresholds..
 	
 	// look at the neighbouring bcs only 
-	if (abs((*it).second) !=1) continue;
-	if ( ((*it).first).pt() < 6 ) continue;
+	if (abs((it).second) !=1) continue;
+	if ( ((it).first).pt() < 6 ) continue;
 	// only look at highgest pt candidates:
 	// if ( !((*it).first).getCandidateIsHighestPt() ) continue;
 	
 	if(debugoutput){
-	  std::cout <<  "RoIB word               : 0x" << std::hex << ((*it).first).roIWord() << std::dec << std::endl;
-	  std::cout <<  "Threshold               :  pt" << ((*it).first).pt() << std::endl;
-	  std::cout <<  "Sector ID               :  " << ((*it).first).getSectorID() << std::endl;
-	  std::cout <<  "Sector addr             :  0x" << std::hex << ((*it).first).getSectorAddress() << std::dec << std::endl;
-	  std::cout <<  "Sector overflow         :  " << ((*it).first).getSectorOverflow() << std::endl;
-	  std::cout <<  "RoI overflow            :  " << ((*it).first).getRoiOverflow() << std::endl;
-	  std::cout <<  "RoI number              :  " << ((*it).first).getRoiNumber() << std::endl;
-	  std::cout <<  "IsHighestPt             :  " << ((*it).first).getCandidateIsHighestPt() << std::endl;
+	  ATH_MSG_DEBUG(  "RoIB word               : 0x" << std::hex << ((it).first).roIWord() << std::dec );
+	  ATH_MSG_DEBUG(  "Threshold               :  pt" << ((it).first).pt() );
+	  ATH_MSG_DEBUG(  "Sector ID               :  " << ((it).first).getSectorID() );
+	  ATH_MSG_DEBUG(  "Sector addr             :  0x" << std::hex << ((it).first).getSectorAddress() << std::dec );
+	  ATH_MSG_DEBUG(  "Sector overflow         :  " << ((it).first).getSectorOverflow() );
+	  ATH_MSG_DEBUG(  "RoI overflow            :  " << ((it).first).getRoiOverflow() );
+	  ATH_MSG_DEBUG(  "RoI number              :  " << ((it).first).getRoiNumber() );
+	  ATH_MSG_DEBUG(  "IsHighestPt             :  " << ((it).first).getCandidateIsHighestPt() );
 	}
 	
 
 	// loop over in time muon rois and veto event if the same muon roi is present in both BCIDs
 	bool overlapsInTime=false;
-	for  (std::vector< ROIB::MuCTPIRoI >::const_iterator it_intime = m_trigMuonRoITool->begin_InTimeRoIs();
-	      it_intime != m_trigMuonRoITool->end_InTimeRoIs(); ++it_intime) {
+	//loop over in time RoIs
+	for(auto it_intime : *(roiVectors->inTimeRois)){
 	  
-	  if( ((*it).first).getSectorID() == (*it_intime).getSectorID() &&
-	      ((*it).first).getSectorAddress() == (*it_intime).getSectorAddress() //&&
+	  if( ((it).first).getSectorID() == (it_intime).getSectorID() &&
+	      ((it).first).getSectorAddress() == (it_intime).getSectorAddress() //&&
 	      ){
 	    
 	    overlapsInTime=true;

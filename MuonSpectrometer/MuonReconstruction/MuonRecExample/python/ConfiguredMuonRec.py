@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
 __all__ = [ 'ConfiguredMuonRec', 'GetMuonRec', 'CompositeMuonRec' ]
@@ -10,7 +10,7 @@ from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.ConfigurableDb import getConfigurable
 from AthenaCommon.Logging import logging
 
-from MuonRecUtils import RecConfigInfo,logMuon,logMuonResil
+from .MuonRecUtils import RecConfigInfo,logMuon,logMuonResil
 from AthenaCommon.ConfiguredFactory import getProperty
 
 # default package used if no package is specified in configTag of GetMuonRec()
@@ -710,7 +710,7 @@ class ParallelMuonRec(CompositeMuonRec):
             except:
                 if self._applyResilience:
                    import traceback
-                   print traceback.format_exc().rstrip()
+                   traceback.print_exc()
                    logMuonResil.error("Configuration of %s FAILED. Switching off", c.fullName())
                 else:
                     raise
@@ -784,7 +784,7 @@ def GetMuonRec(configTag,doConfigure=True,applyResilience=False, **kwargs):
         except:
             if applyResilience:
                 import traceback
-                print traceback.format_exc().rstrip()
+                traceback.print_exc()
                 logMuonResil.error("Configuration of \"%s\" FAILED. Switching off.", configTag)
                 try:
                     theInstance.unConfigure()

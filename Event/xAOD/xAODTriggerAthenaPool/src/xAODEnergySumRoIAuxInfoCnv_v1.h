@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -18,17 +18,20 @@
 /// Converter class used for reading xAOD::EnergySumRoIAuxInfo_v1
 ///
 class xAODEnergySumRoIAuxInfoCnv_v1 :
-   public T_AthenaPoolTPCnvBase< xAOD::EnergySumRoIAuxInfo,
-                                 xAOD::EnergySumRoIAuxInfo_v1 > {
+   public T_AthenaPoolTPCnvConstBase< xAOD::EnergySumRoIAuxInfo,
+                                      xAOD::EnergySumRoIAuxInfo_v1 > {
 
 public:
+   using base_class::transToPers;
+   using base_class::persToTrans;
+
    /// Default constructor
    xAODEnergySumRoIAuxInfoCnv_v1();
 
    /// Function converting from the old type to the current one
    virtual void persToTrans( const xAOD::EnergySumRoIAuxInfo_v1* oldObj,
                              xAOD::EnergySumRoIAuxInfo* newObj,
-                             MsgStream& log );
+                             MsgStream& log ) const override;
 
    /// Function for converting from old type to current one
 //   xAOD::EnergySumRoIAuxInfo* createTransient(const xAOD::EnergySumRoIAuxInfo_v1* oldObj,
@@ -37,7 +40,7 @@ public:
    /// Dummy function inherited from the base class
    virtual void transToPers( const xAOD::EnergySumRoIAuxInfo*,
                              xAOD::EnergySumRoIAuxInfo_v1*,
-                             MsgStream& log );
+                             MsgStream& log ) const override;
 
 }; // class xAODEnergySumRoIAuxInfo_v1
 

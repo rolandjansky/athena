@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TTree.h"
@@ -74,7 +74,7 @@ void P2X(int gNVariables, TMatrixD *EigenVectors,TVectorD *MeanValues, TVectorD 
 }
 
 ///////////////////////////////////////////////////////////////////////
-void ScatterPlots(TTree *InputTree, std::string VarPlotted, std::string output){
+void ScatterPlots(TTree *InputTree, const std::string& VarPlotted, const std::string& output){
 ///////////////////////////////////////////////////////////////////////
     
     
@@ -127,7 +127,7 @@ void ScatterPlots(TTree *InputTree, std::string VarPlotted, std::string output){
 }
 
 ///////////////////////////////////////////////////////////////////////
-void PlotterToy1(TH1F* hinput, TH1F* houtput, std::string output){
+void PlotterToy1(TH1F* hinput, TH1F* houtput, const std::string& output){
 ///////////////////////////////////////////////////////////////////////
 
 
@@ -191,7 +191,7 @@ delete tcv;
 
 
 ///////////////////////////////////////////////////////////////////////
-void TransformationChainPlots(TTree *InputTree_Id, std::string VarPlotted_Id, TTree *InputTree_Uniform, std::string VarPlotted_Uniform, TTree *InputTree_Gauss, std::string VarPlotted_Gauss, TH1F* Cumulative , std::string output){
+void TransformationChainPlots(TTree *InputTree_Id, const std::string& VarPlotted_Id, TTree *InputTree_Uniform, const std::string& VarPlotted_Uniform, TTree *InputTree_Gauss, const std::string& VarPlotted_Gauss, TH1F* Cumulative , const std::string& output){
 ///////////////////////////////////////////////////////////////////////
     
     

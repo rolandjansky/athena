@@ -1,14 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
  A Muon GeoVDetectorElement
  -----------------------------------------
 ***************************************************************************/
-
-//<doc><file>	$Id: MuonReadoutElement.cxx,v 1.3 2009-03-03 00:27:38 dwright Exp $
-//<version>	$Name: not supported by cvs2svn $
 
 #include "MuonReadoutGeometry/MuonReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
@@ -18,11 +15,13 @@
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoDefinitions.h"
 
-#include "AthenaKernel/getMessageSvc.h"
 #include "TrkSurfaces/CylinderBounds.h"
 #include "TrkSurfaces/StraightLineSurface.h"
 
-// Test
+#include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/IMessageSvc.h"
 
 namespace MuonGM {
 
@@ -31,10 +30,9 @@ namespace MuonGM {
 					 MuonDetectorManager* mgr)
     : TrkDetElementBase(pv),
       m_Ssize(-9999.), m_Rsize(-9999.), m_Zsize(-9999.), m_LongSsize(-9999.),
-      m_LongRsize(-9999.), m_LongZsize(-9999.), m_caching(-1), m_MsgStream(NULL),
+      m_LongRsize(-9999.), m_LongZsize(-9999.), m_caching(-1), 
       m_eta(-1), m_phi(-1), m_id_max_init_field(-1), m_absTransform(nullptr),m_defTransform(nullptr)
   {
-    //m_msgSvc = Athena::getMessageSvc();
     m_stationS = 0.;
     m_zi = zi;
     m_fi = fi;
@@ -52,12 +50,15 @@ namespace MuonGM {
     m_nCSCinStation = 0;
     m_nRPCinStation = 0;
     m_nTGCinStation = 0;
+    ISvcLocator* svcLocator = Gaudi::svcLocator();
+    StatusCode sc = svcLocator->service("MessageSvc", m_msgSvc);
+    if (sc.isFailure()) std::cout << "Fail to locate Message Service" << std::endl;
+    m_Log = std::make_unique<MsgStream>(m_msgSvc, "MuonReadoutElement");
   }
 
 
   MuonReadoutElement::~MuonReadoutElement()
   {
-    delete m_MsgStream; m_MsgStream=0;
   }
 
   void MuonReadoutElement::clear() const {
@@ -202,12 +203,6 @@ namespace MuonGM {
     GeoTrf::Transform3D par_to_child = GeoTrf::Transform3D::Identity();
 
     if ( m_indexOfREinMuonStation >=0 ) par_to_child = par->getXToChildVol( (unsigned int)m_indexOfREinMuonStation );
-#ifndef NDEBUG
-    else
-      {
-        reLog()<<MSG::ERROR<<"No index to REinMuonStation computed/found until now"<<endmsg;
-      }
-#endif
     return par_to_child;
   }
 

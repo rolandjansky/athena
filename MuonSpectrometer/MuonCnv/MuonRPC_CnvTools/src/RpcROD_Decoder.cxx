@@ -20,7 +20,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/ListItem.h"
-//#include "GaudiKernel/IIncidentSvc.h"
 
 //niko
 //#include "RpcByteStreamAccess/IRPC_ByteStreamErrorSvc.h"
@@ -36,8 +35,8 @@ Muon::RpcROD_Decoder::RpcROD_Decoder ( const std::string& type, const std::strin
 														      //niko
 														      m_decodeSL(false),
 														      //m_byteStreamErrSvc("RPC_ByteStreamErrorSvc",name),
-														      m_cabling(0),
-														      m_pRpcIdHelper(0) //,m_bench("RpcROD_Decoder"),
+														      m_cabling(0)
+														      //,m_bench("RpcROD_Decoder"),
 {
     declareInterface< IRpcROD_Decoder  >( this );
     declareProperty("SpecialROBNumber",m_specialROBNumber=-1);
@@ -65,18 +64,7 @@ StatusCode Muon::RpcROD_Decoder::initialize() {
     return StatusCode::FAILURE; 
   }
 
-  StatusCode status=StatusCode::SUCCESS;
-
-
-    // Get the RPC id helper from the detector store
-  status = detStore()->retrieve(m_pRpcIdHelper, "RPCIDHELPER");
-  if (status.isFailure()) {
-    ATH_MSG_FATAL("Could not get RpcIdHelper !");
-    return StatusCode::FAILURE;
-  } 
-  else {
-    ATH_MSG_VERBOSE("Found the RpcIdHelper.");
-  }
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
   if (m_specialROBNumber>0) {
     ATH_MSG_DEBUG("Setting the special ROB Number to: 0x" << MSG::hex << m_specialROBNumber << MSG::dec );
@@ -84,7 +72,6 @@ StatusCode Muon::RpcROD_Decoder::initialize() {
 
   //==LBTAG initialize vector and variables for format failure check
   for(int i=0; i<13; i++) m_RPCcheckfail[i]=0;
-  m_previous=0;
   m_printerror=0;
 
   return StatusCode::SUCCESS;

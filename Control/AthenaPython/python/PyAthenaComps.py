@@ -7,7 +7,6 @@
 from __future__ import print_function
 
 __doc__     = """Module containing a set of Python base classes for PyAthena"""
-__version__ = "$Revision: 1.12 $"
 __author__  = "Sebastien Binet <binet@cern.ch>"
 
 ### data
@@ -22,9 +21,8 @@ __all__ = [ 'StatusCode',
             ]
 
 ### imports
-import sys
 from AthenaCommon.Logging import logging
-from AthenaCommon.Configurable  import *
+from AthenaCommon.Configurable  import *  # noqa: F401, F403
 from AthenaPython.Configurables import (CfgPyAlgorithm,
                                         CfgPyService,
                                         CfgPyAlgTool,
@@ -74,10 +72,6 @@ class Alg( CfgPyAlgorithm ):
     should be overridden.
     """
     def __init__(self, name = None, **kw):
-        # Needed to prevent spurious root errors about streams in CreateRealData.
-        import ROOT
-        ROOT.GaudiPython.CallbackStreamBuf
-
         if name is None: name = kw.get('name', self.__class__.__name__)
         ## init base class
         super(Alg, self).__init__(name, **kw)
@@ -198,16 +192,16 @@ class Svc( CfgPyService ):
     def finalize(self):
         return StatusCode.Success
 
-    def sysBeginRun(self):
-        return self.beginRun()
+    def sysStart(self):
+        return self.start()
     
-    def beginRun(self):
+    def start(self):
         return StatusCode.Success
 
-    def sysEndRun(self):
-        return self.endRun()
+    def sysStop(self):
+        return self.stop()
     
-    def endRun(self):
+    def stop(self):
         return StatusCode.Success
     
     pass # PyAthena.Svc
@@ -380,7 +374,8 @@ class AthFilterAlgorithm(Alg):
         """Set the filter passed flag to the specified state"""
         o = super(AthFilterAlgorithm, self).setFilterPassed(state)
         if state:
-            self.cutFlowSvc().addEvent(self.cutID)
+            # TODO: we should read a proper weight
+            self.cutFlowSvc().addEvent(self.cutID, 1)
         return o
     
     pass # PyAthena.AthFilterAlgorithm

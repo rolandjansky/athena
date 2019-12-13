@@ -2,17 +2,6 @@
    Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <math.h>
-
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/StatusCode.h"
-#include "AthLinks/ElementLink.h" 
-
-#include "DecisionHandling/TrigCompositeUtils.h"
-#include "xAODTrigMuon/L2StandAloneMuonContainer.h" 
-#include "xAODTrigger/TrigCompositeContainer.h"
-#include "TrigT1Interfaces/RecMuonRoI.h"
-
 #include "TrigL2MuonOverlapRemoverMufastAlg.h"
 #include "AthViews/ViewHelper.h"
 
@@ -71,15 +60,15 @@ StatusCode TrigL2MuonOverlapRemoverMufastAlg::execute(const EventContext& contex
      const LVL1::RecMuonRoI* RecRoI = *RecRoIEL;
  
      // get View
-     ATH_CHECK( previousDecision->hasObjectLink( viewString()) );
-     auto viewEL = previousDecision->objectLink<ViewContainer>( viewString() );
-     ATH_CHECK( viewEL.isValid() );
-     
+     auto viewELInfo = TrigCompositeUtils::findLink< ViewContainer >( previousDecision, viewString(), /*suppressMultipleLinksWarning = */ true  );
+     ATH_CHECK( viewELInfo.isValid() );
+     auto viewEL = viewELInfo.link;
+
      // get info
      auto L2MuonOverlapRemoverHandle = ViewHelper::makeHandle( *viewEL, m_OverlapRemoverKey, context );
      ATH_CHECK( L2MuonOverlapRemoverHandle.isValid() );
      ATH_MSG_DEBUG( "Muinfo handle size: " << L2MuonOverlapRemoverHandle->size() << "...");
-     
+
      auto overlapEL = ViewHelper::makeLink( *viewEL, L2MuonOverlapRemoverHandle, 0 );
      ATH_CHECK( overlapEL.isValid() );
      const xAOD::L2StandAloneMuon* overlap = *overlapEL;

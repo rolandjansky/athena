@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -13,7 +13,6 @@
 #undef NDEBUG
 #include "MuonEventTPCnv/MuonPrepRawData/MMPrepDataContainerCnv_p1.h"
 #include "TestTools/leakcheck.h"
-#include "CxxUtils/make_unique.h"
 #include "TestTools/initGaudi.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
@@ -27,7 +26,6 @@
 void compare (const Trk::PrepRawData& p1,
               const Trk::PrepRawData& p2)
 {
-  assert (p1.identify() == p2.identify());
   assert (p1.localPosition()[0] == p2.localPosition()[0]);
   assert (p1.rdoList() == p2.rdoList());
   assert (p1.localCovariance() == p2.localCovariance());
@@ -46,6 +44,7 @@ void compare (const Muon::MuonCluster& p1,
 void compare (const Muon::MMPrepData& p1,
               const Muon::MMPrepData& p2)
 {
+  assert (p1.identify() == p2.identify());
   compare (static_cast<const Muon::MuonCluster&>(p1),
            static_cast<const Muon::MuonCluster&>(p2));
   assert (p1.detectorElement() == p2.detectorElement());
@@ -90,26 +89,30 @@ void testit (const Muon::MMPrepDataContainer& trans1)
 std::unique_ptr<const Muon::MMPrepDataContainer>
 makeclusts (const MuonGM::MuonDetectorManager& muo_dd)
 {
-  auto cont = CxxUtils::make_unique<Muon::MMPrepDataContainer>(5);
+  auto cont = std::make_unique<Muon::MMPrepDataContainer>(5);
 
   for (int hash=2; hash <= 3; hash++) {
-    auto coll = CxxUtils::make_unique<Muon::MMPrepDataCollection>(IdentifierHash(hash));
+    auto coll = std::make_unique<Muon::MMPrepDataCollection>(IdentifierHash(hash));
 
-    coll->setIdentifier (muo_dd.mmIdHelper()->elementID (55, 1, hash));
+    bool isValid=false;
+    Identifier collId = muo_dd.mmIdHelper()->elementID (55, 1, hash, true, &isValid);
+    assert(isValid==true);
+    coll->setIdentifier (collId);
 
     for (int i=0; i < 10; i++) {
       int offs = i*10 + hash*100;
-      Identifier clusId = muo_dd.mmIdHelper()->channelID (55, 1, hash,
-                                                          1, 1, 1+i);
+      isValid=false;
+      Identifier clusId = muo_dd.mmIdHelper()->channelID (55, 1, hash, 1, 1, muo_dd.mmIdHelper()->channelMin()+i, true, &isValid);
+      assert(isValid==true);
       int clusHash = 567 + offs;
-      
+
       Amg::Vector2D locpos (2.5+offs, 0);
       std::vector<Identifier> rdoList { clusId };
 
       Amg::MatrixX cov(1,1);
       cov(0,0) = 101 + offs;
 
-      auto cl = CxxUtils::make_unique<Muon::MMPrepData>
+      auto cl = std::make_unique<Muon::MMPrepData>
         (clusId,
          clusHash,
          locpos,

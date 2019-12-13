@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelCondAlg, LArBadFebCondAlg, LArBadChannelMasker
 from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg
@@ -73,7 +75,7 @@ if __name__=="__main__":
     acc=LArBadChannelMaskerCfg(ConfigFlags,["allDead",])
     masker=acc.popPrivateTools()
     cfg.merge(acc)
-    f=open("LArBCCondAlgos.pkl","w")
+    f=open("LArBCCondAlgos.pkl","wb")
     cfg.store(f)
     f.close()
     

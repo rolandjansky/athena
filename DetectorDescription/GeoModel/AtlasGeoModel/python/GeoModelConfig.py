@@ -1,6 +1,8 @@
-from __future__ import print_function
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaCommon.Configurable import Configurable
+from AthenaCommon import Logging
 
 def GeoModelCfg(configFlags):
     version=configFlags.GeoModel.AtlasVersion
@@ -44,5 +46,5 @@ if __name__ == "__main__":
     Configurable.configurableRun3Behavior=1
 
     acc = GeoModelCfg( ConfigFlags )
-    acc.store( file( "test.pkl", "w" ) )
-    print("All OK")
+    acc.store( open( "test.pkl", "wb" ) )
+    Logging.log.info("All OK")

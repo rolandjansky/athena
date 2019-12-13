@@ -13,7 +13,6 @@
 
 class HWIdentifier;
 class LArOnlineID;
-class StoreGateSvc;
 class LArEM_ID;
 class LArHEC_ID;
 class LArFCAL_ID;

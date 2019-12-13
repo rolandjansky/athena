@@ -12,10 +12,8 @@
 #include "MuonHoughPatternEvent/MuonHoughMathUtils.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 
-class RpcIdHelper;
-class MdtIdHelper;
-class CscIdHelper;
-class TgcIdHelper;
+#include <cmath>
+
 namespace MuonGM {
      class MuonDetectorManager;
 }
@@ -102,7 +100,7 @@ class MuonCombinePatternTool : public AthAlgTool, virtual public Muon::IMuonComb
   double* updateParametersForCosmics(const Muon::MuonPrdPattern* phipattern, const Muon::MuonPrdPattern* etapattern)const;
 
   /** calculate phi and r0 for cosmic patterns, phi estimate needs to be given */
-  std::pair<double,double> calculateR0Phi(const Muon::MuonPrdPattern* phipattern, const Muon::MuonPrdPattern* etapattern, double phi_estimate=-MuonHough::Pi/2.)const;
+  std::pair<double,double> calculateR0Phi(const Muon::MuonPrdPattern* phipattern, const Muon::MuonPrdPattern* etapattern, double phi_estimate=-M_PI_2)const;
 
   /** calculate rz0 for cosmic pattern */
   double calculateRz0(const Muon::MuonPrdPattern* pattern, double phi, double theta)const;
@@ -114,7 +112,7 @@ class MuonCombinePatternTool : public AthAlgTool, virtual public Muon::IMuonComb
   const Amg::Vector3D& globalPrdPos( const Trk::PrepRawData* prd ) const;
 
   /** adds eta,phi pair to candidate vector, also performs splitting and associated pattern (only for cosmics!)*/
-  void addCandidate(const Muon::MuonPrdPattern* etapattern, const Muon::MuonPrdPattern* phipattern, std::vector<std::pair<const Muon::MuonPrdPattern*, const Muon::MuonPrdPattern*> > &candidates, bool add_asspattern)const; 
+  void addCandidate(const Muon::MuonPrdPattern* etapattern, const Muon::MuonPrdPattern* phipattern, std::vector<std::pair<const Muon::MuonPrdPattern*, const Muon::MuonPrdPattern*> > &candidates, bool add_asspattern, std::vector<const Muon::MuonPrdPattern*>& patternsToDelete)const; 
 
   /** clean candidates from subsets or duplicates */
   void cleanCandidates(std::vector<std::pair<const Muon::MuonPrdPattern*, const Muon::MuonPrdPattern*> > &candidates)const;
@@ -152,22 +150,8 @@ class MuonCombinePatternTool : public AthAlgTool, virtual public Muon::IMuonComb
   /** phi eta association map, eta prds are key*/
   std::map <const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >* m_phiEtaHitAssMap;
 
-  /** vector containing temporary made patterns, which are to be deleted at end of matching */
-  mutable std::vector<const Muon::MuonPrdPattern*> m_patternsToDelete;
-
-  /** pointer to muondetectormanager */
-  const MuonGM::MuonDetectorManager*  m_detMgr;
-
-  /** Pointer to RpcIdHelper */
-  const RpcIdHelper*                  m_rpcIdHelper;
-  /** Pointer to TgcIdHelper */
-  const TgcIdHelper*                  m_tgcIdHelper;
-  /** Pointer to CscIdHelper */
-  const CscIdHelper*                  m_cscIdHelper;
-  /** Pointer to MdtIdHelper */
-  const MdtIdHelper*                  m_mdtIdHelper;
-
-  ToolHandle<Muon::MuonIdHelperTool>  m_idHelper;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
 };
 

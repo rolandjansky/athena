@@ -27,7 +27,7 @@ def remember_cwd():
 def package_prefix(package):
     '''Returns a prefix included in names of all tests from the given package'''
     from TrigValTools.TrigValSteering.Common import package_prefix_dict
-    if package=='ALL':
+    if package == 'ALL':
         return '({})'.format('|'.join(package_prefix_dict.values()))
     elif package in package_prefix_dict.keys():
         return package_prefix_dict[package]
@@ -40,7 +40,7 @@ def minimal_pattern(package):
             'TrigP1Test':       None,
             'TrigAnalysisTest': 'trigAna_q221_RDOtoRDOTrig_mt1_build',
             'TrigUpgradeTest':  '(trigUpgr_full_menu_build|trigUpgr_newJO_build|trigUpgr_full_menu_cf_configOnly_build)'}
-    if package=='ALL':
+    if package == 'ALL':
         return '({})'.format('|'.join([v for v in dict.values() if v]))
     elif package in dict and dict[package] is not None:
         return dict[package]
@@ -48,11 +48,13 @@ def minimal_pattern(package):
         logging.error("Minimal set of tests for %s is not defined.", package)
         exit(1)
 
+
 def duplicate_filename(list, filename):
     for path in list:
         if os.path.basename(path) == filename:
             return True
     return False
+
 
 def find_scripts(patterns):
     scripts = []
@@ -67,14 +69,14 @@ def find_scripts(patterns):
                 if re.search(patt, filename) is None:
                     matched = False
                     break
-            if matched and not duplicate_filename(scripts,filename):
+            if matched and not duplicate_filename(scripts, filename):
                 scripts.append(path+'/'+filename)
     scripts.sort()
     return scripts
 
 
 def get_parser():
-    packages=['TriggerTest', 'TrigAnalysisTest', 'TrigP1Test', 'TrigUpgradeTest', 'ALL']
+    packages = ['TriggerTest', 'TrigAnalysisTest', 'TrigP1Test', 'TrigUpgradeTest', 'ALL']
     parser = argparse.ArgumentParser(usage='%(prog)s [options] [PackageName]')
     parser.add_argument('package',
                         metavar='PackageName',
@@ -124,24 +126,46 @@ def get_patterns(args):
     return patterns
 
 
+def analyse_result_python(test_results):
+    '''Analyses test results based on the final exit code, which determines
+    the status for ART tests based on TrigValSteering python framework'''
+    result_string = ''
+    for step in test_results['result']:
+        result_string += "%s: %d, " % (step['name'], step['result'])
+    result_string += "exit: %d" % test_results['exit_code']
+    is_success = (test_results['exit_code'] == 0)
+    return result_string, is_success
+
+
+def analyse_result_shell(test_results):
+    '''Analyses test results based on individual hard-coded step names, as
+    the final status cannot be unambiguously determined in the old shell-based
+    ART tests not using the TrigValSteering framework'''
+    result_string = ''
+    steps_to_ignore = ['RootComp', 'MessageCount']
+    is_success = True
+    for step in test_results['result']:
+        result_string += "%s: %d, " % (step['name'], step['result'])
+        if step['name'] not in steps_to_ignore and step['result'] != 0:
+            is_success = False
+    result_string += "exit: %d" % test_results['exit_code']
+    return result_string, is_success
+
+
 def analyse_results(all_test_results):
     '''Prints a summary table of all results and returns two lists. One includes names of failed tests,
     the other names of tests in which only the RootComp step failed. If only RootComp fails, the test is
     not added to the first list, as we currently do not enforce updating RootComp references on every change.'''
     failed_tests = []
-    failed_rootcomp = []  # rootcomp failures are ignored at the moment
     table = {}  # test name : results
     for test_name in all_test_results.keys():
-        results = all_test_results[test_name]['result']
-        result_string = ""
-        for step in results:
-            result_string += "%s: %d, " % (step['name'], step['result'])
-            if step['result'] != 0:
-                if step['name'] == 'RootComp' and test_name not in failed_rootcomp:
-                    failed_rootcomp.append(test_name)
-                elif test_name not in failed_tests:
-                    failed_tests.append(test_name)
-        table[test_name] = result_string[:-2]
+        if test_name.endswith('.py'):
+            result_string, is_success = analyse_result_python(all_test_results[test_name])
+        else:
+            result_string, is_success = analyse_result_shell(all_test_results[test_name])
+        table[test_name] = result_string
+        if not is_success:
+            failed_tests.append(test_name)
     max_len_col1 = len(max(table.keys(), key=len))
     max_len_col2 = len(max(table.values(), key=len))
     logging.info('-'*(max_len_col1+max_len_col2+7))
@@ -150,14 +174,10 @@ def analyse_results(all_test_results):
             col1=k, width1=max_len_col1,
             col2=v, width2=max_len_col2))
     logging.info('-'*(max_len_col1+max_len_col2+7))
-    return failed_tests, failed_rootcomp
+    return failed_tests
 
 
-def print_summary(all_test_results, failed_tests, failed_rootcomp):
-    if len(failed_rootcomp) > 0:
-        logging.info(
-            "RootComp failed in %d tests, but this step is currently ignored\n",
-            len(failed_rootcomp))
+def print_summary(all_test_results, failed_tests):
     if len(failed_tests) > 0:
         logging.info(
             "%d tests succeeded out of %d executed",
@@ -173,6 +193,7 @@ def print_summary(all_test_results, failed_tests, failed_rootcomp):
         logging.info("All %d executed tests succeeded", len(all_test_results))
         logging.info("==================================================")
 
+
 def prep_dirs(topdir, scripts):
     """ Creates test result structure if missing, if present clears the area only for the tests to be run"""
     import errno
@@ -186,8 +207,9 @@ def prep_dirs(topdir, scripts):
 
     # clear results dir
     for script in scripts:
-        toerase=topdir+'/result/'+os.path.basename(script).replace('.sh', '')
+        toerase = topdir+'/result/'+os.path.basename(script).replace('.sh', '')
         shutil.rmtree(toerase, ignore_errors=True)
+
 
 def main():
     args = get_parser().parse_args()
@@ -195,14 +217,13 @@ def main():
                         format='%(levelname)-8s %(message)s',
                         level=logging.DEBUG if args.verbose else logging.INFO)
 
-
     scripts = find_scripts(get_patterns(args))
     logging.info("The following %d tests will be executed: ", len(scripts))
     for filename in scripts:
         logging.info("    %s", os.path.basename(filename))
 
     if len(scripts) > 5*args.maxJobs:
-        if args.maxJobs==1:
+        if args.maxJobs == 1:
             logging.warning("You are running %d tests in sequence. This may take "
                             "a long time, consider using -j N option.", len(scripts))
         else:
@@ -221,28 +242,30 @@ def main():
             target = 'test/' + os.path.basename(script_path)
             os.symlink(script_path, target)
 
-        # Run ART
-        cmd = ["art.py", "run", "-q",
-               "--max-jobs=%d" % args.maxJobs,
-               "--type=%s" % args.artType,
-               ".", "results"]
-        s = " "
-        logging.info("Executing ART command: %s", s.join(cmd))
-        subprocess.call(cmd)
+        # Set up and run ART
+        commands = [
+            'export ATLAS_LOCAL_ROOT_BASE="${ATLAS_LOCAL_ROOT_BASE:-/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase}"',
+            'source "${ATLAS_LOCAL_ROOT_BASE}"/user/atlasLocalSetup.sh --quiet',
+            'lsetup -q art']
+        art_cmd = 'art.py run -q --max-jobs={:d} --type={:s} . results'.format(args.maxJobs, args.artType)
+        commands.append(art_cmd)
+        cmd = ' && '.join(commands)
+        logging.info("Executing ART command: %s", art_cmd)
+        subprocess.call(cmd, shell=True)
         logging.info("ART finished, analysing the results\n")
 
         # Read the result summary from JSON
-        statusfile = 'results/status.json'
+        statusfile = 'results/{:s}-status.json'.format(topdir)
         if not os.path.isfile(statusfile):
             logging.error("ART status.json file is missing - likely the ART runner failed!")
             exit(1)
         with open(statusfile, 'r') as f:
             status_data = json.load(f)
-            all_test_results = status_data['.']
+            all_test_results = status_data[topdir]
             if len(all_test_results) != len(scripts):
                 logging.warning("Selected %d tests but ART executed only %d. Please check why some tests did not run!")
-            failed_tests, failed_rootcomp = analyse_results(all_test_results)
-            print_summary(all_test_results, failed_tests, failed_rootcomp)
+            failed_tests = analyse_results(all_test_results)
+            print_summary(all_test_results, failed_tests)
             if len(failed_tests) > 0:
                 success = False
 

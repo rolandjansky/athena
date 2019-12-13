@@ -5,12 +5,9 @@
 ///////////////////////////////////////////////////////////////////
 // SiDetectorElementCollection.h
 ///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef TRT_EndcapDescriptor_h
 #define TRT_EndcapDescriptor_h 1
-#include "GeoModelKernel/RCBase.h"
 #include "CxxUtils/CachedUniquePtr.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelKernel/GeoXF.h"
@@ -24,10 +21,11 @@ namespace InDetDD {
 
   /** class TRT_EndcapDescriptor
       
-       Helper class to access GeoModel infromation and calculation for straws 
+       Helper class to access GeoModel infromation and calculation for straws.
+       Objects of this class are owned by TRT_DetectorManager.
        */
 
-  class TRT_EndcapDescriptor : public RCBase 
+  class TRT_EndcapDescriptor
     
     {
       
@@ -35,7 +33,10 @@ namespace InDetDD {
       
       /** Constructor */
       TRT_EndcapDescriptor();
-      
+
+      /** Destructor */
+      virtual ~TRT_EndcapDescriptor();
+
       /** Sets the transform field for straws and offset.  We do not own the function: */
       void setStrawTransformField(const GeoXF::Function *xf, size_t offsetInto);
 
@@ -71,12 +72,7 @@ namespace InDetDD {
       /** Get Bounds */
       const Trk::SurfaceBounds & strawBounds() const;
 
-    protected:
-      
-      
-      virtual ~TRT_EndcapDescriptor() = default;
-      
-      
+
     private:
       
       // Illegal to copy:

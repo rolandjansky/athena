@@ -13,7 +13,6 @@
 #include "InDetTrigPrepRawDataFormat/Pixel_TrgClusterization.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "InDetTrigToolInterfaces/ITrigRawDataProviderTool.h"
-#include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
 
 #include "SiClusterizationTool/IPixelClusteringTool.h"
 #include "SiClusterizationTool/PixelGangedAmbiguitiesFinder.h"
@@ -62,7 +61,6 @@ namespace InDet{
     m_doFullScan(false),
     m_etaHalfWidth(0.1),
     m_phiHalfWidth(0.1),
-    m_bsErrorSvc("PixelByteStreamErrorsSvc",name),
     m_robDataProvider("ROBDataProviderSvc", name),
     m_doTimeOutChecks(true),
     m_skipBSDecoding(false)
@@ -216,8 +214,8 @@ namespace InDet{
 
 
     //BS Error Svc
-    if (m_bsErrorSvc.retrieve().isFailure()){
-      ATH_MSG_FATAL( "Could not retrieve " << m_bsErrorSvc );
+    if (m_bsError.retrieve().isFailure()){
+      ATH_MSG_FATAL( "Could not retrieve " << m_bsError );
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
 
@@ -320,7 +318,7 @@ namespace InDet{
     //-------------------------------------------------------------------------
 
     //handling of decoding problems
-    m_bsErrorSvc->resetCounts();
+    m_bsError->resetCounts();
 
 
     // Get RoiDescriptor
@@ -391,10 +389,10 @@ namespace InDet{
 	
 	int n_err_total = 0;
 	
-	int bsErrors[IPixelByteStreamErrorsSvc::lastErrType+1];
+	int bsErrors[IPixelByteStreamErrorsTool::lastErrType+1];
 	
-	for (const auto idx : { IPixelByteStreamErrorsSvc::firstErrType , IPixelByteStreamErrorsSvc::lastErrType } ){
-	  int n_errors = m_bsErrorSvc->getNumberOfErrors(idx);
+  for (const auto idx : { IPixelByteStreamErrorsTool::firstErrType , IPixelByteStreamErrorsTool::lastErrType } ){
+	  int n_errors = m_bsError->getNumberOfErrors(idx);
 	  n_err_total += n_errors;
 	  bsErrors[idx] = n_errors;
 	}
@@ -402,7 +400,7 @@ namespace InDet{
 	ATH_MSG_DEBUG( "decoding errors: "  << n_err_total );
 	
 	if (n_err_total){
-	for (const auto idx : { IPixelByteStreamErrorsSvc::firstErrType , IPixelByteStreamErrorsSvc::lastErrType } ){
+	for (const auto idx : { IPixelByteStreamErrorsTool::firstErrType , IPixelByteStreamErrorsTool::lastErrType } ){
 	    if (bsErrors[idx])
 	      m_PixBSErr.push_back(idx);
 	    if(msgLvl(MSG::DEBUG))

@@ -31,6 +31,7 @@
 // ROOT SMatrix lin alg: for internal calculations
 #include "Math/SMatrix.h"
 #include "Math/SVector.h"
+#include <string_view>
 
 typedef ROOT::Math::SMatrix<double,1,1,ROOT::Math::MatRepSym<double,1> >   SCovMatrix1;
 typedef ROOT::Math::SMatrix<double,2,2,ROOT::Math::MatRepSym<double,2> >   SCovMatrix2;
@@ -227,7 +228,7 @@ private:
                                               const SParVector5&,
                                               const SCovMatrix5&,
                                               const int&, const bool&,
-                                              const std::string&) const;
+                                              std::string_view) const;
     /** also the chi2 calculation and FitQuality object creation is
         combined in an extra method. It is called by all the XXX-FitQuality()
         methods - SMatrix version for 1D, 2D, 5D and Eigen for 3D, 4D.

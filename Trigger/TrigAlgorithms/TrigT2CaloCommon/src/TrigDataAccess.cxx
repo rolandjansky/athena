@@ -186,7 +186,7 @@ StatusCode TrigDataAccess::beginRunHandle(IOVSVC_CALLBACK_ARGS){
         }
 	
 	m_larcell = new LArCellCont();
-	if ( (m_larcell->initialize(false)).isFailure() ){
+	if ( (m_larcell->initialize()).isFailure() ){
 	      ATH_MSG_FATAL("Could not init larcell");
         }
 	// set frequency

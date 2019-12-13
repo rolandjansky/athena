@@ -27,7 +27,7 @@ using namespace MuonCombined;
 
 MuonTrackTagTestTool::MuonTrackTagTestTool(const std::string& type, const std::string& name, const IInterface* parent) :
   AthAlgTool(type, name, parent),
-  m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
+  m_extrapolator("Trk::Extrapolator/AtlasExtrapolator", this),
   m_trackingGeometrySvc("AtlasTrackingGeometrySvc",name)
 {
    
@@ -78,12 +78,12 @@ StatusCode MuonTrackTagTestTool::finalize() {
 
 
 double MuonTrackTagTestTool::chi2(const Trk::Track& idTrack, const Trk::Track& msTrack) const {
-
-  if (!m_msEntrance) {
+  std::call_once(m_trackingOnceFlag, [&](){
     m_trackingGeometry = m_trackingGeometrySvc->trackingGeometry();
     if (m_trackingGeometry) m_msEntrance = m_trackingGeometry->trackingVolume("MuonSpectrometerEntrance");
     if (!m_msEntrance) msg(MSG::ERROR) << "MS entrance not available" << endmsg;
-  }
+  });
+  
   if(idTrack.perigeeParameters()==0) {
     msg(MSG::WARNING) << "Skipping track combination - no perigee parameters for ID track" << endmsg;
     return 1e15;

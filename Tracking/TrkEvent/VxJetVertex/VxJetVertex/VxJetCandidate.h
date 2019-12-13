@@ -68,28 +68,26 @@ namespace Trk
     void setTrackParticlesOrigin(const Trk::TrackParticleBaseCollection*);
 
     const Trk::RecVertexPositions & getRecVertexPositions() const;
-
+    Trk::RecVertexPositions & getRecVertexPositions();//non-const overload
     void setRecVertexPositions(const Trk::RecVertexPositions &);
 
     const Trk::VertexPositions & getLinearizationVertexPositions() const;
-    Trk::VertexPositions & getLinearizationVertexPositions();//this is not a persistency object, so accessing it directly is permitted
-
+    Trk::VertexPositions & getLinearizationVertexPositions();//non-const overlaod
     void setLinearizationVertexPositions(const Trk::VertexPositions &);
     
     const std::vector<VxVertexOnJetAxis*> & getVerticesOnJetAxis(void) const;
-
     void setVerticesOnJetAxis(const std::vector<VxVertexOnJetAxis*> &);
 
     const VxVertexOnJetAxis* getPrimaryVertex(void) const;
-    VxVertexOnJetAxis* getPrimaryVertex(void);
+    VxVertexOnJetAxis* getPrimaryVertex(void);//non-const overload
 
     void setPrimaryVertex(const VxVertexOnJetAxis*);
 
     Trk::VxJetFitterDebugInfo * & getDebugInfo(void);
-
     Trk::VxClusteringTable* & getClusteringTable(void);
 
     const Trk::RecVertexPositions & getConstraintVertexPositions() const;
+    Trk::RecVertexPositions & getConstraintVertexPositions();//non-const overload
     void setConstraintVertexPositions(const Trk::RecVertexPositions &);
 
 

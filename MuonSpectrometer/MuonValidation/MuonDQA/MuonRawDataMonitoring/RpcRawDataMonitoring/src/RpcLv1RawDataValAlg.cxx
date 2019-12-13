@@ -90,12 +90,7 @@ StatusCode RpcLv1RawDataValAlg::initialize()
     ATH_MSG_DEBUG ( " Found the MuonDetectorManager from detector store. " );
   }
 
-  sc = detStore->retrieve(m_rpcIdHelper,"RPCIDHELPER");
-  if (sc.isFailure())
-    {
-      ATH_MSG_ERROR ( "Can't retrieve RpcIdHelper" );
-      return sc;
-    }	 
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
   
   // get RPC cablingSvc
   const IRPCcablingServerSvc* RpcCabGet = 0;
@@ -716,11 +711,11 @@ if ( m_doCoolDB ) {
  	      //
  	      //
  
- 	      std::vector<std::string>   rpclayersectorsidename = RpcGM::RpcLayerSectorSideName(m_rpcIdHelper,prdcoll_id, 0)  ;
+ 	      std::vector<std::string>   rpclayersectorsidename = RpcGM::RpcLayerSectorSideName(m_muonIdHelperTool->rpcIdHelper(),prdcoll_id, 0)  ;
  	      std::string		 sector_dphi_layer	= rpclayersectorsidename[12]		 ;
 	
- 	      std::vector<int>  	 RpcStrip = RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper,prdcoll_id, 0);
- 	      int strip_dbindex        = (RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper,prdcoll_id, 0)).at(16);// cool strip profile
+ 	      std::vector<int>  	 RpcStrip = RpcGM::RpcStripShift(m_muonMgr,m_muonIdHelperTool->rpcIdHelper(),prdcoll_id, 0);
+ 	      int strip_dbindex        = (RpcGM::RpcStripShift(m_muonMgr,m_muonIdHelperTool->rpcIdHelper(),prdcoll_id, 0)).at(16);// cool strip profile
 	        	  if ( m_doCoolDB ) {
                             TH1* rpcCool_StripProfile = nullptr;
 	        	    if(cmaId==0||cmaId==2||cmaId==4||cmaId==6)sc = rpcCoolDb.getHist( rpcCool_StripProfile, sector_dphi_layer+"_ProfileDataCMeven" ) ;
@@ -1528,11 +1523,11 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
     //   
     //
     
-    std::vector<std::string>   rpclayersectorsidename = RpcGM::RpcLayerSectorSideName(m_rpcIdHelper,prdcoll_id, 0)  ; 
+    std::vector<std::string>   rpclayersectorsidename = RpcGM::RpcLayerSectorSideName(m_muonIdHelperTool->rpcIdHelper(),prdcoll_id, 0)  ; 
     std::string                sector_dphi_layer      = rpclayersectorsidename[12]             ;
 	      
-    std::vector<int>           RpcStrip = RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper,prdcoll_id, 0);
-    int strip_dbindex        = (RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper,prdcoll_id, 0)).at(16);// cool strip profile
+    std::vector<int>           RpcStrip = RpcGM::RpcStripShift(m_muonMgr,m_muonIdHelperTool->rpcIdHelper(),prdcoll_id, 0);
+    int strip_dbindex        = (RpcGM::RpcStripShift(m_muonMgr,m_muonIdHelperTool->rpcIdHelper(),prdcoll_id, 0)).at(16);// cool strip profile
 		if ( m_doCoolDB ) {
                   TH1* rpcCool_PanelIdHist = nullptr;
 		  sc = rpcCoolDb.getHist( rpcCool_PanelIdHist, sector_dphi_layer+"_ProfileCabling" ) ;
@@ -1807,14 +1802,14 @@ void RpcLv1RawDataValAlg::bookRPCCoolHistograms( std::vector<std::string>::const
   
   if(rpc != NULL ){  
     Identifier idr = rpc->identify();
-    std::vector<int>   rpcstripshift = RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper,idr, 0)  ;
+    std::vector<int>   rpcstripshift = RpcGM::RpcStripShift(m_muonMgr,m_muonIdHelperTool->rpcIdHelper(),idr, 0)  ;
     NTotStripsSideA = rpcstripshift[6]+rpcstripshift[17];
   } 
   rpc = m_muonMgr->getRpcRElement_fromIdFields( kName, -1 , istatPhi+1, ir, 1, idblPhi+1 );    
   
   if(rpc != NULL ){  
     Identifier idr = rpc->identify();
-    std::vector<int>   rpcstripshift = RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper,idr, 0)  ;
+    std::vector<int>   rpcstripshift = RpcGM::RpcStripShift(m_muonMgr,m_muonIdHelperTool->rpcIdHelper(),idr, 0)  ;
     NTotStripsSideC = rpcstripshift[7]+rpcstripshift[18]; 
   }
   
@@ -1858,21 +1853,21 @@ void RpcLv1RawDataValAlg::bookRPCCoolHistograms( std::vector<std::string>::const
     	  if  ( iz+1 != rpc->getDoubletZ() ) { 
     	    continue ;
     	  }
-    	  Identifier idr = m_rpcIdHelper->parentID( rpc->identify() );
+    	  Identifier idr = m_muonIdHelperTool->rpcIdHelper().parentID( rpc->identify() );
     	  rpcElemPhiStrip = int (rpc->NphiStrips() ) ;
     	  rpcElemEtaStrip = int (rpc->NetaStrips() ) ;
 	  
 	  
     	  for ( int istripEta=0; istripEta!=rpcElemEtaStrip; istripEta++ ) {
-    	    Identifier strip_id  =  m_rpcIdHelper->channelID(idr, iz+1, idblPhi+1, ig+1, 0, istripEta+1) ;
+    	    Identifier strip_id  =  m_muonIdHelperTool->rpcIdHelper().channelID(idr, iz+1, idblPhi+1, ig+1, 0, istripEta+1) ;
     	    if( strip_id == 0 ) continue;
-    	    coolStripIndex = (RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper,strip_id, 0)).at(16);
+    	    coolStripIndex = (RpcGM::RpcStripShift(m_muonMgr,m_muonIdHelperTool->rpcIdHelper(),strip_id, 0)).at(16);
     	    rpcCool_PanelIdHist->Fill(coolStripIndex, -1) ;
           }
     	  for ( int istripPhi=0; istripPhi!=rpcElemPhiStrip; istripPhi++ ) {
-    	    Identifier strip_id  =  m_rpcIdHelper->channelID(idr, iz+1, idblPhi+1, ig+1, 1, istripPhi+1) ;
+    	    Identifier strip_id  =  m_muonIdHelperTool->rpcIdHelper().channelID(idr, iz+1, idblPhi+1, ig+1, 1, istripPhi+1) ;
     	    if( strip_id == 0 ) continue;
-    	    coolStripIndex = (RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper,strip_id, 0)).at(16);
+    	    coolStripIndex = (RpcGM::RpcStripShift(m_muonMgr,m_muonIdHelperTool->rpcIdHelper(),strip_id, 0)).at(16);
     	    rpcCool_PanelIdHist->Fill(coolStripIndex, -1 );
           }
 	  

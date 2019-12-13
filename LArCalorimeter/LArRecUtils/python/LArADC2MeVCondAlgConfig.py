@@ -19,7 +19,7 @@ def LArADC2MeVCondAlgCfg(configFlags):
     isMC=configFlags.Input.isMC
     
     if isMC:
-        requiredConditions=["Ramp","DAC2uA","uA2MeV","MphysOverMcal","HVScale"]
+        requiredConditions=["Ramp","DAC2uA","uA2MeV","MphysOverMcal","HVScaleCorr"]
         theADC2MeVCondAlg.LAruA2MeVKey="LAruA2MeVSym"
         theADC2MeVCondAlg.LArDAC2uAKey="LArDAC2uASym"
         theADC2MeVCondAlg.LArRampKey="LArRampSym"
@@ -44,13 +44,13 @@ if __name__ == "__main__":
     Configurable.configurableRun3Behavior=1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-    ConfigFlags.loadAllDynamicFlags (quiet = True)
+    ConfigFlags.loadAllDynamicFlags()
 
     print ('--- data')
     flags1 = ConfigFlags.clone()
     flags1.Input.Files = defaultTestFiles.RAW
     flags1.lock()
-    acc1 = LArADC2MeVCondAlgDefault (flags1)
+    acc1 = LArADC2MeVCondAlgCfg (flags1)
     acc1.printCondAlgs(summariseProps=True)
     print ('IOVDbSvc:', acc1.getService('IOVDbSvc').Folders)
     acc1.wasMerged()
@@ -59,7 +59,7 @@ if __name__ == "__main__":
     flags2 = ConfigFlags.clone()
     flags2.Input.Files = defaultTestFiles.ESD
     flags2.lock()
-    acc2 = LArADC2MeVCondAlgDefault (flags2)
+    acc2 = LArADC2MeVCondAlgCfg (flags2)
     acc2.printCondAlgs(summariseProps=True)
     print ('IOVDbSvc:', acc2.getService('IOVDbSvc').Folders)
     acc2.wasMerged()

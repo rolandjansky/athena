@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
@@ -20,9 +20,7 @@
 
 #include "HepMC/GenParticle.h"
 
-#include "TrkTrack/TrackCollection.h"
 #include "TrkTruthData/TrackTruth.h"
-#include "TrkTruthData/TrackTruthCollection.h"
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 #include "InDetPrepRawData/SiCluster.h"
 
@@ -40,16 +38,11 @@
 // *********************************************************************
 
 IDAlignMonTruthComparison::IDAlignMonTruthComparison( const std::string & type, const std::string & name, const IInterface* parent )
-	     :ManagedMonitorToolBase( type, name, parent ),
-	      m_Pi(3.14156),
-	      m_tracksName("ExtendedTracks"),
-	      m_tracksTruthName("ExtendedTracksTruthCollection")
+	     :ManagedMonitorToolBase( type, name, parent )
 {
   m_trackSelection = ToolHandle< InDetAlignMon::TrackSelectionTool >("InDetAlignMon::TrackSelectionTool");
   m_truthToTrack = ToolHandle<Trk::ITruthToTrack>("Trk::TruthToTrack/InDetTruthToTrack");
   
-  declareProperty("tracksName"              , m_tracksName);
-  declareProperty("tracksTruthName"         , m_tracksTruthName);  
   declareProperty("CheckRate"               , m_checkrate=1000);
   declareProperty("TruthToTrackTool"        , m_truthToTrack);
   declareProperty("trackSelection"          , m_trackSelection);
@@ -82,6 +75,9 @@ StatusCode IDAlignMonTruthComparison::initialize()
     msg(MSG::INFO) << "Retrieved tool " << m_trackSelection << endmsg;
   }
 
+  ATH_CHECK(m_tracksName.initialize());
+  ATH_CHECK(m_tracksTruthName.initialize());
+
   return sc;
 }
 
@@ -96,7 +92,7 @@ StatusCode IDAlignMonTruthComparison::bookHistograms()
     // book histograms that are only relevant for cosmics data...
   }
 
-  std::string outputDirName = "IDAlignMon/" + m_tracksName + "_NoTriggerSelection/TruthComparison";
+  std::string outputDirName = "IDAlignMon/" + m_tracksName.key() + "_NoTriggerSelection/TruthComparison";
   MonGroup al_mon ( this, outputDirName, run );
 
   if( newRunFlag() ) { 
@@ -225,59 +221,59 @@ StatusCode IDAlignMonTruthComparison::bookHistograms()
     RegisterHisto(al_mon,m_dqopt_vs_eta_lowpt_chi2) ; 
 
     // vs phi
-    m_Dqopt_vs_phi_highpt_barrel = new TH2F("Dqopt_vs_phi_highpt_barrel","QopT(Rec - truth) vs. phi (highpt, Barrel)",20,0,2*m_Pi,20,-0.1,0.1);  
+    m_Dqopt_vs_phi_highpt_barrel = new TH2F("Dqopt_vs_phi_highpt_barrel","QopT(Rec - truth) vs. phi (highpt, Barrel)",20,0,2*M_PI,20,-0.1,0.1);  
     RegisterHisto(al_mon,m_Dqopt_vs_phi_highpt_barrel) ; 
-    m_dqopt_vs_phi_highpt_barrel_1 = new TH1F("dqopt_vs_phi_highpt_barrel_1","Mean QopT(Rec - truth) vs. phi (highpt, Barrel)",20,0,2*m_Pi);  
+    m_dqopt_vs_phi_highpt_barrel_1 = new TH1F("dqopt_vs_phi_highpt_barrel_1","Mean QopT(Rec - truth) vs. phi (highpt, Barrel)",20,0,2*M_PI);  
     RegisterHisto(al_mon,m_dqopt_vs_phi_highpt_barrel_1) ;  
-    m_dqopt_vs_phi_highpt_barrel_2 = new TH1F("dqopt_vs_phi_highpt_barrel_2","RMS QopT(Rec - truth) vs. phi (highpt, Barrel)",20,0,2*m_Pi);  
+    m_dqopt_vs_phi_highpt_barrel_2 = new TH1F("dqopt_vs_phi_highpt_barrel_2","RMS QopT(Rec - truth) vs. phi (highpt, Barrel)",20,0,2*M_PI);  
     //RegisterHisto(al_mon,m_dqopt_vs_phi_highpt_barrel_2) ; 
-    m_dqopt_vs_phi_highpt_barrel_chi2 = new TH1F("dqopt_vs_phi_highpt_barrel_chi2","Chi2/NDOF QopT(Rec - truth) vs. phi (highpt, Barrel)",20,0,2*m_Pi);  
+    m_dqopt_vs_phi_highpt_barrel_chi2 = new TH1F("dqopt_vs_phi_highpt_barrel_chi2","Chi2/NDOF QopT(Rec - truth) vs. phi (highpt, Barrel)",20,0,2*M_PI);  
     RegisterHisto(al_mon,m_dqopt_vs_phi_highpt_barrel_chi2) ; 
 
-    m_Dqopt_vs_phi_highpt_eca = new TH2F("Dqopt_vs_phi_highpt_eca","QopT(Rec - truth) vs. phi (highpt, Eca)",20,0,2*m_Pi,20,-0.1,0.1);  
+    m_Dqopt_vs_phi_highpt_eca = new TH2F("Dqopt_vs_phi_highpt_eca","QopT(Rec - truth) vs. phi (highpt, Eca)",20,0,2*M_PI,20,-0.1,0.1);  
     RegisterHisto(al_mon,m_Dqopt_vs_phi_highpt_eca) ; 
-    m_dqopt_vs_phi_highpt_eca_1 = new TH1F("dqopt_vs_phi_highpt_eca_1","Mean QopT(Rec - truth) vs. phi (highpt, Eca)",20,0,2*m_Pi);  
+    m_dqopt_vs_phi_highpt_eca_1 = new TH1F("dqopt_vs_phi_highpt_eca_1","Mean QopT(Rec - truth) vs. phi (highpt, Eca)",20,0,2*M_PI);  
     RegisterHisto(al_mon,m_dqopt_vs_phi_highpt_eca_1) ;  
-    m_dqopt_vs_phi_highpt_eca_2 = new TH1F("dqopt_vs_phi_highpt_eca_2","RMS QopT(Rec - truth) vs. phi (highpt, Eca)",20,0,2*m_Pi);  
+    m_dqopt_vs_phi_highpt_eca_2 = new TH1F("dqopt_vs_phi_highpt_eca_2","RMS QopT(Rec - truth) vs. phi (highpt, Eca)",20,0,2*M_PI);  
     //RegisterHisto(al_mon,m_dqopt_vs_phi_highpt_eca_2) ; 
-    m_dqopt_vs_phi_highpt_eca_chi2 = new TH1F("dqopt_vs_phi_highpt_eca_chi2","Chi2/NDOF QopT(Rec - truth) vs. phi (highpt, Eca)",20,0,2*m_Pi);  
+    m_dqopt_vs_phi_highpt_eca_chi2 = new TH1F("dqopt_vs_phi_highpt_eca_chi2","Chi2/NDOF QopT(Rec - truth) vs. phi (highpt, Eca)",20,0,2*M_PI);  
     RegisterHisto(al_mon,m_dqopt_vs_phi_highpt_eca_chi2) ; 
 
-    m_Dqopt_vs_phi_highpt_ecc = new TH2F("Dqopt_vs_phi_highpt_ecc","QopT(Rec - truth) vs. phi (highpt, Ecc)",20,0,2*m_Pi,20,-0.1,0.1);  
+    m_Dqopt_vs_phi_highpt_ecc = new TH2F("Dqopt_vs_phi_highpt_ecc","QopT(Rec - truth) vs. phi (highpt, Ecc)",20,0,2*M_PI,20,-0.1,0.1);  
     RegisterHisto(al_mon,m_Dqopt_vs_phi_highpt_ecc) ; 
-    m_dqopt_vs_phi_highpt_ecc_1 = new TH1F("dqopt_vs_phi_highpt_ecc_1","Mean QopT(Rec - truth) vs. phi (highpt, Ecc)",20,0,2*m_Pi);  
+    m_dqopt_vs_phi_highpt_ecc_1 = new TH1F("dqopt_vs_phi_highpt_ecc_1","Mean QopT(Rec - truth) vs. phi (highpt, Ecc)",20,0,2*M_PI);  
     RegisterHisto(al_mon,m_dqopt_vs_phi_highpt_ecc_1) ;  
-    m_dqopt_vs_phi_highpt_ecc_2 = new TH1F("dqopt_vs_phi_highpt_ecc_2","RMS QopT(Rec - truth) vs. phi (highpt, Ecc)",20,0,2*m_Pi);  
+    m_dqopt_vs_phi_highpt_ecc_2 = new TH1F("dqopt_vs_phi_highpt_ecc_2","RMS QopT(Rec - truth) vs. phi (highpt, Ecc)",20,0,2*M_PI);  
     //RegisterHisto(al_mon,m_dqopt_vs_phi_highpt_ecc_2) ; 
-    m_dqopt_vs_phi_highpt_ecc_chi2 = new TH1F("dqopt_vs_phi_highpt_ecc_chi2","Chi2/NDOF QopT(Rec - truth) vs. phi (highpt, Ecc)",20,0,2*m_Pi);  
+    m_dqopt_vs_phi_highpt_ecc_chi2 = new TH1F("dqopt_vs_phi_highpt_ecc_chi2","Chi2/NDOF QopT(Rec - truth) vs. phi (highpt, Ecc)",20,0,2*M_PI);  
     RegisterHisto(al_mon,m_dqopt_vs_phi_highpt_ecc_chi2) ; 
 
     // vs phi
-    m_Dqopt_vs_phi_lowpt_barrel = new TH2F("Dqopt_vs_phi_lowpt_barrel","QopT(Rec - truth) vs. phi (lowpt, Barrel)",20,0,2*m_Pi,20,-0.1,0.1);  
+    m_Dqopt_vs_phi_lowpt_barrel = new TH2F("Dqopt_vs_phi_lowpt_barrel","QopT(Rec - truth) vs. phi (lowpt, Barrel)",20,0,2*M_PI,20,-0.1,0.1);  
     RegisterHisto(al_mon,m_Dqopt_vs_phi_lowpt_barrel) ; 
-    m_dqopt_vs_phi_lowpt_barrel_1 = new TH1F("dqopt_vs_phi_lowpt_barrel_1","Mean QopT(Rec - truth) vs. phi (lowpt, Barrel)",20,0,2*m_Pi);  
+    m_dqopt_vs_phi_lowpt_barrel_1 = new TH1F("dqopt_vs_phi_lowpt_barrel_1","Mean QopT(Rec - truth) vs. phi (lowpt, Barrel)",20,0,2*M_PI);  
     RegisterHisto(al_mon,m_dqopt_vs_phi_lowpt_barrel_1) ;  
-    m_dqopt_vs_phi_lowpt_barrel_2 = new TH1F("dqopt_vs_phi_lowpt_barrel_2","RMS QopT(Rec - truth) vs. phi (lowpt, Barrel)",20,0,2*m_Pi);  
+    m_dqopt_vs_phi_lowpt_barrel_2 = new TH1F("dqopt_vs_phi_lowpt_barrel_2","RMS QopT(Rec - truth) vs. phi (lowpt, Barrel)",20,0,2*M_PI);  
     //RegisterHisto(al_mon,m_dqopt_vs_phi_lowpt_barrel_2) ; 
-    m_dqopt_vs_phi_lowpt_barrel_chi2 = new TH1F("dqopt_vs_phi_lowpt_barrel_chi2","Chi2/NDOF QopT(Rec - truth) vs. phi (lowpt, Barrel)",20,0,2*m_Pi);  
+    m_dqopt_vs_phi_lowpt_barrel_chi2 = new TH1F("dqopt_vs_phi_lowpt_barrel_chi2","Chi2/NDOF QopT(Rec - truth) vs. phi (lowpt, Barrel)",20,0,2*M_PI);  
     RegisterHisto(al_mon,m_dqopt_vs_phi_lowpt_barrel_chi2) ; 
 
-    m_Dqopt_vs_phi_lowpt_eca = new TH2F("Dqopt_vs_phi_lowpt_eca","QopT(Rec - truth) vs. phi (lowpt, Eca)",20,0,2*m_Pi,20,-0.1,0.1);  
+    m_Dqopt_vs_phi_lowpt_eca = new TH2F("Dqopt_vs_phi_lowpt_eca","QopT(Rec - truth) vs. phi (lowpt, Eca)",20,0,2*M_PI,20,-0.1,0.1);  
     RegisterHisto(al_mon,m_Dqopt_vs_phi_lowpt_eca) ; 
-    m_dqopt_vs_phi_lowpt_eca_1 = new TH1F("dqopt_vs_phi_lowpt_eca_1","Mean QopT(Rec - truth) vs. phi (lowpt, Eca)",20,0,2*m_Pi);  
+    m_dqopt_vs_phi_lowpt_eca_1 = new TH1F("dqopt_vs_phi_lowpt_eca_1","Mean QopT(Rec - truth) vs. phi (lowpt, Eca)",20,0,2*M_PI);  
     RegisterHisto(al_mon,m_dqopt_vs_phi_lowpt_eca_1) ;  
-    m_dqopt_vs_phi_lowpt_eca_2 = new TH1F("dqopt_vs_phi_lowpt_eca_2","RMS QopT(Rec - truth) vs. phi (lowpt, Eca)",20,0,2*m_Pi);  
+    m_dqopt_vs_phi_lowpt_eca_2 = new TH1F("dqopt_vs_phi_lowpt_eca_2","RMS QopT(Rec - truth) vs. phi (lowpt, Eca)",20,0,2*M_PI);  
     //RegisterHisto(al_mon,m_dqopt_vs_phi_lowpt_eca_2) ; 
-    m_dqopt_vs_phi_lowpt_eca_chi2 = new TH1F("dqopt_vs_phi_lowpt_eca_chi2","Chi2/NDOF cQopT(Rec - truth) vs. phi (lowpt, Eca)",20,0,2*m_Pi);  
+    m_dqopt_vs_phi_lowpt_eca_chi2 = new TH1F("dqopt_vs_phi_lowpt_eca_chi2","Chi2/NDOF cQopT(Rec - truth) vs. phi (lowpt, Eca)",20,0,2*M_PI);  
     RegisterHisto(al_mon,m_dqopt_vs_phi_lowpt_eca_chi2) ; 
 
-    m_Dqopt_vs_phi_lowpt_ecc = new TH2F("Dqopt_vs_phi_lowpt_ecc","QopT(Rec - truth) vs. phi (lowpt, Ecc)",20,0,2*m_Pi,20,-0.1,0.1);  
+    m_Dqopt_vs_phi_lowpt_ecc = new TH2F("Dqopt_vs_phi_lowpt_ecc","QopT(Rec - truth) vs. phi (lowpt, Ecc)",20,0,2*M_PI,20,-0.1,0.1);  
     RegisterHisto(al_mon,m_Dqopt_vs_phi_lowpt_ecc) ; 
-    m_dqopt_vs_phi_lowpt_ecc_1 = new TH1F("dqopt_vs_phi_lowpt_ecc_1","Mean QopT(Rec - truth) vs. phi (lowpt, Ecc)",20,0,2*m_Pi);  
+    m_dqopt_vs_phi_lowpt_ecc_1 = new TH1F("dqopt_vs_phi_lowpt_ecc_1","Mean QopT(Rec - truth) vs. phi (lowpt, Ecc)",20,0,2*M_PI);  
     RegisterHisto(al_mon,m_dqopt_vs_phi_lowpt_ecc_1) ;  
-    m_dqopt_vs_phi_lowpt_ecc_2 = new TH1F("dqopt_vs_phi_lowpt_ecc_2","RMS QopT(Rec - truth) vs. phi (lowpt, Ecc)",20,0,2*m_Pi);  
+    m_dqopt_vs_phi_lowpt_ecc_2 = new TH1F("dqopt_vs_phi_lowpt_ecc_2","RMS QopT(Rec - truth) vs. phi (lowpt, Ecc)",20,0,2*M_PI);  
     //RegisterHisto(al_mon,m_dqopt_vs_phi_lowpt_ecc_2) ; 
-    m_dqopt_vs_phi_lowpt_ecc_chi2 = new TH1F("dqopt_vs_phi_lowpt_ecc_chi2","Chi2/NDOF QopT(Rec - truth) vs. phi (lowpt, Ecc)",20,0,2*m_Pi);  
+    m_dqopt_vs_phi_lowpt_ecc_chi2 = new TH1F("dqopt_vs_phi_lowpt_ecc_chi2","Chi2/NDOF QopT(Rec - truth) vs. phi (lowpt, Ecc)",20,0,2*M_PI);  
     RegisterHisto(al_mon,m_dqopt_vs_phi_lowpt_ecc_chi2) ;   
 
     m_Zmumu = new TH1F("Zmumu","Zmumu",50,0,150);  
@@ -334,36 +330,34 @@ void IDAlignMonTruthComparison::RegisterHisto(MonGroup& mon, TH2* histo) {
 StatusCode IDAlignMonTruthComparison::fillHistograms()
 {
 
-  //get TrackCollection using TrackSelectionTool
-  const DataVector<Trk::Track>* trks = m_trackSelection->selectTracks(m_tracksName);
-  
   //although we select tracks using the TrackSelectionTool, we still need to get a complete TrackCollection
   //from StoreGate for use in the track-truth map, otherwise the track-truth matching is screwed up
-  const TrackCollection       * RecCollection = NULL;
-  StatusCode sc = StatusCode :: SUCCESS;
-  sc = evtStore()->retrieve(RecCollection, m_tracksName);  
-  if (sc.isFailure()) {
-    if (msgLvl(MSG::VERBOSE)) msg() <<"Track collection \"" << m_tracksName << "\" not found." << endmsg;
+  SG::ReadHandle<TrackCollection> RecCollection{m_tracksName};
+  if (not RecCollection.isValid()) {
+    if (msgLvl(MSG::VERBOSE)) msg() <<"Track collection \"" << m_tracksName.key() << "\" not found." << endmsg;
     return StatusCode::SUCCESS;
   }
-  if (RecCollection)  
+  if (RecCollection.get())  
     {
       if (msgLvl(MSG::VERBOSE)) 
-	msg() << "Retrieved " << m_tracksName << " with size " << RecCollection->size() << " reconstructed tracks from storegate" << endmsg;
+	msg() << "Retrieved " << m_tracksName.key() << " with size " << RecCollection->size() << " reconstructed tracks from storegate" << endmsg;
     }
   else 
     {
-      if (msgLvl(MSG::VERBOSE)) msg()<<"Problem in retrieving " << m_tracksName << endmsg;
+      if (msgLvl(MSG::VERBOSE)) msg()<<"Problem in retrieving " << m_tracksName.key() << endmsg;
       return StatusCode::SUCCESS;
     }
 
+  //get TrackCollection using TrackSelectionTool
+  const DataVector<Trk::Track>* trks = m_trackSelection->selectTracks(RecCollection);
+  
   // get TrackTruthCollection
-  const TrackTruthCollection  * TruthMap  = NULL;
-  if (StatusCode::SUCCESS!=evtStore()->retrieve(TruthMap,m_tracksTruthName)) {
-    if (msgLvl(MSG::VERBOSE)) msg() << "Cannot find " << m_tracksTruthName  << endmsg;
+  SG::ReadHandle<TrackTruthCollection> TruthMap{m_tracksTruthName};
+  if (not TruthMap.isValid()) {
+    if (msgLvl(MSG::VERBOSE)) msg() << "Cannot find " << m_tracksTruthName.key() << endmsg;
     return StatusCode::SUCCESS;
   } else {
-    if (msgLvl(MSG::VERBOSE)) msg() << "Track Truth Collection with name " << m_tracksTruthName << " with size " << TruthMap->size() <<" found in StoreGate" << endmsg;
+    if (msgLvl(MSG::VERBOSE)) msg() << "Track Truth Collection with name " << m_tracksTruthName.key() << " with size " << TruthMap->size() <<" found in StoreGate" << endmsg;
   }
     
   
@@ -409,11 +403,11 @@ StatusCode IDAlignMonTruthComparison::fillHistograms()
       if (qOverPt<0) charge=-1;
       else charge=+1; 
     }
-    if (trkphi<0) trkphi+=2*m_Pi;
+    if (trkphi<0) trkphi+=2*M_PI;
 
     if (msgLvl(MSG::VERBOSE)) msg() << "Found good track with phi, PT = " << trkphi << ", " << trkpt << endmsg; 
     
-    if (TruthMap) {	
+    if (TruthMap.get()) {	
 
       ElementLink<TrackCollection> tracklink;
       tracklink.setElement(const_cast<Trk::Track*>(*trksItr));
@@ -451,7 +445,7 @@ StatusCode IDAlignMonTruthComparison::fillHistograms()
 		      float track_truth_pt           = 1./fabs(track_truth_qoverpt);  
 		      float track_truth_charge       = 1; 
 		      if(track_truth_qoverpt<0) track_truth_charge = -1;
-		      if (track_truth_phi<0) track_truth_phi+=2*m_Pi;
+		      if (track_truth_phi<0) track_truth_phi+=2*M_PI;
 		      if (msgLvl(MSG::VERBOSE)) msg() << "Found matched truth track with phi, PT = " << track_truth_phi << ", " << track_truth_pt << endmsg; 
 
 		      m_truthpT->Fill(track_truth_pt);
@@ -570,7 +564,7 @@ StatusCode IDAlignMonTruthComparison::fillHistograms()
       else charge=+1; 
     }  
     
-    if (TruthMap) {
+    if (TruthMap.get()) {
            
 
       ElementLink<TrackCollection> tracklink;
@@ -606,7 +600,7 @@ StatusCode IDAlignMonTruthComparison::fillHistograms()
 		      float track_truth_pt           = 1./fabs(track_truth_qoverpt);  
 		      //float track_truth_charge       = 1; 
 		      //if(track_truth_qoverpt<0) track_truth_charge = -1;
-		      if (track_truth_phi<0) track_truth_phi+=2*m_Pi;
+		      if (track_truth_phi<0) track_truth_phi+=2*M_PI;
 		      if (msgLvl(MSG::VERBOSE)) msg() << "Found matched truth track with phi, PT = " << track_truth_phi << ", " << track_truth_pt << endmsg; 
 
 

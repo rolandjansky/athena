@@ -52,12 +52,12 @@ public:
     // conservative cluster errors for use during pattern recognition
     std::pair<double,double>            broadErrors (const InDet::SiCluster*	cluster,
 						     const SiliconDetector*	detector,
-						     const Amg::Vector3D&	trackIntersect) const;
+						     const Amg::Vector3D&	trackIntersect) const override;
 
     // precise cluster position and errors including track-dependent corrections
     HitOnTrack*				hitOnTrack (const InDet::SiCluster*	cluster,
 						    const SiliconDetector*	detector,
-						    const Trk::TrackParameters*	parameters) const;
+						    const Trk::TrackParameters*	parameters) const override;
 private:
     struct State;
 

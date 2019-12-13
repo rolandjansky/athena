@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -55,25 +55,21 @@ namespace MuonCalib {
 
       //If we are looking at invalid chamber layer (1), check corresponding channel in chamber layer 2
       Identifier id;
-      m_cscId->get_id(index,id,&m_channelContext);
-      if(m_cscId->chamberLayer(id) == 1)
+      m_muonIdHelperTool->cscIdHelper().get_id(index,id,&m_channelContext);
+      if(m_muonIdHelperTool->cscIdHelper().chamberLayer(id) == 1)
       {
         int newHash = swapChamberLayerReturnHash(id); 
         condData = coll->at(newHash);
         if(condData)  
         {
-          if(!ignoreBadMultilayer())
-          {
-            if(m_numFailedRequests < m_maxFailedRequests) 
-              m_log << MSG::WARNING << "Invalid chamber layer requested when retrieveing " 
-                << parName 
-                << ". Tried corresponding channel in valid chamber layer and found good data." 
-                << endmsg;  
-            if(m_numFailedRequests++ == m_maxFailedRequests) m_log << MSG::WARNING 
-              << "Reached maximum number of problematic requests to CscCoolStrSvc. No further warnings will be printed." 
-                << endmsg; 
-
-          }
+          if(m_numFailedRequests < m_maxFailedRequests)
+            m_log << MSG::WARNING << "Invalid chamber layer requested when retrieveing "
+                  << parName
+                  << ". Tried corresponding channel in valid chamber layer and found good data."
+                  << endmsg;
+          if(m_numFailedRequests++ == m_maxFailedRequests)
+            m_log << MSG::WARNING << "Reached maximum number of problematic requests to CscCoolStrSvc. No further warnings will be printed."
+                  << endmsg;
         }
       }
     }//end if "CHANNEL" category
@@ -238,7 +234,7 @@ namespace MuonCalib {
         }
         else if (cat == "CHANNEL") {
           Identifier id;
-          m_cscId->get_id((IdentifierHash)index,id, &m_channelContext);
+          m_muonIdHelperTool->cscIdHelper().get_id((IdentifierHash)index,id, &m_channelContext);
           unsigned int onlineId; 
           if(!offlineToOnlineId(id, onlineId).isSuccess()) {
             m_log << MSG::ERROR << "Failed at geting online id!" << endmsg; 
@@ -258,7 +254,7 @@ namespace MuonCalib {
 
         else if (cat == "ASM")
         { Identifier id;
-          m_cscId->get_id((IdentifierHash)index,id, &m_channelContext);
+          m_muonIdHelperTool->cscIdHelper().get_id((IdentifierHash)index,id, &m_channelContext);
 
           unsigned int iChamber;
           unsigned int iASM;

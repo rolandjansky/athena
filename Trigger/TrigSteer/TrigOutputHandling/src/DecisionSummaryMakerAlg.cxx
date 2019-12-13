@@ -10,7 +10,6 @@ DecisionSummaryMakerAlg::DecisionSummaryMakerAlg(const std::string& name, ISvcLo
 DecisionSummaryMakerAlg::~DecisionSummaryMakerAlg() {}
 
 StatusCode DecisionSummaryMakerAlg::initialize() {
-  //ATH_MSG_DEBUG("Use macros for logging!");
   renounceArray( m_finalDecisionKeys );
   ATH_CHECK( m_finalDecisionKeys.initialize() ); 
   ATH_CHECK( m_summaryKey.initialize() );

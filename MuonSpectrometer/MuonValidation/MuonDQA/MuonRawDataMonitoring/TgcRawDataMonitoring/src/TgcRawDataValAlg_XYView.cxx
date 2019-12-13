@@ -27,7 +27,6 @@
 #include "MuonRDO/TgcRdoIdHash.h"
 #include "MuonRDO/TgcRdoContainer.h"
 
-#include "MuonDigitContainer/TgcDigitContainer.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 
 #include "MuonDQAUtils/MuonChamberNameConverter.h"

@@ -14,9 +14,7 @@ StatusCode InDet::InDetBeamSpotReader::initialize() {
   ATH_MSG_DEBUG( "in initialize()" );
 
   ATH_CHECK( m_beamSpotKey.initialize() );
-
-  ATH_CHECK( m_eventInfo.initialize() );
-  ATH_CHECK( m_vxContainer.initialize() );
+  ATH_CHECK( m_vxContainer.initialize(!m_vxContainer.empty()) );
 
   return StatusCode::SUCCESS;
 }
@@ -24,44 +22,39 @@ StatusCode InDet::InDetBeamSpotReader::initialize() {
 StatusCode InDet::InDetBeamSpotReader::execute(const EventContext& ctx) const {
   ATH_MSG_DEBUG( "in execute()");
 
-  //get the set of 
   SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
-  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfo, ctx);
-    ATH_MSG_INFO( "In event " << (*eventInfo) );
-    ATH_MSG_INFO("BeamSpot Position: \n "
-		   << beamSpotHandle->beamPos() );
-    ATH_MSG_INFO("BeamSpot Sigma\n\t"
-		   << beamSpotHandle->beamSigma(0) << "\n\t"
-		   << beamSpotHandle->beamSigma(1) << "\n\t"
-		   << beamSpotHandle->beamSigma(2) << "\n\t");
-    ATH_MSG_INFO("BeamSpot Tilt\n\t"
-		   << beamSpotHandle->beamTilt(0) << "\n\t"
-		   << beamSpotHandle->beamTilt(1) << "\n\t");
-    ATH_MSG_INFO("Beamspot position at PV z-position");
+  ATH_MSG_INFO( "In event " << ctx.eventID() );
+  ATH_MSG_INFO("BeamSpot Position: "
+               << beamSpotHandle->beamPos()[0] << " "
+               << beamSpotHandle->beamPos()[1] << " "
+               << beamSpotHandle->beamPos()[2]
+               <<", Sigma: "
+               << beamSpotHandle->beamSigma(0) << " "
+               << beamSpotHandle->beamSigma(1) << " "
+               << beamSpotHandle->beamSigma(2)
+               << ", Tilt: "
+               << beamSpotHandle->beamTilt(0) << " "
+               << beamSpotHandle->beamTilt(1)
+               << ", Status: "
+               << beamSpotHandle->beamStatus());
 
   //get list of PVs
-  SG::ReadHandle<VxContainer> importedVxContainer(m_vxContainer, ctx);
-  VxContainer::const_iterator vtxItr;
-  for(vtxItr=importedVxContainer->begin();
-      vtxItr!=importedVxContainer->end(); ++vtxItr) {
-    if (static_cast<int>((*vtxItr)->vxTrackAtVertex()->size())==0) continue;
-    if (msgLvl(MSG::INFO)) ATH_MSG_INFO("PV position:  "
-				 << (*vtxItr)->recVertex().position() );
-    double z = (*vtxItr)->recVertex().position().z();
-    if (msgLvl(MSG::INFO)) ATH_MSG_INFO("\n\t"
-	  << beamSpotHandle->beamPos()(0)
-      + (z - beamSpotHandle->beamPos()(2))
-      *beamSpotHandle->beamTilt(0) << "\n\t"
-	  << beamSpotHandle->beamPos()(1)
-      + (z - beamSpotHandle->beamPos()(2))
-      *beamSpotHandle->beamTilt(1) );
+  if (!m_vxContainer.empty()) {
+    ATH_MSG_INFO("Beamspot position at PV z-position");
+    SG::ReadHandle<VxContainer> importedVxContainer(m_vxContainer, ctx);
+    for (const auto& vtx : *importedVxContainer) {
+      if (static_cast<int>(vtx->vxTrackAtVertex()->size())==0) continue;
+      ATH_MSG_INFO("PV position: " << vtx->recVertex().position() );
+      double z = vtx->recVertex().position().z();
+      ATH_MSG_INFO("\n\t"
+                   << beamSpotHandle->beamPos()(0)
+                   + (z - beamSpotHandle->beamPos()(2))
+                   *beamSpotHandle->beamTilt(0) << "\n\t"
+                   << beamSpotHandle->beamPos()(1)
+                   + (z - beamSpotHandle->beamPos()(2))
+                   *beamSpotHandle->beamTilt(1) );
+    }
   }
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode InDet::InDetBeamSpotReader::finalize() {
-  ATH_MSG_DEBUG( "in finalize()" );
 
   return StatusCode::SUCCESS;
 }

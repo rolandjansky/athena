@@ -38,9 +38,15 @@ StatusCode LArNoisyROAlg::execute (const EventContext& ctx) const
 {
   SG::ReadHandle<CaloCellContainer> cellContainer(m_CaloCellContainerName, ctx);
   if (!cellContainer.isValid()) { 
-    ATH_MSG_ERROR( " Can not retrieve CaloCellContainer: "
-                   << m_CaloCellContainerName.key());
-    return StatusCode::FAILURE;      
+    ATH_MSG_WARNING( " Can not retrieve CaloCellContainer: " << m_CaloCellContainerName.key());
+    ATH_MSG_WARNING( " Empty object recorded !");
+
+    const std::set<unsigned int> knownBadFEBs;
+    const std::vector<HWIdentifier> knownMNBFEBs;
+    SG::WriteHandle<LArNoisyROSummary> noisyRO(m_outputKey, ctx);
+    ATH_CHECK(noisyRO.record(m_noisyROTool->process(nullptr, &knownBadFEBs, &knownMNBFEBs)));
+
+    return StatusCode::SUCCESS;      
   } 
   
   std::set<unsigned int> bf;

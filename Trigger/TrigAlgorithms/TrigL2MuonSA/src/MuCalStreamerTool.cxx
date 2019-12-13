@@ -11,10 +11,8 @@
 #include "EventInfo/TriggerInfo.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "MuonContainerManager/MuonRdoContainerAccess.h"
 #include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
 #include "MuonRDO/RpcPadContainer.h"
-#include "MuonRDO/TgcRdoContainer.h"
 #include "Identifier/IdentifierHash.h"
 
 #include "MuCalDecode/CalibEvent.h"
@@ -107,6 +105,8 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::initialize()
    m_localBuffer = new std::vector<int>();
 
    m_localBufferSize = 0;
+
+   ATH_CHECK(m_tgcRdoKey.initialize());
 
    return StatusCode::SUCCESS; 
 
@@ -643,16 +643,12 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createTgcFragment(std::vector<uint32
   tgcFragment = LVL2_MUON_CALIBRATION::TgcCalibFragment(systemId,subSystemId,rdoId,roiNumber);
 
   // retrieve the tgcrdo container
-  const TgcRdoContainer* tgcRdoContainer = Muon::MuonRdoContainerAccess::retrieveTgcRdo("TGCRDO");
-  if( tgcRdoContainer==0 ) {
-    ATH_MSG_DEBUG("Tgc RDO container not registered by MuonRdoContainerManager");
-    ATH_MSG_DEBUG("-> Retrieving it from the StoreGate");
-    StatusCode sc = evtStore()->retrieve(tgcRdoContainer, "TGCRDO");
-    if( sc.isFailure() ) {
-      ATH_MSG_ERROR("Could not retrieve the TgcRdoContainer");
-      return sc;
-    }
+  SG::ReadHandle<TgcRdoContainer> rdoRH(m_tgcRdoKey);
+  if (!rdoRH.isValid()) {
+    ATH_MSG_ERROR( "No TGC RDO container found!"  );
+    return StatusCode::FAILURE;
   }
+  const TgcRdoContainer* tgcRdoContainer = rdoRH.cptr();
 
   // now get the list of ROB Ids and from the the subdetector ID ( that corresponds to the
   // subsystem ID

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -26,6 +26,8 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "InDetRecToolInterfaces/ITRT_SegmentToTrackTool.h"
+#include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
+#include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
 #include "TrkEventPrimitives/TrackScore.h"
 
 #include <string>
@@ -40,7 +42,6 @@ namespace Trk {
 
   class ITrackFitter;
   class IExtrapolator;
-  class IPRD_AssociationTool;
 
   class ITrackScoringTool;
 
@@ -70,37 +71,41 @@ namespace InDet {
 
       virtual ~TRT_SegmentToTrackTool();
 
-      StatusCode initialize();
-      StatusCode finalize();
+      virtual StatusCode initialize() override;
+      virtual StatusCode finalize() override;
 
-      Trk::Track* segToTrack(const Trk::TrackSegment&);
+      virtual Trk::Track* segToTrack(const Trk::TrackSegment&) override;
       /** Check if the TRT segment has already been assigned a Si extension  */
-      bool segIsUsed(const Trk::TrackSegment& );
-      bool toLower(const Trk::TrackSegment&);
-      void resetAll();
-      void resetAssoTool();
+      virtual bool segIsUsed(const Trk::TrackSegment&, const Trk::PRDtoTrackMap *prd_to_track_map) override;
+      virtual bool toLower(const Trk::TrackSegment&) override;
+      virtual void resetAll() override;
+      virtual void resetAssoTool() override;
       /** Add track into the track-score multimap */
-      void addNewTrack(Trk::Track*);
+      virtual void addNewTrack(Trk::Track*) override;
       /** Resolve the standalone TRT tracks based on the number of shared TRT hits */
-      TrackCollection* resolveTracks();
+      virtual TrackCollection* resolveTracks(const Trk::PRDtoTrackMap *prd_to_track_map) override;
 
-      int GetnTrkScoreZero() { return m_nTrkScoreZero; }
-      int GetnTrkSegUsed()   { return m_nTrkSegUsed; }
-      int GetnTRTTrk()       { return m_nTRTTrk; }
+      virtual int GetnTrkScoreZero() override { return m_nTrkScoreZero; }
+      virtual int GetnTrkSegUsed()   override { return m_nTrkSegUsed; }
+      virtual int GetnTRTTrk()       override { return m_nTRTTrk; }
 
-      MsgStream&    dump     (MsgStream&    out) const;
-      std::ostream& dump(std::ostream& out) const;
+      virtual MsgStream&    dump     (MsgStream&    out) const override;
+      virtual std::ostream& dump(std::ostream& out) const override;
 
     private:
       bool                               m_doRefit;//!< Do final careful refit of tracks
       double                             m_fieldUnitConversion;
       double                             m_sharedFrac         ;  //!< Maximum fraction of shared TRT drift circles
-      bool                               m_useasso            ;  //!< Use Si cluster association tool
       bool                               m_suppressHoleSearch ;  //!< Suppress hole search during the track summary creation
 
       ToolHandle<Trk::ITrackFitter>          m_fitterTool    ;  //!< Refitting tool
       ToolHandle<Trk::IExtrapolator>         m_extrapolator  ;  //!< Track extrapolator tool
-      ToolHandle<Trk::IPRD_AssociationTool>  m_assotool      ;  //!< Association tool
+
+      ToolHandle<Trk::IPRDtoTrackMapTool>  m_assoTool
+         {this, "AssociationTool", "InDet::InDetPRDtoTrackMapToolGangedPixels" };
+      ToolHandle<Trk::IExtendedTrackSummaryTool> m_trackSummaryTool
+        {this, "TrackSummaryTool", "InDetTrackSummaryToolNoHoleSearch"};
+
       ToolHandle<Trk::ITrackScoringTool>     m_scoringTool   ;  //!< Track scoring tool
       ServiceHandle<MagField::IMagFieldSvc>  m_magFieldSvc  ;  //!< Magnetic field service
 

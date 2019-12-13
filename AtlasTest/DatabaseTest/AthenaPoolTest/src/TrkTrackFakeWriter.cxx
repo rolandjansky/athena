@@ -18,9 +18,6 @@
 #include "TrkTrackFakeWriter.h"
 
 
-// TES include
-#include "StoreGate/StoreGateSvc.h"
-
 // Gaudi includes
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/SmartDataPtr.h"

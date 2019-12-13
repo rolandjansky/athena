@@ -93,7 +93,7 @@ namespace LArG4
   //---------------------------------------------------------------------------
   // Create SDs for the current thread
   //---------------------------------------------------------------------------
-  G4VSensitiveDetector* DeadSDTool::makeSD()
+  G4VSensitiveDetector* DeadSDTool::makeSD() const
   {
     // Create the wrapper
     auto sdWrapper = new CalibSDWrapper("LArDeadSDWrapper", m_hitCollName);

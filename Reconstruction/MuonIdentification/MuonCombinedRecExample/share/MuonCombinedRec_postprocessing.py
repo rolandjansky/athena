@@ -20,14 +20,18 @@ if rec.doTruth() and muonCombinedRecFlags.doxAOD() and rec.doMuonCombined():
 
     colsTP = [ "ExtrapolatedMuonTrackParticles", "CombinedMuonTrackParticles", "MSOnlyExtrapolatedMuonTrackParticles" ]
     fcols = [ "ExtrapolatedMuonTracks", "CombinedMuonTracks", "MSOnlyExtrapolatedMuonTracks" ]
-    cols = ["MuidMETracks","MuidCombinedTracks","MSOnlyExtrapolatedMuonTracks","MuGirlCombinedTracks","MuGirlMETracks","MuGirlStauCombinedTracks"]
-    if not muonCombinedRecFlags.doMuGirlLowBetaMuonCollection:
-        cols = ["MuidMETracks","MuidCombinedTracks","MSOnlyExtrapolatedMuonTracks","MuGirlCombinedTracks","MuGirlMETracks"]
+    cols = ["MuidMETracks","MuidCombinedTracks","MSOnlyExtrapolatedMuonTracks"]
+    if muonCombinedRecFlags.doMuGirl():
+        cols += ["MuGirlCombinedTracks","MuGirlMETracks"]
+        if muonCombinedRecFlags.doMuGirlLowBeta():
+            cols += ["MuGirlStauCombinedTracks"]
     topSequence+= MuonDetailedTrackTruthMaker("MuonCombinedDetailedTrackTruthMaker")
     topSequence.MuonCombinedDetailedTrackTruthMaker.TrackCollectionNames = cols 
     topSequence.MuonCombinedDetailedTrackTruthMaker.DetailedTrackTruthNames = fcols
-    if muonRecFlags.doNSWNewThirdChain():
-        topSequence.MuonCombinedDetailedTrackTruthMaker.doNSW=True
+    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+    topSequence.MuonCombinedDetailedTrackTruthMaker.HasCSC = MuonGeometryFlags.hasCSC()
+    topSequence.MuonCombinedDetailedTrackTruthMaker.HasSTgc = MuonGeometryFlags.hasSTGC()
+    topSequence.MuonCombinedDetailedTrackTruthMaker.HasMM = MuonGeometryFlags.hasMM()
         
     from TrkTruthAlgs.TrkTruthAlgsConf import TrackParticleTruthAlg
     for i in range(0, len(fcols)):

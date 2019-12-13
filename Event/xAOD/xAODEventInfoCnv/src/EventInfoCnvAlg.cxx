@@ -2,7 +2,6 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventInfoCnvAlg.cxx 751296 2016-06-01 08:00:25Z krasznaa $
 
 // System include(s):
 #include <memory>
@@ -33,7 +32,6 @@ namespace xAODMaker {
       declareProperty( "xAODKey", m_xaodKey = "EventInfo" );
       declareProperty( "PileupKey", m_pileupKey = "" );
       declareProperty( "CnvTool", m_cnvTool );
-      declareProperty( "DoBeginRun", m_doBeginRun = true );
    }
 
    StatusCode EventInfoCnvAlg::initialize() {
@@ -54,7 +52,7 @@ namespace xAODMaker {
       CHECK( m_xaodKey.initialize() );
 
       /// FIXME: Should do this only if we have a PileUpEventInfo.
-      CHECK( m_pileupKey.initialize() );
+      CHECK( m_pileupKey.initialize(!m_pileupKey.key().empty()) );
 
       // Return gracefully:
       return StatusCode::SUCCESS;
@@ -157,31 +155,6 @@ namespace xAODMaker {
 
       // Return gracefully:
       return StatusCode::SUCCESS;
-   }
-
-   StatusCode EventInfoCnvAlg::beginRun() {
-
-     if(m_doBeginRun && !Gaudi::Concurrency::ConcurrencyFlags::concurrent()) {
-       // Let the user know what's happening:
-       ATH_MSG_DEBUG( "Preparing xAOD::EventInfo object in beginRun()" );
-       
-       // Run the conversion using the execute function:
-       CHECK( execute (Gaudi::Hive::currentContext()) );
-     }
-     else {
-       // Supress warning about use of beginRun().
-#ifdef __GNUC__
-# pragma GCC diagnostic push
-# pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-       CHECK( Algorithm::beginRun() );
-#ifdef __GNUC__
-# pragma GCC diagnostic pop
-#endif
-     }
-
-     // Return gracefully:
-     return StatusCode::SUCCESS;
    }
 
 } // namespace xAODMaker

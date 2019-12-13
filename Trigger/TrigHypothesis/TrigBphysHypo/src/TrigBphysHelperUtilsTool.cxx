@@ -15,10 +15,7 @@
 // STL includes
 
 // FrameWork includes
-#include "GaudiKernel/IToolSvc.h"
 
-#include "TrkTrack/TrackCollection.h"
-#include "TrkParameters/TrackParameters.h"
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
@@ -37,7 +34,6 @@ TrigBphysHelperUtilsTool::TrigBphysHelperUtilsTool( const std::string& type,
 		      const IInterface* parent ) : 
   ::AthAlgTool  ( type, name, parent   )
 ,  m_fitterSvc("Trk::TrkVKalVrtFitter/VertexFitterTool",this)
-, m_massMuon(105.6583715)
 {
   declareInterface< TrigBphysHelperUtilsTool >(this);
   //
@@ -282,7 +278,7 @@ StatusCode TrigBphysHelperUtilsTool::buildDiMu(const std::vector<ElementLink<xAO
 
     
     xAOD::TrackParticle::FourMom_t fourMom = (*particles[0])->p4() + (*particles[1])->p4();
-    double massMuMu = invariantMass( *particles[0], *particles[1], m_massMuon,m_massMuon); 
+    double massMuMu = invariantMass( *particles[0], *particles[1], s_massMuon,s_massMuon); 
     
     double rap      = fourMom.Rapidity();
     double phi      = fourMom.Phi();
@@ -311,7 +307,7 @@ StatusCode TrigBphysHelperUtilsTool::buildDiMu(const std::vector<ElementLink<xAO
     trks.push_back(*particles[1]);
     xAOD::Vertex * vx(0);
     std::unique_ptr<Trk::IVKalState> state = m_VKVFitter->makeState();
-    std::vector<double> masses(particles.size(), m_massMuon);
+    std::vector<double> masses(particles.size(), s_massMuon);
     m_VKVFitter->setMassInputParticles(masses, *state); // give input tracks muon mass
     if (doFit) vx =  m_VKVFitter->fit(trks,startingPoint,*state);
 
@@ -549,6 +545,42 @@ double TrigBphysHelperUtilsTool::invariantMass(const xAOD::IParticle *p1, const 
     return invariantMassIP( {p1,p2},{m1,m2});
 } // invariantMass
 
+double TrigBphysHelperUtilsTool::invariantMass(const xAOD::TrackParticle *p1, const xAOD::TrackParticle* p2, double mi1, double mi2) const {
+    static_assert(!std::is_base_of<xAOD::L2StandAloneMuon, xAOD::TrackParticle>::value, "Types have become ambiguous, units may be wrong" );
+    static_assert(!std::is_base_of<xAOD::TrackParticle, xAOD::L2StandAloneMuon>::value, "Types have become ambiguous, units may be wrong" );
+    assert(p1!=nullptr);
+    assert(p2!=nullptr);
+    double px(0.),py(0.),pz(0.),E(0.);
+    
+
+    {
+    const auto &pv1 = p1->p4();
+    px += pv1.Px();
+    py += pv1.Py();
+    pz += pv1.Pz();
+    E  += sqrt(mi1*mi1 +
+               pv1.Px()*pv1.Px() +
+               pv1.Py()*pv1.Py() +
+               pv1.Pz()*pv1.Pz()
+          );
+    }
+    {
+    const auto &pv2 = p2->p4();
+    px += pv2.Px();
+    py += pv2.Py();
+    pz += pv2.Pz();
+    E  += sqrt(mi2*mi2 +
+               pv2.Px()*pv2.Px() +
+               pv2.Py()*pv2.Py() +
+               pv2.Pz()*pv2.Pz()
+          );
+    }
+    double m2 = E*E - px*px - py*py -pz*pz;
+    if (m2 < 0) return 0.;
+    else        return sqrt(m2);
+} // invariantMass
+
+
 double TrigBphysHelperUtilsTool::invariantMass(const std::vector<const xAOD::TrackParticle*>&ptls, const std::vector<double> & masses) const {
     // 're-cast the vector in terms of the iparticle'
     std::vector<const xAOD::IParticle*> i_ptls;
@@ -578,16 +610,15 @@ double TrigBphysHelperUtilsTool::invariantMassIP(const std::vector<const xAOD::I
             cFactor = 1000.;
             ATH_MSG_DEBUG("Found L2StandAlone muon for IParticle: " << i << " Treating as having units of GeV" );
         } // if L2 muon
-        
-                
-            
-        px += ptls[i]->p4().Px()*cFactor;
-        py += ptls[i]->p4().Py()*cFactor;
-        pz += ptls[i]->p4().Pz()*cFactor;
+
+        const auto &pv4 = ptls[i]->p4();
+        px += pv4.Px()*cFactor;
+        py += pv4.Py()*cFactor;
+        pz += pv4.Pz()*cFactor;
         E  += sqrt(masses[i]*masses[i] +
-                   ptls[i]->p4().Px()*ptls[i]->p4().Px()*cFactor*cFactor +
-                   ptls[i]->p4().Py()*ptls[i]->p4().Py()*cFactor*cFactor +
-                   ptls[i]->p4().Pz()*ptls[i]->p4().Pz()*cFactor*cFactor
+                   pv4.Px()*pv4.Px()*cFactor*cFactor +
+                   pv4.Py()*pv4.Py()*cFactor*cFactor +
+                   pv4.Pz()*pv4.Pz()*cFactor*cFactor
                    );
         
     } // for
@@ -631,17 +662,9 @@ void TrigBphysHelperUtilsTool::fillTrigObjectKinematics(xAOD::TrigBphys* bphys,
      
  } // fillTrigObjectKinematics
 
-
-void TrigBphysHelperUtilsTool::setBeamlineDisplacement(xAOD::TrigBphys* bphys,
-                             const std::vector<const xAOD::TrackParticle*> &ptls) {
-    
-    if (!bphys) {
-        ATH_MSG_WARNING("Null pointer of trigger object provided." );
-        return;
-    }
-    
-    Amg::Vector3D beamSpot(0.,0.,0.);
-    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+Amg::Vector3D TrigBphysHelperUtilsTool::getBeamSpot(const EventContext& ctx) const {
+	Amg::Vector3D beamSpot(0.,0.,0.);
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
     if ( !beamSpotHandle.isValid() )
     {
         ATH_MSG_DEBUG("Could not retrieve Beam Conditions Service. " );
@@ -652,8 +675,19 @@ void TrigBphysHelperUtilsTool::setBeamlineDisplacement(xAOD::TrigBphys* bphys,
         int beamSpotStatus = ((beamSpotBitMap & 0x4) == 0x4);
         ATH_MSG_DEBUG("  beamSpotBitMap= "<< beamSpotBitMap<<" beamSpotStatus= "<<beamSpotStatus);
     }
+    return beamSpot;
+}
+
+void TrigBphysHelperUtilsTool::setBeamlineDisplacement(xAOD::TrigBphys* bphys,
+                             const std::vector<const xAOD::TrackParticle*> &ptls, const Amg::Vector3D& beamSpot) {
     
-    static const double CONST = 1000./299.792; // unit conversion for lifetime
+    if (!bphys) {
+        ATH_MSG_WARNING("Null pointer of trigger object provided." );
+        return;
+    }
+    
+    
+    constexpr double CONST = 1000./299.792; // unit conversion for lifetime
 
     
     double Dx     = bphys->fitx() - beamSpot.x();
@@ -662,8 +696,9 @@ void TrigBphysHelperUtilsTool::setBeamlineDisplacement(xAOD::TrigBphys* bphys,
     
     double sumPx(0.), sumPy(0.), sumPt(0.);
     for (const auto& ptl: ptls) {
-        sumPx += ptl->p4().Px(); // FIXME - is there a more optimal way
-        sumPy += ptl->p4().Py();
+    	const auto &pv4 = ptl->p4();
+        sumPx += pv4.Px(); // FIXME - is there a more optimal way
+        sumPy += pv4.Py();
     }
     sumPt = sqrt(sumPx*sumPx + sumPy*sumPy);
     double BsLxy(-9999.);

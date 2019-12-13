@@ -173,14 +173,14 @@ StatusCode egammaMVACalibTool::setupBDT(const egammaMVAFunctions::funcMap_t& fun
     {
       const TString& varName = getString(str2);
       if (!varName.Length()) {
-	ATH_MSG_FATAL("There was an empty variable name!");
-	return StatusCode::FAILURE;
+        ATH_MSG_FATAL("There was an empty variable name!");
+        return StatusCode::FAILURE;
       }
       try {
-	funcs.push_back(funcLibrary.at(varName.Data()));
+        funcs.push_back(funcLibrary.at(varName.Data()));
       } catch(const std::out_of_range& e) {
-	ATH_MSG_FATAL("Could not find formula for variable " << varName << ", error: " << e.what());
-	return StatusCode::FAILURE;	
+        ATH_MSG_FATAL("Could not find formula for variable " << varName << ", error: " << e.what());
+        return StatusCode::FAILURE;	
       } 
     }
     m_funcs.push_back(std::move(funcs));

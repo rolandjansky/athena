@@ -2,15 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <math.h>
-
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/StatusCode.h"
-#include "AthLinks/ElementLink.h" 
-
 #include "DecisionHandling/TrigCompositeUtils.h"
-#include "xAODTrigMuon/L2StandAloneMuonContainer.h" 
-
 #include "TrigmuCombHypoAlg.h"
 #include "AthViews/ViewHelper.h"
 
@@ -24,31 +16,14 @@ TrigmuCombHypoAlg::TrigmuCombHypoAlg( const std::string& name,
   ::HypoBase( name, pSvcLocator )
 {} 
 
-TrigmuCombHypoAlg::~TrigmuCombHypoAlg() 
-{}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
 
 StatusCode TrigmuCombHypoAlg::initialize()
 {
-  ATH_MSG_INFO ( "Initializing " << name() << "..." );
   ATH_CHECK(m_hypoTools.retrieve());
 
   renounce(m_muCombKey);
   ATH_CHECK(m_muCombKey.initialize());
 
-  ATH_MSG_INFO( "Initialization completed successfully" );
-  return StatusCode::SUCCESS;
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-StatusCode TrigmuCombHypoAlg::finalize() 
-{   
-  ATH_MSG_INFO( "Finalizing " << name() << "..." );
-  ATH_MSG_INFO( "Finalization completed successfully" );
   return StatusCode::SUCCESS;
 }
 
@@ -93,29 +68,28 @@ StatusCode TrigmuCombHypoAlg::execute(const EventContext& context) const
     ATH_CHECK( muCombHandle.isValid() );
     ATH_MSG_DEBUG( "Muinfo handle size: " << muCombHandle->size() << "...");
 
-    auto muCombEL = ViewHelper::makeLink( *viewEL, muCombHandle, 0 );
-    ATH_CHECK( muCombEL.isValid() );
-    const xAOD::L2CombinedMuon* muComb = *muCombEL;
+    // make a link to the first entry of the container, if there is one
+    if ( muCombHandle->size() ) {
+      auto muCombEL = ViewHelper::makeLink( *viewEL, muCombHandle, 0 );
+      ATH_CHECK( muCombEL.isValid() );
+      const xAOD::L2CombinedMuon* muComb = *muCombEL;
     
-    // create new decisions
-    auto newd = newDecisionIn( decisions );
+      // create new decisions
+      auto newd = newDecisionIn( decisions );
 
-    toolInput.emplace_back( TrigmuCombHypoTool::CombinedMuonInfo{ newd, muComb, muFast, previousDecision} );
+      toolInput.emplace_back( TrigmuCombHypoTool::CombinedMuonInfo{ newd, muComb, muFast, previousDecision} );
 
-    // set objectLink
-    newd->setObjectLink( featureString(), muCombEL );
-    newd->setObjectLink( viewString(), viewEL);
-    TrigCompositeUtils::linkToPrevious( newd, previousDecision, context);
+      // set objectLink
+      newd->setObjectLink( featureString(), muCombEL );
+      TrigCompositeUtils::linkToPrevious( newd, previousDecision, context);
 
-    // DEBUG
-    auto muFastInfo = (*muCombEL)->muSATrack(); 
-    ATH_MSG_DEBUG("REGTEST: muSATrack pt in " << m_muCombKey.key() << " = " << muFastInfo->pt() << " GeV");
-    ATH_MSG_DEBUG("REGTEST: muSATrack eta/phi in " << m_muCombKey.key() << " = " << muFastInfo->eta() << "/" << muFastInfo->phi());
-    ATH_MSG_DEBUG("REGTEST: muCBTrack pt in " << m_muCombKey.key() << " = " << (*muCombEL)->pt() << " GeV");
-    ATH_MSG_DEBUG("REGTEST: muCBTrack eta/phi in " << m_muCombKey.key() << " = " << (*muCombEL)->eta() << "/" << (*muCombEL)->phi());
-    ATH_MSG_DEBUG("Added view, features, previous decision to new decision "<<counter <<" for view "<<(*viewEL)->name()  );
+      // DEBUG
+      ATH_MSG_DEBUG("REGTEST: muCBTrack pt in " << m_muCombKey.key() << " = " << (*muCombEL)->pt() << " GeV");
+      ATH_MSG_DEBUG("REGTEST: muCBTrack eta/phi in " << m_muCombKey.key() << " = " << (*muCombEL)->eta() << "/" << (*muCombEL)->phi());
+      ATH_MSG_DEBUG("Added view, features, previous decision to new decision "<<counter <<" for view "<<(*viewEL)->name()  );
 
-    counter++;
+      counter++;
+    }
   }
   for ( auto & tool: m_hypoTools ) {
     ATH_MSG_DEBUG("Go to " << tool);

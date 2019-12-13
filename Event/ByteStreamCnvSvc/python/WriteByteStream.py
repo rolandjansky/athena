@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # ----------- module for Writing out ByteStream ----------
 # 
@@ -24,11 +24,11 @@ def getStream(type,name):
     
     # type check
     type = type.upper()
-    if not type in ['EVENTSTORAGE','TRANSIENT']:
-        raise RuntimeError,"unsupported StreamType:%s" % type
+    if type not in ['EVENTSTORAGE','TRANSIENT']:
+        raise RuntimeError ("unsupported StreamType:%s" % type)
 
     # return existing stream
-    if _streamMap.has_key((type,name)):
+    if (type,name) in _streamMap:
         return _streamMap[(type,name)]
 
     # EventStorage
@@ -50,7 +50,7 @@ def getStream(type,name):
             OutputFile = "ByteStreamEventStorageOutputSvc",
             )
         theApp.addOutputStream( StreamBS )
-        theApp.OutStreamType ="AthenaOutputStream";
+        theApp.OutStreamType ="AthenaOutputStream"
             
         # Define the output as follows: 
         ByteStreamEventStorageOutputSvc = svcMgr.ByteStreamEventStorageOutputSvc
@@ -119,5 +119,5 @@ def getStream(type,name):
         return StreamBS
                     
     else:
-        raise RuntimeError,"unsupported StreamType:%s" % type
+        raise RuntimeError("unsupported StreamType:%s" % type)
 

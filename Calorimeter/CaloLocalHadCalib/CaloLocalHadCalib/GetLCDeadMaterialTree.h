@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOLOCALHADCALIB_GETLCDEADMATERIALTREE_H
@@ -16,8 +16,6 @@
  * This class is an Algorithm to generate special dead material tree from ESD
  * for latter calculation of dead material correction coefficients 
  */
-
-class StoreGateSvc;
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"

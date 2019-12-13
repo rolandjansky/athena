@@ -21,8 +21,7 @@
 #include "Identifier/IdContext.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
-#include "InDetByteStreamErrors/InDetBSErrContainer.h"
-#include "InDetByteStreamErrors/SCT_ByteStreamFractionContainer.h"
+#include "InDetByteStreamErrors/IDCInDetBSErrContainer.h"
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
@@ -66,8 +65,8 @@ public:
   virtual bool isGood(const IdentifierHash& elementIdHash) const override;
   virtual bool isGood(const IdentifierHash& elementIdHash, const EventContext& ctx) const override;
   
-  const std::set<IdentifierHash>* getErrorSet(int errorType, const EventContext& ctx) const override; // Used by SCTRawDataProviderTool and others
-  const std::set<IdentifierHash>* getErrorSet(int errorType) const override; // Used by SCTRawDataProviderTool and others
+  const std::set<IdentifierHash> getErrorSet(int errorType, const EventContext& ctx) const override; // Used by SCTRawDataProviderTool and others
+  const std::set<IdentifierHash> getErrorSet(int errorType) const override; // Used by SCTRawDataProviderTool and others
 
   const std::array<std::set<IdentifierHash>, SCT_ByteStreamErrors::NUM_ERROR_TYPES>* getErrorSets(const EventContext& ctx) const override; // Used by SCTRawDataProviderTool and others
   const std::array<std::set<IdentifierHash>, SCT_ByteStreamErrors::NUM_ERROR_TYPES>* getErrorSets() const override; // Used by SCTRawDataProviderTool and others
@@ -76,15 +75,6 @@ public:
   virtual unsigned int tempMaskedChips(const Identifier& moduleId) const override;
   virtual unsigned int abcdErrorChips(const Identifier& moduleId) const override; // Internally used
   virtual unsigned int abcdErrorChips(const Identifier& moduleId, const EventContext& ctx) const override; // Internally used
-  virtual bool isRODSimulatedData(const EventContext& ctx) const override; // Internally used
-  virtual bool isRODSimulatedData() const override; // Internally used
-  virtual bool isRODSimulatedData(const IdentifierHash& elementIdHash, const EventContext& ctx,
-                                  const std::set<IdentifierHash>* errorSet=nullptr) const override;
-  virtual bool isRODSimulatedData(const IdentifierHash& elementIdHash) const override;
-  virtual bool isHVOn(const EventContext& ctx) const override; // Not used
-  virtual bool isHVOn() const override; // Not used
-  virtual bool isCondensedReadout(const EventContext& ctx) const override; // Not used
-  virtual bool isCondensedReadout() const override; // Not used
 
 private:
 
@@ -93,14 +83,11 @@ private:
   const SCT_ID* m_sct_id{nullptr};
   IdContext m_cntx_sct;
 
-  SG::ReadHandleKey<InDetBSErrContainer> m_bsErrContainerName{this, "ContainerName", "SCT_ByteStreamErrs", "Key of InDetBSErrContainer for SCT"};
-  SG::ReadHandleKey<SCT_ByteStreamFractionContainer> m_bsFracContainerName{this, "FracContainerName", "SCT_ByteStreamFrac", "Key of SCT_ByteStreamFractionContainer"};
+  SG::ReadHandleKey<IDCInDetBSErrContainer> m_bsIDCErrContainerName{this, "IDCByteStreamErrContainer", "SCT_ByteStreamErrs", "SCT BS error key for IDC variant"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
-  BooleanProperty m_checkRODSimulatedData{this, "CheckRODSimulatedData", true, "Flag to check RODSimulatedData flag."};
-
   // Mutex to protect the contents.
-  mutable std::recursive_mutex m_mutex{};
+  mutable std::mutex m_mutex{};
   struct CacheEntry {
     EventContext::ContextEvt_t m_evt{EventContext::INVALID_CONTEXT_EVT};
     std::array<std::set<IdentifierHash>, SCT_ByteStreamErrors::NUM_ERROR_TYPES> m_bsErrors; // Used by getErrorSet, addError, resetSets
@@ -120,7 +107,6 @@ private:
   int getChip(const Identifier& stripId, const EventContext& ctx) const;
 
   // For isRODSimulatedData, HVisOn and isCondensedReadout
-  const SCT_ByteStreamFractionContainer* getFracData(const EventContext& ctx) const;
   const InDetDD::SiDetectorElement* getDetectorElement(const IdentifierHash& waferHash, const EventContext& ctx) const;
 
   const std::map<Identifier, unsigned int>& getTempMaskedChips(const EventContext& ctx) const;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -73,20 +73,20 @@ namespace InDet{
                 float splitProb1,
                 float splitProb2
               ) :
-                SiCluster(RDOId, locpos, rdoList, width, detEl, locErrMat) //call base class constructor
+      SiCluster(RDOId, locpos, rdoList, width, detEl, locErrMat), //call base class constructor
+      m_omegax (omegax),
+      m_omegay (omegay),
+      m_totList (totList),
+      m_totalToT (0),
+      m_chargeList(),
+      m_totalCharge (0),
+      m_fake (false),
+      m_ambiguous (false),
+      m_lvl1 (lvl1a),
+      m_tooBigToBeSplit (false)
     {
-      m_omegax = omegax;
-      m_omegay = omegay;
-      m_totList= totList;
-      m_totalToT=0;
       int n = m_totList.size();
       for (int i=0; i<n; i++) m_totalToT+=int(totList[i]);
-      m_chargeList.clear();
-      m_totalCharge=0;
-      m_fake = false;
-      m_ambiguous = false;
-      m_lvl1 = lvl1a;
-      m_tooBigToBeSplit = false;
       packSplitInformation(split,splitProb1,splitProb2);
     
     }
@@ -107,23 +107,23 @@ namespace InDet{
                 float splitProb1,
                 float splitProb2
               ) :
-                SiCluster(RDOId, locpos, rdoList, width, detEl, locErrMat) //call base class constructor
+      SiCluster(RDOId, locpos, rdoList, width, detEl, locErrMat), //call base class constructor
+      m_omegax (omegax),
+      m_omegay (omegay),
+      m_totList (totList),
+      m_totalToT (0),
+      m_chargeList (chargeList),
+      m_totalCharge (0),
+      m_fake (false),
+      m_ambiguous (false),
+      m_lvl1 (lvl1a),
+      m_tooBigToBeSplit (false)
     {
-      m_omegax = omegax;
-      m_omegay = omegay;
-      m_totList= totList;
-      m_totalToT=0;
       int n = m_totList.size();
       for (int i=0; i<n; i++) m_totalToT+=int(totList[i]);
-      m_chargeList= chargeList;
-      m_totalCharge=0;
       n = m_chargeList.size();
       for (int i=0; i<n; i++) m_totalCharge+=chargeList[i];
       if ( m_totalCharge>MAXCHARGE ) m_totalCharge=MAXCHARGE;
-      m_fake = false;
-      m_ambiguous = false;
-      m_lvl1 = lvl1a;
-      m_tooBigToBeSplit = false;
       packSplitInformation(split,splitProb1,splitProb2);
     }
     
@@ -142,111 +142,39 @@ namespace InDet{
                 const float omegay,
                 int splitInfoRaw
               ) :
-    SiCluster(RDOId, locpos,
-              std::move(rdoList),
-              width, detEl, locErrMat.release()) //call base class constructor
+      SiCluster(RDOId, locpos,
+                std::move(rdoList),
+                width, detEl, locErrMat.release()), //call base class constructor
+      m_omegax (omegax),
+      m_omegay (omegay),
+      m_totList(),
+      m_totalToT (totalToT),
+      m_chargeList (chargeList),
+      m_totalCharge (totalCharge),
+      m_fake (false),
+      m_ambiguous (false),
+      m_lvl1 (lvl1a),
+      m_splitInfo (splitInfoRaw),
+      m_tooBigToBeSplit (false)
     {
-      m_omegax = omegax;
-      m_omegay = omegay;
-      m_totalToT=totalToT;
-      m_chargeList= chargeList;
-      m_totalCharge=totalCharge;
-      m_fake = false;
-      m_ambiguous = false;
-      m_lvl1 = lvl1a;
-      m_tooBigToBeSplit = false;
-      m_splitInfo = splitInfoRaw;
     }
     
     // Default constructor:
     PixelCluster::PixelCluster():
-    	SiCluster()
+      SiCluster(),
+      m_omegax (-1),
+      m_omegay (-1),
+      m_totalToT (0),
+      m_totalCharge (0),
+      m_fake (false),
+      m_ambiguous (false),
+      m_lvl1 (0),
+      m_splitInfo (0),
+      m_tooBigToBeSplit (false)
     {
-      m_omegax = -1;
-      m_omegay = -1;
-      m_totalToT   =0 ;
-      m_totalCharge=0.;
-      m_fake = false;
-      m_ambiguous = false;
-      m_lvl1 = 0;
-      m_splitInfo = 0;
-      m_tooBigToBeSplit = false;
     }
     
-    //copy constructor:
-    PixelCluster::PixelCluster(const PixelCluster& RIO): SiCluster(RIO)
-    {
-      m_omegax          = RIO.m_omegax;
-      m_omegay          = RIO.m_omegay;
-      m_totList         = RIO.m_totList;
-      m_totalToT        = RIO.m_totalToT;
-      m_chargeList      = RIO.m_chargeList;
-      m_totalCharge     = RIO.m_totalCharge;
-      m_fake            = RIO.m_fake;
-      m_ambiguous       = RIO.m_ambiguous;
-      m_lvl1            = RIO.m_lvl1;
-      m_splitInfo       = RIO.m_splitInfo;
-			m_tooBigToBeSplit = RIO.m_tooBigToBeSplit;
-    }
-    
-    //move constructor:
-    PixelCluster::PixelCluster(PixelCluster&& RIO): SiCluster(std::move(RIO))
-    {
-      m_omegax          = RIO.m_omegax;
-      m_omegay          = RIO.m_omegay;
-      m_totList         = std::move(RIO.m_totList);
-      m_totalToT        = RIO.m_totalToT;
-      m_chargeList      = std::move(RIO.m_chargeList);
-      m_totalCharge     = RIO.m_totalCharge;
-      m_fake            = RIO.m_fake;
-      m_ambiguous       = RIO.m_ambiguous;
-      m_lvl1            = RIO.m_lvl1;
-      m_splitInfo       = RIO.m_splitInfo;
-      m_tooBigToBeSplit = RIO.m_tooBigToBeSplit;
-    }
-    
-    //assignment
-    PixelCluster & 
-    PixelCluster::operator=(const PixelCluster & rhs){
-      if (&rhs ==this) return *this;
-      SiCluster::operator= (rhs);
-      m_omegax          = rhs.m_omegax;
-      m_omegay          = rhs.m_omegay;
-      m_totList         = rhs.m_totList;
-      m_totalToT        = rhs.m_totalToT;
-      m_chargeList      = rhs.m_chargeList;
-      m_totalCharge     = rhs.m_totalCharge;
-      m_fake            = rhs.m_fake;
-      m_ambiguous       = rhs.m_ambiguous;
-      m_lvl1            = rhs.m_lvl1;
-      m_splitInfo       = rhs.m_splitInfo;
-      m_tooBigToBeSplit = rhs.m_tooBigToBeSplit;
-      return *this;
-    }
 
-    
-    //move
-    PixelCluster & 
-    PixelCluster::operator=(PixelCluster && rhs){
-      if (&rhs ==this) return *this;
-      SiCluster::operator= (std::move(rhs));
-      m_omegax          = rhs.m_omegax;
-      m_omegay          = rhs.m_omegay;
-      m_totList         = std::move(rhs.m_totList);
-      m_totalToT        = rhs.m_totalToT;
-      m_chargeList      = std::move(rhs.m_chargeList);
-      m_totalCharge     = rhs.m_totalCharge;
-      m_fake            = rhs.m_fake;
-      m_ambiguous       = rhs.m_ambiguous;
-      m_lvl1            = rhs.m_lvl1;
-      m_splitInfo       = rhs.m_splitInfo;
-      m_tooBigToBeSplit = rhs.m_tooBigToBeSplit;
-      return *this;
-    }
-
-    
-    
-    
     MsgStream& PixelCluster::dump( MsgStream&    stream) const
     {
         stream << "PixelCluster object" << std::endl;
@@ -282,6 +210,16 @@ namespace InDet{
     std::ostream& operator << (std::ostream& stream, const PixelCluster& prd)
     {
         return prd.dump(stream);
+    }
+
+
+    void PixelCluster::setToTList (std::vector<int>&& totList)
+    {
+      m_totList = std::move (totList);
+      m_totalToT = 0;
+      for (int f : m_totList) {
+        m_totalToT += f;
+      }
     }
 
 

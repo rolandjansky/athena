@@ -29,7 +29,6 @@ _outputKey = "TauJets"
 _outputAuxType = "xAOD::TauJetAuxContainer"
 _outputAuxKey = "TauJetsAux."
 _track_collection = "InDetTrackParticles"
-_jet_collection = "AntiKt4LCTopoJets"
 
 ################################################################################
 ## @class TauRecRunner

@@ -1,4 +1,7 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+from past.builtins import cmp
 
 from PrescaleHelper import getCutFromPrescale, getPrescaleFromCut
 from Lvl1MenuUtil import oldStyle
@@ -30,7 +33,7 @@ class LVL1MenuItem(object):
         self.verbose          = verbose
 
         if self.verbose:
-            print "Created",name
+            print ("Created",name)
 
         if LVL1MenuItem.l1configForRegistration:
             LVL1MenuItem.l1configForRegistration.registerItem(self.name, self)
@@ -51,12 +54,12 @@ class LVL1MenuItem(object):
 
     @property
     def priority(self):
-        print "Item priority not used anymore, replaced by complex_deadtime"
+        print ("Item priority not used anymore, replaced by complex_deadtime")
         return self.complex_deadtime
 
     @priority.setter
     def priority(self,priority):
-        print "Setter: item priority not used anymore, replaced by complex_deadtime"
+        print ("Setter: item priority not used anymore, replaced by complex_deadtime")
         
 
     def addMonitor(self, flag, frequency):
@@ -69,7 +72,7 @@ class LVL1MenuItem(object):
     def setLogic(self, logic):
         self.logic = logic
         if self.verbose:
-            print self
+            print (self)
         return self
 
     def setCtpid(self, x):

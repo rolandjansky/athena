@@ -37,7 +37,7 @@ namespace TrigConf {
       std::size_t size() const;
 
       /** Iterator over the HLT chains */
-      using const_iterator = ConstIter<ptree, HLTChain>;
+      using const_iterator = ConstIter<ptree, Chain>;
 
       /** Begin of the HLT chains list
        *
@@ -53,11 +53,14 @@ namespace TrigConf {
    };
 }
 
+#ifndef TRIGCONF_STANDALONE
+
 #include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( TrigConf::HLTMenu , 24176960 , 1 )
 
 #include "AthenaKernel/CondCont.h"
 CONDCONT_DEF( TrigConf::HLTMenu , 155284098 );
 
+#endif
 
 #endif

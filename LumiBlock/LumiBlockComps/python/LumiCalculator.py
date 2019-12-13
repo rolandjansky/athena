@@ -82,7 +82,7 @@ class coolLumiCalc:
         # open the COOL database instance (readonly)
         try:
             self.cooldb=indirectOpen(cooldbconn,True,readoracle,loglevel>1)
-        except Exception, e:
+        except Exception as e:
             print(e)
             sys.exit(-1)
         # store other parameters
@@ -94,7 +94,7 @@ class coolLumiCalc:
             # connect to detector status DB
             try:
                 self.detstatusdb=indirectOpen(statusdbconn,True,readoracle,loglevel>1)
-            except Exception,e:
+            except Exception as e:
                 print(e)
                 sys.exit(-1)
 

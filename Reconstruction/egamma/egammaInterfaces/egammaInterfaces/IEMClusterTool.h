@@ -31,8 +31,9 @@ class IEMClusterTool : virtual public IAlgTool {
   /** @brief initialize method*/
   virtual StatusCode initialize() = 0;
   /** @brief execute on containers */
-  virtual StatusCode contExecute(xAOD::ElectronContainer *electronContainer, 
-				 xAOD::PhotonContainer *photonContainer) = 0;
+  virtual StatusCode contExecute(const EventContext& ctx,
+                                 xAOD::ElectronContainer *electronContainer, 
+				 xAOD::PhotonContainer *photonContainer) const = 0;
   /** @brief finalize method*/
   virtual StatusCode finalize() = 0;
   

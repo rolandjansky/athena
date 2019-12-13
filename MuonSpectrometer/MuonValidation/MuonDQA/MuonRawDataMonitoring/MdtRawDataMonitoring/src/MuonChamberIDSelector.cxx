@@ -18,12 +18,6 @@
 // Constructor with parameters:
 MuonChamberIDSelector::MuonChamberIDSelector(const std::string &name, ISvcLocator *pSvcLocator) 
   : AthAlgorithm(name,pSvcLocator),
-   m_StoreGate(0),
-   m_detMgr(0),
-   m_mdtIdHelper(0),
-   m_cscIdHelper(0),
-   m_rpcIdHelper(0),
-   m_tgcIdHelper(0),
    m_mdtchambersId(0),
    m_rpcchambersId(0) 
 {}
@@ -47,40 +41,8 @@ StatusCode MuonChamberIDSelector::initialize()
     return( StatusCode::FAILURE );
   }
 
-  // Retrieve StoreGate
-  sc=service("StoreGateSvc",m_StoreGate);
-  if (sc.isFailure()) {
-    ATH_MSG_WARNING( "StoreGate service not found !" );
-    return StatusCode::FAILURE;
-  } 
-
-  // Retrieve DetectorStore
-  StoreGateSvc* detStore = 0;
-  sc = service( "DetectorStore", detStore );
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL( "Could not get DetectorStore");
-    return sc;
-  }
-  
-  // retrieve MuonDetectorManager
-  std::string managerName="Muon";
-  sc=detStore->retrieve(m_detMgr);
-  if (sc.isFailure()) {
-    ATH_MSG_INFO( "Could not find the MuonGeoModel Manager: "	<< managerName << " ! " );
-  } 
-
-  // initialize MuonIdHelpers
-  if (m_detMgr) {
-    m_mdtIdHelper = m_detMgr->mdtIdHelper();
-    m_cscIdHelper = m_detMgr->cscIdHelper();
-    m_rpcIdHelper = m_detMgr->rpcIdHelper();
-    m_tgcIdHelper = m_detMgr->tgcIdHelper();
-  } else {
-    m_mdtIdHelper = 0;
-    m_cscIdHelper = 0;
-    m_rpcIdHelper = 0;
-    m_tgcIdHelper = 0;
-  }
+  // Retrieve MuonIdHelperTool
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
   return sc;
 }
@@ -120,20 +82,20 @@ StatusCode MuonChamberIDSelector::selectMDT() {
   StatusCode sc = StatusCode::SUCCESS ;
   ATH_MSG_DEBUG( "in MDT ChambersSelectorID vector" );  
 
-  std::vector<Identifier>::const_iterator  idfirst = m_mdtIdHelper->module_begin();
-  std::vector<Identifier>::const_iterator  idlast =  m_mdtIdHelper->module_end();
+  std::vector<Identifier>::const_iterator  idfirst = m_muonIdHelperTool->mdtIdHelper().module_begin();
+  std::vector<Identifier>::const_iterator  idlast =  m_muonIdHelperTool->mdtIdHelper().module_end();
 
-  IdContext mdtModuleContext = m_mdtIdHelper->module_context();
+  IdContext mdtModuleContext = m_muonIdHelperTool->mdtIdHelper().module_context();
   Identifier Id;
   IdentifierHash Idhash;
    	 
   for (std::vector<Identifier>::const_iterator i = idfirst; i != idlast; i++)
     {    
       Id=*i;
-      int gethash_code = m_mdtIdHelper->get_hash(Id, Idhash, &mdtModuleContext); 
+      int gethash_code = m_muonIdHelperTool->mdtIdHelper().get_hash(Id, Idhash, &mdtModuleContext); 
     
       m_mdtchambersId->push_back(Id);     
-      std::string extid = m_mdtIdHelper->show_to_string(Id);
+      std::string extid = m_muonIdHelperTool->mdtIdHelper().show_to_string(Id);
       ATH_MSG_DEBUG( "Adding the chamber Identifier: " << extid );
       if (gethash_code == 0) ATH_MSG_DEBUG(" its hash Id is "<< Idhash );
       else                   ATH_MSG_DEBUG("  hash Id NOT computed "<< Idhash );
@@ -148,10 +110,10 @@ StatusCode MuonChamberIDSelector::selectRPC() {
   StatusCode sc = StatusCode::SUCCESS ;
   ATH_MSG_DEBUG( "in RPC ChambersSelectorID vector" );  
 
-  std::vector<Identifier>::const_iterator  idfirst = m_rpcIdHelper->module_begin();
-  std::vector<Identifier>::const_iterator  idlast =  m_rpcIdHelper->module_end();
+  std::vector<Identifier>::const_iterator  idfirst = m_muonIdHelperTool->rpcIdHelper().module_begin();
+  std::vector<Identifier>::const_iterator  idlast =  m_muonIdHelperTool->rpcIdHelper().module_end();
 
-  IdContext rpcModuleContext = m_rpcIdHelper->module_context();
+  IdContext rpcModuleContext = m_muonIdHelperTool->rpcIdHelper().module_context();
   Identifier Id;
   IdentifierHash Idhash;
   m_rpcchambersId = new std::vector<Identifier>;
@@ -159,9 +121,9 @@ StatusCode MuonChamberIDSelector::selectRPC() {
   for (std::vector<Identifier>::const_iterator i = idfirst; i != idlast; i++)
     {    
       Id=*i;
-      int gethash_code = m_rpcIdHelper->get_hash(Id, Idhash, &rpcModuleContext); 
+      int gethash_code = m_muonIdHelperTool->rpcIdHelper().get_hash(Id, Idhash, &rpcModuleContext); 
       m_rpcchambersId->push_back(Id);
-      std::string extid = m_rpcIdHelper->show_to_string(Id);
+      std::string extid = m_muonIdHelperTool->rpcIdHelper().show_to_string(Id);
       ATH_MSG_DEBUG( "Adding the chamber Identifier: " << extid );
       if (gethash_code == 0) ATH_MSG_DEBUG(" its hash Id is "<< Idhash );
       else                   ATH_MSG_DEBUG("  hash Id NOT computed "<< Idhash );

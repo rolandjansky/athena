@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // CompositeParticleContainerCnv_p1.cxx 
@@ -22,26 +22,13 @@
 #include "ParticleEventTPCnv/CompositeParticleContainerCnv_p1.h"
 
 // preallocate converters
-static CompositeParticleCnv_p1 s_cpCnv;
+static const CompositeParticleCnv_p1 s_cpCnv;
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
-
-// Destructor
-///////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
 
 void 
 CompositeParticleContainerCnv_p1::persToTrans( const CompositeParticleContainer_p1* pers, 
                                   CompositeParticleContainer* trans, 
-                                  MsgStream& msg ) 
+                                  MsgStream& msg ) const
 {
 //   msg << MSG::DEBUG << "Loading CompositeParticleContainer from persistent state..."
 //       << endmsg;
@@ -73,7 +60,7 @@ CompositeParticleContainerCnv_p1::persToTrans( const CompositeParticleContainer_
 void 
 CompositeParticleContainerCnv_p1::transToPers( const CompositeParticleContainer* trans, 
                                   CompositeParticleContainer_p1* pers, 
-                                  MsgStream& msg ) 
+                                  MsgStream& msg ) const
 {
 //    msg << MSG::DEBUG
 //        << "Creating persistent state of CompositeParticleContainer..."

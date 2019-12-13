@@ -3,7 +3,7 @@
 */
 
 #include "RoIPEBInfoWriterTool.h"
-#include "GaudiKernel/PhysicalConstants.h" // for Gaudi::Units::twopi
+#include "CxxUtils/phihelper.h"
 #include <algorithm>
 #include <unordered_map>
 #include <string_view>
@@ -66,13 +66,8 @@ PEBInfoWriterToolBase::PEBInfo RoIPEBInfoWriterTool::createPEBInfo(const PEBInfo
   // Create output PEBInfo starting from the static extra PEBInfo
   PEBInfo pebi = m_extraPebInfo;
 
-  if (!input.roi) {
-    ATH_MSG_DEBUG("No RoI descriptor in the input for decision, skipping this decision");
-    return pebi;
-  }
-  ATH_MSG_DEBUG("Processing RoI " << *(input.roi));
-
-  float eta = input.roi->eta();
+  ATH_MSG_DEBUG("Processing RoI " << **(input.roiEL));
+  float eta = (*input.roiEL)->eta();
   float etaMin = eta - m_etaWidth;
   float etaMax = eta + m_etaWidth;
   // Stop further execution if RoI is entirely outside the max |eta| range
@@ -85,9 +80,9 @@ PEBInfoWriterToolBase::PEBInfo RoIPEBInfoWriterTool::createPEBInfo(const PEBInfo
   etaMin = std::max(-m_etaEdge.value(), etaMin);
   etaMax = std::min( m_etaEdge.value(), etaMin);
 
-  float phi = input.roi->eta();
-  float phiMin = std::remainder(phi-m_phiWidth, Gaudi::Units::twopi); // range (-pi, pi)
-  float phiMax = std::remainder(phi+m_phiWidth, Gaudi::Units::twopi); // range (-pi, pi)
+  float phi = (*input.roiEL)->phi();
+  float phiMin = CxxUtils::wrapToPi(phi - m_phiWidth); // range (-pi, pi)
+  float phiMax = CxxUtils::wrapToPi(phi + m_phiWidth); // range (-pi, pi)
 
   TrigRoiDescriptor roiForPEB(eta, etaMin, etaMax, phi, phiMin, phiMax);
 

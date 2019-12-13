@@ -339,6 +339,7 @@ uint16_t CaloCell::quality() const
 inline
 uint16_t CaloCell::provenance() const 
 {
+  // cppcheck-suppress objectIndex
   return m_qualProv[1];
 }
 

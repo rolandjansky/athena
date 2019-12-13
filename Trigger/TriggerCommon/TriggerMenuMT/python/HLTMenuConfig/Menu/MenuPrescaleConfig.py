@@ -4,7 +4,8 @@ from TriggerJobOpts.TriggerFlags import TriggerFlags
 #from TriggerMenu.menu.MenuUtil import applyHLTPrescale, resetAllPrescales
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger( 'TriggerMenu.menu.Lumi' )
+log = logging.getLogger( __name__ )
+
 
 def MenuPrescaleConfig(triggerConfigHLT):
 
@@ -36,6 +37,48 @@ def MenuPrescaleConfig(triggerConfigHLT):
             L1Prescales = Prescales.L1Prescales
             HLTPrescales = Prescales.HLTPrescales        
 
+    elif menu_name.startswith('Physics_pp_run3_v1'):
+        log.info('Physics_pp_run3_v1 menu setup')
+        from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import setupMenu, Prescales
+        setupMenu()
+        if 'cosmics_prescale' in menu_name:
+            L1Prescales = Prescales.L1Prescales_cosmics
+            HLTPrescales = Prescales.HLTPrescales_cosmics
+        elif 'tight_mc_prescale' in menu_name:
+            L1Prescales = Prescales.L1Prescales_tight_mc_prescale
+            HLTPrescales = Prescales.HLTPrescales_tight_mc_prescale
+        else:
+            L1Prescales = Prescales.L1Prescales
+            HLTPrescales = Prescales.HLTPrescales        
+
+    elif menu_name.startswith('PhysicsP1_pp_run3_v1'):
+        log.info('PhysicsP1_pp_run3_v1 menu setup')
+        from TriggerMenuMT.HLTMenuConfig.Menu.PhysicsP1_pp_run3_v1 import setupMenu, Prescales
+        setupMenu()
+        if 'cosmics_prescale' in menu_name:
+            L1Prescales = Prescales.L1Prescales_cosmics
+            HLTPrescales = Prescales.HLTPrescales_cosmics
+        elif 'tight_mc_prescale' in menu_name:
+            L1Prescales = Prescales.L1Prescales_tight_mc_prescale
+            HLTPrescales = Prescales.HLTPrescales_tight_mc_prescale
+        else:
+            L1Prescales = Prescales.L1Prescales
+            HLTPrescales = Prescales.HLTPrescales        
+
+    elif menu_name.startswith('MC_pp_run3_v1'):
+        log.info('MC_pp_run3_v1 menu setup')
+        from TriggerMenuMT.HLTMenuConfig.Menu.MC_pp_run3_v1 import setupMenu, Prescales
+        setupMenu()
+        if 'cosmics_prescale' in menu_name:
+            L1Prescales = Prescales.L1Prescales_cosmics
+            HLTPrescales = Prescales.HLTPrescales_cosmics
+        elif 'tight_mc_prescale' in menu_name:
+            L1Prescales = Prescales.L1Prescales_tight_mc_prescale
+            HLTPrescales = Prescales.HLTPrescales_tight_mc_prescale
+        else:
+            L1Prescales = Prescales.L1Prescales
+            HLTPrescales = Prescales.HLTPrescales        
+
 
     elif menu_name.startswith('LS2_emu_v1'):
         log.info('LS2_v1 menu setup')
@@ -51,7 +94,16 @@ def MenuPrescaleConfig(triggerConfigHLT):
             L1Prescales = Prescales.L1Prescales
             HLTPrescales = Prescales.HLTPrescales        
 
-
+    elif menu_name.startswith('Cosmic_pp_run3_v1'):
+        log.info('Cosmic_pp_run3_v1 menu setup')
+        from TriggerMenuMT.HLTMenuConfig.Menu.Cosmic_pp_run3_v1 import setupMenu, Prescales
+        setupMenu()
+        if 'cosmics_prescale' in menu_name:
+            L1Prescales = Prescales.L1Prescales_cosmics
+            HLTPrescales = Prescales.HLTPrescales_cosmics
+        else:
+            L1Prescales = Prescales.L1Prescales
+            HLTPrescales = Prescales.HLTPrescales
             
     else:
         log.fatal ('Menu with name %s is not known in this version of TriggerMenu! ', menu_name)

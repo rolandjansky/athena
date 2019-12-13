@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -27,7 +27,7 @@
 
 #include "BtrigUtils.h"
 
-#include "TrigBphysHypo/Constants.h"                                   
+#include "Constants.h"
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
@@ -54,7 +54,6 @@
 
 
 #include <math.h>
-#include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
 
 
 // temporary
@@ -3238,108 +3237,71 @@ void TrigL2BMuMuXFex::checkBcMuMuDs(const xAOD::L2CombinedMuon* mu1, const xAOD:
 /*----------------------------------------------------------------------------*/
 double TrigL2BMuMuXFex::XMass(const xAOD::TrackParticle* particle1, const xAOD::TrackParticle* particle2,int decay)
 {
-    std::vector<double> massHypo;
-    massHypo.clear();
+    std::array<double, 2> massHypo;
     if(decay == di_to_muons){
-        massHypo.push_back(MUMASS);
-        massHypo.push_back(MUMASS);
+        massHypo[0] = MUMASS;
+        massHypo[1] = MUMASS;
     }
     if(decay == bD_to_Kstar){
-        massHypo.push_back(KPLUSMASS);
-        massHypo.push_back(PIMASS);
+        massHypo[0] = KPLUSMASS;
+        massHypo[1] = PIMASS;
     }
     if(decay == bS_to_Phi){
-        massHypo.push_back(KPLUSMASS);
-        massHypo.push_back(KPLUSMASS);
+        massHypo[0] = KPLUSMASS;
+        massHypo[1] = KPLUSMASS;
     }
     if(decay == lB_to_L){
-        massHypo.push_back(PROTONMASS);
-        massHypo.push_back(PIMASS);
+        massHypo[0] = PROTONMASS;
+        massHypo[1] = PIMASS;
     }
-    std::vector<const xAOD::TrackParticle*> bTracks;
-    bTracks.clear();
-    bTracks.push_back(particle1);
-    bTracks.push_back(particle2);
-    //return InvMass(bTracks, massHypo);
-    return m_bphysHelperTool->invariantMass(bTracks, massHypo);
+    std::array<const xAOD::TrackParticle*,2> bTracks;
+    bTracks[0] = particle1;
+    bTracks[1] = particle2;
+    return TrigBphysHelperUtilsTool::invariantMass(bTracks, massHypo);
 }
 
 double TrigL2BMuMuXFex::KMuMuMass(const xAOD::TrackParticle* mu1, const xAOD::TrackParticle* mu2,
                                   const xAOD::TrackParticle* kaon)
 {
-    std::vector<double> massHypo;
-    massHypo.clear();
-    massHypo.push_back(MUMASS);
-    massHypo.push_back(MUMASS);
-    massHypo.push_back(KPLUSMASS);  //K
-    std::vector<const xAOD::TrackParticle*> bTracks;
-    bTracks.clear();
-    bTracks.push_back(mu1);
-    bTracks.push_back(mu2);
-    bTracks.push_back(kaon);
-    //return InvMass(bTracks, massHypo);
-    return m_bphysHelperTool->invariantMass(bTracks, massHypo);
+    const std::array<double, 3> massHypo{ MUMASS, MUMASS, KPLUSMASS};  //K
+    const std::array<const xAOD::TrackParticle*, 3> bTracks{ mu1, mu2, kaon};
+    return TrigBphysHelperUtilsTool::invariantMass(bTracks, massHypo);
 }
 double TrigL2BMuMuXFex::XMuMuMass(const xAOD::TrackParticle* mu1, const xAOD::TrackParticle* mu2,
                                   const xAOD::TrackParticle* particle1, const xAOD::TrackParticle* particle2, int decay)
 {
-    std::vector<double> massHypo;
-    massHypo.clear();
-    massHypo.push_back(MUMASS);
-    massHypo.push_back(MUMASS);
+    std::array<double, 4> massHypo;
+    massHypo[0] = MUMASS;
+    massHypo[1] = MUMASS;
     if(decay == bD_to_Kstar){
-        massHypo.push_back(KPLUSMASS);
-        massHypo.push_back(PIMASS);
+        massHypo[2] = KPLUSMASS;
+        massHypo[3] = PIMASS;
     }
     if(decay == bS_to_Phi){
-        massHypo.push_back(KPLUSMASS);
-        massHypo.push_back(KPLUSMASS);
+        massHypo[2] = KPLUSMASS;
+        massHypo[3] = KPLUSMASS;
     }
     if(decay == lB_to_L){
-        massHypo.push_back(PROTONMASS);
-        massHypo.push_back(PIMASS);
+        massHypo[2] = PROTONMASS;
+        massHypo[3] = PIMASS;
     }
-    std::vector<const xAOD::TrackParticle*> bTracks;
-    bTracks.clear();
-    bTracks.push_back(mu1);
-    bTracks.push_back(mu2);
-    bTracks.push_back(particle1);
-    bTracks.push_back(particle2);
-    //return InvMass(bTracks, massHypo);
-    return m_bphysHelperTool->invariantMass(bTracks, massHypo);
+    std::array<const xAOD::TrackParticle*, 4> bTracks;
+    bTracks[0] = mu1;
+    bTracks[1] = mu2;
+    bTracks[2] = particle1;
+    bTracks[3] = particle2;
+    return TrigBphysHelperUtilsTool::invariantMass(bTracks, massHypo);
 }
 double TrigL2BMuMuXFex::X3Mass(const xAOD::TrackParticle* particle1, const xAOD::TrackParticle* particle2, const xAOD::TrackParticle* particle3)
 {
-    std::vector<double> massHypo;
-    massHypo.clear();
-    massHypo.push_back(KPLUSMASS);
-    massHypo.push_back(KPLUSMASS);
-    massHypo.push_back(PIMASS);
-    std::vector<const xAOD::TrackParticle*> bTracks;
-    bTracks.clear();
-    bTracks.push_back(particle1);
-    bTracks.push_back(particle2);
-    bTracks.push_back(particle3);
-    //return InvMass(bTracks, massHypo);
-    return m_bphysHelperTool->invariantMass(bTracks, massHypo);
+    const std::array<double, 3> massHypo{KPLUSMASS,KPLUSMASS,PIMASS};
+    const std::array<const xAOD::TrackParticle*, 3> bTracks{particle1, particle2, particle3};
+    return TrigBphysHelperUtilsTool::invariantMass(bTracks, massHypo);
 }
 double TrigL2BMuMuXFex::X3MuMuMass(const xAOD::TrackParticle* mu1, const xAOD::TrackParticle* mu2,
                                    const xAOD::TrackParticle* particle1, const xAOD::TrackParticle* particle2, const xAOD::TrackParticle* particle3)
 {
-    std::vector<double> massHypo;
-    massHypo.clear();
-    massHypo.push_back(MUMASS);
-    massHypo.push_back(MUMASS);
-    massHypo.push_back(KPLUSMASS);
-    massHypo.push_back(KPLUSMASS);
-    massHypo.push_back(PIMASS);
-    std::vector<const xAOD::TrackParticle*> bTracks;
-    bTracks.clear();
-    bTracks.push_back(mu1);
-    bTracks.push_back(mu2);
-    bTracks.push_back(particle1);
-    bTracks.push_back(particle2);
-    bTracks.push_back(particle3);
-    //return InvMass(bTracks, massHypo);
-    return m_bphysHelperTool->invariantMass(bTracks, massHypo);
+    const std::array<double, 5> massHypo{ MUMASS, MUMASS, KPLUSMASS, KPLUSMASS, PIMASS};
+    const std::array<const xAOD::TrackParticle*, 5> bTracks{mu1, mu2, particle1, particle2, particle3};
+    return TrigBphysHelperUtilsTool::invariantMass(bTracks, massHypo);
 }

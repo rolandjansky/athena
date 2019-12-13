@@ -409,7 +409,7 @@ class Svc(object):
         headerFile = outFiles[0]
         
         _msg = self.msg
-        db_infos = lshosts_infos()
+        db_infos = ('err',) # lshosts_infos()
         if db_infos[0] != 'ok':
             host_infos = { 'si2k' : 0.,
                            'cpuf' : 0. }
@@ -446,7 +446,7 @@ class Svc(object):
             for outFile in outFiles:
                 outFileDirName = os.path.dirname(outFile)
                 try: os.chdir(outFileDirName)
-                except OSError,err: pass
+                except OSError as err: pass
                 outFile = os.path.basename(outFile)
                 _msg.info(' --> [%s] => %8.3f kb',
                           outFile,
@@ -455,7 +455,7 @@ class Svc(object):
                 os.remove(outFile)
                 os.chdir(cwd)
                 pass
-        except Exception,err:
+        except Exception as err:
             _msg.warning(err)
             pass
         os.chdir(cwd)
@@ -613,7 +613,7 @@ class PoolMonTool(object):
                                   inFile._fileInfos['size'] / Units.kB,
                                   inFile.dataHeader.nEntries)
                     del inFile               
-                except Exception,err:
+                except Exception as err:
                     _msg.unMute()
                     self.msg.info( "Could not run checkFile on [%s] !!",
                                    inFileName )
@@ -644,7 +644,7 @@ class PoolMonTool(object):
                                    outFile._fileInfos['size'] / Units.kB,
                                    outFile.dataHeader.nEntries)
                     del outFile               
-                except Exception,err:
+                except Exception as err:
                     _msg.unMute()
                     self.msg.info( "Could not run checkFile on [%s] !!",
                                    outFileName )

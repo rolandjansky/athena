@@ -1,0 +1,47 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
+///////////////////////////////////////////////////////////////////
+// MdtRdoToPrepDataToolMT.h, (c) ATLAS Detector software
+///////////////////////////////////////////////////////////////////
+
+#ifndef MUONMdtRdoToPrepDataToolMT_H
+#define MUONMdtRdoToPrepDataToolMT_H
+
+#include "MdtRdoToPrepDataToolCore.h"
+
+namespace Muon 
+{
+
+  /** @class MdtRdoToPrepDataTool 
+
+      This is for the Doxygen-Documentation.  
+      Please delete these lines and fill in information about
+      the Algorithm!
+      Please precede every member function declaration with a
+      short Doxygen comment stating the purpose of this function.
+      
+      @author  Edward Moyse <Edward.Moyse@cern.ch>
+  */  
+
+  class MdtRdoToPrepDataToolMT : virtual public MdtRdoToPrepDataToolCore
+  {
+  public:
+    MdtRdoToPrepDataToolMT(const std::string&,const std::string&,const IInterface*);
+
+    /** default destructor */
+    virtual ~MdtRdoToPrepDataToolMT ();
+
+    /** standard Athena-Algorithm method */
+    virtual StatusCode initialize() override;
+    
+    /** standard Athena-Algorithm method */
+    virtual StatusCode finalize() override;
+      
+  protected:
+    virtual SetupMdtPrepDataContainerStatus setupMdtPrepDataContainer() override;
+  }; 
+} // end of namespace
+
+#endif 

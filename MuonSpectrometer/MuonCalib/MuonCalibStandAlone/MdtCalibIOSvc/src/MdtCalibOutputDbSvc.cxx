@@ -88,7 +88,6 @@ MdtCalibOutputDbSvc::MdtCalibOutputDbSvc(const std::string &name,ISvcLocator *sv
 	
   //for the sake of coverity
   m_detMgr=NULL;
-  m_mdtIdHelper=NULL;
   m_resolution=NULL;
 	
   return;
@@ -127,7 +126,7 @@ StatusCode MdtCalibOutputDbSvc::initialize(void) {
     StoreGateSvc *detStore;
     ATH_CHECK( serviceLocator()->service("DetectorStore", detStore) );
     //retrieve mdt id helper
-    ATH_CHECK( detStore->retrieve(m_mdtIdHelper, "MDTIDHELPER" ) );
+    ATH_CHECK( m_muonIdHelperTool.retrieve() );
     //retrieve detector manager
     ATH_CHECK( detStore->retrieve( m_detMgr ) );
   }
@@ -216,7 +215,7 @@ StatusCode MdtCalibOutputDbSvc::saveCalibrationResults(void) {
     MuonCalib::NtupleStationId the_id(*it);
 // get region geometry if required
     if (m_postprocess_calibration) {
-      if(!the_id.InitializeGeometry(m_mdtIdHelper, m_detMgr)) {
+      if(!the_id.InitializeGeometry(m_muonIdHelperTool->mdtIdHelper(), m_detMgr)) {
 	ATH_MSG_ERROR( "Faild to get geometry for " << the_id.regionId() );
       }
     }

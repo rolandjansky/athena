@@ -19,15 +19,15 @@
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "AthenaMonitoring/IDQFilterTool.h"
 #include "AthenaMonitoring/IMonitorToolBase.h"
 #include "AthenaMonitoring/ITriggerTranslatorTool.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
-#include "TrigDecisionInterface/ITrigDecisionTool.h"
-
+#include "TrigDecisionTool/TrigDecisionTool.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "LumiBlockData/LuminosityCondData.h"
@@ -170,7 +170,7 @@ public:
      *
      * @return the current value of the class's Environment_t instance.
      */
-    Environment_t environment() const;
+    Environment_t environment() const { return m_environment; }
 
 
     /**
@@ -186,7 +186,7 @@ public:
      *
      * @return the current value of the class's DataType_t instance.
      */
-    DataType_t dataType() const;
+    DataType_t dataType() const { return m_dataType; }
 
 
     /** 
@@ -213,12 +213,12 @@ public:
     /** 
      * Get the trigger decision tool member.
      * 
-     * The trigger decision tool is used to check whether a specific trigger is 
+     * The trigger decision tool is used to check whether a specific trigger is
      * passed by an event.
      * 
      * @return m_trigDecTool
      */
-    const ToolHandle<Trig::ITrigDecisionTool>& getTrigDecisionTool() const;
+    const ToolHandle<Trig::TrigDecisionTool>& getTrigDecisionTool() const;
 
     /** 
      * Check whether triggers are passed
@@ -316,7 +316,7 @@ protected:
     // Using the new way to declare JO properties: Gaudi::Property<int> m_myProperty {this,"MyProperty",0};
     ToolHandleArray<GenericMonitoringTool> m_tools {this,"GMTools",{}}; ///< Array of Generic Monitoring Tools
     // Keep TDT public until final decision from trigger on interface
-    PublicToolHandle<Trig::ITrigDecisionTool> m_trigDecTool {this, "TrigDecisionTool",""}; ///< Tool to tell whether a specific trigger is passed
+    PublicToolHandle<Trig::TrigDecisionTool> m_trigDecTool {this, "TrigDecisionTool",""}; ///< Tool to tell whether a specific trigger is passed
     ToolHandle<ITriggerTranslatorTool> m_trigTranslator {this,"TriggerTranslatorTool",""}; ///< Tool to unpack trigger categories into a trigger list
     ToolHandleArray<IDQFilterTool> m_DQFilterTools {this,"FilterTools",{}}; ///< Array of Data Quality filter tools
 

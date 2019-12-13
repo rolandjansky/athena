@@ -46,7 +46,7 @@ public:
    virtual StatusCode initialize() override;
    virtual StatusCode finalize() override;
 
-   long repSvcType() const;
+   virtual long repSvcType() const override;
 
    /// Create a transient object from a POOL persistent representation.
    /// @param pAddr [IN] IOpaqueAddress of POOL persistent representation.

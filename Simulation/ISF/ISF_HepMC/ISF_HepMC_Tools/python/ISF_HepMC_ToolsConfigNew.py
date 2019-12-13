@@ -20,10 +20,8 @@ from AthenaCommon.SystemOfUnits import MeV, mm
 
 def ParticleFinalStateFilterCfg(ConfigFlags, name="ISF_ParticleFinalStateFilter", **kwargs):
     result = ComponentAccumulator()
-    from ISF_Config.ISF_jobProperties import ISF_Flags
-    G4NotInUse = not ISF_Flags.UsingGeant4.get_Value()
-    from G4AtlasApps.SimFlags import simFlags
-    G4NotInUse = G4NotInUse and simFlags.ISFRun.get_Value()
+    G4NotInUse = not ConfigFlags.Sim.UsingGeant4
+    G4NotInUse = G4NotInUse and ConfigFlags.Sim.ISFRun
     # use CheckGenInteracting==False to allow GenEvent neutrinos to propagate into the simulation
     kwargs.setdefault("CheckGenSimStable", G4NotInUse)
     kwargs.setdefault("CheckGenInteracting", G4NotInUse)

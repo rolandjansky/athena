@@ -594,8 +594,8 @@ if doCaloCalibHit and doSim:
 # Trigger
 # --------------------------
 if doTrigger:
-    include( "TriggerRelease/jobOfragment_forRecExTB.py" )
-    include( "TriggerRelease/jobOfragment_TriggerCBNT.py" )
+    include( "TriggerJobOpts/jobOfragment_forRecExTB.py" )
+    include( "TriggerJobOpts/jobOfragment_TriggerCBNT.py" )
 
 # ROOT Ntuple output (uncomment these lines, comment the three previouslines)
 theApp.Dlls += ["CBNT_Utils", "CBNT_Athena" ]

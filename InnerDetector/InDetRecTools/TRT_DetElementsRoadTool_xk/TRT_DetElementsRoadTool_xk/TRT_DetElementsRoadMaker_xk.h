@@ -19,6 +19,7 @@
 
 
 #include "GaudiKernel/ServiceHandle.h"
+#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "GaudiKernel/AlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -79,11 +80,11 @@ namespace InDet {
       
       virtual void detElementsRoad
 	(const Trk::TrackParameters&,Trk::PropDirection, 
-	 std::list<const InDetDD::TRT_BaseElement*>&);
+	 std::vector<const InDetDD::TRT_BaseElement*>&) const;
 
       virtual void detElementsRoad
 	(const Trk::TrackParameters&,Trk::PropDirection, 
-	 std::list<std::pair<const InDetDD::TRT_BaseElement*,const Trk::TrackParameters*> >&);
+	 std::vector<std::pair<const InDetDD::TRT_BaseElement*,const Trk::TrackParameters*> >&) const;
 
       ///////////////////////////////////////////////////////////////////
       // Print internal tool parameters and status
@@ -100,11 +101,9 @@ namespace InDet {
 
       ServiceHandle<MagField::IMagFieldSvc> m_fieldServiceHandle;
       MagField::IMagFieldSvc*               m_fieldService{}      ;
+      ServiceHandle<IGeoModelSvc>           m_geoModelSvc{this, "GeoModelSvc", "GeoModelSvc"};
       ToolHandle<Trk::IPropagator>          m_proptool ;  // Propagator     tool
 
-      int                                  m_outputlevel{};
-      int                                  m_nprint{}   ;
-      int                                  m_sizeroad{} ;
       float                                m_width{}    ;  // Width of the roadInnerDetector/InDetRecTools/
       double                               m_step{}     ;  // Max step allowed
       double                               m_rminTRT{}  ;
@@ -115,29 +114,25 @@ namespace InDet {
       std::string                          m_trt      ;  // PIX manager   location
       std::string                          m_fieldmode;  // Mode of magnetic field
       Trk::MagneticFieldMode               m_fieldModeEnum{Trk::FullField};
-      std::string                     m_callbackString;
 
       ///////////////////////////////////////////////////////////////////
       // Methods
       ///////////////////////////////////////////////////////////////////
       
       StatusCode mapDetectorElementsProduction(IOVSVC_CALLBACK_ARGS);
-      void detElementInformation(const InDetDD::TRT_BaseElement&,double*);
+      void detElementInformation(const InDetDD::TRT_BaseElement&,double*) const;
       void detElementsRoadATL(std::list<Amg::Vector3D>&, 
-			      std::list<const InDetDD::TRT_BaseElement*>&);
+			      std::vector<const InDetDD::TRT_BaseElement*>&) const;
       void detElementsRoadCTB(std::list<Amg::Vector3D>&, 
-			      std::list<const InDetDD::TRT_BaseElement*>&);
+			      std::vector<const InDetDD::TRT_BaseElement*>&) const;
       double stepToDetElement
-	(const InDetDD::TRT_BaseElement*&,Amg::Vector3D&,Amg::Vector3D&);
+	(const InDetDD::TRT_BaseElement*&,Amg::Vector3D&,Amg::Vector3D&) const;
 
-      Trk::CylinderBounds getBound(const Trk::TrackParameters&);
+      Trk::CylinderBounds getBound(const Trk::TrackParameters&) const;
 
       MsgStream&    dumpConditions(MsgStream   & out) const;
-      MsgStream&    dumpEvent     (MsgStream   & out) const;
+      MsgStream&    dumpEvent     (MsgStream   & out, int size_road) const;
   };
-
-  MsgStream&    operator << (MsgStream&   ,const TRT_DetElementsRoadMaker_xk&);
-  std::ostream& operator << (std::ostream&,const TRT_DetElementsRoadMaker_xk&); 
 
 } // end of name space
 

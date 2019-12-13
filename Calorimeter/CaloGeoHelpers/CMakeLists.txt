@@ -23,3 +23,8 @@ atlas_add_test( CaloPhiRange_test
                 test/CaloPhiRange_test.cxx
                 LINK_LIBRARIES CxxUtils TestTools CaloGeoHelpers )
 
+atlas_add_test( CaloSampling_test
+                SOURCES
+                test/CaloSampling_test.cxx
+                LINK_LIBRARIES CxxUtils TestTools CaloGeoHelpers )
+

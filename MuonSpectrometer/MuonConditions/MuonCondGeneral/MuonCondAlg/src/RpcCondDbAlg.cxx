@@ -3,10 +3,11 @@
 */
 
 #include "MuonCondAlg/RpcCondDbAlg.h"
+#include "AthenaKernel/IOVInfiniteRange.h"
 
 // constructor
 RpcCondDbAlg::RpcCondDbAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
-    AthAlgorithm(name, pSvcLocator),
+    AthReentrantAlgorithm(name, pSvcLocator),
     m_condSvc("CondSvc", name),
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
   {
@@ -42,7 +43,7 @@ RpcCondDbAlg::initialize(){
 
 // execute
 StatusCode 
-RpcCondDbAlg::execute(){
+RpcCondDbAlg::execute(const EventContext& ctx) const {
 
     ATH_MSG_DEBUG( "execute " << name() );   
  
@@ -52,7 +53,7 @@ RpcCondDbAlg::execute(){
 	}
 
     // launching Write Cond Handle
-    SG::WriteCondHandle<RpcCondDbData> writeHandle{m_writeKey};
+    SG::WriteCondHandle<RpcCondDbData> writeHandle{m_writeKey, ctx};
     if (writeHandle.isValid()) {
         ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
         	  << " In theory this should not be called, but may happen"
@@ -60,22 +61,18 @@ RpcCondDbAlg::execute(){
         return StatusCode::SUCCESS; 
     }
     std::unique_ptr<RpcCondDbData> writeCdo{std::make_unique<RpcCondDbData>()};
-    EventIDRange rangeW;
-    StatusCode sc  = StatusCode::SUCCESS;
 
-    // retrieving data
+    //Start with an infinite range and narrow it down as needed
+    EventIDRange rangeW=IOVInfiniteRange::infiniteMixed();
+
+    // data only
     if(m_isData) {
-        if(loadDataDeadPanels (rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE;
-        if(loadDataOffPanels  (rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE;
-        if(loadMcElementStatus(rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE;
+        ATH_CHECK(loadDataDeadPanels(rangeW, writeCdo.get(), ctx));
+        ATH_CHECK(loadDataOffPanels (rangeW, writeCdo.get(), ctx));
     }
-    else {
-        if(loadMcElementStatus(rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE;
-    } 
-    if(sc.isFailure()){
-        ATH_MSG_WARNING("Could not read data from the DB");
-        return StatusCode::FAILURE;
-    }
+    // data and MC
+    ATH_CHECK(loadMcElementStatus(rangeW, writeCdo.get(), ctx));
+
 
     if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
       ATH_MSG_FATAL("Could not record RpcCondDbData " << writeHandle.key() 
@@ -91,22 +88,26 @@ RpcCondDbAlg::execute(){
 
 // loadDataDeadPanels
 StatusCode
-RpcCondDbAlg::loadDataDeadPanels(EventIDRange & rangeW, std::unique_ptr<RpcCondDbData>& writeCdo){
+RpcCondDbAlg::loadDataDeadPanels(EventIDRange & rangeW, RpcCondDbData* writeCdo, const EventContext& ctx) const {
   
-    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_deadPanels};
+    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_deadPanels, ctx};
     const CondAttrListCollection* readCdo{*readHandle}; 
     if(readCdo==0){
       ATH_MSG_ERROR("Null pointer to the read conditions object");
       return StatusCode::FAILURE; 
     } 
-  
-    if ( !readHandle.range(rangeW) ) {
+ 
+    EventIDRange range; 
+    if ( !readHandle.range(range) ) {
       ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
       return StatusCode::FAILURE;
     } 
+
+    // intersect validity range of thsi obj with the validity of already-loaded objs
+    rangeW = EventIDRange::intersect(range, rangeW);
   
     ATH_MSG_DEBUG("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-    ATH_MSG_DEBUG("Range of input is " << rangeW);
+    ATH_MSG_DEBUG("Range of input is " << range << ", range of output is " << rangeW);
 
     CondAttrListCollection::const_iterator itr;
     unsigned int chan_index=0; 
@@ -156,22 +157,26 @@ RpcCondDbAlg::loadDataDeadPanels(EventIDRange & rangeW, std::unique_ptr<RpcCondD
 
 // loadDataOffPanels
 StatusCode
-RpcCondDbAlg::loadDataOffPanels(EventIDRange & rangeW, std::unique_ptr<RpcCondDbData>& writeCdo){
+RpcCondDbAlg::loadDataOffPanels(EventIDRange & rangeW, RpcCondDbData* writeCdo, const EventContext& ctx)const {
   
-    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_offPanels};
+    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_offPanels, ctx};
     const CondAttrListCollection* readCdo{*readHandle}; 
     if(readCdo==0){
       ATH_MSG_ERROR("Null pointer to the read conditions object");
       return StatusCode::FAILURE; 
     } 
   
-    if ( !readHandle.range(rangeW) ) {
+    EventIDRange range; 
+    if ( !readHandle.range(range) ) {
       ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
       return StatusCode::FAILURE;
     } 
+
+    // intersect validity range of thsi obj with the validity of already-loaded objs
+    rangeW = EventIDRange::intersect(range, rangeW);
   
     ATH_MSG_DEBUG("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-    ATH_MSG_DEBUG("Range of input is " << rangeW);
+    ATH_MSG_DEBUG("Range of input is " << range << ", range of output is " << rangeW);
 
     CondAttrListCollection::const_iterator itr;
     unsigned int chan_index=0; 
@@ -221,22 +226,26 @@ RpcCondDbAlg::loadDataOffPanels(EventIDRange & rangeW, std::unique_ptr<RpcCondDb
 
 // loadMcElementStatus
 StatusCode
-RpcCondDbAlg::loadMcElementStatus(EventIDRange & rangeW, std::unique_ptr<RpcCondDbData>& writeCdo){
+RpcCondDbAlg::loadMcElementStatus(EventIDRange & rangeW, RpcCondDbData* writeCdo, const EventContext& ctx) const {
   
-    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_mc_deadElements};
+    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_mc_deadElements, ctx};
     const CondAttrListCollection* readCdo{*readHandle}; 
     if(readCdo==0){
       ATH_MSG_ERROR("Null pointer to the read conditions object");
       return StatusCode::FAILURE; 
     } 
   
-    if ( !readHandle.range(rangeW) ) {
+    EventIDRange range; 
+    if ( !readHandle.range(range) ) {
       ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
       return StatusCode::FAILURE;
     } 
+
+    // intersect validity range of thsi obj with the validity of already-loaded objs
+    rangeW = EventIDRange::intersect(range, rangeW);
   
     ATH_MSG_DEBUG("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-    ATH_MSG_DEBUG("Range of input is " << rangeW);
+    ATH_MSG_DEBUG("Range of input is " << range << ", range of output is " << rangeW);
 
     CondAttrListCollection::const_iterator itr;
 

@@ -1,5 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
+
 class PixelConditionsServicesSetup:
   """
   instantiates Pixel conditions services 
@@ -42,7 +44,7 @@ class PixelConditionsServicesSetup:
         self.eventInfoKey = "McEventInfo" 
         #self.useTDAQ=True
     else:
-      print 'Not modifying an instance of PixelConditionsSetup as it is locked'
+      print ('Not modifying an instance of PixelConditionsSetup as it is locked')
      
 
   def lock(self):
@@ -138,7 +140,7 @@ class PixelConditionsServicesSetup:
 
     self.summaryTool = TrigPixelConditionsSummaryTool
 
-    if self._print: print TrigPixelConditionsSummaryTool
+    if self._print: print (TrigPixelConditionsSummaryTool)
   
     #####################
     # Calibration Setup #
@@ -158,6 +160,12 @@ class PixelConditionsServicesSetup:
       condSeq += PixelOfflineCalibCondAlg(name="PixelOfflineCalibCondAlg", ReadKey="/PIXEL/PixReco")
       PixelOfflineCalibCondAlg.InputSource = 2
 
+    if not conddb.folderRequested("/Indet/PixelDist"):
+      conddb.addFolderSplitOnline("INDET","/Indet/Onl/PixelDist","/Indet/PixelDist",className="DetCondCFloat") 
+
+    if not hasattr(condSeq, 'PixelDistortionAlg'):
+      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDistortionAlg
+      condSeq += PixelDistortionAlg(name="PixelDistortionAlg", ReadKey="/Indet/PixelDist")
 
     ### configure the special pixel map service
     if not (conddb.folderRequested("/PIXEL/PixMapShort") or conddb.folderRequested("/PIXEL/Onl/PixMapShort")):
@@ -231,7 +239,7 @@ class SCT_ConditionsToolsSetup:
       self.useDCS=useDCS
       self.prefix = prefix
     else:
-      print 'Not modifying an instance of SCT_ConditionsToolsSetup as it is locked'
+      print ('Not modifying an instance of SCT_ConditionsToolsSetup as it is locked')
 
   def lock(self):
     " prevent modifications to this instance "
@@ -260,7 +268,7 @@ class SCT_ConditionsToolsSetup:
     sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup(instanceName)
     sct_ConditionsSummaryToolSetup.setup()
     summaryTool = sct_ConditionsSummaryToolSetup.getTool()
-    if self._print:  print summaryTool
+    if self._print:  print (summaryTool)
     return summaryTool
 
   def initSummaryToolWithoutFlagged(self, instanceName):
@@ -276,7 +284,7 @@ class SCT_ConditionsToolsSetup:
         if condTool != self.flaggedTool.getFullName():
           condTools.append(condTool)
     summaryToolWoFlagged.ConditionsTools = condTools
-    if self._print:  print summaryToolWoFlagged
+    if self._print:  print (summaryToolWoFlagged)
     return summaryToolWoFlagged
 
   def initFlaggedTool(self, instanceName):
@@ -290,7 +298,7 @@ class SCT_ConditionsToolsSetup:
       # SCT_FlaggedCondData_TRIG created by SCT_TrgClusterization is used.
       flaggedTool.SCT_FlaggedCondData = "SCT_FlaggedCondData_TRIG"
       # Otherwise, SCT_FlaggedCondData created by SCT_Clusterization
-    if self._print:  print flaggedTool
+    if self._print:  print (flaggedTool)
     if not (flaggedTool.getFullName() in self.summaryTool.ConditionsTools):
       self.summaryTool.ConditionsTools+=[flaggedTool.getFullName()]
       return flaggedTool
@@ -320,11 +328,11 @@ class SCT_ConditionsToolsSetup:
     sct_ConfigurationConditionsToolSetup.setToolName(instanceName)
     sct_ConfigurationConditionsToolSetup.setup()
     configTool = sct_ConfigurationConditionsToolSetup.getTool()
-    if self._print:  print configTool
+    if self._print:  print (configTool)
     if not (configTool.getFullName() in self.summaryTool.ConditionsTools):
       self.summaryTool.ConditionsTools+=[configTool.getFullName()]
 
-    if self._print:  print self.condDB
+    if self._print:  print (self.condDB)
     return configTool
 
   def initMonitorTool(self, instanceName):
@@ -384,7 +392,7 @@ class SCT_ConditionsToolsSetup:
     sct_ByteStreamErrorsToolSetup.setConfigTool(self.configTool)
     sct_ByteStreamErrorsToolSetup.setup()
     bsErrTool =sct_ByteStreamErrorsToolSetup.getTool()
-    if self._print:  print bsErrTool
+    if self._print:  print (bsErrTool)
     if not (bsErrTool.getFullName() in self.summaryTool.ConditionsTools):
       self.summaryTool.ConditionsTools+=[bsErrTool.getFullName()]
     return  bsErrTool
@@ -414,7 +422,7 @@ class SCT_ConditionsToolsSetup:
     sctSiliconConditionsTool = sct_SiliconConditionsToolSetup.getTool()
     sctSiliconConditionsTool.CheckGeoModel = False
     sctSiliconConditionsTool.ForceUseGeoModel = False
-    if self._print: print sctSiliconConditionsTool
+    if self._print: print (sctSiliconConditionsTool)
 
     # Set up SCTSiLorentzAngleCondAlg
     from AthenaCommon.AlgSequence import AthSequencer
@@ -468,7 +476,7 @@ class TRTConditionsServicesSetup:
       self.onlineMode = onlineMode
       self.prefix = prefix
     else:
-      print 'Not modifying an instance of TRTConditionsServicesSetup as it is locked'
+      print ('Not modifying an instance of TRTConditionsServicesSetup as it is locked')
       
 
   def lock(self):
@@ -517,7 +525,7 @@ class TRTConditionsServicesSetup:
     InDetTRTCalDbSvc = TRT_CalDbSvc('TRT_CalDbSvc')
     ServiceMgr += InDetTRTCalDbSvc
     if self._print:
-        print InDetTRTCalDbSvc
+        print (InDetTRTCalDbSvc)
 
     # Dead/Noisy Straw Lists
     if not conddb.folderRequested('/TRT/Cond/Status'):
@@ -547,6 +555,8 @@ class TRTConditionsServicesSetup:
     from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTHTCondAlg
     TRTHTCondAlg = TRTHTCondAlg(name = "TRTHTCondAlg")
 
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTToTCondAlg
+    TRTToTCondAlg = TRTToTCondAlg(name = "TRTToTCondAlg")
 
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
@@ -560,6 +570,9 @@ class TRTConditionsServicesSetup:
     if not hasattr(condSeq, "TRTHTCondAlg"):
         condSeq += TRTHTCondAlg
 
+    if not hasattr(condSeq, "TRTToTCondAlg"):
+        condSeq += TRTToTCondAlg
+        
 
     from AthenaCommon.GlobalFlags import globalflags
     
@@ -585,7 +598,7 @@ class TRTConditionsServicesSetup:
     InDetTRTConditionsServices.append(InDetTRTStrawStatusSummarySvc)
 
     if self._print:
-      print InDetTRTStrawStatusSummarySvc
+      print (InDetTRTStrawStatusSummarySvc)
     
     # Services which only run on raw data
     if (globalflags.InputFormat() == 'bytestream' and globalflags.DataSource() == 'data'):
@@ -595,7 +608,7 @@ class TRTConditionsServicesSetup:
       InDetTRT_HWMappingSvc = TRT_HWMappingSvc(name=self.instanceName("InDetTRT_HWMappingSvc"))
       ServiceMgr += InDetTRT_HWMappingSvc
       if self._print:
-        print InDetTRT_HWMappingSvc
+        print (InDetTRT_HWMappingSvc)
 
       # DCS Conditions Service
       if self.useDCS and not self.onlineMode:
@@ -610,7 +623,7 @@ class TRTConditionsServicesSetup:
                                                            )
         ServiceMgr += InDetTRT_DCS_ConditionsSvc
         if self._print:
-          print InDetTRT_DCS_ConditionsSvc
+          print (InDetTRT_DCS_ConditionsSvc)
         InDetTRTConditionsServices.append(InDetTRT_DCS_ConditionsSvc)
     
     # TRT Conditions Summary Service
@@ -620,7 +633,7 @@ class TRTConditionsServicesSetup:
                                                                 )
     ServiceMgr += InDetTRTConditionsSummaryService
     if self._print:
-      print InDetTRTConditionsSummaryService 
+      print (InDetTRTConditionsSummaryService )
 
 
   def instanceName(self, toolname):

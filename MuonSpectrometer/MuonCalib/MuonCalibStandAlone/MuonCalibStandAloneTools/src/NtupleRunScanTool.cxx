@@ -24,9 +24,6 @@
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 
 
-//geo model
-#include "MuonIdHelpers/MdtIdHelper.h"
-
 //MuonCalibIdentifier
 #include "MuonCalibIdentifier/MuonFixedId.h"
 
@@ -56,7 +53,7 @@ StatusCode NtupleRunScanTool::initialize()
 		}
 //get geometry
 	//retrieve mdt id helper
-		ATH_CHECK( detStore()->retrieve(m_mdtIdHelper, "MDTIDHELPER" ) );
+		ATH_CHECK( m_muonIdHelperTool.retrieve() );
 	//retrieve detector manager
 		ATH_CHECK( detStore()->retrieve( m_detMgr ) );
 	p_outfile = new TFile("RunScan.root", "RECREATE");
@@ -96,7 +93,7 @@ StatusCode NtupleRunScanTool::handleEvent(const MuonCalibEvent &event, int /*evn
 			HitCounter &counter(m_hit_counters[id]);
 			if(!counter.IsInitialized())
 				{
-				if(!id.InitializeGeometry(m_mdtIdHelper, m_detMgr))
+				if(!id.InitializeGeometry(m_muonIdHelperTool->mdtIdHelper(), m_detMgr))
 					{
 					ATH_MSG_FATAL( "Cannot initialize Geometry!" );
 					return StatusCode::FAILURE;

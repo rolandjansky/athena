@@ -69,6 +69,8 @@ template <typename T>
 StatusCode TrigMonTHistSvc::regHist_i(std::unique_ptr<T> hist_unique, const std::string& id,
                                       bool shared, THistID*& phid)
 {
+  std::scoped_lock lock(m_svcMut);
+
   // We need to pass ownership to the hist registry now
   phid = nullptr;
   T* hist = nullptr;
@@ -108,6 +110,8 @@ StatusCode TrigMonTHistSvc::regHist_i(std::unique_ptr<T> hist_unique, const std:
 template <typename T>
 LockedHandle<T> TrigMonTHistSvc::regShared_i(const std::string& id, std::unique_ptr<T> hist)
 {
+  std::scoped_lock lock(m_svcMut);
+
   LockedHandle<T> lh(nullptr, nullptr);
   const auto& h = m_hists.find(id);
 
@@ -142,6 +146,8 @@ LockedHandle<T> TrigMonTHistSvc::regShared_i(const std::string& id, std::unique_
 template <typename T>
 T* TrigMonTHistSvc::getHist_i(const std::string& id, const size_t& /*ind*/, bool quiet) const
 {
+  std::scoped_lock lock(m_svcMut);
+
   const auto& h = m_hists.find(id);
   if (h == m_hists.end()) {
     if (!quiet) ATH_MSG_ERROR("could not locate Hist with id \"" << id << "\"");
@@ -160,6 +166,7 @@ T* TrigMonTHistSvc::getHist_i(const std::string& id, const size_t& /*ind*/, bool
 
 StatusCode TrigMonTHistSvc::getTHists_i(const std::string& dir, TList& tl) const
 {
+  std::scoped_lock lock(m_svcMut);
   for (const auto& [id, h] : m_hists) {
     if (id.find(dir) == 0) { // histogram booking path starts from the dir
       tl.Add(h.obj);
@@ -171,6 +178,7 @@ StatusCode TrigMonTHistSvc::getTHists_i(const std::string& dir, TList& tl) const
 template <typename T>
 LockedHandle<T> TrigMonTHistSvc::getShared_i(const std::string& id) const
 {
+  std::scoped_lock lock(m_svcMut);
   const auto& h = m_hists.find(id);
   if (h != m_hists.end()) {
     if (h->second.mutex == nullptr) {
@@ -193,6 +201,7 @@ LockedHandle<T> TrigMonTHistSvc::getShared_i(const std::string& id) const
 
 StatusCode TrigMonTHistSvc::deReg(TObject* optr)
 {
+  std::scoped_lock lock(m_svcMut);
   // Find the relevant histogram and deregister it
   for (const auto& [name, histid] : m_hists) {
     if (histid.obj == optr) {
@@ -213,13 +222,14 @@ StatusCode TrigMonTHistSvc::deReg(const std::string& id)
 
 std::vector<std::string> TrigMonTHistSvc::getHists() const
 {
+  std::scoped_lock lock(m_svcMut);
   std::vector<std::string> l;
   l.reserve(m_hists.size());
   for (const auto& h : m_hists) l.push_back(h.first);
   return l;
 }
 
-bool TrigMonTHistSvc::isObjectAllowed(const std::string& path, const TObject* o)
+bool TrigMonTHistSvc::isObjectAllowed(const std::string& path, const TObject* o) const
 {
   boost::cmatch what;
 
@@ -248,7 +258,7 @@ bool TrigMonTHistSvc::isObjectAllowed(const std::string& path, const TObject* o)
   return true;
 }
 
-bool TrigMonTHistSvc::exists(const std::string& name) const
+bool TrigMonTHistSvc::existsHist(const std::string& name) const
 {
   return (getHist_i<TH1>(name, 0, true) != nullptr);
 }

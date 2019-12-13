@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -36,8 +36,6 @@ namespace MuonGM {
       m_etastrippitch(-9999.), m_phistriplength(-9999.), m_etastriplength(-9999.),
       m_phipaneldead(-9999.), m_etapaneldead(-9999.), m_exthonthick(-9999.), m_set(nullptr)
   {
-    m_MsgStream = new MsgStream(mgr->msgSvc(),"MuGM:RpcReadoutElement");
-    //MsgStream log(Athena::getMessageSvc(), "MuGM:RpcReadoutElement");
     std::string gVersion = manager()->geometryVersion();
 
     // get the setting of the caching flag from the manager
@@ -545,19 +543,17 @@ namespace MuonGM {
         if ( fabs(localP1.x()-localPold.x())>0.01 || fabs(localP1.y()-localPold.y())>0.01 || fabs(localP1.z()-localPold.z())>0.01 )
 	  {
             const RpcIdHelper* idh = manager()->rpcIdHelper();
-            reLog()<<MSG::WARNING
+            (*m_Log) <<MSG::WARNING
                    <<"LocalGasGapPos computed here doesn't match the one retrieved from the GeoPhysVol for rpc RE "
                    <<idh->show_to_string(identify())<<" and dbZ/dbPhi/gg "<<doubletZ<<"/"<<doubletPhi<<"/"<<gasgap<<endmsg;
-            reLog()<<" Computed here "<<localPold<<" from GeoPhysVol "<<localP1<<endmsg; 
+            (*m_Log) <<MSG::WARNING<<" Computed here "<<localPold<<" from GeoPhysVol "<<localP1<<endmsg; 
 	  }
         else 
 	  {
-            if (reLog().level() <= MSG::VERBOSE) {
-	      reLog()<<MSG::VERBOSE
+	      (*m_Log) <<MSG::VERBOSE
 		     <<"LocalGasGapPos computed here matches the one retrieved from the GeoPhysVol for rpc RE "
 		     <<manager()->rpcIdHelper()->show_to_string(identify())<<" and dbZ/dbPhi/gg "<<doubletZ<<"/"<<doubletPhi<<"/"<<gasgap<<endmsg;
-	      reLog()<<MSG::VERBOSE<<"Computed here "<<localPold<<" from GeoPhysVol "<<localP1<<endmsg; 
-            }
+	      (*m_Log) <<MSG::VERBOSE<<"Computed here "<<localPold<<" from GeoPhysVol "<<localP1<<endmsg; 
 	  }
         
       }
@@ -719,14 +715,14 @@ namespace MuonGM {
     // set parent data collection hash id
     int gethash_code = idh->get_module_hash(id, collIdhash);
     if (gethash_code != 0) 
-      reLog()<<MSG::WARNING
+      (*m_Log) <<MSG::WARNING
 	     <<"RpcReadoutElement --  collection hash Id NOT computed for id = "
-	     <<idh->show_to_string(id)<<std::endl;
+	     <<idh->show_to_string(id)<<endmsg;
     m_idhash = collIdhash;
     // set RE hash id 
     gethash_code = idh->get_detectorElement_hash(id, detIdhash);
     if (gethash_code != 0) 
-      reLog()<<MSG::WARNING
+      (*m_Log) <<MSG::WARNING
 	     <<"RpcReadoutElement --  detectorElement hash Id NOT computed for id = "
 	     <<idh->show_to_string(id)<<endmsg;
     m_detectorElIdhash = detIdhash;
@@ -751,13 +747,11 @@ namespace MuonGM {
     if (ndbz == 1) {
       if (zPoint < zLow || zPoint > zUp) {
 	//MsgStream log(m_msgSvc, "MuGM:RpcReadoutElement");
-	if(reLog().level() <= MSG::DEBUG) {
 	  const RpcIdHelper* idh = manager()->rpcIdHelper();
-	  reLog()<<MSG::DEBUG<<"RpcReadoutElement with id "<<idh->show_to_string(identify())
+	  (*m_Log) <<MSG::DEBUG<<"RpcReadoutElement with id "<<idh->show_to_string(identify())
 	         <<" ::distanceToPhiReadout --- z of the Point  "<<P.z()<<" is out of the rpc-module range ("<<zLow<<","<<zUp<<")"
 	         <<" /// input id(never used) = "<<idh->show_to_string(id)<<endmsg;
-	}
-	// return dist;
+		// return dist;
 	if( zPoint < zLow ) zPoint = zLow;
 	else if( zPoint > zUp ) zPoint = zUp;
       }
@@ -767,12 +761,10 @@ namespace MuonGM {
     } else {
       if (zPoint < zLow || zPoint > zUp) {
 	//  MsgStream log(Athena::getMessageSvc(), "MuGM:RpcReadoutElement");
-	if(reLog().level() <= MSG::DEBUG) {
 	  const RpcIdHelper* idh = manager()->rpcIdHelper();
-	  reLog()<<MSG::DEBUG<<"RpcReadoutElement with id "<<idh->show_to_string(identify())
+	  (*m_Log) <<MSG::DEBUG<<"RpcReadoutElement with id "<<idh->show_to_string(identify())
 	         <<" ::distanceToPhiReadout --- z of the Point  "<<P.z()<<" is out of the rpc-module range ("<<zLow<<","<<zUp<<")"
 	         <<" /// input id(never used) = "<<idh->show_to_string(id)<<endmsg;
-	}
 	// return dist;
 	if( zPoint < zLow ) zPoint = zLow;
 	else if( zPoint > zUp ) zPoint = zUp;
@@ -807,29 +799,20 @@ namespace MuonGM {
     double pAmdbL = GlobalToAmdbLRSCoords(P).x();
     double myCenterAmdbL = GlobalToAmdbLRSCoords(REcenter()).x();
     double sdistToCenter = pAmdbL - myCenterAmdbL;
-    // std::cout<<"distanceToEtaReadout: point (ATLAS frame) is "<<P.x()<<" "<<P.y()<<" "<<P.z()<<" sSize of the chamber is "<<getSsize()<<std::endl;
-    // std::cout<<"distanceToEtaReadout: x of the point the AMDB LRS "<<pAmdbL<<std::endl;
-    // std::cout<<"distanceToEtaReadout: x RE-center of the AMDB LRS "<<myCenterAmdbL<<std::endl;
-    // std::cout<<"distanceToEtaReadout: RE center()= "<<REcenter().x()<<" "<<REcenter().y()<<" "<<REcenter().z()<<std::endl;
     if (fabs(sdistToCenter)>getSsize()/2.) 
       {
         //MsgStream log(m_msgSvc, "MuGM:RpcReadoutElement");
         const RpcIdHelper* idh = manager()->rpcIdHelper();
-        reLog()<<MSG::DEBUG<<"RpcReadoutElement with id "<<idh->show_to_string(identify())
+        (*m_Log) <<MSG::DEBUG<<"RpcReadoutElement with id "<<idh->show_to_string(identify())
 	       <<" ::distanceToEtaReadout --- in amdb local frame x of the point  "<<pAmdbL<<" is out of the rpc-module range ("
 	       <<myCenterAmdbL-getSsize()/2.<<","<<myCenterAmdbL+getSsize()/2.<<")"<<endmsg;
-        // if (fabs(sdistToCenter)-getSsize()/2.>5*CLHEP::cm) {
-        //   reLog()<<MSG::WARNING<<"by more then 5cm - distance will be set to -999999."<<endmsg;
-        //   return dist;
-        // }
-        // else reLog()<<MSG::WARNING<<"computed distance might be negative"<<endmsg;
         if( sdistToCenter > 0 ) {
           sdistToCenter = getSsize()/2.;
-          reLog()<<MSG::DEBUG<<"setting distance to "<< sdistToCenter <<endmsg;
+          (*m_Log) <<MSG::DEBUG<<"setting distance to "<< sdistToCenter <<endmsg;
         }
         else if ( sdistToCenter < 0 ) {
           sdistToCenter = -getSsize()/2.;
-          reLog()<<MSG::DEBUG<<"setting distance to "<< sdistToCenter <<endmsg;
+          (*m_Log) <<MSG::DEBUG<<"setting distance to "<< sdistToCenter <<endmsg;
         }
       }    
     if (m_nphistrippanels == 2) {
@@ -878,8 +861,10 @@ namespace MuonGM {
       phiDesign.signY = 0.;
 
       Amg::Vector2D pos1;
+      pos1.setZero();
       phiDesign.stripPosition(1,pos1);
       Amg::Vector2D pos2;
+      pos2.setZero();
       phiDesign.stripPosition(2,pos2);
 
       // now calculate distance to eta RO for the two phi strips 
@@ -961,7 +946,7 @@ namespace MuonGM {
 
     if( !m_surfaceData ) m_surfaceData = new SurfaceData();
     else{
-      reLog()<<MSG::WARNING<<"calling fillCache on an already filled cache" << endmsg;
+      (*m_Log) <<MSG::WARNING<<"calling fillCache on an already filled cache" << endmsg;
       return;
       //clearCache();
       //m_surfaceData = new SurfaceData();

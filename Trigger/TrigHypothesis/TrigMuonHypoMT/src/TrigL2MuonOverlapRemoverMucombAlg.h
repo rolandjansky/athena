@@ -5,24 +5,9 @@
 #ifndef TRIGL2MUONOVERLAPREMOVER_TRIGL2MUONOVERLAPREMOVERMUCOMBALG_H 
 #define TRIGL2MUONOVERLAPREMOVER_TRIGL2MUONOVERLAPREMOVERMUCOMBALG_H 1 
 
-#include <string>
-
-#include "AthenaBaseComps/AthReentrantAlgorithm.h" 
-#include "StoreGate/ReadHandleKey.h"
-#include "StoreGate/WriteHandleKey.h"
-
-#include "xAODTrigMuon/L2CombinedMuonContainer.h"
-#include "xAODTrigMuon/L2StandAloneMuonContainer.h"
-#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
-#include "xAODTrigger/TrigCompositeContainer.h"
-
-#include "DecisionHandling/TrigCompositeUtils.h"
-#include "AthViews/View.h"
-
 #include "TrigL2MuonOverlapRemoverTool.h"
 #include "DecisionHandling/HypoBase.h"
 
-class TriggerElement;
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -42,7 +27,6 @@ class TrigL2MuonOverlapRemoverMucombAlg
 
   private:
  
-    TrigL2MuonOverlapRemoverMucombAlg(); 
     ToolHandleArray<TrigL2MuonOverlapRemoverTool> m_OverlapRemoverTools {this, "HypoTools", {}, "Tools to perform selection"}; 
 
     SG::ReadHandleKey<xAOD::L2CombinedMuonContainer> m_OverlapRemoverKey {

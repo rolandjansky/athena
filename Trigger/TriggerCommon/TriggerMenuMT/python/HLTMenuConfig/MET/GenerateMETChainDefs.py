@@ -1,8 +1,8 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDict
-from TriggerMenuMT.HLTMenuConfig.MET.METChainConfiguration import MetChainConfiguration as MetChainConfiguration
-from TriggerMenuMT.HLTMenuConfig.Menu.ChainMerging import mergeChainDefs
+from ..Menu.ChainDictTools import splitChainDict
+from .METChainConfiguration import METChainConfiguration
+from ..Menu.ChainMerging import mergeChainDefs
 
 
 from AthenaCommon.Logging import logging
@@ -23,9 +23,9 @@ def generateChainConfigs( chainDict ):
 
     for subChainDict in listOfChainDicts:
         
-        Met = MetChainConfiguration(subChainDict).assembleChain() 
+        MET = METChainConfiguration(subChainDict).assembleChain() 
 
-        listOfChainDefs += [Met]
+        listOfChainDefs += [MET]
         log.debug('length of chaindefs %s', len(listOfChainDefs) )
         
 
@@ -38,9 +38,3 @@ def generateChainConfigs( chainDict ):
     log.debug("theChainDef %s" , theChainDef)
 
     return theChainDef
-
-
-
-    
-
-    

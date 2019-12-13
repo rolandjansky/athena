@@ -24,7 +24,6 @@
 #include "TrkParameters/TrackParameters.h"
 
 #include <iterator>
-#include <cmath>
 
 double rotatePhi( double phi, double rotationFraction ) {
   // check whether we rotate to a large value than pi, if so add additional rotation by -2pi
@@ -41,8 +40,7 @@ m_splitpatterns(true),
 m_nodiscarding(true),
 m_bestphimatch(false),
 m_flipdirectionforcosmics(false),
-m_phiEtaHitAssMap(0),
-m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
+m_phiEtaHitAssMap(0)
 {
   declareInterface< IMuonCombinePatternTool >(this);
   
@@ -54,8 +52,6 @@ m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
   declareProperty("UseTightAssociation", m_useTightAssociation = false );
   declareProperty("MaxSizePhiPatternLooseCuts", m_maxSizePhiPatternLoose = 40  );
   declareProperty("MaxSizeEtaPatternLooseCuts", m_maxSizeEtaPatternLoose = 200 );
-  declareProperty("IdHelper", m_idHelper);
-
 }
 
 StatusCode MuonCombinePatternTool::initialize()
@@ -63,13 +59,8 @@ StatusCode MuonCombinePatternTool::initialize()
 
   ATH_MSG_DEBUG("MuonCombinePatternTool::initialize");
 
-  ATH_CHECK( detStore()->retrieve( m_detMgr ) );
-
-  m_mdtIdHelper = m_detMgr->mdtIdHelper();
-  m_cscIdHelper = m_detMgr->cscIdHelper();    
-  m_rpcIdHelper = m_detMgr->rpcIdHelper();
-  m_tgcIdHelper = m_detMgr->tgcIdHelper();
-  ATH_MSG_DEBUG(" Retrieved IdHelpers: (mdt, csc, rpc and tgc) ");
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  ATH_MSG_DEBUG(" Retrieved MuonIdHelperTool");
 
   if (m_use_cosmics == false) {
     m_splitpatterns = false;
@@ -78,8 +69,6 @@ StatusCode MuonCombinePatternTool::initialize()
     m_bestphimatch = true;
   }
 
-  ATH_CHECK( m_idHelper.retrieve() );
-  
   ATH_MSG_DEBUG(" UseCosmics: " << m_use_cosmics << " Split Patterns: " << m_splitpatterns << " NoDiscarding: " << m_nodiscarding << " BestPhiMatch: " << m_bestphimatch );
 
   return StatusCode::SUCCESS;
@@ -95,14 +84,14 @@ StatusCode MuonCombinePatternTool::finalize()
 const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(const MuonPrdPatternCollection* phiPatternCollection, const MuonPrdPatternCollection* etaPatternCollection)const
 {
   bool myDebug = false;
-
+  std::vector<const Muon::MuonPrdPattern*> patternsToDelete;
   std::vector<std::pair <const Muon::MuonPrdPattern*, const Muon::MuonPrdPattern*> > candidates; // vector of etapatterns (key) and phipatterns (value), that are candidates for combining. Both etapatterns and phipatterns can occur multiple times
 
   if (m_use_cosmics==true && m_splitpatterns == true) {
-    m_patternsToDelete.reserve(6*etaPatternCollection->size()); // split eta (2) and phi patterns (2) + associated (2) , might be more when more than one match is found
+    patternsToDelete.reserve(6*etaPatternCollection->size()); // split eta (2) and phi patterns (2) + associated (2) , might be more when more than one match is found
   }
   else {
-    m_patternsToDelete.reserve(etaPatternCollection->size()); // only associated patterns
+    patternsToDelete.reserve(etaPatternCollection->size()); // only associated patterns
   }
   // strategy
   // associate eta pattern to phi patterns
@@ -235,7 +224,7 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
 	  const double hitz=globalposhit.z();
 	  double radius_hit = std::sqrt(hitx*hitx+hity*hity);
 	  double dotprodradius = sctheta.apply(radius_hit,hitz); // (radius_hit) * sctheta.sn + hitz * sctheta.cs;
-	  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "combine hit: " << m_idHelper->toString(prd->identify()) << " dotprod: " << dotprodradius;
+	  ATH_MSG_VERBOSE("combine hit: " << m_muonIdHelperTool->toString(prd->identify()) << " dotprod: " << dotprodradius);
 	  if (dotprodradius >=0 || m_use_cosmics == true) // should be on
 	    {
 	      double residu_distance_mm = 1000000.;
@@ -251,16 +240,16 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
 
 	      double distancetoline = std::abs(residu_distance_mm);
 				
-	      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " distance RZ: " << residu_distance_mm;
+	      ATH_MSG_VERBOSE(" distance RZ: " << residu_distance_mm);
 				
 	      if (distancetoline < m_maximum_rzdistance) {
-		if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " accepted ";
+		ATH_MSG_VERBOSE(" accepted ");
 		nhits_inside_distance_cut++;
 		nhits_in_average++;
 		average_distance += distancetoline;
 
 		if( useTightAssociation ){
-		  Identifier chId = m_idHelper->chamberId(prd->identify());
+		  Identifier chId = m_muonIdHelperTool->chamberId(prd->identify());
 		  std::map<Identifier, ChamberInfo >::iterator chPos = infoPerChamber.find(chId);
 		  ChamberInfo* chInfo = 0;
 		  if( chPos != infoPerChamber.end() ){
@@ -273,7 +262,7 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
 		  if( hitphi < chInfo->phiMin ) chInfo->phiMin = hitphi;
 		  if( hitphi > chInfo->phiMax ) chInfo->phiMax = hitphi;
 		  
-		  Muon::MuonStationIndex::StIndex stIndex = m_idHelper->stationIndex(prd->identify());
+		  Muon::MuonStationIndex::StIndex stIndex = m_muonIdHelperTool->stationIndex(prd->identify());
 		  std::map<Muon::MuonStationIndex::StIndex, ChamberInfo >::iterator stPos = infoPerStation.find(stIndex);
 		  if( stPos != infoPerStation.end() ){
 		    chInfo = &stPos->second;
@@ -321,7 +310,7 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
 	  bool hit_passed = false;
 	  double etadistancetoline = std::abs(m_muonHoughMathUtils.distanceToLine(etahitx,etahity,r0,phi));
 
-	  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "combine: " << m_idHelper->toString(prd->identify()) << " distance xy " << etadistancetoline;
+	  ATH_MSG_VERBOSE("combine: " << m_muonIdHelperTool->toString(prd->identify()) << " distance xy " << etadistancetoline);
 
 	  if (m_use_cosmics == true) { // phi cone does not work for cosmics since hits might be close to position of pattern
 		
@@ -340,10 +329,10 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
 	    //nhits_in_average_eta++;
 	    etapattern_passed = true; // only one hit required
 	    //break;
-	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << MSG::VERBOSE << " accepted";
+	    ATH_MSG_VERBOSE(" accepted");
 
 	    if( useTightAssociation ){
-	      Identifier chId = m_idHelper->chamberId(prd->identify());
+	      Identifier chId = m_muonIdHelperTool->chamberId(prd->identify());
 	      std::map<Identifier, ChamberInfo >::iterator chPos = infoPerChamber.find(chId);
 	      ChamberInfo* chInfo = 0;
 	      if( chPos != infoPerChamber.end() ){
@@ -352,9 +341,9 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
 		chInfo = &infoPerChamber[chId];
 	      }
 	      ++chInfo->neta;
-	      if( m_idHelper->isMdt(prd->identify()) ){
+	      if( m_muonIdHelperTool->isMdt(prd->identify()) ){
 		
-		Muon::MuonStationIndex::StIndex stIndex = m_idHelper->stationIndex(prd->identify());
+		Muon::MuonStationIndex::StIndex stIndex = m_muonIdHelperTool->stationIndex(prd->identify());
 		ChamberInfo& stInfo = infoPerStation[stIndex];
 		
 		const MuonGM::MdtReadoutElement* mdtDetEl = dynamic_cast<const MuonGM::MdtReadoutElement*>(prd->detectorElement());
@@ -362,13 +351,13 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
 		
 		const Identifier& id = prd->identify();
 		const Trk::Surface& surf = mdtDetEl->surface(id);
-		int layer = m_idHelper->mdtIdHelper().tubeLayer(id);
-		int tube  = m_idHelper->mdtIdHelper().tube(id);
+		int layer = m_muonIdHelperTool->mdtIdHelper().tubeLayer(id);
+		int tube  = m_muonIdHelperTool->mdtIdHelper().tube(id);
 		double halfLength = 0.5*mdtDetEl->getWireLength(layer,tube);
 		Amg::Vector2D lpLeft(0,-halfLength);
 		const Amg::Vector3D* gposLeft = surf.localToGlobal(lpLeft);
 		if( !gposLeft ){
-		  ATH_MSG_WARNING(" Failed calculation left phi for "<< m_idHelper->toString(id) );
+		  ATH_MSG_WARNING(" Failed calculation left phi for "<< m_muonIdHelperTool->toString(id) );
 		  continue;
 		}
 		double phiLeft = gposLeft->phi();
@@ -377,7 +366,7 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
 		Amg::Vector2D lpRight(0,halfLength);
 		const Amg::Vector3D* gposRight = surf.localToGlobal(lpRight);
 		if( !gposRight ){
-		  ATH_MSG_WARNING(" Failed calculation right phi for "<< m_idHelper->toString(id) );
+		  ATH_MSG_WARNING(" Failed calculation right phi for "<< m_muonIdHelperTool->toString(id) );
 		  continue;
 		}
 		double phiRight = gposRight->phi();
@@ -396,8 +385,8 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
 		double phiMaxPos = phiHV < phiRO ? phiRO : phiHV;
 		
 		if( myDebug && (fabs(phiMin-phiMinPos) >0.01 || fabs(phiMax-phiMaxPos) >0.01) ){
-		  std::cout << " inconsistent Phi!!: from locToGlob (" << phiMin << "," << phiMax << "), from positions (" 
-			    << phiMinPos << "," << phiMaxPos << ")" << std::endl;
+		  ATH_MSG_DEBUG(" inconsistent Phi!!: from locToGlob (" << phiMin << "," << phiMax << "), from positions (" 
+			    << phiMinPos << "," << phiMaxPos << ")");
 		}
 		double rotationFraction = 0.;
 		if( phiMin < 0 && phiMax > 0 ){
@@ -444,11 +433,11 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
 		  if( inside ){
 		    ++stInfo.ninside;
 		    ++chInfo->ninside;
-		    if( myDebug ) std::cout << " Inside  ";
+		    if( myDebug ) { ATH_MSG_DEBUG(" Inside  "); }
 		  }else{ 
 		    ++stInfo.noutside;
 		    ++chInfo->noutside;
-		    if( myDebug ) std::cout << " Outside ";
+		    if( myDebug ) { ATH_MSG_DEBUG(" Outside "); }
 		  }
 
 		}
@@ -474,29 +463,29 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
 		if( insidePat ){
 		  ++stInfo.ninsidePat;
 		  ++chInfo->ninsidePat;
-		  if( myDebug ) std::cout << " InPat  ";
+		  if( myDebug ) { ATH_MSG_DEBUG(" InPat  "); }
 		}else{ 
 		  ++stInfo.noutsidePat;
 		  ++chInfo->noutsidePat;
-		  if( myDebug ) std::cout << " OutPat ";
+		  if( myDebug ) { ATH_MSG_DEBUG(" OutPat "); }
 		}
 		if( myDebug ) {
-		  std::cout << " : Phi MDT (" << std::setprecision(3) << std::setw(4) << phiMin << "," << std::setw(4) << phiMax << ") "  
-			    << " from pos (" <<  std::setprecision(3) << std::setw(4) << phiMinPos << "," << std::setw(4) << phiMaxPos << ") ";
-		  if( stInfo.nphi > 0 && stInfo.phiMin < 1000 )
-		    std::cout << " phi range ("  << std::setprecision(3) << std::setw(4) << stInfo.phiMin << "," << std::setw(4) << stInfo.phiMax << ")  ";
-		  std::cout << " pat range ("  << std::setprecision(3) << std::setw(4) << phiMinPat << "," << std::setw(4) << phiMaxPat << ")  " 
-			    << m_idHelper->toString(prd->identify());
-		  if( mdtDetEl->hasCutouts() ) std::cout << " hasCutOuts ";
-		  std::cout << " ATL " << mdtDetEl->getActiveTubeLength(layer,tube)
+		  ATH_MSG_DEBUG(" : Phi MDT (" << std::setprecision(3) << std::setw(4) << phiMin << "," << std::setw(4) << phiMax << ") "  
+			    << " from pos (" <<  std::setprecision(3) << std::setw(4) << phiMinPos << "," << std::setw(4) << phiMaxPos << ") ");
+		  if( stInfo.nphi > 0 && stInfo.phiMin < 1000 ) {
+		    ATH_MSG_DEBUG(" phi range ("  << std::setprecision(3) << std::setw(4) << stInfo.phiMin << "," << std::setw(4) << stInfo.phiMax << ")  ");
+      }
+		  ATH_MSG_DEBUG(" pat range ("  << std::setprecision(3) << std::setw(4) << phiMinPat << "," << std::setw(4) << phiMaxPat << ")  " 
+			    << m_muonIdHelperTool->toString(prd->identify()));
+		  if( mdtDetEl->hasCutouts() ) { ATH_MSG_DEBUG(" hasCutOuts "); }
+		  ATH_MSG_DEBUG(" ATL " << mdtDetEl->getActiveTubeLength(layer,tube)
 			    << " WL " << mdtDetEl->getWireLength(layer,tube) 
 			    << " GL " << mdtDetEl->getGasLength(layer,tube) 
-			    << " POSL " << tubeL << std::endl;
+			    << " POSL " << tubeL);
 		}
 	      }
 	    }
 	  }
-	  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << endmsg;
   
 	} // eta pattern
       
@@ -510,16 +499,17 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
 	std::map<int,ChamberInfo> hitsPerSector;
 	//std::set<MuonStationIndex::PhiIndex> 
 	for( ;chit!=chit_end;++chit ){
-	  if( myDebug ) std::cout << "  " <<  std::setw(32) << m_idHelper->toStringChamber(chit->first)
+	  if( myDebug ) { ATH_MSG_DEBUG("  " <<  std::setw(32) << m_muonIdHelperTool->toStringChamber(chit->first)
 				  << "  eta hits " << chit->second.neta  
 				  << "  phi hits " << chit->second.nphi 
 				  << "  ninside  " << chit->second.ninside
 				  << "  noutside  " << chit->second.noutside
 				  << "  ninside  " << chit->second.ninsidePat
-				  << "  noutside  " << chit->second.noutsidePat << std::endl;
+				  << "  noutside  " << chit->second.noutsidePat);
+    }
 	  if( chit->second.neta > 0 && chit->second.nphi ) ++netaPhiPairs;
-// 	  if( (m_idHelper->isMdt(chit->first) || m_idHelper->isRpc(chit->first) || m_idHelper->isCsc(chit->first)) ){
-// 	    int sector = m_idHelper->sector(chit->first);
+// 	  if( (m_muonIdHelperTool->isMdt(chit->first) || m_muonIdHelperTool->isRpc(chit->first) || m_muonIdHelperTool->isCsc(chit->first)) ){
+// 	    int sector = m_muonIdHelperTool->sector(chit->first);
 // 	    ChamberInfo& info = hitsPerSector[sector];
 // 	    info.neta += chit->second.neta;
 // 	    info.nphi += chit->second.nphi;
@@ -530,31 +520,29 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
 // 	  }
 	}
 	if( myDebug ) {
-	  std::cout << " eta/phi pattern hit overlap " << netaPhiPairs;
-	  if( !etapattern_passed ) std::cout << "  failed eta hit match ";
-	  if( nhits_inside_distance_cut<(phipattern->numberOfContainedPrds()*0.25) )  std::cout << "  failed phi hit match ";
-	  if( netaPhiPairs == 0 ) std::cout << "  Bad match, no overlap ";     
-	  std::cout << std::endl;
+	  ATH_MSG_DEBUG(" eta/phi pattern hit overlap " << netaPhiPairs);
+	  if( !etapattern_passed ) { ATH_MSG_DEBUG("  failed eta hit match "); }
+	  if( nhits_inside_distance_cut<(phipattern->numberOfContainedPrds()*0.25) ) { ATH_MSG_DEBUG("  failed phi hit match "); }
+	  if( netaPhiPairs == 0 ) { ATH_MSG_DEBUG("  Bad match, no overlap "); }
 	}
 	std::map<int,ChamberInfo>::iterator secIt = hitsPerSector.begin();
 	std::map<int,ChamberInfo>::iterator secIt_end = hitsPerSector.end();
 	for( ;secIt!=secIt_end;++secIt ){
-	  if( myDebug ) std::cout << " sector " << std::setw(4) << secIt->first
+	  if( myDebug ) { ATH_MSG_DEBUG(" sector " << std::setw(4) << secIt->first
 				  << "  eta hits " << chit->second.neta  
 				  << "  phi hits " << chit->second.nphi 
 				  << "  ninside  " << chit->second.ninside
 				  << "  noutside  " << chit->second.noutside
 				  << "  ninside  " << chit->second.ninsidePat
-				  << "  noutside  " << chit->second.noutsidePat
-				  << std::endl;
+				  << "  noutside  " << chit->second.noutsidePat);
+    }
 	}
       }
       if ( msgLvl(MSG::DEBUG) ){
-	msg(MSG::DEBUG) << " Eta pattern compatible with phi pattern, eta/phi overlap " << netaPhiPairs
+        ATH_MSG_DEBUG(" Eta pattern compatible with phi pattern, eta/phi overlap " << netaPhiPairs
 	      << " ass phi hits " << nhits_inside_distance_cut 
-	      << " tot phi hits " << phipattern->numberOfContainedPrds();
-	if( useTightAssociation ) msg(MSG::DEBUG) << " using tight association";
-	msg(MSG::DEBUG) << endmsg;
+	      << " tot phi hits " << phipattern->numberOfContainedPrds());
+	if( useTightAssociation ) { ATH_MSG_DEBUG(" using tight association"); }
       }
       
       // at least 25% matched, to be more robust than 1!			
@@ -570,8 +558,8 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
 	  phipattern = updatedpatterns.first;
 	  etapattern = updatedpatterns.second;
 	    
-	  m_patternsToDelete.push_back(updatedpatterns.first);
-	  m_patternsToDelete.push_back(updatedpatterns.second);
+	  patternsToDelete.push_back(updatedpatterns.first);
+	  patternsToDelete.push_back(updatedpatterns.second);
 	  ATH_MSG_DEBUG(" Combination accepted with cosmic selection ");
 	}else if( useTightAssociation ){
 
@@ -583,12 +571,12 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
 	  for (unsigned int etahitid=0; etahitid < etapattern->numberOfContainedPrds(); etahitid++) {
 	    const Trk::PrepRawData* prd = etapattern->prd(etahitid);
 	    const Identifier& id = prd->identify();
-	    Identifier chId = m_idHelper->chamberId(id);
+	    Identifier chId = m_muonIdHelperTool->chamberId(id);
 	    std::map<Identifier, ChamberInfo >::iterator chPos = infoPerChamber.find(chId);
 	    if( chPos == infoPerChamber.end() ) continue;
 	      
 	      
-	    if( m_idHelper->isMdt(id) ) {
+	    if( m_muonIdHelperTool->isMdt(id) ) {
 	      if( chPos->second.ninside == 0 &&  chPos->second.noutside > 0 ) continue;
 	      if( chPos->second.ninsidePat == 0 &&  chPos->second.noutsidePat > 0 ) continue;
 	    }else{
@@ -599,22 +587,22 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
 	  for (unsigned int phihitid=0; phihitid < phipattern->numberOfContainedPrds(); phihitid++) {
 	    const Trk::PrepRawData* prd = phipattern->prd(phihitid);
 	    const Identifier& id = prd->identify();
-	    Identifier chId = m_idHelper->chamberId(id);
+	    Identifier chId = m_muonIdHelperTool->chamberId(id);
 	    std::map<Identifier, ChamberInfo >::iterator chPos = infoPerChamber.find(chId);
 	    if( chPos == infoPerChamber.end() ) continue;
 	      
 	    if( chPos->second.neta == 0 ) continue;
 	    phiPat->addPrd(prd);
 	  }
-	  m_patternsToDelete.push_back(etaPat);
-	  m_patternsToDelete.push_back(phiPat);
+	  patternsToDelete.push_back(etaPat);
+	  patternsToDelete.push_back(phiPat);
 	  phipattern = phiPat;
 	  etapattern = etaPat;
 	    
 	}
 	  
 	if (m_bestphimatch == false) {
-	  addCandidate(etapattern,phipattern,candidates,false);
+	  addCandidate(etapattern,phipattern,candidates,false,patternsToDelete);
 	  ATH_MSG_DEBUG("Candidate FOUND eta " << etalevel << " phi " << philevel << " dotprod: " << dotprod );	  
 	}else {
 	  if(average_distance < min_average_distance) {
@@ -629,15 +617,14 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
 
 	// add recovery for the case we have an inefficiency in the eta hits
       } else if( useTightAssociation && netaPhiPairs == 0 && nhits_inside_distance_cut>=(phipattern->numberOfContainedPrds()*0.25) ) {
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << " Combination rejected by phi/eta overlap: average distance " << average_distance;
+	ATH_MSG_DEBUG(" Combination rejected by phi/eta overlap: average distance " << average_distance);
 
 	if(average_distance < min_average_distance) {
-	  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "  but selected as best candidate ";
+	  ATH_MSG_DEBUG("  but selected as best candidate ");
 	  min_average_distance = average_distance;
 	  max_phipattern=phipattern;
 	  max_philevel=philevel;
 	}
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << endmsg;
       } // nhits>=25%
     } // size phi level
 
@@ -645,7 +632,7 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
     if (m_bestphimatch == true) {
       if( ismatched == true ){
 	//      const Muon::MuonPrdPattern* phipattern = phiPatternCollection->at(max_philevel);
-	addCandidate(etapattern,max_phipattern,candidates,true);
+	addCandidate(etapattern,max_phipattern,candidates,true,patternsToDelete);
 	ATH_MSG_DEBUG("Candidate FOUND eta " << etalevel << " phi " << max_philevel );
       }
     }
@@ -672,7 +659,7 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
 	}
 	else {
 	  // these associated phi patterns should be deleted at end of routine:
-	  m_patternsToDelete.push_back(assphipattern);
+	  patternsToDelete.push_back(assphipattern);
 
 	  ATH_MSG_DEBUG("Candidate FOUND eta " << etalevel << " and associated phipattern ");
 	  
@@ -687,18 +674,18 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
 	    assphipattern = updatedpatterns.first;
 	    etapattern = updatedpatterns.second;
 	    
-	    m_patternsToDelete.push_back(updatedpatterns.first);
-	    m_patternsToDelete.push_back(updatedpatterns.second);
+	    patternsToDelete.push_back(updatedpatterns.first);
+	    patternsToDelete.push_back(updatedpatterns.second);
 	    delete[] new_pars;
 	  }
 	  ATH_MSG_DEBUG(" adding eta pattern with recalculated associated phi pattern ");
 	  
-	  addCandidate(etapattern,assphipattern,candidates,false);
+	  addCandidate(etapattern,assphipattern,candidates,false,patternsToDelete);
 	}
       }
     }
     if( !ismatched && max_philevel > -1 ){
-      addCandidate(etapattern,max_phipattern,candidates,true);
+      addCandidate(etapattern,max_phipattern,candidates,true,patternsToDelete);
       ismatched = true;
       ATH_MSG_DEBUG("No good candidate found, adding best phi pattern " << etalevel << " phi " << max_philevel );
     }
@@ -719,13 +706,13 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
   const MuonPrdPatternCollection* combinedpatterns = makeCombinedPatterns(candidates);
 
   // delete associated and split patterns:
-  std::vector<const Muon::MuonPrdPattern*>::iterator it = m_patternsToDelete.begin();
-  for (; it!=m_patternsToDelete.end(); ++it) {
+  std::vector<const Muon::MuonPrdPattern*>::iterator it = patternsToDelete.begin();
+  for (; it!=patternsToDelete.end(); ++it) {
     delete (*it);
   }
   
   // release memory:
-  std::vector<const Muon::MuonPrdPattern*>().swap(m_patternsToDelete);
+  std::vector<const Muon::MuonPrdPattern*>().swap(patternsToDelete);
 
   return combinedpatterns;
 
@@ -907,8 +894,8 @@ std::vector <std::pair<Muon::MuonPrdPattern*, Muon::MuonPrdPattern*> > MuonCombi
   Muon::MuonPrdPattern* etapattern1 = new Muon::MuonPrdPattern(etapattern->globalPosition(),dir1); // "lower" pattern (y<0)
 
   if (m_flipdirectionforcosmics == true) {
-    const double newphi = phi + MuonHough::Pi;
-    const double newtheta = MuonHough::Pi - etapattern->globalDirection().theta();
+    const double newphi = phi + M_PI;
+    const double newtheta = M_PI - etapattern->globalDirection().theta();
     CxxUtils::sincos scnewphi(newphi);
     CxxUtils::sincos scnewtheta(newtheta);
     
@@ -992,8 +979,8 @@ std::vector <std::pair<Muon::MuonPrdPattern*, Muon::MuonPrdPattern*> > MuonCombi
 
   if (m_flipdirectionforcosmics == true) {
 
-    const double newphi = phi + MuonHough::Pi;
-    const double newtheta = MuonHough::Pi - theta;
+    const double newphi = phi + M_PI;
+    const double newtheta = M_PI - theta;
 
     CxxUtils::sincos scnewphi(newphi);
     CxxUtils::sincos scnewtheta(newtheta);
@@ -1169,7 +1156,7 @@ Muon::MuonPrdPattern* MuonCombinePatternTool::cleanupCombinedPattern(Muon::MuonP
 	  if (msgLvl(MSG::DEBUG)) {
 	    msg(MSG::DEBUG) <<  "Hit discarded: " << hitid << " dis xy " << distance_xy << " dis rz " << distance_rz << endmsg;
 	    msg(MSG::DEBUG) << "Hit info: " << endmsg;
-	    m_mdtIdHelper->print(prd->identify());
+	    m_muonIdHelperTool->mdtIdHelper().print(prd->identify());
 	  }
 	}
     }
@@ -1356,7 +1343,7 @@ double* MuonCombinePatternTool::updateParametersForCosmics(const Muon::MuonPrdPa
 
   double theta = std::atan2(sumr,sumz);
 
-  if (theta < 0) theta += MuonHough::Pi;
+  if (theta < 0) theta += M_PI;
 
   double rz0 = calculateRz0(etapattern,phi,theta);
 
@@ -1559,7 +1546,7 @@ std::pair<double,double> MuonCombinePatternTool::calculateR0Phi(const Muon::Muon
   }
 
   double phi_fit = std::atan2(sumy,sumx);
-  if (phi_fit > 0) phi_fit -= MuonHough::Pi; // phi between 0,-Pi for cosmics! 
+  if (phi_fit > 0) phi_fit -= M_PI; // phi between 0,-Pi for cosmics! 
   CxxUtils::sincos scphi(phi_fit);
   const double r0_fit = scphi.apply(av_x,-av_y); // av_x * scphi.sn - av_y * scphi.cs;
 
@@ -1683,14 +1670,14 @@ MuonPatternCombinationCollection* MuonCombinePatternTool::makePatternCombination
 	  const Trk::PrepRawData* prd = (*pit)->prd(i);
 	  Identifier channelId = prd->identify();
 	  Identifier moduleId;
-	  if (m_mdtIdHelper->is_mdt(channelId))
-	    {moduleId = m_mdtIdHelper->elementID(channelId);}
-	  else if (m_cscIdHelper->is_csc(channelId))
-	    {moduleId = m_cscIdHelper->elementID(channelId);}
-	  else if (m_tgcIdHelper->is_tgc(channelId))
-	    {moduleId = m_tgcIdHelper->elementID(channelId);}
-	  else if (m_rpcIdHelper->is_rpc(channelId))
-	    {moduleId = m_rpcIdHelper->elementID(channelId);}
+	  if (m_muonIdHelperTool->mdtIdHelper().is_mdt(channelId))
+	    {moduleId = m_muonIdHelperTool->mdtIdHelper().elementID(channelId);}
+	  else if (m_muonIdHelperTool->cscIdHelper().is_csc(channelId))
+	    {moduleId = m_muonIdHelperTool->cscIdHelper().elementID(channelId);}
+	  else if (m_muonIdHelperTool->tgcIdHelper().is_tgc(channelId))
+	    {moduleId = m_muonIdHelperTool->tgcIdHelper().elementID(channelId);}
+	  else if (m_muonIdHelperTool->rpcIdHelper().is_rpc(channelId))
+	    {moduleId = m_muonIdHelperTool->rpcIdHelper().elementID(channelId);}
 	  else {ATH_MSG_ERROR("prd is not a muonhit?!");}
 
 	  chit = chamberMap.find(moduleId);
@@ -1980,7 +1967,7 @@ Muon::MuonPrdPattern* MuonCombinePatternTool::cleanPhiPattern(const Muon::MuonPr
   return cleanpattern;
 }
 
-void MuonCombinePatternTool::addCandidate(const Muon::MuonPrdPattern* etapattern, const Muon::MuonPrdPattern* phipattern, std::vector<std::pair<const Muon::MuonPrdPattern*, const Muon::MuonPrdPattern*> > &candidates, bool add_asspattern)const
+void MuonCombinePatternTool::addCandidate(const Muon::MuonPrdPattern* etapattern, const Muon::MuonPrdPattern* phipattern, std::vector<std::pair<const Muon::MuonPrdPattern*, const Muon::MuonPrdPattern*> > &candidates, bool add_asspattern, std::vector<const Muon::MuonPrdPattern*>& patternsToDelete)const
 {
   if (m_use_cosmics == false || m_splitpatterns == false) {
     candidates.push_back(std::make_pair(etapattern,phipattern));
@@ -2004,8 +1991,8 @@ void MuonCombinePatternTool::addCandidate(const Muon::MuonPrdPattern* etapattern
 	candidates.push_back(std::make_pair(splitpatterns[i].second,splitpatterns[i].first));
 	
 	// these associated phi patterns should be deleted at end of routine:
-	m_patternsToDelete.push_back(splitpatterns[i].first);
-	m_patternsToDelete.push_back(splitpatterns[i].second);
+	patternsToDelete.push_back(splitpatterns[i].first);
+	patternsToDelete.push_back(splitpatterns[i].second);
       }
     }
   }
@@ -2031,8 +2018,8 @@ void MuonCombinePatternTool::addCandidate(const Muon::MuonPrdPattern* etapattern
       assphipattern = updatedpatterns.first;
       etapattern = updatedpatterns.second;
 	    
-      m_patternsToDelete.push_back(updatedpatterns.first);
-      m_patternsToDelete.push_back(updatedpatterns.second);
+      patternsToDelete.push_back(updatedpatterns.first);
+      patternsToDelete.push_back(updatedpatterns.second);
       delete[] new_pars;
 
       std::vector <std::pair<Muon::MuonPrdPattern*,Muon::MuonPrdPattern*> > splitpatterns_ass = splitPatternsCylinder(assphipattern,etapattern);
@@ -2051,8 +2038,8 @@ void MuonCombinePatternTool::addCandidate(const Muon::MuonPrdPattern* etapattern
 	    candidates.push_back(std::make_pair(splitpatterns_ass[i].second,splitpatterns_ass[i].first));
 	    
 	    // these associated phi patterns should be deleted at end of routine:
-	    m_patternsToDelete.push_back(splitpatterns_ass[i].first);
-	    m_patternsToDelete.push_back(splitpatterns_ass[i].second);
+	    patternsToDelete.push_back(splitpatterns_ass[i].first);
+	    patternsToDelete.push_back(splitpatterns_ass[i].second);
 	  }
 	}
       }

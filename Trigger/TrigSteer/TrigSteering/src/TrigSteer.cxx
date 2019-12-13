@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -13,7 +13,6 @@
  * @author Nicolas Berger  <Nicolas.Berger@cern.ch>  - CERN
  *
  * File and Version Information:
- * $Id: TrigSteer.cxx,v 1.112 2009-05-05 20:29:14 tbold Exp $
  **********************************************************************************/
 
 #include <algorithm>
@@ -44,7 +43,6 @@
 #include "TrigInterfaces/FexAlgo.h"
 #include "TrigInterfaces/HypoAlgo.h"
 #include "TrigInterfaces/AlgoConfig.h"
-#include "TrigInterfaces/Incidents.h"
 
 #include "TrigNavigation/Navigation.h"
 
@@ -69,7 +67,6 @@
 #include "TrigTimeAlgs/TrigTimer.h"
 
 #include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/IIncidentSvc.h"
 
 #include "TrigSteeringEvent/TrigOperationalInfo.h"
 #include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc.h"
@@ -102,13 +99,11 @@ TrigSteer::TrigSteer(const std::string& name, ISvcLocator* pSvcLocator)
     m_resultBuilder("HLT::ResultBuilder/ResultBuilder", this),
     m_monTools( this ),
     m_opiTools( this ),
-    m_incSvc("IncidentSvc", name),
     m_coreDumpSvc("CoreDumpSvc", name),
     m_executionOrderStrategy("HLT__OptimalExecutionOrderStrategy", this),
     m_EventInfoTool("HLT::EventInfoAccessTool/EventInfoAccessTool", this),
     m_timerSvc("TrigTimerSvc/TrigTimerSvc", name),    
-    m_abortTimer(0),
-    m_incidentTimer(0, HLT::Incidents::EventTimeout::type())
+    m_abortTimer(0)
 {
    declareProperty("doTiming", m_doTiming = true, "switch for doing timing monitoring");
    declareProperty("doHypo", m_doHypo = true, "switch to run HYPO algorithms only");
@@ -125,7 +120,6 @@ TrigSteer::TrigSteer(const std::string& name, ISvcLocator* pSvcLocator)
    declareProperty("MonTools",  m_monTools, "List of private monitoring tools" );
    declareProperty("OPITools",  m_opiTools, "List of private OPI monitoring tools. They are different from MonTools because they run before result is built and can modify it" );
    declareProperty("OPIScaler", m_opiScaler, "Scaler used for the OPITools");
-   declareProperty("softEventTimeout", m_softEventTimeout=-1, "Soft event timeout in nanoseconds.");
    declareProperty("hardEventTimeout", m_hardEventTimeout=-1, "Hard event timeout in nanoseconds.");  
    declareProperty("doOperationalInfo", m_doOperationalInfo=0, "Level of operational information collected by steering, by default =0 - do nothing.");
    declareProperty("sortChains", m_sortChains = 1, "If != 0 sorts chains by counter value before execution (and prescales application). The value <0 means ascending order while >0 disceding. ");
@@ -387,12 +381,6 @@ StatusCode TrigSteer::initialize()
    ATH_MSG_DEBUG("Retrieved " << m_EventInfoTool);
 
 
-   // Add Incident listeners
-   CHECK( m_incSvc.retrieve() );
-   ATH_MSG_DEBUG("Adding listener for event timeout");
-   m_incSvc->addListener(this, "EventTimeout");
-
-  
    // reset all configured chains, so that in any case
    // the first event sees exactly the same chains as all other events!
    if (!resetChains(m_chains) ) {
@@ -401,8 +389,6 @@ StatusCode TrigSteer::initialize()
 
    if ( m_hardEventTimeout > 0 )
       ATH_MSG_WARNING("Hard event timeout set (" << m_hardEventTimeout/1e6 << " ms)");
-   if ( m_softEventTimeout > 0 )
-      ATH_MSG_WARNING("Soft event timeout set (" << m_softEventTimeout/1e6 << " ms)");
 
    if (m_enableCoherentPrescaling) 
       configureCoherentPrescaling();
@@ -566,9 +552,7 @@ StatusCode TrigSteer::execute()
     * of scope, i.e. at the end of the event.
     */
    Athena::ScopedTimer hardTimeout(static_cast<unsigned int>(m_hardEventTimeout/1e6));
-   Athena::ScopedTimer softTimeout(static_cast<unsigned int>(m_softEventTimeout/1e6));
    if (m_hardEventTimeout > 0) m_abortTimer.start(hardTimeout);
-   if (m_softEventTimeout > 0) m_incidentTimer.start(softTimeout);
   
    if (m_doTiming) m_timerChains->start();
 
@@ -1241,23 +1225,17 @@ StatusCode TrigSteer::start()
 }
 
 
-// Exectued at every run-number change both online and offline
-StatusCode TrigSteer::endRun()
-{
-  // reset Navigation
-  m_navigation->reset();
-  ATH_MSG_DEBUG("Navigation reset for the last time");
-
-  if (!resetChains(m_chains) ) {
-    ATH_MSG_ERROR("Failed to reset vector of all configured HLT::Chain objects!");
-  }
-  
-  return StatusCode::SUCCESS;
-}
-
 // Exectued once per offline job and for every new run online
 StatusCode TrigSteer::stop()
 {
+   // reset Navigation
+   m_navigation->reset();
+   ATH_MSG_DEBUG("Navigation reset for the last time");
+
+   if (!resetChains(m_chains) ) {
+      ATH_MSG_ERROR("Failed to reset vector of all configured HLT::Chain objects!");
+   }
+
    // OPI tools : finalHists()
    ToolHandleArray< IMonitorToolBase >::iterator itOPI    = m_opiTools.begin();
    ToolHandleArray< IMonitorToolBase >::iterator itOPIEnd = m_opiTools.end();
@@ -1340,15 +1318,6 @@ bool TrigSteer::canContinueJob() {
   }
   return true;
 }
-
-
-void TrigSteer::handle(const Incident& inc) {
-   if ( inc.type()==HLT::Incidents::EventTimeout::type() ) {
-      // The timeout singleton is reset by AthenaEvenLoopMgr for each event
-      setTimeout(Athena::Timeout::instance());
-   }
-}
-
 
 HLT::ErrorCode TrigSteer::setEvent() {
 

@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -53,11 +53,13 @@ public:
 
 
   /**
-   * @brief auto-declaring Property Constructor.
-   * @param name name of the Property
-   * @param key  default StoreGate key for the object.
+   * @brief Auto-declaring Property constructor.
+   * @param owner Owning component.
+   * @param name Name of the Property.
+   * @param key  Default StoreGate key for the object.
+   * @param doc Documentation string.
    *
-   * will associate the named Property with this RHK via declareProperty
+   * Will associate the named Property with this RHK via declareProperty.
    *
    * The provided key may actually start with the name of the store,
    * separated by a "+":  "MyStore+Obj".  If no "+" is present
@@ -95,6 +97,26 @@ protected:
   ReadHandleKey (CLID clid,
                  const std::string& key,
                  const std::string& storeName);
+
+
+  /**
+   * @brief Auto-declaring constructor with explicit CLID.
+   * @param clid The CLID for the referenced object.
+   * @param owner Owning component.
+   * @param name name of the Property
+   * @param key The StoreGate key for the object.
+   * @param doc Documentation string.
+   *
+   * This is meant to be used by @c ReadDecorHandleKey, to allow fixing the
+   * CLID to a base class to avoid scheduler issues.
+   */
+  template <class OWNER, class K,
+            typename = typename std::enable_if<std::is_base_of<IProperty, OWNER>::value>::type>
+  ReadHandleKey( CLID clid,
+                 OWNER* owner,
+                 const std::string& name,
+                 const K& key,
+                 const std::string& doc);
 };
 
 

@@ -45,8 +45,6 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "PathResolver/PathResolver.h"
 #include "AIDA/IHistogram1D.h"
-#include "EventInfo/TagInfo.h"
-#include "EventInfoMgt/ITagInfoMgr.h"
 
 //Geometry
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
@@ -894,23 +892,6 @@ StatusCode MM_DigitizationTool::doDigitization() {
 			// contain (name, eta, phi, multiPlet)
 			m_idHelper->get_detectorElement_hash(layerID, detectorElementHash);
 
-
-			const MuonGM::MuonChannelDesign* mmChannelDesign = detectorReadoutElement->getDesign(digitID);
-                        // As of September 12 2018, to reduce the number of errors and warnings in MM digitization,
-                        // we assign the strips in the dead regions stripNumber=1 (short term fix).
-                        // The distToChannel validation breaks when we do this so we must add another if statement
-                        // These changes should be reverted once we arrive to a proper solution for these dead strips
-                        // Alexandre Laurier 12 Sept 2018
-	                    	double distToChannelWithStripID;
-	                    	double distToChannel;
-                        if (stripNumber ==1){
-	                    	    distToChannelWithStripID =0.; 
-	                    	    distToChannel =0.; 
-                        }
-                        else{
-	                    	    distToChannelWithStripID = mmChannelDesign->distanceToChannel(positionOnSurface, stripNumber);
-	                    	    distToChannel = mmChannelDesign->distanceToChannel(positionOnSurface);
-                        }
 	                    	ATH_MSG_DEBUG(" looking up collection using detectorElementHash "
 	                    					<< (int)detectorElementHash
 	                    					<< " "
@@ -919,12 +900,22 @@ StatusCode MM_DigitizationTool::doDigitization() {
 	                    					<< m_idHelper->print_to_string(digitID)
 	                    					);
 
-	                    	if ( fabs(distToChannelWithStripID - distToChannel) > mmChannelDesign->channelWidth(positionOnSurface)) {
-	                    		ATH_MSG_WARNING( "Found: distToChannelWithStripID: " << distToChannelWithStripID << " != distToChannel: " << distToChannel  );
-	                    		m_exitcode = 12;
-	                    		if(m_writeOutputFile) m_ntuple->Fill();
-	                    		continue;
-                        }
+      const MuonGM::MuonChannelDesign* mmChannelDesign = detectorReadoutElement->getDesign(digitID);
+      double distToChannel = mmChannelDesign->distanceToChannel(positionOnSurface, stripNumber);
+
+      // check whether retrieved distance is greater than strip width
+      // first retrieve the strip number from position by geometrical check
+      int geoStripNumber = mmChannelDesign->channelNumber(positionOnSurface);
+      if (geoStripNumber == -1) ATH_MSG_WARNING("Failed to retrieve strip number");
+      // retrieve channel position of closest active strip
+      Amg::Vector2D chPos;
+      if (!mmChannelDesign->channelPosition(geoStripNumber, chPos)) {
+        ATH_MSG_DEBUG("Failed to retrieve channel position for closest strip number " << geoStripNumber
+                       << ". Can happen if hit was found in non-active strip. Will not digitize it, since in data, "
+                       << "we would probably not find a cluster formed well enough to survive reconstruction.");
+        if(m_writeOutputFile) m_ntuple->Fill();
+        continue;
+      }
 
 			// Obtain Magnetic Field At Detector Surface
 			Amg::Vector3D hitOnSurfaceGlobal = surf.transform()*hitOnSurface;

@@ -29,19 +29,18 @@
 
 namespace{
 const CaloExtensionHelpers::LayersToSelect barrelLayers={CaloSampling::PreSamplerB, 
-    CaloSampling::EMB1, CaloSampling::EMB2, CaloSampling::EMB3};
+  CaloSampling::EMB1, CaloSampling::EMB2, CaloSampling::EMB3};
 
 const CaloExtensionHelpers::LayersToSelect endCapLayers={CaloSampling::PreSamplerE, 
-      CaloSampling::EME1, CaloSampling::EME2, CaloSampling::EME3}; 
+  CaloSampling::EME1, CaloSampling::EME2, CaloSampling::EME3}; 
 }
 
 EMExtrapolationTools::EMExtrapolationTools(const std::string& type, 
                                            const std::string& name,
                                            const IInterface* parent) :
   AthAlgTool(type, name, parent),
-  m_trtId(0)
+  m_trtId(nullptr)
 {
-
   declareInterface<IEMExtrapolationTools>(this);
 }
 
@@ -70,8 +69,8 @@ StatusCode EMExtrapolationTools::initialize()
   }
 
   //Retrieve input where applicable
-  ATH_CHECK(m_GSFPerigeeCacheKey.initialize(m_useCaching));
-  ATH_CHECK(m_GSFLastCacheKey.initialize(m_useCaching));
+  ATH_CHECK(m_PerigeeCacheKey.initialize(m_usePerigeeCaching));
+  ATH_CHECK(m_LastCacheKey.initialize(m_useLastCaching));
 
   return StatusCode::SUCCESS;
 }
@@ -118,7 +117,10 @@ EMExtrapolationTools::getMatchAtCalo (const EventContext&           ctx,
    */ 
   double atPerigeePhi(-999);
   double PerigeeTrkParPhi(-999); 
-  if(fromPerigeeRescaled == extrapFrom){
+
+  switch(extrapFrom) {
+
+  case  fromPerigeeRescaled:{
     std::unique_ptr<const Trk::TrackParameters> trkPar = getRescaledPerigee(trkPB, cluster);    
     if(!trkPar){
       ATH_MSG_ERROR("getMatchAtCalo: Cannot access track parameters"); 
@@ -127,7 +129,7 @@ EMExtrapolationTools::getMatchAtCalo (const EventContext&           ctx,
     Amg::Vector3D atPerigee(trkPar->position().x(), trkPar->position().y(), trkPar->position().z()); 
     atPerigeePhi=atPerigee.phi(); ;
     PerigeeTrkParPhi=trkPar->momentum().phi();
-    
+
     std::unique_ptr<Trk::CaloExtension> extension = m_perigeeParticleCaloExtensionTool->caloExtension( *trkPar, 
                                                                                                        direction, 
                                                                                                        Trk::muon);
@@ -135,15 +137,16 @@ EMExtrapolationTools::getMatchAtCalo (const EventContext&           ctx,
     if(didExtension){
       intersections=getIntersections(*extension,cluster); 
     }
-  }
-  /* For the other cases
-   * See if there is a collection cache
-   * else if there is an in algorithm cache
-   * else do it without a cache
-   */
-  else if(fromPerigee == extrapFrom){
-    if (m_useCaching){
-      SG::ReadHandle<CaloExtensionCollection>  PerigeeCache(m_GSFPerigeeCacheKey,ctx);
+  } break;
+
+    /* For the other cases
+     * See if there is a collection cache
+     * else if there is an in algorithm cache
+     * else do it without a cache
+     */
+  case fromPerigee:{
+    if (m_usePerigeeCaching){
+      SG::ReadHandle<CaloExtensionCollection>  PerigeeCache(m_PerigeeCacheKey,ctx);
       if (!PerigeeCache.isValid()) {
         ATH_MSG_ERROR("Could not retrieve Perigee Cache " << PerigeeCache.key());
         return StatusCode::FAILURE;
@@ -168,10 +171,11 @@ EMExtrapolationTools::getMatchAtCalo (const EventContext&           ctx,
         intersections=getIntersections(*extension,cluster); 
       }
     }
-  }
-  else if(fromLastMeasurement == extrapFrom){
-    if (m_useCaching){
-      SG::ReadHandle<CaloExtensionCollection>  LastCache(m_GSFLastCacheKey,ctx);
+  }break;
+
+  case fromLastMeasurement:{
+    if (m_useLastCaching){
+      SG::ReadHandle<CaloExtensionCollection>  LastCache(m_LastCacheKey,ctx);
       if (!LastCache.isValid()) {
         ATH_MSG_ERROR("Could not retrieve Last Cache " << LastCache.key());
         return StatusCode::FAILURE;
@@ -196,17 +200,23 @@ EMExtrapolationTools::getMatchAtCalo (const EventContext&           ctx,
         intersections=getIntersections(*extension,cluster); 
       }
     }
+  }break;
+
+  default:{
+    ATH_MSG_ERROR("Invalid ExtrapolateFrom "<<extrapFrom);
+  }
+
   }
   /*
    * Given the extension calculate the deta/dphi for the layers
    */
   if(!didExtension){
-    ATH_MSG_INFO("Could not create an extension from " << extrapFrom 
-                 <<  " for a track with : "
-                 << " Track Pt " <<trkPB->pt()
-                 << " Track Eta " <<trkPB->eta()
-                 << " Track Phi " <<trkPB->phi()
-                 <<" Track Fitter " << trkPB->trackFitter() );
+    ATH_MSG_DEBUG("Could not create an extension from " << extrapFrom 
+                  <<  " for a track with : "
+                  << " Track Pt " <<trkPB->pt()
+                  << " Track Eta " <<trkPB->eta()
+                  << " Track Phi " <<trkPB->phi()
+                  <<" Track Fitter " << trkPB->trackFitter() );
     return StatusCode::FAILURE; 
   }
   // Negative tracks bend to the positive direction.
@@ -453,10 +463,10 @@ EMExtrapolationTools::getRescaledPerigee(const xAOD::TrackParticle* trkPB, const
   Trk::PerigeeSurface surface (oldPerigee->position());
   //The surface has the correct offset in x and y 
   return std::unique_ptr<const Trk::TrackParameters> (surface.createParameters<5,Trk::Charged>(0,
-                                                                                              0,
-                                                                                              phi,
-                                                                                              theta,
-                                                                                              qoverp));
+                                                                                               0,
+                                                                                               phi,
+                                                                                               theta,
+                                                                                               qoverp));
 }
 /*
  * Helper to get the Eta/Phi intersections per Layer
@@ -470,7 +480,7 @@ EMExtrapolationTools::getIntersections (const Trk::CaloExtension& extension,
   if ( xAOD::EgammaHelpers::isBarrel( cluster )  ) {
     CaloExtensionHelpers::midPointEtaPhiPerLayerVector(extension, intersections, &barrelLayers );
   } else {
-   CaloExtensionHelpers::midPointEtaPhiPerLayerVector(extension, intersections, &endCapLayers );
+    CaloExtensionHelpers::midPointEtaPhiPerLayerVector(extension, intersections, &endCapLayers );
   }
   return intersections;
 }

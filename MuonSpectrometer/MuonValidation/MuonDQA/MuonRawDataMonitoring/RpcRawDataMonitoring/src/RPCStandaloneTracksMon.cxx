@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -18,7 +18,6 @@
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MuonReadoutElement.h"  
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
-#include "RPCcablingInterface/IRPCcablingServerSvc.h"
 
 #include "MuonRDO/RpcFiredChannel.h"
 #include "MuonRDO/RpcCoinMatrix.h"
@@ -49,9 +48,10 @@
 #include "RpcRawDataMonitoring/RPCStandaloneTracksMon.h"
 #include "RpcRawDataMonitoring/RpcGlobalUtilities.h"  
      
-#include <fstream> 
+#include <fstream>
 #include <sstream>
-#include <iostream>     
+#include <iostream>
+#include <cmath>
 
 using namespace std;
 
@@ -185,28 +185,8 @@ StatusCode RPCStandaloneTracksMon::initialize(){
     ATH_MSG_DEBUG ( " Found the MuonDetectorManager from detector store. " );
   }
 
-  sc = detStore->retrieve(m_rpcIdHelper,"RPCIDHELPER");
-  if (sc.isFailure())
-    {
-      ATH_MSG_ERROR ( "Can't retrieve RpcIdHelper" );
-      return sc;
-    }	 
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
     
-  // get RPC cablingSvc
-  const IRPCcablingServerSvc* RpcCabGet = 0;
-  sc = service("RPCcablingServerSvc", RpcCabGet);
-  if (sc.isFailure()) {
-    ATH_MSG_WARNING ( "Could not get RPCcablingServerSvc !" );
-    return StatusCode::FAILURE;
-  }
- 
-  sc = RpcCabGet->giveCabling(m_cabling);
-  if (sc.isFailure()) {
-    ATH_MSG_WARNING ( "Could not get RPCcablingSvc from the Server !" );
-    m_cabling = 0;
-    return StatusCode::FAILURE;
-  } else { ATH_MSG_DEBUG ( " Found the RPCcablingSvc. " );    }
-
   m_hardware_name_list.push_back("XXX");
   
   ManagedMonitorToolBase::initialize().ignore();  //  Ignore the checking code;
@@ -554,14 +534,14 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
             
 		int irpc_clus_size     =  ((*rpcCollection)->rdoList()).size();
 		double irpc_clus_time     =  (*rpcCollection)->time()            ;
-		int irpc_clus_station  =  m_rpcIdHelper->stationName(prd_id)  ;
-		int irpc_clus_eta      =  m_rpcIdHelper->stationEta(prd_id)   ;
-		int irpc_clus_phi      =  m_rpcIdHelper->stationPhi(prd_id)   ;
-		int irpc_clus_doublr   =  m_rpcIdHelper->doubletR(prd_id)     ;
-		int irpc_clus_doublz   =  m_rpcIdHelper->doubletZ(prd_id)     ;
-		int irpc_clus_doublphi =  m_rpcIdHelper->doubletPhi(prd_id)   ;
-		int irpc_clus_gasgap   =  m_rpcIdHelper->gasGap(prd_id)       ;
-		int irpc_clus_measphi  =  m_rpcIdHelper->measuresPhi(prd_id)  ;
+		int irpc_clus_station  =  m_muonIdHelperTool->rpcIdHelper().stationName(prd_id)  ;
+		int irpc_clus_eta      =  m_muonIdHelperTool->rpcIdHelper().stationEta(prd_id)   ;
+		int irpc_clus_phi      =  m_muonIdHelperTool->rpcIdHelper().stationPhi(prd_id)   ;
+		int irpc_clus_doublr   =  m_muonIdHelperTool->rpcIdHelper().doubletR(prd_id)     ;
+		int irpc_clus_doublz   =  m_muonIdHelperTool->rpcIdHelper().doubletZ(prd_id)     ;
+		int irpc_clus_doublphi =  m_muonIdHelperTool->rpcIdHelper().doubletPhi(prd_id)   ;
+		int irpc_clus_gasgap   =  m_muonIdHelperTool->rpcIdHelper().gasGap(prd_id)       ;
+		int irpc_clus_measphi  =  m_muonIdHelperTool->rpcIdHelper().measuresPhi(prd_id)  ;
           
  		// get the average strip and cluster position
  	    		  
@@ -571,7 +551,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		  Identifier id = ((*rpcCollection)->rdoList())[i] ;
 		  const MuonGM::RpcReadoutElement* descriptor = m_muonMgr->getRpcReadoutElement(id);
 		  stripPosC += descriptor->stripPos(id);
-		  int strip = int(m_rpcIdHelper->strip(id))            ;
+		  int strip = int(m_muonIdHelperTool->rpcIdHelper().strip(id))            ;
 		  av_strip += float(strip)                         ;
 		}
 		if( irpc_clus_size != 0 ){ 
@@ -584,7 +564,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
             
 	    		  
 		//get information from geomodel to book and fill rpc histos with the right max strip number
-		std::vector<int> rpcstripshift   = RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper,prd_id, 0)  ;
+		std::vector<int> rpcstripshift   = RpcGM::RpcStripShift(m_muonMgr,m_muonIdHelperTool->rpcIdHelper(),prd_id, 0)  ;
 	    		  
 		int ShiftEtaStripsTot  =  rpcstripshift[8] ;
 		int EtaStripSign       =  rpcstripshift[10];
@@ -597,7 +577,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		m_SummaryHist_Idx = (Settore-1)*m_SummaryHist_Size/16;
  
 		//get name for titles and labels 
-		std::vector<std::string>   rpclayersectorsidename = RpcGM::RpcLayerSectorSideName(m_rpcIdHelper,prd_id, 0)  ;
+		std::vector<std::string>   rpclayersectorsidename = RpcGM::RpcLayerSectorSideName(m_muonIdHelperTool->rpcIdHelper(),prd_id, 0)  ;
   	       
                 std::string layer_name               = rpclayersectorsidename[0] ;
                 std::string layertodraw1_name        = rpclayersectorsidename[1] ;
@@ -706,14 +686,14 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		    Identifier prd_idII = (*rpcCollectionII)->identify();
 
 		    int irpc_clus_sizeII     = ((*rpcCollectionII)->rdoList()).size();
-		    int irpc_clus_stationII  =  m_rpcIdHelper->stationName(prd_idII) ;
-		    int irpc_clus_etaII      =  m_rpcIdHelper->stationEta(prd_idII)  ;
-		    int irpc_clus_phiII      =  m_rpcIdHelper->stationPhi(prd_idII)  ;
-		    int irpc_clus_doublrII   =  m_rpcIdHelper->doubletR(prd_idII)    ;
-		    int irpc_clus_doublzII   =  m_rpcIdHelper->doubletZ(prd_idII)    ;
-		    int irpc_clus_doublphiII =  m_rpcIdHelper->doubletPhi(prd_idII)  ;
-		    int irpc_clus_gasgapII   =  m_rpcIdHelper->gasGap(prd_idII)      ; 
-		    int irpc_clus_measphiII  =  m_rpcIdHelper->measuresPhi(prd_idII) ;
+		    int irpc_clus_stationII  =  m_muonIdHelperTool->rpcIdHelper().stationName(prd_idII) ;
+		    int irpc_clus_etaII      =  m_muonIdHelperTool->rpcIdHelper().stationEta(prd_idII)  ;
+		    int irpc_clus_phiII      =  m_muonIdHelperTool->rpcIdHelper().stationPhi(prd_idII)  ;
+		    int irpc_clus_doublrII   =  m_muonIdHelperTool->rpcIdHelper().doubletR(prd_idII)    ;
+		    int irpc_clus_doublzII   =  m_muonIdHelperTool->rpcIdHelper().doubletZ(prd_idII)    ;
+		    int irpc_clus_doublphiII =  m_muonIdHelperTool->rpcIdHelper().doubletPhi(prd_idII)  ;
+		    int irpc_clus_gasgapII   =  m_muonIdHelperTool->rpcIdHelper().gasGap(prd_idII)      ; 
+		    int irpc_clus_measphiII  =  m_muonIdHelperTool->rpcIdHelper().measuresPhi(prd_idII) ;
 	   
 		    if(irpc_clus_measphi  == irpc_clus_measphiII )continue;
 		    if(irpc_clus_station  != irpc_clus_stationII )continue;
@@ -731,8 +711,8 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		    float avstripeta = 0        ;
 		    float avstripphi = av_strip ; 
 		  
-		    ShiftEtaStripsTot = RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper,prd_idII, 0)[8]  ;  // angelo 07 oct 2009
-		    EtaStripSign      = RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper,prd_idII, 0)[10] ;  // angelo 07 oct 2009
+		    ShiftEtaStripsTot = RpcGM::RpcStripShift(m_muonMgr,m_muonIdHelperTool->rpcIdHelper(),prd_idII, 0)[8]  ;  // angelo 07 oct 2009
+		    EtaStripSign      = RpcGM::RpcStripShift(m_muonMgr,m_muonIdHelperTool->rpcIdHelper(),prd_idII, 0)[10] ;  // angelo 07 oct 2009
 
 		    // get the average strip and cluster position
 	            
@@ -743,7 +723,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		      Identifier id = ((*rpcCollectionII)->rdoList())[i]             ;
 		      const MuonGM::RpcReadoutElement* descriptor = m_muonMgr->getRpcReadoutElement(id);
 		      stripPosCII += descriptor->stripPos(id);
-		      avstripeta += float(m_rpcIdHelper->strip(id)) ;
+		      avstripeta += float(m_muonIdHelperTool->rpcIdHelper().strip(id)) ;
 		    }
 		    if( irpc_clus_sizeII != 0 ){ 
 		      avstripeta=  avstripeta/ irpc_clus_sizeII ;
@@ -794,7 +774,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 	                if( !metrack   ) continue;		        
 			
 			ATH_MSG_DEBUG("xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle found for this muon ");
-		        if(  sqrt(fabs(irpc_clus_posetaII-metrack->eta())*fabs(irpc_clus_posetaII-metrack->eta()) +  fabs(irpc_clus_posphi-metrack->phi())*fabs(irpc_clus_posphi-metrack->phi())) <   m_MuonDeltaRMatching) foundmatch3DwithMuon = true ;
+		        if(  std::sqrt(std::fabs(irpc_clus_posetaII-metrack->eta())*std::fabs(irpc_clus_posetaII-metrack->eta()) +  fabs(irpc_clus_posphi-metrack->phi())*fabs(irpc_clus_posphi-metrack->phi())) <   m_MuonDeltaRMatching) foundmatch3DwithMuon = true ;
 		    	      
 		     }}//end muons
 		    
@@ -995,7 +975,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 	    const xAOD::TrackParticle* metrack = muons->trackParticle( xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle );
             
 	    if( !metrack   ) continue;
-	    if( fabs(metrack->eta())>1) continue;
+	    if( std::fabs(metrack->eta())>1) continue;
 	    sc = rpc_triggerefficiency.getHist( m_hMEtracks  ,"hMEtracks" ) ;		  
 	    if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't get " << " hMEtracks " );
 	    if(m_hMEtracks)m_hMEtracks->Fill( metrack->pt() / 1000.);
@@ -1039,7 +1019,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
             for ( Muon::RpcCoinDataCollection::const_iterator it_collection = (*it_container)->begin(); it_collection != (*it_container)->end(); ++it_collection ) { // each collection is a trigger signal
 	     if( (*it_collection)->isLowPtCoin()  == 0  && (*it_collection)->isHighPtCoin() == 0 ) continue ; 
 	     prdcoll_id   = (*it_collection)->identify();
-             if(m_rpcIdHelper->measuresPhi(prdcoll_id))continue;
+             if(m_muonIdHelperTool->rpcIdHelper().measuresPhi(prdcoll_id))continue;
 	     int cointhr = (*it_collection)->threshold();
              descriptor_Atl = m_muonMgr->getRpcReadoutElement( prdcoll_id );
              eta_atlas = descriptor_Atl->stripPos(prdcoll_id ).eta();
@@ -1047,32 +1027,31 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 	     
 	     
 	     //std::cout << " Trigger Hits " << eta_atlas << " "<< phi_atlas <<std::endl;
-             if(m_rpcIdHelper->measuresPhi(prdcoll_id))continue;
-	     if( sqrt( fabs(eta_atlas-metrack->eta())*fabs(eta_atlas-metrack->eta()) +  fabs(phi_atlas-metrack->phi())*fabs(phi_atlas-metrack->phi()) ) < m_MuonDeltaRMatching) { 
+             if(m_muonIdHelperTool->rpcIdHelper().measuresPhi(prdcoll_id))continue;
+	     if( std::sqrt( std::fabs(eta_atlas-metrack->eta())*std::fabs(eta_atlas-metrack->eta()) +  std::fabs(phi_atlas-metrack->phi())*std::fabs(phi_atlas-metrack->phi()) ) < m_MuonDeltaRMatching) { 
 	      //Second coin phi view
 	      for( it_container_phi = rpc_coin_container->begin(); it_container_phi != rpc_coin_container->end(); ++it_container_phi ) {
                for ( Muon::RpcCoinDataCollection::const_iterator it_collection_phi = (*it_container_phi)->begin(); it_collection_phi != (*it_container_phi)->end(); ++it_collection_phi ) { // each collection is a trigger signal
 	         if( (*it_collection_phi)->isLowPtCoin()  == 0  && (*it_collection_phi)->isHighPtCoin() == 0 ) continue ; ;
 	         prdcoll_id_phi   = (*it_collection_phi)->identify(); 
-	         if(m_rpcIdHelper->measuresPhi(prdcoll_id_phi)==0)continue;
+	         if(m_muonIdHelperTool->rpcIdHelper().measuresPhi(prdcoll_id_phi)==0)continue;
 		 int cointhrphi = (*it_collection)->threshold();
-		 if(m_rpcIdHelper->stationPhi (prdcoll_id) != m_rpcIdHelper->stationPhi (prdcoll_id_phi))  continue ;	   
-		 if(m_rpcIdHelper->stationName(prdcoll_id) != m_rpcIdHelper->stationName(prdcoll_id_phi))  continue ;	   
-		 if(m_rpcIdHelper->stationEta (prdcoll_id) != m_rpcIdHelper->stationEta (prdcoll_id_phi))  continue ;		   
-		 if(m_rpcIdHelper->doubletR   (prdcoll_id) != m_rpcIdHelper->doubletR	(prdcoll_id_phi))  continue ;
-		 if(m_rpcIdHelper->doubletZ   (prdcoll_id) != m_rpcIdHelper->doubletZ	(prdcoll_id_phi))  continue ;
-		 if(m_rpcIdHelper->doubletPhi (prdcoll_id) != m_rpcIdHelper->doubletPhi (prdcoll_id_phi))  continue ;
-		 if(m_rpcIdHelper->gasGap     (prdcoll_id) != m_rpcIdHelper->gasGap	(prdcoll_id_phi))  continue ;  
+		 if(m_muonIdHelperTool->rpcIdHelper().stationPhi (prdcoll_id) != m_muonIdHelperTool->rpcIdHelper().stationPhi (prdcoll_id_phi))  continue ;	   
+		 if(m_muonIdHelperTool->rpcIdHelper().stationName(prdcoll_id) != m_muonIdHelperTool->rpcIdHelper().stationName(prdcoll_id_phi))  continue ;	   
+		 if(m_muonIdHelperTool->rpcIdHelper().stationEta (prdcoll_id) != m_muonIdHelperTool->rpcIdHelper().stationEta (prdcoll_id_phi))  continue ;		   
+		 if(m_muonIdHelperTool->rpcIdHelper().doubletR   (prdcoll_id) != m_muonIdHelperTool->rpcIdHelper().doubletR	(prdcoll_id_phi))  continue ;
+		 if(m_muonIdHelperTool->rpcIdHelper().doubletZ   (prdcoll_id) != m_muonIdHelperTool->rpcIdHelper().doubletZ	(prdcoll_id_phi))  continue ;
+		 if(m_muonIdHelperTool->rpcIdHelper().doubletPhi (prdcoll_id) != m_muonIdHelperTool->rpcIdHelper().doubletPhi (prdcoll_id_phi))  continue ;
+		 if(m_muonIdHelperTool->rpcIdHelper().gasGap     (prdcoll_id) != m_muonIdHelperTool->rpcIdHelper().gasGap	(prdcoll_id_phi))  continue ;  
             
-		 if( fabs((*it_collection)->time() -  (*it_collection_phi)->time()) > 50. ) continue ;  
+		 if( std::fabs((*it_collection)->time() -  (*it_collection_phi)->time()) > 50. ) continue ;  
 		 if( (*it_collection)->isLowPtCoin() != (*it_collection_phi)->isLowPtCoin()  || (*it_collection)->isHighPtCoin() != (*it_collection_phi)->isHighPtCoin()) continue ; 
 	     
 	          
                  descriptor_Atl = m_muonMgr->getRpcReadoutElement( prdcoll_id_phi );
                  eta_atlas = descriptor_Atl->stripPos(prdcoll_id_phi ).eta();
                  phi_atlas = descriptor_Atl->stripPos(prdcoll_id_phi ).phi(); 
-		 //std::cout <<" Trigger Hits ETA PHI " << eta_atlas<<" "  << phi_atlas << " "<< (*it_collection)-> isLowPtCoin()<< " "  << (*it_collection)->isHighPtCoin() <<" "<<cointhr <<" "<< cointhr<<" "<<cointhrphi<<std::endl;	
-		 if( sqrt( fabs(eta_atlas-metrack->eta())*fabs(eta_atlas-metrack->eta()) +  fabs(phi_atlas-metrack->phi())*fabs(phi_atlas-metrack->phi()) ) < m_MuonDeltaRMatching) {		    
+		 if( std::sqrt( std::fabs(eta_atlas-metrack->eta())*std::fabs(eta_atlas-metrack->eta()) + std::fabs(phi_atlas-metrack->phi())*std::fabs(phi_atlas-metrack->phi()) ) < m_MuonDeltaRMatching) {		    
 		    
 		    int minthrview = cointhr ; if(cointhrphi<minthrview)minthrview = cointhrphi; 
 		    if( (*it_collection)-> isLowPtCoin() &&  (*it_collection_phi)-> isLowPtCoin()){
@@ -1160,7 +1139,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		    double deta =   metrack->eta()-i_muctpi_rdo_roi_list->eta ;
 	            double dphi =   metrack->phi()-i_muctpi_rdo_roi_list->phi ;
 		    
-	            double dr   = sqrt(deta*deta+dphi*dphi);
+	            double dr   = std::sqrt(deta*deta+dphi*dphi);
 		    int thr     = i_muctpi_rdo_roi_list->thrNumber;
 		    if(dr<m_MuonDeltaRMatching ){
 		      if(thr>=0&&!foundmatchmuctpi_thr0){
@@ -1243,35 +1222,19 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
  		if(Rpc_track[ i_3D0 ]>0||PlaneType.at(i_3D0)!=0)continue;//Start always with no-track assigned LowPt plane
  		int PointperTrack = 1  ;
  		Rpc_track[ i_3D0 ] = N_Rpc_Tracks + 1 ;//preliminary assigned
-		/*std::cout << "First Cluster 3D " << i_3D0 <<" on LayerType[0-5] =" 
-		  <<LayerType.at(i_3D0)<<" "<< (Rpc_Point.at(i_3D0)).x() << " " << (Rpc_Point.at(i_3D0)).y() << " " <<(Rpc_Point.at(i_3D0)).z() 
-		  <<" station/eta/phi/dbR/dbZ/dbP/gg = "<< Rpc_Station_3D.at(i_3D0)<<"/"<<Rpc_Eta_3D.at(i_3D0)<<"/"<
-		  <Rpc_Phi_3D.at(i_3D0)<<"/"<<Rpc_DBLr_3D.at(i_3D0)<<"/"<<Rpc_DBLz_3D.at(i_3D0)<<"/"<<Rpc_DBLphi_3D.at(i_3D0)
-		  <<"/"<<Rpc_GasGap_3D.at(i_3D0)<<std::endl ;*/
  		int linkedtrack   = 0 ;
                 PointperTrack = 0;
 		for (int i_3DI=0;i_3DI!=N_Rpc_Clusters3D;i_3DI++) {
 	          if( !(Rpc_Matched_mu.at(i_3DI))  && m_StandAloneMatchedWithTrack )continue;
 		  if(linkedtrack == 1 ) continue ;
-		  if(  abs(Rpc_Eta_3D.at(i_3DI)-Rpc_Eta_3D.at(i_3D0)) > EtaStationSpan )continue;
-		  if(  abs(Rpc_Phi_3D.at(i_3DI)-Rpc_Phi_3D.at(i_3D0)) > DoublePhiSpan  )continue;
+		  if(  std::abs(Rpc_Eta_3D.at(i_3DI)-Rpc_Eta_3D.at(i_3D0)) > EtaStationSpan )continue;
+		  if(  std::abs(Rpc_Phi_3D.at(i_3DI)-Rpc_Phi_3D.at(i_3D0)) > DoublePhiSpan  )continue;
 		  if(LayerType.at(i_3DI)==ilayertype &&  ilayertype!=6  )continue;
 		  if(Rpc_track[ i_3DI ]>0||PlaneType.at(i_3DI)!=1)continue;//Second always no-track assigned Pivot plane
 		  Rpc_track[ i_3DI ] = N_Rpc_Tracks + 1 ;
 		  PointperTrack = 2 ;
-		  /*  std::cout << "Second Cluster 3D " << i_3DI <<" on LayerType[0-5] =" <<LayerType.at(i_3DI)<<" "
-		      << (Rpc_Point.at(i_3DI)).x() << " " << (Rpc_Point.at(i_3DI)).y() << " " <<(Rpc_Point.at(i_3DI)).z() 
-		      <<" station/eta/phi/dbR/dbZ/dbP/gg = "<< Rpc_Station_3D.at(i_3DI)<<"/"<<Rpc_Eta_3D.at(i_3DI)<<"/"
-		      <<Rpc_Phi_3D.at(i_3DI)<<"/"<<Rpc_DBLr_3D.at(i_3DI)<<"/"<<Rpc_DBLz_3D.at(i_3DI)<<"/"<<Rpc_DBLphi_3D.at(i_3DI)<<"/"
-		      <<Rpc_GasGap_3D.at(i_3DI)<<std::endl ;*/
 		  SegVector = Rpc_Point.at(i_3DI)-Rpc_Point.at(i_3D0) ;	  
 		  SegPoint  =			Rpc_Point.at(i_3D0) ;
-		  /*std::cout << "for First-Second cluster pair: start     point="
-		    <<SegPoint.x() << " " <<SegPoint.y()<< " "<< SegPoint.z()
-		    <<" r/phi/z "<<SegPoint.perp()<<"/"<<SegPoint.phi()<<SegPoint.z()<<std::endl ;
-		    std::cout << "for First-Second cluster pair: 1-2Vector point="
-		    <<SegVector.x() << " " <<SegVector.y()<< " "<< SegVector.z()
-		    <<" r/phi/z "<<SegVector.perp()<<"/"<<SegVector.phi()<<SegVector.z()<<std::endl ;*/
 		  int lookforthirdII   = 0 ;
 		  int thirdlayertypeII = 0 ; 
 		  int thirdlayerHPt    = 0 ;
@@ -1283,18 +1246,8 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		    if(LayerType.at(i_3DII)==ilayertype &&  ilayertype!=6  )continue;
 		    if(Rpc_track[ i_3DII ]>0)continue;//Third no-track assigned LowPt or Pivot or HighPt plane
 		  
-		    /*
-		    std::cout << "Third Cluster 3D " << i_3DII <<" on LayerType[0-5] =" <<LayerType.at(i_3DII)<<" "<< (Rpc_Point.at(i_3DII)).x() << " " << (Rpc_Point.at(i_3DII)).y() << " " <<(Rpc_Point.at(i_3DII)).z() <<" station/eta/phi/dbR/dbZ/dbP/gg = "<< Rpc_Station_3D.at(i_3DII)<<"/"<<Rpc_Eta_3D.at(i_3DII)<<"/"<<Rpc_Phi_3D.at(i_3DII)<<"/"<<Rpc_DBLr_3D.at(i_3DII)<<"/"<<Rpc_DBLz_3D.at(i_3DII)<<"/"<<Rpc_DBLphi_3D.at(i_3DII)<<"/"<<Rpc_GasGap_3D.at(i_3DII)<<std::endl ;*/
-
 		    ImpactVector = (SegPoint-Rpc_Point.at(i_3DII)).cross(SegVector);	    
 		    if(SegVector.mag()!=0)ImpactVector = ImpactVector/ SegVector.mag();	   
-		    
-		    /*
-		      std::cout << "ImpactVector "<<ImpactVector.x() << " " <<ImpactVector.y()<< " "<< ImpactVector.z()<<std::endl ;
-		      std::cout << "SegVector "<<SegVector.x() << " " <<SegVector.y()<< " "<< SegVector.z()<<std::endl ;
-		      std::cout << "SegPoint "<<SegPoint.x() << " " <<SegPoint.y()<< " "<< SegPoint.z()<<std::endl ;
-		      std::cout << "Distance " << ImpactVector.mag() <<" to be compared with threshold = "<<MergePointDistance<<std::endl ;
-		    */
 		    
 		    if(ilayertype<6){
 		     m_f_rpcmergepointdistance -> Fill (ImpactVector.mag()) ;
@@ -1484,7 +1437,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
  
 		      float projx   =  x0Phi + xyPhi * Rpc_y_3D.at(i_3D);
 		      res	  = (projx -Rpc_x_3D.at(i_3D))        ;
-		      float cosyx = cos(( (2*(Rpc_Phi_3D.at(i_3D)-1) + SmallLarge.at(i_3D) -5) )*3.14159265/8) ;
+		      float cosyx = std::cos(( (2*(Rpc_Phi_3D.at(i_3D)-1) + SmallLarge.at(i_3D) -5) )*M_PI/8) ;
 		      res = res * cosyx ;
 		                            
 		      if ( m_rpcPhiResidual!=0  &&  ilayertype==6  ) {m_rpcPhiResidual->Fill( res );}
@@ -1494,15 +1447,12 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		      chi2dofphi  += residual2/(PointperTrack-2)/81.0   ;
 		    }
  
-                    //std::cout << "Fitting z0Eta " << z0Eta << " zyEta " << zyEta << " chi2/dof " << chi2dofeta << std::endl ;
-                    //std::cout << "Fitting x0Phi " << x0Phi << " xyPhi " << xyPhi << " chi2/dof " << chi2dofphi << std::endl ;
 		  
 		    chi2dof = (chi2dofeta + chi2dofphi)/2. ;
 		    if ( ilayertype==6  )  {
 		      m_rpcchi2dof         -> Fill (chi2dof) ;
 		      m_rpcetavsphichi2dof -> Fill (chi2dofphi,chi2dofeta) ;
-		      //std::cout << "t2av - tav*tav " << t2av << " " << tav*tav <<  std::endl ;
-		      trms = sqrt(fabs(t2av - tav*tav));
+		      trms = std::sqrt(std::fabs(t2av - tav*tav));
 		      m_rpcTimeTrackRMS -> Fill (trms) ;
 		      for (int i_3D=0;i_3D!=N_Rpc_Clusters3D;i_3D++) {
 			if(Rpc_track[ i_3D ] != N_Rpc_Tracks) continue;
@@ -1548,15 +1498,15 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		    }
 		  		  
 
-		    float anglephi = 90-atan(abs(xyPhi))*180/3.141592653   ; //atan between -pi/2 and pi/2 , anglephi from 180 to 0	
+		    float anglephi = 90-std::atan(std::fabs(xyPhi))*180/M_PI   ; //atan between -pi/2 and pi/2 , anglephi from 180 to 0	
 		    if(xyPhi<0) anglephi = 180.-anglephi;	   
 	    	      
-		    float rho    = sqrt( xyPhi*xyPhi + 1 + zyEta*zyEta);
+		    float rho    = std::sqrt( xyPhi*xyPhi + 1 + zyEta*zyEta);
 		    float costh  = zyEta/rho ;
-		    float sinth  = sqrt(1-costh*costh);
+		    float sinth  = std::sqrt(1-costh*costh);
 		    float pseta  = sinth / (1+costh)  ;
 		     
-		    if(pseta>0) pseta = -log(pseta) ;
+		    if(pseta>0) pseta = -std::log(pseta) ;
 		      	 	      
 		    		  
 		    if( ilayertype==6  ){
@@ -1643,10 +1593,10 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 				    if(phipitch <10||etapitch <10) continue ;
 				    if(phipitch >50||etapitch >50) continue ;
     
-				    Identifier ideta1  =  m_rpcIdHelper->channelID(idr, iz, idp, ig, 0, 1)	 ;
-				    Identifier idetaN  =  m_rpcIdHelper->channelID(idr, iz, idp, ig, 0, etastripN) ;
-				    Identifier idphi1  =  m_rpcIdHelper->channelID(idr, iz, idp, ig, 1, 1)	 ;
-				    Identifier idphiN  =  m_rpcIdHelper->channelID(idr, iz, idp, ig, 1, phistripN) ;
+				    Identifier ideta1  =  m_muonIdHelperTool->rpcIdHelper().channelID(idr, iz, idp, ig, 0, 1)	 ;
+				    Identifier idetaN  =  m_muonIdHelperTool->rpcIdHelper().channelID(idr, iz, idp, ig, 0, etastripN) ;
+				    Identifier idphi1  =  m_muonIdHelperTool->rpcIdHelper().channelID(idr, iz, idp, ig, 1, 1)	 ;
+				    Identifier idphiN  =  m_muonIdHelperTool->rpcIdHelper().channelID(idr, iz, idp, ig, 1, phistripN) ;
         
               
 				    if( !(rpc->containsId(ideta1)&&rpc->containsId(idetaN)&&rpc->containsId(idphi1)&&rpc->containsId(idphiN) )){
@@ -1751,12 +1701,12 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 					irpcstrip = int(hitstripphi+1);
 					if(irpcstrip<1||rpc->NphiStrips()<irpcstrip)continue;
 				      }
-				      Identifier prdcoll_id  =  m_rpcIdHelper->channelID(idr, iz, idp, ig, imeasphi, irpcstrip) ;
+				      Identifier prdcoll_id  =  m_muonIdHelperTool->rpcIdHelper().channelID(idr, iz, idp, ig, imeasphi, irpcstrip) ;
        
 				      if( prdcoll_id == 0 )continue;
         
 				      //get information from geomodel to book and fill rpc histos with the right max strip number
-				      std::vector<int>   rpcstripshift = RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper,prdcoll_id, 0)  ;
+				      std::vector<int>   rpcstripshift = RpcGM::RpcStripShift(m_muonMgr,m_muonIdHelperTool->rpcIdHelper(),prdcoll_id, 0)  ;
  
 				      int ShiftPhiStrips     =  rpcstripshift[1] ;
 				      int ShiftStrips	     =  rpcstripshift[4] ;
@@ -1771,7 +1721,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 				      m_SummaryHist_Idx = (Settore-1)*m_SummaryHist_Size/16;
  
 				      //get name for titles and labels 
-				      std::vector<std::string>   rpclayersectorsidename = RpcGM::RpcLayerSectorSideName(m_rpcIdHelper,prdcoll_id, 0)  ;
+				      std::vector<std::string>   rpclayersectorsidename = RpcGM::RpcLayerSectorSideName(m_muonIdHelperTool->rpcIdHelper(),prdcoll_id, 0)  ;
  
                                       std::string layer_name		   = rpclayersectorsidename[0] ;
                                       std::string layertodraw1_name	   = rpclayersectorsidename[1] ;
@@ -1887,14 +1837,14 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 					    ATH_MSG_DEBUG ( "Adding a new cluster " );
                
 					    int irpc_clus_size	 = ((*rpcCollection)->rdoList()).size();
-					    int irpc_clus_station  =  m_rpcIdHelper->stationName(prd_id) ;
-					    int irpc_clus_eta	 =  m_rpcIdHelper->stationEta(prd_id)  ;
-					    int irpc_clus_phi	 =  m_rpcIdHelper->stationPhi(prd_id)  ;
-					    int irpc_clus_doublr   =  m_rpcIdHelper->doubletR(prd_id)    ;
-					    int irpc_clus_doublz   =  m_rpcIdHelper->doubletZ(prd_id)    ;
-					    int irpc_clus_doublphi =  m_rpcIdHelper->doubletPhi(prd_id)  ;
-					    int irpc_clus_gasgap   =  m_rpcIdHelper->gasGap(prd_id)      ;
-					    int irpc_clus_measphi  =  m_rpcIdHelper->measuresPhi(prd_id) ;
+					    int irpc_clus_station  =  m_muonIdHelperTool->rpcIdHelper().stationName(prd_id) ;
+					    int irpc_clus_eta	 =  m_muonIdHelperTool->rpcIdHelper().stationEta(prd_id)  ;
+					    int irpc_clus_phi	 =  m_muonIdHelperTool->rpcIdHelper().stationPhi(prd_id)  ;
+					    int irpc_clus_doublr   =  m_muonIdHelperTool->rpcIdHelper().doubletR(prd_id)    ;
+					    int irpc_clus_doublz   =  m_muonIdHelperTool->rpcIdHelper().doubletZ(prd_id)    ;
+					    int irpc_clus_doublphi =  m_muonIdHelperTool->rpcIdHelper().doubletPhi(prd_id)  ;
+					    int irpc_clus_gasgap   =  m_muonIdHelperTool->rpcIdHelper().gasGap(prd_id)      ;
+					    int irpc_clus_measphi  =  m_muonIdHelperTool->rpcIdHelper().measuresPhi(prd_id) ;
              	
 					    if(irpc_clus_station    !=    iname   )continue;
 					    if(irpc_clus_eta	  !=     ieta   )continue;
@@ -1920,7 +1870,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 					      Identifier id = ((*rpcCollection)->rdoList())[i]	     ;
 					      const MuonGM::RpcReadoutElement* descriptor = m_muonMgr->getRpcReadoutElement(id);
 					      stripPosC += descriptor->stripPos(id)	   ;
-					      int strip	   = int(m_rpcIdHelper->strip(id)) ;
+					      int strip	   = int(m_muonIdHelperTool->rpcIdHelper().strip(id)) ;
 					      av_strip  += float(strip)		   ;
 					    }
 					    if( irpc_clus_size != 0 ){ 
@@ -1956,7 +1906,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 					    /*
 					      std::cout << "Look for cluster "<< irpc_clus_station << " iname  " << irpc_clus_eta << "  ieta " <<  irpc_clus_phi
 					      << "  iphi " << irpc_clus_doublr <<  " ir  " << irpc_clus_doublz << " iz " << irpc_clus_doublphi << "  idp " <<
-					      irpc_clus_gasgap << "  ig " << irpc_clus_size  << "  irpc_clus_size " << int(m_rpcIdHelper->strip(((*rpcCollection)->rdoList())[0]))   << 
+					      irpc_clus_gasgap << "  ig " << irpc_clus_size  << "  irpc_clus_size " << int(m_muonIdHelperTool->rpcIdHelper().strip(((*rpcCollection)->rdoList())[0]))   << 
 					      " strip e measphi " << irpc_clus_measphi<<std::endl;
 					    */
     
@@ -2073,8 +2023,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 
 					    //eta view
 					    if(irpc_clus_measphi==0 && foundonehiteta==0){
-					      //if(abs(hitstripeta-avstrip)<=nstripfiduceff){
-					      if(abs(residuals)<=m_resThEff){
+					      if(std::abs(residuals)<=m_resThEff){
 						if (rpchitontracklayer) {rpchitontracklayer->Fill( float( irpcstrip + ShiftStrips)  -0.5 );}
 						else {  ATH_MSG_DEBUG ( "rpcstriphitontracklayer not in hist list!" );}
 						if (m_LayerHitOnTrack) {m_LayerHitOnTrack->Fill( ilayertype + 6*imeasphi + 12*small_large);}
@@ -2101,12 +2050,12 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 			   
 						//incidence angle of tracks on surface (z,rho)
 			           
-			                        float norm3DGaprho = sqrt(norm3DGap.x() *  norm3DGap.x() + norm3DGap.y() *  norm3DGap.y()) ;
-			                        float Vect3DCosrho = sqrt(Vect3DCos.x() *  Vect3DCos.x() + Vect3DCos.y() *  Vect3DCos.y()) ;
+			                        float norm3DGaprho = std::sqrt(norm3DGap.x() *  norm3DGap.x() + norm3DGap.y() *  norm3DGap.y()) ;
+			                        float Vect3DCosrho = std::sqrt(Vect3DCos.x() *  Vect3DCos.x() + Vect3DCos.y() *  Vect3DCos.y()) ;
 						
 						double incAngle = norm3DGaprho *  Vect3DCosrho + norm3DGap.z() *  Vect3DCos.z() ;
-						float norm1 = sqrt(norm3DGaprho*norm3DGaprho+norm3DGap.z()*norm3DGap.z()) ;
-						float norm2 = sqrt(Vect3DCosrho*Vect3DCosrho+Vect3DCos.z()*Vect3DCos.z()) ;
+						float norm1 = std::sqrt(norm3DGaprho*norm3DGaprho+norm3DGap.z()*norm3DGap.z()) ;
+						float norm2 = std::sqrt(Vect3DCosrho*Vect3DCosrho+Vect3DCos.z()*Vect3DCos.z()) ;
 			  			   
 						if(norm1*norm2>0)incAngle = incAngle / norm1 / norm2 ;
 			  			  
@@ -2117,8 +2066,8 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 						//incidence angle of tracks on surface (x,y)
 			   
 						incAngle = norm3DGap.x() *  Vect3DCos.x() + norm3DGap.y() *  Vect3DCos.y() ;
-						norm1 = sqrt(norm3DGap.x()*norm3DGap.x()+norm3DGap.y()*norm3DGap.y()) ;
-						norm2 = sqrt(Vect3DCos.x()*Vect3DCos.x()+Vect3DCos.y()*Vect3DCos.y()) ;
+						norm1 = std::sqrt(norm3DGap.x()*norm3DGap.x()+norm3DGap.y()*norm3DGap.y()) ;
+						norm2 = std::sqrt(Vect3DCos.x()*Vect3DCos.x()+Vect3DCos.y()*Vect3DCos.y()) ;
 			   
 						if(norm1*norm2>0)incAngle = incAngle / norm1 / norm2 ;
 			   
@@ -2135,8 +2084,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 					       
 					    //phi view
 					    if(irpc_clus_measphi==1 && foundonehitphi==0){
-					      //if(abs(hitstripphi-avstrip)<=nstripfiduceff){
-					      if(abs(residuals)<=m_resThEff){
+					      if(std::abs(residuals)<=m_resThEff){
 						if (rpchitontracklayer) {rpchitontracklayer->Fill( float( irpcstrip + ShiftStrips)  -0.5 );}
 						else {  ATH_MSG_DEBUG ( "rpcstriphitontracklayer not in hist list!" );}
 						if (m_LayerHitOnTrack) {m_LayerHitOnTrack->Fill( ilayertype + 6*imeasphi + 12*small_large);}
@@ -2161,8 +2109,8 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 						//incidence angle of tracks on surface (x,y)
 			   
 						double incAngle = norm3DGap.x() *  Vect3DCos.x() + norm3DGap.y() *  Vect3DCos.y() ;
-						float norm1 = sqrt(norm3DGap.x()*norm3DGap.x()+norm3DGap.y()*norm3DGap.y()) ;
-						float norm2 = sqrt(Vect3DCos.x()*Vect3DCos.x()+Vect3DCos.y()*Vect3DCos.y()) ;
+						float norm1 = std::sqrt(norm3DGap.x()*norm3DGap.x()+norm3DGap.y()*norm3DGap.y()) ;
+						float norm2 = std::sqrt(Vect3DCos.x()*Vect3DCos.x()+Vect3DCos.y()*Vect3DCos.y()) ;
 			   
 						if(norm1*norm2>0)incAngle = incAngle / norm1 / norm2 ;
 			                              		      
@@ -2173,11 +2121,11 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 						//incidence angle of tracks on surface (z,rho)
 			                        
 			           
-			                        float norm3DGaprho = sqrt(norm3DGap.x() *  norm3DGap.x() + norm3DGap.y() *  norm3DGap.y()) ;
-			                        float Vect3DCosrho = sqrt(Vect3DCos.x() *  Vect3DCos.x() + Vect3DCos.y() *  Vect3DCos.y()) ;
+			                        float norm3DGaprho = std::sqrt(norm3DGap.x() *  norm3DGap.x() + norm3DGap.y() *  norm3DGap.y()) ;
+			                        float Vect3DCosrho = std::sqrt(Vect3DCos.x() *  Vect3DCos.x() + Vect3DCos.y() *  Vect3DCos.y()) ;
 						incAngle = norm3DGaprho *  Vect3DCosrho + norm3DGap.z() *  Vect3DCos.z() ;
-						norm1 = sqrt(norm3DGaprho*norm3DGaprho+norm3DGap.z()*norm3DGap.z()) ;
-						norm2 = sqrt(Vect3DCosrho*Vect3DCosrho+Vect3DCos.z()*Vect3DCos.z()) ;
+						norm1 = std::sqrt(norm3DGaprho*norm3DGaprho+norm3DGap.z()*norm3DGap.z()) ;
+						norm2 = std::sqrt(Vect3DCosrho*Vect3DCosrho+Vect3DCos.z()*Vect3DCos.z()) ;
 			 			   
 						if(norm1*norm2>0)incAngle = incAngle / norm1 / norm2 ;
 			  			  		  
@@ -2299,14 +2247,14 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 	        ATH_MSG_DEBUG ( "Adding a new cluster " );
 	     
 		int irpc_clus_size     =  ((*rpcCollection)->rdoList()).size();
-		int irpc_clus_station  =  m_rpcIdHelper->stationName(prd_id)  ;
-		int irpc_clus_eta      =  m_rpcIdHelper->stationEta(prd_id)   ;
-		int irpc_clus_phi      =  m_rpcIdHelper->stationPhi(prd_id)   ;
-		int irpc_clus_doublr   =  m_rpcIdHelper->doubletR(prd_id)     ;
-		int irpc_clus_doublz   =  m_rpcIdHelper->doubletZ(prd_id)     ;
-		int irpc_clus_doublphi =  m_rpcIdHelper->doubletPhi(prd_id)   ;
-		int irpc_clus_gasgap   =  m_rpcIdHelper->gasGap(prd_id)       ;
-		int irpc_clus_measphi  =  m_rpcIdHelper->measuresPhi(prd_id)  ;
+		int irpc_clus_station  =  m_muonIdHelperTool->rpcIdHelper().stationName(prd_id)  ;
+		int irpc_clus_eta      =  m_muonIdHelperTool->rpcIdHelper().stationEta(prd_id)   ;
+		int irpc_clus_phi      =  m_muonIdHelperTool->rpcIdHelper().stationPhi(prd_id)   ;
+		int irpc_clus_doublr   =  m_muonIdHelperTool->rpcIdHelper().doubletR(prd_id)     ;
+		int irpc_clus_doublz   =  m_muonIdHelperTool->rpcIdHelper().doubletZ(prd_id)     ;
+		int irpc_clus_doublphi =  m_muonIdHelperTool->rpcIdHelper().doubletPhi(prd_id)   ;
+		int irpc_clus_gasgap   =  m_muonIdHelperTool->rpcIdHelper().gasGap(prd_id)       ;
+		int irpc_clus_measphi  =  m_muonIdHelperTool->rpcIdHelper().measuresPhi(prd_id)  ;
 
 		// get the cluster position
 		const MuonGM::RpcReadoutElement* descriptor = m_muonMgr->getRpcReadoutElement(prd_id);
@@ -2314,7 +2262,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		const Amg::Vector3D stripPosC = descriptor->stripPos(prd_id);
 	      
 		//get information from geomodel to book and fill rpc histos with the right max strip number
-		std::vector<int>   rpcstripshift = RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper,prd_id, 0)  ;
+		std::vector<int>   rpcstripshift = RpcGM::RpcStripShift(m_muonMgr,m_muonIdHelperTool->rpcIdHelper(),prd_id, 0)  ;
 	    		  
 		int PanelIndex  	 =  rpcstripshift[13]  ;
 		int Settore            =  rpcstripshift[14];
@@ -2323,7 +2271,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		m_SummaryHist_Idx = (Settore-1)*m_SummaryHist_Size/16;
  
 		//get name for titles and labels
-		std::vector<std::string>   rpclayersectorsidename = RpcGM::RpcLayerSectorSideName(m_rpcIdHelper,prd_id, 0)  ;
+		std::vector<std::string>   rpclayersectorsidename = RpcGM::RpcLayerSectorSideName(m_muonIdHelperTool->rpcIdHelper(),prd_id, 0)  ;
   	       
                 std::string layer_name	       = rpclayersectorsidename[ 0]  ;
                 std::string layertodraw1_name	       = rpclayersectorsidename[ 1]  ;
@@ -2340,7 +2288,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
                 std::string ssector_dphi_layer        = rpclayersectorsidename[12]  ;
 	      
 	      
-		irpc_clus_measphi  =  m_rpcIdHelper->measuresPhi(prd_id)  ;	
+		irpc_clus_measphi  =  m_muonIdHelperTool->rpcIdHelper().measuresPhi(prd_id)  ;	
 		
 		const MuonGM::RpcReadoutElement* rpc = 
 		  m_muonMgr->getRpcRElement_fromIdFields(irpc_clus_station, irpc_clus_eta, irpc_clus_phi, 
@@ -2379,11 +2327,9 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		    (norm3DGap.dot(RpcTrack_Vect3DCos .at(i_RpcTrack) ));
 	       
 		  Inters3DL	 = ((rpc->transform(prd_id)).inverse())* Inters3DG   ;  				    
-		  //if(  	Inters3DL       == NULL ) return StatusCode::SUCCESS;	     
 		  stripPosCL	 = ((rpc->transform(prd_id)).inverse())* stripPosC   ;				    
-		  //if(  	 stripPosCL       == NULL ) return StatusCode::SUCCESS;
                   
-		  float distance = fabs(Inters3DL.x() -  stripPosCL.x());
+		  float distance = std::fabs(Inters3DL.x() -  stripPosCL.x());
 	        
 		
 		  if(distance<MergePointDistance) {
@@ -2408,14 +2354,14 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 	     
 	            ATH_MSG_DEBUG ( "Adding a new cluster " );
 	     
-		    int irpc_clus_stationII  =  m_rpcIdHelper->stationName(prd_idII) ;
-		    int irpc_clus_etaII      =  m_rpcIdHelper->stationEta(prd_idII)  ;
-		    int irpc_clus_phiII      =  m_rpcIdHelper->stationPhi(prd_idII)  ;
-		    int irpc_clus_doublrII   =  m_rpcIdHelper->doubletR(prd_idII)    ;
-		    int irpc_clus_doublzII   =  m_rpcIdHelper->doubletZ(prd_idII)    ;
-		    int irpc_clus_doublphiII =  m_rpcIdHelper->doubletPhi(prd_idII)  ;
-		    int irpc_clus_gasgapII   =  m_rpcIdHelper->gasGap(prd_idII)      ; 
-		    int irpc_clus_measphiII  =  m_rpcIdHelper->measuresPhi(prd_idII) ;
+		    int irpc_clus_stationII  =  m_muonIdHelperTool->rpcIdHelper().stationName(prd_idII) ;
+		    int irpc_clus_etaII      =  m_muonIdHelperTool->rpcIdHelper().stationEta(prd_idII)  ;
+		    int irpc_clus_phiII      =  m_muonIdHelperTool->rpcIdHelper().stationPhi(prd_idII)  ;
+		    int irpc_clus_doublrII   =  m_muonIdHelperTool->rpcIdHelper().doubletR(prd_idII)    ;
+		    int irpc_clus_doublzII   =  m_muonIdHelperTool->rpcIdHelper().doubletZ(prd_idII)    ;
+		    int irpc_clus_doublphiII =  m_muonIdHelperTool->rpcIdHelper().doubletPhi(prd_idII)  ;
+		    int irpc_clus_gasgapII   =  m_muonIdHelperTool->rpcIdHelper().gasGap(prd_idII)      ; 
+		    int irpc_clus_measphiII  =  m_muonIdHelperTool->rpcIdHelper().measuresPhi(prd_idII) ;
 	   
 	   
 		    if( irpc_clus_stationII  != irpc_clus_station     ) continue ;		 
@@ -3477,35 +3423,35 @@ StatusCode RPCStandaloneTracksMon::bookHistogramsRecurrent( )
 			    
 			    // Identifier gapID(int stationName, int stationEta, int stationPhi, int doubletR, int doubletZ, int doubletPhi,int gasGap, bool check=false, bool* isValid=0) const;
 			    // Identifier panelID  (int stationName, int stationEta, int stationPhi, int doubletR, int doubletZ, int doubletPhi,int gasGap, int measuresPhi, bool check=false, bool* isValid=0) const;
-			    panelId = m_rpcIdHelper->panelID(iname, ieta-8, int(i_sec/2)+1, ir+1, idbz+1, idbphi+1, igap+1, imeasphi) ; 
+			    panelId = m_muonIdHelperTool->rpcIdHelper().panelID(iname, ieta-8, int(i_sec/2)+1, ir+1, idbz+1, idbphi+1, igap+1, imeasphi) ; 
 			    
 			    indexplane = ir ;
 			    
 			    if ( ir==0 && (iname==4 || iname==5 || iname == 9 || iname == 10) )  indexplane = 2 ;
 			    
 			    
-			    panelBin = imeasphi + igap*2 + idbphi*4 + idbz*8 + indexplane*24 + abs(ieta-8)*72 ;
+			    panelBin = imeasphi + igap*2 + idbphi*4 + idbz*8 + indexplane*24 + std::abs(ieta-8)*72 ;
 			    
 			    //BOG0-4 one panel, BOF1-3 two panels, BOF4 one panel 
 			    if ( ir==0 && iname == 10 ) {
 			      // convention: BOG <-> doubletZ=4 <-> (3-1)*8=16
-			      panelBin = imeasphi + igap*2 + idbphi*4 + 16 + indexplane*24 + abs(ieta-8)*72 ;
+			      panelBin = imeasphi + igap*2 + idbphi*4 + 16 + indexplane*24 + std::abs(ieta-8)*72 ;
 			    }
 			    if ( ir==1 && iname == 10 ) {//feet extension BOG3-4
 			      // convention: BOG with ir=1 <-> doubletZ=3 <-> (3-1)*8=16
-			      panelBin = imeasphi + igap*2 + idbphi*4 + 16 + indexplane*24 + abs(ieta-8)*72 ;
+			      panelBin = imeasphi + igap*2 + idbphi*4 + 16 + indexplane*24 + std::abs(ieta-8)*72 ;
 			    }
 			    if ( ir==1 && iname ==  9 ) {//feet extension BOF2-3 and BOF4
 			      // convention: BOF with ir=1 <-> eta->eta+2
-			      panelBin = imeasphi + igap*2 + idbphi*4 + idbz*8 + indexplane*24 + (abs(ieta-8)+2)*72 ;
+			      panelBin = imeasphi + igap*2 + idbphi*4 + idbz*8 + indexplane*24 + (std::abs(ieta-8)+2)*72 ;
 			    }
 			    //sector 13 BME
 			    if ( iname==53 ) {
 			      // convention: BME <-> doubletZ=3 <-> (3-1)*8=16
-			      panelBin = imeasphi + igap*2 + idbphi*4 + 16 + indexplane*24 + abs(ieta-8)*72 ;
+			      panelBin = imeasphi + igap*2 + idbphi*4 + 16 + indexplane*24 + std::abs(ieta-8)*72 ;
 			    }
 			    //sector 13 BOL8
-			    if ( abs(ieta-8)==8 ) {
+			    if ( std::abs(ieta-8)==8 ) {
 			      // convention: BOL8 <-> eta->eta-1
 			      panelBin = imeasphi + igap*2 + idbphi*4 + 16 + indexplane*24 + 7*72 ;
 			    }
@@ -4631,7 +4577,7 @@ void RPCStandaloneTracksMon::bookRPCLayerRadiographyHistograms( int isec, std::s
       int NetaStripsTotSideC =  0;
       if(rpc != NULL ){
 	Identifier idr = rpc->identify();
-	std::vector<int>   rpcstripshift = RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper,idr, 0)  ;
+	std::vector<int>   rpcstripshift = RpcGM::RpcStripShift(m_muonMgr,m_muonIdHelperTool->rpcIdHelper(),idr, 0)  ;
         NphiStrips         =  rpcstripshift[0] ;
         NetaStripsTotSideA =  rpcstripshift[6] ;
         NetaStripsTotSideC =  rpcstripshift[7] ;
@@ -4824,10 +4770,10 @@ void RPCStandaloneTracksMon::bookRPCCoolHistograms_NotNorm( std::vector<std::str
   
   if(rpc != NULL ){  
     Identifier idr = rpc->identify();
-    std::vector<int>   rpcstripshift = RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper, idr, 0)  ;
+    std::vector<int>   rpcstripshift = RpcGM::RpcStripShift(m_muonMgr,m_muonIdHelperTool->rpcIdHelper(), idr, 0)  ;
     NTotStripsSideA = rpcstripshift[6]+rpcstripshift[17];
     Identifier idr_c = rpc_c->identify();
-    std::vector<int>   rpcstripshift_c = RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper, idr_c, 0)  ;
+    std::vector<int>   rpcstripshift_c = RpcGM::RpcStripShift(m_muonMgr,m_muonIdHelperTool->rpcIdHelper(), idr_c, 0)  ;
     NTotStripsSideC = rpcstripshift_c[7]+rpcstripshift_c[18];
    
   } 
@@ -4929,10 +4875,10 @@ void RPCStandaloneTracksMon::bookRPCCoolHistograms( std::vector<std::string>::co
   
   if(rpc != NULL ){  
     Identifier idr = rpc->identify();
-    std::vector<int>   rpcstripshift = RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper, idr, 0)  ;
+    std::vector<int>   rpcstripshift = RpcGM::RpcStripShift(m_muonMgr,m_muonIdHelperTool->rpcIdHelper(), idr, 0)  ;
     NTotStripsSideA = rpcstripshift[6]+rpcstripshift[17];
     Identifier idr_c = rpc_c->identify();
-    std::vector<int>   rpcstripshift_c = RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper, idr_c, 0)  ;
+    std::vector<int>   rpcstripshift_c = RpcGM::RpcStripShift(m_muonMgr,m_muonIdHelperTool->rpcIdHelper(), idr_c, 0)  ;
     NTotStripsSideC = rpcstripshift_c[7]+rpcstripshift_c[18];
    
   } 
@@ -5284,9 +5230,9 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	  if ( RPCLyTrkPrj>0 ) {
 	    RPCLyHitOnTr = m_LayerHitOnTrack ->GetBinContent ( ibin + 1 ) ;
 	    RPCLyEff     = RPCLyHitOnTr / RPCLyTrkPrj ;
-	    RPCLyEff_err = sqrt( fabs( RPCLyHitOnTr-0.5*0) / RPCLyTrkPrj ) *
-	      sqrt( 1. - fabs( RPCLyHitOnTr-0.5*0) / RPCLyTrkPrj ) /
-	      sqrt( RPCLyTrkPrj ) ;
+	    RPCLyEff_err = std::sqrt( std::fabs( RPCLyHitOnTr-0.5*0) / RPCLyTrkPrj ) *
+	      std::sqrt( 1. - std::fabs( RPCLyHitOnTr-0.5*0) / RPCLyTrkPrj ) /
+	      std::sqrt( RPCLyTrkPrj ) ;
 	  
 	    m_LayerEff->SetBinContent ( ibin + 1 , RPCLyEff     ) ;
 	    m_LayerEff->SetBinError   ( ibin + 1 , RPCLyEff_err ) ;
@@ -5295,9 +5241,9 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	  if ( RPCLyTrkPrj>0 ) {
 	    RPCLyHitOnTr = RPCBA_layerHitOnTrack ->GetBinContent ( ibin + 1 ) ;
 	    RPCLyEff     = RPCLyHitOnTr / RPCLyTrkPrj ;
-	    RPCLyEff_err = sqrt( fabs( RPCLyHitOnTr-0.5*0) / RPCLyTrkPrj ) *
-	      sqrt( 1. - fabs( RPCLyHitOnTr-0.5*0) / RPCLyTrkPrj ) /
-	      sqrt( RPCLyTrkPrj ) ;
+	    RPCLyEff_err = std::sqrt( std::fabs( RPCLyHitOnTr-0.5*0) / RPCLyTrkPrj ) *
+	      std::sqrt( 1. - fabs( RPCLyHitOnTr-0.5*0) / RPCLyTrkPrj ) /
+	      std::sqrt( RPCLyTrkPrj ) ;
 	  
 	    RPCBA_layerEfficiency->SetBinContent ( ibin + 1 , RPCLyEff     ) ;
 	    RPCBA_layerEfficiency->SetBinError   ( ibin + 1 , RPCLyEff_err ) ;
@@ -5306,9 +5252,9 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	  if ( RPCLyTrkPrj>0 ) {
 	    RPCLyHitOnTr = RPCBC_layerHitOnTrack ->GetBinContent ( ibin + 1 ) ;
 	    RPCLyEff     = RPCLyHitOnTr / RPCLyTrkPrj ;
-	    RPCLyEff_err = sqrt( fabs( RPCLyHitOnTr-0.5*0) / RPCLyTrkPrj ) *
-	      sqrt( 1. - fabs( RPCLyHitOnTr-0.5*0) / RPCLyTrkPrj ) /
-	      sqrt( RPCLyTrkPrj ) ;
+	    RPCLyEff_err = std::sqrt( std::fabs( RPCLyHitOnTr-0.5*0) / RPCLyTrkPrj ) *
+	      std::sqrt( 1. - fabs( RPCLyHitOnTr-0.5*0) / RPCLyTrkPrj ) /
+	      std::sqrt( RPCLyTrkPrj ) ;
 	  
 	    RPCBC_layerEfficiency->SetBinContent ( ibin + 1 , RPCLyEff     ) ;
 	    RPCBC_layerEfficiency->SetBinError   ( ibin + 1 , RPCLyEff_err ) ;
@@ -5325,160 +5271,160 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	    //hRPCPhiEtaCoinThr0
 	      int   RPCOnTr    = m_hRPCPhiEtaCoinThr[0] ->GetBinContent ( ibin + 1 ) ;
 	      float RPCEff     = RPCOnTr / TrkPrj ;
-	      float RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
-	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
-	      sqrt( TrkPrj ) ;	  
+	      float RPCEff_err = std::sqrt( std::fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      std::sqrt( 1. - std::fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      std::sqrt( TrkPrj ) ;	  
 	      m_hRPCPhiEtaCoinThr_eff[0]->SetBinContent ( ibin + 1 , RPCEff     ) ;
 	      m_hRPCPhiEtaCoinThr_eff[0]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
 	      
 	    //hRPCPhiEtaCoinThr1
 	      RPCOnTr      = m_hRPCPhiEtaCoinThr[1] ->GetBinContent ( ibin + 1 ) ;
 	      RPCEff     = RPCOnTr / TrkPrj ;
-	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
-	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
-	      sqrt( TrkPrj ) ;	  
+	      RPCEff_err = std::sqrt( std::fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      std::sqrt( 1. - std::fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      std::sqrt( TrkPrj ) ;	  
 	      m_hRPCPhiEtaCoinThr_eff[1]->SetBinContent ( ibin + 1 , RPCEff     ) ;
 	      m_hRPCPhiEtaCoinThr_eff[1]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
 	      
 	    //hRPCPhiEtaCoinThr2
 	      RPCOnTr      = m_hRPCPhiEtaCoinThr[2] ->GetBinContent ( ibin + 1 ) ;
 	      RPCEff     = RPCOnTr / TrkPrj ;
-	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
-	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
-	      sqrt( TrkPrj ) ;	  
+	      RPCEff_err = std::sqrt( std::fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      std::sqrt( 1. - std::fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      std::sqrt( TrkPrj ) ;	  
 	      m_hRPCPhiEtaCoinThr_eff[2]->SetBinContent ( ibin + 1 , RPCEff     ) ;
 	      m_hRPCPhiEtaCoinThr_eff[2]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
 	      
 	    //hRPCPhiEtaCoinThr3
 	      RPCOnTr      = m_hRPCPhiEtaCoinThr[3] ->GetBinContent ( ibin + 1 ) ;
 	      RPCEff     = RPCOnTr / TrkPrj ;
-	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
-	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
-	      sqrt( TrkPrj ) ;	  
+	      RPCEff_err = std::sqrt( std::fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      std::sqrt( 1. - std::fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      std::sqrt( TrkPrj ) ;	  
 	      m_hRPCPhiEtaCoinThr_eff[3]->SetBinContent ( ibin + 1 , RPCEff     ) ;
 	      m_hRPCPhiEtaCoinThr_eff[3]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
 	      
 	    //hRPCPhiEtaCoinThr4
 	      RPCOnTr      = m_hRPCPhiEtaCoinThr[4] ->GetBinContent ( ibin + 1 ) ;
 	      RPCEff     = RPCOnTr / TrkPrj ;
-	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
-	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
-	      sqrt( TrkPrj ) ;	  
+	      RPCEff_err = std::sqrt( std::fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      std::sqrt( 1. - std::fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      std::sqrt( TrkPrj ) ;	  
 	      m_hRPCPhiEtaCoinThr_eff[4]->SetBinContent ( ibin + 1 , RPCEff     ) ;
 	      m_hRPCPhiEtaCoinThr_eff[4]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
 	      
 	    //hRPCPhiEtaCoinThr5
 	      RPCOnTr      = m_hRPCPhiEtaCoinThr[5] ->GetBinContent ( ibin + 1 ) ;
 	      RPCEff     = RPCOnTr / TrkPrj ;
-	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
-	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
-	      sqrt( TrkPrj ) ;	  
+	      RPCEff_err = std::sqrt( std::fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      std::sqrt( 1. - std::fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      std::sqrt( TrkPrj ) ;	  
 	      m_hRPCPhiEtaCoinThr_eff[5]->SetBinContent ( ibin + 1 , RPCEff     ) ;
 	      m_hRPCPhiEtaCoinThr_eff[5]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
 	    //hRPCPadThr0
 	      RPCOnTr	 = m_hRPCPadThr[0] ->GetBinContent ( ibin + 1 ) ;
 	      RPCEff	 = RPCOnTr / TrkPrj ;
-	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
-	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
-	      sqrt( TrkPrj ) ;	  
+	      RPCEff_err = std::sqrt( std::fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      std::sqrt( 1. - std::fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      std::sqrt( TrkPrj ) ;	  
 	      m_hRPCPadThr_eff[0]->SetBinContent ( ibin + 1 , RPCEff     ) ;
 	      m_hRPCPadThr_eff[0]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
 	      
 	    //hRPCPadThr1
 	      RPCOnTr      = m_hRPCPadThr[1] ->GetBinContent ( ibin + 1 ) ;
 	      RPCEff     = RPCOnTr / TrkPrj ;
-	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
-	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
-	      sqrt( TrkPrj ) ;	  
+	      RPCEff_err = std::sqrt( std::fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      std::sqrt( 1. - std::fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      std::sqrt( TrkPrj ) ;	  
 	      m_hRPCPadThr_eff[1]->SetBinContent ( ibin + 1 , RPCEff     ) ;
 	      m_hRPCPadThr_eff[1]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
 	      
 	    //hRPCPadThr2
 	      RPCOnTr      = m_hRPCPadThr[2] ->GetBinContent ( ibin + 1 ) ;
 	      RPCEff     = RPCOnTr / TrkPrj ;
-	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
-	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
-	      sqrt( TrkPrj ) ;	  
+	      RPCEff_err = std::sqrt( std::fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      std::sqrt( 1. - std::fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      std::sqrt( TrkPrj ) ;	  
 	      m_hRPCPadThr_eff[2]->SetBinContent ( ibin + 1 , RPCEff     ) ;
 	      m_hRPCPadThr_eff[2]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
 	      
 	    //hRPCPadThr3
 	      RPCOnTr      = m_hRPCPadThr[3] ->GetBinContent ( ibin + 1 ) ;
 	      RPCEff     = RPCOnTr / TrkPrj ;
-	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
-	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
-	      sqrt( TrkPrj ) ;	  
+	      RPCEff_err = std::sqrt( std::fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      std::sqrt( 1. - std::fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      std::sqrt( TrkPrj ) ;	  
 	      m_hRPCPadThr_eff[3]->SetBinContent ( ibin + 1 , RPCEff     ) ;
 	      m_hRPCPadThr_eff[3]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
 	      
 	    //hRPCPadThr4
 	      RPCOnTr      = m_hRPCPadThr[4] ->GetBinContent ( ibin + 1 ) ;
 	      RPCEff     = RPCOnTr / TrkPrj ;
-	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
-	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
-	      sqrt( TrkPrj ) ;	  
+	      RPCEff_err = std::sqrt( std::fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      std::sqrt( 1. - std::fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      std::sqrt( TrkPrj ) ;	  
 	      m_hRPCPadThr_eff[4]->SetBinContent ( ibin + 1 , RPCEff     ) ;
 	      m_hRPCPadThr_eff[4]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
 	      
 	    //hRPCPadThr5
 	      RPCOnTr      = m_hRPCPadThr[5] ->GetBinContent ( ibin + 1 ) ;
 	      RPCEff     = RPCOnTr / TrkPrj ;
-	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
-	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
-	      sqrt( TrkPrj ) ;	  
+	      RPCEff_err = std::sqrt( std::fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      std::sqrt( 1. - std::fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      std::sqrt( TrkPrj ) ;	  
 	      m_hRPCPadThr_eff[5]->SetBinContent ( ibin + 1 , RPCEff     ) ;
 	      m_hRPCPadThr_eff[5]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
 	    //hRPCMuctpiThr0
 	      RPCOnTr	 = m_hRPCMuctpiThr[0] ->GetBinContent ( ibin + 1 ) ;
 	      RPCEff	 = RPCOnTr / TrkPrj ;
-	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
-	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
-	      sqrt( TrkPrj ) ;	  
+	      RPCEff_err = std::sqrt( std::fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      std::sqrt( 1. - std::fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      std::sqrt( TrkPrj ) ;	  
 	      m_hRPCMuctpiThr_eff[0]->SetBinContent ( ibin + 1 , RPCEff     ) ;
 	      m_hRPCMuctpiThr_eff[0]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
 	      
 	    //hRPCMuctpiThr1
 	      RPCOnTr      = m_hRPCMuctpiThr[1] ->GetBinContent ( ibin + 1 ) ;
 	      RPCEff     = RPCOnTr / TrkPrj ;
-	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
-	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
-	      sqrt( TrkPrj ) ;	  
+	      RPCEff_err = std::sqrt( std::fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      std::sqrt( 1. - std::fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      std::sqrt( TrkPrj ) ;	  
 	      m_hRPCMuctpiThr_eff[1]->SetBinContent ( ibin + 1 , RPCEff     ) ;
 	      m_hRPCMuctpiThr_eff[1]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
 	      
 	    //hRPCMuctpiThr2
 	      RPCOnTr      = m_hRPCMuctpiThr[2] ->GetBinContent ( ibin + 1 ) ;
 	      RPCEff     = RPCOnTr / TrkPrj ;
-	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
-	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
-	      sqrt( TrkPrj ) ;	  
+	      RPCEff_err = std::sqrt( std::fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      std::sqrt( 1. - std::fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      std::sqrt( TrkPrj ) ;	  
 	      m_hRPCMuctpiThr_eff[2]->SetBinContent ( ibin + 1 , RPCEff     ) ;
 	      m_hRPCMuctpiThr_eff[2]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
 	      
 	    //hRPCMuctpiThr3
 	      RPCOnTr      = m_hRPCMuctpiThr[3] ->GetBinContent ( ibin + 1 ) ;
 	      RPCEff     = RPCOnTr / TrkPrj ;
-	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
-	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
-	      sqrt( TrkPrj ) ;	  
+	      RPCEff_err = std::sqrt( std::fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      std::sqrt( 1. - std::fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      std::sqrt( TrkPrj ) ;	  
 	      m_hRPCMuctpiThr_eff[3]->SetBinContent ( ibin + 1 , RPCEff     ) ;
 	      m_hRPCMuctpiThr_eff[3]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
 	      
 	    //hRPCMuctpiThr4
 	      RPCOnTr      = m_hRPCMuctpiThr[4] ->GetBinContent ( ibin + 1 ) ;
 	      RPCEff     = RPCOnTr / TrkPrj ;
-	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
-	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
-	      sqrt( TrkPrj ) ;	  
+	      RPCEff_err = std::sqrt( std::fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      std::sqrt( 1. - std::fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      std::sqrt( TrkPrj ) ;	  
 	      m_hRPCMuctpiThr_eff[4]->SetBinContent ( ibin + 1 , RPCEff     ) ;
 	      m_hRPCMuctpiThr_eff[4]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
 	      
 	    //hRPCMuctpiThr5
 	      RPCOnTr      = m_hRPCMuctpiThr[5] ->GetBinContent ( ibin + 1 ) ;
 	      RPCEff     = RPCOnTr / TrkPrj ;
-	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
-	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
-	      sqrt( TrkPrj ) ;	  
+	      RPCEff_err = std::sqrt( std::fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      std::sqrt( 1. - std::fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      std::sqrt( TrkPrj ) ;	  
 	      m_hRPCMuctpiThr_eff[5]->SetBinContent ( ibin + 1 , RPCEff     ) ;
 	      m_hRPCMuctpiThr_eff[5]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
 	  }	
@@ -5521,9 +5467,9 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	  PanelVal = 0 ;
 	  if ( PanelTrackProj != 0 )  {
 	    PanelVal     = PanelHitOnTrack/PanelTrackProj ;
-	    PanelVal_err = sqrt( fabs( PanelHitOnTrack-0.5*0) / PanelTrackProj ) *
-	      sqrt( 1. - fabs( PanelHitOnTrack-0.5*0) / PanelTrackProj ) /
-	      sqrt( PanelTrackProj ) ;
+	    PanelVal_err = std::sqrt( std::fabs( PanelHitOnTrack-0.5*0) / PanelTrackProj ) *
+	      std::sqrt( 1. - std::fabs( PanelHitOnTrack-0.5*0) / PanelTrackProj ) /
+	      std::sqrt( PanelTrackProj ) ;
 	    SummaryEfficiency 	   -> SetBinContent ( pos + shift_pos , PanelVal     ) ;
 	    SummaryEfficiency 	   -> SetBinError   ( pos + shift_pos , PanelVal_err ) ;
 	    if ( pos>0 ) { m_rpcAverageSide_A[enumAvEff] -> Fill(PanelVal) ;  } 
@@ -5541,9 +5487,9 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	  PanelVal = 0 ;
 	  if ( PanelTrackProj != 0 )  {
 	    PanelVal     = PanelHitOnTrack/PanelTrackProj ;
-	    PanelVal_err = sqrt( fabs( PanelHitOnTrack-0.5*0) / PanelTrackProj ) *
-	      sqrt( 1. - fabs( PanelHitOnTrack-0.5*0) / PanelTrackProj ) /
-	      sqrt( PanelTrackProj ) ;
+	    PanelVal_err = std::sqrt( std::fabs( PanelHitOnTrack-0.5*0) / PanelTrackProj ) *
+	      std::sqrt( 1. - std::fabs( PanelHitOnTrack-0.5*0) / PanelTrackProj ) /
+	      std::sqrt( PanelTrackProj ) ;
 	    m_SummaryHist[enumSumGapEfficiency+m_SummaryHist_Idx]-> SetBinContent ( pos + shift_pos , PanelVal	 ) ;
 	    m_SummaryHist[enumSumGapEfficiency+m_SummaryHist_Idx]-> SetBinError	( pos + shift_pos , PanelVal_err ) ;	      
 	    if ( pos>0 ) { m_rpcAverageSide_A[enumAvGapEff] -> Fill(PanelVal) ;  } 
@@ -5558,7 +5504,7 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	  sc = rpcprd_expert_sum.getHist ( SummaryNoiseCorrDistriPerSector,"SummaryNoiseCorrDistriPerSector_" + sector_name ) ;
 	
 	  PanelVal = float ( m_SummaryHist[enumSumNoiseCorr_NotNorm+m_SummaryHist_Idx]-> GetBinContent( pos + shift_pos ) ) ;
-	  PanelVal_err = sqrt( PanelVal );
+	  PanelVal_err = std::sqrt( PanelVal );
 	  if( m_rpc_readout_window * m_rpc_eventstotal !=0 ) { 
 	    PanelVal     = PanelVal     / m_rpc_readout_window  ;
 	    PanelVal_err = PanelVal_err / m_rpc_readout_window  ; 
@@ -5575,7 +5521,7 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	  sc = rpcprd_expert_sum.getHist ( SummaryNoiseTotDistriPerSector,"SummaryNoiseTotDistriPerSector_" + sector_name ) ;
 
 	  PanelVal = float ( m_SummaryHist[enumSumNoiseTot_NotNorm+m_SummaryHist_Idx]-> GetBinContent( pos + shift_pos ) ) ;
-	  PanelVal_err = sqrt( PanelVal );	
+	  PanelVal_err = std::sqrt( PanelVal );	
 
 	  if( m_rpc_readout_window * m_rpc_eventstotal !=0 ) { 
 	    PanelVal     = PanelVal     / m_rpc_readout_window ;
@@ -5600,7 +5546,7 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	    PanelVal=PanelVal/PanelVal_entries;
 	    PanelVal_square=PanelVal_square/PanelVal_entries;	
 	  }
-	  PanelVal_err     = sqrt  ( fabs(PanelVal_square - PanelVal*PanelVal) ) ;
+	  PanelVal_err     = std::sqrt  ( std::fabs(PanelVal_square - PanelVal*PanelVal) ) ;
 	  // rpcAverageCS	 -> Fill(PanelVal) ; 
 	  if ( pos>0 ) { m_rpcAverageSide_A[enumAvCS] -> Fill(PanelVal) ; } 
 	  else         { m_rpcAverageSide_C[enumAvCS] -> Fill(PanelVal) ; }
@@ -5620,7 +5566,7 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	    PanelVal=PanelVal/PanelVal_entries;
 	    PanelVal_square=PanelVal_square/PanelVal_entries;	
 	  }
-	  PanelVal_err     = sqrt  ( fabs(PanelVal_square - PanelVal*PanelVal) ) ;
+	  PanelVal_err     = std::sqrt  ( std::fabs(PanelVal_square - PanelVal*PanelVal) ) ;
 	  if ( pos>0 ) { m_rpcAverageSide_A[enumAvRes_CS1] -> Fill(PanelVal) ;  } 
 	  else         { m_rpcAverageSide_C[enumAvRes_CS1] -> Fill(PanelVal) ;  } 
 	  SummaryRes_CS1DistriPerSector    -> Fill(PanelVal) ;
@@ -5641,7 +5587,7 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	    PanelVal=PanelVal/PanelVal_entries;
 	    PanelVal_square=PanelVal_square/PanelVal_entries;	
 	  }
-	  PanelVal_err     = sqrt  ( fabs(PanelVal_square - PanelVal*PanelVal) ) ;
+	  PanelVal_err     = std::sqrt  ( std::fabs(PanelVal_square - PanelVal*PanelVal) ) ;
 	  if ( pos>0 ) { m_rpcAverageSide_A[enumAvRes_CS2] -> Fill(PanelVal) ;  } 
 	  else         { m_rpcAverageSide_C[enumAvRes_CS2] -> Fill(PanelVal) ;  }  
 	  SummaryRes_CS2DistriPerSector   -> Fill(PanelVal) ;
@@ -5663,7 +5609,7 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	    PanelVal=PanelVal/PanelVal_entries;
 	    PanelVal_square=PanelVal_square/PanelVal_entries;	
 	  }
-	  PanelVal_err     = sqrt  ( fabs(PanelVal_square - PanelVal*PanelVal) ) ;
+	  PanelVal_err     = std::sqrt  ( std::fabs(PanelVal_square - PanelVal*PanelVal) ) ;
 	  if ( pos>0 ) { m_rpcAverageSide_A[enumAvRes_CSmore2] -> Fill(PanelVal) ;  } 
 	  else         { m_rpcAverageSide_C[enumAvRes_CSmore2] -> Fill(PanelVal) ;  }  
 	  SummaryRes_CSmore2DistriPerSector   -> Fill(PanelVal) ;
@@ -5677,7 +5623,7 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	  sc = rpcprd_expert_sum.getHist ( SummaryOccupancyDistriPerSector ,"SummaryOccupancyDistriPerSector_" + sector_name	   );
 	
 	  PanelVal         = float ( m_SummaryHist[enumSumOccupancy_NotNorm+m_SummaryHist_Idx]-> GetBinContent( pos + shift_pos ) ) ; 
-	  PanelVal_err     = sqrt(PanelVal);
+	  PanelVal_err     = std::sqrt(PanelVal);
 	
 	  m_SummaryHist[enumSumOccupancy_NotNorm+m_SummaryHist_Idx]-> SetBinContent ( pos + shift_pos , PanelVal    ) ;
 	  m_SummaryHist[enumSumOccupancy_NotNorm+m_SummaryHist_Idx]-> SetBinError   ( pos + shift_pos , PanelVal    ) ;
@@ -5685,8 +5631,8 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	  if(m_rpc_eventstotal>0) {
 	    PanelVal = PanelVal / m_rpc_eventstotal ;
 	    if(PanelVal>0) {
-	      PanelVal     = log10(PanelVal     ) ;
-	      PanelVal_err = log10(PanelVal_err ) ;
+	      PanelVal     = std::log10(PanelVal     ) ;
+	      PanelVal_err = std::log10(PanelVal_err ) ;
      
 	    }
 	    else {
@@ -5714,7 +5660,7 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	    PanelVal=PanelVal/PanelVal_entries;
 	    PanelVal_square=PanelVal_square/PanelVal_entries;	
 	  }
-	  PanelVal_err     = sqrt  ( fabs(PanelVal_square - PanelVal*PanelVal) ) ;
+	  PanelVal_err     = std::sqrt  ( std::fabs(PanelVal_square - PanelVal*PanelVal) ) ;
 	  if ( pos>0 ) { m_rpcAverageSide_A[enumAvTime] -> Fill(PanelVal) ;  } 
 	  else         { m_rpcAverageSide_C[enumAvTime] -> Fill(PanelVal) ;  }  
 	  SummaryTimeDistriPerSector    -> Fill(PanelVal) ;	

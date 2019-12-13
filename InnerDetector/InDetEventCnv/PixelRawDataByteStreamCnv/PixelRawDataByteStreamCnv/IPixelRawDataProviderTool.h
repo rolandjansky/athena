@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IPIXELRAWDATABYTESTREAMCNV_PIXELRAWDATAPROVIDERTOOL_H
@@ -23,7 +23,7 @@ class IPixelRawDataProviderTool : virtual public IAlgTool
 
   //! this is the main decoding method
   virtual StatusCode convert( std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs,
-		      IPixelRDO_Container*               rdoIdc ) = 0;
+		      IPixelRDO_Container*               rdoIdc ) const = 0;
 
 };
 

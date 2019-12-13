@@ -32,13 +32,13 @@ std::unique_ptr<Collection> copyCollection(const IdentifierHash &hashId,
 template<class Datum, class Alg>
 void mergeChannelData(Datum &baseDatum,
                       const Datum &additionalDatum,
-                      Alg *algorithm);
+                      const Alg *algorithm);
 
 template <class Collection, class Alg>
 void mergeCollections(Collection *bkgCollection,
                       Collection *signalCollection,
                       Collection *outputCollection,
-                      Alg *algorithm);
+                      const Alg *algorithm);
 
 } // namespace Overlay
 

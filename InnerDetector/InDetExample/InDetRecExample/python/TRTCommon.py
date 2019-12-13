@@ -4,7 +4,16 @@ def _args( kwargs, **extra_kwargs) :
     _kwargs = copy.copy(kwargs)
     for kw in extra_kwargs :
         _kwargs.setdefault(kw,extra_kwargs[kw])
-    return _kwargs;
+    return _kwargs
+
+def getInDetTRTStrawStatusSummaryTool(name = "TRT_StrawStatusSummaryTool", **kwargs) :
+    from AthenaCommon.GlobalFlags import globalflags
+    from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool
+    return TRT_StrawStatusSummaryTool(name = name, **_args( kwargs, isGEANT4=(globalflags.DataSource == 'geant4')))
+
+def getInDetTRTCalDbTool(name = "TRT_CalDbTool", **kwargs) :
+    from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
+    return TRT_CalDbTool(name = name, **kwargs)
 
 def getInDetTRT_dEdxTool(**kwargs) :
     InDetTRT_dEdxTool = None

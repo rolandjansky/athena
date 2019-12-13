@@ -47,7 +47,7 @@ class TrigEFBMuMuFex: public HLT::ComboAlgo  {
     
   private:
     
-    void buildCombination(const xAOD::Muon *mu0, const xAOD::Muon *mu1); // does the combination and calls the fitter
+    void buildCombination(const xAOD::Muon *mu0, const xAOD::Muon *mu1, const Amg::Vector3D& beamSpot); // does the combination and calls the fitter
 
     ToolHandle <TrigBphysHelperUtilsTool> m_bphysHelperTool;
   

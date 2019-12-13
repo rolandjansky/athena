@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigROBDataProviderSvc_RTT.h"
@@ -7,7 +7,6 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/Property.h"
-#include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/IAlgContextSvc.h"
 #include "GaudiKernel/IAlgorithm.h"
 

@@ -8,7 +8,7 @@
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
 
-#include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
+#include "InDetReadoutGeometry/PixelDetectorManager.h"
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "StoreGate/ReadCondHandle.h"
@@ -21,7 +21,6 @@ InDetGlobalErrorMonTool::InDetGlobalErrorMonTool( const std::string & type,
   ManagedMonitorToolBase(type, name, parent),
   m_pixID( 0 ),
   m_sctID( 0 ),
-  m_ErrorSvc("PixelByteStreamErrorsSvc",name),
   m_errorGeoPixel(),
   m_disabledGeoPixel(),
   m_errorGeoSCT(),
@@ -258,26 +257,23 @@ bool InDetGlobalErrorMonTool::SyncErrorSCT()
   
   for ( unsigned int i = 0; i < SCT_ByteStreamErrors::NUM_ERROR_TYPES; i++ )
     {
-      const std::set<IdentifierHash> * sctErrors = m_byteStreamErrTool->getErrorSet( i );
-      std::set<IdentifierHash>::const_iterator fit = sctErrors->begin();
-      std::set<IdentifierHash>::const_iterator fitEnd = sctErrors->end();
-      
+      const std::set<IdentifierHash> sctErrors = m_byteStreamErrTool->getErrorSet( i );
       // Check that all modules are registered
-      for (; fit != fitEnd; ++fit) {
-	// The module is already registered, no need to do something
-	if ( m_errorGeoSCT.count( (*fit) ) )
-	  continue;
-	else
-	  {
-	    moduleGeo_t moduleGeo;
-	    
-	    const InDetDD::SiDetectorElement * newElement = elements->getDetectorElement( (*fit) );
-	    newElement->getEtaPhiRegion( deltaZ,
-					 moduleGeo.first.first,  moduleGeo.first.second,
-					 moduleGeo.second.first, moduleGeo.second.second,
-					 rz );
-	    m_errorGeoSCT.insert( std::pair<IdentifierHash, moduleGeo_t>( (*fit), moduleGeo ) );
-	  }
+      for(const auto& idHash : sctErrors) {
+	    // The module is already registered, no need to do something
+		if ( m_errorGeoSCT.count( idHash ) )
+		  continue;
+		else
+		  {
+		    moduleGeo_t moduleGeo;
+		    
+		    const InDetDD::SiDetectorElement * newElement = elements->getDetectorElement( idHash );
+		    newElement->getEtaPhiRegion( deltaZ,
+						 moduleGeo.first.first,  moduleGeo.first.second,
+						 moduleGeo.second.first, moduleGeo.second.second,
+						 rz );
+		    m_errorGeoSCT.insert( std::make_pair( idHash, moduleGeo ) );
+		  }
       }
     }
   

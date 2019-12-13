@@ -8,7 +8,7 @@
 // Constructor with parameters:
 //----------------------------------------------------------------------
 TRTDigitization::TRTDigitization(const std::string &name, ISvcLocator *pSvcLocator) :
-    AthAlgorithm(name, pSvcLocator)
+  AthAlgorithm(name, pSvcLocator)
 {
 }
 
@@ -16,7 +16,7 @@ TRTDigitization::TRTDigitization(const std::string &name, ISvcLocator *pSvcLocat
 // Initialize method:
 //----------------------------------------------------------------------
 StatusCode TRTDigitization::initialize() {
-// intitialize store gate active store
+  // intitialize store gate active store
   ATH_CHECK(m_digTool.retrieve());
   ATH_MSG_DEBUG ( "Retrieved TRT Digitization Tool." );
   return StatusCode::SUCCESS;

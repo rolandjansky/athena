@@ -93,6 +93,10 @@ def minbiasOnly():
     TriggerFlags.Slices_all_setOff()
     TriggerFlags.MinBiasSlice.setAll() 
 
+def beamspotOnly():
+    TriggerFlags.Slices_all_setOff()
+    TriggerFlags.BeamspotSlice.setAll() 
+
 def mubphysics():
     TriggerFlags.Slices_all_setOff()
     TriggerFlags.MuonSlice.setAll()
@@ -144,6 +148,8 @@ if  ('sliceName' in dir()):
         GenerateMenu.overwriteSignaturesWith(jetOnly)    
     elif sliceName == 'bjet':
         GenerateMenu.overwriteSignaturesWith(bjetOnly)
+    elif sliceName == 'beamspot':
+        GenerateMenu.overwriteSignaturesWith(beamspotOnly)
     elif sliceName == 'bphysics':
         GenerateMenu.overwriteSignaturesWith(bphysicsOnly)    
     elif sliceName == 'met':
@@ -161,22 +167,22 @@ if  ('sliceName' in dir()):
 
 # pre set up trigger monitoring
 if 'enableCostMonitoring' in dir() and bool(enableCostMonitoring) == True:
-    import TriggerRelease.Modifiers
-    getattr(TriggerRelease.Modifiers,'enableCostMonitoring')().preSetup()
-    getattr(TriggerRelease.Modifiers,'enableCostForCAF')().preSetup()
+    import TriggerJobOpts.Modifiers
+    getattr(TriggerJobOpts.Modifiers,'enableCostMonitoring')().preSetup()
+    getattr(TriggerJobOpts.Modifiers,'enableCostForCAF')().preSetup()
 
 #-----------------------------------------------------------
 include("RecExCommon/RecExCommon_topOptions.py")
 #-----------------------------------------------------------
 # post set up trigger monitoring
 if 'enableCostMonitoring' in dir() and bool(enableCostMonitoring) == True:
-    import TriggerRelease.Modifiers
-    getattr(TriggerRelease.Modifiers,'enableCostMonitoring')().postSetup()
-    getattr(TriggerRelease.Modifiers,'enableCostForCAF')().postSetup()
-    getattr(TriggerRelease.Modifiers,'enableCostD3PD')().postSetup()
+    import TriggerJobOpts.Modifiers
+    getattr(TriggerJobOpts.Modifiers,'enableCostMonitoring')().postSetup()
+    getattr(TriggerJobOpts.Modifiers,'enableCostForCAF')().postSetup()
+    getattr(TriggerJobOpts.Modifiers,'enableCostD3PD')().postSetup()
     # Check if we are debugging the cost mon output - false by default
     if 'enableCostDebug' in dir() and bool(enableCostDebug) == True:
-        getattr(TriggerRelease.Modifiers,'enableCostDebug')().postSetup()
+        getattr(TriggerJobOpts.Modifiers,'enableCostDebug')().postSetup()
 #
 #-----------------------------------------------------------
 include("TriggerTest/TriggerTestCommon.py")
@@ -195,3 +201,8 @@ if 'sliceName' in dir() and 'minbias' in sliceName and hasattr(topSequence, "LVL
 #import AthenaCommon.Configurable as Configurable
 #Configurable.log.setLevel( INFO )
 #print topSequence.getChildren()
+
+#-------------------------------------------------------------
+# Disable overly verbose and problematic ChronoStatSvc print-out
+#-------------------------------------------------------------
+include("TriggerTest/disableChronoStatSvcPrintout.py")

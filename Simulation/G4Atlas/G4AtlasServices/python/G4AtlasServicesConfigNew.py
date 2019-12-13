@@ -1,7 +1,8 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
-from G4AtlasServices.G4AtlasServicesConf import DetectorGeometrySvc, G4AtlasSvc, G4GeometryNotifierSvc
+from G4AtlasServices.G4AtlasServicesConf import DetectorGeometrySvc, G4AtlasSvc, G4GeometryNotifierSvc, PhysicsListSvc
 #the physics region tools
 from G4AtlasTools.G4PhysicsRegionConfigNew import SX1PhysicsRegionToolCfg, BedrockPhysicsRegionToolCfg, CavernShaftsConcretePhysicsRegionToolCfg, PixelPhysicsRegionToolCfg, SCTPhysicsRegionToolCfg, TRTPhysicsRegionToolCfg, TRT_ArPhysicsRegionToolCfg, BeampipeFwdCutPhysicsRegionToolCfg, FWDBeamLinePhysicsRegionToolCfg
 
@@ -13,13 +14,10 @@ from G4AtlasTools.G4FieldConfigNew import ATLASFieldManagerToolCfg, TightMuonsAT
 
 def getATLAS_RegionCreatorList(ConfigFlags):
     regionCreatorList = []
-    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
-    from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
 
     isUpgrade = ConfigFlags.GeoModel.Run =="RUN4"
-    isRUN2 = (ConfigFlags.GeoModel.Run in ["RUN2", "RUN3"]) or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isIBL())
+    isRUN2 = (ConfigFlags.GeoModel.Run in ["RUN2", "RUN3"]) or (ConfigFlags.GeoModel.Run=="UNDEFINED" and ConfigFlags.GeoModel.IBLLayout not in ["noIBL", "UNDEFINED"])
 
-    from G4AtlasApps.SimFlags import simFlags
     if ConfigFlags.Beam.Type == 'cosmics' or ConfigFlags.Sim.CavernBG != 'Signal':
         regionCreatorList += [SX1PhysicsRegionToolCfg(ConfigFlags), BedrockPhysicsRegionToolCfg(ConfigFlags), CavernShaftsConcretePhysicsRegionToolCfg(ConfigFlags)]
         #regionCreatorList += ['CavernShaftsAirPhysicsRegionTool'] # Not used currently
@@ -42,15 +40,16 @@ def getATLAS_RegionCreatorList(ConfigFlags):
                 regionCreatorList += [FWDBeamLinePhysicsRegionToolCfg(ConfigFlags)]
     if ConfigFlags.Detector.SimulateCalo:
         if ConfigFlags.Detector.GeometryLAr:
-            ## Shower parameterization overrides the calibration hit flag
-            if simFlags.LArParameterization.statusOn and simFlags.LArParameterization() > 0 \
-                    and ConfigFlags.Sim.CalibrationRun in ['LAr','LAr+Tile','DeadLAr']:
-                print('You requested both calibration hits and frozen showers / parameterization in the LAr.')
-                print('  Such a configuration is not allowed, and would give junk calibration hits where the showers are modified.')
-                print('  Please try again with a different value of either simFlags.LArParameterization (' + str(simFlags.LArParameterization()) + ') or simFlags.CalibrationRun ('+str(ConfigFlags.Sim.CalibrationRun)+')')
-                raise RuntimeError('Configuration not allowed')
-
+            pass
             #TODO - migrate below>>
+            ## Shower parameterization overrides the calibration hit flag
+            #if simFlags.LArParameterization.statusOn and simFlags.LArParameterization() > 0 \
+            #        and ConfigFlags.Sim.CalibrationRun in ['LAr','LAr+Tile','DeadLAr']:
+            #    print('You requested both calibration hits and frozen showers / parameterization in the LAr.')
+            #    print('  Such a configuration is not allowed, and would give junk calibration hits where the showers are modified.')
+            #    print('  Please try again with a different value of either simFlags.LArParameterization (' + str(simFlags.LArParameterization()) + ') or simFlags.CalibrationRun ('+str(ConfigFlags.Sim.CalibrationRun)+')')
+            #    raise RuntimeError('Configuration not allowed')
+
             #if simFlags.LArParameterization() > 0:
             #    regionCreatorList += [EMBPhysicsRegionTool(ConfigFlags), EMECPhysicsRegionTool(ConfigFlags),
             #                          HECPhysicsRegionTool(ConfigFlags), FCALPhysicsRegionTool(ConfigFlags)]
@@ -270,3 +269,37 @@ def G4GeometryNotifierSvcCfg(ConfigFlags, name="G4GeometryNotifierSvc", **kwargs
     kwargs.setdefault("ActivateLVNotifier", True)
     kwargs.setdefault("ActivatePVNotifier", False)
     return G4GeometryNotifierSvc(name, **kwargs)
+
+
+def PhysicsListSvcCfg(ConfigFlags, name="PhysicsListSvc", **kwargs):
+    PhysOptionList = ["G4StepLimitationTool"]
+    PhysOptionList += ConfigFlags.Sim.PhysicsList
+    PhysDecaysList = []
+    if ConfigFlags.Detector.SimulateTRT:
+        PhysOptionList +=["TRTPhysicsTool"]
+    if ConfigFlags.Detector.SimulateLucid or ConfigFlags.Detector.SimulateAFP:
+        PhysOptionList +=["LucidPhysicsTool"]
+    kwargs.setdefault("PhysOption", PhysOptionList)
+    kwargs.setdefault("PhysicsDecay", PhysDecaysList)
+    kwargs.setdefault("PhysicsList", ConfigFlags.Sim.PhysicsList)
+    if 'PhysicsList' in kwargs:
+        if kwargs['PhysicsList'].endswith('_EMV') or kwargs['PhysicsList'].endswith('_EMX'):
+            raise RuntimeError( 'PhysicsList not allowed: '+kwargs['PhysicsList'] )
+    kwargs.setdefault("GeneralCut", 1.)
+    if ConfigFlags.Sim.NeutronTimeCut > 0.:
+        kwargs.setdefault("NeutronTimeCut", ConfigFlags.Sim.NeutronTimeCut)
+
+    if ConfigFlags.Sim.NeutronEnergyCut > 0.:
+        kwargs.setdefault("NeutronEnergyCut", ConfigFlags.Sim.NeutronEnergyCut)
+
+    kwargs.setdefault("ApplyEMCuts", ConfigFlags.Sim.ApplyEMCuts)
+    ## from AthenaCommon.SystemOfUnits import eV, TeV
+    ## kwargs.setdefault("EMMaxEnergy"     , 7*TeV)
+    ## kwargs.setdefault("EMMinEnergy"     , 100*eV)
+    """ --- ATLASSIM-3967 ---
+        these two options are replaced by SetNumberOfBinsPerDecade
+        which now controls both values.
+    """
+    ## kwargs.setdefault("EMDEDXBinning"   , 77)
+    ## kwargs.setdefault("EMLambdaBinning" , 77)
+    return PhysicsListSvc(name, **kwargs)

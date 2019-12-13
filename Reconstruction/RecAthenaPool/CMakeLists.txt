@@ -26,7 +26,6 @@ atlas_add_poolcnv_library( RecAthenaPoolPoolCnv
                            LINK_LIBRARIES AthenaPoolUtilities StoreGateLib SGtests AthenaPoolCnvSvcLib GaudiKernel MissingETEvent muonEvent RecTPCnv )
 
 # Install files from the package:
-atlas_install_headers( RecAthenaPool )
 atlas_install_joboptions( share/*.py )
 
 # Set up (a) test(s) for the converter(s):
@@ -38,7 +37,7 @@ find_package( AthenaPoolUtilitiesTest )
 
 if( ATHENAPOOLUTILITIESTEST_FOUND )
   set( RECATHENAPOOL_REFERENCE_TAG
-       RecAthenaPoolReference-01-00-00 )
+       RecAthenaPoolReference-02-00-00 )
   run_tpcnv_test( RecTPCnv_15.0.0   AOD-15.0.0-full
                    REQUIRED_LIBRARIES JetEventAthenaPoolPoolCnv
                    REFERENCE_TAG ${RECATHENAPOOL_REFERENCE_TAG} )

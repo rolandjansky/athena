@@ -18,10 +18,6 @@
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
-namespace InDetDD{
-  class PixelDetectorManager;
-}
-
 namespace D3PD { 
 
 class  JetTagPixelModuleGetterTool

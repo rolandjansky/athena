@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -21,10 +21,15 @@
 
 ///Track Collection to store the tracks
 #include "TrkTrack/TrackCollection.h"
+#include "TrkEventUtils/PRDtoTrackMap.h"
+#include "InDetRecToolInterfaces/ITRT_SegmentToTrackTool.h"
 
 ///Needed for the TRT track segments
 #include "TrkSegment/SegmentCollection.h"
-#include "StoreGate/DataHandle.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+
+
 namespace InDet {
 
   /**
@@ -71,17 +76,21 @@ namespace InDet {
 
       int    m_minNumDriftCircles ;  //!< Minimum number of drift circles for TRT segment tracks
       double m_minPt              ;  //!< Minimum pt cut for TRT only (used in preselection * 0.9)
-      bool   m_resetPRD           ;  //!< Reset PRD association tool during the sub-detector pattern
       int    m_matEffects         ;  //!< Particle hypothesis for track fitting
       bool   m_oldLogic           ;  //!< use old transition region hit logic 
 
-      ToolHandle< ITRT_SegmentToTrackTool > m_segToTrackTool; //!< Segment to track tool
+      ToolHandle< ITRT_SegmentToTrackTool >      m_segToTrackTool
+         {this,"TRT_SegToTrackTool","InDet::TRT_SegmentToTrackTool"}; //!< Segment to track tool
 
-      SG::ReadHandle< Trk::SegmentCollection > m_Segments   ;  //!< TRT segments to use
+      SG::ReadHandleKey<Trk::SegmentCollection > m_Segments
+         {this , "InputSegmentsLocation","TRTSegments"};              //!< TRT segments to use
+      SG::ReadHandleKey<Trk::PRDtoTrackMap>      m_prdToTrackMap
+         {this,"PRDtoTrackMap",""};                                   //!< map between PRDs and tracks to identify shared hits.
 
       /**Tracks that will be passed out of AmbiProcessor. 
-	 Recreated anew each time process() is called*/ 
-      SG::WriteHandle<TrackCollection> m_finalTracks;
+	 Recreated anew each time process() is called*/
+      SG::WriteHandleKey<TrackCollection>        m_finalTracks
+         {this,"OutputTracksLocation","TRTStandaloneTracks"};        //!< Output track collection
 
       /** Global Counters for final algorithm statistics */
 

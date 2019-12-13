@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigConfigSvc/ConfigSvcBase.h"
+#include "./ConfigSvcBase.h"
 #include "TrigConfBase/TrigDBConnectionConfig.h"
 #include "TrigConfStorage/IStorageMgr.h"
 #include "TrigConfStorage/StorageMgr.h"
@@ -27,7 +27,7 @@ ConfigSvcBase::~ConfigSvcBase()
 void
 ConfigSvcBase::declareCommonProperties() {
    declareProperty( "ConfigSource",     m_configSourceString,
-                    "Source of trigger configuration; can be \"XML\", \"MySQL\", \"Oracle\", \"DBLookup\" or \"RUN3_DUMMY\" ");
+                    "Source of trigger configuration; can be \"XML\", \"MySQL\", \"Oracle\", \"DBLookup\", or \"none\"");
    declareProperty( "XMLMenuFile",      m_xmlFile,
                     "XML file containing the trigger configuration.");
    declareProperty( "DBServer",         m_dbServer,
@@ -60,8 +60,9 @@ ConfigSvcBase::initialize() {
 
    string s(boost::to_lower_copy(m_configSourceString)); // lower case
 
-  if (s == "run3_dummy") {
-      ATH_MSG_WARNING("Configured to use Run-3 Dummy menu. This should never be seen in production");
+   if (s == "none") {
+      ATH_MSG_INFO("Old style menu has been disabled");
+      m_xmlFile = "";
    } else if(s != "xml") {
       TrigDBConnectionConfig::DBType dbtype(TrigDBConnectionConfig::DBLookup);
       if (s == "oracle") { dbtype = TrigDBConnectionConfig::Oracle; }

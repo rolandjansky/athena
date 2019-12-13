@@ -33,7 +33,7 @@ JetTagCalibCondData::~JetTagCalibCondData() {
 
 void JetTagCalibCondData::deleteHistos() {
     MsgStream log(Athena::getMessageSvc(), "JetTagCalibCondData");
-    std::map<std::string, TObject*>::const_iterator iter_hist;
+    std::map<std::string, TH1*>::const_iterator iter_hist;
     for(unsigned int i=0;i<m_histos.size();i++) {
       iter_hist = m_histos[i].begin();
       for(;iter_hist!=m_histos[i].end();++iter_hist) {
@@ -41,6 +41,7 @@ void JetTagCalibCondData::deleteHistos() {
         delete iter_hist->second;
       }
     }
+    m_histos.clear();
 }
 
 void JetTagCalibCondData::deleteBdts() {
@@ -59,7 +60,7 @@ void JetTagCalibCondData::resize(const std::vector<std::string> taggers) {
     m_histos.reserve(taggers.size());
     for(uint i=0;i<taggers.size();i++) {
       m_taggers.push_back(taggers[i]);
-      std::map<std::string, TObject* > hmap;
+      std::map<std::string, TH1* > hmap;
       m_histos.push_back(hmap);
     }
 }
@@ -68,8 +69,9 @@ void JetTagCalibCondData::clear() {
     m_channelAliasesMap.clear();
 }
 
-void JetTagCalibCondData::addHisto(const unsigned int indexTagger, const std::string& name, TObject * obj) {
+void JetTagCalibCondData::addHisto(const unsigned int indexTagger, const std::string& name, TH1* obj) {
   MsgStream log(Athena::getMessageSvc(), "JetTagCalibCondData");
+
   m_histos[indexTagger].insert(std::make_pair(name, obj));
   log << MSG::DEBUG << "#BTAG# histo added " << name << " with pointer " << obj << endmsg;
   log << MSG::DEBUG << "#BTAG# m_histos size " << m_histos.size() << endmsg;
@@ -133,7 +135,7 @@ void JetTagCalibCondData::printAliasesStatus() const {
 void JetTagCalibCondData::printHistosStatus() const {
   MsgStream log(Athena::getMessageSvc(), "JetTagCalibCondData");
   log << MSG::DEBUG << "#BTAG# histograms retrieved from DB" << endmsg;
-  std::map<std::string, TObject*>::const_iterator iter_hist;
+  std::map<std::string, TH1*>::const_iterator iter_hist;
   for(unsigned int i=0;i<m_histos.size();i++) {
     iter_hist = m_histos[i].begin();
     for(;iter_hist!=m_histos[i].end();++iter_hist) {

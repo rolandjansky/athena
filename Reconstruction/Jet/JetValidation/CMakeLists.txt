@@ -7,8 +7,7 @@ atlas_subdir( JetValidation )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PRIVATE
-                          GaudiKernel
-                          TestPolicy )
+                          GaudiKernel )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
@@ -20,7 +19,6 @@ atlas_add_component( JetValidation
                      LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel )
 
 # Install files from the package:
-atlas_install_headers( JetValidation )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_runtime( test/JetValidation_TestConfiguration.xml )

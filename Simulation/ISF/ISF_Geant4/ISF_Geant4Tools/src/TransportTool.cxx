@@ -6,6 +6,9 @@
 #include "TransportTool.h"
 
 //package includes
+#include "G4AtlasAlg/G4AtlasMTRunManager.h"
+#include "G4AtlasAlg/G4AtlasWorkerRunManager.h"
+#include "G4AtlasAlg/G4AtlasUserWorkerThreadInitialization.h"
 #include "G4AtlasAlg/G4AtlasRunManager.h"
 #include "ISFFluxRecorder.h"
 
@@ -17,6 +20,7 @@
 
 // Athena classes
 #include "GeneratorObjects/McEventCollection.h"
+#include "GaudiKernel/IThreadInitTool.h"
 
 #include "MCTruth/PrimaryParticleInformation.h"
 #include "MCTruth/EventInformation.h"
@@ -38,6 +42,9 @@
 #include "G4ScoringManager.hh"
 #include "G4Timer.hh"
 #include "G4SDManager.hh"
+#include "G4VUserPhysicsList.hh"
+#include "G4VModularPhysicsList.hh"
+#include "G4ParallelWorldPhysics.hh"
 
 #include "AtlasDetDescr/AtlasRegionHelper.h"
 
@@ -52,23 +59,9 @@ iGeant4::G4TransportTool::G4TransportTool(const std::string& type,
                                           const IInterface*  parent )
   : ISF::BaseSimulatorTool(type, name, parent)
 {
-  declareProperty("Dll",                   m_libList);
-  declareProperty("Physics",               m_physList);
-  declareProperty("FieldMap",              m_fieldMap);
-  declareProperty("ReleaseGeoModel",       m_releaseGeoModel);
-  declareProperty("RecordFlux",            m_recordFlux);
-  declareProperty("McEventCollection",     m_mcEventCollectionName);
-  declareProperty("G4Commands",            m_g4commands, "Commands to send to the G4UI");
-  declareProperty("MultiThreading",        m_useMT, "Multi-threading specific settings");
   //declareProperty("KillAllNeutrinos",      m_KillAllNeutrinos=true);
   //declareProperty("KillLowEPhotons",       m_KillLowEPhotons=-1.);
-  declareProperty("PrintTimingInfo",      m_doTiming       );
-
 }
-
-//________________________________________________________________________
-iGeant4::G4TransportTool::~G4TransportTool()
-{}
 
 //________________________________________________________________________
 StatusCode iGeant4::G4TransportTool::initialize()
@@ -84,9 +77,10 @@ StatusCode iGeant4::G4TransportTool::initialize()
     m_runTimer->Start();
   }
 
-  ATH_CHECK(m_inputConverter.retrieve());
+  // Create the scoring manager if requested
+  if (m_recordFlux) G4ScoringManager::GetScoringManager();
 
- // One-time initialization
+  // One-time initialization
   try {
     std::call_once(initializeOnceFlag, &iGeant4::G4TransportTool::initializeOnce, this);
   }
@@ -98,14 +92,10 @@ StatusCode iGeant4::G4TransportTool::initialize()
   ATH_CHECK( m_rndmGenSvc.retrieve() );
   ATH_CHECK( m_userActionSvc.retrieve() );
 
-  ATH_CHECK(m_g4atlasSvc.retrieve());
-
-  if (m_recordFlux) G4ScoringManager::GetScoringManager();
-
-  ATH_CHECK (m_detGeoSvc.retrieve());
-
   ATH_CHECK(m_senDetTool.retrieve());
   ATH_CHECK(m_fastSimTool.retrieve());
+
+  ATH_CHECK(m_inputConverter.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -116,27 +106,42 @@ void iGeant4::G4TransportTool::initializeOnce()
   // get G4AtlasRunManager
   ATH_MSG_DEBUG("initialize G4AtlasRunManager");
 
-  if (m_g4RunManagerHelper.retrieve().isFailure()) {
-    throw std::runtime_error("Could not initialize G4RunManagerHelper!");
-  }
-  ATH_MSG_DEBUG("retrieved "<<m_g4RunManagerHelper);
-  m_pRunMgr = m_g4RunManagerHelper ? m_g4RunManagerHelper->g4RunManager() : nullptr;
-  if (!m_pRunMgr) {
-    throw std::runtime_error("G4RunManagerHelper::g4RunManager() returned nullptr.");
+  if(m_physListSvc.retrieve().isFailure()) {
+    throw std::runtime_error("Could not initialize ATLAS PhysicsListSvc!");
   }
 
-  if(m_physListTool.retrieve().isFailure()) {
-    throw std::runtime_error("Could not initialize ATLAS PhysicsListTool!");
+  // Create the (master) run manager
+  if(m_useMT) {
+#ifdef G4MULTITHREADED
+    auto* runMgr = G4AtlasMTRunManager::GetG4AtlasMTRunManager();
+    m_physListSvc->SetPhysicsList();
+    runMgr->SetDetGeoSvc( m_detGeoSvc.typeAndName() );
+    runMgr->SetFastSimMasterTool(m_fastSimTool.typeAndName() );
+    runMgr->SetPhysListSvc( m_physListSvc.typeAndName() );
+    // Worker Thread initialization used to create worker run manager on demand.
+    std::unique_ptr<G4AtlasUserWorkerThreadInitialization> workerInit =
+      std::make_unique<G4AtlasUserWorkerThreadInitialization>();
+    workerInit->SetUserActionSvc( m_userActionSvc.typeAndName() );
+    workerInit->SetDetGeoSvc( m_detGeoSvc.typeAndName() );
+    workerInit->SetSDMasterTool( m_senDetTool.typeAndName() );
+    workerInit->SetFastSimMasterTool( m_fastSimTool.typeAndName() );
+    runMgr->SetUserInitialization( workerInit.release() );
+#else
+    throw std::runtime_error("Trying to use multi-threading in non-MT build!");
+#endif
   }
-  m_physListTool->SetPhysicsList();
-
-  m_pRunMgr->SetRecordFlux( m_recordFlux, std::make_unique<ISFFluxRecorder>() );
-  m_pRunMgr->SetLogLevel( int(msg().level()) ); // Synch log levels
-  m_pRunMgr->SetUserActionSvc( m_userActionSvc.typeAndName() );
-  m_pRunMgr->SetDetGeoSvc( m_detGeoSvc.typeAndName() );
-  m_pRunMgr->SetSDMasterTool(m_senDetTool.typeAndName() );
-  m_pRunMgr->SetFastSimMasterTool(m_fastSimTool.typeAndName() );
-  m_pRunMgr->SetPhysListTool(m_physListTool.typeAndName() );
+  // Single-threaded run manager
+  else {
+    auto* runMgr = G4AtlasRunManager::GetG4AtlasRunManager();
+    m_physListSvc->SetPhysicsList();
+    runMgr->SetRecordFlux( m_recordFlux, std::make_unique<ISFFluxRecorder>() );
+    runMgr->SetLogLevel( int(msg().level()) ); // Synch log levels
+    runMgr->SetUserActionSvc( m_userActionSvc.typeAndName() );
+    runMgr->SetDetGeoSvc( m_detGeoSvc.typeAndName() );
+    runMgr->SetSDMasterTool(m_senDetTool.typeAndName() );
+    runMgr->SetFastSimMasterTool(m_fastSimTool.typeAndName() );
+    runMgr->SetPhysListSvc(m_physListSvc.typeAndName() );
+  }
 
   G4UImanager *ui = G4UImanager::GetUIpointer();
 
@@ -165,6 +170,39 @@ void iGeant4::G4TransportTool::initializeOnce()
   for (auto g4command : m_g4commands) {
     int returnCode = ui->ApplyCommand( g4command );
     commandLog(returnCode, g4command);
+  }
+
+  // Code from G4AtlasSvc
+  auto* rm = G4RunManager::GetRunManager();
+  if(!rm) {
+    throw std::runtime_error("Run manager retrieval has failed");
+  }
+  rm->Initialize();     // Initialization differs slightly in multi-threading.
+  // TODO: add more details about why this is here.
+  if(!m_useMT && rm->ConfirmBeamOnCondition()) {
+    rm->RunInitialization();
+  }
+
+  ATH_MSG_INFO( "retireving the Detector Geometry Service" );
+  if(m_detGeoSvc.retrieve().isFailure()) {
+    throw std::runtime_error("Could not initialize ATLAS DetectorGeometrySvc!");
+  }
+
+  if(m_userLimitsSvc.retrieve().isFailure()) {
+    throw std::runtime_error("Could not initialize ATLAS UserLimitsSvc!");
+  }
+
+  if (m_activateParallelGeometries) {
+    G4VModularPhysicsList* thePhysicsList=dynamic_cast<G4VModularPhysicsList*>(m_physListSvc->GetPhysicsList());
+    if (!thePhysicsList) {
+      throw std::runtime_error("Failed dynamic_cast!! this is not a G4VModularPhysicsList!");
+    }
+#if G4VERSION_NUMBER >= 1010
+    std::vector<std::string>& parallelWorldNames=m_detGeoSvc->GetParallelWorldNames();
+    for (auto& it: parallelWorldNames) {
+      thePhysicsList->RegisterPhysics(new G4ParallelWorldPhysics(it,true));
+    }
+#endif
   }
 
   return;
@@ -207,9 +245,8 @@ StatusCode iGeant4::G4TransportTool::finalize()
 void iGeant4::G4TransportTool::finalizeOnce()
 {
   ATH_MSG_DEBUG("\t terminating the current G4 run");
-
-  m_pRunMgr->RunTermination();
-
+  auto runMgr = G4RunManager::GetRunManager();
+  runMgr->RunTermination();
   return;
 }
 
@@ -242,8 +279,24 @@ StatusCode iGeant4::G4TransportTool::simulateVector( const ISF::ConstISFParticle
   }
 
   ATH_MSG_DEBUG("Calling ISF_Geant4 ProcessEvent");
-  bool abort = m_pRunMgr->ProcessEvent(inputEvent);
-
+  bool abort = false;
+  // Worker run manager
+  // Custom class has custom method call: ProcessEvent.
+  // So, grab custom singleton class directly, rather than base.
+  // Maybe that should be changed! Then we can use a base pointer.
+  if(m_useMT) {
+#ifdef G4MULTITHREADED
+    auto* workerRM = G4AtlasWorkerRunManager::GetG4AtlasWorkerRunManager();
+    abort = workerRM->ProcessEvent(inputEvent);
+#else
+    ATH_MSG_ERROR("Trying to use multi-threading in non-MT build!");
+    return StatusCode::FAILURE;
+#endif
+  }
+  else {
+    auto* workerRM = G4AtlasRunManager::GetG4AtlasRunManager();
+    abort = workerRM->ProcessEvent(inputEvent);
+  }
   if (abort) {
     ATH_MSG_WARNING("Event was aborted !! ");
     //ATH_MSG_WARNING("Simulation will now go on to the next event ");
@@ -252,6 +305,15 @@ StatusCode iGeant4::G4TransportTool::simulateVector( const ISF::ConstISFParticle
     return StatusCode::FAILURE;
   }
 
+  // Retrieve secondaries from user actions
+  for ( auto& parent : particles ) {
+    for ( auto* action : m_secondaryActions ) {
+
+      ISF::ISFParticleContainer someSecondaries = action->ReturnSecondaries( parent );
+
+      secondaries.splice( begin(secondaries), std::move(someSecondaries) );
+    }
+  }
 
   // const DataHandle <TrackRecordCollection> tracks;
 
@@ -290,6 +352,20 @@ StatusCode iGeant4::G4TransportTool::setupEvent()
 {
   ATH_MSG_DEBUG ( "setup Event" );
 
+#ifdef G4MULTITHREADED
+  // In some rare cases, TBB may create more physical worker threads than
+  // were requested via the pool size.  This can happen at any time.
+  // In that case, those extra threads will not have had the thread-local
+  // initialization done, leading to a crash.  Try to detect that and do
+  // the initialization now if needed.
+  if (m_useMT && G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume() == nullptr)
+  {
+    ToolHandle<IThreadInitTool> ti ("G4ThreadInitTool", nullptr);
+    ATH_CHECK( ti.retrieve() );
+    ti->initThread();
+  }
+#endif
+
   // Set the RNG to use for this event. We need to reset it for MT jobs
   // because of the mismatch between Gaudi slot-local and G4 thread-local RNG.
   ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this);
@@ -303,6 +379,26 @@ StatusCode iGeant4::G4TransportTool::setupEvent()
 
   // make sure SD collections are properly initialized in every Athena event
   G4SDManager::GetSDMpointer()->PrepareNewEvent();
+
+  if ( m_secondaryActions.empty() )
+  {
+    // Get all UAs
+    std::vector< G4UserSteppingAction* > actions;
+    StatusCode sc = m_userActionSvc->getSecondaryActions( actions );
+    if ( !sc.isSuccess() ) {
+      ATH_MSG_ERROR( "Failed to retrieve secondaries from UASvc" );
+      return sc;
+    }
+
+    // Find the UAs that can return secondaries
+    m_secondaryActions.reserve( actions.size() );
+    for ( G4UserSteppingAction* action : actions ) {
+      G4UA::iGeant4::TrackProcessorUserActionBase * castAction = dynamic_cast< G4UA::iGeant4::TrackProcessorUserActionBase* >( action );
+      if ( castAction ) {
+        m_secondaryActions.push_back( castAction );
+      }
+    }
+  }
 
   return StatusCode::SUCCESS;
 }

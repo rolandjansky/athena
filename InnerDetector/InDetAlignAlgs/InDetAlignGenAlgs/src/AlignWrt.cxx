@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // AlignWrt.cxx
@@ -10,10 +10,8 @@
 #include <fstream>
 #include "AthenaBaseComps/AthCheckMacros.h" 	
 #include "GaudiKernel/SmartDataPtr.h"
-#include "GaudiKernel/IIncidentSvc.h"
 #include "AthenaKernel/IOVTime.h"
 #include "InDetAlignGenTools/IInDetAlignDBTool.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h" 
 #include "DetDescrConditions/DetCondKeyTrans.h"
 #include "RegistrationServices/IIOVRegistrationSvc.h"
 
@@ -23,7 +21,6 @@
 
 InDetAlignWrt::InDetAlignWrt(const std::string& name, ISvcLocator* pSvcLocator)
   :AthAlgorithm   (name, pSvcLocator),
-   m_beamcondsvc("BeamCondSvc",name),      
    p_iddbtool("InDetAlignDBTool"),
    p_migratetool("InDetAlignDBTool/InDetAlignMigrate"),
    p_eventinfo (0),
@@ -57,13 +54,11 @@ InDetAlignWrt::InDetAlignWrt(const std::string& name, ISvcLocator* pSvcLocator)
    m_par_systdisp(1),
    m_par_irskip(0),
    m_par_dispcsc(0),
-   m_par_wrtbeam(false),
    m_par_writetop(false),
    m_par_topname("")
 {
   
   // declare algorithm parameters
-  declareProperty("BeamConditionService",m_beamcondsvc);   
   declareProperty("Create",m_par_create);
   declareProperty("Write",m_par_wrt);
   declareProperty("WriteIOV",m_par_wrtiov);
@@ -94,7 +89,6 @@ InDetAlignWrt::InDetAlignWrt(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("RndmSkip",m_par_irskip);
   declareProperty("DispCSC",m_par_dispcsc);
 
-  declareProperty("WriteBeamPos",m_par_wrtbeam);
   declareProperty("WriteTopTrans",m_par_writetop);
   declareProperty("TopTransFile",m_par_topname);
 
@@ -122,13 +116,6 @@ StatusCode InDetAlignWrt::initialize() {
   if (m_par_migrate) {
     ATH_CHECK (p_migratetool.retrieve() );
   }
-  // get BeamCondSvc if needed
-  if (m_par_wrtbeam) {
-    
-    if ( m_beamcondsvc.retrieve().isFailure()){
-           msg( MSG::ERROR) <<"Cannot get BeamCondSvc - beamspots will not be put in ntuple" << endmsg;
-    }
-  }
   
   if (msgLvl(MSG::DEBUG)) {
     if (m_par_create) msg() << "ID Alignment database structures will be created" << endmsg;
@@ -143,9 +130,6 @@ StatusCode InDetAlignWrt::initialize() {
       << m_par_wrtrun << " event " << m_par_wrtevent << endmsg;
     if (m_par_wfile!="") 
       msg() << "Structures will be written on file " << m_par_wfile << endmsg;
-  if (m_par_wrtbeam) 
-    msg() << "Beampos information will be written on run " << m_par_wrtrun 
-    << " event " << m_par_wrtevent << endmsg;
   if (m_par_writetop) 
     msg() << "Toplevel transforms will be read from file " << m_par_topname 
     << "and written on run " << m_par_wrtrun << " event " << m_par_wrtevent << endmsg;
@@ -188,7 +172,7 @@ StatusCode InDetAlignWrt::execute() {
   ATH_MSG_DEBUG(  "In AlignWrt::execute for run/event " << run << 
       "," << event );
   // trigger database write by setting filter passed to false
-  if ((m_par_wrt || m_par_wrtbeam || m_par_writetop) && 
+  if ((m_par_wrt || m_par_writetop) && 
       m_par_wrtrun==run && m_par_wrtevent==event) doOutput();
 
   return StatusCode::SUCCESS;
@@ -254,9 +238,6 @@ void InDetAlignWrt::doOutput() {
     } else {
       p_iddbtool->writeFile(m_par_ntuple,m_par_wfile);
     }
-  }
-  if (m_par_wrtbeam) {
-    m_beamcondsvc->fillRec();
   }
   if (m_par_writetop) {
     genTopTrans();

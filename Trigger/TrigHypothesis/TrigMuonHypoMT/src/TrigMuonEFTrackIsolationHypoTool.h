@@ -2,24 +2,18 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGMUONEFTRACKISOLATIONHYPO_TRIGMUONEFTRACKISOLATIONHYPOTOOL_H 
-#define TRIGMUONEFTRACKISOLATIONHYPO_TRIGMUONEFTRACKISOLATIONHYPOTOOL_H 1
+#ifndef TRIGMUONHYPOMT_TRIGMUONEFTRACKISOLATIONHYPOTOOL_H 
+#define TRIGMUONHYPOMT_TRIGMUONEFTRACKISOLATIONHYPOTOOL_H 1
 
-#include <string>
-#include "AthenaBaseComps/AthAlgTool.h" 
 #include "DecisionHandling/HLTIdentifier.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-
 #include "TrigSteeringEvent/TrigRoiDescriptor.h" 
 #include "DecisionHandling/TrigCompositeUtils.h" 
 #include "xAODMuon/MuonContainer.h"
 
 #include "AthenaMonitoring/GenericMonitoringTool.h"
 
-#include "DecisionHandling/Combinators.h"
 
 class StoreGateSvc;
-class TriggerElement;
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -56,12 +50,13 @@ class TrigMuonEFTrackIsolationHypoTool: public ::AthAlgTool {
 
     virtual StatusCode decide(std::vector<TrigMuonEFTrackIsolationHypoTool::EFIsolationMuonInfo>& toolInput) const;
 
+
+  private:
+
     bool decideOnSingleObject(TrigMuonEFTrackIsolationHypoTool::EFIsolationMuonInfo& input, size_t cutIndex) const;
 
     // for single muon event
     StatusCode inclusiveSelection(std::vector<TrigMuonEFTrackIsolationHypoTool::EFIsolationMuonInfo>& toolInput) const;
-
-  private:
 
     HLT::Identifier m_decisionId;
 

@@ -17,57 +17,33 @@ RoIsUnpackingEmulationTool::RoIsUnpackingEmulationTool( const std::string& type,
 					  const std::string& name, 
 					  const IInterface* parent ) 
   : RoIsUnpackingToolBase ( type, name, parent )
-{
-}
-
-
-
+{}
 
 
 StatusCode RoIsUnpackingEmulationTool::initialize() {  
 
-  CHECK( RoIsUnpackingToolBase::initialize() );
-  CHECK( m_trigRoIsKey.initialize() );
+  ATH_CHECK( RoIsUnpackingToolBase::initialize() );
+  ATH_CHECK( m_trigRoIsKey.initialize() );
+  ATH_CHECK( m_hltConfigSvc.retrieve() );
 
   if (readEmulatedData().isFailure() ) {
     ATH_MSG_ERROR( "Failed to read emulated data" );
     return StatusCode::FAILURE;
   }
 
+
   ATH_CHECK( decodeThresholdToChainMapping() );
 
   return StatusCode::SUCCESS;
 }
 
+StatusCode RoIsUnpackingEmulationTool::start() {
+  ATH_CHECK( decodeMapping( [&](const std::string& name ){ return name.find(m_thresholdPrefix) == 0;  } ) );
+  return StatusCode::SUCCESS;
+}
+
 
 StatusCode RoIsUnpackingEmulationTool::decodeThresholdToChainMapping() {
-  // decode overrides
-  std::istringstream input;
-  for ( auto entry: m_thresholdToChainProperty ) {
-    input.clear();
-    input.str(entry);
-    std::string thresholdName;
-    char delim;
-    std::string chainName;
-    input >> thresholdName >> delim >> chainName;
-    if ( delim != ':' ) {
-      ATH_MSG_ERROR( "Wrong delimeter in:" << entry );
-      return StatusCode::FAILURE;
-    }
-    ATH_MSG_DEBUG( "Decoded override mapping " << thresholdName << " to " << chainName );
-    m_thresholdToChainMapping[HLT::Identifier(thresholdName)].push_back(HLT::Identifier(chainName));
-  }
-
-  if ( m_thresholdToChainMapping.empty() ) {
-    ATH_MSG_WARNING( "No chains configured in ThresholdToChainMapping: " << m_thresholdToChainProperty );
-  }
-  for ( auto el: m_thresholdToChainMapping ) {
-    ATH_MSG_DEBUG( "Threshold " << el.first << " mapped to chains ");
-    for (auto id: el.second){
-      ATH_MSG_DEBUG(" "<<id.name());
-    }
-  }
-
 
   return StatusCode::SUCCESS;
 }
@@ -217,7 +193,7 @@ StatusCode RoIsUnpackingEmulationTool::unpack( const EventContext& ctx,
     auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput, "L1" ); // This "L1" denotes an initial node with no parents
     
     for ( auto th: roi.passedThresholdIDs ) {
-      ATH_MSG_DEBUG( "Passed Threshold " << th << " enabling respective chains" );
+      ATH_MSG_DEBUG( "Passed Threshold " << th << " enabling respective chains " );
       addChainsToDecision( HLT::Identifier( th ), decision, activeChains );
       
       

@@ -13,9 +13,6 @@
 
 class PixelID;
 class IToolSvc;
-namespace InDetDD {
-  class PixelDetectorManager;
-}
 class AlignableTransform;
 class DetCondCFloat;
 

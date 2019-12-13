@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -23,7 +23,6 @@ Trk::MaterialMapper::MaterialMapper(const std::string& t, const std::string& n, 
 : AthAlgTool(t,n,p),
    m_incidentSvc("IncidentSvc", n),
   m_materialAssociationType(1),
-  m_recordDone(false),
   m_maxMappingEvents(100000),
   m_processedEvents(0),
   m_totalMaterialTree("TotalMaterial"),

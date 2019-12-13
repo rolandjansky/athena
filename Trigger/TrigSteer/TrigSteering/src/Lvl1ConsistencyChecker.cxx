@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>
@@ -17,12 +17,10 @@
 #include "TrigSteeringEvent/Enums.h"
 #include "TrigNavigation/Navigation.h"
 
-#include "AthenaMonitoring/OHLockedHist.h"
+#include "AthenaMonitoringKernel/OHLockedHist.h"
 #include "TrigSteering/Lvl1ConsistencyChecker.h"
 
 #include "TrigT1Result/RoIBResult.h"
-
-#include "boost/foreach.hpp"
 
 #include <TH1I.h>
 

@@ -17,11 +17,10 @@ __doc__="Digitization job properties "
 #=======================================================================
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from AthenaCommon.JobProperties import jobproperties
-from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon.ConfigurableDb import getConfigurable
 
 # In here I set some AthenaCommon properties
-from AthenaCommon.AthenaCommonFlags import jobproperties
+from AthenaCommon.AthenaCommonFlags import jobproperties  # noqa: F811
 
 from AthenaCommon.Logging import logging
 logDigitizationFlags = logging.getLogger( 'DigitizationFlags' )
@@ -461,7 +460,7 @@ class RunAndLumiOverrideList(JobProperty):
                 if not set(element) >= set(KeysRequired):
                     raise ValueError( 'Not all required keys for RunAndLumiOverrideList (%s) were found in %s' % (KeysRequired.__repr__(), element.__repr__()) )
                 if noEventsInLumiBlock(element):
-                    logDigitizationFlags.warning('Found lumiblock with no events!  This lumiblock will not be used:\n (%s)' % (element.__str__()) )
+                    logDigitizationFlags.warning('Found lumiblock with no events!  This lumiblock will not be used:\n (' , (element.__str__()), ')' )
             from itertools import ifilterfalse
             n_value[:] = ifilterfalse(noEventsInLumiBlock, n_value)
         JobProperty.__setattr__(self, name, n_value)

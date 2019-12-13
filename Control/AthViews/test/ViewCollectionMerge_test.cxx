@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -30,6 +30,13 @@
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/ReadHandle.h"
 #include "AthenaKernel/ExtendedEventContext.h"
+#include "AthLinks/ElementLink.h"
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
+
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
+
 
 // Google Test and Google Mock
 #if __GNUC__ >= 9
@@ -61,6 +68,19 @@ class DummyData: public SG::AuxElement  // Derive from AuxElement to allow for a
 };
 CLASS_DEF( DataVector<DummyData>, 345654757, 1 )
 
+class DummyEL {
+  public:
+    DummyEL() : m_dummyEL() {} // This is the expected form if no EL is given to the View
+
+    ElementLink<TrigRoiDescriptorCollection>& get() {
+      return m_dummyEL;
+    }
+
+  private:
+    ElementLink<TrigRoiDescriptorCollection> m_dummyEL;
+};
+
+DummyEL dummyEL;
 
 namespace ViewTesting {
 
@@ -610,7 +630,7 @@ TEST_F( ViewCollectionMerge_test, elementLinkMergeRemapBookkeepTest ) {
   //auto store = std::make_unique< SG::AuxStoreInternal >(); //for some reason this doesn't work
   SG::AuxStoreInternal* store = new SG::AuxStoreInternal;
   mergedData->setStore( store );
-  DummyData::Accessor< int > viewBookkeeper( "viewIndex" );
+  DummyData::Accessor< ElementLink<TrigRoiDescriptorCollection> > viewBookkeeper( "viewIndex" );
 
   // Retrieve the data vector from each view and merge
   for ( unsigned int viewIndex = 0; viewIndex < outputViewsHandle->size(); ++viewIndex ) {
@@ -622,14 +642,13 @@ TEST_F( ViewCollectionMerge_test, elementLinkMergeRemapBookkeepTest ) {
     ASSERT_TRUE( inputDataHandle.isValid() );
     ASSERT_EQ( inputDataHandle->size(), 1u );
     ASSERT_EQ( inputDataHandle->at(0)->value(), static_cast<int> (viewIndex) );
-
     //Merge the data
     for ( DummyData const* inputDatum : *inputDataHandle.cptr() )
     {
       DummyData * outputDatum = new DummyData();
       mergedData->push_back( outputDatum );
       *outputDatum = *inputDatum;
-      viewBookkeeper( *outputDatum ) = viewIndex;
+      viewBookkeeper( *outputDatum ) = dummyEL.get();
     }
   }
 
@@ -670,8 +689,8 @@ TEST_F( ViewCollectionMerge_test, elementLinkMergeRemapBookkeepTest ) {
   ASSERT_EQ( ( *dataLink )->value(), 0 );
 
   // Check the bookkeeping
-  ASSERT_EQ( viewBookkeeper( **dataLink ), 0 );
-  ASSERT_EQ( viewBookkeeper( *dataLink.getDataPtr()->at(1) ), 1 );
+  ASSERT_EQ( viewBookkeeper( **dataLink ), dummyEL.get() );
+  ASSERT_EQ( viewBookkeeper( *dataLink.getDataPtr()->at(1) ), dummyEL.get() );
 }
 
 // Attempt to parcel all of the above with view helpers
@@ -679,7 +698,7 @@ TEST_F( ViewCollectionMerge_test, mergeHelperTest ) {
 
   // Make a dummy event context
   EventContext dummyContext( 0, 0 );
-  dummyContext.setExtension( Atlas::ExtendedEventContext( evtStore(), 0 ) );
+  Atlas::setExtendedEventContext (dummyContext, Atlas::ExtendedEventContext( evtStore(), 0 ) );
 
   // Parcel the view data
   auto viewData = std::vector< DataVector< DummyData > >( 2 );
@@ -754,9 +773,9 @@ TEST_F( ViewCollectionMerge_test, mergeHelperTest ) {
   ASSERT_EQ( ( *dataLink )->value(), 0 );
 
   // Check the bookkeeping
-  DummyData::Accessor< int > viewBookkeeper( "viewIndex" );
-  ASSERT_EQ( viewBookkeeper( **dataLink ), 0 );
-  ASSERT_EQ( viewBookkeeper( *dataLink.getDataPtr()->at(1) ), 1 );
+  DummyData::Accessor< ElementLink<TrigRoiDescriptorCollection> > viewBookkeeper( "viewIndex" );
+  ASSERT_EQ( viewBookkeeper( **dataLink ), dummyEL.get() );
+  ASSERT_EQ( viewBookkeeper( *dataLink.getDataPtr()->at(1) ), dummyEL.get() );
 }
 
 } // namespace ViewTesting

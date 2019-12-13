@@ -1,10 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
-
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: AuxContainerBase.h 793737 2017-01-24 20:11:10Z ssnyder $
 #ifndef XAODCORE_AUXCONTAINERBASE_H
 #define XAODCORE_AUXCONTAINERBASE_H
 
@@ -16,6 +13,7 @@
 #include "AthContainersInterfaces/IAuxStore.h"
 #include "AthContainersInterfaces/IAuxStoreIO.h"
 #include "AthContainersInterfaces/IAuxStoreHolder.h"
+#include "AthContainersInterfaces/IAuxStoreCompression.h"
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthContainers/tools/threading.h"
 #include "AthContainers/PackedContainer.h"
@@ -25,11 +23,13 @@
 
 // Local include(s):
 #include "xAODCore/AuxSelection.h"
+#include "xAODCore/AuxCompression.h"
 
 // Forward declaration(s):
 namespace SG {
    class IAuxTypeVector;
 }
+class xAODAuxContainerBaseCnv;
 
 /// Namespace holding all the xAOD EDM classes
 namespace xAOD {
@@ -48,7 +48,8 @@ namespace xAOD {
    ///
    class AuxContainerBase : public SG::IAuxStore,
                             public SG::IAuxStoreIO,
-                            public SG::IAuxStoreHolder
+                            public SG::IAuxStoreHolder,
+                            public SG::IAuxStoreCompression
 #ifndef XAOD_STANDALONE
                           , public ILockable
 #endif // not XAOD_STANDALONE
@@ -160,6 +161,17 @@ namespace xAOD {
 
       /// @}
 
+      /// @name Functions implementing the SG::IAuxStoreCompression interface
+      /// @{
+
+      virtual void setCompressedAuxIDs ( const std::set<std::string>& attributes ) override;
+
+      virtual SG::auxid_set_t getCompressedAuxIDs() const override;
+
+      virtual float getCompressedValue ( float value ) const override;
+
+      /// @}
+
       /// @name Functions managing the instance name of the container
       /// @{
 
@@ -171,27 +183,40 @@ namespace xAOD {
       /// @}
 
    protected:
+      /// Get the auxiliary ID for one of the persistent variables
+      template< typename T >
+      auxid_t getAuxID( const std::string& name,
+                        std::vector< T >& /*vec*/,
+                        SG::AuxTypeRegistry::Flags flags =
+                        SG::AuxTypeRegistry::Flags::None );
+      /// Get the auxiliary ID for one of the persistent variables
+      template< typename T >
+      auxid_t getAuxID( const std::string& name,
+                        SG::PackedContainer< T >& /*vec*/,
+                        SG::AuxTypeRegistry::Flags flags =
+                        SG::AuxTypeRegistry::Flags::None );
       /// Register one of the persistent variables internally
       template< typename T >
-      SG::auxid_t regAuxVar( const std::string& name,
-                             std::vector< T >& vec,
-                             SG::AuxTypeRegistry::Flags flags = SG::AuxTypeRegistry::Flags::None );
+      void regAuxVar( auxid_t auxid, const std::string& name,
+                      std::vector< T >& vec );
 
       /// Register one of the persistent variables internally
       template< typename T >
-      SG::auxid_t regAuxVar( const std::string& name,
-                             SG::PackedContainer< T >& vec,
-                             SG::AuxTypeRegistry::Flags flags );
+      void regAuxVar( auxid_t auxid, const std::string& name,
+                      SG::PackedContainer< T >& vec );
 
    private:
+      friend class ::xAODAuxContainerBaseCnv;
+
       /// Common code between regAuxVar cases.
       template< typename ELT, typename CONT >
-      SG::auxid_t regAuxVar1( const std::string& name,
-                              CONT& vec,
-                              SG::AuxTypeRegistry::Flags flags);
+      void regAuxVar1( auxid_t auxid, const std::string& name,
+                       CONT& vec );
 
       /// Dynamic attributes selection implementation
       AuxSelection  m_selection;
+      /// Attributes compression implementation
+      AuxCompression  m_compression;
       /// Internal list of all available variables
       auxid_set_t m_auxids;
       /// Internal list of all managed variables
@@ -220,12 +245,12 @@ namespace xAOD {
 
 // Declare a class ID for the class:
 #include "xAODCore/CLASS_DEF.h"
-CLASS_DEF( xAOD::AuxContainerBase, 1225080690, 1 )
+CLASS_DEF( xAOD::AuxContainerBase, 1225080690, 2 )
 
 // Describe the inheritance of the class:
 #include "xAODCore/BaseInfo.h"
-SG_BASES3( xAOD::AuxContainerBase, SG::IAuxStore, SG::IAuxStoreIO,
-           SG::IAuxStoreHolder );
+SG_BASES4( xAOD::AuxContainerBase, SG::IAuxStore, SG::IAuxStoreIO,
+           SG::IAuxStoreHolder, SG::IAuxStoreCompression );
 
 // Include the template implementation:
 #include "AuxContainerBase.icc"

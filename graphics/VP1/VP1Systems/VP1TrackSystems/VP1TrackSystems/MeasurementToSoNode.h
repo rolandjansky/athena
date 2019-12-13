@@ -27,6 +27,7 @@ namespace Muon {
     class RpcPrepData;
     class TgcPrepData;
     class MdtPrepData;
+    class MuonIdHelperTool;
 }
 
 namespace InDet {
@@ -63,10 +64,7 @@ namespace Trk {
 
         MeasurementToSoNode();
 
-        void initialize(    const CscIdHelper* cscIdHelper,
-                            const RpcIdHelper* rpcIdHelper,
-                            const TgcIdHelper* tgcIdHelper,
-                            const MdtIdHelper* mdtIdHelper);
+        void initialize( const Muon::MuonIdHelperTool* muonIdHelperTool );
 
         /** This is the most general and most complete method - it returns a separator with nodes and transform. The material is not
         added here as it should be at the top of the tree (in general) */
@@ -123,10 +121,7 @@ namespace Trk {
     private:
         std::vector<bool>       m_simpleView;
         bool                    m_trtProjection;
-        const CscIdHelper*      m_cscIdHelper;
-        const RpcIdHelper*      m_rpcIdHelper;
-        const TgcIdHelper*      m_tgcIdHelper;
-        const MdtIdHelper*      m_mdtIdHelper;
+        const Muon::MuonIdHelperTool* m_muonIdHelperTool = nullptr;
         double                  m_stripThickness; //!< Depth/Thickness of strips in z (local coords)
         std::vector< SoMaterial* > m_materials;
 

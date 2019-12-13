@@ -12,8 +12,7 @@
 
 PixelSiPropertiesCondAlg::PixelSiPropertiesCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
   ::AthAlgorithm(name, pSvcLocator),
-  m_pixid(nullptr),
-  m_detManager(nullptr),
+  m_pixid(nullptr),  
   m_condSvc("CondSvc", name)
 {
 }
@@ -21,12 +20,12 @@ PixelSiPropertiesCondAlg::PixelSiPropertiesCondAlg(const std::string& name, ISvc
 StatusCode PixelSiPropertiesCondAlg::initialize() {
   ATH_MSG_DEBUG("PixelSiPropertiesCondAlg::initialize()");
 
-  ATH_CHECK(detStore()->retrieve(m_detManager,"Pixel"));
   ATH_CHECK(detStore()->retrieve(m_pixid,"PixelID"));
   ATH_CHECK(m_condSvc.retrieve());
   
   ATH_CHECK(m_readKeyTemp.initialize());
   ATH_CHECK(m_readKeyHV.initialize());
+  ATH_CHECK(m_pixelDetEleCollKey.initialize());
   ATH_CHECK(m_writeKey.initialize());
   if (m_condSvc->regHandle(this, m_writeKey).isFailure()) {
     ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
@@ -80,6 +79,13 @@ StatusCode PixelSiPropertiesCondAlg::execute() {
     return StatusCode::FAILURE;
   }
 
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements(*pixelDetEleHandle);
+  if (not pixelDetEleHandle.isValid() or elements==nullptr) {
+    ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " is not available.");
+    return StatusCode::FAILURE;
+  }
+
   // Construct the output Cond Object and fill it in
   std::unique_ptr<InDet::SiliconPropertiesVector> writeCdo(std::make_unique<InDet::SiliconPropertiesVector>());
   const PixelID::size_type wafer_hash_max = m_pixid->wafer_hash_max();
@@ -91,7 +97,7 @@ StatusCode PixelSiPropertiesCondAlg::execute() {
     double deplVoltage = 0.0*CLHEP::volt;
     double biasVoltage = readCdoHV->getBiasVoltage(elementHash)*CLHEP::volt;
 
-    const InDetDD::SiDetectorElement* element = m_detManager->getDetectorElement(elementHash);
+    const InDetDD::SiDetectorElement* element = elements->getDetectorElement(elementHash);
     double depletionDepth = element->thickness();
     if (std::abs(biasVoltage) < std::abs(deplVoltage)) {
       depletionDepth *= sqrt(std::abs(biasVoltage/deplVoltage));

@@ -1,11 +1,9 @@
-#include "src/PixelCalibDbTool.h"
-#include "src/PixelDistortionsTool.h"
-#ifndef SIMULATIONBASE
 #include "src/PixelConditionsSummaryTool.h"
+#ifndef SIMULATIONBASE
+#include "src/PixelByteStreamErrorsTool.h"
 #endif
 
-DECLARE_COMPONENT( PixelCalibDbTool )
-DECLARE_COMPONENT( PixelDistortionsTool )
-#ifndef SIMULATIONBASE
 DECLARE_COMPONENT( PixelConditionsSummaryTool )
+#ifndef SIMULATIONBASE
+DECLARE_COMPONENT( PixelByteStreamErrorsTool )
 #endif

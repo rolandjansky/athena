@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODTRACKING_TRACKPARTICLEAUXCONTAINER_H
 #define XAODTRACKING_TRACKPARTICLEAUXCONTAINER_H
  
 // Local include(s):
-#include "xAODTracking/versions/TrackParticleAuxContainer_v4.h"
+#include "xAODTracking/versions/TrackParticleAuxContainer_v5.h"
  
 namespace xAOD {
    /// Definition of the current TrackParticle auxiliary container
@@ -16,7 +16,7 @@ namespace xAOD {
    /// the container type as we get new I/O technologies for these
    /// objects.
    ///
-   typedef TrackParticleAuxContainer_v4 TrackParticleAuxContainer;
+   typedef TrackParticleAuxContainer_v5 TrackParticleAuxContainer;
 }
 
 // Set up a CLID and StoreGate inheritance for the class:

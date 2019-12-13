@@ -11,31 +11,10 @@ def writeEmulationFiles(data):
                 f.write("\n")
 
 # Testing menu used in the L1 decoders
-class MenuTest:
+class MenuTest(object):
+    pass
 
-    CTPToChainMapping = {"HLT_e3_etcut":   "L1_EM3",
-                         "HLT_e5_etcut":   "L1_EM3",
-                         "HLT_g5_etcut":   "L1_EM3",
-                         "HLT_e7_etcut":   "L1_EM7",
-                         "HLT_mu6idperf": "L1_MU6",
-                         "HLT_mu6":       "L1_MU6",
-                         "HLT_mu20":       "L1_MU20",
-                         "HLT_xs20":      "L1_EM7",
-                         "HLT_2e3_etcut": "L1_2EM3",
-                         "HLT_e3e5_etcut":"L1_2EM3",
-                         "HLT_2mu6":      "L1_2MU4",
-                         "HLT_e15mu24":    "L1_EM7_MU15",
-                         "HLT_xe10":      "L1_XE10",
-                         "HLT_te15":      "L1_TE15.0ETA24",
-                         "HLT_j85":       "L1_J20",
-                         "HLT_j60":       "L1_J20",
-                         "HLT_j35_gsc45_boffperf_split" : "L1_J20",
-                         "HLT_j35_gsc45_bmv2c1070_split" : "L1_J20",
-                         "HLT_j35_gsc45_bmv2c1070" : "L1_J20"
-      }
 
-def applyMenu(l1decoder):
-    l1decoder.ChainToCTPMapping = MenuTest.CTPToChainMapping
 
 from L1Decoder.L1DecoderConf import L1Decoder
 # L1 emulation for RDO
@@ -65,22 +44,14 @@ class L1EmulationTest(L1Decoder):
         self.ctpUnpacker = ctpUnpacker
         self += ctpUnpacker
 
-        self.ChainToCTPMapping = {'HLT_mu20'     : 'L1_MU8',
-                                  'HLT_mu81step' : 'L1_MU8',
-                                  'HLT_mu8'      : 'L1_MU8',
-                                  'HLT_e20'      : 'L1_EM12',
-                                  'HLT_e8'       : 'L1_EM7',
-                                  'HLT_mu8_e8'   : 'L1_EM3_MU6'}
+        from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
 
         # EM unpacker
         if TriggerFlags.doID() or TriggerFlags.doCalo():
             emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool",
                                                     Decisions = "EMRoIDecisions",
-                                                    OutputTrigRoIs = "EMRoIs",
+                                                    OutputTrigRoIs = mapThresholdToL1RoICollection("EM"),
                                                     OutputLevel = self.getDefaultProperty("OutputLevel"))
-            emUnpacker.ThresholdToChainMapping = ['EM7 : HLT_e20',
-                                                  'EM7 : HLT_e8',
-                                                  'EM7 : HLT_mu8_e8']
             self.roiUnpackers += [emUnpacker]
             print emUnpacker
 
@@ -89,22 +60,18 @@ class L1EmulationTest(L1Decoder):
         if TriggerFlags.doMuon():
             muUnpacker = RoIsUnpackingEmulationTool("MURoIsUnpackingTool",
                                                     Decisions = "MURoIDecisions",
-                                                    OutputTrigRoIs = "MURoIs",
+                                                    OutputTrigRoIs = mapThresholdToL1RoICollection("MU"),
                                                     OutputLevel=self.getDefaultProperty("OutputLevel"))
-            muUnpacker.ThresholdToChainMapping =  ['MU10 : HLT_mu20',
-                                                   'MU6 : HLT_mu81step',
-                                                   'MU6 : HLT_mu8',
-                                                   'MU6 : HLT_mu8_e8']
             self.roiUnpackers += [muUnpacker]
 
         self.L1DecoderSummaryKey = "L1DecoderSummary"
 
-from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
-chainsConfig = TriggerConfigHLT( )
+
+
 
 chainsCounter = 0
 
-def makeChain( name, L1Thresholds, ChainSteps, Streams="physics:Main", Groups=[] ):
+def makeChain( name, L1Thresholds, ChainSteps, Streams="physics:Main", Groups=["RATE:TestRateGroup", "BW:TestBW"] ):
     """
     In addition to making the chain object fills the flags that are used to generate MnuCOnfig JSON file
     """
@@ -112,17 +79,19 @@ def makeChain( name, L1Thresholds, ChainSteps, Streams="physics:Main", Groups=[]
     from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
     prop = ChainProp( name=name,  l1SeedThresholds=L1Thresholds, groups=Groups )
 
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName
-    decoder = DictFromChainName()
-    chainDict = decoder.getChainDict( prop )
+    from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
+
+    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
+    chainDict = dictFromChainName( prop )
     global chainsCounter
     chainDict["chainCounter"] = chainsCounter
     chainsCounter += 1
-    TriggerConfigHLT.currentTriggerConfig().allChainDicts.append( chainDict )
 
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain
     chainConfig = Chain( name=name, L1Thresholds=L1Thresholds, ChainSteps=ChainSteps )
-    TriggerConfigHLT.currentTriggerConfig().allChainConfigs.append( chainConfig )
+
+    TriggerConfigHLT.registerChain( chainDict, chainConfig )
+
     return chainConfig
 
 if __name__ == "__main__":

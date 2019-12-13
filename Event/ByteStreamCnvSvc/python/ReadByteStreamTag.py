@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ###############################################################
 #
@@ -11,7 +11,7 @@ from AthenaCommon.AppMgr import theApp
 svcMgr = theApp.serviceMgr()
 
 # Need Pool to read TAG in Pool format
-import AthenaPoolCnvSvc.ReadAthenaPool
+import AthenaPoolCnvSvc.ReadAthenaPool # noqa: F401
 
 # Services
 #from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ROBDataProviderSvc
@@ -33,7 +33,6 @@ svcMgr += ByteStreamNavigationProviderSvc( "ByteStreamNavigationProviderSvc" )
 svcMgr.ProxyProviderSvc.ProviderNames += [ "ByteStreamNavigationProviderSvc" ]
 
 # Basic metadata
-from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamMetadataTool
 svcMgr.MetaDataSvc.MetaDataTools += [ "ByteStreamMetadataTool" ]
 
 # User metadata in FMD

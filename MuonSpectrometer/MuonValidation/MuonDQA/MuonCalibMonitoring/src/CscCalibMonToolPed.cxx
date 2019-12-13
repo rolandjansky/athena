@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -27,7 +27,6 @@ using namespace std;
 CscCalibMonToolPed::CscCalibMonToolPed(const std::string & type, const std::string & name, 
     const IInterface* parent) : 
   CscCalibMonToolBase(type, name, parent),
-  m_muon_mgr(NULL),
   m_h_pedMissingChannels(NULL),
   m_pedBadBin(1),
   m_noiseBadBin(2),
@@ -37,7 +36,6 @@ CscCalibMonToolPed::CscCalibMonToolPed(const std::string & type, const std::stri
   m_chi2BadBin(6),
   m_missingBadBin(7),
   m_onlTHoldBreachBadBin(8),
-  m_alwaysPrintErrorReport(true),
   m_h_numBad(NULL),
   m_pedNewColl(NULL),
   m_pedOldColl(NULL),
@@ -540,7 +538,7 @@ StatusCode CscCalibMonToolPed::postProc()
 {
   ATH_MSG_DEBUG( "CscCalibMonToolPed : in postProc()"  );
 
-  IdContext chanContext = m_cscIdHelper->channel_context();
+  IdContext chanContext = m_muonIdHelperTool->cscIdHelper().channel_context();
 
   genThreshold(m_pedDiffColl, m_noiseDiffColl, m_tholdDiffColl, 3.5);
 
@@ -572,8 +570,8 @@ StatusCode CscCalibMonToolPed::postProc()
     for(unsigned int hashId = 0; hashId < nEntries; hashId++){
       ATH_MSG_DEBUG( "Filling rmsVnoise for hash id " << hashId  );
       Identifier chanId;
-      m_cscIdHelper->get_id(IdentifierHash(hashId), chanId, &chanContext);
-      int measuresPhi = m_cscIdHelper->measuresPhi(chanId);
+      m_muonIdHelperTool->cscIdHelper().get_id(IdentifierHash(hashId), chanId, &chanContext);
+      int measuresPhi = m_muonIdHelperTool->cscIdHelper().measuresPhi(chanId);
 
       if(m_expectedHashIdsAll.count(hashId)) {
         if(measuresPhi)
@@ -641,13 +639,13 @@ StatusCode CscCalibMonToolPed::postProc()
         TH1I * sourceHist;
 
         Identifier chanId;
-        m_cscIdHelper->get_id(IdentifierHash(idItr), chanId, &chanContext);
-        int stationSize = m_cscIdHelper->stationName(chanId);
-        int stationEta = m_cscIdHelper->stationEta(chanId);
-        int stationPhi = m_cscIdHelper->stationPhi(chanId);
-        int wireLayer = m_cscIdHelper->wireLayer(chanId);
-        int measuresPhi = m_cscIdHelper->measuresPhi(chanId);
-        int strip = m_cscIdHelper->strip(chanId);
+        m_muonIdHelperTool->cscIdHelper().get_id(IdentifierHash(idItr), chanId, &chanContext);
+        int stationSize = m_muonIdHelperTool->cscIdHelper().stationName(chanId);
+        int stationEta = m_muonIdHelperTool->cscIdHelper().stationEta(chanId);
+        int stationPhi = m_muonIdHelperTool->cscIdHelper().stationPhi(chanId);
+        int wireLayer = m_muonIdHelperTool->cscIdHelper().wireLayer(chanId);
+        int measuresPhi = m_muonIdHelperTool->cscIdHelper().measuresPhi(chanId);
+        int strip = m_muonIdHelperTool->cscIdHelper().strip(chanId);
         int sector = getSector(stationPhi, stationSize);
 
         string geoPath = getGeoPath(stationEta, sector, wireLayer, measuresPhi);

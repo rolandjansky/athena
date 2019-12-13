@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -178,11 +178,40 @@ void MissingEtCalo::setNCellCalo(MissingEtCalo::CaloIndex theCalo,
   
 }
 
-void MissingEtCalo::setCalibType(std::string theCalibType)
+void MissingEtCalo::setCalibType(const std::string& theCalibType)
 {
   
   m_calibType=theCalibType;
 }
+
+
+void MissingEtCalo::setExCaloVec(std::vector<double>&& exCaloVec)
+{
+  assert (exCaloVec.size() == Size);
+  m_exCalo = std::move (exCaloVec);
+}
+
+
+void MissingEtCalo::setEyCaloVec(std::vector<double>&& eyCaloVec)
+{
+  assert (eyCaloVec.size() == Size);
+  m_eyCalo = std::move (eyCaloVec);
+}
+
+
+void MissingEtCalo::setEtSumCaloVec(std::vector<double>&& etSumCaloVec)
+{
+  assert (etSumCaloVec.size() == Size);
+  m_etSumCalo = std::move (etSumCaloVec);
+}
+
+
+void MissingEtCalo::setNCellCaloVec(std::vector<unsigned int>&& ncellCaloVec)
+{
+  assert (ncellCaloVec.size() == Size);
+  m_nCellsCalo = std::move (ncellCaloVec);
+}
+
 
 // get methods
 
@@ -210,6 +239,34 @@ std::string MissingEtCalo::calibType() const
 {
 
   return m_calibType ;
+}
+
+
+const std::vector<double>&
+MissingEtCalo::exCaloVec() const
+{
+  return m_exCalo;
+}
+
+
+const std::vector<double>&
+MissingEtCalo::eyCaloVec() const
+{
+  return m_eyCalo;
+}
+
+
+const std::vector<double>&
+MissingEtCalo::etSumCaloVec() const
+{
+  return m_etSumCalo;
+}
+
+
+const std::vector<unsigned int>&
+MissingEtCalo::ncellCaloVec() const
+{
+  return m_nCellsCalo;
 }
 
 

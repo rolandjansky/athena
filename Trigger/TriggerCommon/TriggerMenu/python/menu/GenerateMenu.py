@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from TriggerJobOpts.TriggerFlags                       import TriggerFlags
 from TriggerMenu.muon.MuonSliceFlags                   import MuonSliceFlags
@@ -28,10 +30,15 @@ from TriggerMenu.menu                      import StreamInfo, DictFromChainName
 import TriggerMenu.menu.MenuUtils
 
 import os, traceback, operator, commands, time
+from functools import reduce
+
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TriggerMenu.menu.GenerateMenu' )
 
+from future import standard_library
+standard_library.install_aliases()
+from subprocess import getstatusoutput
 
 _func_to_modify_the_menu = None
 _func_to_modify_signatures = None
@@ -96,8 +103,8 @@ class GenerateMenu:
         for signatureGroupToDeactive in signatureGroupsToDeactivate:
             try:
                 eval("self.do"+signatureGroupToDeactive+"Chains = False")
-            except:
-                log.error('GenerateMenu: Could not deactivate trigger signature:',signatureGroupToDeactivate)
+            except Exception:
+                log.error('GenerateMenu: Could not deactivate trigger signature:',signatureGroupToDeactive)
 
 
     def getChainsFromMenu(self):
@@ -713,7 +720,7 @@ class GenerateMenu:
         dumpIt(f, METSliceFlags.signatures(), 'MET')
         dumpIt(f, TauSliceFlags.signatures(), 'Tau')
         dumpIt(f, MinBiasSliceFlags.signatures(), 'MinBias')
-        dumpIt(f, HeavyIonFlagsFlags.signatures(), 'HeavyIon')
+        dumpIt(f, HeavyIonSliceFlags.signatures(), 'HeavyIon')
         dumpIt(f, CosmicSliceFlags.signatures(), 'Cosmic')
         dumpIt(f, CalibSliceFlags.signatures(), 'Calibration')
         dumpIt(f, StreamingSliceFlags.signatures(), 'Streaming')
@@ -937,15 +944,15 @@ class GenerateMenu:
         log.info("Running TrigConfConsistencyChecker...")
 
         # Check for the Lvl1 XML first in the current dir, then in $XMLPATH
-        (ret, output) = commands.getstatusoutput('TrigConfConsistencyChecker --lvl1xml %s --hltxml %s --exceptions  %s '% \
-                                                 ( self.trigConfL1.inputFile if self.trigConfL1.inputFile!=None else self.trigConfL1.outputFile,
-                                                   self.triggerPythonConfig.getHLTConfigFile(),
-                                                   "TriggerMenu/menu_check_exceptions.xml") )
-        print output
+        (ret, output) = getstatusoutput('TrigConfConsistencyChecker --lvl1xml %s --hltxml %s --exceptions  %s '% \
+                                        ( self.trigConfL1.inputFile if self.trigConfL1.inputFile is not None else self.trigConfL1.outputFile,
+                                          self.triggerPythonConfig.getHLTConfigFile(),
+                                          "TriggerMenu/menu_check_exceptions.xml") )
+        print (output)
   
         # this does test the triggertype (JS)
         #for bit in xrange(8):
-        #    print "TriggerType",bit,":",self.triggerPythonConfig.Lvl1ItemByTriggerType(0x01<<bit,0x01<<bit)
+        #    print ("TriggerType",bit,":",self.triggerPythonConfig.Lvl1ItemByTriggerType(0x01<<bit,0x01<<bit))
 
         if ret==0:
             log.info("TrigConfConsistencyChecker successful.")

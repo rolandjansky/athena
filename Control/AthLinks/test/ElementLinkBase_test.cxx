@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -476,12 +476,12 @@ void test4 (SGTest::TestStore& store)
   size_t index = 10;
   h1.toTransient (sgkey);
 
-  assert (h1.thin (sgkey, index) == false);
+  assert (h1.thin (sgkey, index, nullptr) == false);
   assert (sgkey == sgkey_foo);
   assert (index == 10);
 
   svc.remap (10, 12);
-  assert (h1.thin (sgkey, index) == true);
+  assert (h1.thin (sgkey, index, nullptr) == true);
   assert (sgkey == sgkey_foo);
   assert (index == 12);
 }

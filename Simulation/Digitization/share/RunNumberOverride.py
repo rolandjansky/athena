@@ -1,3 +1,4 @@
+from __future__ import print_function
 #--------------------------------------------------------------------
 # Overrides for run,lumi - dependent MC
 #--------------------------------------------------------------------
@@ -7,7 +8,7 @@ from AthenaCommon.AppMgr import ServiceMgr
 if digitizationFlags.dataRunNumber.get_Value():
     if digitizationFlags.dataRunNumber.get_Value() < 0:
         raise SystemExit("Given a negative Run Number - please use a real run number from data.")
-    print 'Overriding run number to be: %s ', digitizationFlags.dataRunNumber.get_Value()
+    print ('Overriding run number to be: %s ', digitizationFlags.dataRunNumber.get_Value())
     myRunNumber = digitizationFlags.dataRunNumber.get_Value()
     myFirstLB = 1
     myInitialTimeStamp = 1
@@ -33,7 +34,6 @@ if digitizationFlags.dataRunNumber.get_Value():
     try:
         from RunDependentSimComps.RunDMCFlags import runDMCFlags
         myInitialTimeStamp = runDMCFlags.RunToTimestampDict.getTimestampForRun(myRunNumber)
-        #print "FOUND TIMESTAMP ", str(myInitialTimeStamp)
     except:
         myInitialTimeStamp = 1
     ServiceMgr.EventSelector.InitialTimeStamp = myInitialTimeStamp

@@ -43,19 +43,20 @@ atlas_add_dictionary( AthenaKernelDict
    AthenaKernel/selection.xml
    LINK_LIBRARIES GaudiKernel AthenaKernel )
 
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py 
+                              POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.txt )
 
 # Test(s) in the package:
 atlas_add_test( getMessageSvc_test
    SOURCES test/getMessageSvc_test.cxx
-   LINK_LIBRARIES GaudiKernel TestTools AthenaKernel
-   EXTRA_PATTERNS "^=========+|^ApplicationMgr +SUCCESS|^HistogramPersis.*INFO.*CnvServices|^StatusCodeSvc +INFO initialize|^ *Welcome to ApplicationMgr|^ *running on|^Wall clock time" )
+   EXTRA_PATTERNS "^Wall clock time"
+   LINK_LIBRARIES GaudiKernel TestTools AthenaKernel )
 
 atlas_add_test( MsgStreamMember_test
    SOURCES test/MsgStreamMember_test.cxx
-   LINK_LIBRARIES TestTools AthenaKernel
-   EXTRA_PATTERNS "^=========+|^ApplicationMgr +SUCCESS|^HistogramPersis.*INFO.*CnvServices|^StatusCodeSvc +INFO initialize|^ *Welcome to ApplicationMgr|^ *running on|^Wall clock time |ref count" )
+   EXTRA_PATTERNS "^Wall clock time |ref count"
+   LINK_LIBRARIES TestTools AthenaKernel )
 
 atlas_add_test( AthenaPackageInfo_test
    SOURCES test/AthenaPackageInfo_test.cxx
@@ -72,8 +73,7 @@ atlas_add_test( Chrono_test
 
 atlas_add_test( errorcheck_test
    SOURCES test/errorcheck_test.cxx
-   LINK_LIBRARIES GaudiKernel TestTools AthenaKernel
-   EXTRA_PATTERNS "^=========+|^ApplicationMgr +SUCCESS|^HistogramPersis.*INFO.*CnvServices|^StatusCodeSvc +INFO initialize|^ *Welcome to ApplicationMgr|^ *running on|^Wall clock time" )
+   LINK_LIBRARIES GaudiKernel TestTools AthenaKernel )
 
 atlas_add_test( type_tools_test
    SOURCES test/type_tools_test.cxx
@@ -121,8 +121,7 @@ atlas_add_test( DataBucket_test
                SOURCES
                test/DataBucket_test.cxx
                INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-               LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaKernel CxxUtils GaudiKernel TestTools 
-               EXTRA_PATTERNS "^HistogramPersis.* INFO" )
+               LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaKernel CxxUtils GaudiKernel TestTools )
 
 atlas_add_test( RCUUpdater_test
    SOURCES test/RCUUpdater_test.cxx
@@ -140,3 +139,19 @@ atlas_add_test( RecyclableDataObject_test
   SOURCES test/RecyclableDataObject_test.cxx
   INCLUDE_DIRS ${TBB_INCLUDE_DIRS}
   LINK_LIBRARIES AthenaKernel TestTools ${TBB_LIBRARIES} )
+
+atlas_add_test( ExtendedEventContext_test
+  SOURCES test/ExtendedEventContext_test.cxx
+  LINK_LIBRARIES AthenaKernel TestTools )
+
+atlas_add_test( ThinningDecisionBase_test
+  SOURCES test/ThinningDecisionBase_test.cxx
+  LINK_LIBRARIES AthenaKernel TestTools )
+
+atlas_add_test( ThinningCache_test
+  SOURCES test/ThinningCache_test.cxx
+  LINK_LIBRARIES AthenaKernel TestTools )
+
+atlas_add_test( getThinningCache_test
+  SOURCES test/getThinningCache_test.cxx
+  LINK_LIBRARIES AthenaKernel TestTools )

@@ -54,21 +54,11 @@ private:
   SG::WriteHandleKey<TrigTimeStamp> m_startStampKey{ this, "StartStampKey", "L1DecoderStart", 
       "Object with the time stamp when decoding started" };
 
-  SG::WriteHandleKey<TrigRoiDescriptorCollection> m_trigFSRoIKey{
-    this, "OutputFSTrigRoI", "FSRoI", "Name of the RoIs object containing the single FS RoI tagged with all chains in which FS reconstruction happens and have no dependencey on L1 information"};
-
-  SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_FSDecisions{
-    this, "FSDecisions", "L1FS", "Name of the decisions container (suitable for filters) containing all unprescaled chains"};
-
   Gaudi::Property<bool> m_doCostMonitoring{this, "DoCostMonitoring", false, 
     "Enables start-of-event cost monitoring behavior."};
 
-  Gaudi::Property<std::string> m_costMonitoringChain{this, "CostMonitoringChain", "HLT_costmonitor", 
+  Gaudi::Property<std::string> m_costMonitoringChain{this, "CostMonitoringChain", "HLT_costmonitor_CostMonDS_L1All", 
     "Name of the chain which should enable HLT cost montoring."};
-
-  Gaudi::Property<std::map<std::string, std::string>> m_chainToCTPProperty{
-    this, "ChainToCTPMapping", {}, "Seeding in the form: HLT_chain : L1_item"};
-  ///@}
 
   ServiceHandle<ITrigCostMTSvc> m_trigCostSvcHandle { this, "TrigCostMTSvc", "TrigCostMTSvc", 
       "The trigger cost service" };

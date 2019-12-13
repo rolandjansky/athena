@@ -18,8 +18,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthAnalysisBaseComps
                           Control/AthToolSupport/AsgTools
                           Event/xAOD/xAODJet
-                          AtlasTest/GoogleTestTools
-                          TestPolicy )
+                          AtlasTest/GoogleTestTools )
 
 # Libraries in the package:
 atlas_add_library( AthAsgExUnittestLib

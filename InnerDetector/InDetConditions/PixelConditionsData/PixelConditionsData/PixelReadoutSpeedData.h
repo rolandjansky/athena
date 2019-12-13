@@ -17,7 +17,7 @@ class PixelReadoutSpeedData {
     PixelReadoutSpeedData& operator= (const PixelReadoutSpeedData &other) = delete;
 
     void setReadoutMap(std::map<uint32_t,bool> rodReadoutMap);
-    std::map<uint32_t,bool> getReadoutMap() const;
+    const std::map<uint32_t,bool>& getReadoutMap() const;
 
     void clear();
 
@@ -27,7 +27,7 @@ class PixelReadoutSpeedData {
 
 inline void PixelReadoutSpeedData::setReadoutMap(std::map<uint32_t,bool> rodReadoutMap) { m_rodReadoutMap=rodReadoutMap; }
 
-inline std::map<uint32_t,bool> PixelReadoutSpeedData::getReadoutMap() const { return m_rodReadoutMap; }
+inline const std::map<uint32_t,bool>& PixelReadoutSpeedData::getReadoutMap() const { return m_rodReadoutMap; }
 
 CLASS_DEF( PixelReadoutSpeedData , 107567278 , 1 )   // class definition with CLID
 

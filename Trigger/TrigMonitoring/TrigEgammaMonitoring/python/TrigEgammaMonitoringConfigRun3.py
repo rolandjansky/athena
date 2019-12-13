@@ -233,20 +233,7 @@ class TrigEgammaMonToolBuilderRun3(TrigEgammaMonToolBuilder):
         # trigEgammaMonAlg.RandomHist = True
         # to enable a trigger filter, for example:
         trigEgammaMonAlg.TriggerChain = triggerChain
-        trigEgammaMonAlg.OutputLevel = 2 # DEBUG
-
-        ### STEP 4 ###
-        # Add some tools. N.B. Do not use your own trigger decision tool. Use the
-        # standard one that is included with AthMonitorAlgorithm.
-
-        # # First, add a tool that's set up by a different configuration function.
-        # # In this case, CaloNoiseToolCfg returns its own component accumulator,
-        # # which must be merged with the one from this function.
-        # from CaloTools.CaloNoiseToolConfig import CaloNoiseToolCfg
-        # caloNoiseAcc, caloNoiseTool = CaloNoiseToolCfg(inputFlags)
-        # result.merge(caloNoiseAcc)
-        # trigEgammaMonAlg.CaloNoiseTool = caloNoiseTool
-
+        # trigEgammaMonAlg.OutputLevel = 2 # DEBUG
 
 
         # # Then, add a tool that doesn't have its own configuration function. In

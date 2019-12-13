@@ -209,38 +209,6 @@ void FPEAuditor::afterExecute( INamedInterface* comp,
   pop_fpe_node();
 }
 
-void FPEAuditor::beforeBeginRun(INamedInterface* /*comp*/)
-{
-  add_fpe_node();
-  // install new signal handler here, before it will conflict with
-  // CoreDumpSvc, which installs its own signal handler for FPE by default
-  FPEAudit::lock_t lock (FPEAudit::s_mutex);
-  if ( m_NstacktracesOnFPE && ! FPEAudit::s_handlerInstalled )
-    {
-      InstallHandler();
-      m_nexceptions = m_NstacktracesOnFPE;
-    }
-}
-
-void FPEAuditor::afterBeginRun(INamedInterface* comp)
-{
-  static const std::string step = "beginrun";
-  report_fpe(step, comp->name());
-  pop_fpe_node();
-}
-
-void FPEAuditor::beforeEndRun(INamedInterface* /*comp*/)
-{
-  add_fpe_node();
-}
-
-void FPEAuditor::afterEndRun(INamedInterface* comp)
-{
-  static const std::string step = "endrun";
-  report_fpe(step, comp->name());
-  pop_fpe_node();
-}
-
 void FPEAuditor::beforeFinalize(INamedInterface* /*comp*/)
 {
   add_fpe_node();

@@ -10,8 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
                           Control/AthenaBaseComps
-                          Control/AthenaMonitoring
-                          TestPolicy )
+                          Control/AthenaMonitoring )
 
 # Component(s) in the package:
 atlas_add_component( AthExMonitored
@@ -20,6 +19,5 @@ atlas_add_component( AthExMonitored
                      LINK_LIBRARIES GaudiKernel AthenaBaseComps AthenaMonitoringLib)
 
 # Install files from the package:
-atlas_install_headers( AthExMonitored )
 atlas_install_joboptions( share/*.py )
 

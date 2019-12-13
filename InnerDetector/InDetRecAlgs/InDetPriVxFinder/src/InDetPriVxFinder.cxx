@@ -22,6 +22,8 @@
 // normal includes
 #include "TrkParticleBase/TrackParticleBaseCollection.h"
 
+#include "AthenaMonitoring/Monitored.h"
+
 namespace InDet
 {
 
@@ -95,7 +97,8 @@ namespace InDet
     ATH_CHECK(m_trkTracksName.initialize(!m_useTrackParticles));
     ATH_CHECK(m_tracksName.initialize(m_useTrackParticles));
     ATH_CHECK(m_vxCandidatesOutputName.initialize());
-
+  
+    if (!m_monTool.empty()) CHECK(m_monTool.retrieve());
 
     msg(MSG::INFO) << "Initialization successful" << endmsg;
     return StatusCode::SUCCESS;
@@ -105,6 +108,9 @@ namespace InDet
   StatusCode InDetPriVxFinder::execute()
   {
     m_numEventsProcessed++;
+
+    auto numOfTracks   = Monitored::Scalar<int>( "numTracks"   , 0 );
+    auto numOfVertices = Monitored::Scalar<int>( "numVertices" , 0 );
 
     SG::WriteHandle<xAOD::VertexContainer> outputVertices (m_vxCandidatesOutputName);
 
@@ -117,6 +123,7 @@ namespace InDet
       SG::ReadHandle<xAOD::TrackParticleContainer> trackParticleCollection(m_tracksName);
       if(trackParticleCollection.isValid()){
 	theXAODContainers = m_VertexFinderTool->findVertex ( trackParticleCollection.cptr() );
+        numOfTracks = trackParticleCollection->size();
       }
       else{
 	ATH_MSG_DEBUG("No TrackParticle Collection with key "<<m_tracksName.key()<<" exists in StoreGate. No Vertexing Possible");
@@ -127,6 +134,7 @@ namespace InDet
       SG::ReadHandle<TrackCollection> trackCollection(m_trkTracksName);
       if(trackCollection.isValid()){
 	theXAODContainers = m_VertexFinderTool->findVertex ( trackCollection.cptr() );
+        numOfTracks = trackCollection->size();
       }
       else{
 	ATH_MSG_DEBUG("No Trk::Track Collection with key "<<m_trkTracksName.key()<<" exists in StoreGate. No Vertexing Possible");
@@ -134,6 +142,9 @@ namespace InDet
       }
 
     }
+
+
+
 
     // now  re-merge and resort the vertex container and store to SG
     xAOD::VertexContainer* myVertexContainer = 0;
@@ -173,14 +184,29 @@ namespace InDet
       
       ATH_MSG_DEBUG("Successfully reconstructed " << myVxContainers.first->size()-1 << " vertices (excluding dummy)");
       m_totalNumVerticesWithoutDummy += (myVxContainers.first->size()-1); 
-      
+      numOfVertices = m_totalNumVerticesWithoutDummy;
     }
+
+
+    //Loop over vertex container and monitor vertex parameters
+    for ( xAOD::VertexContainer::iterator vertexIter = myVxContainers.first->begin();
+          vertexIter != myVxContainers.first->end(); ++vertexIter ) { 
+
+       monitor_vertex( "allVertex", **vertexIter); 
+
+       //This expects that vertices are already sorted by SumpT(or different criteria)!!!
+       if( vertexIter == myVxContainers.first->begin() ) monitor_vertex( "primVertex", **vertexIter); 
+    }
+
+
     
     ATH_CHECK(outputVertices.record(std::unique_ptr<xAOD::VertexContainer>(myVxContainers.first),std::unique_ptr<xAOD::VertexAuxContainer>(myVxContainers.second)));
     
     
     ATH_MSG_DEBUG( "Recorded Vertices with key: " << m_vxCandidatesOutputName.key() );
-    
+
+    auto mon = Monitored::Group( m_monTool, numOfTracks, numOfVertices );  
+  
     return StatusCode::SUCCESS;
   }
   
@@ -193,6 +219,15 @@ namespace InDet
 	if (m_numEventsProcessed!=0) msg() << "=== " << double(m_totalNumVerticesWithoutDummy)/double(m_numEventsProcessed) << " vertices per event (excluding dummy)." << endmsg;
       } 
     return StatusCode::SUCCESS;
+  }
+
+  void InDetPriVxFinder::monitor_vertex( const std::string &prefix, xAOD::Vertex vertex ){
+     auto x        = Monitored::Scalar<double>( prefix + "X",    vertex.x() ); 
+     auto y        = Monitored::Scalar<double>( prefix + "Y",    vertex.y() ); 
+     auto z        = Monitored::Scalar<double>( prefix + "Z",    vertex.z() ); 
+     auto chi2     = Monitored::Scalar<double>( prefix + "Chi2", vertex.chiSquared() ); 
+     auto nDoF     = Monitored::Scalar<double>( prefix + "nDoF",    vertex.numberDoF() ); 
+     auto mon = Monitored::Group(m_monTool,  x, y, z, chi2, nDoF  );
   }
   
 } // end namespace InDet

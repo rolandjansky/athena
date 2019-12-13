@@ -16,7 +16,6 @@ class TrigBjetEtHypoAlgMT : public TrigBjetHypoAlgBaseMT {
  public: 
 
   TrigBjetEtHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator );
-  virtual ~TrigBjetEtHypoAlgMT();
 
   virtual StatusCode  initialize();
   virtual StatusCode  execute( const EventContext& context ) const;
@@ -24,36 +23,23 @@ class TrigBjetEtHypoAlgMT : public TrigBjetHypoAlgBaseMT {
  protected:
   TrigBjetEtHypoAlgMT();
 
-  virtual StatusCode retrieveJets( const EventContext&,
-				   ElementLinkVector< xAOD::JetContainer >&,
-				   const SG::ReadHandleKey< xAOD::JetContainer >&,
-				   const TrigCompositeUtils::DecisionContainer* ) const;
-  
-  virtual StatusCode retrieveRoIs( const EventContext&,
-                                   const TrigRoiDescriptorCollection*&,
-                                   const SG::ReadHandleKey< TrigRoiDescriptorCollection >& ) const;
-  
-  virtual StatusCode setJetLink( const EventContext&,
-				 const SG::ReadHandleKey< xAOD::JetContainer >&,
-				 const unsigned int,
-				 const TrigCompositeUtils::DecisionContainer*&,
-				 std::vector< TrigCompositeUtils::Decision* >& ) const;
-  
-  virtual const TrigCompositeUtils::Decision* getPreviousDecision( const TrigCompositeUtils::DecisionContainer*,unsigned int ) const;
-
-  virtual StatusCode attachLinkToDecisions( const EventContext&,
-                                            const TrigCompositeUtils::DecisionContainer*,
-                                            std::vector< TrigCompositeUtils::Decision* >& ) const;
+  virtual StatusCode attachLinksToDecision( const EventContext&,
+                                            TrigCompositeUtils::Decision&,
+					    int index,
+					    int indexPrmVertex = 0 ) const;
   
  protected:
   ToolHandleArray< TrigBjetEtHypoTool > m_hypoTools {this,"HypoTools",{},"Hypo Tools"};
   
   Gaudi::Property< std::string > m_roiLink {this,"RoILink","Undefined","RoI link to attach to the output decision"};
   Gaudi::Property< std::string > m_prmVtxLink {this,"PrmVtxLink","Undefined","PrmVtx link to attach to the output decision"};
+
+  Gaudi::Property< bool > m_retrieveVertexFromEventView {this,"RetrieveVertexFromEventView",false,"State where the prim vertex has to be retrieved from the Event or from the View context"};
   
   SG::ReadHandleKey< xAOD::JetContainer > m_inputJetsKey {this,"Jets","Undefined","Input Jet Container Key"};
   SG::ReadHandleKey< TrigRoiDescriptorCollection > m_inputRoIKey {this,"RoIs","Undefined","Input RoIs that will be linked to the output decision"};
   SG::ReadHandleKey< xAOD::VertexContainer > m_inputPrmVtx {this,"PrmVtx","Undefined","Primary vertex to be linked to the output decision"};
 }; 
+
 
 #endif 

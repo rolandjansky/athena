@@ -6,6 +6,7 @@ from AthenaCommon.Configurable import Configurable,ConfigurableService,Configura
 from AthenaCommon.CFElements import isSequence,findSubSequence,findAlgorithm,flatSequencers,findOwningSequence,\
     checkSequenceConsistency, findAllAlgorithmsByName
 from AthenaCommon.AlgSequence import AthSequencer
+from AthenaCommon.Debugging import DbgStage
 
 import GaudiKernel.GaudiHandles as GaudiHandles
 
@@ -15,13 +16,14 @@ import ast
 import collections
 import six
 import copy
+import sys
 
 from AthenaConfiguration.UnifyProperties import unifySet
 
 class ConfigurationError(RuntimeError):
     pass
 
-_servicesToCreate=frozenset(('GeoModelSvc','TileInfoLoader','DetDescrCnvSvc'))
+_servicesToCreate=frozenset(('GeoModelSvc','TileInfoLoader','DetDescrCnvSvc','CoreDumpSvc'))
 
 def printProperties(msg, c, nestLevel = 0):
     # Iterate in sorted order.
@@ -46,8 +48,18 @@ def printProperties(msg, c, nestLevel = 0):
             propstr = "PrivateToolHandleArray([ {0} ])".format(', '.join(ths))
         elif isinstance(propval,ConfigurableAlgTool):
             propstr = propval.getFullName()
-        msg.info( " "*nestLevel +"    * {0}: {1}".format(propname,propstr) )
+        msg.info( " "*nestLevel +"    * {0}: {1}".format(propname,propstr))
     return
+
+
+def filterComponents (comps, onlyComponents = []):
+    ret = []
+    for c in comps:
+        if not onlyComponents or c.getName() in onlyComponents:
+            ret.append ((c, True))
+        elif c.getName()+'-' in onlyComponents:
+            ret.append ((c, False))
+    return ret
 
 
 class ComponentAccumulator(object):
@@ -76,6 +88,10 @@ class ComponentAccumulator(object):
         self._wasMerged=False
         self._isMergable=True
         self._lastAddedComponent="Unknown" 
+        self._debugStage=DbgStage()
+
+    def setAsTopLevel(self):
+        self._isMergable = False
 
 
     def _inspect(self): #Create a string some basic info about this CA, useful for debugging
@@ -110,16 +126,21 @@ class ComponentAccumulator(object):
 
 
 
-    def printCondAlgs(self, summariseProps=False):
+    def printCondAlgs(self, summariseProps=False, onlyComponents=[]):
         self._msg.info( "Condition Algorithms" )
-        for c in self._conditionsAlgs:
+        for (c, flag) in filterComponents (self._conditionsAlgs, onlyComponents):
             self._msg.info( " " +"\\__ "+ c.name() +" (cond alg)" )
-            if summariseProps:
+            if summariseProps and flag:
                 printProperties(self._msg, c, 1)
         return
         
 
-    def printConfig(self, withDetails=False, summariseProps=False):
+    # If onlyComponents is set, then only print components with names
+    # that appear in the onlyComponents list.  If a name is present
+    # in the list with a trailing `-', then only the name of the component
+    # will be printed, not its properties.
+    def printConfig(self, withDetails=False, summariseProps=False,
+                    onlyComponents = []):
         self._msg.info( "Event Inputs" )
         self._msg.info( "Event Algorithm Sequences" )
 
@@ -127,7 +148,8 @@ class ComponentAccumulator(object):
         if withDetails:
             self._msg.info( self._sequence )
         else:
-            def printSeqAndAlgs(seq, nestLevel = 0):
+            def printSeqAndAlgs(seq, nestLevel = 0,
+                                onlyComponents = []):
                 def __prop(name):
                     if name in seq.getValuedProperties():
                         return seq.getValuedProperties()[name]
@@ -136,36 +158,37 @@ class ComponentAccumulator(object):
                 self._msg.info( " "*nestLevel +"\\__ "+ seq.name() +" (seq: %s %s)",
                                 "SEQ" if __prop("Sequential") else "PAR", "OR" if __prop("ModeOR") else "AND" )
                 nestLevel += 3
-                for c in seq.getChildren():
+                for (c, flag) in filterComponents (seq.getChildren(), onlyComponents):
                     if isSequence(c):
-                        printSeqAndAlgs(c, nestLevel )
+                        printSeqAndAlgs(c, nestLevel, onlyComponents = onlyComponents )
                     else:
                         self._msg.info( " "*nestLevel +"\\__ "+ c.name() +" (alg)" )
-                        if summariseProps:
+                        if summariseProps and flag:
                             printProperties(self._msg, c, nestLevel)
 
             for n,s in enumerate(self._allSequences):
                 self._msg.info( "Top sequence {}".format(n) )
-                printSeqAndAlgs(s)
+                printSeqAndAlgs(s, onlyComponents = onlyComponents)
 
-        self.printCondAlgs (summariseProps = summariseProps)
+        self.printCondAlgs (summariseProps = summariseProps,
+                            onlyComponents = onlyComponents)
         self._msg.info( "Services" )
-        self._msg.info( [ s.getName() for s in self._services ] )
+        self._msg.info( [ s[0].getName() for s in filterComponents (self._services, onlyComponents) ] )
         self._msg.info( "Public Tools" )
         self._msg.info( "[" )
-        for t in self._publicTools:
+        for (t, flag) in filterComponents (self._publicTools, onlyComponents):
             self._msg.info( "  {0},".format(t.getFullName()) )
             # Not nested, for now
-            if summariseProps:
+            if summariseProps and flag:
                 printProperties(self._msg, t)
         self._msg.info( "]" )
         self._msg.info( "Private Tools")
         self._msg.info( "[" )
         if (isinstance(self._privateTools, list)):
-            for t in self._privateTools:
+            for (t, flag) in filterComponents (self._privateTools, onlyComponents):
                 self._msg.info( "  {0},".format(t.getFullName()) )
                 # Not nested, for now
-                if summariseProps:
+                if summariseProps and flag:
                     printProperties(self._msg, t)
         else:
             if self._privateTools is not None:
@@ -173,6 +196,10 @@ class ComponentAccumulator(object):
                 if summariseProps:
                     printProperties(self._msg, self._privateTools)
         self._msg.info( "]" )
+        self._msg.info( "TheApp properties" )
+        for k,v in six.iteritems(self._theAppProps):
+            self._msg.info("  {} : {}".format(k,v))
+
 
     def addSequence(self, newseq, parentName = None ):
         """ Adds new sequence. If second argument is present then it is added under another sequence  """
@@ -415,6 +442,13 @@ class ComponentAccumulator(object):
 
         pass
 
+
+    def setDebugStage(self,stage):
+        if stage not in DbgStage.allowed_values:
+            raise RuntimeError("Allowed arguments for setDebugStage are [%s]" % (",".join(DbgStage.allowed_values)))
+        self._debugStage.value=stage
+        pass
+
     def merge(self,other, sequenceName=None):
         """Merging in the other accumulator"""
         if other is None:
@@ -431,7 +465,7 @@ class ComponentAccumulator(object):
                 raise RuntimeError("merge called with a ComponentAccumulator a dangling (array of) private tools")
         
         if not other._isMergable:
-            raise ConfigurationError("Attempted to merge the accumulator that was unsafely manipulated (likely with foreach_component, ...)")
+            raise ConfigurationError("Attempted to merge the ComponentAccumulator that was unsafely manipulated (likely with foreach_component, ...) or is a top level ComponentAccumulator, in such case revert the order")
 
         #destSubSeq = findSubSequence(self._sequence, sequence)
         #if destSubSeq == None:
@@ -748,6 +782,12 @@ class ComponentAccumulator(object):
         self._wasMerged=True
 
     def createApp(self,OutputLevel=3):
+        # Create the Gaudi object early.
+        # Without this here, pyroot can sometimes get confused
+        # and report spurious type mismatch errors about this object.
+        import ROOT
+        ROOT.Gaudi
+
         self._wasMerged=True
         from Gaudi.Main import BootstrapHelper
         bsh=BootstrapHelper()
@@ -798,7 +838,12 @@ class ComponentAccumulator(object):
 
         #Add services
         for svc in self._services:
-            addCompToJos(svc)
+            if svc.getName()=="MessageSvc":
+                #Message svc exists already! Needs special treatment
+                for k, v in svc.getValuedProperties().items():
+                    bsh.setProperty(msp,k.encode(),str(v).encode())
+            else:
+                addCompToJos(svc)
             pass
 
         #Add tree of algorithm sequences:
@@ -810,6 +855,14 @@ class ComponentAccumulator(object):
 
         for seqName, algoList in six.iteritems(flatSequencers( self._sequence, algsCollection=self._algorithms )):
             self._msg.debug("Members of %s : %s", seqName, str([alg.getFullName() for alg in algoList]))
+
+            seq = self.getSequence(seqName)
+            for k, v in seq.getValuedProperties().items():
+                if k!="Members": #This property his handled separatly
+                    self._msg.debug("Adding "+seqName+"."+k+" = "+str(v))
+                    bsh.addPropertyToCatalogue(jos,seqName.encode(),k.encode(),str(v).encode())
+                pass
+
             bsh.addPropertyToCatalogue(jos,seqName.encode(),b"Members",str( [alg.getFullName() for alg in algoList]).encode())
             for alg in algoList:
                 addCompToJos(alg)
@@ -836,7 +889,11 @@ class ComponentAccumulator(object):
         return app
 
     def run(self,maxEvents=None,OutputLevel=3):
-        from AthenaCommon.Debugging import allowPtrace
+        # Make sure python output is flushed before triggering output from Gaudi.
+        # Otherwise, observed output ordering may differ between py2/py3.
+        sys.stdout.flush()
+
+        from AthenaCommon.Debugging import allowPtrace, hookDebugger
         allowPtrace()
 
         app = self.createApp (OutputLevel)
@@ -849,7 +906,8 @@ class ComponentAccumulator(object):
             else:
                 maxEvents=-1
 
-        self._msg.info("INITIALIZE STEP")
+        if (self._debugStage.value == "init"): 
+            hookDebugger()
         sc = app.initialize()
         if not sc.isSuccess():
             self._msg.error("Failed to initialize AppMgr")
@@ -862,6 +920,8 @@ class ComponentAccumulator(object):
             self._msg.error("Failed to start AppMgr")
             return sc
 
+        if (self._debugStage.value=="exec"): 
+            hookDebugger()
         sc = app.run(maxEvents)
         if not sc.isSuccess():
             self._msg.error("Failure running application")
@@ -869,6 +929,8 @@ class ComponentAccumulator(object):
 
         app.stop().ignore()
 
+        if (self._debugStage.value == "fini"): 
+            hookDebugger()
         app.finalize().ignore()
 
         sc1 = app.terminate()

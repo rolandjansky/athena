@@ -34,20 +34,20 @@ class StatusCode;
 class SCT_CalibModuleListTool : public extends<AthAlgTool, ISCT_CalibModuleListTool>
 {
 
- public:
-  //@name Tool methods, reimplemented
-  //@{
-  SCT_CalibModuleListTool(const std::string&, const std::string&, const IInterface*);
-  virtual ~SCT_CalibModuleListTool() = default;
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
-  //@}
-  virtual StatusCode readModuleList(std::map<Identifier, std::set<Identifier>>& moduleList) const;
+   public:
+      //@name Tool methods, reimplemented
+      //@{
+      SCT_CalibModuleListTool(const std::string&, const std::string&, const IInterface*);
+      virtual ~SCT_CalibModuleListTool() = default;
+      virtual StatusCode initialize();
+      virtual StatusCode finalize();
+      //@}
+      virtual StatusCode readModuleList(std::map<Identifier, std::set<Identifier>>& moduleList) const;
 
- private:
-  const SCT_ID* m_pSCTHelper{nullptr};
-  ToolHandle<ISCT_MonitorConditionsTool> m_MonitorConditionsTool{this, "SCT_MonitorConditionsTool", "SCT_MonitorConditionsTool/InDetSCT_MonitorConditionsTool", "Tool to retrieve noisy strip information"};
-  ServiceHandle<IIOVDbSvc> m_IOVDbSvc{this, "IOVDbSvc", "IOVDbSvc"};
+   private:
+      const SCT_ID* m_pSCTHelper{nullptr};
+      ToolHandle<ISCT_MonitorConditionsTool> m_MonitorConditionsTool{this, "SCT_MonitorConditionsTool", "SCT_MonitorConditionsTool/InDetSCT_MonitorConditionsTool", "Tool to retrieve noisy strip information"};
+      ServiceHandle<IIOVDbSvc> m_IOVDbSvc{this, "IOVDbSvc", "IOVDbSvc"};
 
 };
 #endif

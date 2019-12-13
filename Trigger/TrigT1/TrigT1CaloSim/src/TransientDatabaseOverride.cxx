@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloSim/TransientDatabaseOverride.h"
@@ -9,7 +9,6 @@
 #include <functional>
 #include <utility>
 
-#include "CxxUtils/make_unique.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "TrigT1CaloCalibConditions/L1CaloDisabledTowersContainer.h"
 #include "TrigT1CaloCalibConditions/L1CaloPpmDeadChannelsContainer.h"
@@ -88,7 +87,7 @@ void TransientDatabaseOverride::handleFolder(const std::string& folderName,
                                              Func&& modifyFunc,
                                              AddFunc&& addFunc)
 {
-  using CxxUtils::make_unique;
+  using std::make_unique;
 
   if(outKey.empty()) return;
   

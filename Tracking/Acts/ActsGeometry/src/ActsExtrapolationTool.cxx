@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ActsGeometry/ActsExtrapolationTool.h"
@@ -27,7 +27,7 @@
 
 ActsExtrapolationTool::ActsExtrapolationTool(const std::string& type, const std::string& name,
     const IInterface* parent)
-  : AthAlgTool(type, name, parent),
+  : base_class(type, name, parent),
     m_fieldServiceHandle("AtlasFieldSvc", name)
 {
 
@@ -53,8 +53,8 @@ ActsExtrapolationTool::initialize()
     ATH_MSG_INFO("Using ATLAS magnetic field service");
     using BField_t = ATLASMagneticFieldWrapper;
     BField_t bField(m_fieldServiceHandle.get());
-    auto stepper = Acts::EigenStepper<BField_t>(std::move(bField));
-    auto propagator = Acts::Propagator<decltype(stepper), Acts::Navigator>(std::move(stepper),
+    auto stepper = Acts::EigenStepper<BField_t, Corrector>(std::move(bField));
+    auto propagator = Acts::Propagator<decltype(stepper), Acts::Navigator>(std::move(stepper), 
                                                                       std::move(navigator));
     m_varProp = std::make_unique<VariantPropagator>(propagator);
   }
@@ -66,8 +66,8 @@ ActsExtrapolationTool::initialize()
     ATH_MSG_INFO("Using constant magnetic field: (Bx, By, Bz) = (" << Bx << ", " << By << ", " << Bz << ")");
     using BField_t = Acts::ConstantBField;
     BField_t bField(Bx, By, Bz);
-    auto stepper = Acts::EigenStepper<BField_t>(std::move(bField));
-    auto propagator = Acts::Propagator<decltype(stepper), Acts::Navigator>(std::move(stepper),
+    auto stepper = Acts::EigenStepper<BField_t, Corrector>(std::move(bField));
+    auto propagator = Acts::Propagator<decltype(stepper), Acts::Navigator>(std::move(stepper), 
                                                                       std::move(navigator));
     m_varProp = std::make_unique<VariantPropagator>(propagator);
   }

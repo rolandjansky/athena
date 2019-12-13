@@ -10,8 +10,6 @@
 
 #include "CopyEventStreamInfo.h"
 
-#include "GaudiKernel/FileIncident.h"
-
 #include "EventInfo/EventStreamInfo.h"
 #include "StoreGate/StoreGateSvc.h"
 

@@ -57,7 +57,6 @@ def RpcBytestreamDecodeCfg(flags, forTrigger=False):
     if forTrigger:
         MuonRpcRawDataProviderTool.RpcContainerCacheKey   = MuonCacheNames.RpcCache
         MuonRpcRawDataProviderTool.WriteOutRpcSectorLogic = False
-        MuonRpcRawDataProviderTool.OutputLevel = DEBUG
 
     acc.addPublicTool( MuonRpcRawDataProviderTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
@@ -68,8 +67,8 @@ def RpcBytestreamDecodeCfg(flags, forTrigger=False):
 
     if forTrigger:
         # Configure the RAW data provider for ROI access
-        RpcRawDataProvider.DoSeededDecoding = True
-        RpcRawDataProvider.RoIs = "MURoIs" # Maybe we don't want to hard code this?
+        from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
+        RpcRawDataProvider.RoIs = mapThresholdToL1RoICollection("MU")
 
     acc.addEventAlgo(RpcRawDataProvider, primary=True)
     return acc
@@ -101,7 +100,6 @@ def TgcBytestreamDecodeCfg(flags, forTrigger=False):
 
     if forTrigger:
         MuonTgcRawDataProviderTool.TgcContainerCacheKey   = MuonCacheNames.TgcCache
-        MuonTgcRawDataProviderTool.OutputLevel = DEBUG
 
     acc.addPublicTool( MuonTgcRawDataProviderTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
@@ -121,8 +119,9 @@ def MdtBytestreamDecodeCfg(flags, forTrigger=False):
     from MuonConfig.MuonCablingConfig import MDTCablingConfigCfg
     acc.merge( MDTCablingConfigCfg(flags) )
 
-    from MuonConfig.MuonCalibConfig import MdtCalibrationSvcCfg
-    acc.merge( MdtCalibrationSvcCfg(flags)  )
+    # need the MagFieldSvc since MdtRdoToMdtPrepData.MdtRdoToMdtPrepDataTool.MdtCalibrationTool wants to retrieve it
+    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+    acc.merge( MagneticFieldSvcCfg(flags) )
 
     # Make sure muon geometry is configured
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
@@ -130,7 +129,7 @@ def MdtBytestreamDecodeCfg(flags, forTrigger=False):
 
     # Setup the MDT ROD decoder
     from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import MdtROD_Decoder
-    MDTRodDecoder = MdtROD_Decoder(name	     = "MdtROD_Decoder")
+    MDTRodDecoder = MdtROD_Decoder(name="MdtROD_Decoder")
 
     # RAW data provider tool needs ROB data provider service (should be another Config function?)
     from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ROBDataProviderSvc
@@ -140,7 +139,7 @@ def MdtBytestreamDecodeCfg(flags, forTrigger=False):
     # Setup the RAW data provider tool
     from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MDT_RawDataProviderToolMT
     MuonMdtRawDataProviderTool = Muon__MDT_RawDataProviderToolMT(name    = "MDT_RawDataProviderToolMT",
-                                                               Decoder = MDTRodDecoder)
+                                                                 Decoder = MDTRodDecoder)
 
     if forTrigger:
         MuonMdtRawDataProviderTool.CsmContainerCacheKey = MuonCacheNames.MdtCsmCache
@@ -250,7 +249,7 @@ if __name__=="__main__":
 
     # Store config as pickle
     log.info('Save Config')
-    with open('MuonBytestreamDecode.pkl','w') as f:
+    with open('MuonBytestreamDecode.pkl','wb') as f:
         cfg.store(f)
         f.close()
 

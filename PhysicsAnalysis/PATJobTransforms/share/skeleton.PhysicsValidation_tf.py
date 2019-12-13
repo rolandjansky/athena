@@ -150,12 +150,11 @@ if hasattr(runArgs,"postExec"):
 
 # Temporary (July 19) trigger additions
 if TriggerFlags.doMT() or TriggerFlags.EDMDecodingVersion() == 3:
-  ToolSvc.TrigDecisionTool.NavigationFormat="TrigComposite";
-  ToolSvc.TrigDecisionTool.TrigConfigSvc="Trig::TrigConfigSvc/TrigConfigSvc";
-  ServiceMgr.TrigConfigSvc.PriorityList=["run3_dummy", "xml"]
-  from TrigConfigSvc.TrigConfigSvcConfig import (findFileInXMLPATH,  LVL1ConfigSvc, L1TopoConfigSvc)
-  from AthenaConfiguration.AllConfigFlags import ConfigFlags
-  ServiceMgr += LVL1ConfigSvc("LVL1ConfigSvc")
-  ServiceMgr += L1TopoConfigSvc()
-  ServiceMgr.LVL1ConfigSvc.XMLMenuFile = findFileInXMLPATH(ConfigFlags.Trigger.LVL1ConfigFile.replace('newJO_', ''))
-  ServiceMgr.L1TopoConfigSvc.XMLMenuFile = findFileInXMLPATH(ConfigFlags.Trigger.LVL1TopoConfigFile)
+  if hasattr(ToolSvc, 'TrigDecisionTool'):
+    ToolSvc.TrigDecisionTool.NavigationFormat="TrigComposite"
+
+    if not hasattr(ToolSvc, 'xAODConfigTool'):
+      from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODConfigTool
+      ToolSvc += TrigConf__xAODConfigTool('xAODConfigTool')
+    ToolSvc.TrigDecisionTool.ConfigTool = ToolSvc.xAODConfigTool
+    ToolSvc.TrigDecisionTool.TrigConfigSvc = "" # Force use of in-file configuration

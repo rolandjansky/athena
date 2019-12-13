@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONGEOMODEL_MUONDETECTORTOOL_H
@@ -7,7 +7,7 @@
 
 #include "GeoModelUtilities/GeoModelTool.h"
 #include "GaudiKernel/IIncidentListener.h"
-#include "MuonCondInterface/IMuonAlignmentDbTool.h"
+#include "MuonGeoModel/MuonDetectorFactory001.h"
 
 namespace MuonGM
 {
@@ -22,23 +22,15 @@ public:
   // Standard Constructor
   MuonDetectorTool( const std::string& type, const std::string& name, const IInterface* parent );
 
-  //    StatusCode queryInterface( const InterfaceID& riid, void** ppvIf );
-    
   // Standard Destructor
   virtual ~MuonDetectorTool() override final;
 
   //initialize - needed to retrieve the alignment Tool 
   virtual StatusCode initialize() override;
 
-    
-  //register call back to condition data 
-  virtual StatusCode registerCallback() override final;
-
-  //align 
-  virtual StatusCode align(IOVSVC_CALLBACK_ARGS) override final;
-
   // build the geometry 
   virtual StatusCode create() override final;
+  StatusCode createFactory(MuonGM::MuonDetectorFactory001& theFactory);
 
   // Dereference tree tops and drop readout objects
   virtual StatusCode clear() override final;
@@ -58,7 +50,9 @@ private:
   int m_fillCache_initTime;
   bool m_dumpMemoryBreakDown;  
   int m_enableFineClashFixing;
-  bool m_useCSC;
+  bool m_hasCSC;
+  bool m_hasSTgc;
+  bool m_hasMM;
   int m_stationSelection;
   std::vector<std::string> m_selectedStations;
   std::vector<int> m_selectedStEta;
@@ -72,7 +66,7 @@ private:
   bool m_dumpCscIntAlines;
   bool m_useCscIntAlinesFromGM;
   std::string m_altCscIntAlinesFile;
-  int m_cachingFlag;
+  Gaudi::Property<int> m_cachingFlag { this, "CachingFlag", 1, "Turn on/off caching of ReadoutElement surfaces etc. (i.e. for MDTs)" };
   int m_enableMdtDeformations;
   int m_enableMdtAsBuiltParameters;    
   std::string m_altMdtAsBuiltFile;
@@ -89,8 +83,6 @@ private:
   int m_switchOnOff_BUILDFORWARDSHIELD;
   
   
-  ToolHandle<IMuonAlignmentDbTool> m_condDataTool;
-
   const MuonGM::MuonDetectorManager*  m_manager;
 };
 

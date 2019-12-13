@@ -11,8 +11,6 @@
 #include "PixelDigitizationTool.h"
 
 #include "SiDigitization/SiChargedDiodeCollection.h"
-#include "Identifier/Identifier.h"
-#include "InDetIdentifier/PixelID.h"
 
 // Random Number Generation
 #include "AthenaKernel/RNGWrapper.h"
@@ -39,9 +37,6 @@ StatusCode PixelDigitizationTool::initialize() {
   // Initialize random number generator
   ATH_CHECK(m_rndmSvc.retrieve());
 
-  // Initialize detector manager
-  CHECK(detStore()->retrieve(m_detManager,"Pixel"));
-
   CHECK(detStore()->retrieve(m_detID,"PixelID"));
   ATH_MSG_DEBUG("Pixel ID helper retrieved");
 
@@ -62,6 +57,8 @@ StatusCode PixelDigitizationTool::initialize() {
 
   // Initialize ReadHandleKey
   ATH_CHECK(m_hitsContainerKey.initialize(!m_onlyUseContainerName));
+  // Initialize ReadCondHandleKey
+  ATH_CHECK(m_pixelDetEleCollKey.initialize());
 
   // Initialize WriteHandleKey
   ATH_CHECK(m_rdoContainerKey.initialize());
@@ -130,6 +127,13 @@ StatusCode PixelDigitizationTool::processAllSubEvents() {
 StatusCode PixelDigitizationTool::digitizeEvent() {
   ATH_MSG_VERBOSE("PixelDigitizationTool::digitizeEvent()");
 
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements(*pixelDetEleHandle);
+  if (not pixelDetEleHandle.isValid() or elements==nullptr) {
+    ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " is not available.");
+    return StatusCode::FAILURE;
+  }
+
   std::unique_ptr<SiChargedDiodeCollection> chargedDiodes =  std::make_unique<SiChargedDiodeCollection>();
   std::vector<std::pair<double,double> > trfHitRecord; trfHitRecord.clear(); 
   std::vector<double> initialConditions; initialConditions.clear();
@@ -153,9 +157,10 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
     ATH_MSG_DEBUG("create ID for the hit collection");
     const PixelID* PID = static_cast<const PixelID*>(m_detID);
     Identifier id = PID->wafer_id((*firstHit)->getBarrelEndcap(),(*firstHit)->getLayerDisk(),(*firstHit)->getPhiModule(),(*firstHit)->getEtaModule());
+    IdentifierHash wafer_hash = PID->wafer_hash(id);
 
     // Get the det element from the manager
-    InDetDD::SiDetectorElement* sielement = m_detManager->getDetectorElement(id);
+    const InDetDD::SiDetectorElement* sielement = elements->getDetectorElement(wafer_hash);
 
     if (sielement==0) {
       ATH_MSG_DEBUG(" Barrel=" << (*firstHit)->getBarrelEndcap() << " Layer="  << (*firstHit)->getLayerDisk() << " Eta="    << (*firstHit)->getEtaModule() << " Phi="    << (*firstHit)->getPhiModule());
@@ -229,7 +234,7 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
         IdentifierHash idHash = i;
         if (!idHash.is_valid()) { ATH_MSG_ERROR("PixelDetector element id hash is invalid = " << i); }
 
-        const InDetDD::SiDetectorElement *element = m_detManager->getDetectorElement(idHash);
+        const InDetDD::SiDetectorElement *element = elements->getDetectorElement(idHash);
         if (element) {
           ATH_MSG_DEBUG ("In digitize of untouched elements: layer - phi - eta  " << m_detID->layer_disk(element->identify()) << " - " << m_detID->phi_module(element->identify()) << " - " << m_detID->eta_module(element->identify()) << " - " << "size: " << processedElements.size());
 

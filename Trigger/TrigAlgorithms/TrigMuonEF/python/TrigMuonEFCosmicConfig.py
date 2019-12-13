@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #
 # TrigMuonEF configurables
@@ -15,6 +15,7 @@ from AthenaCommon import CfgMgr, CfgGetter
 
 from MuonRecExample import MuonRecTools
 from MuonRecExample.MuonRecFlags import muonRecFlags
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 #from MuonRecExample.MuonRecUtils import AlgToolFactory,ServiceFactory,ConfiguredBase,getProperty
 
 from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
@@ -29,7 +30,7 @@ doT0Fit = True
 #addPublicTool  = _toolFactory.addPublicTool
 
 #from TrkDetDescrSvc.TrkDetDescrSvcConf import TrackingVolumesSvc
-#ServiceMgr += TrackingVolumesSvc(BuildVolumesFromTagInfo = False)#
+#ServiceMgr += TrackingVolumesSvc()#
 #
 #from MuidCaloEnergyTools.MuidCaloEnergyToolsConf import Rec__MuidCaloEnergyMeas
 #TMEFCaloEnergyMeas = Rec__MuidCaloEnergyMeas(name = 'TMEFCaloEnergyMeas', UseCaloNoiseTool = False)
@@ -254,7 +255,7 @@ ToolSvc += TMEF_MooTrackBuilderCosmic
 
 #from MuonCombiTrackMaker.MuonCombiTrackMakerConf import Muon__MuonChamberHoleRecoveryTool
 TMEF_MuonChamberHoleRecoveryToolCosmic = CfgMgr.Muon__MuonChamberHoleRecoveryTool("TMEF_MuonChamberHoleRecoveryToolCosmic",
-                                                                           CscRotCreator = None,
+                                                                           CscRotCreator = "",
                                                                            MdtRotCreator = TMEF_MdtDriftCircleOnTrackCreatorCosmic
                                                                            )
 ToolSvc += TMEF_MuonChamberHoleRecoveryToolCosmic
@@ -301,9 +302,12 @@ ToolSvc += TMEF_MuonTrackScoringToolCosmic
 TMEF_MuonAmbiTrackSelectionToolCosmic = CfgMgr.Muon__MuonAmbiTrackSelectionTool("TMEF_MuonAmbiTrackSelectionToolCosmic")
 ToolSvc += TMEF_MuonAmbiTrackSelectionToolCosmic
 
+import InDetRecExample.TrackingCommon  as TrackingCommon
 #from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__SimpleAmbiguityProcessorTool
 TMEF_MuonAmbiProcessorCosmic = CfgMgr.Trk__SimpleAmbiguityProcessorTool("TMEF_MuonAmbiProcessorCosmic",
                                                                  Fitter             = TMEF_MCTBFitterTGMatCosmic,
+                                                                 AssociationTool    = TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels(),
+                                                                 TrackSummaryTool   = TrackingCommon.getInDetTrigTrackSummaryTool(),
                                                                  ScoringTool        = TMEF_MuonTrackScoringToolCosmic,
                                                                  SuppressHoleSearch = True  ,
                                                                  SuppressTrackFit   = True  ,
@@ -324,7 +328,7 @@ ToolSvc += TMEF_MuonAmbiProcessorCosmic
 # particle creation, Analysis::Muon building and CBNT filling need summary helpers
 # indet and muon TrackSummaryHelper's: take existing public instances when available
 from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
-MuonTrackSummaryHelperTool    = MuonRecTools.getPublicTool("MuonTrackSummaryHelper")
+MuonTrackSummaryHelperTool    = MuonRecTools.getPublicTool("MuonTrackSummaryHelperTool")
 
 
 from AthenaCommon.DetFlags import DetFlags
@@ -353,7 +357,7 @@ class TrigMuonEFSegmentFinderCosmicConfig (TrigMuonEFSegmentFinder):
     def __init__( self, name="TrigMuonEFSegmentFinderCosmic" ):
         super( TrigMuonEFSegmentFinderCosmicConfig, self ).__init__( name )
 
-        self.CscClusterProvider = CfgGetter.getPublicTool("CscThresholdClusterBuilderTool")
+        if MuonGeometryFlags.hasCSC(): self.CscClusterProvider = CfgGetter.getPublicTool("CscThresholdClusterBuilderTool")
 
         from MuonRecExample.MooreTools import MooSegmentCombinationFinder        
         self.SegmentsFinderTool = MooSegmentCombinationFinder("SegmentsFinderToolCosmic")

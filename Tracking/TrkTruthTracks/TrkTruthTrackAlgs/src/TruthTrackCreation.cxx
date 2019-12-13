@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -12,8 +12,6 @@
 #include "TrkTruthTrackInterfaces/IPRD_TruthTrajectorySelector.h"
 #include "TrkTruthTrackInterfaces/ITruthTrackBuilder.h"
 #include "TrkTruthTrackInterfaces/PRD_TruthTrajectory.h"
-#include "TrkToolInterfaces/IPRD_AssociationTool.h"
-#include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 // HepMC
 #include "HepMC/GenParticle.h"
@@ -26,7 +24,6 @@ Trk::TruthTrackCreation::TruthTrackCreation(const std::string& name, ISvcLocator
     AthAlgorithm(name,pSvcLocator),
     m_prdTruthTrajectoryBuilder("Trk::PRD_TruthTrajectoryBuilder/InDetPRD_TruthTrajectoryBuilder"),
     m_truthTrackBuilder("Trk::TruthTrackBuilder/InDetTruthTrackBuilder"),
-    m_assoTool(""),
     m_trackSummaryTool("")
 {
     // Trk Truth Tools
@@ -35,7 +32,6 @@ Trk::TruthTrackCreation::TruthTrackCreation(const std::string& name, ISvcLocator
   declareProperty("PRD_TruthTrajectorySelectors", m_prdTruthTrajectorySelectors, "PRD truth trajectory selectors");
     // Trk Tools
   declareProperty("TrackSelectors",               m_trackSelectors, "Track selectors for a posteriori track selection");
-  declareProperty("AssoTool",                     m_assoTool, "Association tool for PRDs");
   declareProperty("TrackSummaryTool",             m_trackSummaryTool, "Summary tool for completing the track with its summary info");
 }
 
@@ -62,13 +58,10 @@ StatusCode Trk::TruthTrackCreation::initialize()
     // PRD truth trajectory selectors
     if (m_prdTruthTrajectorySelectors.size() && m_prdTruthTrajectorySelectors.retrieve().isFailure()){
         ATH_MSG_ERROR("Could not retrieve " << m_prdTruthTrajectorySelectors << ". Aborting ...");
-        return StatusCode::FAILURE;        
-    }
-    // association tool if configured
-    if (!m_assoTool.empty() && m_assoTool.retrieve().isFailure()){
-        ATH_MSG_ERROR("Could not retrieve " << m_assoTool << ". Aborting ...");
         return StatusCode::FAILURE;
     }
+    ATH_CHECK( m_assoTool.retrieve( DisableTool {m_assoTool.empty()} ));
+
     // track summary tool if configured
     if (!m_trackSummaryTool.empty() && m_trackSummaryTool.retrieve().isFailure()){
         ATH_MSG_ERROR("Could not retrieve " << m_trackSummaryTool << ". Aborting ...");
@@ -98,13 +91,16 @@ StatusCode Trk::TruthTrackCreation::finalize()
 
 StatusCode Trk::TruthTrackCreation::execute()
 {
-    if (!m_assoTool.empty()) m_assoTool->reset();
+    std::unique_ptr<Trk::PRDtoTrackMap> prd_to_track_map(!m_assoTool.empty()
+                                                         ? m_assoTool->createPRDtoTrackMap() 
+                                                         : std::unique_ptr<Trk::PRDtoTrackMap>());
     // create the track collection
     std::unique_ptr<TrackCollection> outputTrackCollection = std::make_unique<TrackCollection>();
     std::unique_ptr<TrackCollection> skippedTrackCollection = std::make_unique<TrackCollection>();
     SG::WriteHandle<TrackCollection> outputTrackCollectionHandle(m_outputTrackCollectionName);
     SG::WriteHandle<TrackCollection> skippedTrackCollectionHandle(m_skippedTrackCollectionName);
  
+    std::vector<std::unique_ptr<Trk::Track> > tmp_track_collection;
 
     // set up the PRD trajectory builder
     if ( m_prdTruthTrajectoryBuilder->refreshEvent().isFailure() ){
@@ -137,16 +133,19 @@ StatusCode Trk::TruthTrackCreation::execute()
             if (!passed) continue;
         }
         // create the truth track
-        Trk::Track* truthTrack = m_truthTrackBuilder->createTrack(ttIter->second);
+        std::unique_ptr<Trk::Track> truthTrack( m_truthTrackBuilder->createTrack(ttIter->second));
         if (!truthTrack){
             ATH_MSG_VERBOSE("Track creation for PRD truth trajectory with size " << (*ttIter).second.prds.size() << " failed. Skipping ...");
             continue;
         } 
         ATH_MSG_VERBOSE("Track creation for PRD truth trajectory with size " << (*ttIter).second.prds.size() << " successful.");
         // If configured : update the track summary
-        if (!m_trackSummaryTool.empty()){
+        if (m_trackSummaryTool.isEnabled()){
             ATH_MSG_VERBOSE("Updating the TrackSummary.");
-            m_trackSummaryTool->updateTrack(*truthTrack);
+            m_trackSummaryTool->computeAndReplaceTrackSummary(*truthTrack,
+                                                              prd_to_track_map.get(),
+                                                              false /* DO NOT suppress hole search*/);
+
         }
         // If configured : check with the TrackSelectors
         bool passed = !(m_trackSelectors.size());
@@ -161,22 +160,30 @@ StatusCode Trk::TruthTrackCreation::execute()
         if (passed){
             // everything good
             ATH_MSG_VERBOSE("Track created and pushed into the output track collection.");
-            if (!m_assoTool.empty() && m_assoTool->addPRDs(*truthTrack).isFailure()) ATH_MSG_WARNING("Failed to add PRDs to map");
-            outputTrackCollection->push_back(truthTrack);       
+            if (prd_to_track_map  && m_assoTool->addPRDs(*prd_to_track_map, *truthTrack).isFailure())  {
+              ATH_MSG_WARNING("Failed to add PRDs to map");
+            }
+            tmp_track_collection.push_back(std::move(truthTrack));
         } else {
             ATH_MSG_VERBOSE("Track did not pass the track selection. Putting it into skipped track collection.");
-            skippedTrackCollection->push_back(truthTrack);
+            skippedTrackCollection->push_back(truthTrack.release());
         }
     }
 
-    
     // If configured : update the track summary
-    if (!m_trackSummaryTool.empty()) {
-        TrackCollection::iterator rf,rfe=outputTrackCollection->end();
-        for (rf=outputTrackCollection->begin();rf!=rfe; ++rf) {
+    if (m_trackSummaryTool.isEnabled()) {
+        outputTrackCollection->reserve(tmp_track_collection.size());
+        for (std::unique_ptr<Trk::Track> &track : tmp_track_collection) {
             ATH_MSG_VERBOSE("Updating the TrackSummary with shared hits.");
-            m_trackSummaryTool->updateTrack(**rf);
+            m_trackSummaryTool->computeAndReplaceTrackSummary(*track, prd_to_track_map.get(), false /* DO NOT suppress hole search*/);
+            outputTrackCollection->push_back(std::move(track));
         }
+    }
+    else {
+       outputTrackCollection->reserve(tmp_track_collection.size());
+       for (std::unique_ptr<Trk::Track> &track : tmp_track_collection) {
+          outputTrackCollection->push_back(std::move(track));
+       }
     }
 
     // ----------------------------------- record & cleanup ---------------------------------------------------------------    

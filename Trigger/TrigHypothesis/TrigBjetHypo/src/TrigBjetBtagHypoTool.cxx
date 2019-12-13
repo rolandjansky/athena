@@ -26,29 +26,13 @@ TrigBjetBtagHypoTool::TrigBjetBtagHypoTool( const std::string& type,
 
 // -----------------------------------------------------------------------------------------------------------------
 
-TrigBjetBtagHypoTool::~TrigBjetBtagHypoTool() {}
-
-// -----------------------------------------------------------------------------------------------------------------
-
 StatusCode TrigBjetBtagHypoTool::initialize()  {
 
-  // Get message service  
-
-  ATH_MSG_INFO("Initializing " << name() << " ..." );
- 
   ATH_MSG_DEBUG(  "declareProperty review:"   );
   ATH_MSG_DEBUG(  "   " << m_acceptAll        ); 
   ATH_MSG_DEBUG(  "   " << m_methodTag        ); 
   ATH_MSG_DEBUG(  "   " << m_bTaggingCut      );
  
-  // Retrieve Tools
-  //  ATH_CHECK( m_monTool.retrieve() );
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TrigBjetBtagHypoTool::finalize()  {
-  ATH_MSG_INFO( "Finalizing " << name() <<" ..." );
   return StatusCode::SUCCESS;
 }
 
@@ -61,10 +45,14 @@ StatusCode TrigBjetBtagHypoTool::decide( std::vector< TrigBjetBtagHypoToolInfo >
     // Check the HypoTool's chain is active
     if ( not TrigCompositeUtils::passed( getId().numeric(),bTagInfo.previousDecisionIDs ) )
       continue;
-    
+
+    // This will disappear!    
     if ( m_acceptAll == true ) {
       ATH_MSG_DEBUG( "Running with 'Accept All' option enabled. Passing cut." );
       TrigCompositeUtils::addDecisionID( getId().numeric(),bTagInfo.decision );
+
+      ATH_MSG_DEBUG("PRINTING DECISION");
+      ATH_MSG_DEBUG( *bTagInfo.decision );
       continue;
     }
     
@@ -92,6 +80,7 @@ StatusCode TrigBjetBtagHypoTool::decide( std::vector< TrigBjetBtagHypoToolInfo >
       ATH_MSG_DEBUG( "   --> Failed" );
     }
 
+    ATH_MSG_DEBUG("PRINTING DECISION");
     ATH_MSG_DEBUG( *bTagInfo.decision );    
   }
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from xml.dom import minidom
 import re
 import os
@@ -28,7 +28,7 @@ def _getFileLocalOrPath(filename, pathenv):
     returns path/filename if existing, otherwise None
     """
     if os.path.exists(filename):
-        log.info( "Using local file %s" % filename)
+        log.info( "Using local file %s", filename)
         return filename
 
     pathlist = os.getenv(pathenv,'').split(os.pathsep)
@@ -45,7 +45,7 @@ def _getConnectionServicesForAlias(alias):
     connectionServices = None # list of services
 
     dblookupfilename = _getFileLocalOrPath('dblookup.xml','CORAL_DBLOOKUP_PATH')
-    if dblookupfilename == None: return None
+    if dblookupfilename is None: return None
 
     doc = minidom.parse(dblookupfilename)
     for ls in doc.getElementsByTagName('logicalservice'):
@@ -53,8 +53,8 @@ def _getConnectionServicesForAlias(alias):
         connectionServices = [str(s.attributes['name'].value) for s in ls.getElementsByTagName('service')]
     doc.unlink()
 
-    log.info( "For alias '%s' found list of connections %r" % (alias,connectionServices) )
-    if connectionServices == None:
+    log.info( "For alias '%s' found list of connections %r", alias,connectionServices )
+    if connectionServices is None:
         log.fatal("Trigger connection alias '%s' is not defined in %s" % (alias,dblookupfilename))
     return connectionServices
 
@@ -68,13 +68,12 @@ def _readAuthentication():
     authDict = {}
 
     dbauthfilename = _getFileLocalOrPath('authentication.xml','CORAL_AUTH_PATH')
-    if dbauthfilename == None: return authDict
+    if dbauthfilename is None: return authDict
 
     doc = minidom.parse(dbauthfilename)        
     for cn in doc.getElementsByTagName('connection'):
         user = ""
         pw = ""
-        svc = cn.attributes['name'].value
         for p in cn.getElementsByTagName('parameter'):
             if p.attributes['name'].value == 'user': user = p.attributes['value'].value
             if p.attributes['name'].value == 'password': pw = p.attributes['value'].value
@@ -133,7 +132,7 @@ def _getConnectionParameters(connection):
         connectionParameters["passwd"] = passwd
 
     elif connection.startswith("frontier://"):
-        pattern = "frontier://ATLF/\(\)/(.*)"
+        pattern = r"frontier://ATLF/\(\)/(.*)"
         m = re.match(pattern,connection)
         if not m:
             log.fatal("connection string '%s' doesn't match the pattern '%s'?" % (connection,pattern) )
@@ -145,14 +144,15 @@ def _getConnectionParameters(connection):
 
 
 def interpretConnection(connection, debug=False, resolveAlias=True):
-    # connection needs to be of the following format (this is also the order of checking)
-    # <ALIAS>                              -- any string without a colon ':' will be checked for in the dblookup.xml file
-    # type:<detail>                        -- no dblookup will be used, type has to be oracle, mysql, or sqlite_file
-    # sqlite_file:filename.db              -- an sqlite file, no authentication needed, will be opened in read-only mode
-    # oracle://ATLR/ATLAS_CONF_TRIGGER_V2  -- a service description without user and password, requires lookup in authentication.xml
-    # oracle://ATLR/ATLAS_CONF_TRIGGER_V2;username=ATLAS_CONF_TRIGGER_V2_R;password=<...>  -- a service description with user and password
+    """connection needs to be of the following format (this is also the order of checking)
+     <ALIAS>                              -- any string without a colon ':' will be checked for in the dblookup.xml file
+     type:<detail>                        -- no dblookup will be used, type has to be oracle, mysql, or sqlite_file
+     sqlite_file:filename.db              -- an sqlite file, no authentication needed, will be opened in read-only mode
+     oracle://ATLR/ATLAS_CONF_TRIGGER_V2  -- a service description without user and password, requires lookup in authentication.xml
+     oracle://ATLR/ATLAS_CONF_TRIGGER_V2;username=ATLAS_CONF_TRIGGER_V2_R;password=<...>  -- a service description with user and password
+    """
 
-    log.info("Specified connection string '%s'" % connection)
+    log.info("Specified connection string '%s'", connection)
 
     # not needed any longer
     # connection = connection.lstrip("dblookup://")
@@ -176,27 +176,18 @@ def interpretConnection(connection, debug=False, resolveAlias=True):
         return connectionParameters
 
     connectionServices = _getConnectionServicesForAlias( connection ) # alias resolution via dblookup
-    if connectionServices == None:
+    if connectionServices is None:
         return connectionParameters
-
-
-    # If TriggerFlags.triggerUseFrontier=true then we remove sqlite files
-    from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
-    #if tf.triggerUseFrontier() or os.getenv('TRIGGER_USE_FRONTIER',False):
-    #    connectionServices = filter(lambda conn: not conn.startswith("sqlite_file"), connectionServices)
-    #    if 'ATLAS_TRIGGERDB_FORCESQLITE' in os.environ:
-    #        log.fatal("Inconsistent setup: environment variable ATLAS_TRIGGERDB_FORCESQLITE is defined and use of Frontier is requested" )
-
 
     # SQLite
     sqliteconnections = [conn for conn in connectionServices if conn.startswith("sqlite_file")]
     if len(sqliteconnections)>0:
         for conn in sqliteconnections:
             connectionParameters = _getConnectionParameters( conn )
-            if connectionParameters["filename"] != None:
+            if connectionParameters["filename"] is not None:
                 break # stop at the first sqlite file that exists
-        if connectionParameters["filename"] != None:
-            log.info("Using sqlite connection %s" % connectionParameters)
+        if connectionParameters["filename"] is not None:
+            log.info("Using sqlite connection %s", connectionParameters)
             return connectionParameters
         else:
             if 'ATLAS_TRIGGERDB_FORCESQLITE' in os.environ:
@@ -209,34 +200,34 @@ def interpretConnection(connection, debug=False, resolveAlias=True):
     from CoolConvUtilities.AtlCoolLib import replicaList
     serverlist=['ATLAS_CONFIG' if s=='ATLAS_COOLPROD' else s for s in replicaList()]  # replicaList is for COOL, I need ATLAS_CONFIG instead of ATLAS_COOLPROD
     #serverlist=['ATLF']
-    log.info("Trying these servers in order %r" % serverlist)
+    log.info("Trying these servers in order %r", serverlist)
     for server in serverlist:
-        log.info("Trying server %s" % server)
+        log.info("Trying server %s", server)
 
         if server=='ATLF':
             #if not tf.triggerUseFrontier() and not os.getenv('TRIGGER_USE_FRONTIER',False): continue
             frontierconnections = [conn for conn in connectionServices if conn.startswith("frontier")]
             if len(frontierconnections) == 0:
-                log.debug("FroNTier connection not defined for alias %s in dblookup" % connection )
+                log.debug("FroNTier connection not defined for alias %s in dblookup", connection )
                 continue
-            log.info("Environment FRONTIER_SERVER: %s" % os.getenv('FRONTIER_SERVER','not defined'))
+            log.info("Environment FRONTIER_SERVER: %s", os.getenv('FRONTIER_SERVER','not defined'))
             frontierServer = os.getenv('FRONTIER_SERVER',None)
             if not frontierServer:
                 log.debug("No environment variable FRONTIER_SERVER" )
                 continue
             connectionParameters = _getConnectionParameters( frontierconnections[0] )
             connectionParameters['url'] = frontierServer
-            log.info("Using frontier connection %s" % frontierconnections[0])
+            log.info("Using frontier connection %s", frontierconnections[0])
             #connstr='frontier://ATLF/%s;schema=%s;dbname=TRIGCONF' % (connectionParameters['url'],connectionParameters["schema"])
             break
         elif server=='atlas_dd': continue
         else:
             oracleconnections = [conn for conn in connectionServices if conn.lower().startswith("oracle://%s/" % server.lower())]
             if len(oracleconnections) == 0:
-                log.debug("Oracle connection not defined for server %s in dblookup" % server )
+                log.debug("Oracle connection not defined for server %s in dblookup", server )
                 continue
             connectionParameters = _getConnectionParameters( oracleconnections[0] )
-            log.info("Using oracle connection %s" % oracleconnections[0])
+            log.info("Using oracle connection %s", oracleconnections[0])
             #connstr='oracle://%s;schema=ATLAS_%s;dbname=TRIGCONF' % (connectionParameters["server"],connectionParameters["schema"])
             break
 
@@ -269,8 +260,7 @@ def getTriggerDBCursor(connection):
     return cursor,schema
 
 def _get_sqlite_cursor (filename):
-    try: import sqlite3
-    except ImportError: raise RuntimeError, "ERROR: Can't import sqlite3?"
+    import sqlite3
     os.lstat(filename)
     connection = sqlite3.connect(filename)
     return connection.cursor()
@@ -280,8 +270,7 @@ def _get_oracle_cursor (tns, user, passwd=""):
         from getpass import getpass
         passwd = getpass("[Oracle] database password for %s@%s: " % (user, tns))
 
-    try: from cx_Oracle import connect
-    except ImportError: raise RuntimeError, "ERROR: Can't import cx_Oracle?"
+    from cx_Oracle import connect
     connection = connect (user, passwd, tns, threaded=True)
     return connection.cursor()
 
@@ -291,8 +280,7 @@ def _get_mysql_cursor (host, db, user, passwd=""):
         from getpass import getpass
         passwd = getpass("[MySQL] `%s' database password for %s@%s: " % (db, user, host))
 
-    try: from MySQLdb import connect
-    except ImportError: raise RuntimeError, "ERROR: Can't import MySQLdb?"
+    from MySQLdb import connect
     connection = connect(host=host, user=user, passwd=passwd, db=db, connect_timeout=10)
     return connection.cursor()
 
@@ -302,7 +290,7 @@ def getUsedTables(output, condition, schemaname, tables):
         usedtables.add(o.split('.')[0])
     for c in condition:
         for p in c.split():
-            if '.' in p and not '\'' in p: usedtables.add(p.split('.')[0].lstrip('('))
+            if '.' in p and '\'' not in p: usedtables.add(p.split('.')[0].lstrip('('))
     return ["%s%s %s" % (schemaname,tables[t],t) for t in usedtables]
 
 
@@ -326,10 +314,10 @@ def executeQuery(cursor, output, condition, schemaname, tables, bindvars=()):
         query += ' where ' + ' and '.join(condition)
 
     if len(bindvars)==0:
-        log.debug("Executing query %s" % query)
+        log.debug("Executing query %s", query)
         cursor.execute(str(query))
     else:
-        log.debug("Executing query %s with bound variables %r" % (query, bindvars))
+        log.debug("Executing query %s with bound variables %r", query, bindvars)
         cursor.execute(str(query),bindvars)
     return cursor.fetchall()
 
@@ -465,7 +453,7 @@ def getMenuNameFromDB(connection, hltprescalekey):
 
     # now we need to do some logic, related to the 
 
-    print res
+    print(res)
 
     hltpsName = str(res[0][0])
 
@@ -473,7 +461,7 @@ def getMenuNameFromDB(connection, hltprescalekey):
     m = re.match( "(.*)_default_prescale", hltpsName)
     menuName = m.group(1) if m else hltpsName
 
-    log.info("Interpreting menu name from HLT prescale key %i: %s" % (hltprescalekey,menuName))
+    log.info("Interpreting menu name from HLT prescale key %i: %s", hltprescalekey, menuName)
 
     return menuName
 
@@ -495,9 +483,9 @@ def getKeysFromNameRelease(connection, name, release, l1only):
     cursor,schemaname = getTriggerDBCursor(connection)
     
     smname = name.split('__')[0]
-    print 'SM name ', smname
-    print 'PS name ', name
-    print 'release ', release
+    print('SM name %s' % smname)
+    print('PS name %s' % name)
+    print('release %s' % release)
     keys = []
 
     #Find the Release id
@@ -572,7 +560,7 @@ def getKeysFromNameRelease(connection, name, release, l1only):
         
         hltk  = executeQuery(cursor, output, condition, schemaname, tables)
         hltid = (str(hltk[-1])).lstrip('(').rstrip(')').split(',')[0]
-        print 'HLT PS gotten ', hltid
+        print('HLT PS gotten %s' % hltid)
 
         keys = [int(smid), int(l1id), int(hltid)]
 
@@ -657,7 +645,7 @@ def getChainsWithLowerChainNames(connection, smk):
     if isrun2:
         output = ['TC.HTC_ID', 'TC.HTC_CHAIN_COUNTER', 'TC.HTC_NAME', 'TC.HTC_LOWER_CHAIN_NAME']
     else:
-        print "ERROR: This method is compatibly with Run2 only"
+        log.error("This method is compatibly with Run2 only")
         return chainshlt
     
     tables = {}
@@ -781,7 +769,7 @@ def getPrescaleFromCut(cut):
     """Convert (run-2) prescale cuts into prescale value"""
     sign = -1 if cut<0 else 1
     ucut = abs(cut)
-    return (sign*0xFFFFFF ) / float( 0x1000000 - ucut );
+    return (sign*0xFFFFFF ) / float( 0x1000000 - ucut )
     
 def queryHLTPrescaleTable(connection,psk):
     """returns content of prescale set table and prescale table for a
@@ -908,7 +896,7 @@ def queryHLTPrescaleTableRun2(connection,psk,smk):
             valid = True
 
     if not valid:
-        print "WARNING: Selected HLT Prescale Key not associated with Supermaster key"
+        log.warning("Selected HLT Prescale Key not associated with Supermaster key")
         return 0
 
     cursor,schemaname = getTriggerDBCursor(connection)
@@ -964,38 +952,38 @@ def test():
     log.setLevel(logging.DEBUG)
 
     ### oracle
-    print """####################################
+    print("""####################################
 ##
 ##   Testing ORACLE
 ##
-####################################"""
+####################################""")
     l2, ef = getChains("TRIGGERDBREPR", 539)
     strm_oracle = getStreams("TRIGGERDBREPR", 539)
-    print "\nList of Streams in SMK 539",strm_oracle,"\n"
+    print("\nList of Streams in SMK 539 %s\n" % strm_oracle)
 
     ### frontier
-    print """####################################
+    print("""####################################
 ##
 ##   Testing FRONTIER
 ##
-####################################"""
+####################################""")
     from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
     tf.triggerUseFrontier = True
     strm_frontier = getStreams("TRIGGERDBREPR", 539)
-    print "\nList of Streams in SMK 539",strm_frontier,"\n"
+    print("\nList of Streams in SMK 539 %s\n" % strm_frontier)
 
     if strm_oracle == strm_frontier:
-        print """####################################
+        print("""####################################
 ##
 ##   ORACLE and FRONTIER give IDENTICAL results
 ##
-####################################"""
+####################################""")
     else:
-        print """####################################
+        print("""####################################
 ##
 ##   ERROR: ORACLE and FRONTIER give DIFFERENT results
 ##
-####################################"""
+####################################""")
     
 
 
@@ -1017,12 +1005,12 @@ def test2():
 
 
     for c in connections:
-        print "\nConnecting to alias ",c
+        print("\nConnecting to alias %s" % c)
         cursor, schema = getTriggerDBCursor(c)
         if cursor:
-            print "SUCCESS :  %s" % schema
+            print("SUCCESS :  %s" % schema)
         else:
-            print "FAILURE"
+            print("FAILURE")
 
 
 
