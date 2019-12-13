@@ -82,15 +82,6 @@ class TrigMuSuperEFConfig(TrigMuSuperEF):
         # only add TrigMuGirl monitoring if it is run
         if doTrigMuGirl:
             self.MuGirlTool = getPublicTool("TMEF_MuonInsideOutRecoTool")
-            #from TrigMuGirl.TrigMuGirlMonitoring import TrigMuGirlToolMonitoring
-            #montool = TrigMuGirlToolMonitoring()
-            #print montool
-            #monTools.append( montool )
-
-        # turn off PrepRawData decoders in MuGirl
-        if doTrigMuGirl:
-            from MuGirlCandidate.MuGirlCandidateConf import MuGirlNS__CandidateTool
-            MuGirlNS__CandidateTool.doDecoding = False
 
         if self.UseL2Info:
             self.TMEF_standaloneTrackTool.useL2Hits=True

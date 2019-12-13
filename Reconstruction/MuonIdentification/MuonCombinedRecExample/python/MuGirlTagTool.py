@@ -8,7 +8,6 @@ from AthenaCommon.GlobalFlags import globalflags
 
 from RecExConfig.RecFlags import rec
 
-from MuGirl.MuGirlRecoConfig import MuGirlRecoConfig
 from MuonCombinedRecExample.MuonCombinedFitTools import CombinedMuonTrackBuilder,CombinedMuonTrackBuilderFit,MuidSegmentRegionRecoveryTool
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 
@@ -21,24 +20,6 @@ from AthenaCommon.Logging import log
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-
-###############################################################################
-### Configure MuGirlTag###
-def MuGirlTagToolBase(name, configureForTrigger, doStau, **kwargs ):
-   from AthenaCommon.AppMgr import ToolSvc
-   toolName = "MuGirlRecoTool"
-   if configureForTrigger:
-      toolName = "TrigMuGirlRecoTool"
-   RecoTool = MuGirlRecoConfig(name=toolName,configureForTrigger=configureForTrigger,doStau=doStau)
-   ToolSvc += RecoTool
-   kwargs.setdefault("MuGirlReconstruction",  RecoTool )
-   return CfgMgr.MuonCombined__MuGirlTagTool(name,**kwargs)
-
-def MuGirlTagTool( name='MuGirlTagTool', **kwargs ):
-   return MuGirlTagToolBase(name=name,configureForTrigger=False,doStau=True,**kwargs)
-
-def TrigMuGirlTagTool( name='TrigMuGirlTagTool', **kwargs ):
-   return MuGirlTagToolBase(name=name,configureForTrigger=True,doStau=True,**kwargs)
 
 def MuonInsideOutRecoTool( name="MuonInsideOutRecoTool", **kwargs ):
    if TriggerFlags.MuonSlice.doTrigMuonConfig:
