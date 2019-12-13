@@ -66,10 +66,7 @@ dcuberef_muons_1GeV_digi_strip=$artdata/InDetSLHC_Example/ReferenceHistograms/SC
 art_dcube=/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube
 lastref_muons_1GeV_dir=last_results_muons_1GeV
 
-if [ \( $dosim -ne 0 -a -n "$dcube_sim_muons_1GeV_lastref" \) -o \( $dophy -ne 0 -a -n "$dcube_rec_muons_1GeV_lastref" \) ]; then
-  run art.py download --user=artprod --dst="$lastref_muons_1GeV_dir" InDetSLHC_Example "$script"
-  run ls -la "$lastref_muons_1GeV_dir"
-fi
+
 
 dcube() {
   # Run DCube and print art-result (if $2 is not empty)
@@ -127,7 +124,10 @@ if [ $dosim -ne 0 ]; then
   mv ./SiHitValid.root ./$dcubemon_muons_1GeV_sim
 
 
-
+  if [ \( $dosim -ne 0 -a -n "$dcube_sim_muons_1GeV_lastref" \) -o \( $dophy -ne 0 -a -n "$dcube_rec_muons_1GeV_lastref" \) ]; then
+    run art.py download --user=artprod --dst="$lastref_muons_1GeV_dir" InDetSLHC_Example "$script"
+    run ls -la "$lastref_muons_1GeV_dir"
+  fi
 
 
   # DCube Sim hit plots
