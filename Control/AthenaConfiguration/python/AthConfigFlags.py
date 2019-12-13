@@ -56,7 +56,6 @@ class FlagAddress(object):
     def __setattr__( self, name, value ):
         if name.startswith("_"):
             return object.__setattr__(self, name, value)
-
         merged = self._name + "." + name
         return self._flags._set( merged, value )
 
@@ -220,13 +219,21 @@ class AthConfigFlags(object):
 
 
 
-    def join(self,other):
+    def join(self,other, prefix=''):
         if (self._locked):
             raise RuntimeError("Attempt to join with and already-locked container")
+
         for (name,flag) in six.iteritems(other._flagdict):
-            if name in self._flagdict:
-                raise KeyError("Duplicated flag name: %s" % name)
-            self._flagdict[name]=flag
+            fullName = prefix+"."+name if prefix != "" else name
+            if fullName in self._flagdict:
+                raise KeyError("Duplicated flag name: %s" % fullName)
+            self._flagdict[fullName]=flag
+
+        for (name,loader) in six.iteritems(other._dynaflags):
+            if prefix+"."+name in self._dynaflags:
+                raise KeyError("Duplicated dynamic flags name: %s" % name)
+            self.join( loader(), name )
+
         return
 
     def dump(self):
@@ -237,9 +244,9 @@ class AthConfigFlags(object):
         if len(self._dynaflags) == 0:
             return
         print("Flag categories that can be loaded dynamically")
-        print("%-15.15s : %30s : %s" % ("Category","Generator name", "Defined in" ))
+        print("%-25.25s : %30s : %s" % ("Category","Generator name", "Defined in" ))
         for name,gen in sorted(six.iteritems(self._dynaflags)):
-            print("%-15.15s : %30s : %s" %
+            print("%-25.25s : %30s : %s" %
                   (name, gen.__name__, '/'.join(six.get_function_code(gen).co_filename.split('/')[-2:])))
 
 
@@ -297,6 +304,7 @@ class TestFlagsSetup(unittest.TestCase):
 
 class TestAccess(TestFlagsSetup):
     def runTest(self):
+        print("""... Test access""")
         self.assertFalse( self.flags.A.B.C, "Can't read A.B.C flag")
         self.flags.A.B.C = True
         self.assertTrue( self.flags.A.B.C, "Flag value not changed")
@@ -304,16 +312,16 @@ class TestAccess(TestFlagsSetup):
 
 class TestWrongAccess(TestFlagsSetup):    
     def runTest(self):
-        """access to the flags below should give an exception"""
+        print("""... Acess to the flag that are missnames should give an exception""")
         with self.assertRaises(RuntimeError):
-            print(self.flags.A is True)
-            print(self.flags.A.B == 6)
+            print(".... test printout {}".format( self.flags.A is True ))
+            print(".... test printout {}".format( self.flags.A.B == 6 ))
             
 
 
 class TestDependentFlag(TestFlagsSetup):
     def runTest(self):
-        """The dependent flags will use another flag value to establish its own value"""
+        print("""... The dependent flags will use another flag value to establish its own value""")
         self.flags.A.B.C= True
         self.flags.lock()
         self.assertEqual(self.flags.A.dependentFlag, "TRUE VALUE", " dependent flag setting does not work")
@@ -321,29 +329,76 @@ class TestDependentFlag(TestFlagsSetup):
 class TestFlagsSetupDynamic(TestFlagsSetup):
     def setUp(self):
         super(TestFlagsSetupDynamic, self).setUp()
+
+        def theXFlags():
+            nf = AthConfigFlags()
+            nf.addFlag("X.a", 17)
+            nf.addFlag("X.b", 55)
+            nf.addFlag("X.c", "Hello")
+            return nf
+
         def theZFlags():
             nf = AthConfigFlags()
             nf.addFlag("Z.A", 7)
             nf.addFlag("Z.B", True)
             nf.addFlag("Z.C.setting", 99)
+            nf.addFlagsCategory( 'Z', theXFlags )
+            nf.addFlagsCategory( 'Z.clone', theXFlags )
             return nf
-        self.flags.addFlagsCategory( 'Z', theZFlags )        
-        self.flags.dump()
 
+        self.flags.addFlagsCategory( 'Z', theZFlags )
+        self.flags.addFlagsCategory( 'X', theXFlags )
+        self.flags.dump()
+        print("")
+
+class TestDynamicFlagsDump(TestFlagsSetupDynamic):
+    def runTest(self):
+        print("""... Check if dump with unloaded flags works""")
+        self.flags.dump()        
+        print("")
 
 class TestDynamicFlagsRead(TestFlagsSetupDynamic):
     def runTest(self):
-        """Check if dynaic flags loading works"""
+        print("""... Check if dynamic flags reading works""")
+        self.assertEqual( self.flags.X.a, 17, "dynamically loaded flags have wrong value")
+        self.flags.dump()
+        print("")
         self.assertEqual( self.flags.Z.A, 7, "dynamically loaded flags have wrong value")
+        self.assertEqual( self.flags.Z.X.b, 55, "dynamically loaded flags have wrong value")
         self.flags.dump()        
+        print("")
 
 class TestDynamicFlagsSet(TestFlagsSetupDynamic):
     def runTest(self):
-        """Check if dynaic flags loading works"""
+        print("""... Check if dynamic flags setting works""")
         self.flags.Z.A = 15
+        self.flags.Z.X.a = 20
+        self.flags.X.a = 30
+        self.assertEqual( self.flags.Z.X.a, 20, "dynamically loaded flags have wrong value")
+        self.assertEqual( self.flags.X.a, 30, "dynamically loaded flags have wrong value")
         self.assertEqual( self.flags.Z.A, 15, "dynamically loaded flags have wrong value")
         self.flags.dump()        
+        print("")
 
+class TestOverwriteFlags(TestFlagsSetupDynamic):
+    def runTest(self):
+        print("""... Check if overwiting works""")
+        self.flags.Z.clone.X.a = 20
+        self.flags.X.a = 30
+        copyf = self.flags.cloneAndReplace( "X", "Z.clone.X")
+        self.assertEqual( copyf.X.a, 20, "dynamically loaded flags have wrong value")
+        copyf.dump()
+        print("")
 
 if __name__ == "__main__":
-    unittest.main()
+    suite = unittest.TestSuite()
+    suite.addTest(TestAccess())
+    suite.addTest(TestWrongAccess())
+    suite.addTest(TestDependentFlag())
+    suite.addTest(TestDynamicFlagsDump())
+    suite.addTest(TestDynamicFlagsRead())
+    suite.addTest(TestDynamicFlagsSet())
+    suite.addTest(TestOverwriteFlags())
+    runner = unittest.TextTestRunner(failfast=False)
+    runner.run(suite)
+
