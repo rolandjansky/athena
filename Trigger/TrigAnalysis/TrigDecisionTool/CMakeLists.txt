@@ -102,7 +102,7 @@ else()
          xAODTrigger GaudiKernel AnalysisTriggerEvent TrigConfHLTData
          TrigConfL1Data TrigDecisionEvent TrigMuonEvent TrigNavStructure
          TrigStorageDefinitions StoreGateLib TrigNavigationLib
-         TrigRoiConversionLib DecisionHandlingLib
+         TrigRoiConversionLib
          PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps
          TrigSteeringEvent AthenaKernel )
    endif()

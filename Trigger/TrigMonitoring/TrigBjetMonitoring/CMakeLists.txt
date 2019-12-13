@@ -27,7 +27,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigInDetEvent
                           Trigger/TrigEvent/TrigMuonEvent
                           Trigger/TrigEvent/TrigParticle
-                          Trigger/TrigEvent/TrigSteeringEvent )
+                          Trigger/TrigEvent/TrigSteeringEvent
+                          Trigger/TrigSteer/DecisionHandling )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
@@ -38,7 +39,7 @@ atlas_add_component( TrigBjetMonitoring
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel TrigDecisionToolLib TrigHLTMonitoringLib AthenaMonitoringLib
                      GeoPrimitives EventPrimitives FourMomUtils xAODBTagging xAODEventInfo xAODTracking JetEvent JetUtils 
-                     muonEvent Particle TrigInDetEvent TrigMuonEvent TrigParticle TrigSteeringEvent )
+                     muonEvent Particle TrigInDetEvent TrigMuonEvent TrigParticle TrigSteeringEvent DecisionHandlingLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
