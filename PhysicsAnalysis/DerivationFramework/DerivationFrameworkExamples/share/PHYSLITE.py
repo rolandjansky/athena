@@ -261,7 +261,11 @@ if (DerivationFrameworkIsMonteCarlo):
 replaceAODReducedJets(reducedJetList,SeqPHYSLITE,"PHYSLITE")
 addDefaultTrimmedJets(SeqPHYSLITE,"PHYSLITE",dotruth=DerivationFrameworkIsMonteCarlo)
 
+# q/g discrimination
 addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=SeqPHYSLITE,algname="QGTaggerToolPFAlg")
+
+# fJVT
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqPHYSLITE, algname='PHYSLITEJetForwardPFlowJvtToolAlg')
 
 #====================================================================
 # Flavour tagging   
@@ -429,6 +433,7 @@ PHYSLITESlimmingHelper.AppendToDictionary = {
                                          'AnalysisTauJets_NOSYS':'xAOD::TauJetContainer', 'AnalysisTauJets_NOSYSAux':'xAOD::TauJetAuxContainer',
                                          'MET_Core_AnalysisMET':'xAOD::MissingETContainer', 'MET_Core_AnalysisMETAux':'xAOD::MissingETAuxContainer',
                                          'METAssoc_AnalysisMET':'xAOD::MissingETAssociationMap', 'METAssoc_AnalysisMETAux':'xAOD::MissingETAuxAssociationMap',
+                                         'AntiKt10TruthTrimmedPtFrac5SmallR20Jets':'xAODJetContainer', 'AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux':'xAODJetAuxContainer',
                                          }
 
 # Leaving these as smart collections
@@ -451,7 +456,7 @@ PHYSLITESlimmingHelper.ExtraVariables = [
   "ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType.qOverP.theta.phi",
   "MuonSpectrometerTrackParticles.phi.d0.z0.vz.definingParametersCovMatrix.vertexLink.theta.qOverP.truthParticleLink",
   "AnalysisTauJets_NOSYS.pt.eta.phi.m.tauTrackLinks.jetLink.charge.isTauFlags.BDTJetScore.BDTEleScore.ptFinalCalib.etaFinalCalib.phiFinalCalib.mFinalCalib.ele_match_lhscore.ele_olr_pass.electronLink.IsVeryLoose.EleMatchLikelihoodScore.pt_combined.eta_combined.phi_combined.m_combined.BDTJetScoreSigTrans.BDTEleScoreSigTrans.PanTau_DecayMode.RNNJetScore.RNNJetScoreSigTrans.IsTruthMatched.truthOrigin.truthType.truthParticleLink.truthJetLink",
-  "AnalysisJets_NOSYS.pt.eta.phi.m.JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m.NumTrkPt500.SumPtTrkPt500.DetectorEta.Jvt.JVFCorr.JvtRpt.NumTrkPt1000.TrackWidthPt1000.GhostMuonSegmentCount.PartonTruthLabelID.ConeTruthLabelID.HadronConeExclExtendedTruthLabelID.HadronConeExclTruthLabelID.TrueFlavor.DFCommonJets_jetClean_LooseBad.DFCommonJets_jetClean_TightBad.Timing.btagging.btaggingLink.GhostTrack",
+  "AnalysisJets_NOSYS.pt.eta.phi.m.JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m.NumTrkPt500.SumPtTrkPt500.DetectorEta.Jvt.JVFCorr.JvtRpt.NumTrkPt1000.TrackWidthPt1000.GhostMuonSegmentCount.PartonTruthLabelID.ConeTruthLabelID.HadronConeExclExtendedTruthLabelID.HadronConeExclTruthLabelID.TrueFlavor.DFCommonJets_jetClean_LooseBad.DFCommonJets_jetClean_TightBad.Timing.btagging.btaggingLink.GhostTrack.DFCommonJets_fJvt",
   "BTagging_AntiKt4EMPFlow_201903.DL1r_pu.DL1rmu_pu.DL1r_pb.DL1rmu_pb.DL1r_pc.DL1rmu_pc",
   "TruthPrimaryVertices.t.x.y.z",
   "MET_Core_AnalysisMET.name.mpx.mpy.sumet.source",
