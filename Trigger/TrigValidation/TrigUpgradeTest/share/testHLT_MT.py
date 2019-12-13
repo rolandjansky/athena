@@ -42,6 +42,7 @@ class opt:
 #Individual slice flags
     doEgammaSlice     = True
     doMuonSlice       = True
+    doMinBiasSlice    = True
     doJetSlice        = True
     doMETSlice        = True
     doBjetSlice       = True
