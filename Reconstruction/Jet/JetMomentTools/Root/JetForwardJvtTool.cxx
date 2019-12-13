@@ -18,10 +18,10 @@
 // Shallow copy
 //#include "xAODCore/ShallowCopy.h"
 
-    static SG::AuxElement::Decorator<char>  isHS("isJvtHS");
-    static SG::AuxElement::Decorator<char>  isPU("isJvtPU");
-    static SG::AuxElement::Decorator<float>  fjvt_dec("fJvt");
-    static SG::AuxElement::ConstAccessor<float> acc_fjvt_der("DFCommonJets_fJvt");
+    static const SG::AuxElement::Decorator<char>  isHS("isJvtHS");
+    static const SG::AuxElement::Decorator<char>  isPU("isJvtPU");
+    static const SG::AuxElement::Decorator<float>  fjvt_dec("fJvt");
+    static const SG::AuxElement::ConstAccessor<float> acc_fjvt_der("DFCommonJets_fJvt");
 
   ///////////////////////////////////////////////////////////////////
   // Public methods:

@@ -68,15 +68,15 @@ namespace met {
     typedef ElementLink<xAOD::IParticleContainer> iplink_t;
 
 
-    static SG::AuxElement::ConstAccessor<float> acc_varX("varX");
-    static SG::AuxElement::ConstAccessor<float> acc_varY("varY");
-    static SG::AuxElement::ConstAccessor<float> acc_covXY("covXY");
-    static SG::AuxElement::ConstAccessor<float> acc_jvt("Jvt");
-    static SG::AuxElement::ConstAccessor<float> acc_fjvt("fJvt");
-    static SG::AuxElement::ConstAccessor<float> acc_fjvt_der("DFCommonJets_fJvt");
+    static const SG::AuxElement::ConstAccessor<float> acc_varX("varX");
+    static const SG::AuxElement::ConstAccessor<float> acc_varY("varY");
+    static const SG::AuxElement::ConstAccessor<float> acc_covXY("covXY");
+    static const SG::AuxElement::ConstAccessor<float> acc_jvt("Jvt");
+    static const SG::AuxElement::ConstAccessor<float> acc_fjvt("fJvt");
+    static const SG::AuxElement::ConstAccessor<float> acc_fjvt_der("DFCommonJets_fJvt");
 
     static const SG::AuxElement::ConstAccessor< std::vector<iplink_t > > dec_constitObjLinks("ConstitObjectLinks");
-    const static MissingETBase::Types::bitmask_t invisSource = 0x100000; // doesn't overlap with any other
+    static const MissingETBase::Types::bitmask_t invisSource = 0x100000; // doesn't overlap with any other
 
     ///////////////////////////////////////////////////////////////////
     // Public methods:
