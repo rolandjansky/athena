@@ -1,8 +1,5 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-import re
-re_Bjet = re.compile(r'^HLT_(?P<multiplicity>\d+)?j(?P<threshold>\d+)(?:_gsc(?P<gscThreshold>\d+))?(?:_b(?P<bTag>[^_]+)(?:_(?P<bConfig>split))?(?:_(?P<minEta>\d+)eta(?P<maxEta>\d+))?)?(?:_L1(?P<L1>.*))?$')
-
 from AthenaCommon.Logging import logging
 
 log = logging.getLogger('TrigBjetBtagHypoTool')
@@ -39,7 +36,6 @@ def TrigBjetBtagHypoToolFromDict( chainDict ):
     chainPart = chainDict['chainParts'][0]
     conf_dict = { 'threshold'    : chainPart['threshold'],
                   'multiplicity' : '1' if len(chainPart['multiplicity']) == 0 else chainPart['multiplicity'],
-                  'gscThreshold' : '0' if 'gscThreshold' not in chainPart else chainPart['gscThreshold'].replace('gsc',''),
                   'bTag' :         chainPart['bTag'][1:],
                   'bConfig' :      'EF' if len(chainPart['bConfig']) == 0 else chainPart['bConfig'][0],
                   'minEta' :       chainPart['etaRange'].split('eta')[0],
@@ -115,7 +111,7 @@ if __name__ == "__main__":
     from TriggerJobOpts.TriggerFlags import TriggerFlags
     TriggerFlags.enableMonitoring=['Validation']
 
-    t = TrigBjetBtagHypoToolFromName( "HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20","HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20" )
+    t = TrigBjetBtagHypoToolFromName( "HLT_j35_ftf_subjesgscIS_boffperf_split_L1J15","HLT_j35_ftf_subjesgscIS_boffperf_split_L1J15" )
     assert t, "can't configure boffperf split"
 
     log.info( "\n\n TrigBjetBtagHypoToolFromName ALL OK\n\n" )
