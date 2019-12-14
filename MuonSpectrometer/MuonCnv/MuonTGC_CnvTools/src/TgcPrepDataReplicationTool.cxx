@@ -8,7 +8,6 @@
 
 #include "TgcPrepDataReplicationTool.h"
 
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonCnvToolInterfaces/IDC_Helper.h"
 
 #include "MuonDigitContainer/TgcDigit.h"

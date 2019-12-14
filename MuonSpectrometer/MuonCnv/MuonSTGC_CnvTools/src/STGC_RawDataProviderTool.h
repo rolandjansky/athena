@@ -14,11 +14,6 @@ class ActiveStoreSvc;
 class IROBDataProviderSvc;
 class ITGCcablingSvc;
 
-namespace MuonGM
-{
-  class MuonDetectorManager;
-}
-
 namespace Muon
 {
   class ISTGC_RodDecoder;
@@ -51,8 +46,6 @@ namespace Muon
       virtual StatusCode convert(const std::vector<IdentifierHash>& rdoIdhVect) override;
 
     private:
-      /** MuonDectorManager is used to get tgcIdHelper */
-      const MuonGM::MuonDetectorManager*  m_muonMgr;
 
     };
 } // end of namespace
