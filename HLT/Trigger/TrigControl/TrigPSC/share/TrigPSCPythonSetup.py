@@ -4,6 +4,9 @@
 ###############################################################
 from __future__ import print_function
 
+import builtins
+printfunc = getattr(builtins,'print')
+
 ### setup from a .pkl file
 from TrigPSC import PscConfig
 joPath = PscConfig.optmap['JOBOPTIONSPATH']
