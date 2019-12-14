@@ -342,7 +342,7 @@ StatusCode L1TopoSimulation::retrieveHardwareDecision()
     if (prescalForDAQROBAccess){
         std::vector<L1Topo::L1TopoTOB> daqTobsBC0;
         std::vector<uint32_t> tobsbc0SourceIds; // to compute bit indices
-        const DataHandle<L1TopoRDOCollection> rdos = 0;
+        const L1TopoRDOCollection* rdos = 0;
         sc = evtStore()->retrieve(rdos);
         if (sc.isFailure() or 0 == rdos) {
             ATH_MSG_INFO ( "Could not retrieve L1Topo DAQ RDO collection from StoreGate" );
