@@ -56,8 +56,7 @@ StatusCode Muon::CSC_RawDataProviderTool::initialize()
 // new one
 StatusCode Muon::CSC_RawDataProviderTool::convert(const std::vector<IdentifierHash>& rdoIdhVect){
 
-  const CscIdHelper* idHelper = m_muonMgr->cscIdHelper();
-  IdContext cscContext = idHelper->module_context();
+  IdContext cscContext = m_idHelperSvc->cscIdHelper().module_context();
 
   std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> vecOfRobf;
   std::vector< uint32_t > robIds;
@@ -113,7 +112,7 @@ Muon::CSC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs,
 
   } else {
 
-    ATH_CHECK( rdoContainerHandle.record(std::make_unique<CscRawDataContainer>( m_muonMgr->cscIdHelper()->module_hash_max() )));
+    ATH_CHECK( rdoContainerHandle.record(std::make_unique<CscRawDataContainer>( m_idHelperSvc->cscIdHelper().module_hash_max() )));
     ATH_MSG_DEBUG( "Created CSCRawDataContainer" );
     container = rdoContainerHandle.ptr();
   }

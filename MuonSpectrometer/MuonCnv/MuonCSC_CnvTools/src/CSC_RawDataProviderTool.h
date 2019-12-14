@@ -50,7 +50,6 @@ public:
 
 private:
 
-
 };
 } // end of namespace
 
