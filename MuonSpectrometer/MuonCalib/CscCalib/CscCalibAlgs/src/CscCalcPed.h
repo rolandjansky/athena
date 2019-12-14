@@ -13,6 +13,7 @@ an RDO
 #include "StoreGate/DataHandle.h"
 
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include "AthContainers/DataVector.h"
 
@@ -24,6 +25,7 @@ an RDO
 #include "TH2.h"
 #include "TH2F.h"
 #include "MuonCondInterface/CscICoolStrSvc.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 class cscIdHelper;
 class TFile;
@@ -101,7 +103,7 @@ namespace MuonCalib{
       /**Services and tools*/
       // ITHistSvc * m_thistSvc;
     //      ICscCalibTool * m_cscCalibTool;
-      const CscIdHelper *m_cscId;
+      ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
       IChronoStatSvc* m_chronoSvc;
       ServiceHandle<CscICoolStrSvc> m_cscCoolStrSvc;
       ToolHandle<Muon::ICSC_RDO_Decoder> m_cscRdoDecoderTool;

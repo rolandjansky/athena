@@ -47,7 +47,9 @@ StatusCode Muon::CSC_RawDataProviderTool::initialize()
 {
   // call initialize from base class
   ATH_CHECK( CSC_RawDataProviderToolCore::initialize() );
-
+  
+  ATH_CHECK(m_idHelperSvc.retrieve());
+  
   return StatusCode::SUCCESS;
 }
 

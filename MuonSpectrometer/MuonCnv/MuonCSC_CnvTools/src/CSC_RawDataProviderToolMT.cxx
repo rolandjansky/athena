@@ -53,6 +53,8 @@ StatusCode Muon::CSC_RawDataProviderToolMT::initialize()
   // Initialise the container cache if available  
   ATH_CHECK( m_rdoContainerCacheKey.initialize( !m_rdoContainerCacheKey.key().empty() ) );
 
+  ATH_CHECK(m_idHelperSvc.retrieve());
+
   return StatusCode::SUCCESS;
 }
 
