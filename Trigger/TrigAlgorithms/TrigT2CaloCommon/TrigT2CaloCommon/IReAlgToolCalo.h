@@ -27,7 +27,6 @@
 
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "CaloIdentifier/CaloIdManager.h"
-#include "StoreGate/DataHandle.h"
 #include "TileEvent/TileCell.h"
 #include "TrigT2CaloCommon/ITrigCaloDataAccessSvc.h"
 #include "TrigT2CaloCommon/T2Calibration.h"
@@ -76,7 +75,7 @@ protected:
   std::vector<float> m_correction;
 
   /** Calorimeter Id Manager for calorimeter part determination (Barrel versus EndCap) */
-  const DataHandle<CaloIdManager> m_larMgr;
+  const CaloIdManager* m_larMgr = nullptr;
 
   // Properties
   Gaudi::Property<bool> m_saveCells{this, "SaveCellsInContainer", false,
