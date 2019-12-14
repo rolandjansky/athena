@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -61,11 +61,9 @@ class TProfile;
 #include "MdtCalibUtils/GlobalTimeFitter.h"
 #include "MdtCalibFitters/DCSLFitter.h"
 #include "MdtCalibIOSvc/MdtCalibInputSvc.h"
-class RegionSelectionSvc;
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
-namespace MuonGM {
-class MuonDetectorManager;
-}
+class RegionSelectionSvc;
 
 namespace MuonCalib {
 
@@ -190,8 +188,11 @@ private:
 	const MdtIdHelper *m_MdtIdHelper; // pointer to the MDT ID helper
 	const RpcIdHelper *m_RpcIdHelper; // pointer to the RPC ID helper
 	
-	const MuonGM::MuonDetectorManager *m_detMgr; // pointer to the muon
-						     // detector manager
+	// MuonDetectorManager from the conditions store
+	SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+	    "MuonDetectorManager", 
+	    "Key of input MuonDetectorManager condition data"};    
+
 	const MuonCalib::IIdToFixedIdTool *m_id_tool; // identifier converter
 
 // private methods //
