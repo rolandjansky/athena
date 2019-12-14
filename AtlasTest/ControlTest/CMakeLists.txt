@@ -112,7 +112,8 @@ atlas_add_test( StoreGateDFlow
 
 atlas_add_test( test_interactive_athena
    SCRIPT test/test_interactive_athena.sh
-   PROPERTIES TIMEOUT 300 )
+   PROPERTIES TIMEOUT 300
+   EXTRA_PATTERNS "ApplicationMgr +INFO" )
 
 atlas_add_test( test_cfgItemList
                 SCRIPT test/test_cfgItemList.sh )
