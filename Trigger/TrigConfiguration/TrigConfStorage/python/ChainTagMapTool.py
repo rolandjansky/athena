@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 
 from xml.dom import minidom
@@ -87,11 +89,12 @@ class ChainTagMapTool:
         m = re.match(".*?([^/.]+)\.db",dbconn)
         if dbconn=="COMP":   connection = 'COOLONL_TRIGGER/COMP200'
         elif dbconn=="OFLP": connection = 'COOLONL_TRIGGER/OFLP200'
-        else: raise RuntimeError, "Can't connect to COOL db %s" % dbconn
+        else: raise RuntimeError ("Can't connect to COOL db %s" % dbconn)
         try:
             openConn = indirectOpen(connection,readOnly=True,oracle=True,debug=(verbosity>0))
-        except Exception, e:
-            print e
+        except Exception:
+            import traceback
+            traceback.print_exc()
             sys.exit(-1)
         return openConn
 
@@ -161,11 +164,11 @@ class ChainTagMapTool:
 
 
         if self.verbose>0:
-            print "Analyzing runs %i to %i" % (rr[0],rr[1])
+            print ("Analyzing runs %i to %i" % (rr[0],rr[1]))
 
         # get the maps from COOL
         if self.verbose>0:
-            print "Reading from COOL DB"
+            print ("Reading from COOL DB")
         dbconn = ChainTagMapTool.GetConnection('COMP')
         if levels=='' or levels=='L1':
             l1maps = self.getL1MapsForRuns(dbconn,rr)
@@ -174,7 +177,7 @@ class ChainTagMapTool:
         dbconn.closeDatabase()
         
         if self.verbose>0:
-            print "Analyzing runs"
+            print ("Analyzing runs")
         if levels=='L1':
             runs = l1maps.keys()
             runs.sort()
@@ -187,9 +190,9 @@ class ChainTagMapTool:
         for run in runs:
             if self.verbose>1:
                 if self.verbose>2:
-                    print "Analyzing run %8i" % run
+                    print ("Analyzing run %8i" % run)
                 elif run%5000==0:
-                    print "Analyzing run %8i" % run
+                    print ("Analyzing run %8i" % run)
 
             l1map=None
             l2map=None
@@ -229,8 +232,8 @@ class ChainTagMapTool:
             for name,counter in newmap.items():
                 samecounter = [(c,n,name) for n,c in oldmap.items() if (c==counter and n!=name)]
                 if samecounter:
-                    print "Need to close current map '%i-%i', because counter %i has changed trigger (%s -> %s)" % \
-                          ((self.currentMapping.firstrun,self.currentMapping.lastrun) + samecounter[0])
+                    print ("Need to close current map '%i-%i', because counter %i has changed trigger (%s -> %s)" % \
+                          ((self.currentMapping.firstrun,self.currentMapping.lastrun) + samecounter[0]))
                     return False
             return True
         return True
