@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonJiveXML/CSCClusterRetriever.h"
 #include "MuonJiveXML/MuonFullIDHelper.h"
 
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonIdHelpers/CscIdHelper.h"
 
 namespace JiveXML {
@@ -28,22 +27,12 @@ namespace JiveXML {
     declareProperty("StoreGateKey", m_sgKey = "CSC_Clusters", "Name of the CSC_ClusterCollection");
   }
 
-  /**
-   * Initialize before event loop
-   * - get the MuonDetectorManager
-   */
+
   StatusCode CSCClusterRetriever::initialize(){
     
     //be verbose
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initializing retriever for " << dataTypeName() << endmsg; 
     
-    //Retrieve the CSC ID helper
-    const MuonGM::MuonDetectorManager* muon_mgr;
-    if ( detStore()->retrieve(muon_mgr).isFailure()){
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not retrieve MuonDetectorManager!" << endmsg;
-      return StatusCode::FAILURE;
-    } 
-
     return StatusCode::SUCCESS;
   }        
 

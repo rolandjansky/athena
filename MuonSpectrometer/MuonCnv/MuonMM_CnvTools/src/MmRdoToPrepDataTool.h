@@ -31,7 +31,6 @@ class MM_RawDataCollection;
 
 namespace MuonGM
 {    
-    class MuonDetectorManager;
     class MMReadoutElement;
 }
 
