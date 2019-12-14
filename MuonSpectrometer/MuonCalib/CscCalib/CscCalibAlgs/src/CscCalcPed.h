@@ -14,7 +14,6 @@ an RDO
 
 #include "GaudiKernel/ToolHandle.h"
 
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "AthContainers/DataVector.h"
 
 #include <vector>
@@ -103,7 +102,6 @@ namespace MuonCalib{
       // ITHistSvc * m_thistSvc;
     //      ICscCalibTool * m_cscCalibTool;
       const CscIdHelper *m_cscId;
-      const MuonGM::MuonDetectorManager * m_muon_mgr;
       IChronoStatSvc* m_chronoSvc;
       ServiceHandle<CscICoolStrSvc> m_cscCoolStrSvc;
       ToolHandle<Muon::ICSC_RDO_Decoder> m_cscRdoDecoderTool;

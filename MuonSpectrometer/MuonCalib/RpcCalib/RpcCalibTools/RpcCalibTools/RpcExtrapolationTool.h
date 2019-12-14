@@ -6,7 +6,6 @@
 #define  RPC_EXTRAPOLATIONTOOL
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "AthLinks/DataLink.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -52,7 +51,6 @@ class RpcExtrapolationTool: public AthAlgTool{
  private:
 
   bool m_cosmicMode;
-  const MuonGM::MuonDetectorManager* m_muonMgr;
   ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
     "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   ToolHandle<Trk::IPropagator>                 m_propagator;

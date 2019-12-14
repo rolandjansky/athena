@@ -40,7 +40,6 @@ namespace MuonCalib {
   CscCalcPed::CscCalcPed(const string& name, ISvcLocator* pSvcLocator) :
     AthAlgorithm(name,pSvcLocator),
     m_cscId(NULL),
-    m_muon_mgr(NULL),
     m_chronoSvc(0),
     m_cscCoolStrSvc("MuonCalib::CscCoolStrSvc",name),
     m_cscRdoDecoderTool ("Muon::CscRDO_Decoder"),
