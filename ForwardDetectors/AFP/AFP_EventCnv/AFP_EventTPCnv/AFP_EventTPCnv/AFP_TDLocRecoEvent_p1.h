@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AFP_TDLocRecoEvent_p1_h
@@ -16,15 +16,15 @@ class AFP_TDLocRecoEvent_p1
   
  private: 
   
-	int m_iAlgoNum;
+	int m_iAlgoNum = 0;
 	
-	int m_nStationID;
-	int m_nDetectorID;
-	int m_nTrainID;
+	int m_nStationID = 0;
+	int m_nDetectorID = 0;
+	int m_nTrainID = 0;
 	
-	float m_fTrainTime;
-	int m_nTrainSize;
-	int m_nSaturation;
+	float m_fTrainTime = 0;
+	int m_nTrainSize = 0;
+	int m_nSaturation = 0;
 
 };
 
