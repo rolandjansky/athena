@@ -69,13 +69,14 @@ namespace ST {
     }
 
     // Need a timestamped key to copy btagging links
-    std::string jetkey_btag = m_BtagKeyOverride;
-    if (m_BtagKeyOverride==""){
-      bool jetkeyhastimestamp = jetkey_tmp.find("_BTagging")!=std::string::npos;
-      if (jetkeyhastimestamp) { jetkey_tmp = jetkey_tmp.substr(0, jetkey_tmp.find("_BTagging")); jetkeyhastimestamp=false; }      // jetkey = untimestamped
-      jetkey_btag = (m_BtagTimeStamp.empty()) ? jetkey_tmp : jetkey_tmp+"_BTagging"+m_BtagTimeStamp;                  // jetkey_btag = timestamped if necessary
-      ATH_MSG_DEBUG("Central timestamp: m_BtagTimeStamp = " << m_BtagTimeStamp);
-    }
+    std::string jetkey_btag = m_BtagKeyOverride;  
+    if (jetkey_tmp.find("_BTagging")!=std::string::npos) {
+         ATH_MSG_WARNING("Time-stamped container key "<<jetkey_tmp<<" is given. These containers only contain b-tagging information and cannot be used for calibration. "<<
+         " Will remove the time stamp and use the key to attach the b-tagging information to the actual container");
+         if (m_BtagTimeStamp.empty()) jetkey_btag = jetkey_tmp;         
+         jetkey_tmp = jetkey_tmp.substr(0, jetkey_tmp.find("_BTagging"));                   
+         if (jetkey_btag.empty()) jetkey_btag = jetkey_tmp+"_BTagging"+m_BtagTimeStamp;              
+    }    
     ATH_MSG_DEBUG("Key for retrieving jet collection:        jetkey      = " << jetkey_tmp);
     ATH_MSG_DEBUG("Key for retrieving jet collection (bjet): jetkey_btag = " << jetkey_btag);
 
@@ -100,7 +101,7 @@ namespace ST {
       jets = copy;
     }
     // Copy btagging links
-    if(jetkey_tmp.compare(jetkey_btag)!=0){
+    if(!jetkey_btag.empty()){
       ATH_CHECK(BendBTaggingLinks(copy, jetkey_btag));
     }
     // Update the jets
@@ -152,8 +153,11 @@ namespace ST {
 
     // Need a timestamped key to copy btagging link
     bool jetkeyhastimestamp = jetkey_tmp.find("_BTagging")!=std::string::npos;
-    if (jetkeyhastimestamp) { jetkey_tmp = jetkey_tmp.substr(0, jetkey_tmp.find("_BTagging")); jetkeyhastimestamp=false; }        // jetkey = untimestamped
-    std::string jetkey_btag = (m_BtagTimeStamp_trkJet.empty()) ? jetkey_tmp : jetkey_tmp+"_BTagging"+m_BtagTimeStamp_trkJet;      // jetkey_btag = timestamped if necessary
+    std::string jetkey_btag;
+    if (jetkeyhastimestamp) { 
+        jetkey_btag = jetkey_tmp;    
+        jetkey_tmp = jetkey_tmp.substr(0, jetkey_tmp.find("_BTagging")); 
+    }       
     ATH_MSG_DEBUG("Central timestamp trkjet: m_BtagTimeStamp_trkJet = " << m_BtagTimeStamp_trkJet);
     ATH_MSG_DEBUG("Key for retrieving trkjet collection:        jetkey      = " << jetkey_tmp);
     ATH_MSG_DEBUG("Key for retrieving trkjet collection (bjet): jetkey_btag = " << jetkey_btag);
@@ -180,7 +184,7 @@ namespace ST {
     }
 
     // Copy btagging links
-    if(jetkey_tmp.compare(jetkey_btag)!=0){
+    if(!jetkey_btag.empty()){
       ATH_CHECK(BendBTaggingLinks(copy, jetkey_btag));
     }
 
