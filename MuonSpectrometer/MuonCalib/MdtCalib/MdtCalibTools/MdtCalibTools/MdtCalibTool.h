@@ -29,14 +29,13 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 #include "MuonCalibITools/IMuonCalibTool.h"
 #include "MuonCalibITools/IRegionSelectorTool.h"
 
 #include <map>
-
-
-class MdtIdHelper;
 
 namespace MuonCalib {
 
@@ -113,7 +112,8 @@ namespace MuonCalib {
   /** RegionSelector initialization */
   ToolHandle<IRegionSelectorTool> m_regionSelector; //!< RegionSelector ToolHandle
    
-  const MdtIdHelper* m_mdtIdHelper; //!< pointer to MdtIdHelper
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+
   };
 
 }
