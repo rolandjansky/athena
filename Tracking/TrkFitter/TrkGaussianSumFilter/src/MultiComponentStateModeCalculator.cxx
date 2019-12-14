@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /****************************************************************************************
       MultiComponentStateModeCalculator.cxx  -  description
       -----------------------------------------------------
 begin                : Thursday 6th July 2006
-author               : atkinson , amorley
+author               : atkinson , amorley , anastopoulos
 email                : amorley@cern.ch
 description          : Implementation code for MultiComponentStateModeCalculator class
 ****************************************************************************************/
@@ -16,8 +16,12 @@ description          : Implementation code for MultiComponentStateModeCalculator
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include "TrkParameters/TrackParameters.h"
 #include <map>
-
 #include "CxxUtils/AthUnlikelyMacros.h"
+
+
+namespace{
+const double invsqrt2PI = 1. / sqrt(2. * M_PI);
+}
 
 Amg::VectorX
 Trk::MultiComponentStateModeCalculator::calculateMode(const Trk::MultiComponentState& multiComponentState,
@@ -301,13 +305,14 @@ double
 Trk::MultiComponentStateModeCalculator::gaus(double x, double mean, double sigma)
 {
 
-  double normalisation = 1. / sqrt(2. * M_PI);
-
-  double z = (x - mean) / sigma;
-
-  double result = normalisation / sigma * exp(-0.5 * z * z);
-  // double result = exp( -0.5 * z * z);
-
+  /*
+   * gauss = 1/(sigma * sqrt(2*pi)) * exp  ( -0.5 * ((x-mean)/sigma)^2 )
+   * =(1/sqrt(2*pi))* (1/sigma)  * exp  (-0.5 * ((x-mean)*(1/sigma)) * ((x-mean)*(1/sigma)) )
+   * = invsqrt2PI * invertsigma * exp (-0.5 *z * z)
+   */
+  double invertsigma= 1./sigma;
+  double z = (x - mean) * invertsigma;
+  double result = (invsqrt2PI * invertsigma) * exp(-0.5 * z * z);
   return result;
 }
 
