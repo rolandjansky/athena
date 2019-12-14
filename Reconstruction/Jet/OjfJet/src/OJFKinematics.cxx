@@ -56,7 +56,7 @@ namespace OptimalJetFinder {
       - v.GetX() * w.GetX() 
       - v.GetY() * w.GetY() 
       - v.GetZ() * w.GetZ();
-    assert( res >= -eps_round );
+    assert( res >= -1e-6 );
     return res>0 ? res : 0;
     
   }
