@@ -215,7 +215,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
     def test___BCM_DigitizationTool_properties(self):
         tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.BCM_DigitizationTool'
-        expected_property_list = ['DetStore', 'EffDistanceParam', 'EffSharpnessParam', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'HitCollName', 'LastXing', 'MIPDeposit', 'ModNoise', 'ModSignal', 'NinoThr', 'OutputRDOKey', 'OutputSDOKey', 'RndmSvc', 'TimeDelay']
+        expected_property_list = ['DetStore', 'EffDistanceParam', 'EffSharpnessParam', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'HitCollName', 'LastXing', 'MergeSvc', 'MIPDeposit', 'ModNoise', 'ModSignal', 'NinoThr', 'OutputRDOKey', 'OutputSDOKey', 'RndmSvc', 'TimeDelay']
         expected_nonstring_properties = {'LastXing': '0', 'FirstXing': '-25'}
         expected_string_properties = {'HitCollName': 'BCMHits'}
         self._detailed_ConfigurablePropertiesCheck(
