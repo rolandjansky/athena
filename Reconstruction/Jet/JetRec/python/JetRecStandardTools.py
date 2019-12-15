@@ -333,6 +333,16 @@ jtm += PseudoJetGetter(
   GhostScale = 0.0
 )
 
+# CSSKUFOs.
+jtm += PseudoJetGetter(
+  "csskufoget",
+  InputContainer = "CSSKUFO",
+  Label = "UFO",
+  OutputContainer = "PseudoJetCSSKUFO",
+  SkipNegativeEnergy = True,
+  GhostScale = 0.0
+)
+
 useVertices = True
 if False == jetFlags.useVertices:
   useVertices = False

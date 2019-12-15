@@ -31,8 +31,7 @@ from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import (
 
 # flavor tagging
 from DerivationFrameworkFlavourTag.HbbCommon import (
-    buildVRJets, linkPseudoJetGettersToExistingJetCollection, addVRJets,
-    addExKtCoM, addRecommendedXbbTaggers, xbbTaggerExtraVariables)
+    addVRJets, addExKtCoM, addRecommendedXbbTaggers, xbbTaggerExtraVariables)
 from DerivationFrameworkFlavourTag import BTaggingContent as bvars
 from DerivationFrameworkMCTruth.MCTruthCommon import (
     addTruth3ContentToSlimmerTool)
@@ -203,16 +202,25 @@ if globalflags.DataSource()!='data':
 # Variable Radius (VR) Jets
 #===================================================================
 
-# Create variable-R trackjets (with cone and ghost-association for FTAG tracks)
-vrTrackJets, vrTrackJetGhosts = buildVRJets(sequence = FTAG5Seq, do_ghost = False, logger = ftag5_log)
-vrGhostTagTrackJets, vrGhostTagTrackJetsGhosts = buildVRJets(sequence = FTAG5Seq, do_ghost = True, logger = ftag5_log)
-
 # alias for VR
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo",
                                             "AntiKtVR30Rmax4Rmin02TrackGhostTag->AntiKtVR30Rmax4Rmin02TrackGhostTag,AntiKt4EMTopo",]
 
 addVRJets(
     sequence=FTAG5Seq,
+    largeRColls=fatJetCollections,
+    do_ghost=False,
+    logger=ftag5_log)
+
+addVRJets(
+    sequence=FTAG5Seq,
+    largeRColls=fatJetCollections,
+    do_ghost=True,
+    logger=ftag5_log)
+
+addVRJets(
+    sequence=FTAG5Seq,
+    largeRColls=fatJetCollections,
     do_ghost=False,
     training='201903',
     logger=ftag5_log)
@@ -237,17 +245,6 @@ FTAG5Seq += BTagNNAlg(
     variableRemapping=dl1_remap)
 
 
-#===================================================================
-# Link VR jets to large-R jets 
-#===================================================================
-toAssociate = {
-    vrTrackJetGhosts : vrTrackJetGhosts.lower(),
-    vrGhostTagTrackJetsGhosts : vrGhostTagTrackJetsGhosts.lower(),
-}
-for collection in fatJetCollections:
-  ungroomed, labels = linkPseudoJetGettersToExistingJetCollection(
-      FTAG5Seq, collection, toAssociate)
-    
 #===================================================================
 # ExKt subjets for each trimmed large-R jet
 #===================================================================

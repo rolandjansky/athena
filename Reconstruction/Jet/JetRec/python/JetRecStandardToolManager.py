@@ -115,35 +115,44 @@ emgetters = [jtm.emget]
 lcgetters = [jtm.lcget]
 
 tccgetters = [jtm.tccget]
+csskufogetters = [jtm.csskufoget]
+
 if jetFlags.useTracks():
   emgetters = [jtm.emoriginget]
   lcgetters = [jtm.lcoriginget]
-  emgetters += [jtm.gtrackget]
-  lcgetters += [jtm.gtrackget]
-  empfgetters += [jtm.gtrackget]
-  tccgetters += [jtm.gtrackget]
+  emgetters      += [jtm.gtrackget]
+  lcgetters      += [jtm.gtrackget]
+  empfgetters    += [jtm.gtrackget]
+  tccgetters     += [jtm.gtrackget]
+  csskufogetters += [jtm.gtrackget]
 
 if jetFlags.useMuonSegments():
-  emgetters += [jtm.gmusegget]
-  lcgetters += [jtm.gmusegget]
-  empfgetters  += [jtm.gmusegget]
-  tccgetters += [jtm.gmusegget]
+  emgetters      += [jtm.gmusegget]
+  lcgetters      += [jtm.gmusegget]
+  empfgetters    += [jtm.gmusegget]
+  tccgetters     += [jtm.gmusegget]
+  csskufogetters += [jtm.gmusegget]
+
 # Add jet ghosts.
 if 1:
   for gettername in jetFlags.additionalTopoGetters():
     getter = jtm[gettername]
-    emgetters += [getter]
-    lcgetters += [getter]
-    tccgetters += [getter]
+    emgetters      += [getter]
+    lcgetters      += [getter]
+    tccgetters     += [getter]
+    csskufogetters += [getter]
+
 # Add truth getter and truth ghosts.
 if jetFlags.useTruth():
   truthgetters = [jtm.truthget]
   truthwzgetters = [jtm.truthwzget]
-  trackgetters += [jtm.gtruthget]
-  emgetters += [jtm.gtruthget]
-  lcgetters += [jtm.gtruthget]
-  empfgetters += [jtm.gtruthget]
-  tccgetters += [jtm.gtruthget]
+  trackgetters   += [jtm.gtruthget]
+  emgetters      += [jtm.gtruthget]
+  lcgetters      += [jtm.gtruthget]
+  empfgetters    += [jtm.gtruthget]
+  tccgetters     += [jtm.gtruthget]
+  csskufogetters += [jtm.gtruthget]
+  
   # Add truth cone matching and truth flavor ghosts.
   flavorgetters = []
   for ptype in jetFlags.truthFlavorTags():
@@ -155,16 +164,19 @@ if jetFlags.useTruth():
   trackgetters   += flavorgetters
   empfgetters    += flavorgetters
   tccgetters     += flavorgetters
+  csskufogetters += flavorgetters
+
 # Add track jet ghosts.
 if jetFlags.useTracks():
   trackjetgetters = []
   trackjetgetters += [jtm.gakt2trackget]
 #  trackjetgetters += [jtm.gakt3trackget]
   trackjetgetters += [jtm.gakt4trackget]
-  emgetters     += trackjetgetters
-  lcgetters     += trackjetgetters
-  empfgetters   += trackjetgetters
-  tccgetters    += trackjetgetters
+  emgetters       += trackjetgetters
+  lcgetters       += trackjetgetters
+  empfgetters     += trackjetgetters
+  tccgetters      += trackjetgetters
+  csskufogetters  += trackjetgetters
 
 
 # Add getter lists to jtm indexed by input type name.
@@ -174,6 +186,7 @@ jtm.gettersMap["empflow"]   = list(empfgetters)
 jtm.gettersMap["track"]     = list(trackgetters)
 jtm.gettersMap["pv0track"]  = list(trackgetters)
 jtm.gettersMap["tcc"]       = list(tccgetters)
+jtm.gettersMap["csskufo"]   = list(csskufogetters)
 if jetFlags.useTruth():
   jtm.gettersMap["truth"]   = list(truthgetters)
   jtm.gettersMap["truthwz"] = list(truthwzgetters)
@@ -181,6 +194,7 @@ if jetFlags.useTruth():
 jtm.gettersMap["emtopo_reduced"]  = filterout(["gakt2trackget","gakt4trackget"],emgetters)
 jtm.gettersMap["lctopo_reduced"]  = filterout(["gakt2trackget","gakt4trackget"],lcgetters)
 jtm.gettersMap["tcc_reduced"]     = filterout(["gakt2trackget","gakt4trackget"],tccgetters)
+jtm.gettersMap["csskufo_reduced"] = filterout(["gakt2trackget","gakt4trackget"],csskufogetters)
 jtm.gettersMap["empflow_reduced"] = filterout(["gakt2trackget","gakt4trackget"],empfgetters)
 
 
@@ -279,7 +293,7 @@ if jetFlags.useBTagging():
 # TCC-only modifiers here
 tcc_ungroomed_modifiers = []
 tcc_ungroomed_modifiers += [jtm.constitfourmom_pflow]
-tcc_ungroomed_modifiers += filterout(["ecpsfrac","jetens","larhvcorr","caloqual_cluster"], ungroomed_modifiers)
+tcc_ungroomed_modifiers += filterout(["ecpsfrac","larhvcorr","caloqual_cluster","jvf","jvt"], ungroomed_modifiers)
 
 tcc_groomed_modifiers = []
 tcc_groomed_modifiers += [jtm.constitfourmom_pflow]

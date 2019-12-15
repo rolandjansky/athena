@@ -11,8 +11,7 @@ import DerivationFrameworkEGamma.EGammaCommon
 import DerivationFrameworkMuons.MuonsCommon
 import DerivationFrameworkTau.TauCommon
 from DerivationFrameworkFlavourTag.FlavourTagCommon import applyBTagging_xAODColl
-from DerivationFrameworkFlavourTag.HbbCommon import (
-    buildVRJets, linkVRJetsToLargeRJets)
+from DerivationFrameworkFlavourTag.HbbCommon import (buildVRJets, addVRJets)
 from JetRec.JetRecFlags import jetFlags
 from JetJvtEfficiency.JetJvtEfficiencyToolConfig import (getJvtEffTool, getJvtEffToolName)
 
@@ -63,14 +62,7 @@ def addAntiKt10TrackCaloClusterJets(sequence, outputlist):
     addStandardJets("AntiKt", 1.0, "TrackCaloCluster", ptmin=40000, ptminFilter=50000, mods="tcc_ungroomed", algseq=sequence, outputGroup=outputlist)
 
 def addAntiKt10UFOCSSKJets(sequence, outputlist):
-    from JetRec.JetRecConf import PseudoJetGetter
-    from AthenaCommon.AppMgr import ToolSvc
-
-    csskufopjgetter = PseudoJetGetter("csskufoPJGetter", InputContainer="CSSKUFO", OutputContainer="CSSKUFOPJ", Label="UFO", SkipNegativeEnergy=True)
-    ToolSvc += csskufopjgetter
-    csskufogetters = [csskufopjgetter]+list(jtm.gettersMap["tcc"])[1:]
-
-    addStandardJets("AntiKt", 1.0, "UFOCSSK", ptmin=40000, ptminFilter=50000, algseq=sequence, outputGroup=outputlist, customGetters = csskufogetters, constmods=["CSSK"])
+    addStandardJets("AntiKt", 1.0, "UFOCSSK", ptmin=40000, ptminFilter=50000, algseq=sequence, outputGroup=outputlist, constmods=["CSSK"])
 
 def addAntiKt2PV0TrackJets(sequence, outputlist, extendedFlag = 0):
     if not "akt2track" in jtm.modifiersMap.keys():
@@ -701,7 +693,7 @@ def addCSSKSoftDropJets(sequence, seq_name, logger=extjetlog):
     vrJetName, vrGhostLabel = buildVRJets(
         sequence, do_ghost=True, logger=logger)
 
-    linkVRJetsToLargeRJets(sequence, vrJetName, vrGhostLabel)
+    addVRJets(sequence, do_ghost=True, logger=logger)  
 
     addConstModJets("AntiKt", 1.0, "LCTopo", ["CS", "SK"], sequence, seq_name,
                     ptmin=40000, ptminFilter=50000, mods="lctopo_ungroomed",

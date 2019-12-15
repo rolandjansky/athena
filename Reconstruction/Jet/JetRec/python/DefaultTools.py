@@ -117,6 +117,16 @@ def declareDefaultTools():
     GhostScale = 0.0
   )
 
+  # CSSKUFOs.
+  jtm += PseudoJetGetter(
+    "csskufoget",
+    InputContainer = "CSSKUFO",
+    Label = "UFO",
+    OutputContainer = "PseudoJetCSSKUFO",
+    SkipNegativeEnergy = True,
+    GhostScale = 0.0
+  )
+
   #--------------------------------------------------------------
   # Jet builder.
   # The tool manager must have one jet builder.
