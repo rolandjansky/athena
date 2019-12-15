@@ -98,18 +98,9 @@ jetm1Seq += CfgMgr.DerivationFramework__DerivationKernel("JETM1Kernel" ,
 # Special jets
 #====================================================================
 
-# Create TCC objects
-from TrackCaloClusterRecTools.TrackCaloClusterConfig import runTCCReconstruction
-
 from TrackCaloClusterRecTools.TrackCaloClusterConfig import runUFOReconstruction
 emufoAlg = runUFOReconstruction(jetm1Seq,ToolSvc, PFOPrefix="CHS")
 emcsskufoAlg = runUFOReconstruction(jetm1Seq,ToolSvc, PFOPrefix="CSSK")
-
-
-# Set up geometry and BField
-import AthenaCommon.AtlasUnixStandardJob
-include("RecExCond/AllDet_detDescr.py")
-runTCCReconstruction(jetm1Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles", outputTCCName="TrackCaloClustersCombinedAndNeutral")
 
 from JetRec.JetRecConf import PseudoJetGetter
 
@@ -156,7 +147,6 @@ addStandardJets("AntiKt", 1.0, "UFOCHS", ptmin=40000, ptminFilter=50000, algseq=
 
 # AntiKt10*PtFrac5Rclus20
 addDefaultTrimmedJets(jetm1Seq,"JETM1")
-addTCCTrimmedJets(jetm1Seq,"JETM1")
 addTrimmedJets("AntiKt", 1.0, "EMPFlow", rclus=0.2, ptfrac=0.05, algseq=jetm1Seq, outputGroup="JETM1", writeUngroomed=False, mods="pflow_groomed")
 addTrimmedJets("AntiKt", 1.0, "UFOCHS", rclus=0.2, ptfrac=0.05, algseq=jetm1Seq, outputGroup="JETM1", writeUngroomed=False, mods="tcc_groomed")
 addTrimmedJets("AntiKt", 1.0, "UFOCSSK", rclus=0.2, ptfrac=0.05, algseq=jetm1Seq, outputGroup="JETM1", writeUngroomed=False, mods="tcc_groomed")
@@ -185,6 +175,10 @@ addConstModJets("AntiKt",0.4,"EMPFlow",["CS","SK"],jetm1Seq,"JETM1",
 # Add the BCID info
 addDistanceInTrain(jetm1Seq)
 
+#add pFlow fJVT and MVfJVT for EMTopo
+applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=jetm1Seq, algname='JetForwardJvtToolBDTAlg')
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=jetm1Seq, algname='JetForwardPFlowJvtToolAlg')
+
 #=======================================
 # SCHEDULE SMALL-R JETS WITH LOW PT CUT
 #=======================================
@@ -196,7 +190,8 @@ if DerivationFrameworkIsMonteCarlo:
     addJetPtAssociation(jetalg="AntiKt4LCTopo",  truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlg")
     addJetPtAssociation(jetalg="AntiKt4EMPFlow", truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlg")
     addJetPtAssociation(jetalg="AntiKt4EMTopoNoPtCut",  truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlgNoPtCut")
-    addJetPtAssociation(jetalg="AntiKt4LCTopoNoPtCut",  truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlgNoPtCut")
+    #Commenting for now as if disabled the building of this jet container in addAntiKt4NoPtCutJets, working on the reoptimisation of LCW at the moment
+    #addJetPtAssociation(jetalg="AntiKt4LCTopoNoPtCut",  truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlgNoPtCut")
     addJetPtAssociation(jetalg="AntiKt4EMPFlowNoPtCut", truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlgNoPtCut")
     addJetPtAssociation(jetalg="AntiKt4EMTopoCSSK",  truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlgCSSK")
     addJetPtAssociation(jetalg="AntiKt4EMPFlowCSSK", truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlgCSSK")
@@ -216,8 +211,8 @@ JETM1SlimmingHelper.AppendToDictionary = {
 
 JETM1SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "PrimaryVertices",
                                         "AntiKt4EMTopoJets","AntiKt4LCTopoJets","AntiKt4EMPFlowJets",
+                                        "AntiKt10UFOCSSKJets",
                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-                                        "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
                                         "AntiKt10EMPFlowTrimmedPtFrac5SmallR20Jets",
                                         "AntiKt10UFOCHSTrimmedPtFrac5SmallR20Jets",
                                         "AntiKt10UFOCSSKTrimmedPtFrac5SmallR20Jets",
@@ -239,16 +234,15 @@ JETM1SlimmingHelper.ExtraVariables  += ["AntiKt4EMTopoJets.DFCommonJets_QGTagger
 
 JETM1SlimmingHelper.ExtraVariables  += ["InDetTrackParticles.truthMatchProbability"]
 
-JETM1SlimmingHelper.ExtraVariables += ["AntiKt10UFOCSSKTrimmedPtFrac5SmallR20Jets.zg.rg",
-                                       "AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJets.zg.rg",
+JETM1SlimmingHelper.ExtraVariables += ["AntiKt10UFOCSSKTrimmedPtFrac5SmallR20Jets.zg.rg.NumTrkPt1000.TrackWidthPt1000.GhostMuonSegmentCount.EnergyPerSampling.GhostTrack",
+                                       "AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJets.zg.rg.NumTrkPt1000.TrackWidthPt1000.GhostMuonSegmentCount.EnergyPerSampling.GhostTrack",
                                        "AntiKt10UFOCHSTrimmedPtFrac5SmallR20Jets.zg.rg",
                                        "AntiKt10EMPFlowTrimmedPtFrac5SmallR20Jets.zg.rg",
                                        "AntiKt10UFOCHSSoftDropBeta100Zcut10Jets.zg.rg",
-                                       "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets.zg.rg",
-                                       "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets.zg.rg",
-                                       "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.zg.rg",
-                                       "AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5Jets.zg.rg",
-                                       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.zg.rg"]
+                                       "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets.zg.rg.NumTrkPt1000.TrackWidthPt1000.GhostMuonSegmentCount.EnergyPerSampling.GhostTrack",
+                                       "AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5Jets.zg.rg.NumTrkPt1000.TrackWidthPt1000.GhostMuonSegmentCount.EnergyPerSampling.GhostTrack",
+                                       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.zg.rg",
+                                       "AntiKt10UFOCSSKJets.NumTrkPt1000.TrackWidthPt1000.GhostMuonSegmentCount.EnergyPerSampling.GhostTrack"]
 
 JETM1SlimmingHelper.AllVariables = [ "MuonSegments", "TruthVertices",
                                      "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape","Kt4EMPFlowPUSBEventShape","Kt4EMPFlowNeutEventShape"]
@@ -257,7 +251,8 @@ JETM1SlimmingHelper.AllVariables = [ "MuonSegments", "TruthVertices",
 JETM1SlimmingHelper.IncludeJetTriggerContent = True
 
 # Add the jet containers to the stream
-addJetOutputs(JETM1SlimmingHelper,["SmallR","JETM1"],["AntiKt10EMPFlowTrimmedPtFrac5SmallR20Jets",
+addJetOutputs(JETM1SlimmingHelper,["SmallR","JETM1"],["AntiKt10UFOCSSKJets",
+                                                      "AntiKt10EMPFlowTrimmedPtFrac5SmallR20Jets",
                                                       "AntiKt10UFOCHSTrimmedPtFrac5SmallR20Jets",
                                                       "AntiKt10UFOCSSKTrimmedPtFrac5SmallR20Jets",
                                                       "AntiKt10UFOCHSSoftDropBeta100Zcut10Jets",
@@ -266,7 +261,7 @@ addJetOutputs(JETM1SlimmingHelper,["SmallR","JETM1"],["AntiKt10EMPFlowTrimmedPtF
                                                       "AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJets",
                                                      ], # smart list
               [
-               "AntiKt4TruthWZJets", "AntiKt10UFOCSSKJets", "AntiKt10UFOCHSJets", "AntiKt10EMPFlowJets", "AntiKt10EMPFlowCSSKJets"
+               "AntiKt4TruthWZJets", "AntiKt10UFOCHSJets", "AntiKt10EMPFlowJets", "AntiKt10EMPFlowCSSKJets"
                ]# veto list,
               )
 
