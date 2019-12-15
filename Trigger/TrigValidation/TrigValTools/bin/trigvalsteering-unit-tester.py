@@ -37,8 +37,11 @@ def main():
             status_str = 'OK'
             if ret_code != 0:
                 status_str = 'FAILED WITH CODE {:d}'.format(ret_code)
-            # Grep for error messages but ignore missing reference errors
-            grep_cmd = 'grep ERROR {:s} | grep -v "Missing reference" >/dev/null 2>&1'.format(log_file)
+            # Grep for error messages but ignore missing reference errors and echo commands
+            grep_cmd = 'grep ERROR {:s}'.format(log_file)
+            grep_cmd += ' | grep -v "Missing reference"'
+            grep_cmd += ' | grep -v "echo \\\"ERROR"'
+            grep_cmd += ' >/dev/null 2>&1'
             grep_code = subprocess.call(grep_cmd, shell=True)
             if grep_code == 0:
                 status_str = 'ERROR IN LOG {:s}'.format(log_file)
