@@ -361,12 +361,6 @@ BTaggingFlags.CalibrationChannelAliases += [
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet
 # A wrapper function which does all the necessary steps
 addVRJets(exot3Seq)
-# Create variable-R trackjets and dress AntiKt10TCC with ghost VR-trkjet
-# A wrapper function which does all the necessary steps
-# addVRJetsTCC(exot3Seq, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet",
-             # VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track",
-             # ghostArea = 0 , ptmin = 7000, ptminFilter = 7000,
-             # variableRMinRadius = 0.02, variableRMassScale = 30000, calibOpt = "none")
 
 #b-tagging
 

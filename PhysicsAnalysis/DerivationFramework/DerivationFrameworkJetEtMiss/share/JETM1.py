@@ -5,10 +5,7 @@
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import (
-    addCSSKSoftDropJets)
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
-#from DerivationFrameworkJetEtMiss.METCommon import *
 
 # Include TRUTH3 containers
 if DerivationFrameworkIsMonteCarlo:

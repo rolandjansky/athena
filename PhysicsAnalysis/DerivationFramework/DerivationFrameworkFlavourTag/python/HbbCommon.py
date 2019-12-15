@@ -199,9 +199,17 @@ def addExKtCoM(sequence, ToolSvc, JetCollectionExCoM, nSubjets, doTrackSubJet, d
     return ExCoMJetCollection__SubJet
 
 ##################################################################
-# Build variable-R subjets, recluster AntiKt10LCTopojet with ghost VR and copy ghost link to AntiKt10LCTopo
+# Associate the VR track jets to existing large-R jet collections
+# 
+# For any groomed jet collections, the association will be done to
+# the parent jet collection (so for the
+# AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets collection the 
+# association will be done to the AntiKt10LCTopoJets collection).
+# 
+# If no jet collection is supplied, the association is done to
+# AntiKt10LCTopoJets
 ##################################################################
-def addVRJets(sequence, do_ghost=False, logger=None, doFlipTagger=False, training='201810', *pos_opts, **opts):
+def addVRJets(sequence, largeRColls = None, do_ghost=False, logger=None, doFlipTagger=False, training='201810', *pos_opts, **opts):
     from AthenaCommon import Logging
 
     if logger is None:
@@ -212,17 +220,36 @@ def addVRJets(sequence, do_ghost=False, logger=None, doFlipTagger=False, trainin
     # flexibility, this code will need some rewriting to ensure that
     # there are no issues with train safety.
     if opts or pos_opts:
-        logger.error('Options specified for VR jets, they will be ignored')
+        logger.warning('Options specified for VR jets, they will be ignored')
+
+    if largeRColls is None:
+      largeRColls = [
+          "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
+          ]
 
     VRName, ghostLab = buildVRJets(sequence, do_ghost, logger, doFlipTagger, training)
-    linkVRJetsToLargeRJets(sequence, VRName, ghostLab)
+    toAssociate = {
+        ghostLab : ghostLab.lower()
+        }
+    
+    ungroomedNames = []
+    for collection in largeRColls:
+      ungroomedName, getters = linkVRJetsToLargeRJets(sequence, collection, toAssociate)
+      ungroomedNames.append(ungroomedName)
 
-def buildVRJets(sequence, do_ghost, logger, doFlipTagger=False, training='201810'):
+    return ungroomedNames
+
+def buildVRJets(sequence, do_ghost, logger = None, doFlipTagger=False, training='201810'):
+
+    from AthenaCommon import Logging
+
+    if logger is None:
+        logger = Logging.logging.getLogger('VRLogger')
 
     # Check allowed trainings
     # Is there a better way to do this with a central DB?
     if training not in ['201810', '201903']:
-      print "WARNING: Using an supported training tag! This is UNDEFINED, probably will default to 201810 training."
+      logger.warning("Using an supported training tag! This is UNDEFINED, probably will default to 201810 training.")
 
     from JetRec.JetRecStandard import jtm
 
@@ -255,8 +282,8 @@ def buildVRJets(sequence, do_ghost, logger, doFlipTagger=False, training='201810
     VRJetAlgName = "jfind_%s" % (VRJetRecToolName)
     VRJetBTagName = "BTagging_%s" % (VRJetName.replace('BTagging',''))
 
-    print "VR Btag Name", VRJetBTagName
-    print "VR jet name ", VRJetRecToolName
+    logger.info("VR Btag name: %s" % VRJetBTagName)
+    logger.info("VR jet name: %s" % VRJetRecToolName)
 
     from AthenaCommon.AppMgr import ToolSvc
 
@@ -288,20 +315,20 @@ def buildVRJets(sequence, do_ghost, logger, doFlipTagger=False, training='201810
         pseudoJetGetters.append(jtm["gtrackget"])
 
     if VRJetAlgName in DFJetAlgs:
-        print "Algorithm", VRJetAlgName, "already built before"
+        logger.info("Algorithm %s already built before" % VRJetAlgName)
 
         if hasattr(sequence, VRJetAlgName):
-            print "   Sequence", sequence, "already has an instance of algorithm", VRJetAlgName
+            logger.info("Sequence %s already has an instance of algorithm %s" % (sequence, VRJetAlgName))
         else:
-            print "   Add algorithm", VRJetAlgName, "to sequence", sequence
+            logger.info("Add algorithm %s to sequence %s" % (VRJetAlgName, sequence))
             sequence += DFJetAlgs[VRJetAlgName]
     else:
-        print "Create algorithm", VRJetAlgName
+        logger.info("Create algorithm %s" % VRJetAlgName)
 
         if hasattr(jtm, VRJetRecToolName):
-            print "   JetRecTool", VRJetRecToolName, "is alredy in jtm.tools in sequence ", sequence
+            logger.info("JetRecTool %s is alredy in jtm.tools in sequence %s" % (VRJetRecToolName, sequence))
         else:
-            print "   Create JetRecTool", VRJetRecToolName
+            logger.info("Create JetRecTool %s" % VRJetRecToolName)
             #can only run trackjetdrlabeler with truth labels, so MC only
 
             mods = [defaultTrackAssoc, defaultMuonAssoc, btag_vrjets]
@@ -330,11 +357,12 @@ def buildVRJets(sequence, do_ghost, logger, doFlipTagger=False, training='201810
     pjgettername = VRGhostLabel.lower()
 
     if hasattr(jtm, pjgettername):
-        print "Found", pjgettername, "in jtm in sequence", sequence
+        logger.info("Found %s in jtm in sequence %s" % (pjgettername, sequence))
     else:
-        print "Add", pjgettername, "to jtm in sequence", sequence
+        logger.info("Add %s to jtm in sequence %s" % (pjgettername, sequence))
 
         inputContainerName = jetFlags.containerNamePrefix() + VRJetName + "Jets" if "BTagging" not in VRJetName else jetFlags.containerNamePrefix() + VRJetName.replace("_BTagging", "Jets_BTagging")
+
 
         from JetRec.JetRecConf import PseudoJetGetter
         jtm += PseudoJetGetter(
@@ -346,180 +374,6 @@ def buildVRJets(sequence, do_ghost, logger, doFlipTagger=False, training='201810
           GhostScale = 1.e-20,                                                   # this makes the PseudoJet Ghosts, and thus the reco flow will treat them as such
         )
     return VRJetName, VRGhostLabel
-
-def linkVRJetsToLargeRJets(sequence, VRJetName, VRGhostLabel,
-                           baseGetterMap='lctopo',
-                           baseLargeRJets='AntiKt10LCTopo',
-                           modifiers="lctopo_ungroomed"):
-    from JetRec.JetRecStandard import jtm
-    pjgettername = VRGhostLabel.lower()
-    #==========================================================
-    # Re-cluster large-R jet with VR ghost associated on it
-    # AntiKt10LCTopo hard-coded for now
-    #==========================================================
-    LargeRJetAlg     = "jfind_%s_%s" %(baseLargeRJets.lower(), VRJetName.lower())
-    LargeRJetPrefix  = "%s_%s"       %(baseLargeRJets, VRJetName)
-    if '_BTagging' in LargeRJetPrefix:
-      LargeRJets = LargeRJetPrefix.replace('_BTagging','Jets_BTagging')
-    else:
-      LargeRJets       = "%sJets" % (LargeRJetPrefix)
-    newLCTopo        = "%s_%s"            %(baseGetterMap, VRJetName.lower())
-    LinkTransferAlg  = "LinkTransfer_%s_%s"     %(baseLargeRJets, VRJetName)
-
-    if LargeRJetAlg in DFJetAlgs:
-        print "  Found ", LargeRJetAlg," in DFJetAlgs in", sequence
-        if hasattr(sequence, LargeRJetAlg):
-            print "   Algsequence", sequence, "already has an instance of", LargeRJetAlg
-        else:
-            print "   Added ", LargeRJetAlg," to sequence ", sequence
-            sequence += DFJetAlgs[LargeRJetAlg]
-
-    else:
-        if hasattr(jtm, LargeRJets):
-            print  LargeRJets, " is alredy in jtm.tools in sequence ", sequence
-        else:
-            print "  Create new ", LargeRJets,"in", sequence
-            OutputJets.setdefault("CustomJets" , [] ).append(LargeRJets)
-            jtm.gettersMap[newLCTopo] = list(jtm.gettersMap[baseGetterMap])
-            jtm.gettersMap[newLCTopo] += [ jtm[pjgettername] ]
-            jtm.addJetFinder(LargeRJets, "AntiKt", 1.0, newLCTopo , modifiers,
-                             ghostArea = 0 , ptmin = 40000, ptminFilter = 50000,
-                             calibOpt = "none")
-
-        jetalg_largefr10_lctopo = JetAlgorithm(LargeRJetAlg, Tools = [ jtm[LargeRJets] ])
-        sequence += jetalg_largefr10_lctopo
-        DFJetAlgs[LargeRJetAlg] = jetalg_largefr10_lctopo
-    
-    #==========================================================
-    # Transfer the link from re-clustered jet to original jet
-    # AntiKt10LCTopo hard-coded for now
-    # Issue here: If addVRJets() is called more than once for different VR, only link to first VR would be transferred
-    # Solution: decouple the following part with parts above
-    #==========================================================
-
-    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import (
-        getJetExternalAssocTool, applyJetAugmentation)
-    jetassoctool = getJetExternalAssocTool(baseLargeRJets, LargeRJetPrefix, MomentPrefix='', ListOfOldLinkNames=[VRGhostLabel])
-    applyJetAugmentation(baseLargeRJets, LinkTransferAlg, sequence, jetassoctool)
-
-##################################################################
-# Build variable-R subjets, recluster AntiKt10TCCjet with ghost VR and copy ghost link to AntiKt10TCC - Copy and pasting this defintion is an ugly temporary solution. We need to properly rewrite this for a more general use and remove the hardcoded jet collection.
-##################################################################
-def addVRJetsTCC(sequence, VRJetName, VRGhostLabel, VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track", **VRJetOptions):
-    from JetRec.JetRecStandard import jtm
-
-    from AthenaCommon.AppMgr import ToolSvc
-    #==========================================================
-    # Build VR jets
-    #==========================================================
-
-    VRJetAlgName = "jfind_%sJets" % (VRJetName)
-    VRJetRecToolName = "%sJets" % (VRJetName)
-    VRJetBTagName = "BTagging_%s" % (VRJetName)
-
-    #make the btagging tool for VR jets
-    from BTagging.BTaggingFlags import BTaggingFlags
-    btag_vrjets = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection=VRJetRecToolName, AddToToolSvc=True, Verbose=True,
-                 options={"name"         : VRJetBTagName.lower(),
-                          "BTagName"     : VRJetBTagName,
-                          "BTagJFVtxName": "JFVtx",
-                          "BTagSVName"   : "SecVtx",
-                          },
-                 SetupScheme = "",
-                 TaggerList = BTaggingFlags.StandardTaggers
-                 )
-
-    if VRJetAlgName in DFJetAlgs:
-        print "Algorithm", VRJetAlgName, "already built before"
-
-        if hasattr(sequence, VRJetAlgName):
-            print "   Sequence", sequence, "already has an instance of algorithm", VRJetAlgName
-        else:
-            print "   Add algorithm", VRJetAlgName, "to sequence", sequence
-            sequence += DFJetAlgs[VRJetAlgName]
-    else:
-        print "Create algorithm", VRJetAlgName
-
-        if hasattr(jtm, VRJetRecToolName):
-            print "   JetRecTool", VRJetRecToolName, "is alredy in jtm.tools in sequence ", sequence
-        else:
-            print "   Create JetRecTool", VRJetRecToolName
-            #can only run trackjetdrlabeler with truth labels, so MC only
-            if globalflags.DataSource()!='data':
-                jtm.addJetFinder(VRJetRecToolName, VRJetAlg, VRJetRadius, VRJetInputs, modifiersin=[trackassoc, muonassc, btag_vrjets,jtm.trackjetdrlabeler], **VRJetOptions)
-            else:
-                jtm.addJetFinder(VRJetRecToolName, VRJetAlg, VRJetRadius, VRJetInputs, modifiersin=[trackassoc, muonassoc, btag_vrjets], **VRJetOptions)
-
-        from JetRec.JetRecConf import JetAlgorithm
-        jetalg_smallvr30_track = JetAlgorithm(VRJetAlgName, Tools = [ jtm[VRJetRecToolName] ])
-        sequence += jetalg_smallvr30_track
-        DFJetAlgs[VRJetAlgName] = jetalg_smallvr30_track
-
-    #==========================================================
-    # Build PseudoJet Getter
-    #==========================================================
-
-    pjgettername = VRGhostLabel.lower()
-
-    if hasattr(jtm, pjgettername):
-        print "Found", pjgettername, "in jtm in sequence", sequence
-    else:
-        print "Add", pjgettername, "to jtm in sequence", sequence
-
-        from JetRec.JetRecConf import PseudoJetGetter
-        jtm += PseudoJetGetter(
-          pjgettername,                                                          # give a unique name
-          InputContainer = jetFlags.containerNamePrefix() + VRJetName + "Jets",  # SG key
-          Label = VRGhostLabel,                                                  # this is the name you'll use to retrieve ghost associated VR track jets
-          OutputContainer = "PseudoJet" + VRGhostLabel,
-          SkipNegativeEnergy = True,
-          GhostScale = 1.e-20,                                                   # this makes the PseudoJet Ghosts, and thus the reco flow will treat them as such
-        )
-
-    #==========================================================
-    # Re-cluster large-R jet with VR ghost associated on it
-    # AntiKt10TCC hard-coded for now
-    #==========================================================
-    LargeRJetAlg     = "jfind_akt10trackcalocluster_%s" %(VRJetName.lower())
-    LargeRJets       = "AKt10TrackCaloCluster_%sJets"   %(VRJetName)
-    LargeRJetPrefix  = "AKt10TrackCaloCluster_%s"       %(VRJetName)
-    newLCTopo        = "tcc_%s"            %(VRJetName.lower())
-    LinkTransferAlg  = "LinkTransfer_%s"     %(VRJetName)
-
-    if LargeRJetAlg in DFJetAlgs:
-        print "  Found ", LargeRJetAlg," in DFJetAlgs in", sequence
-        if hasattr(sequence, LargeRJetAlg):
-            print "   Algsequence", sequence, "already has an instance of", LargeRJetAlg
-        else:
-            print "   Added ", LargeRJetAlg," to sequence ", sequence
-            sequence += DFJetAlgs[LargeRJetAlg]
-
-    else:
-        if hasattr(jtm, LargeRJets):
-            print  LargeRJets, " is alredy in jtm.tools in sequence ", sequence
-        else:
-            print "  Create new ", LargeRJets,"in", sequence
-            OutputJets.setdefault("CustomJets" , [] ).append(LargeRJets)
-            jtm.gettersMap[newLCTopo] = list(jtm.gettersMap["tcc"])
-            jtm.gettersMap[newLCTopo] += [ jtm[pjgettername] ]
-            jtm.addJetFinder(LargeRJets, "AntiKt", 1.0, newLCTopo , "tcc_ungroomed",
-                             ghostArea = 0 , ptmin = 40000, ptminFilter = 50000,
-                             calibOpt = "none")
-        from JetRec.JetRecConf import JetAlgorithm
-        jetalg_largefr10_tcc = JetAlgorithm(LargeRJetAlg, Tools = [ jtm[LargeRJets] ])
-        sequence += jetalg_largefr10_tcc
-        DFJetAlgs[LargeRJetAlg] = jetalg_largefr10_tcc
-
-    #==========================================================
-    # Transfer the link from re-clustered jet to original jet
-    # AntiKt10TCC hard-coded for now
-    # Issue here: If addVRJets() is called more than once for different VR, only link to first VR would be transferred
-    # Solution: decouple the following part with parts above
-    #==========================================================
-    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import (
-        getJetExternalAssocTool, applyJetAugmentation)
-    jetassoctool = getJetExternalAssocTool('AntiKt10TrackCaloCluster', LargeRJetPrefix, MomentPrefix='', ListOfOldLinkNames=[VRGhostLabel])
-    applyJetAugmentation('AntiKt10TrackCaloCluster', LinkTransferAlg, sequence, jetassoctool)
 
 ##################################################################
 # Build variable-R calorimeter jets
@@ -555,7 +409,7 @@ def getJetRecTool(collection, getParent=True):
 ###################################################################
 ## Utils: link jets (copied over from Jon Burr in EXOT27Utils)
 ###################################################################
-def linkPseudoJetGettersToExistingJetCollection(
+def linkVRJetsToLargeRJets(
     sequence, collection, getters):
   """Re-run jet finding for a jet collection using a new list of 
     PseudoJetGetters. These PseudoJetGetters should already have been loaded
@@ -568,7 +422,6 @@ def linkPseudoJetGettersToExistingJetCollection(
     Returns the name of the ungroomed collection that is the parent of
     'collection' (this will be the same as 'collection' if this isn't groomed)
     *and* the list of ghost labels (these are the element link names).
-    This code is largely based on the linkVRJetsToLargeRJets from HbbCommon
   """
   from JetRec.JetRecStandardToolManager import jtm
   import DerivationFrameworkJetEtMiss.JetCommon as JetCommon
@@ -590,7 +443,10 @@ def linkPseudoJetGettersToExistingJetCollection(
   comb_name = "_".join(getters.keys() )
   LargeRJetFindingAlg = "jfind_{0}_{1}".format(collection, comb_name).lower()
   LargeRJetPrefix     = "{0}_{1}".format(collection, comb_name)
-  LargeRJets          = LargeRJetPrefix+"Jets"
+  if '_BTagging' in LargeRJetPrefix:
+    LargeRJets = LargeRJetPrefix.replace('_BTagging','Jets_BTagging')
+  else:
+    LargeRJets       = "%sJets" % (LargeRJetPrefix)
   LinkTransferAlg     = "LinkTransfer_{0}_{1}".format(collection, comb_name)
 
   # Check to see if this large R jet collection is already known to JetCommon

@@ -437,9 +437,9 @@ exot8PreSeq += exot8Seq
 from JetRecTools.ConstModHelpers import getConstModSeq, xAOD
 pflowCSSKSeq = getConstModSeq(["CS","SK"], "EMPFlow")
 
-#from JetRec.JetRecConf import JetAlgorithm
-clustSeqAlg = JetAlgorithm("ClusterModifiers", Tools = [pflowCSSKSeq])
-exot8Seq += clustSeqAlg
+# add the pflow cssk sequence to the main jetalg if not already there :
+if pflowCSSKSeq.getFullName() not in [t.getFullName() for t in DerivationFrameworkJob.jetalg.Tools]:
+    DerivationFrameworkJob.jetalg.Tools += [pflowCSSKSeq]
 
 # Add UFO constituents
 from TrackCaloClusterRecTools.TrackCaloClusterConfig import runUFOReconstruction
@@ -474,10 +474,16 @@ if globalflags.DataSource()=="geant4":
 
 addSoftDropJets("AntiKt", 1.0, "UFOCSSK", beta=1.0, zcut=0.1, algseq=exot8Seq, outputGroup="EXOT8", writeUngroomed=False, mods="tcc_groomed")
 
-# Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
-addVRJets(exot8Seq)
-addVRJets(exot8Seq, do_ghost=True)
-addVRJets(exot8Seq, training='201903') #new trackjet training!
+# Create variable-R trackjets and dress ungroomed large-R jets with ghost VR-trkjet
+
+largeRJetCollections = [
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+    "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets",
+    ]
+
+addVRJets(exot8Seq, largeRColls = largeRJetCollections)
+addVRJets(exot8Seq, largeRColls = largeRJetCollections, do_ghost=True)
+addVRJets(exot8Seq, largeRColls = largeRJetCollections, training='201903') #new trackjet training!
 
 # Also add Hbb Tagger
 addHbbTagger(exot8Seq, ToolSvc)
