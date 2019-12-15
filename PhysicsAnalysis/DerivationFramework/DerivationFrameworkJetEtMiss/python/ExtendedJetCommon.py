@@ -191,9 +191,9 @@ def addAntiKt4LowPtJets(sequence,outputlist):
 def addAntiKt4NoPtCutJets(sequence,outputlist):
     addStandardJets("AntiKt", 0.4, "EMTopo",  namesuffix="NoPtCut", ptmin=0, ptminFilter=1,
                     mods="emtopo_ungroomed", algseq=sequence, outputGroup=outputlist,calibOpt="none")
-    addStandardJets("AntiKt", 0.4, "LCTopo",  namesuffix="NoPtCut", ptmin=0, ptminFilter=1,
-                    mods="lctopo_ungroomed", algseq=sequence, outputGroup=outputlist,calibOpt="none")
-    # Commented for now because of problems with underlying PFlow collections
+    #Commented for now as we don't recommend LCTopo jets but working on its optimisation
+    #addStandardJets("AntiKt", 0.4, "LCTopo",  namesuffix="NoPtCut", ptmin=0, ptminFilter=1,
+    #                mods="lctopo_ungroomed", algseq=sequence, outputGroup=outputlist,calibOpt="none")
     addCHSPFlowObjects()
     addStandardJets("AntiKt", 0.4, "EMPFlow", namesuffix="NoPtCut", ptmin=0, ptminFilter=1,
                     mods="pflow_ungroomed", algseq=sequence, outputGroup=outputlist,calibOpt="none")
