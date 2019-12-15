@@ -300,15 +300,14 @@ dataType = "data"
 if DerivationFrameworkIsMonteCarlo:
   dataType = "mc"
 
-# Include, and then set up the pileup analysis sequence:
-from AsgAnalysisAlgorithms.PileupAnalysisSequence import \
-    makePileupAnalysisSequence
-pileupSequence = makePileupAnalysisSequence( dataType )
-pileupSequence.configure( inputName = 'EventInfo', outputName = 'EventInfo' )
-print( pileupSequence ) # For debugging
-
-# Add the pileup sequence to the job:
-SeqPHYSLITE += pileupSequence
+#in your c++ code, create a ToolHandle<IPileupReweightingTool>
+#the ToolHandle constructor should be given "CP::PileupReweightingTool/myTool" as its string argument
+from PileupReweighting.AutoconfigurePRW import getLumiCalcFiles,getMCMuFiles
+ToolSvc += CfgMgr.CP__PileupReweightingTool("PHYSLITE_PRWTool",
+                                            ConfigFiles=getMCMuFiles(),
+                                            UnrepresentedDataAction=2,
+                                            LumiCalcFiles=getLumiCalcFiles())
+SeqPHYSLITE += CfgMgr.CP__PileupReweightingProvider(Tool=ToolSvc.PHYSLITE_PRWTool,RunSystematics=False)
 
 # Include, and then set up the electron analysis sequence:
 from EgammaAnalysisAlgorithms.ElectronAnalysisSequence import \
