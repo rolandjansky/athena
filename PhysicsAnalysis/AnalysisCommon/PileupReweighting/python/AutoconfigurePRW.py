@@ -18,6 +18,11 @@ def getCampaign():
             for r in reco_campaigns[c]:
                 if r in ami_tag:
                     return c
+        project = inputFileSummary['tag_info']['project_name']
+        # MC-equivalent projects for data
+        if 'data18' in project: return 'mc16e'
+        elif 'data17' in project: return 'mc16d'
+        elif 'data16' in project or 'data15' in project: return 'mc16a'
     return None
 
 # Function to get the data lumicalc files
@@ -31,7 +36,7 @@ def getLumiCalcFiles():
         return ["GoodRunsLists/data17_13TeV/20180619/physics_25ns_Triggerno17e33prim.lumicalc.OflLumi-13TeV-010.root" ]
     elif my_campaign=='mc16e':
         return ["GoodRunsLists/data18_13TeV/20190708/ilumicalc_histograms_None_348885-364292_OflLumi-13TeV-010.root" ]
-    return None
+    return []
 
 def getMCMuFiles():
     # Attempt auto-configuration
