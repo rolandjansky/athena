@@ -55,6 +55,8 @@ public:
   /// Function initialising the tool
   virtual StatusCode initialize();
 
+  virtual StatusCode beginInputFile();
+
   /// Print tool configuration
   virtual void printConfig(bool bAlways = true);
 
@@ -147,6 +149,7 @@ private:
   int m_iContSysType;
   int m_iTriggerPeriodBinning;
   std::string m_sMCCampaign;
+  bool m_sAFII;
 
   unsigned int m_iRunNumber;
   unsigned int m_iMu;
