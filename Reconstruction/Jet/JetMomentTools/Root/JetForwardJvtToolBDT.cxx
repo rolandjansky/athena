@@ -137,6 +137,10 @@ int JetForwardJvtToolBDT::modify(xAOD::JetContainer& jetCont) const {
   // -- Retrieve PV index if not provided by user
   int pvind = (m_pvind==-1) ? getPV() : m_pvind;
   ATH_MSG_DEBUG("In JetForwardJvtToolBDT::modify: PV index = " << pvind);
+  if( pvind == -1 ){
+    ATH_MSG_ERROR( "Something went wrong whith the HS primary vertex identification." );
+    return 1;
+  }
 
   std::vector<TVector2> pileupMomenta;
   for(const xAOD::Jet *jetF : jetCont) {
@@ -386,17 +390,15 @@ int JetForwardJvtToolBDT::getPV() const{
   const xAOD::VertexContainer *vxCont = 0;
   if( evtStore()->retrieve(vxCont, m_vtxcont).isFailure() ) {
     ATH_MSG_ERROR("Unable to retrieve primary vertex container");
-    return StatusCode::FAILURE;
-  } else if(vxCont->empty()) {
-    ATH_MSG_INFO("Event has no primary vertices!");
+    return -1;
   } else {
     ATH_MSG_DEBUG("Successfully retrieved primary vertex container");
     for(const xAOD::Vertex *vx : *vxCont) {
       if(vx->vertexType()==xAOD::VxType::PriVtx) return vx->index();
     }
   }
-  ATH_MSG_ERROR("Couldn't identify the hard-scatter primary vertex (no vertex with \"vx->vertexType()==xAOD::VxType::PriVtx\" in the container)!");
-  return StatusCode::FAILURE;
+  ATH_MSG_WARNING("Couldn't identify the hard-scatter primary vertex (no vertex with \"vx->vertexType()==xAOD::VxType::PriVtx\" in the container)!");
+  return 0;
 }
 
 StatusCode JetForwardJvtToolBDT::tagTruth(const xAOD::JetContainer *jets,const xAOD::JetContainer *truthJets) {
