@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @Package PyJobTransforms.trfValidateRootFile
 # @brief Functionality to test a Root file for corruption
 # @author bjorn.sarrazin@cern.ch
+
+from __future__ import print_function
 
 
 
@@ -151,10 +153,10 @@ def checkFile(fileName, type, requireTree, msg):
 
 
 def usage():
-    print "Usage: validate filename type requireTree verbosity"
-    print "'type'  must be either 'event' or 'basket'"
-    print "'requireTree' must be either 'true' or 'false'"
-    print "'verbosity' must be either 'on' or 'off'"
+    print ("Usage: validate filename type requireTree verbosity")
+    print ("'type'  must be either 'event' or 'basket'")
+    print ("'requireTree' must be either 'true' or 'false'")
+    print ("'verbosity' must be either 'on' or 'off'")
 
     return 2
 

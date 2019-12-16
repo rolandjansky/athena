@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ## @package JobReport
 #
@@ -7,7 +7,7 @@
 #  @version $Rev: 501327 $
 #  @date $Date: 2012-05-18 16:24:55 +0200 (Fri, 18 May 2012) $
 
-from __future__ import with_statement
+from __future__ import with_statement, print_function
 import os,sys,re,shutil,traceback, subprocess, itertools
 import cPickle as pickle
 from copy import copy
@@ -992,10 +992,10 @@ class JobReport( object ):
         try:
             # the actual execution
             slimmetadataProcess = subprocess.check_call( [ "slimmetadata", filename, temp1, temp2 ] )
-        except subprocess.CalledProcessError, cpe:
-            print "Error slimming %s [%s]: %s" % ( filename, cpe.returncode, cpe.message )
+        except subprocess.CalledProcessError as cpe:
+            print ("Error slimming %s [%s]: %s" % ( filename, cpe.returncode, cpe.message ))
         else:
-            print "%s has been slimmed." % filename
+            print ("%s has been slimmed." % filename)
         # removing the temp files
         for f in [ temp1, temp2 ]:
             try:
@@ -1026,12 +1026,12 @@ class JobReport( object ):
         xmlStr = os.linesep.join( headerLines )
         xmlStr += os.linesep + self._task.getXML()
         filename = self.producerFilename( JobReport.metadata_xml )
-        print "Writing new style %s file..." % filename
+        print ("Writing new style %s file..." % filename)
         try:
             with open( filename, 'w' ) as metaFile:
                 metaFile.write( xmlStr + os.linesep )
-        except Exception, msg:
-            print "WARNING: Could not write metadata to file %s: %s" % ( filename, msg )
+        except Exception as msg:
+            print ("WARNING: Could not write metadata to file %s: %s" % ( filename, msg ))
             return
         if writeFinalCopy and self._trf:
             shutil.copyfile( filename, JobReport.metadata_xml )
@@ -1060,12 +1060,12 @@ class JobReport( object ):
             filesNode.addContents(f.xmlNode())
         xmlStr += os.linesep + filesNode.getXML()
         filename = self.producerFilename( JobReport.metadata_xml )
-        print "Writing %s file..." % filename
+        print ("Writing %s file..." % filename)
         try:
             with open( filename, 'w' ) as metaFile:
                 metaFile.write( xmlStr + os.linesep )
-        except Exception, msg:
-            print "WARNING: Could not write metadata to file %s: %s" % ( filename, msg )
+        except Exception as msg:
+            print ("WARNING: Could not write metadata to file %s: %s" % ( filename, msg ))
             return
         # Temporary hack to remove redundant metadata.
         JobReport.slimdownMetadata( filename )
@@ -1122,12 +1122,12 @@ class JobReport( object ):
         # make XML string
         xmlStr += os.linesep + jobInfo.getXML()
         filename=self.producerFilename( JobReport.jobinfo_xml )
-        print "Writing %s file..." % filename
+        print ("Writing %s file..." % filename)
         try:
             with open( filename, 'w' ) as jobFile:
                 jobFile.write( xmlStr + os.linesep )
-        except Exception, msg:
-            print "WARNING: Could not write job info to file %s: %s" % ( filename, msg )
+        except Exception as msg:
+            print ("WARNING: Could not write job info to file %s: %s" % ( filename, msg ))
             return
         self.__modified = False
         if writeFinalCopy and self._trf:
@@ -1147,8 +1147,8 @@ class JobReport( object ):
             with open( filename, 'w' ) as txtFile:
                 # always write full info to file
                 self.dump( options = [], notOptions = [], output = txtFile )
-        except Exception, msg:
-            print "WARNING: Could not write job report to file %s: %s" % ( filename, msg )
+        except Exception as msg:
+            print ("WARNING: Could not write job report to file %s: %s" % ( filename, msg ))
             return
         self.__modified = False
         if writeFinalCopy and self._trf:
@@ -1179,8 +1179,8 @@ class JobReport( object ):
         try:
             with open( filename, 'w' ) as errorFile:
                 pickle.dump( self, errorFile, 2 )
-        except Exception, msg:
-            print "WARNING: Could not pickle job report to file %s: %s" % ( filename, msg )
+        except Exception as msg:
+            print ("WARNING: Could not pickle job report to file %s: %s" % ( filename, msg ))
             return False
         self.__modified = False
         if writeFinalCopy and self._trf:
@@ -1241,7 +1241,7 @@ class JobReport( object ):
                 trfAcronym = AtlasErrorCodes.NEEDCHECK.acronym
             if fatalCount > 0:
                 # There is a problem when trfExitCode=0 and there are fatal errors so reset to a TRF_EXE error
-                print "Warning: Trf exit code was 0, but fatal errors were detected. Resetting trf exit code to TRF_EXE."
+                print ("Warning: Trf exit code was 0, but fatal errors were detected. Resetting trf exit code to TRF_EXE.")
                 trfAcronym = 'TRF_EXE'
                 trfCode = AtlasErrorCodes.getCode( trfAcronym )
 
@@ -1289,7 +1289,7 @@ class JobReport( object ):
                                  'GUID' : i.guid(), 
                                  'dataset' : i.metaData( 'dataset' ) } )
             except:
-                print 'JobReport collecting info input files:  problems with ', i
+                print ('JobReport collecting info input files:  problems with ', i)
         # collect info about outputfiles,
         # (metadata should be by file because of the combined trfs)  
         ofiles=[]                   
@@ -1346,7 +1346,7 @@ class JobReport( object ):
                 trfAcronym = AtlasErrorCodes.NEEDCHECK.acronym
             if fatalCount > 0:
                 # There is a problem when trfExitCode=0 and there are fatal errors so reset to a TRF_EXE error
-                print "Warning: Trf exit code was 0, but fatal errors were detected. Resetting trf exit code to TRF_EXC."
+                print ("Warning: Trf exit code was 0, but fatal errors were detected. Resetting trf exit code to TRF_EXC.")
                 trfAcronym = 'TRF_EXC'
                 trfCode = AtlasErrorCodes.getCode( trfAcronym )
 
@@ -1395,8 +1395,8 @@ class JobReport( object ):
         try:
             with open( filename, 'w' ) as errorFile:
                 pickle.dump( self.GPickleContents(), errorFile, 0 ) # text format
-        except Exception, msg:
-            print "WARNING: Could not write gpickle job report to file %s: %s" % ( filename, msg )
+        except Exception as msg:
+            print ("WARNING: Could not write gpickle job report to file %s: %s" % ( filename, msg ))
             return False
         self.__modified = False
         if writeFinalCopy and self._trf:
