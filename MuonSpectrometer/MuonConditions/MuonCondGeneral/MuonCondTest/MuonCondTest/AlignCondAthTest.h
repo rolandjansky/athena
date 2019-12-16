@@ -11,12 +11,10 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
-class Identifier; 
-class MdtIdHelper;
-class RpcIdHelper;
-class TgcIdHelper;
-class CscIdHelper;
+#include <fstream>
 
 namespace MuonGM
 {
@@ -41,15 +39,13 @@ private:
       "MuonDetectorManager", 
       "Key of input MuonDetectorManager condition data"};    
 
-   const MdtIdHelper* m_mdtIdHelper;
-   const RpcIdHelper* m_rpcIdHelper;
-   const TgcIdHelper* m_tgcIdHelper;
-   const CscIdHelper* m_cscIdHelper;
+   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-   StatusCode checkMdtGeometry(const MuonGM::MuonDetectorManager* manager);
-   StatusCode checkRpcGeometry(const MuonGM::MuonDetectorManager* manager);
-   StatusCode checkTgcGeometry(const MuonGM::MuonDetectorManager* manager);
-   StatusCode checkCscGeometry(const MuonGM::MuonDetectorManager* manager);
+
+   StatusCode checkMdtGeometry(const MuonGM::MuonDetectorManager* manager, std::ofstream* fout);
+   StatusCode checkRpcGeometry(const MuonGM::MuonDetectorManager* manager, std::ofstream* fout);
+   StatusCode checkTgcGeometry(const MuonGM::MuonDetectorManager* manager, std::ofstream* fout);
+   StatusCode checkCscGeometry(const MuonGM::MuonDetectorManager* manager, std::ofstream* fout);
    
 };
 

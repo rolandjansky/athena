@@ -16,7 +16,9 @@
 MuonDetectorCondAlg::MuonDetectorCondAlg( const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
     m_condSvc{"CondSvc", name}
-{ }
+{ 
+  declareProperty("MuonDetectorTool",  m_iGeoModelTool);
+}
 
 StatusCode
 MuonDetectorCondAlg::initialize()
@@ -26,7 +28,7 @@ MuonDetectorCondAlg::initialize()
   ATH_CHECK(m_condSvc.retrieve());
 
   // Retrieve the MuonDetectorManager from the detector store to get 
-  // the m_applyCscIntAlignment and m_applyMdtAsBuiltParams flags
+  // the applyCscIntAlignment() and applyMdtAsBuiltParams() flags
   std::string managerName="Muon";
   const MuonGM::MuonDetectorManager* MuonDetMgrDS;
   if (detStore()->retrieve(MuonDetMgrDS).isFailure()) {
@@ -34,18 +36,13 @@ MuonDetectorCondAlg::initialize()
     return StatusCode::FAILURE;
   } else { ATH_MSG_DEBUG(" Found the MuonGeoModel Manager from the Detector Store" );}
 
-  m_applyCscIntAlignment = MuonDetMgrDS->applyCscIntAlignment();
-  m_applyMdtAsBuiltParams = MuonDetMgrDS->applyMdtAsBuiltParams();
-
-  std::cout << "m_applyCscIntAlignment " << m_applyCscIntAlignment << " m_applyMdtAsBuiltParams " << m_applyMdtAsBuiltParams << std::endl;
-
   // Read Handles
   ATH_CHECK( m_iGeoModelTool.retrieve() );
 
   ATH_CHECK(m_readALineKey.initialize());
   ATH_CHECK(m_readBLineKey.initialize());
-  ATH_CHECK(m_readILineKey.initialize(m_applyCscIntAlignment));
-  ATH_CHECK(m_readAsBuiltKey.initialize(m_applyMdtAsBuiltParams));
+  ATH_CHECK(m_readILineKey.initialize(MuonDetMgrDS->applyCscIntAlignment()));
+  ATH_CHECK(m_readAsBuiltKey.initialize(MuonDetMgrDS->applyMdtAsBuiltParams()));
 
   // Write Handles
   // std::string ThisKey = "MuonDetectorManager";
@@ -121,7 +118,7 @@ StatusCode MuonDetectorCondAlg::execute()
   // Update CSC Internal Alignment if requested
   // =======================
 
-  if (m_applyCscIntAlignment) {
+  if (MuonMgrData->applyCscIntAlignment()) {
     SG::ReadCondHandle<CscInternalAlignmentMapContainer> readILinesHandle{m_readILineKey};
     const CscInternalAlignmentMapContainer* readILinesCdo{*readILinesHandle}; 
     if(readILinesCdo==nullptr){
@@ -138,7 +135,7 @@ StatusCode MuonDetectorCondAlg::execute()
   // =======================
   // Update MdtAsBuiltMapContainer
   // =======================
-  if (m_applyMdtAsBuiltParams) {
+  if (MuonMgrData->applyMdtAsBuiltParams()) {
     SG::ReadCondHandle<MdtAsBuiltMapContainer> readAsBuiltHandle{m_readAsBuiltKey};
     const MdtAsBuiltMapContainer* readAsBuiltCdo{*readAsBuiltHandle}; 
     if(readAsBuiltCdo==nullptr){

@@ -160,7 +160,7 @@ for(int i=0;i<3;++i)
                             }	
 */
 m_MDT_fhit_adc.clear();      
-m_MDT_shit_adc.clear();      
+m_MDT_SiHitAdc.clear();      
 
       //  Other parameter
         m_nb_events = 0;
@@ -441,11 +441,11 @@ double low_bin[15] = {52.1363,59.5508,72.9139,79.8775,82.4582,82.4905,81.2233,80
 		 if(!((hit2->adcCount()>50)&&(hit->adcCount()>50))) continue;
 		 if(hit2->tdcCount()>hit->tdcCount()) 	{
 			 m_MDT_fhit_adc[station_identifier]->Fill(hit->tdcCount(),hit->adcCount(),1.0); 
-			 m_MDT_shit_adc[station_identifier]->Fill(hit2->tdcCount(),hit2->adcCount(),1.0); 
+			 m_MDT_SiHitAdc[station_identifier]->Fill(hit2->tdcCount(),hit2->adcCount(),1.0); 
 			                                   	}
 		   else 	{  
 			 m_MDT_fhit_adc[station_identifier]->Fill(hit2->tdcCount(),hit2->adcCount(),1.0); 
-			 m_MDT_shit_adc[station_identifier]->Fill(hit->tdcCount(),hit->adcCount(),1.0);
+			 m_MDT_SiHitAdc[station_identifier]->Fill(hit->tdcCount(),hit->adcCount(),1.0);
 			      	} 
 		   								}
 		// counter++;
@@ -804,9 +804,9 @@ void NtupleCalibADCTool::createMaps(const MuonFixedId & id) {
       m_MDT_fhit_adc[station_identifier]= new TH2F(fhit,shit,3000, 0,3000,500, 0, 500);
       m_MDT_fhit_adc[station_identifier]->SetXTitle("ADC count(ns)");	        
       m_MDT_fhit_adc[station_identifier]->SetYTitle("TDC count(ns)");	        
-      m_MDT_shit_adc[station_identifier]= new TH2F(shit,shit,3000,0,3000, 500, 0, 500);
-      m_MDT_shit_adc[station_identifier]->SetXTitle("ADC count(ns)");	        
-      m_MDT_shit_adc[station_identifier]->SetYTitle("TDC count(ns)");	        
+      m_MDT_SiHitAdc[station_identifier]= new TH2F(shit,shit,3000,0,3000, 500, 0, 500);
+      m_MDT_SiHitAdc[station_identifier]->SetXTitle("ADC count(ns)");	        
+      m_MDT_SiHitAdc[station_identifier]->SetYTitle("TDC count(ns)");	        
 
       m_tfile->cd("..");
 	return;

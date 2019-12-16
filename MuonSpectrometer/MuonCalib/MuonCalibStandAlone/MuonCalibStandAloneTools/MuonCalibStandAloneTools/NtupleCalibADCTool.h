@@ -177,7 +177,7 @@ private:
 
 // ##########  Group 3, Histograms for ADC specify checking   ###############
 // 3.1  double hits -> ADC distribution  v440
-        std::map<NtupleStationId, TH2F *> m_MDT_shit_adc;
+        std::map<NtupleStationId, TH2F *> m_MDT_SiHitAdc;
         std::map<NtupleStationId, TH2F *> m_MDT_fhit_adc;
 // 3.2  big residual hits -> working on
 

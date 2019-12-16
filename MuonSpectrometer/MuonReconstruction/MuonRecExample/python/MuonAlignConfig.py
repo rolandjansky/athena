@@ -36,6 +36,9 @@ conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/MDT/ENDCAP/SIDEC','/MUON
 conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/TGC/SIDEA','/MUONALIGN/TGC/SIDEA',className='CondAttrListCollection')
 conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/TGC/SIDEC','/MUONALIGN/TGC/SIDEC',className='CondAttrListCollection')
 
+from AtlasGeoModel.MuonGM import GeoModelSvc
+MuonDetectorTool = GeoModelSvc.DetectorTools[ "MuonDetectorTool" ]
+
 condSequence = AthSequencer("AthCondSeq")
 
 from MuonCondAlg.MuonCondAlgConf import MuonAlignmentCondAlg
@@ -49,10 +52,8 @@ MuonAlignAlg.ParlineFolders = ["/MUONALIGN/MDT/BARREL",
 
 from MuonGeoModel.MuonGeoModelConf import MuonDetectorCondAlg
 MuonDetectorManagerCond = MuonDetectorCondAlg()
+MuonDetectorManagerCond.MuonDetectorTool = GeoModelSvc.DetectorTools[ "MuonDetectorTool" ]
 condSequence+=MuonDetectorManagerCond
-
-from AtlasGeoModel.MuonGM import GeoModelSvc
-MuonDetectorTool = GeoModelSvc.DetectorTools[ "MuonDetectorTool" ]
 
 # Disable caching. This will have some memory impact (TBC) but is necessary for the moment to make this thread safe.
 MuonDetectorTool.FillCacheInitTime = 1

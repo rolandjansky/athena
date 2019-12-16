@@ -12,6 +12,8 @@
 #include "GeoModelInterfaces/IGeoModelTool.h"
 #include "MuonAlignmentData/CorrContainer.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "MuonGeoModel/MuonDetectorTool.h"
 
 class MuonDetectorCondAlg : public AthAlgorithm {
 
@@ -31,10 +33,7 @@ public:
 private:
   
   ServiceHandle<ICondSvc> m_condSvc;
-  ToolHandle<IGeoModelTool> m_iGeoModelTool {this, "SelectionTool", "MuonDetectorTool", "The selection tool"};
-
-  bool m_applyCscIntAlignment = false;
-  bool m_applyMdtAsBuiltParams = false;
+  ToolHandle<IGeoModelTool> m_iGeoModelTool {this, "MuonDetectorTool", "MuonDetectorTool", "The MuonDetector tool"};
 
 // Read Handles
   SG::ReadCondHandleKey<ALineMapContainer> m_readALineKey                {this, "ReadALineKey", 
