@@ -108,14 +108,16 @@ if not 'get_dumper_fct' in globals():
     from PyDumper.Dumpers import get_dumper_fct
 from AthenaPython import PyAthena
 class Dumper (PyAthena.Alg):
-    def __init__ (self, name):
+    def __init__ (self, name, inputFile, Keys):
         PyAthena.Alg.__init__ (self, name)
+        self.infile = inputFile
+        self.keys = Keys
         return
 
     def initialize (self):
         self.sg = PyAthena.py_svc ('StoreGateSvc')
-        self.ofile_name = os.path.basename (infile) + '.dump'
-        refbase = os.path.basename (infile) + '.ref'
+        self.ofile_name = os.path.basename (self.infile) + '.dump'
+        refbase = os.path.basename (self.infile) + '.ref'
         self.reffile_name = '../share/' + refbase
         if not os.path.exists (self.reffile_name):
             self.reffile_name = '../' + self.reffile_name
@@ -150,7 +152,7 @@ class Dumper (PyAthena.Alg):
     def execute (self):
         fprintln (self.ofile, 'Event index', self.icount)
         self.icount += 1
-        for k in keys:
+        for k in self.keys:
             nmax = None
             apos = k.find ('@')
             if apos >= 0:
@@ -175,5 +177,5 @@ class Dumper (PyAthena.Alg):
         fprintln (self.ofile, '\n')
         return 1
 
-dumper = Dumper ('dumper')
+dumper = Dumper ('dumper', infile, keys)
 topSequence += [dumper]
