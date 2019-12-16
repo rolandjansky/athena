@@ -48,7 +48,7 @@ StatusCode TauTruthMatchingTool::initialize()
 //______________________________________________________________________________
 const xAOD::TruthParticle* TauTruthMatchingTool::getTruth(const xAOD::TauJet& xTau)
 {
-  if (m_bIsData)
+  if (isData())
     return nullptr;
 
   if (retrieveTruthTaus().isFailure())
