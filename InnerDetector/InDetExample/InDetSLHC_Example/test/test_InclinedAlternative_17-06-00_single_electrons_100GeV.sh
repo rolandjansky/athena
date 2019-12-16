@@ -66,10 +66,7 @@ dcuberef_electrons_100GeV_digi_strip=$artdata/InDetSLHC_Example/ReferenceHistogr
 art_dcube=/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube
 lastref_electrons_100GeV_dir=last_results_electrons_100GeV
 
-if [ \( $dosim -ne 0 -a -n "$dcube_sim_electrons_100GeV_lastref" \) -o \( $dophy -ne 0 -a -n "$dcube_rec_electrons_100GeV_lastref" \) ]; then
-  run art.py download --user=artprod --dst="$lastref_electrons_100GeV_dir" InDetSLHC_Example "$script"
-  run ls -la "$lastref_electrons_100GeV_dir"
-fi
+
 
 dcube() {
   # Run DCube and print art-result (if $2 is not empty)
@@ -126,7 +123,10 @@ if [ $dosim -ne 0 ]; then
  
   mv ./SiHitValid.root ./$dcubemon_electrons_100GeV_sim
 
-
+  if [ \( $dosim -ne 0 -a -n "$dcube_sim_electrons_100GeV_lastref" \) -o \( $dophy -ne 0 -a -n "$dcube_rec_electrons_100GeV_lastref" \) ]; then
+    run art.py download --user=artprod --dst="$lastref_electrons_100GeV_dir" InDetSLHC_Example "$script"
+    run ls -la "$lastref_electrons_100GeV_dir"
+  fi
 
 
 
@@ -161,7 +161,7 @@ if [ $dorec -ne 0 ]; then
       --DataRunNumber    242000 \
       --steering doRAWtoALL \
       --postInclude all:'PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4.py,InDetSLHC_Example/postInclude.SLHC_Setup.py' \
-      HITtoRDO:'InDetSLHC_Example/postInclude.SLHC_Digitization_lowthresh.py' \
+      HITtoRDO:'InDetSLHC_Example/postInclude.SLHC_Digitization_lowthresh.py,InDetSLHC_Example/postInclude.RDOAnalysis.py' \
       RAWtoALL:'InDetSLHC_Example/postInclude.DigitalClustering.py' \
       --preInclude  all:'InDetSLHC_Example/preInclude.SLHC_Setup_InclBrl_4.py,InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py,InDetSLHC_Example/preInclude.SLHC_Calorimeter_mu0.py' \
       HITtoRDO:'InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SiliconOnly.py' \

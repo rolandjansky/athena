@@ -66,10 +66,7 @@ dcuberef_muons_10GeV_digi_strip=$artdata/InDetSLHC_Example/ReferenceHistograms/S
 art_dcube=/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube
 lastref_muons_10GeV_dir=last_results_muons_10GeV
 
-if [ \( $dosim -ne 0 -a -n "$dcube_sim_muons_10GeV_lastref" \) -o \( $dophy -ne 0 -a -n "$dcube_rec_muons_10GeV_lastref" \) ]; then
-  run art.py download --user=artprod --dst="$lastref_muons_10GeV_dir" InDetSLHC_Example "$script"
-  run ls -la "$lastref_muons_10GeV_dir"
-fi
+
 
 dcube() {
   # Run DCube and print art-result (if $2 is not empty)
@@ -127,7 +124,10 @@ if [ $dosim -ne 0 ]; then
   mv ./SiHitValid.root ./$dcubemon_muons_10GeV_sim
 
 
-
+  if [ \( $dosim -ne 0 -a -n "$dcube_sim_muons_10GeV_lastref" \) -o \( $dophy -ne 0 -a -n "$dcube_rec_muons_10GeV_lastref" \) ]; then
+    run art.py download --user=artprod --dst="$lastref_muons_10GeV_dir" InDetSLHC_Example "$script"
+    run ls -la "$lastref_muons_10GeV_dir"
+  fi
 
 
   # DCube Sim hit plots
@@ -167,7 +167,7 @@ if [ $dorec -ne 0 ]; then
       HITtoRDO:'InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SiliconOnly.py' \
       default:'InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Reco.py,InDetSLHC_Example/SLHC_Setup_Reco_TrackingGeometry_GMX.py' \
       RDOMergeAthenaMP:'InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SiliconOnly.pyInDetSLHC_Example/SLHC_Setup_Reco_TrackingGeometry_GMX.py' \
-      POOLMergeAthenaMPAOD0:'InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Ana.py,InDetSLHC_Example/SLHC_Setup_Reco_Alpine.py' \
+      POOLMergeAthenaMPAOD0:'InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Ana.py,InDetSLHC_Example/SLHC_Setup_Reco_Alpine.py,InDetSLHC_Example/postInclude.RDOAnalysis.py' \
       POOLMergeAthenaMPDAODIDTRKVALID0:'InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Ana.py,InDetSLHC_Example/SLHC_Setup_Reco_Alpine.py' \
       --preExec     all:'from AthenaCommon.GlobalFlags import globalflags; globalflags.DataSource.set_Value_and_Lock("geant4"); from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags; SLHC_Flags.doGMX.set_Value_and_Lock(True); SLHC_Flags.LayoutOption="InclinedAlternative";' \
       HITtoRDO:'from Digitization.DigitizationFlags import digitizationFlags; digitizationFlags.doInDetNoise.set_Value_and_Lock(False); digitizationFlags.doBichselSimulation.set_Value_and_Lock(False); digitizationFlags.overrideMetadata+=["SimLayout","PhysicsList"];' \
