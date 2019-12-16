@@ -5,7 +5,6 @@
 # Skipping art-output which has no effect for build tests.
 # If you create a grid version, check art-output in existing grid tests.
 
-export SKIPEVENTS=10
 export EVENTS=20
 export THREADS=1
 export SLOTS=1
