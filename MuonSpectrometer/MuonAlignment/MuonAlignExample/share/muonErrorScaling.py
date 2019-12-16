@@ -20,13 +20,15 @@ MdtDriftCircleOnTrackCreator.DoErrorScaling = True
 MdtDriftCircleOnTrackCreator.ScaleErrorsManually=False
 MdtDriftCircleOnTrackCreator.OutputLevel = outputLevel
 MdtDriftCircleOnTrackCreator.ErrorScalingTool=muonErrorScalingTool
-    
-CscClusterOnTrackCreator = MuonRecTools.getPrivateTool("CscClusterOnTrackCreator")
-CscClusterOnTrackCreator.DoRpcErrorScaling = True
-CscClusterOnTrackCreator.DoTgcErrorScaling = True
-CscClusterOnTrackCreator.DoCscErrorScaling = True
-CscClusterOnTrackCreator.OutputLevel = outputLevel
-CscClusterOnTrackCreator.ErrorScalingTool=muonErrorScalingTool
+
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+if MuonGeometryFlags.hasCSC():
+    CscClusterOnTrackCreator = MuonRecTools.getPrivateTool("CscClusterOnTrackCreator")
+    CscClusterOnTrackCreator.DoRpcErrorScaling = True
+    CscClusterOnTrackCreator.DoTgcErrorScaling = True
+    CscClusterOnTrackCreator.DoCscErrorScaling = True
+    CscClusterOnTrackCreator.OutputLevel = outputLevel
+    CscClusterOnTrackCreator.ErrorScalingTool=muonErrorScalingTool
     
 MuonClusterOnTrackCreator = MuonRecTools.getPublicTool("MuonClusterOnTrackCreator")
 MuonClusterOnTrackCreator.DoRpcErrorScaling = True
