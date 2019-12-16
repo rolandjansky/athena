@@ -14,17 +14,36 @@ PixelSimpleServiceXMLHelper::PixelSimpleServiceXMLHelper(IRDBRecordset_ptr table
   std::string nodeName = table->nodeName();
   for_each(nodeName.begin(), nodeName.end(), [](char& in){ in = ::toupper(in); });
   std::string envName = "PIXEL_"+nodeName+"_GEO_XML";
+
+  this->Setup(envName);
+}
+
+PixelSimpleServiceXMLHelper::PixelSimpleServiceXMLHelper(const std::string& envName, const PixelGeoBuilderBasics* basics):
+  GeoXMLUtils(),
+  PixelGeoBuilder(basics),
+  m_bXMLdefined(true)
+{
+  this->Setup(envName);
+}
+
+// Both constructors call this piece of code to initiliase the class
+void PixelSimpleServiceXMLHelper::Setup(const std::string& envName)
+{
+  msg(MSG::DEBUG) << "XML helper - PixelSimpleServiceXMLHelper" << endmsg;   
+  msg(MSG::DEBUG) << "SimpleServiceVolumeMakerMgr : env name " << envName<<endmsg;
+  
   std::string fileName;
-  if(const char* env_p = std::getenv(envName.c_str())) fileName = std::string(env_p);
-  if(fileName.size()==0){
+  if (const char* env_p = std::getenv(envName.c_str())) fileName = std::string(env_p);
+  if (fileName.size()==0){
     m_bXMLdefined = false;
     return;
   }
 
-
   bool readXMLfromDB = getBasics()->ReadInputDataFromDB();
+  msg(MSG::DEBUG)<<"Build material table from XML  (DB XML file : "<<readXMLfromDB<<" )"<<endmsg;
+
   bool bParsed=false;
-  if(readXMLfromDB){
+  if(readXMLfromDB) {
     msg(MSG::DEBUG)<<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
     DBXMLUtils dbUtils(getBasics());
     std::string XMLtext = dbUtils.readXMLFromDB(fileName);
@@ -33,41 +52,6 @@ PixelSimpleServiceXMLHelper::PixelSimpleServiceXMLHelper(IRDBRecordset_ptr table
     bParsed = ParseBuffer(XMLtext,std::string(""));
   } else {
     msg(MSG::DEBUG)<<"XML input : from file "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
-    std::string file = PathResolver::find_file (fileName, "DATAPATH");
-    InitializeXML();
-    bParsed = ParseFile(file);
-  }
-  
-  if(!bParsed){
-    m_bXMLdefined = false;
-    msg(MSG::ERROR)<<"XML file " << fileName << " not found" << endmsg;
-    return;
-  }
-}
-
-// TODO: function appears to be same as above (minus first three lines), can this be cleaned up to avoid code duplication?
-PixelSimpleServiceXMLHelper::PixelSimpleServiceXMLHelper(const std::string& envName, const PixelGeoBuilderBasics* basics):
-  GeoXMLUtils(),
-  PixelGeoBuilder(basics),
-  m_bXMLdefined(true)
-{
-  msg(MSG::DEBUG) << "XML helper - PixelSimpleServiceXMLHelper" << endmsg;   
-  msg(MSG::DEBUG) << "SimpleServiceVolumeMakerMgr : env name " << envName<<endmsg;
-  
-  std::string fileName;
-  if(const char* env_p = std::getenv(envName.c_str())) fileName = std::string(env_p);
- 
-  bool readXMLfromDB = getBasics()->ReadInputDataFromDB();
-  msg(MSG::DEBUG)<<"Build material table from XML  (DB XML file : "<<readXMLfromDB<<" )"<<endmsg;
-
-  bool bParsed=false;
-  if(readXMLfromDB) {
-    DBXMLUtils dbUtils(getBasics());
-    std::string XMLtext = dbUtils.readXMLFromDB(fileName);
-    setSchemaVersion(dbUtils.getSchemaVersion(fileName));
-    InitializeXML();
-    bParsed = ParseBuffer(XMLtext,std::string(""));
-  } else {
     std::string file = PathResolver::find_file (fileName, "DATAPATH");
     msg(MSG::DEBUG)<< " PixelServices : "<<file<<endmsg;
     InitializeXML();
@@ -80,6 +64,8 @@ PixelSimpleServiceXMLHelper::PixelSimpleServiceXMLHelper(const std::string& envN
     return;
   }
 }
+
+
 
 PixelSimpleServiceXMLHelper::~PixelSimpleServiceXMLHelper()
 {

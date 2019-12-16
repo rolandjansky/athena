@@ -5,7 +5,6 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #define PixelSimpleServiceXMLHelper_H
 
 #include "PixelGeoModel/PixelGeoBuilder.h"
-//#include "PixelServicesTool/SimpleServiceVolumeMaker.h"
 
 // XML library
 #include "PixelLayoutUtils/GeoXMLUtils.h"
@@ -44,7 +43,7 @@ class PixelSimpleServiceXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder 
     double SupportTubeZMax(const std::string& srvName) const;
 
  private:
-
+    void Setup(const std::string& envName);
     bool m_bXMLdefined;
 
 };
