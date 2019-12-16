@@ -654,16 +654,11 @@ def addConstModJets(jetalg,radius,inputtype,constmods,sequence,outputlist,
     from AthenaCommon.AlgSequence import AlgSequence
     job = AlgSequence()
     from JetRec.JetRecStandard import jtm
-    if not hasattr(jtm,"jetconstit"+label):
-        from JetRec.JetRecConf import JetToolRunner
-        jetrun = JetToolRunner("jetconstit"+label,
-                               EventShapeTools=[],
-                               Tools=[constmodseq])
-        jtm += jetrun
+    if constmodseq.getFullName() not in [t.getFullName() for t in job.jetalg.Tools]:
         # Add this tool runner to the JetAlgorithm instance "jetalg"
         # which runs all preparatory tools
         # This was added by JetCommon
-        job.jetalg.Tools.append(jetrun)
+        job.jetalg.Tools.append(constmodseq)
         extjetlog.info("Added const mod sequence {0} to \'jetalg\'".format(constmodstr))
 
     # Get the PseudoJetGetter

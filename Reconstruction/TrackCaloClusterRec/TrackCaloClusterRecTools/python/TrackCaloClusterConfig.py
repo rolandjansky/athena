@@ -183,8 +183,9 @@ def findParentSeq(sequence):
     for s in iter_algseq(topSequence):
         if sequence in s:
             return s
-    print "ERROR sequence ", sequence.getFullJobOptName() , " is not part of topSequence"
-    return None
+    
+    # if not found, sequence is not yet part of main sequence
+    return topSequence
 
 def getTCCConstitSeq(sequence):
     parent = findParentSeq(sequence)
@@ -200,6 +201,9 @@ def getTCCConstitSeq(sequence):
     if parent is sequence:
         sequence += jetConstSeq
     else:
-        i=parent.getSequence().index(sequence.getFullJobOptName())
-        parent.insert(i,jetConstSeq)
+        try:
+            i=parent.getSequence().index(sequence.getFullJobOptName())
+            parent.insert(i,jetConstSeq)
+        except ValueError:
+             parent += jetConstSeq
     return jetConstSeq
