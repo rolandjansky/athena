@@ -277,7 +277,7 @@ StatusCode AthenaOutputStreamTool::connectOutput(const std::string& outputName) 
                ATH_MSG_DEBUG("Added stream decision for " << *it << " to " << m_attrListKey);
             }
             // record new attribute list with old key + suffix
-            const DataHandle<AthenaAttributeList> attrList2;
+            const AthenaAttributeList* attrList2 = nullptr;
             if (!m_store->contains<AthenaAttributeList>(m_attrListWrite)) {
                if (m_store->record(newone,m_attrListWrite).isFailure()) {
                   ATH_MSG_ERROR("Unable to record att list " << m_attrListWrite);
