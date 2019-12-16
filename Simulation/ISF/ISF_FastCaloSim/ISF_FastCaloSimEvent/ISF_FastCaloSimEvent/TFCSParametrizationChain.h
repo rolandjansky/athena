@@ -63,8 +63,4 @@ private:
 
 #include "ISF_FastCaloSimEvent/TFCSParametrizationChain.icc"
 
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSParametrizationChain-;
-#endif
-
 #endif
