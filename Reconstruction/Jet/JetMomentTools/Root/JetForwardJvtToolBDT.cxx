@@ -18,7 +18,7 @@
 const double GeV = 1000.;
 ///////////////////////////////////////////////////////////////////
 // Public methods:
-///////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////     return StatusCode::FAILURE;
 
 // Constructors
 ////////////////
@@ -157,7 +157,7 @@ int JetForwardJvtToolBDT::modify(xAOD::JetContainer& jetCont) const {
     if ( forwardJet(jetF) ){
       if( pileupMomenta.size()==0 ) {
 	pileupMomenta = calculateVertexMomenta(&jetCont, pvind);
-	if(pileupMomenta.size()==0) return StatusCode::FAILURE; // This would follow error messages defined in 'calculateVertexMomenta' function.
+	if(pileupMomenta.size()==0) return 1; // This would follow error messages defined in 'calculateVertexMomenta' function.
       }
       (*Dec_mvfjvt)(*jetF) = getMVfJVT(jetF, pvind, pileupMomenta);
       if(m_isAna) (*Dec_outMV)(*jetF) = passMVfJVT( (*Dec_mvfjvt)(*jetF), jetF->pt()/(GeV), fabs(jetF->eta()) );
@@ -193,7 +193,7 @@ float JetForwardJvtToolBDT::getMVfJVT(const xAOD::Jet *jet, int pvind, std::vect
   if ( evtStore()->retrieve(eventInfo, "EventInfo").isFailure() )
   {
     ATH_MSG_ERROR(" Could not retrieve EventInfo ");
-    return StatusCode::FAILURE;
+    return -2;
   }
   float mu = eventInfo->actualInteractionsPerCrossing();
 
@@ -243,7 +243,7 @@ bool JetForwardJvtToolBDT::passMVfJVT( float mvfjvt, float pt, float eta ) const
   if ( evtStore()->retrieve(eventInfo, "EventInfo").isFailure() )
   {
     ATH_MSG_ERROR(" Could not retrieve EventInfo ");
-    return StatusCode::FAILURE;
+    return true;
   }
 
  float mu = eventInfo->actualInteractionsPerCrossing();
