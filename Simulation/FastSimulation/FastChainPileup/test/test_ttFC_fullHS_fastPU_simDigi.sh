@@ -34,7 +34,7 @@ inputRefDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/D
 inputXmlDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-configs"
 art_dcube="/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube"
 dcubeName="ttFC_fastSim_fastDigi"
-dcubeXmlRDO="${inputXmlDir}/RDOTruthCompare.xml"
+dcubeXmlRDO="${inputXmlDir}/dcube_RDO_truth_pileup.xml"
 dcubeRefRDO="${inputRefDir}/RDO_truth.root"
 
 rc2=-9999

@@ -5,7 +5,6 @@
 @file TileMonitoringHelper.py
 @brief Helper functions for Run 3 Tile monitoring algorithm configuration
 '''
-
 from TileCalibBlobObjs.Classes import TileCalibUtils as Tile
 
 _cellNameEB = ['E3', 'E4', 'D4', 'D4', 'C10', 'C10', 'A12', 'A12', 'B11', 'B11', 'A13', 'A13',
@@ -137,14 +136,14 @@ def getTileHistogramPath(path, **kwargs):
 
 def getModuleLabels(partition):
     '''
-    This function returns list of Tile module names for given partion.
+    This function returns list of Tile module names for given partition.
 
     Arguments:
         partition -- Tile partition name (LBA, LBC, EBA, EBC)
     '''
 
     if partition == 'AllPart':
-        labels = [str(module) for module in range(0, Tile.MAX_DRAWER)]
+        labels = [str(module) for module in range(1, Tile.MAX_DRAWER + 1)]
     else:
         ros = {'LBA' : 1, 'LBC' : 2, 'EBA' : 3, 'EBC' : 4}
         labels = [Tile.getDrawerString(ros[partition], module) for module in range(0, Tile.MAX_DRAWER)]
@@ -154,7 +153,7 @@ def getModuleLabels(partition):
 
 def getCellChannelLabels(partition):
     '''
-    This function returns list of Tile cell names with channes for given partion.
+    This function returns list of Tile cell names with channes for given partition.
 
     Arguments:
         partition -- Tile partition name (LBA, LBC, EBA, EBC)
@@ -165,6 +164,27 @@ def getCellChannelLabels(partition):
         cellName = getCellName(partition, channel)
         label = cellName + '_' + 'ch' + str(channel) if cellName else 'ch' + str(channel)
         labels.append(label)
+    return labels
+
+
+def getLabels(labels, partition = ''):
+    '''
+    This function returns list of labels for Tile histograms.
+
+    This function returns list of Tile module or channel names for given partition
+    in the case of input labels is modules or channels. Otherwise it returns given labels.
+
+    Arguments:
+        labels    --  List of labels, "modules" and "channels" have special meaning,
+                      in this case corresponding labels will be generated dynamicaly
+        partition -- Tile partition name (LBA, LBC, EBA, EBC)
+    '''
+
+    if 'modules' in labels:
+        labels = getModuleLabels(partition)
+    elif 'channels' in labels:
+        labels = getCellChannelLabels(partition)
+
     return labels
 
 
@@ -246,6 +266,65 @@ def _parsePostfix(postfix, triggers = [], perPartition = False, perSample = Fals
 
     return kwargs
 
+def addTile2DHistogramsArray(helper, algorithm, name = '', xvalue = '', yvalue = '', value = '',
+                             title = '', path = '', weight = '', xbins = 0, xmin = 0, xmax = 0,
+                             ybins = 0, ymin = 0, ymax = 0, type = 'TH2D', run = '', triggers = [],
+                             xlabels = (), ylabels = (), subDirectory = False, perPartition = False,
+                             perSample = False, perGain = False, allPartitions = False, separator = '_' ):
+    '''
+    This function configures 2D histograms with Tile monitored value per L1 trigger, partition, sample, gain.
+
+    Arguments:
+        helper    -- Helper
+        algorithm -- Monitoring algorithm
+        name      -- Name of histogram, actual name is constructed dynamicaly like:
+                        name + partition + sample + gain + trigger
+        xvalue    -- Name of monitored value for x axis
+        yvalue    -- Name of monitored value for y axis
+        value     -- Name of monitored value for profile (needed for TProfile2D)
+        title     -- Title of histogram, actual title is constructed dynamicaly like:
+                        run + trigger + partion + sample + title
+        path      -- Path in file for histogram (relative to the path of given group)
+        subDirectory -- Put the configured histograms into sub directory named like partion (True, False)
+        type      -- Type of histogram (TH2D, TProfile2D)
+        run       -- Run number (given it will be put into the title)
+        triggers  -- Name of triggers (given it will be put into title and name of histogram)
+        xlabels   -- List of bin labels for x axis,  "modules" and "channels" have special meaning,
+                        in this case corresponding labels will be generated dynamicaly
+        ylabels   -- List of bin labels for y axis,  "modules" and "channels" have special meaning,
+                        in this case corresponding labels will be generated dynamicaly
+        perPartition -- Configure histograms per partition (if True partition name will be put into the title)
+        perSample -- Configure histograms per sample (if True sample name will be put into the title)
+        perGain   -- Configure histograms per gain (if True gain name will be put into the title)
+        allPartitions  -- Configure additional histogram with information from all partitions
+        separator -- Given it will be used as separtor between name and trigger
+    '''
+
+    dimensions = _getDimensions(triggers = triggers, perPartition = perPartition, perSample = perSample,
+                                perGain = perGain, allPartitions = allPartitions)
+
+    array = helper.addArray(dimensions, algorithm, name)
+    for postfix, tool in array.Tools.items():
+
+        kwargs = _parsePostfix(postfix, triggers = triggers, perPartition = perPartition,
+                               perSample = perSample, perGain = perGain)
+
+        partition = kwargs['partition'] if 'partition' in kwargs else ''
+        labels = getLabels(xlabels, partition)
+        labels += getLabels(ylabels, partition)
+
+        fullName = xvalue + ',' + yvalue + (',' + value if 'Profile' in type else '') + ';'
+        fullName += getTileHistogramName(name = name,separator = separator, **kwargs)
+
+        fullPath = getTileHistogramPath(path = path, subDirectory = subDirectory, **kwargs)
+        fullTitle = getTileHistogramTitle(title = title, run = run, **kwargs)
+
+        tool.defineHistogram( fullName, path = fullPath, type = type, title = fullTitle,
+                              labels = labels, xbins = xbins, xmin = xmin, xmax = xmax,
+                              ybins = ybins, ymin = ymin, ymax = ymax, weight = weight)
+
+    return array
+
 
 def addTileModuleChannelMapsArray(helper, algorithm, name, title, path, weight = '',
                                   subDirectory = False, type = 'TH2D', value = '',
@@ -270,28 +349,14 @@ def addTileModuleChannelMapsArray(helper, algorithm, name, title, path, weight =
         separator -- Given it will be used as separtor between name, gain, and trigger
     '''
 
-    dimensions = _getDimensions(triggers = triggers, perPartition = True, perGain = perGain)
+    return addTile2DHistogramsArray(helper, algorithm, name = name, title = title, path = path, weight = weight,
+                                    xvalue = 'module', yvalue = 'channel', value = value, type = type,
+                                    xbins = Tile.MAX_DRAWER, xmin = -0.5, xmax = Tile.MAX_DRAWER - 0.5,
+                                    ybins = Tile.MAX_CHAN, ymin = -0.5, ymax = Tile.MAX_CHAN - 0.5,
+                                    run = run, xlabels = ('modules'), ylabels = ('channels'),
+                                    triggers = triggers, subDirectory = subDirectory, perGain = perGain,
+                                    perPartition = True, separator = separator)
 
-    array = helper.addArray(dimensions, algorithm, name)
-    for postfix, tool in array.Tools.items():
-
-        kwargs = _parsePostfix(postfix, triggers = triggers, perPartition = True, perGain = perGain)
-
-        labels = getModuleLabels(kwargs['partition'])
-        labels += getCellChannelLabels(kwargs['partition'])
-
-        fullName = 'module,channel' + (',' + value if 'Profile' in type else '') + ';'
-        fullName += getTileHistogramName(name = name, separator = separator, **kwargs)
-
-        fullPath = getTileHistogramPath(path = path, subDirectory = subDirectory, **kwargs)
-        fullTitle = getTileHistogramTitle(title = title, run = run, **kwargs)
-
-        tool.defineHistogram( fullName, path = fullPath, type = type, title = fullTitle,
-                              xbins = Tile.MAX_DRAWER, xmin = -0.5, xmax = Tile.MAX_DRAWER - 0.5,
-                              ybins = Tile.MAX_CHAN, ymin = -0.5, ymax = Tile.MAX_CHAN - 0.5,
-                              labels = labels, weight = weight )
-
-    return array
 
 def addTileModuleCorrelionMapsArray(helper, algorithm, name, title, path, weight = '',
                                     subDirectory = False, type = 'TH2D', value = '', run = '',
@@ -317,27 +382,14 @@ def addTileModuleCorrelionMapsArray(helper, algorithm, name, title, path, weight
         separator -- Given it will be used as separtor between name, gain, and trigger
     '''
 
-    dimensions = _getDimensions(triggers = triggers, perPartition = True, perGain = perGain, allPartitions = allPartitions)
+    return addTile2DHistogramsArray(helper, algorithm, name = name, title = title, path = path, weight = weight,
+                                    xvalue = 'firstModule', yvalue = 'secondModule', value = value,
+                                    xbins = Tile.MAX_DRAWER, xmin = -0.5, xmax = Tile.MAX_DRAWER - 0.5,
+                                    ybins = Tile.MAX_DRAWER, ymin = -0.5, ymax = Tile.MAX_DRAWER - 0.5,
+                                    run = run, xlabels = ('modules'), ylabels = ('modules'), type = type,
+                                    triggers = triggers, subDirectory = subDirectory, perGain = perGain,
+                                    perPartition = True, allPartitions = allPartitions, separator = separator)
 
-    array = helper.addArray(dimensions, algorithm, name)
-    for postfix, tool in array.Tools.items():
-
-        kwargs = _parsePostfix(postfix, triggers = triggers, perPartition = True, perGain = perGain)
-        labels = getModuleLabels(kwargs['partition'])
-        labels += getModuleLabels(kwargs['partition'])
-
-        fullName = 'firstModule,secondModule' + (',' + value if 'Profile' in type else '') + ';'
-        fullName += getTileHistogramName(name = name, separator = separator, **kwargs)
-
-        fullPath = getTileHistogramPath(path = path, subDirectory = subDirectory, **kwargs)
-        fullTitle = getTileHistogramTitle(title = title, run = run, **kwargs)
-
-        tool.defineHistogram( fullName, path = fullPath, type = type, title = fullTitle,
-                              xbins = Tile.MAX_DRAWER, xmin = -0.5, xmax = Tile.MAX_DRAWER - 0.5,
-                              ybins = Tile.MAX_DRAWER, ymin = -0.5, ymax = Tile.MAX_DRAWER - 0.5,
-                              labels = labels, weight = weight )
-
-    return array
 
 
 def addTileModulePartitionMapsArray(helper, algorithm, name, title, path, weight = '',
@@ -362,27 +414,15 @@ def addTileModulePartitionMapsArray(helper, algorithm, name, title, path, weight
         separator -- Given it will be used as separtor between name, gain, and trigger
     '''
 
-    dimensions = _getDimensions(triggers = triggers, perPartition = False, perGain = perGain)
+    return addTile2DHistogramsArray(helper, algorithm, name = name, title = title + ';Module;Partition',
+                                    path = path, weight = weight, run = run, type = type,
+                                    xvalue = 'module', yvalue = 'partition', value = value,
+                                    xbins = Tile.MAX_DRAWER, xmin = -0.5, xmax = Tile.MAX_DRAWER - 0.5,
+                                    ybins = Tile.MAX_ROS - 1, ymin = -0.5, ymax = Tile.MAX_ROS - 1.5,
+                                    xlabels = [str(module) for module in range(1, Tile.MAX_DRAWER + 1)],
+                                    ylabels = [getPartitionName(ros) for ros in range(1, Tile.MAX_ROS)],
+                                    triggers = triggers, perGain = perGain, separator = separator)
 
-    array = helper.addArray(dimensions, algorithm, name)
-    for postfix, tool in array.Tools.items():
-
-        kwargs = _parsePostfix(postfix, triggers = triggers, perPartition = False, perGain = perGain)
-        labels = [str(module) for module in range(1, Tile.MAX_DRAWER + 1)]
-        labels += [getPartitionName(ros) for ros in range(1, Tile.MAX_ROS)]
-
-        fullName = 'module,partition' + (',' + value if 'Profile' in type else '') + ';'
-        fullName += getTileHistogramName(name = name, separator = separator, **kwargs)
-
-        fullPath = getTileHistogramPath(path = path, subDirectory = False, **kwargs)
-        fullTitle = getTileHistogramTitle(title = title, run = run, **kwargs)
-
-        tool.defineHistogram( fullName, path = fullPath, type = type, title = fullTitle,
-                              xbins = Tile.MAX_DRAWER, xmin = -0.5, xmax = Tile.MAX_DRAWER - 0.5,
-                              ybins = Tile.MAX_ROS - 1, ymin = -0.5, ymax = Tile.MAX_ROS - 1.5,
-                              labels = labels, weight = weight )
-
-    return array
 
 
 def addTileModuleDigitizerMapsArray(helper, algorithm, name, title, path, weight = '',
@@ -408,25 +448,14 @@ def addTileModuleDigitizerMapsArray(helper, algorithm, name, title, path, weight
         separator -- Given it will be used as separtor between name, gain, and trigger
     '''
 
-    dimensions = _getDimensions(triggers = triggers, perPartition = True, perGain = perGain)
+    return addTile2DHistogramsArray(helper, algorithm, name = name, title = title + ';;Digitizer', path = path,
+                                    weight = weight, xvalue = 'module', yvalue = 'digitizer', value = value,
+                                    xbins = Tile.MAX_DRAWER, xmin = -0.5, xmax = Tile.MAX_DRAWER - 0.5,
+                                    ybins = 8, ymin = 0.5, ymax = 8.5, run = run, xlabels = ('modules'),
+                                    ylabels = (), triggers = triggers, type = type,subDirectory = subDirectory,
+                                    perGain = perGain, perPartition = True, separator = separator)
 
-    array = helper.addArray(dimensions, algorithm, name)
-    for postfix, tool in array.Tools.items():
 
-        kwargs = _parsePostfix(postfix, triggers = triggers, perPartition = True, perGain = perGain)
-        labels = getModuleLabels(kwargs['partition'])
-
-        fullName = 'module,digitizer' + (',' + value if 'Profile' in type else '') + ';'
-        fullName += getTileHistogramName(name = name, separator = separator, **kwargs)
-
-        fullPath = getTileHistogramPath(path = path, subDirectory = subDirectory, **kwargs)
-        fullTitle = getTileHistogramTitle(title = title, run = run, **kwargs)
-
-        tool.defineHistogram( fullName, path = fullPath, type = type, title = fullTitle,
-                              xbins = Tile.MAX_DRAWER, xmin = -0.5, xmax = Tile.MAX_DRAWER - 0.5,
-                              ybins = 8, ymin = 0.5, ymax = 8.5, labels = labels, weight = weight )
-
-    return array
 
 def addTileEtaPhiMapsArray(helper, algorithm, name, title, path, weight = '', type = 'TH2D', value = '',
                            run = '', triggers = [], perSample = True, perGain = False, separator = '',
@@ -452,31 +481,21 @@ def addTileEtaPhiMapsArray(helper, algorithm, name, title, path, weight = '', ty
         separator -- Given it will be used as separtor between name, gain, and trigger
     '''
 
-    dimensions = _getDimensions(triggers = triggers, perSample = perSample, perGain = perGain)
-
-    array = helper.addArray(dimensions, algorithm, name)
-    for postfix, tool in array.Tools.items():
-
-        kwargs = _parsePostfix(postfix, triggers = triggers, perSample = perSample, perGain = perGain)
-
-        fullName = 'eta,phi' + (',' + value if 'Profile' in type else '') + ';'
-        fullName += getTileHistogramName(name = name, separator = separator, **kwargs)
-
-        fullPath = getTileHistogramPath(path = path, **kwargs)
-        fullTitle = getTileHistogramTitle(title = title, run = run, **kwargs) + ';' + etaTitle + ';' + phiTitle
-
-        tool.defineHistogram( fullName, path = fullPath, type = type, title = fullTitle,
-                              xbins = etabins, xmin = etamin, xmax = etamax,
-                              ybins = phibins, ymin = phimin, ymax = phimax,
-                              weight = weight )
-
-    return array
+    return addTile2DHistogramsArray(helper, algorithm, name = name,
+                                    title = title + ';' + etaTitle + ';' + phiTitle,
+                                    path = path, weight = weight, type = type,
+                                    xvalue = 'eta', yvalue = 'phi', value = value,
+                                    xbins = etabins, xmin = etamin, xmax = etamax,
+                                    ybins = phibins, ymin = phimin, ymax = phimax,
+                                    run = run, triggers = triggers, perGain = perGain,
+                                    perSample = perSample, separator = separator)
 
 
-def addTile1DHistogramsArray(helper, algorithm, name = '', value = '', title = '', path = '',
+
+def addTile1DHistogramsArray(helper, algorithm, name = '', xvalue = '', value = '', title = '', path = '',
                              xbins = 0, xmin = 0, xmax = 0, type = 'TH1D', run = '', triggers = [],
-                             subDirectory = False, perPartition = True, perSample = False,
-                             perGain = False, labels = (), allPartitions = False, separator = '_' ):
+                             subDirectory = False, perPartition = True, perSample = False, opt = '',
+                             perGain = False, xlabels = (), allPartitions = False, separator = '_' ):
     '''
     This function configures 1D histograms with Tile monitored value per L1 trigger, partition, sample, gain.
 
@@ -485,6 +504,7 @@ def addTile1DHistogramsArray(helper, algorithm, name = '', value = '', title = '
         algorithm -- Monitoring algorithm
         name      -- Name of histogram, actual name is constructed dynamicaly like:
                         name + partition + sample + trigger
+        xvalue    -- Name of monitored value for x axis
         value     -- Name of monitored value (needed for TProfile)
         title     -- Title of histogram, actual title is constructed dynamicaly like:
                         run + trigger + partion + sample + title
@@ -496,7 +516,7 @@ def addTile1DHistogramsArray(helper, algorithm, name = '', value = '', title = '
         perPartition -- Configure histograms per partition (if True partition name will be put into the title)
         perSample -- Configure histograms per sample (if True sample name will be put into the title)
         perGain   -- Configure histograms per gain (if True gain name will be put into the title)
-        labels    -- List of bin labels
+        xlabels    -- List of bin labels
         allPartitions  -- Configure additional histogram with information from all partitions
         separator -- Given it will be used as separtor between name and trigger
     '''
@@ -510,19 +530,26 @@ def addTile1DHistogramsArray(helper, algorithm, name = '', value = '', title = '
         kwargs = _parsePostfix(postfix, triggers = triggers, perPartition = perPartition,
                                perSample = perSample, perGain = perGain)
 
-        fullName = value + ';' + getTileHistogramName(name = name,separator = separator, **kwargs)
+        partition = kwargs['partition'] if 'partition' in kwargs else ''
+        labels = getLabels(xlabels, partition)
+
+        fullName = xvalue + (',' + value if 'Profile' in type else '') + ';'
+        fullName += getTileHistogramName(name = name,separator = separator, **kwargs)
+
         fullPath = getTileHistogramPath(path = path, subDirectory = subDirectory, **kwargs)
         fullTitle = getTileHistogramTitle(title = title, run = run, **kwargs)
 
         tool.defineHistogram( fullName, path = fullPath, type = type, title = fullTitle,
-                              labels = labels, xbins = xbins, xmin = xmin, xmax = xmax)
+                              labels = labels, xbins = xbins, xmin = xmin, xmax = xmax, opt = opt)
 
     return array
 
 
+
+
 def addTileModuleArray(helper, algorithm, name, title, path,
                        type = 'TH1D', value = '', subDirectory = False,
-                       trigger = '', run = '', separator = '_'):
+                       triggers = [], run = '', separator = '_'):
     '''
     This function configures 1D histograms with Tile monitored value vs module per partition.
 
@@ -541,21 +568,8 @@ def addTileModuleArray(helper, algorithm, name, title, path,
         separator -- Given it will be used as separtor between name and trigger
     '''
 
-    dimensions = _getDimensions(perPartition = True)
-
-    array = helper.addArray(dimensions, algorithm, name)
-    for postfix, tool in array.Tools.items():
-
-        kwargs = _parsePostfix(postfix, perPartition = True)
-        labels = getModuleLabels(kwargs['partition'])
-
-        fullName = 'module' + (',' + value if 'Profile' in type else '') + ';'
-        fullName += getTileHistogramName(name = name, separator = separator, **kwargs)
-
-        fullPath = getTileHistogramPath(path = path, subDirectory = subDirectory, **kwargs)
-        fullTitle = getTileHistogramTitle(title = title, run = run, **kwargs)
-
-        tool.defineHistogram( fullName, path = fullPath, type = type, title = fullTitle, labels = labels,
-                              xbins = Tile.MAX_DRAWER, xmin = -0.5, xmax = Tile.MAX_DRAWER - 0.5)
-
-    return array
+    return addTile1DHistogramsArray(helper = helper, algorithm = algorithm, name = name, type = type,
+                                    xvalue = 'module', value = value, title = title, path = path,
+                                    xbins = Tile.MAX_DRAWER, xmin = -0.5, xmax = Tile.MAX_DRAWER - 0.5,
+                                    run = run, triggers = triggers, subDirectory = subDirectory,
+                                    xlabels = ('modules'), perPartition = True, separator = separator )

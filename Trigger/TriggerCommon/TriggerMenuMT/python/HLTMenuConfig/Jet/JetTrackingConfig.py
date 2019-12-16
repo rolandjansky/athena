@@ -52,7 +52,7 @@ def JetTrackingSequence(dummyFlags,trkopt,RoIs):
     verticesname = ""
 
     if trkopt=="ftf":
-        from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
+        from TrigInDetConfig.InDetSetup import makeInDetAlgs
         # Guess FS rather than making it jet-specific?
         viewAlgs = makeInDetAlgs( "FS", rois=RoIs )
 

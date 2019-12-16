@@ -18,6 +18,7 @@
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
+#include "TrkEventPrimitives/ParticleHypothesis.h"
 
 class AtlasDetectorID;
 
@@ -67,7 +68,8 @@ namespace Trk {
         unsigned int                                m_minSiHitsForward;          //!< min number of Si hits for refit in forward region (ITk specific)
         float                                       m_forwardBoundary;           //!< Boundary eta value defining the forward region
         
-        bool                                        m_materialInteractions;      //!< run with material interactions
+        Gaudi::Property<int> m_matEffects {this, "MatEffects", 3,
+                "Type of material interaction in extrapolation (Default Pion)"}; 
   };
 
 } // end of namespace

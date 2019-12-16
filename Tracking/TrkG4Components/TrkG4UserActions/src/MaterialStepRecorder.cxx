@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -37,7 +37,6 @@ namespace G4UA
     m_matStepCollection(nullptr),
     m_matStepCollectionName("MaterialStepRecords"), //FIXME should be passed in via a Config struct rather than hardcoded.
     m_recordComposition(true), //FIXME should be passed in via a Config struct rather than hardcoded.
-    m_totalNbOfAtoms(0),
     m_totalSteps(0),
     m_eventID(0),
     m_elementTable(nullptr),

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -124,7 +124,6 @@ namespace DerivationFramework {
         // counters
         mutable unsigned int m_totpart;
         mutable unsigned int m_removedpart;
-        mutable int m_particleCountSoFar;
         mutable int m_eventCount;
         
         /// Parameter: simulation barcode offset

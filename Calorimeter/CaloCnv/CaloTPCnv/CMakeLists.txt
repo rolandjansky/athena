@@ -84,6 +84,6 @@ atlas_add_test( CaloCompactCellTool_test
    LINK_LIBRARIES CaloDetDescrLib CaloEvent CaloIdentifier
    AthenaKernel StoreGateLib GaudiKernel LArRecEvent TileEvent TestTools
    IdDictParser CaloTPCnv
-   EXTRA_PATTERNS "SGAudSvc +INFO|^lar decode|^HistogramPersis.* INFO|initialize_from_dict|mask/zero|^JobOptionsSvc +INFO|^AtlasDetectorID::"
+   EXTRA_PATTERNS "SGAudSvc +INFO|^lar decode|initialize_from_dict|mask/zero|^AtlasDetectorID::"
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ########################################################
 ##  AugmentedStreams & MultipleStreamManager classes  ##
@@ -518,7 +518,7 @@ class AugmentedRootStream( AugmentedStreamBase ):
         """This function forwards attribute requests which don't exist in this object to
            the D3PDMakerCoreComps.MakerAlg object.
         """
-        if self.__dict__.has_key( 'Stream' ) and hasattr( self.Stream, attr ):
+        if 'Stream' in self.__dict__ and hasattr( self.Stream, attr ):
             return getattr( self.Stream, attr )
         raise AttributeError( "D3PD Maker algorithm doesn't have property '%s'." % attr )
         return
@@ -733,6 +733,6 @@ class MultipleStreamManager:
 ############################################################################
 # Create one instance of MultipleStreamManager (MSMgr) if not already done.
 # Otherwise, do dothing (avoid overwriting MSMgr!).
-if vars().has_key('MSMgr'):
+if 'MSMgr' in vars():
     raise RuntimeError("MSMgr already exists?!? This will almost certainly create erroneous results.")
 MSMgr=MultipleStreamManager()

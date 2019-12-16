@@ -1,11 +1,18 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SiDetElementsRoadUtils_xk_h
 #define SiDetElementsRoadUtils_xk_h
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
+
+/**
+ * @class SiDetElementsRoadUtils_xk
+ * This helper class is used by 
+ * SiDetElementsRoadCondAlg_xk and 
+ * SiDetElementsRoadMaker_xk.
+ */
 
 ///////////////////////////////////////////////////////////////////
 // Output parameters: P[ 0]  - radius          centre of wafer

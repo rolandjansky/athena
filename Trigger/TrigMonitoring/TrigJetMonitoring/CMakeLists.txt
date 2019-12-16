@@ -17,7 +17,8 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/StoreGate
                           Trigger/TrigAnalysis/TrigDecisionTool
-                          Trigger/TrigEvent/TrigSteeringEvent )
+                          Trigger/TrigEvent/TrigSteeringEvent
+                          Trigger/TrigSteer/DecisionHandling )
 
 # External dependencies:
 find_package( Boost )
@@ -30,7 +31,7 @@ atlas_add_component( TrigJetMonitoring
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} TrigSteeringEvent 
                      xAODEventInfo xAODJet xAODTrigger GaudiKernel AnalysisTriggerEvent TrigCaloEvent 
-                     TrigHLTMonitoringLib StoreGateLib SGtests TrigDecisionToolLib )
+                     TrigHLTMonitoringLib StoreGateLib SGtests TrigDecisionToolLib DecisionHandlingLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

@@ -46,8 +46,7 @@ Trk::TruthTrackBuilder::TruthTrackBuilder(const std::string& t, const std::strin
   m_primaryBarcodeCutOff(100000),
   m_minSiHits(7),
   m_minSiHitsForward(m_minSiHits),
-  m_forwardBoundary(2.4),
-  m_materialInteractions(true)
+  m_forwardBoundary(2.5)
 {
     declareInterface<Trk::ITruthTrackBuilder>(this);
     // TrackFitter
@@ -61,7 +60,7 @@ Trk::TruthTrackBuilder::TruthTrackBuilder(const std::string& t, const std::strin
     declareProperty("MinSiHits",                         m_minSiHits);
     declareProperty("MinSiHitsForward",                  m_minSiHitsForward);
     declareProperty("ForwardBoundary",                   m_forwardBoundary);
-    declareProperty("MaterialInteractions",              m_materialInteractions);
+
 }
 
 
@@ -228,18 +227,15 @@ Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTr
    }
    // choose the material effects
    //!< @todo : if we need a dedicated electron fitter is has to go in here !
-   Trk::ParticleHypothesis mateffects;
-   if (!m_materialInteractions) mateffects=Trk::nonInteracting;
-   else {
-     mateffects=Trk::pion;
-     /* if (abs(pdg)==2212) mateffects=Trk::proton;
-     if (abs(pdg)==321) mateffects=Trk::kaon;
-     if (abs(pdg)==11) mateffects=Trk::electron;
-     if (abs(pdg)==13) mateffects=Trk::muon; */
-   }
    
-   // create the refitted track 
-   Trk::Track *refittedtrack=m_trackFitter->fit(track,false,mateffects);
+   // create the refitted track
+   //
+   //
+   //
+   Trk::ParticleSwitcher particleSwitch;
+   Trk::ParticleHypothesis materialInteractions = particleSwitch.particle[m_matEffects];
+
+   Trk::Track *refittedtrack=m_trackFitter->fit(track,false,materialInteractions);
   
    //!<  @todo : add documentation & find out why we need the fit twice ?
    Trk::Track *refittedtrack2=0;
@@ -256,7 +252,7 @@ Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTr
        prevpar=thispar;
      }
      if (prevpar!=refittedtrack->trackParameters()->back() )delete prevpar;
-     refittedtrack2=m_trackFitter->fit(*refittedtrack,measset,false,mateffects);
+     refittedtrack2=m_trackFitter->fit(*refittedtrack,measset,false,materialInteractions);
      if (!refittedtrack2){
        DataVector<const Trk::TrackStateOnSurface>* traj2 = new DataVector<const Trk::TrackStateOnSurface>;
        for (int j=0;j<(int)refittedtrack->trackStateOnSurfaces()->size();j++) traj2->push_back(new Trk::TrackStateOnSurface(*(*refittedtrack->trackStateOnSurfaces())[j]));

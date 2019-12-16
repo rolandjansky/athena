@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -7,8 +7,9 @@
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetAuxContainer.h"
 
+#include "xAODJet/test_utils/JetFactory.h"
+
 #include "xAODCaloEvent/CaloClusterContainer.h"
-#include "xAODCaloEvent/CaloClusterAuxContainer.h"
 
 #include "xAODCore/ShallowCopy.h"
 #include "CxxUtils/checker_macros.h"
@@ -16,18 +17,6 @@
 #include <vector>
 #include <iostream>
 #include <cassert>
-
-#ifndef XAOD_STANDALONE
-// allows to test EL 
-#include "AthLinks/ElementLink.h"
-#include "SGTools/TestStore.h" 
-using namespace SGTest;
-#else
-#include "xAODRootAccess/Init.h"
-#include "xAODRootAccess/TEvent.h"
-#include "xAODRootAccess/TStore.h"
-#include "xAODRootAccess/TActiveStore.h"
-#endif
 
 ////////////////////////////////////////////////////////////////
 // Helper functions 
@@ -45,72 +34,6 @@ bool is_equal (double x1, double x2)
 
 #define TESTMACRO( failcond , errmsg )  do { if(! ( failcond)  ) {TEST_MSG( "TEST FAILED : " << errmsg ) ; return 1 ;} else {TEST_MSG( "TEST SUCCEEDED : "<< errmsg );} } while(0)
 
-static const std::vector<xAOD::JetFourMom_t> jet4moms ={
-  xAOD::JetFourMom_t(40000, 0, 1, 10000 ),
-  xAOD::JetFourMom_t(40000, 0.01, 2, 10000 ),
-  xAOD::JetFourMom_t(40000, 0.01, 2, 0.),
-  xAOD::JetFourMom_t(40000, 0.2, 2, 10000.),
-  xAOD::JetFourMom_t(40000, 1.0, 2, 10000.),
-  xAOD::JetFourMom_t(40000, 1.001, 2, 10000.),
-  xAOD::JetFourMom_t(40000, 2., 2, 10000.),
-  xAOD::JetFourMom_t(40000, 3., 2, 10000.),
-  xAOD::JetFourMom_t(40000, 3.22, 2, 10000.),
-  xAOD::JetFourMom_t(40000, 4., 2, 10000.),
-  xAOD::JetFourMom_t(40000, 5., 2, 10000.),
-  xAOD::JetFourMom_t(40000, 5.5, 2, 10000.),
-
-  xAOD::JetFourMom_t(0.1, 1.0, 2, 10000.),
-  xAOD::JetFourMom_t(100000, 1.0, 2, 10000.),
-  xAOD::JetFourMom_t(500000, 1.0, 2, 10000.),
-  xAOD::JetFourMom_t(1000000, 1.0, 2, 10000.),
-  xAOD::JetFourMom_t(10000000, 1.0, 2, 10000.),
-
-  xAOD::JetFourMom_t(100000, 1.0, 2, 100000.),
-  xAOD::JetFourMom_t(100000, 1.0, 2, 1000000.)
-};
-
-xAOD::JetContainer* jetTestContainer = 0;
-xAOD::CaloClusterContainer * clusterTestContainer = 0;
-
-void fillJetContainer ATLAS_NOT_THREAD_SAFE (){
-
-  xAOD::JetAuxContainer* aux = new xAOD::JetAuxContainer();
-  jetTestContainer->setStore(aux);
-
-  int i=0;
-  for( const xAOD::JetFourMom_t &v : jet4moms){
-    jetTestContainer->push_back(new xAOD::Jet());
-    xAOD::Jet *jet = jetTestContainer->back();
-    jet->setJetP4( v ); // set the P4 of the last inserted jet
-    jet->setAttribute(xAOD::JetAttribute::Width, 0.123);
-    jet->setJetP4(xAOD::JetScale::JetConstitScaleMomentum, 0.9*v);
-    jet->setJetP4(xAOD::JetScale::JetEMScaleMomentum, 0.7*v);
-    i++;
-  }  
-
-}
-
-void fillClusterContainer ATLAS_NOT_THREAD_SAFE (){
-
-  xAOD::CaloClusterAuxContainer* aux = new xAOD::CaloClusterAuxContainer();
-  clusterTestContainer->setStore(aux);
-  
-  for(int i=0; i<10; i++){
-    xAOD::CaloCluster *cl = new xAOD::CaloCluster();
-    clusterTestContainer->push_back(cl);
-    
-#define SETCLUSTERMOM( E, eta, phi ) cl->setE(E);cl->setEta(eta);cl->setPhi(phi);cl->setM(0)
-#define SETCLUSTERRAWMOM( E, eta, phi ) cl->setRawE(E);cl->setRawEta(eta);cl->setRawPhi(phi);cl->setRawM(0)
-    SETCLUSTERMOM( 1000+i*1.1, -5+i*0.1, 0);
-    SETCLUSTERRAWMOM( 500+i*2.2, -5+i*0.1, 0);
-
-    // *cl = new xAOD::CaloCluster();
-    // clusterTestContainer.push_back(cl);
-    
-    // SETCLUSTERMOM(    
-  }
-
-}
 
 
 
@@ -145,10 +68,10 @@ int testJetCreation(){
 
 
 
-int testJetCopy ATLAS_NOT_THREAD_SAFE (){
+int testJetCopy ATLAS_NOT_THREAD_SAFE (xAOD::JetContainer& jetCont){
 
   TEST_MSG("\n ---------------- testJetCopy  ");
-  xAOD::Jet* jet0 = (*jetTestContainer)[0];
+  xAOD::Jet* jet0 = jetCont[0];
     
   //xAOD::Jet copy0(*jet0);
   TEST_MSG( " --> testing assignment operator "<< jet0->getAttribute<float>("Width")  );
@@ -173,7 +96,7 @@ int testJetCopy ATLAS_NOT_THREAD_SAFE (){
   cont.setStore(aux);
   jet0 = new xAOD::Jet(); cont.push_back(jet0);
   //*jet0 = copy1;
-  *jet0 = *((*jetTestContainer)[0]);
+  *jet0 = *(jetCont[0]);
   TESTMACRO( is_equal( jet0->pt() , copy1.pt()), "copy in container : jet pt identical" );
   TESTMACRO( is_equal( jet0->e() , copy1.e()), "copy in container : jet e identical" );
   TESTMACRO( is_equal( jet0->getAttribute<float>("Width") , copy1.getAttribute<float>("Width")), "copy in container : jet Width identical" );
@@ -184,10 +107,10 @@ int testJetCopy ATLAS_NOT_THREAD_SAFE (){
 }
 
 
-int testAttributes ATLAS_NOT_THREAD_SAFE (){
+int testAttributes ATLAS_NOT_THREAD_SAFE (xAOD::JetContainer& jetCont){
 
   TEST_MSG("\n ---------------- testJetCopy ");
-  const xAOD::Jet* jet = (*jetTestContainer)[0];
+  const xAOD::Jet* jet = jetCont[0];
 
   float phi = jet->getAttribute<float>("Width");
   // Test direct call by enum vs string 
@@ -208,7 +131,7 @@ int testAttributes ATLAS_NOT_THREAD_SAFE (){
   TESTMACRO( is_equal( phi, w1 ), "attribute retrieval by ref & direct retrieval identical " );
 
   // Test setting attributes
-  xAOD::Jet* jet_nc = (*jetTestContainer)[0]  ;
+  xAOD::Jet* jet_nc = jetCont[0]  ;
   jet_nc->setAttribute(xAOD::JetAttribute::Width, 123.456) ;
   TESTMACRO( is_equal( 123.456 , jet->getAttribute<float>(xAOD::JetAttribute::Width) ), "set then retrieve attribute" );  
 
@@ -228,11 +151,11 @@ int testAttributes ATLAS_NOT_THREAD_SAFE (){
   return 0;
 }
 
-int testLink ATLAS_NOT_THREAD_SAFE (){
+int testLink ATLAS_NOT_THREAD_SAFE (xAOD::JetContainer& jetCont){
   TEST_MSG("\n ---------------- testLink  ");
 
-  xAOD::Jet* jet = (*jetTestContainer)[0];
-  const xAOD::Jet* jetL = (*jetTestContainer)[1];
+  xAOD::Jet* jet = jetCont[0];
+  const xAOD::Jet* jetL = jetCont[1];
 
   jet->setAssociatedObject("MyJet", jetL);
   TESTMACRO( jetL == jet->getAssociatedObject<xAOD::Jet>("MyJet"), "jet retrieved from asso identical");
@@ -244,7 +167,7 @@ int testLink ATLAS_NOT_THREAD_SAFE (){
   ElementLink<xAOD::IParticleContainer> el = jet->getAttribute< ElementLink<xAOD::IParticleContainer> >("MyJet");
   TESTMACRO( *el == jetL ,"jet retrieved as EL identical"); 
   // test setting vector of objects :
-  std::vector< const xAOD::Jet* > vecJets = {jetL, (*jetTestContainer)[2] };
+  std::vector< const xAOD::Jet* > vecJets = {jetL, jetCont[2] };
   jet->setAssociatedObjects("VecJets", vecJets); 
   std::vector< const xAOD::Jet* > retrievedJets;
   bool r = jet->getAssociatedObjects( "VecJets", retrievedJets);
@@ -280,13 +203,13 @@ int testKinematicChange(){
 }
 
 
-int testConstituents ATLAS_NOT_THREAD_SAFE (){
+int testConstituents ATLAS_NOT_THREAD_SAFE (xAOD::JetContainer& jetCont){
   TEST_MSG("\n ---------------- testConstituents  ");
-  xAOD::Jet & jet = * (*jetTestContainer)[0];
+  xAOD::Jet & jet = * jetCont[0];
 
   // use jets as fake constituents
-  xAOD::Jet * c1 = (*jetTestContainer)[3];
-  xAOD::Jet * c2 = (*jetTestContainer)[4];
+  xAOD::Jet * c1 = jetCont[3];
+  xAOD::Jet * c2 = jetCont[4];
 
   jet.addConstituent(c1);
   jet.addConstituent(c2,2.2);
@@ -306,7 +229,7 @@ int testConstituents ATLAS_NOT_THREAD_SAFE (){
   int i=0;
   for( auto itr = vec.begin(); itr!= vec.end(); itr++){
     sum+= TLorentzVector( itr->Px(), itr->Py(), itr->Pz(), itr->E());
-    TESTMACRO( (*jetTestContainer)[3+i] == (*itr)->rawConstituent() , "identical constituents from JetConstituentVector at "<< i );
+    TESTMACRO( jetCont[3+i] == (*itr)->rawConstituent() , "identical constituents from JetConstituentVector at "<< i );
     TESTMACRO( is_equal(stlVec[i].pt(), itr->pt() ), " stlVec and constituent Pt identical at  "<< i );
     TESTMACRO( (stlVec[i].rawConstituent() ==itr->rawConstituent() ), " stlVec and constituent raw constit ptr identical at  "<< i );
     i++;
@@ -321,39 +244,39 @@ int testConstituents ATLAS_NOT_THREAD_SAFE (){
 
 
 
-int testClusterConstituents ATLAS_NOT_THREAD_SAFE (){
+int testClusterConstituents ATLAS_NOT_THREAD_SAFE (xAOD::JetContainer& jetCont, xAOD::CaloClusterContainer& clustCont){
   TEST_MSG("\n ---------------- testClusterConstituents  ");
-  xAOD::Jet & jet1 = * (*jetTestContainer)[1];
-  xAOD::Jet & jet2 = * (*jetTestContainer)[2];
+  xAOD::Jet & jet1 = * jetCont[1];
+  xAOD::Jet & jet2 = * jetCont[2];
 
   jet1.setConstituentsSignalState( xAOD::UncalibratedJetConstituent) ;
   jet2.setConstituentsSignalState( xAOD::CalibratedJetConstituent) ;
 
-  for( xAOD::CaloCluster* cl : *clusterTestContainer){
+  for( xAOD::CaloCluster* cl : clustCont){
     jet1.addConstituent( cl );
     jet2.addConstituent( cl );
   }
 
   xAOD::JetConstituentVector vec1 = jet1.getConstituents();
-  TEST_MSG( " contit energy  "<< vec1[0]->e() << "  cluster energy "<< (*clusterTestContainer)[0]->rawE());
-  TESTMACRO( is_equal( vec1[0]->e(), (*clusterTestContainer)[0]->rawE() ), "EM cluster constituent at expected scale");
-  TESTMACRO( is_equal( (*vec1.begin())->e(), (*clusterTestContainer)[0]->rawE() ) , "EM cluster constituent at expected scale (from iterator)");
+  TEST_MSG( " contit energy  "<< vec1[0]->e() << "  cluster energy "<< clustCont[0]->rawE());
+  TESTMACRO( is_equal( vec1[0]->e(), clustCont[0]->rawE() ), "EM cluster constituent at expected scale");
+  TESTMACRO( is_equal( (*vec1.begin())->e(), clustCont[0]->rawE() ) , "EM cluster constituent at expected scale (from iterator)");
 
   xAOD::JetConstituentVector vec2 = jet2.getConstituents();
-  TEST_MSG( " contit energy  "<< vec2[0]->e() << "  cluster energy "<< (*clusterTestContainer)[0]->e());
-  TESTMACRO( is_equal( vec2[0]->e(), (*clusterTestContainer)[0]->e() ), "LC cluster constituent at expected scale");
-  TESTMACRO( is_equal( (*vec2.begin())->e(), (*clusterTestContainer)[0]->e() ) , "LC cluster constituent at expected scale (from iterator)");
-  TESTMACRO( is_equal( (*vec2.begin(xAOD::UncalibratedJetConstituent))->e(), (*clusterTestContainer)[0]->rawE() ) , "LC cluster constituent at expected scale (from iterator at EM scale)");
+  TEST_MSG( " contit energy  "<< vec2[0]->e() << "  cluster energy "<< clustCont[0]->e());
+  TESTMACRO( is_equal( vec2[0]->e(), clustCont[0]->e() ), "LC cluster constituent at expected scale");
+  TESTMACRO( is_equal( (*vec2.begin())->e(), clustCont[0]->e() ) , "LC cluster constituent at expected scale (from iterator)");
+  TESTMACRO( is_equal( (*vec2.begin(xAOD::UncalibratedJetConstituent))->e(), clustCont[0]->rawE() ) , "LC cluster constituent at expected scale (from iterator at EM scale)");
   
   return 0;
 }
 
-int testShallowCopy ATLAS_NOT_THREAD_SAFE (){
+int testShallowCopy ATLAS_NOT_THREAD_SAFE (xAOD::JetContainer& jetCont){
   TEST_MSG("\n ---------------- testShallowCopy  ");
 
-  xAOD::JetContainer & shallowcopy = *(xAOD:: shallowCopyContainer( *jetTestContainer ).first);
+  xAOD::JetContainer & shallowcopy = *(xAOD:: shallowCopyContainer( jetCont ).first);
   xAOD::Jet * cjet = shallowcopy[0];
-  xAOD::Jet * jet = (*jetTestContainer)[0];
+  xAOD::Jet * jet = jetCont[0];
 
   TESTMACRO( is_equal( cjet->pt(), jet->pt() ), " shallow copy pt identical");
   TESTMACRO( cjet->rawConstituent(0) == jet->rawConstituent(0), " first constit identical");
@@ -374,62 +297,35 @@ void standaloneInit(){
 ////////////////////////////////////////////////////////////////
 // Main
 ////////////////////////////////////////////////////////////////
-
 int main ATLAS_NOT_THREAD_SAFE () {
   TEST_MSG("start");
-
-  clusterTestContainer = new xAOD::CaloClusterContainer();
-  jetTestContainer = new xAOD::JetContainer();
-
-
-  xAOD::IParticleContainer * jetAsIP = jetTestContainer;
-
-#ifndef XAOD_STANDALONE
-  // *********************** init in Athena 
-# ifdef SGTOOLS_CURRENTEVENTSTORE_H
-  initTestStore();
-# else
-  SG::getDataSourcePointerFunc = getTestDataSourcePointer;
-# endif
-
-  store.record(jetAsIP, "JetCont");  // store the container as an IParticleContainer
-
-#else
-  // *********************** init in standalone 
-
-  gErrorIgnoreLevel = kWarning;
-  assert( xAOD::Init() );
-  // Create a TEvent object:
-  xAOD::TEvent eventstore(xAOD::TEvent::kClassAccess);
-
-  xAOD::TStore tds;
-  xAOD::TStore* transDataStore = xAOD::TActiveStore::store();
-
-  assert( transDataStore != 0 );
-
-  tds.record(jetTestContainer, "JetCont").ignore();
-  tds.record(clusterTestContainer, "ClustCont").ignore();
-  tds.record(jetAsIP, "JetContAsIP").ignore();  // store the container as an IParticleContainer
- 
-#endif
-
+  xAOD::JetContainer * jetCont = xAOD::JetTests::createEmptyJetContainer("TestJetCont");
 
   assert( testJetCreation() == 0);
   assert( testKinematicChange() == 0 );
+  
 
-  fillJetContainer();
-  assert( testLink() == 0) ;
+  xAOD::JetTests::fillStandardTestJets( *jetCont );
+  std::cout << " OK filled jets "<< jetCont->size() << std::endl;
 
-  assert( testJetCopy() == 0);
-  assert( testConstituents() == 0);
-  assert( testAttributes() == 0) ;
+  assert( testLink(*jetCont) == 0) ;
+
+  assert( testJetCopy(*jetCont) == 0);
+  assert( testConstituents(*jetCont) == 0);
+  assert( testAttributes(*jetCont) == 0) ;
+  
+  xAOD::JetContainer * jetCont2 = xAOD::JetTests::createEmptyJetContainer("TestJetCont2");
+  xAOD::JetTests::fillStandardTestJets( *jetCont2 );
+  std::cout << " OK filled jets2 "<< jetCont2->size() << std::endl;
 
 
-  fillClusterContainer();
-  assert( testClusterConstituents()== 0 );
+  xAOD::CaloClusterContainer * clustCont =  xAOD::JetTests::createEmptyCaloClusterContainer("TestClustForJets");
+  xAOD::JetTests::fillStandardTestClusters(*clustCont);
 
-  assert( testShallowCopy()== 0 );
+  assert( testClusterConstituents(*jetCont, *clustCont)== 0 );
 
-
+  assert( testShallowCopy(*jetCont)== 0 );
+    
   return 0;
 }
+

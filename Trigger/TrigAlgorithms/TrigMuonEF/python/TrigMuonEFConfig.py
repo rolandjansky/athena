@@ -1,5 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
+
 # TrigMuonEF configurables
 #
 from TrigMuonEF.TrigMuonEFConf import *
@@ -628,8 +630,8 @@ def TMEF_TrackIsolationTool(name='TMEF_isolationTool',**kwargs):
         trkseltool.CutLevel='Loose'
     elif 'TightTSel' in name:
         trkseltool.CutLevel='TightPrimary'
-    print 'TMEF_TrackIsolationTool added trackselection tool:'
-    print trkseltool
+    print ('TMEF_TrackIsolationTool added trackselection tool:')
+    print (trkseltool)
     kwargs.setdefault('TrackSelectionTool',trkseltool)
     return TrigMuonEFTrackIsolationTool(name, **kwargs)
 

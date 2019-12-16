@@ -15,7 +15,7 @@ art_dcube="/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube"
 dcubeName="ttFC_reco_Split_fastSim_fullDigi"
 dcubeXmlID="${inputXmlDir}/dcube_indetplots.xml"
 dcubeRefID="${inputRefDir}/InDetStandardPlots.root"
-dcubeXmlRDO="${inputXmlDir}/dcube_RDO_truth.xml"
+dcubeXmlRDO="${inputXmlDir}/dcube_RDO_truth_pileup.xml"
 dcubeRefRDO="${inputRefDir}/RDO_truth.root"
 
 FastChain_tf.py --simulator ATLFASTIIF_PileUp \

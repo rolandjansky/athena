@@ -43,6 +43,8 @@
 #include "TrigConfHLTData/HLTPrescaleSetCollection.h"
 #include "AthenaMonitoringKernel/OHLockedHist.h"
 
+#include "TrigConfData/HLTMenu.h"
+
 #include "TrigConfInterfaces/IJobOptionsSvc.h"
 
 #include "TrigConfInterfaces/IJobOptionsSvc.h"
@@ -109,7 +111,7 @@ HLTConfigSvc::writeConfigToDetectorStore() {
       TrigConf::JsonFileLoader fileLoader;
       fileLoader.setLevel(TrigConf::MSGTC::WARNING);
 
-      if( fileLoader.loadFile( m_hltFileName, *hltmenu ).isSuccess() ) {
+      if( fileLoader.loadFile( m_hltFileName, *hltmenu ) ) {
          ATH_MSG_INFO( "Loaded HLT menu file " << m_hltFileName.value() );
       } else {
          ATH_MSG_WARNING( "Failed loading HLT menu file " << m_hltFileName.value());

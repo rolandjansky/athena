@@ -24,6 +24,8 @@
 #include "xAODTracking/TrackParticleFwd.h"
 #include "xAODTracking/TrackParticleContainerFwd.h"
 #include "TrkTrack/Track.h"      
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+
 #include <memory>
 class EMBremCollectionBuilder : public AthAlgorithm 
 {
@@ -125,6 +127,12 @@ private:
   Gaudi::Property<int> m_MinNoSiHits {this, "minNoSiHits", 4, 
     "Minimum number of silicon hits on track before it is allowed to be refitted"};
 
+  // For P->T converters of ID tracks with Pixel
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, 
+    "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
+  // For P->T converters of ID tracks with SCT
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, 
+    "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
   //counters
   mutable std::atomic_uint m_FailedFitTracks{0};
   mutable std::atomic_uint m_RefittedTracks{0};

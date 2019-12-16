@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 """ InDetTrigConfigRecLoadToolsPost
     various tools for postprocessing
@@ -43,7 +45,7 @@ if InDetTrigFlags.doNewTracking():
                                                     )
     ToolSvc += InDetTrigVtxSeedFinder
     if (InDetTrigFlags.doPrintConfigurables()):
-      print InDetTrigVtxSeedFinder
+      print (InDetTrigVtxSeedFinder)
 
     from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import \
         Trk__ImpactPoint3dEstimator, Trk__DetAnnealingMaker
@@ -55,14 +57,14 @@ if InDetTrigFlags.doNewTracking():
         
     ToolSvc += InDetTrigImpactPoint3dEstimator
     if (InDetTrigFlags.doPrintConfigurables()):
-      print      InDetTrigImpactPoint3dEstimator
+      print (     InDetTrigImpactPoint3dEstimator)
 
  
     InDetTrigAnnealingMaker = Trk__DetAnnealingMaker(name = "InDetTrigTrkAnnealingMaker")
     InDetTrigAnnealingMaker.SetOfTemperatures = [64.,16.,4.,2.,1.5,1.] # not default
     ToolSvc += InDetTrigAnnealingMaker
     if (InDetTrigFlags.doPrintConfigurables()):
-      print      InDetTrigAnnealingMaker
+      print (     InDetTrigAnnealingMaker)
 
         
     from TrkVertexFitters.TrkVertexFittersConf import Trk__DummyVertexSmoother
@@ -71,7 +73,7 @@ if InDetTrigFlags.doNewTracking():
                                                              ExtrapolatorName="Trk::Extrapolator")
     ToolSvc += InDetTrigDummyVertexSmoother
     if (InDetTrigFlags.doPrintConfigurables()):
-      print InDetTrigDummyVertexSmoother
+      print (InDetTrigDummyVertexSmoother)
 
 
   #smoother
@@ -84,7 +86,7 @@ if InDetTrigFlags.doNewTracking():
     
     ToolSvc += InDetTrigVertexSmoother
     if (InDetTrigFlags.doPrintConfigurables()):
-      print InDetTrigVertexSmoother
+      print (InDetTrigVertexSmoother)
 
 
   #
@@ -126,14 +128,14 @@ if InDetTrigFlags.doNewTracking():
 
   ToolSvc += InDetTrigVxFitterTool
   if (InDetTrigFlags.doPrintConfigurables()):
-     print  InDetTrigVxFitterTool    
+     print ( InDetTrigVxFitterTool    )
 
 
   from InDetMultipleVertexSeedFinderUtils.InDetMultipleVertexSeedFinderUtilsConf import InDet__InDetTrackZ0SortingTool
   InDetTrigTrackZ0SortingTool =  InDet__InDetTrackZ0SortingTool(name = "InDetTrigTrackZ0SortingTool")
   ToolSvc += InDetTrigTrackZ0SortingTool
   if (InDetTrigFlags.doPrintConfigurables()):
-    print InDetTrigTrackZ0SortingTool
+    print (InDetTrigTrackZ0SortingTool)
 
 
 
@@ -145,7 +147,7 @@ if InDetTrigFlags.doNewTracking():
     
     ToolSvc+=TrkTrig2dDistanceSeeder
     if (InDetTrigFlags.doPrintConfigurables()):
-      print TrkTrig2dDistanceSeeder
+      print (TrkTrig2dDistanceSeeder)
     #
     from TrkVertexSeedFinderUtils.TrkVertexSeedFinderUtilsConf import Trk__Trk2DDistanceFinder
     TrkTrig2DDistanceFinder = Trk__Trk2DDistanceFinder(name = "TrkTrig2DDistanceFinder",
@@ -153,7 +155,7 @@ if InDetTrigFlags.doNewTracking():
 
     ToolSvc+=TrkTrig2DDistanceFinder
     if (InDetTrigFlags.doPrintConfigurables()):
-      print TrkTrig2DDistanceFinder                                     
+      print (TrkTrig2DDistanceFinder                                     )
   
     from TrkVertexSeedFinderTools.TrkVertexSeedFinderToolsConf import Trk__CrossDistancesSeedFinder
     InDetTrig2DVtxSeedFinder = Trk__CrossDistancesSeedFinder(name = "InDetTrig2DCrossDistancesSeedFinder",
@@ -165,7 +167,7 @@ if InDetTrigFlags.doNewTracking():
                                                          )
     ToolSvc+=InDetTrig2DVtxSeedFinder
     if (InDetTrigFlags.doPrintConfigurables()):
-      print InDetTrig2DVtxSeedFinder   
+      print (InDetTrig2DVtxSeedFinder   )
 
   if InDetTrigFlags.vertexSeedFinder() == 'SlidingWindowMultiSeedFinder':
     #now setup new stuff
@@ -239,7 +241,7 @@ if InDetTrigFlags.doNewTracking():
       
   ToolSvc += InDetTrigPriVxFinderTool
   if (InDetTrigFlags.doPrintConfigurables()):
-    print InDetTrigPriVxFinderTool
+    print (InDetTrigPriVxFinderTool)
 
                             
 

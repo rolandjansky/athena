@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ##
 ## @file InDetTrigRecExample/python/InDetTrigFlags.py
@@ -32,9 +32,9 @@ from InDetTrigRecExample.InDetTrigJobProperties import *
 import pyclbr
 moddict = pyclbr.readmodule('InDetTrigRecExample.InDetTrigJobProperties')
 moddict2= pyclbr.readmodule('InDetRecExample.InDetJobProperties')
-objs = moddict.values() + moddict2.values()
+objs = list(moddict.values()) + list(moddict2.values())
 
-if moddict.has_key('InDetTrigFlagsJobProperty'):
+if 'InDetTrigFlagsJobProperty' in moddict:
   classid = moddict['InDetTrigFlagsJobProperty']
 else:
   classid = 'InDetTrigFlagsJobProperty'

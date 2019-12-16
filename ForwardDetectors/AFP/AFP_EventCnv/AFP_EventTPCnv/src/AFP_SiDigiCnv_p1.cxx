@@ -1,17 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-//#define private public
-//#define protected public
 #include "AFP_DigiEv/AFP_SiDigi.h"
-//#undef private
-//#undef protected
-
 #include "Identifier/Identifier.h"
 #include "AFP_EventTPCnv/AFP_SiDigiCnv_p1.h"
 
-void AFP_SiDigiCnv_p1::persToTrans(const AFP_SiDigi_p1* persObj, AFP_SiDigi* transObj, MsgStream &log)
+void AFP_SiDigiCnv_p1::persToTrans(const AFP_SiDigi_p1* persObj, AFP_SiDigi* transObj, MsgStream &log) const
 {
 	log << MSG::DEBUG << "AFP_SiDigiCnv_p1::persToTrans called " << endmsg;
 
@@ -25,7 +20,7 @@ void AFP_SiDigiCnv_p1::persToTrans(const AFP_SiDigi_p1* persObj, AFP_SiDigi* tra
 	transObj->m_nPixelCol=persObj->m_nPixelCol;
 }
 
-void AFP_SiDigiCnv_p1::transToPers(const AFP_SiDigi* transObj, AFP_SiDigi_p1* persObj, MsgStream &log)
+void AFP_SiDigiCnv_p1::transToPers(const AFP_SiDigi* transObj, AFP_SiDigi_p1* persObj, MsgStream &log) const
 {
 	log << MSG::DEBUG << "AFP_SiDigiCnv_p1::transToPers called " << endmsg;
 

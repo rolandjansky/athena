@@ -17,7 +17,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TRT_PAI_Process/ITRT_PAITool.h"
-#include "TRT_Digitization/ITRT_SimDriftTimeTool.h"
+#include "ITRT_SimDriftTimeTool.h"
 #include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
 

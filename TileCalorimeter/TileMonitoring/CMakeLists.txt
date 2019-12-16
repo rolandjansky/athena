@@ -79,6 +79,11 @@ atlas_add_test( TileClusterMonitorAlgorithm_test
                 PROPERTIES TIMEOUT 300
                 POST_EXEC_SCRIPT nopost.sh)
 
+atlas_add_test( TileMuIdMonitorAlgorithm_test
+                SCRIPT python -m TileMonitoring.TileMuIdMonitorAlgorithm
+                PROPERTIES TIMEOUT 300
+                POST_EXEC_SCRIPT nopost.sh)
+
 atlas_add_test( TileJetMonitorAlgorithm_test
                 SCRIPT python -m TileMonitoring.TileJetMonitorAlgorithm
                 PROPERTIES TIMEOUT 300

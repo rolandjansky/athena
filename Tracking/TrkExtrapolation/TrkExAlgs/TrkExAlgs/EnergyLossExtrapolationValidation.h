@@ -101,9 +101,6 @@ namespace Trk
       double                    m_maximumR;                  //!< maximum R of the highest
       double                    m_maximumZ;                  //!< maximum halfZ of the highest tracking volume
 
-//      double                    m_sigmaLoc;       //!< local sigma of start value
-//      double                    m_sigmaR;         //!< r sigma of start value
-//      double                    m_sigmaZ;         //!< Z sigma of start value
 
       mutable size_t            m_cylinders;      //!< number of cylinder layers
       bool                      m_onion;          //!< strictly hierarchical ordering (onion-like)
@@ -146,7 +143,6 @@ namespace Trk
       mutable size_t            m_collectedLayerForward;   //!< collected material layers forward
       mutable size_t            m_collectedLayerBack;    //!< collected material layers backward
 
-      mutable bool              m_isValid;         //!< sanity check
 
       // ---- cylinders and discs
       float                     m_cylinderR[TRKEXALGS_MAXPARAMETERS];   //!< radius of cylinder layers (for ROOT tree)

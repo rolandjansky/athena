@@ -3,6 +3,9 @@
 from AthenaCommon import CfgMgr
 
 def isOverlay():
+    from AthenaCommon.GlobalFlags import globalflags
+    if globalflags.isOverlay():
+        return True
     # steer random overlay configuration
     from AthenaCommon.AppMgr import ServiceMgr
     if hasattr(ServiceMgr,'PileUpMergeSvc') :

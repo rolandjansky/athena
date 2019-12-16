@@ -46,6 +46,9 @@ StatusCode PixelSiLorentzAngleCondAlg::initialize() {
     if (m_useMagFieldDcs) {
       ATH_CHECK(m_readKeyBFieldSensor.initialize());
     }
+    else {
+      ATH_CHECK(m_readKeyBFieldSensor.initialize(false));
+    }
   }
 
   ATH_CHECK(m_pixelDetEleCollKey.initialize());

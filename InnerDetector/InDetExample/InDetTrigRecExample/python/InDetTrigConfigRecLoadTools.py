@@ -1,6 +1,8 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
+from __future__ import print_function
+
 # ------------------------------------------------------------
 #
 # ----------- Loading of all the Tools needed to configure
@@ -35,13 +37,13 @@ InDetTrigClusterMakerTool = \
                              SCTLorentzAngleTool = TrigSCTLorentzAngleTool
                              )
 if (InDetTrigFlags.doPrintConfigurables()):
-  print InDetTrigClusterMakerTool
+  print (InDetTrigClusterMakerTool)
 ToolSvc += InDetTrigClusterMakerTool
 
 from SiSpacePointTool.SiSpacePointToolConf import InDet__SiSpacePointMakerTool
 InDetTrigSiSpacePointMakerTool = InDet__SiSpacePointMakerTool(name="InDetTrigSiSpacePointMakerTool")
 if (InDetTrigFlags.doPrintConfigurables()):
-  print InDetTrigSiSpacePointMakerTool
+  print (InDetTrigSiSpacePointMakerTool)
 ToolSvc += InDetTrigSiSpacePointMakerTool      
   
 from SiTrigSpacePointFormation.SiTrigSpacePointFormationConf import InDet__SCT_TrigSpacePointTool
@@ -52,7 +54,7 @@ SCT_TrigSpacePointTool = InDet__SCT_TrigSpacePointTool(name="InDetTrigSCTSpacePo
                                                        )
 
 if (InDetTrigFlags.doPrintConfigurables()):
-  print SCT_TrigSpacePointTool 
+  print (SCT_TrigSpacePointTool )
 ToolSvc +=  SCT_TrigSpacePointTool
 
 
@@ -71,7 +73,7 @@ if InDetTrigFlags.loadRotCreator():
 
   ToolSvc += SCT_ClusterOnTrackTool
   if (InDetTrigFlags.doPrintConfigurables()):
-    print SCT_ClusterOnTrackTool
+    print (SCT_ClusterOnTrackTool)
 
   # tool to always make conservative pixel cluster errors
   from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__PixelClusterOnTrackTool
@@ -83,7 +85,7 @@ if InDetTrigFlags.loadRotCreator():
       
     ToolSvc += NeuralNetworkToHistoTool
     if (InDetTrigFlags.doPrintConfigurables()):
-      print NeuralNetworkToHistoTool
+      print (NeuralNetworkToHistoTool)
     
     from SiClusterizationTool.SiClusterizationToolConf import InDet__NnClusterizationFactory
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as geoFlags
@@ -120,7 +122,7 @@ if InDetTrigFlags.loadRotCreator():
     TrigNnClusterizationFactory = None
 
   if (InDetTrigFlags.doPrintConfigurables()):
-    print TrigNnClusterizationFactory
+    print (TrigNnClusterizationFactory)
 
   InDetTrigPixelClusterOnTrackTool = InDet__PixelClusterOnTrackTool("InDetTrigPixelClusterOnTrackTool",
                                                                     ErrorStrategy = 2,
@@ -131,7 +133,7 @@ if InDetTrigFlags.loadRotCreator():
   ToolSvc += InDetTrigPixelClusterOnTrackTool
 
   if (InDetTrigFlags.doPrintConfigurables()):
-    print InDetTrigPixelClusterOnTrackTool
+    print (InDetTrigPixelClusterOnTrackTool)
 
   # tool to always make conservative sct cluster errors
   from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__SCT_ClusterOnTrackTool
@@ -141,7 +143,7 @@ if InDetTrigFlags.loadRotCreator():
                                          LorentzAngleTool   = TrigSCTLorentzAngleTool)
   ToolSvc += InDetTrigBroadSCT_ClusterOnTrackTool
   if (InDetTrigFlags.doPrintConfigurables()):
-    print InDetTrigBroadSCT_ClusterOnTrackTool
+    print (InDetTrigBroadSCT_ClusterOnTrackTool)
 
   #--
   from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
@@ -152,7 +154,7 @@ if InDetTrigFlags.loadRotCreator():
   )
   ToolSvc += InDetTrigBroadPixelClusterOnTrackTool
   if (InDetTrigFlags.doPrintConfigurables()):
-    print InDetTrigBroadPixelClusterOnTrackTool
+    print (InDetTrigBroadPixelClusterOnTrackTool)
 
   # load RIO_OnTrackCreator for Inner Detector
   #
@@ -169,7 +171,7 @@ if InDetTrigFlags.loadRotCreator():
     InDetTrigRotCreator.ToolSCT_Cluster  = InDetTrigBroadSCT_ClusterOnTrackTool
 
   if (InDetTrigFlags.doPrintConfigurables()):
-    print InDetTrigRotCreator
+    print (InDetTrigRotCreator)
 
   #--
   from TrkRIO_OnTrackCreator.TrkRIO_OnTrackCreatorConf import Trk__RIO_OnTrackCreator
@@ -180,7 +182,7 @@ if InDetTrigFlags.loadRotCreator():
                               Mode            = 'indet')
   ToolSvc += InDetTrigBroadInDetRotCreator
   if (InDetTrigFlags.doPrintConfigurables()):
-    print InDetTrigBroadInDetRotCreator
+    print (InDetTrigBroadInDetRotCreator)
 
   # load error scaling
   #TODO - instanceName?
@@ -204,7 +206,7 @@ if InDetTrigFlags.loadRotCreator():
     ToolSvc += InDetTrigTRT_RefitRotCreator
       
     if (InDetTrigFlags.doPrintConfigurables()):
-      print      InDetTrigTRT_RefitRotCreator
+      print (     InDetTrigTRT_RefitRotCreator)
   
     from TrkRIO_OnTrackCreator.TrkRIO_OnTrackCreatorConf import Trk__RIO_OnTrackCreator
     InDetTrigRefitRotCreator = Trk__RIO_OnTrackCreator(name              = 'InDetTrigRefitRotCreator',
@@ -218,7 +220,7 @@ if InDetTrigFlags.loadRotCreator():
 
     ToolSvc += InDetTrigRefitRotCreator
     if (InDetTrigFlags.doPrintConfigurables()):
-      print      InDetTrigRefitRotCreator
+      print (     InDetTrigRefitRotCreator)
          
   else:
     InDetTrigRefitRotCreator = InDetTrigRotCreator
@@ -241,7 +243,7 @@ if InDetTrigFlags.loadUpdator():
 
   ToolSvc += InDetTrigUpdator
   if (InDetTrigFlags.doPrintConfigurables()):
-    print      InDetTrigUpdator
+    print (     InDetTrigUpdator)
 
   # ---------- control loading of the gsf updator
   if InDetTrigFlags.trackFitterType() is 'GaussianSumFilter' :
@@ -252,7 +254,7 @@ if InDetTrigFlags.loadUpdator():
                                                                  Updator = InDetTrigUpdator )
     ToolSvc += InDetTrigGsfMeasurementUpdator
     if (InDetTrigFlags.doPrintConfigurables()):
-      print      InDetTrigGsfMeasurementUpdator
+      print (     InDetTrigGsfMeasurementUpdator)
 
 #
 # ----------- control loading extrapolation
@@ -280,7 +282,7 @@ if InDetTrigFlags.loadExtrapolator():
     InDetTrigPropagator = InDetTrigRKPropagator
     
   if (InDetTrigFlags.doPrintConfigurables()):
-    print      InDetTrigPropagator      
+    print (     InDetTrigPropagator      )
 
   #
   # Setup the Navigator (default, could be removed)
@@ -294,7 +296,7 @@ if InDetTrigFlags.loadExtrapolator():
 
   ToolSvc += InDetTrigNavigator
   if (InDetTrigFlags.doPrintConfigurables()):
-    print      InDetTrigNavigator
+    print (     InDetTrigNavigator)
 
   #
   # Setup the MaterialEffectsUpdator
@@ -304,7 +306,7 @@ if InDetTrigFlags.loadExtrapolator():
 
   ToolSvc += InDetTrigMaterialUpdator
   if (InDetTrigFlags.doPrintConfigurables()):
-    print      InDetTrigMaterialUpdator
+    print (     InDetTrigMaterialUpdator)
 
   #
   # Set up extrapolator
@@ -338,7 +340,7 @@ if InDetTrigFlags.loadExtrapolator():
 
   ToolSvc += InDetTrigExtrapolator
   if (InDetTrigFlags.doPrintConfigurables()):
-    print      InDetTrigExtrapolator                                          
+    print (     InDetTrigExtrapolator                                          )
 
 #
 # ----------- control loading of fitters
@@ -354,7 +356,7 @@ if InDetTrigFlags.loadFitter():
                                            WeightCutValueEndCap = 5.5)
     ToolSvc+=InDetTrigCompetingPixelTool
     if (InDetTrigFlags.doPrintConfigurables()):
-      print InDetTrigCompetingPixelTool
+      print (InDetTrigCompetingPixelTool)
 
     from InDetCompetingRIOsOnTrackTool.InDetCompetingRIOsOnTrackToolConf \
          import InDet__CompetingSCT_ClustersOnTrackTool as IDCSCOTT
@@ -363,7 +365,7 @@ if InDetTrigFlags.loadFitter():
                                              WeightCutValueEndCap = 5.5)
     ToolSvc+=InDetTrigCompetingSctTool
     if (InDetTrigFlags.doPrintConfigurables()):
-      print InDetTrigCompetingSctTool
+      print (InDetTrigCompetingSctTool)
     
     from TrkCompetingRIOsOnTrackTool.TrkCompetingRIOsOnTrackToolConf \
          import Trk__CompetingRIOsOnTrackTool as CompRotTool
@@ -372,28 +374,28 @@ if InDetTrigFlags.loadFitter():
                                                        ToolForCompSCT_Clusters = InDetTrigCompetingSctTool)
     ToolSvc += InDetTrigKalmanCompetingROT_Tool
     if (InDetTrigFlags.doPrintConfigurables()):
-      print InDetTrigKalmanCompetingROT_Tool
+      print (InDetTrigKalmanCompetingROT_Tool)
 
     from TrkKalmanFitter.TrkKalmanFitterConf import Trk__KalmanPiecewiseAnnealingFilter as KPAF
     InDetTrigKalmanInternalDAF = KPAF(name = 'KalmanInternalDAF',
                                           CompetingRIOsOnTrackCreator = InDetTrigKalmanCompetingROT_Tool)
     ToolSvc += InDetTrigKalmanInternalDAF
     if (InDetTrigFlags.doPrintConfigurables()):
-      print InDetTrigKalmanInternalDAF
+      print (InDetTrigKalmanInternalDAF)
 
     if InDetTrigFlags.trackFitterType() is 'KalmanDNAFitter':
       from TrkDynamicNoiseAdjustor.TrkDynamicNoiseAdjustorConf import Trk__InDetDynamicNoiseAdjustment
       InDetTrigDNAdjustor = Trk__InDetDynamicNoiseAdjustment(name       = 'InDetTrigDNAdjustor')
       ToolSvc += InDetTrigDNAdjustor
       if (InDetTrigFlags.doPrintConfigurables()):
-        print      InDetTrigDNAdjustor
+        print (     InDetTrigDNAdjustor)
             
       from InDetDNASeparator.InDetDNASeparatorConf import InDet__InDetDNASeparator
       InDetTrigDNASeparator = InDet__InDetDNASeparator(name="InDetTrigDNASeparator")
             
       ToolSvc += InDetTrigDNASeparator
       if (InDetTrigFlags.doPrintConfigurables()):
-        print      InDetTrigDNASeparator
+        print (     InDetTrigDNASeparator)
     
     else:
       InDetTrigDNAdjustor   = None
@@ -405,14 +407,14 @@ if InDetTrigFlags.loadFitter():
                                  StateChi2PerNDFPreCut = 30.0)
     ToolSvc += InDetTrigFKF
     if (InDetTrigFlags.doPrintConfigurables()):
-      print      InDetTrigFKF
+      print (     InDetTrigFKF)
 
     from TrkKalmanFitter.TrkKalmanFitterConf import Trk__KalmanSmoother as PublicBKS
     InDetTrigBKS = PublicBKS(name                        = 'InDetTrigBKS',
                                  InitialCovarianceSeedFactor = 200.)
     ToolSvc += InDetTrigBKS
     if (InDetTrigFlags.doPrintConfigurables()):
-      print      InDetTrigBKS
+      print (     InDetTrigBKS)
 
     from TrkKalmanFitter.TrkKalmanFitterConf import Trk__KalmanOutlierLogic as PublicKOL
     InDetTrigKOL = PublicKOL(name                    = 'InDetTrigKOL',
@@ -420,7 +422,7 @@ if InDetTrigFlags.loadFitter():
                                  StateChi2PerNDFCut      = 12.5)
     ToolSvc += InDetTrigKOL
     if (InDetTrigFlags.doPrintConfigurables()):
-      print      InDetTrigKOL
+      print (     InDetTrigKOL)
 
     from TrkKalmanFitter.TrkKalmanFitterConf import Trk__MeasRecalibSteeringTool
     InDetTrigMeasRecalibST = Trk__MeasRecalibSteeringTool(name='InDetTrigMeasRecalibST',
@@ -433,7 +435,7 @@ if InDetTrigFlags.loadFitter():
 
     ToolSvc += InDetTrigMeasRecalibST
     if (InDetTrigFlags.doPrintConfigurables()):
-      print      InDetTrigMeasRecalibST
+      print (     InDetTrigMeasRecalibST)
 
     from TrkKalmanFitter.TrkKalmanFitterConf import Trk__KalmanFitter as ConfiguredKalmanFitter
     InDetTrigTrackFitter = ConfiguredKalmanFitter(name                           = 'InDetTrigTrackFitter',
@@ -574,14 +576,14 @@ if InDetTrigFlags.loadFitter():
                                               MaximumNumberOfComponents = 12)
     ToolSvc += InDetTrigGsfComponentReduction
     if (InDetTrigFlags.doPrintConfigurables()):
-      print      InDetTrigGsfComponentReduction
+      print (     InDetTrigGsfComponentReduction)
     
     from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMaterialMixtureConvolution
     InDetTrigGsfMaterialUpdator = Trk__GsfMaterialMixtureConvolution (name = 'InDetTrigGsfMaterialUpdator',
                                                                       MultiComponentStateMerger = InDetTrigGsfComponentReduction)
     ToolSvc += InDetTrigGsfMaterialUpdator
     if (InDetTrigFlags.doPrintConfigurables()):
-      print      InDetTrigGsfMaterialUpdator
+      print (     InDetTrigGsfMaterialUpdator)
     #
     # declare the extrapolator
     #
@@ -595,7 +597,7 @@ if InDetTrigFlags.loadFitter():
                                                     SurfaceBasedMaterialEffects   = False )
     ToolSvc += InDetTrigGsfExtrapolator
     if (InDetTrigFlags.doPrintConfigurables()):
-      print      InDetTrigGsfExtrapolator
+      print (     InDetTrigGsfExtrapolator)
     # load alternative track fitter
     from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GaussianSumFitter
     InDetTrigTrackFitter = Trk__GaussianSumFitter(name                    = 'InDetTrigTrackFitter',
@@ -611,7 +613,7 @@ if InDetTrigFlags.loadFitter():
    # --- end of fitter loading
   ToolSvc += InDetTrigTrackFitter
   if (InDetTrigFlags.doPrintConfigurables()):
-    print      InDetTrigTrackFitter
+    print (     InDetTrigTrackFitter)
     
   if InDetTrigFlags.trackFitterType() is not 'GlobalChi2Fitter' :
     InDetTrigTrackFitterTRT=InDetTrigTrackFitter
@@ -621,7 +623,7 @@ if InDetTrigFlags.loadFitter():
     
   ToolSvc += InDetTrigTrackFitterTRT
   if (InDetTrigFlags.doPrintConfigurables()):
-    print      InDetTrigTrackFitterTRT
+    print (     InDetTrigTrackFitterTRT)
 
 
 
@@ -644,7 +646,7 @@ if InDetTrigFlags.loadAssoTool():
    
   ToolSvc += InDetTrigPrdAssociationTool
   if (InDetTrigFlags.doPrintConfigurables()):
-    print      InDetTrigPrdAssociationTool
+    print (     InDetTrigPrdAssociationTool)
 
 #
 # ----------- control loading of Summary Tool
@@ -660,7 +662,7 @@ if InDetTrigFlags.loadSummaryTool():
                                                                CheckDeadRegions = True)
   ToolSvc += InDetTrigTestPixelLayerTool
   if (InDetTrigFlags.doPrintConfigurables()):
-    print  InDetTrigTestPixelLayerTool
+    print ( InDetTrigTestPixelLayerTool)
 
 
    #
@@ -681,7 +683,7 @@ if InDetTrigFlags.loadSummaryTool():
 
   ToolSvc += InDetTrigHoleSearchTool
   if (InDetTrigFlags.doPrintConfigurables()):
-    print      InDetTrigHoleSearchTool
+    print (     InDetTrigHoleSearchTool)
 
   # Load BLayer tool
   from InDetTestBLayer.InDetTestBLayerConf import InDet__InDetTestBLayerTool
@@ -691,12 +693,12 @@ if InDetTrigFlags.loadSummaryTool():
                                                        CheckActiveAreas= True)
   ToolSvc += InDetTrigTestBLayerTool
   if (InDetTrigFlags.doPrintConfigurables()):
-    print  InDetTrigTestBLayerTool
+    print ( InDetTrigTestBLayerTool)
 
   #prevent loading of the pixel dE/dx tool  
   InDetTrigPixelToTPIDTool = None
   if (InDetTrigFlags.doPrintConfigurables()):
-    print     'InDetTrigPixelToTPIDTool ', InDetTrigPixelToTPIDTool
+    print (    'InDetTrigPixelToTPIDTool ', InDetTrigPixelToTPIDTool)
 
   #
   # Configrable version of loading the InDetTrackSummaryHelperTool
@@ -720,7 +722,7 @@ if InDetTrigFlags.loadSummaryTool():
     
   ToolSvc += InDetTrigTrackSummaryHelperTool
   if (InDetTrigFlags.doPrintConfigurables()):
-    print      InDetTrigTrackSummaryHelperTool
+    print (     InDetTrigTrackSummaryHelperTool)
 
   #
   # Configurable version of TRT_ElectronPidTools
@@ -766,7 +768,7 @@ if InDetTrigFlags.loadSummaryTool():
 
   ToolSvc += InDetTrigTRT_ElectronPidTool
   if (InDetTrigFlags.doPrintConfigurables()):
-    print      InDetTrigTRT_ElectronPidTool
+    print (     InDetTrigTRT_ElectronPidTool)
 
 
  
@@ -784,7 +786,7 @@ if InDetTrigFlags.loadSummaryTool():
                                                     )
   ToolSvc += InDetTrigTrackSummaryTool
   if (InDetTrigFlags.doPrintConfigurables()):
-     print      InDetTrigTrackSummaryTool
+     print (     InDetTrigTrackSummaryTool)
 
 
 
@@ -804,7 +806,7 @@ if InDetTrigFlags.loadSummaryTool():
 
     ToolSvc += InDetTrigTrackSummaryHelperToolSharedHits
     if (InDetTrigFlags.doPrintConfigurables()):
-      print      InDetTrigTrackSummaryHelperToolSharedHits
+      print (     InDetTrigTrackSummaryHelperToolSharedHits)
     #
     # Configurable version of TrkTrackSummaryTool
     #
@@ -817,7 +819,7 @@ if InDetTrigFlags.loadSummaryTool():
 
     ToolSvc += InDetTrigTrackSummaryToolSharedHits
     if (InDetTrigFlags.doPrintConfigurables()):
-      print      InDetTrigTrackSummaryToolSharedHits
+      print (     InDetTrigTrackSummaryToolSharedHits)
 
 
   else:   
@@ -834,7 +836,7 @@ if InDetTrigFlags.doNewTracking() or InDetTrigFlags.doBackTracking() or InDetTri
   
   ToolSvc += InDetTrigPatternPropagator
   if (InDetTrigFlags.doPrintConfigurables()):
-     print      InDetTrigPatternPropagator
+     print (     InDetTrigPatternPropagator)
 
   # fast Kalman updator tool
   #
@@ -843,7 +845,7 @@ if InDetTrigFlags.doNewTracking() or InDetTrigFlags.doBackTracking() or InDetTri
 
   ToolSvc += InDetTrigPatternUpdator
   if (InDetTrigFlags.doPrintConfigurables()):
-     print      InDetTrigPatternUpdator
+     print (     InDetTrigPatternUpdator)
 
 
 #
@@ -860,7 +862,7 @@ InDetTrigTRTDriftCircleCut = InDet__InDetTrtDriftCircleCutTool(
 
 ToolSvc += InDetTrigTRTDriftCircleCut
 if (InDetTrigFlags.doPrintConfigurables()):
-  print   InDetTrigTRTDriftCircleCut
+  print (  InDetTrigTRTDriftCircleCut)
 
 InDetTrigTRTDriftCircleCutForPatt = InDet__InDetTrtDriftCircleCutTool(
   name             = 'InDetTrigTRTDriftCircleCutForPatt',
@@ -871,7 +873,7 @@ InDetTrigTRTDriftCircleCutForPatt = InDet__InDetTrtDriftCircleCutTool(
 
 ToolSvc += InDetTrigTRTDriftCircleCut
 if (InDetTrigFlags.doPrintConfigurables()):
-  print   InDetTrigTRTDriftCircleCut
+  print (  InDetTrigTRTDriftCircleCut)
 
 
 
@@ -958,7 +960,7 @@ InDetTrigAmbiTrackSelectionTool = \
  
 ToolSvc += InDetTrigAmbiTrackSelectionTool
 if (InDetTrigFlags.doPrintConfigurables()):
-  print InDetTrigAmbiTrackSelectionTool
+  print (InDetTrigAmbiTrackSelectionTool)
 
 if InDetTrigFlags.doNewTracking():
 
@@ -994,5 +996,5 @@ if InDetTrigFlags.doNewTracking():
 
   ToolSvc += InDetTrigTrackSelectorTool
   if (InDetTrigFlags.doPrintConfigurables()):
-    print      InDetTrigTrackSelectorTool
+    print (     InDetTrigTrackSelectorTool)
 

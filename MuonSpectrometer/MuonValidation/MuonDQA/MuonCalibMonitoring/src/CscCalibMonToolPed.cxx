@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -27,7 +27,6 @@ using namespace std;
 CscCalibMonToolPed::CscCalibMonToolPed(const std::string & type, const std::string & name, 
     const IInterface* parent) : 
   CscCalibMonToolBase(type, name, parent),
-  m_muon_mgr(NULL),
   m_h_pedMissingChannels(NULL),
   m_pedBadBin(1),
   m_noiseBadBin(2),
@@ -37,7 +36,6 @@ CscCalibMonToolPed::CscCalibMonToolPed(const std::string & type, const std::stri
   m_chi2BadBin(6),
   m_missingBadBin(7),
   m_onlTHoldBreachBadBin(8),
-  m_alwaysPrintErrorReport(true),
   m_h_numBad(NULL),
   m_pedNewColl(NULL),
   m_pedOldColl(NULL),

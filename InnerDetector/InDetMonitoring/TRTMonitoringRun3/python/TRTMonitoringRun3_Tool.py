@@ -19,6 +19,10 @@ def TRTMonitoringRun3_ToolConfig(inputFlags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     result = ComponentAccumulator()
 
+    from TrkEventAthenaPool.TrackCollectionReadConfig import TrackCollectionReadCfg
+    result.merge (TrackCollectionReadCfg (inputFlags, 'CombinedInDetTracks'))
+    result.merge (TrackCollectionReadCfg (inputFlags, 'Tracks'))
+
     # The following class will make a sequence, configure algorithms, and link
     # them to GenericMonitoringTools
     from AthenaMonitoring import AthMonitorCfgHelper
