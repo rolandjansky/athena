@@ -434,7 +434,7 @@ PHYSLITESlimmingHelper.AppendToDictionary = {
                                          'AnalysisTauJets_NOSYS':'xAOD::TauJetContainer', 'AnalysisTauJets_NOSYSAux':'xAOD::TauJetAuxContainer',
                                          'MET_Core_AnalysisMET':'xAOD::MissingETContainer', 'MET_Core_AnalysisMETAux':'xAOD::MissingETAuxContainer',
                                          'METAssoc_AnalysisMET':'xAOD::MissingETAssociationMap', 'METAssoc_AnalysisMETAux':'xAOD::MissingETAuxAssociationMap',
-                                         'AntiKt10TruthTrimmedPtFrac5SmallR20Jets':'xAODJetContainer', 'AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux':'xAODJetAuxContainer',
+                                         'AntiKt10TruthTrimmedPtFrac5SmallR20Jets':'xAOD::JetContainer', 'AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux':'xAOD::JetAuxContainer',
                                          }
 
 # Leaving these as smart collections
