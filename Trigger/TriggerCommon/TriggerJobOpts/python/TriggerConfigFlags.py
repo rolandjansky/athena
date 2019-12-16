@@ -165,9 +165,16 @@ def createTriggerFlags():
     # muons
     flags.addFlag('Trigger.muon.doEFRoIDrivenAccess', False)
 
+    # muon offline reco flags varaint for trigger
+    def __muon():
+        from MuonConfig.MuonConfigFlags import createMuonConfigFlags
+        return createMuonConfigFlags()
+    flags.addFlagsCategory('Trigger.Offline', __muon)
+
+
     from TriggerJobOpts.MenuConfigFlags import createMenuFlags
     flags.join( createMenuFlags() )
-                
+
     return flags
     # for reference, this flags are skipped as never used or never set in fact, or set identical to de default or used in a very old JO:
     # readLVL1Calo, readLVL1Muon, fakeLVL1, useCaloTTL
@@ -195,7 +202,30 @@ def createTriggerFlags():
 import unittest
 class __YearDependentFlagTest(unittest.TestCase):    
     def runTest(self):
-        flags = createTriggerFlags()
+        """... Check if year dependent flags propagate the info correctly"""
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
         flags.Trigger.run2Config='2017'
         self.assertEqual(flags.Trigger.egamma.clusterCorrectionVersion, "v12phiflip_noecorrnogap", " dependent flag setting does not work")
         flags.dump()
+
+class __UseOfOfflineRecoFlagsTest(unittest.TestCase):
+    def runTest(self):
+        """... Check if offline reco flags can be added to trigger"""
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+        flags.Trigger.Offline.Muon.doMDTs=False
+        flags.Muon.doMDTs=True
+        self.assertEqual(flags.Trigger.Offline.Muon.doMDTs, False, " dependent flag setting does not work")
+        self.assertEqual(flags.Muon.doMDTs, True, " dependent flag setting does not work")
+
+        newflags = flags.cloneAndReplace('Muon', 'Trigger.Offline.Muon')
+
+        self.assertEqual(flags.Muon.doMDTs, True, " dependent flag setting does not work")
+        self.assertEqual(newflags.Muon.doMDTs, False, " dependent flag setting does not work")
+        newflags.dump()
+
+if __name__ == "__main__":
+    suite = unittest.TestSuite()
+    suite.addTest(__YearDependentFlagTest())
+    suite.addTest(__UseOfOfflineRecoFlagsTest())
+    runner = unittest.TextTestRunner(failfast=False)
+    runner.run(suite)

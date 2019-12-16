@@ -104,7 +104,6 @@ StatusCode Muon::UTPCMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepD
             stripsTime.push_back(MMprd.time()-tof+m_timeOffset); // use time minus tof minus vmm integration time as actual time
             stripsChannel.push_back(m_muonIdHelperTool->mmIdHelper().channel(id_prd));
             stripsCharge.push_back(MMprd.charge());
-            stripsTime.push_back(MMprd.time()-tof+m_timeOffset);
             
             ATH_MSG_DEBUG("Hit channel: "<< m_muonIdHelperTool->mmIdHelper().channel(id_prd) <<" time "<< MMprd.time()-tof+m_timeOffset << " localPosX "<< MMprd.localPosition().x() << " tof "<<tof <<" angleToIp " << angleToIp<<" gas_gap "<< m_muonIdHelperTool->mmIdHelper().gasGap(id_prd) << " multiplet " << m_muonIdHelperTool->mmIdHelper().multilayer(id_prd) << " stationname " <<m_muonIdHelperTool->mmIdHelper().stationName(id_prd)  << " stationPhi " <<m_muonIdHelperTool->mmIdHelper().stationPhi(id_prd) << " stationEta "<<m_muonIdHelperTool->mmIdHelper().stationEta(id_prd));
         }
@@ -299,7 +298,7 @@ StatusCode Muon::UTPCMMClusterBuilderTool::selectTrack(std::vector<std::tuple<do
             }
         }
         if(true){
-            ATH_MSG_DEBUG("Angle estimate         ="<< std::get<0>(track)<<" "<<std::get<0>(track)/3.1415*180.);
+            ATH_MSG_DEBUG("Angle estimate         ="<< std::get<0>(track)<<" "<<std::get<0>(track)/M_PI*180.);
             ATH_MSG_DEBUG("restimate              ="<< std::get<1>(track));
             ATH_MSG_DEBUG("slope estimate         ="<< slope);
             ATH_MSG_DEBUG("intercept estimate     ="<< intercept);
@@ -392,7 +391,7 @@ StatusCode Muon::UTPCMMClusterBuilderTool::finalFit(std::vector<double>& xpos, s
         ATH_MSG_DEBUG("Fit intercept:" << ffit->GetParameter(0));
         ATH_MSG_DEBUG("Fit status: "<<s);
         ATH_MSG_DEBUG("Cluster position "<< x0 << " +- " << sigmaX0);
-        ATH_MSG_DEBUG("Fit angle: "<<fitAngle <<" "<<fitAngle*180./3.1415);
+        ATH_MSG_DEBUG("Fit angle: "<<fitAngle <<" "<<fitAngle*180./M_PI);
         ATH_MSG_DEBUG("ChisSqProb"<< chiSqProb);
         ATH_MSG_DEBUG("nStrips:"<<idxSelected.size());
     }

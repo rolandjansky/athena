@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: OJFKinematics.cxx,v 1.1.1.1 2007-05-10 09:02:22 seuster Exp $
@@ -31,7 +31,6 @@
 
 #include "OjfJet/OJFKinematics.h"
 #include "OjfJet/OJFZD.h"
-#include <cmath>
 #include <cassert>
 //RS using namespace std;
 
@@ -41,7 +40,6 @@
 namespace OptimalJetFinder {
 
 
-  const double eps_round = 1.0E-6;
 
   const double JetOfKinematics::eps_norm = 1.0E-6;
 
@@ -58,7 +56,7 @@ namespace OptimalJetFinder {
       - v.GetX() * w.GetX() 
       - v.GetY() * w.GetY() 
       - v.GetZ() * w.GetZ();
-    assert( res >= -eps_round );
+    assert( res >= -1e-6 );
     return res>0 ? res : 0;
     
   }
@@ -71,7 +69,7 @@ namespace OptimalJetFinder {
 
   void Vector::SetRaw( double px, double py, double pz ) {
     
-    E = sqrt( px*px + py*py + pz*pz );
+    E = std::sqrt( px*px + py*py + pz*pz );
     x = px;
     y = py;
     z = pz;
@@ -86,14 +84,14 @@ namespace OptimalJetFinder {
   void Vector::Set( double En, double theta, double phi ) {
 
     assert(  En >= 0   &&   theta >= 0   &&
-	     theta <= 180   &&   fabs(phi) <= 360  );
+	     theta <= 180   &&   std::fabs(phi) <= 360  );
 
     theta = theta * pi180;  phi = phi * pi180;
 
     E = En;
-    x = En * sin( theta ) * cos( phi );
-    y = En * sin( theta ) * sin( phi );
-    z = En * cos( theta );
+    x = En * std::sin( theta ) * std::cos( phi );
+    y = En * std::sin( theta ) * std::sin( phi );
+    z = En * std::cos( theta );
 
   }
   
@@ -139,8 +137,7 @@ namespace OptimalJetFinder {
   // (of the direction of the 4-vector).
 
   double Vector::GetPhi() const {
-    double res = atan2( y, x ) / pi180;
-    //if( res < 0 )  res += 360;
+    double res = std::atan2( y, x ) / pi180;
     if ( res > 180 ) res -= 360;
     return res;
   }
@@ -151,7 +148,7 @@ namespace OptimalJetFinder {
   // (of the direction of the 4-vector).
 
   double Vector::GetTheta() const {
-    return atan2(  sqrt( x*x + y*y ),  z  ) / pi180;
+    return std::atan2(  std::sqrt( x*x + y*y ),  z  ) / pi180;
   }
 
   
@@ -159,14 +156,13 @@ namespace OptimalJetFinder {
   // Returns the transverse energy.
 
   double Vector::GetEt() const {
-    return  sqrt( x*x + y*y );
+    return  std::sqrt( x*x + y*y );
   }
 
   
   inline double arcsh( double x ) {
-    //return log( x + sqrt( x*x + 1 ) ); // and change to long double
-    if ( x >= 0 ) return log( x + sqrt( x*x + 1 ) );
-    return - log( fabs(x) + sqrt( x*x + 1 ) );
+    if ( x >= 0 ) return std::log( x + std::sqrt( x*x + 1 ) );
+    return - std::log( std::fabs(x) + std::sqrt( x*x + 1 ) );
   }
 
   
@@ -199,10 +195,6 @@ namespace OptimalJetFinder {
   // angles (transverse energy and pseudorapidity) from the given arguments.
   
   void ParticleOfKinematics::Set0( double E, double Theta, double Phi ) {
-    //theta = Theta;
-    //phi = Phi;
-    //if ( phi > 180 ) phi -= 360;
-    //p->Set( E, theta, phi );
     p->Set( E, Theta, Phi );
     phi = p->GetPhi();
     theta = p->GetTheta();
@@ -233,7 +225,7 @@ namespace OptimalJetFinder {
   
   void ParticleOfKinematics::SetRaw0( double px, double py, double pz ) {
     p->SetRaw( px, py, pz );
-    theta = acos( p->GetZ() / p->GetE() ) / pi180;
+    theta = std::acos( p->GetZ() / p->GetE() ) / pi180;
     phi = p->GetPhi();
   }
 
@@ -389,7 +381,7 @@ namespace OptimalJetFinder {
 
   void SJet::EvalQtilde() {
     Get_qtilde()->SetE( 1 );
-    double norm = sqrt( Get_q()->GetX() * Get_q()->GetX() 
+    double norm = std::sqrt( Get_q()->GetX() * Get_q()->GetX() 
 			+ Get_q()->GetY() * Get_q()->GetY() 
 			+ Get_q()->GetZ() * Get_q()->GetZ() );
     if( norm >= eps_norm ) {
@@ -401,13 +393,10 @@ namespace OptimalJetFinder {
       double x = OJFRandom::Random();
       double y = OJFRandom::Random();
       double z = OJFRandom::Random();
-      norm = sqrt( x*x + y*y + z*z );
+      norm = std::sqrt( x*x + y*y + z*z );
       Get_qtilde()->SetX( x/norm );
       Get_qtilde()->SetY( y/norm );
       Get_qtilde()->SetZ( z/norm );
-      //Get_qtilde()->SetX( 1 );
-      //Get_qtilde()->SetY( 0 );
-      //Get_qtilde()->SetZ( 0 );
     }
   }
   
@@ -418,7 +407,7 @@ namespace OptimalJetFinder {
 
   void CJet::EvalQtilde() {
     
-    double norm = sqrt( Get_q()->GetX() * Get_q()->GetX() 
+    double norm = std::sqrt( Get_q()->GetX() * Get_q()->GetX() 
 			+ Get_q()->GetY() * Get_q()->GetY() );
     if( norm >= eps_norm ) {
       Get_qtilde()->SetX( Get_q()->GetX() / norm );
@@ -427,11 +416,9 @@ namespace OptimalJetFinder {
     else {
       double x = OJFRandom::Random();
       double y = OJFRandom::Random();
-      norm = sqrt( x*x + y*y );
+      norm = std::sqrt( x*x + y*y );
       Get_qtilde()->SetX( x/norm );
       Get_qtilde()->SetY( y/norm );
-      //Get_qtilde()->SetX( 1 );
-      //Get_qtilde()->SetY( 0 );
     }
 
     if( Et >= eps_Et ) {
@@ -442,8 +429,8 @@ namespace OptimalJetFinder {
       eta = ( OJFRandom::Random() - 0.5 ) * 6;
     }
 
-    Get_qtilde()->SetE( cosh( eta ) );
-    Get_qtilde()->SetZ( sinh( eta ) );
+    Get_qtilde()->SetE( std::cosh( eta ) );
+    Get_qtilde()->SetZ( std::sinh( eta ) );
 
   }
   

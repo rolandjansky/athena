@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 739318 2016-04-11 12:41:08Z krasznaa $
 ################################################################################
 # Package: StorageSvc
 ################################################################################
@@ -43,7 +42,7 @@ atlas_add_test( StorageSvc_mtShape_test
    SOURCES test/StorageSvc_mtShape_test.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} StorageSvc
-   EXTRA_PATTERNS ".*" )
+   POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( StorageSvc_DbBlob_test
    SOURCES test/StorageSvc_DbBlob_test.cxx

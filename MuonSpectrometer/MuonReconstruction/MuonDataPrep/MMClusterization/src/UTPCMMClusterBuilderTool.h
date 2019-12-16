@@ -11,9 +11,9 @@
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 
 #include <numeric>
+#include <cmath>
 
 #include "TH2D.h"
-#include "TMath.h"
 #include "TF1.h"
 #include "TGraphErrors.h"
 #include "TLinearFitter.h"
@@ -63,7 +63,7 @@ namespace Muon
     double m_outerChargeRatioCut;
     int m_maxStripsCut;
 
-    double m_toRad=TMath::Pi()/180.;
+    double m_toRad=M_PI/180.;
 
 
     StatusCode runHoughTrafo(std::vector<int>& flag,std::vector<double>& xpos, std::vector<double>& time,std::vector<int>& idx_selected);

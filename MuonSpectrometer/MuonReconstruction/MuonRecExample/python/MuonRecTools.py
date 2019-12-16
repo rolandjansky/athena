@@ -94,7 +94,6 @@ def MdtDriftCircleOnTrackCreator(name="MdtDriftCircleOnTrackCreator",**kwargs):
         kwargs.setdefault("DoTofCorrection", True)
         kwargs.setdefault("DoFixedError", False)
         kwargs.setdefault("DoErrorScaling", False)
-        kwargs.setdefault("MuonTofTool", None)
         kwargs.setdefault("TimeWindowSetting", mdtCalibWindowNumber('Collision_data'))  # MJW: should this be Collision_G4 ???
         kwargs.setdefault("UseParametrisedError", False)
 
@@ -116,7 +115,6 @@ def MdtTubeHitOnTrackCreator(name="MdtTubeHitOnTrackCreator",**kwargs):
     return MdtDriftCircleOnTrackCreator(name,**kwargs)
 
 def MdtDriftCircleOnTrackCreatorStau(name="MdtDriftCircleOnTrackCreatorStau",**kwargs ):
-    kwargs.setdefault("MuonTofTool", getPublicTool("StauBetaTofTool") )
     kwargs.setdefault("TimingMode", 3 )
     kwargs.setdefault("TimeWindowSetting", mdtCalibWindowNumber('Collision_t0fit') )
     return MdtDriftCircleOnTrackCreator(name,**kwargs)

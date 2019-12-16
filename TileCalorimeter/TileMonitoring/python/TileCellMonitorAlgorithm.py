@@ -15,7 +15,7 @@ def TileCellMonitoringConfig(flags, **kwargs):
     result = ComponentAccumulator()
 
     from TileRecUtils.TileDQstatusConfig import TileDQstatusAlgCfg
-    result.merge( TileDQstatusAlgCfg(flags, TileRawChannelContainer = '', TileDigitsContainer = '') )
+    result.merge( TileDQstatusAlgCfg(flags) )
 
     from TileGeoModel.TileGMConfig import TileGMCfg
     result.merge(TileGMCfg(flags))
@@ -83,13 +83,13 @@ def TileCellMonitoringConfig(flags, **kwargs):
     from TileMonitoring.TileMonitoringCfgHelper import addTileModulePartitionMapsArray
 
     # 3) Configure histograms with energy ratio > threshold vs module and partion
-    eneBalModPartTitle = ('Tile Cell Energy Ratio > %s;Module' % kwargs['EnergyBalanceThreshold'])
+    eneBalModPartTitle = ('Tile Cell Energy Ratio > %s' % kwargs['EnergyBalanceThreshold'])
     addTileModulePartitionMapsArray(helper, tileCellMonAlg, name = 'TileCellEneBalModPart',
                                     title = eneBalModPartTitle, path = 'Tile/Cell', type='TH2D',
                                     run = run, triggers = l1Triggers, separator = '_')
 
     # 4) Configure histograms with Tile cell time difference over threshold vs module and partition
-    timeBalModPartTitle = ('Tile Cell Time difference > %s ns. E_{ch} > %s [MeV];Module')
+    timeBalModPartTitle = ('Tile Cell Time difference > %s ns. E_{ch} > %s [MeV]')
     timeBalModPartTitle = (timeBalModPartTitle % (kwargs['TimeBalanceThreshold'], kwargs['EnergyThresholdForTime']))
     addTileModulePartitionMapsArray(helper, tileCellMonAlg, name = 'TileCellTimeBalModPart',
                                     title = timeBalModPartTitle, path = 'Tile/Cell', type='TH2D',
@@ -105,7 +105,7 @@ def TileCellMonitoringConfig(flags, **kwargs):
                                   subDirectory = True, run = run, triggers = l1Triggers, separator = '_')
 
     # 6) Configure histograms with everagy Tile digitizer time per partition
-    digiTimeTitle = ('TileCal Average Digitizer Time [ns].  E_{ch} > %s MeV;;Digitizer' % kwargs['EnergyThresholdForTime'])
+    digiTimeTitle = ('TileCal Average Digitizer Time [ns].  E_{ch} > %s MeV' % kwargs['EnergyThresholdForTime'])
     addTileModuleDigitizerMapsArray(helper, tileCellMonAlg, name = 'TileDigiPartTime', type='TProfile2D',
                                     value = 'time', title = digiTimeTitle, path = 'Tile/Cell',
                                     subDirectory = True, run = run, triggers = l1Triggers, separator = '_')
@@ -170,37 +170,41 @@ def TileCellMonitoringConfig(flags, **kwargs):
     # 16) Configure histograms with number of masked Tile channels on the fly vs lumi block per partition
     titleMaskOnFlyLB = 'Number of masked channels on the fly'
     titleMaskOnFlyLB += ';LumiBlock;Number of masked channels'
-    addTile1DHistogramsArray(helper, tileCellMonAlg, name = 'TileMaskChannelOnFlyLB',
-                             value = 'lumiBlock,nMaskedChannelsOnFly', title = titleMaskOnFlyLB, path = 'Tile/Cell',
-                             xbins = 1000, xmin = 0., xmax = 1000., type = 'TProfile', run = run, triggers = [],
-                             perPartition = True, perSample = False, perGain = False, subDirectory = False)
+    addTile1DHistogramsArray(helper, tileCellMonAlg, name = 'TileMaskChannelOnFlyLB', path = 'Tile/Cell',
+                             xvalue = 'lumiBlock', value= 'nMaskedChannelsOnFly', title = titleMaskOnFlyLB,
+                             xbins = 1000, xmin = -0.5, xmax = 999.5, type = 'TProfile', run = run, triggers = [],
+                             perPartition = True, perSample = False, perGain = False, subDirectory = False,
+                             opt = 'kAddBinsDynamically')
 
     # 17) Configure histograms with number of masked Tile cells on the fly vs lumi block per partition
     titleMaskCellLB = 'Number of masked cells on the fly'
     titleMaskCellLB += ';LumiBlock;Number of masked cells'
-    addTile1DHistogramsArray(helper, tileCellMonAlg, name = 'TileMaskCellLB',
-                             value = 'lumiBlock,nMaskedCells', title = titleMaskCellLB, path = 'Tile/Cell',
-                             xbins = 1000, xmin = 0., xmax = 1000., type='TProfile', run = run, triggers = [],
-                             subDirectory = False, perPartition = True, perSample = False, perGain = False)
+    addTile1DHistogramsArray(helper, tileCellMonAlg, name = 'TileMaskCellLB', path = 'Tile/Cell',
+                             xvalue = 'lumiBlock', value = 'nMaskedCells', title = titleMaskCellLB,
+                             xbins = 1000, xmin = -0.5, xmax = 999.5, type='TProfile', run = run, triggers = [],
+                             subDirectory = False, perPartition = True, perSample = False, perGain = False,
+                             opt = 'kAddBinsDynamically')
 
     # 18) Configure histograms with number of masked Tile channels on the fly due to bad DQ status vs lumi block per partition
     titleMaskDueDQ = 'Number of masked channels on the fly due to bad DQ status'
     titleMaskDueDQ += ';LumiBlock;Number of masked channels'
-    addTile1DHistogramsArray(helper, tileCellMonAlg, name = 'TileMaskChannelDueDQvsLB',
-                             value = 'lumiBlock,nMaskedChannelsDueDQ', title = titleMaskDueDQ, path = 'Tile/Cell',
-                             xbins = 1000, xmin = 0., xmax = 1000., type='TProfile', run = run, triggers = [],
-                             subDirectory = False, perPartition = True, perSample = False, perGain = False)
+    addTile1DHistogramsArray(helper, tileCellMonAlg, name = 'TileMaskChannelDueDQvsLB', path = 'Tile/Cell',
+                             xvalue = 'lumiBlock', value = 'nMaskedChannelsDueDQ', title = titleMaskDueDQ,
+                             xbins = 1000, xmin = -0.5, xmax = 999.5, type='TProfile', run = run, triggers = [],
+                             subDirectory = False, perPartition = True, perSample = False, perGain = False,
+                             opt = 'kAddBinsDynamically')
 
     # 19) Configure histograms with number of masked Tile cells on the fly due to bad DQ status vs lumi block per partition
     titleMaskCellDueDQ = 'Number of masked cells on the fly due to bad DQ status'
     titleMaskCellDueDQ += ';LumiBlock;Number of masked cells'
-    addTile1DHistogramsArray(helper, tileCellMonAlg, name = 'TileMaskedCellDueDQvsLB',
-                             value = 'lumiBlock,nMaskedCellsDueDQ', title = titleMaskCellDueDQ, path = 'Tile/Cell',
-                             xbins = 1000, xmin = 0., xmax = 1000., type='TProfile', run = run, triggers = [],
-                             subDirectory = False, perPartition = True, perSample = False, perGain = False)
+    addTile1DHistogramsArray(helper, tileCellMonAlg, name = 'TileMaskedCellDueDQvsLB', path = 'Tile/Cell',
+                             xvalue = 'lumiBlock', value = 'nMaskedCellsDueDQ', title = titleMaskCellDueDQ,
+                             xbins = 1000, xmin = -0.5, xmax = 999.5, type='TProfile', run = run, triggers = [],
+                             subDirectory = False, perPartition = True, perSample = False, perGain = False,
+                             opt = 'kAddBinsDynamically')
 
     # 20) Configure histograms with energy difference between Tile cells' PMTs per partition and sample
-    addTile1DHistogramsArray(helper, tileCellMonAlg, name = 'TileCellEneDiff', value = 'energyDiff',
+    addTile1DHistogramsArray(helper, tileCellMonAlg, name = 'TileCellEneDiff', xvalue = 'energyDiff',
                              title = 'Energy difference [MeV] between PMTs;Energy difference [MeV]',
                              path = 'Tile/Cell', xbins = 50, xmin = -1000., xmax = 1000., type='TH1D',
                              run = run, triggers = l1Triggers, subDirectory = True,
@@ -211,7 +215,7 @@ def TileCellMonitoringConfig(flags, **kwargs):
     titleTimeDiffSamp += 'E_{ch} > %s MeV' % (kwargs['EnergyThresholdForTime'] / MeV)
     titleTimeDiffSamp += ';time [ns]'
     addTile1DHistogramsArray(helper, tileCellMonAlg, name = 'TileCellTimeDiff',
-                             value = 'timeDiff', title = titleTimeDiffSamp, path = 'Tile/Cell',
+                             xvalue = 'timeDiff', title = titleTimeDiffSamp, path = 'Tile/Cell',
                              xbins = 50, xmin = -10., xmax = 10., type='TH1D', run = run, triggers = l1Triggers,
                              subDirectory = True, perPartition = True, perSample = True, perGain = False)
 
@@ -219,21 +223,21 @@ def TileCellMonitoringConfig(flags, **kwargs):
     titleCellsOvThrBCID = 'Tile Cell Occupancy over Threshold %s MeV' % (kwargs['EnergyThresholdForTime'] / MeV)
     titleCellsOvThrBCID += ';BCID;Average number of cells over threshold'
     addTile1DHistogramsArray(helper, tileCellMonAlg, name = 'TileCellOccOvThrBCID',
-                             value = 'BCID,nCells', title = titleCellsOvThrBCID, path = 'Tile/Cell',
+                             xvalue = 'BCID', value = 'nCells', title = titleCellsOvThrBCID, path = 'Tile/Cell',
                              xbins = 3565, xmin = 0., xmax = 3565., type='TProfile', run = run, triggers = l1Triggers,
                              subDirectory = True, perPartition = True, perSample = False, perGain = False, allPartitions = True)
 
     # 23) Configure histograms with number of Tile E cell's energy  per partition
     titleEvEnergy = 'Tile Event SampE Energy;Event Energy [MeV]'
     addTile1DHistogramsArray(helper, tileCellMonAlg, name = 'TileCellEventEnergySampE',
-                             value = 'energy', title = titleEvEnergy, path = 'Tile/Cell',
+                             xvalue = 'energy', title = titleEvEnergy, path = 'Tile/Cell',
                              xbins = 120, xmin = -2000., xmax = 10000., type='TH1D', run = run, triggers = l1Triggers,
                              subDirectory = True, perPartition = True, perSample = False, perGain = False, allPartitions = True)
 
     # 24) Configure histograms with number of Tile E cell's energy
     titleSynch = 'Tile Time of Flight - Tile measured;Time of Flight - Tile measured [ns]'
     addTile1DHistogramsArray(helper, tileCellMonAlg, name = 'TileCellSynch',
-                             value = 'timeDifference', title = titleSynch, path = 'Tile/Cell',
+                             xvalue = 'timeDifference', title = titleSynch, path = 'Tile/Cell',
                              xbins = 50, xmin = -100., xmax = 100., type='TH1D', run = run, triggers = l1Triggers,
                              subDirectory = False, perPartition = False, perSample = False, perGain = False)
 
@@ -310,7 +314,7 @@ if __name__=='__main__':
     cfg.printConfig(withDetails = True, summariseProps = True)
     ConfigFlags.dump()
 
-    cfg.store( open('TileCellMonitorAlgorithm.pkl','w') )
+    cfg.store( open('TileCellMonitorAlgorithm.pkl','wb') )
 
     sc = cfg.run(maxEvents=3)
 

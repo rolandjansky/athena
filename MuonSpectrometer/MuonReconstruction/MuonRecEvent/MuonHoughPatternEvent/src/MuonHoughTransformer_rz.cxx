@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHoughPatternEvent/MuonHoughTransformer_rz.h"
@@ -9,10 +9,6 @@ MuonHoughTransformer_rz::MuonHoughTransformer_rz(int nbins, int nbins_angle, dou
   m_add_weight_radius = false;
   m_weight_constant_radius=0.;
   m_add_weight_angle=false;
-
-//   double nbins = 2*m_detectorsize/m_stepsize;
-//   int detectorsize_angle = 181; // has to be made private member
-//   double nbins_angle = detectorsize_angle*m_frequency_stepsize_per_angle;
 }
 
 MuonHoughTransformer_rz::~MuonHoughTransformer_rz()
@@ -39,7 +35,7 @@ void MuonHoughTransformer_rz::fillHit(MuonHoughHit* hit, double weight)
 
 	  double heigth = sqrt(radius*radius - rz0*rz0);
 	  double theta = std::atan2(perp,hitz)+std::atan2(rz0,heigth); 
-	  double theta_in_grad = (theta/MuonHough::Pi)*180.;
+	  double theta_in_grad = (theta/M_PI)*180.;
 
 	  dotprod = perp * std::sin(theta) + hitz * std::cos(theta);
 	  // 	  std::cout << " rz0 " << rz0 << " theta " << theta_in_grad << " dotprod " << dotprod  
@@ -61,7 +57,7 @@ void MuonHoughTransformer_rz::fillHit(MuonHoughHit* hit, double weight)
 
       for (double theta=m_stepsize_per_angle/2.; theta<m_detectorsize_angle; theta+=m_stepsize_per_angle)
 	{
-	  double theta_in_rad = MuonHough::Pi*theta/180.;
+	  double theta_in_rad = M_PI*theta/180.;
 	  double rz0 = hitz*std::sin(theta_in_rad) - radius*std::cos(theta_in_rad);
 	  //	  double rz0 = hitz*sinus(theta_in_rad) - radius*cosinus(theta_in_rad);
 	  double dotprod = 0;
@@ -221,7 +217,7 @@ MuonHoughPattern* MuonHoughTransformer_rz::hookAssociateHitsToMaximum(const Muon
 		std::cout << "MuonHoughTransformer_rz::residu_distance: " << residu_distance << std::endl;
 	      }
 	      bool inmax = false ;  
-              if ( std::abs( theta*180./MuonHough::Pi - coordsmaximum.second) < 1.1 ) inmax = true ;
+              if ( std::abs( theta*180./M_PI - coordsmaximum.second) < 1.1 ) inmax = true ;
 
 	      if(std::abs(residu_distance)<maximum_residu) // here no circular effect
 		{
@@ -230,7 +226,7 @@ MuonHoughPattern* MuonHoughTransformer_rz::hookAssociateHitsToMaximum(const Muon
 		      std::cout << "MuonHoughTransformer_rz::hit added to houghpattern!" << std::endl;
 		      std::cout << " Sector number hit " << sectorhit << " max " << maxsector << " detector: " << event->getHit(i)->getWhichDetector() << std::endl;
                       if (inmax) std::cout << " MuonHoughTransformer_rz:: in maximum "  << std::endl;
-                      if (!inmax) std::cout << " OUTSIDE maximum theta hit "  << theta*180./MuonHough::Pi << " max Hough theta " << coordsmaximum.second << std::endl;
+                      if (!inmax) std::cout << " OUTSIDE maximum theta hit "  << theta*180./M_PI << " max Hough theta " << coordsmaximum.second << std::endl;
 		    }
 		  houghpattern->addHit(event->getHit(i));
 		  
@@ -264,13 +260,8 @@ MuonHoughPattern* MuonHoughTransformer_rz::hookAssociateHitsToMaximum(const Muon
     } //hitno
   
   etheta = std::atan2(sin_theta,cos_theta);
-  //if (m_ip_setting == true)
-  //{
-  // also for cosmics (but no cut on it later):
   ephi = std::atan2(sin_phi,cos_phi);
   houghpattern->setEPhi(ephi);
-  //}
-  //else {houghpattern->setEPhi( -MuonHough::Pi/2.);}    
 
   eradius=eradius/(houghpattern->size()+0.0001);
   

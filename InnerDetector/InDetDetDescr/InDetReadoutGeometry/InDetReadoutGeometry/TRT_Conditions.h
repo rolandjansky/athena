@@ -5,8 +5,6 @@
 ///////////////////////////////////////////////////////////////////
 // TRT_Conditions.h
 ///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef INDETREADOUTGEOMETRY_TRT_CONDITIONS_H
 #define INDETREADOUTGEOMETRY_TRT_CONDITIONS_H
@@ -25,7 +23,8 @@ namespace InDetDD {
 
     /** @class TRT_Conditions
         
-        This class is a interface to conditions objects. There is a single instance shared by all TRT elements
+        This class is an interface to conditions objects. There is a single instance shared by all TRT elements.
+        The object of this class is owned by TRT_DetectorManager.
       */
 
   class TRT_Conditions {

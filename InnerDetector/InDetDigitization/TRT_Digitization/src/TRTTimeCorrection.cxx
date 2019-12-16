@@ -20,9 +20,9 @@
 #include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
 //__________________________________________________________________________________________________________
 TRTTimeCorrection::TRTTimeCorrection(const std::string& name,
-				     const TRTDigSettings* digset,
-				     const InDetDD::TRT_DetectorManager* detmgr,
-				     const TRT_ID* trt_id)
+                                     const TRTDigSettings* digset,
+                                     const InDetDD::TRT_DetectorManager* detmgr,
+                                     const TRT_ID* trt_id)
   : m_settings(digset), m_detmgr(detmgr), m_trt_id(trt_id),
     m_subdetectorMask(0x00200000), m_right5Bits(0x0000001F),
     m_shift5Bits(5), m_shift10Bits(10), m_shift15Bits(15), m_notInitVal(-999999.0), m_trtcaldbsvc("TRT_CalDbSvc",name), m_msg("TRTTimeCorrection")
@@ -62,10 +62,10 @@ void TRTTimeCorrection::Initialize() {
     for (unsigned int iRing = 0; iRing < m_timeShiftForBarrelStraws[iPhi].size(); ++iRing) {
       m_timeShiftForBarrelStraws[iPhi][iRing].resize(numerology->getNBarrelLayers(iRing));
       for (unsigned int iLayer = 0; iLayer < m_timeShiftForBarrelStraws[iPhi][iRing].size(); ++iLayer) {
-	if (m_detmgr->getBarrelElement(0,iRing,0,iLayer)) {
-	  unsigned int nstraws_in_layer = m_detmgr->getBarrelElement(0,iRing,0,iLayer)->nStraws();
-	  m_timeShiftForBarrelStraws[iPhi][iRing][iLayer].assign(nstraws_in_layer,m_notInitVal);
-	}
+        if (m_detmgr->getBarrelElement(0,iRing,0,iLayer)) {
+          unsigned int nstraws_in_layer = m_detmgr->getBarrelElement(0,iRing,0,iLayer)->nStraws();
+          m_timeShiftForBarrelStraws[iPhi][iRing][iLayer].assign(nstraws_in_layer,m_notInitVal);
+        }
       }
     }
   }
@@ -112,14 +112,14 @@ double TRTTimeCorrection::TimeShift(const int& strawID) {
 
     //Sanity check:
     if (iPhi>=m_timeShiftForEndCapPlanes.size()||
-	iWheel>=m_timeShiftForEndCapPlanes[iPhi].size()||
-	iLayer>=m_timeShiftForEndCapPlanes[iPhi][iWheel].size()) {
+        iWheel>=m_timeShiftForEndCapPlanes[iPhi].size()||
+        iLayer>=m_timeShiftForEndCapPlanes[iPhi][iWheel].size()) {
       if (m_timeShiftPhiSectSymmetry) {
-	if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "TimeCorrection::TimeShift: (iWheel,iLayer) = ("
-						  << iWheel << ", " << iLayer << ") out of bounds! Returning 0." << endmsg;
+        if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "TimeCorrection::TimeShift: (iWheel,iLayer) = ("
+                                                  << iWheel << ", " << iLayer << ") out of bounds! Returning 0." << endmsg;
       } else {
-	if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "TimeCorrection::TimeShift: (iPhi,iWheel,iLayer) = ("
-						  << iPhi << ", " << iWheel << ", " << iLayer << ") out of bounds! Returning 0." << endmsg;
+        if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "TimeCorrection::TimeShift: (iPhi,iWheel,iLayer) = ("
+                                                  << iPhi << ", " << iWheel << ", " << iLayer << ") out of bounds! Returning 0." << endmsg;
       }
       return 0.0;
     }
@@ -141,17 +141,17 @@ double TRTTimeCorrection::TimeShift(const int& strawID) {
 
     //Sanity check:
     if (iPhi>=m_timeShiftForBarrelStraws.size()||
-	iRing>=m_timeShiftForBarrelStraws[iPhi].size()||
-	iLayer>=m_timeShiftForBarrelStraws[iPhi][iRing].size()||
-	iStraw>=m_timeShiftForBarrelStraws[iPhi][iRing][iLayer].size()) {
+        iRing>=m_timeShiftForBarrelStraws[iPhi].size()||
+        iLayer>=m_timeShiftForBarrelStraws[iPhi][iRing].size()||
+        iStraw>=m_timeShiftForBarrelStraws[iPhi][iRing][iLayer].size()) {
       if (m_timeShiftPhiSectSymmetry) {
-	if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "TimeCorrection::TimeShift: (iRing,iLayer,iStraw) = ("
-						  << iRing << ", " << iLayer << ", " << iStraw
-						  << ") out of bounds! Returning 0." << endmsg;
+        if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "TimeCorrection::TimeShift: (iRing,iLayer,iStraw) = ("
+                                                  << iRing << ", " << iLayer << ", " << iStraw
+                                                  << ") out of bounds! Returning 0." << endmsg;
       } else {
-	if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "TimeCorrection::TimeShift: (iPhi,iRing,iLayer,iStraw) = ("
-						  << iPhi << ", " << iRing << ", " << iLayer << ", " << iStraw
-						  << ") out of bounds! Returning 0." << endmsg;
+        if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "TimeCorrection::TimeShift: (iPhi,iRing,iLayer,iStraw) = ("
+                                                  << iPhi << ", " << iRing << ", " << iLayer << ", " << iStraw
+                                                  << ") out of bounds! Returning 0." << endmsg;
       }
       return 0.0;
     }
@@ -161,7 +161,7 @@ double TRTTimeCorrection::TimeShift(const int& strawID) {
     if (timeshift==m_notInitVal) {
       //We need to initialize
       timeshift = calculateTimeShift_Barrel(iPhi,iRing,iLayer,iStraw,strawID);
-	m_timeShiftForBarrelStraws[iPhi][iRing][iLayer][iStraw] = timeshift;
+      m_timeShiftForBarrelStraws[iPhi][iRing][iLayer][iStraw] = timeshift;
     }
 
   }
@@ -171,25 +171,25 @@ double TRTTimeCorrection::TimeShift(const int& strawID) {
 
 //__________________________________________________________________________________________________________
 double TRTTimeCorrection::calculateTimeShift_Barrel( const unsigned int& iPhi,
-						     const unsigned int& iRing,
-						     const unsigned int& iLayer,
-						     const unsigned int& iStraw,
-						     const int strawID)  {
+                                                     const unsigned int& iRing,
+                                                     const unsigned int& iLayer,
+                                                     const unsigned int& iStraw,
+                                                     const int strawID)  {
 
   const InDetDD::TRT_BarrelElement * barrel_element(m_detmgr->getBarrelElement(0/*positive*/,
-									       iRing, iPhi, iLayer ));
+                                                                               iRing, iPhi, iLayer ));
 
   //Sanity checks:
   if (!barrel_element) {
     if (msgLevel(MSG::ERROR)) msg(MSG::ERROR)<< "calculateTimeShift_Barrel: Could not get element for iRing = "
-					     << iRing <<" and iLayer = "<<iLayer<<". Timeshift becomes 0." <<endmsg;
+                                             << iRing <<" and iLayer = "<<iLayer<<". Timeshift becomes 0." <<endmsg;
     return 0.0;
   }
 
   if (iStraw >= barrel_element->nStraws()) {
-     if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "calculateTimeShift_Barrel: Trying to access iStraw "
-					       << iStraw <<" in an element with "<<barrel_element->nStraws()<<" straws (iRing="
-					       << iRing <<",iLayer="<<iLayer<<"). Timeshift becomes 0." <<endmsg;
+    if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "calculateTimeShift_Barrel: Trying to access iStraw "
+                                              << iStraw <<" in an element with "<<barrel_element->nStraws()<<" straws (iRing="
+                                              << iRing <<",iLayer="<<iLayer<<"). Timeshift becomes 0." <<endmsg;
     return 0.0;
   }
 
@@ -207,17 +207,17 @@ double TRTTimeCorrection::calculateTimeShift_Barrel( const unsigned int& iPhi,
 
 //__________________________________________________________________________________________________________
 double TRTTimeCorrection::calculateTimeShift_EndCap( const unsigned int& iPhi,
-						     const unsigned int& iWheel,
-						     const unsigned int& iLayer,
-						     const int strawID) {
+                                                     const unsigned int& iWheel,
+                                                     const unsigned int& iLayer,
+                                                     const int strawID) {
 
   const InDetDD::TRT_EndcapElement * ec_element(m_detmgr->getEndcapElement(0/*positive*/,
-									   iWheel, iLayer, iPhi ));
+                                                                           iWheel, iLayer, iPhi ));
 
   //Sanity check:
   if (!ec_element) {
     if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "calculateTimeShift_EndCap: Could not get element for iWheel = "
-					      << iWheel <<" and iLayer = "<<iLayer<<". Timeshift becomes 0." <<endmsg;
+                                              << iWheel <<" and iLayer = "<<iLayer<<". Timeshift becomes 0." <<endmsg;
     return 0.0;
   }
 
@@ -235,8 +235,8 @@ double TRTTimeCorrection::calculateTimeShift_EndCap( const unsigned int& iPhi,
 
 //__________________________________________________________________________________________________________
 double TRTTimeCorrection::calculateTimeShiftFromStrawEnds( const Amg::Vector3D& strawend1_globalcoord,
-							   const Amg::Vector3D& strawend2_globalcoord,
-							   const int strawID )  {
+                                                           const Amg::Vector3D& strawend2_globalcoord,
+                                                           const int strawID )  {
 
   //The two (hopefully relevant) extreme points of the vertex region:
   Amg::Vector3D vertexExtension1( m_settings->timeOffsetCalcVertexX(),
@@ -248,18 +248,18 @@ double TRTTimeCorrection::calculateTimeShiftFromStrawEnds( const Amg::Vector3D& 
 
   //Minimum distance between vertex region and the straw ends:
   // const double mindisttoend1(std::min(strawend1_globalcoord.distance(vertexExtension1),
-  //       			      strawend1_globalcoord.distance(vertexExtension2)));
+  //                                  strawend1_globalcoord.distance(vertexExtension2)));
   const double mindisttoend1(std::min((strawend1_globalcoord-vertexExtension1).mag(),
                                       (strawend1_globalcoord-vertexExtension2).mag()));
   // const double mindisttoend2(std::min(strawend2_globalcoord.distance(vertexExtension1),
-  //       			      strawend2_globalcoord.distance(vertexExtension2)));
+  //                                  strawend2_globalcoord.distance(vertexExtension2)));
   const double mindisttoend2(std::min((strawend2_globalcoord-vertexExtension1).mag(),
                                       (strawend2_globalcoord-vertexExtension2).mag()));
 
   //Just a sanity check here:
   if ( (mindisttoend2<mindisttoend1) == m_settings->electronicsAreAtFarEnd() ) {
     if (msgLevel(MSG::WARNING)) msg(MSG::WARNING)  << "It would seem that the local z-coordinate of a test straw grows TOWARDS"
-						   <<" the electronics ends. This will give trouble elsewhere!!" << endmsg;
+                                                   <<" the electronics ends. This will give trouble elsewhere!!" << endmsg;
   }
 
   double shift = 1.0; // 1 ns (negative) overall shift for the whole TRT detector. Now set in stone.
@@ -273,8 +273,8 @@ double TRTTimeCorrection::calculateTimeShiftFromStrawEnds( const Amg::Vector3D& 
       shift = m_trtcaldbsvc->getT0(idStraw);
     } else {
       if (msgLevel(MSG::ERROR)) msg(MSG::ERROR)
-         << "Attempt to use t0 from data failed: TRTCalDbSvc was not able to supply t0 for straw with identifier: "
-         << idStraw << ". Please set getT0FromData=false in jobOptions and run again" << endmsg;
+                                  << "Attempt to use t0 from data failed: TRTCalDbSvc was not able to supply t0 for straw with identifier: "
+                                  << idStraw << ". Please set getT0FromData=false in jobOptions and run again" << endmsg;
     }
   }
 
@@ -287,7 +287,7 @@ double TRTTimeCorrection::calculateTimeShiftFromStrawEnds( const Amg::Vector3D& 
 
 //__________________________________________________________________________________________________________
 void TRTTimeCorrection::PropagationTime(const int& strawID, const double& meanZ,
-					double& propagationTime1, double& propagationTime2) {
+                                        double& propagationTime1, double& propagationTime2) {
 
   double direct_distance, reflect_distance;
 
@@ -335,7 +335,7 @@ void TRTTimeCorrection::PropagationTime(const int& strawID, const double& meanZ,
 
 //__________________________________________________________________________________________________________
 void TRTTimeCorrection::calculateSignalDists_Barrel(const unsigned int& iRing, const unsigned int& iLayer,
-						    double& direct_dist, double& reflect_dist ) const {
+                                                    double& direct_dist, double& reflect_dist ) const {
 
   //We need to calculate the distance along the wire that the signal
   //has to travel before it reaches the electronics. Both if it goes
@@ -348,9 +348,9 @@ void TRTTimeCorrection::calculateSignalDists_Barrel(const unsigned int& iRing, c
   //to go through the little dead region at the end.
 
   const InDetDD::TRT_BarrelElement * barrel_element(m_detmgr->getBarrelElement(0,//positive,
-									       iRing,//moduleIndex,
-									       0,//int phiIndex,
-									       iLayer));//strawLayerIndex
+                                                                               iRing,//moduleIndex,
+                                                                               0,//int phiIndex,
+                                                                               iLayer));//strawLayerIndex
 
   direct_dist  = 0.5*barrel_element->strawLength() + m_lengthDeadRegion;
   reflect_dist = 1.5*barrel_element->strawLength() + 3*m_lengthDeadRegion;
@@ -360,15 +360,15 @@ void TRTTimeCorrection::calculateSignalDists_Barrel(const unsigned int& iRing, c
 
 //__________________________________________________________________________________________________________
 void TRTTimeCorrection::calculateSignalDists_EndCap(const unsigned int& iWheel,
-						    double& direct_dist,
-						    double& reflect_dist ) const {
+                                                    double& direct_dist,
+                                                    double& reflect_dist ) const {
 
   //For an explanation, please read the comment in calculateSignalDists_Barrel
 
   const InDetDD::TRT_EndcapElement * ec_element(m_detmgr->getEndcapElement(0,//positive,
-									   iWheel,//wheelIndex,
-									   0,//strawLayerIndex,
-									   0));//phiIndex
+                                                                           iWheel,//wheelIndex,
+                                                                           0,//strawLayerIndex,
+                                                                           0));//phiIndex
 
   direct_dist  = 0.5*ec_element->strawLength() + m_lengthDeadRegion;
   reflect_dist = 1.5*ec_element->strawLength() + 3*m_lengthDeadRegion;
@@ -378,7 +378,7 @@ void TRTTimeCorrection::calculateSignalDists_EndCap(const unsigned int& iWheel,
 
 //_____________________________________________________________________________
 Identifier TRTTimeCorrection::getIdentifier ( int hitID,
-					      bool & statusok)
+                                              bool & statusok)
 {
   statusok = true;
 
@@ -404,18 +404,18 @@ Identifier TRTTimeCorrection::getIdentifier ( int hitID,
     trtID     = hitID >> word_shift;
 
     barrelElement =
-        m_detmgr->getBarrelElement(trtID, ringID, moduleID, layerID);
+      m_detmgr->getBarrelElement(trtID, ringID, moduleID, layerID);
     if ( barrelElement ) {
 
       IdLayer = barrelElement->identify();
       IdStraw = m_trt_id->straw_id(IdLayer, strawID);
     } else {
       if (msgLevel(MSG::ERROR)) msg(MSG::ERROR)
-	<< "Could not find detector element for barrel identifier with "
-	<< "(ipos,iring,imod,ilayer,istraw) = ("
-      	<< trtID << ", " << ringID << ", " << moduleID << ", "
-      	<< layerID << ", " << strawID << ")"
-      	<< endmsg;
+                                  << "Could not find detector element for barrel identifier with "
+                                  << "(ipos,iring,imod,ilayer,istraw) = ("
+                                  << trtID << ", " << ringID << ", " << moduleID << ", "
+                                  << layerID << ", " << strawID << ")"
+                                  << endmsg;
       statusok = false;
     }
   } else {                           // endcap
@@ -440,15 +440,15 @@ Identifier TRTTimeCorrection::getIdentifier ( int hitID,
       IdStraw = m_trt_id->straw_id(IdLayer, strawID);
     } else {
       if (msgLevel(MSG::ERROR)) msg(MSG::ERROR)
-	<< "Could not find detector element for endcap identifier with "
-	<< "(ipos,iwheel,isector,iplane,istraw) = ("
-	<< trtID << ", " << wheelID << ", " << sectorID << ", "
-	<< planeID << ", " << strawID << ")"
-	<< endmsg;
+                                  << "Could not find detector element for endcap identifier with "
+                                  << "(ipos,iwheel,isector,iplane,istraw) = ("
+                                  << trtID << ", " << wheelID << ", " << sectorID << ", "
+                                  << planeID << ", " << strawID << ")"
+                                  << endmsg;
       if (msgLevel(MSG::ERROR)) msg(MSG::ERROR)
-	<< "If this happens very rarely, don't be alarmed (it is a Geant4 'feature')" << endmsg;
+                                  << "If this happens very rarely, don't be alarmed (it is a Geant4 'feature')" << endmsg;
       if (msgLevel(MSG::ERROR)) msg(MSG::ERROR)
-	<< "If it happens a lot, you probably have misconfigured geometry in the sim. job." << endmsg;
+                                  << "If it happens a lot, you probably have misconfigured geometry in the sim. job." << endmsg;
       statusok = false;
     }
 

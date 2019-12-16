@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -50,7 +50,6 @@ class TileTrackFillerTool:public D3PD::BlockFillerTool<xAOD::TrackParticle>{
         float m_defaultValue;          // DEFAULT PARAMETER VALUE
         int m_trkParType;
         std::string m_standalone;
-        const CaloCellContainer* m_calocellContainer;
 
         // LEVEL OF DETAILS
         short m_LevelOfDetails;
@@ -77,7 +76,6 @@ class TileTrackFillerTool:public D3PD::BlockFillerTool<xAOD::TrackParticle>{
 	int *m_numberOfGangedPixels;
 	int *m_numberOfOutliersOnTrack;
 	int *m_numberOfTrackSummaryTypes;
-	int *m_numberOfFriendTracks; 
 
 
         float *m_ptcone10;
@@ -112,7 +110,6 @@ class TileTrackFillerTool:public D3PD::BlockFillerTool<xAOD::TrackParticle>{
         ToolHandle<Reco::ITrackToVertex>   m_trackToVertexTool;
         std::string m_calocellContainerName;         // INPUT CELL CONTAINER
         std::string m_MCeventCollection;
-        const McEventCollection* m_MCtruth;
 
 }; // class TrkTrackParametersAtBLFillerTool
 

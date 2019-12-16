@@ -19,6 +19,7 @@
 #include "ISF_Interfaces/SimulationFlavor.h"
 #include "ISF_Interfaces/IEntryLayerTool.h"
 #include "ISF_Interfaces/ITruthSvc.h"
+#include "ISF_Interfaces/IParticleOrderingTool.h"
 
 // DetectorDescription
 #include "AtlasDetDescr/AtlasRegion.h"
@@ -99,8 +100,8 @@ private:
   /// Input converter service (from Generator->ISF particle types)
   ServiceHandle<IInputConverter> m_inputConverter{this, "InputConverter", "", "Input McEventCollection->ISFParticleContainer conversion service."};
 
-  /** Central truth service */
-  ServiceHandle<ITruthSvc>             m_truthRecordSvc{this,"TruthRecordService", "ISF_MC15aPlusTruthService", ""};
+  /// Central truth service
+  ServiceHandle<ITruthSvc> m_truthRecordSvc{this,"TruthRecordService", "ISF_MC15aPlusTruthService", ""};
 
   /// Quasi-Stable Particle Simulation Patcher
   ServiceHandle<Simulation::IZeroLifetimePatcher> m_qspatcher{this, "QuasiStablePatcher", "", "Quasi-Stable Particle Simulation Patcher"};
@@ -111,10 +112,14 @@ private:
   /// When no appropriate simulator can be found for a given particle, the particle is sent to this "particle killer":
   PublicToolHandle<ISimulatorTool> m_particleKillerTool{this, "ParticleKillerTool", "", ""};
 
-  // AthenaTool responsible for writing Calo/Muon Entry/Exit Layer collection
-  PublicToolHandle<IEntryLayerTool> m_entryLayerTool{this,"EntryLayerTool","ISF_EntryLayerToolMT", ""};
+  /// AthenaTool responsible for writing Calo/Muon Entry/Exit Layer collection
+  PublicToolHandle<IEntryLayerTool> m_entryLayerTool{this, "EntryLayerTool", "ISF_EntryLayerToolMT", ""};
 
-  ServiceHandle<IGeoIDSvc>  m_geoIDSvc{this, "GeoIDSvc", "", "Since InputConverter doesn't set Geo ID yet, do it here"};
+  /// Service to set particle GeoIDs
+  ServiceHandle<IGeoIDSvc> m_geoIDSvc{this, "GeoIDSvc", "", "Service to set particle GeoIDs"};
+
+  /// Tool to set particle ordering
+  ToolHandle<IParticleOrderingTool> m_orderingTool{this, "ParticleOrderingTool", "", "Tool to set order of particles"};
 
   /// The simulation selectors defining the "routing chain"
   std::array<ToolHandleArray<ISimulationSelector>, AtlasDetDescr::fNumAtlasRegions> m_simSelectors;

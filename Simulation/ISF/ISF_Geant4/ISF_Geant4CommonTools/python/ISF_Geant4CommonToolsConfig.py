@@ -23,6 +23,7 @@ def getEntryLayerTool(name="ISF_EntryLayerTool", **kwargs):
     from ISF_Geant4CommonTools.ISF_Geant4CommonToolsConf import ISF__EntryLayerTool
     return ISF__EntryLayerTool(name, **kwargs)
 
+
 def getEntryLayerToolMT(name="ISF_EntryLayerToolMT", **kwargs):
     kwargs.setdefault('GeoIDSvc'        , 'ISF_GeoIDSvc')
     from G4AtlasApps.SimFlags import simFlags
@@ -34,6 +35,12 @@ def getEntryLayerToolMT(name="ISF_EntryLayerToolMT", **kwargs):
     from ISF_Geant4CommonTools.ISF_Geant4CommonToolsConf import ISF__EntryLayerToolMT
     return ISF__EntryLayerToolMT(name, **kwargs)
 
+
 def getAFIIEntryLayerTool(name="ISF_AFIIEntryLayerTool", **kwargs):
     kwargs.setdefault('GeoIDSvc'        , 'ISF_AFIIGeoIDSvc')
     return getEntryLayerTool(name, **kwargs)
+
+
+def getAFIIEntryLayerToolMT(name="ISF_AFIIEntryLayerToolMT", **kwargs):
+    kwargs.setdefault('GeoIDSvc'        , 'ISF_AFIIGeoIDSvc')
+    return getEntryLayerToolMT(name, **kwargs)

@@ -197,7 +197,7 @@
 #pragma link C++ class TFCSParametrizationAbsEtaSelectChain+;
 
 #pragma link C++ class TFCSEnergyParametrization+;
-#pragma link C++ class TFCSPCAEnergyParametrization+;
+#pragma link C++ class TFCSPCAEnergyParametrization-;
 #pragma link C++ class TFCSEnergyBinParametrization+;
 
 #pragma link C++ class TFCSLateralShapeParametrization+;

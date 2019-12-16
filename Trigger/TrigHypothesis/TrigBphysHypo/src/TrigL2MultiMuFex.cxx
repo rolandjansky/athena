@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // *******************************************************************
@@ -472,7 +472,7 @@ void TrigL2MultiMuFex::processTriMuon(HLT::TEConstVec& inputTE)
         m_passInvMass=false;
         double Mass(0.);
         if (muon1->charge() * muon2->charge() < 0) {
-            Mass  = m_bphysHelperTool->invariantMass( {*ELidtrack1,*ELidtrack2}, {m_massMuon,m_massMuon} );
+            Mass  = m_bphysHelperTool->invariantMass( *ELidtrack1,*ELidtrack2, m_massMuon,m_massMuon );
             m_mon_InvMass_comb.push_back(Mass/1000.);
         }
         checkInvMass2(muon1, muon2, Mass);
@@ -480,7 +480,7 @@ void TrigL2MultiMuFex::processTriMuon(HLT::TEConstVec& inputTE)
         
         Mass = 0.;
         if (muon2->charge() * muon3->charge() < 0) {
-            Mass  = m_bphysHelperTool->invariantMass( {*ELidtrack2,*ELidtrack3}, {m_massMuon,m_massMuon} );
+            Mass  = m_bphysHelperTool->invariantMass( *ELidtrack2,*ELidtrack3, m_massMuon,m_massMuon );
             m_mon_InvMass_comb.push_back(Mass/1000.);
         }
         checkInvMass2(muon2, muon3, Mass);
@@ -488,7 +488,7 @@ void TrigL2MultiMuFex::processTriMuon(HLT::TEConstVec& inputTE)
         
         Mass = 0.;
         if (muon1->charge() * muon3->charge() < 0) {
-            Mass  = m_bphysHelperTool->invariantMass( {*ELidtrack1,*ELidtrack3}, {m_massMuon,m_massMuon} );
+            Mass  = m_bphysHelperTool->invariantMass( *ELidtrack1,*ELidtrack3, m_massMuon,m_massMuon );
             m_mon_InvMass_comb.push_back(Mass/1000.);
         }
         checkInvMass2(muon1, muon3, Mass);

@@ -18,9 +18,7 @@ ATLAS Collaboration
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
 // Space point Classes,
-#include "TrkSpacePoint/SpacePoint.h"
 #include "TrkSpacePoint/SpacePointCollection.h"
-#include "TrkSpacePoint/SpacePointOverlapCollection.h"
 #include "TrkSpacePoint/SpacePointCLASS_DEF.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
@@ -37,66 +35,24 @@ namespace InDet {
 //------------------------------------------------------------------------
   SiTrackerSpacePointFinder::SiTrackerSpacePointFinder(const std::string& name,
       ISvcLocator* pSvcLocator)
-    : AthReentrantAlgorithm(name, pSvcLocator),
-    m_Sct_clcontainerKey("SCT_Clusters"),
-    m_Pixel_clcontainerKey("PixelClusters"),
-    m_selectPixels(true),
-    m_selectSCTs(true),
-    m_overlap(true),  // process overlaps of SCT wafers.
-    m_allClusters(false),  // process all clusters without limits.
-    m_overlapLimitOpposite(2.8),  // overlap limit for opposite-neighbour.
-    m_overlapLimitPhi(5.64),  // overlap limit for phi-neighbours.
-    m_overlapLimitEtaMin(1.68),  // low overlap limit for eta-neighbours.
-    m_overlapLimitEtaMax(3.0),  // high overlap limit for eta-neighbours.
-    m_overrideBS(false),
-    m_xVertex(0.),
-    m_yVertex(0.),
-    m_zVertex(0.),
-    m_numberOfEvents(0), m_numberOfPixel(0), m_numberOfSCT(0),
-    m_sctCacheHits(0), m_pixCacheHits(0),
-    m_cachemode(false),
-    m_idHelper(nullptr),
-    m_idHelperPixel(nullptr),
-    m_SpacePointContainer_SCTKey("SCT_SpacePoints"),
-    m_SpacePointContainerPixelKey("PixelSpacePoints"),
-    m_spacepointoverlapCollectionKey("OverlapSpacePoints"),
-    m_SpacePointCache_SCTKey(""),
-    m_SpacePointCache_PixKey(""),
-    m_SiSpacePointMakerTool("InDet::SiSpacePointMakerTool", this)
-{
-  //Use the same space point name both for internal use (for graphics) end
-  // for storing in TDS. If a name is the empty string, do not retrieve
-  // those clusters.
-  declareProperty("SCT_ClustersName", m_Sct_clcontainerKey, "SCT clContainer" );
-  declareProperty("PixelsClustersName", m_Pixel_clcontainerKey, "Pixel clContainer");
+    : AthReentrantAlgorithm(name, pSvcLocator)
+{ 
+  declareProperty("ProcessPixels", m_selectPixels=true);
+  declareProperty("ProcessSCTs", m_selectSCTs=true);
+  declareProperty("ProcessOverlaps", m_overlap=true, "process overlaps of SCT wafers.");
+  declareProperty("AllClusters", m_allClusters=false, "process all clusters without limits.");
+  declareProperty("OverlapLimitOpposite", m_overlapLimitOpposite=2.8, "overlap limit for opposite-neighbour.");
+  declareProperty("OverlapLimitPhi", m_overlapLimitPhi=5.64, "overlap limit for phi-neighbours.");
+  declareProperty("OverlapLimitEtaMin", m_overlapLimitEtaMin=1.68, "low overlap limit for eta-neighbours.");
+  declareProperty("OverlapLimitEtaMax", m_overlapLimitEtaMax=3.0, "high overlap limit for eta-neighbours.");
+  declareProperty("OverrideBeamSpot", m_overrideBS=false);
+  declareProperty("VertexX", m_xVertex=0.);
+  declareProperty("VertexY", m_yVertex=0.);
+  declareProperty("VertexZ", m_zVertex=0.);
 
-  declareProperty("SpacePointsSCTName", m_SpacePointContainer_SCTKey, "SpacePoint SCT container");
-  declareProperty("SpacePointsPixelName", m_SpacePointContainerPixelKey, "SpacePoint Pixel container");
-  declareProperty("SpacePointsOverlapName", m_spacepointoverlapCollectionKey, "Space Point Overlap collection" );
-  
-  
-  declareProperty("SiSpacePointMakerTool", m_SiSpacePointMakerTool);
-  declareProperty("BeamPositionKey", m_beamSpotKey);
-  declareProperty("ProcessPixels", m_selectPixels);
-  declareProperty("ProcessSCTs", m_selectSCTs);
-  declareProperty("ProcessOverlaps", m_overlap);
-  declareProperty("AllClusters", m_allClusters);
-  declareProperty("OverlapLimitOpposite", m_overlapLimitOpposite);
-  declareProperty("OverlapLimitPhi", m_overlapLimitPhi);
-  declareProperty("OverlapLimitEtaMin", m_overlapLimitEtaMin);
-  declareProperty("OverlapLimitEtaMax", m_overlapLimitEtaMax);
-  declareProperty("OverrideBeamSpot", m_overrideBS);
-  declareProperty("VertexX", m_xVertex);
-  declareProperty("VertexY", m_yVertex);
-  declareProperty("VertexZ", m_zVertex);
+  declareProperty("SpacePointCacheSCT", m_SpacePointCache_SCTKey="");
+  declareProperty("SpacePointCachePix", m_SpacePointCache_PixKey="");
 
-  declareProperty("SpacePointCacheSCT", m_SpacePointCache_SCTKey);
-  declareProperty("SpacePointCachePix", m_SpacePointCache_PixKey);
-
-}
-//--------------------------------------------------------------------------
-SiTrackerSpacePointFinder::~SiTrackerSpacePointFinder()
-{
 }
 
 //-----------------------------------------------------------------------

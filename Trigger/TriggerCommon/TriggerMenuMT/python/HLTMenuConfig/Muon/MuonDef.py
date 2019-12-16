@@ -9,8 +9,9 @@ from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Muon.MuonDef")
 
-from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase, RecoFragmentsPool
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep
+from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
+#, RecoFragmentsPool
+#from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep
 
 from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muFastOvlpRmSequence, muCombSequence, muCombOvlpRmSequence, muEFMSSequence, muEFSASequence, muIsoSequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence, muEFCBInvMassSequence, efLateMuRoISequence, efLateMuSequence
 
@@ -76,7 +77,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
     # ----------------------
     def assembleChain(self):                            
         chainSteps = []
-        log.debug("Assembling chain for " + self.chainName)
+        #log.debug("Assembling leg for chain " + self.chainName)
 
         stepDictionary = self.getStepDictionary()
 
@@ -86,13 +87,15 @@ class MuonChainConfiguration(ChainConfigurationBase):
 
         for step_level in steps:
             for step in step_level:
-                chainSteps+=[step]
+                chainstep = getattr(self, step)()
+                chainSteps+=[chainstep]
     
         if 'invm' in self.chainPart['invMassInfo']:
             steps=stepDictionary['invM']
             for step_level in steps:
                 for step in step_level:
-                    chainSteps+=[step]
+                    chainstep = getattr(self, step)()
+                    chainSteps+=[chainstep]
 
         myChain = self.buildChain(chainSteps)
         return myChain
@@ -109,18 +112,19 @@ class MuonChainConfiguration(ChainConfigurationBase):
         # --------------------
 
         stepDictionary = {
-            "":[[self.getmuFast(), self.getmuComb()], [self.getmuEFSA(), self.getmuEFCB()]],
-            "fast":[[self.getmuFast()]],
-            "Comb":[[self.getmuFast(), self.getmuComb()]],
-            "noL2Comb" : [[self.getmuFast()], [self.getmuEFSA(), self.getmuEFCB()]],
-            "ivar":[[self.getmuFast(), self.getmuComb(), self.getmuIso()]],
-            "noL1":[[],[self.getFSmuEFSA(), self.getFSmuEFCB()]],
-            "msonly":[[self.getmuFast(), self.getmuMSEmpty(1)], [self.getmuEFMS()]],
-            "ivarmedium":[[self.getmuFast(), self.getmuComb()], [self.getmuEFSA(), self.getmuEFCB(), self.getmuEFIso()]],
-            "invM":[[],[self.getmuInvM()]],
-            "lateMu":[[],[self.getLateMuRoI(),self.getLateMu()]]
+            "":[['getmuFast', 'getmuComb'], ['getmuEFSA', 'getmuEFCB']],
+            "fast":[['getmuFast']],
+            "Comb":[['getmuFast', 'getmuComb']],
+            "noL2Comb" : [['getmuFast'], ['getmuEFSA', 'getmuEFCB']],
+            "ivar":[['getmuFast', 'getmuComb', 'getmuIso']],
+            #FP: this is tmp config for noL1, waiting for serial merging:
+            "noL1":[['getmuFast', 'getmuComb', 'getmuIso'],['getFSmuEFSA', 'getFSmuEFCB', 'getEFCBEmpty']],
+            "msonly":[['getmuFast', 'getmuMSEmpty'], ['getmuEFMS']],
+            "ivarmedium":[['getmuFast', 'getmuComb'], ['getmuEFSA', 'getmuEFCB', 'getmuEFIso']],
+            "invM":[[],['getmuInvM']],
+            "lateMu":[[],['getLateMuRoI','getLateMu']]
         }
-       
+
         return stepDictionary
   
         
@@ -135,6 +139,12 @@ class MuonChainConfiguration(ChainConfigurationBase):
            doOvlpRm = True
         else:
            doOvlpRm = False
+
+
+
+        # tmp comment out OverlapRm /FP:
+        doOvlpRm= False
+           
 
         if doOvlpRm:
            return self.getStep(1,"mufast", [muFastOvlpRmSequenceCfg] )
@@ -152,6 +162,11 @@ class MuonChainConfiguration(ChainConfigurationBase):
            doOvlpRm = True
         else:
            doOvlpRm = False
+
+
+         # tmp comment out OverlapRm /FP:
+        doOvlpRm= False
+
 
         if doOvlpRm:
            return self.getStep(2, 'muComb', [muCombOvlpRmSequenceCfg] )
@@ -176,27 +191,35 @@ class MuonChainConfiguration(ChainConfigurationBase):
  
     # --------------------
     def getFSmuEFSA(self):
-        return self.getStep(1,'FSmuEFSA', [FSmuEFSASequenceCfg])
+        return self.getStep(4,'FSmuEFSA', [FSmuEFSASequenceCfg])
 
     # --------------------
     def getFSmuEFCB(self):
-        return self.getStep(2,'FSmuEFCB', [FSmuEFCBSequenceCfg])
+        return self.getStep(5,'FSmuEFCB', [FSmuEFCBSequenceCfg])
 
     #---------------------
     def getmuEFIso(self):
         return self.getStep(5,'muEFIso',[ muEFIsoSequenceCfg])
 
     #--------------------
-    def getmuMSEmpty(self, stepID):
+    def getmuMSEmptyAll(self, stepID):
         return self.getStep(stepID,'muMS_empty',[])
 
+        #--------------------
+    def getmuMSEmpty(self):
+        return self.getmuMSEmptyAll(2)
+
+       #--------------------
+    def getmuFastEmpty(self):
+        return self.getStep(1,'muFast_empty',[])
+
+
+    def getEFCBEmpty(self):
+        return self.getStep(6,'EFCBEmpty',[])
     #--------------------
     def getmuInvM(self):
-        stepName = 'Step5_muInvM'
-        log.debug("Configuring step " + stepName)
-        seq = RecoFragmentsPool.retrieve( muEFCBInvMSequenceCfg, None)
-        return ChainStep(stepName, [seq], multiplicity=[1])
-
+        return self.getStep(5,'muInvM',[muEFCBInvMSequenceCfg])
+        
     #--------------------
     def getLateMuRoI(self):
         return self.getStep(1,'muEFLateRoI',[muEFLateRoISequenceCfg])

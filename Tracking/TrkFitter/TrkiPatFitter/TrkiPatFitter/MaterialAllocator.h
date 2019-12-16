@@ -140,10 +140,10 @@ private:
     
     // configurables (svc/tools then options)
     ToolHandle<IExtrapolator>				m_extrapolator;
-    mutable ToolHandle<IIntersector>			m_intersector;
-    mutable ServiceHandle<ITrackingGeometrySvc> 	m_trackingGeometrySvc;	// init with callback
+    ToolHandle<IIntersector>				m_intersector;
+    ServiceHandle<ITrackingGeometrySvc> 		m_trackingGeometrySvc;	// init with callback
     ServiceHandle<ITrackingVolumesSvc>			m_trackingVolumesSvc;
-    PublicToolHandle<IPropagator>			m_stepPropagator
+    ToolHandle<IPropagator>				m_stepPropagator
        {this,"STEP_Propagator","Trk::STEP_Propagator/AtlasSTEP_Propagator",""};
     bool						m_aggregateMaterial;
     bool						m_allowReordering;
@@ -165,11 +165,11 @@ private:
     Trk::MagneticFieldProperties                        m_stepField;
 
     // constant initialized the first time it's needed
-    mutable const Trk::TrackingVolume* m_spectrometerEntrance;
-    mutable std::once_flag m_spectrometerEntranceOnceFlag;
+    mutable const Trk::TrackingVolume* m_spectrometerEntrance ATLAS_THREAD_SAFE; // Initialized once with std::call_once
+    mutable std::once_flag m_spectrometerEntranceOnceFlag ATLAS_THREAD_SAFE;
 
     // count warnings
-    mutable MessageHelper*				m_messageHelper;
+    mutable MessageHelper*				m_messageHelper ATLAS_THREAD_SAFE; // MessageHelper is thread-safe
     
     class	compareByDistance
     {

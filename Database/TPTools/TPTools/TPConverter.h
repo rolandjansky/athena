@@ -1266,11 +1266,10 @@ public:
 template<class TRANS, class PERS, class CONV>
 class TPCnvVectorConst : public TPConverterConstBase<TRANS, PERS> {
 public:
+  TPCnvVectorConst() {}
+
   using TPConverterConstBase<TRANS, PERS>::transToPers;
   using TPConverterConstBase<TRANS, PERS>::persToTrans;
-
-
-  TPCnvVectorConst() {}
 
   /// @copydoc TPPtrVectorCnv::persToTrans()
   virtual void persToTrans(const PERS* persVect, TRANS* transVect, MsgStream &log) const override;

@@ -35,7 +35,6 @@ endif()
 atlas_add_test( ClassIDSvc_test
    SOURCES test/ClassIDSvc_test.cxx
    LINK_LIBRARIES AthenaKernel GaudiKernel TestTools
-   EXTRA_PATTERNS "WARNING Could not resolve clid DB|^JobOptionsSvc +INFO|DEBUG Property update for OutputLevel"
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 atlas_add_test( clid

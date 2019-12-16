@@ -162,7 +162,7 @@ namespace MuonGM {
         
     m_etaDesign= std::vector<MuonChannelDesign>(m_nlayers);
     
-    MMDetectorHelper aHelper;
+
 
     for (int il=0; il<m_nlayers; il++) {
 
@@ -179,66 +179,89 @@ namespace MuonGM {
       MMDetectorDescription* mm = aHelper.Get_MMDetector(sector_l, abs(getStationEta()), getStationPhi(), m_ml, side);
       MMReadoutParameters roParam = mm->GetReadoutParameters();
 
-      m_halfX = roParam.activeH/2;
-      m_minHalfY = roParam.sStripWidth/2;
-      m_maxHalfY = roParam.lStripWidth/2;
 
-      m_etaDesign[il].type=0;
+      m_halfX = roParam.activeH/2;    //0.5*radial length (active area)
+      m_minHalfY = roParam.activeBottomLength/2;   //0.5*bottom length (active area)
+      m_maxHalfY = roParam.activeTopLength/2;       //0.5*top length (active area)
 
-      m_etaDesign[il].xSize=2*m_halfX;
-      m_etaDesign[il].minYSize=2*m_minHalfY;
-      m_etaDesign[il].maxYSize=2*m_maxHalfY;
+      m_etaDesign[il].type=MuonChannelDesign::Type::etaStrip;
+      m_etaDesign[il].detType=MuonChannelDesign::DetType::MM;
 
-      m_etaDesign[il].deadO = 0.;
-      m_etaDesign[il].deadI = 0.;
-      m_etaDesign[il].deadS = 0.;
+      m_etaDesign[il].xSize=2*m_halfX;          // radial length (active area)
+      m_etaDesign[il].minYSize=2*m_minHalfY;   //bottom length (active area)
+      m_etaDesign[il].maxYSize=2*m_maxHalfY;  //top length (active area)
 
       double pitch =  roParam.stripPitch;
       m_etaDesign[il].inputPitch = pitch;
       m_etaDesign[il].inputLength = m_etaDesign[il].minYSize;
-      m_etaDesign[il].inputWidth = pitch;
+      m_etaDesign[il].inputWidth = pitch; //inputwidth is defined as the pitch
       m_etaDesign[il].thickness = roParam.gasThickness;
+  
+      m_etaDesign[il].nMissedTopEta = roParam.nMissedTopEta;   // #of eta strips that are not connected to any FE board
+      m_etaDesign[il].nMissedBottomEta = roParam.nMissedBottomEta;
+      m_etaDesign[il].nMissedTopStereo = roParam.nMissedTopStereo; // #of stereo strips that are not connected to any FE board
+      m_etaDesign[il].nMissedBottomStereo = roParam.nMissedBottomStereo;
+      m_etaDesign[il].nRoutedTop = roParam.nRoutedTop;  // #of stereo strips that are shorter in length (low efficient regions)
+      m_etaDesign[il].nRoutedBottom = roParam.nRoutedBottom;
+      m_etaDesign[il].dlStereoTop = roParam.dlStereoTop; // the length kept between the intersection point of the first/last active strips (eta,stereo) till the very edge of the first/last active stereo strip
+      m_etaDesign[il].dlStereoBottom = roParam.dlStereoBottom;
+      m_etaDesign[il].minYPhiL = roParam.minYPhiL; // radial distance kept between the first active strips (eta,stereo) [for the bottom parts two distances are defined at left and right corners as LM1 has not any routed strips]
+      m_etaDesign[il].minYPhiR = roParam.minYPhiR;
+      m_etaDesign[il].maxYPhi = roParam.maxYPhi;
+      m_etaDesign[il].totalStrips = roParam.tStrips;
+        
 
       if (m_ml == 1) m_etaDesign[il].sAngle = (roParam.stereoAngle).at(il);
-      else if (m_ml == 2) m_etaDesign[il].sAngle = (roParam.stereoAngle).at(il);
+      else if (m_ml == 2){ m_etaDesign[il].sAngle = (roParam.stereoAngle).at(il); } 
       else (*m_Log) <<MSG::WARNING
 	          <<"MMReadoutElement -- Unexpected Multilayer: m_ml= " << m_ml <<endmsg;
       
-      if (m_etaDesign[il].sAngle == 0.) {    // stereo angle 0.
+      if (m_etaDesign[il].sAngle == 0.) {    // eta layers
+          
+            m_etaDesign[il].firstPos = -0.5*m_etaDesign[il].xSize;
+            m_etaDesign[il].signY  = 1 ;
 	
-	    m_etaDesign[il].firstPos = -0.5*m_etaDesign[il].xSize + 0.5*pitch;
-	    m_etaDesign[il].signY  = 1 ;
-	
-	    m_etaDesign[il].nch = (int) (m_etaDesign[il].xSize/pitch) + 1;
+            m_etaDesign[il].nch = ((int) std::round( (m_etaDesign[il].xSize/pitch))) + 1;
 
-	    if (m_etaDesign[il].nch > chMax) {    // fix with help of dead zone
-
-	      double dead = 0.5*(m_etaDesign[il].xSize - chMax*pitch);
-	      m_etaDesign[il].deadO = dead;
-	      m_etaDesign[il].deadI = dead;
-	      m_etaDesign[il].firstPos += dead;
-	      m_etaDesign[il].nch = chMax;
+	     if (m_etaDesign[il].nch > chMax) { // never enters in this if statement
+               // fix with help of dead zone
+    
+                double dead = 0.5*(m_etaDesign[il].xSize - chMax*pitch);
+                m_etaDesign[il].deadO = dead;
+                m_etaDesign[il].deadI = dead;
+                m_etaDesign[il].firstPos += dead;
+                m_etaDesign[il].nch = chMax;
 	    }
 	
-      } else {
-	
-	    m_etaDesign[il].signY  = il==2? 1 : -1 ;
-        // firstPos in the position of the centre of the 1st strip on locX axis
-        // Alexandre Laurier 12 Sept 2018
-        // The MM planes were rotated previously so now the local axis follows the stereo Angle of the strips
-        // This means all the local coordinates calculations are to be done without x-y projections
-        // This change was implemented due to tracking constraints and conventions
+      } else { // stereo layers
+          
+          m_etaDesign[il].signY  = il==2? 1 : -1 ;
+          
+          // define the distance from the frame till the point that the first and last active stereo strips cross the center of the chamber (low_swift & up_swift)
+          // in order to derive the total number of active strips for the stereo layer
+        
+         
+          double low_swift=( m_minHalfY -m_etaDesign[il].dlStereoBottom)*fabs(tan(m_etaDesign[il].sAngle));
+          double up_swift = (m_maxHalfY - m_etaDesign[il].dlStereoTop)*fabs(tan(m_etaDesign[il].sAngle));
+          
+          double lm1_swift =0;
+          if(sector_l=='L' && (abs(getStationEta()))==1){
+            lm1_swift = (m_etaDesign[il].minYPhiR - m_etaDesign[il].minYPhiL)/2 + m_etaDesign[il].minYPhiL;
+            low_swift = 0;
+          }
 
-        // first strip is at bottom of ga + empty strip volume + half strip
-	    m_etaDesign[il].firstPos = -0.5*m_etaDesign[il].xSize + 0.5*pitch + roParam.minYPhi;
+          double fPos = -0.5*m_etaDesign[il].xSize - low_swift + lm1_swift;
+          double lPos = 0.5*m_etaDesign[il].xSize + up_swift;
+          
+          m_etaDesign[il].nch = ((int)std::round( (lPos - fPos)/pitch )) + 1;
+                    
+          m_etaDesign[il].firstPos = ( -0.5*m_etaDesign[il].xSize + (m_etaDesign[il].nMissedBottomStereo + m_etaDesign[il].nRoutedBottom - m_etaDesign[il].nMissedBottomEta)*pitch) - m_etaDesign[il].nRoutedBottom*pitch;
 
-        double lastPos =  0.5*m_etaDesign[il].xSize-0.5*pitch-roParam.maxYPhi;
-        // number of channels needed to cover the module
-        m_etaDesign[il].nch = int((lastPos -m_etaDesign[il].firstPos)/(pitch*cos(m_etaDesign[il].sAngle)))+1;
 
-	    if (m_etaDesign[il].nch > chMax) {    // dead zone does not help here - just limit number of channels
+	    if (m_etaDesign[il].nch > chMax) {
+            // dead zone does not help here - just limit number of channels
 
-	      std::cerr<<"number of strips exceeds the maximum, adjusted:"<<m_etaDesign[il].nch<<"->"<<chMax << std::endl;
+	      
 	      m_etaDesign[il].nch = chMax;
 
 	    }
@@ -246,7 +269,7 @@ namespace MuonGM {
       }       
       
       m_nStrips.push_back(m_etaDesign[il].nch);
-
+        
       (*m_Log) <<MSG::DEBUG
 	     <<"initDesign:" << getStationName()<< " layer " << il << ", strip pitch " << m_etaDesign[il].inputPitch << ", nstrips " << m_etaDesign[il].nch << " stereo " <<  m_etaDesign[il].sAngle << endmsg;
 
@@ -277,8 +300,7 @@ namespace MuonGM {
       // need to operate switch x<->z because of GeoTrd definition
       m_surfaceData->m_layerSurfaces.push_back( new Trk::PlaneSurface(*this, id) );
       m_surfaceData->m_layerTransforms.push_back(absTransform()*m_Xlg[layer]*Amg::Translation3D(rox,0.,0.)*
-						 Amg::AngleAxis3D(-90.*CLHEP::deg,Amg::Vector3D(0.,1.,0.))*
-                                                 Amg::AngleAxis3D(-sAngle,Amg::Vector3D(0.,0.,1.)) );
+						 Amg::AngleAxis3D(-90.*CLHEP::deg,Amg::Vector3D(0.,1.,0.)) );
 
       // surface info (center, normal) 
       m_surfaceData->m_layerCenters.push_back(m_surfaceData->m_layerTransforms.back().translation());

@@ -147,12 +147,14 @@ StatusCode TrigMultiTrkHypoMT::execute( const EventContext& context) const
     std::vector<float> ini_nTrkFitMass(0);
     std::vector<float> ini_nTrkChi2(0);
     std::vector<float> ini_pairMass(0);
+    std::vector<int>   ini_totcharge;
   
     // Monitoring histogram
     auto mon_NTrkMass  		   = Monitored::Collection("nTrkMass", ini_nTrkMass);
     auto mon_NTrkFitMass	   = Monitored::Collection("nTrkFitMass", ini_nTrkFitMass);
     auto mon_NTrkChi2          = Monitored::Collection("nTrkChi2", ini_nTrkChi2);
     auto mon_pairMass          = Monitored::Collection("pairMass", ini_pairMass);
+    auto mon_Totcharge         = Monitored::Collection("totCharge", ini_totcharge);
 
     auto mon_NTrk          	     = Monitored::Scalar<int>("nTrk", 0);
     auto mon_accepted_highptNTrk = Monitored::Scalar<int>("accepted_highptNTrk", 0);
@@ -161,7 +163,7 @@ StatusCode TrigMultiTrkHypoMT::execute( const EventContext& context) const
 
     auto monitorIt = Monitored::Group( m_monTool, mon_NTrk, 
   			mon_accepted_highptNTrk, mon_NTrkMass, mon_NTrkFitMass, mon_NTrkChi2, mon_pairMass,
-  			mon_NPair, mon_acceptedNPair );
+  			mon_NPair, mon_acceptedNPair, mon_Totcharge );
 
     auto bphysColl = SG::makeHandle( m_bphysObjContKey, context );
 
@@ -300,9 +302,9 @@ StatusCode TrigMultiTrkHypoMT::execute( const EventContext& context) const
           ini_nTrkChi2.push_back(trigBphys->fitchi2());
           double dimass = m_bphysHelperTool->invariantMass(tp0, tp1, m_trkMasses[0], m_trkMasses[1]);
 
-          ini_pairMass.push_back(dimass);
+          ini_pairMass.push_back(dimass * 0.001);
+          ini_totcharge.push_back(TrigBphysHelperUtilsTool::sumCharge(tp0, tp1));
           bphysColl->push_back(trigBphys);
-
           //need to add some duplicate BPhys object removal here? isUnique(trigBphys)?
           //what to do about combinatorics???      
         }

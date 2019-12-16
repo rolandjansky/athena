@@ -15,13 +15,11 @@
 #ifndef TRT_TRACKEXTENSIONTOOL_DAF_H
 #define TRT_TRACKEXTENSIONTOOL_DAF_H
 
-//#include <list>
 #include <vector>
 #include <string>
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h" 
-//#include "MagFieldInterfaces/IMagFieldSvc.h"
     
 #include "TrkParameters/TrackParameters.h"  // typedef
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"  // typedef
@@ -70,8 +68,8 @@ public:
 
     TRT_TrackExtensionTool_DAF(const std::string&,const std::string&,const IInterface*);
     virtual ~TRT_TrackExtensionTool_DAF();
-    virtual StatusCode initialize();
-    virtual StatusCode finalize  ();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize  () override;
 
     ///////////////////////////////////////////////////////////////////
     // Main methods for track extension to TRT
@@ -101,8 +99,8 @@ public:
     // Print internal tool parameters and status
     ///////////////////////////////////////////////////////////////////
 
-    MsgStream&    dump(MsgStream&    out) const;
-    std::ostream& dump(std::ostream& out) const;
+    MsgStream&    dump(MsgStream&    out) const override;
+    std::ostream& dump(std::ostream& out) const override;
 
 protected:
 
@@ -118,8 +116,6 @@ protected:
     double                           m_jo_maxGroupDistance; //!< jobOption: Max distance of the RIO groups in the grouped barrel extension (distance in the x-y-plane)
     double                           m_jo_minGroupDistance; //!< jobOption: Min distance of the RIO groups in the grouped barrel extension (distance in the x-y-plane)
 
-//    static const int                    maxTrackGlobalPositions = 200; //!< array size for global track positions
-//    static const int                    maxDetElements = 200; //!< array size for the detElements road
 
     class EventData;
     class EventData : public Trk::EventDataBase<EventData,InDet::ITRT_TrackExtensionTool::IEventData>
@@ -165,12 +161,8 @@ protected:
     /** find a barrel extension with RIOs grouped along the globalPositions of the track */
     StatusCode groupedBarrelExtension(int, int, InDet::TRT_TrackExtensionTool_DAF::EventData &event_data) const;
 
-    //    MsgStream&    dumpConditions(MsgStream   & out) const;
-    //    MsgStream&    dumpEvent     (MsgStream   & out) const;
 };
 
-//MsgStream&    operator << (MsgStream&   ,const TRT_TrackExtensionTool_DAF&);
-//std::ostream& operator << (std::ostream&,const TRT_TrackExtensionTool_DAF&);
 
 } // end of name space
 

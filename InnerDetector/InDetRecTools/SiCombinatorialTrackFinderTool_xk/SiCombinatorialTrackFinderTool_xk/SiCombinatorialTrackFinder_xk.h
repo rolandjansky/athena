@@ -7,10 +7,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //  Header file for class SiCombinatorialTrackFinder_xk
 /////////////////////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-/////////////////////////////////////////////////////////////////////////////////
-// Class for  Trk::Track production in SCT and Pixels
-/////////////////////////////////////////////////////////////////////////////////
 // Version 1.0 10/04/2007 I.Gavrilenko
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -44,9 +40,17 @@ namespace InDet {
 
  /**
   @class SiCombinatorialTrackFinder_xk 
-  
+
   InDet::SiCombinatorialTrackFinder_xk is algorithm which produce track-finding
-  in the road of InDetDD::SiDetectorElement* sorted in propagation order.
+  in the road of InDetDD::SiDetectorElement* of SCT and Pixels
+  sorted in propagation order.
+
+  In AthenaMT, event dependent cache inside SiCombinatorialTrackFinder_xk
+  is not preferred. SiCombinatorialTrackFinderData_xk class holds
+  event dependent data for SiCombinatorialTrackFinder_xk.
+  Its object is instantiated in SiSPSeededTrackFinder::execute
+  through SiTrackMakerEventData_xk.
+
   @author Igor.Gavrilenko@cern.ch     
   */
 
@@ -63,18 +67,20 @@ namespace InDet {
     public:
       
       ///////////////////////////////////////////////////////////////////
-      // Standard tool methods
+      /// @name Standard tool methods
       ///////////////////////////////////////////////////////////////////
-
+      //@{
       SiCombinatorialTrackFinder_xk
 	(const std::string&,const std::string&,const IInterface*);
       virtual ~SiCombinatorialTrackFinder_xk() = default;
       virtual StatusCode initialize() override;
       virtual StatusCode finalize  () override;
+      //@}
 
       ///////////////////////////////////////////////////////////////////
-      // Main methods for local track finding
+      /// @name Main methods for local track finding
       ///////////////////////////////////////////////////////////////////
+      //@{
 
       virtual const std::list<Trk::Track*>& getTracks
         (SiCombinatorialTrackFinderData_xk& data,
@@ -106,12 +112,14 @@ namespace InDet {
                             Trk::TrackInfo, const TrackQualityCuts&) const override;
 
       virtual void endEvent(SiCombinatorialTrackFinderData_xk& data) const override;
+      //@}
 
       ///////////////////////////////////////////////////////////////////
-      // Print internal tool parameters and status
+      /// @name Print internal tool parameters and status
       ///////////////////////////////////////////////////////////////////
-
+      //@{
       MsgStream& dump(SiCombinatorialTrackFinderData_xk& data, MsgStream& out) const override;
+      //@}
 
     private:
       
@@ -119,6 +127,8 @@ namespace InDet {
       // Protected Data
       ///////////////////////////////////////////////////////////////////
 
+      /// @name Service and tool handles
+      //@{
       ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle{this, "MagFieldSvc",
           "AtlasFieldSvc"};
       ToolHandle<IInDetConditionsTool> m_pixelCondSummaryTool{this, "PixelSummaryTool",
@@ -131,7 +141,10 @@ namespace InDet {
           "Trk::KalmanUpdator_xk/InDetPatternUpdator"};
       PublicToolHandle<Trk::IRIO_OnTrackCreator> m_riocreator{this, "RIOonTrackTool",
           "Trk::RIO_OnTrackCreator/RIO_OnTrackCreator"};
+      //@}
 
+      /// @name Data handles
+      //@{
       SG::ReadHandleKey<InDet::PixelClusterContainer> m_pixcontainerkey{this, "PixelClusterContainer",
           "PixelClusters"};
       SG::ReadHandleKey<InDet::SCT_ClusterContainer> m_sctcontainerkey{this, "SCT_ClusterContainer",
@@ -143,15 +156,21 @@ namespace InDet {
       // For P->T converter of SCT_Clusters
       SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey",
           "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
+      //@}
 
+      /// @name Properties
+      //@{
       BooleanProperty m_usePIX{this, "usePixel", true};
       BooleanProperty m_useSCT{this, "useSCT", true};
       StringProperty m_fieldmode{this, "MagneticFieldMode", "MapSolenoid", "Mode of magnetic field"};
       DoubleProperty m_qualityCut{this, "TrackQualityCut", 9.3, "Simple track quality cut"};
+      //@}
 
-      // Updated in only initialize
+      /// @name Data members, which are updated in only initialize
+      //@{
       int m_outputlevel{0};
-      Trk::MagneticFieldProperties m_fieldprop; // Magnetic field properties
+      Trk::MagneticFieldProperties m_fieldprop; //!< Magnetic field properties
+      //@}
 
       ///////////////////////////////////////////////////////////////////
       // Methods 
@@ -190,4 +209,3 @@ namespace InDet {
 } // end of name space
 
 #endif // SiCombinatorialTrackFinder_xk_H
-

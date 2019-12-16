@@ -19,19 +19,35 @@ EMParticleCaloExtensionTool =  ToolFactory (CfgMgr.Trk__ParticleCaloExtensionToo
                                             ParticleType="electron",
                                             StartFromPerigee = True)
 
+
 EMExtrapolationTools = ToolFactory( egammaTrackToolsConf.EMExtrapolationTools,
                                     name ="EMExtrapolationTools",
                                     LastCaloExtensionTool=EMLastCaloExtensionTool,
                                     PerigeeCaloExtensionTool = EMParticleCaloExtensionTool,
                                     Extrapolator=egammaExtrapolator,
-                                    useCaching=False)
+                                    useCaching=False,
+                                    useLastCaching=False
+                                    )
+
 
 EMExtrapolationToolsCache = ToolFactory( egammaTrackToolsConf.EMExtrapolationTools,
                                          name ="EMExtrapolationToolsCache",
                                          LastCaloExtensionTool=EMLastCaloExtensionTool,
                                          PerigeeCaloExtensionTool = EMParticleCaloExtensionTool,
                                          Extrapolator=egammaExtrapolator,
-                                         GSFPerigeeCache='GSFPerigeeCaloExtension',
-                                         GSFLastCache='GSFLastCaloExtension',
-                                         useCaching=True)
+                                         PerigeeCache='GSFPerigeeCaloExtension',
+                                         LastCache='GSFLastCaloExtension',
+                                         useCaching=True,
+                                         useLastCaching=True
+                                         )
+
+EMExtrapolationToolsCommonCache = ToolFactory( egammaTrackToolsConf.EMExtrapolationTools,
+                                               name ="EMExtrapolationToolsCommonCache",
+                                               LastCaloExtensionTool=EMLastCaloExtensionTool,
+                                               PerigeeCaloExtensionTool = EMParticleCaloExtensionTool,
+                                               Extrapolator=egammaExtrapolator,
+                                               LastCache='ParticleCaloExtension',
+                                               useCaching=False,
+                                               useLastCaching=True
+                                             )
 

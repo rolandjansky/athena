@@ -187,13 +187,14 @@ def setupHLTPrescaleCondAlg( flags = None ):
     else:
         raise RuntimeError("trigger configuration flag 'trigConfig' starts with %s, which is not understood" % tc["source"])
 
-    if flags is None: # old style config
-        from AthenaCommon.AlgSequence import AthSequencer
-        condSequence = AthSequencer("AthCondSeq")
-        condSequence += hltPrescaleCondAlg
-        from IOVDbSvc.CondDB import conddb
-        conddb.addFolder( "TRIGGER", getHLTPrescaleFolderName(), className="AthenaAttributeList" )
-        log.info("Adding folder %s to conddb", getHLTPrescaleFolderName() )
+    if tc["source"] == "COOL":
+        if flags is None: # old style config
+            from AthenaCommon.AlgSequence import AthSequencer
+            condSequence = AthSequencer("AthCondSeq")
+            condSequence += hltPrescaleCondAlg
+            from IOVDbSvc.CondDB import conddb
+            conddb.addFolder( "TRIGGER", getHLTPrescaleFolderName(), className="AthenaAttributeList" )
+            log.info("Adding folder %s to conddb", getHLTPrescaleFolderName() )
     return hltPrescaleCondAlg
 
 
@@ -223,11 +224,13 @@ def TrigConfigSvcCfg( flags ):
 def HLTPrescaleCondAlgCfg( flags ):
     log = logging.getLogger('TrigConfigSvcCfg')
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    from IOVDbSvc.IOVDbSvcConfig import addFolders
     acc = ComponentAccumulator()
     acc.addCondAlgo( setupHLTPrescaleCondAlg( flags ) )
-    acc.merge(addFolders(flags, getHLTPrescaleFolderName(), "TRIGGER_ONL", className="AthenaAttributeList"))
-    log.info("Adding folder %s to CompAcc", getHLTPrescaleFolderName() )
+    tc = getTrigConfigFromFlag( flags )
+    if tc["source"] == "COOL":
+        from IOVDbSvc.IOVDbSvcConfig import addFolders
+        acc.merge(addFolders(flags, getHLTPrescaleFolderName(), "TRIGGER_ONL", className="AthenaAttributeList"))
+        log.info("Adding folder %s to CompAcc", getHLTPrescaleFolderName() )
     return acc
 
 

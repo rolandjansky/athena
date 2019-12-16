@@ -6,7 +6,7 @@
 
 
 CopyTrackRecordCollection::CopyTrackRecordCollection(const std::string &name, ISvcLocator *pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator) { }
+  : AthReentrantAlgorithm(name, pSvcLocator) { }
 
 StatusCode CopyTrackRecordCollection::initialize()
 {
@@ -27,14 +27,14 @@ StatusCode CopyTrackRecordCollection::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode CopyTrackRecordCollection::execute()
+StatusCode CopyTrackRecordCollection::execute(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG("execute() begin");
 
   // Reading the input containers
   ATH_MSG_VERBOSE("Retrieving input containers");
 
-  SG::ReadHandle<TrackRecordCollection> signalContainer(m_signalInputKey);
+  SG::ReadHandle<TrackRecordCollection> signalContainer(m_signalInputKey, ctx);
   if (!signalContainer.isValid()) {
     ATH_MSG_ERROR("Could not get signal TrackRecordCollection container " << signalContainer.name() << " from store " << signalContainer.store());
     return StatusCode::FAILURE;
@@ -42,7 +42,7 @@ StatusCode CopyTrackRecordCollection::execute()
   ATH_MSG_DEBUG("Found signal TrackRecordCollection container " << signalContainer.name() << " in store " << signalContainer.store());
 
   // Creating output RDO container
-  SG::WriteHandle<TrackRecordCollection> outputContainer(m_outputKey);
+  SG::WriteHandle<TrackRecordCollection> outputContainer(m_outputKey, ctx);
   ATH_CHECK(outputContainer.record(std::make_unique<TrackRecordCollection>(m_collectionName)));
   if (!outputContainer.isValid()) {
     ATH_MSG_ERROR("Could not record output TrackRecordCollection container " << outputContainer.name() << " to store " << outputContainer.store());

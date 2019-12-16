@@ -16,7 +16,7 @@ public:
   void set_hit_RMS(float RMS);
   float get_hit_RMS() const {return m_RMS;};
 
-  virtual FCSReturnCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) override;
+  virtual FCSReturnCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override;
 
   void Print(Option_t *option) const override;
 private:

@@ -9,7 +9,7 @@ atlas_subdir( MuonRecValidationNtuples )
 atlas_depends_on_subdirs( PUBLIC
                           Event/EventPrimitives
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonLayerEvent
-                          Reconstruction/MuonIdentification/MuGirlStau
+                          MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecHelperTools
                           Tracking/TrkEvent/TrkMeasurementBase
                           PRIVATE
                           MuonSpectrometer/MuonIdHelpers )
@@ -22,10 +22,10 @@ atlas_add_library( MuonRecValidationNtuples
                    src/*.cxx
                    PUBLIC_HEADERS MuonRecValidationNtuples
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} EventPrimitives MuonLayerEvent TrkMeasurementBase MuGirlStauLib MuonIdHelpersLib )
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} EventPrimitives MuonLayerEvent TrkMeasurementBase MuonIdHelpersLib MuonRecHelperToolsLib )
 
 atlas_add_executable( MuonInsideOutValidation
                       exe/MuonInsideOutValidation.cxx
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} EventPrimitives MuonLayerEvent MuGirlStauLib TrkMeasurementBase MuonIdHelpersLib MuonRecValidationNtuples )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} EventPrimitives MuonLayerEvent TrkMeasurementBase MuonIdHelpersLib MuonRecValidationNtuples MuonRecHelperToolsLib )
 

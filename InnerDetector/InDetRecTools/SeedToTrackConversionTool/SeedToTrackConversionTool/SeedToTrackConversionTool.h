@@ -5,8 +5,7 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// SeedToTrackConversionTool.h, (c) ATLAS Detector software
-// Class for converting Seeds to Track Collection 
+// SeedToTrackConversionTool.h
 // Version 0.0 01/02/2016 Weiming Yao(LBNL)  
 ///////////////////////////////////////////////////////////////////
 
@@ -34,6 +33,12 @@ namespace InDet
 
       InDet::SeedToTrackConversionTool is tool that converts the seeds
       into track collection. 
+
+      In AthenaMT, event dependent cache inside SeedToTrackConversionTool
+      is not preferred. SeedToTrackConversionData class holds
+      event dependent data for SeedToTrackConversionTool.
+      Its object is instantiated in SiSPSeededTrackFinder::execute
+      through SiTrackMakerEventData_xk.
       
       @author  Weiming Yao <Weiming.Yao>
   */  
@@ -41,41 +46,65 @@ namespace InDet
   class SeedToTrackConversionTool : public extends<AthAlgTool, ISeedToTrackConversionTool>
   {
   public:
+    /** @name Constructor */
+    //@{
     SeedToTrackConversionTool(const std::string&,const std::string&,const IInterface*);
+    //@}
 
-    /** default destructor */
+    /** @name Default destructor */
+    //@{
     virtual ~SeedToTrackConversionTool() = default;
-      
-    /** standard Athena-Algorithm method */
-    virtual StatusCode initialize() override;
-    /** standard Athena-Algorithm method */
-    virtual StatusCode finalize() override;
+    //@}
 
-    // Main methods for seeds conversion
+    /** @name Standard Athena-Algorithm initialize method */
+    //@{
+    virtual StatusCode initialize() override;
+    //@}
+
+    /** @name Standard Athena-Algorithm initialize method */
+    //@{
+    virtual StatusCode finalize() override;
+    //@}
+
+    /** @name Main methods for seeds conversion */
+    //@{
     virtual void executeSiSPSeedSegments(SeedToTrackConversionData& data, const Trk::TrackParameters*, const int&, const std::list<const Trk::SpacePoint*>&) const override;
     //!<seed trackparameters, number of tracks found:m_track.size(), list of spacepoints
     virtual void newEvent(SeedToTrackConversionData& data, const Trk::TrackInfo&, const std::string&) const override;
     virtual void endEvent(SeedToTrackConversionData& data) const override;
+    //@}
 
-    //////////////////////////////////////////////////////////////////
-    // Print internal tool parameters and status
-    ///////////////////////////////////////////////////////////////////
-      
+    /** @name Print internal tool parameters and status */
+    //@{
     virtual MsgStream& dump(SeedToTrackConversionData& data, MsgStream& out) const override;
-      
+    //@}
+
   private:
+    /** @name Tool handles */
+    //@{
     PublicToolHandle<Trk::IExtrapolator> m_extrapolator
       {this, "Extrapolator","Trk::Extrapolator", "extrapolator"};
     PublicToolHandle<Trk::IRIO_OnTrackCreator > m_rotcreator
       {this, "RIO_OnTrackCreator", "Trk::RIO_OnTrackCreator/InDetRotCreator", "Creator ROT"};
-    SG::WriteHandleKey<TrackCollection> m_seedsegmentsOutput{this, "OutputName", "SiSPSeedSegments", "SiSpSeedSegments Output Collection"};
+    //@}
 
+    /** @name Data handles */
+    //@{
+    SG::WriteHandleKey<TrackCollection> m_seedsegmentsOutput{this, "OutputName", "SiSPSeedSegments", "SiSpSeedSegments Output Collection"};
+    //@}
+
+    /** @name Counters */
+    //@{
     mutable std::atomic_int m_nprint{0}; //!< Kind output information
     mutable std::atomic_int m_totseed{0}; //!< number of total seeds in the pass
     mutable std::atomic_int m_survived{0}; //!< number of survived seeds 
+    //@}
 
+    /** @name Messaging methods */
+    //@{
     MsgStream& dumpconditions(SeedToTrackConversionData& data, MsgStream& out) const;
     MsgStream& dumpevent     (SeedToTrackConversionData& data, MsgStream& out) const;
+    //@}
 
   }; 
 } // end of namespace

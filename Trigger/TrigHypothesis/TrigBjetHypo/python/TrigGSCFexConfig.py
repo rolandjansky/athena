@@ -1,5 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
+
 # flake8: noqa  (legacy trigger)
 
 from TrigBjetHypo.TrigBjetHypoConf import TrigGSCFex
@@ -63,7 +65,7 @@ class GSCFex (TrigGSCFex):
                 self.setupOfflineTools = False
             else :
                 self.GSCCalibrationTool = jrcf.find("AntiKt", 0.4, "EMTopo", "ajg", "reco", "Kt4")
-                print self.GSCCalibrationTool
+                print (self.GSCCalibrationTool)
         # MONITORING
         from TrigBjetHypo.TrigGSCFexMonitoring import TrigEFGSCFexValidationMonitoring, TrigEFGSCFexOnlineMonitoring   #commented here
         validation = TrigEFGSCFexValidationMonitoring()   #commented here
@@ -120,8 +122,8 @@ class GSCFexSplit (TrigGSCFex):
                 from AthenaCommon.AppMgr import ToolSvc
                 ToolSvc += myGSCTool
                 self.GSCCalibrationTool = myGSCTool
-                print "Printing GSCCalibrationTool"
-                print self.GSCCalibrationTool                
+                print ("Printing GSCCalibrationTool")
+                print (self.GSCCalibrationTool                )
                 #JetCalibrationTool("myJCTool_trigger",
                 #   IsData=True,
                 #   ConfigFile="JES_2015dataset_recommendation_Feb2016.config",

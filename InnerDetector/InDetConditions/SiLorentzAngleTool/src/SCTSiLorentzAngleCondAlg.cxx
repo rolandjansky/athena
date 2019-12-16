@@ -53,6 +53,9 @@ StatusCode SCTSiLorentzAngleCondAlg::initialize()
     if (m_useMagFieldDcs.value()) {
       ATH_CHECK(m_readKeyBFieldSensor.initialize());
     }
+    else {
+      ATH_CHECK(m_readKeyBFieldSensor.initialize(false));
+    }
   }
 
   ATH_CHECK(m_SCTDetEleCollKey.initialize());

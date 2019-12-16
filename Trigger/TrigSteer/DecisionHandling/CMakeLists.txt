@@ -25,13 +25,13 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigSteeringEvent
                           Trigger/TrigTools/TrigTimeAlgs
                           Trigger/TrigMonitoring/TrigCostMonitorMT
-                          Control/AthenaMonitoringKernel )
+                          Control/AthenaMonitoring )
 
 atlas_add_library( DecisionHandlingLib
                    src/*.cxx
                    PUBLIC_HEADERS DecisionHandling
                    LINK_LIBRARIES xAODTrigger GaudiKernel TrigSteeringEvent
-                   PRIVATE_LINK_LIBRARIES AthenaBaseComps CxxUtils TrigConfHLTData TrigTimeAlgsLib AthenaMonitoringKernelLib )
+                   PRIVATE_LINK_LIBRARIES AthenaBaseComps CxxUtils TrigConfHLTData TrigTimeAlgsLib AthenaMonitoringLib )
 
 # Component(s) in the package:
 atlas_add_component( DecisionHandling
@@ -43,12 +43,12 @@ atlas_install_python_modules( python/*.py )
 # Unit tests:
 atlas_add_test( TrigCompositeUtils_test
                 SOURCES test/TrigCompositeUtils_test.cxx
-                LINK_LIBRARIES TestTools xAODTrigger DecisionHandlingLib AthContainers SGtests )
+                LINK_LIBRARIES TestTools xAODTrigger DecisionHandlingLib AthContainers )
 
 atlas_add_test( TrigTraversal_test
                 SOURCES test/TrigTraversal_test.cxx
                 LINK_LIBRARIES  TestTools xAODTrigger xAODEgamma xAODMuon xAODBase DecisionHandlingLib
-                AthContainers SGtests )
+                AthContainers )
 
 atlas_add_test( Combinators_test
                 SOURCES test/Combinators_test.cxx

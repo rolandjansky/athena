@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonChamber_H
@@ -22,6 +22,7 @@ class MdtComponent;
 class RpcComponent;
 class TgcComponent;
 class Position;
+ class FPVMAP;
 
 class MuonChamber: public DetectorElement {
 
@@ -39,6 +40,7 @@ public:
    MuonChamber(Station *s);
    GeoVPhysVol* build(MuonDetectorManager* manager, int ieta, int iphi, bool is_mirrored, bool& isAssembly);
    void print();
+   inline void setFPVMAP(FPVMAP* fpvmap);
 
 private:
    void setCscReadoutGeom(CscReadoutElement* re, const CscComponent* cc, 
@@ -53,9 +55,12 @@ private:
    Station* m_station;
    IMessageSvc* m_msgSvc;
    int m_enableFineClashFixing;
+
+   FPVMAP* m_FPVMAP;
 };
 
 void MuonChamber::setFineClashFixingFlag(int value){m_enableFineClashFixing = value;}
+void MuonChamber::setFPVMAP(FPVMAP* fpvmap) {m_FPVMAP = fpvmap;}
 
 } // namespace MuonGM
 

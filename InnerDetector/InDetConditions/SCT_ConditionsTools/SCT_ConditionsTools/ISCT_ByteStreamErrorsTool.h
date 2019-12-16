@@ -41,8 +41,8 @@ class ISCT_ByteStreamErrorsTool: virtual public ISCT_ConditionsTool {
   DeclareInterfaceID(ISCT_ByteStreamErrorsTool, 1, 0);
   //@}
   
-  virtual const std::set<IdentifierHash>* getErrorSet(int errorType) const =0;
-  virtual const std::set<IdentifierHash>* getErrorSet(int errorType, const EventContext& ctx) const =0;
+  virtual const std::set<IdentifierHash> getErrorSet(int errorType) const =0;
+  virtual const std::set<IdentifierHash> getErrorSet(int errorType, const EventContext& ctx) const =0;
   virtual const std::array<std::set<IdentifierHash>, SCT_ByteStreamErrors::NUM_ERROR_TYPES>* getErrorSets() const =0;
   virtual const std::array<std::set<IdentifierHash>, SCT_ByteStreamErrors::NUM_ERROR_TYPES>* getErrorSets(const EventContext& ctx) const =0;
 

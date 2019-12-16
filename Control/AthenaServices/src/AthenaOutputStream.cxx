@@ -30,6 +30,7 @@
 
 #include "AthContainersInterfaces/IAuxStore.h"
 #include "AthContainersInterfaces/IAuxStoreIO.h"
+#include "AthContainersInterfaces/IAuxStoreCompression.h"
 #include "OutputStreamSequencerSvc.h"
 #include "MetaDataSvc.h"
 
@@ -156,6 +157,7 @@ AthenaOutputStream::AthenaOutputStream(const string& name, ISvcLocator* pSvcLoca
         m_outSeqSvc("OutputStreamSequencerSvc", name),
         m_p2BWritten(string("SG::Folder/") + name + string("_TopFolder"), this),
         m_decoder(string("SG::Folder/") + name + string("_excluded"), this),
+        m_compressionDecoder(string("SG::Folder/") + name + string("_compressed"), this),
         m_transient(string("SG::Folder/") + name + string("_transient"), this),
         m_events(0),
         m_streamer(string("AthenaOutputStreamTool/") + name + string("Tool"), this),
@@ -178,11 +180,13 @@ AthenaOutputStream::AthenaOutputStream(const string& name, ISvcLocator* pSvcLoca
    declareProperty("CheckNumberOfWrites",    m_checkNumberOfWrites=true);
    declareProperty("ExcludeList",            m_excludeList);
    declareProperty("HelperTools",            m_helperTools);
+   declareProperty("CompressionList",        m_compressionList);
    
    // Associate action handlers with the AcceptAlgs,
    // RequireAlgs & VetoAlgs properties
    m_itemList.declareUpdateHandler(&AthenaOutputStream::itemListHandler, this);
    m_excludeList.declareUpdateHandler(&AthenaOutputStream::excludeListHandler, this);
+   m_compressionList.declareUpdateHandler(&AthenaOutputStream::compressionListHandler, this);
 }
 
 // Standard Destructor
@@ -679,6 +683,46 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
       }
    }
 
+   // Here we build the list of attributes for the float compression
+   // CompressionList follows the same logic as the ItemList
+   // We find the matching keys, read the string after "Aux.",
+   // tokenize by "." and build an std::set of these to be
+   // communicated to IAuxStoreCompression down below
+   std::set<std::string> comp_attr;
+   if(item_key.find("Aux.") != string::npos) {
+     for (SG::IFolder::const_iterator iter = m_compressionDecoder->begin(), iterEnd = m_compressionDecoder->end();
+            iter != iterEnd; iter++) {
+       // First match the IDs for early rejection.
+       if (iter->id() != item.id()) {
+         continue;
+       }
+       // Then find the compression item key and the compression list string
+       size_t seppos = iter->key().find(".");
+       string comp_item_key{""}, comp_str{""};
+       if(seppos != string::npos) {
+         comp_item_key = iter->key().substr(0, seppos+1);
+         comp_str = iter->key().substr(seppos+1);
+       } else {
+         comp_item_key = iter->key();
+       }
+       // Proceed only if the keys match and the
+       // compression list string is not empty
+       if (!comp_str.empty() && comp_item_key == item_key) {
+         std::stringstream ss(comp_str);
+         std::string attr;
+         while( std::getline(ss, attr, '.') ) {
+            comp_attr.insert(attr);
+         }
+       }
+     }
+   }
+   ATH_MSG_DEBUG("     Comp Attr: " << comp_attr.size());
+   if ( comp_attr.size() > 0 ) {
+     for(auto attr : comp_attr) {
+        ATH_MSG_DEBUG("       >> " << attr);
+     }
+   }
+
    SG::ConstProxyIterator iter, end;
    // Look for the clid in storegate
    if (((*m_currentStore)->proxyRange(item.id(), iter, end)).isSuccess()) {
@@ -812,6 +856,19 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
                            auxio->selectAux(attributes);
                      }
                   }
+                  // Here comes the compression logic using SG::IAuxStoreCompression
+                  // similar to that of SG::IAuxStoreIO above
+                  SG::IAuxStoreCompression* auxcomp( nullptr );
+                  try {
+                    SG::fromStorable( itemProxy->object(), auxcomp, true );
+                  } catch( const std::exception& ) {
+                    ATH_MSG_DEBUG( "Error in casting object with CLID "
+                                   << itemProxy->clID() << " to SG::IAuxStoreCompression*" );
+                    auxcomp = nullptr;
+                  }
+                  if ( auxcomp ) {
+                    auxcomp->setCompressedAuxIDs( comp_attr );
+                  }
                }
 
                added = true;
@@ -865,6 +922,14 @@ void AthenaOutputStream::excludeListHandler(Property& /* theProp */) {
    }
 }
 
+void AthenaOutputStream::compressionListHandler(Property& /* theProp */) {
+   IProperty *pAsIProp(nullptr);
+   if ((m_compressionDecoder.retrieve()).isFailure() ||
+           nullptr == (pAsIProp = dynamic_cast<IProperty*>(&*m_compressionDecoder)) ||
+           (pAsIProp->setProperty("ItemList", m_compressionList.toString())).isFailure()) {
+      throw GaudiException("Folder property [ItemList] not found", name(), StatusCode::FAILURE);
+   }
+}
 
 void AthenaOutputStream::tokenizeAtSep( std::vector<std::string>& subStrings,
                                         const std::string& portia,

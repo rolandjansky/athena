@@ -71,6 +71,9 @@ def IOVDbSvcCfg(configFlags):
     if not isMC:
         result.addService(DBReplicaSvc(COOLSQLiteVetoPattern="/DBRelease/"))
 
+    # Get TagInfoMgr
+    from EventInfoMgt.TagInfoMgrConfig import TagInfoMgrCfg 
+    result.merge(TagInfoMgrCfg(configFlags)[0])
     
     return result
 

@@ -5,7 +5,7 @@ from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoToolInc
-from TrigL2CaloHypoCutDefs import L2CaloCutMaps
+from TrigEgammaHypo.TrigL2CaloHypoCutDefs import L2CaloCutMaps
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TrigL2CaloHypoTool')

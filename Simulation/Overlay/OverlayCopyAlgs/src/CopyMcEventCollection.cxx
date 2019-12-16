@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CopyMcEventCollection.h"
 
 
 CopyMcEventCollection::CopyMcEventCollection(const std::string &name, ISvcLocator *pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator)
+  : AthReentrantAlgorithm(name, pSvcLocator)
 {
   declareProperty("RemoveBkgHardScatterTruth", m_removeBkgHardScatterTruth=true);
 }
@@ -26,7 +26,7 @@ StatusCode CopyMcEventCollection::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode CopyMcEventCollection::execute()
+StatusCode CopyMcEventCollection::execute(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG("execute() begin");
 
@@ -35,7 +35,7 @@ StatusCode CopyMcEventCollection::execute()
 
   const McEventCollection *bkgContainerPtr = nullptr;
   if (!m_bkgInputKey.key().empty()) {
-    SG::ReadHandle<McEventCollection> bkgContainer(m_bkgInputKey);
+    SG::ReadHandle<McEventCollection> bkgContainer(m_bkgInputKey, ctx);
     if (!bkgContainer.isValid()) {
       ATH_MSG_ERROR("Could not get background McEventCollection container " << bkgContainer.name() << " from store " << bkgContainer.store());
       return StatusCode::FAILURE;
@@ -45,7 +45,7 @@ StatusCode CopyMcEventCollection::execute()
     ATH_MSG_DEBUG("Found background McEventCollection container " << bkgContainer.name() << " in store " << bkgContainer.store());
   }
 
-  SG::ReadHandle<McEventCollection> signalContainer(m_signalInputKey);
+  SG::ReadHandle<McEventCollection> signalContainer(m_signalInputKey, ctx);
   if (!signalContainer.isValid()) {
     ATH_MSG_ERROR("Could not get signal McEventCollection container " << signalContainer.name() << " from store " << signalContainer.store());
     return StatusCode::FAILURE;
@@ -53,7 +53,7 @@ StatusCode CopyMcEventCollection::execute()
   ATH_MSG_DEBUG("Found signal McEventCollection container " << signalContainer.name() << " in store " << signalContainer.store());
 
   // Creating output RDO container
-  SG::WriteHandle<McEventCollection> outputContainer(m_outputKey);
+  SG::WriteHandle<McEventCollection> outputContainer(m_outputKey, ctx);
   ATH_CHECK(outputContainer.record(std::make_unique<McEventCollection>()));
   if (!outputContainer.isValid()) {
     ATH_MSG_ERROR("Could not record output McEventCollection container " << outputContainer.name() << " to store " << outputContainer.store());

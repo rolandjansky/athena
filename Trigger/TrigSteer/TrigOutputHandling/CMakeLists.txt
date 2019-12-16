@@ -33,7 +33,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigAlgorithms/TrigPartialEventBuilding
                           Trigger/TrigDataAccess/TrigSerializeTP
                           Trigger/TrigConfiguration/TrigConfData
-                          Trigger/TrigConfiguration/TrigConfIO
                           Control/AthContainersRoot)
 
 
@@ -45,7 +44,7 @@ atlas_add_library( TrigOutputHandlingLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigOutputHandling
                    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES}  GaudiKernel AthViews AthenaBaseComps RootUtils TrigSteeringEvent TrigSerializeResultLib TrigConfData TrigConfIOLib
+                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES}  GaudiKernel AthViews AthenaBaseComps RootUtils TrigSteeringEvent TrigSerializeResultLib TrigConfData
                    xAODTrigCalo xAODTrigEgamma xAODEgamma xAODTrigger xAODTracking xAODTrigMuon xAODMuon xAODTau xAODTrigBphys xAODTrigMissingET DecisionHandlingLib AthenaMonitoringLib TrigPartialEventBuildingLib TrigSerializeTPLib AthContainersRoot )
 
 atlas_add_component( TrigOutputHandling

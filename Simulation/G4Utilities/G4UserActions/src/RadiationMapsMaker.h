@@ -66,6 +66,10 @@ namespace G4UA
 	int nBinslogT   =  20;   
 	double logTMin  = -9.; // log10(t_cut/s); first bin for t < 1 ns 
 	double logTMax  = 11.; // log10(t_cut/s); last bin for t < 3169 a
+
+	// elements mass fraction maps
+	int elemZMin    =   1; // minimum Z to keep mass fraction
+	int elemZMax    =  92; // maximum Z to keep mass fraction
       };
 
 
@@ -189,6 +193,13 @@ namespace G4UA
 	std::vector<double> m_rz_tid_time;
 	/// vector of time dependent TID in full 2d grid 
 	std::vector<double> m_full_rz_tid_time;
+
+	// maps of element fractions 
+
+	/// vector of element fractions in zoom 2d grid 
+	std::vector<double> m_rz_element;
+	/// vector of element fractions in full 2d grid 
+	std::vector<double> m_full_rz_element;
 
 	void merge(const Report& maps);
       };
