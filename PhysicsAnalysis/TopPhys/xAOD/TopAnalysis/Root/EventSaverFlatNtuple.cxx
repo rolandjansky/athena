@@ -922,13 +922,9 @@ namespace top {
               tagWP));
           else systematicTree->makeOutputVariable(m_jet_tagWeightBin[tagWP], "jet_tagWeightBin_" + tagWP);
         }
-        systematicTree->makeOutputVariable(m_jet_MV2r, "jet_MV2r");
-        systematicTree->makeOutputVariable(m_jet_MV2rmu, "jet_MV2rmu");
         systematicTree->makeOutputVariable(m_jet_DL1, "jet_DL1");
         systematicTree->makeOutputVariable(m_jet_DL1r, "jet_DL1r");
         systematicTree->makeOutputVariable(m_jet_DL1rmu, "jet_DL1rmu");
-        systematicTree->makeOutputVariable(m_jet_MV2cl100, "jet_MV2cl100");
-        systematicTree->makeOutputVariable(m_jet_MV2c100, "jet_MV2c100");
         systematicTree->makeOutputVariable(m_jet_DL1_pu, "jet_DL1_pu");
         systematicTree->makeOutputVariable(m_jet_DL1_pc, "jet_DL1_pc");
         systematicTree->makeOutputVariable(m_jet_DL1_pb, "jet_DL1_pb");
@@ -2381,13 +2377,9 @@ namespace top {
       }
 
       // R21 b-tagging
-      m_jet_MV2r.resize(event.m_jets.size());
-      m_jet_MV2rmu.resize(event.m_jets.size());
       m_jet_DL1.resize(event.m_jets.size());
       m_jet_DL1r.resize(event.m_jets.size());
       m_jet_DL1rmu.resize(event.m_jets.size());
-      m_jet_MV2cl100.resize(event.m_jets.size());
-      m_jet_MV2c100.resize(event.m_jets.size());
       m_jet_DL1_pu.resize(event.m_jets.size());
       m_jet_DL1_pc.resize(event.m_jets.size());
       m_jet_DL1_pb.resize(event.m_jets.size());
@@ -2525,14 +2517,10 @@ namespace top {
           m_jet_passfjvt[i] = jetPtr->getAttribute<char>("passFJVT");
         }
 
-        m_jet_MV2r[i] = -999;
-        m_jet_MV2rmu[i] = -999;
         // DL1 can now be provided by btagging selector tool (see TopCorrections/BTagScaleFactorCalculator)
         m_jet_DL1[i] = jetPtr->auxdataConst<float>("AnalysisTop_DL1");
         m_jet_DL1r[i] = jetPtr->auxdataConst<float>("AnalysisTop_DL1r");
         m_jet_DL1rmu[i] = jetPtr->auxdataConst<float>("AnalysisTop_DL1rmu");
-        m_jet_MV2cl100[i] = -999;
-        m_jet_MV2c100[i] = -999;
         m_jet_DL1_pu[i] = -999;
         m_jet_DL1_pc[i] = -999;
         m_jet_DL1_pb[i] = -999;
@@ -2544,23 +2532,6 @@ namespace top {
         m_jet_DL1rmu_pb[i] = -999;
 
         if (btag) {
-          // MVX
-          mvx = -999;
-          btag->MVx_discriminant("MV2r", mvx);
-          m_jet_MV2r[i] = mvx;
-
-          mvx = -999;
-          btag->MVx_discriminant("MV2rmu", mvx);
-          m_jet_MV2rmu[i] = mvx;
-
-          mvx = -999;
-          btag->MVx_discriminant("MV2cl100", mvx);
-          m_jet_MV2cl100[i] = mvx;
-
-          mvx = -999;
-          btag->MVx_discriminant("MV2c100", mvx);
-          m_jet_MV2c100[i] = mvx;
-
           // DL1
           double _pu, _pc, _pb = -999;
 
