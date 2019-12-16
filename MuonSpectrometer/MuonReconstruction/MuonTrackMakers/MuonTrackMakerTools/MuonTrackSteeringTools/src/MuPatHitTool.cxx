@@ -7,7 +7,6 @@
 #include "MuonTrackMakerUtils/MuonTrackMakerStlTools.h"
 
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
@@ -44,7 +43,6 @@ namespace Muon {
       m_cscRotCreator("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator",this),
       m_compClusterCreator("Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator"),
       m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
-      m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
       m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
       m_incidentSvc("IncidentSvc",n),
       m_magFieldProperties(Trk::NoField)
@@ -57,11 +55,13 @@ namespace Muon {
   MuPatHitTool::~MuPatHitTool() { }
     
   StatusCode MuPatHitTool::initialize(){
-
+    ATH_CHECK( m_idHelperSvc.retrieve() );
     ATH_CHECK( m_mdtRotCreator.retrieve() );
-    if ( ! m_cscRotCreator.empty() ) ATH_CHECK( m_cscRotCreator.retrieve() );
+    if (!m_cscRotCreator.empty()) {
+      if (!m_idHelperSvc->hasCSC()) ATH_MSG_WARNING("The current layout does not have any CSC chamber but you gave a CscRotCreator, ignoring it, but double-check configuration");
+      else ATH_CHECK( m_cscRotCreator.retrieve() );
+    }
     ATH_CHECK( m_compClusterCreator.retrieve() );
-    ATH_CHECK( m_idHelperTool.retrieve() );
     ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_printer.retrieve() );
     ATH_CHECK( m_pullCalculator.retrieve() );
@@ -143,14 +143,14 @@ namespace Muon {
 
       const Identifier& id = hitInfo.id;
       if( hitInfo.type == MuPatHit::UnknownType ) {
-	ATH_MSG_WARNING(" unknown hit type " << m_idHelperTool->toString(id) );
+	ATH_MSG_WARNING(" unknown hit type " << m_idHelperSvc->toString(id) );
 	continue;
       }
 
       // create broad measurement
       const Trk::MeasurementBase* broadMeas = createBroadMeasurement(**sit, hitInfo);
       if( !broadMeas ){
-	ATH_MSG_WARNING(" could not create broad measurement " << m_idHelperTool->toString(id) );	
+	ATH_MSG_WARNING(" could not create broad measurement " << m_idHelperSvc->toString(id) );	
 	continue;
       }
 
@@ -179,7 +179,7 @@ namespace Muon {
       // create hit and insert it into list
       MuPatHit* hit = new MuPatHit(exPars,*sit,broadMeas,hitInfo);
       m_hitsToBeDeleted.push_back(hit);
-      ATH_MSG_VERBOSE(" inserting hit " << m_idHelperTool->toString(id) << " " << m_printer->print(*exPars) );
+      ATH_MSG_VERBOSE(" inserting hit " << m_idHelperSvc->toString(id) << " " << m_printer->print(*exPars) );
       currentHitIt = insert(hitList,currentHitIt, hit);
 
  
@@ -220,17 +220,17 @@ namespace Muon {
 
       const Identifier& id = hitInfo.id;
       
-      if( !m_idHelperTool->isMuon(id) ) continue;
+      if( !m_idHelperSvc->isMuon(id) ) continue;
 
       if( hitInfo.type == MuPatHit::UnknownType ) {
-	ATH_MSG_WARNING(" unknown hit type " << m_idHelperTool->toString(id) );
+	ATH_MSG_WARNING(" unknown hit type " << m_idHelperSvc->toString(id) );
 	continue;
       }
 
       // create broad measurement
       const Trk::MeasurementBase* broadMeas = createBroadMeasurement(*meas, hitInfo);
       if( !broadMeas ){
-	ATH_MSG_WARNING(" could not create broad measurement " << m_idHelperTool->toString(id) );	
+	ATH_MSG_WARNING(" could not create broad measurement " << m_idHelperSvc->toString(id) );	
 	continue;
       }
 
@@ -273,13 +273,13 @@ namespace Muon {
     MuPatHitCit it = hitList2.begin(), it_end = hitList2.end();
     for( ;it!=it_end;++it ){
       if( !(*it)->info().id.is_valid() ) continue;
-      MuonStationIndex::StIndex stIndex = m_idHelperTool->stationIndex( (*it)->info().id );
+      MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex( (*it)->info().id );
       
       // add hits in first list
       idList.insert((*it)->info().id);
 
       if( stationParsMap.find(stIndex) == stationParsMap.end() ) {
-	ATH_MSG_VERBOSE(" reference hit " << *it << "  " << m_idHelperTool->toString((*it)->info().id) 
+	ATH_MSG_VERBOSE(" reference hit " << *it << "  " << m_idHelperSvc->toString((*it)->info().id) 
 			       << " " << m_printer->print((*it)->parameters()) );
 
 	stationParsMap[stIndex] = &(*it)->parameters();
@@ -301,7 +301,7 @@ namespace Muon {
        if( idList.count((*it)->info().id) ) continue;
        idList.insert((*it)->info().id);
 
-	MuonStationIndex::StIndex stIndex = m_idHelperTool->stationIndex( (*it)->info().id );
+	MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex( (*it)->info().id );
 
 	// check whether there were also hits in this station in the second list
 	std::map<MuonStationIndex::StIndex,const Trk::TrackParameters*>::iterator stationPos = stationParsMap.find(stIndex);
@@ -395,13 +395,13 @@ namespace Muon {
 
   
   MuPatHit::Type MuPatHitTool::getHitType( const Identifier& id ) const {
-    if( m_idHelperTool->isMdt(id) ) return MuPatHit::MDT;
-    else if( m_idHelperTool->isTgc(id) ) return MuPatHit::TGC;
-    else if( m_idHelperTool->isCsc(id) ) return MuPatHit::CSC;
-    else if( m_idHelperTool->isRpc(id) ) return MuPatHit::RPC;
-    else if( m_idHelperTool->isMM(id) ) return MuPatHit::MM;
-    else if( m_idHelperTool->issTgc(id) ) return MuPatHit::sTGC;
-    else if( m_idHelperTool->isMuon(id) ) return MuPatHit::PREC;
+    if( m_idHelperSvc->isMdt(id) ) return MuPatHit::MDT;
+    else if( m_idHelperSvc->isTgc(id) ) return MuPatHit::TGC;
+    else if( m_idHelperSvc->isCsc(id) ) return MuPatHit::CSC;
+    else if( m_idHelperSvc->isRpc(id) ) return MuPatHit::RPC;
+    else if( m_idHelperSvc->isMM(id) ) return MuPatHit::MM;
+    else if( m_idHelperSvc->issTgc(id) ) return MuPatHit::sTGC;
+    else if( m_idHelperSvc->isMuon(id) ) return MuPatHit::PREC;
     return MuPatHit::UnknownType;
   }
 
@@ -412,10 +412,10 @@ namespace Muon {
     hitInfo.measuresPhi = true; // assume that all PseudoMeasurements measure phi!!
     hitInfo.type = MuPatHit::Pseudo;
     hitInfo.status = MuPatHit::OnTrack;
-    if( hitInfo.id.is_valid() && m_idHelperTool->isMuon(hitInfo.id) ) {
+    if( hitInfo.id.is_valid() && m_idHelperSvc->isMuon(hitInfo.id) ) {
       hitInfo.type = getHitType(hitInfo.id);
-      hitInfo.measuresPhi = m_idHelperTool->measuresPhi(hitInfo.id);
-      if( hitInfo.type != MuPatHit::MDT && hitInfo.type != MuPatHit::MM ) hitInfo.id = m_idHelperTool->layerId(hitInfo.id);
+      hitInfo.measuresPhi = m_idHelperSvc->measuresPhi(hitInfo.id);
+      if( hitInfo.type != MuPatHit::MDT && hitInfo.type != MuPatHit::MM ) hitInfo.id = m_idHelperSvc->layerId(hitInfo.id);
     }
   }
 
@@ -427,7 +427,7 @@ namespace Muon {
       const MdtDriftCircleOnTrack* mdt = dynamic_cast<const MdtDriftCircleOnTrack*>(&meas);
       if( !mdt ){
 	ATH_MSG_WARNING(" found hit with a MDT Identifier that is not a MdtDriftCircleOnTrack " 
-	       << m_idHelperTool->toString(hitInfo.id) );
+	       << m_idHelperSvc->toString(hitInfo.id) );
 	return 0;
       }
       ATH_MSG_DEBUG(" creating broad MdtDriftCircleOnTrack " );
@@ -442,7 +442,7 @@ namespace Muon {
       const CscClusterOnTrack* csc = dynamic_cast<const CscClusterOnTrack*>(&meas);
       if( !csc ){
 	ATH_MSG_WARNING(" found hit with CSC identifier that is not a CscClusterOnTrack "
-	       << m_idHelperTool->toString(hitInfo.id) );
+	       << m_idHelperSvc->toString(hitInfo.id) );
 	return 0;
       }
       ATH_MSG_DEBUG(" creating broad CscClusterOnTrack " );
@@ -458,7 +458,7 @@ namespace Muon {
 
     // first check whether list is empty, if so insert
     if( list.empty() ) {
-       ATH_MSG_VERBOSE(" inserting first hit  " << m_idHelperTool->toString(hit->info().id) 
+       ATH_MSG_VERBOSE(" inserting first hit  " << m_idHelperSvc->toString(hit->info().id) 
 			      << " " << m_printer->print(hit->parameters()) );
        list.push_back(hit);
       return list.begin();
@@ -481,13 +481,13 @@ namespace Muon {
 	if( pos == list.end() ) {
 	  // check whether hit duplicate of last hit in list
 	  if( isLargerCal(list.back(),hit) != isLargerCal(hit,list.back()) || (hit->info().type == MuPatHit::MM && hit->info().id != list.back()->info().id) ){
-	    ATH_MSG_VERBOSE(" inserting hit at back   " << m_idHelperTool->toString(hit->info().id) 
+	    ATH_MSG_VERBOSE(" inserting hit at back   " << m_idHelperSvc->toString(hit->info().id) 
 				   << " " << m_printer->print(hit->parameters()) );
   	    list.push_back(hit);
 	    pos = list.end();
 	  }else{
 	    // hit is a duplicate
-	    ATH_MSG_VERBOSE(" NOT inserting duplicate hit  " << m_idHelperTool->toString(hit->info().id) 
+	    ATH_MSG_VERBOSE(" NOT inserting duplicate hit  " << m_idHelperSvc->toString(hit->info().id) 
 				   << " " << m_printer->print(hit->parameters()) );
 	  }
 	  return --pos;
@@ -504,13 +504,13 @@ namespace Muon {
       if( pos == list.begin() && !isLarger  ){
 	// check whether hit duplicate of last hit in list
 	if( isLargerCal(list.front(),hit) != isLargerCal(hit,list.front()) || (hit->info().type == MuPatHit::MM && hit->info().id != list.front()->info().id) ){
-	  ATH_MSG_VERBOSE(" inserting hit at front  " << m_idHelperTool->toString(hit->info().id) 
+	  ATH_MSG_VERBOSE(" inserting hit at front  " << m_idHelperSvc->toString(hit->info().id) 
 				 << " " << m_printer->print(hit->parameters()) );
  
  	  list.push_front(hit);
 	}else{
 	  // hit is a duplicate
-	  ATH_MSG_VERBOSE(" NOT inserting duplicate hit  " << m_idHelperTool->toString(hit->info().id) 
+	  ATH_MSG_VERBOSE(" NOT inserting duplicate hit  " << m_idHelperSvc->toString(hit->info().id) 
 				 << " " << m_printer->print(hit->parameters()) );
 	}
 	return list.begin();
@@ -523,13 +523,13 @@ namespace Muon {
       if( pos == list.end() ) {
 	// check whether hit duplicate of last hit in list
 	if( isLargerCal(list.back(),hit) != isLargerCal(hit,list.back()) || (hit->info().type == MuPatHit::MM && hit->info().id != list.back()->info().id) ){
-	  ATH_MSG_VERBOSE(" inserting hit at back   " << m_idHelperTool->toString(hit->info().id) 
+	  ATH_MSG_VERBOSE(" inserting hit at back   " << m_idHelperSvc->toString(hit->info().id) 
 				 << " " << m_printer->print(hit->parameters()) ); 
  	  list.push_back(hit);
 	  pos = list.end();
 	}else{
 	  // hit is a duplicate
-	  ATH_MSG_VERBOSE(" NOT inserting duplicate hit  " << m_idHelperTool->toString(hit->info().id) 
+	  ATH_MSG_VERBOSE(" NOT inserting duplicate hit  " << m_idHelperSvc->toString(hit->info().id) 
 				 << " " << m_printer->print(hit->parameters()) );
 	}
 	return --pos;
@@ -542,7 +542,7 @@ namespace Muon {
     // check whether hit and entry at pos are a duplicate
     if( isLarger == isLargerCal(*pos,hit) && (hit->info().type != MuPatHit::MM || hit->info().id == (*pos)->info().id) ){
       // hit is a duplicate
-      ATH_MSG_VERBOSE(" NOT inserting duplicate hit  " << m_idHelperTool->toString(hit->info().id) 
+      ATH_MSG_VERBOSE(" NOT inserting duplicate hit  " << m_idHelperSvc->toString(hit->info().id) 
 			     << " " << m_printer->print(hit->parameters()) );
       return pos;
     }
@@ -555,7 +555,7 @@ namespace Muon {
       if( isLargerCal(hit,*pos) == isLargerCal(*pos,hit) && (hit->info().type != MuPatHit::MM || hit->info().id == (*pos)->info().id) ){
 	++pos; // move forward to insert position for pos
 	// hit is a duplicate
-	ATH_MSG_VERBOSE(" NOT inserting duplicate hit  " << m_idHelperTool->toString(hit->info().id) 
+	ATH_MSG_VERBOSE(" NOT inserting duplicate hit  " << m_idHelperSvc->toString(hit->info().id) 
 			       << " " << m_printer->print(hit->parameters()) );
 	return pos;
       }
@@ -564,7 +564,7 @@ namespace Muon {
     }
 
     // the hit will be inserted before pos
-    ATH_MSG_VERBOSE(" inserting hit in middle " << m_idHelperTool->toString(hit->info().id) 
+    ATH_MSG_VERBOSE(" inserting hit in middle " << m_idHelperSvc->toString(hit->info().id) 
 			   << " " << m_printer->print(hit->parameters()) );
     return list.insert(pos,hit);
   } 
@@ -582,7 +582,7 @@ namespace Muon {
       Identifier id = m_edmHelperSvc->getIdentifier(**mit);
       if( !id.is_valid() ) continue;
       
-      if( !m_idHelperTool->isMdt(id) ) id = m_idHelperTool->layerId(id);
+      if( !m_idHelperSvc->isMdt(id) ) id = m_idHelperSvc->layerId(id);
 
       ids.insert(id);
     }
@@ -620,7 +620,7 @@ namespace Muon {
     if( itNext != it_end ) ++itNext;
     for( ; it!=it_end; ++it,++itNext ){
       Identifier id = m_edmHelperSvc->getIdentifier( (*it)->measurement() );
-      std::string idStr = id.is_valid() ? m_idHelperTool->toString( id ) : "pseudo-measurement";
+      std::string idStr = id.is_valid() ? m_idHelperSvc->toString( id ) : "pseudo-measurement";
       idStrings.push_back(idStr);
       if (idStr.length() > idWidth) idWidth = idStr.length();
       const Trk::TrackParameters& pars = (*it)->parameters();
@@ -671,10 +671,10 @@ namespace Muon {
       const Trk::PseudoMeasurementOnTrack* pseudo = dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(&measurement);
       if( pseudo ) idStr = "pseudo measurement";
       else idStr = "no Identifier";
-    }else if( !m_idHelperTool->mdtIdHelper().is_muon(id) ) {
+    }else if( !m_idHelperSvc->mdtIdHelper().is_muon(id) ) {
       idStr = "Id hit"; 
     }else{
-      idStr = m_idHelperTool->toString( id );
+      idStr = m_idHelperSvc->toString( id );
     }
 
     return idStr;
@@ -725,7 +725,7 @@ namespace Muon {
 	rpcTimes.reserve(nhits);
 	std::vector<const MuonClusterOnTrack*>::const_iterator itR = rots.begin(), itR_end = rots.end();
 	for ( ; itR != itR_end; ++itR ) {
-	  Identifier layerId = m_idHelperTool->layerId((*itR)->identify());
+	  Identifier layerId = m_idHelperSvc->layerId((*itR)->identify());
 	  layers.insert(layerId);
 	  const RpcClusterOnTrack* rpc = dynamic_cast<const RpcClusterOnTrack*>(*itR);
 	  const RpcPrepData* rpcPRD = rpc ? rpc->prepRawData() : 0;
