@@ -14,7 +14,6 @@
 # art-output: *.pmon.gz
 # art-output: *perfmon*
 
-export INPUT="run2dataFTK" # FTK doesn't matter here - using this dataset because of larger stats
 export EVENTS=1000
 export THREADS=1
 export SLOTS=1

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 from AthenaCommon.JobProperties import jobproperties
@@ -15,7 +15,7 @@ class PFLocalHadCal:
             Calib = CaloClusterLocalCalib(name+"_CaloClusterLocalCalib")
         except:
             mlog.error("could not import CaloClusterCorrection.CaloClusterLocalCalib")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
         
         try:
@@ -23,7 +23,7 @@ class PFLocalHadCal:
             LCClassify   = CaloLCClassificationTool(name+"_CaloLCClassificationTool")
         except:
             mlog.error("could not import CaloUtils.EMFracClusterClassificationTool")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         LCClassify.ClassificationKey   = "EMFracClassify"
@@ -63,7 +63,7 @@ class PFLocalHadCal:
             LCWeight = CaloLCWeightTool(name+"_CaloLCWeightTool")
         except:
             mlog.error("could not import CaloUtils.CaloLCWeightTool")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
             from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
@@ -86,7 +86,7 @@ class PFLocalHadCal:
             CalibDM = CaloClusterLocalCalib(name+"_CaloClusterLocalCalibDM")
         except:
             mlog.error("could not import CaloClusterCorrection.CaloClusterLocalCalib")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         CalibDM.ClusterRecoStatus = [1,2]
@@ -107,7 +107,7 @@ class PFLocalHadCal:
             LCDeadMaterial = CaloLCDeadMaterialTool(name+"_CaloLCDeadMaterialTool")
         except:
             mlog.error("could not import CaloUtils.CaloLCDeadMaterialTool")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         LCDeadMaterial.HadDMCoeffKey       = "HadDMCoeff2"
@@ -126,7 +126,7 @@ class PFLocalHadCal:
             CalibOO = CaloClusterLocalCalib(name+"_CaloClusterLocalCalibOO")
         except:
             mlog.error("could not import CaloClusterCorrection.CaloClusterLocalCalib")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         #New Local Hadron Calibration uses [1,2] instead of [2]
@@ -148,7 +148,7 @@ class PFLocalHadCal:
             CalibOOPi0 = CaloClusterLocalCalib(name+"_CaloClusterLocalCalibOOPi0")
         except:
             mlog.error("could not import CaloClusterCorrection.CaloClusterLocalCalib")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
         
         CalibOOPi0.ClusterRecoStatus = [1]
@@ -169,7 +169,7 @@ class PFLocalHadCal:
             OOCC = CaloLCOutOfClusterTool(name+"_CaloLCOutOfClusterTool")
         except:
             mlog.error("Could not import CaloUtils.CaloLCOutOfClusterTool")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         OOCC.CorrectionKey = "OOCCorrection"
@@ -187,7 +187,7 @@ class PFLocalHadCal:
             OOCCPi0 = CaloLCOutOfClusterTool(name+"_CaloLCOutOfClusterPi0Tool")
         except:
             mlog.error("Could not import CaloUtils.CaloLCOutOfClusterTool")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
         
         OOCCPi0.CorrectionKey = "OOCPi0Correction"

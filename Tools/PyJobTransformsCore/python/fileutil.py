@@ -1,7 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 import os, sys, re, time
-import dummyaccess, rfio
+from PyJobTransformsCore import dummyaccess, rfio
 import stat as statconsts
 
 __doc__ = """A set of file utilities that can be used for several file systems (local files, rfio, castor)"""
@@ -35,11 +37,11 @@ def retry_function_time( func, args, retryException,
             dt = time.time() - tStart
             argsStr = ', '.join( [ '%r' % a for a in args ] )
             if dt > retryMaxTime:
-                print "%s(%s) Failed" % (func.__name__,argsStr)
+                print ("%s(%s) Failed" % (func.__name__,argsStr))
                 raise
             time.sleep(retryDelay)
             retryDelay *= 2
-            print "Retrying %s(%s)" % (func.__name__,argsStr)
+            print ("Retrying %s(%s)" % (func.__name__,argsStr))
 
     return val
 
@@ -76,7 +78,7 @@ IO_LFN    = AccessType('lfn'   , r'^LFN:'    , r'LFN:'   , dummyaccess, dummyacc
 _accessTypes = ( IO_LFN, IO_XROOTD, IO_CASTOR, IO_RFIO, IO_LOCAL ) # IO_LOCAL should be last entry due to regex being very liberal
 
 
-class Tee(file):
+class Tee:
     """A file utility like unix 'tee'. It writes any output to a file and to screen (stdout by default).
     <option> if it has an 'a', append to logfile file, otherwise overwrite existing file."""
     def __init__(self,filename,options='',screen=sys.stdout):
@@ -84,7 +86,7 @@ class Tee(file):
             fileMode = 'a'
         else:
             fileMode = 'w'
-        file.__init__(self,filename,fileMode)
+        self.f = open (filename,fileMode)
         self.screen = screen
 
     #
@@ -92,12 +94,12 @@ class Tee(file):
     #
     def write(self,s):
         self.screen.write(s)
-        file.write(self,s)
+        self.f.write(self,s)
 
 
     def writelines(self,ls):
         self.screen.writelines(ls)
-        file.writelines(self,ls)
+        self.f.writelines(self,ls)
 
 
     def flush(self):
@@ -153,8 +155,8 @@ def remove(filename):
     if at == IO_LOCAL:
         if exists(filename): retry_file_access( os.remove, filename )
     else:
-        print "WARNING: file %s file %s can not be removed" % \
-              (at.name, filename)
+        print ("WARNING: file %s file %s can not be removed" % \
+              (at.name, filename))
     
 
 def exists_suffix(filename,suffixRE):

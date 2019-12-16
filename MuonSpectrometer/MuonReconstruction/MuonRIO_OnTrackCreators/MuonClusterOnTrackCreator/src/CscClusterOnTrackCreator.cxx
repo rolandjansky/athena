@@ -1,17 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-
-
-///////////////////////////////////////////////////////////////////
-//   Implementation file for class CscClusterOnTrackCreator
-///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 // AlgTool used for MuonClusterOnTrack object production
-///////////////////////////////////////////////////////////////////
-// Version 1.0 20/07/2004
 ///////////////////////////////////////////////////////////////////
 
 #include "CscClusterOnTrackCreator.h"
@@ -35,9 +27,6 @@
 
 #include "TrkRIO_OnTrack/check_cast.h"
 
-using std::vector;
-using std::setw;
-using std::atan2;
 using Muon::CscStripPrepDataContainer;
 using Muon::CscStripPrepDataCollection;
 using Muon::CscStripPrepData;
@@ -90,9 +79,12 @@ namespace Muon {
 	return StatusCode::FAILURE;
     }
 
-    ATH_CHECK( m_muonIdHelperTool.retrieve() );
+    ATH_CHECK( m_idHelperSvc.retrieve() );
 
-    // -- check this, maybe the helpers are not necessary after all.
+    if (!m_idHelperSvc->hasCSC()) {
+      ATH_MSG_ERROR("The given detector layout does not contain any CSC chamber, there must be something wrong in the configuration, since the CscClusterOnTrackCreator cannot be needed.");
+      return StatusCode::FAILURE;
+    }
 
     // get error scaling tool
     //
@@ -189,28 +181,28 @@ namespace Muon {
     Amg::MatrixX  loce = RIO.localCovariance();
 
     if ( m_doCsc
-         && m_muonIdHelperTool->cscIdHelper().is_csc(RIO.identify())
+         && m_idHelperSvc->cscIdHelper().is_csc(RIO.identify())
          && !m_cscErrorScalingKey.key().empty()) {
       SG::ReadCondHandle<RIO_OnTrackErrorScaling> error_scaling( m_cscErrorScalingKey );
       loce = check_cast<MuonEtaPhiRIO_OnTrackErrorScaling>(*error_scaling)->getScaledCovariance( loce, Trk::distPhi);
       ATH_MSG_VERBOSE ( "CSC: new cov(0,0) is " << loce(0,0) );
     }
     if ( m_doRpc
-	 && m_muonIdHelperTool->rpcIdHelper().is_rpc(RIO.identify())
+	 && m_idHelperSvc->rpcIdHelper().is_rpc(RIO.identify())
 	 && !m_rpcErrorScalingKey.key().empty()) {
       SG::ReadCondHandle<RIO_OnTrackErrorScaling> error_scaling( m_rpcErrorScalingKey );
       loce = check_cast<MuonEtaPhiRIO_OnTrackErrorScaling>(*error_scaling)->getScaledCovariance( loce, Trk::distPhi);
       ATH_MSG_VERBOSE ( "RPC: new cov(0,0) is " << loce(0,0) );
     }
     if ( m_doTgc
-	 && m_muonIdHelperTool->tgcIdHelper().is_tgc(RIO.identify())
+	 && m_idHelperSvc->tgcIdHelper().is_tgc(RIO.identify())
 	 && !m_tgcErrorScalingKey.key().empty() ) {
       SG::ReadCondHandle<RIO_OnTrackErrorScaling> error_scaling( m_tgcErrorScalingKey );
       loce = check_cast<MuonEtaPhiRIO_OnTrackErrorScaling>(*error_scaling)->getScaledCovariance( loce, Trk::distPhi);
       ATH_MSG_VERBOSE ( "TGC: new cov(1,1) is " << loce(0,0) );
     }
 
-    if(  m_doRpc && m_muonIdHelperTool->rpcIdHelper().is_rpc(RIO.identify()) ){
+    if(  m_doRpc && m_idHelperSvc->rpcIdHelper().is_rpc(RIO.identify()) ){
       // cast to RpcPrepData
       const RpcPrepData* MClus   = dynamic_cast<const RpcPrepData*> (&RIO);
       if (!MClus) {
@@ -219,7 +211,7 @@ namespace Muon {
       }
       MClT = new RpcClusterOnTrack(MClus,locpar,loce,positionAlongStrip);
 
-    }else if( m_doTgc && m_muonIdHelperTool->tgcIdHelper().is_tgc(RIO.identify()) ){
+    }else if( m_doTgc && m_idHelperSvc->tgcIdHelper().is_tgc(RIO.identify()) ){
       
       // cast to TgcPrepData
       const TgcPrepData* MClus   = dynamic_cast<const TgcPrepData*> (&RIO);
@@ -229,11 +221,11 @@ namespace Muon {
       }
 
       // calculation of 2D error matrix for TGC phi strips
-      if ( m_muonIdHelperTool->tgcIdHelper().isStrip(RIO.identify())){
+      if ( m_idHelperSvc->tgcIdHelper().isStrip(RIO.identify())){
 
-	int stationeta=m_muonIdHelperTool->tgcIdHelper().stationEta(RIO.identify());
-	int stripNo = m_muonIdHelperTool->tgcIdHelper().channel(RIO.identify());
-	int gasGap = m_muonIdHelperTool->tgcIdHelper().gasGap(RIO.identify());
+	int stationeta=m_idHelperSvc->tgcIdHelper().stationEta(RIO.identify());
+	int stripNo = m_idHelperSvc->tgcIdHelper().channel(RIO.identify());
+	int gasGap = m_idHelperSvc->tgcIdHelper().gasGap(RIO.identify());
 
 	const MuonGM::TgcReadoutElement *ele= MClus->detectorElement();
 
@@ -248,22 +240,22 @@ namespace Muon {
 	}
 	Amg::MatrixX mat = Amg::MatrixX(2,2);
 	
-	double phistereo=atan2(localX2-localX1,stripLength); 
-	double Sn      = sin(phistereo); 
+	double phistereo=std::atan2(localX2-localX1,stripLength); 
+	double Sn      = std::sin(phistereo); 
 	double Sn2     = Sn*Sn;
 	double Cs2     = 1.-Sn2;
 	
 	double V0      = stripWidth*stripWidth/12;
 	double V1      = stripLength*stripLength/12;
 	mat(0,0) = (Cs2*V0+Sn2*V1);
-	mat.fillSymmetric(1,0,(Sn*sqrt(Cs2)*(V0-V1)));
+	mat.fillSymmetric(1,0,(Sn*std::sqrt(Cs2)*(V0-V1)));
 	mat(1,1) = (Sn2*V0+Cs2*V1);
 	loce=mat;
       }
           
       MClT = new TgcClusterOnTrack(MClus,locpar,loce,positionAlongStrip);
 
-    } else if ( m_doCsc && m_muonIdHelperTool->cscIdHelper().is_csc(RIO.identify()) ){
+    } else if ( m_doCsc && m_idHelperSvc->cscIdHelper().is_csc(RIO.identify()) ){
       
       // cast to CscPrepData
       const CscPrepData* MClus   = dynamic_cast<const CscPrepData*> (&RIO);
@@ -286,7 +278,7 @@ namespace Muon {
   createRIO_OnTrack(const Trk::PrepRawData& RIO, const Amg::Vector3D& GP,
                     const Amg::Vector3D& GD) const {
 
-    if ( ! ( m_doCsc && m_muonIdHelperTool->cscIdHelper().is_csc(RIO.identify()) ) ) {
+    if ( ! ( m_doCsc && m_idHelperSvc->cscIdHelper().is_csc(RIO.identify()) ) ) {
       ATH_MSG_WARNING ( "CscClusterOnTrackCreator::createRIO_OnTrack is called by the other muon tech" );
       return 0;
     }
@@ -310,7 +302,7 @@ namespace Muon {
     // in RIO_OnTrack the local param and cov should have the same dimension
     Trk::LocalParameters locpar = Trk::LocalParameters (RIO.localPosition ());
     if (RIO.localCovariance().cols() > 1 || 
-	(m_muonIdHelperTool->tgcIdHelper().is_tgc(RIO.identify()) && m_muonIdHelperTool->tgcIdHelper().isStrip(RIO.identify()))) {
+	(m_idHelperSvc->tgcIdHelper().is_tgc(RIO.identify()) && m_idHelperSvc->tgcIdHelper().isStrip(RIO.identify()))) {
       ATH_MSG_VERBOSE ( "Making 2-dim local parameters" );
     } else {
       Trk::DefinedParameter  radiusPar(RIO.localPosition().x(),Trk::locX);
@@ -334,7 +326,7 @@ namespace Muon {
     Amg::MatrixX  loce = RIO.localCovariance();
     
     if ( m_doCsc 
-	 && m_muonIdHelperTool->cscIdHelper().is_csc(RIO.identify())
+	 && m_idHelperSvc->cscIdHelper().is_csc(RIO.identify())
          && !m_cscErrorScalingKey.key().empty()) {
       SG::ReadCondHandle<RIO_OnTrackErrorScaling> error_scaling( m_cscErrorScalingKey );
       loce = check_cast<MuonEtaPhiRIO_OnTrackErrorScaling>(*error_scaling)->getScaledCovariance( loce, Trk::distPhi);
@@ -384,7 +376,7 @@ namespace Muon {
       //                                   + m_errorScaler*m_errorScaler*res0.dposition*res0.dposition); 
       // v1 scaling up total uncertainty and add up misalignment term....like sqrt( sigma_nominal^2 * alpha^2 + beta^2)
       double nominal_error = res.dposition;
-      double errorCorrected = sqrt( nominal_error*nominal_error*m_errorScaler*m_errorScaler + m_errorScalerBeta*m_errorScalerBeta);
+      double errorCorrected = std::sqrt( nominal_error*nominal_error*m_errorScaler*m_errorScaler + m_errorScalerBeta*m_errorScalerBeta);
       if( errorCorrected < m_minimumError ) errorCorrected = m_minimumError;
 
       Amg::MatrixX newloce( Amg::MatrixX(1,1) );

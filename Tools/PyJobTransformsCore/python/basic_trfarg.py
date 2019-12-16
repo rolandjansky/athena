@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ## @package basic_trfarg
 #
@@ -8,6 +8,8 @@
 #  @author $LastChangedBy: ivukotic $
 #  @version $Rev: 451072 $
 #  @date $Date: 2011-07-28 19:22:06 +0200 (Thu, 28 Jul 2011) $
+
+from __future__ import print_function
 
 import os, shutil, time, fnmatch, subprocess, copy
 import stat as statconsts
@@ -107,10 +109,10 @@ class Argument( TransformLogger ):
             # test that the default value can be converted to the correct type
             try: 
                 self.toPython( default )
-            except TransformDefinitionError, msg:
+            except TransformDefinitionError as msg:
                 # re-raise with different error message
                 raise TransformDefinitionError( 'Unable to set default value: %s' % msg )
-            except TransformArgumentError, msg:
+            except TransformArgumentError as msg:
                 raise TransformArgumentError( 'Unable to set default value: %s' % msg )
             # store original value (so self.setValue() will do the conversion)
             self._default = default
@@ -858,7 +860,7 @@ class InputDataFileArg( DataFileArg ):
             # parallel vector notation support
             try:
                 return expandStringToList( valIn )
-            except Exception, msg:
+            except Exception as msg:
                 raise TransformDefinitionError( '%s=%s: %s' % ( self.name(), valIn, msg ) )
         else:
             # if we get here, there is problem
@@ -1204,7 +1206,7 @@ class OutputFileArg( DataFileArg ):
         if not self: 
             return
         if self._temporary or self._intermediate: 
-            # print 'basic_trfarg.py file is temporary or intermediate'
+            # print ('basic_trfarg.py file is temporary or intermediate')
             return
         if isinstance(self._fileType, AODFile) or isinstance(self._fileType,ESDFile) or isinstance(self._fileType,DPDFile) or isinstance(self._fileType,EvgenFile) or isinstance(self._fileType,HitsFile):
             try:
@@ -1218,9 +1220,9 @@ class OutputFileArg( DataFileArg ):
                     alltheData.append(necoll[1])
                     return
             except:
-                print "basic_trfarg.py  exception caught:", sys.exc_type, ":", sys.exc_value
+                print ("basic_trfarg.py  exception caught:", sys.exc_type, ":", sys.exc_value)
         else:
-            print 'basic_trfarg.py  Not checking object sizes for this file type'
+            print ('basic_trfarg.py  Not checking object sizes for this file type')
     
     def prepareFileInfo(self):
         """Populate _fileInfo with metadata and guid."""
@@ -1264,87 +1266,87 @@ if __name__ == '__main__':
 
     x = "abc.AOD.*.root"
     a.setValue( x )
-    print "\nInput: %s" % x
+    print ("\nInput: %s" % x)
     for ds,fn in a.value( getDataset = True ):
-        print "dataset: %s, filename: %s" % (ds,fn)
+        print ("dataset: %s, filename: %s" % (ds,fn))
 
     x = "abc.AOD.0[1-7].root"
     a.setValue( x )
-    print "\nInput: %s" % x
+    print ("\nInput: %s" % x)
     for ds,fn in a.value( getDataset = True ):
-        print "dataset: %s, filename: %s" % (ds,fn)
+        print ("dataset: %s, filename: %s" % (ds,fn))
 
     x = "abc.AOD._1.root"
     a.setValue( x )
-    print "\nInput: %s" % x
+    print ("\nInput: %s" % x)
     for ds,fn in a.value( getDataset = True ):
-        print "dataset: %s, filename: %s" % (ds,fn)
+        print ("dataset: %s, filename: %s" % (ds,fn))
     
     x = "abc.AOD._1.root,abc.AOD._2.root,abc.AOD._3.root"
     a.setValue( x )
-    print "\nInput: %s" % x
+    print ("\nInput: %s" % x)
     for ds,fn in a.value( getDataset = True ):
-        print "dataset: %s, filename: %s" % (ds,fn)
+        print ("dataset: %s, filename: %s" % (ds,fn))
 
     x = ["abc.AOD._1.root", "abc.AOD._2.root", "abc.AOD._3.root"]
     a.setValue( x )
-    print "\nInput: %s" % x
+    print ("\nInput: %s" % x)
     for ds,fn in a.value( getDataset = True ):
-        print "dataset: %s, filename: %s" % (ds,fn)
+        print ("dataset: %s, filename: %s" % (ds,fn))
 
     x = "abc##.AOD._1.root"
     a.setValue( x )
-    print "\nInput: %s" % x
+    print ("\nInput: %s" % x)
     for ds,fn in a.value( getDataset = True ):
-        print "dataset: %s, filename: %s" % (ds,fn)
+        print ("dataset: %s, filename: %s" % (ds,fn))
 
     x = "abc#abc.AOD._1.root"
     a.setValue( x )
-    print "\nInput: %s" % x
+    print ("\nInput: %s" % x)
     for ds,fn in a.value( getDataset = True ):
-        print "dataset: %s, filename: %s" % (ds,fn)
+        print ("dataset: %s, filename: %s" % (ds,fn))
     
     x = "abc.AOD._1.root,abc#abc.AOD._2.root,abc##.AOD._3.root"
     a.setValue( x )
-    print "\nInput: %s" % x
+    print ("\nInput: %s" % x)
     for ds,fn in a.value( getDataset = True ):
-        print "dataset: %s, filename: %s" % (ds,fn)
+        print ("dataset: %s, filename: %s" % (ds,fn))
 
     x = "abc.AOD.[A,B,C]._[1,2,3].[X,Y,Z].root"
     a.setValue( x )
-    print "\nInput: %s" % x
+    print ("\nInput: %s" % x)
     for ds,fn in a.value( getDataset = True ):
-        print "dataset: %s, filename: %s" % (ds,fn)
+        print ("dataset: %s, filename: %s" % (ds,fn))
 
     x = ["abc.AOD._[1,2,3].root"]
     a.setValue( x )
-    print "\nInput: %s" % x
+    print ("\nInput: %s" % x)
     for ds,fn in a.value( getDataset = True ):
-        print "dataset: %s, filename: %s" % (ds,fn)
+        print ("dataset: %s, filename: %s" % (ds,fn))
 
     x = "abc.AOD._[10,11,12].root,abc#abc.AOD._[21,22,23].root,abc##.AOD._[31,32,33].root"
     a.setValue( x )
-    print "\nInput: %s" % x
+    print ("\nInput: %s" % x)
     for ds,fn in a.value( getDataset = True ):
-        print "dataset: %s, filename: %s" % (ds,fn)
+        print ("dataset: %s, filename: %s" % (ds,fn))
 
     x = ["abc.AOD._[10,11,12].root","abc#abc.AOD._[21,22,23].root","abc##.AOD._[31,32,33].root"]
     a.setValue( x )
-    print "\nInput: %s" % x
+    print ("\nInput: %s" % x)
     for ds,fn in a.value( getDataset = True ):
-        print "dataset: %s, filename: %s" % (ds,fn)
+        print ("dataset: %s, filename: %s" % (ds,fn))
 
     x = '/afs/cern.ch/user/j/jboyd/gencomm/GetInterestingEvents/BSfiles/87764/evt.194586._0001.data,/afs/cern.ch/user/j/jboyd/gencomm/GetInterestingEvents/BSfiles/87764/DSTEST##.evt.194728._[0001,0002,0003].data,/afs/cern.ch/user/j/jboyd/gencomm/GetInterestingEvents/BSfiles/87764/DSTEST#DSTEST.evt.216134._0001.data'
     a.setValue( x )
-    print "\nInput: %s" % x
+    print ("\nInput: %s" % x)
     for ds,fn in a.value( getDataset = True ):
-        print "dataset: %s, filename: %s" % (ds,fn)
+        print ("dataset: %s, filename: %s" % (ds,fn))
 
     x = ["abc##.AOD._[SFO_1,SFO_4]._0001.[2,3]", "abc#abc.AOD._[SFO_1,SFO_4].[3,4]"]
     a.setValue( x )
-    print "\nInput: %s" % x
+    print ("\nInput: %s" % x)
     for ds,fn in a.value( getDataset = True ):
-        print "dataset: %s, filename: %s" % (ds,fn)
+        print ("dataset: %s, filename: %s" % (ds,fn))
 
 
 
