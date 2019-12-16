@@ -88,10 +88,15 @@ akt4EMcalib_17 = "(AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 17*GeV && abs(AntiK
 akt4EMcalib_20 = "(AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 20*GeV && abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta) < 2.5)"
 akt4EMcalib_22 = "(AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 22*GeV && abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta) < 2.5)"
 akt4EMcalib_50 = "(AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 50*GeV && abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta) < 2.5)"
+akt4EMPFlowcalib_20 = "(AntiKt4EMPFlowJets.DFCommonJets_Calib_pt > 20*GeV && abs(AntiKt4EMPFlowJets.DFCommonJets_Calib_eta) < 2.5)"
 akt10LCtrimmedcalib_200 = "(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 200*GeV && abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta) < 2.5)"
 akt10LCtrimmedcalib_220 = "(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 220*GeV && abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta) < 2.5)"
 akt10LCtrimmedcalib_350 = "(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 350*GeV && abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta) < 2.5)"
 akt10LCtrimmedcalib_200_masscut = "(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 200*GeV && abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta) < 2.5 && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_m > 30*GeV)"
+akt4EM_FCBEff_85_MV2c10 = "(AntiKt4EMTopoJets_BTagging201810.DFCommonJets_FixedCutBEff_85_MV2c10)"
+akt4EM_FCBEff_85_DL1 = "(AntiKt4EMTopoJets_BTagging201810.DFCommonJets_FixedCutBEff_85_DL1)"
+akt4EMPFlow_FCBEff_85_MV2c10 = "(AntiKt4EMPFlowJets_BTagging201810.DFCommonJets_FixedCutBEff_85_MV2c10)"
+akt4EMPFlow_FCBEff_85_DL1 = "(AntiKt4EMPFlowJets_BTagging201810.DFCommonJets_FixedCutBEff_85_DL1)"
 
 #LargeR jets
 largeR_200="("+akt10LCtrimmedcalib_200+")"
@@ -166,13 +171,16 @@ def setup_jet(TOPQname, ToolSvc):
     elif TOPQname == 'TOPQ3':
         TOPQ_Selection_jet = "( (count("+akt4EMcalib_15+") >= 4) || (count("+largeR_200+") >= 1) )"
     elif TOPQname == 'TOPQ4':
-        smallR_sel = 'count({}) >= 5'.format(akt4EMcalib_20)
         largeR_sel = 'count({}) >= 1'.format(largeR_200)
-        btag_sel = ('count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt>20*GeV'
-                    ' && AntiKt4EMTopoJets_BTagging201810.DFCommonJets_FixedCutBEff_85_MV2c10) > 0')
-        TOPQ_Selection_jet = '(({} && {}) || {})'.format(btag_sel,
-                                                     smallR_sel,
-                                                     largeR_sel)
+        smallR_EMTopo_sel = 'count({}) >= 5'.format(akt4EMcalib_20)
+        smallR_EMTopo_btag_sel = ('(count({}) > 0 || count({}) > 0)'.format(akt4EM_FCBEff_85_MV2c10, akt4EM_FCBEff_85_DL1))
+        smallR_EMPFlow_sel = 'count({}) >= 5'.format(akt4EMPFlowcalib_20)
+        smallR_EMPFlow_btag_sel = ('(count({}) > 0 || count({}) > 0)'.format(akt4EMPFlow_FCBEff_85_MV2c10, akt4EMPFlow_FCBEff_85_DL1))
+        TOPQ_Selection_jet = '({} || ({} && {}) || ({} && {}))'.format(largeR_sel,
+                                                                       smallR_EMTopo_sel,
+                                                                       smallR_EMTopo_btag_sel,
+                                                                       smallR_EMPFlow_sel,
+                                                                       smallR_EMPFlow_btag_sel)
     elif TOPQname == 'TOPQ5':
         TOPQ_Selection_jet = "1"
     elif TOPQname == 'TOPQ6':
