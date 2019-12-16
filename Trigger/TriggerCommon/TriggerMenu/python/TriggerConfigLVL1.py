@@ -5,8 +5,8 @@ from __future__ import print_function
 import re
 
 from .TriggerConfigL1Topo import TriggerConfigL1Topo
-from l1.Lvl1Menu import Lvl1Menu
-from l1.Lvl1Flags import Lvl1Flags
+from .l1.Lvl1Menu import Lvl1Menu
+from .l1.Lvl1Flags import Lvl1Flags
 
 
 from AthenaCommon.Logging import logging
@@ -99,7 +99,7 @@ class TriggerConfigLVL1:
             log.error("LVL1 threshold of name '%s' already registered, will ignore this new registration request" % name)
             return self.registeredThresholds[name]
 
-        from l1.Lvl1Thresholds import LVL1Threshold
+        from .l1.Lvl1Thresholds import LVL1Threshold
         thr = LVL1Threshold( name, type,
                              mapping = mapping, active = active,
                              seed_type = seed_ttype, seed = seed, seed_multi = seed_multi, bcdelay = bcdelay
@@ -116,7 +116,7 @@ class TriggerConfigLVL1:
         if not self.topotriggers:
             return
         
-        from l1.Lvl1Thresholds import LVL1TopoInput
+        from .l1.Lvl1Thresholds import LVL1TopoInput
         from collections import defaultdict
 
         multibitTopoTriggers = defaultdict(list)
@@ -177,13 +177,13 @@ class TriggerConfigLVL1:
             log.warning("Can't write xml file since no name was provided")
             return
 
-        from l1.Lvl1MenuUtil import idgen
+        from .l1.Lvl1MenuUtil import idgen
         idgen.reset()
 
         FH = open( self.outputFile, mode="wt" )
         FH.write( self.menu.xml() )
         FH.close()
-        from l1.Lvl1MenuUtil import oldStyle
+        from .l1.Lvl1MenuUtil import oldStyle
         log.info("Wrote %s in %s" % (self.outputFile, "run 1 style" if oldStyle() else "run 2 style"))
         return self.outputFile
 
@@ -204,7 +204,7 @@ class TriggerConfigLVL1:
             menuName = TriggerFlags.triggerMenuSetup()
 
         menuName=TriggerConfigL1Topo.getMenuBaseName(menuName)
-        menumodule = __import__('l1menu.Menu_%s' % menuName.replace("_primaries",""), globals(), locals(), ['defineMenu'], -1)
+        menumodule = __import__('TriggerMenu.l1menu.Menu_%s' % menuName.replace("_primaries",""), globals(), locals(), ['defineMenu'], -1)
         menumodule.defineMenu()
         log.info("menu %s contains %i items and %i thresholds" % ( menuName, len(Lvl1Flags.items()), len(Lvl1Flags.thresholds()) ) )
 
@@ -221,7 +221,7 @@ class TriggerConfigLVL1:
 
         run1 = Lvl1Flags.CTPVersion()<=3
 
-        itemdefmodule = __import__('l1menu.ItemDef%s' % ('Run1' if run1 else ''), globals(), locals(), ['ItemDef'], -1)
+        itemdefmodule = __import__('TriggerMenu.l1menu.ItemDef%s' % ('Run1' if run1 else ''), globals(), locals(), ['ItemDef'], -1)
 
         itemdefmodule.ItemDef.registerItems(self)
         log.info("registered %i items and %i thresholds (%s)" % ( len(self.registeredItems), len(self.registeredThresholds), ('Run 1' if run1 else 'Run 2') ) )
@@ -258,7 +258,7 @@ class TriggerConfigLVL1:
         assigned_ctpids = [item.ctpid for item in itemsForMenu]
 
         # CTP IDs available for assignment
-        from l1.Limits import Limits
+        from .l1.Limits import Limits
         available_ctpids = sorted( list( set(range(Limits.MaxTrigItems)) - set(assigned_ctpids) ) )
         available_ctpids.reverse()
 
@@ -384,5 +384,5 @@ class TriggerConfigLVL1:
 
         
     def setCaloInfo(self):
-        from l1menu.CaloDef import CaloDef
+        from .l1menu.CaloDef import CaloDef
         CaloDef.defineGlobalSettings(self)

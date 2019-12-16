@@ -6,8 +6,6 @@ In some cases instantiation is done by a remote module.
 In thsi case the factory function imports that module and retrieves the
 instance."""
 
-from exc2string import exc2string2
-
 #from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 from TrigGenericAlgs.TrigGenericAlgsConf import \
@@ -86,7 +84,8 @@ class Instantiator(object):
         try:
             alg = eval(s)
         except Exception as e:
-            tb = exc2string2()
+            import traceback
+            tb = traceback.format_exc()
             m = '%s() Error instantiating  Algorithm: eval(%s) '\
                 '%s\nTraceback: \n%s'
             m = m % (self.__class__.__name__, s, str(e), tb)

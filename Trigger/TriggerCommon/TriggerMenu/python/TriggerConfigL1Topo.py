@@ -4,9 +4,9 @@ from __future__ import print_function
 
 from sys import settrace
 
-from l1topo.TopoAlgos import TopoAlgo
-from l1topo.L1TopoMenu import L1TopoMenu
-from l1topo.L1TopoFlags import L1TopoFlags
+from .l1topo.TopoAlgos import TopoAlgo
+from .l1topo.L1TopoMenu import L1TopoMenu
+from .l1topo.L1TopoFlags import L1TopoFlags
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger("TriggerConfigL1Topo")
@@ -131,7 +131,7 @@ class TriggerConfigL1Topo:
 
         menuName = TriggerConfigL1Topo.getMenuBaseName(menuName)
         from TriggerJobOpts.TriggerFlags import TriggerFlags
-        menumodule = __import__('l1topomenu.Menu_%s' % menuName.replace("_primaries",""), globals(), locals(), ['defineMenu'], -1)
+        menumodule = __import__('TriggerMenu.l1topomenu.Menu_%s' % menuName.replace("_primaries",""), globals(), locals(), ['defineMenu'], -1)
         menumodule.defineMenu()
         log.info("%s menu contains %i algos." % ( menuName, len(L1TopoFlags.algos()) )) 
         
@@ -142,7 +142,7 @@ class TriggerConfigL1Topo:
         
         Has to run AFTER defineMenu
         """
-        algodefmodule = __import__('l1topomenu.TopoAlgoDef', globals(), locals(), ['TopoAlgoDef'], -1)
+        algodefmodule = __import__('TriggerMenu.l1topomenu.TopoAlgoDef', globals(), locals(), ['TopoAlgoDef'], -1)
         algodefmodule.TopoAlgoDef.registerTopoAlgos(self)
         log.info("Registered %i algos." % ( len(self.registeredAlgos) ) )
 

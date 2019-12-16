@@ -1,7 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from collections import defaultdict
-from eta_string_conversions import eta_string_to_floats
+from .eta_string_conversions import eta_string_to_floats
 
 
 def hypo_factory(key, args):

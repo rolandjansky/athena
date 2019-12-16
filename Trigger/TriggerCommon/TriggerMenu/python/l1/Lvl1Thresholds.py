@@ -1,10 +1,12 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from Limits import CaloLimits as CL
+from .Limits import CaloLimits as CL
 IsolationOff = CL.IsolationOff
 
 from copy import deepcopy
 from past.builtins import cmp
+
+import six
 
 class ThresholdValue:
 
@@ -81,6 +83,10 @@ class ThresholdValue:
         return cmp(self.name,o.name)
 
 
+    def __lt__(self, o):
+        return self.__cmp__ (o) < 0
+
+
     def __str__(self):
         return "name=%s, value=%s, eta=(%s-%s)" % (self.name, self.value, self.etamin, self.etamax)
 
@@ -110,7 +116,7 @@ class LVL1Threshold(object):
         return self.name.replace('.','')
 
     def setCableInput(self):
-        from Cabling import Cabling
+        from .Cabling import Cabling
         self.cableinfo = Cabling.getInputCable(self)
         return self
 
@@ -204,7 +210,7 @@ class LVL1Threshold(object):
 
     def xml(self, ind=1, step=2):
         """ Returns XML representation of the LVL1 Threshold """
-        from Lvl1MenuUtil import idgen
+        from .Lvl1MenuUtil import idgen
         seed       = ' seed="%s"' % self.seed if self.ttype=='ZB' else ''
         seed_multi = ' seed_multi="%i"' % self.seed_multi if self.ttype=='ZB' else ''
         bcdelay    = ' bcdelay="%i"' % self.bcdelay if self.ttype=='ZB' else ''
@@ -276,7 +282,7 @@ class LVL1TopoInput(LVL1Threshold):
 
 
     def setCableInput(self):
-        from Cabling import Cabling
+        from .Cabling import Cabling
         self.cableinfo = Cabling.getInputCable(self)
         return self
 
@@ -381,7 +387,11 @@ class LVL1Thresholds:
         return None
 
     def xml(self, ind=1, step=2):
-        self.thresholds.sort(LVL1Thresholds.compThreshold)
+        if six.PY2:
+            self.thresholds.sort(LVL1Thresholds.compThreshold)
+        else:
+            import functools
+            self.thresholds.sort(key=functools.cmp_to_key(LVL1Thresholds.compThreshold))
         s = ind * step * ' ' + '<TriggerThresholdList>\n'
         for thr in self.thresholds:
             s += thr.xml(ind+1,step)
