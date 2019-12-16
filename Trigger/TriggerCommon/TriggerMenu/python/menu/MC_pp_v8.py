@@ -313,6 +313,13 @@ def setupMenu():
         ['xe110_trktc_lcw_L1XE50', 'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe120_trktc_lcw_L1XE50', 'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe0noL1_l2fsperf_trktc_lcw', '', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        #Different trktc configurations:
+        ['xe0noL1_l2fsperf_sktc_lcw', '', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe0noL1_l2fsperf_sktc_lcw_cvf', '', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe0noL1_l2fsperf_tc_lcw_cvf', '', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe0noL1_l2fsperf_tc_lcw_cvf_tst', '', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe0noL1_l2fsperf_tc_lcw_cvf_tstceil', '', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+
         ['xe110_trktc_lcw_tstceil_L1XE50', 'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe120_trktc_lcw_tstceil_L1XE50', 'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe0noL1_l2fsperf_trktc_lcw_tstceil', '', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
@@ -328,6 +335,16 @@ def setupMenu():
         ['xe110_pufit_xe65_L1gXEPUFIT50', 'L1_gXEPUFIT50', [], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe110_pufit', 'xe65_L1gXEPUFIT50']]],
         ['xe110_pufit_xe65_L1gXE50', 'L1_gXE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe110_pufit', 'xe65_L1gXE50']]],
         ['xe110_pufit_xe65_L1jXE50', 'L1_jXE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe110_pufit', 'xe65_L1jXE50']]],
+
+
+        ['xe110_trktc_lcw_xe70_L1XE50', 'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1, ['serial',-1,['xe70_L1XE50', 'xe110_trktc_lcw']]],
+        ['xe110_trktc_lcw_tstceil_xe70_L1XE50', 'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1, ['serial',-1,['xe70_L1XE50', 'xe110_trktc_lcw_tstceil']]],
+        ['xe110_sktc_lcw_xe70_L1XE50', 'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1, ['serial',-1,['xe70_L1XE50', 'xe110_sktc_lcw']]],
+        ['xe110_sktc_lcw_cvf_xe70_L1XE50', 'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1, ['serial',-1,['xe70_L1XE50', 'xe110_sktc_lcw_cvf']]],
+        ['xe110_tc_lcw_cvf_xe70_L1XE50', 'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1, ['serial',-1,['xe70_L1XE50', 'xe110_tc_lcw_cvf']]],
+        ['xe110_tc_lcw_cvf_tst_xe70_L1XE50', 'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1, ['serial',-1,['xe70_L1XE50', 'xe110_tc_lcw_cvf_tst']]],
+        ['xe110_tc_lcw_cvf_tstceil_xe70_L1XE50', 'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1, ['serial',-1,['xe70_L1XE50', 'xe110_tc_lcw_cvf_tstceil']]],
+
 
 
         ['xe110_trktc_lcw_xe50_L1XE50', 'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1, ['serial',-1,['xe50_L1XE50', 'xe110_trktc_lcw']]],
