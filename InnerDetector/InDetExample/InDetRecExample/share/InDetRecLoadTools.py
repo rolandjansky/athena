@@ -43,37 +43,12 @@ if InDetFlags.doPixelClusterSplitting() and not InDetFlags.doSLHC():
             print NeuralNetworkToHistoTool
 
         # --- new NN factor   
-        
-        # --- put in a temporary hack here for 19.1.0, to select the necessary settings when running on run 1 data/MC
-        # --- since a correction is needed to fix biases when running on new run 2 compatible calibation
-        # --- a better solution is needed...
 
-
-        from SiClusterizationTool.SiClusterizationToolConf import InDet__NnClusterizationFactory
-
-        if not "R2" in globalflags.DetDescrVersion() and not "IBL3D25" in globalflags.DetDescrVersion():
-            NnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "NnClusterizationFactory",
-                                                                      NetworkToHistoTool   = NeuralNetworkToHistoTool,
-                                                                      doRunI = True,
-                                                                      useToT = False,
-                                                                      correctLorShiftBarrelWithTracks = 0.030,
-                                                                      LoadTTrainedNetworks   = True)
-
-        else:
-            NnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "NnClusterizationFactory",
-                                                                      NetworkToHistoTool   = NeuralNetworkToHistoTool,
-                                                                      useToT = InDetFlags.doNNToTCalibration(),
-                                                                      LoadTTrainedNetworks = True)
-               
+        from SiClusterizationTool.ConfiguredNnClusterization import NnCalibMaker
+        NnClusterizationFactory = NnCalibMaker.get()
         ToolSvc += NnClusterizationFactory
 
-        # special setup for DVRetracking mode
-        # if InDetFlags.doDVRetracking() :
-           # COOL binding
         from IOVDbSvc.CondDB import conddb
-        if not conddb.folderRequested('/PIXEL/PixelClustering/PixelClusNNCalib'):
-            # COOL binding
-            conddb.addFolder("PIXEL_OFL","/PIXEL/PixelClustering/PixelClusNNCalib")
         if InDetFlags.doTIDE_RescalePixelCovariances() :
             if not conddb.folderRequested('/PIXEL/PixelClustering/PixelCovCorr'):
                 # COOL binding

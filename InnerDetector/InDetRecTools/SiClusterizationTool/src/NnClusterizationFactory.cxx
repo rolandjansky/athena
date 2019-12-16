@@ -59,7 +59,7 @@ namespace InDet {
                                                    const std::string& n, const IInterface* p):
           AthAlgTool(name, n,p),
           m_loadTTrainedNetworks(true),
-          m_configTTrainedNetwork("/cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000130.gen.COND/cond09_mc.000130.gen.COND._0001.pool.root"),
+          m_configTTrainedNetwork(""),
           m_NetworkEstimateNumberParticles(0),
           m_layerInfoHistogram("LayersInfo"),
           m_layerPrefix("Layer"), 

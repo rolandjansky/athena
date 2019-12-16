@@ -29,30 +29,9 @@ else :
     ToolSvc += egNeuralNetworkToHistoTool
 
     #--- new NN factor   
-    # COOL binding
-    from IOVDbSvc.CondDB import conddb
-    conddb.addFolder("PIXEL_OFL","/PIXEL/PixelClustering/PixelClusNNCalib")               
-    # --- Select the necessary settings when running on run 1 data/MC
-    # --- since a correction is needed to fix biases when running on new run 2 compatible calibation
-    from SiClusterizationTool.SiClusterizationToolConf import InDet__NnClusterizationFactory    
-      
-    if not "R2" in globalflags.DetDescrVersion() and not "IBL3D25" in globalflags.DetDescrVersion():
-      egNnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "egNnClusterizationFactory",
-                                                                  NetworkToHistoTool   = egNeuralNetworkToHistoTool,
-                                                                  doRunI = True,
-                                                                  useToT = False,
-                                                                  useRecenteringNNWithoutTracks = True,
-                                                                  useRecenteringNNWithTracks = False,
-                                                                  correctLorShiftBarrelWithoutTracks = 0,
-                                                                  correctLorShiftBarrelWithTracks = 0.030,
-                                                                  LoadTTrainedNetworks   = True)
-        
-    else:
-      egNnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "egNnClusterizationFactory",
-                                                                  NetworkToHistoTool   = egNeuralNetworkToHistoTool,
-                                                                  useToT = InDetFlags.doNNToTCalibration(),
-                                                                  LoadTTrainedNetworks   = True)               
-    ToolSvc += egNnClusterizationFactory 
+    from SiClusterizationTool.ConfiguredNnClusterization import NnCalibMaker
+    egNnClusterizationFactory = NnCalibMaker.get()    
+    ToolSvc += egNnClusterizationFactory            
       
   #End of do cluster splitting       
 
