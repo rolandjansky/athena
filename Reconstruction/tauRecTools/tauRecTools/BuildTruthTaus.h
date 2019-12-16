@@ -63,8 +63,8 @@ private:
   void printDecay(const xAOD::TruthParticle& xTruthParticle, int depth = 0) const;
 
 protected:
-  bool m_bIsData;
-  bool m_bIsConfigured;
+  bool isData();
+  int m_bIsData; /// Is the event that we are working on data or not
 
   // steering variables
   bool m_bWriteTruthTaus;
