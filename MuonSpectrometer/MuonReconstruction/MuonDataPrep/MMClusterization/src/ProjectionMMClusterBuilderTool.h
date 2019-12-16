@@ -40,7 +40,8 @@ namespace Muon
     virtual StatusCode initialize() override;
     
     /**Interface fuction to IMMClusterBuilderTool; calling function manages the pointers inside clustersVec  */
-    StatusCode getClusters(std::vector<Muon::MMPrepData>& MMprds, std::vector<Muon::MMPrepData*>& clustersVec);
+    virtual
+    StatusCode getClusters(std::vector<Muon::MMPrepData>& MMprds, std::vector<Muon::MMPrepData*>& clustersVec) override;
 
   private: 
 
