@@ -52,5 +52,11 @@ atlas_add_test( LArG4CalibSD_gtest
                 DEFINITIONS ${CLHEP_DEFINITIONS}
                 LINK_LIBRARIES TestTools LArG4Code ${GTEST_LIBRARIES} ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} AtlasDetDescr CaloSimEvent LArGeoCode LArSimEvent CaloG4SimLib G4AtlasToolsLib StoreGateLib SGtests GaudiKernel CaloIdentifier AthenaKernel CxxUtils MCTruth )
 
+atlas_add_test( LArG4SimpleSD_gtest
+                SOURCES test/LArG4SimpleSD_gtest.cxx
+                INCLUDE_DIRS ${GTEST_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
+                DEFINITIONS ${CLHEP_DEFINITIONS}
+                LINK_LIBRARIES TestTools LArG4Code ${GTEST_LIBRARIES} ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} AtlasDetDescr CaloSimEvent LArGeoCode LArSimEvent CaloG4SimLib G4AtlasToolsLib StoreGateLib SGtests GaudiKernel CaloIdentifier AthenaKernel CxxUtils MCTruth )
+
 atlas_install_joboptions( share/optionForTest.txt )
 
