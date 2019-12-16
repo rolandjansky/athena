@@ -213,22 +213,22 @@ float JetForwardJvtToolBDT::getMVfJVT(const xAOD::Jet *jet, int pvind, std::vect
   float eta = fabs(jet->eta());
 
   float score = -2.;
-  if      ( pt < 30.  && pt >= 20. && eta >= 3.2 && mu>50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_1"  ,1.);
-  else if ( pt < 30.  && pt >= 20. && eta <  3.2 && mu>50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_2"  ,1.);
-  else if ( pt < 40.  && pt >= 30. && eta >= 3.2 && mu>50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_3"  ,1.);
-  else if ( pt < 40.  && pt >= 30. && eta <  3.2 && mu>50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_4"  ,1.);
-  else if ( pt < 50.  && pt >= 40. && eta >= 3.2 && mu>50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_5"  ,1.);
-  else if ( pt < 50.  && pt >= 40. && eta <  3.2 && mu>50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_6"  ,1.);
-  else if ( pt < 120. && pt >= 50. && eta >= 3.2 && mu>50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_7"  ,1.);
-  else if ( pt < 120. && pt >= 50. && eta <  3.2 && mu>50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_8"  ,1.);
-  else if ( pt < 30.  && pt >= 20. && eta >= 3.2 && mu<50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_9"  ,1.);
-  else if ( pt < 30.  && pt >= 20. && eta <  3.2 && mu<50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_10" ,1.);
-  else if ( pt < 40.  && pt >= 30. && eta >= 3.2 && mu<50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_11" ,1.);
-  else if ( pt < 40.  && pt >= 30. && eta <  3.2 && mu<50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_12" ,1.);
-  else if ( pt < 50.  && pt >= 40. && eta >= 3.2 && mu<50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_13" ,1.);
-  else if ( pt < 50.  && pt >= 40. && eta <  3.2 && mu<50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_14" ,1.);
-  else if ( pt < 120. && pt >= 50. && eta >= 3.2 && mu<50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_15" ,1.);
-  else if ( pt < 120. && pt >= 50. && eta <  3.2 && mu<50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_16" ,1.);
+  if      ( pt < 30.  && pt >= 20. && eta >= 3.2 && mu>=50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_1"  ,1.);
+  else if ( pt < 30.  && pt >= 20. && eta <  3.2 && mu>=50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_2"  ,1.);
+  else if ( pt < 40.  && pt >= 30. && eta >= 3.2 && mu>=50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_3"  ,1.);
+  else if ( pt < 40.  && pt >= 30. && eta <  3.2 && mu>=50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_4"  ,1.);
+  else if ( pt < 50.  && pt >= 40. && eta >= 3.2 && mu>=50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_5"  ,1.);
+  else if ( pt < 50.  && pt >= 40. && eta <  3.2 && mu>=50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_6"  ,1.);
+  else if ( pt < 120. && pt >= 50. && eta >= 3.2 && mu>=50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_7"  ,1.);
+  else if ( pt < 120. && pt >= 50. && eta <  3.2 && mu>=50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_8"  ,1.);
+  else if ( pt < 30.  && pt >= 20. && eta >= 3.2 && mu<50.  ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_9"  ,1.);
+  else if ( pt < 30.  && pt >= 20. && eta <  3.2 && mu<50.  ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_10" ,1.);
+  else if ( pt < 40.  && pt >= 30. && eta >= 3.2 && mu<50.  ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_11" ,1.);
+  else if ( pt < 40.  && pt >= 30. && eta <  3.2 && mu<50.  ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_12" ,1.);
+  else if ( pt < 50.  && pt >= 40. && eta >= 3.2 && mu<50.  ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_13" ,1.);
+  else if ( pt < 50.  && pt >= 40. && eta <  3.2 && mu<50.  ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_14" ,1.);
+  else if ( pt < 120. && pt >= 50. && eta >= 3.2 && mu<50.  ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_15" ,1.);
+  else if ( pt < 120. && pt >= 50. && eta <  3.2 && mu<50.  ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_16" ,1.);
 
   ATH_MSG_DEBUG("pt = " << pt << " | eta = " << eta << " | mu = " << mu  << " || MVfJVT = " << score );
 
