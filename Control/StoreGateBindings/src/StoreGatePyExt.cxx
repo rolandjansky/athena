@@ -141,6 +141,7 @@ AthenaInternal::retrieveObjectFromStore( StoreGateSvc* store,
     else {
       PyErr_SetString( PyExc_TypeError, 
                        "retrieve() argument 2 must be string key" );
+      Py_XDECREF (pyname);
       return 0;
     }
   }
@@ -151,8 +152,12 @@ AthenaInternal::retrieveObjectFromStore( StoreGateSvc* store,
   if ( ! pyclid ) {
     PyErr_Format( PyExc_NameError, 
                   "ID of \"%s\" is unknown", namestr.c_str() );
+    Py_XDECREF (pyname);
     return 0;
   }
+
+  Py_XDECREF (pyname);
+  pyname = 0;
 
   _SGPY_MSG("retrieving py-proxy...");
   PyObject* pyproxy = proxyDict->proxy(pyclid, pykey);
@@ -394,6 +399,7 @@ AthenaInternal::py_sg_contains (StoreGateSvc* store,
   if ( !keyflag ) {
     PyErr_SetString( PyExc_TypeError, 
                      "contains() argument 2 must be string key" );
+    Py_XDECREF (pyname);
     return 0;
   }
 
@@ -404,6 +410,9 @@ AthenaInternal::py_sg_contains (StoreGateSvc* store,
                   "ID of \"%s\" is unknown", namestr.c_str() );
     return 0;
   }
+
+  Py_XDECREF (pyname);
+  pyname = 0;
 
   const bool sg_contains = 
     store->contains (clid, keystr) ;
@@ -534,6 +543,7 @@ AthenaInternal::recordObjectToStore( StoreGateSvc* store,
   if ( ! keyflag ) {
     PyErr_SetString( PyExc_TypeError, 
                      "record() argument 2 must be string key" );
+    Py_XDECREF (pyname);
     return 0;
   }
   
@@ -544,7 +554,10 @@ AthenaInternal::recordObjectToStore( StoreGateSvc* store,
                   "ID of \"%s\" is unknown", namestr.c_str() );
     return 0;
   }
-  
+
+  Py_XDECREF (pyname);
+  pyname = 0;
+
   // make sure everything has been loaded for that clid...
   s_mgr.load_type(id);
 
