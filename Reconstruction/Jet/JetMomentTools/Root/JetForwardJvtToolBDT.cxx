@@ -138,7 +138,7 @@ int JetForwardJvtToolBDT::modify(xAOD::JetContainer& jetCont) const {
   int pvind = (m_pvind==-1) ? getPV() : m_pvind;
   ATH_MSG_DEBUG("In JetForwardJvtToolBDT::modify: PV index = " << pvind);
   if( pvind == -1 ){
-    ATH_MSG_ERROR( "Something went wrong whith the HS primary vertex identification." );
+    ATH_MSG_ERROR( "Something went wrong with the HS primary vertex identification." );
     return 1;
   }
 
