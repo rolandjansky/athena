@@ -798,13 +798,13 @@ void NtupleCalibADCTool::createMaps(const MuonFixedId & id) {
      sprintf(delta_chi2,"%.7s_Segment_delta_chi2",chambername.c_str());
      m_MDT_segment_delta_chi2[station_identifier]= new TH1F(delta_chi2,delta_chi2,100,-5,5);
      m_MDT_segment_delta_chi2[station_identifier]->SetXTitle("Delta_Segment_chi2()");
-     char fhit[100],shit[100];
+     char fhit[100],SiHit[100];
       sprintf(fhit,"%.7s_fristHit_ADC_vs_TDC",chambername.c_str());
-      sprintf(shit,"%.7s_secondHit_ADC_vs_TDC",chambername.c_str());
-      m_MDT_fhit_adc[station_identifier]= new TH2F(fhit,shit,3000, 0,3000,500, 0, 500);
+      sprintf(SiHit,"%.7s_secondHit_ADC_vs_TDC",chambername.c_str());
+      m_MDT_fhit_adc[station_identifier]= new TH2F(fhit,SiHit,3000, 0,3000,500, 0, 500);
       m_MDT_fhit_adc[station_identifier]->SetXTitle("ADC count(ns)");	        
       m_MDT_fhit_adc[station_identifier]->SetYTitle("TDC count(ns)");	        
-      m_MDT_SiHitAdc[station_identifier]= new TH2F(shit,shit,3000,0,3000, 500, 0, 500);
+      m_MDT_SiHitAdc[station_identifier]= new TH2F(SiHit,SiHit,3000,0,3000, 500, 0, 500);
       m_MDT_SiHitAdc[station_identifier]->SetXTitle("ADC count(ns)");	        
       m_MDT_SiHitAdc[station_identifier]->SetYTitle("TDC count(ns)");	        
 

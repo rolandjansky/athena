@@ -52,7 +52,7 @@ MuonAlignAlg.ParlineFolders = ["/MUONALIGN/MDT/BARREL",
 
 from MuonGeoModel.MuonGeoModelConf import MuonDetectorCondAlg
 MuonDetectorManagerCond = MuonDetectorCondAlg()
-MuonDetectorManagerCond.MuonDetectorTool = GeoModelSvc.DetectorTools[ "MuonDetectorTool" ]
+MuonDetectorManagerCond.MuonDetectorTool = MuonDetectorTool
 condSequence+=MuonDetectorManagerCond
 
 # Disable caching. This will have some memory impact (TBC) but is necessary for the moment to make this thread safe.

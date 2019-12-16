@@ -16,9 +16,7 @@
 MuonDetectorCondAlg::MuonDetectorCondAlg( const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
     m_condSvc{"CondSvc", name}
-{ 
-  declareProperty("MuonDetectorTool",  m_iGeoModelTool);
-}
+{ }
 
 StatusCode
 MuonDetectorCondAlg::initialize()
