@@ -51,7 +51,7 @@ class VBF_osWW(PowhegV2):
 
         self.allowed_decay_modes = ["w+ w- > {} {}".format(*x) for x in itertools.product(wp_decay_products, wm_decay_products)]
         # Add all keywords for this process, overriding defaults if required
-        self.add_keyword("alphas_from_lhapdf")
+        # self.add_keyword("alphas_from_lhapdf")
         self.add_keyword("bornktmin")
         self.add_keyword("bornonly")
         self.add_keyword("bornsuppfact", 0) # self.add_keyword("bornsuppfact", 1)
@@ -104,6 +104,7 @@ class VBF_osWW(PowhegV2):
         self.add_keyword("lhrwgt_group_name")
         self.add_keyword("lhrwgt_id")
         self.add_keyword("LOevents")
+        self.add_keyword("manyseeds")
         self.add_keyword("max_io_bufsize")
         self.add_keyword("maxseeds", 1000)
         self.add_keyword("minlo")
@@ -136,7 +137,7 @@ class VBF_osWW(PowhegV2):
         self.add_keyword("smartsig")
         self.add_keyword("softtest")
         self.add_keyword("stage2init")
-        self.add_keyword("storeinfo_rwgt", 1)
+        self.add_keyword("storeinfo_rwgt")
         self.add_keyword("storemintupb")
         self.add_keyword("testplots")
         self.add_keyword("testsuda")
@@ -152,7 +153,7 @@ class VBF_osWW(PowhegV2):
         # Keywords related to multicore running
         self.add_keyword("xgriditeration", 1)
         self.add_keyword("parallelstage", -1) # self.add_keyword("parallelstage", -1)
-        self.add_keyword("manyseeds", 0) # self.add_keyword("manyseeds", 0)
+        #self.add_keyword("manyseeds", 0) # self.add_keyword("manyseeds", 0)
         # Keywords specific to this process that are explicitly mentioned in the process documentation:
         self.add_keyword("vdecaymodeWp", self.allowed_decay_modes[0], name="decay_mode")
         self.add_keyword("vdecaymodeWm", hidden=True)
