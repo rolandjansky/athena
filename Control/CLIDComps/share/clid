@@ -8,7 +8,7 @@ from __future__ import print_function
 
 import string, re
 import sys, os
-from CLIDComps.clidGenerator import clidGenerator
+from CLIDComps.clidGenerator import clidGenerator, py2_hash
 from optparse import OptionParser
 
 #
@@ -66,7 +66,7 @@ for a in args:
         if not n:
             n = ">>>Not Found in CLIDDB<<<"
     if options.debug: 
-        print (c,n,'(',hash(n),hash(n)&cgen._clidGenerator__mask,"%8x"%c,')')
+        print (c,n,'(',py2_hash(n),py2_hash(n)&cgen._clidGenerator__mask,"%8x"%c,')')
     else:
         if options.macro:
             if options.condcont:
