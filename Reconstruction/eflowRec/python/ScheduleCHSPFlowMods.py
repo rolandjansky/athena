@@ -1,3 +1,4 @@
+#Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 # ScheduleCHSPFlowMods.py
 #
 # Teng Jian Khoo
@@ -8,7 +9,8 @@
 
 
 from JetRec.JetRecStandard import jtm
-from JetRec.JetRecConf import JetToolRunner
+from AthenaConfiguration.ComponentFactory import CompFactory
+JetToolRunner=CompFactory.JetToolRunner
 jtm += JetToolRunner("jetconstitCHSPFlow",
                      EventShapeTools=[],
                      Tools=[jtm.JetConstitSeq_PFlowCHS],
@@ -17,11 +19,11 @@ jtm += JetToolRunner("jetconstitCHSPFlow",
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 
-from JetRec.JetRecConf import JetAlgorithm
+JetAlgorithm=CompFactory.JetAlgorithm
 job += JetAlgorithm("jetalgCHSPFlow",
                     Tools=[jtm.jetconstitCHSPFlow])
 
-from ThinningUtils.ThinningUtilsConf import ThinNegativeEnergyNeutralPFOsAlg
+ThinNegativeEnergyNeutralPFOsAlg=CompFactory.ThinNegativeEnergyNeutralPFOsAlg
 CHSnPFOsThinAlg = ThinNegativeEnergyNeutralPFOsAlg(
     "ThinNegativeEnergyNCHSeutralPFOsAlg",
     NeutralPFOsKey="CHSNeutralParticleFlowObjects",

@@ -1,13 +1,14 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 def HelloWorldCfg():
     result=ComponentAccumulator()
     
-    from AthExHelloWorld.AthExHelloWorldConf import HelloAlg
+    HelloAlg=CompFactory.HelloAlg
     HelloWorld=HelloAlg("HelloWorld")
     
     HelloWorld.OutputLevel = 0
@@ -47,7 +48,7 @@ def HelloWorldCfg():
     # ... and some more:
     HelloWorld.MyMatrix += [ [ 7, 8, 9 ] ]
 
-    from AthExHelloWorld.AthExHelloWorldConf import HelloTool
+    HelloTool=CompFactory.HelloTool
     ht=HelloTool( "HelloTool" )
     HelloWorld.MyPrivateHelloTool = ht #HelloTool( "HelloTool" )
     HelloWorld.MyPrivateHelloTool.MyMessage = "A Private Message!"

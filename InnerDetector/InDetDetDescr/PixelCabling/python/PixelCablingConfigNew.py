@@ -3,12 +3,13 @@
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.Logging import logging
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline, addFolders
-from PixelCabling.PixelCablingConf import PixelCablingSvc
-from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelReadoutSpeedAlg
-from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelCablingCondAlg
-from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelHitDiscCnfgAlg
+PixelCablingSvc=CompFactory.PixelCablingSvc
+PixelReadoutSpeedAlg=CompFactory.PixelReadoutSpeedAlg
+PixelCablingCondAlg=CompFactory.PixelCablingCondAlg
+PixelHitDiscCnfgAlg=CompFactory.PixelHitDiscCnfgAlg
 
 
 def PixelCablingSvcCfg(flags, name="PixelCablingSvc", **kwargs):

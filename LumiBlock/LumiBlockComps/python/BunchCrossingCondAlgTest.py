@@ -1,5 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from future import standard_library
+from AthenaConfiguration.ComponentFactory import CompFactory
 standard_library.install_aliases()
 
 import sys,os
@@ -96,8 +97,9 @@ ConfigFlags.lock()
 result=MainServicesSerialCfg()
 
 
-from McEventSelector.McEventSelectorConf import McEventSelector,McCnvSvc
-from GaudiSvc.GaudiSvcConf import EvtPersistencySvc
+McEventSelector=CompFactory.McEventSelector
+McCnvSvc=CompFactory.McCnvSvc
+EvtPersistencySvc=CompFactory.EvtPersistencySvc
 
 mcevtsel=McEventSelector(RunNumber=330470,
                          EventsPerRun=1,
@@ -123,7 +125,7 @@ result.merge(BunchCrossingCondAlgCfg(ConfigFlags))
 result.getService("IOVDbSvc").Folders=["<db>sqlite://;schema=test.db;dbname=CONDBR2</db><tag>HEAD</tag>/TDAQ/OLC/LHC/FILLPARAMS"]
 result.getCondAlgo("BunchCrossingCondAlg").OutputLevel=1
     
-from LumiBlockComps.LumiBlockCompsConf import BunchCrossingCondTest
+BunchCrossingCondTest=CompFactory.BunchCrossingCondTest
 result.addEventAlgo(BunchCrossingCondTest(FileName="BCData.txt",compact=True))
 
 

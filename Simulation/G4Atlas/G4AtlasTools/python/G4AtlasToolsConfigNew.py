@@ -1,10 +1,11 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaCommon import CfgMgr
-from G4AtlasTools.G4AtlasToolsConf import SensitiveDetectorMasterTool
+SensitiveDetectorMasterTool=CompFactory.SensitiveDetectorMasterTool
 
 from BCM_G4_SD.BCM_G4_SDToolConfig import BCMSensorSDCfg
 from BLM_G4_SD.BLM_G4_SDToolConfig import BLMSensorSDCfg

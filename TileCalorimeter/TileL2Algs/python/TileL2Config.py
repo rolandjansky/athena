@@ -3,6 +3,7 @@
 """Define methods to construct configured Tile L2 builder tool and algorithm"""
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 
 def TileL2BuilderCfg(flags, **kwargs):
@@ -33,7 +34,7 @@ def TileL2BuilderCfg(flags, **kwargs):
         emScaleTool = acc.popToolsAndMerge( TileCondToolEmscaleCfg(flags) )
         kwargs['TileCondToolEmscale'] = emScaleTool
 
-    from TileL2Algs.TileL2AlgsConf import TileL2Builder
+    TileL2Builder=CompFactory.TileL2Builder
     acc.setPrivateTools( TileL2Builder(**kwargs) )
 
     return acc
@@ -61,7 +62,7 @@ def TileRawChannelToL2Cfg(flags, **kwargs):
         kwargs['TileL2Builder'] = l2Builder
 
 
-    from TileL2Algs.TileL2AlgsConf import TileRawChannelToL2
+    TileRawChannelToL2=CompFactory.TileRawChannelToL2
     acc.addEventAlgo( TileRawChannelToL2(**kwargs), primary = True )
 
     return acc

@@ -7,8 +7,7 @@
 
 
 from __future__ import print_function
-
-
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from IOVDbSvc.IOVDbSvcConfig import addFolders
 
@@ -37,7 +36,7 @@ def TrigLiveFractionCondAlgCfg (configFlags):
         kwargs['LuminosityInputKey'] = ''
 
 
-    from LumiBlockComps.LumiBlockCompsConf import TrigLiveFractionCondAlg
+    TrigLiveFractionCondAlg=CompFactory.TrigLiveFractionCondAlg
     alg = TrigLiveFractionCondAlg (name,
                                    TrigLiveFractionOutputKey = 'TrigLiveFractionCondData',
                                    **kwargs)

@@ -4,17 +4,18 @@
 
 """Define methods to configure beam effects with the ComponentAccumulator"""
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 # Compiled beam effects methods
 # for documentation of method X, see Simulation__X._propertyDocDct
-from BeamEffects.BeamEffectsConf import Simulation__GenEventValidityChecker
-from BeamEffects.BeamEffectsConf import Simulation__GenEventRotator
-from BeamEffects.BeamEffectsConf import Simulation__GenEventVertexPositioner
-from BeamEffects.BeamEffectsConf import Simulation__VertexBeamCondPositioner
-from BeamEffects.BeamEffectsConf import Simulation__VertexPositionFromFile
-from BeamEffects.BeamEffectsConf import Simulation__CrabKissingVertexPositioner
-from BeamEffects.BeamEffectsConf import Simulation__LongBeamspotVertexPositioner
+Simulation__GenEventValidityChecker=CompFactory.Simulation__GenEventValidityChecker
+Simulation__GenEventRotator=CompFactory.Simulation__GenEventRotator
+Simulation__GenEventVertexPositioner=CompFactory.Simulation__GenEventVertexPositioner
+Simulation__VertexBeamCondPositioner=CompFactory.Simulation__VertexBeamCondPositioner
+Simulation__VertexPositionFromFile=CompFactory.Simulation__VertexPositionFromFile
+Simulation__CrabKissingVertexPositioner=CompFactory.Simulation__CrabKissingVertexPositioner
+Simulation__LongBeamspotVertexPositioner=CompFactory.Simulation__LongBeamspotVertexPositioner
 # For the Algorithm
-from BeamEffects.BeamEffectsConf import Simulation__BeamEffectsAlg
+Simulation__BeamEffectsAlg=CompFactory.Simulation__BeamEffectsAlg
 
 
 # possible components from BeamEffectsConf
@@ -61,7 +62,7 @@ def makeVertexBeamCondPositioner(ConfigFlags,name="VertexBeamCondPositioner", **
     """Return a conditional (? todo) vertex positioner tool"""
     # todo needs RandomSvc
     from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
-    from BeamSpotConditions.BeamSpotConditionsConf import BeamSpotCondAlg
+    BeamSpotCondAlg=CompFactory.BeamSpotCondAlg
     from RngComps.RandomServices import AthEngines
 
     result = ComponentAccumulator()

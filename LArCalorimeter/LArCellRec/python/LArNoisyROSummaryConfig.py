@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
+from AthenaConfiguration.ComponentFactory import CompFactory
 from LArCellRec.LArNoisyROFlags import larNoisyROFlags
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from LArBadChannelTool.LArBadFebsConfig import LArKnownBadFebCfg, LArKnownMNBFebCfg
@@ -14,7 +15,7 @@ def LArNoisyROSummaryCfg(configFlags):
 
    # now configure the algorithm
    try:        
-       from LArCellRec.LArCellRecConf import LArNoisyROAlg,LArNoisyROTool
+       LArNoisyROAlg,LArNoisyROTool=CompFactory.getComps("LArNoisyROAlg","LArNoisyROTool")
    except Exception:
        import traceback
        print(traceback.format_exc())
