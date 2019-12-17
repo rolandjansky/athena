@@ -173,7 +173,7 @@ int PixelSimpleServiceXMLHelper::repeat(int index) const
   return 0;
 }
 
-// TODO: Radial divisions not currently used - delete function?
+// TODO: Radial divisions not implemented (keeping in case of future use)
 int PixelSimpleServiceXMLHelper::radialDiv(int index) const
 {
   return 0;

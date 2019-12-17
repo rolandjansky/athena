@@ -78,7 +78,7 @@ InDetDD::ServiceVolume *SimpleServiceVolumeMaker::make(int ii)
     if (rmin2 <= 0) rmin2 = param->rmin(); 
     if (rmax2 <= 0) rmax2 = param->rmax(); 
     
-    // FIXME radialDiv feature not fully implemented, or saved to param
+    // TODO: radialDiv not fully implemented, saving for future ref
     //int radialDiv = 0; 
     
     double phiDelta =  m_simpleSrvXMLHelper->phiDelta(ii);
@@ -90,6 +90,7 @@ InDetDD::ServiceVolume *SimpleServiceVolumeMaker::make(int ii)
     } 
     
     if (shapeType == "UNKNOWN") {
+      // TODO: radialDiv not implemented, saving for future ref
       //if (radialDiv > 0) {
       //  shapeType = "RADIAL";
       //} else 
@@ -150,8 +151,8 @@ InDetDD::ServiceVolume *SimpleServiceVolumeMaker::make(int ii)
     param->setPhiWidth(phiWidth);
     param->setSides(sides);
     param->setNCopies(nCopies);
-    //param->setRadialDiv(radialDiv);
-    //param->setPhiStep(phiStep);
+    //param->setRadialDiv(radialDiv); // not implemented, saving for future ref
+    //param->setPhiStep(phiStep); // not implemented, saving foir future ref
   }
   
   param->setNeedsRotation(needsRotation);
