@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -47,7 +47,6 @@ private:
   bool m_killPDG0;    // Kill PDG0 particles?
   bool m_cleanDecays; // Clean decays?
   bool m_loopByBC;    // Detect loops by barcode
-  bool m_setMuonsToProdVtx; // Detect very displaced muons
   //@}
 
   /// @name Cleaned-particle counters
@@ -55,7 +54,6 @@ private:
   long m_loopKilled;
   long m_pdg0Killed;
   long m_decayCleaned;
-  long m_muonVtxChanged;
   long m_totalSeen;
   //@}
 
