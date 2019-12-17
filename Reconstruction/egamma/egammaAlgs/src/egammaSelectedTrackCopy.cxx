@@ -273,10 +273,10 @@ bool egammaSelectedTrackCopy::Select(const EventContext& ctx,
   }
 
   //Extrapolate from last measurement, since this is before brem fit last measurement is better.
-  std::vector<double>  eta(4, -999.0);
-  std::vector<double>  phi(4, -999.0);
-  std::vector<double>  deltaEta(4, -999.0);
-  std::vector<double>  deltaPhi(4, -999.0);
+  std::array<double,4>  eta = {-999.0,-999.0,-999.0,-999.0};
+  std::array<double,4>  phi = {-999.0,-999.0,-999.0,-999.0};
+  std::array<double,4>  deltaEta = {-999.0,-999.0,-999.0,-999.0};
+  std::array<double,5>  deltaPhi = {-999.0,-999.0,-999.0,-999.0,-999.0};
   if (m_extrapolationToolCommonCache->getMatchAtCalo (ctx,
                                                       cluster, 
                                                       track, 
@@ -317,10 +317,10 @@ bool egammaSelectedTrackCopy::Select(const EventContext& ctx,
     ATH_MSG_DEBUG("Failed from Last measurement with deltaPhi/deltaEta " 
                   << deltaPhi[2] <<" / "<< deltaEta[2]<<", Trying Rescale" );
     //Extrapolate from Perigee Rescaled 
-    std::vector<double>  eta1(4, -999.0);
-    std::vector<double>  phi1(4, -999.0);
-    std::vector<double>  deltaEta1(4, -999.0);
-    std::vector<double>  deltaPhi1(5, -999.0); // Set size to 5 to store deltaPhiRot
+    std::array<double,4>  eta1 = {-999.0,-999.0,-999.0,-999.0};
+    std::array<double,4>  phi1 = {-999.0,-999.0,-999.0,-999.0};
+    std::array<double,4>  deltaEta1 = {-999.0,-999.0,-999.0,-999.0};
+    std::array<double,5>  deltaPhi1 = {-999.0,-999.0,-999.0,-999.0,-999.0};
 
     if(m_extrapolationTool->getMatchAtCalo (ctx,
                                             cluster, 

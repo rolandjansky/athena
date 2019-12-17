@@ -89,10 +89,10 @@ EMExtrapolationTools::getMatchAtCalo (const EventContext&           ctx,
                                       const xAOD::CaloCluster*      cluster, 
                                       const xAOD::TrackParticle*    trkPB,
                                       Trk::PropDirection            direction,
-                                      std::vector<double>&          eta,
-                                      std::vector<double>&          phi,
-                                      std::vector<double>&          deltaEta,
-                                      std::vector<double>&          deltaPhi,
+                                      std::array<double,4>&         eta,
+                                      std::array<double,4>&         phi,
+                                      std::array<double,4>&         deltaEta,
+                                      std::array<double,5>&         deltaPhi,//5 due to rotation in phi
                                       unsigned int                  extrapFrom,
                                       Cache*                        cache) const
 {
@@ -104,11 +104,6 @@ EMExtrapolationTools::getMatchAtCalo (const EventContext&           ctx,
    * 2) from the perigee track parameters
    * 3) from the perigee with the track momentum rescaled by the cluster energy
    */
-  ATH_MSG_DEBUG("getMatchAtCalo");
-  if(deltaEta.size() < 4  || deltaPhi.size()<4 || eta.size()<4 || phi.size()<4 ){
-    ATH_MSG_WARNING("deltaEta, deltaPhi, eta , phi size should be at least 4");
-    return StatusCode::SUCCESS;
-  }
   bool didExtension=false;
   CaloExtensionHelpers::EtaPhiPerLayerVector intersections;
   /* 

@@ -41,7 +41,6 @@ EMTrackMatchBuilder::~EMTrackMatchBuilder() {
 
 StatusCode EMTrackMatchBuilder::initialize()
 {
-  ATH_MSG_DEBUG("Initializing EMTrackMatchBuilder");
   ATH_CHECK(m_TrackParticlesKey.initialize());
   
   // the extrapolation tool
@@ -59,9 +58,6 @@ StatusCode EMTrackMatchBuilder::initialize()
 StatusCode EMTrackMatchBuilder::executeRec(const EventContext& ctx, 
                                            EgammaRecContainer* egammas) const
 {
-
-  ATH_MSG_DEBUG("Executing EMTrackMatchBuilder");
-
   // protection against bad pointers
   if (egammas==0 ) {
     return StatusCode::SUCCESS;
@@ -82,7 +78,6 @@ StatusCode EMTrackMatchBuilder::executeRec(const EventContext& ctx,
   return StatusCode::SUCCESS;
 }
 
-// ===============================================================
 StatusCode EMTrackMatchBuilder::trackExecute(const EventContext& ctx, egammaRec* eg, 
                                              const xAOD::TrackParticleContainer* trackPC) const
 {
@@ -166,22 +161,17 @@ EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
 
   IEMExtrapolationTools::TrkExtrapDef extrapFrom = IEMExtrapolationTools::fromPerigee;
 
-  ATH_MSG_DEBUG("inBroadWindow: extrapolation method From (0 Last, 1 perigee , 2 Rescale) " << extrapFrom);
 
   // Now get the delta eta/phi and eta correction at the calorimeter
-  std::vector<double>  eta(4, -999.0);
-  std::vector<double>  phi(4, -999.0);
   // final arrays that we will write
   // Save the value of deltaPhiRescale. If we do not use rescaled
   // perigee, we recalculate deltaPhi using rescaled momentum. This
   // will be saved in EMTrackMatch
-  double deltaPhiRescale  = -999.;
-  double deltaPhiLast     = -999.;
-  // temporary arrays
-  std::vector<double>  deltaEta(4, -999.0);
-  std::vector<double>  deltaPhi(4, -999.0);    
-  std::vector<double>  deltaEtaRes(4, -999.0);
-  std::vector<double>  deltaPhiRes(4, -999.0); 
+  std::array<double,4>  eta = {-999.0,-999.0,-999.0,-999.0};
+  std::array<double,4>  phi = {-999.0,-999.0,-999.0,-999.0};
+  std::array<double,4>  deltaEta = {-999.0,-999.0,-999.0,-999.0};
+  std::array<double,5>  deltaPhi = {-999.0,-999.0,-999.0,-999.0,-999.0};
+ 
   /*
    * Try both from perigee
    * and from perigee Rescale.
@@ -202,8 +192,11 @@ EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
   }
 
   IEMExtrapolationTools::TrkExtrapDef extrapFromRes = IEMExtrapolationTools::fromPerigeeRescaled;
-  std::vector<double>  etaRes(4, -999.0);
-  std::vector<double>  phiRes(4, -999.0);
+  std::array<double,4>  etaRes = {-999.0,-999.0,-999.0,-999.0};
+  std::array<double,4>  phiRes = {-999.0,-999.0,-999.0,-999.0};
+  std::array<double,4>  deltaEtaRes = {-999.0,-999.0,-999.0,-999.0};
+  std::array<double,5>  deltaPhiRes = {-999.0,-999.0,-999.0,-999.0,-999.0};
+ 
   if (m_extrapolationTool->getMatchAtCalo (ctx, 
                                            &cluster, 
                                            &trkPB, 
@@ -216,8 +209,8 @@ EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
   {
     return false;
   }
-
-  deltaPhiRescale = deltaPhiRes[2];
+ 
+  double deltaPhiRescale = deltaPhiRes[2];
   /*
    * Sanity check for very far away matches 
    * The assumption is when we rescale we should be in the 
@@ -254,10 +247,11 @@ EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
 
   //Always the deltaPhiLast will be from the last measurement
   IEMExtrapolationTools::TrkExtrapDef extrapFrom1 = IEMExtrapolationTools::fromLastMeasurement;
-  std::vector<double>  eta1(4, -999.0);
-  std::vector<double>  phi1(4, -999.0);
-  std::vector<double>  deltaEta1(4, -999.0);
-  std::vector<double>  deltaPhi1(4, -999.0);
+  std::array<double,4>  eta1 = {-999.0,-999.0,-999.0,-999.0};
+  std::array<double,4>  phi1 = {-999.0,-999.0,-999.0,-999.0};
+  std::array<double,4>  deltaEta1 = {-999.0,-999.0,-999.0,-999.0};
+  std::array<double,5>  deltaPhi1 = {-999.0,-999.0,-999.0,-999.0,-999.0};
+ 
   if (m_extrapolationTool->getMatchAtCalo (ctx,
                                            &cluster, 
                                            &trkPB, 
@@ -271,10 +265,9 @@ EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
     ATH_MSG_DEBUG("Extrapolation from last measurement failed");
     return false;
   }
-  deltaPhiLast = deltaPhi1[2];
+  double deltaPhiLast = deltaPhi1[2];
   ATH_MSG_DEBUG("Rescale dPhi " << deltaPhiRescale);
   ATH_MSG_DEBUG("dPhi Last measurement " << deltaPhiLast);      
-  
   /*
    * Done with extrapolation
    * Lets do the matching logic
@@ -282,9 +275,9 @@ EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
   TrackMatch trkmatch;
   //Add the matching variable to the TrackMAtch
   for(int i=0; i<4 ;++i){
-    trkmatch.deltaEta[i]=deltaEta.at(i); 
-    trkmatch.deltaPhi[i]=deltaPhi.at(i); 
-    trkmatch.deltaPhiRescaled[i]=deltaPhiRes.at(i); 
+    trkmatch.deltaEta[i]=deltaEta[i]; 
+    trkmatch.deltaPhi[i]=deltaPhi[i]; 
+    trkmatch.deltaPhiRescaled[i]=deltaPhiRes[i]; 
   }  
   trkmatch.deltaPhiLast=deltaPhiLast; 
 
@@ -363,7 +356,6 @@ EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
   return true;
 }
 
-// =================================================================
 bool
 EMTrackMatchBuilder::isCandidateMatch(const xAOD::CaloCluster*  cluster,
                                       const xAOD::TrackParticle* track,
@@ -373,7 +365,6 @@ EMTrackMatchBuilder::isCandidateMatch(const xAOD::CaloCluster*  cluster,
   if ( !m_useCandidateMatch ) {
     return true;
   }
-  ATH_MSG_DEBUG("EMTrackMatch builder , broad window");
  
   //Tracking
   const Trk::Perigee& candidatePerigee =track->perigeeParameters();
@@ -445,8 +436,9 @@ EMTrackMatchBuilder::isCandidateMatch(const xAOD::CaloCluster*  cluster,
   return true;
 }
 
-bool EMTrackMatchBuilder::TrackMatchSorter::operator()(const EMTrackMatchBuilder::TrackMatch& match1,
-						       const EMTrackMatchBuilder::TrackMatch& match2)
+bool EMTrackMatchBuilder::TrackMatchSorter::operator()(
+  const EMTrackMatchBuilder::TrackMatch& match1,
+  const EMTrackMatchBuilder::TrackMatch& match2)
 {
   if(match1.hasPix != match2.hasPix) {// prefer pixels first
     return match1.hasPix;
