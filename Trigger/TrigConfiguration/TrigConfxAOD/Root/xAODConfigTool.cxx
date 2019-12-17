@@ -153,6 +153,8 @@ namespace TrigConf {
 
    StatusCode xAODConfigTool::beginInputFile() {
 
+      ATH_MSG_ALWAYS("TIMM xAODConfigTool::beginInputFile");
+
       // Tell the user what's happening:
       ATH_MSG_DEBUG( "Loading the trigger menu from a new input file" );
 
@@ -181,6 +183,7 @@ namespace TrigConf {
    }
 
    StatusCode xAODConfigTool::beginEvent() {
+      ATH_MSG_ALWAYS("TIMM xAODConfigTool::beginEvent");
 
       // It may be that the input file opening event is missed in standalone
       // mode at the very beginning of the application. (Depending on the
