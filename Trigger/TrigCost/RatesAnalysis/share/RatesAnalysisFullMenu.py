@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
@@ -86,27 +87,30 @@ if __name__=='__main__':
   tdt.Navigation.Dlls = [e for e in  EDMLibraries if 'TPCnv' not in e]
   cfg.addPublicTool(tdt)
 
+  # If the dataset name is in the input files path, then it will be fetched from there
+  # Note to enable autolookup, first run "lsetup pyami; voms-proxy-init -voms atlas" and enter your grid pass phrase
+  xsec = args.MCCrossSection
+  fEff = args.MCFilterEfficiency
+  dset = args.MCDatasetName
+  if isMC and xsec == 0: # If the input file is MC then make sure we have the needed info
+    from .RatesGetCrossSectionMC import GetCrossSectionAMI
+    amiTool = GetCrossSectionAMI()
+    if dset == "": # Can we get the dataset name from the input file path?
+      dset = amiTool.getDatasetNameFromPath(ConfigFlags.Input.Files[0])
+    amiTool.queryAmi(dset)
+    xsec = amiTool.getCrossSection()
+    fEff = amiTool.getFilterEfficiency()
+
   from EnhancedBiasWeighter.EnhancedBiasWeighterConf import EnhancedBiasWeighter
   ebw = EnhancedBiasWeighter('EnhancedBiasRatesTool')
   ebw.RunNumber = runNumber
   ebw.UseBunchCrossingTool = useBunchCrossingTool
   ebw.IsMC = isMC
   # The following three are only needed if isMC == true
-  ebw.MCCrossSection = args.MCCrossSection
-  ebw.MCFilterEfficiency = args.MCFilterEfficiency
+  ebw.MCCrossSection = xsec
+  ebw.MCFilterEfficiency = fEff
   ebw.MCKFactor = args.MCKFactor
   cfg.addPublicTool(ebw)
-
-  # If the dataset name is in the input files path, then it will be fetched from there
-  # Note to enable autolookup, first run "lsetup pyami; voms-proxy-init -voms atlas" and enter your grid pass phrase
-  if isMC and not MCCrossSection: # If the input file is MC then make sure we have the needed info
-    from .RatesGetCrossSectionMC import GetCrossSectionAMI
-    amiTool = GetCrossSectionAMI()
-    if not MCDatasetName: # Can we get the dataset name from the input file path?
-      MCDatasetName = amiTool.getDatasetNameFromPath(FilesInput[0])
-    amiTool.queryAmi(MCDatasetName)
-    MCCrossSection = amiTool.getCrossSection()
-    MCFilterEfficiency = amiTool.getFilterEfficiency()
 
   from RatesAnalysis.RatesAnalysisConf import FullMenu
   rates = FullMenu()
