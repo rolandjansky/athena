@@ -113,7 +113,7 @@ StatusCode AlignCondAthTest::finalize() {
   return StatusCode::SUCCESS;
 //
 }
-  
+
 StatusCode AlignCondAthTest::checkMdtGeometry(const MuonGM::MuonDetectorManager* manager, std::ofstream* fout) 
 {
   for( int i1 = 0;i1 < manager->NMdtStatType; ++i1 ){
@@ -122,9 +122,9 @@ StatusCode AlignCondAthTest::checkMdtGeometry(const MuonGM::MuonDetectorManager*
 	for( int i4 = 0;i4 < manager->NMdtMultilayer; ++i4 ){
 	  const MuonGM::MdtReadoutElement* detEl = manager->getMdtReadoutElement(i1,i2,i3,i4);
 	  if( !detEl ) continue;
-	  
+	  const std::vector<const Trk::Surface*>& Nsurf = detEl->surfaces();
 	  (*fout) << " New " << m_idHelperSvc->mdtIdHelper().print_to_string(detEl->identify())
-		  << " nlayers " << detEl->getNLayers() << " ntubes " << detEl->getNtubesperlayer() << std::endl
+		  << " nlayers " << detEl->getNLayers() << " ntubes " << detEl->getNtubesperlayer() << " Nsurf " << Nsurf.size() << std::endl
 		  << Amg::toString( detEl->transform(),6 ) << std::endl;
 	  
 	  for( int tl = 0; tl<detEl->getNLayers();++tl ){
@@ -133,7 +133,13 @@ StatusCode AlignCondAthTest::checkMdtGeometry(const MuonGM::MuonDetectorManager*
 	      (*fout) << " New tube: layer " << tl << " tube " << t << std::endl
 		      << " X, Y, Z:       " << detEl->tubePos(i4+1, tl+1, t+1).x() << ", " << detEl->tubePos(i4+1, tl+1, t+1).y() << ", " << detEl->tubePos(i4+1, tl+1, t+1).z() << std::endl
 		      << " Local X, Y, Z: " << detEl->localTubePos(i4+1, tl+1, t+1).x() << ", " << detEl->localTubePos(i4+1, tl+1, t+1).y() << ", " << detEl->localTubePos(i4+1, tl+1, t+1).z() << std::endl
-		      << Amg::toString( surf.transform(),6 ) << Amg::toString( detEl->fromIdealToDeformed(i4, tl+1, t+1) ) << std::endl;
+		      << " Cent X, Y, Z: " << detEl->center(tl+1, t+1).x() << ", " << detEl->center(tl+1, t+1).y() << ", " << detEl->center(tl+1, t+1).z() << std::endl
+		      << " Norm X, Y, Z: " << detEl->normal(tl+1, t+1).x() << ", " << detEl->normal(tl+1, t+1).y() << ", " << detEl->normal(tl+1, t+1).z() << std::endl
+		      << " TNor X, Y, Z: " << detEl->tubeNormal(tl+1, t+1).x() << ", " << detEl->tubeNormal(tl+1, t+1).y() << ", " << detEl->tubeNormal(tl+1, t+1).z() << std::endl
+		      << Amg::toString( surf.transform(),6 ) 
+		      << Amg::toString( detEl->fromIdealToDeformed(i4, tl+1, t+1),6 ) 
+		      << detEl->bounds(tl+1, t+1) 
+		      << Amg::toString( detEl->transform(tl+1, t+1),6 ) << std::endl;
 	    }
 	  }
 	}
