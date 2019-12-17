@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -20,7 +20,9 @@
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "InDetRIO_OnTrack/TRTRIO_OnTrackErrorScaling.h"
-#include "xAODEventInfo/EventInfo.h"
+
+#include "LumiBlockData/LuminosityCondData.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 namespace InDet {
 
@@ -55,8 +57,8 @@ public:
   ///////////////////////////////////////////////////////////////////
   // Private data:
   ///////////////////////////////////////////////////////////////////
-  SG::ReadHandleKey<xAOD::EventInfo>                m_eventInfoKey
-      {this,"EventInfoKey","EventInfo","Key for xAOD::EventInfo"};
+  SG::ReadCondHandleKey<LuminosityCondData>     m_lumiDataKey
+      {this, "LumiDataKey", "", "SG key for luminosity data"};
 
   //  SG::ReadCondHandleKey<TRTRIO_OnTrackErrorScaling> m_trtErrorScalingKey
   SG::ReadCondHandleKey<RIO_OnTrackErrorScaling> m_trtErrorScalingKey
