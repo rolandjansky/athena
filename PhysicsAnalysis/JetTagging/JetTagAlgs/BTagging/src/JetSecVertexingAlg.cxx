@@ -430,7 +430,6 @@ namespace Analysis {
 	 
 	   }
      }
-     typedef std::vector<ElementLink<xAOD::BTagVertexContainer> > BTagVertices;
 
       const Trk::RecVertexPositions& recVtxposition = vxjetcand->getRecVertexPositions();
       const Amg::VectorX& vtxPositions = recVtxposition.position();

@@ -82,7 +82,6 @@ static const double onemrad  = 0.001;
 
 InDetAlignCog::InDetAlignCog(const std::string& name, ISvcLocator* pSvcLocator) 
   : AthAlgorithm(name, pSvcLocator), 
-    m_TRT_Manager(0),
     m_pixid(0),
     m_sctid(0),
     m_trtid(0),
@@ -201,9 +200,7 @@ StatusCode InDetAlignCog::initialize(){
   // get SCT helper
   ATH_CHECK( detStore()->retrieve(m_sctid));
   
-  // get TRT manager and helper
-  ATH_CHECK( detStore()->retrieve(m_TRT_Manager, "TRT"));
-
+  // get TRT helper
   ATH_CHECK( detStore()->retrieve(m_trtid));
 
   // Get InDetAlignDBTool
@@ -214,6 +211,7 @@ StatusCode InDetAlignCog::initialize(){
   ATH_CHECK( m_TRTAlignDbTool.retrieve() );
 
   // ReadCondHandleKey
+  ATH_CHECK(m_trtDetEleContKey.initialize(m_det==99 || m_det==3));
   ATH_CHECK(m_pixelDetEleCollKey.initialize(m_det==99 || m_det==1 || m_det==12));
   ATH_CHECK(m_SCTDetEleCollKey.initialize(m_det==99 || m_det==2 || m_det==12));
 
@@ -249,6 +247,16 @@ StatusCode InDetAlignCog::execute() {
     }
   }
 
+  const InDetDD::TRT_DetElementCollection* trtElements(nullptr);
+  if (m_det==99 || m_det==3) {
+    SG::ReadCondHandle<InDetDD::TRT_DetElementContainer> trtDetEleHandle(m_trtDetEleContKey);
+    trtElements = trtDetEleHandle->getElements();
+    if (not trtDetEleHandle.isValid() or trtElements==nullptr) {
+      ATH_MSG_FATAL(m_trtDetEleContKey.fullKey() << " is not available.");
+      return StatusCode::FAILURE;
+    }
+  }
+
   if (m_firstEvent) {
     m_firstEvent = false;
     m_counter = 0;
@@ -271,7 +279,7 @@ StatusCode InDetAlignCog::execute() {
     //StatusCode sc;
     if(m_det==99 || m_det==1 || m_det==12) ATH_CHECK( getSiElements(pixelElements,false,params) );
     if(m_det==99 || m_det==2 || m_det==12) ATH_CHECK( getSiElements(sctElements,false,params) );
-    if(m_det==99 || m_det==3) ATH_CHECK( getTRT_Elements(false, params) );
+    if(m_det==99 || m_det==3) ATH_CHECK( getTRT_Elements(trtElements,false, params) );
     //if(sc.isFailure())
     //  ATH_MSG_ERROR( "Problem getting elements from managers" );
     if( !m_useChi2 ) {
@@ -333,7 +341,7 @@ StatusCode InDetAlignCog::execute() {
     // second loop to compute residual transform after substracting cog
     if(m_det==99 || m_det==1 || m_det==12) ATH_CHECK( getSiElements(pixelElements,true, params) );
     if(m_det==99 || m_det==2 || m_det==12) ATH_CHECK( getSiElements(sctElements,true, params) );
-    if(m_det==99 || m_det==3) ATH_CHECK( getTRT_Elements(true, params) );
+    if(m_det==99 || m_det==3) ATH_CHECK( getTRT_Elements(trtElements,true, params) );
     // if(sc.isFailure())
     //          ATH_MSG_ERROR( "Problem getting elements from managers" );
     if( !m_useChi2 ) {
@@ -571,28 +579,27 @@ StatusCode InDetAlignCog::getSiElements(const InDetDD::SiDetectorElementCollecti
 // 
 // The 'level-1' transform is a transform per module.
 //===================================================
-StatusCode InDetAlignCog::getTRT_Elements(bool cog_already_calculated, InDetAlignCog::Params_t &params){
+StatusCode InDetAlignCog::getTRT_Elements(const InDetDD::TRT_DetElementCollection *elements,bool cog_already_calculated, InDetAlignCog::Params_t &params){
   ATH_MSG_DEBUG( "in getTRT_Elements " );
  
-  TRT_ID::const_id_iterator moduleIter;
-  for(moduleIter=m_trtid->module_begin(); moduleIter!=m_trtid->module_end(); moduleIter++){
-    Identifier id = *moduleIter;
 
-    int bec         = m_trtid->barrel_ec(id);
-    int phi_module  = m_trtid->phi_module(id);  
-    int layer_wheel = m_trtid->layer_or_wheel(id);
-    int straw_layer = m_trtid->straw_layer(id);
+  for (const InDetDD::TRT_BaseElement *element: *elements) {
+    // @TODO can element be null ?                                                                                                             
+    if (element) {
+      Identifier id = element->identify();
 
-    // perform selections
-    if(m_TRT_bec!=99 && bec!=m_TRT_bec) continue;
-    if(m_TRT_layer!=99 && layer_wheel!=m_TRT_layer) continue;
+      int bec         = m_trtid->barrel_ec(id);
+      int phi_module  = m_trtid->phi_module(id);  
+      int layer_wheel = m_trtid->layer_or_wheel(id);
+      int straw_layer = m_trtid->straw_layer(id);
 
-    // Skip A Side of 
-    if(bec == 1) continue;
-
-    const InDetDD::TRT_BaseElement *element = m_TRT_Manager->getElement(id);
-
-    if(element){
+      // perform selections
+      if(m_TRT_bec!=99 && bec!=m_TRT_bec) continue;
+      if(m_TRT_layer!=99 && layer_wheel!=m_TRT_layer) continue;
+ 
+      // Skip A Side of 
+      if(bec == 1) continue;
+ 
       ATH_MSG_VERBOSE(std::setw(4) 
 		      << m_counter << " Module " << m_trtid->show_to_string(id) );
      

@@ -29,16 +29,31 @@ namespace Muon {
     virtual StatusCode initialize();
     virtual StatusCode finalize();
 
-    StatusCode smearAndSelect(Identifier id, double& time, double& charge, bool& accepted);
+    StatusCode isAccepted(const Identifier id, bool& accepted);
+
+    StatusCode smearTimeAndCharge(const Identifier id, float& time, float& charge, bool& accepted);
+    StatusCode smearCharge(const Identifier id, float& charge, bool& accepted);
+
+    StatusCode getGainFraction(const Identifier id, float& charge);
 
   private:
     
+    bool getIdFields(const Identifier id, int& etaSector, int& phiSector,
+		     int& gasGap);
+
     ToolHandle<MuonIdHelperTool> m_idHelperTool;
 
     DoubleArrayProperty m_timeSmear;
     DoubleArrayProperty m_chargeSmear;
 
-    DoubleArrayProperty m_efficiency;
+    DoubleArrayProperty m_channelEfficiency;
+    DoubleArrayProperty m_clusterEfficiency;
+
+    DoubleArrayProperty m_gainFraction;
+
+
+    BooleanArrayProperty m_phiSectors;
+    BooleanArrayProperty m_etaSectors;
 
     TRandom3 m_random;
 

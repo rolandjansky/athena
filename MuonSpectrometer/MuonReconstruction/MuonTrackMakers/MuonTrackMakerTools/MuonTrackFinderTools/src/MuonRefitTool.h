@@ -19,13 +19,12 @@
 
 #include "TrkDriftCircleMath/DCSLFitter.h"
 #include "TrkDriftCircleMath/SegmentFinder.h"
-#include "Identifier/Identifier.h"
 #include "TrkParameters/TrackParameters.h"
 #include "MuonRIO_OnTrack/MuonDriftCircleErrorStrategy.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 namespace Muon {
   class MuonEDMPrinterTool;
-  class MuonIdHelperTool;
   class IMdtDriftCircleOnTrackCreator;
   class IMuonClusterOnTrackCreator;
   class IMuonCompetingClustersOnTrackCreator;
@@ -86,7 +85,7 @@ namespace Muon {
     ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" }; //<! muon EDM helper
-    ToolHandle<MuonIdHelperTool>    m_idHelper; //<! muon id helper
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ToolHandle<Trk::ITrkAlignmentDeviationTool>  m_alignErrorTool; //<! alignment error tool
 
     struct State {

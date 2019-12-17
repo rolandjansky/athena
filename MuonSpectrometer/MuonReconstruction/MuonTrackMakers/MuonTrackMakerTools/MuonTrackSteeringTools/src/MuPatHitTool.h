@@ -12,6 +12,7 @@
 #include "GaudiKernel/IIncidentListener.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 #include <vector>
 
@@ -30,11 +31,8 @@ namespace Muon {
   class IMdtDriftCircleOnTrackCreator;
   class IMuonClusterOnTrackCreator;
   class IMuonCompetingClustersOnTrackCreator;
-  class MuonIdHelperTool;
   class MuonEDMPrinterTool;
-
   class MuonSegment;
-
 
   static const InterfaceID IID_MuPatHitTool("Muon::MuPatHitTool",1,0);
   
@@ -172,7 +170,7 @@ namespace Muon {
     ToolHandle<IMuonClusterOnTrackCreator>            m_cscRotCreator;      //<! tool to calibrate CSC hits
     ToolHandle<IMuonCompetingClustersOnTrackCreator>  m_compClusterCreator; //<! tool to create competing clusters on track
     ToolHandle<Trk::IResidualPullCalculator>          m_pullCalculator;     //<! tool to calculate residuals and pulls
-    ToolHandle<MuonIdHelperTool>                      m_idHelperTool;       //<! tool to assist with Identifiers
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ServiceHandle<IMuonEDMHelperSvc>                  m_edmHelperSvc {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" };         //<! multipurpose helper tool

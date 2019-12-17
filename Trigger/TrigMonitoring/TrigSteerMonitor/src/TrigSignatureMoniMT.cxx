@@ -34,14 +34,19 @@ StatusCode TrigSignatureMoniMT::start() {
   SG::ReadHandle<TrigConf::L1Menu>  l1MenuHandle = SG::makeHandle( m_L1MenuKey );
   ATH_CHECK( l1MenuHandle.isValid() );
 
+  //retrieve chain information from menus
+  std::vector<std::string> bcidChainNames;
   for ( const TrigConf::Chain& chain: *hltMenuHandle ){
-    for ( auto group : chain.groups() ){
+    for ( const std::string& group : chain.groups() ){
       if ( group.find("RATE") == 0 ){
         m_groupToChainMap[group].insert( HLT::Identifier(chain.name()) );
       }
+      else if (group == "MON:BCID"){
+        bcidChainNames.push_back(chain.name());
+      }
     }
 
-    for ( auto stream : chain.streams() ){
+    for ( const auto& stream : chain.streams() ){
       m_streamToChainMap[stream.getAttribute("name")].insert( HLT::Identifier(chain.name()) );
     }
 
@@ -63,7 +68,7 @@ StatusCode TrigSignatureMoniMT::start() {
   const int y = nBinsY();
   const int yr = nRateBinsY();
   const int yb = nBunchBinsY(l1MenuHandle);
-  const int ybc = nBCIDbinsY();
+  const int ybc = bcidChainNames.size();
   ATH_MSG_DEBUG( "Histogram " << x << " x " << y << " bins");
 
   std::string outputRateName ("Rate" + std::to_string(m_duration) + "s");
@@ -87,8 +92,8 @@ StatusCode TrigSignatureMoniMT::start() {
   ATH_CHECK( initHist( m_countHistogram, hltMenuHandle ) );
   ATH_CHECK( initHist( m_rateHistogram.getHistogram(), hltMenuHandle, false ) );
   ATH_CHECK( initHist( m_rateHistogram.getBuffer(), hltMenuHandle, false ) );
-  ATH_CHECK( initBCIDhist( m_bcidHistogram.getHistogram(), hltMenuHandle ) );
-  ATH_CHECK( initBCIDhist( m_bcidHistogram.getBuffer(), hltMenuHandle ) );
+  ATH_CHECK( initBCIDhist( m_bcidHistogram.getHistogram(), bcidChainNames ) );
+  ATH_CHECK( initBCIDhist( m_bcidHistogram.getBuffer(), bcidChainNames ) );
   ATH_CHECK( initBunchHist( m_bunchHistogram, hltMenuHandle, l1MenuHandle ) );
 
   return StatusCode::SUCCESS;
@@ -197,8 +202,8 @@ StatusCode TrigSignatureMoniMT::fillBunchGroups(const TrigCompositeUtils::Decisi
 
 StatusCode TrigSignatureMoniMT::fillBCID(const TrigCompositeUtils::DecisionIDContainer& dc , int bcid) const {
   for ( auto id : dc )  {
-    auto id2bin = m_chainIDToBinBCIDmap.find( id );
-    if ( id2bin != m_chainIDToBinBCIDmap.end() ) {
+    auto id2bin = m_BCIDchainIDToBinMap.find( id );
+    if ( id2bin != m_BCIDchainIDToBinMap.end() ) {
       m_bcidHistogram.getBuffer()->Fill( bcid, id2bin->second );
     }
   }
@@ -330,7 +335,7 @@ int TrigSignatureMoniMT::nRateBinsY() const {
 }
 
 int TrigSignatureMoniMT::nBCIDbinsY() const {
-  return 10; // temporarily just 10 first chains
+  return m_BCIDchainIDToBinMap.size();
 }
 
 int TrigSignatureMoniMT::nBunchBinsY(SG::ReadHandle<TrigConf::L1Menu>& l1MenuHandle) const {
@@ -348,19 +353,19 @@ StatusCode TrigSignatureMoniMT::initHist(LockedHandle<TH2>& hist, SG::ReadHandle
   }
   std::sort( sortedChainsList.begin(), sortedChainsList.end() );
   
-  for ( auto chainName: sortedChainsList ) {
+  for ( const std::string& chainName: sortedChainsList ) {
     x->SetBinLabel( bin, chainName.c_str() );
     m_chainIDToBinMap[ HLT::Identifier( chainName ).numeric() ] = bin;
     bin++;
   }
 
-  for ( auto stream : m_streamToChainMap){
+  for ( const auto& stream : m_streamToChainMap){
     x->SetBinLabel( bin, ("str_"+stream.first).c_str());
     m_nameToBinMap[ stream.first ] = bin;
     bin++;
   }
 
-  for ( auto group : m_groupToChainMap){
+  for ( const auto& group : m_groupToChainMap){
     x->SetBinLabel( bin, ("grp_"+group.first.substr(group.first.find(':')+1)).c_str() );
     m_nameToBinMap[ group.first ] = bin;
     bin++;
@@ -378,18 +383,17 @@ StatusCode TrigSignatureMoniMT::initHist(LockedHandle<TH2>& hist, SG::ReadHandle
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigSignatureMoniMT::initBCIDhist(LockedHandle<TH2>& hist, SG::ReadHandle<TrigConf::HLTMenu>& hltMenuHandle){
+StatusCode TrigSignatureMoniMT::initBCIDhist(LockedHandle<TH2>& hist, const std::vector<std::string>& chainNames){
+  std::vector<std::string> sortedChainNames(chainNames);
+  std::sort( sortedChainNames.begin(), sortedChainNames.end() );
+
   TAxis* y = hist->GetYaxis();
+  int bin = 1;
 
-  std::vector<std::string> sortedChainsList;
-  for ( const TrigConf::Chain& chain: *hltMenuHandle ) {
-    sortedChainsList.push_back( chain.name() );
-  }
-  std::sort( sortedChainsList.begin(), sortedChainsList.end() );
-
-  for ( int bin = 1; bin <= y->GetNbins(); ++bin ){
-    y->SetBinLabel(  bin, sortedChainsList[bin].c_str() );
-    m_chainIDToBinBCIDmap[ HLT::Identifier( sortedChainsList[bin] ).numeric() ] = bin;
+  for ( const std::string& chainName : sortedChainNames ){
+    y->SetBinLabel( bin, chainName.c_str() );
+    m_BCIDchainIDToBinMap[HLT::Identifier(chainName).numeric()] = bin;
+    ++bin;
   }
 
   return StatusCode::SUCCESS;
@@ -406,7 +410,7 @@ StatusCode TrigSignatureMoniMT::initBunchHist(LockedHandle<TH2>& hist, SG::ReadH
   }
   std::sort( sortedChainsList.begin(), sortedChainsList.end() );
 
-  for ( auto chainName: sortedChainsList ) {
+  for ( const std::string& chainName: sortedChainsList ) {
     x->SetBinLabel( bin, chainName.c_str() );
     ++bin;
   }
@@ -417,7 +421,7 @@ StatusCode TrigSignatureMoniMT::initBunchHist(LockedHandle<TH2>& hist, SG::ReadH
   sortedBunchGroups.erase(std::remove(sortedBunchGroups.begin(), sortedBunchGroups.end(), "BGRP0"), sortedBunchGroups.end());
 
   bin = 1;
-  for ( auto group : sortedBunchGroups ){
+  for ( const std::string& group : sortedBunchGroups ){
     y->SetBinLabel( bin, l1MenuHandle->getAttribute( "bunchGroups." + group + ".name", true).c_str() );
     m_nameToBinMap[group] = bin;
     ++bin;

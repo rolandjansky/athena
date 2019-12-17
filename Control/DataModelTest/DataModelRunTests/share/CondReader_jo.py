@@ -81,24 +81,14 @@ condSequence += DMTest__CondAlg1()
 condSequence += DMTest__CondAlg2()
 
 
-#--------------------------------------------------------------
-# Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
-#--------------------------------------------------------------
-svcMgr.MessageSvc.OutputLevel = 3
-svcMgr.MessageSvc.debugLimit  = 100000
-svcMgr.ClassIDSvc.OutputLevel = 3
-
-# No stats printout
-ChronoStatSvc = Service( "ChronoStatSvc" )
-ChronoStatSvc.ChronoPrintOutTable = FALSE
-ChronoStatSvc.PrintUserTime       = FALSE
-ChronoStatSvc.StatPrintOutTable   = FALSE
-
 # Increment LBN every three events, TS each event.
 from McEventSelector import McEventSelectorConf
 svcMgr+=McEventSelectorConf.McEventSelector('EventSelector',
                                             EventsPerLB=3,
                                             TimeStampInterval=1)
 
-PoolSvc = Service( "PoolSvc" )
+from PoolSvc import PoolSvcConf
+PoolSvc = PoolSvcConf.PoolSvc()
 PoolSvc.ReadCatalog = ["file:CondWriter_catalog.xml"]
+
+include ('DataModelRunTests/commonTrailer.py')

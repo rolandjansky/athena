@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ## @package AtlasErrorCodes
 #
@@ -8,7 +8,7 @@
 #  @version $Rev: 355335 $
 #  @date $Date: 2011-03-30 13:05:33 +0200 (Wed, 30 Mar 2011) $
 
-from __future__ import with_statement
+from __future__ import with_statement, print_function
 import os,re,sys,traceback
 from envutil import find_file_env
 from xmlutil import XMLNode
@@ -403,12 +403,12 @@ def addCategory( code, acronym, description ):
     # check that error code is unique
     cat = __categoryCodeDict.get( code )
     if cat:
-        print "ERROR: Error category code %s already exists with acronym %s (new acronym: %s)" % ( code, cat.acronym, acronym )
+        print ("ERROR: Error category code %s already exists with acronym %s (new acronym: %s)" % ( code, cat.acronym, acronym ))
         return False
     # check that error acronym is unique
     cat = __categoryAcronymDict.get( acronym )
     if cat:
-        print "ERROR: Error category acronym %s already exists with code %d (new code: %d)" % ( acronym, cat.code, code )
+        print ("ERROR: Error category acronym %s already exists with code %d (new code: %d)" % ( acronym, cat.code, code ))
         return False
     # all OK. Now add it.
     cat = ErrorCategory( code, acronym, description )
@@ -466,7 +466,7 @@ def getCode( acronym ):
 def dumpCategories():
     global __categoryCodeDict
     for value in __categoryCodeDict.values():
-        print value
+        print (value)
 
 ## Count the number of entries in the global AtlasErrorCodes.__categoryCodeDict dictionary.
 #  @return Integer
@@ -524,9 +524,9 @@ def readCategories( filename = defaultCategoryFile, clearExisting = True ):
                 globals()[ acronym ] = code
             else:
                 nAmbiguous += 1
-    print "INFO: read %s error categories from file %s" % ( nRead, fullfile )
+    print ("INFO: read %s error categories from file %s" % ( nRead, fullfile ))
     if nAmbiguous:
-        print "ERROR: Ignored %d ambiguous error category definitions" % nAmbiguous
+        print ("ERROR: Ignored %d ambiguous error category definitions" % nAmbiguous)
 
 ## Count the number of ErrorPatterns in the global AtlasErrorCodes.__errorPatterns dictionary
 def errorPatternsCount():
@@ -595,7 +595,7 @@ def readErrorPatterns(filename=defaultErrorPatternFile,clearExisting=True):
                 severity = severityRE_result.group( 'severity' )
             addErrorPattern( release, ErrorPattern( pattern, acronym, severity ) )
             nRead += 1
-    print "INFO: read %d error patterns from file %s" % ( nRead, fullfile )
+    print ("INFO: read %d error patterns from file %s" % ( nRead, fullfile ))
 
 ## Count the number of regex instances in the global AtlasErrorCodes.__ignorePatterns dictionary.
 def ignorePatternsCount():
@@ -640,7 +640,7 @@ def readIgnorePatterns(filename=defaultIgnorePatternFile):
             pattern += ','.join(parts[2:]).strip()
             addIgnorePattern( release, re.compile(pattern) )
             nRead += 1
-    print "INFO: read %d ignore patterns from file %s" % (nRead,fullfile)
+    print ("INFO: read %d ignore patterns from file %s" % (nRead,fullfile))
 
 ## Import the error codes into shell environment
 #  @warning Deprecated. 
