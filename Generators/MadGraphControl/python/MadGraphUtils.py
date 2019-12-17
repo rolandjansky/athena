@@ -2654,7 +2654,6 @@ def hack_gridpack_script(gridpack_dir,reweight_card,madspin_card):
             systematics_program='systematics'
         else:
             systematics_program='syscalc'
-        run_card_dict['systematics_program']
         if checkSettingExists('systematics_program',run_card_dict):
             if checkSetting('systematics_program','systematics',run_card_dict):
                 systematics_program='systematics'
