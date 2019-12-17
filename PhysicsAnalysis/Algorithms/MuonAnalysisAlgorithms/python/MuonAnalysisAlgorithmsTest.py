@@ -19,7 +19,7 @@ def makeSequence (dataType) :
     from AsgAnalysisAlgorithms.PileupAnalysisSequence import \
         makePileupAnalysisSequence
     pileupSequence = makePileupAnalysisSequence( dataType )
-    pileupSequence.configure( inputName = 'EventInfo', outputName = 'EventInfo' )
+    pileupSequence.configure( inputName = 'EventInfo', outputName = 'EventInfo_%SYS%' )
 
     # Add the pileup sequence to the job:
     algSeq += pileupSequence
