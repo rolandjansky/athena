@@ -134,7 +134,7 @@ print      BPHY21_JpsiFinder
 ##    There should be one tool per topology, i.e. Jpsi and Psi(2S) do not need two instance of the
 ##    Reco tool is the JpsiFinder mass window is wide enough.
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Reco_mumu
-BPH218JpsiSelectAndWrite = DerivationFramework__Reco_mumu(
+BPHY21JpsiSelectAndWrite = DerivationFramework__Reco_mumu(
     name                   = "BPHY21_JpsiSelectAndWrite",
     JpsiFinder             = BPHY21_JpsiFinder,
     OutputVtxContainerName = "BPHY21_JpsiCandidates",
@@ -165,7 +165,7 @@ print      BPHY21_Select_Jpsi2mumu
 
 #--------------------------------------------------------------------
 
-CascadeCollections = []
+BPHY21_CascadeCollections = []
 
 
 #--------------------------------------------------------------------
