@@ -1,7 +1,8 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, ConfigurationError
-from IOVSvc.IOVSvcConf import CondInputLoader
+from AthenaConfiguration.ComponentFactory import CompFactory
+CondInputLoader=CompFactory.CondInputLoader
 import os
 
 def IOVDbSvcCfg(configFlags):
@@ -11,9 +12,9 @@ def IOVDbSvcCfg(configFlags):
     #Add the conditions loader, must be the first in the sequence
     result.addCondAlgo(CondInputLoader())
 
-    from IOVDbSvc.IOVDbSvcConf import IOVDbSvc
-    from IOVSvc.IOVSvcConf import CondSvc
-    from SGComps.SGCompsConf import ProxyProviderSvc
+    IOVDbSvc=CompFactory.IOVDbSvc
+    CondSvc=CompFactory.CondSvc
+    ProxyProviderSvc=CompFactory.ProxyProviderSvc
 
     #Properties of IOVDbSvc to be set here:
     #online-mode, DBInstance (slite)
@@ -51,7 +52,7 @@ def IOVDbSvcCfg(configFlags):
 
     # Set up POOLSvc with appropriate catalogs
     
-    from PoolSvc.PoolSvcConf import PoolSvc
+    PoolSvc=CompFactory.PoolSvc
     poolSvc=PoolSvc()
     poolSvc.MaxFilesOpen=0
     poolSvc.ReadCatalog=["apcfile:poolcond/PoolFileCatalog.xml",
@@ -67,7 +68,7 @@ def IOVDbSvcCfg(configFlags):
     result.addService(CondSvc())
     result.addService(ProxyProviderSvc(ProviderNames=["IOVDbSvc",]))
 
-    from DBReplicaSvc.DBReplicaSvcConf import DBReplicaSvc
+    DBReplicaSvc=CompFactory.DBReplicaSvc
     if not isMC:
         result.addService(DBReplicaSvc(COOLSQLiteVetoPattern="/DBRelease/"))
 
@@ -138,10 +139,10 @@ def addFolderList(configFlags,listOfFolderInfoTuple,extensible=False):
 
     if len(loadFolders)>0:
         result.getCondAlgo("CondInputLoader").Load+=loadFolders
-        from AthenaPoolCnvSvc.AthenaPoolCnvSvcConf import AthenaPoolCnvSvc
+        AthenaPoolCnvSvc=CompFactory.AthenaPoolCnvSvc
         apcs=AthenaPoolCnvSvc()
         result.addService(apcs)
-        from GaudiSvc.GaudiSvcConf import EvtPersistencySvc
+        EvtPersistencySvc=CompFactory.EvtPersistencySvc
         result.addService(EvtPersistencySvc("EventPersistencySvc",CnvServices=[apcs.getFullJobOptName(),]))
 
     return result

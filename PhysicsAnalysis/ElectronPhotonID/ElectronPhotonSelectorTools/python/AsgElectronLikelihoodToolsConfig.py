@@ -3,10 +3,11 @@
 __doc__ = "    Configure the AsgElectronLikelihoodTool with the quality cuts and allow for (re-)setting of all provided cuts."
 
 from AthenaCommon.Logging import logging
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 # Import the needed stuff specific to the ElectronPhotonSelectorTools
-from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import AsgElectronLikelihoodTool
+AsgElectronLikelihoodTool=CompFactory.AsgElectronLikelihoodTool
 from ElectronPhotonSelectorTools.ElectronLikelihoodToolMapping import ElectronLikelihoodMap, electronLHmenu
 
 

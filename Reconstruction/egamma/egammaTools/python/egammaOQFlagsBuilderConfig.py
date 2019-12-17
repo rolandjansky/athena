@@ -3,9 +3,10 @@
 __doc__ = "Configure e/gamma object quality"
 
 from AthenaCommon.Logging import logging
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from egammaTools.egammaToolsConf import egammaOQFlagsBuilder
-from CaloTools.CaloToolsConf import CaloAffectedTool
+egammaOQFlagsBuilder=CompFactory.egammaOQFlagsBuilder
+CaloAffectedTool=CompFactory.CaloAffectedTool
 
 
 def egammaOQFlagsBuilderCfg(flags, name='egammaOQFlagsBuilder', **kwargs):

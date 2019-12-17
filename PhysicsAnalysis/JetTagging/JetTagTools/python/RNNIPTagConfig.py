@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from BTagging.BTaggingFlags import BTaggingFlags
 from JetTagTools.BTagTrackToVertexIPEstimatorConfig import BTagTrackToVertexIPEstimatorCfg
 from JetTagTools.SVForIPToolConfig import SVForIPToolCfg
@@ -8,7 +9,7 @@ from JetTagTools.IPDetailedTrackGradeFactoryConfig import IPDetailedTrackGradeFa
 from JetTagTools.IPTrackSelectorConfig import IPTrackSelectorCfg
 
 # import the IPTag configurable
-from JetTagTools.JetTagToolsConf import Analysis__RNNIPTag
+Analysis__RNNIPTag=CompFactory.Analysis__RNNIPTag
 
 def RNNIPTagCfg( flags, name = 'RNNIP', scheme = '', calibration=None, useBTagFlagsDefaults = True, **options ):
     """Sets up a RNNIPTag tool and returns it.

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef REGSELECTORHASHMAP_H
@@ -8,18 +8,14 @@
 // Includes --------------------------------------------------------------
 #include "RegSelectorMapElement.h"
 #include "RegionSelectorLUT.h"
-//#include "ITrigRegionSelector.h"
 #include "RegionSelector/RegSelEnums.h"
 #include "GaudiKernel/StatusCode.h"
 #include <vector>
 #include <list>
 #include <set>
-#include <iostream>
-#include <fstream>
-#include <cstdio>
-#include <cmath>
-#include <iterator>
-#include <stdint.h>
+#include <cstdint>
+
+class RegionSelectorLUT;
 
 #define INITHASH 30000 // nonexistent hashID number (init value)
 
@@ -92,21 +88,19 @@ class RegSelectorHashMap{
 
 
  private:
-  double m_stepMinPhi, m_stepMinEta;
+  double m_stepMinPhi{}, m_stepMinEta{};
   std::list<RegSelectorMapElement> m_dataList;
   std::vector<int> m_sample, m_layer;
   std::vector<IdentifierHash> m_hashId;
   std::vector<double> m_etamin, m_etamax;
   std::vector<double> m_phimin, m_phimax;
   std::vector<std::vector<uint32_t> > m_robId;
-  double m_etaminDet, m_etamaxDet;
-  double m_phiminDet, m_phimaxDet;
-  int m_NumSamples;
-  int m_iColumns, m_iLines;
-  bool m_readFromFile;
-  //__gnu_cxx::hash_std::map<uint32_t,std::vector<uint32_t>, __gnu_cxx::hash<uint32_t>, equalsUint> m_robIDMap;
+  double m_etaminDet{}, m_etamaxDet{};
+  double m_phiminDet{}, m_phimaxDet{};
+  int m_NumSamples{};
+  int m_iColumns{}, m_iLines{};
+  bool m_readFromFile{};
   std::vector<std::vector<uint32_t> > m_robIDMap;
-  //__gnu_cxx::hash_std::map<int,IdentifierHash, __gnu_cxx::hash<int>, equals> m_hashIDMap;
   std::vector<IdentifierHash> m_hashIDMap;
 
   void populateMatrix(int iPage,IdentifierHash value);

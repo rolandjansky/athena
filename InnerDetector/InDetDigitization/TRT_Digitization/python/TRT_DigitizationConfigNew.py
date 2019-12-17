@@ -3,14 +3,15 @@
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from TRT_Digitization.TRT_DigitizationConf import TRTDigitizationTool, TRTDigitization
+from AthenaConfiguration.ComponentFactory import CompFactory
+TRTDigitizationTool, TRTDigitization=CompFactory.getComps("TRTDigitizationTool","TRTDigitization",)
 from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
 from TRT_PAI_Process.TRT_PAI_ProcessConfigNew import TRT_PAI_Process_XeToolCfg
 from TRT_PAI_Process.TRT_PAI_ProcessConfigNew import TRT_PAI_Process_ArToolCfg
 from TRT_PAI_Process.TRT_PAI_ProcessConfigNew import TRT_PAI_Process_KrToolCfg
-from PileUpComps.PileUpCompsConf import PileUpXingFolder
-from PartPropSvc.PartPropSvcConf import PartPropSvc
+PileUpXingFolder=CompFactory.PileUpXingFolder
+PartPropSvc=CompFactory.PartPropSvc
 from IOVDbSvc.IOVDbSvcConfig import addFolders
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from Digitization.PileUpToolsConfig import PileUpToolsCfg

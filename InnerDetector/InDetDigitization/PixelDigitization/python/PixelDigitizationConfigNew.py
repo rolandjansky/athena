@@ -3,7 +3,8 @@
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from PileUpComps.PileUpCompsConf import PileUpXingFolder
+from AthenaConfiguration.ComponentFactory import CompFactory
+PileUpXingFolder=CompFactory.PileUpXingFolder
 from PixelCabling.PixelCablingConfigNew import PixelCablingSvcCfg
 from PixelDigitization.PixelDigitizationConf import (
     PixelDigitizationTool, PixelDigitization, ChargeCollProbSvc,

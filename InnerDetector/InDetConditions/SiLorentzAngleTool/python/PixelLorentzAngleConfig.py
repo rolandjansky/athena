@@ -3,8 +3,9 @@
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from SiPropertiesTool.PixelSiPropertiesConfig import PixelSiPropertiesCfg
-from SiLorentzAngleTool.SiLorentzAngleToolConf import SiLorentzAngleTool
-from SiLorentzAngleTool.SiLorentzAngleToolConf import PixelSiLorentzAngleCondAlg
+from AthenaConfiguration.ComponentFactory import CompFactory
+SiLorentzAngleTool=CompFactory.SiLorentzAngleTool
+PixelSiLorentzAngleCondAlg=CompFactory.PixelSiLorentzAngleCondAlg
 from PixelConditionsTools.PixelDCSConditionsConfig import PixelDCSConditionsCfg
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
 

@@ -5,6 +5,7 @@
 # Based heavily on AtlasExtrapolationEngine.py
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
 
 # import the ExtrapolationEngine configurable
@@ -27,7 +28,7 @@ def AtlasExtrapolationEngineCfg( flags, name = 'Extrapolation', nameprefix='Atla
     result.addPublicTool(rungeKuttaPropagator) #TODO remove one day
       
     # from the Propagator create a Propagation engine to handle path length
-    from TrkExEngine.TrkExEngineConf import Trk__PropagationEngine
+    Trk__PropagationEngine=CompFactory.Trk__PropagationEngine
     staticPropagator = Trk__PropagationEngine(name = nameprefix+'StaticPropagation')
     # give the tools it needs 
     staticPropagator.Propagator               = rungeKuttaPropagator
@@ -37,7 +38,7 @@ def AtlasExtrapolationEngineCfg( flags, name = 'Extrapolation', nameprefix='Atla
     result.addPublicTool(staticPropagator) #TODO remove one day
        
     # load the material effects engine
-    from TrkExEngine.TrkExEngineConf import Trk__MaterialEffectsEngine
+    Trk__MaterialEffectsEngine=CompFactory.Trk__MaterialEffectsEngine
     materialEffectsEngine = Trk__MaterialEffectsEngine(name = nameprefix+'MaterialEffects')
     # configure output formatting               
     materialEffectsEngine.OutputPrefix        = '[ME] - '
@@ -46,7 +47,7 @@ def AtlasExtrapolationEngineCfg( flags, name = 'Extrapolation', nameprefix='Atla
 
         
     # load the static navigation engine
-    from TrkExEngine.TrkExEngineConf import Trk__StaticNavigationEngine
+    Trk__StaticNavigationEngine=CompFactory.Trk__StaticNavigationEngine
     staticNavigator = Trk__StaticNavigationEngine(name = nameprefix+'StaticNavigation')
     # give the tools it needs 
     staticNavigator.PropagationEngine        = staticPropagator
@@ -60,7 +61,7 @@ def AtlasExtrapolationEngineCfg( flags, name = 'Extrapolation', nameprefix='Atla
     result.addPublicTool(staticNavigator) #TODO remove one day
     
     # load the Static ExtrapolationEngine
-    from TrkExEngine.TrkExEngineConf import Trk__StaticEngine
+    Trk__StaticEngine=CompFactory.Trk__StaticEngine
     staticExtrapolator = Trk__StaticEngine(name = nameprefix+'StaticExtrapolation')
     # give the tools it needs 
     staticExtrapolator.PropagationEngine        = staticPropagator

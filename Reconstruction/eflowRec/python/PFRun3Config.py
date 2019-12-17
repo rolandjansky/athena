@@ -1,22 +1,23 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def getPFTrackSelectorAlgorithm(inputFlags):
-    from eflowRec.eflowRecConf import PFTrackSelector
+    PFTrackSelector=CompFactory.PFTrackSelector
     PFTrackSelector=PFTrackSelector("PFTrackSelector")
 
     from TrkExTools.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg    
-    from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
+    Trk__ParticleCaloExtensionTool=CompFactory.Trk__ParticleCaloExtensionTool
     extrapCfg = AtlasExtrapolatorCfg(inputFlags)
     pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator = extrapCfg.popPrivateTools())
 
-    from eflowRec.eflowRecConf import eflowTrackCaloExtensionTool
+    eflowTrackCaloExtensionTool=CompFactory.eflowTrackCaloExtensionTool
     TrackCaloExtensionTool=eflowTrackCaloExtensionTool(TrackCaloExtensionTool=pcExtensionTool)
     TrackCaloExtensionTool.PFParticleCache=""
     
     PFTrackSelector.trackExtrapolatorTool = TrackCaloExtensionTool
 
-    from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
+    InDet__InDetTrackSelectionTool=CompFactory.InDet__InDetTrackSelectionTool
     TrackSelectionTool = InDet__InDetTrackSelectionTool("PFTrackSelectionTool")
 
     TrackSelectionTool.CutLevel = "TightPrimary"
@@ -27,7 +28,7 @@ def getPFTrackSelectorAlgorithm(inputFlags):
     return PFTrackSelector
 
 def getPFTrackClusterMatchingTool(inputFlags,matchCut,distanceType,clusterPositionType,name):
-    from eflowRec.eflowRecConf import PFTrackClusterMatchingTool
+    PFTrackClusterMatchingTool=CompFactory.PFTrackClusterMatchingTool
     MatchingTool = PFTrackClusterMatchingTool(name)
     MatchingTool.ClusterPositionType = clusterPositionType
     MatchingTool.DistanceType = distanceType
@@ -35,10 +36,10 @@ def getPFTrackClusterMatchingTool(inputFlags,matchCut,distanceType,clusterPositi
     return MatchingTool
     
 def getPFCellLevelSubtractionTool(inputFlags):
-    from eflowRec.eflowRecConf import PFCellLevelSubtractionTool
+    PFCellLevelSubtractionTool=CompFactory.PFCellLevelSubtractionTool
     PFCellLevelSubtractionTool = PFCellLevelSubtractionTool("PFCellLevelSubtractionTool")
     
-    from eflowRec.eflowRecConf import eflowCellEOverPTool_mc12_JetETMiss
+    eflowCellEOverPTool_mc12_JetETMiss=CompFactory.eflowCellEOverPTool_mc12_JetETMiss
     PFCellLevelSubtractionTool.eflowCellEOverPTool = eflowCellEOverPTool_mc12_JetETMiss()
 
     if(True is inputFlags.PF.EOverPMode):
@@ -58,10 +59,10 @@ def getPFCellLevelSubtractionTool(inputFlags):
     return PFCellLevelSubtractionTool
 
 def getPFRecoverSplitShowersTool(inputFlags):
-    from eflowRec.eflowRecConf import PFRecoverSplitShowersTool
+    PFRecoverSplitShowersTool=CompFactory.PFRecoverSplitShowersTool
     PFRecoverSplitShowersTool = PFRecoverSplitShowersTool("PFRecoverSplitShowersTool")
 
-    from eflowRec.eflowRecConf import eflowCellEOverPTool_mc12_JetETMiss
+    eflowCellEOverPTool_mc12_JetETMiss=CompFactory.eflowCellEOverPTool_mc12_JetETMiss
     PFRecoverSplitShowersTool.eflowCellEOverPTool = eflowCellEOverPTool_mc12_JetETMiss("eflowCellEOverPTool_mc12_JetETMiss_Recover")
 
     if (True is inputFlags.PF.recoverIsolatedTracks):
@@ -72,20 +73,20 @@ def getPFRecoverSplitShowersTool(inputFlags):
     return PFRecoverSplitShowersTool
 
 def getPFClusterSelectorTool():
-    from eflowRec.eflowRecConf import PFClusterSelectorTool
+    PFClusterSelectorTool=CompFactory.PFClusterSelectorTool
     PFClusterSelectorTool = PFClusterSelectorTool("PFClusterSelectorTool")
     PFClusterSelectorTool.clustersName="CaloTopoClusters"
 
     return PFClusterSelectorTool
 
 def getPFMomentCalculatorTool(inputFlags):
-    from eflowRec.eflowRecConf import PFMomentCalculatorTool
+    PFMomentCalculatorTool=CompFactory.PFMomentCalculatorTool
     PFMomentCalculatorTool = PFMomentCalculatorTool("PFMomentCalculatorTool")
 
     from CaloRec.CaloTopoClusterConfig import getTopoMoments
     PFMomentCalculatorTool.CaloClusterMomentsMaker = getTopoMoments(inputFlags)
 
-    from eflowRec.eflowRecConf import PFClusterCollectionTool
+    PFClusterCollectionTool=CompFactory.PFClusterCollectionTool
     PFMomentCalculatorTool.PFClusterCollectionTool = PFClusterCollectionTool("PFClusterCollectionTool")
 
     if(True is inputFlags.PF.useCalibHitTruthMoments):
@@ -96,10 +97,10 @@ def getPFMomentCalculatorTool(inputFlags):
     return PFMomentCalculatorTool
 
 def getPFLCCalibTool(inputFlags):
-    from eflowRec.eflowRecConf import PFLCCalibTool
+    PFLCCalibTool=CompFactory.PFLCCalibTool
     PFLCCalibTool = PFLCCalibTool("PFLCCalibTool")
 
-    from eflowRec.eflowRecConf import PFClusterCollectionTool
+    PFClusterCollectionTool=CompFactory.PFClusterCollectionTool
     PFLCCalibTool.eflowRecClusterCollectionTool = PFClusterCollectionTool("PFClusterCollectionTool_LCCalib")
     PFLCCalibTool.UseLocalWeight = False
 
@@ -115,7 +116,7 @@ def getPFLCCalibTool(inputFlags):
 
 def getPFAlgorithm(inputFlags):
 
-    from eflowRec.eflowRecConf import PFAlgorithm
+    PFAlgorithm=CompFactory.PFAlgorithm
     PFAlgorithm = PFAlgorithm("PFAlgorithm")   
     
     PFAlgorithm.PFClusterSelectorTool = getPFClusterSelectorTool()
@@ -131,12 +132,12 @@ def getPFAlgorithm(inputFlags):
     return PFAlgorithm
 
 def getPFOCreators(inputFlags):
-    from eflowRec.eflowRecConf import PFOChargedCreatorAlgorithm
+    PFOChargedCreatorAlgorithm=CompFactory.PFOChargedCreatorAlgorithm
     PFOChargedCreatorAlgorithm = PFOChargedCreatorAlgorithm("PFOChargedCreatorAlgorithm")
     if(True is inputFlags.PF.EOverPMode):
         PFOChargedCreatorAlgorithm.PFOOutputName="EOverPChargedParticleFlowObjects"
 
-    from eflowRec.eflowRecConf import PFONeutralCreatorAlgorithm
+    PFONeutralCreatorAlgorithm=CompFactory.PFONeutralCreatorAlgorithm
     PFONeutralCreatorAlgorithm =  PFONeutralCreatorAlgorithm("PFONeutralCreatorAlgorithm")
     if(True is inputFlags.PF.EOverPMode):
         PFONeutralCreatorAlgorithm.PFOOutputName="EOverPNeutralParticleFlowObjects"
@@ -152,7 +153,7 @@ def PFCfg(inputFlags,**kwargs):
     #Some such items may be best placed elsewehere (e.g. put magnetic field setup in magnetic field git folder etc)
     result=ComponentAccumulator()
 
-    from StoreGate.StoreGateConf import StoreGateSvc
+    StoreGateSvc=CompFactory.StoreGateSvc
     result.addService(StoreGateSvc("DetectorStore"))
 
     #Alias calibrated topoclusters, if they exist already, such that overwrite won't fial
@@ -168,20 +169,20 @@ def PFCfg(inputFlags,**kwargs):
     result.merge(PixelGeometryCfg(inputFlags))
 
     #Setup Pixel conditions
-    from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelAlignCondAlg
+    PixelAlignCondAlg=CompFactory.PixelAlignCondAlg
     result.addCondAlgo(PixelAlignCondAlg(name = "PixelAlignCondAlg",UseDynamicAlignFolders = inputFlags.GeoModel.Align.Dynamic))
 
-    from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDetectorElementCondAlg
+    PixelDetectorElementCondAlg=CompFactory.PixelDetectorElementCondAlg
     result.addCondAlgo(PixelDetectorElementCondAlg(name = "PixelDetectorElementCondAlg"))
 
     #Setup SCT conditions
-    from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_AlignCondAlg
+    SCT_AlignCondAlg=CompFactory.SCT_AlignCondAlg
     result.addCondAlgo(SCT_AlignCondAlg(name = "SCT_AlignCondAlg",UseDynamicAlignFolders = inputFlags.GeoModel.Align.Dynamic))
 
-    from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DetectorElementCondAlg
+    SCT_DetectorElementCondAlg=CompFactory.SCT_DetectorElementCondAlg
     result.addCondAlgo(SCT_DetectorElementCondAlg(name = "SCT_DetectorElementCondAlg"))
 
-    from GeometryDBSvc.GeometryDBSvcConf import GeometryDBSvc
+    GeometryDBSvc=CompFactory.GeometryDBSvc
     result.addService(GeometryDBSvc("InDetGeometryDBSvc"))
     
     from AthenaCommon import CfgGetter
@@ -189,7 +190,7 @@ def PFCfg(inputFlags,**kwargs):
     result.getService("GeoModelSvc").DetectorTools += [ CfgGetter.getPrivateTool("SCT_DetectorTool", checkType=True) ]
 
     #Setup TRT geometry
-    from TRT_GeoModel.TRT_GeoModelConf import TRT_DetectorTool
+    TRT_DetectorTool=CompFactory.TRT_DetectorTool
     trtDetectorTool = TRT_DetectorTool()
     #These two lines fix ATLASRECTS-5053. I expect eventually we can remove them, once the underlying issue is fixed.
     trtDetectorTool.DoXenonArgonMixture = False
@@ -197,7 +198,7 @@ def PFCfg(inputFlags,**kwargs):
     result.getService("GeoModelSvc").DetectorTools += [ trtDetectorTool ]
 
     #Setup up material for inner detector
-    from InDetServMatGeoModel.InDetServMatGeoModelConf import InDetServMatTool
+    InDetServMatTool=CompFactory.InDetServMatTool
     result.getService("GeoModelSvc").DetectorTools += [ InDetServMatTool() ]
     
     #Setup up tracking geometry
@@ -219,7 +220,7 @@ def PFCfg(inputFlags,**kwargs):
 
     iovDbSvc=result.getService("IOVDbSvc")
 
-    from MagFieldServices.MagFieldServicesConf import MagField__AtlasFieldSvc
+    MagField__AtlasFieldSvc=CompFactory.MagField__AtlasFieldSvc
     kwargs.setdefault( "UseDCS", True )
     result.addService(MagField__AtlasFieldSvc("AtlasFieldSvc",**kwargs))
 
@@ -238,7 +239,7 @@ def PFCfg(inputFlags,**kwargs):
     result.merge(CaloNoiseCondAlgCfg(inputFlags,"electronicNoise"))
 
     #Configure the pflow algorithms
-    from eflowRec.eflowRecConf import PFLeptonSelector
+    PFLeptonSelector=CompFactory.PFLeptonSelector
     result.addEventAlgo(PFLeptonSelector("PFLeptonSelector"))
     
     result.addEventAlgo(getPFTrackSelectorAlgorithm(inputFlags))

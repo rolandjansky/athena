@@ -2,12 +2,13 @@
 
 # Based on : https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonCnv/MuonCnvExample/python/MuonCalibConfig.py
 
-from MuonCondSvc.MuonCondSvcConf import MuonCalib__CscCoolStrSvc
-from MdtCalibDbCoolStrTool.MdtCalibDbCoolStrToolConf import MuonCalib__MdtCalibDbCoolStrTool
+from AthenaConfiguration.ComponentFactory import CompFactory
+MuonCalib__CscCoolStrSvc=CompFactory.MuonCalib__CscCoolStrSvc
+MuonCalib__MdtCalibDbCoolStrTool=CompFactory.MuonCalib__MdtCalibDbCoolStrTool
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from IOVDbSvc.IOVDbSvcConfig import addFolders, addFoldersSplitOnline
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-from CscCalibTools.CscCalibToolsConf import CscCalibTool
+CscCalibTool=CompFactory.CscCalibTool
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger('MuonCalibConfig')
@@ -475,7 +476,7 @@ def MdtCalibDbAlgCfg(flags,name="MdtCalibDbAlg",**kwargs):
     kwargs.setdefault("CreateWireSagFunctions", flags.Muon.Calib.correctMdtRtWireSag)
     kwargs.setdefault("CreateSlewingFunctions", flags.Muon.Calib.correctMdtRtForTimeSlewing)
 
-    from MdtCalibDbCoolStrTool.MdtCalibDbCoolStrToolConf import MdtCalibDbAlg
+    MdtCalibDbAlg=CompFactory.MdtCalibDbAlg
     alg = MdtCalibDbAlg (name, **kwargs)
 
     result.addCondAlgo (alg)

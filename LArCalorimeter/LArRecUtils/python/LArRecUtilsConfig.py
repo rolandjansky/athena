@@ -3,9 +3,10 @@
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.Logging import logging
 from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg
-from LArRecUtils.LArRecUtilsConf import LArMCSymCondAlg
+LArMCSymCondAlg=CompFactory.LArMCSymCondAlg
 from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDbCfg
 
 
@@ -20,7 +21,7 @@ def LArMCSymCondAlgCfg(flags, name="LArMCSymCondAlg", **kwargs):
 def LArAutoCorrNoiseCondAlgCfg(flags, name="LArAutoCorrNoiseCondAlg", **kwargs):
     """Return ComponentAccumulator with configured LArAutoCorrNoiseCondAlg"""
 
-    from LArRecUtils.LArRecUtilsConf import LArAutoCorrNoiseCondAlg
+    LArAutoCorrNoiseCondAlg=CompFactory.LArAutoCorrNoiseCondAlg
     # The LArAutoCorrNoiseCondAlgCfg needs the cabling, the sym-object and the AutoCorr
     acc = LArOnOffIdMappingCfg(flags)
     acc.merge(LArMCSymCondAlgCfg(flags))
@@ -55,7 +56,7 @@ def LArOFCCondAlgCfg (flags, name = 'LArOFCCondAlg', **kwargs):
     requiredConditons=["Shape","Noise","Pedestal"]
     acc.merge(LArElecCalibDbCfg(flags,requiredConditons))
     acc.merge(LArAutoCorrTotalCondAlgCfg(flags))
-    from LArRecUtils.LArRecUtilsConf import LArOFCCondAlg
+    LArOFCCondAlg=CompFactory.LArOFCCondAlg
     acc.addCondAlgo (LArOFCCondAlg (name, **kwargs))
     return acc
 
@@ -89,7 +90,7 @@ def LArAutoCorrTotalCondAlgCfg (flags, name = 'LArAutoCorrTotalCondAlg', **kwarg
     acc = LArOnOffIdMappingCfg(flags)
     requiredConditons=["Shape","AutoCorr","Noise","Pedestal","fSampl","MinBias"]
     acc.merge(LArElecCalibDbCfg(flags,requiredConditons))
-    from LArRecUtils.LArRecUtilsConf import LArAutoCorrTotalCondAlg
+    LArAutoCorrTotalCondAlg=CompFactory.LArAutoCorrTotalCondAlg
     acc.addCondAlgo (LArAutoCorrTotalCondAlg (name, **kwargs))
     return acc
 

@@ -3,10 +3,12 @@
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from IOVDbSvc.IOVDbSvcConfig import addFolders,addFoldersSplitOnline
-from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import (
-    PixelConfigCondAlg, PixelOfflineCalibCondAlg, PixelChargeCalibCondAlg, PixelDistortionAlg
-)
+
+
+PixelConfigCondAlg, PixelOfflineCalibCondAlg, PixelChargeCalibCondAlg, PixelDistortionAlg =\
+CompFactory.getComps("PixelConfigCondAlg","PixelOfflineCalibCondAlg","PixelChargeCalibCondAlg","PixelDistortionAlg")
 
 def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelConfigCondAlg"""

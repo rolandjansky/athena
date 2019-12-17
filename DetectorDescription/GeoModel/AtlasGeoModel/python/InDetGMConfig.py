@@ -3,17 +3,18 @@
 #
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def InDetServiceMaterialCfg (flags):
     from AtlasGeoModel.GeoModelConfig import GeoModelCfg
     acc = GeoModelCfg( flags )
     geoModelSvc=acc.getPrimary()
-    from GeometryDBSvc.GeometryDBSvcConf import GeometryDBSvc
+    GeometryDBSvc=CompFactory.GeometryDBSvc
     acc.addService(GeometryDBSvc("InDetGeometryDBSvc"))
-    from InDetServMatGeoModel.InDetServMatGeoModelConf import InDetServMatTool
+    InDetServMatTool=CompFactory.InDetServMatTool
     servMatTool = InDetServMatTool()
     if flags.GeoModel.Run=="RUN4":
-        from InDetServMatGeoModel.InDetServMatGeoModelConf import InDetServMatBuilderToolSLHC
+        InDetServMatBuilderToolSLHC=CompFactory.InDetServMatBuilderToolSLHC
         InDetServMatBuilderToolSLHC = InDetServMatBuilderToolSLHC()
         acc.addPublicTool( InDetServMatBuilderToolSLHC )
         servMatTool.ServiceBuilderTool = InDetServMatBuilderToolSLHC

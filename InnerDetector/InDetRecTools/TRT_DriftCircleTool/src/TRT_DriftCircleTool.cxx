@@ -16,13 +16,11 @@
 #include "GaudiKernel/DataSvc.h"
 #include "GaudiKernel/SmartDataPtr.h"
 #include "TRT_DriftCircleTool/TRT_DriftCircleTool.h"
-#include "InDetReadoutGeometry/TRT_BaseElement.h"
 #include "InDetPrepRawData/TRT_DriftCircle.h"
 #include "InDetPrepRawData/TRT_DriftCircleCollection.h"
 #include "InDetRawData/TRT_RDORawData.h"
 
 #include "TRT_DriftFunctionTool/ITRT_DriftFunctionTool.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetIdentifier/TRT_ID.h"
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
 
@@ -45,8 +43,6 @@ InDet::TRT_DriftCircleTool::TRT_DriftCircleTool(const std::string& t,
   m_useConditionsHTStatus(false),
   m_useToTCorrection(false),
   m_useHTCorrection(false),
-  m_trt_mgr_location("TRT"),
-  m_trt_mgr(0),
   m_trtid(0),
   m_reject_if_first_bit(false),
   m_reject_if_first_bit_argon(true),
@@ -70,7 +66,6 @@ InDet::TRT_DriftCircleTool::TRT_DriftCircleTool(const std::string& t,
   m_mask_last_HT_bit_argon(false)
 {
   declareInterface<ITRT_DriftCircleTool>(this);
-  declareProperty("TrtDescrManageLocation",m_trt_mgr_location);
   declareProperty("TRTDriftFunctionTool", m_driftFunctionTool);
   declareProperty("ConditionsSummaryTool",m_ConditionsSummary);
   declareProperty("UseConditionsStatus",m_useConditionsStatus);
@@ -134,15 +129,6 @@ StatusCode InDet::TRT_DriftCircleTool::initialize()
     }
   }
 
-  // Get  TRT Detector Manager
-  //
-  sc = AthAlgTool::detStore()->retrieve(m_trt_mgr, m_trt_mgr_location);
-  if (sc.isFailure() || !m_trt_mgr)
-  {
-    ATH_MSG_FATAL( "Could not find TRT_DetectorManager: "
-		   << m_trt_mgr_location << " !" );
-    return sc;
-  }
   // Get TRT ID helper
   sc = detStore()->retrieve(m_trtid,"TRT_ID");
   if ( sc.isFailure() ) {
@@ -152,6 +138,9 @@ StatusCode InDet::TRT_DriftCircleTool::initialize()
 
   // Initialize readhandle key
   ATH_CHECK(m_eventInfoKey.initialize());
+
+  // Initialize readCondHandle key
+  ATH_CHECK(m_trtDetEleContKey.initialize());
 
   return sc;
 }
@@ -203,6 +192,13 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
     return rio;
   }
 
+  SG::ReadCondHandle<InDetDD::TRT_DetElementContainer> trtDetEleHandle(m_trtDetEleContKey);
+  const InDetDD::TRT_DetElementCollection* elements(trtDetEleHandle->getElements());
+  if (not trtDetEleHandle.isValid() or elements==nullptr) {
+    ATH_MSG_FATAL(m_trtDetEleContKey.fullKey() << " is not available.");
+    return rio;
+  }
+
   float mu = -10;
   SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
   if (eventInfo.isValid()) {
@@ -214,7 +210,7 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
 
     //Get the BaseElement and initialize the RIO collection
     IdentifierHash IHc                 = rdo      ->identifyHash();
-    const InDetDD::TRT_BaseElement* pE = m_trt_mgr->getElement(IHc);
+    const InDetDD::TRT_BaseElement* pE = elements->getDetectorElement(IHc);
     rio                                = new InDet::TRT_DriftCircleCollection(IHc);
     rio->setIdentifier(rdo->identify());
     rio->reserve( std::distance(rb, re) );

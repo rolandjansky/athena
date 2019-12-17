@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -70,7 +70,7 @@ SimMetadataTool::queryInterface( const InterfaceID& riid, void** ppvIf )
 
 void SimMetadataTool::getValueMap(const std::string &metadataPath, const std::vector<std::string> &inKeys, std::map<std::string, std::string> &outMap)
 {
-  const DataHandle<IOVMetaDataContainer> param;
+  const IOVMetaDataContainer* param = nullptr;
   if (m_metaDataStore->retrieve(param, metadataPath).isFailure()) {
     ATH_MSG_WARNING( "Couldn't retrieve " << metadataPath  );
   } else {
