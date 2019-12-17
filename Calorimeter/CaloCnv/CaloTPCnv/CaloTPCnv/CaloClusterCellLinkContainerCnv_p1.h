@@ -51,14 +51,6 @@ public:
                            const std::string& key,
                            MsgStream& log) const override;
 
-  // TEMPORARY: Until trigger serialization is fixed.
-  using base_class::persToTrans;
-  void persToTrans (const CaloClusterCellLinkContainer_p1* pers,
-                    CaloClusterCellLinkContainer* trans,
-                    MsgStream& log) const override
-  {
-    persToTransWithKey (pers, trans, "", log);
-  }
 
 private:
   DataLinkCnv_p2<DataLink<CaloCellContainer> > m_linkCnv;

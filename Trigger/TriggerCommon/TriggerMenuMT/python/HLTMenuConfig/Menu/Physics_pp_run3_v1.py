@@ -27,6 +27,7 @@ SingleTauGroup = ['RATE:SingleTau', 'BW:Tau']
 BphysicsGroup = ['RATE:Bphysics', 'BW:Bphysics']
 MinBiasGroup = ['RATE:MinBias', 'BW:MinBias']
 EgammaStreamersGroup = ['RATE:SeededStreamers', 'BW:Egamma']
+BCIDmonGroup = ['MON:BCID']
 
 def setupMenu():
 
@@ -56,20 +57,20 @@ def setupMenu():
 
     TriggerFlags.EgammaSlice.signatures = [
         # ElectronChains----------
-        ChainProp(name='HLT_e26_etcut_L1EM22VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e26_etcut_L1EM22VHI', groups=SingleElectronGroup + BCIDmonGroup),
         ChainProp(name='HLT_2e17_etcut_L12EM15VH', stream=[PhysicsStream], groups=MultiElectronGroup),
-        ChainProp(name='HLT_g140_etcut_L1EM24VHI', groups=SinglePhotonGroup),  
-        ChainProp(name='HLT_2g35_etcut_L12EM20VH', groups=MultiPhotonGroup),  
+        ChainProp(name='HLT_g140_etcut_L1EM24VHI', groups=SinglePhotonGroup),
+        ChainProp(name='HLT_2g35_etcut_L12EM20VH', groups=MultiPhotonGroup),
     ]
 
     TriggerFlags.METSlice.signatures = [
-        ChainProp(name='HLT_xe65_cell_L1XE50', groups=SingleMETGroup),
+        ChainProp(name='HLT_xe65_cell_L1XE50', groups=SingleMETGroup + BCIDmonGroup),
         # MultiMET Chain
     ]
 
     TriggerFlags.JetSlice.signatures = [
         # ATR-20049
-        ChainProp(name='HLT_j420_L1J100', groups=SingleJetGroup),
+        ChainProp(name='HLT_j420_L1J100', groups=SingleJetGroup + BCIDmonGroup),
         ChainProp(name='HLT_j260_320eta490_L1J75_31ETA49', groups=SingleJetGroup),
         ChainProp(name='HLT_j460_a10r_L1J100',  groups=SingleJetGroup),
         ChainProp(name='HLT_j460_a10_lcw_subjes_L1J100', groups=SingleJetGroup),
@@ -78,8 +79,9 @@ def setupMenu():
         ChainProp(name='HLT_2j330_a10t_lcw_jes_35smcINF_L1J100', groups=SingleJetGroup),
         ChainProp(name='HLT_5j70_0eta240_L14J20', groups=MultiJetGroup), # this chain is supposed to be seeded off L1_4J15 in principle, needs CF fix
         ChainProp(name='HLT_3j200_L1J100', groups=MultiJetGroup),
-
+        # FP: workaround tmp for l1SeedThresholds
         ChainProp(name='HLT_j80_j60_L1J15', l1SeedThresholds=['']*2, groups=MultiJetGroup),
+        # FP: workaround tmp for l1SeedThresholds
         ChainProp(name='HLT_j80_0eta240_2j60_320eta490_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass_L1J20', l1SeedThresholds=['']*3, groups=MultiJetGroup),
     ]
 
@@ -88,7 +90,7 @@ def setupMenu():
         ChainProp(name="HLT_j275_ftf_subjesgscIS_bmv2c1060_split_L1J100", groups=SingleBjetGroup),
         ChainProp(name="HLT_j300_ftf_subjesgscIS_bmv2c1070_split_L1J100", groups=SingleBjetGroup),
         ChainProp(name="HLT_j360_ftf_subjesgscIS_bmv2c1077_split_L1J100", groups=SingleBjetGroup),
-    ] 
+    ]
 
     TriggerFlags.TauSlice.signatures = [
         #ATR-20049
@@ -99,15 +101,11 @@ def setupMenu():
         ChainProp(name='HLT_2mu10_bJpsimumu_L12MU10',     groups=BphysicsGroup),
         ChainProp(name='HLT_2mu10_bUpsimumu_L12MU10',     groups=BphysicsGroup),
     ]
-    TriggerFlags.CombinedSlice.signatures = [ 
-        ChainProp(name='HLT_e3_etcut1step_mu6fast_L1EM8I_MU10', l1SeedThresholds=['EM8I', 'MU10'], stream=[PhysicsStream], groups=MultiElectronGroup),    #L1 item thresholds in wrong order (EM first, then MU)    
+    TriggerFlags.CombinedSlice.signatures = [
+        ChainProp(name='HLT_e3_etcut1step_mu6fast_L1EM8I_MU10', l1SeedThresholds=['EM8I', 'MU10'], stream=[PhysicsStream], groups=MultiElectronGroup),    #L1 item thresholds in wrong order (EM first, then MU)
    ]
     TriggerFlags.HeavyIonSlice.signatures  = []
-    TriggerFlags.BeamspotSlice.signatures  = [
-        ChainProp(name='HLT_beamspot_allTE_trkfast_BeamSpotPEB_L1J15',  l1SeedThresholds=[''], stream=['BeamSpot'], groups=['RATE:BeamSpot',  'BW:BeamSpot']),
-        #ChainProp(name='HLT_beamspot_activeTE_trkfast_L1J15',  l1SeedThresholds=[''], stream=['BeamSpot'], groups=['RATE:BeamSpot',  'BW:BeamSpot']),
-        #ChainProp(name='HLT_beamspot_trkFS_trkfast_L1J15',  l1SeedThresholds=[''], stream=['BeamSpot'], groups=['RATE:BeamSpot',  'BW:BeamSpot']),
-    ]
+    TriggerFlags.BeamspotSlice.signatures  = []
     TriggerFlags.MinBiasSlice.signatures   = []
     TriggerFlags.CalibSlice.signatures     = []
     TriggerFlags.CosmicSlice.signatures    = []
@@ -137,7 +135,7 @@ def setupMenu():
     mydict.update(Prescales.HLTPrescales_cosmics)
     from copy import deepcopy
     Prescales.HLTPrescales_cosmics = deepcopy(mydict)
-    
+
 
 class Prescales(object):
     #   Item name             | Prescale
@@ -160,4 +158,3 @@ class Prescales(object):
     L1Prescales_cosmics  = {}
     HLTPrescales_cosmics = {}
     chain_list=[]
-

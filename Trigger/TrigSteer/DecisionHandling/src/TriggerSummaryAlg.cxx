@@ -4,8 +4,7 @@
 
 #include "GaudiKernel/Property.h"
 #include "TriggerSummaryAlg.h"
-#include "AthenaMonitoringKernel/MonitoredScalar.h"
-#include "AthenaMonitoringKernel/MonitoredGroup.h"
+#include "AthenaMonitoring/Monitored.h"
 
 TriggerSummaryAlg::TriggerSummaryAlg( const std::string& name, 
 			  ISvcLocator* pSvcLocator ) : 

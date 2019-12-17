@@ -267,7 +267,6 @@ AODFlags.JetTag = False
 AODFlags.ParticleJet = False
 AODFlags.FastSimulation = False
 AODFlags.Streaming = False
-AODFlags.MuonTrackSlimmer = False
 
 #muonCombinedRecFlags.doCombinedFit = True
 muonCombinedRecFlags.doStatisticalCombination = True

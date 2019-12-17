@@ -11,8 +11,9 @@
 #include "TRTDigCondBase.h"
 
 #include "TRT_PAI_Process/ITRT_PAITool.h"
-#include "TRT_Digitization/ITRT_SimDriftTimeTool.h"
+#include "ITRT_SimDriftTimeTool.h"
 #include "TRTDigSettings.h"
+#include "TRTDigiHelper.h"
 
 //TRT detector information:
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
@@ -58,27 +59,27 @@ TRTProcessingOfStraw::TRTProcessingOfStraw(const TRTDigSettings* digset,
                                            TRTNoise * noise,
                                            TRTDigCondBase* digcond,
                                            const HepPDT::ParticleDataTable* pdt,
-                    			   const TRT_ID* trt_id,
-					   ITRT_PAITool* paitoolAr,
-					   ITRT_PAITool* paitoolKr)
+                                           const TRT_ID* trt_id,
+                                           ITRT_PAITool* paitoolAr,
+                                           ITRT_PAITool* paitoolKr)
 
-  : m_settings(digset),
-    m_detmgr(detmgr),
-    m_pPAItoolXe(paitoolXe),
-    m_pPAItoolAr(paitoolAr),
-    m_pPAItoolKr(paitoolKr),
-    m_pSimDriftTimeTool(simdrifttool),
-    // m_time_y_eq_zero(0.0),
-    // m_ComTime(NULL),
-    m_pTimeCorrection(NULL),
-    m_pElectronicsProcessing(ep),
-    m_pNoise(noise),
-    m_pDigConditions(digcond),
-    m_pParticleTable(pdt),
-    m_alreadywarnedagainstpdg0(false),
-    m_magneticfieldsvc(magfieldsvc),
-    m_msg("TRTProcessingOfStraw"),
-    m_id_helper(trt_id)
+: m_settings(digset),
+  m_detmgr(detmgr),
+  m_pPAItoolXe(paitoolXe),
+  m_pPAItoolAr(paitoolAr),
+  m_pPAItoolKr(paitoolKr),
+  m_pSimDriftTimeTool(simdrifttool),
+// m_time_y_eq_zero(0.0),
+// m_ComTime(NULL),
+  m_pTimeCorrection(NULL),
+  m_pElectronicsProcessing(ep),
+  m_pNoise(noise),
+  m_pDigConditions(digcond),
+  m_pParticleTable(pdt),
+  m_alreadywarnedagainstpdg0(false),
+  m_magneticfieldsvc(magfieldsvc),
+  m_msg("TRTProcessingOfStraw"),
+  m_id_helper(trt_id)
 
 {
   ATH_MSG_VERBOSE ( "TRTProcessingOfStraw::Constructor begin" );
@@ -153,58 +154,58 @@ void TRTProcessingOfStraw::Initialize()
     {
       const InDetDD::TRT_Numerology * num = m_detmgr->getNumerology();
       for (unsigned int iwheel = 0; iwheel < num->getNEndcapWheels(); ++iwheel)
-	{
-	  for (unsigned int iside = 0; iside < 2; ++iside)
-	    { //positive and negative endcap
-	      for (unsigned int ilayer = 0; ilayer < num->getNEndcapLayers(iwheel); ++ilayer)
-		{
-		  const InDetDD::TRT_EndcapElement * ec_element
-		    = m_detmgr->getEndcapElement(iside,//positive or negative endcap
-						 iwheel,//wheelIndex,
-						 ilayer,//strawLayerIndex,
-						 0);//phiIndex
-		  //Local straw center and local straw point one unit along x:
-		  if (!ec_element)
-		    {
-		      ATH_MSG_VERBOSE ( "Failed to retrieve endcap element for (iside,iwheel,ilayer)=("
-					<< iside<<", "<<iwheel<<", "<<ilayer<<")." );
-		      continue;
-		    }
-		  Amg::Vector3D strawcenter(0.0,0.0,0.0);
-		  Amg::Vector3D strawx(1.0,0.0,0.0);
-		  //Transform to global coordinate (use first straw in element):
-		  strawcenter = ec_element->strawTransform(0) * strawcenter;
-		  strawx = ec_element->strawTransform(0) * strawx;
-		  const Amg::Vector3D v(strawx-strawcenter);
-		  const double zcoordfrac((v.z()>0?v.z():-v.z())/v.mag());
-		  if (zcoordfrac<0.98 || zcoordfrac > 1.02)
-		    {
-		      ATH_MSG_WARNING ( "Found endcap straw where the assumption that local x-direction"
-					<<" is parallel to global z-direction is NOT valid."
-					<<" Drift times will be somewhat off." );
-		    }
-		}
-	    }
-	}
+        {
+          for (unsigned int iside = 0; iside < 2; ++iside)
+            { //positive and negative endcap
+              for (unsigned int ilayer = 0; ilayer < num->getNEndcapLayers(iwheel); ++ilayer)
+                {
+                  const InDetDD::TRT_EndcapElement * ec_element
+                    = m_detmgr->getEndcapElement(iside,//positive or negative endcap
+                                                 iwheel,//wheelIndex,
+                                                 ilayer,//strawLayerIndex,
+                                                 0);//phiIndex
+                  //Local straw center and local straw point one unit along x:
+                  if (!ec_element)
+                    {
+                      ATH_MSG_VERBOSE ( "Failed to retrieve endcap element for (iside,iwheel,ilayer)=("
+                                        << iside<<", "<<iwheel<<", "<<ilayer<<")." );
+                      continue;
+                    }
+                  Amg::Vector3D strawcenter(0.0,0.0,0.0);
+                  Amg::Vector3D strawx(1.0,0.0,0.0);
+                  //Transform to global coordinate (use first straw in element):
+                  strawcenter = ec_element->strawTransform(0) * strawcenter;
+                  strawx = ec_element->strawTransform(0) * strawx;
+                  const Amg::Vector3D v(strawx-strawcenter);
+                  const double zcoordfrac((v.z()>0?v.z():-v.z())/v.mag());
+                  if (zcoordfrac<0.98 || zcoordfrac > 1.02)
+                    {
+                      ATH_MSG_WARNING ( "Found endcap straw where the assumption that local x-direction"
+                                        <<" is parallel to global z-direction is NOT valid."
+                                        <<" Drift times will be somewhat off." );
+                    }
+                }
+            }
+        }
 
       //check local barrel coordinates at four positions.
       for (unsigned int phi_it = 0; phi_it < 32; phi_it++)
-	{
-	  const InDetDD::TRT_BarrelElement * bar_element = m_detmgr->getBarrelElement(1,1,phi_it,1);
+        {
+          const InDetDD::TRT_BarrelElement * bar_element = m_detmgr->getBarrelElement(1,1,phi_it,1);
 
-	  Amg::Vector3D strawcenter(0.0,0.0,0.0);
-	  Amg::Vector3D straw(cos((double)phi_it*2*M_PI/32.),sin((double)phi_it*2*M_PI/32.),0.0);
-	  strawcenter = bar_element->strawTransform(0) * strawcenter;
-	  straw = bar_element->strawTransform(0) * straw;
-	  const Amg::Vector3D v(straw-strawcenter);
-	  const double coordfrac(atan2(v.x(),v.y()));
-	  if (coordfrac>0.2 || coordfrac < -0.2)
-	    {
-	      ATH_MSG_WARNING ( "Found barrel straw where the assumption that local y-direction"
-				<<" is along the straw is NOT valid."
-				<<" Drift times will be somewhat off." );
-	    }
-	}
+          Amg::Vector3D strawcenter(0.0,0.0,0.0);
+          Amg::Vector3D straw(cos((double)phi_it*2*M_PI/32.),sin((double)phi_it*2*M_PI/32.),0.0);
+          strawcenter = bar_element->strawTransform(0) * strawcenter;
+          straw = bar_element->strawTransform(0) * straw;
+          const Amg::Vector3D v(straw-strawcenter);
+          const double coordfrac(atan2(v.x(),v.y()));
+          if (coordfrac>0.2 || coordfrac < -0.2)
+            {
+              ATH_MSG_WARNING ( "Found barrel straw where the assumption that local y-direction"
+                                <<" is along the straw is NOT valid."
+                                <<" Drift times will be somewhat off." );
+            }
+        }
     }
 
   ATH_MSG_VERBOSE ( "Initialization done" );
@@ -214,10 +215,10 @@ void TRTProcessingOfStraw::Initialize()
 
 //________________________________________________________________________________
 void TRTProcessingOfStraw::addClustersFromStep ( const double& scaledKineticEnergy, const double& particleCharge,
-						 const double& timeOfHit,
-						 const double& prex, const double& prey, const double& prez,
-						 const double& postx, const double& posty, const double& postz,
-						 std::vector<cluster>& clusterlist, int strawGasType,
+                                                 const double& timeOfHit,
+                                                 const double& prex, const double& prey, const double& prez,
+                                                 const double& postx, const double& posty, const double& postz,
+                                                 std::vector<cluster>& clusterlist, int strawGasType,
                                                  CLHEP::HepRandomEngine* rndmEngine,
                                                  CLHEP::HepRandomEngine* paiRndmEngine)
 {
@@ -250,9 +251,9 @@ void TRTProcessingOfStraw::addClustersFromStep ( const double& scaledKineticEner
       //Append cluster (the energy is given by the PAI model):
       double clusE(activePAITool->GetEnergyTransfer(scaledKineticEnergy, paiRndmEngine));
       clusterlist.push_back(cluster(clusE, timeOfHit,
-				    prex + lambda * deltaX,
-				    prey + lambda * deltaY,
-				    prez + lambda * deltaZ));
+                                    prex + lambda * deltaX,
+                                    prey + lambda * deltaY,
+                                    prez + lambda * deltaZ));
     }
 
   return;
@@ -262,12 +263,12 @@ void TRTProcessingOfStraw::addClustersFromStep ( const double& scaledKineticEner
 //________________________________________________________________________________
 void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
                                           hitCollConstIter e,
-					  TRTDigit& outdigit,
+                                          TRTDigit& outdigit,
                                           bool & alreadyPrintedPDGcodeWarning,
                                           double cosmicEventPhase, // const ComTime* m_ComTime,
                                           int strawGasType,
-					  bool emulationArflag,
-					  bool emulationKrflag,
+                                          bool emulationArflag,
+                                          bool emulationKrflag,
                                           CLHEP::HepRandomEngine* rndmEngine,
                                           CLHEP::HepRandomEngine* elecProcRndmEngine,
                                           CLHEP::HepRandomEngine* elecNoiseRndmEngine,
@@ -278,7 +279,7 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
   // We need the straw id several times in the following  //
   //////////////////////////////////////////////////////////
   const int hitID((*i)->GetHitID());
-  unsigned int region(getRegion(hitID));
+  unsigned int region(TRTDigiHelper::getRegion(hitID));
   const bool isBarrel(region<3 );
   //const bool isEC    (!isBarrel);
   //const bool isShort (region==1);
@@ -335,22 +336,22 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
 
       //Safeguard against pdgcode 0.
       if (particleEncoding == 0)
-	{
-	  //According to Andrea this is usually nuclear fragments from
-	  //hadronic interactions. They therefore ought to be allowed to
-	  //contribute, but we ignore them for now - until it can be studied
-	  //that it is indeed safe to stop doing so
-	  if (!m_alreadywarnedagainstpdg0) {
-	      m_alreadywarnedagainstpdg0 = true;
-	      ATH_MSG_WARNING ( "Ignoring sim. particle with pdgcode 0. This warning is only shown once per job" );
-	  }
-	  continue;
-	}
+        {
+          //According to Andrea this is usually nuclear fragments from
+          //hadronic interactions. They therefore ought to be allowed to
+          //contribute, but we ignore them for now - until it can be studied
+          //that it is indeed safe to stop doing so
+          if (!m_alreadywarnedagainstpdg0) {
+            m_alreadywarnedagainstpdg0 = true;
+            ATH_MSG_WARNING ( "Ignoring sim. particle with pdgcode 0. This warning is only shown once per job" );
+          }
+          continue;
+        }
 
       // If it is a photon we assume it was absorbed entirely at the point of interaction.
       // we simply deposit the entire energy into the last point of the sim. step.
       if (particleEncoding == 22)
-	{
+        {
 
           const double energyDeposit = (*theHit)->GetEnergyDeposit(); // keV (see comment below)
           // Apply radiator efficiency "fudge factor" to ignore some TR photons (assuming they are over produced in the sim. step.
@@ -366,10 +367,10 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
             double ArEmulationScaling_ECA = 0.20;
             double ArEmulationScaling_ECB = 0.20;
 
-	    // ROUGH GUESSES RIGHT NOW
-	    double KrEmulationScaling_BA = 0.20;
-	    double KrEmulationScaling_ECA = 0.39;
-	    double KrEmulationScaling_ECB = 0.39;
+            // ROUGH GUESSES RIGHT NOW
+            double KrEmulationScaling_BA = 0.20;
+            double KrEmulationScaling_ECA = 0.39;
+            double KrEmulationScaling_ECB = 0.39;
 
             if (isBarrel) { // Barrel
               m_trEfficiencyBarrel = m_settings->trEfficiencyBarrel(strawGasType);
@@ -378,126 +379,126 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
               double hitz = TRThitGlobalPos[2];
               double hitEta = fabs(log(tan(0.5*atan2(sqrt(hitx*hitx+hity*hity),hitz))));
               if ( hitEta < 0.5 ) { m_trEfficiencyBarrel *= ( 0.833333+0.6666667*hitEta*hitEta ); }
-	      // scale down the TR efficiency if we are emulating
-	      if ( strawGasType == 0 && emulationArflag ) { m_trEfficiencyBarrel = m_trEfficiencyBarrel*ArEmulationScaling_BA; }
-	      if ( strawGasType == 0 && emulationKrflag ) { m_trEfficiencyBarrel = m_trEfficiencyBarrel*KrEmulationScaling_BA; }
+              // scale down the TR efficiency if we are emulating
+              if ( strawGasType == 0 && emulationArflag ) { m_trEfficiencyBarrel = m_trEfficiencyBarrel*ArEmulationScaling_BA; }
+              if ( strawGasType == 0 && emulationKrflag ) { m_trEfficiencyBarrel = m_trEfficiencyBarrel*KrEmulationScaling_BA; }
               if ( CLHEP::RandFlat::shoot(rndmEngine) > m_trEfficiencyBarrel ) continue; // Skip this photon
             } // close if barrel
-	    else { // Endcap - no eta dependence here.
-	      if (isECA) {
+            else { // Endcap - no eta dependence here.
+              if (isECA) {
                 m_trEfficiencyEndCapA = m_settings->trEfficiencyEndCapA(strawGasType);
-		// scale down the TR efficiency if we are emulating
-		if ( strawGasType == 0 && emulationArflag ) { m_trEfficiencyEndCapA = m_trEfficiencyEndCapA*ArEmulationScaling_ECA; }
-		if ( strawGasType == 0 && emulationKrflag ) { m_trEfficiencyEndCapA = m_trEfficiencyEndCapA*KrEmulationScaling_ECA; }
+                // scale down the TR efficiency if we are emulating
+                if ( strawGasType == 0 && emulationArflag ) { m_trEfficiencyEndCapA = m_trEfficiencyEndCapA*ArEmulationScaling_ECA; }
+                if ( strawGasType == 0 && emulationKrflag ) { m_trEfficiencyEndCapA = m_trEfficiencyEndCapA*KrEmulationScaling_ECA; }
                 if ( CLHEP::RandFlat::shoot(rndmEngine) > m_trEfficiencyEndCapA ) continue; // Skip this photon
-	      }
-	      if (isECB) {
+              }
+              if (isECB) {
                 m_trEfficiencyEndCapB = m_settings->trEfficiencyEndCapB(strawGasType);
-		// scale down the TR efficiency if we are emulating
-		if ( strawGasType == 0 && emulationArflag ) { m_trEfficiencyEndCapB = m_trEfficiencyEndCapB*ArEmulationScaling_ECB; }
-		if ( strawGasType == 0 && emulationKrflag ) { m_trEfficiencyEndCapB = m_trEfficiencyEndCapB*KrEmulationScaling_ECB; }
+                // scale down the TR efficiency if we are emulating
+                if ( strawGasType == 0 && emulationArflag ) { m_trEfficiencyEndCapB = m_trEfficiencyEndCapB*ArEmulationScaling_ECB; }
+                if ( strawGasType == 0 && emulationKrflag ) { m_trEfficiencyEndCapB = m_trEfficiencyEndCapB*KrEmulationScaling_ECB; }
                 if ( CLHEP::RandFlat::shoot(rndmEngine) > m_trEfficiencyEndCapB ) continue; // Skip this photon
-	      }
+              }
             } // close else (end caps)
           } // energyDeposit < 30.0
 
-	  // Append this (usually highly energetic) cluster to the list:
-	  m_clusterlist.push_back(
-             cluster( energyDeposit*CLHEP::keV, timeOfHit, (*theHit)->GetPostStepX(), (*theHit)->GetPostStepY(), (*theHit)->GetPostStepZ() )
-             );
+          // Append this (usually highly energetic) cluster to the list:
+          m_clusterlist.push_back(
+                                  cluster( energyDeposit*CLHEP::keV, timeOfHit, (*theHit)->GetPostStepX(), (*theHit)->GetPostStepY(), (*theHit)->GetPostStepZ() )
+                                  );
 
-	  // Regarding the CLHEP::keV above: In TRT_G4_SD we converting the hits to keV,
-	  // so here we convert them back to CLHEP units by multiplying by CLHEP::keV.
-	}
+          // Regarding the CLHEP::keV above: In TRT_G4_SD we converting the hits to keV,
+          // so here we convert them back to CLHEP units by multiplying by CLHEP::keV.
+        }
       //Special treatment of magnetic monopoles && highly charged Qballs (charge > 10)
       else if ( ((abs(particleEncoding)/100000==41) && (abs(particleEncoding)/10000000==0)) ||
                 ((static_cast<int>(abs(particleEncoding)/10000000) == 1) &&
                  (static_cast<int>(abs(particleEncoding)/100000) == 100) &&
                  (static_cast<int>((abs(particleEncoding))-10000000)/100>10)) )
         {
-	  m_clusterlist.push_back(
-             cluster((*theHit)->GetEnergyDeposit()*CLHEP::keV, timeOfHit, (*theHit)->GetPostStepX(), (*theHit)->GetPostStepY(), (*theHit)->GetPostStepZ() )
-             );
+          m_clusterlist.push_back(
+                                  cluster((*theHit)->GetEnergyDeposit()*CLHEP::keV, timeOfHit, (*theHit)->GetPostStepX(), (*theHit)->GetPostStepY(), (*theHit)->GetPostStepZ() )
+                                  );
         }
       else { // It's not a photon, monopole or Qball with charge > 10, so we proceed with regular ionization using the PAI model
 
-	  // Lookup mass and charge from the PDG info in CLHEP HepPDT:
-	  const HepPDT::ParticleData *particle(m_pParticleTable->particle(HepPDT::ParticleID(abs(particleEncoding))));
-      	  double particleCharge(0.);
-	  double particleMass(0.);
+        // Lookup mass and charge from the PDG info in CLHEP HepPDT:
+        const HepPDT::ParticleData *particle(m_pParticleTable->particle(HepPDT::ParticleID(abs(particleEncoding))));
+        double particleCharge(0.);
+        double particleMass(0.);
 
-	  if (particle)
-	    {
-	      particleCharge = particle->charge();
-	      particleMass = particle->mass().value();
-	      if ((static_cast<int>(abs(particleEncoding)/10000000) == 1) && (static_cast<int>(abs(particleEncoding)/100000)==100))
-		{
-		  particleCharge =  (particleEncoding>0 ? 1. : -1.) *(((abs(particleEncoding) / 100000.0) - 100.0) * 1000.0);
-		}
-	    }
-	  else
-	    {
-	      const int number_of_digits(static_cast<int>(log10((double)abs(particleEncoding))+1.));
-	      if (number_of_digits != 10)
-		{
-		  ATH_MSG_ERROR ( "Data for sim. particle with pdgcode "<<particleEncoding
+        if (particle)
+          {
+            particleCharge = particle->charge();
+            particleMass = particle->mass().value();
+            if ((static_cast<int>(abs(particleEncoding)/10000000) == 1) && (static_cast<int>(abs(particleEncoding)/100000)==100))
+              {
+                particleCharge =  (particleEncoding>0 ? 1. : -1.) *(((abs(particleEncoding) / 100000.0) - 100.0) * 1000.0);
+              }
+          }
+        else
+          {
+            const int number_of_digits(static_cast<int>(log10((double)abs(particleEncoding))+1.));
+            if (number_of_digits != 10)
+              {
+                ATH_MSG_ERROR ( "Data for sim. particle with pdgcode "<<particleEncoding
                                 <<" does not have 10 digits and could not be retrieved from PartPropSvc. Assuming mass and charge as pion." );
-		  particleCharge = 1.;
-		  particleMass = 139.57018*CLHEP::MeV;
-		}
-	      else if (( number_of_digits == 10 ) && (static_cast<int>(abs(particleEncoding)/100000000)!=10) )
-		{
-		  ATH_MSG_ERROR ( "Data for sim. particle with pdgcode "<<particleEncoding
+                particleCharge = 1.;
+                particleMass = 139.57018*CLHEP::MeV;
+              }
+            else if (( number_of_digits == 10 ) && (static_cast<int>(abs(particleEncoding)/100000000)!=10) )
+              {
+                ATH_MSG_ERROR ( "Data for sim. particle with pdgcode "<<particleEncoding
                                 <<" has 10 digits, could not be retrieved from PartPropSvc, and is inconsistent with ion pdg convention (+/-10LZZZAAAI)."
                                 <<" Assuming mass and charge as pion." );
-		  particleCharge = 1.;
-		  particleMass = 139.57018*CLHEP::MeV;
-		}
-	      else if ((number_of_digits==10) && (static_cast<int>(abs(particleEncoding)/100000000)==10))
-		{
-		  const int A(static_cast<int>((((particleEncoding)%1000000000)%10000)/10.));
-		  const int Z(static_cast<int>((((particleEncoding)%10000000)-(((particleEncoding)%1000000000)%10000))/10000.));
+                particleCharge = 1.;
+                particleMass = 139.57018*CLHEP::MeV;
+              }
+            else if ((number_of_digits==10) && (static_cast<int>(abs(particleEncoding)/100000000)==10))
+              {
+                const int A(static_cast<int>((((particleEncoding)%1000000000)%10000)/10.));
+                const int Z(static_cast<int>((((particleEncoding)%10000000)-(((particleEncoding)%1000000000)%10000))/10000.));
 
-		  const double Mp(938.272*CLHEP::MeV);
-		  const double Mn(939.565*CLHEP::MeV);
+                const double Mp(938.272*CLHEP::MeV);
+                const double Mn(939.565*CLHEP::MeV);
 
-		  particleCharge = (particleEncoding>0 ? 1. : -1.) * static_cast<double>(Z);
-		  particleMass = fabs( Z*Mp+(A-Z)*Mn );
+                particleCharge = (particleEncoding>0 ? 1. : -1.) * static_cast<double>(Z);
+                particleMass = fabs( Z*Mp+(A-Z)*Mn );
 
-		  if (!alreadyPrintedPDGcodeWarning)
-		    {
-		      ATH_MSG_WARNING ( "Data for sim. particle with pdgcode "<<particleEncoding
+                if (!alreadyPrintedPDGcodeWarning)
+                  {
+                    ATH_MSG_WARNING ( "Data for sim. particle with pdgcode "<<particleEncoding
                                       <<" could not be retrieved from PartPropSvc (unexpected ion)."
                                       <<" Calculating mass and charge from pdg code. "
                                       <<" The result is: Charge = "<<particleCharge<<" Mass = "<<particleMass<<"MeV" );
-		      alreadyPrintedPDGcodeWarning = true;
-		    }
-		}
-	    }
+                    alreadyPrintedPDGcodeWarning = true;
+                  }
+              }
+          }
 
-	  if (!particleCharge)//Abort if uncharged particle.
-	    {
-	      continue;
-	    }
-	  if (!particleMass)
-	    { //Abort if weird massless charged particle.
-	      ATH_MSG_WARNING ( "Ignoring ionization from sim. particle with pdgcode "<<particleEncoding
+        if (!particleCharge)//Abort if uncharged particle.
+          {
+            continue;
+          }
+        if (!particleMass)
+          { //Abort if weird massless charged particle.
+            ATH_MSG_WARNING ( "Ignoring ionization from sim. particle with pdgcode "<<particleEncoding
                               <<" since it appears to be a massless charged particle." );
-	      continue;
-	    }
+            continue;
+          }
 
-	  //We are now in the most likely case: A normal ionizing
-	  //particle. Using the PAI model we are going to distribute
-	  //ionization clusters along the step taken by the sim particle.
+        //We are now in the most likely case: A normal ionizing
+        //particle. Using the PAI model we are going to distribute
+        //ionization clusters along the step taken by the sim particle.
 
-	  const double scaledKineticEnergy( static_cast<double>((*theHit)->GetKineticEnergy()) * ( CLHEP::proton_mass_c2 / particleMass ));
+        const double scaledKineticEnergy( static_cast<double>((*theHit)->GetKineticEnergy()) * ( CLHEP::proton_mass_c2 / particleMass ));
 
-	  addClustersFromStep ( scaledKineticEnergy, particleCharge, timeOfHit,
-				(*theHit)->GetPreStepX(),(*theHit)->GetPreStepY(),(*theHit)->GetPreStepZ(),
-				(*theHit)->GetPostStepX(),(*theHit)->GetPostStepY(),(*theHit)->GetPostStepZ(),
-				m_clusterlist, strawGasType, rndmEngine, paiRndmEngine);
+        addClustersFromStep ( scaledKineticEnergy, particleCharge, timeOfHit,
+                              (*theHit)->GetPreStepX(),(*theHit)->GetPreStepY(),(*theHit)->GetPreStepZ(),
+                              (*theHit)->GetPostStepX(),(*theHit)->GetPostStepY(),(*theHit)->GetPostStepZ(),
+                              m_clusterlist, strawGasType, rndmEngine, paiRndmEngine);
 
-	}
+      }
     }//end of hit loop
 
   //////////////////////////////////////////////////////////
@@ -541,10 +542,10 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
   //Get straw conditions data:
   double lowthreshold, noiseamplitude;
   if (m_settings->noiseInSimhits()) {
-      m_pDigConditions->getStrawData( hitID, lowthreshold, noiseamplitude );
+    m_pDigConditions->getStrawData( hitID, lowthreshold, noiseamplitude );
   } else {
-      lowthreshold = isBarrel ? m_settings->lowThresholdBar(strawGasType) : m_settings->lowThresholdEC(strawGasType);
-      noiseamplitude = 0.0;
+    lowthreshold = isBarrel ? m_settings->lowThresholdBar(strawGasType) : m_settings->lowThresholdEC(strawGasType);
+    noiseamplitude = 0.0;
   }
 
   //Electronics processing:
@@ -554,10 +555,10 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
 
 //________________________________________________________________________________
 void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
-					       const std::vector<cluster>& clusters,
-					       std::vector<TRTElectronicsProcessing::Deposit>& deposits,
-					       Amg::Vector3D TRThitGlobalPos,
-					       double cosmicEventPhase, // was const ComTime* m_ComTime,
+                                               const std::vector<cluster>& clusters,
+                                               std::vector<TRTElectronicsProcessing::Deposit>& deposits,
+                                               Amg::Vector3D TRThitGlobalPos,
+                                               double cosmicEventPhase, // was const ComTime* m_ComTime,
                                                int strawGasType,
                                                CLHEP::HepRandomEngine* rndmEngine)
 {
@@ -568,7 +569,7 @@ void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
 
   deposits.clear();
 
-  unsigned int region(getRegion(hitID));
+  unsigned int region(TRTDigiHelper::getRegion(hitID));
   const bool isBarrel(region<3 );
   const bool isEC    (!isBarrel);
   const bool isShort (region==1);
@@ -702,21 +703,21 @@ void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
       if (!isBarrel) // Endcap
         {
           if (m_useMagneticFieldMap) { // Using magnetic field map
-	      effectiveField2 = map_z2*cluster_y2/cluster_r2 + map_x2 + map_y2;
+            effectiveField2 = map_z2*cluster_y2/cluster_r2 + map_x2 + map_y2;
           }
           else { // Not using magnetic field map (you really should not do this!):
-              effectiveField2 = m_solenoidFieldStrength*m_solenoidFieldStrength * cluster_y2 / cluster_r2;
+            effectiveField2 = m_solenoidFieldStrength*m_solenoidFieldStrength * cluster_y2 / cluster_r2;
           }
-	}
+        }
       else // Barrel
-	{
+        {
           if (m_useMagneticFieldMap) { // Using magnetic field map (here bug #91830 is corrected)
-              effectiveField2 = map_z2 + (map_x2+map_y2)*cluster_y2/cluster_r2;
+            effectiveField2 = map_z2 + (map_x2+map_y2)*cluster_y2/cluster_r2;
           }
           else { // Without the mag field map (very small change in digi output)
-              effectiveField2 = m_solenoidFieldStrength*m_solenoidFieldStrength;
+            effectiveField2 = m_solenoidFieldStrength*m_solenoidFieldStrength;
           }
-	}
+        }
 
       // If there is no field we might need to reset effectiveField2 to zero.
       if (m_solenoidFieldStrength == 0. ) effectiveField2=0.;
@@ -744,21 +745,21 @@ void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
       double expdirect(1.0), expreflect(1.0); // Initially set to "no attenuation".
       if (m_useAttenuation)
         {
-           //expdirect  = exp( -timedirect *m_signalPropagationSpeed / m_attenuationLength);
-           //expreflect = exp( -timereflect*m_signalPropagationSpeed / m_attenuationLength);
-           // Tabulating exp(-dist/m_attenuationLength) with only 150 elements: index [0,149].
-           //   > 99.9% of output digits are the same, saves 13% CPU time.
-           // Distances the signal propagate along the wire:
-           // * distdirect is rarely negative (<0.2%) by ~ mm. In such cases there is
-           //   no attenuation, which is equivalent to distdirect=0 and so is good.
-           // * distreflect is always +ve and less than 1500, and so is good.
-           // The code is protected against out of bounds in anycase.
-           const double distdirect  = timedirect *m_signalPropagationSpeed;
-           const double distreflect = timereflect*m_signalPropagationSpeed;
-           const unsigned int kdirect  = static_cast<unsigned int>(distdirect/10);
-           const unsigned int kreflect = static_cast<unsigned int>(distreflect/10);
-           if (kdirect<150) expdirect  = m_expattenuation[kdirect];    // otherwise there
-           if (kreflect<150) expreflect = m_expattenuation[kreflect];  // is no attenuation.
+          //expdirect  = exp( -timedirect *m_signalPropagationSpeed / m_attenuationLength);
+          //expreflect = exp( -timereflect*m_signalPropagationSpeed / m_attenuationLength);
+          // Tabulating exp(-dist/m_attenuationLength) with only 150 elements: index [0,149].
+          //   > 99.9% of output digits are the same, saves 13% CPU time.
+          // Distances the signal propagate along the wire:
+          // * distdirect is rarely negative (<0.2%) by ~ mm. In such cases there is
+          //   no attenuation, which is equivalent to distdirect=0 and so is good.
+          // * distreflect is always +ve and less than 1500, and so is good.
+          // The code is protected against out of bounds in anycase.
+          const double distdirect  = timedirect *m_signalPropagationSpeed;
+          const double distreflect = timereflect*m_signalPropagationSpeed;
+          const unsigned int kdirect  = static_cast<unsigned int>(distdirect/10);
+          const unsigned int kreflect = static_cast<unsigned int>(distreflect/10);
+          if (kdirect<150) expdirect  = m_expattenuation[kdirect];    // otherwise there
+          if (kreflect<150) expreflect = m_expattenuation[kreflect];  // is no attenuation.
         }
 
       // Finally, deposit the energy on the wire using the drift-time tool (diffusion is no longer available).
@@ -830,36 +831,5 @@ Amg::Vector3D TRTProcessingOfStraw::getGlobalPosition (  int hitID, const TimedH
   ATH_MSG_WARNING ( "Could not find global coordinate of a straw - drifttime calculation will be inaccurate" );
   const Amg::Vector3D def(0.0,0.0,0.0);
   return def;
-
-}
-
-//________________________________________________________________________________
-unsigned int TRTProcessingOfStraw::getRegion(int hitID) {
-// 1=barrelShort, 2=barrelLong, 3=ECwheelA, 4=ECwheelB
-  const int mask(0x0000001F);
-  const int word_shift(5);
-  int layerID, ringID, wheelID;
-  unsigned int region(0);
-
-  if ( !(hitID & 0x00200000) ) { // barrel
-
-    hitID >>= word_shift;
-    layerID = hitID & mask;
-    hitID >>= word_shift;
-    hitID >>= word_shift;
-    ringID = hitID & mask;
-    region = ( (layerID < 9) && (ringID == 0) ) ? 1 : 2;
-
-  } else { // endcap
-
-    hitID >>= word_shift;
-    hitID >>= word_shift;
-    hitID >>= word_shift;
-    wheelID = hitID & mask;
-    region = wheelID < 8 ?  3 : 4;
-
-  }
-
-  return region;
 
 }

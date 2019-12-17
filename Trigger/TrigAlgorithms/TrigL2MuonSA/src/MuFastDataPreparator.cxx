@@ -6,8 +6,6 @@
 
 #include "CLHEP/Units/PhysicalConstants.h"
 
-#include "MuonContainerManager/MuonRdoContainerAccess.h"
-
 #include "Identifier/IdentifierHash.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonIdHelpers/MdtIdHelper.h"

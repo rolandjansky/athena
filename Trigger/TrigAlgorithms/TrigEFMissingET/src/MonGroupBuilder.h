@@ -17,19 +17,19 @@
 #include <type_traits>
 #include <memory>
 
-/******************************************************************************
- * @class MonGroupBuilder
- *
- * Class allowing incremental building of Monitored::Groups.
- *
- * Currently, it's only possible to load all members of a single
- * Monitored::Group simultaneously, i.e. it's not possible to build up the group
- * a few members at a time. However in these algorithms I found times where I
- * wanted to monitor several variables at the same time, but trigger these from
- * different locations.
- *****************************************************************************/
 
 namespace HLT { namespace MET {
+  /****************************************************************************
+  * @class MonGroupBuilder
+  *
+  * Class allowing incremental building of Monitored::Groups.
+  *
+  * Currently, it's only possible to load all members of a single
+  * Monitored::Group simultaneously, i.e. it's not possible to build up the
+  * group a few members at a time. However in these algorithms I found times
+  * where I wanted to monitor several variables at the same time, but trigger
+  * these from different locations.
+  ***************************************************************************/
   class MonGroupBuilder {
     public:
       /**

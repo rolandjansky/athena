@@ -15,6 +15,11 @@ namespace Monitored {
   public:
     CumulativeHistogramFiller1D(const HistogramDef& definition, std::shared_ptr<IHistogramProvider> provider)
       : HistogramFiller1D(definition, provider) {}
+
+    virtual CumulativeHistogramFiller1D* clone() override {
+      return new CumulativeHistogramFiller1D( *this );
+    }
+
     
     virtual unsigned fill() override {
       if (m_monVariables.size() != 1) {

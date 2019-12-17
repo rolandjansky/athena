@@ -76,9 +76,14 @@ namespace CoreDumpSvcHandler
     }
     
     // setup timeout
-    int timeoutMilliseconds = int(coreDumpSvc->m_timeout * 1e-6);
-    
-    coreDumpSvc->m_abortTimer.start(timeoutMilliseconds);
+    unsigned int timeoutSeconds = static_cast<unsigned int>(round(coreDumpSvc->m_timeout * 1e-9));
+    if ( timeoutSeconds > 0 && (sig == SIGSEGV || sig == SIGBUS || sig == SIGABRT) ) {
+      struct sigaction sa;
+      memset(&sa, 0, sizeof(sa));
+      sa.sa_handler = SIG_DFL;
+      if (sigaction(SIGALRM, &sa, nullptr) < 0) std::abort();
+      alarm(timeoutSeconds);
+    }
     
     std::cout.flush();
     std::cerr.flush();
@@ -112,9 +117,7 @@ namespace CoreDumpSvcHandler
 // C'tor, D'tor, Property handler
 //================================================================================
 CoreDumpSvc::CoreDumpSvc( const std::string& name, ISvcLocator* pSvcLocator ) : 
-  base_class( name, pSvcLocator ),
-  m_abortTimer(0, 0, Athena::AlgorithmTimer::AlgorithmTimerConfig(Athena::AlgorithmTimer::USEREALTIME | 
-                                                                  Athena::AlgorithmTimer::DELIVERYBYTHREAD ) )
+  base_class( name, pSvcLocator )
 {
   // Set us as the current instance
   CoreDumpSvcHandler::coreDumpSvc = this;

@@ -21,9 +21,9 @@ def arange(xmin, xmax, delta):
 
 
 def xAOD_electron_generator(tree):
-    for ievent in xrange(tree.GetEntries()):
+    for ievent in range(tree.GetEntries()):
         tree.GetEntry(ievent)
-        for i in xrange(tree.Electrons.size()):
+        for i in range(tree.Electrons.size()):
             el = tree.Electrons.at(i)
             yield el
 
@@ -134,7 +134,7 @@ class TestLayer(unittest.TestCase):
         f = PathResolver("egammaLayerRecalibTool/egammaLayerRecalibTunes.root")
         histo_ps_tot_error = f.Get("hPS_2012")
 
-        for i in xrange(100):
+        for i in range(100):
             inputs = self.example_inputs()
             inputs.eta = i * 0.05 - 2.5
             bin = histo_ps_tot_error.FindBin(inputs.eta)
@@ -154,7 +154,7 @@ class TestLayer(unittest.TestCase):
         tool.add_scale(modifier1, amounter1)
         tool.add_scale(modifier2, amounter2)
 
-        for i in xrange(100):
+        for i in range(100):
             inputs = self.example_inputs()
             inputs.eta = i * 0.05 - 2.5
             tool.scale_inputs(inputs)
@@ -164,7 +164,7 @@ class TestLayer(unittest.TestCase):
     def test_psHV(self):
         tool = self.egammaLayerRecalibTool('ps_HV1')
 
-        for i in xrange(100):
+        for i in range(100):
             eta = i * 0.05 - 2.5
             inputs = self.example_inputs()
             inputs.eta = eta
@@ -174,7 +174,7 @@ class TestLayer(unittest.TestCase):
             self.assertAlmostEqual(inputs.E2raw, self.example_inputs().E2raw)
             self.assertAlmostEqual(inputs.eta, eta, 4)
 
-        for i in xrange(100):
+        for i in range(100):
             eta = i * 0.05 - 2.5
             inputs = self.example_inputs()
             inputs.eta = eta
@@ -186,7 +186,7 @@ class TestLayer(unittest.TestCase):
     def test_layer1(self):
         tool = self.egammaLayerRecalibTool('layer1_1')
 
-        for i in xrange(100):
+        for i in range(100):
             inputs = self.example_inputs()
             inputs.eta = i * 0.05 - 2.5
 
@@ -224,7 +224,7 @@ class TestLayer(unittest.TestCase):
         f = ROOT.TFile("$ROOTCOREDIR/data/egammaLayerRecalibTool/EnergyRescalerData.root")
         histo_ps_tot_error = f.Get("Scales/2011/alphaPSmod_b12Fit_errTot")
 
-        for i in xrange(100):
+        for i in range(100):
             inputs = self.example_inputs()
             inputs.eta = i * 0.05 - 2.5
 
@@ -253,13 +253,13 @@ class TestLayerxAOD(unittest.TestCase):
         """
         filename = 'root://eosatlas.cern.ch//eos/atlas/user/t/turra/user.blenzi.4956574.EXT0._000001.AOD.pool.root'
         if (not ROOT.xAOD.Init().isSuccess()):
-            print "Failed xAOD.Init()"
+            print("Failed xAOD.Init()")
 
         treeName = "CollectionTree"
 
         f = ROOT.TFile.Open(filename)
         if not f:
-            print "file %s not found" % filename
+            print("file %s not found" % filename)
         cls.tree = ROOT.xAOD.MakeTransientTree(f, treeName)
 
     @classmethod

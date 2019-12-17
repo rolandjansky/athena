@@ -116,6 +116,8 @@ namespace Monitored {
 }
 
 std::vector<std::shared_ptr<HistogramFiller>> GenericMonitoringTool::getHistogramsFillers(std::vector<std::reference_wrapper<IMonitoredVariable>> monitoredVariables) const {
+
+
   std::vector<std::shared_ptr<HistogramFiller>> result;
 
   // stage 1: get candidate fillers (assume generally we get only a few variables)
@@ -145,8 +147,8 @@ std::vector<std::shared_ptr<HistogramFiller>> GenericMonitoringTool::getHistogra
 
     // Find the weight variable in the list of monitored variables
     const auto& fillerWeight = filler->histogramWeightName();
-    Monitored::IMonitoredVariable* weight = nullptr;
-    if ( fillerWeight != "" ) {
+    Monitored::IMonitoredVariable* weight(nullptr);
+    if ( not fillerWeight.empty() ) {
       for (const auto& monValue : monitoredVariables) {
         if (fillerWeight.compare(monValue.get().name()) == 0) {
           weight = &monValue.get();
@@ -162,10 +164,10 @@ std::vector<std::shared_ptr<HistogramFiller>> GenericMonitoringTool::getHistogra
       ATH_MSG_DEBUG("Selected monitored variables: " << variables);
       continue;
     }
-
-    filler->setMonitoredVariables(variables);
-    filler->setMonitoredWeight(weight);
-    result.push_back(filler);
+    std::shared_ptr<HistogramFiller> fillerCopy(filler->clone());
+    fillerCopy->setMonitoredVariables(variables);
+    fillerCopy->setMonitoredWeight(weight);
+    result.push_back(fillerCopy);
   }
 
   return result;

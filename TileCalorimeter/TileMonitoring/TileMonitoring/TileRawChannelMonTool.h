@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -21,6 +21,7 @@
 
 class TileRawChannel;
 class TileCondToolEmscale;
+class TileInfo;
 
 /** @class TileRawChannelMonTool
  *  @brief Class for TileCal monitoring at channel level
@@ -164,6 +165,10 @@ class TileRawChannelMonTool: public TilePaterMonTool {
     bool m_doLaserSummaryVsPMT;
     bool m_drawHists;
     float m_minAmpForCorrectedTime;
+    // TileInfo
+    std::string m_infoName;
+    const TileInfo* m_tileInfo;
+    bool m_is12bit;
     SG::ReadHandleKey<TileDQstatus> m_DQstatusKey;
 };
 

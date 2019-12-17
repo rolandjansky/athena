@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /***************************************************************************
                           CPAlgorithm.cxx  -  description
@@ -33,7 +33,7 @@ const double CPAlgorithm::m_maxEta = 2.5;
 
 
 LVL1::CPAlgorithm::CPAlgorithm( double eta, double phi, const CPMTowerMap_t* ttContainer,
-                                ServiceHandle<TrigConf::ITrigConfigSvc> config, int slice):
+                                ServiceHandle<TrigConf::ILVL1ConfigSvc> config, int slice):
   m_configSvc(config),
   m_Core(0),
   m_EMClus(0),

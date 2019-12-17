@@ -10,6 +10,7 @@
 #include <TH2.h>
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/LockedHandle.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
@@ -22,13 +23,15 @@
 
 #include "TimeDivider.h"
 #include "AthenaKernel/AlgorithmTimer.h"
+
+// Forward declarations
+class IIncidentSvc;
+
 /**
- * @class Algorithm implementing monitoring of the HLT decision in the MT framework
- * @brief 
+ * @class TrigSignatureMoniMT
+ * @brief Algorithm implementing monitoring of the HLT decision in the MT framework
  **/
-
-
-class TrigSignatureMoniMT : public ::AthReentrantAlgorithm
+class TrigSignatureMoniMT : public extends<AthReentrantAlgorithm, IIncidentListener>
 { 
  public: 
 
@@ -37,36 +40,58 @@ class TrigSignatureMoniMT : public ::AthReentrantAlgorithm
   virtual StatusCode  initialize() override;
   virtual StatusCode  start() override;
   virtual StatusCode  execute( const EventContext& context ) const override;
-  virtual StatusCode  finalize() override;
   virtual StatusCode  stop() override;
+  virtual void handle( const Incident& incident ) override;
 
  private:
+  //class representing asynchronously published histograms
+  class RateHistogram {
+   public:
+    ~RateHistogram();
+
+    StatusCode init( const std::string histoName, const std::string histoTitle,
+      const int x, const int y, const std::string registerPath, ServiceHandle<ITHistSvc> histSvc );
+
+    LockedHandle<TH2> & getHistogram() const;
+    LockedHandle<TH2> & getBuffer() const;
+    std::unique_ptr<Athena::AlgorithmTimer> & getTimer();
+
+    void startTimer(unsigned int duration, unsigned int intervals);
+    void stopTimer();
+    void updatePublished(unsigned int duration) const;
+    void callback() const;
+
+   private:
+    mutable LockedHandle<TH2> m_bufferHistogram;
+    mutable LockedHandle<TH2> m_histogram;
+    std::mutex m_mutex;
+    std::unique_ptr<Athena::AlgorithmTimer> m_timer;
+    std::unique_ptr<TimeDivider> m_timeDivider;
+    unsigned int m_duration;
+  };
+
   SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_l1DecisionsKey{ this, "L1Decisions", "L1DecoderSummary", "Chains activated after the L1" };
   SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_finalDecisionKey{ this, "FinalDecisionKey", "HLTNav_Summary", "Final stage of all decisions" };
   SG::ReadHandleKey<TrigConf::HLTMenu> m_HLTMenuKey{ this, "HLTTriggerMenu", "DetectorStore+HLTTriggerMenu", "HLT Menu" };
   SG::ReadHandleKey<TrigConf::L1Menu> m_L1MenuKey{ this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu", "L1 Menu" };
 
   std::map<unsigned int, int> m_chainIDToBinMap;
+  std::map<unsigned int, int> m_chainIDToBinBCIDmap;
   std::map<std::string, int> m_nameToBinMap;
   std::map<unsigned int, std::set<std::string>> m_chainIDToBunchMap;
   std::map<std::string, TrigCompositeUtils::DecisionIDContainer> m_groupToChainMap;
   std::map<std::string, TrigCompositeUtils::DecisionIDContainer> m_streamToChainMap;
   
+  ServiceHandle<IIncidentSvc> m_incidentSvc{ this, "IncidentSvc", "IncidentSvc", "Incident service"};
   ServiceHandle<ITHistSvc> m_histSvc{ this, "THistSvc", "THistSvc/THistSvc", "Histogramming svc" };
   Gaudi::Property<std::string> m_bookingPath{ this, "HistPath", "/EXPERT/HLTFramework", "Booking path for the histogram"};
+  Gaudi::Property<unsigned int> m_bcidNumber{ this, "BCIDNumber", 500, "Number of BCIDs in BCIDperChain histogram"};
 
-  mutable std::mutex m_bufferMutex;
   mutable LockedHandle<TH2> m_passHistogram;
   mutable LockedHandle<TH2> m_countHistogram;
-  mutable LockedHandle<TH2> m_rateBufferHistogram;
-  mutable LockedHandle<TH2> m_rateHistogram;
   mutable LockedHandle<TH2> m_bunchHistogram;
-
-  mutable std::unique_ptr<Athena::AlgorithmTimer> m_timer;
-  mutable std::atomic_bool m_isTimerStarted {false};
-
-  //helper to know when to switch to new interval  
-  std::unique_ptr<TimeDivider> m_timeDivider;
+  RateHistogram m_rateHistogram;
+  RateHistogram m_bcidHistogram;
 
   //necessary for asynchronous calling callback function
   Gaudi::Property<unsigned int> m_duration {this, "RateIntegrationDuration", 10, "Integration time for the rate histogram in seconds"};
@@ -76,18 +101,23 @@ class TrigSignatureMoniMT : public ::AthReentrantAlgorithm
   
   int nBinsX(SG::ReadHandle<TrigConf::HLTMenu>& ) const;
   int nBunchBinsX(SG::ReadHandle<TrigConf::HLTMenu>& ) const;
+  int nBCIDbinsX() const;
   int nBinsY() const;
   int nRateBinsY() const;
   int nBunchBinsY(SG::ReadHandle<TrigConf::L1Menu>& ) const;
-  void callback() const;
-  void updatePublished(unsigned int duration) const;
-  StatusCode initHist(std::unique_ptr<TH2>&, SG::ReadHandle<TrigConf::HLTMenu>&, bool = true);
-  StatusCode initBunchHist(std::unique_ptr<TH2>&, SG::ReadHandle<TrigConf::HLTMenu>&, SG::ReadHandle<TrigConf::L1Menu>&);
-  StatusCode fillDecisionCount(const std::vector<TrigCompositeUtils::DecisionID>& dc, int row) const;
-  StatusCode fillPassEvents(const TrigCompositeUtils::DecisionIDContainer& dc, int row, LockedHandle<TH2>& histogram) const;
-  StatusCode fillRate(const TrigCompositeUtils::DecisionIDContainer& dc, int row) const;
+  int nBCIDbinsY() const;
+
+  StatusCode initHist(LockedHandle<TH2>&, SG::ReadHandle<TrigConf::HLTMenu>&, bool = true);
+  StatusCode initBunchHist(LockedHandle<TH2>&, SG::ReadHandle<TrigConf::HLTMenu>&, SG::ReadHandle<TrigConf::L1Menu>&);
+  StatusCode initBCIDhist(LockedHandle<TH2>&, SG::ReadHandle<TrigConf::HLTMenu>&);
+  
+  StatusCode fillDecisionCount(const std::vector<TrigCompositeUtils::DecisionID>& , int) const;
+  StatusCode fillPassEvents(const TrigCompositeUtils::DecisionIDContainer&, int) const;
+  StatusCode fillRate(const TrigCompositeUtils::DecisionIDContainer&, int) const;
+  StatusCode fillHistogram(const TrigCompositeUtils::DecisionIDContainer&, int, LockedHandle<TH2>&) const;
   StatusCode fillBunchGroups(const TrigCompositeUtils::DecisionIDContainer&) const;
-  StatusCode fillStreamsAndGroups(const std::map<std::string, TrigCompositeUtils::DecisionIDContainer>& map, const TrigCompositeUtils::DecisionIDContainer& dc) const;
+  StatusCode fillBCID(const TrigCompositeUtils::DecisionIDContainer&, int) const;
+  StatusCode fillStreamsAndGroups(const std::map<std::string, TrigCompositeUtils::DecisionIDContainer>&, const TrigCompositeUtils::DecisionIDContainer&) const;
 };
 
 #endif //> !TRIGSTEERMONITOR_TRIGSIGNATUREMONIMT_H

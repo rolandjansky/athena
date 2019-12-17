@@ -7,7 +7,7 @@ from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 def createSimConfigFlags():
     scf=AthConfigFlags()
 
-    scf.addFlag("Sim.ISF.Run",False)
+    scf.addFlag("Sim.ISFRun",False)
     scf.addFlag("Sim.ISF.HITSMergingRequired", True)
     scf.addFlag("Sim.ParticleID",False)
     scf.addFlag("Sim.CalibrationRun", "DeadLAr") # "LAr", "Tile", "LAr+Tile", "DeadLAr"
@@ -51,6 +51,10 @@ def createSimConfigFlags():
     scf.addFlag('Sim.RecordStepInfo',False) 
     scf.addFlag('Sim.StoppedParticleFile', False) 
 
+    # For G4FieldConfigNew
+    scf.addFlag('Sim.G4Stepper', 'AtlasRK4')
+    scf.addFlag('Sim.G4EquationOfMotion', '')
 
+    scf.addFlag('Sim.UsingGeant4', True)
     return scf
 

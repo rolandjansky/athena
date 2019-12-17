@@ -287,6 +287,6 @@ if __name__ == '__main__':
 
     acc = TrackingGeometrySvcCfg(ConfigFlags )
 
-    f=open('TrackingGeometrySvcCfg.pkl','w')
+    f=open('TrackingGeometrySvcCfg.pkl','wb')
     acc.store(f)
     f.close()

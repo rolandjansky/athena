@@ -225,37 +225,10 @@ if InDetFlags.loadRotCreator():
 #
 if InDetFlags.loadUpdator() :
 
-    if InDetFlags.kalmanUpdator() == "fast" :
-        from TrkMeasurementUpdator_xk.TrkMeasurementUpdator_xkConf import Trk__KalmanUpdator_xk
-        InDetUpdator = Trk__KalmanUpdator_xk(name = 'InDetUpdator')
-    elif InDetFlags.kalmanUpdator() == "weight" :
-        from TrkMeasurementUpdator.TrkMeasurementUpdatorConf import Trk__KalmanWeightUpdator
-        InDetUpdator = Trk__KalmanWeightUpdator(name='InDetUpdator')
-    elif InDetFlags.kalmanUpdator() == "smatrix" :
-        from TrkMeasurementUpdator.TrkMeasurementUpdatorConf import Trk__KalmanUpdatorSMatrix
-        InDetUpdator = Trk__KalmanUpdatorSMatrix(name='InDetUpdator')
-    elif InDetFlags.kalmanUpdator() == "amg" :
-        from TrkMeasurementUpdator.TrkMeasurementUpdatorConf import Trk__KalmanUpdatorAmg
-        InDetUpdator = Trk__KalmanUpdatorAmg(name = 'InDetUpdator')
-    else :
-        from TrkMeasurementUpdator.TrkMeasurementUpdatorConf import Trk__KalmanUpdator
-        InDetUpdator = Trk__KalmanUpdator(name = 'InDetUpdator')
+    InDetUpdator = TrackingCommon.getInDetUpdator()
     ToolSvc += InDetUpdator
     if (InDetFlags.doPrintConfigurables()):
       print      InDetUpdator
-    #
-    # ---------- control loading of the gsf updator
-    #
-    if InDetFlags.trackFitterType() == 'GaussianSumFilter' :
-        #
-        # Load the Gsf Measurement Updator
-        #
-        from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMeasurementUpdator
-        InDetGsfMeasurementUpdator = Trk__GsfMeasurementUpdator( name    = 'InDetGsfMeasurementUpdator',
-                                                            Updator = InDetUpdator )
-        ToolSvc += InDetGsfMeasurementUpdator
-        if (InDetFlags.doPrintConfigurables()):
-          print      InDetGsfMeasurementUpdator
 
 #
 # ----------- control laoding extrapolation
@@ -1131,14 +1104,4 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
     logger = logging.getLogger('InDet')
     logger.error('Sorting option '+InDetFlags.primaryVertexSortingSetup()+' not defined. ')
 
-# ------------------------------------------------------------
-#
-# ----------- Loading of tool to monitor track candidates in ambi solving
-#
-# ------------------------------------------------------------
-if InDetFlags.doTIDE_AmbiTrackMonitoring():
-  from TrkValTools.TrkValToolsConf import Trk__TrkObserverTool
-  TrackObserverTool = Trk__TrkObserverTool("TrackObserverTool")
-  ToolSvc += TrackObserverTool
-  if InDetFlags.doPrintConfigurables():
-      print TrackObserverTool
+

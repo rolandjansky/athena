@@ -238,12 +238,14 @@ StatusCode MdtRawDataMonAlg::initialize()
     for (int ilayer=0;ilayer<4;ilayer++) { //inner, middle, outer, extra
       	std::string s = "NumberOfHitsIn"+ecap[iecap]+layer[ilayer]+"PerMultiLayer_ADCCut";
 	m_mdthitspermultilayerLumi[iecap][ilayer] = new TH2F(s.c_str(), s.c_str(), 1, 0, 1, 1, 0, 1);
+	m_mdthitspermultilayerLumi[iecap][ilayer]->SetDirectory(0);
 	string xAxis = ecap[iecap].substr(0,1) + layer[ilayer].substr(0,1) + ecap[iecap].substr(1,1);
 	sc=binMdtRegional(m_mdthitspermultilayerLumi[iecap][ilayer], xAxis);
 
       if( ilayer==0 && ((iecap==0||iecap==2)) ) {
         s = "NumberOfHits"+MDTHits_BE[iecap/2];
-	m_mdthitsperchamber_InnerMiddleOuterLumi[iecap/2] = new TH2F(s.c_str(), s.c_str(), 1, 0, 1, 1, 0, 1);  
+	m_mdthitsperchamber_InnerMiddleOuterLumi[iecap/2] = new TH2F(s.c_str(), s.c_str(), 1, 0, 1, 1, 0, 1);
+	m_mdthitsperchamber_InnerMiddleOuterLumi[iecap/2]->SetDirectory(0);
 	sc=binMdtGlobal(m_mdthitsperchamber_InnerMiddleOuterLumi[iecap/2], MDTHits_BE[iecap/2].at(0) );
       }
     }
@@ -251,10 +253,13 @@ StatusCode MdtRawDataMonAlg::initialize()
 
   std::string s = "NumberOfHitsInMDTInner_ADCCut";
   m_mdthitsperML_byLayer[enumInner] = new TH2F(s.c_str(), s.c_str(), 1, 0, 1, 1, 0, 1);
+  m_mdthitsperML_byLayer[enumInner]->SetDirectory(0);
   s = "NumberOfHitsInMDTMIddle_ADCCut";
   m_mdthitsperML_byLayer[enumMiddle] = new TH2F(s.c_str(), s.c_str(), 1, 0, 1, 1, 0, 1);
+  m_mdthitsperML_byLayer[enumMiddle]->SetDirectory(0);
   s = "NumberOfHitsInMDTOuter_ADCCut";
   m_mdthitsperML_byLayer[enumOuter] = new TH2F(s.c_str(), s.c_str(), 1, 0, 1, 1, 0, 1);
+  m_mdthitsperML_byLayer[enumOuter]->SetDirectory(0);
   sc = binMdtGlobal_byLayer(m_mdthitsperML_byLayer[enumInner], m_mdthitsperML_byLayer[enumMiddle], m_mdthitsperML_byLayer[enumOuter]);
   
   /*

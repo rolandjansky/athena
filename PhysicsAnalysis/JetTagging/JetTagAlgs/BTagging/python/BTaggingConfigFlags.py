@@ -5,7 +5,8 @@ from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 def createBTaggingConfigFlags():
     btagcf = AthConfigFlags()
 
-    btagcf.addFlag("BTagging.run2TaggersList", ['IP2D','IP3D','SV1','SoftMu','JetFitterNN','MV2c10','MV2c10mu','MV2c10rnn','MV2c100','MV2cl100','RNNIP','DL1','DL1mu','DL1rnn','JetVertexCharge'])
+    btagcf.addFlag("BTagging.run2TaggersList", ['IP2D','IP3D','SV1','SoftMu','JetFitterNN','MV2c10','MV2c10mu','MV2c10rnn','MV2c100','MV2cl100','RNNIP','DL1','DL1mu','DL1rnn'])
+    # Disable JetVertexCharge ATLASRECTS-4506
     btagcf.addFlag("BTagging.RunModus", "analysis") # reference mode used in FlavourTagPerformanceFramework (RetagFragment.py)
     btagcf.addFlag("BTagging.JetPtMinRef", 15e3) # in MeV for uncalibrated pt
     #Do we really need this in AthConfigFlags?

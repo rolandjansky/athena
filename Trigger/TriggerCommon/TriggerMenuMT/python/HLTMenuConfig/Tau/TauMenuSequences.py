@@ -75,7 +75,8 @@ def tauCaloMVAMenuSequence(name):
 
 def tauCoreTrackSequence():
 
-    from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
+    from TrigInDetConfig.InDetSetup import makeInDetAlgs
+
     RoIs = "TCoreViewRoIs"
     viewAlgsTP = makeInDetAlgs(whichSignature='TauCore',separateTrackParticleCreator="_TauCore", rois = RoIs)
 
@@ -88,8 +89,7 @@ def tauCoreTrackSequence():
 
     from TrigTauHypo.TrigTauHypoConf import TrigTauTrackRoiUpdaterMT
     TrackRoiUpdater = TrigTauTrackRoiUpdaterMT("TrackRoiUpdater")
-    #TrackRoiUpdater.RoIInputKey  = "TAUCaloRoIs"
-    TrackRoiUpdater.RoIOutputKey = recordable("HLT_RoiForID")
+    TrackRoiUpdater.RoIOutputKey = "HLT_RoiForID"
 
 
     fastTrackViewsMaker = EventViewCreatorAlgorithm("IMTauFastTrack")
@@ -130,7 +130,8 @@ def tauCoreTrackSequence():
 
 def tauPrecisionSequence():
 
-    from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
+    from TrigInDetConfig.InDetSetup import makeInDetAlgs
+
     RoIs = "TCoreViewRoIs" # contract with the fastCalo
     viewAlgsPT = makeInDetAlgs(whichSignature='Tau',separateTrackParticleCreator="_Tau", rois = RoIs)
 
@@ -147,10 +148,8 @@ def tauPrecisionSequence():
 
     from TrigTauHypo.TrigTauHypoConf import TrigTauTrackRoiUpdaterMT
     precisionTRU = TrigTauTrackRoiUpdaterMT("precisionTRU")
-    #TrackRoiUpdater.RoIInputKey  = "TAUCaloRoIs"
-    precisionTRU.RoIOutputKey = recordable("HLT_RoiForID1")
+    precisionTRU.RoIOutputKey = "HLT_RoiForID1"
     precisionTRU.fastTracksKey = TrackCollection
-    #"TrigFastTrackFinder_Tracks"
 
     from TrigTauRec.TrigTauRecConfigMT import TrigTauRecMerged_TauPrecisionMVA
     trigTauMVA = TrigTauRecMerged_TauPrecisionMVA(doMVATES=True, doTrackBDT=False, doRNN=True)
@@ -160,7 +159,6 @@ def tauPrecisionSequence():
     trigTauMVA.TrigTauJet = "HLT_TrigTauRecMerged"
     trigTauMVA.Key_trackPartInputContainer = TrackParticlesName
     trigTauMVA.UseCaloClusters = False
-    #trigTauMVA.clustersKey = "caloclusters"
     trigTauMVA.Key_vertexInputContainer = "VxPrimaryCandidate"
     trigTauMVA.TrigTauTrkOutputKey = recordable("HLT_tautrack_MVA")
 

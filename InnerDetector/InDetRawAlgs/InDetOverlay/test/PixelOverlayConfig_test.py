@@ -11,7 +11,7 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
 from AthenaConfiguration.TestDefaults import defaultTestFiles
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-from OverlayCommonAlgs.OverlayCopyAlgsConfig import CopyMcEventCollectionCfg
+from OverlayCopyAlgs.OverlayCopyAlgsConfig import CopyMcEventCollectionCfg
 from InDetOverlay.PixelOverlayConfig import PixelOverlayCfg
 
 # Global test config

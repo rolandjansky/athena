@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -17,10 +17,10 @@
 
 void  InDet::TRT_Trajectory_xk::set
 (const TRT_ID                     *   m,
- Trk::IPatternParametersPropagator*   pr,
- Trk::IPatternParametersUpdator   *   up,
- Trk::IRIO_OnTrackCreator         * riod,
- Trk::IRIO_OnTrackCreator         * rion,
+ const Trk::IPatternParametersPropagator*   pr,
+ const Trk::IPatternParametersUpdator   *   up,
+ const Trk::IRIO_OnTrackCreator         * riod,
+ const Trk::IRIO_OnTrackCreator         * rion,
  double roadwidth                       ,
  double zvertexwidth                    ,
  double impact                          ,
@@ -36,7 +36,7 @@ void  InDet::TRT_Trajectory_xk::set
 }
 
 void  InDet::TRT_Trajectory_xk::set
-(Trk::MagneticFieldProperties& mp,MagField::IMagFieldSvc*& ms )
+(Trk::MagneticFieldProperties& mp,const MagField::IMagFieldSvc* ms )
 
 {
   m_fieldprop    = mp;
@@ -49,7 +49,7 @@ void  InDet::TRT_Trajectory_xk::set
 
 void InDet::TRT_Trajectory_xk::initiateForPrecisionSeed
 (std::list< std::pair<Amg::Vector3D,double> >      & Gp  ,
- std::list<const InDetDD::TRT_BaseElement*>        & De  ,
+ std::vector<const InDetDD::TRT_BaseElement*>        & De  ,
  const TRT_DriftCircleContainer*                   & TRTc,
  const Trk::PatternTrackParameters                 & Tp   )
 {
@@ -68,7 +68,7 @@ void InDet::TRT_Trajectory_xk::initiateForPrecisionSeed
   InDet::TRT_DriftCircleContainer::const_iterator w;
   InDet::TRT_DriftCircleCollection::const_iterator ti,te;
 
-  std::list<const InDetDD::TRT_BaseElement*>::iterator d=De.begin(),de=De.end();
+  std::vector<const InDetDD::TRT_BaseElement*>::iterator d=De.begin(),de=De.end();
 
   std::list< std::pair<Amg::Vector3D,double> >::iterator i=Gp.begin(),i0=Gp.begin(),ie=Gp.end();
   if(i0==ie) return;
@@ -129,7 +129,7 @@ void InDet::TRT_Trajectory_xk::initiateForPrecisionSeed
 
 void InDet::TRT_Trajectory_xk::initiateForTRTSeed
 (std::list< std::pair<Amg::Vector3D,double> >      & Gp  ,
- std::list<const InDetDD::TRT_BaseElement*>        & De  ,
+ std::vector<const InDetDD::TRT_BaseElement*>        & De  ,
  const TRT_DriftCircleContainer*                   & TRTc,
  const Trk::PatternTrackParameters                 & Tp   )
 {
@@ -151,7 +151,7 @@ void InDet::TRT_Trajectory_xk::initiateForTRTSeed
   InDet::TRT_DriftCircleContainer::const_iterator w;
   InDet::TRT_DriftCircleCollection::const_iterator ti,te;
 
-  std::list<const InDetDD::TRT_BaseElement*>::iterator d=De.begin(),de=De.end();
+  std::vector<const InDetDD::TRT_BaseElement*>::iterator d=De.begin(),de=De.end();
 
   std::list< std::pair<Amg::Vector3D,double> >::iterator i=Gp.begin(),i0=Gp.begin(),ie=Gp.end();
   if(i0==ie) return;

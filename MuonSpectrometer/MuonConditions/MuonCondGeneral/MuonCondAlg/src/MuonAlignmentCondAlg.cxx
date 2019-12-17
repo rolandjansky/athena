@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -14,12 +14,6 @@
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/GlobalUtilities.h"
 
-#include "Identifier/IdentifierHash.h"
-#include "Identifier/Identifier.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonIdHelpers/CscIdHelper.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
 #include "PathResolver/PathResolver.h"
 #include <fstream>
 #include <string>
@@ -34,11 +28,9 @@ MuonAlignmentCondAlg::MuonAlignmentCondAlg(const std::string& name,
   : AthAlgorithm(name, pSvcLocator),
     m_condSvc{"CondSvc", name}
 {
-  m_mdtIdHelper = nullptr;
-  m_cscIdHelper = nullptr;
-  m_rpcIdHelper = nullptr;
-  m_tgcIdHelper = nullptr;
   m_geometryVersion = "";
+  m_AsBuiltRequested = false;
+  m_ILineRequested = false;
 
   m_parlineFolder.clear();
   declareProperty("ParlineFolders",  m_parlineFolder);
@@ -57,14 +49,22 @@ StatusCode MuonAlignmentCondAlg::initialize(){
 
   ATH_CHECK(m_condSvc.retrieve());
 
+  // =======================
+  // Loop on folders requested in configuration and check if /MUONALIGN/CSC/ILINES and /MUONALIGN/MDT/ASBUILTPARAMS are requested
+  // =======================
+  for (const std::string& currentFolderName : m_parlineFolder) {
+    if(currentFolderName.find("ILINES") != std::string::npos) m_ILineRequested = true;
+    if(currentFolderName.find("ASBUILTPARAMS") != std::string::npos) m_AsBuiltRequested = true;
+  }
+
   // Read Handles Keys
   ATH_CHECK(m_readMdtBarrelKey.initialize());
   ATH_CHECK(m_readMdtEndcapSideAKey.initialize());
   ATH_CHECK(m_readMdtEndcapSideCKey.initialize());
   ATH_CHECK(m_readTgcSideAKey.initialize());
   ATH_CHECK(m_readTgcSideCKey.initialize());
-  ATH_CHECK(m_readCscILinesKey.initialize());
-  ATH_CHECK(m_readMdtAsBuiltParamsKey.initialize());
+  ATH_CHECK(m_readCscILinesKey.initialize(m_ILinesFromDb and m_ILineRequested));
+  ATH_CHECK(m_readMdtAsBuiltParamsKey.initialize(m_AsBuiltRequested));
 
   // Write Handles
   ATH_CHECK(m_writeALineKey.initialize());
@@ -87,9 +87,9 @@ StatusCode MuonAlignmentCondAlg::initialize(){
     ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeAsBuiltKey.fullKey() << " with CondSvc");
     return StatusCode::FAILURE;
   }
-    
+  
   //=================
-  // Initialize geometry and Id Helpers. Initialization of the pointer to the MuonDetectorManager.
+  // Initialize geometry and Id Helpers. Initialization of the pointer to the MuonDetectorManager from the detector store.
   // !!!!!!!!!!! It was called in the loadParameters before. !!!!!!!!!!
   //=================
 
@@ -123,10 +123,10 @@ StatusCode MuonAlignmentCondAlg::finalize(){
 StatusCode MuonAlignmentCondAlg::InitializeGeometryAndIdHelpers(){
 
   //=================
-  // Initialize pointer to the MuonDetectorManager
+  // Initialize pointer to the MuonDetectorManager from the detector store
   //=================
   
-  if (StatusCode::SUCCESS != detStore()->retrieve(m_muonMgr)) {
+  if (StatusCode::SUCCESS != detStore()->retrieve(m_muonDetMgrDS)) {
     ATH_MSG_FATAL("Couldn't load MuonDetectorManager");
     return StatusCode::FAILURE;
   }
@@ -135,50 +135,14 @@ StatusCode MuonAlignmentCondAlg::InitializeGeometryAndIdHelpers(){
   // Initialize geometry
   //=================
 
-  m_geometryVersion = m_muonMgr->geometryVersion();
+  m_geometryVersion = m_muonDetMgrDS->geometryVersion();
   ATH_MSG_INFO("geometry version from the MuonDetectorManager = " << m_geometryVersion);
   
   //=================
   // Initialize Helpers
   //=================
   
-  if (m_mdtIdHelper == nullptr) {
-    if (detStore()->retrieve(m_mdtIdHelper, "MDTIDHELPER" ).isFailure()) {
-      ATH_MSG_ERROR("Can't retrieve MdtIdHelper");
-      return StatusCode::FAILURE;
-    } else ATH_MSG_INFO("MdtIdHelper retrieved from the DetectorStore");
-  } else ATH_MSG_DEBUG("MdtIdHelper already initialized");
-
-  //-------------------
-
-  if (m_cscIdHelper == nullptr) {
-    if (detStore()->retrieve(m_cscIdHelper, "CSCIDHELPER" ).isFailure()) {
-      ATH_MSG_ERROR("Can't retrieve CscIdHelper");
-      return StatusCode::FAILURE;
-    } else ATH_MSG_INFO("CscIdHelper retrieved from the DetectorStore");
-  } else ATH_MSG_DEBUG("CscIdHelper already initialized");
-
-  //-------------------
-
-  if (m_rpcIdHelper == nullptr) {
-    if (detStore()->retrieve(m_rpcIdHelper, "RPCIDHELPER" ).isFailure()) {
-      ATH_MSG_ERROR("Can't retrieve RpcIdHelper");
-      return StatusCode::FAILURE;
-    } else ATH_MSG_INFO("RpcIdHelper retrieved from the DetectorStore");
-  } else ATH_MSG_DEBUG("RpcIdHelper already initialized");
-
-  //-------------------
-
-  if (m_tgcIdHelper == nullptr) {
-    if (detStore()->retrieve(m_tgcIdHelper, "TGCIDHELPER" ).isFailure()) {
-      ATH_MSG_ERROR("Can't retrieve TgcIdHelper");
-      return StatusCode::FAILURE;
-    } else ATH_MSG_INFO("TgcIdHelper retrieved from the DetectorStore");
-  } else ATH_MSG_DEBUG("TgcIdHelper already initialized");
-
-  //-------------------
-
-  // !!!!! HERE WE SHOULD PUT CODE FOR NSW (MM and STGC)
+  ATH_CHECK(m_idHelperSvc.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -191,22 +155,12 @@ StatusCode MuonAlignmentCondAlg::loadParameters() {
   ATH_MSG_DEBUG( "In LoadParameters " << name() );
 
   // =======================
-  // Loop on folders requested in configuration and check if /MUONALIGN/CSC/ILINES and /MUONALIGN/MDT/ASBUILTPARAMS are requested
-  // =======================
-  bool AsBuiltRequested = false;
-  bool ILineRequested = false;
-  for (const std::string& currentFolderName : m_parlineFolder) {
-    if(currentFolderName.find("ILINES") != std::string::npos) ILineRequested = true;
-    if(currentFolderName.find("ASBUILTPARAMS") != std::string::npos) AsBuiltRequested = true;
-  }
-
-  // =======================
   // Load ILine parameters if requested in the joboptions and /MUONALIGN/CSC/ILINES folder given in the joboptions
   // =======================
-  if( m_ILinesFromDb and ILineRequested) {
+  if( m_ILinesFromDb and m_ILineRequested) {
     sc = loadAlignILines("/MUONALIGN/CSC/ILINES");
   } 
-  else if (ILineRequested and not m_ILinesFromDb) {
+  else if (m_ILineRequested and not m_ILinesFromDb) {
     ATH_MSG_INFO("DB folder for I-Lines given in job options however loading disabled ");
     sc = StatusCode::SUCCESS;
   }
@@ -215,7 +169,7 @@ StatusCode MuonAlignmentCondAlg::loadParameters() {
   // =======================
   // Load AsBuilt parameters if /MUONALIGN/MDT/ASBUILTPARAMS folder given in the joboptions
   // =======================
-  if(AsBuiltRequested) sc = loadAlignAsBuilt("/MUONALIGN/MDT/ASBUILTPARAMS");
+  if(m_AsBuiltRequested) sc = loadAlignAsBuilt("/MUONALIGN/MDT/ASBUILTPARAMS");
   if(sc.isFailure()) return StatusCode::FAILURE;
 
   // =======================
@@ -276,12 +230,31 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLines() {
     }
   }
 
+  // >>>>>>>>>>>> START: This code should be REMOVED after MuonDetectorManger in MuonEventTPCnv moves to Conditions Store >>>>>>>>>>>>
   // =======================
   // FIRST Update the MuonDetectorManager and THEN record the ALine.
   // =======================
 
-  if (m_muonMgr->updateAlignment(writeALineCdo.get()).isFailure()) ATH_MSG_ERROR("Unable to updateAlignment" );
+  ALineMapContainer*  alineDataTemp = new ALineMapContainer;
+  for (auto elem: *writeALineCdo.get() ) {
+    // new Aline
+    ALinePar* newALine = new ALinePar();
+    std::string stationType; int jff; int jzz; int job;
+    elem.second->getAmdbId(stationType, jff, jzz, job);
+    newALine->setAmdbId(stationType, jff, jzz, job);
+    float s; float z; float t; float ths; float thz; float tht;	  
+    elem.second->getParameters(s, z, t, ths, thz, tht);
+    newALine->setParameters(s, z, t, ths, thz, tht);
+
+    newALine->isNew(elem.second->isNew());
+    alineDataTemp->insert(std::make_pair(elem.first,(ALinePar*)newALine));
+  }
+
+  if (m_muonDetMgrDS->updateAlignment(alineDataTemp).isFailure()) ATH_MSG_ERROR("Unable to updateAlignment" );
   else ATH_MSG_DEBUG("updateAlignment DONE" );
+  // if (m_muonDetMgrDS->updateAlignment(writeALineCdo.get()).isFailure()) ATH_MSG_ERROR("Unable to updateAlignment" );
+  // else ATH_MSG_DEBUG("updateAlignment DONE" );
+  // <<<<<<<<<<<<< END: This code should be REMOVED after MuonDetectorManger in MuonEventTPCnv moves to Conditions Store <<<<<<<<<<<<<
 
   if (writeALineHandle.record(rangeALineW, std::move(writeALineCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record ALineMapContainer " << writeALineHandle.key() 
@@ -291,12 +264,29 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLines() {
   }		  
   ATH_MSG_INFO("recorded new " << writeALineHandle.key() << " with range " << rangeALineW << " into Conditions Store");
 
+  // >>>>>>>>>>>> START: This code should be REMOVED after MuonDetectorManger in MuonEventTPCnv moves to Conditions Store >>>>>>>>>>>>
   // =======================
   // FIRST Update the MuonDetectorManager and THEN record the BLine.
   // =======================
-
-  if (m_muonMgr->updateDeformations(writeBLineCdo.get()).isFailure()) ATH_MSG_ERROR("Unable to updateDeformations" );
+  BLineMapContainer*  blineDataTemp = new BLineMapContainer;
+  for (auto elem: *writeBLineCdo.get() ) {
+    // new Bline
+    BLinePar* newBLine = new BLinePar();
+    std::string stationType; int jff; int jzz; int job;
+    elem.second->getAmdbId(stationType, jff, jzz, job);
+    newBLine->setAmdbId(stationType, jff, jzz, job);
+    newBLine->setParameters(elem.second->bz(), elem.second->bp(), elem.second->bn(), 
+  			    elem.second->sp(), elem.second->sn(), elem.second->tw(), 
+  			    elem.second->pg(), elem.second->tr(), elem.second->eg(), 
+  			    elem.second->ep(), elem.second->en());
+    newBLine->isNew(elem.second->isNew());
+    blineDataTemp->insert(std::make_pair(elem.first,(BLinePar*)newBLine));
+  }
+  if (m_muonDetMgrDS->updateDeformations(blineDataTemp).isFailure()) ATH_MSG_ERROR("Unable to updateDeformations" );
   else ATH_MSG_DEBUG("updateDeformations DONE" );
+  // if (m_muonDetMgrDS->updateDeformations(writeBLineCdo.get()).isFailure()) ATH_MSG_ERROR("Unable to updateDeformations" );
+  // else ATH_MSG_DEBUG("updateDeformations DONE" );
+  // <<<<<<<<<<<<< END: This code should be REMOVED after MuonDetectorManger in MuonEventTPCnv moves to Conditions Store <<<<<<<<<<<<<
 
   if (writeBLineHandle.record(rangeBLineW, std::move(writeBLineCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record BLineMapContainer " << writeBLineHandle.key() 
@@ -631,7 +621,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLines(std::string folderName,
 	  else ATH_MSG_VERBOSE("No B-line found");
 	} 
 	  
-	int stationName = m_mdtIdHelper->stationNameIndex(stationType);
+	int stationName = m_idHelperSvc->mdtIdHelper().stationNameIndex(stationType);
 	Identifier id;
 	ATH_MSG_VERBOSE("stationName  " << stationName);
 	// if (stationType.substr(0,1)=="T") {
@@ -645,22 +635,22 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLines(std::string folderName,
 	    stEta=job;
 	    if (jzz<0) stEta = -stEta;
 	  }
-	  id = m_tgcIdHelper->elementID(stationName, stEta, stPhi);
-	  ATH_MSG_VERBOSE("identifier being assigned is " << m_tgcIdHelper->show_to_string(id));
+	  id = m_idHelperSvc->tgcIdHelper().elementID(stationName, stEta, stPhi);
+	  ATH_MSG_VERBOSE("identifier being assigned is " << m_idHelperSvc->tgcIdHelper().show_to_string(id));
 	}
 	else if (stationType.substr(0,1)=="C") {
 	  // csc case
-	  id = m_cscIdHelper->elementID(stationName, jzz, jff);
-	  ATH_MSG_VERBOSE("identifier being assigned is " << m_cscIdHelper->show_to_string(id));
+	  id = m_idHelperSvc->cscIdHelper().elementID(stationName, jzz, jff);
+	  ATH_MSG_VERBOSE("identifier being assigned is " << m_idHelperSvc->cscIdHelper().show_to_string(id));
 	}
 	else if (stationType.substr(0,3)=="BML" && abs(jzz)==7) {
 	  // rpc case
-	  id = m_rpcIdHelper->elementID(stationName, jzz, jff, 1);
-	  ATH_MSG_VERBOSE("identifier being assigned is " << m_rpcIdHelper->show_to_string(id));
+	  id = m_idHelperSvc->rpcIdHelper().elementID(stationName, jzz, jff, 1);
+	  ATH_MSG_VERBOSE("identifier being assigned is " << m_idHelperSvc->rpcIdHelper().show_to_string(id));
 	}
 	else {
-	  id = m_mdtIdHelper->elementID(stationName, jzz, jff);
-	  ATH_MSG_VERBOSE("identifier being assigned is " << m_mdtIdHelper->show_to_string(id));
+	  id = m_idHelperSvc->mdtIdHelper().elementID(stationName, jzz, jff);
+	  ATH_MSG_VERBOSE("identifier being assigned is " << m_idHelperSvc->mdtIdHelper().show_to_string(id));
 	}
           
 
@@ -679,7 +669,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLines(std::string folderName,
 			  " --- keep the latest one");
           ALinePar* oldALinePar =  (*ialine).second;
           writeALineCdo->erase(id);
-          delete oldALinePar; oldALinePar=0;
+          delete oldALinePar; oldALinePar=nullptr;
 	  --nNewDecodedALines;
 	}
 	writeALineCdo->insert(std::make_pair(id,(ALinePar*)newALine));
@@ -699,7 +689,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLines(std::string folderName,
 			    " --- keep the latest one");
 	    BLinePar* oldBLinePar =  (*ibline).second;
 	    writeBLineCdo->erase(id);
-	    delete oldBLinePar; oldBLinePar=0;
+	    delete oldBLinePar; oldBLinePar=nullptr;
 	    --nNewDecodedBLines;
 	  }
 	  writeBLineCdo->insert(std::make_pair(id,(BLinePar*)newBLine));
@@ -894,7 +884,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignILines(std::string folderName)
 	ATH_MSG_VERBOSE("I-line: tras,traz,trat "  << tras <<" "<< traz <<" "<< trat);
 	ATH_MSG_VERBOSE(" rots,rotz,rott "  << rots <<" "<< rotz <<" "<< rott);
 	  
-	int stationName = m_cscIdHelper->stationNameIndex(stationType);
+	int stationName = m_idHelperSvc->cscIdHelper().stationNameIndex(stationType);
 	Identifier id;
 	ATH_MSG_VERBOSE("stationName  " << stationName);
 	// if (stationType.substr(0,1)=="C") {
@@ -902,8 +892,8 @@ StatusCode MuonAlignmentCondAlg::loadAlignILines(std::string folderName)
 	  // csc case
 	  int chamberLayer = 2;
 	  if (job != 3) ATH_MSG_WARNING("job = "<<job<<" is not 3 => chamberLayer should be 1 - not existing ! setting 2");
-	  id = m_cscIdHelper->channelID(stationType, jzz, jff, chamberLayer, jlay, 0, 1);
-	  ATH_MSG_VERBOSE("identifier being assigned is " << m_cscIdHelper->show_to_string(id));
+	  id = m_idHelperSvc->cscIdHelper().channelID(stationType, jzz, jff, chamberLayer, jlay, 0, 1);
+	  ATH_MSG_VERBOSE("identifier being assigned is " << m_idHelperSvc->cscIdHelper().show_to_string(id));
 	}
 	else {
 	  ATH_MSG_ERROR("There is a non CSC chamber in the list of CSC internal alignment parameters.");
@@ -923,7 +913,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignILines(std::string folderName)
 			  " --- keep the latest one");
 	  CscInternalAlignmentPar* oldCscInternalAlignmentPar =  (*iiline).second;
 	  writeCdo->erase(id);
-	  delete oldCscInternalAlignmentPar; oldCscInternalAlignmentPar=0;
+	  delete oldCscInternalAlignmentPar; oldCscInternalAlignmentPar=nullptr;
 	  --nNewDecodedILines;
 	}
 	//	m_ilineData->insert(std::make_pair(id,(CscInternalAlignmentPar*)newILine));
@@ -937,12 +927,31 @@ StatusCode MuonAlignmentCondAlg::loadAlignILines(std::string folderName)
    // dump I-lines to log file TBA
   if (m_dumpILines && (int)writeCdo->size()>0) dumpILines(folderName, writeCdo.get());
 
+  // >>>>>>>>>>>> START: This code should be REMOVED after MuonDetectorManger in MuonEventTPCnv moves to Conditions Store >>>>>>>>>>>>
   // =======================
   // FIRST update MuonDetectorManager and THEN record the output cond object.
   // =======================
 
-  if (m_muonMgr->updateCSCInternalAlignmentMap(writeCdo.get()).isFailure()) ATH_MSG_ERROR("Unable to updateCSCInternalAlignmentMap" );
+  CscInternalAlignmentMapContainer*  ilineDataTemp = new CscInternalAlignmentMapContainer;
+  for (auto elem: *writeCdo.get() ) {
+    // new Iline
+    CscInternalAlignmentPar* newILine = new CscInternalAlignmentPar();
+    std::string stationType; int jff; int jzz; int job; int jlay;
+    elem.second->getAmdbId(stationType, jff, jzz, job, jlay);
+    newILine->setAmdbId(stationType, jff, jzz, job, jlay);
+    float tras; float traz; float trat; float rots; float rotz; float rott;	  
+    elem.second->getParameters(tras,traz,trat,rots,rotz,rott);
+    newILine->setParameters(tras,traz,trat,rots,rotz,rott);
+
+    newILine->isNew(elem.second->isNew());
+    ilineDataTemp->insert(std::make_pair(elem.first,(CscInternalAlignmentPar*)newILine));
+  }
+
+  if (m_muonDetMgrDS->updateCSCInternalAlignmentMap(ilineDataTemp).isFailure()) ATH_MSG_ERROR("Unable to updateCSCInternalAlignmentMap" );
   else ATH_MSG_DEBUG("updateCSCInternalAlignmentMap DONE" );
+  // if (m_muonDetMgrDS->updateCSCInternalAlignmentMap(writeCdo.get()).isFailure()) ATH_MSG_ERROR("Unable to updateCSCInternalAlignmentMap" );
+  // else ATH_MSG_DEBUG("updateCSCInternalAlignmentMap DONE" );
+  // <<<<<<<<<<<<< END: This code should be REMOVED after MuonDetectorManger in MuonEventTPCnv moves to Conditions Store <<<<<<<<<<<<<
 
   if (writeHandle.record(rangeCscILinesW, std::move(writeCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record CscInternalAlignmentMapContainer " << writeHandle.key() 
@@ -1048,7 +1057,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignAsBuilt(std::string folderName)
         int jzz = 0;
         int job = 0;
         xPar.getAmdbId(stationType, jff, jzz, job);
-	Identifier id = m_mdtIdHelper->elementID(stationType, jzz, jff);
+	Identifier id = m_idHelperSvc->mdtIdHelper().elementID(stationType, jzz, jff);
 	
 	ATH_MSG_VERBOSE("Station type jff jzz "  << stationType  << jff << " " << jzz  );
         ++nDecodedLines;
@@ -1059,7 +1068,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignAsBuilt(std::string folderName)
                            << stationType<<" at Jzz/Jff "<<jzz<<"/"<< jff<<" --- keep the latest one" );
 	  MdtAsBuiltPar* oldMdtAsBuiltPar =  (*iasbuild).second;
 	  writeCdo->erase(id);
-	  delete oldMdtAsBuiltPar; oldMdtAsBuiltPar=0;
+	  delete oldMdtAsBuiltPar; oldMdtAsBuiltPar=nullptr;
           --nNewDecodedAsBuilt;
         }
 	writeCdo->insert(std::make_pair(id,new MdtAsBuiltPar(xPar)));
@@ -1072,11 +1081,22 @@ StatusCode MuonAlignmentCondAlg::loadAlignAsBuilt(std::string folderName)
   // !!!!!!!!!!!!!! In the MuonAlignmentDbTool this was in loadAlignABLines. I moved it here
   if ( m_asBuiltFile!="" ) setAsBuiltFromAscii(writeCdo.get());
 
+  // >>>>>>>>>>>> START: This code should be REMOVED after MuonDetectorManger in MuonEventTPCnv moves to Conditions Store >>>>>>>>>>>>
   // =======================
   // FIRST update MuonDetectorManager and THEN record the output cond object.
   // =======================
-  if (m_muonMgr->updateAsBuiltParams(writeCdo.get()).isFailure()) ATH_MSG_ERROR("Unable to updateAsBuiltParams" );
+
+  MdtAsBuiltMapContainer*  AsBuiltDataTemp = new MdtAsBuiltMapContainer;
+  for (auto elem: *writeCdo.get() ) {
+    // AsBuiltDataTemp->insert(std::make_pair(elem.first,(CscInternalAlignmentPar*)newILine));
+    AsBuiltDataTemp->insert(std::make_pair(elem.first,new MdtAsBuiltPar(*(elem.second))));
+  }
+
+  if (m_muonDetMgrDS->updateAsBuiltParams(AsBuiltDataTemp).isFailure()) ATH_MSG_ERROR("Unable to updateAsBuiltParams" );
   else ATH_MSG_DEBUG("updateAsBuiltParams DONE" );
+  // if (m_muonDetMgrDS->updateAsBuiltParams(writeCdo.get()).isFailure()) ATH_MSG_ERROR("Unable to updateAsBuiltParams" );
+  // else ATH_MSG_DEBUG("updateAsBuiltParams DONE" );
+  // <<<<<<<<<<<<< END: This code should be REMOVED after MuonDetectorManger in MuonEventTPCnv moves to Conditions Store <<<<<<<<<<<<<
 
   if (writeHandle.record(rangeMdtAsBuiltW, std::move(writeCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record MdtAsBuiltMapContainer " << writeHandle.key() 
@@ -1264,7 +1284,7 @@ void MuonAlignmentCondAlg::setAsBuiltFromAscii(MdtAsBuiltMapContainer* writeCdo)
         int jzz = 0;
         int job = 0;
         xPar.getAmdbId(stName, jff, jzz, job);
-        Identifier id = m_mdtIdHelper->elementID(stName, jzz, jff);
+        Identifier id = m_idHelperSvc->mdtIdHelper().elementID(stName, jzz, jff);
         if (!id.is_valid()) {
           ATH_MSG_ERROR( "Invalid MDT identifiers: sta=" << stName << " eta=" << jzz << " phi=" << jff  );
            continue;
@@ -1276,10 +1296,10 @@ void MuonAlignmentCondAlg::setAsBuiltFromAscii(MdtAsBuiltMapContainer* writeCdo)
           ATH_MSG_DEBUG( "That is strange since it's read from ASCII so this station is listed twice!"  );
           MdtAsBuiltPar* oldAsBuilt =  (*ci).second;
           writeCdo->erase(id);
-          delete oldAsBuilt; oldAsBuilt=0;
+          delete oldAsBuilt; oldAsBuilt=nullptr;
         } else {
           ATH_MSG_DEBUG( "New entry in AsBuilt container for Station "
-                         <<stName<<" at Jzz/Jff "<<jzz<<"/"<< jff<<" --- in the container with key "<< m_mdtIdHelper->show_to_string(id) );
+                         <<stName<<" at Jzz/Jff "<<jzz<<"/"<< jff<<" --- in the container with key "<< m_idHelperSvc->mdtIdHelper().show_to_string(id) );
         }
 	  writeCdo->insert(std::make_pair(id,new MdtAsBuiltPar(xPar)));
 	  ++count;

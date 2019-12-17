@@ -77,11 +77,11 @@ namespace Muon {
     ATH_CHECK( m_printer.retrieve() );
 
     ATH_CHECK(m_key_mdt.initialize());
-    if(m_key_csc.key()!="") ATH_CHECK(m_key_csc.initialize());
+    ATH_CHECK(m_key_csc.initialize(!m_key_csc.empty())); // check for layouts without CSCs
     ATH_CHECK(m_key_tgc.initialize());
     ATH_CHECK(m_key_rpc.initialize());
-    if(m_key_stgc.key()!="") ATH_CHECK(m_key_stgc.initialize());
-    if(m_key_mm.key()!="") ATH_CHECK(m_key_mm.initialize());
+    ATH_CHECK(m_key_stgc.initialize(!m_key_stgc.empty())); // check for layouts without STGCs
+    ATH_CHECK(m_key_mm.initialize(!m_key_mm.empty())); // check for layouts without MicroMegas
 
     return StatusCode::SUCCESS;
   }

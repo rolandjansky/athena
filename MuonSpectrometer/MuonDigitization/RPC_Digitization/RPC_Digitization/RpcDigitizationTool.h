@@ -157,7 +157,8 @@ private:
   /** Average calibration methods and parameters */
   StatusCode  PrintCalibrationVector();
   /** Evaluate detection efficiency */
-  StatusCode DetectionEfficiency(const Identifier* ideta, const Identifier* idphi, bool& undefinedPhiStripStatus, CLHEP::HepRandomEngine* rndmEngine);
+  StatusCode DetectionEfficiency(const Identifier* ideta, const Identifier* idphi, bool& undefinedPhiStripStatus, CLHEP::HepRandomEngine* rndmEngine, const RPCSimHit& thehit);
+  double FCPEfficiency(const HepMC::GenParticle* genParticle);
   /** */
   int ClusterSizeEvaluation(const Identifier* id, float xstripnorm, CLHEP::HepRandomEngine* rndmEngine);
   /** CoolDB */

@@ -45,9 +45,7 @@ StatusCode EventViewCreatorAlgorithmWithMuons::execute( const EventContext& cont
   ATH_CHECK( viewsHandle.record(  std::move( viewVector1 ) ) );
   auto viewVector = viewsHandle.ptr();
 
-  auto contexts = std::vector<EventContext>( );
   unsigned int viewCounter = 0;
-  unsigned int conditionsRun = Atlas::getExtendedEventContext(context).conditionsRun();
   double reta=0.;
   double retap=0.;
   double retam=0.;
@@ -74,7 +72,7 @@ StatusCode EventViewCreatorAlgorithmWithMuons::execute( const EventContext& cont
 
     ATH_MSG_DEBUG( "Got output "<< outputHandle.key()<<" with " << outputHandle->size() << " elements" );
 
-    if(m_doFSRoI){	
+    if(m_doFSRoI){
       //create one RoI over full detector
       auto roi = new TrigRoiDescriptor(true);
       roisWriteHandle->push_back( roi );
@@ -83,18 +81,21 @@ StatusCode EventViewCreatorAlgorithmWithMuons::execute( const EventContext& cont
       // make the view
       ATH_MSG_DEBUG( "Making the View "<<name()<<"_view" );
       auto newView = ViewHelper::makeView( name()+"_view", viewCounter++, m_viewFallThrough );
+
+      // Use a fall-through filter if one is provided
+      if ( m_viewFallFilter.size() ) {
+        newView->setFilter( m_viewFallFilter );
+      }
+
       viewVector->push_back( newView );
-      contexts.emplace_back( context );
-      Atlas::setExtendedEventContext (contexts.back(),
-				      Atlas::ExtendedEventContext( viewVector->back(), conditionsRun, roi ) );
-      ATH_CHECK( placeRoIInView( roiEL, viewVector->back(), contexts.back() ) );
+      ATH_CHECK( placeRoIInView( roiEL, viewVector->back(), context ) );
     }
 
     // loop over output decisions in container of outputHandle, follow link to inputDecision
     for ( auto outputDecision : *outputHandle){ 
       ElementLinkVector<DecisionContainer> inputLinks = getLinkToPrevious(outputDecision);
 
-      if(m_doFSRoI){	
+      if(m_doFSRoI){
 	// link decision to this view
 	outputDecision->setObjectLink( "view", ElementLink< ViewContainer >(m_viewsKey.key(), viewVector->size()-1 ));//adding view to TC
       }
@@ -145,16 +146,20 @@ StatusCode EventViewCreatorAlgorithmWithMuons::execute( const EventContext& cont
 	  // make the view
 	  ATH_MSG_DEBUG( "Making the View "<<name()<<"_view" );
 	  auto newView = ViewHelper::makeView( name()+"_view", viewCounter++, m_viewFallThrough ); //pointer to the view
+
+          // Use a fall-through filter if one is provided
+          if ( m_viewFallFilter.size() ) {
+            newView->setFilter( m_viewFallFilter );
+          }
+
 	  viewVector->push_back( newView );
-	  contexts.emplace_back( context );
-	  Atlas::setExtendedEventContext (contexts.back(),
-					  Atlas::ExtendedEventContext( viewVector->back(), conditionsRun, roi ) );
+
 	  // link decision to this view
 	  outputDecision->setObjectLink( TrigCompositeUtils::viewString(), ElementLink< ViewContainer >(m_viewsKey.key(), viewVector->size()-1 ));//adding view to TC
 	  ATH_MSG_DEBUG( "Adding new view to new decision; storing view in viewVector component " << viewVector->size()-1 );
 	  ATH_CHECK( linkViewToParent( inputDecision, viewVector->back() ) );
-	  ATH_CHECK( placeRoIInView( roiEL, viewVector->back(), contexts.back() ) );
-	  if(!m_doLateMu) ATH_CHECK( placeMuonInView( muon, viewVector->back(), contexts.back() ) );
+	  ATH_CHECK( placeRoIInView( roiEL, viewVector->back(), context ) );
+	  if(!m_doLateMu) ATH_CHECK( placeMuonInView( muon, viewVector->back(), context ) );
 	}// loop over previous inputs
       }//Not FS view
     } // loop over decisions   
@@ -172,26 +177,26 @@ StatusCode EventViewCreatorAlgorithmWithMuons::execute( const EventContext& cont
 }
 
 StatusCode EventViewCreatorAlgorithmWithMuons::placeMuonInView( const xAOD::Muon* theObject, SG::View* view, const EventContext& context ) const {
-  // fill the Muon output collection  
+  // fill the Muon output collection
   ATH_MSG_DEBUG( "Adding Muon To View : " << m_inViewMuons.key()<<" and "<<m_inViewMuonCandidates.key() );
   auto oneObjectCollection = std::make_unique< ConstDataVector< xAOD::MuonContainer > >();
-  oneObjectCollection->clear( SG::VIEW_ELEMENTS ); 
+  oneObjectCollection->clear( SG::VIEW_ELEMENTS );
   oneObjectCollection->push_back( theObject );
 
   auto muonCandidate = std::make_unique< ConstDataVector< MuonCandidateCollection > >();
-  muonCandidate->clear( SG::VIEW_ELEMENTS ); 
+  muonCandidate->clear( SG::VIEW_ELEMENTS );
   auto msLink = theObject->muonSpectrometerTrackParticleLink();
   auto extTrackLink = theObject->extrapolatedMuonSpectrometerTrackParticleLink();
   if(msLink.isValid() && extTrackLink.isValid()) muonCandidate->push_back( new MuonCombined::MuonCandidate(msLink, (*extTrackLink)->trackLink()) );
 
-  //store in the view 
+  //store in the view
   auto handle = SG::makeHandle( m_inViewMuons,context );
   ATH_CHECK( handle.setProxyDict( view ) );
-  ATH_CHECK( handle.record( std::move( oneObjectCollection ) ) ); 
+  ATH_CHECK( handle.record( std::move( oneObjectCollection ) ) );
 
   auto handleCandidate = SG::makeHandle( m_inViewMuonCandidates,context );
   ATH_CHECK( handleCandidate.setProxyDict( view ) );
-  ATH_CHECK( handleCandidate.record( std::move( muonCandidate ) ) ); 
+  ATH_CHECK( handleCandidate.record( std::move( muonCandidate ) ) );
 
   return StatusCode::SUCCESS;
 }

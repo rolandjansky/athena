@@ -46,7 +46,7 @@ svcMgr.PoolSvc.WriteCatalog = "file:Catalog1.xml"
 #---   Secondary Write portion  ----- Don't change it !!!
 #--------------------------------------------------------------
 # Load the OutputStream
-from OutputStreamAthenaPool.OutputStreamAthenaPool import AthenaPoolOutputConditionStream
+from OutputStreamAthenaPool.CreateOutputStreams import AthenaPoolOutputConditionStream
 Stream1 = AthenaPoolOutputConditionStream( "Stream1", "SimplePoolFile4.root" )
 Stream1.ObjectList += [ "ExampleHitContainer#PedestalWriteData" ]
 

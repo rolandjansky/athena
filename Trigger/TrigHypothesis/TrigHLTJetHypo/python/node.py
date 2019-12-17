@@ -11,7 +11,7 @@ name TrigJetHypoToolConfig_XXX.
 
 from __future__ import print_function
 
-from constants import logicals
+from .constants import logicals
 
 
     

@@ -56,6 +56,7 @@ StatusCode CscRdoToCscPrepDataTool::decode(std::vector<IdentifierHash>& givenIdh
   // clear output vector of selected data collections containing data
   decodedIdhs.clear();
 
+  m_outputCollection=nullptr;
   if (!evtStore()->contains<Muon::CscStripPrepDataContainer>(m_outputCollectionKey.key())) {    
     /// record the container in storeGate
     SG::WriteHandle< Muon::CscStripPrepDataContainer > outputHandle (m_outputCollectionKey);

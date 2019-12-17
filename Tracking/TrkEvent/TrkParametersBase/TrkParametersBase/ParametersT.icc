@@ -381,9 +381,12 @@ namespace Trk
       double phi   = m_parameters[Trk::phi];
       double theta = m_parameters[Trk::theta];
       double p = INVALID_P;
-      if (m_parameters[Trk::qOverP] != 0)
-        p = this->charge()/m_parameters[Trk::qOverP];
-      m_momentum = Amg::Vector3D(p*cos(phi)*sin(theta),p*sin(phi)*sin(theta),p*cos(theta));
+      if (m_parameters[Trk::qOverP] != 0){
+        m_chargeDef = sgn(m_parameters[Trk::qOverP]);
+        p = fabs(1./m_parameters[Trk::qOverP]);
+      }
+      double sinTheta = sin(theta);
+      m_momentum = Amg::Vector3D(p*cos(phi)*sinTheta,p*sin(phi)*sinTheta,p*cos(theta));
     }
   }
 

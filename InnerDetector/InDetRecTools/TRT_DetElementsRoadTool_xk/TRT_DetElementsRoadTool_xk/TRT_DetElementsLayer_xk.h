@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -38,9 +38,10 @@ namespace InDet{
 
       TRT_DetElementsLayer_xk();
       TRT_DetElementsLayer_xk(double,double,double,double,double);
-      TRT_DetElementsLayer_xk(const TRT_DetElementsLayer_xk&);
+      TRT_DetElementsLayer_xk(const TRT_DetElementsLayer_xk&) = default;
       ~TRT_DetElementsLayer_xk();
-      TRT_DetElementsLayer_xk& operator  = (const TRT_DetElementsLayer_xk&);
+      TRT_DetElementsLayer_xk& operator  = (const TRT_DetElementsLayer_xk&) = default;
+      TRT_DetElementsLayer_xk& operator  = (TRT_DetElementsLayer_xk&&) = default;
 
       ///////////////////////////////////////////////////////////////////
       // Main methods
@@ -53,17 +54,50 @@ namespace InDet{
       const float& dfe() const {return this->m_dfe;}
 
       void  set(double,double,double,double,double,double,double);
-      void  add(const TRT_DetElementLink_xk&);
+      void  add(TRT_DetElementLink_xk&&);
+      /** Get number of links to detector elements.
+        */
       int   nElements() const;
+       /**
+        * @param ?
+        * @param ?
+        * @param will be filled with  pairs of detector elements and way(?)
+        * @param array with size matching number of elements, which tells which elements are already used.
+        */
       void getBarrelDetElementsATL
-	(float*,float*,std::list<InDet::TRT_DetElementLink_xk*>&);
+	(float*,
+         float*,
+         std::vector<std::pair<const InDet::TRT_DetElementLink_xk*,float> >&,
+         std::vector<InDet::TRT_DetElementLink_xk::Used_t> &used) const;
+       /**
+        * @param ?
+        * @param ?
+        * @param will be filled with  pairs of detector elements and way(?)
+        * @param array with size matching number of elements, which tells which elements are already used.
+        */
       void getBarrelDetElementsCTB
-	(float*,float*,std::list<InDet::TRT_DetElementLink_xk*>&);
+        (float*,
+         float*,
+         std::vector<std::pair<const InDet::TRT_DetElementLink_xk*,float> >&,
+         std::vector<InDet::TRT_DetElementLink_xk::Used_t> &used) const;
+       /**
+        * @param ?
+        * @param ?
+        * @param will be filled with  pairs of detector elements and way(?)
+        * @param array with size matching number of elements, which tells which elements are already used.
+        */
       void getEndcapDetElements
-	(float*,float*,std::list<InDet::TRT_DetElementLink_xk*>&);
+	(float*,
+         float*,
+         std::vector<std::pair<const InDet::TRT_DetElementLink_xk*,float> >&,
+         std::vector<InDet::TRT_DetElementLink_xk::Used_t> &used) const;
 
+
+      void reserve(std::size_t n_elements) {
+         m_elements.reserve(n_elements);
+      }
     protected:
-      
+
       ///////////////////////////////////////////////////////////////////
       // Protected Data
       ///////////////////////////////////////////////////////////////////
@@ -113,35 +147,11 @@ namespace InDet{
       m_wz  = 0.       ;
     } 
 
-
-  inline TRT_DetElementsLayer_xk::TRT_DetElementsLayer_xk(const TRT_DetElementsLayer_xk& L)
-    {
-      *this = L; 
-    }
-  
-  inline TRT_DetElementsLayer_xk& TRT_DetElementsLayer_xk::operator = 
-    (const TRT_DetElementsLayer_xk& L) 
-    {
-      if(&L!=this) {
-	m_z         = L.m_z       ;
-	m_dz        = L.m_dz      ;
-	m_r         = L.m_r       ;
-	m_dr        = L.m_dr      ;
-	m_dfe       = L.m_dfe     ;
-	m_f0        = L.m_f0      ;
-	m_sfi       = L.m_sfi     ;
-	m_wf        = L.m_wf      ;
-	m_wz        = L.m_wz      ;
-	m_elements  = L.m_elements;
-      }
-      return(*this);
-    }
-
   inline TRT_DetElementsLayer_xk::~TRT_DetElementsLayer_xk() {}
 
-  inline void  TRT_DetElementsLayer_xk::add(const TRT_DetElementLink_xk& link)
+  inline void  TRT_DetElementsLayer_xk::add(TRT_DetElementLink_xk&& link)
     {
-      m_elements.push_back(link);
+       m_elements.push_back(std::move(link));
     }
 
   inline int TRT_DetElementsLayer_xk::nElements() const

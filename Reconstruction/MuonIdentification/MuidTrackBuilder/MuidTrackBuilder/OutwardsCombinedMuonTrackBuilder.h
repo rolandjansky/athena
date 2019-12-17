@@ -20,9 +20,13 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuidInterfaces/ICombinedMuonTrackBuilder.h"
+#include "MuonRecToolInterfaces/IMuonErrorOptimisationTool.h"
+#include "MuonRecToolInterfaces/IMuonHoleRecoveryTool.h"
+#include "MuonRecToolInterfaces/IMuonTrackCleaner.h"
+#include "TrkDetDescrInterfaces/ITrackingVolumesSvc.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTrack/TrackInfo.h"
-#include "TrkDetDescrInterfaces/ITrackingVolumesSvc.h"
+#include "TrkToolInterfaces/ITrackSummaryTool.h"
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
@@ -143,11 +147,11 @@ namespace Rec
 
 	
 	// helpers, managers, tools
-	ToolHandle<Muon::IMuonTrackCleaner>		m_cleaner;
-	ToolHandle<Trk::ITrackFitter>       		m_fitter;	// curved track fitter
-	ToolHandle<Trk::ITrackSummaryTool>		m_trackSummary;
-        ToolHandle<Muon::IMuonHoleRecoveryTool>         m_muonHoleRecovery;	
-        ToolHandle<Muon::IMuonErrorOptimisationTool>    m_muonErrorOptimizer;
+	ToolHandle<Muon::IMuonTrackCleaner>		m_cleaner {this, "Cleaner", "", "MuonTrackCleaner tool"};
+	ToolHandle<Trk::ITrackFitter>       		m_fitter {this, "Fitter", "", "TrackFitter tool"};	// curved track fitter
+	ToolHandle<Trk::ITrackSummaryTool>		m_trackSummary {this, "TrackSummaryTool", "", "TrackSummary tool"};
+        ToolHandle<Muon::IMuonHoleRecoveryTool>         m_muonHoleRecovery {this, "MuonHoleRecovery", "", "MuonHoleRecovery tool"};
+        ToolHandle<Muon::IMuonErrorOptimisationTool>    m_muonErrorOptimizer {this, "MuonErrorOptimizer", "", "MuonErrorOptimizer tool"};
         ServiceHandle<Trk::ITrackingVolumesSvc>         m_trackingVolumesSvc;
         const Trk::Volume*                              m_calorimeterVolume;
         const Trk::Volume*                              m_indetVolume;

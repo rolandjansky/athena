@@ -5,87 +5,38 @@ logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.MET.METChainConfiguration")
 
 
-from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
+from ..Menu.ChainConfigurationBase import ChainConfigurationBase
+from .ConfigHelpers import extractMETRecoDict, metRecoDictToString, AlgConfig
+from ..Menu.MenuComponents import ChainStep
 
-from TriggerMenuMT.HLTMenuConfig.MET.METMenuSequences import (
-        metCellMenuSequence, metClusterPufitMenuSequence, metJetMenuSequence,
-        metTrkMHTMenuSequence)
-
-#----------------------------------------------------------------
-# fragments generating configuration will be functions in New JO, 
-# so let's make them functions already now
-#----------------------------------------------------------------
-
-    
-def MetCellSequenceCfg( flags ):    
-    return metCellMenuSequence()
-
-def MetClusterPufitSequenceCfg( flags ):    
-    return metClusterPufitMenuSequence()
-
-def MetJetSequenceCfg( flags ):    
-   return metJetMenuSequence()
-
-def MetTrkMHTSequenceCfg( flags ):
-    return metTrkMHTMenuSequence()
 
 #----------------------------------------------------------------
 # Class to configure chain
 #----------------------------------------------------------------
-class MetChainConfiguration(ChainConfigurationBase):
+class METChainConfiguration(ChainConfigurationBase):
 
     def __init__(self, chainDict):
         ChainConfigurationBase.__init__(self,chainDict)
+        # Only some subset of keys in the METChainParts dictionary describe
+        # reconstruction details - only these keys are passed down into the menu
+        # sequence (the actual hypo tool is created later)
+        self.recoDict = extractMETRecoDict(self.dict["chainParts"])
         
     # ----------------------
     # Assemble the chain depending on information from chainName
     # ----------------------
     def assembleChain(self):                            
-        chainSteps = []
         log.debug("Assembling chain for " + self.chainName)
-        # --------------------
-        # define here the names of the steps and obtain the chainStep configuration 
-        # --------------------
-        stepDictionary = {
-            "cell":[self.getMetCellStep()],
-            "tcpufit":[self.getMetClusterPufitStep()],
-            "mht":[self.getMetJetStep()],
-            "trkmht" : [self.getMetTrkMHTStep()],
-        }
         
+        # Right now we only ever have one step, however we may want to
+        # reintroduce the automatic cell > 50 preselection
+        # this function interpretst the reco dict extracted in __init__
+        mainStep = self.getMETStep()
+        return self.buildChain([mainStep])
 
-        key = self.chainPart['EFrecoAlg']
-        steps=stepDictionary[key]
-        for step in steps:
-            chainSteps+=[step]
-            
-        myChain = self.buildChain(chainSteps)
-        return myChain
-
-
-   
-    # --------------------
-    # Configuration of cell chain
-    # --------------------
-    def getMetCellStep(self):
-        return self.getStep(1,"met_cell", [MetCellSequenceCfg] )
-
-            
-    # --------------------
-    # Configuration of Jet chain
-    # --------------------
-    def getMetJetStep(self):
-       return self.getStep(1, "met_jets", [MetJetSequenceCfg])
-            
-    # --------------------
-    # Configuration of pufit chain
-    # --------------------
-    def getMetClusterPufitStep(self):
-        return self.getStep(1,"met_clusterpufit", [MetClusterPufitSequenceCfg] )
-     
-    # Configuration of trkmht chain
-    def getMetTrkMHTStep(self):
-        return self.getStep(1, "met_trkmht", [MetTrkMHTSequenceCfg] )
-
-        
-                
+    def getMETStep(self):
+        """ Use the reco-dict to construct a single MET step """
+        stepName = "Step1_met_{}".format(metRecoDictToString(self.recoDict) )
+        conf = AlgConfig.fromRecoDict(**self.recoDict)
+        seq = conf.menuSequence
+        return ChainStep(stepName, [seq], multiplicity=[1])

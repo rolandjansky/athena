@@ -3,7 +3,6 @@
 */
 
 #include "MuonCreatorAlg.h"
-#include "MuonCombinedToolInterfaces/IMuonCreatorTool.h"
 
 #include "xAODMuon/MuonContainer.h"
 #include "xAODMuon/MuonAuxContainer.h"
@@ -19,10 +18,8 @@
 #include <vector>
 
 MuonCreatorAlg::MuonCreatorAlg(const std::string& name, ISvcLocator* pSvcLocator):
-  AthAlgorithm(name,pSvcLocator),
-  m_muonCreatorTool("MuonCombined::MuonCreatorTool/MuonCreatorTool")
+  AthAlgorithm(name,pSvcLocator)
 {
-  declareProperty("MuonCreatorTool",m_muonCreatorTool);
   declareProperty("BuildSlowMuon",m_buildSlowMuon=false);
   declareProperty("CreateSAmuons", m_doSA=false);
   declareProperty("MakeClusters",m_makeClusters=true);

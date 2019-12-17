@@ -238,7 +238,7 @@ SCT_ByteStreamErrorsTool::resetSets(const EventContext& ctx) const {
  * e.g. for monitoring plots.
  */
 
-const std::set<IdentifierHash>*
+const std::set<IdentifierHash>
 SCT_ByteStreamErrorsTool::getErrorSet(int errorType, const EventContext& ctx) const {
   std::lock_guard<std::mutex> lock{m_mutex};
   CacheEntry* ent{m_cache.get(ctx)};
@@ -247,12 +247,12 @@ SCT_ByteStreamErrorsTool::getErrorSet(int errorType, const EventContext& ctx) co
     if (sc.isFailure()) {
       ATH_MSG_ERROR("fillData in getErrorSet fails");
     }
-    return &(ent->m_bsErrors[errorType]);
+    return ent->m_bsErrors[errorType];
   }
-  return nullptr;
+  return {};
 }
 
-const std::set<IdentifierHash>* 
+const std::set<IdentifierHash> 
 SCT_ByteStreamErrorsTool::getErrorSet(int errorType) const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   return getErrorSet(errorType, ctx);
@@ -323,9 +323,11 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
   /** OK, so we found the StoreGate container, now lets iterate
    * over it to populate the sets of errors owned by this Tool.
    */
-  ATH_MSG_DEBUG("size of error container is " << idcErrCont->size());
-  for (auto it = idcErrCont->begin(); it != idcErrCont->end(); it++) {
-    const auto& [errCode, hashId] = std::make_pair(**it, it.hashId());
+  ATH_MSG_DEBUG("size of error container is " << idcErrCont->maxSize());
+  const std::vector<std::pair<size_t, int>> errorcodesforView = idcErrCont->getAll();
+
+  for (const auto& [errCode, hashId] : errorcodesforView) {
+
     addError(hashId, errCode, ctx);
     Identifier wafer_id{m_sct_id->wafer_id(hashId)};
     Identifier module_id{m_sct_id->module_id(wafer_id)};

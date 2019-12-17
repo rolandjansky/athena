@@ -12,6 +12,7 @@
 // ISF includes
 #include "ISF_Event/ISFParticle.h"
 #include "ISF_Event/EntryLayer.h"
+#include "ISF_Event/TruthBinding.h"
 
 #include "ISF_Interfaces/IParticleBroker.h"
 
@@ -284,8 +285,21 @@ namespace G4UA {
       trackInfo->SetReturnedToISF( true );
       trackInfo->SetBaseISFParticle( newISP );
 
-      // push the particle back to ISF
-      m_particleBrokerQuick->push(newISP, parentISP);
+      // push the particle back to ISF via the particle broker
+      // in MT mode there is no broker
+      if ( m_particleBrokerQuick )
+      {
+         m_particleBrokerQuick->push(newISP, parentISP);
+      }
+      else
+      {
+        // store the particle for retrieval in MT mode
+        if ( parentISP ) {
+          newISP->setBCID( parentISP->getBCID() );
+          if (!newISP->getTruthBinding()) newISP->setTruthBinding(new ISF::TruthBinding(*parentISP->getTruthBinding()));
+        }
+        m_storedSecondaries.push_back( newISP );
+      }
 
       return;
     }

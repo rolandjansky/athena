@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 ###########################################################################
 # SliceDef file for Muon chains
@@ -162,7 +164,7 @@ def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=True):
 def _AsymmChainConfig(theChainDef,chainDict):
     maxL2SignatureIndex = -1
     for signatureIndex,signature in enumerate(theChainDef.signatureList):
-        print "DEBUG1 : check0 : ", signature;
+        print ("DEBUG1 : check0 : ", signature)
         if signature['listOfTriggerElements'][0][0:2] == "L2":
             maxL2SignatureIndex = max(maxL2SignatureIndex,signatureIndex)
     
@@ -192,7 +194,7 @@ def _AsymmChainConfig(theChainDef,chainDict):
         if ii == 0: idmultiArr2 += [ "%ipt%i" % (totalmulti_lowest,int(thre)) ]
         if ii == 1: idmultiArr2 += [ "%ipt%i" % (totalmulti_2ndlow,int(thre)) ]
         if ii == 2: idmultiArr2 += [ "%ipt%i" % (int(multi),int(thre)) ]
-        if ii > 2: print "ERROR : not supported"
+        if ii > 2: print ("ERROR : not supported")
 
     idmulti = "_".join(idmultiArr2)
 

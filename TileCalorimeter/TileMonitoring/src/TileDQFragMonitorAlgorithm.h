@@ -21,6 +21,7 @@
 
 class TileHWID;
 class TileCablingService;
+class TileInfo;
 
 
 /** @class TileDQFragMonitorAlgorithm
@@ -102,6 +103,17 @@ class TileDQFragMonitorAlgorithm : public AthMonitorAlgorithm {
 
     static const int MAX_DMU{16};
     static const int MAX_CORRUPTED_ERROR{13};
+
+    // TileInfo
+    std::string m_infoName = "TileInfo";
+    const TileInfo* m_tileInfo{nullptr};
+    int m_i_ADCmax;
+    float m_f_ADCmax;
+    int m_i_ADCmaxPlus1;
+    float m_f_ADCmaxPlus1;
+    float m_ADCmaxMinusEps;
+    float m_ADCmaskValueMinusEps; //!< indicates channels which were masked in background dataset
+
 };
 
 

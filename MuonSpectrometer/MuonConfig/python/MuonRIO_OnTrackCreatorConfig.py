@@ -53,8 +53,6 @@ def MdtDriftCircleOnTrackCreatorCfg(flags,name="MdtDriftCircleOnTrackCreator", *
     result=ComponentAccumulator()
     
     # setup dependencies missing in C++. TODO: fix in C++
-    # acc  = MdtCalibrationSvcCfg(flags)
-    # result.merge(acc)
     #
     # acc = MdtCalibrationDbSvcCfg(flags)
     # result.merge(acc)
@@ -83,7 +81,6 @@ def MdtDriftCircleOnTrackCreatorCfg(flags,name="MdtDriftCircleOnTrackCreator", *
         kwargs.setdefault("DoTofCorrection", True)
         kwargs.setdefault("DoFixedError", False)
         kwargs.setdefault("DoErrorScaling", False)
-        kwargs.setdefault("MuonTofTool", None)
         kwargs.setdefault("TimeWindowSetting", mdtCalibWindowNumber('Collision_data'))  # MJW: should this be Collision_G4 ???
         kwargs.setdefault("UseParametrisedError", False)
 

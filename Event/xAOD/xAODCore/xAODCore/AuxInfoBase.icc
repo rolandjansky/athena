@@ -1,55 +1,41 @@
 // Dear emacs, this is -*- c++ -*-
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: AuxInfoBase.icc 600059 2014-06-03 09:55:09Z ssnyder $
 #ifndef XAODCORE_AUXINFOBASE_ICC
 #define XAODCORE_AUXINFOBASE_ICC
 
 // System include(s):
 #include <iostream>
-#include "boost/preprocessor/facilities/overload.hpp"
 
 // EDM include(s):
 #include "AthContainers/AuxTypeRegistry.h"
 
 // Local include(s):
 #include "xAODCore/tools/AuxPersInfo.h"
-
-#ifndef AUX_VARIABLE
-
-/// Convenience macro for declaring an auxiliary variable
-///
-/// Should be used in the constructor of the derived class, like:
-///   <code>
-///      AUX_VARIABLE( RunNumber );
-///   </code>
-/// Can take a optional additional argument giving SG::AuxTypeRegistry::Flags
-/// to use for this variable.
-#  define AUX_VARIABLE(...) \
-  BOOST_PP_OVERLOAD( AUX_VARIABLE_, __VA_ARGS__ )(__VA_ARGS__)
-#  define AUX_VARIABLE_1( VAR ) regAuxVar( #VAR, VAR, SG::AuxTypeRegistry::Flags::None )
-#  define AUX_VARIABLE_2( VAR, FLAGS ) regAuxVar( #VAR, VAR, FLAGS )
-
-#endif // not AUX_VARIABLE
+#include "xAODCore/tools/AuxVariable.h"
 
 namespace xAOD {
+
+   template< typename T >
+   AuxInfoBase::auxid_t
+   AuxInfoBase::getAuxID( const std::string& name,
+                          T& /*info*/,
+                          SG::AuxTypeRegistry::Flags flags ) {
+
+      return SG::AuxTypeRegistry::instance().template getAuxID< T >( name, "",
+                                                                     flags );
+   }
 
    /// The user is expected to use this function inside the constructor of
    /// the derived class.
    ///
+   /// @param auxid The auxiliary ID to use for the variable
    /// @param name The name of the variable. Same as the C++ variable's name.
    /// @param vec A reference to the auxiliary variable inside the object
    template< typename T >
-   SG::auxid_t AuxInfoBase::regAuxVar( const std::string& name,
-                                       T& info,
-                                       SG::AuxTypeRegistry::Flags flags ) {
-
-      // Ask the registry for the number of this variable:
-      const auxid_t auxid =
-        SG::AuxTypeRegistry::instance().template getAuxID< T >( name, "", flags  );
+   void AuxInfoBase::regAuxVar( const auxid_t auxid, const std::string& name,
+                                T& info ) {
 
       // Make sure that the internal vector is big enough:
       if( m_vecs.size() <= auxid ) {
@@ -70,7 +56,7 @@ namespace xAOD {
       // Remember that we are now handling this variable:
       m_auxids.insert( auxid );
 
-      return auxid;
+      return;
    }
 
 } // namespace xAOD

@@ -27,6 +27,7 @@
 #include "TileConditions/TileExpertToolEmscale.h"
 
 class TileHWID;
+class TileInfo;
 
 /**
  ** Algorithn to dump out calibration constants from the TileInfoSvc
@@ -73,6 +74,11 @@ class TileExpertDump: public AthAlgorithm {
       "TileExpertToolEmscale","TileExpertToolEmscale", "Tile expert tool em scale"};
 
     const TileHWID* m_tileHWID;
+
+    //=== TileInfo
+    std::string m_infoName;
+    const TileInfo* m_tileInfo;
+    int m_i_ADCmax;
 };
 
 #endif 

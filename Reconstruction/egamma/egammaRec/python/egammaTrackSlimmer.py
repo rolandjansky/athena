@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 # specifies egamma"standard"
 from AthenaCommon.Logging import logging
@@ -23,6 +25,7 @@ class egammaTrackSlimmer ( Configured ) :
       from egammaAlgs.egammaAlgsConf import egammaTrackSlimmer
       theEgammaTrackSlimmer = egammaTrackSlimmer(
         "egammaTrackSlimmer",
+        StreamName = 'StreamAOD',
         InputElectronContainerName=egammaKeys.outputElectronKey(),
         InputPhotonContainerName=egammaKeys.outputPhotonKey(),
         TrackParticleContainerName= egammaKeys.outputTrackParticleKey(), 
@@ -30,10 +33,10 @@ class egammaTrackSlimmer ( Configured ) :
         InDetTrackParticleContainerName=InDetKeys.xAODTrackParticleContainer(), 
         doThinning=True
         )
-      print theEgammaTrackSlimmer
+      print (theEgammaTrackSlimmer)
     except Exception:
       mlog.error("could not get handle to egammaTrackSlimmer")
-      print traceback.format_exc()
+      traceback.print_exc()
       return False
     
     # add to topsequence 

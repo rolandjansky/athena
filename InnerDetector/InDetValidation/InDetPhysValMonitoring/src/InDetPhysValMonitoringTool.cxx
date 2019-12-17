@@ -356,9 +356,12 @@ InDetPhysValMonitoringTool::fillHistograms() {
     base += 1;
     if (associatedTruth) {
       hasTruth += 1;
-      if (prob < minProbEffLow) { // nan will also fail this test
+      if (not std::isnan(prob)) {
+        // Fixing double counting of fake rates --> fill fake rates only once within track loop
         const bool isFake = (prob < minProbEffLow);
         m_monPlots->fillFakeRate(*thisTrack, isFake);
+      }
+      if (prob < minProbEffLow) {
         if ((associatedTruth->barcode() < 200e3)and(associatedTruth->barcode() != 0)) {
           Prim_w = 1; // Fake Primary, set weight to 1
         }
@@ -381,7 +384,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
       }
     }
 
-    m_monPlots->fillLinkedandUnlinked(*thisTrack, Prim_w, Sec_w, Unlinked_w);
+    m_monPlots->fillLinkedandUnlinked(*thisTrack, Prim_w, Sec_w, Unlinked_w, nMuEvents);
   }
   if (m_truthSelectionTool.get()) {
     ATH_MSG_DEBUG( CutFlow(tmp_truth_cutflow).report(m_truthSelectionTool->names()) );
@@ -389,9 +392,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
     m_truthCutFlow.merge(std::move(tmp_truth_cutflow));
   }
   int nTruths(0), nInsideOut(0), nOutsideIn(0);
-  std::vector<int> incTrkDenom = {
-    0, 0, 0
-  };
+  std::vector<int> incTrkDenom = {0, 0, 0};
 
   // This is the beginning of the Nested Loop, built mainly for the Efficiency Plots
   if (debugBacktracking) {
@@ -538,8 +539,6 @@ InDetPhysValMonitoringTool::fillHistograms() {
 	      }
               matches.push_back(std::make_pair(prob, thisTrack));
             }
-            const bool isFake = (prob < minProbEffLow);
-            m_monPlots->fillFakeRate(*thisTrack, isFake);
           }
         }
       }
@@ -602,7 +601,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
         addsToEfficiency = false;
       }
 
-      m_monPlots->fillEfficiency(*thisTruth, addsToEfficiency);
+      m_monPlots->fillEfficiency(*thisTruth, addsToEfficiency,nMuEvents);
     } // end of the "if(accept)" loop
   }// End of Big truthParticle loop
   ATH_MSG_DEBUG("End of efficiency calculation");
@@ -622,7 +621,6 @@ InDetPhysValMonitoringTool::fillHistograms() {
   } else {
     ATH_MSG_DEBUG(num_truthmatch_match << " tracks out of " << ptracks->size() << " had associated truth.");
   }
-  m_monPlots->fillIncTrkRate(nMuEvents, incTrkNum, incTrkDenom);
   m_monPlots->fillCounter(nSelectedTracks, InDetPerfPlot_nTracks::SELECTED);
   m_monPlots->fillCounter(ptracks->size(), InDetPerfPlot_nTracks::ALL);
   m_monPlots->fillCounter(truthParticlesVec.size(), InDetPerfPlot_nTracks::TRUTH);

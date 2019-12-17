@@ -40,7 +40,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Reconstruction/MuonIdentification/muonEvent
                           Reconstruction/egamma/egammaEvent
                           Reconstruction/tauEvent
-                          TestPolicy
                           TileCalorimeter/TileEvent
                           TileCalorimeter/TileIdentifier
                           Tracking/TrkEvent/TrkParameters

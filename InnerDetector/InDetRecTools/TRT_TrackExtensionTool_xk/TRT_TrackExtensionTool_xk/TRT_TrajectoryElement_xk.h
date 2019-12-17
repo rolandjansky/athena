@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -61,14 +61,14 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
       void set
 	(const TRT_ID                           *,
-	 const Trk::IPatternParametersPropagator*, 
-	 const Trk::IPatternParametersUpdator   *, 
-	 Trk::IRIO_OnTrackCreator               *,
-	 Trk::IRIO_OnTrackCreator               *,
+	 const Trk::IPatternParametersPropagator*,
+	 const Trk::IPatternParametersUpdator   *,
+	 const Trk::IRIO_OnTrackCreator               *,
+	 const Trk::IRIO_OnTrackCreator               *,
          double                             );
 
       void set
-	(const Trk::MagneticFieldProperties&,MagField::IMagFieldSvc*&);
+	(const Trk::MagneticFieldProperties&,const MagField::IMagFieldSvc*);
 
       bool initiateForPrecisionSeed     (bool,const InDetDD::TRT_BaseElement*&,
 					 InDet::TRT_DriftCircleCollection::const_iterator&,
@@ -141,10 +141,10 @@ namespace InDet{
       const TRT_ID                   *                   m_trtid      ;
       const Trk::IPatternParametersPropagator*           m_proptool   ;
       const Trk::IPatternParametersUpdator*              m_updatortool;
-      Trk::IRIO_OnTrackCreator       *                   m_riomakerD  ; 
-      Trk::IRIO_OnTrackCreator       *                   m_riomakerN  ; 
+      const Trk::IRIO_OnTrackCreator       *             m_riomakerD  ; 
+      const Trk::IRIO_OnTrackCreator       *             m_riomakerN  ; 
       Trk::MagneticFieldProperties                       m_fieldprop  ;
-      MagField::IMagFieldSvc*                            m_fieldService;
+      const MagField::IMagFieldSvc*                      m_fieldService;
 
       ///////////////////////////////////////////////////////////////////
       // Comments

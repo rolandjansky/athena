@@ -5,6 +5,7 @@ Beam.NumberOfCollisions                  : [function]
 Beam.Type                                : [function]
 Beam.estimatedLuminosity                 : [function]
 Common.Project                           : 'Athena'
+Common.bunchCrossingSource               : [function]
 Common.doExpressProcessing               : False
 Common.isOnline                          : False
 Common.useOnlineLumi                     : [function]
@@ -27,17 +28,17 @@ Input.ProjectName                        : [function]
 Input.RunNumber                          : [function]
 Input.SecondaryFiles                     : []
 Input.isMC                               : [function]
-Output.AODFileName                       : 'myAOD.pool.root'
-Output.ESDFileName                       : 'myESD.pool.root'
-Output.EVNTFileName                      : 'myEVNT.pool.root'
-Output.HISTFileName                      : 'myHIST.root'
-Output.HITSFileName                      : 'myHITS.pool.root'
-Output.RDOFileName                       : 'myRDO.pool.root'
-Output.doESD                             : False
-Output.doWriteAOD                        : False
+Output.AODFileName                       : ''
+Output.ESDFileName                       : ''
+Output.EVNTFileName                      : ''
+Output.HISTFileName                      : ''
+Output.HITSFileName                      : ''
+Output.RDOFileName                       : ''
+Output.doESD                             : [function]
+Output.doWriteAOD                        : [function]
 Output.doWriteBS                         : False
-Output.doWriteESD                        : False
-Output.doWriteRDO                        : False
+Output.doWriteESD                        : [function]
+Output.doWriteRDO                        : [function]
 Random.Engine                            : 'dSFMT'
 Scheduler.CheckDependencies              : True
 Scheduler.ShowControlFlow                : True
@@ -63,13 +64,14 @@ Trigger         :                      __trigger : AthenaConfiguration/AllConfig
 Py:Athena            INFO About to setup Raw data decoding
 Py:AutoConfigFlags    INFO Obtaining metadata of auto-configuration by peeking into /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1
 Py:MetaReader        INFO Current mode used: peeker
+Py:MetaReader        INFO Current filenames: ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1']
 Py:MetaReader        INFO MetaReader is called with the parameter "unique_tag_info_values" set to True. This is a workaround to remove all duplicate values from "/TagInfo" key
-Py:Athena            INFO using release [WorkDir-22.0.7] [x86_64-centos7-gcc8-opt] [master-fixes-for-new-config/2931674c4c] -- built on [2019-10-28T1001]
-Py:ConfigurableDb    INFO Read module info for 5586 configurables from 2 genConfDb files
+Py:Athena            INFO using release [WorkDir-22.0.9] [x86_64-centos7-gcc8-opt] [master-enable-new-MT/58a1383162] -- built on [2019-11-26T1418]
+Py:ConfigurableDb    INFO Read module info for 5633 configurables from 4 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO Importing MuonCnvExample.MuonCnvUtils
 Py:Athena            INFO Importing MagFieldServices.MagFieldServicesConfig
-EventInfoMgtInit: Got release version  Athena-22.0.7
+EventInfoMgtInit: Got release version  Athena-22.0.9
 Py:IOVDbSvc.CondDB    INFO Setting up conditions DB access to instance OFLP200
 Py:Athena            INFO Print Config
 Py:ComponentAccumulator    INFO Event Inputs
@@ -171,7 +173,7 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | |                            (default: 'Muon::RPC_RawDataProviderTool/RpcRawDataProviderTool')
 | |-RegionSelectionSvc         = ServiceHandle('RegSelSvc')
 | |-RegisterForContextService  = False
-| |-RoIs                       = 'MURoIs'  (default: 'StoreGateSvc+OutputRoIs')
+| |-RoIs                       = 'HLT_MURoIs'  (default: 'StoreGateSvc+OutputRoIs')
 | |-Timeline                   = True
 | |=/***** Private AlgTool Muon::RPC_RawDataProviderToolMT/RPC_RawDataProviderToolMT *******************
 | | |-AuditFinalize          = False
@@ -497,7 +499,7 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | |-AuditStart                 = False
 | |-AuditStop                  = False
 | |-Cardinality                = 1
-| |-DecodingTool               = PrivateToolHandle('Muon::RpcRdoToPrepDataTool/RpcRdoToRpcPrepDataTool')
+| |-DecodingTool               = PrivateToolHandle('Muon::RpcRdoToPrepDataToolMT/RpcRdoToRpcPrepDataTool')
 | |                            (default: 'Muon::RpcRdoToPrepDataTool/RpcRdoToPrepDataTool')
 | |-DetStore                   = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-DoSeededDecoding           = False
@@ -519,7 +521,7 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | |-RegisterForContextService  = False
 | |-RoIs                       = 'StoreGateSvc+OutputRoIs'
 | |-Timeline                   = True
-| |=/***** Private AlgTool Muon::RpcRdoToPrepDataTool/RpcRdoToRpcPrepDataTool **************************
+| |=/***** Private AlgTool Muon::RpcRdoToPrepDataToolMT/RpcRdoToRpcPrepDataTool ************************
 | | |-AuditFinalize                      = False
 | | |-AuditInitialize                    = False
 | | |-AuditReinitialize                  = False
@@ -597,7 +599,7 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | | | |-OutputLevel       = 0
 | | | |-idHelper          = ServiceHandle('Muon::MuonIdHelperSvc/MuonIdHelperSvc')
 | | | \----- (End of Private AlgTool Muon::MuonIdHelperTool/MuonIdHelperTool) ----------------------------
-| | \----- (End of Private AlgTool Muon::RpcRdoToPrepDataTool/RpcRdoToRpcPrepDataTool) -----------------
+| | \----- (End of Private AlgTool Muon::RpcRdoToPrepDataToolMT/RpcRdoToRpcPrepDataTool) ---------------
 | \----- (End of Algorithm RpcRdoToRpcPrepData/RpcRdoToRpcPrepData) ----------------------------------
 |=/***** Algorithm TgcRdoToTgcPrepData/TgcRdoToTgcPrepData *******************************************
 | |-AuditAlgorithms            = False
@@ -611,7 +613,7 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | |-AuditStart                 = False
 | |-AuditStop                  = False
 | |-Cardinality                = 1
-| |-DecodingTool               = PrivateToolHandle('Muon::TgcRdoToPrepDataTool/TgcRdoToTgcPrepDataTool')
+| |-DecodingTool               = PrivateToolHandle('Muon::TgcRdoToPrepDataToolMT/TgcRdoToTgcPrepDataTool')
 | |                            (default: 'Muon::TgcRdoToPrepDataTool/TgcPrepDataProviderTool')
 | |-DetStore                   = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-DoSeededDecoding           = False
@@ -634,7 +636,7 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | |-RoIs                       = 'StoreGateSvc+OutputRoIs'
 | |-Setting                    = 0
 | |-Timeline                   = True
-| |=/***** Private AlgTool Muon::TgcRdoToPrepDataTool/TgcRdoToTgcPrepDataTool **************************
+| |=/***** Private AlgTool Muon::TgcRdoToPrepDataToolMT/TgcRdoToTgcPrepDataTool ************************
 | | |-AuditFinalize                           = False
 | | |-AuditInitialize                         = False
 | | |-AuditReinitialize                       = False
@@ -677,7 +679,7 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | | | |-OutputLevel       = 0
 | | | |-idHelper          = ServiceHandle('Muon::MuonIdHelperSvc/MuonIdHelperSvc')
 | | | \----- (End of Private AlgTool Muon::MuonIdHelperTool/MuonIdHelperTool) ----------------------------
-| | \----- (End of Private AlgTool Muon::TgcRdoToPrepDataTool/TgcRdoToTgcPrepDataTool) -----------------
+| | \----- (End of Private AlgTool Muon::TgcRdoToPrepDataToolMT/TgcRdoToTgcPrepDataTool) ---------------
 | \----- (End of Algorithm TgcRdoToTgcPrepData/TgcRdoToTgcPrepData) ----------------------------------
 |=/***** Algorithm MdtRdoToMdtPrepData/MdtRdoToMdtPrepData *******************************************
 | |-AuditAlgorithms            = False
@@ -691,7 +693,7 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | |-AuditStart                 = False
 | |-AuditStop                  = False
 | |-Cardinality                = 1
-| |-DecodingTool               = PrivateToolHandle('Muon::MdtRdoToPrepDataTool/MdtRdoToMdtPrepDataTool')
+| |-DecodingTool               = PrivateToolHandle('Muon::MdtRdoToPrepDataToolMT/MdtRdoToMdtPrepDataTool')
 | |                            (default: 'Muon::MdtRdoToPrepDataTool/MdtPrepDataProviderTool')
 | |-DetStore                   = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-DoSeededDecoding           = False
@@ -713,7 +715,7 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | |-RegisterForContextService  = False
 | |-RoIs                       = 'StoreGateSvc+OutputRoIs'
 | |-Timeline                   = True
-| |=/***** Private AlgTool Muon::MdtRdoToPrepDataTool/MdtRdoToMdtPrepDataTool **************************
+| |=/***** Private AlgTool Muon::MdtRdoToPrepDataToolMT/MdtRdoToMdtPrepDataTool ************************
 | | |-AuditFinalize           = False
 | | |-AuditInitialize         = False
 | | |-AuditReinitialize       = False
@@ -818,7 +820,7 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | | | |-OutputLevel       = 0
 | | | |-idHelper          = ServiceHandle('Muon::MuonIdHelperSvc/MuonIdHelperSvc')
 | | | \----- (End of Private AlgTool Muon::MuonIdHelperTool/MuonIdHelperTool) ----------------------------
-| | \----- (End of Private AlgTool Muon::MdtRdoToPrepDataTool/MdtRdoToMdtPrepDataTool) -----------------
+| | \----- (End of Private AlgTool Muon::MdtRdoToPrepDataToolMT/MdtRdoToMdtPrepDataTool) ---------------
 | \----- (End of Algorithm MdtRdoToMdtPrepData/MdtRdoToMdtPrepData) ----------------------------------
 |=/***** Algorithm CscRdoToCscPrepData/CscRdoToCscPrepData *******************************************
 | |-AuditAlgorithms            = False
@@ -832,7 +834,7 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | |-AuditStart                 = False
 | |-AuditStop                  = False
 | |-Cardinality                = 1
-| |-CscRdoToCscPrepDataTool    = PrivateToolHandle('Muon::CscRdoToCscPrepDataTool/CscRdoToCscPrepDataTool')
+| |-CscRdoToCscPrepDataTool    = PrivateToolHandle('Muon::CscRdoToCscPrepDataToolMT/CscRdoToCscPrepDataTool')
 | |                            (default: 'Muon::CscRdoToCscPrepDataTool/CscRdoToPrepDataTool')
 | |-DetStore                   = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-DoSeededDecoding           = False
@@ -854,7 +856,7 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | |-RegisterForContextService  = False
 | |-RoIs                       = 'StoreGateSvc+OutputRoIs'
 | |-Timeline                   = True
-| |=/***** Private AlgTool Muon::CscRdoToCscPrepDataTool/CscRdoToCscPrepDataTool ***********************
+| |=/***** Private AlgTool Muon::CscRdoToCscPrepDataToolMT/CscRdoToCscPrepDataTool *********************
 | | |-AuditFinalize     = False
 | | |-AuditInitialize   = False
 | | |-AuditReinitialize = False
@@ -954,7 +956,7 @@ Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ********
 | | | |-OutputLevel       = 0
 | | | |-idHelper          = ServiceHandle('Muon::MuonIdHelperSvc/MuonIdHelperSvc')
 | | | \----- (End of Private AlgTool Muon::MuonIdHelperTool/MuonIdHelperTool) ----------------------------
-| | \----- (End of Private AlgTool Muon::CscRdoToCscPrepDataTool/CscRdoToCscPrepDataTool) --------------
+| | \----- (End of Private AlgTool Muon::CscRdoToCscPrepDataToolMT/CscRdoToCscPrepDataTool) ------------
 | \----- (End of Algorithm CscRdoToCscPrepData/CscRdoToCscPrepData) ----------------------------------
 |=/***** Algorithm CscThresholdClusterBuilder/CscThresholdClusterBuilder *****************************
 | |-AuditAlgorithms            = False
@@ -1004,10 +1006,10 @@ Py:ComponentAccumulator    INFO   MDTCablingDbTool/MDTCablingDbTool,
 Py:ComponentAccumulator    INFO   MuonCalib::MdtCalibDbCoolStrTool/MdtCalibDbTool,
 Py:ComponentAccumulator    INFO   Muon::MDT_RawDataProviderToolMT/MDT_RawDataProviderToolMT,
 Py:ComponentAccumulator    INFO   Muon::CSC_RawDataProviderToolMT/CSC_RawDataProviderToolMT,
-Py:ComponentAccumulator    INFO   Muon::RpcRdoToPrepDataTool/RpcRdoToRpcPrepDataTool,
-Py:ComponentAccumulator    INFO   Muon::TgcRdoToPrepDataTool/TgcRdoToTgcPrepDataTool,
-Py:ComponentAccumulator    INFO   Muon::MdtRdoToPrepDataTool/MdtRdoToMdtPrepDataTool,
-Py:ComponentAccumulator    INFO   Muon::CscRdoToCscPrepDataTool/CscRdoToCscPrepDataTool,
+Py:ComponentAccumulator    INFO   Muon::RpcRdoToPrepDataToolMT/RpcRdoToRpcPrepDataTool,
+Py:ComponentAccumulator    INFO   Muon::TgcRdoToPrepDataToolMT/TgcRdoToTgcPrepDataTool,
+Py:ComponentAccumulator    INFO   Muon::MdtRdoToPrepDataToolMT/MdtRdoToMdtPrepDataTool,
+Py:ComponentAccumulator    INFO   Muon::CscRdoToCscPrepDataToolMT/CscRdoToCscPrepDataTool,
 Py:ComponentAccumulator    INFO   CscThresholdClusterBuilderTool/CscThresholdClusterBuilderTool,
 Py:ComponentAccumulator    INFO ]
 Py:ComponentAccumulator    INFO Private Tools
@@ -1019,9 +1021,9 @@ Py:Athena            INFO Save Config
 
 JOs reading stage finished, launching Athena from pickle file
 
-Mon Oct 28 10:11:46 CET 2019
+Tue Nov 26 14:30:50 CET 2019
 Preloading tcmalloc_minimal.so
-Py:Athena            INFO using release [WorkDir-22.0.7] [x86_64-centos7-gcc8-opt] [master-fixes-for-new-config/2931674c4c] -- built on [2019-10-28T1001]
+Py:Athena            INFO using release [WorkDir-22.0.9] [x86_64-centos7-gcc8-opt] [master-enable-new-MT/58a1383162] -- built on [2019-11-26T1418]
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
@@ -1029,13 +1031,13 @@ Py:Athena            INFO configuring AthenaHive with [1] concurrent threads and
 Py:AlgScheduler      INFO setting up AvalancheSchedulerSvc/AvalancheSchedulerSvc with 1 threads
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO now loading MuonRdoDecode_Cache.pkl  ... 
-Py:ConfigurableDb    INFO Read module info for 5586 configurables from 2 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5633 configurables from 4 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v32r2)
-                                          running on pcumass4 on Mon Oct 28 10:11:53 2019
+                                          running on pcumass4 on Tue Nov 26 14:30:59 2019
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 ApplicationMgr                                      INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
@@ -1043,7 +1045,7 @@ Py:Athena            INFO including file "AthenaCommon/runbatch.py"
 StatusCodeSvc                                       INFO initialize
 AthDictLoaderSvc                                    INFO in initialize...
 AthDictLoaderSvc                                    INFO acquired Dso-registry
-ClassIDSvc                                          INFO  getRegistryEntries: read 3610 CLIDRegistry entries for module ALL
+ClassIDSvc                                          INFO  getRegistryEntries: read 3720 CLIDRegistry entries for module ALL
 CoreDumpSvc                                         INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc                                         INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 ByteStreamAddressProviderSvc                        INFO Initializing ByteStreamAddressProviderSvc - package version ByteStreamCnvSvcBase-00-00-00
@@ -1055,7 +1057,7 @@ PoolSvc                                             INFO io_register[PoolSvc](xm
 PoolSvc                                             INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc                                             INFO Frontier compression level set to 5
 DBReplicaSvc                                        INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
-DBReplicaSvc                                        INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-10-27T2131/Athena/22.0.7/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
+DBReplicaSvc                                        INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-11-25T2135/Athena/22.0.9/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
 DBReplicaSvc                                        INFO Total of 10 servers found for host pcumass4.dyndns.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 DBReplicaSvc                                        INFO COOL SQLite replicas will be excluded if matching pattern /DBRelease/
 PoolSvc                                             INFO Successfully setup replica sorting algorithm
@@ -1078,11 +1080,11 @@ IOVDbFolder                                         INFO Inputfile tag override 
 IOVDbSvc                                            INFO Initialised with 11 connections and 30 folders
 IOVDbSvc                                            INFO Service IOVDbSvc initialised successfully
 IOVDbSvc                                            INFO Opening COOL connection for COOLONL_TDAQ/CONDBR2
-ClassIDSvc                                          INFO  getRegistryEntries: read 3513 CLIDRegistry entries for module ALL
+ClassIDSvc                                          INFO  getRegistryEntries: read 3503 CLIDRegistry entries for module ALL
 ClassIDSvc                                          INFO  getRegistryEntries: read 230 CLIDRegistry entries for module ALL
-ClassIDSvc                                          INFO  getRegistryEntries: read 4051 CLIDRegistry entries for module ALL
-ClassIDSvc                                          INFO  getRegistryEntries: read 137 CLIDRegistry entries for module ALL
-ClassIDSvc                                          INFO  getRegistryEntries: read 3226 CLIDRegistry entries for module ALL
+ClassIDSvc                                          INFO  getRegistryEntries: read 4057 CLIDRegistry entries for module ALL
+ClassIDSvc                                          INFO  getRegistryEntries: read 139 CLIDRegistry entries for module ALL
+ClassIDSvc                                          INFO  getRegistryEntries: read 3236 CLIDRegistry entries for module ALL
 IOVSvc                                              INFO No IOVSvcTool associated with store "StoreGateSvc"
 IOVSvc.IOVSvcTool                                   INFO IOVRanges will be checked at every Event
 IOVDbSvc                                            INFO Opening COOL connection for COOLOFL_MUONALIGN/CONDBR2
@@ -1339,7 +1341,8 @@ MGM::MuonDetectorManager                            INFO Init of CSC I-Lines wil
 MGM::MuonDetectorManager                            INFO Init I-Line Container - done - size is respectively 128
 MGM::MuonDetectorManager                            INFO I-Line for CSC wire layers loaded (Csc Internal Alignment)
 MGM::MuonDetectorManager                            INFO According to configuration they WILL be used 
-GeoModelSvc                                         INFO GeoModelSvc.MuonDetectorTool	 SZ= 43872Kb 	 Time = 0.76S
+MGM::MuonDetectorManager                            INFO Filling cache
+GeoModelSvc                                         INFO GeoModelSvc.MuonDetectorTool	 SZ= 169824Kb 	 Time = 3.43S
 ClassIDSvc                                          INFO  getRegistryEntries: read 1474 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr                                  INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
 ClassIDSvc                                     0    INFO  getRegistryEntries: read 1893 CLIDRegistry entries for module ALL
@@ -1390,7 +1393,7 @@ ClassIDSvc                                     0    INFO  getRegistryEntries: re
 ClassIDSvc                                     0    INFO  getRegistryEntries: read 935 CLIDRegistry entries for module ALL
 RpcRawDataProvider                             0    INFO RpcRawDataProvider::initialize
 RpcRawDataProvider                             0    INFO  'DoSeededDecoding':False
-ClassIDSvc                                     0    INFO  getRegistryEntries: read 2234 CLIDRegistry entries for module ALL
+ClassIDSvc                                     0    INFO  getRegistryEntries: read 2416 CLIDRegistry entries for module ALL
 MuonRPC_CablingSvc                             0    INFO Initializing MuonRPC_CablingSvc - package version MuonRPC_Cabling-00-00-00
 ToolSvc.RPCCablingDbTool                       0    INFO Initializing - folders names are: conf /RPC/CABLING/MAP_SCHEMA / corr /RPC/CABLING/MAP_SCHEMA_CORR
 MuonRPC_CablingSvc                             0    INFO RPCCablingDbTool retrieved with statusCode = SUCCESS with handle TheRpcCablingDbTool = PublicToolHandle('RPCCablingDbTool/RPCCablingDbTool')
@@ -1413,25 +1416,25 @@ ROBDataProviderSvc                             0    INFO  ---> Filter out Sub De
 RpcRawDataProvider.RPC_RawDataProvide...       0    INFO initialize() successful in RpcRawDataProvider.RPC_RawDataProviderToolMT
 TgcRawDataProvider                             0    INFO TgcRawDataProvider::initialize
 TgcRawDataProvider                             0    INFO  'DoSeededDecoding':False
-ClassIDSvc                                     0    INFO  getRegistryEntries: read 1065 CLIDRegistry entries for module ALL
+ClassIDSvc                                     0    INFO  getRegistryEntries: read 1243 CLIDRegistry entries for module ALL
 TgcRawDataProvider.TGC_RawDataProvide...       0    INFO initialize() successful in TgcRawDataProvider.TGC_RawDataProviderToolMT.TgcROD_Decoder
 TgcRawDataProvider.TGC_RawDataProvide...       0    INFO Retrieved tool Decoder = PrivateToolHandle('Muon::TGC_RodDecoderReadout/TgcROD_Decoder')
 TgcRawDataProvider.TGC_RawDataProvide...       0    INFO Retrieved service ServiceHandle('ROBDataProviderSvc')
 MuonTGC_CablingSvc                             0    INFO for 1/12 sector initialize
 ToolSvc.TGCCablingDbTool                       0    INFO initialize
 ToolSvc.TGCCablingDbTool                       0    INFO readTGCMap from text
-ToolSvc.TGCCablingDbTool                       0    INFO readTGCMap found file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-10-27T2131/Athena/22.0.7/InstallArea/x86_64-centos7-gcc8-opt/share/ASD2PP_diff_12_ONL.db
+ToolSvc.TGCCablingDbTool                       0    INFO readTGCMap found file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-11-25T2135/Athena/22.0.9/InstallArea/x86_64-centos7-gcc8-opt/share/ASD2PP_diff_12_ONL.db
 ToolSvc.TGCCablingDbTool                       0    INFO giveASD2PP_DIFF_12 (m_ASD2PP_DIFF_12 is not NULL)
 TgcRawDataProvider.TGC_RawDataProvide...       0    INFO initialize() successful in TgcRawDataProvider.TGC_RawDataProviderToolMT
 MdtRawDataProvider                             0    INFO MdtRawDataProvider::initialize
 MdtRawDataProvider                             0    INFO  'DoSeededDecoding':False
-ClassIDSvc                                     0    INFO  getRegistryEntries: read 1017 CLIDRegistry entries for module ALL
+ClassIDSvc                                     0    INFO  getRegistryEntries: read 1195 CLIDRegistry entries for module ALL
 MdtRawDataProvider.MDT_RawDataProvide...       0    INFO Retrieved service ServiceHandle('ROBDataProviderSvc')
 MdtRawDataProvider.MDT_RawDataProvide...       0    INFO Processing configuration for layouts with BME chambers.
 MdtRawDataProvider.MDT_RawDataProvide...       0    INFO Processing configuration for layouts with BMG chambers.
 MdtRawDataProvider.MDT_RawDataProvide...       0    INFO Retrieved tool Decoder = PrivateToolHandle('MdtROD_Decoder/MdtROD_Decoder')
 MdtRawDataProvider.MDT_RawDataProvide...       0    INFO initialize() successful in MdtRawDataProvider.MDT_RawDataProviderToolMT
-ClassIDSvc                                     0    INFO  getRegistryEntries: read 917 CLIDRegistry entries for module ALL
+ClassIDSvc                                     0    INFO  getRegistryEntries: read 1095 CLIDRegistry entries for module ALL
 CscRawDataProvider.CSC_RawDataProvide...       0    INFO Retrieved service ServiceHandle('ROBDataProviderSvc')
 CscRawDataProvider.CSC_RawDataProvide...       0    INFO Retrieved tool Decoder = PrivateToolHandle('Muon::CscROD_Decoder/CscROD_Decoder')
 CscRawDataProvider.CSC_RawDataProvide...       0    INFO The Muon Geometry version is R.08.01
@@ -1448,9 +1451,9 @@ RpcRdoToRpcPrepData.RpcRdoToRpcPrepDa...       0    INFO etaphi_coincidenceTime 
 RpcRdoToRpcPrepData.RpcRdoToRpcPrepDa...       0    INFO overlap_timeTolerance              10
 RpcRdoToRpcPrepData.RpcRdoToRpcPrepDa...       0    INFO Correct prd time from cool db      0
 RpcRdoToRpcPrepData.RpcRdoToRpcPrepDa...       0    INFO Rpc Cabling Svc name is dataLike
-RpcRdoToRpcPrepData                            0    INFO Retrieved DecodingTool = PrivateToolHandle('Muon::RpcRdoToPrepDataTool/RpcRdoToRpcPrepDataTool')
+RpcRdoToRpcPrepData                            0    INFO Retrieved DecodingTool = PrivateToolHandle('Muon::RpcRdoToPrepDataToolMT/RpcRdoToRpcPrepDataTool')
 TgcRdoToTgcPrepData.TgcRdoToTgcPrepDa...       0    INFO initialize() successful in TgcRdoToTgcPrepData.TgcRdoToTgcPrepDataTool
-TgcRdoToTgcPrepData                            0    INFO Retrieved DecodingTool = PrivateToolHandle('Muon::TgcRdoToPrepDataTool/TgcRdoToTgcPrepDataTool')
+TgcRdoToTgcPrepData                            0    INFO Retrieved DecodingTool = PrivateToolHandle('Muon::TgcRdoToPrepDataToolMT/TgcRdoToTgcPrepDataTool')
 MdtRdoToMdtPrepData.MdtRdoToMdtPrepDa...       0    INFO Processing configuration for layouts with BMG chambers.
 AtlasFieldSvc                                  0    INFO initialize() ...
 AtlasFieldSvc                                  0    INFO maps will be chosen reading COOL folder /GLOBAL/BField/Maps
@@ -1460,24 +1463,24 @@ AtlasFieldSvc                                  0    INFO Booked callback for /EX
 AtlasFieldSvc                                  0    INFO initialize() successful
 MdtRdoToMdtPrepData.MdtRdoToMdtPrepDa...       0    INFO Processing configuration for layouts with BME chambers.
 MdtRdoToMdtPrepData.MdtRdoToMdtPrepDa...       0    INFO Processing configuration for layouts with BMG chambers.
-MdtRdoToMdtPrepData                            0    INFO Retrieved DecodingTool = PrivateToolHandle('Muon::MdtRdoToPrepDataTool/MdtRdoToMdtPrepDataTool')
+MdtRdoToMdtPrepData                            0    INFO Retrieved DecodingTool = PrivateToolHandle('Muon::MdtRdoToPrepDataToolMT/MdtRdoToMdtPrepDataTool')
 CscRdoToCscPrepData.CscRdoToCscPrepDa...       0    INFO The Geometry version is MuonSpectrometer-R.08.01
 MuonCalib::CscC...   INFO Initializing CscCoolStrSvc
 ClassIDSvc                                     0    INFO  getRegistryEntries: read 181 CLIDRegistry entries for module ALL
-IOVSvc.IOVSvcTool                              0    INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x12c13000]+259 bound to CondAttrListCollection[CSC_PED]
-IOVSvc.IOVSvcTool                              0    INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x12c13000]+259 bound to CondAttrListCollection[CSC_NOISE]
-IOVSvc.IOVSvcTool                              0    INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x12c13000]+259 bound to CondAttrListCollection[CSC_STAT]
-IOVSvc.IOVSvcTool                              0    INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x12c13000]+259 bound to CondAttrListCollection[CSC_RMS]
-IOVSvc.IOVSvcTool                              0    INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x12c13000]+259 bound to CondAttrListCollection[CSC_FTHOLD]
-IOVSvc.IOVSvcTool                              0    INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x12c13000]+259 bound to CondAttrListCollection[CSC_T0BASE]
-IOVSvc.IOVSvcTool                              0    INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x12c13000]+259 bound to CondAttrListCollection[CSC_T0PHASE]
-CscRdoToCscPrepData                            0    INFO Retrieved CscRdoToCscPrepDataTool = PrivateToolHandle('Muon::CscRdoToCscPrepDataTool/CscRdoToCscPrepDataTool')
+IOVSvc.IOVSvcTool                              0    INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x1479d000]+259 bound to CondAttrListCollection[CSC_PED]
+IOVSvc.IOVSvcTool                              0    INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x1479d000]+259 bound to CondAttrListCollection[CSC_NOISE]
+IOVSvc.IOVSvcTool                              0    INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x1479d000]+259 bound to CondAttrListCollection[CSC_STAT]
+IOVSvc.IOVSvcTool                              0    INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x1479d000]+259 bound to CondAttrListCollection[CSC_RMS]
+IOVSvc.IOVSvcTool                              0    INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x1479d000]+259 bound to CondAttrListCollection[CSC_FTHOLD]
+IOVSvc.IOVSvcTool                              0    INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x1479d000]+259 bound to CondAttrListCollection[CSC_T0BASE]
+IOVSvc.IOVSvcTool                              0    INFO Still in initialize phase, not tiggering callback for MuonCalib::CscCoolStrSvc[0x1479d000]+259 bound to CondAttrListCollection[CSC_T0PHASE]
+CscRdoToCscPrepData                            0    INFO Retrieved CscRdoToCscPrepDataTool = PrivateToolHandle('Muon::CscRdoToCscPrepDataToolMT/CscRdoToCscPrepDataTool')
 HistogramPersistencySvc                        0 WARNING Histograms saving not required.
 EventSelector                                  0    INFO Initializing EventSelector - package version ByteStreamCnvSvc-00-00-00
 EventSelector                                  0 WARNING InputCollections not properly set, checking EventStorageInputSvc properties
 EventSelector                                  0    INFO Retrieved StoreGateSvc name of  '':StoreGateSvc
 EventSelector                                  0    INFO reinitialization...
-ClassIDSvc                                     0    INFO  getRegistryEntries: read 372 CLIDRegistry entries for module ALL
+ClassIDSvc                                     0    INFO  getRegistryEntries: read 380 CLIDRegistry entries for module ALL
 EventSelector                                  0    INFO Retrieved InputCollections from InputSvc
 ByteStreamInputSvc                             0    INFO Initializing ByteStreamInputSvc - package version ByteStreamCnvSvc-00-00-00
 EventSelector                                  0    INFO reinitialization...
@@ -1606,6 +1609,7 @@ AtlasFieldSvc                              0   0    INFO reading the map from /c
 AtlasFieldSvc                              0   0    INFO Initialized the field map from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/atlas/offline/ReleaseData/v20/MagneticFieldMaps/bfieldmap_7730_20400_14m.root
 ByteStreamCnvSvc                           0   0    INFO problem adding converter for CLID [2101]
 ByteStreamCnvSvc                           0   0 WARNING Cannot get converter for EventInfo
+ClassIDSvc                                 0   0    INFO  getRegistryEntries: read 275 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr                         0   0    INFO   ===>>>  start processing event #186525031, run #327265 0 events processed so far  <<<===
 IOVDbSvc                                   0   0    INFO Opening COOL connection for COOLONL_MDT/CONDBR2
 IOVDbFolder                                0   0    INFO HVS tag CONDBR2-BLKPA-2018-13 resolved to MDTCablingMapSchema_BMG_01 for folder /MDT/CABLING/MAP_SCHEMA
@@ -1742,53 +1746,52 @@ IncidentProcAlg1                          19   0    INFO Finalize
 CondInputLoader                           19   0    INFO Finalizing CondInputLoader...
 IncidentProcAlg2                          19   0    INFO Finalize
 AtlasFieldSvc                             19   0    INFO finalize() successful
-IOVDbFolder                               19   0    INFO Folder /EXT/DCS/MAGNETS/SENSORDATA (AttrListColl) db-read 1/2 objs/chan/bytes 4/4/20 ((     0.12 ))s
-IOVDbFolder                               19   0    INFO Folder /GLOBAL/BField/Maps (AttrListColl) db-read 1/1 objs/chan/bytes 3/3/202 ((     0.12 ))s
-IOVDbFolder                               19   0    INFO Folder /MDT/CABLING/MAP_SCHEMA (AttrListColl) db-read 1/1 objs/chan/bytes 2312/2437/216520 ((     0.21 ))s
-IOVDbFolder                               19   0    INFO Folder /MDT/CABLING/MEZZANINE_SCHEMA (AttrListColl) db-read 1/1 objs/chan/bytes 24/24/288 ((     0.59 ))s
+IOVDbFolder                               19   0    INFO Folder /EXT/DCS/MAGNETS/SENSORDATA (AttrListColl) db-read 1/2 objs/chan/bytes 4/4/20 ((     0.05 ))s
+IOVDbFolder                               19   0    INFO Folder /GLOBAL/BField/Maps (AttrListColl) db-read 1/1 objs/chan/bytes 3/3/202 ((     0.06 ))s
+IOVDbFolder                               19   0    INFO Folder /MDT/CABLING/MAP_SCHEMA (AttrListColl) db-read 1/1 objs/chan/bytes 2312/2437/216520 ((     0.16 ))s
+IOVDbFolder                               19   0    INFO Folder /MDT/CABLING/MEZZANINE_SCHEMA (AttrListColl) db-read 1/1 objs/chan/bytes 24/24/288 ((     0.05 ))s
 IOVDbFolder                               19   0    INFO Folder /MDT/RTBLOB (AttrListColl) db-read 1/1 objs/chan/bytes 2372/1186/2251209 ((     0.19 ))s
-IOVDbFolder                               19   0    INFO Folder /MDT/T0BLOB (AttrListColl) db-read 1/1 objs/chan/bytes 1186/1186/1374284 ((     0.11 ))s
+IOVDbFolder                               19   0    INFO Folder /MDT/T0BLOB (AttrListColl) db-read 1/1 objs/chan/bytes 1186/1186/1374284 ((     0.10 ))s
 IOVDbFolder                               19   0    INFO Folder /MUONALIGN/CSC/ILINES (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/10814 ((     0.05 ))s
 IOVDbFolder                               19   0    INFO Folder /MUONALIGN/MDT/ASBUILTPARAMS (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/128992 ((     0.03 ))s
 IOVDbFolder                               19   0    INFO Folder /MUONALIGN/MDT/BARREL (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/140293 ((     0.04 ))s
-IOVDbFolder                               19   0    INFO Folder /MUONALIGN/MDT/ENDCAP/SIDEA (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/65494 ((     0.04 ))s
-IOVDbFolder                               19   0    INFO Folder /MUONALIGN/MDT/ENDCAP/SIDEC (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/65497 ((     0.05 ))s
-IOVDbFolder                               19   0    INFO Folder /MUONALIGN/TGC/SIDEA (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/165643 ((     0.13 ))s
-IOVDbFolder                               19   0    INFO Folder /MUONALIGN/TGC/SIDEC (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/165643 ((     0.61 ))s
-IOVDbFolder                               19   0    INFO Folder /RPC/CABLING/MAP_SCHEMA (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/222235 ((     0.09 ))s
-IOVDbFolder                               19   0    INFO Folder /RPC/CABLING/MAP_SCHEMA_CORR (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/29402 ((     0.04 ))s
-IOVDbFolder                               19   0    INFO Folder /RPC/DCS/DeadRopanels (AttrListColl) db-read 1/1 objs/chan/bytes 32/48/6200 ((     0.13 ))s
-IOVDbFolder                               19   0    INFO Folder /RPC/DCS/OffRopanels (AttrListColl) db-read 1/1 objs/chan/bytes 4/48/16 ((     0.05 ))s
-IOVDbFolder                               19   0    INFO Folder /RPC/DQMF/ELEMENT_STATUS (AttrListColl) db-read 1/1 objs/chan/bytes 8320/8320/6180700 ((     0.27 ))s
-IOVDbFolder                               19   0    INFO Folder /RPC/TRIGGER/CM_THR_ETA (AttrListColl) db-read 1/1 objs/chan/bytes 1613/1613/7562651 ((     0.25 ))s
-IOVDbFolder                               19   0    INFO Folder /RPC/TRIGGER/CM_THR_PHI (AttrListColl) db-read 1/1 objs/chan/bytes 1612/1612/8096306 ((     1.10 ))s
+IOVDbFolder                               19   0    INFO Folder /MUONALIGN/MDT/ENDCAP/SIDEA (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/65494 ((     0.11 ))s
+IOVDbFolder                               19   0    INFO Folder /MUONALIGN/MDT/ENDCAP/SIDEC (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/65497 ((     0.04 ))s
+IOVDbFolder                               19   0    INFO Folder /MUONALIGN/TGC/SIDEA (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/165643 ((     0.03 ))s
+IOVDbFolder                               19   0    INFO Folder /MUONALIGN/TGC/SIDEC (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/165643 ((     0.03 ))s
+IOVDbFolder                               19   0    INFO Folder /RPC/CABLING/MAP_SCHEMA (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/222235 ((     0.04 ))s
+IOVDbFolder                               19   0    INFO Folder /RPC/CABLING/MAP_SCHEMA_CORR (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/29402 ((     0.03 ))s
+IOVDbFolder                               19   0    INFO Folder /RPC/DCS/DeadRopanels (AttrListColl) db-read 1/1 objs/chan/bytes 32/48/6200 ((     0.00 ))s
+IOVDbFolder                               19   0    INFO Folder /RPC/DCS/OffRopanels (AttrListColl) db-read 1/1 objs/chan/bytes 4/48/16 ((     0.00 ))s
+IOVDbFolder                               19   0    INFO Folder /RPC/DQMF/ELEMENT_STATUS (AttrListColl) db-read 1/1 objs/chan/bytes 8320/8320/6180700 ((     0.29 ))s
+IOVDbFolder                               19   0    INFO Folder /RPC/TRIGGER/CM_THR_ETA (AttrListColl) db-read 1/1 objs/chan/bytes 1613/1613/7562651 ((     0.16 ))s
+IOVDbFolder                               19   0    INFO Folder /RPC/TRIGGER/CM_THR_PHI (AttrListColl) db-read 1/1 objs/chan/bytes 1612/1612/8096306 ((     0.14 ))s
 IOVDbFolder                               19   0    INFO Folder /TDAQ/RunCtrl/SOR_Params (AttrListColl) db-read 0/0 objs/chan/bytes 0/1/0 ((     0.00 ))s
 IOVDbFolder                               19   0    INFO Folder /TGC/CABLING/MAP_SCHEMA (AttrListColl) db-read 0/0 objs/chan/bytes 0/1/0 ((     0.00 ))s
-IOVDbFolder                               19   0    INFO Folder /CSC/FTHOLD (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/322656 ((     0.24 ))s
-IOVDbFolder                               19   0    INFO Folder /CSC/NOISE (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/350062 ((     0.52 ))s
+IOVDbFolder                               19   0    INFO Folder /CSC/FTHOLD (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/322656 ((     0.05 ))s
+IOVDbFolder                               19   0    INFO Folder /CSC/NOISE (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/350062 ((     0.03 ))s
 IOVDbFolder                               19   0    INFO Folder /CSC/PED (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/411187 ((     0.04 ))s
 IOVDbFolder                               19   0    INFO Folder /CSC/PSLOPE (AttrListColl) db-read 1/0 objs/chan/bytes 32/32/353376 ((     0.04 ))s
 IOVDbFolder                               19   0 WARNING Folder /CSC/PSLOPE is requested but no data retrieved
-IOVDbFolder                               19   0    INFO Folder /CSC/RMS (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/411395 ((     0.04 ))s
+IOVDbFolder                               19   0    INFO Folder /CSC/RMS (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/411395 ((     0.20 ))s
 IOVDbFolder                               19   0    INFO Folder /CSC/STAT (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/230496 ((     0.03 ))s
 IOVDbFolder                               19   0    INFO Folder /CSC/T0BASE (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/314380 ((     0.04 ))s
-IOVDbFolder                               19   0    INFO Folder /CSC/T0PHASE (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/3136 ((     0.05 ))s
-IOVDbSvc                                  19   0    INFO  bytes in ((      5.25 ))s
+IOVDbFolder                               19   0    INFO Folder /CSC/T0PHASE (AttrListColl) db-read 1/1 objs/chan/bytes 32/32/3136 ((     0.03 ))s
+IOVDbSvc                                  19   0    INFO  bytes in ((      2.07 ))s
 IOVDbSvc                                  19   0    INFO Connection sqlite://;schema=mycool.db;dbname=CONDBR2 : nConnect: 0 nFolders: 0 ReadTime: ((     0.00 ))s
 IOVDbSvc                                  19   0    INFO Connection COOLONL_TDAQ/CONDBR2 : nConnect: 1 nFolders: 1 ReadTime: ((     0.00 ))s
-IOVDbSvc                                  19   0    INFO Connection COOLOFL_MUONALIGN/CONDBR2 : nConnect: 2 nFolders: 7 ReadTime: ((     0.95 ))s
-IOVDbSvc                                  19   0    INFO Connection COOLONL_RPC/CONDBR2 : nConnect: 2 nFolders: 4 ReadTime: ((     1.48 ))s
+IOVDbSvc                                  19   0    INFO Connection COOLOFL_MUONALIGN/CONDBR2 : nConnect: 2 nFolders: 7 ReadTime: ((     0.33 ))s
+IOVDbSvc                                  19   0    INFO Connection COOLONL_RPC/CONDBR2 : nConnect: 2 nFolders: 4 ReadTime: ((     0.36 ))s
 IOVDbSvc                                  19   0    INFO Connection COOLONL_TGC/CONDBR2 : nConnect: 1 nFolders: 1 ReadTime: ((     0.00 ))s
-IOVDbSvc                                  19   0    INFO Connection COOLONL_MDT/CONDBR2 : nConnect: 2 nFolders: 2 ReadTime: ((     0.80 ))s
-IOVDbSvc                                  19   0    INFO Connection COOLONL_GLOBAL/CONDBR2 : nConnect: 2 nFolders: 1 ReadTime: ((     0.12 ))s
-IOVDbSvc                                  19   0    INFO Connection COOLOFL_DCS/CONDBR2 : nConnect: 2 nFolders: 3 ReadTime: ((     0.31 ))s
-IOVDbSvc                                  19   0    INFO Connection COOLOFL_MDT/CONDBR2 : nConnect: 2 nFolders: 2 ReadTime: ((     0.30 ))s
-IOVDbSvc                                  19   0    INFO Connection COOLOFL_RPC/CONDBR2 : nConnect: 2 nFolders: 1 ReadTime: ((     0.27 ))s
-IOVDbSvc                                  19   0    INFO Connection COOLOFL_CSC/CONDBR2 : nConnect: 2 nFolders: 8 ReadTime: ((     1.01 ))s
+IOVDbSvc                                  19   0    INFO Connection COOLONL_MDT/CONDBR2 : nConnect: 2 nFolders: 2 ReadTime: ((     0.21 ))s
+IOVDbSvc                                  19   0    INFO Connection COOLONL_GLOBAL/CONDBR2 : nConnect: 2 nFolders: 1 ReadTime: ((     0.06 ))s
+IOVDbSvc                                  19   0    INFO Connection COOLOFL_DCS/CONDBR2 : nConnect: 2 nFolders: 3 ReadTime: ((     0.05 ))s
+IOVDbSvc                                  19   0    INFO Connection COOLOFL_MDT/CONDBR2 : nConnect: 2 nFolders: 2 ReadTime: ((     0.29 ))s
+IOVDbSvc                                  19   0    INFO Connection COOLOFL_RPC/CONDBR2 : nConnect: 2 nFolders: 1 ReadTime: ((     0.29 ))s
+IOVDbSvc                                  19   0    INFO Connection COOLOFL_CSC/CONDBR2 : nConnect: 2 nFolders: 8 ReadTime: ((     0.47 ))s
 IdDictDetDescrCnv                         19   0    INFO in finalize
 AthDictLoaderSvc                          19   0    INFO in finalize...
 ToolSvc                                   19   0    INFO Removing all tools created by ToolSvc
-ToolSvc.ByteStreamMetadataTool            19   0    INFO in finalize()
 TgcRdoToTgcPrepData.TgcRdoToTgcPrepDa...  19   0    INFO finalize(): input RDOs->output PRDs [Hit: 6807->6807, Tracklet: 28->28, TrackletEIFI: 692->692, HiPt: 4031->4031, SL: 3->3]
 MdtRawDataProvider.MDT_RawDataProvide...  19   0    INFO Fraction of fills that use the cache = 0
 TgcRawDataProvider.TGC_RawDataProvide...  19   0    INFO Fraction of fills that use the cache = 0
@@ -1807,12 +1810,13 @@ RpcROD_Decoder::printcheckformat          19   0    INFO  SL Footer Errors......
 RpcROD_Decoder::printcheckformat          19   0    INFO  RX Footer Errors.............0
 RpcROD_Decoder::printcheckformat          19   0    INFO  CRC8 check Failures..........0
 RpcROD_Decoder::printcheckformat          19   0    INFO  ==================================================== 
+ToolSvc.ByteStreamMetadataTool            19   0    INFO in finalize()
 ToolSvc.TGCCablingDbTool                  19   0    INFO finalize
 *****Chrono*****                          19   0    INFO ****************************************************************************************************
 *****Chrono*****                          19   0    INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****                          19   0    INFO ****************************************************************************************************
 cObj_ALL                                  19   0    INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #= 28
-ChronoStatSvc                             19   0    INFO Time User   : Tot= 16.1  [s]                                             #=  1
+ChronoStatSvc                             19   0    INFO Time User   : Tot= 22.3  [s]                                             #=  1
 *****Chrono*****                          19   0    INFO ****************************************************************************************************
 ChronoStatSvc.finalize()                  19   0    INFO  Service finalized successfully 
 ApplicationMgr                            19   0    INFO Application Manager Finalized successfully

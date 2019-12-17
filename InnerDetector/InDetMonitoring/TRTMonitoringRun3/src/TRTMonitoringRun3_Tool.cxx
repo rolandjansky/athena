@@ -22,10 +22,8 @@
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
+#include <cmath>
 
-#include <sstream>
-#include <iomanip>
-#include <memory> 
 
 const int TRTMonitoringRun3_Tool::s_numberOfBarrelStacks = 32;
 const int TRTMonitoringRun3_Tool::s_numberOfEndCapStacks = 32;
@@ -50,7 +48,8 @@ TRTMonitoringRun3_Tool::TRTMonitoringRun3_Tool( const std::string& name, ISvcLoc
     declareProperty("doEfficiency",             m_doEfficiency          = false);
     declareProperty("doMaskStraws",             m_doMaskStraws          = true);
     declareProperty("doShift",                  m_doShift               = true); 
-    declareProperty("DistanceToStraw",          m_DistToStraw           = 0.4);  
+    declareProperty("DistanceToStraw",          m_DistToStraw           = 0.4);
+    declareProperty("MinTrackP",                m_minP                  = 0.0 * CLHEP::GeV);
 }
 
  
@@ -275,8 +274,8 @@ StatusCode TRTMonitoringRun3_Tool::fillTestTRTTrackHistograms(const TrackCollect
         if (!mPer) continue;
 
         float theta   =  mPer->parameters()[Trk::theta];
-        float p       =  (mPer->parameters()[Trk::qOverP] != 0.) ? fabs(1. / (mPer->parameters()[Trk::qOverP])) : 10e7;
-        float pT      =  (p * sin(theta));
+        float p       =  (mPer->parameters()[Trk::qOverP] != 0.) ? std::abs(1. / (mPer->parameters()[Trk::qOverP])) : 10e7;
+        float pT      =  (p * std::sin(theta));
         pT = pT * 1e-3;  // GeV
 
         if (p < m_minP) continue;
@@ -329,7 +328,7 @@ StatusCode TRTMonitoringRun3_Tool::fillTestTRTTrackHistograms(const TrackCollect
 
             Identifier DCoTId = trtCircle->identify();
             barrel_ec = m_pTRTHelper->barrel_ec(DCoTId);
-            int ibe = abs(barrel_ec) - 1;
+            int ibe = std::abs(barrel_ec) - 1;
             layer_or_wheel = m_pTRTHelper->layer_or_wheel (DCoTId);
             straw_layer = m_pTRTHelper->straw_layer(DCoTId);
             straw = m_pTRTHelper->straw(DCoTId);
@@ -391,7 +390,7 @@ StatusCode TRTMonitoringRun3_Tool::fillTestTRTTrackHistograms(const TrackCollect
             phi_module = m_pTRTHelper->phi_module(DCoTId);
             straw_layer = m_pTRTHelper->straw_layer(DCoTId);
             straw = m_pTRTHelper->straw(DCoTId);
-            int ibe = abs(barrel_ec) - 1;
+            int ibe = std::abs(barrel_ec) - 1;
             int iside = barrel_ec > 0 ? 0 : 1;
             int thisStrawNumber[2] = {-1, -1};
 
@@ -425,13 +424,7 @@ StatusCode TRTMonitoringRun3_Tool::fillTestTRTTrackHistograms(const TrackCollect
                 checkEC_B[iside] = 1;
             }
 
-            if (ibe == 0) {
-                ibe = ibe;
-            } else if (barrel_ec == 2) {
-                barrel_ec = barrel_ec;
-            } else if (barrel_ec == -2) {
-                barrel_ec = barrel_ec;
-            }
+            
 
             Identifier surfaceID;
             const Trk::MeasurementBase *mesb = (*TSOSItBegin)->measurementOnTrack();

@@ -10,6 +10,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include <string>
+#include <mutex>
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 #include "TrkParameters/TrackParameters.h"
@@ -38,9 +39,10 @@ namespace MuonCombined {
   private:
 
     ToolHandle<Trk::IExtrapolator> m_extrapolator;
-    mutable ServiceHandle<Trk::ITrackingGeometrySvc> m_trackingGeometrySvc;
-    mutable const Trk::TrackingGeometry*  m_trackingGeometry;
-    mutable const Trk::TrackingVolume*    m_msEntrance;
+    mutable ServiceHandle<Trk::ITrackingGeometrySvc> m_trackingGeometrySvc ATLAS_THREAD_SAFE; // Services are assumed to be thread-safe
+    mutable const Trk::TrackingGeometry*  m_trackingGeometry ATLAS_THREAD_SAFE; // Initialized with call_once, then used read-only
+    mutable const Trk::TrackingVolume*    m_msEntrance ATLAS_THREAD_SAFE; // Initialized with call_once, then used read-only
+    mutable std::once_flag                m_trackingOnceFlag ATLAS_THREAD_SAFE;
     
     double m_chi2cut;
 #ifdef MUONCOMBDEBUG

@@ -38,6 +38,7 @@ void JetTrigTimer::stop(){
 void JetTrigTimer::reset() noexcept {
   m_nCalls = 0;
   m_delta = 0.;
+  m_elapsedDelta = 0;
 }
   
 std::string JetTrigTimer::read(){    

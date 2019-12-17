@@ -3,14 +3,11 @@
 */
 
 #include "MuonSegmentTagAlg.h"
-#include "MuonCombinedToolInterfaces/IMuonSegmentTagTool.h"
 #include "xAODMuon/MuonSegmentContainer.h"
 
 MuonSegmentTagAlg::MuonSegmentTagAlg(const std::string& name, ISvcLocator* pSvcLocator):
-  AthAlgorithm(name,pSvcLocator),
-  m_muonSegmentTagTool("MuonCombined::MuonSegmentTagTool/MuonSegmentTagTool")
+  AthAlgorithm(name,pSvcLocator)
 {  
-  declareProperty("MuonSegmentTagTool",m_muonSegmentTagTool);
 }
 
 MuonSegmentTagAlg::~MuonSegmentTagAlg(){}

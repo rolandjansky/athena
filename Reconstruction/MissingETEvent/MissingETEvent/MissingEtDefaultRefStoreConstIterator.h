@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MISSINGET_MISSINGETDEFAULTREFSTORECONSTITERATOR
@@ -17,13 +17,13 @@ class MissingEtDefaultRefStoreConstIterator
   
   // stepping operators
   MissingEtDefaultRefStoreConstIterator operator++() 
-  { m_actual++; return *this; }
-  MissingEtDefaultRefStoreConstIterator operator++(int) 
   { ++m_actual; return *this; }
+  MissingEtDefaultRefStoreConstIterator operator++(int) 
+  { auto ret = *this; ++m_actual; return ret; }
   MissingEtDefaultRefStoreConstIterator operator--() 
-  { m_actual--; return *this; }
-  MissingEtDefaultRefStoreConstIterator operator--(int) 
   { --m_actual; return *this; }
+  MissingEtDefaultRefStoreConstIterator operator--(int) 
+  { auto ret = *this; --m_actual; return ret; }
   
   // comparators
   bool operator==(const MissingEtDefaultRefStoreConstIterator& anIter) const

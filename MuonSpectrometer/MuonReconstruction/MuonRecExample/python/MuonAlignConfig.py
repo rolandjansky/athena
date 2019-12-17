@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #
 # read alignment constants from DB to update MuonGeoModel
@@ -12,7 +12,7 @@ from MuonCondAlg.MuonCondAlgConf import MuonAlignmentErrorDbAlg
 from MuonRecExample.MuonRecUtils import logMuon
 from IOVDbSvc.CondDB import conddb
 
-from MuonAlignFlags import muonAlignFlags
+from .MuonAlignFlags import muonAlignFlags
 
 # defaults have to be re-set maybe 
 muonAlignFlags.setDefaults()
@@ -49,6 +49,9 @@ MuonAlignAlg.ParlineFolders = ["/MUONALIGN/MDT/BARREL",
 
 from AtlasGeoModel.MuonGM import GeoModelSvc
 MuonDetectorTool = GeoModelSvc.DetectorTools[ "MuonDetectorTool" ]
+
+# Disable caching. This will have some memory impact (TBC) but is necessary for the moment to make this thread safe.
+MuonDetectorTool.FillCacheInitTime = 1
 
 # Condition DB is needed only if A-lines or B-lines are requested
 if not (muonAlignFlags.UseAlines=='none' and muonAlignFlags.UseBlines=='none'):

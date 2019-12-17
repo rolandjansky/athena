@@ -301,9 +301,6 @@ def analyseChainName(chainName, L1thresholds, L1item):
 
 
         chainpartsNoL1 = chainparts
-
-        log.debug('chainparts %s', chainparts)
-
         parts=chainpartsNoL1.split('_')
         parts=filter(None,parts)
 
@@ -390,8 +387,8 @@ def analyseChainName(chainName, L1thresholds, L1item):
 
         # ---- remove properties that aren't allowed in the chain properties for a given siganture ----
         forbiddenProperties = set(chainProperties.keys()) - set(allowedSignaturePropertiesAndValues.keys())
-        log.debug('%s', set(chainProperties.keys()))
-        log.debug('%s', set(allowedSignaturePropertiesAndValues.keys()))
+        log.debug('chainPropertie:s %s', set(chainProperties.keys()))
+        log.debug('allowedSignaturePropertiesAndValues: %s', set(allowedSignaturePropertiesAndValues.keys()))
         for fb in forbiddenProperties:
             forbiddenValue = chainProperties.pop(fb)
             assert forbiddenValue == '', "Property {} not allowed for signature '{}', but specified '{}'".format (fb, chainProperties['signature'], forbiddenValue)
@@ -410,8 +407,6 @@ def analyseChainName(chainName, L1thresholds, L1item):
 
     #genchainDict['signature'] = allChainProperties[0]['signature']
 
-    log.debug('genchainDict that is passed as Final dict %s', genchainDict)
-
     return genchainDict
 
 
@@ -427,8 +422,6 @@ def dictFromChainName(chainInfo):
     but for nwo plain chain name is also supported
     
     """
-    log.debug("chainInfo %s", chainInfo)
-
 
     # these if/elif/else statements are due to temporary development
     from TrigConfHLTData.HLTUtils import string2hash
@@ -471,14 +464,15 @@ def dictFromChainName(chainInfo):
     chainDict['topoStartFrom']   = topoStartFrom
     chainDict['chainNameHash']   = string2hash(chainDict['chainName'])
 
-    log.debug('Setting chain multiplicities')
+
     allChainMultiplicities = getChainMultFromDict(chainDict)
     chainDict['chainMultiplicities'] = allChainMultiplicities
-
-    if log.isEnabledFor(logging.DEBUG):
-        import pprint
-        pp = pprint.PrettyPrinter(indent=4, depth=8)
-        log.debug('SUPER FINAL dictionary: %s', pp.pformat(chainDict))
+    log.debug('Setting chain multiplicities: %s ', allChainMultiplicities)
+    
+    ## if log.isEnabledFor(logging.DEBUG):
+    ##     import pprint
+    ##     pp = pprint.PrettyPrinter(indent=4, depth=8)
+    ##     log.debug('SUPER FINAL dictionary: %s', pp.pformat(chainDict))
 
     return chainDict
 

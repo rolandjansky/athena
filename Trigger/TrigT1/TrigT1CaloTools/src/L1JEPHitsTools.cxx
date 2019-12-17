@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 ///////////////////////////////////////////////////////////////////
 // L1JEPHitsTools.cxx,  
@@ -38,7 +38,7 @@ L1JEPHitsTools::L1JEPHitsTools(const std::string& type,
                                const IInterface*  parent)
   :
   AthAlgTool(type, name, parent),
-  m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name)
+  m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name)
 {
   declareInterface<IL1JEPHitsTools>(this);
   declareProperty( "LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");

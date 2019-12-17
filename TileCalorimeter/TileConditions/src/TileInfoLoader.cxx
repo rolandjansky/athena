@@ -190,6 +190,12 @@ TileInfoLoader::TileInfoLoader(const std::string& name,
   declareProperty("filename_DecoCovaFilePrefix" ,m_DecoCovaFilePrefix  = "DecoCovaMatrix");
 
   //==========================================================
+  //=== Digitization
+  //==========================================================
+  declareProperty("ADCmax"                     ,m_ADCmax = 1023);
+  declareProperty("ADCmaskValue"               ,m_ADCmaskValue = 2047);
+
+  //==========================================================
   //=== TileWienerFilterWeights configuration
   //==========================================================
   declareProperty("LoadWienerFilterWeights"    ,m_loadWienerFilterWeights    = false);
@@ -248,6 +254,8 @@ StatusCode TileInfoLoader::initialize() {
   std::copy (std::begin(m_emscaleE), std::end(m_emscaleE), std::begin(info->m_emscaleE));
   std::copy (std::begin(m_emscaleMBTS), std::end(m_emscaleMBTS), std::begin(info->m_emscaleMBTS));
   std::copy (std::begin(m_nPhElecVec), std::end(m_nPhElecVec), std::begin(info->m_nPhElecVec));
+  info->m_ADCmax = m_ADCmax;
+  info->m_ADCmaskValue = m_ADCmaskValue;
 
   m_WFWeights->m_NSamples_Phys = info->m_nSamples; // to make sure that everything is consistent
 

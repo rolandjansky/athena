@@ -363,20 +363,23 @@ protected:
    * @brief Set the store associated with this object.
    * @param store The new store.
    *
-   * This will clear the non-const store pointer, and also
+   * This will set both the const and non-const store pointers, and also
    * clear the cache.
+   *
+   * nb. List the non-const overload before the const one; otherwise,
+   * we can't call the const one from python.
    */
-  void setStore (const SG::IConstAuxStore* store);
+  void setStore (SG::IAuxStore* store);
 
 
   /**
    * @brief Set the store associated with this object.
    * @param store The new store.
    *
-   * This will set both the const and non-const store pointers, and also
+   * This will clear the non-const store pointer, and also
    * clear the cache.
    */
-  void setStore (SG::IAuxStore* store);
+  void setStore (const SG::IConstAuxStore* store);
 
 
   /**

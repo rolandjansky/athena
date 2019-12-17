@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaCommon.AlgSequence import AlgSequence
@@ -51,7 +51,7 @@ if nThreads >=1 :
 theApp.EvtMax = 20
 
 from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-topSequence+=xAODMaker__EventInfoCnvAlg(DoBeginRun = False)
+topSequence+=xAODMaker__EventInfoCnvAlg()
 
 #---------------------------------------------------------------------------------#
 # NEW Conditions access infrastructure
@@ -157,13 +157,16 @@ except Exception:
 
 include( "McParticleAlgs/TruthParticleBuilder_jobOptions.py" )
 
+include( "TrackToCalo/CaloExtensionBuilderAlg_jobOptions.py" )
+CaloExtensionBuilder("TightPrimary", 500.) 
+
 from egammaRec.egammaRecFlags import jobproperties
 
 include( "egammaRec/egammaRec_jobOptions.py" )
 
 import AthenaPoolCnvSvc.WriteAthenaPool
 logRecoOutputItemList_jobOptions = logging.getLogger( 'py:RecoOutputItemList_jobOptions' )
-from OutputStreamAthenaPool.OutputStreamAthenaPool import  createOutputStream
+from OutputStreamAthenaPool.CreateOutputStreams import  createOutputStream
 
 StreamESD=createOutputStream("StreamESD","myESD.pool.root",True)
 include ("CaloRecEx/CaloRecOutputItemList_jobOptions.py")

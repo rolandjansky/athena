@@ -18,10 +18,10 @@ ROOT.PyConfig.IgnoreCommandLineOptions = True
 try:
     ROOT.gROOT.Macro("$ROOTCOREDIR/scripts/load_packages.C")
 except RuntimeError:
-    print """you have to compile egammaLayerRecalibTool first:
+    print("""you have to compile egammaLayerRecalibTool first:
 rc find_packages
 rc compile
-"""
+""")
 
 
 def LayerRecalibratedGenerator(input_tree, branches):
@@ -34,11 +34,11 @@ def LayerRecalibratedGenerator(input_tree, branches):
         return std_calibration_input.E0raw, std_calibration_input.E1raw, std_calibration_input.E2raw, std_calibration_input.E3raw
     fcn = _rec
     entries = input_tree.GetEntries()
-    for i in xrange(entries):
+    for i in range(entries):
         input_tree.GetEntry(i)
         # check if branch exists
         try:
-            inputs = map(input_tree.__getattr__, branches)
+            inputs = list(map(input_tree.__getattr__, branches))
         except AttributeError:
             raise AttributeError("cannot find branches %s" % branches)
 
@@ -46,7 +46,7 @@ def LayerRecalibratedGenerator(input_tree, branches):
             yield fcn(*inputs)  # scalar
         except TypeError:
             result = [fcn(*ii) for ii in izip(*inputs)]  # vectors
-            yield zip(*result)
+            yield list(zip(*result))
 
 if __name__ == "__main__":
     from optparse import OptionParser
@@ -72,7 +72,7 @@ if __name__ == "__main__":
     else:
         input_filenames = [options.input]
     if not input_filenames:
-        print "ERROR: no files found"
+        print("ERROR: no files found")
 
     if not options.particle:
         raise ValueError("you need to specify a value of --particle")
@@ -87,7 +87,7 @@ if __name__ == "__main__":
     prefix = 'el_' if options.particle == 'electron' else 'ph_'
 
     for filename in input_filenames:
-        print "patching file %s" % filename
+        print("patching file %s" % filename)
 
         f = ROOT.TFile.Open(filename, "update")
         tree = f.Get(options.tree)
@@ -137,7 +137,7 @@ if __name__ == "__main__":
 
         for i, new_value in enumerate(LayerRecalibratedGenerator(tree, branches)):
             if i % 1000 == 0:
-                print i
+                print(i)
             if options.nevents and i >= options.nevents:
                 break
 
@@ -149,7 +149,7 @@ if __name__ == "__main__":
                 for s, v in zip(new_storages, new_value):
                     s[0] = v
             newtree.Fill()
-        print "loop ended after %d events" % i
+        print("loop ended after %d events" % i)
 
         logging.debug("all events done")
         tree.SetBranchStatus('*', 1)

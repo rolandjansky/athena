@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils.scripts.cmt_newanalysisalg
 # @purpose streamline and ease the creation of new athena algs
@@ -7,7 +7,7 @@
 
 #Note - this code could use a serious rewrite, I just hacked it together to get something working
 
-from __future__ import with_statement
+from __future__ import with_statement, print_function
 
 __version__ = "$Revision: 795362 $"
 __author__ = "Will Buttinger"
@@ -45,21 +45,21 @@ def main(args):
     #make new package
     res = commands.getstatusoutput('acmd cmake new-pkg %s' % full_pkg_name)
     if res[0]!=0:
-        print ":::  ERROR could not create new package"
+        print (":::  ERROR could not create new package")
         return -1
 
 
     #add algorithm
     res = commands.getstatusoutput('cd %s;acmd cmake new-analysisalg --newJobo %sAlg' % (full_pkg_name,full_pkg_name))
     if res[0]!=0:
-        print ":::  ERROR could not create new alg"
+        print (":::  ERROR could not create new alg")
         return -1
 
     pkg_name = full_pkg_name
 
     # overwrite CMakeLists with our skeleton
     with open(os.path.join(full_pkg_name,'CMakeLists.txt'), 'w') as req:
-        print >> req, textwrap.dedent("""\
+        print (textwrap.dedent("""\
         ## automatically generated CMakeLists.txt file
 
         # Declare the package
@@ -111,7 +111,7 @@ def main(args):
         # PathResolverFindCalibFile("%(pkg_name)s/file.txt")
 
         
-        """%locals())
+        """%locals()), file=req)
 
 
 
@@ -120,12 +120,12 @@ def main(args):
     #rely on the WorkDir_DIR env var for this
     workDir = os.environ.get("WorkDir_DIR")
     if workDir == None:
-        print "::: ERROR No WorkDir_DIR env var, did you forget to source the setup.sh script?"
-        print "::: ERROR Please do this and reconfigure cmake manually!"
+        print ("::: ERROR No WorkDir_DIR env var, did you forget to source the setup.sh script?")
+        print ("::: ERROR Please do this and reconfigure cmake manually!")
     else:
-        print ":::  INFO Reconfiguring cmake %s/../." % workDir
+        print (":::  INFO Reconfiguring cmake %s/../." % workDir)
         res = commands.getstatusoutput('cmake %s/../.' % workDir)
         if res[0]!=0:
-            print ":::  WARNING reconfigure unsuccessful. Please reconfigure manually!"
+            print (":::  WARNING reconfigure unsuccessful. Please reconfigure manually!")
         
 

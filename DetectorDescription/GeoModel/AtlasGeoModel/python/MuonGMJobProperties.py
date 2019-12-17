@@ -1,5 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
+
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
 from AtlasGeoModel.CommonGMJobProperties import CommonGMFlags, CommonGeometryFlags
 
@@ -33,11 +35,11 @@ class MuonGMFlags(CommonGMFlags, object):
         else: self.__dict__["HasMM"] = True
 
     def dump(self):
-        print "MuonGMFlags:"
-        print "Layout      = ",self.__dict__["Layout"]
-        print "HasCSC      = ",self.__dict__["HasCSC"]
-        print "HasSTGC     = ",self.__dict__["HasSTGC"]
-        print "HasMM       = ",self.__dict__["HasMM"]
+        print ("MuonGMFlags:")
+        print ("Layout      = ",self.__dict__["Layout"])
+        print ("HasCSC      = ",self.__dict__["HasCSC"])
+        print ("HasSTGC     = ",self.__dict__["HasSTGC"])
+        print ("HasMM       = ",self.__dict__["HasMM"])
 
 
 class GeoLayout(JobProperty):
@@ -84,10 +86,10 @@ class MuonGeometryFlags_JobProperties(JobPropertyContainer):
         self.hasMM.unlock()
 
     def dump(self):
-        print "Layout      = ", self.GeoLayout()
-        print "HasCSC      = ", self.hasCSC()
-        print "HasSTGC     = ", self.hasSTGC()
-        print "HasMM       = ", self.hasMM()
+        print ("Layout      = ", self.GeoLayout())
+        print ("HasCSC      = ", self.hasCSC())
+        print ("HasSTGC     = ", self.hasSTGC())
+        print ("HasMM       = ", self.hasMM())
 
 
 jobproperties.add_Container(MuonGeometryFlags_JobProperties)

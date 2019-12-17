@@ -117,6 +117,14 @@ if rec.doTrigger():
             ToolSvc += LVL1__L1JEPHitsTools("L1JEPHitsTools")
         ToolSvc.L1JEPHitsTools.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
 
+        import TrigT1CaloTools.TrigT1CaloToolsConf as calotools
+
+        for toolName in ['L1JetCMXTools', 'L1EnergyCMXTools', 'L1TriggerTowerTool', 'L1CPMTools',
+                         'L1CPCMXTools', 'L1EmTauTools', 'L1JEMJetTools', 'L1JetEtTools', 'L1JetTools']:
+            if not hasattr(ToolSvc, toolName ):
+                ToolSvc += eval('calotools.LVL1__%s( toolName )' % toolName)
+            getattr(ToolSvc, toolName).LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
+
     #---------------------------------------------------------------------------
     if recAlgs.doTrigger():
         try:

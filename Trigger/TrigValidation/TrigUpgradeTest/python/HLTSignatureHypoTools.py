@@ -10,31 +10,33 @@ def TestHypoTool(name, prop, threshold_value):
 
 def MuTestHypoTool(chainDict):
     name = chainDict['chainName']
-    threshold = getThreshold(name, 'mu') 
+    threshold = getThreshold(chainDict, 'mu') 
     return TestHypoTool(name,prop="pt", threshold_value=threshold)
 
 def ElTestHypoTool(chainDict):
     name = chainDict['chainName']
-    threshold = getThreshold(name, 'e') 
+    threshold = getThreshold(chainDict, 'e') 
     return TestHypoTool(name,prop="et", threshold_value=threshold)
 
 def GammTestHypoTool(chainDict):
     name = chainDict['chainName']
-    threshold = getThreshold(name, 'g') 
+    threshold = getThreshold(chainDict, 'g') 
     return TestHypoTool(name,prop="et", threshold_value=threshold)
 
 
 def MuTest2HypoTool(chainDict):
     name = chainDict['chainName']
-    threshold = getThreshold(name, 'mu')  
+    threshold = getThreshold(chainDict, 'mu') 
     return TestHypoTool(name,prop="pt2", threshold_value=threshold)
 
 def ElTest2HypoTool(chainDict):
     name = chainDict['chainName']
-    threshold = getThreshold(name, 'e') 
+    threshold = getThreshold(chainDict, 'e') 
     return TestHypoTool(name,prop="et", threshold_value=threshold)
 
 
-def getThreshold(name, signature):
+def getThreshold(chainDict, signature):
+    name = chainDict['chainParts'][0]['chainPartName']
     from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import getChainThresholdFromName
     return getChainThresholdFromName( name.split("_"), signature)
+

@@ -1,14 +1,14 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
 # Pay attention this will return a list of tools
 # in RAW->ESD and another for ESD->AOD
 def HLTCaloMonitoringTool():
 
-  if not 'DQMonFlags' in dir():
+  if 'DQMonFlags' not in dir():
     from AthenaMonitoring.DQMonFlags import DQMonFlags
   if DQMonFlags.monManEnvironment == 'tier0Raw':
-    from TrigCaloRec.TrigCaloRecConf import RoILArEMCellContMaker, RoILArHadCellContMaker, RoITileCellContMaker, RoIFCalEmCellContMaker, RoIFCalHadCellContMaker, FullCaloCellContMaker
+    from TrigCaloRec.TrigCaloRecConf import RoILArEMCellContMaker, RoILArHadCellContMaker, RoITileCellContMaker, RoIFCalEmCellContMaker, RoIFCalHadCellContMaker
 
     from TrigCaloMonitoring.TrigCaloMonitoringConf import HLTCaloTool,HLTCaloFEBTool
     from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
@@ -32,6 +32,7 @@ def HLTCaloMonitoringTool():
     roifcalhadcellcontmaker = RoIFCalHadCellContMaker()
     roifcalhadcellcontmaker.CaloNoiseTool = theCaloNoiseTool
     roifcalhadcellcontmaker.DoLArCellsNoiseSuppression = 0
+    #from TrigCaloRec.TrigCaloRecConf import FullCaloCellContMaker
     #fullcalocellcontmaker = FullCaloCellContMaker()
     #fullcalocellcontmaker.CaloNoiseTool = theCaloNoiseTool
     #fullcalocellcontmaker.DoLArCellsNoiseSuppression = 0
@@ -67,18 +68,16 @@ def HLTCaloMonitoringTool():
     #HLTFullCalo = HLTCaloTool(name             = 'HLTFullCalo',
     #                                histoPathBase    = "/Trigger/HLT")
     #HLTFullCalo.TCRTools = [fullcalocellcontmaker]
-    #ToolSvc += HLTCalo;
-    list = [ HLTCalo ];
-    #ToolSvc += HLTCaloFEB;
-    list += [ HLTCaloFEB ];
+    #ToolSvc += HLTCalo
+    list = [ HLTCalo ]
+    #ToolSvc += HLTCaloFEB
+    list += [ HLTCaloFEB ]
     #ToolSvc += HLTFullCalo;
     #list += [ "HLTCaloTool/HLTFullCalo" ];
     return list
 
   #elif DQMonFlags.monManEnvironment == 'tier0ESD':
   elif ( ( DQMonFlags.monManEnvironment == 'tier0ESD' ) or ( DQMonFlags.monManEnvironment == 'tier0' ) ) :
-    from TrigCaloMonitoring.TrigCaloMonitoringConf import HLTCaloToolL2
-    from TrigCaloMonitoring.TrigCaloMonitoringConf import HLTCaloClusterTool
     from TrigCaloMonitoring.TrigCaloMonitoringConf import HLTCaloESD_xAODTrigEMClusters
     from TrigCaloMonitoring.TrigCaloMonitoringConf import HLTCaloESD_xAODCaloClusters
     from TrigCaloMonitoring.TrigCaloMonitoringConf import HLTCaloESD_CaloCells
@@ -95,12 +94,14 @@ def HLTCaloMonitoringTool():
                                         HLTContainerRun3 = "HLT_TopoCaloClustersLC")
     CaloCells          = HLTCaloESD_CaloCells         ("CaloCells")
         
-    HLTCaloL2 = HLTCaloToolL2(name             = 'HLTCaloL2',
-                                        histoPathBase    = "/Trigger/HLT",
-                                        ListOfCellsKeys  =
-                     ['HLT_CaloCellContainer_TrigT2CaloTauCells','HLT_CaloCellContainer_TrigT2CaloEgammaCells'])
-    HLTCaloCluster =  HLTCaloClusterTool( name = 'HLTCaloCluster',
-                                        histoPathBase    = "/Trigger/HLT")
+    #from TrigCaloMonitoring.TrigCaloMonitoringConf import HLTCaloToolL2
+    #HLTCaloL2 = HLTCaloToolL2(name             = 'HLTCaloL2',
+    #                                    histoPathBase    = "/Trigger/HLT",
+    #                                    ListOfCellsKeys  =
+    #                 ['HLT_CaloCellContainer_TrigT2CaloTauCells','HLT_CaloCellContainer_TrigT2CaloEgammaCells'])
+    #from TrigCaloMonitoring.TrigCaloMonitoringConf import HLTCaloClusterTool
+    #HLTCaloCluster =  HLTCaloClusterTool( name = 'HLTCaloCluster',
+    #                                    histoPathBase    = "/Trigger/HLT")
     from AthenaCommon.AppMgr import ToolSvc
    #ToolSvc += HLTCaloL2;                                                                                                                                                                                                                                          
     #ToolSvc += xAODTrigEMClusters

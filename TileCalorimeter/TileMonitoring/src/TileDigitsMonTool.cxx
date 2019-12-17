@@ -18,6 +18,7 @@
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileConditions/TileCondToolNoiseSample.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
+#include "TileConditions/TileInfo.h"
 #include "StoreGate/ReadHandle.h"
 
 #include "TH1S.h"
@@ -56,6 +57,9 @@ TileDigitsMonTool::TileDigitsMonTool(const std::string & type, const std::string
   , m_allHistsFilled(false)
   //, hp(-1)
   //, hb(-1)
+  , m_tileInfo(0)
+  , m_is12bit(false)
+  , m_shiftnbins(0)
 /*---------------------------------------------------------*/
 {
   declareInterface<IMonitorToolBase>(this);
@@ -70,6 +74,7 @@ TileDigitsMonTool::TileDigitsMonTool(const std::string & type, const std::string
   declareProperty("TileRawChannelContainerDSP", m_contNameDSP = "TileRawChannelCnt");
   declareProperty("TileDigitsContainer", m_digitsContainerName = "TileDigitsCnt");
   declareProperty("FillPedestalDifference", m_fillPedestalDifference = true);
+  declareProperty("TileInfoName", m_infoName = "TileInfo");
   declareProperty("TileDQstatus", m_DQstatusKey = "TileDQstatus");
 
   m_path = "/Tile/Digits"; //ROOT file directory
@@ -105,6 +110,18 @@ StatusCode TileDigitsMonTool::initialize()
   //For test stuck_bits_maker
   //hp = 1;
   //hb = -1;
+
+  // TileInfo
+  CHECK( detStore()->retrieve(m_tileInfo, m_infoName) );
+  m_i_ADCmax = m_tileInfo->ADCmax();
+  m_f_ADCmax = m_i_ADCmax;
+  m_ADCmaxMinusEps = m_i_ADCmax - 0.01;
+
+  m_shiftnbins = 796;
+  if (m_i_ADCmax == 4095){
+    m_is12bit = true;
+    m_shiftnbins = m_shiftnbins * 4;
+  }
 
   CHECK( m_DQstatusKey.initialize() );
 
@@ -226,7 +243,7 @@ void TileDigitsMonTool::bookHists(int ros, int drawer)
       sStr << moduleName << " CH " << ch << gain[3 + gn] << " all samples";
       histTitle = sStr.str();
 
-      m_data->m_hist1[ros][drawer][ch][adc].push_back(book1S(subDir, histName, histTitle, 1024, -0.5, 1023.5));
+      m_data->m_hist1[ros][drawer][ch][adc].push_back(book1S(subDir, histName, histTitle, m_i_ADCmax + 1, -0.5, m_i_ADCmax + 0.5));
 
       // average profile for a given channel/gain
       sStr.str("");
@@ -237,13 +254,13 @@ void TileDigitsMonTool::bookHists(int ros, int drawer)
       sStr << moduleName << " CH " << ch << gain[3 + gn] << " average profile";
       histTitle = sStr.str();
 
-      m_data->m_histP[ros][drawer][ch][adc].push_back(bookProfile(subDir, histName, histTitle, m_nSamples, 0.0, m_nSamples * 1.0, -0.5, 1023.5));
+      m_data->m_histP[ros][drawer][ch][adc].push_back(bookProfile(subDir, histName, histTitle, m_nSamples, 0.0, m_nSamples * 1.0, -0.5, m_i_ADCmax + 0.5));
 
       // shifted samples histograms
 
       double shiftxmin = 0.;
-      double shiftxmax = 796.;
-      int shiftnbins = 796;
+      double shiftxmax = m_shiftnbins;
+      int shiftnbins = m_shiftnbins;
 
       sStr.str("");
       sStr << moduleName << "_ch_" << sCh << gain[gn] << "_samples_shifted";
@@ -409,7 +426,15 @@ StatusCode TileDigitsMonTool::fillHists()
     double mean_tmp[48][2][16];
     memset(mean_tmp, 0, sizeof(mean_tmp));
     
-    double charge = m_cispar[6] * m_cispar[7] * (2. * 4.096 / 1023.);
+    // Below, the charge conversion for 12 bit is just an approximation;
+    //   4095. can be changed later to gain precision if needed.
+    double charge = 0;
+    if (m_is12bit){ // if 12 bit ADCs
+      charge = m_cispar[6] * m_cispar[7] * (2. * 4.096 / 4095.);
+    }
+    else{
+      charge = m_cispar[6] * m_cispar[7] * (2. * 4.096 / 1023.);
+    }
     
     for (const TileDigits* tileDigits : *digitsCollection) {
 
@@ -442,7 +467,7 @@ StatusCode TileDigitsMonTool::fillHists()
             m_data->m_hist1[ros][drawer][chan][gain][2]->Fill(dig, 1.0);
           }
           
-          if (gain == 1 && dig > 1022.5) // overflow in high gain, find charge is it
+          if (gain == 1 && dig > m_ADCmaxMinusEps) // overflow in high gain, find charge is it
             m_data->m_outInHighGain[0]->Fill(charge);
         }
       }
@@ -685,7 +710,7 @@ StatusCode TileDigitsMonTool::finalHists()
 
             TH1S * hist = m_data->m_hist1[ros][drawer][channel][adc][2];
             double weight = 0.0;
-            for (int i = 2; i < 1025; ++i) { // first bin is excluded
+            for (int i = 2; i < m_i_ADCmax + 2; ++i) { // first bin is excluded
               weight += hist->GetBinContent(i);
             }
             // if we have weight=0 after the loop, then there is no non-zero amplitudes
@@ -848,8 +873,8 @@ StatusCode TileDigitsMonTool::finalHists()
               delete h;
             }
             double shiftxmin = 0.;
-            double shiftxmax = 796.;
-            int shiftnbins = 796;
+            double shiftxmax = m_shiftnbins;
+            int shiftnbins = m_shiftnbins;
 
             std::ostringstream s;
             s << part[ros] << std::setfill('0') << std::setw(2) << drawer + 1 << std::setfill(' ');
@@ -1222,26 +1247,26 @@ int TileDigitsMonTool::stuckBits(TH1S * hist, int adc) {
 
   // Find first/last non-zero bin in the histogram
   int MinBin = 1;
-  for (; MinBin < 1025; ++MinBin) {
+  for (; MinBin < m_i_ADCmax + 2; ++MinBin) {
     if (hist->GetBinContent(MinBin) > 0) {
       break;
     }
   }
-  if (MinBin == 1025) return 0; // empty histogram, nothing to do
+  if (MinBin == m_i_ADCmax + 2) return 0; // empty histogram, nothing to do
 
-  int MaxBin = 1024;
+  int MaxBin = m_i_ADCmax + 1;
   for (; MaxBin > 0; --MaxBin) {
     if (hist->GetBinContent(MaxBin) > 0) {
       break;
     }
   }
 
-  // bins in hist are counted from 1 to 1024, but actual X value for those bins are 0-1023
+  // bins in hist are counted from 1 to m_i_ADCmax + 1, but actual X value for those bins are 0-m_i_ADCmax
 
   // if there is nothing in first half of histogram
   // or there is nothing in second half and there is a sharp edge at 512
   // it can be that upper most bit is stuck in 0 or 1
-  if (MinBin == 513 || (MaxBin == 512 && hist->GetBinContent(MaxBin) > 3)) {
+  if (MinBin == (m_i_ADCmax + 1) / 2 + 1 || (MaxBin == (m_i_ADCmax + 1) / 2 && hist->GetBinContent(MaxBin) > 3)) {
     ++NSB;
     // std::cout << "Bit 9 is stuck" << std::endl;
   }
@@ -1262,7 +1287,7 @@ int TileDigitsMonTool::stuckBits(TH1S * hist, int adc) {
 
         if (EndBin > MinBin) {
           for (int bin = BeginBin; bin < EndBin; ++bin) {
-            //bin is from 0 to 1023 here - must be changed in GetBunConent to (bin+1)
+            //bin is from 0 to m_i_ADCmax here - must be changed in GetBinConent to (bin+1)
             if (MinBin < (bin + 1) && (bin + 1) < MaxBin) {
               sum += hist->GetBinContent(bin + 1);
               ++bin_counter;
@@ -1301,15 +1326,15 @@ int TileDigitsMonTool::stuckBits(TH1S * hist, int adc) {
  if (hb < 9) {
  int hyp_pos = hp;
  int hyp_bit = hb;
- int max_Nsample = 1024/(1<<(hyp_bit+1));
+ int max_Nsample = (m_i_ADCmax + 1)/(1<<(hyp_bit+1));
  for (int bin_sample = 0; bin_sample < max_Nsample; ++bin_sample) {
  //beginning of sample in histogram
  int BeginBin = (1 - hyp_pos)*(1<<hyp_bit)+bin_sample*(1<<(hyp_bit+1));
  //end of sample in histogram
  int EndBin = BeginBin + (1<<hyp_bit);
  for (int bin = BeginBin; bin < EndBin; ++bin) {
- //variable bin from 0 to 1023 - must be changed in GetBunConent to (bin+1)
- if ((bin+1) < 1025) hist->SetBinContent(bin+1,0);
+ //variable bin from 0 to m_i_ADCmax - must be changed in GetBunConent to (bin+1)
+ if ((bin+1) < m_i_ADCmax + 2) hist->SetBinContent(bin+1,0);
  }
  }
  }
@@ -1335,10 +1360,10 @@ int TileDigitsMonTool::stuckBits_Amp(TH1S * hist, int /*adc*/) {
   }
   cp = hist->GetBinContent(1);
   f = !!cp;
-  for (i = 1; i < 1024; i++) {
+  for (i = 1; i < m_i_ADCmax + 1; i++) {
     cm = cc;
     c = cc = cp;
-    cp = (i < 1023) ? hist->GetBinContent(i + 2) : 0;
+    cp = (i < m_i_ADCmax) ? hist->GetBinContent(i + 2) : 0;
     prob = 1.;
     if (c > 0 && c < 0.125 * (cp + cm - std::sqrt((double) cp) - std::sqrt((double) cm))) {
       prob = 1. - (double) c / (0.125 * (cp + cm - std::sqrt((double) cp) - std::sqrt((double) cm)));
@@ -1391,14 +1416,14 @@ int TileDigitsMonTool::stuckBits_Amp2(TH1S * hist, int /*adc*/, TH2C *outhist, i
   cp = hist->GetBinContent(1);
   f = !!cp;
   if (f) first_non0 = 0;
-  for (last_non0 = 1023; last_non0 >= 0; last_non0--)
+  for (last_non0 = m_i_ADCmax; last_non0 >= 0; last_non0--)
     if (hist->GetBinContent(last_non0 + 1) > 0) break;
   if (last_non0 < 0) // empty histogram
     return 0;
   for (i = 1; i <= last_non0; i++) {
     cm = cc;
     c = cc = cp;
-    cp = (i < 1023) ? hist->GetBinContent(i + 2) : 0;
+    cp = (i < m_i_ADCmax) ? hist->GetBinContent(i + 2) : 0;
     if (first_non0 < 0) {
       if (cc > 0)
         first_non0 = i;
@@ -1488,7 +1513,8 @@ int TileDigitsMonTool::stuckBits_Amp2(TH1S * hist, int /*adc*/, TH2C *outhist, i
       }
     }
   }
-  if ((first_non0 >= 512 && first_non0 < 1023) || (last_non0 == 511 && hist->GetBinContent(last_non0) > 3)) {
+  if ((first_non0 >= (m_i_ADCmax + 1) / 2 && first_non0 < m_i_ADCmax)
+      || (last_non0 == (m_i_ADCmax + 1) / 2 - 1 && hist->GetBinContent(last_non0) > 3)) {
     is_stack = 1;
     sb_prob[3] = 100.;
     if (stuck_probs != NULL)
@@ -1499,11 +1525,11 @@ int TileDigitsMonTool::stuckBits_Amp2(TH1S * hist, int /*adc*/, TH2C *outhist, i
     outhist->Fill((double) ch, 1., sb_prob[1]);
     outhist->Fill((double) ch, 2., sb_prob[2]);
     outhist->Fill((double) ch, 3., sb_prob[3]);
-    if (first_non0 == 1023)
+    if (first_non0 == m_i_ADCmax)
       outhist->Fill((double) ch, 5., 100.);
-    else if (last_non0 == 1023) {
+    else if (last_non0 == m_i_ADCmax) {
       double frac;
-      frac = 100. * (double) hist->GetBinContent(1024) / hist->GetEntries();
+      frac = 100. * (double) hist->GetBinContent(m_i_ADCmax + 1) / hist->GetEntries();
       if (frac > 0. && frac < 1.) frac = 1.;
       if (frac > 99. && frac < 100.) frac = 99.;
       outhist->Fill((double) ch, 5., frac);
@@ -1740,11 +1766,12 @@ void TileDigitsMonTool::shiftHisto(TH1S *hist, int ros, int drawer, int ch, int 
   s.Search(hist, 2, "goff");
   int shift = int(s.GetPositionX()[0]);
   if (shift > 0) {
-    int xmax = std::max(1025, 846 + shift);
-    int xmin = std::max(1, shift + 50);
+    int factor = m_is12bit ? 4 : 1;
+    int xmax = std::max(1025 * factor, 846 * factor + shift);
+    int xmin = std::max(1, shift + 50 * factor);
     for (int bin = xmin; bin < xmax; ++bin) {
       double c = hist->GetBinContent(bin);
-      if (c > 0) m_data->m_shifted_hist[ros][drawer][ch][gain]->SetBinContent(bin - shift - 50, c);
+      if (c > 0) m_data->m_shifted_hist[ros][drawer][ch][gain]->SetBinContent(bin - shift - 50 * factor, c);
     }
   }
 }
@@ -1756,9 +1783,9 @@ void TileDigitsMonTool::statTestHistos(int ros, int drawer, int gain)
 {
   std::vector<TH1S*> refbld;
   std::vector<TH1S*> newrefbld;
-  TH1F *ref = new TH1F("ref", "ref", 796, 0., 796.);
+  TH1F *ref = new TH1F("ref", "ref", m_shiftnbins, 0., m_shiftnbins);
   ref->SetDirectory(0);
-  TH1F *ref1 = new TH1F("ref1", "ref1", 796, 0., 796.);
+  TH1F *ref1 = new TH1F("ref1", "ref1", m_shiftnbins, 0., m_shiftnbins);
   ref1->SetDirectory(0);
 
   for (int i = 0; i < 48; i++) {

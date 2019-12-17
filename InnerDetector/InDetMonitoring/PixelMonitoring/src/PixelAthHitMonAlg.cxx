@@ -98,6 +98,7 @@ StatusCode PixelAthHitMonAlg::fillHistograms( const EventContext& ctx ) const {
   int nActive_layer[PixLayers::COUNT] = {0};
   float avgocc_active_layer[PixLayers::COUNT] = {0};
   float avgocc_good_layer[PixLayers::COUNT] = {0};
+  float avgocc_ratio_toIBL_layer[PixLayers::COUNT] = {0};
 
   PixelID::const_id_iterator idIt = m_pixelid->wafer_begin();
   PixelID::const_id_iterator idItEnd = m_pixelid->wafer_end();
@@ -118,7 +119,7 @@ StatusCode PixelAthHitMonAlg::fillHistograms( const EventContext& ctx ) const {
     }
   }
 
-  const int nChannels_mod[PixLayers::COUNT] = {46080, 46080, 46080, 26880, 26880, 46080, 46080, 26880};
+  const int nChannels_mod[PixLayers::COUNT] = {46080, 46080, 46080, 46080, 46080, 26880, 26880, 26880};
   float nGoodChannels_total = 0.;
   float nGoodChannels_layer[PixLayers::COUNT];
   float nActiveChannels_layer[PixLayers::COUNT];
@@ -204,13 +205,20 @@ StatusCode PixelAthHitMonAlg::fillHistograms( const EventContext& ctx ) const {
   fillFromArrays( "Hit_Occupancy_PP0", hitsPerEventArray, "Occupancy_per_pixel_event");
 
   for (int i = 0; i < PixLayers::COUNT; i++) {
-    if (nGoodChannels_layer[i]>0)     avgocc_good_layer[i] = nhits_layer[i] / nGoodChannels_layer[i];
+    if (nGoodChannels_layer[i]>0)   avgocc_good_layer[i] = nhits_layer[i] / nGoodChannels_layer[i];
     auto val = Monitored::Scalar<float>( "AvgOcc_per_BCID_val", avgocc_good_layer[i]);
     fill( pixLayersLabel[i], bcidval, val );
     if (nActiveChannels_layer[i]>0) avgocc_active_layer[i] = nhits_layer[i] / nActiveChannels_layer[i];
   }
   fill1DProfLumiLayers( "AvgOcc_active_per_lumi", lb, avgocc_active_layer );
+  fill1DProfLumiLayers( "AvgOcc_good_per_lumi", lb, avgocc_good_layer );
 
+  if (m_doOnline && avgocc_good_layer[PixLayers::kIBL]>0) {
+    for (int i = 0; i < PixLayers::COUNT; i++) {
+      avgocc_ratio_toIBL_layer[i] = avgocc_good_layer[i] / avgocc_good_layer[PixLayers::kIBL];
+    }
+    fill1DProfLumiLayers( "AvgOcc_ratio_toIBL_per_lumi", lb, avgocc_ratio_toIBL_layer );
+  }
   //*******************************************************************************
   //************************** End of filling Hit Histograms **********************
   //*******************************************************************************

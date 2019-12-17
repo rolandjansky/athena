@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /***************************************************************************
                           JEMJetAlgorithm.cxx  -  description
@@ -26,7 +26,7 @@ using namespace TrigConf;
 const int JEMJetAlgorithm::m_satLarge = 0x3FF;
 const int JEMJetAlgorithm::m_satSmall = 0x1FF;
 
-LVL1::JEMJetAlgorithm::JEMJetAlgorithm( double eta, double phi, const std::map<int, JetInput *>* jiContainer, ServiceHandle<TrigConf::ITrigConfigSvc> config):
+LVL1::JEMJetAlgorithm::JEMJetAlgorithm( double eta, double phi, const std::map<int, JetInput *>* jiContainer, ServiceHandle<TrigConf::ILVL1ConfigSvc> config):
   m_configSvc(config),
   m_ET4x4(0),
   m_ET6x6(0),

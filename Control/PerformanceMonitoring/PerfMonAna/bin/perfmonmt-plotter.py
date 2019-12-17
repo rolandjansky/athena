@@ -20,6 +20,7 @@ import operator
 
 if ( len(sys.argv) != 2 ):
   print("Please give result file as an argument!")
+  sys.exit()
 
 # Get the result Json file
 result_file = sys.argv[1] 
@@ -40,8 +41,8 @@ def snapshot_plotter(snapshot_data, plotname):
   snapshot_cpu_times.append(cpu_time)
   snapshot_wall_times.append(wall_time)
 
-  cpu_time = snapshot_data['Event_loop']['cpu_time']
-  wall_time = snapshot_data['Event_loop']['wall_time']
+  cpu_time = snapshot_data['Event Loop']['cpu_time']
+  wall_time = snapshot_data['Event Loop']['wall_time']
   snapshot_cpu_times.append(cpu_time)
   snapshot_wall_times.append(wall_time)
 
@@ -59,7 +60,7 @@ def snapshot_plotter(snapshot_data, plotname):
   rects2 = ax.barh(ind + width/2, snapshot_wall_times, width, label = 'Wall Time') 
   ax.set_xlabel('Time(ms)')
   ax.set_ylabel('Steps')
-  ax.set_title('Snapshot Level Monitoring')
+  ax.set_title('CPU & Wall Time Summary')
   ax.set_yticks(ind)
   ax.set_yticklabels(snapshot_steps)
   ax.legend()
@@ -136,14 +137,13 @@ def time_plotter(complevel_data, plotname):
     alpha=opacity,
     label='Wall Time')
 
-    plt.ylabel('Components',fontsize = 35)
+    plt.ylabel('Components',fontsize = 50)
     plt.xlabel('Time(ms)', fontsize = 35)
-    plt.title(step, fontsize = 40, fontweight = "bold")
+    plt.title(step, fontsize = 60, fontweight = "bold")
     plt.yticks(index + bar_width, sorted_components)
     plt.legend(prop={'size': 30})
     
-    ax.tick_params(axis='both', which='major', labelsize=30)
-    ax.tick_params(axis='both', which='minor', labelsize=30)
+    ax.tick_params(axis='both', which='minor', labelsize=40)
 
 
     fig.set_tight_layout( True )
@@ -241,14 +241,13 @@ def mem_plotter(complevel_data, plotname):
     alpha=opacity,
     label='Swap')
 
-    plt.ylabel('Components',fontsize = 35)
-    plt.xlabel('Time(ms)', fontsize = 35)
-    plt.title(step, fontsize = 40, fontweight = "bold")
+    plt.ylabel('Components',fontsize = 50)
+    plt.xlabel('Memory Size(kB)', fontsize = 45)
+    plt.title(step, fontsize = 70, fontweight = "bold")
     plt.yticks(index + bar_width, sorted_components)
-    plt.legend(prop={'size': 30})
+    plt.legend(prop={'size': 60})
     
-    ax.tick_params(axis='both', which='major', labelsize=30)
-    ax.tick_params(axis='both', which='minor', labelsize=30)
+    ax.tick_params(axis='both', which='minor', labelsize=40)
 
 
     fig.set_tight_layout( True )
@@ -256,6 +255,99 @@ def mem_plotter(complevel_data, plotname):
    
   fig.savefig(plotname)
 
+
+def eventLevelTimeMon_plotter(eventlevel_data, plotname):
+
+  sorted_data = sorted(eventlevel_data.items(), key=lambda i: int(i[0]))
+
+  
+  checkPoint_list = []
+  cpu_list = []
+  wall_list = []
+
+  for entry in sorted_data:
+
+    checkPoint = entry[0]
+    measurement = entry[1]
+
+    cpu_time = measurement["cpu_time"]
+    wall_time = measurement["wall_time"]
+
+    checkPoint_list.append(checkPoint)
+    cpu_list.append(cpu_time)
+    wall_list.append(wall_time)
+
+  fig = plt.figure()
+ 
+  plt.plot(checkPoint_list, cpu_list, label = "CPU Time")
+  plt.plot(checkPoint_list, wall_list, label = "Wall Time")
+  plt.xlabel('Events')
+  plt.ylabel('Time[ms]')
+
+  index = np.arange(len(checkPoint_list))
+
+  plt.xticks(index, checkPoint_list, rotation='vertical')
+  plt.tick_params(axis='x', labelsize=3)
+
+  plt.title('Event Level Time Measurements')
+  plt.legend()
+
+  fig.set_tight_layout( True )
+    
+   
+  fig.savefig(plotname)
+
+
+def eventLevelMemMon_plotter(eventlevel_data, plotname):
+
+  # Sort by event check points
+  sorted_data = sorted(eventlevel_data.items(), key=lambda i: int(i[0]))
+  
+  checkPoint_list = []
+  vmem_list = []
+  rss_list = []
+  pss_list = []
+  swap_list = []
+
+  for entry in sorted_data:
+
+    checkPoint = entry[0]
+    measurement = entry[1]
+
+    vmem = measurement["vmem"]
+    rss = measurement["rss"]
+    pss = measurement["pss"]
+    swap = measurement["swap"]
+
+    checkPoint_list.append(checkPoint)
+    vmem_list.append(vmem)
+    rss_list.append(rss)
+    pss_list.append(pss)
+    swap_list.append(swap)
+
+  fig = plt.figure()
+ 
+  plt.plot(checkPoint_list, vmem_list, label = "Vmem")
+  plt.plot(checkPoint_list, rss_list, label= "Rss")
+  plt.plot(checkPoint_list, pss_list,  label = "Pss")
+  plt.plot(checkPoint_list, swap_list,  label = "Swap")
+  plt.xlabel('Events')
+  plt.ylabel('Memory[kB]')
+
+  index = np.arange(len(checkPoint_list))
+
+  plt.xticks(index, checkPoint_list, rotation='vertical')
+  plt.tick_params(axis='x', labelsize=3)
+
+  plt.title('Event Level Memory Measurements')
+  plt.legend()
+
+  fig.set_tight_layout( True )
+   
+  fig.savefig(plotname)
+
+
+  
 
 with open( result_file ) as json_file:
   data = json.load(json_file)
@@ -266,8 +358,13 @@ with open( result_file ) as json_file:
   timeMon_serial_data = data['TimeMon_Serial']
   time_plotter(timeMon_serial_data, 'TimeMon_Serial.pdf')
 
-  timeMon_parallel_data = data['TimeMon_Parallel']
-  time_plotter(timeMon_parallel_data, 'TimeMon_Parallel.pdf')
-
   memMon_serial_data = data['MemMon_Serial']
   mem_plotter(memMon_serial_data, 'MemMon_Serial.pdf')
+
+  if 'TimeMon_Parallel' in data:
+    timeMon_parallel_data = data['TimeMon_Parallel']
+    eventLevelTimeMon_plotter(timeMon_parallel_data, 'TimeMon_Parallel.pdf')
+
+  if 'MemMon_Parallel' in data:
+    memMon_parallel_data = data['MemMon_Parallel']
+    eventLevelMemMon_plotter(memMon_parallel_data, 'MemMon_Parallel.pdf')

@@ -99,8 +99,7 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
         # Normal jet reconstruction, no reclustering or grooming
 
         # Start by adding the topocluster reco sequence
-        # We always make LCW topoclusters, then deal with
-        # calibration states later
+        # This makes EM clusters!
         from TrigT2CaloCommon.CaloDef import HLTFSTopoRecoSequence
         (topoClusterSequence, clustersKey) = RecoFragmentsPool.retrieve(HLTFSTopoRecoSequence,RoIs)
         recoSeq += topoClusterSequence
@@ -116,15 +115,22 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
         # Potentially add particle flow reconstruction
         # Work in progress
         if jetRecoDict["dataType"] == "pf":
+            if jetRecoDict["trkopt"] == "notrk":
+                raise RuntimeError("PFlow jet chain requested with no tracking option!")
             from eflowRec.PFHLTSequence import PFHLTSequence
-            pfseq = RecoFragmentsPool.retrieve(PFHLTSequence,clustersKey)
+            (pfseq, pfoPrefix) = RecoFragmentsPool.retrieve(PFHLTSequence, None, clustersin=clustersKey, tracktype=jetRecoDict["trkopt"])
             recoSeq += pfseq
-
-        jetDef = JetRecoConfiguration.defineJets(jetRecoDict,clustersKey)
-        doConstitMods = ("sk" in jetRecoDict["dataType"])
+            jetDef = JetRecoConfiguration.defineJets(jetRecoDict,pfoPrefix=pfoPrefix)
+        else:
+            jetDef = JetRecoConfiguration.defineJets(jetRecoDict,clustersKey=clustersKey)
+        useConstitMods = ["sk", "pf"]
+        doConstitMods = jetRecoDict["dataType"] in useConstitMods
         if doConstitMods:
             from JetRecConfig.ConstModHelpers import getConstitModAlg
-            recoSeq += getConstitModAlg(jetDef.inputdef,"HLT")
+            if jetRecoDict["trkopt"] == "notrk":
+                recoSeq += getConstitModAlg(jetDef.inputdef,"HLT")
+            else:
+                recoSeq += getConstitModAlg(jetDef.inputdef,"HLT",tvaKey=trkcolls["TVA"],vtxKey=trkcolls["Vertices"])
 
         # Add the PseudoJetGetter alg to the sequence
         constitPJAlg = getConstitPJGAlg( jetDef.inputdef )

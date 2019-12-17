@@ -34,7 +34,7 @@ class opt:
     doWriteBS        = True           # Write out BS?
     doL1Unpacking    = True           # decode L1 data in input file if True, else setup emulation
     doL1Sim          = False          # (re)run L1 simulation
-    isOnline         = False          # isOnline flag (TEMPORARY HACK, should be True by default)
+    isOnline         = True           # isOnline flag
     doEmptyMenu      = False          # Disable all chains, except those re-enabled by specific slices
     createHLTMenuExternally = False   # Set to True if the menu is build manually outside testHLT_MT.py
     endJobAfterGenerate = False       # Finish job after menu generation
@@ -42,6 +42,7 @@ class opt:
 #Individual slice flags
     doEgammaSlice     = True
     doMuonSlice       = True
+    doMinBiasSlice    = True
     doJetSlice        = True
     doMETSlice        = True
     doBjetSlice       = True
@@ -52,6 +53,7 @@ class opt:
     doMonitorSlice    = True
     doBeamspotSlice   = True
     reverseViews      = False
+    filterViews       = False
     enabledSignatures = []
     disabledSignatures = []
 
@@ -118,6 +120,11 @@ if len(athenaCommonFlags.FilesInput())>0:
     af = athFile.fopen(athenaCommonFlags.FilesInput()[0])
     globalflags.InputFormat = 'bytestream' if af.fileinfos['file_type']=='bs' else 'pool'
     globalflags.DataSource = 'data' if af.fileinfos['evt_type'][0]=='IS_DATA' else 'geant4'
+    # Set isOnline=False for MC inputs unless specified in the options
+    if globalflags.DataSource() != 'data' and 'isOnline' not in globals():
+        log.info("Setting isOnline = False for MC input")
+        opt.isOnline = False
+    # Set geometry and conditions tags
     if opt.setDetDescr is None:
         opt.setDetDescr = af.fileinfos.get('geometry',None)
     if opt.setGlobalTag is None:
@@ -344,6 +351,8 @@ if TriggerFlags.doID():
 if TriggerFlags.doCalo():
     from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigDataAccess
     svcMgr.ToolSvc += TrigDataAccess()
+    if globalflags.InputFormat.is_pool():
+        TriggerFlags.writeBS = True # enable transient BS if TrigDataAccess is used with pool data
 
 if TriggerFlags.doMuon():
     TriggerFlags.MuonSlice.doTrigMuonConfig=True
@@ -446,8 +455,19 @@ if not opt.createHLTMenuExternally:
         import sys
         sys.exit(0)
 
-from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc
+
+
+from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc, setupHLTPrescaleCondAlg
 svcMgr += getHLTConfigSvc()
+setupHLTPrescaleCondAlg()
+
+if not opt.createHLTMenuExternally:
+    # the generation of the prescale set file from the menu (with all prescales set to 1)
+    # is not really needed. If no file is provided all chains are either enabled or disabled,
+    # depending on the property L1Decoder.PrescalingTool.KeepUnknownChains being True or False
+    from TrigConfigSvc.TrigConfigSvcCfg import createHLTPrescalesFileFromMenu
+    createHLTPrescalesFileFromMenu()
+
 
 
 # ---------------------------------------------------------------

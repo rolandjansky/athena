@@ -36,8 +36,10 @@ makeHLTTree( triggerConfigHLT=TriggerConfigHLT )
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
 generateJSON()
 
-from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc
+from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc, getL1ConfigSvc
 svcMgr += getHLTConfigSvc()
+TriggerFlags.triggerMenuSetup = "LS2_v1"
+svcMgr += getL1ConfigSvc()
 
    
 print "EmuStepProcessing: dump top Sequence after CF/DF Tree build"

@@ -13,6 +13,7 @@
 #include "../PixelHitDiscCnfgAlg.h"
 #include "../PixelAlignCondAlg.h"
 #include "../PixelDetectorElementCondAlg.h"
+#include "../PixeldEdxAlg.h"
 
 DECLARE_COMPONENT( PixelDCSCondHVAlg )
 DECLARE_COMPONENT( PixelDCSCondTempAlg )
@@ -29,3 +30,4 @@ DECLARE_COMPONENT( PixelCablingCondAlg )
 DECLARE_COMPONENT( PixelHitDiscCnfgAlg )
 DECLARE_COMPONENT( PixelAlignCondAlg )
 DECLARE_COMPONENT( PixelDetectorElementCondAlg )
+DECLARE_COMPONENT( PixeldEdxAlg )

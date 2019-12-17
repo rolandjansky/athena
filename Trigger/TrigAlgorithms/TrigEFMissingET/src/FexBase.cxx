@@ -122,7 +122,7 @@ namespace HLT { namespace MET {
     for (std::size_t ii = 0; ii < met.getNumberOfComponents(); ++ii) {
       METComponent component(ii, met);
       if (component.sumEt > 0 &&
-          component.met() / component.sumEt > m_maxComponentMetSumEtRatio) {
+          component.met() / component.sumEt > m_maxComponentMETSumEtRatio) {
         component.status |= StatusFlag::ComponentBigMEtSEtRatio;
         overall |= StatusFlag::ComponentBigMEtSEtRatio;
       }
@@ -131,7 +131,7 @@ namespace HLT { namespace MET {
     METComponent total(met);
     total.status |= overall;
     if (total.sumEt > 0 &&
-        total.met() / total.sumEt > m_maxGlobalMetSumEtRatio)
+        total.met() / total.sumEt > m_maxGlobalMETSumEtRatio)
       total.status |= StatusFlag::GlobalBigMEtSEtRatio;
     met.setFlag(total.status);
     return StatusCode::SUCCESS;

@@ -11,8 +11,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Database/APR/CollectionBase
                           Database/APR/CollectionUtilities
                           Database/APR/PersistencySvc
-                          Database/APR/StorageSvc
-                          TestPolicy )
+                          Database/APR/StorageSvc )
 
 # Necessary external(s):
 find_package( cx_Oracle )

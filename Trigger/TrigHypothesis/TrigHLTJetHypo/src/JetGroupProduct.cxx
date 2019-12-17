@@ -54,4 +54,5 @@ std::optional<std::vector<std::size_t>> JetGroupProduct::next(){
       return jg_indices;
     }
   }
+  std::optional<std::vector<std::size_t>>();
 }

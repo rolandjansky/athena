@@ -18,7 +18,7 @@ if __name__ == '__main__':
 
   #import config flags
   from AthenaConfiguration.AllConfigFlags import ConfigFlags
-  ConfigFlags.Sim.ISF.Run = True
+  ConfigFlags.Sim.ISFRun = True
 
   #Provide input
   from AthenaConfiguration.TestDefaults import defaultTestFiles
@@ -58,7 +58,7 @@ if __name__ == '__main__':
 
 
   #cfg not being used so complains ...fine now!
-  f=open("test.pkl","w")
+  f=open("test.pkl","wb")
   cfg.store(f) #sets wasmerged = true
   f.close()
 

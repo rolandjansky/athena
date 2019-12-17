@@ -4,7 +4,6 @@
 
 #include <iostream>
 #include "TrigConfData/DataStructure.h"
-#include <boost/property_tree/json_parser.hpp>
 
 using TV = boost::property_tree::ptree::value_type;  // tree-value type
 using namespace std;

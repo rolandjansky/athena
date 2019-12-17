@@ -8,11 +8,11 @@
 #include <limits>
 #include <cassert>
 
-typedef IdentifiableValueCache<int, std::numeric_limits<int>::min()> int100cache;
-typedef IdentifiableValueContainer<int, std::numeric_limits<int>::min()> int100container;
+typedef IdentifiableValueCache<int> int100cache;
+typedef IdentifiableValueContainer<int> int100container;
 
 int main(){
-   auto *cache = new int100cache(100);
+   auto *cache = new int100cache(100, std::numeric_limits<int>::min());
    auto *container = new int100container(cache);
    auto *container2 = new int100container(cache);
    assert(cache->emptyValue() == std::numeric_limits<int>::min());
@@ -27,6 +27,7 @@ int main(){
    if(container2->tryAddFromCache(50) == false) std::abort();
    if(container2->getAll().size()!= 1) std::abort();
    if(container->getAll().size()!= 3) std::abort();
+   if(cache->getAll().size()!= 3) std::abort();
    if(container2->retrieve(50) != 29) std::abort();
    if(container2->present(51) == true) std::abort();
    if(container2->retrieve(51) != container2->emptyValue()) std::abort();

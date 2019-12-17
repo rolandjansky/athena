@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkSurfaces/RectangleBounds.h"
@@ -15,8 +15,8 @@ void InDet::TRT_TrajectoryElement_xk::set
 (const TRT_ID                           *    m,
  const Trk::IPatternParametersPropagator*   pr, 
  const Trk::IPatternParametersUpdator   *   up, 
- Trk::IRIO_OnTrackCreator               * riod,
- Trk::IRIO_OnTrackCreator               * rion,
+ const Trk::IRIO_OnTrackCreator               * riod,
+ const Trk::IRIO_OnTrackCreator               * rion,
  double scale)
 {
   m_trtid       = m               ;
@@ -28,7 +28,7 @@ void InDet::TRT_TrajectoryElement_xk::set
 }
 
 void InDet::TRT_TrajectoryElement_xk::set
-(const Trk::MagneticFieldProperties &  mf,MagField::IMagFieldSvc*& ms)
+(const Trk::MagneticFieldProperties &  mf,const MagField::IMagFieldSvc*ms)
 {
   m_fieldprop    = mf;
   m_fieldService = ms;

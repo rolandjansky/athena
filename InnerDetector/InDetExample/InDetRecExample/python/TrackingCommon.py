@@ -299,7 +299,7 @@ def getInDetPixelClusterOnTrackToolBase(name, **kwargs) :
                          NNIBLcorrection          = ( InDetFlags.doPixelClusterSplitting() and
                                                       InDetFlags.pixelClusterSplittingType() == 'NeuralNet' and not InDetFlags.doSLHC()),
                          SplitClusterAmbiguityMap = InDetKeys.SplitClusterAmbiguityMap() + split_cluster_map_extension,
-                         RunningTIDE_Ambi         = InDetFlags.doTIDE_Ambi())
+                         RunningTIDE_Ambi         = InDetFlags.doTIDE_Ambi() )
 
     return InDet__PixelClusterOnTrackTool(the_name , **kwargs)
 
@@ -316,11 +316,14 @@ def getInDetPixelClusterOnTrackToolNNSplitting(name='InDetPixelClusterOnTrackToo
 def getInDetPixelClusterOnTrackTool(name='InDetPixelClusterOnTrackTool', **kwargs) :
     if 'LorentzAngleTool' not in kwargs :
         kwargs = setDefaults(kwargs, LorentzAngleTool = getPixelLorentzAngleTool())
-
-    return getInDetPixelClusterOnTrackToolNNSplitting(name=name, **kwargs)
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    if InDetFlags.doDigitalROTCreation() :  
+        return getInDetPixelClusterOnTrackToolDigital(name=name, **kwargs) 
+    else:
+        return getInDetPixelClusterOnTrackToolNNSplitting(name=name, **kwargs)
 
 def getInDetPixelClusterOnTrackToolPattern(name='InDetPixelClusterOnTrackToolPattern', **kwargs) :
-    return getInDetPixelClusterOnTrackToolNNSplitting(name=name, **kwargs)
+    return getInDetPixelClusterOnTrackTool(name=name, **kwargs)
 
 def getInDetPixelClusterOnTrackToolDigital(name='InDetPixelClusterOnTrackToolDigital', **kwargs) :
     from InDetRecExample.InDetJobProperties import InDetFlags
@@ -332,7 +335,8 @@ def getInDetPixelClusterOnTrackToolDigital(name='InDetPixelClusterOnTrackToolDig
                              applyNNcorrection = False,
                              NNIBLcorrection   = False,
                              ErrorStrategy     = 2,
-                             PositionStrategy  = 1)
+                             PositionStrategy  = 1,
+                             SplitClusterAmbiguityMap = "")
     else :
         kwargs = setDefaults(kwargs,
                              SplitClusterAmbiguityMap = "")
@@ -490,6 +494,33 @@ def getInDetRefitRotCreator(name='InDetRefitRotCreator', **kwargs) :
                                      ToolTRT_DriftCircle = getInDetTRT_DriftCircleOnTrackUniversalTool(ScaleHitUncertainty = ScaleHitUncertainty))
 
     return getInDetRotCreator(name = name, **kwargs)
+
+@makePublicTool
+def getInDetUpdator(name = 'InDetUpdator', **kwargs) :
+    the_name = makeName( name, kwargs ) 
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    if InDetFlags.kalmanUpdator() == "fast" :
+        from TrkMeasurementUpdator_xk.TrkMeasurementUpdator_xkConf import Trk__KalmanUpdator_xk as Updator
+    elif InDetFlags.kalmanUpdator() == "weight" :
+        from TrkMeasurementUpdator.TrkMeasurementUpdatorConf import Trk__KalmanWeightUpdator as Updator
+    elif InDetFlags.kalmanUpdator() == "smatrix" :
+        from TrkMeasurementUpdator.TrkMeasurementUpdatorConf import Trk__KalmanUpdatorSMatrix as Updator
+    elif InDetFlags.kalmanUpdator() == "amg" :
+        from TrkMeasurementUpdator.TrkMeasurementUpdatorConf import Trk__KalmanUpdatorAmg as Updator
+    else :
+        from TrkMeasurementUpdator.TrkMeasurementUpdatorConf import Trk__KalmanUpdator as Updator
+    return Updator(name = the_name, **kwargs)
+
+
+
+@makePublicTool
+def getInDetGsfMeasurementUpdator(name='InDetGsfMeasurementUpdator', **kwargs) :
+    the_name = makeName( name, kwargs )
+    if 'Updator' not in kwargs  :
+       kwargs=setDefaults(kwargs, Updator = getInDetUpdator() )
+    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMeasurementUpdator
+    return Trk__GsfMeasurementUpdator( name = the_name, **kwargs )
+
 
 @makePublicTool
 def getInDetGsfMaterialUpdator(name='InDetGsfMaterialUpdator', **kwargs) :
@@ -764,14 +795,6 @@ def getInDetHoleSearchTool(name = 'InDetHoleSearchTool', **kwargs) :
 @makePublicTool
 def getInDetPixelToTPIDTool(name = "InDetPixelToTPIDTool", **kwargs) :
     the_name = makeName( name, kwargs)
-    from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
-    if not athenaCommonFlags.isOnline():
-        kwargs = setDefaults( kwargs, ReadFromCOOL = True)
-    else:
-        from AthenaCommon.GlobalFlags import globalflags
-        is_data = globalflags.DataSource == 'data'
-        kwargs = setDefaults( kwargs,
-                              CalibrationFile = 'dtpar_signed_234.txt'  if is_data else  'mcpar_signed_234.txt')
 
     from PixelToTPIDTool.PixelToTPIDToolConf import InDet__PixelToTPIDTool
     return InDet__PixelToTPIDTool(name = the_name, **kwargs)

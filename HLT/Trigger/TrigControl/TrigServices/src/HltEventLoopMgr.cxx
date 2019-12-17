@@ -11,6 +11,7 @@
 #include "TrigSteeringEvent/HLTResultMT.h"
 
 // Athena includes
+#include "AthenaInterprocess/Incidents.h"
 #include "AthenaKernel/AthStatusCode.h"
 #include "AthenaMonitoring/OHLockedHist.h"
 #include "ByteStreamData/ByteStreamMetadata.h"
@@ -220,7 +221,7 @@ StatusCode HltEventLoopMgr::start()
 StatusCode HltEventLoopMgr::stop()
 {
   // Need to reinitialize IO in the mother process
-  if (m_workerId.empty()) {
+  if (m_workerID==0) {
     ATH_CHECK(m_ioCompMgr->io_reinitialize());
   }
 
@@ -358,7 +359,7 @@ StatusCode HltEventLoopMgr::hltUpdateAfterFork(const ptree& /*pt*/)
   if ( !m_ioCompMgr->io_retrieve(histsvc.get()).empty() ) {
     boost::filesystem::path worker_dir = boost::filesystem::absolute("athenaHLT_workers");
     std::ostringstream oss;
-    oss << "athenaHLT-" << std::setfill('0') << std::setw(2) << m_workerId;
+    oss << "athenaHLT-" << std::setfill('0') << std::setw(2) << m_workerID;
     worker_dir /= oss.str();
     // Delete worker directory if it exists already
     if ( boost::filesystem::exists(worker_dir) ) {
@@ -388,6 +389,9 @@ StatusCode HltEventLoopMgr::hltUpdateAfterFork(const ptree& /*pt*/)
     m_isSlotProcessing.resize(m_whiteboard->getNumberOfStores(), false);
   }
   m_timeoutCond.notify_all();
+
+  // Fire incident to update listeners after forking
+  m_incidentSvc->fireIncident(AthenaInterprocess::UpdateAfterFork(m_workerID, m_workerPID, name(), m_currentRunCtx));
 
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
   return StatusCode::SUCCESS;
@@ -679,7 +683,11 @@ void HltEventLoopMgr::updateDFProps()
                    };
 
   getDFProp( "DF_ApplicationName", m_applicationName );
-  getDFProp( "DF_WorkerId", m_workerId, false );
+  std::string wid, wpid;
+  getDFProp( "DF_WorkerId", wid, false );
+  getDFProp( "DF_Pid", wpid, false );
+  if (!wid.empty()) m_workerID = std::stoi(wid);
+  if (!wpid.empty()) m_workerPID = std::stoi(wpid);
 }
 
 // =============================================================================

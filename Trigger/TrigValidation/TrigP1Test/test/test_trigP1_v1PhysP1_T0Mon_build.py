@@ -21,7 +21,7 @@ update_metadata = ExecStep.ExecStep('UpdateMetadata')
 update_metadata.type = 'other'
 update_metadata.executable = 'trigbs_updateBSMetadata.py'
 update_metadata.input = ''
-update_metadata.args = '--copyFrom {:s} --outputName inputForReco output_Child-001._0001.data'.format(get_input('data').paths[0])
+update_metadata.args = '--copyFrom {:s} --outputName inputForReco `find . -name \'*_HLTMPPy_output.*.data\' | tail -n 1`'.format(get_input('data').paths[0])
 
 # Tier-0 reco step (BS->ESD->AOD)
 tzrecoPreExec = ' '.join([
@@ -39,7 +39,7 @@ tzreco.input = ''
 tzreco.explicit_input = True
 tzreco.args = '--inputBSFile=inputForReco._0001.data'  # output of the previous step
 tzreco.args += ' --outputESDFile=ESD.pool.root --outputAODFile=AOD.pool.root'
-tzreco.args += ' --conditionsTag=\'CONDBR2-BLKPA-2017-10\' --geometryVersion=\'ATLAS-R2-2016-01-00-01\''
+tzreco.args += ' --conditionsTag=\'CONDBR2-BLKPA-2018-11\' --geometryVersion=\'ATLAS-R2-2016-01-00-01\''
 tzreco.args += ' --preExec="{:s}"'.format(tzrecoPreExec)
 tzreco.args += ' --postInclude="TriggerTest/disableChronoStatSvcPrintout.py"'
 

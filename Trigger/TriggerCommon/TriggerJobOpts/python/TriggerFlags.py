@@ -152,7 +152,7 @@ class doMT(JobProperty):
     else:
         # ConcurrencyFlags are valid only in offline athena
         from AthenaCommon.ConcurrencyFlags import jobproperties  # noqa: F811
-        StoredValue=bool(jobproperties.ConcurrencyFlags.NumThreads >= 1)
+        StoredValue=bool(jobproperties.ConcurrencyFlags.NumThreads() >= 1)
 
 _flags.append(doMT)
 

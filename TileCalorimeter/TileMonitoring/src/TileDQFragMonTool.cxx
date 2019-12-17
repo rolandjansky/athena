@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -19,6 +19,7 @@
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileRecUtils/TileRawChannelBuilder.h"
+#include "TileConditions/TileInfo.h"
 #include "StoreGate/ReadHandle.h"
 
 #include "TH2I.h"
@@ -56,6 +57,7 @@ TileDQFragMonTool::TileDQFragMonTool(const std::string & type, const std::string
   , m_nLumiblocks(3000)
   , m_qualityCut(254.0)
   , m_nEventsWithAllDigits(0)
+  , m_tileInfo(0)
 /*---------------------------------------------------------*/
 {
   declareInterface<IMonitorToolBase>(this);
@@ -76,45 +78,10 @@ TileDQFragMonTool::TileDQFragMonTool(const std::string & type, const std::string
   declareProperty("TileBadChanTool"        , m_tileBadChanTool);
   declareProperty("NumberOfLumiblocks", m_nLumiblocks = 3000);
   declareProperty("QualityCut", m_qualityCut = 254.0);
+  declareProperty("TileInfoName", m_infoName = "TileInfo");
   declareProperty("TileDQstatus", m_DQstatusKey = "TileDQstatus");
 
   m_path = "/Tile/DMUErrors";
-  // starting up the label variable....
-  m_ErrorsLabels.clear();
-  m_ErrorsLabels.push_back("OK");                 // Error: 0
-  m_ErrorsLabels.push_back("HEADER_FORM");        // Error: 1
-  m_ErrorsLabels.push_back("HEADER_PAR");         // Error: 2
-  m_ErrorsLabels.push_back("MEMO_PAR");           // Error: 3
-  m_ErrorsLabels.push_back("FE_CRC");             // Error: 4
-  m_ErrorsLabels.push_back("ROD_CRC");            // Error: 5
-  m_ErrorsLabels.push_back("BCID");               // Error: 6
-  m_ErrorsLabels.push_back("SAMPLE_FORM");        // Error: 7
-  m_ErrorsLabels.push_back("SAMPLE_PAR");         // Error: 8
-  m_ErrorsLabels.push_back("DOUBLE_STB");         // Error: 9
-  m_ErrorsLabels.push_back("SINGLE_STB");         // Error: 10
-  m_ErrorsLabels.push_back("GLOBAL_CRC");         // Error: 11
-  m_ErrorsLabels.push_back("DUMMY_FRAG");         // Error: 12
-  m_ErrorsLabels.push_back("NO_RECO_FFAG");       // Error: 13
-  m_ErrorsLabels.push_back("MASKED");             // Error: 14
-  m_ErrorsLabels.push_back("ALL_M_BAD_DCS");      // Error: 15
-  m_ErrorsLabels.push_back("ANY_CH_BAD_HV");      // Error: 16
-  assert( m_ErrorsLabels.size() == NERROR );
-  // corrupted data
-  m_ErrorsLabels.push_back("0 -> 1023");          // Error: NERROR - 1 + 1
-  m_ErrorsLabels.push_back("Zeros");              // Error: NERROR - 1 + 2
-  m_ErrorsLabels.push_back("Two 1023 + ped");     // Error: NERROR - 1 + 3
-  m_ErrorsLabels.push_back("Jump 2 levels");      // Error: NERROR - 1 + 4
-  m_ErrorsLabels.push_back("Single Up + ped");    // Error: NERROR - 1 + 5
-  m_ErrorsLabels.push_back("Single Dn + ped");    // Error: NERROR - 1 + 6
-  m_ErrorsLabels.push_back("Single Up + sig");    // Error: NERROR - 1 + 7
-  m_ErrorsLabels.push_back("Single Dn + sig");    // Error: NERROR - 1 + 8
-  m_ErrorsLabels.push_back("Ped>200 LG");         // Error: NERROR - 1 + 9
-  m_ErrorsLabels.push_back("Single Dn LG_s0");    // Error: NERROR - 1 + 10
-  m_ErrorsLabels.push_back("Single Dn LG_s6");    // Error: NERROR - 1 + 11
-  m_ErrorsLabels.push_back("Up LG_s0_s6 or Gap"); // Error: NERROR - 1 + 12
-  m_ErrorsLabels.push_back("Dn LG_s0_s6 or Gap"); // Error: NERROR - 1 + 13
-  assert( m_ErrorsLabels.size() == (NERROR+NCORRUPTED) );
-  
   m_PartitionsLabels.push_back("LBA");
   m_PartitionsLabels.push_back("LBC");
   m_PartitionsLabels.push_back("EBA");
@@ -222,7 +189,48 @@ StatusCode TileDQFragMonTool:: initialize() {
     m_tileDCS.disable();
   }
 
+  // get TileInfo
+  ATH_CHECK( detStore()->retrieve(m_tileInfo, m_infoName) );
+  m_i_ADCmax = m_tileInfo->ADCmax();
+  m_ADCmaxMinusEps = m_i_ADCmax - 0.01;
+  m_ADCmaskValueMinusEps = m_tileInfo->ADCmaskValue() - 0.01;  // indicates channels which were masked in background dataset
 
+  // starting up the label variable....
+  m_ErrorsLabels.clear();
+  m_ErrorsLabels.push_back("OK");                 // Error: 0
+  m_ErrorsLabels.push_back("HEADER_FORM");        // Error: 1
+  m_ErrorsLabels.push_back("HEADER_PAR");         // Error: 2
+  m_ErrorsLabels.push_back("MEMO_PAR");           // Error: 3
+  m_ErrorsLabels.push_back("FE_CRC");             // Error: 4
+  m_ErrorsLabels.push_back("ROD_CRC");            // Error: 5
+  m_ErrorsLabels.push_back("BCID");               // Error: 6
+  m_ErrorsLabels.push_back("SAMPLE_FORM");        // Error: 7
+  m_ErrorsLabels.push_back("SAMPLE_PAR");         // Error: 8
+  m_ErrorsLabels.push_back("DOUBLE_STB");         // Error: 9
+  m_ErrorsLabels.push_back("SINGLE_STB");         // Error: 10
+  m_ErrorsLabels.push_back("GLOBAL_CRC");         // Error: 11
+  m_ErrorsLabels.push_back("DUMMY_FRAG");         // Error: 12
+  m_ErrorsLabels.push_back("NO_RECO_FFAG");       // Error: 13
+  m_ErrorsLabels.push_back("MASKED");             // Error: 14
+  m_ErrorsLabels.push_back("ALL_M_BAD_DCS");      // Error: 15
+  m_ErrorsLabels.push_back("ANY_CH_BAD_HV");      // Error: 16
+  assert( m_ErrorsLabels.size() == NERROR );
+  // corrupted data
+  m_ErrorsLabels.push_back("0 -> " + std::to_string(m_i_ADCmax));          // Error: NERROR - 1 + 1
+  m_ErrorsLabels.push_back("Zeros");              // Error: NERROR - 1 + 2
+  m_ErrorsLabels.push_back("Two " + std::to_string(m_i_ADCmax) + " + ped");     // Error: NERROR - 1 + 3
+  m_ErrorsLabels.push_back("Jump 2 levels");      // Error: NERROR - 1 + 4
+  m_ErrorsLabels.push_back("Single Up + ped");    // Error: NERROR - 1 + 5
+  m_ErrorsLabels.push_back("Single Dn + ped");    // Error: NERROR - 1 + 6
+  m_ErrorsLabels.push_back("Single Up + sig");    // Error: NERROR - 1 + 7
+  m_ErrorsLabels.push_back("Single Dn + sig");    // Error: NERROR - 1 + 8
+  m_ErrorsLabels.push_back("Ped>200 LG");         // Error: NERROR - 1 + 9
+  m_ErrorsLabels.push_back("Single Dn LG_s0");    // Error: NERROR - 1 + 10
+  m_ErrorsLabels.push_back("Single Dn LG_s6");    // Error: NERROR - 1 + 11
+  m_ErrorsLabels.push_back("Up LG_s0_s6 or Gap"); // Error: NERROR - 1 + 12
+  m_ErrorsLabels.push_back("Dn LG_s0_s6 or Gap"); // Error: NERROR - 1 + 13
+  assert( m_ErrorsLabels.size() == (NERROR+NCORRUPTED) );
+  
   ATH_CHECK( m_DQstatusKey.initialize() );
 
   return StatusCode::SUCCESS;
@@ -700,7 +708,7 @@ void TileDQFragMonTool::fillBadDrawer() {
           int channel = m_tileHWID->channel(adcId);
           int gain = m_tileHWID->adc(adcId);
 
-          error = TileRawChannelBuilder::CorruptedData(ROS, drawer, channel, gain, pDigits->samples(), dmin, dmax);
+          error = TileRawChannelBuilder::CorruptedData(ROS, drawer, channel, gain, pDigits->samples(), dmin, dmax, m_ADCmaxMinusEps, m_ADCmaskValueMinusEps);
 
           if ( (error > 0) &&
               !(isDisconnected(ROS, drawer, channel) || m_tileBadChanTool->getAdcStatus(adcId).isBad()) ) {

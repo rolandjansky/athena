@@ -48,7 +48,7 @@ def TileDQstatusAlgCfg(flags, **kwargs):
     name = kwargs['TileDQstatus'] + 'Alg'
     kwargs.setdefault('name', name)
 
-    if not (flags.Input.isMC or flags.Overlay.DataOverlay):
+    if not (flags.Input.isMC or flags.Overlay.DataOverlay or flags.Input.Format.lower() == 'pool'):
         if flags.Tile.RunType == 'PHY':
             beamElemContainer = ""
         else:
@@ -108,7 +108,7 @@ if __name__ == "__main__":
 
     ConfigFlags.dump()
     acc.printConfig(withDetails = True, summariseProps = True)
-    acc.store( open('TileDQstatus.pkl','w') )
+    acc.store( open('TileDQstatus.pkl','wb') )
 
     sc = acc.run(maxEvents = 3)
 

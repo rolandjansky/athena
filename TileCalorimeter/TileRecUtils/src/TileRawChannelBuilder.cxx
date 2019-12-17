@@ -59,7 +59,6 @@ TileRawChannelBuilder::TileRawChannelBuilder(const std::string& type
   , m_bsflags(0)
   , m_tileID(nullptr)
   , m_tileHWID(nullptr)
-  , m_tileInfo(nullptr)
   , m_trigType(0)
   , m_idophys(false)
   , m_idolas(false)
@@ -74,6 +73,7 @@ TileRawChannelBuilder::TileRawChannelBuilder(const std::string& type
   , m_RChSumL(0.0)
   , m_RChSumH(0.0)
   , m_notUpgradeCabling(true)
+  , m_tileInfo(nullptr)
 {
   resetDrawer();
   memset(s_error, 0, sizeof(s_error));
@@ -87,6 +87,7 @@ TileRawChannelBuilder::TileRawChannelBuilder(const std::string& type
   declareProperty("RunType", m_runType = 0);
   declareProperty("DataPoolSize", m_dataPoollSize = -1);
   declareProperty("UseDSPCorrection", m_useDSP = true);
+  declareProperty("TileInfoName", m_infoName = "TileInfo");
   declareProperty("FirstSample",m_firstSample = 0); 
 
 }
@@ -121,7 +122,13 @@ StatusCode TileRawChannelBuilder::initialize() {
   ATH_CHECK( detStore()->retrieve(m_tileID, "TileID") );
   ATH_CHECK( detStore()->retrieve(m_tileHWID, "TileHWID") );
 
-  ATH_CHECK( detStore()->retrieve(m_tileInfo, "TileInfo") );
+  ATH_CHECK( detStore()->retrieve(m_tileInfo, m_infoName) );
+  m_i_ADCmax = m_tileInfo->ADCmax();
+  m_f_ADCmax = m_i_ADCmax;
+  m_i_ADCmaxPlus1 = m_i_ADCmax + 1;
+  m_f_ADCmaxPlus1 = m_i_ADCmaxPlus1;
+  m_ADCmaxMinusEps = m_f_ADCmax - 0.01;
+  m_ADCmaskValueMinusEps = m_tileInfo->ADCmaskValue() - 0.01;  // indicates channels which were masked in background dataset
 
   // access tools and store them
   ATH_CHECK( m_noiseFilterTools.retrieve() );
@@ -331,7 +338,7 @@ void TileRawChannelBuilder::fill_drawer_errors(const EventContext& ctx,
 
     } else {
 
-      int err = CorruptedData(ros, drawer, channel, gain, pDigits->samples(), mindig, maxdig);
+      int err = CorruptedData(ros, drawer, channel, gain, pDigits->samples(), mindig, maxdig, m_ADCmaxMinusEps, m_ADCmaskValueMinusEps);
 
       if (err) {
 
@@ -351,8 +358,8 @@ void TileRawChannelBuilder::fill_drawer_errors(const EventContext& ctx,
             if (err < -5) msg(MSG::VERBOSE) << " Warning " << err;
             else msg(MSG::VERBOSE) << " Error " << err;
           }
-          if (mindig > 2046.99) msg(MSG::VERBOSE) << " BADDQ";
-          if (maxdig > 1022.9) msg(MSG::VERBOSE) << " Overflow";
+          if (mindig > m_ADCmaskValueMinusEps) msg(MSG::VERBOSE) << " BADDQ";
+          if (maxdig > m_ADCmaxMinusEps) msg(MSG::VERBOSE) << " Overflow";
           if (mindig < 0.1) msg(MSG::VERBOSE) << " Underflow";
           if (err < 0) msg(MSG::VERBOSE) << " Const";
 
@@ -366,7 +373,7 @@ void TileRawChannelBuilder::fill_drawer_errors(const EventContext& ctx,
 
       } else {
         if (mindig < 0.01) err += 1;
-        if (maxdig > 1022.99) err += 2;
+        if (maxdig > m_ADCmaxMinusEps) err += 2;
         if (err) s_error[channel] = err - 10;
       }
     }
@@ -682,7 +689,7 @@ double TileRawChannelBuilder::correctTime(double phase, bool of2) {
 
 
 int TileRawChannelBuilder::CorruptedData(int ros, int drawer, int channel, int gain,
-    const std::vector<float> & digits, float &dmin, float &dmax) {
+					 const std::vector<float> & digits, float &dmin, float &dmax, float ADCmaxMinusEps, float ADCmaskValueMinusEps) {
   bool eb = (ros > 2);
   bool ebsp = ((ros == 3 && drawer == 14) || (ros == 4 && drawer == 17));
   bool empty = ((eb && ((channel > 23 && channel < 30) || channel > 41)) || (ebsp && channel < 3));
@@ -691,7 +698,7 @@ int TileRawChannelBuilder::CorruptedData(int ros, int drawer, int channel, int g
 
   const float epsilon = 4.1; // allow +/- 2 counts fluctuations around const value
   const float delta[4] = { 29.9, 29.9, 49.9, 99.9 }; // jump levels between constLG, constHG, non-constLG, non-constHG
-  const float level1 = 99.9; // jump from this level to 1023 is bad 
+  const float level1 = 99.9; // jump from this level to m_i_ADCmax is bad 
   const float level2 = 149.9; // base line at this level in low gain is bad
   const float narrowLevel[2] = { 29.9, 49.9 }; // minimal amplitude for narrow pulses
   const float delt = std::min(std::min(std::min(delta[0], delta[1]), std::min(delta[2], delta[3])),
@@ -706,7 +713,7 @@ int TileRawChannelBuilder::CorruptedData(int ros, int drawer, int channel, int g
     unsigned int pmin = 0;
     unsigned int pmax = 0;
     unsigned int nzero = (dmin < 0.01) ? 1 : 0;
-    unsigned int nover = (dmax > 1022.99) ? 1 : 0;
+    unsigned int nover = (dmax > ADCmaxMinusEps) ? 1 : 0;
 
     for (unsigned int i = 1; i < nSamp; ++i) {
       float dig = digits[i];
@@ -718,14 +725,14 @@ int TileRawChannelBuilder::CorruptedData(int ros, int drawer, int channel, int g
         pmin = i;
       }
       if (dig < 0.01) ++nzero;
-      else if (dig > 1022.99) ++nover;
+      else if (dig > ADCmaxMinusEps) ++nover;
     }
 
     float dmaxmin = dmax - dmin;
     //std::cout << " ros " << ros << " drawer " << drawer << " channel " << channel << " not_gap " << not_gap << " nzero " << nzero << " nover " << nover << std::endl;
 
-    if (dmin > 1022.99) { // overflow in all samples
-      error = (dmin > 2046.99) ? -3 : -1; // dmin=2047 - masking in overlay job (set in TileDigitsMaker)
+    if (dmin > ADCmaxMinusEps) { // overflow in all samples
+      error = (dmin > ADCmaskValueMinusEps) ? -3 : -1; // dmin=m_tileInfo->ADCmaskValue() - masking in overlay job (set in TileDigitsMaker)
 
     } else if (dmax < 0.01) { // underflow in all samples
       error = (empty) ? -5 : -2; // set different type of errors for exsiting and non-existing channels

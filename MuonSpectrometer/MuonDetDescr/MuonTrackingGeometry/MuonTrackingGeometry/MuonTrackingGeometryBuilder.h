@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -12,6 +12,8 @@
 //Trk
 #include "TrkDetDescrInterfaces/IGeometryBuilder.h"
 #include "TrkDetDescrUtils/GeometrySignature.h"
+#include "TrkDetDescrInterfaces/ITrackingVolumeArrayCreator.h"
+#include "TrkDetDescrInterfaces/ITrackingVolumeHelper.h"
 // Gaudi
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -21,22 +23,19 @@
 #include "MuonTrackingGeometry/MuonInertMaterialBuilder.h"
 // EnvelopeDefinitionService
 #include "SubDetectorEnvelopes/RZPair.h"
+#include "SubDetectorEnvelopes/IEnvelopeDefSvc.h"
 
 namespace Trk {
  class TrackingGeometry;
  class Material; 
  class VolumeBounds;
  class ITrackingVolumeBuilder;
- class ITrackingVolumeHelper;
- class ITrackingVolumeArrayCreator;
 
  typedef std::pair< SharedObject<const TrackingVolume>, Amg::Vector3D> TrackingVolumeOrderPosition;
  typedef std::pair< SharedObject<const TrackingVolume>, const Amg::Transform3D*> TrackingVolumeNavOrder;
 
 }
 
-class IEnvelopeDefSvc; 
- 
 namespace Muon {
 
   typedef std::vector<double> Span;
@@ -58,7 +57,7 @@ namespace Muon {
       /** Constructor */
       MuonTrackingGeometryBuilder(const std::string&,const std::string&,const IInterface*);
       /** Destructor */
-      virtual ~MuonTrackingGeometryBuilder();
+      virtual ~MuonTrackingGeometryBuilder() = default;
       /** AlgTool initailize method.*/
       StatusCode initialize();
       /** AlgTool finalize method */
@@ -96,27 +95,31 @@ namespace Muon {
       /** Private method to blend the inert material */
       void blendMaterial() const;
      
-      ToolHandle<Trk::IDetachedTrackingVolumeBuilder>      m_stationBuilder;                //!< A Tool for station type creation
+      ToolHandle<Trk::IDetachedTrackingVolumeBuilder>      m_stationBuilder{this,"MuonStationBuilder","Muon::MuonStationBuilder/MuonStationBuilder"};                //!< A Tool for station type creation
 
-      ToolHandle<Trk::IDetachedTrackingVolumeBuilder>      m_inertBuilder;                  //!< A Tool for inert object  creation
+      ToolHandle<Trk::IDetachedTrackingVolumeBuilder>      m_inertBuilder{this,"InertMaterialBuilder","Muon::MuonInertMaterialBuilder/MuonInertMaterialBuilder"};      //!< A Tool for inert object  creation
       
-      ToolHandle<Trk::ITrackingVolumeArrayCreator>         m_trackingVolumeArrayCreator;    //!< Helper Tool to create TrackingVolume Arrays
+      ToolHandle<Trk::ITrackingVolumeArrayCreator>         m_trackingVolumeArrayCreator{this,"TrackingVolumeArrayCreator","Trk::TrackingVolumeArrayCreator/TrackingVolumeArrayCreator"};    //!< Helper Tool to create TrackingVolume Arrays
 
-      ToolHandle<Trk::ITrackingVolumeHelper>               m_trackingVolumeHelper;          //!< Helper Tool to create TrackingVolumes
+      ToolHandle<Trk::ITrackingVolumeHelper>               m_trackingVolumeHelper{this,"TrackingVolumeHelper","Trk::TrackingVolumeHelper/TrackingVolumeHelper"};          //!< Helper Tool to create TrackingVolumes
 
-      ServiceHandle<IEnvelopeDefSvc>                       m_enclosingEnvelopeSvc;   //!< service to provide input volume size  
+      ServiceHandle<IEnvelopeDefSvc>                       m_enclosingEnvelopeSvc{this,"EnvelopeDefinitionSvc","AtlasEnvelopeDefSvc","n"};   //!< service to provide input volume size
    
-      bool                                m_muonSimple;
-      bool                                m_loadMSentry;
-      bool                                m_muonActive;
-      bool                                m_muonInert;
+      Gaudi::Property<bool>                                m_muonSimple{this,"SimpleMuonGeometry",false};
+      Gaudi::Property<bool>                                m_loadMSentry{this,"LoadMSEntry",false};
+      Gaudi::Property<bool>                                m_muonActive{this,"BuildActiveMaterial",true};
+      Gaudi::Property<bool>                                m_muonInert{this,"BuildInertMaterial",true};
 
       // Overall Dimensions
-      mutable double                      m_innerBarrelRadius;             //!< minimal extend in radial dimension of the muon barrel
-      mutable double                      m_outerBarrelRadius;             //!< maximal extend in radial dimension of the muon barrel
-      mutable double                      m_barrelZ;                  //!< maximal extend in z of the muon barrel
-      mutable double                      m_innerEndcapZ;             //!< maximal extend in z of the inner part of muon endcap 
-      mutable double                      m_outerEndcapZ;             //!< maximal extend in z of the outer part of muon endcap
+      std::shared_ptr<double>         m_innerBarrelRadius;                                                               //!< minimal extend in radial dimension of the muon barrel
+      Gaudi::Property<double>        m_innerBarrelRadiusProperty{this,"InnerBarrelRadius",4255.};    //!< minimal extend in radial dimension of the muon barrel
+      std::shared_ptr<double>         m_outerBarrelRadius;                                                              //!< maximal extend in radial dimension of the muon barrel
+      Gaudi::Property<double>        m_outerBarrelRadiusProperty{this,"OuterBarrelRadius",13910.}; //!< maximal extend in radial dimension of the muon barrel
+      Gaudi::Property<double>        m_barrelZ{this,"BarrelZ",6785.};                                              //!< maximal extend in z of the muon barrel
+      std::shared_ptr<double>         m_innerEndcapZ;                                                                     //!< maximal extend in z of the inner part of muon endcap 
+      Gaudi::Property<double>        m_innerEndcapZProperty{this,"InnerEndcapZ",12900.};              //!< maximal extend in z of the inner part of muon endcap 
+      std::shared_ptr<double>         m_outerEndcapZ;                                                                    //!< maximal extend in z of the outer part of muon endcap
+      Gaudi::Property<double>        m_outerEndcapZProperty{this,"OuterEndcapZ",26046.};             //!< maximal extend in z of the outer part of muon endcap
       double                              m_bigWheel;                 //!< maximal extend in z of the big wheel
       double                              m_outerWheel;               //!< minimal extend in z of the outer wheel (EO)
       double                              m_ectZ;                     //!< minimal extent in z of the ECT
@@ -125,50 +128,54 @@ namespace Muon {
       double                              m_outerShieldRadius;
       double                              m_diskShieldZ;
 
-      mutable Trk::Material               m_muonMaterial;               //!< the (empty) material
+      std::shared_ptr<Trk::Material>  m_muonMaterial;               //!< the (empty) material
 
-      mutable Trk::TrackingVolume*        m_standaloneTrackingVolume;   // muon standalone tracking volume                 
-      int                                 m_barrelEtaPartition;
-      int                                 m_innerEndcapEtaPartition;
-      int                                 m_outerEndcapEtaPartition;
-      int                                 m_phiPartition;
-      mutable bool                        m_adjustStatic;
-      mutable bool                        m_static3d;
-      bool                                m_blendInertMaterial; 
-      bool                                m_removeBlended;
-      mutable unsigned int                m_inertPerm;                  // number of perm objects
-      mutable double                      m_alignTolerance;
-      int                                 m_colorCode;
-      mutable int                         m_activeAdjustLevel;
-      mutable int                         m_inertAdjustLevel;
+      std::shared_ptr<Trk::TrackingVolume*>        m_standaloneTrackingVolume;   // muon standalone tracking volume
+      Gaudi::Property<int>                m_barrelEtaPartition{this,"EtaBarrelPartitions",9};
+      Gaudi::Property<int>                m_innerEndcapEtaPartition{this,"EtaInnerEndcapPartitions",3};
+      Gaudi::Property<int>                m_outerEndcapEtaPartition{this,"EtaOuterEndcapPartitions",3};
+      Gaudi::Property<int>                m_phiPartition{this,"PhiPartitions",16};
 
-      mutable unsigned int                m_frameNum;      
-      mutable unsigned int                m_frameStat;      
+      std::shared_ptr<bool>               m_adjustStatic;
+      Gaudi::Property<bool>              m_adjustStaticProperty{this,"AdjustStatic",true};
+      std::shared_ptr<bool>               m_static3d;
+      Gaudi::Property<bool>              m_static3dProperty{this,"StaticPartition3D",true};
 
-      std::string                         m_entryVolume;
-      std::string                         m_exitVolume;
+      Gaudi::Property<bool>               m_blendInertMaterial{this,"BlendInertMaterial",false}; 
+      Gaudi::Property<bool>               m_removeBlended{this,"RemoveBlendedMaterialObjects",false};
+      mutable std::atomic_uint            m_inertPerm{0};                  // number of perm objects
+      Gaudi::Property<double>           m_alignTolerance{this,"AlignmentPositionTolerance",0.};
+      Gaudi::Property<int>                m_colorCode{this,"ColorCode",0};
+      Gaudi::Property<int>                  m_activeAdjustLevel{this,"ActiveAdjustLevel",2};
+      Gaudi::Property<int>                  m_inertAdjustLevel{this,"InertAdjustLevel",1};
 
-      mutable RZPairVector      m_msCutoutsIn;
-      mutable RZPairVector      m_msCutoutsOut;
+      mutable std::atomic_uint            m_frameNum{0};      
+      mutable std::atomic_uint            m_frameStat{0};      
+
+      Gaudi::Property<std::string>        m_entryVolume{this,"EntryVolumeName","MuonSpectrometerEntrance"};
+      Gaudi::Property<std::string>        m_exitVolume{this,"ExitVolumeName","All::Container::CompleteDetector"};
+
+      std::shared_ptr<RZPairVector>     m_msCutoutsIn;
+      std::shared_ptr<RZPairVector>     m_msCutoutsOut;
       
-      mutable const std::vector<const Trk::DetachedTrackingVolume*>*    m_stations;    // muon chambers 
-      mutable const std::vector<const Trk::DetachedTrackingVolume*>*    m_inertObjs;   // muon inert material 
-      mutable const std::vector<std::vector<std::pair<const Trk::DetachedTrackingVolume*,const Span*> >* >* m_stationSpan; 
-      mutable const std::vector<std::vector<std::pair<const Trk::DetachedTrackingVolume*,const Span*> >* >* m_inertSpan; 
-      mutable std::vector<const Span*>                            m_spans;             // for clearing
-      mutable std::vector<double>                                 m_zPartitions;
-      mutable std::vector<int>                                    m_zPartitionsType;
-      mutable std::vector<float>                                  m_adjustedPhi;
-      mutable std::vector<int>                                    m_adjustedPhiType;
-      mutable std::vector<std::vector<std::vector<std::vector<std::pair<int,float> > > > > m_hPartitions;
-      mutable std::vector<double>                                 m_shieldZPart;
-      mutable std::vector<std::vector<std::pair<int,float> > >   m_shieldHPart;
+      std::shared_ptr<const std::vector<const Trk::DetachedTrackingVolume*>* >   m_stations;    // muon chambers 
+      std::shared_ptr<const std::vector<const Trk::DetachedTrackingVolume*>* >   m_inertObjs;   // muon inert material 
+      std::shared_ptr<const std::vector<std::vector<std::pair<const Trk::DetachedTrackingVolume*,const Span*> >* >* > m_stationSpan; 
+      std::shared_ptr<const std::vector<std::vector<std::pair<const Trk::DetachedTrackingVolume*,const Span*> >* >* > m_inertSpan; 
+      std::shared_ptr<std::vector<const Span*>>                      m_spans;             // for clearing
+      std::shared_ptr<std::vector<double>>                              m_zPartitions;
+      std::shared_ptr<std::vector<int>>                                   m_zPartitionsType;
+      std::shared_ptr<std::vector<float>>                                 m_adjustedPhi;
+      std::shared_ptr<std::vector<int>>                                    m_adjustedPhiType;
+      std::shared_ptr<std::vector<std::vector<std::vector<std::vector<std::pair<int,float> > > > > > m_hPartitions;
+      std::shared_ptr<std::vector<double>>                               m_shieldZPart;
+      std::shared_ptr<std::vector<std::vector<std::pair<int,float> > > >  m_shieldHPart;
       //mutable std::vector<std::pair<std::string,std::pair<double, unsigned int> > >   m_dilFact;
-      mutable std::vector<Trk::MaterialProperties>               m_matProp;
-      mutable std::map<const Trk::DetachedTrackingVolume*,std::vector<const Trk::TrackingVolume*>* > m_blendMap;
-      mutable std::vector<const Trk::DetachedTrackingVolume*>  m_blendVols;
+      //mutable std::vector<Trk::MaterialProperties>               m_matProp;
+      std::shared_ptr<std::map<const Trk::DetachedTrackingVolume*,std::vector<const Trk::TrackingVolume*>* > > m_blendMap;
+      std::shared_ptr<std::vector<const Trk::DetachedTrackingVolume*> > m_blendVols;
       typedef ServiceHandle<IChronoStatSvc> IChronoStatSvc_t;
-      IChronoStatSvc_t              m_chronoStatSvc;      
+      IChronoStatSvc_t m_chronoStatSvc{this,"ChronoStatSvc","ChronoStatSvc","n"};      
  };
 
 

@@ -12,7 +12,9 @@
 #undef NDEBUG
 #include "AthContainers/ThinningDecision.h"
 #include "AthContainers/DataVector.h"
+#include "AthContainers/exceptions.h"
 #include "SGTools/TestStore.h"
+#include "TestTools/expect_exception.h"
 #include <iostream>
 #include <cassert>
 
@@ -47,6 +49,9 @@ void test1 (SGTest::TestStore& store)
   assert (dv2.size() == 10);
   assert (dv2.index (3) == 3);
   assert (dv2.index (8) == 6);
+
+  EXPECT_EXCEPTION (SG::ExcInvalidThinningTarget,
+                    SG::ThinningDecision dv3 ("xxx"));
 }
 
 

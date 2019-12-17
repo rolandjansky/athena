@@ -55,7 +55,7 @@ if __name__ == "__main__":
 
     ConfigFlags.dump()
     acc.printConfig(withDetails = True, summariseProps = True)
-    acc.store( open('MBTSTimeDiffEventInfoAlg.pkl','w') )
+    acc.store( open('MBTSTimeDiffEventInfoAlg.pkl','wb') )
 
     sc = acc.run(maxEvents = 3)
 

@@ -35,6 +35,7 @@ class muonNames(object):
     self.EFCBInOutName = "HLT_MuonsCBInsideOut"
     self.L2IsoMuonName = recordable("HLT_MuonL2ISInfo")
     self.EFIsoMuonName = recordable("HLT_MuonsIso")
+    self.L2forIDName   = recordable("HLT_forID")
 
   def getNames(self, name):
 
@@ -298,8 +299,8 @@ def muFastRecoSequence( RoIs ):
   muFastAlg.MuRoIs = RoIs
   muFastAlg.MuonL2SAInfo = muNames.L2SAName
   muFastAlg.MuonCalibrationStream = "MuonCalibrationStream"
-  muFastAlg.forID = "forID"
-  muFastAlg.forMS = "forMS"
+  muFastAlg.forID = muNames.L2forIDName
+  muFastAlg.forMS = "forMS" 
 
   muFastRecoSequence += muFastAlg
   sequenceOut = muFastAlg.MuonL2SAInfo
@@ -322,7 +323,7 @@ def muonIDFastTrackingSequence( RoIs, name ):
 
   ### Define input data of Inner Detector algorithms  ###
   ### and Define EventViewNodes to run the algorithms ###
-  from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
+  from TrigInDetConfig.InDetSetup import makeInDetAlgs
   viewAlgs = makeInDetAlgs(whichSignature="Muon"+name, rois = RoIs)
 
   global TrackParticlesName
@@ -346,7 +347,8 @@ def muCombRecoSequence( RoIs ):
   ### Required to satisfy data dependencies                                       ###
   import AthenaCommon.CfgMgr as CfgMgr
   ViewVerify = CfgMgr.AthViews__ViewDataVerifier("muFastViewDataVerifier")
-  ViewVerify.DataObjects = [('xAOD::L2StandAloneMuonContainer','StoreGateSvc+'+muNames.L2SAName)]
+  ViewVerify.DataObjects = [('xAOD::L2StandAloneMuonContainer','StoreGateSvc+'+muNames.L2SAName),
+                            ('TrigRoiDescriptorCollection','StoreGateSvc+'+muNames.L2forIDName)]
   muCombRecoSequence+=ViewVerify
 
   ### please read out TrigmuCombMTConfig file ###
@@ -484,7 +486,7 @@ def muEFCBRecoSequence( RoIs, name ):
   muEFCBRecoSequence += ViewVerifyMS
   if "FS" in name:
     #Need to run tracking for full scan chains
-    from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
+    from TrigInDetConfig.InDetSetup import makeInDetAlgs
     viewAlgs = makeInDetAlgs(whichSignature = "MuonFS", rois = RoIs) 
 
      #TrackParticlesName = ""
@@ -504,7 +506,8 @@ def muEFCBRecoSequence( RoIs, name ):
 
     if globalflags.InputFormat.is_bytestream():
       ViewVerifyTrk.DataObjects += [( 'InDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ) ,
-                                    ( 'InDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ) ]
+                                    ( 'InDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
+                                    ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ) ]
     muEFCBRecoSequence += ViewVerifyTrk
 
 
@@ -521,7 +524,7 @@ def muEFCBRecoSequence( RoIs, name ):
     PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muonsFS", inputFTFtracks=TrackCollection)
     PTSeq = seqAND("precisionTrackingInMuonsFS", PTAlgs  )
   else:
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muons",  ViewVerifyTrk, inputFTFtracks= TrackCollection )
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muons",  ViewVerifyTrk, inputFTFtracks= TrackCollection)
     PTSeq = seqAND("precisionTrackingInMuons", PTAlgs  )
   #Get last tracks from the list as input for other alg
 
@@ -610,7 +613,7 @@ def muEFInsideOutRecoSequence(RoIs, name):
 
     from TrigUpgradeTest.InDetPT import makeInDetPrecisionTracking
     #When run in a different view than FTF some data dependencies needs to be loaded through verifier
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muonsLate",  inputFTFtracks= TrackCollection )
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muonsLate",  inputFTFtracks= TrackCollection)
     PTSeq = seqAND("precisionTrackingInLateMuons", PTAlgs  )
 
     efmuInsideOutRecoSequence += PTSeq
@@ -677,7 +680,7 @@ def efmuisoRecoSequence( RoIs, Muons ):
   #efmuisoRecoSequence = parOR("efmuIsoViewNode")
   efmuisoRecoSequence = seqAND("efmuIsoViewNode")
 
-  from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
+  from TrigInDetConfig.InDetSetup import makeInDetAlgs
   viewAlgs = makeInDetAlgs(whichSignature="MuonIso",rois = RoIs)
 
   #TrackParticlesName = ""

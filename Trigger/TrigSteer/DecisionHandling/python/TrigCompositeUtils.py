@@ -8,3 +8,10 @@ ROI_STRING = "roi"
 VIEW_STRING = "view"
 FEATURE_STRING = "feature"
 SEED_STRING = "seed"
+
+def legName(chainName, legCounter):
+    return ("leg{:03d}_{}".format(legCounter, chainName))
+
+def isLegId(chainName):
+    return chainName.startswith("leg")
+

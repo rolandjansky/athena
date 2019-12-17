@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -22,7 +22,6 @@
 #include "StorageSvc/DbReflex.h"
 #include "StorageSvc/DbTypeInfo.h"
 #include "StorageSvc/DbTransform.h"
-#include "StorageSvc/DbInstanceCount.h"
 #include "StorageSvc/DbString.h"
 
 // STL include files
@@ -138,7 +137,6 @@ DbTypeInfo::DbTypeInfo(const Guid& guid, TypeH type, Columns& cols)
         m_mult( 0 ),
         m_class( type )
 {
-   DbInstanceCount::increment(this);
    setShapeID(guid);
    if( cols.size() == 0 )   {
       std::string full = DbReflex::fullTypeName(type);
@@ -178,13 +176,11 @@ DbTypeInfo::DbTypeInfo(const Guid& guid)
   m_mult( 0 ),
   m_class( )
 {
-  DbInstanceCount::increment(this);
   setShapeID(guid);
 }
 
 // Destructor
 DbTypeInfo::~DbTypeInfo()    {
-  DbInstanceCount::decrement(this);
   for(size_t i = 0; i < m_columns.size(); ++i )   {
     delete m_columns[i];
   }

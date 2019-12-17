@@ -27,6 +27,10 @@
 #include "../TileDQFragMonitorAlgorithm.h"
 #include "../TileMBTSMonitorAlgorithm.h"
 #include "../TileRawChannelFlxMonitorAlgorithm.h"
+#include "../TileCellMonitorAlgorithm.h"
+#include "../TileTowerMonitorAlgorithm.h"
+#include "../TileClusterMonitorAlgorithm.h"
+#include "../TileMuIdMonitorAlgorithm.h"
 
 DECLARE_COMPONENT( TileFatherMonTool )
 DECLARE_COMPONENT( TilePaterMonTool )
@@ -57,4 +61,7 @@ DECLARE_COMPONENT( TileDigitsFlxMonitorAlgorithm )
 DECLARE_COMPONENT( TileDQFragMonitorAlgorithm )
 DECLARE_COMPONENT( TileMBTSMonitorAlgorithm )
 DECLARE_COMPONENT( TileRawChannelFlxMonitorAlgorithm )
-
+DECLARE_COMPONENT( TileCellMonitorAlgorithm )
+DECLARE_COMPONENT( TileTowerMonitorAlgorithm )
+DECLARE_COMPONENT( TileClusterMonitorAlgorithm )
+DECLARE_COMPONENT( TileMuIdMonitorAlgorithm )

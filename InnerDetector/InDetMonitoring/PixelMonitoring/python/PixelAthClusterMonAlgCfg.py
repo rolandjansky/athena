@@ -8,9 +8,9 @@
 '''
 
 from PixelMonitoring.PixelAthMonitoringBase import define2DProfHist, definePP0Histos
-from PixelMonitoring.PixelAthMonitoringBase import define1DLayers
+from PixelMonitoring.PixelAthMonitoringBase import define1DLayers, defineMapVsLumiLayers
 from PixelMonitoring.PixelAthMonitoringBase import define1DProfLumiLayers
-from PixelMonitoring.PixelAthMonitoringBase import layers, totcuts, xbinsem, xminsem, lumibinsx
+from PixelMonitoring.PixelAthMonitoringBase import layers, totcuts, xbinsem, xminsem, lumibinsx, ztotbinsy, ztotminsy
 from PixelMonitoring.PixelAthMonitoringBase import addOnTrackTxt, addOnTrackToPath, fullDressTitle
 from RecExConfig.AutoConfiguration import GetRunNumber
 runNumber = GetRunNumber()
@@ -126,6 +126,14 @@ def PixelAthClusterMonAlgCfg(helper, alg, **kwargs):
                                 ybins=10, ymin=-0.5, ymax=9.5)
 
     if doOnline:
+        varName = 'pixclusmontool_lb,npixhits_per_track'
+        title   = fullDressTitle('Number of pixhits per track per LB for last 100LB', False, ';lumi block', ';number of hits')
+        varName += ';NPixhits_per_track_lumi_last100LB'
+        trackGroup.defineHistogram(varName,
+                                type='TH2F', path=path, title=title, weight='npixhits_per_track_wgt',
+                                xbins=lumibinsx, xmin=-0.5, xmax=-0.5+lumibinsx,
+                                ybins=10, ymin=-0.5, ymax=9.5, opt='kLBNHistoryDepth=100')
+
         histoGroupName = 'HolesRatio_5min' 
         title = 'Holes per track reset every 5 min'
         define2DProfHist(helper, alg, 'HolesRatio', title, path, type='TProfile2D', zmin=0, zmax=1.1, opt='kLBNHistoryDepth=5', histname=histoGroupName)
@@ -275,7 +283,9 @@ def PixelAthClusterMonAlgCfg(helper, alg, **kwargs):
                 histoGroupName = addOnTrackTxt('Cluster_QxCosAlpha', ontrack)
                 title = addOnTrackTxt('Cluster Q normalized', ontrack, True)
                 define1DLayers(helper, alg, histoGroupName, title, pathGroup, ';Charge [e]', ';# clusters', xbins=[70], xmins=[-0.5], binsizes=[3000.])
-
+            else:
+                title = addOnTrackTxt('Zoomed Cluster ToTxCosAlpha per LB', ontrack, True)
+                defineMapVsLumiLayers(helper, alg, histoGroupName, title, pathGroup, ';lumi block', ';ToT [BC]', ybins=ztotbinsy, ymins=ztotminsy, histname='Zoomed_Cluster_ToTxCosAlpha_per_lumi')
 
 ### 
 ### end cluster ToT and charge

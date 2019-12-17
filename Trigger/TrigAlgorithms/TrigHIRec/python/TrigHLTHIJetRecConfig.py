@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from AthenaCommon.SystemOfUnits import GeV
 from AthenaCommon.SystemOfUnits import MeV
@@ -319,7 +321,7 @@ class TrigHLTHIJetRecFromHICluster(TrigHLTJetRecFromCluster):
           #self.inputTool = inputTool 
           #self.doInputs = False
           self.jetBuildTool = jetBuildTool 
-          print jetBuildTool
+          print (jetBuildTool)
        else :
           from  TrigHLTJetRec.TrigHLTJetRecConfig import _getJetBuildTool
           self.jetBuildTool = _getJetBuildTool(

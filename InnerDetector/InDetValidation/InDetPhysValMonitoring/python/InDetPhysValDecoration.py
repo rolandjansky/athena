@@ -119,12 +119,15 @@ class InDetHoleSearchTool(object) :
       @checkKWArgs
       def __init__(self, **kwargs) :
           from AthenaCommon.AppMgr import ToolSvc, ServiceMgr
-          # If InDetSCT_ConditionsSummarySvc instance configured by InDetRecConditionsAccess.py is available, use it.
-          # Otherwise, the default SCT_ConditionsSummarySvc instance is used.
-          # @TODO find a better to solution to get the correct service for the current job.
-          SctSummaryTool = "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool"
-          if not hasattr(ToolSvc, SctSummaryTool):
-              SctSummaryTool = "SCT_ConditionsSummaryTool"
+
+          # SCT_ConditionsSummaryTool should be a private tool and be set up using SCT_ConditionsSummaryToolSetup.
+          # SCT_ConditionsSummaryToolSetup is singleton.
+          # In reconstruction, SCT_ConditionsSummaryToolSetup is already configured by InDetRecConditionsAccess.py.
+          # In other cases, SCT_ConditionsSummaryTool uses no SCT_ConditionsTools and does not report any bad elements.
+          from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
+          sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup()
+          sct_ConditionsSummaryToolSetup.setup()
+          SctSummaryTool = sct_ConditionsSummaryToolSetup.getTool()
           super(InDetHoleSearchTool.PhysValMonInDetHoleSearchTool,self).__init__(**_args( kwargs,
                                                                                                  name         = self.__class__.__name__,
                                                                                                  Extrapolator = ToolSvc.InDetExtrapolator,

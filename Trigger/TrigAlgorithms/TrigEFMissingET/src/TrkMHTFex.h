@@ -21,17 +21,17 @@
 #include "StoreGate/ReadDecorHandleKey.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 
-/******************************************************************************
- * @class TrkMHTFex
- *
- * Class to create output from the trkmht algorithm.
- *
- * trkmht calculates the MET using jets with JVT suppression applied. There is
- * an additional track soft term which adds in any tracks associated to the hard
- * scatter vertex which are not associated to jets passing the JVT selection.
- *****************************************************************************/
-
 namespace HLT { namespace MET {
+  /****************************************************************************
+   * @class TrkMHTFex
+   *
+   * Class to create output from the trkmht algorithm.
+   *
+   * trkmht calculates the MET using jets with JVT suppression applied. There is
+   * an additional track soft term which adds in any tracks associated to the
+   * hard scatter vertex which are not associated to jets passing the JVT
+   * selection.
+   ***************************************************************************/
   class TrkMHTFex : public FexBase
   {
     public:

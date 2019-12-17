@@ -153,6 +153,42 @@ def initializeGeometryParameters():
     _detDescrInfo["FCal_GeoType"] = _FCalFlag
     _detDescrInfo["DetAbs"] = _detAbsorber
     _detDescrInfo["DetAbs_EC"] = _detAbsorber_EC
+
+
+    # ------------------------------------------------------------------------
+    # Muon geometry flag initi
+
+    dbId,dbSwitches,dbParam = _dbGeomCursor.GetCurrentLeafContent("MuonSwitches")
+    _layoutName=None
+    _hasCsc=True
+    _hasStgc=True
+    _hasMM=True
+
+    if len(dbId)>0:
+        key=dbId[0]
+        if "LAYOUTNAME" in dbParam:
+            _layoutName = dbSwitches[key][dbParam.index("LAYOUTNAME")]
+        if "HASCSC" in dbParam:
+            _hasCsc = dbSwitches[key][dbParam.index("HASCSC")]
+        if "HASSTGC" in dbParam:
+            _hasStgc = dbSwitches[key][dbParam.index("HASSTGC")]
+        if "HASMM" in dbParam:
+            _hasMM = dbSwitches[key][dbParam.index("HASMM")]
+
+    _detDescrInfo["MuonLayout"] = (_layoutName if _layoutName else "UNDEFINED")
+    if _hasCsc == 0:
+        _detDescrInfo["HasCSC"] = False
+    else:
+        _detDescrInfo["HasCSC"] = True
+    if _hasStgc == 0:
+        _detDescrInfo["HasSTGC"] = False
+    else:
+        _detDescrInfo["HasSTGC"] = True
+    if _hasMM == 0:
+        _detDescrInfo["HasMM"] = False
+    else:
+        _detDescrInfo["HasMM"] = True
+
     return
 
 def GetDetDescrInfo(geoTag):

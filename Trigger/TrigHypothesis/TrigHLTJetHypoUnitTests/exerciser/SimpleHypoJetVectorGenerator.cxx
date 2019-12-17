@@ -48,7 +48,7 @@ std::string SimpleHypoJetVectorGenerator::toString() const {
 
 
 HypoJetVector
-SimpleHypoJetVectorGenerator::get() const{
+SimpleHypoJetVectorGenerator::get() {
 
   auto factory = std::unique_ptr<ITLorentzVectorFactory>(nullptr);
   if (m_useEtaEtNotEtaE){

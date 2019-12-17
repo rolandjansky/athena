@@ -102,13 +102,6 @@ class Muon(JobProperty):
     allowedTypes=['bool']
     StoredValue=True
     
-class MuonTrackSlimmer(JobProperty):
-    """ If True, add MuonTrackSlimmer
-    """
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=False
-    
 class Tau(JobProperty):
     """ If True, add Tau
     """
@@ -304,7 +297,8 @@ _list_AOD=[ \
     ThinNegativeEnergyCaloClusters, \
     ThinNegativeEnergyNeutralPFOs, \
     ThinInDetForwardTrackParticles, \
-    Muon,MuonTrackSlimmer, \
+    Muon, \
+    Tau,\
     TrackParticleSlimmer, TrackParticleLastHitAndPerigeeSlimmer, \
     ParticleJet,JetTag, \
     SpclMC,TruthParticleJet, \

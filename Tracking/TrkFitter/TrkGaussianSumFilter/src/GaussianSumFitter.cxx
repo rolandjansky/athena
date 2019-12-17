@@ -319,8 +319,8 @@ Trk::GaussianSumFitter::fit(const Trk::PrepRawDataSet& prepRawDataSet,
   }
 
   // Perform GSF forwards fit
-  const ForwardTrajectory* forwardTrajectory =
-    m_forwardGsfFitter->fitPRD(sortedPrepRawDataSet, estimatedParametersNearOrigin, particleHypothesis);
+  ForwardTrajectory* forwardTrajectory =
+    m_forwardGsfFitter->fitPRD(sortedPrepRawDataSet, estimatedParametersNearOrigin, particleHypothesis).release();
 
   if (!forwardTrajectory) {
     ATH_MSG_DEBUG("Forward GSF fit failed... Exiting!");
@@ -467,8 +467,9 @@ Trk::GaussianSumFitter::fit(const Trk::MeasurementSet& measurementSet,
     delete measurementBaseComparisonFunction;
   }
   // Perform GSF forwards fit - new memory allocated in forwards fitter
-  const ForwardTrajectory* forwardTrajectory =
-    m_forwardGsfFitter->fitMeasurements(sortedMeasurementSet, estimatedParametersNearOrigin, particleHypothesis);
+  ForwardTrajectory* forwardTrajectory =
+    m_forwardGsfFitter->fitMeasurements(sortedMeasurementSet, 
+                                        estimatedParametersNearOrigin, particleHypothesis).release();
 
   if (!forwardTrajectory) {
     ATH_MSG_DEBUG("Forward GSF fit failed... Exiting!");
@@ -711,8 +712,11 @@ Trk::GaussianSumFitter::makePerigee(const Trk::SmoothedTrajectory* smoothedTraje
     multiComponentState = multiComponentStateOnSurfaceNearestOrigin->components();
   }
   // Extrapolate to perigee, taking material effects considerations into account
-  const Trk::MultiComponentState* stateExtrapolatedToPerigee =
-    m_extrapolator->extrapolate(*multiComponentState, perigeeSurface, m_directionToPerigee, false, particleHypothesis);
+  Trk::MultiComponentState* stateExtrapolatedToPerigee =m_extrapolator->extrapolate(*multiComponentState, 
+                                                                                    perigeeSurface, 
+                                                                                    m_directionToPerigee, 
+                                                                                    false, 
+                                                                                    particleHypothesis).release();
 
   if (!stateExtrapolatedToPerigee) {
     ATH_MSG_DEBUG("Track could not be extrapolated to perigee... returning 0");

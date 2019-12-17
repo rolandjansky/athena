@@ -52,7 +52,7 @@ def JetTrackingSequence(dummyFlags,trkopt,RoIs):
     verticesname = ""
 
     if trkopt=="ftf":
-        from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
+        from TrigInDetConfig.InDetSetup import makeInDetAlgs
         # Guess FS rather than making it jet-specific?
         viewAlgs = makeInDetAlgs( "FS", rois=RoIs )
 
@@ -95,11 +95,16 @@ def JetTrackingSequence(dummyFlags,trkopt,RoIs):
     jetTrkSeq += pjgalg
 
     trkcolls = {
-        "Tracks":      tracksname,
-        "Vertices":    verticesname,
-        "JetTracks":   jettracksname,
-        "TVA":         tvaname,
-        "GhostTracks": ghosttracksname
+        "Tracks":           tracksname,
+        "Vertices":         verticesname,
+        "JetTracks":        jettracksname,
+        "TVA":              tvaname,
+        "GhostTracks":      ghosttracksname,
+        "GhostTracksLabel": label
     }
+
+    from JetMomentTools.JetMomentToolsConfig import trackcollectionmap
+    if trkopt not in trackcollectionmap.keys():
+        trackcollectionmap[trkopt] = trkcolls
 
     return jetTrkSeq, trkcolls

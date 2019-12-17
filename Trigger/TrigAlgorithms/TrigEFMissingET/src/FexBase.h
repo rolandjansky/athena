@@ -23,15 +23,15 @@
 #include <string>
 #include <vector>
 
-/******************************************************************************
- * @class FexBase 
- *
- * Base class for HLT MET Fex algorithms.
- *
- * Responsible for creating the MET object
- *****************************************************************************/
 
 namespace HLT { namespace MET {
+  /****************************************************************************
+  * @class FexBase 
+  *
+  * Base class for HLT MET Fex algorithms.
+  *
+  * Responsible for creating the MET object
+  ***************************************************************************/
   class FexBase : public ::AthReentrantAlgorithm {
     public:
       /// Constructor
@@ -105,11 +105,11 @@ namespace HLT { namespace MET {
       /// The monitoring tool
       ToolHandle<GenericMonitoringTool> m_monTool{
         this, "MonTool", "", "Monitoring tool"};
-      Gaudi::Property<float> m_maxComponentMetSumEtRatio{
-        "MaxComponentMetSumEtRatio", 1.,
+      Gaudi::Property<float> m_maxComponentMETSumEtRatio{
+        "MaxComponentMETSumEtRatio", 1.,
         "The maximum MET/SumEt ratio per component"};
-      Gaudi::Property<float> m_maxGlobalMetSumEtRatio{
-        "MaxGlobalMetSumEtRatio", 1.,
+      Gaudi::Property<float> m_maxGlobalMETSumEtRatio{
+        "MaxGlobalMETSumEtRatio", 1.,
         "The maximum MET/SumEt ratio for the total value"};
 
       /************************************************************************

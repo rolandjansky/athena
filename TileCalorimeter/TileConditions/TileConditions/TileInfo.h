@@ -68,7 +68,9 @@ class ATLAS_CHECK_THREAD_SAFETY TileInfo {
     { return m_tileID->is_tile_gapscin(cell_id) ? 1:2; }
 
   /** Returns the maximum ADC output (10 bits --> 1023) */
-  int ADCmax() const {return m_adcmax;}
+  int ADCmax() const {return m_ADCmax;}
+  /** Returns the overlay magic number that indicates channels which were masked in background dataset */
+  int ADCmaskValue() const {return m_ADCmaskValue;}
   /** Returns the number of sammples (digits) per event */
   int NdigitSamples() const {return m_nSamples;}
   /** The sample at which the pulse should ideally peak */
@@ -311,7 +313,8 @@ class ATLAS_CHECK_THREAD_SAFETY TileInfo {
   double m_emscaleE[16]; //!< 1/sampling fraction for special C10 and E1-E4 cells [9]=C10, [10]=E1, [11]=E2, [13]=E3, [15]=E4
   double m_emscaleMBTS[3]; //!< 1/sampling fraction for inner/outer MBTS and also for E4'
 
-  int    m_adcmax;
+  int    m_ADCmax;
+  int    m_ADCmaskValue;
   int    m_nSamples;
   int    m_iTrigSample;
 

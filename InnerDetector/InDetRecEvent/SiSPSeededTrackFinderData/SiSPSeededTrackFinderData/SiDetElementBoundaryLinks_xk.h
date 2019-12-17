@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -12,6 +12,12 @@
 #include "SiSPSeededTrackFinderData/SiDetElementBoundaryLink_xk.h"
 #include <vector>
 
+/**
+ * This InDet::SiDetElementBoundaryLinks_xk class is the vector of 
+ * InDet::SiDetElementBoundaryLink_xk. The object of this class is
+ * prepared by InDet::SiDetElementBoundaryLinksCondAlg_xk
+ * and is used by InDet::SiCombinatorialTrackFinder_xk.
+ */
 namespace InDet {
   typedef std::vector<SiDetElementBoundaryLink_xk> SiDetElementBoundaryLinks_xk;
 }

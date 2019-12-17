@@ -57,7 +57,7 @@ atlas_install_headers( TrigBjetHypo )
 atlas_install_python_modules( python/*.py )
 
 # Unit tests:
-atlas_add_test( TrigBjetHypoTool SCRIPT python -m TrigBjetHypo.TrigBjetHypoTool
+atlas_add_test( TrigBjetBtagHypoTool SCRIPT python -m TrigBjetHypo.TrigBjetBtagHypoTool
    PROPERTIES TIMEOUT 300
    POST_EXEC_SCRIPT nopost.sh )
 

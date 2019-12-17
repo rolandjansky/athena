@@ -1,7 +1,7 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
-from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+from AthenaConfiguration.AutoConfigFlags import GetDetDescrInfo
 import re
 
 # Some comments from Ed about existing flags
@@ -37,9 +37,9 @@ def createMuonConfigFlags():
     mcf.addFlag("Muon.doMDTs",True)
     mcf.addFlag("Muon.doTGCs",True)
     mcf.addFlag("Muon.doRPCs",True)
-    mcf.addFlag("Muon.doCSCs",MuonGeometryFlags.hasCSC()) 
-    mcf.addFlag("Muon.doMicromegas",MuonGeometryFlags.hasMM()) 
-    mcf.addFlag("Muon.dosTGCs",MuonGeometryFlags.hasSTGC()) 
+    mcf.addFlag("Muon.doCSCs",lambda prevFlags : GetDetDescrInfo(prevFlags.GeoModel.AtlasVersion).get('HasCSC',"True"))
+    mcf.addFlag("Muon.doMicromegas",lambda prevFlags : GetDetDescrInfo(prevFlags.GeoModel.AtlasVersion).get('HasMM',"True"))
+    mcf.addFlag("Muon.dosTGCs",lambda prevFlags : GetDetDescrInfo(prevFlags.GeoModel.AtlasVersion).get('HasSTGC',"True"))
     
     # stages of processing
     # 1. Digitization

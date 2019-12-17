@@ -440,9 +440,6 @@ class  ConfiguredNewTrackingSiPattern:
            InDetAmbiTrackSelectionTool.minScoreShareTracks   = 0.0
            InDetAmbiTrackSelectionTool.minTRTHits            = 0
            InDetAmbiTrackSelectionTool.sharedProbCut         = 0.1
-         if InDetFlags.doTIDE_AmbiTrackMonitoring() and InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "Disappearing" or NewTrackingCuts.mode() == "DBM"):
-           InDetAmbiTrackSelectionTool.ObserverTool             = TrackObserverTool     #observerTool
-           InDetAmbiTrackSelectionTool.MonitorAmbiguitySolving  = True
         
          # if NewTrackingCuts.mode() == "ForwardTracks":
          #    InDetAmbiTrackSelectionTool.OutputLevel = VERBOSE
@@ -597,10 +594,6 @@ class  ConfiguredNewTrackingSiPattern:
          # if NewTrackingCuts.mode() == "ForwardTracks":
          #    InDetAmbiguityProcessor.OutputLevel = VERBOSE
          
-         if InDetFlags.doTIDE_AmbiTrackMonitoring() and InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "Disappearing" or NewTrackingCuts.mode() == "DBM"):
-            InDetAmbiguityProcessor.ObserverTool             = TrackObserverTool     #observerTool
-            InDetAmbiguityProcessor.MonitorAmbiguitySolving  = True
-
          ToolSvc += InDetAmbiguityProcessor
          if (InDetFlags.doPrintConfigurables()):
             print InDetAmbiguityProcessor

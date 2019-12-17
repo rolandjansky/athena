@@ -33,14 +33,16 @@ def collectHypos( steps ):
                     hypos[stepSeq.name()].append( alg )
                 else:
                     __log.verbose("Not a hypo" + alg.name())
+
     return hypos
 
 def __decisionsFromHypo( hypo ):
     """ return all chains served by this hypo and the key of produced decision object """
+    from DecisionHandling.TrigCompositeUtils import isLegId
     if hypo.getType() == 'ComboHypo':
-        return hypo.MultiplicitiesMap.keys(), hypo.HypoOutputDecisions[0]
+        return [key for key in hypo.MultiplicitiesMap.keys() if not isLegId(key)], hypo.HypoOutputDecisions[0]
     else: # regular hypos
-        return [ t.name() for t in hypo.HypoTools ], hypo.HypoOutputDecisions
+        return [ t.name() for t in hypo.HypoTools if not isLegId(t.name())], hypo.HypoOutputDecisions
 
 
 def collectViewMakers( steps ):
@@ -65,7 +67,7 @@ def collectFilters( steps ):
     The logic is simpler as all filters are grouped in step filter sequences
     Returns map: step name -> list of all filters of that step
     """
-    __log.info("Collecting hypos")
+    __log.info("Collecting filters")
     from collections import defaultdict
     filters = defaultdict( list )
 
@@ -163,10 +165,10 @@ def triggerSummaryCfg(flags, hypos):
         __log.warning("No HLT menu, chains w/o algorithms are not handled")
     else:
         for chainName, chainDict in TriggerConfigHLT.dicts().iteritems():
-            if chainName not in allChains:                
-                __log.debug("The chain %s is not mentiond in any step", chainName)
+            if chainName not in allChains:
+                __log.warn("The chain %s is not mentiond in any step", chainName)
                 # TODO once sequences available in the menu we need to crosscheck it here
-                assert len(chainDict['chainParts'])  == 1, "Chains w/o the steps can not have mutiple parts in chainDict, it makes no sense"
+                assert len(chainDict['chainParts'])  == 1, "Chains w/o the steps can not have mutiple parts in chainDict, it makes no sense: %s"%chainName
                 allChains[chainName] = mapThresholdToL1DecisionCollection( chainDict['chainParts'][0]['L1threshold'] )
                 __log.info("The chain %s final decisions will be taken from %s", chainName, allChains[chainName] )
 
@@ -201,19 +203,20 @@ def triggerMonitoringCfg(flags, hypos, filters, l1Decoder):
             stepDecisionKeys.append( hypoOutputKey )
             allChains.update( hypoChains )
 
-        dcTool = DecisionCollectorTool( "DecisionCollector" + stepName, Decisions=stepDecisionKeys )
+        dcTool = DecisionCollectorTool( "DecisionCollector" + stepName, Decisions=list(set(stepDecisionKeys)) )
         __log.info( "The step monitoring decisions in " + dcTool.name() + " " +str( dcTool.Decisions ) )
         mon.CollectorTools += [ dcTool ]
 
 
     #mon.FinalChainStep = allChains
     mon.L1Decisions  = l1Decoder.getProperties()['L1DecoderSummaryKey'] if l1Decoder.getProperties()['L1DecoderSummaryKey'] != '<no value>' else l1Decoder.getDefaultProperty('L1DecoderSummary')
-    
+
     from DecisionHandling.DecisionHandlingConfig import setupFilterMonitoring
     [ [ setupFilterMonitoring( alg ) for alg in algs ]  for algs in filters.values() ]
 
-    
+
     return acc, mon
+
 
 
 def triggerOutputCfg(flags, decObj, decObjHypoOut, summaryAlg):
@@ -251,11 +254,16 @@ def triggerOutputCfg(flags, decObj, decObjHypoOut, summaryAlg):
         edmSet = flags.Trigger.AODEDMSet if flags.Output.doWriteAOD else flags.Trigger.ESDEDMSet
     elif onlineWriteBS or offlineWriteBS:
         edmSet = 'BS'
-    
+
     # Create the configuration
     if onlineWriteBS:
         __log.info("Configuring online ByteStream HLT output")
         acc = triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg)
+        # Configure the online HLT result maker to use the above tools
+        # For now use old svcMgr interface as this service is not available from acc.getService()
+        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+        hltEventLoopMgr = svcMgr.HltEventLoopMgr
+        hltEventLoopMgr.ResultMaker.MakerTools = acc.popPrivateTools()
     elif offlineWriteBS:
         __log.info("Configuring offline ByteStream HLT output")
         acc = triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg, offline=True)
@@ -270,21 +278,29 @@ def triggerOutputCfg(flags, decObj, decObjHypoOut, summaryAlg):
 
 
 def triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg, offline=False):
-    from TriggerMenuMT.HLTMenuConfig.Menu import EventBuildingInfo
-    from TrigEDMConfig.TriggerEDM import getTriggerEDMList
-    from TrigEDMConfig.TriggerEDMRun3 import persistent
+    """
+    Returns CA with algorithms and/or tools required to do the serialisation
 
-    ItemModuleDict = {}
-    for key in ['BS'] + EventBuildingInfo.getAllDataScoutingIdentifiers():
-        edmList = getTriggerEDMList(key, flags.Trigger.EDMDecodingVersion)
-        moduleId = EventBuildingInfo.getFullHLTResultID() if key=='BS' else EventBuildingInfo.getDataScoutingResultID(key)
-        for edmType, edmKeys in edmList.iteritems():
-            for collKey in edmKeys:
-                item = persistent(edmType)+'#'+collKey
-                if item not in ItemModuleDict.keys():
-                    ItemModuleDict[item] = [moduleId]
-                else:
-                    ItemModuleDict[item].append(moduleId)
+    decObj - list of all naviagtaion objects
+    decObjHypoOut - list of decisions produced by hypos
+    summaryAlg - the instance of algorithm producing final decision
+    offline - if true CA contains algorithms that needs to be merged to output stream sequence,
+              if false the CA contains a tool that needs to be added to HLT EventLoopMgr
+    """
+    from TriggerMenuMT.HLTMenuConfig.Menu import EventBuildingInfo
+    from TrigEDMConfig.TriggerEDM import getRun3BSList
+
+    # handle the collectiosn defined in the EDM config
+    collectionsToBS = getRun3BSList( ["BS"]+ EventBuildingInfo.DataScoutingIdentifiers.keys() )
+
+    
+    from collections import OrderedDict
+    ItemModuleDict = OrderedDict()
+    for typekey, bsfragments in collectionsToBS:
+        # translate readable frament names like BS, CostMonDS names to ROB fragment IDs 0 - for the BS, 1,...- for DS fragments
+        moduleIDs = [ EventBuildingInfo.getFullHLTResultID() if f == 'BS' else EventBuildingInfo.getDataScoutingResultID(f)
+                      for f in bsfragments ]
+        ItemModuleDict[typekey] = moduleIDs
 
     # Add decision containers (navigation)
     for item in decObj:
@@ -314,7 +330,7 @@ def triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg, offline=False):
     pebDecisionKeys = [key for key in summaryAlg.getProperties()['FinalStepDecisions'].values() if 'PEBInfoWriter' in key]
     stmaker.PEBDecisionKeys = pebDecisionKeys
 
-    acc = ComponentAccumulator()
+    acc = ComponentAccumulator(sequenceName="HLTTop")
     if offline:
         # Create HLT result maker and alg
         from TrigOutputHandling.TrigOutputHandlingConfig import HLTResultMTMakerCfg
@@ -341,12 +357,7 @@ def triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg, offline=False):
         acc.addEventAlgo( StreamBSFileOutput )
 
     else:
-        # Configure the online HLT result maker to use the above tools
-        # For now use old svcMgr interface as this service is not available from acc.getService()
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        hltEventLoopMgr = svcMgr.HltEventLoopMgr
-        hltEventLoopMgr.ResultMaker.MakerTools = [bitsmaker, stmaker, serialiser]
-
+        acc.setPrivateTools( [bitsmaker, stmaker, serialiser] )
     return acc
 
 
@@ -378,7 +389,7 @@ def triggerPOOLOutputCfg(flags, decObj, decObjHypoOut, edmSet):
         outputType = 'AOD'
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
     acc = OutputStreamCfg(flags, outputType, ItemList=itemsToRecord)
-    
+
     # OutputStream has a data dependency on xTrigDecision
     streamAlg = acc.getEventAlgo("OutputStream"+outputType)
     streamAlg.ExtraInputs = [("xAOD::TrigDecision", "xTrigDecision")]
@@ -386,8 +397,10 @@ def triggerPOOLOutputCfg(flags, decObj, decObjHypoOut, edmSet):
     # Produce the trigger bits
     from TrigOutputHandling.TrigOutputHandlingConfig import TriggerBitsMakerToolCfg
     from TrigDecisionMaker.TrigDecisionMakerConfig import TrigDecisionMakerMT
+
     bitsmaker = TriggerBitsMakerToolCfg()
     decmaker = TrigDecisionMakerMT('TrigDecMakerMT')
+
     decmaker.BitsMakerTool = bitsmaker
     acc.addEventAlgo( decmaker )
 
@@ -448,7 +461,7 @@ def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj, dec
     if len(edmSet) != 0:
         from collections import defaultdict
         groupedByType = defaultdict( list )
-    
+
         # scan the EDM
         for el in TriggerHLTListRun3:
             if not any([ outputType in el[1].split() for outputType in edmSet ]):
@@ -456,7 +469,7 @@ def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj, dec
             collType, collName = el[0].split("#")
             if "Aux" in collType: # the GapFiller crates appropriate Aux obejcts
                 continue
-            groupedByType[collType].append( collName )    
+            groupedByType[collType].append( collName )
 
         for collType, collNameList in groupedByType.iteritems():
             propName = collType.split(":")[-1]
@@ -506,7 +519,7 @@ def triggerRunCfg( flags, menu=None ):
     # collect hypothesis algorithms from all sequence
     hypos = collectHypos( HLTSteps )
     filters = collectFilters( HLTSteps )
-    
+
     summaryAcc, summaryAlg = triggerSummaryCfg( flags, hypos )
     acc.merge( summaryAcc )
 
@@ -529,7 +542,7 @@ def triggerRunCfg( flags, menu=None ):
 
     acc.merge( menuAcc )
 
-    
+
     # configure components need to normalise output before writing out
     viewMakers = collectViewMakers( HLTSteps )
 

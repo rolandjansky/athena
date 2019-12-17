@@ -99,8 +99,8 @@ StatusCode PixelRodDecoder::finalize() {
 
 
 //---------------------------------------------------------------------------------------------------- fillCollection
-StatusCode PixelRodDecoder::fillCollectionConst( const ROBFragment *robFrag, IPixelRDO_Container* rdoIdc,
-						 std::vector<IdentifierHash>* vecHash) const
+StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRDO_Container* rdoIdc,
+                                            std::vector<IdentifierHash>* vecHash) const
 {
 #ifdef PIXEL_DEBUG
   ATH_MSG_VERBOSE( "-------------------------------------------------------------------------------------------------------------");
@@ -1099,7 +1099,7 @@ StatusCode PixelRodDecoder::fillCollectionConst( const ROBFragment *robFrag, IPi
   return sc;
 }
 
-StatusCode PixelRodDecoder::StoreBSError() {
+StatusCode PixelRodDecoder::StoreBSError() const {
   ATH_CHECK(m_errors->recordData());
   return StatusCode::SUCCESS;
 }

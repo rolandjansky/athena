@@ -27,8 +27,8 @@ StatusCode SCTEventFlagWriter::initialize()
 
 StatusCode SCTEventFlagWriter::execute(const EventContext& ctx) const
 {
-  long unsigned int nLVL1IDErrors{m_bsErrTool->getErrorSet(SCT_ByteStreamErrors::LVL1IDError, ctx)->size()};
-  long unsigned int nROBFragmentErrors{m_bsErrTool->getErrorSet(SCT_ByteStreamErrors::ROBFragmentError, ctx)->size()};
+  long unsigned int nLVL1IDErrors{m_bsErrTool->getErrorSet(SCT_ByteStreamErrors::LVL1IDError, ctx).size()};
+  long unsigned int nROBFragmentErrors{m_bsErrTool->getErrorSet(SCT_ByteStreamErrors::ROBFragmentError, ctx).size()};
 
   if ((nLVL1IDErrors > 500) or (nROBFragmentErrors > 1000)) { // Check if number of errors exceed threshold
     bool setOK_xAOD{false};

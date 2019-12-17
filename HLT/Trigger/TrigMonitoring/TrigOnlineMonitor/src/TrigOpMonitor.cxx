@@ -4,17 +4,21 @@
 
 #include "TrigOpMonitor.h"
 
+#include "AthenaInterprocess/Incidents.h"
 #include "AthenaKernel/IOVRange.h"
 #include "AthenaMonitoringKernel/OHLockedHist.h"
 #include "ByteStreamData/ByteStreamMetadata.h"
 #include "ByteStreamData/ByteStreamMetadataContainer.h"
 #include "StoreGate/ReadCondHandle.h"
+#include "GaudiKernel/DirSearchPath.h"
+#include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "eformat/DetectorMask.h"
 #include "eformat/SourceIdentifier.h"
 
 #include <algorithm>
 #include <fstream>
+#include <list>
 
 #include <boost/algorithm/string.hpp>
 
@@ -50,7 +54,7 @@ namespace {
 } // namespace
 
 TrigOpMonitor::TrigOpMonitor(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
+  base_class(name, pSvcLocator),
   m_histPath("/EXPERT/HLTFramework/" + name + "/")
 {}
 
@@ -59,7 +63,19 @@ StatusCode TrigOpMonitor::initialize()
   ATH_CHECK(m_histSvc.retrieve());
   ATH_CHECK(m_lumiDataKey.initialize(!m_lumiDataKey.empty()));
 
+  ATH_CHECK( m_incidentSvc.retrieve() );
+  m_incidentSvc->addListener(this, AthenaInterprocess::UpdateAfterFork::type());
+
   return StatusCode::SUCCESS;
+}
+
+void TrigOpMonitor::handle( const Incident& incident ) {
+  // One time fills after fork
+  if (incident.type() == AthenaInterprocess::UpdateAfterFork::type()) {
+    fillMagFieldHist();
+    fillIOVDbHist();
+    fillSubDetHist();
+  }
 }
 
 StatusCode TrigOpMonitor::start()
@@ -73,17 +89,6 @@ StatusCode TrigOpMonitor::start()
 
 StatusCode TrigOpMonitor::execute()
 {
-  static bool first_call{true};
-  if (first_call) {
-    first_call = false;
-    /* One time fills. Could be done in start(), but we need to run
-       after all other services have been setup. */
-    fillMagFieldHist();
-    fillIOVDbHist();
-    // This one needs to run after prepareForRun, which is currently called after Alg's start()
-    fillSubDetHist();
-  }
-
   /* Per-LB fills */
   const EventContext& ctx = getContext();
   if (m_previousLB != ctx.eventID().lumi_block()) { // New LB
@@ -316,16 +321,8 @@ void TrigOpMonitor::fillReleaseDataHist()
     return;
   }
 
-  // Find entries in LD_LIBRARY_PATH matching our project(s)
-  std::vector<std::string> paths, file_list;
-  boost::split(paths, ld_lib_path, boost::is_any_of(":"));
-  for (const std::string& p : paths) {
-    for (const std::string& proj : m_projects) {
-      if (p.find("/" + proj + "/") != std::string::npos) {
-        file_list.push_back(p + "/" + m_releaseData);
-      }
-    }
-  }
+  // Find all release metadata files
+  std::list<DirSearchPath::path> file_list = DirSearchPath(ld_lib_path, ":").find_all(m_releaseData.value());
 
   if (file_list.empty()) {
     ATH_MSG_WARNING("Could not find release metadata file " << m_releaseData
@@ -337,7 +334,7 @@ void TrigOpMonitor::fillReleaseDataHist()
   for (const auto& f : file_list) {
     // Read metadata file
     std::map<std::string, std::string> result;
-    if (readReleaseData(f, result).isFailure()) {
+    if (readReleaseData(f.string(), result).isFailure()) {
       ATH_MSG_WARNING("Could not read release metadata from " << f);
       m_releaseHist->Fill("Release ?", 1);
       return;

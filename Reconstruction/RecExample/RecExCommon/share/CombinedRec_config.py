@@ -20,11 +20,23 @@ AODFix_Init()
 
 
 from CaloRec.CaloRecFlags import jobproperties
+
+#
+# functionality : CaloExtensionBuilder setup 
+# to be used  in tau, pflow, e/gamma 
+#
+pdr.flag_domain('CaloExtensionBuilder')
+if (rec.doESD()) and (recAlgs.doEFlow() or rec.doTau() or rec.doEgamma()) : #   or rec.readESD()
+    try:
+        include( "TrackToCalo/CaloExtensionBuilderAlg_jobOptions.py" )
+        CaloExtensionBuilder("TightPrimary", 500.) #Arguments are cutLevel and minPt for track selection
+    except Exception:
+        pass
+
 #
 # functionality : electron photon identification
 #
 #
-
 pdr.flag_domain('egamma')
 if rec.doEgamma():
     protectedInclude( "egammaRec/egammaRec_jobOptions.py" )
@@ -56,22 +68,12 @@ if rec.doESD() and recAlgs.doTrackParticleCellAssociation() and DetFlags.ID_on()
     topSequence += CfgMgr.TrackParticleCellAssociationAlg("TrackParticleCellAssociationAlg", 
                                                           ParticleCaloCellAssociationTool=caloCellAssociationTool)
 
-#
-# functionality : CaloExtensionBuilder setup to be used in tau and pflow
-#    
-pdr.flag_domain('CaloExtensionBuilder')
-if (rec.doESD()) and (recAlgs.doEFlow() or rec.doTau()) : #   or rec.readESD()
-    try:
-        include( "TrackToCalo/CaloExtensionBuilderAlg_jobOptions.py" )
-        CaloExtensionBuilder("TightPrimary", 500.) #Arguments are cutLevel and minPt for track selection
-    except Exception:
-        pass
 
 #
 # functionality : energy flow
 #                                                                                                 
 pdr.flag_domain('eflow')
-if recAlgs.doEFlow() and (rec.readESD() or (DetFlags.haveRIO.ID_on() and DetFlags.haveRIO.Calo_allOn() and rec.doMuon())):
+if recAlgs.doEFlow() and (rec.readESD() or (DetFlags.haveRIO.ID_on() and DetFlags.haveRIO.Calo_allOn() and rec.doMuonCombined())):
     try:
         include( "eflowRec/eflowRec_jobOptions.py" )
     except Exception:

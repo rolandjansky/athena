@@ -87,7 +87,7 @@ public:
 					      hit_const_iterator	end) const override;
     
 protected:
-    class State;
+    struct State;
 
     // clean up memory
     void			clearMeasurements (State& state) const;

@@ -159,8 +159,8 @@ StatusCode CscClusterValAlg::initialize(){
 
   ManagedMonitorToolBase::initialize().ignore();
 
-  ATH_CHECK(m_cscClusterKey.initialize());
-  ATH_CHECK(m_cscPRDKey.initialize());
+  ATH_CHECK(m_cscClusterKey.initialize(m_muonIdHelperTool->hasCSC()));
+  ATH_CHECK(m_cscPRDKey.initialize(m_muonIdHelperTool->hasCSC()));
   return StatusCode::SUCCESS;
 }
 

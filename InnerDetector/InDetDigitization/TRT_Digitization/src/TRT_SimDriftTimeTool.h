@@ -12,9 +12,9 @@
 //                                  //
 ////////////////////////////////////
 
-#ifndef TRT_SIMDRIFTTIMETOOL_H
-#define TRT_SIMDRIFTTIMETOOL_H
-#include "TRT_Digitization/ITRT_SimDriftTimeTool.h"
+#ifndef TRT_DIGITIZATION_TRT_SIMDRIFTTIMETOOL_H
+#define TRT_DIGITIZATION_TRT_SIMDRIFTTIMETOOL_H
+#include "ITRT_SimDriftTimeTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -22,7 +22,7 @@
 
 class TRT_SimDriftTimeTool : public AthAlgTool,  virtual public ITRT_SimDriftTimeTool
 {
- public:
+public:
 
   // Standard Constructor:
   TRT_SimDriftTimeTool(const std::string& type,
@@ -37,7 +37,7 @@ class TRT_SimDriftTimeTool : public AthAlgTool,  virtual public ITRT_SimDriftTim
   // override intialize() method:
   virtual StatusCode initialize();
 
- private:
+private:
 
   const double m_minDistance;
   const double m_maxDistance;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -25,9 +25,6 @@ InDetPerfPlot_fakes::InDetPerfPlot_fakes(InDetPlotBase* pParent, const std::stri
   m_track_fakerate_vs_phi{},
   m_track_fakerate_vs_d0{},
   m_track_fakerate_vs_z0{},
-  m_incFakeNum_pt1{},
-  m_incFakeNum_pt2{},
-  m_incFakeNum_pt5{},
   m_fakeEtaTotal{},
   m_fakePtPrimary{},
   m_fakeetaPrimary{},
@@ -39,34 +36,30 @@ InDetPerfPlot_fakes::InDetPerfPlot_fakes(InDetPlotBase* pParent, const std::stri
   m_fakePhiSecondary{},
   m_faked0Secondary{},
   m_fakez0Secondary{},
-  m_incFakeDenomEta_pt1{},
-  m_incFakeDenomEta_pt2{},
-  m_incFakeDenomEta_pt5{},
   m_fakePtUnlinkedFrac{},
   m_fakeetaUnlinkedFrac{},
   m_fakePhiUnlinkedFrac{},
   m_faked0UnlinkedFrac{},
   m_fakez0UnlinkedFrac{},
-  m_incFakeEta_pt1{},
-  m_incFakeEta_pt2{},
-  m_incFakeEta_pt5{},
-  m_nTracks_vs_mu{},
-  m_nTruth_vs_mu{},
-  m_incTrkRate_vs_mu{},
-  m_nTracks_vs_mu2{},
-  m_nTruth_vs_mu2{},
-  m_incTrkRate_vs_mu2{},
-  m_nTracks_vs_mu3{},
-  m_nTruth_vs_mu3{},
-  m_incTrkRate_vs_mu3{},
+  m_incTrkRatePtcutVals{1.,2.,5.},
+  m_incTrkRatePtcutSuff{"1","2","5"},
+  m_nRecTrkVsEtaPtcut{nullptr},
+  m_nTruthTrkVsEtaPtcut{nullptr},
+  m_incTrkRateVsEtaPtcut{nullptr},
+  m_incTrkRateEtacutVals{2.7,3.5},
+  m_incTrkRateEtacutSuff{"lt2p7", "gt2p7_lt3p5", "gt3p5", "Total"},
+  m_nRecTrkVsMuEtacut{nullptr},
+  m_nTruthTrkVsMuEtacut{nullptr},
+  m_incTrkRateVsMuEtacut{nullptr},
   m_mu{} {
   // nop
 }
 
+
+
 void
 InDetPerfPlot_fakes::initializePlots() {
-  const bool prependDirectory(false);
-
+ 
   book(m_fakepT, "fakepT");
   book(m_fakePtLow, "fakepTlow");
   book(m_fakephi, "fakephi");
@@ -93,44 +86,35 @@ InDetPerfPlot_fakes::initializePlots() {
   book(m_faked0Secondary, "faked0Secondary");
   book(m_fakez0Secondary, "fakez0Secondary");
 
-  m_incFakeNum_pt1 = Book1D("incFakeNum_pt1", "inclusive fake numerator p_{T} > 1 GeV ", 80, -4, 4, prependDirectory);
-  m_incFakeNum_pt2 = Book1D("incFakeNum_pt2", "inclusive fake numerator p_{T} > 2 GeV ", 80, -4, 4, prependDirectory);
-  m_incFakeNum_pt5 = Book1D("incFakeNum_pt5", "inclusive fake numerator p_{T} > 5 GeV ", 80, -4, 4, prependDirectory);
-
   book(m_fakePtUnlinkedFrac, "fakePtUnlinkedFrac");
   book(m_fakeetaUnlinkedFrac, "fakeetaUnlinkedFrac");
   book(m_fakePhiUnlinkedFrac, "fakePhiUnlinkedFrac");
   book(m_faked0UnlinkedFrac, "faked0UnlinkedFrac");
   book(m_fakez0UnlinkedFrac, "fakez0UnlinkedFrac");
 
-  m_incFakeDenomEta_pt1 = Book1D("incFakeDenomEta_pt1", "Inclusive FakeRate Denominator vs #eta (p_{T} > 1 GeV)", 80,
-                                 -4, 4, prependDirectory);
-  m_incFakeDenomEta_pt2 = Book1D("incFakeDenomEta_pt2", "Inclusive FakeRate Denominator vs #eta (p_{T} > 2 GeV)", 80,
-                                 -4, 4, prependDirectory);
-  m_incFakeDenomEta_pt5 = Book1D("incFakeDenomEta_pt5", "Inclusive FakeRate Denominator vs #eta (p_{T} > 5 GeV)", 80,
-                                 -4, 4, prependDirectory);
-  m_incFakeEta_pt1 =
-    Book1D("incFakeEta_pt1", "Inclusive FakeRate vs #eta (p_{T} > 1 GeV)", 80, -4, 4, prependDirectory);
-  m_incFakeEta_pt2 =
-    Book1D("incFakeEta_pt2", "Inclusive FakeRate vs #eta (p_{T} > 2 GeV)", 80, -4, 4, prependDirectory);
-  m_incFakeEta_pt5 =
-    Book1D("incFakeEta_pt5", "Inclusive FakeRate vs #eta (p_{T} > 5 GeV)", 80, -4, 4, prependDirectory);
+  book(m_mu,"mu");
 
-  m_nTracks_vs_mu = Book1D("nTracks_vs_mu", " # tracks vs pileupEvents (#eta < 2.7)", 20, 150, 250, prependDirectory);
-  m_nTruth_vs_mu = Book1D("nTruth_vs_mu", " # truth vs pileupEvents (#eta < 2.7)", 20, 150, 250, prependDirectory);
-  m_incTrkRate_vs_mu =
-    Book1D("incTrk_vs_mu", " inclusive track rate vs mu (#eta < 2.7)", 20, 150, 250, prependDirectory);
-  m_nTracks_vs_mu2 = Book1D("nTracks_vs_mu2", " # tracks vs pileupEvents (#eta > 2.8, #eta < 3.5)", 20, 150, 250,
-                            prependDirectory);
-  m_nTruth_vs_mu2 = Book1D("nTruth_vs_mu2", " # truth vs pileupEvents (#eta > 2.8, #eta < 3.5)", 20, 150, 250,
-                           prependDirectory);
-  m_incTrkRate_vs_mu2 = Book1D("incTrk_vs_mu2", " inclusive track rate vs mu (#eta > 2.8, #eta < 3.5)", 20, 150, 250,
-                               prependDirectory);
-  m_nTracks_vs_mu3 = Book1D("nTracks_vs_mu3", " # tracks vs pileupEvents (#eta > 3.5)", 20, 150, 250, prependDirectory);
-  m_nTruth_vs_mu3 = Book1D("nTruth_vs_mu3", " # truth vs pileupEvents (#eta > 3.5)", 20, 150, 250, prependDirectory);
-  m_incTrkRate_vs_mu3 = Book1D("incTrk_vs_mu3", " inclusive track rate vs mu (#eta > 3.5)", 20, 150, 250,
-                               prependDirectory);
-  m_mu = Book1D("mu", " <mu> ", 10, 150, 250, prependDirectory);
+  // inclusive track rates:
+  std::string nTruth("nTruthTrk");
+  std::string nRec("nRecTrk");
+  std::string iRate("incTrkRate");
+  std::string ptsuff="_vs_eta_pt";
+  std::string musuff="_vs_mu_eta";
+  // vs eta, for pt cut
+  for (unsigned int i=0; i<m_nPtHists;++i) {
+    std::string cutsuff=ptsuff+m_incTrkRatePtcutSuff[i];
+    book(m_nRecTrkVsEtaPtcut[i],nRec+cutsuff);
+    book(m_nTruthTrkVsEtaPtcut[i],nTruth+cutsuff);
+    book(m_incTrkRateVsEtaPtcut[i],iRate+cutsuff);
+  }
+  // vs mu, for eta cut
+  for (unsigned int i=0; i<m_nEtaHists;++i) {
+    std::string cutsuff=musuff+m_incTrkRateEtacutSuff[i];
+    book(m_nRecTrkVsMuEtacut[i],nRec+cutsuff);
+    book(m_nTruthTrkVsMuEtacut[i],nTruth+cutsuff);
+    book(m_incTrkRateVsMuEtacut[i],iRate+cutsuff);
+  }
+  
 }
 
 void
@@ -160,23 +144,47 @@ InDetPerfPlot_fakes::fill(const xAOD::TrackParticle& trkprt, const bool isFake, 
 }
 
 void
+InDetPerfPlot_fakes::fillIncTrkRateVsEtaPtcut(std::array<TH1*, m_nPtHists>& hists, double trkpt, double trketa) {
+  if (hists.size()!=m_nPtCuts)
+    return;
+  for (unsigned int i=0; i<m_nPtCuts; ++i) {
+    // pt cuts are in inclusive intervals
+    if (trkpt>m_incTrkRatePtcutVals[i]) {
+      fillHisto(hists[i], trketa);
+    }   
+  }
+}
+
+void
+InDetPerfPlot_fakes::fillIncTrkRateVsMuEtacut(std::array<TH1*, m_nEtaHists>& hists, double trketa, unsigned int mu) {
+  double trkabseta=std::abs(trketa);
+  // eta cuts are in exclusive intervals
+  if (trkabseta<m_incTrkRateEtacutVals[0])
+    fillHisto(hists[0], mu);
+  else if (trkabseta>m_incTrkRateEtacutVals[m_nEtaCuts-1])
+    fillHisto(hists[m_nEtaHists-2], mu);
+  else {
+    for (unsigned int i=1; i<m_nEtaCuts; ++i) {
+      if (trkabseta>m_incTrkRateEtacutVals[i-1] && trkabseta<m_incTrkRateEtacutVals[i]) {
+	fillHisto(hists[i], mu);
+      }
+    }   
+  }
+  // last: total histogram
+  fillHisto(hists[m_nEtaHists-1],mu);
+}
+
+void
 InDetPerfPlot_fakes::fillLinkedandUnlinked(const xAOD::TrackParticle& trkprt, float Prim_w, float Sec_w,
-                                           float Unlinked_w) {
+                                           float Unlinked_w,unsigned int mu) {
   double pt = trkprt.pt() * 1_GeV;
   double eta(trkprt.eta());
   double phi(trkprt.phi());
   double d0(trkprt.d0());
   double z0(trkprt.z0());
 
-  if (pt > 1) {
-    fillHisto(m_incFakeNum_pt1, eta);
-  }
-  if (pt > 2) {
-    fillHisto(m_incFakeNum_pt2, eta);
-  }
-  if (pt > 5) {
-    fillHisto(m_incFakeNum_pt5, eta);
-  }
+  fillIncTrkRateVsEtaPtcut(m_nRecTrkVsEtaPtcut,pt,eta);
+  fillIncTrkRateVsMuEtacut(m_nRecTrkVsMuEtacut,eta,mu);
 
   if (Unlinked_w == 0) {
     fillHisto(m_fakeEtaTotal, eta, Prim_w + Sec_w);
@@ -202,77 +210,51 @@ InDetPerfPlot_fakes::fillLinkedandUnlinked(const xAOD::TrackParticle& trkprt, fl
 }
 
 void
-InDetPerfPlot_fakes::fillIncFakeDenom(const xAOD::TruthParticle& particle) {
+InDetPerfPlot_fakes::fillIncFakeDenom(const xAOD::TruthParticle& particle, unsigned int mu) {
   double eta = particle.eta();
   double pt = particle.pt() * 1_GeV;
-
-  if (pt > 1) {
-    fillHisto(m_incFakeDenomEta_pt1, eta);
-  }
-  if (pt > 2) {
-    fillHisto(m_incFakeDenomEta_pt2, eta);
-  }
-  if (pt > 5) {
-    fillHisto(m_incFakeDenomEta_pt5, eta);
-  }
+  fillIncTrkRateVsEtaPtcut(m_nTruthTrkVsEtaPtcut,pt,eta);
+  fillIncTrkRateVsMuEtacut(m_nTruthTrkVsMuEtacut,eta,mu);
 }
 
-void
-InDetPerfPlot_fakes::fillIncTrkRate(const unsigned int nMuEvents, std::vector<int> incTrkNum,
-                                    std::vector<int> incTrkDenom) {
-  fillHisto(m_nTracks_vs_mu, nMuEvents, incTrkNum[0]);
-  fillHisto(m_nTruth_vs_mu, nMuEvents, incTrkDenom[0]);
-  fillHisto(m_nTracks_vs_mu2, nMuEvents, incTrkNum[1]);
-  fillHisto(m_nTruth_vs_mu2, nMuEvents, incTrkDenom[1]);
-  fillHisto(m_nTracks_vs_mu3, nMuEvents, incTrkNum[2]);
-  fillHisto(m_nTruth_vs_mu3, nMuEvents, incTrkDenom[2]);
-  fillHisto(m_mu, nMuEvents);
+void InDetPerfPlot_fakes::setPlotErrors(TH1* hrat, TH1* hnum, TH1* hdenom) {
+
+  if (!(hrat && hnum && hdenom))
+    return;
+
+  unsigned int nbins=hrat->GetNbinsX();
+  for (unsigned int i = 0; i <nbins+1; i++) {
+    double binError = 0;
+    double yBC = hdenom->GetBinContent(i);
+    double xBC = hnum->GetBinContent(i);
+    hdenom->SetBinError(i, std::sqrt(yBC));
+    hnum->SetBinError(i, std::sqrt(xBC));
+    binError = std::sqrt((xBC * xBC / (yBC * yBC * yBC)) + (xBC) / (yBC * yBC));
+    if (binError > 0) {
+      hrat->SetBinError(i, binError);
+    } 
+  }
+  
 }
 
 void
 InDetPerfPlot_fakes::finalizePlots() {
-  if (m_incFakeEta_pt1 && m_incFakeEta_pt2 && m_incFakeEta_pt5 && m_incTrkRate_vs_mu && m_incTrkRate_vs_mu2 &&
-      m_incTrkRate_vs_mu3) {
-    m_incFakeEta_pt1->Sumw2();
-    m_incFakeEta_pt1->Divide(m_incFakeNum_pt1, m_incFakeDenomEta_pt1, 1, 1, "B");
-    m_incFakeEta_pt2->Sumw2();
-    m_incFakeEta_pt2->Divide(m_incFakeNum_pt2, m_incFakeDenomEta_pt2, 1, 1, "B");
-    m_incFakeEta_pt5->Sumw2();
-    m_incFakeEta_pt5->Divide(m_incFakeNum_pt5, m_incFakeDenomEta_pt5, 1, 1, "B");
 
-    m_incTrkRate_vs_mu->Divide(m_nTracks_vs_mu, m_nTruth_vs_mu, 1, 1, "B");
-    m_incTrkRate_vs_mu2->Divide(m_nTracks_vs_mu2, m_nTruth_vs_mu2, 1, 1, "B");
-    m_incTrkRate_vs_mu3->Divide(m_nTracks_vs_mu3, m_nTruth_vs_mu3, 1, 1, "B");
-  } else {
-    ATH_MSG_INFO(
-      "InDetPerfPlot_fakes: some plots have null pointer, probably were not fully specified in the histogram definition xml file");
-  }
-
-  static const int nPlot = 6;
-  TH1* incTrkNum[nPlot] = {
-    m_nTracks_vs_mu, m_nTracks_vs_mu2, m_nTracks_vs_mu3, m_incFakeNum_pt1, m_incFakeNum_pt2, m_incFakeNum_pt5
-  };
-  TH1* incTrkDenom[nPlot] = {
-    m_nTruth_vs_mu, m_nTruth_vs_mu2, m_nTruth_vs_mu3, m_incFakeDenomEta_pt1, m_incFakeDenomEta_pt2,
-    m_incFakeDenomEta_pt5
-  };
-  TH1* incTrk[nPlot] = {
-    m_incTrkRate_vs_mu, m_incTrkRate_vs_mu2, m_incTrkRate_vs_mu3, m_incFakeEta_pt1, m_incFakeEta_pt2, m_incFakeEta_pt5
-  };
-
-  for (int j = 0; j < nPlot; j++) {
-    int nBins = incTrkDenom[j]->GetNbinsX();
-    for (int i = 0; i < nBins; i++) {
-      double binError = 0;
-      double yBC = incTrkDenom[j]->GetBinContent(i);
-      double xBC = incTrkNum[j]->GetBinContent(i);
-      incTrkDenom[j]->SetBinError(i, std::sqrt(yBC));
-      incTrkNum[j]->SetBinError(i, std::sqrt(xBC));
-      double yBC2=(yBC * yBC);
-      binError = (yBC2 > 0  ? std::sqrt((xBC * xBC / (yBC * yBC * yBC)) + (xBC) / (yBC * yBC)) : 0);
-      if (binError > 0) {
-        incTrk[j]->SetBinError(i, binError);
-      }
+  for (unsigned int i=0; i<m_incTrkRateVsEtaPtcut.size(); ++i) {
+    if (m_incTrkRateVsEtaPtcut[i]&&m_nRecTrkVsEtaPtcut[i]&&m_nTruthTrkVsEtaPtcut[i]) {
+      if (0==m_incTrkRateVsEtaPtcut[i]->GetSumw2N())
+	m_incTrkRateVsEtaPtcut[i]->Sumw2();
+      m_incTrkRateVsEtaPtcut[i]->Divide(m_nRecTrkVsEtaPtcut[i], m_nTruthTrkVsEtaPtcut[i], 1, 1, "B");
+      setPlotErrors(m_incTrkRateVsEtaPtcut[i],m_nRecTrkVsEtaPtcut[i],m_nTruthTrkVsEtaPtcut[i]);
     }
   }
+
+  for (unsigned int i=0; i<m_incTrkRateVsMuEtacut.size(); ++i) {
+    if (m_incTrkRateVsMuEtacut[i]&&m_nRecTrkVsMuEtacut[i]&&m_nTruthTrkVsMuEtacut[i]) {
+      if (0==m_incTrkRateVsMuEtacut[i]->GetSumw2N())
+	m_incTrkRateVsMuEtacut[i]->Sumw2();
+      m_incTrkRateVsMuEtacut[i]->Divide(m_nRecTrkVsMuEtacut[i], m_nTruthTrkVsMuEtacut[i], 1, 1, "B");
+      setPlotErrors(m_incTrkRateVsMuEtacut[i],m_nRecTrkVsMuEtacut[i],m_nTruthTrkVsMuEtacut[i]);
+    }
+  }  
 }

@@ -19,7 +19,7 @@ def DumpEventDataToJSONAlgCfg(configFlags, doExtrap=False, **kwargs):
       
       kwargs.setdefault('Extrapolator', extrapolationEngine)
       
-    dumpAlg = DumpEventDataToJsonAlg(ExtrapolateTracks=doExtrap, **kwargs )
+    dumpAlg = DumpEventDataToJsonAlg(ExtrapolateTrackParticles=doExtrap, **kwargs )
     result.addEventAlgo(dumpAlg)
     return result
 

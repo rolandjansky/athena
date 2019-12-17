@@ -266,8 +266,9 @@ HLT::ErrorCode TrigL2PattRecoStrategyT::findTracks(const TrigInDetTrackCollectio
     return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
   }
 
-  m_segmentsmaker->newRegion(listOfFilteredTrtIds);
-  m_segmentsmaker->find(); 
+  std::unique_ptr<InDet::ITRT_TrackSegmentsMaker::IEventData>
+     event_data = m_segmentsmaker->newRegion(listOfFilteredTrtIds);
+  m_segmentsmaker->find(*event_data);
 
   Trk::Segment* segment = 0;
   int nsegments = 0;
@@ -276,11 +277,11 @@ HLT::ErrorCode TrigL2PattRecoStrategyT::findTracks(const TrigInDetTrackCollectio
   
   Trk::SegmentCollection* foundSegments  = new Trk::SegmentCollection;
   
-  while((segment = m_segmentsmaker->next())) {
+  while((segment = m_segmentsmaker->next(*event_data))) {
     ++nsegments; foundSegments->push_back(segment);
   }
   
-  m_segmentsmaker->endEvent();
+  m_segmentsmaker->endEvent(*event_data);
 
   if (outputLevel <= MSG::INFO) 
     athenaLog << MSG::INFO << "REGTEST: Found " << nsegments << " TRT segments" << endmsg;
@@ -296,7 +297,9 @@ HLT::ErrorCode TrigL2PattRecoStrategyT::findTracks(const TrigInDetTrackCollectio
   
   InDet::AltExtendedSiCombinatorialTrackFinderData_xk combinatorialData_alt(evtStore(),m_prdToTrackMap.key());
   InDet::ExtendedSiCombinatorialTrackFinderData_xk    combinatorialData(m_prdToTrackMap);
-  m_trackmaker->newRegion(combinatorialData, listOfPixIds, listOfSCTIds); //RoI-based reconstruction
+  std::unique_ptr<InDet::ITRT_SeededTrackFinder::IEventData> event_data_p( m_trackmaker->newRegion(combinatorialData,
+                                                                                                   listOfPixIds,
+                                                                                                   listOfSCTIds) ); //RoI-based reconstruction
 
   TrackCollection* tempTracks = new TrackCollection;           //Temporary track collection per event
   
@@ -319,7 +322,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyT::findTracks(const TrigInDetTrackCollectio
     }
 
     nTrtSegGood++;
-    std::list<Trk::Track*> trackSi = m_trackmaker->getTrack(combinatorialData, *trtTrack); //Get the possible Si extensions
+    std::list<Trk::Track*> trackSi = m_trackmaker->getTrack(*event_data_p, *trtTrack); //Get the possible Si extensions
       
     if(trackSi.size()==0){
       if (outputLevel <= MSG::INFO) 

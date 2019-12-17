@@ -609,7 +609,7 @@ SCTErrMonTool::procHistograms() {
 //          SCTErrMonTool :: fillByteStreamErrorsHelper, Martin Flechl 10/09/2009
 // ====================================================================================================
 int
-SCTErrMonTool::fillByteStreamErrorsHelper(const set<IdentifierHash>* errors,
+SCTErrMonTool::fillByteStreamErrorsHelper(const set<IdentifierHash>& errors,
                                           TH2F_LW* histo[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][N_ENDCAPSx2],
                                           bool lumi2DHist, int err_type) {
 
@@ -657,7 +657,7 @@ SCTErrMonTool::fillByteStreamErrorsHelper(const set<IdentifierHash>* errors,
 
   //--- Count BS errors
   int nerrors{0};
-  for (const IdentifierHash& hash: *errors) {
+  for (const auto& hash: errors) {
     nerrors++;
     if (not hash.is_valid()) continue;
 
@@ -711,9 +711,9 @@ SCTErrMonTool::fillByteStreamErrorsHelper(const set<IdentifierHash>* errors,
 //          SCTErrMonTool :: numByteStreamErrors, Daniel Damiani 04/07/2011
 // ====================================================================================================
 void
-SCTErrMonTool::numByteStreamErrors(const set<IdentifierHash>* errors, int& ntot, int& nbar, int& neca, int& necc) const {
+SCTErrMonTool::numByteStreamErrors(const set<IdentifierHash>& errors, int& ntot, int& nbar, int& neca, int& necc) const {
 
-  for (const IdentifierHash& fit: *errors) {
+  for (const auto& fit: errors) {
     if (fit.is_valid()) {
       Identifier fitId{m_pSCTHelper->wafer_id(fit)};
       int layer{m_pSCTHelper->layer_disk(fitId)};
@@ -807,8 +807,8 @@ SCTErrMonTool::fillByteStreamErrors() {
   }
 
   //--- Fill map histograms for each BS
-  int total_errors{0};
-  for (int errType{0}; errType < SCT_ByteStreamErrors::NUM_ERROR_TYPES; ++errType) {
+  int total_errors = 0;
+  for (int errType = 0; errType < SCT_ByteStreamErrors::NUM_ERROR_TYPES; ++errType) {
     total_errors += fillByteStreamErrorsHelper(m_byteStreamErrTool->getErrorSet(errType), m_pallErrs, false, errType);
     if (m_doPerLumiErrors and m_doErr2DPerLumiHists) {
       fillByteStreamErrorsHelper(m_byteStreamErrTool->getErrorSet(errType), m_pallErrsPerLumi, false, errType);
@@ -1863,24 +1863,24 @@ bool SCTErrMonTool::syncErrorSCT(set<IdentifierHash>& sctHashBadLinkError,
  
   //BadLinkLevelError
   for (SCT_ByteStreamErrors::errorTypes linkLevelBadErrors: SCT_ByteStreamErrors::LinkLevelBadErrors) {
-    const set<IdentifierHash>* sctErrors{m_byteStreamErrTool->getErrorSet( linkLevelBadErrors )};
-    for (const IdentifierHash& waferHash: *sctErrors) {
+    const set<IdentifierHash> sctErrors{m_byteStreamErrTool->getErrorSet( linkLevelBadErrors )};
+    for (const IdentifierHash& waferHash : sctErrors) {
       sctHashBadLinkError.insert(waferHash);
     }
   }
 
   //BadRODLevelError
   for (SCT_ByteStreamErrors::errorTypes RodLevelBadErrors: SCT_ByteStreamErrors::RodLevelBadErrors) {
-    const set<IdentifierHash>* sctErrors{m_byteStreamErrTool->getErrorSet( RodLevelBadErrors )};
-    for (const IdentifierHash& waferHash: *sctErrors) {
+    const set<IdentifierHash> sctErrors{m_byteStreamErrTool->getErrorSet( RodLevelBadErrors )};
+    for (const IdentifierHash& waferHash: sctErrors) {
       sctHashBadRODError.insert(waferHash);
     }
   }
 
   //BadError = BadLinkLevelError + BadRODLevelError
   for (SCT_ByteStreamErrors::errorTypes tmpBadError: SCT_ByteStreamErrors::BadErrors) {
-    const set<IdentifierHash>* sctErrors{m_byteStreamErrTool->getErrorSet( tmpBadError )};
-    for (const IdentifierHash& waferHash: *sctErrors) {
+    const set<IdentifierHash> sctErrors{m_byteStreamErrTool->getErrorSet( tmpBadError )};
+    for (const IdentifierHash& waferHash: sctErrors) {
       sctHashBadError.insert(waferHash);
     }
   }

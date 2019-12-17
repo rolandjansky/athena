@@ -66,7 +66,7 @@ if __name__ == "__main__":
   #acc.getService("StoreGateSvc").Dump=True
   acc.getService("ConditionStore").Dump=True
   acc.printConfig(withDetails=True)
-  f=open('InDetGMCfg2.pkl','w')
+  f=open('InDetGMCfg2.pkl','wb')
   acc.store(f)
   f.close()
   ConfigFlags.dump()

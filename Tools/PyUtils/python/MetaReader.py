@@ -84,11 +84,9 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                 if regex_BS_files.match(filename):
                     current_file_type = 'BS'
                     meta_dict[filename]['file_type'] = 'BS'
-                    print('############### BS online')
                 else:
                     current_file_type = 'POOL'
                     meta_dict[filename]['file_type'] = 'POOL'
-                    print('############### POOL online')
 
                 # add information about the file_size of the input filename
                 meta_dict[filename]['file_size'] = None  # None -> we can't read the file size for a remote file
@@ -213,6 +211,22 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                         key = getattr(content, 'm_folderName')
 
                     meta_dict[filename][key] = _convert_value(content)
+
+
+
+            # This is a required workaround which will temporarily be fixing ATEAM-560 originated from  ATEAM-531
+            # ATEAM-560: https://its.cern.ch/jira/browse/ATEAM-560
+            # ATEAM-531: https://its.cern.ch/jira/browse/ATEAM-531
+            # This changes will remove all duplicates values presented in some files due
+            # to the improper merging of two IOVMetaDataContainers.
+            if unique_tag_info_values:
+                msg.info('MetaReader is called with the parameter "unique_tag_info_values" set to True. '
+                         'This is a workaround to remove all duplicate values from "/TagInfo" key')
+                if '/TagInfo' in meta_dict[filename]:
+                    for key, value in meta_dict[filename]['/TagInfo'].items():
+                        if isinstance(value, list):
+                            unique_list = list(set(value))
+                            meta_dict[filename]['/TagInfo'][key] = unique_list[0] if len(unique_list) == 1 else unique_list
 
             if promote is None:
                 promote = mode == 'lite' or mode == 'peeker'
@@ -343,20 +357,6 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
         else:
             msg.error('Unknown filetype for {0} - there is no metadata interface for type {1}'.format(filename, current_file_type))
             return None
-
-        # This is a required workaround which will temporarily be fixing ATEAM-560 originated from  ATEAM-531
-        # ATEAM-560: https://its.cern.ch/jira/browse/ATEAM-560
-        # ATEAM-531: https://its.cern.ch/jira/browse/ATEAM-531
-        # This changes will remove all duplicates values presented in some files due
-        # to the improper merging of two IOVMetaDataContainers.
-        if unique_tag_info_values:
-            msg.info('MetaReader is called with the parameter "unique_tag_info_values" set to True. '
-                     'This is a workaround to remove all duplicate values from "/TagInfo" key')
-            if '/TagInfo' in meta_dict[filename]:
-                for key, value in meta_dict[filename]['/TagInfo'].items():
-                    if isinstance(value, list):
-                        unique_list = list(set(value))
-                        meta_dict[filename]['/TagInfo'][key] = unique_list[0] if len(unique_list) == 1 else unique_list
 
     return meta_dict
 
@@ -716,3 +716,50 @@ def promote_keys(meta_dict):
             md.pop('/Digitization/Parameters')
 
     return meta_dict
+
+
+def convert_itemList(metadata, layout):
+    """
+    This function will rearrange the itemList values to match the format of 'eventdata_items', 'eventdata_itemsList'
+    or 'eventdata_itemsDic' generated with AthFile
+    :param metadata: a dictionary obtained using read_metadata method.
+                     The mode for read_metadata must be 'peeker of 'full'
+    :param layout: the mode in which the data will be converted:
+                * for 'eventdata_items' use: layout= None
+                * for 'eventdata_itemsList' use: layout= '#join'
+                * for 'eventdata_itemsDic' use: layout= 'dict'
+    """
+
+    # Find the itemsList:
+    item_list = None
+
+    if 'itemList' in metadata:
+        item_list = metadata['itemList']
+    else:
+
+        current_key = None
+
+        for key in metadata:
+            if key in metadata['metadata_items'] and metadata['metadata_items'][key] == 'EventStreamInfo_p3':
+                current_key = key
+                break
+        if current_key is not None:
+            item_list = metadata[current_key]['itemList']
+
+    if item_list is not None:
+
+        if layout is None:
+            return item_list
+
+        elif layout == '#join':
+            return [k + '#' + v for k, v in item_list if k]
+
+
+        elif layout == 'dict':
+            from collections import defaultdict
+            dic = defaultdict(list)
+
+            for k, v in item_list:
+                dic[k].append(v)
+
+            return dict(dic)

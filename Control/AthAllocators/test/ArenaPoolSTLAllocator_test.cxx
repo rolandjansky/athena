@@ -178,7 +178,7 @@ void test2()
   assert (a3.stats().elts.inuse == 1);
   assert (a3.stats().elts.total == 1000);
 
-  Payload** p = a4.allocate (2, nullptr);
+  Payload** p = a4.allocate (2);
   a4.deallocate (p, 2);
 
   assert (Payload::n == 0);
@@ -234,7 +234,7 @@ void test3()
   assert (a4.stats().elts.inuse == 0);
   assert (a4.stats().elts.total == 1000);
 
-  int* p = a4.allocate (2, nullptr);
+  int* p = a4.allocate (2);
   assert (a4.stats().elts.inuse == 0);
   assert (a4.stats().elts.total == 1000);
 

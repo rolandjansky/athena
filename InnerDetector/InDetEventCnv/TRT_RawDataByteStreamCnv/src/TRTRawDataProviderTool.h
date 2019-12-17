@@ -7,15 +7,16 @@
 
 #include "TRT_RawDataByteStreamCnv/ITRTRawDataProviderTool.h"
 
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaKernel/SlotSpecificObj.h"
 #include "ByteStreamData/RawEvent.h" 
-
 #include "InDetRawData/InDetTimeCollection.h"
-#include "TRT_RawDataByteStreamCnv/ITRT_RodDecoder.h"
 #include "TRT_ConditionsServices/ITRT_ByteStream_ConditionsSvc.h"
+#include "TRT_RawDataByteStreamCnv/ITRT_RodDecoder.h"
 #include "StoreGate/WriteHandleKey.h"
 
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
 #include <set>
 #include <string>
@@ -56,7 +57,14 @@ private:
   ServiceHandle<ITRT_ByteStream_ConditionsSvc>   m_bsErrSvc;
 
   // bookkeeping if we have decoded a ROB already
-  uint32_t      m_LastLvl1ID;
+  mutable std::mutex m_mutex;
+  struct CacheEntry {
+    EventContext::ContextEvt_t m_evt{EventContext::INVALID_CONTEXT_EVT};
+    uint32_t m_LastLvl1ID{0xffffffff};
+  };
+  mutable SG::SlotSpecificObj<CacheEntry> m_cache ATLAS_THREAD_SAFE; // Guarded by m_mutex
+  
+
   SG::WriteHandleKey<InDetTimeCollection> m_lvl1idkey{this,"LVL1IDKey","TRT_LVL1ID","TRT_LVL1ID out-key"};
   SG::WriteHandleKey<InDetTimeCollection> m_bcidkey{this,"BCIDKey","TRT_BCID","TRT_BCID out-key"};
   bool  m_storeInDetTimeColls;

@@ -17,7 +17,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TRT_PAI_Process/ITRT_PAITool.h"
-#include "TRT_Digitization/ITRT_SimDriftTimeTool.h"
+#include "ITRT_SimDriftTimeTool.h"
 #include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
 
@@ -97,6 +97,7 @@ public:
 
 private:
   CLHEP::HepRandomEngine* getRandomEngine(const std::string& streamName) const;
+  CLHEP::HepRandomEngine* getRandomEngine(const std::string& streamName, unsigned long int randomSeedOffset) const;
 
   Identifier getIdentifier( int hitID,
                             IdentifierHash& hashId,
@@ -106,10 +107,7 @@ private:
   StatusCode update( IOVSVC_CALLBACK_ARGS );        // Update of database entries.
   StatusCode ConditionsDependingInitialization();
 
-  StatusCode lateInitialize(CLHEP::HepRandomEngine *noiseRndmEngine,
-                            CLHEP::HepRandomEngine *elecNoiseRndmEngine,
-                            CLHEP::HepRandomEngine *elecProcRndmEngine,
-                            CLHEP::HepRandomEngine *fakeCondRndmEngine);
+  StatusCode lateInitialize();
   StatusCode processStraws(std::set<int>& sim_hitids, std::set<Identifier>& simhitsIdentifiers,
                            CLHEP::HepRandomEngine *rndmEngine,
                            CLHEP::HepRandomEngine *strawRndmEngine,
@@ -118,10 +116,6 @@ private:
                            CLHEP::HepRandomEngine *paiRndmEngine);
   StatusCode createAndStoreRDOs();
 
-  // The straw's gas mix: 1=Xe, 2=Kr, 3=Ar
-  int StrawGasType(Identifier& TRT_Identifier) const;
-
-  unsigned int getRegion(int hitID);
   double getCosmicEventPhase(CLHEP::HepRandomEngine *rndmEngine);
 
   /// Configurable properties
@@ -146,6 +140,7 @@ private:
   Gaudi::Property<bool> m_printUsedDigSettings{this, "PrintDigSettings", true, "Print ditigization settings"};
   Gaudi::Property<int> m_HardScatterSplittingMode{this, "HardScatterSplittingMode", 0, ""};
   Gaudi::Property<int> m_UseGasMix{this, "UseGasMix", 0, ""};
+  Gaudi::Property<unsigned long int> m_randomSeedOffset{this, "RandomSeedOffset", 678910, ""};
 
   TRTDigSettings* m_settings{};
 

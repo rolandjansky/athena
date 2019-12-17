@@ -4,6 +4,8 @@
 
 # Technical package(s) that should not show up in packages.txt:
 - Build
+- .devcontainer
+- .vscode
 
 # Ignore the Projects directory:
 - Projects/.*
@@ -69,3 +71,17 @@
 # Old packages that don't work with AthenaMT
 - LArCalorimeter/LArSim
 - PhysicsAnalysis/HiggsPhys/HSG5/HSG5DPDUtils
+
+# the following packages have been rewritten in the past and are contained inside
+# MuonCombinedTrackFindingTools/MuonTrackPerformance/MuonRecValidationNtuples now
+# removing them from the build, later on, they will be deleted if no issues are found
+- Reconstruction/MuonIdentification/MuGirl
+- Reconstruction/MuonIdentification/MuGirlCandidate
+- Reconstruction/MuonIdentification/MuGirlGlobalFit
+- Reconstruction/MuonIdentification/MuGirlInterfaces
+- Reconstruction/MuonIdentification/MuGirlParticleCreatorTool
+- Reconstruction/MuonIdentification/MuGirlPerformance
+- Reconstruction/MuonIdentification/MuGirlPerformanceInterfaces
+- Reconstruction/MuonIdentification/MuGirlPerformanceTools
+- Reconstruction/MuonIdentification/MuGirlSelection
+- Reconstruction/MuonIdentification/MuGirlStau

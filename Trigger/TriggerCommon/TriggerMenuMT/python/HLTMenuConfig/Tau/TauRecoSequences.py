@@ -13,7 +13,7 @@ def _algoTauRoiUpdater(inputRoIs, clusters):
     from TrigTauHypo.TrigTauHypoConf import TrigTauCaloRoiUpdaterMT
     algo = TrigTauCaloRoiUpdaterMT("TauCaloRoiUpdater")
     algo.RoIInputKey  = inputRoIs
-    algo.RoIOutputKey = recordable("HLT_RoiForTau")
+    algo.RoIOutputKey = "HLT_RoiForTau"
     algo.CaloClustersKey = clusters
     return algo
 
@@ -41,7 +41,7 @@ def _algoTauTrackRoiUpdater(inputRoIs, tracks):
     from TrigTauHypo.TrigTauHypoConf import TrigTauTrackRoiUpdaterMT
     algo = TrigTauTrackRoiUpdaterMT("TrackRoiUpdater")
     algo.RoIInputKey   = inputRoIs
-    algo.RoIOutputKey  = recordable("HLT_RoiForID2")
+    algo.RoIOutputKey  = "HLT_RoiForID2"
     algo.fastTracksKey = tracks
     return algo
 
@@ -112,9 +112,9 @@ def tauCaloMVASequence(ConfigFlags):
 def tauCoreTrackSequence( RoIs, name ):
     import AthenaCommon.CfgMgr as CfgMgr
 
-    tauCoreTrackSequence = parOR(name)
+    tauCoreTrackSequence = seqAND(name)
 
-    from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
+    from TrigInDetConfig.InDetSetup import makeInDetAlgs
     viewAlgs = makeInDetAlgs(whichSignature='TauCore',separateTrackParticleCreator="_TauCore",rois = RoIs)
 
     for viewAlg in viewAlgs:
@@ -146,9 +146,9 @@ def tauCoreTrackSequence( RoIs, name ):
 def tauIsoTrackSequence( RoIs , name):
     import AthenaCommon.CfgMgr as CfgMgr
 
-    tauIsoTrackSequence = parOR(name)
+    tauIsoTrackSequence = seqAND(name)
 
-    from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
+    from TrigInDetConfig.InDetSetup import makeInDetAlgs
     viewAlgs = makeInDetAlgs(whichSignature='TauIso',separateTrackParticleCreator="_TauIso",rois = RoIs)
 
     ViewVerify = CfgMgr.AthViews__ViewDataVerifier("tauViewDataVerifierIsoFTF")
@@ -178,7 +178,7 @@ def tauIsoTrackSequence( RoIs , name):
     #Pass verifier as an argument and it will automatically append necessary DataObjects
     #@NOTE: Don't provide any verifier if loaded in the same view as FTF
 
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "taus",  ViewVerify, inputFTFtracks= TrackCollection )
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "taus", inputFTFtracks= TrackCollection )
     PTSeq = seqAND("precisionTrackingInTaus", PTAlgs  )
     #Get last tracks from the list as input for other alg
 

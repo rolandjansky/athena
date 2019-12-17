@@ -45,10 +45,14 @@ StatusCode TrigBjetBtagHypoTool::decide( std::vector< TrigBjetBtagHypoToolInfo >
     // Check the HypoTool's chain is active
     if ( not TrigCompositeUtils::passed( getId().numeric(),bTagInfo.previousDecisionIDs ) )
       continue;
-    
+
+    // This will disappear!    
     if ( m_acceptAll == true ) {
       ATH_MSG_DEBUG( "Running with 'Accept All' option enabled. Passing cut." );
       TrigCompositeUtils::addDecisionID( getId().numeric(),bTagInfo.decision );
+
+      ATH_MSG_DEBUG("PRINTING DECISION");
+      ATH_MSG_DEBUG( *bTagInfo.decision );
       continue;
     }
     
@@ -76,6 +80,7 @@ StatusCode TrigBjetBtagHypoTool::decide( std::vector< TrigBjetBtagHypoToolInfo >
       ATH_MSG_DEBUG( "   --> Failed" );
     }
 
+    ATH_MSG_DEBUG("PRINTING DECISION");
     ATH_MSG_DEBUG( *bTagInfo.decision );    
   }
 

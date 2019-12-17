@@ -11,8 +11,8 @@ def _setup():
    try:
        from RecExConfig.AutoConfiguration import GetRunNumber
        rn=GetRunNumber()
-   except Exception,e:
-       print " cannot find run number "
+   except Exception:
+       print (" cannot find run number ")
    if (rn is not None):
        from LArConditionsCommon.LArRunFormat import getLArFormatForRun
        larcool = getLArFormatForRun(rn)
