@@ -47,16 +47,8 @@ if infile.startswith ('rtt:'):
     infile = infile[4:]
 
 
-def find_file (fname):
-    for p in refpaths:
-        if p:
-            path = os.path.join (p, fname)
-            if os.path.exists (path):
-                return path
-    printfunc ('ERROR: Cannot find file: ', fname)
-    return None
-
-svcMgr.EventSelector.InputCollections        = [ find_file (infile) ]
+from AthenaPoolUtilities.DumperConfig import find_file, Dumper
+svcMgr.EventSelector.InputCollections        = [ find_file (infile, refpaths) ]
 
 from AthenaCommon.DetFlags      import DetFlags
 if not globals().get ('noMuon',False):
@@ -83,99 +75,5 @@ if have_atlas_geo and moduleExists ('TrkEventCnvTools') and moduleExists ('MuonE
     svcMgr += Muon__MuonIdHelperSvc("MuonIdHelperSvc",HasCSC=MuonGeometryFlags.hasCSC(), HasSTgc=MuonGeometryFlags.hasSTGC(), HasMM=MuonGeometryFlags.hasMM())
     ToolSvc += EventCnvSuperTool
 
-#
-# If a new xAOD variable appears, print a warning, but don't treat
-# it as a failure.
-#
-def checknewvars (output):
-    names = set()
-    for l in output.split ('\n'):
-        if not l: continue
-        if l.startswith ('+++') or l.startswith ('---'): continue
-        if l[0] == '-': return None
-        if l[0] == '+':
-            pos = l.find (':')
-            if l.startswith ('+     ') and pos > 0:
-                names.add (l[6:pos])
-            else:
-                return None
-    l = list(names)
-    l.sort()
-    return l
-            
-
-if not 'get_dumper_fct' in globals():
-    from PyDumper.Dumpers import get_dumper_fct
-from AthenaPython import PyAthena
-class Dumper (PyAthena.Alg):
-    def __init__ (self, name, inputFile, Keys):
-        PyAthena.Alg.__init__ (self, name)
-        self.infile = inputFile
-        self.keys = Keys
-        return
-
-    def initialize (self):
-        self.sg = PyAthena.py_svc ('StoreGateSvc')
-        self.ofile_name = os.path.basename (self.infile) + '.dump'
-        refbase = os.path.basename (self.infile) + '.ref'
-        self.reffile_name = '../share/' + refbase
-        if not os.path.exists (self.reffile_name):
-            self.reffile_name = '../' + self.reffile_name
-
-        if not os.path.exists (self.reffile_name) and 'ATLAS_REFERENCE_TAG' in globals():
-            from AthenaCommon.Utils.unixtools import find_datafile
-            r = find_datafile (ATLAS_REFERENCE_TAG)
-            if r:
-                self.reffile_name = os.path.join (r, ATLAS_REFERENCE_TAG,
-                                                  refbase)
-
-        if not os.path.exists (self.reffile_name) and 'ATLAS_REFERENCE_TAG' in globals():
-            self.reffile_name = find_file (os.path.join (ATLAS_REFERENCE_TAG,
-                                                         refbase))
-
-        self.ofile = open (self.ofile_name, 'w')
-        self.icount = 0
-        return 1
-
-    def finalize (self):
-        self.ofile.close()
-        ret, output = subprocess.getstatusoutput ('diff -u %s %s' % (self.reffile_name, self.ofile_name))
-        if ret != 0:
-            newvars = checknewvars (output)
-            if newvars:
-                printfunc ('WARNING: new xAOD variables ', newvars)
-            else:
-                printfunc ('ERROR running diff with reference')
-                printfunc (output)
-        return 1
-
-    def execute (self):
-        fprintln (self.ofile, 'Event index', self.icount)
-        self.icount += 1
-        for k in self.keys:
-            nmax = None
-            apos = k.find ('@')
-            if apos >= 0:
-                nmax = int (k[apos+1:])
-                k = k[:apos]
-            fprintln (self.ofile, '-->', k)
-
-            store = self.sg
-            spos = k.find ('/')
-            if spos >= 0:
-                store = PyAthena.py_svc (k[:spos])
-                k = k[spos+1:]
-            
-            spos = k.find ('#')
-            if spos >= 0:
-                (typ, k) = k.split ('#')
-                o = store.retrieve (typ, k)
-            else:
-                o = store[k]
-            dumper = get_dumper_fct (type (o), self.ofile, nmax = nmax)
-            dumper (o)
-        fprintln (self.ofile, '\n')
-        return 1
-
-dumper = Dumper ('dumper', infile, keys)
+dumper = Dumper ('dumper', infile, keys, refpaths)
 topSequence += [dumper]
