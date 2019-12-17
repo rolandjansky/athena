@@ -72,7 +72,7 @@ public:
                                      std::array<double,4>&         eta,
                                      std::array<double,4>&         phi,
                                      std::array<double,4>&         deltaEta,
-                                     std::array<double,5>&         deltaPhi, //5 due to rotation in phi
+                                     std::array<double,4>&         deltaPhi, 
                                      unsigned int                  extrapFrom = fromPerigee,
                                      Cache* cache=nullptr) const override final;
 

@@ -170,7 +170,7 @@ EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
   std::array<double,4>  eta = {-999.0,-999.0,-999.0,-999.0};
   std::array<double,4>  phi = {-999.0,-999.0,-999.0,-999.0};
   std::array<double,4>  deltaEta = {-999.0,-999.0,-999.0,-999.0};
-  std::array<double,5>  deltaPhi = {-999.0,-999.0,-999.0,-999.0,-999.0};
+  std::array<double,4>  deltaPhi = {-999.0,-999.0,-999.0,-999.0};
  
   /*
    * Try both from perigee
@@ -195,7 +195,7 @@ EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
   std::array<double,4>  etaRes = {-999.0,-999.0,-999.0,-999.0};
   std::array<double,4>  phiRes = {-999.0,-999.0,-999.0,-999.0};
   std::array<double,4>  deltaEtaRes = {-999.0,-999.0,-999.0,-999.0};
-  std::array<double,5>  deltaPhiRes = {-999.0,-999.0,-999.0,-999.0,-999.0};
+  std::array<double,4>  deltaPhiRes = {-999.0,-999.0,-999.0,-999.0};
  
   if (m_extrapolationTool->getMatchAtCalo (ctx, 
                                            &cluster, 
@@ -250,7 +250,7 @@ EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
   std::array<double,4>  eta1 = {-999.0,-999.0,-999.0,-999.0};
   std::array<double,4>  phi1 = {-999.0,-999.0,-999.0,-999.0};
   std::array<double,4>  deltaEta1 = {-999.0,-999.0,-999.0,-999.0};
-  std::array<double,5>  deltaPhi1 = {-999.0,-999.0,-999.0,-999.0,-999.0};
+  std::array<double,4>  deltaPhi1 = {-999.0,-999.0,-999.0,-999.0};
  
   if (m_extrapolationTool->getMatchAtCalo (ctx,
                                            &cluster, 
@@ -274,11 +274,9 @@ EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
    */
   TrackMatch trkmatch;
   //Add the matching variable to the TrackMAtch
-  for(int i=0; i<4 ;++i){
-    trkmatch.deltaEta[i]=deltaEta[i]; 
-    trkmatch.deltaPhi[i]=deltaPhi[i]; 
-    trkmatch.deltaPhiRescaled[i]=deltaPhiRes[i]; 
-  }  
+  trkmatch.deltaEta=deltaEta; 
+  trkmatch.deltaPhi=deltaPhi; 
+  trkmatch.deltaPhiRescaled=deltaPhiRes; 
   trkmatch.deltaPhiLast=deltaPhiLast; 
 
   //Variables used for the sorting. Note both dPhi's will be used.

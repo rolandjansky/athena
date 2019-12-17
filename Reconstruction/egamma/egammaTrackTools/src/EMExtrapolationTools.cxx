@@ -92,7 +92,7 @@ EMExtrapolationTools::getMatchAtCalo (const EventContext&           ctx,
                                       std::array<double,4>&         eta,
                                       std::array<double,4>&         phi,
                                       std::array<double,4>&         deltaEta,
-                                      std::array<double,5>&         deltaPhi,//5 due to rotation in phi
+                                      std::array<double,4>&         deltaPhi,//5 due to rotation in phi
                                       unsigned int                  extrapFrom,
                                       Cache*                        cache) const
 {
@@ -106,25 +106,17 @@ EMExtrapolationTools::getMatchAtCalo (const EventContext&           ctx,
    */
   bool didExtension=false;
   CaloExtensionHelpers::EtaPhiPerLayerVector intersections;
+  switch(extrapFrom) {
   /* 
    * Rescaled Perigee is "easy"
    * It will never have a cache
    */ 
-  double atPerigeePhi(-999);
-  double PerigeeTrkParPhi(-999); 
-
-  switch(extrapFrom) {
-
   case  fromPerigeeRescaled:{
     std::unique_ptr<const Trk::TrackParameters> trkPar = getRescaledPerigee(trkPB, cluster);    
     if(!trkPar){
       ATH_MSG_ERROR("getMatchAtCalo: Cannot access track parameters"); 
       return StatusCode::FAILURE; 
     }  
-    Amg::Vector3D atPerigee(trkPar->position().x(), trkPar->position().y(), trkPar->position().z()); 
-    atPerigeePhi=atPerigee.phi(); ;
-    PerigeeTrkParPhi=trkPar->momentum().phi();
-
     std::unique_ptr<Trk::CaloExtension> extension = m_perigeeParticleCaloExtensionTool->caloExtension( *trkPar, 
                                                                                                        direction, 
                                                                                                        Trk::muon);
@@ -243,18 +235,6 @@ EMExtrapolationTools::getMatchAtCalo (const EventContext&           ctx,
     ATH_MSG_DEBUG("getMatchAtCalo: i, eta, phi, deta, dphi: "  
                   << i << " " << eta[i] << " " << phi[i] << " " 
                   << deltaEta[i] << " " << deltaPhi[i]);     
-    if (fromPerigeeRescaled == extrapFrom) {
-      if ( i == 2 && deltaPhi.size() > 4) { 
-        /* For rescaled perigee when at sampling 2, save the the  rotation in phi
-         * This is defined as: 
-         * ((phi of point at sampling 2 - phi of point at track vertex/perigee) - 
-         * phi of direction of track at perigee) 
-         */  
-        const double perToSamp2 = std::get<2>(p)  - atPerigeePhi; 
-        deltaPhi[4] = fabs(P4Helpers::deltaPhi(perToSamp2, PerigeeTrkParPhi)); 
-        ATH_MSG_DEBUG("getMatchAtCalo: phi-rot: " << deltaPhi[4]); 
-      }
-    }
   }
   return StatusCode::SUCCESS;   
 }

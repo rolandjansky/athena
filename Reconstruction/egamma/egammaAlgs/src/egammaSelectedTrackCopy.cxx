@@ -276,7 +276,7 @@ bool egammaSelectedTrackCopy::Select(const EventContext& ctx,
   std::array<double,4>  eta = {-999.0,-999.0,-999.0,-999.0};
   std::array<double,4>  phi = {-999.0,-999.0,-999.0,-999.0};
   std::array<double,4>  deltaEta = {-999.0,-999.0,-999.0,-999.0};
-  std::array<double,5>  deltaPhi = {-999.0,-999.0,-999.0,-999.0,-999.0};
+  std::array<double,4>  deltaPhi = {-999.0,-999.0,-999.0,-999.0};
   if (m_extrapolationToolCommonCache->getMatchAtCalo (ctx,
                                                       cluster, 
                                                       track, 
@@ -320,7 +320,7 @@ bool egammaSelectedTrackCopy::Select(const EventContext& ctx,
     std::array<double,4>  eta1 = {-999.0,-999.0,-999.0,-999.0};
     std::array<double,4>  phi1 = {-999.0,-999.0,-999.0,-999.0};
     std::array<double,4>  deltaEta1 = {-999.0,-999.0,-999.0,-999.0};
-    std::array<double,5>  deltaPhi1 = {-999.0,-999.0,-999.0,-999.0,-999.0};
+    std::array<double,4>  deltaPhi1 = {-999.0,-999.0,-999.0,-999.0};
 
     if(m_extrapolationTool->getMatchAtCalo (ctx,
                                             cluster, 
