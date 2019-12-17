@@ -84,7 +84,7 @@ def collectL1DecoderDecisionObjects(l1decoder):
     decisionObjects.update([ d.Decisions for d in l1decoder.roiUnpackers ])
     decisionObjects.update([ d.Decisions for d in l1decoder.rerunRoiUnpackers ])
     from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
-    decisionObjects.add( mapThresholdToL1DecisionCollection("FS") ) # Include also Full Scan
+    decisionObjects.add( mapThresholdToL1DecisionCollection("FSNOSEED") ) # Include also Full Scan
     __log.info("Collecting %i decision objects from L1 decoder instance", len(decisionObjects))
     return decisionObjects
 
