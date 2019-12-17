@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def LArHVScaleCfg(configFlags):
     result=ComponentAccumulator()
@@ -11,7 +12,7 @@ def LArHVScaleCfg(configFlags):
     if configFlags.Input.isMC:
         result.merge(addFolders(configFlags,["/LAR/Identifier/HVLineToElectrodeMap<tag>LARHVLineToElectrodeMap-001</tag>"], "LAR_OFL", className="AthenaAttributeList"))
 
-        from LArRecUtils.LArRecUtilsConf import LArHVIdMappingAlg
+        LArHVIdMappingAlg=CompFactory.LArHVIdMappingAlg
         hvmapalg = LArHVIdMappingAlg(ReadKey="/LAR/Identifier/HVLineToElectrodeMap",WriteKey="LArHVIdMap")
         result.addCondAlgo(hvmapalg)
 
@@ -27,24 +28,24 @@ def LArHVScaleCfg(configFlags):
         result.merge(LArBadChannelCfg(configFlags))
         result.merge(LArBadFebCfg(configFlags))
 
-        from LArRecUtils.LArRecUtilsConf import LArHVIdMappingAlg
+        LArHVIdMappingAlg=CompFactory.LArHVIdMappingAlg
         hvmapalg = LArHVIdMappingAlg(ReadKey="/LAR/IdentifierOfl/HVLineToElectrodeMap",WriteKey="LArHVIdMap")
         result.addCondAlgo(hvmapalg)
 
-        from LArRecUtils.LArRecUtilsConf import LArHVPathologyDbCondAlg
+        LArHVPathologyDbCondAlg=CompFactory.LArHVPathologyDbCondAlg
         hvpath = LArHVPathologyDbCondAlg(PathologyFolder="/LAR/HVPathologiesOfl/Pathologies",
                                          HVMappingKey="LArHVIdMap",
                                          HVPAthologyKey="LArHVPathology")
         result.addCondAlgo(hvpath)
 
-        from LArRecUtils.LArRecUtilsConf import LArHVCondAlg
+        LArHVCondAlg=CompFactory.LArHVCondAlg
         hvcond = LArHVCondAlg("LArHVPathologyAlg",HVPathologies="LArHVPathology",OutputHVData="LArHVData")
         result.addCondAlgo(hvcond)
 
         from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDbCfg
         result.merge(LArElecCalibDbCfg(configFlags,["HVScaleCorr",]))
 
-        from LArRecUtils.LArRecUtilsConf import LArHVScaleCorrCondAlg
+        LArHVScaleCorrCondAlg=CompFactory.LArHVScaleCorrCondAlg
         hvscalecorrkey = "LArHVScaleCorrRecomputed"
         if configFlags.Input.isMC:
             hvscalecorrkey = "LArHVScaleCorr"

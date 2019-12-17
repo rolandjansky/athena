@@ -4,7 +4,8 @@ __doc__ = "Configure egammaLargeClusterMaker, which chooses cells to store in th
 __author__ = "Jovan Mitrevski"
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from egammaTools.egammaToolsConf import egammaLargeClusterMaker
+from AthenaConfiguration.ComponentFactory import CompFactory
+egammaLargeClusterMaker=CompFactory.egammaLargeClusterMaker
 
 def egammaLargeClusterMakerCfg(flags, **kwargs):
 

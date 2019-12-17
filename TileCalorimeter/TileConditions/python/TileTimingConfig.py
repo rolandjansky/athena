@@ -3,6 +3,7 @@
 """Define methods to construct configured Tile timing conditions tool and algorithm"""
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def TileTimingCondAlgCfg(flags, **kwargs):
     """Return component accumulator with configured Tile timing conditions algorithm
@@ -113,7 +114,7 @@ def TileCondToolTimingCfg(flags, **kwargs):
 
     acc.merge( TileTimingCondAlgCfg(flags, **kwargs) )
 
-    from TileConditions.TileConditionsConf import TileCondToolTiming
+    TileCondToolTiming=CompFactory.TileCondToolTiming
     acc.setPrivateTools( TileCondToolTiming(name, TileTiming = timing) )
 
     return acc

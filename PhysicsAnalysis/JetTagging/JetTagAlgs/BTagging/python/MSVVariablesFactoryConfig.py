@@ -1,9 +1,10 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 # import the MSVVariablesFactory configurable
-from JetTagTools.JetTagToolsConf import Analysis__MSVVariablesFactory
+Analysis__MSVVariablesFactory=CompFactory.Analysis__MSVVariablesFactory
 
 def MSVVariablesFactoryCfg(name, **options):
     """Sets up a MSVVariablesFactory tool and returns it.

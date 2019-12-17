@@ -3,8 +3,9 @@
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from PixelConditionsTools.PixelDCSConditionsConfig import PixelDCSConditionsCfg
-from SiPropertiesTool.SiPropertiesToolConf import SiPropertiesTool
-from SiPropertiesTool.SiPropertiesToolConf import PixelSiPropertiesCondAlg
+from AthenaConfiguration.ComponentFactory import CompFactory
+SiPropertiesTool=CompFactory.SiPropertiesTool
+PixelSiPropertiesCondAlg=CompFactory.PixelSiPropertiesCondAlg
 
 def PixelSiPropertiesToolCfg(flags, name="PixelSiPropertiesTool", **kwargs):
     """Return a SiPropertiesTool configured for Pixel"""

@@ -3,6 +3,7 @@
 """Define methods to construct configured Tile EM scale"""
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 _validSources = ['COOL','FILE']
 
@@ -97,7 +98,7 @@ def TileEMScaleCondAlgCfg(flags, **kwargs):
         onlEmsProxy    = TileCondProxyFileFlt('TileCondProxyFile_OflEms', Source = 'TileDefault.ems')
 
 
-    from TileConditions.TileConditionsConf import TileEMScaleCondAlg
+    TileEMScaleCondAlg=CompFactory.TileEMScaleCondAlg
     emScaleCondAlg = TileEMScaleCondAlg(name = name,
                                         OnlCacheUnit = onlCacheUnit,
                                         OflCisLinProxy = oflCisLinProxy,
@@ -144,7 +145,7 @@ def TileCondToolEmscaleCfg(flags, **kwargs):
 
     acc.merge( TileEMScaleCondAlgCfg(flags, **kwargs) )
 
-    from TileConditions.TileConditionsConf import TileCondToolEmscale
+    TileCondToolEmscale=CompFactory.TileCondToolEmscale
     acc.setPrivateTools( TileCondToolEmscale(name, TileEMScale = emScale) )
 
     return acc
@@ -174,7 +175,7 @@ def TileExpertToolEmscaleCfg(flags, **kwargs):
 
     acc.merge( TileEMScaleCondAlgCfg(flags, **kwargs) )
 
-    from TileConditions.TileConditionsConf import TileExpertToolEmscale
+    TileExpertToolEmscale=CompFactory.TileExpertToolEmscale
     acc.setPrivateTools( TileExpertToolEmscale(name, TileEMScale = emScale) )
 
     return acc

@@ -3,10 +3,11 @@
 __doc__ = "Instantiate egammaSelectedTrackCopy with default configuration"
 
 from AthenaCommon.Logging import logging
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from egammaCaloTools.egammaCaloToolsConf import egammaCaloClusterSelector
+egammaCaloClusterSelector=CompFactory.egammaCaloClusterSelector
 from egammaTrackTools.egammaTrackToolsConfig import EMExtrapolationToolsCfg
-from egammaAlgs.egammaAlgsConf import egammaSelectedTrackCopy
+egammaSelectedTrackCopy=CompFactory.egammaSelectedTrackCopy
 
 
 def egammaSelectedTrackCopyCfg(flags, name='egammaSelectedTrackCopy', **kwargs):

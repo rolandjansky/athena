@@ -6,8 +6,9 @@ KG Tan, 17/06/2012
 """
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
-from ISF_HepMC_Tools.ISF_HepMC_ToolsConf import ISF__GenericTruthStrategy, ISF__GenParticleFinalStateFilter, ISF__GenParticlePositionFilter, ISF__GenParticleGenericFilter, ISF__GenParticleInteractingFilter
+ISF__GenericTruthStrategy, ISF__GenParticleFinalStateFilter, ISF__GenParticlePositionFilter, ISF__GenParticleGenericFilter, ISF__GenParticleInteractingFilter=CompFactory.getComps("ISF__GenericTruthStrategy","ISF__GenParticleFinalStateFilter","ISF__GenParticlePositionFilter","ISF__GenParticleGenericFilter","ISF__GenParticleInteractingFilter",)
 
 from AthenaCommon.SystemOfUnits import MeV, mm
 

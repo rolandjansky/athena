@@ -2,6 +2,7 @@
 
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.CFElements import seqAND, seqOR, flatAlgorithmSequences
 from AthenaCommon.Logging import logging
 __log = logging.getLogger('TriggerConfig')
@@ -148,7 +149,7 @@ def triggerSummaryCfg(flags, hypos):
     Returns: ca, algorithm
     """
     acc = ComponentAccumulator()
-    from TrigOutputHandling.TrigOutputHandlingConf import DecisionSummaryMakerAlg
+    DecisionSummaryMakerAlg=CompFactory.DecisionSummaryMakerAlg
     from TrigEDMConfig.TriggerEDMRun3 import recordable
     decisionSummaryAlg = DecisionSummaryMakerAlg()
     allChains = {}
@@ -187,7 +188,7 @@ def triggerMonitoringCfg(flags, hypos, filters, l1Decoder):
     Configures components needed for monitoring chains
     """
     acc = ComponentAccumulator()
-    from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
+    TrigSignatureMoniMT, DecisionCollectorTool=CompFactory.getComps("TrigSignatureMoniMT","DecisionCollectorTool",)
     mon = TrigSignatureMoniMT()
     mon.L1Decisions = "L1DecoderSummary"
     mon.FinalDecisionKey = "HLTNav_Summary" # Input
@@ -334,7 +335,7 @@ def triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg, offline=False):
     if offline:
         # Create HLT result maker and alg
         from TrigOutputHandling.TrigOutputHandlingConfig import HLTResultMTMakerCfg
-        from TrigOutputHandling.TrigOutputHandlingConf import HLTResultMTMakerAlg
+        HLTResultMTMakerAlg=CompFactory.HLTResultMTMakerAlg
         hltResultMakerTool = HLTResultMTMakerCfg()
         hltResultMakerTool.MakerTools = [bitsmaker, stmaker, serialiser] # TODO: stmaker likely not needed for offline BS writing
         hltResultMakerAlg = HLTResultMTMakerAlg()
@@ -405,7 +406,7 @@ def triggerPOOLOutputCfg(flags, decObj, decObjHypoOut, edmSet):
     acc.addEventAlgo( decmaker )
 
     # Produce trigger metadata
-    from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODMenuWriterMT
+    TrigConf__xAODMenuWriterMT=CompFactory.TrigConf__xAODMenuWriterMT
     menuwriter = TrigConf__xAODMenuWriterMT()
     acc.addEventAlgo( menuwriter )
 
@@ -414,7 +415,7 @@ def triggerPOOLOutputCfg(flags, decObj, decObjHypoOut, edmSet):
 
 def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj, decObjHypoOut ):
 
-    from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreatorAlg, HLTEDMCreator
+    HLTEDMCreatorAlg, HLTEDMCreator=CompFactory.getComps("HLTEDMCreatorAlg","HLTEDMCreator",)
     from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3
 
     alg = HLTEDMCreatorAlg("EDMCreatorAlg")

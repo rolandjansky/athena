@@ -1,5 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 
 #---------------------------------------------------------------------------------#
@@ -47,13 +48,13 @@ def getPFTrackSelector(inputFlags,tracksin,verticesin):
     extrapcfg = AtlasExtrapolatorCfg(inputFlags)
     extrapolator = extrapcfg.popPrivateTools()
 
-    from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
+    Trk__ParticleCaloExtensionTool=CompFactory.Trk__ParticleCaloExtensionTool
     pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator=extrapolator)
 
-    from eflowRec.eflowRecConf import eflowTrackCaloExtensionTool
+    eflowTrackCaloExtensionTool=CompFactory.eflowTrackCaloExtensionTool
     TrackCaloExtensionTool=eflowTrackCaloExtensionTool(TrackCaloExtensionTool=pcExtensionTool)
 
-    from eflowRec.eflowRecConf import PFTrackSelector
+    PFTrackSelector=CompFactory.PFTrackSelector
     PFTrackSelector=PFTrackSelector("PFTrackSelector_HLT")
     PFTrackSelector.electronsName = ""
     PFTrackSelector.muonsName = ""
@@ -61,7 +62,7 @@ def getPFTrackSelector(inputFlags,tracksin,verticesin):
     PFTrackSelector.VertexContainer = verticesin
     PFTrackSelector.trackExtrapolatorTool = TrackCaloExtensionTool
 
-    from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
+    InDet__InDetTrackSelectionTool=CompFactory.InDet__InDetTrackSelectionTool
     TrackSelectionTool = InDet__InDetTrackSelectionTool("PFTrackSelectionTool")
 
     TrackSelectionTool.CutLevel = "TightPrimary"
@@ -73,7 +74,7 @@ def getPFTrackSelector(inputFlags,tracksin,verticesin):
 
 def getPFClusterSelectorTool(clustersin,calclustersin):
 
-    from eflowRec.eflowRecConf import PFClusterSelectorTool
+    PFClusterSelectorTool=CompFactory.PFClusterSelectorTool
     PFClusterSelectorTool = PFClusterSelectorTool("PFClusterSelectorTool")
     PFClusterSelectorTool.clustersName = clustersin
     PFClusterSelectorTool.calClustersName = calclustersin
@@ -82,15 +83,15 @@ def getPFClusterSelectorTool(clustersin,calclustersin):
 
 def getPFCellLevelSelectionTool():
 
-    from eflowRec.eflowRecConf import PFCellLevelSubtractionTool
+    PFCellLevelSubtractionTool=CompFactory.PFCellLevelSubtractionTool
     PFCellLevelSubtractionTool = PFCellLevelSubtractionTool("PFCellLevelSubtractionTool")
 
-    from eflowRec.eflowRecConf import eflowCellEOverPTool_mc12_JetETMiss
+    eflowCellEOverPTool_mc12_JetETMiss=CompFactory.eflowCellEOverPTool_mc12_JetETMiss
 
     PFCellLevelSubtractionTool.eflowCellEOverPTool = eflowCellEOverPTool_mc12_JetETMiss()
     PFCellLevelSubtractionTool.nMatchesInCellLevelSubtraction = 1
 
-    from eflowRec.eflowRecConf import PFTrackClusterMatchingTool
+    PFTrackClusterMatchingTool=CompFactory.PFTrackClusterMatchingTool
     MatchingTool = PFTrackClusterMatchingTool("CalObjBldMatchingTool")
     MatchingTool_Pull_02 = PFTrackClusterMatchingTool("MatchingTool_Pull_02")
     MatchingTool_Pull_015 = PFTrackClusterMatchingTool("MatchingTool_Pull_015")
@@ -112,14 +113,14 @@ def getPFCellLevelSelectionTool():
     return PFCellLevelSubtractionTool
 
 def getPFRecoverSplitShowersTool():
-    from eflowRec.eflowRecConf import PFRecoverSplitShowersTool
+    PFRecoverSplitShowersTool=CompFactory.PFRecoverSplitShowersTool
     PFRecoverSplitShowersTool = PFRecoverSplitShowersTool("PFRecoverSplitShowersTool")
 
-    from eflowRec.eflowRecConf import eflowCellEOverPTool_mc12_JetETMiss
+    eflowCellEOverPTool_mc12_JetETMiss=CompFactory.eflowCellEOverPTool_mc12_JetETMiss
     PFRecoverSplitShowersTool.eflowCellEOverPTool = eflowCellEOverPTool_mc12_JetETMiss("eflowCellEOverPTool_mc12_JetETMiss_Recover")
     PFRecoverSplitShowersTool.useUpdated2015ChargedShowerSubtraction = False
 
-    from eflowRec.eflowRecConf import PFTrackClusterMatchingTool
+    PFTrackClusterMatchingTool=CompFactory.PFTrackClusterMatchingTool
     MatchingTool_Recover = PFTrackClusterMatchingTool()
     MatchingTool_Recover.TrackPositionType   = 'EM2EtaPhi' # str
     MatchingTool_Recover.ClusterPositionType = 'PlainEtaPhi' # str
@@ -131,10 +132,10 @@ def getPFRecoverSplitShowersTool():
 
 def getPFMomentCalculatorTool():
 
-    from eflowRec.eflowRecConf import PFMomentCalculatorTool
+    PFMomentCalculatorTool=CompFactory.PFMomentCalculatorTool
     PFMomentCalculatorTool = PFMomentCalculatorTool("PFMomentCalculatorTool")
 
-    from CaloRec.CaloRecConf import CaloClusterMomentsMaker
+    CaloClusterMomentsMaker=CompFactory.CaloClusterMomentsMaker
     PFClusterMomentsMaker = CaloClusterMomentsMaker("PFClusterMomentsMaker")
 
     from AthenaCommon.SystemOfUnits import deg
@@ -176,7 +177,7 @@ def getPFMomentCalculatorTool():
 
     PFMomentCalculatorTool.CaloClusterMomentsMaker = PFClusterMomentsMaker
 
-    from eflowRec.eflowRecConf import PFClusterCollectionTool
+    PFClusterCollectionTool=CompFactory.PFClusterCollectionTool
     PFClusterCollectionTool_default = PFClusterCollectionTool("PFClusterCollectionTool")
 
     PFMomentCalculatorTool.PFClusterCollectionTool = PFClusterCollectionTool_default
@@ -198,7 +199,7 @@ def PFCfg(inputFlags):
     #---------------------------------------------------------------------------------#
     # PFlowAlgorithm -- subtraction steps
 
-    from eflowRec.eflowRecConf import PFAlgorithm
+    PFAlgorithm=CompFactory.PFAlgorithm
     PFAlgorithm = PFAlgorithm("PFAlgorithm_HLT")
     PFAlgorithm.PFClusterSelectorTool = getPFClusterSelectorTool(inputFlags.eflowRec.RawClusterColl,
                                                                  inputFlags.eflowRec.CalClusterColl)
@@ -218,13 +219,13 @@ def PFCfg(inputFlags):
     #---------------------------------------------------------------------------------#
     # PFO creators here
 
-    from eflowRec.eflowRecConf import PFOChargedCreatorAlgorithm
+    PFOChargedCreatorAlgorithm=CompFactory.PFOChargedCreatorAlgorithm
     PFOChargedCreatorAlgorithm = PFOChargedCreatorAlgorithm("PFOChargedCreatorAlgorithm")
     PFOChargedCreatorAlgorithm.PFOOutputName="HLTChargedParticleFlowObjects"
 
     result.addEventAlgo( PFOChargedCreatorAlgorithm )
 
-    from eflowRec.eflowRecConf import PFONeutralCreatorAlgorithm
+    PFONeutralCreatorAlgorithm=CompFactory.PFONeutralCreatorAlgorithm
     PFONeutralCreatorAlgorithm =  PFONeutralCreatorAlgorithm("PFONeutralCreatorAlgorithm")
     PFONeutralCreatorAlgorithm.PFOOutputName="HLTNeutralParticleFlowObjects"
     PFONeutralCreatorAlgorithm.DoClusterMoments=inputFlags.eflowRec.DoClusterMoments

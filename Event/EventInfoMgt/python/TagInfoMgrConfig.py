@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, ConfigurationError
 import os
@@ -15,9 +16,9 @@ def TagInfoMgrCfg(configFlags,tagValuePairs=[]):
 
     result=ComponentAccumulator()
 
-    from EventInfoMgt.EventInfoMgtConf import TagInfoMgr
-    from SGComps.SGCompsConf import ProxyProviderSvc
-    from GaudiSvc.GaudiSvcConf import EvtPersistencySvc
+    TagInfoMgr=CompFactory.TagInfoMgr
+    ProxyProviderSvc=CompFactory.ProxyProviderSvc
+    EvtPersistencySvc=CompFactory.EvtPersistencySvc
 
     #Build project-version string for the TagInfoMgr 
     project = os.getenv('AtlasProject',"Unknown")

@@ -8,6 +8,7 @@
 # so to read TrackCollection property in MT, we need to use an algorithm.
 
 from __future__ import print_function
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 
@@ -58,7 +59,7 @@ in the input file."""
         aliases = ['Tracks']
 
     # Configure the algorithm.
-    from AthenaServices.AthenaServicesConf import AthReadAlg
+    AthReadAlg=CompFactory.AthReadAlg
     alg = AthReadAlg ('TrackCollectionRead_' + key,
                       Key = 'TrackCollection/' + key,
                       Aliases = aliases,

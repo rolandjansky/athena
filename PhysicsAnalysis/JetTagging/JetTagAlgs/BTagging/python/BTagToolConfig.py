@@ -1,7 +1,8 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from BTagging.BTaggingConf import Analysis__BTagTool
+from AthenaConfiguration.ComponentFactory import CompFactory
+Analysis__BTagTool=CompFactory.Analysis__BTagTool
 from BTagging.BTaggingFlags import BTaggingFlags
 
 def BTagToolCfg(ConfigFlags, jetcol, TaggerList, useBTagFlagsDefaults = True):

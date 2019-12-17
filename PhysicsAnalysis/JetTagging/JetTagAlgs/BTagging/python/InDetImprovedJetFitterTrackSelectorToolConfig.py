@@ -1,9 +1,10 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 # import the InDetDetailedTrackSelectorTool configurable
-from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetDetailedTrackSelectorTool
+InDet__InDetDetailedTrackSelectorTool=CompFactory.InDet__InDetDetailedTrackSelectorTool
 
 
 def InDetImprovedJetFitterTrackSelectorToolCfg(name, useBTagFlagsDefaults = True, **options):

@@ -3,7 +3,8 @@
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaPoolCnvSvc.AthenaPoolCnvSvcConf import AthenaPoolCnvSvc
+from AthenaConfiguration.ComponentFactory import CompFactory
+AthenaPoolCnvSvc=CompFactory.AthenaPoolCnvSvc
 
 
 def PoolWriteCfg(configFlags, **kwargs):
