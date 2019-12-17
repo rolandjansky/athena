@@ -130,7 +130,7 @@ void FastCaloSimCaloExtrapolation::extrapolate(TFCSExtrapolationState& result,co
   ATH_MSG_DEBUG("Done FastCaloSimCaloExtrapolation::extrapolate");
 }
 
-std::vector<Trk::HitInfo>* FastCaloSimCaloExtrapolation::caloHits(const TFCSTruthState* truth) const
+std::vector<Trk::HitInfo>* FastCaloSimCaloExtrapolation::caloHits(const TFCSTruthState* truth, bool forceNeutral) const
 {
   // Start calo extrapolation
   ATH_MSG_DEBUG ("[ fastCaloSim transport ] processing particle "<<truth->pdgid() );
@@ -139,6 +139,7 @@ std::vector<Trk::HitInfo>* FastCaloSimCaloExtrapolation::caloHits(const TFCSTrut
 
   int     pdgId    = truth->pdgid();
   double  charge   = HepPDT::ParticleID(pdgId).charge();
+  if (forceNeutral) charge   = 0.;
 
   // particle Hypothesis for the extrapolation
 
@@ -280,6 +281,16 @@ std::vector<Trk::HitInfo>* FastCaloSimCaloExtrapolation::caloHits(const TFCSTrut
       ATH_MSG_DEBUG(" HIT: layer="<<sample<<" sample="<<sample-3000<<" eta="<<hitPos.eta()<<" phi="<<hitPos.phi()<<" r="<<hitPos.perp()<<" z="<<hitPos[Amg::z]);
       it2++;
     }
+
+  // Extrapolation may fail for very low pT charged particles. Enforce charge 0 to prevent this 
+  if (not forceNeutral and hitVector->empty())
+    {
+      ATH_MSG_DEBUG("forcing neutral charge in FastCaloSimCaloExtrapolation::caloHits");
+      return caloHits(truth, true);
+    }
+  // Don't expect this ever to happen. Nevertheless, error handling should be improved. 
+  // This may require changes in periphery (adjustments after setting function type to StatusCode)
+  else if(hitVector->empty()) ATH_MSG_ERROR("Empty hitVector even after forcing neutral charge. This may cause a segfault soon.");
 
 
   return hitVector;
