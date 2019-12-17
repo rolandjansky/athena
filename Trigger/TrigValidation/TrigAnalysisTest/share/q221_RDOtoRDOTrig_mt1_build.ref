@@ -1,7 +1,7 @@
 TrigSignatureMoniMT                                INFO HLT_2e17_etcut_L12EM15VH      2         2         2         2         2         0         0         2
 TrigSignatureMoniMT                                INFO HLT_2e17_etcut_L12EM15VH decisions                    6         826       7         0         0
 TrigSignatureMoniMT                                INFO HLT_2e3_etcut_L12EM3          20        20        20        20        20        0         0         20
-TrigSignatureMoniMT                                INFO HLT_2e3_etcut_L12EM3 decisions                    172       8889      387       0         0
+TrigSignatureMoniMT                                INFO HLT_2e3_etcut_L12EM3 decisions                    172       8889      401       0         0
 TrigSignatureMoniMT                                INFO HLT_2g20_tight_L12EM20VH      2         2         0         0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_2g20_tight_L12EM20VH decisions                    0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_2g35_etcut_L12EM20VH      2         2         1         1         0         0         0         0
@@ -43,23 +43,23 @@ TrigSignatureMoniMT                                INFO HLT_e26_etcut_L1EM22VHI 
 TrigSignatureMoniMT                                INFO HLT_e3_etcut1step_mu6fast_L1EM8I_MU105         5         5         0         0         0         0         5
 TrigSignatureMoniMT                                INFO HLT_e3_etcut1step_mu6fast_L1EM8I_MU10 decisions                    5         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_e3_etcut_L1EM3            20        20        20        20        20        0         0         20
-TrigSignatureMoniMT                                INFO HLT_e3_etcut_L1EM3 decisions                      172       8889      387       0         0
+TrigSignatureMoniMT                                INFO HLT_e3_etcut_L1EM3 decisions                      172       8889      401       0         0
 TrigSignatureMoniMT                                INFO HLT_e5_etcut_L1EM3            20        20        20        20        20        0         0         20
-TrigSignatureMoniMT                                INFO HLT_e5_etcut_L1EM3 decisions                      140       7892      185       0         0
+TrigSignatureMoniMT                                INFO HLT_e5_etcut_L1EM3 decisions                      140       7892      190       0         0
 TrigSignatureMoniMT                                INFO HLT_e7_etcut_L1EM3            20        20        20        20        20        0         0         20
-TrigSignatureMoniMT                                INFO HLT_e7_etcut_L1EM3 decisions                      89        5506      108       0         0
+TrigSignatureMoniMT                                INFO HLT_e7_etcut_L1EM3 decisions                      89        5506      113       0         0
 TrigSignatureMoniMT                                INFO HLT_g140_etcut_L1EM24VHI      6         6         0         0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_g140_etcut_L1EM24VHI decisions                    0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_g140_loose_L1EM24VHI      6         6         0         0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_g140_loose_L1EM24VHI decisions                    0         0         0         0         0
-TrigSignatureMoniMT                                INFO HLT_g20_etcut_LArPEB_L1EM15   14        14        14        14        11        11        0         11
-TrigSignatureMoniMT                                INFO HLT_g20_etcut_LArPEB_L1EM15 decisions                    24        24        21        21        0
+TrigSignatureMoniMT                                INFO HLT_g20_etcut_LArPEB_L1EM15   14        14        14        14        12        12        0         12
+TrigSignatureMoniMT                                INFO HLT_g20_etcut_LArPEB_L1EM15 decisions                    24        24        22        22        0
 TrigSignatureMoniMT                                INFO HLT_g5_etcut_L1EM3            20        20        20        20        20        0         0         20
-TrigSignatureMoniMT                                INFO HLT_g5_etcut_L1EM3 decisions                      140       140       185       0         0
+TrigSignatureMoniMT                                INFO HLT_g5_etcut_L1EM3 decisions                      140       140       190       0         0
 TrigSignatureMoniMT                                INFO HLT_g5_etcut_LArPEB_L1EM3     20        20        20        20        20        20        0         20
-TrigSignatureMoniMT                                INFO HLT_g5_etcut_LArPEB_L1EM3 decisions                    140       140       185       185       0
+TrigSignatureMoniMT                                INFO HLT_g5_etcut_LArPEB_L1EM3 decisions                    140       140       190       190       0
 TrigSignatureMoniMT                                INFO HLT_g5_loose_L1EM3            20        20        17        17        17        9         0         9
-TrigSignatureMoniMT                                INFO HLT_g5_loose_L1EM3 decisions                      57        57        116       14        0
+TrigSignatureMoniMT                                INFO HLT_g5_loose_L1EM3 decisions                      57        57        117       14        0
 TrigSignatureMoniMT                                INFO HLT_g5_medium_L1EM3           20        20        16        16        16        9         0         9
 TrigSignatureMoniMT                                INFO HLT_g5_medium_L1EM3 decisions                     48        48        92        14        0
 TrigSignatureMoniMT                                INFO HLT_g5_tight_L1EM3            20        20        16        16        16        9         0         9
