@@ -133,6 +133,8 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
   auto nSCTspacePoints = Monitored::Scalar<int>( "numSctSpacePoints"   , 0 );
   auto nPIXspacePoints = Monitored::Scalar<int>( "numPixSpacePoints"   , 0 );
 
+  auto mon = Monitored::Group( m_monTool, nReceivedClustersPIX,nReceivedClustersSCT, nPIXspacePoints, nSCTspacePoints );
+
   if (m_selectSCTs) {
     SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey, ctx);
     elements = sctDetEle.retrieve();
@@ -205,7 +207,7 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
     r_cache.SCTCContainer = sct_clcontainer.cptr();
 
     ATH_MSG_DEBUG( "SCT Cluster container found: " << sct_clcontainer->size() << " collections" );
-    nReceivedClustersSCT = sct_clcontainer->size();
+    //nReceivedClustersSCT = sct_clcontainer->size();
     // Get hold of all clusters and iterate through them.
     // Pixel clusters will be converted immediately to pixel space points.
     // For SCT clusters, posssible pairs will be found and space points computed.
@@ -216,6 +218,8 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
 
     for (; it != itend; ++it){
       const SCT_ClusterCollection *colNext=&(**it);
+      nReceivedClustersSCT = colNext->size();
+
       // Create SpacePointCollection
       IdentifierHash idHash = colNext->identifyHash();
       SpacePointContainer::IDC_WriteHandle lock = spacePointContainer_SCT->getWriteHandle(idHash);
@@ -236,6 +240,7 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
         ATH_MSG_DEBUG( "Empty SCT cluster collection" );
       }
       size_t size = spacepointCollection->size();
+      nSCTspacePoints = size;
       if (size == 0){
         ATH_MSG_VERBOSE( "SiTrackerSpacePointFinder algorithm found no space points" );
       } else {
@@ -265,12 +270,13 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
     PixelClusterContainer::const_iterator colNext = pixel_clcontainer->begin();
     PixelClusterContainer::const_iterator lastCol = pixel_clcontainer->end();
 
-    nReceivedClustersPIX = pixel_clcontainer->size();
+    //nReceivedClustersPIX = pixel_clcontainer->size();
 
     int numColl=0;
     for (; colNext != lastCol; ++colNext)
     {
       ATH_MSG_VERBOSE( "Collection num " << numColl++ );
+      nReceivedClustersPIX = (*colNext)->size();
       IdentifierHash idHash = (*colNext)->identifyHash();
       SpacePointContainer::IDC_WriteHandle lock = spacePointContainerPixel->getWriteHandle(idHash);
       if(lock.alreadyPresent()){
@@ -285,6 +291,7 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
 
       if ((*colNext)->size() != 0)
       {
+        //nReceivedClustersPIX = (*colNext)->size();
         m_SiSpacePointMakerTool->fillPixelSpacePointCollection(*colNext,spacepointCollection.get());
       }
       else
@@ -292,6 +299,7 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
         ATH_MSG_DEBUG( "Empty pixel cluster collection" );
       }
       size_t size = spacepointCollection->size();
+      nPIXspacePoints = spacepointCollection->size();
       if (size == 0)
       {
         ATH_MSG_DEBUG( "SiTrackerSpacePointFinder algorithm found no space points" );
@@ -323,12 +331,12 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
   if (m_selectPixels) {
     auto c = spacePointContainerPixel->numberOfCollections();
     m_numberOfPixel += c;
-    nPIXspacePoints  = c;
+    //nPIXspacePoints  = c;
   }
   if (m_selectSCTs) {
     auto c = spacePointContainer_SCT->numberOfCollections();
     m_numberOfSCT   += c;
-    nSCTspacePoints  = c;
+    //nSCTspacePoints  = c;
   }
   if(m_cachemode)//Prevent unnecessary atomic counting
   {
@@ -336,7 +344,6 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
      m_pixCacheHits  += pixCacheCount;
   }
 
-  auto mon = Monitored::Group( m_monTool, nReceivedClustersPIX,nReceivedClustersSCT, nPIXspacePoints, nSCTspacePoints );
 
   return StatusCode::SUCCESS;
 }
