@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 __author__  = 'Ryan White'
 __version__=""
@@ -137,7 +137,7 @@ def print_attributes(obj):
 def update_map(seq):
     sequences = {}
     for key,items in seq.items():
-        algos = filter(lambda item: item is not None, items)
+        algos = list(filter(lambda item: item is not None, items))
         if algos:
             sequences[key] = algos
     return sequences        

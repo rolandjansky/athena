@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #-----------------------------------------------------
 # Hlt configuration base classes
@@ -189,7 +189,9 @@ class HltChainDef:
         log.debug("HltConfig: all signatures %s" % self.signatures)
         log.debug("HltConfig: self.sequecnes %s" % self.sequences)
         for sequence in self.sequences:
-            chainDef.addSequence(filter(lambda x: x!=None, sequence.algos), map(lambda x: self.renameTE(x), sequence.inputTEs), self.renameTE(sequence.outputTE))
+            chainDef.addSequence(list(filter(lambda x: x!=None, sequence.algos)),
+                                 list(map(lambda x: self.renameTE(x), sequence.inputTEs)),
+                                 self.renameTE(sequence.outputTE))
 
         for (isig, sig) in enumerate(self.signatures):
             tes = []

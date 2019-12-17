@@ -2,7 +2,7 @@
 
 from __future__ import print_function
 
-from Limits import Limits # noqa: F401
+from .Limits import Limits # noqa: F401
 from AthenaCommon.Logging import logging
 log = logging.getLogger("Cabling")
 log.setLevel(logging.INFO)

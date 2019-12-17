@@ -2,13 +2,13 @@
 
 from __future__ import print_function
 
-from Lvl1Thresholds import LVL1Thresholds
-from Lvl1MenuItems import LVL1MenuItems
-from Lvl1MonCounters import Lvl1MonCounters
-from CaloInfo import CaloInfo
-from MuctpiInfo import MuctpiInfo
-from CTPInfo import CTPInfo
-from Limits import Limits
+from .Lvl1Thresholds import LVL1Thresholds
+from .Lvl1MenuItems import LVL1MenuItems
+from .Lvl1MonCounters import Lvl1MonCounters
+from .CaloInfo import CaloInfo
+from .MuctpiInfo import MuctpiInfo
+from .CTPInfo import CTPInfo
+from .Limits import Limits
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 from AthenaCommon.Logging import logging
@@ -43,7 +43,7 @@ class Lvl1Menu:
         self.CaloInfo = CaloInfo(name='standard', globalEmScale=em_scale, globalJetScale=1)
 
         if self.menuName:
-            from Lvl1MenuUtil import get_smk_psk_Name
+            from .Lvl1MenuUtil import get_smk_psk_Name
             smk_psk_Name = get_smk_psk_Name(self.menuName)
             self.items.menuName = smk_psk_Name["smkName"]
             self.items.pssName  = smk_psk_Name["pskName"]
@@ -51,7 +51,7 @@ class Lvl1Menu:
 
     @staticmethod
     def partitioning():
-        from Lvl1Flags import Lvl1Flags
+        from .Lvl1Flags import Lvl1Flags
         first = Lvl1Flags.MenuPartitioning()
         last = first[1:] + [ Limits.MaxTrigItems ]
         partitioning = dict( zip([1,2,3],zip(first,last)) )
@@ -213,8 +213,8 @@ class Lvl1Menu:
         counts_LF = dict( map(lambda x : (x[0],len(x[1])), items_LF.items() ) )
         counts_HF = dict( map(lambda x : (x[0],len(x[1])), items_HF.items() ) )
 
-        lutsLF = ( max(counts_LF.values() ) -1 ) / 8 + 1
-        lutsHF = ( max(counts_HF.values() ) -1 ) / 8 + 1
+        lutsLF = ( max(counts_LF.values() ) -1 ) // 8 + 1
+        lutsHF = ( max(counts_HF.values() ) -1 ) // 8 + 1
 
         
         if lutsLF + lutsHF <= 8:
