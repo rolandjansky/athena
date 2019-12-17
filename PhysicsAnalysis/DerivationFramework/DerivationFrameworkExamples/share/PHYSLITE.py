@@ -354,7 +354,7 @@ jetContainer = 'AntiKt4EMPFlowJets_BTagging201903'
 
 # Include, and then set up the jet analysis algorithm sequence:
 from JetAnalysisAlgorithms.JetAnalysisSequence import makeJetAnalysisSequence
-jetSequence = makeJetAnalysisSequence( dataType, jetContainer, deepCopyOutput = True, shallowViewOutput = False )
+jetSequence = makeJetAnalysisSequence( dataType, jetContainer, deepCopyOutput = True, shallowViewOutput = False , runFJvtUpdate = False , runFJvtSelection = False )
 jetSequence.configure( inputName = jetContainer, outputName = 'AnalysisJets' )
 print( jetSequence ) # For debugging
 
