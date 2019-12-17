@@ -73,7 +73,7 @@ StatusCode egammaTopoClusterCopier::execute(const EventContext& ctx) const {
    */
   auto viewCopy =  std::make_unique<ConstDataVector <xAOD::CaloClusterContainer> >(SG::VIEW_ELEMENTS );
   /*
-   * Special egamma EMFraction which includes presampler
+   * Special egamma EMFraction which includes presampler and E4 cells 
    */
   static const SG::AuxElement::Accessor<float> acc("EMFraction");
 
@@ -86,24 +86,51 @@ StatusCode egammaTopoClusterCopier::execute(const EventContext& ctx) const {
     //Always decorate
     acc(*clus)=0.0;
     double clusterE=clus->e();
-    //First pass using basic checks   
+    double aeta= fabs(clus->eta());
     ATH_MSG_DEBUG("->CHECKING Cluster at eta,phi,et " << clus->eta() << " , "
                   << clus->phi() << " , " << clus->et());
-    if( fabs(clus->eta()) > m_etaCut || // if it falls outside eta region
-        clusterE < m_ECut               // Total energy below threshold
+    if( aeta> m_etaCut || // if it falls outside eta region
+        clusterE < m_ECut // Total energy below threshold
       ) {            
       continue;
     }
     ++buff_PassPreSelection;
-    float emfrac= (clus->energyBE(0) + clus->energyBE(1) +clus->energyBE(2) +clus->energyBE(3))/clusterE;
+   /*
+    *Try to add the relevant TileGap3/E4 cells 
+    */
+    double eg_tilegap=0;
+    if(aeta>1.35 && aeta<1.65 && clusterE>0){
+      xAOD::CaloCluster::cell_iterator cell_itr = clus->begin();
+      xAOD::CaloCluster::cell_iterator cell_end = clus->end();
+      for (; cell_itr != cell_end; ++cell_itr) { 
+        const CaloCell* cell = *cell_itr; 
+        if (!cell){
+          continue;
+        }     
+        const CaloDetDescrElement *dde = cell->caloDDE();
+        if(!dde){
+          continue;
+        }
+        //Add TileGap3. Consider only E4 cell
+        if (CaloCell_ID::TileGap3 == dde->getSampling()) {
+          if( fabs(dde->eta_raw()) >1.4 && fabs(dde->eta_raw()) < 1.6 ){      
+            eg_tilegap += cell->e()*cell_itr.weight();
+          }
+        }
+      }
+    }
+
+    double emfrac= (clus->energyBE(0) + clus->energyBE(1) 
+                    +clus->energyBE(2) +clus->energyBE(3)+eg_tilegap)/clusterE;
+    
     acc(*clus)=emfrac; 
     if( emfrac > m_EMFracCut && 
         (clusterE*emfrac) > m_ECut ){
       ++buff_PassSelection;   
       ATH_MSG_DEBUG("-->Selected Cluster at eta,phi,et,EMFraction " << clus->eta() 
-                  << " , "<< clus->phi() << " , " << clus->et()<<" , "<< emfrac);
+                    << " , "<< clus->phi() << " , " << clus->et()<<" , "<< emfrac);
       viewCopy->push_back(clus);
-   }
+    }
   }
   //sort in descenting em energy
   std::sort(viewCopy->begin(),viewCopy->end(), greater());
