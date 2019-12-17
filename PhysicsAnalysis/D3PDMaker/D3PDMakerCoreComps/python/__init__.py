@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # $Id: __init__.py 495152 2012-04-11 15:09:02Z ssnyder $
 #
@@ -16,11 +16,11 @@
 #   D3PDMakerCoreComps.VectorFillerTool
 #
 
-import D3PDMakerCoreCompsConf
+from . import D3PDMakerCoreCompsConf
 for k, v in D3PDMakerCoreCompsConf.__dict__.items():
     if k.startswith ('D3PD__'):
         globals()[k[6:]] = v
 
 # Bring these into this scope as well.
-from MakerAlg                import MakerAlg
-from ContainerFlagFillerTool import ContainerFlagFillerTool
+from .MakerAlg                import MakerAlg
+from .ContainerFlagFillerTool import ContainerFlagFillerTool
