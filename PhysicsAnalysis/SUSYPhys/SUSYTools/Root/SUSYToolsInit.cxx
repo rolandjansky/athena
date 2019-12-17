@@ -1706,7 +1706,9 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     orFlags.outputPassValue = true;
     orFlags.linkOverlapObjects = m_orLinkOverlapObjects;
     if (m_jetInputType == xAOD::JetInput::EMPFlow) orFlags.doMuPFJetOR = true;
-    orFlags.doEleEleOR = false;
+    if (m_orDoElEl) {
+      orFlags.doEleEleOR = true;
+    } else orFlags.doEleEleOR = false;
     orFlags.doElectrons = true;
     orFlags.doMuons = true;
     orFlags.doJets = true;
