@@ -46,7 +46,7 @@ from BTagging.BTaggingFlags import BTaggingFlags
 from DerivationFrameworkCore.FullListOfSmartContainers import (
     FullListOfSmartContainers)
 # Make sure all the normal truth stuff is there
-if DerivationFrameworkIsMonteCarlo: 
+if DerivationFrameworkIsMonteCarlo:
   import DerivationFrameworkMCTruth.MCTruthCommon as MCTruthCommon
   MCTruthCommon.addStandardTruthContents()
 
@@ -275,7 +275,7 @@ if DerivationFrameworkIsMonteCarlo:
     #add STXS inputs
     from DerivationFrameworkHiggs.DerivationFrameworkHiggsConf import DerivationFramework__TruthCategoriesDecorator
     DFHTXSdecorator = DerivationFramework__TruthCategoriesDecorator(name = "DFHTXSdecorator")
-    
+
     ToolSvc += DFHTXSdecorator
     from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
     DerivationFrameworkJob += DerivationFramework__CommonAugmentation("TruthCategoriesCommonKernel",
@@ -306,6 +306,7 @@ for large_r in OutputLargeR:
         ContainerName = large_r) )
 
 EXOT27Akt2Jet = "(AntiKt2LCTopoJets.pt > 10*GeV) && (abs(AntiKt2LCTopoJets.eta) < 3.1)"
+EXOT27Akt4Jet = "(AntiKt4EMTopoJets.pt > 10*GeV) && (abs(AntiKt4EMTopoJets.eta) < 3.1)"
 
 EXOT27ThinningTools.append(DerivationFramework__GenericObjectThinning(
       "EXOT27AntiKt2LCTopoJetsThinningTool",
@@ -327,20 +328,29 @@ EXOT27BaselineTrack = "(InDetTrackParticles.EXOT27DFLoose) && (InDetTrackParticl
 
 # Set up the track thinning tools
 EXOT27ThinningTools += [
-  DerivationFramework__TrackParticleThinning(
-      "EXOT27TrackParticleThinningTool",
-      ThinningService = EXOT27ThinningHelper.ThinningSvc(),
-      SelectionString = EXOT27BaselineTrack,
-      InDetTrackParticlesKey = "InDetTrackParticles",
-      ApplyAnd        = True,
-      ),
-  DerivationFramework__JetTrackParticleThinning( 
+  DerivationFramework__JetTrackParticleThinning(
       "EXOT27AKt2JetTPThinningTool",
       ThinningService = EXOT27ThinningHelper.ThinningSvc(),
       JetKey = "AntiKt2LCTopoJets",
       SelectionString = EXOT27Akt2Jet,
       InDetTrackParticlesKey  = "InDetTrackParticles",
       DeltaRMatch     = 0.33,
+      ApplyAnd        = False,
+      ),
+  DerivationFramework__JetTrackParticleThinning(
+      "EXOT27AKt4JetTPThinningTool",
+      ThinningService = EXOT27ThinningHelper.ThinningSvc(),
+      JetKey = "AntiKt4EMTopoJets",
+      SelectionString = EXOT27Akt4Jet,
+      InDetTrackParticlesKey  = "InDetTrackParticles",
+      DeltaRMatch     = 0.53,
+      ApplyAnd        = False,
+      ),
+  DerivationFramework__TrackParticleThinning(
+      "EXOT27TrackParticleThinningTool",
+      ThinningService = EXOT27ThinningHelper.ThinningSvc(),
+      SelectionString = EXOT27BaselineTrack,
+      InDetTrackParticlesKey = "InDetTrackParticles",
       ApplyAnd        = True,
       ),
   DerivationFramework__EgammaTrackParticleThinning(
@@ -462,7 +472,7 @@ if DerivationFrameworkIsMonteCarlo:
         ParticleSelectionString = truth_sel_no_descendants,
         PreserveDescendants     = False),
     ]
-  
+
 for tool in EXOT27ThinningTools:
   ToolSvc += tool
 
@@ -625,5 +635,5 @@ EXOT27SlimmingHelper.AppendContentToStream(EXOT27Stream)
 ################################################################################
 # Finalise
 ################################################################################
-# Any remaining tasks, e.g. adding the kernels to the stream  
+# Any remaining tasks, e.g. adding the kernels to the stream
 EXOT27Stream.AcceptAlgs(["EXOT27SecondaryKernel"])
