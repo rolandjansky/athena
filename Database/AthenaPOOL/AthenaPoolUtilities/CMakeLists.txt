@@ -49,6 +49,9 @@ atlas_install_generic( cmake/AthenaPoolUtilitiesTestConfig.cmake
 atlas_install_generic( share/run_tpcnv_legacy_test.sh.in
    DESTINATION cmake/modules/scripts
    EXECUTABLE )
+atlas_install_generic( share/run_tpcnv_test.sh.in
+   DESTINATION cmake/modules/scripts
+   EXECUTABLE )
 
 # Help packages coming after this one in finding the CMake code of the
 # package:
