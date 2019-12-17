@@ -102,6 +102,9 @@ def getFastCaloSimSvcV2(name="ISF_FastCaloSimSvcV2", **kwargs):
     kwargs.setdefault("CaloCellMakerTools_release"       , [ 'ISF_CaloCellContainerFCSFinalizerTool',
                                                            'ISF_FastHitConvertTool' ])
     kwargs.setdefault("FastCaloSimCaloExtrapolation"     , 'FastCaloSimCaloExtrapolation')
+    kwargs.setdefault("PunchThroughTool"                 , 'ISF_PunchThroughTool'             )
+    kwargs.setdefault("DoPunchThroughSimulation"         , False                                             )
+    kwargs.setdefault("ParticleBroker"                   , 'ISF_AFIIParticleBrokerSvc'               )
 
     kwargs.setdefault("ParamSvc", "ISF_FastCaloSimV2ParamSvc")
     # register the FastCaloSim random number streams
