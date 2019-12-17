@@ -20,6 +20,21 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 
+def lgbm_rawresponse_each_tree(model, my_input):
+    import numpy as np
+    nclasses = model.num_model_per_iteration()
+    output_values = np.array([np.array([[0] * nclasses])] + [model.predict(my_input, raw_score=True, num_iteration=itree) for itree in range(1, (model.num_trees() / nclasses + 1))])
+    output_trees = np.diff(output_values, axis=0)
+    return output_trees
+
+
+def list2stdvector(values, dtype='float'):
+    result = ROOT.std.vector(dtype)()
+    for v in values:
+        result.push_back(v)
+    return result
+
+
 class LGBMTextNode(dict):
     """
     Adaptor from LGBM dictionary to tree
@@ -289,6 +304,8 @@ def test_multiclass(booster, mva_utils, ntests=10000, test_file=None):
         logging.warning("using random uniform input as test: this is not safe, provide an input test file")
         data_input = np.random.uniform(-100, 100, size=(ntests, nvars))
 
+    data_input = data_input.astype(np.float32)  # to match what mvautils is doing (using c-float)
+
     start = time.time()
     results_lgbm = booster.predict(data_input)
     logging.info("lgbm (vectorized) timing = %s ms/input", (time.time() - start) * 1000 / len(data_input))
@@ -300,17 +317,62 @@ def test_multiclass(booster, mva_utils, ntests=10000, test_file=None):
         input_values_vector.clear()
         for v in input_values:
             input_values_vector.push_back(v)
-        output_MVAUtils = list(mva_utils.GetMultiResponse(input_values_vector, nclasses))
+        output_MVAUtils = np.asarray(mva_utils.GetMultiResponse(input_values_vector, nclasses))
         results_MVAUtils.append(output_MVAUtils)
     logging.info("mvautils (not vectorized+overhead) timing = %s ms/input", (time.time() - start) * 1000 / len(data_input))
 
-    for input_values, output_lgbm, output_MVAUtils in zip(data_input, results_lgbm, results_MVAUtils):
+    stop_event_loop = False
+    for ievent, (input_values, output_lgbm, output_MVAUtils) in enumerate(zip(data_input, results_lgbm, results_MVAUtils), 1):
         if not np.allclose(output_lgbm, output_MVAUtils):
-            logging.info("output are different:"
-                         "mvautils: %s\n"
-                         "lgbm: %s\n"
-                         "inputs: %s", output_MVAUtils, output_lgbm, input_values)
-            return False
+            stop_event_loop = True
+            logging.info("output are different on input %d/%d:\n" % (ievent, len(data_input)))
+            for ivar, input_value in enumerate(input_values):
+                logging.info("var %d: %.15f", ivar, input_value)
+            logging.info("=" * 50)
+            logging.info("              mvautils       lgbm")
+            for ioutput, (o1, o2) in enumerate(zip(output_MVAUtils, output_lgbm)):
+                diff_flag = "" if np.allclose(o1, o2) else "<---"
+                logging.info("output %3d    %.5e    %.5e  %s", ioutput, o1, o2, diff_flag)
+            output_trees_lgbm = lgbm_rawresponse_each_tree(booster, [input_values])
+
+            stop_tree_loop = False
+            for itree, output_tree_lgbm in enumerate(output_trees_lgbm):
+                output_tree_mva_utils = [mva_utils.GetTreeResponse(list2stdvector(input_values), itree * nclasses + c) for c in range(nclasses)]
+                if not np.allclose(output_tree_mva_utils, output_tree_lgbm[0]):
+                    stop_tree_loop = True
+                    logging.info("first tree/class with different answer (%d)" % itree)
+                    for isubtree, (ol, om) in enumerate(zip(output_tree_lgbm[0], output_tree_mva_utils)):
+                        if not np.allclose(ol, om):
+                            logging.info("different in position %d" % isubtree)
+                            logging.info("lgbm:     %f" % ol)
+                            logging.info("mvautils: %f" % om)
+                            logging.info("=" * 50)
+                            logging.info("tree %d (itree) * %d (nclasses) + %d (isubtree) = %d", itree, nclasses, isubtree, itree * nclasses + isubtree)
+                            mva_utils.PrintTree(itree * nclasses + isubtree)
+
+                            node_infos = []
+
+                            # we now which tree is failing, check if this is due to input values very close to the threshold
+                            # the problem is that lgbm is using double, while mva_utils is using float
+                            def ff(tree):
+                                if 'left_child' in tree:
+                                    node_infos.append((tree['split_feature'], tree['threshold']))
+                                    ff(tree['left_child'])
+                                    ff(tree['right_child'])
+
+                            ff(booster.dump_model()['tree_info'][itree * nclasses + isubtree]['tree_structure'])
+                            for node_info in node_infos:
+                                value = input_values[node_info[0]]
+                                threshold = node_info[1]
+                                if not np.isnan(value) and (value <= threshold) != (np.float32(value) <= np.float32(threshold)):
+                                    logging.info("the problem could be due to double (lgbm) -> float (mvautil) conversion for variable %d: %f and threshold %f", node_info[0], value, threshold)
+                                    stop_tree_loop = False
+                                    stop_event_loop = False
+
+                            if stop_tree_loop:
+                                break
+            if stop_event_loop:
+                return False
     return True
 
 
@@ -355,7 +417,10 @@ if __name__ == "__main__":
         if not result:
             print("some problems during test. Have you setup athena? Do not use this in production!")
         else:
-            print(u":::😀😀😀 everything fine: LGBM output == MVAUtils output 😀😀😀:::")
+            try:
+                print(u":::😀😀😀 everything fine: LGBM output == MVAUtils output 😀😀😀:::")
+            except UnicodeEncodeError:
+                print(":::😀😀😀 everything fine: LGBM output == MVAUtils output 😀😀😀:::")
             booster = lgb.Booster(model_file=args.input)
             objective = booster.dump_model()['objective']
             if 'multiclass' in objective:
