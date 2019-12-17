@@ -15,17 +15,17 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel )
 
 # External dependencies:
-find_package( GeoModel )
+find_package( GeoModelCore )
 
 
 # Component(s) in the package:
 atlas_add_library( ZDC_GeoMLib
                    src/*.cxx
                    PUBLIC_HEADERS ZDC_GeoM
-                   LINK_LIBRARIES ${GEOMODEL_LIBRARIES} AthenaKernel GeoModelUtilities StoreGateLib SGtests
+                   LINK_LIBRARIES ${GEOMODELCORE_LIBRARIES} AthenaKernel GeoModelUtilities StoreGateLib SGtests
                    PRIVATE_LINK_LIBRARIES GaudiKernel )
 
 atlas_add_component( ZDC_GeoM
                      src/components/*.cxx
-                     LINK_LIBRARIES ${GEOMODEL_LIBRARIES} AthenaKernel GeoModelUtilities StoreGateLib SGtests GaudiKernel ZDC_GeoMLib )
+                     LINK_LIBRARIES ${GEOMODELCORE_LIBRARIES} AthenaKernel GeoModelUtilities StoreGateLib SGtests GaudiKernel ZDC_GeoMLib )
 

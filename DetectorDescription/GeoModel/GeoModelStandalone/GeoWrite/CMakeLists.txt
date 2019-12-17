@@ -15,7 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( Qt5 COMPONENTS Core ) # needed for Qt containers
 find_package( CLHEP )  # to be dropped when migrated to new Eigen-based GeoTrf
 find_package( Eigen )
-find_package( GeoModel )
+find_package( GeoModelCore )
 
 
 if(CMAKE_BUILD_TYPE MATCHES Release)
@@ -32,5 +32,5 @@ endif(CMAKE_BUILD_TYPE MATCHES Debug)
 atlas_add_library( GeoWrite
                    src/*.cpp
                    PUBLIC_HEADERS GeoWrite
-                   INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} Qt5::Core ${GEOMODEL_LIBRARIES} GeoModelDBManager TFPersistification VP1Base )
+                   INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${GEOMODELCORE_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} Qt5::Core ${GEOMODELCORE_LIBRARIES} GeoModelDBManager TFPersistification VP1Base )
