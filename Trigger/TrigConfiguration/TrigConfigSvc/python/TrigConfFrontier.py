@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from AthenaCommon.Logging import logging
 import time
@@ -47,10 +49,11 @@ class FrontierCursor2:
         disables variable binding
         """
         log = logging.getLogger( "TrigConfFrontier.py" )
+        from builtins import int
         for var,val in bindvars.items():
             if query.find(":%s" % var)<0:
                 raise NameError("variable '%s' is not a bound variable in this query: %s" % (var, query) )
-            if type(val) == long:
+            if isinstance (val, int):
                 query = query.replace(":%s" % var,"%s" % val)
             else:
                 query = query.replace(":%s" % var,"%r" % val)
@@ -139,8 +142,8 @@ Refresh cache:  %s""" % (self.url, self.refreshFlag)
         import urllib2
         try:
             urllib2.urlopen(url)
-        except urllib2.URLError, e:
-            print e
+        except urllib2.URLError as e:
+            print (e)
             
     def execute(self, query, bindvars={}):
         if len(bindvars)>0:
@@ -205,7 +208,7 @@ Refresh cache:  %s""" % (self.url, self.refreshFlag)
                 if node.data.strip() == "":
                     continue
                 if keepalives > 0:
-                    print keepalives, "keepalives received\n"
+                    print (keepalives, "keepalives received\n")
                     keepalives = 0
             
                 row = base64.decodestring(node.data)
@@ -278,7 +281,7 @@ def testConnection():
     cursor.execute(query)
 
     for r in cursor.result[:20]:
-        print r
+        print (r)
 
     query = """
 SELECT DISTINCT
@@ -317,7 +320,7 @@ TE2CP.HTE2CP_ALGORITHM_COUNTER DESC"""
     cursor.execute(query)
 
     for r in cursor.result[:20]:
-        print r
+        print (r)
 
     return 0
 

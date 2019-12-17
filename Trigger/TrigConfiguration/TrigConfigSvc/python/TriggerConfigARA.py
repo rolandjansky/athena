@@ -5,6 +5,7 @@
 ## @author Joerg Stelzer <stelzer@cern.ch>
 
 from __future__ import print_function
+from past.builtins import cmp
 
 import sys
 import ROOT
@@ -180,12 +181,12 @@ class TriggerConfigARA(object):
     def printFileSummary(self, chaindetails=False):
         br = self.mdt.GetBranch(self.__class__.__folderName['HLTK'])
         iovs = []
-        for i in xrange(self.mdt.GetEntries()):
+        for i in range(self.mdt.GetEntries()):
             br.GetEntry(i)
             metaData = getattr(self.mdt, br.GetName())
             plc = metaData.payloadContainer()
             for payload in plc.iter():
-                for j in xrange(payload.size()):
+                for j in range(payload.size()):
                     chanNum = int(payload.chanNum(j))
                     iovr = payload.iovRange(chanNum)
                     iovs += [iovr]
@@ -327,13 +328,13 @@ class TriggerConfigARA(object):
         self.SMK = -1
         self.HltPSK = -1
         self.ConfigSrc = ""
-        for i in xrange(self.mdt.GetEntries()):
+        for i in range(self.mdt.GetEntries()):
             br.GetEntry(i)
             metaData = getattr(self.mdt, br.GetName())
             plc = metaData.payloadContainer()
             for payload in plc.iter():
                 #payload.dump()
-                for i in xrange(payload.size()):
+                for i in range(payload.size()):
                     chanNum = int(payload.chanNum(i))
                     # first check the iov
                     iovr = payload.iovRange(chanNum)
@@ -353,13 +354,13 @@ class TriggerConfigARA(object):
     def _loadHLTPSK(self, br, currentEvent):
         validIOV = None
         self.HltPSK = -1
-        for i in xrange(self.mdt.GetEntries()):
+        for i in range(self.mdt.GetEntries()):
             br.GetEntry(i)
             metaData = getattr(self.mdt, br.GetName())
             plc = metaData.payloadContainer()
             for payload in plc.iter():
                 #payload.dump()
-                for i in xrange(payload.size()):
+                for i in range(payload.size()):
                     chanNum = int(payload.chanNum(i))
                     # first check the iov
                     iovr = payload.iovRange(chanNum)
@@ -377,12 +378,12 @@ class TriggerConfigARA(object):
         foundAnyIOV = False
         self.L1PSK = -1
         payloadList = []
-        for i in xrange(self.mdt.GetEntries()):
+        for i in range(self.mdt.GetEntries()):
             br.GetEntry(i)
             metaData = getattr(self.mdt, br.GetName())
             plc = metaData.payloadContainer()
             for payload in plc.iter():
-                for i in xrange(payload.size()):
+                for i in range(payload.size()):
                     chanNum = int(payload.chanNum(i))
                     iovr = payload.iovRange(chanNum)
                     payloadList += [[iovr,payload.attributeList(chanNum)]]
@@ -390,7 +391,7 @@ class TriggerConfigARA(object):
         if not foundAnyIOV: return None
         # sort the payload by IOV and remove the overlap
         payloadList.sort(lambda x,y: cmp(x[0].start(),y[0].start()))
-        for i in xrange(len(payloadList)-1):
+        for i in range(len(payloadList)-1):
             payloadList[i][0] = ROOT.IOVRange(payloadList[i][0].start(),payloadList[i+1][0].start())
         # get the content
         validIOV =  None
@@ -404,28 +405,28 @@ class TriggerConfigARA(object):
     def _loadL1PS(self, br, currentEvent):
         foundAnyIOV = False
         self.L1PS = 256*[0]
-        payloadList = [[] for x in xrange(256)]
-        for i in xrange(self.mdt.GetEntries()):
+        payloadList = [[] for x in range(256)]
+        for i in range(self.mdt.GetEntries()):
             br.GetEntry(i)
             metaData = getattr(self.mdt, br.GetName())
             plc = metaData.payloadContainer()
             for payload in plc.iter():
-                for i in xrange(payload.size()):
+                for i in range(payload.size()):
                     chanNum = int(payload.chanNum(i))
                     iovr = payload.iovRange(chanNum)
                     payloadList[chanNum] += [[iovr,payload.attributeList(chanNum)]]
                     foundAnyIOV = True
         if not foundAnyIOV: return None
         # sort the payload by IOV and remove the overlap
-        for ch in xrange(256):
+        for ch in range(256):
             x = payloadList[ch]
             x.sort(lambda x,y: cmp(x[0].start(),y[0].start()))
-            for i in xrange(len(x)-1):
+            for i in range(len(x)-1):
                 x[i][0] = ROOT.IOVRange(x[i][0].start(),x[i+1][0].start())
         # read the payload
         psset = 256 * [0]
         validIOV =  None
-        for ch in xrange(256):
+        for ch in range(256):
             for pl in payloadList[ch]:
                 if pl[0].isInRange(currentEvent):
                     if not validIOV: validIOV = pl[0]
@@ -439,13 +440,13 @@ class TriggerConfigARA(object):
     def _loadL1M(self, br, currentEvent):
         validIOV = None
         items = {}
-        for i in xrange(self.mdt.GetEntries()):
+        for i in range(self.mdt.GetEntries()):
             br.GetEntry(i)
             metaData = getattr(self.mdt, br.GetName())
             plc = metaData.payloadContainer()
             for payload in plc.iter():
                 #payload.dump()
-                for i in xrange(payload.size()):
+                for i in range(payload.size()):
                     chanNum = int(payload.chanNum(i))
                     # first check the iov
                     iovr = payload.iovRange(chanNum)
@@ -462,13 +463,13 @@ class TriggerConfigARA(object):
     def _loadHLTM(self, br, currentEvent):
         validIOV = None
         chains = {}
-        for i in xrange(self.mdt.GetEntries()):
+        for i in range(self.mdt.GetEntries()):
             br.GetEntry(i)
             metaData = getattr(self.mdt, br.GetName())
             plc = metaData.payloadContainer()
             for payload in plc.iter():
                 #payload.dump()
-                for i in xrange(payload.size()):
+                for i in range(payload.size()):
                     chanNum = int(payload.chanNum(i))
                     # first check the iov
                     iovr = payload.iovRange(chanNum)
