@@ -100,8 +100,8 @@ StatusCode egammaTopoClusterCopier::execute(const EventContext& ctx) const {
     */
     double eg_tilegap=0;
     if(aeta>1.35 && aeta<1.65 && clusterE>0){
-      xAOD::CaloCluster::cell_iterator cell_itr = clus->begin();
-      xAOD::CaloCluster::cell_iterator cell_end = clus->end();
+      xAOD::CaloCluster::const_cell_iterator cell_itr = clus->cell_cbegin();
+      xAOD::CaloCluster::const_cell_iterator cell_end = clus->cell_cend();
       for (; cell_itr != cell_end; ++cell_itr) { 
         const CaloCell* cell = *cell_itr; 
         if (!cell){
