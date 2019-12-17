@@ -259,8 +259,8 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel(
 #====================================================================
 # SET UP STREAM   
 #====================================================================
-BPHY21_streamName   = derivationFlags.WriteDAOD_BPHY21_Stream.StreamName
-BPHY21_fileName     = buildFileName( derivationFlags.WriteDAOD_BPHY21_Stream )
+BPHY21_streamName   = derivationFlags.WriteDAOD_BPHY21Stream.StreamName
+BPHY21_fileName     = buildFileName( derivationFlags.WriteDAOD_BPHY21Stream )
 BPHY21_Stream  = MSMgr.NewPoolRootStream( BPHY21_streamName, BPHY21_fileName )
 BPHY21_Stream.AcceptAlgs(["BPHY21_Kernel"])
 
