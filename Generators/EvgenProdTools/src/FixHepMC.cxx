@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -14,85 +14,17 @@ FixHepMC::FixHepMC(const string& name, ISvcLocator* pSvcLocator)
   , m_loopKilled(0)
   , m_pdg0Killed(0)
   , m_decayCleaned(0)
-  , m_muonVtxChanged(0)
   , m_totalSeen(0)
 {
   declareProperty("KillLoops", m_killLoops = true, "Remove particles in loops?");
   declareProperty("KillPDG0", m_killPDG0 = true, "Remove particles with PDG ID 0?");
   declareProperty("CleanDecays", m_cleanDecays = true, "Clean decay chains from non-propagating particles?");
   declareProperty("LoopsByBarcode", m_loopByBC = false, "Detect loops based on barcodes as well as vertices?");
-  declareProperty("SetMuonsToProdVtx", m_setMuonsToProdVtx = false, "Detect muons at very large displacement and set to collision vertex. For H7+matchbox");
 }
 
 
 StatusCode FixHepMC::execute() {
 
-  // If all options are off, then just return and exit. Not all of the code runs on afterburners.
-  // So we exit if everything is off.
-  if(!(m_killLoops || m_killPDG0 || m_cleanDecays || m_loopByBC || m_setMuonsToProdVtx)) return StatusCode::SUCCESS;
-
-  // This patch is to fix the NLO MatchBox+H7 sample. Muons can travel some large distance before turning status 1. Here we reset their vertex to the status 11 muon vertex
-  if(m_setMuonsToProdVtx){
-    for (McEventCollection::const_iterator itr = events_const()->begin(); itr != events_const()->end(); ++itr) {
-      const HepMC::GenEvent* evt = *itr;
-
-      for (HepMC::GenEvent::vertex_const_iterator vitr = evt->vertices_begin(); vitr != evt->vertices_end(); ++vitr ) {
-	const HepMC::GenVertex* vtx = *vitr;
-	const HepMC::ThreeVector pos = vtx->point3d();
-	// Check for too-far-displaced vertices
-	// Anything which propagates macroscopically should be set stable in evgen for G4 to handle
-	const double dist_trans2 = pos.x()*pos.x() + pos.y()*pos.y(); // in mm2
-	const double dist2 = dist_trans2 + pos.z()*pos.z(); // in mm2
-	const double dist = sqrt(dist2); // in mm
-	if(1.0<dist){// check if the distance is larger than 1mm
-	  HepMC::GenVertex::particle_iterator par = (*vitr)->particles_begin(HepMC::parents);
-	  for (; par != (*vitr)->particles_end(HepMC::parents); ++par) {
-	    if(fabs((*par)->pdg_id())==13){
-	      unsigned npartvtxin = ((*vitr)->particles_in_size());
-	      unsigned npartvtxout = ((*vitr)->particles_out_size());
-	      if(npartvtxin>1){
-		ATH_MSG_WARNING("Changing H7+MatchBox muon vertex. more than just one muon found in: " << npartvtxin << " out: " << npartvtxout << ". doing nothing!");
-	      }else if(npartvtxout>1){
-		ATH_MSG_INFO("Changing H7+MatchBox muon vertex. more than just one muon found in: " << npartvtxin << " out: " << npartvtxout << ". setting both to the original vertex! Mostly FSR photon");
-		HepMC::GenVertex::particle_iterator parc = (*vitr)->particles_begin(HepMC::parents);
-		for (; parc != (*vitr)->particles_end(HepMC::parents); ++parc) {
-		  ATH_MSG_INFO("More than 1 outgoing. Particle: " << (*parc)->pdg_id() << " status: " << (*parc)->status());
-		  (*parc)->end_vertex()->set_position((*parc)->production_vertex()->position());
-		}
-	      }else{ // only 1 muon in and 1 muons out. setting this vertex back to the point of origin
-		(*par)->end_vertex()->set_position((*par)->production_vertex()->position());
-		m_muonVtxChanged+=1;
-	      }
-	      ATH_MSG_VERBOSE("Found vertex position displaced by more than  1mm: " << dist << "mm");
-	      ATH_MSG_VERBOSE("Outgoing particle : ");
-	      ATH_MSG_VERBOSE("production vertex = " << (*par)->production_vertex()->point3d().x() << ", " << (*par)->production_vertex()->point3d().y() << ", " << (*par)->production_vertex()->point3d().z());
-	      ATH_MSG_VERBOSE("end vertex        = " << (*par)->end_vertex()->point3d().x() << ", " << (*par)->end_vertex()->point3d().y() << ", " << (*par)->end_vertex()->point3d().z());
-	      ATH_MSG_VERBOSE("parents info: ");
-	      if ((*par)->production_vertex()) {
-		HepMC::GenVertex::particle_iterator p_parents = (*par)->production_vertex()->particles_begin(HepMC::parents);
-		for(; p_parents != (*par)->production_vertex()->particles_end(HepMC::parents); ++p_parents) {
-		  if((*p_parents)->status()!=11){
-		    ATH_MSG_WARNING("Changing H7+MatchBox muon vertex. The muons parent is NOT status 11. This was not expected.");
-		    (*p_parents)->print();
-		  }
-		  if(npartvtxout>1){// more than just the muon going out, then printing
-		    ATH_MSG_INFO("More than 1 outgoing. Parent: " << (*p_parents)->pdg_id() << " status: " << (*p_parents)->status());
-		  }
-		  ATH_MSG_VERBOSE("parent production vertex = " << (*p_parents)->production_vertex()->point3d().x() << ", " << (*p_parents)->production_vertex()->point3d().y() << ", " << (*p_parents)->production_vertex()->point3d().z());
-		  ATH_MSG_VERBOSE("parent end vertex        = " << (*p_parents)->end_vertex()->point3d().x() << ", " << (*p_parents)->end_vertex()->point3d().y() << ", " << (*p_parents)->end_vertex()->point3d().z());
-		  ATH_MSG_VERBOSE("\t");
-		}
-	      }
-	    }
-	  }
-	}
-      }
-    }
-  }// end this H7+MatchBox fix
-  // If this is just for H7+Matchbox, we are done and exiting
-  if(m_setMuonsToProdVtx) return StatusCode::SUCCESS;
-
-  // Continue with the remaining code that runs only on generation
   for (McEventCollection::const_iterator ievt = events()->begin(); ievt != events()->end(); ++ievt) {
     HepMC::GenEvent* evt = *ievt;
 
@@ -191,7 +123,6 @@ StatusCode FixHepMC::finalize() {
   if (m_killLoops  ) ATH_MSG_INFO( "Removed " <<   m_loopKilled << " of " << m_totalSeen << " particles because of loops." );
   if (m_killPDG0   ) ATH_MSG_INFO( "Removed " <<   m_pdg0Killed << " of " << m_totalSeen << " particles because of PDG ID 0." );
   if (m_cleanDecays) ATH_MSG_INFO( "Removed " << m_decayCleaned << " of " << m_totalSeen << " particles while cleaning decay chains." );
-  if (m_setMuonsToProdVtx) ATH_MSG_INFO( "Set Muon Vertex is running for H7+MatchBox? " << m_setMuonsToProdVtx << " changed " << m_muonVtxChanged << " muon vertex positions." );
   return StatusCode::SUCCESS;
 }
 
