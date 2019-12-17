@@ -51,7 +51,7 @@ protected:
   const IFastCaloSimGeometryHelper* GetCaloGeometry() const {return &(*m_CaloGeometryHelper);};
 
   // extrapolation through Calo
-  std::vector<Trk::HitInfo>* caloHits(const TFCSTruthState* truth) const;
+  std::vector<Trk::HitInfo>* caloHits(const TFCSTruthState* truth, bool forceNeutral=false) const;
   void extrapolate(TFCSExtrapolationState& result,const TFCSTruthState* truth,std::vector<Trk::HitInfo>* hitVector) const;
   void extrapolate_to_ID(TFCSExtrapolationState& result,const TFCSTruthState* truth,std::vector<Trk::HitInfo>* hitVector) const;
   bool get_calo_etaphi(TFCSExtrapolationState& result,std::vector<Trk::HitInfo>* hitVector,int sample,int subpos=SUBPOS_MID) const;
