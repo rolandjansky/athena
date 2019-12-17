@@ -1,11 +1,12 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AtlasGeoModel.GeoModelConfig import GeoModelCfg
-from MuonGeoModel.MuonGeoModelConf import MuonDetectorTool
-from MuonIdHelpers.MuonIdHelpersConf import Muon__MuonIdHelperSvc
-from AGDD2GeoSvc.AGDD2GeoSvcConf import AGDDtoGeoSvc
-from MuonAGDD.MuonAGDDConf import MuonAGDDTool, NSWAGDDTool
+MuonDetectorTool=CompFactory.MuonDetectorTool
+Muon__MuonIdHelperSvc=CompFactory.Muon__MuonIdHelperSvc
+AGDDtoGeoSvc=CompFactory.AGDDtoGeoSvc
+MuonAGDDTool, NSWAGDDTool=CompFactory.getComps("MuonAGDDTool","NSWAGDDTool",)
 
 def MuonGeoModelCfg(flags):
     acc = ComponentAccumulator()
@@ -27,8 +28,7 @@ def MuonGeoModelCfg(flags):
         # This is all migrated from MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonAlignConfig.py
 
         from IOVDbSvc.IOVDbSvcConfig import addFolders
-        from MuonCondAlg.MuonCondAlgConf import MuonAlignmentCondAlg
-
+        MuonAlignmentCondAlg=CompFactory.MuonAlignmentCondAlg
         if (flags.Common.isOnline and not flags.Input.isMC):                
             acc.merge(addFolders( flags, ['/MUONALIGN/Onl/MDT/BARREL'], 'MUONALIGN', className='CondAttrListCollection'))
             acc.merge(addFolders( flags, ['/MUONALIGN/Onl/MDT/ENDCAP/SIDEA'], 'MUONALIGN', className='CondAttrListCollection'))
