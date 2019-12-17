@@ -16,7 +16,7 @@ def makeSequence (dataType) :
     from AsgAnalysisAlgorithms.PileupAnalysisSequence import \
         makePileupAnalysisSequence
     pileupSequence = makePileupAnalysisSequence( dataType )
-    pileupSequence.configure( inputName = 'EventInfo', outputName = 'EventInfo' )
+    pileupSequence.configure( inputName = 'EventInfo', outputName = 'EventInfo_%SYS%' )
     algSeq += pileupSequence
 
     # Include, and then set up the electron analysis sequence:
@@ -25,7 +25,7 @@ def makeSequence (dataType) :
     electronSequence = makeElectronAnalysisSequence( dataType, 'LooseLHElectron.GradientLoose', postfix = 'loose',
                                                      recomputeLikelihood=True, enableCutflow=True, enableKinematicHistograms=True )
     electronSequence.configure( inputName = 'Electrons',
-                                outputName = 'AnalysisElectrons' )
+                                outputName = 'AnalysisElectrons_%SYS%' )
     algSeq += electronSequence
 
     # Include, and then set up the photon analysis sequence:
@@ -34,7 +34,7 @@ def makeSequence (dataType) :
     photonSequence = makePhotonAnalysisSequence( dataType, 'Tight.FixedCutTight', postfix = 'tight',
                                                  recomputeIsEM=True, enableCutflow=True, enableKinematicHistograms=True )
     photonSequence.configure( inputName = 'Photons',
-                              outputName = 'AnalysisPhotons' )
+                              outputName = 'AnalysisPhotons_%SYS%' )
     algSeq += photonSequence
 
     return algSeq
