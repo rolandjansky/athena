@@ -35,7 +35,7 @@ ToolSvc += BPHY21_AugOriginalCounts
 # TriggerCounting for Kernel1 
 #====================================================================
 #List of trigggers to be counted 
-triggersToMetadata= [
+BPHY21_triggersToMetadata= [
                 "HLT_2mu10",
                 "HLT_2mu10_nomucomb",
                 "HLT_2mu14",
@@ -55,7 +55,7 @@ triggersToMetadata= [
 
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__TriggerCountToMetadata
 BPHY21_TriggerCountToMetadata = DerivationFramework__TriggerCountToMetadata(name = "BPHY21_TriggerCount",
-                                                                          TriggerList = triggersToMetadata,
+                                                                          TriggerList = BPHY21_triggersToMetadata,
                                                                           FolderName = "BPHY21")
 
 ToolSvc += BPHY21_TriggerCountToMetadata
@@ -68,7 +68,7 @@ ToolSvc += BPHY21_TriggerCountToMetadata
 ## 1/ Setup the skimming based on triggers
 ##     
 
-triggerList = [ 
+BPHY21_triggerList = [ 
                 "HLT_2mu10",
                 "HLT_2mu10_nomucomb",
                 "HLT_2mu14",
@@ -87,7 +87,7 @@ triggerList = [
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
 BPHY21_TriggerSkim = DerivationFramework__TriggerSkimmingTool(name = "BPHY21_TriggerSkim",
-                                                            TriggerListOR = triggerList)
+                                                            TriggerListOR = BPHY21_triggerList)
 
 ToolSvc += BPHY21_TriggerSkim
 
@@ -240,9 +240,9 @@ print      BPHY21_MuonTPThinningTool
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  
 #====================================================================
 
-thiningCollection = [] 
+BPHY21_thiningCollection = [] 
 
-print thiningCollection
+print BPHY21_thiningCollection
 
 # The name of the kernel (BPHY21_Kernel in this case) must be unique to this derivation
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
@@ -253,24 +253,24 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel(
                          BPHY21_AugOriginalCounts],
     #Only skim if not MC
     SkimmingTools     = [BPHY21_SkimmingOR] if not isSimulation else [],
-    ThinningTools     = thiningCollection
+    ThinningTools     = BPHY21_thiningCollection
     )
 
 #====================================================================
 # SET UP STREAM   
 #====================================================================
-streamName   = derivationFlags.WriteDAOD_BPHY21_Stream.StreamName
-fileName     = buildFileName( derivationFlags.WriteDAOD_BPHY21_Stream )
-BPHY21_Stream  = MSMgr.NewPoolRootStream( streamName, fileName )
+BPHY21_streamName   = derivationFlags.WriteDAOD_BPHY21_Stream.StreamName
+BPHY21_fileName     = buildFileName( derivationFlags.WriteDAOD_BPHY21_Stream )
+BPHY21_Stream  = MSMgr.NewPoolRootStream( BPHY21_streamName, BPHY21_fileName )
 BPHY21_Stream.AcceptAlgs(["BPHY21_Kernel"])
 
 # Special lines for thinning
 # Thinning service name must match the one passed to the thinning tools
 from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
+BPHY21_augStream = MSMgr.GetStream( streamName )
+BPHY21_evtStream = BPHY21_augStream.GetEventStream()
 
-BPHY21_ThinningSvc = createThinningSvc( svcName="BPHY21_ThinningSvc", outStreams=[evtStream] )
+BPHY21_ThinningSvc = createThinningSvc( svcName="BPHY21_ThinningSvc", BPHY21_outStreams=[BPHY21_evtStream] )
 svcMgr += BPHY21_ThinningSvc
 
 #====================================================================
@@ -280,35 +280,35 @@ svcMgr += BPHY21_ThinningSvc
 # Added by ASC
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 BPHY21_SlimmingHelper = SlimmingHelper("BPHY21_SlimmingHelper")
-AllVariables  = []
-StaticContent = []
+BPHY21_AllVariables  = []
+BPHY21_StaticContent = []
 
 # Needed for trigger objects
 BPHY21_SlimmingHelper.IncludeMuonTriggerContent  = TRUE
 BPHY21_SlimmingHelper.IncludeBPhysTriggerContent = TRUE
 
 ## primary vertices
-AllVariables  += ["PrimaryVertices"]
-StaticContent += ["xAOD::VertexContainer#BPHY21_RefittedPrimaryVertices"]
-StaticContent += ["xAOD::VertexAuxContainer#BPHY21_RefittedPrimaryVerticesAux."]
+BPHY21_AllVariables  += ["PrimaryVertices"]
+BPHY21_StaticContent += ["xAOD::VertexContainer#BPHY21_RefittedPrimaryVertices"]
+BPHY21_StaticContent += ["xAOD::VertexAuxContainer#BPHY21_RefittedPrimaryVerticesAux."]
 
 ## ID track particles
-AllVariables += ["InDetTrackParticles"]
+BPHY21_AllVariables += ["InDetTrackParticles"]
 
 ## combined / extrapolated muon track particles 
 ## (note: for tagged muons there is no extra TrackParticle collection since the ID tracks
 ##        are store in InDetTrackParticles collection)
-AllVariables += ["CombinedMuonTrackParticles"]
-AllVariables += ["ExtrapolatedMuonTrackParticles"]
+BPHY21_AllVariables += ["CombinedMuonTrackParticles"]
+BPHY21_AllVariables += ["ExtrapolatedMuonTrackParticles"]
 
 ## muon container
-AllVariables += ["Muons"] 
+BPHY21_AllVariables += ["Muons"] 
 
 
 ## Jpsi candidates 
-StaticContent += ["xAOD::VertexContainer#%s"        %                 BPHY21_JpsiSelectAndWrite.OutputVtxContainerName]
+BPHY21_StaticContent += ["xAOD::VertexContainer#%s"        %                 BPHY21_JpsiSelectAndWrite.OutputVtxContainerName]
 ## we have to disable vxTrackAtVertex branch since it is not xAOD compatible
-StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY21_JpsiSelectAndWrite.OutputVtxContainerName]
+BPHY21_StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY21_JpsiSelectAndWrite.OutputVtxContainerName]
 
 
 # Tagging information (in addition to that already requested by usual algorithms)
@@ -317,12 +317,13 @@ StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY21_Jps
 # Added by ASC
 # Truth information for MC only
 if isSimulation:
-    AllVariables += ["TruthEvents","TruthParticles","TruthVertices","MuonTruthParticles"]
 
-AllVariables = list(set(AllVariables)) # remove duplicates
+BPHY21_AllVariables += ["TruthEvents","TruthParticles","TruthVertices","MuonTruthParticles"]
 
-BPHY21_SlimmingHelper.AllVariables = AllVariables
-BPHY21_SlimmingHelper.StaticContent = StaticContent
+BPHY21_AllVariables = list(set(AllVariables)) # remove duplicates
+
+BPHY21_SlimmingHelper.AllVariables = BPHY21_AllVariables
+BPHY21_SlimmingHelper.StaticContent = BPHY21_StaticContent
 BPHY21_SlimmingHelper.SmartCollections = []
 
 BPHY21_SlimmingHelper.AppendContentToStream(BPHY21_Stream)
