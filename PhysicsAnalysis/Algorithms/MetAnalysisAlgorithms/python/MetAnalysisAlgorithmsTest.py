@@ -17,7 +17,7 @@ def makeSequence (dataType) :
     from JetAnalysisAlgorithms.JetAnalysisSequence import makeJetAnalysisSequence
     jetContainer = 'AntiKt4EMPFlowJets'
     jetSequence = makeJetAnalysisSequence( dataType, jetContainer )
-    jetSequence.configure( inputName = jetContainer, outputName = 'AnalysisJets' )
+    jetSequence.configure( inputName = jetContainer, outputName = 'AnalysisJets_%SYS%' )
 
     # Add all algorithms to the job:
     algSeq += jetSequence
