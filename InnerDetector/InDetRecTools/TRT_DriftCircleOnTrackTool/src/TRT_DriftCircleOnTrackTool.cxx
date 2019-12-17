@@ -13,7 +13,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "TRT_DriftCircleOnTrackTool/TRT_DriftCircleOnTrackTool.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "InDetReadoutGeometry/TRT_EndcapElement.h"
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "TrkRIO_OnTrack/check_cast.h"
 
