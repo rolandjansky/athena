@@ -57,7 +57,7 @@ float TFCSLateralShapeParametrizationHitChain::get_sigma2_fluctuation(TFCSSimula
   return s_max_sigma2_fluctuation;
 }
 
-FCSReturnCode TFCSLateralShapeParametrizationHitChain::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol)
+FCSReturnCode TFCSLateralShapeParametrizationHitChain::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const
 {
   // Call get_number_of_hits() only once, as it could contain a random number
   int nhit = get_number_of_hits(simulstate, truth, extrapol);
@@ -66,11 +66,11 @@ FCSReturnCode TFCSLateralShapeParametrizationHitChain::simulate(TFCSSimulationSt
     return FCSFatal;
   }
 
-  float Elayer=simulstate.E(calosample());
-  float Ehit=Elayer/nhit;
+  const float Elayer=simulstate.E(calosample());
+  const float Ehit=Elayer/nhit;
   float sumEhit=0;
 
-  bool debug = msgLvl(MSG::DEBUG);
+  const bool debug = msgLvl(MSG::DEBUG);
   if (debug) {
     ATH_MSG_DEBUG("E("<<calosample()<<")="<<simulstate.E(calosample())<<" #hits~"<<nhit);
   }

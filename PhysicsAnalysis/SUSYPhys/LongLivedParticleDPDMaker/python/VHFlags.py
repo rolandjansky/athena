@@ -30,10 +30,22 @@ class VHLowTrackJet_FilterFlags(JobProperty):
     allowedTypes = ['bool']
     StoredValue  = True
     triggerNames = [
+        'HLT_e24_lhmedium_L1EM20VH',
+        'HLT_e24_lhtight_nod0_ivarloose',
         'HLT_e26_lhtight_nod0_ivarloose',
+        'HLT_e60_lhmedium',
         'HLT_e60_lhmedium_nod0',
+        'HLT_e120_lhloose',
         'HLT_e140_lhloose_nod0',
-        'HLT_mu26_ivarmedium'
+        'HLT_mu20_iloose_L1MU15',
+        'HLT_mu24_iloose',
+        'HLT_mu24_ivarloose',
+        'HLT_mu24_imedium',
+        'HLT_mu24_ivarmedium',
+        'HLT_mu26_imedium',
+        'HLT_mu26_ivarmedium',
+        'HLT_mu40',
+        'HLT_mu50'
         ]
     debug=False
     cutJet=20*Units.GeV

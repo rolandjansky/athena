@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -23,10 +23,14 @@
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrigEgammaMatchingTool/ITrigEgammaMatchingTool.h"
 
+#include "MCTruthClassifier/IMCTruthClassifier.h"
+
 #include "TMath.h"
 #include <string>
 #include <iostream>
 
+#include "xAODTruth/TruthEvent.h"
+#include "xAODTruth/TruthParticle.h"
 
 class TProfile;
 class TH1F_LW;
@@ -70,6 +74,7 @@ private:
   void setDQTGlobalWZFinderBranches();
 
   void doMuonTriggerTP(const xAOD::Muon* , const xAOD::Muon*);
+  void doMuonTruthEff(std::vector<const xAOD::Muon*>&);
   void doMuonLooseTP(std::vector<const xAOD::Muon*>& goodmuonsZ, const xAOD::Vertex* pVtx);
   void doMuonInDetTP(std::vector<const xAOD::Muon*>& goodmuonsZ, const xAOD::Vertex* pVtx);
 
@@ -83,6 +88,10 @@ private:
                          const xAOD::Vertex* pVtx, bool isBad);
   bool kinematicCuts(const xAOD::Electron*);
 
+
+  bool checkTruthElectron(const xAOD::Electron* electron);
+  bool checkTruthTrack(const xAOD::TrackParticle* trk);
+  bool checkTruthMuon(const xAOD::Muon* muon);
 
   bool m_isSimulation;
   bool m_writeTTrees;
@@ -177,9 +186,6 @@ private:
 
   int m_ZBosonCounterSBG_El[2];
   int m_ZBosonCounterSBG_Mu[2];
-
-  //uint32_t lumiBlock;
-  //uint32_t eventNumber;
 
   int m_this_lb; //remove _t
   int m_eventNumber; //remove _t
@@ -323,6 +329,8 @@ private:
   int m_electron_trig_tptree_lb;
   int m_electron_trig_tptree_runnumber;
   unsigned long long  m_electron_trig_tptree_eventnumber;
+
+  ToolHandle<IMCTruthClassifier> m_truthClassifier;
 
 };
 
