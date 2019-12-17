@@ -231,7 +231,7 @@ StatusCode sTgcDigitizationTool::initialize() {
   m_readoutThreshold = 0.05; 
   m_neighborOnThreshold = 0.01;
   m_saturation = 1.75; // = 3500. / 2000.;
-  m_hitTimeMergeThreshold = 1; //1ns = resolution of peak finding descriminator
+  m_hitTimeMergeThreshold = 30; //30ns = resolution of peak finding descriminator
   //m_deadtimeStrip = 50.; // 50ns deadtime of electronics after peak found (for strip readout) 
   //m_deadtimePad = 5.; // 50ns deadtime of electronics after peak found (for strip readout) 
   m_timeWindowOffsetPad    = 0.;
