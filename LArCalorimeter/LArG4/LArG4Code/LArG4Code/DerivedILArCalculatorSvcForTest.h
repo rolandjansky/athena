@@ -147,9 +147,26 @@ public:
     return true;
   }
 
-  G4bool Process (const G4Step*, std::vector<LArHitData>&) const
+  G4bool Process (const G4Step* a_step, std::vector<LArHitData>& hits) const
   {
-    //more code needs to be written here to implement a kind of function
+//firstly set the G4Step object a_step to make it complete, you can set it here as much as you want. Since there is no need to set too much for it, I don't set sth for it
+    (void)a_step;
+
+//insert LArHitData object into hits
+    LArG4Identifier a_ident;//define a LArG4Identifier object called a_ident
+    a_ident.add(4);
+    a_ident.add(2);
+    a_ident.add(2);
+    a_ident.add(3);
+    a_ident.add(4);
+    a_ident.add(5);
+    a_ident.add(6);
+    LArHitData hit = {};//define LArHitData object hit
+    hit.id = a_ident;//set hit, the same below
+    hit.time = 1.0;
+    hit.energy = 1.0;
+    hits.push_back(hit);//insert hit into the container hits
+
     return true;
   }
 

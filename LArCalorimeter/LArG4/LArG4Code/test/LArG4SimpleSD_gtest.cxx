@@ -52,7 +52,7 @@ class LArG4SimpleSDtest : public ::testing::Test {
 
 // Here I initialize 4 Identifier helper class objects, and they are used to convert a set of numbers stored in a LArG4Identifier object into a Identifier object.
 // they can be used by all the TEST_F
-LArEM_ID* m_EM = new LArEM_ID(); 
+  LArEM_ID* m_EM = new LArEM_ID(); 
   LArFCAL_ID* m_FCAL = new LArFCAL_ID();
   LArHEC_ID* m_HEC = new LArHEC_ID();
   LArMiniFCAL_ID* m_mini = new LArMiniFCAL_ID();
@@ -61,7 +61,23 @@ LArEM_ID* m_EM = new LArEM_ID();
 
 TEST_F( LArG4SimpleSDtest, ProcessHits )
 {
+  G4Step* aStep = new G4Step();//define actual parameter for the tested member function ProcessHits
+  double totEnergyDeposit = 1.0;
+  aStep->SetTotalEnergyDeposit(totEnergyDeposit);//set total energy deposit value for the G4Step object
+  G4TouchableHistory* th = new G4TouchableHistory();//define actual parameter for the tested member function ProcessHits
 
+  DerivedILArCalculatorSvcForTest* calc = new DerivedILArCalculatorSvcForTest();//use the derived ILArCalculatorSvc class since ILArCalculatorSvc is abstact and can not be instantiated
+  LArG4SimpleSD sd1("name1", calc);//instantiate the tested class LArG4SimpleSD
+  sd1.setupHelpers(m_EM, m_FCAL, m_HEC, m_mini);//add helpers(m_EM, m_FCAL, m_HEC, m_mini), which can convert a set of numbers stored in LArG4Identifier object into a compact number stored in a Identifier object 
+  sd1.ProcessHits(aStep, th);//after invoking the tested member function ProcessHits, it also generate a new hit and stores it in the variable m_timeBins. Next statements will test if the hit was created correctly according to previous setting.
+
+  LArG4SimpleSD::hits_t* hitCollection = (*(sd1.m_timeBins.begin())).second;//firstly, get the hitCollection that was stored in the container m_timeBins
+  unsigned long long compact_num = (*(hitCollection->begin()))->cellID().get_compact(); //get the compacted id of the hit, according to the previous setting it should be 7
+  double theTime = (*(hitCollection->begin()))->time();//get the time info of the hit, it should be 1.0 as we set before
+  double theEnergy = (*(hitCollection->begin()))->energy();//get the energy info of the hit, it should be as well 1.0 as we set before
+  ASSERT_EQ(compact_num, 7);//test if the compact_num is 7
+  ASSERT_FLOAT_EQ(theTime, 1.0);//test if theTime is 1.0
+  ASSERT_FLOAT_EQ(theEnergy, 1.0);//test if theEnergy is 1.0
 }
 
 TEST_F( LArG4SimpleSDtest, SimpleHit )
