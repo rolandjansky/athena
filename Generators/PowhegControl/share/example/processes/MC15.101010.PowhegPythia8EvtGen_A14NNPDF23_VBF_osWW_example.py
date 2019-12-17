@@ -13,6 +13,16 @@ evgenConfig.contact = ["stefan.richter@cern.ch"]
 include("PowhegControl/PowhegControl_VBF_osWW_Common.py")
 
 # --------------------------------------------------------------
+# Reweighting to get PDF and QCD scale weight variations
+# is not yet supported for this process (it fails for
+# currently unknown reasons), so it is disabled here by
+# setting single values for the PDF and QCD scale factors
+# --------------------------------------------------------------
+PowhegConfig.PDF = 260000
+PowhegConfig.mu_F = 1.0
+PowhegConfig.mu_R = 1.0
+
+# --------------------------------------------------------------
 # Generate events
 # --------------------------------------------------------------
 PowhegConfig.generate()
