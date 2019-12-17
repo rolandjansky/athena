@@ -7,6 +7,7 @@ from AthenaCommon.CFElements import seqAND
 from ..Menu.SignatureDicts import METChainParts_Default, JetChainParts_Default
 from ..Menu.MenuComponents import RecoFragmentsPool
 from copy import copy
+import six
 
 # The keys from the MET chain dict that directly affect reconstruction
 # The order here is important as it also controls the dict -> string conversion
@@ -76,7 +77,7 @@ class AlgConfig(object):
     def __init__(self, **recoDict):
         # Make sure that we got *all* the keys (i.e. the subclass didn't
         # inadvertently steal one of them from us)
-        assert set(recoKeys) == set(recoDict.iterkeys() ), (
+        assert set(recoKeys) == set(six.iterkeys(recoDict) ), (
                 "AlgConfig.__init__ did not receive all the recoKeys - this "
                 "suggests a problem in the subclass __init__ method!")
         self.recoDict = copy(recoDict)

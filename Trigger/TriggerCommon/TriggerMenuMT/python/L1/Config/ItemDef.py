@@ -1974,7 +1974,7 @@ class ItemDef:
                         MenuItem('L1_CEP-CJ50').setLogic( TOPO_CEP_CJ50s6 & physcond ) # noqa: F821
                         MenuItem('L1_CEP-CJ50.ETA21').setLogic( TOPO_CEP_CJ50s6ETA21 & physcond ) # noqa: F821
 
-            except NameError, ex:
+            except NameError as ex:
                 exc_type, exc_value, exc_traceback = sys.exc_info()
                 fn,ln,_,_ = traceback.extract_tb(exc_traceback)[0]
                 fn = fn.rsplit("/",1)[-1]
@@ -1994,7 +1994,7 @@ class ItemDef:
                 raise
                 
 
-            except Exception, ex:
+            except Exception as ex:
                 log.error( "Creation of L1Topo item failed, will abort! Exception is a %s: '%s'" , type(ex), ex)
                 raise
         

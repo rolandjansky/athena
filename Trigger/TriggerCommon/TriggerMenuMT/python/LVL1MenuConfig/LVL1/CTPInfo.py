@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from BunchGroupSet import BunchGroupSet
-from Lvl1MenuUtil import oldStyle
+from .BunchGroupSet import BunchGroupSet
+from .Lvl1MenuUtil import oldStyle
 
 class CTPInfo(object):
 
