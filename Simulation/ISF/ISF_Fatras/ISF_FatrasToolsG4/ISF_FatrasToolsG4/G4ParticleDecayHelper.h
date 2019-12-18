@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////// 
@@ -110,12 +110,7 @@ namespace iFatras {
       /*------------------------------------------------------------
        *  Statistics counter
        *------------------------------------------------------------*/          
-      mutable size_t                       m_nProcessedParticles;
-      mutable size_t                       m_nStableParticles;
-      mutable size_t                       m_nExitedParticles;
       mutable size_t                       m_nDecayedParticles;
-      mutable size_t                       m_nChargedParticles;
-      mutable size_t                       m_nNeutralParticles;
                     
       /*---------------------------------------------------------------------
        *  Private static members
