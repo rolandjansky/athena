@@ -207,7 +207,6 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
     r_cache.SCTCContainer = sct_clcontainer.cptr();
 
     ATH_MSG_DEBUG( "SCT Cluster container found: " << sct_clcontainer->size() << " collections" );
-    //nReceivedClustersSCT = sct_clcontainer->size();
     // Get hold of all clusters and iterate through them.
     // Pixel clusters will be converted immediately to pixel space points.
     // For SCT clusters, posssible pairs will be found and space points computed.
@@ -270,7 +269,6 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
     PixelClusterContainer::const_iterator colNext = pixel_clcontainer->begin();
     PixelClusterContainer::const_iterator lastCol = pixel_clcontainer->end();
 
-    //nReceivedClustersPIX = pixel_clcontainer->size();
 
     int numColl=0;
     for (; colNext != lastCol; ++colNext)
@@ -291,7 +289,6 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
 
       if ((*colNext)->size() != 0)
       {
-        //nReceivedClustersPIX = (*colNext)->size();
         m_SiSpacePointMakerTool->fillPixelSpacePointCollection(*colNext,spacepointCollection.get());
       }
       else
@@ -331,12 +328,10 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
   if (m_selectPixels) {
     auto c = spacePointContainerPixel->numberOfCollections();
     m_numberOfPixel += c;
-    //nPIXspacePoints  = c;
   }
   if (m_selectSCTs) {
     auto c = spacePointContainer_SCT->numberOfCollections();
     m_numberOfSCT   += c;
-    //nSCTspacePoints  = c;
   }
   if(m_cachemode)//Prevent unnecessary atomic counting
   {
