@@ -6,7 +6,6 @@
 #include <typeinfo>
 
 // Framework includes
-#include "CxxUtils/make_unique.h"
 #include "AthContainers/ConstDataVector.h"
 
 // EDM includes
@@ -39,7 +38,6 @@ namespace ORUtils
   //---------------------------------------------------------------------------
   StatusCode EleMuSharedTrkOverlapTool::initializeDerived()
   {
-    using CxxUtils::make_unique;
 
     if(m_removeCaloMuons) {
       ATH_MSG_DEBUG("Configuring removal of overlapping calo muons");
@@ -47,7 +45,7 @@ namespace ORUtils
 
     if(m_useDRMatching){
       ATH_MSG_DEBUG("Configuring removal of electrons in delta R cone of " << m_maxDR);
-      m_dRMatcher = make_unique<DeltaRMatcher>(m_maxDR, m_useRapidity);
+      m_dRMatcher = std::make_unique<DeltaRMatcher>(m_maxDR, m_useRapidity);
     }
 
     return StatusCode::SUCCESS;
