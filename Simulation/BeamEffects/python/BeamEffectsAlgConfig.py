@@ -195,6 +195,6 @@ if __name__ == "__main__":
     cfg.run(maxEvents = 20)
 
     # Store in a pickle file
-    with open("BeamEffectsAlg.pkl", "w") as f:
+    with open("BeamEffectsAlg.pkl", "wb") as f:
         cfg.store(f)
     
