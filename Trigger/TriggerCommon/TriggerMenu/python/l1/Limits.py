@@ -6,6 +6,8 @@ from __future__ import print_function
 This temporarily holds CTP sizes
 """
 
+from six import with_metaclass
+
 class Access(type):
     """Metaclass to implement __getattr__ for class variables"""
     def __getattr__(cls, key):
@@ -39,9 +41,7 @@ class Access(type):
 
 
 
-class Limits:
-
-    __metaclass__ = Access
+class Limits (with_metaclass (Access)):
 
     CTPVersion      = None
     L1CommonVersion = None
@@ -51,13 +51,13 @@ class Limits:
     
     @staticmethod
     def getCTPdataformat(version):
-        module = __import__('CTPfragment.CTPdataformat_v%i' % version, globals(), locals(), ['CTPdataformat_v%i' % version], -1)
+        module = __import__('CTPfragment.CTPdataformat_v%i' % version, globals(), locals(), ['CTPdataformat_v%i' % version], 0)
         CTPdataformat = getattr(module,'CTPdataformat_v%i' % version)
         return CTPdataformat
 
     @staticmethod
     def getL1Common(version):
-        module = __import__('L1Common.L1Common_v%i' % version, globals(), locals(), ['L1Common_v%i' % version], -1)
+        module = __import__('L1Common.L1Common_v%i' % version, globals(), locals(), ['L1Common_v%i' % version], 0)
         L1Common = getattr(module,'L1Common_v%i' % version)
         return L1Common
 

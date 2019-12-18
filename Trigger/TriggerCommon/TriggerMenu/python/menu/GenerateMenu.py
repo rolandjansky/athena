@@ -29,7 +29,7 @@ from TriggerMenu.menu.HLTObjects           import HLTChain, HLTSequence
 from TriggerMenu.menu                      import StreamInfo, DictFromChainName
 import TriggerMenu.menu.MenuUtils
 
-import os, traceback, operator, commands, time
+import os, traceback, operator, time
 from functools import reduce
 
 
@@ -576,7 +576,7 @@ class GenerateMenu:
                 log.debug('Chain dictionary of failed chain is %s.', chainDict)
                          
             log.debug(' ChainDef  %s ' % chainDef)
-            from ChainDef import ErrorChainDef,ChainDef
+            from .ChainDef import ErrorChainDef,ChainDef
             if isinstance(chainDef, ErrorChainDef): 
                 self.listOfErrorChainDefs.append(chainDict['chainName'])
                 continue
@@ -668,7 +668,8 @@ class GenerateMenu:
 
         def inputSequenceExists(thisSequence):
             
-            listOfSequenceInputs = [thisSequence["input"]] if isinstance(thisSequence["input"],str) else thisSequence["input"] 
+            listOfSequenceInputs = [thisSequence["input"]] if isinstance(thisSequence["input"],str) else thisSequence["input"]
+            listOfSequenceInputs = list (listOfSequenceInputs)
             if len(listOfSequenceInputs)<2: 
                 listOfSequenceInputs = [listOfSequenceInputs] 
             for thisSequenceInputs in listOfSequenceInputs: 

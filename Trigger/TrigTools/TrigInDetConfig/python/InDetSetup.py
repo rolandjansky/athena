@@ -216,7 +216,7 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
                                                       DataObjectName          = InDetKeys.SCT_RDOs(),
                                                       ClustersName            = "SCT_TrigClusters",
                                                       #Adding the suffix to flagged conditions
-                                                      #SCT_FlaggedCondData     = "SCT_FlaggedCondData_TRIG",
+                                                      SCT_FlaggedCondData     = "SCT_FlaggedCondData_TRIG",
                                                       conditionsTool          = InDetSCT_ConditionsSummaryToolWithoutFlagged)
   InDetSCT_Clusterization.isRoI_Seeded = True
   InDetSCT_Clusterization.RoIs = rois

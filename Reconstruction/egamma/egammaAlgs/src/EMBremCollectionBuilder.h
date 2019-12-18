@@ -68,7 +68,6 @@ private:
                                const xAOD::TrackParticleContainer* AllTracks)const;                     
 
   StatusCode createNew(const TrackWithIndex& Info,                                               
-                       bool isSilicon,                                                           
                        TrackCollection* finalTracks,                                             
                        xAOD::TrackParticleContainer* finalTrkPartContainer,                      
                        const xAOD::TrackParticleContainer* AllTracks) const;
@@ -105,23 +104,20 @@ private:
   Gaudi::Property<bool> m_doSCT {this, "useSCT", false, "do SCT"};
 
   /** @brief Option to do truth*/
-  Gaudi::Property<bool> m_doPix {this, "usePixel", false, "do pix"};
+  Gaudi::Property<bool> m_doPix {this, "usePixel", false, "do Pix"};
 
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticleContainerKey {this,
-    "TrackParticleContainerName", "InDetTrackParticles", 
-    "Input InDet TrackParticles"};
+    "TrackParticleContainerName", "InDetTrackParticles", "Input InDet TrackParticles"};
 
   /** @brief Names of input output collections */
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_selectedTrackParticleContainerKey {this,
-    "SelectedTrackParticleContainerName", "egammaSelectedTrackParticles", 
-    "Input of Selected TrackParticles to refit"};
+    "SelectedTrackParticleContainerName", "egammaSelectedTrackParticles", "Input of Selected TrackParticles"};
 
   SG::WriteHandleKey<xAOD::TrackParticleContainer> m_OutputTrkPartContainerKey {this,
-    "OutputTrkPartContainerName", "GSFTrackParticles", 
-    "Output refitted TrackParticles"};
+    "OutputTrkPartContainerName", "GSFTrackParticles", "Output GSF TrackParticles"};
 
   SG::WriteHandleKey<TrackCollection> m_OutputTrackContainerKey {this,
-    "OutputTrackContainerName", "GSFTracks", "Output refitted Trk::Tracks"};
+    "OutputTrackContainerName", "GSFTracks", "Output GSF Trk::Tracks"};
 
   /** @Cut on minimum silicon hits*/
   Gaudi::Property<int> m_MinNoSiHits {this, "minNoSiHits", 4, 

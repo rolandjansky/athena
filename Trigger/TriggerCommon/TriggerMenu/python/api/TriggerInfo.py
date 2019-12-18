@@ -9,6 +9,7 @@ __doc__="Class containing all the information of an HLT chain"
 import re
 from TriggerMenu.api.TriggerEnums import TriggerType, TriggerPeriod
 from collections import Counter
+import six
 
 class TriggerInfo:
     ''' Object containing all the HLT information related to a given period.
@@ -20,7 +21,7 @@ class TriggerInfo:
         self.totalLB = 0
 
         if not period: return
-        from TriggerDataAccess import getHLTlist
+        from .TriggerDataAccess import getHLTlist
         HLTlist, totalLB = getHLTlist(period, customGRL, release)
         self.totalLB = totalLB
         for hlt, l1, livefraction, activeLB, hasRerun in HLTlist:
@@ -37,9 +38,9 @@ class TriggerInfo:
             for tc in ti.triggerChains:
                 if tc.name not in mergedHLTmap: mergedHLTmap[tc.name] = deepcopy(tc)
                 else: mergedHLTmap[tc.name].activeLB += tc.activeLB
-        for tc in mergedHLTmap.itervalues():
+        for tc in six.itervalues (mergedHLTmap):
             tc.livefraction = tc.activeLB/float(mergedTI.totalLB)
-        mergedTI.triggerChains = mergedHLTmap.values()
+        mergedTI.triggerChains = list(mergedHLTmap.values())
         return mergedTI
         
 
@@ -71,7 +72,7 @@ class TriggerInfo:
                 if comp ==  1:    typeMap[chain.triggerType].remove(other)
             if append:
                 typeMap[chain.triggerType].append(chain)
-        return [x.name for t in typeMap.itervalues() for x in t ]
+        return [x.name for t in six.itervalues (typeMap) for x in t ]
 
 
     def _getAllHLT(self,triggerType, additionalTriggerType, matchPattern, livefraction):

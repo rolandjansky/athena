@@ -15,8 +15,7 @@ from TriggerMenu.jet.JetDef import generateHLTChainDef
 
 from TriggerMenu.menu.MenuUtils import *
 
-from JetDef import dump_chaindef
-from exc2string import exc2string2
+from .JetDef import dump_chaindef
 from TriggerMenu.menu.ChainDef import ErrorChainDef
 import os, inspect
 
@@ -24,7 +23,7 @@ from TriggerMenu.commonUtils.makeCaloSequences import getFullScanCaloSequences
 # TrigEFHLTJetMassDEta_Config = __import__("TrigHLTJetHypo.TrigEFHLTJetMassDEtaConfig",fromlist=[""])
 
 
-from  __builtin__ import any as b_any
+from  builtins import any as b_any
 
 #############################################################################
 #############################################################################
@@ -57,7 +56,8 @@ def generateChainDefs(chainDict):
         try:
             theChainDef = _addTopoInfo(theChainDef, chainDict, topoAlgs)
         except Exception as e:
-            tb = exc2string2()
+            import traceback
+            tb = traceback.format_exc()
             theChainDef = process_exception(e, tb, chainName)
 
         jetgroup_chain = False
