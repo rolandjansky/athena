@@ -9,7 +9,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "MuPatHit.h"
-#include "GaudiKernel/IIncidentListener.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
@@ -17,7 +16,6 @@
 #include <vector>
 
 class MsgStream;
-class IIncidentSvc;
 
 namespace Trk {
   class IPropagator;
@@ -36,7 +34,7 @@ namespace Muon {
 
   static const InterfaceID IID_MuPatHitTool("Muon::MuPatHitTool",1,0);
   
-  class MuPatHitTool : public AthAlgTool, virtual public IIncidentListener {
+  class MuPatHitTool : public AthAlgTool {
   public:
     /** default AlgTool constructor */
     MuPatHitTool(const std::string&, const std::string&, const IInterface*);
@@ -143,9 +141,6 @@ namespace Muon {
      */
     std::string printId( const Trk::MeasurementBase& measurement ) const;
 
-    /**  incident service handle for EndEvent */
-    void handle(const Incident& inc);// maybe in the future clear per event
-
   private:
 
     /** @brief get hit type */
@@ -175,7 +170,6 @@ namespace Muon {
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" };         //<! multipurpose helper tool
     ToolHandle<MuonEDMPrinterTool>                    m_printer;            //<! tool to print EDM objects
-    ServiceHandle< IIncidentSvc >                     m_incidentSvc;
     Trk::MagneticFieldProperties                      m_magFieldProperties; //!< magnetic field properties
 
     mutable std::vector<MuPatHit*> m_hitsToBeDeleted;

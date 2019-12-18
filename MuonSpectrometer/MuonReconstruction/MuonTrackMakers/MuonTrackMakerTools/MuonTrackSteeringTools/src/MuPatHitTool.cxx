@@ -30,7 +30,6 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
-#include "GaudiKernel/IIncidentSvc.h"
 
 #include <set>
 
@@ -44,7 +43,6 @@ namespace Muon {
       m_compClusterCreator("Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator"),
       m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
       m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-      m_incidentSvc("IncidentSvc",n),
       m_magFieldProperties(Trk::NoField)
   {
     declareInterface<MuPatHitTool>(this);
@@ -66,10 +64,7 @@ namespace Muon {
     ATH_CHECK( m_printer.retrieve() );
     ATH_CHECK( m_pullCalculator.retrieve() );
     ATH_CHECK( m_propagator.retrieve() );
-    ATH_CHECK( m_incidentSvc.retrieve() );
 
-    m_incidentSvc->addListener( this, std::string("EndEvent"));
-    
     // reserve space to store hits
     m_hitsToBeDeleted.reserve(1000);
     m_parsToBeDeleted.reserve(1000);
@@ -760,12 +755,4 @@ namespace Muon {
     }
     return true;
   }
-
-  void MuPatHitTool::handle(const Incident& inc) {
-    // Only clear cache for EndEvent incident
-    if (inc.type() != "EndEvent") return;
-    ATH_MSG_DEBUG(" clearing cache at end of event " );
-    cleanUp();
-    
-  }  
 }
