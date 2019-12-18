@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from cross_section_calculator import cross_section_calculator
 from directory_cleaner import directory_cleaner
@@ -11,3 +11,4 @@ from output_tarball_preparer import output_tarball_preparer
 from photos import PHOTOS
 from quark_colour_fixer import quark_colour_fixer
 from reweighter import reweighter
+from lhe_cleaner import lhe_cleaner
