@@ -1,9 +1,10 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
+
 # AnaAlgorithm import(s):
 from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
-from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool, \
-                                       createPublicTool
+from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
 import re
 
 # These algorithms set up the jet recommendations as-of 04/02/2019.
@@ -65,7 +66,7 @@ def makeJetAnalysisSequence( dataType, jetCollection, postfix = '',
         enableKinematicHistograms -- Whether or not to dump the kinematic histograms
         Other keyword arguments are forwarded to the other functions.
     """
-    if not dataType in ["data", "mc", "afii"]:
+    if dataType not in ["data", "mc", "afii"]:
         raise ValueError ("invalid data type: " + dataType )
 
     # Setup the postfix
@@ -333,7 +334,7 @@ def makeRScanJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollecti
     alg.calibrationTool.IsData = (dataType == 'data')
     seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut', stageName = 'calibration' )
     # Logging would be good
-    print "WARNING: uncertainties for R-Scan jets are not yet released!"
+    print("WARNING: uncertainties for R-Scan jets are not yet released!")
 
 def makeLargeRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollection,
                                    jetInput, postfix = '', largeRMass = "Comb"):

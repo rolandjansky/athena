@@ -1,12 +1,10 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AnaAlgorithm.AlgSequence import AlgSequence
-from AnaAlgorithm.DualUseConfig import createAlgorithm
+from AnaAlgorithm.DualUseConfig import addPrivateTool, createAlgorithm
 
 def makeSequence (dataType) :
     algSeq = AlgSequence()
-
-    from AnaAlgorithm.DualUseConfig import createAlgorithm
 
     # Set up the systematics loader/handler algorithm:
     sysLoader = createAlgorithm( 'CP::SysListLoaderAlg', 'SysLoaderAlg' )
@@ -24,7 +22,6 @@ def makeSequence (dataType) :
 
     # Set up a selection alg for demonstration purposes
     # Also to avoid warnings from building MET with very soft electrons
-    from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
     selalg = createAlgorithm( 'CP::AsgSelectionAlg', 'METEleSelAlg' )
     addPrivateTool( selalg, 'selectionTool', 'CP::AsgPtEtaSelectionTool' )
     selalg.selectionTool.minPt = 10e3
