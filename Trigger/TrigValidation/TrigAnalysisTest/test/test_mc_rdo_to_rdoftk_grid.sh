@@ -27,7 +27,7 @@ echo "art-result: $? athena"
 
 
 echo $(date "+%FT%H:%M %Z")"     Running checklog"
-timeout 5m check_log.pl --config checklogTriggerTest.conf --showexcludestats ${JOB_LOG} 2>&1 | tee checklog.log
+timeout 5m check_log.py --errors --config checklogTriggerTest.conf --showexcludestats ${JOB_LOG} 2>&1 | tee checklog.log
 
 echo "art-result: ${PIPESTATUS[0]} CheckLog"
 
