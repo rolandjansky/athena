@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -60,18 +60,9 @@ StatusCode InDetRawDataFakeReader::initialize()
 {
     ATH_MSG_INFO("InDetRawDataFakeReader::initialize()" );
 
-    // Get the pixel helper from the detector store
-    const DataHandle<PixelID> pixel_id;
-    ATH_CHECK( detStore()->retrieve(pixel_id, "PixelID") );
-    m_pixelId = pixel_id;
-
-    const DataHandle<SCT_ID> sctId;
-    ATH_CHECK( detStore()->retrieve(sctId, "SCT_ID") );
-    m_sctId = sctId;
-
-    const DataHandle<TRT_ID> trtId;
-    ATH_CHECK(  detStore()->retrieve(trtId, "TRT_ID") );
-    m_trtId = trtId;
+    ATH_CHECK( detStore()->retrieve(m_pixelId, "PixelID") );
+    ATH_CHECK( detStore()->retrieve(m_sctId, "SCT_ID") );
+    ATH_CHECK(  detStore()->retrieve(m_trtId, "TRT_ID") );
 
     return StatusCode::SUCCESS;
 }
