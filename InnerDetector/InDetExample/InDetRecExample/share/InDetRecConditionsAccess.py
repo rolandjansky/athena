@@ -136,7 +136,7 @@ if DetFlags.haveRIO.SCT_on():
     sct_ConditionsSummaryToolSetup.setup()
     InDetSCT_ConditionsSummaryTool = sct_ConditionsSummaryToolSetup.getTool()
     if (InDetFlags.doPrintConfigurables()):
-        print InDetSCT_ConditionsSummaryTool
+        printfunc (InDetSCT_ConditionsSummaryTool)
     
     # Load conditions configuration service and load folders and algorithm for it
     # Load folders that have to exist for both MC and Data
@@ -158,7 +158,7 @@ if DetFlags.haveRIO.SCT_on():
         pass
     try:
         if (InDetFlags.ForceCoolVectorPayload() and InDetFlags.ForceCoraCool()):
-            print '*** SCT DB CONFIGURATION FLAG CONFLICT: Both CVP and CoraCool selected****'
+            printfunc ('*** SCT DB CONFIGURATION FLAG CONFLICT: Both CVP and CoraCool selected****')
             SCTConfigurationFolderPath=''
     except:
         pass
@@ -170,7 +170,7 @@ if DetFlags.haveRIO.SCT_on():
     sct_ConfigurationConditionsToolSetup.setup()
     InDetSCT_ConfigurationConditionsTool = sct_ConfigurationConditionsToolSetup.getTool()
     if (InDetFlags.doPrintConfigurables()):
-        print InDetSCT_ConfigurationConditionsTool
+        printfunc (InDetSCT_ConfigurationConditionsTool)
 
     # Load calibration conditions tool
     from SCT_ConditionsTools.SCT_ReadCalibDataToolSetup import SCT_ReadCalibDataToolSetup
@@ -178,7 +178,7 @@ if DetFlags.haveRIO.SCT_on():
     sct_ReadCalibDataToolSetup.setup()
     InDetSCT_ReadCalibDataTool = sct_ReadCalibDataToolSetup.getTool()
     if (InDetFlags.doPrintConfigurables()):
-        print InDetSCT_ReadCalibDataTool
+        printfunc (InDetSCT_ReadCalibDataTool)
     
     # Load flagged condition tool
     from SCT_ConditionsTools.SCT_FlaggedConditionToolSetup import SCT_FlaggedConditionToolSetup
@@ -186,7 +186,7 @@ if DetFlags.haveRIO.SCT_on():
     sct_FlaggedConditionToolSetup.setup()
     InDetSCT_FlaggedConditionTool = sct_FlaggedConditionToolSetup.getTool()
     if (InDetFlags.doPrintConfigurables()):
-        print InDetSCT_FlaggedConditionTool
+        printfunc (InDetSCT_FlaggedConditionTool)
     
     # Load conditions Monitoring tool
     if not athenaCommonFlags.isOnline():
@@ -196,7 +196,7 @@ if DetFlags.haveRIO.SCT_on():
         sct_MonitorConditionsToolSetup.setup()
         InDetSCT_MonitorConditionsTool = sct_MonitorConditionsToolSetup.getTool()
         if (InDetFlags.doPrintConfigurables()):
-            print InDetSCT_MonitorConditionsTool
+            printfunc (InDetSCT_MonitorConditionsTool)
 
     if InDetFlags.doSCTModuleVeto():
         from SCT_ConditionsTools.SCT_ModuleVetoToolSetup import SCT_ModuleVetoToolSetup
@@ -204,7 +204,7 @@ if DetFlags.haveRIO.SCT_on():
         sct_ModuleVetoToolSetup.setup()
         InDetSCT_ModuleVetoTool = sct_ModuleVetoToolSetup.getTool()
         if (InDetFlags.doPrintConfigurables()):
-            print InDetSCT_ModuleVetoTool
+            printfunc (InDetSCT_ModuleVetoTool)
 
     # Load bytestream errors tool (use default instance without "InDet")
     # @TODO find a better to solution to get the correct tool for the current job.
@@ -213,7 +213,7 @@ if DetFlags.haveRIO.SCT_on():
     sct_ByteStreamErrorsToolSetup.setConfigTool(InDetSCT_ConfigurationConditionsTool)
     sct_ByteStreamErrorsToolSetup.setup()
     if (InDetFlags.doPrintConfigurables()):
-        print sct_ByteStreamErrorsToolSetup.getTool()
+        printfunc (sct_ByteStreamErrorsToolSetup.getTool())
     
     if InDetFlags.useSctDCS():
         from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
@@ -223,10 +223,10 @@ if DetFlags.haveRIO.SCT_on():
         if InDetFlags.useHVForSctDCS():
             sct_DCSConditionsToolSetup.getStateAlg().UseDefaultHV = True  #Hack to use ~20V cut for SCT DCS rather than ChanStat for startup
         if (InDetFlags.doPrintConfigurables()):
-            print InDetSCT_DCSConditionsTool
+            printfunc (InDetSCT_DCSConditionsTool)
     
     if (globalflags.DataSource() == 'data'):       
-        print "Conditions db instance is ", conddb.dbdata
+        printfunc ("Conditions db instance is ", conddb.dbdata)
         # Load Tdaq enabled tools for data only and add some to summary tool for data only
         tdaqFolder = '/TDAQ/EnabledResources/ATLAS/SCT/Robins'
         if (conddb.dbdata == "CONDBR2"):
@@ -238,7 +238,7 @@ if DetFlags.haveRIO.SCT_on():
         sct_TdaqEnabledToolSetup.setup()
         InDetSCT_TdaqEnabledTool = sct_TdaqEnabledToolSetup.getTool()
         if (InDetFlags.doPrintConfigurables()):
-            print InDetSCT_TdaqEnabledTool
+            printfunc (InDetSCT_TdaqEnabledTool)
         
         # Configure summary tool
         InDetSCT_ConditionsSummaryTool.ConditionsTools= [ sct_ConfigurationConditionsToolSetup.getTool().getFullName(),
@@ -272,7 +272,7 @@ if DetFlags.haveRIO.SCT_on():
     TrackingCommon.def_InDetSCT_ConditionsSummaryTool=InDetSCT_ConditionsSummaryTool
 
     if (InDetFlags.doPrintConfigurables()):
-        print InDetSCT_ConditionsSummaryTool
+        printfunc (InDetSCT_ConditionsSummaryTool)
 
     # Conditions summary tool without InDetSCT_FlaggedConditionTool
     sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup("InDetSCT_ConditionsSummaryToolWithoutFlagged")
@@ -340,7 +340,7 @@ if DetFlags.haveRIO.TRT_on():
     InDetTRTCalDbSvc = TRT_CalDbSvc()
     ServiceMgr += InDetTRTCalDbSvc
     if(InDetFlags.doPrintConfigurables()):
-        print InDetTRTCalDbSvc
+        printfunc (InDetTRTCalDbSvc)
 
 
     # Dead/Noisy Straw Lists
@@ -389,7 +389,7 @@ if DetFlags.haveRIO.TRT_on():
         InDetTRT_DAQ_ConditionsSvc = TRT_DAQ_ConditionsSvc( name = "InDetTRT_DAQ_ConditionsSvc" )
         ServiceMgr += InDetTRT_DAQ_ConditionsSvc
         if (InDetFlags.doPrintConfigurables()):
-            print InDetTRT_DAQ_ConditionsSvc
+            printfunc (InDetTRT_DAQ_ConditionsSvc)
     
     #
     # Load and Configure TRT Conditions Services
@@ -407,7 +407,7 @@ if DetFlags.haveRIO.TRT_on():
                                                               isGEANT4 = useOldStyle)
     ServiceMgr += InDetTRTStrawStatusSummarySvc
     if (InDetFlags.doPrintConfigurables()):
-        print InDetTRTStrawStatusSummarySvc
+        printfunc (InDetTRTStrawStatusSummarySvc)
     InDetTRTConditionsServices.append(InDetTRTStrawStatusSummarySvc)
 
     # Straw status tool
@@ -467,7 +467,7 @@ if DetFlags.haveRIO.TRT_on():
             InDetTRT_HWMappingSvc = TRT_HWMappingSvc(name="InDetTRT_HWMappingSvc")
             ServiceMgr += InDetTRT_HWMappingSvc
             if (InDetFlags.doPrintConfigurables()):
-                print InDetTRT_HWMappingSvc
+                printfunc (InDetTRT_HWMappingSvc)
 
             from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_DCS_ConditionsSvc
             InDetTRT_DCS_ConditionsSvc = TRT_DCS_ConditionsSvc(name          = "InDetTRT_DCS_ConditionsSvc",
@@ -480,7 +480,7 @@ if DetFlags.haveRIO.TRT_on():
                                                                )
             ServiceMgr += InDetTRT_DCS_ConditionsSvc
             if (InDetFlags.doPrintConfigurables()):
-                print InDetTRT_DCS_ConditionsSvc
+                printfunc (InDetTRT_DCS_ConditionsSvc)
             #InDetTRTConditionsServices.append(InDetTRT_DCS_ConditionsSvc)
     
     # TRT Conditions Summary Service
@@ -489,6 +489,6 @@ if DetFlags.haveRIO.TRT_on():
                                                                 ServiceList = InDetTRTConditionsServices)
     ServiceMgr += InDetTRTConditionsSummaryService
     if (InDetFlags.doPrintConfigurables()):
-        print InDetTRTConditionsSummaryService 
+        printfunc (InDetTRTConditionsSummaryService)
 
         

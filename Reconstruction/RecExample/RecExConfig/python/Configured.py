@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # File: 
 # Author: 
@@ -179,7 +179,7 @@ class Configured( object ):
             ig_cls = getattr (ig_mod, ig_name)
         except:
             mlog.error("could not get handle to %s Quit" % igpath)
-            print traceback.format_exc()
+            traceback.print_exc()
             return None
         return ig_cls
      
@@ -204,7 +204,7 @@ class Configured( object ):
             input_getter = ig_cls()
         except:
             mlog.error("could not get handle to %s Quit" % igpath)
-            print traceback.format_exc()
+            traceback.print_exc()
             return None
 
         if not input_getter.usable():
