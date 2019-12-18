@@ -40,6 +40,8 @@ def remapHLTContainerNames():
             auxcontainertype = containertype.replace("Container","AuxContainer")
             if containertype=="xAOD::CaloClusterContainer":
                 auxcontainertype = "xAOD::CaloClusterTrigAuxContainer"
+            if containertype=="xAOD::JetContainer":
+                auxcontainertype = "xAOD::JetTrigAuxContainer"
 
             #AddressRemappingSvc.addInputRename(containertype,run3name,run2name)
             ars = AddressRemappingSvc.getAddressRemappingSvc()
