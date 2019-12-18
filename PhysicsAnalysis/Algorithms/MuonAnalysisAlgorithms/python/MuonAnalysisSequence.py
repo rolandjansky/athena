@@ -34,7 +34,7 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
       enableKinematicHistograms -- Whether or not to dump the kinematic histograms
     """
 
-    if not dataType in ["data", "mc", "afii"] :
+    if dataType not in ["data", "mc", "afii"] :
         raise ValueError ("invalid data type: " + dataType)
 
     if postfix != '' :

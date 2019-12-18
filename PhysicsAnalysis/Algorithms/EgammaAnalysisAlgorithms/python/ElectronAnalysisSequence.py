@@ -42,7 +42,7 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
     """
 
     # Make sure we received a valid data type.
-    if not dataType in [ 'data', 'mc', 'afii' ]:
+    if dataType not in [ 'data', 'mc', 'afii' ]:
         raise ValueError( 'Invalid data type: %' % dataType )
 
     if postfix != '' :

@@ -23,17 +23,14 @@ parser.add_option( '-u', '--unit-test', dest='unit_test',
 
 # Set up (Py)ROOT.
 import ROOT
-import os
 ROOT.xAOD.Init().ignore()
-
-from AnaAlgorithm.AnaAlgorithmConfig import AnaAlgorithmConfig
 
 # ideally we'd run over all of them, but we don't have a mechanism to
 # configure per-sample right now
 
 dataType = options.data_type
 
-if not dataType in ["data", "mc", "afii"] :
+if dataType not in ["data", "mc", "afii"] :
     raise Exception ("invalid data type: " + dataType)
 
 # Set up the sample handler object. See comments from the C++ macro

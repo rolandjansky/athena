@@ -31,7 +31,7 @@ def makePhotonAnalysisSequence( dataType, workingPoint,
     """
 
     # Make sure we received a valid data type.
-    if not dataType in [ 'data', 'mc', 'afii' ]:
+    if dataType not in [ 'data', 'mc', 'afii' ]:
         raise ValueError( 'Invalid data type: %' % dataType )
 
     if postfix != '' :
@@ -52,7 +52,7 @@ def makePhotonAnalysisSequence( dataType, workingPoint,
         quality = ROOT.egammaPID.PhotonLoose
         pass
     else :
-        raise Exception ('unknown photon quality working point "' + qualityWP + '" should be Tight or Loose');
+        raise Exception ('unknown photon quality working point "' + qualityWP + '" should be Tight or Loose')
 
     # Create the analysis algorithm sequence object:
     seq = AnaAlgSequence( "PhotonAnalysisSequence" + postfix )

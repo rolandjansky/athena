@@ -36,7 +36,7 @@ def makeMetAnalysisSequence( dataType, metSuffix, useFJVT = True, postfix = '' )
       useFJVT -- Use FJVT decision for the calculation
     """
 
-    if not dataType in ["data", "mc", "afii"] :
+    if dataType not in ["data", "mc", "afii"] :
         raise ValueError ("invalid data type: " + dataType)
 
     # Remove b-tagging calibration from the MET suffix name
