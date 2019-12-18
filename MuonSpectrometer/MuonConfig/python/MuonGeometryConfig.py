@@ -51,11 +51,6 @@ def MuonGeoModelCfg(flags):
 
         acc.addCondAlgo(MuonAlign)
 
-        from MuonGeoModel.MuonGeoModelConf import MuonDetectorCondAlg
-        MuonDetectorManagerCond = MuonDetectorCondAlg()
-        MuonDetectorManagerCond.MuonDetectorTool = detTool
-        acc.addCondAlgo(MuonDetectorManagerCond)
- 
         # Condition DB is needed only if A-lines or B-lines are requested
         if not (not flags.Muon.Align.UseALines and flags.Muon.Align.UseBLines=='none'):
             detTool.UseConditionDb = 1
@@ -125,6 +120,11 @@ def MuonGeoModelCfg(flags):
     detTool.FillCacheInitTime = 1
     # turn on/off caching of MdtReadoutElement surfaces
     detTool.CachingFlag = 1
+
+    from MuonGeoModel.MuonGeoModelConf import MuonDetectorCondAlg
+    MuonDetectorManagerCond = MuonDetectorCondAlg()
+    MuonDetectorManagerCond.MuonDetectorTool = detTool
+    acc.addCondAlgo(MuonDetectorManagerCond)
 
     gms.DetectorTools += [ detTool ]
 

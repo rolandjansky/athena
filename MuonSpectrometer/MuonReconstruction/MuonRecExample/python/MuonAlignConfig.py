@@ -50,11 +50,6 @@ MuonAlignAlg.ParlineFolders = ["/MUONALIGN/MDT/BARREL",
                                "/MUONALIGN/TGC/SIDEA",
                                "/MUONALIGN/TGC/SIDEC"]
 
-from MuonGeoModel.MuonGeoModelConf import MuonDetectorCondAlg
-MuonDetectorManagerCond = MuonDetectorCondAlg()
-MuonDetectorManagerCond.MuonDetectorTool = MuonDetectorTool
-condSequence+=MuonDetectorManagerCond
-
 # Disable caching. This will have some memory impact (TBC) but is necessary for the moment to make this thread safe.
 MuonDetectorTool.FillCacheInitTime = 1
 
@@ -103,3 +98,8 @@ if conddb.dbdata != 'COMP200' and conddb.dbmc != 'COMP200' and \
 
     conddb.addFolder("MUONALIGN_OFL","/MUONALIGN/ERRS",className='CondAttrListCollection')
     condSequence += MuonAlignmentErrorDbAlg("MuonAlignmentErrorDbAlg")
+
+from MuonGeoModel.MuonGeoModelConf import MuonDetectorCondAlg
+MuonDetectorManagerCond = MuonDetectorCondAlg()
+MuonDetectorManagerCond.MuonDetectorTool = MuonDetectorTool
+condSequence+=MuonDetectorManagerCond

@@ -9,7 +9,6 @@
 #include "StoreGate/WriteCondHandleKey.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "GaudiKernel/ICondSvc.h"
-#include "GeoModelInterfaces/IGeoModelTool.h"
 #include "MuonAlignmentData/CorrContainer.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -33,7 +32,7 @@ public:
 private:
   
   ServiceHandle<ICondSvc> m_condSvc;
-  ToolHandle<IGeoModelTool> m_iGeoModelTool {this, "MuonDetectorTool", "MuonDetectorTool", "The MuonDetector tool"};
+  ToolHandle<MuonDetectorTool> m_iGeoModelTool {this, "MuonDetectorTool", "MuonDetectorTool", "The MuonDetector tool"};
 
 // Read Handles
   SG::ReadCondHandleKey<ALineMapContainer> m_readALineKey                {this, "ReadALineKey", 
