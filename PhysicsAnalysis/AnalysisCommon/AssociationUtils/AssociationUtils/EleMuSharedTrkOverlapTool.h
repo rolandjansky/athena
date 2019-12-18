@@ -29,7 +29,7 @@ namespace ORUtils
   ///
   /// The procedure works as follows.
   ///   1. Remove muons if they share a track with an electron, they are
-  ///      caloremiter-tagged and removeCaloMuons is activated.
+  ///      calorimeter-tagged and removeCaloMuons is activated.
   ///   2. Remove electrons if they share a track with a muon or if they
   ///      are DR matched to a muon and useDRMatching is activated.
   ///
