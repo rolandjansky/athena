@@ -202,7 +202,7 @@ def BTagCfg(inputFlags,**kwargs):
             del kwargs['Release']
 
             #Sec vertexing
-            result.merge(JetSecVertexingAlgCfg(inputFlags, jet, "InDetTrackParticles", 'JetFitter', jet+'Jets.BTagTrackToJetAssociator', jet+'Jet.JetFitterJFVtx'))
+            result.merge(JetSecVertexingAlgCfg(inputFlags, jet, "InDetTrackParticles", 'JetFitter', jet+'Jets.BTagTrackToJetAssociator', jet+'Jets.JetFitterJFVtx'))
             result.merge(JetSecVertexingAlgCfg(inputFlags, jet, "InDetTrackParticles", 'SV1', jet+'Jets.BTagTrackToJetAssociator', jet+'Jets.SV1SecVtx'))
             #result.merge(JetSecVertexingAlgCfg(inputFlags, jet, "InDetTrackParticles", 'MSV', jet+'Jets.BTagTrackToJetAssociatorBB', jet+'Jets.MSV))
 
