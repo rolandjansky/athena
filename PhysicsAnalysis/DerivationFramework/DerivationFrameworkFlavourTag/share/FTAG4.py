@@ -158,8 +158,8 @@ applySoftBtagging("softBtag", FTAG4Seq ) # SV tagger in VrtSecInclusive
 #===================================================================
 
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet
-addVRJets(FTAG4Seq)
-addVRJets(FTAG4Seq, training='201903')
+addVRJets(FTAG4Seq, doFlipTagger=True)
+addVRJets(FTAG4Seq, doFlipTagger=True, training='201903')
 addHbbTagger(
     FTAG4Seq, ToolSvc,
     nn_file_name="BoostedJetTaggers/HbbTagger/Summer2018/MulticlassNetwork.json",
