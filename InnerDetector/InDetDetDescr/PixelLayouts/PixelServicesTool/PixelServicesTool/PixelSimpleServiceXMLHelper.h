@@ -25,10 +25,10 @@ class PixelSimpleServiceXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder 
     double width(int index) const;
     double phiStart(int index) const;
     double phiDelta(int index) const;
-    double phiStep(int index) const;
+    //double phiStep(int index) const; // Not implemented, kept for future rer
     bool   zsymm(int index) const;
     int    repeat(int index) const;
-    int    radialDiv(int index) const;
+    //int    radialDiv(int index) const; // Not implemented, kept for future ref
     std::string shapeType(int index) const;
     std::string volName(int index) const;
     std::string materialName(int index) const;

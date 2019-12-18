@@ -151,11 +151,11 @@ double PixelSimpleServiceXMLHelper::phiStart(int index) const
    return 0.0;
 }
 
-// TODO: Always zero - delete function?
-double PixelSimpleServiceXMLHelper::phiStep(int index) const
-{
-  return 0;
-}
+// Not implemented, saving for future reference
+//double PixelSimpleServiceXMLHelper::phiStep(int index) const
+//{
+//  return 0;
+//}
 
 bool PixelSimpleServiceXMLHelper::zsymm(int index) const
 {
@@ -173,11 +173,11 @@ int PixelSimpleServiceXMLHelper::repeat(int index) const
   return 0;
 }
 
-// TODO: Radial divisions not implemented (keeping in case of future use)
-int PixelSimpleServiceXMLHelper::radialDiv(int index) const
-{
-  return 0;
-}
+// Not implemented, saving for future reference
+//int PixelSimpleServiceXMLHelper::radialDiv(int index) const
+//{
+//  return 0;
+//}
 
 std::string PixelSimpleServiceXMLHelper::shapeType(int index) const
 {
