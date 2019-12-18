@@ -25,6 +25,7 @@ namespace InDet {
 
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
+#include "StoreGate/WriteDecorHandleKey.h"
 
 namespace Trk{
 
@@ -33,6 +34,8 @@ namespace Trk{
 
 }
 
+using namespace std;
+using namespace xAOD;
 
 /** The namespace of all packages in PhysicsAnalysis/JetTagging */
 namespace Analysis
@@ -51,26 +54,22 @@ namespace Analysis
         virtual StatusCode initialize();
         virtual StatusCode execute();
 
-
-
       private:
         
-        StatusCode createSecVkalContainer(xAOD::VertexContainer*, const Trk::VxSecVKalVertexInfo*) const;
-        StatusCode createJFContainer(xAOD::BTagVertexContainer*, const Trk::VxJetFitterVertexInfo*, const xAOD::TrackParticleContainer*) const;
-
-        //ToolHandleArray< InDet::ISecVertexInJetFinder > m_secVertexFinderToolsHandleArray;
-        ToolHandle< InDet::ISecVertexInJetFinder > m_secVertexFinderToolsHandle;
+        StatusCode createSecVkalContainer(xAOD::VertexContainer*, std::vector< ElementLink< xAOD::VertexContainer > >*, const Trk::VxSecVKalVertexInfo*) const;
+        StatusCode createJFContainer(xAOD::BTagVertexContainer*, std::vector< ElementLink< xAOD::BTagVertexContainer > >*, const Trk::VxJetFitterVertexInfo*, const xAOD::TrackParticleContainer*) const;
+        ToolHandle< InDet::ISecVertexInJetFinder > m_secVertexFinderToolHandle;
         ToolHandle<IJetFitterVariablesFactory> m_JFvarFactory;
         ToolHandle<IMSVVariablesFactory> m_MSVvarFactory;
 
-        //std::vector<std::string> m_secVertexFinderBaseNameList;
         std::string m_secVertexFinderBaseName;
-
         std::string m_vxPrimaryName; //Input ReadHandle
+
         SG::ReadHandleKey<xAOD::JetContainer > m_JetCollectionName {this, "JetCollectionName", "", "Input jet container"};
         Gaudi::Property<SG::ReadDecorHandleKey<xAOD::JetContainer>> m_jetParticleLinkName{ this, "TrackToJetAssociatorName", "", "Element Link vector form jet to particle container"};
         SG::ReadHandleKey<xAOD::VertexContainer> m_VertexCollectionName {this, "vxPrimaryCollectionName", "", "Input primary vertex container"};
         SG::WriteHandleKey<xAOD::VertexContainer> m_BTagSVCollectionName {this, "BTagSVCollectionName", "", "Output BTagging secondary vertex container"};
+        Gaudi::Property<SG::WriteDecorHandleKey<xAOD::JetContainer>> m_jetSVLinkName{ this, "JetSecVtxLinkName", "", "Element Link vector from jet to Vertex container"};
         SG::WriteHandleKey<xAOD::BTagVertexContainer> m_BTagJFVtxCollectionName {this, "BTagJFVtxCollectionName", "", "Output BTagging Jet Fitter container"};
 
   }; // End class

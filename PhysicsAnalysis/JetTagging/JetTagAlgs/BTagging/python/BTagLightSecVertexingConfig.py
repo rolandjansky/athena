@@ -5,11 +5,11 @@ from BTagging.BTaggingFlags import BTaggingFlags
 from BTagging.NewJetFitterVxFinderConfig import NewJetFitterVxFinderCfg
 from BTagging.InDetVKalVxInJetToolConfig import InDetVKalVxInJetToolCfg
 from JetTagTools.JetFitterVariablesFactoryConfig import JetFitterVariablesFactoryCfg
-from BTagging.MSVVariablesFactoryConfig import MSVVariablesFactoryCfg
+#from BTagging.MSVVariablesFactoryConfig import MSVVariablesFactoryCfg
 
-from BTagging.BTaggingConf import Analysis__BTagSecVertexing
+from BTagging.BTaggingConf import Analysis__BTagLightSecVertexing
 
-def BTagSecVtxToolCfg(flags, Name, JetCollection, TimeStamp = "", **options):
+def BTagLightSecVtxToolCfg(flags, Name, JetCollection, TimeStamp = "", **options):
     """Adds a SecVtxTool instance and registers it.
 
     input: name:               The tool's name.
@@ -46,10 +46,7 @@ def BTagSecVtxToolCfg(flags, Name, JetCollection, TimeStamp = "", **options):
     #secVtxFinderList.append(inDetVKalMultiVxInJetTool)
     #secVtxFinderTrackNameList.append('BTagTrackToJetAssociatorBB')
     #secVtxFinderxAODBaseNameList.append('MSV')
-
-    varFactory = acc.popToolsAndMerge(MSVVariablesFactoryCfg("MSVVarFactory"))
-
-    btagname = flags.BTagging.OutputFiles.Prefix + jetcol + TimeStamp
+    #varFactory = acc.popToolsAndMerge(MSVVariablesFactoryCfg("MSVVarFactory"))
 
     options = {}
     options.setdefault('SecVtxFinderList', secVtxFinderList)
@@ -57,13 +54,13 @@ def BTagSecVtxToolCfg(flags, Name, JetCollection, TimeStamp = "", **options):
     options.setdefault('SecVtxFinderxAODBaseNameList', secVtxFinderxAODBaseNameList)
     options.setdefault('PrimaryVertexName', BTaggingFlags.PrimaryVertexCollectionName)
     options.setdefault('vxPrimaryCollectionName', BTaggingFlags.PrimaryVertexCollectionName)
-    options['BTagJFVtxCollectionName'] = btagname + OutputFilesJFVxname
-    options['BTagSVCollectionName'] = btagname + OutputFilesSVname
     options.setdefault('JetFitterVariableFactory', jetFitterVF)
-    options.setdefault('MSVVariableFactory', varFactory)
+    options['JetSecVtxLinkName'] = jetcol + 'Jets.SV1' + OutputFilesSVname
+    options['JetJFVtxLinkName'] = jetcol + 'Jets.JetFitter' + OutputFilesJFVxname
+    #options.setdefault('MSVVariableFactory', varFactory)
     options['name'] = Name+TimeStamp
 
-    tool = Analysis__BTagSecVertexing(**options)
+    tool = Analysis__BTagLightSecVertexing(**options)
 
     acc.setPrivateTools(tool)
 

@@ -9,7 +9,7 @@ from BTagging.MSVVariablesFactoryConfig import MSVVariablesFactoryCfg
 
 from BTagging.BTaggingConf import Analysis__JetSecVertexingAlg
 
-def JetSecVertexingAlgCfg(ConfigFlags, JetCollection, ParticleCollection="", SVFinder="", Associator="", **options):
+def JetSecVertexingAlgCfg(ConfigFlags, JetCollection, ParticleCollection="", SVFinder="", Associator="", JetSVLink="", **options):
     """Adds a SecVtxTool instance and registers it.
 
     input: name:               The tool's name.
@@ -43,12 +43,13 @@ def JetSecVertexingAlgCfg(ConfigFlags, JetCollection, ParticleCollection="", SVF
     options = {}
     options.setdefault('SecVtxFinder', secVtxFinder)
     options.setdefault('SecVtxFinderxAODBaseName', secVtxFinderxAODBaseName)
-    options.setdefault('PrimaryVertexName',BTaggingFlags.PrimaryVertexCollectionName)
-    options.setdefault('vxPrimaryCollectionName',BTaggingFlags.PrimaryVertexCollectionName)
-    options['JetCollectionName']= jetcol.replace('Track','PV0Track') + 'Jets'
+    options.setdefault('PrimaryVertexName', BTaggingFlags.PrimaryVertexCollectionName)
+    options.setdefault('vxPrimaryCollectionName', BTaggingFlags.PrimaryVertexCollectionName)
+    options['JetCollectionName'] = jetcol.replace('Track', 'PV0Track') + 'Jets'
     options['TrackToJetAssociatorName'] = Associator
-    options['BTagJFVtxCollectionName'] = btagname + OutputFilesname + 'MT'
-    options['BTagSVCollectionName'] = btagname + OutputFilesname + 'MT'
+    options['BTagJFVtxCollectionName'] = btagname + OutputFilesname
+    options['BTagSVCollectionName'] = btagname + OutputFilesname
+    options['JetSecVtxLinkName'] = JetSVLink
     options.setdefault('JetFitterVariableFactory', jetFitterVF)
     options.setdefault('MSVVariableFactory', varFactory)
     options['name'] = (jetcol + '_' + SVFinder + '_secvtx').lower()
