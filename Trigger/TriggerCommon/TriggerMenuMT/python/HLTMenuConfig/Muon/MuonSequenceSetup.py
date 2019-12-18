@@ -343,7 +343,7 @@ def muEFSAFSAlgSequence(ConfigFlags):
     ### get EF reco sequence ###    
     from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muEFSARecoSequence, makeMuonPrepDataAlgs
     viewAlgs_MuonPRD = makeMuonPrepDataAlgs(RoIs=efsafsInputMaker.InViewRoIs, forFullScan=True)
-    muEFSAFSRecoSequence, sequenceOut = muEFSARecoSequence( efsafsInputMaker.RoisWriteHandleKey,'FS' )
+    muEFSAFSRecoSequence, sequenceOut = muEFSARecoSequence( efsafsInputMaker.InViewRoIs,'FS' )
  
     muEFFSRecoSequence = parOR("muEFSAFSRecoSequence",[viewAlgs_MuonPRD, muEFSAFSRecoSequence])
     efsafsInputMaker.ViewNodeName = muEFFSRecoSequence.name()
@@ -386,7 +386,7 @@ def muEFCBFSAlgSequence(ConfigFlags):
     efcbfsInputMaker.RoisWriteHandleKey = "MuonCandidates_FS_ROIs"
 
     from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muEFCBRecoSequence
-    muEFCBFSRecoSequence, sequenceOut = muEFCBRecoSequence( efcbfsInputMaker.RoisWriteHandleKey, "FS" )
+    muEFCBFSRecoSequence, sequenceOut = muEFCBRecoSequence( efcbfsInputMaker.InViewRoIs, "FS" )
  
     efcbfsInputMaker.ViewNodeName = muEFCBFSRecoSequence.name()
         
@@ -461,11 +461,11 @@ def efLateMuAlgSequence(ConfigFlags):
     eflateViewsMaker.RoisWriteHandleKey = "LateMuRoIs"
 
     #decode data in these RoIs
-    viewAlgs_MuonPRD = makeMuonPrepDataAlgs(RoIs=eflateViewsMaker.RoisWriteHandleKey)
+    viewAlgs_MuonPRD = makeMuonPrepDataAlgs(RoIs=eflateViewsMaker.InViewRoIs)
     #ID fast tracking
-    muFastIDRecoSequence = muonIDFastTrackingSequence( eflateViewsMaker.RoisWriteHandleKey,"Late" )
+    muFastIDRecoSequence = muonIDFastTrackingSequence( eflateViewsMaker.InViewRoIs,"Late" )
     #inside-out reco sequence 
-    muonEFInsideOutRecoSequence, sequenceOut = muEFInsideOutRecoSequence( eflateViewsMaker.RoisWriteHandleKey, "LateMu")
+    muonEFInsideOutRecoSequence, sequenceOut = muEFInsideOutRecoSequence( eflateViewsMaker.InViewRoIs, "LateMu")
 
     lateMuRecoSequence = parOR("lateMuonRecoSequence", [viewAlgs_MuonPRD, muFastIDRecoSequence, muonEFInsideOutRecoSequence])
 
@@ -554,7 +554,7 @@ def muEFIsoAlgSequence(ConfigFlags):
 
     ### get EF reco sequence ###    
     from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import efmuisoRecoSequence
-    efmuisoRecoSequence, sequenceOut = efmuisoRecoSequence( efmuIsoViewsMaker.RoisWriteHandleKey, efmuIsoViewsMaker.InViewMuons )
+    efmuisoRecoSequence, sequenceOut = efmuisoRecoSequence( efmuIsoViewsMaker.InViewRoIs, efmuIsoViewsMaker.InViewMuons )
  
     efmuIsoViewsMaker.ViewNodeName = efmuisoRecoSequence.name()
      

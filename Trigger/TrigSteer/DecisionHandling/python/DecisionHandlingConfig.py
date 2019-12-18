@@ -18,7 +18,7 @@ def setupFilterMonitoring( filterAlg ):
 def TriggerSummaryAlg( name ):
     from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg as Alg
     alg = Alg( name )
-    from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
+    from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
     monTool = GenericMonitoringTool('MonTool', HistPath='HLTFramework/'+name)
     monTool.defineHistogram('TIME_SinceEventStart', path='EXPERT', type='TH1F',
                                    title='Time since beginning of event processing;time [ms]',

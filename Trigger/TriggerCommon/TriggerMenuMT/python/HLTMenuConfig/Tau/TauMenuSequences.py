@@ -75,7 +75,8 @@ def tauCaloMVAMenuSequence(name):
 
 def tauCoreTrackSequence():
 
-    from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
+    from TrigInDetConfig.InDetSetup import makeInDetAlgs
+
     RoIs = "TCoreViewRoIs"
     viewAlgsTP = makeInDetAlgs(whichSignature='TauCore',separateTrackParticleCreator="_TauCore", rois = RoIs)
 
@@ -129,7 +130,8 @@ def tauCoreTrackSequence():
 
 def tauPrecisionSequence():
 
-    from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
+    from TrigInDetConfig.InDetSetup import makeInDetAlgs
+
     RoIs = "TCoreViewRoIs" # contract with the fastCalo
     viewAlgsPT = makeInDetAlgs(whichSignature='Tau',separateTrackParticleCreator="_Tau", rois = RoIs)
 

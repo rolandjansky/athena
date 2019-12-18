@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -23,9 +23,11 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
+#include "InDetReadoutGeometry/TRT_DetElementContainer.h"
 
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
+
 class ITRT_StrawSummaryTool;
 class ITRT_DriftFunctionTool;
 class IInDetConditionsSvc;
@@ -33,9 +35,6 @@ class TRT_ID;
 class TRT_RDORawData;
 class TRT_DriftCircleCollection;
 class TRT_DriftCircle;
-namespace InDetDD {
- class TRT_DetectorManager;
-}
 
 
 namespace InDet {
@@ -76,6 +75,7 @@ public:
   // Private data:
   ///////////////////////////////////////////////////////////////////
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey {this,"xAODEventInfoKey","EventInfo","RHK to retrieve xAOD::EventInfo" }; //!< key to retrieve eventinfo
+  SG::ReadCondHandleKey<InDetDD::TRT_DetElementContainer> m_trtDetEleContKey{this, "TRTDetEleContKey", "TRT_DetElementContainer", "Key of TRT_DetElementContainer for TRT"};
   ToolHandle< ITRT_DriftFunctionTool > m_driftFunctionTool; //!< DriftFunctionTool
   ToolHandle<ITRT_StrawStatusSummaryTool> m_ConditionsSummary; //!< The ConditionsSummaryTool
 //  ServiceHandle<ITRT_ConditionsSvc> m_ConditionsSummary; //!< The ConditionsSummaryTool
@@ -84,8 +84,6 @@ public:
   bool                                 m_useConditionsHTStatus;     //!< Shall the ConditionsSummaryTool be used for HT to find argon straws?
   bool				                   m_useToTCorrection;  //!< Shall the Time over Threshold correction be used?
   bool				                   m_useHTCorrection;  //!< Shall the High Threshold correction be used?
-  std::string                          m_trt_mgr_location ; //!< Manager name
-  const InDetDD::TRT_DetectorManager * m_trt_mgr          ; //!< Manager handle
   const TRT_ID                       * m_trtid            ; //!< ID helper
   bool                                 m_reject_if_first_bit; //!< If true, reject this DC if first bit high
   bool                                 m_reject_if_first_bit_argon; //!< If true, reject this DC if first bit high

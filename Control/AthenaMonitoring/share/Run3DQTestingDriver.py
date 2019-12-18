@@ -11,6 +11,7 @@
 '''
 
 if __name__=='__main__':
+    import sys
     from argparse import ArgumentParser
     parser = ArgumentParser()
     parser.add_argument('--preExec', help='Code to execute before locking configs')
@@ -88,11 +89,11 @@ if __name__=='__main__':
 
     # Force loading of conditions in MT mode
     if ConfigFlags.Concurrency.NumThreads > 0:
-        if ConfigFlags.DQ.Steering.doTRTMon:
+        if len([_ for _ in cfg._conditionsAlgs if _.getName()=="PixelDetectorElementCondAlg"]) > 0:
             from AthenaMonitoring.AthenaMonitoringConf import ForceIDConditionsAlg
             beginseq = cfg.getSequence("AthBeginSeq")
             beginseq += ForceIDConditionsAlg("ForceIDConditionsAlg")
-        if ConfigFlags.DQ.Steering.doMuonMon:
+        if len([_ for _ in cfg._conditionsAlgs if _.getName()=="MuonAlignmentCondAlg"]) > 0:
             from AthenaMonitoring.AthenaMonitoringConf import ForceMSConditionsAlg
             beginseq = cfg.getSequence("AthBeginSeq")
             beginseq += ForceMSConditionsAlg("ForceMSConditionsAlg")
@@ -106,4 +107,5 @@ if __name__=='__main__':
     # exampleMonitorAcc.getEventAlgo('ExampleMonAlg').OutputLevel = 2 # DEBUG
     cfg.printConfig(withDetails=False) # set True for exhaustive info
 
-    cfg.run(args.maxEvents, args.loglevel)
+    sc = cfg.run(args.maxEvents, args.loglevel)
+    sys.exit(0 if sc.isSuccess() else 1)

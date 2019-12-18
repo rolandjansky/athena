@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // CscReadWriteCoolStr.cxx - simple example of algorithm demonstrating 
@@ -30,7 +30,6 @@ namespace MuonCalib {
                                  m_log(msgSvc(),name),
                                  p_detstore(0),
                                  m_cscCoolStrSvc("MuonCalib::CscCoolStrSvc",name),
-                                 m_done(false),
                                  m_write(false),
                                  m_read(false),
                                  m_ofile("output.cal"),

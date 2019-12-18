@@ -124,7 +124,13 @@ class doPseudoTracking(InDetFlagsJobProperty):
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False 
-    
+
+class doIdealPseudoTracking(InDetFlagsJobProperty):
+    """Run pseudoTracking with 100\% hit assignment efficiency"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = True
+
 class doSplitReco(InDetFlagsJobProperty):
     """Turn running of the truth seeded pseudo tracking only for pileup on and off. 
        Only makes sense to run on RDO file where SplitDigi was used!"""
@@ -2621,6 +2627,7 @@ _list_InDetJobProperties = [Enabled,
                             doPrintConfigurables,
                             doNewTracking,
                             doPseudoTracking,
+                            doIdealPseudoTracking,
                             doSplitReco,
                             doxKalman,
                             doiPatRec,

@@ -39,6 +39,10 @@ class EventViewCreatorAlgorithm : public ::InputMakerBase
  protected:
 
     EventViewCreatorAlgorithm();
+    
+    // Used instead of execute, when mergeOutputs is true
+    // Note: if we enforce the merging beahviour this will become the default execute()
+    StatusCode executeMerged(const EventContext&) const;
 
     //Output views for merging
     SG::WriteHandleKey< ViewContainer > m_viewsKey{ this, "Views", "Unspecified", "The key of views collection produced" };

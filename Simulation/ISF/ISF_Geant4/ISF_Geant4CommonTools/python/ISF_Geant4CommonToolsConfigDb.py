@@ -18,3 +18,4 @@ import AthenaCommon.SystemOfUnits as Units
 addTool("ISF_Geant4CommonTools.ISF_Geant4CommonToolsConfig.getEntryLayerToolMT",    "ISF_EntryLayerToolMT")
 addTool("ISF_Geant4CommonTools.ISF_Geant4CommonToolsConfig.getEntryLayerTool",      "ISF_EntryLayerTool")
 addTool("ISF_Geant4CommonTools.ISF_Geant4CommonToolsConfig.getAFIIEntryLayerTool",  "ISF_AFIIEntryLayerTool")
+addTool("ISF_Geant4CommonTools.ISF_Geant4CommonToolsConfig.getAFIIEntryLayerToolMT",  "ISF_AFIIEntryLayerToolMT")

@@ -1,5 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from IOVDbSvc.IOVDbSvcConfig import addFolders
 from BTagging.BTaggingFlags import BTaggingFlags
 from BTagging.JetBTaggerAlgConfig import JetBTaggerAlgCfg
@@ -23,7 +24,7 @@ def JetTagCalibCfg(ConfigFlags, scheme="", TaggerList = []):
       #IP3D
       #Same as IP2D. Revisit JetTagCalibCondAlg.cxx if not.
 
-      from JetTagCalibration.JetTagCalibrationConf import Analysis__JetTagCalibCondAlg as JetTagCalibCondAlg
+      JetTagCalibCondAlg,=CompFactory.getComps("Analysis__JetTagCalibCondAlg",)
       jettagcalibcondalg = "JetTagCalibCondAlg"
       readkeycalibpath = "/GLOBAL/BTagCalib/RUN12"
       connSchema = "GLOBAL_OFL"
@@ -87,7 +88,7 @@ def BTagRedoESDCfg(flags, jet, extraContainers=[]):
     acc=ComponentAccumulator()
 
     #Delete BTagging container read from input ESD
-    from SGComps.SGCompsConf import AddressRemappingSvc, ProxyProviderSvc
+    AddressRemappingSvc, ProxyProviderSvc=CompFactory.getComps("AddressRemappingSvc","ProxyProviderSvc",)
     AddressRemappingSvc = AddressRemappingSvc("AddressRemappingSvc")
     AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::JetAuxContainer#AntiKt4EMTopoJets.btaggingLink->AntiKt4EMTopoJets.btaggingLink_old']
     AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::BTaggingContainer#BTagging_AntiKt4EMTopo->BTagging_AntiKt4EMTopo_old']
@@ -136,7 +137,7 @@ def BTagCfg(inputFlags,**kwargs):
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
     result.merge(MuonGeoModelCfg(inputFlags))    
 
-    from GeometryDBSvc.GeometryDBSvcConf import GeometryDBSvc
+    GeometryDBSvc=CompFactory.GeometryDBSvc
     result.addService(GeometryDBSvc("InDetGeometryDBSvc"))
     
     from AthenaCommon import CfgGetter
@@ -148,7 +149,7 @@ def BTagCfg(inputFlags,**kwargs):
     #result.merge(addFolders(inputFlags,['/GLOBAL/TrackingGeo/LayerMaterialV2'],'GLOBAL_ONL'))
     result.merge(addFolders(inputFlags,['/EXT/DCS/MAGNETS/SENSORDATA'],'DCS_OFL'))
     
-    from MagFieldServices.MagFieldServicesConf import MagField__AtlasFieldSvc
+    MagField__AtlasFieldSvc=CompFactory.MagField__AtlasFieldSvc
     kwargs.setdefault( "UseDCS", True )
     result.addService(MagField__AtlasFieldSvc("AtlasFieldSvc",**kwargs))
     del kwargs['UseDCS']

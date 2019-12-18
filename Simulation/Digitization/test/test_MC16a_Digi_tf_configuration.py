@@ -215,7 +215,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
     def test___BCM_DigitizationTool_properties(self):
         tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.BCM_DigitizationTool'
-        expected_property_list = ['DetStore', 'EffDistanceParam', 'EffSharpnessParam', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'HitCollName', 'LastXing', 'MIPDeposit', 'ModNoise', 'ModSignal', 'NinoThr', 'OutputRDOKey', 'OutputSDOKey', 'RndmSvc', 'TimeDelay']
+        expected_property_list = ['DetStore', 'EffDistanceParam', 'EffSharpnessParam', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'HitCollName', 'LastXing', 'MergeSvc', 'MIPDeposit', 'ModNoise', 'ModSignal', 'NinoThr', 'OutputRDOKey', 'OutputSDOKey', 'RndmSvc', 'TimeDelay']
         expected_nonstring_properties = {'LastXing': '0', 'FirstXing': '-25'}
         expected_string_properties = {'HitCollName': 'BCMHits'}
         self._detailed_ConfigurablePropertiesCheck(
@@ -263,7 +263,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
     def test___TRTDigitizationTool_properties(self):
         tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.TRTDigitizationTool'
-        expected_property_list = ['DetStore', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'HardScatterSplittingMode', 'InDetTRTStrawStatusSummaryTool', 'LastXing', 'MagFieldSvc', 'MergeSvc', 'OutputObjectName', 'OutputSDOName', 'Override_TrtRangeCutProperty', 'PAI_Tool_Ar', 'PAI_Tool_Kr', 'PAI_Tool_Xe', 'RndmSvc', 'SimDriftTimeTool', 'TRT_StrawNeighbourSvc']
+        expected_property_list = ['DetStore', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'HardScatterSplittingMode', 'InDetTRTStrawStatusSummaryTool', 'LastXing', 'MagFieldSvc', 'MergeSvc', 'OutputObjectName', 'OutputSDOName', 'Override_TrtRangeCutProperty', 'PAI_Tool_Ar', 'PAI_Tool_Kr', 'PAI_Tool_Xe', 'RandomSeedOffset', 'RndmSvc', 'SimDriftTimeTool', 'TRT_StrawNeighbourSvc']
         expected_nonstring_properties = {'LastXing': '50', 'FirstXing': '-50'}
         expected_string_properties = {'OutputObjectName': 'TRT_RDOs', 'OutputSDOName': 'TRT_SDO_Map'} # No Input name property
         self._detailed_ConfigurablePropertiesCheck(

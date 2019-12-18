@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -34,7 +34,6 @@ Trk::RiddersAlgorithm::RiddersAlgorithm(const std::string& name, ISvcLocator* pS
   m_magFieldProperties(0),
   m_sigmaLoc(100.*Gaudi::Units::micrometer),    
   m_sigmaR(0.0),
-  m_sigmaZ(0.0),               
   m_minPhi(-M_PI),                    
   m_maxPhi(M_PI),    
   m_minEta(-2.5),                    

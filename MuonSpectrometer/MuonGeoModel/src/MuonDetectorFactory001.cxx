@@ -177,7 +177,7 @@ namespace MuonGM {
        <<m_manager->geometryVersion()<<" from DB MuonVersion <"<<m_manager->get_DBMuonVersion()<<">"<<endmsg;
   
     // here create the MYSQL singleton and assign to it the geometry version
-    MYSQL *mysql=  MYSQL::GetPointer();	
+    MYSQL *mysql=  MYSQL::GetPointer();
     mysql->setGeometryVersion(m_layout);
     mysql->set_amdb_from_RDB(m_rdb == 1);
     mysql->set_DBMuonVersion(m_DBMuonVersion);
@@ -463,9 +463,8 @@ namespace MuonGM {
     
 
     // create the fullphysvol map to allow cloning and save memory
-    FPVMAP* savemem = FPVMAP::GetPointer();
-  
-  
+    FPVMAP* savemem = new FPVMAP();
+
     int nstat_ss = 0;
     int ntpos_ss = 0;
     int npos_ss = 0;
@@ -488,7 +487,7 @@ namespace MuonGM {
         std::string stname(station->GetName(), 0, 3);
         if (m_selectedStations.size()<=0) 
 	  if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE<<"Processing Stations named <"<<station->GetName()<<"> "
-					    <<nstat_ss<<" built until now"<<endmsg;
+	   				    <<nstat_ss<<" built until now"<<endmsg;
 
 	if ((skip_chambers) && (stname.substr(0,1)!="X")) continue;
 
@@ -497,6 +496,7 @@ namespace MuonGM {
 	// BIR have multilayers of diff. length and overall station volume clashes with toroids    
 	if (stname=="BIR") isAssembly = true;
 	MuonChamber l(station);  // here is where we start to create a MuonChamber with all readoutelements
+	l.setFPVMAP(savemem);
         l.setFineClashFixingFlag(m_enableFineClashFixing);
 
         PositionIterator pit;
@@ -546,12 +546,10 @@ namespace MuonGM {
             
             if ((m_selectedStPhi.size() + m_selectedStEta.size()) >0)
 	      log<<MSG::INFO<<"Build selected Station <"<<station->GetName()<<"> at Jzz = "<<zi<<" Jff = "<<fi+1<<" ******* "
-		 <<nstat_ss<<" stat.types built until now"<<endmsg;
-            
+	       	 <<nstat_ss<<" stat.types built until now"<<endmsg;
 
             // here define GeoNameTag 
             GeoNameTag   *nm = new GeoNameTag( station->GetName() + "_station" );
-
             // here build the physical volume (tree) associated to the chamber 
             bool is_mirrored =  ((*pit).second).isMirrored;
             int mirsign = 0;
@@ -782,8 +780,6 @@ namespace MuonGM {
       }
     
 
-
-    
     // delete the fullphysvol map
     delete savemem;
     savemem = NULL;

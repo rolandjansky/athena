@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # The python script contains functions which will set up default b-tagging configurations for a certain jet-collection.
 # Author: Wouter van den Wollenberg (wwollenb@nikhef.nl, wouter.van.den.wollenberg@cern.ch)
@@ -12,6 +12,8 @@
 # there is no configuration it will setup the default one.
 
 # IMPORTANT NOTE: If checkFlagsUsingBTaggingFlags() deems that BTagging should not run (for example if crucial detector components are not working), none of the functions will do anything and they will return False.
+
+from __future__ import print_function
 
 # =================================================
 # Load the flags
@@ -53,7 +55,7 @@ def Initiate(ConfInstance=None):
     # presence of IBL is used to switch between Run1/Run2
     btagrun1 = (commonGeoFlags.Run() == "RUN1" or (commonGeoFlags.Run() == "UNDEFINED" and geoFlags.isIBL() == False))
   if (btagrun1):
-    print ConfInstance.BTagTag()+' - INFO - Setting up Run 1 configuration'
+    print (ConfInstance.BTagTag()+' - INFO - Setting up Run 1 configuration')
     BTaggingFlags.JetFitterNN=True
     BTaggingFlags.SV2    =True
     BTaggingFlags.JetVertexCharge=False
@@ -66,12 +68,12 @@ def Initiate(ConfInstance=None):
     BTaggingFlags.DL1mu=False
     BTaggingFlags.DL1rnn=False
   else:
-    print ConfInstance.BTagTag()+' - INFO - Setting up Run 2 configuration'
+    print (ConfInstance.BTagTag()+' - INFO - Setting up Run 2 configuration')
 
   if ConfInstance._name == "Trig":
     BTaggingFlags.MV2c20=True
 
-  print ConfInstance.BTagTag()+' - INFO - Initializing default basic tools'
+  print (ConfInstance.BTagTag()+' - INFO - Initializing default basic tools')
 
   if ConfInstance.checkFlagsUsingBTaggingFlags():
 
@@ -101,11 +103,13 @@ def Initiate(ConfInstance=None):
               jetC = jetC1.replace('Jets','')
               if jetC in BTaggingFlags.Jets:
                 BTaggingFlags.RetagJets += [ jetC ]
-        except Exception, err:
-          print ConfInstance.BTagTag()+' - WARNING - Automatic inspection of input file failed (file too old?)'
+        except Exception:
+          print (ConfInstance.BTagTag()+' - WARNING - Automatic inspection of input file failed (file too old?)')
+          import traceback
+          traceback.print_exc()
 
-    print ConfInstance.BTagTag()+' - Using ', TheTruthCollectionKey, ' as truth key'
-#    print ConfInstance.BTagTag()+' - Re-tagging these jet collections: ', BTaggingFlags.RetagJets
+    print (ConfInstance.BTagTag()+' - Using ', TheTruthCollectionKey, ' as truth key')
+#    print (ConfInstance.BTagTag()+' - Re-tagging these jet collections: ', BTaggingFlags.RetagJets)
 
     #
     # ============ Setup basic services
@@ -137,7 +141,7 @@ def Initiate(ConfInstance=None):
       protectedInclude("BTagging/BTagCalibBroker_AODFix_jobOptions.py")
       BTagCalibrationBrokerTool = ConfInstance.getTool("BTagCalibrationBrokerTool")
     else:
-      print ConfInstance.BTagTag()+' - ERROR - Configuration instance "'+ConfInstance._name+'" has no calibration broker setup specified!'
+      print (ConfInstance.BTagTag()+' - ERROR - Configuration instance "'+ConfInstance._name+'" has no calibration broker setup specified!')
       raise RuntimeError
     # -------------- \Calibration Broker --------------
 
@@ -149,7 +153,7 @@ def Initiate(ConfInstance=None):
     ConfInstance._Initialized = True
     return True
   else:
-    print ConfInstance.BTagTag()+' - WARNING - Tool initialization requested but B-Tagging is not possible for the current dataset.'
+    print (ConfInstance.BTagTag()+' - WARNING - Tool initialization requested but B-Tagging is not possible for the current dataset.')
     return False
 
 def SetupConditionAlgorithm(ConfInstance=None):
@@ -271,7 +275,7 @@ def SetupJetCollection(JetCollection, TaggerList=[], SetupScheme="Default", Conf
     print(ConfInstance.BTagTag()+' - WARNING - B-tagging might not function properly!')
     return False
   try:
-    exec 'ReturnValue = SetupJetCollection'+SetupScheme+'(JetCollection, ApprovedTaggerList, ConfInstance)'
+    exec ('ReturnValue = SetupJetCollection'+SetupScheme+'(JetCollection, ApprovedTaggerList, ConfInstance)')
   except:
     print(ConfInstance.BTagTag()+" - ERROR - Attempted setup for scheme '"+SetupScheme+"' failed! Possibly this scheme does not exist or is improperly implemented!")
     raise

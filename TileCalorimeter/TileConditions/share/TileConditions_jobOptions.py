@@ -49,7 +49,7 @@ if (not 'TileCablingType' in dir()):
             TileCablingType = 4 
             msg.warning("Forcing RUN2 cabling for run %s with geometry %s" % (rn,gbltg) )
     elif geoFlags.Run()=="RUN2":
-        if (globalflags.DataSource()!='data' and rn>=310000) or rn>=343000 or rn<1: # choose RUN2a cabling for R2 geometry tags starting from 31-Jan-2018
+        if rn==None or (globalflags.DataSource()!='data' and rn>=310000) or rn>=343000 or rn<1: # choose RUN2a cabling for R2 geometry tags starting from 31-Jan-2018
             TileCablingType = 5
             msg.info("Forcing RUN2a (2018) cabling for run %s with geometry %s" % (rn,gbltg) )
         else:

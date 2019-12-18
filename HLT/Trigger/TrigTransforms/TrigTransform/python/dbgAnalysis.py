@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @brief: Pre and Post debug_stream analysis operations for trigger transform
 # @details: Code to carry out operations that are needed for running the trigger debug_stream analysis in transform
 # @author: Carlos Chavez
+
+from __future__ import print_function
 
 import logging
 msg = logging.getLogger("PyJobTransforms." + __name__)
@@ -220,7 +222,7 @@ def getL1InfoXML():
                 if item.find('name')==0:
                     name=item.split('"')[1]
             if ctpid==-1 or name=='UNKNOWN':
-                print "ERROR, could not decode:",line
+                print ("ERROR, could not decode:",line)
             else:
                 ctpNames[int(ctpid)]=name
             if (int(ctpid)>l1Counts): l1Counts = int(ctpid)
@@ -235,7 +237,7 @@ def getL1InfoXML():
         name = ctpNames[c]        
         l1Info.pop(c)
         l1Info.insert(c,name)
-        #print "CTP counter : "+str(c)+"  chain :"+name
+        #print ("CTP counter : "+str(c)+"  chain :"+name)
 
     return l1Info
 

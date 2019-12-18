@@ -2,6 +2,7 @@
 
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.CFElements import seqAND, seqOR, flatAlgorithmSequences
 from AthenaCommon.Logging import logging
 __log = logging.getLogger('TriggerConfig')
@@ -33,14 +34,16 @@ def collectHypos( steps ):
                     hypos[stepSeq.name()].append( alg )
                 else:
                     __log.verbose("Not a hypo" + alg.name())
+
     return hypos
 
 def __decisionsFromHypo( hypo ):
     """ return all chains served by this hypo and the key of produced decision object """
+    from DecisionHandling.TrigCompositeUtils import isLegId
     if hypo.getType() == 'ComboHypo':
-        return hypo.MultiplicitiesMap.keys(), hypo.HypoOutputDecisions[0]
+        return [key for key in hypo.MultiplicitiesMap.keys() if not isLegId(key)], hypo.HypoOutputDecisions[0]
     else: # regular hypos
-        return [ t.name() for t in hypo.HypoTools ], hypo.HypoOutputDecisions
+        return [ t.name() for t in hypo.HypoTools if not isLegId(t.name())], hypo.HypoOutputDecisions
 
 
 def collectViewMakers( steps ):
@@ -65,7 +68,7 @@ def collectFilters( steps ):
     The logic is simpler as all filters are grouped in step filter sequences
     Returns map: step name -> list of all filters of that step
     """
-    __log.info("Collecting hypos")
+    __log.info("Collecting filters")
     from collections import defaultdict
     filters = defaultdict( list )
 
@@ -146,7 +149,7 @@ def triggerSummaryCfg(flags, hypos):
     Returns: ca, algorithm
     """
     acc = ComponentAccumulator()
-    from TrigOutputHandling.TrigOutputHandlingConf import DecisionSummaryMakerAlg
+    DecisionSummaryMakerAlg=CompFactory.DecisionSummaryMakerAlg
     from TrigEDMConfig.TriggerEDMRun3 import recordable
     decisionSummaryAlg = DecisionSummaryMakerAlg()
     allChains = {}
@@ -164,9 +167,9 @@ def triggerSummaryCfg(flags, hypos):
     else:
         for chainName, chainDict in TriggerConfigHLT.dicts().iteritems():
             if chainName not in allChains:
-                __log.debug("The chain %s is not mentiond in any step", chainName)
+                __log.warn("The chain %s is not mentiond in any step", chainName)
                 # TODO once sequences available in the menu we need to crosscheck it here
-                assert len(chainDict['chainParts'])  == 1, "Chains w/o the steps can not have mutiple parts in chainDict, it makes no sense"
+                assert len(chainDict['chainParts'])  == 1, "Chains w/o the steps can not have mutiple parts in chainDict, it makes no sense: %s"%chainName
                 allChains[chainName] = mapThresholdToL1DecisionCollection( chainDict['chainParts'][0]['L1threshold'] )
                 __log.info("The chain %s final decisions will be taken from %s", chainName, allChains[chainName] )
 
@@ -185,7 +188,7 @@ def triggerMonitoringCfg(flags, hypos, filters, l1Decoder):
     Configures components needed for monitoring chains
     """
     acc = ComponentAccumulator()
-    from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
+    TrigSignatureMoniMT, DecisionCollectorTool=CompFactory.getComps("TrigSignatureMoniMT","DecisionCollectorTool",)
     mon = TrigSignatureMoniMT()
     mon.L1Decisions = "L1DecoderSummary"
     mon.FinalDecisionKey = "HLTNav_Summary" # Input
@@ -201,7 +204,7 @@ def triggerMonitoringCfg(flags, hypos, filters, l1Decoder):
             stepDecisionKeys.append( hypoOutputKey )
             allChains.update( hypoChains )
 
-        dcTool = DecisionCollectorTool( "DecisionCollector" + stepName, Decisions=stepDecisionKeys )
+        dcTool = DecisionCollectorTool( "DecisionCollector" + stepName, Decisions=list(set(stepDecisionKeys)) )
         __log.info( "The step monitoring decisions in " + dcTool.name() + " " +str( dcTool.Decisions ) )
         mon.CollectorTools += [ dcTool ]
 
@@ -332,7 +335,7 @@ def triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg, offline=False):
     if offline:
         # Create HLT result maker and alg
         from TrigOutputHandling.TrigOutputHandlingConfig import HLTResultMTMakerCfg
-        from TrigOutputHandling.TrigOutputHandlingConf import HLTResultMTMakerAlg
+        HLTResultMTMakerAlg=CompFactory.HLTResultMTMakerAlg
         hltResultMakerTool = HLTResultMTMakerCfg()
         hltResultMakerTool.MakerTools = [bitsmaker, stmaker, serialiser] # TODO: stmaker likely not needed for offline BS writing
         hltResultMakerAlg = HLTResultMTMakerAlg()
@@ -395,13 +398,15 @@ def triggerPOOLOutputCfg(flags, decObj, decObjHypoOut, edmSet):
     # Produce the trigger bits
     from TrigOutputHandling.TrigOutputHandlingConfig import TriggerBitsMakerToolCfg
     from TrigDecisionMaker.TrigDecisionMakerConfig import TrigDecisionMakerMT
+
     bitsmaker = TriggerBitsMakerToolCfg()
     decmaker = TrigDecisionMakerMT('TrigDecMakerMT')
+
     decmaker.BitsMakerTool = bitsmaker
     acc.addEventAlgo( decmaker )
 
     # Produce trigger metadata
-    from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODMenuWriterMT
+    TrigConf__xAODMenuWriterMT=CompFactory.TrigConf__xAODMenuWriterMT
     menuwriter = TrigConf__xAODMenuWriterMT()
     acc.addEventAlgo( menuwriter )
 
@@ -410,7 +415,7 @@ def triggerPOOLOutputCfg(flags, decObj, decObjHypoOut, edmSet):
 
 def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj, decObjHypoOut ):
 
-    from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreatorAlg, HLTEDMCreator
+    HLTEDMCreatorAlg, HLTEDMCreator=CompFactory.getComps("HLTEDMCreatorAlg","HLTEDMCreator",)
     from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3
 
     alg = HLTEDMCreatorAlg("EDMCreatorAlg")

@@ -52,7 +52,10 @@ namespace InDetDD {
       	                unsigned int strawLayIndex,
       	                unsigned int phiIndex,
       	                const TRT_ID * idHelper,
-      		            const TRT_Conditions * conditions);
+      		        const TRT_Conditions * conditions,
+                        const GeoAlignmentStore* geoAlignStore=nullptr);
+
+      TRT_EndcapElement(const TRT_EndcapElement &right, const GeoAlignmentStore* geoAlignStore);
     
       /** Destructor: */
       virtual ~TRT_EndcapElement();

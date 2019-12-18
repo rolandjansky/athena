@@ -154,7 +154,7 @@ StatusCode CscSegmentMaker::execute(){
 //******************************************************************************
 StatusCode CscSegmentMaker::build_segments() {
   // Retrieve the container.
-  const DataHandle<CscPrepDataContainer> pcols;
+  const CscPrepDataContainer* pcols = nullptr;
   StatusCode status = evtStore()->retrieve(pcols, m_sg_inkey);
 
   if ( m_dump )

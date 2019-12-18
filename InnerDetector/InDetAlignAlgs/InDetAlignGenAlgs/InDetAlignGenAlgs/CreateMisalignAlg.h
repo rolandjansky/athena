@@ -30,6 +30,7 @@
 #include "InDetAlignGenTools/IInDetAlignDBTool.h"
 #include "TRT_ConditionsServices/ITRT_AlignDbSvc.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "InDetReadoutGeometry/TRT_DetElementContainer.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
 //Forward declaration
@@ -40,10 +41,6 @@ class AtlasDetectorID;
 class PixelID;
 class SCT_ID;
 class TRT_ID;
-
-namespace InDetDD {
-class TRT_DetectorManager;
-}
 
 namespace InDetAlignment {
 class CreateMisalignAlg : public AthAlgorithm {
@@ -70,13 +67,12 @@ private:
     const SCT_ID                          *m_sctIdHelper;
     const TRT_ID                          *m_trtIdHelper;
 
-    const InDetDD::TRT_DetectorManager    *m_TRT_Manager;
-
     ToolHandle< IInDetAlignDBTool >        m_IDAlignDBTool;
     ServiceHandle<ITRT_AlignDbSvc>          m_trtaligndbservice;
 
     SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
     SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
+    SG::ReadCondHandleKey<InDetDD::TRT_DetElementContainer> m_trtDetEleCollKey{this, "TRTDetEleCollKey", "TRT_DetElementContainer", "Key of TRT_DetElementContainer for TRT"};
 
     // algorithm parameters, possible to declare at runtime
     std::string                            m_asciiFileNameBase;  ///< filename basis for ASCII files with alignment constants

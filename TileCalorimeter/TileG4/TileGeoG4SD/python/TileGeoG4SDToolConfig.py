@@ -1,9 +1,10 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from ISF_Algorithms.collection_merger_helpersNew import CollectionMergerCfg
 
-from TileGeoG4SD.TileGeoG4SDConf import TileGeoG4SDTool, TileGeoG4SDCalc
+TileGeoG4SDTool, TileGeoG4SDCalc=CompFactory.getComps("TileGeoG4SDTool","TileGeoG4SDCalc",)
 
 def TileGeoG4SDCfg(ConfigFlags, name="TileGeoG4SD", **kwargs):
     bare_collection_name = "TileHitVec"

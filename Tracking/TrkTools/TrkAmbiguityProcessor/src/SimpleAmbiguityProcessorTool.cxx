@@ -361,7 +361,7 @@ TrackCollection*  Trk::SimpleAmbiguityProcessorTool::process_vector(std::vector<
   std::unique_ptr<Trk::PRDtoTrackMap> prd_to_track_map_cleanup;
   if (!prd_to_track_map) {
      // create internal PRD-to-track map
-     prd_to_track_map_cleanup = std::move( m_assoTool->createPRDtoTrackMap() );
+     prd_to_track_map_cleanup = m_assoTool->createPRDtoTrackMap();
      prd_to_track_map = prd_to_track_map_cleanup.get();
   }
   //put tracks into maps etc

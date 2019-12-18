@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 793768 2017-01-25 03:44:30Z ssnyder $
 ################################################################################
 # Package: CaloRec
 ################################################################################
@@ -75,7 +74,7 @@ atlas_add_test( CaloCellFastCopyTool_test
    SOURCES test/CaloCellFastCopyTool_test.cxx
    LINK_LIBRARIES CaloRecLib CaloEvent CaloDetDescrLib CaloIdentifier
    IdDictParser AthenaBaseComps StoreGateLib CxxUtils GaudiKernel
-   EXTRA_PATTERNS "Retrieved const pointer|Retrieved const handle|Service base class initialized|DEBUG Property update for OutputLevel|object not modifiable" )
+   EXTRA_PATTERNS "Retrieved const pointer|Retrieved const handle|object not modifiable" )
 
 atlas_add_test( CaloCellContainerFromClusterTool_test
    SOURCES test/CaloCellContainerFromClusterTool_test.cxx
@@ -96,3 +95,36 @@ atlas_add_test( CaloTopoClusterConfig_test
                 SCRIPT python -m CaloRec.CaloTopoClusterConfig
                 PROPERTIES TIMEOUT 300
                 POST_EXEC_SCRIPT nopost.sh)
+
+
+atlas_add_test( CaloCellContainerAliasAlg_test
+                SCRIPT python -m CaloRec.CaloCellContainerAliasAlg_test
+                PROPERTIES TIMEOUT 300
+                EXTRA_PATTERNS "-s ERROR|error|WARNING [^U]|FATAL|processing" )
+
+
+atlas_add_test( CaloThinCellsBySamplingAlg_test
+                SCRIPT python -m CaloRec.CaloThinCellsBySamplingAlg_test
+                PROPERTIES TIMEOUT 300
+                EXTRA_PATTERNS "-s ERROR|error|WARNING [^U]|FATAL|processing" )
+
+
+atlas_add_test( CaloThinCellsByClusterAlg_test
+                SCRIPT python -m CaloRec.CaloThinCellsByClusterAlg_test
+                PROPERTIES TIMEOUT 300
+                EXTRA_PATTERNS "-s ERROR|error|WARNING [^U]|FATAL|processing" )
+
+
+atlas_add_test( CaloCellContainerAliasAlgConfig_test
+                SCRIPT python -m CaloRec.CaloCellContainerAliasAlgConfig
+                EXTRA_PATTERNS "-s ComponentAccumulator" )
+
+
+atlas_add_test( CaloThinCellsByClusterAlgConfig_test
+                SCRIPT python -m CaloRec.CaloThinCellsByClusterAlgConfig
+                EXTRA_PATTERNS "-s ComponentAccumulator" )
+
+
+atlas_add_test( CaloThinCellsBySamplingAlgConfig_test
+                SCRIPT python -m CaloRec.CaloThinCellsBySamplingAlgConfig
+                EXTRA_PATTERNS "-s ComponentAccumulator" )

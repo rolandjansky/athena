@@ -45,11 +45,13 @@ namespace Muon {
   }
         
   StatusCode MuPatCandidateTool::initialize(){
-
+    ATH_CHECK( m_idHelperSvc.retrieve() );
     ATH_CHECK( m_mdtRotCreator.retrieve() );
-    if ( ! m_cscRotCreator.empty() ) ATH_CHECK( m_cscRotCreator.retrieve() );
+    if (!m_cscRotCreator.empty()) {
+      if (!m_idHelperSvc->hasCSC()) ATH_MSG_WARNING("The current layout does not have any CSC chamber but you gave a CscRotCreator, ignoring it, but double-check configuration");
+      else ATH_CHECK( m_cscRotCreator.retrieve() );
+    }
     ATH_CHECK( m_compClusterCreator.retrieve() );
-    ATH_CHECK( m_idHelperTool.retrieve() );
     ATH_CHECK( m_hitHandler.retrieve() );
     ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_printer.retrieve() );
@@ -65,31 +67,31 @@ namespace Muon {
   MuPatSegment* MuPatCandidateTool::createSegInfo( const MuonSegment& segment ) const
   {
     Identifier chid = m_edmHelperSvc->chamberId(segment);
-    if( m_idHelperTool->isTrigger(chid) ){
-      ATH_MSG_WARNING("Trigger hit only segments not supported " << m_idHelperTool->toStringChamber(chid) );
+    if( m_idHelperSvc->isTrigger(chid) ){
+      ATH_MSG_WARNING("Trigger hit only segments not supported " << m_idHelperSvc->toStringChamber(chid) );
       return 0;
     }
     MuPatSegment* info = new MuPatSegment();
     info->segment = &segment;
     info->chid = chid;
-    info->chIndex = m_idHelperTool->chamberIndex(info->chid);
+    info->chIndex = m_idHelperSvc->chamberIndex(info->chid);
     std::set<Identifier> chIds = m_edmHelperSvc->chamberIds(segment);
     std::set<Identifier>::iterator chit = chIds.begin();
     std::set<Identifier>::iterator chit_end = chIds.end();
     for( ;chit!=chit_end;++chit ){
-      MuonStationIndex::ChIndex chIdx = m_idHelperTool->chamberIndex(*chit);
+      MuonStationIndex::ChIndex chIdx = m_idHelperSvc->chamberIndex(*chit);
       info->addChamber(chIdx);
       // set default name
       if ( !info->name.empty() ) info->name += "+";
       // stationname_eta_phi
       std::ostringstream oss;
       oss << MuonStationIndex::chName(chIdx)
-          << "_" << m_idHelperTool->stationEta(*chit) << "_" << m_idHelperTool->stationPhi(*chit);
+          << "_" << m_idHelperSvc->stationEta(*chit) << "_" << m_idHelperSvc->stationPhi(*chit);
       info->name += oss.str();
     }
-    info->stIndex = m_idHelperTool->stationIndex(info->chid);
-    info->isEndcap = m_idHelperTool->isEndcap(info->chid);
-    info->isMdt = m_idHelperTool->isMdt(info->chid);
+    info->stIndex = m_idHelperSvc->stationIndex(info->chid);
+    info->isEndcap = m_idHelperSvc->isEndcap(info->chid);
+    info->isMdt = m_idHelperSvc->isMdt(info->chid);
     info->usedInFit = 0;
     info->quality = m_segmentSelector->quality( segment );
     info->segQuality = dynamic_cast<const MuonSegmentQuality*>(segment.fitQuality());
@@ -260,18 +262,18 @@ namespace Muon {
       }
 
       // skip ID hits
-      if( !m_idHelperTool->isMuon(id) ) continue;
+      if( !m_idHelperSvc->isMuon(id) ) continue;
 
-      Identifier chId = m_idHelperTool->chamberId(id);
-      MuonStationIndex::ChIndex chIndex = m_idHelperTool->chamberIndex(chId);
-      MuonStationIndex::StIndex stIndex = m_idHelperTool->stationIndex(chId);      
-      if( !hasEndcap ) hasEndcap = m_idHelperTool->isEndcap(id);
+      Identifier chId = m_idHelperSvc->chamberId(id);
+      MuonStationIndex::ChIndex chIndex = m_idHelperSvc->chamberIndex(chId);
+      MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(chId);      
+      if( !hasEndcap ) hasEndcap = m_idHelperSvc->isEndcap(id);
 
       bool measuresPhi = false;
       
-      bool isMdt =  m_idHelperTool->isMdt(id);
-      bool isCsc = m_idHelperTool->isCsc(id); 
-      bool isNSW = m_idHelperTool->isMM(id) || m_idHelperTool->issTgc(id); 
+      bool isMdt =  m_idHelperSvc->isMdt(id);
+      bool isCsc = m_idHelperSvc->isCsc(id); 
+      bool isNSW = m_idHelperSvc->isMM(id) || m_idHelperSvc->issTgc(id); 
       // only add precision hits 
       if( isMdt || isCsc || isNSW ) { 
 	entry.addChamber(chIndex); // will also add stationIndex 
@@ -287,7 +289,7 @@ namespace Muon {
 	  }else{	
 	    const MdtDriftCircleOnTrack* mdt = dynamic_cast<const MdtDriftCircleOnTrack*>(meas);
 	    if( !mdt ){
-	      ATH_MSG_WARNING(" found MdtDriftCircleOnTrack without MDT identifier " << m_idHelperTool->toString(id) );
+	      ATH_MSG_WARNING(" found MdtDriftCircleOnTrack without MDT identifier " << m_idHelperSvc->toString(id) );
 	      continue;
 	    }
 	    ATH_MSG_DEBUG(" recreating MdtDriftCircleOnTrack " );
@@ -298,7 +300,7 @@ namespace Muon {
 	}
       
 
-	bool isSmall = m_idHelperTool->isSmallChamber(id);
+	bool isSmall = m_idHelperSvc->isSmallChamber(id);
 	if( isSmall ) hasSmall = true;
 	else          hasLarge = true;
 
@@ -306,20 +308,20 @@ namespace Muon {
         previssmall=isSmall;
         prevstIndex=stIndex;
  
-	unsigned int ml = m_idHelperTool->mdtIdHelper().multilayer(id);
+	unsigned int ml = m_idHelperSvc->mdtIdHelper().multilayer(id);
 	if( ml == 1 ) ++nmdtHitsMl1;
 	else          ++nmdtHitsMl2;
       }else{
 
-	measuresPhi = m_idHelperTool->measuresPhi(id);
+	measuresPhi = m_idHelperSvc->measuresPhi(id);
 	
-	bool isRpc = m_idHelperTool->isRpc(id);
+	bool isRpc = m_idHelperSvc->isRpc(id);
 	if( isRpc ){
 	  if( measuresPhi ) ++nrpcHitsPhi;
 	  else              ++nrpcHitsEta;
 	}
 
-	bool isTgc = m_idHelperTool->isTgc(id);
+	bool isTgc = m_idHelperSvc->isTgc(id);
 	if( isTgc ){
 	  if( measuresPhi ) ++ntgcHitsPhi;
 	  else              ++ntgcHitsEta;
@@ -330,7 +332,7 @@ namespace Muon {
 	  if( recreateCSC ) {
 	    const CscClusterOnTrack* csc = dynamic_cast<const CscClusterOnTrack*>(meas);
 	    if( !csc ){
-	      ATH_MSG_WARNING(" found CscClusterOnTrack without CSC identifier " << m_idHelperTool->toString(id) );
+	      ATH_MSG_WARNING(" found CscClusterOnTrack without CSC identifier " << m_idHelperSvc->toString(id) );
 	      continue;
 	    }
 	    ATH_MSG_DEBUG(" recreating CscClusterOnTrack " );
@@ -398,7 +400,7 @@ namespace Muon {
       }else{
 	Identifier id = m_edmHelperSvc->getIdentifier(meas);
 	ATH_MSG_WARNING(" Trigger Measurement is not a MuonClusterOnTrack or CompetingMuonClustersOnTrack!!  " 
-	       << m_idHelperTool->toString(id) );	    
+	       << m_idHelperSvc->toString(id) );	    
       }
     }
   }
@@ -420,7 +422,7 @@ namespace Muon {
       const MuonClusterOnTrack* clus = *it;
       
       Identifier id = clus->identify();
-      Identifier detId = m_idHelperTool->detElId(id);
+      Identifier detId = m_idHelperSvc->detElId(id);
       idClusters[detId].push_back(clus);
     }
 
@@ -430,23 +432,23 @@ namespace Muon {
     IdClusIt chit_end = idClusters.end();
     for( ;chit!=chit_end;++chit ){
       if( msgLvl(MSG::VERBOSE) ) {
-        msg(MSG::VERBOSE) << " in " << m_idHelperTool->toStringDetEl(chit->first)
+        msg(MSG::VERBOSE) << " in " << m_idHelperSvc->toStringDetEl(chit->first)
           << "  clusters: " << chit->second.size() << std::endl;
 
-        std::vector<const MuonClusterOnTrack*>::iterator clit = chit->second.begin();
-        std::vector<const MuonClusterOnTrack*>::iterator clit_end = chit->second.end();
-        for( ;clit!=clit_end;++clit){
-          msg(MSG::VERBOSE) << "   " << m_idHelperTool->toString((*clit)->identify());
+        std::vector<const MuonClusterOnTrack*>::iterator cl_it = chit->second.begin();
+        std::vector<const MuonClusterOnTrack*>::iterator cl_it_end = chit->second.end();
+        for( ;cl_it!=cl_it_end;++cl_it){
+          msg(MSG::VERBOSE) << "   " << m_idHelperSvc->toString((*cl_it)->identify());
 	  
           // hack to get correct print-out
-          if( clit+1 == clit_end ) msg(MSG::VERBOSE) << endmsg;
+          if( cl_it+1 == cl_it_end ) msg(MSG::VERBOSE) << endmsg;
           else                     msg(MSG::VERBOSE) << std::endl;
         }
       }
 
       if( chit->second.empty() ){
         ATH_MSG_WARNING(" empty list, could not create CompetingMuonClustersOnTrack in chamber   "
-          << m_idHelperTool->toString(chit->first) );
+          << m_idHelperSvc->toString(chit->first) );
         continue;
       }
 
@@ -459,10 +461,10 @@ namespace Muon {
 
       // create list of PRDs 
       std::list<const Trk::PrepRawData*> prds;
-      std::vector<const MuonClusterOnTrack*>::iterator clit = chit->second.begin();
-      std::vector<const MuonClusterOnTrack*>::iterator clit_end = chit->second.end();
-      for( ;clit!=clit_end;++clit){
-        const Trk::PrepRawData* prd = (*clit)->prepRawData();
+      std::vector<const MuonClusterOnTrack*>::iterator cl_it = chit->second.begin();
+      std::vector<const MuonClusterOnTrack*>::iterator cl_it_end = chit->second.end();
+      for( ;cl_it!=cl_it_end;++cl_it){
+        const Trk::PrepRawData* prd = (*cl_it)->prepRawData();
         if (prd){ 
           prds.push_back( prd );
         } else {
@@ -472,7 +474,7 @@ namespace Muon {
 
       const CompetingMuonClustersOnTrack* comprot = m_compClusterCreator->createBroadCluster(prds,0);
       if( !comprot ){
-        ATH_MSG_WARNING(" could not create CompetingMuonClustersOnTrack in chamber   " << m_idHelperTool->toString(chit->first));
+        ATH_MSG_WARNING(" could not create CompetingMuonClustersOnTrack in chamber   " << m_idHelperSvc->toString(chit->first));
         continue;
       }
       hits.push_back(comprot);
@@ -506,15 +508,15 @@ namespace Muon {
 
       // get chamber index
       Identifier id = m_edmHelperSvc->getIdentifier(*meas);
-      if( !id.is_valid() || !m_idHelperTool->isMuon(id) ) continue;
+      if( !id.is_valid() || !m_idHelperSvc->isMuon(id) ) continue;
       
       // don't include trigger hits
-      if( m_idHelperTool->isTrigger(id) ) continue;
+      if( m_idHelperSvc->isTrigger(id) ) continue;
 
-      chambers.insert(m_idHelperTool->chamberIndex(id));
+      chambers.insert(m_idHelperSvc->chamberIndex(id));
       
       if( msgLvl(MSG::VERBOSE) ) {
-	msg(MSG::VERBOSE) << " in recal " << m_idHelperTool->toString(id) << endmsg;
+	msg(MSG::VERBOSE) << " in recal " << m_idHelperSvc->toString(id) << endmsg;
       }
 
     }
@@ -556,7 +558,7 @@ namespace Muon {
     for(  ; it!=it_end; ++it ){
       if( !(*it)->info().id.is_valid() ) continue;
       // only want MDT or CSC detEls
-      if ( !m_idHelperTool->isMdt( (*it)->info().id ) && !m_idHelperTool->isCsc( (*it)->info().id ) ) continue;
+      if ( !m_idHelperSvc->isMdt( (*it)->info().id ) && !m_idHelperSvc->isCsc( (*it)->info().id ) ) continue;
 
       const Trk::MeasurementBase& meas = (*it)->measurement();
       const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(&meas);

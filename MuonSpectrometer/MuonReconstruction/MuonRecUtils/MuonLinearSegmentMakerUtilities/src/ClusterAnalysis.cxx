@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////////
@@ -101,7 +101,7 @@ namespace ClusterSeg {
     h_barcodes->GetXaxis()->SetTitle("layer 1");
     h_barcodes->GetYaxis()->SetTitle("layer 3");
 
-    h_corr = new TH2F("phi_theta_corr","",100,0.,TMath::PiOver2(),100,0,TMath::PiOver2());
+    h_corr = new TH2F("phi_theta_corr","",100,0.,M_PI_2,100,0,M_PI_2);
     h_corr->GetXaxis()->SetTitle("|#Delta #phi| [rad]");
     h_corr->GetYaxis()->SetTitle("|#Delta #theta| [rad]");
     h_rz = new TH2F("rz_spacePoints","",1000,0,12000,3000,1000,13000);
@@ -118,43 +118,43 @@ namespace ClusterSeg {
     h_miss_XY->GetXaxis()->SetTitle("X [mm]");
     h_miss_XY->GetYaxis()->SetTitle("Y [mm]");
 
-    h_phi = new TH1F("phi","",100,0,TMath::PiOver2());
+    h_phi = new TH1F("phi","",100,0,M_PI_2);
     h_phi->GetXaxis()->SetTitle("|#Delta #phi| [rad]");
     h_phi->GetYaxis()->SetTitle("Number of Entries");
-    h_theta = new TH1F("theta","",100,0,TMath::PiOver2());
+    h_theta = new TH1F("theta","",100,0,M_PI_2);
     h_theta->GetXaxis()->SetTitle("|#Delta #theta| [rad]");
     h_theta->GetYaxis()->SetTitle("Number of Entries");
-    h_angle = new TH1F("angle","",100,0,TMath::Pi());
+    h_angle = new TH1F("angle","",100,0,M_PI);
     h_angle->GetXaxis()->SetTitle("#theta [rad]");
     h_angle->GetYaxis()->SetTitle("Number of Entries");
 
-    h_phi12 = new TH1F("phi12","",100,0,TMath::PiOver2());
+    h_phi12 = new TH1F("phi12","",100,0,M_PI_2);
     h_phi12->GetXaxis()->SetTitle("|#Delta #phi| [rad]");
     h_phi12->GetYaxis()->SetTitle("Number of Entries");
-    h_theta12 = new TH1F("theta12","",100,0,TMath::PiOver2());
+    h_theta12 = new TH1F("theta12","",100,0,M_PI_2);
     h_theta12->GetXaxis()->SetTitle("|#Delta #theta| [rad]");
     h_theta12->GetYaxis()->SetTitle("Number of Entries");
-    h_angle12 = new TH1F("angle12","",100,0,TMath::Pi());
+    h_angle12 = new TH1F("angle12","",100,0,M_PI);
     h_angle12->GetXaxis()->SetTitle("#theta [rad]");
     h_angle12->GetYaxis()->SetTitle("Number of Entries");
 
-    h_phi13 = new TH1F("phi13","",100,0,TMath::PiOver2());
+    h_phi13 = new TH1F("phi13","",100,0,M_PI_2);
     h_phi13->GetXaxis()->SetTitle("|#Delta #phi| [rad]");
     h_phi13->GetYaxis()->SetTitle("Number of Entries");
-    h_theta13 = new TH1F("theta13","",100,0,TMath::PiOver2());
+    h_theta13 = new TH1F("theta13","",100,0,M_PI_2);
     h_theta13->GetXaxis()->SetTitle("|#Delta #theta| [rad]");
     h_theta13->GetYaxis()->SetTitle("Number of Entries");
-    h_angle13 = new TH1F("angle13","",100,0,TMath::Pi());
+    h_angle13 = new TH1F("angle13","",100,0,M_PI);
     h_angle13->GetXaxis()->SetTitle("#theta [rad]");
     h_angle13->GetYaxis()->SetTitle("Number of Entries");
 
-    h_phi23 = new TH1F("phi23","",100,0,TMath::PiOver2());
+    h_phi23 = new TH1F("phi23","",100,0,M_PI_2);
     h_phi23->GetXaxis()->SetTitle("|#Delta #phi| [rad]");
     h_phi23->GetYaxis()->SetTitle("Number of Entries");
-    h_theta23 = new TH1F("theta23","",100,0,TMath::PiOver2());
+    h_theta23 = new TH1F("theta23","",100,0,M_PI_2);
     h_theta23->GetXaxis()->SetTitle("|#Delta #theta| [rad]");
     h_theta23->GetYaxis()->SetTitle("Number of Entries");
-    h_angle23 = new TH1F("angle23","",100,0,TMath::Pi());
+    h_angle23 = new TH1F("angle23","",100,0,M_PI);
     h_angle23->GetXaxis()->SetTitle("#theta [rad]");
     h_angle23->GetYaxis()->SetTitle("Number of Entries");
 
@@ -175,43 +175,43 @@ namespace ClusterSeg {
     h_numseeds->GetXaxis()->SetTitle("Number of Seeds");
     h_numseeds->GetYaxis()->SetTitle("Number of Entries");    
 
-    h_phi_t = new TH1F("phi_t","",100,0,TMath::PiOver2());
+    h_phi_t = new TH1F("phi_t","",100,0,M_PI_2);
     h_phi_t->GetXaxis()->SetTitle("|#Delta #phi| [rad]");
     h_phi_t->GetYaxis()->SetTitle("Number of Entries");
-    h_theta_t = new TH1F("theta_t","",100,0,TMath::PiOver2());
+    h_theta_t = new TH1F("theta_t","",100,0,M_PI_2);
     h_theta_t->GetXaxis()->SetTitle("|#Delta #theta| [rad]");
     h_theta_t->GetYaxis()->SetTitle("Number of Entries");
-    h_angle_t = new TH1F("angle_t","",100,0,TMath::Pi());
+    h_angle_t = new TH1F("angle_t","",100,0,M_PI);
     h_angle_t->GetXaxis()->SetTitle("#theta [rad]");
     h_angle_t->GetYaxis()->SetTitle("Number of Entries");
 
-    h_phi_t12 = new TH1F("phi_t12","",100,0,TMath::PiOver2());
+    h_phi_t12 = new TH1F("phi_t12","",100,0,M_PI_2);
     h_phi_t12->GetXaxis()->SetTitle("|#Delta #phi| [rad]");
     h_phi_t12->GetYaxis()->SetTitle("Number of Entries");
-    h_theta_t12 = new TH1F("theta_t12","",100,0,TMath::PiOver2());
+    h_theta_t12 = new TH1F("theta_t12","",100,0,M_PI_2);
     h_theta_t12->GetXaxis()->SetTitle("|#Delta #theta| [rad]");
     h_theta_t12->GetYaxis()->SetTitle("Number of Entries");
-    h_angle_t12 = new TH1F("angle_t12","",100,0,TMath::Pi());
+    h_angle_t12 = new TH1F("angle_t12","",100,0,M_PI);
     h_angle_t12->GetXaxis()->SetTitle("#theta [rad]");
     h_angle_t12->GetYaxis()->SetTitle("Number of Entries");
     
-    h_phi_t13 = new TH1F("phi_t13","",100,0,TMath::PiOver2());
+    h_phi_t13 = new TH1F("phi_t13","",100,0,M_PI_2);
     h_phi_t13->GetXaxis()->SetTitle("|#Delta #phi| [rad]");
     h_phi_t13->GetYaxis()->SetTitle("Number of Entries");
-    h_theta_t13 = new TH1F("theta_t13","",100,0,TMath::PiOver2());
+    h_theta_t13 = new TH1F("theta_t13","",100,0,M_PI_2);
     h_theta_t13->GetXaxis()->SetTitle("|#Delta #theta| [rad]");
     h_theta_t13->GetYaxis()->SetTitle("Number of Entries");
-    h_angle_t13 = new TH1F("angle_t13","",100,0,TMath::Pi());
+    h_angle_t13 = new TH1F("angle_t13","",100,0,M_PI);
     h_angle_t13->GetXaxis()->SetTitle("#theta [rad]");
     h_angle_t13->GetYaxis()->SetTitle("Number of Entries");
   
-    h_phi_t23 = new TH1F("phi_t23","",100,0,TMath::PiOver2());
+    h_phi_t23 = new TH1F("phi_t23","",100,0,M_PI_2);
     h_phi_t23->GetXaxis()->SetTitle("|#Delta #phi| [rad]");
     h_phi_t23->GetYaxis()->SetTitle("Number of Entries");
-    h_theta_t23 = new TH1F("theta_t23","",100,0,TMath::PiOver2());
+    h_theta_t23 = new TH1F("theta_t23","",100,0,M_PI_2);
     h_theta_t23->GetXaxis()->SetTitle("|#Delta #theta| [rad]");
     h_theta_t23->GetYaxis()->SetTitle("Number of Entries");
-    h_angle_t23 = new TH1F("angle_t23","",100,0,TMath::Pi());
+    h_angle_t23 = new TH1F("angle_t23","",100,0,M_PI);
     h_angle_t23->GetXaxis()->SetTitle("#theta [rad]");
     h_angle_t23->GetYaxis()->SetTitle("Number of Entries");
 
@@ -384,20 +384,20 @@ namespace ClusterSeg {
         std::vector<SpacePoint> theSeed;
         Cluster point = Cluster(it3.x()-it1.x(),it3.y()-it1.y(),it3.z()-it1.z(),false,0,0,false,0);
         double angle = acos((point.x()*it1.x()+point.y()*it1.y()+point.z()*it1.z())/(point.rSph()*it1.rSph()));
-        if(angle > TMath::Pi()) angle = TMath::TwoPi() - angle;
-        double dphi = TMath::Abs(point.phi()-it1.phi());
-        if(dphi > TMath::PiOver2() && dphi < 3*TMath::PiOver2()) dphi -= TMath::Pi();
-        if(dphi > 3*TMath::PiOver2()) dphi -= TMath::TwoPi();
-        double dtheta = TMath::Abs(point.theta()-it1.theta());
+        if(angle > M_PI) angle = 2*M_PI - angle;
+        double dphi = fabs(point.phi()-it1.phi());
+        if(dphi > M_PI_2 && dphi < 3*M_PI_2) dphi -= M_PI;
+        if(dphi > 3*M_PI_2) dphi -= 2*M_PI;
+        double dtheta = fabs(point.theta()-it1.theta());
         if (writeOut) {
-          h_phi->Fill(TMath::Abs(dphi));
+          h_phi->Fill(fabs(dphi));
           h_theta->Fill(dtheta);
           h_corr->Fill(dphi,dtheta);
           h_angle->Fill(angle);
         }
         if(writeOut && it3.isMatch() && it1.isMatch() && it3.barcode() == it1.barcode() && it1.barcode() != 0 ) {
           h_barcodes->Fill(it1.barcode(),it3.barcode());
-          h_phi_t->Fill(TMath::Abs(dphi));
+          h_phi_t->Fill(fabs(dphi));
           h_theta_t->Fill(dtheta);
           h_angle_t->Fill(angle);
         }
@@ -414,12 +414,12 @@ namespace ClusterSeg {
               double seedY = it1.y() + t*point.y();
               double XY = sqrt(pow(it2.x()-seedX,2)+pow(it2.y()-seedY,2));
               if (writeOut) {
-                h_R->Fill(TMath::Abs(spR-seedR));
+                h_R->Fill(fabs(spR-seedR));
                 h_XY->Fill(XY);
               }
 
               if(writeOut && it1.isMatch() && it3.isMatch() && it2.isMatch() && it1.barcode() == it3.barcode() && it1.barcode() == it2.barcode() && it1.barcode() != 0) {
-                h_R_t->Fill(TMath::Abs(spR-seedR));
+                h_R_t->Fill(fabs(spR-seedR));
                 h_XY_t->Fill(XY);
 
               }
@@ -446,18 +446,18 @@ namespace ClusterSeg {
             std::vector<SpacePoint> theSeed;
             Cluster point = Cluster(it3.x()-it1.x(),it3.y()-it1.y(),it3.z()-it1.z(),false,0,0,false,0);
             double angle = acos((point.x()*it1.x()+point.y()*it1.y()+point.z()*it1.z())/(point.rSph()*it1.rSph()));
-            if(angle > TMath::Pi()) angle = TMath::TwoPi() - angle;
-            double dphi = TMath::Abs(point.phi()-it1.phi());
-            if(dphi > TMath::PiOver2() && dphi < 3*TMath::PiOver2()) dphi -= TMath::Pi();
-            if(dphi > 3*TMath::PiOver2()) dphi -= TMath::TwoPi();
-            double dtheta = TMath::Abs(point.theta()-it1.theta());
+            if(angle > M_PI) angle = 2*M_PI - angle;
+            double dphi = fabs(point.phi()-it1.phi());
+            if(dphi > M_PI_2 && dphi < 3*M_PI_2) dphi -= M_PI;
+            if(dphi > 3*M_PI_2) dphi -= 2*M_PI;
+            double dtheta = fabs(point.theta()-it1.theta());
             if (writeOut) {
-              h_phi12->Fill(TMath::Abs(dphi));
+              h_phi12->Fill(fabs(dphi));
               h_theta12->Fill(dtheta);
               h_angle12->Fill(angle);
             }
             if(writeOut && it3.isMatch() && it1.isMatch() && it3.barcode() == it1.barcode() && it1.barcode() != 0 ) {
-              h_phi_t12->Fill(TMath::Abs(dphi));
+              h_phi_t12->Fill(fabs(dphi));
               h_theta_t12->Fill(dtheta);
               h_angle_t12->Fill(angle);
             }

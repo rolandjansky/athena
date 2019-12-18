@@ -29,6 +29,7 @@ def DQTLumiMonAlgConfigByTriggerChain(helper, triggerChain='', triggerPath=''):
     groupName = 'default'
     groupPath = 'GLOBAL/Luminosity/'+triggerPath
     group = helper.addGroup(monAlg, groupName, groupPath, 'run')
+    pixelgroup = helper.addGroup(monAlg, 'pixel', groupPath, 'run')
     nLooseT = 'Number of Loose Vertices'
     nTightT = 'Number of Tight Vertices'
     nPixClusterT = 'Number of Pixel Clusters'
@@ -76,57 +77,57 @@ def DQTLumiMonAlgConfigByTriggerChain(helper, triggerChain='', triggerPath=''):
                           title=nTightT+' per event;#mu;NtightVtx/event',
                           opt='kAddBinsDynamically')
 
-    group.defineHistogram('LB,nClustersAll', type='TProfile', xbins=200, xmin=0.5, xmax=200.5,
+    pixelgroup.defineHistogram('LB,nClustersAll', type='TProfile', xbins=200, xmin=0.5, xmax=200.5,
                           title=nPixClusterT+', all;LB;<NclustersAll/event>_{LB}',
                           opt='kAddBinsDynamically')
-    group.defineHistogram('LB,nClustersECA', type='TProfile', xbins=200, xmin=0.5, xmax=200.5,
+    pixelgroup.defineHistogram('LB,nClustersECA', type='TProfile', xbins=200, xmin=0.5, xmax=200.5,
                           title=nPixClusterT+', endcap A;LB;<NlustersECA/event>_{LB}',
                           opt='kAddBinsDynamically')
-    group.defineHistogram('LB,nClustersECC', type='TProfile', xbins=200, xmin=0.5, xmax=200.5,
+    pixelgroup.defineHistogram('LB,nClustersECC', type='TProfile', xbins=200, xmin=0.5, xmax=200.5,
                           title=nPixClusterT+', endcap C;LB;<NclustersECC/event>_{LB}',
                           opt='kAddBinsDynamically')
-    group.defineHistogram('LB,nClustersB0', type='TProfile', xbins=200, xmin=0.5, xmax=200.5,
+    pixelgroup.defineHistogram('LB,nClustersB0', type='TProfile', xbins=200, xmin=0.5, xmax=200.5,
                           title=nPixClusterT+', barrel layer 0;LB;<NclustersB0/event>_{LB}',
                           opt='kAddBinsDynamically')
-    group.defineHistogram('LB,nClustersB1', type='TProfile', xbins=200, xmin=0.5, xmax=200.5,
+    pixelgroup.defineHistogram('LB,nClustersB1', type='TProfile', xbins=200, xmin=0.5, xmax=200.5,
                           title=nPixClusterT+', barrel layer 1;LB;<NclustersB1/event>_{LB}',
                           opt='kAddBinsDynamically')
-    group.defineHistogram('LB,nClustersB2', type='TProfile', xbins=200, xmin=0.5, xmax=200.5,
+    pixelgroup.defineHistogram('LB,nClustersB2', type='TProfile', xbins=200, xmin=0.5, xmax=200.5,
                           title=nPixClusterT+', barrel layer 2;LB;<NclustersB2/event>_{LB}',
                           opt='kAddBinsDynamically')
-    group.defineHistogram('LB,nClustersAll;LB_vs_nClustersAll_perAvgMu', opt='kAddBinsDynamically',
+    pixelgroup.defineHistogram('LB,nClustersAll;LB_vs_nClustersAll_perAvgMu', opt='kAddBinsDynamically',
                           xbins=200, xmin=0.5, xmax=200.5, type='TProfile', weight='avgMuInverse',
                           title=nPixClusterT+' per Mu, all;LB;<NclustersAll/event/#mu>_{LB}')
-    group.defineHistogram('LB,nClustersECA;LB_vs_nClustersECA_perAvgMu', opt='kAddBinsDynamically',
+    pixelgroup.defineHistogram('LB,nClustersECA;LB_vs_nClustersECA_perAvgMu', opt='kAddBinsDynamically',
                           xbins=200, xmin=0.5, xmax=200.5, type='TProfile', weight='avgMuInverse',
                           title=nPixClusterT+' per Mu, endcap A;LB;<NlustersECA/event/#mu>_{LB}')
-    group.defineHistogram('LB,nClustersECC;LB_vs_nClustersECC_perAvgMu', opt='kAddBinsDynamically',
+    pixelgroup.defineHistogram('LB,nClustersECC;LB_vs_nClustersECC_perAvgMu', opt='kAddBinsDynamically',
                           xbins=200, xmin=0.5, xmax=200.5, type='TProfile', weight='avgMuInverse',
                           title=nPixClusterT+' per Mu, endcap C;LB;<NclustersECC/event/#mu>_{LB}')
-    group.defineHistogram('LB,nClustersB0;LB_vs_nClustersB0_perAvgMu', opt='kAddBinsDynamically',
+    pixelgroup.defineHistogram('LB,nClustersB0;LB_vs_nClustersB0_perAvgMu', opt='kAddBinsDynamically',
                           xbins=200, xmin=0.5, xmax=200.5, type='TProfile', weight='avgMuInverse',
                           title=nPixClusterT+' per Mu, barrel layer 0;LB;<NclustersB0/event/#mu>_{LB}')
-    group.defineHistogram('LB,nClustersB1;LB_vs_nClustersB1_perAvgMu', opt='kAddBinsDynamically',
+    pixelgroup.defineHistogram('LB,nClustersB1;LB_vs_nClustersB1_perAvgMu', opt='kAddBinsDynamically',
                           xbins=200, xmin=0.5, xmax=200.5, type='TProfile', weight='avgMuInverse',
                           title=nPixClusterT+' per Mu, barrel layer 1;LB;<NclustersB1/event/#mu>_{LB}')
-    group.defineHistogram('LB,nClustersB2;LB_vs_nClustersB2_perAvgMu', opt='kAddBinsDynamically',
+    pixelgroup.defineHistogram('LB,nClustersB2;LB_vs_nClustersB2_perAvgMu', opt='kAddBinsDynamically',
                           xbins=200, xmin=0.5, xmax=200.5, type='TProfile', weight='avgMuInverse',
                           title=nPixClusterT+' per Mu, barrel layer 2;LB;<NclustersB2/event/#mu>_{LB}')
-    group.defineHistogram('aveMu,nClustersAll', type='TProfile', xbins=250, xmin=0, xmax=25,
+    pixelgroup.defineHistogram('aveMu,nClustersAll', type='TProfile', xbins=250, xmin=0, xmax=25,
                           title=nPixClusterT+', all;#mu;NclustersAll/event',
                           opt='kAddBinsDynamically')
-    group.defineHistogram('aveMu,nClustersECA', type='TProfile', xbins=250, xmin=0, xmax=25,
+    pixelgroup.defineHistogram('aveMu,nClustersECA', type='TProfile', xbins=250, xmin=0, xmax=25,
                           title=nPixClusterT+', endcap A;#mu;NclustersECA/event',
                           opt='kAddBinsDynamically')
-    group.defineHistogram('aveMu,nClustersECC', type='TProfile', xbins=250, xmin=0, xmax=25,
+    pixelgroup.defineHistogram('aveMu,nClustersECC', type='TProfile', xbins=250, xmin=0, xmax=25,
                           title=nPixClusterT+', endcap C;#mu;NclustersECC/event',
                           opt='kAddBinsDynamically')
-    group.defineHistogram('aveMu,nClustersB0', type='TProfile', xbins=250, xmin=0, xmax=25,
+    pixelgroup.defineHistogram('aveMu,nClustersB0', type='TProfile', xbins=250, xmin=0, xmax=25,
                           title=nPixClusterT+', barrel layer 0;#mu;NclustersB0/event',
                           opt='kAddBinsDynamically')
-    group.defineHistogram('aveMu,nClustersB1', type='TProfile', xbins=250, xmin=0, xmax=25,
+    pixelgroup.defineHistogram('aveMu,nClustersB1', type='TProfile', xbins=250, xmin=0, xmax=25,
                           title=nPixClusterT+', barrel layer 1;#mu;NclustersB1/event',
                           opt='kAddBinsDynamically')
-    group.defineHistogram('aveMu,nClustersB2', type='TProfile', xbins=250, xmin=0, xmax=25,
+    pixelgroup.defineHistogram('aveMu,nClustersB2', type='TProfile', xbins=250, xmin=0, xmax=25,
                           title=nPixClusterT+', barrel layer 2;#mu;NclustersB2/event',
                           opt='kAddBinsDynamically')

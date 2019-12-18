@@ -37,6 +37,11 @@ atlas_add_test( InDetBSErrContainerCnv_p1_test
    src/InDetBSErrContainerCnv_p1.cxx
    LINK_LIBRARIES GaudiKernel AthenaPoolCnvSvcLib Identifier AthAllocators )
 
+atlas_add_test( IDCInDetBSErrContainerCnv_p1_test
+   SOURCES test/IDCInDetBSErrContainerCnv_p1_test.cxx
+   src/IDCInDetBSErrContainerCnv.cxx
+   LINK_LIBRARIES GaudiKernel AthenaPoolCnvSvcLib Identifier AthAllocators )
+
 atlas_add_test( TRT_BSErrContainerCnv_p1_test
    SOURCES test/TRT_BSErrContainerCnv_p1_test.cxx
    src/TRT_BSErrContainerCnv_p1.cxx

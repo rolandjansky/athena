@@ -14,14 +14,13 @@ import shelve
 
 from TriggerMenu.menu.L1Seeds import getInputTEfromL1Item
 
-from JetSequencesBuilder import JetSequencesBuilder
+from .JetSequencesBuilder import JetSequencesBuilder
 from TriggerMenu.menu.ChainDef import (ChainDef,
                                        ErrorChainDef)
-from exc2string import exc2string2
-from InstantiatorFactory import instantiatorFactory
-from SequenceTree import SequenceLinear
-from ChainConfigMaker import chainConfigMaker
-from AlgFactory import AlgFactory
+from .InstantiatorFactory import instantiatorFactory
+from .SequenceTree import SequenceLinear
+from .ChainConfigMaker import chainConfigMaker
+from .AlgFactory import AlgFactory
 
 
 try:
@@ -340,9 +339,9 @@ def generateHLTChainDef(caller_data):
         # ATLAS import errors
         instantiator = instantiatorFactory(use_atlas_config)
     except Exception as e:
+        import traceback
         traceback.print_exc()
-        tb = exc2string2()
-        msg = 'JetDef Instantiator error: error: %s\n%s' % (str(e), tb)
+        msg = 'JetDef Instantiator error: error: %s\n' % (str(e))
         cd = ErrorChainDef(msg, chain_name)
         if debug:
             # for debugging, output the original incoming dictionary

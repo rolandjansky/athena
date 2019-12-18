@@ -11,6 +11,9 @@
 
 ## !!! Do NOT import theApp. It will screw up the configuration !!!
 
+import builtins
+printfunc = getattr(builtins,'print')
+
 def setTHistSvcOutput():
    """Helper to set THistSvc.Output"""
 

@@ -19,14 +19,14 @@ def TRTMonitoringRun3_ToolConfig(inputFlags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     result = ComponentAccumulator()
 
-    # does not run on AOD; do not run un RAW -> ESD
-    if inputFlags.DQ.Environment in ('AOD', 'tier0Raw'):
-        return result
-    
+    from TrkEventAthenaPool.TrackCollectionReadConfig import TrackCollectionReadCfg
+    result.merge (TrackCollectionReadCfg (inputFlags, 'CombinedInDetTracks'))
+    result.merge (TrackCollectionReadCfg (inputFlags, 'Tracks'))
+
     # The following class will make a sequence, configure algorithms, and link
     # them to GenericMonitoringTools
     from AthenaMonitoring import AthMonitorCfgHelper
-    helper = AthMonitorCfgHelper(inputFlags, 'ExampleAthMonitorCfg')
+    helper = AthMonitorCfgHelper(inputFlags, 'TRTMonitoringCfg')
 
     # === STEP 2 === #
     # Adding an algorithm to the helper. Here, we will use the example

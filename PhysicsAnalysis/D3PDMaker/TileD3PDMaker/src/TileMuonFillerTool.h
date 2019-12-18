@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -100,7 +100,6 @@ class TileMuonFillerTool:public D3PD::BlockFillerTool<xAOD::Muon>{
         float *m_charge;
         float *m_eta;
         float *m_phi;
-        float *m_beta;
 
         // MUON QUALITY INFORMATION
         float *m_matchChi2;
@@ -132,28 +131,6 @@ class TileMuonFillerTool:public D3PD::BlockFillerTool<xAOD::Muon>{
         float *m_phi0;
         float *m_theta;
         float *m_qOverP;
-
-        // ISOLATION ENERGY VARIABLES
-        float *m_LAr_iso_cone05;
-        float *m_LAr_iso_cone10;
-        float *m_LAr_iso_cone20;
-        float *m_LAr_iso_cone30;
-        float *m_LAr_iso_cone40;
-        float *m_Tile_iso_cone05;
-        float *m_Tile_iso_cone10;
-        float *m_Tile_iso_cone20;
-        float *m_Tile_iso_cone30;
-        float *m_Tile_iso_cone40;
-        float *m_LAr_cone05;
-        float *m_LAr_cone10;
-        float *m_LAr_cone20;
-        float *m_LAr_cone30;
-        float *m_LAr_cone40;
-        float *m_Tile_cone05;
-        float *m_Tile_cone10;
-        float *m_Tile_cone20;
-        float *m_Tile_cone30;
-        float *m_Tile_cone40;
 
         // MONTE CARLO TRUTH VARIABLES
         StatusCode m_truthRetrieved;

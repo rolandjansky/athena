@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -83,9 +83,6 @@ class CscCalibMonToolPed: public CscCalibMonToolBase
 
 
     private:
-        /* Muon Detector Descriptor*/
-        const MuonGM::MuonDetectorManager * m_muon_mgr;
-
         /**Histograms that simply histogram all entries for a value*/
         TH1F *m_h_pedMissingChannels;
 
@@ -109,9 +106,6 @@ class CscCalibMonToolPed: public CscCalibMonToolBase
 
         /**Bin in m_h_numBen corresponding to each type of data*/
         int m_pedBadBin, m_noiseBadBin, m_rmsBadBin, m_f001BadBin, m_nEntriesBadBin, m_chi2BadBin, m_missingBadBin, m_onlTHoldBreachBadBin;
-
-        //Error report
-        bool m_alwaysPrintErrorReport;
 
         /**Samples*/
         //int m_doPedSamples;

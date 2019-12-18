@@ -4,6 +4,7 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def TRTOverlayAlgCfg(flags, name = "TRTOverlay", **kwargs):
     """Return a ComponentAccumulator for TRTOverlay algorithm"""
@@ -26,7 +27,7 @@ def TRTOverlayAlgCfg(flags, name = "TRTOverlay", **kwargs):
     kwargs.setdefault("TRT_HT_OccupancyCorrectionEndcapNoE", 0.050)
 
     # Do TRT overlay
-    from InDetOverlay.InDetOverlayConf import TRTOverlay
+    TRTOverlay=CompFactory.TRTOverlay
     alg = TRTOverlay(name, **kwargs)
 
     from InDetOverlay.TRT_ConditionsConfig import TRT_LocalOccupancyCfg, TRT_StrawStatusSummaryToolCfg
@@ -54,7 +55,7 @@ def TRTTruthOverlayCfg(flags, name = "TRTSDOOverlay", **kwargs):
     kwargs.setdefault("OutputKey", "TRT_SDO_Map")
 
     # Do TRT truth overlay
-    from InDetOverlay.InDetOverlayConf import InDetSDOOverlay
+    InDetSDOOverlay=CompFactory.InDetSDOOverlay
     alg = InDetSDOOverlay(name, **kwargs)
     acc.addEventAlgo(alg)
 

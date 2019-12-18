@@ -1,9 +1,9 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
-from TrigMuonEFTagandProbeMonitoring import TrigMuonEFTagandProbeMonitoring
+from .TrigMuonEFTagandProbeMonitoring import TrigMuonEFTagandProbeMonitoring
 
-from TrigMuSuperEFConf import TrigMuonEFTagandProbe #Conf is based on algorithm package not individual algs
+from .TrigMuSuperEFConf import TrigMuonEFTagandProbe #Conf is based on algorithm package not individual algs
                                                                                                                                
 # Default config: Online Z->mumu HLT based Tag and Probe efficiency monitoring
  

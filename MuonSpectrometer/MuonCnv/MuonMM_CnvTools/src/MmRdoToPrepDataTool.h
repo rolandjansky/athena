@@ -51,10 +51,10 @@ namespace Muon
     virtual ~MmRdoToPrepDataTool ();
     
     /** standard Athena-Algorithm method */
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
     
     /** standard Athena-Algorithm method */
-    virtual StatusCode finalize();
+    virtual StatusCode finalize() override;
   
   protected:
     virtual SetupMM_PrepDataContainerStatus setupMM_PrepDataContainer() override;

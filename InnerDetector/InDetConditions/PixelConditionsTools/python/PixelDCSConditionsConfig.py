@@ -3,10 +3,11 @@
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from IOVDbSvc.IOVDbSvcConfig import addFolders
-from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStateAlg
-from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondHVAlg
-from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondTempAlg
+PixelDCSCondStateAlg=CompFactory.PixelDCSCondStateAlg
+PixelDCSCondHVAlg=CompFactory.PixelDCSCondHVAlg
+PixelDCSCondTempAlg=CompFactory.PixelDCSCondTempAlg
 
 def PixelDCSConditionsCfg(flags, name="PixelDCSCond", **kwargs):
     """Return configured ComponentAccumulator and tool for PixelDCSConditions"""

@@ -3,6 +3,7 @@
 """Define methods to construct configured Tile DCS tool and conditions algorithm"""
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def TileDCSCondAlgCfg(flags, **kwargs):
     """Return component accumulator with configured Tile DCS conditions algorithm
@@ -52,7 +53,7 @@ def TileDCSCondAlgCfg(flags, **kwargs):
     from IOVDbSvc.IOVDbSvcConfig import addFolderList
     acc.merge( addFolderList(flags, folders.get()) )
 
-    from TileConditions.TileConditionsConf import TileDCSCondAlg
+    TileDCSCondAlg=CompFactory.TileDCSCondAlg
     dcsCondAlg = TileDCSCondAlg( name = name,
                                  ReadHV = readHV,
                                  ReadHVSET = readHVSET,
@@ -86,7 +87,7 @@ def TileDCSToolCfg(flags, **kwargs):
 
     acc.merge( TileDCSCondAlgCfg(flags, **kwargs) )
 
-    from TileConditions.TileConditionsConf import TileDCSTool
+    TileDCSTool=CompFactory.TileDCSTool
     acc.setPrivateTools( TileDCSTool(TileDCS = dcs) )
 
     return acc

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
@@ -11,14 +11,17 @@
 
 class MsgStream;
  
- class AFP_TDLocRecoEvCollectionCnv_p1: public T_AthenaPoolTPCnvBase<AFP_TDLocRecoEvCollection, AFP_TDLocRecoEvCollection_p1> {
+ class AFP_TDLocRecoEvCollectionCnv_p1: public T_AthenaPoolTPCnvConstBase<AFP_TDLocRecoEvCollection, AFP_TDLocRecoEvCollection_p1> {
    
   public:
+   using base_class::transToPers;
+   using base_class::persToTrans;
    
+
    AFP_TDLocRecoEvCollectionCnv_p1() {}
    
-   virtual void persToTrans(const AFP_TDLocRecoEvCollection_p1* persObj, AFP_TDLocRecoEvCollection*   transObj, MsgStream& log);
-   virtual void transToPers(const AFP_TDLocRecoEvCollection*   transObj, AFP_TDLocRecoEvCollection_p1* persObj, MsgStream& log);
+   virtual void persToTrans(const AFP_TDLocRecoEvCollection_p1* persObj, AFP_TDLocRecoEvCollection*   transObj, MsgStream& log) const override;
+   virtual void transToPers(const AFP_TDLocRecoEvCollection*   transObj, AFP_TDLocRecoEvCollection_p1* persObj, MsgStream& log) const override;
  };
  
  template<> class T_TPCnv<AFP_TDLocRecoEvCollection, AFP_TDLocRecoEvCollection_p1>: public AFP_TDLocRecoEvCollectionCnv_p1 {

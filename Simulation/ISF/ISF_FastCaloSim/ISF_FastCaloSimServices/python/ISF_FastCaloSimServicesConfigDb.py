@@ -26,6 +26,7 @@ addTool("ISF_FastCaloSimServices.AdditionalConfig.getFastCaloTool",             
 addTool("ISF_FastCaloSimServices.AdditionalConfig.getFastCaloPileupTool",              "ISF_FastCaloPileupTool")
 addTool("ISF_FastCaloSimServices.AdditionalConfig.getLegacyAFIIFastCaloTool",          "ISF_LegacyAFIIFastCaloTool")
 
+addTool("ISF_FastCaloSimServices.AdditionalConfig.getFastCaloSimV2Tool",               "ISF_FastCaloSimV2Tool")
 addAlgorithm("ISF_FastCaloSimServices.AdditionalConfig.getFastHitConvAlg",             "ISF_FastHitConvAlg")
 
 addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getNativeFastCaloSimSvc",                       "ISF_NativeFastCaloSimSvc")

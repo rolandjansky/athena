@@ -3,6 +3,7 @@
 """Define method to construct configured Tile muon receiver decision algorithm"""
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def TileMuonReceiverDecisionCfg(flags, **kwargs):
     """Return component accumulator with configured Tile muon receiver decision algorithm
@@ -17,7 +18,7 @@ def TileMuonReceiverDecisionCfg(flags, **kwargs):
 
     acc = ComponentAccumulator()
 
-    from TileSimAlgs.TileSimAlgsConf import TileMuonReceiverDecision
+    TileMuonReceiverDecision=CompFactory.TileMuonReceiverDecision
     muRcvDecisionAlg = TileMuonReceiverDecision(name,
                                                 MuonReceiverEneThreshCellD6Low = 500,
                                                 MuonReceiverEneThreshCellD6andD5Low = 500,

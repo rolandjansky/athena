@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonLayerHough/MuonRegionHough.h"
-#include "TMath.h"
 
 namespace MuonHough {
 
@@ -64,7 +63,7 @@ namespace MuonHough {
       m_sectors.push_back( new MuonSectorHough(i,detectorDescription) );
     }
     for( unsigned int i=0;i<Muon::MuonStationIndex::DetectorRegionIndexMax;++i ) {
-      m_phiTransforms.push_back( new MuonPhiLayerHough(60, -TMath::Pi(), TMath::Pi(), static_cast<Muon::MuonStationIndex::DetectorRegionIndex>(i)) );
+      m_phiTransforms.push_back( new MuonPhiLayerHough(60, -M_PI, M_PI, static_cast<Muon::MuonStationIndex::DetectorRegionIndex>(i)) );
     }
   }
 

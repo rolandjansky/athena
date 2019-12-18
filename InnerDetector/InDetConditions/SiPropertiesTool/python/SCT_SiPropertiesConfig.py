@@ -3,8 +3,9 @@
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from SiPropertiesTool.SiPropertiesToolConf import SiPropertiesTool
-from SiPropertiesTool.SiPropertiesToolConf import SCTSiPropertiesCondAlg
+from AthenaConfiguration.ComponentFactory import CompFactory
+SiPropertiesTool=CompFactory.SiPropertiesTool
+SCTSiPropertiesCondAlg=CompFactory.SCTSiPropertiesCondAlg
 
 def SCT_SiPropertiesToolCfg(flags, name="SCT_SiPropertiesTool", **kwargs):
     """Return a SiPropertiesTool configured for SCT"""

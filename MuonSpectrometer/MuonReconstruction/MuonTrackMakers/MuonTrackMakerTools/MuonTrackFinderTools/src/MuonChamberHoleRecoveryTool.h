@@ -8,12 +8,11 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "Identifier/Identifier.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonRecToolInterfaces/IMuonHoleRecoveryTool.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
 #include "MuonCondData/MdtCondDbData.h"
 #include "TrkTrack/Track.h"
 
@@ -30,13 +29,6 @@ class StoreGateSvc;
 
 class MdtCondDbData;
 class MuonStationIntersectSvc;
-class RpcIdHelper;
-class MdtIdHelper;
-class CscIdHelper;
-class TgcIdHelper;
-// New Small Wheel
-class sTgcIdHelper;
-class MmIdHelper;
 
 namespace MuonGM {
   class MuonDetectorManager;
@@ -45,7 +37,6 @@ namespace MuonGM {
 namespace Muon {
   class IMdtDriftCircleOnTrackCreator;
   class IMuonClusterOnTrackCreator;
-  class MuonIdHelperTool;
   class MuonEDMPrinterTool;
 }
 
@@ -190,7 +181,7 @@ namespace Muon {
     ToolHandle<Muon::IMuonClusterOnTrackCreator>     m_clusRotCreator;    //!< IMuonClusterOnTrackCreator for trigger hits
 
     ToolHandle<Trk::IResidualPullCalculator>         m_pullCalculator;     //!< residual pull calculator
-    ToolHandle<Muon::MuonIdHelperTool>               m_idHelperTool;       //!< IdHelper tool
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ServiceHandle<Muon::IMuonEDMHelperSvc>           m_edmHelperSvc {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" };         //!< EDM Helper tool

@@ -416,9 +416,9 @@ namespace Analysis {
 
 	        } /// found map
 	 
-	      }
-      }
-  
+	   }
+     }
+
       const Trk::RecVertexPositions& recVtxposition = vxjetcand->getRecVertexPositions();
       const Amg::VectorX& vtxPositions = recVtxposition.position();
       const Amg::MatrixX& vtxCovMatrix = recVtxposition.covariancePosition();

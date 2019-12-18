@@ -2,7 +2,6 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-//#include <algorithm>
 #include "AthenaKernel/Timeout.h"
 
 #include "InDetTrigAmbiguitySolver/InDetTrigAmbiguitySolver.h"
@@ -13,7 +12,6 @@
 #include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkParameters/TrackParameters.h"
-//#include "TrkTrackSummary/TrackSummary.h"
 #include "TrigNavigation/NavigationCore.icc"
 
 using namespace InDet;
@@ -157,7 +155,7 @@ HLT::ErrorCode InDetTrigAmbiguitySolver::hltExecute(const HLT::TriggerElement*, 
     std::unique_ptr<Trk::PRDtoTrackMap> prd_to_track_map;
     if (m_assoTool.isEnabled()) {
        // create internal PRD-to-track map
-       prd_to_track_map = std::move( m_assoTool->createPRDtoTrackMap() );
+       prd_to_track_map =  m_assoTool->createPRDtoTrackMap() ;
     }
     m_trackInCount = m_oldTracks->size();
     m_tracks = m_ambiTool->process( m_oldTracks, prd_to_track_map.get() );
@@ -183,21 +181,20 @@ HLT::ErrorCode InDetTrigAmbiguitySolver::hltExecute(const HLT::TriggerElement*, 
     // this causes mem leaks when reading back in again
     // see bug#9886 for details
     m_tracks = new TrackCollection;
-    TrackCollection::const_iterator it = m_oldTracks->begin();
-    TrackCollection::const_iterator itEnd = m_oldTracks->end();
-    for (;it!=itEnd;it++) m_tracks->push_back( new Trk::Track(**it) );
+    m_tracks->reserve(m_oldTracks->size());
+    for (const auto &pi:*m_oldTracks){
+      m_tracks->push_back(new Trk::Track(*pi));
+    }
   }
 
   //monitor chi2 of the Si tracks 
-  TrackCollection::const_iterator it = m_tracks->begin();
-  TrackCollection::const_iterator itEnd = m_tracks->end();
-  for (;it!=itEnd;it++){
-    const Trk::FitQuality* fq = (*it)->fitQuality();
+  for (const auto pthisTrack:*m_tracks){
+    const auto & thisTrack = *pthisTrack;
+    const Trk::FitQuality* fq = thisTrack.fitQuality();
     if (fq && fq->numberDoF()) {
       m_chi2ndof.push_back(fq->chiSquared() / fq->numberDoF());
     }
-    const Trk::Perigee *mp = (*it)->perigeeParameters();
-    //    const Trk::TrackSummary *ts = (*it)->trackSummary();
+    const Trk::Perigee *mp = thisTrack.perigeeParameters();
     if (mp){
       m_d0.push_back(mp->parameters()[Trk::d0]);
       m_z0.push_back(mp->parameters()[Trk::z0]);

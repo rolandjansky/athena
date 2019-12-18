@@ -110,7 +110,7 @@ class LayerPlotter:
             h2 = ROOT.TGraph()
             h3 = ROOT.TGraph()
 
-            for i in xrange(100):
+            for i in range(100):
                 inputs = self.example_inputs()
                 inputs.RunNumber = 0
                 inputs.eta = i * 0.05 - 2.5
@@ -157,10 +157,10 @@ class LayerPlotter:
         h2 = ROOT.TH2F("h2", "h2", nbins_eta, -2.5, 2.5, nbins_phi, -3.1415, 3.1415)
         h3 = ROOT.TH2F("h3", "h3", nbins_eta, -2.5, 2.5, nbins_phi, -3.1415, 3.1415)
 
-        for iphi in xrange(nbins_phi):
+        for iphi in range(nbins_phi):
             inputs = self.example_inputs()
             inputs.RunNumber = run_number
-            for ieta in xrange(nbins_eta):
+            for ieta in range(nbins_eta):
                 inputs.eta = h0.GetXaxis().GetBinCenter(ieta)
                 inputs.phi = h0.GetYaxis().GetBinCenter(iphi)
                 inputs.E0raw = 1.

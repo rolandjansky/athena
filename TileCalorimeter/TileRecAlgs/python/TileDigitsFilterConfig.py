@@ -3,6 +3,7 @@
 """Define method to construct configured Tile digits filter algorithm"""
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def TileDigitsFilterCfg(flags, **kwargs):
     """Return component accumulator with configured Tile digits filter algorithm
@@ -19,7 +20,7 @@ def TileDigitsFilterCfg(flags, **kwargs):
     from TileConditions.TileCablingSvcConfig import TileCablingSvcCfg
     acc.merge( TileCablingSvcCfg(flags) )
 
-    from TileRecAlgs.TileRecAlgsConf import TileDigitsFilter
+    TileDigitsFilter=CompFactory.TileDigitsFilter
     acc.addEventAlgo(TileDigitsFilter(**kwargs), primary = True)
 
     return acc

@@ -119,7 +119,15 @@ StatusCode StreamTagMakerTool::fill( HLT::HLTResultMT& resultToFill, const Event
       }
     }
 
+    if (TrigCompositeUtils::isLegId(HLT::Identifier(chain)) )
+      continue;
+    
     auto mappingIter = m_mapping.find( chain );
+    if( mappingIter == m_mapping.end() ) {
+      ATH_MSG_ERROR("Each chain has to have the StreamTag associated whereas the " << HLT::Identifier( chain ) << " does not" );
+      return StatusCode::FAILURE;
+    }
+    
     const std::vector<StreamTagInfo>& streams = mappingIter->second;
     for (const StreamTagInfo& streamTagInfo : streams) {
       auto [st_name, st_type, obeysLB, forceFullEvent] = streamTagInfo;

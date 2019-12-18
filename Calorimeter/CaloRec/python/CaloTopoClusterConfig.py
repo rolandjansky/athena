@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.SystemOfUnits import MeV
 
 def caloTopoCoolFolderCfg(configFlags):
@@ -26,8 +27,8 @@ def caloTopoCoolFolderCfg(configFlags):
     return result
 
 def getTopoClusterLocalCalibTools(configFlags):
-    from CaloUtils.CaloUtilsConf import CaloLCClassificationTool, CaloLCWeightTool, CaloLCOutOfClusterTool, CaloLCDeadMaterialTool
-    from CaloClusterCorrection.CaloClusterCorrectionConf import CaloClusterLocalCalib
+    CaloLCClassificationTool, CaloLCWeightTool, CaloLCOutOfClusterTool, CaloLCDeadMaterialTool=CompFactory.getComps("CaloLCClassificationTool","CaloLCWeightTool","CaloLCOutOfClusterTool","CaloLCDeadMaterialTool",)
+    CaloClusterLocalCalib=CompFactory.CaloClusterLocalCalib
     # Local cell weights
     LCClassify   = CaloLCClassificationTool("LCClassify")
     LCClassify.ClassificationKey   = "EMFracClassify"
@@ -93,7 +94,7 @@ def getTopoClusterLocalCalibTools(configFlags):
     return lccalibtools
 
 def getTopoMoments(configFlags):
-    from CaloRec.CaloRecConf import CaloClusterMomentsMaker
+    CaloClusterMomentsMaker=CompFactory.CaloClusterMomentsMaker
     TopoMoments = CaloClusterMomentsMaker ("TopoMoments")
     TopoMoments.WeightingOfNegClusters = configFlags.Calo.TopoCluster.doTreatEnergyCutAsAbsolute
     from AthenaCommon.SystemOfUnits import deg
@@ -143,7 +144,7 @@ def getTopoMoments(configFlags):
         # only add HV related moments if it is offline.
         # from IOVDbSvc.CondDB import conddb
         # if not conddb.isOnline:
-        from LArCellRec.LArCellRecConf import LArHVFraction
+        LArHVFraction=CompFactory.LArHVFraction
         if configFlags.Input.isMC:
             TopoMoments.LArHVFraction=LArHVFraction(HVScaleCorrKey="LArHVScaleCorr")
         else:
@@ -156,9 +157,9 @@ def getTopoMoments(configFlags):
 
 # a.k.a. DigiTruth
 def getTopoTruthMoments(configFlags):
-    from CaloRec.CaloRecConf import CaloClusterMomentsMaker_DigiHSTruth
+    CaloClusterMomentsMaker_DigiHSTruth=CompFactory.CaloClusterMomentsMaker_DigiHSTruth
     TopoMoments_Truth = CaloClusterMomentsMaker_DigiHSTruth ("TopoMoments_Truth")
-    from LArCellRec.LArCellRecConf import LArHVFraction
+    LArHVFraction=CompFactory.LArHVFraction
     TopoMoments_Truth.LArHVFraction=LArHVFraction(HVScaleCorrKey="LArHVScaleCorr")
     TopoMoments_Truth.WeightingOfNegClusters = configFlags.Calo.TopoCluster.doTreatEnergyCutAsAbsolute
     from AthenaCommon.SystemOfUnits import deg
@@ -197,7 +198,7 @@ def getTopoTruthMoments(configFlags):
     return TopoMoments_Truth
 
 def getTopoCalibMoments(configFlags):
-    from CaloCalibHitRec.CaloCalibHitRecConf import CaloCalibClusterMomentsMaker2
+    CaloCalibClusterMomentsMaker2=CompFactory.CaloCalibClusterMomentsMaker2
     TopoCalibMoments = CaloCalibClusterMomentsMaker2 ("TopoCalibMoments")
     TopoCalibMoments.MomentsNames = ["ENG_CALIB_TOT"
                                      ,"ENG_CALIB_OUT_L"
@@ -249,7 +250,7 @@ def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="",doLCCalib
     # Schedule electronic noise cond alg (needed for LC weights)
     result.merge(CaloNoiseCondAlgCfg(configFlags,"electronicNoise"))
     
-    from CaloRec.CaloRecConf import CaloTopoClusterMaker, CaloTopoClusterSplitter, CaloClusterMaker, CaloClusterSnapshot
+    CaloTopoClusterMaker, CaloTopoClusterSplitter, CaloClusterMaker, CaloClusterSnapshot=CompFactory.getComps("CaloTopoClusterMaker","CaloTopoClusterSplitter","CaloClusterMaker","CaloClusterSnapshot",)
 
     result.merge(LArGMCfg(configFlags))
 
@@ -334,7 +335,7 @@ def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="",doLCCalib
     
     from CaloBadChannelTool.CaloBadChanToolConfig import CaloBadChanToolCfg
     caloBadChanTool = result.popToolsAndMerge( CaloBadChanToolCfg(configFlags) )
-    from CaloClusterCorrection.CaloClusterCorrectionConf import CaloClusterBadChannelList
+    CaloClusterBadChannelList=CompFactory.CaloClusterBadChannelList
     BadChannelListCorr = CaloClusterBadChannelList(badChannelTool = caloBadChanTool)
     CaloTopoCluster.ClusterCorrectionTools += [BadChannelListCorr]
 
@@ -389,12 +390,12 @@ if __name__=="__main__":
                                                             # "CaloClusterCellLinkContainer#"+theKey+"_links"
                                                            ]))
 
-    from AthenaServices.AthenaServicesConf import ThinningSvc, ThinningOutputTool
+    ThinningSvc, ThinningOutputTool=CompFactory.getComps("ThinningSvc","ThinningOutputTool",)
     cfg.addService(ThinningSvc())
     tot = ThinningOutputTool("Thin_xAOD",ThinningSvc = cfg.getService("ThinningSvc"))
     cfg.getEventAlgo("OutputStreamxAOD").HelperTools += [tot]
 
-    from ThinningUtils.ThinningUtilsConf import ThinNegativeEnergyCaloClustersAlg
+    ThinNegativeEnergyCaloClustersAlg=CompFactory.ThinNegativeEnergyCaloClustersAlg
     theNegativeEnergyCaloClustersThinner = ThinNegativeEnergyCaloClustersAlg(
         "ThinNegativeEnergyCaloClustersAlg",
         CaloClustersKey=theKey,

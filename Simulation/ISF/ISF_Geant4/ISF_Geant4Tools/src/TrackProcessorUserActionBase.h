@@ -13,6 +13,7 @@
 
 #include "MCTruth/VTrackInformation.h"
 
+#include "ISF_Event/ISFParticleContainer.h"
 
 // forward declarations
 class EventInformation;
@@ -45,8 +46,12 @@ public:
 
   virtual void UserSteppingAction(const G4Step*) override final;
 
+  ISF::ISFParticleContainer ReturnSecondaries(ISF::ISFParticle const* parent);
+
 protected:
   EventInformation* m_eventInfo;   //!< event-global G4 UserInformation
+
+  ISF::ISFParticleContainer m_storedSecondaries;
 
   /** This method is called by TrackProcessorUserActionBase after the
    *  G4Track->ISFParticle association has been established for the current G4Track */

@@ -4,6 +4,9 @@
 
 #include "TileMonitorAlgorithm.h"
 
+#include "CaloEvent/CaloCell.h"
+#include "CaloIdentifier/TileID.h"
+
 StatusCode TileMonitorAlgorithm::initialize() {
 
   int triggerIdx(0);
@@ -100,4 +103,26 @@ bool TileMonitorAlgorithm::isPhysicsEvent(uint32_t lvl1TriggerType) const {
 TileMonitorAlgorithm::L1TriggerTypeBit
 TileMonitorAlgorithm::getL1TriggerTypeBit(int lvl1TriggerIdx) const {
   return m_l1Triggers.at(lvl1TriggerIdx);
+}
+
+TileMonitorAlgorithm::Partition
+TileMonitorAlgorithm::getPartition(const CaloCell* cell, const TileID* tileID) const {
+
+  Partition partition = MAX_PART; // by default for non Tile cell
+
+  if (cell) {
+    Identifier id = cell->ID();
+    if (tileID->is_tile(id)) {
+      int section = tileID->section(id);
+      int side = tileID->side(id);
+
+      if (section == 1) {
+        partition = (side == 1) ? PART_LBA : PART_LBC;
+      } else if (section == 2 || section == 3) {
+        partition = (side == 1) ? PART_EBA : PART_EBC;
+      }
+    }
+  }
+
+  return partition;
 }

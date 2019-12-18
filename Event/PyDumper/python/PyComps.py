@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file:    PyDumper/python/PyComps.py
 # @purpose: A set of PyAthena components to test reading/writing EDM classes
@@ -100,7 +100,7 @@ class PyWriter (PyAthena.Alg):
                 self.msg.error('could not record container !')
                 return StatusCode.Failure
             _info('all good')
-        except Exception,err:
+        except Exception as err:
             self.msg.error('caught: %s',err)
         return StatusCode.Success
             
@@ -159,7 +159,7 @@ class PyReader (PyAthena.Alg):
         from Dumpers import get_dumper_fct
         try:
             cont_type = getattr(PyAthena, self.cont_type)
-        except AttributeError,err:
+        except AttributeError as err:
             self.msg.error(err)
             return StatusCode.Failure
         self.dumper = get_dumper_fct(klass=cont_type, ofile=self.ofile)
@@ -193,7 +193,7 @@ class PyReader (PyAthena.Alg):
             self.dumper(cont)
             self.ofile.flush()
             _info('all good')
-        except Exception,err:
+        except Exception as err:
             self.msg.error('caught: %s',err)
         return StatusCode.Success
             
@@ -251,7 +251,7 @@ class PySgDumper (PyAthena.Alg):
 
         try:
             self.items = _decode_item_list(self.items, self.msg)
-        except Exception,err:
+        except Exception as err:
             self.msg.error(err)
             return StatusCode.Failure
             
@@ -345,7 +345,7 @@ class PySgDumper (PyAthena.Alg):
                 try:
                     dumper = self._dumper_fct (klass=o.__class__,
                                                ofile=self.ofile)
-                except RuntimeError, err:
+                except RuntimeError as err:
                     _add_fail ((cont_key, cont_type, 'dump failed'))
                     if self._evt_nbr==1:
                         _warn (err)
@@ -362,7 +362,7 @@ class PySgDumper (PyAthena.Alg):
                 self.ofile.flush()
                 dumper (o)
                 self.ofile.flush()
-            except Exception, err:
+            except Exception as err:
                 _add_fail ((cont_key, cont_type, 'sg-retrieve failed'))
                 if self._evt_nbr==1:
                     _warn ('caught exception:\n%s', err)
@@ -431,7 +431,7 @@ class DataProxyLoader(PyAthena.Alg):
 
         try:
             self.items = _decode_item_list(self.items, self.msg)
-        except Exception,err:
+        except Exception as err:
             self.msg.error(err)
             return StatusCode.Failure
             
@@ -471,7 +471,7 @@ class DataProxyLoader(PyAthena.Alg):
                 dobj = p.accessData()
                 if not dobj:
                     all_good = False
-            except Exception, err:
+            except Exception as err:
                 _fatal('problem loading proxy [%s#%s]', clid, sgkey)
                 _add_fail((sgkey, clid, str(err)))
                 all_good = False

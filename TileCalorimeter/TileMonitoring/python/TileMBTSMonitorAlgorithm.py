@@ -140,7 +140,8 @@ def _TileMBTSMonitoringConfigCore(helper, runNumber, **kwargs):
     timeDifferenceLBGroup.defineHistogram('lumiBlock,TimeDifference;TimeDiff_A-C_LB', path = 'MBTS/Cell', type='TH2F',
                                           title = ('Run ' + run + ': Time difference between MBTS on A and C sides vs LumiBlock'
                                                    + ';Luminosity Block;Time difference A-side - C-side [ns]'),
-                                          xbins = 1000, xmin = -0.5, xmax = 999.5, ybins = 151, ymin = -75.5, ymax = 75.5)
+                                          xbins = 1000, xmin = -0.5, xmax = 999.5, ybins = 151, ymin = -75.5, ymax = 75.5,
+                                          opt = 'kAddBinsDynamically')
 
     # 9) Configure histogram with coincident Hits (energy) between two MBTS counters
     labelsCoincidentMBTS = labelsMBTS + labelsMBTS
@@ -187,7 +188,7 @@ def _TileMBTSMonitoringConfigCore(helper, runNumber, **kwargs):
             title = 'Run ' + run + ': Energy of ' + mbtsName + ' per lumiblock;Lumiblocks;Energy [pC]'
             name = 'lumiBlock,Energy;EnergyLB_' + mbtsName
             tool.defineHistogram(name, title = title, type = 'TProfile', path = 'Cell',
-                                 xbins = 1000, xmin = -0.5, xmax = 999.5)
+                                 xbins = 1000, xmin = -0.5, xmax = 999.5, opt = 'kAddBinsDynamically')
 
         # 13) Configure histogram with MBTS counter time
         timeArray = helper.addArray([numberOfMBTS], tileMBTSMonAlg, 'TileTimeMBTS', topPath = 'Tile/MBTS')

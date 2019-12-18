@@ -3,9 +3,10 @@
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline, addFolders
-from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
-from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelTDAQCondAlg
+PixelConditionsSummaryTool=CompFactory.PixelConditionsSummaryTool
+PixelTDAQCondAlg=CompFactory.PixelTDAQCondAlg
 from PixelConditionsTools.PixelDCSConditionsConfig import PixelDCSConditionsCfg
 from PixelConditionsAlgorithms.PixelConditionsConfig import PixelConfigCondAlgCfg
 

@@ -1,11 +1,12 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from BTagging.JetParticleAssociationConfig import JetParticleAssociationCfg
 from BTagging.BTagTrackToJetAssociatorConfig import BTagTrackToJetAssociatorCfg
 
 # import the JetBTaggerAlg configurable
-from BTagging.BTaggingConf import Analysis__JetParticleAssociationAlg
+Analysis__JetParticleAssociationAlg=CompFactory.Analysis__JetParticleAssociationAlg
 
 def JetParticleAssociationAlgCfg(ConfigFlags, JetCollection="", ParticleCollection="", AssociationName="", **options):
 

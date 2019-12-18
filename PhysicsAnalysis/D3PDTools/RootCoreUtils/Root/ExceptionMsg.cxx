@@ -27,21 +27,15 @@ namespace RCU
   testInvariant () const
   {
     //RCU_INVARIANT (this != 0);
-    RCU_INVARIANT (m_file != 0);
-    RCU_INVARIANT (m_line != 0);
     RCU_INVARIANT (!m_message.empty());
   }
 
 
 
   ExceptionMsg ::
-  ExceptionMsg (const char *const val_file, const unsigned val_line,
+  ExceptionMsg (const char *const /*val_file*/, const unsigned /*val_line*/,
 		const std::string& val_message)
-    : m_file ((RCU_REQUIRE (val_file != 0),
-	       RCU_REQUIRE (val_line != 0),
-	       RCU_REQUIRE (!val_message.empty()),
-	       val_file)),
-      m_line (val_line), m_message (val_message)
+    : m_message (val_message)
   {
     RCU_NEW_INVARIANT (this);
   }

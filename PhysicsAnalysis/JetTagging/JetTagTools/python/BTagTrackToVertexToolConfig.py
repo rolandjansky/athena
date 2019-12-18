@@ -1,10 +1,11 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from TrkExTools.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
 
 # import the TrackToVertexIPEstimator configurable
-from TrackToVertex.TrackToVertexConf import Reco__TrackToVertex
+Reco__TrackToVertex=CompFactory.Reco__TrackToVertex
 
 def BTagTrackToVertexToolCfg(flags, name = 'BTagTrackToVertexTool', useBTagFlagsDefaults = True, **options ):
     """Sets up a BTagTrackToVertexTool tool and returns it.

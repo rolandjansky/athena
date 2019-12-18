@@ -75,38 +75,33 @@ SCTByteStreamErrorFillerTool::SCTByteStreamErrorFillerTool
  
 StatusCode SCTByteStreamErrorFillerTool::fill (const xAOD::EventInfo& /*p*/)
  {
-
-
    *m_totalNumErrors = 0;
    for (int type=0; type < SCT_ByteStreamErrors::NUM_ERROR_TYPES; ++type) {
-     const std::set<IdentifierHash>* errorSet = m_byteStreamErrTool->getErrorSet(type);
-     if (errorSet != 0) {
+     const std::set<IdentifierHash> errorSet = m_byteStreamErrTool->getErrorSet(type);
        int eta=0,phi=0,bec=0,layer=0,side=0;
-       std::set<IdentifierHash>::const_iterator it = errorSet->begin();
-       std::set<IdentifierHash>::const_iterator itEnd = errorSet->end();
-       *m_totalNumErrors += errorSet->size();
-       for (; it != itEnd; ++it) {
-	 Identifier itId = m_sctid->wafer_id(*it);
-	 layer = m_sctid->layer_disk(itId);
-	 side = m_sctid->side(itId);
-	 eta = m_sctid->eta_module(itId);
-	 phi = m_sctid->phi_module(itId);
-	 bec = m_sctid->barrel_ec(itId);
-	 m_scterr_type->push_back(type);
-	 m_scterr_bec->push_back(bec);
-	 m_scterr_layer->push_back(layer);
-	 m_scterr_eta->push_back(eta);
-	 m_scterr_phi->push_back(phi);
-	 m_scterr_side->push_back(side);
- 
-	 uint32_t onlineID = m_cabling->getOnlineIdFromHash(*it);
-	 SCT_OnlineId online(onlineID);
-	 uint32_t rod = online.rod();
-	 uint32_t fibre = online.fibre();
-	 m_scterr_rodid->push_back((int)rod);
-	 m_scterr_channel->push_back((int)fibre);
+       *m_totalNumErrors += errorSet.size();
+       for(const auto idHash : errorSet) {
+		 Identifier itId = m_sctid->wafer_id(idHash);
+		 layer = m_sctid->layer_disk(itId);
+		 side = m_sctid->side(itId);
+		 eta = m_sctid->eta_module(itId);
+		 phi = m_sctid->phi_module(itId);
+		 bec = m_sctid->barrel_ec(itId);
+		 m_scterr_type->push_back(type);
+		 m_scterr_bec->push_back(bec);
+		 m_scterr_layer->push_back(layer);
+		 m_scterr_eta->push_back(eta);
+		 m_scterr_phi->push_back(phi);
+		 m_scterr_side->push_back(side);
+	 
+		 uint32_t onlineID = m_cabling->getOnlineIdFromHash(idHash);
+		 SCT_OnlineId online(onlineID);
+		 uint32_t rod = online.rod();
+		 uint32_t fibre = online.fibre();
+		 m_scterr_rodid->push_back((int)rod);
+		 m_scterr_channel->push_back((int)fibre);
        }
-     }
+     
    }
 
   

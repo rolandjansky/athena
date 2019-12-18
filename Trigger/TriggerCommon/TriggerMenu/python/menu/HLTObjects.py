@@ -334,13 +334,12 @@ class HLTSequence:
         algos is one or list of algo instances
         """
 
-        if type(inputTEs) == type(""):
-            self.input  = [ inputTEs ]
-        else:
-            self.input  = inputTEs
+        self.input  = inputTEs
+        if not isinstance (self.input, list):
+            self.input = [ self.input ]
 
-        # make algos always to be alist of ... something ...
-        if type(algos) != type([]):
+        # make algos always to be a list of ... something ...
+        if not isinstance (algos, list):
             algos = [ algos ]
         from AthenaCommon.Configurable import ConfigurableAlgorithm
         self.algs = []
@@ -374,7 +373,7 @@ class HLTSequence:
         """Generates piece of XML used to configure HLT Steering"""
         if not self.used():
             return
-        
+
         xSequence = etree.SubElement(xlist, 'SEQUENCE',
                                      input = reduce(lambda x,y: x+' '+y, self.input),
                                      output = self.output,

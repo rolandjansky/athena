@@ -323,7 +323,7 @@ def muonIDFastTrackingSequence( RoIs, name ):
 
   ### Define input data of Inner Detector algorithms  ###
   ### and Define EventViewNodes to run the algorithms ###
-  from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
+  from TrigInDetConfig.InDetSetup import makeInDetAlgs
   viewAlgs = makeInDetAlgs(whichSignature="Muon"+name, rois = RoIs)
 
   global TrackParticlesName
@@ -486,7 +486,7 @@ def muEFCBRecoSequence( RoIs, name ):
   muEFCBRecoSequence += ViewVerifyMS
   if "FS" in name:
     #Need to run tracking for full scan chains
-    from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
+    from TrigInDetConfig.InDetSetup import makeInDetAlgs
     viewAlgs = makeInDetAlgs(whichSignature = "MuonFS", rois = RoIs) 
 
      #TrackParticlesName = ""
@@ -501,7 +501,7 @@ def muEFCBRecoSequence( RoIs, name ):
     ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("muonCBIDViewDataVerifier")
     ViewVerifyTrk.DataObjects = [( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+'+TrackParticlesName ),
                                  ( 'TrackCollection' , 'StoreGateSvc+'+TrackCollection ),
-                                 ( 'SCT_FlaggedCondData' , 'StoreGateSvc+SCT_FlaggedCondData' ),
+                                 ( 'SCT_FlaggedCondData' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
                                  ( 'xAOD::IParticleContainer' , 'StoreGateSvc+'+TrackParticlesName )]
 
     if globalflags.InputFormat.is_bytestream():
@@ -524,7 +524,7 @@ def muEFCBRecoSequence( RoIs, name ):
     PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muonsFS", inputFTFtracks=TrackCollection)
     PTSeq = seqAND("precisionTrackingInMuonsFS", PTAlgs  )
   else:
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muons",  ViewVerifyTrk, inputFTFtracks= TrackCollection )
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muons",  ViewVerifyTrk, inputFTFtracks= TrackCollection)
     PTSeq = seqAND("precisionTrackingInMuons", PTAlgs  )
   #Get last tracks from the list as input for other alg
 
@@ -613,7 +613,7 @@ def muEFInsideOutRecoSequence(RoIs, name):
 
     from TrigUpgradeTest.InDetPT import makeInDetPrecisionTracking
     #When run in a different view than FTF some data dependencies needs to be loaded through verifier
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muonsLate",  inputFTFtracks= TrackCollection )
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muonsLate",  inputFTFtracks= TrackCollection)
     PTSeq = seqAND("precisionTrackingInLateMuons", PTAlgs  )
 
     efmuInsideOutRecoSequence += PTSeq
@@ -680,7 +680,7 @@ def efmuisoRecoSequence( RoIs, Muons ):
   #efmuisoRecoSequence = parOR("efmuIsoViewNode")
   efmuisoRecoSequence = seqAND("efmuIsoViewNode")
 
-  from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
+  from TrigInDetConfig.InDetSetup import makeInDetAlgs
   viewAlgs = makeInDetAlgs(whichSignature="MuonIso",rois = RoIs)
 
   #TrackParticlesName = ""

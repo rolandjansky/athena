@@ -131,7 +131,9 @@ namespace InDet {
       Trk::CylinderBounds getBound(const Trk::TrackParameters&) const;
 
       MsgStream&    dumpConditions(MsgStream   & out) const;
+
       MsgStream&    dumpEvent     (MsgStream   & out, int size_road) const;
+
   };
 
 } // end of name space
