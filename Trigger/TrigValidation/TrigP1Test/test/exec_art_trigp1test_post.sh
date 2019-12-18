@@ -19,7 +19,7 @@ fi
 ###
 
 echo $(date "+%FT%H:%M %Z")"     Running checklog"
-timeout 1m check_log.pl --config checklogTriggerTest.conf --showexcludestats ${JOB_LOG} | tee checklog.log
+timeout 1m check_log.py --errors --config checklogTriggerTest.conf --showexcludestats ${JOB_LOG} | tee checklog.log
 
 echo "art-result: ${PIPESTATUS[0]} CheckLog"
 
