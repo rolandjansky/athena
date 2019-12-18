@@ -30,6 +30,8 @@ class TrigTauRecMerged_TauCaloOnly (TrigTauRecMergedMT) :
             for tool in tools:
                 tool.inTrigger = True
                 tool.calibFolder = 'TrigTauRec/00-11-02/'
+                if "TauCalibrateLC" in "{}".format(tool.name):
+                    tool.Key_vertexInputContainer = ""
                 pass
 
             self.Tools = tools
@@ -67,6 +69,10 @@ class TrigTauRecMerged_TauCaloOnlyMVA (TrigTauRecMergedMT) :
             for tool in tools:
                 tool.inTrigger = True
                 tool.calibFolder = 'TrigTauRec/00-11-02/'
+                if "TauCalibrateLC" in "{}".format(tool.name):
+                    tool.Key_vertexInputContainer = ""
+                if "MvaTESVariableDecorator" in "{}".format(tool.name):
+                    tool.Key_vertexInputContainer = ""
                 pass
 
             self.Tools = tools
@@ -74,7 +80,6 @@ class TrigTauRecMerged_TauCaloOnlyMVA (TrigTauRecMergedMT) :
             ## add beam type flag
             from AthenaCommon.BeamFlags import jobproperties
             self.BeamType = jobproperties.Beam.beamType()
-
 
 
 class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMergedMT) :
@@ -148,6 +153,16 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMergedMT) :
             for tool in tools:
                 tool.inTrigger = True
                 tool.calibFolder = 'TrigTauRec/00-11-02/'
+                if "TauCalibrateLC" in "{}".format(tool.name):
+                    tool.Key_vertexInputContainer = ""
+                if "TauTrackFinder" in "{}".format(tool.name):
+                    tool.tauParticleCache = ""
+                    tool.Key_trackPartInputContainer = ""
+                if "MvaTESVariableDecorator" in "{}".format(tool.name):
+                    tool.Key_vertexInputContainer = ""
+                if "TauVertexVariables" in "{}".format(tool.name):
+                    tool.Key_vertexInputContainer = ""
+                    tool.Key_trackPartInputContainer = ""
                 pass
 
             self.Tools = tools
