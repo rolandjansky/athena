@@ -41,10 +41,9 @@ namespace ORUtils
   //---------------------------------------------------------------------------
   StatusCode TauLooseMuOverlapTool::initializeDerived()
   {
-    using std::make_unique;
 
     // Initialize the dR matcher
-    m_dRMatcher = make_unique<DeltaRMatcher> (m_maxDR, m_useRapidity);
+    m_dRMatcher = std::make_unique<DeltaRMatcher> (m_maxDR, m_useRapidity);
 
     return StatusCode::SUCCESS;
   }
@@ -106,7 +105,7 @@ namespace ORUtils
           ATH_CHECK( handleOverlap(tau, muon) );
         }
       }
-    }  
+    }
 
     return StatusCode::SUCCESS;
   }

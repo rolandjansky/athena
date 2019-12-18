@@ -37,7 +37,6 @@ namespace ORUtils
   //---------------------------------------------------------------------------
   StatusCode BaseOverlapTool::initialize()
   {
-    using std::make_unique;
     ATH_MSG_DEBUG("Initializing " << name());
     ATH_MSG_DEBUG("Base config options: InputLabel " << m_inputLabel <<
                   " OutputLabel " << m_outputLabel <<
@@ -45,12 +44,12 @@ namespace ORUtils
                   " UserPrio " << m_enableUserPrio);
 
     // Initialize the decoration helper
-    m_decHelper = make_unique<OverlapDecorationHelper>
+    m_decHelper = std::make_unique<OverlapDecorationHelper>
       (m_inputLabel, m_outputLabel, m_outputPassValue);
 
     // Initialize the obj-link helper
     if(m_linkOverlapObjects)
-      m_objLinkHelper = make_unique<OverlapLinkHelper>("overlapObject");
+      m_objLinkHelper = std::make_unique<OverlapLinkHelper>("overlapObject");
 
     // Initialize the derived tool
     ATH_CHECK( initializeDerived() );

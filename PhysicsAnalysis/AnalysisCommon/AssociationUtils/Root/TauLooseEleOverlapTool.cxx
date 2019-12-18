@@ -35,10 +35,8 @@ namespace ORUtils
   //---------------------------------------------------------------------------
   StatusCode TauLooseEleOverlapTool::initializeDerived()
   {
-    using std::make_unique;
-
     // Initialize the dR matcher
-    m_dRMatcher = make_unique<DeltaRMatcher>(m_maxDR, m_useRapidity);
+    m_dRMatcher = std::make_unique<DeltaRMatcher>(m_maxDR, m_useRapidity);
 
     return StatusCode::SUCCESS;
   }

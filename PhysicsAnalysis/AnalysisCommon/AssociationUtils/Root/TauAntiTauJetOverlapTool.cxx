@@ -42,22 +42,20 @@ namespace ORUtils
   //---------------------------------------------------------------------------
   StatusCode TauAntiTauJetOverlapTool::initializeDerived()
   {
-    using std::make_unique;
-
     // Initialize the b-jet helper
     if(!m_bJetLabel.empty()) {
       ATH_MSG_DEBUG("Configuring btag-aware OR with btag label: " << m_bJetLabel);
-      m_bJetHelper = make_unique<BJetHelper>(m_bJetLabel);
+      m_bJetHelper = std::make_unique<BJetHelper>(m_bJetLabel);
     }
 
     // Initialize the dR matcher
-    m_dRMatcher = make_unique<DeltaRMatcher>(m_dR, m_useRapidity);
+    m_dRMatcher = std::make_unique<DeltaRMatcher>(m_dR, m_useRapidity);
 
     // Initialize the anti-tau decoration helper
     if(!m_antiTauLabel.empty()) {
       ATH_MSG_DEBUG("Configuring anti-tau OR with label: " << m_antiTauLabel);
       m_antiTauDecHelper =
-        make_unique<OverlapDecorationHelper>
+        std::make_unique<OverlapDecorationHelper>
           (m_antiTauLabel, m_outputLabel, m_outputPassValue);
     }
 

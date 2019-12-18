@@ -33,16 +33,14 @@ namespace ORUtils
   //---------------------------------------------------------------------------
   StatusCode TauJetOverlapTool::initializeDerived()
   {
-    using std::make_unique;
-
     // Initialize the b-jet helper
     if(!m_bJetLabel.empty()) {
       ATH_MSG_DEBUG("Configuring btag-aware OR with btag label: " << m_bJetLabel);
-      m_bJetHelper = make_unique<BJetHelper>(m_bJetLabel);
+      m_bJetHelper = std::make_unique<BJetHelper>(m_bJetLabel);
     }
 
     // Initialize the dR matcher
-    m_dRMatcher = make_unique<DeltaRMatcher>(m_dR, m_useRapidity);
+    m_dRMatcher = std::make_unique<DeltaRMatcher>(m_dR, m_useRapidity);
 
     return StatusCode::SUCCESS;
   }
