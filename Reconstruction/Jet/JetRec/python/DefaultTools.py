@@ -127,6 +127,15 @@ def declareDefaultTools():
     GhostScale = 0.0
   )
 
+  jtm += PseudoJetGetter(
+    "chsufoget",
+    InputContainer = "CHSUFO",
+    Label = "UFO",
+    OutputContainer = "PseudoJetCHSUFO",
+    SkipNegativeEnergy = True,
+    GhostScale = 0.0
+  )
+
   #--------------------------------------------------------------
   # Jet builder.
   # The tool manager must have one jet builder.

@@ -171,6 +171,7 @@ if pflowCSSKSeq.getFullName() not in [t.getFullName() for t in DerivationFramewo
 
 # Add UFO constituents
 from TrackCaloClusterRecTools.TrackCaloClusterConfig import runUFOReconstruction
+emufoAlg = runUFOReconstruction(jetm3Seq,ToolSvc, PFOPrefix="CHS")
 emcsskufoAlg = runUFOReconstruction(jetm3Seq, ToolSvc, PFOPrefix="CSSK")
 
 #=======================================
@@ -179,14 +180,16 @@ emcsskufoAlg = runUFOReconstruction(jetm3Seq, ToolSvc, PFOPrefix="CSSK")
 reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt4PV0TrackJets",
                   "AntiKt4TruthJets",
-                  "AntiKt4EMTopoJets",
-                  "AntiKt4LCTopoJets",
-                  "AntiKt4EMPFlowJets",
                   "AntiKt10TruthJets",
-                  "AntiKt10UFOCSSKJets"]
+                  "AntiKt10UFOCSSKJets",
+                  "AntiKt10UFOCHSJets",
+                  ]
 replaceAODReducedJets(reducedJetList,jetm3Seq,"JETM3")
-addDefaultTrimmedJets(jetm3Seq,"JETM3")
 
+addDefaultTrimmedJets(jetm3Seq,"JETM3")
+# UFO Trimmed jets
+addTrimmedJets("AntiKt", 1.0, "UFOCSSK", rclus=0.2, ptfrac=0.05, algseq=jetm3Seq, outputGroup="JETM3", writeUngroomed=False, mods="tcc_groomed")
+addTrimmedJets("AntiKt", 1.0, "UFOCHS", rclus=0.2, ptfrac=0.05, algseq=jetm3Seq, outputGroup="JETM3", writeUngroomed=False, mods="tcc_groomed")
 # CSSK UFO SoftDrop jets
 addSoftDropJets("AntiKt", 1.0, "UFOCSSK", beta=1.0, zcut=0.1, algseq=jetm3Seq, outputGroup="JETM3", writeUngroomed=False, mods="tcc_groomed")
 addRecursiveSoftDropJets('AntiKt', 1.0, 'UFOCSSK', beta=1.0, zcut=0.05, N=-1,  mods="tcc_groomed", algseq=jetm3Seq, outputGroup="JETM3", writeUngroomed=False)
@@ -262,13 +265,18 @@ JETM3SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJet
                                         "MET_Reference_AntiKt4EMTopo",
                                         "MET_Reference_AntiKt4LCTopo",
                                         "MET_Reference_AntiKt4EMPFlow",
+                                        "AntiKt2LCTopoJets", "AntiKt6LCTopoJets",
+                                        "AntiKt4TruthWZJets",
                                         "AntiKt10TruthJets",
                                         "AntiKt10UFOCSSKJets",
+                                        "AntiKt10UFOCHSJets",
                                         "AntiKt10TruthTrimmedPtFrac5SmallR20Jets",
                                         "AntiKt10TruthSoftDropBeta100Zcut10Jets",
                                         "AntiKt10TruthBottomUpSoftDropBeta100Zcut5Jets",
                                         "AntiKt10TruthRecursiveSoftDropBeta100Zcut5NinfJets",
                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                                        "AntiKt10UFOCHSTrimmedPtFrac5SmallR20Jets",
+                                        "AntiKt10UFOCSSKTrimmedPtFrac5SmallR20Jets",
                                         "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets",
                                         "AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5Jets",
                                         "AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJets",
@@ -304,13 +312,6 @@ for truthc in [
     JETM3SlimmingHelper.StaticContent.append("xAOD::TruthParticleContainer#"+truthc)
     JETM3SlimmingHelper.StaticContent.append("xAOD::TruthParticleAuxContainer#"+truthc+"Aux.")
 
-if DerivationFrameworkIsMonteCarlo:
-  JETM3SlimmingHelper.AppendToDictionary = {
-    "AntiKt10TruthSoftDropBeta100Zcut10Jets"   :   "xAOD::JetContainer"        ,
-    "AntiKt10TruthSoftDropBeta100Zcut10JetsAux":   "xAOD::JetAuxContainer"        ,
-  }
-  JETM3SlimmingHelper.AllVariables  += ["AntiKt10TruthSoftDropBeta100Zcut10Jets"]
-
 # Trigger content
 JETM3SlimmingHelper.IncludeMuonTriggerContent = True
 JETM3SlimmingHelper.IncludeEGammaTriggerContent = True
@@ -318,7 +319,7 @@ JETM3SlimmingHelper.IncludeEGammaTriggerContent = True
 # Add the jet containers to the stream
 addJetOutputs(
     slimhelper = JETM3SlimmingHelper,
-    contentlist = ["JETM3"],
+    contentlist = ["SmallR","JETM3"],
     smartlist = JETM3SlimmingHelper.SmartCollections
     )
 

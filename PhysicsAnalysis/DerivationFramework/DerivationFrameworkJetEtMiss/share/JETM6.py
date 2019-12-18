@@ -221,8 +221,8 @@ if pflowCSSKSeq.getFullName() not in [t.getFullName() for t in DerivationFramewo
 
 # Add UFO constituents
 from TrackCaloClusterRecTools.TrackCaloClusterConfig import runUFOReconstruction
+emufoAlg = runUFOReconstruction(jetm6Seq,ToolSvc, PFOPrefix="CHS")
 emcsskufoAlg = runUFOReconstruction(jetm6Seq, ToolSvc, PFOPrefix="CSSK")
-
 
 #=======================================
 # RESTORE AOD-REDUCED JET COLLECTIONS
@@ -234,7 +234,9 @@ reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt10TruthJets",
                   "AntiKt10LCTopoJets",
                   "AntiKt10TrackCaloClusterJets",
-                  "AntiKt10UFOCSSKJets"]
+                  "AntiKt10UFOCSSKJets",
+                  "AntiKt10UFOCHSJets"
+                  ]
 
 replaceAODReducedJets(reducedJetList,jetm6Seq,"JETM6")
 
@@ -258,6 +260,8 @@ if DerivationFrameworkIsMonteCarlo:
   addRecursiveSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.05, N=-1,  mods="truth_groomed", algseq=jetm6Seq, outputGroup="JETM6", writeUngroomed=False)
   addBottomUpSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.05, mods="truth_groomed", algseq=jetm6Seq, outputGroup="JETM6", writeUngroomed=False)
 
+addTrimmedJets("AntiKt", 1.0, "UFOCHS", rclus=0.2, ptfrac=0.05, algseq=jetm6Seq, outputGroup="JETM6", writeUngroomed=False, mods="tcc_groomed")
+addTrimmedJets("AntiKt", 1.0, "UFOCSSK", rclus=0.2, ptfrac=0.05, algseq=jetm6Seq, outputGroup="JETM6", writeUngroomed=False, mods="tcc_groomed")
 addSoftDropJets("AntiKt", 1.0, "UFOCSSK", beta=1.0, zcut=0.1, algseq=jetm6Seq, outputGroup="JETM6", writeUngroomed=False, mods="tcc_groomed")
 addRecursiveSoftDropJets('AntiKt', 1.0, 'UFOCSSK', beta=1.0, zcut=0.05, N=-1,  mods="tcc_groomed", algseq=jetm6Seq, outputGroup="JETM6", writeUngroomed=False)
 addBottomUpSoftDropJets('AntiKt', 1.0, 'UFOCSSK', beta=1.0, zcut=0.05, mods="tcc_groomed", algseq=jetm6Seq, outputGroup="JETM6", writeUngroomed=False)
@@ -276,6 +280,8 @@ FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'],Sequencer = jetm6Seq)
 largeRJetCollections = [
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
     "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
+    "AntiKt10UFOCHSTrimmedPtFrac5SmallR20Jets",
+    "AntiKt10UFOCSSKTrimmedPtFrac5SmallR20Jets",
     "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets",
     "AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5Jets",
     "AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJets",
@@ -320,6 +326,8 @@ JETM6SlimmingHelper.SmartCollections = ["Electrons",
                                         "AntiKt4EMTopoJets","AntiKt4EMPFlowJets","AntiKt4TruthJets",
                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                         "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
+                                        "AntiKt10UFOCHSTrimmedPtFrac5SmallR20Jets",
+                                        "AntiKt10UFOCSSKTrimmedPtFrac5SmallR20Jets",
                                         "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets",
                                         "AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5Jets",
                                         "AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJets",
@@ -382,8 +390,8 @@ JETM6SlimmingHelper.IncludeEGammaTriggerContent = True
 
 # Add the jet containers to the stream
 addJetOutputs(JETM6SlimmingHelper,
-              ["JETM6","AntiKt10LCTopoJets","AntiKt10TruthJets","AntiKt10TrackCaloClusterJets","AntiKt10UFOCSSKJets"],
-              ["AntiKt10LCTopoJets","AntiKt10TruthJets","AntiKt10TrackCaloClusterJets","AntiKt10UFOCSSKJets"], #smart slimming
+              ["JETM6","AntiKt10LCTopoJets","AntiKt10TruthJets","AntiKt10TrackCaloClusterJets","AntiKt10UFOCSSKJets","AntiKt10UFOCHSJets"],
+              ["AntiKt10LCTopoJets","AntiKt10TruthJets","AntiKt10TrackCaloClusterJets","AntiKt10UFOCSSKJets","AntiKt10UFOCHSJets"], #smart slimming
               ["AntiKt10EMPFlowCSSKJets"] #veto jets
               )
 
