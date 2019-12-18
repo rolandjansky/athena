@@ -343,6 +343,16 @@ jtm += PseudoJetGetter(
   GhostScale = 0.0
 )
 
+# CHSUFOs.
+jtm += PseudoJetGetter(
+  "chsufoget",
+  InputContainer = "CHSUFO",
+  Label = "UFO",
+  OutputContainer = "PseudoJetCHSUFO",
+  SkipNegativeEnergy = True,
+  GhostScale = 0.0
+)
+
 useVertices = True
 if False == jetFlags.useVertices:
   useVertices = False

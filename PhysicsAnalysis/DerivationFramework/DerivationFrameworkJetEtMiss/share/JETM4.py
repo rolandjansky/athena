@@ -159,6 +159,7 @@ if pflowCSSKSeq.getFullName() not in [t.getFullName() for t in DerivationFramewo
     DerivationFrameworkJob.jetalg.Tools += [pflowCSSKSeq]
 
 from TrackCaloClusterRecTools.TrackCaloClusterConfig import runUFOReconstruction 
+emufoAlg = runUFOReconstruction(jetm4Seq,ToolSvc, PFOPrefix="CHS")
 runUFOReconstruction(jetm4Seq, ToolSvc, PFOPrefix="CSSK")
 
 #=======================================
@@ -171,12 +172,16 @@ reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt10TruthJets",
                   "AntiKt10LCTopoJets",
                   "AntiKt10TruthJets",
-                  "AntiKt10UFOCSSKJets"]
+                  "AntiKt10UFOCSSKJets",
+                  "AntiKt10UFOCHSJets"]
 replaceAODReducedJets(reducedJetList,jetm4Seq,"JETM4")
 
 # AntiKt10*PtFrac5Rclus20
 addDefaultTrimmedJets(jetm4Seq,"JETM4")
 
+# UFO Trimmed jets
+addTrimmedJets("AntiKt", 1.0, "UFOCSSK", rclus=0.2, ptfrac=0.05, algseq=jetm4Seq, outputGroup="JETM4", writeUngroomed=False, mods="tcc_groomed")
+addTrimmedJets("AntiKt", 1.0, "UFOCHS", rclus=0.2, ptfrac=0.05, algseq=jetm4Seq, outputGroup="JETM4", writeUngroomed=False, mods="tcc_groomed")
 # CSSK UFO SoftDrop jets
 addSoftDropJets("AntiKt", 1.0, "UFOCSSK", beta=1.0, zcut=0.1, algseq=jetm4Seq, outputGroup="JETM4", writeUngroomed=False, mods="tcc_groomed")
 addRecursiveSoftDropJets('AntiKt', 1.0, 'UFOCSSK', beta=1.0, zcut=0.05, N=-1,  mods="tcc_groomed", algseq=jetm4Seq, outputGroup="JETM4", writeUngroomed=False)
@@ -208,6 +213,8 @@ if DerivationFrameworkIsMonteCarlo:
 
 largeRJetCollections = [
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+    "AntiKt10UFOCSSKTrimmedPtFrac5SmallR20Jets",
+    "AntiKt10UFOCHSTrimmedPtFrac5SmallR20Jets",
     "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets",
     "AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5Jets",
     "AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJets",
@@ -247,8 +254,11 @@ JETM4SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJet
                                         "AntiKt10TruthJets",
                                         "AntiKt10LCTopoJets",
                                         "AntiKt10UFOCSSKJets",
+                                        "AntiKt10UFOCHSJets",
                                         "AntiKt10TruthTrimmedPtFrac5SmallR20Jets",
                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                                        "AntiKt10UFOCHSTrimmedPtFrac5SmallR20Jets",
+                                        "AntiKt10UFOCSSKTrimmedPtFrac5SmallR20Jets",
                                         "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets",
                                         "AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5Jets",
                                         "AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJets",
