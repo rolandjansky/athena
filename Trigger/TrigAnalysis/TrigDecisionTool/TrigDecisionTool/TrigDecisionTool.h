@@ -34,14 +34,19 @@
 #include "TrigConfInterfaces/ITrigConfigSvc.h" 
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ServiceHandle.h"
-#endif
+#include "AthenaKernel/SlotSpecificObj.h"
 
 #endif
 
+#endif
+
+// Note: Using these utilities header-only
 #include "DecisionHandling/TrigCompositeUtils.h"
 
 // interface to implement for offline access (outside AtlasTrigger)
 #include "TrigDecisionInterface/ITrigDecisionTool.h"
+
+#include "xAODTrigger/TrigDecision.h"
 
 // base classes
 #include "TrigDecisionTool/TrigDecisionToolCore.h"
@@ -114,11 +119,10 @@ namespace Trig {
   private:
       
     bool configKeysMatch(uint32_t smk, uint32_t lvl1psk, uint32_t hltpsk);
+    // SG::SlotSpecificObj< std::vector<uint32_t> > m_configKeysCache; //cache for config keys. only update CacheGlobalMemory when these change
     std::vector<uint32_t> m_configKeysCache; //cache for config keys. only update CacheGlobalMemory when these change
     bool m_configKeysCached; // flag to indicate if we have ever cached config keys (set to true on first caching)
     ToolHandle<TrigConf::ITrigConfigTool> m_configTool;    //!< trigger configuration service handle
-
- 
 
     //full Athena
     #if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
@@ -127,20 +131,23 @@ namespace Trig {
     #endif
     HLT::TrigNavStructure* m_navigation;
     
-    bool m_acceptMultipleInstance;
-    bool m_useAODDecision;
-    std::string m_decisionKey;
+    Gaudi::Property<bool> m_acceptMultipleInstance{this, "AcceptMultipleInstance", false};
 
     /// @name Run 3 properties
     /// @{
-    Gaudi::Property<std::string> m_navigationFormat{this, "NavigationFormat", "TriggerElement", "Allowed tokens are 'TriggerElement' or 'TrigComposite'"}; //!< Note: Temporary property
+    Gaudi::Property<std::string> m_navigationFormat{this, "NavigationFormat", "TriggerElement",
+      "Allowed tokens are 'TriggerElement' or 'TrigComposite'"}; //!< Note: Temporary property
 
-    SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_HLTSummaryKeyIn {this, "HLTSummary", "HLTNav_Summary", "HLT summary container Key"};
+    SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_HLTSummaryKeyIn {this, "HLTSummary",
+      "HLTNav_Summary", "HLT summary container Key"};
+
+    SG::ReadHandleKey<xAOD::TrigDecision> m_decisionKey {this, "TrigDecisionKey", "xTrigDecision",
+      "Storegate key of Trigger Decision"};
     /// @}
 
     TrigDecisionTool& operator= (const TrigDecisionTool&);
 
-    std::map<std::string, std::string> m_publicChainGroups;
+    std::map<std::string,std::string> m_publicChainGroups;
 
   };
 

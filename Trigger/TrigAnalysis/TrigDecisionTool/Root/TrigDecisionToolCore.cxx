@@ -21,16 +21,20 @@
 
 Trig::TrigDecisionToolCore::TrigDecisionToolCore()
 {
-  m_cacheGlobalMemory=new CacheGlobalMemory();
-  m_expertMethods=new ExpertMethods(m_cacheGlobalMemory);
+  SG::SlotSpecificObj<Trig::CacheGlobalMemory>* ptr = &m_cacheGlobalMemory;
+  m_expertMethods=new ExpertMethods(ptr);
   ChainGroupInitialize();
 }
 
 Trig::TrigDecisionToolCore::~TrigDecisionToolCore() {
-  delete m_cacheGlobalMemory;
   delete m_expertMethods;
 }
 
+Trig::CacheGlobalMemory* Trig::TrigDecisionToolCore::cgm() const { 
+  const Trig::CacheGlobalMemory* ptr = m_cacheGlobalMemory.get();
+  // A consiquence of placing the cache in a slot-specific wrapper 
+  return const_cast<Trig::CacheGlobalMemory*>(ptr);
+}
 
 StatusCode Trig::TrigDecisionToolCore::initialize() {
   return StatusCode::SUCCESS;
