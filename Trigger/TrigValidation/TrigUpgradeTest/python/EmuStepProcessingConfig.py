@@ -221,7 +221,7 @@ def generateL1DecoderAndChains():
                                                                                        ChainStep("Step2_2mu22",[mu22], multiplicity=[2]),
                                                                                        ChainStep("Step3_2mu",  [mu31], multiplicity=[2])] ),
                                                                                        
-            makeChain(name='HLT_mu6_mu6noL1_L1MU6', L1Thresholds=["MU6", ""], ChainSteps=[ ChainStep("Step1_2muAs",   [mu11, mu11], multiplicity=[1,1]),
+            makeChain(name='HLT_mu6_mu6noL1_L1MU6', L1Thresholds=["MU6", "FSNOSEED"], ChainSteps=[ ChainStep("Step1_2muAs",   [mu11, mu11], multiplicity=[1,1]),
                                                                                            ChainStep("Step2_2muAs",   [mu21, mu21], multiplicity=[1,1]) ])
                                                                               
             ]
