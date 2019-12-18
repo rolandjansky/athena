@@ -2616,8 +2616,6 @@ def run_card_consistency_check(isNLO=False,path='.'):
         if not 'python_seed' in mydict:
             mglog.warning('No python seed set in run_card -- adding one with same value as iseed')
             modify_run_card(cardpath,cardpath+'.iseed.backup',{'python_seed' : mydict['iseed']})
-        elif int(mydict['python_seed'])!=int(mydict['iseed']):
-            raise RuntimeError('python_seed and iseed do not agree')
 
     mglog.info('Finished checking run card - All OK!')
     return
