@@ -1,10 +1,13 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # AnaAlgorithm import(s):
 from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
 from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
 
-def makeMetAnalysisSequence( dataType, metSuffix, useFJVT = True, postfix = '' ):
+def makeMetAnalysisSequence( dataType, metSuffix,
+                             postfix = '',
+                             useFJVT = True,
+                             treatPUJets = True ):
     """Create a met analysis algorithm sequence
 
     After creating the sequence object, it needs to be configured with a call
@@ -34,10 +37,14 @@ def makeMetAnalysisSequence( dataType, metSuffix, useFJVT = True, postfix = '' )
       metSuffix -- Suffix for the (core) MET objects to use from the input
                    (file)
       useFJVT -- Use FJVT decision for the calculation
+      treatPUJets -- Treat pile-up jets in the MET significance calculation
     """
 
     if not dataType in ["data", "mc", "afii"] :
         raise ValueError ("invalid data type: " + dataType)
+
+    if not useFJVT and treatPUJets:
+        raise ValueError ("MET significance pile-up treatment requires fJVT")
 
     # Remove b-tagging calibration from the MET suffix name
     btIndex = metSuffix.find('_BTagging')
@@ -77,13 +84,12 @@ def makeMetAnalysisSequence( dataType, metSuffix, useFJVT = True, postfix = '' )
     seq.append( alg, inputPropName = 'met' )
 
     # Set up the met significance algorithm:
-    if useFJVT:
-        alg = createAlgorithm( 'CP::MetSignificanceAlg', 'MetSignificanceAlg' + postfix )
-        addPrivateTool( alg, 'significanceTool', 'met::METSignificance' )
-        alg.significanceTool.SoftTermParam = 0
-        alg.significanceTool.TreatPUJets = True
-        alg.significanceTool.IsAFII = dataType == "afii"
-        seq.append( alg, inputPropName = 'met' )
+    alg = createAlgorithm( 'CP::MetSignificanceAlg', 'MetSignificanceAlg' + postfix )
+    addPrivateTool( alg, 'significanceTool', 'met::METSignificance' )
+    alg.significanceTool.SoftTermParam = 0
+    alg.significanceTool.TreatPUJets = treatPUJets
+    alg.significanceTool.IsAFII = dataType == "afii"
+    seq.append( alg, inputPropName = 'met' )
 
     # Return the sequence:
     return seq
