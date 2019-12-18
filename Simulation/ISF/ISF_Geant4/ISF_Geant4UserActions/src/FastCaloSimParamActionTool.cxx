@@ -104,7 +104,7 @@ namespace G4UA
     actionList.runActions.push_back( action.get() );
     actionList.eventActions.push_back( action.get() );
     actionList.steppingActions.push_back( action.get() );
-    return std::move(action);
+    return action;
   }
 
 } // namespace G4UA
