@@ -61,7 +61,7 @@ electronSuperClusterBuilder::electronSuperClusterBuilder(const std::string& type
   declareProperty("SuperClusterCollestionName",  m_outputElectronSuperClusters  = "ElectronSuperClusters");
   //
   declareProperty("NumberOfReqSiHits", m_numberOfSiHits = 4);
-
+  declareProperty("NumberOfReqPixHits", m_numberOfPixHits = 1);
   // Declare interface & properties.
   declareInterface<IelectronSuperClusterBuilder>(this);
 }
@@ -164,7 +164,7 @@ StatusCode electronSuperClusterBuilder::executeImpl(const EgammaRecContainer *eg
     if (egRec->trackParticle(0)->summaryValue(uint8_value,  xAOD::numberOfPixelHits)){
       trkPixelHits+=uint8_value;
     }    
-    if (!trkPixelHits){
+    if (trkPixelHits < m_numberOfPixHits){
       continue;
     }
     //Check if it is TRT standalone

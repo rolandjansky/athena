@@ -45,18 +45,18 @@ public:
 
   enum SUBPOS { SUBPOS_MID = TFCSExtrapolationState::SUBPOS_MID, SUBPOS_ENT = TFCSExtrapolationState::SUBPOS_ENT, SUBPOS_EXT = TFCSExtrapolationState::SUBPOS_EXT}; //MID=middle, ENT=entrance, EXT=exit of cal layer
 
-  virtual void extrapolate(TFCSExtrapolationState& result,const TFCSTruthState* truth) override final;
+  virtual void extrapolate(TFCSExtrapolationState& result,const TFCSTruthState* truth) const override final;
 
 protected:
   const IFastCaloSimGeometryHelper* GetCaloGeometry() const {return &(*m_CaloGeometryHelper);};
 
   // extrapolation through Calo
   std::vector<Trk::HitInfo>* caloHits(const TFCSTruthState* truth) const;
-  void extrapolate(TFCSExtrapolationState& result,const TFCSTruthState* truth,std::vector<Trk::HitInfo>* hitVector);
-  void extrapolate_to_ID(TFCSExtrapolationState& result,const TFCSTruthState* truth,std::vector<Trk::HitInfo>* hitVector);
-  bool get_calo_etaphi(TFCSExtrapolationState& result,std::vector<Trk::HitInfo>* hitVector,int sample,int subpos=SUBPOS_MID);
-  bool get_calo_surface(TFCSExtrapolationState& result,std::vector<Trk::HitInfo>* hitVector);
-  bool rz_cylinder_get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector, double cylR, double cylZ, Amg::Vector3D& pos, Amg::Vector3D& mom);
+  void extrapolate(TFCSExtrapolationState& result,const TFCSTruthState* truth,std::vector<Trk::HitInfo>* hitVector) const;
+  void extrapolate_to_ID(TFCSExtrapolationState& result,const TFCSTruthState* truth,std::vector<Trk::HitInfo>* hitVector) const;
+  bool get_calo_etaphi(TFCSExtrapolationState& result,std::vector<Trk::HitInfo>* hitVector,int sample,int subpos=SUBPOS_MID) const;
+  bool get_calo_surface(TFCSExtrapolationState& result,std::vector<Trk::HitInfo>* hitVector) const;
+  bool rz_cylinder_get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector, double cylR, double cylZ, Amg::Vector3D& pos, Amg::Vector3D& mom) const;
 
   bool   isCaloBarrel(int sample) const;
   double deta(int sample,double eta) const;

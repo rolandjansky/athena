@@ -265,7 +265,7 @@ InDetDummyPlots::algoEfficiency(double radius, int SiSPweight, int TRTSeededweig
 }
 
 void
-InDetDummyPlots::track_author(std::bitset<52> authorset){
+InDetDummyPlots::track_author(std::bitset<xAOD::NumberOfTrackRecoInfo> authorset){
 
   for(unsigned int i=0; i<authorset.size(); i++){
     int author = authorset.test(i);

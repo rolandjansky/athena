@@ -95,7 +95,7 @@ StatusCode FastCaloSimCaloExtrapolation::finalize()
 }
 
 
-void FastCaloSimCaloExtrapolation::extrapolate(TFCSExtrapolationState& result,const TFCSTruthState* truth)
+void FastCaloSimCaloExtrapolation::extrapolate(TFCSExtrapolationState& result,const TFCSTruthState* truth) const
 {
 
   //UPDATE EXTRAPOLATION
@@ -286,7 +286,7 @@ std::vector<Trk::HitInfo>* FastCaloSimCaloExtrapolation::caloHits(const TFCSTrut
 }
 
 //#######################################################################
-void FastCaloSimCaloExtrapolation::extrapolate(TFCSExtrapolationState& result,const TFCSTruthState* truth,std::vector<Trk::HitInfo>* hitVector)
+void FastCaloSimCaloExtrapolation::extrapolate(TFCSExtrapolationState& result,const TFCSTruthState* truth,std::vector<Trk::HitInfo>* hitVector) const
 {
   ATH_MSG_DEBUG("Start extrapolate()");
 
@@ -334,7 +334,7 @@ void FastCaloSimCaloExtrapolation::extrapolate(TFCSExtrapolationState& result,co
   ATH_MSG_DEBUG("End extrapolate()");
 }
 
-void FastCaloSimCaloExtrapolation::extrapolate_to_ID(TFCSExtrapolationState& result,const TFCSTruthState* /*truth*/,std::vector<Trk::HitInfo>* hitVector)
+void FastCaloSimCaloExtrapolation::extrapolate_to_ID(TFCSExtrapolationState& result,const TFCSTruthState* /*truth*/,std::vector<Trk::HitInfo>* hitVector) const
 {
   ATH_MSG_DEBUG("Start extrapolate_to_ID()");
 
@@ -410,7 +410,7 @@ void FastCaloSimCaloExtrapolation::extrapolate_to_ID(TFCSExtrapolationState& res
 
 } //extrapolate_to_ID
 
-bool FastCaloSimCaloExtrapolation::get_calo_surface(TFCSExtrapolationState& result,std::vector<Trk::HitInfo>* hitVector)
+bool FastCaloSimCaloExtrapolation::get_calo_surface(TFCSExtrapolationState& result,std::vector<Trk::HitInfo>* hitVector) const
 {
   ATH_MSG_DEBUG("Start get_calo_surface()");
 
@@ -501,7 +501,7 @@ bool FastCaloSimCaloExtrapolation::get_calo_surface(TFCSExtrapolationState& resu
 }
 
 //UPDATED
-bool FastCaloSimCaloExtrapolation::get_calo_etaphi(TFCSExtrapolationState& result,std::vector<Trk::HitInfo>* hitVector, int sample,int subpos)
+bool FastCaloSimCaloExtrapolation::get_calo_etaphi(TFCSExtrapolationState& result,std::vector<Trk::HitInfo>* hitVector, int sample,int subpos) const
 {
 
   result.set_OK(sample,subpos,false);
@@ -687,7 +687,7 @@ bool FastCaloSimCaloExtrapolation::get_calo_etaphi(TFCSExtrapolationState& resul
 }
 
 //UPDATED
-bool FastCaloSimCaloExtrapolation::rz_cylinder_get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector, double cylR, double cylZ, Amg::Vector3D& pos, Amg::Vector3D& mom)
+bool FastCaloSimCaloExtrapolation::rz_cylinder_get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector, double cylR, double cylZ, Amg::Vector3D& pos, Amg::Vector3D& mom) const
 {
 
   bool best_found=false;
