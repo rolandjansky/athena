@@ -56,6 +56,7 @@ atlas_add_library( Pythia8_iLib
 		   src/UserHooks/WZPolarization.cxx
                    src/UserHooks/mHatReweight.cxx
                    src/UserHooks/main31.cxx
+                   src/UserHooks/EnhanceSplittings.cxx
                    src/UserResonances/ResonanceExcitedCI.cxx
                    src/UserResonances/ResonanceLQ.cxx
 		   src/Pythia8Custom/CheckForFinalPartons.cxx
