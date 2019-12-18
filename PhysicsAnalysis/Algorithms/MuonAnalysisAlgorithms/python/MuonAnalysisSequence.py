@@ -133,13 +133,15 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
 
     # Setup the muon quality selection
     qualitySelectionDecoration = 'good_muon' + postfix + ',as_bits'
-    alg = createAlgorithm( 'CP::AsgSelectionAlg',
-                           'MuonQualitySelectionAlg' + postfix )
+    badMuonVetoDecoration = 'is_bad' + postfix + ',as_char'
+    alg = createAlgorithm( 'CP::MuonSelectionAlgV2',
+                           'MuonSelectionAlg' + postfix )
     alg.preselection = "&&".join (selectionDecorNames)
     addPrivateTool( alg, 'selectionTool', 'CP::MuonSelectionTool' )
     alg.selectionTool.MuQuality = quality
     alg.selectionDecoration = qualitySelectionDecoration
-    seq.append( alg, inputPropName = 'particles',
+    alg.badMuonVetoDecoration = badMuonVetoDecoration
+    seq.append( alg, inputPropName = 'muons',
                 stageName = 'selection' )
     selectionDecorNames.append( alg.selectionDecoration )
     selectionDecorCount.append( 4 )
