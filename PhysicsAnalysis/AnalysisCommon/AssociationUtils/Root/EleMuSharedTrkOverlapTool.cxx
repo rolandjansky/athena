@@ -24,9 +24,14 @@ namespace ORUtils
   EleMuSharedTrkOverlapTool::EleMuSharedTrkOverlapTool(const std::string& name)
     : BaseOverlapTool(name)
   {
-
     declareProperty("RemoveCaloMuons", m_removeCaloMuons = true,
                     "Turn on removal of overlapping calo muons");
+    declareProperty("UseDRMatching", m_useDRMatching = false,
+                    "Remove electrons in DR cone of muons");
+    declareProperty("DR", m_maxDR = 0.1,
+                    "Delta-R cone for flagging overlaps");
+    declareProperty("UseRapidity", m_useRapidity = true,
+                    "Calculate delta-R using rapidity");
   }
 
   //---------------------------------------------------------------------------
@@ -34,9 +39,17 @@ namespace ORUtils
   //---------------------------------------------------------------------------
   StatusCode EleMuSharedTrkOverlapTool::initializeDerived()
   {
+    using CxxUtils::make_unique;
+
     if(m_removeCaloMuons) {
       ATH_MSG_DEBUG("Configuring removal of overlapping calo muons");
     }
+
+    if(m_useDRMatching){
+      ATH_MSG_DEBUG("Configuring removal of electrons in delta R cone of " << m_maxDR);
+      m_dRMatcher = make_unique<DeltaRMatcher>(m_maxDR, m_useRapidity);
+    }
+
     return StatusCode::SUCCESS;
   }
 
@@ -122,7 +135,13 @@ namespace ORUtils
           xAOD::EgammaHelpers::getOriginalTrackParticle(electron);
 
         // Flag the electron as overlapping if they share the track
-        if(elTrk == muTrk) {
+        // or if they are DR matched
+        bool removeEle = (elTrk == muTrk);
+        if( (m_useDRMatching)
+            && (m_dRMatcher->objectsMatch(*electron, *muon)) ){
+          removeEle = true;
+        }
+        if(removeEle){
           ATH_CHECK( handleOverlap(electron, muon) );
         }
       }
