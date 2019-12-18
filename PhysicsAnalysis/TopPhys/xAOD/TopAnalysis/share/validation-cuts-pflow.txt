@@ -5,19 +5,38 @@ GRLDir  GoodRunsLists
 GRLFile data15_13TeV/20170619/physics_25ns_21.0.19.xml data16_13TeV/20180129/physics_25ns_21.0.19.xml data17_13TeV/20180619/physics_25ns_Triggerno17e33prim.xml
 
 ### Pile-up reweighting tool - Metadata determines which to use
+# MC16a configuration
+
+### This setup is for the CI tests
+PRWConfigFiles_FS dev/AnalysisTop/PileupReweighting/user.iconnell.Top.PRW.MC16a.FS.v2/CI.prw.merged.root
+PRWConfigFiles_AF dev/AnalysisTop/PileupReweighting/user.iconnell.Top.PRW.MC16a.AF.v2/CI.prw.merged.root
+
+### Use following lines (uncomment) for your config file
+#PRWConfigFiles_FS dev/AnalysisTop/PileupReweighting/user.iconnell.Top.PRW.MC16a.FS.v2/prw.merged.root
+#PRWConfigFiles_AF dev/AnalysisTop/PileupReweighting/user.iconnell.Top.PRW.MC16a.AF.v2/prw.merged.root
+
+PRWLumiCalcFiles GoodRunsLists/data15_13TeV/20170619/PHYS_StandardGRL_All_Good_25ns_276262-284484_OflLumi-13TeV-008.root GoodRunsLists/data16_13TeV/20180129/PHYS_StandardGRL_All_Good_25ns_297730-311481_OflLumi-13TeV-009.root
 
 # MC16d configuration
-PRWConfigFiles_FS dev/AnalysisTop/PileupReweighting/user.iconnell.Top.PRW.MC16d.FS.v2/CI.prw.merged.root
-PRWConfigFiles_AF dev/AnalysisTop/PileupReweighting/user.iconnell.Top.PRW.MC16d.AF.v2/CI.prw.merged.root
-PRWLumiCalcFiles GoodRunsLists/data17_13TeV/20180619/physics_25ns_Triggerno17e33prim.lumicalc.OflLumi-13TeV-010.root
+#PRWConfigFiles_FS dev/AnalysisTop/PileupReweighting/user.iconnell.Top.PRW.MC16d.FS.v2/CI.prw.merged.root
+#PRWConfigFiles_AF dev/AnalysisTop/PileupReweighting/user.iconnell.Top.PRW.MC16d.AF.v2/CI.prw.merged.root
+#PRWActualMu_FS GoodRunsLists/data17_13TeV/20180619/physics_25ns_Triggerno17e33prim.actualMu.OflLumi-13TeV-010.root
+#PRWActualMu_AF GoodRunsLists/data17_13TeV/20180619/physics_25ns_Triggerno17e33prim.actualMu.OflLumi-13TeV-010.root
+#PRWLumiCalcFiles GoodRunsLists/data17_13TeV/20180619/physics_25ns_Triggerno17e33prim.lumicalc.OflLumi-13TeV-010.root
 
+# MC16e configuration
+#PRWConfigFiles_FS dev/AnalysisTop/PileupReweighting/user.iconnell.Top.PRW.MC16e.FS.v2/prw.merged.root
+#PRWConfigFiles_AF dev/AnalysisTop/PileupReweighting/user.iconnell.Top.PRW.MC16e.AF.v2/prw.merged.root
+#PRWActualMu_FS GoodRunsLists/data18_13TeV/20190318/physics_25ns_Triggerno17e33prim.actualMu.OflLumi-13TeV-010.root
+#PRWActualMu_AF GoodRunsLists/data18_13TeV/20190318/physics_25ns_Triggerno17e33prim.actualMu.OflLumi-13TeV-010.root
+#PRWLumiCalcFiles GoodRunsLists/data18_13TeV/20190318/ilumicalc_histograms_None_348885-364292_OflLumi-13TeV-010.root
 
 BTagCDIPath xAODBTaggingEfficiency/13TeV/2019-21-13TeV-MC16-CDI-2019-10-07_v1.root
 
 ### Object container names
 ElectronCollectionName Electrons
 MuonCollectionName Muons
-JetCollectionName AntiKt4EMPFlowJets_BTagging201810
+JetCollectionName AntiKt4EMPFlowJets_BTagging201903
 LargeJetCollectionName AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets 
 TauCollectionName TauJets
 PhotonCollectionName Photons
@@ -40,7 +59,7 @@ VarRCJetRho 2
 
 ### Truth configuration
 TruthCollectionName TruthParticles
-TruthJetCollectionName AntiKt4TruthWZJets
+TruthJetCollectionName AntiKt4TruthDressedWZJets
 TruthLargeRJetCollectionName AntiKt10TruthTrimmedPtFrac5SmallR20Jets
 TopPartonHistory ttbar
 TopParticleLevel True
@@ -106,7 +125,6 @@ BoostedJetTagging JSSWTopTaggerDNN:DNNTaggerTopQuarkInclusive50 JSSWTopTaggerDNN
 ### B-tagging configuration
 BTaggingWP MV2c10:FixedCutBEff_77 MV2c10:Continuous DL1:Continuous DL1r:FixedCutBEff_77
 # Example of how to remove systematics from b-tag EV
-#BTaggingSystExcludedFromEV FT_EFF_JET_BJES_Response;FT_EFF_JET_EffectiveNP_1;FT_EFF_EG_RESOLUTION_ALL
 
 # Saving bootstrapping weights
 SaveBootstrapWeights False
@@ -244,7 +262,7 @@ JET_N 25000 >= 3
 JET_N 25000 >= 4
 MET > 30000
 MWT > 30000
-#RECO::KLFITTERRUN kElectron KLFitterBTaggingWP:MV2c10:FixedCutBEff_77
+RECO::KLFITTERRUN kElectron KLFitterBTaggingWP:MV2c10:FixedCutBEff_77
 #KLFITTER > -50.0
 EXAMPLEPLOTS
 #PRINT
@@ -370,7 +388,7 @@ JET_N 25000 >= 2
 JET_N 25000 >= 3
 JET_N 25000 >= 4
 MET+MWT > 60000
-#RECO::KLFITTERRUN kMuon KLFitterBTaggingWP:MV2c10:FixedCutBEff_77
+RECO::KLFITTERRUN kMuon KLFitterBTaggingWP:MV2c10:FixedCutBEff_77
 #KLFITTER > -50.0
 EXAMPLEPLOTS
 #PRINT
