@@ -24,9 +24,7 @@ StatusCode MvaTESVariableDecorator::initialize(){
 
   ATH_CHECK( m_eventInfo.initialize() );
 
-  if(!inTrigger()) {
-    ATH_CHECK( m_vertexInputContainer.initialize() );
-  }
+  ATH_CHECK( m_vertexInputContainer.initialize(!m_vertexInputContainer.key().empty()) );
   
   return StatusCode::SUCCESS;
 }
@@ -46,7 +44,7 @@ StatusCode MvaTESVariableDecorator::eventInitialize()
   } 
 
   m_nVtxPU = 0;
-  if(!inTrigger()) {
+  if(!m_vertexInputContainer.key().empty()) {
     // Get the primary vertex container from StoreGate
     SG::ReadHandle<xAOD::VertexContainer> vertexInHandle( m_vertexInputContainer );
     if (!vertexInHandle.isValid()) {

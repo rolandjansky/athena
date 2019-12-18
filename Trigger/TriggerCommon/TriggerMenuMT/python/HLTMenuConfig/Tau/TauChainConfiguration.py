@@ -57,9 +57,9 @@ class TauChainConfiguration(ChainConfigurationBase):
         stepDictionary = {
             "ptonly":[self.getCaloSeq(), self.getFastTrack()],
             #"tracktwo":[self.getCaloSeq(), self.getFastTrack()],
-            "tracktwo":[self.getCaloSeq(), self.getFastTrack(), self.getTrackIso()],
-            #"tracktwo":[self.getCaloSeq(), self.getTrackCore()],
-            "tracktwoMVA":[self.getCaloMVASeq()],
+            #"tracktwo":[self.getCaloMVASeq(), self.getFastTrack(), self.getTrackIso()],
+            "tracktwo":[self.getCaloSeq(), self.getFastTrack()],
+            "tracktwoMVA":[self.getCaloMVASeq(),self.getFastTrack(), self.getTrackIso()],
         }
 
         # this should be extended by the signature expert to make full use of the dictionary!
