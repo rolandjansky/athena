@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -80,7 +80,7 @@ StatusCode ReadRpcRDO::execute() {
 
   ATH_MSG_DEBUG( "in execute()"  );
 
-  const DataHandle<RpcPadContainer> RpcRDO; 
+  const RpcPadContainer* RpcRDO = nullptr; 
   ATH_CHECK( (*m_activeStore)->retrieve( RpcRDO, "RPCPAD" ) );
 
   ATH_MSG_DEBUG("****** RpcRDO->size() : " << RpcRDO->size() );
