@@ -74,9 +74,8 @@ for trig_item in inputFileSummary['metadata']['/TRIGGER/HLT/Menu']:
     if trig_item['ChainName'] in trigger_names_full: trigger_names += [ trig_item['ChainName'] ]
 
 # Create trigger matching decorations
-PHYSLITE_trigmatching_helper = TriggerMatchingHelper(matching_tool = "PHYSLITETriggerMatchingTool",
-                                                 trigger_list = trigger_names)
-AugmentationTools.append( PHYSLITE_trigmatching_helper.matching_tool )
+trigmatching_helper = TriggerMatchingHelper(
+        trigger_list = trigger_names, add_to_df_job=True)
 
 #==============================================================================
 # HEAVY FLAVOR DECORATION
@@ -476,7 +475,7 @@ if DerivationFrameworkIsMonteCarlo:
     addTruth3ContentToSlimmerTool(PHYSLITESlimmingHelper)
 
 # Extra trigger collections
-PHYSLITE_trigmatching_helper.add_to_slimming(PHYSLITESlimmingHelper)
+trigmatching_helper.add_to_slimming(PHYSLITESlimmingHelper)
 
 PHYSLITESlimmingHelper.AppendContentToStream(PHYSLITEStream)
 

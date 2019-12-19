@@ -42,8 +42,8 @@ for item in trig_el,trig_mu,trig_g:
 trigger_names = list(dict.fromkeys(trigger_names))
 
 # Create trigger matching decorations
-PHYS2_trigmatching_helper = TriggerMatchingHelper(matching_tool = "PHYS2TriggerMatchingTool",
-                                                 trigger_list = trigger_names)
+trigmatching_helper = TriggerMatchingHelper(
+        trigger_list=trigger_names, add_to_df_job=True)
 
 #====================================================================
 # SET UP STREAM   
@@ -91,8 +91,7 @@ ToolSvc += PHYS2MuonTPThinningTool
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("PHYS2Kernel",
-                                                                       ThinningTools = [PHYS2TrackParticleThinningTool,PHYS2MuonTPThinningTool],
-                                                                       AugmentationTools = [PHYS2_trigmatching_helper.matching_tool])
+                                                                       ThinningTools = [PHYS2TrackParticleThinningTool,PHYS2MuonTPThinningTool])
 #====================================================================
 # JET/MET   
 #====================================================================
@@ -224,7 +223,7 @@ DerivationFrameworkJob += PHYS2_SeqCompress
 PHYS2_SeqCompress += CfgMgr.DerivationFramework__FloatCompressionAlg("CompressFloatCompression", SGKeys=PHYS2_compression_list)
 
 # Add trigger matching
-PHYS2_trigmatching_helper.add_to_slimming(PHYS2SlimmingHelper)
+trigmatching_helper.add_to_slimming(PHYS2SlimmingHelper)
 
 # Final construction of output stream
 PHYS2SlimmingHelper.AppendContentToStream(PHYS2Stream)

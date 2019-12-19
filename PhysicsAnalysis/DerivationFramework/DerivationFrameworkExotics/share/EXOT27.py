@@ -282,10 +282,8 @@ if DerivationFrameworkIsMonteCarlo:
                                                                              AugmentationTools = [DFHTXSdecorator]
                                                                              )
 # Trigger matching augmentation
-matching_helper = TriggerMatchingHelper(
-    "EXOT27TriggerMatchingTool",
-    triggers_for_matching)
-EXOT27AugmentationTools.append(matching_helper.matching_tool)
+matching_helper = TriggerMatchingHelper(trigger_list=triggers_for_matching)
+EXOT27Seq += matching_helper.alg
 
 ################################################################################
 # Setup thinning (remove objects from collections)
