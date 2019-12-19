@@ -75,7 +75,10 @@ StatusCode TrigJetSelectorMT::execute() {
                    "," << vertex->z() << ")" );
 
   const xAOD::Vertex *primaryVertex = getPrimaryVertex( vertexContainer );  
-  if ( primaryVertex == nullptr ) return StatusCode::FAILURE;
+  if ( primaryVertex == nullptr ) {
+    ATH_MSG_ERROR( "No primary vertex has been found for this event!" );
+    return StatusCode::FAILURE;
+  }
 
   ATH_MSG_DEBUG( "  ** PV = (" << primaryVertex->x() <<
 		 "," << primaryVertex->y() <<
@@ -152,12 +155,16 @@ StatusCode TrigJetSelectorMT::execute() {
 
 const xAOD::Vertex* TrigJetSelectorMT::getPrimaryVertex( const xAOD::VertexContainer* vertexContainer ) const {
   // In case we need more complex selection
-  if ( vertexContainer->size() == 0 ) return nullptr;
+  if ( vertexContainer->size() == 0 ) {
+    ATH_MSG_WARNING( "Vertex Container has size 0! This can't be right!" );
+    return nullptr;
+  }
 
   for ( const xAOD::Vertex *vertex : *vertexContainer ) {
     if ( vertex->vertexType() != xAOD::VxType::VertexType::PriVtx ) continue;
     return vertex;
   }
 
+  ATH_MSG_WARNING( "None of the vertexes in the vertex container is a primary vertex!" );
   return nullptr;
 }
