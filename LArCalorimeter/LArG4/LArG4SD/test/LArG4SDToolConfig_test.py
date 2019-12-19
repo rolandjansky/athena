@@ -68,6 +68,7 @@ if __name__ == '__main__':
   #cfg.setPrivateTools(tool5)
 
   acc6 = LArDeadSensitiveDetectorToolCfg(ConfigFlags)
+  tool6 = cfg.popToolsAndMerge(acc6)
   #cfg.setPrivateTools(toolDeadSensitiveDetector)
 
   toolActiveSensitiveDetector = LArActiveSensitiveDetectorToolCfg(ConfigFlags)
