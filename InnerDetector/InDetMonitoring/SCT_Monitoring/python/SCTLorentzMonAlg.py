@@ -49,9 +49,9 @@ def SCTLorentzMonAlgConfig(inputFlags):
     from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
     InDetPixelConditionsSummaryTool = result.popToolsAndMerge(PixelConditionsSummaryCfg(inputFlags))
 
-    # Taken from Tracking/TrkExtrapolation/TrkExTools/python/AtlasExtrapolatorConfig.py
+    # Taken from Tracking/TrkConfig/python/AtlasExtrapolatorConfig.py
     # AtlasExtrapolatorConfig can give only private extrapolator. We need public extrapolator.
-    from TrkDetDescrSvc.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+    from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
     trackGeomCfg = TrackingGeometrySvcCfg(inputFlags)
     geom_svc = trackGeomCfg.getPrimary() 
     geom_svc.GeometryBuilder.Compactify = False ######## To avoid crash ########
