@@ -85,7 +85,7 @@ class BunchGroupSet:
             return self
 
         # check if one already exists with this number
-        if self.bunchGroups[internalNumber] != None:
+        if self.bunchGroups[internalNumber] is not None:
             log.error('Warning: tried to add bunchgroup %i, but one with that number already exists' % internalNumber)
             return self
 

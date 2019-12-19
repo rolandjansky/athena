@@ -1,7 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from collections import defaultdict
-from .eta_string_conversions import eta_string_to_floats
 
 
 def hypo_factory(key, args):
@@ -14,7 +13,7 @@ def hypo_factory(key, args):
         'HLThypo2_dimass_deta': HLThypo2_dimass_deta,
          }.get(key)
 
-    if key == None:
+    if key is None:
         raise RuntimeError('hypo_factory: unknown key %s' % key)
     else:
         return klass(args)
@@ -235,7 +234,7 @@ class TLAHypo(TLABase):
 
     def __init__(self, ddict):
         TLABase.__init__(self, ddict)
-        hypo_type = 'tla'
+        self.hypo_type = 'tla'
         
 
 class HLThypo2_tla(TLABase):

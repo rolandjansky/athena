@@ -3,10 +3,7 @@
 from __future__ import print_function
 
 import unittest
-import copy
-from mock import MagicMock
 from ChainConfigMaker import ChainConfigMaker
-from ChainConfigMaker import JetAttributes
 
 
 class Test_ChainConfigMaker(unittest.TestCase):
