@@ -14,6 +14,7 @@ atlas_depends_on_subdirs(
         LumiBlock/LumiBlockComps
         LumiBlock/LumiBlockData
         Trigger/TrigEvent/TrigDecisionInterface
+        Trigger/TrigAnalysis/TrigDecisionTool
     PRIVATE
         AtlasTest/TestTools
         Control/AthenaKernel
@@ -23,7 +24,6 @@ atlas_depends_on_subdirs(
         Event/xAOD/xAODEventInfo
         Event/EventInfo
         Tools/LWHists
-        Trigger/TrigAnalysis/TrigDecisionTool
         Trigger/TrigAnalysis/TrigAnalysisInterfaces
         MuonSpectrometer/MuonAlignment/MuonAlignmentData
 )
