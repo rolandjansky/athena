@@ -96,16 +96,17 @@ Stream1.ItemList   += ["SCT_RDO_Container#*"]
 Stream1.ItemList   += ["TRT_RDO_Container#*"]
 Stream1.ItemList   += ["PixelRDOElemLinkVec#*"]
 
-print Stream1.ItemList
+printfunc (Stream1.ItemList)
 
 
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
 #--------------------------------------------------------------
-svcMgr.MessageSvc = Service( "MessageSvc" )
 svcMgr.MessageSvc.OutputLevel = WARNING
 svcMgr.MessageSvc.debugLimit  = 100000
-AthenaEventLoopMgr = Service( "AthenaEventLoopMgr" )
+
+from AthenaServices import AthenaServicesConf
+AthenaEventLoopMgr = AthenaServicesConf.AthenaEventLoopMgr()
 AthenaEventLoopMgr.OutputLevel = INFO
 
 # No stats printout

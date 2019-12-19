@@ -77,10 +77,11 @@ topSequence += CfgGetter.getAlgorithm("CopyTimings")
 #--------------------------------------------------------------
 from AthenaCommon.ConcurrencyFlags import jobproperties as jp
 nThreads = jp.ConcurrencyFlags.NumThreads()
+from AthenaServices import AthenaServicesConf
 if nThreads > 0:
-    EventLoop = Service("AthenaHiveEventLoopMgr")
+    EventLoop = AthenaServicesConf.AthenaHiveEventLoopMgr()
 else:
-    EventLoop = Service("AthenaEventLoopMgr")
+    EventLoop = AthenaServicesConf.AthenaEventLoopMgr()
 EventLoop.UseSecondaryEventNumber = True
 EventLoop.OutputLevel = INFO
 svcMgr += EventLoop
@@ -110,7 +111,6 @@ Stream1.ItemList += ["RecoTimingObj#EVNTtoHITS_timings"]
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
 #--------------------------------------------------------------
-svcMgr.MessageSvc = Service( "MessageSvc" )
 svcMgr.MessageSvc.debugLimit  = 100000
 
 # No stats printout

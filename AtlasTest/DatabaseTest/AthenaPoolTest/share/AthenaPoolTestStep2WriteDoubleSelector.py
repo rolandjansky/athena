@@ -65,7 +65,7 @@ AthenaPoolTestDataWriter.ReadOtherHalf = TRUE
 include( "EventAthenaPool/EventAthenaPoolItemList_joboptions.py" )
 include( "AthenaPoolTestAthenaPool/AthenaPoolTestAthenaPoolItemList_joboptions.py" )
 
-print fullItemList
+printfunc (fullItemList)
 
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 Stream3 = AthenaPoolOutputStream( "Stream3", noTag=True )
@@ -86,23 +86,24 @@ Stream3.ItemList   += ["IAthenaPoolTestCollection#AthenaPoolTestCollection_2"]
 Stream3.ItemList   += ["IAthenaPoolTestCollection#AthenaPoolTestCollection_3"]
 Stream3.ItemList   += ["AthenaPoolTestMatrix#*"]
 
-print Stream3.ItemList
+printfunc (Stream3.ItemList)
 
 # Change output file catalog to avoid collisions.
-PoolSvc = Service( 'PoolSvc' )
+from PoolSvc import PoolSvcConf
+PoolSvc = PoolSvcConf.PoolSvc()
 PoolSvc.WriteCatalog = 'file:AthenaPoolTestStep2WriteDoubleSelector_catalog.xml'
 
 
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
 #--------------------------------------------------------------
-svcMgr.MessageSvc = Service( "MessageSvc" )
 svcMgr.MessageSvc.OutputLevel = WARNING
 svcMgr.MessageSvc.debugLimit  = 100000
 svcMgr.AthenaSealSvc.OutputLevel = WARNING
 AthenaPoolTestDataWriter.OutputLevel = DEBUG
 
-AthenaEventLoopMgr = Service( "AthenaEventLoopMgr" )
+from AthenaServices import AthenaServicesConf
+AthenaEventLoopMgr = AthenaServicesConf.AthenaEventLoopMgr()
 AthenaEventLoopMgr.OutputLevel = INFO
 
 # No stats printout
