@@ -18,7 +18,6 @@
 #include "ByteStreamData/ByteStreamMetadataContainer.h"
 #include "EventInfoUtils/EventInfoFromxAOD.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "TrigSteeringEvent/HLTExtraData.h"
 
 // Gaudi includes
 #include "GaudiKernel/ConcurrencyFlags.h"

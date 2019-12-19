@@ -38,7 +38,7 @@ public:
   typedef OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment ROBF;
 
   HltROBDataProviderSvc(const std::string& name, ISvcLocator* pSvcLocator);
-  virtual ~HltROBDataProviderSvc() override;
+
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
 
@@ -149,7 +149,7 @@ private:
   Gaudi::Property<bool> m_filterEmptyROB{
     this, "filterEmptyROB", false , "Filter out empty ROB fragments"};
 
-  /// For Run 1 the module ID for the Lvl2/EF result contained the machine ID and nedded to
+  /// For Run 1 the module ID for the Lvl2/EF result contained the machine ID and needed to
   /// be filtered out to access these result records transparently
   bool m_maskL2EFModuleID = false;    
 
