@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RpcCalibTools/RpcExtrapolationTool.h"
@@ -43,8 +43,8 @@ StatusCode RpcResidualsTool::initialize(){
   // retrieve the active store
   ATH_CHECK( serviceLocator()->service("ActiveStoreSvc", m_activeStore) );
 
-    // Retrieve the MuonDetectorManager
-  ATH_CHECK( detStore()->retrieve(m_muonMgr) );
+  //retrieve detector manager from the conditions store
+  ATH_CHECK(m_DetectorManagerKey.initialize());
 
   // get extrapolation tool
 
@@ -113,6 +113,13 @@ void RpcResidualsTool::getRpcResiduals(TrackCollection::const_iterator theTrack,
     }
   }
   
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+  const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
+  if(MuonDetMgr==nullptr){
+    ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+    return; 
+  } 
+
   // now loop over extrapolations:
   
   std::vector<RpcExtrapolationResults>::const_iterator theExtra=extrapolations.begin();
@@ -186,7 +193,7 @@ void RpcResidualsTool::getRpcResiduals(TrackCollection::const_iterator theTrack,
 	  
 	  if(panel_id==m_muonIdHelperTool->rpcIdHelper().panelID(result.id)){
 	    
-	    const MuonGM::RpcReadoutElement* descriptor = m_muonMgr->getRpcReadoutElement((*rpcPrd)->identify());
+	    const MuonGM::RpcReadoutElement* descriptor = MuonDetMgr->getRpcReadoutElement((*rpcPrd)->identify());
 	    
 	    // eta residual
 	    float residual=0.;

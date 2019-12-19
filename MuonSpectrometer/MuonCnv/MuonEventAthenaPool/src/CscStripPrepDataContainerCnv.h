@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONEVENTATHENAPOOL_CSCSTRIPPREPDATACONTAINERCNV_H
@@ -12,10 +12,6 @@
 
 class StoreGateSvc;
 class CscStripIdHelper;
-
-namespace MuonGM {
-  class MuonDetectorManager;
-}
 
 // the latest persistent representation type of DataCollection:
 typedef  Muon::CscStripPrepDataContainer_tlp1  CscStripPrepDataContainer_PERS;
@@ -49,8 +45,6 @@ private:
     //CscStripPrepDataContainerCnv_p1   m_converter_p1;
     CscStripPrepDataContainerCnv_tlp1    m_TPConverter;
     
-    //const CscStripIdHelper*   m_cscId;
-    //const MuonGM::MuonDetectorManager* m_muonMgr; //!< Muon Detector Manager
 };
 
 #endif

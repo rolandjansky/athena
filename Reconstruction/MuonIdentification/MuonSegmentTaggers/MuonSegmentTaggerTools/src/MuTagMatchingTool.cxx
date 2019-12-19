@@ -24,8 +24,6 @@
 //#include "MuonSegmentMakerToolInterfaces/IMuTagMatchingTool.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
-
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
 //#include "TrkParameters/Perigee.h"
 #include "TrkParameters/TrackParameters.h"
@@ -79,7 +77,6 @@ MuTagMatchingTool::MuTagMatchingTool(const std::string& t,
   , m_selectionTool("Muon::MuonSegmentSelectionTool/MuonSegmentSelectionTool")
   , m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator")
   , p_StoreGateSvc(0)
-  , m_detMgr(0)
 {
   declareInterface<IMuTagMatchingTool>(this);
   declareProperty( "IExtrapolator" , p_IExtrapolator ) ;
@@ -155,8 +152,8 @@ StatusCode MuTagMatchingTool::initialize()
 
 //Retrieve IdHelpers
   
-  // retrieve MuonDetectorManager
-  ATH_CHECK( detStore()->retrieve(m_detMgr) );
+// MuonDetectorManager from the conditions store
+  ATH_CHECK(m_DetectorManagerKey.initialize());
 
   ATH_CHECK( m_muonIdHelperTool.retrieve() );
   ATH_CHECK( m_edmHelperSvc.retrieve() );
@@ -825,6 +822,15 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo( const Trk::Tr
 //
 //  residuals and pulls in X coordinate (along tube)
 //
+
+// MuonDetectorManager from the conditions store
+     SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+     const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
+     if(MuonDetMgr==nullptr){
+       ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+       return info; 
+     } 
+
      bool first = true;
      double maxResXMdt = -1e9;
      double maxResPhi  = -1e9;
@@ -846,7 +852,7 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo( const Trk::Tr
 	 int lay = m_muonIdHelperTool->mdtIdHelper().tubeLayer(id);
 	 int tube = m_muonIdHelperTool->mdtIdHelper().tube(id); 
 	 
-	 const MuonGM::MdtReadoutElement* detEl = mdt->prepRawData() ? mdt->prepRawData()->detectorElement() : m_detMgr->getMdtReadoutElement(id);
+	 const MuonGM::MdtReadoutElement* detEl = mdt->prepRawData() ? mdt->prepRawData()->detectorElement() : MuonDetMgr->getMdtReadoutElement(id);
 	 if( !detEl ){
 	   ATH_MSG_WARNING(" could not get MdtReadoutElement for tube " << m_muonIdHelperTool->toString(id));
 	   continue;

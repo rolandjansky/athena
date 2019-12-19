@@ -8,6 +8,8 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "EDM_object.h"
 
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
+
 #include <vector>
 
 class MMDigitVariables;
@@ -32,10 +34,6 @@ class TTree;
 class MmIdHelper;
 class sTgcIdHelper;
 class CscIdHelper;
-
-namespace MuonGM {
-  class MuonDetectorManager;
-}
 
 class NSWPRDValAlg:public AthAlgorithm
 {
@@ -71,7 +69,11 @@ class NSWPRDValAlg:public AthAlgorithm
   ITHistSvc *m_thistSvc;
   TTree *m_tree;
 
-  const MuonGM::MuonDetectorManager* m_detManager;
+  // MuonDetectorManager from the conditions store
+  SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+      "MuonDetectorManager", 
+      "Key of input MuonDetectorManager condition data"};    
+
   const MmIdHelper*   m_MmIdHelper;
   const sTgcIdHelper* m_sTgcIdHelper;
   const CscIdHelper*  m_CscIdHelper;

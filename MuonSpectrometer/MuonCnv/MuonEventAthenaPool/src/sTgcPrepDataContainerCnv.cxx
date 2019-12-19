@@ -15,9 +15,6 @@
 // #include "MuonIdHelpers/sTgcIdHelper.h"
 #include "MuonPrepRawData/sTgcPrepDataContainer.h"
 
-// #include "MuonReadoutGeometry/MuonDetectorManager.h"
-// #include "MuonReadoutGeometry/sTgcReadoutElement.h"
-
 sTgcPrepDataContainerCnv::sTgcPrepDataContainerCnv(ISvcLocator* svcloc) :
 sTgcPrepDataContainerCnvBase(svcloc)
 {

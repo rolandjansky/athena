@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RpcClusterBuilderPRD_H
@@ -7,6 +7,9 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "Identifier/Identifier.h"
+#include "GaudiKernel/ServiceHandle.h"
+
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonPrepRawData/RpcPrepData.h"
@@ -35,7 +38,7 @@ private:
 
   StatusCode fill_rpcClusterContainer();
 
-  void buildClusters(Identifier elementId);
+  void buildClusters(Identifier elementId, const MuonGM::MuonDetectorManager* MuonDetMgr);
   int buildPatterns(const Muon::RpcPrepDataCollection* rpcCollection);
   void push_back(Muon::RpcPrepData *& newCluster);
 
@@ -53,8 +56,12 @@ private:
 protected:
 
   Muon::RpcPrepDataContainer * m_rpcClusterContainer;
-  const MuonGM::MuonDetectorManager * m_muonMgr;
-  const RpcIdHelper * m_rpcId;
+
+  SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+      "MuonDetectorManager", 
+      "Key of input MuonDetectorManager condition data"};    
+
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
 };
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef MUON_MUONPATTERNCALIBRATION_H
 #define MUON_MUONPATTERNCALIBRATION_H
@@ -39,10 +39,6 @@ class TgcIdHelper;
 class StoreGateSvc;
 class Identifier;
 
-
-namespace MuonGM {
-  class MuonDetectorManager;
-}
 
 namespace Trk {
   class RIO_OnTrack;
@@ -145,9 +141,6 @@ namespace Muon {
     StoreGateSvc*       m_storeGate;                //!< Pointer to store gate
 
   
-    const MuonGM::MuonDetectorManager*  m_detMgr;
-
-
     MsgStream* m_log;       //<! pointer to message stream
     bool m_debug; 
     bool m_verbose;

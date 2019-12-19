@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RpcCalibTools/RpcExtrapolationTool.h"
@@ -45,9 +45,6 @@ RpcExtrapolationTool::~RpcExtrapolationTool() {
 StatusCode RpcExtrapolationTool::initialize(){
 
   ATH_MSG_DEBUG( "in initialize()" );
-
-    // Retrieve the MuonDetectorManager
-  ATH_CHECK( detStore()->retrieve(m_muonMgr) );
 
   // Get the Navigation AlgTools
   ATH_CHECK( m_navigator.retrieve() );

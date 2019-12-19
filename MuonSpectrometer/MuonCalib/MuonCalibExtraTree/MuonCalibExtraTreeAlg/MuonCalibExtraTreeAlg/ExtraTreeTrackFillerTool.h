@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  MuonCalib_ExtraTreeTrackFillerTool_h
@@ -11,19 +11,18 @@
 #include "TrkTrack/TrackCollection.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 
+#include "GaudiKernel/ServiceHandle.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+
 #include <vector>
 #include <set>
 
-class MdtIdHelper;
 namespace Trk {
   class ITrackHoleSearchTool;
   class MeasurementBase;
   class CompetingRIOsOnTrack;
   class TrackStateOnSurface;
   class RIO_OnTrack;
-}
-namespace MuonGM {
-  class MuonDetectorManager;
 }
 
 namespace MuonCalib {
@@ -41,12 +40,14 @@ class ExtraTreeTrackFillerTool: virtual public IExtraTreeFillerTool, public AthA
  protected:
   ToolHandle<IIdToFixedIdTool> m_idToFixedIdTool;
   ToolHandle<Trk::IResidualPullCalculator   >   m_pullCalculator;    //!< 	private:
-  const MdtIdHelper  *m_muonIdHelper;                                //<! 		
+
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+
   std::string m_trackCollectionKey;
   std::vector<int> m_segment_authors;
   std::set<int> m_segment_authors_set;
   int m_author;
-  const MuonGM::MuonDetectorManager *m_detMgr;
+
 //retrieve all tools
   StatusCode retrieveTools();
 //store one track

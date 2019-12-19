@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -19,7 +19,6 @@
 #include "MuonRDO/TgcRdoIdHash.h"
 
 // MuonDetDesc
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/TgcReadoutParams.h"
 
 #include "MuonDQAUtils/MuonChamberNameConverter.h"
@@ -123,9 +122,8 @@ MdtVsTgcRawDataValAlg::initialize(){
   // init message stream
   ATH_MSG_INFO( "in initializing MdtVsTgcRawDataValAlg"  );
 
-  // Retrieve the MuonDetectorManager  
-  ATH_CHECK( detStore()->retrieve(m_muonMgr) );
-  ATH_MSG_DEBUG( " Found the MuonDetectorManager from detector store. "  );
+  // MuonDetectorManager from the conditions store
+  ATH_CHECK(m_DetectorManagerKey.initialize());
 
   ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
@@ -181,7 +179,12 @@ MdtVsTgcRawDataValAlg::initialize(){
   //18 2 2 14004.6
   //18 2 3 14030.6
 
-  prepareTREarray();
+  // Retrieve the MuonDetectorManager
+  const MuonGM::MuonDetectorManager* MuonDetMgrDS;
+  ATH_CHECK( detStore()->retrieve(MuonDetMgrDS) );
+  ATH_MSG_DEBUG( " Found the MuonDetectorManager from detector store. "  );
+
+  prepareTREarray(MuonDetMgrDS);
 
   ATH_CHECK(m_tgc_PrepDataContainerName.initialize());
   ATH_CHECK(m_tgc_CoinContainerName.initialize());

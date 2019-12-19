@@ -14,7 +14,7 @@
 
 /** ---------- filling of variables */
 /** ---------- to be called on each evt i.e. execute level of main alg */
-StatusCode MMDigitVariables::fillVariables()
+StatusCode MMDigitVariables::fillVariables(const MuonGM::MuonDetectorManager* MuonDetMgr)
 {
   ATH_MSG_DEBUG("do fillNSWMMDigitVariables()");
 
@@ -66,7 +66,7 @@ StatusCode MMDigitVariables::fillVariables()
 
       // get the readout element class where the digit is recorded
       int isSmall = (stName[2] == 'S');
-      const MuonGM::MMReadoutElement* rdoEl = m_detManager->getMMRElement_fromIdFields(isSmall, stationEta, stationPhi, multiplet );
+      const MuonGM::MMReadoutElement* rdoEl = MuonDetMgr->getMMRElement_fromIdFields(isSmall, stationEta, stationPhi, multiplet );
 
       // information from VMM chip
       std::vector<float>  time          = digit->chipResponseTime();

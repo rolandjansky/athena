@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include "MuonPatternSegmentMaker/MuonPatternCalibration.h"
 
@@ -77,17 +77,6 @@ namespace Muon {
     StoreGateSvc* detStore=0;
     sc = serviceLocator()->service("DetectorStore", detStore);
  
-    if ( sc.isSuccess() ) {
-      sc = detStore->retrieve( m_detMgr );
-      if ( sc.isFailure() ) {
-	*m_log << MSG::ERROR << " Cannot retrieve MuonDetDescrMgr " << endmsg;
-      } else {
-	*m_log << MSG::DEBUG << " Retrieved IdHelpers: (mdt, csc, rpc and tgc) " << endmsg;
-      }
-    } else {
-      *m_log << MSG::ERROR << " MuonDetDescrMgr not found in DetectorStore " << endmsg;
-    }
-
     if( m_mdtCreator.retrieve().isSuccess() ){
       *m_log<<MSG::DEBUG << "Retrieved " << m_mdtCreator << endmsg;
     }else{

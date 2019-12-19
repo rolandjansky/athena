@@ -17,7 +17,7 @@ using namespace Muon;
 
 /** ---------- filling of variables */
 /** ---------- to be called on each evt i.e. execute level of main alg */
-StatusCode MMRDOVariables::fillVariables()
+StatusCode MMRDOVariables::fillVariables(const MuonGM::MuonDetectorManager* MuonDetMgr)
 {
   ATH_MSG_DEBUG("do fillNSWMMRDOVariables()");
 
@@ -69,7 +69,7 @@ StatusCode MMRDOVariables::fillVariables()
 
       // get the readout element class where the RDO is recorded
       int isSmall = (stName[2] == 'S');
-      const MuonGM::MMReadoutElement* rdoEl = m_detManager->getMMRElement_fromIdFields(isSmall, stationEta, stationPhi, multiplet );
+      const MuonGM::MMReadoutElement* rdoEl = MuonDetMgr->getMMRElement_fromIdFields(isSmall, stationEta, stationPhi, multiplet );
 
       Amg::Vector2D localStripPos(0.,0.);
       if ( rdoEl->stripPosition(Id,localStripPos) )  {

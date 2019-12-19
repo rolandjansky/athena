@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -27,8 +27,6 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
 
-//#include "MuonGeoModel/MuonDetectorManager.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonIdHelpers/CscIdHelper.h"
 #include "MuonCondData/CscCondDataCollection.h"
 #include "MuonCondData/CscCondDataContainer.h"
@@ -174,9 +172,6 @@ class CscCalibMonToolBase: public ManagedMonitorToolBase
 
         /**Calibration result storegate key*/
         std::string m_calibResultKey;
-
-        /** Muon Detector Descriptor*/
-        const MuonGM::MuonDetectorManager * m_muon_mgr;
 
         /** Tool for CSC identifier helper*/
         ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 

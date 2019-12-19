@@ -8,7 +8,6 @@
 
 #include "MdtRdoToPrepDataTool.h"
 
-
 Muon::MdtRdoToPrepDataTool::MdtRdoToPrepDataTool(const std::string& t, const std::string& n, const IInterface*  p)
   :
   AthAlgTool(t,n,p),
