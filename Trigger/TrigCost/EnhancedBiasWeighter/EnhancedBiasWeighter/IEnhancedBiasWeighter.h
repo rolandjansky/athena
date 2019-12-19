@@ -35,6 +35,7 @@ class IEnhancedBiasWeighter : public virtual DerivationFramework::IAugmentationT
       virtual bool     isUnbiasedEvent(const xAOD::EventInfo* eventInfo) const = 0;
       virtual bool     isGoodLB(const xAOD::EventInfo* eventInfo) const = 0;
       virtual bool     isGoodLB(const EventContext& context) const = 0;
+      virtual bool     isMC() const = 0;
       virtual std::unordered_map<std::string, ChainDetail> parsePrescaleXML(const std::string& prescaleXML) const = 0;
 
 };

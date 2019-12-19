@@ -1,10 +1,11 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 # import the MultiSVTag configurable
 
-from JetTagTools.JetTagToolsConf import Analysis__MultiSVTag
+Analysis__MultiSVTag=CompFactory.Analysis__MultiSVTag
 
 def MultiSVTagCfg(flags, name = 'MultiSVbb1Tag', taggerNameBase = 'MultiSVbb1', useBTagFlagsDefaults = True, **options):
     """Sets up a MultiSVTag tool and returns it.

@@ -3,6 +3,7 @@
 """Define method to construct configured Tile digits maker algorithm"""
 
 from TileSimAlgs.TileHitVecToCntConfig import TileHitVecToCntCfg
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def TileDigitsMakerCfg(flags, **kwargs):
     """Return component accumulator with configured Tile digits maker algorithm
@@ -57,7 +58,7 @@ def TileDigitsMakerCfg(flags, **kwargs):
         tileNoise = False
         tileCoherNoise = False
 
-        from PileUpTools.PileUpToolsConf import PileUpMergeSvc
+        PileUpMergeSvc=CompFactory.PileUpMergeSvc
         acc.addService( PileUpMergeSvc() )
 
         from TileRecUtils.TileDQstatusConfig import TileDQstatusToolCfg
@@ -108,7 +109,7 @@ def TileDigitsMakerCfg(flags, **kwargs):
 
     kwargs.setdefault('IntegerDigits', not flags.Digitization.PileUpPremixing)
 
-    from TileSimAlgs.TileSimAlgsConf import TileDigitsMaker
+    TileDigitsMaker=CompFactory.TileDigitsMaker
     digitsMaker = TileDigitsMaker(**kwargs)
 
     acc.addEventAlgo(digitsMaker, primary = True)

@@ -72,22 +72,9 @@ topSequence += DMTest__xAODTestReadHVec ("xAODTestReadHVec_copy",
                                          HViewKey = "copy_hview")
 
 
-#--------------------------------------------------------------
-# Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
-#--------------------------------------------------------------
-svcMgr.MessageSvc.OutputLevel = 3
-svcMgr.MessageSvc.debugLimit  = 100000
-svcMgr.ClassIDSvc.OutputLevel = 3
-
-# No stats printout
-ChronoStatSvc = Service( "ChronoStatSvc" )
-ChronoStatSvc.ChronoPrintOutTable = FALSE
-ChronoStatSvc.PrintUserTime       = FALSE
-ChronoStatSvc.StatPrintOutTable   = FALSE
-
-#svcMgr.ExceptionSvc.Catch = "None"
-
 # Avoid races when running tests in parallel.
 if 'FILECATALOG' not in globals():
     FILECATALOG = 'xAODTestRead3_catalog.xml'
-include ('DataModelRunTests/setCatalog.py')
+
+include ('DataModelRunTests/commonTrailer.py')
+

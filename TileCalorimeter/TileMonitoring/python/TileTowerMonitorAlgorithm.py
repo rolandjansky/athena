@@ -6,6 +6,7 @@
 @brief Python configuration of TileTowerMonitorAlgorithm algorithm for the Run III
 '''
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def TileTowerMonitoringConfig(flags, **kwargs):
 
@@ -25,7 +26,7 @@ def TileTowerMonitoringConfig(flags, **kwargs):
     helper = AthMonitorCfgHelper(flags,'TileTowerMonitoring')
 
     # Adding an TileTowerMonitorAlgorithm algorithm to the helper
-    from TileMonitoring.TileMonitoringConf import TileTowerMonitorAlgorithm
+    TileTowerMonitorAlgorithm=CompFactory.TileTowerMonitorAlgorithm
     tileTowerMonAlg = helper.addAlgorithm(TileTowerMonitorAlgorithm, 'TileTowerMonAlg')
 
     tileTowerMonAlg.TriggerChain = ''

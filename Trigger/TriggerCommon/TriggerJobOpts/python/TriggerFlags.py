@@ -333,12 +333,11 @@ class useOfflineSpacePoints(JobProperty):
 _flags.append(useOfflineSpacePoints)
 
 class doTransientByteStream(JobProperty):
-    """ switch off usage of the transient bytestream 
-    and access RDO objects directly. Partial implementation. 
-    """
+    """ Write transient ByteStream before executing HLT algorithms.
+    To be used for running on MC RDO with clients which require BS inputs. """
     statusOn=True
     allowedType=['bool']
-    StoredValue=True
+    StoredValue=False
     
 _flags.append(doTransientByteStream)
 
@@ -352,7 +351,7 @@ _flags.append(doNtuple)
 
 
 class writeBS(JobProperty):
-    """ """
+    """ Write ByteStream output file """
     statusOn=True
     allowedType=['bool']
     StoredValue=False

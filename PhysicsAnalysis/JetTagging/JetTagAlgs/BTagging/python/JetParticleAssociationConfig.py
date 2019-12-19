@@ -1,9 +1,10 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 # import the JetParticleAssociation configurable (first try - only
-from ParticleJetTools.ParticleJetToolsConf import JetParticleShrinkingConeAssociation
+JetParticleShrinkingConeAssociation=CompFactory.JetParticleShrinkingConeAssociation
 
 def JetParticleAssociationCfg(ConfigFlags, **options):
 

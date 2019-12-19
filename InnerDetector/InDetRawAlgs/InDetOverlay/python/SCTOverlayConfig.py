@@ -4,6 +4,7 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 
 def SCTOverlayAlgCfg(flags, name = "SCTOverlay", **kwargs):
@@ -17,7 +18,7 @@ def SCTOverlayAlgCfg(flags, name = "SCTOverlay", **kwargs):
     kwargs.setdefault("includeBkg", True)
 
     # Do SCT overlay
-    from InDetOverlay.InDetOverlayConf import SCTOverlay
+    SCTOverlay=CompFactory.SCTOverlay
     alg = SCTOverlay(name, **kwargs)
     acc.addEventAlgo(alg)
 
@@ -41,7 +42,7 @@ def SCTTruthOverlayCfg(flags, name = "SCTSDOOverlay", **kwargs):
     kwargs.setdefault("OutputKey", "SCT_SDO_Map")
 
     # Do SCT truth overlay
-    from InDetOverlay.InDetOverlayConf import InDetSDOOverlay
+    InDetSDOOverlay=CompFactory.InDetSDOOverlay
     alg = InDetSDOOverlay(name, **kwargs)
     acc.addEventAlgo(alg)
 

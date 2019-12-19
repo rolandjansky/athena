@@ -3,8 +3,9 @@
 __doc__ = "Instantiate egammaTopoClusterCopier with default configuration"
 
 from AthenaCommon.Logging import logging
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from egammaAlgs.egammaAlgsConf import egammaTopoClusterCopier
+egammaTopoClusterCopier=CompFactory.egammaTopoClusterCopier
 
 
 def egammaTopoClusterCopierCfg(flags, name='egammaTopoClusterCopier', **kwargs):

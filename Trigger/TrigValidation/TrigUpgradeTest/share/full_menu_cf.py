@@ -122,7 +122,7 @@ if opt.doMuonSlice == True:
     # Full scan MS tracking step
     stepFSmuEFSA=ChainStep("Step_FSmuEFSA", [muEFSAFSSequence()])
     stepFSmuEFCB=ChainStep("Step_FSmuEFCB", [muEFCBFSSequence()])
-    MuonChains += [ makeChain(name='HLT_mu6noL1_L1MU6', L1Thresholds=[""],  ChainSteps=[stepFSmuEFSA, stepFSmuEFCB])] 
+    MuonChains += [ makeChain(name='HLT_mu6noL1_L1MU6', L1Thresholds=["FSNOSEED"],  ChainSteps=[stepFSmuEFSA, stepFSmuEFCB])] 
 
     testChains += MuonChains
 

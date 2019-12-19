@@ -128,7 +128,6 @@ class ConfiguredInDetPreProcessingTRT:
 
          InDetTRT_DriftCircleTool = InDet__TRT_DriftCircleTool(name                            = prefix+"DriftCircleTool",
                                                                TRTDriftFunctionTool            = InDetTRT_DriftFunctionTool,
-                                                               TrtDescrManageLocation          = InDetKeys.TRT_Manager(),
                                                                ConditionsSummaryTool           = InDetTRTStrawStatusSummaryTool,
                                                                UseConditionsStatus             = True,
                                                                UseConditionsHTStatus           = True,

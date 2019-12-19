@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """CPS addition  """
 
@@ -9,10 +9,12 @@ from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 
+import six
+
 
 def genericCPSAdder(groups, signatures, chains, level, signatureOverwritten):
 
-    for cpsGroup, chainNames in groups.iteritems():
+    for cpsGroup, chainNames in six.iteritems (groups):
         if "RATE" not in cpsGroup:
             log.error('Following group do not start for RATE [%s]' %cpsGroup)
         for chainName in chainNames:

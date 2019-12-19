@@ -14,7 +14,9 @@
 #include "xAODTracking/TrackParticleFwd.h"
 #include "xAODTracking/VertexFwd.h"
 #include "TrkCaloExtension/CaloExtension.h"
+
 #include <memory>
+#include <array>
 #include <unordered_map>
 
 
@@ -57,10 +59,10 @@ public:
                                      const xAOD::CaloCluster*      cluster, 
                                      const xAOD::TrackParticle*    trkPB,
                                      Trk::PropDirection            direction,
-                                     std::vector<double>&          eta,
-                                     std::vector<double>&          phi,
-                                     std::vector<double>&          deltaEta,
-                                     std::vector<double>&          deltaPhi,
+                                     std::array<double,4>&         eta,
+                                     std::array<double,4>&         phi,
+                                     std::array<double,4>&         deltaEta,
+                                     std::array<double,4>&         deltaPhi,
                                      unsigned int                  extrapFrom = fromPerigee,
                                      Cache* cache=nullptr) const = 0;
 

@@ -76,7 +76,7 @@ class TrigSignatureMoniMT : public extends<AthReentrantAlgorithm, IIncidentListe
   SG::ReadHandleKey<TrigConf::L1Menu> m_L1MenuKey{ this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu", "L1 Menu" };
 
   std::map<unsigned int, int> m_chainIDToBinMap;
-  std::map<unsigned int, int> m_chainIDToBinBCIDmap;
+  std::map<unsigned int, int> m_BCIDchainIDToBinMap;
   std::map<std::string, int> m_nameToBinMap;
   std::map<unsigned int, std::set<std::string>> m_chainIDToBunchMap;
   std::map<std::string, TrigCompositeUtils::DecisionIDContainer> m_groupToChainMap;
@@ -109,7 +109,7 @@ class TrigSignatureMoniMT : public extends<AthReentrantAlgorithm, IIncidentListe
 
   StatusCode initHist(LockedHandle<TH2>&, SG::ReadHandle<TrigConf::HLTMenu>&, bool = true);
   StatusCode initBunchHist(LockedHandle<TH2>&, SG::ReadHandle<TrigConf::HLTMenu>&, SG::ReadHandle<TrigConf::L1Menu>&);
-  StatusCode initBCIDhist(LockedHandle<TH2>&, SG::ReadHandle<TrigConf::HLTMenu>&);
+  StatusCode initBCIDhist(LockedHandle<TH2>&, const std::vector<std::string> &);
   
   StatusCode fillDecisionCount(const std::vector<TrigCompositeUtils::DecisionID>& , int) const;
   StatusCode fillPassEvents(const TrigCompositeUtils::DecisionIDContainer&, int) const;

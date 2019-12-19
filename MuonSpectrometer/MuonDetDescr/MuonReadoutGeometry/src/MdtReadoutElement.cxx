@@ -22,6 +22,7 @@
 #include "TrkSurfaces/PlaneSurface.h"
 #include "GeoModelKernel/GeoTube.h"
 #include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelUtilities/GeoGetIds.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
 #include "MuonAlignmentData/BLinePar.h"
@@ -197,17 +198,19 @@ double MdtReadoutElement::getTubeLengthForCaching(int tubeLayer, int tube) const
         // usually the tube number corresponds to the child number, however for
         // BMG chambers full tubes are skipped during the building process
         // therefore the matching needs to be done via the volume ID
-        int tubenbr = -1;
-        int layernbr = -1;
-        for(unsigned int kk=0; kk < cv->getNChildVols(); kk++) {
-           tubenbr = cv->getIdOfChildVol(kk) % 100;
-           layernbr = ( cv->getIdOfChildVol(kk) - tubenbr ) / 100;
-           if( tubenbr == tube && layernbr == tubeLayer) {
-             ii = kk;
-	        (*m_Log)  << MSG::DEBUG << " MdtReadoutElement tube match found for BMG - input : tube(" << tube  << "), layer(" <<  tubeLayer 
-                        << ") - output match : tube(" << tubenbr << "), layer(" << layernbr << ")" << endmsg;
-             break;
-           }
+        int packed_id = tube + 100*tubeLayer;
+        int kk = 0;
+        bool found = false;
+        geoGetIds ([&](int id) {
+                     if (!found && id == packed_id) {
+                       ii = kk;
+                       found = true;
+                     }
+                     ++kk;
+                   }, &*cv);
+        if (found) {
+          (*m_Log)  << MSG::DEBUG << " MdtReadoutElement tube match found for BMG - input : tube(" << tube  << "), layer(" <<  tubeLayer 
+                    << ") - output match : tube(" << ii%100 << "), layer(" << ii/100 << ")" << endmsg;
         }
       }
       if (ii>=nGrandchildren) 
@@ -545,17 +548,19 @@ MdtReadoutElement::nodeform_localTubePos(int multilayer, int tubelayer, int tube
           // usually the tube number corresponds to the child number, however for
           // BMG chambers full tubes are skipped during the building process
           // therefore the matching needs to be done via the volume ID
-          int tubenbr = -1;
-          int layernbr = -1;
-          for(unsigned int kk=0; kk < cv->getNChildVols(); kk++) {
-             tubenbr = cv->getIdOfChildVol(kk) % 100;
-             layernbr = ( cv->getIdOfChildVol(kk) - tubenbr ) / 100;
-             if( tubenbr == tube && layernbr == tubelayer) {
-               ii = kk;
-	          (*m_Log)  << MSG::DEBUG << " MdtReadoutElement tube match found for BMG - input : tube(" << tube  << "), layer(" <<  tubelayer 
-                          << ") - output match : tube(" << tubenbr << "), layer(" << layernbr << ")" << endmsg;
-               break;
-             }
+          int packed_id = tube + 100*tubelayer;
+          int kk = 0;
+          bool found = false;
+          geoGetIds ([&](int id) {
+                       if (!found && id == packed_id) {
+                         ii = kk;
+                         found = true;
+                       }
+                       ++kk;
+                     }, &*cv);
+          if (found) {
+            (*m_Log)  << MSG::DEBUG << " MdtReadoutElement tube match found for BMG - input : tube(" << tube  << "), layer(" <<  tubelayer 
+                      << ") - output match : tube(" << ii%100 << "), layer(" << ii/100 << ")" << endmsg;
           }
         }
         GeoTrf::Transform3D tubeTrans = cv->getXToChildVol(ii);
@@ -1993,22 +1998,23 @@ void MdtReadoutElement::fillCache() const
                 // usually the tube number corresponds to the child number, however for
                 // BMG chambers full tubes are skipped during the building process
                 // therefore the matching needs to be done via the volume ID
-                int tubenbr = -1;
-                int layernbr = -1;
-                for(unsigned int kk=0; kk < cv->getNChildVols(); kk++) {
-                    tubenbr = cv->getIdOfChildVol(kk) % 100;
-                    layernbr = ( cv->getIdOfChildVol(kk) - tubenbr ) / 100;
-                    if( tubenbr == tube && layernbr == tl) {
-                        // print in order to compute !!!
-                        myTransform = transform(tl, tube); //<! filling m_tubeTransf
-                        myPoint     = center(tl, tube);    //<! filling m_tubeCenter
-                        tmpCil = (Trk::CylinderBounds*)&bounds(tl, tube); //<! filling m_tubeBounds
-                        tmpSaggL = (Trk::SaggedLineSurface*)&surface(tl, tube);//<! filling m_tubeSurfaces
-                        (*m_Log) <<MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" transform at origin  "<<myTransform*Amg::Vector3D(0.,0.,0.)<<endmsg;
-                        (*m_Log) <<MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube center          "<<myPoint<<endmsg;
-                        (*m_Log) <<MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube bounds pointer  "<<tmpCil<<endmsg;
-                        (*m_Log) <<MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube surface pointer "<<tmpSaggL<<endmsg;
-                    }
+                int packed_id = tube + 100*tl;
+                bool found = false;
+                geoGetIds ([&](int id) {
+                             if (!found && id == packed_id) {
+                               myTransform = transform(tl, tube); //<! filling m_tubeTransf
+                               myPoint     = center(tl, tube);    //<! filling m_tubeCenter
+                               tmpCil = (Trk::CylinderBounds*)&bounds(tl, tube); //<! filling m_tubeBounds
+                               tmpSaggL = (Trk::SaggedLineSurface*)&surface(tl, tube);//<! filling m_tubeSurfaces
+                               found = true;
+                             }
+                           }, &*cv);
+
+                if (found) {
+                  (*m_Log) <<MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" transform at origin  "<<myTransform*Amg::Vector3D(0.,0.,0.)<<endmsg;
+                  (*m_Log) <<MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube center          "<<myPoint<<endmsg;
+                  (*m_Log) <<MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube bounds pointer  "<<tmpCil<<endmsg;
+                  (*m_Log) <<MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube surface pointer "<<tmpSaggL<<endmsg;
                 }
             } else {
                 // print in order to compute !!!

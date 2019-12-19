@@ -4,10 +4,11 @@
 # Based heavily on AtlasExtrapolator.py
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
 
 # import the Extrapolator configurable
-from TrkExTools.TrkExToolsConf import Trk__Extrapolator
+Trk__Extrapolator=CompFactory.Trk__Extrapolator
 
 # define the class
 def AtlasExtrapolatorCfg( flags, name = 'AtlasExtrapolator' ):
@@ -55,7 +56,7 @@ def AtlasExtrapolatorCfg( flags, name = 'AtlasExtrapolator' ):
        AtlasUpdators    += [ AtlasMaterialEffectsUpdatorLandau ]
 
        # the UNIQUE NAVIGATOR ( === UNIQUE GEOMETRY) --------------------------------------------------------------
-       from TrkExTools.TrkExToolsConf import Trk__Navigator
+       Trk__Navigator=CompFactory.Trk__Navigator
        AtlasNavigator = Trk__Navigator(name = 'AtlasNavigator')
        AtlasNavigator.TrackingGeometrySvc = geom_svc
        result.addPublicTool(AtlasNavigator) #TODO remove one day

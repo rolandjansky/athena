@@ -1,17 +1,16 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "ExampleRatesFullMenu.h"
+#include "FullMenu.h"
 
-ExampleRatesFullMenu::ExampleRatesFullMenu( const std::string& name, ISvcLocator* pSvcLocator ) : RatesAnalysisAlg(name, pSvcLocator) {
-  declareProperty( "TargetLuminosity", m_lumi = 1e34);
+FullMenu::FullMenu( const std::string& name, ISvcLocator* pSvcLocator ) : RatesAnalysisAlg(name, pSvcLocator) {
 }
 
-ExampleRatesFullMenu::~ExampleRatesFullMenu() {
+FullMenu::~FullMenu() {
 }
 
-StatusCode  ExampleRatesFullMenu::ratesInitialize() {
+StatusCode  FullMenu::ratesInitialize() {
   ATH_MSG_INFO("In ratesInitialize()");
 
   // Here we assume a full-ring, other functions are available to change this assumption.
@@ -31,13 +30,13 @@ StatusCode  ExampleRatesFullMenu::ratesInitialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode  ExampleRatesFullMenu::ratesExecute() {
+StatusCode  FullMenu::ratesExecute() {
   // Triggers added are of type kEXISTING so here we rely on the Trigger Decision Tool for pass/fail. 
   // This is automatic so there is nothing to do here.
   return StatusCode::SUCCESS;
 }
 
-StatusCode  ExampleRatesFullMenu::ratesFinalize() {
+StatusCode  FullMenu::ratesFinalize() {
   ATH_MSG_INFO("In ratesFinalize()");
   return StatusCode::SUCCESS;
 }

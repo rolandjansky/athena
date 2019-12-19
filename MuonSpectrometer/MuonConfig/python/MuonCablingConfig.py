@@ -4,6 +4,7 @@
 # TODO add MDTs, CSCs
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 
 def RPCCablingConfigCfg(flags):
@@ -12,7 +13,7 @@ def RPCCablingConfigCfg(flags):
     # TODO check if we actually need this here?
     acc.merge(MuonGeoModelCfg(flags)) 
 
-    from MuonCablingServers.MuonCablingServersConf import RPCcablingServerSvc
+    RPCcablingServerSvc=CompFactory.RPCcablingServerSvc
     RPCCablingSvc =  RPCcablingServerSvc()
     RPCCablingSvc.Atlas = True
     RPCCablingSvc.forcedUse = True
@@ -20,7 +21,7 @@ def RPCCablingConfigCfg(flags):
     acc.addService( RPCCablingSvc )
 
     
-    from MuonRPC_Cabling.MuonRPC_CablingConf import MuonRPC_CablingSvc
+    MuonRPC_CablingSvc=CompFactory.MuonRPC_CablingSvc
     rpcCablingSvc = MuonRPC_CablingSvc()
     rpcCablingSvc.ConfFileName = 'LVL1confAtlas.data' # this should come from config flag maybe ???
     rpcCablingSvc.CorrFileName = 'LVL1confAtlas.corr' 
@@ -35,7 +36,7 @@ def RPCCablingConfigCfg(flags):
                            '/RPC/CABLING/MAP_SCHEMA', '/RPC/CABLING/MAP_SCHEMA_CORR' ],
                          dbName ))
 
-    from RPC_CondCabling.RPC_CondCablingConf import RPCCablingDbTool
+    RPCCablingDbTool=CompFactory.RPCCablingDbTool
     RPCCablingDbTool = RPCCablingDbTool()
     RPCCablingDbTool.MapConfigurationFolder = '/RPC/CABLING/MAP_SCHEMA'
     RPCCablingDbTool.MapCorrectionFolder    = '/RPC/CABLING/MAP_SCHEMA_CORR'
@@ -53,10 +54,10 @@ def TGCCablingConfigCfg(flags):
     # TODO check if we actually need this here?
     acc.merge(MuonGeoModelCfg(flags)) 
     
-    from TrigT1TGCRecRoiSvc.TrigT1TGCRecRoiSvcConf import LVL1TGC__TGCRecRoiSvc
+    LVL1TGC__TGCRecRoiSvc=CompFactory.LVL1TGC__TGCRecRoiSvc
     acc.addService( LVL1TGC__TGCRecRoiSvc() ) 
     
-    from MuonCablingServers.MuonCablingServersConf import TGCcablingServerSvc
+    TGCcablingServerSvc=CompFactory.TGCcablingServerSvc
     TGCCablingSvc = TGCcablingServerSvc() 
     TGCCablingSvc.Atlas=True
     TGCCablingSvc.useMuonTGC_CablingSvc=True
@@ -76,15 +77,15 @@ def MDTCablingConfigCfg(flags):
     
     acc.merge(MuonGeoModelCfg(flags)) 
 
-    from MuonMDT_Cabling.MuonMDT_CablingConf import MuonMDT_CablingAlg
+    MuonMDT_CablingAlg=CompFactory.MuonMDT_CablingAlg
     MDTCablingAlg = MuonMDT_CablingAlg("MuonMDT_CablingAlg")
 
-    from MuonMDT_Cabling.MuonMDT_CablingConf import MuonMDT_CablingSvc
+    MuonMDT_CablingSvc=CompFactory.MuonMDT_CablingSvc
     mdtCablingSvc = MuonMDT_CablingSvc()
     mdtCablingSvc.UseOldCabling = False
     mdtCablingSvc.ForcedUse = True
 
-    from MDT_CondCabling.MDT_CondCablingConf import MDTCablingDbTool
+    MDTCablingDbTool=CompFactory.MDTCablingDbTool
     MDTCablingDbTool = MDTCablingDbTool()
 
     from IOVDbSvc.IOVDbSvcConfig import addFolders
@@ -118,7 +119,7 @@ def CSCCablingConfigCfg(flags):
     
     acc.merge(MuonGeoModelCfg(flags)) 
 
-    from CSCcabling.CSCcablingConf import CSCcablingSvc
+    CSCcablingSvc=CompFactory.CSCcablingSvc
     cscCablingSvc = CSCcablingSvc()
 
     acc.addService( cscCablingSvc, primary=True )

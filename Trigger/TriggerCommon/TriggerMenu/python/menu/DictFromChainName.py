@@ -109,7 +109,7 @@ class DictFromChainName(object):
         chainName_orig = chainName
 
         # ---- dictionary with all chain properties ----
-        from SignatureDicts import ChainDictTemplate
+        from .SignatureDicts import ChainDictTemplate
         from copy import deepcopy
         genchainDict = deepcopy(ChainDictTemplate)
         genchainDict['chainName'] = chainName
@@ -144,7 +144,7 @@ class DictFromChainName(object):
 
            
         # ---- identify the topo algorithm and add to genchainDict -----
-        from SignatureDicts import AllowedTopos
+        from .SignatureDicts import AllowedTopos
         topo = '';topos=[];toposIndexed={}; topoindex = -5
         for cindex, cpart in enumerate(cparts):
             if  cpart in AllowedTopos:
@@ -169,14 +169,14 @@ class DictFromChainName(object):
         # ---- expected format: <Multiplicity(int)><TriggerType(str)>
         #      <Threshold(int)><isolation,...(str|str+int)> ----
         # EXCEPT FOR CHAINS ...
-        from SignatureDicts import getBasePattern
+        from .SignatureDicts import getBasePattern
         pattern = getBasePattern()
         mdicts=[]
         multichainindex=[]
         signatureNames = []
 
         # ---- obtain dictionary parts for signature defining patterns ----
-        from SignatureDicts import getSignatureNameFromToken, AllowedCosmicChainIdentifiers, \
+        from .SignatureDicts import getSignatureNameFromToken, AllowedCosmicChainIdentifiers, \
             AllowedCalibChainIdentifiers, AllowedStreamingChainIdentifiers, \
             AllowedMonitorChainIdentifiers, AllowedBeamspotChainIdentifiers, AllowedEBChainIdentifiers
             #, AllowedMatchingKeywords
@@ -394,7 +394,7 @@ class DictFromChainName(object):
 
             #print 'chainpartsNoL1', chainpartsNoL1
             parts=chainpartsNoL1.split('_')
-            parts = filter(None,parts)
+            parts = list(filter(None,parts))
 
             #print 'parts after L1 string removal = ',parts
             # ---- start with first pattern and write into dict and remove it afterwards ----
@@ -427,14 +427,14 @@ class DictFromChainName(object):
 
 
             #---- Check if topo is a bphsyics topo -> change signature ----            
-            from SignatureDicts import AllowedTopos_bphys
+            from .SignatureDicts import AllowedTopos_bphys
             for t in genchainDict['topo']:
                 if (t in AllowedTopos_bphys):
                     chainProperties['signature'] = 'Bphysics'
 
 
             # ---- import the relevant dictionaries for each part of the chain ---- 
-            from SignatureDicts import getSignatureInformation
+            from .SignatureDicts import getSignatureInformation
             SignatureDefaultValues, allowedSignaturePropertiesAndValues = getSignatureInformation(chainProperties['signature'])
             logDict.debug('SignatureDefaultValues: %s', SignatureDefaultValues)
             

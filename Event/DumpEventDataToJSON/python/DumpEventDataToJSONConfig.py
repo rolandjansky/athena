@@ -1,8 +1,9 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.Constants import VERBOSE
-from DumpEventDataToJSON.DumpEventDataToJSONConf import DumpEventDataToJsonAlg
+DumpEventDataToJsonAlg=CompFactory.DumpEventDataToJsonAlg
 
 def DumpEventDataToJSONAlgCfg(configFlags, doExtrap=False, **kwargs):
     result=ComponentAccumulator()

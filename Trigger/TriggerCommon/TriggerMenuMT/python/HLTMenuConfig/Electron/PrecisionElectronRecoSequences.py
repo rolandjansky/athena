@@ -37,7 +37,7 @@ def precisionElectronRecoSequence(RoIs):
                                  ('InDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs'),
                                  ( 'InDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
                                  ('xAOD::CaloClusterContainer' , 'StoreGateSvc+HLT_CaloClusters'),
-                                 ('SCT_FlaggedCondData','StoreGateSvc+SCT_FlaggedCondData'),
+                                 ('SCT_FlaggedCondData','StoreGateSvc+SCT_FlaggedCondData_TRIG'),
 				 ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )]
     
     """ Precision Track Related Setup.... """

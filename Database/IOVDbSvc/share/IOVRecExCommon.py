@@ -7,5 +7,5 @@ from AthenaCommon.GlobalFlags import globalflags
 if (globalflags.DetGeo()=='atlas'):
     from IOVDbSvc.CondDB import conddb
 else:
-    raise RuntimeError,'IOVRecExCommon.py included but geometry is not atlas'
+    raise RuntimeError ('IOVRecExCommon.py included but geometry is not atlas')
 

@@ -65,8 +65,10 @@ namespace InDet{
       virtual void find(InDet::ITRT_TrackSegmentsMaker::IEventData &event_data) const override;
       virtual Trk::TrackSegment *next(InDet::ITRT_TrackSegmentsMaker::IEventData &event_data) const override;
 
-      MsgStream&    dump          (MsgStream   & out) const override { return out; };
-      std::ostream& dump          (std::ostream& out) const override { return out; };
+      virtual MsgStream&    dump          (MsgStream   & out) const override
+      { return out; };
+      virtual std::ostream& dump          (std::ostream& out) const override
+      { return out; };
 
 
     protected:

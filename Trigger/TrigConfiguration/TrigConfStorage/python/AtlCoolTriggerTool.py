@@ -1,5 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
 
 try:
     Set = set
@@ -22,19 +23,19 @@ class AtlCoolTriggerTool:
     def check_options(self):
         opt = self.opt
         if opt.l1 and not (opt.menu or opt.diff or opt.xml):
-            print "Option l1 requires one of the options 'menu', 'xml', or 'diff' to be set"
+            print ("Option l1 requires one of the options 'menu', 'xml', or 'diff' to be set")
             return False
             
         if opt.l2 and not (opt.menu or opt.diff or opt.xml):
-            print "Option l2 requires one of the options 'menu', 'xml', or 'diff' to be set"
+            print ("Option l2 requires one of the options 'menu', 'xml', or 'diff' to be set")
             return False
                 
         if opt.ef and not (opt.menu or opt.diff or opt.xml):
-            print "Option ef requires one of the options 'menu', 'xml', or 'diff' to be set"
+            print ("Option ef requires one of the options 'menu', 'xml', or 'diff' to be set")
             return False
 
         if opt.processing and opt.processing!='hlt':
-            print "Option p|processing must be set to 'hlt'"
+            print ("Option p|processing must be set to 'hlt'")
             return False
 
         if (opt.menu or opt.diff or opt.xml) and not (opt.l1 or opt.l2 or opt.ef):
@@ -74,7 +75,7 @@ class AtlCoolTriggerTool:
 
         for r in runs:
             keys = runKeys[r]
-            print 'c'.join(["%su%s" % (x[1],x[0]) for x in keys["HLTPSK2"]])
+            print ('c'.join(["%su%s" % (x[1],x[0]) for x in keys["HLTPSK2"]]))
 
     def printConfigKeys(self, runKeys):
         #t = string.Template('run $RUN ($STARTTIME) release %10')
@@ -116,16 +117,16 @@ class AtlCoolTriggerTool:
                     else:            lvl1psk += "%4i (%i-%i) " % (x[0],x[1],x[2])
             if not lvl1psk: lvl1psk = "unknown"
 
-            print "run  %6i %srelease  %9s smk %4s hltps %s lvl1ps %s" % (r, timestr, rel, smk, hltpsknew, lvl1psk),
+            print ("run  %6i %srelease  %9s smk %4s hltps %s lvl1ps %s" % (r, timestr, rel, smk, hltpsknew, lvl1psk),)
 
             if r > 127453 and "HLTPSK2" in keys and "HLTPSK" in keys and keys["HLTPSK"] != keys["HLTPSK2"][0][0]:
                 msg = "WARNING: Menu folder shows different HLT prescale for SOR: %i" % keys["HLTPSK"]
-                print msg
+                print (msg)
                 #if r in exceptions:
                 #    print msg
                 #else:
                 #    raise RuntimeError, msg
-            else: print
+            else: print()
 
     def printMenu(self, run):
         if not self.opt.menu: return
@@ -165,19 +166,19 @@ class AtlCoolTriggerTool:
         self.opt.isTwoRuns   = len(runs)==2
 
         if self.opt.menu and not self.opt.isSingleRun:
-            print "Error: option 'menu' works only for single run"
+            print ("Error: option 'menu' works only for single run")
             sys.exit(0)
 
         if self.opt.xml and not self.opt.isSingleRun:
-            print "Error: option 'xml' works only for single run"
+            print ("Error: option 'xml' works only for single run")
             sys.exit(0)
 
         if self.opt.streams and not self.opt.isSingleRun:
-            print "Error: option 'streams' works only for single run"
+            print ("Error: option 'streams' works only for single run")
             sys.exit(0)
 
         if self.opt.diff and not self.opt.isTwoRuns:
-            print "Error: option 'diff' works only when two runs given"
+            print ("Error: option 'diff' works only when two runs given")
             sys.exit(0)
 
         if self.opt.isSingleRun:

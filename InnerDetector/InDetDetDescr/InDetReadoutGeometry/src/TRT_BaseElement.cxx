@@ -9,9 +9,11 @@
 #include "CLHEP/Geometry/Transform3D.h"
 #include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/Geometry/Vector3D.h"
+#include "GeoModelUtilities/GeoAlignmentStore.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
 #include "InDetIdentifier/TRT_ID.h"
+#include "GeoModelUtilities/GeoAlignmentStore.h"
 
 #include "TrkSurfaces/StraightLineSurface.h"
 #include "TrkSurfaces/Surface.h"
@@ -21,7 +23,7 @@
 namespace InDetDD {
 
 
-    TRT_BaseElement::TRT_BaseElement(const GeoVFullPhysVol *volume, const Identifier & id, const TRT_ID * idHelper, const TRT_Conditions * conditions) :
+  TRT_BaseElement::TRT_BaseElement(const GeoVFullPhysVol *volume, const Identifier & id, const TRT_ID * idHelper, const TRT_Conditions * conditions, const GeoAlignmentStore* geoAlignStore) :
         Trk::TrkDetElementBase(volume),
         m_id(id),
         m_idHelper(idHelper),
@@ -31,10 +33,21 @@ namespace InDetDD {
         m_surfaceCache{},
         m_surface{},
         m_surfaces{},
-        m_mutex{}
+        m_mutex{},
+        m_geoAlignStore(geoAlignStore)
     {
         m_idHash = m_idHelper->straw_layer_hash(id);  
     }
+
+    TRT_BaseElement::TRT_BaseElement(const TRT_BaseElement&right, const GeoAlignmentStore* geoAlignmentStore):
+    Trk::TrkDetElementBase(right.getMaterialGeom()),
+      m_geoAlignStore(geoAlignmentStore)
+    {
+        m_id            = right.m_id;
+        m_idHash        = right.m_idHash;
+        m_idHelper      = right.m_idHelper;
+        m_conditions    = right.m_conditions;
+    }    
 
     Identifier TRT_BaseElement::identify() const
     {
@@ -298,9 +311,9 @@ namespace InDetDD {
         // invalidates the cache, surface object can still live
 
         // for all straws
-        if (m_strawSurfacesCache) {
+      if (m_strawSurfacesCache.load()!=nullptr) {
             for (size_t i=0; i<m_strawSurfacesCache.load()->size(); i++) {
-                delete (*m_strawSurfacesCache)[i];
+	        delete (*m_strawSurfacesCache)[i];
                 (*m_strawSurfacesCache)[i] = 0;
             }
         }

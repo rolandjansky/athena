@@ -7,6 +7,7 @@
 
 
 from __future__ import print_function
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -34,7 +35,7 @@ def BunchLumisCondAlgCfg (configFlags):
     result.merge (FillParamsCondAlgCfg(configFlags))
     fpalg = result.getCondAlgo ('FillParamsCondAlg')
 
-    from CoolLumiUtilities.CoolLumiUtilitiesConf import BunchLumisCondAlg
+    BunchLumisCondAlg=CompFactory.BunchLumisCondAlg
     alg = BunchLumisCondAlg (name,
                              BunchLumisFolderInputKey = folder,
                              FillParamsInputKey = fpalg.FillParamsOutputKey,

@@ -275,8 +275,8 @@ StatusCode IOVDbSvc::preLoadAddresses(StoreID::type storeID,tadList& tlist) {
   // Preloading of addresses should be done ONLY for detector store
   ATH_MSG_DEBUG( "preLoadAddress: storeID -> " << storeID );
   // check File Level Meta Data of input, see if any requested folders are available there
-  const DataHandle<IOVMetaDataContainer> cont;
-  const DataHandle<IOVMetaDataContainer> contEnd;
+  SG::ConstIterator<IOVMetaDataContainer> cont;
+  SG::ConstIterator<IOVMetaDataContainer> contEnd;
   if (StatusCode::SUCCESS==m_h_metaDataStore->retrieve(cont,contEnd)) {
     unsigned int ncontainers=0;
     unsigned int nused=0;
@@ -288,7 +288,7 @@ StatusCode IOVDbSvc::preLoadAddresses(StoreID::type storeID,tadList& tlist) {
         // take data from FLMD only if tag override is NOT set
         if (thisNamePtrPair.second->folderName()==fname && !(thisNamePtrPair.second->tagOverride())) {
           ATH_MSG_INFO( "Folder " << fname << " will be taken from file metadata" );
-          thisNamePtrPair.second->setMetaCon(cont.cptr());
+          thisNamePtrPair.second->setMetaCon(&*cont);
           ++nused;
           break;
         }

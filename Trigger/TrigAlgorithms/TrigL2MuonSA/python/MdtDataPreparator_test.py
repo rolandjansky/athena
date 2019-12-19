@@ -10,6 +10,7 @@
 
 
 from __future__ import print_function
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaPython.PyAthenaComps import Alg, StatusCode
@@ -43,7 +44,7 @@ def testCfg (configFlags):
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     result.merge (MagneticFieldSvcCfg(configFlags, UseDCS = False))
 
-    from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MdtDataPreparator
+    TrigL2MuonSA__MdtDataPreparator=CompFactory.TrigL2MuonSA__MdtDataPreparator
     result.addPublicTool (TrigL2MuonSA__MdtDataPreparator ('TrigL2MuonSA::MdtDataPreparator', OutputLevel = 1))
     
     result.addEventAlgo (TestAlg ('TestAlg'))

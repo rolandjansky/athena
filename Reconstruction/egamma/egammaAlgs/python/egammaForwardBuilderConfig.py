@@ -2,11 +2,12 @@
 
 import cppyy
 from AthenaCommon.Logging import logging
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from egammaTools.egammaOQFlagsBuilderConfig import egammaOQFlagsBuilderCfg
-from egammaTools.egammaToolsConf import EMFourMomBuilder
+EMFourMomBuilder=CompFactory.EMFourMomBuilder
 from ElectronPhotonSelectorTools.AsgForwardElectronIsEMSelectorsConfig import AsgForwardElectronIsEMSelectorCfg
-from egammaAlgs.egammaAlgsConf import egammaForwardBuilder
+egammaForwardBuilder=CompFactory.egammaForwardBuilder
 from ROOT import egammaPID
 
 cppyy.loadDictionary('ElectronPhotonSelectorToolsDict')

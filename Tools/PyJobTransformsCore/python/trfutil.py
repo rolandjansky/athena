@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 import os, sys, re, shutil, inspect, glob, time, signal, pickle
 import bz2
@@ -26,7 +28,7 @@ from PyUtils import AthFile, RootUtils
 try:
     import PyDumper.SgDumpLib as sdl
 except ImportError:
-    print "Unable to import PyDumper.SgDumpLib."
+    print ("Unable to import PyDumper.SgDumpLib.")
     sdl = None
 
 VALIDATION_DICT = { 'ALL' : None, 'testIfEmpty' : None, 'testIfNoEvents' : None, 'testIfExists' : None, 'testIfCorrupt' : None, 'testCountEvents' : None, 'extraValidation' : None, 'testMatchEvents' : None, 'testEventMinMax' : None , 'stopOnEventCountNone' : None, 'continueOnZeroEventCount' :None}
@@ -89,8 +91,8 @@ def setTrfSignalHandler( handler ):
     for s in [ 'SIGABRT', 'SIGFPE', 'SIGBUS', 'SIGHUP', 'SIGILL', 'SIGINT', 'SIGIO', 'SIGPIPE', 'SIGQUIT', 'SIGSEGV', 'SIGSYS', 'SIGTERM', 'SIGXCPU', 'SIGXFSZ' ]:
         try:
             xDict[ s ] =  signal.signal( getattr( signal, s ), handler )
-        except Exception, e:
-            print "Unable to attach custom signal handler to %s: %s" % ( s, e )
+        except Exception as e:
+            print ("Unable to attach custom signal handler to %s: %s" % ( s, e ))
             continue
     return xDict
 
@@ -107,8 +109,8 @@ def setDefaultSignalHandlers():
     for s in [ 'SIGABRT', 'SIGFPE', 'SIGBUS', 'SIGHUP', 'SIGILL', 'SIGINT', 'SIGIO', 'SIGPIPE', 'SIGQUIT', 'SIGSEGV', 'SIGSYS', 'SIGTERM', 'SIGXCPU', 'SIGXFSZ' ]:
         try:
             signal.signal( getattr( signal, s ), _defaultSignalHandlerDict.get( s, signal.SIG_DFL ) )
-        except Exception, e:
-            print "Unable to attach custom signal handler to %s: %s" % ( s, e )
+        except Exception as e:
+            print ("Unable to attach custom signal handler to %s: %s" % ( s, e ))
             continue
     return currentTRFSignalHandler
 
@@ -118,12 +120,12 @@ def getAncestry():
     psCmd = ['ps', 'a', '-o', 'pid,ppid', '-m']
 
     try:
-        print 'Executing %s' % psCmd
+        print ('Executing %s' % psCmd)
         p = Popen(psCmd, stdout=PIPE, stderr=PIPE)
         stdout = p.communicate()[0]
         psPID = p.pid
-    except OSError, e:
-        print 'Failed to execute "ps" to get process ancestry: %s' % repr(e)
+    except OSError as e:
+        print ('Failed to execute "ps" to get process ancestry: %s' % repr(e))
         raise
     
     childDict = {}
@@ -163,7 +165,7 @@ def listChildren(psTree = None, parent = os.getpid()):
 
 ## @brief Kill all PIDs 
 def infanticide(childPIDs, sleepTime = 3):
-    print 'Will kill these processes: %s' % childPIDs
+    print ('Will kill these processes: %s' % childPIDs)
     for pid in childPIDs:
         try:
             os.kill(pid, signal.SIGINT)
@@ -189,7 +191,7 @@ def sigUsrStackTrace(func):
         pass
     
     def sigHandler(signum, frame):
-        print 'Handling signal %d in sigHandler' % signum
+        print ('Handling signal %d in sigHandler' % signum)
         raise SigUsr1
     
     def signal_wrapper(*args, **kwargs):
@@ -199,11 +201,11 @@ def sigUsrStackTrace(func):
             return func(*args, **kwargs)
         
         except SigUsr1:
-            print 'Transform received SIGUSR1. Exiting now with stack trace...'
-            print traceback.format_exc(None)
+            print ('Transform received SIGUSR1. Exiting now with stack trace...')
+            traceback.print_exc()
             myChildren = listChildren()
             if myChildren:
-                print 'Will now try to kill child PIDs: %s' % myChildren
+                print ('Will now try to kill child PIDs: %s' % myChildren)
                 infanticide(myChildren)
             sys.exit(128 + signal.SIGUSR1)  
             
@@ -225,7 +227,7 @@ def timelimited_exec1( tl_func, tl_timeout = TRF_SETTING[ 'TRFTimeout' ], tl_ret
         shortCmd = tl_func.replace('\n', '\\n')
         if len(shortCmd) > 80:
             shortCmd = shortCmd[:77] + '...'
-        print 'Calling "%s" with timeout %ds' % (shortCmd, tl_timeout)
+        print ('Calling "%s" with timeout %ds' % (shortCmd, tl_timeout))
         p = Popen(tl_func,shell=True,stdout=PIPE,stderr=STDOUT, preexec_fn = lambda : os.setpgid(0,0))
         stdout = stderr = '' # Make sure these variables are valid.
         try:
@@ -234,7 +236,7 @@ def timelimited_exec1( tl_func, tl_timeout = TRF_SETTING[ 'TRFTimeout' ], tl_ret
             rc = p.returncode
         except TrfAlarm:
             # Timeout on command happened
-            print 'Time limited exec command expired'
+            print ('Time limited exec command expired')
             # Kill the subshell and all spawned children 
             myChildren = listChildren()
             infanticide(myChildren)
@@ -247,14 +249,14 @@ def timelimited_exec1( tl_func, tl_timeout = TRF_SETTING[ 'TRFTimeout' ], tl_ret
         if rc == 0:
             break
         if tl_retry == 0: # success or no more retries.
-            print "Maximum retry attempts exhausted!"
+            print ("Maximum retry attempts exhausted!")
             break
-        print 'Retrying %d more time(s).' % tl_retry
+        print ('Retrying %d more time(s).' % tl_retry)
         tl_retry -= 1
-        print 'Waiting %d secs before retry.' % tl_interval
+        print ('Waiting %d secs before retry.' % tl_interval)
         time.sleep( tl_interval )
         tl_timeout *= 1.5
-        print 'Increasing timeout duration to %d.' % tl_timeout
+        print ('Increasing timeout duration to %d.' % tl_timeout)
     return rc, stdout
 
 ## Execute a function, allowing it to run for i secs before raising exception.
@@ -270,68 +272,68 @@ def timelimited_exec( tl_func, tl_func_args = (), tl_pre_func = lambda:None, tl_
             try:
                 try:
                     tl_pre_func()
-                except Exception, err_pre:
-                    print "%s failed: %s" % ( repr( tl_pre_func ), err_pre.message ) 
+                except Exception as err_pre:
+                    print ("%s failed: %s" % ( repr( tl_pre_func ), err_pre.message ) )
                 self.returnVal = tl_func( *tl_func_args, **tl_func_kwargs )
                 try:
                     tl_post_func()
-                except Exception, err_post:
-                    print "%s failed: %s" % ( repr( tl_post_func ), err_post.message ) 
-            except Exception, err_func:
+                except Exception as err_post:
+                    print ("%s failed: %s" % ( repr( tl_post_func ), err_post.message ) )
+            except Exception as err_func:
                 self.error = err_func
 
         def stop( self ):
             self.error = TransformThreadTimeout( '%s took more than the permitted %d secs.' % ( repr( tl_func ), tl_timeout ) )
             try:
                 tl_post_func()
-            except Exception, err_post:
-                print "%s failed in stop(): %s" % ( repr( tl_post_func ), err_post.message ) 
+            except Exception as err_post:
+                print ("%s failed in stop(): %s" % ( repr( tl_post_func ), err_post.message ) )
             TRF_Thread_stop( self )
 
     if tl_timeout < 0:
         raise ValueError( "tl_timeout parameter must be a positive number of seconds." )
     if tl_retry < 0:
         raise ValueError( "tl_retry parameter must be a positive number." )
-#    print 'Disabling transform signal handler.'
+#    print ('Disabling transform signal handler.')
     currentTRFSignalHandler = setDefaultSignalHandlers()
     while tl_retry >= 0:
         tl_thread = TOThread()
         tl_thread.start()
         tl_thread.join( tl_timeout )
         if tl_thread.isAlive():
-            print '%s took more than the permitted %d secs.' % ( repr( tl_func ), tl_timeout )
+            print ('%s took more than the permitted %d secs.' % ( repr( tl_func ), tl_timeout ))
             try:
                 tl_thread.stop()
-            except Exception, err:
+            except Exception as err:
                 if tl_retry == 0:
-#                    print 'Re-enabling transform signal handler.'
+#                    print ('Re-enabling transform signal handler.')
                     setTrfSignalHandler( currentTRFSignalHandler )
                     raise TransformThreadError( 'Exception caught whilst attempting to stop %s: %s' % ( repr( tl_func ), err ) )
                 else:
-                    print 'Exception caught whilst attempting to stop %s.' % repr( tl_func )
+                    print ('Exception caught whilst attempting to stop %s.' % repr( tl_func ))
                     tl_thread.error = TransformThreadError( 'Exception caught whilst attempting to stop %s: %s' % ( repr( tl_func ), err ) )
         # Thread has stopped
         if tl_thread.error is None:
             x = tl_thread.returnVal
             del tl_thread
-#            print 'Re-enabling transform signal handler.'
+#            print ('Re-enabling transform signal handler.')
             setTrfSignalHandler( currentTRFSignalHandler )
             return x
         # An error was detected
         if tl_retry == 0: # No more retry
             x = tl_thread.error
             del tl_thread
-#            print 'Re-enabling transform signal handler.'
+#            print ('Re-enabling transform signal handler.')
             setTrfSignalHandler( currentTRFSignalHandler )
             raise x
         else: # Continue retrying
-            print 'Retrying %d more time(s).' % tl_retry
+            print ('Retrying %d more time(s).' % tl_retry)
             tl_retry -= 1
             del tl_thread
-        print 'Waiting %d secs before retry.' % tl_interval
+        print ('Waiting %d secs before retry.' % tl_interval)
         time.sleep( tl_interval )
         tl_timeout *= 1.5
-#    print 'Re-enabling transform signal handler.'
+#    print ('Re-enabling transform signal handler.')
     setTrfSignalHandler( currentTRFSignalHandler )
 
 def validGUID(testString):
@@ -355,7 +357,7 @@ def getGUIDfromPFC(filename):
         poolcmd.extend(['-l', filename[4:]])
     else:
         poolcmd.extend(['-p', filename])
-    print 'Using %s for GUID retrieval' % poolcmd
+    print ('Using %s for GUID retrieval' % poolcmd)
     p = Popen(poolcmd, shell=False, stdout=PIPE, stderr=PIPE, close_fds=True)
     (stdout, stderr) = p.communicate()
     for line in stdout.split(os.linesep):
@@ -364,12 +366,12 @@ def getGUIDfromPFC(filename):
             guid = line
             break
     if p.returncode != 0:
-        print "GUID retrieval failed: %s" % stderr
+        print ("GUID retrieval failed: %s" % stderr)
         return (1, None)
     if guid == None:
-        print 'Did not find GUID in catalog %s (usually harmless)' % catalog
+        print ('Did not find GUID in catalog %s (usually harmless)' % catalog)
         return (0, None)
-    print "GUID retrieval: %s (%s) found in %s" % ( guid, filename, catalog )
+    print ("GUID retrieval: %s (%s) found in %s" % ( guid, filename, catalog ))
     return (0, guid)
 
 
@@ -382,13 +384,13 @@ def addGUIDtoPFC(filename, guid, type = 'ROOT_All'):
     poolcmd = ('FCregisterPFN', '-p', filename, '-t', type, '-g', guid)
     if not find_executable(poolcmd[0]):
         raise EnvironmentError('Pool utility %s not found in PATH' % poolcmd[0] )
-    print poolcmd
+    print (poolcmd)
     p = Popen(poolcmd, shell=False, stdout=PIPE, stderr=PIPE, close_fds=True)
     (stdout, stderr) = p.communicate()
     if p.returncode != 0:
-        print "GUID insertion failed: %s" % stderr
+        print ("GUID insertion failed: %s" % stderr)
         return 1
-    print "Added GUID %s for file %s to %s" % ( guid, filename, catalog )
+    print ("Added GUID %s for file %s to %s" % ( guid, filename, catalog ))
     return 0
 
 
@@ -406,7 +408,7 @@ def StringToList(cmd):
 def ntup_entries(fname, tree_names):
     """Count events in ROOT-based files."""
     if TRF_SETTING[ 'testrun' ] and ( VALIDATION_DICT[ 'ALL' ] == False or VALIDATION_DICT[ 'testCountEvents' ] == False ):
-        print 'Test run in progress. Event count (ROOT-based) disabled.'
+        print ('Test run in progress. Event count (ROOT-based) disabled.')
         return None
     #work with string or list of strings
     if not isinstance(tree_names,list):
@@ -414,6 +416,7 @@ def ntup_entries(fname, tree_names):
     if len( tree_names ) == 0:
         return None
     cmdSnippet = os.linesep.join( [
+        "from __future__ import print_function",
         "import PyUtils.RootUtils as ru",
         "import pickle",
         "root = ru.import_root()",
@@ -432,7 +435,7 @@ def ntup_entries(fname, tree_names):
         "del f",
         "if nevts is None:",
         "    exit( 1 )",
-        "print '<nevts>%s</nevts>' % pickle.dumps( nevts )",
+        "print ('<nevts>%s</nevts>' % pickle.dumps( nevts ))",
         "exit( 0 )" ] ) + os.linesep
     rc, stdout = timelimited_exec1( 'python -c "%s"' % cmdSnippet )
     if rc == 0:
@@ -440,7 +443,7 @@ def ntup_entries(fname, tree_names):
         if found:
             result = pickle.loads( found.group( 1 ) )
             return result
-    print stdout
+    print (stdout)
     return None
 
 def ElementToExec(cmd):
@@ -450,21 +453,21 @@ def ElementToExec(cmd):
     # double-quote  --> `
     #in addition corrects erroneous over-use of quotes by job transform users
     if cmd.find(',,') > -1:
-        print "WARNING symbol ,, is not expected in StringToExec. There is probably a mistake in the configuration.",cmd
+        print ("WARNING symbol ,, is not expected in StringToExec. There is probably a mistake in the configuration.",cmd)
     if cmd.startswith("'") and cmd.endswith("'"):
-        print "WARNING - suspicious exec syntax. Removing superfluous quotation signs."
-        print "original:", cmd
+        print ("WARNING - suspicious exec syntax. Removing superfluous quotation signs.")
+        print ("original:", cmd)
         cmd=cmd.strip("'")
-        print "new:",cmd
+        print ("new:",cmd)
     if cmd.startswith('"') and cmd.endswith('"'):
-        print "WARNING - suspicious exec syntax. Removing superfluous quotation signs."
-        print "original:", cmd
+        print ("WARNING - suspicious exec syntax. Removing superfluous quotation signs.")
+        print ("original:", cmd)
         cmd=cmd.strip('"')
-        print "new:",cmd
+        print ("new:",cmd)
     newCmd=cmd.replace('@',' ')
     newCmd=newCmd.replace('`','"')
     if cmd!=newCmd:
-        print "INFO StringToExec changed original: %s  to new: %s"%(cmd,newCmd)
+        print ("INFO StringToExec changed original: %s  to new: %s"%(cmd,newCmd))
     return newCmd
 
 def StringToExec(cmd):
@@ -568,7 +571,7 @@ def get_atlas_release(project='AtlasProduction'):
         match = re.search(find,dir)
         if match:
             atlasRelease = match.expand(replace)
-            print "Got Atlas Release number %s from directory name of file %s" % (atlasRelease,__file__)
+            print ("Got Atlas Release number %s from directory name of file %s" % (atlasRelease,__file__))
             return atlasRelease
     # 
     # If not found, try some environment variables
@@ -576,7 +579,7 @@ def get_atlas_release(project='AtlasProduction'):
     for env in ['ATLAS_RELEASE','AtlasVersion']:
         atlasRelease = os.environ.get(env)
         if atlasRelease:
-            print "Got Atlas Release number %s from environment variable %s" % (atlasRelease,env)
+            print ("Got Atlas Release number %s from environment variable %s" % (atlasRelease,env))
             return atlasRelease
     return None
 
@@ -628,7 +631,7 @@ def get_files( listOfFiles, fromWhere='data', doCopy='ifNotLocal', errorIfNotFou
               If a filename in <listOfFiles> contains an absolute path, the directory part is ignored in the copied filename.
     """
     if doCopy not in [ 'Always', 'Never', 'ifNotLocal' ]:
-        print "doCopy value of %s not recognised. Resetting it to 'ifNotLocal'" % doCopy
+        print ("doCopy value of %s not recognised. Resetting it to 'ifNotLocal'" % doCopy)
         doCopy = 'ifNotLocal'
     fromWhereShorts = { 'data' : 'DATAPATH' }
     # split a comma separated list of files given in a string into a python list
@@ -666,7 +669,7 @@ def get_files( listOfFiles, fromWhere='data', doCopy='ifNotLocal', errorIfNotFou
             pass
         else:
             continue
-        print "srcFilePrefix = %s, dirName = %s" % ( srcFilePrefix, dirName )
+        print ("srcFilePrefix = %s, dirName = %s" % ( srcFilePrefix, dirName ))
         try:
             srcFilePrefix.rindex( dirName, len( srcFilePrefix ) - len( dirName ) )
         except ValueError:
@@ -680,13 +683,13 @@ def get_files( listOfFiles, fromWhere='data', doCopy='ifNotLocal', errorIfNotFou
             if errorIfNotFound:
                 raise EnvironmentError('Auxiliary file %s not found in %s' % (filename,fromPath) )
             else:
-                print "WARNING: auxiliary file %s not found in %s" % (filename,fromPath)
+                print ("WARNING: auxiliary file %s not found in %s" % (filename,fromPath))
         parentDirLinked = None
         for srcFile in srcFileList:
             # Test if the parent directory of the current entry in srcFileList has been symlinked. 
             # If so, skip this entry. Assumes that the find_files_env() returns a sorted list of files.
             if os.path.dirname( srcFile ) == parentDirLinked:
-                print "%s has been symlinked." % parentDirLinked
+                print ("%s has been symlinked." % parentDirLinked)
                 continue
             # determine name of destination file
             if keepDir and not os.path.isabs( filename ):
@@ -702,7 +705,7 @@ def get_files( listOfFiles, fromWhere='data', doCopy='ifNotLocal', errorIfNotFou
                 if isOnLocalFileSystem( srcFile ):
                     copy_func = os.symlink
                 else: # remote file
-                    print "%s is on a different mount point as $CWD." % srcFile
+                    print ("%s is on a different mount point as $CWD." % srcFile)
                     copy_func = shutil.copyfile
             realDirRequired = False
             if copy_func is os.symlink:
@@ -711,10 +714,10 @@ def get_files( listOfFiles, fromWhere='data', doCopy='ifNotLocal', errorIfNotFou
                 # source directories, the reassignment is not done.
                 if subdir:
                     if subdir in realDirList: 
-                        print "%s found in realDirList: %s" % ( subdir, realDirList )
+                        print ("%s found in realDirList: %s" % ( subdir, realDirList ))
                         realDirRequired = True
                     else:
-#                        print "Reassigning targetFile from %s to %s." % ( targetFile, subdir )
+#                        print ("Reassigning targetFile from %s to %s." % ( targetFile, subdir ))
                         targetFile = subdir
                         srcFile = os.path.dirname( srcFile ).rstrip( os.sep )
                         # set flag to Stop iterating over srcFileList since parent dir has (will be) symlinked.
@@ -725,22 +728,22 @@ def get_files( listOfFiles, fromWhere='data', doCopy='ifNotLocal', errorIfNotFou
                     brokenLink = linkPresent( subdir, findBrokenLink = True )
                     if brokenLink:
                         try:
-                            print "Attempting to remove broken symlink %s" % brokenLink
+                            print ("Attempting to remove broken symlink %s" % brokenLink)
                             os.remove( brokenLink )
-                        except OSError, x:
+                        except OSError as x:
                             raise EnvironmentError( 'Unable to create the directory %s as the broken symlink %s cannot be removed: %s' % ( subdir, brokenLink, x ) )
 #                        targetFile = 
                     os.makedirs( subdir )
             # Check existence of targetFile (side effect of an exception when running os.path.samefile).
             try:
                 isSameFile = os.path.samefile( srcFile, targetFile )
-            except OSError, x: # good. targetFile does not exist.
-#                print "%s does not exist. %s" % ( targetFile, x )
+            except OSError as x: # good. targetFile does not exist.
+#                print ("%s does not exist. %s" % ( targetFile, x ))
                 if os.path.islink( targetFile ): # broken symlink
                     try:
-                        print "*Attempting to remove %s" % targetFile
+                        print ("*Attempting to remove %s" % targetFile)
                         os.remove( targetFile )
-                    except OSError, x:
+                    except OSError as x:
                         raise EnvironmentError( 'Unable to remove broken symlink %s: %s' % ( targetFile, x ) )
                 try:
                     copy_func( srcFile, targetFile )
@@ -754,15 +757,15 @@ def get_files( listOfFiles, fromWhere='data', doCopy='ifNotLocal', errorIfNotFou
             # existing file is a symlink and resides on a different mount point. The responsibility lies 
             # on user to be aware of the potential problems of accessing files over different mount points.
             if isSameFile:                
-                print "%s is the same as %s. No further action." % ( srcFile, targetFile )
+                print ("%s is the same as %s. No further action." % ( srcFile, targetFile ))
                 continue # do nothing
-            print "%s is not the same as %s" % ( srcFile, targetFile )
+            print ("%s is not the same as %s" % ( srcFile, targetFile ))
             # This point is reached in only two cases:
             # 1) An absolute filename was used.
             #    targetFile is not what we want as since the function was called to get a file with an absolute filename. 
             #    Attempt to remove the existing file before performing the copy.
             try:
-                print "**Attempting to remove %s" % targetFile
+                print ("**Attempting to remove %s" % targetFile)
                 os.remove( targetFile ) # remove files and symlinks
             except: # dst file is a directory
                 for _root, _dirs, _files in os.walk( targetFile , topdown = False ):
@@ -807,7 +810,7 @@ def load_module( module_filename ):
     try:
         if os.path.isabs(module_filename): raise ImportError
         dotted = module_filename.replace(os.sep,'.')
-#        print "load_module(): trying import %s" % dotted
+#        print ("load_module(): trying import %s" % dotted)
         module = __import__( dotted )
         modlist = dotted.split('.')
         if len(modlist) > 1:
@@ -823,8 +826,8 @@ def load_module( module_filename ):
             if absdir not in sys.path:
                 sys.path.insert( 1, absdir )
                 inserted = True
-#                print "load_module(): new path: %s" % sys.path
-#            print "load_module(): trying import %s" % modname
+#                print ("load_module(): new path: %s" % sys.path)
+#            print ("load_module(): trying import %s" % modname)
             module = __import__( modname )
             # cleanup search path
             if inserted: sys.path.remove( absdir )
@@ -1007,6 +1010,7 @@ def getCachedFileInfo( filename, infoKey ):
     else:
         fList = [ filename ]
     cmdSnippet = os.linesep.join( [ \
+        "from __future__ import print_function",
         "from PyUtils import AthFile",
         "from sys import exit",
         "import pickle",
@@ -1015,13 +1019,13 @@ def getCachedFileInfo( filename, infoKey ):
         "infoKey = '%s'" % infoKey,
         "try:",
         "    athFileObjList = AthFile.fopen( fileList )",
-        "except Exception, e:",
+        "except Exception as e:",
         "    exit( 'AthFile access failed: %s' % e )",
         "try:",
         "    infoVal = [ athFileObj.fileinfos[ infoKey ] for athFileObj in athFileObjList ]",
-        "except KeyError, e:",
+        "except KeyError as e:",
         "    exit( 'Requested infoKey %s missing.' % infoKey )",
-        "print '<infoVal>%s</infoVal>' % pickle.dumps( infoVal )",
+        "print ('<infoVal>%s</infoVal>' % pickle.dumps( infoVal ))",
         "exit( 0 )" ] ) + os.linesep
     rc, stdout = timelimited_exec1( 'python -c "%s"' % cmdSnippet, tl_timeout = TRF_SETTING[ 'TRFTimeout' ] * len( fList ) )
     if rc == 0:
@@ -1034,7 +1038,7 @@ def getCachedFileInfo( filename, infoKey ):
                 return resultList[0]
             except:
                 pass
-    print stdout
+    print (stdout)
     return None
 
 def corruptionTestROOT( filename, file_type ):
@@ -1065,12 +1069,12 @@ def corruptionTestBS( filename, file_type,logger):
           "try:",
           "    import PyDumper.SgDumpLib as sdl",
           "    sc, out = sdl.run_sg_dump( files = [ '%s' ], output = os.devnull, pyalg_cls = 'PyDumper.PyComps:DataProxyLoader', use_recex_links = False, file_type = '%s' )" % ( filename, file_type ),
-          "except Exception, e:",
+          "except Exception as e:",
           "    exit( 'Validation routine error: %s' % e )",
           "exit( sc )" ] ) + os.linesep
       rc, stdout = timelimited_exec1( 'python -c "%s"' % cmdSnippet )
       if rc != 0:
-          print stdout
+          print (stdout)
       return rc
 
 
@@ -1127,7 +1131,7 @@ class FileType:
         if guid is not None:
             return guid
         guid = str(uuid.uuid4()).upper()
-        print "GUID retrieval: %s (%s) generated with uuid.uuid4()" % ( guid, filename )
+        print ("GUID retrieval: %s (%s) generated with uuid.uuid4()" % ( guid, filename ))
         return guid
             
     def hasType(self):
@@ -1209,8 +1213,8 @@ class BSFile( FileType ):
         try:
             logger = arg.logger()
             fileList = arg.value()
-        except Exception, e:
-            print "Event count failed for %s: %s" % ( arg, e )
+        except Exception as e:
+            print ("Event count failed for %s: %s" % ( arg, e ))
             return None
         if TRF_SETTING[ 'testrun' ] and ( VALIDATION_DICT[ 'ALL' ] == False or VALIDATION_DICT[ 'testCountEvents' ] == False ):
             logger.info( 'Test run in progress. Event count (AthFile-based) disabled.' )
@@ -1233,8 +1237,8 @@ class BSFile( FileType ):
             logger = arg.logger()
             fName = arg.value()
             argName = arg.name()
-        except Exception, e:
-            print "Could not validate file associated with %s: %s" % ( arg, e )
+        except Exception as e:
+            print ("Could not validate file associated with %s: %s" % ( arg, e ))
             return
         if VALIDATION_DICT[ 'ALL' ] == False:
             logger.info( "Skipping all validation routines." )
@@ -1300,9 +1304,9 @@ class BSFile( FileType ):
                 extraValidationResult = timelimited_exec( tl_func = vDict[ 'extraValidation' ], tl_func_args = ( fName, ), tl_pre_func = lambda:None, tl_post_func = lambda:None, tl_timeout = TRF_SETTING[ 'validationTimeout' ], tl_retry = TRF_SETTING[ 'validationRetry' ], tl_interval = TRF_SETTING[ 'validationSleepInterval' ] )
             except TransformThreadTimeout:
                 logger.warning( 'Extra validation routine timed out.' )
-            except TransformThreadError, e:
+            except TransformThreadError as e:
                 logger.warning( 'Thread running extra validation routine failed to stop.\n%s' % e )
-            except Exception, e:
+            except Exception as e:
                 logger.warning( 'Extra validation routine error.\n%s' % e )
             vTimer.stop()
             if not extraValidationResult:
@@ -1353,23 +1357,23 @@ class RootTTreeFile( FileType ):
         if TRF_SETTING[ 'testrun' ]:
             return None
         if not fileutil.exists( filename ):
-            print "GUID retrieval failed: %s not found." % filename
+            print ("GUID retrieval failed: %s not found." % filename)
             return None
         # Use FClistGUID
         rc, guid = getGUIDfromPFC(filename)
         if guid != None:
             return guid
         if rc != 0:
-            print 'Warning: Problem with PFC'
+            print ('Warning: Problem with PFC')
         
         # ROOT type files have no internal GUID, so if it wasn't in the PFC then
         # we just make one up...
         guid = str(uuid.uuid4())
-        print 'Generated GUID %s for %s' % (guid, filename)
+        print ('Generated GUID %s for %s' % (guid, filename))
         # Do not register GUIDs for now - FC behaving badly!
         rc = addGUIDtoPFC(filename, guid, type = 'ROOT_All')
         if rc != 0:
-            print 'Warning: Failed to add new GUID to PFC'
+            print ('Warning: Failed to add new GUID to PFC')
 
         return guid
 
@@ -1390,11 +1394,11 @@ class PoolDataFile( RootTTreeFile ):
         if guid != None:
             return guid
         if rc != 0:
-            print 'Warning: Problem with PFC'
+            print ('Warning: Problem with PFC')
 
         # Use pool_extractFileIdentifier.py
         poolcmd = ['pool_extractFileIdentifier.py', filename]
-        print "GUID retrieval: Attempting to use %s." % poolcmd
+        print ("GUID retrieval: Attempting to use %s." % poolcmd)
         if not find_executable(poolcmd[0]):
             raise EnvironmentError('Pool utility %s not found in PATH' % poolcmd[0] )
         p = Popen(poolcmd,shell=False,stdout=PIPE,stderr=PIPE,close_fds=True)
@@ -1408,10 +1412,10 @@ class PoolDataFile( RootTTreeFile ):
             except:
                 continue
         if p.returncode != 0:
-            print "GUID retrieval failed: %s" % stderr
+            print ("GUID retrieval failed: %s" % stderr)
             guid = None
         if guid:
-            print "GUID retrieval: Using embedded value %s (%s)" % (guid,filename)
+            print ("GUID retrieval: Using embedded value %s (%s)" % (guid,filename))
             return guid
 
 
@@ -1423,8 +1427,8 @@ class PoolDataFile( RootTTreeFile ):
             logger = arg.logger()
             fName = arg.value()
             argName = arg.name()
-        except Exception, e:
-            print "Could not validate file associated with %s: %s" % ( arg, e )
+        except Exception as e:
+            print ("Could not validate file associated with %s: %s" % ( arg, e ))
             return
         if VALIDATION_DICT[ 'ALL' ] == False:
             logger.info( "Skipping all validation routines." )
@@ -1485,9 +1489,9 @@ class PoolDataFile( RootTTreeFile ):
                 extraValidationResult = timelimited_exec( tl_func = vDict[ 'extraValidation' ], tl_func_args = ( fName, ), tl_pre_func = lambda:None, tl_post_func = lambda:None, tl_timeout = TRF_SETTING[ 'validationTimeout' ], tl_retry = TRF_SETTING[ 'validationRetry' ], tl_interval = TRF_SETTING[ 'validationSleepInterval' ] )
             except TransformThreadTimeout:
                 logger.warning( 'Extra validation routine timed out.' )
-            except TransformThreadError, e:
+            except TransformThreadError as e:
                 logger.warning( 'Thread running extra validation routine failed to stop.\n%s' % e )
-            except Exception, e:
+            except Exception as e:
                 logger.warning( 'Extra validation routine error.\n%s' % e )
             vTimer.stop()
             if not extraValidationResult:
@@ -1509,12 +1513,12 @@ class PoolDataFile( RootTTreeFile ):
     
     def writeSize(self, arg):
         fName = arg.value()
-        print 'trfutil.py  Checking object sizes in file ', fName 
+        print ('trfutil.py  Checking object sizes in file ', fName )
         if  isinstance(self, AODFile) or isinstance(self,ESDFile) or isinstance(self,DPDFile) or isinstance(self,EvgenFile) or isinstance(self,HitsFile):
             ne=0
             collectionSize={}
             try:
-                # print 'trfutil.py checkFile running...'
+                # print ('trfutil.py checkFile running...')
                 import PyUtils.PoolFile as PF
                 # PF.PoolOpts.FAST_MODE = True
                 poolFile = PF.PoolFile( fName , False)
@@ -1523,11 +1527,11 @@ class PoolDataFile( RootTTreeFile ):
                 if ne>0:
                     for collection in poolFile.data:
                         collectionSize[collection.name] = collection.diskSize / ne
-            except Exception, e:
-                print "## Caught exception [%s] !!" % str(e.__class__)
-                print "## What:",e
-                print sys.exc_info()[0]
-                print sys.exc_info()[1]
+            except Exception as e:
+                print ("## Caught exception [%s] !!" % str(e.__class__))
+                print ("## What:",e)
+                print (sys.exc_info()[0])
+                print (sys.exc_info()[1])
                 return
                 
             # fName+='.size'
@@ -1535,16 +1539,16 @@ class PoolDataFile( RootTTreeFile ):
             #     with open( fName, 'w' ) as sizeFile:
             #         pickle.dump(ne,sizeFile)
             #         pickle.dump(collectionSize,sizeFile)
-            # except Exception, e:
-            #     print 'trfutil.py WARNING: Could not write consumption info to file ', fName , e
-            #     print sys.exc_info()[0]
-            #     print sys.exc_info()[1]
+            # except Exception as e:
+            #     print ('trfutil.py WARNING: Could not write consumption info to file ', fName , e)
+            #     print (sys.exc_info()[0])
+            #     print (sys.exc_info()[1])
             #     return
 			
 			#returns number_of_events and tuple of sizes
             return [ne, collectionSize]	
         else:
-            print 'not needed for file of this type'
+            print ('not needed for file of this type')
                 
         
     def eventCount( self, arg ):
@@ -1553,8 +1557,8 @@ class PoolDataFile( RootTTreeFile ):
         try:
             logger = arg.logger()
             fileList = arg.value()
-        except Exception, e:
-            print "Event count failed for %s: %s" % ( arg, e )
+        except Exception as e:
+            print ("Event count failed for %s: %s" % ( arg, e ))
             return None
         if TRF_SETTING[ 'testrun' ] and ( VALIDATION_DICT[ 'ALL' ] == False or VALIDATION_DICT[ 'testCountEvents' ] == False ):
             logger.info( 'Test run in progress. Event count (AthFile-based) disabled.' )
@@ -1621,12 +1625,12 @@ class TAGFile( RootTTreeFile ):
         if guid != None:
             return guid
         if rc != 0:
-            print 'Warning: Problem with PFC'
+            print ('Warning: Problem with PFC')
             
-        print "GUID retrieval: Now attempting to use AthFile to retrieve GUID from %s." % filename
+        print ("GUID retrieval: Now attempting to use AthFile to retrieve GUID from %s." % filename)
         guid = getCachedFileInfo( filename, 'file_guid' )
         if guid is None:
-            print "ERROR: GUID retrieval failed."
+            print ("ERROR: GUID retrieval failed.")
         return guid
 
 
@@ -1636,8 +1640,8 @@ class TAGFile( RootTTreeFile ):
         try:
             logger = arg.logger()
             fName = arg.value()
-        except Exception, e:
-            print "Event count failed for %s: %s" % ( arg, e )
+        except Exception as e:
+            print ("Event count failed for %s: %s" % ( arg, e ))
             return None
         return ntup_entries( fname = fName, tree_names = "POOLCollectionTree" )
 
@@ -1670,11 +1674,11 @@ class FTKIPFile(FileType):
                 if line.startswith('F'):
                     eventCount += 1
             return eventCount
-        except OSError, e:
-            print "Got OSError: %s" % str(e)
+        except OSError as e:
+            print ("Got OSError: %s" % str(e))
             return None
-        except IOError, e:
-            print "Got IOError: %s" % str(e)
+        except IOError as e:
+            print ("Got IOError: %s" % str(e))
             return None
 
 
@@ -1691,8 +1695,8 @@ class JiveXMLTGZFile(FileType):
             n = f.getnames()
             f.close()
             return len(n)
-        except tarfile.TarError, e:
-            print 'Error determining the number of events in %s: %s' % (fname, e)
+        except tarfile.TarError as e:
+            print ('Error determining the number of events in %s: %s' % (fname, e))
             return None
 
 ## Helper function to make JiveXML tarball from all JiveXML_*.xml in the cwd
@@ -1700,15 +1704,15 @@ def jiveXMLtgz(fname):
     # This should really be somewhere else, not in the actual trf code. Demo only!
     jiveXMLfiles = glob.glob('JiveXML_*.xml')
     if len(jiveXMLfiles) == 0:
-        raise RuntimeError, 'No JiveXML files to merge'
-    print "Will tar.gz %d JiveXML files: %s" % (len(jiveXMLfiles), jiveXMLfiles)
+        raise RuntimeError ('No JiveXML files to merge')
+    print ("Will tar.gz %d JiveXML files: %s" % (len(jiveXMLfiles), jiveXMLfiles))
     try:
         jXMLtargz = tarfile.open(fname, 'w:gz')
         for jXMLfile in jiveXMLfiles:
             jXMLtargz.add(jXMLfile)
         jXMLtargz.close()
-    except tarfile.TarError, e:
-        raise RuntimeError, 'Error while trying to create Jive XML tag.gz file %s: %s' % (fname, e)
+    except tarfile.TarError as e:
+        raise RuntimeError ('Error while trying to create Jive XML tag.gz file %s: %s' % (fname, e))
 
 
 class NtupleFile( RootTTreeFile ):
@@ -1724,8 +1728,8 @@ class NtupleFile( RootTTreeFile ):
         try:
             logger = arg.logger()
             fName = arg.value()
-        except Exception, e:
-            print "Event count failed for %s: %s" % ( arg, e )
+        except Exception as e:
+            print ("Event count failed for %s: %s" % ( arg, e ))
             return None
         if not isinstance(fName, list):
             fName=[fName]
@@ -1743,8 +1747,8 @@ class NtupleFile( RootTTreeFile ):
             logger = arg.logger()
             fName = arg.value()
             argName = arg.name()
-        except Exception, e:
-            print "Could not validate file associated with %s: %s" % ( arg, e )
+        except Exception as e:
+            print ("Could not validate file associated with %s: %s" % ( arg, e ))
             return
         if VALIDATION_DICT[ 'ALL' ] == False:
             logger.info( "Skipping all validation routines." )
@@ -1816,8 +1820,8 @@ class MonitorHistFile( RootTTreeFile ):
         try:
             logger = arg.logger()
             fName = arg.value()
-        except Exception, e:
-            print "Event count failed for %s: %s" % ( arg, e )
+        except Exception as e:
+            print ("Event count failed for %s: %s" % ( arg, e ))
             return None
         if TRF_SETTING[ 'testrun' ] and ( VALIDATION_DICT[ 'ALL' ] == False or VALIDATION_DICT[ 'testCountEvents' ] == False ):
             logger.info( 'Test run in progress. Event count (ROOT-based) disabled.' )
@@ -1828,9 +1832,9 @@ class MonitorHistFile( RootTTreeFile ):
             f = timelimited_exec( tl_func = ROOT.TFile.Open, tl_func_args = ( fName, ), tl_pre_func = lambda:None, tl_post_func = lambda:None, tl_timeout = TRF_SETTING[ 'TRFTimeout' ], tl_retry = TRF_SETTING[ 'TRFRetry' ], tl_interval = TRF_SETTING[ 'TRFSleepInterval' ] )
         except TransformThreadTimeout:
             logger.warning( 'ROOT file opening timed out.' )
-        except TransformThreadError, e:
+        except TransformThreadError as e:
             logger.warning( 'Thread for ROOT file opening failed to stop.\n%s' % e )
-        except Exception, e:
+        except Exception as e:
             logger.warning( 'ROOT file open error.\n%s' % e )
         if not f:
             logger.warning("Could not open file [%s].", fName)
@@ -1885,8 +1889,8 @@ class MonitorHistFile( RootTTreeFile ):
             logger = arg.logger()
             fName = arg.value()
             argName = arg.name()
-        except Exception, e:
-            print "Could not validate file associated with %s: %s" % ( arg, e )
+        except Exception as e:
+            print ("Could not validate file associated with %s: %s" % ( arg, e ))
             return
         if VALIDATION_DICT[ 'ALL' ] == False:
             logger.info( "Skipping all validation routines." )
@@ -1947,9 +1951,9 @@ class MonitorHistFile( RootTTreeFile ):
                 extraValidationResult = timelimited_exec( tl_func = vDict[ 'extraValidation' ], tl_func_args = ( fName, ), tl_pre_func = lambda:None, tl_post_func = lambda:None, tl_timeout = TRF_SETTING[ 'validationTimeout' ], tl_retry = TRF_SETTING[ 'validationRetry' ], tl_interval = TRF_SETTING[ 'validationSleepInterval' ] )
             except TransformThreadTimeout:
                 logger.warning( 'Extra validation routine timed out.' )
-            except TransformThreadError, e:
+            except TransformThreadError as e:
                 logger.warning( 'Thread running extra validation routine failed to stop.\n%s' % e )
-            except Exception, e:
+            except Exception as e:
                 logger.warning( 'Extra validation routine error.\n%s' % e )
             vTimer.stop()
             if not extraValidationResult:
@@ -2384,5 +2388,5 @@ class VersionString:
         return len(self.numberList) > 0
 
     def dump(self):
-        print '%s -> %s' % (self.version,self.numberList)
+        print ('%s -> %s' % (self.version,self.numberList))
 

@@ -3,6 +3,7 @@
 """Define method to construct configured Tile pulse for muon receiver algorithm"""
 
 from TileSimAlgs.TileHitVecToCntConfig import TileHitVecToCntCfg
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def TilePulseForTileMuonReceiverCfg(flags, **kwargs):
     """Return component accumulator with configured Tile muon receiver algorithm
@@ -83,7 +84,7 @@ def TilePulseForTileMuonReceiverCfg(flags, **kwargs):
     else:
         kwargs.setdefault('MuonReceiverDigitsContainer', 'MuRcvDigitsCnt')
 
-    from TileSimAlgs.TileSimAlgsConf import TilePulseForTileMuonReceiver
+    TilePulseForTileMuonReceiver=CompFactory.TilePulseForTileMuonReceiver
     acc.addEventAlgo(TilePulseForTileMuonReceiver(**kwargs), primary = True)
 
     return acc

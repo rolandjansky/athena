@@ -5,6 +5,7 @@
 #include "StreamTagMakerTool.h"
 #include "TrigConfData/HLTMenu.h"
 #include "TrigConfData/HLTChain.h"
+#include "GaudiKernel/IAlgExecStateSvc.h"
 #include "eformat/StreamTag.h"
 
 using namespace TrigCompositeUtils;
@@ -78,7 +79,12 @@ StatusCode StreamTagMakerTool::fill( HLT::HLTResultMT& resultToFill, const Event
   using namespace TrigCompositeUtils;
   auto chainsHandle = SG::makeHandle( m_finalChainDecisions, ctx );
   if (!chainsHandle.isValid()) {
-    ATH_MSG_ERROR("Unable to read in the HLTNav_Summary from the DecisionSummaryMakerAlg");
+    SmartIF<IAlgExecStateSvc> aess = svcLoc()->service<IAlgExecStateSvc>("AlgExecStateSvc", false);
+    if (aess.isValid() && aess->eventStatus(ctx) != EventStatus::Success) {
+      ATH_MSG_WARNING("Failed event, " << m_finalChainDecisions.key() << " is unavailable. Skipping stream tag making.");
+      return StatusCode::SUCCESS;
+    }
+    ATH_MSG_ERROR("Unable to read in the " << m_finalChainDecisions.key() << " from the DecisionSummaryMakerAlg");
     return StatusCode::FAILURE;
   }
 

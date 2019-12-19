@@ -1,20 +1,21 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def createLArRoI_Map( flags ):
     acc = ComponentAccumulator()
-    from LArRawUtils.LArRawUtilsConf import LArRoI_Map
+    LArRoI_Map=CompFactory.LArRoI_Map
 
     from IOVDbSvc.IOVDbSvcConfig import addFolders
     from LArCabling.LArCablingConfig import LArFebRodMappingCfg, LArCalibIdMappingCfg
 
-    from LArCabling.LArCablingConf import LArCablingLegacyService
+    LArCablingLegacyService=CompFactory.LArCablingLegacyService
     cablingTool = LArCablingLegacyService() # this is realy a tool
     # needed by above
     acc.merge( LArFebRodMappingCfg( flags ))
     acc.merge( LArCalibIdMappingCfg( flags ))
 
-    from CaloTriggerTool.CaloTriggerToolConf import CaloTriggerTowerService
+    CaloTriggerTowerService=CompFactory.CaloTriggerTowerService
     triggerTowerTool = CaloTriggerTowerService()                                              
     acc.merge(addFolders(flags, ['/LAR/Identifier/LArTTCellMapAtlas'], 'LAR'))
     acc.merge(addFolders(flags, ['/LAR/Identifier/OnOffIdMap'], 'LAR'))
@@ -101,7 +102,7 @@ if __name__ == "__main__":
 
     acc.merge( trigCaloDataAccessSvcCfg( ConfigFlags ) )
     
-    from TrigT2CaloCommon.TrigT2CaloCommonConf import TestCaloDataAccess
+    TestCaloDataAccess=CompFactory.TestCaloDataAccess
     testAlg = TestCaloDataAccess()
     acc.addEventAlgo(testAlg)    
     

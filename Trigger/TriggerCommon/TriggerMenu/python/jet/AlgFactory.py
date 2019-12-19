@@ -19,7 +19,7 @@ except ImportError:
     GeV = 1000.
 
 
-from eta_string_conversions import eta_string_to_floats
+from .eta_string_conversions import eta_string_to_floats
 
 
 class Alg(object):

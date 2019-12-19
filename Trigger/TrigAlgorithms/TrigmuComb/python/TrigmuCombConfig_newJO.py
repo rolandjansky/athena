@@ -3,6 +3,7 @@
 #  This file configs the muComb reco alg with the newJO
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 muFastInfo="MuonL2SAInfo"
 muCombInfo="HLT_MuonL2CBInfo"
@@ -70,7 +71,7 @@ def l2MuCombRecoCfg(flags):
 
 def l2MuCombHypoCfg(flags, name="UNSPECIFIED", muCombInfo="UNSPECIFIED"):
 
-    from TrigMuonHypoMT.TrigMuonHypoMTConf import TrigmuCombHypoAlg
+    TrigmuCombHypoAlg=CompFactory.TrigmuCombHypoAlg
     muCombHypo = TrigmuCombHypoAlg(name)
     muCombHypo.MuonL2CBInfoFromMuCombAlg=muCombInfo
 

@@ -7,6 +7,7 @@
 '''
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 def TileTowerBuilderAlgCfg(flags, **kwargs):
 
     acc = ComponentAccumulator()
@@ -24,14 +25,14 @@ def TileTowerBuilderAlgCfg(flags, **kwargs):
     from LArGeoAlgsNV.LArGMConfig import LArGMCfg
     acc.merge(LArGMCfg(flags))
 
-    from TileRecUtils.TileRecUtilsConf import TileTowerBuilderTool
+    TileTowerBuilderTool=CompFactory.TileTowerBuilderTool
     tileCmbTwrBldr = TileTowerBuilderTool( name = 'TileCmbTwrBldr',
                                            CellContainerName = 'AllCalo',
                                            IncludedCalos = ['TILE'])
 
     kwargs['TowerBuilderTools'] = [ tileCmbTwrBldr ]
 
-    from CaloRec.CaloRecConf import CaloTowerAlgorithm
+    CaloTowerAlgorithm=CompFactory.CaloTowerAlgorithm
     acc.addEventAlgo(CaloTowerAlgorithm(**kwargs), primary = True)
 
     return acc

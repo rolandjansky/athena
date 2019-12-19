@@ -1,9 +1,10 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 # import the JetFitterNtupleWriter configurable
-from JetTagTools.JetTagToolsConf import Analysis__JetFitterNtupleWriter
+Analysis__JetFitterNtupleWriter=CompFactory.Analysis__JetFitterNtupleWriter
 
 def JetFitterNtupleWriterNNCfg( name = 'JetFitterNtupleWriterNN', useBTagFlagsDefaults = True, **options ):
     """Sets up a JetFitterTagNN tool and returns it.

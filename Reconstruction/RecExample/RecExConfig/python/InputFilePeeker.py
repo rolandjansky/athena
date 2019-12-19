@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ##===================================================================================================
 ## Name:        inputFilePeeker.py
@@ -165,7 +165,7 @@ def _setup():
                     newInFile=None
 
         if newInFile is None:
-            raise(RuntimeError,"unable to redirect tag to any file. Autoconfiguration fails")
+            raise RuntimeError ("unable to redirect tag to any file. Autoconfiguration fails")
         else:
             inputFileSummary = fi.fileinfos
             # store information in inputFileSummary

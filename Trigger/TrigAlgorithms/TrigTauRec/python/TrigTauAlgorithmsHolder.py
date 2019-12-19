@@ -128,6 +128,8 @@ def getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='', ca
                                     doAxisCorrection = correctAxis)
 
     TauCalibrateLC.isCaloOnly = caloOnly
+    #Need to empty the vertex key collection in the trigger case
+    TauCalibrateLC.Key_vertexInputContainer = ""
             
     cached_instances[_name] = TauCalibrateLC                
     return TauCalibrateLC
@@ -144,6 +146,8 @@ def getMvaTESVariableDecorator():
     from AthenaCommon.AppMgr import ToolSvc
     from tauRecTools.tauRecToolsConf import MvaTESVariableDecorator
     MvaTESVariableDecorator = MvaTESVariableDecorator(name = _name)
+
+    MvaTESVariableDecorator.Key_vertexInputContainer = ""
 
     ToolSvc += MvaTESVariableDecorator
     cached_instances[_name] = MvaTESVariableDecorator
@@ -358,12 +362,12 @@ def getTauVertexVariables():
 
     from tauRecTools.tauRecToolsConf import TauVertexVariables
     TauVertexVariables = TauVertexVariables(  name = _name,
-                                              Key_vertexInputContainer = _DefaultVertexContainer,
+                                              Key_vertexInputContainer = "",
                                               TrackToVertexIPEstimator = getTauTrackToVertexIPEstimator(),
                                               VertexFitter = getTauAdaptiveVertexFitter(),
                                               #VertexFitter = "Trk::AdaptiveVertexFitter/InDetAdaptiveVxFitterTool",
                                               SeedFinder = getTauCrossDistancesSeedFinder(),
-                                              Key_trackPartInputContainer = _DefaultTrackContainer # ATM only needed in case old API is used
+                                              Key_trackPartInputContainer = "" # ATM only needed in case old API is used
                                               #OutputLevel = 2
                                               )
     
@@ -719,7 +723,7 @@ def getTauTrackFinder(applyZ0cut=False, maxDeltaZ0=2, noSelector = False, prefix
                                     MaxJetDrTau = 0.2,
                                     MaxJetDrWide          = 0.4,
                                     TrackSelectorToolTau  = getInDetTrackSelectorTool(),
-                                    Key_trackPartInputContainer = _DefaultTrackContainer,
+                                    Key_trackPartInputContainer = "",
                                     TrackToVertexTool         = getTrackToVertexTool(),
                                     maxDeltaZ0wrtLeadTrk = maxDeltaZ0, #in mm
                                     removeTracksOutsideZ0wrtLeadTrk = applyZ0cut,
@@ -729,6 +733,8 @@ def getTauTrackFinder(applyZ0cut=False, maxDeltaZ0=2, noSelector = False, prefix
                                     )
     # Selector not needed for fast-tracks
     # Extrapolator never needed
+
+    TauTrackFinder.tauParticleCache = ""
 
     cached_instances[_name] = TauTrackFinder      
     return TauTrackFinder

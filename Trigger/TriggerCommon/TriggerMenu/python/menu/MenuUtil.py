@@ -1,7 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.Logging        import logging
+
+import six
 
 
 log = logging.getLogger('TriggerMenu.menu.MenuUtil.py')
@@ -10,7 +12,7 @@ log = logging.getLogger('TriggerMenu.menu.MenuUtil.py')
 
 def getStreamTagForRerunChains(triggerPythonConfig, HLTPrescale):
     list=[]
-    for item, prescales in HLTPrescale.iteritems():
+    for item, prescales in six.iteritems (HLTPrescale):
         # prescales is a list of 3 integers [HLT_prescale, HLT_pass_through, rerun_prescale]
         if item not in triggerPythonConfig.allChains.keys():
             log.debug('Signature %s not registered to TriggerPythonConfig' % item)
@@ -33,7 +35,7 @@ def getStreamTagForRerunChains(triggerPythonConfig, HLTPrescale):
 
 
 def applyHLTPrescale(triggerPythonConfig, HLTPrescale):
-    for item, prescales in HLTPrescale.iteritems():
+    for item, prescales in six.iteritems (HLTPrescale):
         # prescales is a list of 3 integers [HLT_prescale, HLT_pass_through, rerun_prescale]
         if item not in triggerPythonConfig.allChains.keys():
             if triggerPythonConfig.signaturesOverwritten:

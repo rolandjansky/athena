@@ -9,14 +9,14 @@ TriggerMenu/trunk/python/menu/SignatureDicts.py#L144
 
 import re
 from functools import reduce
-from eta_string_conversions import eta_string_to_floats
-from clusterparams_factory import clusterparams_factory
-from fexparams_factory import fexparams_factory
-from hypo_factory import hypo_factory
+from .eta_string_conversions import eta_string_to_floats
+from .clusterparams_factory import clusterparams_factory
+from .fexparams_factory import fexparams_factory
+from .hypo_factory import hypo_factory
 
 # from lxml import etree as et
-from ChainConfig import ChainConfig
-from MenuData import MenuData
+from .ChainConfig import ChainConfig
+from .MenuData import MenuData
 
 class JetAttributes(object):
     """Per jet attributes. Used by  hypo algorithms."""

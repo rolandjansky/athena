@@ -1,7 +1,14 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-import os, sys, commands, re, glob, fileutil
+from __future__ import print_function
+
+import os, sys, re, glob
+from PyJobTransformsCore import fileutil
 #from exceptions import EnvironmentError
+
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 __doc__ = """Environment variables utilities"""
 
@@ -34,7 +41,7 @@ def _get_sys_path_extras():
     extras = []
     #start with clear python (the same a the current one!)
     cmd = 'unset PYTHONPATH ; %s -c "import sys ; print sys.path"' % (sys.executable)
-    status,output = commands.getstatusoutput(cmd)
+    status,output = subprocess.getstatusoutput(cmd)
     if status: raise EnvironmentError('Can not determine python sys.path extras')
     extras = eval( output )
     # remove first entry
@@ -159,16 +166,16 @@ def remove_path_env( env_name, whatRE, sep=os.pathsep ):
     varList = var.split(sep)
     pat = re.compile(whatRE)
     newList = []
-#    print "Starting with %s" % var
+#    print ("Starting with %s" % var)
     for item in varList:
         if not pat.search(item):
             newList.append(item)
         else:
             pass
-#            print "Removing %s" % item
+#            print ("Removing %s" % item)
            
     newvar = sep.join(newList)
-#    print "Left with: %s" % newvar
+#    print ("Left with: %s" % newvar)
     update_env( { env_name : newvar } )
 
 
@@ -247,7 +254,7 @@ def find_file_split( filename, dirlist = [ os.getcwd() ], access = os.R_OK, dept
         dir = os.path.abspath( os.path.expandvars( os.path.expanduser(dir) ) )
         if not os.path.isdir(dir): continue
         fullfile = os.path.join( dir, filename )
-        #        print "Checking file %s..." % fullfile
+        #        print ("Checking file %s..." % fullfile)
         if fileutil.access( fullfile, access ):
             return (dir,filename)
 
@@ -343,19 +350,19 @@ def find_files_split( filename, dirlist, access, depth ):
         if not os.path.isdir(dir): continue
         olddir = os.getcwd()
         os.chdir(dir)
-##        print "Checking files %s..." % fullfile
+##        print ("Checking files %s..." % fullfile)
         filelist = glob.glob(filename)
         for f in filelist:
-##            print "Trying %s..." % f
+##            print ("Trying %s..." % f)
             if not os.path.isfile(f) or not fileutil.access(f, access): continue
             if not f in filenameList:
                 fullfile = os.path.join( dir, f )
-##                print "==> Adding %s to list from %s" % (f,dir)
+##                print ("==> Adding %s to list from %s" % (f,dir))
                 dirnameList.append(dir)
                 filenameList.append(f)
             else:
                 pass
-##                print "==> Already have %s in list" % (base)
+##                print ("==> Already have %s in list" % (base))
         os.chdir(olddir)
     if depth > 0:
         # Go one level down in directory structure
@@ -573,7 +580,7 @@ def examine_library(lib):
         return [lib]
     # library is found. Check on dependents
     missLibs = []
-    lddOut = commands.getoutput( 'ldd %s' % (full_lib) )
+    lddOut = subprocess.getoutput( 'ldd %s' % (full_lib) )
     notFoundRE = re.compile(r"^\s*(?P<lib>[\w.-]+)\s+.*not found")
     for line in lddOut.split(os.linesep):
         match = notFoundRE.search( line )
@@ -590,7 +597,7 @@ def getenv_from_output(cmd,envRE=None):
     will be included. Recognised syntax: name=value at the beginning of a line (spaces allowed).
     Does *not* change os.environ"""
 
-    status,output = commands.getstatusoutput( cmd )
+    status,output = subprocess.getstatusoutput( cmd )
     if status != 0:
         raise EnvironmentError( 'Error executing command: %s. exitstatus=%d  output=\"%s\"' % (cmd,status,output) )
     if not envRE: envRE=r'\S+?'
@@ -626,7 +633,7 @@ def source_setup(setupshell,options='',envRE=None):
     elif not (setupshell.startswith(os.curdir) or setupshell.startswith(os.pardir)):
         fullsetup = os.path.join(os.curdir,setupshell)
     source_cmd = 'source %s %s' % ( fullsetup, options )
-    print source_cmd
+    print (source_cmd)
     newenv = getenv_from_output( source_cmd + '; printenv', envRE )
     update_env(newenv)
     return newenv

@@ -1,12 +1,13 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from MuonConfig.MuonCalibConfig import MdtCalibrationToolCfg, MdtCalibrationDbToolCfg
 from MuonCnvExample.MuonCnvUtils import mdtCalibWindowNumber # TODO should maybe shift this elsewhere?
-from MdtDriftCircleOnTrackCreator.MdtDriftCircleOnTrackCreatorConf import Muon__MdtDriftCircleOnTrackCreator
-from MuonClusterOnTrackCreator.MuonClusterOnTrackCreatorConf import Muon__CscClusterOnTrackCreator, Muon__MuonClusterOnTrackCreator
-from TrkRIO_OnTrackCreator.TrkRIO_OnTrackCreatorConf import Trk__RIO_OnTrackCreator
-from MuonCompetingClustersOnTrackCreator.MuonCompetingClustersOnTrackCreatorConf import Muon__TriggerChamberClusterOnTrackCreator
+Muon__MdtDriftCircleOnTrackCreator=CompFactory.Muon__MdtDriftCircleOnTrackCreator
+Muon__CscClusterOnTrackCreator, Muon__MuonClusterOnTrackCreator=CompFactory.getComps("Muon__CscClusterOnTrackCreator","Muon__MuonClusterOnTrackCreator",)
+Trk__RIO_OnTrackCreator=CompFactory.Trk__RIO_OnTrackCreator
+Muon__TriggerChamberClusterOnTrackCreator=CompFactory.Muon__TriggerChamberClusterOnTrackCreator
 
 def TriggerChamberClusterOnTrackCreatorCfg(flags, name="TriggerChamberClusterOnTrackCreator", **kwargs):
     result=ComponentAccumulator()

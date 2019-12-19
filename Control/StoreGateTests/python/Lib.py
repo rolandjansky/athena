@@ -175,6 +175,9 @@ class PyClidsTestWriter(PyAthena.Alg):
             
         if not allGood: return StatusCode.Failure
         self.sg.dump()
+        import sys
+        sys.stdout.flush()
+        sys.stderr.flush()
         
         return self.testReadBack()
 
