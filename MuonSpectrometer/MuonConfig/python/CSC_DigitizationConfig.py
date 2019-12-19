@@ -7,7 +7,6 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 from MuonConfig.MuonCondAlgConfig import CscCondDbAlgCfg
-from MuonConfig.MuonCalibConfig import CscCoolStrSvcCfg
 CscDigitizationTool, CscDigitBuilder=CompFactory.getComps("CscDigitizationTool","CscDigitBuilder",)
 PileUpXingFolder=CompFactory.PileUpXingFolder
 from MuonConfig.MuonByteStreamCnvTestConfig import CscDigitToCscRDOCfg, CscOverlayDigitToCscRDOCfg
