@@ -15,7 +15,7 @@ def TrackingGeoCfg(inputFlags):
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
     result.merge(MuonGeoModelCfg(inputFlags))
 
-    from TrkDetDescrSvc.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+    from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
     acc, geom_svc = TrackingGeometrySvcCfg(inputFlags)
     result.merge(acc)
 
@@ -44,7 +44,7 @@ def CaloGeoAndNoiseCfg(inputFlags):
 # PFlow track selection
 def getPFTrackSelector(inputFlags,tracksin,verticesin):
 
-    from TrkExTools.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
     extrapcfg = AtlasExtrapolatorCfg(inputFlags)
     extrapolator = extrapcfg.popPrivateTools()
 

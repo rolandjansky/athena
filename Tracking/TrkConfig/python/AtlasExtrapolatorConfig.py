@@ -18,7 +18,7 @@ def AtlasExtrapolatorCfg( flags, name = 'AtlasExtrapolator' ):
        result.merge(acc)
 
        # get the correct TrackingGeometry setup
-       from TrkDetDescrSvc.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+       from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
        acc = TrackingGeometrySvcCfg(flags)
        geom_svc = acc.getPrimary() 
        result.merge(acc)

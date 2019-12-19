@@ -67,9 +67,9 @@ def PixelMonitoringConfig(flags):
         # Taken from InnerDetector/InDetDigitization/PixelDigitization/python/PixelDigitizationConfigNew.py
         from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
         InDetPixelConditionsSummaryTool = acc.popToolsAndMerge(PixelConditionsSummaryCfg(flags))
-        # Taken from Tracking/TrkExtrapolation/TrkExTools/python/AtlasExtrapolatorConfig.py
+        # Taken from Tracking/TrkConfig/python/AtlasExtrapolatorConfig.py
         # AtlasExtrapolatorConfig can give only private extrapolator. We need public extrapolator.
-        from TrkDetDescrSvc.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+        from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
         trackGeomCfg = TrackingGeometrySvcCfg(flags)
         geom_svc = trackGeomCfg.getPrimary() 
         geom_svc.GeometryBuilder.Compactify = False ######## To avoid crash ########
