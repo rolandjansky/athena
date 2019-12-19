@@ -60,6 +60,11 @@ StatusCode ISF::FastCaloSimV2Tool::initialize()
 
   ATH_CHECK(m_paramSvc.retrieve());
 
+  m_doPunchThrough = not m_punchThroughTool.empty();
+  if (m_doPunchThrough) {
+    ATH_CHECK(m_punchThroughTool.retrieve());
+  }
+
   // Get FastCaloSimCaloExtrapolation
   ATH_CHECK(m_FastCaloSimCaloExtrapolation.retrieve());
 
@@ -151,13 +156,19 @@ StatusCode ISF::FastCaloSimV2Tool::releaseEventST()
 }
 
 /** Simulation Call */
-StatusCode ISF::FastCaloSimV2Tool::simulate(const ISF::ISFParticle& isfp, ISFParticleContainer&, McEventCollection*) const
+StatusCode ISF::FastCaloSimV2Tool::simulate(const ISF::ISFParticle& isfp, ISFParticleContainer& secondaries, McEventCollection*) const
 {
 
   ATH_MSG_VERBOSE("NEW PARTICLE! FastCaloSimV2Tool called with ISFParticle: " << isfp);
 
   Amg::Vector3D particle_position =  isfp.position();
   Amg::Vector3D particle_direction(isfp.momentum().x(),isfp.momentum().y(),isfp.momentum().z());
+
+  if (m_doPunchThrough) {
+     // call punch-through simulation
+     const ISF::ISFParticleContainer *someSecondaries = m_punchThroughTool->computePunchThroughParticles(isfp);
+     secondaries = *someSecondaries;
+   }
 
   //int barcode=isfp.barcode(); // isfp barcode, eta and phi: in case we need them
   // float eta_isfp = particle_position.eta();
