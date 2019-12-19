@@ -53,8 +53,6 @@ namespace Trk {
   class SpacePoint;
 }
 
-class IFTK_DataProviderSvc;
-
 class TrigL2LayerSetLUT;
 class TrigSpacePointStorage;
 class TrigInDetTriplet;
@@ -107,8 +105,6 @@ protected:
   ToolHandle<ITrigInDetTrackFitter> m_trigInDetTrackFitter;
   ToolHandle<ITrigZFinder> m_trigZFinder;
   ToolHandle< Trk::ITrackSummaryTool > m_trackSummaryTool;
-  ServiceHandle<IFTK_DataProviderSvc > m_ftkDataProviderSvc;
-  std::string m_ftkDataProviderSvcName;
 
   //DataHandles
   SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
@@ -122,13 +118,9 @@ protected:
   // Control flags
 
   bool m_doCloneRemoval;
-  bool m_ftkMode;//If True: Retrieve FTK tracks
-  bool m_ftkRefit;//If True: Refit FTK tracks
   bool m_useBeamSpot; 
   bool m_vertexSeededMode;
   bool m_doZFinder;
-  bool m_doFTKZFinder;
-  bool m_doFTKFastVtxFinder;
   bool m_doFastZVseeding;
   bool m_doResMonitoring;
 
