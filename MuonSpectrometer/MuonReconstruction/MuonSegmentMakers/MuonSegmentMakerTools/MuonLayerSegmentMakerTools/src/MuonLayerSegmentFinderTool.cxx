@@ -31,7 +31,6 @@ namespace Muon {
     m_csc4dSegmentFinder("Csc4dSegmentMaker/Csc4dSegmentMaker"),
     m_clusterSegmentFinder("Muon::MuonClusterSegmentFinder/MuonClusterSegmentFinder"),
     m_clusterSegMakerNSW("Muon::MuonClusterSegmentFinderTool/MuonClusterSegmentFinderTool"),
-    m_layerHoughTool("Muon::MuonLayerHoughTool/MuonLayerHoughTool"),
     m_recoValidationTool("") // ("Muon::MuonRecoValidationTool/MuonRecoValidationTool")
 
  {
@@ -45,7 +44,6 @@ namespace Muon {
     declareProperty("Csc4DSegmentMaker",m_csc4dSegmentFinder);
     declareProperty("MuonClusterSegmentFinder",m_clusterSegmentFinder);
     declareProperty("NSWMuonClusterSegmentFinderTool",m_clusterSegMakerNSW);
-    declareProperty("MuonLayerHoughTool",m_layerHoughTool);
     declareProperty("MuonRecoValidationTool",m_recoValidationTool);
   }
 
@@ -65,7 +63,6 @@ namespace Muon {
     if (m_idHelper->hasCSC() && !m_csc4dSegmentFinder.empty()) ATH_CHECK(m_csc4dSegmentFinder.retrieve());
     ATH_CHECK(m_clusterSegmentFinder.retrieve());
     ATH_CHECK(m_clusterSegMakerNSW.retrieve());
-    ATH_CHECK(m_layerHoughTool.retrieve());
     if( !m_recoValidationTool.empty() ) ATH_CHECK(m_recoValidationTool.retrieve());
     ATH_CHECK(m_houghDataPerSectorVecKey.initialize());
     return StatusCode::SUCCESS;
