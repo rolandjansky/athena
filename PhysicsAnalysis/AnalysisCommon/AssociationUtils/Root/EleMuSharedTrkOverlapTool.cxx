@@ -27,7 +27,7 @@ namespace ORUtils
                     "Turn on removal of overlapping calo muons");
     declareProperty("UseDRMatching", m_useDRMatching = false,
                     "Remove electrons in DR cone of muons");
-    declareProperty("DR", m_maxDR = 0.1,
+    declareProperty("DR", m_maxDR = 0.01,
                     "Delta-R cone for flagging overlaps");
     declareProperty("UseRapidity", m_useRapidity = true,
                     "Calculate delta-R using rapidity");
