@@ -1,13 +1,15 @@
 #!/bin/sh
 
 # art-include: 21.6/AthGeneration
-# art-description: MadGraph Event Generation Test
+# art-description: MadGraph Event Generation Test - NLO LHE generation
 # art-type: grid
 
 set -e
 
-mkdir -p tests/test_01_mc.aMC_ttbar_LHEtest
-cd tests/test_01_mc.aMC_ttbar_LHEtest
-Gen_tf.py --ecmEnergy=13000. --maxEvents=-1 --runNumber=999999 --firstEvent=1 --randomSeed=123456 --outputEVNTFile=EVNT.root --jobConfig=../../testJOs/test_01_mc.aMC_ttbar_LHEtest
+mkdir 999999
+get_files -jo mc.aMC_ttbar_LHEtest.py
+mv mc.*py 999999/
+
+Gen_tf.py --ecmEnergy=13000. --maxEvents=-1 --runNumber=999999 --firstEvent=1 --randomSeed=123456 --outputEVNTFile=EVNT.root --jobConfig=./999999
 
 echo "art-result: $?"
