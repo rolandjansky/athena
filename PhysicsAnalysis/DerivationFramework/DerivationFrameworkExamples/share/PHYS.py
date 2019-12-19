@@ -40,8 +40,8 @@ for item in trig_el,trig_mu,trig_g:
 trigger_names = list(dict.fromkeys(trigger_names))
 
 # Create trigger matching decorations
-PHYS_trigmatching_helper = TriggerMatchingHelper(matching_tool = "PHYSTriggerMatchingTool",
-                                                 trigger_list = trigger_names)
+trigmatching_helper = TriggerMatchingHelper(
+        trigger_list = trigger_names, add_to_df_job=True)
 
 #====================================================================
 # SET UP STREAM   
@@ -160,8 +160,7 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("PHYSKernel",
                                                                        ThinningTools = [PHYSTrackParticleThinningTool,PHYSMuonTPThinningTool,
                                                                                         PHYSTauJetsThinningTool,PHYSTauTPThinningTool,
-                                                                                        PHYSDiTauTPThinningTool,PHYSDiTauLowPtThinningTool,PHYSDiTauLowPtTPThinningTool],
-                                                                       AugmentationTools = [PHYS_trigmatching_helper.matching_tool])
+                                                                                        PHYSDiTauTPThinningTool,PHYSDiTauLowPtThinningTool,PHYSDiTauLowPtTPThinningTool])
 
 
 #====================================================================
@@ -269,7 +268,7 @@ PHYSSlimmingHelper.ExtraVariables = ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt
                                      "TruthPrimaryVertices.t.x.y.z"]
 
 # Add trigger matching
-PHYS_trigmatching_helper.add_to_slimming(PHYSSlimmingHelper)
+trigmatching_helper.add_to_slimming(PHYSSlimmingHelper)
 
 # Final construction of output stream
 PHYSSlimmingHelper.AppendContentToStream(PHYSStream)
