@@ -225,8 +225,7 @@ def TMEF_CombinedMuonTrackBuilder(name='TMEF_CombinedMuonTrackBuilder',**kwargs)
                                                                              RefitTool = CfgGetter.getPublicToolClone("TMEF_MuidRefitTool",
                                                                                                                       "MuonRefitTool",
                                                                                                                       AlignmentErrors = False,
-                                                                                                                      Fitter = CfgGetter.getPublicTool("iPatFitter"),
-                                                                                                                      CscRotCreator=("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator" if MuonGeometryFlags.hasCSC() else ""))
+                                                                                                                      Fitter = CfgGetter.getPublicTool("iPatFitter"))
                                                                              ))
 
     return CfgMgr.Rec__CombinedMuonTrackBuilder(name,**kwargs)
