@@ -46,7 +46,7 @@ atlas_install_python_modules( python/*.py)
 # Install the CMake code from the package:
 atlas_install_generic( cmake/AthenaPoolUtilitiesTestConfig.cmake
    DESTINATION cmake )
-atlas_install_generic( share/run_tpcnv_test.sh.in
+atlas_install_generic( share/run_tpcnv_legacy_test.sh.in
    DESTINATION cmake/modules/scripts
    EXECUTABLE )
 
