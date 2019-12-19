@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include <MuonEfficiencyCorrections/EfficiencyScaleFactor.h>
@@ -73,7 +73,7 @@ namespace CP {
                                                                                  (syst_type_bitmap & EffiCollection::Symmetric ? "SYM" : (m_is_up ? "1UP" : "1DN")) ), 
                                                                 f.get(), time_unit);
             if (sys) {
-                for (int i = 1; i <= nominal->NBins(); ++i) {
+                for (int i = 1; i <= nominal->nBins(); ++i) {
                     double content = nominal->GetBinContent(i);
                     double variation = (IsUpVariation() ? 1. : -1.)*sys->GetBinContent(i);
                     nominal->SetBinContent(i,content + variation);
@@ -91,13 +91,13 @@ namespace CP {
                     return;
                 }
                 
-                for (int i = 1; i<= nominal->NBins(); ++i) {
+                for (int i = 1; i<= nominal->nBins(); ++i) {
                      nominal->SetBinContent(i, nominal->GetBinContent(i) + (IsUpVariation() ? 1. : -1.)*old_sys->GetBinContent(i));
                 }
             } 
             /// Stat error can be retrieved from the nominal histogram itself
             else if (m_syst_name == "STAT") {
-                for (int i = 1; i<= nominal->NBins(); ++i) {
+                for (int i = 1; i<= nominal->nBins(); ++i) {
                      nominal->SetBinContent(i, nominal->GetBinContent(i) + (IsUpVariation() ? 1. : -1.)*nominal->GetBinError(i));
                 }
             } 
@@ -219,7 +219,7 @@ namespace CP {
             /// The histogram is simply not loaded which is fine since only
             /// the scale-factor is required
             if (!histo) return true;
-            for ( int i = 1; i <= histo->NBins(); ++i){
+            for ( int i = 1; i <= histo->nBins(); ++i){
                 if (std::isnan(histo->GetBinContent(i)) || std::isinf(histo->GetBinContent(i))){
                     Error("EfficiencyScaleFactor()", "The %d-th bin %s has not a number (%f)",i, histo->GetBinName(i).c_str(), histo->GetBinContent(i));
                     return false;
@@ -273,7 +273,13 @@ namespace CP {
         return std::unique_ptr<HistHandler>();
     }
     int EfficiencyScaleFactor::nBins() const {
-        return m_sf ? m_sf->NBins() : -1;
+        return m_sf ? m_sf->nBins() : -1;
+    }
+    int EfficiencyScaleFactor::nOverFlowBins() const{
+        return m_sf ? m_sf->nOverFlowBins() : -1;
+    }
+    bool EfficiencyScaleFactor::isOverFlowBin(int b) const{      
+        return m_sf ? m_sf->isOverFlowBin(b) : true;
     }
     CorrectionCode EfficiencyScaleFactor::ScaleFactor(const xAOD::Muon& mu, float & SF) const {
         if (m_seperateBinSyst && m_NominalFallBack) {
@@ -433,11 +439,11 @@ namespace CP {
         TRandom3 Rndm(seed);
         replicas.clear();
         replicas.resize(nrep);
-        int nbins = h->NBins();
+        int nBins = h->nBins();
         for (int t = 0; t < nrep; t++) {
             replicas.push_back(package_histo(h->GetHist()));
             HistHandler* replica = replicas.back().get();
-            for (int bin = 0; bin < nbins; bin++) {
+            for (int bin = 0; bin < nBins; bin++) {
                 replica->SetBinContent(bin, Rndm.Gaus(h->GetBinContent(bin), h->GetBinError(bin)));
             }            
         }

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 #ifndef EFFICOLLECTION_H_
 #define EFFICOLLECTION_H_
@@ -21,6 +21,7 @@ namespace CP {
     class EfficiencyScaleFactor;
     class SystematicSet;
     class SystematicVariation;
+    class CollectionContainer;
     /// The EffiCollection class handles the 5 different scale-factor maps binned in time. Each muon is piped to the correct map based 
     /// whether it's a calo-tag muon, belongs to the high-eta region or has low-pt. 
     /// There exists one instance of the EffiCollection foreach systematic variation and nominal. Scale-factor maps which are not affected by 
@@ -91,69 +92,6 @@ namespace CP {
             bool  isAffectedBySystematic(const SystematicVariation& variation) const;
             bool  isAffectedBySystematic(const SystematicSet& set) const;
             
-        protected:
-            
-            /// The collection container manages the time binning of a particular scale-factor map. For a given runNumber,
-            /// it pipes the right map to the upstream tools.
-            class CollectionContainer final {
-                public:
-                    /// Nominal constructor... Only needs to know about it's type and the file to load
-                    CollectionContainer(const MuonEfficiencyScaleFactors& ref_tool, EffiCollection::CollectionType FileType);
-                    CollectionContainer(const MuonEfficiencyScaleFactors& ref_tool, CollectionContainer* Nominal, const std::string& syst_name, unsigned int syst_bit_map);
-                  
-                    /// Retrieve the scale-factor map belonging to that particular run of data-taking
-                    EfficiencyScaleFactor* retrieve(unsigned int RunNumer) const;
-                    
-                    /// Checks if the global bin number belongs to this map
-                    bool isBinInMap (unsigned int bin) const;
-                    /// Consistency check of all scale-factor maps managed by the container instance
-                    bool CheckConsistency();
-                    
-                    /// Returns  MUON_EFF_<sysname()>
-                    std::string sysname() const;
-                    
-                    /// Activate this bin to run in the uncorrelated systematic mode
-                    bool SetSystematicBin(unsigned int Bin);
-                    
-                    /// Sets the global offset to align the order in the map into a
-                    /// global numbering scheme
-                    void SetGlobalOffSet(unsigned int OffSet);
-                    
-                    /// Number of bins of the map itself
-                    unsigned int nBins() const;
-                    
-                    /// Global offset of the bin numbers
-                    unsigned int globalOffSet() const;
-                   
-                    /// Name of the i-th bin 
-                    std::string GetBinName(unsigned int Bin) const;                    
-                    
-                    /// Returns the global bin number corresponding to the
-                    /// muon kinematics. In case of failures -1 is returned
-                    int FindBinSF(const xAOD::Muon &mu) const;
-                    
-                    /// File type of the map
-                    EffiCollection::CollectionType type() const;
-                    
-                    bool isNominal() const;
-                    bool isUpVariation() const;
-                    bool seperateBinSyst() const;
-                    
-                private:
-                    std::map<std::string, std::pair<unsigned int, unsigned int>> findPeriods(const MuonEfficiencyScaleFactors& ref_tool) const;
-                    std::string fileName(const MuonEfficiencyScaleFactors& ref_tool) const;
-                  
-                    bool LoadPeriod(unsigned int RunNumber) const;
-                   
-                    std::vector<std::shared_ptr<EfficiencyScaleFactor>> m_SF;
-                    mutable EfficiencyScaleFactor* m_currentSF;
-                    
-                    EffiCollection::CollectionType m_FileType;
-                    /// Offset to translate between the bin-numbers in the bin numbers
-                    /// of each file against the global bin-number
-                    unsigned int m_binOffSet;
-                
-            };
 
             /// Method to retrieve a container from the class ordered by a collection type
             /// This method is mainly used to propagate the nominal maps to the variations
@@ -177,8 +115,75 @@ namespace CP {
 
             /// The systematic set is returned back to the MuonEfficiencyScaleFactors instance to register
             /// The known systematics to the global service
-            std::unique_ptr<SystematicSet> m_syst_set;
+            std::unique_ptr<SystematicSet> m_syst_set;        
+    };
+    
+    /// The collection container manages the time binning of a particular scale-factor map. For a given runNumber,
+    /// it pipes the right map to the upstream tools.
+    class CollectionContainer final {
+        public:
+            /// Nominal constructor... Only needs to know about it's type and the file to load
+            CollectionContainer(const MuonEfficiencyScaleFactors& ref_tool, EffiCollection::CollectionType FileType);
+            CollectionContainer(const MuonEfficiencyScaleFactors& ref_tool, CollectionContainer* Nominal, const std::string& syst_name, unsigned int syst_bit_map);
+          
+            /// Retrieve the scale-factor map belonging to that particular run of data-taking
+            EfficiencyScaleFactor* retrieve(unsigned int RunNumer) const;
+            
+            /// Checks if the global bin number belongs to this map
+            bool isBinInMap (unsigned int bin) const;
+            /// Consistency check of all scale-factor maps managed by the container instance
+            bool CheckConsistency();
+            
+            /// Returns  MUON_EFF_<sysname()>
+            std::string sysname() const;
+            
+            /// Activate this bin to run in the uncorrelated systematic mode
+            bool SetSystematicBin(unsigned int Bin);
+            
+            /// Sets the global offset to align the order in the map into a
+            /// global numbering scheme
+            void SetGlobalOffSet(unsigned int OffSet);
+            
+            /// Number of bins of the map itself
+            unsigned int nBins() const;
+            /// Number of overflow bins in the map
+            unsigned int nOverFlowBins() const;
+            /// Check whether the bin is overflow or not
+            bool isOverFlowBin(int b) const;
+
+            
+            /// Global offset of the bin numbers
+            unsigned int globalOffSet() const;
+           
+            /// Name of the i-th bin 
+            std::string GetBinName(unsigned int Bin) const;                    
+            
+            /// Returns the global bin number corresponding to the
+            /// muon kinematics. In case of failures -1 is returned
+            int FindBinSF(const xAOD::Muon &mu) const;
+            
+            /// File type of the map
+            EffiCollection::CollectionType type() const;
+            
+            bool isNominal() const;
+            bool isUpVariation() const;
+            bool seperateBinSyst() const;
+            
+        private:
+            std::map<std::string, std::pair<unsigned int, unsigned int>> findPeriods(const MuonEfficiencyScaleFactors& ref_tool) const;
+            std::string fileName(const MuonEfficiencyScaleFactors& ref_tool) const;
+          
+            bool LoadPeriod(unsigned int RunNumber) const;
+           
+            std::vector<std::shared_ptr<EfficiencyScaleFactor>> m_SF;
+            mutable EfficiencyScaleFactor* m_currentSF;
+            
+            EffiCollection::CollectionType m_FileType;
+            /// Offset to translate between the bin-numbers in the bin numbers
+            /// of each file against the global bin-number
+            unsigned int m_binOffSet;
         
     };
+
 }
 #endif /* EFFICOLLECTION_H_ */

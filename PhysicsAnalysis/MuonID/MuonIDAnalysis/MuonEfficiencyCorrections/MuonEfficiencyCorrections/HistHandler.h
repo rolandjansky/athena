@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef MUONEFFICIENCYCORRECTIONS_HISTOHANDLER_H
@@ -61,9 +61,15 @@ namespace CP {
 
             void SetBinError(int bin, float val) const;
             
-            //Function that changes from Implementation to implementation
+            ///Function that changes from Implementation to implementation
             virtual CorrectionCode FindBin(const xAOD::Muon & muon, int & bin) const = 0;
-            virtual int NBins() const = 0;
+            /// Return the total number of bins in the histogram -> (GetNbins() +2)**n
+            virtual int nBins() const = 0;
+            /// Return the number of overflow bins 
+            virtual int nOverFlowBins() const = 0;
+            /// States whether a bin is overflow or not
+            virtual bool isOverFlowBin(int b) const =0;
+            /// Translates the bin number into the borders and return them as name
             virtual std::string GetBinName(unsigned int bin) const=0;
 
             virtual ~HistHandler();
@@ -87,9 +93,14 @@ namespace CP {
             virtual HistHandler_TH1 & operator =(const HistHandler_TH1 & other);
             virtual ~HistHandler_TH1();
 
-            virtual int NBins() const;
-            virtual std::string GetBinName(unsigned int bin) const;
-            virtual CorrectionCode FindBin(const xAOD::Muon & muon, int & bin) const;
+             int nBins() const override;
+             
+             int nOverFlowBins() const override;
+             bool isOverFlowBin(int b) const override;
+
+
+             std::string GetBinName(unsigned int bin) const override;
+             CorrectionCode FindBin(const xAOD::Muon & muon, int & bin) const override;
         private:
             std::unique_ptr<AxisHandler> m_x_handler;
     };
@@ -106,10 +117,14 @@ namespace CP {
             virtual HistHandler_TH2 & operator =(const HistHandler_TH2 & other);
             virtual ~HistHandler_TH2();
 
-            virtual int NBins() const;
-            virtual std::string GetBinName(unsigned int bin) const;
+             int nBins() const override;
+           
+             int nOverFlowBins() const override;
+             bool isOverFlowBin(int b) const override;
+           
+             std::string GetBinName(unsigned int bin) const override;
 
-            virtual CorrectionCode FindBin(const xAOD::Muon & muon, int & bin) const;
+             CorrectionCode FindBin(const xAOD::Muon & muon, int & bin) const override;
         private:
             std::unique_ptr<AxisHandler> m_x_handler;
             std::unique_ptr<AxisHandler> m_y_handler;
@@ -127,10 +142,15 @@ namespace CP {
             virtual HistHandler_TH3 & operator =(const HistHandler_TH3 & other);
             virtual ~HistHandler_TH3();
 
-            virtual int NBins() const;
-            virtual std::string GetBinName(unsigned int bin) const;
+             int nBins() const override;
+             
+             int nOverFlowBins() const override;
+             bool isOverFlowBin(int b) const override;
 
-            virtual CorrectionCode FindBin(const xAOD::Muon & muon, int & bin) const;
+
+             std::string GetBinName(unsigned int bin) const override;
+
+             CorrectionCode FindBin(const xAOD::Muon & muon, int & bin) const override;
 
         private:
             std::unique_ptr<AxisHandler> m_x_handler;
@@ -149,10 +169,12 @@ namespace CP {
             virtual HistHandler_TH2Poly & operator =(const HistHandler_TH2Poly & other);
             virtual ~HistHandler_TH2Poly();
 
-            virtual int NBins() const;
-            virtual std::string GetBinName(unsigned int bin) const;
+             int nOverFlowBins() const override;
+             bool isOverFlowBin(int b) const override;
 
-            virtual CorrectionCode FindBin(const xAOD::Muon & muon, int & bin) const;
+             int nBins() const override;
+             std::string GetBinName(unsigned int bin) const override;
+             CorrectionCode FindBin(const xAOD::Muon & muon, int & bin) const override;
 
         private:
             TH2Poly* m_h;
@@ -162,9 +184,8 @@ namespace CP {
 
     class AxisHandler {
         public:
-            virtual CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value)=0;
-            virtual ~AxisHandler() {
-            }
+            virtual CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value) const =0;
+            virtual ~AxisHandler()= default;
     };
     class AxisHandlerProvider {
         public:
@@ -173,74 +194,67 @@ namespace CP {
 
     class PtAxisHandler: public AxisHandler {
         public:
-            virtual CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value) {
+            CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value) const override {
                 value = mu.pt() / 1000.;
                 return CorrectionCode::Ok;
             }
-            virtual ~PtAxisHandler() {
-            }
+            virtual ~PtAxisHandler() = default;
 
     };
 
     class ChargeAxisHandler: public AxisHandler {
         public:
-            virtual CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value) {
+            CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value) const override {
                 value = mu.charge();
                 return CorrectionCode::Ok;
             }
-            virtual ~ChargeAxisHandler() {
-            }
+            virtual ~ChargeAxisHandler() = default;
 
     };
     
     class EtaAxisHandler: public AxisHandler {
         public:
-            virtual CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value) {
+            CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value) const override {
                 value = mu.eta();
                 return CorrectionCode::Ok;
             }
-            virtual ~EtaAxisHandler() {
-            }
+            virtual ~EtaAxisHandler() = default;
 
     };
     class AbsEtaAxisHandler: public AxisHandler {
         public:
-            virtual CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value) {
+            CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value) const override {
                 value = fabs(mu.eta());
                 return CorrectionCode::Ok;
             }
-            virtual ~AbsEtaAxisHandler() {
-            }
+            virtual ~AbsEtaAxisHandler() = default;
 
     };
     class PhiAxisHandler: public AxisHandler {
         public:
-            virtual CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value) {
+            CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value) const override {
                 value = mu.phi();
                 return CorrectionCode::Ok;
             }
-            virtual ~PhiAxisHandler() {
-            }
+            virtual ~PhiAxisHandler() = default;
 
     };
     class dRJetAxisHandler: public AxisHandler {
         public:
-            virtual CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value) {
+            CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value) const override {
                 static SG::AuxElement::ConstAccessor<float> dRJet("dRJet");
                 value = dRJet.isAvailable(mu) ? dRJet(mu) : -1;
                 return CorrectionCode::Ok;
             }
-            virtual ~dRJetAxisHandler() {
-            }
+            virtual ~dRJetAxisHandler() = default;
 
     };
     class UndefinedAxisHandler: public AxisHandler {
         public:
-            virtual CorrectionCode GetBinningParameter(const xAOD::Muon &, float &) {
+            CorrectionCode GetBinningParameter(const xAOD::Muon &, float &) const override {
                 return CorrectionCode::Error;
             }
-            virtual ~UndefinedAxisHandler() {
-            }
+            virtual ~UndefinedAxisHandler() = default;
 
     };
 

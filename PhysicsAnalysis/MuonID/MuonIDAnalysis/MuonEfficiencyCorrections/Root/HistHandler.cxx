@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "MuonEfficiencyCorrections/HistHandler.h"
@@ -97,9 +97,9 @@ namespace CP {
     }
     HistHandler_TH1::~HistHandler_TH1() {
     }
-    int HistHandler_TH1::NBins() const {
-        return GetHist()->GetNbinsX() + 2;
-    }
+    int HistHandler_TH1::nBins() const {return GetHist()->GetNbinsX() + 2;}
+    int HistHandler_TH1::nOverFlowBins() const {return 2; }
+    bool HistHandler_TH1::isOverFlowBin(int b) const { return b == 0 || b >= nBins() -1; }
     std::string HistHandler_TH1::GetBinName(unsigned int bin) const {
         TAxis* xAx = GetHist()->GetXaxis();
         return Form("%s_%.2f-%.2f", xAx->GetTitle(), xAx->GetBinLowEdge(bin), xAx->GetBinUpEdge(bin));
@@ -131,8 +131,14 @@ namespace CP {
                 m_y_handler(h == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(h->GetYaxis())) {
 
     }
-    int HistHandler_TH2::NBins() const {
+    int HistHandler_TH2::nBins() const {
         return (GetHist()->GetNbinsX() + 2) * (GetHist()->GetNbinsY() + 2);
+    }
+    int HistHandler_TH2::nOverFlowBins() const {return 2*GetHist()->GetNbinsX() +  2*GetHist()->GetNbinsY() + 4; }
+    bool HistHandler_TH2::isOverFlowBin(int b) const { 
+        int x(-1),y(-1), z(-1);
+        GetHist()->GetBinXYZ(b,x,y,z);
+        return  x == 0 ||  x == GetHist()->GetXaxis()->GetNbins() + 1 ||  y == 0 ||  y == GetHist()->GetYaxis()->GetNbins() + 1; 
     }
     CorrectionCode HistHandler_TH2::FindBin(const xAOD::Muon & muon, int & bin) const {
         if (!GetHist()) return CorrectionCode::Error;
@@ -174,14 +180,11 @@ namespace CP {
         TAxis* xAx = GetHist()->GetXaxis();
         TAxis* yAx = GetHist()->GetYaxis();
         return Form("%s_%.2f-%.2f--%s_%.2f-%.2f",
-        //xAxis
+                //xAxis
                 xAx->GetTitle(), xAx->GetBinLowEdge(x), xAx->GetBinUpEdge(x),
                 //yAxis
-                yAx->GetTitle(), yAx->GetBinLowEdge(y), yAx->GetBinUpEdge(y)
-
-                );
+                yAx->GetTitle(), yAx->GetBinLowEdge(y), yAx->GetBinUpEdge(y));
     }
-
     //###########################################################################################################
     //                                                   HistHandler_TH3
     //###########################################################################################################
@@ -200,7 +203,6 @@ namespace CP {
                 m_z_handler(other.GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.GetHist()->GetZaxis())) {
 
     }
-
     HistHandler_TH3::~HistHandler_TH3() {
     }
     HistHandler_TH3 & HistHandler_TH3::operator =(const HistHandler_TH3 & other) {
@@ -213,10 +215,19 @@ namespace CP {
         m_z_handler = std::unique_ptr<AxisHandler>(other.GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.GetHist()->GetZaxis()));
         return *this;
     }
-    int HistHandler_TH3::NBins() const {
+    int HistHandler_TH3::nBins() const {
         return (GetHist()->GetNbinsX() + 2) * (GetHist()->GetNbinsY() + 2) * (GetHist()->GetNbinsZ() + 2);
     }
-
+    int HistHandler_TH3::nOverFlowBins() const {return 2*(GetHist()->GetNbinsX()*GetHist()->GetNbinsY() + 
+                                                          GetHist()->GetNbinsX()*GetHist()->GetNbinsZ() +
+                                                          GetHist()->GetNbinsY()*GetHist()->GetNbinsZ())  + 8; }
+    bool HistHandler_TH3::isOverFlowBin(int b) const { 
+        int x(-1),y(-1), z(-1);
+        GetHist()->GetBinXYZ(b,x,y,z);
+        return  x == 0 ||  x == GetHist()->GetXaxis()->GetNbins() + 1 ||  
+                y == 0 ||  y == GetHist()->GetYaxis()->GetNbins() + 1 || 
+                z == 0 ||  z == GetHist()->GetZaxis()->GetNbins() + 1; 
+    }   
     CorrectionCode HistHandler_TH3::FindBin(const xAOD::Muon & muon, int & bin) const {
         if (!GetHist()) return CorrectionCode::Error;
         float parx = 0;
@@ -286,9 +297,13 @@ namespace CP {
 
     HistHandler_TH2Poly::~HistHandler_TH2Poly() {
     }
-    int HistHandler_TH2Poly::NBins() const {
+    int HistHandler_TH2Poly::nBins() const {
         return m_h->GetNumberOfBins() + 1;
     }
+    
+    int HistHandler_TH2Poly::nOverFlowBins() const {return 10;}
+    bool HistHandler_TH2Poly::isOverFlowBin(int b) const {return b < 1;}
+
     CorrectionCode HistHandler_TH2Poly::FindBin(const xAOD::Muon & muon, int & bin) const {
         if (!m_h) return CorrectionCode::Error;
         float parx = 0;
