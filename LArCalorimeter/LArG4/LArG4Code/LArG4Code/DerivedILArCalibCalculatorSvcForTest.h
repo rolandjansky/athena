@@ -132,8 +132,8 @@ public:
 
   std::string& name() const
   {
-    std::string test1 = "test";
-    return test1;
+    static std::string Tes = "test";
+    return Tes;
   }
 
   G4bool Process (const G4Step* step, LArG4Identifier & identifier,
