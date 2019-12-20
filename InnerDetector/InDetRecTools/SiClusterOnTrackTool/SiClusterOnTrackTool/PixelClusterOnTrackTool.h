@@ -31,7 +31,11 @@
 //#include "PixelConditionsServices/IPixelOfflineCalibSvc.h"
 //#include "PixelConditionsTools/IModuleDistortionsTool.h"
 
+
+#include "PixelConditionsData/PixelITkOfflineCalibData.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
 class PixelID;
 class IPixelOfflineCalibSvc;
 class IModuleDistortionsTool;
@@ -148,6 +152,8 @@ public:
   ToolHandle<Trk::IRIO_OnTrackErrorScalingTool> m_errorScalingTool;
   ServiceHandle<IPixelOfflineCalibSvc>          m_calibSvc        ;
   StoreGateSvc*                                 m_detStore        ;
+  SG::ReadCondHandleKey<PixelCalib::PixelITkOfflineCalibData> m_clusterITkErrorKey;
+
   /* ME: Test histos have nothing to do with production code, use a flag
     IHistogram1D* m_h_Resx;
     IHistogram1D* m_h_Resy;
@@ -202,6 +208,7 @@ public:
   bool                                                  m_noNNandBroadErrors;
   bool                                                  m_correctDigitalCentroid;
   int                                                   m_minClusterSize;
+  bool                                                  m_itkAnalogueClustering;
 	
 	/** Enable different treatment of  cluster errors based on NN information (do only if TIDE ambi is run) **/
   bool                      m_usingTIDE_Ambi;

@@ -71,6 +71,7 @@ InDet::PixelClusterOnTrackTool::PixelClusterOnTrackTool
   m_errorScalingTool("Trk::RIO_OnTrackErrorScalingTool/RIO_OnTrackErrorScalingTool"),
   m_calibSvc("PixelOfflineCalibSvc",n),
   m_detStore(nullptr),
+  m_clusterITkErrorKey("PixelITkOfflineCalibData","PixelITkOfflineCalibData"),
   m_scalePixelCov{},
   m_disableDistortions(false),
   m_rel13like(false),
@@ -91,6 +92,7 @@ InDet::PixelClusterOnTrackTool::PixelClusterOnTrackTool
   m_noNNandBroadErrors(false),
   m_correctDigitalCentroid(false),
   m_minClusterSize(0),
+  m_itkAnalogueClustering(0),
   m_usingTIDE_Ambi(false)
 {
   declareInterface<IRIO_OnTrackCreator>(this);
@@ -102,6 +104,8 @@ InDet::PixelClusterOnTrackTool::PixelClusterOnTrackTool
   declareProperty("DisableDistortions",       m_disableDistortions, "Disable simulation of module distortions");
   declareProperty("Release13like",            m_rel13like, "Activate release-13 like settigs");
   declareProperty("PixelOfflineCalibSvc",     m_calibSvc, "Offline calibration svc");
+  declareProperty("PixelITkOfflineCalibData",     m_clusterITkErrorKey, "Output key of pixel cluster for ITk");
+
   declareProperty("applyNNcorrection",        m_applyNNcorrection);
   declareProperty("applydRcorrection",        m_applydRcorrection);
   declareProperty("NNIBLcorrection",        m_NNIBLcorrection);
@@ -114,6 +118,7 @@ InDet::PixelClusterOnTrackTool::PixelClusterOnTrackTool
   declareProperty("m_noNNandBroadErrors",     m_noNNandBroadErrors);
   declareProperty("CorrectDigitalCentroid",    m_correctDigitalCentroid);
   declareProperty("MinClusterSize",           m_minClusterSize);
+  declareProperty("ITkAnalogueClustering",    m_itkAnalogueClustering);
   declareProperty("RunningTIDE_Ambi",         m_usingTIDE_Ambi);
 }
 
@@ -142,6 +147,7 @@ StatusCode InDet::PixelClusterOnTrackTool::initialize()
    
    //get the offline calibration service
    ATH_CHECK( m_calibSvc.retrieve());
+   ATH_CHECK(m_clusterITkErrorKey.initialize());
    
    // get the error scaling tool
   if ( m_errorScalingTool.retrieve().isFailure() ) {
@@ -424,81 +430,104 @@ const InDet::PixelClusterOnTrack* InDet::PixelClusterOnTrackTool::correctDefault
     //    ATH_MSG_VERBOSE ( << "Position strategy = " 
     //    << m_positionStrategy << "omegaphi = " << omegaphi )
 
+    SG::ReadCondHandle<PixelCalib::PixelITkOfflineCalibData> offlineITkCalibData(m_clusterITkErrorKey);
+
     // TOT interpolation for collision data    
     // Force IBL to use digital clustering and broad errors.
     if(totInterpolation){
       localphi = centroid.xPhi()+shift;
       localeta = centroid.xEta();
-      // barrel 
-      if(element->isBarrel() ){
-    		ang = 180*angle/M_PI;
-    		double delta = 0.;
-    		if (m_IBLAbsent || !blayer) delta = m_calibSvc->getBarrelDeltaX(nrows,ang);
-    		else {   //special calibration for IBL
-      		if ( angle<phix[0] || angle>phix[nbinphi] || nrows!=2 ) {
-        	delta=0.;
-      	}else{
-        	int bin=-1;
-        	while ( angle>phix[bin+1] ) bin++;
-        	if ((bin>=0) and (bin<nbinphi)){
-          	delta = calphi[bin];
-        	} else {
-          	ATH_MSG_ERROR("bin out of range in line "<<__LINE__<<" of PixelClusterOnTrackTool.cxx.");
-        	}
-      	}
-      	if (m_calibSvc->includesIBLParams()) delta = m_calibSvc->getIBLDeltaX(nrows,ang); 
-    	}
-    localphi += delta*(omegaphi-0.5);
-    // settle the sign/pi periodicity issues
-    double thetaloc=-999.;
-    if(boweta > -0.5*M_PI && boweta < M_PI/2.){ 
-      thetaloc = M_PI/2.-boweta;
-    }else if(boweta > M_PI/2. && boweta < M_PI){ 
-      thetaloc = 1.5*M_PI-boweta;
-    } else{ // 3rd quadrant
-      thetaloc = -0.5*M_PI-boweta;
-    }
-    double etaloc = -1*log(tan(thetaloc/2.));
-    if ( m_IBLAbsent || !blayer ) delta = m_calibSvc->getBarrelDeltaY(ncol,etaloc);
-    else {   //special calibration for IBL
-      etaloc = fabs(etaloc);
-      if ( etaloc<etax[0] || etaloc>etax[nbineta] ) 
-        delta=0.;
-      else{
-        int bin=-1;
-        while ( etaloc>etax[bin+1] ) bin++;
-        if ((bin>=0) and (bin<nbineta)){
-          if ( ncol==bin ) delta = caleta[bin][0];
-          else if ( ncol==bin+1 ) delta = caleta[bin][1];
-          else if ( ncol==bin+2 ) delta = caleta[bin][2];
-          else delta = 0.;
-        } else {//bin out of range of array indices
-          ATH_MSG_ERROR("bin out of range in line "<<__LINE__<<" of PixelClusterOnTrackTool.cxx.");
-        }
+
+      if(m_itkAnalogueClustering){
+	std::pair<double,double> delta = offlineITkCalibData->getPixelITkClusterErrorData()->getDelta(&element_id);
+	double delta_phi = nrows != 1 ? delta.first : 0.;
+	double delta_eta = nrows != 1 ? delta.second : 0.;
+	localphi += delta_phi*(omegaphi-0.5);
+	localeta += delta_eta*(omegaeta-0.5);
       }
-      if (m_calibSvc->includesIBLParams()) delta = m_calibSvc->getIBLDeltaY(ncol,etaloc);
-    }
-  localeta += delta*(omegaeta-0.5);
-  }else{
-   // collision endcap data
-  if(m_positionStrategy == 1){
-     double deltax = m_calibSvc->getEndcapDeltaX();
-     double deltay = m_calibSvc->getEndcapDeltaY();
-     localphi += deltax*(omegaphi-0.5);
-     localeta += deltay*(omegaeta-0.5);
-  }
-   // SR1 cosmics endcap data 
-   // some parametrization dependent on track angle
-   // would be better here
-   else if(m_positionStrategy == 20){
-		double deltax = 35*micrometer;
-		double deltay = 35*micrometer;
-		localphi += deltax*(omegaphi-0.5);      
-		localeta += deltay*(omegaeta-0.5);
-   }
-  }  
-    }
-// digital - totInterpolation false, so centroid is just the mean cluster positio
+
+
+      else{ // Phase 1 clustering
+
+	// barrel
+	if(element->isBarrel() ){
+	  ang = 180*angle/M_PI;
+	  double delta = 0.;
+	  if (m_IBLAbsent || !blayer) delta = m_calibSvc->getBarrelDeltaX(nrows,ang);
+	  else {   //special calibration for IBL
+	    if ( angle<phix[0] || angle>phix[nbinphi] || nrows!=2 ) {
+	      delta=0.;
+	    }else{
+	      int bin=-1;
+	      while ( angle>phix[bin+1] ) bin++;
+	      if ((bin>=0) and (bin<nbinphi)){
+		delta = calphi[bin];
+	      } else {
+		ATH_MSG_ERROR("bin out of range in line "<<__LINE__<<" of PixelClusterOnTrackTool.cxx.");
+	      }
+	    }
+	    if (m_calibSvc->includesIBLParams()) delta = m_calibSvc->getIBLDeltaX(nrows,ang);
+	  }
+
+	  localphi += delta*(omegaphi-0.5);
+
+	  // settle the sign/pi periodicity issues
+	  double thetaloc=-999.;
+	  if(boweta > -0.5*M_PI && boweta < M_PI/2.){
+	    thetaloc = M_PI/2.-boweta;
+	  }else if(boweta > M_PI/2. && boweta < M_PI){
+	    thetaloc = 1.5*M_PI-boweta;
+	  } else{ // 3rd quadrant
+	    thetaloc = -0.5*M_PI-boweta;
+	  }
+	  double etaloc = -1*log(tan(thetaloc/2.));
+
+	  if ( m_IBLAbsent || !blayer ) delta = m_calibSvc->getBarrelDeltaY(ncol,etaloc);
+	  else {   //special calibration for IBL
+	    etaloc = fabs(etaloc);
+	    if ( etaloc<etax[0] || etaloc>etax[nbineta] )
+	      delta=0.;
+	    else{
+	      int bin=-1;
+	      while ( etaloc>etax[bin+1] ) bin++;
+	      if ((bin>=0) and (bin<nbineta)){
+		if ( ncol==bin ) delta = caleta[bin][0];
+		else if ( ncol==bin+1 ) delta = caleta[bin][1];
+		else if ( ncol==bin+2 ) delta = caleta[bin][2];
+		else delta = 0.;
+	      } else {//bin out of range of array indices
+		ATH_MSG_ERROR("bin out of range in line "<<__LINE__<<" of PixelClusterOnTrackTool.cxx.");
+	      }
+	    }
+	    if (m_calibSvc->includesIBLParams()) delta = m_calibSvc->getIBLDeltaY(ncol,etaloc);
+	  }
+	  localeta += delta*(omegaeta-0.5);
+
+	}
+
+	else{
+	  // collision endcap data
+	  if(m_positionStrategy == 1){
+	    double deltax = m_calibSvc->getEndcapDeltaX();
+	    double deltay = m_calibSvc->getEndcapDeltaY();
+	    localphi += deltax*(omegaphi-0.5);
+	    localeta += deltay*(omegaeta-0.5);
+	  }
+	  // SR1 cosmics endcap data
+	  // some parametrization dependent on track angle
+	  // would be better here
+	  else if(m_positionStrategy == 20){
+	    double deltax = 35*micrometer;
+	    double deltay = 35*micrometer;
+	    localphi += deltax*(omegaphi-0.5);
+	    localeta += deltay*(omegaeta-0.5);
+	  }
+	}
+      } // Phase 1 clustering
+
+    } // End totInterpolation
+
+    // digital - totInterpolation false, so centroid is just the mean cluster positio
     else{
       localphi = centroid.xPhi()+shift;
       localeta = centroid.xEta();
@@ -531,54 +560,68 @@ const InDet::PixelClusterOnTrack* InDet::PixelClusterOnTrackTool::correctDefault
     }
     else if( m_errorStrategy == 2 ){
      
-       if(element->isBarrel()){
+      if(m_itkAnalogueClustering){
+	std::pair<double,double> delta_err = offlineITkCalibData->getPixelITkClusterErrorData()->getDeltaError(&element_id);
+	errphi = nrows != 1 ? delta_err.first : (width.phiR()/nrows)*TOPHAT_SIGMA;
+	erreta = nrows != 1 ? delta_err.second : (width.z()/ncol)*TOPHAT_SIGMA;
+      }
 
-           if ( m_IBLAbsent || !blayer ) errphi = m_calibSvc->getBarrelNewErrorPhi(ang,nrows);
-     else {    //special calibration for IBL
-       if ( angle<phix[0] || angle>phix[nbinphi] ) 
-         errphi = width.phiR()*TOPHAT_SIGMA;
-       else{
-         int bin=-1;//cannot be used as array index, which will happen if angle<phix[bin+1]
-         while ( angle>phix[bin+1] ) bin++;
-         if ((bin >=0)  and (bin<nbinphi)){
-            if ( nrows==1 ) errphi = calerrphi[bin][0];
-            else if ( nrows==2 ) errphi = calerrphi[bin][1];
-            else errphi=calerrphi[bin][2];
-         } else {
-           ATH_MSG_ERROR("bin out of range in line "<<__LINE__<<" of PixelClusterOnTrackTool.cxx.");
-         }
-       }
-     }
+      else{ // Phase 1 clustering
 
-     if(m_rel13like){
-             erreta = m_calibSvc->getBarrelErrorEta(eta,ncol,nrows);
-     }
-     else if ( m_IBLAbsent || !blayer ) {
-       erreta =  m_calibSvc->getBarrelNewErrorEta(fabs(etatrack),nrows,ncol);
-     } else {    //special calibration for IBL
-       double etaloc = fabs(etatrack);
-       if ( etaloc<etax[0] || etaloc>etax[nbineta] ) 
-         erreta = width.z()*TOPHAT_SIGMA;
-       else{
-         int bin = 0;
-         while ( etaloc>etax[bin+1] ) ++bin;
-         if (bin>=nbineta){
-           ATH_MSG_ERROR("bin out of range in line "<<__LINE__<<" of PixelClusterOnTrackTool.cxx.");
-         } else {
-           if ( ncol==bin ) erreta = calerreta[bin][0];
-           else if ( ncol==bin+1 ) erreta = calerreta[bin][1];
-           else if ( ncol==bin+2 ) erreta = calerreta[bin][2];
-           else erreta = width.z()*TOPHAT_SIGMA;
-         }
-       }
-     }
-    }else{
-      errphi = m_calibSvc->getEndCapErrorPhi(ncol,nrows);
-      erreta = m_calibSvc->getEndCapErrorEta(ncol,nrows);
-    }       
-    if (errphi>erreta) erreta = width.z()*TOPHAT_SIGMA;
-  }
- 
+	if(element->isBarrel()){
+
+	  if ( m_IBLAbsent || !blayer ) errphi = m_calibSvc->getBarrelNewErrorPhi(ang,nrows);
+	  else {    //special calibration for IBL
+	    if ( angle<phix[0] || angle>phix[nbinphi] )
+	      errphi = width.phiR()*TOPHAT_SIGMA;
+	    else{
+	      int bin=-1;//cannot be used as array index, which will happen if angle<phix[bin+1]
+	      while ( angle>phix[bin+1] ) bin++;
+	      if ((bin >=0)  and (bin<nbinphi)){
+		if ( nrows==1 ) errphi = calerrphi[bin][0];
+		else if ( nrows==2 ) errphi = calerrphi[bin][1];
+		else errphi=calerrphi[bin][2];
+	      } else {
+		ATH_MSG_ERROR("bin out of range in line "<<__LINE__<<" of PixelClusterOnTrackTool.cxx.");
+	      }
+	    }
+	  }
+
+	  if(m_rel13like){
+	    erreta = m_calibSvc->getBarrelErrorEta(eta,ncol,nrows);
+	  }
+	  else if ( m_IBLAbsent || !blayer ) {
+	    erreta =  m_calibSvc->getBarrelNewErrorEta(fabs(etatrack),nrows,ncol);
+	  } else {    //special calibration for IBL
+	    double etaloc = fabs(etatrack);
+	    if ( etaloc<etax[0] || etaloc>etax[nbineta] )
+	      erreta = width.z()*TOPHAT_SIGMA;
+	    else{
+	      int bin = 0;
+	      while ( etaloc>etax[bin+1] ) ++bin;
+	      if (bin>=nbineta){
+		ATH_MSG_ERROR("bin out of range in line "<<__LINE__<<" of PixelClusterOnTrackTool.cxx.");
+	      } else {
+		if ( ncol==bin ) erreta = calerreta[bin][0];
+		else if ( ncol==bin+1 ) erreta = calerreta[bin][1];
+		else if ( ncol==bin+2 ) erreta = calerreta[bin][2];
+		else erreta = width.z()*TOPHAT_SIGMA;
+	      }
+	    }
+	  }
+	}
+
+	else{
+	  errphi = m_calibSvc->getEndCapErrorPhi(ncol,nrows);
+	  erreta = m_calibSvc->getEndCapErrorEta(ncol,nrows);
+	}
+	if (errphi>erreta) erreta = width.z()*TOPHAT_SIGMA;
+
+      } // Phase 1 clustering
+
+    } // End totInterpolation
+
+
     Amg::Vector2D locpos = Amg::Vector2D(localphi,localeta);  
     if(element->isBarrel() && !m_disableDistortions ) {
       correctBow(element->identify(), locpos, bowphi, boweta);
@@ -588,8 +631,8 @@ const InDet::PixelClusterOnTrack* InDet::PixelClusterOnTrackTool::correctDefault
     locpar = Trk::LocalParameters(locpos);
     centroid = InDetDD::SiLocalPosition(localeta,localphi,0.);
     glob = element->globalPosition(centroid);
-    
- }
+
+  }
 
   // Error matrix production
   
