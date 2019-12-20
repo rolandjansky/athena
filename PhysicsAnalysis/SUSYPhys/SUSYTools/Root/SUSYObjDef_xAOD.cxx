@@ -1138,7 +1138,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   ATH_MSG_INFO( "Config file opened" );
 
   if (m_jetInputType == xAOD::JetInput::Uncategorized) {
-    m_jetInputType = xAOD::JetInput::Type(rEnv.GetValue("Jet.InputType", 1));
+    m_jetInputType = xAOD::JetInput::Type(rEnv.GetValue("Jet.InputType", 9));
     ATH_MSG_INFO( "readConfig(): Loaded property Jet.InputType with value " << (int)m_jetInputType);
   }
   // Remove the item from the table
