@@ -32,8 +32,8 @@ def TrigCaloMonConfig(inputFlags):
 
 
     # Add monitor algorithm
-    from TrigCaloMonitoring.TrigCaloMonitoringConf import HLTCalo_L2CaloEMClustersMonitor
-    L2CaloEMClustersMonAlg = helper.addAlgorithm(HLTCalo_L2CaloEMClustersMonitor, 'HLT_L2CaloEMClustersMonAlg')
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    L2CaloEMClustersMonAlg = helper.addAlgorithm(CompFactory.HLTCalo_L2CaloEMClustersMonitor, 'HLT_L2CaloEMClustersMonAlg')
 
     # Set properties
     L2CaloEMClustersMonAlg.HLTContainer = 'HLT_L2CaloEMClusters'
@@ -215,10 +215,9 @@ def TrigCaloMonConfig(inputFlags):
 
 
     # Add monitor algorithm
-    from TrigCaloMonitoring.TrigCaloMonitoringConf import HLTCalo_TopoCaloClustersMonitor
-    TopoCaloClustersFSMonAlg = helper.addAlgorithm(HLTCalo_TopoCaloClustersMonitor, 'HLT_TopoCaloClustersFSMonAlg')
-    TopoCaloClustersRoIMonAlg = helper.addAlgorithm(HLTCalo_TopoCaloClustersMonitor, 'HLT_TopoCaloClustersRoIMonAlg')
-    TopoCaloClustersLCMonAlg = helper.addAlgorithm(HLTCalo_TopoCaloClustersMonitor, 'HLT_TopoCaloClustersLCMonAlg')
+    TopoCaloClustersFSMonAlg = helper.addAlgorithm(CompFactory.HLTCalo_TopoCaloClustersMonitor, 'HLT_TopoCaloClustersFSMonAlg')
+    TopoCaloClustersRoIMonAlg = helper.addAlgorithm(CompFactory.HLTCalo_TopoCaloClustersMonitor, 'HLT_TopoCaloClustersRoIMonAlg')
+    TopoCaloClustersLCMonAlg = helper.addAlgorithm(CompFactory.HLTCalo_TopoCaloClustersMonitor, 'HLT_TopoCaloClustersLCMonAlg')
     TopoCaloClustersFSMonAlg.HLTContainer = 'HLT_TopoCaloClustersFS'
     TopoCaloClustersRoIMonAlg.HLTContainer = 'HLT_TopoCaloClustersRoI'
     TopoCaloClustersLCMonAlg.HLTContainer = 'HLT_TopoCaloClustersLC'

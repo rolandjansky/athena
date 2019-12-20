@@ -49,7 +49,9 @@ def TileDQFragMonitoringConfig(flags, **kwargs):
     helper = AthMonitorCfgHelper(flags, 'TileDQFragMonAlgCfg')
 
     runNumber = flags.Input.RunNumber[0]
-    _TileDQFragMonitoringCore(helper, runNumber, **kwargs)
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    _TileDQFragMonitoringCore(helper, CompFactory.TileDQFragMonitorAlgorithm,
+                             runNumber, **kwargs)
 
     accumalator = helper.result()
     result.merge(accumalator)
@@ -79,19 +81,19 @@ def TileDQFragMonitoringConfigOld(flags, **kwargs):
     from RecExConfig.AutoConfiguration import GetRunNumber
     runNumber = GetRunNumber()
 
-    _TileDQFragMonitoringCore(helper, runNumber, **kwargs)
+    from TileMonitoring.TileMonitoringConf import TileDQFragMonitorAlgorithm
+    _TileDQFragMonitoringCore(helper, TileDQFragMonitorAlgorithm, runNumber, **kwargs)
 
     return helper.result()
 
-def _TileDQFragMonitoringCore(helper, runNumber, **kwargs):
+def _TileDQFragMonitoringCore(helper, algConfObj, runNumber, **kwargs):
 
     ''' Function to configure TileDQFragMonitorAlgorithm algorithm in the monitoring system.'''
 
     run = str(runNumber)
 
-    # Adding an TileDQFragMonitorAlgorithm algorithm to the helper
-    from TileMonitoring.TileMonitoringConf import TileDQFragMonitorAlgorithm
-    tileDQFragMonAlg = helper.addAlgorithm(TileDQFragMonitorAlgorithm, 'TileDQFragMonAlg')
+    # Adding an TileDQFragMonitorAlgorithm algorithm to the helper; try to accommodate old/new configuration styles
+    tileDQFragMonAlg = helper.addAlgorithm(algConfObj, 'TileDQFragMonAlg')
 
     for k, v in kwargs.items():
         setattr(tileDQFragMonAlg, k, v)

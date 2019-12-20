@@ -2,7 +2,7 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
-'''@file TRTMonitoringRun3_Tool.py
+'''@file TRTMonitoringRun3_Alg.py
 @author N. Belyaev
 @date 20.09.2019
 @brief MT-compatible TRT Monitoring Tool for Run III based on the
@@ -10,7 +10,7 @@ AthenaMonitoring package
 '''
 
 
-def TRTMonitoringRun3_ToolConfig(inputFlags):
+def TRTMonitoringRun3_AlgConfig(inputFlags):
     '''Function to configures some algorithms in the monitoring system.'''
 
     # === STEP 1 === #
@@ -34,8 +34,8 @@ def TRTMonitoringRun3_ToolConfig(inputFlags):
     # helper. Then, the helper will instantiate an instance and set up the
     # base class configuration following the inputFlags. The returned object
     # is the algorithm.
-    from TRTMonitoringRun3.TRTMonitoringRun3Conf import TRTMonitoringRun3_Tool
-    algTRTMonitoringRun3 = helper.addAlgorithm(TRTMonitoringRun3_Tool,
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    algTRTMonitoringRun3 = helper.addAlgorithm(CompFactory.TRTMonitoringRun3_Alg,
                                                'AlgTRTMonitoringRun3')
 
     # You can actually make multiple instances of the same algorithm and give
@@ -180,7 +180,7 @@ if __name__ == '__main__':
     geoCfg = AtlasGeometryCfg(ConfigFlags)
     cfg.merge(geoCfg)
 
-    TRTMonitoringRun3Acc = TRTMonitoringRun3_ToolConfig(ConfigFlags)
+    TRTMonitoringRun3Acc = TRTMonitoringRun3_AlgConfig(ConfigFlags)
     ServiceMgr.Dump = False
 
     cfg.merge(TRTMonitoringRun3Acc)

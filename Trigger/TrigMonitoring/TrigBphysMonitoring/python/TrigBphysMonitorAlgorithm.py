@@ -33,8 +33,8 @@ def TrigBphysMonConfig(inputFlags):
     # is the algorithm.
     # The added algorithm must exist as a .h file 
 
-    from TrigBphysMonitoring.TrigBphysMonitoringConf import TrigBphysMonitorAlgorithm
-    trigBphysMonAlg = helper.addAlgorithm(TrigBphysMonitorAlgorithm,'TrigBphysMonAlg')
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    trigBphysMonAlg = helper.addAlgorithm(CompFactory.TrigBphysMonitorAlgorithm,'TrigBphysMonAlg')
     #from AthenaCommon.Constants import DEBUG,INFO
     #trigBphysMonAlg.OutputLevel = INFO
 

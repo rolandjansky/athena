@@ -6,9 +6,15 @@
 @file PixelAthMonitoringBase.py
 @brief Helper functions for Run 3 Pixel monitoring algorithm configuration
 '''
-from RecExConfig.AutoConfiguration import GetRunNumber
-runNumber = GetRunNumber()
-runtext = ' (Run ' + str(runNumber) + ')'
+# hack to deal with global variables in this module
+from AthenaCommon.Configurable import Configurable
+if “ServiceMgr” in dir():
+    from RecExConfig.AutoConfiguration import GetRunNumber
+    runtext = ' (Run ' + str(GetRunNumber()) + ')'
+else:
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    runtext = '(Run %d)' % ConfigFlags.Input.RunNumber[0]
+
 
 NumLayersDisk = 3
 NumLayersDBM  = 3

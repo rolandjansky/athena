@@ -36,8 +36,8 @@ def TrigBjetMonConfig(inputFlags):
     # is the algorithm.
     #The added algorithm must exist as a .h file 
 
-    from TrigBjetMonitoring.TrigBjetMonitoringConf import TrigBjetMonitorAlgorithm
-    trigBjetMonAlg = helper.addAlgorithm(TrigBjetMonitorAlgorithm,'TrigBjetMonAlg')
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    trigBjetMonAlg = helper.addAlgorithm(CompFactory.TrigBjetMonitorAlgorithm,'TrigBjetMonAlg')
 
     # You can actually make multiple instances of the same algorithm and give 
     # them different configurations
