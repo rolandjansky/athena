@@ -74,16 +74,17 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", athFile=None, seq=None, addAlgInPlac
     # Add BookkeeperTools
     from EventBookkeeperTools.EventBookkeeperToolsConf import BookkeeperTool
 
-    # Standard event bookkeepers
+    # Standard event bookkeepers - make sure they haven't already been set up
     inname = "CutBookkeepers"
     outname = "FileBookkeepers"
-    cutflowtool = BookkeeperTool(outname,
-                                 InputCollName = inname,
-                                 OutputCollName= outname) 
-    svcMgr.ToolSvc += cutflowtool
+    if not hasattr(svcMgr.ToolSvc,outname):
+        cutflowtool = BookkeeperTool(outname,
+                                     InputCollName = inname,
+                                     OutputCollName= outname)
+        svcMgr.ToolSvc += cutflowtool
 
-    # Add tool to MetaDataSvc
-    svcMgr.MetaDataSvc.MetaDataTools += [cutflowtool]
+        # Add tool to MetaDataSvc
+        svcMgr.MetaDataSvc.MetaDataTools += [cutflowtool]
 
     # Add pdf sum of weights counts if appropriate
     from AthenaCommon.GlobalFlags  import globalflags
@@ -93,13 +94,14 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", athFile=None, seq=None, addAlgInPlac
 
         # PDF
         name = "PDFSumOfWeights"
-        pdfweighttool = BookkeeperTool(name,
-                                       OutputCollName= name, 
-                                       InputCollName = name)
-        svcMgr.ToolSvc += pdfweighttool
+        if not hasattr(svcMgr.ToolSvc,name):
+            pdfweighttool = BookkeeperTool(name,
+                                           OutputCollName= name,
+                                           InputCollName = name)
+            svcMgr.ToolSvc += pdfweighttool
 
-        # Add tool to MetaDataSvc
-        svcMgr.MetaDataSvc.MetaDataTools += [pdfweighttool]
+            # Add tool to MetaDataSvc
+            svcMgr.MetaDataSvc.MetaDataTools += [pdfweighttool]
 
     # Check if we have a sequence given
     if not seq :

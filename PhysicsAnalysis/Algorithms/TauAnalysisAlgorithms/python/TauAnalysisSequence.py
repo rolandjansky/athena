@@ -30,7 +30,7 @@ def makeTauAnalysisSequence( dataType, workingPoint, postfix = '',
       enableKinematicHistograms -- Whether or not to dump the kinematic histograms
     """
 
-    if not dataType in ["data", "mc", "afii"] :
+    if dataType not in ["data", "mc", "afii"] :
         raise ValueError ("invalid data type: " + dataType)
 
     if postfix != '' :
@@ -49,7 +49,6 @@ def makeTauAnalysisSequence( dataType, workingPoint, postfix = '',
     if legacyRecommendations:
         nameFormat = 'TauAnalysisAlgorithms/tau_selection_{}_legacy.conf'
 
-    sfWorkingPoint = splitWP[0]
     if splitWP[0] not in ['Tight', 'Medium', 'Loose', 'VeryLoose', 'NoID', 'Baseline'] :
         raise ValueError ("invalid tau quality: \"" + splitWP[0] +
                           "\", allowed values are Tight, Medium, Loose, " +

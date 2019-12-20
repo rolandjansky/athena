@@ -116,6 +116,7 @@ lcgetters = [jtm.lcget]
 
 tccgetters = [jtm.tccget]
 csskufogetters = [jtm.csskufoget]
+chsufogetters = [jtm.chsufoget]
 
 if jetFlags.useTracks():
   emgetters = [jtm.emoriginget]
@@ -125,6 +126,7 @@ if jetFlags.useTracks():
   empfgetters    += [jtm.gtrackget]
   tccgetters     += [jtm.gtrackget]
   csskufogetters += [jtm.gtrackget]
+  chsufogetters  += [jtm.gtrackget]
 
 if jetFlags.useMuonSegments():
   emgetters      += [jtm.gmusegget]
@@ -132,6 +134,7 @@ if jetFlags.useMuonSegments():
   empfgetters    += [jtm.gmusegget]
   tccgetters     += [jtm.gmusegget]
   csskufogetters += [jtm.gmusegget]
+  chsufogetters  += [jtm.gmusegget]
 
 # Add jet ghosts.
 if 1:
@@ -141,6 +144,7 @@ if 1:
     lcgetters      += [getter]
     tccgetters     += [getter]
     csskufogetters += [getter]
+    chsufogetters  += [getter]
 
 # Add truth getter and truth ghosts.
 if jetFlags.useTruth():
@@ -152,6 +156,7 @@ if jetFlags.useTruth():
   empfgetters    += [jtm.gtruthget]
   tccgetters     += [jtm.gtruthget]
   csskufogetters += [jtm.gtruthget]
+  chsufogetters  += [jtm.gtruthget]
   
   # Add truth cone matching and truth flavor ghosts.
   flavorgetters = []
@@ -165,6 +170,7 @@ if jetFlags.useTruth():
   empfgetters    += flavorgetters
   tccgetters     += flavorgetters
   csskufogetters += flavorgetters
+  chsufogetters  += flavorgetters
 
 # Add track jet ghosts.
 if jetFlags.useTracks():
@@ -177,6 +183,7 @@ if jetFlags.useTracks():
   empfgetters     += trackjetgetters
   tccgetters      += trackjetgetters
   csskufogetters  += trackjetgetters
+  chsufogetters   += trackjetgetters
 
 
 # Add getter lists to jtm indexed by input type name.
@@ -187,6 +194,7 @@ jtm.gettersMap["track"]     = list(trackgetters)
 jtm.gettersMap["pv0track"]  = list(trackgetters)
 jtm.gettersMap["tcc"]       = list(tccgetters)
 jtm.gettersMap["csskufo"]   = list(csskufogetters)
+jtm.gettersMap["chsufo"]    = list(chsufogetters)
 if jetFlags.useTruth():
   jtm.gettersMap["truth"]   = list(truthgetters)
   jtm.gettersMap["truthwz"] = list(truthwzgetters)
@@ -196,7 +204,7 @@ jtm.gettersMap["lctopo_reduced"]  = filterout(["gakt2trackget","gakt4trackget"],
 jtm.gettersMap["tcc_reduced"]     = filterout(["gakt2trackget","gakt4trackget"],tccgetters)
 jtm.gettersMap["csskufo_reduced"] = filterout(["gakt2trackget","gakt4trackget"],csskufogetters)
 jtm.gettersMap["empflow_reduced"] = filterout(["gakt2trackget","gakt4trackget"],empfgetters)
-
+jtm.gettersMap["chsufo_reduced"]  = filterout(["gakt2trackget","gakt4trackget"],chsufogetters)
 
 #########################################################
 # Modifiers

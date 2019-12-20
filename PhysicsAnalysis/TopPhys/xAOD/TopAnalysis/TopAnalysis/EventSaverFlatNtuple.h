@@ -616,13 +616,9 @@ namespace top {
     std::vector<std::vector<float> > m_jet_ghostTrack_qOverP;
 
     // R21 b-tagging
-    std::vector<float> m_jet_MV2r;
-    std::vector<float> m_jet_MV2rmu;
     std::vector<float> m_jet_DL1;
     std::vector<float> m_jet_DL1r;
     std::vector<float> m_jet_DL1rmu;
-    std::vector<float> m_jet_MV2cl100;
-    std::vector<float> m_jet_MV2c100;
     std::vector<float> m_jet_DL1_pu;
     std::vector<float> m_jet_DL1_pc;
     std::vector<float> m_jet_DL1_pb;

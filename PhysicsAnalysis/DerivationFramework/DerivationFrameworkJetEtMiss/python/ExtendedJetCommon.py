@@ -64,6 +64,10 @@ def addAntiKt10TrackCaloClusterJets(sequence, outputlist):
 def addAntiKt10UFOCSSKJets(sequence, outputlist):
     addStandardJets("AntiKt", 1.0, "UFOCSSK", ptmin=40000, ptminFilter=50000, algseq=sequence, outputGroup=outputlist, constmods=["CSSK"])
 
+def addAntiKt10UFOCHSJets(sequence, outputlist):
+    addCHSPFlowObjects()
+    addStandardJets("AntiKt", 1.0, "UFOCHS", ptmin=40000, ptminFilter=50000, algseq=sequence, outputGroup=outputlist, constmods=["CHS"])
+
 def addAntiKt2PV0TrackJets(sequence, outputlist, extendedFlag = 0):
     if not "akt2track" in jtm.modifiersMap.keys():
         from AthenaCommon.AppMgr import ToolSvc
@@ -170,6 +174,8 @@ def replaceAODReducedJets(jetlist,sequence,outputlist, extendedFlag = 0):
         addAntiKt10TrackCaloClusterJets(sequence,outputlist)
     if "AntiKt10UFOCSSKJets" in jetlist:
         addAntiKt10UFOCSSKJets(sequence,outputlist)
+    if "AntiKt10UFOCHSJets" in jetlist:
+        addAntiKt10UFOCHSJets(sequence,outputlist)
 
 ##################################################################
 # Jet helpers for adding low-pt jets needed for calibration
@@ -654,16 +660,11 @@ def addConstModJets(jetalg,radius,inputtype,constmods,sequence,outputlist,
     from AthenaCommon.AlgSequence import AlgSequence
     job = AlgSequence()
     from JetRec.JetRecStandard import jtm
-    if not hasattr(jtm,"jetconstit"+label):
-        from JetRec.JetRecConf import JetToolRunner
-        jetrun = JetToolRunner("jetconstit"+label,
-                               EventShapeTools=[],
-                               Tools=[constmodseq])
-        jtm += jetrun
+    if constmodseq.getFullName() not in [t.getFullName() for t in job.jetalg.Tools]:
         # Add this tool runner to the JetAlgorithm instance "jetalg"
         # which runs all preparatory tools
         # This was added by JetCommon
-        job.jetalg.Tools.append(jetrun)
+        job.jetalg.Tools.append(constmodseq)
         extjetlog.info("Added const mod sequence {0} to \'jetalg\'".format(constmodstr))
 
     # Get the PseudoJetGetter

@@ -22,7 +22,6 @@ parser.add_option( '-u', '--unit-test', dest='unit_test',
 
 # Set up (Py)ROOT.
 import ROOT
-import os
 ROOT.xAOD.Init().ignore()
 
 # ideally we'd run over all of them, but we don't have a mechanism to
@@ -33,7 +32,7 @@ dataType = options.data_type
 inputfile = {"mc":   'ASG_TEST_FILE_MC',
              "afii": 'ASG_TEST_FILE_MC_AFII'}
 
-if not dataType in ["mc", "afii"] :
+if dataType not in ["mc", "afii"] :
     raise ValueError ("invalid data type: " + dataType)
 
 # Set up the sample handler object. See comments from the C++ macro

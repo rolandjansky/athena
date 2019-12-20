@@ -1,7 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # AnaAlgorithm import(s):
-from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
 from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
 
 def makeFTagAnalysisSequence( seq, dataType, jetCollection,
@@ -29,7 +28,7 @@ def makeFTagAnalysisSequence( seq, dataType, jetCollection,
       enableCutflow -- Whether or not to dump the cutflow
     """
 
-    if not dataType in ["data", "mc", "afii"] :
+    if dataType not in ["data", "mc", "afii"] :
         raise ValueError ("invalid data type: " + dataType)
 
     if legacyRecommendations:

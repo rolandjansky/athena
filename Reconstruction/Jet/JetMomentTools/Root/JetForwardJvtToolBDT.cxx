@@ -137,6 +137,10 @@ int JetForwardJvtToolBDT::modify(xAOD::JetContainer& jetCont) const {
   // -- Retrieve PV index if not provided by user
   int pvind = (m_pvind==-1) ? getPV() : m_pvind;
   ATH_MSG_DEBUG("In JetForwardJvtToolBDT::modify: PV index = " << pvind);
+  if( pvind == -1 ){
+    ATH_MSG_ERROR( "Something went wrong with the HS primary vertex identification." );
+    return 1;
+  }
 
   std::vector<TVector2> pileupMomenta;
   for(const xAOD::Jet *jetF : jetCont) {
@@ -153,7 +157,7 @@ int JetForwardJvtToolBDT::modify(xAOD::JetContainer& jetCont) const {
     if ( forwardJet(jetF) ){
       if( pileupMomenta.size()==0 ) {
 	pileupMomenta = calculateVertexMomenta(&jetCont, pvind);
-	if(pileupMomenta.size()==0) return StatusCode::FAILURE; // This would follow error messages defined in 'calculateVertexMomenta' function.
+	if(pileupMomenta.size()==0) return 1; // This would follow error messages defined in 'calculateVertexMomenta' function.
       }
       (*Dec_mvfjvt)(*jetF) = getMVfJVT(jetF, pvind, pileupMomenta);
       if(m_isAna) (*Dec_outMV)(*jetF) = passMVfJVT( (*Dec_mvfjvt)(*jetF), jetF->pt()/(GeV), fabs(jetF->eta()) );
@@ -189,7 +193,7 @@ float JetForwardJvtToolBDT::getMVfJVT(const xAOD::Jet *jet, int pvind, std::vect
   if ( evtStore()->retrieve(eventInfo, "EventInfo").isFailure() )
   {
     ATH_MSG_ERROR(" Could not retrieve EventInfo ");
-    return StatusCode::FAILURE;
+    return -2;
   }
   float mu = eventInfo->actualInteractionsPerCrossing();
 
@@ -209,22 +213,22 @@ float JetForwardJvtToolBDT::getMVfJVT(const xAOD::Jet *jet, int pvind, std::vect
   float eta = fabs(jet->eta());
 
   float score = -2.;
-  if      ( pt < 30.  && pt >= 20. && eta >= 3.2 && mu>50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_1"  ,1.);
-  else if ( pt < 30.  && pt >= 20. && eta <  3.2 && mu>50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_2"  ,1.);
-  else if ( pt < 40.  && pt >= 30. && eta >= 3.2 && mu>50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_3"  ,1.);
-  else if ( pt < 40.  && pt >= 30. && eta <  3.2 && mu>50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_4"  ,1.);
-  else if ( pt < 50.  && pt >= 40. && eta >= 3.2 && mu>50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_5"  ,1.);
-  else if ( pt < 50.  && pt >= 40. && eta <  3.2 && mu>50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_6"  ,1.);
-  else if ( pt < 120. && pt >= 50. && eta >= 3.2 && mu>50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_7"  ,1.);
-  else if ( pt < 120. && pt >= 50. && eta <  3.2 && mu>50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_8"  ,1.);
-  else if ( pt < 30.  && pt >= 20. && eta >= 3.2 && mu<50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_9"  ,1.);
-  else if ( pt < 30.  && pt >= 20. && eta <  3.2 && mu<50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_10" ,1.);
-  else if ( pt < 40.  && pt >= 30. && eta >= 3.2 && mu<50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_11" ,1.);
-  else if ( pt < 40.  && pt >= 30. && eta <  3.2 && mu<50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_12" ,1.);
-  else if ( pt < 50.  && pt >= 40. && eta >= 3.2 && mu<50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_13" ,1.);
-  else if ( pt < 50.  && pt >= 40. && eta <  3.2 && mu<50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_14" ,1.);
-  else if ( pt < 120. && pt >= 50. && eta >= 3.2 && mu<50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_15" ,1.);
-  else if ( pt < 120. && pt >= 50. && eta <  3.2 && mu<50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_16" ,1.);
+  if      ( pt < 30.  && pt >= 20. && eta >= 3.2 && mu>=50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_1"  ,1.);
+  else if ( pt < 30.  && pt >= 20. && eta <  3.2 && mu>=50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_2"  ,1.);
+  else if ( pt < 40.  && pt >= 30. && eta >= 3.2 && mu>=50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_3"  ,1.);
+  else if ( pt < 40.  && pt >= 30. && eta <  3.2 && mu>=50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_4"  ,1.);
+  else if ( pt < 50.  && pt >= 40. && eta >= 3.2 && mu>=50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_5"  ,1.);
+  else if ( pt < 50.  && pt >= 40. && eta <  3.2 && mu>=50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_6"  ,1.);
+  else if ( pt < 120. && pt >= 50. && eta >= 3.2 && mu>=50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_7"  ,1.);
+  else if ( pt < 120. && pt >= 50. && eta <  3.2 && mu>=50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_8"  ,1.);
+  else if ( pt < 30.  && pt >= 20. && eta >= 3.2 && mu<50.  ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_9"  ,1.);
+  else if ( pt < 30.  && pt >= 20. && eta <  3.2 && mu<50.  ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_10" ,1.);
+  else if ( pt < 40.  && pt >= 30. && eta >= 3.2 && mu<50.  ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_11" ,1.);
+  else if ( pt < 40.  && pt >= 30. && eta <  3.2 && mu<50.  ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_12" ,1.);
+  else if ( pt < 50.  && pt >= 40. && eta >= 3.2 && mu<50.  ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_13" ,1.);
+  else if ( pt < 50.  && pt >= 40. && eta <  3.2 && mu<50.  ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_14" ,1.);
+  else if ( pt < 120. && pt >= 50. && eta >= 3.2 && mu<50.  ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_15" ,1.);
+  else if ( pt < 120. && pt >= 50. && eta <  3.2 && mu<50.  ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_16" ,1.);
 
   ATH_MSG_DEBUG("pt = " << pt << " | eta = " << eta << " | mu = " << mu  << " || MVfJVT = " << score );
 
@@ -239,7 +243,7 @@ bool JetForwardJvtToolBDT::passMVfJVT( float mvfjvt, float pt, float eta ) const
   if ( evtStore()->retrieve(eventInfo, "EventInfo").isFailure() )
   {
     ATH_MSG_ERROR(" Could not retrieve EventInfo ");
-    return StatusCode::FAILURE;
+    return true;
   }
 
  float mu = eventInfo->actualInteractionsPerCrossing();
@@ -386,17 +390,15 @@ int JetForwardJvtToolBDT::getPV() const{
   const xAOD::VertexContainer *vxCont = 0;
   if( evtStore()->retrieve(vxCont, m_vtxcont).isFailure() ) {
     ATH_MSG_ERROR("Unable to retrieve primary vertex container");
-    return StatusCode::FAILURE;
-  } else if(vxCont->empty()) {
-    ATH_MSG_INFO("Event has no primary vertices!");
+    return -1;
   } else {
     ATH_MSG_DEBUG("Successfully retrieved primary vertex container");
     for(const xAOD::Vertex *vx : *vxCont) {
       if(vx->vertexType()==xAOD::VxType::PriVtx) return vx->index();
     }
   }
-  ATH_MSG_ERROR("Couldn't identify the hard-scatter primary vertex (no vertex with \"vx->vertexType()==xAOD::VxType::PriVtx\" in the container)!");
-  return StatusCode::FAILURE;
+  ATH_MSG_WARNING("Couldn't identify the hard-scatter primary vertex (no vertex with \"vx->vertexType()==xAOD::VxType::PriVtx\" in the container)!");
+  return 0;
 }
 
 StatusCode JetForwardJvtToolBDT::tagTruth(const xAOD::JetContainer *jets,const xAOD::JetContainer *truthJets) {

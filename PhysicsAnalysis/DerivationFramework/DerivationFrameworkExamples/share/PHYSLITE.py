@@ -64,12 +64,18 @@ trig_mt = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=Trigg
 # Note that this seems to pick up both isolated and non-isolated triggers already, so no need for extra grabs
 
 # Merge and remove duplicates
-trigger_names = list(set(trig_el+trig_mu+trig_g+trig_tau+trig_em+trig_et+trig_mt))
+trigger_names_full = list(set(trig_el+trig_mu+trig_g+trig_tau+trig_em+trig_et+trig_mt))
+
+# Now reduce the list...
+from RecExConfig.InputFilePeeker import inputFileSummary
+trigger_names = []
+for trig_item in inputFileSummary['metadata']['/TRIGGER/HLT/Menu']:
+    if not 'ChainName' in trig_item: continue
+    if trig_item['ChainName'] in trigger_names_full: trigger_names += [ trig_item['ChainName'] ]
 
 # Create trigger matching decorations
-PHYSLITE_trigmatching_helper = TriggerMatchingHelper(matching_tool = "PHYSLITETriggerMatchingTool",
-                                                 trigger_list = trigger_names)
-AugmentationTools.append( PHYSLITE_trigmatching_helper.matching_tool )
+trigmatching_helper = TriggerMatchingHelper(
+        trigger_list = trigger_names, add_to_df_job=True)
 
 #==============================================================================
 # HEAVY FLAVOR DECORATION
@@ -354,7 +360,7 @@ jetContainer = 'AntiKt4EMPFlowJets_BTagging201903'
 
 # Include, and then set up the jet analysis algorithm sequence:
 from JetAnalysisAlgorithms.JetAnalysisSequence import makeJetAnalysisSequence
-jetSequence = makeJetAnalysisSequence( dataType, jetContainer, deepCopyOutput = True, shallowViewOutput = False )
+jetSequence = makeJetAnalysisSequence( dataType, jetContainer, deepCopyOutput = True, shallowViewOutput = False , runFJvtUpdate = False , runFJvtSelection = False )
 jetSequence.configure( inputName = jetContainer, outputName = 'AnalysisJets' )
 print( jetSequence ) # For debugging
 
@@ -434,7 +440,7 @@ PHYSLITESlimmingHelper.AppendToDictionary = {
                                          'AnalysisTauJets_NOSYS':'xAOD::TauJetContainer', 'AnalysisTauJets_NOSYSAux':'xAOD::TauJetAuxContainer',
                                          'MET_Core_AnalysisMET':'xAOD::MissingETContainer', 'MET_Core_AnalysisMETAux':'xAOD::MissingETAuxContainer',
                                          'METAssoc_AnalysisMET':'xAOD::MissingETAssociationMap', 'METAssoc_AnalysisMETAux':'xAOD::MissingETAuxAssociationMap',
-                                         'AntiKt10TruthTrimmedPtFrac5SmallR20Jets':'xAODJetContainer', 'AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux':'xAODJetAuxContainer',
+                                         'AntiKt10TruthTrimmedPtFrac5SmallR20Jets':'xAOD::JetContainer', 'AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux':'xAOD::JetAuxContainer',
                                          }
 
 # Leaving these as smart collections
@@ -469,7 +475,7 @@ if DerivationFrameworkIsMonteCarlo:
     addTruth3ContentToSlimmerTool(PHYSLITESlimmingHelper)
 
 # Extra trigger collections
-PHYSLITE_trigmatching_helper.add_to_slimming(PHYSLITESlimmingHelper)
+trigmatching_helper.add_to_slimming(PHYSLITESlimmingHelper)
 
 PHYSLITESlimmingHelper.AppendContentToStream(PHYSLITEStream)
 

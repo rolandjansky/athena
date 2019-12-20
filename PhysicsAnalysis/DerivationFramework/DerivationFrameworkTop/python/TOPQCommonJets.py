@@ -76,11 +76,13 @@ def applyTOPQJetCalibration(jetcollection, algseq=None):
     from DerivationFrameworkJetEtMiss.ExtendedJetCommon import \
         applyJetCalibration_xAODColl, applyJetCalibration_CustomColl
 
-    supportedJets = ['AntiKt4EMTopo', 'AntiKt10LCTopoTrimmedPtFrac5SmallR20']
+    supportedJets = ['AntiKt4EMTopo', 'AntiKt4EMPFlow', 'AntiKt10LCTopoTrimmedPtFrac5SmallR20']
     if not jetcollection in supportedJets:
         print "TOPQCommonJets:",jetcollection, "is an unsupported collection for calibration!"
         return
     elif jetcollection == 'AntiKt4EMTopo':
+        applyJetCalibration_xAODColl(jetcollection,algseq)
+    elif jetcollection == 'AntiKt4EMPFlow':
         applyJetCalibration_xAODColl(jetcollection,algseq)
     elif jetcollection == 'AntiKt10LCTopoTrimmedPtFrac5SmallR20':
         applyJetCalibration_CustomColl(jetcollection, algseq)

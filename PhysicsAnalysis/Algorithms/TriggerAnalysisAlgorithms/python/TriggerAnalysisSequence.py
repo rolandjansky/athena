@@ -16,7 +16,7 @@ def makeTriggerAnalysisSequence( dataType,
       prescaleLumiCalcFiles -- a list of lumicalc files to calculate trigger prescales
     """
 
-    if not dataType in ["data", "mc", "afii"] :
+    if dataType not in ["data", "mc", "afii"] :
         raise ValueError ("invalid data type: " + dataType)
 
     # Create the analysis algorithm sequence object:
