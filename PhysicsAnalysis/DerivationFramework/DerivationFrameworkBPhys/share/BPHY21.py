@@ -320,7 +320,7 @@ if isSimulation:
     BPHY21_AllVariables += ["TruthEvents","TruthParticles","TruthVertices","MuonTruthParticles"]
 
 
-#BPHY21_AllVariables = list(set(AllVariables)) # remove duplicates
+BPHY21_AllVariables = list(set(BPHY21_AllVariables)) # remove duplicates
 
 BPHY21_SlimmingHelper.AllVariables = BPHY21_AllVariables
 BPHY21_SlimmingHelper.StaticContent = BPHY21_StaticContent
