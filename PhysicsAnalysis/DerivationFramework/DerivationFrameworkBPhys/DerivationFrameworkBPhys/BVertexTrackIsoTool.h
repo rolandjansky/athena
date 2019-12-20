@@ -85,13 +85,14 @@ namespace DerivationFramework {
       virtual StatusCode  saveIsolation(const xAOD::Vertex* vtx) const;
       virtual StatusCode  calculateIsolation(const xAOD::Vertex* vtx) const;
       virtual StatusCode  calcIsolation(const IsoItem& iso,
-					const xAOD::Vertex* vtx,
-					const double coneSize,
-					const double logChi2Max,
-					const ToolHandle<TrkSelTool>& tSelTool,
-					const xAOD::BPhysHelper::pv_type
-					pvAssocType,
-					const int trackTypes ) const;
+                                        const xAOD::Vertex* vtx,
+                                        const double coneSize,
+                                        const double logChi2Max,
+                                        const int doLogChi2,
+                                        const ToolHandle<TrkSelTool>& tSelTool,
+                                        const xAOD::BPhysHelper::pv_type
+                                        pvAssocType,
+                                        const int trackTypes ) const;
 
       virtual void        initResults();
       virtual void        setResultsPrefix(std::string prefix) const;
@@ -105,6 +106,7 @@ namespace DerivationFramework {
       // job options
       std::vector<double>              m_isoConeSizes;
       std::vector<double>              m_isoTrkImpLogChi2Max;
+      std::vector<int>                 m_isoDoTrkImpLogChi2Cut;
       bool                             m_useOptimizedAlgo;
 
       // results array

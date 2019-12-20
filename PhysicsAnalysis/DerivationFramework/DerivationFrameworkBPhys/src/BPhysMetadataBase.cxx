@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //============================================================================
@@ -11,6 +11,7 @@
 // - w.w., 2017-01-22: Added use of BPhysMetaDataTool.
 // - w.w., 2017-05-27: Removed use of BPhysMetaDataTool and
 //                     IOVDbMetaDataTool.
+// - w.w., 2019-12-05: Added long and vector<long> types
 //
 // Store JO metadata in the output file.
 //
@@ -123,10 +124,12 @@ namespace DerivationFramework {
 
       // fill it with contents of maps
       SET_VALUES_IMP( int                     , m_propInt     );
+      SET_VALUES_IMP( long                    , m_propLong    );
       SET_VALUES_IMP( double                  , m_propDouble  );
       SET_VALUES_IMP( bool                    , m_propBool    );
       SET_VALUES_IMP( std::string             , m_propString  );
       SET_VALUES_IMP( std::vector<int>        , m_propVInt    );
+      SET_VALUES_IMP( std::vector<long>       , m_propVLong   );
       SET_VALUES_IMP( std::vector<double>     , m_propVDouble );
       SET_VALUES_IMP( std::vector<bool>       , m_propVBool   );
       SET_VALUES_IMP( std::vector<std::string>, m_propVString );
@@ -162,6 +165,11 @@ namespace DerivationFramework {
     declareProperty(name, m_propInt[name] = val);
   }
   //--------------------------------------------------------------------------
+  void BPhysMetadataBase::recordPropertyL(const std::string& name, long val) {
+    ATH_MSG_INFO("Calling recordProperty(long)");
+    declareProperty(name, m_propLong[name] = val);
+  }
+  //--------------------------------------------------------------------------
   void BPhysMetadataBase::recordPropertyD(const std::string& name, double val) {
     ATH_MSG_INFO("Calling recordProperty(double)");
     declareProperty(name, m_propDouble[name] = val);
@@ -183,6 +191,12 @@ namespace DerivationFramework {
     declareProperty(name, m_propVInt[name] = val);
   }
   //--------------------------------------------------------------------------
+  void BPhysMetadataBase::recordPropertyVL(const std::string& name,
+					   const std::vector<long>& val) {
+    ATH_MSG_INFO("Calling recordProperty(vector<long>)");
+    declareProperty(name, m_propVLong[name] = val);
+  }
+  //--------------------------------------------------------------------------
   void BPhysMetadataBase::recordPropertyVD(const std::string& name,
 					   const std::vector<double>& val) {
     ATH_MSG_INFO("Calling recordProperty(vector<double>)");
@@ -202,6 +216,16 @@ namespace DerivationFramework {
   }
   //--------------------------------------------------------------------------
   std::string BPhysMetadataBase::vecToString(const std::vector<int>& v) const {
+    std::string str("[");
+    for (unsigned int i=0; i<v.size(); ++i) {
+      str += std::to_string(v[i]);
+      if ( i < v.size()-1 ) str += ",";
+    }
+    str += "]";
+    return str;
+  }
+  //--------------------------------------------------------------------------
+  std::string BPhysMetadataBase::vecToString(const std::vector<long>& v) const {
     std::string str("[");
     for (unsigned int i=0; i<v.size(); ++i) {
       str += std::to_string(v[i]);
