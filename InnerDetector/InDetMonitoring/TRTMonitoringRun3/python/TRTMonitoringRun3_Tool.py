@@ -19,7 +19,7 @@ def TRTMonitoringRun3_ToolConfig(inputFlags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     result = ComponentAccumulator()
 
-    from TrkEventAthenaPool.TrackCollectionReadConfig import TrackCollectionReadCfg
+    from TrkConfig.TrackCollectionReadConfig import TrackCollectionReadCfg
     result.merge (TrackCollectionReadCfg (inputFlags, 'CombinedInDetTracks'))
     result.merge (TrackCollectionReadCfg (inputFlags, 'Tracks'))
 
