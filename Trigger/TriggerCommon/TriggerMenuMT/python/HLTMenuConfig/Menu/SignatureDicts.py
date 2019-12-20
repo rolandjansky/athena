@@ -336,7 +336,7 @@ ElectronChainParts = {
     'trigType'       : ['e'],
     'threshold'      : '',
     'etaRange'       : [],
-    'IDinfo'         : ['lhtight'],
+    'IDinfo'         : ['lhvloose','lhloose','lhmedium','lhtight'],
     'isoInfo'        : [],
     'trkInfo'        : ['idperf'],
     'caloInfo'       : [],
