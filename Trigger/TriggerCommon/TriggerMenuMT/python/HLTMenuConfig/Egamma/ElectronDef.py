@@ -12,6 +12,7 @@ from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import fastCa
 
 from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronSequenceSetup import fastElectronMenuSequence
 from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloSequenceSetup import precisionCaloMenuSequence
+from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionElectronSequenceSetup import precisionElectronMenuSequence
 
 #----------------------------------------------------------------
 # fragments generating configuration will be functions in New JO,
@@ -27,6 +28,9 @@ def fastElectronSequenceCfg( flags ):
 def precisionCaloSequenceCfg( flags ):
     return precisionCaloMenuSequence('Electron')
 
+def precisionElectronSequenceCfg( flags ):
+    return precisionElectronMenuSequence()
+
 #----------------------------------------------------------------
 # Class to configure chain
 #----------------------------------------------------------------
@@ -39,46 +43,76 @@ class ElectronChainConfiguration(ChainConfigurationBase):
     # Assemble the chain depending on information from chainName
     # ----------------------
     def assembleChain(self):
-        myStepNames = []
         chainSteps = []
         log.debug("Assembling chain for " + self.chainName)
         # --------------------
         # define here the names of the steps and obtain the chainStep configuration
         # --------------------
-        if 'etcut1step' in self.chainPart['addInfo']:
-            myStepNames += ["Step1_electron"]
-            for step in myStepNames:
-                chainSteps += [self.getElectronStep(step)]
-        elif 'etcut' in self.chainPart['addInfo']:
-            myStepNames += ["Step1_electron"]
-            myStepNames += ["Step2_electron"]
-            myStepNames += ["Step3_electron"]
-            for step in myStepNames:
-                chainSteps += [self.getElectronStep(step)]
+        etcut1step          = [ self.getFastCalo() ]
+        etcut_sequence      = [ self.getFastCalo(), self.getFastElectron(), self.getPrecisionCaloElectron()]
+        electron_sequence   = [ self.getFastCalo(), self.getFastElectron(), self.getPrecisionCaloElectron(), self.getPrecisionElectron()]
+
+        stepDictionary = {
+                'etcut1step': etcut1step,
+                'etcut'     : etcut_sequence,
+                'lhloose'   : electron_sequence,
+                'lhvloose'   : electron_sequence,
+                'lhmedium'  : electron_sequence,
+                'lhtight'   : electron_sequence,
+                }
+
+
+        log.debug('electron chain part = ' + str(self.chainPart))
+        key = self.chainPart['extra'] + self.chainPart['IDinfo'] + self.chainPart['isoInfo']
+        for addInfo in self.chainPart['addInfo']:
+            key+=addInfo
+            
+        log.debug('electron key = ' + key)
+        if key in stepDictionary:
+            steps=stepDictionary[key]
         else:
-            raise RuntimeError("Chain configuration unknown for chain: " + self.chainName )
+            raise RuntimeError("Chain configuration unknown for electron chain with key: " + key )
+
+        chainSteps = []
+
+        for step in steps:
+            log.debug('Adding electron trigger step ' + str(step))
+            chainSteps+=[step]
+    
+        myChain = self.buildChain(chainSteps)
+        return myChain
+
+
 
         myChain = self.buildChain(chainSteps)
         return myChain
 
     # --------------------
-    # Configuration of electron chain
+    # Configuration of electron steps
     # --------------------
-    def getElectronStep(self, stepName):
-        if stepName == "Step1_electron":
-          log.debug("Configuring step " + stepName)
-          fastCalo = RecoFragmentsPool.retrieve( electronFastCaloCfg, None ) # the None will be used for flags in future
-          chainStep =ChainStep(stepName, [fastCalo], [self.mult])
-        elif stepName == "Step2_electron":
-          log.debug("Configuring step " + stepName)
-          electronReco = RecoFragmentsPool.retrieve( fastElectronSequenceCfg, None )
-          chainStep=ChainStep(stepName, [electronReco], [self.mult])
-        elif stepName == "Step3_electron":
-          log.debug("Configuring step " + stepName)
-          precisionReco = RecoFragmentsPool.retrieve( precisionCaloSequenceCfg, None )
-          chainStep=ChainStep(stepName, [precisionReco], [self.mult])
-        else:
-          raise RuntimeError("chainStepName unknown: " + stepName )
 
-        log.debug("Returning chainStep from getEtCutStep function: " + stepName)
-        return chainStep
+    def getFastCalo(self):
+        stepName = "Step1_FastCalo_electron"
+        log.debug("Configuring step " + stepName)
+        fastCalo = RecoFragmentsPool.retrieve( electronFastCaloCfg, None ) # the None will be used for flags in future
+        return ChainStep(stepName, [fastCalo], [self.mult])
+
+    def getFastElectron(self):
+        stepName = "Step2_fast_electron"
+        log.debug("Configuring step " + stepName)
+        electronReco = RecoFragmentsPool.retrieve( fastElectronSequenceCfg, None )
+        return ChainStep(stepName, [electronReco], [self.mult])
+
+
+    def getPrecisionCaloElectron(self):
+        stepName = "Step3_precisionCalo_electron"
+        log.debug("Configuring step " + stepName)
+        precisionReco = RecoFragmentsPool.retrieve( precisionCaloSequenceCfg, None )
+        return ChainStep(stepName, [precisionReco], [self.mult]) 
+
+
+    def getPrecisionElectron(self):
+        stepName = "Step4_precision_electron"
+        log.debug("Configuring step " + stepName)
+        precisionElectron = RecoFragmentsPool.retrieve( precisionElectronSequenceCfg, None )
+        return ChainStep(stepName, [precisionElectron], [self.mult])

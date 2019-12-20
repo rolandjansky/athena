@@ -61,6 +61,19 @@ def setupMenu():
 
         ChainProp(name='HLT_2e3_etcut_L12EM3', stream=[PhysicsStream], groups=MultiElectronGroup),
 
+        # low et threshold for debugging
+        ChainProp(name='HLT_e5_lhloose_L1EM3', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e5_lhmedium_L1EM3', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e5_lhtight_L1EM3', groups=SingleElectronGroup),
+
+        # Primary
+        ChainProp(name='HLT_e26_lhtight_L1EM24VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e60_lhmedium_L1EM24VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e140_lhloose_L1EM24VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e300_etcut_L1EM24VHI', groups=SingleElectronGroup),
+
+        ChainProp(name='HLT_2e17_lhvloose_L12EM3', stream=[PhysicsStream], groups=MultiElectronGroup),
+
         # PhotonChains------------
         # these are to debug photon working points should be removed in production
         ChainProp(name='HLT_g5_etcut_L1EM3', groups=SinglePhotonGroup),

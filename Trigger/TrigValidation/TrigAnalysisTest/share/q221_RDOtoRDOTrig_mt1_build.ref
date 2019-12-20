@@ -1,5 +1,7 @@
 TrigSignatureMoniMT                                INFO HLT_2e17_etcut_L12EM15VH      2         2         2         2         2         0         0         2
 TrigSignatureMoniMT                                INFO HLT_2e17_etcut_L12EM15VH decisions                    6         826       7         0         0
+TrigSignatureMoniMT                                INFO HLT_2e17_lhvloose_L12EM3      20        20        1         1         1         1         0         1
+TrigSignatureMoniMT                                INFO HLT_2e17_lhvloose_L12EM3 decisions                    2         57        3         2         0
 TrigSignatureMoniMT                                INFO HLT_2e3_etcut_L12EM3          20        20        20        20        20        0         0         20
 TrigSignatureMoniMT                                INFO HLT_2e3_etcut_L12EM3 decisions                    172       8889      401       0         0
 TrigSignatureMoniMT                                INFO HLT_2g20_tight_L12EM20VH      2         2         0         0         0         0         0         0
@@ -38,14 +40,28 @@ TrigSignatureMoniMT                                INFO HLT_4mu4_L14MU4         
 TrigSignatureMoniMT                                INFO HLT_4mu4_L14MU4 decisions                         0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_5j70_0eta240_L14J20       7         7         1         0         0         0         0         1
 TrigSignatureMoniMT                                INFO HLT_5j70_0eta240_L14J20 decisions                    5         0         0         0         0
+TrigSignatureMoniMT                                INFO HLT_e140_lhloose_L1EM24VHI    6         6         0         0         0         0         0         0
+TrigSignatureMoniMT                                INFO HLT_e140_lhloose_L1EM24VHI decisions                    0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_e26_etcut_L1EM22VHI       6         6         6         6         6         0         0         6
 TrigSignatureMoniMT                                INFO HLT_e26_etcut_L1EM22VHI decisions                    7         645       7         0         0
+TrigSignatureMoniMT                                INFO HLT_e26_lhtight_L1EM24VHI     6         6         5         5         5         5         0         5
+TrigSignatureMoniMT                                INFO HLT_e26_lhtight_L1EM24VHI decisions                    5         241       7         5         0
+TrigSignatureMoniMT                                INFO HLT_e300_etcut_L1EM24VHI      6         6         0         0         0         0         0         0
+TrigSignatureMoniMT                                INFO HLT_e300_etcut_L1EM24VHI decisions                    0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_e3_etcut1step_mu6fast_L1EM8I_MU105         5         5         0         0         0         0         5
 TrigSignatureMoniMT                                INFO HLT_e3_etcut1step_mu6fast_L1EM8I_MU10 decisions                    5         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_e3_etcut_L1EM3            20        20        20        20        20        0         0         20
 TrigSignatureMoniMT                                INFO HLT_e3_etcut_L1EM3 decisions                      172       8889      401       0         0
 TrigSignatureMoniMT                                INFO HLT_e5_etcut_L1EM3            20        20        20        20        20        0         0         20
 TrigSignatureMoniMT                                INFO HLT_e5_etcut_L1EM3 decisions                      140       7892      190       0         0
+TrigSignatureMoniMT                                INFO HLT_e5_lhloose_L1EM3          20        20        17        17        17        17        0         17
+TrigSignatureMoniMT                                INFO HLT_e5_lhloose_L1EM3 decisions                    57        3087      117       56        0
+TrigSignatureMoniMT                                INFO HLT_e5_lhmedium_L1EM3         20        20        16        16        16        15        0         15
+TrigSignatureMoniMT                                INFO HLT_e5_lhmedium_L1EM3 decisions                    48        2444      92        48        0
+TrigSignatureMoniMT                                INFO HLT_e5_lhtight_L1EM3          20        20        16        16        16        14        0         14
+TrigSignatureMoniMT                                INFO HLT_e5_lhtight_L1EM3 decisions                    45        2368      84        44        0
+TrigSignatureMoniMT                                INFO HLT_e60_lhmedium_L1EM24VHI    6         6         2         2         2         2         0         2
+TrigSignatureMoniMT                                INFO HLT_e60_lhmedium_L1EM24VHI decisions                    2         92        3         2         0
 TrigSignatureMoniMT                                INFO HLT_e7_etcut_L1EM3            20        20        20        20        20        0         0         20
 TrigSignatureMoniMT                                INFO HLT_e7_etcut_L1EM3 decisions                      89        5506      113       0         0
 TrigSignatureMoniMT                                INFO HLT_g140_etcut_L1EM24VHI      6         6         0         0         0         0         0         0

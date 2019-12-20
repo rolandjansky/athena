@@ -22,7 +22,6 @@ def fastElectronSequence(ConfigFlags):
     RoIs = "EMIDRoIs" # contract with the fastCalo
     viewAlgs = makeInDetAlgs(whichSignature = "Electron", separateTrackParticleCreator="_Electron", rois = RoIs)
 
-
     # A simple algorithm to confirm that data has been inherited from parent view
     # Required to satisfy data dependencies
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import CaloMenuDefs  
