@@ -78,7 +78,8 @@ private:
   std::string determineFolder(const std::string& option1, const std::string& option2) const;
   
   //retrieve a IOVDbSvc coracool dataset, give error message if it is empty or the pointer is zero
-  bool successfulFolderRetrieve(const DataHandle<CondAttrListVec>& pDataVec, const std::string& folderName) const;
+  const CondAttrListVec*
+  successfulFolderRetrieve(const std::string& folderName) const;
 
   bool insert(const IdentifierHash& hash, const SCT_OnlineId& onlineId, const SCT_SerialNumber& sn, SCT_CablingData& data) const;
 
