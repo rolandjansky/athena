@@ -5,7 +5,6 @@
 ## @author Joerg Stelzer <stelzer@cern.ch>
 
 from __future__ import print_function
-from past.builtins import cmp
 
 import sys
 import ROOT
@@ -390,7 +389,7 @@ class TriggerConfigARA(object):
                     foundAnyIOV = True
         if not foundAnyIOV: return None
         # sort the payload by IOV and remove the overlap
-        payloadList.sort(lambda x,y: cmp(x[0].start(),y[0].start()))
+        payloadList.sort(key = lambda a: a[0].start())
         for i in range(len(payloadList)-1):
             payloadList[i][0] = ROOT.IOVRange(payloadList[i][0].start(),payloadList[i+1][0].start())
         # get the content
@@ -420,7 +419,7 @@ class TriggerConfigARA(object):
         # sort the payload by IOV and remove the overlap
         for ch in range(256):
             x = payloadList[ch]
-            x.sort(lambda x,y: cmp(x[0].start(),y[0].start()))
+            x.sort(key = lambda a: a[0].start())
             for i in range(len(x)-1):
                 x[i][0] = ROOT.IOVRange(x[i][0].start(),x[i+1][0].start())
         # read the payload
