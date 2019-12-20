@@ -46,6 +46,7 @@
 
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTrack/Track.h"
+#include "GeoModelUtilities/GeoGetIds.h"
 #include "GaudiKernel/MsgStream.h"
 
 //root includes
@@ -2289,6 +2290,10 @@ void MdtRawDataValAlg::initDeadChannels(const MuonGM::MdtReadoutElement* mydetEl
   int nGrandchildren = cv->getNChildVols();
   if(nGrandchildren <= 0) return;
 
+  std::vector<int> tubes;
+  geoGetIds ([&] (int id) { tubes.push_back (id); }, &*cv);
+  std::sort (tubes.begin(), tubes.end());
+
   Identifier detElId = mydetEl->identify();
 
   int name = m_muonIdHelperTool->mdtIdHelper().stationName(detElId);
@@ -2297,24 +2302,25 @@ void MdtRawDataValAlg::initDeadChannels(const MuonGM::MdtReadoutElement* mydetEl
   int ml = m_muonIdHelperTool->mdtIdHelper().multilayer(detElId);
   std::vector<Identifier> deadTubes;
 
+  std::vector<int>::iterator it = tubes.begin();
   for(int layer = 1; layer <= mydetEl->getNLayers(); layer++){
     for(int tube = 1; tube <= mydetEl->getNtubesperlayer(); tube++){
-      bool tubefound = false;
-      for(unsigned int kk=0; kk < cv->getNChildVols(); kk++) {
-        int tubegeo = cv->getIdOfChildVol(kk) % 100;
-        int layergeo = ( cv->getIdOfChildVol(kk) - tubegeo ) / 100;
-        if( tubegeo == tube && layergeo == layer ) {
-          tubefound=true;
-          break;
-        }
-        if( layergeo > layer ) break; // don't loop any longer if you cannot find tube anyway anymore
+      int want_id = layer*100 + tube;
+      if (it != tubes.end() && *it == want_id) {
+        ++it;
       }
-      if(!tubefound) {
-        Identifier deadTubeId = m_muonIdHelperTool->mdtIdHelper().channelID( name, eta, phi, ml, layer, tube );
-        deadTubes.push_back( deadTubeId );
-        ATH_MSG_VERBOSE("adding dead tube (" << tube  << "), layer(" <<  layer
-                        << "), phi(" << phi << "), eta(" << eta << "), name(" << name
-                        << "), multilayerId(" << ml << ") and identifier " << deadTubeId <<" .");
+      else {
+        it = std::lower_bound (tubes.begin(), tubes.end(), want_id);
+        if (it != tubes.end() && *it == want_id) {
+          ++it;
+        }
+        else {
+          Identifier deadTubeId = m_muonIdHelperTool->mdtIdHelper().channelID( name, eta, phi, ml, layer, tube );
+          deadTubes.push_back( deadTubeId );
+          ATH_MSG_VERBOSE("adding dead tube (" << tube  << "), layer(" <<  layer
+                          << "), phi(" << phi << "), eta(" << eta << "), name(" << name
+                          << "), multilayerId(" << ml << ") and identifier " << deadTubeId <<" .");
+        }
       }
     }
   }
