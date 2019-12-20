@@ -26,7 +26,8 @@ def tauMonitoringConfig(inputFlags):
     # helper. Then, the helper will instantiate an instance and set up the 
     # base class configuration following the inputFlags. The returned object 
     # is the algorithm.
-    from tauMonitoring.tauMonitoringConf import tauMonitorAlgorithm
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    tauMonitorAlgorithm = CompFactory.tauMonitorAlgorithm
     tauMonAlgBA = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgBA')
     tauMonAlgCR = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgCR')
     tauMonAlgEC = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgEC')

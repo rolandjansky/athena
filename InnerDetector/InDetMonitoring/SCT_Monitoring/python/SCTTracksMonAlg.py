@@ -27,8 +27,8 @@ def SCTTracksMonAlgConfig(inputFlags):
     # helper. Then, the helper will instantiate an instance and set up the 
     # base class configuration following the inputFlags. The returned object 
     # is the algorithm.
-    from SCT_Monitoring.SCT_MonitoringConf import SCTTracksMonAlg
-    myMonAlg = helper.addAlgorithm(SCTTracksMonAlg, 'SCTTracksMonAlg')
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    myMonAlg = helper.addAlgorithm(CompFactory.SCTTracksMonAlg, 'SCTTracksMonAlg')
     # # If for some really obscure reason you need to instantiate an algorithm
     # # yourself, the AddAlgorithm method will still configure the base 
     # # properties and add the algorithm to the monitoring sequence.
@@ -40,101 +40,9 @@ def SCTTracksMonAlgConfig(inputFlags):
     myMonAlg.TriggerChain = ''
     # myMonAlg.RandomHist = True
 
-    ############################## WORKAROUND (START) ##########################
-    ############################## TO RUN TRACKSUMMARYTOOL #####################
-
-    # Taken from InnerDetector/InDetDigitization/PixelDigitization/python/PixelDigitizationConfigNew.py
-    from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
-    InDetPixelConditionsSummaryTool = result.popToolsAndMerge(PixelConditionsSummaryCfg(inputFlags))
-
-    # Taken from Tracking/TrkConfig/python/AtlasExtrapolatorConfig.py
-    # AtlasExtrapolatorConfig can give only private extrapolator. We need public extrapolator.
-    from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-    trackGeomCfg = TrackingGeometrySvcCfg(inputFlags)
-    geom_svc = trackGeomCfg.getPrimary() 
-    geom_svc.GeometryBuilder.Compactify = False ######## To avoid crash ########
-    result.merge(trackGeomCfg)
-    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-    result.merge(MagneticFieldSvcCfg(inputFlags))
-    from TrkExTools.TrkExToolsConf import Trk__Navigator
-    AtlasNavigator = Trk__Navigator(name = 'AtlasNavigator')
-    AtlasNavigator.TrackingGeometrySvc = geom_svc
-    result.addPublicTool(AtlasNavigator) 
-
-    # Taken from InnerDetector/InDetExample/InDetRecExample/share/InDetRecLoadTools.py
-    from TrkExRungeKuttaPropagator.TrkExRungeKuttaPropagatorConf import Trk__RungeKuttaPropagator as Propagator
-    InDetPropagator = Propagator(name = 'InDetPropagator')
-    InDetPropagator.AccuracyParameter = 0.0001
-    InDetPropagator.MaxStraightLineStep = .004
-    result.addPublicTool(InDetPropagator)
-    from TrkExTools.TrkExToolsConf import Trk__MaterialEffectsUpdator
-    InDetMaterialUpdator = Trk__MaterialEffectsUpdator(name = "InDetMaterialEffectsUpdator")
-    result.addPublicTool(InDetMaterialUpdator)
-    InDetSubPropagators = []
-    InDetSubUpdators    = []
-    # -------------------- set it depending on the geometry ----------------------------------------------------
-    # default for ID is (Rk,Mat)
-    InDetSubPropagators += [ InDetPropagator.name() ]
-    InDetSubUpdators    += [ InDetMaterialUpdator.name() ]
-    # default for Calo is (Rk,MatLandau)
-    InDetSubPropagators += [ InDetPropagator.name() ]
-    InDetSubUpdators    += [ InDetMaterialUpdator.name() ]
-    # default for MS is (STEP,Mat)
-    #InDetSubPropagators += [ InDetStepPropagator.name() ]
-    InDetSubUpdators    += [ InDetMaterialUpdator.name() ]
-    from TrkExTools.TrkExToolsConf import Trk__Extrapolator
-    InDetExtrapolator = Trk__Extrapolator(name                    = 'InDetExtrapolator',
-                                          Propagators             = [ InDetPropagator ],
-                                          MaterialEffectsUpdators = [ InDetMaterialUpdator ],
-                                          Navigator               = AtlasNavigator,
-                                          SubPropagators          = InDetSubPropagators,
-                                          SubMEUpdators           = InDetSubUpdators)
-    result.addPublicTool(InDetExtrapolator)
-    from InDetTestPixelLayer.InDetTestPixelLayerConf import InDet__InDetTestPixelLayerTool
-    InDetTestPixelLayerTool = InDet__InDetTestPixelLayerTool(name = "InDetTestPixelLayerTool",
-                                                             PixelSummaryTool = InDetPixelConditionsSummaryTool,
-                                                             CheckActiveAreas=True,
-                                                             CheckDeadRegions=True,
-                                                             CheckDisabledFEs=True)
-    result.addPublicTool(InDetTestPixelLayerTool)
-    from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleSearchTool
-    InDetHoleSearchTool = InDet__InDetTrackHoleSearchTool(name = "InDetHoleSearchTool",
-                                                          Extrapolator = InDetExtrapolator,
-                                                          PixelSummaryTool = InDetPixelConditionsSummaryTool,
-                                                          usePixel      = inputFlags.Detector.GeometryPixel,
-                                                          useSCT        = inputFlags.Detector.GeometrySCT,
-                                                          CountDeadModulesAfterLastHit = True,
-                                                          PixelLayerTool = InDetTestPixelLayerTool)
-    result.addPublicTool(InDetHoleSearchTool)
-    from InDetAssociationTools.InDetAssociationToolsConf import InDet__InDetPRD_AssociationToolGangedPixels
-    InDetPrdAssociationTool = InDet__InDetPRD_AssociationToolGangedPixels(name                           = "InDetPrdAssociationTool",
-                                                                          PixelClusterAmbiguitiesMapName = "PixelClusterAmbiguitiesMap",
-                                                                          SetupCorrect                   = True,
-                                                                          addTRToutliers                 = True)
-    result.addPublicTool(InDetPrdAssociationTool)
-    from InDetTrackSummaryHelperTool.InDetTrackSummaryHelperToolConf import InDet__InDetTrackSummaryHelperTool
-    InDetTrackSummaryHelperTool = InDet__InDetTrackSummaryHelperTool(name            = "InDetSummaryHelper",
-                                                                     AssoTool        = InDetPrdAssociationTool,
-                                                                     PixelToTPIDTool = None,
-                                                                     TestBLayerTool  = None,
-                                                                     RunningTIDE_Ambi = True,
-                                                                     DoSharedHits    = False,
-                                                                     HoleSearch      = InDetHoleSearchTool,
-                                                                     usePixel        = inputFlags.Detector.GeometryPixel,
-                                                                     useSCT          = inputFlags.Detector.GeometrySCT,
-                                                                     useTRT          = inputFlags.Detector.GeometryTRT)
-    from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
-    InDetTrackSummaryTool = Trk__TrackSummaryTool(name = "InDetTrackSummaryTool",
-                                                  InDetSummaryHelperTool = InDetTrackSummaryHelperTool,
-                                                  doSharedHits           = False,
-                                                  doHolesInDet           = True,
-                                                  TRT_ElectronPidTool    = None,
-                                                  TRT_ToT_dEdxTool       = None,
-                                                  PixelToTPIDTool        = None)
-    ############################## WORKAROUND (END) ############################
-
     # Set InDetTrackSummaryTool to TrackSummaryTool of SCTLorentzMonAlg
-    myMonAlg.TrackSummaryTool = InDetTrackSummaryTool
+    from .TrackSummaryToolWorkaround import TrackSummaryToolWorkaround
+    myMonAlg.TrackSummaryTool = result.popToolsAndMerge(TrackSummaryToolWorkaround(inputFlags))
 
     ### STEP 4 ###
     # Add some tools. N.B. Do not use your own trigger decion tool. Use the

@@ -2,8 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRTMONITORINGRUN3_TOOL_H
-#define TRTMONITORINGRUN3_TOOL_H
+#ifndef TRTMONITORINGRUN3_ALG_H
+#define TRTMONITORINGRUN3_ALG_H
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
 #include "AthenaMonitoringKernel/Monitored.h"
@@ -62,10 +62,10 @@ class ITRT_ByteStream_ConditionsSvc;
 class ITRT_StrawNeighbourSvc;
 class ITRT_DriftFunctionTool;
 
-class TRTMonitoringRun3_Tool : public AthMonitorAlgorithm {
+class TRTMonitoringRun3_Alg : public AthMonitorAlgorithm {
 public:
-    TRTMonitoringRun3_Tool( const std::string& name, ISvcLocator* pSvcLocator );
-    virtual ~TRTMonitoringRun3_Tool();
+    TRTMonitoringRun3_Alg( const std::string& name, ISvcLocator* pSvcLocator );
+    virtual ~TRTMonitoringRun3_Alg();
     virtual StatusCode initialize() override;
 	virtual StatusCode fillTestTRTTrackHistograms( const TrackCollection& trackCollection) const;
     virtual StatusCode fillHistograms( const EventContext& ctx ) const override;

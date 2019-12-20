@@ -28,12 +28,12 @@ def TrigMETMonConfig(inputFlags):
     # is the algorithm.
     #The added algorithm must exist as a .h file 
 
-    from TrigMETMonitoring.TrigMETMonitoringConf import TrigMETMonitorAlgorithm
-    TrigMETMonAlg = helper.addAlgorithm(TrigMETMonitorAlgorithm,'TrigMETMonAlg')
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    TrigMETMonAlg = helper.addAlgorithm(CompFactory.TrigMETMonitorAlgorithm,'TrigMETMonAlg')
 
     # You can actually make multiple instances of the same algorithm and give 
     # them different configurations
-    TrigMETMonChainAlg = helper.addAlgorithm(TrigMETMonitorAlgorithm,'TrigMETMonChainAlg')
+    TrigMETMonChainAlg = helper.addAlgorithm(CompFactory.TrigMETMonitorAlgorithm,'TrigMETMonChainAlg')
 
     # # If for some really obscure reason you need to instantiate an algorithm
     # # yourself, the AddAlgorithm method will still configure the base 

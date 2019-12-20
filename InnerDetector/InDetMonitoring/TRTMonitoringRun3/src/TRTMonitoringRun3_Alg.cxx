@@ -2,7 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TRTMonitoringRun3/TRTMonitoringRun3_Tool.h"
+#include "TRTMonitoringRun3/TRTMonitoringRun3_Alg.h"
 
 #include "AthContainers/DataVector.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
@@ -25,15 +25,15 @@
 #include <cmath>
 
 
-const int TRTMonitoringRun3_Tool::s_numberOfBarrelStacks = 32;
-const int TRTMonitoringRun3_Tool::s_numberOfEndCapStacks = 32;
-const int TRTMonitoringRun3_Tool::s_Straw_max[2] = {1642, 3840};
-const int TRTMonitoringRun3_Tool::s_iStack_max[2] = {32, 64};
-const int TRTMonitoringRun3_Tool::s_iChip_max[2] = {104, 240};
-const int TRTMonitoringRun3_Tool::s_numberOfStacks[2] = {32, 32};
-const int TRTMonitoringRun3_Tool::s_moduleNum[2] = {96, 64};
+const int TRTMonitoringRun3_Alg::s_numberOfBarrelStacks = 32;
+const int TRTMonitoringRun3_Alg::s_numberOfEndCapStacks = 32;
+const int TRTMonitoringRun3_Alg::s_Straw_max[2] = {1642, 3840};
+const int TRTMonitoringRun3_Alg::s_iStack_max[2] = {32, 64};
+const int TRTMonitoringRun3_Alg::s_iChip_max[2] = {104, 240};
+const int TRTMonitoringRun3_Alg::s_numberOfStacks[2] = {32, 32};
+const int TRTMonitoringRun3_Alg::s_moduleNum[2] = {96, 64};
 
-TRTMonitoringRun3_Tool::TRTMonitoringRun3_Tool( const std::string& name, ISvcLocator* pSvcLocator )
+TRTMonitoringRun3_Alg::TRTMonitoringRun3_Alg( const std::string& name, ISvcLocator* pSvcLocator )
 :AthMonitorAlgorithm(name,pSvcLocator)
 ,m_doRandom(false)
 ,m_pTRTHelper(0)
@@ -53,10 +53,10 @@ TRTMonitoringRun3_Tool::TRTMonitoringRun3_Tool( const std::string& name, ISvcLoc
 }
 
  
-TRTMonitoringRun3_Tool::~TRTMonitoringRun3_Tool() {}
+TRTMonitoringRun3_Alg::~TRTMonitoringRun3_Alg() {}
 
 
-StatusCode TRTMonitoringRun3_Tool::initialize() { 
+StatusCode TRTMonitoringRun3_Alg::initialize() { 
     using namespace Monitored;
     
     // Initialization of VarHandleKeys
@@ -78,7 +78,7 @@ StatusCode TRTMonitoringRun3_Tool::initialize() {
 
 
 //----------------------------------------------------------------------------------//
-int TRTMonitoringRun3_Tool::strawLayerNumber(int strawLayerNumber, int LayerNumber) const {
+int TRTMonitoringRun3_Alg::strawLayerNumber(int strawLayerNumber, int LayerNumber) const {
 //----------------------------------------------------------------------------------//
     switch (LayerNumber) {
     case 0:
@@ -96,7 +96,7 @@ int TRTMonitoringRun3_Tool::strawLayerNumber(int strawLayerNumber, int LayerNumb
 }
 
 //----------------------------------------------------------------------------------//
-int TRTMonitoringRun3_Tool::strawNumber(int strawNumber, int strawlayerNumber, int LayerNumber) const {
+int TRTMonitoringRun3_Alg::strawNumber(int strawNumber, int strawlayerNumber, int LayerNumber) const {
 //----------------------------------------------------------------------------------//
     int addToStrawNumber = 0;
     int addToStrawNumberNext = 0;
@@ -144,7 +144,7 @@ int TRTMonitoringRun3_Tool::strawNumber(int strawNumber, int strawlayerNumber, i
 
 
 //----------------------------------------------------------------------------------//
-int TRTMonitoringRun3_Tool::strawNumberEndCap(int strawNumber, int strawLayerNumber, int LayerNumber, int phi_stack, int side) const {
+int TRTMonitoringRun3_Alg::strawNumberEndCap(int strawNumber, int strawLayerNumber, int LayerNumber, int phi_stack, int side) const {
 //----------------------------------------------------------------------------------//
     // Before perfoming map, corrections need to be perfomed.
     //  apply special rotations for endcap mappings
@@ -222,7 +222,7 @@ int TRTMonitoringRun3_Tool::strawNumberEndCap(int strawNumber, int strawLayerNum
 }
 
 //----------------------------------------------------------------------------------//
-float TRTMonitoringRun3_Tool::radToDegrees(float radValue) const {
+float TRTMonitoringRun3_Alg::radToDegrees(float radValue) const {
 //----------------------------------------------------------------------------------//
     float degreeValue = radValue / M_PI * 180;
 
@@ -235,7 +235,7 @@ float TRTMonitoringRun3_Tool::radToDegrees(float radValue) const {
 
 //Fill the TRT Track level histograms
 //----------------------------------------------------------------------------------//
-StatusCode TRTMonitoringRun3_Tool::fillTestTRTTrackHistograms(const TrackCollection& trackCollection) const {
+StatusCode TRTMonitoringRun3_Alg::fillTestTRTTrackHistograms(const TrackCollection& trackCollection) const {
 //----------------------------------------------------------------------------------//
     ATH_MSG_VERBOSE("Filling Test TRT Tracks Histos");
     
@@ -494,7 +494,7 @@ StatusCode TRTMonitoringRun3_Tool::fillTestTRTTrackHistograms(const TrackCollect
 }
 
 
-StatusCode TRTMonitoringRun3_Tool::fillHistograms( const EventContext& ctx ) const {
+StatusCode TRTMonitoringRun3_Alg::fillHistograms( const EventContext& ctx ) const {
     using namespace Monitored;
 
     // Declare the quantities which should be monitored

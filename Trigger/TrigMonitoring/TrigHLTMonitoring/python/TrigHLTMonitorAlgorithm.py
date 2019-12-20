@@ -86,9 +86,9 @@ def TrigHLTMonConfig(inputFlags):
     # Adding algorithms to the helper. 
     # The added algorithm must exist as a .h file 
 
-    from TrigHLTMonitoring.TrigHLTMonitoringConf import TrigHLTMonitorAlgorithm
-    trigHLTMonAlg = helper.addAlgorithm(TrigHLTMonitorAlgorithm,'TrigHLTMonAlg')
-    signatureTrigHLTMonAlg = helper.addAlgorithm(TrigHLTMonitorAlgorithm,'SignatureTrigHLTMonAlg')
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    trigHLTMonAlg = helper.addAlgorithm(CompFactory.TrigHLTMonitorAlgorithm,'TrigHLTMonAlg')
+    signatureTrigHLTMonAlg = helper.addAlgorithm(CompFactory.TrigHLTMonitorAlgorithm,'SignatureTrigHLTMonAlg')
 
 
     ### STEP 3 ###
