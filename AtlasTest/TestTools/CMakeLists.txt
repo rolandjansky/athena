@@ -53,18 +53,15 @@ atlas_add_test( postsh_select_test
    SCRIPT cat "${CMAKE_CURRENT_SOURCE_DIR}/test/test_postsh_example.log"
    EXTRA_PATTERNS "-s MyAlg" )
 
-# Temporarily disabled until next version of atlasexternals
-if( FALSE )
-   atlas_add_test( postsh_ignore_new_test
-      SCRIPT cat "${CMAKE_CURRENT_SOURCE_DIR}/test/test_postsh_example.log"
-      LOG_IGNORE_PATTERN "MyAlg" )
+atlas_add_test( postsh_ignore_new_test
+   SCRIPT cat "${CMAKE_CURRENT_SOURCE_DIR}/test/test_postsh_example.log"
+   LOG_IGNORE_PATTERN "MyAlg" )
 
-   atlas_add_test( postsh_select_new_test
-      SCRIPT cat "${CMAKE_CURRENT_SOURCE_DIR}/test/test_postsh_example.log"
-      LOG_SELECT_PATTERN "MyAlg" )
+atlas_add_test( postsh_select_new_test
+   SCRIPT cat "${CMAKE_CURRENT_SOURCE_DIR}/test/test_postsh_example.log"
+   LOG_SELECT_PATTERN "MyAlg" )
 
-   atlas_add_test( postsh_select_ignore_test
-      SCRIPT cat "${CMAKE_CURRENT_SOURCE_DIR}/test/test_postsh_example.log"
-      LOG_SELECT_PATTERN "MyAlg"
-      LOG_IGNORE_PATTERN "XYZ marker" )
-endif()
+atlas_add_test( postsh_select_ignore_test
+   SCRIPT cat "${CMAKE_CURRENT_SOURCE_DIR}/test/test_postsh_example.log"
+   LOG_SELECT_PATTERN "MyAlg"
+   LOG_IGNORE_PATTERN "XYZ marker" )

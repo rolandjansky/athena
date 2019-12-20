@@ -13,6 +13,8 @@ atlas_install_data( share/*.ref )
 
 atlas_add_test( TrackCollectionReadConfig_test
                 SCRIPT python -m TrkConfig.TrackCollectionReadConfig
-                EXTRA_PATTERNS "-s ComponentAccumulator|^---" )
+                LOG_SELECT_PATTERN "ComponentAccumulator|^---" )
 
-atlas_add_test( AtlasTrackingGeometrySvcCfgTest    SCRIPT python -m TrkConfig.AtlasTrackingGeometrySvcConfig  POST_EXEC_SCRIPT nopost.sh )
+atlas_add_test( AtlasTrackingGeometrySvcCfgTest    
+                SCRIPT python -m TrkConfig.AtlasTrackingGeometrySvcConfig
+                POST_EXEC_SCRIPT nopost.sh )
