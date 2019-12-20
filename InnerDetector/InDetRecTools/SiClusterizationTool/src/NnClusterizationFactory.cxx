@@ -41,7 +41,6 @@
 #include "TrkEventPrimitives/ParamDefs.h"
 
 #include "PixelConditionsServices/IPixelCalibSvc.h"
-#include "DetDescrCondTools/ICoolHistSvc.h"
 
 // utilities
 #include "PathResolver/PathResolver.h"
@@ -119,12 +118,9 @@ namespace InDet {
   
   StatusCode NnClusterizationFactory::initialize() {
         
-    // Moving from CoolHistSvc to reading from cvmfs.
-    // Eventually this will be a CalibArea
-    // For now I am just going to access the mirrored files
-    // from COOL which are stored there.
+    // Read config from the CalibArea on cvmfs.
     m_configTTrainedNetwork = PathResolverFindCalibFile(m_configTTrainedNetwork);
-    ATH_MSG_INFO("NN file resolved to: " << m_configTTrainedNetwork);    
+    ATH_MSG_INFO("NN file resolved to: " << m_configTTrainedNetwork);
 
     // We will use this to read the TTrainedNetwork-based inputs    
     if (m_networkToHistoTool.retrieve().isFailure())
@@ -245,121 +241,43 @@ std::vector<double> NnClusterizationFactory::assembleInput(NNinput& input,
        return std::vector<Amg::Vector2D>();
     }
     
-    
     addTrackInfoToInput(input,pixelSurface,trackParsAtSurface,tanl);
 
     std::vector<double> inputData=assembleInput(*input,sizeX,sizeY);
 
-    std::vector<Amg::Vector2D> allPositions;
+    // We only go up to 3: if this looks like more just call it that
+    if (numberSubClusters > 3) numberSubClusters = 3;
 
-    if (numberSubClusters==1)
-    {
-      std::vector<double> position1P;
-      
-    	position1P=m_NetworkEstimateImpactPoints[0]->calculateNormalized(inputData);
+    std::vector<double> positions = m_NetworkEstimateImpactPoints[numberSubClusters-1]->calculateNormalized(inputData);
+    std::vector<Amg::Vector2D> myPositions=getPositionsFromOutput(positions,*input,pCluster,sizeX,sizeY);
 
-      ATH_MSG_VERBOSE(" RAW Estimated positions (1) x: " << back_posX(position1P[0],false) << " y: " << back_posY(position1P[1]));
-
-      std::vector<Amg::Vector2D> myPosition1=getPositionsFromOutput(position1P,*input,pCluster,sizeX,sizeY);
-
-      ATH_MSG_VERBOSE(" Estimated myPositions (1) x: " << myPosition1[0][Trk::locX] << " y: " << myPosition1[0][Trk::locY]);
-
-      std::vector<double> inputDataNew=inputData;
-      inputDataNew.push_back(position1P[0]);
-      inputDataNew.push_back(position1P[1]);
-      std::vector<double> errors1PX;
-      std::vector<double> errors1PY;
-
-  	  errors1PX=m_NetworkEstimateImpactPointErrorsX[0]->calculateNormalized(inputDataNew);
-  	  errors1PY=m_NetworkEstimateImpactPointErrorsY[0]->calculateNormalized(inputDataNew);
- 
-      std::vector<Amg::MatrixX> errorMatrices1;
-      getErrorMatrixFromOutput(errors1PX,errors1PY,errorMatrices1,1);
-
-      for (unsigned int i=0;i<myPosition1.size();i++)
-	{
-	  allPositions.push_back(myPosition1[i]);
-	  errors.push_back(errorMatrices1[i]);
-	}
-
+    for (int cluster=0; cluster < numberSubClusters; cluster++) {
+      ATH_MSG_VERBOSE(" RAW vs FINAL estimated positions (" << cluster+1 << ")");
+      ATH_MSG_VERBOSE("\tx: " << back_posX(positions[cluster*2],false) << " y: " << back_posY(positions[cluster*2+1]));
+      ATH_MSG_VERBOSE("\tx: " << myPositions[cluster][Trk::locX] << " y: " << myPositions[cluster][Trk::locY]);
     }
-    else if (numberSubClusters==2)
-      {
-	    std::vector<double> positions2P;
 
-	    positions2P=m_NetworkEstimateImpactPoints[1]->calculateNormalized(inputData);
-      
-	ATH_MSG_VERBOSE(" RAW Estimated positions (2) x1: " << back_posX(positions2P[0],false) << " y1: " << positions2P[1] << 
-			" x2: " << back_posX(positions2P[2],false) << " y2: " << back_posY(positions2P[3]));
-	
-	std::vector<Amg::Vector2D> myPositions2=getPositionsFromOutput(positions2P,*input,pCluster,sizeX,sizeY);
-	
-	ATH_MSG_VERBOSE(" Estimated myPositions (2) x1: " << myPositions2[0][Trk::locX] << " y1: " << myPositions2[0][Trk::locY] << 
-			" x2: " << myPositions2[1][Trk::locX] << " y2: " << myPositions2[1][Trk::locY]);
-	
-	std::vector<double> inputDataNew=inputData;
-	inputDataNew.push_back(positions2P[0]);
-	inputDataNew.push_back(positions2P[1]);
-	inputDataNew.push_back(positions2P[2]);
-	inputDataNew.push_back(positions2P[3]);
-	
-	std::vector<double> errors2PX;
-	std::vector<double> errors2PY;
-	
-	errors2PX=m_NetworkEstimateImpactPointErrorsX[1]->calculateNormalized(inputDataNew);
-	errors2PY=m_NetworkEstimateImpactPointErrorsY[1]->calculateNormalized(inputDataNew);
-	
-	std::vector<Amg::MatrixX> errorMatrices2;
-	getErrorMatrixFromOutput(errors2PX,errors2PY,errorMatrices2,2);
-	
-	for (unsigned int i=0;i<myPositions2.size();i++)
-	  {
-	    allPositions.push_back(myPositions2[i]);
-	    errors.push_back(errorMatrices2[i]);
-	  }
-	
-      }
-    else if (numberSubClusters>=3)
-      {
-	std::vector<double> positions3P;
-	
-	   positions3P=m_NetworkEstimateImpactPoints[2]->calculateNormalized(inputData);
-	
-	ATH_MSG_VERBOSE(" RAW Estimated positions (3) x1: " << back_posX(positions3P[0],false) << " y1: " << back_posY(positions3P[1]) << 
-			" x2: " << back_posX(positions3P[2],false) << " y2: " << back_posY(positions3P[3]) << " x3: " << back_posX(positions3P[4],false) << " y3: " << back_posY(positions3P[5]));
-	
-	std::vector<Amg::Vector2D> myPositions3=getPositionsFromOutput(positions3P,*input,pCluster,sizeX,sizeY);
-	
-	ATH_MSG_VERBOSE(" Estimated myPositions (3) x1: " << myPositions3[0][Trk::locX] << " y1: " << myPositions3[0][Trk::locY] << 
-			" x2: " << myPositions3[1][Trk::locX] << " y2: " << myPositions3[1][Trk::locY] << " x3: " << myPositions3[2][Trk::locX] << " y3: " << myPositions3[2][Trk::locY]);
-	
-	std::vector<double> inputDataNew=inputData;
-	inputDataNew.push_back(positions3P[0]);
-	inputDataNew.push_back(positions3P[1]);
-	inputDataNew.push_back(positions3P[2]);
-	inputDataNew.push_back(positions3P[3]);
-	inputDataNew.push_back(positions3P[4]);
-	inputDataNew.push_back(positions3P[5]);
-	std::vector<double> errors3PX;
-	std::vector<double> errors3PY;
-	
-  errors3PX=m_NetworkEstimateImpactPointErrorsX[2]->calculateNormalized(inputDataNew);
-  errors3PY=m_NetworkEstimateImpactPointErrorsY[2]->calculateNormalized(inputDataNew);
-	
-	std::vector<Amg::MatrixX> errorMatrices3;
-	getErrorMatrixFromOutput(errors3PX,errors3PY,errorMatrices3,3);
-	
-	for (unsigned int i=0;i<myPositions3.size();i++)
-	  {
-	    allPositions.push_back(myPositions3[i]);
-	    errors.push_back(errorMatrices3[i]);
-	  }
-	
-      }
+    std::vector<double> inputDataNew=inputData;
+    for (auto pos : positions) inputDataNew.push_back(pos);
+
+    std::vector<double> errorsX;
+    std::vector<double> errorsY;
+
+    errorsX=m_NetworkEstimateImpactPointErrorsX[numberSubClusters-1]->calculateNormalized(inputDataNew);
+    errorsY=m_NetworkEstimateImpactPointErrorsY[numberSubClusters-1]->calculateNormalized(inputDataNew);    
+
+    std::vector<Amg::MatrixX> errorMatrices;
+    getErrorMatrixFromOutput(errorsX,errorsY,errorMatrices,numberSubClusters);
+
+
+    for (unsigned int i=0;i<myPositions.size();i++)
+    {
+      errors.push_back(errorMatrices[i]);
+    }
   
     delete input;
     input=0;
-    return allPositions;
+    return myPositions;
   }
   
 
@@ -538,6 +456,8 @@ std::vector<double> NnClusterizationFactory::assembleInput(NNinput& input,
 
       
 
+      // Is this shift due to an actual detector alignment issue present in Run 1?
+      // Or is it due to some peculiarity in the NN training at that time?
       double lorentzShift=element->getLorentzCorrection();
       if (input.ClusterPixBarrelEC == 0)
       {

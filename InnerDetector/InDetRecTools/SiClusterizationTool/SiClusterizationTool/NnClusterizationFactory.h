@@ -39,7 +39,6 @@
 
  class TTrainedNetwork;
  class TH1;
- class ICoolHistSvc;
  class IPixelCalibSvc;
 
 namespace Trk {
