@@ -480,7 +480,6 @@ StatusCode TrigFastTrackFinder::execute() {
   internalRoI.manageConstituents(false);//Don't try to delete RoIs at the end
   m_currentStage = 1;
   m_countTotalRoI++;
-  m_tcs.roiDescriptor = &internalRoI;
 
   SG::WriteHandle<TrackCollection> outputTracks(m_outputTracksKey);
   outputTracks = std::make_unique<TrackCollection>();
@@ -539,7 +538,6 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
   
   
   m_currentStage = 1;
-  m_tcs.roiDescriptor = &roi;
 
   std::vector<TrigSiSpacePointBase> convertedSpacePoints;
   convertedSpacePoints.reserve(5000);
@@ -559,7 +557,7 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
 
   m_currentStage = 2;
 
-  std::unique_ptr<TrigRoiDescriptor> superRoi = std::make_unique<TrigRoiDescriptor>();
+  std::unique_ptr<TrigRoiDescriptor> superRoi = std::make_unique<TrigRoiDescriptor>(roi);
 
   if (m_doZFinder) {
     if ( timerSvc() ) m_ZFinderTimer->start();
@@ -581,7 +579,6 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
       m_zVertices.push_back(z);
       m_tcs.m_vZv.push_back(z);
     }
-    m_tcs.roiDescriptor = superRoi.get();
     ATH_MSG_DEBUG("REGTEST / superRoi: " << *superRoi);
     delete vertexCollection;
     if ( timerSvc() ) m_ZFinderTimer->stop();
@@ -622,8 +619,8 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
 
   seedGen.loadSpacePoints(convertedSpacePoints);
 
-  if (m_doZFinder && m_doFastZVseeding) seedGen.createSeedsZv();
-  else seedGen.createSeeds();
+  if (m_doZFinder && m_doFastZVseeding) seedGen.createSeedsZv(superRoi.get());
+  else seedGen.createSeeds(superRoi.get());
   std::vector<TrigInDetTriplet*> triplets;
   seedGen.getSeeds(triplets);
 
