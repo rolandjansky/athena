@@ -48,6 +48,10 @@ int DetCondCFloat::findindex(const Identifier& ident) const {
   }
 }
 
+float DetCondCFloat::get(const Identifier& ident, int k) const {
+  return m_buf.at(findindex(ident)+k);
+}
+
 void DetCondCFloat::print() const {
   std::cout << "DetCondCFloat " << m_tag << " has granularity " << m_size <<
     " with " << m_bufmap.size() << " entries and " << m_buf.size() <<
