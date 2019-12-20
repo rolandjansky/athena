@@ -25,7 +25,7 @@ default_cluster_calib = METChainParts_Default["calib"]
 default_jet_calib = METChainParts_Default["jetCalib"]
 default_do_TST = "tst" in METChainParts_Default["addInfo"]
 default_do_FTK = "FTK" in METChainParts_Default["addInfo"]
-default_tst_ceiling = "tstceil" in METChainParts_Default["addInfo"]
+default_muon_or = "muonor" in METChainParts_Default["addInfo"]
 default_do_CVF = "cvf" in METChainParts_Default["clusmod"]
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
@@ -185,22 +185,22 @@ class EFMissingET_Fex_Jets (HLT__MET__MHTFex):
 
 class TrkMHTFex(HLT__MET__TrkMHTFex):
     __slots__ = []
-    def __new__(cls, name = Configurable.DefaultName, do_FTK=False, tst_ceiling=False):
+    def __new__(cls, name = Configurable.DefaultName, do_FTK=False, muon_or=False):
         if name == Configurable.DefaultName:
             name = "EFMissingET_Fex_{0}TrackAndJets{1}".format(
                     "FTK" if do_FTK else "",
-                    "_tstceil" if tst_ceiling else "")
-        return super(TrkMHTFex, cls).__new__(cls, name, do_FTK, tst_ceiling)
+                    "_muonor" if muon_or else "")
+        return super(TrkMHTFex, cls).__new__(cls, name, do_FTK, muon_or)
 
-    def __init__(self, name, do_FTK, tst_ceiling):
+    def __init__(self, name, do_FTK, muon_or):
         super(TrkMHTFex, self).__init__(name)
         key_suffix = "FTK" if do_FTK else ""
-        if tst_ceiling:
-            self.TrackSoftTermPtCeiling = 20 * GeV
-            key_suffix += "_tstceil"
-            self.DoMuonOR = False
-        else:
+        if muon_or:
             self.DoMuonOR = True
+            key_suffix += "_muonor"
+        else:
+            self.TrackSoftTermPtCeiling = 20 * GeV
+            self.DoMuonOR = False
         self.MissingETOutputKey = "TrigEFMissingET_trkmht{0}".format(key_suffix)
 
 
@@ -228,7 +228,7 @@ class TrkMHTFex(HLT__MET__TrkMHTFex):
 
 class TrkTCFex(HLT__MET__TrkTCFex):
     __slots__ = []
-    def __new__(cls, name = Configurable.DefaultName, do_FTK=False, do_VS = True, do_SK = True, do_CVF = True, do_TST = True, tst_ceiling=False):
+    def __new__(cls, name = Configurable.DefaultName, do_FTK=False, do_VS = True, do_SK = True, do_CVF = True, do_TST = True, muon_or=False):
         if name == Configurable.DefaultName:
             #Keep the default (VSSK + CVF + TST) name as trktc only
             #VSSK does not use tracks, keep name accordingly:
@@ -243,32 +243,28 @@ class TrkTCFex(HLT__MET__TrkTCFex):
                     "SK" if do_SK else "",
                     "CVF" if do_CVF else "",
                     "TST" if do_TST else "",
-                    "_tstceil" if (do_TST and tst_ceiling) else "")
+                    "_muonor" if (do_TST and muon_or) else "")
             else:
                 name = "EFMissingET_Fex_{0}TrackAndClusters{1}".format(
                     "FTK" if do_FTK else "",
-                    "_tstceil" if tst_ceiling else "")
-        return super(TrkTCFex, cls).__new__(cls, name, do_FTK, do_VS, do_SK, do_CVF, do_TST, tst_ceiling)
+                    "_muonor" if muon_or else "")
+        return super(TrkTCFex, cls).__new__(cls, name, do_FTK, do_VS, do_SK, do_CVF, do_TST, muon_or)
 
-    def __init__(self, name, do_FTK, do_VS, do_SK, do_CVF, do_TST, tst_ceiling):
+    def __init__(self, name, do_FTK, do_VS, do_SK, do_CVF, do_TST, muon_or):
         super(TrkTCFex, self).__init__(name)
         key_suffix = "FTK" if do_FTK else ""
         if not (do_VS and do_SK and do_CVF and do_TST):
-        #    key_suffix += "VS" if do_VS else ""
-        #    key_suffix += "SK" if do_SK else ""
             key_suffix += "_cvf" if do_CVF else ""
             key_suffix += "_tst" if do_TST else ""
-            key_suffix += "ceil" if do_TST and tst_ceiling else""
+            key_suffix += "muonor" if do_TST and muon_or else""
 
-        #super(TrkTCFex, self).__init__(name)
-        #key_suffix = "FTK" if do_FTK else ""
-        if do_TST and tst_ceiling:
-            if not "tstceil" in key_suffix:
-                key_suffix += "_tstceil"
+        if do_TST and muon_or:
+            if not "muonor" in key_suffix:
+                key_suffix += "_muonor"
+            self.DoMuonOR = True
+        else:
             self.TrackSoftTermPtCeiling = 20 * GeV
             self.DoMuonOR = False
-        else:
-            self.DoMuonOR = True
 
 
         #modify OutputKey according to algorithm name:
@@ -321,7 +317,7 @@ def getFEX(
         cluster_calib = default_cluster_calib,
         jet_calib = default_jet_calib,
         do_FTK = default_do_FTK,
-        tst_ceiling = default_tst_ceiling,
+        muon_or = default_muon_or,
         do_CVF = default_do_CVF,
         do_TST = default_do_TST):
     """
@@ -347,13 +343,13 @@ def getFEX(
     elif reco_alg == "mht":
         return EFMissingET_Fex_Jets(key_suffix=jet_calib_string)
     elif reco_alg == "trkmht":
-        return TrkMHTFex(do_FTK = do_FTK, tst_ceiling=tst_ceiling)
+        return TrkMHTFex(do_FTK = do_FTK, muon_or=muon_or)
     elif reco_alg == "trktc":
-        return TrkTCFex(do_FTK = do_FTK, tst_ceiling=tst_ceiling)
+        return TrkTCFex(do_FTK = do_FTK, muon_or=muon_or)
     elif reco_alg == "sktc":
-        return TrkTCFex(do_FTK = False, do_VS = True, do_SK = True, do_CVF = do_CVF, do_TST = False, tst_ceiling=False)
+        return TrkTCFex(do_FTK = False, do_VS = True, do_SK = True, do_CVF = do_CVF, do_TST = False, muon_or=False)
     elif reco_alg == "tc":
-        return TrkTCFex(do_FTK = do_FTK, do_VS = False, do_SK = False, do_CVF = True, do_TST = do_TST, tst_ceiling=tst_ceiling)    
+        return TrkTCFex(do_FTK = do_FTK, do_VS = False, do_SK = False, do_CVF = True, do_TST = do_TST, muon_or=muon_or)    
     else:
         log.error("Unknown reco algo {0} requested".format(reco_alg) )
         return None
@@ -372,6 +368,6 @@ def getFEXFromDict(chainDict):
             cluster_calib = chainDict["calib"],
             jet_calib = chainDict["jetCalib"],
             do_FTK = "FTK" in chainDict["addInfo"],
-            tst_ceiling = 'tstceil' in chainDict["addInfo"],
+            muon_or = 'muonor' in chainDict["addInfo"],
             do_CVF = 'cvf' in chainDict["clusmod"],
             do_TST = 'tst' in chainDict["addInfo"])

@@ -376,15 +376,15 @@ TriggerHLTList = [
     ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_trkmhtAux.',                      'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingET#HLT_TrigEFMissingET_trkmhtFTK',                             'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_trkmhtFTKAux.',                      'BS ESD AODFULL AODSLIM',                'MET'),
-    ('xAOD::TrigMissingET#HLT_TrigEFMissingET_trkmht_tstceil',                             'BS ESD AODFULL AODSLIM',                'MET'),
-    ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_trkmht_tstceilAux.',                      'BS ESD AODFULL AODSLIM',                'MET'),
+    ('xAOD::TrigMissingET#HLT_TrigEFMissingET_trkmht_muonor',                             'BS ESD AODFULL AODSLIM',                'MET'),
+    ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_trkmht_muonorAux.',                      'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingET#HLT_TrigEFMissingET_mht_em',                             'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_mht_emAux.',                      'BS ESD AODFULL AODSLIM',                'MET'),
 
     ('xAOD::TrigMissingET#HLT_TrigEFMissingET_trktc',                             'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_trktcAux.',                      'BS ESD AODFULL AODSLIM',                'MET'),
-    ('xAOD::TrigMissingET#HLT_TrigEFMissingET_trktc_tstceil',                             'BS ESD AODFULL AODSLIM',                'MET'),
-    ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_trktc_tstceilAux.',                      'BS ESD AODFULL AODSLIM',                'MET'),
+    ('xAOD::TrigMissingET#HLT_TrigEFMissingET_trktc_muonor',                             'BS ESD AODFULL AODSLIM',                'MET'),
+    ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_trktc_muonorAux.',                      'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingET#HLT_TrigEFMissingET_trktcFTK',                             'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_trktcFTKAux.',                      'BS ESD AODFULL AODSLIM',                'MET'),
 
@@ -399,8 +399,8 @@ TriggerHLTList = [
 
     ('xAOD::TrigMissingET#HLT_TrigEFMissingET_tc_cvf_tst',                             'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_tc_cvf_tstAux.',                      'BS ESD AODFULL AODSLIM',                'MET'),
-    ('xAOD::TrigMissingET#HLT_TrigEFMissingET_tc_cvf_tstceil',                             'BS ESD AODFULL AODSLIM',                'MET'),
-    ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_tc_cvf_tstceilAux.',                      'BS ESD AODFULL AODSLIM',                'MET'),
+    ('xAOD::TrigMissingET#HLT_TrigEFMissingET_tc_cvf_tstmuonor',                             'BS ESD AODFULL AODSLIM',                'MET'),
+    ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_tc_cvf_tstmuonorAux.',                      'BS ESD AODFULL AODSLIM',                'MET'),
 
     ('xAOD::TrigMissingET#HLT_TrigEFMissingET_muons',                             'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_muonsAux.',                             'BS ESD AODFULL AODSLIM',                'MET'),

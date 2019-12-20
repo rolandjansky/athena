@@ -36,7 +36,7 @@ namespace HLT { namespace MET {
         "The CVF threshold to use to determine HS vs PU");
     declareProperty("TrackSoftTermPtCeiling", m_tstPtCeil = 0,
         "The maximum pt for tracks going into the track soft term");
-    declareProperty("DoMuonOR", m_doMuonOR=true,
+    declareProperty("DoMuonOR", m_doMuonOR=false,
         "Whether or not to do overlap removal between muons and tracks. "
         "Tracks should be provided if and only if this is true.");
   }
