@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -268,7 +268,7 @@ StatusCode RpcDigitizationTool::initialize() {
       if(configVal=="RUN1" || MSgeoVersion=="R.06"){ 
         run1 = true; 
       } 
-      else if(configVal=="RUN2" || configVal=="RUN3" || MSgeoVersion=="R.07") { 
+      else if(configVal=="RUN2" || configVal=="RUN3" || configVal=="RUN4" || MSgeoVersion=="R.07") { 
         run1 = false; 
       } 
       else { 
