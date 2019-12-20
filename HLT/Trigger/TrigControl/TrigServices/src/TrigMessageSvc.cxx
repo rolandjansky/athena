@@ -457,12 +457,6 @@ void TrigMessageSvc::setOutputLevel(const std::string& source, int level)
   }
 }
 
-void TrigMessageSvc::resetOutputLevels()
-{
-  std::unique_lock<std::recursive_mutex> lock(m_thresholdMapMutex);
-  m_thresholdMap.clear();
-}
-
 int TrigMessageSvc::messageCount(MSG::Level level) const
 {
   return m_msgCount[level];
