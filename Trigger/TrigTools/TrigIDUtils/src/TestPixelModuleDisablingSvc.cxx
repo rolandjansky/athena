@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TestPixelModuleDisablingSvc.h"
@@ -13,7 +13,6 @@
 TestPixelModuleDisablingSvc::TestPixelModuleDisablingSvc(const std::string& name, ISvcLocator* sl):
   AthService(name, sl),
   m_detStore("DetectorStore", name),
-  m_print(0),
   m_print_disabled(true)
 {
   m_disabled_modules.clear();
