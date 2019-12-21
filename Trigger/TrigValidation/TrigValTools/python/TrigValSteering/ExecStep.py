@@ -143,7 +143,7 @@ class ExecStep(Step):
         # Try to find the file in PATH
         get_files_output = subprocess.check_output(
             'get_files -jo -list {}'.format(self.job_options), shell=True)
-        if 'nothing found' in get_files_output:
+        if 'nothing found' in get_files_output.decode():
             self.log.error('Failed to find job options file %s', self.name)
             self.report_result(1, 'TestConfig')
             sys.exit(1)
