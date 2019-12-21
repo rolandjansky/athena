@@ -4,6 +4,8 @@
 # flake8: noqa
 #
 
+from __future__ import print_function
+
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 # The trigger types
@@ -1574,8 +1576,8 @@ class ItemDef(object):
 
                     LVL1MenuItem('L1_TAU60_DR-TAU20ITAU12I' ).setLogic( HA60 & TOPO_0DR28_TAU20abi_TAU12abi & physcond)
 
-            except Exception, ex:
-                    print "Creation of L1Topo item failed, will abort! Exception is : " , ex
+            except Exception as ex:
+                    print ("Creation of L1Topo item failed, will abort! Exception is : " , ex)
                     raise RuntimeError("Creation of L1Topo item failed, will not continue")
         
         

@@ -11,6 +11,8 @@ from .ThresholdType import ThrType
 from .Limits import CaloLimits as CL
 from .TopoAlgorithms import AlgCategory
 
+from past.builtins import cmp
+
 
 log = logging.getLogger("Menu.L1.Base.Thresholds")
 
