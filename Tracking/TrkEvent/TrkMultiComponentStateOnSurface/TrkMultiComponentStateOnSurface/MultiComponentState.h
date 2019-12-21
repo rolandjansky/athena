@@ -27,9 +27,6 @@ class MsgStream;
 
 namespace Trk {
 
-/** 
- * Prefer SimpleMultiComponentState
- */
 class MultiComponentState : public std::vector<ComponentParameters>
 {
 public:
@@ -39,14 +36,13 @@ public:
   MultiComponentState(const ComponentParameters&);
   /** destructor */
   ~MultiComponentState();
-
   /*
    * Since this is practically a vector of pair<pointer,value>
-   * disable copy.
+   * disable copying as can cause ptr ownership issues.
    */
   MultiComponentState(const MultiComponentState& other) = delete;
   MultiComponentState& operator=(const MultiComponentState& other) = delete;
-  
+
   MultiComponentState(MultiComponentState&& other) = default;
   MultiComponentState& operator=(MultiComponentState&& other) = default;
 
@@ -80,13 +76,5 @@ operator<<(std::ostream&, const MultiComponentState&);
 
 } // end Trk namespace
 
-inline Trk::MultiComponentState::~MultiComponentState()
-{
-  Trk::MultiComponentState::const_iterator component = this->begin();
-  for (; component != this->end(); ++component) {
-    delete component->first;
-  }
-  this->clear();
-}
-
+#include "MultiComponentState.icc"
 #endif

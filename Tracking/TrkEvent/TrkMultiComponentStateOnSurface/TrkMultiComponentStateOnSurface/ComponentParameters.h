@@ -18,13 +18,14 @@ decription           : Definition of component parameters for use in a mixture
 #include "TrkParameters/TrackParameters.h"
 
 namespace Trk{
-/*
- * The typedefs with  unique pointers are easier to reason 
- * on ownership and should be preferred
- * for newer code
+/**
+ * Typedefs using unique_ptr
  */
 typedef std::pair<std::unique_ptr<Trk::TrackParameters>, double> SimpleComponentParameters;
 typedef std::vector<SimpleComponentParameters> SimpleMultiComponentState;
+/**
+ * Component parameter typedef
+ */
 typedef std::pair<const TrackParameters*, double> ComponentParameters;//Needed by MultiComponentState
 } // end Trk namespace
 
