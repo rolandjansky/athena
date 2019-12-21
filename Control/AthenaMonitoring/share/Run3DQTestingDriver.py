@@ -92,7 +92,7 @@ if __name__=='__main__':
         from AthenaConfiguration.ComponentFactory import CompFactory
         if len([_ for _ in cfg._conditionsAlgs if _.getName()=="PixelDetectorElementCondAlg"]) > 0:
             beginseq = cfg.getSequence("AthBeginSeq")
-            beginseq += CompFactoryForceIDConditionsAlg("ForceIDConditionsAlg")
+            beginseq += CompFactory.ForceIDConditionsAlg("ForceIDConditionsAlg")
         if len([_ for _ in cfg._conditionsAlgs if _.getName()=="MuonAlignmentCondAlg"]) > 0:
             beginseq = cfg.getSequence("AthBeginSeq")
             beginseq += CompFactory.ForceMSConditionsAlg("ForceMSConditionsAlg")
