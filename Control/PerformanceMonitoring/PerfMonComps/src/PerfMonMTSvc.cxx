@@ -269,18 +269,19 @@ void PerfMonMTSvc::report2Log() {
   // Detailed tables
   if(m_printDetailedTables) {
     report2Log_Time_Serial();
+
+    if(doesDirectoryExist("/proc"))
+      report2Log_Mem_Serial();
+    else
+      ATH_MSG_INFO("There is no /proc/ directory in this machine, therefore memory monitoring is failed!");
   
-    // If Event Loop Monitoring option is ON
     if(m_doEventLoopMonitoring){
       report2Log_CompLevel_Time_Parallel(); // Make this optional!
       if(doesDirectoryExist("/proc"))
         report2Log_EventLevel();
     }
 
-    if(doesDirectoryExist("/proc"))
-      report2Log_Mem_Serial();
-    else
-      ATH_MSG_INFO("There is no /proc/ directory in this machine, therefore memory monitoring is failed!");
+    
   }
 
   // Summary and system information
@@ -307,7 +308,8 @@ void PerfMonMTSvc::report2Log_Time_Serial() {
   using boost::format;
 
   ATH_MSG_INFO("=======================================================================================");
-  ATH_MSG_INFO("                             CPU & Wall Time Monitoring                                ");
+  ATH_MSG_INFO("                             Component Level Monitoring                                ");
+  ATH_MSG_INFO("                                  CPU & Wall Time                                      ");
   ATH_MSG_INFO("                                   (Serial Steps)                                      ");
   ATH_MSG_INFO("=======================================================================================");
   ATH_MSG_INFO("Step             CPU Time [ms]       Wall Time [ms]      Component");
@@ -362,8 +364,9 @@ void PerfMonMTSvc::report2Log_CompLevel_Time_Parallel() {
 
   using boost::format;
  
-  ATH_MSG_INFO("                             CPU & Wall Time Monitoring                                ");
-  ATH_MSG_INFO("                                    (Event Loop - Complevel)                                       ");
+  ATH_MSG_INFO("                             Component Level Monitoring                                ");
+  ATH_MSG_INFO("                                  CPU & Wall Time                                      ");
+  ATH_MSG_INFO("                                  (Parallel Steps)                                     ");
   ATH_MSG_INFO("=======================================================================================");
   ATH_MSG_INFO("Step             CPU Time [ms]       Wall Time [ms]      Component");
 
@@ -395,13 +398,11 @@ void PerfMonMTSvc::report2Log_Mem_Serial() {
   using boost::format;
 
   ATH_MSG_INFO("=======================================================================================");
-  ATH_MSG_INFO("                                  Memory Monitoring                                    ");
+  ATH_MSG_INFO("                             Component Level Monitoring                                ");
+  ATH_MSG_INFO("                                 Memory Metrics [kB]                                        ");
   ATH_MSG_INFO("                                   (Serial Steps)                                      ");
-  ATH_MSG_INFO("                                     Units: kB                                         ");
   ATH_MSG_INFO("=======================================================================================");
   ATH_MSG_INFO("Step           Vmem      Rss       Pss       Swap      Component");
-                //Initialize     6144      6184      6184      0         AthDictLoaderSvc 
-
   
   for(auto vec_itr : m_stdoutVec_serial){
     // Sort the results
