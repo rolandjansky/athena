@@ -96,37 +96,25 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
                                       const std::string& compName);
 
 
-
     // Report the results
     void report();
 
+    // Report to stdout    
     void report2Log();
-  
     void report2Log_Description() const;
-
     void report2Log_Time_Serial();
-    void report2Log_EventLevel_Time_Parallel();
-
-    void report2Log_CompLevel_Time_Parallel();
-
     void report2Log_Mem_Serial();
-    void report2Log_EventLevel_Mem_Parallel();
-
-    void report2Log_Parallel();
+    void report2Log_EventLevel();
+    void report2Log_CompLevel_Time_Parallel();
     void report2Log_Summary();  // make it const
     void report2Log_CpuInfo() const;
 
+    // Report to the JSON File
     void report2JsonFile();
-
     void report2JsonFile_Summary(nlohmann::json& j) const;
-
     void report2JsonFile_Time_Serial(nlohmann::json& j) const;
     void report2JsonFile_EventLevel_Time_Parallel(nlohmann::json& j) const;
-
-    
-
     void report2JsonFile_CompLevel_Time_Parallel(nlohmann::json& j) const;
-
     void report2JsonFile_Mem_Serial(nlohmann::json& j) const;
     void report2JsonFile_EventLevel_Mem_Parallel(nlohmann::json& j);
 

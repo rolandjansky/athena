@@ -272,10 +272,9 @@ void PerfMonMTSvc::report2Log() {
   
     // If Event Loop Monitoring option is ON
     if(m_doEventLoopMonitoring){
-      report2Log_EventLevel_Time_Parallel();
       report2Log_CompLevel_Time_Parallel(); // Make this optional!
       if(doesDirectoryExist("/proc"))
-        report2Log_EventLevel_Mem_Parallel(); // !!!!!!!
+        report2Log_EventLevel();
     }
 
     if(doesDirectoryExist("/proc"))
@@ -335,19 +334,27 @@ void PerfMonMTSvc::report2Log_Time_Serial() {
   }
   
 }
-void PerfMonMTSvc::report2Log_EventLevel_Time_Parallel() {
+
+void PerfMonMTSvc::report2Log_EventLevel(){
 
   using boost::format;
  
-  ATH_MSG_INFO("                             CPU & Wall Time Monitoring                                ");
-  ATH_MSG_INFO("                                    (Event Loop - Event level)                                       ");
+  ATH_MSG_INFO("                                Event Level Monitoring                                 ");
   ATH_MSG_INFO("=======================================================================================");
-  ATH_MSG_INFO("Event CheckPoint             CPU Time [ms]       Wall Time [ms]");
+  ATH_MSG_INFO("Event CheckPoint      CPU[ms]    Wall[ms]   Vmem[kB]   Rss[kB]    Pss[kB]    Swap[kB]");
+  //            0                     0          0          0          0          0          0
 
   for(const auto& it : m_eventLevelData.getEventLevelData()){
-    ATH_MSG_INFO(format("%1%  %|29t|%2$.2f  %|49t|%3% ") % it.first % it.second.cpu_time % it.second.wall_time );
+    ATH_MSG_INFO(format("%1% %|22t|%2% %|33t|%3% %|44t|%4% %|55t|%5% %|66t|%6% %|77t|%7%")    % it.first \
+                                                                                              % it.second.cpu_time \
+                                                                                              % it.second.wall_time \
+                                                                                              % it.second.mem_stats.at("vmem")   \
+                                                                                              % it.second.mem_stats.at("rss")    \
+                                                                                              % it.second.mem_stats.at("pss")    \
+                                                                                              % it.second.mem_stats.at("swap"));
   }
   ATH_MSG_INFO("=======================================================================================");
+
 
 }
 
@@ -421,29 +428,6 @@ void PerfMonMTSvc::report2Log_Mem_Serial() {
     ATH_MSG_INFO("=======================================================================================");
 
   }  
-}
-
-void PerfMonMTSvc::report2Log_EventLevel_Mem_Parallel(){
-  
-  using boost::format;
- 
-  ATH_MSG_INFO("                                  Memory Monitoring                                    ");
-  ATH_MSG_INFO("                                    (Event Loop)                                       ");
-  ATH_MSG_INFO("=======================================================================================");
-  ATH_MSG_INFO("Event CheckPoint           Vmem      Rss       Pss       Swap      ");
-
-
-  for(const auto& it : m_eventLevelData.getEventLevelData()){
-    ATH_MSG_INFO(format("%1% %|27t|%2% %|37t|%3% %|47t|%4% %|57t|%5%")             % it.first \
-                                                                                   % it.second.mem_stats.at("vmem")   \
-                                                                                   % it.second.mem_stats.at("rss")    \
-                                                                                   % it.second.mem_stats.at("pss")    \
-                                                                                   % it.second.mem_stats.at("swap"));
-  }
-  ATH_MSG_INFO("=======================================================================================");
-
-
-  return;  
 }
 
 void PerfMonMTSvc::report2Log_Summary() {
