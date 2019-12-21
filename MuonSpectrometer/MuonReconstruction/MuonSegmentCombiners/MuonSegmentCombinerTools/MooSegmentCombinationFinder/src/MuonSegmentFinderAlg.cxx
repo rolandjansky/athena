@@ -51,7 +51,6 @@ MuonSegmentFinderAlg::MuonSegmentFinderAlg(const std::string& name, ISvcLocator*
   declareProperty("PrintSummary",m_printSummary = false);
   declareProperty("MuonClusterSegmentFinder",m_clusterSegMaker);
   //
-  declareProperty("UseNSWMode",m_useNSWMode = false);
   declareProperty("doTGCClust",m_doTGCClust = false);
   declareProperty("doRPCClust",m_doRPCClust = false);
   declareProperty("doClusterTruth",m_doClusterTruth=false);
@@ -276,7 +275,7 @@ void MuonSegmentFinderAlg::createSegmentsFromClusters(const Muon::MuonPatternCom
 void MuonSegmentFinderAlg::createSegmentsWithMDTs(const Muon::MuonPatternCombination* patcomb, Trk::SegmentCollection* segs,
 						  const std::vector<const Muon::RpcPrepDataCollection*> rpcCols, const std::vector<const Muon::TgcPrepDataCollection*> tgcCols) { 
 
-  if( m_useNSWMode ){
+  if(m_idHelperTool->hasMM() && m_idHelperTool->hasSTgc()) {
 
     //break the pattern combination into regions and calibrate the PRDs
     std::set<int> calibratedRegions;
