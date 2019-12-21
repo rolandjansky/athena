@@ -104,6 +104,7 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     void report2Log_Description() const;
     void report2Log_Time_Serial();
     void report2Log_Mem_Serial();
+    void report2Log_EventLevel_instant() const;
     void report2Log_EventLevel();
     void report2Log_CompLevel_Time_Parallel();
     void report2Log_Summary();  // make it const
@@ -128,8 +129,8 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
 
     void parallelDataAggregator();
 
-    std::string scaleTime(double timeMeas);
-    std::string scaleMem(long memMeas);
+    std::string scaleTime(double timeMeas) const;
+    std::string scaleMem(long memMeas) const;
 
     bool isCheckPoint();
  

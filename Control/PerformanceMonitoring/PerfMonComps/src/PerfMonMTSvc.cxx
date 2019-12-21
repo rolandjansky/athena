@@ -227,6 +227,8 @@ void PerfMonMTSvc::eventLevelMon() {
     if(isCheckPoint()){
       m_measurement.capture_eventLevel_MT( m_eventCounter); 
       m_eventLevelData.record_eventLevel(m_measurement, m_eventCounter);
+      // Report instantly
+      report2Log_EventLevel_instant();
     }
   }
   incrementEventCounter();
@@ -337,6 +339,18 @@ void PerfMonMTSvc::report2Log_Time_Serial() {
   
 }
 
+// Report the event level measurement as soon as it is captured
+void PerfMonMTSvc::report2Log_EventLevel_instant() const{
+
+  long vmem = m_eventLevelData.getEventLevelData()[m_eventCounter].mem_stats.at("vmem"); // write a getter function
+  long rss = m_eventLevelData.getEventLevelData()[m_eventCounter].mem_stats.at("rss"); // write a getter function
+  long pss = m_eventLevelData.getEventLevelData()[m_eventCounter].mem_stats.at("pss"); // write a getter function
+  long swap = m_eventLevelData.getEventLevelData()[m_eventCounter].mem_stats.at("swap"); // write a getter function
+
+  ATH_MSG_INFO("Vmem: " << scaleMem(vmem) << ", Rss: " << scaleMem(rss) << ", Pss: " << scaleMem(pss) << ", Swap: " << scaleMem(swap));
+
+}
+
 void PerfMonMTSvc::report2Log_EventLevel(){
 
   using boost::format;
@@ -344,7 +358,6 @@ void PerfMonMTSvc::report2Log_EventLevel(){
   ATH_MSG_INFO("                                Event Level Monitoring                                 ");
   ATH_MSG_INFO("=======================================================================================");
   ATH_MSG_INFO("Event CheckPoint      CPU[ms]    Wall[ms]   Vmem[kB]   Rss[kB]    Pss[kB]    Swap[kB]");
-  //            0                     0          0          0          0          0          0
 
   for(const auto& it : m_eventLevelData.getEventLevelData()){
     ATH_MSG_INFO(format("%1% %|22t|%2% %|33t|%3% %|44t|%4% %|55t|%5% %|66t|%6% %|77t|%7%")    % it.first \
@@ -728,7 +741,7 @@ void PerfMonMTSvc::divideData2Steps_parallel(){
 
 
 
-std::string PerfMonMTSvc::scaleTime(double timeMeas){
+std::string PerfMonMTSvc::scaleTime(double timeMeas) const{
 
   std::ostringstream ss;
   ss << std::fixed;
@@ -777,7 +790,7 @@ std::string PerfMonMTSvc::scaleTime(double timeMeas){
 
 }
 
-std::string PerfMonMTSvc::scaleMem(long memMeas){
+std::string PerfMonMTSvc::scaleMem(long memMeas) const{
 
   std::ostringstream ss;
   ss << std::fixed;
