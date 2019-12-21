@@ -164,11 +164,6 @@ namespace PMonMT {
     std::map< StepCompEvent, Measurement > m_compLevel_tmp_map;
     std::map< StepCompEvent, Measurement > m_compLevel_delta_map;
 
-    // Offset variables
-    double m_offset_cpu;
-    double m_offset_wall;
-    memory_map_t m_offset_mem;
-    
     // [Component Level Monitoring - Serial Steps] : Record the measurement for the current state 
     void addPointStart(const Measurement& meas) {          
 
@@ -212,21 +207,14 @@ namespace PMonMT {
     // [Event Level Monitoring - Parallel Steps] : Record the measurement for the current checkpoint 
     void record_eventLevel(Measurement& meas, int eventCount ){
 
-      // If it is the first event, set it as offset
-      if(eventCount == 0){
-        m_offset_cpu = meas.eventLevel_meas_map[eventCount].cpu_time;
-        m_offset_wall = meas.eventLevel_meas_map[eventCount].wall_time;
-        m_offset_mem = meas.eventLevel_meas_map[eventCount].mem_stats;
-      }
-
-      m_eventLevel_delta_map[eventCount].cpu_time = meas.eventLevel_meas_map[eventCount].cpu_time - m_offset_cpu;
-      m_eventLevel_delta_map[eventCount].wall_time = meas.eventLevel_meas_map[eventCount].wall_time - m_offset_wall;
+      m_eventLevel_delta_map[eventCount].cpu_time = meas.eventLevel_meas_map[eventCount].cpu_time;
+      m_eventLevel_delta_map[eventCount].wall_time = meas.eventLevel_meas_map[eventCount].wall_time;
 
       if(doesDirectoryExist("/proc")){
-        m_eventLevel_delta_map[eventCount].mem_stats["vmem"] = meas.eventLevel_meas_map[eventCount].mem_stats["vmem"] - m_offset_mem["vmem"];
-        m_eventLevel_delta_map[eventCount].mem_stats["rss"] = meas.eventLevel_meas_map[eventCount].mem_stats["rss"] - m_offset_mem["rss"];
-        m_eventLevel_delta_map[eventCount].mem_stats["pss"] = meas.eventLevel_meas_map[eventCount].mem_stats["pss"] - m_offset_mem["pss"];
-        m_eventLevel_delta_map[eventCount].mem_stats["swap"] = meas.eventLevel_meas_map[eventCount].mem_stats["swap"] - m_offset_mem["swap"];
+        m_eventLevel_delta_map[eventCount].mem_stats["vmem"] = meas.eventLevel_meas_map[eventCount].mem_stats["vmem"];
+        m_eventLevel_delta_map[eventCount].mem_stats["rss"] = meas.eventLevel_meas_map[eventCount].mem_stats["rss"];
+        m_eventLevel_delta_map[eventCount].mem_stats["pss"] = meas.eventLevel_meas_map[eventCount].mem_stats["pss"];
+        m_eventLevel_delta_map[eventCount].mem_stats["swap"] = meas.eventLevel_meas_map[eventCount].mem_stats["swap"];
       }
 
     }
