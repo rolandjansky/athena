@@ -27,6 +27,9 @@ class MsgStream;
 
 namespace Trk {
 
+/** 
+ * Prefer SimpleMultiComponentState
+ */
 class MultiComponentState : public std::vector<ComponentParameters>
 {
 public:
@@ -39,14 +42,13 @@ public:
 
   /*
    * Since this is practically a vector of pair<pointer,value>
-   * disable all copies/moves.
-   * One should prb migrate to using the SimpleMultiComponentState
-   * which provides move semantic via the unique ptr
+   * disable copy.
    */
   MultiComponentState(const MultiComponentState& other) = delete;
-  MultiComponentState(MultiComponentState&& other) = delete;
   MultiComponentState& operator=(const MultiComponentState& other) = delete;
-  MultiComponentState& operator=(MultiComponentState&& other) = delete;
+  
+  MultiComponentState(MultiComponentState&& other) = default;
+  MultiComponentState& operator=(MultiComponentState&& other) = default;
 
   /** Clone method */
   MultiComponentState* clone() const;
