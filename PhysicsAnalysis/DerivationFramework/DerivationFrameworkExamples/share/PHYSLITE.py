@@ -122,21 +122,7 @@ if DerivationFrameworkIsMonteCarlo:
 # THINNING 
 #====================================================================
 
-from DerivationFrameworkCore.ThinningHelper import ThinningHelper
-PHYSLITEThinningHelper = ThinningHelper( "PHYSLITEThinningHelper" )
 PHYSLITEThinningHelper.AppendToStream( PHYSLITEStream )
-
-# Thin all unless kept by something else
-from DerivationFrameworkExamples.DerivationFrameworkExamplesConf import DerivationFramework__PHYSLITEThinningTool
-PHYSLITEThinningTool = DerivationFramework__PHYSLITEThinningTool(name              = "PHYSLITEThinningTool",
-                                                                 ThinningService	 = PHYSLITEThinningHelper.ThinningSvc(),
-                                                                 ContainersToThin  = ["CaloCalTopoClusters",
-                                                                                      "egammaClusters",
-                                                                                      "GSFTrackParticles"
-                                                                                      ] )
-ToolSvc += PHYSLITEThinningTool
-thinningTools.append(PHYSLITEThinningTool)
-
 
 # Cluster thinning
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
@@ -209,26 +195,29 @@ PHYSLITEMuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name
                                                                             InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                             ApplyAnd = False)
 ToolSvc += PHYSLITEMuonTPThinningTool
+thinningTools.append(PHYSLITEMuonTPThinningTool)
 
 # TauJets thinning
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
 PHYSLITETauJetsThinningTool = DerivationFramework__GenericObjectThinning(name            = "PHYSLITETauJetsThinningTool",
                                                                          ThinningService = PHYSLITEThinningHelper.ThinningSvc(),
-                                                                         ContainerName   = "TauJets_NOSYS",
-                                                                         SelectionString = "(TauJets_NOSYS.ptFinalCalib >= 13.*GeV) && (TauJets_NOSYS.nTracks<6)")
+                                                                         ContainerName   = "AnalysisTauJets_NOSYS",
+                                                                         SelectionString = "(AnalysisTauJets_NOSYS.ptFinalCalib >= 13.*GeV) && (AnalysisTauJets_NOSYS.nTracks<6)")
 ToolSvc += PHYSLITETauJetsThinningTool
+thinningTools.append(PHYSLITETauJetsThinningTool)
 
 # Only keep tau tracks (and associated ID tracks) classified as charged tracks
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
 PHYSLITETauTPThinningTool = DerivationFramework__TauTrackParticleThinning(name                   = "PHYSLITETauTPThinningTool",
                                                                           ThinningService        = PHYSLITEThinningHelper.ThinningSvc(),
-                                                                          TauKey                 = "TauJets_NOSYS",
+                                                                          TauKey                 = "AnalysisTauJets_NOSYS",
                                                                           InDetTrackParticlesKey = "InDetTrackParticles",
-                                                                          SelectionString        = "(TauJets_NOSYS.ptFinalCalib >= 13.*GeV) && (TauJets_NOSYS.nTracks<6)",
+                                                                          SelectionString        = "(AnalysisTauJets_NOSYS.ptFinalCalib >= 13.*GeV) && (AnalysisTauJets_NOSYS.nTracks<6)",
                                                                           ApplyAnd               = False,
                                                                           DoTauTracksThinning    = True,
                                                                           TauTracksKey           = "TauTracks")
 ToolSvc += PHYSLITETauTPThinningTool
+thinningTools.append(PHYSLITETauTPThinningTool)
 
 # Only keep the highest sum pT2 primary vertex
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__VertexThinning
