@@ -20,6 +20,20 @@
 
 #include <CoolApplication/DatabaseSvcFactory.h>
 
+#include <boost/typeof/typeof.hpp>
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
+
+#include <vector>
+#include <string>
+#include <iostream>
+using std::cout;
+using std::endl;
+using std::string;
+using std::vector;
+
+using boost::bind;
+
 using cool::DatabaseSvcFactory;
 using cool::IDatabasePtr;
 using cool::IField;
@@ -31,19 +45,6 @@ using cool::IObjectIteratorPtr;
 using cool::IObjectVectorPtr;
 using cool::ValidityKey;
 using cool::ITime;
-
-#include <boost/typeof/typeof.hpp>
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
-using boost::bind;
-
-#include <vector>
-#include <string>
-#include <iostream>
-using std::cout;
-using std::endl;
-using std::string;
-using std::vector;
 
 cool::IRecordSelection* make_fieldselection(
     const std::string& name, 
