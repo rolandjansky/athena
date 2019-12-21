@@ -3,6 +3,9 @@
 from __future__ import print_function
 
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 from AthenaCommon.Logging import logging
 import time
 
@@ -89,10 +92,10 @@ class FrontierCursor2:
         #session.printHeader()
         
         #nfield = session.getNumberOfFields()
-        #print "\nNumber of fields:", nfield, "\n"
+        #print ("\nNumber of fields:", nfield, "\n")
     
         #nrec = session.getNumberOfRecords()
-        #print "\nResult contains", nrec, "objects.\n"
+        #print ("\nResult contains", nrec, "objects.\n")
         
         #session.printRecords2()
         queryEnd = time.localtime()
@@ -142,8 +145,9 @@ Refresh cache:  %s""" % (self.url, self.refreshFlag)
         import urllib2
         try:
             urllib2.urlopen(url)
-        except urllib2.URLError as e:
-            print (e)
+        except urllib2.URLError:
+            import traceback
+            traceback.print_exc()
             
     def execute(self, query, bindvars={}):
         if len(bindvars)>0:
@@ -191,7 +195,7 @@ Refresh cache:  %s""" % (self.url, self.refreshFlag)
         log = logging.getLogger( "TrigConfFrontier.py" )
         from xml.dom.minidom import parseString
         import base64, zlib, curses.ascii
-        #print "Query result:\n", self.result
+        #print ("Query result:\n", self.result)
         dom = parseString(self.result)
         dataList = dom.getElementsByTagName("data")
         keepalives = 0
