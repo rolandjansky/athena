@@ -149,7 +149,7 @@ namespace PMonMT {
   // Basic Data
   struct MeasurementData {
 
-    typedef std::map< int, Measurement > event_meas_map_t; // Event number: Measurement
+    typedef std::map< uint64_t, Measurement > event_meas_map_t; // Event number: Measurement
 
     // These variables are used to calculate and store the serial component level measurements
     double m_tmp_cpu, m_delta_cpu;
