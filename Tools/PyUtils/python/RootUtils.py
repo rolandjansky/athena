@@ -256,7 +256,7 @@ class RootFileDumper(object):
         else:              leaves = [str(b).rstrip('\0') for b in leaves]
         
         # handle itr_entries
-        if isinstance(itr_entries, basestring):
+        if isinstance(itr_entries, str):
             if ':' in itr_entries:
                 def toint(s):
                     if s == '':
@@ -329,7 +329,7 @@ class RootFileDumper(object):
                         self.allgood = False
                         print (err)
                     for o in vals:
-                        n = map(str, o[0])
+                        n = list(map(str, o[0]))
                         v = o[1]
                         yield tree_name, ientry, n, v
 
