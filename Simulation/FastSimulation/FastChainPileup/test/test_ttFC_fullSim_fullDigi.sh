@@ -26,7 +26,7 @@ rc=$?
 echo  "art-result: ${rc} EVNTtoRDO"
 
 inputRefDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-refs/${AtlasBuildBranch}/test_ttFC_fullSim_fullDigi"
-inputXmlDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-configs"
+inputXmlDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-configs/${AtlasBuildBranch}"
 art_dcube="/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube"
 dcubeName="ttFC_fullSim_fullDigi"
 dcubeXmlRDO="${inputXmlDir}/RDOTruthCompare.xml"
