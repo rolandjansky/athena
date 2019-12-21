@@ -85,7 +85,7 @@ Trk::MultiComponentState::cloneWithScaledError(double errorScaleLocX,
     } else {
       return this->clone();
     }
-    const AmgVector(5) par = trackParameters->parameters();
+    const AmgVector(5)& par = trackParameters->parameters();
     const TrackParameters* newTrackParameters = trackParameters->associatedSurface().createTrackParameters(
       par[Trk::loc1], par[Trk::loc2], par[Trk::phi], par[Trk::theta], par[Trk::qOverP], covarianceMatrix.release());
     // Push back new component
@@ -130,7 +130,7 @@ Trk::MultiComponentState::cloneWithScaledError(double errorScale) const
 
     covarianceMatrix->fillSymmetric(3, 4, (*originalMatrix)(3, 4) * errorScale);
 
-    const AmgVector(5) par = trackParameters->parameters();
+    const AmgVector(5)& par = trackParameters->parameters();
     const TrackParameters* newTrackParameters = trackParameters->associatedSurface().createTrackParameters(
       par[Trk::loc1], par[Trk::loc2], par[Trk::phi], par[Trk::theta], par[Trk::qOverP], covarianceMatrix.release());
 
