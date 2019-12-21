@@ -12,7 +12,6 @@
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-using namespace TrigCompositeUtils;
 class TrigL2MuonOverlapRemoverMucombAlg
    : public ::HypoBase
 {
