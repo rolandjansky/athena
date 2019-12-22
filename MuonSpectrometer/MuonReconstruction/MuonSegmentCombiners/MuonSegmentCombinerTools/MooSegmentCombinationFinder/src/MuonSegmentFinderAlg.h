@@ -14,10 +14,6 @@
 #include "MuonPrepRawData/TgcPrepDataCollection.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
-#include "MuonIdHelpers/CscIdHelper.h"
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "MuonPattern/MuonPatternChamberIntersect.h"
@@ -81,7 +77,6 @@ class MuonSegmentFinderAlg : public AthAlgorithm
   void createSegmentsFromClusters(const Muon::MuonPatternCombination* patt,Trk::SegmentCollection* segments);
 
   bool m_printSummary;
-  bool m_useNSWMode;
   
   /** selection flags for cluster based segment finding */
   bool                m_doTGCClust;
