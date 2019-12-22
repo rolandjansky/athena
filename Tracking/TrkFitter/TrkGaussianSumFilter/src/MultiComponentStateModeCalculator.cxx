@@ -11,8 +11,7 @@ email                : amorley@cern.ch
 description          : Implementation code for MultiComponentStateModeCalculator class
 ****************************************************************************************/
 
-#include "MultiComponentStateModeCalculator.h"
-
+#include "TrkGaussianSumFilter/MultiComponentStateModeCalculator.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include "TrkParameters/TrackParameters.h"
 #include <map>

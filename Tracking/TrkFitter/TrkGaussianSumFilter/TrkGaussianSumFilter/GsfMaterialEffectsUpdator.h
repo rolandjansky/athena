@@ -15,9 +15,7 @@ decription           : Material effects for the GsfExtrapolator. It is an Alg
 #ifndef TrkGsfMaterialEffectsUpdator_H
 #define TrkGsfMaterialEffectsUpdator_H
 
-#include "TrkGaussianSumFilter/IMultiComponentStateAssembler.h"
 #include "TrkGaussianSumFilter/IMultiStateMaterialEffectsUpdator.h"
-
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 

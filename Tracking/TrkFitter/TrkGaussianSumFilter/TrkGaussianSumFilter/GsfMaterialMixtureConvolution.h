@@ -15,7 +15,6 @@ decription           : Class description for convolution of GSF material mixture
 #define TrkGsfMaterialMixtureConvolution_H
 
 #include "TrkGaussianSumFilter/IMaterialMixtureConvolution.h"
-#include "TrkGaussianSumFilter/IMultiComponentStateAssembler.h"
 #include "TrkGaussianSumFilter/IMultiComponentStateMerger.h"
 #include "TrkGaussianSumFilter/IMultiComponentStateCombiner.h"
 
@@ -86,12 +85,7 @@ private:
     "Trk::MultiComponentStateCombiner/MultiComponentStateCombiner",
     ""
   };
-  ToolHandle<IMultiComponentStateAssembler> m_stateAssembler{
-    this,
-    "MultiComponentStateAssembler",
-    "Trk::MultiComponentStateAssembler/MaterialConvolutionAssembler",
-    ""
-  };
+ 
   ToolHandle<IMultiComponentStateMerger> m_stateMerger{
     this,
     "MultiComponentStateMerger",
