@@ -190,7 +190,10 @@ bool egammaSelectedTrackCopy::Select(const EventContext& ctx,
 {
 
   ATH_MSG_DEBUG("egammaSelectedTrackCopy::Select()" );
-  if (cluster == nullptr || track == nullptr) return false;
+  if (cluster == nullptr || track == nullptr) {
+    return false;
+  }
+
   const Trk::Perigee& candidatePerigee = track->perigeeParameters();
 
   //Get Perigee Parameters
@@ -278,8 +281,8 @@ bool egammaSelectedTrackCopy::Select(const EventContext& ctx,
   std::array<double,4>  deltaEta = {-999.0,-999.0,-999.0,-999.0};
   std::array<double,4>  deltaPhi = {-999.0,-999.0,-999.0,-999.0};
   if (m_extrapolationToolCommonCache->getMatchAtCalo (ctx,
-                                                      cluster, 
-                                                      track, 
+                                                      *cluster, 
+                                                      *track, 
                                                       Trk::alongMomentum, 
                                                       eta,
                                                       phi,
@@ -287,8 +290,8 @@ bool egammaSelectedTrackCopy::Select(const EventContext& ctx,
                                                       deltaPhi, 
                                                       IEMExtrapolationTools::fromLastMeasurement).isFailure()){
     if(m_extrapolationTool->getMatchAtCalo (ctx,
-                                            cluster, 
-                                            track, 
+                                            *cluster, 
+                                            *track, 
                                             Trk::alongMomentum, 
                                             eta,
                                             phi,
@@ -323,8 +326,8 @@ bool egammaSelectedTrackCopy::Select(const EventContext& ctx,
     std::array<double,4>  deltaPhi1 = {-999.0,-999.0,-999.0,-999.0};
 
     if(m_extrapolationTool->getMatchAtCalo (ctx,
-                                            cluster, 
-                                            track, 
+                                            *cluster, 
+                                            *track, 
                                             Trk::alongMomentum, 
                                             eta1,
                                             phi1,

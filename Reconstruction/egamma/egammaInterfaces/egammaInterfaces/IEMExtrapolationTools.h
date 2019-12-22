@@ -56,8 +56,8 @@ public:
    *    whether or not to extrapolate to each calo sample
    */
   virtual StatusCode getMatchAtCalo (const EventContext&           ctx,
-                                     const xAOD::CaloCluster*      cluster, 
-                                     const xAOD::TrackParticle*    trkPB,
+                                     const xAOD::CaloCluster&      cluster, 
+                                     const xAOD::TrackParticle&    trkPB,
                                      Trk::PropDirection            direction,
                                      std::array<double,4>&         eta,
                                      std::array<double,4>&         phi,
@@ -87,7 +87,8 @@ public:
                                 float *etaAtCalo,
                                 float *phiAtCalo) const =0;
 
-  /** get the momentum of the i-th at the vertex (designed for conversions) **/
+  /** get the momentum of the i-th trackParticle attached to the vertex 
+   * at the vertex (designed for conversions) **/
   virtual Amg::Vector3D getMomentumAtVertex(const xAOD::Vertex&, unsigned int) const = 0;
 
   /** get sum of the momenta at the vertex (designed for conversions). Retrieve from auxdata if available and \<reuse\> is true **/

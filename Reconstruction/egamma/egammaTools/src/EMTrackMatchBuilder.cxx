@@ -178,8 +178,8 @@ EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
    * We need anyhow both to be there at the end.
    */
   if (m_extrapolationTool->getMatchAtCalo (ctx,
-                                           &cluster, 
-                                           &trkPB, 
+                                           cluster, 
+                                           trkPB, 
                                            dir, 
                                            eta,
                                            phi,
@@ -197,8 +197,8 @@ EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
   std::array<double,4>  deltaPhiRes = {-999.0,-999.0,-999.0,-999.0};
  
   if (m_extrapolationTool->getMatchAtCalo (ctx, 
-                                           &cluster, 
-                                           &trkPB, 
+                                           cluster, 
+                                           trkPB, 
                                            dir, 
                                            etaRes,
                                            phiRes,
@@ -252,8 +252,8 @@ EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
   std::array<double,4>  deltaPhi1 = {-999.0,-999.0,-999.0,-999.0};
  
   if (m_extrapolationTool->getMatchAtCalo (ctx,
-                                           &cluster, 
-                                           &trkPB, 
+                                           cluster, 
+                                           trkPB, 
                                            dir, 
                                            eta1,
                                            phi1,
