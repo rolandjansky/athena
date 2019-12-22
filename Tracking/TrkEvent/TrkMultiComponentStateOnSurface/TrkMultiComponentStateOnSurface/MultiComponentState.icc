@@ -17,5 +17,4 @@ inline Trk::MultiComponentState::MultiComponentState(const Trk::ComponentParamet
   this->reserve(72);
   this->push_back(componentParameters);
 }
-
-};
+}
