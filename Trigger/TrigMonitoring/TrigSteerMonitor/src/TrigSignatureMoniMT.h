@@ -78,6 +78,7 @@ class TrigSignatureMoniMT : public extends<AthReentrantAlgorithm, IIncidentListe
   std::map<unsigned int, int> m_chainIDToBinMap;
   std::map<unsigned int, int> m_BCIDchainIDToBinMap;
   std::map<std::string, int> m_nameToBinMap;
+  std::map<std::string, int> m_sequenceToBinMap;
   std::map<unsigned int, std::set<std::string>> m_chainIDToBunchMap;
   std::map<std::string, TrigCompositeUtils::DecisionIDContainer> m_groupToChainMap;
   std::map<std::string, TrigCompositeUtils::DecisionIDContainer> m_streamToChainMap;
@@ -92,6 +93,7 @@ class TrigSignatureMoniMT : public extends<AthReentrantAlgorithm, IIncidentListe
   mutable LockedHandle<TH2> m_bunchHistogram;
   RateHistogram m_rateHistogram;
   RateHistogram m_bcidHistogram;
+  RateHistogram m_sequenceHistogram;
 
   //necessary for asynchronous calling callback function
   Gaudi::Property<unsigned int> m_duration {this, "RateIntegrationDuration", 10, "Integration time for the rate histogram in seconds"};
@@ -109,7 +111,8 @@ class TrigSignatureMoniMT : public extends<AthReentrantAlgorithm, IIncidentListe
 
   StatusCode initHist(LockedHandle<TH2>&, SG::ReadHandle<TrigConf::HLTMenu>&, bool = true);
   StatusCode initBunchHist(LockedHandle<TH2>&, SG::ReadHandle<TrigConf::HLTMenu>&, SG::ReadHandle<TrigConf::L1Menu>&);
-  StatusCode initBCIDhist(LockedHandle<TH2>&, const std::vector<std::string> &);
+  StatusCode initBCIDhist(LockedHandle<TH2>&, const std::vector<std::string>&);
+  StatusCode initSeqHist(LockedHandle<TH2>&, std::set<std::string>&);
   
   StatusCode fillDecisionCount(const std::vector<TrigCompositeUtils::DecisionID>& , int) const;
   StatusCode fillPassEvents(const TrigCompositeUtils::DecisionIDContainer&, int) const;
@@ -117,6 +120,7 @@ class TrigSignatureMoniMT : public extends<AthReentrantAlgorithm, IIncidentListe
   StatusCode fillHistogram(const TrigCompositeUtils::DecisionIDContainer&, int, LockedHandle<TH2>&) const;
   StatusCode fillBunchGroups(const TrigCompositeUtils::DecisionIDContainer&) const;
   StatusCode fillBCID(const TrigCompositeUtils::DecisionIDContainer&, int) const;
+  StatusCode fillSequences(const std::set<std::string>&) const;
   StatusCode fillStreamsAndGroups(const std::map<std::string, TrigCompositeUtils::DecisionIDContainer>&, const TrigCompositeUtils::DecisionIDContainer&) const;
 };
 
