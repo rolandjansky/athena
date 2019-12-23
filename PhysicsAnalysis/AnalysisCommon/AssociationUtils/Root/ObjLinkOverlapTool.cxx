@@ -3,7 +3,6 @@
 */
 
 // Framework inclues
-#include "CxxUtils/make_unique.h"
 
 // Local includes
 #include "AssociationUtils/ObjLinkOverlapTool.h"
