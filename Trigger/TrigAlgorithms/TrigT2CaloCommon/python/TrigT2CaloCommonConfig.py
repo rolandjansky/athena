@@ -64,6 +64,8 @@ class TrigCaloDataAccessSvc(_TrigCaloDataAccessSvc):
                     condSequence = AthSequencer("AthCondSeq")
                     from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArOFCFlat_ as LArOFCCondAlg
                     condSequence += LArOFCCondAlg (ReadKey="/LAR/ElecCalibFlat/OFC", WriteKey='LArOFC')
+                    from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgOnlineDefault
+                    LuminosityCondAlgOnlineDefault()
                     from CaloRec.CaloBCIDAvgAlgDefault import CaloBCIDAvgAlgDefault
                     CaloBCIDAvgAlgDefault()
                     from AthenaCommon.AlgSequence import AlgSequence

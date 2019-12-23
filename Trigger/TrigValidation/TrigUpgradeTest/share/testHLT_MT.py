@@ -275,6 +275,8 @@ if TriggerFlags.doCalo():
     DetFlags.detdescr.Calo_setOn()
     from LArConditionsCommon.LArCondFlags import larCondFlags
     larCondFlags.LoadElecCalib.set_Value_and_Lock(False)
+    from TrigT2CaloCommon.CaloDef import setMinimalCaloSetup
+    setMinimalCaloSetup()
 else:
     DetFlags.Calo_setOff()
 
