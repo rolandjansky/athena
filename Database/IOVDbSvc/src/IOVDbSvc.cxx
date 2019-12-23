@@ -60,7 +60,6 @@ IOVDbSvc::IOVDbSvc( const std::string& name, ISvcLocator* svc )
     m_par_globalTag(""),m_par_dbinst(""),
     m_par_manageConnections(true),
     m_par_managePoolConnections(true),
-    m_par_dumpkeys(false),
     m_par_forceRunNumber(0),            // default no global force run number
     m_par_forceLumiblockNumber(0),      // Default no global force LB
     m_par_maxNumPoolFiles(5),           // Default=0 means no limit
@@ -99,7 +98,6 @@ IOVDbSvc::IOVDbSvc( const std::string& name, ISvcLocator* svc )
   declareProperty("forceTimestamp",        m_par_forceTimestamp);
   declareProperty("ManageConnections",     m_par_manageConnections );
   declareProperty("ManagePoolConnections", m_par_managePoolConnections );
-  declareProperty("DumpKeys",              m_par_dumpkeys);
   declareProperty("FoldersToMetaData",     m_par_foldersToWrite );
   declareProperty("MaxPoolFilesOpen",      m_par_maxNumPoolFiles );      // maximum number of pools files allowed to be open at once
   declareProperty("TimeStampSlop",         m_par_timeStampSlop);
@@ -702,10 +700,6 @@ void IOVDbSvc::handle( const Incident& inc) {
     if ((inc.type()=="StoreCleared" && sinc!=0 && sinc->store()==&*m_h_sgSvc)) {
       if (inc.type()=="StoreCleared") {
         m_state=IOVDbSvc::FINALIZE_ALG;
-        if (m_par_dumpkeys) {
-          dumpKeys();
-          m_par_dumpkeys=false;
-        }
       }
       if (m_par_managePoolConnections && m_poolPayloadRequested) {
         // reset POOL connection to close all open conditions POOL files
@@ -1103,60 +1097,4 @@ StatusCode IOVDbSvc::loadCaches(IOVDbConn* conn, const IOVTime* time) {
     throw std::exception();
   }
   return sc;
-}
-
-void IOVDbSvc::printMetaDataContainer(const IOVMetaDataContainer* cont) {
-  if (msg().level()>MSG::DEBUG)
-    return;
-  // Print out the contents of a meta data container (in debug mode)
-  ATH_MSG_DEBUG( "printMetaDataContainer " );
-  ATH_MSG_DEBUG( "Folder name " << cont->folderName() );
-  ATH_MSG_DEBUG( "Description " << cont->folderDescription() );
-  // Print out contents of payload
-  const IOVPayloadContainer*  payload=cont->payloadContainer();
-  // print out iovs and attribute lists
-  ATH_MSG_DEBUG( "payload size " << payload->size() );
-  ATH_MSG_DEBUG( "IOVs and attribute lists: " );
-  
-  for (const auto & attList : *payload) {
-    ATH_MSG_DEBUG( attList->minRange() << " iov size " << attList->iov_size() );
-    CondAttrListCollection::iov_const_iterator itIOV=attList->iov_begin();
-    CondAttrListCollection::iov_const_iterator itIOVEnd=attList->iov_end();
-    for (;itIOV!=itIOVEnd; ++itIOV) 
-      ATH_MSG_DEBUG( itIOV->first << " " << itIOV->second );
-    CondAttrListCollection::const_iterator itAtt=attList->begin();
-    CondAttrListCollection::const_iterator itAttEnd=attList->end();
-    for (;itAtt!=itAttEnd;++itAtt) {
-      std::ostringstream attrStr;
-      attrStr << "{";
-      for (coral::AttributeList::const_iterator itr=itAtt->second.begin();
-           itr!=itAtt->second.end();++itr) {
-        if (itr!=itAtt->second.begin()) attrStr << ",";
-        itr->toOutputStream(attrStr);
-      }
-      attrStr << "}";
-      ATH_MSG_DEBUG( itAtt->first << " " << attrStr.str() );
-    }
-  }
-}
-
-void IOVDbSvc::dumpKeys() {
-  // use the getKeyList and getKeyInfo methods to dump all keys in event
-  ATH_MSG_INFO( "Dump IOVDbSvc-managed SG keys for first event" );
-  std::vector<std::string> keys=getKeyList();
-  ATH_MSG_INFO( "Total of " << keys.size() << " keys to list" );
-  for (const auto & thisKey: keys) {
-    IIOVDbSvc::KeyInfo info;
-    if (getKeyInfo(thisKey,info)) {
-      if (info.retrieved) {
-        ATH_MSG_INFO( "Data for key " << thisKey << " : foldername " <<
-          info.folderName << ", tag" << info.tag << ", range " << info.range <<
-          " read " << info.bytesRead << " bytes in " << info.readTime << " seconds" );
-      } else {
-        ATH_MSG_INFO( "Key " << thisKey << " was not yet retrieved from StoreGate" );
-      }
-    } else {
-      ATH_MSG_ERROR( "No data for key " << thisKey );
-    }
-  }
 }
