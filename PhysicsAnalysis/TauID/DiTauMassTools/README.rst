@@ -35,10 +35,10 @@ Please have a look into this `tutorial <https://atlassoftwaredocs.web.cern.ch/AB
 
 A vanilla version of DiTauMassTools comes with AnalysisBase and AthAnalysis releases. These can be set up with e.g.::
 
-        asetup 21.2.XX,AnalysisBase or
-        asetup 21.2.XX,AthAnalysis
+        asetup 21.2.101,AnalysisBase or
+        asetup 21.2.101,AthAnalysis
 
-XX depends on when this new version of the MMC is actually merged.
+21.2.101 is the first release containing V2 of the MMC.
 
 The latest releases and changes are documented on the `AnalysisRelease page <https://twiki.cern.ch/twiki/bin/view/AtlasProtected/AnalysisBaseReleaseNotes21_2>`_.
 If you plan to contribute to DiTauMassTools, please refer to the `ATLAS Git Workflow Tutorial <https://atlassoftwaredocs.web.cern.ch/gittutorial/>`_. This tutorial describes how to get your own copy of the offline code from GitLab and how to prepare a merge request that asks for your code to be added to the main repository. For such developments it is recommended to set up the latest nightly with::
@@ -48,12 +48,12 @@ If you plan to contribute to DiTauMassTools, please refer to the `ATLAS Git Work
 
 The general settings of the tool are handled via properties. The most important ones being:
 
-* Decorate (default: false): This will decorate the results of the MMC to the EventInfo object
-* FloatStoppingCrit (default: true): This activates the floating stopping criterion which saves a factor ~2-3 in CPU time (see presentation by Michael Hübner)
-* CalibSet (default: 2019): Needs to be set to the appropriate calibration set depending on the use-case. For Higgs to tau tau the recommendation is to use 2019 (this uses a root file for the PDFs, older versions use hard-coded numbers)
-* UseTauProbability (default: false): This includes an additional PDF term if set to true (ratio of neutrino momentum w.r.t. reconstructed tau momentum). It is recommended to set this to true
-* NsigmaMET (default: 3, 4 depending on decay type): This sets the range of the MET scan for the Markov Chain. Can be increased to recover efficiency
-* ParamFilePath (default: MMC_params_v1.root): Sets the root file used for CalibSet>=2019, contains the PDFs for the likelihood. Can be changed for studies of PDFs (expert use), otherwise use default
+* Decorate (default: false): This will decorate the results of the MMC to the EventInfo object.
+* FloatStoppingCrit (default: true): This activates the floating stopping criterion which saves a factor ~2-3 in CPU time (see presentation by Michael Hübner).
+* CalibSet (default: 2019): Needs to be set to the appropriate calibration set depending on the use-case. For Higgs to tau tau the recommendation is to use 2019 (this uses a root file for the PDFs, older versions use hard-coded numbers).
+* UseTauProbability (default: false): This includes an additional PDF term if set to true (ratio of neutrino momentum w.r.t. reconstructed tau momentum). It is recommended to set this to true.
+* NsigmaMET (default: 3, 4 depending on decay type): This sets the range of the MET scan for the Markov Chain. Can be increased to recover efficiency.
+* ParamFilePath (default: MMC_params_v1_fixed.root): Sets the root file used for CalibSet>=2019, contains the PDFs for the likelihood. Can be changed for studies of PDFs (expert use), otherwise use default if the default in your ABR is MMC_params_v1_fixed.root. If you are using release 21.2.101 you have to set this property to the new default listed here.
 
 -------
 Example
