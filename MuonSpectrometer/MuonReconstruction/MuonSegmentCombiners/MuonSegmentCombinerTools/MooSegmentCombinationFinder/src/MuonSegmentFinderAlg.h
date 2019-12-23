@@ -7,12 +7,13 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include "MuonPrepRawData/CscPrepDataCollection.h"
 #include "MuonPrepRawData/MdtPrepDataCollection.h"
 #include "MuonPrepRawData/RpcPrepDataCollection.h"
 #include "MuonPrepRawData/TgcPrepDataCollection.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
 #include "TrkSegment/SegmentCollection.h"
@@ -49,7 +50,7 @@ class MuonSegmentFinderAlg : public AthAlgorithm
 
  private:
 
-  ToolHandle<Muon::MuonIdHelperTool>              m_idHelperTool;   //<! Id helper tool  
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   ToolHandle<Muon::MuonEDMPrinterTool>            m_printer;   //<! helper printer tool  
   ToolHandle<Muon::IMuonPatternCalibration>       m_patternCalibration;
   ToolHandle<Muon::IMuonPatternSegmentMaker>      m_patternSegmentMaker;
