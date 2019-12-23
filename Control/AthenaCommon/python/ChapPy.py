@@ -22,7 +22,6 @@ import sys
 import os
 import subprocess
 import time
-import types
 import six
 from past.builtins import basestring
 
@@ -70,16 +69,16 @@ class JobOptionsCmd( JobOptions ):
     def __init__( self, cmds = [] ):
 
         # massaging of input variables
-        if isinstance(cmds, types.StringType):
+        if isinstance(cmds, str):
             cmds = [ cmds ]
             pass
-        if not isinstance(cmds, types.ListType):
+        if not isinstance(cmds, list):
             cmds = [ cmds ]
             pass
 
         JobOptions.__init__( self, fileName = None )
         self.cmds    = cmds
-        self.tmpFile = NamedTemporaryFile( suffix = ".py" )
+        self.tmpFile = NamedTemporaryFile( suffix = ".py", mode = 'w+' )
         return
 
     def name( self ):
