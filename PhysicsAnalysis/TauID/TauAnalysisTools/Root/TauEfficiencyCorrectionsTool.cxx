@@ -588,11 +588,13 @@ StatusCode TauEfficiencyCorrectionsTool::initializeTools_2019_summer()
           if (m_bUseTauSubstructure)
             m_sInputFilePathJetIDHadTau = sDirectory+"JetIDSubstructure_TrueHadTau_2019-summer.root";
           else
-            m_sInputFilePathJetIDHadTau = sDirectory+"JetID_TrueHadTau_2019-summer.root";
+            if (m_sAFII) m_sInputFilePathJetIDHadTau = sDirectory+"JetID_TrueHadTau_2019-summer_AFII.root";
+            else m_sInputFilePathJetIDHadTau = sDirectory+"JetID_TrueHadTau_2019-summer.root";
         }
         else if (m_iIDLevel == JETIDRNNLOOSE || m_iIDLevel == JETIDRNNMEDIUM || m_iIDLevel == JETIDRNNTIGHT)
         {
-          m_sInputFilePathJetIDHadTau = sDirectory+"RNNID_TrueHadTau_2019-summer.root";
+          if (m_sAFII) m_sInputFilePathJetIDHadTau = sDirectory+"RNNID_TrueHadTau_2019-summer_AFII.root";
+          else m_sInputFilePathJetIDHadTau = sDirectory+"RNNID_TrueHadTau_2019-summer.root";
         }
         else 
         {
@@ -1851,7 +1853,11 @@ StatusCode TauEfficiencyCorrectionsTool::initializeTools_mc15_pre_recommendation
 //______________________________________________________________________________
 StatusCode TauEfficiencyCorrectionsTool::beginInputFile()
 {
-  if (m_sRecommendationTag == "2019-summer" && m_iOLRLevel != OLRNONE && (m_iOLRLevel == ELEBDTLOOSE || m_iOLRLevel == ELEBDTMEDIUM) )
+  bool setup_tau_id = false;
+  if (m_iIDLevel == JETIDBDTLOOSE || m_iIDLevel == JETIDBDTMEDIUM || m_iIDLevel == JETIDBDTTIGHT || m_iIDLevel == JETIDRNNLOOSE || m_iIDLevel == JETIDRNNMEDIUM || m_iIDLevel == JETIDRNNTIGHT) setup_tau_id = true;
+  bool setup_eveto = false;
+  if (m_iOLRLevel != OLRNONE && (m_iOLRLevel == ELEBDTLOOSE || m_iOLRLevel == ELEBDTMEDIUM)) setup_eveto = true;
+  if (m_sRecommendationTag == "2019-summer" && (setup_tau_id || setup_eveto) )
   {
     std::string sDirectory = "TauAnalysisTools/"+std::string(sSharedFilesVersion)+"/EfficiencyCorrections/";
     std::string simType("");
