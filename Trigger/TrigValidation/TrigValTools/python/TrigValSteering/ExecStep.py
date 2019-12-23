@@ -236,8 +236,12 @@ class ExecStep(Step):
                         'specify the input explicitly in args')
                     self.report_result(1, 'TestConfig')
                     sys.exit(1)
-                self.args += ' --input{}File={}'.format(
-                    self.input_object.format, input_str)
+                if self.type == 'Trig_reco_tf' and '--prodSysBSRDO True' in self.args:
+                    self.args += ' --inputBS_RDOFile={}'.format(input_str)
+                else:
+                    self.args += ' --input{}File={}'.format(
+                        self.input_object.format, input_str)
+
 
         # Append job options
         if self.job_options is not None:
