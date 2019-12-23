@@ -165,6 +165,7 @@ PP="$PP"'|^WARNING: TCMALLOCDIR not defined'
 #Sebastien says not to worry about this...
 PP="$PP"'|^Py:AthFile .*shutting down athfile-server'
 PP="$PP"'|^HistogramPersis...   INFO *.CnvServices.:'
+PP="$PP"'|^HistogramPersis.*Histograms saving not required.'
 PP="$PP"'|StatusCodeSvc        INFO initialize'
 PP="$PP"'|^ApplicationMgr +INFO Successfully loaded'
 PP="$PP"'|^IncidentSvc +DEBUG Service base class'
