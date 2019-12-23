@@ -1,6 +1,7 @@
 #include "../L1CaloDecoder.h"
 #include "../FakeRoI.h"
 #include "../L1Decoder.h"
+#include "../L1TestDecoder.h"
 #include "../FakeCTP.h"
 #include "../CTPUnpackingToolBase.h"
 #include "../CTPUnpackingTool.h"
@@ -23,6 +24,7 @@ DECLARE_COMPONENT( L1CaloDecoder )
 DECLARE_COMPONENT( FakeRoI )
 DECLARE_COMPONENT( FakeCTP )
 DECLARE_COMPONENT( L1Decoder )
+DECLARE_COMPONENT( L1TestDecoder )
 DECLARE_COMPONENT( CTPUnpackingToolBase )
 DECLARE_COMPONENT( CTPUnpackingTool )
 DECLARE_COMPONENT( CTPUnpackingEmulationTool )
