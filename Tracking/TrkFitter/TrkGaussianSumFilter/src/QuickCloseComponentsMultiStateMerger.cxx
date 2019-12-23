@@ -53,12 +53,6 @@ Trk::QuickCloseComponentsMultiStateMerger::initialize()
     return StatusCode::FAILURE;
   }
 
-  // Request an instance of the MultiComponentStateAssembler
-  if (m_stateAssembler.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Could not retrieve an instance of the mutli-component state assembler... Exiting!");
-    return StatusCode::FAILURE;
-  }
-
   if (m_maximumNumberOfComponents <= 0) {
     ATH_MSG_FATAL("Attempting to merge multi-state into zero components... stop being silly!");
     return StatusCode::FAILURE;
@@ -83,9 +77,9 @@ Trk::QuickCloseComponentsMultiStateMerger::merge(const Trk::MultiComponentState&
 
   ATH_MSG_VERBOSE("Merging state with " << unmergedState.size() << " components");
   // Assembler Cache
-  IMultiComponentStateAssembler::Cache cache;
+  MultiComponentStateAssembler::Cache cache;
   // MAke sure  the assembler is reset
-  m_stateAssembler->reset(cache);
+  MultiComponentStateAssembler::reset(cache);
 
   if (unmergedState.size() <= m_maximumNumberOfComponents) {
     ATH_MSG_VERBOSE("State is already sufficiently small... no component reduction required");
@@ -145,14 +139,14 @@ Trk::QuickCloseComponentsMultiStateMerger::merge( Trk::SimpleMultiComponentState
 
   ATH_MSG_VERBOSE("Merging state with " << statesToMerge.size() << " components");
   // Assembler Cache
-  IMultiComponentStateAssembler::Cache cache;
+  MultiComponentStateAssembler::Cache cache;
   // MAke sure  the assembler is reset
-  m_stateAssembler->reset(cache);
+  MultiComponentStateAssembler::reset(cache);
 
   if (statesToMerge.size() <= m_maximumNumberOfComponents) {
     ATH_MSG_VERBOSE("State is already sufficiently small... no component reduction required");
-    m_stateAssembler->addMultiState( cache, std::move(statesToMerge) );
-    return m_stateAssembler->assembledState(cache);
+    MultiComponentStateAssembler::addMultiState( cache, std::move(statesToMerge) );
+    return MultiComponentStateAssembler::assembledState(cache);
   }
 
 
@@ -190,7 +184,7 @@ Trk::QuickCloseComponentsMultiStateMerger::merge( Trk::SimpleMultiComponentState
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::unique_ptr<Trk::MultiComponentState>
-Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(IMultiComponentStateAssembler::Cache& cache,
+Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(MultiComponentStateAssembler::Cache& cache,
                                                               SimpleMultiComponentState& statesToMerge ) const 
 {
 
@@ -328,7 +322,7 @@ Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(IMultiComponentSta
     cache.multiComponentState.push_back(SimpleComponentParameters(state.first.release(), state.second));
     cache.validWeightSum += state.second;
   }
-  std::unique_ptr<Trk::MultiComponentState> mergedState = m_stateAssembler->assembledState(cache);
+  std::unique_ptr<Trk::MultiComponentState> mergedState = MultiComponentStateAssembler::assembledState(cache);
   ATH_MSG_DEBUG("Number of components in merged state: " << mergedState->size());
 
   // Clear the state vector

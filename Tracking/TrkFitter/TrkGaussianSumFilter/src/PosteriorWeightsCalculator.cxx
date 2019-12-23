@@ -11,7 +11,7 @@ email                : Anthony.Morley@cern.ch, Tom.Atkinson@cern.ch
 description          : Implementation code for PosteriorWeightsCalculator class
 *********************************************************************************/
 
-#include "PosteriorWeightsCalculator.h"
+#include "TrkGaussianSumFilter/PosteriorWeightsCalculator.h"
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "TrkMeasurementBase/MeasurementBase.h"

@@ -12,6 +12,7 @@ decription           : Implementation code for GSF material mixture convolution
 ************************************************************************************/
 
 #include "TrkGaussianSumFilter/GsfMaterialMixtureConvolution.h"
+#include "TrkGaussianSumFilter/MultiComponentStateAssembler.h"
 #include "TrkGaussianSumFilter/IMultiStateMaterialEffectsUpdator.h"
 #include "TrkGeometry/Layer.h"
 #include "TrkGeometry/MaterialProperties.h"
@@ -44,11 +45,6 @@ Trk::GsfMaterialMixtureConvolution::initialize()
     return StatusCode::FAILURE;
   }
 
-  // Retrieve the state assembler ( a new instance )
-  if (m_stateAssembler.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Could not retrieve the multi-component state assembler... Exiting");
-    return StatusCode::FAILURE;
-  }
 
   // Retrieve the state merge 
   if (m_stateMerger.retrieve().isFailure()) {
@@ -88,9 +84,9 @@ Trk::GsfMaterialMixtureConvolution::update(const Trk::MultiComponentState& multi
      ------------------------------------- */
 
   // Assembler Cache
-  IMultiComponentStateAssembler::Cache cache;
+  MultiComponentStateAssembler::Cache cache;
   // Reset the assembler 
-  m_stateAssembler->reset(cache);
+  MultiComponentStateAssembler::reset(cache);
 
 
   // Check the multi-component state is populated
@@ -110,7 +106,7 @@ Trk::GsfMaterialMixtureConvolution::update(const Trk::MultiComponentState& multi
     if(!updatedState)
       continue;
 
-    bool componentAdded = m_stateAssembler->addMultiState(cache, std::move(*updatedState));
+    bool componentAdded = MultiComponentStateAssembler::addMultiState(cache, std::move(*updatedState));
 
     if (!componentAdded) {
       ATH_MSG_WARNING("Component could not be added to the state in the assembler");
@@ -147,9 +143,7 @@ Trk::GsfMaterialMixtureConvolution::preUpdate(const Trk::MultiComponentState& mu
      Preliminary checks
      ------------------------------------- */
   // Assembler Cache
-  IMultiComponentStateAssembler::Cache cache;
-  // Reset the assembler 
-  m_stateAssembler->reset(cache);
+  MultiComponentStateAssembler::Cache cache;
 
   // Check the multi-component state is populated
   if (multiComponentState.empty()) {
@@ -168,7 +162,7 @@ Trk::GsfMaterialMixtureConvolution::preUpdate(const Trk::MultiComponentState& mu
     if(!updatedState)
       continue;
 
-    bool componentAdded = m_stateAssembler->addMultiState(cache, std::move(*updatedState));
+    bool componentAdded = MultiComponentStateAssembler::addMultiState(cache, std::move(*updatedState));
 
     if (!componentAdded)
       ATH_MSG_WARNING("Component could not be added to the state in the assembler");
@@ -206,9 +200,7 @@ Trk::GsfMaterialMixtureConvolution::postUpdate(const Trk::MultiComponentState& m
      ------------------------------------- */
 
   // Assembler Cache
-  IMultiComponentStateAssembler::Cache cache;
-  // Reset the assembler  
-  m_stateAssembler->reset(cache);
+  MultiComponentStateAssembler::Cache cache;
 
   // Check the multi-component state is populated
   if (multiComponentState.empty()) {
@@ -227,7 +219,7 @@ Trk::GsfMaterialMixtureConvolution::postUpdate(const Trk::MultiComponentState& m
     if(!updatedState)
       continue;
 
-    bool componentAdded = m_stateAssembler->addMultiState(cache, std::move(*updatedState));
+    bool componentAdded = MultiComponentStateAssembler::addMultiState(cache, std::move(*updatedState));
 
     if (!componentAdded) {
       ATH_MSG_WARNING("Component could not be added to the state in the assembler");
@@ -258,10 +250,7 @@ Trk::GsfMaterialMixtureConvolution::simpliedMaterialUpdate(const Trk::MultiCompo
      Preliminary checks
      ------------------------------------- */
   // Assembler Cache
-  IMultiComponentStateAssembler::Cache cache;
-  // Reset the assembler 
-  m_stateAssembler->reset(cache);
-
+  MultiComponentStateAssembler::Cache cache;
 
   // Check the multi-component state is populated
   if (multiComponentState.empty()) {
@@ -313,7 +302,7 @@ Trk::GsfMaterialMixtureConvolution::simpliedMaterialUpdate(const Trk::MultiCompo
     if(!updatedState)
       continue;
 
-    bool componentAdded = m_stateAssembler->addMultiState(cache, std::move(*updatedState));
+    bool componentAdded = MultiComponentStateAssembler::addMultiState(cache, std::move(*updatedState));
 
     if (!componentAdded) {
       ATH_MSG_WARNING("Component could not be added to the state in the assembler");
