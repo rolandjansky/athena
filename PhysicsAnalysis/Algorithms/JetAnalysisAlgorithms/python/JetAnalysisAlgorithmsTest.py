@@ -21,13 +21,13 @@ def makeSequence (dataType, jetContainer="AntiKt4EMPFlowJets") :
     from AsgAnalysisAlgorithms.PileupAnalysisSequence import \
         makePileupAnalysisSequence
     pileupSequence = makePileupAnalysisSequence( dataType )
-    pileupSequence.configure( inputName = 'EventInfo', outputName = 'EventInfo' )
+    pileupSequence.configure( inputName = 'EventInfo', outputName = 'EventInfo_%SYS%' )
     print( pileupSequence ) # For debugging
 
     # Include, and then set up the jet analysis algorithm sequence:
     from JetAnalysisAlgorithms.JetAnalysisSequence import makeJetAnalysisSequence
     jetSequence = makeJetAnalysisSequence( dataType, jetContainer, enableCutflow=True, enableKinematicHistograms=True )
-    jetSequence.configure( inputName = jetContainer, outputName = 'AnalysisJetsBase' )
+    jetSequence.configure( inputName = jetContainer, outputName = 'AnalysisJetsBase_%SYS%' )
     print( jetSequence ) # For debugging
 
     # Include, and then set up the jet analysis algorithm sequence:

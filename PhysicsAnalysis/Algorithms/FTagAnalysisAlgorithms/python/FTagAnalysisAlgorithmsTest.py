@@ -21,7 +21,7 @@ def makeSequence (dataType, jetContainer="AntiKt4EMPFlowJets") :
     from FTagAnalysisAlgorithms.FTagAnalysisSequence import makeFTagAnalysisSequence
     makeFTagAnalysisSequence( jetSequence, dataType, jetContainer, noEfficiency = True, legacyRecommendations = True,
                               enableCutflow=True )
-    jetSequence.configure( inputName = jetContainer, outputName = 'AnalysisJets' )
+    jetSequence.configure( inputName = jetContainer, outputName = 'AnalysisJets_%SYS%' )
 
     # Add the sequence to the job:
     algSeq += jetSequence
