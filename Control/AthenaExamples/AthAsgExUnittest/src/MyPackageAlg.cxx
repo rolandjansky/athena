@@ -43,9 +43,3 @@ StatusCode MyPackageAlg::execute() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode MyPackageAlg::beginInputFile() { 
-  //This method is called at the start of each input file, even if
-  //the input file contains no events. Accumulate metadata information here
-  return StatusCode::SUCCESS;
-}
-
