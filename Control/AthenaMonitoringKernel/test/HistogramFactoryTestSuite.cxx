@@ -138,7 +138,7 @@ class HistogramFactoryTestSuite {
         make_tuple("SHIFT", "/SHIFT/HistogramFactoryTestSuite/onlineHistAlias"),
         make_tuple("DEBUG", "/DEBUG/HistogramFactoryTestSuite/onlineHistAlias"),
         make_tuple("RUNSTAT", "/RUNSTAT/HistogramFactoryTestSuite/onlineHistAlias"),
-        make_tuple("EXPRES", "/EXPRES/HistogramFactoryTestSuite/onlineHistAlias"),
+        make_tuple("EXPRESS", "/EXPRESS/HistogramFactoryTestSuite/onlineHistAlias"),
       };
   
       for (auto possibleCase : possibleCases) {

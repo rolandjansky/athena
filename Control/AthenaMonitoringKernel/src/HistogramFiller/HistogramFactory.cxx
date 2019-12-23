@@ -187,8 +187,8 @@ void HistogramFactory::setLabels(TH1* hist, const std::vector<std::string>& labe
   }
 }
 
-std::string HistogramFactory::getFullName(const HistogramDef& def) {
-  const static std::set<std::string> online( { "EXPERT", "SHIFT", "DEBUG", "RUNSTAT", "EXPRES" } );
+std::string HistogramFactory::getFullName(const HistogramDef& def) const {
+  const static std::set<std::string> online( { "EXPERT", "SHIFT", "DEBUG", "RUNSTAT", "EXPRESS" } );
   
   std::string path;
   if ( online.count( def.path)!=0 ) {
