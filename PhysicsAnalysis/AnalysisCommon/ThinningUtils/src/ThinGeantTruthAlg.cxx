@@ -28,6 +28,7 @@
 #include <algorithm> 
 
 // FrameWork includes
+#include "StoreGate/ThinningHandle.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
 
@@ -43,7 +44,6 @@
 ThinGeantTruthAlg::ThinGeantTruthAlg( const std::string& name,
                                              ISvcLocator* pSvcLocator ) :
 ::AthAlgorithm( name, pSvcLocator ),
-m_thinningSvc( "ThinningSvc/ThinningSvc", name ),
 m_doThinning(true),
 m_geantOffset(200000),
 m_longlived{310,3122,3222,3112,3322,3312},
@@ -54,8 +54,6 @@ m_nParticlesThinned{0},
 m_nVerticesThinned{0}
 {
    
-    declareProperty("ThinningSvc", m_thinningSvc,
-                    "The ThinningSvc instance for a particular output stream" );
     declareProperty("ThinGeantTruth", m_doThinning,
                     "Should the Geant truth thinning be run?");
     declareProperty("GeantBarcodeOffset", m_geantOffset,
@@ -77,7 +75,7 @@ StatusCode ThinGeantTruthAlg::initialize()
     ATH_MSG_DEBUG ("Initializing " << name() << "...");
     
     // Print out the used configuration
-    ATH_MSG_DEBUG ( " using = " << m_thinningSvc );
+    ATH_MSG_DEBUG ( " using = " << m_streamName );
 
     // Is truth thinning required?
     if (!m_doThinning) {
@@ -86,8 +84,13 @@ StatusCode ThinGeantTruthAlg::initialize()
         ATH_MSG_INFO("Geant truth will be thinned");
     }
 
-    ATH_CHECK(m_truthParticlesKey.initialize(m_doThinning));
-    ATH_CHECK(m_truthVerticesKey.initialize(m_doThinning));
+    if (m_doThinning && m_streamName.empty()) {
+      ATH_MSG_ERROR ("StreamName property was not initialized.");
+      return StatusCode::FAILURE;
+    }
+
+    ATH_CHECK(m_truthParticlesKey.initialize(m_streamName, m_doThinning));
+    ATH_CHECK(m_truthVerticesKey.initialize(m_streamName, m_doThinning));
     ATH_CHECK(m_electronsKey.initialize(m_doThinning));
     ATH_CHECK(m_photonsKey.initialize(m_doThinning));
     ATH_CHECK(m_muonsKey.initialize(m_doThinning));
@@ -120,8 +123,8 @@ StatusCode ThinGeantTruthAlg::execute()
     } 
    
     // Retrieve truth and vertex containers
-    SG::ReadHandle<xAOD::TruthParticleContainer> truthParticles(m_truthParticlesKey);
-    SG::ReadHandle<xAOD::TruthVertexContainer> truthVertices(m_truthVerticesKey);
+    SG::ThinningHandle<xAOD::TruthParticleContainer> truthParticles(m_truthParticlesKey);
+    SG::ThinningHandle<xAOD::TruthVertexContainer> truthVertices(m_truthVerticesKey);
     if(!truthParticles.isValid()){
         ATH_MSG_FATAL("No TruthParticleContainer with key "+m_truthParticlesKey.key()+" found.");
         return StatusCode::FAILURE;
@@ -277,15 +280,9 @@ StatusCode ThinGeantTruthAlg::execute()
             vertexMask[i] = true;
         } else {++m_nVerticesThinned;}
     }
-    // Apply masks to thinning service
-    if (m_thinningSvc->filter(*truthParticles, particleMask, IThinningSvc::Operator::Or).isFailure()) {
-        ATH_MSG_ERROR("Application of thinning service failed for truth particles! ");
-        return StatusCode::FAILURE;
-    }
-    if (m_thinningSvc->filter(*truthVertices, vertexMask, IThinningSvc::Operator::Or).isFailure()) {
-        ATH_MSG_ERROR("Application of thinning service failed for truth vertices! ");
-        return StatusCode::FAILURE;
-    }
+    // Apply masks to thinning
+    truthParticles.keep (particleMask);
+    truthVertices.keep (vertexMask);
     
     return StatusCode::SUCCESS;
 }

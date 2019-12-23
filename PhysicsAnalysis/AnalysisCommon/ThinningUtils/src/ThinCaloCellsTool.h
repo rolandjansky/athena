@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -28,12 +28,12 @@
 
 // Framework includes
 #include "GaudiKernel/ServiceHandle.h"
-#include "AthenaKernel/IThinningSvc.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IThinningTool.h"
 
 // EDM includes
 #include "AthLinks/ElementLink.h"
+#include "AthContainers/DataVector.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODBase/IParticle.h"
 #include "xAODParticleEvent/IParticleLink.h"
@@ -42,6 +42,11 @@
 #include "xAODTau/TauJet.h"
 #include "xAODJet/Jet.h"
 #include "xAODParticleEvent/CompositeParticle.h"
+#include "CaloEvent/CaloCellContainer.h"
+#include "StoreGate/ReadHandleKeyArray.h"
+#include "StoreGate/ThinningHandleKey.h"
+
+#include <atomic>
 
 
 //forward declaration
@@ -130,24 +135,23 @@ private:
                                           const xAOD::CompositeParticle* part ) const;
 
 
-  /// Pointer to IThinningSvc
-  ServiceHandle<IThinningSvc> m_thinningSvc;
-
-
   /// Name of the CaloCellContainer to thin
-  StringProperty m_caloCellKey;
+  SG::ThinningHandleKey<CaloCellContainer> m_caloCellKey
+  { this, "CaloCellsToThin", "AllCells", "The CaloCellContainer to be thinned" };
 
-  /// List of names of the object collections
-  StringArrayProperty m_inCollKeyList;
+  StringProperty m_streamName
+  { this, "StreamName", "", "Name of the stream being thinned" };
+
+  /// List of the object collections
+  /// This can be used to read any DataVector type.
+  SG::ReadHandleKeyArray<SG::AuxVectorBase> m_inCollKeyList
+  { this, "InputContainerList", {}, "Containers from which to extract the information which CaloCells should be kept" };
 
 
-
-  /// The number of given CaloCells in the current event
-  mutable std::size_t m_nTotalCaloCells;
 
   // Declare some counters and initialize them to zero
   /// Event counter
-  mutable unsigned long m_nEventsProcessed;
+  mutable std::atomic<unsigned long> m_nEventsProcessed;
 
 };
 
