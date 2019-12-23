@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSegmentFinderAlg.h"
@@ -53,7 +53,6 @@ MuonSegmentFinderAlg::MuonSegmentFinderAlg(const std::string& name, ISvcLocator*
   declareProperty("MuonClusterSegmentFinder",m_clusterSegMaker);
   //
   declareProperty("SegmentCollectionName",m_segmentCollectionName="MuonSegments");
-  declareProperty("UseNSWMode",m_useNSWMode = false);
   declareProperty("doTGCClust",m_doTGCClust = false);
   declareProperty("doRPCClust",m_doRPCClust = false);
 
@@ -287,7 +286,7 @@ void MuonSegmentFinderAlg::createSegmentsFromClusters(Muon::MuonPatternCombinati
 
 void MuonSegmentFinderAlg::createSegmentsWithMDTs(Muon::MuonPatternCombination* patcomb, std::vector<const Muon::MuonSegment*>& segments ) { 
 
-  if( m_useNSWMode ){
+  if(m_idHelperTool->HasMM() && m_idHelperTool->HasSTgc()) {
 
     //break the pattern combination into regions and calibrate the PRDs
     std::set<int> calibratedRegions;
