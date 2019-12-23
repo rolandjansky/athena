@@ -26,7 +26,7 @@
 #include "AthContainers/ConstDataVector.h"
 
 #include "egammaInterfaces/IegammaCaloClusterSelector.h"
-#include "GaudiKernel/Counters.h"
+#include <Gaudi/Accumulators.h>
 
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "StoreGate/ReadCondHandleKey.h"

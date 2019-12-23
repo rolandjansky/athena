@@ -16,7 +16,7 @@ AlgTool inheriting from the IMultiStateExtrapolator class
 #ifndef TrkGsfExtrapolator_H
 #define TrkGsfExtrapolator_H
 
-#include "GaudiKernel/Counters.h"
+#include <Gaudi/Accumulators.h>
 
 #include "TrkExInterfaces/IEnergyLossUpdator.h"
 #include "TrkExInterfaces/INavigator.h"
