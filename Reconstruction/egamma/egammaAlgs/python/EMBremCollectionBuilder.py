@@ -7,18 +7,16 @@ __author__ = "Christos"
 from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
 from InDetRecExample.InDetKeys import InDetKeys
 from AthenaCommon.Logging import logging
-
-from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.DetFlags import DetFlags
-from AthenaCommon.GlobalFlags import globalflags
 from RecExConfig.RecFlags import rec
 from InDetRecExample.InDetJobProperties import InDetFlags
-
 # import base class
 from egammaAlgs import egammaAlgsConf
 from egammaTools.InDetTools import egammaExtrapolator
 from egammaRec.Factories import AlgFactory
 from egammaRec import egammaKeys
+
+import InDetRecExample.TrackingCommon as TrackingCommon
 
 
 class egammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
@@ -30,100 +28,59 @@ class egammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
 
         super(egammaBremCollectionBuilder, self).__init__(name, **kw)
 
-        # do the configuration
+        # Extrapolator to be used for GSF
         import egammaRec.EMCommonRefitter
         GSFBuildInDetExtrapolator = egammaExtrapolator()
 
+        # Some of the InDet tool need the extrapolator to be passed
+        # to be public. We can remove this part if this becomes
+        # not needed
         from AthenaCommon.AppMgr import ToolSvc
         ToolSvc += GSFBuildInDetExtrapolator
 
         from egammaTrackTools.egammaTrackToolsConf import egammaTrkRefitterTool
-        from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
         GSFRefitterTool = egammaTrkRefitterTool(name='GSFRefitterTool',
                                                 FitterTool=egammaRec.EMCommonRefitter.getGSFTrackFitter(),
                                                 useBeamSpot=False,
-                                                Extrapolator=AtlasExtrapolator(),
+                                                Extrapolator=GSFBuildInDetExtrapolator,
                                                 ReintegrateOutliers=True)
         #
-        # Load association tool from Inner Detector to handle pixel ganged ambiguities
+        # Association tool from Inner Detector to handle pixel ganged ambiguities
         #
-        from InDetAssociationTools.InDetAssociationToolsConf import InDet__InDetPRD_AssociationToolGangedPixels
-        GSFBuildInDetPrdAssociationTool = InDet__InDetPRD_AssociationToolGangedPixels(name="GSFBuildInDetPrdAssociationTool",
-                                                                                      PixelClusterAmbiguitiesMapName='PixelClusterAmbiguitiesMap')
-
-        if DetFlags.haveRIO.pixel_on():
-            from PixelConditionsTools.PixelConditionsSummaryToolSetup import PixelConditionsSummaryToolSetup
-            pixelConditionsSummaryToolSetup = PixelConditionsSummaryToolSetup()
-            pixelConditionsSummaryToolSetup.setUseConditions(True)
-            pixelConditionsSummaryToolSetup.setUseDCSState(
-                (globalflags.DataSource == 'data') and InDetFlags.usePixelDCS())
-            pixelConditionsSummaryToolSetup.setUseByteStream(
-                (globalflags.DataSource == 'data'))
-            pixelConditionsSummaryToolSetup.setUseTDAQ(False)
-            pixelConditionsSummaryToolSetup.setUseDeadMap(True)
-            pixelConditionsSummaryToolSetup.setup()
-
-            InDetPixelConditionsSummaryTool = pixelConditionsSummaryToolSetup.getTool()
-
-            if InDetFlags.usePixelDCS():
-                InDetPixelConditionsSummaryTool.IsActiveStates = [
-                    'READY', 'ON', 'UNKNOWN', 'TRANSITION', 'UNDEFINED']
-                InDetPixelConditionsSummaryTool.IsActiveStatus = [
-                    'OK', 'WARNING', 'ERROR', 'FATAL']
+        GSFBuildInDetPrdAssociationTool = TrackingCommon.getInDetPrdAssociationTool(
+            name="GSFBuildInDetPrdAssociationTool")
 
         #
-        #  Load BLayer tool
+        #  BLayer and Pixel Related Tools
         #
         GSFBuildTestBLayerTool = None
-        if DetFlags.haveRIO.pixel_on():
-            from InDetTestBLayer.InDetTestBLayerConf import InDet__InDetTestBLayerTool
-
-            GSFBuildTestBLayerTool = InDet__InDetTestBLayerTool(name="GSFBuildTestBLayerTool",
-                                                                PixelSummaryTool=InDetPixelConditionsSummaryTool,
-                                                                Extrapolator=GSFBuildInDetExtrapolator)
-        #
-        #  Configurable version of TRT_ElectronPidTools
-        #
-        GSFBuildTRT_ElectronPidTool = None
-        if DetFlags.haveRIO.TRT_on() and not InDetFlags.doSLHC(
-        ) and not InDetFlags.doHighPileup():
-
-            # Calibration DB Service
-            from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
-            InDetTRTCalDbTool = TRT_CalDbTool(name="TRT_CalDbTool")
-
-            # Straw status DB Tool
-            from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool
-            InDetTRTStrawStatusSummaryTool = TRT_StrawStatusSummaryTool(name="TRT_StrawStatusSummaryTool",
-                                                                        isGEANT4=(globalflags.DataSource == 'geant4'))
-
-            from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_LocalOccupancy
-            GSFBuildTRT_LocalOccupancy = InDet__TRT_LocalOccupancy(name="GSF_TRT_LocalOccupancy",
-                                                                   isTrigger=False,
-                                                                   TRTCalDbTool=InDetTRTCalDbTool,
-                                                                   TRTStrawStatusSummaryTool=InDetTRTStrawStatusSummaryTool)
-
-            ToolSvc += GSFBuildTRT_LocalOccupancy
-
-            from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_ElectronPidToolRun2
-            GSFBuildTRT_ElectronPidTool = InDet__TRT_ElectronPidToolRun2(name="GSFBuildTRT_ElectronPidTool",
-                                                                         TRT_LocalOccupancyTool=GSFBuildTRT_LocalOccupancy,
-                                                                         TRTStrawSummaryTool=InDetTRTStrawStatusSummaryTool,
-                                                                         isData=(globalflags.DataSource == 'data'))
-
-            ToolSvc += GSFBuildTRT_ElectronPidTool
-
-        #
-        #  Configurable version of PixelToTPIDTOol
-        #
         GSFBuildPixelToTPIDTool = None
         if DetFlags.haveRIO.pixel_on():
-            from PixelToTPIDTool.PixelToTPIDToolConf import InDet__PixelToTPIDTool
-            GSFBuildPixelToTPIDTool = InDet__PixelToTPIDTool(
+
+            GSFPixelConditionsSummaryTool = TrackingCommon.getInDetPixelConditionsSummaryTool()
+            if InDetFlags.usePixelDCS():
+                GSFPixelConditionsSummaryTool.IsActiveStates = [
+                    'READY', 'ON', 'UNKNOWN', 'TRANSITION', 'UNDEFINED']
+                GSFPixelConditionsSummaryTool.IsActiveStatus = [
+                    'OK', 'WARNING', 'ERROR', 'FATAL']
+
+            GSFBuildTestBLayerTool = TrackingCommon.getInDetRecTestBLayerTool(name="GSFBuildTestBLayerTool",
+                                                                              PixelSummaryTool=GSFPixelConditionsSummaryTool,
+                                                                              Extrapolator=GSFBuildInDetExtrapolator)
+
+            GSFBuildPixelToTPIDTool = TrackingCommon.getInDetPixelToTPIDTool(
                 name="GSFBuildPixelToTPIDTool")
 
         #
-        #  Configrable version of loading the InDetTrackSummaryHelperTool
+        #  TRT_ElectronPidTool
+        #
+        GSFBuildTRT_ElectronPidTool = None
+        if DetFlags.haveRIO.TRT_on() and not InDetFlags.doSLHC() and not InDetFlags.doHighPileup():
+            GSFBuildTRT_ElectronPidTool = TrackingCommon.getInDetTRT_ElectronPidTool(
+                name="GSFBuildTRT_ElectronPidTool")
+
+        #
+        #  InDet Track Summary Helper
         #
         from InDetTrackSummaryHelperTool.InDetTrackSummaryHelperToolConf import InDet__InDetTrackSummaryHelperTool
         GSFBuildTrackSummaryHelperTool = InDet__InDetTrackSummaryHelperTool(name="GSFBuildTrackSummaryHelperTool",
@@ -134,9 +91,8 @@ class egammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
                                                                             usePixel=DetFlags.haveRIO.pixel_on(),
                                                                             useSCT=DetFlags.haveRIO.SCT_on(),
                                                                             useTRT=DetFlags.haveRIO.TRT_on())
-        ToolSvc += GSFBuildTrackSummaryHelperTool
         #
-        #  Configurable version of TrkTrackSummaryTool: no TRT_PID tool needed here (no shared hits)
+        #  TrkTrackSummaryTool: no shared hits and avoid repeat of hole search
         #
         from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
         GSFBuildInDetTrackSummaryTool = Trk__TrackSummaryTool(name="GSFBuildInDetTrackSummaryTool",
@@ -145,9 +101,10 @@ class egammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
                                                               doHolesInDet=False,
                                                               TRT_ElectronPidTool=GSFBuildTRT_ElectronPidTool,
                                                               PixelToTPIDTool=GSFBuildPixelToTPIDTool)
+
         ToolSvc += GSFBuildInDetTrackSummaryTool
         #
-        #  load patricle creator tool
+        #  Track Particle Creator tool
         #
         from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
         GSFBuildInDetParticleCreatorTool = Trk__TrackParticleCreatorTool(name="GSFBuildInDetParticleCreatorTool",
