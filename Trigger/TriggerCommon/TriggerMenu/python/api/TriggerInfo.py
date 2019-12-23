@@ -465,10 +465,10 @@ class TriggerChain:
         selfcounter = Counter(self.legs)
         othercounter = Counter(other.legs)
         for leg, count in selfcounter.iteritems():
-            if not leg in othercounter or count > othercounter[leg]: break
+            if leg not in othercounter or count > othercounter[leg]: break
         else: return 1
         for leg, count in othercounter.iteritems():
-            if not leg in selfcounter or count > selfcounter[leg]: break
+            if leg not in selfcounter or count > selfcounter[leg]: break
         else: return 0
         return -1
 

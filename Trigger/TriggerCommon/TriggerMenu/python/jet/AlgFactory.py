@@ -141,7 +141,7 @@ class AlgFactory(object):
         """Instantiate a python object for TrigHLTJetRec that will
         use TriggerTower objcts as as input."""
 
-        merge_param_str = str(self.fex_params.merge_param).zfill(2)
+        # merge_param_str = str(self.fex_params.merge_param).zfill(2)
     
         factory = 'TrigHLTJetRecFromTriggerTower'
         # add factory to instance label to facilitate log file searches
@@ -467,10 +467,6 @@ class AlgFactory(object):
 
     def superRoIMaker(self):
         factory = 'SeededAlgo'
-
-        params = {'UseRoiSizes':False,
-                  'EtaHalfWidth':0.5,
-                  'PhiHalfWidth':0.5}
 
         name = '"SeededAlgo_%s"' % self.seed
 

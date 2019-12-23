@@ -23,7 +23,7 @@ class LVL1MenuItem(object):
         self.name             = name
         self.group            = group
         self.ctpid            = int(ctpid)
-        self.psCut            = psCut if psCut!=None else getCutFromPrescale(prescale)
+        self.psCut            = psCut if psCut is not None else getCutFromPrescale(prescale)
         self.complex_deadtime = complex_deadtime
         self.trigger_type     = 0
         self.partition        = LVL1MenuItem.currentPartition
@@ -80,13 +80,13 @@ class LVL1MenuItem(object):
         return self
 
     def thresholdNames(self, include_bgrp=False):
-        if self.logic!=None:
+        if self.logic is not None:
             return self.logic.thresholdNames(include_bgrp)
         else:
             return []
 
     def conditions(self, include_internal=False):
-        if self.logic!=None:
+        if self.logic is not None:
             return self.logic.conditions(include_internal)
         else:
             return []

@@ -8,11 +8,7 @@ instance."""
 
 #from TriggerJobOpts.TriggerFlags import TriggerFlags
 
-from TrigGenericAlgs.TrigGenericAlgsConf import \
-    PESA__DummyUnseededAllTEAlgo as DummyAlgo
-
-from TrigGenericAlgs.TrigGenericAlgsConf import \
-    PESA__SeededSuperRoiAllTEAlgo as SeededAlgo
+from TrigGenericAlgs.TrigGenericAlgsConf import PESA__SeededSuperRoiAllTEAlgo as SeededAlgo  # noqa : F401
 
 # from TrigGenericAlgs.TrigGenericAlgsConf import DummyFEX
 
@@ -23,15 +19,15 @@ from TrigGenericAlgs.TrigGenericAlgsConf import \
 #                                           TrigCaloClusterMaker_topo,
 #                                           TrigLArNoisyROAlgConfig)
 
-from TrigCaloRec.TrigCaloRecConfig import (TrigCaloCellMaker_jet_fullcalo,
+from TrigCaloRec.TrigCaloRecConfig import (TrigCaloCellMaker_jet_fullcalo, # noqa: F401
                                            TrigCaloCellMaker_jet_super,
                                            TrigCaloClusterMaker_topo)
 
-from TrigCaloRec.TrigCaloRecConf import (TrigL1BSTowerMaker,)
+from TrigCaloRec.TrigCaloRecConf import (TrigL1BSTowerMaker,) # noqa: F401
 
-from TrigHLTJetRec.TrigHLTJetRecConf import TrigHLTRoIDiagnostics
+from TrigHLTJetRec.TrigHLTJetRecConf import TrigHLTRoIDiagnostics # noqa: F401
 
-from TrigHLTJetRec.TrigHLTJetRecConfig import (TrigHLTJetDiagnostics_named,
+from TrigHLTJetRec.TrigHLTJetRecConfig import (TrigHLTJetDiagnostics_named, # noqa: F401
                                                TrigHLTJetRecFromCluster,
                                                TrigHLTJetRecFromJet,
                                                TrigHLTJetRecGroomer,
@@ -45,16 +41,16 @@ from TrigHLTJetRec.TrigHLTJetRecConfig import (TrigHLTJetDiagnostics_named,
                                                TrigHLTJetDSSelector,
                                                TrigHLTTrackMomentHelpers,)
 
-from TrigHLTJetHypo.TrigHLTJetHypoConfig import TrigHLTJetHypo2
+from TrigHLTJetHypo.TrigHLTJetHypoConfig import TrigHLTJetHypo2 # noqa: F401
 
-from TrigDetCalib.TrigDetCalibConf import ScoutingStreamWriter
+from TrigDetCalib.TrigDetCalibConf import ScoutingStreamWriter # noqa: F401
 
-from TrigHIRec.TrigHICaloRec import (TrigCaloTowerMaker_hijet,
+from TrigHIRec.TrigHICaloRec import (TrigCaloTowerMaker_hijet, # noqa: F401
                                      TrigHIClusterMaker_hijet,
                                      TrigHIEventShapeMaker_hijet,
                                     )
                                     
-from TrigHIRec.TrigHLTHIJetRecConfig import TrigHLTHIJetRecFromHICluster
+from TrigHIRec.TrigHLTHIJetRecConfig import TrigHLTHIJetRecFromHICluster # noqa: F401
 
 abomination_to_keep_config_weakvalue_dict_intact = []
 

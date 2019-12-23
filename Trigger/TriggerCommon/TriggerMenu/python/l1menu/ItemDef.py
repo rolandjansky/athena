@@ -5,7 +5,6 @@ from __future__ import print_function
 
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
-import re
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TriggerMenu.Lvl1.py')
@@ -13,9 +12,9 @@ log = logging.getLogger('TriggerMenu.Lvl1.py')
 # The trigger types
 from TriggerMenu.l1.TriggerTypeDef import TT
 from TriggerMenu.l1.Limits import Limits
-from TriggerMenu.l1.Logic import Logic,Not
-from TriggerMenu.l1.Lvl1MenuItems import LVL1MenuItem
-from TriggerMenu.l1.Lvl1Condition import ThrCondition, Lvl1InternalTrigger
+from TriggerMenu.l1.Logic import Logic,Not # noqa: F401
+from TriggerMenu.l1.Lvl1MenuItems import LVL1MenuItem # noqa: F401
+from TriggerMenu.l1.Lvl1Condition import ThrCondition, Lvl1InternalTrigger # noqa: F401
 
 
 class ItemDef:
@@ -60,14 +59,6 @@ class ItemDef:
         alfacalib           = BGRP0 & BGRP10
         abortgap            = BGRP0 & BGRP8
         
-        # partition 1
-        bgrpcond1           = BGRP0 & BGRP11
-        calibcond1          = BGRP0 & BGRP12
-
-        # partition 2
-        bgrpcond2           = BGRP0 & BGRP14
-
-
         LVL1MenuItem.currentPartition = 1
 
 
@@ -1051,8 +1042,6 @@ class ItemDef:
 
         # LUT 24 (9 Outputs)
         ALFA_ANY          = ALFA3_B7L1U | ALFA3_B7L1L | ALFA3_A7L1U | ALFA3_A7L1L | ALFA3_A7R1U | ALFA3_A7R1L | ALFA3_B7R1U | ALFA3_B7R1L # 0
-        NOT_ALFA_ANY_A    = Not(ALFA3_B7L1U | ALFA3_B7L1L | ALFA3_A7L1U | ALFA3_A7L1L)  #  1-4
-        NOT_ALFA_ANY_C    = Not(ALFA3_A7R1U | ALFA3_A7R1L | ALFA3_B7R1U | ALFA3_B7R1L)  #  5-8
 
         # LUT 25 (4 outputs)
         ALFA_AE1          = ALFA4_B7L1U | ALFA4_A7L1U | ALFA4_B7L1L | ALFA4_A7L1L
@@ -1482,11 +1471,11 @@ class ItemDef:
      
                     LVL1MenuItem('L1_LFV-MU6').setLogic( TOPO_0DR15_2MU6ab & physcond)
                     LVL1MenuItem('L1_LFV-MU').setLogic( TOPO_0DR10_MU10ab_MU6ab & physcond)
-                    if not '_v7' in TriggerFlags.triggerMenuSetup():
+                    if '_v7' not in TriggerFlags.triggerMenuSetup():
                         LVL1MenuItem('L1_LFV-EM8I').setLogic( TOPO_0DETA04_0DPHI03_EM8abi_MU10ab & physcond)
                     else:
                         LVL1MenuItem('L1_LFV-EM8I').setLogic( TOPO_0DETA04_EM8abi_MU10ab & TOPO_0DPHI03_EM8abi_MU10ab & physcond) #ATR-14282
-                    if not '_v7' in TriggerFlags.triggerMenuSetup():
+                    if '_v7' not in TriggerFlags.triggerMenuSetup():
                         LVL1MenuItem('L1_LFV-EM15I').setLogic( TOPO_0DETA04_0DPHI03_EM15abi_MUab & physcond)
                     else:
                         LVL1MenuItem('L1_LFV-EM15I').setLogic( TOPO_0DETA04_EM15abi_MUab & TOPO_0DPHI03_EM15abi_MUab & physcond) #ATR-14282

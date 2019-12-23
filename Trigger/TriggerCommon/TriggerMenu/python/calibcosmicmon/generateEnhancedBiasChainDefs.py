@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ##########################################################################################
 ##########################################################################################
@@ -9,15 +9,13 @@ from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 mlog = logging.getLogger("TriggerMenu.calibcosmic.generateEnhancedBiasChainDefs")
 
-from TriggerMenu.calibcosmicmon.EnhancedBiasDefs import *
-from TriggerMenu.menu.MenuUtils import *
+from TriggerMenu.calibcosmicmon.EnhancedBiasDefs import L2EFChain_EnhancedBiasTemplate
+from TriggerMenu.menu.MenuUtils import splitChainDict, mergeChainDefs
 
 ##########################################################################################
 ##########################################################################################
 
 def generateChainDefs(chainDict):
-    chainParts = chainDict['chainParts']
-    
     listOfChainDicts = splitChainDict(chainDict)
     listOfChainDefs = []
 

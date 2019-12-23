@@ -91,7 +91,7 @@ class Logic(object):
     def __str__(self):
         s = ''
         if self.logic == Logic.NONE:
-            if len(self.subConditions)==0 and self.condition!=None:
+            if len(self.subConditions)==0 and self.condition is not None:
                 return str(self.condition)
             if len(self.subConditions)==1:
                 return str(self.subConditions[0])
@@ -125,7 +125,7 @@ class Logic(object):
 
     def thresholdNames(self, include_bgrp=False):
         names = set([])
-        if self.condition!=None:
+        if self.condition is not None:
             from .Lvl1Condition import Lvl1InternalTrigger
             if isinstance(self.condition, Lvl1InternalTrigger):
                 if include_bgrp:
@@ -140,7 +140,7 @@ class Logic(object):
 
     def conditions(self, include_internal=False):
         cond = set([])
-        if self.condition!=None:
+        if self.condition is not None:
             from .Lvl1Condition import Lvl1InternalTrigger
             if isinstance(self.condition, Lvl1InternalTrigger):
                 if include_internal:
@@ -190,7 +190,7 @@ class Logic(object):
 
     def printIt(self):
         for a in self.subConditions:
-            if a.logic==a.NONE and a.condition!=None:
+            if a.logic is a.NONE and a.condition is not None:
                 log.info('subCondition :', str(a.condition))
             else:
                 log.info('subCondition :', a.printIt())
