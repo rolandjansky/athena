@@ -310,12 +310,30 @@ namespace CP {
   
   const Root::TAccept& MuonSelectionTool::accept( const xAOD::Muon& mu ) const {
     
+    // Verbose information
+    ATH_MSG_VERBOSE( "-----------------------------------" );
+    ATH_MSG_VERBOSE( "New muon passed to accept function:" );
+    if(mu.muonType() == xAOD::Muon::Combined)
+      ATH_MSG_VERBOSE( "Muon type: combined" );
+    else if(mu.muonType() == xAOD::Muon::MuonStandAlone)
+      ATH_MSG_VERBOSE( "Muon type: stand-alone" );
+    else if(mu.muonType() == xAOD::Muon::SegmentTagged)
+      ATH_MSG_VERBOSE( "Muon type: segment-tagged" );
+    else if(mu.muonType() == xAOD::Muon::CaloTagged)
+      ATH_MSG_VERBOSE( "Muon type: calorimeter-tagged" );
+    else if(mu.muonType() == xAOD::Muon::SiliconAssociatedForwardMuon)
+      ATH_MSG_VERBOSE( "Muon type: silicon-associated forward" );
+    ATH_MSG_VERBOSE( "Muon pT [GeV]: " << mu.pt()/1000. );
+    ATH_MSG_VERBOSE( "Muon eta: " << mu.eta() );
+    ATH_MSG_VERBOSE( "Muon phi: " << mu.phi() );
+
+
     // Reset the result:
     m_accept.clear();
 
     // Do the eta cut:
-    ATH_MSG_VERBOSE( "Muon eta: " << mu.eta() );
     if( std::abs( mu.eta() ) > m_maxEta ) {
+      ATH_MSG_VERBOSE( "Failed eta cut" );
       return m_accept;
     }
     m_accept.setCutResult( "Eta", true );
@@ -340,6 +358,7 @@ namespace CP {
     thisMu_highpt = passedHighPtCuts(mu);
     bool thisMu_lowptE=false;
     thisMu_lowptE = passedLowPtEfficiencyCuts(mu,thisMu_quality);
+    ATH_MSG_VERBOSE( "Summary of quality information for this muon: ");
     ATH_MSG_VERBOSE( "Muon quality: " << thisMu_quality << " passes HighPt: "<< thisMu_highpt << " passes LowPtEfficiency: "<< thisMu_lowptE );
     if(m_quality<4 && thisMu_quality > m_quality){
       return m_accept;
@@ -363,11 +382,16 @@ namespace CP {
   xAOD::Muon::Quality MuonSelectionTool::getQuality( const xAOD::Muon& mu ) const {
     using namespace xAOD;
     
+    ATH_MSG_VERBOSE( "Evaluating muon quality..." );
+
     // Combined muons
     if (mu.muonType()==xAOD::Muon::Combined){
 
+      ATH_MSG_VERBOSE( "Muon is combined" );
+
       // formally switching off STACO for Rel 20.7 (preliminary) 
       if (mu.author()==xAOD::Muon::STACO){
+	ATH_MSG_VERBOSE( "Muon is STACO - return VeryLoose" );
 	return xAOD::Muon::VeryLoose;
       }
 
@@ -378,6 +402,7 @@ namespace CP {
         return xAOD::Muon::VeryLoose;
       }
       if (m_combinedTrackOutBoundsPrecisionHits>0){
+	ATH_MSG_VERBOSE( "Muon has out-of-bounds precision hits - return VeryLoose" );
         return xAOD::Muon::VeryLoose;
       }
       
@@ -422,6 +447,7 @@ namespace CP {
 
 	//---- FIX FOR CSC ----
 	if( fabs(mu.eta()) > 2.0 ) {
+	  ATH_MSG_VERBOSE( "Recalculating number of precision layers for combined muon" );
 	  nprecisionLayers = 0;
 	  uint8_t innerSmallHits, innerLargeHits, middleSmallHits, middleLargeHits, outerSmallHits, outerLargeHits;
 	  if ( !mu.summaryValue(innerSmallHits, xAOD::MuonSummaryType::innerSmallHits) ||
@@ -439,37 +465,65 @@ namespace CP {
 	  if( outerSmallHits>2  || outerLargeHits>2  ) nprecisionLayers += 1;
 	}
 
+	ATH_MSG_VERBOSE( "Relevant cut variables:" );
+	ATH_MSG_VERBOSE( "number of precision layers = " << (int)nprecisionLayers );
+	ATH_MSG_VERBOSE( "reduced Chi2 = " << reducedChi2 );
+	ATH_MSG_VERBOSE( "qOverP significance = " << qOverPsignif );
+
+
 	// NEW TIGHT WP  
         if( nprecisionLayers>1 && reducedChi2<8 && fabs(qOverPsignif)<7 ) {
 	  if( passTight(mu,rho,qOverPsignif) ) {
+	    ATH_MSG_VERBOSE( "Muon is tight" );
 	    return xAOD::Muon::Tight;
 	  }
         }
 
+	ATH_MSG_VERBOSE( "Muon did not pass requirements for tight combined muon" );
+
         // MEDIUM WP
         if( (fabs(qOverPsignif) < 7 || m_toroidOff)
             && (nprecisionLayers > 1 || ( nprecisionLayers == 1 && nprecisionHoleLayers < 2 && fabs(mu.eta())<0.1) ) ) {
+	  ATH_MSG_VERBOSE( "Muon is medium" );
           return xAOD::Muon::Medium;
         }
 
+	ATH_MSG_VERBOSE( "Muon did not pass requirements for medium combined muon" );
+
       } else {
+
+	ATH_MSG_VERBOSE( "Muon is missing the ID and/or ME tracks..." );
+
         // CB muons with missing ID or ME track
-        if( (nprecisionLayers > 1 || ( nprecisionLayers == 1 && nprecisionHoleLayers < 2 && fabs(mu.eta())<0.1) ) )
+        if( (nprecisionLayers > 1 || ( nprecisionLayers == 1 && nprecisionHoleLayers < 2 && fabs(mu.eta())<0.1) ) ) {
           // In toroid-off data ME/MS tracks often missing - need special treatment  => flagging as "Medium"
           // In toroid-on data ME/MS tracks missing only for <1% of CB muons, mostly MuGirl (to be fixed) => flagging as "Loose"
-          return (m_toroidOff ? xAOD::Muon::Medium : xAOD::Muon::Loose);
+	  if (m_toroidOff) {
+	    ATH_MSG_VERBOSE( "...this is toroid-off data - returning medium" );
+	    return xAOD::Muon::Medium;
+	  }
+	  else {
+	    ATH_MSG_VERBOSE( "...this is not toroid-off data - returning loose" );
+            return xAOD::Muon::Loose;
+	  }
+	}
       }
 
       // Improvement for Loose targeting low-pT muons (pt<7 GeV)
-      if ( mu.pt()/1000.<7. && fabs(mu.eta())<1.3 && nprecisionLayers>0 && (mu.author()==xAOD::Muon::MuGirl && mu.isAuthor(xAOD::Muon::MuTagIMO)) ) 
+      if ( mu.pt()/1000.<7. && fabs(mu.eta())<1.3 && nprecisionLayers>0 && (mu.author()==xAOD::Muon::MuGirl && mu.isAuthor(xAOD::Muon::MuTagIMO)) ) {
+	ATH_MSG_VERBOSE( "Muon passed selection for loose working point at low pT" );
 	return xAOD::Muon::Loose;
+      }
 
       // didn't pass the set of requirements for a medium or tight combined muon
+      ATH_MSG_VERBOSE( "Did not pass selections for combined muon - returning VeryLoose" );
       return xAOD::Muon::VeryLoose;
     }
     
     // SA muons
     if ( mu.author()==xAOD::Muon::MuidSA ) {
+
+      ATH_MSG_VERBOSE( "Muon is stand-alone" );
 
       if(fabs(mu.eta())>2.5){
 
@@ -499,16 +553,24 @@ namespace CP {
 	  return xAOD::Muon::VeryLoose;
 	  }*/
 
+	ATH_MSG_VERBOSE( "number of precision layers = " << (int)nprecisionLayers );
+
 	// 3 station requirement for medium
-	if( nprecisionLayers>2 && !m_toroidOff )  return xAOD::Muon::Medium;
+	if( nprecisionLayers>2 && !m_toroidOff )  {
+	  ATH_MSG_VERBOSE( "Muon is medium" );
+	  return xAOD::Muon::Medium;
+	}
       }
 
       // didn't pass the set of requirements for a medium SA muon
+      ATH_MSG_VERBOSE( "Muon did not pass selection for medium stand-alone muon - return VeryLoose" );
       return xAOD::Muon::VeryLoose;
     }
 
     // SiliconAssociatedForward (SAF) muons
     if ( mu.muonType()==xAOD::Muon::SiliconAssociatedForwardMuon ){
+
+      ATH_MSG_VERBOSE( "Muon is silicon-associated forward muon" );
 
       const xAOD::TrackParticle* cbtrack = mu.trackParticle( xAOD::Muon::CombinedTrackParticle );
       const xAOD::TrackParticle* metrack = mu.trackParticle( xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle );
@@ -540,6 +602,8 @@ namespace CP {
 	    ATH_MSG_VERBOSE("getQuality - #precision layers missing in SiliconAssociatedForward muon! Aborting.");
 	    return xAOD::Muon::VeryLoose;
 	    }*/
+
+	  ATH_MSG_VERBOSE( "number of precision layers = " << (int)nprecisionLayers );
 	  
 	  if( nprecisionLayers >2 && !m_toroidOff  ) {
 	    if (mu.trackParticle( xAOD::Muon::Primary )  == mu.trackParticle( xAOD::Muon::InnerDetectorTrackParticle ) && !m_developMode ){
@@ -550,29 +614,44 @@ namespace CP {
 	    // xAOD::Muon& mymu = const_cast<xAOD::Muon&>(mu);
 	    // fixing the muon 4-vector to return the desired quantities
 	    // mymu.setP4( metrack->pt(), cbtrack->eta(), cbtrack->phi() );
+	    ATH_MSG_VERBOSE( "Muon is medium" );
 	    return xAOD::Muon::Medium;
 	  }
 	}
       }
 
       // didn't pass the set of requirements for a medium SAF muon
+      ATH_MSG_VERBOSE( "Muon did not pass selection for medium silicon-associated forward muon - return VeryLoose" );
       return xAOD::Muon::VeryLoose;      
     }
     
     // SegmentTagged muons
     if (mu.muonType()==xAOD::Muon::SegmentTagged){
-      if(fabs(mu.eta())<0.1)
+
+      ATH_MSG_VERBOSE( "Muon is segment-tagged" );
+
+      if(fabs(mu.eta())<0.1) {
+	ATH_MSG_VERBOSE( "Muon is loose" );
     	return xAOD::Muon::Loose;
-      else
+      }
+      else {
+	ATH_MSG_VERBOSE( "Do not allow segment-tagged muon at |eta| > 0.1 - return VeryLoose" );
     	return xAOD::Muon::VeryLoose;
+      }
     }
 
     // CaloTagged muons
     if (mu.muonType()==xAOD::Muon::CaloTagged ){
-      if(fabs(mu.eta())<0.1 && passedCaloTagQuality(mu))
+
+      ATH_MSG_VERBOSE( "Muon is calorimeter-tagged" );
+
+      if(fabs(mu.eta())<0.1 && passedCaloTagQuality(mu)) {
+	ATH_MSG_VERBOSE( "Muon is loose" );
 	return xAOD::Muon::Loose;
+      }
     }
     
+    ATH_MSG_VERBOSE( "Muon did not pass selection for loose/medium/tight for any muon type - return VeryLoose" );
     return xAOD::Muon::VeryLoose;
   }
   
@@ -670,20 +749,41 @@ namespace CP {
 
   bool MuonSelectionTool::passedLowPtEfficiencyCuts( const xAOD::Muon& mu, xAOD::Muon::Quality thisMu_quality ) const {
 
-    if(!m_useAllAuthors) return false; //no allAuthors, always fail the WP
+    ATH_MSG_VERBOSE( "Checking whether muon passes low-pT selection..." );
+
+    if(!m_useAllAuthors) { //no allAuthors, always fail the WP
+      ATH_MSG_VERBOSE( "Do not have allAuthors variable - fail low-pT" );
+      return false; 
+    }
 
     // requiring combined muons
-    if( mu.muonType() != xAOD::Muon::Combined ) return false;
-    if( mu.author()!=xAOD::Muon::MuGirl && mu.author()!=xAOD::Muon::MuidCo ) return false;
+    if( mu.muonType() != xAOD::Muon::Combined ) {
+      ATH_MSG_VERBOSE( "Muon is not combined - fail low-pT" );
+      return false;
+    }
+    if( mu.author()!=xAOD::Muon::MuGirl && mu.author()!=xAOD::Muon::MuidCo ) {
+      ATH_MSG_VERBOSE( "Muon is neither MuGirl nor MuidCo - fail low-pT" );
+      return false;
+    }
 
     // applying Medium selection above pT = 18 GeV 
     if( mu.pt()/1000.>18. ) {
-      if( thisMu_quality <= xAOD::Muon::Medium ) return true;
-      else return false;
+      ATH_MSG_VERBOSE( "pT > 18 GeV - apply medium selection" );
+      if( thisMu_quality <= xAOD::Muon::Medium ) {
+	ATH_MSG_VERBOSE( "Muon passed low-pT selection" );
+	return true;
+      }
+      else {
+	ATH_MSG_VERBOSE( "Muon failed low-pT selection" );
+	return false;
+      }
     }
 
     // requiring Medium in forward regions
-    if( !m_useMVALowPt && fabs(mu.eta())>1.55 && thisMu_quality > xAOD::Muon::Medium ) return false;
+    if( !m_useMVALowPt && fabs(mu.eta())>1.55 && thisMu_quality > xAOD::Muon::Medium ) {
+      ATH_MSG_VERBOSE( "Not using MVA selection, failing low-pT selection due to medium requirement in forward region" );
+      return false;
+    }
     
     // rejection of muons with out-of-bounds hits 
     uint8_t m_combinedTrackOutBoundsPrecisionHits;
@@ -692,6 +792,7 @@ namespace CP {
       return false;
     }
     if (m_combinedTrackOutBoundsPrecisionHits>0) {
+      ATH_MSG_VERBOSE( "Muon has out-of-bounds precision hits - fail low-pT" );
       return false;
     }
 
@@ -703,33 +804,46 @@ namespace CP {
     }
     uint nStationsCut = (fabs(mu.eta())>1.3&&fabs(mu.eta())<1.55) ? 2 : 1;
     if ( nprecisionLayers<nStationsCut ) {
+      ATH_MSG_VERBOSE( "number of precision layers = " << (int)nprecisionLayers << " is lower than cut value " << nStationsCut << " - fail low-pT" );
       return false;
     }
 
     // reject MuGirl muon if not found also by MuTagIMO
     if(m_useAllAuthors){
       if( mu.author()==xAOD::Muon::MuGirl && !mu.isAuthor(xAOD::Muon::MuTagIMO) ) {
+	ATH_MSG_VERBOSE( "MuGirl muon is not confirmed by MuTagIMO - fail low-pT" );
 	return false;
       }
     }
     else return false;
 
-    if (m_useMVALowPt)
+    if (m_useMVALowPt) {
+      ATH_MSG_VERBOSE( "Applying MVA-based selection" );
       return passedLowPtEfficiencyMVACut(mu);
+    }
+
+    ATH_MSG_VERBOSE( "Applying cut-based selection" );
 
     // apply some loose quality requirements 
     float momentumBalanceSignificance(0.), scatteringCurvatureSignificance(0.), scatteringNeighbourSignificance(0.);
     if( !mu.parameter(momentumBalanceSignificance,xAOD::Muon::momentumBalanceSignificance) 
 	|| !mu.parameter(scatteringCurvatureSignificance,xAOD::Muon::scatteringCurvatureSignificance) 
 	|| !mu.parameter(scatteringNeighbourSignificance,xAOD::Muon::scatteringNeighbourSignificance) ) {
-      ATH_MSG_WARNING("passedLowPtEfficiencyCuts - momentum balance, scatternig curvature or neighbour significances missing in combined muon! Failing selection...");
+      ATH_MSG_WARNING("passedLowPtEfficiencyCuts - momentum balance, scattering curvature or neighbour significances missing in combined muon! Failing selection...");
       return false;
     }
+
+    ATH_MSG_VERBOSE( "momentum balance significance: " << momentumBalanceSignificance );
+    ATH_MSG_VERBOSE( "scattering curvature significance: " << scatteringCurvatureSignificance );
+    ATH_MSG_VERBOSE( "scattering neighbour significance: " << scatteringNeighbourSignificance );
+
     if( fabs(momentumBalanceSignificance)>3. || fabs(scatteringCurvatureSignificance)>3. || fabs(scatteringNeighbourSignificance)>3. ) {
+      ATH_MSG_VERBOSE( "Muon failed cut-based low-pT selection" );
       return false;
     }
 
     // passed low pt selection 
+    ATH_MSG_VERBOSE( "Muon passed cut-based low-pT selection" );
     return true;
   }
 
@@ -794,19 +908,31 @@ namespace CP {
     }
 
     //cut on dicriminant at -0.6
-    if (BDTdiscriminant > -0.6)
+    if (BDTdiscriminant > -0.6) {
+      ATH_MSG_VERBOSE( "Passed low-pT MVA cut" );
       return true;
-    else
+    }
+    else {
+      ATH_MSG_VERBOSE( "Failed low-pT MVA cut" );
       return false;
+    }
   }
 
 
   bool MuonSelectionTool::passedHighPtCuts( const xAOD::Muon& mu ) const {
     using namespace xAOD;
+
+    ATH_MSG_VERBOSE( "Checking whether muon passes high-pT selection..." );
     
     // :: Request combined muons
-    if( mu.muonType() != xAOD::Muon::Combined ) return false;
-    if( mu.author()==xAOD::Muon::STACO ) return false;
+    if( mu.muonType() != xAOD::Muon::Combined ) {
+      ATH_MSG_VERBOSE( "Muon is not combined - fail high-pT" );
+      return false;
+    }
+    if( mu.author()==xAOD::Muon::STACO ) {
+      ATH_MSG_VERBOSE( "Muon is STACO - fail high-pT" );
+      return false;
+    }
 
     // :: Reject muons with out-of-bounds hits
     uint8_t m_combinedTrackOutBoundsPrecisionHits;
@@ -815,6 +941,7 @@ namespace CP {
       return false;
     }
     if (m_combinedTrackOutBoundsPrecisionHits>0){
+      ATH_MSG_VERBOSE( "Muon has out-of-bounds precision hits - fail high-pT" );
       return false;
     }
 
@@ -839,6 +966,7 @@ namespace CP {
       return false;
     }
 
+    ATH_MSG_VERBOSE( "number of precision layers: " << (int)nprecisionLayers );
 
     //::: Apply MS Chamber Vetoes
     // Given according to their eta-phi locations in the muon spectrometer
@@ -864,15 +992,24 @@ namespace CP {
 
       //::: no unspoiled clusters in CSC
       if( fabs(etaMS)>2.0 || fabs(etaCB)>2.0  ) {
-	if( cscUnspoiledEtaHits==0 ) return false;
+	if( cscUnspoiledEtaHits==0 ) {
+	  ATH_MSG_VERBOSE( "Muon has only spoiled CSC clusters - fail high-pT" );
+	  return false;
+	}
       }
       
       // veto bad CSC giving troubles with scale factors
-      if( mu.eta()<-1.899 && fabs(mu.phi())<0.211 ) return false;
+      if( mu.eta()<-1.899 && fabs(mu.phi())<0.211 ) {
+	ATH_MSG_VERBOSE( "Muon is in eta/phi region vetoed due to disabled chambers in MC - fail high-pT" );
+	return false;
+      }
 
       //::: Barrel/Endcap overlap region
-      if( 1.01 < fabs( etaMS ) && fabs( etaMS ) < 1.1 ) return false;
-      if( 1.01 < fabs( etaCB ) && fabs( etaCB ) < 1.1 ) return false;
+      if( (1.01 < fabs( etaMS ) && fabs( etaMS ) < 1.1) || (1.01 < fabs( etaCB ) && fabs( etaCB ) < 1.1) ) {
+	ATH_MSG_VERBOSE( "Muon is in barrel/endcap overlap region - fail high-pT" );
+	return false;
+      }
+      
 
       //::: BIS78
       float BIS78_eta[ 2 ] = { 1.05, 1.3 };
@@ -883,7 +1020,10 @@ namespace CP {
 	     || ( fabs( phiMS ) >= BIS78_phi[ 2 ] && fabs( phiMS ) <= BIS78_phi[ 3 ] ) 
 	     || ( fabs( phiMS ) >= BIS78_phi[ 4 ] && fabs( phiMS ) <= BIS78_phi[ 5 ] ) 
 	     || ( fabs( phiMS ) >= BIS78_phi[ 6 ] && fabs( phiMS ) <= BIS78_phi[ 7 ] ) 
-	   ) return false;
+	     ) {
+	  ATH_MSG_VERBOSE( "Muon is in BIS7/8 eta/phi region - fail high-pT" );
+	  return false;
+	}
       }
 
       //::: BMG - only veto in 2017+2018 data and corresponding MC
@@ -895,7 +1035,10 @@ namespace CP {
 	     || ( fabs( etaMS ) >= BMG_eta[ 4 ] && fabs( etaMS ) <= BMG_eta[ 5 ] ) ) {
 	  if ( ( phiMS >= BMG_phi[ 0 ] && phiMS <= BMG_phi[ 1 ] ) 
 	       || ( phiMS >= BMG_phi[ 2 ] && phiMS <= BMG_phi[ 3 ] )
-	       ) return false;
+	       ) {
+	    ATH_MSG_VERBOSE( "Muon is in BMG eta/phi region - fail high-pT" );
+	    return false;
+	  }
 	}
       }
 
@@ -910,13 +1053,19 @@ namespace CP {
 	     ) {
 	  // Muon falls in the BEE eta-phi region: asking for 4 good precision layers
 	  //if( nGoodPrecLayers < 4 ) return false; // postponed (further studies needed) 
-	  if( nprecisionLayers < 4 ) return false;
+	  if( nprecisionLayers < 4 ) {
+	    ATH_MSG_VERBOSE( "Muon is in BEE eta/phi region and does not have 4 precision layers - fail high-pT" );
+	    return false;
+	  }
 	}  
       }
       if( fabs(etaCB)>1.4 ) {
 	// Veto residual 3-station muons in BEE region due to MS eta/phi resolution effects
 	//if( nGoodPrecLayers<4 && (extendedSmallHits>0||extendedSmallHoles>0) ) return false; // postponed (further studies needed)
-	if( nprecisionLayers<4 && (extendedSmallHits>0||extendedSmallHoles>0) ) return false;
+	if( nprecisionLayers<4 && (extendedSmallHits>0||extendedSmallHoles>0) ) {
+	  ATH_MSG_VERBOSE( "Muon is in BEE eta/phi region and does not have 4 precision layers - fail high-pT" );
+	  return false;
+	}
       }
     } else {
       ATH_MSG_WARNING( "passedHighPtCuts - MS or CB track missing in muon! Failing High-pT selection..." );
@@ -950,48 +1099,70 @@ namespace CP {
       
       float meP  = 1.0 / ( sin(metrack->theta()) / mePt);
       float idP  = 1.0 / ( sin(idtrack->theta()) / idPt);
-      
       float qOverPsigma  = sqrt( idtrack->definingParametersCovMatrix()(4,4) + metrack->definingParametersCovMatrix()(4,4) );
       float qOverPsignif  = fabs( (metrack->charge() / meP) - (idtrack->charge() / idP) ) / qOverPsigma;        
-      if( fabs(qOverPsignif) > 7 ) return false;
 
+      ATH_MSG_VERBOSE( "qOverP significance: " << qOverPsignif );
+
+      if( fabs(qOverPsignif) > 7 ) {
+	ATH_MSG_VERBOSE( "Muon failed qOverP significance cut" );
+	return false;
+      }
     }
-    else return false;
+    else {
+      ATH_MSG_VERBOSE( "Muon missing ID or ME tracks - fail high-pT" );
+      return false;
+    }
 
 
     //Accept good 2-station muons if the user has opted to include these
     if (m_use2stationMuonsHighPt && nprecisionLayers == 2) {
 
       //should not accept EM+EO muons due to ID/MS alignment issues
-      if (fabs(mu.eta()) > 1.2 && extendedSmallHits < 3 && extendedLargeHits < 3)
+      if (fabs(mu.eta()) > 1.2 && extendedSmallHits < 3 && extendedLargeHits < 3) {
+	ATH_MSG_VERBOSE( "2-station muon with EM+EO - fail high-pT" );
 	return false;
+      }
 
       //only select muons missing the inner precision layer
       //apply strict veto on overlap between small and large sectors
 
       if (innerLargeHits == 0 && middleLargeHits == 0 && outerLargeHits == 0 && extendedLargeHits == 0 
-	  && middleSmallHits > 2 && (outerSmallHits>2||extendedSmallHits>2) )
+	  && middleSmallHits > 2 && (outerSmallHits>2||extendedSmallHits>2) ) {
+	ATH_MSG_VERBOSE( "Accepted 2-station muon in small sector" );
 	return true;
+      }
 
       if (innerSmallHits == 0 && middleSmallHits == 0 && outerSmallHits == 0 && extendedSmallHits == 0 
-	  && middleLargeHits > 2 && (outerLargeHits>2||extendedLargeHits>2) )
+	  && middleLargeHits > 2 && (outerLargeHits>2||extendedLargeHits>2) ) {
+	ATH_MSG_VERBOSE( "Accepted 2-station muon in large sector" );
 	return true;
+      }
     }
 
 
     //::: Require 3 (good) station muons
-    if( nprecisionLayers < 3 ) return false;
+    if( nprecisionLayers < 3 ) {
+      ATH_MSG_VERBOSE( "Muon has less than 3 precision layers - fail high-pT" );
+      return false;
+    }
     //if( nGoodPrecLayers < 3 ) return false; // postponed (further studies needed)
 
 
     // Remove 3-station muons with small-large sectors overlap
     if( isSmallGoodSectors ) {
-      if( !(innerSmallHits > 2 && middleSmallHits > 2 && (outerSmallHits>2||extendedSmallHits>2)) ) return false;
+      if( !(innerSmallHits > 2 && middleSmallHits > 2 && (outerSmallHits>2||extendedSmallHits>2)) ) {
+	ATH_MSG_VERBOSE( "Muon has small/large sectors overlap - fail high-pT" );
+	return false;
+      }
     } else {
-      if( !(innerLargeHits > 2 && middleLargeHits > 2 && (outerLargeHits>2||extendedLargeHits>2)) ) return false;
+      if( !(innerLargeHits > 2 && middleLargeHits > 2 && (outerLargeHits>2||extendedLargeHits>2)) ) {
+	ATH_MSG_VERBOSE( "Muon has small/large sectors overlap - fail high-pT" );
+	return false;
+      }
     }
     
-
+    ATH_MSG_VERBOSE( "Muon passed high-pT selection" );
     return true;
   }
 
@@ -1187,7 +1358,7 @@ namespace CP {
     float pt = mu.pt() / 1000.0; // GeV                                                                                                                                                                                                                                                                                                                                     
     // Impose pT and eta cuts; the bounds of the cut maps  
     if( pt < 4.0 || symmetric_eta>2.5 ) return false;
-    ATH_MSG_DEBUG( "Muon is passing tight WP kinemartic cuts with pT,eta " << mu.pt() << "  ,  " << mu.eta()  );
+    ATH_MSG_VERBOSE( "Muon is passing tight WP kinematic cuts with pT,eta " << mu.pt() << "  ,  " << mu.eta()  );
 
     // ** Low pT specific cuts ** //  
     if( pt > 4.0 && pt <= 20.0 ){
@@ -1195,15 +1366,15 @@ namespace CP {
       double rhoCut    = m_tightWP_lowPt_rhoCuts->Interpolate( pt, symmetric_eta );
       double qOverPCut = m_tightWP_lowPt_qOverPCuts->Interpolate( pt , symmetric_eta );
 
-      ATH_MSG_DEBUG( "Applying tight WP cuts to a low pt muon with (pt,eta) ( " << pt << " , " << mu.eta() << " ) " );
-      ATH_MSG_DEBUG( "Rho value " << rho << ", required to be less than " << rhoCut  );
-      ATH_MSG_DEBUG( "Momentum significance value " << oneOverPSig << ", required to be less than " << qOverPCut );
+      ATH_MSG_VERBOSE( "Applying tight WP cuts to a low pt muon with (pt,eta) ( " << pt << " , " << mu.eta() << " ) " );
+      ATH_MSG_VERBOSE( "Rho value " << rho << ", required to be less than " << rhoCut  );
+      ATH_MSG_VERBOSE( "Momentum significance value " << oneOverPSig << ", required to be less than " << qOverPCut );
 
       if( rho > rhoCut ) return false;
-      ATH_MSG_DEBUG( "Muon passed tight WP, low pT rho cut!" );
+      ATH_MSG_VERBOSE( "Muon passed tight WP, low pT rho cut!" );
 
       if( oneOverPSig > qOverPCut ) return false;
-      ATH_MSG_DEBUG( "Muon passed tight WP, low pT momentum significance cut" );
+      ATH_MSG_VERBOSE( "Muon passed tight WP, low pT momentum significance cut" );
 
       // Tight muon!
       return true;
@@ -1214,12 +1385,12 @@ namespace CP {
     else if ( pt > 20.0 && pt <= 100.0 ) {
       double rhoCut = m_tightWP_mediumPt_rhoCuts->Interpolate( pt , symmetric_eta );
       // 
-      ATH_MSG_DEBUG( "Applying tight WP cuts to a medium pt muon with (pt,eta) (" << pt << "," << mu.eta() << ")" );
-      ATH_MSG_DEBUG( "Rho value " << rho << " required to be less than " << rhoCut );
+      ATH_MSG_VERBOSE( "Applying tight WP cuts to a medium pt muon with (pt,eta) (" << pt << "," << mu.eta() << ")" );
+      ATH_MSG_VERBOSE( "Rho value " << rho << " required to be less than " << rhoCut );
 
       // Apply cut 
       if( rho > rhoCut ) return false;
-      ATH_MSG_DEBUG( "Muon passed tight WP, medium pT rho cut!" );
+      ATH_MSG_VERBOSE( "Muon passed tight WP, medium pT rho cut!" );
 
       // Tight muon! 
       return true;
@@ -1228,21 +1399,21 @@ namespace CP {
     // ** High pT specific cuts  
     else if ( pt > 100.0 && pt <= 500.0 ){
       // 
-      ATH_MSG_DEBUG( "Applying tight WP cuts to a high pt muon with (pt,eta) (" << pt << "," << mu.eta() << ")" );
+      ATH_MSG_VERBOSE( "Applying tight WP cuts to a high pt muon with (pt,eta) (" << pt << "," << mu.eta() << ")" );
       // No interpolation, since bins with -1 mean we should cut really loose       
       double rhoCut = m_tightWP_highPt_rhoCuts->GetBinContent( m_tightWP_highPt_rhoCuts->FindBin(pt, symmetric_eta) );
-      ATH_MSG_DEBUG( "Rho value " << rho << ", required to be less than " << rhoCut << " unless -1, in which no cut is applied" );
+      ATH_MSG_VERBOSE( "Rho value " << rho << ", required to be less than " << rhoCut << " unless -1, in which no cut is applied" );
       //
       if( rhoCut <  0.0 ) return true;
       if( rho > rhoCut  ) return false;
-      ATH_MSG_DEBUG( "Muon passd tight WP, high pT rho cut!" );
+      ATH_MSG_VERBOSE( "Muon passd tight WP, high pT rho cut!" );
 
 
       return true;
     }
     // For muons with pT > 500 GeV, no extra cuts                    
     else{
-      ATH_MSG_DEBUG( "Not applying any tight WP cuts to a very high pt muon with (pt,eta) (" << pt << "," << mu.eta() << ")" );
+      ATH_MSG_VERBOSE( "Not applying any tight WP cuts to a very high pt muon with (pt,eta) (" << pt << "," << mu.eta() << ")" );
       return true;
     }
     
