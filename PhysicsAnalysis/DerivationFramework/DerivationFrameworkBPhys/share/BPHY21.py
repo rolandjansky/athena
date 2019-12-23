@@ -134,7 +134,7 @@ print      BPHY21_JpsiFinder
 ##    There should be one tool per topology, i.e. Jpsi and Psi(2S) do not need two instance of the
 ##    Reco tool is the JpsiFinder mass window is wide enough.
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Reco_mumu
-BPHY21JpsiSelectAndWrite = DerivationFramework__Reco_mumu(
+BPHY21_JpsiSelectAndWrite = DerivationFramework__Reco_mumu(
     name                   = "BPHY21_JpsiSelectAndWrite",
     JpsiFinder             = BPHY21_JpsiFinder,
     OutputVtxContainerName = "BPHY21_JpsiCandidates",
@@ -267,10 +267,10 @@ BPHY21_Stream.AcceptAlgs(["BPHY21_Kernel"])
 # Special lines for thinning
 # Thinning service name must match the one passed to the thinning tools
 from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-BPHY21_augStream = MSMgr.GetStream( streamName )
+BPHY21_augStream = MSMgr.GetStream( BPHY21_streamName )
 BPHY21_evtStream = BPHY21_augStream.GetEventStream()
 
-BPHY21_ThinningSvc = createThinningSvc( svcName="BPHY21_ThinningSvc", BPHY21_outStreams=[BPHY21_evtStream] )
+BPHY21_ThinningSvc = createThinningSvc( svcName="BPHY21_ThinningSvc", outStreams=[BPHY21_evtStream] )
 svcMgr += BPHY21_ThinningSvc
 
 #====================================================================
@@ -317,13 +317,17 @@ BPHY21_StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPH
 # Added by ASC
 # Truth information for MC only
 if isSimulation:
+    BPHY21_AllVariables += ["TruthEvents","TruthParticles","TruthVertices","MuonTruthParticles"]
 
-BPHY21_AllVariables += ["TruthEvents","TruthParticles","TruthVertices","MuonTruthParticles"]
 
-BPHY21_AllVariables = list(set(AllVariables)) # remove duplicates
+BPHY21_AllVariables = list(set(BPHY21_AllVariables)) # remove duplicates
 
 BPHY21_SlimmingHelper.AllVariables = BPHY21_AllVariables
 BPHY21_SlimmingHelper.StaticContent = BPHY21_StaticContent
 BPHY21_SlimmingHelper.SmartCollections = []
 
 BPHY21_SlimmingHelper.AppendContentToStream(BPHY21_Stream)
+
+#====================================================================
+# END OF BPHY21.py
+#====================================================================
