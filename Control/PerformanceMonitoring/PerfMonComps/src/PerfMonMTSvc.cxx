@@ -350,6 +350,12 @@ void PerfMonMTSvc::report2Log_EventLevel_instant() const{
   long pss = m_eventLevelData.getEventLevelData()[m_eventCounter].mem_stats.at("pss"); // write a getter function
   long swap = m_eventLevelData.getEventLevelData()[m_eventCounter].mem_stats.at("swap"); // write a getter function
 
+  /*
+  long vmem = m_eventLevelData.getCurrentMemoryMetric("vmem",m_eventCounter);
+  long rss = m_eventLevelData.getCurrentMemoryMetric("rss",m_eventCounter);
+  long pss = m_eventLevelData.getCurrentMemoryMetric("pss",m_eventCounter);
+  long swap = m_eventLevelData.getCurrentMemoryMetric("swap",m_eventCounter);
+  */
   ATH_MSG_INFO("Vmem: " << scaleMem(vmem) << ", Rss: " << scaleMem(rss) << ", Pss: " << scaleMem(pss) << ", Swap: " << scaleMem(swap));
 
 }
@@ -415,10 +421,16 @@ void PerfMonMTSvc::report2Log_Mem_Serial() {
 
   ATH_MSG_INFO("=======================================================================================");
   ATH_MSG_INFO("                             Component Level Monitoring                                ");
-  ATH_MSG_INFO("                                 Memory Metrics [kB]                                        ");
+  ATH_MSG_INFO("                                   Memory Metrics                                      ");
   ATH_MSG_INFO("                                   (Serial Steps)                                      ");
   ATH_MSG_INFO("=======================================================================================");
-  ATH_MSG_INFO("Step           Vmem      Rss       Pss       Swap      Component");
+  
+  ATH_MSG_INFO(format("%1% %|15t|%2% %|26t|%3% %|37t|%4% %|48t|%5% %|59t|%6%")     % "Step"
+                                                                                   % "Vmem [kB]"
+                                                                                   % "Rss [kB]"
+                                                                                   % "Pss [kB]"
+                                                                                   % "Swap [kB]"
+                                                                                   % "Component");
   
   for(auto vec_itr : m_stdoutVec_serial){
     // Sort the results
@@ -434,7 +446,7 @@ void PerfMonMTSvc::report2Log_Mem_Serial() {
     ); 
     for(auto it : pairs){
 
-      ATH_MSG_INFO(format("%1% %|15t|%2% %|25t|%3% %|35t|%4% %|45t|%5% %|55t|%6%") % it.first.stepName \
+      ATH_MSG_INFO(format("%1% %|15t|%2% %|26t|%3% %|37t|%4% %|48t|%5% %|59t|%6%") % it.first.stepName \
                                                                                    % it.second->getMemMonDeltaMap("vmem")    \
                                                                                    % it.second->getMemMonDeltaMap("rss")     \
                                                                                    % it.second->getMemMonDeltaMap("pss")     \
