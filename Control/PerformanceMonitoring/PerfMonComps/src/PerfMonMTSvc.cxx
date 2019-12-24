@@ -133,6 +133,9 @@ void PerfMonMTSvc::startSnapshotAud( const std::string& stepName,
   if( compName == "AthRegSeq" && stepName == "Start") {
     m_measurement.capture_compLevel_serial();
     m_snapshotData[1].addPointStart(m_measurement);
+
+    //Set wall time offset
+    m_eventLevelData.set_wall_time_offset();
   }
 
   // Last thing to be called before finalize step begins

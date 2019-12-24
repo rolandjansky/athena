@@ -144,7 +144,7 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
                                                                  const std::string& compName,
                                                                  const uint64_t& eventNumber) const;
 
-
+    double get_wall_time();
     
   private:
 
@@ -158,7 +158,6 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
 
     /// Print detailed tables
     BooleanProperty m_printDetailedTables;
-
 
     Gaudi::Property<int> m_nThreads {this, "nThreads", 0, "Number of threads which is given as argument"};
 

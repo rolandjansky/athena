@@ -139,9 +139,7 @@ namespace PMonMT {
 
       // Capture for event level measurements
       eventLevel_meas_map[eventCount] = meas;
-    }
-
-    
+    }    
 
     Measurement() : cpu_time{0.}, wall_time{0.} { }
   };
@@ -163,6 +161,9 @@ namespace PMonMT {
     // These maps are used to calculate component level measurements inside the event loop
     std::map< StepCompEvent, Measurement > m_compLevel_tmp_map;
     std::map< StepCompEvent, Measurement > m_compLevel_delta_map;
+
+    // Wall time offset for event level monitoring
+    double m_offset_wall;
 
     // [Component Level Monitoring - Serial Steps] : Record the measurement for the current state 
     void addPointStart(const Measurement& meas) {          
@@ -208,7 +209,7 @@ namespace PMonMT {
     void record_eventLevel(Measurement& meas, int eventCount ){
 
       m_eventLevel_delta_map[eventCount].cpu_time = meas.eventLevel_meas_map[eventCount].cpu_time;
-      m_eventLevel_delta_map[eventCount].wall_time = meas.eventLevel_meas_map[eventCount].wall_time;
+      m_eventLevel_delta_map[eventCount].wall_time = meas.eventLevel_meas_map[eventCount].wall_time - m_offset_wall;
 
       if(doesDirectoryExist("/proc")){
         m_eventLevel_delta_map[eventCount].mem_stats["vmem"] = meas.eventLevel_meas_map[eventCount].mem_stats["vmem"];
@@ -217,6 +218,11 @@ namespace PMonMT {
         m_eventLevel_delta_map[eventCount].mem_stats["swap"] = meas.eventLevel_meas_map[eventCount].mem_stats["swap"];
       }
 
+    }
+
+    void set_wall_time_offset(){
+      double wall_time_offset = get_wall_time();
+      m_offset_wall = wall_time_offset;
     }
 
     event_meas_map_t getEventLevelData() const{
