@@ -12,7 +12,12 @@
 
 #include <AsgMessaging/MessageCheck.h>
 
+#include <mutex>
 #include <stdexcept>
+
+#ifndef XAOD_STANDALONE
+#include <GaudiKernel/ISvcLocator.h>
+#endif
 
 //
 // method implementations
