@@ -27,7 +27,6 @@
 #include "Acts/Propagator/Navigator.hpp"
 #include "Acts/Propagator/detail/DebugOutputActor.hpp"
 #include "Acts/Propagator/detail/StandardAborters.hpp"
-#include "Acts/Propagator/detail/RelativePathCorrector.hpp"
 #include "ActsGeometry/ATLASMagneticFieldWrapper.h"
 #include "Acts/MagneticField/ConstantBField.hpp"
 #include "Acts/MagneticField/MagneticFieldContext.hpp"
