@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file: SummaryCreator.py
 # @purpose: a set of classes to create a summary from a perfmon tuple
@@ -16,9 +16,9 @@ import logging,os
 import numpy
 import numpy.lib.polynomial
 import matplotlib.pyplot as plt
-from Analyzer  import Analyzer, bookAvgHist,mon_project,project,make_canvas
-from PyRootLib import importRoot
-from Constants import Units
+from .Analyzer  import Analyzer, bookAvgHist,mon_project,project,make_canvas
+from .PyRootLib import importRoot
+from .Constants import Units
 
 def array_mean(a):
     n = float(len(a))
@@ -60,9 +60,9 @@ class SummaryCreator(object):
 
     def process(self, dataSetMgr, monCompMgr):
 
-        from PyRootLib import importRoot
+        from .PyRootLib import importRoot
         ROOT = importRoot(batch=True)
-        from PyRootLib import setupRootStyle; setupRootStyle()
+        from .PyRootLib import setupRootStyle; setupRootStyle()
         c = ROOT.TCanvas('c_default')
         
         for m in [ self.processIni,
@@ -98,9 +98,9 @@ class SummaryCreator(object):
         return
     
     def processEvt(self, dataSetMgr, monCompMgr):
-        from App import DataSetMgr
+        from .App import DataSetMgr
 
-        from PyRootLib import importRoot
+        from .PyRootLib import importRoot
         ROOT = importRoot(batch=True)
         
         ## RootFct = ROOT.TF1
@@ -268,8 +268,8 @@ class SummaryCreator(object):
             xbins= bins[self.minEvt:]
             if not 'evt/cpu' in monComp.figs:
                 monComp.figs['evt/cpu'] = plt.figure()
-                monComp.figs['evt/cpu'].add_subplot(211).hold( True )
-                monComp.figs['evt/cpu'].add_subplot(212).hold( True )
+                monComp.figs['evt/cpu'].add_subplot(211)
+                monComp.figs['evt/cpu'].add_subplot(212)
             fig = monComp.figs['evt/cpu']
             ax = fig.axes[0]
             pl = ax.plot(
@@ -315,9 +315,9 @@ class SummaryCreator(object):
             
             if not 'evt/mem' in monComp.figs:
                 monComp.figs['evt/mem'] = plt.figure()
-                monComp.figs['evt/mem'].add_subplot(311).hold( True )
-                monComp.figs['evt/mem'].add_subplot(312).hold( True )
-                monComp.figs['evt/mem'].add_subplot(313).hold( True )
+                monComp.figs['evt/mem'].add_subplot(311)
+                monComp.figs['evt/mem'].add_subplot(312)
+                monComp.figs['evt/mem'].add_subplot(313)
 
             fig = monComp.figs['evt/mem']
             ax = fig.axes[0]
@@ -401,8 +401,8 @@ class SummaryCreator(object):
             ## I/O
             if not 'evt/io' in monComp.figs:
                 monComp.figs['evt/io'] = plt.figure()
-                monComp.figs['evt/io'].add_subplot(211).hold( True )
-                monComp.figs['evt/io'].add_subplot(212).hold( True )
+                monComp.figs['evt/io'].add_subplot(211)
+                monComp.figs['evt/io'].add_subplot(212)
             fig = monComp.figs['evt/io']
             ax = fig.axes[0]
             io_c = data['io']['w']['cpu']
@@ -491,7 +491,7 @@ class SummaryCreator(object):
     
     def processIo(self, dataSetMgr, monCompMgr):
 
-        from App import DataSetMgr
+        from .App import DataSetMgr
         ## short-hand
         ms = Units.ms
         kb = Units.kb
@@ -554,7 +554,7 @@ class SummaryCreator(object):
 ##                         print "\t-%5s" % str(pat),n
             keys = d.keys()
             if len(keys) > 1:
-                raise RuntimeError, "len(d) > 1: %r" % d
+                raise RuntimeError ("len(d) > 1: %r" % d)
             if len(keys) == 0: return []
             else:              return [ d.items()[0] ]
 
@@ -634,11 +634,11 @@ class SummaryCreator(object):
         def _createFig( ioKey, speedKey, cppTypes, dsNames, figTitle ):
             #print ":"*80,figTitle
             fig = plt.figure()
-            fig.add_subplot(311).hold(True)
-            fig.add_subplot(312).hold(True)
-            fig.add_subplot(313).hold(True)
+            fig.add_subplot(311)
+            fig.add_subplot(312)
+            fig.add_subplot(313)
 
-            from App import DataSetMgr
+            from .App import DataSetMgr
             color = DataSetMgr.colorIter()
             
             # to hold 'cpu' for each dataSet
@@ -710,9 +710,9 @@ class SummaryCreator(object):
 
                 labels = [ names[dsName][i] for i in table['name'] ]
                 data = table[speedKey+'/cpu']
-                fc   = color.next()
+                fc   = next(color)
                 pos  = numpy.arange(nData)
-                p = ax.barh( bottom = pos + (idx*1./nDsNames),
+                p = ax.barh( pos + (idx*1./nDsNames),
                              width  = data,
                              height = 1./nDsNames,
                              color  = 'r',
@@ -755,9 +755,9 @@ class SummaryCreator(object):
                 labels = [ names[dsName][i] for i in table['name'] ]
                 data = table[speedKey+'/cpu']
                 data = table['speed']
-                fc   = color.next()
+                fc   = next(color)
                 pos  = numpy.arange(nData)
-                p = ax.barh( bottom = pos + (idx*1./nDsNames),
+                p = ax.barh( pos + (idx*1./nDsNames),
                              width  = data,
                              height = 1./nDsNames,
                              color  = 'r',
@@ -788,9 +788,9 @@ class SummaryCreator(object):
 
                 labels = [ names[dsName][i] for i in table['name'] ]
                 data = table[speedKey+'/cpuFreq']
-                fc   = color.next()
+                fc   = next(color)
                 pos  = numpy.arange(nData)
-                p = ax.barh( bottom = pos + (idx*1./nDsNames),
+                p = ax.barh( pos + (idx*1./nDsNames),
                              width  = data,
                              height = 1./nDsNames,
                              color  = 'r',
@@ -836,7 +836,7 @@ class SummaryCreator(object):
                        title,
                        storeName,
                        sliceName, begSlice, endSlice):
-        from App import DataSetMgr
+        from .App import DataSetMgr
         ## fill-in the text file
         _txt = self.txt[sliceName]
 
@@ -846,7 +846,7 @@ class SummaryCreator(object):
         Mb = Units.Mb
         msg = self.msg
         
-        dsNames = dataSetMgr.keys()
+        dsNames = list(dataSetMgr.keys())
         dsNames.sort()
 
         monComps = [ ]
@@ -855,7 +855,7 @@ class SummaryCreator(object):
             if not monComp.type in compTypes:
                 continue
             
-            monCompKeys = monComp.data.keys()
+            monCompKeys = list(monComp.data.keys())
             monCompKeys.sort()
             if monCompKeys != dsNames:
                 continue
@@ -872,10 +872,10 @@ class SummaryCreator(object):
         # create figure
         # --------------
         fig = plt.figure()
-        fig.add_subplot(411).hold(True)
-        fig.add_subplot(412).hold(True)
-        fig.add_subplot(413).hold(True)
-        fig.add_subplot(414).hold(True)
+        fig.add_subplot(411)
+        fig.add_subplot(412)
+        fig.add_subplot(413)
+        fig.add_subplot(414)
         self.sum[sliceName]['fig'] = fig
 
         # to hold 'cpu' for each dataSet
@@ -970,7 +970,7 @@ class SummaryCreator(object):
                     self.max,
                     len([ m for m in monComps if m.type in compTypes ])
                     )
-            except Exception, err:
+            except Exception as err:
                 #msg.error("table: %s", table)
                 msg.error("caught:  %s", err)
                 msg.error("context: title=%s store=%s slice=%s beg=%s end=%s",
@@ -999,9 +999,9 @@ class SummaryCreator(object):
 
             labels = [ names[i] for i in table['name'][-nData:] ]
             data = table['cpu/cpuTime'][-nData:]
-            fc   = color.next()
+            fc   = next(color)
             pos  = numpy.arange(nData)
-            p = ax.barh( bottom = pos + (idx*1./nDsNames),
+            p = ax.barh( pos + (idx*1./nDsNames),
                          width  = data,
                          height = 1./nDsNames,
                          align ='edge',
@@ -1050,7 +1050,7 @@ class SummaryCreator(object):
                          data,
                          1./nDsNames,
                          align ='edge',
-                         color = color.next(),
+                         color = next(color),
                          label = dsName,
                          lw    = lw )
             ax.grid(True)
@@ -1073,7 +1073,7 @@ class SummaryCreator(object):
                          data,
                          1./nDsNames,
                          align ='edge',
-                         color = color.next(),
+                         color = next(color),
                          label = dsName,
                          lw    = lw )
             ax.grid(True)
@@ -1107,7 +1107,7 @@ class SummaryCreator(object):
                          data,
                          1./nDsNames,
                          align ='edge',
-                         color = color.next(),
+                         color = next(color),
                          label = dsName,
                          lw    = lw )
             ax.grid(True)
