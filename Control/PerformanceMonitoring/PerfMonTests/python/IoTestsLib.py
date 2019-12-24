@@ -1,7 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ## @file PerfMonTests.IoTestsLib
 ## @date April 2009
+
+from __future__ import print_function
 
 __author__ = "Sebastien Binet <binet@cern.ch>"
 __version__ = "$Revision: 1.1 $"
@@ -16,7 +18,7 @@ import random
 random.seed(20080910) # first LHC startup :)
 
 from os import sysconf
-_pagesz = sysconf('SC_PAGE_SIZE') / 1024 # in kb
+_pagesz = sysconf('SC_PAGE_SIZE') // 1024 # in kb
 
 _py_dtype_to_root = {
     'i' : 'I',
@@ -46,7 +48,7 @@ def comp_delta(d, verbose=False):
     assert len(d['start']) == 3
     assert len(d['stop'])  == 3
     if verbose:
-        print repr(d)
+        print (repr(d))
     delta = { 'cpu' : d['stop'][0] - d['start'][0],
               'vmem': d['stop'][1] - d['start'][1],
               'rss' : d['stop'][2] - d['start'][2],
@@ -54,7 +56,7 @@ def comp_delta(d, verbose=False):
               }
     if 'nbytes' in d:
         delta['nbytes'] = d['nbytes']
-    print "==> cpu: %(cpu)8.3f ms  vmem: %(vmem)i kB  rss: %(rss)i kB  nbytes: %(nbytes)i kB" % delta
+    print ("==> cpu: %(cpu)8.3f ms  vmem: %(vmem)i kB  rss: %(rss)i kB  nbytes: %(nbytes)i kB" % delta)
     return delta
 
 def import_ROOT():
@@ -99,8 +101,8 @@ def io_test1_read(fname, verbose=False):
     assert t, "could not find tree 't'"
     nevts = t.GetEntries()
     if verbose:
-        print "::: reading [%s] (%i events) [sz=%s kB]" % (fname, nevts,
-                                                           f.GetSize()/1024)
+        print ("::: reading [%s] (%i events) [sz=%s kB]" % (fname, nevts,
+                                                            f.GetSize()//1024))
     tot_bytes = 0
     get_entry = t.GetEntry
     start = pymon()
@@ -114,7 +116,7 @@ def io_test1_read(fname, verbose=False):
         data = getattr(t, 'data')
         sz = len(data)
         assert sz > 0
-        #print "::: ievt [%3i] : #data = %s" % (ievt, sz)
+        #print ("::: ievt [%3i] : #data = %s" % (ievt, sz))
     stop = pymon()
 
     del t
@@ -122,7 +124,7 @@ def io_test1_read(fname, verbose=False):
     
     return {'start' : start,
             'stop'  : stop,
-            'nbytes': tot_bytes/1024}
+            'nbytes': tot_bytes//1024}
 
 @forking
 def io_test2_write(fname, nevts=1000, sz=1000, dtype='i'):
@@ -160,8 +162,8 @@ def io_test2_read(fname, verbose=False):
     assert t, "could not find tree 't'"
     nevts = t.GetEntries()
     if verbose:
-        print "::: reading [%s] (%i events) [sz=%s kB]" % (fname, nevts,
-                                                           f.GetSize()/1024)
+        print ("::: reading [%s] (%i events) [sz=%s kB]" % (fname, nevts,
+                                                            f.GetSize()//1024))
     tot_bytes = 0
     get_entry = t.GetEntry
     start = pymon()
@@ -175,7 +177,7 @@ def io_test2_read(fname, verbose=False):
         data = getattr(t, 'data')
         sz = len(data)
         assert sz > 0
-        #print "::: ievt [%3i] : #data = %s" % (ievt, sz)
+        #print ("::: ievt [%3i] : #data = %s" % (ievt, sz))
     stop = pymon()
 
     del t
@@ -183,13 +185,13 @@ def io_test2_read(fname, verbose=False):
     
     return {'start' : start,
             'stop'  : stop,
-            'nbytes': tot_bytes/1024}
+            'nbytes': tot_bytes//1024}
 
 
 ### tests ---------------------------------------------------------------------
 if __name__ == "__main__":
     # FIXME: use 'nose' instead... for automatical test discovery
-    print "::: running all tests..."
+    print ("::: running all tests...")
 
     nreads   = 10 # nbr of times to repeat each 'read' test
     mon_data = {}
@@ -239,4 +241,4 @@ if __name__ == "__main__":
         mon_data['io_test2-flts'].append(comp_delta(io_test2_read(fname=fname)))
 
 
-    print mon_data
+    print (mon_data)
