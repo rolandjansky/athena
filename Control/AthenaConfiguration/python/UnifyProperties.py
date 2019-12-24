@@ -79,6 +79,7 @@ _propsToUnify={"GeoModelSvc.DetectorTools":unifySet,
                "*.InputMakerOutputDecisions": unifySet,
                "AddressRemappingSvc.TypeKeyRenameMaps": unifySet,
                "AuditorSvc.Auditors": unifySet,
+               "MetaDataSvc.MetaDataTools": unifySet,
                }
 
 def setUnificationFunction(key, function):
