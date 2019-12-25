@@ -83,12 +83,12 @@ private:
     "Minimum number of silicon hits on track before it is allowed to be refitted"};
 
   /** @brief broad cut on deltaEta*/
-  Gaudi::Property<double> m_broadDeltaEta {this, "broadDeltaEta", 0.1,
-    "Value of broad cut for delta eta, it is mult by 2"};
+  Gaudi::Property<double> m_broadDeltaEta {this, "broadDeltaEta", 0.2,
+    "Value of broad cut for delta eta"};
 
   /** @brief broad cut on deltaPhi*/
-  Gaudi::Property<double> m_broadDeltaPhi {this, "broadDeltaPhi", 0.15,
-    "Value of broad cut for delta phi, it is mult by 2"};
+  Gaudi::Property<double> m_broadDeltaPhi {this, "broadDeltaPhi", 0.3,
+    "Value of broad cut for delta phi"};
 
   /** @narrow windows*/
   Gaudi::Property<double> m_narrowDeltaEta {this, "narrowDeltaEta", 0.05,
@@ -97,7 +97,7 @@ private:
   Gaudi::Property<double> m_narrowDeltaPhi {this, "narrowDeltaPhi", 0.05,
     "Value of narrow cut for delta phi"};
 
-  Gaudi::Property<double> m_narrowDeltaPhiBrem {this, "narrowDeltaPhiBrem", 0.15,
+  Gaudi::Property<double> m_narrowDeltaPhiBrem {this, "narrowDeltaPhiBrem", 0.2,
     "Value of the narrow cut for delta phi in the brem direction"};
 
   Gaudi::Property<double> m_narrowRescale {this, "narrowDeltaPhiRescale", 0.05,
