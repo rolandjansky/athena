@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -85,10 +85,8 @@ IVP1System::~IVP1System()
   assert(m_d->state==UNCREATED||m_d->state==CONSTRUCTED);
   assert(!m_d->controller);
 
-  if(!m_d==0) {
-	  delete m_d;
-	  m_d=0;
-  }
+  delete m_d;
+  m_d=nullptr;
   VP1Msg::messageDebug("IVP1System() Destructor. END.");
 }
 
