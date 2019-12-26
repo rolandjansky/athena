@@ -41,6 +41,11 @@ FRIEND_TEST( LArG4SimpleSDtest, setupHelpers );
 FRIEND_TEST( LArG4SimpleSDtest, getTimeBin );
 FRIEND_TEST( LArG4SimpleSDtest, SimpleHit );
 FRIEND_TEST( LArG4SimpleSDtest, ConvertID );
+FRIEND_TEST( SDWrappertest, Initialize );
+FRIEND_TEST( SDWrappertest, EndOfAthenaEvent );
+FRIEND_TEST( SDWrappertest, addSD );
+FRIEND_TEST( SDWrappertest, addFastSimSD );
+FRIEND_TEST( SDWrappertest, ProcessHits );
 public:
 
   enum LArHitTimeBins
