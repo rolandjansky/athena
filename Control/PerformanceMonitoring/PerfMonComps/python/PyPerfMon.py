@@ -24,6 +24,8 @@ from PerfMonComps.PyMonUtils import *
 
 from PyUtils.Decorators import memoize, forking
 
+import six
+
 @memoize
 def _import_ROOT():
     # FIXME: work-around ROOT's silly behaviour wrt graphics libraries
@@ -90,7 +92,7 @@ class Svc(object):
                 cfg_type   = 'summary'
                 cfg_class  = 'PyPerfMonSvc'
                 cfg_module = 'PerfMonComps'
-            elif cfgs.has_key(c):
+            elif c in cfgs:
                 cfg = cfgs[c]
                 if isinstance(cfg, ConfigurableAlgorithm): cfg_type = 'alg'
                 elif isinstance(cfg, ConfigurableAlgTool): cfg_type = 'algtool'
@@ -309,7 +311,7 @@ class Svc(object):
                 for l in open('/proc/self/status', 'r'):
                     # lines are of the form:
                     # VmPeak: some value
-                    ll = map(str.strip, l.split(':'))
+                    ll = list(map(str.strip, l.split(':')))
                     k = ll[0]
                     v = ' '.join(ll[1:])
                     statm[k] = v
@@ -429,7 +431,7 @@ class Svc(object):
         ## write out meta-data
         import PyUtils.dbsqlite as dbs
         meta = dbs.open(headerFile, 'n')
-        for k,v in self.meta.iteritems(): meta[k] = v
+        for k,v in six.iteritems (self.meta): meta[k] = v
         meta['version_id'] = '0.4.0' # stream-format + header file
         meta['pmon_tuple_files'] = map( os.path.basename, outFiles[1:] )
         import socket

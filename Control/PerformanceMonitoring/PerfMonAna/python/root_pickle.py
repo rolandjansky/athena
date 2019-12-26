@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #
 # $Id: root_pickle.py,v 1.1 2007-07-22 01:51:43 binet Exp $
@@ -7,6 +7,8 @@
 # Purpose: Pickle python data into a root file, preserving references
 #          to root objects.
 #
+
+from __future__ import print_function
 
 """Pickle python data into a root file, preserving references to root objects.
 
@@ -225,7 +227,7 @@ FILE should be a Root TFile.
             o = Root_Proxy (self.__file, pid)
         else:
             o = self.__file.Get (pid)
-        #print 'load ', pid, o
+        #print ('load ', pid, o)
         xdict[self.__serial + pid] = o
         return o
 
@@ -236,7 +238,7 @@ FILE should be a Root TFile.
                 __import__(module)
                 mod = sys.modules[module]
             except ImportError:
-                print "Making dummy module %s" % (module)
+                print ("Making dummy module %s" % (module))
                 class DummyModule:
                     pass
                 mod = DummyModule()
@@ -244,7 +246,7 @@ FILE should be a Root TFile.
             klass = getattr(mod, name)
             return klass
         except AttributeError:
-            print "Making dummy class %s.%s" % (module, name)
+            print ("Making dummy class %s.%s" % (module, name))
             mod = sys.modules[module]
             class Dummy(object):
                 pass
