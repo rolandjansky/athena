@@ -285,20 +285,26 @@ GeoAlignableTransform* MuonStation::getComponentAlTransf(int jobIndex) const
 void 
 MuonStation::addMuonReadoutElementWithAlTransf(const MuonReadoutElement* a, GeoAlignableTransform* ptrsf, int jobIndex)
 {
+
   #ifndef NDEBUG
   MsgStream log(Athena::getMessageSvc(),"MuonStation");
+  #endif
+  
+  #ifndef NDEBUG  
   if (log.level()<=MSG::DEBUG) log <<MSG::DEBUG<<"addMuonReadoutElementWithAlTransf for station "
 					  <<getStationName()<<" at zi/fi = "<<getEtaIndex()<<"/"<<getPhiIndex()
 					  <<" adding new component with Alignable transf... "<<a->getStationName()<<" job ondex = "<<jobIndex<<endmsg;
   #endif
+  
   pairRE_AlignTransf * myPair = new pairRE_AlignTransf(a,ptrsf);
   (*m_REwithAlTransfInStation)[jobIndex]= (*myPair);
+  
   #ifndef NDEBUG
-  MsgStream log(Athena::getMessageSvc(),"MuonStation");
   if (log.level()<=MSG::DEBUG) log <<MSG::DEBUG<<"addMuonReadoutElementWithAlTransf for station "
 					  <<getStationName()<<" at zi/fi = "<<getEtaIndex()<<"/"<<getPhiIndex()
 					  <<" added new component - now size of map is  "<<m_REwithAlTransfInStation->size()<<endmsg;
   #endif
+  
   delete myPair;
 }
 
@@ -342,7 +348,6 @@ MuonStation::setDelta_fromAline_forComp(int jobindex,
   childToLocAmdbComponent = locAmdbStatToLocAmdbComp*childToLocAmdbStation;
 
   #ifndef NDEBUG
-  MsgStream log(Athena::getMessageSvc(),"MuonStation");
   if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG
 					      <<"setDelta_fromAline_forComp: stationName/Jff/Jzz "<<getStationType()<<" "<<getPhiIndex()<<" "<<getEtaIndex()<<" Job "<<jobindex
 					      <<" Origin of component/station AmdbLocalFrame= "<<(*m_amdbl_to_global)*locAmdbStatToLocAmdbComp.inverse()*HepGeom::Point3D<double>(0.,0.,0.)
@@ -350,7 +355,6 @@ MuonStation::setDelta_fromAline_forComp(int jobindex,
   #endif
   parentToChild->setDelta(Amg::CLHEPTransformToEigen(childToLocAmdbComponent.inverse() * delta_amdb * childToLocAmdbComponent));
   #ifndef NDEBUG
-  MsgStream log(Athena::getMessageSvc(),"MuonStation");
   if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG
 					      <<"setDelta_fromAline_forComp2:stationName/Jff/Jzz "<<getStationType()<<" "<<getPhiIndex()<<" "<<getEtaIndex()<<" Job "<<jobindex
 					      <<" Origin of component/station AmdbLocalFrame= "<<(*m_amdbl_to_global)*locAmdbStatToLocAmdbComp.inverse()*HepGeom::Point3D<double>(0.,0.,0.)
@@ -359,7 +363,6 @@ MuonStation::setDelta_fromAline_forComp(int jobindex,
 
   // debugging session
   #ifndef NDEBUG
-  MsgStream log(Athena::getMessageSvc(),"MuonStation");
   if (log.level()<=MSG::DEBUG) {
       log<<MSG::DEBUG <<"Station "<<getStationType()<<" at zi/fi "<<getEtaIndex()<<"/"<<getPhiIndex()
 		      <<" adding Aline     "
