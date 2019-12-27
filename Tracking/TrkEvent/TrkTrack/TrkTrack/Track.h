@@ -39,7 +39,7 @@ namespace Trk
      * A Track typically is constructed via
      *
      * - A pointer to a const Trk::FitQuality  - the fit quality of a track
-     * - A pointerto a DataVector of const Trk::TrackStateOnSurface
+     * - A pointer to a DataVector of const Trk::TrackStateOnSurface
      *
      * A TrackStateOnSurface is a sub-container, which holds
      * various properties defining a Track, on a particular surface.
