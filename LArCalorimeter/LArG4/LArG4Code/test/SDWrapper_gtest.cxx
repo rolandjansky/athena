@@ -50,7 +50,7 @@ class SDWrappertest : public ::testing::Test {
 
     virtual void TearDown() override {
     }
-  LArEM_ID* m_EM = new LArEM_ID();
+  LArEM_ID* m_EM = new LArEM_ID();//I used some "new" to instantiate class in my test code. But  do not need to worry about memory leakage since the test code is not a part of production code, it will be run independently and will not affect the performance of the production code at all
   LArFCAL_ID* m_FCAL = new LArFCAL_ID();
   LArHEC_ID* m_HEC = new LArHEC_ID();
   LArMiniFCAL_ID* m_mini = new LArMiniFCAL_ID();
