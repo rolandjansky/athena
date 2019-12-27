@@ -179,6 +179,15 @@ addRecommendedXbbTaggers(DerivationFrameworkJob, ToolSvc)
 FlavorTagInit(JetCollections  = [ 'AntiKt4EMTopoJets','AntiKt4EMPFlowJets'], Sequencer = DerivationFrameworkJob)
 
 #====================================================================
+# TC-LVT Vertices 
+#====================================================================
+
+from SoftBVrtClusterTool.SoftBVrtConfig import addSoftBVrt
+addSoftBVrt(DerivationFrameworkJob,'Loose')
+addSoftBVrt(DerivationFrameworkJob,'Medium')
+addSoftBVrt(DerivationFrameworkJob,'Tight')
+
+#====================================================================
 # Truth collections
 #====================================================================
 if (DerivationFrameworkIsMonteCarlo):
@@ -218,6 +227,16 @@ PHYSSlimmingHelper.SmartCollections = ["Electrons",
                                        "AntiKt4TruthJets"
                                       ]
 
+excludedVertexAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
+StaticContent = []
+StaticContent += ["xAOD::VertexContainer#SoftBVrtClusterTool_Tight_Vertices"]
+StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_Tight_VerticesAux." + excludedVertexAuxData]
+StaticContent += ["xAOD::VertexContainer#SoftBVrtClusterTool_Medium_Vertices"]
+StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_Medium_VerticesAux." + excludedVertexAuxData]
+StaticContent += ["xAOD::VertexContainer#SoftBVrtClusterTool_Loose_Vertices"]
+StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_Loose_VerticesAux." + excludedVertexAuxData]
+
+PHYSSlimmingHelper.StaticContent = StaticContent
 
 # Trigger content
 PHYSSlimmingHelper.IncludeTriggerNavigation = False

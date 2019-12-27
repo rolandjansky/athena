@@ -13,6 +13,7 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODTruth/TruthEventContainer.h"
 #include "xAODJet/JetContainer.h"
+#include "xAODJet/JetAuxContainer.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "TrackVertexAssociationTool/ITrackVertexAssociationTool.h"
@@ -42,6 +43,8 @@ namespace SoftBVrt {
 
     declareProperty( "JetCollectionName", m_jetCollectionName = "AntiKt4EMTopoJets" );
     declareProperty( "TrackJetCollectionName", m_trackjetCollectionName = "AntiKtVR30Rmax4Rmin02TrackJets" );
+    declareProperty( "TruthMatchDRToolName", m_truthMatchToolName = "SoftBJetDrLabeler" );
+    m_truthMatchTool.setTypeAndName("ParticleJetDeltaRLabelTool/" + m_truthMatchToolName );
   
     //track quality tool
     declareProperty( "TrackSelectionTool", m_selTool );
@@ -65,6 +68,7 @@ namespace SoftBVrt {
     declareProperty( "DoJetVeto", m_jetveto = false );
     declareProperty( "DoTrackJetVeto", m_trackjetveto = true );
     declareProperty( "OverlapFraction", m_overlap_frac = 0.7 );
+    declareProperty( "DoTruthMatching", m_doTruthMatching = false);
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -123,6 +127,7 @@ namespace SoftBVrt {
 
     ATH_CHECK( m_secVertexFinderTool.retrieve() );
     ATH_CHECK( m_trkDistanceFinderTool.retrieve() );
+    ATH_CHECK( m_truthMatchTool.retrieve() );
 
     return StatusCode::SUCCESS;
   }
@@ -451,7 +456,19 @@ namespace SoftBVrt {
       const Trk::VxSecVertexInfo* myVertexInfo = m_secVertexFinderTool->findSecVertex( *myVertex, direction, cluster.getTracks() );   
       const std::vector<xAOD::Vertex*> vertices = myVertexInfo->vertices();       
 
-      // Compute the total momentum of the vertex and attach it to the vertex, finally attach the vertex to the collection 
+      // Now deal with the truth 
+
+      static bool ismc;
+      ismc = eventInfo->eventType( xAOD::EventInfo::IS_SIMULATION );
+
+      if (ismc && m_doTruthMatching){
+	StatusCode dVSC = decorateVertexWithTruth(&vertices);
+	if (dVSC== StatusCode::SUCCESS){
+	  ATH_MSG_DEBUG("Successfully decorates the auxiliary jet container with truth ");
+	}
+      }
+
+      // Compute the total momentum of the vertex and attach it to the vertex, finally attach the vertex to the collection       
     
       for (xAOD::Vertex *vertex : vertices) {
 
@@ -463,10 +480,12 @@ namespace SoftBVrt {
 	  totalFourMomentum += trk->p4();
 	}
 
+
 	SG::AuxElement::Decorator< float > vtx_px("tc_lvt_px");
 	SG::AuxElement::Decorator< float > vtx_py("tc_lvt_py");
 	SG::AuxElement::Decorator< float > vtx_pz("tc_lvt_pz");
-	SG::AuxElement::Decorator< float > vtx_ee("tc_lvt_ee");
+	SG::AuxElement::Decorator< float > vtx_ee("tc_lvt_ee");	
+
 
 	vtx_px(*vertex) = totalFourMomentum.Px();
 	vtx_py(*vertex) = totalFourMomentum.Py();
@@ -480,6 +499,57 @@ namespace SoftBVrt {
 
     return StatusCode::SUCCESS;
   
+  }
+
+
+
+  StatusCode SoftBVrtClusterTool::decorateVertexWithTruth(const std::vector<xAOD::Vertex*> * vtxJet)
+  {
+    // Prepare the truth matching tool and check whether this has to run 
+    
+    ATH_MSG_DEBUG("About to tag vertices");
+    
+    xAOD::JetContainer auxJetCont;
+    xAOD::JetAuxContainer auxJetContAux;
+    auxJetCont.setStore(&auxJetContAux);
+    
+    for (xAOD::Vertex *vertex : (*vtxJet)) {   
+      // Use the line from the primary to the secondary vertex as direction. Pass it as a massless jet
+      float px = vertex->x() - m_PV_x;
+      float py = vertex->y() - m_PV_y;
+      float pz = vertex->z() - m_PV_z;
+      // Assume m =0 
+      float ee = sqrt(px*px + py*py + pz*pz);
+      TLorentzVector vMom;
+      // Scale by 10000 to make sure we avoid any hidden momentum threshold on jets
+      vMom.SetPxPyPzE(10000*px,10000*py,10000*pz,10000*ee);
+      xAOD::Jet * auxJet = new xAOD::Jet();
+      auxJet->makePrivateStore();
+      auxJet->setJetP4(xAOD::JetFourMom_t(vMom.Pt(),vMom.Eta(),vMom.Phi(),vMom.M()));
+      auxJetCont.push_back(auxJet);
+    }
+
+    // Now Run the standard particle association
+
+    m_truthMatchTool->modify(auxJetCont);
+
+    // Now decorate the vertex collection 
+    int flavour = -1;
+    for (unsigned int i = 0; i < vtxJet->size(); ++i) {
+      SG::AuxElement::Decorator< int > vtx_label("tc_lvt_label");
+      if (auxJetCont.at(i)->isAvailable<int>("HadronConeExclTruthLabelID")){
+	auxJetCont.at(i)->getAttribute("HadronConeExclTruthLabelID",flavour);
+      }
+      vtx_label(*(vtxJet->at(i))) = flavour;
+    }
+
+    // Now deleting the created jets 
+
+    ATH_MSG_DEBUG( "Deleting the newly created jets");
+
+    auxJetCont.clear();
+    
+    return StatusCode::SUCCESS; 
   }
 
 }
