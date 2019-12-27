@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //============================================================================
@@ -9,6 +9,7 @@
 // Author : Wolfgang Walkowiak <Wolfgang.Walkowiak@cern.ch.>
 // Changes:
 // - w.w., 2017-01-22: Added use of BPhysMetaDataTool.
+// - w.w., 2019-12-05: Added long and vector<long> types
 //
 // Store JO metadata in the output file.
 //
@@ -52,11 +53,13 @@ namespace DerivationFramework {
 
   protected:
       virtual void recordPropertyI(const std::string& name, int         val);
+      virtual void recordPropertyL(const std::string& name, long        val);
       virtual void recordPropertyD(const std::string& name, double      val);
       virtual void recordPropertyB(const std::string& name, bool        val);
       virtual void recordPropertyS(const std::string& name, const std::string& val);
 	
       virtual void recordPropertyVI(const std::string& name, const std::vector<int>&    val);
+      virtual void recordPropertyVL(const std::string& name, const std::vector<long>&    val);
       virtual void recordPropertyVD(const std::string& name, const std::vector<double>& val);
       virtual void recordPropertyVB(const std::string& name, const std::vector<bool>&   val);
       virtual void recordPropertyVS(const std::string& name,
@@ -66,6 +69,7 @@ namespace DerivationFramework {
       virtual StatusCode saveMetaDataBPhys()                      const;
       virtual std::string buildFolderName(const std::string& fname="")   const;
       virtual std::string vecToString(const std::vector<int>& v)         const;
+      virtual std::string vecToString(const std::vector<long>& v)        const;
       virtual std::string vecToString(const std::vector<double>& v)      const;
       virtual std::string vecToString(const std::vector<bool>& v)        const;
       virtual std::string vecToString(const std::vector<std::string>& v) const;
@@ -81,10 +85,12 @@ namespace DerivationFramework {
       
       // maps for different types of JOs
       std::map<std::string, int>                       m_propInt;
+      std::map<std::string, long>                      m_propLong;
       std::map<std::string, double>                    m_propDouble;
       std::map<std::string, bool>                      m_propBool;
       std::map<std::string, std::string>               m_propString;
       std::map<std::string, std::vector<int> >         m_propVInt;
+      std::map<std::string, std::vector<long> >        m_propVLong;
       std::map<std::string, std::vector<double> >      m_propVDouble;
       std::map<std::string, std::vector<bool> >        m_propVBool;
       std::map<std::string, std::vector<std::string> > m_propVString;

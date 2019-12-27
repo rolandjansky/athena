@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //============================================================================
@@ -27,9 +27,11 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "xAODBPhys/BPhysHelper.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "ITrackToVertex/ITrackToVertex.h"
+#include "TrackVertexAssociationTool/ITrackVertexAssociationTool.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
 #include "xAODTracking/VertexContainer.h"
@@ -68,7 +70,8 @@ namespace DerivationFramework {
       virtual void        resetVals();
       virtual void        copyVals(const BaseItem& item) = 0;
       virtual std::string buildName(std::string qualifier="",
-				    std::string suffix="");
+                                    std::string suffix="");
+      virtual std::string toString() const;
       
     public:
       std::string     name;
@@ -76,27 +79,64 @@ namespace DerivationFramework {
       std::string     prefix;
     };
 
+  protected:
+    class TrackTypeCounter {
+
+    public:
+      TrackTypeCounter(BPhysVertexTrackBase& Parent, std::string Name);
+      virtual ~TrackTypeCounter();
+
+      virtual void addToCounter(uint64_t atype, uint64_t rtype=0,
+                                std::string prefix="", std::string suffix="",
+                                uint64_t counts=1);
+
+      virtual void addToCounter(std::string name, uint64_t atype=0,
+                                uint64_t counts=1);
+
+      virtual std::string countsToString(uint indent=0) const;
+      
+    public:
+      std::string name;
+
+    private:
+      typedef std::map<std::string, std::pair<uint64_t, uint64_t> >
+        NameCountMap_t;
+      NameCountMap_t        m_cnts;
+      BPhysVertexTrackBase& parent;
+    };
+    
   public:
       //
       // enumeration for types of tracks to be considered
       //
-      enum track_type {ASSOCPV, PVTYPE0, PVTYPE1, PVTYPE2, PVTYPE3, NONE};
+      enum track_type {ASSOCPV, PVTYPE0, PVTYPE1, PVTYPE2, PVTYPE3, NONE,
+                       NULLVP,
+                       CAPVRFN3U0, CAPVNRN3U0, CAPVRF3DU0, CAPVNR3DU0,
+                       CAPVRFN3U1, CAPVNRN3U1, CAPVRF3DU1, CAPVNR3DU1,
+                       CAPVRFN3U2, CAPVNRN3U2, CAPVRF3DU2, CAPVNR3DU2,
+                       CAPVRFNNU3, CAPVNRNNU3, CAPVRFNNU4, CAPVNRNNU4,
+                       CAPVRFNNU5, CAPVNRNNU5, CAPVRFNNU6, CAPVNRNNU6,
+                       CAPVRFNNU7, CAPVNRNNU7, CAPVRFNNU8, CAPVNRNNU8,
+                       CAPVRFNNU9, CAPVNRNNU9 };
       static const int          n_track_types;
       static const std::string  track_type_str[];
-      static const unsigned int track_type_bit[];
+      static const uint64_t     track_type_bit[];
   private:
-      static       unsigned int track_type_all_cached;
+      static       uint64_t     track_type_all_cached;
 
   public:
       //
       // convenience methods
       //
       static const std::string tts(track_type type);
-      static unsigned int      ttb(track_type type);
-      static unsigned int      ttall();
+      static uint64_t          ttb(track_type type);
+      static uint64_t          ttall();
+      static uint64_t          ttallMin();
+      static uint64_t          rttor(const std::vector<uint64_t> vtypes);
       static std::string       wrapLines(std::string lines,
 					 std::string prefix);
-      
+      static std::string trackToString(const xAOD::TrackParticle* track);
+
   public:
       //
       // public methods called by the framework
@@ -161,20 +201,43 @@ namespace DerivationFramework {
 				       const unsigned int ipv,
 				       const unsigned int its,
 				       const unsigned int itt) const;
-      virtual int         detTrackTypes(const xAOD::TrackParticle* track,
-					const xAOD::Vertex* candPV) const;
-      virtual double      getTrackCandPVLogChi2(const xAOD::TrackParticle*
-						track,
-						const Amg::Vector3D& pos) const;
+      virtual uint64_t detTrackTypes(const xAOD::TrackParticle* track,
+                                     const xAOD::Vertex* candPV,
+                                     const xAOD::Vertex* candRefPV) const;
+      virtual double   getTrackCandPVLogChi2(const xAOD::TrackParticle*
+                                             track,
+                                             const xAOD::Vertex* vtx,
+                                             bool doDCAin3D=false,
+                                             int chi2DefToUse=0) const;
       virtual std::vector<double> getTrackLogChi2DCA(const xAOD::TrackParticle*
-						     track,
-						     const Amg::Vector3D& pos,
-						     bool doDCAin3D=false)
-	const;
+                                                     track,
+                                                     const xAOD::Vertex* vtx,
+                                                     bool doDCAin3D=false,
+                                                     int chi2DefToUse=0)
+        const;
       virtual std::string buildBranchBaseName(unsigned int its,
-					      unsigned int ipv,
-					      unsigned int itt) const;
+                                              unsigned int ipv,
+                                              unsigned int itt,
+                                              std::string preSuffix="") const;
+      
+      virtual std::pair<const xAOD::Vertex*, double>
+        findMinChi2PV(const xAOD::TrackParticle* track,
+                      const xAOD::Vertex* candPV,
+                      const xAOD::Vertex* candRefPV,
+                      const std::vector<uint64_t>& pvtypes,
+                      const int minNTracksInPV,
+                      const bool useRefittedPvs,
+                      const bool doDCAin3D,
+                      const int chi2DefToUse) const;
 
+      virtual const xAOD::Vertex*
+        findAssocPV(const xAOD::TrackParticle* track,
+                    const xAOD::Vertex* candPV,
+                    const xAOD::Vertex* candRefPV,
+                    const std::vector<uint64_t>& pvtypes,
+                    const int minNTracksInPV,
+                    const bool useRefittedPvs) const;
+      
   protected:      
       // job options
       std::vector<std::string>         m_branchPrefixes;
@@ -186,12 +249,21 @@ namespace DerivationFramework {
       
       ToolHandle<Reco::ITrackToVertex> m_trackToVertexTool;
 
+      ToolHandle<CP::ITrackVertexAssociationTool> m_tvaTool;
+
       std::string                      m_pvContainerName;
       std::vector<std::string>         m_refPVContainerNames;
 
       int                              m_doVertexType;
-      std::vector<int>                 m_useTrackTypes;
+      std::vector<uint64_t>            m_useTrackTypes;
       bool                             m_incPrecVerticesInDecay;
+      int                              m_minNTracksInPV;
+      std::vector<uint64_t>            m_pvTypesToConsider;
+      int                              m_debugTrackTypes;
+      std::vector<uint64_t>            m_debugTracksInEvents;
+
+      // working point of TVA tool
+      bool m_tvaToolHasWpLoose;
 
       // containers
       mutable const xAOD::TrackParticleContainer*    m_tracks;
@@ -207,9 +279,25 @@ namespace DerivationFramework {
 
       mutable unsigned int m_nEvtsSeen;
 
+      // event info
+      mutable const xAOD::EventInfo* m_eventInfo;
+
       // cache for similar PV-to-SV associations
       typedef std::map<std::string, int> StringIntMap_t;
       mutable StringIntMap_t m_pvAssocResMap;
+
+      // track types considered
+      uint64_t m_trackTypesUsed;
+
+      // track type counter map (for debugging)
+      std::unique_ptr<TrackTypeCounter> m_mttc;
+
+      // run and event numbers (see EventIDBase.h for types)
+      mutable unsigned int  m_runNumber;
+      mutable uint64_t      m_evtNumber;
+
+      // debug tracks in the current event?
+      mutable bool          m_debugTracksInThisEvent;
       
   }; // class
 } // namespace

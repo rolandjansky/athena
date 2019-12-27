@@ -60,6 +60,11 @@ if globalflags.DataSource() == 'geant4':
 # project tag
 BPHY8cf.projectTag = rec.projectName()
 
+# trigger stream name
+from RecExConfig.InputFilePeeker import inputFileSummary
+if inputFileSummary is not None:
+    BPHY8cf.triggerStream = inputFileSummary['tag_info']['triggerStreamOfFile']
+
 # release 21 or newer?
 from PyJobTransforms.trfUtils import releaseIsOlderThan
 BPHY8cf.isRelease21 = not releaseIsOlderThan(21,0)
@@ -359,18 +364,21 @@ BPHY8cf.AddMinChi2ToAnyPVMode = 3
 # Vertex isolation -- track selection requirements
 # (Sizes of all lists below need to be identical!)
 # Set to "Custom" (for strings) or -1. (for numerics) to disable setting
-BPHY8cf.IsoTrackCategoryName = ["LoosePt05"]
-BPHY8cf.IsoTrackCutLevel     = ["Loose"    ]
-BPHY8cf.IsoTrackPtCut        = [   500.    ]
-BPHY8cf.IsoTrackEtaCut       = [    -1.    ]
-BPHY8cf.IsoTrackPixelHits    = [    -1     ]
-BPHY8cf.IsoTrackSCTHits      = [    -1     ]
-BPHY8cf.IsoTrackbLayerHits   = [    -1     ]
-BPHY8cf.IsoTrackIBLHits      = [    -1     ]
+BPHY8cf.IsoTrackCategoryName = ["LoosePt05", "LooSiHi1Pt05"]
+BPHY8cf.IsoTrackCutLevel     = ["Loose"    , "Loose"       ]
+BPHY8cf.IsoTrackPtCut        = [   500.    ,    500.       ]
+BPHY8cf.IsoTrackEtaCut       = [    -1.    ,     -1.       ]
+BPHY8cf.IsoTrackPixelHits    = [    -1     ,      1        ]
+BPHY8cf.IsoTrackSCTHits      = [    -1     ,      2        ]
+BPHY8cf.IsoTrackbLayerHits   = [    -1     ,     -1        ]
+BPHY8cf.IsoTrackIBLHits      = [    -1     ,     -1        ]
 # Vertex isolation -- cone sizes
 # (Sizes of all lists below need to be identical!)
-BPHY8cf.IsolationConeSizes   = [ 0.7]
-BPHY8cf.IsoTrkImpLogChi2Max  = [ 5.0]
+# Note: IsoDoTrkImpLogChi2Cut = 2 implements old method used
+#       for the 2015/16 analysis
+BPHY8cf.IsolationConeSizes    = [ 0.7, 0.7, 1.0]
+BPHY8cf.IsoTrkImpLogChi2Max   = [ 5.0, 5.0, 0.0]
+BPHY8cf.IsoDoTrkImpLogChi2Cut = [ 2  , 1  , 0  ]
 # Track types to be used (bit pattern)
 # track sets to consider:
 # bit : meaning
@@ -381,10 +389,73 @@ BPHY8cf.IsoTrkImpLogChi2Max  = [ 5.0]
 #  2   : tracks associated with PV of type 1
 #  3   : tracks associated with PV of type 2
 #  4   : tracks associated with PV of type 3
-#  5   : all tracks not selected by bits
-#        0 to 4.
-#        (E.g. 63 means to consider all tracks.)
-BPHY8cf.useIsoTrackTypes    = [ 35 ]
+#  5   : tracks associated with PV with types other than 0 to 4.
+#  6   : tracks with missing pointer to PV (NULL pointer)
+#  7-24: tracks being closest to assoc. PV
+#            decimal  useRefittedPVs doDCAin3D chi2DefToUse
+#  7   :        128        yes           no        0
+#  8   :        256        no            no        0
+#  9   :        512        yes           yes       0
+#  10  :       1024        no            yes       0
+#  11  :       2048        yes           no        1
+#  12  :       4096        no            no        1
+#  13  :       8192        yes           yes       1
+#  14  :      16384        no            yes       1
+#  15  :      32768        yes           no        2
+#  16  :      65536        no            no        2
+#  17  :     131072        yes           yes       2
+#  18  :     262144        no            yes       2
+#  19  :     524288        yes           --        3
+#  20  :    1048576        no            --        3
+#  21  :    2097152        yes           --        4
+#  22  :    4194304        no            --        4
+#  23  :    8388608        yes           --        5
+#  24  :   16777216        no            --        5
+#  25  :   33554432        yes           yes       6
+#  26  :   67108864        no            yes       6
+#  27  :  134217728        yes           yes       7
+#  28  :  268435456        no            yes       7
+#  29  :  536870912        yes           yes       8
+#  30  : 1073741824        no            yes       8
+#  31  : 2147483648        yes           yes       9
+#  32  : 4294967296        no            yes       9
+#        useRefittedPVs:
+#          replace PV associated to decay candidate
+#          by the refitted PV
+#        doDCAin3D:
+#          use d0 and z0 in the determination of
+#          of the point of closest approach of
+#          a track to a vertex
+#        chi2DefToUse:
+#          PV uncertainties in the chi2 calculation
+#          in addition to track uncertainties
+#          0 : from track perigee (old method)
+#              (only track uncertainties)
+#          1 : from track perigee with
+#              uncertainties from track and vertex
+#          2 : simple extrapolation from track
+#              parameters with uncertainties from
+#              track and vertex (extrapolation
+#              used for track swimming)
+#          3 : CalcLogChi2toPV method from NtupleMaker
+#              using xAOD::TrackingHelpers.
+#              (only track uncertainties)
+#          4 : CalcLogChi2toPV method from NtupleMaker
+#              using xAOD::TrackingHelpers.
+#              (track and vertex uncertainties)
+#          5 : use TrackVertexAssociationTool
+#          6 : full 3D chi2 from track perigee with uncertainties
+#              from track and vertex (sum of 3x3 covariance matrices)
+#          7 : full 3D chi2 from track perigee with uncertainties
+#              from track and vertex (sum of 2x2 covariance matrices)
+#          8 : simple extrapolation from track parameters with uncertainties
+#              from track and vertex (sum of 3x3 covariance matrices)
+#          9   simple extrapolation from track parameters with uncertainties
+#              from track and vertex (sum of 2x2 covariance matrices)
+#        (E.g. 127 means to consider all tracks.)
+BPHY8cf.useIsoTrackTypes    = [ 35, 127, 4194304, 8388608, 134217728]
+# Working point for TrackVertexAssociationTool (for chi2DefToUse == 5)
+BPHY8cf.IsoTvaWorkingPoint = "Loose"
 # use of speed-optimized algorithm
 BPHY8cf.IsoUseOptimizedAlgo = True
 ## BPHY8cf.IsoUseOptimizedAlgo = False
@@ -392,18 +463,21 @@ BPHY8cf.IsoUseOptimizedAlgo = True
 # Isolation for muons from B candidate -- track selection requirements
 # (Sizes of all lists below need to be identical!)
 # Set to "Custom" (for strings) or -1. (for numerics) to disable setting
-BPHY8cf.MuIsoTrackCategoryName = ["LoosePt05"]
-BPHY8cf.MuIsoTrackCutLevel     = ["Loose"    ]
-BPHY8cf.MuIsoTrackPtCut        = [    500.   ]
-BPHY8cf.MuIsoTrackEtaCut       = [     -1.   ]
-BPHY8cf.MuIsoTrackPixelHits    = [     -1    ]
-BPHY8cf.MuIsoTrackSCTHits      = [     -1    ]
-BPHY8cf.MuIsoTrackbLayerHits   = [     -1    ]
-BPHY8cf.MuIsoTrackIBLHits      = [     -1    ]
+BPHY8cf.MuIsoTrackCategoryName = ["LoosePt05", "LooSiHi1Pt05"]
+BPHY8cf.MuIsoTrackCutLevel     = ["Loose"    , "Loose"       ]
+BPHY8cf.MuIsoTrackPtCut        = [    500.   ,    500.       ]
+BPHY8cf.MuIsoTrackEtaCut       = [     -1.   ,     -1.       ]
+BPHY8cf.MuIsoTrackPixelHits    = [     -1    ,      1        ]
+BPHY8cf.MuIsoTrackSCTHits      = [     -1    ,      2        ]
+BPHY8cf.MuIsoTrackbLayerHits   = [     -1    ,     -1        ]
+BPHY8cf.MuIsoTrackIBLHits      = [     -1    ,     -1        ]
 # Muon isolation -- cone sizes
 # (Sizes of all lists below need to be identical!)
-BPHY8cf.MuIsolationConeSizes   = [ 0.7]
-BPHY8cf.MuIsoTrkImpLogChi2Max  = [ 5.0]
+# Note: MuIsoDoTrkImpLogChi2Cut = 2 implements old method used
+#       for the 2015/16 analysis
+BPHY8cf.MuIsolationConeSizes    = [ 0.7, 0.7, 1.0]
+BPHY8cf.MuIsoTrkImpLogChi2Max   = [ 5.0, 5.0, 0.0]
+BPHY8cf.MuIsoDoTrkImpLogChi2Cut = [ 2  , 1  , 0  ]
 # Track types to be used (bit pattern)
 # track sets to consider:
 # bit : meaning
@@ -414,21 +488,84 @@ BPHY8cf.MuIsoTrkImpLogChi2Max  = [ 5.0]
 #  2   : tracks associated with PV of type 1
 #  3   : tracks associated with PV of type 2
 #  4   : tracks associated with PV of type 3
-#  5   : all tracks not selected by bits
-#        0 to 4.
-#        (E.g. 63 means to consider all tracks.)
-BPHY8cf.useMuIsoTrackTypes    = [ 35 ]
+#  5   : tracks associated with PV with types other than 0 to 4.
+#  6   : tracks with missing pointer to PV (NULL pointer)
+#  7-24: tracks being closest to assoc. PV
+#            decimal  useRefittedPVs doDCAin3D chi2DefToUse
+#  7   :        128        yes           no        0
+#  8   :        256        no            no        0
+#  9   :        512        yes           yes       0
+#  10  :       1024        no            yes       0
+#  11  :       2048        yes           no        1
+#  12  :       4096        no            no        1
+#  13  :       8192        yes           yes       1
+#  14  :      16384        no            yes       1
+#  15  :      32768        yes           no        2
+#  16  :      65536        no            no        2
+#  17  :     131072        yes           yes       2
+#  18  :     262144        no            yes       2
+#  19  :     524288        yes           --        3
+#  20  :    1048576        no            --        3
+#  21  :    2097152        yes           --        4
+#  22  :    4194304        no            --        4
+#  23  :    8388608        yes           --        5
+#  24  :   16777216        no            --        5
+#  25  :   33554432        yes           yes       6
+#  26  :   67108864        no            yes       6
+#  27  :  134217728        yes           yes       7
+#  28  :  268435456        no            yes       7
+#  29  :  536870912        yes           yes       8
+#  30  : 1073741824        no            yes       8
+#  31  : 2147483648        yes           yes       9
+#  32  : 4294967296        no            yes       9
+#        useRefittedPVs:
+#          replace PV associated to decay candidate
+#          by the refitted PV
+#        doDCAin3D:
+#          use d0 and z0 in the determination of
+#          of the point of closest approach of
+#          a track to a vertex
+#        chi2DefToUse:
+#          PV uncertainties in the chi2 calculation
+#          in addition to track uncertainties
+#          0 : from track perigee (old method)
+#              (only track uncertainties)
+#          1 : from track perigee with
+#              uncertainties from track and vertex
+#          2 : simple extrapolation from track
+#              parameters with uncertainties from
+#              track and vertex (extrapolation
+#              used for track swimming)
+#          3 : CalcLogChi2toPV method from NtupleMaker
+#              using xAOD::TrackingHelpers.
+#              (only track uncertainties)
+#          4 : CalcLogChi2toPV method from NtupleMaker
+#              using xAOD::TrackingHelpers.
+#              (track and vertex uncertainties)
+#          5 : use TrackVertexAssociationTool
+#          6 : full 3D chi2 from track perigee with uncertainties
+#              from track and vertex (sum of 3x3 covariance matrices)
+#          7 : full 3D chi2 from track perigee with uncertainties
+#              from track and vertex (sum of 2x2 covariance matrices)
+#          8 : simple extrapolation from track parameters with uncertainties
+#              from track and vertex (sum of 3x3 covariance matrices)
+#          9   simple extrapolation from track parameters with uncertainties
+#              from track and vertex (sum of 2x2 covariance matrices)
+#        (E.g. 127 means to consider all tracks.)
+BPHY8cf.useMuIsoTrackTypes    = [ 35, 127, 4194304, 8388608, 134217728]
+# Working point for TrackVertexAssociationTool (for chi2DefToUse == 5)
+BPHY8cf.MuIsoTvaWorkingPoint = "Loose"
 
 # Closest track finding -- track selection requirements
 # Set to "Custom" (for strings) or -1. (for numerics) to disable setting
-BPHY8cf.CloseTrackCategoryName = ["LoosePt05"]
-BPHY8cf.CloseTrackCutLevel     = ["Loose"    ]
-BPHY8cf.CloseTrackPtCut        = [   500.    ]
-BPHY8cf.CloseTrackEtaCut       = [    -1.    ]
-BPHY8cf.CloseTrackPixelHits    = [    -1     ]
-BPHY8cf.CloseTrackSCTHits      = [    -1     ]
-BPHY8cf.CloseTrackbLayerHits   = [    -1     ]
-BPHY8cf.CloseTrackIBLHits      = [    -1     ]
+BPHY8cf.CloseTrackCategoryName = ["LoosePt05", "LooSiHi1Pt05"]
+BPHY8cf.CloseTrackCutLevel     = ["Loose"    , "Loose"       ]
+BPHY8cf.CloseTrackPtCut        = [   500.    ,    500.       ]
+BPHY8cf.CloseTrackEtaCut       = [    -1.    ,     -1.       ]
+BPHY8cf.CloseTrackPixelHits    = [    -1     ,      1        ]
+BPHY8cf.CloseTrackSCTHits      = [    -1     ,      2        ]
+BPHY8cf.CloseTrackbLayerHits   = [    -1     ,     -1        ]
+BPHY8cf.CloseTrackIBLHits      = [    -1     ,     -1        ]
 # Track types to be used (bit pattern)
 # track sets to consider:
 # bit : meaning
@@ -439,9 +576,70 @@ BPHY8cf.CloseTrackIBLHits      = [    -1     ]
 #  2   : tracks associated with PV of type 1
 #  3   : tracks associated with PV of type 2
 #  4   : tracks associated with PV of type 3
-#  5   : all tracks not selected by bits
-#        0 to 4.
-#        (E.g. 63 means to consider all tracks.)
+#  5   : tracks associated with PV with types other than 0 to 4.
+#  6   : tracks with missing pointer to PV (NULL pointer)
+#  7-24: tracks being closest to assoc. PV
+#            decimal  useRefittedPVs doDCAin3D chi2DefToUse
+#  7   :        128        yes           no        0
+#  8   :        256        no            no        0
+#  9   :        512        yes           yes       0
+#  10  :       1024        no            yes       0
+#  11  :       2048        yes           no        1
+#  12  :       4096        no            no        1
+#  13  :       8192        yes           yes       1
+#  14  :      16384        no            yes       1
+#  15  :      32768        yes           no        2
+#  16  :      65536        no            no        2
+#  17  :     131072        yes           yes       2
+#  18  :     262144        no            yes       2
+#  19  :     524288        yes           --        3
+#  20  :    1048576        no            --        3
+#  21  :    2097152        yes           --        4
+#  22  :    4194304        no            --        4
+#  23  :    8388608        yes           --        5
+#  24  :   16777216        no            --        5
+#  25  :   33554432        yes           yes       6
+#  26  :   67108864        no            yes       6
+#  27  :  134217728        yes           yes       7
+#  28  :  268435456        no            yes       7
+#  29  :  536870912        yes           yes       8
+#  30  : 1073741824        no            yes       8
+#  31  : 2147483648        yes           yes       9
+#  32  : 4294967296        no            yes       9
+#        useRefittedPVs:
+#          replace PV associated to decay candidate
+#          by the refitted PV
+#        doDCAin3D:
+#          use d0 and z0 in the determination of
+#          of the point of closest approach of
+#          a track to a vertex
+#        chi2DefToUse:
+#          PV uncertainties in the chi2 calculation
+#          in addition to track uncertainties
+#          0 : from track perigee (old method)
+#              (only track uncertainties)
+#          1 : from track perigee with
+#              uncertainties from track and vertex
+#          2 : simple extrapolation from track
+#              parameters with uncertainties from
+#              track and vertex (extrapolation
+#              used for track swimming)
+#          3 : CalcLogChi2toPV method from NtupleMaker
+#              using xAOD::TrackingHelpers.
+#              (only track uncertainties)
+#          4 : CalcLogChi2toPV method from NtupleMaker
+#              using xAOD::TrackingHelpers.
+#              (track and vertex uncertainties)
+#          5 : use TrackVertexAssociationTool
+#          6 : full 3D chi2 from track perigee with uncertainties
+#              from track and vertex (sum of 3x3 covariance matrices)
+#          7 : full 3D chi2 from track perigee with uncertainties
+#              from track and vertex (sum of 2x2 covariance matrices)
+#          8 : simple extrapolation from track parameters with uncertainties
+#              from track and vertex (sum of 3x3 covariance matrices)
+#          9   simple extrapolation from track parameters with uncertainties
+#              from track and vertex (sum of 2x2 covariance matrices)
+#        (E.g. 127 means to consider all tracks.)
 #
 # Correspondence to Run 1 settings:
 #
@@ -456,15 +654,47 @@ BPHY8cf.CloseTrackIBLHits      = [    -1     ]
 #  3 : 35 : use all tracks which are not from PVs other than
 #           PV associated with B vertex but including those
 #           from the dummy vertex (type 0 vertex)
-#  4 : 35 : same as option 3 but using the vertex pointers 
-#           for comparing
-BPHY8cf.useCloseTrackTypes   = [ 35 ]
+#  4 : 127: same as option 3 but using the vertex pointers 
+#           for comparing in old setup; including tracks
+#           with broken (NULL) vertex pointers as well
+BPHY8cf.useCloseTrackTypes    = [ 35, 127, 4194304, 8388608, 134217728]
+# Working point for TrackVertexAssociationTool (for chi2DefToUse == 5)
+BPHY8cf.CloseTrackTvaWorkingPoint = "Loose"
+#
+# Close tracks chi2 related settings
+# (The next five lists need to be exactly of the same length.)
+BPHY8cf.CloseTrackChi2SetName = [ "201516", "f2dc2", 'corc2cnt']
+# use corrected chi2 calculation including SV uncertainties
+#   0 : from track perigee (old method, only track uncertainties)
+#   1 : from track perigee with uncertainties from track and vertex
+#   2 : simple extrapolation from track parameters with uncertainties
+#       from track and vertex (extrapolation used for track swimming)
+#   3 : CalcLogChi2toPV method from NtupleMaker using xAOD::TrackingHelpers.
+#       (only track uncertainties)
+#   4 : CalcLogChi2toPV method from NtupleMaker using xAOD::TrackingHelpers.
+#       (track and vertex uncertainties)
+#   5 : use TrackVertexAssociationTool
+#   6 : full 3D chi2 from track perigee with uncertainties
+#       from track and vertex (sum of 3x3 covariance matrices)
+#   7 : full 3D chi2 from track perigee with uncertainties
+#       from track and vertex (sum of 2x2 covariance matrices)
+#   8 : simple extrapolation from track parameters with uncertainties
+#       from track and vertex (sum of 3x3 covariance matrices)
+#   9   simple extrapolation from track parameters with uncertainties
+#       from track and vertex (sum of 2x2 covariance matrices)
+# N.B.: Settings 3, 4 and 5 may be less reasonable here. Do not use.
+BPHY8cf.CloseTrackCorrChi2    = [ 0       , 7      , 2]
 # use 3-dimensional information in minimization
-BPHY8cf.CloseTrackMinDCAin3D = True
+BPHY8cf.CloseTrackMinDCAin3D  = [ True    , True   , True]
 # maximum chi2 distance of closest track to B vertex
-BPHY8cf.CloseTrackMaxLogChi2    = 7.
+BPHY8cf.CloseTrackMaxLogChi2  = [ 7.      , 7.     , 7.]
 # maximum chi2 distance of closest track to B vertex for track counting
-BPHY8cf.NCloseTrackMaxLogChi2   = 1.
+BPHY8cf.NCloseTrackMaxLogChi2 = [ 1.      , 2.     , 2.]
+
+# track/muon isolation and closest track tools
+# debugging level for track types (output to log)
+# (Set to 1 to enable, 0 otherwise.)
+BPHY8cf.DebugTrackTypes = 0
 
 # BTrackVertexMapLogger / BPhysTrackVertexMapTools
 # maximum number of events to dump track-to-vertex assoc. maps for
@@ -1150,6 +1380,38 @@ for BPHY8_name in BPHY8_CtTrkSelTools.keys():
     pprint(BPHY8_CtTrkSelTools[BPHY8_name].properties())
 
 #
+# Step 1.5: Set up track vertex assocation tool
+#
+from TrackVertexAssociationTool.TrackVertexAssociationToolConf \
+    import CP__TrackVertexAssociationTool
+
+BPHY8_TvaTools = OrderedDict()
+
+# a) for BVertexTrackIsoTool
+BPHY8_TvaTools["TrackVtxIsoTva"] = CP__TrackVertexAssociationTool(
+    name          = BPHY8cf.DerivationName+"_VtxIsoTvaTool",
+    WorkingPoint  = BPHY8cf.IsoTvaWorkingPoint,
+    OutputLevel   = WARNING)
+
+# b) for BMuonTrackIsoTool
+BPHY8_TvaTools["TrackMuonIsoTva"] = CP__TrackVertexAssociationTool(
+    name          = BPHY8cf.DerivationName+"_MuonIsoTvaTool",
+    WorkingPoint  = BPHY8cf.MuIsoTvaWorkingPoint,
+    OutputLevel   = WARNING)
+
+# c) for ClosestTrackTool
+BPHY8_TvaTools["TrackVtxCtTva"] = CP__TrackVertexAssociationTool(
+    name          = BPHY8cf.DerivationName+"_VtxCtTvaTool",
+    WorkingPoint  = BPHY8cf.CloseTrackTvaWorkingPoint,
+    OutputLevel   = WARNING)
+
+# attach to ToolSvc
+ToolSvc += BPHY8_TvaTools.values()
+for BPHY8_name in BPHY8_TvaTools.keys():
+    print BPHY8_TvaTools[BPHY8_name] 
+    pprint(BPHY8_TvaTools[BPHY8_name].properties())
+
+#
 # Second: Set up the B candidate vertex container arrays
 #
 BPHY8cf.VtxContNames  = [];
@@ -1195,12 +1457,17 @@ BPHY8_IsoTools["TrackVtxIso"] = DerivationFramework__BVertexTrackIsoTool(
     RefPVContainerNames        = BPHY8cf.RefPVContNames,
     TrackParticleContainerName = BPHY8cf.TrkPartContName,
     PVContainerName            = BPHY8cf.PVContName,
+    PVTypesToConsider          = BPHY8cf.MinChi2ToAnyPVTypes,
     TrackSelectionTools        = BPHY8_IsoTrkSelTools.values(),
+    TVATool                    = BPHY8_TvaTools["TrackVtxIsoTva"],
     IsolationConeSizes         = BPHY8cf.IsolationConeSizes,
     IsoTrkImpLogChi2Max        = BPHY8cf.IsoTrkImpLogChi2Max,    
+    IsoDoTrkImpLogChi2Cut      = BPHY8cf.IsoDoTrkImpLogChi2Cut,
     DoVertexType               = BPHY8cf.doVertexType,
     UseTrackTypes              = BPHY8cf.useIsoTrackTypes,
-    UseOptimizedAlgo           = BPHY8cf.IsoUseOptimizedAlgo)
+    UseOptimizedAlgo           = BPHY8cf.IsoUseOptimizedAlgo,
+    DebugTrackTypes            = BPHY8cf.DebugTrackTypes,
+    DebugTracksInEvents        = [])
 
 # b) BMuonTrackIsoTool
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf \
@@ -1215,12 +1482,17 @@ BPHY8_IsoTools["TrackMuonIso"] = DerivationFramework__BMuonTrackIsoTool(
     RefPVContainerNames        = BPHY8cf.RefPVContNames,
     TrackParticleContainerName = BPHY8cf.TrkPartContName,
     PVContainerName            = BPHY8cf.PVContName,
+    PVTypesToConsider          = BPHY8cf.MinChi2ToAnyPVTypes,
     MuonContainerName          = BPHY8cf.UsedMuonCollection,
     TrackSelectionTools        = BPHY8_MuIsoTrkSelTools.values(),
+    TVATool                    = BPHY8_TvaTools["TrackMuonIsoTva"],
     IsolationConeSizes         = BPHY8cf.MuIsolationConeSizes,
     IsoTrkImpLogChi2Max        = BPHY8cf.MuIsoTrkImpLogChi2Max,    
+    IsoDoTrkImpLogChi2Cut      = BPHY8cf.MuIsoDoTrkImpLogChi2Cut,
     DoVertexType               = BPHY8cf.doVertexType,
-    UseTrackTypes              = BPHY8cf.useMuIsoTrackTypes)
+    UseTrackTypes              = BPHY8cf.useMuIsoTrackTypes,
+    DebugTrackTypes            = BPHY8cf.DebugTrackTypes,
+    DebugTracksInEvents        = [])
 
 # c) BVertexClosestTrackTool
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf \
@@ -1236,11 +1508,17 @@ BPHY8_IsoTools["TrackVtxCt"] = DerivationFramework__BVertexClosestTrackTool(
     TrackParticleContainerName = BPHY8cf.TrkPartContName,
     PVContainerName            = BPHY8cf.PVContName,
     TrackSelectionTools        = BPHY8_CtTrkSelTools.values(),
+    TVATool                    = BPHY8_TvaTools["TrackVtxCtTva"],
+    PVTypesToConsider          = BPHY8cf.MinChi2ToAnyPVTypes,
     DoVertexType               = BPHY8cf.doVertexType,
     UseTrackTypes              = BPHY8cf.useCloseTrackTypes,
+    CloseTrackChi2SetName      = BPHY8cf.CloseTrackChi2SetName,
+    CloseTrackCorrChi2         = BPHY8cf.CloseTrackCorrChi2,
     CloseTrackMinDCAin3D       = BPHY8cf.CloseTrackMinDCAin3D,
     CloseTrackMaxLogChi2       = BPHY8cf.CloseTrackMaxLogChi2,
-    NCloseTrackMaxLogChi2      = BPHY8cf.NCloseTrackMaxLogChi2)
+    NCloseTrackMaxLogChi2      = BPHY8cf.NCloseTrackMaxLogChi2,
+    DebugTrackTypes            = BPHY8cf.DebugTrackTypes,
+    DebugTracksInEvents        = [])
 
 #
 # Fourth: Add track-to-vertex map debugging
@@ -1299,10 +1577,11 @@ from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf \
     import DerivationFramework__AugOriginalCounts
 BPHY8_AugOriginalCounts = DerivationFramework__AugOriginalCounts(
     name = "BPHY8_AugOriginalCounts",
-    VertexContainer   = BPHY8cf.PVContName,
-    TrackContainer    = BPHY8cf.TrkPartContName,
-    AddPVCountsByType = True,
-    AddNTracksToPVs   = True)
+    VertexContainer    = BPHY8cf.PVContName,
+    TrackContainer     = BPHY8cf.TrkPartContName,
+    AddPVCountsByType  = True,
+    AddNTracksToPVs    = True,
+    AddSqrtPt2SumToPVs = True)
     
 ToolSvc += BPHY8_AugOriginalCounts
 pprint(BPHY8_AugOriginalCounts.properties())
@@ -1743,7 +2022,9 @@ BPHY8_SmartCollections += [BPHY8cf.PVContName]
 ##                         + ".trackParticleLinks.trackWeights.neutralWeights"]
 #
 # 2018-05-04: The covariance matrix is occasionally used by the NtupleMaker
-BPHY8_ExtraVariables   += ["%s.covariance" % BPHY8cf.PVContName ]
+# 2019-11-15: adding original number of tracks and sqrt(sum(pt^2))
+BPHY8_ExtraVariables   += ["%s.covariance" % BPHY8cf.PVContName
+                           +".OrigNTracks.OrigSqrtPt2Sum"]
 
 for BPHY8_reco in BPHY8_recoList:
     BPHY8_StaticContent \
