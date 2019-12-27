@@ -13,7 +13,8 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkTools/TrkToolInterfaces
-                          PRIVATE
+			  PRIVATE
+			  Control/CxxUtils
                           Database/AthenaPOOL/AthenaPoolUtilities
                           DetectorDescription/AtlasDetDescr
                           DetectorDescription/Identifier
@@ -28,7 +29,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( TrkRIO_OnTrackCreator
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps AthenaKernel EventPrimitives GaudiKernel TrkParameters TrkToolInterfaces AthenaPoolUtilities AtlasDetDescr Identifier xAODEventInfo InDetIdentifier InDetRIO_OnTrack MuonRIO_OnTrack TrkPrepRawData TrkRIO_OnTrack )
+		     LINK_LIBRARIES AthenaBaseComps AthenaKernel EventPrimitives GaudiKernel TrkParameters TrkToolInterfaces CxxUtils AthenaPoolUtilities AtlasDetDescr Identifier xAODEventInfo InDetIdentifier InDetRIO_OnTrack MuonRIO_OnTrack TrkPrepRawData TrkRIO_OnTrack )
 
 # Install files from the package:
 atlas_install_headers( TrkRIO_OnTrackCreator )
