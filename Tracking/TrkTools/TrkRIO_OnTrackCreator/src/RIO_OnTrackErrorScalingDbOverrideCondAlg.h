@@ -13,7 +13,6 @@
 #include "TrkRIO_OnTrack/RIO_OnTrackErrorScaling.h"
 #include "GaudiKernel/ICondSvc.h"
 #include "GaudiKernel/Property.h"
-
 #include <iostream>
 
 class RIO_OnTrackErrorScalingKit;
@@ -23,7 +22,7 @@ class RIO_OnTrackErrorScalingDbOverrideCondAlg : public AthAlgorithm
  public:
   RIO_OnTrackErrorScalingDbOverrideCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~RIO_OnTrackErrorScalingDbOverrideCondAlg() = default;
-  StatusCode initialize () override;
+  StatusCode initialize() override;
   StatusCode execute() override;
   StatusCode finalize() override;
 

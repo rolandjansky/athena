@@ -47,8 +47,8 @@ public:
   static
   KitManager<T_KitInterface>& instance ATLAS_NOT_THREAD_SAFE () {
     /* in C++11 this is to happen once the issue is that we return a ref
-     * rather than const ref */
-    static auto s_instance=std::make_unique<KitManager<T_KitInterface > >();
+     * rather than const ref. To be thread safe we need to have static const */
+    static std::unique_ptr<KitManager<T_KitInterface>> s_instance = std::make_unique<KitManager<T_KitInterface>>();
     return *s_instance;
   }
 };
