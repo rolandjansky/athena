@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 ###### Here some graphical methods to produce dot files from Decision Handling
  # to visualize: dot -T pdf Step1.dot > Step1.pdf
  
