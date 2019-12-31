@@ -6,134 +6,154 @@
 
 #undef NDEBUG
 #include <cassert>
+#include <nlohmann/json.hpp>
 #include "TestTools/expect.h"
 #include "TestTools/expect_exception.h"
 #include "AthenaMonitoringKernel/HistogramDef.h"
 using namespace Monitored;
+using json = nlohmann::json;
 
+json defaultJson() {
+  json j;
+  j["alias"] = "var";
+  j["allvars"] = json::array({"var"});
+  j["convention"] = "";
+  j["opt"] = "";
+  j["path"] = "";
+  j["title"] = "var";
+  j["type"] = "TH1F";
+  j["weight"] = "";
+  j["xarray"] = json::array();
+  j["xbins"] = 100;
+  j["xlabels"] = json::array();
+  j["xmax"] = 1.0;
+  j["xmin"] = 0.0;
+  j["xvar"] = "var";
+  j["yarray"] = json::array();
+  j["ybins"] = 0;
+  j["ylabels"] = json::array();
+  j["ymax"] = 0.0;
+  j["ymin"] = 0.0;
+  j["yvar"] = "";
+  j["zlabels"] = json::array();
+  j["zmax"] = 0.0;
+  j["zmin"] = 0.0;
+  j["zvar"] = "";
+  return j;
+}
 
+bool parse1D() {
+  json check = defaultJson();
+  auto def = HistogramDef::parse(check.dump());
 
-
-
-bool parsing1DWorks() {
-  auto def = HistogramDef::parse("EXPERT, TH1F, , , Eta, #eta of Clusters; #eta; number of RoIs, 50, -2.500000, 2.500000");
-  VALUE ( def.ok )          EXPECTED ( true );  
-  VALUE ( def.path )        EXPECTED ( "EXPERT" );
-  VALUE ( def.type )        EXPECTED ( "TH1F" );
+  VALUE ( def.ok ) EXPECTED ( true );
+  VALUE ( def.alias ) EXPECTED ( "var" );
+  VALUE ( def.type ) EXPECTED ( "TH1F" );
   VALUE ( def.name.size() ) EXPECTED ( 1 );
-  VALUE ( std::string(def.name[0]) )     EXPECTED ( "Eta" );
-  VALUE ( def.title )       EXPECTED ( "#eta of Clusters; #eta; number of RoIs" );
-  VALUE ( def.xbins )       EXPECTED ( 50 );
-  VALUE ( def.xmin )        EXPECTED ( -2.5 );
-  VALUE ( def.xmax )        EXPECTED ( 2.5 );
+  VALUE ( def.xvar ) EXPECTED ( "var" );
+  VALUE ( def.xbins ) EXPECTED ( 100 );
+  VALUE ( def.xmin ) EXPECTED ( 0.0 );
+  VALUE ( def.xmax ) EXPECTED ( 1.0 );
+
   return true;
 }
 
-bool parsing2DWorks() {
-  auto def = HistogramDef::parse("SHIFT, TH2F, , , Eta,Phi, #eta vs #phi of Clusters; #eta; #phi, 50, -2.500000, 2.500000, 64, -3.200000, 3.200000");
-  VALUE ( def.ok )           EXPECTED ( true ) ;
-  VALUE ( def.path )         EXPECTED ( "SHIFT" );
-  VALUE ( def.type )         EXPECTED ( "TH2F" );
-  VALUE ( def.name.size() )  EXPECTED ( 2 );
-  VALUE ( std::string( def.name[0] ) ) EXPECTED ( "Eta");
-  VALUE ( std::string( def.name[1] ) ) EXPECTED ( "Phi");
-  VALUE ( def.alias ) EXPECTED( "Eta_vs_Phi" );
-  VALUE ( def.title )        EXPECTED ( "#eta vs #phi of Clusters; #eta; #phi" );
-  VALUE ( def.xbins )        EXPECTED ( 50 );
-  VALUE ( def.xmin )         EXPECTED ( -2.5 );
-  VALUE ( def.xmax )         EXPECTED (  2.5 );
-  VALUE ( def.ybins )        EXPECTED ( 64 );
-  VALUE ( def.ymin )         EXPECTED ( -3.2 );
-  VALUE ( def.ymax )         EXPECTED (  3.2 );
+bool parse1D_options() {
+  json check = defaultJson();
+  check["xbins"] = 10;
+  check["xmin"] = -1.0;
+  check["xmax"] = 1.0;
+  check["title"] = "toptitle; xtitle; ytitle";
+  check["opt"] = "myopt";
+  check["path"] = "mypath/tohistograms";
+  check["type"] = "TH1D";
+  check["weight"] = "myweight";
+  auto def = HistogramDef::parse(check.dump());
+
+  VALUE ( def.ok ) EXPECTED ( true );
+  VALUE ( def.xbins ) EXPECTED ( 10 );
+  VALUE ( def.xmin ) EXPECTED ( -1.0 );
+  VALUE ( def.xmax ) EXPECTED ( 1.0 );
+  VALUE ( def.title ) EXPECTED ( "toptitle; xtitle; ytitle" );
+  VALUE ( def.opt ) EXPECTED ( "myopt" );
+  VALUE ( def.path ) EXPECTED ( "mypath/tohistograms" );
+  VALUE ( def.type ) EXPECTED ( "TH1D" );
+  VALUE ( def.weight ) EXPECTED ( "myweight" );
+
+  return true;
+}
+
+bool parse2D() {
+  json check = defaultJson();
+  check["type"] = "TH2F";
+  check["allvars"] = {"varX", "varY"};
+  check["alias"] = "varX_vs_varY";
+  check["xvar"] = "varX";
+  check["yvar"] = "varY";
+  check["ybins"] = 10;
+  check["ymin"] = 0.0;
+  check["ymax"] = 20.0;
+  check["title"] = "X vs. Y; X [x unit]; Y [y unit]";
+  auto def = HistogramDef::parse(check.dump());
+
+  VALUE ( def.ok ) EXPECTED ( true );
+  VALUE ( def.type ) EXPECTED ( "TH2F" );
+  VALUE ( def.name.size() ) EXPECTED ( 2 );
+  VALUE ( std::string(def.name[0]) ) EXPECTED ( "varX" );
+  VALUE ( std::string(def.name[1]) ) EXPECTED ( "varY" );
+  VALUE ( def.alias ) EXPECTED( "varX_vs_varY" );
+  VALUE ( def.title ) EXPECTED ( "X vs. Y; X [x unit]; Y [y unit]" );
+  VALUE ( def.xbins ) EXPECTED ( 100 );
+  VALUE ( def.xmin ) EXPECTED ( 0.0 );
+  VALUE ( def.xmax ) EXPECTED ( 1.0 );
+  VALUE ( def.ybins ) EXPECTED ( 10 );
+  VALUE ( def.ymin ) EXPECTED ( 0.0 );
+  VALUE ( def.ymax ) EXPECTED ( 20.0 );
+
+  return true;
+}
+
+bool parse3D() {
+  json check = defaultJson();
+  check["type"] = "TProfile2D";
+  check["allvars"] = {"varX", "varY", "varZ"};
+  check["alias"] = "varX_vs_varY_vs_varZ";
+  check["xvar"] = "varX";
+  check["yvar"] = "varY";
+  check["zvar"] = "varZ";
+  check["ybins"] = 10;
+  check["ymin"] = 0.0;
+  check["ymax"] = 20.0;
+  check["zmin"] = -1.0;
+  check["zmax"] = 1.0;
+  check["title"] = "X vs. Y vs. Z; X [x unit]; Y [y unit]; Z [z unit]";
+  auto def = HistogramDef::parse(check.dump());
+
+  VALUE ( def.ok ) EXPECTED ( true );
+  VALUE ( def.type ) EXPECTED ( "TProfile2D" );
+  VALUE ( def.name.size() ) EXPECTED ( 3 );
+  VALUE ( std::string(def.name[0]) ) EXPECTED ( "varX" );
+  VALUE ( std::string(def.name[1]) ) EXPECTED ( "varY" );
+  VALUE ( std::string(def.name[2]) ) EXPECTED ( "varZ" );
+  VALUE ( def.alias ) EXPECTED( "varX_vs_varY_vs_varZ" );
+  VALUE ( def.title ) EXPECTED ( "X vs. Y vs. Z; X [x unit]; Y [y unit]; Z [z unit]" );
+  VALUE ( def.xbins ) EXPECTED ( 100 );
+  VALUE ( def.xmin ) EXPECTED ( 0.0 );
+  VALUE ( def.xmax ) EXPECTED ( 1.0 );
+  VALUE ( def.ybins ) EXPECTED ( 10 );
+  VALUE ( def.ymin ) EXPECTED ( 0.0 );
+  VALUE ( def.ymax ) EXPECTED ( 20.0 );
+  VALUE ( def.zmin ) EXPECTED ( -1.0 );
+  VALUE ( def.zmax ) EXPECTED ( 1.0 );
   
-  return true;
-}
-
-bool parsing3DWorks() {
-  auto def = HistogramDef::parse("SHIFT, TProfile2D, , , Eta,Phi,pt, title, 50, -2.500000, 2.500000, 64, -3.200000, 3.200000, -1.000000, 1.000000");
-  VALUE ( def.ok )           EXPECTED ( true ) ;
-  VALUE ( def.path )         EXPECTED ( "SHIFT" );
-  VALUE ( def.type )         EXPECTED ( "TProfile2D" );
-  VALUE ( def.name.size() )  EXPECTED ( 3 );
-  VALUE ( std::string( def.name[0] ) ) EXPECTED ( "Eta");
-  VALUE ( std::string( def.name[1] ) ) EXPECTED ( "Phi");
-  VALUE ( def.alias ) EXPECTED( "Eta_vs_Phi_vs_pt" );
-  VALUE ( def.title )        EXPECTED ( "title" );
-  VALUE ( def.xbins )        EXPECTED ( 50 );
-  VALUE ( def.xmin )         EXPECTED ( -2.5 );
-  VALUE ( def.xmax )         EXPECTED (  2.5 );
-  VALUE ( def.ybins )        EXPECTED ( 64 );
-  VALUE ( def.ymin )         EXPECTED ( -3.2 );
-  VALUE ( def.ymax )         EXPECTED (  3.2 );
-  VALUE ( def.zmin )         EXPECTED ( -1.0 );
-  VALUE ( def.zmax )         EXPECTED (  1.0 );
-  
-  return true;
-}
-
-bool parsingLabeledWorks() {
-  auto def = HistogramDef::parse("SHIFT, TH1D, , , Cut, Cut counter, 5, 0, 5, Cut1:Cut2:Eta:Pt:R");
-  VALUE ( def.ok )           EXPECTED ( true ) ;
-  VALUE ( def.path )         EXPECTED ( "SHIFT" );
-  VALUE ( def.type )         EXPECTED ( "TH1D" );
-  VALUE ( def.name.size() )  EXPECTED ( 1 );
-  VALUE ( std::string( def.name[0]) ) EXPECTED ( "Cut");
-  VALUE ( def.labels.size() )EXPECTED ( 5 );
-  VALUE ( std::string( def.labels[0] ) ) EXPECTED ( "Cut1");
-  VALUE ( std::string( def.labels[1] ) ) EXPECTED ( "Cut2");
-  VALUE ( std::string( def.labels[2] ) ) EXPECTED ( "Eta");
-  VALUE ( std::string( def.labels[3] ) ) EXPECTED ( "Pt");
-  VALUE ( std::string( def.labels[4] ) ) EXPECTED ( "R");
-
-  return true;
-}
-
-bool parsingWeightedWorks() {
-  auto def = HistogramDef::parse("EXPERT, TH1F, Weight, , var, title, 5, 0, 5");
-  VALUE ( def.ok )                   EXPECTED ( true );
-  VALUE ( def.path )                 EXPECTED ( "EXPERT" );
-  VALUE ( def.type )                 EXPECTED ( "TH1F" );
-  VALUE ( def.weight )               EXPECTED ( "Weight" );
-  VALUE ( def.name.size() )          EXPECTED ( 1 );
-  VALUE ( std::string(def.name[0]) ) EXPECTED ( "var" );
-
-  return true;
-}
-
-bool parsing1DArrayWorks() {
-  auto def = HistogramDef::parse("EXPERT, TH1F, , , var, title, 0:1:2:4:8");
-  VALUE ( def.ok )    EXPECTED ( true );
-  VALUE ( def.xbins ) EXPECTED ( 4 );
-  VALUE ( std::equal(def.xArray.begin(),def.xArray.end(),std::vector<double>({0,1,2,4,8}).begin()) ) EXPECTED ( true );
-  return true;
-}
-
-bool parsing2DArrayWorks() {
-  auto def = HistogramDef::parse("EXPERT, TH2F, , , var1,var2, title, 0:1:2:4:8, 0:4:6:7");
-  VALUE ( def.ok )    EXPECTED ( true );
-  VALUE ( def.xbins ) EXPECTED ( 4 );
-  VALUE ( std::equal(def.xArray.begin(),def.xArray.end(),std::vector<double>({0,1,2,4,8}).begin()) ) EXPECTED ( true );
-  VALUE ( def.ybins ) EXPECTED ( 3 );
-  VALUE ( std::equal(def.yArray.begin(),def.yArray.end(),std::vector<double>({0,4,6,7}).begin()) ) EXPECTED ( true );
-  return true;
-}
-
-bool badDefGeneratesExecption() {
-  EXPECT_EXCEPTION( HistogramDefParseException,
-		    HistogramDef::parse("S, TH1D, , x, 2.5, 0, 45") ); //2.5 bins can not be valid
   return true;
 }
 
 int main() {
-  assert( parsing1DWorks() );
-  assert( parsing2DWorks() );
-  assert( parsing2DWorks() );
-  assert( parsing3DWorks() );
-  assert( parsingLabeledWorks() );
-  assert( parsingWeightedWorks() );
-  assert( parsing1DArrayWorks() );
-  assert( parsing2DArrayWorks() );
-  assert( badDefGeneratesExecption() );
+  assert( parse1D() );
+  assert( parse1D_options() );
+  assert( parse2D() );
+  assert( parse3D() );
 
   std::cout << "all ok" << std::endl;
   return 0;

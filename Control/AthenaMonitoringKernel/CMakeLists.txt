@@ -12,18 +12,21 @@ atlas_depends_on_subdirs(
         Event/EventInfo
 )
 
+# External dependencies:
+find_package( nlohmann_json )
+
 atlas_add_library(
     AthenaMonitoringKernelLib
     src/*.cxx
     src/HistogramFiller/*.cxx
     PUBLIC_HEADERS AthenaMonitoringKernel
-    LINK_LIBRARIES AthenaBaseComps EventInfo
+    LINK_LIBRARIES AthenaBaseComps EventInfo nlohmann_json::nlohmann_json
 )
 
 atlas_add_component(
     AthenaMonitoringKernel
     src/components/*.cxx
-    LINK_LIBRARIES AthenaMonitoringKernelLib
+    LINK_LIBRARIES AthenaMonitoringKernelLib nlohmann_json::nlohmann_json
 )
 
 # Install files from the package:

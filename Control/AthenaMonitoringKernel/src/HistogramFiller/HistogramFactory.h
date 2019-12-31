@@ -136,7 +136,7 @@ namespace Monitored {
      * @param hist Histogram handler 
      * @param labels Histogram labels (from histogram definition)
      */
-    static void setLabels(TH1* hist, const std::vector<std::string>& labels);
+    static void setLabels(TH1* hist, const HistogramDef& labels);
 
     ServiceHandle<ITHistSvc> m_histSvc;
     std::string m_streamName; //!< defines the stream for THistSvc
