@@ -9,6 +9,7 @@
 
 #include "LArG4Code/LArG4Identifier.h"
 #include "CaloSimEvent/CaloCalibrationHit.h"
+#include <gtest/gtest_prod.h>
 
 #include <set>
 #include <vector>
@@ -36,6 +37,13 @@ class CaloCalibrationHitContainer;
 ///
 class LArG4CalibSD : public G4VSensitiveDetector
 {
+FRIEND_TEST( LArG4CalibSDtest, ProcessHits );
+FRIEND_TEST( LArG4CalibSDtest, EndOfAthenaEvent );
+FRIEND_TEST( LArG4CalibSDtest, setupHelpers );
+FRIEND_TEST( LArG4CalibSDtest, addDetectorHelper );
+FRIEND_TEST( LArG4CalibSDtest, SpecialHit );
+FRIEND_TEST( LArG4CalibSDtest, SimpleHit );
+FRIEND_TEST( LArG4CalibSDtest, ConvertID );
 public:
 
   /// Constructor
