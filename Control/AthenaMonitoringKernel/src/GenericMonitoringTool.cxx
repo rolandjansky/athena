@@ -16,6 +16,8 @@
 
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "AthenaMonitoringKernel/HistogramDef.h"
+#include "AthenaMonitoringKernel/HistogramFiller.h"
+#include "AthenaMonitoringKernel/IMonitoredVariable.h"
 
 #include "HistogramFiller/HistogramFillerFactory.h"
 

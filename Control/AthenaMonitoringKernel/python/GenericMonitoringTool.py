@@ -6,6 +6,7 @@ from AthenaCommon.Logging import logging
 from AthenaCommon.Configurable import Configurable
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaMonitoringKernel.AthenaMonitoringKernelConf import GenericMonitoringTool as _GenericMonitoringTool
+import json
 
 log = logging.getLogger(__name__)
 
@@ -103,56 +104,157 @@ class GenericMonitoringArray:
 #  @param varname  one (1D) or two (2D) variable names separated by comma
 #  @param type     histogram type
 #  @param path     top-level histogram directory (e.g. EXPERT, SHIFT, etc.)
-#  @param weight   Name of the variable containing the fill weight
 #  @param title    Histogram title and optional axis title (same syntax as in TH constructor)
+#  @param weight   Name of the variable containing the fill weight
 #  @param opt      Histrogram options (see GenericMonitoringTool)
-#  @param labels   List of bin labels (for a 2D histogram, sequential list of x- and y-axis labels)
+#  @param labels   Deprecated. Copies value to xlabels.
+#  @param xlabels  List of x bin labels.
+#  @param ylabels  List of y bin labels.
+#  @param zlabels  List of x bin labels.
 
 def defineHistogram(varname, type='TH1F', path=None,
-                    title=None,weight='',
-                    xbins=100, xmin=0, xmax=1,
-                    ybins=None, ymin=None, ymax=None,
-                    zmin=None, zmax=None,
-                    opt='', labels=None, convention=''):
+                    title=None, weight=None, alias=None,
+                    xbins=100, xmin=0, xmax=1, xlabels=None,
+                    ybins=None, ymin=None, ymax=None, ylabels=None,
+                    zmin=None, zmax=None, zlabels=None,
+                    opt='', labels=None, convention=None):
 
-    # Assert argument types
-    if not athenaCommonFlags.isOnline():
-        if path is None:
-            path = ''
-    assert path is not None, "path is required"
-    assert labels is None or isinstance(labels, (list, tuple) ), "labels must be of type list or tuple"
+    # All of these fields default to an empty string
+    stringSettingsKeys = ['xvar', 'yvar', 'zvar', 'type', 'path', 'title', 'weight',
+    'opt', 'convention', 'alias'] 
+    # All of these fileds default to 0
+    numberSettingsKeys = ['xbins', 'xmin', 'xmax', 'ybins', 'ymin', 'ymax', 'zmin',
+    'zmax']
+    # All of these fields default to an empty array
+    arraySettingsKeys = ['allvars', 'xlabels', 'xarray', 'ylabels', 'yarray', 'zlabels']
+    # Initialize a dictionary with all possible fields
+    settings = dict((key, '') for key in stringSettingsKeys)
+    settings.update(dict((key, 0.0) for key in numberSettingsKeys))
+    settings.update(dict((key, []) for key in arraySettingsKeys))
 
+    # Alias
+    variableAliasSplit = varname.split(';')
+    varList = variableAliasSplit[0].split(',')
+    if len(variableAliasSplit)==1:
+        alias = '_vs_'.join(varList)
+    elif len(variableAliasSplit)==2:
+        alias = variableAliasSplit[1]
+    else:
+        log.warning('Invalid variable or alias specification in defineHistogram.')
+        return ''
+    settings['alias'] = alias
+
+    # Variable names
+    if len(varList)>0:
+        settings['xvar'] = varList[0]
+    if len(varList)>1:
+        settings['yvar'] = varList[1]
+    if len(varList)>2:
+        settings['zvar'] = varList[2]
+    settings['allvars'] = varList
+    nVars = len(varList)
+
+    # Type
+    if athenaCommonFlags.isOnline() and type in ['TEfficiency']:
+        log.warning('Histogram %s of type %s is not supported for online running and '+\
+        'will not be added.', varname, type)
+        return ''
+    # Check that the histogram's dimension matches the number of monitored variables
+    hist2D = ['TH2','TProfile','TEfficiency']
+    hist3D = ['TProfile2D','TEfficiency']
+    if nVars==2:
+        assert any([valid2D in type for valid2D in hist2D]),'Attempting to use two \
+        monitored variables with a non-2D histogram.'
+    elif nVars==3:
+        assert any([valid3D in type for valid3D in hist3D]),'Attempting to use three \
+        monitored variables with a non-3D histogram.'
+    settings['type'] = type
+
+    # Path
+    if not athenaCommonFlags.isOnline() and path is None:
+        path = ''
+    assert path is not None, 'path argument in defineHistogram() is required.'
+    settings['path'] = path
+
+    # Title
     if title is None:
         title = varname
-    title = title.replace(',','","') # Commas used as delimiters, but "," is ok
+    settings['title'] = title
 
-    if athenaCommonFlags.isOnline() and type in ['TEfficiency']:
-        log.warning('Histogram %s of type %s is not supported for online running and will not be added', varname, type)
-        return ""
+    # Weight
+    if weight is not None:
+        settings['weight'] = weight
 
-    coded = "%s, %s, %s, %s, %s, %s, " % (path, type, weight, convention, varname, title)
+    # Output path naming convention
+    if convention is not None:
+        settings['convention'] = convention
 
-    if not isinstance(xbins, (list, tuple)):
-        coded += '%d, %f, %f' % (xbins, xmin, xmax)
-    else:
-        # List of :-separated bins, plus two empty spaces for xmin and xmax
-        coded += ':'.join(str(xbin) for xbin in xbins)
+    # Bin counts and ranges
+    # Next two lines account for integer type differences between python2 and python3
+    import sys
+    integerTypes = (int, long) if sys.version_info < (3,) else (int,)
+    # Possible types allowed for bin counts
+    binTypes = integerTypes + (list, tuple)
 
+    # X axis count and range
+    assert isinstance(xbins, binTypes),'xbins argument must be int, list, or tuple'
+    if isinstance(xbins, integerTypes): # equal x bin widths
+        settings['xbins'], settings['xarray'] = xbins, []
+    else: # x bin edges are set explicitly
+        settings['xbins'], settings['xarray'] = len(xbins)-1, xbins
+    settings['xmin'] = xmin
+    settings['xmax'] = xmax
+
+    # Y axis count and range
     if ybins is not None:
-        if not isinstance(ybins, (list, tuple)):
-            coded += ", %d, %f, %f" % (ybins, ymin, ymax)
-        else:
-            coded += ', ' + ':'.join(str(ybin) for ybin in ybins)
-        if zmin is not None:
-            coded += ", %f, %f" % (zmin, zmax)
+        assert isinstance(ybins, binTypes),'ybins argument must be int, list, or tuple'
+        if isinstance(ybins, integerTypes): # equal y bin widths
+            settings['ybins'], settings['yarray'] = ybins, []
+        else: # y bin edges are set explicitly
+            settings['ybins'], settings['yarray'] = len(ybins)-1, ybins
+    if ymin is not None:
+        settings['ymin'] = ymin
+    if ymax is not None:
+        settings['ymax'] = ymax
 
-    if ybins is None and ymin is not None:
-        coded += ", %f, %f" % (ymin, ymax)
+    # Z axis count and range
+    if zmin is not None:
+        settings['zmin'] = zmin
+    if zmax is not None:
+        settings['zmax'] = zmax
 
-    if labels is not None and len(labels)>0:
-        coded += ', ' + ':'.join(labels) + (':' if len(labels) == 1 else '')    # C++ parser expects at least one ":"
+    # Bin labels
+    # First, handle the depricated labels argument
+    if labels is not None:
+        assert xlabels is None and ylabels is None and zlabels is None,'Mixed use of \
+        depricated "labels" argument with [xyz]labels arguments.'
+        nLabels = len(labels)
+        if nLabels==xbins:
+            xlabels = labels
+        elif nLabels>xbins:
+            xlabels = labels[:xbins]
+            ylabels = labels[xbins:]
+    # Then, parse the [xyz]label arguments
+    if xlabels is not None and len(xlabels)>0:
+        assert isinstance(xlabels, (list, tuple)),'xlabels must be list or tuple'
+        settings['xbins'] = len(xlabels)
+        settings['xlabels'] = xlabels
+    if ylabels is not None and len(ylabels)>0:
+        assert isinstance(ylabels, (list, tuple)),'ylabels must be list or tuple'
+        settings['ybins'] = len(ylabels)
+        settings['ylabels'] = ylabels
+    if zlabels is not None and len(zlabels)>0:
+        assert isinstance(zlabels, (list, tuple)),'zlabels must be list or tuple'
+        settings['zlabels'] = zlabels
 
+    # Filling options
     if len(opt)>0:
-        coded += ", %s" % opt
+        ######################################################
+        # currently opt is a string, but should make it a list
+        # optList = opt.replace(' ',',').split(',')
+        # settings['opt'] = optList
+        ######################################################
+        # in the mean time, keep it a string
+        settings['opt'] = opt
 
-    return coded
+    return json.dumps(settings)
