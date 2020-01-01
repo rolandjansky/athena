@@ -39,3 +39,5 @@ atlas_add_executable( hdf5-merge
   util/hdf5-merge.cxx
   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${HDF5_INCLUDE_DIRS}
   LINK_LIBRARIES HDF5Utils ${Boost_LIBRARIES} ${HDF5_LIBRARIES} )
+
+atlas_install_scripts( bin/hdf5-merge-nolock )
