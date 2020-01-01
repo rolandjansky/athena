@@ -260,9 +260,11 @@ ToolSvc += MUON1ThinningTool2f
 MUON1ThinningTools.append(MUON1ThinningTool2f)
 
 ### cell thinning
-from DerivationFrameworkCalo.CaloCellDFGetter import CaloCellDFGetter
-theCaloCellDFGetter = CaloCellDFGetter(inputClusterKeys=["MuonClusterCollection"],
-                                       outputCellKey="DFMUONCellContainer")
+from DerivationFrameworkCalo.CaloCellDFGetter import thinCaloCellsForDF
+thinCaloCellsForDF (inputClusterKeys = ["MuonClusterCollection"],
+                    streamName = MUON1Stream.Name,
+                    outputCellKey = "DFMUONCellContainer")
+
 #====================================================================
 # JetTagNonPromptLepton decorations
 #====================================================================
