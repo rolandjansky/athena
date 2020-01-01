@@ -88,7 +88,7 @@ globalflags.DetGeo="atlas"
 globalflags.InputFormat="bytestream"
 globalflags.DataSource="data"
 if doPrint:
-    print globalflags
+    printfunc (globalflags)
 
 #--------------------------------------------------------------
 # Set Detector setup
@@ -598,14 +598,14 @@ if not doSCT:
     InDetSiSPSeededTrackFinder.SpacePointsSCTName = ""
 
 if doPrint:
-    print InDetSiSPSeededTrackFinder
+    printfunc (InDetSiSPSeededTrackFinder)
 if numThreads >= 2:
     InDetSiSPSeededTrackFinder.Cardinality = numThreads
 topSequence += InDetSiSPSeededTrackFinder
 
 # Print algorithms
 if doPrint:
-    print topSequence
+    print (topSequence)
 
 # Set the number of events to be processed
 theApp.EvtMax = EvtMax
