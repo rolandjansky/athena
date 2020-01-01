@@ -14,7 +14,7 @@ public:
 
   CopyTimings(const std::string &name, ISvcLocator *pSvcLocator);
 
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
   virtual StatusCode execute(const EventContext& ctx) const override;
 
 private:
