@@ -262,6 +262,7 @@ def setupMenu():
         ['3j50_gsc70_boffperf_split_0eta240_3j35_gsc45_boffperf_split_0eta240_L14J15',   'L1_4J15', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
         ['3j60_gsc85_boffperf_split_3j45_gsc55_boffperf_split_L14J15',   'L1_4J15', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
         ['4j50_gsc70_boffperf_split_3j35_L14J15',   'L1_4J15', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        ['6j45_gsc55_boffperf_split_L14J15',   'L1_4J15', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
 			 ]
 
     TriggerFlags.BjetSlice.signatures = TriggerFlags.BjetSlice.signatures() + [
@@ -304,6 +305,7 @@ def setupMenu():
 
         # ATR-20573
         ['2j55_gsc75_bmv2c1077_split_j45_gsc55_bmv2c1077_split_L13J35.0ETA23', 'L1_3J35.0ETA23', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
+	['j60_gsc85_bmv2c1077_split_5j35_gsc45_boffperf_split_0eta240_L14J15',   'L1_4J15', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
         ]
 
     TriggerFlags.METSlice.signatures = TriggerFlags.METSlice.signatures() + [
