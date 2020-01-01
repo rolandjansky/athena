@@ -45,6 +45,8 @@ def setupMenu():
         ['afp_jetexc_L1J50',  'L1_J50',  [],  [PhysicsStream], ['Legacy:Support','RATE:SingleJet', 'BW:Jet'], -1],
         ['afp_jetexc_L1J75',  'L1_J75',  [],  [PhysicsStream], ['Legacy:Support','RATE:SingleJet', 'BW:Jet'], -1],
         ['afp_jetexc_L1J100',  'L1_J100',  [],  [PhysicsStream], ['Legacy:Support','RATE:SingleJet', 'BW:Jet'], -1],
+# ATR-20670 HLT_
+        ['afp_jetexc_L1CEP-CJ50',  'L1_CEP-CJ50',  [],  [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
         ]
 
     TriggerFlags.MuonSlice.signatures = [
