@@ -1898,7 +1898,7 @@ class TopoAlgoDef:
             alg.addgeneric('MaxTob2', HW.OutputWidthSelectMU)
             alg.addgeneric('NumResultBits', 1)
             alg.addvariable('MinMSqr', 0)
-            alg.addvariable('MaxMSqr', 10*10)
+            alg.addvariable('MaxMSqr', 10*10*_emscale_for_decision) # Fix to add emscale
             alg.addvariable('MinET1', 8)
             alg.addvariable('MinET2', 10)
             alg.addgeneric('ApplyEtaCut', 0)
@@ -1924,7 +1924,7 @@ class TopoAlgoDef:
             alg.addgeneric('MaxTob2', HW.OutputWidthSelectMU)
             alg.addgeneric('NumResultBits', 1)
             alg.addvariable('MinMSqr', 0)
-            alg.addvariable('MaxMSqr', 10*10)
+            alg.addvariable('MaxMSqr', 10*10*_emscale_for_decision) # Fix to add emscale
             alg.addvariable('MinET1', 12)
             alg.addvariable('MinET2', 6)
             alg.addgeneric('ApplyEtaCut', 0)
