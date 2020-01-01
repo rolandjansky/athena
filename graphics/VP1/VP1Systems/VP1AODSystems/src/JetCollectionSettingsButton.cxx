@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local
@@ -95,8 +95,8 @@ public:
 
 	// material functions
 	SoMaterial * getMat(VP1MaterialButton*) const;
-	SoMaterial * createMaterial(const int& r,const int& g,const int& b) const;
-	SoMaterial * createMaterial(const int& r,const int& g,const int& b, const int& brightness, const int& transparency) const;
+	SoMaterial * createMaterial(int r, int g, int b) const;
+	SoMaterial * createMaterial(int r, int g, int b, float brightness, float transparency) const;
 
 
 	int dim;
@@ -108,12 +108,14 @@ public:
 
 
 //____________________________________________________________________
-SoMaterial * JetCollectionSettingsButton::Imp::createMaterial(const int& r,const int& g,const int& b) const
+SoMaterial * JetCollectionSettingsButton::Imp::createMaterial(int r, int g, int b) const
 {
   return VP1MaterialButton::createMaterial(r/255.0,g/255.0,b/255.0,0.2/*brightness*/);
 }
 //____________________________________________________________________
-SoMaterial * JetCollectionSettingsButton::Imp::createMaterial(const int& r,const int& g,const int& b, const int& brightness, const int& transparency) const
+SoMaterial * JetCollectionSettingsButton::Imp::createMaterial(int r, int g, int b,
+                                                              float brightness,
+                                                              float transparency) const
 {
   return VP1MaterialButton::createMaterial(r/255.0,g/255.0,b/255.0, brightness, transparency);
 }
