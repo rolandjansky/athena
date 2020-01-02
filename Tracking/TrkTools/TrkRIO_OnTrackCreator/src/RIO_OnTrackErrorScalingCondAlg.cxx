@@ -6,7 +6,7 @@
 #include "InDetRIO_OnTrack/PixelRIO_OnTrackErrorScaling.h"
 #include "RIO_OnTrackErrorScalingCondAlg.h"
 #include "RIO_OnTrackErrorScalingKit.h"
-
+#include "CxxUtils/checker_macros.h"
 #include <limits>
 
 RIO_OnTrackErrorScalingCondAlg::RIO_OnTrackErrorScalingCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
@@ -15,7 +15,7 @@ RIO_OnTrackErrorScalingCondAlg::RIO_OnTrackErrorScalingCondAlg(const std::string
 {
 }
 
-StatusCode RIO_OnTrackErrorScalingCondAlg::initialize() {
+StatusCode RIO_OnTrackErrorScalingCondAlg::initialize ATLAS_NOT_THREAD_SAFE() {
   ATH_CHECK(m_condSvc.retrieve());
   ATH_CHECK(m_readKey.initialize());
 
@@ -53,7 +53,7 @@ void RIO_OnTrackErrorScalingCondAlg::registerAttribute(std::string name, unsigne
   }
 }
 
-StatusCode RIO_OnTrackErrorScalingCondAlg::addErrorScaling(const std::string &type_name) {
+StatusCode RIO_OnTrackErrorScalingCondAlg::addErrorScaling (const std::string &type_name) {
   const RIO_OnTrackErrorScalingKit *the_kit(nullptr);
   try {
     the_kit = &(RIO_OnTrackErrorScalingKitManager::instance().kit( type_name ));
@@ -87,7 +87,7 @@ public:
   }
 
   template <typename T_Obj>
-  std::string dumpKeys() const {
+  std::string dumpKeys ATLAS_NOT_THREAD_SAFE () const {
     std::stringstream out;
     std::vector<std::string> keys_out;
     const_cast<StoreGateSvc *>(this->getCS())->keys<T_Obj>(keys_out,true,false);
