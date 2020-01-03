@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 ##
 # @file AthenaPoolUtilities/share/TPCnvTest.py
 # @author sss
@@ -61,6 +61,7 @@ svcMgr.EventSelector.InputCollections        = [ find_file (infile) ]
 from AthenaCommon.DetFlags      import DetFlags
 if not globals().get ('noMuon',False):
     DetFlags.detdescr.Muon_setOn()
+    import MuonRecExample.MuonAlignConfig
 if not globals().get ('noID',False):
     DetFlags.detdescr.ID_setOn()
 
