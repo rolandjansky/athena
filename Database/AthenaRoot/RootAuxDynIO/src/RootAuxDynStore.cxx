@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -18,7 +18,7 @@ using namespace std;
 
 
 RootAuxDynStore::RootAuxDynStore(RootAuxDynReader& reader, long long entry, bool standalone,
-                                 std::mutex* iomtx)
+                                 std::recursive_mutex* iomtx)
   : SG::AuxStoreInternal( standalone ),
     m_reader(reader),
     m_entry(entry),
@@ -81,8 +81,8 @@ bool RootAuxDynStore::readData(SG::auxid_t auxid)
       }
 
       // if have mutex, lock to prevent potential concurrent I/O from elsewhere
-      auto io_lock = m_iomutex? std::unique_lock<std::mutex>(*m_iomutex)
-         : std::unique_lock<std::mutex>();
+      auto io_lock = m_iomutex? std::unique_lock<std::recursive_mutex>(*m_iomutex)
+         : std::unique_lock<std::recursive_mutex>();
       // read branch
       brInfo.setAddress(data);
       int  nbytes = brInfo.branch->GetEntry(m_entry);

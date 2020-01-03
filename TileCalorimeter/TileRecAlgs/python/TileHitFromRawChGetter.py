@@ -23,7 +23,7 @@ class TileHitFromRawChGetter ( Configured )  :
             theTileHitFromRawChGetter=TileHitFromRawChGetter()
         except Exception:
             mlog.error("could not get handle to TileHitFromRawChGetter Quit")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         if not theTileHitFromRawChGetter.usable():
@@ -38,7 +38,7 @@ class TileHitFromRawChGetter ( Configured )  :
             from TileRecAlgs.TileRecAlgsConf import TileRawChannelToHit                
         except Exception:
             mlog.error("could not import TileRecAlgs.TileRawChannelToHit")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         theTileRawChannelToHit=TileRawChannelToHit()
