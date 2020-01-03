@@ -1,0 +1,3 @@
+xAOD::Init                INFO    Environment initialised for data access
+el_pt_from_iparticle.Mean() = 10735.6
+el_pt_from_electron.Mean() = 10735.6
