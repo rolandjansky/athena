@@ -5,6 +5,7 @@
 #ifndef AthenaMonitoringKernel_HistogramFiller_HistogramFillerEfficiency_h
 #define AthenaMonitoringKernel_HistogramFiller_HistogramFillerEfficiency_h
 
+#include "CxxUtils/checker_macros.h"
 #include "TEfficiency.h"
 
 #include "AthenaMonitoringKernel/HistogramFiller.h"
@@ -30,12 +31,23 @@ namespace Monitored {
       auto histogram = this->histogram<TEfficiency>();
       auto valuesVector1 = m_monVariables[0].get().getVectorRepresentation();
       auto valuesVector2 = m_monVariables[1].get().getVectorRepresentation();
+
       std::lock_guard<std::mutex> lock(*(this->m_mutex));
 
-      for (unsigned i = 0; i < std::size(valuesVector1); ++i) {
-        histogram->Fill(valuesVector1[i],valuesVector2[i]);
+      if ( m_monVariables.at(1).get().hasStringRepresentation() ) {
+	valuesVector2.clear();
+	TH1* tot ATLAS_THREAD_SAFE  = const_cast<TH1*>(histogram->GetTotalHistogram());
+	const TAxis* xaxis = tot->GetXaxis();
+	for ( const std::string& value: m_monVariables[1].get().getStringVectorRepresentation() ) {
+	  const int binNumber = xaxis->FindFixBin( value.c_str() );
+	  const double binCenter ATLAS_THREAD_SAFE  = xaxis->GetBinCenter( binNumber );
+	  valuesVector2.push_back(binCenter);
+	}
       }
-      
+
+      for (unsigned i = 0; i < std::size(valuesVector1); ++i) {
+	histogram->Fill(valuesVector1[i],valuesVector2[i]);
+      }
       return std::size(valuesVector1);
     }
   };

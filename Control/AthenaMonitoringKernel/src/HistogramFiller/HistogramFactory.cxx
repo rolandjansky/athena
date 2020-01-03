@@ -1,6 +1,7 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+#include "CxxUtils/checker_macros.h"
 
 #include "TH1.h"
 #include "TH2.h"
@@ -130,6 +131,13 @@ TEfficiency* HistogramFactory::createEfficiency(const HistogramDef& def) {
     delete e;
     throw HistogramException("Histogram >"+ fullName + "< can not be registered in THistSvc");
   }
+  TH1* total ATLAS_THREAD_SAFE = const_cast<TH1*>(e->GetTotalHistogram());
+  setLabels(total->GetXaxis(), def.xlabels);
+  setLabels(total->GetYaxis(), def.ylabels);
+  TH1* passed ATLAS_THREAD_SAFE = const_cast<TH1*>(e->GetPassedHistogram());
+  setLabels(passed->GetXaxis(), def.xlabels);
+  setLabels(passed->GetYaxis(), def.ylabels);
+
   return e;
 }
 
@@ -155,7 +163,9 @@ HBASE* HistogramFactory::create(const HistogramDef& def, Types&&... hargs) {
   }
   h->GetYaxis()->SetTitleOffset(1.25); // magic shift to make histograms readable even if no post-procesing is done
 
-  setLabels(h, def);
+  setLabels(h->GetXaxis(), def.xlabels);
+  setLabels(h->GetYaxis(), def.ylabels);
+  setLabels(h->GetZaxis(), def.zlabels);
   setOpts(h, def.opt);
 
   return h;
@@ -171,27 +181,13 @@ void HistogramFactory::setOpts(TH1* hist, const std::string& opt) {
   hist->Sumw2(shouldActivateSumw2);
 }
 
-void HistogramFactory::setLabels(TH1* hist, const HistogramDef& def) {
-  if ( !def.xlabels.empty() ) {
-    int nBinX = hist->GetNbinsX();
+void HistogramFactory::setLabels(TAxis* axis, const std::vector<std::string>& labels) {
+  if ( !labels.empty() ) {
+    const int nBinX = axis->GetNbins();
     for ( int xbin=0; xbin<nBinX; xbin++ ) {
-      hist->GetXaxis()->SetBinLabel(xbin+1, def.xlabels[xbin].c_str());
+      axis->SetBinLabel(xbin+1, labels[xbin].c_str());
     }
   }
-
-  if ( !def.ylabels.empty() ) {
-    int nBinY = hist->GetNbinsY();
-    for ( int ybin=0; ybin<nBinY; ybin++ ) {
-      hist->GetYaxis()->SetBinLabel(ybin+1, def.ylabels[ybin].c_str());
-    }
-  }
-
-  if ( !def.zlabels.empty() ) {
-    int nBinZ = hist->GetNbinsZ();
-    for ( int zbin=0; zbin<nBinZ; zbin++ ) {
-      hist->GetZaxis()->SetBinLabel(zbin+1, def.zlabels[zbin].c_str());
-    }
-  }  
 }
 
 std::string HistogramFactory::getFullName(const HistogramDef& def) const {
