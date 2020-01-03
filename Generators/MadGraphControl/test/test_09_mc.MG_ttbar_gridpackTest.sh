@@ -3,26 +3,21 @@
 # art-include: 21.6/AthGeneration
 # art-description: MadGraph Event Generation Test - LO Gridpack
 # art-type: grid
+# art-output: test_lhe_events.events
 
 set -e
 
 mkdir run_makeGridpack
 cd run_makeGridpack
 
-mkdir 999999
-get_files -jo mc.MG_ttbar_gridpackTest.py
-mv mc.*py 999999/
+Gen_tf.py --ecmEnergy=13000. --maxEvents=-1 --runNumber=421409 --firstEvent=1 --randomSeed=123456 --outputEVNTFile=EVNT.root --jobConfig=421409 --ignorePatterns="Gridpack.sucessfully.created"
 
-Gen_tf.py --ecmEnergy=13000. --maxEvents=-1 --runNumber=999999 --firstEvent=1 --randomSeed=123456 --outputEVNTFile=EVNT.root --jobConfig=./999999
+echo "art-result: $? gridpack_creation"
 
 cd ../
 mkdir run_generateFromGridpack
 cd run_generateFromGridpack
 
-mkdir 999999
-get_files -jo mc.MG_ttbar_gridpackTest.py
-mv mc.*py 999999/
-
-Gen_tf.py --ecmEnergy=13000. --maxEvents=-1 --runNumber=999999 --firstEvent=1 --randomSeed=123456 --outputEVNTFile=EVNT.root --jobConfig=./999999 --inputGenConfFile=../run_makeGridpack/run_01_gridpack.tar.gz 
+Gen_tf.py --ecmEnergy=13000. --maxEvents=-1 --runNumber=421409 --firstEvent=1 --randomSeed=123456 --outputTXTFile=test_lhe_events --jobConfig=421409 --inputGenConfFile=../run_makeGridpack/run_01_gridpack.tar.gz 
 
 echo "art-result: $?"
