@@ -65,6 +65,7 @@
 + PhysicsAnalysis/AnalysisCommon/PMGOverlapRemovalTools/GammaORTools
 + PhysicsAnalysis/AnalysisCommon/ReweightUtils
 + PhysicsAnalysis/AnalysisCommon/HDF5Utils
++ PhysicsAnalysis/AnalysisCommon/CutBookkeeperUtils
 + PhysicsAnalysis/AnalysisCommon/ThinningUtils
 + PhysicsAnalysis/BPhys/BPhysTools
 + PhysicsAnalysis/D3PDTools/RootCoreUtils
