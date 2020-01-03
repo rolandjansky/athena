@@ -46,7 +46,7 @@ namespace {
 
 } // private namespace
 
-namespace std {
+namespace xAOD {
 
    /// Helper print operator
    template< typename FIRST, typename SECOND >
@@ -90,7 +90,7 @@ namespace std {
       return out;
    }
 
-} // namespace std
+} // namespace xAOD
 
 /// Helper macro for printing verbose messages for debugging
 #define PRINT_VERBOSE(MSG)                                              \
