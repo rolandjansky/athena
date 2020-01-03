@@ -1,5 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
+
 from AthenaCommon import CfgMgr
 from Digitization.DigitizationFlags import digitizationFlags
 from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
@@ -211,7 +213,7 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     #####################
     PixelCablingSvc = getService("PixelCablingSvc")
     ServiceMgr += PixelCablingSvc
-    print  PixelCablingSvc
+    print ( PixelCablingSvc)
     kwargs.setdefault("InputObjectName", "PixelHits")
 
     if not conddb.folderRequested("/PIXEL/PixReco"):

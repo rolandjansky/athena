@@ -63,7 +63,7 @@ class CustomPixelDigitization( PixelDigitization ):
       rname = getattr(self,"RndmEngine")
       if len(rname)<1:
          defengine = "PixelDigitization"
-         exec '__logger__.warning("no random engine name specified! Setting engine name to %s")' % defengine
+         __logger__.warning("no random engine name specified! Setting engine name to %s" % defengine)
          self.setattr("RndmEngine",defengine)
       # set random number seed
 ###      self.setRndSeed( self.getDefaultProperty("RndmSeed1"), self.getDefaultProperty("RndmSeed2") )
@@ -173,10 +173,10 @@ class CustomPixelDigitization( PixelDigitization ):
          done = ( index==nseeds ) or ( found )
          #
       if found:
-         exec 'self.__logger__.info("Random number service : %s")' % self.RndmSvc.getName()
-         exec 'self.__logger__.info("Random number seeds   : %s")' % allSeeds[index-1]
+         self.__logger__.info("Random number service : %s" % self.RndmSvc.getName())
+         self.__logger__.info("Random number seeds   : %s" % allSeeds[index-1])
       else:
-         exec 'self.__logger__.info("No random number seeds for key : %s")' % name
+         self.__logger__.info("No random number seeds for key : %s" % name)
       return
       
 
@@ -228,7 +228,7 @@ class CustomPixelDigitizationTool( PixelDigitizationTool ):
       rname = getattr(self,"RndmEngine")
       if len(rname)<1:
          defengine = "PixelDigitization"
-         exec '__logger__.warning("no random engine name specified! Setting engine name to %s")' % defengine
+         __logger__.warning("no random engine name specified! Setting engine name to %s" % defengine)
          self.setattr("RndmEngine",defengine)
       # set random number seed
 ###      self.setRndSeed( self.getDefaultProperty("RndmSeed1"), self.getDefaultProperty("RndmSeed2") )
@@ -338,10 +338,10 @@ class CustomPixelDigitizationTool( PixelDigitizationTool ):
          done = ( index==nseeds ) or ( found )
          #
       if found:
-         exec 'self.__logger__.info("Random number service : %s")' % self.RndmSvc.getName()
-         exec 'self.__logger__.info("Random number seeds   : %s")' % allSeeds[index-1]
+         self.__logger__.info("Random number service : %s" % self.RndmSvc.getName())
+         self.__logger__.info("Random number seeds   : %s" % allSeeds[index-1])
       else:
-         exec 'self.__logger__.info("No random number seeds for key : %s")' % name
+         self.__logger__.info("No random number seeds for key : %s" % name)
       return
       
 
