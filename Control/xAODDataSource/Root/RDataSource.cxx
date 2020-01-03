@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 //
 
 // Local include(s).
@@ -311,6 +311,7 @@ namespace xAOD {
       // Get the type.
       auto itr = m_classNameMap.find( column.data() );
       if( itr == m_classNameMap.end() ) {
+         // Note that the fatal message will abort the entire job in all cases.
          ::Fatal( "xAOD::RDataSource::GetTypeName",
                   XAOD_MESSAGE( "Internal logic error found" ) );
       }
