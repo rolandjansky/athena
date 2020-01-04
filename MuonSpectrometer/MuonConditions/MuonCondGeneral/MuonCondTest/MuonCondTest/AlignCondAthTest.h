@@ -42,6 +42,8 @@ private:
    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
 
+   StatusCode checkALines(const MuonGM::MuonDetectorManager* manager, std::ofstream* fout);
+   StatusCode checkBLines(const MuonGM::MuonDetectorManager* manager, std::ofstream* fout);
    StatusCode checkMdtGeometry(const MuonGM::MuonDetectorManager* manager, std::ofstream* fout);
    StatusCode checkRpcGeometry(const MuonGM::MuonDetectorManager* manager, std::ofstream* fout);
    StatusCode checkTgcGeometry(const MuonGM::MuonDetectorManager* manager, std::ofstream* fout);
