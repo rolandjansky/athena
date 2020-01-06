@@ -638,11 +638,18 @@ def addRscanJets(jetalg,radius,inputtype,sequence,outputlist):
             addStandardJets(jetalg, radius, "LCTopo", mods="lctopo_ungroomed",
                             ghostArea=0.01, ptmin=2000, ptminFilter=7000, calibOpt="none", algseq=sequence, outputGroup=outputlist)
 
-def addConstModJets(jetalg,radius,inputtype,constmods,sequence,outputlist,
+def addConstModJets(jetalg,radius,inputtype,constmods,sequence,outputlist,customVxColl="",
                     addGetters=None, **kwargs):
-    extjetlog.info("Building jet collection with modifier sequence {0}".format(constmods))
+    if len(constmods)>0:
+        extjetlog.info("Building jet collection with modifier sequence {0}".format(constmods))
+    if customVxColl:
+        extjetlog.info("Building jet collection with custom vx collection {0}".format(customVxColl))
+        
     constmodstr = "".join(constmods)
-    jetname = "{0}{1}{2}{3}Jets".format(jetalg,int(radius*10),constmodstr,inputtype)
+    if customVxColl and "CustomVtx" not in inputtype: 
+        inputtype=inputtype+"CustomVtx"
+        
+    jetname = "{0}{1}{2}{3}{4}Jets".format(jetalg,int(radius*10),constmodstr,inputtype,customVxColl)
     algname = "jetalg"+jetname
 
     # Avoid scheduling twice
@@ -652,7 +659,7 @@ def addConstModJets(jetalg,radius,inputtype,constmods,sequence,outputlist,
 
     # Get the constituent mod sequence
     from JetRecTools import ConstModHelpers
-    constmodseq = ConstModHelpers.getConstModSeq(constmods,inputtype)
+    constmodseq = ConstModHelpers.getConstModSeq(constmods,inputtype,customVxColl)
     label = inputtype + constmodstr
 
     # Add the const mod sequence to the input preparation jetalg instance
@@ -670,11 +677,15 @@ def addConstModJets(jetalg,radius,inputtype,constmods,sequence,outputlist,
     # Get the PseudoJetGetter
     pjname = label.lower().replace("topo","")
     pjg = ConstModHelpers.getPseudoJetGetter(label,pjname)
+
     # Generate the getter list including ghosts from that for the standard list for the input type
     getterbase = inputtype.lower()
+    if inputtype == "PFlowCustomVtx": getterbase = "empflow_reduced"
     getters = [pjg]+list(jtm.gettersMap[getterbase])[1:]
     if addGetters:
         getters += addGetters
+
+    suffix = customVxColl+constmodstr
 
     # Pass the configuration to addStandardJets
     # The modifiers will be taken from the
@@ -682,7 +693,7 @@ def addConstModJets(jetalg,radius,inputtype,constmods,sequence,outputlist,
                    "rsize":         radius,
                    "inputtype":     inputtype,
                    "customGetters": getters,
-                   "namesuffix":    constmodstr,
+                   "namesuffix":    suffix,
                    "algseq":        sequence,
                    "outputGroup":   outputlist
                    }
