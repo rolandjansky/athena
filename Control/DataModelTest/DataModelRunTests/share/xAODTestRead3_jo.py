@@ -56,7 +56,8 @@ from DataModelTestDataRead.DataModelTestDataReadConf import \
      DMTest__xAODTestRead
 topSequence += DMTest__xAODTestReadCVec ("xAODTestReadCVec")
 topSequence += DMTest__xAODTestReadCInfo ("xAODTestReadCInfo")
-topSequence += DMTest__xAODTestRead ("xAODTestRead")
+topSequence += DMTest__xAODTestRead ("xAODTestRead",
+                                     GVecReadKey = '')
 topSequence += DMTest__xAODTestReadCView ('xAODTestReadCView')
 topSequence += DMTest__xAODTestReadHVec ("xAODTestReadHVec")
 topSequence += DMTest__xAODTestReadCVec ("xAODTestReadCVec_copy",
@@ -64,7 +65,9 @@ topSequence += DMTest__xAODTestReadCVec ("xAODTestReadCVec_copy",
 topSequence += DMTest__xAODTestReadCInfo ("xAODTestReadCInfo_copy",
                                           CInfoKey = "copy_cinfo")
 topSequence += DMTest__xAODTestRead ("xAODTestRead_copy",
-                                     ReadPrefix = "copy_")
+                                     CTrigReadKey = 'copy_ctrig',
+                                     GVecReadKey = '',
+                                     CVecWDReadKey = 'copy_cvecWD')
 topSequence += DMTest__xAODTestReadCView ("xAODTestReadCView_copy",
                                           CViewKey = "copy_cview")
 topSequence += DMTest__xAODTestReadHVec ("xAODTestReadHVec_copy",
