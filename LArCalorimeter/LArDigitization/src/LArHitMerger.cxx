@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -152,7 +152,7 @@ StatusCode LArHitMerger::initialize()
 
 
   //retrieve ID helpers
-  const DataHandle<CaloIdManager> caloIdMgr;
+  const CaloIdManager* caloIdMgr = nullptr;
   StatusCode sc = detStore()->retrieve(caloIdMgr);
   if (sc.isFailure()) {
     ATH_MSG_ERROR("Unable to retrieve CaloIdManager from DetectoreStore");
