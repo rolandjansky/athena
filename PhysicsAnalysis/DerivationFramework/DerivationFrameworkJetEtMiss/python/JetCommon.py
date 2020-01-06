@@ -70,6 +70,7 @@ def defineEDAlg(R=0.4, inputtype="LCTopo"):
                     "EMPFlow": jtm.empflowget,
                     "EMPFlowPUSB": jtm.empflowpusbget,
                     "EMPFlowNeut": jtm.empflowneutget,
+                    "PFlowCustomVtx": jtm.pflowcustomvtxget,
                     }[inputtype]
 
     t=configEventDensityTool("EDTool"+str(int(R*10))+inputtype, inputgetter, R)
@@ -445,6 +446,7 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
                        "LCTopo":"lctopo_ungroomed",
                        "EMPFlow":"pflow_ungroomed",
                        "EMCPFlow":"pflow_ungroomed",
+                       "PFlowCustomVtx":"pflow_ungroomed",
                        "Truth":"truth_ungroomed",
                        "TruthWZ":"truth_ungroomed",
                        "PV0Track":"track_ungroomed",

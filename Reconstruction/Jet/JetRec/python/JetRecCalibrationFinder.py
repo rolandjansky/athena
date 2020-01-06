@@ -61,6 +61,8 @@ class JetRecCalibrationFinder:
     from JetCalibTools.JetCalibToolsConf import JetCalibrationTool
     from JetRec.JetRecStandardToolManager import jtm
     inp = inpin
+    if inpin == "PFlowCustomVtx":
+      inp = "EMPFlow"
     # Find the configuration file.
     configkey = configkeyin
     if configkey == "": configkey = "reco"
@@ -113,6 +115,8 @@ class JetRecCalibrationFinder:
         evssuf="EMCPFlowEventShape"
       elif inpin == "LCPFlow":
         evssuf="LCPFlowEventShape"
+      elif inpin == "PFlowCustomVtx":
+        evssuf="PFlowCustomVtxEventShape"
       else:
         evssuf="INVALID"
         jetlog.info( myname + "  ERROR: Invalid input specifier: " + inp )
