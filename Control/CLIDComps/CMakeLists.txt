@@ -39,7 +39,7 @@ atlas_add_test( ClassIDSvc_test
 
 atlas_add_test( clid
                 SCRIPT test/_clid_unittest.py
-                EXTRA_PATTERNS "Ran 3 tests in" )
+                LOG_IGNORE_PATTERN "Ran 3 tests in" )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
