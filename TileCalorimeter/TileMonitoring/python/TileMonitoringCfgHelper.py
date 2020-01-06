@@ -206,7 +206,8 @@ def addValueVsModuleAndChannelMaps(group, name, title, path, subDirectory = Fals
 
     for ros in range(1, Tile.MAX_ROS):
         partition = getPartitionName(ros)
-        xlabels = []; ylabels = []
+        xlabels = []
+        ylabels = []
         for module in range(1, Tile.MAX_DRAWER + 1): # modules start from 1
             label = partition + '0' + str(module) if module < 10 else partition + str(module)
             xlabels.append(label)
