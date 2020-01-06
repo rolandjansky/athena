@@ -370,3 +370,13 @@ CondSvc::conditionIDs() const {
 
 }
 
+//---------------------------------------------------------------------------
+
+StatusCode
+CondSvc::validRanges( std::vector<EventIDRange>& /*ranges*/,
+                      const DataObjID& /*id*/ ) const {
+
+  // not yet implemented
+  
+  return StatusCode::FAILURE;
+}

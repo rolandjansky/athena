@@ -17,7 +17,6 @@
 
 
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonPrepRawData/MdtPrepDataCollection.h"
@@ -71,7 +70,7 @@ MuonSegmentRegionRecoveryTool::MuonSegmentRegionRecoveryTool(const std::string& 
 StatusCode MuonSegmentRegionRecoveryTool::initialize()
 {
 
-  ATH_CHECK( detStore()->retrieve( m_detMgr ) );
+  ATH_CHECK(m_DetectorManagerKey.initialize());
   ATH_CHECK( m_edmHelperSvc.retrieve() );
   ATH_CHECK( m_intersectSvc.retrieve() );
   ATH_CHECK( m_printer.retrieve() );
@@ -433,6 +432,13 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::findHoles( const Trk::Track& tr
     return 0;
   }
 
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+  const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle}; 
+  if(MuonDetMgr==nullptr){
+    ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+    return 0; 
+  } 
+
   std::vector<const Trk::TrackStateOnSurface*> states;
   unsigned int nholes = 0;
   std::set<Identifier> chambersInSearch;
@@ -454,7 +460,7 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::findHoles( const Trk::Track& tr
       ATH_MSG_VERBOSE("Chamber already on track " << *ith << " " << m_idHelperTool->toStringChamber(chId) );
       continue;
     }
-    const MuonGM::MdtReadoutElement* detEl = m_detMgr->getMdtReadoutElement(chId);
+    const MuonGM::MdtReadoutElement* detEl = MuonDetMgr->getMdtReadoutElement(chId);
     if ( !detEl ) {
       ATH_MSG_WARNING("Found no detector element for " << *ith );
       continue;
@@ -474,13 +480,13 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::findHoles( const Trk::Track& tr
       dbData=readHandle.cptr();
     }
     else dbData=nullptr; //for online running
-    const MuonStationIntersect intersect = m_intersectSvc->tubesCrossedByTrack(chId , exPars->position(), exPars->momentum().unit(), dbData, m_detMgr );
+    const MuonStationIntersect intersect = m_intersectSvc->tubesCrossedByTrack(chId , exPars->position(), exPars->momentum().unit(), dbData, MuonDetMgr );
 
     // clear hole vector
     for ( unsigned int ii = 0; ii < intersect.tubeIntersects().size(); ++ii ) {
       const MuonTubeIntersect& tint = intersect.tubeIntersects()[ii];
       const Identifier& id = tint.tubeId;
-      const MuonGM::MdtReadoutElement* detElLoc = m_detMgr->getMdtReadoutElement(id);
+      const MuonGM::MdtReadoutElement* detElLoc = MuonDetMgr->getMdtReadoutElement(id);
 
       // addition skip for cases when the track crosses inbetween two chambers
       if ( data.mdtTrack.count(detElLoc->collectionHash()) ) continue;
@@ -541,7 +547,7 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::findHoles( const Trk::Track& tr
     m_idHelperTool->cscIdHelper().get_id(*ith, chId, &otCont);
     chId = m_idHelperTool->chamberId(chId);
 
-    const MuonGM::CscReadoutElement* detEl = m_detMgr->getCscReadoutElement(chId);
+    const MuonGM::CscReadoutElement* detEl = MuonDetMgr->getCscReadoutElement(chId);
     if ( !detEl ) {
       ATH_MSG_WARNING("Found no detector element for " << *ith << " " << m_idHelperTool->toString(chId) );
       continue;
@@ -583,7 +589,7 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::findHoles( const Trk::Track& tr
     m_idHelperTool->tgcIdHelper().get_id(*ith, chId, &otCont);
     chId = m_idHelperTool->chamberId(chId);
 
-    const MuonGM::TgcReadoutElement* detEl = m_detMgr->getTgcReadoutElement(chId);
+    const MuonGM::TgcReadoutElement* detEl = MuonDetMgr->getTgcReadoutElement(chId);
     if ( !detEl ) {
       ATH_MSG_WARNING("Found no detector element for " << *ith << " " << m_idHelperTool->toString(chId) );
       continue;
@@ -626,7 +632,7 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::findHoles( const Trk::Track& tr
     m_idHelperTool->rpcIdHelper().get_id(*ith, chId, &otCont);
     chId = m_idHelperTool->chamberId(chId);
 
-    const MuonGM::RpcReadoutElement* detEl = m_detMgr->getRpcReadoutElement(chId);
+    const MuonGM::RpcReadoutElement* detEl = MuonDetMgr->getRpcReadoutElement(chId);
     if ( !detEl ) {
       ATH_MSG_WARNING("Found no detector element for " << *ith << " " << m_idHelperTool->toString(chId) );
       continue;
@@ -678,7 +684,7 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::findHoles( const Trk::Track& tr
 
     chId = m_idHelperTool->chamberId(chId);
 
-    const MuonGM::sTgcReadoutElement* detEl = m_detMgr->getsTgcReadoutElement(chId);
+    const MuonGM::sTgcReadoutElement* detEl = MuonDetMgr->getsTgcReadoutElement(chId);
     if ( !detEl ) {
       ATH_MSG_WARNING("Found no detector element for " << *ith << " " << m_idHelperTool->toString(chId) );
       continue;
@@ -728,7 +734,7 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::findHoles( const Trk::Track& tr
 
     chId = m_idHelperTool->chamberId(chId);
 
-    const MuonGM::MMReadoutElement* detEl = m_detMgr->getMMReadoutElement(chId);
+    const MuonGM::MMReadoutElement* detEl = MuonDetMgr->getMMReadoutElement(chId);
     if ( !detEl ) {
       ATH_MSG_WARNING("Found no detector element for " << *ith << " " << m_idHelperTool->toString(chId) );
       continue;

@@ -46,7 +46,8 @@ def PoolReadCfg(configFlags):
             apapsSecondary.getFullJobOptName()
         ])) #No service handle yet???
 
-        evSel=DoubleEventSelectorAthenaPool(PrimaryInputCollections = filenames,
+        evSel=DoubleEventSelectorAthenaPool("DoubleEventSelector",
+                                            PrimaryInputCollections = filenames,
                                             SecondaryaryInputCollections = filenamesSecondary)
     else:
         # We have only primary inputs
@@ -54,7 +55,7 @@ def PoolReadCfg(configFlags):
         result.addService(apaps)
         result.addService(ProxyProviderSvc(ProviderNames=[apaps.getFullJobOptName(),])) #No service handle yet???
 
-        evSel=EventSelectorAthenaPool(InputCollections = filenames)
+        evSel=EventSelectorAthenaPool("EventSelector", InputCollections = filenames)
 
     result.addService(evSel)
     result.setAppProperty("EvtSel",evSel.getFullJobOptName())

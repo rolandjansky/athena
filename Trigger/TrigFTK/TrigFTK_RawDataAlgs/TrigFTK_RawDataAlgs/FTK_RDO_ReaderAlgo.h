@@ -77,7 +77,6 @@ private:
 
   std::string m_verticesKey;
   std::string m_ftk_raw_trackcollection_Name;
-  FTK_RawTrackContainer *m_ftk_raw_trackcollection;
 
   bool m_getTracks;
   //  std::string m_TrackCollectionName;

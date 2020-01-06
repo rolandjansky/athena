@@ -45,8 +45,12 @@ def mergeParallel(chainDefList, offset):
         nSteps.append(len(cConfig.steps))
         l1Thresholds.extend(cConfig.vseeds)
 
-    from itertools import izip_longest
-    orderedSteps = list(izip_longest(*allSteps))
+    import itertools
+    if 'zip_longest' in dir(itertools):
+        from itertools import zip_longest
+    else:
+        from itertools import izip_longest as zip_longest
+    orderedSteps = list(zip_longest(*allSteps))
     myOrderedSteps = deepcopy(orderedSteps)
 
     combChainSteps =[]

@@ -249,7 +249,6 @@ namespace MuonCombined {
     ToolHandle<Muon::IMuonRecoValidationTool>        m_recoValidationTool;
     ToolHandle<Trk::ITrackAmbiguityProcessorTool>    m_trackAmbibuityResolver;
     ToolHandle<Muon::IMuonHitTimingTool>             m_hitTimingTool;
-    ToolHandle<Muon::MuonLayerHoughTool>             m_layerHoughTool;
     ToolHandle<Muon::IMuonPRDSelectionTool>          m_muonPRDSelectionTool;
     ToolHandle<Muon::IMuonPRDSelectionTool>          m_muonPRDSelectionToolStau;
     ToolHandle<Muon::IMdtDriftCircleOnTrackCreator>  m_mdtCreator;

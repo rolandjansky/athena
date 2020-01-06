@@ -2,6 +2,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
+import six
 
 
 def createMenuFlags():
@@ -38,6 +39,6 @@ import unittest
 class __MustHaveMenuInTheName(unittest.TestCase):    
     def runTest(self):
         flags = createMenuFlags()
-        for fname,fval in flags._flagdict.iteritems():
+        for fname,fval in six.iteritems (flags._flagdict):
             self.assertTrue( fname.startswith('Trigger.menu.') )
 

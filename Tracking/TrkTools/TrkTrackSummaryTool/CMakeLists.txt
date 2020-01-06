@@ -13,11 +13,11 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkEvent/TrkTrackSummary
                           Tracking/TrkTools/TrkToolInterfaces
+                          InnerDetector/InDetRecTools/TRT_ToT_Tools
 			  Control/CxxUtils
                           PRIVATE
                           DetectorDescription/AtlasDetDescr
                           DetectorDescription/Identifier
-                          InnerDetector/InDetRecTools/TRT_ToT_Tools
                           Tracking/TrkDetDescr/TrkDetElementBase
                           Tracking/TrkDetDescr/TrkGeometry
                           Tracking/TrkEvent/TrkCompetingRIOsOnTrack

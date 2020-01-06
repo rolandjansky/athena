@@ -895,7 +895,6 @@ def getSignatureInformation(signature):
 
 def getBasePattern():
     import re
-    import itertools
     # possibleTT = '|'.join(allowedSignaturePropertiesAndValues['trigType'])
     #print 'SignatureDicts.py: Allowed values for triType in base pattern', SliceIDDict.values()
     allTrigTypes = SliceIDDict.values()

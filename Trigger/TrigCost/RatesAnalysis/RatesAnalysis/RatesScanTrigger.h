@@ -66,7 +66,11 @@ class RatesScanTrigger : public RatesTrigger {
     const double seedPrecale = 1.,
     const ExtrapStrat_t extrapolation = ExtrapStrat_t::kLINEAR);
 
-  ~RatesScanTrigger();
+  virtual ~RatesScanTrigger();
+
+  RatesScanTrigger(const RatesScanTrigger&) = delete;
+
+  RatesScanTrigger& operator=(const RatesScanTrigger&) = delete;
 
   void reset() override { m_thresholdPassed = std::numeric_limits<double>::min(); } //!< If I was used in an event, reset me
 
@@ -92,20 +96,18 @@ class RatesScanTrigger : public RatesTrigger {
    */
   void execute(const WeightingValuesSummary_t& weights) override;
 
-  void normaliseHist(const double ratesDenominator) override; //!< Apply normalisation scaling to histograms
-
   /**
    * @brief Prints the RatesScanTrigger's rate (different output to a regular trigger)
    * @param ratesDenominator The walltime for the run, needed to normalise from integrated weighted counts to a rate.
    */
   const std::string printRate(const double ratesDenominator) const override;
 
-  TH1D* getThresholdHist(bool clientIsTHistSvc = false); //!< Get a pointer to the rate as a fn. of threshold
+  StatusCode giveThresholdHist(const ServiceHandle<ITHistSvc>& svc, const std::string& name); 
 
  private: 
 
-  TH1D* m_rateScanHist; //!< Even if we are not exporting it - we still need this histo 
-  bool m_givenRateScanHist; //!< m_rateScanHist has been given to the THistSvc and should not be deleted
+  std::unique_ptr<TH1> m_rateScanHist; //!< Even if we are not exporting it - we still need this histo 
+  TH1* m_rateScanHistCachedPtr;
   double m_thresholdPassed; //!< Analogous to m_pass. This is the threshold that the trigger passed in the event
   TriggerBehaviour_t m_behaviour; //!< If we need to be above or below the threshold to cause the trigger to fire
 

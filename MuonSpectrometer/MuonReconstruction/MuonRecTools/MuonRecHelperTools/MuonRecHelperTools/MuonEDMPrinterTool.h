@@ -19,6 +19,7 @@
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 #include <string>
 
@@ -144,6 +145,10 @@ namespace Muon{
       "Handle to the service providing the IMuonEDMHelperSvc interface" };
     ToolHandle<Trk::ITrackSummaryHelperTool> m_summaryHelper;
     ToolHandle<Trk::IResidualPullCalculator> m_pullCalculator;
+
+    SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+	"MuonDetectorManager", 
+	"Key of input MuonDetectorManager condition data"};    
 
   };
 

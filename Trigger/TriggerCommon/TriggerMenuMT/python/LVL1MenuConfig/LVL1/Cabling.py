@@ -4,7 +4,7 @@
 # flake8: noqa
 #
 
-from Limits import Limits
+from .Limits import Limits
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger("Cabling")
@@ -88,7 +88,7 @@ class Cabling(object):
     @staticmethod
     def getCableName(thrtype,mapping):
 
-        from Lvl1Flags import Lvl1Flags
+        from .Lvl1Flags import Lvl1Flags
         run1 = Lvl1Flags.CTPVersion()<=3
         
         if run1:
@@ -150,9 +150,7 @@ class Cabling(object):
     @staticmethod
     def calcBitnum(thrtype):
         # get the widths for the threshold types is defined in L1Common
-        nbits = None
-        exec("nbits = Limits.%s_bitnum" % thrtype)
-        return nbits
+        return getattr (Limits, '%s_bitnum' % thrtype)
 
 
 
@@ -232,7 +230,7 @@ class InputCable(object):
 
         cableAssign = self.getCTPINCableAssignment(self.thrtype)
 
-        from Lvl1Flags import Lvl1Flags
+        from .Lvl1Flags import Lvl1Flags
         run1 = Lvl1Flags.CTPVersion()<=3
         if run1 and self.thrtype=="EM":
             cableAssign += self.getCTPINCableAssignment("TAU")
@@ -268,8 +266,7 @@ class InputCable(object):
         """
         Gets the cable assignment from L1Common
         """
-        cable = None
-        exec("cable = Limits.%s_cable" % thrtype)
+        cable = getattr (Limits, "%s_cable" % thrtype)
         
         # we change the format for run 2, the tuple now contains also the bit multiplicity, as it is not constant per type
         infosize = (len(cable)-1)/cable[0]

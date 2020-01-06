@@ -902,7 +902,7 @@ class EgammaSequence(object):
                 log.debug('Hypo only step %s ', step)
                 seq[step]=hypo[step]
         if ( self._disable_mon):
-            if not hypo in ListOfMonitoredHypos:
+            if hypo not in ListOfMonitoredHypos:
                 #only disable monitoring of hypo if both, chain is *not* in list and if hypo NOT in the list of hypos to keep monitoring
                 self._config_monitoring(hypo)
                 log.debug('DISABLED_MON for '+str(hypo))
@@ -910,7 +910,7 @@ class EgammaSequence(object):
                 log.debug('NOTDISABLED_MON for '+str(hypo))
         else:
             # if here it means this hypo IS to be configured. So store it in ListOfMonitoredHypos, unless is already there:
-            if not hypo in ListOfMonitoredHypos:
+            if hypo not in ListOfMonitoredHypos:
                 log.debug('ENABLED_MON for '+str(hypo))
                 ListOfMonitoredHypos.append(hypo)
         self.sequences = seq

@@ -6,7 +6,7 @@ def getPFTrackSelectorAlgorithm(inputFlags):
     PFTrackSelector=CompFactory.PFTrackSelector
     PFTrackSelector=PFTrackSelector("PFTrackSelector")
 
-    from TrkExTools.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg    
+    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg    
     Trk__ParticleCaloExtensionTool=CompFactory.Trk__ParticleCaloExtensionTool
     extrapCfg = AtlasExtrapolatorCfg(inputFlags)
     pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator = extrapCfg.popPrivateTools())
@@ -202,7 +202,7 @@ def PFCfg(inputFlags,**kwargs):
     result.getService("GeoModelSvc").DetectorTools += [ InDetServMatTool() ]
     
     #Setup up tracking geometry
-    from TrkDetDescrSvc.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+    from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
     acc = TrackingGeometrySvcCfg(inputFlags)
     result.merge(acc)
     

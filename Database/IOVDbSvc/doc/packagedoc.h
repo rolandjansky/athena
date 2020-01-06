@@ -108,9 +108,6 @@ open at once, rather than keeping them open throughout the job.
 - FoldersToMetaData: A list of string folder names which should be written
 to file-level meta data on the output file.
 
-- DumpKeys: Produce a printout of all the Storegate keys / folders being managed by IOVDbSvc, and the associated IOVs and tags at the end of the first event 
-(default False).
-
 - TimeStampSlop: Number of seconds subtracted from the start of timebased 
 IOVs, to allow some 'slop' so that events with a slightly earlier timestamp
 do not force reloading of conditions data. Needed for processing real data

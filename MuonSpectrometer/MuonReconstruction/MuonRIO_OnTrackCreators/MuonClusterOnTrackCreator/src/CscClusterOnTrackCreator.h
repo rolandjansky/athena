@@ -16,7 +16,6 @@
 #include "MuonRecToolInterfaces/ICscClusterOnTrackCreator.h"
 #include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
 
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "TrkPrepRawData/PrepRawDataCLASS_DEF.h"
 #include "TrkParameters/TrackParameters.h"
 #include "MuonRIO_OnTrack/MuonEtaPhiRIO_OnTrackErrorScaling.h"
@@ -95,7 +94,7 @@ namespace Muon {
 
 
   private:
-    const MuonGM::MuonDetectorManager*   m_muonMgr;          // Muon GeoModel
+
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
     ToolHandle<ICscStripFitter>          m_stripFitter;

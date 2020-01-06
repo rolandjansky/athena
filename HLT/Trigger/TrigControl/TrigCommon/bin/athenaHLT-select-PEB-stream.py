@@ -20,7 +20,7 @@ def peb_writer(argv):
   option['start-event'] = {'short': 'a', 'arg': True,
                            'default': 0,
                            'group': 'Run mode',
-                           'description': 'Number of events which should be skippped from the begin'}
+                           'description': 'Number of events which should be skipped from the begin'}
 
   option['max-events'] = {'short': 'n', 'arg': True,
                           'default': 0,

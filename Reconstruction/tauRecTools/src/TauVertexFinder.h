@@ -81,7 +81,7 @@ private:
   float m_longDistMax;
   float m_maxZ0SinTheta;
   
-  SG::ReadHandleKey<xAOD::VertexContainer> m_vertexInputContainer{this,"Key_vertexInputContainer", "InDetTrackParticles", "input vertex container key"};
+  SG::ReadHandleKey<xAOD::VertexContainer> m_vertexInputContainer{this,"Key_vertexInputContainer", "PrimaryVertices", "input vertex container key"};
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackPartInputContainer{this,"Key_trackPartInputContainer", "InDetTrackParticles", "input track particle container key"};   
   SG::ReadHandleKey<jet::TrackVertexAssociation> m_jetTrackVtxAssoc{this, "Key_JetTrackVtxAssoc_forTaus", "JetTrackVtxAssoc_forTaus", "input TVA for taus"};
 

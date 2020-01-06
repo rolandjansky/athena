@@ -3,7 +3,6 @@
 */
 #include "SimpleMMClusterBuilderTool.h"
 #include "MuonPrepRawData/MMPrepData.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonIdHelpers/MmIdHelper.h"
 
 using namespace Muon;

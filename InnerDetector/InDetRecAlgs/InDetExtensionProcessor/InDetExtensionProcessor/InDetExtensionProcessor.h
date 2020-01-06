@@ -15,7 +15,6 @@
 #include "CxxUtils/checker_macros.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTrack/TrackExtensionMap.h"
-#include "TrkFitterUtils/FitterTypes.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkToolInterfaces/ITrackScoringTool.h"
@@ -85,28 +84,30 @@ private:
 
   // -- algorithm members
   Trk::ParticleHypothesis       m_particleHypothesis; //!< nomen est omen
-
+  
+  //! internal monitoring: categories for counting different types of extension results
+  enum StatIndex {iAll, iBarrel, iTransi, iEndcap , Nregions};
+  typedef std::array<int, Nregions> CounterArray_t;
   // -- statistics protected by mutex
   mutable std::mutex  m_statMutex;
   mutable int         m_Nevents ATLAS_THREAD_SAFE;
-  mutable std::vector<int> m_Ninput ATLAS_THREAD_SAFE;
-  mutable std::vector<int> m_Nrecognised ATLAS_THREAD_SAFE;
-  mutable std::vector<int> m_Nextended ATLAS_THREAD_SAFE;
-  mutable std::vector<int> m_Nrejected ATLAS_THREAD_SAFE;
-  mutable std::vector<int> m_Nfailed ATLAS_THREAD_SAFE;
-  mutable std::vector<int> m_NrecoveryBremFits ATLAS_THREAD_SAFE;
-  mutable std::vector<int> m_NbremFits ATLAS_THREAD_SAFE;
-  mutable std::vector<int> m_Nfits ATLAS_THREAD_SAFE;
-  mutable std::vector<int> m_NnotExtended ATLAS_THREAD_SAFE;
-  mutable std::vector<int> m_NlowScoreBremFits ATLAS_THREAD_SAFE;
-  mutable std::vector<int> m_NextendedBrem ATLAS_THREAD_SAFE;
+  mutable CounterArray_t m_Ninput ATLAS_THREAD_SAFE;
+  mutable CounterArray_t m_Nrecognised ATLAS_THREAD_SAFE;
+  mutable CounterArray_t m_Nextended ATLAS_THREAD_SAFE;
+  mutable CounterArray_t m_Nrejected ATLAS_THREAD_SAFE;
+  mutable CounterArray_t m_Nfailed ATLAS_THREAD_SAFE;
+  mutable CounterArray_t m_NrecoveryBremFits ATLAS_THREAD_SAFE;
+  mutable CounterArray_t m_NbremFits ATLAS_THREAD_SAFE;
+  mutable CounterArray_t m_Nfits ATLAS_THREAD_SAFE;
+  mutable CounterArray_t m_NnotExtended ATLAS_THREAD_SAFE;
+  mutable CounterArray_t m_NlowScoreBremFits ATLAS_THREAD_SAFE;
+  mutable CounterArray_t m_NextendedBrem ATLAS_THREAD_SAFE;
 
-  //! internal monitoring: categories for counting different types of extension results
-  enum StatIndex {iAll, iBarrel, iTransi, iEndcap , Nregions};
+
   std::vector<float>  m_etabounds;           //!< eta intervals for internal monitoring
 
-  //! monitoring and validation: does success/failure counting
-  void increment_by_eta(std::array<int,4>&,const Trk::Track*,bool=true) const;
+  //! monitoring and validation: does success/failure counting for each detector region
+  void incrementRegionCounter(std::array<int,4>&,const Trk::Track*,bool=true) const;
 
 };
 

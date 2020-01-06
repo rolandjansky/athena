@@ -12,6 +12,7 @@ so that he can determine the validity of the constants
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ITHistSvc.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/DataHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -19,6 +20,7 @@ so that he can determine the validity of the constants
 #include "AthContainers/DataVector.h"
 #include "CscCalibData/CscCalibResultCollection.h"
 #include "MuonCSC_CnvTools/ICSC_RDO_Decoder.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 //temporary for tests
 #include "BipolarFit.h"
@@ -85,7 +87,7 @@ namespace MuonCalib{
       ICscCalibTool * m_cscCalibTool;
       ServiceHandle<CscICoolStrSvc> m_cscCoolStrSvc;
       ToolHandle<Muon::ICSC_RDO_Decoder> m_cscRdoDecoderTool;
-      const CscIdHelper *m_cscId;
+      ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
       IChronoStatSvc* m_chronoSvc;
 
       /**Parameters input through joboptions*/

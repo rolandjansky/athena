@@ -31,12 +31,13 @@ def ExampleMonitoringConfig(inputFlags):
     # helper. Then, the helper will instantiate an instance and set up the 
     # base class configuration following the inputFlags. The returned object 
     # is the algorithm.
-    from AthenaMonitoring.AthenaMonitoringConf import ExampleMonitorAlgorithm
-    exampleMonAlg = helper.addAlgorithm(ExampleMonitorAlgorithm,'ExampleMonAlg')
+    # This uses the new Configurables object system.
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    exampleMonAlg = helper.addAlgorithm(CompFactory.ExampleMonitorAlgorithm,'ExampleMonAlg')
 
     # You can actually make multiple instances of the same algorithm and give 
     # them different configurations
-    anotherExampleMonAlg = helper.addAlgorithm(ExampleMonitorAlgorithm,'AnotherExampleMonAlg')
+    anotherExampleMonAlg = helper.addAlgorithm(CompFactory.ExampleMonitorAlgorithm,'AnotherExampleMonAlg')
 
     # # If for some really obscure reason you need to instantiate an algorithm
     # # yourself, the AddAlgorithm method will still configure the base 

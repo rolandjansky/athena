@@ -40,11 +40,6 @@ ATLAS_CHECK_FILE_THREAD_SAFETY;
 
 class MsgStream;
 
-namespace MuonGM {
-  class MuonDetectorManager;
-}
-
-
 namespace Trk {
   class Track;
   class TrackStateOnSurface;

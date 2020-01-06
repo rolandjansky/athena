@@ -13,6 +13,7 @@ def getTrigDecisionTool(flags):
     if getTrigDecisionTool.rv:
         return getTrigDecisionTool.rv
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    from AthenaConfiguration.ComponentFactory import CompFactory
  
     rv = ComponentAccumulator()
 
@@ -22,12 +23,10 @@ def getTrigDecisionTool(flags):
         getTrigDecisionTool.rv = rv
         return getTrigDecisionTool.rv
 
-    from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODConfigTool
-    cfgtool = TrigConf__xAODConfigTool('xAODConfigTool')
+    cfgtool = CompFactory.TrigConf__xAODConfigTool('xAODConfigTool')
     rv.addPublicTool(cfgtool)
 
-    from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
-    tdt = Trig__TrigDecisionTool('TrigDecisionTool')
+    tdt = CompFactory.Trig__TrigDecisionTool('TrigDecisionTool')
     tdt.ConfigTool = cfgtool
     tdt.NavigationFormat = "TrigComposite" if 'HLTNav_Summary' in flags.Input.Collections else "TriggerElement"
     rv.addPublicTool(tdt)
@@ -39,15 +38,8 @@ def getTrigDecisionTool(flags):
     tdt.Navigation.Dlls = [e for e in  EDMLibraries if 'TPCnv' not in e]
 
     # Minimal config needed to read metadata: MetaDataSvc & ProxyProviderSvc
-    from AthenaServices.AthenaServicesConf import MetaDataSvc
-    mdSvc = MetaDataSvc( "MetaDataSvc" )
-    mdSvc.MetaDataContainer = "MetaDataHdr"
-    rv.addService(mdSvc)
-
-    from SGComps.SGCompsConf import ProxyProviderSvc
-    pdps = ProxyProviderSvc( "ProxyProviderSvc" )
-    pdps.ProviderNames += [ "MetaDataSvc" ]
-    rv.addService(pdps)
+    from AthenaServices.MetaDataSvcConfig import MetaDataSvcCfg
+    rv.merge(MetaDataSvcCfg(flags))
 
     getTrigDecisionTool.rv = rv
     return rv

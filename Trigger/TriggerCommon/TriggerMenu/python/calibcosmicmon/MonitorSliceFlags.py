@@ -1,9 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """ Flags for monitoring chains """
 
-from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
-from TriggerMenu.menu.CommonSliceHelper import CommonSliceHelper, AllowedList
+from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
+from TriggerMenu.menu.CommonSliceHelper import CommonSliceHelper
 
 _flags = [] 
 

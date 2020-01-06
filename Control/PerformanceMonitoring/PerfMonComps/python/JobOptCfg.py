@@ -7,6 +7,7 @@
 ## import the automatically generated Configurables
 from __future__ import print_function
 from PerfMonComps.PerfMonCompsConf import PerfMonSvc as _PerfMonSvc
+import six
 
 class PerfMonSvc( _PerfMonSvc ):
 
@@ -117,7 +118,7 @@ class PerfMonSvc( _PerfMonSvc ):
                  len(handle.IoContainers) == 0 ):
                 # first let us ask the Streams...
                 from AthenaCommon.Configurable import Configurable
-                if Configurable.configurables.has_key('Streams'):
+                if 'Streams' in Configurable.configurables:
                     outStreams = Configurable.configurables['Streams']
                     for o in outStreams:
                         if not hasattr(o, 'ItemList'): continue
@@ -180,7 +181,7 @@ class PerfMonSvc( _PerfMonSvc ):
         
         pmon_flags = {}
         import AthenaCommon.JobProperties as acjp
-        for n,v in jobproperties.PerfMonFlags.__dict__.iteritems():
+        for n,v in six.iteritems (jobproperties.PerfMonFlags.__dict__):
             if isinstance(v, acjp.JobProperty):
                 pmon_flags[n] = v()
                 

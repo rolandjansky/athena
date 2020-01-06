@@ -46,31 +46,14 @@ def ByteStreamReadCfg( inputFlags, typeNames=[] ):
     ByteStreamAddressProviderSvc=CompFactory.ByteStreamAddressProviderSvc
     bsAddressProviderSvc = ByteStreamAddressProviderSvc(TypeNames=typeNames)
     acc.addService( bsAddressProviderSvc )
-
-    IOVDbMetaDataTool=CompFactory.IOVDbMetaDataTool
-    iovMetaDataTool = IOVDbMetaDataTool()
-    acc.addPublicTool( iovMetaDataTool )
     
-    ByteStreamMetadataTool=CompFactory.ByteStreamMetadataTool
-    bsMetaDataTool = ByteStreamMetadataTool()
-    acc.addPublicTool( bsMetaDataTool )
-    
-    StoreGateSvc=CompFactory.StoreGateSvc
     ProxyProviderSvc=CompFactory.ProxyProviderSvc
-    metaDataStore = StoreGateSvc("MetaDataStore")   
-    acc.addService( metaDataStore )
-    inputMetaDataStore = StoreGateSvc("InputMetaDataStore")   
-    acc.addService( inputMetaDataStore )
 
-    MetaDataSvc=CompFactory.MetaDataSvc
-    metaDataSvc = MetaDataSvc()
-    acc.addService( metaDataSvc )
-
-    metaDataSvc.MetaDataContainer = "MetaDataHdr"
-    metaDataSvc.MetaDataTools = [ iovMetaDataTool, bsMetaDataTool ]    
+    from AthenaServices.MetaDataSvcConfig import MetaDataSvcCfg
+    acc.merge(MetaDataSvcCfg(inputFlags, ["IOVDbMetaDataTool", "ByteStreamMetadataTool"]))
     
     proxy = ProxyProviderSvc()
-    proxy.ProviderNames += [ bsAddressProviderSvc.name(), metaDataSvc.name() ]
+    proxy.ProviderNames += [ bsAddressProviderSvc.name() ]
     acc.addService( proxy )
 
     ByteStreamAttListMetadataSvc=CompFactory.ByteStreamAttListMetadataSvc

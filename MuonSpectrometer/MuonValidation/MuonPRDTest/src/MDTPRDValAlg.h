@@ -34,7 +34,6 @@ class MsgStream;
 // pre-declarations
 namespace MuonGM {
   class MdtReadoutElement;
-  class MuonDetectorManager;
 }
 
 class MDTPRDValAlg: public AthAlgorithm {
@@ -130,9 +129,6 @@ class MDTPRDValAlg: public AthAlgorithm {
   int m_StationEta;
   int m_StationPhi;
   int m_LastEvent;
-
-  /**Pointer On MuonDetectorManager */
-  const MuonGM::MuonDetectorManager* m_pMuonMgr;
 
   ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
     "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};

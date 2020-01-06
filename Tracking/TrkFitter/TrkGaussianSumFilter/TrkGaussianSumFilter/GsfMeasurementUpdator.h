@@ -16,7 +16,8 @@ decription           : Class for performing updates on multi-component states fo
 #define TrkGsfMeasurementUpdator_H
 
 #include "TrkEventPrimitives/FitQualityOnSurface.h"
-#include "TrkGaussianSumFilter/IMultiComponentStateAssembler.h"
+#include "TrkGaussianSumFilter/MultiComponentStateAssembler.h"
+
 #include "TrkGaussianSumFilter/IMultiStateMeasurementUpdator.h"
 #include "TrkToolInterfaces/IUpdator.h"
 
@@ -87,12 +88,6 @@ private:
 
 private:
   ToolHandle<IUpdator> m_updator{ this, "Updator", "Trk::KalmanUpdator/KalmanUpdator", "" };
-  ToolHandle<IMultiComponentStateAssembler> m_stateAssembler{
-    this,
-    "MultiComponentStateAssembler",
-    "Trk::MultiComponentStateAssembler/GsfMeasurementStateAssembler",
-    ""
-  };
 };
 }
 

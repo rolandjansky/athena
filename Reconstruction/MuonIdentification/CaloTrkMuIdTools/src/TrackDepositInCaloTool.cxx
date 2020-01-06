@@ -866,8 +866,7 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::deposits(const Trk::TrackPara
 // calcEnergy
 ///////////////////////////////////////////////////////////////////////////////
 double TrackDepositInCaloTool::calcEnergy(const Trk::TrackParameters* par, const Trk::ParticleHypothesis& particleHypo) const {
-  static Trk::ParticleMasses masses;  
-  double mass = masses.mass[particleHypo]; 
+  double mass = m_particlemasses.mass[particleHypo]; 
   if (par == NULL) return 0.;
   double pX = par->momentum().x();
   double pY = par->momentum().y();

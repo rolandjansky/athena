@@ -82,11 +82,8 @@ atlas_add_dictionary( OLD_MuonEventTPCnvDict
    MuonEventTPCnv/OLD_MuonEventTPCnvDict.h MuonEventTPCnv/OLD_selection.xml
    LINK_LIBRARIES MuonEventTPCnv )
 
+atlas_install_joboptions( share/*.txt )
 
-# Helper variable for running the tests:
-set( _jobOPath "${CMAKE_CURRENT_SOURCE_DIR}/share" )
-set( _jobOPath "${_jobOPath}:${CMAKE_JOBOPT_OUTPUT_DIRECTORY}" )
-set( _jobOPath "${_jobOPath}:$ENV{JOBOPTSEARCHPATH}" )
 
 # Set up the tests of the package:
 foreach( name CscMcDataCnv_p1_test CscSimDataCnv_p1_test
@@ -128,10 +125,10 @@ foreach( name CscMcDataCnv_p1_test CscSimDataCnv_p1_test
       StoreGateLib TPTools AGDDKernel AtlasDetDescr 
       IdDict IdDictDetDescr IdDictParser InDetIdentifier InDetReadoutGeometry
       MuonAGDDDescription MuonReadoutGeometry MuonIdHelpersLib
-      TrkEventPrimitives TrkPseudoMeasurementOnTrack MuonEventTPCnv
+      TrkEventPrimitives TrkPseudoMeasurementOnTrack MuonEventTPCnv AthenaKernel
       EXTRA_PATTERNS "MultiRange built successfully|element hash max"
-      PROPERTIES TIMEOUT 300
-      ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
+      PROPERTIES TIMEOUT 300 )
+   set_target_properties ( MuonEventTPCnv_${name} PROPERTIES ENABLE_EXPORTS True )
 
 endforeach()
 

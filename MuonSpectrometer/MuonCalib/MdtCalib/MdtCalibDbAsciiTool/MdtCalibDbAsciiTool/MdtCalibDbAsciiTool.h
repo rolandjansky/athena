@@ -10,16 +10,13 @@
 #include "MdtCalibData/MdtTubeCalibContainerCollection.h"
 #include "MdtCalibData/MdtRtRelationCollection.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 #include "CLHEP/Random/RandomEngine.h"
 class IAtRndmGenSvc;
 
 class MdtCalibrationRegionSvc;
 class Identifier; 
-
-namespace MuonGM{
-class MuonDetectorManager;
-}
 
 namespace MuonCalib
 {
@@ -72,7 +69,12 @@ private:
 
   ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
     "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
-  const MuonGM::MuonDetectorManager* m_detMgr;
+
+  // MuonDetectorManager from the conditions store
+  SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+      "MuonDetectorManager", 
+      "Key of input MuonDetectorManager condition data"};    
+
   MdtCalibrationRegionSvc* m_regionSvc;
   mutable MdtTubeCalibContainerCollection * m_tubeData;
   mutable MdtRtRelationCollection * m_rtData;

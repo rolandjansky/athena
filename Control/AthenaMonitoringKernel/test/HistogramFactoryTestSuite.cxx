@@ -138,7 +138,7 @@ class HistogramFactoryTestSuite {
         make_tuple("SHIFT", "/SHIFT/HistogramFactoryTestSuite/onlineHistAlias"),
         make_tuple("DEBUG", "/DEBUG/HistogramFactoryTestSuite/onlineHistAlias"),
         make_tuple("RUNSTAT", "/RUNSTAT/HistogramFactoryTestSuite/onlineHistAlias"),
-        make_tuple("EXPRES", "/EXPRES/HistogramFactoryTestSuite/onlineHistAlias"),
+        make_tuple("EXPRESS", "/EXPRESS/HistogramFactoryTestSuite/onlineHistAlias"),
       };
   
       for (auto possibleCase : possibleCases) {
@@ -183,15 +183,16 @@ class HistogramFactoryTestSuite {
       histogramDef.alias = "labels1DTestAlias";
       histogramDef.xbins = 3;
       histogramDef.ybins = 0;
-      histogramDef.labels = { "label1", "label2", "label3", "label4" };
+      histogramDef.xlabels = { "xlabel1", "xlabel2", "xlabel3" };
+      histogramDef.ylabels = { "ylabel1" };
       TH1F* const histogram = dynamic_cast<TH1F*>(m_testObj->create(histogramDef));
  
       VALUE(histogram->GetXaxis()->GetNbins()) EXPECTED(3);
-      VALUE(string(histogram->GetXaxis()->GetBinLabel(1))) EXPECTED("label1");
-      VALUE(string(histogram->GetXaxis()->GetBinLabel(2))) EXPECTED("label2");
-      VALUE(string(histogram->GetXaxis()->GetBinLabel(3))) EXPECTED("label3");
+      VALUE(string(histogram->GetXaxis()->GetBinLabel(1))) EXPECTED("xlabel1");
+      VALUE(string(histogram->GetXaxis()->GetBinLabel(2))) EXPECTED("xlabel2");
+      VALUE(string(histogram->GetXaxis()->GetBinLabel(3))) EXPECTED("xlabel3");
       VALUE(histogram->GetYaxis()->GetNbins()) EXPECTED(1);
-      VALUE(string(histogram->GetYaxis()->GetBinLabel(1))) EXPECTED("label4");
+      VALUE(string(histogram->GetYaxis()->GetBinLabel(1))) EXPECTED("ylabel1");
     }
 
     void test_shouldSetXAndYAxisLabelsFor2DHistogram() {
@@ -199,17 +200,18 @@ class HistogramFactoryTestSuite {
       histogramDef.alias = "labels2DTestAlias";
       histogramDef.xbins = 3;
       histogramDef.ybins = 3;
-      histogramDef.labels = { "label1", "label2", "label3", "label4", "label5", "label6" };
+      histogramDef.xlabels = { "xlabel1", "xlabel2", "xlabel3" };
+      histogramDef.ylabels = { "ylabel1", "ylabel2", "ylabel3" };
       TH2F* const histogram = dynamic_cast<TH2F*>(m_testObj->create(histogramDef));
  
       VALUE(histogram->GetXaxis()->GetNbins()) EXPECTED(3);
-      VALUE(string(histogram->GetXaxis()->GetBinLabel(1))) EXPECTED("label1");
-      VALUE(string(histogram->GetXaxis()->GetBinLabel(2))) EXPECTED("label2");
-      VALUE(string(histogram->GetXaxis()->GetBinLabel(3))) EXPECTED("label3");
+      VALUE(string(histogram->GetXaxis()->GetBinLabel(1))) EXPECTED("xlabel1");
+      VALUE(string(histogram->GetXaxis()->GetBinLabel(2))) EXPECTED("xlabel2");
+      VALUE(string(histogram->GetXaxis()->GetBinLabel(3))) EXPECTED("xlabel3");
       VALUE(histogram->GetYaxis()->GetNbins()) EXPECTED(3);
-      VALUE(string(histogram->GetYaxis()->GetBinLabel(1))) EXPECTED("label4");
-      VALUE(string(histogram->GetYaxis()->GetBinLabel(2))) EXPECTED("label5");
-      VALUE(string(histogram->GetYaxis()->GetBinLabel(3))) EXPECTED("label6");
+      VALUE(string(histogram->GetYaxis()->GetBinLabel(1))) EXPECTED("ylabel1");
+      VALUE(string(histogram->GetYaxis()->GetBinLabel(2))) EXPECTED("ylabel2");
+      VALUE(string(histogram->GetYaxis()->GetBinLabel(3))) EXPECTED("ylabel3");
     }
 
     void test_shouldSetExtendAxesWhenkCanRebinIsSet() {

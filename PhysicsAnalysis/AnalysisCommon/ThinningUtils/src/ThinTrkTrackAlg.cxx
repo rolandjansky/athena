@@ -16,7 +16,8 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODEgamma/ElectronxAODHelpers.h"
 #include "TrkTrack/TrackCollection.h"
-#include "AthenaKernel/IThinningSvc.h"
+#include "StoreGate/ThinningHandle.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 // STL includes
 #include <algorithm> 
@@ -30,15 +31,9 @@
 ThinTrkTrackAlg::ThinTrkTrackAlg( const std::string& name,
 				  ISvcLocator* pSvcLocator ) :
   ::AthAlgorithm( name, pSvcLocator ),
-  m_thinningSvc( "ThinningSvc/ThinningSvc", name ),
   m_doElectrons(true),
   m_doPhotons(true),
   m_doMuons(true),
-  m_muonsKey("Muons"),
-  m_electronsKey("Electrons"),
-  m_photonsKey("Photons"),
-  m_CombinedMuonsTracksKey("CombinedMuonTracks"),
-  m_GSFTracksKey("GSFTracks"),
   m_minptElectrons(4000.),
   m_minptPhotons(4000.),
   m_minptMuons(4000.),
@@ -46,9 +41,6 @@ ThinTrkTrackAlg::ThinTrkTrackAlg( const std::string& name,
   m_bestonlyPhotons(true)
 {
     
-  declareProperty("ThinningSvc", m_thinningSvc,
-		  "The ThinningSvc instance for a particular output stream" );
-
   declareProperty("doElectrons", m_doElectrons,
 		  "Flag to Thin the Electron GSF tracks");
 
@@ -57,21 +49,6 @@ ThinTrkTrackAlg::ThinTrkTrackAlg( const std::string& name,
 
   declareProperty("doMuons", m_doMuons,
 		  "Flag to Thin the Muon Combinedtracks");
-
-  declareProperty("MuonsKey", m_muonsKey,
-		  "StoreGate key for muons container");
-
-  declareProperty("ElectronsKey",m_electronsKey ,
-		  "StoreGate key for electrons container");
-
-  declareProperty("PhotonsKey",m_photonsKey ,
-		  "StoreGate key for photon container");
-
-  declareProperty("CombinedMuonsTrackKey", m_CombinedMuonsTracksKey,
-		  "StoreGate key for combined muons Trk::Track container");
-
-  declareProperty("GSFTrackKey", m_GSFTracksKey,
-		  "StoreGate key for GSF Trk::Track container");
 
   declareProperty("minptElectrons", m_minptElectrons,
 		  "Minimum pT for electrons to have their tracks included");
@@ -101,12 +78,8 @@ ThinTrkTrackAlg::~ThinTrkTrackAlg()
 StatusCode ThinTrkTrackAlg::initialize(){
     ATH_MSG_DEBUG ("Initializing " << name() << "...");
 
-    if ( !m_thinningSvc.retrieve().isSuccess() ) {
-       ATH_MSG_ERROR("Unable to retrieve pointer to IThinningSvc");
-       return StatusCode::FAILURE;
-    }
     // Print out the used configuration
-    ATH_MSG_DEBUG ( " using = " << m_thinningSvc );
+    ATH_MSG_DEBUG ( " using = " << m_streamName );
 
     // Is truth thinning required?
     if (m_doElectrons) {
@@ -121,6 +94,16 @@ StatusCode ThinTrkTrackAlg::initialize(){
 
     ATH_CHECK(m_pixelDetEleCollKey.initialize());
     ATH_CHECK(m_SCTDetEleCollKey.initialize());
+
+    if (m_streamName.empty()) {
+      ATH_MSG_ERROR( "StreamName property was not initialized" );
+      return StatusCode::FAILURE;
+    }
+    ATH_CHECK( m_GSFTracksKey.initialize (m_streamName) );
+    ATH_CHECK( m_CombinedMuonsTracksKey.initialize (m_streamName, m_doMuons) );
+    ATH_CHECK( m_electronsKey.initialize (m_doElectrons) );
+    ATH_CHECK( m_photonsKey.initialize (m_doPhotons) );
+    ATH_CHECK( m_muonsKey.initialize (m_doMuons) );
 
     ATH_MSG_DEBUG ( "==> done with initialize " << name() << "..." );
     return StatusCode::SUCCESS;
@@ -146,19 +129,12 @@ StatusCode ThinTrkTrackAlg::execute(){
 
 StatusCode ThinTrkTrackAlg::doEGamma(){
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
   //Prepare for the Thinning of Trk::Tracks
-  IThinningSvc::VecFilter_t keptTracks;
-  const TrackCollection* trackPC(0);
-  if(evtStore()->contains<TrackCollection >(m_GSFTracksKey)){
-    ATH_CHECK(evtStore()->retrieve(trackPC,m_GSFTracksKey));
-  }
-  else{
-    ATH_MSG_WARNING ("No " << m_GSFTracksKey << " found , disabling electrons and photons");
-    m_doElectrons=false;
-    m_doPhotons=false;
-    return StatusCode::SUCCESS;
-  }
-  ATH_MSG_DEBUG("Number of " << m_GSFTracksKey << " " << trackPC->size());
+  std::vector<bool> keptTracks;
+  SG::ThinningHandle<TrackCollection> trackPC (m_GSFTracksKey, ctx);
+  ATH_MSG_DEBUG("Number of " << m_GSFTracksKey.key() << " " << trackPC->size());
   if( keptTracks.size() < trackPC->size() ) {
     keptTracks.resize( trackPC->size(), false );
   }
@@ -167,12 +143,7 @@ StatusCode ThinTrkTrackAlg::doEGamma(){
 
   if(m_doElectrons){
     //Get the electrons
-    const xAOD::ElectronContainer* electrons =
-      evtStore()->retrieve< const xAOD::ElectronContainer >(m_electronsKey);
-    if( ! electrons ) {
-      ATH_MSG_ERROR( "Couldn't retrieve electron container with key: "<< m_electronsKey);
-      return StatusCode::FAILURE;
-    }
+    SG::ReadHandle<xAOD::ElectronContainer> electrons (m_electronsKey, ctx);
     
     //Loop over electrons
     for(auto el: *electrons) {
@@ -197,12 +168,7 @@ StatusCode ThinTrkTrackAlg::doEGamma(){
 
   if(m_doPhotons){
     //Get the photons
-    const xAOD::PhotonContainer* photons =
-      evtStore()->retrieve< const xAOD::PhotonContainer >(m_photonsKey);
-    if( ! photons ) {
-      ATH_MSG_ERROR( "Couldn't retrieve photon container with key: "<< m_photonsKey);
-      return StatusCode::FAILURE;
-    }
+    SG::ReadHandle<xAOD::PhotonContainer> photons (m_photonsKey, ctx);
     
     //Loop over photons
     for(auto ph: *photons) {
@@ -233,7 +199,7 @@ StatusCode ThinTrkTrackAlg::doEGamma(){
     
   ATH_MSG_DEBUG("keep " << kept << " out of " <<keptTracks.size());
   ATH_MSG_DEBUG("Do the Thinning");
-  CHECK( m_thinningSvc->filter( *trackPC, keptTracks,IThinningSvc::Operator::Or) );
+  trackPC.keep (keptTracks);
   return StatusCode::SUCCESS;
 }
 
@@ -241,32 +207,18 @@ StatusCode ThinTrkTrackAlg::doEGamma(){
 
 StatusCode ThinTrkTrackAlg::doMuons(){
 
-  //Prepare for the Thinning of Trk::Tracks
-  IThinningSvc::VecFilter_t keptTracks;
-  const TrackCollection* trackPC(0);
- 
-  if(evtStore()->contains<TrackCollection >(m_CombinedMuonsTracksKey)){
-    ATH_CHECK(evtStore()->retrieve(trackPC,m_CombinedMuonsTracksKey));
-  }
-  else{
-    ATH_MSG_WARNING ("No " << m_CombinedMuonsTracksKey << " found, disabling Muons");
-    m_doMuons=false;
-    return StatusCode::SUCCESS;
-  }
+  const EventContext& ctx = Gaudi::Hive::currentContext();
 
-  ATH_MSG_DEBUG("Number of " << m_CombinedMuonsTracksKey << " " << trackPC->size());
+  //Prepare for the Thinning of Trk::Tracks
+  std::vector<bool> keptTracks;
+  SG::ThinningHandle<TrackCollection> trackPC (m_CombinedMuonsTracksKey, ctx);
+  ATH_MSG_DEBUG("Number of " << m_CombinedMuonsTracksKey.key() << " " << trackPC->size());
   if( keptTracks.size() < trackPC->size() ) {
     keptTracks.resize( trackPC->size(), false );
   }
   
   //Get the muons
-  const xAOD::MuonContainer* muons =
-    evtStore()->retrieve< const xAOD::MuonContainer >(m_muonsKey);
-
-  if( ! muons ) {
-    ATH_MSG_ERROR( "Couldn't retrieve muon container with key: "<< m_muonsKey);
-    return StatusCode::FAILURE;
-  }
+  SG::ReadHandle<xAOD::MuonContainer> muons (m_muonsKey, ctx);
 
   //Loop over muons
   size_t kept(0);
@@ -293,6 +245,6 @@ StatusCode ThinTrkTrackAlg::doMuons(){
 
   ATH_MSG_DEBUG("keep " << kept << " out of " <<keptTracks.size());
   ATH_MSG_DEBUG("Do the Thinning");
-  CHECK( m_thinningSvc->filter( *trackPC, keptTracks,IThinningSvc::Operator::Or) );
+  trackPC.keep (keptTracks);
   return StatusCode::SUCCESS;
 }

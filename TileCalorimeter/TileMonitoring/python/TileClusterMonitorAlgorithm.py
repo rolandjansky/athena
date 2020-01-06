@@ -23,8 +23,8 @@ def TileClusterMonitoringConfig(flags, **kwargs):
     helper = AthMonitorCfgHelper(flags,'TileClusterMonitoring')
 
     # Adding an TileCellMonitorAlgorithm algorithm to the helper
-    from TileMonitoring.TileMonitoringConf import TileClusterMonitorAlgorithm
-    tileClusterMonAlg = helper.addAlgorithm(TileClusterMonitorAlgorithm, 'TileClusterMonAlg')
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    tileClusterMonAlg = helper.addAlgorithm(CompFactory.TileClusterMonitorAlgorithm, 'TileClusterMonAlg')
 
     tileClusterMonAlg.TriggerChain = ''
 

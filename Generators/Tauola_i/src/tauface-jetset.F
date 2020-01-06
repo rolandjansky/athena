@@ -2392,8 +2392,8 @@ C FINAL STATE VECTOR COUPLING
         PROPA =1D0/SVAR
         PROPZ =1D0/DCMPLX(SVAR-AMZ**2,SVAR/AMZ*GAMMZ)
         IF (KEYGSW.EQ.0) PROPZ=0.D0
-        DO 50 I=1,2
-         DO 50 J=1,2
+        DO I=1,2
+         DO J=1,2
           REGULA= (3-2*I)*(3-2*J) + COSTHE
 c V.S.: June 23, 2008 made compiler happier  
 c         REGULM=-(3-2*I)*(3-2*J) * SINTHE *2.D0*AMFIN/SQRT(SVAR)
@@ -2406,7 +2406,8 @@ c         REGULM=-(3-2*I)*(3-2*J) * SINTHE *2.D0*AMFIN/SQRT(SVAR)
 c V.S.: Jan. 16, 2009 (extended the line) 
      +PROPZ*DCMPLX(0D0,1D0)*(XUPZIP(I)*XUPF+XTHING)*REGULM
           ABORNM(I,J)=APHOTM(I,J)+AZETTM(I,J)
-   50   CONTINUE
+        ENDDO
+      ENDDO
       ENDIF
 C
 C******************
@@ -2416,9 +2417,9 @@ C* HELICITY CONSERVATION EXPLICITLY OBEYED
       POLAR1=  (SEPS1)
       POLAR2= (-SEPS2)
       BORN=0D0
-      DO 150 I=1,2
+      DO I=1,2
        HELIC= 3-2*I
-       DO 150 J=1,2
+       DO J=1,2
         HELIT=3-2*J
         FACTOR=KOLOR*(1D0+HELIC*POLAR1)*(1D0-HELIC*POLAR2)/4D0
         FACTOM=FACTOR*(1+HELIT*TA)*(1-HELIT*TB)
@@ -2429,8 +2430,8 @@ C      MASS TERM IN BORN
         IF (MODE.GE.1) THEN
          BORN=BORN+CDABS(ABORNM(I,J))**2*FACTOM
         ENDIF
-
-  150 CONTINUE
+       ENDDO
+      ENDDO
 C************
       FUNT=BORN
       IF(FUNT.LT.0.D0)  FUNT=BORN
@@ -2550,8 +2551,8 @@ c >>--GA-->>
         propzp = 1d0/DCMPLX(svar-amzp**2,svar/amzp*gammzp)
 c <<--GA--<<
         IF (KEYGSW.EQ.0) PROPZ=0.D0
-        DO 50 I=1,2
-         DO 50 J=1,2
+        DO I=1,2
+         DO J=1,2
           REGULA= (3-2*I)*(3-2*J) + COSTHE
 c V.S.: June 23, 2008 made compiler happier  
 c         REGULM=-(3-2*I)*(3-2*J) * SINTHE *2.D0*AMFIN/SQRT(SVAR)
@@ -2576,7 +2577,8 @@ c >>--GA-->>
 c          write(6,*)i,j,abornm(i,j),azpttm(i,j)
           abornm(i,j) = abornm(i,j) + azpttm(i,j)
 c <<--GA--<<
-   50   CONTINUE
+         ENDDO
+        ENDDO
       ENDIF
 C
 C******************
@@ -2586,9 +2588,9 @@ C* HELICITY CONSERVATION EXPLICITLY OBEYED
       POLAR1=  (SEPS1)
       POLAR2= (-SEPS2)
       BORN=0D0
-      DO 150 I=1,2
+      DO I=1,2
        HELIC= 3-2*I
-       DO 150 J=1,2
+       DO J=1,2
         HELIT=3-2*J
         FACTOR=KOLOR*(1D0+HELIC*POLAR1)*(1D0-HELIC*POLAR2)/4D0
         FACTOM=FACTOR*(1+HELIT*TA)*(1-HELIT*TB)
@@ -2599,8 +2601,8 @@ C      MASS TERM IN BORN
         IF (MODE.GE.1) THEN
          BORN=BORN+CDABS(ABORNM(I,J))**2*FACTOM
         ENDIF
-
-  150 CONTINUE
+       ENDDO
+      ENDDO
 C************
       FUNT=BORN
       IF(FUNT.LT.0.D0)  FUNT=BORN

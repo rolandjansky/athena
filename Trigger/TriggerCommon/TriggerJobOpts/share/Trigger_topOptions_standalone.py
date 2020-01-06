@@ -164,6 +164,7 @@ lvl1 = Lvl1SimulationGetter()
 
 if globalflags.InputFormat()=='pool':
     log.info("setting up transient BS")
+    TriggerFlags.doTransientByteStream = True
     include( "TriggerJobOpts/jobOfragment_TransBS_standalone.py" )
 
 # setup HLT

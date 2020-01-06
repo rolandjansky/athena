@@ -1,3 +1,6 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+###############################################################
 ## @file   TrigPSCPythonSetup.py
 ## @brief  Python setup for online running (similar to athena.py)
 ## @author Werner Wiedenmann <Werner.Wiedenmann@cern.ch>
@@ -49,7 +52,7 @@ else:
    from AthenaCommon.AppMgr import theApp
    from AthenaCommon.AppMgr import ToolSvc, ServiceMgr, theAuditorSvc   # noqa: F401
 
-   ## These properties have alread been set on the C++ ApplicationMgr in the Psc
+   ## These properties have already been set on the C++ ApplicationMgr in the Psc
    ## but the configurable needs to have them set as well
    theApp.EventLoop         = "HltEventLoopMgr"
    theApp.MessageSvcType    = PscConfig.optmap["MESSAGESVCTYPE"]

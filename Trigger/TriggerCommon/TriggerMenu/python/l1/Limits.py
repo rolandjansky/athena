@@ -22,7 +22,7 @@ class Access(type):
             raise AttributeError("Neither class 'CTPdataformat' nor class 'L1Common' have an attribute '%s'" % key)
     
     def __str__(cls):
-        if cls.ctpDataFormat == None:
+        if cls.ctpDataFormat is None:
             return "None"
 
         s = "CTP DataFormat version %i\n" % cls.CTPVersion

@@ -275,6 +275,8 @@ if TriggerFlags.doCalo():
     DetFlags.detdescr.Calo_setOn()
     from LArConditionsCommon.LArCondFlags import larCondFlags
     larCondFlags.LoadElecCalib.set_Value_and_Lock(False)
+    from TrigT2CaloCommon.CaloDef import setMinimalCaloSetup
+    setMinimalCaloSetup()
 else:
     DetFlags.Calo_setOff()
 
@@ -352,7 +354,7 @@ if TriggerFlags.doCalo():
     from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigDataAccess
     svcMgr.ToolSvc += TrigDataAccess()
     if globalflags.InputFormat.is_pool():
-        TriggerFlags.writeBS = True # enable transient BS if TrigDataAccess is used with pool data
+        TriggerFlags.doTransientByteStream = True # enable transient BS if TrigDataAccess is used with pool data
 
 if TriggerFlags.doMuon():
     TriggerFlags.MuonSlice.doTrigMuonConfig=True
@@ -371,7 +373,7 @@ if globalflags.InputFormat.is_pool():
     svcMgr.AthenaPoolCnvSvc.PoolAttributes = [ "DEFAULT_BUFFERSIZE = '2048'" ]
     svcMgr.PoolSvc.AttemptCatalogPatch=True
     # enable transient BS 
-    if TriggerFlags.writeBS():
+    if TriggerFlags.doTransientByteStream():
         log.info("setting up transient BS")
         include( "TriggerJobOpts/jobOfragment_TransBS_standalone.py" )
      

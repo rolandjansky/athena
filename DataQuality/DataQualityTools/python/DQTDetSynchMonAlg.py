@@ -3,8 +3,10 @@
 #
 def DQTDetSynchMonAlgConfig(flags):
     from AthenaMonitoring import AthMonitorCfgHelper
+    from AthenaConfiguration.ComponentFactory import CompFactory
     helper = AthMonitorCfgHelper(flags,'DQTDetSynchMonAlgCfg')
-    _DQTDetSynchMonAlgConfigCore(helper, flags.Common.isOnline, False)
+    _DQTDetSynchMonAlgConfigCore(helper, CompFactory.DQTDetSynchMonAlg,
+                                flags.Common.isOnline, False)
     acc = helper.result()
     # RPC currently crashes, switch off
     acc.getEventAlgo('DQTDetSynchMonAlg').doRPC = False
@@ -17,14 +19,13 @@ def DQTDetSynchMonAlgConfig(flags):
 def DQTDetSynchMonAlgConfigOld(flags):
     from AthenaMonitoring import AthMonitorCfgHelperOld
     from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+    from DataQualityTools.DataQualityToolsConf import DQTDetSynchMonAlg
     helper = AthMonitorCfgHelperOld(flags,'DQTDetSynchMonAlgCfg')
-    _DQTDetSynchMonAlgConfigCore(helper, athenaCommonFlags.isOnline, True)
+    _DQTDetSynchMonAlgConfigCore(helper, DQTDetSynchMonAlg, athenaCommonFlags.isOnline, True)
     return helper.result()
 
-def _DQTDetSynchMonAlgConfigCore(helper, isOnline=False, run2Compat=False):
-    from DataQualityTools.DataQualityToolsConf import DQTDetSynchMonAlg
-
-    monAlg = helper.addAlgorithm(DQTDetSynchMonAlg,'DQTDetSynchMonAlg')
+def _DQTDetSynchMonAlgConfigCore(helper, algConfObj, isOnline=False, run2Compat=False):
+    monAlg = helper.addAlgorithm(algConfObj,'DQTDetSynchMonAlg')
     monAlg.run2Compat = run2Compat
 
     # arguments are: algorithm, name of group used to access it from the alg,

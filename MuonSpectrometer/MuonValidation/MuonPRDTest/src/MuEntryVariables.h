@@ -40,7 +40,7 @@ class MuEntryVariables : public ValAlgVariables
   }
 
   StatusCode initializeVariables();
-  StatusCode fillVariables();
+  StatusCode fillVariables(const MuonGM::MuonDetectorManager* MuonDetMgr);
 
  private:
 

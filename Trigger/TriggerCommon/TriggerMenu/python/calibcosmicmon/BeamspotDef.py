@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ###########################################################################
 # SliceDef file for Beamspot chains
@@ -7,9 +7,7 @@
 __author__  = 'M.Backes, C.Bernius'
 __version__=""
 __doc__="Implementation of beamspot chains "
-from TriggerMenu.menu.HltConfig import *
-from AthenaCommon.Include import include
-from AthenaCommon.SystemOfUnits import GeV
+from TriggerMenu.menu.HltConfig import L2EFChainDef, mergeRemovingOverlap
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
@@ -112,7 +110,6 @@ class L2EFChain_Beamspot(L2EFChainDef):
         TrigL2SiTrackFinder_Config = __import__('TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config', fromlist=[""])      
         my_trk_alg = getattr(TrigL2SiTrackFinder_Config, "TrigL2SiTrackFinder_BeamSpotB") 
         trk_alg = [my_trk_alg()] 
-        teaddition = 'L2StarB'
         
      elif ('trkfast' in self.l2IDAlg):
         if 'trkFS' in self.chainPart['addInfo'] :
@@ -129,7 +126,6 @@ class L2EFChain_Beamspot(L2EFChainDef):
 
         from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
         [trk_alg] = TrigInDetSequence("BeamSpot", "beamSpot", "IDTrig", sequenceFlavour=["FTF"]).getSequence()
-        teaddition = 'trkfast'
         
      elif ('FTK' in self.l2IDAlg):
         if 'trkFS' in self.chainPart['addInfo'] :
@@ -161,7 +157,6 @@ class L2EFChain_Beamspot(L2EFChainDef):
         else:   
            from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
            [trk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", [""]).getSequence()
-        teaddition = 'trkFTK'
 
      elif ('FTKRefit' in self.l2IDAlg):
         if 'trkFS' in self.chainPart['addInfo'] :
@@ -189,7 +184,6 @@ class L2EFChain_Beamspot(L2EFChainDef):
         else: 
            from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
            [trk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", ["refit"]).getSequence()
-           teaddition = 'trkFTKRefit'
 
      else:
         mlog.error('Cannot assemble chain %s - only configured for L2StarB' % (self.chainPartName))        

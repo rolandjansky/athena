@@ -6,9 +6,7 @@
 #define TRIGTAURECMERGEDMT_H
 
 // general athena stuff
-//#include "GaudiKernel/IToolSvc.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
-//#include "TrigTimeAlgs/TrigTimer.h"
 
 //Gaudi 
 #include "GaudiKernel/ToolHandle.h" 
@@ -92,18 +90,16 @@ class TrigTauRecMergedMT: public AthAlgorithm {
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
 
   //Gaudi::Property< std::string > m_outputName {this,"OutputCollection","TrigTauRecMerged","Name of output collection"};
-  SG::ReadHandleKey< TrigRoiDescriptorCollection > m_roIInputKey { this,"RoIInputKey","Undefined",""};
-  SG::ReadHandleKey< TrigRoiDescriptorCollection > m_L1RoIKey    { this, "L1RoIKey","Undefined",""};
-  SG::ReadHandleKey< xAOD::CaloClusterContainer > m_clustersKey  { this, "clustersKey", "Undefined", "caloclusters in view" };
-  SG::ReadHandleKey< xAOD::TrackParticleContainer > m_tracksKey  { this, "Key_trackPartInputContainer", "Undefined", "input track particle container key"};
-  SG::ReadHandleKey< xAOD::VertexContainer> m_vertexKey          { this, "Key_vertexInputContainer", "Undefined", "input vertex container key"};
-  SG::ReadHandleKey< xAOD::TauJetContainer> m_trigTauJetKey      { this, "TrigTauJet", "Undefined", "input taujet container" };
-
-  Gaudi::Property<bool> m_useCaloClusters {this, "UseCaloClusters", true, "Use the data object"};
+  SG::ReadHandleKey< TrigRoiDescriptorCollection > m_roIInputKey { this,"RoIInputKey","InputRoI","Input RoI name"};
+  SG::ReadHandleKey< TrigRoiDescriptorCollection > m_L1RoIKey    { this, "L1RoIKey","L1RoI","L1 RoI name"};
+  SG::ReadHandleKey< xAOD::CaloClusterContainer > m_clustersKey  { this, "clustersKey", "CaloClusters", "caloclusters in view" };
+  SG::ReadHandleKey< xAOD::TrackParticleContainer > m_tracksKey  { this, "Key_trackPartInputContainer", "InDetTrackParticles", "input track particle container key"};
+  SG::ReadHandleKey< xAOD::VertexContainer> m_vertexKey          { this, "Key_vertexInputContainer", "PrimaryVertices", "input vertex container key"};
+  SG::ReadHandleKey< xAOD::TauJetContainer> m_trigTauJetKey      { this, "Key_trigTauJetInputContainer", "HLT_taujet", "input taujet container" };
   
   SG::WriteHandleKey< xAOD::JetContainer > m_trigtauSeedOutKey   { this,"TrigTauJetOutputKey","HLT_seed_tau_jet","Key for output jets which are seed for tau jets"};
-  SG::WriteHandleKey< xAOD::TauJetContainer > m_trigtauRecOutKey {this,"TrigTauRecOutputKey","HLT_taujet","Output taujet container"};
-  SG::WriteHandleKey< xAOD::TauTrackContainer > m_trigtauTrkOutKey {this,"TrigTauTrkOutputKey","HLT_tautrack","Output tautrack container"};
+  SG::WriteHandleKey< xAOD::TauJetContainer > m_trigtauRecOutKey {this,"Key_trigTauJetOutputContainer","HLT_taujet","Output taujet container"};
+  SG::WriteHandleKey< xAOD::TauTrackContainer > m_trigtauTrkOutKey {this,"Key_trigTauJetInputContainer","HLT_tautrack","Output tautrack container"};
 
   Gaudi::Property< float > m_maxeta         { this, "maxeta", 2.5,"max eta for tau"};
   Gaudi::Property< float > m_minpt          { this, "minpt", 10000.0, "min pt for tau"};

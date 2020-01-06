@@ -10,7 +10,7 @@
 # art-output: dcube-id
 
 inputRefDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-refs/${AtlasBuildBranch}/test_ttFC_reco_newTracking_PseudoT_fullSim_fullDigi"
-inputXmlDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-configs"
+inputXmlDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-configs/${AtlasBuildBranch}"
 art_dcube="/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube"
 dcubeName="ttFC_reco_newTracking_PseudoT_fullSim_fullDigi"
 dcubeXmlID="${inputXmlDir}/dcube_indetplots.xml"

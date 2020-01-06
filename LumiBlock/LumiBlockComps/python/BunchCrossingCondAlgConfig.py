@@ -15,7 +15,7 @@ def BunchCrossingCondAlgCfg(configFlags):
 
     if (configFlags.Input.isMC):
         folder = "/Digitization/Parameters"
-        result.merge(addFolders(configFlags,folder,"",className="AthenaAttributeList"))
+        result.merge(addFolders(configFlags,folder,None,className="AthenaAttributeList"))
     else: #data case
         folder = '/TDAQ/OLC/LHC/FILLPARAMS'
         result.merge(addFolders(configFlags,folder,'TDAQ',className = 'AthenaAttributeList'))

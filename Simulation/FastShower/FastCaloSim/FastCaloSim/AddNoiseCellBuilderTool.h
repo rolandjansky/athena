@@ -14,14 +14,10 @@
 #include "CaloInterface/ICaloEstimatedGainTool.h"
 #include "CaloConditions/CaloNoise.h"
 #include "StoreGate/ReadCondHandleKey.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/IAthRNGSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include <string>
-
-namespace CLHEP {
-  class HepRandomEngine;
-}
 
 class AddNoiseCellBuilderTool: public BasicCellBuilderTool
 {
@@ -46,10 +42,9 @@ private:
   ToolHandle<ICaloEstimatedGainTool> m_estimatedGain
   { this, "CaloEstimatedGainTool", "CaloEstimatedGainTool", "Estimated gain tool." };
 
-  ServiceHandle<IAtRndmGenSvc>   m_rndmSvc;
-  CLHEP::HepRandomEngine*        m_randomEngine{};
-  std::string                    m_randomEngineName{"FastCaloSimNoiseRnd"};         //!< Name of the random number stream
-  bool m_donoise{true};
+  ServiceHandle<IAthRNGSvc> m_rndmGenSvc{this, "RandomSvc", "AthRNGSvc", ""};
+  Gaudi::Property<std::string> m_randomEngineName{this, "RandomStreamName", "FastCaloSimNoiseRnd", "Name of the random number stream"};
+  Gaudi::Property<bool> m_donoise{this, "doNoise", true};
 };
 
 #endif

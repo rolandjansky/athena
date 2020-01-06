@@ -42,11 +42,11 @@ def setupMenu():
 
         ChainProp(name='HLT_mu20_ivar_L1MU6',      groups=SingleMuonGroup),
         ChainProp(name='HLT_mu6_ivarmedium_L1MU6', groups=SingleMuonGroup),
-#        ChainProp(name='HLT_mu6_mu6noL1_L1MU6', l1SeedThresholds=['MU6',''], groups=MultiMuonGroup),
+#        ChainProp(name='HLT_mu6_mu6noL1_L1MU6', l1SeedThresholds=['MU6','FSNOSEED'], groups=MultiMuonGroup),
         ChainProp(name='HLT_mu6_msonly_L1MU6',     groups=SingleMuonGroup),
 
         ChainProp(name='HLT_2mu6_10invm70_L1MU6', groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu10_lateMu_L1MU10', l1SeedThresholds=[''], groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu10_lateMu_L1MU10', l1SeedThresholds=['FSNOSEED'], groups=SingleMuonGroup),
 
         # ATR-20049
         ChainProp(name='HLT_mu6_mu4_L12MU4',  l1SeedThresholds=['MU4']*2, groups=MultiMuonGroup),
@@ -60,6 +60,19 @@ def setupMenu():
         ChainProp(name='HLT_e7_etcut_L1EM3', stream=[PhysicsStream, 'express'], groups=SingleElectronGroup),
 
         ChainProp(name='HLT_2e3_etcut_L12EM3', stream=[PhysicsStream], groups=MultiElectronGroup),
+
+        # low et threshold for debugging
+        ChainProp(name='HLT_e5_lhloose_L1EM3', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e5_lhmedium_L1EM3', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e5_lhtight_L1EM3', groups=SingleElectronGroup),
+
+        # Primary
+        ChainProp(name='HLT_e26_lhtight_L1EM24VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e60_lhmedium_L1EM24VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e140_lhloose_L1EM24VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e300_etcut_L1EM24VHI', groups=SingleElectronGroup),
+
+        ChainProp(name='HLT_2e17_lhvloose_L12EM3', stream=[PhysicsStream], groups=MultiElectronGroup),
 
         # PhotonChains------------
         # these are to debug photon working points should be removed in production
@@ -134,12 +147,12 @@ def setupMenu():
     TriggerFlags.HeavyIonSlice.signatures  = TriggerFlags.HeavyIonSlice.signatures() + []
     TriggerFlags.BeamspotSlice.signatures  = TriggerFlags.BeamspotSlice.signatures() + []
     TriggerFlags.MinBiasSlice.signatures   = TriggerFlags.MinBiasSlice.signatures() + [
-    ChainProp(name='HLT_mb_sptrk_L1RD0_FILLED',        l1SeedThresholds=[''], stream=[PhysicsStream], groups=MinBiasGroup),
+    ChainProp(name='HLT_mb_sptrk_L1RD0_FILLED',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup),
     ]
     TriggerFlags.CalibSlice.signatures     = TriggerFlags.CalibSlice.signatures() + []
     TriggerFlags.CosmicSlice.signatures    = TriggerFlags.CosmicSlice.signatures() + []
     TriggerFlags.StreamingSlice.signatures = TriggerFlags.StreamingSlice.signatures() + [
-        ChainProp(name='HLT_noalg_L1EM3',        l1SeedThresholds=[''], stream=[PhysicsStream], groups=EgammaStreamersGroup),
+        ChainProp(name='HLT_noalg_L1EM3',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=EgammaStreamersGroup),
     ]
     TriggerFlags.MonitorSlice.signatures   = TriggerFlags.MonitorSlice.signatures() + [
     ]

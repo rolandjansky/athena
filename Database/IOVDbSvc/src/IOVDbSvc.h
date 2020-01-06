@@ -177,8 +177,6 @@ private:
   StatusCode setupFolders();
   StatusCode fillTagInfo();
   StatusCode loadCaches(IOVDbConn* conn, const IOVTime* time=nullptr);
-  void printMetaDataContainer(const IOVMetaDataContainer* cont);
-  void dumpKeys();
 
   // job option parameters
   // default database connection
@@ -197,8 +195,6 @@ private:
   BooleanProperty                m_par_manageConnections;
   //  a flag to manage pool connections
   BooleanProperty                m_par_managePoolConnections;
-  // flag to dump SG keys at end of first event
-  bool m_par_dumpkeys;
   //  a global force run number
   IntegerProperty                m_par_forceRunNumber;
   //  a global force lumiblock number

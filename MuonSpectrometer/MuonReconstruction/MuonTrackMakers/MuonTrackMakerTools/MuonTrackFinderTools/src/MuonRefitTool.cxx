@@ -29,7 +29,6 @@
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonRecToolInterfaces/IMuonTrackExtrapolationTool.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
-#include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonCompetingClustersOnTrackCreator.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkExInterfaces/IExtrapolator.h"
@@ -58,8 +57,6 @@ namespace Muon {
     m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
     m_muonExtrapolator("Trk::Extrapolator/MuonExtrapolator"),
     m_mdtRotCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"),
-    m_cscRotCreator("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator"),
-    m_triggerRotCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),
     m_compClusterCreator("Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator"),
     m_t0Fitter(""),
     m_muonEntryTrackExtrapolator("Muon::MuonTrackExtrapolationTool/MuonTrackExtrapolationTool"),
@@ -112,8 +109,6 @@ namespace Muon {
     declareProperty("MuonExtrapolator", m_muonExtrapolator );
     declareProperty("MuonEntryExtrapolationTool", m_muonEntryTrackExtrapolator );
     declareProperty("MdtRotCreator",m_mdtRotCreator);
-    declareProperty("CscRotCreator",m_cscRotCreator);
-    declareProperty("TriggerRotCreator",m_triggerRotCreator);
     declareProperty("DeweightBEE", m_deweightBEE = false );
     declareProperty("DeweightEE",  m_deweightEE = false );
     declareProperty("DeweightBIS78", m_deweightBIS78 = true );
@@ -154,11 +149,6 @@ namespace Muon {
     ATH_MSG_INFO("Retrieved " << m_trackFitter );
 
     ATH_CHECK( m_mdtRotCreator.retrieve() );
-    if(!m_cscRotCreator.empty()) {
-      if (!m_idHelperSvc->hasCSC()) ATH_MSG_WARNING("The current layout does not have any CSC chamber but you gave a CscRotCreator, ignoring it, but double-check configuration");
-      else ATH_CHECK( m_cscRotCreator.retrieve() );
-    }
-    if(!m_triggerRotCreator.empty()) ATH_CHECK( m_triggerRotCreator.retrieve() );
     if(!m_compClusterCreator.empty()) ATH_CHECK( m_compClusterCreator.retrieve() );
 
     if( !m_t0Fitter.empty() ){

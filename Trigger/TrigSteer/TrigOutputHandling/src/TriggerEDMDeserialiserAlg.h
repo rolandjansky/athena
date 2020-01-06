@@ -80,7 +80,7 @@ private:
 
   /**
    * string description of the collection stored in the next fragment, 
-   * returns transient type name, persistent type name and the SG key
+   * returns persistent type name and the SG key
    **/
   std::vector<std::string> collectionDescription( PayloadIterator start ) const;
 

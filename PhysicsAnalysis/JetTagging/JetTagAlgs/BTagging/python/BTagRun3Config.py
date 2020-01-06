@@ -129,7 +129,7 @@ def BTagCfg(inputFlags,**kwargs):
     release = kwargs.get('Release', None)
     if release: del kwargs['Release']
 
-    from TrkDetDescrSvc.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+    from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
     acc = TrackingGeometrySvcCfg(inputFlags)
     result.merge(acc)
 

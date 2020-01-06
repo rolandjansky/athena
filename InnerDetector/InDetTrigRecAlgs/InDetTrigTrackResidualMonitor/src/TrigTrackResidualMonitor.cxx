@@ -4,6 +4,7 @@
 
 #include "InDetTrigTrackResidualMonitor/TrigTrackResidualMonitor.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
+#include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "TrkTrack/Track.h"
 #include "GaudiKernel/MsgStream.h"
 #include "TrkEventPrimitives/ResidualPull.h"
@@ -34,11 +35,10 @@
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkGeometry/Layer.h"
-#include "TrkTrackSummaryTool/TrackSummaryTool.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkTrackSummary/MuonTrackSummary.h"
-#include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "TrkToolInterfaces/IResidualPullCalculator.h"
 
 ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
 

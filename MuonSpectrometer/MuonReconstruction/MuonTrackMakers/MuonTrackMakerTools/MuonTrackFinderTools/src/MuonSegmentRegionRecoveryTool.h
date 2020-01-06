@@ -52,6 +52,8 @@
 #include "MuonPrepRawData/sTgcPrepDataCollection.h"
 #include "MuonPrepRawData/MMPrepDataCollection.h"
 
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
+
 #include "MuonIdHelpers/MuonStationIndex.h"
 #include "IRegionSelector/RegSelEnums.h"
 
@@ -78,10 +80,6 @@ class ITrackingGeometrySvc;
 class MuonStationIntersectSvc;
 class MdtCondDbData;
 
-
-namespace MuonGM {
-  class MuonDetectorManager;
-}
 
 namespace Trk {
   class Track;
@@ -163,7 +161,9 @@ namespace Muon {
 
     const Trk::Track* findHoles( const Trk::Track& track, MuonData& data ) const;
     
-    const MuonGM::MuonDetectorManager*  m_detMgr;
+    SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+	"MuonDetectorManager", 
+	"Key of input MuonDetectorManager condition data"};    
     
     ToolHandle<IMuonSeededSegmentFinder>        m_seededSegmentFinder
       {this, "SeededSegmentFinder", "Muon::MuonSeededSegmentFinder/MuonSeededSegmentFinder"};            //!< seeded segment finder

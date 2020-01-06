@@ -22,9 +22,7 @@ class SortByLargerComponentWeight
 {
 public:
   SortByLargerComponentWeight(){};
-
   bool operator()(const ComponentParameters firstComponent, const ComponentParameters secondComponent) const
-
   {
     return firstComponent.second > secondComponent.second;
   }
@@ -32,10 +30,8 @@ public:
 
 class SortByLargerWeight
 {
-
 public:
   SortByLargerWeight(){};
-
   bool operator()(const double& firstWeight, const double& secondWeight) const { return firstWeight > secondWeight; }
 };
 

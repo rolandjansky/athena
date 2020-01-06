@@ -12,7 +12,7 @@ description          : Implementation code for MultiComponentStateCombiner class
 *********************************************************************************/
 
 #include "TrkGaussianSumFilter/MultiComponentStateCombiner.h"
-#include "MultiComponentStateModeCalculator.h"
+#include "TrkGaussianSumFilter/MultiComponentStateModeCalculator.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/Surface.h"
 

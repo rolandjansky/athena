@@ -388,6 +388,7 @@ namespace Muon {
     if( track ) ++m_nsuccess;
     
     localGarbage.cleanUp();
+    m_hitHandler->cleanUp();
     if( msgLvl(MSG::DEBUG) && track ) msg(MSG::DEBUG) << MSG::DEBUG << " Track found " << endmsg;
     return track;
   }

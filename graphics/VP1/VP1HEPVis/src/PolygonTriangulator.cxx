@@ -109,7 +109,6 @@ namespace internal_poltrig {
 
 #define sqr(t)  (t)*(t)
 
-  const double    PI=3.141592653589793238462643383279502884197169399375105820974944592308;
   enum  Type      { UNKNOWN, INPUT, INSERT, START, END, MERGE, SPLIT, REGULAR_UP, REGULAR_DOWN};
 
   class   Pointbase;

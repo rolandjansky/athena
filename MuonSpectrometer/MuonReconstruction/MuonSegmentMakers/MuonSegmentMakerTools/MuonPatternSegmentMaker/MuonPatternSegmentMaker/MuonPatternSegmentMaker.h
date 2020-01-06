@@ -39,10 +39,6 @@ class StoreGateSvc;
 class Identifier;
 
 
-namespace MuonGM {
-  class MuonDetectorManager;
-}
-
 namespace Trk {
   class RIO_OnTrack;
   class PrepRawData;

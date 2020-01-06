@@ -41,7 +41,7 @@ class Isolation:
         self.isolation = {'EMIsoForEMthr': Isolation.IsoGroup(), 'HAIsoForEMthr': Isolation.IsoGroup(), 'EMIsoForTAUthr': Isolation.IsoGroup()}
 
     def __getitem__(self,k):
-        if not k in self.isolation:
+        if k not in self.isolation:
             raise RuntimeError("Isolation group %s doesn't exist. Should be one of %s" % (k, ','.join(self.isolation.keys())) )
         return self.isolation[k]
         
@@ -64,7 +64,7 @@ class MinimumTOBPt(object):
         self.etamax     = int(etamax)
         self.priority   = int(priority)
         self.window     = int(window)
-        if not self.thrtype in [ "JETS", "JETL", "EM", "TAU"]:
+        if self.thrtype not in [ "JETS", "JETL", "EM", "TAU"]:
             raise RuntimeError("Unknown type %s for Minimum TOB PT, must be JETS, JETL, EM, or TAU")
         
 
@@ -107,7 +107,7 @@ class CaloInfo:
 
     def setXsParams( self, **args ):
         for k in args:
-            if not k in self.xsParams:
+            if k not in self.xsParams:
                 raise RuntimeError ("'%s' is not a MET significance parameter" %  k)
             self.xsParams[k]  = args[k]
 

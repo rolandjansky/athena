@@ -2,7 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from TrkExTools.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
 
 # import the TrackToVertexIPEstimator configurable
 Reco__TrackToVertex=CompFactory.Reco__TrackToVertex

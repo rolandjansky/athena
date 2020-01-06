@@ -58,8 +58,8 @@ TNamed* HistogramFactory::create(const HistogramDef& def) {
 
 template<class H> 
 TH1* HistogramFactory::create1D(const HistogramDef& def) {
-  if ( def.xArray.size()!=0 ) {
-    return create<H,TH1>(def, def.xbins, &(def.xArray)[0]);
+  if ( def.xarray.size()!=0 ) {
+    return create<H,TH1>(def, def.xbins, &(def.xarray)[0]);
   } else {
     return create<H,TH1>(def, def.xbins, def.xmin, def.xmax);
   }
@@ -67,8 +67,8 @@ TH1* HistogramFactory::create1D(const HistogramDef& def) {
 
 template<class H> 
 TH1* HistogramFactory::create1DProfile(const HistogramDef& def) {
-  if (def.xArray.size()!=0) {
-    return create<H,TH1>(def, def.xbins, &(def.xArray)[0],
+  if (def.xarray.size()!=0) {
+    return create<H,TH1>(def, def.xbins, &(def.xarray)[0],
                               def.ymin, def.ymax);
   } else {
     return create<H,TH1>(def, def.xbins, def.xmin, def.xmax, 
@@ -78,14 +78,14 @@ TH1* HistogramFactory::create1DProfile(const HistogramDef& def) {
 
 template<class H> 
 TH2* HistogramFactory::create2D(const HistogramDef& def) {
-  if (def.xArray.size()!=0 && def.yArray.size()!=0) {
-    return create<H,TH2>(def, def.xbins, &(def.xArray)[0],
-                              def.ybins, &(def.yArray)[0]);
-  } else if (def.yArray.size()!=0) {
+  if (def.xarray.size()!=0 && def.yarray.size()!=0) {
+    return create<H,TH2>(def, def.xbins, &(def.xarray)[0],
+                              def.ybins, &(def.yarray)[0]);
+  } else if (def.yarray.size()!=0) {
     return create<H,TH2>(def, def.xbins, def.xmin, def.xmax,
-                              def.ybins, &(def.yArray)[0]);
-  } else if (def.xArray.size()!=0) {
-    return create<H,TH2>(def, def.xbins, &(def.xArray)[0],
+                              def.ybins, &(def.yarray)[0]);
+  } else if (def.xarray.size()!=0) {
+    return create<H,TH2>(def, def.xbins, &(def.xarray)[0],
                               def.ybins, def.ymin, def.ymax);
   } else {
     return create<H,TH2>(def, def.xbins, def.xmin, def.xmax,
@@ -95,14 +95,14 @@ TH2* HistogramFactory::create2D(const HistogramDef& def) {
 
 template<class H> 
 TH2* HistogramFactory::create2DProfile(const HistogramDef& def) {
-  if (def.xArray.size()!=0 && def.yArray.size()!=0) {
-    return create<H,TH2>(def, def.xbins, &(def.xArray)[0],
-                              def.ybins, &(def.yArray)[0]);
-  } else if (def.yArray.size()!=0) {
+  if (def.xarray.size()!=0 && def.yarray.size()!=0) {
+    return create<H,TH2>(def, def.xbins, &(def.xarray)[0],
+                              def.ybins, &(def.yarray)[0]);
+  } else if (def.yarray.size()!=0) {
     return create<H,TH2>(def, def.xbins, def.xmin, def.xmax, 
-                              def.ybins, &(def.yArray)[0]);
-  } else if (def.xArray.size()!=0) {
-    return create<H,TH2>(def, def.xbins, &(def.xArray)[0],
+                              def.ybins, &(def.yarray)[0]);
+  } else if (def.xarray.size()!=0) {
+    return create<H,TH2>(def, def.xbins, &(def.xarray)[0],
                               def.ybins, def.ymin, def.ymax);
   } else {
     return create<H,TH2>(def, def.xbins, def.xmin, def.xmax, 
@@ -155,7 +155,7 @@ HBASE* HistogramFactory::create(const HistogramDef& def, Types&&... hargs) {
   }
   h->GetYaxis()->SetTitleOffset(1.25); // magic shift to make histograms readable even if no post-procesing is done
 
-  setLabels(h, def.labels);
+  setLabels(h, def);
   setOpts(h, def.opt);
 
   return h;
@@ -171,24 +171,31 @@ void HistogramFactory::setOpts(TH1* hist, const std::string& opt) {
   hist->Sumw2(shouldActivateSumw2);
 }
 
-void HistogramFactory::setLabels(TH1* hist, const std::vector<std::string>& labels) {
-  if (labels.empty()){
-    return;
-  }
-  
-  for ( int i = 0; i < std::min( (int)labels.size(), (int)hist->GetNbinsX() ); ++i ) {
-    int bin = i+1;
-    hist->GetXaxis()->SetBinLabel(bin, labels[i].c_str());
+void HistogramFactory::setLabels(TH1* hist, const HistogramDef& def) {
+  if ( !def.xlabels.empty() ) {
+    int nBinX = hist->GetNbinsX();
+    for ( int xbin=0; xbin<nBinX; xbin++ ) {
+      hist->GetXaxis()->SetBinLabel(xbin+1, def.xlabels[xbin].c_str());
+    }
   }
 
-  for ( int i = (int)hist->GetNbinsX(); i < std::min( (int)labels.size(), (int)hist->GetNbinsX()+(int)hist->GetNbinsY() ); ++i ) {
-    int bin = i+1-(int)hist->GetNbinsX();
-    hist->GetYaxis()->SetBinLabel(bin, labels[i].c_str());
+  if ( !def.ylabels.empty() ) {
+    int nBinY = hist->GetNbinsY();
+    for ( int ybin=0; ybin<nBinY; ybin++ ) {
+      hist->GetYaxis()->SetBinLabel(ybin+1, def.ylabels[ybin].c_str());
+    }
   }
+
+  if ( !def.zlabels.empty() ) {
+    int nBinZ = hist->GetNbinsZ();
+    for ( int zbin=0; zbin<nBinZ; zbin++ ) {
+      hist->GetZaxis()->SetBinLabel(zbin+1, def.zlabels[zbin].c_str());
+    }
+  }  
 }
 
-std::string HistogramFactory::getFullName(const HistogramDef& def) {
-  const static std::set<std::string> online( { "EXPERT", "SHIFT", "DEBUG", "RUNSTAT", "EXPRES" } );
+std::string HistogramFactory::getFullName(const HistogramDef& def) const {
+  const static std::set<std::string> online( { "EXPERT", "SHIFT", "DEBUG", "RUNSTAT", "EXPRESS" } );
   
   std::string path;
   if ( online.count( def.path)!=0 ) {

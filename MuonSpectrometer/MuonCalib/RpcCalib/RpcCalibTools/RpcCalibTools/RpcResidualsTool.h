@@ -62,7 +62,12 @@ class RpcResidualsTool: public AthAlgTool{
 
   std::string m_clusCollection;
   ActiveStoreSvc* m_activeStore;
-  const MuonGM::MuonDetectorManager* m_muonMgr;
+
+  // MuonDetectorManager from the conditions store
+  SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+      "MuonDetectorManager", 
+      "Key of input MuonDetectorManager condition data"};    
+  
   ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
     "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   RpcExtrapolationTool*           m_rpcExtrapolTool;

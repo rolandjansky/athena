@@ -16,9 +16,12 @@ __doc__ = "streamline and ease the creation of new AthAnalysisAlgorithm"
 ### imports -------------------------------------------------------------------
 import os
 import textwrap
-import commands
 import PyUtils.acmdlib as acmdlib
 import fileinput
+
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 class Templates:
     alg_hdr_template = """\
@@ -394,7 +397,7 @@ DECLARE_ALGORITHM_FACTORY( %(klass)s )
         print ("::: ERROR Please do this and reconfigure cmake manually!")
     else:
         print (":::  INFO Reconfiguring cmake %s/../." % workDir)
-        res = commands.getstatusoutput('cmake %s/../.' % workDir)
+        res = subprocess.getstatusoutput('cmake %s/../.' % workDir)
         if res[0]!=0:
             print (":::  WARNING reconfigure unsuccessful. Please reconfigure manually!")
         

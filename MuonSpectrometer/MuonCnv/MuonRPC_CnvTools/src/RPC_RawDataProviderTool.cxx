@@ -4,7 +4,6 @@
 
 #include "RPC_RawDataProviderTool.h"
 
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 
 #include "GaudiKernel/ServiceHandle.h"

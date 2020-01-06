@@ -19,11 +19,11 @@ decription           : Class for merging components of a multi-state based on
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/IChronoStatSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
+
 #include "GaudiKernel/ToolHandle.h"
-#include "TrkGaussianSumFilter/IMultiComponentStateAssembler.h"
+#include "TrkGaussianSumFilter/MultiComponentStateAssembler.h"
 #include "TrkGaussianSumFilter/IMultiComponentStateMerger.h"
 #include "TrkGaussianSumFilter/SortingClasses.h"
-
 
 
 namespace Trk {
@@ -67,16 +67,9 @@ private:
     " Combonent combiner"
   };
 
-  ToolHandle<Trk::IMultiComponentStateAssembler> m_stateAssembler{
-    this,
-    "MultiComponentStateAssembler",
-    "Trk::MultiComponentStateAssembler/CloseComponentsStateAssembler",
-    " "
-  };
-
   ServiceHandle<IChronoStatSvc> m_chronoSvc; //!< Timing: The Gaudi time auditing service
 
-  std::unique_ptr<MultiComponentState> mergeFullDistArray(IMultiComponentStateAssembler::Cache& cache,
+  std::unique_ptr<MultiComponentState> mergeFullDistArray(MultiComponentStateAssembler::Cache& cache,
                                                           SimpleMultiComponentState& ) const;
 
 

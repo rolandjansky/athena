@@ -38,7 +38,9 @@ def TileMBTSMonitoringConfig(flags, **kwargs):
     helper = AthMonitorCfgHelper(flags, 'TileMBTSMonAlgCfg')
 
     runNumber = flags.Input.RunNumber[0]
-    _TileMBTSMonitoringConfigCore(helper, runNumber, **kwargs)
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    _TileMBTSMonitoringConfigCore(helper, CompFactory.TileMBTSMonitorAlgorithm,
+                                runNumber, **kwargs)
 
     accumalator = helper.result()
     result.merge(accumalator)
@@ -60,20 +62,20 @@ def TileMBTSMonitoringConfigOld(flags, **kwargs):
     from RecExConfig.AutoConfiguration import GetRunNumber
     runNumber = GetRunNumber()
 
-    _TileMBTSMonitoringConfigCore(helper, runNumber, **kwargs)
+    from TileMonitoring.TileMonitoringConf import TileMBTSMonitorAlgorithm
+    _TileMBTSMonitoringConfigCore(helper, TileMBTSMonitorAlgorithm, runNumber, **kwargs)
 
     return helper.result()
 
 
-def _TileMBTSMonitoringConfigCore(helper, runNumber, **kwargs):
+def _TileMBTSMonitoringConfigCore(helper, algConfObj, runNumber, **kwargs):
 
     ''' Function to configure TileMBTSMonitorAlgorithm algorithm in the monitoring system.'''
 
     run = str(runNumber)
 
     # Adding an TileMBTSMonitorAlgorithm algorithm to the helper
-    from TileMonitoring.TileMonitoringConf import TileMBTSMonitorAlgorithm
-    tileMBTSMonAlg = helper.addAlgorithm(TileMBTSMonitorAlgorithm, 'TileMBTSMonAlg')
+    tileMBTSMonAlg = helper.addAlgorithm(algConfObj, 'TileMBTSMonAlg')
 
     tileMBTSMonAlg.TriggerChain = ''
 
@@ -95,8 +97,8 @@ def _TileMBTSMonitoringConfigCore(helper, runNumber, **kwargs):
 
     numberOfMBTS = 32
 
-    labelsMBTS  =  ['MBTSA' + ('0' if x < 10 else '') + str(x) for x in range(0, numberOfMBTS / 2)]
-    labelsMBTS +=  ['MBTSC' + ('0' if x < 10 else '') + str(x) for x in range(0, numberOfMBTS / 2)]
+    labelsMBTS  =  ['MBTSA' + ('0' if x < 10 else '') + str(x) for x in range(0, numberOfMBTS // 2)]
+    labelsMBTS +=  ['MBTSC' + ('0' if x < 10 else '') + str(x) for x in range(0, numberOfMBTS // 2)]
 
 
     # 2) Configure MBTS occupancy histogram

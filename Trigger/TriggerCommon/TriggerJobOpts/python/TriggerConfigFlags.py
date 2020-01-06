@@ -57,8 +57,11 @@ def createTriggerFlags():
     import os
     flags.addFlag('Trigger.Online.partitionName', os.getenv('TDAQ_PARTITION') or '')
     
-    # enable streaming of HLT content as BS payload
+    # write BS output file
     flags.addFlag('Trigger.writeBS', False)
+
+    # Write transient BS before executing HLT algorithms (for running on MC RDO with clients which require BS inputs)
+    flags.addFlag('Trigger.doTransientByteStream', False)
 
     # list of EDM objects to be written to AOD
     flags.addFlag('Trigger.AODEDMSet', 'AODSLIM')
@@ -91,6 +94,9 @@ def createTriggerFlags():
 
     # name of the trigger menu
     flags.addFlag('Trigger.triggerMenuSetup', 'LS2_v1')
+
+    # name of the trigger menu
+    flags.addFlag('Trigger.generateMenuDiagnostics', False)
 
     # version of the menu
     from AthenaCommon.AppMgr import release_metadata

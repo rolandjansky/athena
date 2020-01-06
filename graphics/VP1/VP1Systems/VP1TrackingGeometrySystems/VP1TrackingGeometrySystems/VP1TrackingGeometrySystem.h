@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef VP1TRACKINGGEOMETRYSYSTEM_H
@@ -56,7 +56,7 @@ private:
   QByteArray saveState();
   void restoreFromState( QByteArray ba);
     
-  class Imp;
+  struct Imp;
   Imp* m_d;
 };
 

@@ -39,7 +39,6 @@ namespace Muon {
   CscClusterOnTrackCreator::CscClusterOnTrackCreator
   (const std::string& ty,const std::string& na,const IInterface* pa)
     : AthAlgTool(ty,na,pa),
-      m_muonMgr(0),
       m_stripFitter("CalibCscStripFitter/CalibCscStripFitter", this),
       m_clusterFitter("QratCscClusterFitter/QratCscClusterFitter", this),
       m_clusterUtilTool("CscClusterUtilTool/CscClusterUtilTool", this),
@@ -72,11 +71,6 @@ namespace Muon {
     if ( AthAlgTool::initialize().isFailure() ){
       ATH_MSG_ERROR ( " AlgTool::initialize failed " );
       return StatusCode::FAILURE;
-    }
-
-    if ( detStore()->retrieve( m_muonMgr ).isFailure() ) {
-	ATH_MSG_ERROR ( " Cannot retrieve MuonGeoModel " );
-	return StatusCode::FAILURE;
     }
 
     ATH_CHECK( m_idHelperSvc.retrieve() );

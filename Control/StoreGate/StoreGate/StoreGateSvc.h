@@ -1065,23 +1065,23 @@ public:
   //@{
   /// DEPRECATED: Retrieve the default object into a const DataHandle
   template <typename T> 
-  StatusCode SG_DEPRECATED retrieve(const DataHandle<T>& handle) const;
+  StatusCode SG_DEPRECATED retrieve ATLAS_NOT_THREAD_SAFE (const DataHandle<T>& handle) const;
 
   /// DEPRECATED: Retrieve the default object into a DataHandle
   template <typename T> 
-  StatusCode SG_DEPRECATED retrieve(DataHandle<T>& handle) const;
+  StatusCode SG_DEPRECATED retrieve ATLAS_NOT_THREAD_SAFE (DataHandle<T>& handle) const;
 
   /// DEPRECATED: Retrieve an object with "key", into a const DataHandle
   template <typename T, typename TKEY> 
-  StatusCode SG_DEPRECATED retrieve(const DataHandle<T>& handle, const TKEY& key) const;
+  StatusCode SG_DEPRECATED retrieve ATLAS_NOT_THREAD_SAFE (const DataHandle<T>& handle, const TKEY& key) const;
   /// DEPRECATED: Retrieve an object with "key", into a DataHandle
   template <typename T, typename TKEY> 
-  StatusCode SG_DEPRECATED retrieve(DataHandle<T>& handle, const TKEY& key) const;
+  StatusCode SG_DEPRECATED retrieve ATLAS_NOT_THREAD_SAFE (DataHandle<T>& handle, const TKEY& key) const;
 
   /// DEPRECATED Retrieve all objects of type T: use iterators version instead
   template <typename T> 
-  StatusCode SG_DEPRECATED retrieve(const DataHandle<T>& begin, 
-                                                  const DataHandle<T>& end) const;
+  StatusCode SG_DEPRECATED retrieve ATLAS_NOT_THREAD_SAFE (const DataHandle<T>& begin, 
+                                                           const DataHandle<T>& end) const;
   /// DEPRECATED, use version taking ref to vector
   template <typename T>
   std::vector<std::string> //FIXME inefficient. Should take ref to vector

@@ -20,8 +20,8 @@ def TileMuIdMonitoringConfig(flags, **kwargs):
     helper = AthMonitorCfgHelper(flags,'TileMuIdMonitoring')
 
     # Adding an TileCellMonitorAlgorithm algorithm to the helper
-    from TileMonitoring.TileMonitoringConf import TileMuIdMonitorAlgorithm
-    tileMuIdMonAlg = helper.addAlgorithm(TileMuIdMonitorAlgorithm, 'TileMuIdMonAlg')
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    tileMuIdMonAlg = helper.addAlgorithm(CompFactory.TileMuIdMonitorAlgorithm, 'TileMuIdMonAlg')
 
     tileMuIdMonAlg.TriggerChain = ''
 
@@ -236,7 +236,7 @@ if __name__=='__main__':
     cfg.printConfig(withDetails = True, summariseProps = True)
     ConfigFlags.dump()
 
-    cfg.store( open('TileMuIdMonitorAlgorithm.pkl','w') )
+    cfg.store( open('TileMuIdMonitorAlgorithm.pkl','wb') )
 
     sc = cfg.run(maxEvents=-1)
 
