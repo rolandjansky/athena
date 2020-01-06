@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUPATTRACK_H
@@ -11,35 +11,33 @@
 #include "TrkTrack/Track.h"
 #include "TrkParameters/TrackParameters.h"
 
-#include <vector>
+#include <mutex>
 #include <set>
 #include <string>
+#include <vector>
 
 namespace Muon {
 
-
-  /** 
-      @brief track candidate object. 
+  /**
+      @brief track candidate object.
       The purpose of the track candidate is three folded:
       - provide the generic MuPatCandidateBase interface for tracks
-      - keep track of segments used to build track 
-      - cache additional information that cannot be stored on the track 
-      
+      - keep track of segments used to build track
+      - cache additional information that cannot be stored on the track
+
       The following information is cached:
       - the stage during the pattern recognition the candidate was made (Moore legacy)
       - the pointer to the track
       - a vector of the segments that were used to form the track
       - a vector of the segments that were already tested against the candidate but failed.
-        This information can be used to speed up the pat-rec code by avoiding fits that 
-	were already tried.
-      
+        This information can be used to speed up the pat-rec code by avoiding fits that
+        were already tried.
    */
   class MuPatTrack : public MuPatCandidateBase {
 
     friend class MuPatCandidateTool;
-    
-  public:
 
+  public:
     /** enum to keep track of the life of candidates */
     enum ProcessingStage { Unknown,
                            InitialLoop,
@@ -63,21 +61,19 @@ namespace Muon {
     /** Convert enum to string */
     static const std::string& processingStageString( ProcessingStage stage );
 
-    static void initProcessingStageStrings();
-
     /** maximum width of the strings corresponding to the ProcessingStage */
     static unsigned int processingStageStringMaxLen();
-    
-    /** @brief constructor taking a vector of MuPatSegment object, the candidate takes ownership of the track 
+
+    /** @brief constructor taking a vector of MuPatSegment object, the candidate takes ownership of the track
                It will increase the usedInFit counter of the MuPatSegment objects by one. */
     MuPatTrack( const std::vector<MuPatSegment*>& segments, const Trk::Track* track , MuPatSegment* seedSeg=0 );
 
-    /** @brief constructor taking a MuPatSegment object, the candidate takes ownership of the track 
+    /** @brief constructor taking a MuPatSegment object, the candidate takes ownership of the track
                It will increase the usedInFit counter of the MuPatSegment objects by one. */
     MuPatTrack( MuPatSegment* segment, const Trk::Track* track );
 
-    /** @brief constructor taking two MuPatSegment objects, the candidate takes ownership of the track 
-	       It will increase the usedInFit counter of the MuPatSegment objects by one. */
+    /** @brief constructor taking two MuPatSegment objects, the candidate takes ownership of the track
+         It will increase the usedInFit counter of the MuPatSegment objects by one. */
     MuPatTrack( MuPatSegment* segment1, MuPatSegment* segment2, const Trk::Track* track , MuPatSegment* seedSeg=0 );
 
     /** @brief destructor, decrease the usedInFit counter of all MuPatSegment objects by one */
@@ -93,7 +89,7 @@ namespace Muon {
     const Trk::Track& track() const;
 
     /** @brief Candidate no longer owns the memory of its track (but keeps the pointer). Return current track. */
-    const Trk::Track& releaseTrack() const;
+    const Trk::Track& releaseTrack();
 
     /** Does this candidate own the memory of its track? */
     bool ownsTrack() const;
@@ -139,7 +135,6 @@ namespace Muon {
     /** @brief number of times the copy constructor was called since last reset */
     static unsigned int numberOfCopies();
 
-
   private:
     //
     // private static functions
@@ -150,6 +145,9 @@ namespace Muon {
     /** @brief Keeping track of number of object instances */
     static void removeInstance();
 
+    /** @brief Initialize s_processingStageStrings & s_processingStageStringMaxLen */
+    static void initProcessingStageStrings();
+
     //
     // private member functions
     //
@@ -157,53 +155,56 @@ namespace Muon {
     void updateTrack( const Trk::Track* newTrack );
 
     /** @brief update segment/track association, if add == true ,will add track to segments else remove it */
-    void updateSegments( bool add ); 
-    
+    void updateSegments( bool add );
+
   public:
     //
     // public data members
     //
     ProcessingStage created;
     ProcessingStage lastSegmentChange;
-    
+
   private:
     //
     // private static data members
     //
     /** current number of objects of this type in memory */
-    static unsigned int s_numberOfInstantiations;
+    static unsigned int s_numberOfInstantiations ATLAS_THREAD_SAFE;
     /** maximum number of objects of this type in memory */
-    static unsigned int s_maxNumberOfInstantiations;
+    static unsigned int s_maxNumberOfInstantiations ATLAS_THREAD_SAFE;
     /** number of copies made */
-    static unsigned int s_numberOfCopies;
+    static unsigned int s_numberOfCopies ATLAS_THREAD_SAFE;
     /** maximum width of the strings corresponding to the ProcessingStage */
-    static unsigned int s_processingStageStringMaxLen;
-    
-    static std::vector<std::string> s_processingStageStrings;
-     
-    /** @brief increase the segment counters by the passed number */ 
+    static unsigned int s_processingStageStringMaxLen ATLAS_THREAD_SAFE;
+
+    static std::mutex s_mutex; //<! to remove race condition in addInstance
+
+    static std::once_flag s_stageStringsInitFlag;
+    static std::vector<std::string> s_processingStageStrings ATLAS_THREAD_SAFE;
+
+    /** @brief increase the segment counters by the passed number */
     void modifySegmentCounters( int change );
-    
+
     /** @brief check whether track measures momentum */
     bool hasMomentum( const Trk::Track& track ) const;
 
 
     std::vector<MuPatSegment*> m_segments; //<! list of associated segments
     std::vector<MuPatSegment*> m_excludedSegments; //<! list of associated segments
-    const Trk::Track*             m_track;    //<! associated track 
+    const Trk::Track*             m_track;    //<! associated track
     MuPatSegment*              m_seedSeg; //!< The special segment for this track
 
-    mutable bool m_ownTrack;
-  public:
+    bool m_ownTrack;
 
+  public:
     /** @brief Mboy data members  */
     struct MboyInfo {
-//m_MboyStatus:
-//-1: unknown
-// 0: never reconstructed
-// 1: produced as primary fit
-// 2: produced as secondary fit
-// 3: produced as main fit
+      //m_MboyStatus:
+      //-1: unknown
+      // 0: never reconstructed
+      // 1: produced as primary fit
+      // 2: produced as secondary fit
+      // 3: produced as main fit
       int    m_MboyStatus ;
 
       int    m_ISC0 ;
@@ -212,7 +213,7 @@ namespace Muon {
       double m_DS1  ;
       double m_DZT2 ;
       double m_DS2  ;
-    
+
       double m_SMU  ;
 
       double m_CFI  ;
@@ -240,27 +241,50 @@ namespace Muon {
   // static inline functions implementations
   //
   inline unsigned int MuPatTrack::numberOfInstantiations() {
+    const std::lock_guard<std::mutex> lock(s_mutex);
+
     return s_numberOfInstantiations;
   }
 
   inline unsigned int MuPatTrack::maxNumberOfInstantiations() {
+    const std::lock_guard<std::mutex> lock(s_mutex);
+
     return s_maxNumberOfInstantiations;
   }
 
   inline unsigned int MuPatTrack::numberOfCopies() {
-      return s_numberOfCopies;
+    const std::lock_guard<std::mutex> lock(s_mutex);
+
+    return s_numberOfCopies;
   }
-  
+
   inline void MuPatTrack::addInstance() {
+    const std::lock_guard<std::mutex> lock(s_mutex);
+
     ++s_numberOfInstantiations;
     if ( s_numberOfInstantiations > s_maxNumberOfInstantiations ) {
-      s_maxNumberOfInstantiations = s_numberOfInstantiations;
+      s_maxNumberOfInstantiations = static_cast<unsigned int>(s_numberOfInstantiations);
     }
   }
 
   inline void MuPatTrack::removeInstance() {
+    const std::lock_guard<std::mutex> lock(s_mutex);
+
     if ( s_numberOfInstantiations > 0 ) --s_numberOfInstantiations;
   }
+
+  inline void MuPatTrack::resetMaxNumberOfInstantiations() {
+    const std::lock_guard<std::mutex> lock(s_mutex);
+
+    s_maxNumberOfInstantiations = 0;
+  }
+
+  inline void MuPatTrack::resetNumberOfCopies() {
+    const std::lock_guard<std::mutex> lock(s_mutex);
+
+    s_numberOfCopies = 0;
+  }
+
 
   //
   // inline member functions implementations
@@ -280,7 +304,7 @@ namespace Muon {
   inline const Trk::Track& MuPatTrack::track() const {
     return *m_track;
   }
-  
+
   inline bool MuPatTrack::ownsTrack() const {
     return m_ownTrack;
   }
@@ -298,11 +322,11 @@ namespace Muon {
   class SortMuPatTrackByQuality {
   public:
     bool operator()( const MuPatTrack* c1, const MuPatTrack* c2 ){
-      
+
       // prefer candidates with more segments
       if( c1->segments().size() > c2->segments().size() ) return true;
       if( c1->segments().size() < c2->segments().size() ) return false;
-      
+
       // prefer tracks with fit quality (always expected)
       const Trk::FitQuality* fq1 = c1->track().fitQuality();
       const Trk::FitQuality* fq2 = c2->track().fitQuality();
@@ -319,6 +343,6 @@ namespace Muon {
     }
   };
 
-}
+} // Muon
 
 #endif
