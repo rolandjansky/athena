@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -953,7 +953,7 @@ DebugAids::coredump (int sig, ...)
 	if (sig == SIGUSR1)
 	    sig = SIGABRT;	// Could be SIGIOT if SIGABRT is not defined
 #endif
-	Signal::handle (sig, (Signal::HandlerType) SIG_DFL);
+	Signal::handle (sig, (Signal::HandlerType) (void*)SIG_DFL);
 	Signal::block (sig, false);
 	Signal::raise (sig);
 
