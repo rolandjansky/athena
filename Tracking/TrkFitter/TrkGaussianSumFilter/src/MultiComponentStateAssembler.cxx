@@ -20,8 +20,8 @@ class SortByLargerSimpleComponentWeight
 {
 public:
   SortByLargerSimpleComponentWeight(){};
-  bool operator()(const Trk::SimpleComponentParameters& firstComponent,
-                  const Trk::SimpleComponentParameters& secondComponent) const
+  bool operator()(const Trk::ComponentParameters& firstComponent,
+                  const Trk::ComponentParameters& secondComponent) const
 
   {
     return firstComponent.second > secondComponent.second;
@@ -41,7 +41,7 @@ Trk::MultiComponentStateAssembler::reset(Cache& cache)
 }
 
 bool
-Trk::MultiComponentStateAssembler::addComponent(Cache& cache, SimpleComponentParameters&& componentParameters)
+Trk::MultiComponentStateAssembler::addComponent(Cache& cache, ComponentParameters&& componentParameters)
 {
   if (cache.assemblyDone) {
     return false;
@@ -52,7 +52,7 @@ Trk::MultiComponentStateAssembler::addComponent(Cache& cache, SimpleComponentPar
 }
 
 bool
-Trk::MultiComponentStateAssembler::addMultiState(Cache& cache, SimpleMultiComponentState&& multiComponentState)
+Trk::MultiComponentStateAssembler::addMultiState(Cache& cache, Trk::MultiComponentState&& multiComponentState)
 {
   if (cache.assemblyDone) {
     return false;
@@ -106,7 +106,7 @@ Trk::MultiComponentStateAssembler::prepareStateForAssembly(Cache& cache)
      * are before the value (i.e ordered descending).
      * return the 1st element where (element<value)
      */
-    SimpleComponentParameters dummySmallestWeight(nullptr, cache.minimumFractionalWeight * totalWeight);
+    ComponentParameters dummySmallestWeight(nullptr, cache.minimumFractionalWeight * totalWeight);
     auto lower_than = std::upper_bound(cache.multiComponentState.begin(),
                                        cache.multiComponentState.end(),
                                        dummySmallestWeight,
@@ -166,8 +166,7 @@ Trk::MultiComponentStateAssembler::doStateAssembly(Cache& cache, const double ne
     }
     std::unique_ptr<Trk::MultiComponentState> assembledState = std::make_unique<Trk::MultiComponentState>();
     for (auto& component : cache.multiComponentState) {
-      Trk::ComponentParameters cp(component.first.release(), component.second);
-      assembledState->push_back(cp);
+      assembledState->emplace_back(component.first.release(), component.second);
     }
     // Reset the cache before leaving
     reset(cache);
@@ -177,8 +176,7 @@ Trk::MultiComponentStateAssembler::doStateAssembly(Cache& cache, const double ne
   std::unique_ptr<Trk::MultiComponentState> assembledState = std::make_unique<Trk::MultiComponentState>();
   double scalingFactor = cache.validWeightSum > 0. ? newWeight / cache.validWeightSum : 1.;
   for (auto& component : cache.multiComponentState) {
-    Trk::ComponentParameters cp(component.first.release(), component.second * scalingFactor);
-    assembledState->push_back(cp);
+    assembledState->emplace_back(component.first.release(), component.second*scalingFactor);
   }
 
   // Reset the cache before leaving

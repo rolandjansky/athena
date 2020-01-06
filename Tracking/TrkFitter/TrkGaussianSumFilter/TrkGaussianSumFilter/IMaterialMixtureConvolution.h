@@ -59,9 +59,9 @@ public:
 
   //!< Retain for now redundant simplified material effects
   virtual std::unique_ptr<MultiComponentState>
-    simpliedMaterialUpdate(const MultiComponentState& multiComponentState,
-                           PropDirection direction = anyDirection,
-                           ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
+    simplifiedMaterialUpdate(const MultiComponentState& multiComponentState,
+                             PropDirection direction = anyDirection,
+                             ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
 };
 
 } // end Trk namespace

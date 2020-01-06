@@ -11,10 +11,4 @@ inline Trk::MultiComponentState::MultiComponentState()
   this->reserve(72);
 }
 
-inline Trk::MultiComponentState::MultiComponentState(const Trk::ComponentParameters& componentParameters)
-  : std::vector<Trk::ComponentParameters>()
-{
-  this->reserve(72);
-  this->push_back(componentParameters);
-}
 }

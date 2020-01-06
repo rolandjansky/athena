@@ -49,10 +49,8 @@ public:
   /** AlgTool finalise method */
   StatusCode finalize() override final;
 
-  virtual std::unique_ptr<MultiComponentState> merge(const MultiComponentState&) const override final;
-
-    /** Method for merging components - ownership of objects is passed */
-  virtual std::unique_ptr<MultiComponentState> merge(SimpleMultiComponentState&&) const override final;
+  /** Method for merging components - ownership of objects is passed */
+  virtual std::unique_ptr<MultiComponentState> merge(Trk::MultiComponentState) const override final;
 
 private:
   Gaudi::Property<unsigned int> m_maximumNumberOfComponents{ this,
@@ -70,7 +68,7 @@ private:
   ServiceHandle<IChronoStatSvc> m_chronoSvc; //!< Timing: The Gaudi time auditing service
 
   std::unique_ptr<MultiComponentState> mergeFullDistArray(MultiComponentStateAssembler::Cache& cache,
-                                                          SimpleMultiComponentState& ) const;
+                                                          Trk::MultiComponentState& ) const;
 
 
 };

@@ -39,7 +39,7 @@ struct Cache
     , minimumValidFraction{ 0.01 }
     , minimumFractionalWeight{ 1e-09 }
     , assemblyDone{ false } { multiComponentState.reserve(72); }
-  SimpleMultiComponentState multiComponentState;
+  Trk::MultiComponentState multiComponentState;
   double validWeightSum;
   double invalidWeightSum;
   const double minimumValidFraction;
@@ -54,12 +54,12 @@ reset(Cache& cache);
 /** Method to add a single set of Trk::ComponentParameters to the cached Trk::MultiComponentState 
  * object under construction */
 bool
-addComponent(Cache& cache, SimpleComponentParameters&&);
+addComponent(Cache& cache, ComponentParameters&&);
 
 /** Method to add a new Trk::MultiComponentState to the cached Trk::MultiComponentState o
  * bject under construction */
 bool
-addMultiState(Cache& cache, SimpleMultiComponentState&&);
+addMultiState(Cache& cache, Trk::MultiComponentState&&);
 
 /** Method to include the weights of states that are invalid */
 bool
