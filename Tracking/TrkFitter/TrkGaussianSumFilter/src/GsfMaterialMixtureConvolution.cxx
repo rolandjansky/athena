@@ -100,7 +100,7 @@ Trk::GsfMaterialMixtureConvolution::update(const Trk::MultiComponentState& multi
 
   for (; component != multiComponentState.end(); ++component) {
 
-    std::unique_ptr<Trk::SimpleMultiComponentState> updatedState =
+    std::unique_ptr<Trk::MultiComponentState> updatedState =
       m_updator->updateState(*component, layer, direction, particleHypothesis);
 
     if(!updatedState)
@@ -156,7 +156,7 @@ Trk::GsfMaterialMixtureConvolution::preUpdate(const Trk::MultiComponentState& mu
 
   for (; component != multiComponentState.end(); ++component) {
 
-    std::unique_ptr<Trk::SimpleMultiComponentState> updatedState =
+    std::unique_ptr<Trk::MultiComponentState> updatedState =
       m_updator->preUpdateState(*component, layer, direction, particleHypothesis);
 
     if(!updatedState)
@@ -167,7 +167,7 @@ Trk::GsfMaterialMixtureConvolution::preUpdate(const Trk::MultiComponentState& mu
     if (!componentAdded)
       ATH_MSG_WARNING("Component could not be added to the state in the assembler");
   }
-
+ 
   std::unique_ptr<Trk::MultiComponentState> mergedState = m_stateMerger->merge( std::move(cache.multiComponentState) ); 
   
   if (!mergedState) {
@@ -213,7 +213,7 @@ Trk::GsfMaterialMixtureConvolution::postUpdate(const Trk::MultiComponentState& m
 
   for (; component != multiComponentState.end(); ++component) {
 
-    std::unique_ptr<Trk::SimpleMultiComponentState> updatedState =
+    std::unique_ptr<Trk::MultiComponentState> updatedState =
       m_updator->postUpdateState(*component, layer, direction, particleHypothesis);
 
     if(!updatedState)
@@ -242,9 +242,9 @@ Trk::GsfMaterialMixtureConvolution::postUpdate(const Trk::MultiComponentState& m
    ========================================== */
 
 std::unique_ptr<Trk::MultiComponentState>
-Trk::GsfMaterialMixtureConvolution::simpliedMaterialUpdate(const Trk::MultiComponentState& multiComponentState,
-                                                           Trk::PropDirection direction,
-                                                           Trk::ParticleHypothesis particleHypothesis) const
+Trk::GsfMaterialMixtureConvolution::simplifiedMaterialUpdate(const Trk::MultiComponentState& multiComponentState,
+                                                             Trk::PropDirection direction,
+                                                             Trk::ParticleHypothesis particleHypothesis) const
 {
   /* -------------------------------------
      Preliminary checks
@@ -296,7 +296,7 @@ Trk::GsfMaterialMixtureConvolution::simpliedMaterialUpdate(const Trk::MultiCompo
   Trk::MultiComponentState::const_iterator component = multiComponentState.begin();
 
   for (; component != multiComponentState.end(); ++component) {
-    std::unique_ptr<Trk::SimpleMultiComponentState> updatedState =
+    std::unique_ptr<Trk::MultiComponentState> updatedState =
       m_updator->updateState(*component, *materialProperties, pathLength, direction, particleHypothesis);
 
     if(!updatedState)

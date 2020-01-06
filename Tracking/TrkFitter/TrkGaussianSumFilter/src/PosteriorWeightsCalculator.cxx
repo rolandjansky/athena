@@ -18,7 +18,7 @@ description          : Implementation code for PosteriorWeightsCalculator class
 #include "TrkParameters/TrackParameters.h"
 
 std::unique_ptr<std::vector<Trk::ComponentParameters>>
-Trk::PosteriorWeightsCalculator::weights(const MultiComponentState& predictedState,
+Trk::PosteriorWeightsCalculator::weights(MultiComponentState&& predictedState,
                                          const MeasurementBase& measurement) const
 {
 
@@ -37,11 +37,11 @@ Trk::PosteriorWeightsCalculator::weights(const MultiComponentState& predictedSta
   double minimumChi2(10.e10); // Initalise high
 
   // Loop over all components in the prediction state
-  Trk::MultiComponentState::const_iterator component = predictedState.begin();
+  Trk::MultiComponentState::iterator component = predictedState.begin();
 
   for (; component != predictedState.end(); ++component) {
 
-    const Trk::TrackParameters* componentTrackParameters = (*component).first;
+    const Trk::TrackParameters* componentTrackParameters = (*component).first.get();
 
     if (!componentTrackParameters) {
       continue;
@@ -131,24 +131,19 @@ Trk::PosteriorWeightsCalculator::weights(const MultiComponentState& predictedSta
     double updatedWeight(0.);
     // Determinant can not be belowe 1e-19 in CLHEP .... rather ugly but protect against 0 determinants
     // Normally occur when the component is a poor fit
-    if (componentDeterminantR[index] > 1e-20)
+    if (componentDeterminantR[index] > 1e-20){
       updatedWeight = priorWeight * sqrt(1. / componentDeterminantR[index]) * exp(-0.5 * chi2);
-    else
+    }
+    else{
       updatedWeight = 1e-10;
-
-    returnMultiComponentState->emplace_back(component->first, updatedWeight);
+    }
+    returnMultiComponentState->emplace_back(component->first.release(), updatedWeight);
     sumWeights += updatedWeight;
-  }
-
-  if (returnMultiComponentState->size() != predictedState.size()) {
-    returnMultiComponentState.reset();
-    return nullptr;
   }
 
   // Renormalise the state to total weight = 1
   Trk::MultiComponentState::iterator returnComponent = returnMultiComponentState->begin();
   component = predictedState.begin();
-
   if (sumWeights > 0.) {
     for (; returnComponent != returnMultiComponentState->end(); ++returnComponent, ++component) {
       (*returnComponent).second /= sumWeights;
@@ -159,7 +154,6 @@ Trk::PosteriorWeightsCalculator::weights(const MultiComponentState& predictedSta
       (*returnComponent).second = component->second;
     }
   }
-
 
   return returnMultiComponentState;
 }

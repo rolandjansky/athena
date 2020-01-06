@@ -142,7 +142,7 @@ Trk::MultiComponentStateModeCalculator::fillMixture(const Trk::MultiComponentSta
   Trk::ParamDefs parameter[5] = { Trk::d0, Trk::z0, Trk::phi, Trk::theta, Trk::qOverP };
   for (; component != multiComponentState.end(); ++component) {
     for (int i = 0; i < 5; ++i) {
-      const Trk::TrackParameters* componentParameters = component->first;
+      const Trk::TrackParameters* componentParameters = component->first.get();
 
       const AmgSymMatrix(5)* measuredCov = componentParameters->covariance();
 

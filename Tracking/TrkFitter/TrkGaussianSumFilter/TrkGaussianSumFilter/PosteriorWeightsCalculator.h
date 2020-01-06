@@ -30,7 +30,7 @@ class  PosteriorWeightsCalculator
 {
 public:
   
-  std::unique_ptr<std::vector<Trk::ComponentParameters>>  weights(const MultiComponentState&, 
+  std::unique_ptr<std::vector<Trk::ComponentParameters>>  weights(MultiComponentState&&, 
                                                                   const MeasurementBase&) const;
 
 private:
