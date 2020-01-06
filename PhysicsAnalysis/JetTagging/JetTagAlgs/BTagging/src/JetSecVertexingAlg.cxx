@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BTagging/JetSecVertexingAlg.h"
@@ -219,7 +219,7 @@ namespace Analysis {
         }
         else { //SV1
           ATH_MSG_DEBUG("#BTAG# error filling variables from VxSecVKalVertexInfo for tool 1 " << m_jetSVLinkName.key());
-          SG::WriteDecorHandle<xAOD::JetContainer,vector<ElementLink< xAOD::VertexContainer> > > h_jetSVLinkName(m_jetSVLinkName);
+          SG::WriteDecorHandle<xAOD::JetContainer,std::vector<ElementLink< xAOD::VertexContainer> > > h_jetSVLinkName(m_jetSVLinkName);
           std::vector< ElementLink< xAOD::VertexContainer > > SVertexLinks;
       
 	        StatusCode sc = createSecVkalContainer(&(*h_BTagSVCollectionName), &SVertexLinks, myVertexInfoVKal);
@@ -233,7 +233,7 @@ namespace Analysis {
         }
       } else if (const Trk::VxJetFitterVertexInfo* myVertexInfoJetFitter = dynamic_cast<const Trk::VxJetFitterVertexInfo*>(myVertexInfo)) {
         ATH_MSG_DEBUG("#BTAG# Found VxJetFitterVertexInfo information");
-        SG::WriteDecorHandle<xAOD::JetContainer,vector<ElementLink< xAOD::BTagVertexContainer> > > h_jetSVLinkName(m_jetSVLinkName);
+        SG::WriteDecorHandle<xAOD::JetContainer,std::vector<ElementLink< xAOD::BTagVertexContainer> > > h_jetSVLinkName(m_jetSVLinkName);
         std::vector< ElementLink< xAOD::BTagVertexContainer > > JFVtxLinks;
         StatusCode sc = createJFContainer(&(*h_BTagJFVtxCollectionName), &JFVtxLinks, myVertexInfoJetFitter, theTrackParticleContainer);
         h_jetSVLinkName(jetToTag) = JFVtxLinks;

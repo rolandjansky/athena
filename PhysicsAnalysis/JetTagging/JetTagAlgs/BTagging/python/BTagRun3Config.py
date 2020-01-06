@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from IOVDbSvc.IOVDbSvcConfig import addFolders
@@ -99,7 +99,6 @@ def BTagRedoESDCfg(flags, jet, extraContainers=[]):
     ESDItemList = registerOutputContainersForJetCollection(flags, jet)
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
     acc.merge(OutputStreamCfg(flags,"ESD", ItemList=ESDItemList+extraContainers))
-    print(extraContainers)
 
     return acc
 

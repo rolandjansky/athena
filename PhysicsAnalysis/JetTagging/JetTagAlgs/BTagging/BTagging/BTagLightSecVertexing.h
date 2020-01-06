@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BTAGGING_BTAGLIGHTSECVERTEXING_H
@@ -15,12 +15,6 @@ namespace InDet {
 
 #include <string>
 
-// Since these are typedefs, forward declarations won't work?
-// namespace xAOD{
-//   class Jet;
-//   class BTagging;
-//   class VertexContainer;
-// }
 #include "xAODJet/Jet.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODBTagging/BTagging.h"
@@ -55,8 +49,6 @@ namespace Analysis
 
           virtual StatusCode initialize() override;
           virtual StatusCode BTagSecVertexing_exec(const xAOD::JetContainer * jetContainer, xAOD::BTaggingContainer * btaggingContainer) const override;
-          virtual StatusCode finalize() override;
-
 
       private:
         

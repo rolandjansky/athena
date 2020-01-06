@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BTAGGING_JETSECVERTEXINGALG_H
@@ -33,9 +33,6 @@ namespace Trk{
   class VxJetFitterVertexInfo;
 
 }
-
-using namespace std;
-using namespace xAOD;
 
 /** The namespace of all packages in PhysicsAnalysis/JetTagging */
 namespace Analysis

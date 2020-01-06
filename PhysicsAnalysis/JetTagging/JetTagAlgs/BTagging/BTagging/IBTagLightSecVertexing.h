@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BTAGGING_IBTAGLIGHTSECVERTEXING_H
@@ -32,8 +32,6 @@ namespace Analysis
 
        virtual StatusCode initialize() = 0;
        virtual StatusCode BTagSecVertexing_exec(const xAOD::JetContainer * jetContainer, xAOD::BTaggingContainer * btaggingContainer) const = 0;
-       virtual StatusCode finalize() = 0;
-      
 
   };
 

@@ -34,7 +34,7 @@ class  JetBTaggingAlg:
     virtual ~JetBTaggingAlg();
     
     /** Main routines specific to an ATHENA algorithm */
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
     virtual StatusCode execute();
 
   private:
