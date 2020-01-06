@@ -3,6 +3,7 @@
 */
 
 #include "AthenaMonitoringKernel/HistogramDef.h"
+#include <nlohmann/json.hpp>
 
 using namespace Monitored;
 using json = nlohmann::json;

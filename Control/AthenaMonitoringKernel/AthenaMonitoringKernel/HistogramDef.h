@@ -5,7 +5,6 @@
 #ifndef AthenaMonitoringKernel_HistogramDef_h
 #define AthenaMonitoringKernel_HistogramDef_h
 
-#include <nlohmann/json.hpp>
 #include <string>
 #include <vector>
 
