@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Database/AthenaPOOL/AthenaPoolServices
                           Simulation/G4Sim/TrackRecord
                           PRIVATE
+                          AtlasTest/TestTools
                           Control/AthenaKernel )
 
 # External dependencies:
@@ -38,3 +39,7 @@ atlas_add_dictionary( OLD_G4SimTPCnvDict
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                       LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaPoolCnvSvcLib AthenaKernel G4SimTPCnv )
 
+atlas_add_test( TrackRecordCnv_p1_test
+                SOURCES
+                test/TrackRecordCnv_p1_test.cxx
+                LINK_LIBRARIES G4SimTPCnv TestTools )
