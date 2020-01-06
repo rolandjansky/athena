@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 class CavernPropertyCalculator(object):
 
@@ -128,7 +130,7 @@ class CavernPropertyCalculator(object):
         """
         newSize = max( self.BedrockDX() , self.BedrockDZ() )
         if (newSize > 350000.):
-            print "Resizing bedrock (mm) to fit cosmic generator:",newSize
+            print ("Resizing bedrock (mm) to fit cosmic generator:",newSize)
             from AthenaCommon.Configurable import Configurable
             if Configurable.allConfigurables.get('GeoModelSvc'):
                 GeoModelSvc = Configurable.allConfigurables.get('GeoModelSvc')
@@ -143,7 +145,7 @@ class CavernPropertyCalculator(object):
             elif (newSize <= 4000000) : GeoModelSvc.CavernInfraVersionOverride = 'CavernInfra-03-Bedrock4000'
             elif (newSize <= 5000000) : GeoModelSvc.CavernInfraVersionOverride = 'CavernInfra-03-Bedrock5000'
         else :
-            print "No need to resize the bedrock for cosmic generation"
+            print ("No need to resize the bedrock for cosmic generation")
 
 
 ############## Input: GenericGenerator ###############
@@ -194,7 +196,7 @@ def getInput_GenericCosmicGenerator(name="GenericCosmicGenerator", **kwargs):
     kwargs.setdefault('IPz', 0.)
 
     if simFlags.CosmicFilterVolumeName.statusOn:
-        print 'Using %s Volume setup of Cosmic Generator...' % simFlags.CosmicFilterVolumeName.get_Value()
+        print ('Using %s Volume setup of Cosmic Generator...' % simFlags.CosmicFilterVolumeName.get_Value())
     #special settings from Juerg Beringer
     if simFlags.CosmicFilterVolumeName == "Pixel" or simFlags.CosmicFilterVolumeName2 == "Pixel":
         kwargs.setdefault('doPathLengthCut', True)         # Optimization based on box cut in pixel detector plane
@@ -206,7 +208,7 @@ def getInput_GenericCosmicGenerator(name="GenericCosmicGenerator", **kwargs):
         kwargs.setdefault('rvert_max', 300000.)            # - radius in mm for generating primary vertex
 
     if simFlags.CosmicPtSlice.statusOn and simFlags.CosmicPtSlice() is not 'NONE':
-        print "Configuring cosmic pT slice: %s" % simFlags.CosmicPtSlice.get_Value()
+        print ("Configuring cosmic pT slice: %s" % simFlags.CosmicPtSlice.get_Value())
         theCavern.reconfigureCavernGeometry()
 
     from AthenaCommon import CfgMgr
@@ -228,7 +230,7 @@ def getInput_EvgenCosmicGenerator(name="EvgenCosmicGenerator", **kwargs):
 
     from G4AtlasApps.SimFlags import simFlags
     if not simFlags.CosmicFilterVolumeName.statusOn:
-        print "Warning CosmicFilterVolumeName not set using default (CaloEntryLayer)"
+        print ("Warning CosmicFilterVolumeName not set using default (CaloEntryLayer)")
         simFlags.CosmicFilterVolumeName = "CaloEntryLayer"
 
     #fix for bug: 49362
