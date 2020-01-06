@@ -13,6 +13,13 @@
 
 using namespace Monitored;
 
+// this mutex is used to prevent instantiating more than one new histogram at a time, to avoid
+// potential name clashes in the gDirectory namespace
+// alternative would be to set TH1::AddDirectory but that has potential side effects
+namespace {
+  static std::mutex s_histDirMutex;
+}
+
 HistogramFactory::HistogramFactory(const ServiceHandle<ITHistSvc>& histSvc,
                                    std::string histoPath)
 : m_histSvc(histSvc)
@@ -124,8 +131,12 @@ TEfficiency* HistogramFactory::createEfficiency(const HistogramDef& def) {
   }
 
   // Otherwise, create the efficiency and register it
-  e = new TEfficiency(def.alias.c_str(),def.title.c_str(),def.xbins,def.xmin,def.xmax);
-  e->SetDirectory(gROOT);
+  // Hold global lock until we have detached object from gDirectory
+  {
+    std::scoped_lock<std::mutex> dirLock(s_histDirMutex);
+    e = new TEfficiency(def.alias.c_str(),def.title.c_str(),def.xbins,def.xmin,def.xmax);
+    e->SetDirectory(0);
+  }
   if ( !m_histSvc->regEfficiency(fullName,e) ) {
     delete e;
     throw HistogramException("Histogram >"+ fullName + "< can not be registered in THistSvc");
@@ -147,7 +158,13 @@ HBASE* HistogramFactory::create(const HistogramDef& def, Types&&... hargs) {
   }
 
   // Create the histogram and register it
-  H* h = new H(def.alias.c_str(), def.title.c_str(), std::forward<Types>(hargs)...);
+  // Hold global lock until we have detached object from gDirectory
+  H* h = nullptr;
+  { 
+    std::scoped_lock<std::mutex> dirLock(s_histDirMutex);
+    h = new H(def.alias.c_str(), def.title.c_str(), std::forward<Types>(hargs)...);
+    h->SetDirectory(0);
+  }
   if ( !m_histSvc->regHist( fullName, static_cast<TH1*>(h) ) ) {
     delete h;
     throw HistogramException("Histogram >"+ fullName + "< can not be registered in THistSvc");
