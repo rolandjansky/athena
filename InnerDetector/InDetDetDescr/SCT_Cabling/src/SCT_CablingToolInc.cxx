@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -8,10 +8,12 @@
  * @author Shaun Roe
  * @date 20 October, 2008
  **/
+
+#include "SCT_CablingToolInc.h"
  
 //this package
-#include "SCT_CablingToolInc.h"
-#include "SCT_Cabling/ISCT_FillCabling.h"
+#include "SCT_Cabling/SCT_OnlineId.h"
+#include "SCT_Cabling/SCT_SerialNumber.h"
 #include "SCT_CablingUtilities.h"
 
 //Indet
@@ -72,7 +74,7 @@ SCT_CablingToolInc::initialize() {
   ATH_MSG_INFO("Initialize SCT cabling " << PACKAGE_VERSION);
   const std::string cablingDataSource = m_cablingDataSource.value();
   m_usingDatabase=(cablingDataSource == coracool) or (cablingDataSource == coolVectorPayload) or (cablingDataSource == file);
-  //select which service name to use
+  //select which tool name to use
   bool filled{false};
   if (not m_usingDatabase) {
     m_cablingFillerCoraCool.disable();
