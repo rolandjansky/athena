@@ -18,7 +18,6 @@ hlt.args += ' --prodSysBSRDO True'
 hlt.args += ' --outputBSFile=RAW.pool.root'
 hlt.args += ' --outputHIST_HLTMONFile=hltmon.root'
 hlt.input = 'data'
-hlt.perfmon = False # perfmon with athenaHLT doesn't work at the moment
 
 #====================================================================================================
 # Tier-0 reco step BS->ESD->AOD

@@ -342,11 +342,17 @@ class PerfMonStep(InputDependentStep):
 
     def __init__(self, name='PerfMon'):
         super(PerfMonStep, self).__init__(name)
-        self.input_file = 'ntuple.pmon.gz'
+        self.input_file = None
         self.executable = 'perfmon.py'
         self.args = '-f 0.90'
 
     def configure(self, test):
+        if not self.input_file:
+            num_athenaHLT_steps = sum([1 for step in test.exec_steps if step.type == 'athenaHLT'])
+            if num_athenaHLT_steps > 0:
+                self.input_file = 'athenaHLT_workers/athenaHLT-01/ntuple.pmon.gz'
+            else:
+                self.input_file = 'ntuple.pmon.gz'
         self.args += ' '+self.input_file
         super(PerfMonStep, self).configure(test)
 
