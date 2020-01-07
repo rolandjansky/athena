@@ -50,12 +50,12 @@ atlas_install_joboptions( share/*.txt )
 # Test(s) in the package:
 atlas_add_test( getMessageSvc_test
    SOURCES test/getMessageSvc_test.cxx
-   EXTRA_PATTERNS "^Wall clock time"
+   LOG_IGNORE_PATTERN "^Wall clock time"
    LINK_LIBRARIES GaudiKernel TestTools AthenaKernel )
 
 atlas_add_test( MsgStreamMember_test
    SOURCES test/MsgStreamMember_test.cxx
-   EXTRA_PATTERNS "^Wall clock time |ref count"
+   LOG_IGNORE_PATTERN "^Wall clock time |ref count"
    LINK_LIBRARIES TestTools AthenaKernel )
 
 atlas_add_test( AthenaPackageInfo_test
