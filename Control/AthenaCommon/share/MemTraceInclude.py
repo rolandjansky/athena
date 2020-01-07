@@ -1,10 +1,11 @@
 import string
+import six
 
 from AthenaCommon.Include import Include
 class MemTraceInclude( Include ):
    def __init__( self, org ):
       Include.__init__( self, org._show )
-      for name, value in org.__dict__.iteritems():
+      for name, value in six.iteritems (org.__dict__):
          setattr (self, name, value)
       import AthenaCommon.Logging as L
       self.msg = L.logging.getLogger('Athena')
@@ -15,8 +16,8 @@ class MemTraceInclude( Include ):
       from sys import platform
       if platform != 'darwin' :
           pid = os.getpid()
-          statm = string.split( open( '/proc/%d/statm' % pid, 'r' ).readlines()[0] )
-          stat = string.split( open( '/proc/%d/stat' % pid, 'r' ).readlines()[0] )
+          statm = open( '/proc/%d/statm' % pid, 'r' ).readlines()[0].split()
+          stat =  open( '/proc/%d/stat' % pid, 'r' ).readlines()[0].split()
 
           self.msg.info(
              'VSIZE = %8.3f MB, SIZE = %8.3f MB, RSS = %8.3f MB',
