@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # Author: F. Ledroit (ledroit@lpsc.in2p3.fr)
 # LArTTL1 creation from LArHits with LArTTL1Maker algorithm
@@ -22,7 +22,7 @@ class LArTTL1Getter ( Configured )  :
             theLArTTL1Getter=LArTTL1Getter()
         except:
             mlog.error("could not get handle to LArTTL1Getter Quit")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         if not theLArTTL1Getter.usable():
@@ -37,7 +37,7 @@ class LArTTL1Getter ( Configured )  :
             from LArL1Sim.LArL1SimConf import LArTTL1Maker                
         except:
             mlog.error("could not import LArL1Sim.LArTTL1Maker")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         theLArTTL1Maker=LArTTL1Maker()
