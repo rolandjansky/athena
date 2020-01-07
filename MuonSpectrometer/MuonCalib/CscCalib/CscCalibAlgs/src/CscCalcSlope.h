@@ -12,6 +12,7 @@ so that he can determine the validity of the constants
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ITHistSvc.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/DataHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -86,7 +87,7 @@ namespace MuonCalib{
       //ITHistSvc * m_thistSvc;
       ICscCalibTool * m_cscCalibTool;
       ToolHandle<Muon::ICSC_RDO_Decoder> m_cscRdoDecoderTool;
-      const CscIdHelper *m_cscId;
+      ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
       IChronoStatSvc* m_chronoSvc;
       SG::ReadCondHandleKey<CscCondDbData> m_readKey{this, "ReadKey", "CscCondDbData", "Key of CscCondDbData"};   
 

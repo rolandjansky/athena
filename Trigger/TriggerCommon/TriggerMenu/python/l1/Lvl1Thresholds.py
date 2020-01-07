@@ -248,7 +248,7 @@ class LVL1TopoInput(LVL1Threshold):
 
     def __init__(self, triggerlines = None , thresholdName = None , mapping = None , connector = None , firstbit = None , numberOfBits = None , clock = None , ttype = 'TOPO' ):
 
-        if triggerlines != None :
+        if triggerlines is not None :
             # from triggerline
             from TriggerMenu.l1topo.TopoOutput import TriggerLine
             if type(triggerlines)==list:
@@ -364,7 +364,7 @@ class LVL1Thresholds:
 
     def __iadd__(self, thr):
         if thr is None: return self
-        if self.thresholdOfName(thr.name) == None:
+        if self.thresholdOfName(thr.name) is None:
             self.thresholds += [ thr ]
         return self
     

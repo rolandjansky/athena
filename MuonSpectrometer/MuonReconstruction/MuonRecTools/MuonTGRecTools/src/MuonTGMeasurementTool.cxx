@@ -45,6 +45,7 @@
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
 #include "MuonReadoutGeometry/CscReadoutElement.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonPrepRawData/MdtPrepData.h"
 #include "MuonPrepRawData/RpcPrepData.h"
 #include "MuonPrepRawData/CscPrepData.h"
@@ -80,7 +81,7 @@ StatusCode Muon::MuonTGMeasurementTool::initialize()
   ATH_MSG_INFO("MuonTGMeasurementTool::initialize()");
 
   ATH_CHECK( m_muonIdHelperTool.retrieve() );
-  ATH_CHECK( detStore()->retrieve(m_muonMgr) );
+  ATH_CHECK(m_DetectorManagerKey.initialize());
 
   // define projection matrices
   m_tgcProjEta = new AmgMatrix(5,5);
@@ -253,6 +254,13 @@ const std::vector<const Trk::Segment*>* Muon::MuonTGMeasurementTool::getSegments
 
 const Trk::TrackParameters* Muon::MuonTGMeasurementTool::layerToDetEl(const Trk::Layer* lay, const Trk::TrackParameters* parm, Identifier id) const
 {
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+    const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle}; 
+    if(MuonDetMgr==nullptr){
+      ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+      // return StatusCode::FAILURE; 
+    } 
+
     // Get the messaging service, print where you are
     ATH_MSG_DEBUG("MuonTGMeasurementTool::layerToDetEl");
     const Trk::TrackParameters* projPar = 0;
@@ -296,7 +304,7 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::layerToDetEl(const Trk:
     //std::cout << "layerToDetEl::hit type:" << hitType << std::endl;
 
     if ( hitType == 1) {
-      const MuonGM::MdtReadoutElement* mdtROE = m_muonMgr->getMdtReadoutElement(id);			
+      const MuonGM::MdtReadoutElement* mdtROE = MuonDetMgr->getMdtReadoutElement(id);			
       if (!mdtROE) {
         ATH_MSG_WARNING( name() << "MDT readout element not found");
         return projPar;
@@ -358,7 +366,7 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::layerToDetEl(const Trk:
 
     if ( hitType == 2) {
       //
-      const MuonGM::RpcReadoutElement* rpcROE = m_muonMgr->getRpcReadoutElement(id);			
+      const MuonGM::RpcReadoutElement* rpcROE = MuonDetMgr->getRpcReadoutElement(id);			
       if (!rpcROE) return projPar;
       const Trk::PlaneSurface* stripSurf = dynamic_cast<const Trk::PlaneSurface*> (&(rpcROE->surface(id)));
       if (!stripSurf) return projPar;
@@ -416,7 +424,7 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::layerToDetEl(const Trk:
 
     if ( hitType == 3) {
       // local position of detEl
-      const MuonGM::CscReadoutElement* cscROE = m_muonMgr->getCscReadoutElement(id);			
+      const MuonGM::CscReadoutElement* cscROE = MuonDetMgr->getCscReadoutElement(id);			
       if (!cscROE) {
         ATH_MSG_WARNING( name() << "CSC readout element not found");
         return projPar;
@@ -477,7 +485,7 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::layerToDetEl(const Trk:
       //const Amg::Vector2D locLay; 
       // bool onSurface = lay->surfaceRepresentation().globalToLocal(parm->position(),locLay,locLay);
       // local position of detEl
-      const MuonGM::TgcReadoutElement* tgcROE = m_muonMgr->getTgcReadoutElement(id);			
+      const MuonGM::TgcReadoutElement* tgcROE = MuonDetMgr->getTgcReadoutElement(id);			
       if (!tgcROE) {
         ATH_MSG_WARNING( name() << "TGC readout element not found");
         return projPar;
@@ -759,6 +767,12 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::detElToLayer(const Trk:
 
 const Trk::RIO_OnTrack* Muon::MuonTGMeasurementTool::measToLayer(const Trk::Layer* lay, const Trk::TrackParameters* parm, const Trk::RIO_OnTrack* rio) const
 {
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+    const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle}; 
+    if(MuonDetMgr==nullptr){
+      ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+      // return StatusCode::FAILURE; 
+    } 
     // Get the messaging service, print where you are
     ATH_MSG_DEBUG("MuonTGMeasurementTool::measToLayer");
     const Trk::RIO_OnTrack* projRIO = 0;
@@ -812,7 +826,7 @@ const Trk::RIO_OnTrack* Muon::MuonTGMeasurementTool::measToLayer(const Trk::Laye
       double locLay = A_ND * rio->localParameters()[Trk::locR] + locWire[1];
       // create (fake!) rio ( rio image on TG layer )
       IdentifierHash idHash(0);
-      const MuonGM::MdtReadoutElement* mdtROE = m_muonMgr->getMdtReadoutElement(id);			
+      const MuonGM::MdtReadoutElement* mdtROE = MuonDetMgr->getMdtReadoutElement(id);			
       Amg::MatrixX* cov = new Amg::MatrixX();
       *cov = A_ND*A_ND*rio->localCovariance();
       Muon::MdtDriftCircleStatus status = Muon::MdtStatusDriftTime;
@@ -840,7 +854,7 @@ const Trk::RIO_OnTrack* Muon::MuonTGMeasurementTool::measToLayer(const Trk::Laye
       if ( m_muonIdHelperTool->rpcIdHelper().measuresPhi(id) ) locPos +=  sign*ref;
       else                                  locPos *= zswap;    
       //
-      const MuonGM::RpcReadoutElement* rpcROE = m_muonMgr->getRpcReadoutElement(id);			
+      const MuonGM::RpcReadoutElement* rpcROE = MuonDetMgr->getRpcReadoutElement(id);			
       const IdentifierHash idHash(0);
       std::vector<Identifier> rdoList;
       rdoList.push_back(id);
@@ -882,7 +896,7 @@ const Trk::RIO_OnTrack* Muon::MuonTGMeasurementTool::measToLayer(const Trk::Laye
          locPos = rio->localParameters()[Trk::locX]+locCorrLay[Trk::locY]+csc_shift[Trk::locY];
       }
       //
-      const MuonGM::CscReadoutElement* cscROE = m_muonMgr->getCscReadoutElement(id);			
+      const MuonGM::CscReadoutElement* cscROE = MuonDetMgr->getCscReadoutElement(id);			
       IdentifierHash idHash(0);
       std::vector<Identifier> rdoList;
       rdoList.push_back(id);
@@ -912,7 +926,7 @@ const Trk::RIO_OnTrack* Muon::MuonTGMeasurementTool::measToLayer(const Trk::Laye
 	}
       */
       //
-      const MuonGM::TgcReadoutElement* tgcROE = m_muonMgr->getTgcReadoutElement(id);
+      const MuonGM::TgcReadoutElement* tgcROE = MuonDetMgr->getTgcReadoutElement(id);
       IdentifierHash idHash(0);
       std::vector<Identifier> rdoList;
       rdoList.push_back(id);
@@ -939,6 +953,12 @@ const Trk::RIO_OnTrack* Muon::MuonTGMeasurementTool::measToLayer(const Trk::Laye
 
 const Identifier Muon::MuonTGMeasurementTool::nearestDetEl(const Trk::Layer* lay, const Trk::TrackParameters* parm, bool measPhi,double& pitch) const
 {
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+  const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle}; 
+  if(MuonDetMgr==nullptr){
+    ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+    // return StatusCode::FAILURE; 
+  } 
   // Get the messaging service, print where you are
   ATH_MSG_DEBUG("MuonTGMeasurementTool::nearestDetEl");
   Identifier nid(0);
@@ -966,7 +986,7 @@ const Identifier Muon::MuonTGMeasurementTool::nearestDetEl(const Trk::Layer* lay
   }    
   
   if ( hitType == 1) {
-    const MuonGM::MdtReadoutElement* mdtROE = m_muonMgr->getMdtReadoutElement(layId);			
+    const MuonGM::MdtReadoutElement* mdtROE = MuonDetMgr->getMdtReadoutElement(layId);			
     if (!mdtROE) return nid;
     int tMax = mdtROE->getNtubesperlayer();
     // local position at layer
@@ -1018,7 +1038,7 @@ const Identifier Muon::MuonTGMeasurementTool::nearestDetEl(const Trk::Layer* lay
 						    doubletPhi,
 						    m_muonIdHelperTool->rpcIdHelper().gasGap(layId),
 						    1,1);
-      rpcROE = m_muonMgr->getRpcReadoutElement(refPhi1);    
+      rpcROE = MuonDetMgr->getRpcReadoutElement(refPhi1);    
       if (!rpcROE) return nid;
       if (!m_muonIdHelperTool->rpcIdHelper().valid(refPhi1)) return nid; 
       int  nStripPhi = rpcROE->Nstrips(1);  
@@ -1080,7 +1100,7 @@ const Identifier Muon::MuonTGMeasurementTool::nearestDetEl(const Trk::Layer* lay
 						    doubletPhi,
 						    m_muonIdHelperTool->rpcIdHelper().gasGap(layId),
 						    0,1);
-      rpcROE = m_muonMgr->getRpcReadoutElement(refEta1);    
+      rpcROE = MuonDetMgr->getRpcReadoutElement(refEta1);    
       if (!rpcROE) return nid;
       if (!m_muonIdHelperTool->rpcIdHelper().valid(refEta1)) return nid; 
       int nStrips = rpcROE->Nstrips(0);  
@@ -1144,7 +1164,7 @@ const Identifier Muon::MuonTGMeasurementTool::nearestDetEl(const Trk::Layer* lay
     const Trk::TrackParameters* refPar = layerToDetEl(lay,parm,refId);
     if (!refPar) return nid;
     //
-    const MuonGM::CscReadoutElement* cscROE = m_muonMgr->getCscReadoutElement(refId);
+    const MuonGM::CscReadoutElement* cscROE = MuonDetMgr->getCscReadoutElement(refId);
     if (!cscROE) {delete refPar; return nid;}
     pitch = cscROE->StripPitch(measPhi);
     int nStrips = m_muonIdHelperTool->cscIdHelper().stripMax(refId);
@@ -1197,7 +1217,7 @@ const Identifier Muon::MuonTGMeasurementTool::nearestDetEl(const Trk::Layer* lay
     const Trk::TrackParameters* refPar = layerToDetEl(lay,parm,refId);
     if (!refPar) return nid;
     //
-    const MuonGM::TgcReadoutElement* tgcROE = m_muonMgr->getTgcReadoutElement(layId);
+    const MuonGM::TgcReadoutElement* tgcROE = MuonDetMgr->getTgcReadoutElement(layId);
     if (!tgcROE) {delete refPar; return nid;}
     int nStrips = m_muonIdHelperTool->tgcIdHelper().channelMax(refId);
    
@@ -1445,6 +1465,13 @@ double Muon::MuonTGMeasurementTool::residual( const Trk::Layer* layer, const Trk
 
 double Muon::MuonTGMeasurementTool::residual( const Trk::Layer* layer, const Trk::TrackParameters* layPar, Identifier id) const
 {
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+  const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle}; 
+  if(MuonDetMgr==nullptr){
+    ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+    // return StatusCode::FAILURE; 
+  } 
+  
   double res = 10000.;
   if (!layer || !layPar || !id.get_identifier32().get_compact()) return res;
   
@@ -1453,17 +1480,17 @@ double Muon::MuonTGMeasurementTool::residual( const Trk::Layer* layer, const Trk
   if (m_muonIdHelperTool->mdtIdHelper().is_mdt(id)) {
     res = detElPar->localPosition()[Trk::locR] ;
   } else if (m_muonIdHelperTool->rpcIdHelper().is_rpc(id)) {
-    const MuonGM::RpcReadoutElement* rpcROE = m_muonMgr->getRpcReadoutElement(id);
+    const MuonGM::RpcReadoutElement* rpcROE = MuonDetMgr->getRpcReadoutElement(id);
     if (rpcROE) res = detElPar->localPosition()[Trk::locX] - (detElPar->associatedSurface().transform().inverse()*(rpcROE->stripPos(id)))[Trk::locX];
   } else if (m_muonIdHelperTool->cscIdHelper().is_csc(id)) {
-    const MuonGM::CscReadoutElement* cscROE = m_muonMgr->getCscReadoutElement(id);
+    const MuonGM::CscReadoutElement* cscROE = MuonDetMgr->getCscReadoutElement(id);
     if (cscROE) res = detElPar->localPosition()[Trk::locX] - (detElPar->associatedSurface().transform().inverse()*(cscROE->stripPos(id)))[0];
   } else if (m_muonIdHelperTool->tgcIdHelper().is_tgc(id)) {
     if ( m_muonIdHelperTool->tgcIdHelper().isStrip(id) && m_muonIdHelperTool->tgcIdHelper().gasGap(id)==2 && m_muonIdHelperTool->tgcIdHelper().gasGapMax(id)==3 ) {
       delete detElPar;
       return res;  // no phi strips here
     }
-    const MuonGM::TgcReadoutElement* tgcROE = m_muonMgr->getTgcReadoutElement(id);
+    const MuonGM::TgcReadoutElement* tgcROE = MuonDetMgr->getTgcReadoutElement(id);
     if (tgcROE) {
       Amg::Vector2D locPos;
       const Amg::Vector3D globPos = tgcROE->channelPos(id);

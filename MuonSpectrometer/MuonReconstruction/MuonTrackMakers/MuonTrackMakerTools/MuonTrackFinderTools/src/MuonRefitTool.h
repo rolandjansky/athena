@@ -26,7 +26,6 @@
 namespace Muon {
   class MuonEDMPrinterTool;
   class IMdtDriftCircleOnTrackCreator;
-  class IMuonClusterOnTrackCreator;
   class IMuonCompetingClustersOnTrackCreator;
   class IMuonTrackExtrapolationTool;
   class MdtDriftCircleOnTrack;
@@ -99,8 +98,6 @@ namespace Muon {
     ToolHandle<Trk::IExtrapolator>                   m_extrapolator;
     ToolHandle<Trk::IExtrapolator>                   m_muonExtrapolator;
     ToolHandle<IMdtDriftCircleOnTrackCreator>        m_mdtRotCreator;
-    ToolHandle<IMuonClusterOnTrackCreator>           m_cscRotCreator;
-    ToolHandle<IMuonClusterOnTrackCreator>           m_triggerRotCreator;
     ToolHandle<IMuonCompetingClustersOnTrackCreator> m_compClusterCreator;
     ToolHandle<IDCSLFitProvider>                     m_t0Fitter;
     ToolHandle<Muon::IMuonTrackExtrapolationTool>    m_muonEntryTrackExtrapolator;

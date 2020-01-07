@@ -10,6 +10,8 @@
 #include <vector>
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h" // separately...
+#include "GaudiKernel/ServiceHandle.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonRIO_OnTrack/CscClusterOnTrack.h"
 #include "CscSegmentMakers/ICscSegmentUtilTool.h"
 #include "CscClusterization/ICscClusterUtilTool.h"
@@ -94,8 +96,7 @@ public:
   
 
 private:  // data
-  const MuonGM::MuonDetectorManager* m_gm;
-  const CscIdHelper* m_phelper;
+
   double m_max_chisquare_tight;
   double m_max_chisquare_loose;
   double m_max_chisquare;
@@ -121,6 +122,10 @@ private:  // data
   
   SG::ReadCondHandleKey<CscCondDbData> m_readKey{this, "ReadKey", "CscCondDbData", "Key of CscCondDbData"};   
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"EventInfo","EventInfo","event info"};
+
+  SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+      "MuonDetectorManager", 
+      "Key of input MuonDetectorManager condition data"};    
 
   // Convert a local 2D segment to MuonSegment
   Muon::MuonSegment*  build_segment(const ICscSegmentFinder::Segment& seg, bool measphi, Identifier chid, bool use2Lay) const;

@@ -4,7 +4,7 @@
 
 from G4AtlasApps.SimFlags import simFlags
 if not simFlags.CosmicFilterVolumeName.statusOn:
-    print "Warning CosmicFilterVolumeName not set using default (CaloEntryLayer)"
+    printfunc ("Warning CosmicFilterVolumeName not set using default (CaloEntryLayer)")
     simFlags.CosmicFilterVolumeName = "CaloEntryLayer"
 
 #--------------------------------------------------------------
@@ -34,14 +34,14 @@ job.CosmicGenerator.emin = 10000;  # default =10000 #10 GeV
 job.CosmicGenerator.emax = 5000*1000; # 2 TeV
 
 if simFlags.CosmicFilterVolumeName == "Muon":
-    print 'Using muon Volume setup of Cosmic Generator...'
+    printfunc ('Using muon Volume setup of Cosmic Generator...')
     job.CosmicGenerator.xvert_low =   -301700.
     job.CosmicGenerator.xvert_hig =    298300.
     job.CosmicGenerator.zvert_low =    -300000.
     job.CosmicGenerator.zvert_hig =    300000.
     job.CosmicGenerator.Radius= 20000.
 else:
-    print 'Using Non-muon Volume setup of Cosmic Generator...'
+    printfunc ('Using Non-muon Volume setup of Cosmic Generator...')
     job.CosmicGenerator.xvert_low =   -200000.
     job.CosmicGenerator.xvert_hig =    200000.
     job.CosmicGenerator.zvert_low =   -200000.

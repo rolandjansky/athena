@@ -6,7 +6,6 @@ from __future__ import print_function
 validity and repackage before forwarding ot to the ChainDef generating
 code."""
 import os
-import re
 import copy
 import sys
 import getopt
@@ -26,7 +25,7 @@ from .AlgFactory import AlgFactory
 try:
     from AthenaCommon.Logging import logging
     logger = logging.getLogger("TriggerMenu.jet.generateJetChainDefs")
-except:
+except Exception:
     logger = None
 
 
@@ -158,8 +157,6 @@ def _make_chaindef(from_central, instantiator):
     # rearrange the input data to produce chain_config
     chain_config = chainConfigMaker(from_central)
 
-    chain_name = chain_config.chain_name
-
     alg_factory = AlgFactory(chain_config)
     seq_builder = JetSequencesBuilder(alg_factory, chain_config)
 
@@ -168,6 +165,7 @@ def _make_chaindef(from_central, instantiator):
     alg_lists = seq_builder.make_alglists()
     # ... but chain names start with HLT_
     #header = 'HLT_'
+    #chain_name = chain_config.chain_name
     #if not chain_name.startswith(header):
     #    chain_name = header + chain_name
     #    final_chain_name= header + from_central['chainName']
@@ -283,7 +281,7 @@ def _make_start_te(chain_config):
     # its return type can vary....
     try:
         te = getInputTEfromL1Item(chain_config.seed)
-    except:
+    except Exception:
         raise RuntimeError(
             'JetDef._make_start_te: Unable to obtain te name for L1')
 

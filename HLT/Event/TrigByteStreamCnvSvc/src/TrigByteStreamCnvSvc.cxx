@@ -216,8 +216,9 @@ void TrigByteStreamCnvSvc::monitorRawEvent(const std::unique_ptr<uint32_t[]>& ra
   // Monitor error code
   if (rawEvent.nstatus() > 1) {
     hltonl::PSCErrorCode errorCode = static_cast<hltonl::PSCErrorCode>(rawEvent.status()[1]);
-    std::string errorCodeString = hltonl::PrintPscErrorCode(errorCode);
-    m_histPscErrorCode->Fill(errorCodeString.data(), 1.0);
+    std::ostringstream ss;
+    ss << errorCode;
+    m_histPscErrorCode->Fill(ss.str().data(), 1.0);
   }
 
   // Decode stream tags

@@ -118,10 +118,12 @@ ActsCaloTrackingVolumeBuilder::trackingVolume(
   Acts::CylinderVolumeHelper cvh(cvhCfg, makeActsAthenaLogger(this, "ACaloTrkVB", "CylVolHlp"));
 
   std::vector<double> lPos = {};
+  std::vector<std::shared_ptr<Acts::TrackingVolume>> noVolumes;
 
   ATH_MSG_VERBOSE("Creating gap volume to extend ID");
   // positive xy gap
   auto idGapPosXY = cvh.createGapTrackingVolume(gctx,
+                                                noVolumes,
                                                 nullptr,
                                                 idBounds->innerRadius(),
                                                 idBounds->outerRadius(),
@@ -133,6 +135,7 @@ ActsCaloTrackingVolumeBuilder::trackingVolume(
                                                 );
   // negative xy gap
   auto idGapNegXY = cvh.createGapTrackingVolume(gctx,
+                                                noVolumes,
                                                 nullptr,
                                                 idBounds->innerRadius(),
                                                 idBounds->outerRadius(),
@@ -144,6 +147,7 @@ ActsCaloTrackingVolumeBuilder::trackingVolume(
                                                 );
   // outer cover gap
   auto idGapCylOuter = cvh.createGapTrackingVolume(gctx,
+                                                   noVolumes,
                                                    nullptr,
                                                    idBounds->outerRadius(),
                                                    caloVolBounds->rMed(),
@@ -193,7 +197,7 @@ ActsCaloTrackingVolumeBuilder::trackingVolume(
     ATH_MSG_VERBOSE("Glueing outer cover of " << idVol->volumeName()
     << " to inner cover of " << calo->volumeName());
     std::const_pointer_cast<BoundarySurface>(idVol->boundarySurfaces().at(Acts::tubeOuterCover))
-      ->attachVolume(calo, Acts::outsideVolume);
+      ->attachVolume(calo.get(), Acts::outsideVolume);
   }
 
   // Glue positive XY face of ID to inner positive XY face of Calo.
@@ -208,7 +212,7 @@ ActsCaloTrackingVolumeBuilder::trackingVolume(
     ATH_MSG_VERBOSE("Glueing positive XY face of " << idVol->volumeName()
     << " to positive inner coutout disc of " << calo->volumeName());
     std::const_pointer_cast<BoundarySurface>(idVol->boundarySurfaces().at(Acts::positiveFaceXY))
-      ->attachVolume(calo, Acts::outsideVolume);
+      ->attachVolume(calo.get(), Acts::outsideVolume);
   }
 
   // Glue negative XY face of ID to inner negative XY face of Calo.
@@ -223,7 +227,7 @@ ActsCaloTrackingVolumeBuilder::trackingVolume(
     ATH_MSG_VERBOSE("Glueing negative XY face of " << idVol->volumeName()
     << " to negative inner coutout disc of " << calo->volumeName());
     std::const_pointer_cast<BoundarySurface>(idVol->boundarySurfaces().at(Acts::negativeFaceXY))
-      ->attachVolume(calo, Acts::outsideVolume);
+      ->attachVolume(calo.get(), Acts::outsideVolume);
   }
 
   // For navigational purposes we need to create three pseudo container cylinders.

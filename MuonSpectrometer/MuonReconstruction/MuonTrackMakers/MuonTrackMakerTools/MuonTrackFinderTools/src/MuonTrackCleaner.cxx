@@ -12,7 +12,6 @@
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
 #include "MuonReadoutGeometry/CscReadoutElement.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 #include "MuonIdHelpers/MdtIdHelper.h"
 #include "MuonIdHelpers/RpcIdHelper.h"

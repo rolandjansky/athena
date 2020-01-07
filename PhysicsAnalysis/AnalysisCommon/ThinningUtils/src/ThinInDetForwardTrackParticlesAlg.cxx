@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ThinInDetForwardTrackParticlesAlg.cxx
@@ -10,6 +10,7 @@
 // that are not associated with Muons.
 // Unlike some other algs in this package, no tool is used to select the
 // objects for thinning - everything is done in this one class.
+
 // Expression evaluation is also not used.
 ///////////////////////////////////////////////////////////////////
 
@@ -22,8 +23,11 @@
 #include <algorithm> 
 
 // FrameWork includes
+#include "StoreGate/ThinningHandle.h"
+#include "StoreGate/ReadHandle.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 ///////////////////////////////////////////////////////////////////
 // Public methods:
@@ -34,19 +38,10 @@
 ThinInDetForwardTrackParticlesAlg::ThinInDetForwardTrackParticlesAlg( const std::string& name,
                                              ISvcLocator* pSvcLocator ) :
 ::AthAlgorithm( name, pSvcLocator ),
-m_thinningSvc( "ThinningSvc/ThinningSvc", name ),
-m_doThinning(true),
 m_nEventsProcessed(0),
 m_nTracksProcessed(0),
 m_nTracksThinned(0)
 {
-   
-    declareProperty("ThinningSvc",          m_thinningSvc,
-                    "The ThinningSvc instance for a particular output stream" );
-    
-    declareProperty("ThinInDetForwardTrackParticles", m_doThinning,
-                    "Should the InDetForwardTrackParticles thinning be run?");
-   
 }
 
 // Destructor
@@ -61,7 +56,7 @@ StatusCode ThinInDetForwardTrackParticlesAlg::initialize()
     ATH_MSG_DEBUG ("Initializing " << name() << "...");
     
     // Print out the used configuration
-    ATH_MSG_DEBUG ( " using = " << m_thinningSvc );
+    ATH_MSG_DEBUG ( " using = " << m_streamName );
 
     // Is truth thinning required?
     if (!m_doThinning) {
@@ -70,6 +65,13 @@ StatusCode ThinInDetForwardTrackParticlesAlg::initialize()
         ATH_MSG_INFO("InDetForwardTrackParticles will be thinned");
     }
 
+    if (m_doThinning && m_streamName.empty()) {
+      ATH_MSG_ERROR ("StreamName property was not initialized.");
+      return StatusCode::FAILURE;
+    }
+    ATH_CHECK( m_tracksKey.initialize (m_streamName, m_doThinning) );
+    ATH_CHECK( m_muonsKey.initialize (m_doThinning) );
+    
     // Initialize the counters to zero
     m_nEventsProcessed = 0;
     m_nMuons = 0;
@@ -106,23 +108,13 @@ StatusCode ThinInDetForwardTrackParticlesAlg::execute()
     // Is truth thinning required?
     if (!m_doThinning) {
         return StatusCode::SUCCESS;
-    } 
+    }
+
+    const EventContext& ctx = Gaudi::Hive::currentContext();
    
     // Retrieve InDetForwardTrackParticles and Muons containers
-    const xAOD::TrackParticleContainer* tracks(0);
-    const xAOD::MuonContainer* muons(0);
-    if (evtStore()->contains<xAOD::TrackParticleContainer>("InDetForwardTrackParticles")) {
-        CHECK( evtStore()->retrieve( tracks , "InDetForwardTrackParticles" ) );
-    } else {
-        ATH_MSG_FATAL("No InDetForwardTrackParticles found.");
-        return StatusCode::FAILURE;
-    }
-    if (evtStore()->contains<xAOD::MuonContainer>("Muons")) {
-        CHECK( evtStore()->retrieve( muons , "Muons" ) );
-    } else {
-        ATH_MSG_FATAL("No Muons found");
-        return StatusCode::FAILURE;
-    }
+    SG::ThinningHandle<xAOD::TrackParticleContainer> tracks (m_tracksKey, ctx);
+    SG::ReadHandle<xAOD::MuonContainer> muons (m_muonsKey, ctx);
 
     // Set up mask and set the main counters
     std::vector<bool> trackMask;
@@ -134,18 +126,16 @@ StatusCode ThinInDetForwardTrackParticlesAlg::execute()
     // Loop over the muons. Identify which are SiliconAssociatedForwardMuon. 
     // Get their associated inner detector track. Find that track in the InDetForwardTrackParticles.
     // Set the mask element.
-    if (muons!=nullptr) {
-        for (auto muon : *muons) {
-            if (muon->muonType()==xAOD::Muon::SiliconAssociatedForwardMuon) {
-                ++m_nSiFwdMuons;
-                const xAOD::TrackParticle* muTrk(nullptr);
-                if (muon->inDetTrackParticleLink().isValid()) muTrk = *(muon->inDetTrackParticleLink());
-                if (muTrk!=nullptr) {
-                    auto search = std::find(tracks->begin(), tracks->end(), muTrk);
-                    if (search != tracks->end()) {++m_nSiFwdAssoc; trackMask[(*search)->index()] = true;}   
-                }
-            }     
+    for (auto muon : *muons) {
+      if (muon->muonType()==xAOD::Muon::SiliconAssociatedForwardMuon) {
+        ++m_nSiFwdMuons;
+        const xAOD::TrackParticle* muTrk(nullptr);
+        if (muon->inDetTrackParticleLink().isValid()) muTrk = *(muon->inDetTrackParticleLink());
+        if (muTrk!=nullptr) {
+          auto search = std::find(tracks->begin(), tracks->end(), muTrk);
+          if (search != tracks->end()) {++m_nSiFwdAssoc; trackMask[(*search)->index()] = true;}   
         }
+      }     
     }
 
     // Increment counters
@@ -154,10 +144,7 @@ StatusCode ThinInDetForwardTrackParticlesAlg::execute()
     }
 
     // Apply masks to thinning service
-    if (m_thinningSvc->filter(*tracks, trackMask, IThinningSvc::Operator::Or).isFailure()) {
-        ATH_MSG_ERROR("Application of thinning service failed for InDetForwardTrackParticles! ");
-        return StatusCode::FAILURE;
-    }
+    tracks.keep (trackMask);
     
     return StatusCode::SUCCESS;
 }

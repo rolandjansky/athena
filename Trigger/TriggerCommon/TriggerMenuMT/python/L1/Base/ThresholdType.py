@@ -2,6 +2,8 @@
 
 from enum import Enum, unique
 
+from past.builtins import cmp
+
 from AthenaCommon.Logging import logging
 log = logging.getLogger("Menu.L1.Base.ThresholdType")
 
@@ -12,7 +14,7 @@ class ThrType( Enum ):
     eEM = 1; eTAU = 2; jJ = 3; gJ = 4; gXE = 5; jXE = 6; MU = 7 # noqa: E702
 
     # NIM thresholds
-    BCM = 21; BCMCMB = 22; LUCID = 23; ZDC = 24; BPTX = 25; CALREQ = 26; MBTS = 27; MBTSSI = 28; NIM = 29; ALFA = 30 # noqa: E702
+    BCM = 21; BCMCMB = 22; LUCID = 23; ZDC = 24; BPTX = 25; CALREQ = 26; MBTS = 27; MBTSSI = 28; NIM = 29 # noqa: E702
 
     # legacy calo thresholds
     EM = 41; TAU = 42; JET = 43; JE = 44; XE = 45; TE = 46; XS = 47 # noqa: E702

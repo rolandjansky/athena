@@ -7,6 +7,8 @@ from AthenaCommon.CFElements import seqAND, seqOR, flatAlgorithmSequences
 from AthenaCommon.Logging import logging
 __log = logging.getLogger('TriggerConfig')
 
+import six
+
 def collectHypos( steps ):
     """
     Method iterating over the CF and picking all the Hypothesis algorithms
@@ -25,7 +27,7 @@ def collectHypos( steps ):
 
         __log.info( "collecting hypos from step " + stepSeq.name() )
 #        start = {}
-        for seq,algs in flatAlgorithmSequences( stepSeq ).iteritems():
+        for seq,algs in six.iteritems (flatAlgorithmSequences( stepSeq )):
 
             for alg in algs:
                 # will replace by function once dependencies are sorted
@@ -52,7 +54,7 @@ def collectViewMakers( steps ):
     for stepSeq in steps.getChildren():
         for recoSeq in stepSeq.getChildren():
             algsInSeq = flatAlgorithmSequences( recoSeq )
-            for seq,algs in algsInSeq.iteritems():
+            for seq,algs in six.iteritems (algsInSeq):
                 for alg in algs:
                     if "EventViewCreator" in alg.getFullName(): # TODO base it on checking types of write handles once available
                         makers.add(alg)
@@ -91,7 +93,7 @@ def collectL1DecoderDecisionObjects(l1decoder):
 
 def collectHypoDecisionObjects(hypos, inputs = True, outputs = True):
     decisionObjects = set()
-    for step, stepHypos in hypos.iteritems():
+    for step, stepHypos in six.iteritems (hypos):
         for hypoAlg in stepHypos:
             __log.debug( "Hypo %s with input %s and output %s ",
                          hypoAlg.getName(), hypoAlg.HypoInputDecisions, hypoAlg.HypoOutputDecisions )
@@ -110,7 +112,7 @@ def collectHypoDecisionObjects(hypos, inputs = True, outputs = True):
 
 def collectFilterDecisionObjects(filters, inputs = True, outputs = True):
     decisionObjects = set()
-    for step, stepFilters in filters.iteritems():
+    for step, stepFilters in six.iteritems (filters):
         for filt in stepFilters:
             if inputs:
                 decisionObjects.update( filt.Input )
@@ -165,7 +167,7 @@ def triggerSummaryCfg(flags, hypos):
     if len(TriggerConfigHLT.dicts()) == 0:
         __log.warning("No HLT menu, chains w/o algorithms are not handled")
     else:
-        for chainName, chainDict in TriggerConfigHLT.dicts().iteritems():
+        for chainName, chainDict in six.iteritems (TriggerConfigHLT.dicts()):
             if chainName not in allChains:
                 __log.warn("The chain %s is not mentiond in any step", chainName)
                 # TODO once sequences available in the menu we need to crosscheck it here
@@ -173,7 +175,7 @@ def triggerSummaryCfg(flags, hypos):
                 allChains[chainName] = mapThresholdToL1DecisionCollection( chainDict['chainParts'][0]['L1threshold'] )
                 __log.info("The chain %s final decisions will be taken from %s", chainName, allChains[chainName] )
 
-    for c, cont in allChains.iteritems():
+    for c, cont in six.iteritems (allChains):
         __log.info("Final decision of chain  " + c + " will be read from " + cont )
     decisionSummaryAlg.FinalDecisionKeys = list(set(allChains.values()))
     decisionSummaryAlg.FinalStepDecisions = allChains
@@ -319,7 +321,7 @@ def triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg, offline=False):
 
     # Tool serialising EDM objects to fill the HLT result
     serialiser = TriggerEDMSerialiserToolCfg('Serialiser')
-    for item, modules in ItemModuleDict.iteritems():
+    for item, modules in six.iteritems (ItemModuleDict):
         __log.debug('adding to serialiser list: %s, modules: %s', item, modules)
         serialiser.addCollection(item, modules)
 
@@ -369,7 +371,7 @@ def triggerPOOLOutputCfg(flags, decObj, decObjHypoOut, edmSet):
 
     # Build the output ItemList
     itemsToRecord = []
-    for edmType, edmKeys in edmList.iteritems():
+    for edmType, edmKeys in six.iteritems (edmList):
         itemsToRecord.extend([edmType+'#'+collKey for collKey in edmKeys])
 
     # Add decision containers (navigation)
@@ -428,7 +430,7 @@ def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj, dec
     groupedByView = defaultdict(list)
     [ groupedByView[c[3]].append( c ) for c in needMerging ]
 
-    for view, colls in groupedByView.iteritems():
+    for view, colls in six.iteritems (groupedByView):
         viewCollName = view.split(":")[1]
         tool = HLTEDMCreator( "{}Merger".format( viewCollName ) )
         for coll in colls:  # see the content in TrigEDMConfigRun3
@@ -472,7 +474,7 @@ def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj, dec
                 continue
             groupedByType[collType].append( collName )
 
-        for collType, collNameList in groupedByType.iteritems():
+        for collType, collNameList in six.iteritems (groupedByType):
             propName = collType.split(":")[-1]
             if hasattr( tool, propName ):
                 setattr( tool, propName, collNameList )

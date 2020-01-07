@@ -76,6 +76,8 @@ def getFastCaloSimV2ParamSvc(name="ISF_FastCaloSimV2ParamSvc", **kwargs):
 def getFastCaloSimSvcV2(name="ISF_FastCaloSimSvcV2", **kwargs):
     kwargs.setdefault("SimulatorTool",  'ISF_FastCaloSimV2Tool')
     kwargs.setdefault("Identifier",     'FastCaloSim')
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    kwargs.setdefault("ParticleBroker", ISF_Flags.ParticleBroker())
     return CfgMgr.ISF__LegacySimSvc(name, **kwargs )
 
 #### DNNCaloSim

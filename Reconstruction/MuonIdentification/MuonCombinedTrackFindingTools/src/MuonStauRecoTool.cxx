@@ -65,7 +65,6 @@ namespace MuonCombined {
     m_recoValidationTool(""),
     m_trackAmbibuityResolver("Trk::TrackSelectionProcessorTool/MuonAmbiProcessor"),
     m_hitTimingTool("Muon::MuonHitTimingTool/MuonHitTimingTool"),
-    m_layerHoughTool("Muon::MuonLayerHoughTool/MuonLayerHoughTool"),
     m_muonPRDSelectionTool("Muon::MuonPRDSelectionTool/MuonPRDSelectionTool"),
     m_muonPRDSelectionToolStau("Muon::MuonPRDSelectionTool/MuonPRDSelectionToolStau"),
     m_mdtCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"),
@@ -84,7 +83,6 @@ namespace MuonCombined {
     declareProperty("MuonRecoValidationTool",m_recoValidationTool );    
     declareProperty("TrackAmbiguityProcessor",m_trackAmbibuityResolver );    
     declareProperty("MuonHitTimingTool",m_hitTimingTool);
-    declareProperty("MuonLayerHoughTool",m_layerHoughTool);
     declareProperty("MuonPRDSelectionTool", m_muonPRDSelectionTool );
     declareProperty("MuonPRDSelectionToolStau", m_muonPRDSelectionToolStau );
     declareProperty("MdtDriftCircleOnTrackCreator", m_mdtCreator );
@@ -127,7 +125,6 @@ namespace MuonCombined {
     if(!m_recoValidationTool.empty()) ATH_CHECK(m_recoValidationTool.retrieve());
     ATH_CHECK(m_trackAmbibuityResolver.retrieve());
     ATH_CHECK(m_hitTimingTool.retrieve());
-    ATH_CHECK(m_layerHoughTool.retrieve());
     ATH_CHECK(m_muonPRDSelectionTool.retrieve());
     ATH_CHECK(m_muonPRDSelectionToolStau.retrieve());
     ATH_CHECK(m_mdtCreator.retrieve());

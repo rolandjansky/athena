@@ -6,7 +6,7 @@ Lvl1 specific flags
 
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from AthenaCommon.Logging import logging
-from Limits import Limits
+from .Limits import Limits
 
 __author__  = 'J.Stelzer'
 __doc__="Level 1 specific flags for Run 2"
@@ -26,7 +26,7 @@ class CTPVersion(JobProperty):
 
     def _do_action(self):
         """Load the limits"""
-        from Limits import Limits
+        from .Limits import Limits
         Limits.setLimits(self.get_Value())
 
 

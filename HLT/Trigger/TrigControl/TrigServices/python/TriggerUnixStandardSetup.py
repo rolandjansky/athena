@@ -71,7 +71,7 @@ def setupCommonServices():
     ROOT6Setup()
 
     # Setup online THistSvc unless specifically configured otherwise
-    #    setup the THistSvc early and force the creation of the ThistSvc 
+    #    setup the THistSvc early and force the creation of the THistSvc 
     #    so that it can be used by infrastructure services to book histograms  
     #    (to avoid problems e.g. with histograms in ROBDataProviderSvc)
     if _Conf.useOnlineTHistSvc:
@@ -178,7 +178,7 @@ def setupCommonServicesEnd():
     topSequence += TrigOpMonitor()
 
     # Set default properties for some important services after all user job options
-    log.info('Configure core services for online runnig')
+    log.info('Configure core services for online running')
 
     svcMgr.CoreDumpSvc.CoreDumpStream = "stdout"
     svcMgr.CoreDumpSvc.CallOldHandler = True

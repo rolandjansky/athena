@@ -921,6 +921,7 @@ def getFastCaloSimV2Tool(name="ISF_FastCaloSimV2Tool", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
     kwargs.setdefault("RandomStream"                     , ISF_FastCaloSimFlags.RandomStreamName())
     kwargs.setdefault("RandomSvc"                        , simFlags.RandomSvcMT())
+    kwargs.setdefault("PunchThroughTool"                 , '') #ISF_PunchThroughTool
 
     return CfgMgr.ISF__FastCaloSimV2Tool(name, **kwargs )
 

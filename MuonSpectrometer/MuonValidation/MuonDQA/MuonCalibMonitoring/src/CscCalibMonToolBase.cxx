@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -46,7 +46,6 @@ using namespace std;
     //m_histCol(kOrange -9),
     m_histColAlert(kRed),
     m_monGroupVec(NULL),
-    m_muon_mgr(NULL),
     m_statDbColl(NULL)
 {
    
@@ -74,9 +73,6 @@ StatusCode CscCalibMonToolBase::initialize()
 {
   // init message stream -  Part 1: Get the messaging service, print where you are
   ATH_MSG_INFO( "CscCalibMonToolBase : in initialize()"  );
-
-  ATH_CHECK( detStore()->retrieve(m_muon_mgr) );
-  ATH_MSG_DEBUG( "Found the MuonGeoModel Manager "  );
 
   ATH_CHECK( m_muonIdHelperTool.retrieve() );
   ATH_MSG_DEBUG( " Found the MuonIdHelperTool. "  );

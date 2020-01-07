@@ -13,8 +13,8 @@ an RDO
 #include "StoreGate/DataHandle.h"
 
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "AthContainers/DataVector.h"
 
 #include <vector>
@@ -103,8 +103,7 @@ namespace MuonCalib{
       /**Services and tools*/
       // ITHistSvc * m_thistSvc;
     //      ICscCalibTool * m_cscCalibTool;
-      const CscIdHelper *m_cscId;
-      const MuonGM::MuonDetectorManager * m_muon_mgr;
+      ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
       IChronoStatSvc* m_chronoSvc;
       ToolHandle<Muon::ICSC_RDO_Decoder> m_cscRdoDecoderTool;
       SG::ReadCondHandleKey<CscCondDbData> m_readKey{this, "ReadKey", "CscCondDbData", "Key of CscCondDbData"};   

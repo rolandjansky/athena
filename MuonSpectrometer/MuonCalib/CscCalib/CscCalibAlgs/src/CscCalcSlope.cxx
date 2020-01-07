@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -49,7 +49,6 @@ namespace MuonCalib {
     m_storeGate(NULL),
     m_cscCalibTool(NULL),
     m_cscRdoDecoderTool ("Muon::CscRDO_Decoder"),
-    m_cscId(NULL),
     m_chronoSvc(NULL),
     m_outputFileName("output.cal"),
     m_dumpAllHists(false),
@@ -178,13 +177,9 @@ cerr << "detstore" << endl;
     }
     
 cerr << "idhelper" << endl;
-    sc = detStore->retrieve(m_cscId,"CSCIDHELPER");
-    if( sc.isFailure())
-    {
-      mLog << MSG::ERROR << " Cannot retrieve CscIdHelper " << endmsg;
-      return sc;
-    }
 
+ ATH_CHECK(m_idHelperSvc.retrieve());
+ 
 cerr << "chorno" << endl;
     sc = service("ChronoStatSvc",m_chronoSvc);    
     if(sc.isFailure())
@@ -239,19 +234,19 @@ cerr << "done init services" << endl;
     for(unsigned int pulserLevel=0; pulserLevel < 64; pulserLevel++)
       m_dbLevels[pulserLevel] = pulserLevel*.5;
 
-    IdContext channelContext = m_cscId->channel_context();
+    IdContext channelContext = m_idHelperSvc->cscIdHelper().channel_context();
 
     if(m_doBitHists) m_bitHists = new DataVector<TH1I>(SG::VIEW_ELEMENTS);
     //Loop through ids to find out what hash range we're working on, and to 
     //initialize histograms.
-    vector<Identifier> ids = m_cscId->idVector();
+    vector<Identifier> ids = m_idHelperSvc->cscIdHelper().idVector();
     vector<Identifier>::const_iterator chamItr = ids.begin();
     vector<Identifier>::const_iterator chamEnd = ids.end();
     m_maxStripHash = 0;
     for(; chamItr != chamEnd; chamItr++)
     {
       std::vector<Identifier> stripVect;
-      m_cscId->idChannels(*chamItr,stripVect);
+      m_idHelperSvc->cscIdHelper().idChannels(*chamItr,stripVect);
 
       /*
          vector<vector<float> >  chamberDbs;
@@ -271,7 +266,7 @@ cerr << "done init services" << endl;
       for(;stripItr != stripEnd; stripItr++)
       {
         IdentifierHash stripHash;
-        m_cscId->get_channel_hash(*stripItr,stripHash);
+        m_idHelperSvc->cscIdHelper().get_channel_hash(*stripItr,stripHash);
 
         if(m_maxStripHash < (unsigned int)stripHash)
           m_maxStripHash = (unsigned int)stripHash; 
@@ -279,15 +274,15 @@ cerr << "done init services" << endl;
         if(m_bitHists)
         {
           Identifier id;
-          m_cscId->get_id((IdentifierHash)stripHash,id,&channelContext);
-          int wireLayer = m_cscId->wireLayer(id);
-          char orientation = (m_cscId->measuresPhi(id) ? 'Y':'X');
+          m_idHelperSvc->cscIdHelper().get_id((IdentifierHash)stripHash,id,&channelContext);
+          int wireLayer = m_idHelperSvc->cscIdHelper().wireLayer(id);
+          char orientation = (m_idHelperSvc->cscIdHelper().measuresPhi(id) ? 'Y':'X');
 
-          int stationName = m_cscId->stationName(id);
-          int stationPhi = m_cscId->stationPhi(id);
-          int stationEta = m_cscId->stationEta(id);
+          int stationName = m_idHelperSvc->cscIdHelper().stationName(id);
+          int stationPhi = m_idHelperSvc->cscIdHelper().stationPhi(id);
+          int stationEta = m_idHelperSvc->cscIdHelper().stationEta(id);
 
-          int stripNumber = m_cscId->strip(id);
+          int stripNumber = m_idHelperSvc->cscIdHelper().strip(id);
 
           char bitName[200], titleSeed[500];
           //Bit histogram (for looking for stuck-bits)
@@ -313,9 +308,9 @@ cerr << "done init services" << endl;
       m_calGraphs->push_back(NULL);
       /*IdentifierHash stripHash =chanItr;
         Identifier stripId;
-        IdContext channelContext = m_cscId->channel_context();
-        m_cscId->get_id(stripHash, stripId, &channelContext);
-        m_allowedStrips[chanItr] = (m_cscId->chamberLayer(stripId) == m_expectedChamberLayer);*/
+        IdContext channelContext = m_idHelperSvc->cscIdHelper().channel_context();
+        m_idHelperSvc->cscIdHelper().get_id(stripHash, stripId, &channelContext);
+        m_allowedStrips[chanItr] = (m_idHelperSvc->cscIdHelper().chamberLayer(stripId) == m_expectedChamberLayer);*/
     }
 
 
@@ -525,13 +520,13 @@ cerr << "done init services" << endl;
           int numStrips = cluster->width();
           int samplesPerStrip = (cluster->samples()).size()/numStrips;
 
-          IdContext channelContext = m_cscId->channel_context();	
+          IdContext channelContext = m_idHelperSvc->cscIdHelper().channel_context();	
           /*
              Identifier startId;
-             m_cscId->get_id(hashStart, startId, &channelContex);
+             m_idHelperSvc->cscIdHelper().get_id(hashStart, startId, &channelContex);
 
           //check the chamber layer.
-          int chamberLayer = m_cscId->chamberLayer(startId) << endmsg;
+          int chamberLayer = m_idHelperSvc->cscIdHelper().chamberLayer(startId) << endmsg;
           if(chamberLayer != m_expectedChamberLayer)
           {
           m_log << MSG::ERROR << "A chamber with a chamber layer of " << chamberLayer << " was found. "
@@ -543,11 +538,11 @@ cerr << "done init services" << endl;
           {
             Identifier stripId =m_cscRdoDecoderTool->channelIdentifier(cluster, stripItr);
             IdentifierHash cscChannelHashId;
-            m_cscId->get_channel_hash(stripId, cscChannelHashId);
+            m_idHelperSvc->cscIdHelper().get_channel_hash(stripId, cscChannelHashId);
             int stripHash = cscChannelHashId;
-            mLog << MSG::VERBOSE << "The eta of this strip is: " << m_cscId->stationEta(stripId) << endmsg;
+            mLog << MSG::VERBOSE << "The eta of this strip is: " << m_idHelperSvc->cscIdHelper().stationEta(stripId) << endmsg;
 
-            int chamberLayer = m_cscId->chamberLayer(stripId);
+            int chamberLayer = m_idHelperSvc->cscIdHelper().chamberLayer(stripId);
             if(chamberLayer != m_expectedChamberLayer)
             {
               mLog << MSG::FATAL << "Cluster includes strip in chamber layer "
@@ -557,18 +552,18 @@ cerr << "done init services" << endl;
               return StatusCode::FAILURE;
             }
 
-            int currentWireLayer = m_cscId->wireLayer(stripId) - 1;
+            int currentWireLayer = m_idHelperSvc->cscIdHelper().wireLayer(stripId) - 1;
             if( currentWireLayer < 0 || currentWireLayer > 3)
             {
               mLog << MSG::FATAL << "Problem in getting wire layer! - Current value is " 
-                   << m_cscId->wireLayer(stripId) << " while only values between 1-4 are allowed." << endmsg;
+                   << m_idHelperSvc->cscIdHelper().wireLayer(stripId) << " while only values between 1-4 are allowed." << endmsg;
               return StatusCode::FAILURE;
             }
             bool isThisLayerPulsed = (pulsedWireLayer >> currentWireLayer)&0x1;
             if(isThisLayerPulsed)
             {
               /*Usefull for debug, but slows things down a surprising amount
-                if(!m_cscId->valid(stripId))
+                if(!m_idHelperSvc->cscIdHelper().valid(stripId))
                 {
                 mLog << MSG::ERROR << stripId.getString() << " is not a valid id!" << endmsg;
                 }*/
@@ -657,7 +652,7 @@ cerr << "done init services" << endl;
                 mLog << MSG::WARNING << "stripHash "   << stripHash << endmsg;
                 mLog << MSG::WARNING << "strip in chamber " << stripItr << endmsg;
                 mLog << MSG::WARNING
-                  << " and detailed id " <<  m_cscId->show_to_string(stripId,&channelContext)
+                  << " and detailed id " <<  m_idHelperSvc->cscIdHelper().show_to_string(stripId,&channelContext)
                   << endmsg;
                 mLog	<< "Pulsed layer " << pulsedWireLayer <<endmsg;
                 mLog << ", Samples: "  << samples[0] <<", " << samples[1] << ", " 
@@ -698,7 +693,7 @@ cerr << "done init services" << endl;
     unsigned int numCalibPoints = m_ampProfs->size();	
     mLog << MSG::INFO << "There are " << numCalibPoints << " pulser levels to evaluate." << endmsg;
 
-    IdContext channelContext = m_cscId->channel_context();	
+    IdContext channelContext = m_idHelperSvc->cscIdHelper().channel_context();	
 
     float chargeMax = 530.88; //in fC
 
@@ -717,17 +712,17 @@ cerr << "done init services" << endl;
 
 
       Identifier id;
-      m_cscId->get_id((IdentifierHash)stripHash,id,&channelContext);
-      int chamberLayer = m_cscId->chamberLayer(id);
-      char orientation = (m_cscId->measuresPhi(id) ? 'Y':'X');
+      m_idHelperSvc->cscIdHelper().get_id((IdentifierHash)stripHash,id,&channelContext);
+      int chamberLayer = m_idHelperSvc->cscIdHelper().chamberLayer(id);
+      char orientation = (m_idHelperSvc->cscIdHelper().measuresPhi(id) ? 'Y':'X');
 
-      int wireLayer = m_cscId->wireLayer(id);
+      int wireLayer = m_idHelperSvc->cscIdHelper().wireLayer(id);
 
 
-      int stationName = m_cscId->stationName(id);
-      int stationPhi = m_cscId->stationPhi(id);
-      int stationEta = m_cscId->stationEta(id);
-      int stripNumber = m_cscId->strip(id);
+      int stationName = m_idHelperSvc->cscIdHelper().stationName(id);
+      int stationPhi = m_idHelperSvc->cscIdHelper().stationPhi(id);
+      int stationEta = m_idHelperSvc->cscIdHelper().stationEta(id);
+      int stripNumber = m_idHelperSvc->cscIdHelper().strip(id);
 
 
       //Decide if we're fitting to an edge strip or not, which
@@ -742,7 +737,7 @@ cerr << "done init services" << endl;
 
 
       IdentifierHash chamHash;
-      m_cscId->get_module_hash(id,chamHash);
+      m_idHelperSvc->cscIdHelper().get_module_hash(id,chamHash);
 
       if(chamberLayer != m_expectedChamberLayer)
         continue;
@@ -1014,24 +1009,24 @@ cerr << "done init services" << endl;
 
       //get id for next few outputs
       Identifier id;
-      IdContext channelContext = m_cscId->channel_context();	
-      m_cscId->get_id((*slopeItr)->hashId(),id, &channelContext);
+      IdContext channelContext = m_idHelperSvc->cscIdHelper().channel_context();	
+      m_idHelperSvc->cscIdHelper().get_id((*slopeItr)->hashId(),id, &channelContext);
 
       //output chamber #
       IdentifierHash chamberHash;
-      Identifier chamberId = m_cscId->elementID(id);
-      if(!m_cscId->valid(chamberId))
+      Identifier chamberId = m_idHelperSvc->cscIdHelper().elementID(id);
+      if(!m_idHelperSvc->cscIdHelper().valid(chamberId))
       {
         mLog << MSG::FATAL << chamberId.getString() << " is not a valid id!" << endmsg;
-        mLog << MSG::FATAL << "identifier is: " << m_cscId->show_to_string(chamberId) << endmsg;
+        mLog << MSG::FATAL << "identifier is: " << m_idHelperSvc->cscIdHelper().show_to_string(chamberId) << endmsg;
         return StatusCode::FAILURE;
       }
 
-      m_cscId->get_module_hash(id,chamberHash);
+      m_idHelperSvc->cscIdHelper().get_module_hash(id,chamberHash);
       out <<" " << chamberHash;
 
       //output strip details
-      out << " " << m_cscId->show_to_string(id) << " ";
+      out << " " << m_idHelperSvc->cscIdHelper().show_to_string(id) << " ";
 
       //output parameter values	
       out << " " << (*slopeItr)->value();

@@ -2,6 +2,8 @@
 #
 #           Setup of precision tracking
 
+from __future__ import print_function
+
 from AthenaCommon.Include import include
 include.block("InDetTrigRecExample/EFInDetConfig.py")
 include("InDetTrigRecExample/InDetTrigRec_jobOptions.py") # this is needed to get InDetTrigFlags
@@ -117,7 +119,7 @@ def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks
                                                                      TrackSummaryTool = InDetTrigTrackSummaryTool)
   
   ToolSvc += InDetTrigMTxAODParticleCreatorTool
-  print InDetTrigMTxAODParticleCreatorTool
+  print (InDetTrigMTxAODParticleCreatorTool)
   
   
   from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackCollectionCnvTool
@@ -125,7 +127,7 @@ def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks
                                                                            TrackParticleCreator = InDetTrigMTxAODParticleCreatorTool)
   
   ToolSvc += InDetTrigMTxAODTrackCollectionCnvTool
-  print InDetTrigMTxAODTrackCollectionCnvTool
+  print (InDetTrigMTxAODTrackCollectionCnvTool)
   
   #This one shouldn't be necessary
   #TODO: obsolete turn off
@@ -134,7 +136,7 @@ def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks
                                                                                             TrackParticleCreator = InDetTrigMTxAODParticleCreatorTool)
   
   ToolSvc += InDetTrigMTRecTrackParticleContainerCnvTool
-  print InDetTrigMTRecTrackParticleContainerCnvTool
+  print (InDetTrigMTRecTrackParticleContainerCnvTool)
   
   from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg
   InDetTrigMTxAODTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg(name = "InDetTrigMTxAODParticleCreatorAlg" + signature,

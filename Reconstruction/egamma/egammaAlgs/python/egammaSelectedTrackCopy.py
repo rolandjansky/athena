@@ -5,33 +5,27 @@ __author__ = "Christos"
 
 from egammaAlgs import egammaAlgsConf
 from egammaRec.Factories import ToolFactory, AlgFactory
-from egammaRec.egammaRecFlags import jobproperties # to set jobproperties.egammaRecFlags
-from egammaRec import egammaKeys
+# to set jobproperties.egammaRecFlags
+from egammaRec.egammaRecFlags import jobproperties
 from InDetRecExample.InDetKeys import InDetKeys
-
 from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools, EMExtrapolationToolsCommonCache
 from egammaCaloTools import egammaCaloToolsConf
 
-egammaCaloClusterGSFSelector = ToolFactory( egammaCaloToolsConf.egammaCaloClusterSelector,
-                                            name = 'caloClusterGSFSelector',
-                                            EMEtRanges = [2500.],
-                                            EMFCuts = [0.65]
-                                          )  
+egammaCaloClusterGSFSelector = ToolFactory(egammaCaloToolsConf.egammaCaloClusterSelector,
+                                           name='caloClusterGSFSelector',
+                                           EMEtRanges=[2250.],
+                                           EMFCuts=[0.6],
+                                           # 3x7/7x7=0.429. Below this
+                                           # there is more energy outside the
+                                           # 3x7 core than inside
+                                           RetaCut=[0.42]
+                                           )
 
-egammaSelectedTrackCopy = AlgFactory( egammaAlgsConf.egammaSelectedTrackCopy,
-                                      name = 'egammaSelectedTrackCopy' ,
-                                      ExtrapolationTool = EMExtrapolationTools,
-                                      ExtrapolationToolCommonCache = EMExtrapolationToolsCommonCache,
-                                      ClusterContainerName=jobproperties.egammaRecFlags.egammaTopoClusterCollection(),
-                                      TrackParticleContainerName=InDetKeys.xAODTrackParticleContainer(),
-                                      minNoSiHits=4,
-                                      broadDeltaEta=0.1,   # this is multiplied by 2 for the Candidate Match , so +- 0.2 in eta
-                                      broadDeltaPhi=0.15,   # this is multiplied by 2 for the Candidate Match , so +- 0.3 in phi
-                                      narrowDeltaEta=0.05, 
-                                      #These have to be relaxed enough for the conversions
-                                      narrowDeltaPhi=0.05,   
-                                      narrowDeltaPhiBrem=0.20, #Dominated by the needs of assymetric conversions
-                                      narrowDeltaPhiRescale=0.05,  
-                                      narrowDeltaPhiRescaleBrem=0.1,
-                                      egammaCaloClusterSelector = egammaCaloClusterGSFSelector
-                                      )
+egammaSelectedTrackCopy = AlgFactory(egammaAlgsConf.egammaSelectedTrackCopy,
+                                     name='egammaSelectedTrackCopy',
+                                     ExtrapolationTool=EMExtrapolationTools,
+                                     ExtrapolationToolCommonCache=EMExtrapolationToolsCommonCache,
+                                     ClusterContainerName=jobproperties.egammaRecFlags.egammaTopoClusterCollection(),
+                                     TrackParticleContainerName=InDetKeys.xAODTrackParticleContainer(),
+                                     egammaCaloClusterSelector=egammaCaloClusterGSFSelector
+                                     )

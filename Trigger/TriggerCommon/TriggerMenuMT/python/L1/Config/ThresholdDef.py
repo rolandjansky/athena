@@ -189,7 +189,7 @@ class ThresholdDef:
 
         thr_mbtsA = MBTSThreshold('MBTS_A', mapping=0)
         thr_mbtsC = MBTSThreshold('MBTS_C', mapping=1)
-        for x in xrange(16):
+        for x in range(16):
             if tc.thresholdExists('MBTS_A%i' % x):
                 thr_mbtsA.addSector( tc.getDefinedThreshold('MBTS_A%i' % x) )
             if tc.thresholdExists('MBTS_C%i' % x):

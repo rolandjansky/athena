@@ -44,7 +44,7 @@ if __name__=='__main__':
         from AthenaMonitoring.DQConfigFlags import allSteeringFlagsOff
         allSteeringFlagsOff()
     ConfigFlags.fillFromArgs(args.flags)
-    isReadingRaw = (GetFileMD(ConfigFlags.Input.Files).get('file_type', 'POOL') == 'RAW')
+    isReadingRaw = (GetFileMD(ConfigFlags.Input.Files).get('file_type', 'POOL') == 'BS')
     if isReadingRaw:
         if ConfigFlags.DQ.Environment not in ('tier0', 'tier0Raw', 'online'):
             log.warning('Reading RAW file, but DQ.Environment set to %s',
@@ -89,14 +89,13 @@ if __name__=='__main__':
 
     # Force loading of conditions in MT mode
     if ConfigFlags.Concurrency.NumThreads > 0:
+        from AthenaConfiguration.ComponentFactory import CompFactory
         if len([_ for _ in cfg._conditionsAlgs if _.getName()=="PixelDetectorElementCondAlg"]) > 0:
-            from AthenaMonitoring.AthenaMonitoringConf import ForceIDConditionsAlg
             beginseq = cfg.getSequence("AthBeginSeq")
-            beginseq += ForceIDConditionsAlg("ForceIDConditionsAlg")
+            beginseq += CompFactory.ForceIDConditionsAlg("ForceIDConditionsAlg")
         if len([_ for _ in cfg._conditionsAlgs if _.getName()=="MuonAlignmentCondAlg"]) > 0:
-            from AthenaMonitoring.AthenaMonitoringConf import ForceMSConditionsAlg
             beginseq = cfg.getSequence("AthBeginSeq")
-            beginseq += ForceMSConditionsAlg("ForceMSConditionsAlg")
+            beginseq += CompFactory.ForceMSConditionsAlg("ForceMSConditionsAlg")
     
     # any last things to do?
     if args.postExec:

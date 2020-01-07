@@ -26,7 +26,8 @@ def tauMonitoringConfig(inputFlags):
     # helper. Then, the helper will instantiate an instance and set up the 
     # base class configuration following the inputFlags. The returned object 
     # is the algorithm.
-    from tauMonitoring.tauMonitoringConf import tauMonitorAlgorithm
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    tauMonitorAlgorithm = CompFactory.tauMonitorAlgorithm
     tauMonAlgBA = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgBA')
     tauMonAlgCR = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgCR')
     tauMonAlgEC = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgEC')
@@ -98,10 +99,10 @@ def tauMonitoringConfig(inputFlags):
                                xbins=30,xmin=-2.55,xmax=2.55,ybins=32,ymin=-3.15,ymax=3.15)
 
         igroup.defineHistogram('LB,tauPhi', type='TH2F', title='tauEtaVsLB;LumiBlock;#phi', 
-                               xbins=1200,xmin=0,xmax=1200,ybins=80.,ymin=-4.,ymax=4.)
+                               xbins=1200,xmin=0,xmax=1200,ybins=80,ymin=-4.,ymax=4.)
 
         igroup.defineHistogram('LB,tauEt', type='TH2F', title='tauEtaVsLB;LumiBlock;#Transverse Energy (GeV)', 
-                               xbins=1200,xmin=0,xmax=1200,ybins=300.,ymin=0.,ymax=300.)
+                               xbins=1200,xmin=0,xmax=1200,ybins=300,ymin=0.,ymax=300.)
 
 
 
@@ -130,10 +131,10 @@ def tauMonitoringConfig(inputFlags):
 
 
             igroup.defineHistogram('centFrac,LB', type='TH2F', title='Centrality Fraction vs Lumiblock;Centrality Fraction;Lumiblock', path=folder+"Calo", 
-            xbins=51,xmin=0,xmax=1.02,ybins=1200.,ymin=0.,ymax=1200.)
+            xbins=51,xmin=0,xmax=1.02,ybins=1200,ymin=0.,ymax=1200.)
 
             igroup.defineHistogram('isolFrac,LB', type='TH2F', title='Isolation Fraction vs Lumiblock;Isolation Fraction;Lumiblock', path=folder+"Calo", 
-            xbins=51,xmin=0,xmax=1.02,ybins=1200.,ymin=0.,ymax=1200.)
+            xbins=51,xmin=0,xmax=1.02,ybins=1200,ymin=0.,ymax=1200.)
 
 
             igroup.defineHistogram('BDTJetScore', title='BDT Score for Jet Rejection;Boosted Decision Tree Score',path=folder+"Identification",
@@ -206,10 +207,10 @@ def tauMonitoringConfig(inputFlags):
                       xbins=40, xmin=0., xmax=40. )
 
             igroup.defineHistogram('tauEta,tauEt', type='TH2F', title='EtVsEta;eta;Transverse Energy (Gev)',
-                      xbins=40.,xmin=-2.55,xmax=2.55 ,ybins=300.,ymin=0,ymax=300)
+                      xbins=40,xmin=-2.55,xmax=2.55 ,ybins=300,ymin=0,ymax=300)
 
             igroup.defineHistogram('tauPhi,tauEt', type='TH2F', title='EtVsPhi;#phi;#eta;',
-                      xbins=80.,xmin=-4.,xmax=4.,ybins=300.,ymin=-0.,ymax=300.)
+                      xbins=80,xmin=-4.,xmax=4.,ybins=300,ymin=-0.,ymax=300.)
 
     ### STEP 6 ###
     # Finalize. The return value should be a tuple of the ComponentAccumulator

@@ -50,7 +50,7 @@ def MuonGeoModelCfg(flags):
                                     "/MUONALIGN/TGC/SIDEC"]
 
         acc.addCondAlgo(MuonAlign)
- 
+
         # Condition DB is needed only if A-lines or B-lines are requested
         if not (not flags.Muon.Align.UseALines and flags.Muon.Align.UseBLines=='none'):
             detTool.UseConditionDb = 1
@@ -67,21 +67,23 @@ def MuonGeoModelCfg(flags):
 
         # here define if I-lines (CSC internal alignment) are enabled
         if flags.Muon.Align.UseILines: 
-            detTool.EnableCscInternalAlignment = True
             if 'HLT' in flags.IOVDb.GlobalTag:
                 #logMuon.info("Reading CSC I-Lines from layout - special configuration for COMP200 in HLT setup.")
                 MuonAlign.ILinesFromCondDB = False
                 detTool.UseIlinesFromGM = True
+                detTool.EnableCscInternalAlignment = False
             else :
                 #logMuon.info("Reading CSC I-Lines from conditions database.")
                 if (flags.Common.isOnline and not flags.Input.isMC):                
                     acc.merge(addFolders( flags, ['/MUONALIGN/Onl/CSC/ILINES'], 'MUONALIGN', className='CondAttrListCollection'))
+                    detTool.EnableCscInternalAlignment = True
                 else:
                     acc.merge(addFolders( flags, ['/MUONALIGN/CSC/ILINES'], 'MUONALIGN_OFL', className='CondAttrListCollection'))                
                     
                     MuonAlign.ParlineFolders += ["/MUONALIGN/CSC/ILINES"]
                     MuonAlign.ILinesFromCondDB = True
                     detTool.UseIlinesFromGM = False
+                    detTool.EnableCscInternalAlignment = True
 
         # here define if As-Built (MDT chamber alignment) are enabled
         if flags.Muon.Align.UseAsBuilt:
@@ -118,6 +120,11 @@ def MuonGeoModelCfg(flags):
     detTool.FillCacheInitTime = 1
     # turn on/off caching of MdtReadoutElement surfaces
     detTool.CachingFlag = 1
+
+    from MuonGeoModel.MuonGeoModelConf import MuonDetectorCondAlg
+    MuonDetectorManagerCond = MuonDetectorCondAlg()
+    MuonDetectorManagerCond.MuonDetectorTool = detTool
+    acc.addCondAlgo(MuonDetectorManagerCond)
 
     gms.DetectorTools += [ detTool ]
 

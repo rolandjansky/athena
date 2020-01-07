@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -22,7 +22,6 @@
 
 //geo model
 #include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 // MuonCalib //
 #include "MdtCalibIOSvc/MdtCalibOutputDbSvc.h"
@@ -87,7 +86,6 @@ MdtCalibOutputDbSvc::MdtCalibOutputDbSvc(const std::string &name,ISvcLocator *sv
   declareProperty("RegionSelectionSvc", m_reg_sel_svc);
 	
   //for the sake of coverity
-  m_detMgr=NULL;
   m_resolution=NULL;
 	
   return;
@@ -127,8 +125,8 @@ StatusCode MdtCalibOutputDbSvc::initialize(void) {
     ATH_CHECK( serviceLocator()->service("DetectorStore", detStore) );
     //retrieve mdt id helper
     ATH_CHECK( m_muonIdHelperTool.retrieve() );
-    //retrieve detector manager
-    ATH_CHECK( detStore->retrieve( m_detMgr ) );
+    //retrieve detector manager from the conditions store
+    ATH_CHECK(m_DetectorManagerKey.initialize());
   }
 
 //get region selection service
@@ -199,6 +197,13 @@ StatusCode MdtCalibOutputDbSvc::saveCalibrationResults(void) {
 
   if(m_results==NULL) return StatusCode::SUCCESS;
 
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+  const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
+  if(MuonDetMgr==nullptr){
+    ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+    return StatusCode::FAILURE; 
+  } 
+
   StatusCode sc;
   
 ///////////////
@@ -215,7 +220,7 @@ StatusCode MdtCalibOutputDbSvc::saveCalibrationResults(void) {
     MuonCalib::NtupleStationId the_id(*it);
 // get region geometry if required
     if (m_postprocess_calibration) {
-      if(!the_id.InitializeGeometry(m_muonIdHelperTool->mdtIdHelper(), m_detMgr)) {
+      if(!the_id.InitializeGeometry(m_muonIdHelperTool->mdtIdHelper(), MuonDetMgr)) {
 	ATH_MSG_ERROR( "Faild to get geometry for " << the_id.regionId() );
       }
     }

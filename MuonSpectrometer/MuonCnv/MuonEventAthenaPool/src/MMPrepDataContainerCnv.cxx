@@ -15,9 +15,6 @@
 // #include "MuonIdHelpers/MMIdHelper.h"
 #include "MuonPrepRawData/MMPrepDataContainer.h"
 
-// #include "MuonReadoutGeometry/MuonDetectorManager.h"
-// #include "MuonReadoutGeometry/MMReadoutElement.h"
-
 MMPrepDataContainerCnv::MMPrepDataContainerCnv(ISvcLocator* svcloc) :
 MMPrepDataContainerCnvBase(svcloc)
 {

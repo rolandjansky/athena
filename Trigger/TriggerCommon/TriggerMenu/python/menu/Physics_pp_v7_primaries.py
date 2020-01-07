@@ -4,7 +4,6 @@
 #------------------------------------------------------------------------#
 def setupMenu():
 
-    from TriggerMenu.menu.TriggerPythonConfig import TriggerPythonConfig
     from TriggerJobOpts.TriggerFlags          import TriggerFlags
     from AthenaCommon.Logging                 import logging
     log = logging.getLogger( 'TriggerMenu.menu.Physics_pp_v7.py' )

@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
 #
 # File: TileRecUtils/share/TileDQstatusTool_test.py
 # Author: scott snyder
@@ -193,6 +193,7 @@ class TestAlg (Alg):
 
     def test1 (self):
         print ('*** Starting test1')
+        sys.stdout.flush()
 
         flag_exc = {'checkEmptyEvent' :
                     [(3,13,3), (3,13,9), (3,13,12)],
@@ -205,6 +206,7 @@ class TestAlg (Alg):
 
     def test2 (self):
         print ('*** Starting test2')
+        sys.stdout.flush()
 
         flag_exc = {'checkEmptyEvent' :
                     [(3,13,3), (3,13,9), (3,13,12)],
@@ -226,6 +228,7 @@ class TestAlg (Alg):
 
     def test3 (self):
         print ('*** Starting test3')
+        sys.stdout.flush()
 
         flag_exc = {'checkEmptyEvent' :
                     [(3,13,3), (3,13,9), (3,13,12)],
@@ -243,6 +246,7 @@ class TestAlg (Alg):
 
     def test4 (self):
         print ('*** Starting test4')
+        sys.stdout.flush()
 
         flag_exc = {'checkEmptyEvent' :
                     [(3,13,3), (3,13,9), (3,13,12)],
@@ -255,6 +259,7 @@ class TestAlg (Alg):
 
     def test5 (self):
         print ('*** Starting test5')
+        sys.stdout.flush()
 
         flag_exc = {'checkEmptyEvent' :
                     [(3,13,3), (3,13,9), (3,13,12)],
@@ -267,6 +272,7 @@ class TestAlg (Alg):
 
     def test6 (self):
         print ('*** Starting test6')
+        sys.stdout.flush()
 
         flag_exc = {'checkEmptyEvent' :
                     [(3,13,3), (3,13,9), (3,13,12)],
@@ -279,6 +285,7 @@ class TestAlg (Alg):
 
     def test7 (self):
         print ('*** Starting test7')
+        sys.stdout.flush()
 
         flag_exc = {'checkEmptyEvent' :
                     [(3,13,3), (3,13,9), (3,13,12)],
@@ -291,6 +298,7 @@ class TestAlg (Alg):
 
     def test8 (self):
         print ('*** Starting test8')
+        sys.stdout.flush()
 
         flag_exc = {'checkEmptyEvent' :
                     [(3,13,3), (3,13,9), (3,13,12)],

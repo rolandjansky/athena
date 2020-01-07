@@ -30,6 +30,7 @@
 #include <sys/times.h>
 #include <string.h>
 #include <libgen.h> // for basename
+#include <filesystem>
 
 // STL includes
 
@@ -277,6 +278,13 @@ PerfMonSvc::postFinalize()
 
   RootUtils::PyGILStateEnsure gil;
 
+  auto cwd = std::filesystem::current_path();
+  if (!m_workerDir.empty()) {
+    // The Python service relies on the current directory being the worker directory.
+    // This is the case in athena but not necessarily in other applications (ATR-19462)
+    std::filesystem::current_path(m_workerDir);
+  }
+
   if ( m_pySvc ) {
     /// loop over the perf-tools and harvest 'finalize' perf-data
     stopAud( "fin", "PerfMonSlice" );
@@ -362,6 +370,9 @@ PerfMonSvc::postFinalize()
 
   m_pf = true;
 
+  // Restore working directory
+  std::filesystem::current_path(cwd);
+
   //delete m_ntuple; m_ntuple = 0;
   PerfMon::Tuple::CompTuple_t().swap (m_ntuple.comp);
   PerfMon::Tuple::IoCompTuple_t().swap (m_ntuple.iocomp);
@@ -397,13 +408,17 @@ PerfMonSvc::io_reinit()
     ATH_MSG_ERROR("Could not retrieve new value for [" <<  stream_name << "] !");
     return StatusCode::FAILURE;
   }
+  if (stream_name.empty()) {
+    ATH_MSG_DEBUG("io_reinit called in parent process. No actions required.");
+    return StatusCode::SUCCESS;
+  }
 
   // io_retrieve gives us a name like 
   //  <amp-root-dir>/<child-pid>/mpid_<worker-id>__<ntuple-name>
   // but many pieces in perfmon assume <ntuple-name> as a name...
   //  -> take the dirname from that file and append the original-basename
-  std::string dname = my_dirname(stream_name);
-  stream_name = dname + "/" + my_basename(orig_stream_name);
+  m_workerDir = my_dirname(stream_name);
+  stream_name = m_workerDir + "/" + my_basename(orig_stream_name);
 
   ATH_MSG_INFO("reopening [" << stream_name << "]...");
   fflush(NULL); //> flushes all output streams...
@@ -413,11 +428,12 @@ PerfMonSvc::io_reinit()
                   << strerror(errno));
     return StatusCode::FAILURE;
   }
+
   // re-open the previous file
   int old_stream = open(orig_stream_name.c_str(), O_RDONLY);
   if (old_stream < 0) {
     ATH_MSG_ERROR("could not reopen previously open file ["
-                  << m_outFileName.value() << ".pmon.stream] !");
+                  << orig_stream_name << "] !");
     return StatusCode::FAILURE;
   }
   m_stream = open(stream_name.c_str(),

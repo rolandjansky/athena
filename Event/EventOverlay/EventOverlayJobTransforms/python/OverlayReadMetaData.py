@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from AthenaCommon.Logging import logging
 logOverlayReadMetadata = logging.getLogger( 'OverlayReadMetadata' )
@@ -87,13 +89,13 @@ def skipPileUpCheck(key, pileuptype):
     return skipCheck(pileupkey)
 
 def doMC_channel_number(f,pileUpType):
-    print "doMC_channel_number for %s", pileUpType
+    print ("doMC_channel_number for %s", pileUpType)
     if "mc_channel_number" in f.infos.keys():
         params = dict()
         from Digitization.DigitizationFlags import digitizationFlags
         if digitizationFlags.pileupDSID.statusOn:
             params = digitizationFlags.pileupDSID.get_Value()
-        print "MC channel number from AthFile %s", f.infos["mc_channel_number"]
+        print ("MC channel number from AthFile %s", f.infos["mc_channel_number"])
         params[pileUpType]= f.infos["mc_channel_number"]
         digitizationFlags.pileupDSID = params
         del params
@@ -169,7 +171,7 @@ def buildDict(inputtype, inputfile):
         ##if '/TagInfo' in f.infos['metadata'].keys():
         ##    taginfometadata=f.infos['metadata']['/TagInfo']
         ##    assert taginfometadata['beam_energy'] is not None
-        ##    print "beamEnergy=%s"%taginfometadata['beam_energy']
+        ##    print ("beamEnergy=%s"%taginfometadata['beam_energy'])
         if '/Simulation/Parameters' in f.infos['metadata'].keys():
             metadatadict = f.infos['metadata']['/Simulation/Parameters']
             if isinstance(metadatadict, list):

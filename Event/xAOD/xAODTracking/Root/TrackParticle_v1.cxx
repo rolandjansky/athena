@@ -236,7 +236,7 @@ namespace xAOD {
     else{ //Compressed case
 
       if( accCovMatrixOffDiag.isAvailable( *this ) &&
-	  ( static_cast< int >( accCovMatrixOffDiag( *this ).size() ) == m_covMatrixOffDiagVecComprSize ) ) {
+	  ( static_cast< int >( accCovMatrixOffDiag( *this ).size() ) == COVMATRIX_OFFDIAG_VEC_COMPR_SIZE ) ) {
 	// Access the "raw" variable.
 	const std::vector< float >& offDiagVec = accCovMatrixOffDiag( *this );
 	// Set the off-diagonal elements using the raw variable.
@@ -297,7 +297,7 @@ namespace xAOD {
     else{
 
       if( accCovMatrixOffDiag.isAvailable( *this ) &&
-	  ( static_cast< int >( accCovMatrixOffDiag( *this ).size() ) == m_covMatrixOffDiagVecComprSize ) ){
+	  ( static_cast< int >( accCovMatrixOffDiag( *this ).size() ) == COVMATRIX_OFFDIAG_VEC_COMPR_SIZE ) ){
 
 	result.fillSymmetric( d0_index, phi_index, true );
 	result.fillSymmetric( z0_index, th_index, true );
@@ -349,7 +349,7 @@ namespace xAOD {
 
     unsigned int uncompr_size = ( ( ( ParametersCovMatrix_t::RowsAtCompileTime - 1 ) *
 				    ParametersCovMatrix_t::RowsAtCompileTime ) / 2 );
-    unsigned int size = offDiagCompr ? m_covMatrixOffDiagVecComprSize : uncompr_size;
+    unsigned int size = offDiagCompr ? COVMATRIX_OFFDIAG_VEC_COMPR_SIZE : uncompr_size;
 
     if( !(vec.size() == size || vec.size() == uncompr_size) ){ //If off-diagonal elements are already compressed, can either set with uncompressed or compressed vector
       throw std::runtime_error("Setting track definingParametersCovMatrixOffDiag with vector of size "+std::to_string(vec.size())+" instead of expected "+std::to_string(size)+" or "+std::to_string(uncompr_size)+" is not supported");
@@ -362,7 +362,7 @@ namespace xAOD {
   bool TrackParticle_v1::definingParametersCovMatrixOffDiagCompr() const {
 
     bool flag = false;
-    if(accCovMatrixOffDiag.isAvailable( *this )) flag = (static_cast< int >(accCovMatrixOffDiag( *this ).size())==m_covMatrixOffDiagVecComprSize);
+    if(accCovMatrixOffDiag.isAvailable( *this )) flag = (static_cast< int >(accCovMatrixOffDiag( *this ).size())==COVMATRIX_OFFDIAG_VEC_COMPR_SIZE);
     return flag;
   }
 
@@ -370,7 +370,7 @@ namespace xAOD {
 
     ParametersCovMatrix_t cov = definingParametersCovMatrix();
     std::vector< float > offDiagVecCompr;
-    offDiagVecCompr.resize(m_covMatrixOffDiagVecComprSize);
+    offDiagVecCompr.resize(COVMATRIX_OFFDIAG_VEC_COMPR_SIZE);
 
     offDiagVecCompr[d0_phi_index] = cov(d0_index, phi_index) / sqrt(cov(d0_index,d0_index)*cov(phi_index,phi_index));
     offDiagVecCompr[z0_th_index] = cov(z0_index, th_index) / sqrt(cov(z0_index,z0_index)*cov(th_index,th_index));
@@ -502,7 +502,6 @@ namespace xAOD {
     acc7(*this).resize(parameters.size());
 
     unsigned int index=0;
-    // std::cout<<"Adding this many parameters: "<<parameters.size()<<std::endl;
     std::vector<std::vector<float> >::const_iterator it=parameters.begin(), itEnd=parameters.end();
     for (;it!=itEnd;++it,++index){
       assert((*it).size()==6);
@@ -512,7 +511,6 @@ namespace xAOD {
       acc4(*this).at(index)=(*it).at(3);
       acc5(*this).at(index)=(*it).at(4);
       acc6(*this).at(index)=(*it).at(5);
-      // std::cout<<"param=("<<(*it).at(0)<<", "<<(*it).at(0)<<", "<<(*it).at(1)<<", "<<(*it).at(2)<<", "<<(*it).at(3)<<", "<<(*it).at(4)<<", "<<(*it).at(5)<<")"<<std::endl;
     }
   }
 

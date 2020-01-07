@@ -22,25 +22,20 @@
 // McParticleEventTPCnv includes
 #include "McParticleEventTPCnv/TruthEtIsolations_p1.h"
 
+#include "GeneratorObjects/McEventCollection.h"
+
 // Forward declaration
 class MsgStream;
 class TruthEtIsolations;
 
 class TruthEtIsolationsCnv_p1 : public T_AthenaPoolTPCnvBase<TruthEtIsolations, TruthEtIsolations_p1>
 { 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
  public: 
 
   /** Default constructor: 
    */
   TruthEtIsolationsCnv_p1();
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
 
   /** Method creating the transient representation of @c TruthEtIsolations
    *  from its persistent representation @c TruthEtIsolations_p1
@@ -56,9 +51,7 @@ class TruthEtIsolationsCnv_p1 : public T_AthenaPoolTPCnvBase<TruthEtIsolations, 
                             TruthEtIsolations_p1* persObj, 
                             MsgStream& msg );
 
-  /////////////////////////////////////////////////////////////////// 
-  // Protected method: 
-  /////////////////////////////////////////////////////////////////// 
+
  protected: 
 
   /** Converter for the ElementLink<McEventCollection> data member

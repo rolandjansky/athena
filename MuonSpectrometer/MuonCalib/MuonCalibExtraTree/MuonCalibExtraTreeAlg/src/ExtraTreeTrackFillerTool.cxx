@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibExtraTreeAlg/ExtraTreeTrackFillerTool.h"
@@ -48,7 +48,6 @@ ExtraTreeTrackFillerTool::ExtraTreeTrackFillerTool(const std::string &type, cons
   AthAlgTool(type, name, parent),
   m_idToFixedIdTool( "MuonCalib::IdToFixedIdTool/MuonCalib_IdToFixedIdTool" ),
   m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
-  m_muonIdHelper(NULL),
   m_author(0) {
   declareInterface<IExtraTreeFillerTool>(this);
   declareProperty("TrackCollectionKey", m_trackCollectionKey);
@@ -59,6 +58,9 @@ ExtraTreeTrackFillerTool::ExtraTreeTrackFillerTool(const std::string &type, cons
 }
 	
 StatusCode ExtraTreeTrackFillerTool::initialize() {
+
+  ATH_CHECK(m_idHelperSvc.retrieve());
+
   if(!m_trackCollectionKey.size()) {
     ATH_MSG_FATAL("No TrackCollectionKey set!");
     return StatusCode::FAILURE;
@@ -132,15 +134,15 @@ inline void ExtraTreeTrackFillerTool::storeMeasurement(const Trk::MeasurementBas
   bool ismdt = false;
   if (rot) { 
     type = 1;
-    if (m_muonIdHelper->is_muon(rot->identify())) {
+    if (m_idHelperSvc->mdtIdHelper().is_muon(rot->identify())) {
       id = m_idToFixedIdTool->idToFixedId(rot->identify());
-      if(m_muonIdHelper->is_mdt(rot->identify())) ismdt = true;
+      if(m_idHelperSvc->mdtIdHelper().is_mdt(rot->identify())) ismdt = true;
     }
   } else { 
     rotc = dynamic_cast<const Trk::CompetingRIOsOnTrack*> (measurement);
     if (rotc) {
       idc = rotc->rioOnTrack(0).identify();
-      if (m_muonIdHelper->is_muon(idc)) id = m_idToFixedIdTool->idToFixedId(idc);
+      if (m_idHelperSvc->mdtIdHelper().is_muon(idc)) id = m_idToFixedIdTool->idToFixedId(idc);
       type = 2;
     } else {
       const Trk::PseudoMeasurementOnTrack *rotp = dynamic_cast<const Trk::PseudoMeasurementOnTrack*> (measurement);
@@ -254,11 +256,7 @@ StatusCode ExtraTreeTrackFillerTool::retrieveTools() {
     ATH_MSG_FATAL("Failed to reteive pullCalculator!");
     return StatusCode::FAILURE;
   }
-  if(!detStore()->retrieve( m_detMgr ).isSuccess()) {
-    ATH_MSG_FATAL("Failed to retrieve MuonDetectorManager");
-    return StatusCode::FAILURE;
-  }
-  m_muonIdHelper = m_detMgr->mdtIdHelper();
+
 //initialize segment author set if not done
   if(m_segment_authors.size() && !m_segment_authors_set.size()) {
     for(std::vector<int>::const_iterator it=m_segment_authors.begin(); it!=m_segment_authors.end(); it++) {

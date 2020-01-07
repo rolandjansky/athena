@@ -126,13 +126,9 @@ StatusCode MdtCalibDbAsciiTool::initialize() {
 
   ATH_CHECK( m_muonIdHelperTool.retrieve() );
   
-  StatusCode sc = detStore()->retrieve( m_detMgr );
-  if (!sc.isSuccess()) {
-    *m_log << MSG::ERROR << "Can't retrieve MuonDetectorManager" << endmsg;
-    return sc;
-  }
+  ATH_CHECK(m_DetectorManagerKey.initialize());
 
-  sc = serviceLocator()->service("MdtCalibrationRegionSvc", m_regionSvc);
+  StatusCode sc = serviceLocator()->service("MdtCalibrationRegionSvc", m_regionSvc);
   if ( sc.isSuccess() ) {     
     if( m_debug ) *m_log << MSG::DEBUG << "Retrieved MdtCalibrationRegionSvc" << endmsg;
   }else{
@@ -341,11 +337,18 @@ StatusCode MdtCalibDbAsciiTool::defaultT0s() {
 
 MuonCalib::MdtTubeCalibContainer * MdtCalibDbAsciiTool::buildMdtTubeCalibContainer(const Identifier& id) {    
     MuonCalib::MdtTubeCalibContainer* tubes = 0;
+    
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+    const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
+    if(MuonDetMgr==nullptr){
+      ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+      return tubes; 
+    } 
 
-    const MuonGM::MdtReadoutElement* detEl = m_detMgr->getMdtReadoutElement( m_muonIdHelperTool->mdtIdHelper().channelID(id,1,1,1) );
+    const MuonGM::MdtReadoutElement* detEl = MuonDetMgr->getMdtReadoutElement( m_muonIdHelperTool->mdtIdHelper().channelID(id,1,1,1) );
     const MuonGM::MdtReadoutElement* detEl2 = 0;
     if (m_muonIdHelperTool->mdtIdHelper().numberOfMultilayers(id) == 2){
-      detEl2 = m_detMgr->getMdtReadoutElement(m_muonIdHelperTool->mdtIdHelper().channelID(id,2,1,1) );
+      detEl2 = MuonDetMgr->getMdtReadoutElement(m_muonIdHelperTool->mdtIdHelper().channelID(id,2,1,1) );
     }else{
       *m_log << MSG::ERROR << "A single multilayer for this station " << m_muonIdHelperTool->mdtIdHelper().show_to_string(id);
     }

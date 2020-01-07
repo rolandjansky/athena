@@ -154,7 +154,7 @@ addToolClone("MdtMathSegmentFinder", "MCTBMdtMathSegmentFinder", UseChamberTheta
 addTool("MuonRecExample.MooreTools.MuonSeededSegmentFinder", "MuonSeededSegmentFinder")
 
 
-addTool( "MuonRecExample.MooreTools.MuonRefitTool", "MuonRefitTool", CscRotCreator=("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator" if MuonGeometryFlags.hasCSC() else ""))
+addTool( "MuonRecExample.MooreTools.MuonRefitTool", "MuonRefitTool")
 
 
 addTool("MuonRecExample.MooreTools.MuonErrorOptimisationTool","MuonErrorOptimisationTool")

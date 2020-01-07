@@ -21,8 +21,6 @@ extern "C" {
 // Local include(s):
 #include "xAODTracking/VertexContainer.h"
 
-// Want to be able to switch this off and on for the moment
-//#define XAODTRACKING_SUMMARYDYNAMIC
 
 namespace xAOD {
 
@@ -61,27 +59,13 @@ namespace xAOD {
       /// @}
 
       // /// @name Parameters
-//       /// We store the 3-pos, 3-mom and charge, and on the transient side these will be transformed into curvilinear parameters.
-//       /// Also stored are the cov matrix (still expressed in local coordinate frame) and parameter position.
-//       /// @{
-//       std::vector< std::vector<float> >   parameterX;
-//       std::vector< std::vector<float> >   parameterY;
-//       std::vector< std::vector<float> >   parameterZ;
-//       std::vector< std::vector<float> >   parameterPX;
-//       std::vector< std::vector<float> >   parameterPY;
-//       std::vector< std::vector<float> >   parameterPZ;
-//       // std::vector< char > charge; /// @todo Is this really necessary? Can get it from qOverP?
-//
-//       std::vector< std::vector<float> >   trackParameterCovarianceMatrices;
-//       std::vector< std::vector<uint8_t> > parameterPosition;
-
       std::vector< float >                radiusOfFirstHit;
       std::vector< uint64_t >             identifierOfFirstHit;
 
-     std::vector< float >  beamlineTiltX; 
-     std::vector< float >  beamlineTiltY;
+      std::vector< float >  beamlineTiltX;
+      std::vector< float >  beamlineTiltY;
 
-     std::vector< uint32_t > hitPattern;
+      std::vector< uint32_t > hitPattern;
 
       /// @name Fit quality functions
       /// @{
@@ -97,7 +81,6 @@ namespace xAOD {
       std::vector< uint64_t >             patternRecoInfo;
       /// @}
 
-#ifndef XAODTRACKING_SUMMARYDYNAMIC
       /// @name TrackSummary information
       /// @{
      std::vector< uint8_t >         numberOfContribPixelLayers       ;
@@ -150,14 +133,11 @@ namespace xAOD {
      std::vector< uint8_t >         standardDeviationOfChi2OS        ;
      std::vector< float >           eProbabilityComb;
      std::vector< float >           eProbabilityHT;
-     //     std::vector< float >           eProbabilityToT;
-     //     std::vector< float >           eProbabilityBrem;
      std::vector< float >           pixeldEdx;
      std::vector< uint8_t >         numberOfUsedHitsdEdx;
      std::vector< uint8_t >         numberOfIBLOverflowsdEdx;
 
      /// @}
-#endif
 
       /// @name Links
       /// @{

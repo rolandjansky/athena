@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -45,6 +45,7 @@
 #include "MuonTrigCoinData/TgcCoinDataCollection.h"
 
 #include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 #include "MuonDQAUtils/TGCDQAUtils.h"
 #include "MuonDQAUtils/MuonDQAFitFunc.h"
@@ -97,7 +98,10 @@ public:
 
   MuonDQAHistMap m_stationHists;
 
-  const MuonGM::MuonDetectorManager* m_muonMgr;
+  // MuonDetectorManager from the conditions store
+  SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+      "MuonDetectorManager", 
+      "Key of input MuonDetectorManager condition data"};    
 
   ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
     "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
@@ -127,7 +131,7 @@ public:
   // Variables and Functions for TGC Efficiency Maps
   
   // Array of all TREs, indexed by location.  Used to find which sectors tracks pass through in tgceffcalc
-  void prepareTREarray();
+  void prepareTREarray(const MuonGM::MuonDetectorManager* MuonDetMgrDS);
   const MuonGM::TgcReadoutElement* m_TREarray[8][2][9][49]; // [StationName][AC][StationEta][StationPhi]
   // Functions used to standardize the way TGC stations are indexed by the program
   int  TGCgetlayer(int stationName, int g);

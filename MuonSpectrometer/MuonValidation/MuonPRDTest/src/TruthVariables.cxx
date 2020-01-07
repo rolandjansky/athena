@@ -13,10 +13,11 @@
 
 /** ---------- filling of variables */
 /** ---------- to be called on each evt i.e. execute level of main alg */
-StatusCode TruthVariables::fillVariables()
+StatusCode TruthVariables::fillVariables(const MuonGM::MuonDetectorManager* MuonDetMgr)
 {
 
   ATH_MSG_INFO("do fillNSWTruthVariables()");
+  ATH_MSG_VERBOSE("MuonDetectorManager from Conditions Store accessed" << MuonDetMgr);
 
   CHECK( this->clearVariables() );
 

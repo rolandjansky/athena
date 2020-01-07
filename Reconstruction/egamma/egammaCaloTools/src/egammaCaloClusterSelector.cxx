@@ -98,6 +98,9 @@ bool egammaCaloClusterSelector::passSelection(const xAOD::CaloCluster* cluster) 
   if(eta2>10){
     return false;
   }
+  if (cluster->energyBE(2)<m_MinEM2Energy){
+      return false;
+  }
   //use the egamma definition of EMFrac (includes presampler , helps with eff in the crack)
   static const  SG::AuxElement::ConstAccessor<float> acc("EMFraction");
   const double emFrac = acc.isAvailable(*cluster)? acc(*cluster) : 0.;

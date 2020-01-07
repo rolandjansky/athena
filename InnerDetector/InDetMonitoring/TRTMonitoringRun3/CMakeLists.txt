@@ -51,7 +51,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Database/AthenaPOOL/AthenaPoolUtilities
                           Event/EventInfo
                           AtlasTest/TestTools)
-                         
+
 
 # External dependencies:
 find_package( Eigen )

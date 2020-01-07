@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -44,8 +44,14 @@
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "IdDictParser/IdDictParser.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "AthenaKernel/ExtendedEventContext.h"
+#include "AthenaKernel/IRCUSvc.h"
+#include "AthenaKernel/CondCont.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ThreadLocalContext.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 
 
@@ -186,6 +192,99 @@ MMDetectorDescription ddmdet ("MM1-dummy");
 
 
 
+void init_dd (MuonGM::MuonDetectorManager& muo_dd,
+              GeoFullPhysVol& pvol)
+{
+  ServiceHandle<StoreGateSvc> sg ("DetectorStore", "test");
+  assert (sg.retrieve().isSuccess());
+
+  MuonGM::MuonChamber chamber (muo_dd, pvol);
+
+  const CscIdHelper* csc_id = nullptr;
+  assert ( sg->retrieve (csc_id, "CscIdHelper").isSuccess() );
+  muo_dd.set_cscIdHelper (csc_id);
+  for (int hash=2; hash <= 3; hash++) {
+    chamber.makeCsc (csc_id->channelID (50, 1, hash, 1, 1, 0, 1, true));
+  }
+
+  const RpcIdHelper* rpc_id = nullptr;
+  assert ( sg->retrieve (rpc_id, "RpcIdHelper").isSuccess() );
+  muo_dd.set_rpcIdHelper (rpc_id);
+  for (int hash=2; hash <= 3; hash++) {
+    chamber.makeRpc (rpc_id->channelID (4, 1, hash, 1, 1, 2, 1, 0, 1, true));
+  }
+
+  const TgcIdHelper* tgc_id = nullptr;
+  assert ( sg->retrieve (tgc_id, "TgcIdHelper").isSuccess() );
+  muo_dd.set_tgcIdHelper (tgc_id);
+  for (int hash=2; hash <= 3; hash++) {
+    chamber.makeTgc (tgc_id->channelID (43, 1, hash, 1, 1, 2, true));
+  }
+
+  const MdtIdHelper* mdt_id = nullptr;
+  assert ( sg->retrieve (mdt_id, "MdtIdHelper").isSuccess() );
+  muo_dd.set_mdtIdHelper (mdt_id);
+  for (int hash=2; hash <= 3; hash++) {
+    chamber.makeMdt (mdt_id->channelID (0, 1, hash, 1, 1, 1, true));
+  }
+
+  const sTgcIdHelper* stgc_id = nullptr;
+  assert ( sg->retrieve (stgc_id, "sTgcIdHelper").isSuccess() );
+  muo_dd.set_stgcIdHelper (stgc_id);
+  for (int hash=2; hash <= 3; hash++) {
+    chamber.makesTgc (stgc_id->channelID (57, 2, hash, 1, 1, 0, 1, true)); // STS
+  }
+
+  const MmIdHelper* mm_id = nullptr;
+  assert ( sg->retrieve (mm_id, "MmIdHelper").isSuccess() );
+  muo_dd.set_mmIdHelper (mm_id);
+  for (int hash=2; hash <= 3; hash++) {
+    chamber.makeMm (mm_id->channelID (55, 1, hash, 1, 1, 1, true)); // MMS
+  }
+}
+
+
+MuonGM::MuonDetectorManager&  init_cs (GeoFullPhysVol& pvol)
+{
+  EventContext ctx (1);
+  ctx.setEventID (EventIDBase (1000, 1000,
+                               EventIDBase::UNDEFNUM,
+                               EventIDBase::UNDEFNUM,
+                               1000));
+  Atlas::setExtendedEventContext(ctx,
+                                 Atlas::ExtendedEventContext (nullptr, 1000));
+  Gaudi::Hive::setCurrentContext (ctx);
+
+  ServiceHandle<Athena::IRCUSvc> rcu ("Athena::RCUSvc", "test");
+  assert (rcu.retrieve().isSuccess());
+  ServiceHandle<StoreGateSvc> condStore ("ConditionStore", "test");
+  assert (condStore.retrieve().isSuccess());
+
+  CLID clid = ClassID_traits<MuonGM::MuonDetectorManager>::ID();
+  DataObjID id (clid, "MuonDetectorManager");
+  auto cc = std::make_unique<CondCont<MuonGM::MuonDetectorManager> >(*rcu,
+                                                                     id);
+
+  auto muo_dd = std::make_unique<MuonGM::MuonDetectorManager>();
+  init_dd (*muo_dd, pvol);
+  MuonGM::MuonDetectorManager& ret = *muo_dd.get();
+
+  EventIDRange range (EventIDBase (0, 0,
+                                   EventIDBase::UNDEFNUM,
+                                   EventIDBase::UNDEFNUM,
+                                   0),
+                      EventIDBase (100000, 100000,
+                                   EventIDBase::UNDEFNUM,
+                                   EventIDBase::UNDEFNUM,
+                                   100000));
+  cc->insert (range, std::move (muo_dd));
+
+  assert (condStore->record (std::move (cc), "MuonDetectorManager"));
+
+  return ret;
+}
+
+
 const MuonGM::MuonDetectorManager& make_dd()
 {
   ISvcLocator* svcLoc = Gaudi::svcLocator();
@@ -270,57 +369,30 @@ const MuonGM::MuonDetectorManager& make_dd()
   trt_id->initialize_from_dictionary (idd);
   assert ( sg->record (std::move (trt_id), "TRT_ID") );
 
-  auto muo_dd = std::make_unique<MuonGM::MuonDetectorManager>();
-  MuonGM::MuonChamber chamber (*muo_dd, *pvol);
-
   auto csc_id = std::make_unique<CscIdHelper>();
   csc_id->initialize_from_dictionary (idd);
-  muo_dd->set_cscIdHelper (csc_id.get());
-  for (int hash=2; hash <= 3; hash++) {
-    chamber.makeCsc (csc_id->channelID (50, 1, hash, 1, 1, 0, 1, true));
-  }
   assert ( sg->record (std::move (csc_id), "CscIdHelper") );
 
   auto rpc_id = std::make_unique<RpcIdHelper>();
   rpc_id->initialize_from_dictionary (idd);
-  muo_dd->set_rpcIdHelper (rpc_id.get());
-  for (int hash=2; hash <= 3; hash++) {
-    chamber.makeRpc (rpc_id->channelID (4, 1, hash, 1, 1, 2, 1, 0, 1, true));
-  }
   assert ( sg->record (std::move (rpc_id), "RpcIdHelper") );
 
   auto tgc_id = std::make_unique<TgcIdHelper>();
   tgc_id->initialize_from_dictionary (idd);
-  muo_dd->set_tgcIdHelper (tgc_id.get());
-  for (int hash=2; hash <= 3; hash++) {
-    chamber.makeTgc (tgc_id->channelID (43, 1, hash, 1, 1, 2, true));
-  }
   assert ( sg->record (std::move (tgc_id), "TgcIdHelper") );
 
   auto mdt_id = std::make_unique<MdtIdHelper>();
   mdt_id->initialize_from_dictionary (idd);
-  muo_dd->set_mdtIdHelper (mdt_id.get());
-  for (int hash=2; hash <= 3; hash++) {
-    chamber.makeMdt (mdt_id->channelID (0, 1, hash, 1, 1, 1, true));
-  }
   assert ( sg->record (std::move (mdt_id), "MdtIdHelper") );
 
   new MuonGM::sTGC_Technology ("sTG1-dummy");
   new MuonGM::sTGC_Technology ("sTGC_1");
   auto stgc_id = std::make_unique<sTgcIdHelper>();
   stgc_id->initialize_from_dictionary (idd);
-  muo_dd->set_stgcIdHelper (stgc_id.get());
-  for (int hash=2; hash <= 3; hash++) {
-    chamber.makesTgc (stgc_id->channelID (57, 2, hash, 1, 1, 0, 1, true)); // STS
-  }
   assert ( sg->record (std::move (stgc_id), "sTgcIdHelper") );
 
   auto mm_id = std::make_unique<MmIdHelper>();
   mm_id->initialize_from_dictionary (idd);
-  muo_dd->set_mmIdHelper (mm_id.get());
-  for (int hash=2; hash <= 3; hash++) {
-    chamber.makeMm (mm_id->channelID (55, 1, hash, 1, 1, 1, true)); // MMS
-  }
   assert ( sg->record (std::move (mm_id), "MmIdHelper") );
 
   auto atl_id = std::make_unique<AtlasDetectorID>();
@@ -339,10 +411,10 @@ const MuonGM::MuonDetectorManager& make_dd()
   auto id_mgr = std::make_unique<IdDictManager>(idd);
   assert ( sg->record (std::move (id_mgr), "IdDict") );
 
-  const MuonGM::MuonDetectorManager& ret = *muo_dd;
-  assert ( sg->record (std::move (muo_dd), "MuonDetectorManager") );
+  MuonGM::MuonDetectorManager& ret = init_cs (*pvol);
+  // Some components still expect to get this through DetectorStore.
+  // Has to be the same instance, or the detelement comparisons will fail.
+  assert ( sg->record (&ret, "MuonDetectorManager") );
 
   return ret;
 }
-
-

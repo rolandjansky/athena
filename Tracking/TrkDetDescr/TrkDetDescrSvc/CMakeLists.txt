@@ -36,6 +36,3 @@ atlas_add_component( TrkDetDescrSvc
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
-
-atlas_add_test( AtlasTrackingGeometrySvcCfgTest    SCRIPT python -m TrkDetDescrSvc.AtlasTrackingGeometrySvcConfig  POST_EXEC_SCRIPT nopost.sh )
-

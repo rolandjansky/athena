@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -84,7 +84,7 @@ namespace pool  {
     IFileMgr*   m_fileMgr;
 
     // mutex to prevent concurrent read I/O from AuxDynReader
-    std::mutex  m_iomutex;
+    std::recursive_mutex  m_iomutex;
     
   public:
     /// Standard Constuctor
@@ -121,7 +121,7 @@ namespace pool  {
     void        registerBranchContainer(RootTreeContainer*);
 
     /// provide access to the I/O mutex for AuxDynReader and Containers
-    std::mutex& ioMutex()               { return m_iomutex; }
+    std::recursive_mutex& ioMutex()         { return m_iomutex; }
     
     /// Access options
     /** @param opt      [IN]  Reference to option object.

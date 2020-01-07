@@ -17,8 +17,7 @@ Muon::STGC_RawDataProviderTool::STGC_RawDataProviderTool(
 						       const std::string& t,
 						       const std::string& n,
 						       const IInterface*  p) :
-  AthAlgTool(t, n, p),
-  m_muonMgr(0)
+  AthAlgTool(t, n, p)
 {
   declareInterface<IMuonRawDataProviderTool>(this);
 }
@@ -34,10 +33,6 @@ StatusCode Muon::STGC_RawDataProviderTool::initialize()
 {
   StatusCode sc = AthAlgTool::initialize();
 
-  if(detStore()->retrieve(m_muonMgr).isFailure()) {
-    ATH_MSG_WARNING( "Cannot retrieve MuonDetectorManager" );
-    return StatusCode::SUCCESS;
-  }
   return StatusCode::SUCCESS;
 }
 

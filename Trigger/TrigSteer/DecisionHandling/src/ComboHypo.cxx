@@ -41,7 +41,7 @@ StatusCode ComboHypo::initialize() {
       msg<<"[";
       for (auto mult: m.second){
 	msg<< mult<<", ";
-	mms+= mult  + ",";
+	mms+= std::to_string(mult)  + ",";
       }
       msg<<"]";
       ATH_MSG_INFO("-- "<< m.first<<" multiplicities: "<<msg.str() <<"     "<<mms);

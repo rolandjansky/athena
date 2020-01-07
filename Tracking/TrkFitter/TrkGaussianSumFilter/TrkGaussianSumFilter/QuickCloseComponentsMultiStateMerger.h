@@ -19,11 +19,11 @@ decription           : Class for merging components of a multi-state based on
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/IChronoStatSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
+
 #include "GaudiKernel/ToolHandle.h"
-#include "TrkGaussianSumFilter/IMultiComponentStateAssembler.h"
+#include "TrkGaussianSumFilter/MultiComponentStateAssembler.h"
 #include "TrkGaussianSumFilter/IMultiComponentStateMerger.h"
 #include "TrkGaussianSumFilter/SortingClasses.h"
-
 
 
 namespace Trk {
@@ -49,10 +49,8 @@ public:
   /** AlgTool finalise method */
   StatusCode finalize() override final;
 
-  virtual std::unique_ptr<MultiComponentState> merge(const MultiComponentState&) const override final;
-
-    /** Method for merging components - ownership of objects is passed */
-  virtual std::unique_ptr<MultiComponentState> merge(SimpleMultiComponentState&&) const override final;
+  /** Method for merging components - ownership of objects is passed */
+  virtual std::unique_ptr<MultiComponentState> merge(Trk::MultiComponentState) const override final;
 
 private:
   Gaudi::Property<unsigned int> m_maximumNumberOfComponents{ this,
@@ -67,17 +65,10 @@ private:
     " Combonent combiner"
   };
 
-  ToolHandle<Trk::IMultiComponentStateAssembler> m_stateAssembler{
-    this,
-    "MultiComponentStateAssembler",
-    "Trk::MultiComponentStateAssembler/CloseComponentsStateAssembler",
-    " "
-  };
-
   ServiceHandle<IChronoStatSvc> m_chronoSvc; //!< Timing: The Gaudi time auditing service
 
-  std::unique_ptr<MultiComponentState> mergeFullDistArray(IMultiComponentStateAssembler::Cache& cache,
-                                                          SimpleMultiComponentState& ) const;
+  std::unique_ptr<MultiComponentState> mergeFullDistArray(MultiComponentStateAssembler::Cache& cache,
+                                                          Trk::MultiComponentState& ) const;
 
 
 };

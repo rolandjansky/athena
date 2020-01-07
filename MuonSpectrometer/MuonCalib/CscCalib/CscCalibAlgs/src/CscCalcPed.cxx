@@ -39,8 +39,6 @@ namespace MuonCalib {
 
   CscCalcPed::CscCalcPed(const string& name, ISvcLocator* pSvcLocator) :
     AthAlgorithm(name,pSvcLocator),
-    m_cscId(NULL),
-    m_muon_mgr(NULL),
     m_chronoSvc(0),
     m_cscRdoDecoderTool ("Muon::CscRDO_Decoder"),
     m_maxStripHash(0),
@@ -113,22 +111,12 @@ namespace MuonCalib {
 
     //*******Register services and tools *********/ 	
     /// Store Gate active store
-    StatusCode sc = detStore()->retrieve(m_cscId,"CSCIDHELPER");
-    if( sc.isFailure())
-    {
-      mLog << MSG::ERROR << " Cannot retrieve CscIdHelper " << endmsg;
-      return sc;
-    }	
-    else
-    {
-      mLog << MSG::ERROR << "couldn't retrieve CscIdHelper" << endmsg;
 
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(m_idHelperSvc.retrieve());
 
     ATH_CHECK(m_readKey.initialize());
 
-    sc = service("ChronoStatSvc",m_chronoSvc);    
+    StatusCode sc = service("ChronoStatSvc",m_chronoSvc);    
     if(sc.isFailure())
     {
       mLog << MSG::FATAL << "Cannot retrieve ChronoStatSvc!" << endmsg;
@@ -162,7 +150,7 @@ namespace MuonCalib {
 
     //Loop through ids to find out what hash range we're working on (in case we're using some 
     //unusual geometry)
-    vector<Identifier> ids = m_cscId->idVector();
+    vector<Identifier> ids = m_idHelperSvc->cscIdHelper().idVector();
     vector<Identifier>::const_iterator chamItr = ids.begin();
     vector<Identifier>::const_iterator chamEnd = ids.end();
     m_maxStripHash = 0;
@@ -170,14 +158,14 @@ namespace MuonCalib {
     for(; chamItr != chamEnd; chamItr++)
     {
       vector<Identifier> stripVect;
-      m_cscId->idChannels(*chamItr,stripVect);
+      m_idHelperSvc->cscIdHelper().idChannels(*chamItr,stripVect);
 
       vector<Identifier>::const_iterator stripItr = stripVect.begin();
       vector<Identifier>::const_iterator stripEnd = stripVect.end();
       for(;stripItr != stripEnd; stripItr++)
       {
         IdentifierHash stripHash;
-        m_cscId->get_channel_hash(*stripItr,stripHash);
+        m_idHelperSvc->cscIdHelper().get_channel_hash(*stripItr,stripHash);
         if((unsigned int)stripHash > m_maxStripHash)
           m_maxStripHash = (int)stripHash;
       }//End strip loop
@@ -194,23 +182,23 @@ namespace MuonCalib {
 
       IdentifierHash stripHash =stripItr;
       Identifier stripId;
-      IdContext channelContext = m_cscId->channel_context();	
-      m_cscId->get_id(stripHash, stripId, &channelContext);
+      IdContext channelContext = m_idHelperSvc->cscIdHelper().channel_context();	
+      m_idHelperSvc->cscIdHelper().get_id(stripHash, stripId, &channelContext);
 
-      int chamLayer = m_cscId->chamberLayer(stripId);
+      int chamLayer = m_idHelperSvc->cscIdHelper().chamberLayer(stripId);
       if(chamLayer == m_expectedChamberLayer) //Only second chamber layer exists
       {
-        int stationEta = m_cscId->stationEta(stripId);
-        int stationPhi = m_cscId->stationPhi(stripId);
-        int stripNumber = m_cscId->strip(stripId);
-        int wireLayer = m_cscId->wireLayer(stripId);
-        char orientation = m_cscId->measuresPhi(stripId) ? 'Y':'X';
+        int stationEta = m_idHelperSvc->cscIdHelper().stationEta(stripId);
+        int stationPhi = m_idHelperSvc->cscIdHelper().stationPhi(stripId);
+        int stripNumber = m_idHelperSvc->cscIdHelper().strip(stripId);
+        int wireLayer = m_idHelperSvc->cscIdHelper().wireLayer(stripId);
+        char orientation = m_idHelperSvc->cscIdHelper().measuresPhi(stripId) ? 'Y':'X';
 
 
         char name[30],titleSeed[600];
         TH1I* hist = NULL;
 
-        int stationName = m_cscId->stationName(stripId);		
+        int stationName = m_idHelperSvc->cscIdHelper().stationName(stripId);		
         //Amplitude histogram
         sprintf(name, "ampHist%u",stripItr);
         sprintf(titleSeed, "Amplitude Histogram for eta %d, sector %d, layer %d%c, strip %d",
@@ -447,7 +435,7 @@ namespace MuonCalib {
 
     if(m_verbose) mLog << MSG::VERBOSE <<"There are " << rawDataContainter->size() << " rods in the RDO" << endmsg;
 
-    IdContext channelContext = m_cscId->channel_context();	
+    IdContext channelContext = m_idHelperSvc->cscIdHelper().channel_context();	
 
     //Loop over RODs (data from 2 chambers), each of which is in
     //a single CscRawaData collection
@@ -484,58 +472,58 @@ namespace MuonCalib {
             // WP Added
             Identifier channelId =m_cscRdoDecoderTool->channelIdentifier(cluster, stripItr);
             IdentifierHash cscChannelHashId;
-            m_cscId->get_channel_hash(channelId, cscChannelHashId);
+            m_idHelperSvc->cscIdHelper().get_channel_hash(channelId, cscChannelHashId);
 
             ///////////
             int stripHash = cscChannelHashId;
 
             Identifier stripId;
-            m_cscId->get_id(stripHash, stripId, &channelContext);
+            m_idHelperSvc->cscIdHelper().get_id(stripHash, stripId, &channelContext);
 
 
             Chrono chronoAfterId(m_chronoSvc,"afterID1");
 
-            if( m_cscId->chamberLayer(channelId) != m_expectedChamberLayer)
+            if( m_idHelperSvc->cscIdHelper().chamberLayer(channelId) != m_expectedChamberLayer)
             {
               //              cout << "Wrong chamber layer" << endl;
               mLog << MSG::WARNING << "Wrong chamber layer  a hash ("
-                << stripHash << ")  from the wrong multilayer has appeared in the data. Its string id is " << m_cscId->show_to_string(stripId)
-                <<  "  " << m_cscId->show_to_string(channelId)
+                << stripHash << ")  from the wrong multilayer has appeared in the data. Its string id is " << m_idHelperSvc->cscIdHelper().show_to_string(stripId)
+                <<  "  " << m_idHelperSvc->cscIdHelper().show_to_string(channelId)
                 << endmsg;
 
               mLog << MSG::INFO << "WP added (1) "
-                << m_cscId->stationEta(stripId) << " " << m_cscId->measuresPhi(stripId) << " "
+                << m_idHelperSvc->cscIdHelper().stationEta(stripId) << " " << m_idHelperSvc->cscIdHelper().measuresPhi(stripId) << " "
                 << stripHash << " " << cscChannelHashId
                 << endmsg;
 
               mLog << MSG::INFO << "WP added (2) "
-                << m_cscId->stationEta(stripId) << " " << m_cscId->measuresPhi(stripId) << " "
+                << m_idHelperSvc->cscIdHelper().stationEta(stripId) << " " << m_idHelperSvc->cscIdHelper().measuresPhi(stripId) << " "
                 << stripId << " " << channelId
                 << endmsg;
 
 
 
-              //              if(m_cscId->measuresPhi(stripId))
+              //              if(m_idHelperSvc->cscIdHelper().measuresPhi(stripId))
               //                mLog << MSG::DEBUG <<" bad id Measures Phi" << endmsg;
               //              else
               //                mLog << MSG::DEBUG <<" bad id is eta" << endmsg;
               //continue; 
-              stripId = m_cscId->channelID(
-                  m_cscId->stationName(stripId),
-                  m_cscId->stationEta(stripId),
-                  m_cscId->stationPhi(stripId),
+              stripId = m_idHelperSvc->cscIdHelper().channelID(
+                  m_idHelperSvc->cscIdHelper().stationName(stripId),
+                  m_idHelperSvc->cscIdHelper().stationEta(stripId),
+                  m_idHelperSvc->cscIdHelper().stationPhi(stripId),
                   2,
-                  m_cscId->wireLayer(stripId),
-                  m_cscId->measuresPhi(stripId),
-                  m_cscId->strip(stripId)
+                  m_idHelperSvc->cscIdHelper().wireLayer(stripId),
+                  m_idHelperSvc->cscIdHelper().measuresPhi(stripId),
+                  m_idHelperSvc->cscIdHelper().strip(stripId)
                   ); 
               IdentifierHash newHash;
-              m_cscId->get_channel_hash(stripId, newHash );
+              m_idHelperSvc->cscIdHelper().get_channel_hash(stripId, newHash );
               stripHash = newHash;
               if(m_debug) mLog << MSG::DEBUG << "New hash " << stripHash << endmsg;
             }
             else{
-              if(m_cscId->measuresPhi(stripId))
+              if(m_idHelperSvc->cscIdHelper().measuresPhi(stripId))
                 mLog << MSG::VERBOSE <<" good id Measures Phi" << endmsg;
               else
                 mLog << MSG::VERBOSE <<" good id is eta" << endmsg;
@@ -551,7 +539,7 @@ namespace MuonCalib {
             //Test for threshold breach... 
 
             //int minMax = GetMinMax(samples);
-            //if(minMax < (m_cscId->measuresPhi(stripId) ?  50 :30)) {
+            //if(minMax < (m_idHelperSvc->cscIdHelper().measuresPhi(stripId) ?  50 :30)) {
             size_t sampCnt = 0;
             std::vector<uint16_t>::const_iterator sampItr = samples.begin();
             std::vector<uint16_t>::const_iterator sampEnd = samples.end();
@@ -756,25 +744,25 @@ namespace MuonCalib {
         if(m_debug) mLog << MSG::DEBUG << "we're on hash " << hashId << " with pedestal " << ped 
           << "and noise " << noise << endmsg;//<< " and threshold " << thold << endmsg;
         Identifier id;
-        IdContext channelContext = m_cscId->channel_context();	
-        m_cscId->get_id(hashId,id, &channelContext);
+        IdContext channelContext = m_idHelperSvc->cscIdHelper().channel_context();	
+        m_idHelperSvc->cscIdHelper().get_id(hashId,id, &channelContext);
 
-        Identifier chamberId = m_cscId->elementID(id);
-        if(!m_cscId->valid(chamberId))
+        Identifier chamberId = m_idHelperSvc->cscIdHelper().elementID(id);
+        if(!m_idHelperSvc->cscIdHelper().valid(chamberId))
         {
           mLog << MSG::WARNING << chamberId.getString() << " is not a valid id!" << endmsg;
-          mLog << MSG::WARNING << "identifier is: " << m_cscId->show_to_string(chamberId) << endmsg;
+          mLog << MSG::WARNING << "identifier is: " << m_idHelperSvc->cscIdHelper().show_to_string(chamberId) << endmsg;
           //id.show();
           //in.ignore(10000,'\n');
         }
 
         IdentifierHash chamberHash;
-        m_cscId->get_module_hash(id,chamberHash);
+        m_idHelperSvc->cscIdHelper().get_module_hash(id,chamberHash);
 
         //print out values.
         out << hashId;
         out <<" " << chamberHash;
-        out << " " << m_cscId->show_to_string(id) << " ";
+        out << " " << m_idHelperSvc->cscIdHelper().show_to_string(id) << " ";
         out << " " << ped;
         out << " " << noise;
         out << " " << rms;
@@ -833,31 +821,31 @@ namespace MuonCalib {
         if(m_debug) mLog << MSG::DEBUG << "we're on hash " << hashId << " with pedestal " << ped 
           << "and noise " << noise << endmsg;//<< " and threshold " << thold << endmsg;
         Identifier id;
-        IdContext channelContext = m_cscId->channel_context();	
-        m_cscId->get_id(hashId,id, &channelContext);
+        IdContext channelContext = m_idHelperSvc->cscIdHelper().channel_context();	
+        m_idHelperSvc->cscIdHelper().get_id(hashId,id, &channelContext);
 
-        Identifier chamberId = m_cscId->elementID(id);
-        if(!m_cscId->valid(chamberId))
+        Identifier chamberId = m_idHelperSvc->cscIdHelper().elementID(id);
+        if(!m_idHelperSvc->cscIdHelper().valid(chamberId))
         {
           mLog << MSG::WARNING << chamberId.getString() << " is not a valid id!" << endmsg;
-          mLog << MSG::WARNING << "identifier is: " << m_cscId->show_to_string(chamberId) << endmsg;
+          mLog << MSG::WARNING << "identifier is: " << m_idHelperSvc->cscIdHelper().show_to_string(chamberId) << endmsg;
           //id.show();
           //in.ignore(10000,'\n');
         }
 
-        char orientationChar = (m_cscId->measuresPhi(id) ? 'Y':'X');
+        char orientationChar = (m_idHelperSvc->cscIdHelper().measuresPhi(id) ? 'Y':'X');
 
 
         IdentifierHash chamberHash;
-        m_cscId->get_module_hash(id,chamberHash);
+        m_idHelperSvc->cscIdHelper().get_module_hash(id,chamberHash);
 
         //print out values.
         out.setf(ios::right);//right aligned columns
         out << setfill('0') << setw(8) << onlineHexId;
         out <<" " 
-          << setw(2) << chamberHash << orientationChar << (m_cscId->wireLayer(id)-1)
+          << setw(2) << chamberHash << orientationChar << (m_idHelperSvc->cscIdHelper().wireLayer(id)-1)
           <<" "
-          << setw(3) << m_cscId->strip(id) -1 << " " ;
+          << setw(3) << m_idHelperSvc->cscIdHelper().strip(id) -1 << " " ;
         out.setf(ios::fixed);
 
 
@@ -1002,18 +990,18 @@ namespace MuonCalib {
       for(unsigned int hashItr =0; hashItr <= m_maxStripHash; hashItr++) {
         IdentifierHash stripHash =hashItr;
         Identifier stripId;
-        IdContext channelContext = m_cscId->channel_context();	
-        m_cscId->get_id(stripHash, stripId, &channelContext);
+        IdContext channelContext = m_idHelperSvc->cscIdHelper().channel_context();	
+        m_idHelperSvc->cscIdHelper().get_id(stripHash, stripId, &channelContext);
 
-        int chamLayer = m_cscId->chamberLayer(stripId);
+        int chamLayer = m_idHelperSvc->cscIdHelper().chamberLayer(stripId);
         if(chamLayer == m_expectedChamberLayer) //Only second chamber layer exists
         {
-          int stationName = m_cscId->stationName(stripId);
-          //int stationEta = m_cscId->stationEta(stripId);
-          int stationPhi = m_cscId->stationPhi(stripId);
-          int stripNumber = m_cscId->strip(stripId);
-          int wireLayer = m_cscId->wireLayer(stripId);
-          char orientation = m_cscId->measuresPhi(stripId) ? 'Y':'X';
+          int stationName = m_idHelperSvc->cscIdHelper().stationName(stripId);
+          //int stationEta = m_idHelperSvc->cscIdHelper().stationEta(stripId);
+          int stationPhi = m_idHelperSvc->cscIdHelper().stationPhi(stripId);
+          int stripNumber = m_idHelperSvc->cscIdHelper().strip(stripId);
+          int wireLayer = m_idHelperSvc->cscIdHelper().wireLayer(stripId);
+          char orientation = m_idHelperSvc->cscIdHelper().measuresPhi(stripId) ? 'Y':'X';
 
           int sector = 2*stationPhi + 50 - stationName;
 
@@ -1100,10 +1088,10 @@ namespace MuonCalib {
         strip = ((onlineId)&0xff) +1;
       }
 
-      Identifier chanId = m_cscId->channelID(stationName,eta,phi,chamLay,wireLay,measuresPhi,strip);
+      Identifier chanId = m_idHelperSvc->cscIdHelper().channelID(stationName,eta,phi,chamLay,wireLay,measuresPhi,strip);
 
       IdentifierHash chanHash;
-      m_cscId->get_channel_hash(chanId, chanHash);
+      m_idHelperSvc->cscIdHelper().get_channel_hash(chanId, chanHash);
 
       hashId = (unsigned int)chanHash;
 

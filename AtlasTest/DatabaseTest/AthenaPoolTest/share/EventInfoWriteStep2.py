@@ -91,7 +91,7 @@ topSequence += EventInfoWriter( "EventInfoWriter" )
 # ItemList:
 include( "EventAthenaPool/EventAthenaPoolItemList_joboptions.py" )
 
-print fullItemList
+printfunc (fullItemList)
 
 
 # Stream's output file - Run OutputStream as an algorithm
@@ -104,7 +104,6 @@ Stream1.ItemList   += fullItemList
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
 #--------------------------------------------------------------
-svcMgr.MessageSvc = Service( "MessageSvc" )
 svcMgr.MessageSvc.OutputLevel = INFO
 svcMgr.MessageSvc.debugLimit  = 100000
 
@@ -112,7 +111,8 @@ EventInfoWriter.OutputLevel = DEBUG
 #EventInfoWriter.CreateDummyTags = True
 #EventInfoWriter.CreateDummyOverrideTags = True
 
-AthenaEventLoopMgr = Service( "AthenaEventLoopMgr" )
+from AthenaServices import AthenaServicesConf
+AthenaEventLoopMgr = AthenaServicesConf.AthenaEventLoopMgr()
 AthenaEventLoopMgr.OutputLevel = INFO
 
 # TagInfoMgr r/w TagInfo

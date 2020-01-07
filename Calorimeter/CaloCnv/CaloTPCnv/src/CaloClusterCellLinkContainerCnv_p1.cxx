@@ -3,6 +3,7 @@
 */
 
 #include "CaloTPCnv/CaloClusterCellLinkContainerCnv_p1.h" 
+#include "AthenaKernel/getThinningCache.h"
 
 namespace {
 
@@ -56,10 +57,12 @@ CaloClusterCellLinkContainerCnv_p1::transToPersWithKey (const CaloClusterCellLin
                                                         const std::string& /*key*/,
                                                         MsgStream &msg) const
 {
+  const SG::ThinningDecisionBase* dec = nullptr;
   const size_t nClusters=trans->size();
   if (nClusters>0) {
     //we assume here all clusters in a container are built from the same cell container
     m_linkCnv.transToPers((*trans)[0]->getCellContainerLink(),pers->m_cellCont,msg);
+    dec = SG::getThinningDecision ((*trans)[0]->getCellContainerLink().dataID());
   }
  
   size_t minCapacity=0;
@@ -73,11 +76,13 @@ CaloClusterCellLinkContainerCnv_p1::transToPersWithKey (const CaloClusterCellLin
     CaloClusterCellLink::const_iterator it = cccl->begin();
     CaloClusterCellLink::const_iterator end = cccl->end();
     for (; it != end; ++it) {
+      unsigned ndx = it.index();
+      if (dec) ndx = dec->index (ndx);
       if (it.weight() == 1.0) { //standard weight 
-	pers->m_indices.push_back(it.index() & INDEXBIT_MASK);
+	pers->m_indices.push_back(ndx & INDEXBIT_MASK);
       }
       else {
-	pers->m_indices.push_back((it.index() & INDEXBIT_MASK) | HAS_WEIGHT_BIT);
+	pers->m_indices.push_back((ndx & INDEXBIT_MASK) | HAS_WEIGHT_BIT);
 	pers->m_weights.push_back(it.weight());
       }
     }//end loop over cells in cellLink object

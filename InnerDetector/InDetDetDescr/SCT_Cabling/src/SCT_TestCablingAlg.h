@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_TestCablingAlg_h
@@ -29,6 +29,7 @@ class StatusCode;
 class SCT_ID;
 
 /**
+ * @class SCT_TestCablingAlg
  * SCT_TestCablingAlg exercises the routines of the SCT cabling tool
  **/
 class SCT_TestCablingAlg:public AthReentrantAlgorithm {

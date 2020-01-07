@@ -16,7 +16,6 @@
 #include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "TrkPrepRawData/PrepRawDataCLASS_DEF.h"
 #include "TrkParameters/TrackParameters.h"
 

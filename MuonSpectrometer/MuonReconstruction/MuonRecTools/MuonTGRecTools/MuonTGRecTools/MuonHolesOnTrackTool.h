@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -26,7 +26,6 @@
 #include <fstream>
 
 #include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonPrepRawData/MdtPrepData.h"
 #include "MuonPrepRawData/RpcPrepData.h"
 #include "MuonTGRecTools/IMuonTGMeasTool.h"

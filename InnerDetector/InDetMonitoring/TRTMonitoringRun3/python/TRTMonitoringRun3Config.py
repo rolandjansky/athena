@@ -5,12 +5,12 @@
 
 def TRTMonitoringRun3Cfg(flags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    from .TRTMonitoringRun3_Tool import TRTMonitoringRun3_ToolConfig
+    from .TRTMonitoringRun3_Alg import TRTMonitoringRun3_AlgConfig
 
     result = ComponentAccumulator()
 
     # do not run in RAW->ESD (if two step) or AOD-only
     if flags.DQ.Environment not in ('tier0Raw', 'AOD'):
-        result.merge(TRTMonitoringRun3_ToolConfig(flags))
+        result.merge(TRTMonitoringRun3_AlgConfig(flags))
 
     return result

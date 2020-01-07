@@ -121,32 +121,31 @@ StatusCode EMTrackMatchBuilder::trackExecute(const EventContext& ctx, egammaRec*
     std::sort(trkMatches.begin(), trkMatches.end(), m_sorter);
     //set the matching values
     TrackMatch bestTrkMatch=trkMatches.at(0);
-    for(int i=0; i<4 ;++i){
-      eg->setDeltaEta (i, bestTrkMatch.deltaEta[i]); 
-      eg->setDeltaPhi (i, bestTrkMatch.deltaPhi[i]); 
-      eg->setDeltaPhiRescaled (i, bestTrkMatch.deltaPhiRescaled[i]); 
-    }
+    eg->setDeltaEta (bestTrkMatch.deltaEta); 
+    eg->setDeltaPhi (bestTrkMatch.deltaPhi); 
+    eg->setDeltaPhiRescaled (bestTrkMatch.deltaPhiRescaled); 
     eg->setDeltaPhiLast(bestTrkMatch.deltaPhiLast);
 
     //set the element Links
     typedef ElementLink<xAOD::TrackParticleContainer> EL;
     std::vector<EL> trackParticleLinks;
     trackParticleLinks.reserve (trkMatches.size());
-    std::string key = EL(*trackPC, 0).dataID();
+    const std::string key = EL(*trackPC, 0).dataID();
     IProxyDict* sg = SG::CurrentEventStore::store();
     for (const TrackMatch& m : trkMatches) {
       ATH_MSG_DEBUG("Match  dR: "<< m.dR
                     <<" second  dR: "<< m.seconddR
                     <<" hasPix: "<< m.hasPix
                     <<" hitsScore: " << m.hitsScore); 
-      if (key.empty())
+      if (key.empty()){
         trackParticleLinks.emplace_back (*trackPC, m.trackNumber, sg);
-      else
+      }
+      else{
         trackParticleLinks.emplace_back (key, m.trackNumber, sg);
+      }
     }
     eg->setTrackParticles(trackParticleLinks);
   }
-
   return StatusCode::SUCCESS;
 }
 
@@ -179,8 +178,8 @@ EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
    * We need anyhow both to be there at the end.
    */
   if (m_extrapolationTool->getMatchAtCalo (ctx,
-                                           &cluster, 
-                                           &trkPB, 
+                                           cluster, 
+                                           trkPB, 
                                            dir, 
                                            eta,
                                            phi,
@@ -198,8 +197,8 @@ EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
   std::array<double,4>  deltaPhiRes = {-999.0,-999.0,-999.0,-999.0};
  
   if (m_extrapolationTool->getMatchAtCalo (ctx, 
-                                           &cluster, 
-                                           &trkPB, 
+                                           cluster, 
+                                           trkPB, 
                                            dir, 
                                            etaRes,
                                            phiRes,
@@ -253,8 +252,8 @@ EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
   std::array<double,4>  deltaPhi1 = {-999.0,-999.0,-999.0,-999.0};
  
   if (m_extrapolationTool->getMatchAtCalo (ctx,
-                                           &cluster, 
-                                           &trkPB, 
+                                           cluster, 
+                                           trkPB, 
                                            dir, 
                                            eta1,
                                            phi1,
