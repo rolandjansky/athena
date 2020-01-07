@@ -5,6 +5,7 @@ import pickle
 import subprocess
 import unittest
 import os
+import six
 
 
 class TestDigitizationMC16a(unittest.TestCase):
@@ -39,7 +40,7 @@ class TestDigitizationMC16a(unittest.TestCase):
         ]
         subprocess.check_call(command)
 
-        with open(config_picklefilename) as picklefile:
+        with open(config_picklefilename, 'rb') as picklefile:
             job_config_dict = pickle.load(picklefile)
 
         cls._job_config_dict = job_config_dict
@@ -139,14 +140,14 @@ class TestDigitizationMC16a(unittest.TestCase):
                          actual_property_value_sorted,
                          failure_message)
 
-        for key, value in expected_nonstring_properties.iteritems():
+        for key, value in six.iteritems (expected_nonstring_properties):
             expected_Property = eval(value)
             self._assert_Algorithm_property_equal(
                 tested_configurable_name,
                 key,
                 expected_Property)
 
-        for key, value in expected_string_properties.iteritems():
+        for key, value in six.iteritems (expected_string_properties):
             expected_Property = value
             self._assert_Algorithm_property_equal(
                 tested_configurable_name,
