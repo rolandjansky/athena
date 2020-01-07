@@ -138,7 +138,7 @@ int JetForwardJvtToolBDT::modify(xAOD::JetContainer& jetCont) const {
   int pvind = (m_pvind==-1) ? getPV() : m_pvind;
   ATH_MSG_DEBUG("In JetForwardJvtToolBDT::modify: PV index = " << pvind);
   if( pvind == -1 ){
-    ATH_MSG_ERROR( "Something went wrong with the HS primary vertex identification." );
+    ATH_MSG_WARNING( "Something went wrong with the HS primary vertex identification." );
     return 1;
   }
 
@@ -157,7 +157,11 @@ int JetForwardJvtToolBDT::modify(xAOD::JetContainer& jetCont) const {
     if ( forwardJet(jetF) ){
       if( pileupMomenta.size()==0 ) {
 	pileupMomenta = calculateVertexMomenta(&jetCont, pvind);
-	if(pileupMomenta.size()==0) return 1; // This would follow error messages defined in 'calculateVertexMomenta' function.
+	if( pileupMomenta.size()==0 ) { 
+	  ATH_MSG_DEBUG( "pileupMomenta is empty, this can happen for events with no PU vertices. fJVT won't be computed for this event and will be set to 0 instead." );
+	  (*Dec_mvfjvt)(*jetF) = 0;
+	  continue;
+	}
       }
       (*Dec_mvfjvt)(*jetF) = getMVfJVT(jetF, pvind, pileupMomenta);
       if(m_isAna) (*Dec_outMV)(*jetF) = passMVfJVT( (*Dec_mvfjvt)(*jetF), jetF->pt()/(GeV), fabs(jetF->eta()) );
@@ -192,7 +196,7 @@ float JetForwardJvtToolBDT::getMVfJVT(const xAOD::Jet *jet, int pvind, std::vect
   const xAOD::EventInfo *eventInfo = nullptr;
   if ( evtStore()->retrieve(eventInfo, "EventInfo").isFailure() )
   {
-    ATH_MSG_ERROR(" Could not retrieve EventInfo ");
+    ATH_MSG_WARNING(" Could not retrieve EventInfo ");
     return -2;
   }
   float mu = eventInfo->actualInteractionsPerCrossing();
@@ -242,7 +246,7 @@ bool JetForwardJvtToolBDT::passMVfJVT( float mvfjvt, float pt, float eta ) const
   const xAOD::EventInfo *eventInfo = nullptr;
   if ( evtStore()->retrieve(eventInfo, "EventInfo").isFailure() )
   {
-    ATH_MSG_ERROR(" Could not retrieve EventInfo ");
+    ATH_MSG_WARNING(" Could not retrieve EventInfo ");
     return true;
   }
 
@@ -314,12 +318,12 @@ std::vector<TVector2> JetForwardJvtToolBDT::calculateVertexMomenta(const xAOD::J
 
   const xAOD::MissingETContainer* trkMet  = nullptr;
   if( evtStore()->retrieve(trkMet, "MET_Track").isFailure()) {
-    ATH_MSG_ERROR("Unable to retrieve MET_Track container");
+    ATH_MSG_WARNING("Unable to retrieve MET_Track container");
     return pileupMomenta;
   }
   const xAOD::VertexContainer *vxCont = 0;
   if( evtStore()->retrieve(vxCont, m_vtxcont).isFailure() ){
-    ATH_MSG_ERROR("Unable to retrieve primary vertex container \"" << m_vtxcont << "\"");
+    ATH_MSG_WARNING("Unable to retrieve primary vertex container \"" << m_vtxcont << "\"");
     return pileupMomenta;
   }
   ATH_MSG_DEBUG("In JetForwardJvtToolBDT::calculateVertexMomenta : Starting vertex loop  ");
@@ -389,15 +393,15 @@ int JetForwardJvtToolBDT::getPV() const{
 
   const xAOD::VertexContainer *vxCont = 0;
   if( evtStore()->retrieve(vxCont, m_vtxcont).isFailure() ) {
-    ATH_MSG_ERROR("Unable to retrieve primary vertex container");
-    return -1;
+    ATH_MSG_WARNING("Unable to retrieve primary vertex container");
+    return 0;
   } else {
     ATH_MSG_DEBUG("Successfully retrieved primary vertex container");
     for(const xAOD::Vertex *vx : *vxCont) {
       if(vx->vertexType()==xAOD::VxType::PriVtx) return vx->index();
     }
   }
-  ATH_MSG_WARNING("Couldn't identify the hard-scatter primary vertex (no vertex with \"vx->vertexType()==xAOD::VxType::PriVtx\" in the container)!");
+  ATH_MSG_DEBUG("Couldn't identify the hard-scatter primary vertex (no vertex with \"vx->vertexType()==xAOD::VxType::PriVtx\" in the container)!");
   return 0;
 }
 
