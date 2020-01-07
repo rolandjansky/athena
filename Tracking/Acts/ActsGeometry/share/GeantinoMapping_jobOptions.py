@@ -66,7 +66,7 @@ print globalflags.ConditionsTag
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.PoolEvgenInput.set_Off()   ### is this necessary?
 athenaCommonFlags.PoolHitsOutput = 'Hits.pool.root'
-athenaCommonFlags.EvtMax = 1000
+athenaCommonFlags.EvtMax = 100000
 
 #--- Simulation flags -----------------------------------------
 from G4AtlasApps.SimFlags import simFlags
@@ -80,13 +80,13 @@ myMaxEta =  6.0
 myPDG    = 999   # 999 = Geantinos, 13 = Muons
 
 include("GeneratorUtils/StdEvgenSetup.py")
-theApp.EvtMax = 1000
+theApp.EvtMax = 100000
 
 import ParticleGun as PG
 pg = PG.ParticleGun()
 pg.sampler.pid = 999
 pg.randomSeed = 123456
-pg.sampler.mom = PG.EEtaMPhiSampler(energy=10000, eta=[-6.,6.])
+pg.sampler.mom = PG.EEtaMPhiSampler(energy=10000, eta=[-6.0,6.0])
 topSeq += pg
 
 simFlags.RandomSeedOffset = myRandomOffset
@@ -151,4 +151,3 @@ if not hasattr(condSeq, "BeamSpotCondAlg"):
 
 
 #--- End jobOptions.GeantinoMapping.py file  ------------------------------
-

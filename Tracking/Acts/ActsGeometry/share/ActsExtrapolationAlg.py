@@ -76,7 +76,6 @@ condSeq += ActsGeometryConf.ActsAlignmentCondAlg("ActsAlignCondAlg",
                                             # OutputLevel=VERBOSE)
 ## END OF CONDITIONS SETUP
 
-
 from AthenaCommon.AppMgr import ServiceMgr
 
 # set up and configure the acts geometry construction

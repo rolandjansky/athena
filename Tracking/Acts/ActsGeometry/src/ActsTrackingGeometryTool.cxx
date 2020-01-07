@@ -16,7 +16,7 @@
 #include <memory>
 
 ActsTrackingGeometryTool::ActsTrackingGeometryTool(const std::string& type, const std::string& name,
-    const IInterface* parent) 
+    const IInterface* parent)
   : base_class(type, name, parent),
     m_trackingGeometrySvc("ActsTrackingGeometrySvc", name)
 {

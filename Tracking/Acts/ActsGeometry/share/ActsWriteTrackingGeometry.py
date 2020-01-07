@@ -106,4 +106,3 @@ if hasattr(ServiceMgr,"AthenaHiveEventLoopMgr"):
 
 
 theApp.EvtMax = 1
-

@@ -114,6 +114,8 @@ StatusCode ActsExtrapolationAlg::execute(const EventContext &ctx) const {
       auto anygctx = gctx.any();
       Acts::BoundParameters startParameters(
           anygctx, std::move(cov), std::move(pars), std::move(surface));
+
+      std::cout << startParameters << std::endl;    
       steps = m_extrapolationTool->propagate(ctx, startParameters);
       m_propStepWriterSvc->write(steps);
     }
