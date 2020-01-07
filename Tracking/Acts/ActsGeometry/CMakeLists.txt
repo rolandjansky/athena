@@ -56,7 +56,7 @@ atlas_add_component( ActsGeometry
                      src/ActsObjWriterTool.cxx
                      #src/ActsExCellWriterSvc.cxx
                      src/ActsMaterialStepConverterTool.cxx
-                     #src/ActsMaterialJsonWriterTool.cxx
+                     src/ActsMaterialJsonWriterTool.cxx
                      src/ActsMaterialTrackWriterSvc.cxx
                      #src/GeomShiftCondAlg.cxx
                      src/ActsAlignmentCondAlg.cxx
