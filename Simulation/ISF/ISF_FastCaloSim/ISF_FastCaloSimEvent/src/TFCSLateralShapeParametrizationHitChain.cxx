@@ -94,7 +94,7 @@ FCSReturnCode TFCSLateralShapeParametrizationHitChain::simulate(TFCSSimulationSt
         FCSReturnCode status = hitsim->simulate_hit(hit, simulstate, truth, extrapol);
 
         if (status == FCSSuccess) {
-          if(sumEhit+hit.E()>Elayer) hit.E()=Elayer-sumEhit;//sum of all hit energies needs to be Elayer: correct last hit accordingly
+          //if(sumEhit+hit.E()>Elayer) hit.E()=Elayer-sumEhit;//sum of all hit energies needs to be Elayer: correct last hit accordingly
           break;
         } else {
           if (status == FCSFatal) return FCSFatal;
@@ -107,8 +107,8 @@ FCSReturnCode TFCSLateralShapeParametrizationHitChain::simulate(TFCSSimulationSt
     }
     sumEhit+=hit.E();
     ++ihit;
-    if(ihit>10*nhit) {
-      ATH_MSG_WARNING("TFCSLateralShapeParametrizationHitChain::simulate(): aborting hit chain, iterated " << 10*nhit << " times, expected " << nhit<<" times. Deposited E("<<calosample()<<")="<<sumEhit);
+    if(ihit>100*nhit && ihit>1000) {
+      ATH_MSG_WARNING("TFCSLateralShapeParametrizationHitChain::simulate(): aborting hit chain, iterated " << 100*nhit << " times, expected " << nhit<<" times. Deposited E("<<calosample()<<")="<<sumEhit<<" expected E="<<Elayer);
       break;
     }  
   } while (sumEhit<Elayer);
