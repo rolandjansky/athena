@@ -123,7 +123,7 @@ TruthParticleContainerCnv_p5::transToPers( const TruthParticleContainer*,
       << "You are not supposed to end-up here ! Go away !"
       << endmsg;
 
-  throw std::runtime_error( "Retired TruthParticleContainerCnv_p4::transToPers() !!" );
+  throw std::runtime_error( "Retired TruthParticleContainerCnv_p5::transToPers() !!" );
 
   return;
 }
