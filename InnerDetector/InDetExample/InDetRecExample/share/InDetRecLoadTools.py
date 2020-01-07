@@ -366,12 +366,7 @@ if InDetFlags.doPattern():
     # TRT detector elements road builder
     #
     if not InDetFlags.doDBMstandalone():
-        from TRT_DetElementsRoadTool_xk.TRT_DetElementsRoadTool_xkConf import InDet__TRT_DetElementsRoadMaker_xk
-        InDetTRTDetElementsRoadMaker =  InDet__TRT_DetElementsRoadMaker_xk(name                  = 'InDetTRT_RoadMaker',
-                                                                           TRTManagerLocation    = InDetKeys.TRT_Manager(),
-                                                                           RoadWidth             = 20.,
-                                                                           PropagatorTool        = InDetPatternPropagator)
-        ToolSvc += InDetTRTDetElementsRoadMaker
+        InDetTRTDetElementsRoadMaker =  TrackingCommon.getInDetTRT_RoadMaker()
         if (InDetFlags.doPrintConfigurables()):
             print      InDetTRTDetElementsRoadMaker
 
@@ -379,12 +374,8 @@ if InDetFlags.doPattern():
     # TRT segment minimum number of drift circles tool
     #
     from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetTrtDriftCircleCutTool
-    InDetTRTDriftCircleCut = InDet__InDetTrtDriftCircleCutTool(name                   = 'InDetTRTDriftCircleCut',
-                                                               MinOffsetDCs           = 5,
-                                                               UseNewParameterization = True,  # Use Thomas's new parameterization by default
-                                                               UseActiveFractionSvc   = DetFlags.haveRIO.TRT_on())
+    InDetTRTDriftCircleCut = TrackingCommon.getInDetTRTDriftCircleCutForPatternReco()
 
-    ToolSvc += InDetTRTDriftCircleCut
     if (InDetFlags.doPrintConfigurables()):
         print   InDetTRTDriftCircleCut
 
@@ -393,9 +384,9 @@ if InDetFlags.doPattern():
     #
     from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiCombinatorialTrackFinder_xk
     InDetSiComTrackFinder = InDet__SiCombinatorialTrackFinder_xk(name                  = 'InDetSiComTrackFinder',
-                                                                 PropagatorTool        = InDetPatternPropagator,
-                                                                 UpdatorTool           = InDetPatternUpdator,
-                                                                 RIOonTrackTool        = InDetRotCreatorDigital, # #NS HERE
+                                                                 PropagatorTool        = TrackingCommon.getInDetPatternPropagator(),
+                                                                 UpdatorTool           = TrackingCommon.getInDetPatternUpdator(),
+                                                                 RIOonTrackTool        = TrackingCommon.getInDetRotCreatorDigital(), # #NS HERE
                                                                  usePixel              = DetFlags.haveRIO.pixel_on(),
                                                                  useSCT                = DetFlags.haveRIO.SCT_on(),
                                                                  PixelClusterContainer = InDetKeys.PixelClusters(),
@@ -448,83 +439,7 @@ if InDetFlags.doPattern():
 # ----------- Track extension to TRT tool for New Tracking
 #
 # ------------------------------------------------------------
-#if InDetFlags.doPattern() and DetFlags.haveRIO.TRT_on() and InDetFlags.doTRTExtension():
-if InDetFlags.doPattern() and DetFlags.haveRIO.TRT_on():
-    # if new tracking is OFF then xk extension type has to be used!!
-    if (InDetFlags.trtExtensionType() == 'xk') or (not InDetFlags.doNewTracking()) :
-
-        #
-        # TRT segment minimum number of drift circles tool just for Pattern Reco stage
-        #
-        from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetTrtDriftCircleCutTool
-        InDetTRTDriftCircleCutForPatternReco = InDet__InDetTrtDriftCircleCutTool(name                   = 'InDetTRTDriftCircleCutForPatternReco',
-                                                                                 MinOffsetDCs           = 5,
-                                                                                 UseNewParameterization = InDetNewTrackingCuts.useNewParameterizationTRT(),  # Use new parameterization only for high lumi
-                                                                                 UseActiveFractionSvc   = DetFlags.haveRIO.TRT_on())
-
-        ToolSvc += InDetTRTDriftCircleCutForPatternReco
-        if (InDetFlags.doPrintConfigurables()):
-            print   InDetTRTDriftCircleCutForPatternReco
-
-        #
-        # load normal extension code
-        #
-        if InDetFlags.doCosmics():
-            from TRT_TrackExtensionTool_xk.TRT_TrackExtensionTool_xkConf import InDet__TRT_TrackExtensionToolCosmics
-            InDetTRTExtensionTool = InDet__TRT_TrackExtensionToolCosmics(name                  = 'InDetTRT_ExtensionToolCosmics',
-                                                                         Propagator            = InDetPropagator,
-                                                                         Extrapolator          = InDetExtrapolator,
-                                                                         TRT_ClustersContainer = InDetKeys.TRT_DriftCircles(),
-                                                                         SearchNeighbour       = False, # needs debugging!!!
-                                                                         RoadWidth             = 10.)
-        else:
-            from TRT_TrackExtensionTool_xk.TRT_TrackExtensionTool_xkConf import InDet__TRT_TrackExtensionTool_xk
-            InDetTRTExtensionTool =  InDet__TRT_TrackExtensionTool_xk(name                  = 'InDetTRT_ExtensionTool',
-                                                                      TRT_ClustersContainer = InDetKeys.TRT_DriftCircles(),
-                                                                      TrtManagerLocation    = InDetKeys.TRT_Manager(),
-                                                                      PropagatorTool        = InDetPatternPropagator,
-                                                                      UpdatorTool           = InDetPatternUpdator,
-                                                                      DriftCircleCutTool    = InDetTRTDriftCircleCutForPatternReco,
-                                                                      UseDriftRadius        = not InDetFlags.noTRTTiming(),
-                                                                      RoadTool              = InDetTRTDetElementsRoadMaker,
-                                                                      MinNumberDriftCircles = InDetNewTrackingCuts.minTRTonTrk(),
-                                                                      ScaleHitUncertainty   = 2.,
-                                                                      RoadWidth             = 20.,
-                                                                      UseParameterization   = InDetNewTrackingCuts.useParameterizedTRTCuts() )
-            # --- single beam running, open cuts
-            if InDetFlags.doBeamHalo() or InDetFlags.doBeamGas():
-                InDetTRTExtensionTool.maxImpactParameter  = 500
-
-    elif InDetFlags.trtExtensionType() == 'DAF' :
-        #
-        # laod TRT Competing ROT tool
-        #
-        from TrkDeterministicAnnealingFilter.TrkDeterministicAnnealingFilterConf import Trk__DAF_SimpleWeightCalculator
-        InDetWeightCalculator =  Trk__DAF_SimpleWeightCalculator( name = 'InDetWeightCalculator')
-        ToolSvc += InDetWeightCalculator
-        if (InDetFlags.doPrintConfigurables()):
-            print InDetWeightCalculator
-        #
-        from InDetCompetingRIOsOnTrackTool.InDetCompetingRIOsOnTrackToolConf import InDet__CompetingTRT_DriftCirclesOnTrackTool
-        InDetCompetingTRT_DC_Tool =  InDet__CompetingTRT_DriftCirclesOnTrackTool( name                                  = 'InDetCompetingTRT_DC_Tool',
-                                                                                  Extrapolator                          = InDetExtrapolator,
-                                                                                  ToolForWeightCalculation              = InDetWeightCalculator,
-                                                                                  ToolForTRT_DriftCircleOnTrackCreation = InDetRotCreator.ToolTRT_DriftCircle)
-        ToolSvc += InDetCompetingTRT_DC_Tool
-        if (InDetFlags.doPrintConfigurables()):
-            print InDetCompetingTRT_DC_Tool
-
-        from TRT_TrackExtensionTool_DAF.TRT_TrackExtensionTool_DAFConf import InDet__TRT_TrackExtensionTool_DAF
-        InDetTRTExtensionTool =  InDet__TRT_TrackExtensionTool_DAF(name                        = 'InDetTRT_ExtensionTool',
-                                                                   TRT_DriftCircleContainer    = InDetKeys.TRT_DriftCircles(),
-                                                                   CompetingDriftCircleTool    = InDetCompetingTRT_DC_Tool,
-                                                                   PropagatorTool              = InDetPatternPropagator,
-                                                                   RoadTool                    = InDetTRTDetElementsRoadMaker)
-
-    # --- print out the final configuration
-    ToolSvc += InDetTRTExtensionTool
-    if (InDetFlags.doPrintConfigurables()):
-        print InDetTRTExtensionTool
+InDetTRTExtensionTool = TrackingCommon.getInDetTRT_ExtensionTool(TrackingCuts = InDetNewTrackingCuts)
 
 # ------------------------------------------------------------
 #
