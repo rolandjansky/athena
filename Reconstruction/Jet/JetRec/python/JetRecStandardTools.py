@@ -412,6 +412,20 @@ jtm += PFlowPseudoJetGetter(
   UseChargedPUsideband = False,
 )
 
+# EM-scale pflow with custom selection for the primary vertex 
+jtm += PFlowPseudoJetGetter(
+  "pflowcustomvtxget",
+  Label = "PFlowCustomVtx",
+  InputContainer = "CHSParticleFlowObjects",
+  OutputContainer = "PseudoJetPFlowCustomVtx",
+  SkipNegativeEnergy = True,
+  GhostScale = 0.0,
+  UseCharged = True,
+  UseNeutral = True,
+  UseChargedPV = True,
+  UseChargedPUsideband = False,
+)
+
 # EM-scale pflow - z0sinTheta sideband
 jtm += PFlowPseudoJetGetter(
   "empflowpusbget",
