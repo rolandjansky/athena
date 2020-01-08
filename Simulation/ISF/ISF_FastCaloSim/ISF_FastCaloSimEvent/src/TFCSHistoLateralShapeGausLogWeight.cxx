@@ -5,7 +5,7 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
 
-#include "ISF_FastCaloSimEvent/TFCSHistoLateralShapeWeightHitAndMiss.h"
+#include "ISF_FastCaloSimEvent/TFCSHistoLateralShapeGausLogWeight.h"
 #include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
 
 #include "TH1.h"
@@ -13,18 +13,19 @@
 #include "TMath.h"
 
 //=============================================
-//======= TFCSHistoLateralShapeWeightHitAndMiss =========
+//======= TFCSHistoLateralShapeGausLogWeight =========
 //=============================================
 
-TFCSHistoLateralShapeWeightHitAndMiss::TFCSHistoLateralShapeWeightHitAndMiss(const char* name, const char* title):TFCSHistoLateralShapeWeight(name,title)
+TFCSHistoLateralShapeGausLogWeight::TFCSHistoLateralShapeGausLogWeight(const char* name, const char* title) :
+  TFCSHistoLateralShapeWeight(name,title)
 {
 }
 
-TFCSHistoLateralShapeWeightHitAndMiss::~TFCSHistoLateralShapeWeightHitAndMiss()
+TFCSHistoLateralShapeGausLogWeight::~TFCSHistoLateralShapeGausLogWeight()
 {
 }
 
-FCSReturnCode TFCSHistoLateralShapeWeightHitAndMiss::simulate_hit(Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/)
+FCSReturnCode TFCSHistoLateralShapeGausLogWeight::simulate_hit(Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/)
 {
   if (!simulstate.randomEngine()) {
     return FCSFatal;
@@ -49,27 +50,15 @@ FCSReturnCode TFCSHistoLateralShapeWeightHitAndMiss::simulate_hit(Hit& hit,TFCSS
   Int_t bin=m_hist->FindBin(delta_r_mm);
   if(bin<1) bin=1;
   if(bin>m_hist->GetNbinsX()) bin=m_hist->GetNbinsX();
-  float meanweight=m_hist->GetBinContent(bin);
-  float weight=meanweight;
+  float weight=m_hist->GetBinContent(bin);
   float RMS   =m_hist->GetBinError(bin);
   if(RMS>0) {
-    weight=CLHEP::RandGauss::shoot(simulstate.randomEngine(), meanweight, RMS);
+    float logweight=CLHEP::RandGauss::shoot(simulstate.randomEngine(), -0.5*RMS*RMS, RMS);
+    weight*=TMath::Exp(logweight);
   }  
-  if(meanweight<=1) {
-    //if meanweight<=1, give lower energy to hit. 
-    //TFCSLateralShapeParametrizationHitChain needs to be able to generate more hits in this case
-    hit.E()*=weight;
-  } else {
-    //if meanweight>1, accept only 1/meanweight events, but give them a higher energy increased by weight. 
-    //This leads to larger fluctuations, while keeping the shape unchanged.
-    float prob=1.0/meanweight;
-    float rnd=CLHEP::RandFlat::shoot(simulstate.randomEngine());
-    if(rnd<prob) hit.E()*=weight;
-     else hit.E()=0;
-  }  
+  hit.E()*=weight;
 
-  ATH_MSG_DEBUG("HIT: E="<<hit.E()<<" dR_mm="<<delta_r_mm<<" meanweight="<<meanweight<<" weight="<<weight);
+  ATH_MSG_DEBUG("HIT: E="<<hit.E()<<" dR_mm="<<delta_r_mm<<" weight="<<weight);
   return FCSSuccess;
 }
-
 
