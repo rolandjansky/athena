@@ -19,7 +19,6 @@ ex.input = 'data'
 ex.max_events = 20
 ex.args = '--timeout 2000'
 ex.args += ' -o ' + output_name_base
-ex.perfmon = False  # perfmon with athenaHLT doesn't work at the moment
 
 test = Test.Test()
 test.art_type = 'build'

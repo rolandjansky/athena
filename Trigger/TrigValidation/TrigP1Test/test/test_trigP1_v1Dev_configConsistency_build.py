@@ -20,7 +20,6 @@ def make_exec_steps(nforks, nthreads, nslots):
     ex.concurrent_events = nslots
     ex.args = '--dump-config-exit'
     ex.args += ' -c "setMenu=\'LS2_v1\';"'  # LS2_v1 soon to be renamed to Dev_pp_run3_v1
-    ex.perfmon = False  # perfmon with athenaHLT doesn't work at the moment
 
     # Step renaming the config dump
     rename = ExecStep.ExecStep('RenameConfigDump.'+id_str)

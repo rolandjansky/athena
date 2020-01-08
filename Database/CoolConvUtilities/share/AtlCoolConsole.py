@@ -2,6 +2,7 @@
 # version modified by Richard Hawkings from COOl1.3.2 distribution
 # original by Sven Schmitt (Abstracture/Mainz)
 
+from __future__ import print_function
 import sys
 import code
 import readline
@@ -95,7 +96,7 @@ class AtlCoolConsole( HistoryConsole ):
         self.push( 'from CoolConvUtilities import AtlCoolTool' )
         if connectString is not None:
             self.push( 'this = AtlCoolTool.AtlCoolTool("%s")' % self.connectString )
-            self.push( 'print this' )
+            self.push( 'print (this)' )
         else:
             print ( "Not connected. Use the 'open' command to connect to "
                     "a database." )
@@ -285,7 +286,7 @@ class AtlCoolConsole( HistoryConsole ):
     def command_settag(self,argumentString):
         args=argumentString.split()
         if len(args)<3:
-            print 'Usage: settag <folder> <foldertag> <parenttag>'
+            print ('Usage: settag <folder> <foldertag> <parenttag>')
             return ''
         cmds=[]
         cmds.append('this.settag("%s")' % argumentString)
@@ -294,7 +295,7 @@ class AtlCoolConsole( HistoryConsole ):
     def command_settginfo(self,argumentString):
         args=argumentString.split()
         if len(args)<2:
-            print 'Usage: settginfo <folder> <tag> <description>'
+            print ('Usage: settginfo <folder> <tag> <description>')
             return ''
         cmds=[]
         cmds.append('this.settginfo("%s")' % argumentString)
@@ -303,7 +304,7 @@ class AtlCoolConsole( HistoryConsole ):
     def command_setchan(self,argumentString):
         args=argumentString.split()
         if len(args)<3:
-            print 'Usage: setchan <folder> <chanID> <chanName> {<chanDescr>}'
+            print ('Usage: setchan <folder> <chanID> <chanName> {<chanDescr>}')
             return ''
         cmds=[]
         cmds.append('this.setchan("%s")' % argumentString)
@@ -312,7 +313,7 @@ class AtlCoolConsole( HistoryConsole ):
     def command_userunlumi(self,argumentString):
         args=argumentString.split()
         if len(args)!=1 and len(args)<4:
-            print 'Usage: userunlumi <run1> {<LB1> <run2> <LB2>}'
+            print ('Usage: userunlumi <run1> {<LB1> <run2> <LB2>}')
             return ''
         cmds=[]
         cmds.append('this.userunlumi("%s")' % argumentString)
@@ -321,7 +322,7 @@ class AtlCoolConsole( HistoryConsole ):
     def command_usetimes(self,argumentString):
         args=argumentString.split()
         if len(args)<2:
-            print 'Usage: usetimes <time1> <time2>'
+            print ('Usage: usetimes <time1> <time2>')
             return ''
         cmds=[]
         cmds.append('this.usetimes("%s")' % argumentString)
@@ -330,7 +331,7 @@ class AtlCoolConsole( HistoryConsole ):
     def command_clonetag(self,argumentString):
         args=argumentString.split()
         if len(args)<3:
-            print 'Usage: clonetag <folder> <sourcetag> <desttag>'
+            print ('Usage: clonetag <folder> <sourcetag> <desttag>')
             return ''
         cmds=[]
         cmds.append('this.clonetag("%s")' % argumentString)
@@ -340,7 +341,7 @@ class AtlCoolConsole( HistoryConsole ):
     def command_rmtag(self,argumentString):
         args=argumentString.split()
         if len(args)<2:
-            print 'Usage: rmtag <folder> <leaf or parent tag>'
+            print ('Usage: rmtag <folder> <leaf or parent tag>')
             return ''
         cmds=[]
         cmds.append('this.rmtag("%s")' % argumentString)
@@ -349,7 +350,7 @@ class AtlCoolConsole( HistoryConsole ):
     def command_locktag(self,argumentString):
         args=argumentString.split()
         if len(args)<2:
-            print 'Usage: locktag <folder> <tag> {action=l|p|u|r}'
+            print ('Usage: locktag <folder> <tag> {action=l|p|u|r}')
             return ''
         cmds=[]
         cmds.append('this.locktag("%s")' % argumentString)
@@ -358,7 +359,7 @@ class AtlCoolConsole( HistoryConsole ):
     def command_headtag(self,argumentString):
         args=argumentString.split()
         if len(args)<2:
-            print 'Usage: headtag <folder> <tag>'
+            print ('Usage: headtag <folder> <tag>')
             return ''
         cmds=[]
         cmds.append('this.headtag("%s")' % argumentString)
@@ -368,7 +369,7 @@ class AtlCoolConsole( HistoryConsole ):
     def command_tracetags(self,argumentString):
         args=argumentString.split()
         if len(args)<2:
-            print 'Usage: tracetags <folder> <foldertag>'
+            print ('Usage: tracetags <folder> <foldertag>')
             return ''
         cmds=[]
         cmds.append('this.tracetags("%s")' % argumentString)
@@ -378,7 +379,7 @@ class AtlCoolConsole( HistoryConsole ):
     def command_setdesc( self, argumentString ):
         args=argumentString.split()
         if len(args)<1:
-            print 'Usage: setdesc <folder> {<newdesc>}'
+            print ('Usage: setdesc <folder> {<newdesc>}')
             return ''
         cmds=[]
         cmds.append('this.setdesc("%s")' % argumentString)
@@ -390,17 +391,17 @@ class AtlCoolConsole( HistoryConsole ):
             # we have a python "help(...)" command most likely
             # we only want to intercept "help", therefore return the original
             return 'help ' + argumentString
-        print 'Available commands:'
-        keys = self.commands.keys()
+        print ('Available commands:')
+        keys = list(self.commands.keys())
         keys.sort()
         for key in keys:
-            print '  %(key)-8s : %(value)s' % { 'key' : key,
-                                                'value' : self.commands[key] }
-        print "These commands are shortcuts that are forwarded to a CoolTool"
-        print "instance 'this', referring to the currently connected database."
-        print "Since this environment is a fully functional python shell,"
-        print "'this' can be used like any python object, e.g.:"
-        print "  this.ls( '/' )"
+            print ('  %(key)-8s : %(value)s' % { 'key' : key,
+                                                 'value' : self.commands[key] })
+        print ("These commands are shortcuts that are forwarded to a CoolTool")
+        print ("instance 'this', referring to the currently connected database.")
+        print ("Since this environment is a fully functional python shell,")
+        print ("'this' can be used like any python object, e.g.:")
+        print ("  this.ls( '/' )")
         return ''
 
 
