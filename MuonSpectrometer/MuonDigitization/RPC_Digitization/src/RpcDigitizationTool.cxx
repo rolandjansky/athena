@@ -2291,8 +2291,8 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcSt
       OnlyEtaEff = OnlyEtaEff * eff_sf;
       OnlyPhiEff = OnlyPhiEff * eff_sf;
 
+      ATH_MSG_INFO ( "Scale factor applied to fractional charged particle :  " << eff_sf );
     }
-    //std::cout<<"lqy test: qcharge = "<<qcharge<<" , qbetagamma = "<<qbetagamma<<" , scale factor = "<<eff_sf<<std::endl;
   }
 
 
