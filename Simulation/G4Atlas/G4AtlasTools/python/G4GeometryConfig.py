@@ -91,7 +91,8 @@ def getIDETEnvelope(name="IDET", **kwargs):
         SubDetectorList += ['SCT']
     if DetFlags.geometry.TRT_on() and not isUpgrade:
         SubDetectorList += ['TRT']
-    SubDetectorList += ['IDetServicesMat']
+    if not isUpgrade:
+        SubDetectorList += ['IDetServicesMat']
     kwargs.setdefault("SubDetectors", SubDetectorList)
     return CfgMgr.CylindricalEnvelope(name, **kwargs)
 
