@@ -212,11 +212,10 @@ from AthenaCommon.AppMgr import ServiceMgr
 
 #Patch /TagInfo metadata container
 from OverlayCommonAlgs.OverlayFlags import overlayFlags
-for key in overlayFlags.extraTagInfoPairs.get_Value().keys():
-    ServiceMgr.TagInfoMgr.ExtraTagValuePairs += [str(key), str(overlayFlags.extraTagInfoPairs.get_Value()[key])]
+ServiceMgr.TagInfoMgr.ExtraTagValuePairs.update(overlayFlags.extraTagInfoPairs.get_Value())
 if hasattr(runArgs, 'AMITag'):
     if runArgs.AMITag != "NONE":
-        ServiceMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", runArgs.AMITag]
+        ServiceMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag" : runArgs.AMITag})
 
 #print "OverlayPool_tf.py: at the end. job=\n", job
 print "\nOverlayPool_tf.py: at the end. ServiceMgr=\n", ServiceMgr
