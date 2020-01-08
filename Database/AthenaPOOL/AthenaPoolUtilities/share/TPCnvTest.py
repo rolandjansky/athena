@@ -61,7 +61,8 @@ svcMgr.EventSelector.InputCollections        = [ find_file (infile) ]
 from AthenaCommon.DetFlags      import DetFlags
 if not globals().get ('noMuon',False):
     DetFlags.detdescr.Muon_setOn()
-    import MuonRecExample.MuonAlignConfig
+    if moduleExists ('MuonRecExample'):
+        import MuonRecExample.MuonAlignConfig
 if not globals().get ('noID',False):
     DetFlags.detdescr.ID_setOn()
 
