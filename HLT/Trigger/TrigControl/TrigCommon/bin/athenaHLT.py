@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*- mode: python -*-
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # This is a script that is born as shell to setup the preloading and then
 # resurrected as python script for the actual athenaHLT.py application.
@@ -92,6 +92,13 @@ def arg_log_level(s):
 def arg_eval(s):
    """Argument handler for python types (list, dict, ...)"""
    return ast.literal_eval(s)
+
+def check_args(parser, args):
+   """Consistency check of command line arguments"""
+
+   # Due to missing per-worker dirs this is not supported (ATR-19462)
+   if args.perfmon and args.oh_monitoring and args.nprocs>1:
+      parser.error("--perfmon cannot be used with --oh-monitoring and --nprocs > 1")
 
 def update_pcommands(args, cdict):
    """Apply modifications to pre/postcommands"""
@@ -351,6 +358,7 @@ def main():
                   '--cfgdict \'{"global": {"log_root" : "/tmp"}}\'')
 
    args = parser.parse_args()
+   check_args(parser, args)
 
    # set default OutputLevels and file inclusion
    import AthenaCommon.Logging
