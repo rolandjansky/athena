@@ -5,7 +5,7 @@
 #ifndef PATTERNIDENTITY_H
 #define PATTERNIDENTITY_H
 
-#include "RPCcablingInterface/CMAparameters.h"
+#include "RPC_CondCabling/CMAparameters.h"
 
 // for compatibility between gcc2.95 and gcc3.2
 #if (__GNUC__) && (__GNUC__ > 2) 
