@@ -13,7 +13,6 @@ ex.input = 'data'
 ex.max_events = 200
 ex.args = '-c "setMenu=\'Physics_pp_run3_v1\';"'
 ex.args += ' --ros2rob /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/ATLASros2rob2018-r22format.py'
-ex.perfmon = False # perfmon with athenaHLT doesn't work at the moment
 
 ros2json = CheckSteps.InputDependentStep("RosRateToJson")
 ros2json.executable = 'ros-hitstats-to-json.py'
