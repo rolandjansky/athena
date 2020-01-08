@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -33,52 +33,22 @@
 #include <algorithm>
 
 // Constructor.
-EventSelectorByteStream::EventSelectorByteStream(const std::string& name, ISvcLocator* svcloc) : ::AthService(name, svcloc),
-        m_fileCount(0),
-	m_beginIter(0),
-	m_endIter(0),
-	m_eventSource(0),
-        m_incidentSvc("IncidentSvc", name),
-        m_evtStore( "StoreGateSvc", name ),
-        m_firstFileFired(false),
-        m_beginFileFired(false),
-	m_inputCollectionsFromIS(false),
-	m_NumEvents(0),
- 	m_eventStreamingTool("", this),
-        m_helperTools(this),
-        m_counterTool("", this) {
-   declareProperty("ByteStreamInputSvc",  m_eventSourceName);
-   declareProperty("Input",               m_inputCollectionsProp);
-   declareProperty("MaxBadEvents",        m_maxBadEvts = -1);
-   declareProperty("ProcessBadEvent",     m_procBadEvent = false);
-   declareProperty("SkipEvents",          m_SkipEvents = 0);
-   declareProperty("SkipEventSequence",   m_skipEventSequenceProp);
-
-   declareProperty("HelperTools",         m_helperTools);
-   declareProperty("CounterTool",         m_counterTool);
-   declareProperty("SharedMemoryTool",    m_eventStreamingTool);
+EventSelectorByteStream::EventSelectorByteStream(const std::string& name, ISvcLocator* svcloc)
+   : ::AthService(name, svcloc)
+{
+   declareProperty("HelperTools", m_helperTools);
 
    // RunNumber, OldRunNumber and OverrideRunNumberFromInput are used
    // to override the run number coming in on the input stream
-   declareProperty("RunNumber",           m_runNo = 0);
    m_runNo.verifier().setLower(0);
    // The following properties are only for compatibility with
    // McEventSelector and are not really used anywhere
-   declareProperty("EventsPerRun",        m_eventsPerRun = 1000000);
+   // TODO: validate if those are even used
    m_eventsPerRun.verifier().setLower(0);
-   declareProperty("FirstEvent",          m_firstEventNo = 0);
    m_firstEventNo.verifier().setLower(0);
-   declareProperty("FirstLB",             m_firstLBNo = 0);
    m_firstLBNo.verifier().setLower(0);
-   declareProperty("EventsPerLB",         m_eventsPerLB = 1000);
    m_eventsPerLB.verifier().setLower(0);
-   declareProperty("InitialTimeStamp",    m_initTimeStamp = 0);
    m_initTimeStamp.verifier().setLower(0);
-   declareProperty("TimeStampInterval",   m_timeStampInterval = 0);
-   declareProperty("OverrideRunNumber",   m_overrideRunNumber = false);
-   declareProperty("OverrideEventNumber", m_overrideEventNumber = false);
-   declareProperty("OverrideTimeStamp",   m_overrideTimeStamp = false);
-   declareProperty("FileBased", m_filebased = true);
 
    m_inputCollectionsProp.declareUpdateHandler(&EventSelectorByteStream::inputCollectionsHandler, this);
 }
@@ -145,7 +115,7 @@ StatusCode EventSelectorByteStream::initialize() {
 
    // Check ByteStreamCnvSvc
    IService* svc;
-   if (!serviceLocator()->getService(m_eventSourceName, svc).isSuccess()) {
+   if (!serviceLocator()->getService(m_eventSourceName.value(), svc).isSuccess()) {
       ATH_MSG_FATAL("Cannot get ByteStreamInputSvc");
       return(StatusCode::FAILURE);
    }
@@ -397,8 +367,8 @@ StatusCode EventSelectorByteStream::openNewRun() const {
       this->nextFile();
       return openNewRun();
    // check if skipping all events in that file (minus events already skipped)
-   } else if (m_SkipEvents - m_NumEvents > nev) {
-      ATH_MSG_WARNING("skipping more events " << m_SkipEvents-m_NumEvents << "(" << nev <<") than in file " << *m_inputCollectionsIterator << ", try next");
+   } else if (m_skipEvents.value() - m_NumEvents > nev) {
+      ATH_MSG_WARNING("skipping more events " << m_skipEvents.value() - m_NumEvents << "(" << nev <<") than in file " << *m_inputCollectionsIterator << ", try next");
       m_NumEvents += nev;
       m_numEvt[m_fileCount] = nev;
       if (m_eventSource->ready()) m_eventSource->closeBlockIterator(true);
@@ -502,7 +472,7 @@ StatusCode EventSelectorByteStream::next(IEvtSelector::Context& it) const {
       }
 
       // Check whether properties or tools reject this event
-      if ( m_NumEvents > m_SkipEvents && 
+      if ( m_NumEvents > m_skipEvents.value() && 
            (m_skipEventSequence.empty() || m_NumEvents != m_skipEventSequence.front()) ) {
          StatusCode status(StatusCode::SUCCESS);
          // Build event info attribute list
@@ -563,7 +533,7 @@ StatusCode EventSelectorByteStream::next(IEvtSelector::Context& it) const {
 //________________________________________________________________________________
 StatusCode EventSelectorByteStream::next(IEvtSelector::Context& ctxt, int jump) const {
    if (jump > 0) {
-      if ( m_NumEvents+jump != m_SkipEvents) {
+      if ( m_NumEvents+jump != m_skipEvents.value()) {
          // Save initial event count
          unsigned int cntr = m_NumEvents;
          // In case NumEvents increments multiple times in a single next call
@@ -573,7 +543,7 @@ StatusCode EventSelectorByteStream::next(IEvtSelector::Context& ctxt, int jump) 
             }
          }
       }
-      else ATH_MSG_DEBUG("Jump covered by skip event " << m_SkipEvents);
+      else ATH_MSG_DEBUG("Jump covered by skip event " << m_skipEvents.value());
       return(StatusCode::SUCCESS);
    }
    else { 

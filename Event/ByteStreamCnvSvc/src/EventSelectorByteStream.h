@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTSELECTORBYTESTREAM_H
@@ -21,6 +21,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IIoComponent.h"
 
+#include "AthenaKernel/IAthenaIPCTool.h"
 #include "AthenaKernel/IAthenaSelectorTool.h"
 #include "AthenaKernel/IEvtSelectorSeek.h"
 #include "AthenaKernel/IEventShare.h"
@@ -30,7 +31,6 @@
 
 // Forward declarations.
 class ISvcLocator;
-class IAthenaIPCTool;
 class EventContextByteStream;
 class ByteStreamInputSvc;
 class IROBDataProviderSvc;
@@ -113,55 +113,51 @@ private: // internal member functions
 
 private:
    // property
-   std::string      m_eventSourceName;
-   Gaudi::Property<int>  m_maxBadEvts;    //!< number of bad events allowed before quitting.
-   mutable int              m_fileCount;     //!< number of files to process.
+   Gaudi::Property<std::string> m_eventSourceName{this, "ByteStreamInputSvc", "", ""};
+   Gaudi::Property<bool> m_procBadEvent{this, "ProcessBadEvent", false, ""}; //!< process bad events, which fail check_tree().
+   Gaudi::Property<int>  m_maxBadEvts{this, "MaxBadEvents", -1, ""};         //!< number of bad events allowed before quitting.
+   mutable int           m_fileCount{};  //!< number of files to process.
 
    mutable std::vector<int>     m_numEvt;
    mutable std::vector<int>     m_firstEvt;
 
-   EventContextByteStream*  m_beginIter;
-   EventContextByteStream*  m_endIter;
-   ByteStreamInputSvc*      m_eventSource;
-   Gaudi::Property<std::vector<std::string>> m_inputCollectionsProp;
+   EventContextByteStream*  m_beginIter{};
+   EventContextByteStream*  m_endIter{};
+   ByteStreamInputSvc*      m_eventSource{};
+   Gaudi::Property<std::vector<std::string>> m_inputCollectionsProp{this, "Input", {}, ""};
    mutable std::vector<std::string>::const_iterator m_inputCollectionsIterator;
    void inputCollectionsHandler(Property&);
-   ServiceHandle<IIncidentSvc> m_incidentSvc;
-   ServiceHandle<StoreGateSvc> m_evtStore;
+   ServiceHandle<IIncidentSvc> m_incidentSvc{this, "IncidentSvc", "IncidentSvc", ""};
+   ServiceHandle<StoreGateSvc> m_evtStore{this, "StoreGateSvc", "StoreGateSvc", ""};
 
-   long m_SkipEvents; // Number of events to skip at the beginning
-   Gaudi::Property<std::vector<long>> m_skipEventSequenceProp;
+   Gaudi::Property<long> m_skipEvents{this, "SkipEvents", 0, ""}; // Number of events to skip at the beginning
+   Gaudi::Property<std::vector<long>> m_skipEventSequenceProp{this, "SkipEventSequence", {}, ""};
    mutable std::vector<long> m_skipEventSequence;
 
-   bool m_firstFileFired;
-   bool m_beginFileFired;
-   bool m_inputCollectionsFromIS;
-   mutable long m_NumEvents; // Number of Events read so far.
+   bool m_firstFileFired{};
+   bool m_beginFileFired{};
+   bool m_inputCollectionsFromIS{};
+   mutable long m_NumEvents{}; // Number of Events read so far.
 
-   mutable ToolHandle<IAthenaIPCTool> m_eventStreamingTool;
-
-   Gaudi::Property<bool>    m_procBadEvent;  //!< process bad events, which fail check_tree().
+   mutable ToolHandle<IAthenaIPCTool> m_eventStreamingTool{this, "SharedMemoryTool", "", ""};
 
    /// HelperTools, vector of names of AlgTools that are executed by the EventSelector
-   ToolHandleArray<IAthenaSelectorTool> m_helperTools;
-   ToolHandle<IAthenaSelectorTool> m_counterTool;
-         
-   /**@name Athena standard EventSelector properties */
+   ToolHandleArray<IAthenaSelectorTool> m_helperTools{this};
+   ToolHandle<IAthenaSelectorTool>      m_counterTool{this, "CounterTool", "", ""};
 
-   /// Flags to indicate override of run/event/time
-   ///  These are almost always false.
-   Gaudi::Property<bool> m_overrideRunNumber;
-   Gaudi::Property<bool> m_overrideEventNumber;
-   Gaudi::Property<bool> m_overrideTimeStamp;
-   Gaudi::Property<bool> m_filebased;
+   /// The following are included for compatibility with McEventSelector and are not really used.
+   /// However runNo, oldRunNo and overrideRunNumberFromInput are used to reset run number for
+   /// simulated events, needed to use condition
+   Gaudi::Property<bool> m_overrideRunNumber{this, "OverrideRunNumber", false, ""};
+   Gaudi::Property<bool> m_filebased{this, "FileBased", true, ""};
 
-   Gaudi::CheckedProperty<int> m_runNo;
-   Gaudi::CheckedProperty<int> m_firstEventNo;
-   Gaudi::CheckedProperty<int> m_eventsPerRun;
-   Gaudi::CheckedProperty<int> m_firstLBNo;
-   Gaudi::CheckedProperty<int> m_eventsPerLB;
-   Gaudi::CheckedProperty<int> m_initTimeStamp;
-   Gaudi::Property<int> m_timeStampInterval;
+   Gaudi::CheckedProperty<int> m_runNo{this, "RunNumber", 0, ""};
+   Gaudi::CheckedProperty<int> m_firstEventNo{this, "FirstEvent", 0, ""};
+   Gaudi::CheckedProperty<int> m_eventsPerRun{this, "EventsPerRun", 1000000, ""};
+   Gaudi::CheckedProperty<int> m_firstLBNo{this, "FirstLB", 0, ""};
+   Gaudi::CheckedProperty<int> m_eventsPerLB{this, "EventsPerLB", 1000, ""};
+   Gaudi::CheckedProperty<int> m_initTimeStamp{this, "InitialTimeStamp", 0, ""};
+   Gaudi::Property<int> m_timeStampInterval{this, "TimeStampInterval", 0, ""};
 };
 
 #endif
