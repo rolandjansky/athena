@@ -55,20 +55,37 @@ FCSReturnCode TFCSHistoLateralShapeWeightHitAndMiss::simulate_hit(Hit& hit,TFCSS
   if(RMS>0) {
     weight=CLHEP::RandGauss::shoot(simulstate.randomEngine(), meanweight, RMS);
   }  
-  if(meanweight<=1) {
-    //if meanweight<=1, give lower energy to hit. 
-    //TFCSLateralShapeParametrizationHitChain needs to be able to generate more hits in this case
-    hit.E()*=weight;
-  } else {
-    //if meanweight>1, accept only 1/meanweight events, but give them a higher energy increased by weight. 
-    //This leads to larger fluctuations, while keeping the shape unchanged.
-    float prob=1.0/meanweight;
+
+  /* -------------------------------------------------------------------
+   * Weight is used to scale hit energy.
+   * 
+   * if (meanweight > m_minWeight and meanweight < m_maxWeight)
+   * 	Hit is accecpted with probability of m_minWeight/meanweight.
+   * 	If not accepted, weight is set to zero (this is
+   *    equivalent to not accept the hit). 
+   * 
+   * if (meanweight<=m_minWeight)
+   * 	Give lower energy to hit with probability 1.  
+   * 	TFCSLateralShapeParametrizationHitChain needs to be able 
+   * 	to generate more hits in this case
+   * 
+   * if (meanweight >= m_maxWeight) 
+   * 	meanweight is above upper threshold. It is set to m_maxWeight.
+   * -------------------------------------------------------------------
+  */
+  if (meanweight >= m_maxWeight) {
+    weight = m_maxWeight;
+  }
+  else if (meanweight > m_minWeight){
+    float prob=m_minWeight/meanweight;
     float rnd=CLHEP::RandFlat::shoot(simulstate.randomEngine());
-    if(rnd<prob) hit.E()*=weight;
-     else hit.E()=0;
+    if(rnd>=prob) weight = 0.;
   }  
 
+
+  hit.E()*=weight;
   ATH_MSG_DEBUG("HIT: E="<<hit.E()<<" dR_mm="<<delta_r_mm<<" meanweight="<<meanweight<<" weight="<<weight);
+  
   return FCSSuccess;
 }
 
