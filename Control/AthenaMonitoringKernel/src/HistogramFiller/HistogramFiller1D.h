@@ -30,18 +30,18 @@ namespace Monitored {
       std::function<double(size_t)> weightValue = [] (size_t ){ return 1.0; };  // default is always 1.0
       std::vector<double> weightVector;
       if ( m_monWeight != nullptr ) {
-	weightVector = m_monWeight->getVectorRepresentation();
-	weightValue = [&](size_t i){ return weightVector[i]; };
+        weightVector = m_monWeight->getVectorRepresentation();
+        weightValue = [&](size_t i){ return weightVector[i]; };
       }
 
       if ( not m_monVariables.at(0).get().hasStringRepresentation() ) {
-	const auto valuesVector = m_monVariables.at(0).get().getVectorRepresentation();
-	fill( std::size( valuesVector), [&](size_t i){ return valuesVector[i]; }, weightValue );
-	return std::size( valuesVector );
+        const auto valuesVector = m_monVariables.at(0).get().getVectorRepresentation();
+        fill( std::size( valuesVector), [&](size_t i){ return valuesVector[i]; }, weightValue );
+        return std::size( valuesVector );
       } else {
-	const auto valuesVector = m_monVariables.at(0).get().getStringVectorRepresentation();
-	fill( std::size( valuesVector ), [&](size_t i){ return valuesVector[i].c_str(); }, weightValue );
-	return std::size( valuesVector );
+        const auto valuesVector = m_monVariables.at(0).get().getStringVectorRepresentation();
+        fill( std::size( valuesVector ), [&](size_t i){ return valuesVector[i].c_str(); }, weightValue );
+        return std::size( valuesVector );
       }
     }
 
@@ -53,7 +53,7 @@ namespace Monitored {
 
       auto histogram = this->histogram<TH1>();
       for ( size_t i = 0; i < n; ++i ) {
-	histogram->Fill( f1(i), f2(i) );
+        histogram->Fill( f1(i), f2(i) );
       }
     }
   };
