@@ -379,7 +379,7 @@ namespace CP {
           return m_SF.empty() ? true : (*m_SF.begin())->isOverFlowBin(b-m_binOffSet);
     }
     bool CollectionContainer::isBinInMap(unsigned int bin) const{
-        return  m_binOffSet <= bin && bin< m_binOffSet + nBins();
+        return  m_binOffSet <= bin && bin < m_binOffSet + nBins();
     }
     EffiCollection::CollectionType CollectionContainer::type() const {
         return m_FileType;

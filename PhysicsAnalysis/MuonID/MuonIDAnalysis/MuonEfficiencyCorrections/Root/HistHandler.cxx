@@ -33,7 +33,7 @@ namespace CP {
             } else if (axis.find("eta") != std::string::npos) {
                 if (AbsAxis) return std::make_unique<AbsEtaAxisHandler>();
                 return std::make_unique<EtaAxisHandler>();
-            } else if (axis.find("dRJet") != std::string::npos) {
+            } else if (axis.find("dRJet") != std::string::npos || axis.find("#DeltaR (jet, #mu)") != std::string::npos) {
                 return std::make_unique<dRJetAxisHandler>();
             }
 

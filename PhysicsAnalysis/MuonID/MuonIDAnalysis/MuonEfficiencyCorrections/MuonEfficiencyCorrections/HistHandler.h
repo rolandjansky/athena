@@ -242,7 +242,7 @@ namespace CP {
     class dRJetAxisHandler: public AxisHandler {
         public:
             CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value) const override {
-                static SG::AuxElement::ConstAccessor<float> dRJet("dRJet");
+                static const SG::AuxElement::ConstAccessor<float> dRJet("dRJet");
                 value = dRJet.isAvailable(mu) ? dRJet(mu) : -1;
                 return CorrectionCode::Ok;
             }

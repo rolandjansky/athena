@@ -31,7 +31,7 @@ alg = CP__MuonEfficiencyCorrections_TestAlg("EffiTestAlg")
 alg.PileupReweightingTool = GetPRWTool()
 alg.MuonSelectionTool = GetSelectionTool()
 alg.DefaultRelease="cFeb_2019"
-alg.ValidationRelease="cOct_2019"
+alg.ValidationRelease="cJan_2020"
 alg.SGKey = "CalibratedMuons"
 ## Select 30 GeV muons for the high-pt WP only
 alg.MinPt = 100.e3
@@ -39,16 +39,16 @@ alg.MaxEta = 2.5
 #alg.MinQualit = 1 #Medium
 WPs = [
          # reconstruction WPs
-        "LowPt",
-        "Loose", 
-        "Medium", 
-        "Tight", 
-        "HighPt", 
-        "CaloTag",      
+        #"LowPt",
+        #"Loose", 
+        #"Medium", 
+        #"Tight", 
+        #"HighPt", 
+        #"CaloTag",      
          # track-to-vertex-association WPs
-         "TTVA",
+         #"TTVA",
          # BadMuon veto SFs
-        "BadMuonVeto_HighPt",        
+        #"BadMuonVeto_HighPt",        
         #"GradientIso",
          # isolation WPs
         "FCLooseIso",                    
@@ -62,14 +62,20 @@ WPs = [
         "FCTightTrackOnly_FixedRadIso",
         ]
 for WP in WPs: 
-    alg.EfficiencyTools += [GetMuonEfficiencyTool(WP, Release="190530_r21")]
-    alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP, 
-                                                CustomInput = "/eos/user/j/jojungge/AutumunRecommendations/to_copy/")]
-ToolSvc.MuonEfficiencyTool_CaloTag.ApplyKinematicSystematic = False
-ToolSvc.MuonEfficiencyTool_CaloTag_190530_r21.ApplyKinematicSystematic = False
+    alg.EfficiencyTools += [GetMuonEfficiencyTool(WP,
+                                                  Release="191111_Winter_PrecisionZ",
+                                                BreakDownSystematics=False, 
+                                                UncorrelateSystematics=False
+                                    
+                                )]
+    alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP,                                                                
+                                                CustomInput = "/ptmp/mpp/junggjo9/Cluster/SFFiles/December_2019/")]
+#ToolSvc.MuonEfficiencyTool_CaloTag.ApplyKinematicSystematic = False
+#ToolSvc.MuonEfficiencyTool_CaloTag_190530_r21.ApplyKinematicSystematic = False
 
 ### New working points
-for WP in["HighPt3Layers", "LowPtMVA"]:    
+for WP in["HighPt3Layers", "LowPtMVA"]:   
+    break 
     alg.EfficiencyTools += [GetMuonEfficiencyTool(WP, 
                                                 CustomInput = "/eos/user/j/jojungge/AutumunRecommendations/to_copy/")]
     alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP, 
