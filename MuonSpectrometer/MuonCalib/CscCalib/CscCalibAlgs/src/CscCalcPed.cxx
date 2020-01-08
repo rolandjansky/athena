@@ -816,7 +816,7 @@ namespace MuonCalib {
         string onlineHexId;
 
         //Online ids are same as "string ids" used internally in COOL db.
-        readCdo->indexToStringId(m_cscId, hashId, "CHANNEL", onlineHexId);
+        readCdo->indexToStringId(&m_idHelperSvc->cscIdHelper(), hashId, "CHANNEL", onlineHexId);
 
         if(m_debug) mLog << MSG::DEBUG << "we're on hash " << hashId << " with pedestal " << ped 
           << "and noise " << noise << endmsg;//<< " and threshold " << thold << endmsg;
@@ -903,7 +903,7 @@ namespace MuonCalib {
         double value = (*resItr)->value();
         std::string idString;
 
-        readCdo->indexToStringId(m_cscId, hashId, "CHANNEL", idString);
+        readCdo->indexToStringId(&m_idHelperSvc->cscIdHelper(), hashId, "CHANNEL", idString);
 
         out << idString << " " << value << "\n";
       }

@@ -21,6 +21,7 @@ so that he can determine the validity of the constants
 #include "CscCalibData/CscCalibResultCollection.h"
 #include "MuonCSC_CnvTools/ICSC_RDO_Decoder.h"
 #include "MuonCondData/CscCondDbData.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 //temporary for tests
 #include "BipolarFit.h"
