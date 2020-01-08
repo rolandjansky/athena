@@ -99,7 +99,7 @@ class TrigTauRecMergedMT: public AthAlgorithm {
   
   SG::WriteHandleKey< xAOD::JetContainer > m_trigtauSeedOutKey   { this,"TrigTauJetOutputKey","HLT_seed_tau_jet","Key for output jets which are seed for tau jets"};
   SG::WriteHandleKey< xAOD::TauJetContainer > m_trigtauRecOutKey {this,"Key_trigTauJetOutputContainer","HLT_taujet","Output taujet container"};
-  SG::WriteHandleKey< xAOD::TauTrackContainer > m_trigtauTrkOutKey {this,"Key_trigTauJetInputContainer","HLT_tautrack","Output tautrack container"};
+  SG::WriteHandleKey< xAOD::TauTrackContainer > m_trigtauTrkOutKey {this,"Key_trigTauTrackOutputContainer","HLT_tautrack","Output tautrack container"};
 
   Gaudi::Property< float > m_maxeta         { this, "maxeta", 2.5,"max eta for tau"};
   Gaudi::Property< float > m_minpt          { this, "minpt", 10000.0, "min pt for tau"};
