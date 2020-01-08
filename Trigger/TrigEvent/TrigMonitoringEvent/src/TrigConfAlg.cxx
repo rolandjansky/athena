@@ -31,8 +31,8 @@ TrigConfAlg::TrigConfAlg()
 //--------------------------------------------------------------------------------------  
 TrigConfAlg::TrigConfAlg(const uint32_t index,
 		       const uint32_t position,
-		       const std::string name,
-		       const std::string type, 
+		       const std::string& name,
+		       const std::string& type, 
 		       const uint32_t name_id,
 		       const uint32_t type_id)
   :m_index(index),
