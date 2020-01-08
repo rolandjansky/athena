@@ -36,11 +36,9 @@ class ByteStreamInputSvc;
 class IROBDataProviderSvc;
 
 // Class EventSelectorByteStream.
-class EventSelectorByteStream : public ::AthService,
-		virtual public IEvtSelector,
-		virtual public IEvtSelectorSeek,
-		virtual public IEventShare,
-		virtual public IIoComponent {
+class EventSelectorByteStream :
+   public extends<::AthService, IEvtSelector, IEvtSelectorSeek, IEventShare, IIoComponent>
+{
 public:
    /// Standard Constructor.
    EventSelectorByteStream(const std::string& name, ISvcLocator* svcloc);
@@ -56,36 +54,55 @@ public:
    // Implementation of IInterface methods.
    virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
 
-   /// Implementation of the IEvtSelector interface methods.
+   //-------------------------------------------------
+   // IEventSelector
+   /// @brief create context
    virtual StatusCode createContext(Context*& it) const override;
-   /// Implementation of the IEvtSelector interface methods.
+   /// @param it [IN/OUT] current event context is interated to next event.
    virtual StatusCode next(Context& it) const override;
-   /// Implementation of the IEvtSelector interface methods.
+   /// @param it [IN/OUT] current event context is interated to next event.
+   /// @param jump [IN] number of events to jump (currently not supported).
    virtual StatusCode next(Context& it, int jump) const override;
-   /// Implementation of the IEvtSelector interface methods.
+   /// @param it [IN/OUT] current event context is interated to previous event.
    virtual StatusCode previous(Context& it) const override;
-   /// Implementation of the IEvtSelector interface methods.
+   /// @param it [IN/OUT] current event context is interated to previous event.
+   /// @param jump [IN] number of events to jump (currently not supported).
    virtual StatusCode previous(Context& it, int jump) const override;
 
-   /// Implementation of the IEvtSelector interface methods.
+   /// @param it [IN/OUT] current event context is interated to last event.
    virtual StatusCode last(Context& it) const override;
-   /// Implementation of the IEvtSelector interface methods.
+   /// @param it [IN/OUT] current event context is rewound to first event.
    virtual StatusCode rewind(Context& it) const override;
 
+   /// @param it [IN] current event context.
+   /// @param iop [OUT] pointer to IOpaqueAddress reference of selection context.
    virtual StatusCode createAddress(const Context& it,IOpaqueAddress*& iop) const override;
+
+   /// @param it [IN] current event context is released.
    virtual StatusCode releaseContext(Context*& it) const override;
+
+   /// Set a selection criteria.
+   /// @param criteria filter predicate (SQL-style WHERE clause)
+   /// @param context [IN] current event context.
    virtual StatusCode resetCriteria(const std::string& criteria, Context& context) const override;
 
+   //-------------------------------------------------
+   // IEventSelectorSeek
    /// Seek to a given event number.
+   /// @param it [IN/OUT] current event context.
    /// @param evtnum [IN]  The event number to which to seek.
    virtual StatusCode seek (Context& it, int evtnum) const override;
 
    /// Return the current event number.
+   /// @param it [IN/OUT] current event context.
    virtual int curEvent (const Context& it) const override;
 
    /// Always returns -1.
+   /// @param it [IN/OUT] current event context.
    virtual int size (Context& it) const override;
 
+   //-------------------------------------------------
+   // IEventShare
    /// Make this a server.
    virtual StatusCode makeServer(int num) override;
 
@@ -100,15 +117,18 @@ public:
    /// @param evtnum [IN]  The number of events to read.
    virtual StatusCode readEvent(int maxevt) override;
 
+   //-------------------------------------------------
+   // IIoComponent
    /// Callback method to reinitialize the internal state of the component for I/O purposes (e.g. upon @c fork(2))
    virtual StatusCode io_reinit() override;
 
 private: // internal member functions
-   /// reinitialize the service when a @c fork() occured/was-issued
+   /// Reinitialize the service when a @c fork() occured/was-issued
    StatusCode reinit();
    StatusCode openNewRun() const;
    void nextFile() const; 
-   int findEvent(int evtNum) const; //>! Search for event number evtNum.
+   /// Search for event with number evtNum.
+   int findEvent(int evtNum) const;
    StatusCode buildEventAttributeList() const;
 
 private:

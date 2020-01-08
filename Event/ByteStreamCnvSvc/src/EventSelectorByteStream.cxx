@@ -34,7 +34,7 @@
 
 // Constructor.
 EventSelectorByteStream::EventSelectorByteStream(const std::string& name, ISvcLocator* svcloc)
-   : ::AthService(name, svcloc)
+   : base_class(name, svcloc)
 {
    declareProperty("HelperTools", m_helperTools);
 
