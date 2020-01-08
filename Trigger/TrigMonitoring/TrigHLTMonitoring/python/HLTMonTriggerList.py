@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 import TrigBjetMonitoring.TrigBjetMonitCategory as bjet
 import TrigBphysMonitoring.TrigBphysMonitCategory as bphys
@@ -77,22 +79,22 @@ class HLTMonTriggerList:
 
 		if self._get_monitoring_mode_success == False:
 			# what should be done in this case?
-			print "HLTMonTriggerList: Error getting monitoring mode, default monitoring lists will be used."
+			print ("HLTMonTriggerList: Error getting monitoring mode, default monitoring lists will be used.")
 
 		elif self.pp_mode == True:
-			print "HLTMonTriggerList: Setting up pp monitoring."
+			print ("HLTMonTriggerList: Setting up pp monitoring.")
 			self.set_HLTMonTrigList_pp()
 
 		elif self.mc_mode == True:
-			print "HLTMonTriggerList: Setting up MC monitoring."
+			print ("HLTMonTriggerList: Setting up MC monitoring.")
 			self.set_HLTMonTrigList_mc()
 
 		elif self.HI_mode == True:
-			print "HLTMonTriggerList: Setting up HI monitoring."
+			print ("HLTMonTriggerList: Setting up HI monitoring.")
 			self.set_HLTMonTrigList_HI()
 
 		elif self.cosmic_mode == True:
-			print "HLTMonTriggerList: Setting up cosmic monitoring."
+			print ("HLTMonTriggerList: Setting up cosmic monitoring.")
 			self.set_HLTMonTrigList_cosmic()
 
 		self._configured = True
