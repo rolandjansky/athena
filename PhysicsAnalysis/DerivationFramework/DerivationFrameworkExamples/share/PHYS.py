@@ -28,20 +28,29 @@ from DerivationFrameworkTrigger.TriggerMatchingHelper import TriggerMatchingHelp
 # Get single and multi mu, e, photon triggers
 # Jet, tau, multi-object triggers not available in the matching code
 allperiods = TriggerPeriod.y2015 | TriggerPeriod.y2016 | TriggerPeriod.y2017 | TriggerPeriod.y2018 | TriggerPeriod.future2e34
-trig_el = TriggerAPI.getAllHLT(allperiods, triggerType=TriggerType.el,livefraction=0.9)
-trig_mu = TriggerAPI.getAllHLT(allperiods, triggerType=TriggerType.mu,livefraction=0.9)
-trig_g  = TriggerAPI.getAllHLT(allperiods, triggerType=TriggerType.g, livefraction=0.9)
+trig_el  = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el,  livefraction=0.8)
+trig_mu  = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.mu,  livefraction=0.8)
+trig_g   = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.g,   livefraction=0.8)
+trig_tau = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.tau, livefraction=0.8)
+# Add cross-triggers for some sets
+trig_em = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el, additionalTriggerType=TriggerType.mu,  livefraction=0.8)
+trig_et = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el, additionalTriggerType=TriggerType.tau, livefraction=0.8)
+trig_mt = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.mu, additionalTriggerType=TriggerType.tau, livefraction=0.8)
+# Note that this seems to pick up both isolated and non-isolated triggers already, so no need for extra grabs
 
+# Merge and remove duplicates
+trigger_names_full = list(set(trig_el+trig_mu+trig_g+trig_tau+trig_em+trig_et+trig_mt))
+
+# Now reduce the list...
+from RecExConfig.InputFilePeeker import inputFileSummary
 trigger_names = []
-for item in trig_el,trig_mu,trig_g:
-   for triggers in item.keys(): trigger_names += item.keys()     
-
-# Remove duplicates
-trigger_names = list(dict.fromkeys(trigger_names))
+for trig_item in inputFileSummary['metadata']['/TRIGGER/HLT/Menu']:
+    if not 'ChainName' in trig_item: continue
+    if trig_item['ChainName'] in trigger_names_full: trigger_names += [ trig_item['ChainName'] ]
 
 # Create trigger matching decorations
-PHYS_trigmatching_helper = TriggerMatchingHelper(matching_tool = "PHYSTriggerMatchingTool",
-                                                 trigger_list = trigger_names)
+trigmatching_helper = TriggerMatchingHelper(
+        trigger_list = trigger_names, add_to_df_job=True)
 
 #====================================================================
 # SET UP STREAM   
@@ -128,6 +137,9 @@ addDefaultTrimmedJets(DerivationFrameworkJob,"PHYS",dotruth=DerivationFrameworkI
 addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=DerivationFrameworkJob,algname="QGTaggerToolAlg")
 addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=DerivationFrameworkJob,algname="QGTaggerToolPFAlg")
 
+# fJVT
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=DerivationFrameworkJob, algname='PHYSJetForwardPFlowJvtToolAlg')
+
 #====================================================================
 # Tau   
 #====================================================================
@@ -160,8 +172,7 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("PHYSKernel",
                                                                        ThinningTools = [PHYSTrackParticleThinningTool,PHYSMuonTPThinningTool,
                                                                                         PHYSTauJetsThinningTool,PHYSTauTPThinningTool,
-                                                                                        PHYSDiTauTPThinningTool,PHYSDiTauLowPtThinningTool,PHYSDiTauLowPtTPThinningTool],
-                                                                       AugmentationTools = [PHYS_trigmatching_helper.matching_tool])
+                                                                                        PHYSDiTauTPThinningTool,PHYSDiTauLowPtThinningTool,PHYSDiTauLowPtTPThinningTool])
 
 
 #====================================================================
@@ -180,18 +191,44 @@ addRecommendedXbbTaggers(DerivationFrameworkJob, ToolSvc)
 FlavorTagInit(JetCollections  = [ 'AntiKt4EMTopoJets','AntiKt4EMPFlowJets'], Sequencer = DerivationFrameworkJob)
 
 #====================================================================
+# TC-LVT Vertices 
+#====================================================================
+
+from SoftBVrtClusterTool.SoftBVrtConfig import addSoftBVrt
+addSoftBVrt(DerivationFrameworkJob,'Loose')
+addSoftBVrt(DerivationFrameworkJob,'Medium')
+addSoftBVrt(DerivationFrameworkJob,'Tight')
+
+#====================================================================
 # Truth collections
 #====================================================================
 if (DerivationFrameworkIsMonteCarlo):
    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addMiniTruthCollectionLinks,addHFAndDownstreamParticles,addPVCollection
-   import DerivationFrameworkHiggs.TruthCategories 
-   addStandardTruthContents()
-   addMiniTruthCollectionLinks()
+   import DerivationFrameworkHiggs.TruthCategories
+   # Add charm quark collection
+   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthCollectionMaker
+   PHYSTruthCharmTool = DerivationFramework__TruthCollectionMaker(name                    = "PHYSTruthCharmTool",
+                                                                  NewCollectionName       = "TruthCharm",
+                                                                  KeepNavigationInfo      = False,
+                                                                  ParticleSelectionString = "(abs(TruthParticles.pdgId) == 4)",
+                                                                  Do_Compress             = True)
+   ToolSvc += PHYSTruthCharmTool
+   from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
+   DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("PHYSTruthCharmKernel",AugmentationTools=[PHYSTruthCharmTool])
+   # Add HF particles
    addHFAndDownstreamParticles()
+   # Add standard truth
+   addStandardTruthContents()
+   # Update to include charm quarks and HF particles
+   ToolSvc.DFCommonTruthNavigationDecorator.InputCollections += ['TruthCharm','TruthHFWithDecayParticles']
+   # Re-point links on reco objects
+   addMiniTruthCollectionLinks()
    addPVCollection()
    from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
    if IsSUSYSignal():
       from DerivationFrameworkSUSY.SUSYWeightMetadata import *
+   # Add sumOfWeights metadata for LHE3 multiweights =======
+   from DerivationFrameworkCore.LHE3WeightMetadata import *
 
 #====================================================================
 # CONTENTS   
@@ -209,28 +246,34 @@ PHYSSlimmingHelper.SmartCollections = ["Electrons",
                                        "BTagging_AntiKt4EMTopo_201810",
                                        "BTagging_AntiKt4EMPFlow_201810",
                                        "BTagging_AntiKt4EMPFlow_201903",
-                                       "MET_Reference_AntiKt4EMTopo",
-                                       "MET_Reference_AntiKt4EMPFlow",
                                        "TauJets",
                                        "DiTauJets",
                                        "DiTauJetsLowPt",
-                                       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-                                       "AntiKt4TruthWZJets",
-                                       "AntiKt4TruthJets"
+                                       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
                                       ]
 
+excludedVertexAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
+StaticContent = []
+StaticContent += ["xAOD::VertexContainer#SoftBVrtClusterTool_Tight_Vertices"]
+StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_Tight_VerticesAux." + excludedVertexAuxData]
+StaticContent += ["xAOD::VertexContainer#SoftBVrtClusterTool_Medium_Vertices"]
+StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_Medium_VerticesAux." + excludedVertexAuxData]
+StaticContent += ["xAOD::VertexContainer#SoftBVrtClusterTool_Loose_Vertices"]
+StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_Loose_VerticesAux." + excludedVertexAuxData]
+
+PHYSSlimmingHelper.StaticContent = StaticContent
 
 # Trigger content
 PHYSSlimmingHelper.IncludeTriggerNavigation = False
 PHYSSlimmingHelper.IncludeJetTriggerContent = False
-PHYSSlimmingHelper.IncludeMuonTriggerContent = True
-PHYSSlimmingHelper.IncludeEGammaTriggerContent = True
+PHYSSlimmingHelper.IncludeMuonTriggerContent = False
+PHYSSlimmingHelper.IncludeEGammaTriggerContent = False
 PHYSSlimmingHelper.IncludeJetTauEtMissTriggerContent = False
-PHYSSlimmingHelper.IncludeTauTriggerContent = True
+PHYSSlimmingHelper.IncludeTauTriggerContent = False
 PHYSSlimmingHelper.IncludeEtMissTriggerContent = False
 PHYSSlimmingHelper.IncludeBJetTriggerContent = False
 PHYSSlimmingHelper.IncludeBPhysTriggerContent = False
-PHYSSlimmingHelper.IncludeMinBiasTriggerContent = True
+PHYSSlimmingHelper.IncludeMinBiasTriggerContent = False
 
 # Add the jet containers to the stream (defined in JetCommon if import needed)
 #addJetOutputs(PHYSSlimmingHelper,["PHYS"])
@@ -239,7 +282,6 @@ PHYSSlimmingHelper.IncludeMinBiasTriggerContent = True
 if DerivationFrameworkIsMonteCarlo:
    PHYSSlimmingHelper.AppendToDictionary = {'TruthEvents':'xAOD::TruthEventContainer','TruthEventsAux':'xAOD::TruthEventAuxContainer',
                                             'MET_Truth':'xAOD::MissingETContainer','MET_TruthAux':'xAOD::MissingETAuxContainer',
-                                            'MET_TruthRegions':'xAOD::MissingETContainer','MET_TruthRegionsAux':'xAOD::MissingETAuxContainer',
                                             'TruthElectrons':'xAOD::TruthParticleContainer','TruthElectronsAux':'xAOD::TruthParticleAuxContainer',
                                             'TruthMuons':'xAOD::TruthParticleContainer','TruthMuonsAux':'xAOD::TruthParticleAuxContainer',
                                             'TruthPhotons':'xAOD::TruthParticleContainer','TruthPhotonsAux':'xAOD::TruthParticleAuxContainer',
@@ -248,28 +290,36 @@ if DerivationFrameworkIsMonteCarlo:
                                             'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
                                             'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer',
                                             'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
-                                            'TruthWbosonWithDecayParticles':'xAOD::TruthParticleContainer','TruthWbosonWithDecayParticlesAux':'xAOD::TruthParticleAuxContainer',
-                                            'TruthWbosonWithDecayVertices':'xAOD::TruthVertexContainer','TruthWbosonWithDecayVerticesAux':'xAOD::TruthVertexAuxContainer',
+                                            'TruthForwardProtons':'xAOD::TruthParticleContainer','TruthForwardProtonsAux':'xAOD::TruthParticleAuxContainer',
+                                            'BornLeptons':'xAOD::TruthParticleContainer','BornLeptonsAux':'xAOD::TruthParticleAuxContainer',
+                                            'TruthBosonsWithDecayParticles':'xAOD::TruthParticleContainer','TruthBosonsWithDecayParticlesAux':'xAOD::TruthParticleAuxContainer',
+                                            'TruthBosonsWithDecayVertices':'xAOD::TruthVertexContainer','TruthBosonsWithDecayVerticesAux':'xAOD::TruthVertexAuxContainer',
+                                            'TruthBSMWithDecayParticles':'xAOD::TruthParticleContainer','TruthBSMWithDecayParticlesAux':'xAOD::TruthParticleAuxContainer',
+                                            'TruthBSMWithDecayVertices':'xAOD::TruthVertexContainer','TruthBSMWithDecayVerticesAux':'xAOD::TruthVertexAuxContainer',
+                                            'HardScatterParticles':'xAOD::TruthParticleContainer','HardScatterParticlesAux':'xAOD::TruthParticleAuxContainer',
+                                            'HardScatterVertices':'xAOD::TruthVertexContainer','HardScatterVerticesAux':'xAOD::TruthVertexAuxContainer',
                                             'TruthHFWithDecayParticles':'xAOD::TruthParticleContainer','TruthHFWithDecayParticlesAux':'xAOD::TruthParticleAuxContainer',
                                             'TruthHFWithDecayVertices':'xAOD::TruthVertexContainer','TruthHFWithDecayVerticesAux':'xAOD::TruthVertexAuxContainer',
+                                            'TruthCharm':'xAOD::TruthParticleContainer','TruthCharmAux':'xAOD::TruthParticleAuxContainer',
                                             'TruthPrimaryVertices':'xAOD::TruthVertexContainer','TruthPrimaryVerticesAux':'xAOD::TruthVertexAuxContainer',
+                                            'AntiKt10TruthTrimmedPtFrac5SmallR20Jets':'xAOD::JetContainer', 'AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux':'xAOD::JetAuxContainer',
                                            }
 
    from DerivationFrameworkMCTruth.MCTruthCommon import addTruth3ContentToSlimmerTool
    addTruth3ContentToSlimmerTool(PHYSSlimmingHelper)
-   PHYSSlimmingHelper.AllVariables += ['TruthHFWithDecayParticles','TruthHFWithDecayVertices']
+   PHYSSlimmingHelper.AllVariables += ['TruthHFWithDecayParticles','TruthHFWithDecayVertices','TruthCharm']
 
-PHYSSlimmingHelper.ExtraVariables = ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.Tau1_wta.Tau2_wta.Tau3_wta.D2",
-                                     "Electrons.TruthLink",
-                                     "Muons.TruthLink",
-                                     "Photons.TruthLink",
-                                     "AntiKt2PV0TrackJets.pt.eta.phi.m",
-                                     "AntiKt4EMTopoJets.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_eta.NumTrkPt500PV.PartonTruthLabelID",
-                                     "AntiKt4EMPFlowJets.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_eta.NumTrkPt500PV.PartonTruthLabelID",
-                                     "TruthPrimaryVertices.t.x.y.z"]
+PHYSSlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.Tau1_wta.Tau2_wta.Tau3_wta.D2",
+                                      "Electrons.TruthLink",
+                                      "Muons.TruthLink",
+                                      "Photons.TruthLink",
+                                      "AntiKt2PV0TrackJets.pt.eta.phi.m",
+                                      "AntiKt4EMTopoJets.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_eta.NumTrkPt500PV.PartonTruthLabelID",
+                                      "AntiKt4EMPFlowJets.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_eta.NumTrkPt500PV.PartonTruthLabelID.DFCommonJets_fJvt",
+                                      "TruthPrimaryVertices.t.x.y.z"]
 
 # Add trigger matching
-PHYS_trigmatching_helper.add_to_slimming(PHYSSlimmingHelper)
+trigmatching_helper.add_to_slimming(PHYSSlimmingHelper)
 
 # Final construction of output stream
 PHYSSlimmingHelper.AppendContentToStream(PHYSStream)

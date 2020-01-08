@@ -10,6 +10,7 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "FourMomUtils/xAODP4Helpers.h"
 #include <memory>
+#include <algorithm>
 
 namespace {
   /// Helper typedefs for accessors/decorators, vectors of ele links
@@ -194,8 +195,12 @@ namespace DerivationFramework {
     auto aux = std::make_unique<xAOD::AuxContainerBase>();
     uniqueContainer->setStore(aux.get() );
     container = uniqueContainer.get();
-    ATH_CHECK( evtStore()->record(std::move(uniqueContainer), m_outputPrefix+chain) );
-    ATH_CHECK( evtStore()->record(std::move(aux), m_outputPrefix+chain+"Aux.") );
+    std::string name = m_outputPrefix+chain;
+    // We have to replace '.' characters with '_' characters so that these are
+    // valid container names...
+    std::replace(name.begin(), name.end(), '.', '_');
+    ATH_CHECK( evtStore()->record(std::move(uniqueContainer), name) );
+    ATH_CHECK( evtStore()->record(std::move(aux), name+"Aux.") );
     return StatusCode::SUCCESS;
   }
 

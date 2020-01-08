@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //============================================================================
@@ -19,7 +19,12 @@
 // - IsoTrkImpLogChi2Max        -- List of maximum log(chi2) cuts for
 //                                 association of tracks to the primary
 //                                 vertex picked.
-//                                 (Must contain the same number of elements
+// - IsoDoTrkImpLogChi2Cut      -- apply log(chi2) cuts
+//                                 0 : don't apply log(chi2) cuts
+//                                 1 : apply log(chi2) cuts
+//                                 2 : apply log(chi2) cuts [former version]
+//                                 (The last two job options must
+//                                  contain the same number of elements
 //                                  as the IsolationConeSizes list.)
 // - UseOptimizedAlgo           -- Use the speed-optimized algorithm.
 //                           
@@ -102,6 +107,7 @@ namespace DerivationFramework {
     
     declareProperty("IsolationConeSizes"    , m_isoConeSizes);
     declareProperty("IsoTrkImpLogChi2Max"   , m_isoTrkImpLogChi2Max);
+    declareProperty("IsoDoTrkImpLogChi2Cut" , m_isoDoTrkImpLogChi2Cut);
     declareProperty("UseOptimizedAlgo"      , m_useOptimizedAlgo = true);
   }
   //--------------------------------------------------------------------------
@@ -110,11 +116,14 @@ namespace DerivationFramework {
     ATH_MSG_DEBUG("BVertexTrackIsoTool::initializeHook() -- begin");
 
     // check like-sized arrays
-    if ( m_isoConeSizes.size() != m_isoTrkImpLogChi2Max.size() ) {
+    if ( m_isoConeSizes.size() != m_isoTrkImpLogChi2Max.size() ||
+         m_isoConeSizes.size() != m_isoDoTrkImpLogChi2Cut.size() ) {
       ATH_MSG_ERROR("Size mismatch of IsolationConeSizes ("
-		    << m_isoConeSizes.size()
-		    << ") and IsoTrkImpChi2Max ("
-		    << m_isoTrkImpLogChi2Max.size() << ") lists!");
+                    << m_isoConeSizes.size()
+                    << "), IsoTrkImpChi2Max ("
+                    << m_isoTrkImpLogChi2Max.size()
+                    << ") and IsoDoTrkImpChi2Cut ("
+                    << m_isoDoTrkImpLogChi2Cut.size() << ") lists!");
     }      
 
     // initialize results array
@@ -184,9 +193,9 @@ namespace DerivationFramework {
   //--------------------------------------------------------------------------  
   StatusCode
   BVertexTrackIsoTool::calcValuesHook(const xAOD::Vertex* vtx,
-				      const unsigned int ipv,
-				      const unsigned int its,
-				      const unsigned int itt) const {
+                                      const unsigned int ipv,
+                                      const unsigned int its,
+                                      const unsigned int itt) const {
     
     ATH_MSG_DEBUG("calcValuesHook:  ipv: " << ipv
 		  << ", its: " << its << ", itt: " << itt);
@@ -205,7 +214,8 @@ namespace DerivationFramework {
       IsoItem&      iso        = m_results[ic][its][ipv][itt];
       const double& coneSize   = m_isoConeSizes[ic];
       const double& logChi2Max = m_isoTrkImpLogChi2Max[ic];
-	
+      const int&    doLogChi2  = m_isoDoTrkImpLogChi2Cut[ic];
+
       // presets
       iso.resetVals();
 
@@ -215,27 +225,29 @@ namespace DerivationFramework {
       // make sure candRefPV exists
       if ( candRefPV != NULL ) {
       
-	for (TrackBag::const_iterator trkItr = tracks.begin();
-	     trkItr != tracks.end(); ++trkItr) {
-	  double deltaR = candP.DeltaR((*trkItr)->p4().Vect());
-	  if ( deltaR < coneSize ) {
-	    double logChi2 =
-	      abs(getTrackCandPVLogChi2(*trkItr, candRefPV->position()));
-	    if ( logChi2 < logChi2Max ) {
-	      nTracksInCone++;
-	      ptSumInCone += (*trkItr)->pt();
-	    }
-	  } // deltaR
-	}    
-	// calculate result
-	if ( ptSumInCone + candP.Pt() > 0. ) {
-	  iso.isoValue = candP.Pt() / ( ptSumInCone + candP.Pt() );
-	} else {
-	  iso.isoValue = -5.;
-	}
+        for (TrackBag::const_iterator trkItr = tracks.begin();
+             trkItr != tracks.end(); ++trkItr) {
+          double deltaR = candP.DeltaR((*trkItr)->p4().Vect());
+          if ( deltaR < coneSize ) {
+            double logChi2 = (doLogChi2 > 0) ?
+              getTrackCandPVLogChi2(*trkItr, candRefPV) : -9999.;
+            // next line needed exactly as is for backward validation
+            if ( doLogChi2 == 2 ) logChi2 = abs(logChi2);
+            if ( doLogChi2 == 0 || logChi2 < logChi2Max ) {
+              nTracksInCone++;
+              ptSumInCone += (*trkItr)->pt();
+            } // logChi2
+          } // deltaR
+        }
+        // calculate result
+        if ( ptSumInCone + candP.Pt() > 0. ) {
+          iso.isoValue = candP.Pt() / ( ptSumInCone + candP.Pt() );
+        } else {
+          iso.isoValue = -5.;
+        }
 	
       } else {
-	iso.isoValue = -10.;
+        iso.isoValue = -10.;
       } // if candRefPV != NULL
 
       iso.nTracks  = nTracksInCone;
@@ -297,6 +309,7 @@ namespace DerivationFramework {
 	  for (unsigned int itt = 0; itt < nTrackTypes; ++itt) {
 	    CHECK(calcIsolation(m_results[ic][its][ipv][itt], vtx,
 				m_isoConeSizes[ic], m_isoTrkImpLogChi2Max[ic],
+        m_isoDoTrkImpLogChi2Cut[ic],
 				m_trackSelectionTools[its],
 				m_pvAssocTypes[ipv], m_useTrackTypes[itt]));
 	  } // for itt
@@ -311,12 +324,13 @@ namespace DerivationFramework {
   //--------------------------------------------------------------------------
   StatusCode BVertexTrackIsoTool::
   calcIsolation(const IsoItem& iso,
-		const xAOD::Vertex* vtx,
-		const double coneSize,
-		const double logChi2Max,
-		const ToolHandle<TrkSelTool>& tSelTool,
-		const xAOD::BPhysHelper::pv_type pvAssocType,
-		const int trackTypes ) const {
+                const xAOD::Vertex* vtx,
+                const double coneSize,
+                const double logChi2Max,
+                const int    doLogChi2,
+                const ToolHandle<TrkSelTool>& tSelTool,
+                const xAOD::BPhysHelper::pv_type pvAssocType,
+                const int trackTypes ) const {
 
     // preset
     iso.nTracks =  -1;
@@ -338,10 +352,12 @@ namespace DerivationFramework {
       if ( ! tSelTool->accept(*track, candRefPV) ) continue;
       // track type check
       if ( ! ((unsigned int)trackTypes == ttall() ||
-	      (detTrackTypes(track, candPV) & trackTypes) > 0x0) ) continue; 
+              (unsigned int)trackTypes == ttallMin() ||
+              (detTrackTypes(track, candPV, candRefPV)
+               & trackTypes) > 0x0) ) continue; 
       // track not in SV
       if ( std::find(candTracks.begin(), candTracks.end(), track)
-	   != candTracks.end() ) continue;
+           != candTracks.end() ) continue;
       // tracks that survived so far
       tracks.push_back(track);
     }
@@ -349,17 +365,19 @@ namespace DerivationFramework {
     double nTracksInCone = 0;
     double ptSumInCone   = 0.; 
     for (TrackBag::const_iterator trkItr = tracks.begin();
-	 trkItr != tracks.end(); ++trkItr) {
+         trkItr != tracks.end(); ++trkItr) {
       double deltaR = candP.DeltaR((*trkItr)->p4().Vect());
       if ( deltaR < coneSize ) {
-	double logChi2 =
-	  abs(getTrackCandPVLogChi2(*trkItr, candRefPV->position()));
-	if ( logChi2 < logChi2Max ) {
-	  nTracksInCone++;
-	  ptSumInCone += (*trkItr)->pt();
-	}
+        double logChi2 = (doLogChi2 > 0) ?
+          getTrackCandPVLogChi2(*trkItr, candRefPV) : -9999.;
+        // next line needed exactly as is for backward validation
+        if ( doLogChi2 == 2 ) logChi2 = abs(logChi2);
+        if ( doLogChi2 == 0 || logChi2 < logChi2Max ) {
+          nTracksInCone++;
+          ptSumInCone += (*trkItr)->pt();
+        }
       } // deltaR
-    }    
+    }
     // calculate result
     if ( ptSumInCone + candP.Pt() > 0. ) {
       iso.isoValue = candP.Pt() / ( ptSumInCone + candP.Pt() );
@@ -367,7 +385,7 @@ namespace DerivationFramework {
       iso.isoValue = -5;
     }
     iso.nTracks  = nTracksInCone;
-    
+
     return StatusCode::SUCCESS;
   }
   //--------------------------------------------------------------------------  
@@ -477,10 +495,11 @@ namespace DerivationFramework {
     
     double      coneSize   = m_isoConeSizes[ic];
     double      logChi2Max = m_isoTrkImpLogChi2Max[ic];
+    int         doLogChi2  = m_isoDoTrkImpLogChi2Cut[ic];
 
     // format it nicely
-    boost::format f("%02d_LC%02d_%s");
-    f % (int)(coneSize*10.) % (int)(logChi2Max*10.)
+    boost::format f("%02d_LC%02dd%1d_%s");
+    f % (int)(coneSize*10.) % (int)(logChi2Max*10.) % doLogChi2
       % buildBranchBaseName(its, ipv, itt);
     
     ATH_MSG_DEBUG("BVertexTrackIsoTool::buildBranchName: " << f.str());

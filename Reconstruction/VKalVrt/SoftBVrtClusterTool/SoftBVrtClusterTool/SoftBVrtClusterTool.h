@@ -12,6 +12,7 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODJet/JetContainer.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
+#include "JetInterface/IJetModifier.h"
 
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthParticleContainer.h"   
@@ -23,6 +24,7 @@ namespace SoftBVrt {
     SoftBVrtClusterTool( const std::string& name, ISvcLocator* pSvcLocator );
     virtual ~SoftBVrtClusterTool();
 
+    StatusCode decorateVertexWithTruth(const std::vector<xAOD::Vertex*> * vtxJet);
     virtual StatusCode initialize() override;
     virtual StatusCode initializeTools();
     virtual StatusCode execute() override;
@@ -30,6 +32,7 @@ namespace SoftBVrt {
 
   private:
     const std::string m_VX_COUNT_KEY = "BTaggingNumberOfPrimaryVertices";    
+    std::string m_truthMatchToolName;
     std::string m_SVFinderName;
     std::string m_jetCollectionName;
     std::string m_trackjetCollectionName;
@@ -53,6 +56,7 @@ namespace SoftBVrt {
     bool m_jetveto;
     bool m_trackjetveto;
     float m_overlap_frac;
+    bool m_doTruthMatching;
 
     // secondary vertices
     ToolHandle< InDet::ISecVertexInJetFinder > m_secVertexFinderTool; 
@@ -62,6 +66,10 @@ namespace SoftBVrt {
 
     // Track quality tool
     ToolHandle< InDet::IInDetTrackSelectionTool > m_selTool;
+
+    // ParticleJet DR truth matching tool 
+
+    ToolHandle< IJetModifier > m_truthMatchTool;
 
   };
 

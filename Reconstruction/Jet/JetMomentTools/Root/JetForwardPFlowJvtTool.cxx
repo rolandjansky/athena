@@ -142,12 +142,12 @@
 
     const xAOD::VertexContainer *vxCont = 0;
     if( evtStore()->retrieve(vxCont, m_verticesName).isFailure() ) {
-      ATH_MSG_ERROR("Unable to retrieve primary vertex container \"" << m_verticesName << "\"");
+      ATH_MSG_WARNING("Unable to retrieve primary vertex container \"" << m_verticesName << "\"");
       return pileupMomenta;
     }
     const xAOD::PFOContainer *pfos = m_pfotool->retrievePFO(CP::EM,CP::all);
     if(pfos == NULL ){
-      ATH_MSG_ERROR("PFO container is empty!");
+      ATH_MSG_WARNING("PFO container is empty!");
       return pileupMomenta;
     } else {
       ATH_MSG_DEBUG("Successfully retrieved PFO objects");
@@ -165,7 +165,7 @@
       if( !evtStore()->contains<xAOD::JetContainer>(jname.Data()) ){
 	// if not, build it
 	if( buildPFlowPUjets(*vx,*pfos).isFailure() ){
-	  ATH_MSG_ERROR(" Some issue appeared while building the pflow pileup jets for vertex "<< vx->index() << " (vxType = " << vx->vertexType()<<" )!" );
+	  ATH_MSG_WARNING(" Some issue appeared while building the pflow pileup jets for vertex "<< vx->index() << " (vxType = " << vx->vertexType()<<" )!" );
 	  return pileupMomenta;
 	}
       } else {
@@ -173,7 +173,7 @@
       }
       
       if(evtStore()->retrieve(vertex_jets,jname.Data()).isFailure()){
-        ATH_MSG_ERROR("Unable to retrieve built PU jets with name \"" << m_jetsName << "\"");
+        ATH_MSG_WARNING("Unable to retrieve built PU jets with name \"" << m_jetsName << "\"");
         return pileupMomenta;
       }
 
@@ -311,7 +311,7 @@
 
     const xAOD::VertexContainer *vxCont = 0;
     if( evtStore()->retrieve(vxCont, m_verticesName).isFailure() ) {
-      ATH_MSG_ERROR("Unable to retrieve primary vertex container");
+      ATH_MSG_WARNING("Unable to retrieve primary vertex container");
       // this almost certainly isn't what we should do here, the
       // caller doesn't check this for errors
       return 0;
@@ -321,7 +321,7 @@
         if(vx->vertexType()==xAOD::VxType::PriVtx) return vx->index();
       }
     }
-    ATH_MSG_ERROR("Couldn't identify the hard-scatter primary vertex (no vertex with \"vx->vertexType()==xAOD::VxType::PriVtx\" in the container)!");
+    ATH_MSG_WARNING("Couldn't identify the hard-scatter primary vertex (no vertex with \"vx->vertexType()==xAOD::VxType::PriVtx\" in the container)!");
     // this almost certainly isn't what we should do here, the
     // caller doesn't check this for errors
     return 0;

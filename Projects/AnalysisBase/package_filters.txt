@@ -9,6 +9,7 @@
 + Control/AthLinksSA
 + Control/AthToolSupport/.*
 + Control/CxxUtils
++ Control/xAODDataSource
 + Control/xAODRootAccess.*
 + DataQuality/GoodRunsLists
 + DetectorDescription/GeoPrimitives
@@ -44,6 +45,7 @@
 + PhysicsAnalysis/AnalysisCommon/PMGOverlapRemovalTools/GammaORTools
 + PhysicsAnalysis/AnalysisCommon/ReweightUtils
 + PhysicsAnalysis/AnalysisCommon/HDF5Utils
++ PhysicsAnalysis/AnalysisCommon/CutBookkeeperUtils
 + PhysicsAnalysis/BPhys/BPhysTools
 + PhysicsAnalysis/D3PDTools/.*
 + PhysicsAnalysis/DerivationFramework/DerivationFrameworkAnalysisTests

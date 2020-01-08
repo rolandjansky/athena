@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // EDM include(s):
@@ -136,7 +136,22 @@ namespace DerivationFramework {
 
       // Finish early if possible:
       if( nJets == 0 ) {
-         return StatusCode::SUCCESS;
+        // Tell the thinning service what to do:
+        const IThinningSvc::Operator::Type opType =
+           ( m_and ? IThinningSvc::Operator::And : IThinningSvc::Operator::Or );
+
+
+        ATH_CHECK( m_thinningSvc->filter( *importedPFONeutral, pfomaskNeutral, opType ) );
+        ATH_CHECK( m_thinningSvc->filter( *importedPFOCharged, pfomaskCharged, opType ) );
+
+        for( const xAOD::PFOContainer* cpfo : additionalPFONeutral ) {
+           ATH_CHECK( m_thinningSvc->filter( *cpfo, pfomaskNeutral, opType ) );
+        }
+        for( const xAOD::PFOContainer* cpfo : additionalPFOCharged ) {
+           ATH_CHECK( m_thinningSvc->filter( *cpfo, pfomaskCharged, opType ) );
+        }
+
+        return StatusCode::SUCCESS;
       }
 
       // Select which jets to use:
@@ -181,8 +196,7 @@ namespace DerivationFramework {
             else pfomaskNeutral.at( link.index() ) = true;
          }
       }
-
-
+ 
       // Tell the thinning service what to do:
       const IThinningSvc::Operator::Type opType =
          ( m_and ? IThinningSvc::Operator::And : IThinningSvc::Operator::Or );

@@ -609,6 +609,10 @@ addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=exot5Seq,algname="QGTaggerToolP
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import applyMVfJvtAugmentation
 applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=exot5Seq, algname='JetForwardJvtToolBDTAlg')
 
+# PFlow fJvt #
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import getPFlowfJVT
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=exot5Seq, algname='JetForwardPFlowJvtToolAlg')
+
 #========================================
 # Add the containers to the output stream
 #========================================

@@ -2,7 +2,7 @@
 
 # AnaAlgorithm import(s):
 from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
-from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
+from AnaAlgorithm.DualUseConfig import createAlgorithm
 
 def makeJetJvtAnalysisSequence( dataType, jetCollection,
                                 preselection = '',
@@ -21,7 +21,7 @@ def makeJetJvtAnalysisSequence( dataType, jetCollection,
       enableCutflow -- Whether or not to dump the cutflow
     """
 
-    if not dataType in ["data", "mc", "afii"] :
+    if dataType not in ["data", "mc", "afii"] :
         raise ValueError ("invalid data type: " + dataType)
 
     if runSelection and not globalSF :

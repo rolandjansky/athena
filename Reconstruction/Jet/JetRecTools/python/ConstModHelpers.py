@@ -19,6 +19,7 @@ def getConstModSeq(sequence,inputtype,suffix=""):
 
     from JetRec.JetRecStandard import jtm
     sequencestr = "".join(sequence)
+  
     seqname = "ConstitMod{0}_{1}{2}".format(sequencestr,inputtype,suffix)
     if hasattr(jtm,seqname):
         return getattr(jtm,seqname)
@@ -29,10 +30,22 @@ def getConstModSeq(sequence,inputtype,suffix=""):
     modlist = []
     if inputtype=="EMPFlow":
         modlist.append("correctPFO")
+    elif inputtype=="PFlowCustomVtx":
+        tool = None
+        toolname = "ConstitMod{0}_{1}{2}".format(inputtype,"correctPFO",suffix)
+        alias = "correctPFO"+inputtype+suffix
+        if alias in ctm.modifiersMap.keys():
+            tool = ctm.modifiersMap[alias]
+        else:
+            tool = CfgMgr.CorrectPFOTool(toolname, VertexContainerKey=suffix+"PrimaryVertices", InputType = xAOD.Type.ParticleFlow, WeightPFOTool = jtm.pflowweighter)
+        ctm.add(tool,alias)
+        modlist.append(alias)
     elif inputtype=="EMTopo":
         modlist.append("clus_emscale")
     if "Topo" in inputtype:
         modlist.append("clus_origin")
+    
+
     for step in sequence:
         tool = None
         toolname = "ConstitMod{0}_{1}{2}".format(inputtype,step,suffix)
@@ -46,7 +59,7 @@ def getConstModSeq(sequence,inputtype,suffix=""):
                 tool = CfgMgr.ConstituentSubtractorTool(toolname)
             elif step=="SK":
                 tool = CfgMgr.SoftKillerWeightTool(toolname)
-            if "PFlow" in inputtype:
+            if "PFlow" in inputtype and inputtype!="PFlowCustomVtx":
                 tool.InputType = xAOD.Type.ParticleFlow
                 tool.IgnoreChargedPFO=True
                 tool.ApplyToChargedPFO=False
@@ -57,15 +70,32 @@ def getConstModSeq(sequence,inputtype,suffix=""):
     outputcontainer = ""
     if inputtype=="EMPFlow":
         inputcontainer="JetETMiss"
-        outputcontainer=sequencestr
+        outputcontainer=sequencestr+suffix
         modlist.append('chsPFO')
+    elif inputtype=="PFlowCustomVtx":
+        inputcontainer="JetETMiss"
+        outputcontainer=sequencestr+suffix
+        tool = None
+        toolname = "ConstitMod{0}_{1}{2}".format(inputtype,"CHS",suffix)
+        alias = "chsPFO"+inputtype+suffix
+        if alias in ctm.modifiersMap.keys():
+            tool = ctm.modifiersMap[alias]
+        else:
+            tool = CfgMgr.ChargedHadronSubtractionTool(toolname, VertexContainerKey=suffix+"PrimaryVertices", InputType = xAOD.Type.ParticleFlow)
+        ctm.add(tool,alias)
+        modlist.append(alias)
     else:
         containertemplate = {"EMTopo":"EMOrigin{0}TopoClusters",
                              "LCTopo":"LCOrigin{0}TopoClusters"}[inputtype]
         inputcontainer = "CaloCalTopoClusters"
         outputcontainer = containertemplate.format(sequencestr)
 
-    inputenum = {"Topo":xAOD.Type.CaloCluster,"PFlow":xAOD.Type.ParticleFlow}[inputtype[2:]]
+    inputenums = {"Topo":xAOD.Type.CaloCluster,"PFlow":xAOD.Type.ParticleFlow}
+    if 'PFlow' in inputtype:
+        inputenum = inputenums["PFlow"]
+    else: 
+        inputenum = inputenums[inputtype[2:]]
+
     modseq = ctm.buildConstitModifSequence( seqname, InputType=inputenum,
                                             OutputContainer = outputcontainer,
                                             InputContainer= inputcontainer,
@@ -81,8 +111,13 @@ def getPseudoJetGetter(label,pjname):
         return getattr(jtm,pjname+"get")
 
     if "PFlow" in label:
+        labelmodseq = ""
+        if "PFlowCustomVtx" in label:
+            labelmodseq = 'Hgg'
+        else:
+            labelmodseq = label[7:]
         pjg = CfgMgr.PFlowPseudoJetGetter(pjname+"get",
-                                          InputContainer=label[7:]+"ParticleFlowObjects",
+                                          InputContainer=labelmodseq+"ParticleFlowObjects",
                                           Label=label,
                                           OutputContainer="PseudoJet"+label,
                                           SkipNegativeEnergy = True,

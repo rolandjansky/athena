@@ -395,6 +395,9 @@ class SlimmingHelper:
                 elif collectionName=="AntiKt10UFOCSSKJets":
                         from DerivationFrameworkJetEtMiss.AntiKt10UFOCSSKJetsCPContent import AntiKt10UFOCSSKJetsCPContent
                         items.extend(AntiKt10UFOCSSKJetsCPContent)
+		elif collectionName=="AntiKt10UFOCHSJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt10UFOCHSJetsCPContent import AntiKt10UFOCHSJetsCPContent
+                        items.extend(AntiKt10UFOCHSJetsCPContent)
                 elif collectionName=="AntiKt10TruthTrimmedPtFrac5SmallR20Jets":
                         from DerivationFrameworkJetEtMiss.AntiKt10TruthTrimmedPtFrac5SmallR20JetsCPContent import AntiKt10TruthTrimmedPtFrac5SmallR20JetsCPContent
                         if not self.AppendToDictionary.has_key("AntiKt10TruthTrimmedPtFrac5SmallR20Jets"):

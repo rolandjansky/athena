@@ -70,6 +70,7 @@ def defineEDAlg(R=0.4, inputtype="LCTopo"):
                     "EMPFlow": jtm.empflowget,
                     "EMPFlowPUSB": jtm.empflowpusbget,
                     "EMPFlowNeut": jtm.empflowneutget,
+                    "PFlowCustomVtx": jtm.pflowcustomvtxget,
                     }[inputtype]
 
     t=configEventDensityTool("EDTool"+str(int(R*10))+inputtype, inputgetter, R)
@@ -445,11 +446,13 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
                        "LCTopo":"lctopo_ungroomed",
                        "EMPFlow":"pflow_ungroomed",
                        "EMCPFlow":"pflow_ungroomed",
+                       "PFlowCustomVtx":"pflow_ungroomed",
                        "Truth":"truth_ungroomed",
                        "TruthWZ":"truth_ungroomed",
                        "PV0Track":"track_ungroomed",
                        "TrackCaloCluster":"tcc_ungroomed",
                        "UFOCSSK":"tcc_ungroomed",
+                       "UFOCHS":"tcc_ungroomed",
                        }
         if mods=="default":
             mods = defaultmods[inputtype] if inputtype in defaultmods else []
@@ -465,7 +468,7 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
         # map the input to the jtm code for PseudoJetGetter
         getterMap = dict( LCTopo = 'lctopo', EMTopo = 'emtopo', EMPFlow = 'empflow', EMCPFlow = 'emcpflow',
                           Truth = 'truth',  TruthWZ = 'truthwz', TruthDressedWZ = 'truthdressedwz', TruthCharged = 'truthcharged', 
-                          PV0Track = 'pv0track', TrackCaloCluster = 'tcc', UFOCSSK = 'csskufo' )
+                          PV0Track = 'pv0track', TrackCaloCluster = 'tcc', UFOCSSK = 'csskufo', UFOCHS = 'chsufo' )
 
         # set input pseudojet getter -- allows for custom getters
         if customGetters is None:
