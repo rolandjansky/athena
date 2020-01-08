@@ -85,8 +85,11 @@ def ExampleMonitoringConfig(inputFlags):
                             xbins=[0,.1,.2,.4,.8,1.6])
     myGroup.defineHistogram('random,pT', type='TH2F', title='title;x;y',path='ToBringThemAll',
                             xbins=[0,.1,.2,.4,.8,1.6],ybins=[0,10,30,40,60,70,90])
-    # myGroup.defineHistogram('pT_passed,pT',type='TEfficiency',title='Test TEfficiency;x;Eff',
-    #                         path='AndInTheDarkness',xbins=100,xmin=0.0,xmax=50.0)
+    myGroup.defineHistogram('pT_passed,pT', type='TEfficiency', title='Test TEfficiency;x;Eff',
+                            path='AndInTheDarkness', xbins=100, xmin=0.0, xmax=50.0)
+    myGroup.defineHistogram('pT_passed,pT,random', type='TEfficiency', title='Test TEfficiency 2D;x;y;Eff',
+                            path='AndInTheDarkness', xbins=100, xmin=0.0, xmax=50.0,
+                            ybins=10, ymin=0.0, ymax=2.0)
 
     anotherGroup.defineHistogram('lbWithFilter',title='Lumi;lb;Events',
                                  path='top',xbins=1000,xmin=-0.5,xmax=999.5)

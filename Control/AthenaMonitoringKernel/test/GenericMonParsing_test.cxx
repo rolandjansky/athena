@@ -35,6 +35,7 @@ json defaultJson() {
   j["ymax"] = 0.0;
   j["ymin"] = 0.0;
   j["yvar"] = "";
+  j["zbins"] = 0;
   j["zlabels"] = json::array();
   j["zmax"] = 0.0;
   j["zmin"] = 0.0;

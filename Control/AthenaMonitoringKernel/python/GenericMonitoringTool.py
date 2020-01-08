@@ -123,8 +123,8 @@ def defineHistogram(varname, type='TH1F', path=None,
     stringSettingsKeys = ['xvar', 'yvar', 'zvar', 'type', 'path', 'title', 'weight',
     'opt', 'convention', 'alias'] 
     # All of these fileds default to 0
-    numberSettingsKeys = ['xbins', 'xmin', 'xmax', 'ybins', 'ymin', 'ymax', 'zmin',
-    'zmax']
+    numberSettingsKeys = ['xbins', 'xmin', 'xmax', 'ybins', 'ymin', 'ymax', 'zbins',
+    'zmin', 'zmax']
     # All of these fields default to an empty array
     arraySettingsKeys = ['allvars', 'xlabels', 'xarray', 'ylabels', 'yarray', 'zlabels']
     # Initialize a dictionary with all possible fields
