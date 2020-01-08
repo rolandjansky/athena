@@ -119,6 +119,7 @@ private:  // data
  
   ToolHandle<Muon::ICscClusterOnTrackCreator> m_rotCreator;
   ToolHandle<Muon::MuonIdHelperTool> m_idHelper;
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   
   SG::ReadCondHandleKey<CscCondDbData> m_readKey{this, "ReadKey", "CscCondDbData", "Key of CscCondDbData"};   
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"EventInfo","EventInfo","event info"};

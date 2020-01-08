@@ -25,6 +25,7 @@ an RDO
 #include "TH2.h"
 #include "TH2F.h"
 #include "MuonCondData/CscCondDbData.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 class cscIdHelper;
 class TFile;
