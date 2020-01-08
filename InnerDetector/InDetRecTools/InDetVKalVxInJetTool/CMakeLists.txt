@@ -61,4 +61,4 @@ atlas_add_test( InDetTrkInJetType_test
                 LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps xAODTracking PathResolver GaudiKernel 
 		InDetRecToolInterfaces Particle TrkVKalVrtFitterLib GeoPrimitives AnalysisUtilsLib TrkNeutralParameters MVAUtils
 		TrkParticleBase TrkTrackSummary VxSecVertex VxVertex TrkToolInterfaces TrkVertexFitterInterfaces PathResolver
-                EXTRA_PATTERNS "Booking|AtlasFieldSvc|weight file" )
+                LOG_IGNORE_PATTERN "Booking|AtlasFieldSvc|weight file" )
