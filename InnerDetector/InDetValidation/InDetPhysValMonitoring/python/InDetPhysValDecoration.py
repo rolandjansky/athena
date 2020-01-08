@@ -86,7 +86,7 @@ def setMetaData() :
        str='fromAOD'
 
    if metaDataKey() not in svcMgr.TagInfoMgr.ExtraTagValuePairs :
-      svcMgr.TagInfoMgr.ExtraTagValuePairs += [metaDataKey(), str]
+      svcMgr.TagInfoMgr.ExtraTagValuePairs[metaDataKey()]=str
    # print 'DEBUG add meta data %s.' % svcMgr.TagInfoMgr.ExtraTagValuePairs
 
 
