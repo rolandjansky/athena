@@ -705,6 +705,10 @@ namespace CP {
     const xAOD::TrackParticle*       metrack = mu.trackParticle( xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle );
     const xAOD::TrackParticle*       cbtrack = mu.trackParticle( xAOD::Muon::CombinedTrackParticle );
     // ::
+    // Some spurious muons are found to have negative ME track fit covariance, and are typically poorly reconstructed
+    if (metrack && metrack->definingParametersCovMatrix()(4,4) < 0.0)
+      return true;
+    // ::
     bool IsBadMuon = false;
     if( idtrack && metrack && cbtrack ) {
       // ::
