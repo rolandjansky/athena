@@ -669,6 +669,7 @@ namespace top {
     for (const CP::SystematicSet& s : systList) {
       if (s.size() == 1) {
         CP::SystematicSet::const_iterator ss = s.begin();
+	if(!m_config->getTreeFilter()->filterTree(modName + ss->name())) continue; // Applying tree filter
 
         if (onlyJER && ss->name().find("JER") == std::string::npos) continue;
 

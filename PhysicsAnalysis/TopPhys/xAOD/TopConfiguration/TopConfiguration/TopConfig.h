@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef ANALYSISTOP_TOPCONFIGURATION_TOPCONFIG_H
@@ -29,6 +29,8 @@
 
 // Persistent settings
 #include "TopConfiguration/TopPersistentSettings.h"
+// Tree Filter
+#include "TopConfiguration/TreeFilter.h"
 
 namespace top {
   class AodMetaDataAccess;
@@ -1670,6 +1672,9 @@ namespace top {
     inline std::vector<std::string> getGlobalTriggerMuonSystematics()     const {return m_trigGlobalConfiguration.muon_trigger_systematics;}
     inline std::vector<std::string> getGlobalTriggerElectronTools()       const {return m_trigGlobalConfiguration.electron_trigger_tool_names;}
     inline std::vector<std::string> getGlobalTriggerMuonTools()           const {return m_trigGlobalConfiguration.muon_trigger_tool_names;}
+    
+    inline const TreeFilter* getTreeFilter() const { return m_treeFilter.get();}
+    
   private:
     // Prevent any more configuration
     bool m_configFixed;
@@ -2353,6 +2358,8 @@ namespace top {
 
     // Switch to use event-level jet cleaning tool for testing
     bool m_useEventLevelJetCleaningTool;
+    
+    std::shared_ptr<TreeFilter> m_treeFilter;
 
     //ReadFloatOption
     float readFloatOption(top::ConfigurationSettings* const& settings, std::string in) const;

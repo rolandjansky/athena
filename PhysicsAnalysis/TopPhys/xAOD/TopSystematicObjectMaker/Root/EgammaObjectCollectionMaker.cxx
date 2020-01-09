@@ -554,6 +554,8 @@ namespace top {
       m_calibrationTool->recommendedSystematics());
 
     for (auto s : systList) {
+      
+      if(!m_config->getTreeFilter()->filterTree(s.name())) continue; // Applying tree filter
       m_recommendedSystematicsPhotons.push_back(s);
       if (s.name() == "") {
         m_specifiedSystematicsPhotons.push_back(s);
@@ -588,6 +590,8 @@ namespace top {
       m_calibrationTool->recommendedSystematics());
 
     for (auto s : systList) {
+      
+      if(!m_config->getTreeFilter()->filterTree(s.name())) continue; // Applying tree filter
       m_recommendedSystematicsElectrons.push_back(s);
       if (s.name() == "") {
         m_specifiedSystematicsElectrons.push_back(s);
@@ -623,6 +627,8 @@ namespace top {
       m_calibrationTool->recommendedSystematics());
 
     for (auto s : systList) {
+      
+      if(!m_config->getTreeFilter()->filterTree(s.name())) continue; // Applying tree filter
       m_recommendedSystematicsFwdElectrons.push_back(s);
       if (s.name() == "") {
         m_specifiedSystematicsFwdElectrons.push_back(s);

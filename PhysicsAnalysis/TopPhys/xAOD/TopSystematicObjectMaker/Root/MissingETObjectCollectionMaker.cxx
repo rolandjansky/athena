@@ -312,6 +312,9 @@ namespace top {
       m_met_systematics->recommendedSystematics());
 
     for (auto s : systList) {
+      
+      if(!m_config->getTreeFilter()->filterTree(s.name())) continue; // Applying tree filter
+      
       ///-- Recommendation is to use soft track terms and not soft calo terms --///
       ///-- Soft calo systematics are irrelevant, let's ignore them --///
       if (s.name().find("SoftCalo") == std::string::npos) {
