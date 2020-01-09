@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # JetRecStandardTools.py
 #
@@ -89,6 +89,7 @@ from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import JetPullToo
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import JetChargeTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import QwTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import SoftDropObservablesTool
+#from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import MultiplicitiesTool # currently disabled
 try:
   from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import ShowerDeconstructionTool
   jtm.haveShowerDeconstructionTool = True
@@ -878,7 +879,11 @@ if jtm.haveShowerDeconstructionTool:
 #Q jets
 jtm += QwTool("qw")
 
+# Soft Drop Observables: zg, rg 
 jtm += SoftDropObservablesTool("softdropobservables")
+
+# multiplicities (NSD, LHM, etc.)
+#jtm += MultiplicitiesTool("multiplicities") # currently disabled
 
 # Remove constituents (useful for truth jets in evgen pile-up file)
 jtm += JetConstitRemover("removeconstit")
