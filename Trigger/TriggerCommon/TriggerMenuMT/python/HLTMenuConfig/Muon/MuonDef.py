@@ -117,8 +117,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
             "Comb":[['getmuFast', 'getmuComb']],
             "noL2Comb" : [['getmuFast'], ['getmuEFSA', 'getmuEFCB']],
             "ivar":[['getmuFast', 'getmuComb', 'getmuIso']],
-            #FP: this is tmp config for noL1, waiting for serial merging:
-            "noL1":[['getmuFast', 'getmuComb', 'getmuIso'],['getFSmuEFSA', 'getFSmuEFCB', 'getEFCBEmpty']],
+            "noL1":[[],['getFSmuEFSA', 'getFSmuEFCB']],
             "msonly":[['getmuFast', 'getmuMSEmpty'], ['getmuEFMS']],
             "ivarmedium":[['getmuFast', 'getmuComb'], ['getmuEFSA', 'getmuEFCB', 'getmuEFIso']],
             "invM":[[],['getmuInvM']],
