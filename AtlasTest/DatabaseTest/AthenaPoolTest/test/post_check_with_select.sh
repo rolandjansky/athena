@@ -73,8 +73,9 @@ select=$2
 		    # Must remove excess print for CaloShowerContainer
 		egrep -a -v 'CaloShowerContainer' |\
                     # Destructor can be called at different times.
-		egrep -a -v 'DEBUG Calling destructor'|
-		egrep -a -v 'Service base class initialized successfully'
+		egrep -a -v 'DEBUG Calling destructor'|\
+		egrep -a -v 'Service base class initialized successfully'|\
+		egrep -a -v 'DEBUG fillTagInfo:'
 
 	    else 
 #	    echo " post.sh> Now comparing output with reference"
