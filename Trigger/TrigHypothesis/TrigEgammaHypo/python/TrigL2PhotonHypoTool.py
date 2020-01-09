@@ -2,7 +2,7 @@
 
 from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2PhotonHypoTool
 from AthenaCommon.SystemOfUnits import GeV
-from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
+from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TrigL2PhotonHypoTool')
 

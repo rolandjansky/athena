@@ -9,7 +9,7 @@
 
 
 #Adding new monitoring tool
-from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
+from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 #monTool = GenericMonitoringTool("MonTool")
 
 

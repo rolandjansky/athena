@@ -39,8 +39,8 @@
 
 #include "Constants.h"
 
-#include "AthenaMonitoring/Monitored.h"
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/Monitored.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 
 class TrigMultiTrkHypoMT: public ::HypoBase  {

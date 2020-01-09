@@ -12,7 +12,7 @@
 #include "TrigConfL1Data/TriggerThreshold.h"
 #include "TrigT1Interfaces/RecEmTauRoI.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgTool.h"

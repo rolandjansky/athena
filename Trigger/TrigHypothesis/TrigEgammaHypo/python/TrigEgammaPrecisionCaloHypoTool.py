@@ -8,7 +8,7 @@ def _IncTool(name, threshold, sel):
 
     tool = TrigEgammaPrecisionCaloHypoToolInc( name ) 
 
-    from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
+    from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
     monTool = GenericMonitoringTool("MonTool_"+name)
     monTool.Histograms = [ defineHistogram('dEta', type='TH1F', path='EXPERT', title="PrecisionCalo Hypo #Delta#eta_{L2 L1}; #Delta#eta_{L2 L1}", xbins=80, xmin=-0.01, xmax=0.01),
                            defineHistogram('dPhi', type='TH1F', path='EXPERT', title="PrecisionCalo Hypo #Delta#phi_{L2 L1}; #Delta#phi_{L2 L1}", xbins=80, xmin=-0.01, xmax=0.01),

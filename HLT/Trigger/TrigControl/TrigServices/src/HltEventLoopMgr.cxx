@@ -13,7 +13,7 @@
 // Athena includes
 #include "AthenaInterprocess/Incidents.h"
 #include "AthenaKernel/AthStatusCode.h"
-#include "AthenaMonitoring/OHLockedHist.h"
+#include "AthenaMonitoringKernel/OHLockedHist.h"
 #include "ByteStreamData/ByteStreamMetadata.h"
 #include "ByteStreamData/ByteStreamMetadataContainer.h"
 #include "EventInfoUtils/EventInfoFromxAOD.h"

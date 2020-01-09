@@ -10,7 +10,7 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/System.h"
 #include "AthenaInterprocess/Incidents.h"
-#include "AthenaMonitoring/OHLockedHist.h"
+#include "AthenaMonitoringKernel/OHLockedHist.h"
 
 #include "ers/ers.h"
 

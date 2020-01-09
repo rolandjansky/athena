@@ -23,8 +23,8 @@
 #include "TrkTrack/TrackCollection.h"
 #include "MuonSegment/MuonSegment.h"
 
-#include "AthenaMonitoring/GenericMonitoringTool.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 
 class MuonCreatorAlg : public AthAlgorithm

@@ -29,7 +29,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Trigger/TrigEvent/TrigSteeringEvent
                           Trigger/TrigTools/TrigTimeAlgs
                           Event/xAOD/xAODTrigger
-                          Control/AthenaMonitoring )
+                          Control/AthenaMonitoringKernel )
 
 # External dependencies:
 find_package( tdaq-common )

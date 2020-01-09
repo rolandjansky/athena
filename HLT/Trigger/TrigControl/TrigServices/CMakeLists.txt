@@ -10,10 +10,11 @@ atlas_depends_on_subdirs( PRIVATE
                           Control/AthenaBaseComps
                           Control/AthenaInterprocess
                           Control/AthenaKernel
-                          Control/AthenaMonitoring
+                          Control/AthenaMonitoringKernel
                           Control/CxxUtils
                           Control/StoreGate
                           Database/AthenaPOOL/AthenaPoolUtilities
+                          Database/RDBAccessSvc
                           Event/ByteStreamCnvSvcBase
                           Event/ByteStreamData
                           Event/EventInfoUtils
@@ -38,7 +39,7 @@ atlas_add_component( TrigServices
                      ${TDAQ-COMMON_INCLUDE_DIRS} ${TDAQ_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
                      LINK_LIBRARIES
                      ${TDAQ-COMMON_LIBRARIES} ${TDAQ_LIBRARIES} ${CORAL_LIBRARIES}
-                     AthenaBaseComps AthenaInterprocess AthenaKernel AthenaMonitoringLib AthenaPoolUtilities
+                     AthenaBaseComps AthenaInterprocess AthenaKernel AthenaMonitoringKernelLib AthenaPoolUtilities
                      ByteStreamCnvSvcBaseLib ByteStreamData EventInfoUtils GaudiKernel StoreGateLib TrigKernel
                      TrigOutputHandlingLib TrigSteeringEvent xAODEventInfo )
 
