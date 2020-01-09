@@ -232,7 +232,6 @@ JETM1SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "Primar
 # Add QG tagger variables
 JETM1SlimmingHelper.ExtraVariables  += ["AntiKt4EMTopoJets.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1",
                                         "AntiKt4EMPFlowJets.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1"]
-
 JETM1SlimmingHelper.ExtraVariables  += ["InDetTrackParticles.truthMatchProbability"]
 
 JETM1SlimmingHelper.ExtraVariables += ["AntiKt10UFOCSSKTrimmedPtFrac5SmallR20Jets.zg.rg.NumTrkPt1000.TrackWidthPt1000.GhostMuonSegmentCount.EnergyPerSampling.GhostTrack",

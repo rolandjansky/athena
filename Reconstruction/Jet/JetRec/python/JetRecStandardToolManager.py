@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # JetRecStandardToolManager.py
 #
@@ -248,6 +248,9 @@ if jetFlags.useTracks():
   ungroomed_modifiers += [jtm.charge]
   ungroomed_modifiers += ["trackassoc"]
   ungroomed_modifiers += [jtm.jetorigin_setpv]
+  # putting the multiplicity tool here seems to prevent crashes related to
+  # e.g. PU-suppressed PFO ungroomed jets -- to be followed up on in 2020. -- MLB
+  # ungroomed_modifiers += [jtm.multiplicities] 
 if jetFlags.useTruth():
   ungroomed_modifiers += ["truthassoc"]
   if jtm.haveParticleJetTools:
