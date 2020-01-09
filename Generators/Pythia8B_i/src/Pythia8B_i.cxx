@@ -105,7 +105,7 @@ StatusCode Pythia8B_i::genInitialize() {
     ATH_MSG_INFO("genInitialize() from Pythia8B_i");
     if (m_doSuppressSmallPT) {
         m_SuppressSmallPT = new Pythia8::SuppressSmallPT(m_pt0timesMPI,m_numberAlphaS,m_sameAlphaSAsMPI);
-        Pythia8_i::m_pythia.setUserHooksPtr((UserHooksPtr)m_SuppressSmallPT);
+        Pythia8_i::m_pythia.setUserHooksPtr((UserHooksPtrType)m_SuppressSmallPT);
     }
 
     // Call the base class genInitialize()
