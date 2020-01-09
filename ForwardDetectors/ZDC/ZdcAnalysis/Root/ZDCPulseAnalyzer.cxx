@@ -122,8 +122,8 @@ ZDCPulseAnalyzer::~ZDCPulseAnalyzer()
   if (m_defaultFitWrapper)  delete m_defaultFitWrapper;
   if (m_prePulseFitWrapper) delete m_prePulseFitWrapper;
 
-  if (m_fitHist)     delete m_fitHist;
-  if (m_delayedHist) delete m_delayedHist;
+  // if (m_fitHist)     delete m_fitHist;
+  // if (m_delayedHist) delete m_delayedHist;
 }
 
 void ZDCPulseAnalyzer::EnableDelayed(float deltaT, float pedestalShift, bool fixedBaseline)
