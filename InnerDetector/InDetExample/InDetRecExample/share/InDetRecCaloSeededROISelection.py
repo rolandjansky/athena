@@ -15,9 +15,9 @@ egammaCaloClusterROISelector = ToolFactory( egammaCaloToolsConf.egammaCaloCluste
                                             name = 'caloClusterROISelector',
                                             egammaCheckEnergyDepositTool = egammaCheckEnergyDepositTool,
                                             EMEtRanges = [2500.],
-                                            EMFCuts = [0.80],
+                                            EMFCuts = [0.7],
                                             RetaCut = [0.65],
-                                            HadLeakCut = [0.1]
+                                            HadLeakCut = [0.12]
                                             ) 
 #
 # --- get the builder tool

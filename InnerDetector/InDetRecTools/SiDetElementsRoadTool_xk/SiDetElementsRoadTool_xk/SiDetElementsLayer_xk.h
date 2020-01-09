@@ -30,16 +30,17 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
       
     public:
-      
+
       ///////////////////////////////////////////////////////////////////
       // Standard tool methods
       ///////////////////////////////////////////////////////////////////
 
       SiDetElementsLayer_xk();
       SiDetElementsLayer_xk(double,double,double,double,double);
-      SiDetElementsLayer_xk(const SiDetElementsLayer_xk&);
-      ~SiDetElementsLayer_xk();
-      SiDetElementsLayer_xk& operator  = (const SiDetElementsLayer_xk&);
+
+      SiDetElementsLayer_xk(const SiDetElementsLayer_xk&) = default;
+      ~SiDetElementsLayer_xk() = default;
+      SiDetElementsLayer_xk& operator  = (const SiDetElementsLayer_xk&) = default;
 
       ///////////////////////////////////////////////////////////////////
       // Main methods
@@ -50,15 +51,23 @@ namespace InDet{
       const float                    & z       () const {return m_z       ;}
       const float                    & dz      () const {return m_dz      ;}
       const float                    & dfe     () const {return m_dfe     ;}
-      std::vector<SiDetElementLink_xk>& elements()       {return m_elements;}
+      std::vector<SiDetElementLink_xk>& elements()      {return m_elements;}
+      const std::vector<SiDetElementLink_xk>& elements() const {return m_elements;}
 
       void  set(double,double,double,double,double);
       void  add(const SiDetElementLink_xk&);
       int   nElements() const;
       void getBarrelDetElements
-	(float*,float*,std::list<InDet::SiDetElementLink_xk*>&);
+        (float*,
+         float*,
+         std::vector<InDet::SiDetElementLink_xk::ElementWay> &lDE,
+         std::vector<InDet::SiDetElementLink_xk::UsedFlag>   &used) const;
       void getEndcapDetElements
-	(float*,float*,std::list<InDet::SiDetElementLink_xk*>&);
+	(float*,
+         float*,
+         std::vector<InDet::SiDetElementLink_xk::ElementWay> &lDE,
+         std::vector<InDet::SiDetElementLink_xk::UsedFlag>   &used) const;
+
       void sortDetectorElements();
 
     protected:
@@ -77,9 +86,12 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
       // Methods
       ///////////////////////////////////////////////////////////////////
-      void getDetElements(float*,float*,float,float,
-			  std::list<InDet::SiDetElementLink_xk*>&);
-      
+      void getDetElements(float*,
+                          float*,
+                          float,
+                          float,
+                          std::vector<InDet::SiDetElementLink_xk::ElementWay> &lDE,
+                          std::vector<InDet::SiDetElementLink_xk::UsedFlag>   &used) const;
     };
   
   /////////////////////////////////////////////////////////////////////////////////
@@ -104,28 +116,6 @@ namespace InDet{
       m_dz = float(dz);
       m_dfe= float(df);
     } 
-
-
-  inline SiDetElementsLayer_xk::SiDetElementsLayer_xk(const SiDetElementsLayer_xk& L)
-    {
-      *this = L;
-    }
-  
-  inline SiDetElementsLayer_xk& SiDetElementsLayer_xk::operator = 
-    (const SiDetElementsLayer_xk& L) 
-    {
-      if(&L!=this) {
-	m_z         = L.m_z       ;
-	m_dz        = L.m_dz      ;
-	m_r         = L.m_r       ;
-	m_dr        = L.m_dr      ;
-	m_dfe       = L.m_dfe     ;
-	m_elements  = L.m_elements;
-      }
-      return(*this);
-    }
-
-  inline SiDetElementsLayer_xk::~SiDetElementsLayer_xk() {}
 
   inline void SiDetElementsLayer_xk::set
     (double r,double dr,double z,double dz,double df)

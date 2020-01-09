@@ -9,7 +9,7 @@ begin                : Sunday 8th May 2005
 author               : atkinson, amorley,anastopoulos
 email                : Anthony.Morley@cern.ch
 decription           : Definition of component parameters for use in a mixture
-                       of many components. In this reigme each track parameters
+                       of many components. In this regime each track parameters
                        object comes with a weighting (double) attached
  *********************************************************************************/
 
@@ -19,14 +19,9 @@ decription           : Definition of component parameters for use in a mixture
 
 namespace Trk{
 /**
- * Typedefs using unique_ptr
+ * Component Parameters is just a typedef 
  */
-typedef std::pair<std::unique_ptr<Trk::TrackParameters>, double> SimpleComponentParameters;
-typedef std::vector<SimpleComponentParameters> SimpleMultiComponentState;
-/**
- * Component parameter typedef
- */
-typedef std::pair<const TrackParameters*, double> ComponentParameters;//Needed by MultiComponentState
-} // end Trk namespace
+typedef std::pair<std::unique_ptr<Trk::TrackParameters>,double> ComponentParameters;
+} 
 
 #endif

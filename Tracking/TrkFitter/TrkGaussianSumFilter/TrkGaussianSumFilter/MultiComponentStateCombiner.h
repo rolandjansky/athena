@@ -47,19 +47,15 @@ public:
   virtual std::unique_ptr<Trk::TrackParameters>  combine(const MultiComponentState&, 
                                                          bool useModeTemp = false) const override final;
 
-  virtual void combineWithWeight(std::pair<std::unique_ptr<Trk::TrackParameters>, 
-                                 double>& mergeTo,
-                                 const std::pair<std::unique_ptr<Trk::TrackParameters>, 
-                                 double>& addThis) const override final;
+  virtual void combineWithWeight(Trk::ComponentParameters& mergeTo,
+                                 const Trk::ComponentParameters& addThis) const override final;
 
   /** Calculate combined state and weight of many components */
-  virtual std::unique_ptr<Trk::SimpleComponentParameters> 
-    combineWithWeight(const MultiComponentState&, 
-                      bool useModeTemp = false) const override final;
+  virtual std::unique_ptr<Trk::ComponentParameters> combineWithWeight(const MultiComponentState&,
+                                                                      bool useModeTemp = false) const override final;
 
 private:
-  std::unique_ptr<Trk::SimpleComponentParameters>compute(const MultiComponentState*, 
-                                                         bool useModeTemp = false) const; 
+  std::unique_ptr<Trk::ComponentParameters> compute(const MultiComponentState*, bool useModeTemp = false) const;
 
   bool m_useMode;
   bool m_useModeD0;

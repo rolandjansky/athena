@@ -32,16 +32,14 @@ public:
   static const InterfaceID& interfaceID() { return IID_MultiComponentStateCombiner; };
 
   /** Calculate combined state of many components */
-  virtual std::unique_ptr<Trk::TrackParameters> combine(const MultiComponentState&, 
-                                                        bool useModeTemp = false) const = 0;
+  virtual std::unique_ptr<Trk::TrackParameters> combine(const MultiComponentState&, bool useModeTemp = false) const = 0;
 
   /** Calculate combined state and weight of many components */
-  virtual void combineWithWeight(std::pair<std::unique_ptr<Trk::TrackParameters>, double>& mergeTo,
-                                 const std::pair<std::unique_ptr<Trk::TrackParameters>, double>& addThis) const = 0;
+  virtual void combineWithWeight(Trk::ComponentParameters& mergeTo, const Trk::ComponentParameters& addThis) const = 0;
 
   /** Calculate combined state and weight of many components */
-  virtual std::unique_ptr<Trk::SimpleComponentParameters> combineWithWeight(const MultiComponentState&, 
-                                                                            bool useModeTemp = false) const = 0;
+  virtual std::unique_ptr<Trk::ComponentParameters> combineWithWeight(const MultiComponentState&,
+                                                                      bool useModeTemp = false) const = 0;
 };
 
 } // end Trk namespace

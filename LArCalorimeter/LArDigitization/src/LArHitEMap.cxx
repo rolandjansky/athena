@@ -84,7 +84,7 @@ bool LArHitEMap::BuildWindows(float deta,float dphi, float ptmin)
     phiPart.clear();
     //get pointer of MC collection
     StoreGateSvc* SgSvc = StoreGate::pointer();
-    const DataHandle<McEventCollection> mcCollptr;
+    const McEventCollection* mcCollptr = nullptr;
     if ( SgSvc->retrieve(mcCollptr,"").isFailure() ) {
        MsgStream log(Athena::getMessageSvc(), "LArHitEMap");
        log << MSG::WARNING 

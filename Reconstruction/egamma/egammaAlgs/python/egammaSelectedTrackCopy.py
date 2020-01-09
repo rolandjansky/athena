@@ -14,7 +14,7 @@ from egammaCaloTools import egammaCaloToolsConf
 egammaCaloClusterGSFSelector = ToolFactory(egammaCaloToolsConf.egammaCaloClusterSelector,
                                            name='caloClusterGSFSelector',
                                            EMEtRanges=[2250.],
-                                           EMFCuts=[0.7],
+                                           EMFCuts=[0.6],
                                            # 3x7/7x7=0.429. Below this
                                            # there is more energy outside the
                                            # 3x7 core than inside

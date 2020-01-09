@@ -75,7 +75,7 @@ def _loadBasicEventInfoMgt():
     evtMgt  = EventInfoMgtInit()
     release = evtMgt.release
     print ("EventInfoMgtInit: Got release version ",release)
-    svcMgr.TagInfoMgr.ExtraTagValuePairs = ["AtlasRelease", release ]
+    svcMgr.TagInfoMgr.ExtraTagValuePairs = {"AtlasRelease" : release }
 
     # Add TagInfoMgr as cnv svc
     from GaudiSvc.GaudiSvcConf import EvtPersistencySvc

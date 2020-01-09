@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file: PyPerfMon.py
 # @author: Sebastien Binet <binet@cern.ch>
@@ -516,7 +516,7 @@ class PoolMonTool(object):
         outFiles = set()
         from AthenaCommon import CfgMgr
         from AthenaCommon.Configurable import Configurable
-        for c in Configurable.allConfigurables.values():
+        for c in list(Configurable.allConfigurables.values()):
             if not isinstance(c, CfgMgr.AthenaOutputStream): continue
             try:
                 outFile = c.properties()["OutputFile"]

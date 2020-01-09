@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #=======================================================================
 # File: JobProperties/python/JobProperties.py
@@ -551,6 +551,8 @@ class JobPropertyContainer (object):
                 module=__import__(module_name,globals(),locals(),\
                               ['JobProperties'])
         except ImportError:
+            import traceback
+            traceback.print_exc()
             self._log.error(" import_JobProperties: No module named %s",
                             module_name)
             return None

@@ -68,9 +68,9 @@ public:
 
   //!< Retain for now redundant simplified material effects
   virtual std::unique_ptr<MultiComponentState> 
-    simpliedMaterialUpdate(const MultiComponentState& multiComponentState,
-                           PropDirection direction = anyDirection,
-                           ParticleHypothesis particleHypothesis = nonInteracting) const override final;
+    simplifiedMaterialUpdate(const MultiComponentState& multiComponentState,
+                             PropDirection direction = anyDirection,
+                             ParticleHypothesis particleHypothesis = nonInteracting) const override final;
 
 private:
   ToolHandle<IMultiStateMaterialEffectsUpdator> m_updator{ 

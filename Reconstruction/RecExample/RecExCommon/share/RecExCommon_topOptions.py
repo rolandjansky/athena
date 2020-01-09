@@ -145,13 +145,12 @@ if rec.doFileMetaData():
 
 #Output file TagInfo and metadata
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["beam_type", jobproperties.Beam.beamType()]
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["beam_energy", str(jobproperties.Beam.energy())]
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["triggerStreamOfFile", str(rec.triggerStream())]
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["project_name", str(rec.projectName())]
-#if rec.AMITag()!="": svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", rec.AMITag() ]
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AtlasRelease_" + rec.OutputFileNameForRecoStep(), rec.AtlasReleaseVersion() ]
-
+svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"beam_type": jobproperties.Beam.beamType(),
+                                            "beam_energy": str(jobproperties.Beam.energy()),
+                                            "triggerStreamOfFile": str(rec.triggerStream()),
+                                            "project_name": str(rec.projectName()),
+                                            "AtlasRelease_" + rec.OutputFileNameForRecoStep(): rec.AtlasReleaseVersion()
+                                            })
 # Build amitag list
 amitag = ""
 from PyUtils.MetaReaderPeeker import metadata
@@ -162,9 +161,9 @@ except:
 
 # append new if previous exists otherwise take the new alone 
 if amitag != "":
-  svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", metadata['AMITag'] + "_" + rec.AMITag() ]
+  svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag" : metadata['AMITag'] + "_" + rec.AMITag()})
 else:
-  svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", rec.AMITag() ]
+  svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag" : rec.AMITag()})
 
 
 

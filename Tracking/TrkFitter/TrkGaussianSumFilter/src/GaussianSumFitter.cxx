@@ -474,14 +474,14 @@ Trk::GaussianSumFitter::fit(const Trk::MeasurementSet& measurementSet,
   if (!forwardTrajectory) {
     ATH_MSG_DEBUG("Forward GSF fit failed... Exiting!");
     ++m_ForwardFailure;
-    return 0;
+    return nullptr;
   }
 
   if (forwardTrajectory->empty()) {
     ATH_MSG_DEBUG("No states in forward trajectory... Exiting!");
     delete forwardTrajectory;
     ++m_ForwardFailure;
-    return 0;
+    return nullptr;
   }
 
   ATH_MSG_VERBOSE("*** Forward GSF fit passed! ***");
@@ -494,7 +494,7 @@ Trk::GaussianSumFitter::fit(const Trk::MeasurementSet& measurementSet,
     ATH_MSG_DEBUG("Smoother GSF fit failed... Exiting!");
     ++m_SmootherFailure;
     delete forwardTrajectory;
-    return 0;
+    return nullptr;
   }
   ATH_MSG_VERBOSE("*** GSF smoother fit passed! ***");
 
@@ -506,7 +506,7 @@ Trk::GaussianSumFitter::fit(const Trk::MeasurementSet& measurementSet,
     ++m_fitQualityFailure;
     delete forwardTrajectory;
     delete smoothedTrajectory;
-    return 0;
+    return nullptr;
   }
 
   if (outlierRemoval) {
@@ -691,23 +691,19 @@ Trk::GaussianSumFitter::makePerigee(const Trk::SmoothedTrajectory* smoothedTraje
                                     const Trk::ParticleHypothesis particleHypothesis) const
 {
 
-  ATH_MSG_VERBOSE("Trk::GaussianSumFilter::makePerigee... starting");
-
   // Propagate track to perigee
   const Trk::PerigeeSurface perigeeSurface;
-
   const Trk::TrackStateOnSurface* stateOnSurfaceNearestOrigin = smoothedTrajectory->back();
-
   const Trk::MultiComponentStateOnSurface* multiComponentStateOnSurfaceNearestOrigin =
     dynamic_cast<const Trk::MultiComponentStateOnSurface*>(stateOnSurfaceNearestOrigin);
-
-  const Trk::MultiComponentState* multiComponentState = 0;
-
+ 
+  const Trk::MultiComponentState* multiComponentState = nullptr;
   if (!multiComponentStateOnSurfaceNearestOrigin) {
-
-    ATH_MSG_VERBOSE("State nearest perigee is not a multi-component state... Converting");
-    Trk::ComponentParameters componentParameters(stateOnSurfaceNearestOrigin->trackParameters(), 1.);
-    multiComponentState = new Trk::MultiComponentState(componentParameters);
+    //we need to make a dummy multicomponent surface
+    Trk::ComponentParameters dummyComponent(stateOnSurfaceNearestOrigin->trackParameters()->clone(), 1.);
+    auto tmp_multiComponentState = std::make_unique<Trk::MultiComponentState>();
+    tmp_multiComponentState->push_back(std::move(dummyComponent));
+    multiComponentState=tmp_multiComponentState.release();
   } else {
     multiComponentState = multiComponentStateOnSurfaceNearestOrigin->components();
   }

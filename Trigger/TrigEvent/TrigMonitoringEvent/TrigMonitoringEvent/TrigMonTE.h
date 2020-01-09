@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMON_TE_H
@@ -85,6 +85,7 @@ class TrigMonTE
   void print(std::ostream &os = std::cout);
 
  private:
+  friend class TrigMonTECnv_p1;
   
   uint32_t                 m_id;           // Trigger element id
   uint32_t                 m_encoded;      // Encoded word (see below)

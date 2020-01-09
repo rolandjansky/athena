@@ -41,7 +41,6 @@ def JetSecVertexingAlgCfg(ConfigFlags, JetCollection, ParticleCollection="", SVF
     options.setdefault('PrimaryVertexName', BTaggingFlags.PrimaryVertexCollectionName)
     options.setdefault('vxPrimaryCollectionName', BTaggingFlags.PrimaryVertexCollectionName)
     options['JetCollectionName'] = jetcol.replace('Track', 'PV0Track') + 'Jets'
-    options['BTagVxSecVertexInfoName'] = SVFinder + 'VxSecVertexInfo'
     options['TrackToJetAssociatorName'] = Associator
     options['BTagJFVtxCollectionName'] = btagname + OutputFilesname
     options['BTagSVCollectionName'] = btagname + OutputFilesname
@@ -49,7 +48,6 @@ def JetSecVertexingAlgCfg(ConfigFlags, JetCollection, ParticleCollection="", SVF
     options.setdefault('JetFitterVariableFactory', jetFitterVF)
     options.setdefault('MSVVariableFactory', varFactory)
     options['name'] = (jetcol + '_' + SVFinder + '_secvtx').lower()
-    #options['OutputLevel'] = 1
 
     # -- create the association algorithm
     acc.addEventAlgo(Analysis__JetSecVertexingAlg(**options))

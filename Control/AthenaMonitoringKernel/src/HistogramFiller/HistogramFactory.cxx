@@ -1,6 +1,7 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+#include "CxxUtils/checker_macros.h"
 
 #include "TH1.h"
 #include "TH2.h"
@@ -12,6 +13,13 @@
 #include "HistogramFactory.h"
 
 using namespace Monitored;
+
+// this mutex is used to prevent instantiating more than one new histogram at a time, to avoid
+// potential name clashes in the gDirectory namespace
+// alternative would be to set TH1::AddDirectory but that has potential side effects
+namespace {
+  static std::mutex s_histDirMutex;
+}
 
 HistogramFactory::HistogramFactory(const ServiceHandle<ITHistSvc>& histSvc,
                                    std::string histoPath)
@@ -124,12 +132,34 @@ TEfficiency* HistogramFactory::createEfficiency(const HistogramDef& def) {
   }
 
   // Otherwise, create the efficiency and register it
-  e = new TEfficiency(def.alias.c_str(),def.title.c_str(),def.xbins,def.xmin,def.xmax);
-  e->SetDirectory(gROOT);
+  // Hold global lock until we have detached object from gDirectory
+  {
+    std::scoped_lock<std::mutex> dirLock(s_histDirMutex);
+    if (def.ybins==0 && def.zbins==0) { // 1D TEfficiency
+      e = new TEfficiency(def.alias.c_str(), def.title.c_str(),
+        def.xbins, def.xmin, def.xmax);
+    } else if (def.ybins>0 && def.zbins==0) { // 2D TEfficiency
+      e = new TEfficiency(def.alias.c_str(), def.title.c_str(),
+        def.xbins, def.xmin, def.xmax, def.ybins, def.ymin, def.ymax);
+    } else if (def.ybins>0 && def.zbins>0) { // 3D TEfficiency
+      e = new TEfficiency(def.alias.c_str(), def.title.c_str(),
+        def.xbins, def.xmin, def.xmax, def.ybins, def.ymin, def.ymax, def.zbins, def.zmin, def.zmax);
+    }
+    e->SetDirectory(0);
+  }
   if ( !m_histSvc->regEfficiency(fullName,e) ) {
     delete e;
     throw HistogramException("Histogram >"+ fullName + "< can not be registered in THistSvc");
   }
+  TH1* total ATLAS_THREAD_SAFE = const_cast<TH1*>(e->GetTotalHistogram());
+  setLabels(total->GetXaxis(), def.xlabels);
+  setLabels(total->GetYaxis(), def.ylabels);
+  setLabels(total->GetZaxis(), def.zlabels);
+  TH1* passed ATLAS_THREAD_SAFE = const_cast<TH1*>(e->GetPassedHistogram());
+  setLabels(passed->GetXaxis(), def.xlabels);
+  setLabels(passed->GetYaxis(), def.ylabels);
+  setLabels(passed->GetZaxis(), def.zlabels);
+
   return e;
 }
 
@@ -147,7 +177,13 @@ HBASE* HistogramFactory::create(const HistogramDef& def, Types&&... hargs) {
   }
 
   // Create the histogram and register it
-  H* h = new H(def.alias.c_str(), def.title.c_str(), std::forward<Types>(hargs)...);
+  // Hold global lock until we have detached object from gDirectory
+  H* h = nullptr;
+  { 
+    std::scoped_lock<std::mutex> dirLock(s_histDirMutex);
+    h = new H(def.alias.c_str(), def.title.c_str(), std::forward<Types>(hargs)...);
+    h->SetDirectory(0);
+  }
   if ( !m_histSvc->regHist( fullName, static_cast<TH1*>(h) ) ) {
     delete h;
     throw HistogramException("Histogram >"+ fullName + "< can not be registered in THistSvc");
@@ -155,7 +191,9 @@ HBASE* HistogramFactory::create(const HistogramDef& def, Types&&... hargs) {
   }
   h->GetYaxis()->SetTitleOffset(1.25); // magic shift to make histograms readable even if no post-procesing is done
 
-  setLabels(h, def);
+  setLabels(h->GetXaxis(), def.xlabels);
+  setLabels(h->GetYaxis(), def.ylabels);
+  setLabels(h->GetZaxis(), def.zlabels);
   setOpts(h, def.opt);
 
   return h;
@@ -171,27 +209,13 @@ void HistogramFactory::setOpts(TH1* hist, const std::string& opt) {
   hist->Sumw2(shouldActivateSumw2);
 }
 
-void HistogramFactory::setLabels(TH1* hist, const HistogramDef& def) {
-  if ( !def.xlabels.empty() ) {
-    int nBinX = hist->GetNbinsX();
+void HistogramFactory::setLabels(TAxis* axis, const std::vector<std::string>& labels) {
+  if ( !labels.empty() ) {
+    const int nBinX = axis->GetNbins();
     for ( int xbin=0; xbin<nBinX; xbin++ ) {
-      hist->GetXaxis()->SetBinLabel(xbin+1, def.xlabels[xbin].c_str());
+      axis->SetBinLabel(xbin+1, labels[xbin].c_str());
     }
   }
-
-  if ( !def.ylabels.empty() ) {
-    int nBinY = hist->GetNbinsY();
-    for ( int ybin=0; ybin<nBinY; ybin++ ) {
-      hist->GetYaxis()->SetBinLabel(ybin+1, def.ylabels[ybin].c_str());
-    }
-  }
-
-  if ( !def.zlabels.empty() ) {
-    int nBinZ = hist->GetNbinsZ();
-    for ( int zbin=0; zbin<nBinZ; zbin++ ) {
-      hist->GetZaxis()->SetBinLabel(zbin+1, def.zlabels[zbin].c_str());
-    }
-  }  
 }
 
 std::string HistogramFactory::getFullName(const HistogramDef& def) const {

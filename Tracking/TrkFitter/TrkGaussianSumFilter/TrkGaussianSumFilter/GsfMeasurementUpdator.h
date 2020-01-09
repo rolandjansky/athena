@@ -56,35 +56,35 @@ public:
   StatusCode finalize() override;
 
   /** Method for updating the multi-state with a new measurement */
-  virtual std::unique_ptr<MultiComponentState> update(const MultiComponentState&, 
+  virtual std::unique_ptr<MultiComponentState> update(MultiComponentState&&,
                                                       const MeasurementBase&) const override final;
 
   /** Method for updating the multi-state with a new measurement and calculate the fit qaulity at the same time*/
-  virtual std::unique_ptr<MultiComponentState> 
-    update(const Trk::MultiComponentState&,
-           const Trk::MeasurementBase&,
-           std::unique_ptr<FitQualityOnSurface>& fitQoS) const override final;
+  virtual std::unique_ptr<MultiComponentState> update(
+    Trk::MultiComponentState&&,
+    const Trk::MeasurementBase&,
+    std::unique_ptr<FitQualityOnSurface>& fitQoS) const override final;
 
   /** Method for GSF smoother to calculate unbiased parameters of the multi-component state */
   virtual std::unique_ptr<MultiComponentState> 
-    getUnbiasedTrackParameters(const MultiComponentState&,
+    getUnbiasedTrackParameters(MultiComponentState&&,
                                const MeasurementBase&) const override final;
 
   /** Method for determining the chi2 of the multi-component state and the number of degrees of freedom */
   virtual const FitQualityOnSurface* fitQuality(const MultiComponentState&, const MeasurementBase&) const override;
 
 private:
-  std::unique_ptr<MultiComponentState> calculateFilterStep(const MultiComponentState&,
+  std::unique_ptr<MultiComponentState> calculateFilterStep(MultiComponentState&&,
                                                            const MeasurementBase&,
                                                            const Updator) const;
 
-  std::unique_ptr<MultiComponentState> calculateFilterStep(const MultiComponentState&,
+  std::unique_ptr<MultiComponentState> calculateFilterStep(MultiComponentState&&,
                                                            const MeasurementBase&,
                                                            std::unique_ptr<FitQualityOnSurface>& fitQoS) const;
 
   bool invalidComponent(const Trk::TrackParameters* trackParameters) const;
 
-  std::unique_ptr<MultiComponentState> rebuildState(const Trk::MultiComponentState& stateBeforeUpdate) const;
+  std::unique_ptr<MultiComponentState> rebuildState(Trk::MultiComponentState&& stateBeforeUpdate) const;
 
 private:
   ToolHandle<IUpdator> m_updator{ this, "Updator", "Trk::KalmanUpdator/KalmanUpdator", "" };

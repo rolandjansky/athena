@@ -145,8 +145,9 @@ Trk::ForwardGsfFitter::fitPRD(const Trk::PrepRawDataSet& inputPrepRawDataSet,
   Trk::ComponentParameters componentParametersNearOrigin(
     estimatedTrackParametersNearOrigin.associatedSurface().createTrackParameters(
       par[Trk::loc1], par[Trk::loc2], par[Trk::phi], par[Trk::theta], par[Trk::qOverP], 0 /*no errors*/),1.);
-  
-  auto multiComponentStateNearOrigin = std::make_unique<Trk::MultiComponentState>(componentParametersNearOrigin);
+
+  auto multiComponentStateNearOrigin =std::make_unique<Trk::MultiComponentState>();
+  multiComponentStateNearOrigin->push_back(std::move(componentParametersNearOrigin));
 
   // Loop over all PrepRawData measurements
   prepRawData = prepRawDataSet.begin();
@@ -217,8 +218,9 @@ Trk::ForwardGsfFitter::fitMeasurements(const Trk::MeasurementSet& inputMeasureme
     estimatedTrackParametersNearOrigin.associatedSurface().createTrackParameters(
       par[Trk::loc1], par[Trk::loc2], par[Trk::phi], par[Trk::theta], par[Trk::qOverP], covariance /*no errors*/),1.);
 
-  auto multiComponentStateNearOrigin =std::make_unique<Trk::MultiComponentState>(componentParametersNearOrigin);
-
+  auto multiComponentStateNearOrigin = std::make_unique<Trk::MultiComponentState>();
+  multiComponentStateNearOrigin->push_back(std::move(componentParametersNearOrigin));
+  
   // Loop over all MeasurementBase objects in set
   Trk::MeasurementSet::const_iterator measurement = inputMeasurementSet.begin();
 
@@ -268,7 +270,6 @@ Trk::ForwardGsfFitter::stepForwardFit(ForwardTrajectory* forwardTrajectory,
 
   std::unique_ptr<Trk::MultiComponentState> extrapolatedState =
     m_extrapolator->extrapolate(*updatedState, surface, Trk::alongMomentum, false, particleHypothesis); 
-
   if (!extrapolatedState) {
     ATH_MSG_DEBUG( "Extrapolation failed... returning false");
     return false;
@@ -301,7 +302,7 @@ Trk::ForwardGsfFitter::stepForwardFit(ForwardTrajectory* forwardTrajectory,
     return false;
   }
   std::unique_ptr<Trk::FitQualityOnSurface> fitQuality;
-  updatedState = m_updator->update(*extrapolatedState, *measurement, fitQuality);
+  updatedState = m_updator->update(std::move(*(extrapolatedState->clone())), *measurement, fitQuality);
   if (!updatedState) {
     ATH_MSG_DEBUG("Measurement update of the state failed... Exiting!");
     return false;
@@ -309,29 +310,24 @@ Trk::ForwardGsfFitter::stepForwardFit(ForwardTrajectory* forwardTrajectory,
   // =====================
   // Determine fit quality
   // =====================
-
   // Bail if the fit quality is not defined:
   if (!fitQuality) {
     ATH_MSG_DEBUG("Failed to make fit quality... rejecting forwards trajectory");
-    // Clean up objects associated with removed measurement
     return false;
   }
   // Reject hits with excessive Chi2
   else if (fitQuality->chiSquared() > m_cutChiSquaredPerNumberDOF * fitQuality->numberDoF()) {
-
     ATH_MSG_DEBUG("Update with new measurement caused track to fail Chi Squared test, removing the object");
     fitQuality = std::make_unique<FitQuality>(1, 1);
     std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> type(0);
     type.set(TrackStateOnSurface::Outlier);
     const Trk::MultiComponentStateOnSurface* multiComponentStateOnSurface =
-      new MultiComponentStateOnSurface(measurement.release(), extrapolatedState->clone(), 
+      new MultiComponentStateOnSurface(measurement.release(), extrapolatedState->clone().release(), 
                                        fitQuality.release(), nullptr, type);
 
     forwardTrajectory->push_back(multiComponentStateOnSurface);
 
     // Clean up objects associated with removed measurement
-    // delete measurement;
-    // delete fitQuality;
     updatedState =std::move(extrapolatedState);
   } else {
     const Trk::MultiComponentStateOnSurface* multiComponentStateOnSurface =

@@ -73,11 +73,11 @@ Trk::MultiComponentStateCombiner::finalize()
 std::unique_ptr<Trk::TrackParameters>
 Trk::MultiComponentStateCombiner::combine(const Trk::MultiComponentState& uncombinedState, bool useModeTemp) const
 {
-  std::unique_ptr<Trk::SimpleComponentParameters> combinedComponent = compute(&uncombinedState, useModeTemp);
+  std::unique_ptr<Trk::ComponentParameters> combinedComponent = compute(&uncombinedState, useModeTemp);
   return std::move(combinedComponent->first);
 }
 
-std::unique_ptr<Trk::SimpleComponentParameters>
+std::unique_ptr<Trk::ComponentParameters>
 Trk::MultiComponentStateCombiner::combineWithWeight(const Trk::MultiComponentState& uncombinedState,
                                                     bool useModeTemp) const
 {
@@ -85,9 +85,8 @@ Trk::MultiComponentStateCombiner::combineWithWeight(const Trk::MultiComponentSta
 }
 
 void
-Trk::MultiComponentStateCombiner::combineWithWeight(
-  std::pair<std::unique_ptr<Trk::TrackParameters>, double>& mergeTo,
-  const std::pair<std::unique_ptr<Trk::TrackParameters>, double>& addThis) const
+Trk::MultiComponentStateCombiner::combineWithWeight(Trk::ComponentParameters& mergeTo,
+                                                    const Trk::ComponentParameters& addThis) const
 {
 
   const Trk::TrackParameters* firstParameters = mergeTo.first.get();
@@ -160,7 +159,7 @@ Trk::MultiComponentStateCombiner::combineWithWeight(
   }
 }
 
-std::unique_ptr<Trk::SimpleComponentParameters>
+std::unique_ptr<Trk::ComponentParameters>
 Trk::MultiComponentStateCombiner::compute(const Trk::MultiComponentState* uncombinedState, bool useModeTemp) const
 {
   if (uncombinedState->empty()) {
@@ -168,25 +167,20 @@ Trk::MultiComponentStateCombiner::compute(const Trk::MultiComponentState* uncomb
     return nullptr;
   }
 
-  const Trk::TrackParameters* firstParameters = uncombinedState->front().first;
+  const Trk::TrackParameters* firstParameters = uncombinedState->front().first.get();
 
   // Check to see if first track parameters are measured or not
   const AmgSymMatrix(5)* firstMeasuredCov = firstParameters->covariance();
 
   if (uncombinedState->size() == 1)
-    return std::make_unique<Trk::SimpleComponentParameters>(uncombinedState->front().first->clone(), 
-                                                            uncombinedState->front().second);
+    return std::make_unique<Trk::ComponentParameters>(uncombinedState->front().first->clone(), 
+                                                      uncombinedState->front().second);
 
   double sumW(0.);
   const int dimension = (uncombinedState->front()).first->parameters().rows();
   if (dimension != 5) {
     ATH_MSG_FATAL("More than 5 track parameters");
   }
-  // generalized in 'dimension' causing headaches - temperarily removed
-  // Amg::VectorX        mean(dimension);
-  // Amg::MatrixX* covariance = new Amg::MatrixX(dimension,dimension);
-  // Amg::MatrixX covariancePart1(dimension,dimension); covariancePart1.setZero();
-  // Amg::MatrixX covariancePart2(dimension,dimension); covariancePart2.setZero();
 
   AmgVector(5) mean;
   mean.setZero();
@@ -211,7 +205,7 @@ Trk::MultiComponentStateCombiner::compute(const Trk::MultiComponentState* uncomb
 
   for (; component != uncombinedState->end(); ++component) {
 
-    const TrackParameters* trackParameters = (*component).first;
+    const TrackParameters* trackParameters = (*component).first.get();
     double weight = (*component).second;
 
     AmgVector(5) parameters = trackParameters->parameters();
@@ -383,6 +377,6 @@ Trk::MultiComponentStateCombiner::compute(const Trk::MultiComponentState* uncomb
     delete covariance;
   }
 
-    return std::make_unique<Trk::SimpleComponentParameters>(std::move(combinedTrackParameters), totalWeight);
+    return std::make_unique<ComponentParameters>(std::move(combinedTrackParameters), totalWeight);
 
 }

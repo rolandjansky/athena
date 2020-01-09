@@ -16,33 +16,20 @@ decription           : Implementation code for MultiComponentState class
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/Surface.h"
 
-Trk::MultiComponentState::~MultiComponentState()
-{
-  /*
-   * Cleanup the const TrackParticle* ptr
-   */
-  Trk::MultiComponentState::const_iterator component = this->begin();
-  Trk::MultiComponentState::const_iterator end = this->end();
-  for (; component != end; ++component) {
-    delete component->first;
-  }
-  this->clear();
-}
-
-Trk::MultiComponentState*
+std::unique_ptr<Trk::MultiComponentState>
 Trk::MultiComponentState::clone() const
 {
   auto clonedState = std::make_unique<Trk::MultiComponentState>();
   clonedState->reserve(this->size());
   Trk::MultiComponentState::const_iterator component = this->begin();
   for (; component != this->end(); ++component) {
-    const Trk::TrackParameters* clonedParameters = component->first->clone();
+    Trk::TrackParameters* clonedParameters = component->first->clone();
     clonedState->emplace_back(clonedParameters, component->second);
   }
-  return clonedState.release();
+  return clonedState;
 }
 
-Trk::MultiComponentState*
+std::unique_ptr<Trk::MultiComponentState>
 Trk::MultiComponentState::cloneWithScaledError(double errorScaleLocX,
                                                double errorScaleLocY,
                                                double errorScalePhi,
@@ -53,7 +40,7 @@ Trk::MultiComponentState::cloneWithScaledError(double errorScaleLocX,
   stateWithScaledErrors->reserve(this->size());
   Trk::MultiComponentState::const_iterator component = this->begin();
   for (; component != this->end(); ++component) {
-    const Trk::TrackParameters* trackParameters = component->first;
+    const Trk::TrackParameters* trackParameters = component->first.get();
     const AmgSymMatrix(5)* originalMatrix = trackParameters->covariance();
     if (!originalMatrix) {
       return this->clone();
@@ -86,15 +73,15 @@ Trk::MultiComponentState::cloneWithScaledError(double errorScaleLocX,
       return this->clone();
     }
     const AmgVector(5)& par = trackParameters->parameters();
-    const TrackParameters* newTrackParameters = trackParameters->associatedSurface().createTrackParameters(
+    TrackParameters* newTrackParameters = trackParameters->associatedSurface().createTrackParameters(
       par[Trk::loc1], par[Trk::loc2], par[Trk::phi], par[Trk::theta], par[Trk::qOverP], covarianceMatrix.release());
     // Push back new component
     stateWithScaledErrors->emplace_back(newTrackParameters, component->second);
   }
-  return stateWithScaledErrors.release();
+  return stateWithScaledErrors;
 }
 
-Trk::MultiComponentState*
+std::unique_ptr<Trk::MultiComponentState>
 Trk::MultiComponentState::cloneWithScaledError(double errorScale) const
 {
 
@@ -102,7 +89,7 @@ Trk::MultiComponentState::cloneWithScaledError(double errorScale) const
   stateWithScaledErrors->reserve(this->size());
   Trk::MultiComponentState::const_iterator component = this->begin();
   for (; component != this->end(); ++component) {
-    const Trk::TrackParameters* trackParameters = component->first;
+    const Trk::TrackParameters* trackParameters = component->first.get();
     const AmgSymMatrix(5)* originalMatrix = trackParameters->covariance();
     if (!originalMatrix) {
       return this->clone();
@@ -131,13 +118,13 @@ Trk::MultiComponentState::cloneWithScaledError(double errorScale) const
     covarianceMatrix->fillSymmetric(3, 4, (*originalMatrix)(3, 4) * errorScale);
 
     const AmgVector(5)& par = trackParameters->parameters();
-    const TrackParameters* newTrackParameters = trackParameters->associatedSurface().createTrackParameters(
+    TrackParameters* newTrackParameters = trackParameters->associatedSurface().createTrackParameters(
       par[Trk::loc1], par[Trk::loc2], par[Trk::phi], par[Trk::theta], par[Trk::qOverP], covarianceMatrix.release());
 
     // Push back new component
     stateWithScaledErrors->emplace_back(newTrackParameters, component->second);
   }
-  return stateWithScaledErrors.release();
+  return stateWithScaledErrors;
 }
 
 bool
@@ -192,7 +179,7 @@ Trk::MultiComponentState::dump(MsgStream& out) const
 
   for (; component != this->end(); ++component, ++componentCounter) {
     out << "Component " << componentCounter << " of " << stateSize << std::endl;
-    out << "Component address: " << component->first << std::endl;
+    out << "Component address: " << component->first.get() << std::endl;
     out << "Track parameters: " << *(component->first) << std::endl;
     out << "Weight: " << component->second << std::endl;
     out << "------------------------------------------------" << std::endl;
@@ -218,7 +205,7 @@ Trk::MultiComponentState::dump(std::ostream& out) const
 
   for (; component != this->end(); ++component, ++componentCounter) {
     out << "Component " << componentCounter << " of " << stateSize << std::endl;
-    out << "Component address: " << component->first << std::endl;
+    out << "Component address: " << component->first.get() << std::endl;
     out << "Track parameters: " << *(component->first) << std::endl;
     out << "Weight: " << component->second << std::endl;
     out << "------------------------------------------------" << std::endl;

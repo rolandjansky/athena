@@ -232,7 +232,7 @@ Trk::GsfBetheHeitlerEffects::compute(Cache& cache,
   // Clear cache
   cache.reset();
 
-  const Trk::TrackParameters* trackParameters = componentParameters.first;
+  const Trk::TrackParameters* trackParameters = componentParameters.first.get();
   const Amg::Vector3D& globalMomentum = trackParameters->momentum();
 
   double radiationLength = materialProperties.x0();

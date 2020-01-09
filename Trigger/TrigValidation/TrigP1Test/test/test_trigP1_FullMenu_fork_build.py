@@ -13,7 +13,6 @@ ex.input = 'data'
 ex.forks = 8
 ex.threads = 1
 ex.concurrent_events = 1
-ex.perfmon = False # perfmon with athenaHLT doesn't work at the moment
 
 test = Test.Test()
 test.art_type = 'build'

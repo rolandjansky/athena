@@ -367,8 +367,6 @@ namespace InDetAlignment
 		  return;
                 }
 		
-		InDetDD::TRT_DetElementCollection::const_iterator iter;
-		
 		//step through all detector elements (=strawlayers) and accumulate strawcenters per
 		// element (with DB granularity, i.e. phi sectors in endcap, bi-modules in barrel)
 		for (const InDetDD::TRT_BaseElement *element: *elements) {

@@ -5,7 +5,6 @@
 #ifndef AthenaMonitoringKernel_HistogramDef_h
 #define AthenaMonitoringKernel_HistogramDef_h
 
-#include <nlohmann/json.hpp>
 #include <string>
 #include <vector>
 
@@ -39,6 +38,7 @@ namespace Monitored {
     std::vector<double> yarray; //!< array of y bin edges
 
     std::string zvar; //!< name of z variable
+    int zbins; //!< number of z bins
     float zmin; //!< z axis minimum
     float zmax; //!< z axis maximum
     std::vector<std::string> zlabels; //!< labels for z axis
