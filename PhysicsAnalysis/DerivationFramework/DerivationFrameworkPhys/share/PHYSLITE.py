@@ -325,7 +325,7 @@ SeqPHYSLITE += muonSequence
 
 # Include, and then set up the tau analysis algorithm sequence:                                                    
 from TauAnalysisAlgorithms.TauAnalysisSequence import makeTauAnalysisSequence
-tauSequence = makeTauAnalysisSequence( dataType, 'Tight', shallowViewOutput = False, deepCopyOutput = True )
+tauSequence = makeTauAnalysisSequence( dataType, 'Baseline', shallowViewOutput = False, deepCopyOutput = True )
 tauSequence.configure( inputName = 'TauJets', outputName = 'AnalysisTauJets' )
 print( tauSequence ) # For debugging                                                                               
 # Add the sequence to the job:                                                                                     
