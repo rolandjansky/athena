@@ -733,7 +733,7 @@ class JobPropertyContainer (object):
         """
         tp=type(data)
         if tp.__name__=='dict':
-            list_context=JobProperty._nInstancesContextDict.keys()
+            list_context=list(JobProperty._nInstancesContextDict.keys())
             for i in data.keys():
                 for j in data[i].keys():
                     if list_context.count(i+'.'+j)==1:
