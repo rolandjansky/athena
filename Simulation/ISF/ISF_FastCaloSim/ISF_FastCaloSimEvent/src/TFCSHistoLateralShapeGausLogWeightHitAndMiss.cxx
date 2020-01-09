@@ -5,7 +5,7 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
 
-#include "ISF_FastCaloSimEvent/TFCSHistoLateralShapeWeightHitAndMiss.h"
+#include "ISF_FastCaloSimEvent/TFCSHistoLateralShapeGausLogWeightHitAndMiss.h"
 #include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
 
 #include "TH1.h"
@@ -13,18 +13,18 @@
 #include "TMath.h"
 
 //=============================================
-//======= TFCSHistoLateralShapeWeightHitAndMiss =========
+//======= TFCSHistoLateralShapeGausLogWeightHitAndMiss =========
 //=============================================
 
-TFCSHistoLateralShapeWeightHitAndMiss::TFCSHistoLateralShapeWeightHitAndMiss(const char* name, const char* title):TFCSHistoLateralShapeWeight(name,title)
+TFCSHistoLateralShapeGausLogWeightHitAndMiss::TFCSHistoLateralShapeGausLogWeightHitAndMiss(const char* name, const char* title):TFCSHistoLateralShapeWeight(name,title)
 {
 }
 
-TFCSHistoLateralShapeWeightHitAndMiss::~TFCSHistoLateralShapeWeightHitAndMiss()
+TFCSHistoLateralShapeGausLogWeightHitAndMiss::~TFCSHistoLateralShapeGausLogWeightHitAndMiss()
 {
 }
 
-FCSReturnCode TFCSHistoLateralShapeWeightHitAndMiss::simulate_hit(Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/)
+FCSReturnCode TFCSHistoLateralShapeGausLogWeightHitAndMiss::simulate_hit(Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/)
 {
   if (!simulstate.randomEngine()) {
     return FCSFatal;
@@ -53,7 +53,8 @@ FCSReturnCode TFCSHistoLateralShapeWeightHitAndMiss::simulate_hit(Hit& hit,TFCSS
   float weight=meanweight;
   float RMS   =m_hist->GetBinError(bin);
   if(RMS>0) {
-    weight=CLHEP::RandGauss::shoot(simulstate.randomEngine(), meanweight, RMS);
+    float logweight=CLHEP::RandGauss::shoot(simulstate.randomEngine(), -0.5*RMS*RMS, RMS);
+    weight*=TMath::Exp(logweight);
   }  
   if(meanweight<=1) {
     //if meanweight<=1, give lower energy to hit. 
