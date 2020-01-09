@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 ///============================================================
 /// T2VertexBeamSpot.h, (c) ATLAS Detector software
@@ -116,7 +116,7 @@ namespace PESA {
       SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey  { this, "EventInfo", "EventInfo", "" };
 
       //Tools
-      ToolHandle<IT2VertexBeamSpotTool> m_beamSpotTool {this, "PESA::T2VertexBeamSpotTool/T2VertexBeamSpotTool" };
+      ToolHandle<IT2VertexBeamSpotTool> m_beamSpotTool {this, "BeamSpotTool", "PESA::T2VertexBeamSpotTool/T2VertexBeamSpotTool" };
       ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
 
 
