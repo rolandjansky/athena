@@ -119,8 +119,8 @@ StatusCode TauEfficiencyCorrectionsTool::initializeWithTauSelectionTool()
       }
     }
 
-    if ((m_tTauSelectionTool->m_iSelectionCuts & CutEleBDTWP)
-        and !(m_tTauSelectionTool->m_iSelectionCuts & CutEleOLR)) // re-tuned eleBDT working points
+    if ((m_tTauSelectionTool->m_iSelectionCuts & CutEleBDTWP && (m_tTauSelectionTool->m_iEleBDTWP != ELEIDNONE))
+        and !(m_tTauSelectionTool->m_iSelectionCuts & CutEleOLR && m_tTauSelectionTool->m_bEleOLR)) // re-tuned eleBDT working points
     {
       ATH_MSG_DEBUG("EleBDT");
       if ( m_tTauSelectionTool->m_iEleBDTWP == ELEIDBDTLOOSE)
@@ -134,14 +134,14 @@ StatusCode TauEfficiencyCorrectionsTool::initializeWithTauSelectionTool()
           " are not supported in recommendations tag " << m_sRecommendationTag <<
           "\nFor further information please refer to the README:\nhttps://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/TauID/TauAnalysisTools/doc/README-TauEfficiencyCorrectionsTool.rst");
     }
-    else if (!(m_tTauSelectionTool->m_iSelectionCuts & CutEleBDTWP)
-             and (m_tTauSelectionTool->m_iSelectionCuts & CutEleOLR)) // old LLH based eVeto
+    else if (!(m_tTauSelectionTool->m_iSelectionCuts & CutEleBDTWP && !(m_tTauSelectionTool->m_iEleBDTWP == ELEIDNONE))
+             and (m_tTauSelectionTool->m_iSelectionCuts & CutEleOLR && m_tTauSelectionTool->m_bEleOLR)) // old LLH based eVeto
     {
       ATH_MSG_DEBUG("EleVeto");
       m_iOLRLevel = TAUELEOLR;
     }
-    else if ((m_tTauSelectionTool->m_iSelectionCuts & CutEleBDTWP)
-             and (m_tTauSelectionTool->m_iSelectionCuts & CutEleOLR)) // old BDT+LLH based eVeto
+    else if ((m_tTauSelectionTool->m_iSelectionCuts & CutEleBDTWP && (m_tTauSelectionTool->m_iEleBDTWP != ELEIDNONE))
+             and (m_tTauSelectionTool->m_iSelectionCuts & CutEleOLR && m_tTauSelectionTool->m_bEleOLR)) // old BDT+LLH based eVeto
     {
       ATH_MSG_DEBUG("EleBDTPLUSVeto");
       if ( m_tTauSelectionTool->m_iEleBDTWP == ELEIDBDTOLDLOOSE)
@@ -1869,8 +1869,8 @@ StatusCode TauEfficiencyCorrectionsTool::beginInputFile()
       // if no result -> no simFlavor metadata, so must be data
       if(result) boost::to_upper(simType);
     }
-    if (simType.find("ATLFASTII")!=std::string::npos && !m_sAFII) ATH_MSG_WARNING("Input file is fast simulation but you are _not_ using AFII corrections and uncertainties, you should set \"isAFII\" to \"False\"");
-    else if (simType.find("FULLG4")!=std::string::npos && m_sAFII) ATH_MSG_WARNING("Input file is full simulation but you are using AFII corrections and uncertainties, you should set \"isAFII\" to \"False\"");
+    if (simType.find("ATLFASTII")!=std::string::npos && !m_sAFII) ATH_MSG_WARNING("Input file is fast simulation but you are _not_ using AFII corrections and uncertainties, you should set \"isAFII\" to \"true\"");
+    else if (simType.find("FULLG4")!=std::string::npos && m_sAFII) ATH_MSG_WARNING("Input file is full simulation but you are using AFII corrections and uncertainties, you should set \"isAFII\" to \"false\"");
   }
   return StatusCode::SUCCESS;
 }
