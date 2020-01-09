@@ -4,8 +4,7 @@
 
 
 #include "egammaPreSamplerShape.h"
-#include "egammaInterfaces/IegammaEnergyPositionAllSamples.h"
-
+#include "egammaUtils/egammaEnergyPositionAllSamples.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "CaloUtils/CaloLayerCalculator.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
@@ -41,12 +40,6 @@ StatusCode egammaPreSamplerShape::initialize(){
     // retrieve all helpers from det store
     m_calo_dd = CaloDetDescrManager::instance();
 
-    // Create egammaEnergyAllSamples Tool
-    if(m_egammaEnergyPositionAllSamples.retrieve().isFailure()) {
-        ATH_MSG_FATAL("Unable to retrieve "<<m_egammaEnergyPositionAllSamples);
-        return StatusCode::FAILURE;
-    } 
-    else ATH_MSG_DEBUG("Tool " << m_egammaEnergyPositionAllSamples << " retrieved"); 
 
     return StatusCode::SUCCESS;
 }
@@ -77,7 +70,7 @@ StatusCode egammaPreSamplerShape::execute(const xAOD::CaloCluster& cluster,
     CaloSampling::CaloSample sam=CaloSampling::PreSamplerB;
     CaloSampling::CaloSample sam2=CaloSampling::EMB2;
     // check if cluster is in barrel or end-cap
-    bool in_barrel = m_egammaEnergyPositionAllSamples->inBarrel(cluster,0);
+    bool in_barrel = egammaEnergyPositionAllSamples::inBarrel(cluster,0);
     // define accordingly the position of CaloSampling
     if (in_barrel) {
         sam  = CaloSampling::PreSamplerB; 
