@@ -21,16 +21,9 @@ from TriggerMenu.api.TriggerAPI import TriggerAPI
 from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
 from DerivationFrameworkTrigger.TriggerMatchingHelper import TriggerMatchingHelper
 
-# Truth
-if DerivationFrameworkIsMonteCarlo:
-  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addPVCollection
-  addStandardTruthContents()
-  addPVCollection()
-  from DerivationFrameworkMCTruth.HFHadronsCommon import *
-  # Extra classifiers for the Higgs group
-  import DerivationFrameworkHiggs.TruthCategories
-
-### Set up stream
+#====================================================================
+# SET UP STREAM   
+#====================================================================
 streamName = derivationFlags.WriteDAOD_PHYSLITEStream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_PHYSLITEStream )
 PHYSLITEStream = MSMgr.NewPoolRootStream( streamName, fileName )
@@ -39,12 +32,29 @@ PHYSLITEStream.AcceptAlgs(["PHYSLITEKernel"])
 ### Thinning and augmentation tools lists
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 PHYSLITEThinningHelper = ThinningHelper( "PHYSLITEThinningHelper" )
+PHYSLITEThinningHelper.AppendToStream( PHYSLITEStream )
 thinningTools       = []
 AugmentationTools   = []
 
 # Special sequence 
 SeqPHYSLITE = CfgMgr.AthSequencer("SeqPHYSLITE")
 DerivationFrameworkJob += SeqPHYSLITE
+
+#====================================================================
+# TRUTH CONTENT
+#====================================================================
+if DerivationFrameworkIsMonteCarlo:
+  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addPVCollection
+  addStandardTruthContents(SeqPHYSLITE)
+  addPVCollection(SeqPHYSLITE)
+  from DerivationFrameworkMCTruth.HFHadronsCommon import *
+  # Extra classifiers for the Higgs group
+  import DerivationFrameworkHiggs.TruthCategories
+  # Add sumOfWeights metadata for LHE3 multiweights =======
+  from DerivationFrameworkCore.LHE3WeightMetadata import *
+  from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
+  if IsSUSYSignal():
+     from DerivationFrameworkSUSY.SUSYWeightMetadata import *
 
 #====================================================================
 # TRIGGER CONTENT   
@@ -117,12 +127,9 @@ if DerivationFrameworkIsMonteCarlo:
   AugmentationTools.append(PHYSLITETopHFFilterAugmentation)
   nanolog.info("PHYSLITETopHFFilterAugmentationTool: {!s}".format(PHYSLITETopHFFilterAugmentation))
 
-
 #====================================================================
 # THINNING 
 #====================================================================
-
-PHYSLITEThinningHelper.AppendToStream( PHYSLITEStream )
 
 # Cluster thinning
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
@@ -149,7 +156,6 @@ PHYSLITEPhotonClusterThinningTool = DerivationFramework__CaloClusterThinning( na
 ToolSvc += PHYSLITEPhotonClusterThinningTool
 thinningTools.append(PHYSLITEPhotonClusterThinningTool)
 
-
 # GSF track particles thinning
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 
@@ -170,7 +176,6 @@ PHYSLITEPhotonGsfTrackThinningTool = DerivationFramework__EgammaTrackParticleThi
                                                                                       GSFTrackParticlesKey = "GSFTrackParticles")
 ToolSvc += PHYSLITEPhotonGsfTrackThinningTool
 thinningTools.append(PHYSLITEPhotonGsfTrackThinningTool)
-
 
 # INNER DETECTOR TRACK THINNING
 # See recommedations here: 
@@ -228,24 +233,6 @@ ToolSvc += PHYSLITEVertexThinningTool
 thinningTools.append(PHYSLITEVertexThinningTool)
 
 #==============================================================================
-# Kernel algorithm and LHE3 imports
-#==============================================================================
-
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-
-# Add sumOfWeights metadata for LHE3 multiweights =======
-from DerivationFrameworkCore.LHE3WeightMetadata import *
-
-
-#==============================================================================
-# SUSY signal augmentation 
-#==============================================================================
-from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
-if IsSUSYSignal():
-   from DerivationFrameworkSUSY.SUSYWeightMetadata import *
-
-
-#==============================================================================
 # Jet building
 #==============================================================================
 OutputJets["PHYSLITE"] = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
@@ -278,7 +265,6 @@ from DerivationFrameworkFlavourTag.HbbCommon import addRecommendedXbbTaggers
 addRecommendedXbbTaggers(SeqPHYSLITE, ToolSvc)
 
 FlavorTagInit(JetCollections  = [ 'AntiKt4EMPFlowJets'], Sequencer = SeqPHYSLITE)
-
 
 #==============================================================================
 # Systematics
@@ -377,6 +363,7 @@ scheduleMETAssocAlg(sequence=SeqPHYSLITE,configlist="AnalysisMET")
 #====================================================================
 # MAIN KERNEL
 #====================================================================
+from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 SeqPHYSLITE += CfgMgr.DerivationFramework__DerivationKernel(
    "PHYSLITEKernel",
    AugmentationTools = AugmentationTools,
