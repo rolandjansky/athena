@@ -112,7 +112,8 @@ Trk::GsfSmoother::fit(const ForwardTrajectory& forwardTrajectory,
     dummyMultiState->push_back(std::move(dummyParams));
     smootherPredictionMultiState = std::move(dummyMultiState);
   } else {
-    smootherPredictionMultiState=smootherPredictionMultiStateOnSurface->components()->clone();
+    smootherPredictionMultiState = Trk::MultiComponentStateHelpers::clone(
+      *(smootherPredictionMultiStateOnSurface->components()));
   }
   
   /*
@@ -167,7 +168,7 @@ Trk::GsfSmoother::fit(const ForwardTrajectory& forwardTrajectory,
    */
   smootherPredictionMultiState.reset();
 
-  if (!firstSmoothedState->isMeasured()) {
+  if (!MultiComponentStateHelpers::isMeasured(*firstSmoothedState)) {
     ATH_MSG_WARNING("Updated state is not measured. Rejecting smoothed state... returning 0");
     return nullptr;
   }
@@ -178,7 +179,8 @@ Trk::GsfSmoother::fit(const ForwardTrajectory& forwardTrajectory,
    * NB local Y and theta are not blown out too much to help in the TRT
    */
   std::unique_ptr<Trk::MultiComponentState> smoothedStateWithScaledError =
-    std::unique_ptr<Trk::MultiComponentState>(firstSmoothedState->cloneWithScaledError(15., 5., 15., 5., 15.));
+    std::unique_ptr<Trk::MultiComponentState>(
+      MultiComponentStateHelpers::cloneWithScaledError(*firstSmoothedState, 15., 5., 15., 5., 15.));
 
   if (!smoothedStateWithScaledError) {
     ATH_MSG_WARNING("Covariance scaling could not be performed... returning 0");
@@ -238,7 +240,7 @@ Trk::GsfSmoother::fit(const ForwardTrajectory& forwardTrajectory,
       type.set(TrackStateOnSurface::Outlier);
 
       Trk::MultiComponentStateOnSurface* updatedStateOnSurface = new Trk::MultiComponentStateOnSurface(
-        measurement.release(), updatedState->clone().release(), new FitQuality(1, 1), 0, type);
+        measurement.release(), MultiComponentStateHelpers::clone(*updatedState).release(), new FitQuality(1, 1), 0, type);
       smoothedTrajectory->push_back(updatedStateOnSurface);
       continue;
     }
@@ -296,14 +298,21 @@ Trk::GsfSmoother::fit(const ForwardTrajectory& forwardTrajectory,
 
         if (combinedLastState)
           updatedStateOnSurface = new Trk::MultiComponentStateOnSurface(
-            measurement.release(), combinedLastState.release(), updatedState->clone().release(), fitQuality.release());
+            measurement.release(),
+            combinedLastState.release(),
+            MultiComponentStateHelpers::clone(*updatedState).release(),
+            fitQuality.release());
         else
           updatedStateOnSurface = new Trk::MultiComponentStateOnSurface(
-            measurement.release(), updatedState->clone().release(), fitQuality.release());
+            measurement.release(),
+            MultiComponentStateHelpers::clone(*updatedState).release(),
+            fitQuality.release());
 
       } else {
         updatedStateOnSurface = new Trk::MultiComponentStateOnSurface(
-          measurement.release(), updatedState->clone().release(), fitQuality.release());
+          measurement.release(),
+          MultiComponentStateHelpers::clone(*updatedState).release(),
+          fitQuality.release());
       }
 
       smoothedTrajectory->push_back(updatedStateOnSurface);
@@ -401,7 +410,7 @@ Trk::GsfSmoother::combine(const Trk::MultiComponentState& forwardsMultiState,
   std::unique_ptr<Trk::MultiComponentState> mergedState = m_merger->merge(std::move(*combinedMultiState));
 
   // Before return the weights of the states need to be renormalised to one.
-  mergedState->renormaliseState();
+  MultiComponentStateHelpers::renormaliseState(*mergedState);
 
   return mergedState.release();
 }

@@ -17,6 +17,7 @@ decription           : Class description for convolution of GSF material mixture
 #include "TrkGaussianSumFilter/IMaterialMixtureConvolution.h"
 #include "TrkGaussianSumFilter/IMultiComponentStateMerger.h"
 #include "TrkGaussianSumFilter/IMultiComponentStateCombiner.h"
+#include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -24,7 +25,6 @@ decription           : Class description for convolution of GSF material mixture
 namespace Trk {
 
 class IMultiStateMaterialEffectsUpdator;
-class MultiComponentState;
 class Layer;
 
 class GsfMaterialMixtureConvolution
