@@ -29,7 +29,7 @@ ATLAS Collaboration
 #include "xAODEventInfo/EventInfo.h"
 #include "StoreGate/ReadCondHandle.h"
 
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 namespace InDet {
 
 //------------------------------------------------------------------------

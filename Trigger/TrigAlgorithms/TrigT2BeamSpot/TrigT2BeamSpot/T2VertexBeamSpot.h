@@ -24,7 +24,7 @@
 #ifndef TRIGT2BEAMSPOT_T2VERTEXBEAMSPOT_H
 #define TRIGT2BEAMSPOT_T2VERTEXBEAMSPOT_H
 
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 #include "xAODEventInfo/EventInfo.h"
 /// trigger EDM
 #include "TrigInterfaces/AllTEAlgo.h"

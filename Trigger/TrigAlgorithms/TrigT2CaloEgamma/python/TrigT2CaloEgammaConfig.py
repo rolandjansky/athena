@@ -383,7 +383,7 @@ class RingerReFexConfig( RingerReFex ):
                                  Layer.HEC1,       Layer.HEC2,     Layer.TileBar1, Layer.TileGap0, Layer.TileExt1,
                                  Layer.HEC3,       Layer.TileBar2, Layer.TileGap1, Layer.TileExt2
                                 ]
-    from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
+    from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
     monTool = GenericMonitoringTool('MonTool')
     monTool.defineHistogram( "TIME_total", title="Total Time;time[ms]",xbins=50, xmin=0, xmax=5,type='TH1F', path='EXPERT')
     monTool.defineHistogram( "TIME_load_cells", title="Load Cells Time;time[ms]",xbins=50, xmin=0, xmax=5,type='TH1F', path='EXPERT')

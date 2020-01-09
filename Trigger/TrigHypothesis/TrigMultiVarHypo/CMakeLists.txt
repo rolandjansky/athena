@@ -24,7 +24,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel 
                           Control/AthViews
                           Control/AthContainers
-                          Control/AthenaMonitoring
+                          Control/AthenaMonitoringKernel
                           )
 
 # Component(s) in the package:
@@ -37,7 +37,7 @@ atlas_add_library( TrigMultiVarHypoLib
                    LINK_LIBRARIES AsgTools xAODTrigCalo xAODTrigRinger TrigCaloEvent 
                    TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib 
                    DecisionHandlingLib LumiBlockCompsLib PathResolver 
-                   AthenaMonitoringLib
+                   AthenaMonitoringKernelLib
                    PRIVATE_LINK_LIBRARIES GaudiKernel AthViews )
 
 
@@ -46,7 +46,7 @@ atlas_add_component(  TrigMultiVarHypo
                       LINK_LIBRARIES AsgTools xAODTrigCalo xAODTrigRinger TrigCaloEvent 
                       TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib GaudiKernel 
                       TrigMultiVarHypoLib DecisionHandlingLib LumiBlockCompsLib 
-                      PathResolver AthenaMonitoringLib) 
+                      PathResolver AthenaMonitoringKernelLib) 
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

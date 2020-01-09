@@ -61,7 +61,7 @@ topSequence = AlgSequence()
 
 import math
 from TrigT2CaloCommon.TrigT2CaloCommonConf import TrigCaloDataAccessSvc#, TestCaloDataAccess
-from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
+from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 
 mon = GenericMonitoringTool("CaloDataAccessSvcMon")
 mon.Histograms += [defineHistogram( "TIME_locking_LAr_RoI", path='EXPERT', title="Time spent in unlocking the LAr collection", xbins=100, xmin=0, xmax=100 ),

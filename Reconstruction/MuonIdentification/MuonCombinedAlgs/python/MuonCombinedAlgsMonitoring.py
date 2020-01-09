@@ -1,7 +1,7 @@
 # Author: Laurynas Mince
 # Created on 26.07.2019
 
-from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
+from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 
 class MuonCreatorAlgMonitoring(GenericMonitoringTool):
     def __init__ (self, name="MuonCreatorAlgMonitoring"):

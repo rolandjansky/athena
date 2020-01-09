@@ -47,7 +47,7 @@
 //To get TEVec and HLT::Error messaging
 #include "TrigInterfaces/Algo.h"
 //Monitoring tool
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 class TrigVertexCollection;
 

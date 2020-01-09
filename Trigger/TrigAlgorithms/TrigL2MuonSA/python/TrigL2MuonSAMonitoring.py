@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
-from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
+from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 
 class TrigL2MuonSAMonitoring(GenericMonitoringTool):
     def __init__ (self, name = "TrigL2MuonSAMonitoring"):
