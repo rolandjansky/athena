@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArG4Code/LArG4CalibSD.h"
@@ -73,7 +73,7 @@ TEST_F( LArG4CalibSDtest, ProcessHits )
 
 //now that the newly-generated hit has already been stored in the hit collection calibrationHits, here I will test that. According to previous setting, the compact id stored in the hit should be 7
   unsigned long long compact_num = (*(sd1.m_calibrationHits.begin()))->cellID().get_compact();//get the compact id 
-  ASSERT_EQ(compact_num , 7);//test if the compact id is as we expected
+  ASSERT_EQ(compact_num , 7u);//test if the compact id is as we expected
 }
 
 TEST_F( LArG4CalibSDtest, EndOfAthenaEvent )
@@ -96,7 +96,7 @@ TEST_F( LArG4CalibSDtest, EndOfAthenaEvent )
   sd2.EndOfAthenaEvent(hitContainer, deadHitContainer);
 
   unsigned long long compact_num = (*(hitContainer->begin()))->cellID().get_compact();//get the compact id
-  ASSERT_EQ(compact_num, 7);//test if it is 7, which is the expected value according to previous setting
+  ASSERT_EQ(compact_num, 7u);//test if it is 7, which is the expected value according to previous setting
 }
 
 TEST_F( LArG4CalibSDtest, SpecialHit )
@@ -114,7 +114,7 @@ TEST_F( LArG4CalibSDtest, SpecialHit )
   
 //now that the newly-generated hit has already been stored in the hit collection calibrationHits, here I will test that. According to previous setting, the compact id stored in the hit should be 7
   unsigned long long compact_num = (*(sd5.m_calibrationHits.begin()))->cellID().get_compact();//get the compact id 
-  ASSERT_EQ(compact_num , 7);//test if the compact id is as we expected
+  ASSERT_EQ(compact_num , 7u);//test if the compact id is as we expected
 }
 
 TEST_F( LArG4CalibSDtest, SimpleHit )
@@ -142,7 +142,7 @@ TEST_F( LArG4CalibSDtest, SimpleHit )
 
 // Since there is a new hit added in the hit collection, I will test if the hit is stored correctly in the hit collection calibrationHits
   unsigned long long compact_num = (*(calibrationHits.begin()))->cellID().get_compact(); //get the compacted id of the hit, according to the previous setting it should be 7
-  ASSERT_TRUE(compact_num == 7); 
+  ASSERT_TRUE(compact_num == 7u); 
 
 }
 
@@ -174,7 +174,7 @@ TEST_F( LArG4CalibSDtest, ConvertID )
 
   unsigned long long compact_num = id.get_compact();
   ASSERT_TRUE(id.is_valid()); //test if the Identifier object id is valid
-  ASSERT_TRUE(compact_num == 15); //Based on previous number setting, the compact number should equal to 15. Test it here
+  ASSERT_TRUE(compact_num == 15u); //Based on previous number setting, the compact number should equal to 15. Test it here
 }
 
 int main( int argc, char** argv ) {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArG4Code/LArG4SimpleSD.h"
@@ -75,7 +75,7 @@ TEST_F( LArG4SimpleSDtest, ProcessHits )
   unsigned long long compact_num = (*(hitCollection->begin()))->cellID().get_compact(); //get the compacted id of the hit, according to the previous setting it should be 7
   double theTime = (*(hitCollection->begin()))->time();//get the time info of the hit, it should be 1.0 as we set before
   double theEnergy = (*(hitCollection->begin()))->energy();//get the energy info of the hit, it should be as well 1.0 as we set before
-  ASSERT_EQ(compact_num, 7);//test if the compact_num is 7
+  ASSERT_EQ(compact_num, 7u);//test if the compact_num is 7
   ASSERT_FLOAT_EQ(theTime, 1.0);//test if theTime is 1.0
   ASSERT_FLOAT_EQ(theEnergy, 1.0);//test if theEnergy is 1.0
 }
@@ -105,7 +105,7 @@ TEST_F( LArG4SimpleSDtest, SimpleHit )
   unsigned long long compact_num = (*(hitCollection->begin()))->cellID().get_compact(); //get the compacted id of the hit, according to the previous setting it should be 7
   double theTime = (*(hitCollection->begin()))->time();//get the time info of the hit, it should be 1.0 as we set before
   double theEnergy = (*(hitCollection->begin()))->energy();//get the energy info of the hit, it should be as well 1.0 as we set before
-  ASSERT_EQ(compact_num, 7);//test if the compact_num is 7
+  ASSERT_EQ(compact_num, 7u);//test if the compact_num is 7
   ASSERT_EQ(theTime, 1.0);//test if theTime is 1.0
   ASSERT_EQ(theEnergy, 1.0);//test if theEnergy is 1.0
 }
@@ -151,7 +151,7 @@ TEST_F( LArG4SimpleSDtest, ConvertID )
 
   unsigned long long compact_num = id.get_compact();
   ASSERT_TRUE(id.is_valid()); //test if the Identifier object id is valid
-  ASSERT_EQ(compact_num, 7); //Based on previous number setting, the compact number should equal to 15. Test it here
+  ASSERT_EQ(compact_num, 7u); //Based on previous number setting, the compact number should equal to 15. Test it here
 }
 
 TEST_F( LArG4SimpleSDtest, getTimeBin )
