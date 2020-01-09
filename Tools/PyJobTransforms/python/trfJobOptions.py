@@ -1,7 +1,7 @@
 from __future__ import print_function
 from future.utils import iteritems
 from builtins import object
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.trfJobOptions
 #
@@ -149,7 +149,7 @@ class JobOptionsTemplate(object):
                     print(os.linesep.join(('try:',
                                                           '    {0}.{1!s} = {2!s}'.format(self._runArgsName, k, v),
                                                           'except AttributeError:',
-                                                          '    print "WARNING - AttributeError for {0}"'.format(k))), file=runargsFile)
+                                                          '    printfunc ("WARNING - AttributeError for {0}")'.format(k))), file=runargsFile)
     
                 ## @note Now write the literals into the runargs file
                 if self._exe._literalRunargs is not None:
