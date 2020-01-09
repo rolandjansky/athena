@@ -7,6 +7,7 @@ from BTagging.JetBTaggerAlgConfig import JetBTaggerAlgCfg
 from BTagging.JetParticleAssociationAlgConfig import JetParticleAssociationAlgCfg
 from BTagging.JetBTaggingAlgConfig import JetBTaggingAlgCfg
 from BTagging.JetSecVertexingAlgConfig import JetSecVertexingAlgCfg
+from BTagging.JetSecVtxFindingAlgConfig import JetSecVtxFindingAlgCfg
 
 def JetTagCalibCfg(ConfigFlags, scheme="", TaggerList = []):
     result=ComponentAccumulator()
@@ -199,6 +200,10 @@ def BTagCfg(inputFlags,**kwargs):
             #result.merge(JetParticleAssociationAlgCfg(inputFlags, jet, "InDetTrackParticles", jet+'Jets.BTagTrackToJetAssociator', **kwargs))
             result.merge(JetParticleAssociationAlgCfg(inputFlags, jet, "InDetTrackParticles", jet+'Jets.BTagTrackToJetAssociatorBB', **kwargs))
             del kwargs['Release']
+
+            #Sec vertex finding
+            result.merge(JetSecVtxFindingAlgCfg(inputFlags, jet, "InDetTrackParticles", 'SV1', jet+'Jets.BTagTrackToJetAssociator'))
+            result.merge(JetSecVtxFindingAlgCfg(inputFlags, jet, "InDetTrackParticles", 'JetFitter', jet+'Jets.BTagTrackToJetAssociator'))
 
             #Sec vertexing
             result.merge(JetSecVertexingAlgCfg(inputFlags, jet, "InDetTrackParticles", 'JetFitter', jet+'Jets.BTagTrackToJetAssociator', jet+'Jets.JetFitterJFVtx'))

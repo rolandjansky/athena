@@ -1,10 +1,8 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from BTagging.BTaggingFlags import BTaggingFlags
-from BTagging.NewJetFitterVxFinderConfig import NewJetFitterVxFinderCfg
-from BTagging.InDetVKalVxInJetToolConfig import InDetVKalVxInJetToolCfg
 from JetTagTools.JetFitterVariablesFactoryConfig import JetFitterVariablesFactoryCfg
 from BTagging.MSVVariablesFactoryConfig import MSVVariablesFactoryCfg
 
@@ -26,13 +24,10 @@ def JetSecVertexingAlgCfg(ConfigFlags, JetCollection, ParticleCollection="", SVF
 
     if SVFinder == 'JetFitter':
         OutputFilesname = "JFVtx"
-        secVtxFinder = acc.popToolsAndMerge(NewJetFitterVxFinderCfg(ConfigFlags, 'JFVxFinder'))
     elif SVFinder == 'SV1':
         OutputFilesname = "SecVtx"
-        secVtxFinder = acc.popToolsAndMerge(InDetVKalVxInJetToolCfg("IDVKalVxInJet"))
     elif SVFinder == 'MSV':
         OutputFilesname = "MSV"
-        secVtxFinder = acc.popToolsAndMerge(InDetVKalVxInJetToolCfg("IDVKalMultiVxInJet", MSV = True))
     else:
         return acc
 
@@ -42,11 +37,11 @@ def JetSecVertexingAlgCfg(ConfigFlags, JetCollection, ParticleCollection="", SVF
 
     btagname = ConfigFlags.BTagging.OutputFiles.Prefix + jetcol
     options = {}
-    options.setdefault('SecVtxFinder', secVtxFinder)
     options.setdefault('SecVtxFinderxAODBaseName', secVtxFinderxAODBaseName)
     options.setdefault('PrimaryVertexName', BTaggingFlags.PrimaryVertexCollectionName)
     options.setdefault('vxPrimaryCollectionName', BTaggingFlags.PrimaryVertexCollectionName)
     options['JetCollectionName'] = jetcol.replace('Track', 'PV0Track') + 'Jets'
+    options['BTagVxSecVertexInfoName'] = SVFinder + 'VxSecVertexInfo'
     options['TrackToJetAssociatorName'] = Associator
     options['BTagJFVtxCollectionName'] = btagname + OutputFilesname
     options['BTagSVCollectionName'] = btagname + OutputFilesname
@@ -54,6 +49,7 @@ def JetSecVertexingAlgCfg(ConfigFlags, JetCollection, ParticleCollection="", SVF
     options.setdefault('JetFitterVariableFactory', jetFitterVF)
     options.setdefault('MSVVariableFactory', varFactory)
     options['name'] = (jetcol + '_' + SVFinder + '_secvtx').lower()
+    #options['OutputLevel'] = 1
 
     # -- create the association algorithm
     acc.addEventAlgo(Analysis__JetSecVertexingAlg(**options))
