@@ -44,7 +44,7 @@ then
     ArtJobName=$2
     echo ArtJobName
     echo $ArtJobName
-    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
+    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=semi-detailed
     rc2=$?
 
     # Histogram comparison with DCube
