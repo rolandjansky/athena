@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopConfiguration/ConfigurationSettings.h"
@@ -318,6 +318,8 @@ namespace top {
     registerParameter("IsAFII", "Define if you are running over a fastsim sample: True or False", " ");
     registerParameter("FilterBranches",
                       "Comma separated list of names of the branches that will be removed from the output", " ");
+    registerParameter("FilterTrees",
+                      "Comma separated list of names of the trees that will be removed from the output", " ");
 
     registerParameter("FakesMMWeightsIFF",
                       "Calculate matrix-method weights for fake leptons estimate using FakeBkgTools from IFF: True (calculate weights), False (does nothing)",

@@ -448,7 +448,8 @@ namespace top {
       if (s.name() == "") {
         continue;
       }
-
+      
+      if(!m_config->getTreeFilter()->filterTree(s.name())) continue; // Applying tree filter
       m_recommendedSystematics.push_back(s);
 
       ///-- MC only --///

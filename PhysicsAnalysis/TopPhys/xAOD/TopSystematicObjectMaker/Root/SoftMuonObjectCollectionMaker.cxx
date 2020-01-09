@@ -178,6 +178,8 @@ namespace top {
       m_calibrationPeriodTool->recommendedSystematics());
 
     for (const CP::SystematicSet& s : systList) {
+      
+      if(!m_config->getTreeFilter()->filterTree(s.name())) continue; // Applying tree filter
       m_recommendedSystematics.push_back(s);
       if (s.name() == "") {
         m_specifiedSystematics.push_back(s);

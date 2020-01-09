@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopConfiguration/TopConfig.h"
@@ -614,6 +614,8 @@ namespace top {
     // Nominal has value
     CP::SystematicSet nominal;
     m_nominalHashValue = nominal.hash();
+    
+    m_treeFilter = std::make_shared<TreeFilter>();
   }
 
   void TopConfig::setConfigSettings(top::ConfigurationSettings* const& settings) {
@@ -630,6 +632,9 @@ namespace top {
 
     // Set TDP file name
     this->setTDPPath(settings->value("TDPPath"));
+
+    m_treeFilter->init(settings->value("FilterTrees"));
+
 
     //we need storegate keys so people can pick different collections / met / jets etc.
     this->sgKeyPhotons(settings->value("PhotonCollectionName"));
@@ -1892,7 +1897,7 @@ namespace top {
 
   void TopConfig::systematicsFwdElectrons(const std::list<CP::SystematicSet>& syst) {
     if (!m_configFixed) {
-      for (const auto& s : syst) {
+      for (const auto& s : syst) {	
         m_systHashFwdElectrons->insert(s.hash());
         m_list_systHashAll->push_back(s.hash());
         m_systMapFwdElectrons->insert(std::make_pair(s.hash(), s));
@@ -1905,7 +1910,7 @@ namespace top {
 
   void TopConfig::systematicsMuons(const std::list<CP::SystematicSet>& syst) {
     if (!m_configFixed) {
-      for (auto s : syst) {
+      for (auto s : syst) {	
         m_systHashMuons->insert(s.hash());
         m_list_systHashAll->push_back(s.hash());
         m_systMapMuons->insert(std::make_pair(s.hash(), s));
@@ -1918,7 +1923,7 @@ namespace top {
 
   void TopConfig::systematicsSoftMuons(const std::list<CP::SystematicSet>& syst) {
     if (!m_configFixed) {
-      for (const CP::SystematicSet& s : syst) {
+      for (const CP::SystematicSet& s : syst) {	
         m_systHashSoftMuons->insert(s.hash());
         m_list_systHashAll->push_back(s.hash());
         m_systMapSoftMuons->insert(std::make_pair(s.hash(), s));
@@ -1931,7 +1936,7 @@ namespace top {
 
   void TopConfig::systematicsTaus(const std::list<CP::SystematicSet>& syst) {
     if (!m_configFixed) {
-      for (auto s : syst) {
+      for (auto s : syst) {	
         m_systHashTaus->insert(s.hash());
         m_list_systHashAll->push_back(s.hash());
         m_systMapTaus->insert(std::make_pair(s.hash(), s));
@@ -1944,7 +1949,7 @@ namespace top {
 
   void TopConfig::systematicsJets(const std::list<CP::SystematicSet>& syst) {
     if (!m_configFixed) {
-      for (auto s : syst) {
+      for (auto s : syst) {	
         m_systHashJets->insert(s.hash());
         m_list_systHashAll->push_back(s.hash());
         m_list_systHash_electronInJetSubtraction->push_back(s.hash());
@@ -1960,7 +1965,7 @@ namespace top {
 
   void TopConfig::systematicsLargeRJets(const std::list<CP::SystematicSet>& syst) {
     if (!m_configFixed) {
-      for (auto s : syst) {
+      for (auto s : syst) {	
         m_systHashLargeRJets->insert(s.hash());
         m_list_systHashAll->push_back(s.hash());
         m_systMapLargeRJets->insert(std::make_pair(s.hash(), s));
@@ -1974,7 +1979,7 @@ namespace top {
   void TopConfig::systematicsTrackJets(const std::list<CP::SystematicSet>& syst) {
     if (!m_configFixed) {
       for (auto s : syst) {
-        m_systHashTrackJets->insert(s.hash());
+	m_systHashTrackJets->insert(s.hash());
         m_list_systHashAll->push_back(s.hash());
         m_systMapTrackJets->insert(std::make_pair(s.hash(), s));
         m_systSgKeyMapTrackJets->insert(std::make_pair(s.hash(), m_sgKeyTrackJets + "_" + s.name()));
@@ -1986,7 +1991,7 @@ namespace top {
 
   void TopConfig::systematicsMET(const std::list<CP::SystematicSet>& syst) {
     if (!m_configFixed) {
-      for (auto s : syst) {
+      for (auto s : syst) {	
         m_systHashMET->insert(s.hash());
         m_list_systHashAll->push_back(s.hash());
         m_systMapMET->insert(std::make_pair(s.hash(), s));
@@ -2004,7 +2009,7 @@ namespace top {
       (*m_systDecoKeyMapJetGhostTrack)[m_nominalHashValue] = m_decoKeyJetGhostTrack + "_";
       m_jetGhostTrackSystematics.push_back("");
 
-      for (auto s : syst) {
+      for (auto s : syst) {	
         (*m_systMapJetGhostTrack)[s.hash()] = s;
         (*m_systDecoKeyMapJetGhostTrack)[s.hash()] = m_decoKeyJetGhostTrack + "_" + s.name();
         m_list_systHashAll->push_back(s.hash());
