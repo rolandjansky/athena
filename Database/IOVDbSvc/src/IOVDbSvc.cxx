@@ -9,17 +9,16 @@
 
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/StoreClearedIncident.h"
-#include "GaudiKernel/IAddressCreator.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Guards.h"
 #include "AthenaKernel/IOVRange.h"
 #include "IOVDbDataModel/IOVMetaDataContainer.h"
-#include "IOVDbMetaDataTools/IIOVDbMetaDataTool.h"
-#include "PoolSvc/IPoolSvc.h"
+#include "AthenaKernel/IAddressProvider.h"
+
 #include "FileCatalog/IFileCatalog.h"
 
-#include "EventInfoMgt/ITagInfoMgr.h"
+
 #include "EventInfo/TagInfo.h"
 #include "EventInfoUtils/EventIDFromStore.h"
 
@@ -53,63 +52,6 @@ namespace {
 
 } // anonymous namespace
 
-
-IOVDbSvc::IOVDbSvc( const std::string& name, ISvcLocator* svc )
-  : AthService( name, svc ),
-    m_par_defaultConnection("sqlite://;schema=cooldummy.db;dbname=OFLP200"),
-    m_par_globalTag(""),m_par_dbinst(""),
-    m_par_manageConnections(true),
-    m_par_managePoolConnections(true),
-    m_par_forceRunNumber(0),            // default no global force run number
-    m_par_forceLumiblockNumber(0),      // Default no global force LB
-    m_par_maxNumPoolFiles(5),           // Default=0 means no limit
-    m_par_timeStampSlop(0.0),           // default of 0 seconds
-    m_par_cacheRun(0),
-    m_par_cacheTime(0),
-    m_par_cacheAlign(0),
-    m_par_onlineMode(false),
-    m_par_checklock(false),
-    m_par_source("COOL_DATABASE"),
-    m_par_format(""), //default format for the source is empty
-    m_h_IOVSvc     ("IOVSvc", name),
-    m_h_sgSvc      ("StoreGateSvc", name),
-    m_h_detStore   ("DetectorStore", name),
-    m_h_metaDataStore ("StoreGateSvc/MetaDataStore", name), 
-    m_h_persSvc    ("EventPersistencySvc", name),
-    m_h_clidSvc    ("ClassIDSvc", name),
-    m_h_poolSvc    ("PoolSvc", name),
-    m_h_metaDataTool("IOVDbMetaDataTool"),
-    m_h_tagInfoMgr("TagInfoMgr", name),
-    m_poolPayloadRequested(false),
-    m_poolSvcContext(0),
-    m_state (INITIALIZATION),
-    m_globalTag(""),
-    m_iovslop(),
-    m_abort(false)
-{
-  // declare all properties
-  declareProperty("dbConnection",          m_par_defaultConnection);
-  declareProperty("GlobalTag",             m_par_globalTag );
-  declareProperty("DBInstance",            m_par_dbinst);
-  declareProperty("Folders",               m_par_folders );
-  declareProperty("overrideTags",          m_par_overrideTags);
-  declareProperty("forceRunNumber",        m_par_forceRunNumber );
-  declareProperty("forceLumiblockNumber",  m_par_forceLumiblockNumber);
-  declareProperty("forceTimestamp",        m_par_forceTimestamp);
-  declareProperty("ManageConnections",     m_par_manageConnections );
-  declareProperty("ManagePoolConnections", m_par_managePoolConnections );
-  declareProperty("FoldersToMetaData",     m_par_foldersToWrite );
-  declareProperty("MaxPoolFilesOpen",      m_par_maxNumPoolFiles );      // maximum number of pools files allowed to be open at once
-  declareProperty("TimeStampSlop",         m_par_timeStampSlop);
-  declareProperty("CacheRun",              m_par_cacheRun);
-  declareProperty("CacheTime",             m_par_cacheTime);
-  declareProperty("CacheAlign",            m_par_cacheAlign);
-  declareProperty("OnlineMode",            m_par_onlineMode);
-  declareProperty("CheckLock",             m_par_checklock);
-  declareProperty("Source",                m_par_source);
-  declareProperty("Format",                m_par_format);
-  declareProperty("OutputToFile",          m_outputToFile);
-}
 
 IOVDbSvc::~IOVDbSvc() {}
 
@@ -187,7 +129,7 @@ StatusCode IOVDbSvc::initialize() {
   // initialise default connection
   if (m_par_defaultConnection!="") {
     // default connection is readonly if no : in name (i.e. logical conn)
-    bool readonly=(m_par_defaultConnection.find(':')==std::string::npos);
+    bool readonly=(m_par_defaultConnection.value().find(':')==std::string::npos);
     m_connections.push_back(new IOVDbConn(m_par_defaultConnection,readonly,msg()));
   }
 
@@ -207,7 +149,7 @@ StatusCode IOVDbSvc::initialize() {
   m_state=IOVDbSvc::INITIALIZATION;
   ATH_MSG_INFO( "Initialised with " << m_connections.size() << 
     " connections and " << m_foldermap.size() << " folders" );
-  if (m_outputToFile) ATH_MSG_INFO("Db dump to file activated");
+  if (m_outputToFile.value()) ATH_MSG_INFO("Db dump to file activated");
   ATH_MSG_INFO( "Service IOVDbSvc initialised successfully" );
   return StatusCode::SUCCESS;
 }
@@ -896,7 +838,7 @@ StatusCode IOVDbSvc::setupFolders() {
 
   //1. Loop through folders
   std::list<IOVDbParser> allFolderdata;
-  for (const auto & thisFolder : m_par_folders) {
+  for (const auto & thisFolder : m_par_folders.value()) {
     ATH_MSG_DEBUG( "Setup folder " << thisFolder );
     IOVDbParser folderdata(thisFolder,msg());
     if (!folderdata.isValid()) return StatusCode::FAILURE;
@@ -986,7 +928,7 @@ StatusCode IOVDbSvc::setupFolders() {
     // create the new folder, but only if a folder for this SG key has not
     // already been requested
     IOVDbFolder* folder=new IOVDbFolder(conn,folderdata,msg(),&(*m_h_clidSvc),
-                                        m_par_checklock, m_outputToFile, m_par_source);
+                                        m_par_checklock, m_outputToFile.value(), m_par_source);
     const std::string& key=folder->key();
     if (m_foldermap.find(key)==m_foldermap.end()) {  //This check is too weak. For POOL-based folders, the SG key is in the folder description (not known at this point).
       m_foldermap[key]=folder;
