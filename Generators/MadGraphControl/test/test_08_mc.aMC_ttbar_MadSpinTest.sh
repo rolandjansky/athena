@@ -7,6 +7,6 @@
 
 set -e
  
-Gen_tf.py --ecmEnergy=13000. --maxEvents=-1 --runNumber=421408 --firstEvent=1 --randomSeed=123456 --outputTXTFile=test_lhe_events --jobConfig=421408
+Gen_tf.py --ecmEnergy=13000. --maxEvents=-1 --firstEvent=1 --randomSeed=123456 --outputTXTFile=test_lhe_events --jobConfig=421408
 
 echo "art-result: $?"
