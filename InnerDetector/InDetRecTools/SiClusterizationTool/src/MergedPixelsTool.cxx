@@ -680,9 +680,6 @@ namespace InDet {
 
     InDetRawDataCollection<PixelRDORawData>::const_iterator RD = collection.begin(), RDE = collection.end();
     
-    std::vector < Identifier > ids = {};
-    std::vector < int > lvl1s = {};
-
     for(; RD!=RDE; ++RD) {
       
       Identifier rdoID= (*RD)->identify();
