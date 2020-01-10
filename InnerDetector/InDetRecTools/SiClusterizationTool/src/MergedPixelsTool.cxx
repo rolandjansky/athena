@@ -93,10 +93,9 @@ namespace InDet {
     if (m_doFastClustering) return clusterizeFast(collection, pixelID);    
     
     // Get the messaging service, print where you are
-
-    Identifier elementID = collection.identify();
     
-    // Get hash Identifier for these RDOs
+    // Get Identifier and IdentifierHash for these RDOs
+    Identifier elementID = collection.identify();
     IdentifierHash idHash = collection.identifyHash();
     
     // Size of RDO's collection:
@@ -143,7 +142,7 @@ namespace InDet {
     TOT_GroupVector lvl1Groups;
     lvl1Groups.reserve(RDO_size);
     
-    // loop on all RDOs
+   // loop on all RDOs
     for(RDO_Collection::const_iterator nextRDO=collection.begin() ; 
         nextRDO!=collection.end() ; ++nextRDO) {
       Identifier rdoID= (*nextRDO)->identify();
@@ -341,7 +340,7 @@ namespace InDet {
       *lvl1group=0;
       lvl1group++;
     }
-    
+
     return clusterCollection;
   }
 
@@ -680,43 +679,34 @@ namespace InDet {
     std::vector<network> connections;
 
     InDetRawDataCollection<PixelRDORawData>::const_iterator RD = collection.begin(), RDE = collection.end();
+    
+    std::vector < Identifier > ids = {};
+    std::vector < int > lvl1s = {};
 
     for(; RD!=RDE; ++RD) {
-
+      
       Identifier rdoID= (*RD)->identify();
       if (m_usePixelMap and !(m_summaryTool->isGood(idHash,rdoID))) continue;
           
-      int tot = (*RD)->getToT  ();
-      int lvl1= (*RD)->getLVL1A();
+      int lvl1= (*RD)->getLVL1A();      
+      if (checkDuplication(pixelID, rdoID, lvl1, collectionID)) continue;
       
-      rowcolID   RCI; network    NET;    
-          
-      RCI.NCL = -1                      ;
-      RCI.ROW = pixelID.phi_index(rdoID);
-      RCI.COL = pixelID.eta_index(rdoID);
-      RCI.TOT = tot;
-      RCI.LVL1 = lvl1;
-      RCI.ID  = rdoID;
-      NET.NC  = 0;
+      int tot = (*RD)->getToT();
+      
+      rowcolID   RCI(-1, pixelID.phi_index(rdoID), pixelID.eta_index(rdoID), tot, lvl1, rdoID); 
+      network    NET;
       collectionID.push_back(RCI);
       connections .push_back(NET);
       
       // check if this is a ganged pixel    
       Identifier gangedID;
       bool ganged = isGanged(rdoID, element, gangedID);  
-            
+      
       if (not ganged) continue;
           
       // if it is a ganged pixel, add its ganged RDO id to the collections
-      rowcolID   RCI_ganged; network    NET_ganged;    
-          
-      RCI_ganged.NCL = -1                      ;
-      RCI_ganged.ROW = pixelID.phi_index(gangedID);
-      RCI_ganged.COL = pixelID.eta_index(gangedID);
-      RCI_ganged.TOT = tot;
-      RCI_ganged.LVL1 = lvl1;
-      RCI_ganged.ID  = gangedID;
-      NET_ganged.NC  = 0;  
+      rowcolID   RCI_ganged(-1, pixelID.phi_index(gangedID), pixelID.eta_index(gangedID), tot, lvl1, gangedID);
+      network    NET_ganged;
       collectionID.push_back(RCI_ganged);
       connections .push_back(NET_ganged);
       
@@ -725,7 +715,7 @@ namespace InDet {
     // Sort pixels in ascending columns order
     // 
     if(collectionID.empty()) return 0; 
-    if(collectionID.size() > 1) std::sort(collectionID.begin(),collectionID.end(),pixel_less());
+    if(collectionID.size() > 1) std::sort(collectionID.begin(),collectionID.end(),pixel_less);
 
     // Network production
     //
@@ -734,17 +724,18 @@ namespace InDet {
     for(; r!=re-1; ++r) {
 
       int NB  = 0;
-      int row = collectionID[r].ROW  ;
-      int col = collectionID[r].COL+1; 
+      int row = collectionID.at(r).ROW  ;
+      int col = collectionID.at(r).COL+1; 
 
       for(int rn = r+1; rn!=re; ++rn) {
-        int dc = collectionID[rn].COL - col;
+                
+        int dc = collectionID.at(rn).COL - col;
         
         if( dc > 0) break;
         
-        if( fabs(collectionID[rn].ROW-row)+dc == 0 ) {
-          connections[ r].CON[connections[r ].NC++] = rn;
-          connections[rn].CON[connections[rn].NC++] = r ;
+        if( fabs(collectionID.at(rn).ROW-row)+dc == 0 ) {
+          connections.at(r).CON.at(connections.at(r).NC++) = rn;
+          connections.at(rn).CON.at(connections.at(rn).NC++) = r ;
           if(++NB==2) break;
         }
       }
@@ -754,8 +745,8 @@ namespace InDet {
     //
     int Ncluster = 0;
     for(r=0; r!=re; ++r) {
-      if(collectionID[r].NCL < 0) {
-        collectionID[r].NCL = Ncluster;
+      if(collectionID.at(r).NCL < 0) {
+        collectionID.at(r).NCL = Ncluster;
         addClusterNumber(r,Ncluster,connections,collectionID);
         ++Ncluster;
       }
@@ -765,14 +756,14 @@ namespace InDet {
     //
     if(--re > 1) {
       for(int i(1); i<re; ++i ) {
-        rowcolID U  = collectionID[i+1];
+        rowcolID U  = collectionID.at(i+1);
         
         int j(i);
-        while(collectionID[j].NCL > U.NCL) {
-          collectionID[j+1]=collectionID[j]; 
+        while(collectionID.at(j).NCL > U.NCL) {
+          collectionID.at(j+1)=collectionID.at(j); 
           --j;
         }
-        collectionID[j+1]=U;
+        collectionID.at(j+1)=U;
       }
     }
 
@@ -786,9 +777,9 @@ namespace InDet {
     std::vector<int> Totg;
     std::vector<int> Lvl1;
     
-    DVid.push_back(collectionID[0].ID );
-    Totg.push_back(collectionID[0].TOT);
-    Lvl1.push_back(collectionID[0].LVL1);
+    DVid.push_back(collectionID.at(0).ID );
+    Totg.push_back(collectionID.at(0).TOT);
+    Lvl1.push_back(collectionID.at(0).LVL1);
    
     int clusterNumber = 0;
     int NCL0          = 0;
@@ -796,10 +787,10 @@ namespace InDet {
     ++re;    
     for(int i=1; i<=re; ++i) {
 
-      if(i!=re and collectionID[i].NCL==NCL0) {
-        DVid.push_back(collectionID[i].ID );
-        Totg.push_back(collectionID[i].TOT);
-        Lvl1.push_back(collectionID[i].LVL1);
+      if(i!=re and collectionID.at(i).NCL==NCL0) {
+        DVid.push_back(collectionID.at(i).ID );
+        Totg.push_back(collectionID.at(i).TOT);
+        Lvl1.push_back(collectionID.at(i).LVL1);
       
       } else {
         
@@ -849,14 +840,14 @@ namespace InDet {
         
         // Preparation for next cluster
         if (i!=re) {
-          NCL0   = collectionID[i].NCL                     ;
-          DVid.clear(); DVid.push_back(collectionID[i].ID );
-          Totg.clear(); Totg.push_back(collectionID[i].TOT);
-          Lvl1.clear(); Lvl1.push_back(collectionID[i].LVL1);
+          NCL0   = collectionID.at(i).NCL                     ;
+          DVid.clear(); DVid.push_back(collectionID.at(i).ID );
+          Totg.clear(); Totg.push_back(collectionID.at(i).TOT);
+          Lvl1.clear(); Lvl1.push_back(collectionID.at(i).LVL1);
         }
       }
     }
-    
+
     return clusterCollection;
   }
 
@@ -866,13 +857,13 @@ namespace InDet {
   
   void MergedPixelsTool::addClusterNumber(int r, 
                                           int Ncluster,
-                                          std::vector<network> connections,                                         
+                                          std::vector<network>& connections,                                         
                                           std::vector<rowcolID>& collectionID) const {
                                             
-      for(int i=0; i!=connections[r].NC; ++i) {      
-        int k = connections[r].CON[i];
-        if(collectionID[k].NCL < 0) {
-          collectionID[k].NCL = Ncluster;
+      for(int i=0; i!=connections.at(r).NC; ++i) {      
+        int k = connections.at(r).CON.at(i);
+        if(collectionID.at(k).NCL < 0) {
+          collectionID.at(k).NCL = Ncluster;
           addClusterNumber(k, Ncluster, connections, collectionID);
         }
       }
@@ -1085,6 +1076,31 @@ namespace InDet {
     }
     
     return StatusCode::SUCCESS;
+  }
+  
+  
+  bool MergedPixelsTool::checkDuplication(const PixelID& pixelID,
+                                          Identifier rdoID, 
+                                          int lvl1, 
+                                          std::vector<rowcolID>& collectionID) const {
+    
+    int row2 = pixelID.phi_index(rdoID);
+    int col2 = pixelID.eta_index(rdoID);
+    bool duplicate = false;
+    for (auto& collID : collectionID) {
+      Identifier id = collID.ID;
+      int row1 = pixelID.phi_index(id);
+      int col1 = pixelID.eta_index(id);
+ 
+      // duplicate
+      if(row1 == row2 && col1 == col2){
+        duplicate = true;
+        
+      if( collID.LVL1 < lvl1 ) 
+        collID.LVL1 = lvl1;
+      }
+    }
+    return duplicate;
   }
 }
 //----------------------------------------------------------------------------

@@ -42,6 +42,12 @@ namespace InDet {
   
   class rowcolID {
   public:
+    
+    rowcolID(int ncl, int row, int col, int tot, int lvl1, Identifier id):
+      NCL(ncl), ROW(row), COL(col), TOT(tot), LVL1(lvl1), ID(id) {};
+      
+    ~rowcolID() {};      
+    
     int        NCL;
     int        ROW;
     int        COL;
@@ -52,19 +58,21 @@ namespace InDet {
 
   class network {
   public:
-    int        NC;
-    int    CON[4];
-    int   LVL1MIN;
+    network():
+      NC(0), CON({0,0,0,0}) {};
+      
+    ~network() {};
+
+    int               NC;
+    std::array<int,4> CON;
   };
   
-  class pixel_less {
-  public:
-    bool operator() (rowcolID& id1,rowcolID& id2) {
-      if(id1.COL == id2.COL) 
-        return id1.ROW < id2.ROW;
-      return id1.COL < id2.COL;
-    }
+  auto pixel_less = [] (rowcolID const&  id1,rowcolID const& id2) -> bool {
+    if(id1.COL == id2.COL) 
+      return id1.ROW < id2.ROW;
+    return id1.COL < id2.COL;
   };
+  
   
   class PixelCluster;
   class IPixelClusterSplitter;
@@ -166,7 +174,12 @@ namespace InDet {
                                           
     void addClusterNumber(int r, 
                           int Ncluster,
-                          std::vector<network> connections,    
+                          std::vector<network>& connections,    
+                          std::vector<rowcolID>& collectionID) const;
+                          
+    bool checkDuplication(const PixelID& pixelID,
+                          Identifier rodId, 
+                          int lvl1, 
                           std::vector<rowcolID>& collectionID) const;
                        
 
