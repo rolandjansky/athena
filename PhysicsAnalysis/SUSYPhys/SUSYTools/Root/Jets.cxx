@@ -107,7 +107,7 @@ namespace ST {
     // Update the jets
     for (const auto& jet : *copy) {
       // Note that for PHYSLITE jets we don't need the nominal calibration
-      ATH_CHECK( this->FillJet(*jet, jetkey!="AnalysisJets_NOSYS") );
+      ATH_CHECK( this->FillJet(*jet, jetkey!="AnalysisJets") );
     }
     // Tool requires a loop over all jets
     if (m_doFwdJVT || m_treatPUJets){
@@ -309,10 +309,10 @@ namespace ST {
     ATH_MSG_VERBOSE("Run muon-to-jet ghost association");
     const xAOD::MuonContainer* muons(0);
     // Do a little guessing
-    if (jetkey!="AnalysisJets_NOSYS"){
+    if (jetkey!="AnalysisJets"){
       ATH_CHECK( evtStore()->retrieve(muons, "Muons") );
     } else {
-      ATH_CHECK( evtStore()->retrieve(muons, "AnalysisMuons_NOSYS") );
+      ATH_CHECK( evtStore()->retrieve(muons, "AnalysisMuons") );
     }
     met::addGhostMuonsToJets(*muons, *copy);
 

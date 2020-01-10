@@ -350,7 +350,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
 
   /// SETUP TRIGGERS TO BE CHECKED
   std::vector<std::string> el_triggers {"HLT_e24_lhmedium_L1EM20VH","HLT_e60_lhmedium","HLT_e120_lhloose", "HLT_e26_lhtight_nod0_ivarloose", "HLT_e60_lhmedium_nod0", "HLT_e140_lhloose_nod0"};
-  std::vector<std::string> mu_triggers {"HLT_mu20_iloose_L1MU15","HLT_mu50","HLT_mu18","HLT_mu8noL1","HLT_mu18_mu8noL1"};
+  std::vector<std::string> mu_triggers {"HLT_mu20_iloose_L1MU15","HLT_mu50","HLT_mu8noL1","HLT_mu18_mu8noL1"};
   std::vector<std::string> ph_triggers {"HLT_g120_loose"};
   std::vector<std::string> tau_triggers {"HLT_tau25_medium1_tracktwo", "HLT_tau35_medium1_tracktwo"};
   std::vector<std::string> emu_triggers {"HLT_2e12_lhloose_mu10", "HLT_e12_lhloose_2mu10", "HLT_e17_lhloose_mu14", "HLT_e7_lhmedium_mu24", "HLT_e17_lhloose_nod0_mu14", "HLT_e7_lhmedium_nod0_mu24", "HLT_e12_lhloose_nod0_2mu10", "HLT_2e12_lhloose_nod0_mu10"};
@@ -543,7 +543,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
     xAOD::ElectronContainer* electrons_nominal(0);
     xAOD::ShallowAuxContainer* electrons_nominal_aux(0);
     //if( !xStream.Contains("SUSY8") ) //SMP derivation, no electrons, no photons // Martin : TBC
-    ANA_CHECK( objTool.GetElectrons(electrons_nominal, electrons_nominal_aux, true, xStream=="PHYSLITE"?"AnalysisElectrons_NOSYS":"Electrons") );
+    ANA_CHECK( objTool.GetElectrons(electrons_nominal, electrons_nominal_aux, true, xStream=="PHYSLITE"?"AnalysisElectrons":"Electrons") );
 
     for (const auto& electron : *electrons_nominal){
       if (debug && entry<10){
@@ -560,12 +560,12 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
     xAOD::PhotonContainer* photons_nominal(0);
     xAOD::ShallowAuxContainer* photons_nominal_aux(0);
     if( !xStream.Contains("SUSY12") )//&& !xStream.Contains("SUSY8") ) // Martin : TBC
-      ANA_CHECK( objTool.GetPhotons(photons_nominal,photons_nominal_aux, true, xStream=="PHYSLITE"?"AnalysisPhotons_NOSYS":"Photons") );
+      ANA_CHECK( objTool.GetPhotons(photons_nominal,photons_nominal_aux, true, xStream=="PHYSLITE"?"AnalysisPhotons":"Photons") );
 
     // Muons
     xAOD::MuonContainer* muons_nominal(0);
     xAOD::ShallowAuxContainer* muons_nominal_aux(0);
-    ANA_CHECK( objTool.GetMuons(muons_nominal, muons_nominal_aux, true, xStream=="PHYSLITE"?"AnalysisMuons_NOSYS":"Muons") );
+    ANA_CHECK( objTool.GetMuons(muons_nominal, muons_nominal_aux, true, xStream=="PHYSLITE"?"AnalysisMuons":"Muons") );
 
     // HighPt muons (if required)
     for (const auto& muon : *muons_nominal){
@@ -583,7 +583,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
     // Jets
     xAOD::JetContainer* jets_nominal(0);
     xAOD::ShallowAuxContainer* jets_nominal_aux(0);
-    ANA_CHECK( objTool.GetJets(jets_nominal, jets_nominal_aux, true, xStream=="PHYSLITE"?"AnalysisJets_NOSYS":"") );
+    ANA_CHECK( objTool.GetJets(jets_nominal, jets_nominal_aux, true, xStream=="PHYSLITE"?"AnalysisJets":"") );
 
     // TrackJets
     xAOD::JetContainer* trkjets_nominal(0);
@@ -745,14 +745,14 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
         if (syst_affectsElectrons) {
           xAOD::ElectronContainer* electrons_syst(0);
           xAOD::ShallowAuxContainer* electrons_syst_aux(0);
-          ANA_CHECK( objTool.GetElectrons(electrons_syst, electrons_syst_aux, true, xStream=="PHYSLITE"?"AnalysisElectrons_NOSYS":"Electrons") );
+          ANA_CHECK( objTool.GetElectrons(electrons_syst, electrons_syst_aux, true, xStream=="PHYSLITE"?"AnalysisElectrons":"Electrons") );
           electrons = electrons_syst;
         }
 
         if (syst_affectsMuons) {
           xAOD::MuonContainer* muons_syst(0);
           xAOD::ShallowAuxContainer* muons_syst_aux(0);
-          ANA_CHECK( objTool.GetMuons(muons_syst, muons_syst_aux, true, xStream=="PHYSLITE"?"AnalysisMuons_NOSYS":"Muons") );
+          ANA_CHECK( objTool.GetMuons(muons_syst, muons_syst_aux, true, xStream=="PHYSLITE"?"AnalysisMuons":"Muons") );
           muons = muons_syst;
         }
 
@@ -768,14 +768,14 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
         if(syst_affectsPhotons) {
           xAOD::PhotonContainer* photons_syst(0);
           xAOD::ShallowAuxContainer* photons_syst_aux(0);
-          ANA_CHECK( objTool.GetPhotons(photons_syst,photons_syst_aux, true, xStream=="PHYSLITE"?"AnalysisPhotons_NOSYS":"Photons") );
+          ANA_CHECK( objTool.GetPhotons(photons_syst,photons_syst_aux, true, xStream=="PHYSLITE"?"AnalysisPhotons":"Photons") );
           photons = photons_syst;
         }
 
         if (syst_affectsJets) {
           xAOD::JetContainer* jets_syst(0);
           xAOD::ShallowAuxContainer* jets_syst_aux(0);
-          ANA_CHECK( objTool.GetJetsSyst(*jets_nominal, jets_syst, jets_syst_aux, true, xStream=="PHYSLITE"?"AnalysisJets_NOSYS":"") );
+          ANA_CHECK( objTool.GetJetsSyst(*jets_nominal, jets_syst, jets_syst_aux, true, xStream=="PHYSLITE"?"AnalysisJets":"") );
           jets = jets_syst;
         }
 
