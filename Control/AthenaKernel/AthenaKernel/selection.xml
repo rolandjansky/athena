@@ -10,6 +10,7 @@
    <class name="IAthenaSummarySvc"/>
    <class name="errorcheck::ReportMessage"/>
    <class name="ICutFlowSvc"/>
+   <class name="ISecondaryEventSelector"/>
 
    <class name="ITPCnvSvc" />
    <class name="ITPCnvBase" />
