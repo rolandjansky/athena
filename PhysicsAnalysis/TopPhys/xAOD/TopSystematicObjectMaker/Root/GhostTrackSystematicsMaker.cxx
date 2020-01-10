@@ -17,6 +17,7 @@
 
 #include "TopEvent/EventTools.h"
 #include "TopConfiguration/TopConfig.h"
+#include "TopConfiguration/TreeFilter.h"
 
 #include "InDetTrackSystematicsTools/InDetTrackSystematics.h"
 #include "InDetTrackSystematicsTools/InDetTrackSmearingTool.h"
@@ -462,7 +463,8 @@ namespace top {
           }
 
           for (const auto& i : specSys) {
-            if (i == s.name()) {
+            TreeFilter filter(i);
+	    if (!filter.filterTree(s.name())) {
               m_specifiedSystematics.push_back(s);
             }
           }

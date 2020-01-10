@@ -5,6 +5,7 @@
 // $Id: TauObjectCollectionMaker.cxx  $
 #include "TopSystematicObjectMaker/TauObjectCollectionMaker.h"
 #include "TopConfiguration/TopConfig.h"
+#include "TopConfiguration/TreeFilter.h"
 #include "TopEvent/EventTools.h"
 
 #include "xAODTau/TauJetContainer.h"
@@ -137,7 +138,8 @@ namespace top {
           }
           if (specifiedSystematics.size() > 0) {
             for (auto i : specifiedSystematics) {
-              if (i == s.name()) {
+              TreeFilter filter(i);
+              if (!filter.filterTree(s.name())) {
                 m_specifiedSystematics.push_back(s);
               }
             }
