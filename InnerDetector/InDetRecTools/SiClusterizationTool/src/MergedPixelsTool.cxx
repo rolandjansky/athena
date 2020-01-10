@@ -676,7 +676,6 @@ namespace InDet {
     }
     
     std::vector<rowcolID> collectionID;
-    std::vector<network> connections;
 
     InDetRawDataCollection<PixelRDORawData>::const_iterator RD = collection.begin(), RDE = collection.end();
     
@@ -691,9 +690,7 @@ namespace InDet {
       int tot = (*RD)->getToT();
       
       rowcolID   RCI(-1, pixelID.phi_index(rdoID), pixelID.eta_index(rdoID), tot, lvl1, rdoID); 
-      network    NET;
       collectionID.push_back(RCI);
-      connections .push_back(NET);
       
       // check if this is a ganged pixel    
       Identifier gangedID;
@@ -703,16 +700,16 @@ namespace InDet {
           
       // if it is a ganged pixel, add its ganged RDO id to the collections
       rowcolID   RCI_ganged(-1, pixelID.phi_index(gangedID), pixelID.eta_index(gangedID), tot, lvl1, gangedID);
-      network    NET_ganged;
-      collectionID.push_back(RCI_ganged);
-      connections .push_back(NET_ganged);
-      
+      collectionID.push_back(RCI_ganged);      
     }
-
+    
     // Sort pixels in ascending columns order
     // 
-    if(collectionID.empty()) return 0; 
+    if(collectionID.empty()) return 0;    
     if(collectionID.size() > 1) std::sort(collectionID.begin(),collectionID.end(),pixel_less);
+    
+    // initialize the networks
+    std::vector<network> connections(collectionID.size());
 
     // Network production
     //
@@ -1092,12 +1089,13 @@ namespace InDet {
       // duplicate
       if(row1 == row2 && col1 == col2){
         duplicate = true;
-        
-      if( collID.LVL1 < lvl1 ) 
-        collID.LVL1 = lvl1;
+        if( collID.LVL1 < lvl1 ) 
+          collID.LVL1 = lvl1;
+        break;
       }
     }
     return duplicate;
   }
+  
 }
 //----------------------------------------------------------------------------
