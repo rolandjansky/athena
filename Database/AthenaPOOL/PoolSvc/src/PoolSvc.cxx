@@ -965,31 +965,7 @@ pool::IFileCatalog* PoolSvc::createCatalog() {
    }
    return(ctlg);
 }
-//__________________________________________________________________________
-PoolSvc::PoolSvc(const std::string& name, ISvcLocator* pSvcLocator) :
-        ::AthService(name, pSvcLocator),
-	m_context(nullptr),
-	m_catalog(nullptr),
-	m_persistencySvcVec(),
-	m_pers_mut(),
-	m_contextLabel(),
-	m_mainOutputLabel(),
-	m_contextMaxFile(),
-	m_guidLists() {
-   declareProperty("WriteCatalog", m_writeCatalog = "xmlcatalog_file:PoolFileCatalog.xml");
-   declareProperty("ReadCatalog", m_readCatalog);
-   declareProperty("UseROOTImplicitMT", m_useROOTIMT = true);
-   declareProperty("AttemptCatalogPatch", m_attemptCatalogPatch = true);
-   declareProperty("ConnectionRetrialPeriod", m_retrialPeriod = 300);
-   declareProperty("ConnectionRetrialTimeOut", m_retrialTimeOut = 3600);
-   declareProperty("ConnectionTimeOut", m_timeOut = 5);
-   declareProperty("ConnectionCleanUp", m_connClean = false);
-   declareProperty("FrontierCompression", m_frontierComp = 5);
-   declareProperty("FrontierRefreshSchema", m_frontierRefresh);
-   declareProperty("FileOpen", m_fileOpen = "overwrite");
-   declareProperty("MaxFilesOpen", m_dbAgeLimit = 0);
-   declareProperty("SortReplicas", m_sortReplicas = true);
-}
+
 //__________________________________________________________________________
 PoolSvc::~PoolSvc() {
 }
