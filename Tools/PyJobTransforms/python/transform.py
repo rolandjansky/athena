@@ -1,7 +1,7 @@
 from __future__ import print_function
 from future.utils import iteritems
 from builtins import object
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.transform
 #

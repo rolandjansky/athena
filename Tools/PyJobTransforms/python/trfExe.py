@@ -1,5 +1,6 @@
 from __future__ import print_function
 from future.utils import iteritems
+import six
 
 from past.builtins import basestring
 
@@ -9,7 +10,7 @@ from builtins import object
 from builtins import range
 from builtins import int
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.trfExe
 #
@@ -693,14 +694,17 @@ class scriptExecutor(transformExecutor):
             msg.info('execOnly flag is set - execution will now switch, replacing the transform')
             os.execvp(self._cmd[0], self._cmd)
 
+        encargs = {}
+        if not six.PY2:
+            encargs = {'encoding' : 'utf8'}
         try:
-            p = subprocess.Popen(self._cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, bufsize = 1)
+            p = subprocess.Popen(self._cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, bufsize = 1, **encargs)
             if self._memMonitor:
                 try:
                     self._memSummaryFile = 'prmon.summary.' + self._name + '.json'
                     memMonitorCommand = ['prmon', '--pid', str(p.pid), '--filename', 'prmon.full.' + self._name, 
                                          '--json-summary', self._memSummaryFile, '--interval', '30']
-                    mem_proc = subprocess.Popen(memMonitorCommand, shell = False, close_fds=True)
+                    mem_proc = subprocess.Popen(memMonitorCommand, shell = False, close_fds=True, **encargs)
                     # TODO - link mem.full.current to mem.full.SUBSTEP
                 except Exception as e:
                     msg.warning('Failed to spawn memory monitor for {0}: {1}'.format(self._name, e))
