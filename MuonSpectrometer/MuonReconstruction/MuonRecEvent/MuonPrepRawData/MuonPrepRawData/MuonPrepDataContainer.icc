@@ -21,7 +21,7 @@ MuonPrepDataContainer< CollectionT>::MuonPrepDataContainer() :
 
 template< class CollectionT>
 // Constructor with IdentifiableCache:
-MuonPrepDataContainer<CollectionT>::MuonPrepDataContainer(EventContainers::IdentifiableCache< Muon::MuonPrepDataCollection <CollectionT> >* cache):
+MuonPrepDataContainer<CollectionT>::MuonPrepDataContainer(EventContainers::IdentifiableCache<CollectionT> * cache):
   IdentifiableContainer<CollectionT>(cache)
 {}
 
