@@ -13,7 +13,7 @@
 // ********************************************************************
 
 #include "DataQualityTools/DQTDataFlowMonAlg.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 using xAOD::EventInfo;
 

@@ -31,7 +31,7 @@ Trk::MultiComponentStateModeCalculator::calculateMode(const Trk::MultiComponentS
   modes.setZero();
 
   // Check to see if the multi-component state is measured
-  if (!multiComponentState.isMeasured()) {
+  if (!MultiComponentStateHelpers::isMeasured(multiComponentState)) {
     if (ATH_UNLIKELY(log.level() <= MSG::DEBUG))
       log << "Mixture has no error matricies... Exiting " << endmsg;
     return modes;

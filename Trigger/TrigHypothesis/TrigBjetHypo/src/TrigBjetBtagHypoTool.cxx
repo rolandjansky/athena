@@ -15,7 +15,7 @@
 #include "DecisionHandling/HLTIdentifier.h"
 
 #include "TrigBjetBtagHypoTool.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 
 TrigBjetBtagHypoTool::TrigBjetBtagHypoTool( const std::string& type, 

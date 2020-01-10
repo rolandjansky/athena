@@ -3,6 +3,7 @@
 */
 
 #include "egammaLargeClusterMaker.h"
+#include "egammaUtils/egammaEnergyPositionAllSamples.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloClusterCellLink.h"
 #include "xAODCaloEvent/CaloCluster.h"
@@ -35,7 +36,6 @@ StatusCode egammaLargeClusterMaker::initialize() {
   ATH_CHECK(m_inputClusterCollection.initialize());
   ATH_CHECK(m_cellsKey.initialize());
 
-  ATH_CHECK(m_egammaEnergyPositionAllSamples.retrieve());
 
   ATH_MSG_DEBUG("Initialization successful");
 
@@ -67,7 +67,7 @@ StatusCode egammaLargeClusterMaker::execute(const EventContext& ctx,
     }
     
     // check if cluster is in barrel or end-cap
-    bool in_barrel = m_egammaEnergyPositionAllSamples->inBarrel(*cluster,2);
+    bool in_barrel = egammaEnergyPositionAllSamples::inBarrel(*cluster,2);
     CaloSampling::CaloSample sam=CaloSampling::EMB2;
     if (in_barrel) {
       sam=CaloSampling::EMB2; 

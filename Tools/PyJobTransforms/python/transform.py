@@ -477,7 +477,7 @@ class transform(object):
             # Clean up any orphaned processes and exit here if things went bad
             infanticide(message=True)
             if self._exitCode:
-                msg.warning('Transform now exiting early with exit code {0} ({1})'.format(e.errCode, e.errMsg))
+                msg.warning('Transform now exiting early with exit code {0} ({1})'.format(self._exitCode, self._exitMsg))
                 sys.exit(self._exitCode)
         
     ## @brief Setup the executor graph

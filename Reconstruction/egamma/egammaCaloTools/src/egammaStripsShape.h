@@ -29,7 +29,6 @@ class LArEM_ID;
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "egammaInterfaces/IegammaStripsShape.h"
 #include "egammaInterfaces/Iegammaqweta1c.h"
-#include "egammaInterfaces/IegammaEnergyPositionAllSamples.h"
 
 class egammaStripsShape : public AthAlgTool, virtual public IegammaStripsShape {
 
@@ -95,10 +94,7 @@ private:
         "egammaqweta1cTool", "egammaqweta1c/egammaqweta1c"};
 
     /** @brief tool to calculate sum of energy in all samples */
-    ToolHandle<IegammaEnergyPositionAllSamples>  m_egammaEnergyPositionAllSamples {this,
-        "egammaEnergyPositionAllSamplesTool", 
-        "egammaEnergyPositionAllSamples/egammaEnergyPositionAllSamples"};
-    
+   
     // Calo variables
     const CaloDetDescrManager* m_calo_dd;
 

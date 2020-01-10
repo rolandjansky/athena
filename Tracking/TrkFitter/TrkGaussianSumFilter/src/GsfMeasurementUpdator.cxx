@@ -211,7 +211,7 @@ Trk::GsfMeasurementUpdator::calculateFilterStep(Trk::MultiComponentState&& state
     return nullptr;
   }
   // Renormalise state
-  assembledUpdatedState->renormaliseState();
+  MultiComponentStateHelpers::renormaliseState(*assembledUpdatedState);
 
   return assembledUpdatedState;
 }
@@ -353,7 +353,7 @@ Trk::GsfMeasurementUpdator::calculateFilterStep(Trk::MultiComponentState&& state
 
   fitQoS = std::make_unique<FitQualityOnSurface>(chiSquared, degreesOfFreedom);
   // Renormalise state
-  assembledUpdatedState->renormaliseState();
+  MultiComponentStateHelpers::renormaliseState(*assembledUpdatedState);
   return assembledUpdatedState;
 }
 

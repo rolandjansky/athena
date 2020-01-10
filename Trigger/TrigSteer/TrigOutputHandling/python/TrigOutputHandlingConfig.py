@@ -2,7 +2,7 @@
 
 def HLTResultMTMakerCfg(name="HLTResultMTMaker"):
    from TrigOutputHandlingConf import HLTResultMTMaker
-   from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
+   from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 
    m = HLTResultMTMaker(name)
 
@@ -96,7 +96,7 @@ def TriggerEDMSerialiserToolCfg(name="TriggerEDMSerialiserTool"):
    serialiser.TruncationThresholds = truncThresholds
 
    # Configure monitoring histograms
-   from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
+   from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
    serialiser.MonTool = GenericMonitoringTool('MonTool', HistPath='HLTFramework/'+name)
    serialiser.MonTool.defineHistogram('Truncation_ModuleId', path='EXPERT', type='TH1F',
                                       title='Module IDs of truncated HLT results;Module ID;Num of truncated results',

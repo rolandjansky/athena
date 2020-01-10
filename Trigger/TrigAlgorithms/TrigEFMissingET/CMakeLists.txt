@@ -20,6 +20,8 @@ atlas_depends_on_subdirs(
    Event/FourMomUtils
    GaudiKernel
    LArCalorimeter/LArIdentifier
+   LArCalorimeter/LArRecConditions
+   LArCalorimeter/LArCabling
    Trigger/TrigAlgorithms/TrigT2CaloCommon
    Trigger/TrigEvent/TrigCaloEvent
    Trigger/TrigEvent/TrigMissingEtEvent
@@ -91,7 +93,8 @@ atlas_add_component( TrigEFMissingET
   JetEvent LArIdentifier PathResolver JetEDM
   TrigCaloEvent TrigInterfacesLib TrigMissingEtEvent TrigMuonEvent
   TrigParticle TrigSteeringEvent TrigT1Interfaces TrigT2CaloCommonLib
-  TrigTimeAlgsLib xAODCaloEvent xAODEventInfo xAODJet xAODTrigMissingET )
+  TrigTimeAlgsLib xAODCaloEvent xAODEventInfo xAODJet xAODTrigMissingET
+  LArCablingLib LArRecConditions )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

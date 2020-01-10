@@ -15,8 +15,8 @@
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMuonTrackFinder.h"
 
-#include "AthenaMonitoring/GenericMonitoringTool.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 class MuPatTrackBuilder : public AthAlgorithm
 {

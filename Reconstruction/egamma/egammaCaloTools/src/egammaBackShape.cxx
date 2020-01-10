@@ -6,17 +6,11 @@
 #include "egammaBackShape.h"
 
 #include "xAODCaloEvent/CaloCluster.h"
+#include "egammaUtils/egammaEnergyPositionAllSamples.h"
+
 #include "CaloUtils/CaloLayerCalculator.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "SGTools/DataProxy.h" 
-
-// INCLUDE GAUDI HEADER FILES:
-
-#include "GaudiKernel/ObjectVector.h"      
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/ListItem.h"
-
 
 #include <cmath>
 
@@ -42,13 +36,6 @@ StatusCode egammaBackShape::initialize(){
 
     // retrieve all helpers from det store
     m_calo_dd = CaloDetDescrManager::instance();
-
-    // Create egammaEnergyAllSamples Tool
-    if(m_egammaEnergyPositionAllSamples.retrieve().isFailure()) {
-        ATH_MSG_FATAL("Unable to retrieve "<<m_egammaEnergyPositionAllSamples);
-        return StatusCode::FAILURE;
-    } 
-    else ATH_MSG_DEBUG("Tool " << m_egammaEnergyPositionAllSamples << " retrieved"); 
 
     return StatusCode::SUCCESS;
 }
@@ -79,10 +66,10 @@ StatusCode egammaBackShape::execute(const xAOD::CaloCluster& cluster,
         return StatusCode::SUCCESS;
     }
 
-    double eallsamples = m_egammaEnergyPositionAllSamples->e(cluster);
-    double e3 = m_egammaEnergyPositionAllSamples->e3(cluster);
+    double eallsamples = egammaEnergyPositionAllSamples::e(cluster);
+    double e3 = egammaEnergyPositionAllSamples::e3(cluster);
     // check if cluster is in barrel or end-cap
-    bool in_barrel = m_egammaEnergyPositionAllSamples->inBarrel(cluster,3);
+    bool in_barrel = egammaEnergyPositionAllSamples::inBarrel(cluster,3);
     // define accordingly position of CaloSampling
     // fraction of energy deposited in third sampling
     info.f3 = fabs(eallsamples)>0. ? e3/eallsamples : 0.; 

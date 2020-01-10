@@ -261,7 +261,7 @@ SG::DataProxy*
 ProxyProviderSvc::retrieveProxy(const CLID& id, const std::string& key,
 				IProxyRegistry& store)
 {
-  if ( !m_providers.empty() && store.storeID() != StoreID::SIMPLE_STORE ) {
+  if ( !m_providers.empty() ) {
     const EventContext& ctx = contextFromStore (store);
     SG::TransientAddress pTAd (id, key);
     pAPiterator iProvider(m_providers.begin()), iEnd(m_providers.end());

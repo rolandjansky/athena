@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
     
 
@@ -48,7 +48,6 @@ def make_FastCaloSimJets(doTowerJet = True, doTopoJet = True, doTruthJet = True,
             # Kt Jet from Generator Particles
             make_StandardJetGetter('Kt',0.6,'Truth',disable=disableOpt,doTruthPileup=True,inputSuff="Pileup") 
             make_StandardJetGetter('Kt',0.4,'Truth',disable=disableOpt,doTruthPileup=True,inputSuff="Pileup") 
-    print "in make_standardjetgetter"
     if doLocalCalib :
         jetFlags.recordLCjets.set_Value(False) # by default this is not wanted
         #recordLCjetsESD(False) 

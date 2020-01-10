@@ -29,6 +29,7 @@ import signal
 import subprocess
 import sys
 import time
+import six
 
 import logging
 from fnmatch import fnmatch
@@ -708,9 +709,13 @@ class scriptExecutor(transformExecutor):
             while p.poll() is None:
                 line = p.stdout.readline()
                 if line:
+                    if six.PY3:
+                        line = line.decode()
                     self._echologger.info(line.rstrip())
             # Hoover up remaining buffered output lines
             for line in p.stdout:
+                if six.PY3:
+                    line = line.decode()
                 self._echologger.info(line.rstrip())
     
             self._rc = p.returncode
