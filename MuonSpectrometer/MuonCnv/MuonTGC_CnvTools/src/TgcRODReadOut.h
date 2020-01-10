@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGC_CNVTOOLS_TGCRODREADOUT_H
@@ -148,9 +148,6 @@ namespace Muon
 
       /** TGC SLB data helper */
       TgcSlbDataHelper* m_tgcSlbDataHelper;
-
-      /** Message stream */
-      mutable MsgStream* m_log;
 
       TgcRODReadOut & operator=(const TgcRODReadOut &right);
       TgcRODReadOut(const TgcRODReadOut&);

@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// MuonSpectrometerProbeCollectorTool.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #include "MuonDQAUtils/MuonSpectrometerProbeCollectorTool.h"
 
@@ -15,7 +11,6 @@ namespace Muon {
 									 const IInterface*  p )
     :
     AthAlgTool(t,n,p),
-    m_log(msgSvc(),n),
     m_InsituPerformanceTools("InsituTrackPerformanceTools/TestTool")
   {
     declareInterface<IProbeCollectorTool>(this);
@@ -25,108 +20,60 @@ namespace Muon {
     declareProperty("CombinedMuonTracksContainerName",	m_CombinedMuonTracksContainerName = "StacoMuonCollection");
     declareProperty("RequireTrigger",			m_RequireTrigger = false);
     declareProperty("InsituPerformanceTools",		m_InsituPerformanceTools);
+    declareProperty("MuonPtCut", m_muonPtCut=20000.);
   }
-
-  //================ Destructor =================================================
-  MuonSpectrometerProbeCollectorTool::~MuonSpectrometerProbeCollectorTool(){}
 
   //================ Initialisation =================================================
 
   StatusCode MuonSpectrometerProbeCollectorTool::initialize()
   {
-    StatusCode sc = AlgTool::initialize();
-    m_log.setLevel(msgLevel());
-    if (sc.isFailure()) return sc;
-	
-    m_log << MSG::DEBUG << "Initialize ()" << endmsg;
-	
-    /// histogram location
-    sc = service("THistSvc", m_thistSvc);
-    if(sc.isFailure() ){
-      m_log   << MSG::ERROR
-	      << "Unable to retrieve pointer to THistSvc"
-	      << endmsg;
-      return sc;
-    }
-	
+    ATH_CHECK(AlgTool::initialize());
+		
     /// get StoreGate service
-    sc = service("StoreGateSvc",m_storeGate);
-    if (sc.isFailure())
-      {
-	m_log << MSG::FATAL << "StoreGate service not found !" << endmsg;
-	return StatusCode::FAILURE;
-      }
+    ATH_CHECK(service("StoreGateSvc",m_storeGate));
 
     /// Getting InsituPerformanceTools
-    if (m_InsituPerformanceTools.retrieve().isFailure())
-      {
-	m_log << MSG::FATAL << "My Tool Service not found" << endmsg;
-	return StatusCode::FAILURE;
-      }
-    sc = m_InsituPerformanceTools->initialize();
-    if (sc.isFailure())
-      {
-	m_log << MSG::FATAL << "InsituPerformanceTools service not found !" << endmsg;
-	return StatusCode::FAILURE;
-      }
-    m_log << MSG::INFO << "initialize() successful in " << name() << endmsg;
+    ATH_CHECK(m_InsituPerformanceTools->initialize());
+
+    ATH_MSG_INFO("initialize() successful");
     return StatusCode::SUCCESS;
-  }
-
-  //================ Finalisation =================================================
-
-  StatusCode MuonSpectrometerProbeCollectorTool::finalize()
-  {
-    m_log << MSG::DEBUG << "Finalize ()" << endmsg;
-    StatusCode sc = AlgTool::finalize();
-    return sc;
   }
 
   //============================================================================================
 
   StatusCode MuonSpectrometerProbeCollectorTool::createProbeCollection()
   {
-    m_log << MSG::DEBUG << "createProbeCollection() for Muon Spectrometer" << endmsg;
+    ATH_MSG_DEBUG("createProbeCollection() for Muon Spectrometer");
 	
-    StatusCode sc = StatusCode::SUCCESS;
     /// Record the container of Probe Muons in StoreGate
     m_MSProbeTrackContainer = new Rec::TrackParticleContainer();
-    sc = m_storeGate->record(m_MSProbeTrackContainer,"MuonSpectrometerProbeTracks");
-    if (sc.isFailure())  
-      {
-	m_log << MSG::ERROR << "Unable to record MuonSpectrometerProbeTracks in StoreGate" 
-	      << endmsg;
-	return sc;
-      } else
-	m_log << MSG::DEBUG << "MuonSpectrometerProbeTracks Container recorded in StoreGate." << endmsg;
+    ATH_CHECK(m_storeGate->record(m_MSProbeTrackContainer,"MuonSpectrometerProbeTracks"));
+    ATH_MSG_DEBUG("MuonSpectrometerProbeTracks Container recorded in StoreGate.");
 
-	
     /// Retrieve Inner Tracks
-    const Rec::TrackParticleContainer* trackTES=0;
-    sc=m_storeGate->retrieve( trackTES, m_InnerTrackContainerName);
-    if( sc.isFailure()  ||  !trackTES ) 
-      {
-	m_log << MSG::WARNING	<< "No " << m_InnerTrackContainerName << " container found in TDS"	<< endmsg; 
-	return StatusCode::FAILURE;
-      }  
-    m_log << MSG::DEBUG << "TrackParticleContainer successfully retrieved" << endmsg;
+    const Rec::TrackParticleContainer* trackTES=nullptr;
+    ATH_CHECK(m_storeGate->retrieve( trackTES, m_InnerTrackContainerName));
+    if (!trackTES ) {
+      ATH_MSG_WARNING("No " << m_InnerTrackContainerName << " container found in TDS"); 
+      return StatusCode::FAILURE;
+    }  
+    ATH_MSG_DEBUG("TrackParticleContainer successfully retrieved");
 
     /// Retrieve Combined Tracks
-    const Analysis::MuonContainer* muonTDS=0;
-    sc=m_storeGate->retrieve( muonTDS, m_CombinedMuonTracksContainerName);
-    if( sc.isFailure()  ||  !muonTDS ) 
-      {
-	m_log << MSG::WARNING	<< "No AOD "<<m_CombinedMuonTracksContainerName<<" container of muons found in TDS"<< endmsg; 
-	return StatusCode::FAILURE;
-      }  
-    m_log << MSG::DEBUG << "MuonContainer successfully retrieved" << endmsg;
+    const Analysis::MuonContainer* muonTDS=nullptr;
+    ATH_CHECK(m_storeGate->retrieve( muonTDS, m_CombinedMuonTracksContainerName));
+    if (!muonTDS) {
+      ATH_MSG_WARNING("No AOD "<<m_CombinedMuonTracksContainerName<<" container of muons found in TDS"); 
+      return StatusCode::FAILURE;
+    }  
+    ATH_MSG_DEBUG("MuonContainer successfully retrieved");
 	
     /// Loop over Combined Muon Tracks
     Analysis::MuonContainer::const_iterator muonItr  = muonTDS->begin();
     Analysis::MuonContainer::const_iterator muonItrE = muonTDS->end();
     for (; muonItr != muonItrE; ++muonItr)
       {
-	if (((*muonItr)->pt()>20000.) && ((*muonItr)->isCombinedMuon()))
+	if (((*muonItr)->pt()>m_muonPtCut) && ((*muonItr)->isCombinedMuon()))
 	  {
 	    const Rec::TrackParticle *muonTrack	= (*muonItr)->track();
 	    if ((m_RequireTrigger==false) || (m_InsituPerformanceTools->isTriggeredMuon(const_cast<Rec::TrackParticle*>(muonTrack))==true))
@@ -136,7 +83,7 @@ namespace Muon {
 		for (; innerTrackItr != innerTrackItrE; ++innerTrackItr) 
 		  {
 		    const Rec::TrackParticle *innerTrack	= (*innerTrackItr);
-		    if (fabs(innerTrack->pt())>20000.)
+		    if (innerTrack->pt()>m_muonPtCut)
 		      {
 			if (m_InsituPerformanceTools->isZBosonCandidate(const_cast<Rec::TrackParticle*>(innerTrack), const_cast<Rec::TrackParticle*>(muonTrack))==true)
 			  {
@@ -152,12 +99,7 @@ namespace Muon {
 	      }
 	  }
       }
-    sc = m_storeGate->setConst(m_MSProbeTrackContainer);
-    if( sc.isFailure()) 
-      {
-	m_log << MSG::WARNING	<< "set const failed"<< endmsg; 
-	return StatusCode::FAILURE;
-      }  
+    ATH_CHECK(m_storeGate->setConst(m_MSProbeTrackContainer)); 
     return StatusCode::SUCCESS;
   }
 }//namespace

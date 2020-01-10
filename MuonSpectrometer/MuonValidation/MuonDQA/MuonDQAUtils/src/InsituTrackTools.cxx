@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// InsituTrackTools.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #include "MuonDQAUtils/InsituTrackTools.h"
 #include "EventKernel/INavigable4Momentum.h"
@@ -13,8 +9,7 @@
 //================ Constructor =================================================
 namespace Muon {
   InsituTrackTools::InsituTrackTools(const std::string& t, const std::string& n, const IInterface*  p ):
-    AthAlgTool(t,n,p),
-    m_log(msgSvc(),n)
+    AthAlgTool(t,n,p)
   {
     declareInterface<IInsituTrackTools>(this);
 
@@ -27,45 +22,17 @@ namespace Muon {
 		
   }
 
-  //================ Destructor =================================================
-
-  InsituTrackTools::~InsituTrackTools(){}
-
   //================ Initialisation =================================================
 
   StatusCode InsituTrackTools::initialize()
   {
-    StatusCode sc = AlgTool::initialize();
-    m_log.setLevel(msgLevel());
-    if (sc.isFailure()) return sc;
-	
-    /// histogram location
-    sc = service("THistSvc", m_thistSvc);
-    if(sc.isFailure() ){
-      m_log   << MSG::ERROR
-	      << "Unable to retrieve pointer to THistSvc"
-	      << endmsg;
-      return sc;
-    }
+    ATH_CHECK(AlgTool::initialize());
 	
     /// get StoreGate service
-    sc = service("StoreGateSvc",m_storeGate);
-    if (sc.isFailure())
-      {
-	m_log << MSG::FATAL << "StoreGate service not found !" << endmsg;
-	return StatusCode::FAILURE;
-      }
+    ATH_CHECK(service("StoreGateSvc",m_storeGate));
 	
-    m_log << MSG::INFO << "initialize() successful in " << name() << endmsg;
+    ATH_MSG_INFO("initialize() successful");
     return StatusCode::SUCCESS;
-  }
-
-  //================ Finalisation =================================================
-
-  StatusCode InsituTrackTools::finalize()
-  {
-    StatusCode sc = AlgTool::finalize();
-    return sc;
   }
 
   //============================================================================================
