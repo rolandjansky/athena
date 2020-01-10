@@ -35,8 +35,11 @@ import AthenaPoolCnvSvc.WriteAthenaPool
 #--------------------------------------------------------------
 
 # Add in DoubleEventSelector
-svcMgr.DoubleEventSelector.PrimaryInputCollections = [ "SimplePoolFile1.root" ]
-svcMgr.DoubleEventSelector.SecondaryaryInputCollections = [ "SimplePoolFile2.root" ]
+svcMgr.DoubleEventSelector.InputCollections = [ "SimplePoolFile1.root" ]
+svcMgr.SecondaryEventSelector.InputCollections = [ "SimplePoolFile2.root" ]
+
+svcMgr.DoubleEventSelector.OutputLevel = DEBUG
+svcMgr.SecondaryEventSelector.OutputLevel = DEBUG
 
 #--------------------------------------------------------------
 # JobOptions for the loading of the AthenaSealSvc
@@ -105,6 +108,8 @@ AthenaPoolTestDataWriter.OutputLevel = DEBUG
 from AthenaServices import AthenaServicesConf
 AthenaEventLoopMgr = AthenaServicesConf.AthenaEventLoopMgr()
 AthenaEventLoopMgr.OutputLevel = INFO
+AthenaEventLoopMgr.UseSecondaryEventNumber = True
+svcMgr += AthenaEventLoopMgr
 
 # No stats printout
 include( "AthenaPoolTest/NoStats_jobOptions.py" )
