@@ -38,7 +38,7 @@ namespace top {
   
   bool TreeFilter::filterTree(const std::string& treename) const{
     
-    for (std::string filter : m_vecFilters) {
+    for (const std::string& filter : m_vecFilters) {
       // check for a match
       std::smatch match;
       std::regex_search(treename, match, std::regex("^"+filter));

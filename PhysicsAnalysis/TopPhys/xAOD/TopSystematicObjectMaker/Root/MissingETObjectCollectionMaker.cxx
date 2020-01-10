@@ -5,6 +5,7 @@
 // $Id: MissingETObjectCollectionMaker.cxx 806051 2017-06-07 00:32:41Z tpelzer $
 #include "TopSystematicObjectMaker/MissingETObjectCollectionMaker.h"
 #include "TopConfiguration/TopConfig.h"
+#include "TopConfiguration/TreeFilter.h"
 #include "TopEvent/EventTools.h"
 #include "TopEvent/SystematicEvent.h"
 
@@ -332,7 +333,8 @@ namespace top {
             }
             if (specifiedSystematics.size() > 0) {
               for (auto i : specifiedSystematics) {
-                if (i == s.name()) {
+                TreeFilter filter(i);
+		if (!filter.filterTree(s.name())) {
                   m_specifiedSystematics.push_back(s);
                 }
               }
