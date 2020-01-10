@@ -28,7 +28,6 @@
 #include "egammaInterfaces/IegammaBackShape.h"
 #include "egammaInterfaces/IegammaBaseTool.h"
 #include "egammaInterfaces/IegammaCheckEnergyDepositTool.h"
-#include "egammaInterfaces/IegammaEnergyPositionAllSamples.h"
 #include "egammaInterfaces/IegammaIso.h"
 #include "egammaInterfaces/IegammaMiddleShape.h"
 #include "egammaInterfaces/IegammaPreSamplerShape.h"
