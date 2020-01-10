@@ -32,7 +32,7 @@ atlas_depends_on_subdirs(
 # External dependencies:
 find_package( Boost COMPONENTS thread )
 find_package( CLHEP )
-find_package( PythonLibs )
+find_package( Python COMPONENTS Development )
 find_package( yampl )
 
 # Component(s) in the package:
