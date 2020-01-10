@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */ 
 
 #include "./HLTPrescaleCondAlg.h"
@@ -94,7 +94,7 @@ TrigConf::HLTPrescaleCondAlg::initialize() {
       // PSK is greater than 0
       m_pssMap[0] = createFromFile( m_filename );
 
-   } else if( m_psk != 0 ) {
+   } else if( m_psk != 0u ) {
 
       // this is for the case where the reading from the DB was
       // configured and also when we read from COOL online and get a
