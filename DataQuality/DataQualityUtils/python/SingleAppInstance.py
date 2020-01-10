@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## This class is borrowed from flock.py, written by Jordan Callicoat and
 ## available from an online python cookbook (aspn.activestate.com)
@@ -64,7 +64,7 @@ class SingleAppInstance(object):
                 modtime = os.stat(self.path)
                 outstring = 'Acquired lock: '+ self.fddr() + ' at time '+ time.ctime(modtime.st_mtime)
                 print(outstring)
-        except Exception, e:
+        except Exception as e:
             if os.path.isfile(self.path):
                 try:
                     # my guess is this causes problems
@@ -91,7 +91,7 @@ class SingleAppInstance(object):
                 if self.debug:
                     outstring  = 'Released lock: ' + self.fddr() +' at time ' +  time.ctime()
                     print(outstring)
-            except Exception, e:
+            except Exception as e:
                 print(e)
                 raise self.FileLockReleaseError(
                   'Error releasing lock: %s, reason %s' % (self.fddr(), e))
