@@ -34,7 +34,7 @@
 #include "InDetIdentifier/TRT_ID.h"
 
 // ToT Tool Interface
-#include "TRT_ToT_Tools/ITRT_ToT_dEdx.h"
+#include "TRT_ElectronPidTools/ITRT_ToT_dEdx.h"
 
 // Particle masses
 

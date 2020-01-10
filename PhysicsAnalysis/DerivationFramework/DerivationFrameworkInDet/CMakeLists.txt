@@ -24,7 +24,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetDetDescr/SCT_Cabling
                           InnerDetector/InDetRecEvent/InDetPrepRawData
 			  InnerDetector/InDetRecEvent/InDetRIO_OnTrack
-                          InnerDetector/InDetRecTools/TRT_ToT_Tools
+                          InnerDetector/InDetRecTools/TRT_ElectronPidTools
                           PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkEvent/VxVertex
@@ -49,7 +49,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkEvent/TrkPrepRawData
                           Tracking/TrkEvent/TrkRIO_OnTrack
-			  InnerDetector/InDetRecTools/TRT_ToT_Tools
                           Tracking/TrkExtrapolation/TrkExInterfaces
                           Tracking/TrkTools/TrkToolInterfaces
                           Tracking/TrkVertexFitter/TrkVertexFitterInterfaces )

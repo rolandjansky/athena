@@ -23,7 +23,7 @@
 #include "TRT_ConditionsData/RtRelation.h"
 #include "TRT_ConditionsData/BasicRtRelation.h"
 
-#include "TRT_ToT_Tools/ITRT_ToT_dEdx.h"
+#include "TRT_ElectronPidTools/ITRT_ToT_dEdx.h"
 
 /////////////////////////////////////////////////////////////////////////////
 

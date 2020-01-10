@@ -23,7 +23,7 @@
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
-#include "TRT_ToT_Tools/ITRT_ToT_dEdx.h"
+#include "TRT_ElectronPidTools/ITRT_ToT_dEdx.h"
 #include "TrkToolInterfaces/IUpdator.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "StoreGate/ReadCondHandleKey.h"

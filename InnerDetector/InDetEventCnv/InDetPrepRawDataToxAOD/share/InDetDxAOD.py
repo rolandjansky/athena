@@ -360,7 +360,7 @@ if dumpTrtInfo:
         print xAOD_TRT_PrepDataToxAOD.properties()
 
     # to store dEdx info
-    from TRT_ToT_Tools.TRT_ToT_ToolsConf import TRT_ToT_dEdx
+    from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import TRT_ToT_dEdx
     TRT_dEdx_Tool = TRT_ToT_dEdx(name="TRT_ToT_dEdx")
     ToolSvc += TRT_dEdx_Tool
 
