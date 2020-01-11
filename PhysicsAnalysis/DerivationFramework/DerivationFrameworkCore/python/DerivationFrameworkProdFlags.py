@@ -40,7 +40,7 @@ class WriteDAOD_PHYSStream(JobProperty):
     StreamName   = "StreamDAOD_PHYS"
     FileName     = ""
     isVirtual      = False
-    DPDMakerScript = "DerivationFrameworkExamples/PHYS.py"
+    DPDMakerScript = "DerivationFrameworkPhys/PHYS.py"
     pass
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_PHYSStream)
 listAODtoDPD.append(WriteDAOD_PHYSStream.StreamName)
@@ -53,7 +53,7 @@ class WriteDAOD_PHYS2Stream(JobProperty):
     StreamName   = "StreamDAOD_PHYS2"
     FileName     = ""
     isVirtual      = False
-    DPDMakerScript = "DerivationFrameworkExamples/PHYS2.py"
+    DPDMakerScript = "DerivationFrameworePhys/PHYS2.py"
     pass
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_PHYS2Stream)
 listAODtoDPD.append(WriteDAOD_PHYS2Stream.StreamName)
@@ -66,7 +66,7 @@ class WriteDAOD_PHYSLITEStream(JobProperty):
     StreamName   = "StreamDAOD_PHYSLITE"
     FileName     = ""
     isVirtual      = False
-    DPDMakerScript = "DerivationFrameworkExamples/PHYSLITE.py"
+    DPDMakerScript = "DerivationFrameworkPhys/PHYSLITE.py"
     pass
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_PHYSLITEStream)
 listAODtoDPD.append(WriteDAOD_PHYSLITEStream.StreamName)
