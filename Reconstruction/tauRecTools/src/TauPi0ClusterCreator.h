@@ -29,17 +29,10 @@ public:
     virtual StatusCode initialize();
     virtual StatusCode finalize();
     virtual StatusCode eventInitialize();
-    virtual StatusCode execute(xAOD::TauJet&) { return StatusCode::SUCCESS; }
-    virtual StatusCode executeShotFinder(xAOD::TauJet&, xAOD::CaloClusterContainer&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
-    virtual StatusCode executePi0CreateROI(xAOD::TauJet&, CaloCellContainer&) { return StatusCode::SUCCESS; }
     virtual StatusCode executePi0ClusterCreator(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer, 
 						xAOD::PFOContainer& hadronicClusterPFOContainer,
 						xAOD::CaloClusterContainer& pi0CaloClusContainer,
 						const xAOD::CaloClusterContainer& pPi0CaloClusContainer);
-    virtual StatusCode executeVertexVariables(xAOD::TauJet&, xAOD::VertexContainer&) { return StatusCode::SUCCESS; }
-    virtual StatusCode executePi0ClusterScaler(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
-    virtual StatusCode executePi0nPFO(xAOD::TauJet&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
-    virtual StatusCode executePanTau(xAOD::TauJet&, xAOD::ParticleContainer&) { return StatusCode::SUCCESS; }
     virtual StatusCode eventFinalize();
 
     virtual void print() const { }
