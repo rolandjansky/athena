@@ -9,7 +9,7 @@ from egammaRec.Factories import ToolFactory, PublicToolFactory, AlgFactory, FcnW
 from AthenaCommon.BeamFlags import jobproperties
 from egammaRec import egammaRecFlags as egRecFlags
 egammaRecFlags = egRecFlags.jobproperties.egammaRecFlags
-from egammaTools.InDetTools import egammaCaloExtrapolator
+from egammaTools.egammaExtrapolators import egammaCaloExtrapolator
 from MCTruthClassifier import MCTruthClassifierConf
 import AthenaCommon.CfgMgr as CfgMgr
 
