@@ -15,7 +15,7 @@ atlas_depends_on_subdirs( PRIVATE
                           GaudiKernel )
 
 # External dependencies:
-find_package( PythonLibs )
+find_package( Python COMPONENTS Development )
 find_package( ROOT COMPONENTS PyROOT Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:

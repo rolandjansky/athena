@@ -13,7 +13,7 @@ if( ATLAS_RELEASE_MODE )
 endif()
 
 # Find the necessary externals:
-find_package( PythonInterp )
+find_package( Python COMPONENTS Interpreter )
 
 # The generator used to produce header files:
 set( _generator ${CMAKE_CURRENT_SOURCE_DIR}/scripts/XMLtoHeader.py )

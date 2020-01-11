@@ -7,7 +7,7 @@ atlas_subdir( Hephaestus )
 
 # External dependencies:
 find_package( Boost )
-find_package( PythonLibs )
+find_package( Python COMPONENTS Development )
 find_package( libunwind )
 
 # Component(s) in the package:
