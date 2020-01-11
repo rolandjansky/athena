@@ -107,9 +107,9 @@ namespace MuonCombined {
 
   StatusCode MuonStauRecoTool::finalize() {
     if( m_doTruth ){
-      for( auto summary : m_truthMatchingCounters ){
-        ATH_MSG_INFO(" Reco efficiency for pdgID " << summary.first << " " << summary.second.summary() );
-      }
+      //for( auto summary : m_truthMatchingCounters ){
+      //  ATH_MSG_INFO(" Reco efficiency for pdgID " << summary.first << " " << summary.second.summary() );
+      //}
     }
     return StatusCode::SUCCESS;
   }
@@ -139,7 +139,7 @@ namespace MuonCombined {
       for( auto pdg : m_pdgsToBeConsidered.value() ) {
         m_selectedPdgs.insert(pdg);
         // add truth matching counters for the selected PDGs
-        m_truthMatchingCounters[std::abs(pdg)];
+        //m_truthMatchingCounters[std::abs(pdg)];
       }
     }
     return StatusCode::SUCCESS;
@@ -204,8 +204,8 @@ namespace MuonCombined {
     }      
 
     // setup truth matching counters
-    TruthMatchingCounters* truthMatchingCounter = getTruthMatchingCounters(truthInfo.get());
-    if( truthMatchingCounter ) truthMatchingCounter->fillTruth();
+    //TruthMatchingCounters* truthMatchingCounter = getTruthMatchingCounters(truthInfo.get());
+    //if( truthMatchingCounter ) truthMatchingCounter->fillTruth();
 
     // get intersections which precision layers in the muon system 
     const Muon::MuonSystemExtension* muonSystemExtension = indetCandidate.getExtension();
@@ -221,13 +221,13 @@ namespace MuonCombined {
 
     // exit if no MuonSystemExtension was found
     if( !muonSystemExtension ) {
-      if( (m_doSummary || msgLvl(MSG::DEBUG) ) && truthMatchingCounter ) msg(MSG::INFO) << " Truth matched track lost due to missing extension " << endmsg;
+      //if( (m_doSummary || msgLvl(MSG::DEBUG) ) && truthMatchingCounter ) msg(MSG::INFO) << " Truth matched track lost due to missing extension " << endmsg;
       return;
     }
     
     // fill validation content
     if( !m_recoValidationTool.empty() ) m_recoValidationTool->addTrackParticle( indetTrackParticle, *muonSystemExtension );
-    if( truthMatchingCounter ) truthMatchingCounter->fillStage(0);
+    //if( truthMatchingCounter ) truthMatchingCounter->fillStage(0);
 
 
     /** STAGE 1
@@ -236,10 +236,10 @@ namespace MuonCombined {
 
     AssociatedData associatedData;
     if( !extractTimeMeasurements(*muonSystemExtension,associatedData) ) {
-      if( (m_doSummary || msgLvl(MSG::DEBUG) ) && truthMatchingCounter ) msg(MSG::INFO) << " Truth matched track lost after extractTimeMeasurements " << endmsg;
+      //if( (m_doSummary || msgLvl(MSG::DEBUG) ) && truthMatchingCounter ) msg(MSG::INFO) << " Truth matched track lost after extractTimeMeasurements " << endmsg;
       return;
     }
-    if( truthMatchingCounter ) truthMatchingCounter->fillStage(1);
+    //if( truthMatchingCounter ) truthMatchingCounter->fillStage(1);
 
     
     /** STAGE 2 
@@ -248,11 +248,11 @@ namespace MuonCombined {
 
     CandidateVec candidates;
     if( !createCandidates(associatedData,candidates) ) {
-      if( (m_doSummary || msgLvl(MSG::DEBUG) ) && truthMatchingCounter ) msg(MSG::INFO) << " Truth matched track lost after createCandidates " << endmsg;
+      //if( (m_doSummary || msgLvl(MSG::DEBUG) ) && truthMatchingCounter ) msg(MSG::INFO) << " Truth matched track lost after createCandidates " << endmsg;
       return;
     }
     if( !m_recoValidationTool.empty() ) addCandidatesToNtuple(indetTrackParticle,candidates,0);
-    if( truthMatchingCounter ) truthMatchingCounter->fillStage(2);
+    //if( truthMatchingCounter ) truthMatchingCounter->fillStage(2);
 
 
     /** STAGE 3
@@ -260,11 +260,11 @@ namespace MuonCombined {
     */
 
     if( !refineCandidates(candidates) ) {
-      if( (m_doSummary || msgLvl(MSG::DEBUG) ) && truthMatchingCounter ) msg(MSG::INFO) << " Truth matched track lost after refineCandidates " << endmsg;
+      //if( (m_doSummary || msgLvl(MSG::DEBUG) ) && truthMatchingCounter ) msg(MSG::INFO) << " Truth matched track lost after refineCandidates " << endmsg;
       return;
     }
     if( !m_recoValidationTool.empty() ) addCandidatesToNtuple(indetTrackParticle,candidates,1);
-    if( truthMatchingCounter ) truthMatchingCounter->fillStage(3);
+    //if( truthMatchingCounter ) truthMatchingCounter->fillStage(3);
 
 
     /** STAGE 4 
@@ -272,11 +272,11 @@ namespace MuonCombined {
     */
 
     if( !combineCandidates(indetTrackParticle,candidates) ){
-      if( (m_doSummary || msgLvl(MSG::DEBUG) ) && truthMatchingCounter ) msg(MSG::INFO) << " Truth matched track lost after combination " << endmsg;
+      //if( (m_doSummary || msgLvl(MSG::DEBUG) ) && truthMatchingCounter ) msg(MSG::INFO) << " Truth matched track lost after combination " << endmsg;
       return;
     }
     if( !m_recoValidationTool.empty() ) addCandidatesToNtuple(indetTrackParticle,candidates,2);
-    if( truthMatchingCounter ) truthMatchingCounter->fillStage(4);
+    //if( truthMatchingCounter ) truthMatchingCounter->fillStage(4);
 
 
     /** STAGE 5
@@ -284,11 +284,11 @@ namespace MuonCombined {
     */
 
     if( !resolveAmbiguities(candidates) ){
-      if( (m_doSummary || msgLvl(MSG::DEBUG) ) && truthMatchingCounter ) msg(MSG::INFO) << " Truth matched track lost after ambiguity solving " << endmsg;
+      //if( (m_doSummary || msgLvl(MSG::DEBUG) ) && truthMatchingCounter ) msg(MSG::INFO) << " Truth matched track lost after ambiguity solving " << endmsg;
       return;
     }
     if( !m_recoValidationTool.empty() ) addCandidatesToNtuple(indetTrackParticle,candidates,3);
-    if( truthMatchingCounter ) truthMatchingCounter->fillStage(5);
+    //if( truthMatchingCounter ) truthMatchingCounter->fillStage(5);
 
 
     /** STAGE 6
