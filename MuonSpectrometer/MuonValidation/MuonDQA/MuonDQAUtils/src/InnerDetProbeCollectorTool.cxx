@@ -28,9 +28,6 @@ namespace Muon {
   StatusCode InnerDetProbeCollectorTool::initialize()
   {
     ATH_CHECK(AlgTool::initialize());
-	
-    /// get StoreGate service
-    ATH_CHECK(service("StoreGateSvc",m_storeGate));
 
     /// Getting InsituPerformanceTools
     ATH_CHECK(m_InsituPerformanceTools->initialize());
@@ -44,16 +41,14 @@ namespace Muon {
   StatusCode InnerDetProbeCollectorTool::createProbeCollection()
   {
     ATH_MSG_DEBUG("createProbeCollection() for Inner Detector");
-	
-    StatusCode sc = StatusCode::SUCCESS;
-    /// Record the container of Probe Muons in StoreGate
+	  /// Record the container of Probe Muons in evtStore
     m_IDProbeTrackContainer = new Rec::TrackParticleContainer();
-    ATH_CHECK(m_storeGate->record(m_IDProbeTrackContainer,"InnerDetectorProbeTracks"));
-    ATH_MSG_DEBUG("InnerDetectorProbeTracks Container recorded in StoreGate.");
+    ATH_CHECK(evtStore()->record(m_IDProbeTrackContainer,"InnerDetectorProbeTracks"));
+    ATH_MSG_DEBUG("InnerDetectorProbeTracks Container recorded in evtStore.");
 	
     /// Retrieve Muon Tracks
     const Rec::TrackParticleContainer* trackTES=nullptr;
-    ATH_CHECK(m_storeGate->retrieve( trackTES, m_MSTrackContainerName));
+    ATH_CHECK(evtStore()->retrieve( trackTES, m_MSTrackContainerName));
     if (!trackTES) {
 	ATH_MSG_WARNING("No " << m_MSTrackContainerName << " container found in TDS"); 
 	return StatusCode::FAILURE;
@@ -62,7 +57,7 @@ namespace Muon {
 
     /// Retrieve Combined Tracks
     const Analysis::MuonContainer* muonTDS=nullptr;
-    ATH_CHECK(m_storeGate->retrieve( muonTDS, m_CombinedMuonTracksContainerName));
+    ATH_CHECK(evtStore()->retrieve( muonTDS, m_CombinedMuonTracksContainerName));
     if (!muonTDS ) {
 	ATH_MSG_WARNING("No AOD "<<m_CombinedMuonTracksContainerName<<" container of muons found in TDS"); 
 	return StatusCode::FAILURE;
@@ -96,7 +91,7 @@ namespace Muon {
 	      }
 	  }
       }
-    ATH_CHECK(m_storeGate->setConst(m_IDProbeTrackContainer));
+    ATH_CHECK(evtStore()->setConst(m_IDProbeTrackContainer));
     return StatusCode::SUCCESS;
   }
 }//namespace

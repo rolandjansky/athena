@@ -13,9 +13,6 @@
 /// Gaudi Tools
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-/// Storegate
-#include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 /// ROOT Classes
 #include "TH1.h"
 #include "TH2.h"
@@ -42,10 +39,6 @@
 
 #include "MuonDQAUtils/IProbeCollectorTool.h"
 #include "MuonDQAUtils/IInsituTrackTools.h"
-
-class AtlasDetectorID;
-class Identifier;
-
 
 /** @class MuonSpectrometerProbeCollectorTool 
 
@@ -76,8 +69,6 @@ namespace Muon
 	
       Rec::TrackParticleContainer * m_MSProbeTrackContainer;
 
-      /// a handle on Store Gate 
-      StoreGateSvc* m_storeGate;
       /// get a handle to the MuonSpectrometerProbeCollectorTool
       ToolHandle<IInsituTrackTools> m_InsituPerformanceTools;
 

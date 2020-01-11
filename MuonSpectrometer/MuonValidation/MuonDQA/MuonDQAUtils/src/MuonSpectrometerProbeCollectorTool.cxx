@@ -28,9 +28,6 @@ namespace Muon {
   StatusCode MuonSpectrometerProbeCollectorTool::initialize()
   {
     ATH_CHECK(AlgTool::initialize());
-		
-    /// get StoreGate service
-    ATH_CHECK(service("StoreGateSvc",m_storeGate));
 
     /// Getting InsituPerformanceTools
     ATH_CHECK(m_InsituPerformanceTools->initialize());
@@ -45,14 +42,14 @@ namespace Muon {
   {
     ATH_MSG_DEBUG("createProbeCollection() for Muon Spectrometer");
 	
-    /// Record the container of Probe Muons in StoreGate
+    /// Record the container of Probe Muons in evtStore
     m_MSProbeTrackContainer = new Rec::TrackParticleContainer();
-    ATH_CHECK(m_storeGate->record(m_MSProbeTrackContainer,"MuonSpectrometerProbeTracks"));
-    ATH_MSG_DEBUG("MuonSpectrometerProbeTracks Container recorded in StoreGate.");
+    ATH_CHECK(evtStore()->record(m_MSProbeTrackContainer,"MuonSpectrometerProbeTracks"));
+    ATH_MSG_DEBUG("MuonSpectrometerProbeTracks Container recorded in evtStore.");
 
     /// Retrieve Inner Tracks
     const Rec::TrackParticleContainer* trackTES=nullptr;
-    ATH_CHECK(m_storeGate->retrieve( trackTES, m_InnerTrackContainerName));
+    ATH_CHECK(evtStore()->retrieve( trackTES, m_InnerTrackContainerName));
     if (!trackTES ) {
       ATH_MSG_WARNING("No " << m_InnerTrackContainerName << " container found in TDS"); 
       return StatusCode::FAILURE;
@@ -61,7 +58,7 @@ namespace Muon {
 
     /// Retrieve Combined Tracks
     const Analysis::MuonContainer* muonTDS=nullptr;
-    ATH_CHECK(m_storeGate->retrieve( muonTDS, m_CombinedMuonTracksContainerName));
+    ATH_CHECK(evtStore()->retrieve( muonTDS, m_CombinedMuonTracksContainerName));
     if (!muonTDS) {
       ATH_MSG_WARNING("No AOD "<<m_CombinedMuonTracksContainerName<<" container of muons found in TDS"); 
       return StatusCode::FAILURE;
@@ -99,7 +96,7 @@ namespace Muon {
 	      }
 	  }
       }
-    ATH_CHECK(m_storeGate->setConst(m_MSProbeTrackContainer)); 
+    ATH_CHECK(evtStore()->setConst(m_MSProbeTrackContainer)); 
     return StatusCode::SUCCESS;
   }
 }//namespace

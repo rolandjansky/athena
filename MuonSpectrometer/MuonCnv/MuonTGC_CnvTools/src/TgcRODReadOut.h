@@ -51,14 +51,12 @@ namespace Muon
       /** Convert BS (ROB fragment) to RDO */ 
       StatusCode byteStream2Rdo(const ByteStream& bs, 
 				TgcRdo& tgcRdo, 
-				uint32_t source_id, 
-				MsgStream& vlog);
+				uint32_t source_id);
       /** Convert BS (ROB fragment) to RDO and compare decoded RDO container 
        *  and another RDO container decoded by other converter */ 
       StatusCode check(const ByteStream& bs, 
 		       TgcRdo& tgcRdo, 
-		       uint32_t source_id, 
-		       MsgStream& vlog);
+		       uint32_t source_id);
       /** Compare two RDO containers */ 
       StatusCode compare(TgcRdo* rdo, TgcRdo* newRdo); 
       /** Compare two RDOs */ 

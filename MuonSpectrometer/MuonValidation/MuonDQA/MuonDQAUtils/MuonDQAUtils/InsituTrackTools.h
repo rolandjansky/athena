@@ -13,9 +13,6 @@
 /// Gaudi Tools
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-/// Storegate
-#include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 /// ROOT Classes
 #include "TH1.h"
 #include "TH2.h" 
@@ -65,9 +62,6 @@ namespace Muon
 	
       /** default destructor */
       virtual ~InsituTrackTools () {};
-	
-      /** standard Athena-Algorithm method */
-      virtual StatusCode initialize();
 		
       bool	isZBosonCandidate(const INavigable4Momentum *track1, const INavigable4Momentum *track2);
       bool	isTriggeredMuon(INavigable4Momentum *track1);
@@ -85,9 +79,6 @@ namespace Muon
       float	getJetIsolation(const INavigable4Momentum *trackParticle);
        	
     private:
-	
-      /// a handle on Store Gate 
-      StoreGateSvc* m_storeGate;
 		
       /** member variables for algorithm properties: */
       std::string	m_InnerTrackContainerName;

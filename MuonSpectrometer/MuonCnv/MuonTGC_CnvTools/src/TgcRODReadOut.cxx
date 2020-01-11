@@ -84,8 +84,7 @@ StatusCode Muon::TgcRODReadOut::setRdo(TgcRdo * v_tgcRdo)
 
 StatusCode Muon::TgcRODReadOut::byteStream2Rdo(const ByteStream& bs, 
 					       TgcRdo& tgcRdo, 
-					       uint32_t source_id, 
-					       MsgStream& /*vlog*/)
+					       uint32_t source_id)
 {
   MsgStream log(Athena::getMessageSvc(),"Muon::TgcRODReadOut");
   bool t_debug = (log.level()<=MSG::DEBUG);
@@ -138,8 +137,7 @@ StatusCode Muon::TgcRODReadOut::byteStream2Rdo(const ByteStream& bs,
 
 StatusCode Muon::TgcRODReadOut::check(const ByteStream& bs, 
 				      TgcRdo& tgcRdo, 
-				      uint32_t source_id, 
-				      MsgStream& /*vlog*/)
+				      uint32_t source_id)
 {
 
   // create another TgcTdo
@@ -213,13 +211,17 @@ StatusCode Muon::TgcRODReadOut::compare(TgcRdo* rdo, TgcRdo* newRdo)
 
   for(size_t ib=0; ib<n_data; ib++){
     TgcRawData* nraw = (*newRdo)[ib];
-    bool matched = false;
+    #ifndef NDEBUG
+    bool matched = false; // matched flag is only needed for DEBUG messages
+    #endif
     for(size_t ic=0; ic<o_data; ic++){
       TgcRawData* oraw = (*rdo)[ic];
       if(isMatched(nraw, oraw)){
-	check[ic] = true;
-	matched = true;
-	break;
+         check[ic] = true;
+         #ifndef NDEBUG
+         matched = true;
+         #endif
+         break;
       }
     }
     #ifndef NDEBUG
@@ -235,12 +237,16 @@ StatusCode Muon::TgcRODReadOut::compare(TgcRdo* rdo, TgcRdo* newRdo)
   for(size_t ic=0; ic<o_data; ic++){
     if(check[ic]) continue;
     TgcRawData* oraw = (*rdo)[ic];
-    bool matched = false;
+    #ifndef NDEBUG
+    bool matched = false; // matched flag is only needed for DEBUG messages
+    #endif
     for(size_t ib=0; ib<n_data; ib++){
       TgcRawData* nraw = (*newRdo)[ib];
       if(isMatched(oraw, nraw)){
-	matched = true;
-	break;
+        #ifndef NDEBUG
+        matched = true;
+        #endif
+        break;
       }
     }
     #ifndef NDEBUG

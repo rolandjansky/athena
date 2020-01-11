@@ -6,7 +6,6 @@
 #include "EventKernel/INavigable4Momentum.h"
 #include <cmath>
 
-//================ Constructor =================================================
 namespace Muon {
   InsituTrackTools::InsituTrackTools(const std::string& t, const std::string& n, const IInterface*  p ):
     AthAlgTool(t,n,p)
@@ -21,22 +20,6 @@ namespace Muon {
     declareProperty("m_MaximalJetEnergyInCone",		m_MaximalJetEnergyInCone = 25000.); // MeV
 		
   }
-
-  //================ Initialisation =================================================
-
-  StatusCode InsituTrackTools::initialize()
-  {
-    ATH_CHECK(AlgTool::initialize());
-	
-    /// get StoreGate service
-    ATH_CHECK(service("StoreGateSvc",m_storeGate));
-	
-    ATH_MSG_INFO("initialize() successful");
-    return StatusCode::SUCCESS;
-  }
-
-  //============================================================================================
-
 
   bool 	InsituTrackTools::isZBosonCandidate(const INavigable4Momentum *track1, const INavigable4Momentum *track2)
   {
@@ -78,26 +61,20 @@ namespace Muon {
     tvec1.SetPtEtaPhiM(track1->pt(), track1->eta(), track1->phi(), 105.65);
     tvec2.SetPtEtaPhiM(track2->pt(), track2->eta(), track2->phi(), 105.65);
     return (tvec1+tvec2).M();
-    
-    //return 0.0;
-    
   }
 
   bool	InsituTrackTools::isTriggeredMuon(INavigable4Momentum */*track1*/)
   {
-    // track1 = 0;
     return true;
   }
 
   bool	InsituTrackTools::isTriggeredElectron(INavigable4Momentum */*track1*/)
   {
-    // track1 = 0;
     return true;
   }
 
   bool	InsituTrackTools::isElectronCandidate(INavigable4Momentum */*track1*/)
   {
-    // track1 = 0;
     return false;
   }
 
@@ -116,11 +93,9 @@ namespace Muon {
 
   bool	InsituTrackTools::getTrackIsolation(const INavigable4Momentum *trackParticle, float &PtIsolation, int &NIsolation)
   {
-    StatusCode sc = StatusCode::SUCCESS;
-	
-    const Rec::TrackParticleContainer* trackTES=0;
-    sc=m_storeGate->retrieve( trackTES, m_InnerTrackContainerName);
-    if( sc.isFailure()  ||  !trackTES ) 	return false;
+    const Rec::TrackParticleContainer* trackTES=nullptr;
+    StatusCode sc = evtStore()->retrieve(trackTES, m_InnerTrackContainerName);
+    if (sc.isFailure() || !trackTES) return false;
 
     NIsolation	= 0;
     PtIsolation	= 0.0;
@@ -170,16 +145,9 @@ namespace Muon {
 
   float InsituTrackTools::getJetIsolation(const INavigable4Momentum *trackParticle)
   {
-    StatusCode sc = StatusCode::SUCCESS;
-	
-    //const ParticleJetContainer* jetTES;
     const JetCollection* jetTES = nullptr;  //ESD Key
-
-    sc=m_storeGate->retrieve( jetTES, m_ConeJetContainerName);
-    if( sc.isFailure()  ||  !jetTES ) 
-      {
-	return -1.0;
-      }  
+    StatusCode sc = evtStore()->retrieve(jetTES, m_ConeJetContainerName);
+    if (sc.isFailure() || !jetTES) return -1.;
 
     double	track_eta = trackParticle->eta();
     double	track_phi = trackParticle->phi();
