@@ -49,7 +49,7 @@ Trk::Surface::Surface(Amg::Transform3D* tform)
   , m_materialLayer(nullptr)
   , m_owner(Trk::noOwn)
 {
-  m_transform.store(std::unique_ptr<Amg::Transform3D>(tform));
+  m_transform=std::unique_ptr<Amg::Transform3D>(tform);
 #ifndef NDEBUG
   s_numberOfInstantiations++; // EDM Monitor - increment one instance
   s_numberOfFreeInstantiations++;
@@ -118,7 +118,7 @@ Trk::Surface::Surface(const Surface& sf)
 Trk::Surface::Surface(const Surface& sf, const Amg::Transform3D& shift)
   : m_transform(sf.m_transform ? std::make_unique<Amg::Transform3D>(shift * (*(sf.m_transform)))
                                : std::make_unique<Amg::Transform3D>(shift))
-  , m_center((sf.m_center) ? std::make_unique<Amg::Vector3D>(shift * (*(sf.m_center))) : nullptr)
+  , m_center((sf.m_center) ? std::make_unique<const Amg::Vector3D>(shift * (*(sf.m_center))) : nullptr)
   , m_normal(nullptr)
   , m_associatedDetElement(nullptr)
   , m_associatedDetElementId()
