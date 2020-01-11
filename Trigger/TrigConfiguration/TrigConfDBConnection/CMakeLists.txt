@@ -7,7 +7,7 @@ atlas_subdir( TrigConfDBConnection )
 
 # External dependencies:
 find_package( Frontier_Client )
-find_package( PythonLibs )
+find_package( Python COMPONENTS Development )
 find_package( Boost COMPONENTS filesystem thread system
               OPTIONAL_COMPONENTS python${PYTHON_VERSION_MAJOR}${PYTHON_VERSION_MINOR} )
 

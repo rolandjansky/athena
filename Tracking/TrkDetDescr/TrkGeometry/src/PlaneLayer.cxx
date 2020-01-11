@@ -184,7 +184,7 @@ double Trk::PlaneLayer::postUpdateMaterialFactor(const Trk::TrackParameters& par
 
 void Trk::PlaneLayer::moveLayer(Amg::Transform3D& shift)  {
        Amg::Transform3D transf = shift * (*m_transform);
-       m_transform.store(std::make_unique<Amg::Transform3D>(transf));
+       m_transform=std::make_unique<Amg::Transform3D>(transf);
        m_center.store(std::make_unique<Amg::Vector3D>(m_transform->translation()));
        m_normal.store(std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2)));
 }

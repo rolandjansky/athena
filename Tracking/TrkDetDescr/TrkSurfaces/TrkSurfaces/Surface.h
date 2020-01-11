@@ -350,9 +350,9 @@ protected:
 
   /** Private members are in principle implemented as pointers to
    * objects for easy checks if they are already declared or not */
-  CxxUtils::CachedUniquePtrT<Amg::Transform3D> m_transform; //!< Transform3D to orient surface w.r.t to global frame
-  CxxUtils::CachedUniquePtrT<Amg::Vector3D> m_center;       //!< center position of the surface
-  CxxUtils::CachedUniquePtrT<Amg::Vector3D> m_normal;       //!< normal vector of the surface
+  std::unique_ptr<Amg::Transform3D> m_transform;           //!< Transform3D to orient surface w.r.t to global frame
+  CxxUtils::CachedUniquePtr<Amg::Vector3D> m_center;       //!< center position of the surface
+  CxxUtils::CachedUniquePtr<Amg::Vector3D> m_normal;       //!< normal vector of the surface
 
   /** Pointers to the a TrkDetElementBase */
   const TrkDetElementBase* m_associatedDetElement;

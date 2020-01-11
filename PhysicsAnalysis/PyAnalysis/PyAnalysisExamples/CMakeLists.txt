@@ -18,7 +18,7 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 find_package( CLHEP )
-find_package( PythonLibs )
+find_package( Python COMPONENTS Development )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:

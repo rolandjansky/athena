@@ -1,6 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
+from __future__ import print_function
 import re,sys
 
 from CoolRunQuery.AtlRunQueryRun   import Run
@@ -73,14 +74,14 @@ class DurationSelector(Selector):
     def __str__(self):
         return "SELOUT Checking if duration of run is %s than %i seconds" % ("more" if self.geReq else "less",self.duration)
     def select(self, runlist):
-        print self,
+        print (self, end='')
         sys.stdout.flush()
         if self.geReq:
             rmlist = [r for r in runlist if (r.eor-r.sor)/1E9<self.duration]
         else:
             rmlist = [r for r in runlist if (r.eor-r.sor)/1E9>self.duration]
         for r in rmlist: runlist.remove(r)
-        if self.applySelection: print " ==> %i runs selected" % len(runlist)
+        if self.applySelection: print (" ==> %i runs selected" % len(runlist))
         return runlist
 
 
@@ -287,7 +288,7 @@ class DatasetsSelector(Selector):
                     pattern = sp[0]
                 # sanity check
                 if len(sp) != 2 or not self.showCAFLinks:
-                    print 'ERROR: wrong format in "show dataset". Usage: "show dataset [pattern] [caf]"'
+                    print ('ERROR: wrong format in "show dataset". Usage: "show dataset [pattern] [caf]"')
                     sys.exit(1)
                                        
             self.selpattern = pattern.split(',')
@@ -327,11 +328,11 @@ class LArcondSelector(RunLBBasedCondition):
                     key = 'lar:' + larcondargs[0].strip().lower()
                     # does it exist?
                     if not key in self.ResultKey():
-                        print 'ERROR: unknown larcond variable "%s"' % key
+                        print ('ERROR: unknown larcond variable "%s"' % key)
                         sys.exit(1)                
                     self.larcond[key] = larcondargs[1].strip()
                 else:
-                    print 'ERROR: unknown condition format for larcond: "%s" -> need two arguments separated by blank' % larcondargs
+                    print ('ERROR: unknown condition format for larcond: "%s" -> need two arguments separated by blank' % larcondargs)
                     sys.exit(1)                
                     
                     

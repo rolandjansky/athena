@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # ----------------------------------------------------------------
 # Script : AtlRunQueryRun.py
@@ -10,7 +10,7 @@
 # Created: Feb 10, 2009
 # ----------------------------------------------------------------
 #
-from __future__ import with_statement
+from __future__ import with_statement, print_function
 from CoolRunQuery.utils.AtlRunQueryTimer import timer
 
 from utils.AtlRunQueryUtils        import addKommaToNumber, filesize, prettyNumber, coolDbConn, RunPeriods
@@ -167,7 +167,7 @@ class RunData:
 
     @property
     def isRejectedCurrentLB(self):
-        #print "Checking Reject for LB",self.lb,"-",self.lbend()
+        #print ("Checking Reject for LB",self.lb,"-",self.lbend())
         need_dq_check = False
         for k,s in self.data_current_lb.items():
             if k in RunData.DQKeys:
@@ -312,7 +312,7 @@ class Run:
 
     @classmethod
     def AddToShowOrder(cls,key):
-        #print "ADDING TO SHOWORDER  %r" % key
+        #print ("ADDING TO SHOWORDER  %r" % key)
         if not key in cls.ShowOrder:
             cls.ShowOrder += [ key ]
 
@@ -382,7 +382,7 @@ class Run:
     def SortedShowOrder(cls):
         if Run._SortedShowOrder != None:
             if len(Run._SortedShowOrder) != len(Run.ShowOrder):
-                raise RuntimeError, "Sorting not up-to-date %i %i" % (len(Run._SortedShowOrder), len(Run.ShowOrder) )
+                raise RuntimeError ("Sorting not up-to-date %i %i" % (len(Run._SortedShowOrder), len(Run.ShowOrder) ))
             return Run._SortedShowOrder
         hk = []
         for order in Run.DisplayOrder:
@@ -392,7 +392,7 @@ class Run:
                 hk += [x]
         Run._SortedShowOrder = hk
         if len(Run._SortedShowOrder) != len(Run.ShowOrder):
-            raise RuntimeError, "Sorting not up-to-date after creation %i %i" % (len(Run._SortedShowOrder), len(Run.ShowOrder) )
+            raise RuntimeError ("Sorting not up-to-date after creation %i %i" % (len(Run._SortedShowOrder), len(Run.ShowOrder) ))
         return Run._SortedShowOrder
     
     @classmethod
@@ -497,7 +497,7 @@ class Run:
                     elif 'firstsample'    in k: s += '  <th><font size="-2">1st sample</font></th>' 
                     elif 'format'         in k: s += '  <th><font size="-2">Format</font></th>' 
                     else:
-                        print 'ERROR: unknown LAr option "%s"' % k
+                        print ('ERROR: unknown LAr option "%s"' % k)
                         sys.exit(1)
                 elif 'lhc:' in k:
                     if   'fillnumber'     in k: s += '  <th>  LHC Fill</th>'
@@ -517,7 +517,7 @@ class Run:
                     elif 'machinemode'    in k: s += '  <th>LHC mode</th>' 
                     elif 'beammode'       in k: continue
                     else:
-                        print 'ERROR: unknown LHC option "%s"' % k
+                        print ('ERROR: unknown LHC option "%s"' % k)
                         sys.exit(1)
                 elif 'ofllumi:' in k:
                     if not ofllumiFlag:
@@ -573,7 +573,7 @@ class Run:
             order = []
             for (p,hdesc) in patterns:
                 matchedpositions = [idx for (idx,head) in enumerate(Run.headerkeys()) if re.match(p,head)]
-                #print "pattern",p,matchedpositions
+                #print ("pattern",p,matchedpositions)
                 if matchedpositions: order += [(min(matchedpositions),max(matchedpositions),hdesc)]
             order.sort()
 
@@ -655,7 +655,7 @@ class Run:
 
     def addResult(self, resDictKey, value, iov=None, reject=False):
         if resDictKey=='DQ' and value=='n.a.': return
-        #print "Run.addResult:",resDictKey, value, iov,"reject=",reject
+        #print ("Run.addResult:",resDictKey, value, iov,"reject=",reject)
         if not resDictKey in self.result:
             self.result[resDictKey] = value
         if iov:

@@ -21,7 +21,7 @@ find_package( AnalysisBaseExternals REQUIRED )
 # Find Python. This is needed because AnalysisBaseExternals sets up
 # a wrong value for PYTHONHOME. And nothing in AnalysisBase builds
 # against Python to correct it.
-find_package( PythonInterp )
+find_package( Python COMPONENTS Interpreter )
 
 # Add the project's modules directory to CMAKE_MODULE_PATH:
 list( INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/modules )
