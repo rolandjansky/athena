@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from sqlalchemy import (select, create_engine, MetaData, Table, Column, String, 
     Integer)
@@ -9,7 +9,10 @@ from sqlalchemy.sql import and_
 from DQUtils.sugar import IOVSet
 from xml.dom.minidom import parse
 from os.path import exists
-from urllib import splithost
+
+from future.standard_library import install_aliases
+install_aliases()
+from urllib.parse import urlparse # noqa: E402
 
 def parse_auth_file(file_name, connection):
 
@@ -18,7 +21,7 @@ def parse_auth_file(file_name, connection):
     connections = dom.getElementsByTagName("connection")
     desired_conn = lambda c: c.attributes.get("name").value == connection
     
-    connections = filter(desired_conn, connections)
+    connections = list(filter(desired_conn, connections))
     
     if len(connections) < 1:
         return None
@@ -55,7 +58,7 @@ def get_authentication(connection="oracle://ATLAS_COOLPROD/ATLAS_COOLONL_GLOBAL"
 def make_oracle_connection(connection_string):
     "oracle://ATLAS_COOLPROD/ATLAS_COOLONL_GLOBAL"
     assert connection_string.startswith("oracle://"), "Not a connection string"
-    host, user = splithost(connection_string[len("oracle:"):])
+    host = urlparse (connection_string[len("oracle:"):]).netloc
     username, password = get_authentication(connection_string)
     conn_str = "oracle://%s:%s@%s" % (username, password, host)
     engine = create_engine(conn_str, pool_recycle=10*60)
