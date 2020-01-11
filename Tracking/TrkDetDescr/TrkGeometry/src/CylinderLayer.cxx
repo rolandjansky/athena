@@ -194,7 +194,7 @@ double Trk::CylinderLayer::postUpdateMaterialFactor(const Trk::TrackParameters& 
 
 void Trk::CylinderLayer::moveLayer(Amg::Transform3D& shift) {
        Amg::Transform3D transf = shift * (*m_transform);
-       Trk::CylinderSurface::m_transform.store(std::make_unique<Amg::Transform3D>(transf));
+       Trk::CylinderSurface::m_transform= std::make_unique<Amg::Transform3D>(transf);
        m_center.store(std::make_unique<Amg::Vector3D>(m_transform->translation()));
        m_normal.store(std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2)));
 
@@ -310,7 +310,7 @@ void Trk::CylinderLayer::resizeAndRepositionLayer(const VolumeBounds& vBounds, c
     // now reposition to the potentially center if necessary, do not change layers with no transform
     if ( Trk::CylinderSurface::m_transform || center().isApprox(vCenter) ) return;
     
-    Trk::CylinderSurface::m_transform.store(std::make_unique<Amg::Transform3D>(vCenter));
+    Trk::CylinderSurface::m_transform=std::make_unique<Amg::Transform3D>(vCenter);
     // delete derived and the cache
     Trk::CylinderSurface::m_center.store(std::make_unique<Amg::Vector3D>(vCenter));
     Trk::CylinderSurface::m_normal.store(nullptr);
