@@ -12,7 +12,7 @@ from RecExConfig.RecFlags import rec
 from InDetRecExample.InDetJobProperties import InDetFlags
 # import base class
 from egammaAlgs import egammaAlgsConf
-from egammaTools.InDetTools import egammaExtrapolator
+from egammaTools.egammaExtrapolators import egammaExtrapolator
 from egammaRec.Factories import AlgFactory
 from egammaRec import egammaKeys
 
