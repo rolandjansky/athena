@@ -50,11 +50,7 @@ const SG::BaseInfoBase* getBaseInfo (CLID clid)
 
 ProxyProviderSvc::ProxyProviderSvc(const std::string& name, 
                                    ISvcLocator* svcLoc): 
-  base_class(name, svcLoc),
-  m_pDataLoader(0)
-{
-  declareProperty("ProviderNames", m_providerNames,
-                  "names of the services to be use as address providers");
+  base_class(name, svcLoc){
   m_providerNames.declareUpdateHandler(&ProxyProviderSvc::providerNamesPropertyHandler, this);
 }
 
