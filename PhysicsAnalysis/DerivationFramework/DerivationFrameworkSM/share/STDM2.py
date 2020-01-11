@@ -205,6 +205,12 @@ svcMgr += createThinningSvc( svcName="STDM2ThinningSvc", outStreams=[evtStream] 
 #re-tag PFlow jets so they have b-tagging info.
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = STDM2Sequence)
 
+#improved fJVT
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import applyMVfJvtAugmentation,getPFlowfJVT
+# MVfJvt #
+applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=STDM2Sequence, algname='JetForwardJvtToolBDTAlg')
+# PFlow fJvt #
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=STDM2Sequence, algname='JetForwardPFlowJvtToolAlg')
 
 #====================================================================
 # Add the containers to the output stream - slimming done here

@@ -250,6 +250,13 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
 addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=STDM3Sequence,algname="QGTaggerToolAlg",truthjetalg=truthjetalg)
 addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=STDM3Sequence,algname="QGTaggerToolPFAlg",truthjetalg=truthjetalg) 
 
+#improved fJVT
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import applyMVfJvtAugmentation,getPFlowfJVT
+# MVfJvt #
+applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=STDM3Sequence, algname='JetForwardJvtToolBDTAlg')
+# PFlow fJvt #
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=STDM3Sequence, algname='JetForwardPFlowJvtToolAlg')
+
 #====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================
