@@ -159,6 +159,13 @@ if InDetFlags.doxAOD():
   InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODTrackParticleContainer()]
   InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODTrackParticleContainer()+'Aux.' + excludedAuxData]
 
+  from  InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags
+  from  InDetPhysValMonitoring.ConfigUtils import extractCollectionPrefix
+  for col in InDetPhysValFlags.validateExtraTrackCollections() :
+    prefix=extractCollectionPrefix(col)
+    InDetESDList+=['xAOD::TrackParticleContainer#'+prefix+'TrackParticles']
+    InDetESDList+=['xAOD::TrackParticleAuxContainer#'+prefix+'TrackParticlesAux.' + excludedAuxData]
+
   if InDetFlags.doStoreTrackSeeds():
    InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.SiSPSeedSegments()+"TrackParticle"]
    InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.SiSPSeedSegments()+"TrackParticle"+'Aux.' + excludedAuxData]

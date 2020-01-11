@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -105,7 +105,7 @@ StatusCode SiTrkAlignDBTool::initialize() {
 
   // Si alignment database tool
   if ( m_IDAlignDBTool.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Can not retrieve IDAlignDBTool of type " << m_IDAlignDBTool.typeAndName() << endreq;
+    ATH_MSG_FATAL("SiTrkAlignDBTool::initialize() -> Can not retrieve IDAlignDBTool of type " << m_IDAlignDBTool.typeAndName());
     return StatusCode::FAILURE;
   }
   else
@@ -113,7 +113,7 @@ StatusCode SiTrkAlignDBTool::initialize() {
 
   // get AlignModuleTool
   if( m_alignModuleTool.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << " Could not retrieve " << m_alignModuleTool << endreq;
+    ATH_MSG_FATAL("SiTrkAlignDBTool::initialize() ->  Could not retrieve " << m_alignModuleTool);
     return StatusCode::FAILURE;
   }
   else
@@ -121,7 +121,7 @@ StatusCode SiTrkAlignDBTool::initialize() {
 
   // retrieve Pixel helper
   if ( detStore()->retrieve(m_pixHelper).isFailure() ) {
-    msg(MSG::FATAL) << " Cannot retrieve Pixel Helper " << endreq;
+    ATH_MSG_FATAL("SiTrkAlignDBTool::initialize() ->  Cannot retrieve Pixel Helper ");
     return StatusCode::FAILURE;
   }
   else
@@ -129,14 +129,14 @@ StatusCode SiTrkAlignDBTool::initialize() {
 
   // retrieve SCT helper
   if ( detStore()->retrieve(m_sctHelper).isFailure() ) {
-    msg(MSG::FATAL) << " Cannot retrieve SCT Helper " << endreq;
+    ATH_MSG_FATAL("SiTrkAlignDBTool::initialize() -> Cannot retrieve SCT Helper ");
     return StatusCode::FAILURE;
   }
   else
     ATH_MSG_INFO("retrieved Silicon SCT Helper");
 
   if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
-    msg(MSG::FATAL) << "Could not get AtlasDetectorID helper" << endreq;
+    ATH_MSG_FATAL("SiTrkAlignDBTool::initialize() -> Could not get AtlasDetectorID helper");
     return StatusCode::FAILURE;
   }
 
@@ -145,7 +145,7 @@ StatusCode SiTrkAlignDBTool::initialize() {
   // get SiGeometryManagerTool
   if( !m_siGeoManager.empty() ) {
     if( m_siGeoManager.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << " Could not retrieve " << m_siGeoManager << endreq;
+      ATH_MSG_FATAL("SiTrkAlignDBTool::initialize() ->  Could not retrieve " << m_siGeoManager);
       return StatusCode::FAILURE;
     }
 
@@ -156,7 +156,7 @@ StatusCode SiTrkAlignDBTool::initialize() {
     // check alignment level but don't stop on error
     // if unknown level given, set to -1
     if(!checkSiLevel()) {
-      msg(MSG::WARNING)<<" Storing of alignment constants for level "<<m_siAlignLevel<<" for Silicon is not implemented."<<endreq;
+      ATH_MSG_FATAL("SiTrkAlignDBTool::initialize() -> Storing of alignment constants for level "<<m_siAlignLevel<<" for Silicon is not implemented.");
       m_siAlignLevel=-1;
     }
   }
@@ -167,7 +167,7 @@ StatusCode SiTrkAlignDBTool::initialize() {
     // get PixelGeometryManagerTool
     if( !m_pixelGeoManager.empty() ) {
       if( m_pixelGeoManager.retrieve().isFailure() ) {
-        msg(MSG::FATAL) << " Could not retrieve " << m_pixelGeoManager << endreq;
+        ATH_MSG_FATAL("SiTrkAlignDBTool::initialize() -> Could not retrieve " << m_pixelGeoManager);
         return StatusCode::FAILURE;
       }
 
@@ -175,7 +175,7 @@ StatusCode SiTrkAlignDBTool::initialize() {
       m_pixelAlignLevel = m_pixelGeoManager->alignLevel();
       m_pixelAlignLevelBarrel = m_pixelGeoManager->alignLevelBarrel();
       m_pixelAlignLevelEndcaps = m_pixelGeoManager->alignLevelEndcaps();
-//      m_pixelaAlignDBM = m_pixelGeoManager->alignDBM();
+
       ATH_MSG_DEBUG("Retrieved Pixel Global alignment level: "<<m_pixelAlignLevel);
       ATH_MSG_DEBUG("Retrieved Pixel Barrel alignment level: "<<m_pixelAlignLevelBarrel);
       ATH_MSG_DEBUG("Retrieved Pixel Endcap alignment level: "<<m_pixelAlignLevelEndcaps);
@@ -190,15 +190,14 @@ StatusCode SiTrkAlignDBTool::initialize() {
 
        // check alignment level but don't stop on error
       if(!checkPixelLevel()) {
-        msg(MSG::FATAL)<<" Pixel alignment level not given."<<endreq;
-//        return StatusCode::FAILURE;
+        ATH_MSG_FATAL("SiTrkAlignDBTool::initialize() ->  Pixel alignment level not given.");
       }
     }
 
     // get SCTGeometryManagerTool
     if( !m_sctGeoManager.empty() ) {
       if( m_sctGeoManager.retrieve().isFailure() ) {
-        msg(MSG::FATAL) << " Could not retrieve " << m_sctGeoManager << endreq;
+        ATH_MSG_FATAL("SiTrkAlignDBTool::initialize() -> Could not retrieve " << m_sctGeoManager);
         return StatusCode::FAILURE;
       }
 
@@ -210,7 +209,7 @@ StatusCode SiTrkAlignDBTool::initialize() {
       ATH_MSG_DEBUG("Retrieved SCT Barrel alignment level: "<<m_sctAlignLevelBarrel);
       ATH_MSG_DEBUG("Retrieved SCT Endcap alignment level: "<<m_sctAlignLevelEndcaps);
 
-		if(m_sctAlignLevel == 0)
+      if(m_sctAlignLevel == 0)
         ATH_MSG_INFO(" Requested update of Level "<<m_sctAlignLevel<<" alignment constants for SCT");
       else {
         ATH_MSG_INFO(" Requested update of Level "<<m_sctAlignLevelBarrel<<" alignment constants for SCT Barrel");
@@ -219,15 +218,14 @@ StatusCode SiTrkAlignDBTool::initialize() {
 
        // check alignment level but don't stop on error
       if(!checkSCTLevel()) {
-        msg(MSG::FATAL)<<" SCT alignment level not given."<<endreq;
-//        return StatusCode::FAILURE;
+        ATH_MSG_FATAL("SiTrkAlignDBTool::initialize() -> SCT alignment level not given.");
       }
     }
 
     // if we're here it means that we need at least one the two managers
     if(m_pixelAlignLevel<0 && m_pixelAlignLevelBarrel<0 && m_pixelAlignLevelEndcaps<0
        && m_sctAlignLevel<0 && m_sctAlignLevelBarrel<0 && m_sctAlignLevelEndcaps<0) {
-      msg(MSG::FATAL) << " No geometry manager available or alignment level not given. " << endreq;
+      ATH_MSG_FATAL("SiTrkAlignDBTool::initialize() -> No geometry manager available or alignment level not given. ");
       // we don't want to stop if there's errors
       // so we comment out the return statement
 //      return StatusCode::FAILURE;
@@ -245,11 +243,10 @@ StatusCode SiTrkAlignDBTool::initialize() {
     ATH_MSG_INFO(" Storing IBLDist as level 16 constants in separate DB");
 
   if(!m_doPixel && !m_doSCT && !m_doSi) {
-    msg(MSG::FATAL)<<" No geometry manager available or alignment level not given."<<endreq;
-    msg(MSG::FATAL)<<" DB not updated."<<endreq;
-//    return;
+    ATH_MSG_FATAL(" No geometry manager available or alignment level not given.");
+    ATH_MSG_FATAL(" WARNING -> DB not updated.");
   }
-  ATH_MSG_DEBUG("Made it till here..... "<<m_doSi<<" "<<m_doPixel<<" "<<m_doSCT);
+  ATH_MSG_DEBUG("SiTrkAlignDBTool::initialize() -> Made it till here..... "<<m_doSi<<" "<<m_doPixel<<" "<<m_doSCT);
   ATH_MSG_DEBUG("update constants..... "<<m_updateConstants);
   return StatusCode::SUCCESS;
 }
@@ -298,9 +295,10 @@ bool SiTrkAlignDBTool::checkPixelLevel()
   switch(m_pixelAlignLevelBarrel) {
     case 11: case 12: case 15: case 16: case 2: case 22: case 26: case 27: case 3:
       ok = true;
+      ATH_MSG_INFO("Storing alignment constants for m_pixelAlignLevelBarrel as level "<< m_pixelAlignLevelBarrel);
       break;
     default:
-      msg(MSG::ERROR)<<" Storing of alignment constants for level "<<m_pixelAlignLevelBarrel<<" for Pixel Barrel is not implemented."<<endreq;
+      ATH_MSG_ERROR(" Storing of alignment constants for level "<<m_pixelAlignLevelBarrel<<" for Pixel Barrel is not implemented.");
       m_pixelAlignLevelBarrel = -1;
       ok = false;
       break;
@@ -311,7 +309,7 @@ bool SiTrkAlignDBTool::checkPixelLevel()
       ok = ok && true;
       break;
     default:
-      msg(MSG::ERROR)<<" Storing of alignment constants for level "<<m_pixelAlignLevelEndcaps<<" for Pixel Endcaps is not implemented."<<endreq;
+      ATH_MSG_ERROR(" Storing of alignment constants for level "<<m_pixelAlignLevelEndcaps<<" for Pixel Endcaps is not implemented.");
       m_pixelAlignLevelEndcaps = -1;
       ok = false;
       break;
@@ -334,25 +332,25 @@ bool SiTrkAlignDBTool::checkSCTLevel()
   bool ok = false;
 
   switch(m_sctAlignLevelBarrel) {
-    case 1: case 2: case 27: case 3:
-      ok = true;
-      break;
-    default:
-      msg(MSG::ERROR)<<" Storing of alignment constants for level "<<m_sctAlignLevelBarrel<<" for SCT Barrel is not implemented."<<endreq;
-      m_sctAlignLevelBarrel = -1;
-      ok = false;
-      break;
+  case 1: case 2: case 25: case 27: case 3:
+    ok = true;
+    break;
+  default:
+    ATH_MSG_ERROR("SiTrkAlignDBTool -> Storing of alignment constants for level "<<m_sctAlignLevelBarrel<<" for SCT Barrel is not implemented.");
+    m_sctAlignLevelBarrel = -1;
+    ok = false;
+    break;
   }
 
   switch(m_sctAlignLevelEndcaps) {
-    case 1: case 2: case 25: case 3:
-      ok = ok && true;
-      break;
-    default:
-      msg(MSG::ERROR)<<" Storing of alignment constants for level "<<m_sctAlignLevelEndcaps<<" for SCT Endcaps is not implemented."<<endreq;
-      m_sctAlignLevelEndcaps = -1;
-      ok = false;
-      break;
+  case 1: case 2: case 25: case 3:
+    ok = ok && true;
+    break;
+  default:
+    ATH_MSG_ERROR("SiTrkAlignDBTool -> Storing of alignment constants for level "<<m_sctAlignLevelEndcaps<<" for SCT Endcaps is not implemented.");
+    m_sctAlignLevelEndcaps = -1;
+    ok = false;
+    break;
   }
 
   return ok;
@@ -607,7 +605,7 @@ void SiTrkAlignDBTool::updateDB()
       if( m_IDAlignDBTool->setTrans(modID, level, dbtransform) )
         ATH_MSG_INFO("Module \'"<<module->name()<<"\': Level "<<level<<" constants updated.");
       else
-        msg(MSG::ERROR)<<"Error setting level "<<level<<" constants for module "<<module->name()<<endreq;
+        ATH_MSG_ERROR("Error setting level "<<level<<" constants for module "<<module->name());
     }
 
   }
@@ -622,7 +620,7 @@ void SiTrkAlignDBTool::updateSiL0asL1(Identifier idL0, const Amg::Transform3D & 
   // the id has to be equal to L1 Pixel ID for Silicon level 0 update
   // or to SCT barrel L1 ID for SCT level 0 update
   if( idL0 != m_pixHelper->wafer_id(0,0,0,0) && idL0 != m_sctHelper->wafer_id(0,0,0,0,0) ) {
-    msg(MSG::ERROR)<<"wrong identifier for L0 Silicon in updateSiL0asL1()"<<endreq;
+    ATH_MSG_ERROR("wrong identifier for L0 Silicon in updateSiL0asL1()");
     return;
   }
 
@@ -642,7 +640,7 @@ void SiTrkAlignDBTool::updateSiL0asL1(Identifier idL0, const Amg::Transform3D & 
       // set replaces the transform in the DB
       ATH_MSG_INFO("Call to tweak failed. Constants probably don't exist yet. Use set instead.");
       if( !m_IDAlignDBTool->setTrans(idPixel, 1, transform) )
-        msg(MSG::ERROR)<<"Error setting constants."<<endreq;
+        ATH_MSG_ERROR("Error setting constants.");
     }
   }
   else
@@ -663,7 +661,7 @@ void SiTrkAlignDBTool::updateSiL0asL1(Identifier idL0, const Amg::Transform3D & 
       // set replaces the transform in the DB
       ATH_MSG_INFO("Module "<<i<<". - id "<<ids[i]<<": Call to tweak failed. Constants probably don't exist yet. Use set instead.");
       if( !m_IDAlignDBTool->setTrans(ids[i], 1, transform) )
-        msg(MSG::ERROR)<<"Error setting constants."<<endreq;
+        ATH_MSG_ERROR("Error setting constants.");
     }
   }
 }
@@ -740,17 +738,16 @@ void SiTrkAlignDBTool::updateAsL3(const Trk::AlignModule * module, const Amg::Tr
       // This should work as Bowing is in DB frame, i.e. local module frame
       // This implementation is need in the CL as of Oct2015; 
       // For now, just comment for offline
-      /**
       if (apBowX!=0){
 	double z = sielem->center()[2];        
 	const double  y0y0  = 366.5*366.5;
-	//ATH_MSG_DEBUG("Z position : "<< z);
 	double bowx = apBowX * ( z*z - y0y0 ) / y0y0;
+	ATH_MSG_DEBUG("Z position: "<< z << "   apBowX:" << apBowX << "    bowx: " << bowx);
 	// This is in the module frame, as bowing corrections are directly L3
-	Amg::Translation3D translation_bow(bowx , 0, 0 );
-	dbtransform *= translation_bow;
-	}
-      **/
+	// Amg::Translation3D translation_bow(bowx , 0, 0 );
+	// dbtransform *= translation_bow;
+      }
+      
       ATH_MSG_DEBUG("DB transform");
       printTransform(dbtransform);
 
@@ -758,7 +755,7 @@ void SiTrkAlignDBTool::updateAsL3(const Trk::AlignModule * module, const Amg::Tr
       if( !(m_IDAlignDBTool->tweakTrans(elemID, level, dbtransform)) ) {
         // set replaces the transform in the DB
         if( !(m_IDAlignDBTool->setTrans(elemID, level, dbtransform)) )
-          msg(MSG::ERROR)<<"Error setting level "<<level<<" constants for element "<<elemID<<" in module "<<module->name()<<endreq;
+          ATH_MSG_ERROR("Error setting level "<<level<<" constants for element "<<elemID<<" in module "<<module->name());
       }
     } // end loop over detElements
     ATH_MSG_DEBUG("-----------------------------------------------------");
@@ -826,7 +823,7 @@ void SiTrkAlignDBTool::updateAsL2(const Trk::AlignModule * module, const Amg::Tr
       if( !(m_IDAlignDBTool->tweakTrans(level_mod, level, dbtransform)) ) {
         // set replaces the transform in the DB
         if( !(m_IDAlignDBTool->setTrans(level_mod, level, dbtransform)) )
-          msg(MSG::ERROR)<<"Error setting level "<<level<<" constants for element "<<level_mod<<" in module "<<module->name()<<endreq;
+          ATH_MSG_INFO("Error setting level "<<level<<" constants for element "<<level_mod<<" in module "<<module->name() );
       }
     }
     else {
@@ -872,7 +869,7 @@ void SiTrkAlignDBTool::updateAsL16(const Trk::AlignModule * module, double bowx)
 
       // tweak applies the transform onto already existing transform in the DB                                              
       if( !(m_IDAlignDBTool->tweakIBLDist(this_stave_phi,bowx)) ) {
-	msg(MSG::ERROR)<<"Error tweaking IBLDist DB for stave "<<this_stave_phi<<endreq;
+	ATH_MSG_INFO("Error tweaking IBLDist DB for stave "<<this_stave_phi);
       }
     }
     else {
