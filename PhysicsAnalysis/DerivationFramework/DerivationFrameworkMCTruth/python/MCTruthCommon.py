@@ -299,7 +299,8 @@ def schedulePostJetMCTruthAugmentations(kernel=None, decorationDressing=None):
 # This adds the entirety of TRUTH3
 def addStandardTruthContents(kernel=None,
                              decorationDressing='dressedPhoton',
-                             includeTausInDressingPhotonRemoval=False):
+                             includeTausInDressingPhotonRemoval=False,
+                             prefix=''):
     # Tools that must come before jets
     schedulePreJetMCTruthAugmentations(kernel, decorationDressing)
     # Should photons that are dressed onto taus also be removed from truth jets?
@@ -312,7 +313,7 @@ def addStandardTruthContents(kernel=None,
     # Tools that must come after jets
     schedulePostJetMCTruthAugmentations(kernel, decorationDressing)
     # Add back the navigation contect for the collections we want
-    addTruthCollectionNavigationDecorations(kernel, ["TruthElectrons", "TruthMuons", "TruthPhotons", "TruthTaus", "TruthNeutrinos", "TruthBSM", "TruthBottom", "TruthTop", "TruthBoson"])
+    addTruthCollectionNavigationDecorations(kernel, ["TruthElectrons", "TruthMuons", "TruthPhotons", "TruthTaus", "TruthNeutrinos", "TruthBSM", "TruthBottom", "TruthTop", "TruthBoson"], prefix=prefix)
     # Some more additions for standard TRUTH3
     addBosonsAndDownstreamParticles(kernel)
     addLargeRJetD2(kernel)

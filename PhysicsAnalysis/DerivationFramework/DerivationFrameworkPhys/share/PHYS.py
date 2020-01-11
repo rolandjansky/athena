@@ -58,9 +58,13 @@ if (DerivationFrameworkIsMonteCarlo):
    # Add HF particles
    addHFAndDownstreamParticles(SeqPHYS)
    # Add standard truth
-   addStandardTruthContents(SeqPHYS)
-   # Update to include charm quarks and HF particles
-   ToolSvc.DFCommonTruthNavigationDecorator.InputCollections += ['TruthCharm','TruthHFWithDecayParticles']
+   addStandardTruthContents(SeqPHYS,prefix='PHYS_')
+   # Update to include charm quarks and HF particles - require a separate instance to be train safe
+   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthNavigationDecorator
+   PHYSTruthNavigationDecorator = DerivationFramework__TruthNavigationDecorator( name="PHYSTruthNavigationDecorator",
+          InputCollections=["TruthElectrons", "TruthMuons", "TruthPhotons", "TruthTaus", "TruthNeutrinos", "TruthBSM", "TruthBottom", "TruthTop", "TruthBoson","TruthCharm","TruthHFWithDecayParticles"])
+   ToolSvc += PHYSTruthNavigationDecorator
+   SeqPHYS.PHYS_MCTruthNavigationDecoratorKernel.AugmentationTools = [PHYSTruthNavigationDecorator]
    # Re-point links on reco objects
    addMiniTruthCollectionLinks(SeqPHYS)
    addPVCollection(SeqPHYS)
