@@ -546,6 +546,8 @@ namespace top {
     registerParameter("MuonTriggers", "Deprecated, use GlobalTriggers instead.", "None");
     registerParameter("MuonTriggersLoose", "Deprecated, use GlobalTriggersLoose instead.", "None");
 
+    registerParameter("DemandPrimaryVertex", "Wether at least one primary vertex in event is required. Default True. For debugging purposes only!", "True");
+
     registerParameter("KillExperimental", "Disable some specific experimental feature.", " ");
   }
 

@@ -1503,6 +1503,8 @@ namespace top {
 
     inline const std::string& muonTriggerSF() const {return m_muon_trigger_SF;}
 
+    inline bool demandPriVtx() const {return m_demandPriVtx;}
+
     // Where the sum of event weights
     // before derivation framework is kept
     inline const std::string& sumOfEventWeightsMetaData() const {return m_sumOfEventWeightsMetaData;}
@@ -1724,6 +1726,8 @@ namespace top {
 
     // define if d0/z0 cut should be used at all
     bool m_applyTTVACut;
+
+    bool m_demandPriVtx; // whether at leas one primary vertex is required for each event
 
     std::string m_jetSubstructureName;
 

@@ -37,7 +37,7 @@ namespace top {
     m_vetoEventsTrigger(false),
     m_vetoEventsGRL(false),
     m_vetoEventsGoodCalo(false),
-    m_vetoEventsPriVtx(false) {
+    m_vetoEventsPriVtx(true) {
     declareProperty("config", m_config);
 
     declareProperty("GRLTool", m_grlTool);
@@ -63,6 +63,8 @@ namespace top {
     if (!m_config->isMC()) {
       top::check(m_grlTool.retrieve(), "Failed to retrieve TrigDecisionTool");
     }
+
+    m_vetoEventsPriVtx = m_config->demandPriVtx();
 
     return StatusCode::SUCCESS;
   }
@@ -138,7 +140,6 @@ namespace top {
     m_vetoEventsTrigger = true;
     m_vetoEventsGRL = true;
     m_vetoEventsGoodCalo = true;
-    m_vetoEventsPriVtx = true;
 
     for (auto sel : selections) {
       std::list<std::string> listAllTriggers_thisSelector_Tight;
@@ -158,7 +159,6 @@ namespace top {
       bool selectionHasTriggerCut_Loose(false);
       bool selectionHasGRLCut(false);
       bool selectionHasGOODCALOCut(false);
-      bool selectionHasPRIVTXCut(false);
       for (std::string cut : sel.m_cutnames) {
         using boost::algorithm::starts_with;
         cut.append(" ");
@@ -169,10 +169,6 @@ namespace top {
 
         if (starts_with(cut, "GOODCALO ")) {
           selectionHasGOODCALOCut = true;
-        }
-
-        if (starts_with(cut, "PRIVTX ")) {
-          selectionHasPRIVTXCut = true;
         }
 
         if (starts_with(cut, "GTRIGDEC ")) {
@@ -407,10 +403,6 @@ namespace top {
 
       if (!selectionHasGOODCALOCut) {
         m_vetoEventsGoodCalo = false;
-      }
-
-      if (!selectionHasPRIVTXCut) {
-        m_vetoEventsPriVtx = false;
       }
 
       if (!selectionHasTriggerCut) {
