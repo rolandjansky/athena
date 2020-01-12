@@ -1,18 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
 
 #ifndef MMPREPDATA_p1_TRK_H
 #define MMPREPDATA_p1_TRK_H
 
-//-----------------------------------------------------------------------------
-//
-// file:   MMPrepData_p1.h
-//
-//-----------------------------------------------------------------------------
 #include "AthenaPoolUtilities/TPObjRef.h"
 #include "Identifier/IdentifierHash.h"
+#include "EventPrimitives/EventPrimitives.h" // for Amg::MatrixX
 
 namespace Muon
 {
