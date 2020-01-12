@@ -1,11 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ArenaPoolSTLAllocator.h,v 1.2 2008-08-26 02:12:26 ssnyder Exp $
-
 /**
  * @file  AthAllocators/ArenaPoolSTLAllocator.h
  * @author scott snyder
@@ -335,7 +331,8 @@ private:
 /**
  * @brief STL-style allocator wrapper for @c ArenaPoolAllocator.
  *        This is the specialization for pointers, which uses
- *        the standard STL allocator.  It has no additional functionality.
+ *        the standard STL allocator.  It has no additional functionality
+ *        except for passing through the name and nblock arguments.
  *
  * See the file-level comments for details.
  */
@@ -360,8 +357,12 @@ public:
 
   /**
    * @brief Default constructor.
+   * @param nblock Value to set in the parameters structure for the
+   *               number of elements to allocate per block.
+   * @param name   Value to set in the parameters structure for the
+   *               allocator name.
    */
-  ArenaPoolSTLAllocator();
+  ArenaPoolSTLAllocator(size_t nblock = 1000, const std::string& name = "");
 
 
   /**
@@ -375,6 +376,23 @@ public:
 
   // We don't bother to supply a more general constructor --- shouldn't
   // be needed.
+
+
+  /**
+   * @brief Return the hinted number of objects allocated per block.
+   */
+  size_t nblock() const;
+
+
+  /**
+   * @brief Return the name of this allocator.
+   */
+  const std::string& name() const;
+
+
+private:
+  size_t m_nblock;
+  std::string m_name;
 };
 
 
@@ -402,7 +420,8 @@ class ArenaNonConstPoolSTLAllocator;
  * See the file-level comments for further details.
  */
 template <class T>
-class ArenaPoolSTLAllocator<T, T>
+class ArenaPoolSTLAllocator<T,
+                            typename std::enable_if<!std::is_pointer_v<T>, T>::type>
   : public std::allocator<T>
 {
 public:

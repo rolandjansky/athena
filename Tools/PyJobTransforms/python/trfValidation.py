@@ -538,18 +538,24 @@ class athenaLogFileReport(logFileReport):
     def pythonExceptionParser(self, lineGenerator, firstline, firstLineCount):
         pythonExceptionReport = ""
         lastLine = firstline
+        lastLine2 = firstline
         pythonErrorLine = firstLineCount
         pyLines = 1
         for line, linecounter in lineGenerator:
             if 'Py:Athena' in line and 'INFO leaving with code' in line:
-                pythonExceptionReport = lastLine
-                pythonErrorLine = linecounter-1
+                if len(lastLine)> 0:
+                    pythonExceptionReport = lastLine
+                    pythonErrorLine = linecounter-1
+                else: # Sometimes there is a blank line after the exception
+                    pythonExceptionReport = lastLine2
+                    pythonErrorLine = linecounter-2
                 break
             if pyLines >= 25:
                 msg.warning('Could not identify python exception correctly scanning {0} log lines after line {1}'.format(pyLines, firstLineCount))
                 pythonExceptionReport = "Unable to identify specific exception"
                 pythonErrorLine = firstLineCount
                 break
+            lastLine2 = lastLine
             lastLine = line
             pyLines += 1
 

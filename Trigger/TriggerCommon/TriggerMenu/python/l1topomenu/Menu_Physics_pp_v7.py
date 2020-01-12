@@ -10,9 +10,6 @@ def defineMenu():
 
     """
     
-    from TriggerMenu.l1topo.L1TopoFlags import L1TopoFlags
-    from TriggerMenu.l1topo.TopoOutput import TopoOutput
-
     from . import Menu_MC_pp_v7
     Menu_MC_pp_v7.defineMenu()
     

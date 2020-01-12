@@ -20,7 +20,7 @@ from AthenaCommon.AlgSequence import AthSequencer
 if TriggerFlags.doCalo:
 
   if ( True ) :
-     from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
+     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
     
      from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigCaloDataAccessSvc#, TestCaloDataAccess
      import math

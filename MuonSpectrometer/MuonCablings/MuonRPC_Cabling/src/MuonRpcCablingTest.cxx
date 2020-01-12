@@ -1,30 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-/***************************************************************************
- MuonGeoModel description
- -----------------------------------------
- ***************************************************************************/
-
-//<doc><file>	$Id: MuonRpcCablingTest.cxx,v 1.43 2009/03/28 10:59:01 stefspa Exp $
-//<version>	$Name:  $
 
 #include "MuonRPC_Cabling/MuonRpcCablingTest.h"
 
-#include "MuonIdHelpers/RpcIdHelper.h"
 #include "RPCcablingInterface/IRPCcablingServerSvc.h"
 #include "RPCcablingInterface/IRPCcablingSvc.h"
 #include "RPCcablingInterface/RpcPadIdHash.h"
 
-
-//#include "MuonReadoutGeometry/MuonDetectorManager.h"
-//#include "MuonReadoutGeometry/RpcReadoutElement.h"
-
 #include <fstream>
-#include <sstream>
-typedef std::istringstream mystream;
-
 
 MuonRpcCablingTest::MuonRpcCablingTest(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm            ( name, pSvcLocator ),
@@ -33,7 +17,6 @@ MuonRpcCablingTest::MuonRpcCablingTest(const std::string& name, ISvcLocator* pSv
     m_selSideStr            ( "" ),
     m_firstLastChannel      ( false )
 {
-    //    m_check_blines = 0;
     declareProperty("selectedSide",    m_selSideStr="");
     declareProperty("selectedSectors", m_selSectorVec);
     declareProperty("selectedRois",    m_selRoiVec);    
@@ -42,55 +25,21 @@ MuonRpcCablingTest::MuonRpcCablingTest(const std::string& name, ISvcLocator* pSv
     m_first = true;
 }
 
-
-MuonRpcCablingTest::~MuonRpcCablingTest()
-{ }
-
 StatusCode
 MuonRpcCablingTest::initialize()
 {
     StatusCode status = StatusCode::SUCCESS;
 
-    msg()<<MSG::INFO<<"In Initialize"<<endmsg;
+    ATH_MSG_INFO("In Initialize");
     m_first = true;
 
-//     status = detStore()->retrieve( p_MuonMgr );
-//     if ( status.isFailure() ) {
-// 	msg()<< MSG::ERROR << " Cannot retrieve MuonDetectorManager " << endmsg;
-//     }
-//     else
-//     {
-// 	msg()<< MSG::DEBUG << " MuonDetectorManager  is retriven " << endmsg;
-// 	m_idHelper = p_MuonMgr->rpcIdHelper();
-// 	msg() << MSG::DEBUG << " Id Helpers are obtained from MuonDetectorManager " << endmsg;	
-//     }	
-
-    if( m_muonIdHelperTool.retrieve().isFailure() ){
-      ATH_MSG_FATAL("Could not get " << m_muonIdHelperTool);      
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(m_idHelperSvc.retrieve());
 
     // get RPC cablingSvc
-    const IRPCcablingServerSvc* RpcCabGet = 0;
-    StatusCode sc = service("RPCcablingServerSvc", RpcCabGet);
-    if (sc.isFailure()) {
-	msg (MSG::FATAL) << "Could not get RPCcablingServerSvc !" << endmsg;
-	return StatusCode::FAILURE;
-    }
-    else msg (MSG::VERBOSE) << " RPCcablingServerSvc retrieved" << endmsg;
+    const IRPCcablingServerSvc* RpcCabGet = nullptr;
+    ATH_CHECK(service("RPCcablingServerSvc", RpcCabGet));
   
-    status = RpcCabGet->giveCabling(m_cablingSvc);
-    if (status.isFailure()) {
-	msg (MSG::FATAL) << "Could not get RPCcablingSvc from the Server !" << endmsg;
-	m_cablingSvc = 0;
-	return StatusCode::FAILURE;
-    } 
-    else {
-	msg (MSG::VERBOSE) << " RPCcablingSvc obtained " << endmsg;
-    }
-
-    //    // get here the pad id helper 
-    //    m_padHashIdHelper = new RpcPadIdHash();
+    ATH_CHECK(RpcCabGet->giveCabling(m_cablingSvc));
 
     return status;
     
@@ -104,7 +53,7 @@ MuonRpcCablingTest::execute()
     m_first = false;
     std::ofstream fout("RPC_Mapping.dump");
     
-    msg() << MSG::INFO << "Executing" << endmsg;
+    ATH_MSG_INFO("Executing");
 
     m_padHashIdHelper = m_cablingSvc->padHashFunction();
     
@@ -112,17 +61,16 @@ MuonRpcCablingTest::execute()
     const CablingRPCBase* cabling = m_cablingSvc->getRPCCabling();
     if (!cabling) 
     {
-        msg (MSG::ERROR) <<" CablingRPCBase not retrieven !!!!!!"<<endmsg;
+        ATH_MSG_ERROR(" CablingRPCBase not retrieven !!!!!!");
         return StatusCode::FAILURE;
     }
 
     IdentifierHash Idhash;
-    IdContext rpcModuleContext = m_muonIdHelperTool->rpcIdHelper().module_context();
-    //const RpcPadContainer* tmpRdoContainer = new RpcPadContainer(1000);
+    IdContext rpcModuleContext = m_idHelperSvc->rpcIdHelper().module_context();
 
     // this is the right thing to do !!!!!!!
     unsigned int hash_max = m_padHashIdHelper->max();
-    msg (MSG::INFO) <<"From padHashIdHelper hash_max = "<<hash_max<<endmsg;
+    ATH_MSG_INFO("From padHashIdHelper hash_max = "<<hash_max);
     
     
     Identifier pad_idId;
@@ -140,7 +88,7 @@ MuonRpcCablingTest::execute()
 	else if (m_selSideStr!="C") 
 	{
 
-	    msg()<<MSG::WARNING<<"Unknown side chosen - selected <"<<m_selSideStr<<"> while available are A and C"<<endmsg;
+	    ATH_MSG_WARNING("Unknown side chosen - selected <"<<m_selSideStr<<"> while available are A and C");
 	}
 	else  iSubSysMax = 0;	
     }
@@ -148,12 +96,12 @@ MuonRpcCablingTest::execute()
     std::vector<unsigned short int> iSecVec;
     if (!m_selSectorVec.empty())
     {
-	msg()<<MSG::INFO<<"# of selected Sectors is "<<m_selSectorVec.size()<<endmsg;
+	ATH_MSG_INFO("# of selected Sectors is "<<m_selSectorVec.size());
 	int ic = 0;
 	for (std::vector<int>::const_iterator is=m_selSectorVec.begin(); is!=m_selSectorVec.end(); ++is) 
 	{
 	    iSecVec.push_back(*is);
-	    msg()<<MSG::INFO<<"Sector Vec content is --- "<<*is<<" at element "<<ic<<endmsg;
+	    ATH_MSG_INFO("Sector Vec content is --- "<<*is<<" at element "<<ic);
 	    ++ic;
 	}
 	
@@ -169,24 +117,24 @@ MuonRpcCablingTest::execute()
     std::vector<unsigned short int> iRoiVec;
     if (!m_selRoiVec.empty())
     {
-	msg()<<MSG::INFO<<"# of selected Roi is "<<m_selRoiVec.size()<<endmsg;
+	ATH_MSG_INFO("# of selected Roi is "<<m_selRoiVec.size());
 	int ic=0;
 	for (std::vector<int>::const_iterator is=m_selRoiVec.begin(); is!=m_selRoiVec.end(); ++is) 
 	{
 	    iRoiVec.push_back(*is);
-	    msg()<<MSG::INFO<<"Roi Vec content is --- "<<*is<<" at element "<<ic<<endmsg;
+	    ATH_MSG_INFO("Roi Vec content is --- "<<*is<<" at element "<<ic);
 	    ++ic;
 	}
 	
     }	
     else 
     {
-	msg()<<MSG::INFO<<"No Roi Selected "<<endmsg;
+	ATH_MSG_INFO("No Roi Selected ");
 	int ic=0;
 	for (unsigned short int is=0; is < 32; ++is) 
 	{
 	    iRoiVec.push_back(is);
-	    msg()<<MSG::DEBUG<<"Roi Vec content is --- "<<is<<" at element "<<ic<<endmsg;
+	    ATH_MSG_DEBUG("Roi Vec content is --- "<<is<<" at element "<<ic);
 	    ++ic;
 	}
     }
@@ -209,7 +157,7 @@ MuonRpcCablingTest::execute()
                 {
 		    pad_idId = pad_id;
                     ATH_MSG_DEBUG("pad_id, PadId ------------------------ "
-				 <<  (int)pad_idId.get_identifier32().get_compact() <<" "<< PadId<<" "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(PadId));
+				 <<  (int)pad_idId.get_identifier32().get_compact() <<" "<< PadId<<" "<<m_idHelperSvc->rpcIdHelper().show_to_string(PadId));
                     
                     if (PadId_previous == PadId)
                     {
@@ -219,7 +167,7 @@ MuonRpcCablingTest::execute()
                     {
                         IdentifierHash padHash = (*m_padHashIdHelper)(PadId);
                         ATH_MSG_DEBUG("Associated pad-Hash (via the hash-function) = "<<(int)padHash);
-                        if (padHash>hash_max) msg (MSG::ERROR) <<"Computed hashId > hash_max = "<<hash_max<<endmsg;
+                        if (padHash>hash_max) ATH_MSG_ERROR("Computed hashId > hash_max = "<<hash_max);
 
                         for (unsigned short int CMAId=0; CMAId<8; ++CMAId)
                         {
@@ -244,10 +192,9 @@ MuonRpcCablingTest::execute()
 				    {
 					for (std::list<Identifier>::const_iterator it=myOfflineList.begin(); it!=myOfflineList.end(); ++it)
 					{
-					    ATH_MSG_DEBUG("ijk = "<<ijk<<" channel = "<<Channel<<" id offline = "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(*it));
-					    //Identifier idp = m_muonIdHelperTool->rpcIdHelper().parentID(*it);
-					    fout<<m_muonIdHelperTool->rpcIdHelper().show_to_string(*it)<<" ";
-					    ATH_MSG_DEBUG(m_muonIdHelperTool->rpcIdHelper().show_to_string(*it)<<" ");
+					    ATH_MSG_DEBUG("ijk = "<<ijk<<" channel = "<<Channel<<" id offline = "<<m_idHelperSvc->rpcIdHelper().show_to_string(*it));
+					    fout<<m_idHelperSvc->rpcIdHelper().show_to_string(*it)<<" ";
+					    ATH_MSG_DEBUG(m_idHelperSvc->rpcIdHelper().show_to_string(*it)<<" ");
 					}
 				    }
 				    fout<<std::endl;
@@ -304,16 +251,3 @@ MuonRpcCablingTest::execute()
 
     return StatusCode::SUCCESS;
 }
-
-
-StatusCode
-MuonRpcCablingTest::finalize()
-{
-    StatusCode status = StatusCode::SUCCESS;
-
-    msg()<< MSG::INFO << "Finalizing" << endmsg;
-     
-    return status;
-}
-
-

@@ -59,7 +59,7 @@ StatusCode TauIDVarCalculator::eventInitialize()
 
 StatusCode TauIDVarCalculator::initialize()
 {
-  ATH_CHECK( m_vertexInputContainer.initialize() );
+  ATH_CHECK( m_vertexInputContainer.initialize(!m_vertexInputContainer.key().empty()) );
   ATH_CHECK( m_eventInfoKey.initialize() );
   return StatusCode::SUCCESS;
 }

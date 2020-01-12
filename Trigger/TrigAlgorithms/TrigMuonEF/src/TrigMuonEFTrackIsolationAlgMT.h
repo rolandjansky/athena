@@ -18,7 +18,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h" 
 #include "StoreGate/ReadHandleKey.h" 
 #include "StoreGate/WriteHandleKey.h"
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 // Retrieve containers
 #include "Particle/TrackParticleContainer.h" 
@@ -27,10 +27,10 @@
 #include "xAODTrigMuon/L2IsoMuonContainer.h"
 
 #include "TrigMuonToolInterfaces/IMuonEFTrackIsolationTool.h" 
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 
-//#include "AthenaMonitoring/GenericMonitoringTool.h"
+//#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 class TrigMuonEFTrackIsolationAlgMT : public AthAlgorithm
 {

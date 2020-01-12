@@ -12,7 +12,6 @@ ex.job_options = 'TrigUpgradeTest/full_menu.py'
 ex.input = 'data_cos'
 ex.max_events = 100
 ex.args = '-c "setMenu=\'Cosmic_pp_run3_v1\';"'
-ex.perfmon = False # perfmon with athenaHLT doesn't work at the moment
 
 test = Test.Test()
 test.art_type = 'build'

@@ -39,14 +39,12 @@
 #include <set>
 
 namespace Trk {
-	class ITrackHoleSearchTool;
     class Track;
     class TrackStateOnSurface;
-    class ITrackSummaryTool;
 }
 
 namespace InDetDD {
-	class TRT_DetectorManager;
+    class TRT_DetectorManager;
 }
  
 class AtlasDetectorID;
@@ -60,74 +58,111 @@ class ITRT_ConditionsSvc;
 class ITRT_DAQ_ConditionsSvc;
 class ITRT_ByteStream_ConditionsSvc;
 class ITRT_StrawNeighbourSvc;
-class ITRT_DriftFunctionTool;
 
 class TRTMonitoringRun3_Alg : public AthMonitorAlgorithm {
 public:
     TRTMonitoringRun3_Alg( const std::string& name, ISvcLocator* pSvcLocator );
     virtual ~TRTMonitoringRun3_Alg();
     virtual StatusCode initialize() override;
-	virtual StatusCode fillTestTRTTrackHistograms( const TrackCollection& trackCollection) const;
     virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
 private:
-	static const int s_numberOfBarrelStacks;
-	static const int s_numberOfEndCapStacks;
+    bool m_ArgonXenonSplitter;
+    enum GasType{ Xe = 0, Ar = 1, Kr = 2 };
 
-	static const int s_Straw_max[2];
-	static const int s_iStack_max[2];
-	static const int s_iChip_max[2];
-	static const int s_numberOfStacks[2];
-	static const int s_moduleNum[2];
-	
-		
-	std::vector<unsigned int> m_rodMap;
-	enum GasType{ Xe = 0, Ar = 1, Kr = 2 };
-	
-private:	
-	
-	bool m_doRDOsMon;
-	bool m_doTracksMon;
-	int m_usedEvents;
+    const AtlasDetectorID * m_idHelper;
 
-	bool m_doStraws;
-	bool m_doChips;
-	bool m_doShift;
-	bool m_doExpert;
-	bool m_doMaskStraws;
-	bool m_doEfficiency;
-
-	float m_DistToStraw;
-	float m_minP;
-
-	///// Additional stuff for efficiency measurements, online only for now
+    StatusCode fillTRTTracks(const xAOD::TrackParticleContainer& trackCollection,
+                         const xAOD::TrigDecision* trigDecision,
+                         const ComTime* comTimeObject) const;                             
+    StatusCode fillTRTHighThreshold(const xAOD::TrackParticleContainer& trackCollection,
+                                const xAOD::EventInfo& eventInfo) const;
+    int strawLayerNumber(int strawLayerNumber, int LayerNumber) const;
 
 
-	std::string m_datatype;
-	
+    // Returns the straw number (0-1641) given the layerNumber, strawlayerNumber, and strawNumber, all gotten from Athena IDHelper
+    int strawNumber(int strawNumber, int strawlayerNumber, int LayerNumber) const;
+    // Returns Barrel Board Number
+    int chipToBoard(int chip) const;
+    // Returns EndCap Board Number
+    int chipToBoard_EndCap(int chip) const;
 
-	const AtlasDetectorID* m_idHelper;
+    // Returns Degrees, converted from radians (Athena Standard units)
+    float radToDegrees(float radValue) const;
+    int strawNumber_reverse (int inp_strawnumber,  int* strawNumber, int* strawlayerNumber, int* LayerNumber) const;
+    int strawLayerNumber_reverse(int strawLayerNumInp,int* strawLayerNumber, int* LayerNumber) const;
+    int strawNumberEndCap(int strawNumber, int strawLayerNumber, int LayerNumber, int phi_stack, int side) const;
 
-	Gaudi::Property<bool> m_doRandom {this,"RandomHist",false}; //< Trigger chain string pulled from the job option and parsed into a vector?
-
-	int strawLayerNumber(int strawLayerNumber, int LayerNumber) const;
-	int strawNumber(int strawNumber, int strawlayerNumber, int LayerNumber) const;
-	int strawNumberEndCap(int strawNumber, int strawLayerNumber, int LayerNumber, int phi_stack, int side) const;
-	float radToDegrees(float radValue) const;
+private:
+    static const int s_numberOfBarrelStacks;
+    static const int s_numberOfEndCapStacks;
+    static const int s_Straw_max[2];
+    static const int s_iStack_max[2];
+    static const int s_iChip_max[2];
+    static const int s_numberOfStacks[2];
+    static const int s_moduleNum[2];
 
     // Services
-	ToolHandle<ITRT_StrawStatusSummaryTool>      m_sumTool;
-    
-	const TRT_ID *m_pTRTHelper;
-	const InDetDD::TRT_DetectorManager* m_mgr;
+    ToolHandle<ITRT_StrawStatusSummaryTool> m_sumTool;
+    ServiceHandle<ITRT_DAQ_ConditionsSvc> m_DAQSvc;
+    ServiceHandle<ITRT_ByteStream_ConditionsSvc> m_BSSvc;
+    ServiceHandle<ITRT_ConditionsSvc> m_condSvc_BS;
+    ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc;
+    ToolHandle<ITRT_CalDbTool> m_TRTCalDbTool;
 
-	// Data handles
-	// Will come back when raw monitoring added
-	//    SG::ReadHandleKey<TRT_RDO_Container>   m_rdoContainerKey       {this, "TRTRawDataObjectName", "TRT_RDOs", "Name of TRT RDOs container"};
-	SG::ReadHandleKey<TrackCollection>     m_trackCollectionKey    {this, "TRTTracksObjectName", "Tracks", "Name of tracks container"};
-	SG::ReadHandleKey<TrackCollection>     m_combTrackCollectionKey{this, "track_collection_hole_finder", "CombinedInDetTracks", "Name of tracks container used for hole finder"};
-	
-    SG::ReadHandleKey<xAOD::EventInfo>     m_xAODEventInfoKey      {this, "xAODEventInfo", "EventInfo", "Name of EventInfo object"};
-	SG::ReadHandleKey<InDetTimeCollection> m_TRT_BCIDCollectionKey {this, "TRTBCIDCollectionName",        "TRT_BCID",            "Name of TRT BCID collection"};
+    // Data handles
+    SG::ReadHandleKey<TRT_RDO_Container> m_rdoContainerKey{this, "TRTRawDataObjectName", "TRT_RDOs", "Name of TRT RDOs container"};
+    SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackCollectionKey{this, "TrackParticleContainerKeys", "InDetTrackParticles", "Keys for TrackParticle Container"};
+    SG::ReadHandleKey<xAOD::EventInfo> m_xAODEventInfoKey{this, "xAODEventInfo", "EventInfo", "Name of EventInfo object"};
+    SG::ReadHandleKey<InDetTimeCollection> m_TRT_BCIDCollectionKey{this, "TRTBCIDCollectionName", "TRT_BCID", "Name of TRT BCID collection"};
+    SG::ReadHandleKey<ComTime> m_comTimeObjectKey{this, "ComTimeObjectName", "TRT_Phase", "Name of ComTime object"};
+    SG::ReadHandleKey<xAOD::TrigDecision> m_trigDecisionKey{this, "TrigDecisionObjectName", "xTrigDecision", "Name of trigger decision object"};
 
+    // Tools
+    ToolHandle<Trk::ITrackSummaryTool> m_TrackSummaryTool{this, "TrackSummaryTool", "InDetTrackSummaryTool", "Track summary tool name"};
+    ToolHandle<ITRT_DriftFunctionTool> m_drifttool; // keep this public for now
+
+    const TRT_ID* m_pTRTHelper;
+    const InDetDD::TRT_DetectorManager *m_mgr;
+
+    bool m_doRDOsMon;
+    bool m_doTracksMon;
+
+    bool m_doStraws;
+    bool m_doChips;
+    bool m_doShift;
+    bool m_doExpert;
+
+    unsigned char m_mat_chip_B[64][1642];
+    unsigned char m_mat_chip_E[64][3840];
+
+    float m_DistToStraw;
+    bool m_isCosmics;
+    int m_minTRThits;
+    float m_minP;
+    float m_min_pT;
+
+    int m_min_si_hits;
+    int m_min_pixel_hits;
+    int m_min_sct_hits;
+    int m_min_trt_hits;
+
+    //Deciphers status HT to  GasType Enumerator
+    inline GasType Straw_Gastype(int stat) const {
+        // getStatusHT returns enum {Undefined, Dead, Good, Xenon, Argon, Krypton}.
+        // Our representation of 'GasType' is 0:Xenon, 1:Argon, 2:Krypton
+        GasType Gas = Xe; // Xenon is default
+        if (m_ArgonXenonSplitter) {
+            //      int stat=m_sumSvc->getStatusHT(TRT_Identifier);
+            if       ( stat==2 || stat==3 ) { Gas = Xe; } // Xe
+            else if  ( stat==1 || stat==4 ) { Gas = Ar; } // Ar
+            else if  ( stat==5 )            { Gas = Kr; } // Kr
+            else if  ( stat==6 )            { Gas = Xe; } // emulate Ar (so treat as Xe here)
+            else if  ( stat==7 )            { Gas = Xe; } // emulate Kr (so treat as Xe here)
+            else { ATH_MSG_FATAL ("getStatusHT = " << stat << ", must be 'Good(2)||Xenon(3)' or 'Dead(1)||Argon(4)' or 'Krypton(5)!' or 6 or 7 for emulated types!");
+                throw std::exception();
+            }
+        }
+        return Gas;
+    }
 };
 #endif

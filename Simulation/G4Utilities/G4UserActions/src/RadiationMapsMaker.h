@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4UserActions_RadiationMapsMaker_H
@@ -29,7 +29,9 @@ namespace G4UA
 	/// They can be configured to other values/ranges for other purposes.
 
 	std::string material = std::string("");
-
+	
+	bool posYOnly = false; // set to true for upper hemisphere only
+	
 	int nBinsr = 120;
 	int nBinsz = 240;
 	

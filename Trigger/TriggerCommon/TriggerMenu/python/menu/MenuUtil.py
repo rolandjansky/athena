@@ -118,7 +118,6 @@ def checkStreamConsistency(triggerPythonConfig):
     """
     menu_name = TriggerFlags.triggerMenuSetup()
     log.info( "Menu: " + menu_name)
-    CheckGroups=False
 
     from TriggerMenu.menu.StreamInfo       import getAllStreams
 
@@ -234,11 +233,11 @@ def findL1TT(chain, triggerPythonConfig):
     if chain.level == 'EF':
         l2_chain_name = chain.lower_chain_name
         l2_chain = triggerPythonConfig.getHLTChain(l2_chain_name)
-    if l2_chain == None:
+    if l2_chain is None:
         return -2
     l1_item_name = l2_chain.lower_chain_name
     l1_item = triggerPythonConfig.getLvl1Item(l1_item_name)
-    if l1_item==None:
+    if l1_item is None:
         return -1
     return l1_item.trigger_type
 

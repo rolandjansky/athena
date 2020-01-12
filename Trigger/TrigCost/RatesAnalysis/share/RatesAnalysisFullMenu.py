@@ -65,15 +65,8 @@ if __name__=='__main__':
   cfg.addService(histSvc)
 
   # Minimal config needed to read metadata: MetaDataSvc & ProxyProviderSvc
-  from AthenaServices.AthenaServicesConf import MetaDataSvc
-  mdSvc = MetaDataSvc( "MetaDataSvc" )
-  mdSvc.MetaDataContainer = "MetaDataHdr"
-  cfg.addService(mdSvc)
-  #
-  from SGComps.SGCompsConf import ProxyProviderSvc
-  pdps = ProxyProviderSvc( "ProxyProviderSvc" )
-  pdps.ProviderNames += [ "MetaDataSvc" ]
-  cfg.addService(pdps)
+  from AthenaServices.MetaDataSvcConfig import MetaDataSvcCfg
+  cfg.merge(MetaDataSvcCfg(ConfigFlags))
 
   from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODConfigTool
   trigcfgtool = TrigConf__xAODConfigTool('xAODConfigTool')

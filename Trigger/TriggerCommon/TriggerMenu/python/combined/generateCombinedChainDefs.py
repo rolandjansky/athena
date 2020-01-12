@@ -292,7 +292,7 @@ def _addRazor(theChainDef,chainDicts,listOfChainDefs):
     signatureListCopy = deepcopy(theChainDef.signatureList)
     signatureListCopy.reverse()
     for sig in signatureListCopy:
-        if not "xe" in sig['listOfTriggerElements'][-1]:
+        if "xe" not in sig['listOfTriggerElements'][-1]:
             inputTEsEFJet.append(sig['listOfTriggerElements'][-1])
             break
         
@@ -425,10 +425,8 @@ def _addMatching(theChainDef,chainDicts,listOfChainDefs):
     from TrigBjetHypo.TrigLeptonJetMatchAllTEConfig  import LeptonJetMatchAllTE
  
     dzmatching = False
-    drmatching = False
     for topo in chainDicts[0]['topo']:
         if "dz" in topo: dzmatching = True
-        if "dr" in topo: drmatching = True
  
  
     # obtain deltaR for Hypo configuration

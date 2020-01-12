@@ -174,7 +174,7 @@ class Lvl1Menu:
         bgpart = dict( [("BGRP%i" % bg.internalNumber, bg.menuPartition) for bg in self.CTPInfo.bunchGroupSet.bunchGroups] )
         for item in self.items:
             bgs = [t for t in item.thresholdNames(include_bgrp=True) if t.startswith('BGRP')]
-            if not 'BGRP0' in bgs:
+            if 'BGRP0' not in bgs:
                 log.error('Item %s (partition %i) is not using BGRP0 which is mandatory!' % (item.name,item.partition))
             else:
                 bgs.remove('BGRP0')

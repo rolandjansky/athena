@@ -4,7 +4,6 @@
 #include "MuonPatternSegmentMaker/MuonPatternCalibration.h"
 
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -21,11 +20,6 @@
 #include "MuonReadoutGeometry/CscReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
-#include "MuonIdHelpers/CscIdHelper.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
-
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 
 namespace Muon {
@@ -36,7 +30,6 @@ namespace Muon {
     m_mdtCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator", this),
     m_clusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator", this),
     m_printer("Muon::MuonEDMPrinterTool"),
-    m_log(0),
     m_keyRpc("RPC_Measurements"),
     m_keyTgc("TGC_Measurements")
   {
@@ -59,72 +52,20 @@ namespace Muon {
   {
   }
 
-  StatusCode MuonPatternCalibration::initialize()
-  {
-
+  StatusCode MuonPatternCalibration::initialize() {
     if( AthAlgTool::initialize().isFailure() ) return StatusCode::FAILURE;
 
-    m_log = new MsgStream(msgSvc(),name());
-    m_verbose = false;
-    m_debug = false;
-    *m_log << MSG::VERBOSE << "MuonPatternCalibration::Initializing" << endmsg;
-    StatusCode sc = service("StoreGateSvc", m_storeGate);
-    if (sc.isFailure()) {
-      *m_log << MSG::FATAL << "StoreGate service not found" << endmsg;
-      return StatusCode::FAILURE;
-    }
-  
-    StoreGateSvc* detStore=0;
-    sc = serviceLocator()->service("DetectorStore", detStore);
+    ATH_MSG_VERBOSE("MuonPatternCalibration::Initializing");
  
-    if( m_mdtCreator.retrieve().isSuccess() ){
-      *m_log<<MSG::DEBUG << "Retrieved " << m_mdtCreator << endmsg;
-    }else{
-      *m_log<<MSG::FATAL<<"Could not get " << m_mdtCreator <<endmsg; 
-      return sc;
-    }
+    ATH_CHECK(m_mdtCreator.retrieve());
+    ATH_CHECK(m_printer.retrieve());
+    ATH_CHECK(m_idHelperSvc.retrieve());
+    ATH_CHECK(m_clusterCreator.retrieve());
 
-    if( m_printer.retrieve().isSuccess() ){
-      *m_log<<MSG::DEBUG << "Retrieved " << m_printer << endmsg;
-    }else{
-      *m_log<<MSG::FATAL<<"Could not get " << m_printer <<endmsg; 
-      return sc;
-    }
+    ATH_CHECK(m_keyRpc.initialize());
+    ATH_CHECK(m_keyTgc.initialize());
 
-    
-    if( m_muonIdHelperTool.retrieve().isSuccess() ){
-      *m_log<<MSG::DEBUG << "Retrieved " << m_muonIdHelperTool << endmsg;
-    }else{
-      *m_log<<MSG::FATAL<<"Could not get " << m_muonIdHelperTool <<endmsg; 
-      return sc;
-    }
-
-    
-    if( m_clusterCreator.retrieve().isSuccess() ){
-      *m_log<<MSG::DEBUG << "Retrieved " << m_clusterCreator << endmsg;
-    }else{
-      *m_log<<MSG::FATAL<<"Could not get " << m_clusterCreator <<endmsg; 
-      return sc;
-    }
-
-    if(!m_keyRpc.initialize()){
-      ATH_MSG_ERROR("Couldn't initalize RPC ReadHandleKey");
-      return StatusCode::FAILURE;
-    }
-    if(!m_keyTgc.initialize()){
-      ATH_MSG_ERROR("Couldn't initalize TGC ReadHandleKey");
-      return StatusCode::FAILURE;
-    }
     return StatusCode::SUCCESS; 
-  }
-
-
-  StatusCode MuonPatternCalibration::finalize()
-  {
-  
-    *m_log << MSG::DEBUG << "finalize()" << endmsg;
-    delete m_log;
-    return StatusCode::SUCCESS;
   }
   
 
@@ -144,9 +85,8 @@ namespace Muon {
     // simple division of MuonSpectrometer in regions using barrel/endcap seperation plus
     // inner/middle/outer seperation
 
-    int stIndex = (int)m_muonIdHelperTool->stationIndex(id);
-    //int sector = m_muonIdHelperTool->sector(id);
-    int eta = m_muonIdHelperTool->stationEta( id );
+    int stIndex = (int)m_idHelperSvc->stationIndex(id);
+    int eta = m_idHelperSvc->stationEta( id );
     
     int regionId = stIndex;
     if( eta < 0 ) regionId *= -1;
@@ -166,9 +106,9 @@ namespace Muon {
 	for (; pit!=(*it).prepRawDataVec().end(); ++pit)
 	  {
 	    Identifier id = (*pit)->identify();
-	    if( m_muonIdHelperTool->rpcIdHelper().is_rpc(id) && m_muonIdHelperTool->rpcIdHelper().measuresPhi(id) ) {hasPhiMeasurements = true; break;}
-	    else if( m_muonIdHelperTool->tgcIdHelper().is_tgc(id) && m_muonIdHelperTool->tgcIdHelper().isStrip(id) ) {hasPhiMeasurements = true; break;}
-	    else if( m_muonIdHelperTool->cscIdHelper().is_csc(id) && m_muonIdHelperTool->cscIdHelper().measuresPhi(id) ) {hasPhiMeasurements = true; break;}
+	    if( m_idHelperSvc->isRpc(id) && m_idHelperSvc->rpcIdHelper().measuresPhi(id) ) {hasPhiMeasurements = true; break;}
+	    else if( m_idHelperSvc->isTgc(id) && m_idHelperSvc->tgcIdHelper().isStrip(id) ) {hasPhiMeasurements = true; break;}
+	    else if( m_idHelperSvc->isCsc(id) && m_idHelperSvc->cscIdHelper().measuresPhi(id) ) {hasPhiMeasurements = true; break;}
 	  }
       }
     return hasPhiMeasurements;
@@ -176,12 +116,8 @@ namespace Muon {
 
   void MuonPatternCalibration::createRegionMap( const MuonPatternCombination& pat, RegionMap& regionMap, 
 						 bool hasPhiMeasurements ) const {
-    if( m_debug ) {
-      if( hasPhiMeasurements )
-	*m_log << MSG::DEBUG << " pattern has phi measurements using extrapolation to determine second coordinate " << endmsg;
-      else 
-	*m_log << MSG::DEBUG << " No phi measurements using center tubes " << endmsg;
-    }
+      if( hasPhiMeasurements ) ATH_MSG_DEBUG("pattern has phi measurements using extrapolation to determine second coordinate");
+      else ATH_MSG_DEBUG("No phi measurements using center tubes");
 
     retrieveTriggerHitContainers();
 
@@ -229,9 +165,8 @@ namespace Muon {
       double dphi = fabs(phiStart - chPhi);
       
       if( dphi > m_phiAngleCut ) {
-	if( m_debug ) *m_log << MSG::DEBUG << " Large angular phi difference between pattern and chamber " << std::endl
-			     << " phi pattern " << patdire.phi() << "   phi chamber " << prd->detectorElement()->center().phi() << endmsg;
-	continue;
+        ATH_MSG_DEBUG("Large angular phi difference between pattern and chamber, phi pattern " << patdire.phi() << "   phi chamber " << prd->detectorElement()->center().phi());
+        continue;
       }
 
       // map to find duplicate hits in the chamber
@@ -262,7 +197,7 @@ namespace Muon {
 	  clusterIds.insert(id);
 	  
 	  if( m_recoverTriggerHits ){
-	    bool measuresPhi = m_muonIdHelperTool->measuresPhi(id);
+	    bool measuresPhi = m_idHelperSvc->measuresPhi(id);
 	    int colHash = clus->collectionHash();
 
 	    EtaPhiHits& hitsPerChamber = etaPhiHitsPerChamber[colHash];
@@ -278,12 +213,11 @@ namespace Muon {
 	for( ;chit!=chit_end;++chit ){
 	  EtaPhiHits& hits = chit->second;
 	  if( (hits.neta > 0 && hits.nphi == 0) || (hits.nphi > 0 && hits.neta == 0) ){
-	    if( m_muonIdHelperTool->rpcIdHelper().is_rpc(id) && m_rpcPrdContainer ){
+	    if( m_idHelperSvc->isRpc(id) && m_rpcPrdContainer ){
 	      
 	      RpcPrepDataContainer::const_iterator pos = m_rpcPrdContainer->indexFind(chit->first);
-	      if( pos == m_rpcPrdContainer->end() ){
-		*m_log << MSG::DEBUG << " RpcPrepDataCollection not found in container!! " << endmsg;
-	      }else{
+	      if( pos == m_rpcPrdContainer->end() ) ATH_MSG_DEBUG("RpcPrepDataCollection not found in container!!");
+	      else{
 		RpcPrepDataCollection::const_iterator rpcit = (*pos)->begin();
 		RpcPrepDataCollection::const_iterator rpcit_end = (*pos)->end();
 		for( ;rpcit!=rpcit_end;++rpcit ){
@@ -293,11 +227,10 @@ namespace Muon {
 		  clusterIds.insert(clus->identify());
 		}
 	      }
-	    }else if( m_muonIdHelperTool->tgcIdHelper().is_tgc(id) && m_tgcPrdContainer ){
+	    }else if( m_idHelperSvc->isTgc(id) && m_tgcPrdContainer ){
 	      TgcPrepDataContainer::const_iterator pos = m_tgcPrdContainer->indexFind(chit->first);
-	      if( pos == m_tgcPrdContainer->end() ){
-		*m_log << MSG::DEBUG << " TgcPrepDataCollection not found in container!! " << endmsg;
-	      }else{
+	      if( pos == m_tgcPrdContainer->end() ) ATH_MSG_DEBUG("TgcPrepDataCollection not found in container!!");
+	      else{
 		TgcPrepDataCollection::const_iterator tgcit = (*pos)->begin();
 		TgcPrepDataCollection::const_iterator tgcit_end = (*pos)->end();
 		for( ;tgcit!=tgcit_end;++tgcit ){
@@ -320,7 +253,7 @@ namespace Muon {
 
     const Identifier& id = clus.identify();
       // check whether we are measuring phi or eta
-    bool measuresPhi = m_muonIdHelperTool->measuresPhi(id);
+    bool measuresPhi = m_idHelperSvc->measuresPhi(id);
 	  
     Amg::Vector3D globalpos = clus.globalPosition();
     Amg::Vector3D intersect;
@@ -356,12 +289,12 @@ namespace Muon {
 	const TgcPrepData* tgc = dynamic_cast<const TgcPrepData*>( &clus );
 	if( !tgc ) return;
 
-	int gasGap = m_muonIdHelperTool->tgcIdHelper().gasGap(id);
+	int gasGap = m_idHelperSvc->tgcIdHelper().gasGap(id);
 	if( measuresPhi){
 	  hasPointingPhiStrips = true;
 	  striplen = tgc->detectorElement()->StripLength(gasGap);
 	}else{ 
-	  int wire = m_muonIdHelperTool->tgcIdHelper().channel(id);
+	  int wire = m_idHelperSvc->tgcIdHelper().channel(id);
 	  striplen = tgc->detectorElement()->WireLength(gasGap,wire);
 	}
       }	
@@ -383,24 +316,15 @@ namespace Muon {
       Amg::Vector3D dif = globalpos - intersect;
       if( (intersect - piOnPlane).mag() > m_dropDistance || dif.mag() > 0.5*striplen + m_dropDistance ){
 
-	if( m_verbose ){
-	  *m_log << MSG::VERBOSE << " >>>> extrapolated position far outside volume, dropping hit " 
-		 << m_muonIdHelperTool->toString( id ) << std::endl
-		 << "  dist along strip " << dif.mag() << " 1/2 strip len " << 0.5*striplen 
-		 << " dist measurement plane " << (intersect - piOnPlane).mag() << std::endl;
-	}
+  ATH_MSG_VERBOSE(">>>> extrapolated position far outside volume, dropping hit " << m_idHelperSvc->toString( id ) << ". dist along strip " << dif.mag() << " 1/2 strip len " << 0.5*striplen
+     << " dist measurement plane " << (intersect - piOnPlane).mag());
 	return;
       }
       if( dif.mag() > 0.5*striplen ){
 	Amg::Vector3D newpos = globalpos - dif*(0.5*striplen/dif.mag());
 	
-	if( m_verbose ){
-	  *m_log << MSG::VERBOSE << " >>>> extrapolated position outside volume, shifting position " 
-		 << m_muonIdHelperTool->toString( id ) << std::endl
-		 << "  position along strip " << dif.mag() << " 1/2 tube len " << 0.5*striplen
-		 << " dist To strip " << (intersect - piOnPlane).mag() << std::endl
-		 << "  dist to newpos " << (newpos-globalpos).mag() << " pos " << newpos << std::endl;
-	}
+  ATH_MSG_VERBOSE(">>>> extrapolated position outside volume, shifting position " << m_idHelperSvc->toString( id ) << ". position along strip " << dif.mag() << " 1/2 tube len " << 0.5*striplen
+     << " dist To strip " << (intersect - piOnPlane).mag() << ". dist to newpos " << (newpos-globalpos).mag() << " pos " << newpos);
 	
 	intersect = newpos;
       }
@@ -447,7 +371,7 @@ namespace Muon {
       const Amg::Vector3D& planepostion = tubePos;
 	    
       // always project on plane with normal in radial direction
-      Amg::Vector3D planenormal = m_muonIdHelperTool->mdtIdHelper().isBarrel(id) ? 
+      Amg::Vector3D planenormal = m_idHelperSvc->mdtIdHelper().isBarrel(id) ? 
 	amdbToGlobal.linear()*Amg::Vector3D(0.,0.,1.) : amdbToGlobal.linear()*Amg::Vector3D(0.,1.,0.);
 	    
       double denom = patdire.dot(planenormal);
@@ -460,18 +384,13 @@ namespace Muon {
       intersect = amdbToGlobal*Amg::Vector3D( lpiOnPlane.x(), ltubePos.y(), ltubePos.z() );
 	    
       Amg::Vector3D dif = tubePos - intersect;
-      double tubelen = detEl->getActiveTubeLength( m_muonIdHelperTool->mdtIdHelper().tubeLayer(id),m_muonIdHelperTool->mdtIdHelper().tube(id) );
+      double tubelen = detEl->getActiveTubeLength( m_idHelperSvc->mdtIdHelper().tubeLayer(id),m_idHelperSvc->mdtIdHelper().tube(id) );
 	    
       if( dif.mag() > 0.5*tubelen ){
 	Amg::Vector3D newpos = tubePos - dif*(0.5*tubelen/dif.mag());
-	      
-	if( m_verbose ){
-	  *m_log << MSG::VERBOSE << " >>>> extrapolated position outside volume, shifting position "
-		 << m_muonIdHelperTool->toString( id ) << std::endl
-		 << "  position along strip " << dif.mag() << " 1/2 tube len " << 0.5*tubelen
-		 << " dist To Wire " << (piOnPlane-intersect).mag() << std::endl
-		 << "  dist to newpos " << (newpos-tubePos).mag() << " pos " << newpos << std::endl;
-	}
+
+  ATH_MSG_VERBOSE(">>>> extrapolated position outside volume, shifting position " << m_idHelperSvc->toString( id ) << ". position along strip " << dif.mag() << " 1/2 tube len " << 0.5*tubelen
+     << " dist To Wire " << (piOnPlane-intersect).mag() << ". dist to newpos " << (newpos-tubePos).mag() << " pos " << newpos);
 	      
 	intersect = newpos;
       }
@@ -481,33 +400,33 @@ namespace Muon {
     }
 	  
     // enter hit in map
-    Identifier elId = m_muonIdHelperTool->mdtIdHelper().elementID( id );
+    Identifier elId = m_idHelperSvc->mdtIdHelper().elementID( id );
 	  
-    MuonStationIndex::ChIndex chIndex = m_muonIdHelperTool->chamberIndex(elId);
+    MuonStationIndex::ChIndex chIndex = m_idHelperSvc->chamberIndex(elId);
     int chFlag = elId.get_identifier32().get_compact();
     if( m_doMultiAnalysis ){
-      if( m_muonIdHelperTool->isSmallChamber(id) ){
-	if( m_verbose) *m_log << MSG::VERBOSE << " Small chamber " << m_muonIdHelperTool->toString( elId ) << std::endl;
+      if( m_idHelperSvc->isSmallChamber(id) ){
+        ATH_MSG_VERBOSE("Small chamber " << m_idHelperSvc->toString( elId ));
 	chFlag = 0;
 	if( chIndex == MuonStationIndex::BIS ){
-	  int eta = m_muonIdHelperTool->stationEta(elId);
+	  int eta = m_idHelperSvc->stationEta(elId);
 	  if( abs(eta) == 8 ) {
-	    if( m_verbose) *m_log << MSG::VERBOSE << " BIS8 chamber " << m_muonIdHelperTool->toString( elId ) << std::endl;
+      ATH_MSG_VERBOSE("BIS8 chamber " << m_idHelperSvc->toString( elId ));
 	    chFlag = 3;
 	  }
 	}
       }else{
-	if( m_verbose) *m_log << MSG::VERBOSE << " Large chamber " << m_muonIdHelperTool->toString( elId ) << std::endl;
+        ATH_MSG_VERBOSE("Large chamber " << m_idHelperSvc->toString( elId ));
 	chFlag = 1;
 	if( chIndex == MuonStationIndex::BIL ){
-	  std::string stName = m_muonIdHelperTool->chamberNameString(id);
+	  std::string stName = m_idHelperSvc->chamberNameString(id);
 	  if( stName[2] == 'R' ){
-	    if( m_verbose) *m_log << MSG::VERBOSE << " BIR chamber " << m_muonIdHelperTool->toString( elId ) << std::endl;
+      ATH_MSG_VERBOSE("BIR chamber " << m_idHelperSvc->toString( elId ));
 	    chFlag = 2;
 	  }
 	}
       }
-      int phi = m_muonIdHelperTool->mdtIdHelper().stationPhi(id);
+      int phi = m_idHelperSvc->mdtIdHelper().stationPhi(id);
 	    
       chFlag += 10*phi;
     }
@@ -564,36 +483,34 @@ namespace Muon {
 
     RegionMapCit mit = regionMap.begin();
     RegionMapCit mit_end = regionMap.end();
-    *m_log << MSG::INFO << "Summarizing input " << std::endl; 
+    ATH_MSG_INFO("Summarizing input");
 
     for( ; mit!=mit_end;++mit ){
-      *m_log << "new region " << mit->first << " trigger " << mit->second.triggerPrds.size() 
-	     << " mdt ch " << mit->second.mdtPrdsPerChamber.size() << std::endl;
+      ATH_MSG_INFO("new region " << mit->first << " trigger " << mit->second.triggerPrds.size() 
+       << " mdt ch " << mit->second.mdtPrdsPerChamber.size());
     
-      if( !mit->second.triggerPrds.empty() ) *m_log << " trigger hits " << mit->second.triggerPrds.size() << std::endl;
+      if( !mit->second.triggerPrds.empty() ) ATH_MSG_INFO("trigger hits " << mit->second.triggerPrds.size());
 
 
       ISPrdIt pit = mit->second.triggerPrds.begin();
       ISPrdIt pit_end = mit->second.triggerPrds.end();
       for( ;pit!=pit_end;++pit ){
-	*m_log << "  " << m_printer->print(*(pit->second)) << std::endl;
+        ATH_MSG_INFO("  " << m_printer->print(*(pit->second)));
       }
 
       RegionIdMapIt idit = mit->second.mdtPrdsPerChamber.begin();
       RegionIdMapIt idit_end = mit->second.mdtPrdsPerChamber.end();
       for( ;idit!=idit_end;++idit ){
-	*m_log << " new MDT chamber with " << idit->second.size() << " hits" << std::endl;
+        ATH_MSG_INFO("new MDT chamber with " << idit->second.size() << " hits");
       
 	ISPrdMdtIt mdtit = idit->second.begin();
 	ISPrdMdtIt mdtit_end = idit->second.end();
 	for( ;mdtit!=mdtit_end;++mdtit ){
-	  const MdtPrepData* prd = mdtit->second;	
-	  *m_log << "  " << m_printer->print(*prd) << std::endl;
+	  const MdtPrepData* prd = mdtit->second;
+    ATH_MSG_INFO("  " << m_printer->print(*prd));
 	}
       }
     }
-    m_log->doOutput();
-
   }
 
   void MuonPatternCalibration::calibrateRegionMap( const RegionMap& regionMap, IMuonPatternCalibration::ROTsPerRegion& hitsPerRegion ) const 
@@ -639,7 +556,7 @@ namespace Muon {
 	  const MdtDriftCircleOnTrack* mdt = m_mdtCreator->createRIO_OnTrack( *prd, mdtit->first ); 
 
 	  if( !mdt ) {
-	    if( m_verbose ) *m_log << " Failed to calibrate " << m_muonIdHelperTool->toString(prd->identify()) << endmsg;
+	    ATH_MSG_VERBOSE("Failed to calibrate " << m_idHelperSvc->toString(prd->identify()));
 	    continue;
 	  }
 	  mdtROTs.push_back( mdt ); 

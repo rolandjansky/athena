@@ -17,7 +17,7 @@
 
 //Core Include
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 #include "GaudiKernel/ToolHandle.h" 
 
 //Helper Includes

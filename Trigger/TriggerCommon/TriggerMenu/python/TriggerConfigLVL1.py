@@ -24,7 +24,7 @@ class TriggerConfigLVL1:
 
         from TriggerJobOpts.TriggerFlags import TriggerFlags
 
-        self.menuName = TriggerFlags.triggerMenuSetup() if menuName==None else menuName
+        self.menuName = TriggerFlags.triggerMenuSetup() if menuName is None else menuName
 
         self.inputFile     = inputFile
         self.outputFile    = outputFile
@@ -39,7 +39,7 @@ class TriggerConfigLVL1:
 
         # get L1Topo trigger line connections
         if topoMenu=="MATCH": topoMenu = self.menuName # topo menu name should match CTP menu for correct connection
-        if topoMenu!=None:
+        if topoMenu is not None:
             self.topotriggers = self.getL1TopoTriggerLines(topoMenu)
             self.registerAllTopoTriggersAsThresholds()
 
@@ -47,11 +47,11 @@ class TriggerConfigLVL1:
         # menu
         self.menu = Lvl1Menu(self.menuName)
 
-        if self.inputFile != None:
+        if self.inputFile is not None:
             """Read menu from XML"""
             self.l1menuFromXML = True
             self.menu.readMenuFromXML(self.inputFile)
-        elif menuName==None:
+        elif menuName is None:
             """Build menu from menu name"""
             # defines the menu (item and threshold names)
             TriggerConfigLVL1.defineMenu(self.menuName)
@@ -62,7 +62,7 @@ class TriggerConfigLVL1:
 
     ## L1 Topo connection
     def getL1TopoTriggerLines(self, menu):
-        if menu == None:
+        if menu is None:
             return None
 
         if menu.endswith(".xml"):
@@ -244,7 +244,7 @@ class TriggerConfigLVL1:
 
         for itemName in Lvl1Flags.items():
             registeredItem = self.getRegisteredItem(itemName)
-            if registeredItem == None:
+            if registeredItem is None:
                 log.fatal("LVL1 item '%s' has not been registered in l1menu/ItemDef.py" % itemName)
                 raise RuntimeError("LVL1 item %s has not been registered in l1menu/ItemDef.py" % itemName)
 
@@ -327,7 +327,7 @@ class TriggerConfigLVL1:
         """
         existingMappings = {}
         for thr in self.menu.thresholds():
-            if not thr.ttype in existingMappings:
+            if thr.ttype not in existingMappings:
                 existingMappings[thr.ttype] = set()
             if thr.mapping<0: continue
             existingMappings[thr.ttype].add(thr.mapping)
@@ -353,7 +353,7 @@ class TriggerConfigLVL1:
         c = Counter()
         for thr in self.menu.thresholds:
             if thr.ttype=="ZB":
-                if not thr.seed in self.menu.thresholds:
+                if thr.seed not in self.menu.thresholds:
                     raise RuntimeError("Zero bias threshold '%s' based on non-existing threshold '%s'" % (thr,thr.seed) )
                 seed = self.menu.thresholds.thresholdOfName(thr.seed) # the ZB seed
                 thr.cableinfo = copy(seed.cableinfo)

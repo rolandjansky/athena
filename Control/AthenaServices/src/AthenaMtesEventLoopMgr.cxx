@@ -1436,7 +1436,7 @@ std::unique_ptr<AthenaMtesEventLoopMgr::RangeStruct_t> AthenaMtesEventLoopMgr::g
   if(carRet!=std::string::npos) range = range.substr(0,carRet);
 
   std::unique_ptr<RangeStruct_t> result;
-  if(range.compare(strStopProcessing)==0) return std::move(result);
+  if(range.compare(strStopProcessing)==0) return result;
   info() << "Got Event Range from the pilot: " << range << endmsg;
 
   // _____________________ Decode range string _____________________________
@@ -1478,7 +1478,7 @@ std::unique_ptr<AthenaMtesEventLoopMgr::RangeStruct_t> AthenaMtesEventLoopMgr::g
      || eventRangeMap.find("PFN")==eventRangeMap.end()) {
     // Handle wrong format
     error() << "Wrong format of the input Event Range: " << range << endmsg;
-    return std::move(result);
+    return result;
   }
   else {
     debug() << "*** Decoded Event Range ***" << endmsg;
@@ -1502,7 +1502,7 @@ std::unique_ptr<AthenaMtesEventLoopMgr::RangeStruct_t> AthenaMtesEventLoopMgr::g
   }
   // _____________________ Decode range string _____________________________
 
-  return std::move(result);
+  return result;
 }
 
 void AthenaMtesEventLoopMgr::trimRangeStrings(std::string& str)

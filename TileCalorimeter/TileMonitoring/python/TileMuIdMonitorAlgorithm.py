@@ -236,7 +236,7 @@ if __name__=='__main__':
     cfg.printConfig(withDetails = True, summariseProps = True)
     ConfigFlags.dump()
 
-    cfg.store( open('TileMuIdMonitorAlgorithm.pkl','w') )
+    cfg.store( open('TileMuIdMonitorAlgorithm.pkl','wb') )
 
     sc = cfg.run(maxEvents=-1)
 

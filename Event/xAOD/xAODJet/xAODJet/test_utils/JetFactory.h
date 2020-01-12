@@ -1,6 +1,6 @@
 // this file is -*- C++ -*-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODJET_TEST_JETFACTORY_H
@@ -18,7 +18,6 @@
 // allows to test EL 
 #include "AthLinks/ElementLink.h"
 #include "SGTools/TestStore.h" 
-using namespace SGTest;
 #else
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/TEvent.h"
@@ -36,7 +35,8 @@ namespace xAOD {
 #ifndef XAOD_STANDALONE
   // *********************** init in Athena 
 # ifdef SGTOOLS_CURRENTEVENTSTORE_H
-  initTestStore();
+  using SGTest::store;
+  SGTest::initTestStore();
 # else
   SG::getDataSourcePointerFunc = getTestDataSourcePointer;
 # endif

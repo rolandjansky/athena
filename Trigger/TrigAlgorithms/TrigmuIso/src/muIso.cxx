@@ -42,7 +42,7 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
 

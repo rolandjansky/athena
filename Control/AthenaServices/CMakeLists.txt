@@ -32,7 +32,7 @@ atlas_depends_on_subdirs(
 # External dependencies:
 find_package( Boost COMPONENTS thread )
 find_package( CLHEP )
-find_package( PythonLibs )
+find_package( Python COMPONENTS Development )
 find_package( yampl )
 
 # Component(s) in the package:
@@ -55,7 +55,7 @@ atlas_add_test( AthenaOutputStream_test
    src/OutputStreamSequencerSvc.cxx src/MetaDataSvc.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES TestTools AsgTools AthenaKernel SGTools StoreGateLib GaudiKernel AthenaBaseComps PersistentDataModel
-   EXTRA_PATTERNS "^AthenaRootStrea... +(INFO|DEBUG)|^AthenaSealSvc +DEBUG|^SGAudSvc +(INFO|DEBUG)|of type DataHistory|DEBUG Recorded object|object modifiable when retrieved|^ToolSvc +DEBUG Service base class initialized|^ServiceManager +DEBUG Initializing service|^IncidentSvc *DEBUG Adding .* listener|DecisionSvc +DEBUG|^IoComponentMgr +(INFO|DEBUG)|DBReplicaSvc|^HistogramPersis.*DEBUG|^ItemListSvc +(INFO|DEBUG)|Info File PoolFileCatalog.xml does not exist|DataModelCompatSvc::initialize|^ProxyProviderSvc +DEBUG|^DataModelCompatSvc +DEBUG|^AthenaOutputStreamVERBOSE|^AthenaOutputStream +DEBUG|^TimelineSvc +DEBUG"
+   LOG_IGNORE_PATTERN "^AthenaRootStrea... +(INFO|DEBUG)|^AthenaSealSvc +DEBUG|^SGAudSvc +(INFO|DEBUG)|of type DataHistory|DEBUG Recorded object|object modifiable when retrieved|^ToolSvc +DEBUG Service base class initialized|^ServiceManager +DEBUG Initializing service|^IncidentSvc *DEBUG Adding .* listener|DecisionSvc +DEBUG|^IoComponentMgr +(INFO|DEBUG)|DBReplicaSvc|^HistogramPersis.*DEBUG|^ItemListSvc +(INFO|DEBUG)|Info File PoolFileCatalog.xml does not exist|DataModelCompatSvc::initialize|^ProxyProviderSvc +DEBUG|^DataModelCompatSvc +DEBUG|^AthenaOutputStreamVERBOSE|^AthenaOutputStream +DEBUG|^TimelineSvc +DEBUG"
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 atlas_add_test( FPEControlSvc_test
@@ -90,18 +90,17 @@ atlas_add_test( ThinningCacheTool_test
 
 atlas_add_test( TestStopRun
    SCRIPT test/TestStopRun.sh
-   EXTRA_PATTERNS "^ApplicationMgr +INFO"
    PROPERTIES TIMEOUT 300 )
 
 atlas_add_test( AthTPCnvSvc
    SCRIPT test/AthTPCnvSvc.sh
-   EXTRA_PATTERNS "^ApplicationMgr +INFO"
+   LOG_IGNORE_PATTERN "^ApplicationMgr +INFO"
    PROPERTIES TIMEOUT 300 )
 
 atlas_add_test( SimplePOSIXTimeKeeperSvc
    SCRIPT test/SimplePOSIXTimeKeeperSvc.sh
    PROPERTIES TIMEOUT 300
-   EXTRA_PATTERNS "allocated job time|average time|start processing|done processing|waste some time|all times in|start of run|BeginRun" )
+   LOG_IGNORE_PATTERN "allocated job time|average time|start processing|done processing|waste some time|all times in|start of run|BeginRun" )
 
 atlas_add_test( AthDictLoaderSvc
    SCRIPT test/AthDictLoaderSvc.sh

@@ -38,13 +38,8 @@ def getTrigDecisionTool(flags):
     tdt.Navigation.Dlls = [e for e in  EDMLibraries if 'TPCnv' not in e]
 
     # Minimal config needed to read metadata: MetaDataSvc & ProxyProviderSvc
-    mdSvc = CompFactory.MetaDataSvc( "MetaDataSvc" )
-    mdSvc.MetaDataContainer = "MetaDataHdr"
-    rv.addService(mdSvc)
-
-    pdps = CompFactory.ProxyProviderSvc( "ProxyProviderSvc" )
-    pdps.ProviderNames += [ "MetaDataSvc" ]
-    rv.addService(pdps)
+    from AthenaServices.MetaDataSvcConfig import MetaDataSvcCfg
+    rv.merge(MetaDataSvcCfg(flags))
 
     getTrigDecisionTool.rv = rv
     return rv

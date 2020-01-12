@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -17,9 +17,7 @@
 
 // FIXME! Remove!
 #include <Inventor/C/errors/debugerror.h>
-#define protected public
 #include <Inventor/nodes/SoSelection.h>
-#undef protected
 
 #include "VP1TrackSystems/TrackSystemController.h"
 #include "VP1TrackSystems/TrackCollWidget.h"

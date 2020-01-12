@@ -6,7 +6,7 @@
 atlas_subdir( PyKernel )
 
 # External dependencies:
-find_package( PythonLibs )
+find_package( Python COMPONENTS Development )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:

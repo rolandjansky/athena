@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RPC_EXTRAPOLATIONTOOL
@@ -9,6 +9,8 @@
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "AthLinks/DataLink.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkExInterfaces/IExtrapolator.h"
@@ -17,14 +19,10 @@
 #include "MuonTGRecTools/IMuonTGMeasTool.h"
 #include "TrkParameters/TrackParameters.h"
 #include "MuonTGRecTools/MuonHolesOnTrackTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
 
-class RpcIdHelper;
 namespace Muon{
   class MuonTGMeasurementTool;
 }
-
-
 
 struct RpcExtrapolationResults{
 
@@ -39,20 +37,18 @@ class RpcExtrapolationTool: public AthAlgTool{
 
   RpcExtrapolationTool(const std::string& type, const std::string& name,
 			  const IInterface* parent );
-  virtual ~RpcExtrapolationTool();
+  virtual ~RpcExtrapolationTool() {};
 
   static const InterfaceID& interfaceID( );
   
   virtual StatusCode initialize();
-  virtual StatusCode finalize();
 
   void getRpcIntersections(TrackCollection::const_iterator theTrack, std::vector<RpcExtrapolationResults> &theResult);
 
  private:
 
   bool m_cosmicMode;
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   ToolHandle<Trk::IPropagator>                 m_propagator;
   ToolHandle<Trk::INavigator>                       m_navigator;    
   ToolHandle<Trk::IExtrapolator>      m_extrapolator;

@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 from G4AtlasApps.SimFlags import simFlags
 from G4UserActions.G4UserActionsConf import G4UA__RadiationMapsMakerTool
@@ -9,6 +9,7 @@ from G4UserActions.G4UserActionsConf import G4UA__RadiationMapsMakerTool
 # radmaptool = G4UA__RadiationMapsMakerTool("G4UA::RadiationMapsMakerTool")
 # radmaptool.RadMapsFileName = "RadMaps.root" 
 # radmaptool.Material        = "" # if left empty all materials are used (default)
+# radmaptool.PositiveYOnly   = False
 # radmaptool.NBinsR          =   120
 # radmaptool.NBinsZ          =   240
 # radmaptool.NBinsLogEn      =    90

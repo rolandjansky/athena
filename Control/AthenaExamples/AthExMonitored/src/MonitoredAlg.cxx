@@ -3,7 +3,7 @@
 */
 
 #include "MonitoredAlg.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 #include <vector>
 #include <cmath>

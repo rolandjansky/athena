@@ -97,8 +97,8 @@ def _TileMBTSMonitoringConfigCore(helper, algConfObj, runNumber, **kwargs):
 
     numberOfMBTS = 32
 
-    labelsMBTS  =  ['MBTSA' + ('0' if x < 10 else '') + str(x) for x in range(0, numberOfMBTS / 2)]
-    labelsMBTS +=  ['MBTSC' + ('0' if x < 10 else '') + str(x) for x in range(0, numberOfMBTS / 2)]
+    labelsMBTS  =  ['MBTSA' + ('0' if x < 10 else '') + str(x) for x in range(0, numberOfMBTS // 2)]
+    labelsMBTS +=  ['MBTSC' + ('0' if x < 10 else '') + str(x) for x in range(0, numberOfMBTS // 2)]
 
 
     # 2) Configure MBTS occupancy histogram

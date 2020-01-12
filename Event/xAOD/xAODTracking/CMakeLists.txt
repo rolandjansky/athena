@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 782296 2016-11-04 09:12:22Z krasznaa $
 ################################################################################
 # Package: xAODTracking
 ################################################################################
@@ -60,7 +59,7 @@ atlas_add_test( xAODTracking_TrackParticle_test
 atlas_add_test( xAODTracking_TrackParticlexAODHelpers_test
    SOURCES test/xAODTracking_TrackParticlexAODHelpers_test.cxx
    LINK_LIBRARIES xAODTracking
-   EXTRA_PATTERNS "^DEBUG" )
+   POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( ut_xaodtracking_vertex
    SOURCES test/ut_xaodtracking_vertex.cxx

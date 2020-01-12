@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_SerialNumber_h
@@ -10,9 +10,9 @@
  **/
 
 #include <string>
-//#include <ostream>
 
 /**
+ * @class SCT_SerialNumber
  * SCT_SerialNumber is a class to hold a serial number and 
  * provide check on validity, and conversions between the different formats.
  * In general, an SCT serial number is a unique 14 digit code assigned to each module
@@ -21,13 +21,13 @@
 
 class SCT_SerialNumber{
 public:
-  ///Default constructor produces an invalid serial number
+  /// Default constructor produces an invalid serial number
   SCT_SerialNumber();
   
   /**
    *  Construct from string of the full number
    **/
-  SCT_SerialNumber(const std::string & snString);
+  SCT_SerialNumber(const std::string& snString);
   
   /** 
    * Construct from full number (unsigned), which has to be a long long 
@@ -39,7 +39,6 @@ public:
    **/
   SCT_SerialNumber(const long long fullSerialNumber);
   
-  
   /** 
    * Construct from unsigned int, which can only hold the truncated serial number 
    **/
@@ -50,15 +49,15 @@ public:
    **/
   SCT_SerialNumber(const int truncatedSerialNumber);
   
-  //@name conversions to other forms
+  /// @name conversions to other forms
   //@{
-  ///Full serial number as a string  
+  /// Full serial number as a string  
   std::string str() const;  
-  ///truncated serial number as unsigned int
+  /// Truncated serial number as unsigned int
   unsigned int to_uint() const;
-  ///full serial number as long long
+  /// Full serial number as long long
   unsigned long long to_ulonglong() const;
-  ///overload cast to uint
+  /// Overload cast to uint
   operator unsigned int() const;
   //@}
   
@@ -69,7 +68,7 @@ public:
    **/
   bool isWellFormed() const;
   
-  ///until I make a better test, is_valid returns only whether its well formed
+  /// Until a better test is made, is_valid returns only whether its well formed
   bool is_valid() const{ return isWellFormed(); }
   
 private:
@@ -78,5 +77,3 @@ private:
 };
 
 #endif
-
-

@@ -23,7 +23,7 @@ find_package( CLHEP )
 find_package( CppUnit )
 find_package( HepMC )
 find_package( HepPDT )
-find_package( PythonLibs )
+find_package( Python COMPONENTS Development )
 
 # Component(s) in the package:
 atlas_add_library( McParticleUtils

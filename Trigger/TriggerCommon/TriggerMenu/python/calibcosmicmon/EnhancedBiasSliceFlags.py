@@ -1,9 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """ EnhancedBias slice specific flags  """
 
-from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
-from TriggerMenu.menu.CommonSliceHelper import CommonSliceHelper, AllowedList
+from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
+from TriggerMenu.menu.CommonSliceHelper import CommonSliceHelper
 
 __author__  = 'P. Bell, after A. Cerri'
 __version__="$Revision: 0.1 $"
@@ -27,7 +27,6 @@ class signatures(JobProperty):
 _flags.append(signatures)
 
 # create container
-from TriggerMenu.menu.CommonSliceHelper import CommonSliceHelper
 
 class EnhancedBiasSlice(JobPropertyContainer, CommonSliceHelper):
     """ EnhancedBias Slice Flags """

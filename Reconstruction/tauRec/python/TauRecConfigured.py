@@ -46,7 +46,6 @@ class TauRecConfigured ( Configured ) :
                                                         #MaxEta = 2.5,                                                                         
                                                         MaxEta = tauFlags.tauRecSeedMaxEta(),
                                                         MinPt = 10.*GeV,
-                                                        doCreateTauContainers = True,
                                                         CellMakerTool = TauCellContainerFinalizer)
 
         Configured.__init__(self, ignoreExistingDataObject=ignoreExistingDataObject)

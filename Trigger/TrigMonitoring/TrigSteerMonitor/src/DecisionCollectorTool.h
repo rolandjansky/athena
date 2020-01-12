@@ -22,6 +22,8 @@ public:
   virtual ~DecisionCollectorTool() override;
     
   virtual StatusCode getDecisions( std::vector<TrigCompositeUtils::DecisionID>& ) const override;
+  virtual StatusCode getSequencesPerEvent( std::set<std::string>& ) const;
+  virtual StatusCode getSequencesNames( std::set<std::string>& ) const;
   
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;

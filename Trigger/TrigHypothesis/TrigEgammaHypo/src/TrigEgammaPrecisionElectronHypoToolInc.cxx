@@ -5,7 +5,7 @@
 #include <algorithm>
 #include "DecisionHandling/HLTIdentifier.h"
 #include "DecisionHandling/Combinators.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 #include "TrigEgammaPrecisionElectronHypoToolInc.h"
 

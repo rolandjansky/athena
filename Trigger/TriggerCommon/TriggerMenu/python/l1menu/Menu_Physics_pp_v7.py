@@ -12,7 +12,6 @@ def defineMenu():
     
     from . import Menu_MC_pp_v7
     from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 
     Menu_MC_pp_v7.defineMenu()

@@ -5,14 +5,13 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, ConfigurationError
 import os
-import collections
 
 
-def TagInfoMgrCfg(configFlags,tagValuePairs=[]):
+def TagInfoMgrCfg(configFlags,tagValuePairs={}):
 
     #Sanity check:
-    if not isinstance(tagValuePairs,collections.Sequence) or len(tagValuePairs)%2!=0:
-        raise ConfigurationError("Parameter extraTagValuePairs is supposed to be an even-numbered list of strings")
+    if not isinstance(tagValuePairs,dict):
+        raise ConfigurationError("Parameter extraTagValuePairs is supposed to be a dictionary")
 
     result=ComponentAccumulator()
 
@@ -25,9 +24,10 @@ def TagInfoMgrCfg(configFlags,tagValuePairs=[]):
     version = os.getenv('AtlasVersion',"Unknown")     
     atlasRelease=project+"-"+version
     
-    releasetag=["AtlasRelease", atlasRelease ]
 
-    tagInfoMgr=TagInfoMgr(ExtraTagValuePairs = releasetag+list(tagValuePairs))
+    tagValuePairs.update({"AtlasRelease" : atlasRelease})
+
+    tagInfoMgr=TagInfoMgr(ExtraTagValuePairs = tagValuePairs)
     result.addService(tagInfoMgr)
     
     #Add to EventPersistencySvc 

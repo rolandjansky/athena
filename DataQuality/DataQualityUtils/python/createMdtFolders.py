@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # *************************************************
 # Author monica.verducci@cern.ch
@@ -21,11 +21,11 @@ def createMDTConditionDBDead():
         try:
             os.unlink('MDTDQMFOFFLINE_DEAD.db')
             #print 'Trying to Delete'
-        except Exception, e:
+        except Exception as e:
             print('Unable to remove existing db file, reason', e)
     try:
         db = dbSvc.createDatabase(dbstring)
-    except Exception, e:
+    except Exception as e:
         print('Problem creating database', e)
         return
     #print "Created database",dbstring
@@ -65,11 +65,11 @@ def createMDTConditionDBNoisy():
     if os.access('MDTDQMFOFFLINE_NOISY.db', os.R_OK):
         try:
             os.unlink('MDTDQMFOFFLINE_NOISY.db')
-        except Exception, e:
+        except Exception as e:
             print('Unable to remove existing db file, reason', e)
     try:
         db = dbSvc.createDatabase(dbstring)
-    except Exception, e:
+    except Exception as e:
         print('Problem creating database', e)
         return
     #print "Created database",dbstring

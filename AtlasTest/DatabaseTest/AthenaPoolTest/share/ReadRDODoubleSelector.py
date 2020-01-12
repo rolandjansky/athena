@@ -59,8 +59,11 @@ conddb.setGlobalTag("OFLCOND-SDR-BS7T-04-00")
 #--------------------------------------------------------------
 
 # Add in DoubleEventSelector
-svcMgr.DoubleEventSelector.PrimaryInputCollections = [ "LArRDO.root" ]
-svcMgr.DoubleEventSelector.SecondaryaryInputCollections = [ "InDetRDO.root" ]
+svcMgr.DoubleEventSelector.InputCollections = [ "LArRDO.root" ]
+svcMgr.SecondaryEventSelector.InputCollections = [ "InDetRDO.root" ]
+
+svcMgr.DoubleEventSelector.OutputLevel = DEBUG
+svcMgr.SecondaryEventSelector.OutputLevel = DEBUG
 
 #--------------------------------------------------------------
 # Event related parameters
@@ -108,6 +111,8 @@ svcMgr.MessageSvc.debugLimit  = 100000
 from AthenaServices import AthenaServicesConf
 AthenaEventLoopMgr = AthenaServicesConf.AthenaEventLoopMgr()
 AthenaEventLoopMgr.OutputLevel = INFO
+AthenaEventLoopMgr.UseSecondaryEventNumber = True
+svcMgr += AthenaEventLoopMgr
 
 # No stats printout
 include( "AthenaPoolTest/NoStats_jobOptions.py" )

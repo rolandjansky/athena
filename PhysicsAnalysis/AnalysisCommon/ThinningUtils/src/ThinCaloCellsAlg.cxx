@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ThinCaloCellsAlg.cxx
@@ -31,7 +31,6 @@ ThinCaloCellsAlg::ThinCaloCellsAlg( const std::string& name,
 																	  ISvcLocator* pSvcLocator ) :
   ::AthAlgorithm( name, pSvcLocator ),
   m_jos("JobOptionsSvc", name),
-  m_thinningSvc( "ThinningSvc/ThinningSvc", name ),
   m_thinTool("ThinCaloCellsTool/ThinCaloCellsTool", this),
   m_setCaloCellKey(false),
   m_setInCollKey(false),
@@ -40,9 +39,6 @@ ThinCaloCellsAlg::ThinCaloCellsAlg( const std::string& name,
   declareProperty("JobOptionsSvc",        m_jos, "The JobOptionService instance.");
 
   declareProperty("ThinTool",             m_thinTool, "The private ThinningTool" );
-
-  declareProperty("ThinningSvc",          m_thinningSvc,
-                  "The ThinningSvc instance for a particular output stream" );
 
   declareProperty("CaloCellsToThin",      m_caloCellKey = "AllCells",
                   "The xAOD::CaloCellContainer to be thinned" );
@@ -71,7 +67,7 @@ StatusCode ThinCaloCellsAlg::initialize()
   // Print out the used configuration
   ATH_MSG_DEBUG ( " using = " << m_jos );
   ATH_MSG_DEBUG ( " using = " << m_thinTool );
-  ATH_MSG_DEBUG ( " using = " << m_thinningSvc );
+  ATH_MSG_DEBUG ( " using = " << m_streamName );
   ATH_MSG_DEBUG ( " using = " << m_caloCellKey );
   ATH_MSG_DEBUG ( " using = " << m_inCollKeyList );
 
@@ -90,10 +86,10 @@ StatusCode ThinCaloCellsAlg::initialize()
   ATH_MSG_DEBUG( "Got the full name of the tool: " << fullToolName );
 
   // Now, set all properties of the private skimTool that were acutally configured
-	ATH_MSG_DEBUG( "Setting property" << m_thinningSvc
+	ATH_MSG_DEBUG( "Setting property" << m_streamName
                  << " of private tool with name: '" << fullToolName << "'" );
   ATH_CHECK( m_jos->addPropertyToCatalogue ( fullToolName,
-                                             StringProperty("ThinningSvc",m_thinningSvc.typeAndName()) ) );
+                                             StringProperty("StreamName",m_streamName) ) );
 
   if (m_setCaloCellKey) {
     ATH_MSG_DEBUG( "Setting property" << m_caloCellKey
