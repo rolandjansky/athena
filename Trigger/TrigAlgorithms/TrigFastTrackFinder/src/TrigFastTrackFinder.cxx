@@ -583,6 +583,9 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
     delete vertexCollection;
     if ( timerSvc() ) m_ZFinderTimer->stop();
   }
+  else {
+    superRoi->manageConstituents(false);
+  }
 
   m_currentStage = 3;
 
