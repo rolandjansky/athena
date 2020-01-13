@@ -23,8 +23,6 @@ typedef EventContainers::IdentifiableCache <Muon::TgcPrepDataCollection> TgcPrep
 typedef EventContainers::IdentifiableCache <Muon::sTgcPrepDataCollection> sTgcPrepDataCollection_Cache;
 typedef EventContainers::IdentifiableCache <Muon::MMPrepDataCollection> MMPrepDataCollection_Cache;
 
-//typedef EventContainers::IdentifiableCache <Muon::MuonPrepDataCollection< MdtPrepData > > MdtPrepDataCollection_Cache;
-
 CLASS_DEF( CscPrepDataCollection_Cache, 1232420816, 1 )
 CLASS_DEF( CscStripPrepDataCollection_Cache, 1331156947, 1 )
 CLASS_DEF( MdtPrepDataCollection_Cache, 1174391008, 1)

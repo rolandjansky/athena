@@ -56,15 +56,38 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(std::vector<IdentifierHash>& givenI
   // clear output vector of selected data collections containing data
   decodedIdhs.clear();
 
-  /// record the container in storeGate
+  /// Recording the PRD container in StoreGate
   SG::WriteHandle< Muon::CscStripPrepDataContainer > outputHandle (m_outputCollectionKey);
-  StatusCode status = outputHandle.record(std::make_unique<Muon::CscStripPrepDataContainer>(m_muonMgr->cscIdHelper()->module_hash_max()));
 
-  if (status.isFailure() || !outputHandle.isValid() )       {
-    ATH_MSG_FATAL("Could not record container of CSC PrepData Container at " << m_outputCollectionKey.key());
-    return StatusCode::FAILURE;
+  // Caching of PRD container
+  const bool externalCachePRD = !m_prdContainerCacheKey.key().empty();
+  if (!externalCachePRD) {
+    // without the cache we just record the container
+    StatusCode status = outputHandle.record(std::make_unique<Muon::CscStripPrepDataContainer>(m_muonMgr->cscIdHelper()->module_hash_max()));
+    if (status.isFailure() || !outputHandle.isValid() )   {
+      ATH_MSG_FATAL("Could not record container of CSC PrepData Container at " << m_outputCollectionKey.key());
+      return StatusCode::FAILURE;
+    }
+    ATH_MSG_DEBUG("Created container " << m_outputCollectionKey.key());
   } 
+  else {
+    // use the cache to get the container
+    SG::UpdateHandle<CscStripPrepDataCollection_Cache> update(m_prdContainerCacheKey);
+    if (!update.isValid()){
+      ATH_MSG_FATAL("Invalid UpdateHandle " << m_prdContainerCacheKey.key());
+      return StatusCode::FAILURE;
+    }
+    StatusCode status = outputHandle.record(std::make_unique<Muon::CscStripPrepDataContainer>(update.ptr()));
+    if (status.isFailure() || !outputHandle.isValid() )   {
+      ATH_MSG_FATAL("Could not record container of CSC PrepData Container using cache " 
+        << m_prdContainerCacheKey.key() << " - " <<m_outputCollectionKey.key()); 
+      return StatusCode::FAILURE;
+    }
+    ATH_MSG_DEBUG("Created container using cache for " << m_prdContainerCacheKey.key());
+  }
+  // Pass the container from the handle
   m_outputCollection = outputHandle.ptr();
+
 
   if (sizeVectorRequested == 0) {
     m_fullEventDone=true;

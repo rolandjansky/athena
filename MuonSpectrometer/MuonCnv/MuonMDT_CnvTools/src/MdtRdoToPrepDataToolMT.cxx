@@ -52,7 +52,6 @@ Muon::MdtRdoToPrepDataToolMT::SetupMdtPrepDataContainerStatus Muon::MdtRdoToPrep
   } 
   else {
     // use the cache to get the container
-
     SG::UpdateHandle<MdtPrepDataCollection_Cache> update(m_prdContainerCacheKey);
     if (!update.isValid()){
       ATH_MSG_FATAL("Invalid UpdateHandle " << m_prdContainerCacheKey.key());
