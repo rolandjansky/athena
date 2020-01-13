@@ -9,11 +9,11 @@ logger = Logging.logging.getLogger("PowhegControl")
 
 
 class ZjMiNNLO(PowhegV2):
-    """! Default Powheg configuration for single Z-boson production plus one jet.
+    """! Default Powheg configuration for single Z-boson production plus one jet using MiNNLOPS.
 
     Create a configurable object with all applicable Powheg options.
 
-    @author James Robinson  <james.robinson@cern.ch>
+    @author Simone Amoroso  <simone.amoroso@cern.ch>
     """
 
     def __init__(self, base_directory, **kwargs):
