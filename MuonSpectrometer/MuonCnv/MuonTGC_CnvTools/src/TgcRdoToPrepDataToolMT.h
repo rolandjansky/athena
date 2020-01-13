@@ -45,6 +45,10 @@ namespace Muon
       /// This is the key for the cache for the TGC PRD containers, can be empty
       SG::UpdateHandleKeyArray<TgcPrepDataCollection_Cache> m_prdContainerCacheKeys ;
       SG::UpdateHandleKeyArray<TgcCoinDataCollection_Cache> m_coinContainerCacheKeys ;
+      // TgcPrepRawData container key for current BC 
+      std::string m_prdContainerCacheKeyStr;   
+      // TgcCoinData container key for current BC 
+      std::string m_coinContainerCacheKeyStr;
 
    }; 
 } // end of namespace
