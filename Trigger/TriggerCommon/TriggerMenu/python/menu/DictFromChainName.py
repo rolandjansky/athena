@@ -439,8 +439,8 @@ class DictFromChainName(object):
             result.update(chainProperties)
             chainProperties = result
 
-            # ---- check remaining parts for complete machtes in allowedPropertiesAndValues Dict ----
-            parts = filter(None, parts)     #removing empty strings from list
+            # ---- check remaining parts for complete matches in allowedPropertiesAndValues Dict ----
+            parts = [x for x in parts if x]     #removing empty strings from list
 
             matchedparts = []
             for pindex, part in enumerate(parts):
