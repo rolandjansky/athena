@@ -94,25 +94,15 @@ def createCFTree(CFseq):
 
     already_connected = []
     for menuseq in CFseq.step.sequences:
-        ath_sequence = menuseq.sequence.Alg
-        name = ath_sequence.name()
-        if name in already_connected:
-            log.debug("AthSequencer %s already in the Tree, not added again",name)
-            continue
-        else:
-            already_connected.append(name)
-            stepReco += ath_sequence
-        if type(menuseq.hypo) is list:
-           for hp in menuseq.hypo:
-              seqAndView += hp.Alg
-        else:
-           seqAndView += menuseq.hypo.Alg
+        stepReco, seqAndView, already_connected = menuseq.addToSequencer(
+            stepReco,
+            seqAndView,
+            already_connected)
 
     if CFseq.step.isCombo:
         seqAndView += CFseq.step.combo.Alg
 
     return seqAndWithFilter
-
 
 
 #######################################
