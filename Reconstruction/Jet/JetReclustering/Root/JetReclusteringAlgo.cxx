@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifdef ROOTCORE
@@ -80,12 +80,19 @@ EL::StatusCode JetReclusteringAlgo :: initialize ()
   ANA_CHECK(m_jetReclusteringTool.setProperty("VariableRMassScale",        m_varR_mass));
   ANA_CHECK(m_jetReclusteringTool.setProperty("InputJetPtMin",             m_ptMin_input));
   ANA_CHECK(m_jetReclusteringTool.setProperty("RCJetPtMin",                m_ptMin_rc));
-  ANA_CHECK(m_jetReclusteringTool.setProperty("RCJetPtFrac",               m_ptFrac));
-  ANA_CHECK(m_jetReclusteringTool.setProperty("RCJetSubjetRadius",         m_subjet_radius));
+  ANA_CHECK(m_jetReclusteringTool.setProperty("GroomAlg",                  m_groomAlg));
+  ANA_CHECK(m_jetReclusteringTool.setProperty("TrimPtFrac",                m_trim_ptFrac));
+  ANA_CHECK(m_jetReclusteringTool.setProperty("TrimSubjetRadius",          m_trim_subjet_radius));
+  ANA_CHECK(m_jetReclusteringTool.setProperty("SoftDropZCut",              m_sd_zcut));
+  ANA_CHECK(m_jetReclusteringTool.setProperty("SoftDropBeta",              m_sd_beta));
+  ANA_CHECK(m_jetReclusteringTool.setProperty("SoftDropR0",                m_sd_R0));
+  ANA_CHECK(m_jetReclusteringTool.setProperty("SoftDropN",                 m_sd_N));
   ANA_CHECK(m_jetReclusteringTool.setProperty("DoArea",                    m_doArea));
   ANA_CHECK(m_jetReclusteringTool.setProperty("AreaAttributes",            m_areaAttributes));
   ANA_CHECK(m_jetReclusteringTool.setProperty("GhostTracksInputContainer", m_ghostTracksInputContainer));
   ANA_CHECK(m_jetReclusteringTool.setProperty("GhostTracksVertexAssociationName",  m_ghostTracksVertexAssName));
+  ANA_CHECK(m_jetReclusteringTool.setProperty("GhostBTagJetInputContainer", m_ghostBTagJetInputContainer));
+  ANA_CHECK(m_jetReclusteringTool.setProperty("GhostBTagJetLabel",         m_ghostBTagJetLabel));
   ANA_CHECK(m_jetReclusteringTool.setProperty("GhostScale",                m_ghostScale));
   ANA_CHECK(m_jetReclusteringTool.retrieve());
 

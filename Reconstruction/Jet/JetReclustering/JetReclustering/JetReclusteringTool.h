@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JetReclustering_JetReclusteringTool_H
@@ -53,33 +53,77 @@ class JetReclusteringTool : public asg::AsgTool, virtual public IJetExecuteTool 
     std::string m_inputJetContainer;
     // output jet container to store reclustered jets
     std::string m_outputJetContainer;
+    // output jet container to store ungroomed reclustered jets
+    std::string m_ungroomedJetContainer;
     // radius of the reclustered jets
     float m_radius;
     // reclustering algorithm to use
     std::string m_rc_alg;
+  
   /* variable R reclustering */
     // minimum radius
     float m_varR_minR;
     // mass scale (GeV)
     float m_varR_mass;
   /* end variable R reclustering */
+    
     // minimum pt of the constituents (GeV)
     float m_ptMin_input;
     // minimum pt of the reclustered jets (GeV)
     float m_ptMin_rc;
-    // trimming to apply to reclustered jets
-    float m_ptFrac;
-    float m_subjet_radius;
+    // grooming algorithm to apply to reclustered jets
+    std::string m_groomAlg;
+    // trimming parameters
+    float m_trim_ptFrac;
+    float m_trim_subjet_radius;
+    // softdrop parameters
+    float m_sd_zcut;
+    float m_sd_beta;
+    float m_sd_R0;
+    int m_sd_N;
     // enable to add area attributes form
     bool m_doArea;
     std::string m_areaAttributes;
-  /* for ghost tracks */
+    // options for substructure tools
+    std::vector<float> m_ecf_betaVals;
+    bool m_ecf_doC3;
+    bool m_ecf_doDichroic;
+    bool m_ecfg_doN3;
+    bool m_ecfg_doLSeries;
+  
+  /* ghost association containers */
+    float m_ghostScale;
+    // tracks
     std::string m_ghostTracksInputContainer;
     std::string m_ghostTracksVertexAssociationName;
-    float m_ghostScale;
-    /* for truth matching */
-    std::string m_ghostTruthInputBContainer;
-    std::string m_ghostTruthInputCContainer;
+    // b-tagging jets
+    std::string m_ghostBTagJetInputContainer;
+    std::string m_ghostBTagJetLabel;
+    // truth B quarks
+    std::string m_ghostTruthBQuarksInputContainer;
+    std::string m_ghostTruthBQuarksLabel;
+    // truth B hadrons
+    std::string m_ghostTruthBHadronsInputContainer;
+    std::string m_ghostTruthBHadronsLabel;
+    // truth C quarks
+    std::string m_ghostTruthCQuarksInputContainer;
+    std::string m_ghostTruthCQuarksLabel;
+    // truth C hadrons
+    std::string m_ghostTruthCHadronsInputContainer;
+    std::string m_ghostTruthCHadronsLabel;
+    // truth T quarks
+    std::string m_ghostTruthTQuarksInputContainer;
+    std::string m_ghostTruthTQuarksLabel;
+    // truth W bosons
+    std::string m_ghostTruthWBosonsInputContainer;
+    std::string m_ghostTruthWBosonsLabel;
+    // truth Z bosons
+    std::string m_ghostTruthZBosonsInputContainer;
+    std::string m_ghostTruthZBosonsLabel;
+    // truth H bosons
+    std::string m_ghostTruthHBosonsInputContainer;
+    std::string m_ghostTruthHBosonsLabel;
+    
     // make sure someone only calls a function once
     bool m_isInitialized = false;
     // this is for filtering input jets
@@ -91,25 +135,35 @@ class JetReclusteringTool : public asg::AsgTool, virtual public IJetExecuteTool 
     asg::AnaToolHandle<IJetFromPseudojet> m_jetFromPseudoJetTool;
     asg::AnaToolHandle<IJetFinder> m_jetFinderTool;
     asg::AnaToolHandle<IJetExecuteTool> m_reclusterJetTool;
-    asg::AnaToolHandle<IJetExecuteTool> m_trimJetTool;
+    asg::AnaToolHandle<IJetExecuteTool> m_groomJetTool;
 
     // tool for calculating effectiveR
     asg::AnaToolHandle<IJetModifier> m_effectiveRTool;
-    // tool for trimming reclustered jet
-    asg::AnaToolHandle<IJetGroomer> m_jetTrimmingTool;
-    // tool for the jpjr for m_jetTrimmingTool
-    asg::AnaToolHandle<IJetPseudojetRetriever> m_jetTrimmingTool_JPJR;
+    // tool for grooming reclustered jet
+    asg::AnaToolHandle<IJetGroomer> m_jetGroomingTool;
+    // tool for the jpjr for m_jetGroomTool
+    asg::AnaToolHandle<IJetPseudojetRetriever> m_jetGroomTool_JPJR;
     // modifier tools for the reclustered jets
     asg::AnaToolHandle<IJetModifier> m_jetChargeTool;
     asg::AnaToolHandle<IJetModifier> m_jetPullTool;
     asg::AnaToolHandle<IJetModifier> m_energyCorrelatorTool;
     asg::AnaToolHandle<IJetModifier> m_energyCorrelatorRatiosTool;
+    asg::AnaToolHandle<IJetModifier> m_energyCorrelatorGeneralizedTool;
+    asg::AnaToolHandle<IJetModifier> m_energyCorrelatorGeneralizedRatiosTool;
     asg::AnaToolHandle<IJetModifier> m_ktSplittingScaleTool;
     asg::AnaToolHandle<IJetModifier> m_dipolarityTool;
     asg::AnaToolHandle<IJetModifier> m_centerOfMassShapesTool;
     asg::AnaToolHandle<IJetModifier> m_nSubjettinessTool;
-    asg::AnaToolHandle<IPseudoJetGetter> m_pseudoTruthParticleBJetGetterTool;
-    asg::AnaToolHandle<IPseudoJetGetter> m_pseudoTruthParticleCJetGetterTool;
+    // pseudojet getters for ghost association
+    asg::AnaToolHandle<IPseudoJetGetter> m_pseudoBTagJetGetterTool;
+    asg::AnaToolHandle<IPseudoJetGetter> m_pseudoTruthBQuarksGetterTool;
+    asg::AnaToolHandle<IPseudoJetGetter> m_pseudoTruthBHadronsGetterTool;
+    asg::AnaToolHandle<IPseudoJetGetter> m_pseudoTruthCQuarksGetterTool;
+    asg::AnaToolHandle<IPseudoJetGetter> m_pseudoTruthCHadronsGetterTool;
+    asg::AnaToolHandle<IPseudoJetGetter> m_pseudoTruthTQuarksGetterTool;
+    asg::AnaToolHandle<IPseudoJetGetter> m_pseudoTruthWBosonsGetterTool;
+    asg::AnaToolHandle<IPseudoJetGetter> m_pseudoTruthZBosonsGetterTool;
+    asg::AnaToolHandle<IPseudoJetGetter> m_pseudoTruthHBosonsGetterTool;
 };
 
 #endif

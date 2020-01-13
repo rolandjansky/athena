@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifdef ROOTCORE
@@ -27,12 +27,19 @@ public:
   float m_radius = 1.0;
   float m_ptMin_input = 25.0; // GeV
   float m_ptMin_rc = 50.0; // GeV
-  float m_ptFrac = 0.05;
-  float m_subjet_radius = 0.2;
+  std::string m_groomAlg = "trim";
+  float m_trim_ptFrac = 0.05;
+  float m_trim_subjet_radius = 0.2;
+  float m_sd_zcut = 0.1;
+  float m_sd_beta = 0.0;
+  float m_sd_R0 = 1.0;
+  int m_sd_N = 1;
   float m_varR_minR = -1.0;
   float m_varR_mass = -1.0; // GeV
   bool m_doArea = false;
   std::string m_areaAttributes = "ActiveArea ActiveArea4vec";
+  std::string m_ghostBTagJetInputContainer = "";
+  std::string m_ghostBTagJetLabel = "";
   std::string m_ghostTracksInputContainer = "";
   std::string m_ghostTracksVertexAssName = "";
   float m_ghostScale = 1e-20;

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 /**************************************************************
@@ -192,7 +192,7 @@ StatusCode RCJetMC15::initialize() {
       top::check(tool->setProperty("ReclusterRadius",
                                    m_radius), "Failed re-clustering radius initialize reclustering tool");
       top::check(tool->setProperty("RCJetPtMin", m_ptcut * 1e-3), "Failed ptmin [GeV] initialize reclustering tool");
-      top::check(tool->setProperty("RCJetPtFrac", m_trim), "Failed pT fraction initialize reclustering tool");
+      top::check(tool->setProperty("TrimPtFrac", m_trim), "Failed pT fraction initialize reclustering tool");
       top::check(tool->setProperty("VariableRMinRadius",
                                    m_minradius), "Failed VarRC min radius initialize reclustering tool");
       top::check(tool->setProperty("VariableRMassScale",
@@ -219,7 +219,7 @@ StatusCode RCJetMC15::initialize() {
         top::check(tool_loose->setProperty("ReclusterRadius",
                                            m_radius), "Failed re-clustering radius initialize reclustering tool");
         top::check(tool_loose->setProperty("RCJetPtMin", m_ptcut * 1e-3), "Failed ptmin [GeV] reclustering tool");
-        top::check(tool_loose->setProperty("RCJetPtFrac", m_trim), "Failed pT fraction initialize reclustering tool");
+        top::check(tool_loose->setProperty("TrimPtFrac", m_trim), "Failed pT fraction initialize reclustering tool");
         top::check(tool_loose->setProperty("VariableRMinRadius",
                                            m_minradius), "Failed VarRC min radius initialize reclustering tool");
         top::check(tool_loose->setProperty("VariableRMassScale",
