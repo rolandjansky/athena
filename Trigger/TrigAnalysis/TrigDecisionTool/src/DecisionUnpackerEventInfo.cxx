@@ -33,7 +33,7 @@ bool get32BitDecision( unsigned int index,
 
 
 namespace Trig {
-  DecisionUnpackerEventInfo::DecisionUnpackerEventInfo(StoreGateSvc* sg, const std::string& key) : m_handle(new DecisionObjectHandleEventInfo(sg,key)){
+  DecisionUnpackerEventInfo::DecisionUnpackerEventInfo(SG::ReadHandleKey<EventInfo>* oldEventInfoKey) : m_handle(new DecisionObjectHandleEventInfo(oldEventInfoKey)){
   }
 
   DecisionUnpackerEventInfo::~DecisionUnpackerEventInfo(){

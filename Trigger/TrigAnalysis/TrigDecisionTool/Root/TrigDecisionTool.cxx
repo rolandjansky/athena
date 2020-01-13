@@ -33,55 +33,7 @@
 
 static std::vector<std::string> s_instances;
 
-Trig::TrigDecisionTool::TrigDecisionTool(const std::string& name) :
-  asg::AsgMetadataTool(name),
-#ifdef ASGTOOL_ATHENA
-  AthMessaging( Athena::getMessageSvc(), name),
-#endif
-  m_configKeysCache(),
-  m_configKeysCached( false )
-  ,m_configTool("TrigConf::xAODConfigTool")
-#ifndef XAOD_ANALYSIS
-  ,m_configSvc("", name) //defaults to empty, which will make full athena use configTool ... only works with xAOD
-  ,m_fullNavigation("HLT::Navigation/Navigation", this)
-  ,m_navigation(0) //should initialize it... it's dangerous not to
-#else
-  ,m_navigation(new HLT::StandaloneNavigation())
-#endif
-{
-   // declareProperty( "TrigDecisionKey", m_decisionKey="xTrigDecision", "StoreGate key of TrigDecision object. Consult checkSG.py for the actual name.");
-   declareProperty( "PublicChainGroups", m_publicChainGroups, "Pre-created chain groups");
-   declareProperty( "AcceptMultipleInstance", m_acceptMultipleInstance = false );
 
-  //full Athena env
-#ifndef XAOD_ANALYSIS
-   declareProperty( "TrigConfigSvc", m_configSvc, "Trigger Config Service");
-   declareProperty( "Navigation", m_fullNavigation);
-   // ugly hack to prevent genconf from causing the MessageSvc to bork
-   const std::string cmd = System::cmdLineArgs()[0];
-   if ( cmd.find( "genconf" ) == std::string::npos ) {
-     m_navigation = &*m_fullNavigation;
-   }
-#endif
-   declareProperty( "ConfigTool", m_configTool);
-   
-#ifndef XAOD_STANDALONE
-   //just for Athena/AthAnalysisBase
-   auto props = getProperties();
-   for( Property* prop : props ) {
-     if( prop->name() != "OutputLevel" ) {
-       continue;
-     }
-     prop->declareUpdateHandler( &Trig::TrigDecisionTool::outputlevelupdateHandler, this );
-     break;
-   }
-#endif
-    Logger::setMessaging(this);
-
-   m_configKeysCache.resize(3,0);
-}
-
-/*
 Trig::TrigDecisionTool::TrigDecisionTool(const std::string& name) :
   asg::AsgMetadataTool(name),
 #ifdef ASGTOOL_ATHENA
@@ -99,6 +51,7 @@ Trig::TrigDecisionTool::TrigDecisionTool(const std::string& name) :
   //full Athena env
 #ifndef XAOD_ANALYSIS
    // ugly hack to prevent genconf from causing the MessageSvc to bork
+   declareProperty( "Navigation", m_fullNavigation);
    const std::string cmd = System::cmdLineArgs()[0];
    if ( cmd.find( "genconf" ) == std::string::npos ) {
      m_navigation = &*m_fullNavigation;
@@ -119,7 +72,6 @@ Trig::TrigDecisionTool::TrigDecisionTool(const std::string& name) :
     Logger::setMessaging(this);
 
 }
-*/
 
 #ifdef ASGTOOL_ATHENA
 void Trig::TrigDecisionTool::outputlevelupdateHandler(Property& /*p*/) {
@@ -145,17 +97,20 @@ Trig::TrigDecisionTool::initialize() {
      return StatusCode::FAILURE;
    }
 
+   ATH_CHECK(m_oldDecisionKey.initialize( m_useRun1DecisionFormat ) );
+   ATH_CHECK(m_oldEventInfoKey.initialize( m_useOldEventInfoDecisionFormat ) );
    ATH_CHECK(m_HLTSummaryKeyIn.initialize(m_navigationFormat == "TrigComposite"));
+   ATH_CHECK(m_navigationKey.initialize(m_navigationFormat == "TriggerElement"));
    ATH_CHECK(m_decisionKey.initialize());
 
    s_instances.push_back(name());
    if ( s_instances.size() > 1) {
-       ATH_MSG_WARNING("Several TrigDecisionTool instances" );
-       ATH_MSG_WARNING("This not to efficent from performance perspective. Access of the same EDM objects will give warnings. Continues anyway ..." );      
-       if (!m_acceptMultipleInstance){
-	 ATH_MSG_ERROR("Will not accept multiple instances. If you really want to have some, use 'AcceptMultipleInstance' property" );
-	 return StatusCode::FAILURE;
-       }
+     ATH_MSG_WARNING("Several TrigDecisionTool instances" );
+     ATH_MSG_WARNING("This not to efficent from performance perspective. Access of the same EDM objects will give warnings. Continues anyway ..." );
+     if (!m_acceptMultipleInstance){
+       ATH_MSG_ERROR("Will not accept multiple instances. If you really want to have some, use 'AcceptMultipleInstance' property" );
+	     return StatusCode::FAILURE;
+     }
    }
 
    ATH_MSG_INFO("Initializing Trig::TrigDecisionTool (standalone version even for athena)");
@@ -171,11 +126,7 @@ Trig::TrigDecisionTool::initialize() {
 
      m_configTool.disable();
 
-     StatusCode sc = m_configSvc.retrieve();
-     if ( sc.isFailure() ) {
-       ATH_MSG_FATAL("Unable to get pointer to TrigConfigSvc");
-       return sc;
-     }
+     ATH_CHECK(m_configSvc.retrieve());
      // call update if there is anything in config svc
      if ( m_configSvc->chainList() || m_configSvc->ctpConfig() ) {
        configurationUpdate( m_configSvc->chainList(), m_configSvc->ctpConfig() );
@@ -183,19 +134,14 @@ Trig::TrigDecisionTool::initialize() {
    }
 
    if (m_navigationFormat == "TriggerElement") {
-     StatusCode sc = m_fullNavigation.retrieve();
-     if ( sc.isFailure() ) {
-       ATH_MSG_FATAL( "Unable to get Navigation tool");
-       return sc;
-     }
+     ATH_CHECK(m_fullNavigation.retrieve());
    }
 #else
    ATH_CHECK(m_configTool.retrieve());
 #endif
 
-
-
    cgm()->navigation(&*m_navigation);
+   cgm()->setStore(&*evtStore()); // Use of this is deprecated, and should be phased out.
    
 #ifdef ASGTOOL_ATHENA
    ServiceHandle<IIncidentSvc> incSvc("IncidentSvc",name());
@@ -222,59 +168,88 @@ Trig::TrigDecisionTool::initialize() {
       cgm()->createChainGroup(patterns, pIt->first);
       ATH_MSG_INFO("created Public Chain Group " << pIt->first << " with pattern: " << pIt->second );
    }
-
-   // m_configKeysCached = false; // TIMM
-  
+ 
    return StatusCode::SUCCESS;
 }
 
 StatusCode Trig::TrigDecisionTool::beginEvent() {
 
-//   const EventContext context = Gaudi::Hive::currentContext();
-//   const IProxyDict* proxy = Atlas::getExtendedEventContext(context).proxy();
-//   ATH_CHECK( proxy != nullptr );
-//   const StoreGateSvc* castProxy = dynamic_cast<const StoreGateSvc*>(proxy);
-//   ATH_CHECK( castProxy != nullptr );
-//   // Support for legacy interface (Dec 2019)
-//   // This whole cache should be refactored away, but it is a large job
-//   StoreGateSvc* castProxyMut = const_cast<StoreGateSvc*>(castProxy);
-//   cgm()->setStore(castProxyMut);
+  cgm()->setDecisionKeyPtr( &m_decisionKey );
+  cgm()->setOldDecisionKeyPtr( &m_oldDecisionKey );
+  cgm()->setNavigationKeyPtr( &m_navigationKey );
+  cgm()->setOldEventInfoKeyPtr( &m_oldEventInfoKey );
 
-//   //invalidate handle so that we read a new decision object
-//   if(cgm()->unpacker()){
-//     ATH_MSG_VERBOSE("beginEvent: invalidating handle");
-//     cgm()->unpacker()->invalidate_handle();
-//   }
- 
+  //invalidate handle so that we read a new decision object
+  if(cgm()->unpacker()){
+    ATH_MSG_VERBOSE("beginEvent: invalidating unpacker() handle");
+    cgm()->unpacker()->invalidate_handle();
+  } else {
+    ATH_MSG_VERBOSE("No cgm()->unpacker() yet (first event?)");
+  }
 
-// #ifndef XAOD_ANALYSIS
-//   if(m_configSvc.empty()) {
-// #endif
-//   //for analysis releases we check whether we need to update the config
-//     //we also do this in full athena, in the case where there was no configSvc provided
-//   ATH_MSG_VERBOSE("beginEvent: check if config update is nessecary (via config Tool)");
-  
-//   bool keysMatch = configKeysMatch(m_configTool->masterKey(),m_configTool->lvl1PrescaleKey(),m_configTool->hltPrescaleKey());
-//   // if(! *(m_configKeysCached.get()) || !keysMatch){ // TIMM
-//   if(!keysMatch){
 
-//     ATH_MSG_INFO("updating config with SMK: " << m_configTool->masterKey() << " and L1PSK: " << m_configTool->lvl1PrescaleKey() << " and HLTPSK: " << m_configTool->hltPrescaleKey());
+#ifndef XAOD_ANALYSIS
+  if(m_configSvc.empty()) {
+#endif
+    //for analysis releases we check whether we need to update the config
+    //we also do this in full athena, in the case where there was no configSvc provided ...
+    ATH_MSG_VERBOSE("beginEvent: check if config update is nessecary (via config Tool)");
+
+    bool keysMatch = configKeysMatch(m_configTool->masterKey(),
+      m_configTool->lvl1PrescaleKey(),
+      m_configTool->hltPrescaleKey());
     
-//     std::vector<uint32_t>* keys = m_configKeysCache.get(context);
-//     keys->resize(3);
-//     keys->at(0) = m_configTool->masterKey();
-//     keys->at(1) = m_configTool->lvl1PrescaleKey();     
-//     keys->at(2) = m_configTool->hltPrescaleKey();
-//     // m_configKeysCached.get()->store(true); // TIMM
-//     configurationUpdate( m_configTool->chainList(), m_configTool->ctpConfig() );
-//   }
-//   else{
-//     ATH_MSG_VERBOSE("keysmatch: " << keysMatch);
-//     // ATH_MSG_VERBOSE("keysmatch: " << keysMatch << " cached: " << *(m_configKeysCached->get())); // TIMM
-//   }
-// #ifndef XAOD_ANALYSIS
-//   }
-// #endif
+    if(!keysMatch){
+
+      ATH_MSG_INFO("Tool: updating config in slot " 
+        << Gaudi::Hive::currentContext().slot()
+        << " with SMK: " << m_configTool->masterKey() 
+        << " and L1PSK: " << m_configTool->lvl1PrescaleKey() 
+        << " and HLTPSK: " << m_configTool->hltPrescaleKey());
+      
+      std::vector<uint32_t>* keys = m_configKeysCache.get();
+      keys->resize(3);
+      keys->at(0) = m_configTool->masterKey();
+      keys->at(1) = m_configTool->lvl1PrescaleKey();
+      keys->at(2) = m_configTool->hltPrescaleKey();
+      configurationUpdate( m_configTool->chainList(), m_configTool->ctpConfig() );
+    } else{
+      ATH_MSG_VERBOSE("Tool: Cached Trigger configuration keys match for this event in slot " 
+        << Gaudi::Hive::currentContext().slot());
+    }
+#ifndef XAOD_ANALYSIS
+  }
+#endif
+
+#ifndef XAOD_ANALYSIS
+  if(m_configSvc.name() == "xAODConfigSvc") {
+    // ... and where we are using the xAOD service (instead of the TrigConfSvc)
+    ATH_MSG_VERBOSE("beginEvent: check if config update is nessecary (via xAOD config Svc)");
+
+    bool keysMatch = configKeysMatch(m_configSvc->masterKey(),
+      m_configSvc->lvl1PrescaleKey(),
+      m_configSvc->hltPrescaleKey());
+
+    if(!keysMatch){
+
+      ATH_MSG_INFO("Svc: updating config in slot " 
+        << Gaudi::Hive::currentContext().slot()
+        << " with SMK: " << m_configSvc->masterKey() 
+        << " and L1PSK: " << m_configSvc->lvl1PrescaleKey() 
+        << " and HLTPSK: " << m_configSvc->hltPrescaleKey());
+
+      std::vector<uint32_t>* keys = m_configKeysCache.get();
+      keys->resize(3);
+      keys->at(0) = m_configSvc->masterKey();
+      keys->at(1) = m_configSvc->lvl1PrescaleKey();
+      keys->at(2) = m_configSvc->hltPrescaleKey();
+      configurationUpdate( m_configSvc->chainList(), m_configSvc->ctpConfig() );
+    }else{
+      ATH_MSG_VERBOSE("Svc: Cached Trigger configuration keys match for this event in slot " 
+        << Gaudi::Hive::currentContext().slot());    }
+  }
+#endif
+
   return StatusCode::SUCCESS;
 }
 
@@ -283,20 +258,19 @@ StatusCode Trig::TrigDecisionTool::beginInputFile() {
    // We need to update the cached configuration when switching to a new input
    // file:
    //have to do this at the next beginEvent, because the event info isn't ready at this point (e.g. if the file has no events!)
-   // Do this 
-   // m_configKeysCached.get()->store(false); // TIMM
 
    // Return gracefully:
    return StatusCode::SUCCESS;
 }
 
 bool Trig::TrigDecisionTool::configKeysMatch(uint32_t smk, uint32_t lvl1psk, uint32_t hltpsk){
-  // std::vector<uint32_t>* keys = m_configKeysCache.get();
-  // if (keys->size() < 3) return false;
-  // return ( ( smk == keys->at(0) ) &&
-  //          ( lvl1psk == keys->at(1) ) &&
-  //          ( hltpsk == keys->at(2) ) );
-  return false;
+  std::vector<uint32_t>* keys = m_configKeysCache.get(); // Slot-specific object.
+  if (keys->size() != 3) {
+    return false;
+  }
+  return ( ( smk == keys->at(0) ) &&
+           ( lvl1psk == keys->at(1) ) &&
+           ( hltpsk == keys->at(2) ) );
 }
 
 StatusCode
@@ -325,13 +299,14 @@ Trig::TrigDecisionTool::handle(const Incident& inc) {
    if ( inc.type()=="TrigConf") {
       if(m_configSvc.isSet()) {
          ATH_MSG_INFO("updating config via config svc");
-     
-     
-         configurationUpdate( m_configSvc->chainList(), 
-     			  m_configSvc->ctpConfig() 
-     			  );
+         configurationUpdate( m_configSvc->chainList(), m_configSvc->ctpConfig());
       } else {
          ATH_MSG_DEBUG("No TrigConfigSvc, ignoring TrigConf incident.");
+      }
+   }
+   else if (inc.type() == IncidentType::BeginEvent) {
+      if (beginEvent().isFailure()) {
+         throw std::runtime_error("In Trig::TrigDecisionTool::handle beginEvent() returned StatusCode::FAILURE");
       }
    }
    else {

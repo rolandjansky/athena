@@ -23,7 +23,6 @@ Trig::TrigDecisionToolCore::TrigDecisionToolCore()
 {
   SG::SlotSpecificObj<Trig::CacheGlobalMemory>* ptr = &m_cacheGlobalMemory;
   m_expertMethods=new ExpertMethods(ptr);
-  ChainGroupInitialize();
 }
 
 Trig::TrigDecisionToolCore::~TrigDecisionToolCore() {
@@ -37,6 +36,7 @@ Trig::CacheGlobalMemory* Trig::TrigDecisionToolCore::cgm() const {
 }
 
 StatusCode Trig::TrigDecisionToolCore::initialize() {
+  ChainGroupInitialize();
   return StatusCode::SUCCESS;
 }
 

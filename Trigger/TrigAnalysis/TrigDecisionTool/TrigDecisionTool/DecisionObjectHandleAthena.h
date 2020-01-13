@@ -22,6 +22,11 @@
 #include "TrigDecisionEvent/TrigDecision.h"
 #include "AsgTools/AsgMessaging.h"
 
+#include "StoreGate/ReadHandleKey.h"
+
+#include "TrigDecisionEvent/TrigDecision.h"
+
+
 class StoreGateSvc;
 
 namespace TrigDec {
@@ -37,13 +42,12 @@ namespace Trig {
 				     public DataHandle<TrigDec::TrigDecision>
   {
   public:
-    DecisionObjectHandleAthena( EventPtr_t sg, const std::string& key );
+    DecisionObjectHandleAthena( SG::ReadHandleKey<TrigDec::TrigDecision>* olddeckey );
     virtual void reset (bool hard) override;
     virtual TrigDec::TrigDecision const * getDecision() const override;
     virtual TrigDec::TrigDecision const * getNavigation() const override;
   private:
-    StoreGateSvc* m_sg;
-    const std::string m_key;
+      SG::ReadHandleKey<TrigDec::TrigDecision>* m_oldDecKey;
     mutable TrigDec::TrigDecision const * m_object;
   };
 }

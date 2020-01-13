@@ -37,10 +37,9 @@ namespace {
 
 namespace Trig {
 
-  DecisionUnpackerStandalone::
-  DecisionUnpackerStandalone( EventPtr_t sg, const std::string& deckey,
-			      const std::string& navikey)
-    : m_handle( new DecisionObjectHandleStandalone( sg, deckey, navikey ) )
+  DecisionUnpackerStandalone::DecisionUnpackerStandalone( SG::ReadHandleKey<xAOD::TrigDecision>* deckey,
+                                                          SG::ReadHandleKey<xAOD::TrigNavigation>* navikey)
+    : m_handle( new DecisionObjectHandleStandalone( deckey, navikey ) )
   {
   }
   
