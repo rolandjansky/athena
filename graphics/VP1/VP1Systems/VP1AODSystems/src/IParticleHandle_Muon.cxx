@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -470,7 +470,7 @@ QString IParticleHandle_Muon::muonTypeString() const {
 }
 
 QString IParticleHandle_Muon::qualityString() const{
-  switch (m_d->muon->muonType()) {
+  switch (m_d->muon->quality()) {
     case xAOD::Muon::Tight:
     return QString("Tight");
     case xAOD::Muon::Medium:

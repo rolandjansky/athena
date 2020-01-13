@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -307,8 +307,7 @@ private:
 
    std::string   m_ReturnNoiseName;
 
-  const DataHandle<CaloIdManager> m_caloIdMgr;
-  const DataHandle<CaloDetDescrManager> m_calodetdescrmgr;
+  const CaloIdManager*     m_caloIdMgr = nullptr;
   const CaloCell_ID*       m_calo_id;
 
   // number of EM systems in SYSTEM enum

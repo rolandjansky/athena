@@ -3,6 +3,7 @@
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.Logging import logging
 from SCT_Digitization.SCT_DigitizationConf import (
     SCT_RandomDisabledCellGenerator,
@@ -12,9 +13,9 @@ from SCT_Digitization.SCT_DigitizationConf import (
     SCT_DigitizationTool,
     SCT_Digitization,
 )
-from PileUpComps.PileUpCompsConf import PileUpXingFolder
+PileUpXingFolder=CompFactory.PileUpXingFolder
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_RadDamageSummaryTool
+SCT_RadDamageSummaryTool=CompFactory.SCT_RadDamageSummaryTool
 from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
 from SCT_ConditionsTools.SCT_DCSConditionsConfig import SCT_DCSConditionsCfg
 from SCT_ConditionsTools.SCT_SiliconConditionsConfig import SCT_SiliconConditionsToolCfg, SCT_SiliconConditionsCfg

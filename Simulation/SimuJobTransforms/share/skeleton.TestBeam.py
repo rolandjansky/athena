@@ -233,7 +233,7 @@ print(topSeq)
 if hasattr(runArgs, 'AMITag'):
     if runArgs.AMITag != "NONE":
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", runArgs.AMITag]
+        svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag": runArgs.AMITag})
 
 ## Post-include
 if hasattr(runArgs, "postInclude"):

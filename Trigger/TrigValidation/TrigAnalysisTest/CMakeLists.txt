@@ -70,7 +70,7 @@ if( XAOD_STANDALONE )
 endif()
 
 # Install files from the package:
-atlas_install_python_modules( python/__init__.py python/PassedTriggerFilter.py )
+atlas_install_python_modules( python/__init__.py python/PassedTriggerFilter.py python/TrigAnalysisSteps.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_runtime( test/*.xml share/*py Testing/*.conf )
 atlas_install_scripts( Testing/*.sh bin/*.py test/exec*.sh test/test*.sh test/test*.py )

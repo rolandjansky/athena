@@ -14,6 +14,7 @@
 #include "TrkParameters/TrackParameters.h"
 #include "MuonCondData/MdtCondDbData.h"
 #include "Identifier/Identifier.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 
 #include <vector>
@@ -21,10 +22,6 @@
 class MdtCondDbData;
 class MuonStationIntersectSvc;
 class MsgStream;
-
-namespace MuonGM {
-  class MuonDetectorManager;
-}
 
 namespace Trk {
   class IPropagator;
@@ -74,7 +71,10 @@ namespace Muon {
     /** @brief calculate holes */
     std::vector<Identifier> calculateHoles( const Identifier& chid, const Trk::TrackParameters& pars, const MeasVec& measurements ) const;
 
-    const MuonGM::MuonDetectorManager* m_detMgr;            //<! pointer to detector manager
+    SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+	"MuonDetectorManager", 
+	"Key of input MuonDetectorManager condition data"};    
+
     ServiceHandle<MuonStationIntersectSvc> m_intersectSvc;  //<! pointer to hole search service
     ToolHandle<Trk::IPropagator>        m_propagator;       //<! propagator
     ToolHandle<MuonIdHelperTool>        m_idHelperTool;     //<! tool to assist with Identifiers

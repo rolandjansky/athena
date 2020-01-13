@@ -3,14 +3,11 @@
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TriggerMenu.L1TopoMenu.TopoAlgoDef')
 
-from TriggerMenu.l1topo.TopoAlgos import SortingAlgo, DecisionAlgo
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 # algorithm python base classes generated from C++ code
 import L1TopoAlgorithms.L1TopoAlgConfig as AlgConf
 import L1TopoHardware.L1TopoHardware as HW
-
-import re
 
 
 class TopoAlgoDef:
@@ -21,16 +18,10 @@ class TopoAlgoDef:
 
         _etamax = 49
         _minet = 0
-        usev6 = False
         usev7 = False
-        doPhysics = False
 
-        if '_v6' in TriggerFlags.triggerMenuSetup() or '_v7' in TriggerFlags.triggerMenuSetup() or 'HI' in TriggerFlags.triggerMenuSetup():
-            usev6 = True
         if '_v7' in TriggerFlags.triggerMenuSetup():
             usev7 = True
-        if 'Physics' in TriggerFlags.triggerMenuSetup() or 'HI' in TriggerFlags.triggerMenuSetup():
-            doPhysics = True
         
         _emscale_for_decision = 2 # global scale for EM, TAU        
         if hasattr(TriggerFlags, 'useRun1CaloEnergyScale'):

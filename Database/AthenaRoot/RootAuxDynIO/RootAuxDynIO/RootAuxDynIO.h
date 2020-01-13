@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ROOTAUXDYN_IO_H
@@ -56,7 +56,7 @@ public :
    Use this method to instrument an AuxStore object AFTER it was read (every time it is read)
    This will attach its dynamic attributes with read-on-demand capability
    */
-  virtual void addReaderToObject(void* object, size_t ttree_row, std::mutex* iomtx = nullptr) = 0;
+  virtual void addReaderToObject(void* object, size_t ttree_row, std::recursive_mutex* iomtx = nullptr) = 0;
 
   virtual size_t getBytesRead() = 0;
 

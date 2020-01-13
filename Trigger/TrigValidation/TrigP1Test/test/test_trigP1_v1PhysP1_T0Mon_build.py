@@ -14,7 +14,6 @@ hlt.job_options = 'TrigUpgradeTest/full_menu.py'
 hlt.input = 'data'
 hlt.args = '-c "setMenu=\'PhysicsP1_pp_run3_v1\';"'
 hlt.args += ' -o output'
-hlt.perfmon = False # perfmon with athenaHLT doesn't work at the moment
 
 # Copy BS metadata from input file (needed for reco auto-configuration)
 update_metadata = ExecStep.ExecStep('UpdateMetadata')

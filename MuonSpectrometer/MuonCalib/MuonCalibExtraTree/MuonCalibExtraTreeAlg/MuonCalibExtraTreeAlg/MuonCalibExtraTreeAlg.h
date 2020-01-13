@@ -24,12 +24,6 @@ class TFile;
 class TDirectory;
 class TTree;
 
-class MdtIdHelper;
-
-namespace MuonGM {
- class MuonDetectorManager;
-}
-
 namespace MuonCalib {
 class IExtraTreeFillerTool;
 class  ISegmentOnTrackSelector;
@@ -69,8 +63,6 @@ class  ISegmentOnTrackSelector;
     bool  createHitBranch(TTree* tree);    //!< creates MuonCalibHit_EBranch
     bool  createTrackBranch(TTree* tree);  //!< creates hit overlap between two tracks
 
-    const MuonGM::MuonDetectorManager*      m_detMgr;      //<! MuonDetector manager
-    const MdtIdHelper*                      m_muonIdHelper;//<! //  const MuonPrdPatternCollection* m_patterns;    //!< Athena pattern Collection
     const MuonPatternCombinationCollection* m_patterns;    //!< Athena pattern Collection
 
     bool        m_doPhi;                         //!< property flagging wether to store PhiHits on ExtraTree

@@ -69,7 +69,7 @@ Trk::PlaneSurface::PlaneSurface(const Trk::TrkDetElementBase& detelement, Amg::T
   : Trk::Surface(detelement)
   , m_bounds()
 {
-  m_transform.store(std::unique_ptr<Amg::Transform3D>(transf));
+  m_transform=std::unique_ptr<Amg::Transform3D>(transf);
 }
 
 // construct form SiDetectorElement
@@ -79,7 +79,7 @@ Trk::PlaneSurface::PlaneSurface(const Trk::TrkDetElementBase& detelement,
   : Trk::Surface(detelement, id)
   , m_bounds()
 {
-  m_transform.store(std::unique_ptr<Amg::Transform3D>(transf));
+  m_transform=std::unique_ptr<Amg::Transform3D>(transf);
 }
 
 // construct planar surface without bounds

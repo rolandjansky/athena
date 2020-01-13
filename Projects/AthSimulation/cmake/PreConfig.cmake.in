@@ -1,0 +1,13 @@
+#
+# Pre-config script to propagate variables to downstream projects
+#
+
+# Due to the way CMake handles propagation of targets to dependees,
+# any "external" that is used through imported targets in the build need
+# to be imported explicitly here.
+set( _quietFlag )
+if( AthSimulation_FIND_QUIETLY )
+  set( _quietFlag QUIET )
+endif()
+find_package( nlohmann_json ${_quietFlag} )
+unset( _quietFlag )

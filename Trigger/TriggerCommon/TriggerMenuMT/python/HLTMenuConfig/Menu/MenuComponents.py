@@ -721,10 +721,8 @@ class RecoFragmentsPool(object):
         if requestHash not in cls.fragments:
             recoFragment = creator( flags, **kwargs )
             cls.fragments[requestHash] = recoFragment
-            log.debug( "created reconstruction fragment using function: %s", creator.func_name )
             return recoFragment
         else:
-            log.debug( "reconstruction fragment that would be created from %s is taken from the cache", creator.func_name )
             return cls.fragments[requestHash]
 
 

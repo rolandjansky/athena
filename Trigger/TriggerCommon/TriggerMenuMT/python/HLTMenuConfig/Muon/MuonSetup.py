@@ -422,7 +422,10 @@ def muEFSARecoSequence( RoIs, name ):
   if not athenaCommonFlags.isOnline:
     condSequence = AthSequencer("AthCondSeq")
     if not hasattr(condSequence,"MdtCondDbAlg"):
-        condSequence += MdtCondDbAlg("MdtCondDbAlg")
+      condSequence += MdtCondDbAlg("MdtCondDbAlg")
+    # Sets up and configures the muon alignment:
+    from MuonRecExample import MuonAlignConfig # noqa: F401
+
 
   theSegmentFinderAlg = MooSegmentFinderAlg("TrigMuonSegmentMaker_"+name)
   theSegmentCnvAlg = CfgMgr.xAODMaker__MuonSegmentCnvAlg("MuonSegmentCnvAlg")
@@ -501,7 +504,7 @@ def muEFCBRecoSequence( RoIs, name ):
     ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("muonCBIDViewDataVerifier")
     ViewVerifyTrk.DataObjects = [( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+'+TrackParticlesName ),
                                  ( 'TrackCollection' , 'StoreGateSvc+'+TrackCollection ),
-                                 ( 'SCT_FlaggedCondData' , 'StoreGateSvc+SCT_FlaggedCondData' ),
+                                 ( 'SCT_FlaggedCondData' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
                                  ( 'xAOD::IParticleContainer' , 'StoreGateSvc+'+TrackParticlesName )]
 
     if globalflags.InputFormat.is_bytestream():
@@ -597,6 +600,8 @@ def muEFInsideOutRecoSequence(RoIs, name):
       condSequence = AthSequencer("AthCondSeq")
       if not hasattr(condSequence,"MdtCondDbAlg"):
         condSequence += MdtCondDbAlg("MdtCondDbAlg")
+      # Sets up and configures the muon alignment:
+      from MuonRecExample import MuonAlignConfig # noqa: F401
 
     theSegmentFinderAlg = MooSegmentFinderAlg("TrigLateMuonSegmentMaker_"+name)
     theSegmentCnvAlg = CfgMgr.xAODMaker__MuonSegmentCnvAlg("MuonSegmentCnvAlg")

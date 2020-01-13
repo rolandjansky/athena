@@ -6,8 +6,9 @@ Elmar Ritsch, 23/10/2014
 """
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
-from BarcodeServices.BarcodeServicesConf import Barcode__LegacyBarcodeSvc
+Barcode__LegacyBarcodeSvc=CompFactory.Barcode__LegacyBarcodeSvc
 
 #Functions yet to be migrated:
 #getMC15BarcodeSvc, getMC18BarcodeSvc, getMC18LLPBarcodeSvc, getPhysicsProcessBarcodeSvc, getMC15BarcodeSvc, getGlobalBarcodeSvc, getValidationBarcodeSvc, barcodeOffsetForTruthStrategy

@@ -4,7 +4,6 @@
 #------------------------------------------------------------------------#
 def setupMenu():
 
-    from TriggerMenu.menu.TriggerPythonConfig import TriggerPythonConfig
     from TriggerJobOpts.TriggerFlags          import TriggerFlags
     from AthenaCommon.Logging                 import logging
     log = logging.getLogger( 'TriggerMenu.menu.Physics_pp_v7.py' )
@@ -551,7 +550,7 @@ class Prescales:
         'e17_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo_xe50',
         'e17_lhmedium_nod0_tau25_medium1_tracktwo_xe50',
         ]
-    HLTPrescales.update(dict(map(None,chain_list,len(chain_list)*[ [-1, 0, -1] ])))
+    HLTPrescales.update(dict(zip(chain_list,len(chain_list)*[ [-1, 0, -1] ])))
 
     L1Prescales_cosmics  = {}
     HLTPrescales_cosmics = {}
@@ -586,7 +585,7 @@ class Prescales:
         'tau8_cosmic_track',
         'tilecalib_laser',
         ]
-    HLTPrescales_cosmics.update(dict(map(None,chain_list,len(chain_list)*[ [1, 0, 0] ])))
+    HLTPrescales_cosmics.update(dict(zip(chain_list,len(chain_list)*[ [1, 0, 0] ])))
 
 
 ######################################################
@@ -946,6 +945,6 @@ chain_list=[
     'zdcpeb_L1ZDC_A_C',
     'timeburner',
     ]
-Prescales.HLTPrescales_tight_physics_prescale.update(dict(map(None,chain_list,len(chain_list)*[ [-1, 0,-1] ])))
+Prescales.HLTPrescales_tight_physics_prescale.update(dict(zip(chain_list,len(chain_list)*[ [-1, 0,-1] ])))
 ######################################################
 

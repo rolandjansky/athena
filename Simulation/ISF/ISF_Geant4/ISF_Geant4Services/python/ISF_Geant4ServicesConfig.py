@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 """
 Tools configurations for ISF
@@ -26,11 +28,11 @@ def getIGeant4(**kwargs):
         # if FullGeant4 specified, make sure returning cached version with FullGeant4 already in use
         if FullGeant4:
             if (i.FullGeant4 == False) :
-                print "asking for FullGeant4 but already configured Geant4 without specifying Full Geant4! Must specify FullGeant4 everywhere (or nowhere)!!!"
+                print ("asking for FullGeant4 but already configured Geant4 without specifying Full Geant4! Must specify FullGeant4 everywhere (or nowhere)!!!")
                 sys.exit()
     else:
         from ISF_Config.ISF_jobProperties import ISF_Flags
-        from iGeant4 import iGeant4
+        from .iGeant4 import iGeant4
         i = iGeant4(**kwargs)
         cache['iGeant4'] = i
     return i

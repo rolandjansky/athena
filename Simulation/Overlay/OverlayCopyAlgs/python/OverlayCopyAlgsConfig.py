@@ -4,6 +4,7 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 
 def CopyCaloCalibrationHitContainerAlgCfg(flags, collectionName, name="CopyCaloCalibrationHitContainer", **kwargs):
@@ -15,7 +16,7 @@ def CopyCaloCalibrationHitContainerAlgCfg(flags, collectionName, name="CopyCaloC
     kwargs.setdefault("OutputKey", collectionName)
 
     # Copy CaloCalibrationHitContainer
-    from OverlayCopyAlgs.OverlayCopyAlgsConf import CopyCaloCalibrationHitContainer
+    CopyCaloCalibrationHitContainer=CompFactory.CopyCaloCalibrationHitContainer
     alg = CopyCaloCalibrationHitContainer(name + collectionName, **kwargs)
     acc.addEventAlgo(alg)
 
@@ -36,7 +37,7 @@ def CopyInTimeJetTruthInfoCfg(flags, name="CopyInTimeJetTruthInfo", **kwargs):
     kwargs.setdefault("OutputKey", "InTimeAntiKt4TruthJets")
 
     # Copy jets
-    from OverlayCopyAlgs.OverlayCopyAlgsConf import CopyJetTruthInfo
+    CopyJetTruthInfo=CompFactory.CopyJetTruthInfo
     alg = CopyJetTruthInfo(name, **kwargs)
     acc.addEventAlgo(alg)
 
@@ -51,7 +52,7 @@ def CopyOutOfTimeJetTruthInfoCfg(flags, name="CopyOutOfTimeJetTruthInfo", **kwar
     kwargs.setdefault("OutputKey", "OutOfTimeAntiKt4TruthJets")
 
     # Copy jets
-    from OverlayCopyAlgs.OverlayCopyAlgsConf import CopyJetTruthInfo
+    CopyJetTruthInfo=CompFactory.CopyJetTruthInfo
     alg = CopyJetTruthInfo(name, **kwargs)
     acc.addEventAlgo(alg)
 
@@ -79,7 +80,7 @@ def CopyMcEventCollectionAlgCfg(flags, name = "CopyMcEventCollection", **kwargs)
     kwargs.setdefault("OutputKey", "TruthEvent")
 
     # Merge and copy McEventCollection
-    from OverlayCopyAlgs.OverlayCopyAlgsConf import CopyMcEventCollection
+    CopyMcEventCollection=CompFactory.CopyMcEventCollection
     alg = CopyMcEventCollection(name, **kwargs)
     acc.addEventAlgo(alg)
 
@@ -103,7 +104,7 @@ def CopyTimingsAlgCfg(flags, name = "CopyTimings", **kwargs):
     kwargs.setdefault("OutputKey", "EVNTtoHITS_timings")
 
     # Copy RecoTimingObj
-    from OverlayCopyAlgs.OverlayCopyAlgsConf import CopyTimings
+    CopyTimings=CompFactory.CopyTimings
     alg = CopyTimings(name, **kwargs)
     acc.addEventAlgo(alg)
 
@@ -125,7 +126,7 @@ def CopyTrackRecordCollectionAlgCfg(flags, collectionName, name="CopyTrackRecord
     kwargs.setdefault("OutputKey", collectionName)
 
     # Copy TrackRecordCollection
-    from OverlayCopyAlgs.OverlayCopyAlgsConf import CopyTrackRecordCollection
+    CopyTrackRecordCollection=CompFactory.CopyTrackRecordCollection
     alg = CopyTrackRecordCollection(name + collectionName, **kwargs)
     acc.addEventAlgo(alg)
 

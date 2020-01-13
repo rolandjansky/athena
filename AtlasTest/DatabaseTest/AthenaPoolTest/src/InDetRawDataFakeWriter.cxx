@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -55,17 +55,9 @@ StatusCode InDetRawDataFakeWriter::initialize()
 {
     ATH_MSG_INFO("InDetRawDataFakeWriter::initialize()" );
 
-    const DataHandle<PixelID> pixel_id;
-    ATH_CHECK( detStore()->retrieve(pixel_id, "PixelID") );
-    m_pixelId = pixel_id;
-
-    const DataHandle<SCT_ID> sct_id;
-    ATH_CHECK( detStore()->retrieve(sct_id, "SCT_ID") );
-    m_sctId = sct_id;
-
-    const DataHandle<TRT_ID> trt_id;
-    ATH_CHECK( detStore()->retrieve(trt_id, "TRT_ID") );
-    m_trtId = trt_id;
+    ATH_CHECK( detStore()->retrieve(m_pixelId, "PixelID") );
+    ATH_CHECK( detStore()->retrieve(m_sctId, "SCT_ID") );
+    ATH_CHECK( detStore()->retrieve(m_trtId, "TRT_ID") );
 
     // create the IdentifiableContainers to contain the rdo collections
     try {

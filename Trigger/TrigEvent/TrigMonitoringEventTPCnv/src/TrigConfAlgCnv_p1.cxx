@@ -1,45 +1,40 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "TrigMonitoringEvent/TrigConfAlg.h"
-#undef private
-#undef protected
-
 #include "TrigMonitoringEventTPCnv/TrigConfAlg_p1.h"
 #include "TrigMonitoringEventTPCnv/TrigConfAlgCnv_p1.h"
 
 void TrigConfAlgCnv_p1::persToTrans(const TrigConfAlg_p1* persObj, 
 				    TrigConfAlg* transObj, 
-				    MsgStream &log)
+				    MsgStream &log) const
 {
   if(log.level() <= MSG::DEBUG) {
     log << MSG::DEBUG << "TrigConfAlgCnv_p1::persToTrans called " << endmsg;
   }
 
-  transObj->m_index       = persObj->m_index;
-  transObj->m_position    = persObj->m_position;  
-  transObj->m_name_id     = persObj->m_name_id; 
-  transObj->m_type_id     = persObj->m_type_id; 
-  transObj->m_name        = persObj->m_name; 
-  transObj->m_type        = persObj->m_type;
+  *transObj = TrigConfAlg (persObj->m_index,
+                           persObj->m_position,
+                           persObj->m_name,
+                           persObj->m_type,
+                           persObj->m_name_id,
+                           persObj->m_type_id);
 }
 
 
 void TrigConfAlgCnv_p1::transToPers(const TrigConfAlg* transObj, 
 				    TrigConfAlg_p1* persObj, 
-				    MsgStream &log)
+				    MsgStream &log) const
 {
   if(log.level() <= MSG::DEBUG) {
     log << MSG::DEBUG << "TrigConfAlgCnv_p1::transToPers called " << endmsg;
   }
 
-  persObj->m_index       = transObj->m_index;
-  persObj->m_position    = transObj->m_position;  
-  persObj->m_name_id     = transObj->m_name_id; 
-  persObj->m_type_id     = transObj->m_type_id; 
-  persObj->m_name        = transObj->m_name; 
-  persObj->m_type        = transObj->m_type;
+  persObj->m_index       = transObj->getIndex();
+  persObj->m_position    = transObj->getPosition();  
+  persObj->m_name_id     = transObj->getNameId(); 
+  persObj->m_type_id     = transObj->getTypeId(); 
+  persObj->m_name        = transObj->getName(); 
+  persObj->m_type        = transObj->getType();
 }

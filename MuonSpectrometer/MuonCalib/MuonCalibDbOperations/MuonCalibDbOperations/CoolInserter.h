@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonCalib_CoolInserter_h
@@ -33,14 +33,10 @@
 #include "MuonCalibStandAloneBase/NtupleStationId.h"
 
 #include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 class RegionSelectionSvc;
 
-namespace MuonGM {
-  class MuonDetectorManager;
-}
-
-	
 namespace MuonCalib {
 
 class CalibDbConnection;
@@ -99,7 +95,12 @@ class CoolInserter : public AthAlgorithm {
   std::set<NtupleStationId> m_t0_filled, m_rt_filled;
   ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
     "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
-  const MuonGM::MuonDetectorManager* m_detMgr;
+
+  // MuonDetectorManager from the conditions store
+  SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+      "MuonDetectorManager", 
+      "Key of input MuonDetectorManager condition data"};    
+
   std::ostringstream m_data_string;
   int m_n_tubes_added;
   int m_n_tubes_chamber;

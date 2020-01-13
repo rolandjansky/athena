@@ -27,7 +27,7 @@
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
 
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 #include "TrigTrackPreSelHypoTool.h"
 

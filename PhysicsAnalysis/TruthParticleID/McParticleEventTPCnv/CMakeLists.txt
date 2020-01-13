@@ -12,7 +12,9 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PhysicsAnalysis/TruthParticleID/McParticleEvent
                           PRIVATE
+                          AtlasTest/TestTools
                           Control/AthenaKernel
+                          Control/SGTools
                           Control/StoreGate
                           Generators/GeneratorObjects
                           PhysicsAnalysis/TruthParticleID/McParticleKernel )
@@ -38,9 +40,17 @@ atlas_add_dictionary( McParticleEventTPCnvDict
                       INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
                       LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} DataModelAthenaPoolLib AthenaPoolCnvSvcLib GaudiKernel McParticleEvent AthenaKernel StoreGateLib SGtests GeneratorObjects McParticleKernel McParticleEventTPCnv )
 
-atlas_add_dictionary( OLD_McParticleEventTPCnvDict
-                      McParticleEventTPCnv/McParticleEventTPCnvDict.h
-                      McParticleEventTPCnv/OLD_selection.xml
-                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} DataModelAthenaPoolLib AthenaPoolCnvSvcLib GaudiKernel McParticleEvent AthenaKernel StoreGateLib SGtests GeneratorObjects McParticleKernel McParticleEventTPCnv )
+atlas_add_test( TruthParticleContainerCnv_p5_test
+                SOURCES
+                test/TruthParticleContainerCnv_p5_test.cxx
+                LINK_LIBRARIES McParticleEventTPCnv SGTools TestTools )
 
+atlas_add_test( TruthParticleContainerCnv_p6_test
+                SOURCES
+                test/TruthParticleContainerCnv_p6_test.cxx
+                LINK_LIBRARIES McParticleEventTPCnv SGTools TestTools )
+
+atlas_add_test( TruthEtIsolationsCnv_p1_test
+                SOURCES
+                test/TruthEtIsolationsCnv_p1_test.cxx
+                LINK_LIBRARIES McParticleEventTPCnv SGTools TestTools )

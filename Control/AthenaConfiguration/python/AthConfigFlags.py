@@ -251,7 +251,7 @@ class AthConfigFlags(object):
 
 
     def initAll(self): #Mostly a self-test method
-        for n,f in self._flagdict.items():
+        for n,f in list(self._flagdict.items()):
             f.get(self)
         return
 

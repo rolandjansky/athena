@@ -4,7 +4,7 @@ from __future__ import print_function
 
 __author__ = 'Martin Woudstra <martin.woudstra@cern.ch>'
 
-import string,copy,os,weakref
+import copy,os,weakref
 
 from GaudiKernel.GaudiHandles import \
      GaudiHandle,GaudiHandleArray,\
@@ -780,8 +780,8 @@ class ConfiguredFactory(object):
 
     def checkConfigurableType(self,conf,requiredType):
         """Check that the configurable <conf> has the correct type (conf.getType()). C++ and equivalent python type names can be mixed."""
-        typeRequested = string.translate( requiredType, ConfigurableDb._transtable )
-        typeFound     = string.translate( conf.getType(), ConfigurableDb._transtable )
+        typeRequested = requiredType.translate ( ConfigurableDb._transtable )
+        typeFound     = conf.getType().translate ( ConfigurableDb._transtable )
         if typeFound != typeRequested:
             raise TypeError("Requested configurable %s(%r) already exists with different type: %s" % (typeRequested,conf.getName(),typeFound))
         

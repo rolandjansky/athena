@@ -113,12 +113,6 @@ namespace Muon {
     // add segment to candidate
     can.addSegment(&segInfo,track);
     return recalculateCandidateSegmentContent( can );
-    
-//    can.hitList().clear();
-//    m_hitHandler->create( can.track(),can.hitList() ); 	  
-    // update the hit summary
-    //    updateHits(can,can.track().measurementsOnTrack()->stdcont());
-
   }
   
   MuPatTrack* MuPatCandidateTool::copyCandidate( MuPatTrack& canIn ) const {
@@ -587,6 +581,7 @@ namespace Muon {
     if (ent->m_evt != ctx.evt()) {
       ent->m_evt = ctx.evt();
     }
+    m_hitHandler->cleanUp();
     ent->cleanUp();
   }
 

@@ -12,9 +12,7 @@ from PixelMonitoring.PixelAthMonitoringBase import define1DLayers
 from PixelMonitoring.PixelAthMonitoringBase import define1DProfLumiLayers
 from PixelMonitoring.PixelAthMonitoringBase import layers, totcuts, xbinsem, xminsem, lumibinsx, bcidbinsx
 from PixelMonitoring.PixelAthMonitoringBase import addOnTrackTxt, addOnTrackToPath, fullDressTitle
-from RecExConfig.AutoConfiguration import GetRunNumber
-runNumber = GetRunNumber()
-runtext = ' (Run ' + str(runNumber) + ')'
+from PixelMonitoring.PixelAthMonitoringBase import runtext
 
 def PixelAthHitMonAlgCfg(helper, alg, **kwargs):
     '''

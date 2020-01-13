@@ -12,20 +12,14 @@
 #define LAR_COLLISION_TIME_MON_TOOL_H
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 #include "StoreGate/ReadHandleKey.h"
 #include "LArRecEvent/LArCollisionTime.h"
-
+#include "LumiBlockData/BunchCrossingCondData.h"
 
 #include <string>
 #include <vector>
-
-
-namespace Trig {
-class IBunchCrossingTool;
-}
-
 
 class LArCollisionTimeMonAlg: public AthMonitorAlgorithm
 {
@@ -59,10 +53,8 @@ class LArCollisionTimeMonAlg: public AthMonitorAlgorithm
   Gaudi::Property<bool> m_eWeighted {this,"eWeighted",true};
 
   //containers' handles
-  SG::ReadHandleKey<LArCollisionTime> m_LArCollisionTimeKey;
-
-  //tools handles
-  ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool;
+  SG::ReadHandleKey<LArCollisionTime> m_LArCollisionTimeKey{this, "Key", "LArCollisionTime", "Key for the LArCollisionTime data"};
+  SG::ReadCondHandleKey<BunchCrossingCondData> m_bcKey{this,"BunchCrossingKey","BunchCrossingData","Key for the bunch crossing conditions data"};
 
 };
 

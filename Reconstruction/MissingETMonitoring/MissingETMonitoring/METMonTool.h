@@ -13,7 +13,7 @@
 
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 
 #include "JetInterface/IJetSelector.h"

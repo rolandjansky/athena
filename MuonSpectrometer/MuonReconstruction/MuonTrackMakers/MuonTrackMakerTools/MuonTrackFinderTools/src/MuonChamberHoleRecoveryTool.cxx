@@ -87,7 +87,7 @@ namespace Muon {
   StatusCode MuonChamberHoleRecoveryTool::initialize()
   {
 
-    ATH_CHECK( detStore()->retrieve( m_detMgr ) );
+    ATH_CHECK(m_DetectorManagerKey.initialize());
     ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_idHelperSvc.retrieve() );
     ATH_CHECK( m_printer.retrieve() );
@@ -471,7 +471,14 @@ namespace Muon {
 								   std::set<Identifier>& layIds,
 								   std::vector< std::pair<bool, const Trk::TrackStateOnSurface* > >& states ) const {
     // get detector element
-    const MuonGM::sTgcReadoutElement* detEl = m_detMgr->getsTgcReadoutElement(detElId);
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+    const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle}; 
+    if(MuonDetMgr==nullptr){
+      ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+      return; 
+    } 
+
+    const MuonGM::sTgcReadoutElement* detEl = MuonDetMgr->getsTgcReadoutElement(detElId);
     if ( !detEl ) {
       ATH_MSG_WARNING(" No detector element found for " << m_idHelperSvc->toStringChamber(detElId) );
       return;
@@ -541,7 +548,14 @@ namespace Muon {
 								 std::set<Identifier>& layIds,
 								 std::vector< std::pair<bool, const Trk::TrackStateOnSurface* > >& states ) const {
     // get detector element
-    const MuonGM::MMReadoutElement* detEl = m_detMgr->getMMReadoutElement(detElId);
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+    const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle}; 
+    if(MuonDetMgr==nullptr){
+      ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+      return; 
+    } 
+
+    const MuonGM::MMReadoutElement* detEl = MuonDetMgr->getMMReadoutElement(detElId);
     if ( !detEl ) {
       ATH_MSG_WARNING(" No detector element found for " << m_idHelperSvc->toStringChamber(detElId) );
       return;
@@ -634,7 +648,14 @@ namespace Muon {
 								  std::vector< std::pair<bool, const Trk::TrackStateOnSurface* > >& states ) const {
     
     // get detector element
-    const MuonGM::TgcReadoutElement* detEl = m_detMgr->getTgcReadoutElement(detElId);
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+    const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle}; 
+    if(MuonDetMgr==nullptr){
+      ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+      return; 
+    } 
+
+    const MuonGM::TgcReadoutElement* detEl = MuonDetMgr->getTgcReadoutElement(detElId);
     if ( !detEl ) {
       ATH_MSG_WARNING(" No detector element found for " << m_idHelperSvc->toStringChamber(detElId) );
       return;
@@ -686,7 +707,15 @@ namespace Muon {
     unsigned int nGasGaps = 2;
     LayerHoleVec holeVec = holesInClusterChamber( pars, detElId, layIds, nGasGaps );
     if ( holeVec.empty() ) return;
-    const MuonGM::RpcReadoutElement* detEl = m_detMgr->getRpcReadoutElement(detElId);
+
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+    const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle}; 
+    if(MuonDetMgr==nullptr){
+      ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+      return; 
+    } 
+
+    const MuonGM::RpcReadoutElement* detEl = MuonDetMgr->getRpcReadoutElement(detElId);
     if ( !detEl ) {
       ATH_MSG_WARNING("Could not find ReadoutElement for " << m_idHelperSvc->toString(detElId) );
       return;
@@ -755,14 +784,21 @@ namespace Muon {
     
     typedef std::map<Identifier, PullCluster> ClusterLayerMap;
     ClusterLayerMap clusterLayerMap;
+
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+    const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle}; 
+    if(MuonDetMgr==nullptr){
+      ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+      return; 
+    } 
     
     const Trk::TrkDetElementBase* detEl = 0;
-    if ( m_idHelperSvc->isTgc(detElId) )         detEl = m_detMgr->getTgcReadoutElement(detElId);
-    else if ( m_idHelperSvc->isRpc(detElId) )    detEl = m_detMgr->getRpcReadoutElement(detElId);
-    else if ( m_idHelperSvc->isCsc(detElId) )    detEl = m_detMgr->getCscReadoutElement(detElId);
+    if ( m_idHelperSvc->isTgc(detElId) )         detEl = MuonDetMgr->getTgcReadoutElement(detElId);
+    else if ( m_idHelperSvc->isRpc(detElId) )    detEl = MuonDetMgr->getRpcReadoutElement(detElId);
+    else if ( m_idHelperSvc->isCsc(detElId) )    detEl = MuonDetMgr->getCscReadoutElement(detElId);
     // New Small Wheel
-    else if ( m_idHelperSvc->issTgc(detElId) )   detEl = m_detMgr->getsTgcReadoutElement(detElId);
-    else if ( m_idHelperSvc->isMM(detElId) )     detEl = m_detMgr->getMMReadoutElement(detElId);
+    else if ( m_idHelperSvc->issTgc(detElId) )   detEl = MuonDetMgr->getsTgcReadoutElement(detElId);
+    else if ( m_idHelperSvc->isMM(detElId) )     detEl = MuonDetMgr->getMMReadoutElement(detElId);
     
     unsigned int nNewHits = 0;
     // loop over prds
@@ -894,13 +930,12 @@ namespace Muon {
       
       // if no detEl yet try retrieving if from the detMgr
       if ( !detEl ) {
-	if ( m_idHelperSvc->isTgc(id) )      detEl = m_detMgr->getTgcReadoutElement(id);
-	else if ( m_idHelperSvc->isRpc(id) ) detEl = m_detMgr->getRpcReadoutElement(id);
-	else if ( m_idHelperSvc->isCsc(id) ) detEl = m_detMgr->getCscReadoutElement(id);
+	if ( m_idHelperSvc->isTgc(id) )      detEl = MuonDetMgr->getTgcReadoutElement(id);
+	else if ( m_idHelperSvc->isRpc(id) ) detEl = MuonDetMgr->getRpcReadoutElement(id);
+	else if ( m_idHelperSvc->isCsc(id) ) detEl = MuonDetMgr->getCscReadoutElement(id);
 	// New Small Wheel
-	else if ( m_idHelperSvc->issTgc(id) ) detEl = m_detMgr->getsTgcReadoutElement(id);
-	else if ( m_idHelperSvc->isMM(id) ) detEl = m_detMgr->getMMReadoutElement(id);
-	
+	else if ( m_idHelperSvc->issTgc(id) ) detEl = MuonDetMgr->getsTgcReadoutElement(id);
+	else if ( m_idHelperSvc->isMM(id) ) detEl = MuonDetMgr->getMMReadoutElement(id);
 	
 	if ( !detEl ) {
 	  ATH_MSG_DEBUG("No detector element found for " << m_idHelperSvc->toString(id) );
@@ -956,7 +991,13 @@ namespace Muon {
 								  const Trk::TrackParameters* parsLast,
 								  std::set<Identifier>& ids,
 								  std::vector< std::pair<bool, const Trk::TrackStateOnSurface* > >& states ) const {
-    
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+    const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle}; 
+    if(MuonDetMgr==nullptr){
+      ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+      // return; 
+    } 
+
     Amg::Vector3D direction = pars.momentum().unit();
     
     // check whether we need to average the parameters
@@ -1128,7 +1169,7 @@ namespace Muon {
 	Identifier ch = m_idHelperSvc->chamberId(*hit);
 	if ( ch != chIdentifier ) continue;
 
-	const MuonGM::MdtReadoutElement* detEl = m_detMgr->getMdtReadoutElement(*hit);
+	const MuonGM::MdtReadoutElement* detEl = MuonDetMgr->getMdtReadoutElement(*hit);
 	const Trk::Surface& surf = detEl->surface(*hit);
 
 	const Trk::TrackParameters* exPars = 0;
@@ -1229,7 +1270,15 @@ namespace Muon {
       dbData=readHandle.cptr();
     }
     else dbData=nullptr; //for online running
-    const MuonStationIntersect intersect = m_intersectSvc->tubesCrossedByTrack( chId, position, direction, dbData, m_detMgr );
+
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+    const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle}; 
+    if(MuonDetMgr==nullptr){
+      ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+      // return; 
+    } 
+
+    const MuonStationIntersect intersect = m_intersectSvc->tubesCrossedByTrack( chId, position, direction, dbData, MuonDetMgr );
 
     // clear hole vector
     std::set<Identifier> holes;

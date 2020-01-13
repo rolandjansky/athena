@@ -10,10 +10,13 @@
 #include "xAODEgamma/Electron.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "DecisionHandling/HLTIdentifier.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "ITrigEgammaPrecisionElectronHypoTool.h"
+#include "PATCore/AcceptData.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
+
 
 /**
  * @class Implementation of the precision selection for electrons
@@ -43,6 +46,7 @@ class TrigEgammaPrecisionElectronHypoToolInc : public extends<AthAlgTool, ITrigE
   Gaudi::Property< float > m_dphicluster { this, "dPHICLUSTERthr", 0. , "" };  
 
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
+  ToolHandle<IAsgElectronLikelihoodTool> m_egammaElectronCutIDTool;  
   int findCutIndex( float eta ) const;
 }; 
 

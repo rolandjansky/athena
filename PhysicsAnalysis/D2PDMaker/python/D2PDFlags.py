@@ -170,21 +170,6 @@ class WriteDAOD_SUSYJetsStream(JobProperty):
 jobproperties.D2PDFlags.add_JobProperty(WriteDAOD_SUSYJetsStream)
 listAODtoD2PD.append(WriteDAOD_SUSYJetsStream.StreamName)
 
-class WriteD2AOD_ZEEStream(JobProperty):
-    """Produce D2AOD_ZEE"""
-    statusOn           = True
-    allowedTypes       = ['bool']
-    StoredValue        = False
-    StreamName         = "D2AOD_ZEE"
-    FileName           = ""
-    DPDMakerScript     = "D2PDMaker/D2PD_ZeeStream.py"
-    ApplyThinning      = True
-    ApplySlimming      = True
-    CreateControlPlots = False
-    pass
-jobproperties.D2PDFlags.add_JobProperty(WriteD2AOD_ZEEStream)
-listAODtoD2PD.append(WriteD2AOD_ZEEStream.StreamName)
-
 class WriteD2AOD_WENUStream(JobProperty):
     """Produce D2AOD_WENU"""
     statusOn     = True
@@ -232,105 +217,6 @@ class WriteDAOD_ElLoose18Stream(JobProperty):
     pass
 jobproperties.D2PDFlags.add_JobProperty(WriteDAOD_ElLoose18Stream)
 listAODtoD2PD.append(WriteDAOD_ElLoose18Stream.StreamName)
-
-class WriteDAOD_H4lBremRecStream(JobProperty):
-    """Produce DAOD_H4LBREMREC"""
-    statusOn         = True
-    allowedTypes     = ['bool']
-    StoredValue      = False
-    StreamName       = "DAOD_H4LBREMREC"
-    FileName         = ""
-    DPDMakerScript   = "D2PDMaker/DAOD_H4lBremRec.py"
-    inputIsSimulation               = False
-    DoBremRec                       = False
-    ApplySkimming                   = True
-    ApplyThinning                   = True
-    ApplyMuonTruthMatching          = True
-    ApplyElectronTruthMatching      = True
-    ApplyPhotonTruthMatching        = True
-    ApplyTrackParticleTruthMatching = False
-    ApplyCaloClusterTruthMatching   = False
-    ApplyElectronTrackIsolation     = False
-    ApplyElectronCaloIsolation      = False
-    ApplyCaloClusterTrackMatching   = False
-    ApplyTrackCaloClusterMatching   = False
-    WriteMCTruth                    = False
-    WriteTrkTracks                  = True # Needed to see if muons pass
-    WriteMuonTrkTracks              = True # Needed to see if muons pass
-    WriteGSFTrkTracks               = False
-    WriteHLTResult_EF               = False
-    muonColl                        = 'StacoMuonCollection'
-    MuonTriggerList  = [ "EF_mu18_MG",
-                         "EF_mu18_MG_medium",
-                         "EF_mu20_MG",
-                         "EF_mu40_MSonly",
-                         "EF_2mu10_loose",
-                         "EF_mu24i_tight", #2012
-                         "EF_mu36_tight", #2012
-                         "EF_2mu13", #2012
-                         "EF_mu18_tight_mu8_EFFS" #2012
-                         ]
-    ElectronTriggerList  = [ "EF_e20_medium",
-                             "EF_e20_medium1",
-                             "EF_e22_medium",
-                             "EF_e22_medium1",
-                             "EF_e22vh_medium1",
-                             "EF_2e12_medium",
-                             "EF_2e12T_medium",
-                             "EF_2e12Tvh_medium",
-                             "EF_e24vhi_medium1", #2012
-                             "EF_e60_medium1", #2012
-                             "EF_2e12Tvh_loose1" #2012
-                             ]
-    ElectronMuonTriggerList = [ "EF_e10_medium_mu6", #2011
-                                "EF_e12Tvh_medium1_mu8", #2012
-                                "EF_e24vhi_loose1_mu8" #2012
-                                ]
-    pass
-jobproperties.D2PDFlags.add_JobProperty(WriteDAOD_H4lBremRecStream)
-listAODtoD2PD.append(WriteDAOD_H4lBremRecStream.StreamName)
-
-class WriteDAOD_HighMDiJetStream(JobProperty):
-    """Produce DAOD_HIGHMDIJET"""
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = False
-    StreamName   = "DAOD_HIGHMDIJET"
-    FileName     = ""
-    DPDMakerScript="D2PDMaker/DAOD_HighMDiJet.py"
-    JetCollections = [ "AntiKt4TopoEMJets", "AntiKt6TopoEMJets", "AntiKt4LCTopoJets", "AntiKt6LCTopoJets" ]
-    TriggerList  = [ "EF_L1J250_NoAlg",
-                     "EF_L1FJ75_NoAlg",
-                     "EF_j180_a4tc_EFFS",
-                     "EF_j240_a4tc_EFFS",
-                     "EF_j240_a10tc_EFFS",
-                     "EF_j300_a10tc_EFFS",
-                     "EF_j400_a10tc_EFFS" ]
-    pass
-jobproperties.D2PDFlags.add_JobProperty(WriteDAOD_HighMDiJetStream)
-listAODtoD2PD.append(WriteDAOD_HighMDiJetStream.StreamName)
-
-class WriteDAODM_HighMDiJetStream(JobProperty):
-    """Produce DAODM_HIGHMDIJET"""
-    statusOn       = True
-    allowedTypes   = ['bool']
-    StoredValue    = False
-    StreamName     = "DAODM_HIGHMJJ"
-    FileName       = ""
-    DPDMakerScript = "D2PDMaker/DAODM_HighMDiJet.py"
-    ApplyThinning  = True
-    ApplySlimming  = True
-    JetCollections = [ "AntiKt4TopoEMJets", "AntiKt6TopoEMJets", "AntiKt4LCTopoJets", "AntiKt6LCTopoJets" ]
-    TriggerList    = [ "EF_L1J250_NoAlg",
-                       "EF_L1FJ75_NoAlg",
-                       "EF_j180_a4tc_EFFS",
-                       "EF_j240_a4tc_EFFS",
-                       "EF_j240_a10tc_EFFS",
-                       "EF_j300_a10tc_EFFS",
-                       "EF_j400_a10tc_EFFS" ]
-    pass
-jobproperties.D2PDFlags.add_JobProperty(WriteDAODM_HighMDiJetStream)
-listAODtoD2PD.append(WriteDAODM_HighMDiJetStream.StreamName)
 
 class WriteDAOD_2LHSG2Stream(JobProperty):
     """Produce DAOD_2LHSG2"""

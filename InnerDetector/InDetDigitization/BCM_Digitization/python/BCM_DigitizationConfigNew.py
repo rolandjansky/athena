@@ -3,11 +3,12 @@
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from RngComps.RandomServices import RNG
-from PileUpComps.PileUpCompsConf import PileUpXingFolder
+PileUpXingFolder=CompFactory.PileUpXingFolder
 from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-from BCM_Digitization.BCM_DigitizationConf import BCM_DigitizationTool, BCM_Digitization
+BCM_DigitizationTool, BCM_Digitization=CompFactory.getComps("BCM_DigitizationTool","BCM_Digitization",)
 from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
 from Digitization.PileUpToolsConfig import PileUpToolsCfg
 

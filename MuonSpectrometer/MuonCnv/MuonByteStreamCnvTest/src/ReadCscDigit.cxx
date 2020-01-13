@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonByteStreamCnvTest/ReadCscDigit.h"
@@ -55,7 +55,7 @@ StatusCode ReadCscDigit::execute()
 
   // get CSC digit container
   const std::string key = "CSC_DIGITS";
-  const DataHandle<CscDigitContainer> csc_container;
+  const CscDigitContainer* csc_container = nullptr;
   ATH_CHECK( (*m_activeStore)->retrieve(csc_container, key) );
  
   ATH_MSG_DEBUG("****** csc->size() : " << csc_container->size() );

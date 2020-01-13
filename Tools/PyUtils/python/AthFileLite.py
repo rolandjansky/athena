@@ -6,7 +6,6 @@
 # doing anything fancy here
 
 from __future__ import print_function
-from past.builtins import xrange
 import os
 import os.path
 import re
@@ -269,7 +268,7 @@ class AthBSFile(object):
             evtmax = nentries
             
         ievt = iter(bs)
-        for i in xrange(evtmax):
+        for i in range(evtmax):
             try:
                 evt = ievt.next()
                 evt.check() # may raise a RuntimeError
@@ -339,7 +338,7 @@ class AthTagFile(object):
                 if evtmax in (-1, None):
                     evtmax = nentries
                 evtmax = int(evtmax)
-                for row in xrange(evtmax):
+                for row in range(evtmax):
                     if coll_tree.GetEntry(row) < 0:
                         break
                     runnbr = coll_tree.RunNumber
@@ -406,7 +405,7 @@ class AthInpFile(object):
                     pool_token = re.compile(r'[[]NAME=(?P<name>.*?)[]]'\
                                             r'[[]VALUE=(?P<value>.*?)[]]').match
                     params = []
-                    for i in xrange(pool.GetEntries()):
+                    for i in range(pool.GetEntries()):
                         if pool.GetEntry(i)>0:
                             match = pool_token(pool.db_string)
                             if not match:

@@ -206,15 +206,16 @@ def addValueVsModuleAndChannelMaps(group, name, title, path, subDirectory = Fals
 
     for ros in range(1, Tile.MAX_ROS):
         partition = getPartitionName(ros)
-        labels = []
+        xlabels = []
+        ylabels = []
         for module in range(1, Tile.MAX_DRAWER + 1): # modules start from 1
             label = partition + '0' + str(module) if module < 10 else partition + str(module)
-            labels.append(label)
+            xlabels.append(label)
 
         for channel in range(0, Tile.MAX_CHAN):
             cellName = getCellName(partition, channel)
             label = cellName + '_' + 'ch' + str(channel) if cellName else 'ch' + str(channel)
-            labels.append(label)
+            ylabels.append(label)
 
         fullName = 'module' + partition + ',channel' + partition
         if 'Profile' in type:
@@ -231,7 +232,7 @@ def addValueVsModuleAndChannelMaps(group, name, title, path, subDirectory = Fals
 
         group.defineHistogram( fullName, path = fullPath, type = type, title = fullTitle,
                                xbins = 64, xmin = 0.5, xmax = 64.5, ybins = 48, ymin = -0.5, ymax = 47.5,
-                               labels = labels )
+                               xlabels = xlabels, ylabels = ylabels )
 
 
 def _getDimensions(triggers = [], perPartition = False, perSample = False, perGain = False, allPartitions = False):
@@ -310,8 +311,8 @@ def addTile2DHistogramsArray(helper, algorithm, name = '', xvalue = '', yvalue =
                                perSample = perSample, perGain = perGain)
 
         partition = kwargs['partition'] if 'partition' in kwargs else ''
-        labels = getLabels(xlabels, partition)
-        labels += getLabels(ylabels, partition)
+        nxlabels = getLabels(xlabels, partition)
+        nylabels = getLabels(ylabels, partition)
 
         fullName = xvalue + ',' + yvalue + (',' + value if 'Profile' in type else '') + ';'
         fullName += getTileHistogramName(name = name,separator = separator, **kwargs)
@@ -320,7 +321,8 @@ def addTile2DHistogramsArray(helper, algorithm, name = '', xvalue = '', yvalue =
         fullTitle = getTileHistogramTitle(title = title, run = run, **kwargs)
 
         tool.defineHistogram( fullName, path = fullPath, type = type, title = fullTitle,
-                              labels = labels, xbins = xbins, xmin = xmin, xmax = xmax,
+                              xlabels = nxlabels, ylabels = nylabels, 
+                              xbins = xbins, xmin = xmin, xmax = xmax,
                               ybins = ybins, ymin = ymin, ymax = ymax, weight = weight)
 
     return array
@@ -531,7 +533,7 @@ def addTile1DHistogramsArray(helper, algorithm, name = '', xvalue = '', value = 
                                perSample = perSample, perGain = perGain)
 
         partition = kwargs['partition'] if 'partition' in kwargs else ''
-        labels = getLabels(xlabels, partition)
+        nxlabels = getLabels(xlabels, partition)
 
         fullName = xvalue + (',' + value if 'Profile' in type else '') + ';'
         fullName += getTileHistogramName(name = name,separator = separator, **kwargs)
@@ -540,7 +542,7 @@ def addTile1DHistogramsArray(helper, algorithm, name = '', xvalue = '', value = 
         fullTitle = getTileHistogramTitle(title = title, run = run, **kwargs)
 
         tool.defineHistogram( fullName, path = fullPath, type = type, title = fullTitle,
-                              labels = labels, xbins = xbins, xmin = xmin, xmax = xmax, opt = opt)
+                              xlabels = nxlabels, xbins = xbins, xmin = xmin, xmax = xmax, opt = opt)
 
     return array
 

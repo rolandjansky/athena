@@ -168,7 +168,6 @@ private:
   std::vector<bool>    *m_offline_isPixel;
   std::vector<bool>    *m_offline_isBarrel;
   std::vector<int>     *m_offline_layer;
-  std::vector<int>     *m_offline_resAssociatedTrack;
   std::vector<int>     *m_offline_clustID;
   std::vector<int>     *m_offline_trackNumber;
 

@@ -14,11 +14,11 @@ class MMPRDVariables : public ValAlgVariables
 {
  public:
   MMPRDVariables(StoreGateSvc* evtStore,
-                       const MuonGM::MuonDetectorManager* detManager,
-                       const MuonIdHelper* idhelper,
-                       TTree* tree,
-							  std::string containername,
-							  MSG::Level msglvl) :
+		 const MuonGM::MuonDetectorManager* detManager,
+		 const MuonIdHelper* idhelper,
+		 TTree* tree,
+		 std::string containername,
+		 MSG::Level msglvl) :
     ValAlgVariables(evtStore, detManager, tree, containername, msglvl),
     m_MmIdHelper(0),
     m_NSWMM_nPRDs(0), 
@@ -51,7 +51,7 @@ class MMPRDVariables : public ValAlgVariables
   }
 
   StatusCode initializeVariables();
-  StatusCode fillVariables();
+  StatusCode fillVariables(const MuonGM::MuonDetectorManager* MuonDetMgr);
 
  private:
 

@@ -13,7 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
-find_package( PythonLibs )
+find_package( Python COMPONENTS Development )
 find_package( ROOT COMPONENTS RIO Hist Tree PyROOT Core MathCore pthread )
 string( REPLACE PyROOT Core ROOT_LIBRARIES_NOPYROOT "${ROOT_LIBRARIES}" )
 

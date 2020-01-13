@@ -3,6 +3,7 @@
 """Define method to construct configured Tile DQ status tool and algorithm"""
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def TileDQstatusToolCfg(flags, **kwargs):
     """Return component accumulator with configured private Tile DQ status tool
@@ -21,7 +22,7 @@ def TileDQstatusToolCfg(flags, **kwargs):
         badChanTool = acc.popToolsAndMerge( TileBadChanToolCfg(flags) )
         kwargs['TileBadChanTool'] = badChanTool
 
-    from TileRecUtils.TileRecUtilsConf import TileDQstatusTool
+    TileDQstatusTool=CompFactory.TileDQstatusTool
     acc.setPrivateTools( TileDQstatusTool(**kwargs) )
 
     return acc
@@ -74,7 +75,7 @@ def TileDQstatusAlgCfg(flags, **kwargs):
         tileDQstatusTool = acc.popToolsAndMerge( TileDQstatusToolCfg(flags) )
         kwargs['TileDQstatusTool'] = tileDQstatusTool
 
-    from TileRecUtils.TileRecUtilsConf import TileDQstatusAlg
+    TileDQstatusAlg=CompFactory.TileDQstatusAlg
     acc.addEventAlgo(TileDQstatusAlg(**kwargs), primary = True)
 
     return acc

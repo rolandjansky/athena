@@ -142,7 +142,7 @@ TEST_F(PartitionsGroupsMatcherMTTest, PassingJets){
 		 makeJetFromEt);
 
   EXPECT_EQ(ets.size(), jets.size());
-  EXPECT_EQ(m_conditions.size(), 3);
+  EXPECT_EQ(m_conditions.size(), 3u);
   // --------
   std::vector<std::size_t> mults{1, 1, 1};
   PartitionsGrouper g(mults);  // single jet groups
@@ -152,7 +152,7 @@ TEST_F(PartitionsGroupsMatcherMTTest, PassingJets){
   auto groupsVec = g.group(b, e);
   //{[(1),(2), (3)], [(1), (3), (2)], [(2), (1), (3)], [(2), (3), (1)],
   // [(3), (1), (2)], [(3), (2), (1)]}
-  EXPECT_EQ(groupsVec.size(), 6);  
+  EXPECT_EQ(groupsVec.size(), 6u);
   
   auto visitor = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
 
@@ -163,7 +163,7 @@ TEST_F(PartitionsGroupsMatcherMTTest, PassingJets){
   xAODJetCollector jetCollector;
   
   for (const auto& groups : groupsVec){
-    EXPECT_EQ(groups.size(), 3);
+    EXPECT_EQ(groups.size(), 3u);
 
     auto pass = matcher.match(groups.begin(),
 			      groups.end(),
@@ -201,7 +201,7 @@ TEST_F(PartitionsGroupsMatcherMTTest, Passing3Failing1){
 		 makeJetFromEt);
 
   EXPECT_EQ(ets.size(), jets.size());
-  EXPECT_EQ(m_conditions.size(), 3);
+  EXPECT_EQ(m_conditions.size(), 3u);
 
   std::vector<std::size_t> mults{1, 1, 1};
   PartitionsGrouper g(mults);  // single jet groups
@@ -233,8 +233,8 @@ TEST_F(PartitionsGroupsMatcherMTTest, Passing3Failing1){
 
   // calls: 4 jets, conditions need three: 4.3.2  = 24
   // pass: ignore failing jet. 3.2.1 = 6
-  EXPECT_EQ(npass,  6);
-  EXPECT_EQ(ncall, 24);
+  EXPECT_EQ(npass,  6u);
+  EXPECT_EQ(ncall, 24u);
   
   for(auto& j : jets){delete j;}
 }

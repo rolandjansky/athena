@@ -40,7 +40,14 @@ echo "art-result: $rc2 overlaypool_tf"
 rc3=-9999
 if [ $rc2 -eq 0 ]
 then
-    acmd.py diff-root MC_plus_MC.OLD.RDO.pool.root MC_plus_MC.NEW.RDO.pool.root --mode=semi-detailed
+    acmd.py diff-root MC_plus_MC.OLD.RDO.pool.root MC_plus_MC.NEW.RDO.pool.root \
+        --mode=semi-detailed \
+        --ignore-leaves index_ref \
+            RecoTimingObj_p1_HITStoRDO_timings.timings \
+            RecoTimingObj_p1_EVNTtoHITS_timings.timings \
+            xAOD::EventAuxInfo_v1_EventInfoAuxDyn.subEventIndex \
+            xAOD::EventAuxInfo_v1_EventInfoAuxDyn.subEventTime \
+            xAOD::EventAuxInfo_v1_EventInfoAuxDyn.subEventType
     rc3=$?
 fi
 echo "art-result: $rc3 comparison"

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # $Id: GenerateDVIterators.py 728645 2016-03-09 12:19:46Z krasznaa $
 #
@@ -19,7 +19,7 @@ atexit.register( ROOT.xAOD.ClearTransientTrees )
 # Taken from Noel Dawe, from: https://its.cern.ch/jira/browse/ATLASG-31
 #
 def DataVectorIterator( self ):
-    for i in xrange( self.size() ):
+    for i in range( self.size() ):
         yield self.at( i )
 
 ## Function installing proper iterators for all the known DataVector types

@@ -24,12 +24,6 @@ namespace Muon {
   class MuonEDMPrinterTool;
 }
 
-namespace MuonGM {
-  class MuonDetectorManager;
-}
-
-
-
 namespace Trk {
   class ITrackingGeometrySvc;
   class IExtrapolator;

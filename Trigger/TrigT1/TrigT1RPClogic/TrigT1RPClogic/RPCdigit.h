@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RPCDIGIT_H
@@ -26,9 +26,6 @@ class RPCdigit : public RPCtrigDataObject
     float m_station_radius;
     float m_station_phi;
     
-    //const RPCGeometry* m_rpcgeo;  
-    const int* m_rpcgeo;  // NEEDED TO AVOID MYSTERYOUS CRASH !, TO BE DEBUGGED AND REMOVED 
-
     std::list<unsigned int> m_codes;
 
     public:

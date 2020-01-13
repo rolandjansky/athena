@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 ///============================================================
 /// Trigger/TrigAlgorithms/TrigT2BeamSpot/T2VertexBeamSpot
@@ -47,7 +47,7 @@
 //To get TEVec and HLT::Error messaging
 #include "TrigInterfaces/Algo.h"
 //Monitoring tool
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 class TrigVertexCollection;
 

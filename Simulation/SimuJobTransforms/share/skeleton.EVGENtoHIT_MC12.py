@@ -254,8 +254,7 @@ topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 if hasattr(runArgs, 'AMITag'):
     if runArgs.AMITag != "NONE":
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", runArgs.AMITag]
-
+        svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag": runArgs.AMITag})
 ## Set firstEvent for cosmics jobs
 if jobproperties.Beam.beamType.get_Value() == 'cosmics':
     if hasattr(runArgs, "firstEvent"):

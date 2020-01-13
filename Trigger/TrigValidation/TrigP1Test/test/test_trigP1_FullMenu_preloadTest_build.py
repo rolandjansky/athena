@@ -37,7 +37,6 @@ ex.job_options = 'TrigUpgradeTest/full_menu.py'
 ex.input = ''
 ex.explicit_input = True
 ex.args = '-f ./raw._0001.data -C "from AthenaCommon.AppMgr import ServiceMgr; ServiceMgr.HltEventLoopMgr.forceRunNumber=%d; ServiceMgr.HltEventLoopMgr.forceStartOfRunTime=%d" -R 999999 --sor-time=now --detector-mask=all' % (run, sor)
-ex.perfmon = False
 
 test = Test.Test()
 test.art_type = 'build'

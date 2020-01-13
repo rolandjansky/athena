@@ -74,7 +74,7 @@ StatusCode LArSCSimpleMaker::execute()
   if (dataPool.allocated()==0)
     dataPool.reserve (calo_sc_id->calo_cell_hash_max());
 
-  const DataHandle<CaloCellContainer> cells;
+  const CaloCellContainer* cells = nullptr;
   CHECK( evtStore()->retrieve(cells, m_cellContainer) );
   ATH_MSG_DEBUG( "Got container Size : " << cells->size()  );
   

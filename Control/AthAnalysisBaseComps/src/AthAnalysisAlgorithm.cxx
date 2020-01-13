@@ -1,13 +1,12 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthAnalysisAlgorithm.cxx 
 // Implementation file for class AthAnalysisAlgorithm
-// Exactly like an AthAlgorithm except also has Metadata accessors
-// and beginInputFile method
+// Exactly like an AthAlgorithm
 // Author: W.Buttinger<will@cern.ch>
 /////////////////////////////////////////////////////////////////// 
 
@@ -15,20 +14,21 @@
 
 #include "TROOT.h"
 
-AthAnalysisAlgorithm::AthAnalysisAlgorithm( const std::string& name ) : AthAnalysisAlgorithm( name, Gaudi::svcLocator() ) {
+AthAnalysisAlgorithm::AthAnalysisAlgorithm( const std::string& name )
+  : AthAnalysisAlgorithm( name, Gaudi::svcLocator() )
+{
   //we assume this constructor is used outside of the framework
   //therefore we must increment the ref count so that 
   //any SmartIF doesn't "release" the alg and therefore delete it
   addRef();
-
 }
 
-AthAnalysisAlgorithm::AthAnalysisAlgorithm( const std::string& name, 
-			    ISvcLocator* pSvcLocator,
-			    const std::string& ) : 
-        AthHistogramAlgorithm(name,pSvcLocator),
-        m_inputMetaStore( "StoreGateSvc/InputMetaDataStore", name ),
-        m_outputMetaStore( "StoreGateSvc/MetaDataStore", name )
+AthAnalysisAlgorithm::AthAnalysisAlgorithm( const std::string& name
+					    , ISvcLocator* pSvcLocator
+					    , const std::string& )
+  : AthHistogramAlgorithm(name,pSvcLocator)
+  , m_inputMetaStore( "StoreGateSvc/InputMetaDataStore", name )
+  , m_outputMetaStore( "StoreGateSvc/MetaDataStore", name )
 {
   
   //declare an update handler for the EvtStore property, to reset the ServiceHandle
@@ -49,34 +49,34 @@ void AthAnalysisAlgorithm::updateEvtStore(Property& prop) {
 
 
 ServiceHandle<StoreGateSvc>& AthAnalysisAlgorithm::inputMetaStore() const {
-      return m_inputMetaStore;
+  return m_inputMetaStore;
 }
 
 ServiceHandle<StoreGateSvc>& AthAnalysisAlgorithm::outputMetaStore() const {
-      return m_outputMetaStore;
+  return m_outputMetaStore;
 }
 
 
 StatusCode AthAnalysisAlgorithm::sysInitialize() {
 
-      // Connect to the IncidentSvc:
-      ServiceHandle< IIncidentSvc > incSvc( "IncidentSvc", name() );
-      ATH_CHECK( incSvc.retrieve() );
+  // Connect to the IncidentSvc:
+  ServiceHandle< IIncidentSvc > incSvc( "IncidentSvc", name() );
+  ATH_CHECK( incSvc.retrieve() );
 
-      // Set up the right callbacks: //but ensure we don't double-register if sysInitialize called twice (appears to be the case)
-      incSvc->removeListener( this, IncidentType::BeginInputFile );
-      incSvc->addListener( this, IncidentType::BeginInputFile, 0, true );
-      incSvc->removeListener( this, IncidentType::EndInputFile );
-      incSvc->addListener( this, IncidentType::EndInputFile, 0, true );
-      incSvc->removeListener( this, "MetaDataStop" );
-      incSvc->addListener( this, "MetaDataStop", 0, true );
+  // Set up the right callbacks: //but ensure we don't double-register if sysInitialize called twice (appears to be the case)
+  incSvc->removeListener( this, IncidentType::BeginInputFile );
+  incSvc->addListener( this, IncidentType::BeginInputFile, 0, true );
+  incSvc->removeListener( this, IncidentType::EndInputFile );
+  incSvc->addListener( this, IncidentType::EndInputFile, 0, true );
+  incSvc->removeListener( this, "MetaDataStop" );
+  incSvc->addListener( this, "MetaDataStop", 0, true );
 
 
-      // Let the base class do its thing:
-      ATH_CHECK( AthHistogramAlgorithm::sysInitialize() );
+  // Let the base class do its thing:
+  ATH_CHECK( AthHistogramAlgorithm::sysInitialize() );
 
-      // Return gracefully:
-      return StatusCode::SUCCESS;
+  // Return gracefully:
+  return StatusCode::SUCCESS;
 }
 
 StatusCode AthAnalysisAlgorithm::sysExecute(const EventContext& ctx) {
@@ -97,52 +97,14 @@ void AthAnalysisAlgorithm::handle( const Incident& inc ) {
 
    // Call the appropriate member function:
    if( inc.type() == IncidentType::BeginInputFile ) {
-      m_currentFile=0;
-      if( beginInputFile().isFailure() ) {
-         ATH_MSG_FATAL( "Failed to call beginInputFile()" );
-         throw std::runtime_error( "Couldn't call beginInputFile()" );
-      }
-   } else if(inc.type() == IncidentType::EndInputFile ) {
-     if( endInputFile().isFailure() ) {
-         ATH_MSG_FATAL( "Failed to call endInputFile()" );
-         throw std::runtime_error( "Couldn't call endInputFile()" );
-      }
-   } else if(inc.type() == "MetaDataStop" ) {
-     if( metaDataStop().isFailure() ) {
-         ATH_MSG_FATAL( "Failed to call metaDataStop()" );
-         throw std::runtime_error( "Couldn't call metaDataStop()" );
-      }
-   } else {
-      ATH_MSG_WARNING( "Unknown incident type received: " << inc.type() );
+     m_currentFile=0;
+   }
+   else {
+     ATH_MSG_WARNING( "Unknown incident type received: " << inc.type() );
    }
 
    return;
 }
-
-/// Dummy implementation that can be overridden by the derived tool.
-///
-StatusCode AthAnalysisAlgorithm::beginInputFile() {
-
-   // Return gracefully:
-   return StatusCode::SUCCESS;
-}
-
-/// Dummy implementation that can be overridden by the derived tool.
-///
-StatusCode AthAnalysisAlgorithm::endInputFile() {
-
-   // Return gracefully:
-   return StatusCode::SUCCESS;
-}
-
-/// Dummy implementation that can be overridden by the derived tool.
-///
-StatusCode AthAnalysisAlgorithm::metaDataStop() {
-
-   // Return gracefully:
-   return StatusCode::SUCCESS;
-}
-
 
 /// Dummy implementation that can be overridden by the derived tool.
 ///
@@ -151,7 +113,6 @@ StatusCode AthAnalysisAlgorithm::firstExecute() {
    // Return gracefully:
    return StatusCode::SUCCESS;
 }
-
 
 
 TFile* AthAnalysisAlgorithm::currentFile(const char* evtSelName) {

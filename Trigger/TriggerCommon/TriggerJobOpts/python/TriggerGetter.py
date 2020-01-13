@@ -121,7 +121,7 @@ class TriggerGetter(Configured):
             lvl1 = Lvl1SimulationGetter()  # noqa: F841
             
 
-            if jobproperties.Global.InputFormat() != 'bytestream' and (TF.doLVL2() or TF.doEF() or TF.doHLT()):
+            if TF.doTransientByteStream() or (jobproperties.Global.InputFormat() != 'bytestream' and (TF.doLVL2() or TF.doEF() or TF.doHLT())):
                 # Transient BS construction and intialization
                 from ByteStreamCnvSvc import WriteByteStream
                 StreamBS = WriteByteStream.getStream("Transient","StreamBS")

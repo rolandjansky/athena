@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from AthenaCommon import CfgMgr
 def getMuonWallSD(name="MuonWallSD", **kwargs):
@@ -35,9 +37,9 @@ def getMuonWallTileTB(name="MuonWallTileTB", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
     # Check the consistency of the flags
     if simFlags.Eta.statusOn and (simFlags.Theta.statusOn or simFlags.Z.statusOn):
-        raise ValueError,('THE ETA PARAMETER CAN NOT BE SET TOGETHER WITH THETA AND Z')
+        raise ValueError('THE ETA PARAMETER CAN NOT BE SET TOGETHER WITH THETA AND Z')
     elif not(simFlags.Theta.statusOn and simFlags.Z.statusOn) and not simFlags.Eta.statusOn:
-        raise ValueError,('THETA AND Z ARE NOT SET')
+        raise ValueError('THETA AND Z ARE NOT SET')
     import math
     from AthenaCommon import PhysicalConstants
     if simFlags.Eta.statusOn:
@@ -65,8 +67,8 @@ def getMuonWallTileTB(name="MuonWallTileTB", **kwargs):
             ThetaY=sign*math.radians(90.0)
             DeltaF=0.0
     else:
-        print 'Tile table rotation: ERROR unknown rotation mode'
-        raise ValueError,('UNKNOWN MODE - NEITHER ETA NOR THETA AND Z ARE SET')
+        print ('Tile table rotation: ERROR unknown rotation mode')
+        raise ValueError('UNKNOWN MODE - NEITHER ETA NOR THETA AND Z ARE SET')
     zmax=2380.22441662
     r=5115.0
     z=0.0

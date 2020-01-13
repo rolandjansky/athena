@@ -1,8 +1,9 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
-from ParticleJetTools.ParticleJetToolsConf import Analysis__ParticleToJetAssociator
+Analysis__ParticleToJetAssociator=CompFactory.Analysis__ParticleToJetAssociator
 
 def BTagMuonToJetAssociatorCfg(flags, name, useBTagFlagsDefaults = True, **options):
     """Sets up a BTagMuonToJetAssociator tool and returns it.

@@ -3,6 +3,7 @@
 """Define methods to construct configured Tile sample noise tool and conditions algorithm"""
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def TileSampleNoiseCondAlgCfg(flags, **kwargs):
     """Return component accumulator with configured Tile sample noise conditions algorithm
@@ -105,7 +106,7 @@ def TileCondToolNoiseSampleCfg(flags, **kwargs):
             kwargs['TileSampleNoise'] = onlineSampleNoise
             acc.merge( TileSampleNoiseCondAlgCfg(flags, ForceOnline = True, **kwargs) )
 
-    from TileConditions.TileConditionsConf import TileCondToolNoiseSample
+    TileCondToolNoiseSample=CompFactory.TileCondToolNoiseSample
     acc.setPrivateTools( TileCondToolNoiseSample(name, TileSampleNoise = sampleNoise, 
                                                  TileOnlineSampleNoise = onlineSampleNoise) )
 

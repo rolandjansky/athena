@@ -132,15 +132,15 @@ class PyHistWriter(PyAthena.Alg):
         x = math_sin(float(n)) * 52. + 50.
         hsvc = self.hsvc
         hsvc['/temp/h1'].Fill(x)
-        for _ in xrange(2): hsvc['/temp/other/h1a'].Fill(x)
-        for _ in xrange(3): hsvc['/new/hists/h1'].Fill(x)
+        for _ in range(2): hsvc['/temp/other/h1a'].Fill(x)
+        for _ in range(3): hsvc['/new/hists/h1'].Fill(x)
         _fill = hsvc['/upd/xxx/gauss1d'].Fill
-        for _ in xrange(1000): _fill(gauss(mu=0.,sigma=15.),1.)
+        for _ in range(1000): _fill(gauss(mu=0.,sigma=15.),1.)
         _fill = hsvc['/rec/gauss2d'].Fill
-        for _ in xrange(1000): _fill(gauss(mu=0.,sigma=15.),
+        for _ in range(1000): _fill(gauss(mu=0.,sigma=15.),
                                      gauss(mu=0.,sigma=15.), 1.)
         _fill = hsvc['/rec/gauss3d'].Fill
-        for _ in xrange(1000): _fill(gauss(mu=0.,sigma=15.),
+        for _ in range(1000): _fill(gauss(mu=0.,sigma=15.),
                                      gauss(mu=0.,sigma=15.),
                                      gauss(mu=0.,sigma=15.), 1.)
 
@@ -153,7 +153,7 @@ class PyHistWriter(PyAthena.Alg):
             tr.Branch('branch2', p2, 'point2/I')
             tr.Branch('branch3', p3, 'point3/I')
             _tr_fill = tr.Fill
-            for i in xrange(1000):
+            for i in range(1000):
                 p1[0] = i
                 p2[0] = i%10
                 p3[0] = i%7

@@ -1,9 +1,10 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 # import the NeuralNetworkToHistoTool configurable
-from TrkNeuralNetworkUtils.TrkNeuralNetworkUtilsConf import Trk__NeuralNetworkToHistoTool
+Trk__NeuralNetworkToHistoTool=CompFactory.Trk__NeuralNetworkToHistoTool
 
 def NeuralNetworkToHistoToolCfg( name = 'NeuralNetworkToHistoToolNN', useBTagFlagsDefaults = True, **options ):
     """Sets up a NeuralNetworkToHistoTool tool and returns it.

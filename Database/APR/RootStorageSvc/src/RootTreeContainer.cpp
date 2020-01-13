@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -329,7 +329,7 @@ DbStatus RootTreeContainer::fetch(DbSelect& sel)  {
   if ( stmt ) {
     TTreeFormula* selStmt = stmt->m_ptr;
     if ( selStmt )  {
-      std::lock_guard<std::mutex>   lock( m_rootDb->ioMutex() );
+      std::lock_guard<std::recursive_mutex>   lock( m_rootDb->ioMutex() );
       Branches::iterator k;
       long long cur  = sel.link().second;
       Long64_t last = m_tree->GetEntries();
@@ -367,7 +367,7 @@ RootTreeContainer::loadObject(void** obj_p, ShapeH /*shape*/, Token::OID_t& oid)
 {
   long long evt_id = oid.second;
   // lock access to this DB for MT safety
-  std::lock_guard<std::mutex>     lock( m_rootDb->ioMutex() );
+  std::lock_guard<std::recursive_mutex>     lock( m_rootDb->ioMutex() );
   try {
      int numBytesBranch, numBytes = 0;
      bool hasRead(false);

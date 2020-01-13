@@ -7,6 +7,7 @@
 # If you create a grid version, check art-output in existing grid tests.
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps, Step
+from TrigAnalysisTest.TrigAnalysisSteps import add_analysis_steps
 import os
 import re
 
@@ -22,6 +23,7 @@ test = Test.Test()
 test.art_type = 'build'
 test.exec_steps = [ex]
 test.check_steps = CheckSteps.default_check_steps(test)
+add_analysis_steps(test)
 
 # Custom check step for non-zero number of containers
 class ZeroContainersStep(Step.Step):
