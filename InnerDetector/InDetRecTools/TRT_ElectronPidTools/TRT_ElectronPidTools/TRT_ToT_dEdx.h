@@ -26,6 +26,8 @@
 #include "TRT_ConditionsData/TRTDedxcorrection.h"
 #include "InDetReadoutGeometry/TRT_DetElementContainer.h"
 
+#include "TrkToolInterfaces/IPRD_AssociationTool.h"
+#include "TRT_ElectronPidTools/ITRT_LocalOccupancy.h"
 
 /*
   Tool to calculate dE/dx variable for PID
@@ -40,6 +42,10 @@
 class TRT_ID;
 class IChronoStatSvc;
 class ITRT_StrawSummaryTool;
+
+namespace InDet {
+   class ITRT_LocalOccupancy;
+}
 
 //namespace InDet {
 // class TRT_DriftCircleOnTrack ;
@@ -63,7 +69,10 @@ private:
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this,"EventInfoKey","EventInfo","RHK to retrieve xAOD::EventInfo"};
   SG::ReadCondHandleKey<InDetDD::TRT_DetElementContainer> m_trtDetEleContKey{this, "TRTDetEleContKey", "TRT_DetElementContainer", "Key of TRT_DetElementContainer for TRT"};
   const TRT_ID* m_trtId;                                                // ID TRT helper 
-  Trk::ParticleMasses        m_particlemasses;  
+  Trk::ParticleMasses        m_particlemasses;
+
+  ToolHandle< Trk::IPRD_AssociationTool >  m_assoTool;
+  ToolHandle< InDet::ITRT_LocalOccupancy > m_LocalOccTool;     //!< the track selector tool
 
   // Algorithm switchers
   bool m_corrected;                 // If true - make correction using rs-distributions
@@ -111,14 +120,14 @@ public:
    * @param bool variable whether HT hits shoule be used 
    * @return ToT
    */
-  double dEdx(const Trk::Track*, bool DivideByL, bool useHThits, bool corrected) const;
+  double dEdx(const Trk::Track*, bool DivideByL, bool useHThits, bool corrected, EOccupancyCorrection correction_type=EOccupancyCorrection::kTrackBased) const;
 
   /**
    * @brief function to calculate sum ToT normalised to number of used hits
    * @param track pointer
    * @return ToT
    */
-  double dEdx(const Trk::Track*) const;
+  double dEdx(const Trk::Track*, EOccupancyCorrection correction_type=EOccupancyCorrection::kTrackBased) const;
 
   /**
    * @brief function to calculate number of used hits
@@ -379,6 +388,10 @@ private:
    * @return ToT
    */
   double getToT(unsigned int BitPattern) const;
+
+  /* Calibration functions for occupancy corrections */
+  double HitOccupancyCorrection(const Trk::TrackStateOnSurface *itr) const;
+  double TrackOccupancyCorrection(const Trk::Track* track,  bool useHThits) const;
 
 
 public:
