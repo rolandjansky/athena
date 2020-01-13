@@ -57,14 +57,18 @@
 #include "EventPrimitives/EventPrimitivesToStringConverter.h"
 #include "TrkSegment/SegmentCollection.h"
 
+#include "TrkTrackSummary/MuonTrackSummary.h"
+
 #include <map>
 
 namespace Muon {
 
-MuonSegmentRegionRecoveryTool::MuonSegmentRegionRecoveryTool(const std::string& ty, const std::string& na, const IInterface* pa)
-  : AthAlgTool(ty, na, pa)
+MuonSegmentRegionRecoveryTool::MuonSegmentRegionRecoveryTool(const std::string& ty, const std::string& na, const IInterface* pa):
+  AthAlgTool(ty, na, pa),
+  m_trackSummaryTool("Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool")
 {
   declareInterface<IMuonHoleRecoveryTool>(this);
+  declareProperty("TrackSummeryTool", m_trackSummaryTool );
 }
 
 StatusCode MuonSegmentRegionRecoveryTool::initialize()
@@ -89,6 +93,7 @@ StatusCode MuonSegmentRegionRecoveryTool::initialize()
   ATH_CHECK( m_idHelperTool.retrieve() );
   ATH_CHECK( m_hitSummaryTool.retrieve() );
   ATH_CHECK( m_regionSelector.retrieve() );
+  ATH_CHECK( m_trackSummaryTool.retrieve() );
 
   if(!m_condKey.empty()) ATH_CHECK(m_condKey.initialize());
 
@@ -788,6 +793,14 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::findHoles( const Trk::Track& tr
 
     trackStateOnSurfaces->insert(trackStateOnSurfaces->begin(), toBeSorted.begin(), toBeSorted.end());
     Trk::Track* trackWithHoles = new Trk::Track( track.info(), trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone() : 0 );
+    // generate a track summary for this track
+    if (m_trackSummaryTool.isEnabled()) {
+       const Trk::TrackSummary* summary = trackWithHoles->trackSummary();
+       if( !summary ) {
+          Trk::TrackSummary tmpSummary;
+          m_trackSummaryTool->addDetailedTrackSummary(*trackWithHoles,tmpSummary);
+       }
+    }
     ATH_MSG_DEBUG("Track with holes " << m_printer->print(*trackWithHoles) << std::endl << m_printer->printStations(*trackWithHoles) );
     return trackWithHoles;
   }
