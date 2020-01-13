@@ -46,6 +46,8 @@ namespace top {
 
     m_applyTTVACut(true),
 
+    m_demandPriVtx(true),
+
     m_jetSubstructureName("None"),
 
     m_recomputeCPvars(true),
@@ -1441,6 +1443,9 @@ namespace top {
     ************************************************************/
 
     m_muon_trigger_SF = settings->value("MuonTriggerSF");
+
+    if (settings->value("DemandPrimaryVertex") == "False")
+      m_demandPriVtx = false;
 
     ///-- KLFitter settings --///
     m_KLFitterTransferFunctionsPath = settings->value("KLFitterTransferFunctionsPath");
