@@ -9,6 +9,7 @@
 
 import logging
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps, Common
+import six
 
 Common.trigvalsteering_logging_level = logging.DEBUG
 ex = ExecStep.ExecStep('FullMenu')
@@ -21,7 +22,7 @@ ex.args = '-c "setMenu=\'LS2_v1\';doWriteBS=False;doWriteRDOTrigger=False;"'
 
 def single_slice( name, args ):
     slice_ex = ExecStep.ExecStep( name )    
-    for prop,val in ex.__dict__.iteritems():
+    for prop,val in six.iteritems(ex.__dict__):
         if prop != 'name':
             setattr( slice_ex, prop, val )
     slice_ex.args += " " + args    
