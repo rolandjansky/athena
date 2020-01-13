@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 # import Common Algs
@@ -632,7 +632,7 @@ def addExKtDoubleTaggerRCJets(sequence, ToolSvc):#, ExKtJetCollection__FatJetCon
      getattr(ToolSvc,jetToolName).ReclusterRadius = 0.8
      getattr(ToolSvc,jetToolName).InputJetPtMin = 20
      getattr(ToolSvc,jetToolName).RCJetPtMin = 1
-     getattr(ToolSvc,jetToolName).RCJetPtFrac = 0
+     getattr(ToolSvc,jetToolName).TrimPtFrac = 0
      getattr(ToolSvc,jetToolName).DoArea = False
      getattr(ToolSvc,jetToolName).GhostTracksInputContainer = "InDetTrackParticles"
      getattr(ToolSvc,jetToolName).GhostTracksVertexAssociationName  = "JetTrackVtxAssoc"

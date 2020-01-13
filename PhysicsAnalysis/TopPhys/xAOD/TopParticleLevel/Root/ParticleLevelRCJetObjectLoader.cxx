@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "xAODJet/JetContainer.h"
@@ -118,7 +118,7 @@ StatusCode ParticleLevelRCJetObjectLoader::initialize() {
                                                 m_radius), "Failed re-clustering radius initialize reclustering tool");
   top::check(m_jetReclusteringTool->setProperty("RCJetPtMin",
                                                 m_ptcut * 1e-3), "Failed ptmin [GeV] initialize reclustering tool");
-  top::check(m_jetReclusteringTool->setProperty("RCJetPtFrac",
+  top::check(m_jetReclusteringTool->setProperty("TrimPtFrac",
                                                 m_trim), "Failed pT fraction initialize reclustering tool");
   top::check(m_jetReclusteringTool->setProperty("VariableRMinRadius",
                                                 m_minradius), "Failed VarRC min radius initialize reclustering tool");
