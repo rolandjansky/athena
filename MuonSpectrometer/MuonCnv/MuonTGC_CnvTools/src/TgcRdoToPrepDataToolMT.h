@@ -10,6 +10,8 @@
 
 #include "TgcRdoToPrepDataToolCore.h"
 #include "MuonPrepRawData/MuonPrepDataCollection_Cache.h"
+#include "MuonTrigCoinData/MuonTrigCoinData_Cache.h"
+#include "StoreGate/UpdateHandleKeyArray.h"
 
 namespace Muon 
 {
@@ -41,7 +43,9 @@ namespace Muon
 
     private:
       /// This is the key for the cache for the TGC PRD containers, can be empty
-      SG::UpdateHandleKey<MdtPrepDataCollection_Cache> m_prdContainerCacheKey ;
+      SG::UpdateHandleKeyArray<TgcPrepDataCollection_Cache> m_prdContainerCacheKeys ;
+      SG::UpdateHandleKeyArray<TgcCoinDataCollection_Cache> m_coinContainerCacheKeys ;
+
    }; 
 } // end of namespace
 
