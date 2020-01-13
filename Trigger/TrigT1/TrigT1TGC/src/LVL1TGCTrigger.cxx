@@ -12,7 +12,8 @@
 #include "TrigT1TGC/TGCASDOut.h"
 #include "TrigT1TGC/TGCEvent.h"
 #include "TrigT1TGC/TGCReadoutIndex.h"
-#include "TrigT1TGC/TGCSLSelectorOut.hh"
+#include "TrigT1TGC/TGCSLSelectorOut.hh"// for Run2
+#include "TrigT1TGC/TGCTrackSelectorOut.h"// for Run3
 #include "TrigT1TGC/TGCElectronicsSystem.hh"
 #include "TrigT1TGC/TGCTimingManager.hh"
 #include "TrigT1TGC/TGCDatabaseManager.hh"
@@ -353,12 +354,14 @@ namespace LVL1TGCTrigger {
           if (m_OutputTgcRDO.value()) recordRdoSL(sector, subsystem);
 
           TGCSLSelectorOut* selectorOut = sector->getSL()->getSelectorOutput();
+	  std::shared_ptr<TGCTrackSelectorOut>  trackSelectorOut;
+	  sector->getSL()->getTrackSelectorOutput(trackSelectorOut); 
 
           if(sector->getRegionType()==Endcap){
             if(m_tgcArgs.useRun3Config()){
               LVL1MUONIF::Lvl1MuEndcapSectorLogicDataPhase1 sldata;
               tgcsystem = LVL1MUONIF::Lvl1MuCTPIInputPhase1::idEndcapSystem();
-              if(selectorOut!=0) FillSectorLogicData(&sldata,selectorOut,subsystem);
+              if(trackSelectorOut!=0) FillSectorLogicData(&sldata,trackSelectorOut.get());
               muctpiinputPhase1->setSectorLogicData(sldata,tgcsystem,subsystem,sectoraddr_endcap++,muctpiBcId);
             }else{
               LVL1MUONIF::Lvl1MuEndcapSectorLogicData sldata;
@@ -370,7 +373,7 @@ namespace LVL1TGCTrigger {
             if(m_tgcArgs.useRun3Config()){
               LVL1MUONIF::Lvl1MuForwardSectorLogicDataPhase1 sldata;
               tgcsystem = LVL1MUONIF::Lvl1MuCTPIInputPhase1::idForwardSystem();
-              if(selectorOut!=0) FillSectorLogicData(&sldata,selectorOut,subsystem);
+              if(trackSelectorOut!=0) FillSectorLogicData(&sldata,trackSelectorOut.get());
               muctpiinputPhase1->setSectorLogicData(sldata,tgcsystem,subsystem,sectoraddr_forward++,muctpiBcId);
             }else{
               LVL1MUONIF::Lvl1MuForwardSectorLogicData sldata;
@@ -380,10 +383,17 @@ namespace LVL1TGCTrigger {
             }
           }
 
+	  //** Selector in  Run2
           // delete selectorOut
           sector->getSL()->eraseSelectorOut();
           if (selectorOut != 0 ) delete selectorOut;
           selectorOut=0;
+	  
+	  //** Selector in  Run3
+          // delete selectorOut
+	  trackSelectorOut.get()->reset();
+
+
         } // k Module
       } // j Octant
     } // i Side
@@ -575,43 +585,33 @@ namespace LVL1TGCTrigger {
 
   ////////////////////////////////////////////////////////
   void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicDataPhase1 *sldata,
-                                           const TGCSLSelectorOut* selectorOut, unsigned int subsystem)
+                                           const TGCTrackSelectorOut *trackSelectorOut)
   {
     // M.Aoki (26/10/2019)
     // this function will be updated for Run3-specific configuration such as quality flags, 15 thresholds
-    
-    if(selectorOut ==0) return;
-    int Zdir= (subsystem==LVL1MUONIF::Lvl1MuCTPIInputPhase1::idSideA() ? 1 : -1);
+    if(trackSelectorOut ==0) return;
 
     sldata->clear2candidatesInSector();// for temporary
 
     const int muctpiBcId_offset = TgcDigit::BC_CURRENT;
     sldata->bcid(m_bctagInProcess - muctpiBcId_offset);
 
-    if ((selectorOut->getNCandidate()) >= 1) {
-      sldata->roi(0,((selectorOut->getR(0))<<2)+(selectorOut->getPhi(0)));
-      //      ovl --> veto
-      //      sldata->ovl(0,0);
-      if (selectorOut->getInnerVeto(0)) sldata->ovl(0,1);
-      else                              sldata->ovl(0,0);
-      sldata->pt(0,selectorOut->getPtLevel(0));
-      sldata->charge(0, getCharge(selectorOut->getDR(0),Zdir));
-    } else {
-      // no entry
+    for(int trackNumber=0;trackNumber!=trackSelectorOut->getNCandidate();trackNumber++){
+
+      sldata->roi(trackNumber,((trackSelectorOut->getR(trackNumber))<<2)+(trackSelectorOut->getPhi(trackNumber)));
+      sldata->pt(trackNumber,trackSelectorOut->getPtLevel(trackNumber));
+      if (trackSelectorOut->getInnerVeto(trackNumber)) sldata->ovl(trackNumber,1);
+      else                                             sldata->ovl(trackNumber,0);
+      sldata->charge(trackNumber, trackSelectorOut->getCharge(trackNumber));
+      sldata->bw2or3(trackNumber, trackSelectorOut->getCoincidenceType(trackNumber));
+      sldata->goodmf(trackNumber, trackSelectorOut->getGoodMFFlag(trackNumber));
+      sldata->innercoin(trackNumber, trackSelectorOut->getInnerCoincidenceFlag(trackNumber));
     }
-    if ((selectorOut->getNCandidate()) == 2) {
-      sldata->roi(1,((selectorOut->getR(1))<<2)+(selectorOut->getPhi(1)));
-      //      ovl --> veto
-      //      sldata->ovl(1,0);
-      if (selectorOut->getInnerVeto(1)) sldata->ovl(1,1);
-      else                              sldata->ovl(1,0);
-      sldata->pt(1,selectorOut->getPtLevel(1));
-      sldata->charge(1, getCharge(selectorOut->getDR(1),Zdir));
-    }
-    sldata->set2candidates(0);// not used for TGC
-    sldata->clear2candidates(0);// not used for TGC
-    sldata->set2candidates(1);// not used for TGC
-    sldata->clear2candidates(1);// not used for TGC
+    for(int trackNumber=0;trackNumber!=TGCTrackSelectorOut::NCandidateInTrackSelector;trackNumber++){
+      sldata->set2candidates(trackNumber);// not used for TGC
+      sldata->clear2candidates(trackNumber);// not used for TGC
+    } 
+
   }
 
   //////////////////////////////////////////
