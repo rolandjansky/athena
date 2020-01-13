@@ -16,7 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
-find_package( PythonLibs )
+find_package( Python COMPONENTS Development )
 find_package( tdaq-common COMPONENTS ers eformat eformat_write hltinterface )
 
 # Component(s) in the package:

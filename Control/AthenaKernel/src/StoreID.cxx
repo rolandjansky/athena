@@ -12,7 +12,6 @@ static const std::vector<std::string> STORENAMES {
     "ConditionStore",
     "InputMetaDataStore",
     "MetaDataStore",
-    "SpareStore",
     "PileupStore",
     "UnknownStore"
       };
@@ -51,7 +50,7 @@ StoreID::findStoreID(const std::string& storeNamePrefix) {
     }
   case 'M':
     {
-      return StoreID::SIMPLE_STORE;
+      return StoreID::METADATA_STORE;
       break;
     }
   case 'P':
@@ -61,16 +60,7 @@ StoreID::findStoreID(const std::string& storeNamePrefix) {
     }
   case 'S':
     {
-      if (storeNamePrefix.at(ist+1)=='p'){
-	return StoreID::SPARE_STORE;
-      }else{
-	return StoreID::EVENT_STORE;
-      }
-      break;
-    }
-  case 'T':
-    {
-      return StoreID::METADATA_STORE;
+      return StoreID::EVENT_STORE;
       break;
     }
   default:

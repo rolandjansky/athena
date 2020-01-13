@@ -22,7 +22,7 @@ atlas_depends_on_subdirs(
 # External dependencies:
 find_package( AIDA )
 find_package( Boost )
-find_package( PythonLibs )
+find_package( Python COMPONENTS Development )
 find_package( ROOT COMPONENTS Core PyROOT )
 find_package( nlohmann_json )
 

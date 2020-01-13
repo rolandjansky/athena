@@ -27,8 +27,6 @@ class StoreID
     DETECTOR_STORE,
     CONDITION_STORE,
     METADATA_STORE,
-    SIMPLE_STORE,
-    SPARE_STORE,
     PILEUP_STORE,
     UNKNOWN
   } type;

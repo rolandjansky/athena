@@ -10,7 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel )
 
 # External dependencies:
-find_package( PythonLibs )
+find_package( Python COMPONENTS Development )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # We don't have a direct dependency on boost from this package, but if we

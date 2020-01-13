@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #########################################################################
 #
 ## @file EventInfoOverlayLegacyTest.py
@@ -54,8 +54,8 @@ conddb.setGlobalTag("OFLCOND-SDR-BS7T-04-00")
 #--------------------------------------------------------------
 # Input options
 #--------------------------------------------------------------
-svcMgr.DoubleEventSelector.PrimaryInputCollections = [ "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/PileupPremixing/22.0/v4/RDO.merged-pileup-MT.100events.pool.root" ]
-svcMgr.DoubleEventSelector.SecondaryaryInputCollections = [ "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/TestCase_xAODEventInfo.root" ]
+svcMgr.DoubleEventSelector.InputCollections = [ "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/PileupPremixing/22.0/v4/RDO.merged-pileup-MT.100events.pool.root" ]
+svcMgr.SecondaryEventSelector.InputCollections  = [ "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/TestCase_xAODEventInfo.root" ]
 
 #--------------------------------------------------------------
 # Remapping Service

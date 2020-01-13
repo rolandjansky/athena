@@ -30,7 +30,7 @@ class AthMonitorCfgHelper(object):
         self.monSeq = AthSequencer('AthMonSeq_' + monName)
         self.resobj = ComponentAccumulator()
         if inputFlags.DQ.useTrigger:
-            from TriggerInterface import getTrigDecisionTool
+            from .TriggerInterface import getTrigDecisionTool
             self.resobj.merge(getTrigDecisionTool(inputFlags))
 
     def addAlgorithm(self, algClassOrObj, name = None, *args, **kwargs):
@@ -322,7 +322,7 @@ def getTriggerTranslatorToolSimple(inputFlags):
         if not isinstance(tdt_menu_item, collections.Iterable):
             continue
         # work around possibly buggy category items
-        if isinstance(tdt_menu_item, basestring):
+        if isinstance(tdt_menu_item, str):
             tdt_local_logger.debug('String, not list: %s', tdt_menu)
             tdt_menu_item = [tdt_menu_item]
             if len([_ for _ in tdt_menu_item if not (_.startswith('HLT_') or _.startswith('L1'))]) != 0:

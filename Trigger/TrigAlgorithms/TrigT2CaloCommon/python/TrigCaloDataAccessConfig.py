@@ -60,7 +60,7 @@ def trigCaloDataAccessSvcCfg( flags ):
     from TileConditions.TileBadChannelsConfig import TileBadChannelsCondAlgCfg
     acc.merge( TileBadChannelsCondAlgCfg(flags) )
 
-    from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
+    from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
     import math
     mon = GenericMonitoringTool("TrigCaloDataAccessSvcMon")
     mon.defineHistogram("TIME_locking_LAr_RoI",

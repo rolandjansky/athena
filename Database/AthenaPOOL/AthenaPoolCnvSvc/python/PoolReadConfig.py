@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -46,9 +46,13 @@ def PoolReadCfg(configFlags):
             apapsSecondary.getFullJobOptName()
         ])) #No service handle yet???
 
-        evSel=DoubleEventSelectorAthenaPool("DoubleEventSelector",
-                                            PrimaryInputCollections = filenames,
-                                            SecondaryaryInputCollections = filenamesSecondary)
+        secondarySel = EventSelectorAthenaPool("SecondaryEventSelector",
+                                               IsSecondary=True,
+                                               InputCollections=filenamesSecondary)
+        result.addService(secondarySel)
+
+        evSel = DoubleEventSelectorAthenaPool("DoubleEventSelector",
+                                              InputCollections=filenames)
     else:
         # We have only primary inputs
         apaps=AthenaPoolAddressProviderSvc()

@@ -16,7 +16,7 @@
 #include "MuonRPC_Cabling/ICallBackMuonRPC_Cabling.h"
 
 #include "AthenaKernel/IOVSvcDefs.h"
-#include "MuonRPC_Cabling/RPCPadParameters.h"
+#include "RPC_CondCabling/RPCPadParameters.h"
 
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 

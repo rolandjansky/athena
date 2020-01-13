@@ -40,6 +40,7 @@ class InDetVKalVxInJetFinder( InDet__InDetVKalVxInJetTool ):
           from TrkParticleCreator.TrkParticleCreatorConf     import Trk__TrackParticleCreatorTool
           if hasattr(ToolSvc,'InDetTrackSummaryTool'):
             SVParticleCreatorTool = Trk__TrackParticleCreatorTool(name="SVParticleCreatorTool",
+                                                                  Extrapolator="Trk::Extrapolator/AtlasExtrapolator",                             
                                                                   TrackSummaryTool="InDetTrackSummaryTool",
                                                                   UseTrackSummaryTool=False )
           else:
@@ -83,6 +84,7 @@ class AtlasVKalVxInJetFinder( InDet__InDetVKalVxInJetTool ):
         #
         from TrkParticleCreator.TrkParticleCreatorConf     import Trk__TrackParticleCreatorTool
         SVParticleCreatorTool = Trk__TrackParticleCreatorTool(name="SVParticleCreatorTool",
+                                                              Extrapolator=SVAtlasExtrapolator,
                                                               TrackSummaryTool=SVAtlasTrackSummaryTool,
                                                               UseTrackSummaryTool=False
                                                              )

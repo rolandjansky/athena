@@ -104,6 +104,13 @@ cmake -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} -DCTEST_USE_LAUNCHERS:BOOL=TRUE \
 test -f $error_stamp && ((ERROR_COUNT++))
 rm -f $error_stamp
 
+# Trigger xenv to pickle the Gaudi build configuration ahead of the build.
+# Otherwise parallel processes may step on each others' toes. See ATLINFR-3336.
+if [ -f ${BUILDDIR}/config/Gaudi-build.xenv ] && [ -x ${BUILDDIR}/bin/xenv ]; then
+    echo "Triggering the creation of ${BUILDDIR}/config/Gaudi-build.xenvc"
+    ${BUILDDIR}/bin/xenv --xml ${BUILDDIR}/config/Gaudi-build.xenv true
+fi
+
 # Build it:
 error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp
 {

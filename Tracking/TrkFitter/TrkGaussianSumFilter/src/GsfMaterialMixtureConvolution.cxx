@@ -119,7 +119,7 @@ Trk::GsfMaterialMixtureConvolution::update(const Trk::MultiComponentState& multi
     return nullptr;
   }
   // Renormalise state
-  mergedState->renormaliseState();
+  MultiComponentStateHelpers::renormaliseState(*mergedState);
 
   return mergedState;
 }
@@ -174,7 +174,7 @@ Trk::GsfMaterialMixtureConvolution::preUpdate(const Trk::MultiComponentState& mu
     return nullptr;
   }
   // Renormalise state
-  mergedState->renormaliseState();
+  MultiComponentStateHelpers::renormaliseState(*mergedState);
 
   return mergedState;
 }
@@ -232,7 +232,7 @@ Trk::GsfMaterialMixtureConvolution::postUpdate(const Trk::MultiComponentState& m
     return nullptr;
   }
   // Renormalise state
-  mergedState->renormaliseState();
+  MultiComponentStateHelpers::renormaliseState(*mergedState);
 
   return mergedState;
 }
@@ -275,7 +275,9 @@ Trk::GsfMaterialMixtureConvolution::simplifiedMaterialUpdate(const Trk::MultiCom
   }
 
   if (!materialProperties) {
-    return std::unique_ptr<Trk::MultiComponentState> (multiComponentState.clone());;
+    return std::unique_ptr<Trk::MultiComponentState>(
+      MultiComponentStateHelpers::clone(multiComponentState));
+    ;
   }
 
   // Exclude material effects on the perigee surface
@@ -286,7 +288,8 @@ Trk::GsfMaterialMixtureConvolution::simplifiedMaterialUpdate(const Trk::MultiCom
   }
   if (perigeeSurface) {
     delete materialProperties;
-    return std::unique_ptr<Trk::MultiComponentState> (multiComponentState.clone());;
+    return std::unique_ptr<Trk::MultiComponentState>(
+      MultiComponentStateHelpers::clone(multiComponentState));
   }
 
   // Assume tracks normal to detector surface. Approximation resonable for the CTB
@@ -316,7 +319,7 @@ Trk::GsfMaterialMixtureConvolution::simplifiedMaterialUpdate(const Trk::MultiCom
     return nullptr;
   }
   // Renormalise state
-  mergedState->renormaliseState();
+  MultiComponentStateHelpers::renormaliseState(*mergedState);
 
   return mergedState;
 }

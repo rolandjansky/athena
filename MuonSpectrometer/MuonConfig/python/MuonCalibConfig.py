@@ -379,7 +379,7 @@ def _setupMdtCondDB(flags):
                                            className = 'CondAttrListCollection' ) )
     else:
         from AthenaCommon.AppMgr import ServiceMgr
-        ServiceMgr.TagInfoMgr.ExtraTagValuePairs += ["MDTCalibrationSource", flags.Muon.Calib.mdtCalibrationSource()] # TODO Check this.
+        ServiceMgr.TagInfoMgr.ExtraTagValuePairs.update({"MDTCalibrationSource": flags.Muon.Calib.mdtCalibrationSource()}) # TODO Check this.
         result.merge(addFoldersSplitOnline(flags, flags.Muon.Calib.mdtCalibrationSource, online_folders, offline_folders,
                                            className = 'CondAttrListCollection' ) )
         

@@ -16,6 +16,7 @@
 
 from __future__ import print_function
 from past.builtins import cmp
+import functools
 import six
 
 #
@@ -101,6 +102,7 @@ class _JobPropertyMeta(type):
         return type.__new__( self, name, bases, dct )
 
 
+@functools.total_ordering
 @six.add_metaclass(_JobPropertyMeta)
 class JobProperty(object):
     """ Base class for the job properties.  
@@ -152,6 +154,9 @@ class JobProperty(object):
     def __nonzero__(self):
         return self.get_Value()
     
+    def __bool__(self):
+        return self.get_Value()
+    
     def __eq__(self, rhs):
         if isinstance(rhs, JobProperty):
             # FIXME: should we only allow comparison between same class
@@ -159,6 +164,14 @@ class JobProperty(object):
             #        OTOH, JobProperty-derived classes are 'singleton'...
             return self() == rhs()
         return self() == rhs
+
+    def __lt__(self, rhs):
+        if isinstance(rhs, JobProperty):
+            # FIXME: should we only allow comparison between same class
+            #        rather than b/w JobProperties ?
+            #        OTOH, JobProperty-derived classes are 'singleton'...
+            return self() < rhs()
+        return self() < rhs
 
     def __cmp__(self, rhs):
         if isinstance (rhs, JobProperty):
@@ -733,7 +746,7 @@ class JobPropertyContainer (object):
         """
         tp=type(data)
         if tp.__name__=='dict':
-            list_context=JobProperty._nInstancesContextDict.keys()
+            list_context=list(JobProperty._nInstancesContextDict.keys())
             for i in data.keys():
                 for j in data[i].keys():
                     if list_context.count(i+'.'+j)==1:

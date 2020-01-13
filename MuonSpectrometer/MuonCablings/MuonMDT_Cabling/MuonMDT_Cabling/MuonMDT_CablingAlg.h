@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -13,7 +13,7 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 #include "GaudiKernel/ICondSvc.h"
-#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 #include "GaudiKernel/AlgTool.h"
@@ -21,14 +21,11 @@
 #include "GaudiKernel/IChronoStatSvc.h"
 #include "MuonCablingData/MuonMDT_CablingMap.h"
 #include "AthenaKernel/IIOVDbSvc.h"
-#include "GaudiKernel/MsgStream.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
-class Identifier; 
 class IIOVSvc;
 class IIOVDbSvc;
-class StatusCode;
 class MuonMDT_CablingMap;
 
 class MuonMDT_CablingAlg: public AthAlgorithm {
@@ -43,8 +40,7 @@ class MuonMDT_CablingAlg: public AthAlgorithm {
   
  private:
 
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyMez;
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyMap;
   SG::WriteCondHandleKey<MuonMDT_CablingMap> m_writeKey{this, "WriteKey", "MuonMDT_CablingMap", "Key of output MDT cabling map"};

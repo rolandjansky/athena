@@ -16,12 +16,10 @@ description          : Class to calculate the mode (q/p) of a gaussian mixtureAr
 
 #include "GaudiKernel/MsgStream.h"
 #include "EventPrimitives/EventPrimitives.h"
+#include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include <array>
 
 namespace Trk{
-
-class MultiComponentState;
-
 namespace MultiComponentStateModeCalculator{
 
   struct Mixture{

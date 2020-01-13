@@ -1,6 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-
+from __future__ import print_function
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
@@ -50,5 +50,5 @@ monitoring_bjet_validation = ["E_HLT_j35_boffperf_split","E_HLT_j55_boffperf_spl
 monitoring_mujet_validation = ["S_HLT_mu4_j45_gsc55_boffperf_split_dr05_dz02","E_HLT_mu6_j60_gsc85_boffperf_split_dr05_dz02_L1BTAG-MU6J20","E_HLT_mu6_j110_gsc150_boffperf_split_dr05_dz02",
                                "E_HLT_mu6_j60_gsc85_boffperf_split_dr05_dz02"]
 
-print "In TrigBjetMonitCategory: monitoring_bjet"
-print monitoring_bjet
+print ("In TrigBjetMonitCategory: monitoring_bjet")
+print (monitoring_bjet)

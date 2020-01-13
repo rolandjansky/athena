@@ -114,6 +114,7 @@ class Test(object):
         failed_required_steps = []
         for step in self.exec_steps + self.check_steps:
             if step.required and (step.result != 0):
+                self.log.debug('Required step %s finished with result %s', step.name, step.result)
                 failed_required_steps.append(step.name)
                 if abs(step.result) > exit_code:
                     exit_code = abs(step.result)

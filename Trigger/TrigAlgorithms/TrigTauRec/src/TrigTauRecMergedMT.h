@@ -16,7 +16,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 #include <vector>
 #include "tauRecTools/ITauToolBase.h"

@@ -95,7 +95,8 @@ class InputDependentStep(Step):
         if not os.path.isfile(self.input_file):
             self.log.debug('Skipping %s because %s does not exist',
                            self.name, self.input_file)
-            return 0, '# (internal) {} -> skipped'.format(self.name)
+            self.result = 0
+            return self.result, '# (internal) {} -> skipped'.format(self.name)
 
         return super(InputDependentStep, self).run(dry_run)
 

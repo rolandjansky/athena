@@ -32,7 +32,7 @@
 #include "xAODTrigBphys/TrigBphysContainer.h"
 
 #include "DecisionHandling/TrigCompositeUtils.h"
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 #include "DecisionHandling/Combinators.h"
 

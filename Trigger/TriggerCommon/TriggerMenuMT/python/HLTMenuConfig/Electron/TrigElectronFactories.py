@@ -13,26 +13,14 @@ Offline configurations are available here:
 
 """ Importing all read/write "DataHandles" static classes """
 from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaKeys
+from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaFactories import TrigEMClusterTool, TrigEMTrackMatchBuilder, TrigEgammaDecorationTools
 
 """ Importing all the tool components """
-from egammaTools.egammaToolsFactories import egammaToolsConf, egammaSwTool, egammaMVASvc, EGammaAmbiguityTool
-from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
+from egammaTools.egammaToolsFactories import egammaSwTool, egammaMVASvc, EGammaAmbiguityTool
 from egammaAlgs import egammaAlgsConf
-from AthenaCommon.BeamFlags import jobproperties
-from egammaRec.Factories import ToolFactory, AlgFactory
-# Prepare first egammaRec:
+from egammaRec.Factories import AlgFactory, FcnWrapper
     
-"""Configuring EMTrackMatchBuilder Tool """
-EMTrackMatchBuilder = ToolFactory( egammaToolsConf.EMTrackMatchBuilder,
-                      TrackParticlesName = "InDetTrigPTTrackParticles_electron",
-                      ExtrapolationTool  = EMExtrapolationTools,
-                      broadDeltaEta      = 0.1, #candidate match is done in 2 times this  so +- 0.2
-                      broadDeltaPhi      = 0.15,  #candidate match is done in 2 times this  so +- 0.3
-                      useCandidateMatch  = True,
-                      useScoring         = True,
-                      SecondPassRescale  = True,
-                      UseRescaleMetric   = True,
-                      isCosmics          = (jobproperties.Beam.beamType()=="cosmics"))
+# Prepare first egammaRec:
 
 """Configuring egammaRecBuilder """
 TrigEgammaRecElectron = AlgFactory( egammaAlgsConf.egammaRecBuilder,
@@ -42,7 +30,7 @@ TrigEgammaRecElectron = AlgFactory( egammaAlgsConf.egammaRecBuilder,
                             doConversions = False,
                             doAdd= False,
                             # Builder tools
-                            TrackMatchBuilderTool = EMTrackMatchBuilder)
+                            TrackMatchBuilderTool = TrigEMTrackMatchBuilder)
 
 """Configuring electronSuperClusterBuilder"""                                        
 TrigElectronSuperClusterBuilder = AlgFactory( egammaAlgsConf.electronSuperClusterBuilder,
@@ -52,19 +40,9 @@ TrigElectronSuperClusterBuilder = AlgFactory( egammaAlgsConf.electronSuperCluste
                                               ClusterCorrectionTool=egammaSwTool,
                                               MVACalibSvc=egammaMVASvc,
                                               EtThresholdCut=1000,
-                                              TrackMatchBuilderTool = EMTrackMatchBuilder,
+                                              TrackMatchBuilderTool = TrigEMTrackMatchBuilder,
                                               doAdd= False
                                              )
-
-"""This is an instance of TrigEMClusterTool to be used at TrigTopoEgammaElectrons"""
-TrigEMClusterTool = ToolFactory(egammaToolsConf.EMClusterTool,
-        name = 'TrigEMEClusterTool',
-        OutputClusterContainerName = TrigEgammaKeys.TrigEMClusterToolOutputContainer,
-        OutputTopoSeededClusterContainerName = TrigEgammaKeys.outputTopoSeededClusterKey,
-        ClusterCorrectionTool = egammaSwTool,
-        doSuperCluster = True,
-        MVACalibSvc = egammaMVASvc
-        )
 
 
 TrigTopoEgammaElectron = AlgFactory( egammaAlgsConf.topoEgammaBuilder, name = 'TrigTopoEgammaElectron',
@@ -74,6 +52,7 @@ TrigTopoEgammaElectron = AlgFactory( egammaAlgsConf.topoEgammaBuilder, name = 'T
         PhotonOutputName = TrigEgammaKeys.outputPhotonKey,  
         AmbiguityTool = EGammaAmbiguityTool,
         EMClusterTool = TrigEMClusterTool,
+        egammaTools = FcnWrapper(TrigEgammaDecorationTools),
         doAdd = False,
         doPhotons = False,
         doElectrons = True

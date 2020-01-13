@@ -116,9 +116,9 @@ class HistogramFactoryTestSuite {
     }
 
     void test_shouldRegisterAndReturnTEfficiencyHistogram() {
-      TEfficiency* const graph = createHistogram<TEfficiency>("TEfficiency");
-      // VALUE(m_histSvc->exists("/HistogramFactoryTestSuite/TEfficiency")) EXPECTED(true);
-      VALUE(graph) NOT_EXPECTED(nullptr);
+      TEfficiency* const efficiency = createHistogram<TEfficiency>("TEfficiency");
+      VALUE(m_histSvc->existsEfficiency("/HistogramFactoryTestSuite/TEfficiency")) EXPECTED(true);
+      VALUE(efficiency) NOT_EXPECTED(nullptr);
     }
 
     void test_shouldThrowExceptionForUnknownHistogramType() {
@@ -282,6 +282,10 @@ class HistogramFactoryTestSuite {
 
       for (string graphName : m_histSvc->getGraphs()) {
         m_histSvc->deReg(graphName);
+      }
+
+      for (string efficiencyName : m_histSvc->getEfficiencies()) {
+        m_histSvc->deReg(efficiencyName);
       }
     }
 

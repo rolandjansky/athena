@@ -302,7 +302,8 @@ Trk::ForwardGsfFitter::stepForwardFit(ForwardTrajectory* forwardTrajectory,
     return false;
   }
   std::unique_ptr<Trk::FitQualityOnSurface> fitQuality;
-  updatedState = m_updator->update(std::move(*(extrapolatedState->clone())), *measurement, fitQuality);
+  updatedState = m_updator->update(
+    std::move(*(MultiComponentStateHelpers::clone(*extrapolatedState))), *measurement, fitQuality);
   if (!updatedState) {
     ATH_MSG_DEBUG("Measurement update of the state failed... Exiting!");
     return false;
@@ -322,8 +323,12 @@ Trk::ForwardGsfFitter::stepForwardFit(ForwardTrajectory* forwardTrajectory,
     std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> type(0);
     type.set(TrackStateOnSurface::Outlier);
     const Trk::MultiComponentStateOnSurface* multiComponentStateOnSurface =
-      new MultiComponentStateOnSurface(measurement.release(), extrapolatedState->clone().release(), 
-                                       fitQuality.release(), nullptr, type);
+      new MultiComponentStateOnSurface(
+        measurement.release(),
+        MultiComponentStateHelpers::clone(*extrapolatedState).release(),
+        fitQuality.release(),
+        nullptr,
+        type);
 
     forwardTrajectory->push_back(multiComponentStateOnSurface);
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 //============================================================
 // $Id: T2VertexBeamSpot.cxx 793164 2017-01-20 03:59:26Z ssnyder $
@@ -63,7 +63,6 @@ void stripTrackList( TrigVertexCollection& coll )
 T2VertexBeamSpot::T2VertexBeamSpot( const std::string& name, ISvcLocator* pSvcLocator )
   : HLT::AllTEAlgo(name, pSvcLocator){ 
    
-   declareProperty( "BeamSpotTool",  m_beamSpotTool   ); 
    declareProperty( "TrackCollections",  m_trackCollections = {"TrigFastTrackFinder_Tracks"}  ); 
    declareProperty( "VertexCollection",  m_outputVertexCollectionKey =  "myVertices"  ); 
 

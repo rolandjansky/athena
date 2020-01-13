@@ -36,6 +36,7 @@ const HistogramDef HistogramDef::parse(const std::string& histogramDefinition) {
   result.yarray = setting["yarray"].get<std::vector<double>>();
 
   result.zvar = setting["zvar"];
+  result.zbins = setting["zbins"];
   result.zmin = setting["zmin"];
   result.zmax = setting["zmax"];
   result.zlabels = setting["zlabels"].get<std::vector<std::string>>();
