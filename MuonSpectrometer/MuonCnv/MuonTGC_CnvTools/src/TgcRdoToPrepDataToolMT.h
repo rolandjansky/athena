@@ -9,7 +9,7 @@
 #define MUONTGC_CNVTOOLS_TGCRDOTOPREPDATATOOLMT_H
 
 #include "TgcRdoToPrepDataToolCore.h"
-
+#include "MuonPrepRawData/MuonPrepDataCollection_Cache.h"
 
 namespace Muon 
 {
@@ -38,6 +38,10 @@ namespace Muon
     
       using TgcRdoToPrepDataToolCore::decode; // To prevent the decode below from hiding the superclass decode methods
       virtual StatusCode decode(std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& idWithDataVect) override;
+
+    private:
+      /// This is the key for the cache for the TGC PRD containers, can be empty
+      SG::UpdateHandleKey<MdtPrepDataCollection_Cache> m_prdContainerCacheKey ;
    }; 
 } // end of namespace
 

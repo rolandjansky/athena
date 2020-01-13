@@ -38,20 +38,39 @@ StatusCode Muon::sTgcRdoToPrepDataToolMT::finalize()
 
 Muon::sTgcRdoToPrepDataToolCore::SetupSTGC_PrepDataContainerStatus Muon::sTgcRdoToPrepDataToolMT::setupSTGC_PrepDataContainer() 
 {
+  m_fullEventDone = false;
 
-  if(!evtStore()->contains<Muon::sTgcPrepDataContainer>(m_stgcPrepDataContainerKey.key())){    
-    m_fullEventDone=false;
-    
-    SG::WriteHandle< Muon::sTgcPrepDataContainer > handle(m_stgcPrepDataContainerKey);
+  SG::WriteHandle< Muon::sTgcPrepDataContainer > handle(m_stgcPrepDataContainerKey);
+  
+  // Caching of PRD container
+  const bool externalCachePRD = !m_prdContainerCacheKey.key().empty();
+  if (!externalCachePRD) {
+    // without the cache we just record the container
     StatusCode status = handle.record(std::make_unique<Muon::sTgcPrepDataContainer>(m_muonIdHelperTool->stgcIdHelper().module_hash_max()));
-    
     if (status.isFailure() || !handle.isValid() )   {
-      ATH_MSG_FATAL("Could not record container of STGC PrepData Container at " << m_stgcPrepDataContainerKey.key()); 
+      ATH_MSG_FATAL("Could not record container of sTGC PrepData Container at " << m_stgcPrepDataContainerKey.key()); 
       return FAILED;
     }
-    m_stgcPrepDataContainer = handle.ptr();
-    return ADDED;
-    
+    ATH_MSG_DEBUG("Created container " << m_stgcPrepDataContainerKey.key());
+  } 
+  else {
+    // use the cache to get the container
+    SG::UpdateHandle<sTgcPrepDataCollection_Cache> update(m_prdContainerCacheKey);
+    if (!update.isValid()){
+      ATH_MSG_FATAL("Invalid UpdateHandle " << m_prdContainerCacheKey.key());
+      return FAILED;
+    }
+    StatusCode status = handle.record(std::make_unique<Muon::sTgcPrepDataContainer>(update.ptr()));
+    if (status.isFailure() || !handle.isValid() )   {
+      ATH_MSG_FATAL("Could not record container of sTGC PrepData Container using cache " 
+        << m_prdContainerCacheKey.key() << " - " <<m_stgcPrepDataContainerKey.key()); 
+      return FAILED;
+    }
+    ATH_MSG_DEBUG("Created container using cache for " << m_stgcPrepDataContainerKey.key());
   }
-  return ALREADYCONTAINED;
+  // Pass the container from the handle
+  m_stgcPrepDataContainer = handle.ptr();
+
+  return ADDED;
+    
 }

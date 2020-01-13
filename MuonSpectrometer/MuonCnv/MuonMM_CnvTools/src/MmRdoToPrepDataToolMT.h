@@ -62,7 +62,7 @@ namespace Muon
     virtual SetupMM_PrepDataContainerStatus setupMM_PrepDataContainer() override;
   
   private:
-    /// This is the key for the cache for the MDT PRD containers, can be empty
+    /// This is the key for the cache for the MM PRD containers, can be empty
     SG::UpdateHandleKey<MMPrepDataCollection_Cache> m_prdContainerCacheKey ;
   }; 
 } // end of namespace

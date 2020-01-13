@@ -43,7 +43,7 @@ namespace Muon {
     virtual StatusCode decode(std::vector<IdentifierHash>& givenIdhs, std::vector<IdentifierHash>& decodedIdhs) override;
 
   private:
-    /// This is the key for the cache for the MDT PRD containers, can be empty
+    /// This is the key for the cache for the CSC PRD containers, can be empty
     SG::UpdateHandleKey<CscStripPrepDataCollection_Cache> m_prdContainerCacheKey ;
   };
 }
