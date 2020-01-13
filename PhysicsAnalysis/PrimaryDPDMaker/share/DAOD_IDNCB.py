@@ -65,7 +65,7 @@ if dumpTrtInfo:
     TRTCalibDBSvc=TRT_CalDbSvc()
     ServiceMgr += TRTCalibDBSvc
 
-    from TRT_ToT_Tools.TRT_ToT_ToolsConf import TRT_ToT_dEdx
+    from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import TRT_ToT_dEdx
     TRT_dEdx_Tool = TRT_ToT_dEdx(name="NCBTRT_ToT_dEdx")
     ToolSvc += TRT_dEdx_Tool
 
