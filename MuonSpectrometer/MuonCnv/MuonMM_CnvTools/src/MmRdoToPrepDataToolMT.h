@@ -21,6 +21,8 @@
 #include "MuonRDO/MM_RawDataContainer.h"
 
 #include "MuonIdHelpers/MuonIdHelperTool.h"
+  
+#include "MuonPrepRawData/MuonPrepDataCollection_Cache.h"
 
 #include <string>
 #include <vector>
@@ -58,6 +60,10 @@ namespace Muon
   
   protected:
     virtual SetupMM_PrepDataContainerStatus setupMM_PrepDataContainer() override;
+  
+  private:
+    /// This is the key for the cache for the MDT PRD containers, can be empty
+    SG::UpdateHandleKey<MMPrepDataCollection_Cache> m_prdContainerCacheKey ;
   }; 
 } // end of namespace
 
