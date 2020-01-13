@@ -16,6 +16,9 @@ Muon::TgcRdoToPrepDataToolMT::TgcRdoToPrepDataToolMT(const std::string& t, const
   : AthAlgTool(t, n, p), 
     TgcRdoToPrepDataToolCore(t, n, p)
 {
+  declareProperty("TgcPrdContainerCacheKeys", m_prdContainerCacheKeys, "Optional external cache for the TGC PRD container (array)");
+  declareProperty("TgcCoinContainerCacheKeys", m_coinContainerCacheKeys, "Optional external cache for the TGC Trigger Coin container (array)");
+
 }  
 
 Muon::TgcRdoToPrepDataToolMT::~TgcRdoToPrepDataToolMT()
@@ -26,6 +29,8 @@ StatusCode Muon::TgcRdoToPrepDataToolMT::initialize()
 {
   ATH_MSG_VERBOSE("Starting init");
   ATH_CHECK( TgcRdoToPrepDataToolCore::initialize() );
+  ATH_CHECK( m_prdContainerCacheKeys.initialize( !m_prdContainerCacheKeys.keys().empty() ) );
+  ATH_CHECK( m_coinContainerCacheKeys.initialize( !m_coinContainerCacheKeys.keys().empty() ) );
   ATH_MSG_DEBUG("initialize() successful in " << name());
   return StatusCode::SUCCESS;
 }

@@ -14,6 +14,8 @@ Muon::RpcRdoToPrepDataToolMT::RpcRdoToPrepDataToolMT( const std::string& type, c
   : AthAlgTool( type, name, parent ),
     RpcRdoToPrepDataToolCore( type, name, parent )
 {
+  declareProperty("RpcRdoContainterCacheKey", m_prdContainerCacheKey, "Optional external cache for the RPC RDO container");
+  declareProperty("RpcCoinContainterCacheKey", m_coinContainerCacheKey, "Optional external cache for the RPC Trigger Coin container");
 }
 
 Muon::RpcRdoToPrepDataToolMT::~RpcRdoToPrepDataToolMT()

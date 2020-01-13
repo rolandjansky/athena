@@ -16,6 +16,7 @@ Muon::MmRdoToPrepDataToolMT::MmRdoToPrepDataToolMT(const std::string& t,
   AthAlgTool(t,n,p),
   MmRdoToPrepDataToolCore(t,n,p)
 {
+  declareProperty("MmPrdContainterCacheKey", m_prdContainerCacheKey, "Optional external cache for the MM PRD container");
 }
 
 
@@ -27,6 +28,7 @@ StatusCode Muon::MmRdoToPrepDataToolMT::initialize()
 {  
   ATH_MSG_VERBOSE("Starting init");
   ATH_CHECK( MmRdoToPrepDataToolCore::initialize() );
+  ATH_CHECK( m_prdContainerCacheKey.initialize( !m_prdContainerCacheKey.key().empty() ) );
   ATH_MSG_DEBUG("initialize() successful in " << name());
   return StatusCode::SUCCESS;
 }

@@ -32,6 +32,7 @@ using namespace Muon;
 CscRdoToCscPrepDataToolMT::CscRdoToCscPrepDataToolMT
 (const std::string& type, const std::string& name, const IInterface* parent)
   : CscRdoToCscPrepDataToolCore(type, name, parent) {
+    declareProperty("CscRdoContainterCacheKey", m_prdContainerCacheKey, "Optional external cache for the CSC RDO container");
 }  
 
 CscRdoToCscPrepDataToolMT::~CscRdoToCscPrepDataToolMT(){}
@@ -39,6 +40,7 @@ CscRdoToCscPrepDataToolMT::~CscRdoToCscPrepDataToolMT(){}
 StatusCode CscRdoToCscPrepDataToolMT::initialize(){
   ATH_MSG_VERBOSE("Starting init");
   ATH_CHECK( CscRdoToCscPrepDataToolCore::initialize() );
+  ATH_CHECK( m_prdContainerCacheKey.initialize( !m_prdContainerCacheKey.key().empty() ) );
   ATH_MSG_DEBUG("initialize() successful in " << name());
   return StatusCode::SUCCESS;
 }

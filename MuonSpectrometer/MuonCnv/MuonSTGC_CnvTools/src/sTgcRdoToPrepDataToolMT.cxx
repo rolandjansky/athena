@@ -17,6 +17,7 @@ Muon::sTgcRdoToPrepDataToolMT::sTgcRdoToPrepDataToolMT(const std::string& t,
   AthAlgTool(t,n,p),
   sTgcRdoToPrepDataToolCore(t,n,p)
 {
+  declareProperty("sTgcPrdContainterCacheKey", m_prdContainerCacheKey, "Optional external cache for the sTGC PRD container");
 }
 
 Muon::sTgcRdoToPrepDataToolMT::~sTgcRdoToPrepDataToolMT()
@@ -27,6 +28,7 @@ StatusCode Muon::sTgcRdoToPrepDataToolMT::initialize()
 {  
   ATH_MSG_VERBOSE("Starting init");
   ATH_CHECK( sTgcRdoToPrepDataToolCore::initialize() );
+  ATH_CHECK( m_prdContainerCacheKey.initialize( !m_prdContainerCacheKey.key().empty() ) );  
   ATH_MSG_DEBUG("initialize() successful in " << name());
   return StatusCode::SUCCESS;
 }
