@@ -269,6 +269,7 @@ class Registry(object):
         self.add_default("min_z_mass", 1.0, name="mass_Z_low", description="Require Z boson mass > mass low")
         self.add_default("minlo_nnll", 1, description="enable MiNLO NNLL. [0:disabled; 1:enabled]")
         self.add_default("minlo", 0, description="use MiNLO (if minlo is set for unsupported processes, Powheg will crash with an 'st_bornorder' error) [1:enabled]")
+        self.add_default("minnlo", 0, description="use MiNNLO (if minlo is set for unsupported processes, Powheg will crash with an 'st_bornorder' error) [1:enabled]")
         self.add_default("minloscfac", 1, description="MiNLO scaling factor:  q2merge=q2merge * (minloscfac)**2")
         self.add_default("mint_density_map", -1, description="keep track of the distribution of integrand values while doing the integration (for debugging).")
         self.add_default("mintupbratlim", -1, description="while computing btilde upper bound, disregard points with btilde/born ratio greater than mintupbratlim")

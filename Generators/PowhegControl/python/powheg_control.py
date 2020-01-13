@@ -78,8 +78,10 @@ class PowhegControl(object):
             # Set inputGeneratorFile to match output events file - otherwise Generate_tf check will fail
             run_args.inputGeneratorFile = self.__output_LHE_file
 
+        print (process_name)
         # Load correct process
         self.process = getattr(processes.powheg, process_name)(os.environ["POWHEGPATH"].replace("POWHEG-BOX", ""), **process_kwargs)
+        print (self.process)
 
         # Expose all keyword parameters as attributes of this config object
         for parameter in self.process.parameters:
