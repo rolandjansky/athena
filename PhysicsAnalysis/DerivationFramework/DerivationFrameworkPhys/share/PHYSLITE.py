@@ -207,7 +207,7 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFram
 PHYSLITETauJetsThinningTool = DerivationFramework__GenericObjectThinning(name            = "PHYSLITETauJetsThinningTool",
                                                                          ThinningService = PHYSLITEThinningHelper.ThinningSvc(),
                                                                          ContainerName   = "AnalysisTauJets",
-                                                                         SelectionString = "(AnalysisTauJets.ptFinalCalib >= 13.*GeV) && (AnalysisTauJets.nTracks<6)")
+                                                                         SelectionString = "(AnalysisTauJets.ptFinalCalib >= 13.*GeV) && (AnalysisTauJets.nTracks>=1) && (AnalysisTauJets.nTracks<=3)")
 ToolSvc += PHYSLITETauJetsThinningTool
 thinningTools.append(PHYSLITETauJetsThinningTool)
 
@@ -217,7 +217,7 @@ PHYSLITETauTPThinningTool = DerivationFramework__TauTrackParticleThinning(name  
                                                                           ThinningService        = PHYSLITEThinningHelper.ThinningSvc(),
                                                                           TauKey                 = "AnalysisTauJets",
                                                                           InDetTrackParticlesKey = "InDetTrackParticles",
-                                                                          SelectionString        = "(AnalysisTauJets.ptFinalCalib >= 13.*GeV) && (AnalysisTauJets.nTracks<6)",
+                                                                          SelectionString        = "(AnalysisTauJets.ptFinalCalib >= 13.*GeV) && (AnalysisTauJets.nTracks>=1) && (AnalysisTauJets.nTracks<=3)",
                                                                           ApplyAnd               = False,
                                                                           DoTauTracksThinning    = True,
                                                                           TauTracksKey           = "TauTracks")
