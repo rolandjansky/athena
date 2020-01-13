@@ -123,6 +123,17 @@ class AlgNode(Node):
         return "Alg::%s  [%s] -> [%s]"%(self.Alg.name(), ' '.join(map(str, self.getInputList())), ' '.join(map(str, self.getOutputList())))
 
 
+def algColor(alg):
+    """ Set given color to Alg type"""
+    if isHypoBase(alg):
+        return "darkorchid1"
+    if isInputMakerBase(alg):
+        return "cyan3"
+    if isFilterAlg(alg):
+        return "chartreuse3"
+    return "cadetblue1"
+
+
 class HypoToolConf(object):
     """ Class to group info on hypotools for ChainDict"""
     def __init__(self, hypoToolGen):
@@ -391,7 +402,7 @@ class MenuSequence(object):
             self._hypo.addHypoTool(self.hypoToolConf) #this creates the HypoTools  
 
 
-    def addToSequencer(self, already_connected, stepReco, seqAndView):
+    def addToSequencer(self, stepReco, seqAndView, already_connected):
         ath_sequence = self.sequence.Alg
         name = ath_sequence.name()
         if name in already_connected:
@@ -404,8 +415,40 @@ class MenuSequence(object):
            for hp in self._hypo:
               seqAndView += hp.Alg
         else:
-           seqAndView += self.hypo.Alg
+           seqAndView += self._hypo.Alg
         return stepReco, seqAndView, already_connected        
+
+
+    def buildCFDot(self, cfseq_algs, all_hypos, isCombo, last_step_hypo_nodes, file):
+        cfseq_algs.append(self._maker)
+        cfseq_algs.append(self.sequence )
+        if self.reuse is False:
+            file.write("    %s[fillcolor=%s]\n"%(self._maker.Alg.name(), algColor(self._maker.Alg)))
+            file.write("    %s[fillcolor=%s]\n"%(self.sequence.Alg.name(), algColor(self.sequence.Alg)))
+            self.reuse=True
+        if type(self._hypo) is list:
+            for hp in self._hypo:
+                cfseq_algs.append(hp)
+                file.write("    %s[color=%s]\n"%(hp.Alg.name(), algColor(hp.Alg)))
+                all_hypos.append(hp)
+        else:
+            cfseq_algs.append(self._hypo)
+            file.write("    %s[color=%s]\n"%(self._hypo.Alg.name(), algColor(self._hypo.Alg)))
+            all_hypos.append(self._hypo)
+            if not isCombo:
+                if type(self._hypo) is list:
+                    last_step_hypo_nodes.append(self._hypo[-1])
+                else:
+                    last_step_hypo_nodes.append(self._hypo)
+
+        return cfseq_algs, all_hypos, last_step_hypo_nodes
+
+
+    def getTools(self):
+        if type(self._hypo) is list:
+            return self._hypo[0].tools
+        else:
+            return self._hypo.tools
 
 
     def __repr__(self):

@@ -231,18 +231,14 @@ def matrixDisplayOld( allCFSeq ):
 
     
 def matrixDisplay( allCFSeq ):
- 
+
     def __getHyposOfStep( step ):
         if len(step.sequences):
             if len(step.sequences)==1:
-                if type(step.sequences[0].hypo) is list:
-                    return step.sequences[0].hypo[0].tools
-                else:
-                    return step.sequences[0].hypo.tools
+                return step.sequences[0].getTools()
             else:
                 return step.combo.getChains().keys()
         return []
- 
    
     # fill dictionary to cumulate chains on same sequences, in steps (dict with composite keys)
     from collections import defaultdict
