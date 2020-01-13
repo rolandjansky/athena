@@ -27,7 +27,8 @@ class ITRT_ToT_dEdx : virtual public IAlgTool {
 public:
 
   enum EGasType {kXenon,kArgon,kKrypton,kUnset};
-
+  enum EOccupancyCorrection{kRSOnly, kHitBased, kTrackBased, kGlobal};
+  
   /** Virtual destructor */
   virtual ~ITRT_ToT_dEdx(){};
   
@@ -41,8 +42,8 @@ public:
    * @param bool variable whether HT hits shoule be used 
    * @return ToT
    */
-  virtual double dEdx(const Trk::Track*, bool DivideByL, bool useHThits, bool corrected ) const = 0;
-  virtual double dEdx(const Trk::Track*) const = 0;
+  virtual double dEdx(const Trk::Track*, bool DivideByL, bool useHThits, bool corrected, EOccupancyCorrection correction_type=EOccupancyCorrection::kTrackBased ) const = 0;
+  virtual double dEdx(const Trk::Track*, EOccupancyCorrection correction_type=EOccupancyCorrection::kTrackBased) const = 0;
 
   /**
    * @brief function to calculate number of used hits
@@ -159,6 +160,14 @@ public:
   virtual EGasType gasTypeInStraw(const Trk::TrackStateOnSurface *itr) const = 0; 
   virtual EGasType gasTypeInStraw(const InDet::TRT_DriftCircleOnTrack *driftcircle) const = 0; 
 
+  /**
+   * @brief Calibration functions for occupancy corrections
+   * @param track on surface object
+   * @return correction
+   */
+  virtual double HitOccupancyCorrection(const Trk::TrackStateOnSurface *itr) const = 0;
+  virtual double TrackOccupancyCorrection(const Trk::Track* track,  bool useHThits) const = 0;
+  
   /**
    * @brief setters and getters
    */
