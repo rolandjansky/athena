@@ -490,10 +490,11 @@ StatusCode EventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) const {
    for (;;) {
       // Handle possible file transition
       StatusCode sc = nextHandleFileTransition(ctxt);
+      if (sc.isRecoverable()) {
+        continue; // handles empty files
+      }
       if (sc.isFailure()) {
-         return StatusCode::FAILURE; // handle end of job
-      } else if (sc.isRecoverable()) {
-         continue; // handles empty files
+         return StatusCode::FAILURE;
       }
       // Increase event count
       ++m_evtCount;

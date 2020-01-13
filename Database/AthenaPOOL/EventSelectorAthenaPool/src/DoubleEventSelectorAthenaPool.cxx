@@ -59,18 +59,20 @@ StatusCode DoubleEventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) cons
   for (;;) {
     // Check if we're at the end of primary file
     StatusCode sc = nextHandleFileTransition(ctxt);
-    if (sc.isFailure()) {
-        return StatusCode::FAILURE;
-    } else if (sc.isRecoverable()) {
-        continue; // handles empty files
+    if (sc.isRecoverable()) {
+      continue; // handles empty files
     }
+    if (sc.isFailure()) {
+      return StatusCode::FAILURE;
+    } 
     // Check if we're at the end of primary file
     sc = m_secondarySelector->nextHandleFileTransition(ctxt);
-    if (sc.isFailure()) {
-        return StatusCode::FAILURE;
-    } else if (sc.isRecoverable()) {
-        continue; // handles empty files
+    if (sc.isRecoverable()) {
+      continue; // handles empty files
     }
+    if (sc.isFailure()) {
+      return StatusCode::FAILURE;
+    } 
 
     // Increase event count
     m_secondarySelector->syncEventCount(++m_evtCount);
