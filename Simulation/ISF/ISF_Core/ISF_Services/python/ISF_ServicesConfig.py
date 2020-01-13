@@ -90,7 +90,8 @@ def getGenParticleFilters():
         from AthenaCommon.BeamFlags import jobproperties
         if jobproperties.Beam.beamType() != "cosmics":
             genParticleFilterList += ['ISF_ParticlePositionFilterDynamic']
-            if (not simFlags.CavernBG.statusOn) or simFlags.CavernBG.get_Value() == 'Signal':
+            if (not simFlags.CavernBG.statusOn or simFlags.CavernBG.get_Value() == 'Signal') and\
+               not (simFlags.SimulateCavern.statusOn and simFlags.SimulateCavern.get_Value()):
                 genParticleFilterList += ['ISF_EtaPhiFilter']
     genParticleFilterList += ['ISF_GenParticleInteractingFilter']
     return genParticleFilterList
