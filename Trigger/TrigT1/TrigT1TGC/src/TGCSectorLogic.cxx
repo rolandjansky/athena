@@ -14,6 +14,9 @@
 #include "StoreGate/ReadCondHandle.h"
 #include "MuonCondSvc/TGCTriggerData.h"
 
+//for Run3
+#include "TrigT1TGC/TGCTrackSelectorOut.h"
+
 #include <iostream>
 
 namespace LVL1TGCTrigger {
@@ -30,9 +33,10 @@ namespace LVL1TGCTrigger {
     m_mapInner(0),
     m_mapTileMu(0),
     m_pTMDB(0),
-    m_preSelector(this), 
-    m_selector(this), 
-    m_selectorOut(0),
+    m_preSelector(this), // for Run2 
+    m_selector(this),//for Run2  
+    m_selectorOut(0), //for Run2
+    m_trackSelector(this),// for Run3
     m_wordTileMuon(0),
     m_wordInnerStation(0),
     m_stripHighPtBoard(0),
@@ -65,6 +69,9 @@ namespace LVL1TGCTrigger {
 
   m_useInner  = tgcArgs()->USE_INNER() && (m_region==ENDCAP); 
   m_useTileMu = tgcArgs()->TILE_MU() && (m_region==ENDCAP); 
+  
+  m_trackSelectorOut.reset(new TGCTrackSelectorOut());//for Run3
+
 }
 
 TGCSectorLogic::~TGCSectorLogic()
@@ -108,6 +115,11 @@ void TGCSectorLogic::setStripHighPtBoard(TGCHighPtBoard* highPtBoard)
 TGCSLSelectorOut* TGCSectorLogic::getSelectorOutput() const
 {
   return m_selectorOut;
+}
+
+  void TGCSectorLogic::getTrackSelectorOutput(std::shared_ptr<TGCTrackSelectorOut> &trackSelectorOut)const
+{
+  trackSelectorOut=m_trackSelectorOut;
 }
 
 void TGCSectorLogic::eraseSelectorOut()
@@ -179,8 +191,8 @@ void TGCSectorLogic::clockIn(const SG::ReadCondHandleKey<TGCTriggerData> readCon
     if (m_useInner) doInnerCoincidence(readCondKey, SSCid, coincidenceOut);
 
     if(coincidenceOut){
-      if(tgcArgs()->useRun3Config()){/*trackSelector.input(coincidenceOut);*/}// TrackSelector for Run3
-      else{m_preSelector.input(coincidenceOut);}
+      if(tgcArgs()->useRun3Config()){m_trackSelector.input(coincidenceOut);}// TrackSelector for Run3
+      else{m_preSelector.input(coincidenceOut);}// TrackSelector for Run2
       // coincidenceOut will be deleted 
       //  in m_preSelector.input() if coincidenceOut has no hit
       //  in m_preSelector.select() if if coincidenceOut has hit
@@ -190,11 +202,8 @@ void TGCSectorLogic::clockIn(const SG::ReadCondHandleKey<TGCTriggerData> readCon
   SSCCOut=0;
 
   if(tgcArgs()->useRun3Config()){
-    /*
-   if(trackSelectorOut!=0){delete trackSelectorOut;}//NEW
-   trackSelectorOut = new TGCTrackSelectorOut;//NEW
-   trackSelector.select(trackSelectorOut);//NEW
-    */
+    //Track selector in Run3. max 4 tracks ,which are send to MUCTPI, are selected. 
+    m_trackSelector.select(m_trackSelectorOut);
   }
   else{
 #ifdef TGCDEBUG
