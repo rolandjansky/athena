@@ -15,6 +15,8 @@
 #include "TrigT1ResultByteStream/RoIBResultByteStreamTool.h"
 
 #include "../RoIBResultByteStreamDecoderAlg.h"
+#include "../L1TriggerResultMaker.h"
+#include "../ExampleL1TriggerByteStreamTool.h"
 
 // ROBF for offline
 typedef OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment ROBF; 
@@ -22,9 +24,6 @@ typedef OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment ROBF;
 // converter for offline 
 typedef RoIBResultByteStreamCnv<ROBF> RoIBResultByteStreamCnvT ;
 typedef RecRoIBResultByteStreamCnv<ROBF> RecRoIBResultByteStreamCnvT ;
-
-// NOTE TO L2: need to define a ROBFragment for L2, and instantiate the
-//             converter. 
 
 // declare 
 DECLARE_CONVERTER( RoIBResultByteStreamCnvT )
@@ -42,3 +41,5 @@ DECLARE_COMPONENT( RecRoIBResultByteStreamTool )
 DECLARE_COMPONENT( RoIBResultByteStreamTool )
 
 DECLARE_COMPONENT( RoIBResultByteStreamDecoderAlg )
+DECLARE_COMPONENT( L1TriggerResultMaker )
+DECLARE_COMPONENT( ExampleL1TriggerByteStreamTool )

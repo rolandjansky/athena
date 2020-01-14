@@ -132,7 +132,7 @@ if TriggerFlags.doMT():
     svcMgr.TrigConfigSvc.PriorityList = ["none", "ds", "xml"]
 
     from L1Decoder.L1DecoderConfig import L1Decoder
-    topSequence += L1Decoder()
+    topSequence += L1Decoder(L1TriggerResult="") # L1 simulation sequence doesn't produce L1Trigger result yet
     
     TriggerFlags.doTransientByteStream = True
     include( "TriggerJobOpts/jobOfragment_TransBS_standalone.py" )
