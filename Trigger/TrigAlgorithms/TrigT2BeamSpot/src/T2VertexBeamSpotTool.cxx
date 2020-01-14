@@ -328,9 +328,9 @@ void T2VertexBeamSpotTool::reconstructVertices( ConstDataVector<TrackCollection>
       ATH_MSG_DEBUG( "Number of tracks remaining = " << mySelectedTrackCollection.size() );
 
       // Fit a primary vertex to this cluster around its seed track
-      std::unique_ptr<TrackCollection>  vertexTracks =  std::make_unique<TrackCollection>();
+      TrackCollection vertexTracks;
       TrigVertex* primaryVertex = 0;
-      primaryVertex = (m_primaryVertexFitterTool->fit( &m_trackClusterer->cluster(), *vertexTracks , m_trackClusterer->seedZ0() ) );
+      primaryVertex = (m_primaryVertexFitterTool->fit( &m_trackClusterer->cluster(), vertexTracks, m_trackClusterer->seedZ0() ) );
       
 
       // Check to see if the fit succeeded / converged
@@ -352,7 +352,7 @@ void T2VertexBeamSpotTool::reconstructVertices( ConstDataVector<TrackCollection>
 
       ATH_MSG_DEBUG( "Beamspot from BeamCondSvc: " << beamSpot);
 
-      const T2Vertex myVertex( *primaryVertex, vertexTracks.get(), beamSpot, m_trackClusterer->seedZ0() );
+      const T2Vertex myVertex( *primaryVertex, vertexTracks, beamSpot, m_trackClusterer->seedZ0() );
 
       // Monitor all vertices parameters
       monitor_vertex( "Vertex", "", myVertex ); 
@@ -398,7 +398,7 @@ void T2VertexBeamSpotTool::reconstructVertices( ConstDataVector<TrackCollection>
             ATH_MSG_DEBUG( "Splitting only tracks succesfully fitted to a vertex");
             // Alternative 2: Split only the tracks that were successfully fit to a vertex
             mySelectedTrackCollection.clear( SG::VIEW_ELEMENTS );
-            mySplitTrackCollection.assign (vertexTracks->begin(), vertexTracks->end());
+            mySplitTrackCollection.assign (vertexTracks.begin(), vertexTracks.end());
          }
 
          if ( mySplitTrackCollection.size() >= m_nSplitVertices * m_totalNTrkMin )
