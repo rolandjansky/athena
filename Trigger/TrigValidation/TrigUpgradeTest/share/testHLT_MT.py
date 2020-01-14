@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 ################################################################################
 # TrigUpgradeTest/testHLT_MT.py
 #
@@ -39,6 +39,8 @@ class opt:
     createHLTMenuExternally = False   # Set to True if the menu is build manually outside testHLT_MT.py
     endJobAfterGenerate = False       # Finish job after menu generation
     failIfNoProxy     = False         # Sets the SGInputLoader.FailIfNoProxy property
+    decodeLegacyL1 = True             # Decode L1 RoIs from legacy L1 systems through RoIBResult for HLT seeding
+    decodePhaseIL1 = False            # Decode L1 RoIs from Run-3 L1 systems through L1TriggerResult for HLT seeding
 #Individual slice flags
     doEgammaSlice     = True
     doMuonSlice       = True
@@ -420,13 +422,19 @@ if opt.doL1Sim:
 # ---------------------------------------------------------------
 if opt.doL1Unpacking:
     if globalflags.InputFormat.is_bytestream():
-        from TrigT1ResultByteStream.TrigT1ResultByteStreamConf import RoIBResultByteStreamDecoderAlg
+        # Create inputs for L1Decoder from ByteStream
+        from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1ByteStreamDecodersRecExSetup
+        L1ByteStreamDecodersRecExSetup(
+            enableRun2L1=opt.decodeLegacyL1,
+            enableRun3L1=opt.decodePhaseIL1)
+    if globalflags.InputFormat.is_bytestream() or opt.doL1Sim:
         from L1Decoder.L1DecoderConfig import L1Decoder
-        topSequence += RoIBResultByteStreamDecoderAlg() # creates RoIBResult (input for L1Decoder) from ByteStream
-        topSequence += L1Decoder("L1Decoder")
-    elif opt.doL1Sim:
-        from L1Decoder.L1DecoderConfig import L1Decoder
-        topSequence += L1Decoder("L1Decoder")
+        l1decoder = L1Decoder("L1Decoder")
+        if not opt.decodeLegacyL1:
+            l1decoder.RoIBResult = ""
+        if not opt.decodePhaseIL1:
+            l1decoder.L1TriggerResult = ""
+        topSequence += l1decoder
     else:
         from TrigUpgradeTest.TestUtils import L1EmulationTest
         topSequence += L1EmulationTest()

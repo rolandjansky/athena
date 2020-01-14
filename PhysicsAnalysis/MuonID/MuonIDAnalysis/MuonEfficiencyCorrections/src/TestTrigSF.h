@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef TRIG_TESTTRIGSF_H
@@ -25,7 +25,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 // Local
-#include "MuonEfficiencyCorrections/IMuonTriggerScaleFactors.h"
+#include "MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h"
 
 class TH1;
 class TH2;
