@@ -40,8 +40,6 @@ namespace PESA
 
   // Helpers
   double vertexChi2Prob( const T2Vertex& vertex );
-  double vertexSumPt ( const TrackInVertexList& tracks );
-  double vertexSumPt2( const TrackInVertexList& tracks );
 
   double vertexSumPt ( const TrackCollection& tracks );
   double vertexSumPt2( const TrackCollection& tracks );
@@ -101,7 +99,6 @@ namespace PESA
       , m_Chi2Prob( -1.                            ) // lazy evaluation
       , m_XY      ( 0.                             )
       , m_Pull    ( vertex.z() - seedZ             ) // FIXME: that's not a pull
-      , m_tracks  ( vertex.tracks()                )
       , m_trkTracks  ( nullptr                     )
       {
         const double beamXatVtx =
@@ -124,7 +121,6 @@ namespace PESA
       , m_Chi2Prob( -1.                            ) // lazy evaluation
       , m_XY      ( 0.                             )
       , m_Pull    ( vertex.z() - seedZ             ) // FIXME: that's not a pull
-      , m_tracks  ( nullptr                )
       , m_trkTracks  (tracks)
       {
         const double beamXatVtx =
@@ -140,13 +136,7 @@ namespace PESA
     // Accessors
     double   SumPt   () const { 
       if ( m_SumPt  < 0. ) {
-        if (m_tracks) { 
-          return vertexSumPt ( *m_tracks );
-        }
-        else if (m_trkTracks) {
-          return vertexSumPt ( *m_trkTracks );
-        }
-        else return 0; 
+        return vertexSumPt ( *m_trkTracks );
       }
       else {
         return m_SumPt;
@@ -155,13 +145,7 @@ namespace PESA
 
     double   SumPt2   () const { 
       if ( m_SumPt2  < 0. ) {
-        if (m_tracks) { 
-          return vertexSumPt2 ( *m_tracks );
-        }
-        else if (m_trkTracks) {
-          return vertexSumPt2 ( *m_trkTracks );
-        }
-        else return 0;
+        return vertexSumPt2 ( *m_trkTracks );
       }
       else {
         return m_SumPt2;
@@ -178,15 +162,7 @@ namespace PESA
     double   XY      () const { return m_XY      ; }
     double   Pull    () const { return m_Pull    ; }
 
-    unsigned NTrksInVtx() const { 
-                                  if (m_tracks) {
-                                    return m_tracks->size();
-                                  } 
-                                  else if (m_trkTracks) {
-                                    return m_trkTracks->size();
-                                  }
-                                  else return 0;
-                                }
+    unsigned NTrksInVtx() const { return m_trkTracks->size(); }
 
 
   private:
@@ -203,7 +179,7 @@ namespace PESA
     double   m_XY      ;
     double   m_Pull    ;   
 
-    TrackInVertexList* m_tracks; TrackCollection* m_trkTracks;
+    TrackCollection* m_trkTracks;
   };
 
 

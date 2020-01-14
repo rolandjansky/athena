@@ -17,8 +17,6 @@
 #include "T2TrackClusterer.h"
 #include "T2Timer.h"
 // Specific to this algorithm
-#include "TrigInDetEvent/TrigInDetTrack.h"
-#include "TrigInDetEvent/TrigInDetTrackCollection.h"
 #include "TrigInDetEvent/TrigVertex.h"
 #include "TrigInDetEvent/TrigVertexCollection.h"
 #include "TrigInDetToolInterfaces/ITrigPrimaryVertexFitter.h"
@@ -58,10 +56,6 @@ namespace Beamspot
 { 
   class TrackPTSort{
   public:
-    inline bool operator () (const TrigInDetTrack* trk1, const TrigInDetTrack* trk2) 
-    { 
-      return abs(trk1->param()->pT()) > abs(trk2->param()->pT());
-    }
     inline bool operator () (const Trk::Track* trk1, const Trk::Track* trk2) 
     { 
       const Trk::TrackParameters* params1 = trk1->perigeeParameters();
@@ -74,10 +68,6 @@ namespace Beamspot
 
   class TrackPhiSort{
   public:
-    inline bool operator () (const TrigInDetTrack* trk1, const TrigInDetTrack* trk2) 
-    { 
-      return abs(trk1->param()->phi0()) > abs(trk2->param()->phi0());
-    }
     inline bool operator () (const Trk::Track* trk1, const Trk::Track* trk2) 
     { 
       float phi1 = trk1->perigeeParameters()->parameters()[Trk::phi];
