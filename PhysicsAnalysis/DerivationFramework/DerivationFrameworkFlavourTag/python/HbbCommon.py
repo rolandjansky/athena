@@ -637,8 +637,8 @@ def addExKtDoubleTaggerRCJets(sequence, ToolSvc):#, ExKtJetCollection__FatJetCon
      getattr(ToolSvc,jetToolName).GhostTracksInputContainer = "InDetTrackParticles"
      getattr(ToolSvc,jetToolName).GhostTracksVertexAssociationName  = "JetTrackVtxAssoc"
      if(DFisMC):
-       getattr(ToolSvc,jetToolName).GhostTruthInputBContainer = "BHadronsFinal"
-       getattr(ToolSvc,jetToolName).GhostTruthInputCContainer = "CHadronsFinal"
+       getattr(ToolSvc,jetToolName).GhostTruthBHadronsInputContainer = "BHadronsFinal"
+       getattr(ToolSvc,jetToolName).GhostTruthCHadronsInputContainer = "CHadronsFinal"
 
      sequence += CfgMgr.AthJetReclusteringAlgo(algoName, JetReclusteringTool = getattr(ToolSvc,jetToolName))
      DFJetAlgs[jetToolName] = getattr(ToolSvc,jetToolName)
