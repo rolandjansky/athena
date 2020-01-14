@@ -11,7 +11,7 @@ def addStdEvgenArgs(parser):
                          help='Manual run number setting')
 
     parser.add_argument("--ecmEnergy", "--EcmEnergy", group="Evgen",
-                        default=trfArgClasses.argFloat(8000, runarg=True),
+                        default=trfArgClasses.argFloat(13000, runarg=True),
                         help="centre-of-mass energy parameter in GeV",
                         type=trfArgClasses.argFactory(trfArgClasses.argFloat, runarg=True))
 

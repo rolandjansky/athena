@@ -53,6 +53,10 @@ evt_multiplier=-1
 # in case someone needs to be able to keep the output directory for testing
 keepOutput = False
 
+# fixing LHE files after madspin?  do that here.
+fixEventWeightsForBridgeMode=False
+
+
 if 'py1up' in runArgs.jobConfig[0]:
     include("Pythia8_i/Pythia8_A14_NNPDF23LO_Var1Up_EvtGen_Common.py")
 elif 'py1dw' in runArgs.jobConfig[0]:

@@ -1297,7 +1297,7 @@ output -f"""
     return
 
 
-def arrange_output(run_name='Test',proc_dir='PROC_mssm_0',outputDS='madgraph_OTF._00001.events.tar.gz',lhe_version=None,saveProcDir=False,runArgs=None,madspin_card_loc=None):
+def arrange_output(run_name='Test',proc_dir='PROC_mssm_0',outputDS='madgraph_OTF._00001.events.tar.gz',lhe_version=None,saveProcDir=False,runArgs=None,madspin_card_loc=None,fixEventWeightsForBridgeMode=False):
     try:
         from __main__ import opts
         if opts.config_only:
@@ -1317,6 +1317,9 @@ def arrange_output(run_name='Test',proc_dir='PROC_mssm_0',outputDS='madgraph_OTF
     hasRunMadSpin=False
     madspinDirs=sorted(glob.glob(proc_dir+'/Events/'+run_name+'_decayed_*/'))
     if len(madspinDirs): hasRunMadSpin=True
+    if hasRunMadSpin and not hasUnweighted:
+        # check again:
+        hasUnweighted = os.access(madspinDirs[-1]+'/unweighted_events.lhe.gz',os.R_OK)
 
     if madspin_card_loc or hasRunMadSpin:
         if len(madspinDirs):
@@ -1345,6 +1348,109 @@ def arrange_output(run_name='Test',proc_dir='PROC_mssm_0',outputDS='madgraph_OTF
             raise RuntimeError('MadSpin was run but can\'t find output folder %s.'%(proc_dir+'/Events/'+run_name+'_decayed_1/'))
 
 
+
+        if fixEventWeightsForBridgeMode:
+            mglog.info("Fixing event weights after MadSpin... initial checks.")
+
+            # get the cross section from the undecayed LHE file
+            spinmodenone=False
+            MGnumevents=-1
+            MGintweight=-1
+
+            if hasUnweighted:
+                eventsfilename="unweighted_events"
+            else:
+                eventsfilename="events"
+            unzip = subprocess.Popen(['gunzip','-f',proc_dir+'/Events/'+run_name+'/%s.lhe.gz' % eventsfilename])
+            unzip.wait()
+
+            for line in open(proc_dir+'/Events/'+run_name+'/%s.lhe'%eventsfilename):
+                if "Number of Events" in line:
+                    sline=line.split()
+                    MGnumevents=int(sline[-1])
+                elif "Integrated weight (pb)" in line:
+                    sline=line.split()
+                    MGintweight=float(sline[-1])
+                elif "set spinmode none" in line:
+                    spinmodenone=True
+                elif "</header>" in line:
+                    break
+
+            
+
+            if spinmodenone and MGnumevents>0 and MGintweight>0:
+                mglog.info("Fixing event weights after MadSpin... modifying LHE file.")
+                newlhe=open(proc_dir+'/Events/'+run_name+'/%s_fixXS.lhe'%eventsfilename,'w')
+                initlinecount=0
+                eventlinecount=0
+                inInit=False
+                inEvent=False
+
+                # new default for MG 2.6.1+ (https://its.cern.ch/jira/browse/AGENE-1725)
+                # but verified from LHE below.
+                event_norm_setting="average" 
+
+                for line in open(proc_dir+'/Events/'+run_name+'/%s.lhe'%eventsfilename):
+
+                    newline=line
+                    if "<init>" in line:                         
+                        inInit=True
+                        initlinecount=0
+                    elif "</init>" in line:
+                        inInit=False
+                    elif inInit and initlinecount==0:
+                        initlinecount=1
+                        # check event_norm setting in LHE file, deteremines how Pythia interprets event weights
+                        sline=line.split()
+                        if abs(int(sline[-2])) == 3:
+                            event_norm_setting="sum"
+                        elif abs(int(sline[-2])) == 4:
+                            event_norm_setting="average"
+                    elif inInit and initlinecount==1:
+                        sline=line.split()
+                        # update the global XS info
+                        relunc=float(sline[1])/float(sline[0])
+                        sline[0]=str(MGintweight)                
+                        sline[1]=str(float(sline[0])*relunc)     
+                        if event_norm_setting=="sum":
+                            sline[2]=str(MGintweight/MGnumevents)
+                        elif event_norm_setting=="average":
+                            sline[2]=str(MGintweight)            
+                        newline=' '.join(sline)
+                        newline+="\n"
+                        initlinecount+=1
+                    elif inInit and initlinecount>1:
+                        initlinecount+=1
+                    elif "<event>" in line:                      
+                        inEvent=True
+                        eventlinecount=0
+                    elif "</event>" in line:
+                        inEvent=False
+                    elif inEvent and eventlinecount==0:
+                        sline=line.split()
+                        # next change the per-event weights
+                        if event_norm_setting=="sum":
+                            sline[2]=str(MGintweight/MGnumevents)
+                        elif event_norm_setting=="average":
+                            sline[2]=str(MGintweight)            
+                        newline=' '.join(sline)
+                        newline+="\n"
+                        eventlinecount+=1
+                    newlhe.write(newline)
+                newlhe.close()
+
+                mglog.info("Fixing event weights after MadSpin... cleaning up.")
+                shutil.copyfile(proc_dir+'/Events/'+run_name+'/%s.lhe' % eventsfilename,
+                                proc_dir+'/Events/'+run_name+'/%s_badXS.lhe' % eventsfilename)
+
+                shutil.move(proc_dir+'/Events/'+run_name+'/%s_fixXS.lhe' % eventsfilename,
+                            proc_dir+'/Events/'+run_name+'/%s.lhe' % eventsfilename)
+
+                rezip = subprocess.Popen(['gzip',proc_dir+'/Events/'+run_name+'/%s.lhe' % eventsfilename])
+                rezip.wait()
+
+                rezip = subprocess.Popen(['gzip',proc_dir+'/Events/'+run_name+'/%s_badXS.lhe' % eventsfilename])
+                rezip.wait()
 
     # Clean up in case a link or file was already there
     if os.path.exists(os.getcwd()+'/events.lhe'): os.remove(os.getcwd()+'/events.lhe')
@@ -1784,7 +1890,7 @@ def SUSY_StrongSM_Generation(runArgs = None, gentype='SS',decaytype='direct',mas
 def SUSY_SM_Generation(runArgs = None, process='', gentype='SS',decaytype='direct',masses=None,\
                        nevts=None, syst_mod=None,xqcut=None, SLHAonly=False, keepOutput=False, SLHAexactCopy=False,\
                        writeGridpack=False,gridpackDirName=None,MSSMCalc=False,pdlabel="'cteq6l1'",lhaid=10042,\
-                       madspin_card=None,decays={},extras=None,paramCardPrefix='param_card.SM'):
+                       madspin_card=None,decays={},extras=None,paramCardPrefix='param_card.SM',fixEventWeightsForBridgeMode=False):
     # Set beam energy
     beamEnergy = 6500.
     if hasattr(runArgs,'ecmEnergy'): beamEnergy = runArgs.ecmEnergy * 0.5
@@ -1904,7 +2010,7 @@ output -f
             return -1
 
     # Move output files into the appropriate place, with the appropriate name
-    the_spot = arrange_output(run_name='Test',proc_dir=thedir,outputDS='madgraph_OTF._00001.events.tar.gz',saveProcDir=keepOutput,runArgs=runArgs)
+    the_spot = arrange_output(run_name='Test',proc_dir=thedir,outputDS='madgraph_OTF._00001.events.tar.gz',saveProcDir=keepOutput,runArgs=runArgs,fixEventWeightsForBridgeMode=fixEventWeightsForBridgeMode)
     if the_spot == '':
         mglog.error('Error arranging output dataset!')
         return -1
@@ -2510,8 +2616,6 @@ def run_card_consistency_check(isNLO=False,path='.'):
         if not 'python_seed' in mydict:
             mglog.warning('No python seed set in run_card -- adding one with same value as iseed')
             modify_run_card(cardpath,cardpath+'.iseed.backup',{'python_seed' : mydict['iseed']})
-        elif int(mydict['python_seed'])!=int(mydict['iseed']):
-            raise RuntimeError('python_seed and iseed do not agree')
 
     mglog.info('Finished checking run card - All OK!')
     return
@@ -2548,7 +2652,6 @@ def hack_gridpack_script(gridpack_dir,reweight_card,madspin_card):
             systematics_program='systematics'
         else:
             systematics_program='syscalc'
-        run_card_dict['systematics_program']
         if checkSettingExists('systematics_program',run_card_dict):
             if checkSetting('systematics_program','systematics',run_card_dict):
                 systematics_program='systematics'

@@ -132,8 +132,8 @@ if not hasattr(postSeq, "CountHepMC"):
 #postSeq.CountHepMC.RequestedOutput = evgenConfig.nEventsPerJob if runArgs.maxEvents == -1 else runArgs.maxEvents
 
 postSeq.CountHepMC.FirstEvent = runArgs.firstEvent
-postSeq.CountHepMC.CorrectHepMC = False
-postSeq.CountHepMC.CorrectEventID = False
+postSeq.CountHepMC.CorrectHepMC = True
+postSeq.CountHepMC.CorrectEventID = True
 
 ## Print out the contents of the first 5 events (after filtering)
 # TODO: Allow configurability from command-line/exec/include args
@@ -477,6 +477,7 @@ svcMgr.TagInfoMgr.ExtraTagValuePairs += ["evgenTune", evgenConfig.tune]
 if hasattr( evgenConfig, "hardPDF" ) : svcMgr.TagInfoMgr.ExtraTagValuePairs += ["hardPDF", evgenConfig.hardPDF]
 if hasattr( evgenConfig, "softPDF" ) : svcMgr.TagInfoMgr.ExtraTagValuePairs += ["softPDF", evgenConfig.softPDF]
 if hasattr( runArgs, "randomSeed") :  svcMgr.TagInfoMgr.ExtraTagValuePairs += ["randomSeed", str(runArgs.randomSeed)]
+if hasattr( runArgs, "AMITag") and runArgs.AMITag != "NONE": svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", runArgs.AMITag]
 
 ## Handle beam info
 svcMgr.TagInfoMgr.ExtraTagValuePairs += ["beam_energy", str(int(runArgs.ecmEnergy*Units.GeV/2.0))]
