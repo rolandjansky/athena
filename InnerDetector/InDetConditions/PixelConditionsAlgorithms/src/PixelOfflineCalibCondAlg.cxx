@@ -10,14 +10,8 @@
 #include <sstream>
 
 PixelOfflineCalibCondAlg::PixelOfflineCalibCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
-  ::AthReentrantAlgorithm(name, pSvcLocator),
-  m_condSvc("CondSvc", name)
+  ::AthReentrantAlgorithm(name, pSvcLocator)
 {
-  declareProperty("InputSource",m_inputSource=2,"Source of data: 0 (none), 1 (text file), 2 (database)");
-  declareProperty("PixelClusterErrorDataFile", m_textFileName1="PixelClusterErrorData.txt","Read constants from this file"); 
-  declareProperty("PixelClusterOnTrackErrorDataFile", m_textFileName2="PixelClusterOnTrackErrorData.txt","Read constants from this file"); 
-  declareProperty("PixelChargeInterpolationDataFile", m_textFileName3="PixelChargeInterpolationData.txt","Read constants from this file"); 
-  declareProperty("DumpConstants", m_dump=0, "Dump constants to text file"); 
 }
 
 StatusCode PixelOfflineCalibCondAlg::initialize() {
@@ -52,7 +46,7 @@ StatusCode PixelOfflineCalibCondAlg::execute(const EventContext& ctx) const {
   std::unique_ptr<PixelCalib::PixelOfflineCalibData> writeCdo(std::make_unique<PixelCalib::PixelOfflineCalibData>());
 
   if (m_inputSource==0) {
-    ATH_MSG_WARNING("So far do nithing!! return StatusCode::FAILURE");
+    ATH_MSG_WARNING("So far do nothing!! return StatusCode::FAILURE");
     return StatusCode::FAILURE;
   }
   else if (m_inputSource==1) {
@@ -156,11 +150,6 @@ StatusCode PixelOfflineCalibCondAlg::execute(const EventContext& ctx) const {
     ATH_MSG_DEBUG("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
   }
 
-  return StatusCode::SUCCESS;
-}
-
-StatusCode PixelOfflineCalibCondAlg::finalize() {
-  ATH_MSG_DEBUG("PixelOfflineCalibCondAlg::finalize()");
   return StatusCode::SUCCESS;
 }
 

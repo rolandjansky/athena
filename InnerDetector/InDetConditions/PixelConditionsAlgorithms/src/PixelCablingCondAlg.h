@@ -1,16 +1,23 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+/**
+ * @file PixelConditionsAlgorithms/PixelCablingCondAlg.h
+ * @author Soshi Tsuno <Soshi.Tsuno@cern.ch>
+ * @date December, 2019
+ * @brief Store pixel cabling map in PixelCablingCondData.
+ */
 
 #ifndef PIXELCABLINGCONDALG_H
 #define PIXELCABLINGCONDALG_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 #include "StoreGate/ReadCondHandleKey.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
 #include "StoreGate/WriteCondHandleKey.h"
+#include "PixelConditionsData/PixelModuleData.h"
 #include "PixelConditionsData/PixelReadoutSpeedData.h"
 #include "PixelConditionsData/PixelCablingCondData.h"
 
@@ -24,22 +31,27 @@
 #include <string>
 #include <istream>
 
-class PixelCablingCondAlg : public AthAlgorithm {  
+class PixelCablingCondAlg : public AthReentrantAlgorithm {  
   public:
     PixelCablingCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
     virtual ~PixelCablingCondAlg() = default;
 
     virtual StatusCode initialize() override;
-    virtual StatusCode execute() override;
-    virtual StatusCode finalize() override;
+    virtual StatusCode execute(const EventContext& ctx) const override;
 
   private:
-    const PixelID* m_pixelID;
-    ServiceHandle<ICondSvc> m_condSvc;
-    bool m_useConditions;
-    uint32_t m_rodidForSingleLink40;
-    bool m_dump_map_to_file;
-    std::string m_final_mapping_file;
+    const PixelID* m_pixelID{nullptr};
+    ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
+
+    // Keep this untile SegionSelectorTable is fixed.
+    Gaudi::Property<uint32_t> m_rodidForSingleLink40
+    {this, "RodIDForSingleLink40", 0, "(Temporary) const link speed"};
+
+    Gaudi::Property<std::string> m_final_mapping_file
+    {this, "MappingFile", "PixelCabling/Pixels_Atlas_IdMapping_2016.dat", "Read cabling map from file"};
+
+    SG::ReadCondHandleKey<PixelModuleData> m_moduleDataKey
+    {this, "PixelModuleData", "PixelModuleData", "Pixel module data"};
 
     SG::ReadCondHandleKey<PixelReadoutSpeedData> m_readoutspeedKey
     {this, "PixelReadoutSpeedData", "PixelReadoutSpeedData", "Pixel readout speed data"};
@@ -49,7 +61,6 @@ class PixelCablingCondAlg : public AthAlgorithm {
 
     SG::WriteCondHandleKey<PixelCablingCondData> m_writeKey
     {this, "WriteKey", "PixelCablingCondData", "Output cabling data"};
-
 };
 
 #endif

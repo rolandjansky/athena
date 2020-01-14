@@ -29,7 +29,6 @@ class PixelAlignCondAlg : public AthAlgorithm
 
   virtual StatusCode initialize() override;
   virtual StatusCode execute() override;
-  virtual StatusCode finalize() override;
 
  private:
   BooleanProperty m_useDynamicAlignFolders{
@@ -45,10 +44,11 @@ class PixelAlignCondAlg : public AthAlgorithm
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyIBLDist{
     this, "ReadKeyIBLDist", "/Indet/IBLDist", "Key for the IBL alignment folder"};
 
-  SG::WriteCondHandleKey<GeoAlignmentStore> m_writeKey;
+  SG::WriteCondHandleKey<GeoAlignmentStore> m_writeKey{
+    this, "WriteKey", "PixelAlignmentStore", "Output pixel alignment data"};
 
   ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
   const InDetDD::PixelDetectorManager* m_detManager{nullptr};
 };
 
-#endif // SCT_CONDITIONSALGORITHMS_SCT_ALIGNCONDALG_H
+#endif
