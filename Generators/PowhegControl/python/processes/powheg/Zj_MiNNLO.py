@@ -8,7 +8,7 @@ import os
 logger = Logging.logging.getLogger("PowhegControl")
 
 
-class ZjMiNNLO(PowhegV2):
+class Zj_MiNNLO(PowhegV2):
     """! Default Powheg configuration for single Z-boson production plus one jet using MiNNLOPS.
 
     Create a configurable object with all applicable Powheg options.
@@ -22,10 +22,7 @@ class ZjMiNNLO(PowhegV2):
         @param base_directory: path to PowhegBox code.
         @param kwargs          dictionary of arguments from Generate_tf.
         """
-        print(base_directory)
-        print(os.path.join("Zj", "ZjMiNNLO")) 
-        #/afs/cern.ch/atlas/offline/external/powhegbox/HJ_Test/POWHEG-BOX-V2/Zj/ZjMiNNLO
-        super(ZjMiNNLO, self).__init__(base_directory, os.path.join("Zj", "ZjMiNNLO"), powheg_executable="pwhg_main", **kwargs)
+        super(Zj_MiNNLO, self).__init__(base_directory, os.path.join("Zj", "ZjMiNNLO"), powheg_executable="pwhg_main", **kwargs)
 
         # Add algorithms to the sequence
 
