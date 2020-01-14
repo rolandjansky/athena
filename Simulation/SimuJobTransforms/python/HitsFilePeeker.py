@@ -122,7 +122,8 @@ def HitsFilePeeker(runArgs, skeletonLog):
         # by default everything is off
         DetFlags.all_setOff()
         skeletonLog.debug("Switching on DetFlags for subdetectors which were simulated")
-        for subdet in metadatadict['SimulatedDetectors']:
+        simulatedDetectors = eval(metadatadict['SimulatedDetectors'])
+        for subdet in simulatedDetectors:
             cmd='DetFlags.%s_setOn()' % subdet
             skeletonLog.debug(cmd)
             try:
