@@ -76,8 +76,8 @@ PixelSiLorentzAngleCondAlg::execute() {
   EventIDRange rangeBField{eidStart, eidStop};
 
   // Read Cond Handle (temperature)
-  SG::ReadCondHandle<PixelModuleData> readHandleTemp(m_readKeyTemp);
-  const PixelModuleData* readCdoTemp(*readHandleTemp);
+  SG::ReadCondHandle<PixelDCSTempData> readHandleTemp(m_readKeyTemp);
+  const PixelDCSTempData* readCdoTemp(*readHandleTemp);
   if (readCdoTemp==nullptr) {
     ATH_MSG_FATAL("Null pointer to the read conditions object");
     return StatusCode::FAILURE;
@@ -91,8 +91,8 @@ PixelSiLorentzAngleCondAlg::execute() {
   ATH_MSG_DEBUG("Input is " << readHandleTemp.fullKey() << " with the range of " << rangeTemp);
 
   // Read Cond Handle (HV)
-  SG::ReadCondHandle<PixelModuleData> readHandleHV(m_readKeyHV);
-  const PixelModuleData* readCdoHV(*readHandleHV);
+  SG::ReadCondHandle<PixelDCSHVData> readHandleHV(m_readKeyHV);
+  const PixelDCSHVData* readCdoHV(*readHandleHV);
   if (readCdoHV==nullptr) {
     ATH_MSG_FATAL("Null pointer to the read conditions object");
     return StatusCode::FAILURE;

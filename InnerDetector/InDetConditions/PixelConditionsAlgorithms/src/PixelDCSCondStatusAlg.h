@@ -2,14 +2,14 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */ 
 /**
- * @file PixelConditionsAlgorithms/PixelTDAQCondAlg.h
+ * @file PixelConditionsAlgorithms/PixelDCSCondStatusAlg.h
  * @author Soshi Tsuno <Soshi.Tsuno@cern.ch>
  * @date November, 2019
- * @brief Store pixel TDAQ module state to PixelTDAQData.
+ * @brief Created pixel DCS module status in PixelDCSStatusData.
  */
 
-#ifndef PIXELTDAQCONDALG
-#define PIXELTDAQCONDALG
+#ifndef PIXELDCSCONDSTATUSALG
+#define PIXELDCSCONDSTATUSALG
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
@@ -18,33 +18,34 @@
 
 #include "StoreGate/WriteCondHandleKey.h"
 #include "PixelConditionsData/PixelModuleData.h"
-#include "PixelConditionsData/PixelTDAQData.h"
+#include "PixelConditionsData/PixelDCSStatusData.h"
 
 #include "InDetIdentifier/PixelID.h"
 
 #include "GaudiKernel/ICondSvc.h"
 #include "GaudiKernel/Property.h"
 
-class PixelTDAQCondAlg : public AthReentrantAlgorithm {
+class PixelDCSCondStatusAlg : public AthReentrantAlgorithm {  
   public:
-    PixelTDAQCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
-    virtual ~PixelTDAQCondAlg() = default;
+    PixelDCSCondStatusAlg(const std::string& name, ISvcLocator* pSvcLocator);
+    virtual ~PixelDCSCondStatusAlg() = default;
 
     virtual StatusCode initialize() override;
     virtual StatusCode execute(const EventContext& ctx) const override;
 
   private:
     const PixelID* m_pixelID{nullptr};
+
     ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
 
     SG::ReadCondHandleKey<PixelModuleData> m_moduleDataKey
     {this, "PixelModuleData", "PixelModuleData", "Pixel module data"};
 
-    SG::ReadCondHandleKey<CondAttrListCollection> m_readKey
-    {this, "ReadKey", "/TDAQ/Resources/ATLAS/PIXEL/Modules", "Input key of TDAQ deadmap conditions folder"};
+    SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyStatus
+    {this, "ReadKeyStatus", "/PIXEL/DCS/FSMSTATUS", "Key of input DCS status conditions folder"};
 
-    SG::WriteCondHandleKey<PixelTDAQData> m_writeKey
-    {this, "WriteKey", "PixelTDAQCondData", "Output key of pixel module data"};
+    SG::WriteCondHandleKey<PixelDCSStatusData> m_writeKeyStatus
+    {this, "WriteKeyStatus", "PixelDCSStatusCondData", "Key of output DCS status data"};
 
 };
 

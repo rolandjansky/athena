@@ -733,18 +733,15 @@ def getInDetPrdAssociationTool_setup(name='InDetPrdAssociationTool_setup',**kwar
 
 def getInDetPixelConditionsSummaryTool() :
     from AthenaCommon.GlobalFlags import globalflags
-    from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
     from InDetRecExample.InDetJobProperties import InDetFlags
+    from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
+    pixelConditionsSummaryToolSetup = PixelConditionsSummaryTool("PixelConditionsSummaryTool", 
+                                                                 UseByteStream=(globalflags.DataSource=='data'))
+    if InDetFlags.usePixelDCS():
+        pixelConditionsSummaryToolSetup.IsActiveStates = [ 'READY', 'ON', 'UNKNOWN', 'TRANSITION', 'UNDEFINED' ]
+        pixelConditionsSummaryToolSetup.IsActiveStatus = [ 'OK', 'WARNING', 'ERROR', 'FATAL' ]
 
-    from PixelConditionsTools.PixelConditionsSummaryToolSetup import PixelConditionsSummaryToolSetup
-    pixelConditionsSummaryToolSetup = PixelConditionsSummaryToolSetup()
-    pixelConditionsSummaryToolSetup.setUseConditions(True)
-    pixelConditionsSummaryToolSetup.setUseDCSState((globalflags.DataSource=='data') and InDetFlags.usePixelDCS())
-    pixelConditionsSummaryToolSetup.setUseByteStream((globalflags.DataSource=='data'))
-    pixelConditionsSummaryToolSetup.setUseTDAQ(athenaCommonFlags.isOnline())
-    pixelConditionsSummaryToolSetup.setUseDeadMap((not athenaCommonFlags.isOnline()))
-    pixelConditionsSummaryToolSetup.setup()
-    return pixelConditionsSummaryToolSetup.getTool()
+    return pixelConditionsSummaryToolSetup
 
 @makePublicTool
 def getInDetTestPixelLayerTool(name = "InDetTestPixelLayerTool", **kwargs) :

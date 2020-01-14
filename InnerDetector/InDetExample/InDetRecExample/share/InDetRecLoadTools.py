@@ -309,10 +309,6 @@ if InDetFlags.loadSummaryTool():
 
     InDetPixelConditionsSummaryTool = TrackingCommon.getInDetPixelConditionsSummaryTool()
 
-    if InDetFlags.usePixelDCS():
-        InDetPixelConditionsSummaryTool.IsActiveStates = [ 'READY', 'ON', 'UNKNOWN', 'TRANSITION', 'UNDEFINED' ]
-        InDetPixelConditionsSummaryTool.IsActiveStatus = [ 'OK', 'WARNING', 'ERROR', 'FATAL' ]
-
     if (InDetFlags.doPrintConfigurables()):
         print InDetPixelConditionsSummaryTool
 
