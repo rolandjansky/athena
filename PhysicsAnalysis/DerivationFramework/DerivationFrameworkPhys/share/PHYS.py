@@ -138,7 +138,7 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFram
 PHYSTauJetsThinningTool = DerivationFramework__GenericObjectThinning(name            = "PHYSTauJetsThinningTool",
                                                                      ThinningService = PHYSThinningHelper.ThinningSvc(),
                                                                      ContainerName   = "TauJets",
-                                                                     SelectionString = "(TauJets.ptFinalCalib >= 13.*GeV) && (TauJets.nTracks<6)")
+                                                                     SelectionString = "(TauJets.ptFinalCalib >= 13.*GeV) && (TauJets.nTracks>=1) && (TauJets.nTracks<=3)")
 ToolSvc += PHYSTauJetsThinningTool
 thinningTools.append(PHYSTauJetsThinningTool)
 
@@ -148,7 +148,7 @@ PHYSTauTPThinningTool = DerivationFramework__TauTrackParticleThinning(name      
                                                                       ThinningService        = PHYSThinningHelper.ThinningSvc(),
                                                                       TauKey                 = "TauJets",
                                                                       InDetTrackParticlesKey = "InDetTrackParticles",
-                                                                      SelectionString        = "(TauJets.ptFinalCalib >= 13.*GeV) && (TauJets.nTracks<6)",
+                                                                      SelectionString        = "(TauJets.ptFinalCalib >= 13.*GeV) && (TauJets.nTracks>=1) && (TauJets.nTracks<=3)",
                                                                       ApplyAnd               = False,
                                                                       DoTauTracksThinning    = True,
                                                                       TauTracksKey           = "TauTracks")
