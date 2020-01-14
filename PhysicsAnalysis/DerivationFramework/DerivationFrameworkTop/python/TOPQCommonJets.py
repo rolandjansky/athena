@@ -134,8 +134,8 @@ def addExKtDoubleTagVariables(algseq, ToolSvc):
         getattr(ToolSvc,jetToolName).GhostTracksVertexAssociationName  = "JetTrackVtxAssoc"
         DFisMC = (globalflags.DataSource()=='geant4')
         if(DFisMC):
-            getattr(ToolSvc,jetToolName).GhostTruthInputBContainer = "BHadronsFinal"
-            getattr(ToolSvc,jetToolName).GhostTruthInputCContainer = "CHadronsFinal"
+            getattr(ToolSvc,jetToolName).GhostTruthBHadronsInputContainer = "BHadronsFinal"
+            getattr(ToolSvc,jetToolName).GhostTruthCHadronsInputContainer = "CHadronsFinal"
 
         algseq += CfgMgr.AthJetReclusteringAlgo(algoName, JetReclusteringTool = getattr(ToolSvc,jetToolName))
         DFJetAlgs[jetToolName] = getattr(ToolSvc,jetToolName)
