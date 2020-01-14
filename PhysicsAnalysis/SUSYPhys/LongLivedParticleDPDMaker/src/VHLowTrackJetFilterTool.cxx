@@ -127,7 +127,7 @@ bool DerivationFramework::VHLowTrackJetFilterTool::eventPassesFilter() const
   for (auto electron : *electrons){
 
     if(electron->pt()<m_electronPtCut) continue;
-    if( (fabs(electron->caloCluster()->etaBE(2))>1.37 && fabs(electron->caloCluster()->etaBE(2)<1.52))
+    if( (fabs(electron->caloCluster()->etaBE(2))>1.37 && fabs(electron->caloCluster()->etaBE(2))<1.52)
        || fabs(electron->caloCluster()->etaBE(2))>2.47 ) continue;
 
     if(electron->isolation(xAOD::Iso::topoetcone20)/electron->pt()>0.2) continue;
