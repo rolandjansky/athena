@@ -49,5 +49,6 @@ from Z import Z
 from Z_EW import Z_EW
 from Z_SMEFT import Z_SMEFT
 from Zj import Zj
+from Zj_MiNNLO import Zj_MiNNLO
 from Zjj import Zjj
 from ZZ import ZZ
