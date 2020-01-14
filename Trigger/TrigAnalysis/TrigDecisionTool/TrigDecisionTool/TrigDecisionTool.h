@@ -143,7 +143,7 @@ namespace Trig {
     SG::ReadHandleKey<EventInfo> m_oldEventInfoKey {this, "OldEventInfoKey", "EventInfo",
       "Storegate key of old pre-xAOD EventInfo object"};
 
-    Gaudi::Property<bool> m_useRun1DecisionFormat {this, "UseRun1DecisionFormat", false,
+    Gaudi::Property<bool> m_useRun1DecisionFormat {this, "UseAODDecision", false,
       "For use when reading old ESD/AOD with only a TrigDec::TrigDecision and no xAOD::TrigDecision"};
 
     Gaudi::Property<bool> m_useOldEventInfoDecisionFormat {this, "UseOldEventInfoDecisionFormat", false,

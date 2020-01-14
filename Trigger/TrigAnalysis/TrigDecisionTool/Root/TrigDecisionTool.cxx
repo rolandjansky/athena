@@ -40,7 +40,6 @@ Trig::TrigDecisionTool::TrigDecisionTool(const std::string& name) :
   AthMessaging( Athena::getMessageSvc(), name)
 #endif
 #ifndef XAOD_ANALYSIS
-  // ,m_configSvc("", name) //defaults to empty, which will make full athena use configTool ... only works with xAOD
   ,m_fullNavigation("HLT::Navigation/Navigation", this)
   ,m_navigation(nullptr) //should initialize it... it's dangerous not to
 #else
@@ -50,8 +49,8 @@ Trig::TrigDecisionTool::TrigDecisionTool(const std::string& name) :
 
   //full Athena env
 #ifndef XAOD_ANALYSIS
-   // ugly hack to prevent genconf from causing the MessageSvc to bork
    declareProperty( "Navigation", m_fullNavigation);
+   // ugly hack to prevent genconf from causing the MessageSvc to bork
    const std::string cmd = System::cmdLineArgs()[0];
    if ( cmd.find( "genconf" ) == std::string::npos ) {
      m_navigation = &*m_fullNavigation;
@@ -174,10 +173,11 @@ Trig::TrigDecisionTool::initialize() {
 
 StatusCode Trig::TrigDecisionTool::beginEvent() {
 
-  cgm()->setDecisionKeyPtr( &m_decisionKey );
-  cgm()->setOldDecisionKeyPtr( &m_oldDecisionKey );
-  cgm()->setNavigationKeyPtr( &m_navigationKey );
-  cgm()->setOldEventInfoKeyPtr( &m_oldEventInfoKey );
+  CacheGlobalMemory* cgmPtr = cgm();
+  cgmPtr->setDecisionKeyPtr( &m_decisionKey );
+  cgmPtr->setOldDecisionKeyPtr( &m_oldDecisionKey );
+  cgmPtr->setNavigationKeyPtr( &m_navigationKey );
+  cgmPtr->setOldEventInfoKeyPtr( &m_oldEventInfoKey );
 
   //invalidate handle so that we read a new decision object
   if(cgm()->unpacker()){
