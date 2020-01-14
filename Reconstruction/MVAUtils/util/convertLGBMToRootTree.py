@@ -398,13 +398,18 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('input', help='input text file from LGBM')
-    parser.add_argument('output', help='output ROOT filename')
+    parser.add_argument('output', help='output ROOT filename', nargs='?')
     parser.add_argument('--tree-name', default='lgbm')
     parser.add_argument('--no-test', action='store_true', help="don't run test (not suggested)")
     parser.add_argument('--ntests', type=int, default=1000, help="number of random test, default=1000")
     parser.add_argument('--test-file', help='numpy table')
 
     args = parser.parse_args()
+
+    if args.output is None:
+        import os
+        args.output = os.path.splitext(os.path.split(args.input)[1])[0] + '.root'
+
     logging.info("converting input file %s to root file %s", args.input, args.output)
     output_treename = convertLGBMToRootTree(args.input, args.output, args.tree_name)
     if args.no_test:
