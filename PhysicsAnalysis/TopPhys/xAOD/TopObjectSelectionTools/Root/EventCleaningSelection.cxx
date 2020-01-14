@@ -645,7 +645,7 @@ namespace top {
 
     // Take electrons from input file. Decorate these before doing any calibration/shallow copies
     const xAOD::ElectronContainer* electrons(nullptr);
-    top::check(evtStore()->retrieve(electrons, m_config->sgKeyElectrons()), "Failed to retrieve electrons");
+    if(m_config->useElectrons()) top::check(evtStore()->retrieve(electrons, m_config->sgKeyElectrons()), "Failed to retrieve electrons");
 
     // Loop over electrons
     std::unordered_set<std::string> triggers;
@@ -674,7 +674,7 @@ namespace top {
 
     // Take muons from input file. Decorate these before doing any calibration/shallow copies
     const xAOD::MuonContainer* muons(nullptr);
-    top::check(evtStore()->retrieve(muons, m_config->sgKeyMuons()), "Failed to retrieve muons");
+    if(m_config->useMuons()) top::check(evtStore()->retrieve(muons, m_config->sgKeyMuons()), "Failed to retrieve muons in EventCleaningSelection::matchMuons() ");
 
     // Loop over muons
     std::unordered_set<std::string> triggers;

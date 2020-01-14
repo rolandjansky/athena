@@ -231,6 +231,13 @@ namespace top {
         met::addGhostMuonsToJets(*xaod_mu, *xaod_jet);
       }
     }
+    else
+    {
+      ConstDataVector<xAOD::MuonContainer> met_muons(SG::VIEW_ELEMENTS);
+      top::check(m_met_maker->rebuildMET("RefMuon", xAOD::Type::Muon,
+                                         new_met_container, met_muons.asDataVector(),
+                                         xaod_met_map), "Failed to rebuild muon MET term");
+    }
 
 
     // 5. Jets
