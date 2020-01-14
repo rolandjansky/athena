@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Run tests on TRTOverlayConfig.py
+"""Run tests for MC+MC overlay
 
 Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
@@ -7,19 +7,17 @@ import sys
 
 from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
-from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
 from AthenaConfiguration.TestDefaults import defaultTestFiles
-from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-from InDetOverlay.TRTOverlayConfig import TRTOverlayCfg
+
+from OverlayConfiguration.OverlaySteering import OverlayMainCfg
 from OverlayConfiguration.OverlayTestHelpers import \
     CommonTestArgumentParser, postprocessAndLockFlags, printAndRun
-from OverlayCopyAlgs.OverlayCopyAlgsConfig import CopyMcEventCollectionCfg
 
-# Configure
+# Set up logging and new style config
 Configurable.configurableRun3Behavior = True
 
 # Argument parsing
-parser = CommonTestArgumentParser("TRTOverlayConfig_test.py")
+parser = CommonTestArgumentParser("OverlayTest_MC.py")
 args = parser.parse_args()
 
 # Configure
@@ -27,20 +25,13 @@ ConfigFlags.Input.Files = defaultTestFiles.RDO_BKG
 ConfigFlags.Input.SecondaryFiles = defaultTestFiles.HITS
 ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"
 ConfigFlags.Overlay.DataOverlay = False
-ConfigFlags.Output.RDOFileName = "myRDO.pool.root"
-ConfigFlags.Output.RDO_SGNLFileName = "myRDO_SGNL.pool.root"
+ConfigFlags.Output.RDOFileName = "mcOverlayRDO.pool.root"
+ConfigFlags.Output.RDO_SGNLFileName = "mcOverlayRDO_SGNL.pool.root"
 
 postprocessAndLockFlags(ConfigFlags, args)
 
 # Construct our accumulator to run
-acc = MainServicesThreadedCfg(ConfigFlags)
-acc.merge(PoolReadCfg(ConfigFlags))
-
-# Add truth overlay (needed downstream)
-acc.merge(CopyMcEventCollectionCfg(ConfigFlags))
-
-# Add TRT overlay
-acc.merge(TRTOverlayCfg(ConfigFlags))
+acc = OverlayMainCfg(ConfigFlags)
 
 # Print and run
 sys.exit(printAndRun(acc, ConfigFlags, args))
