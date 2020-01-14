@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Lightweight and simplified version of AthFile
 # As the transform knows which files are bytestream and which are
@@ -270,7 +270,7 @@ class AthBSFile(object):
         ievt = iter(bs)
         for i in range(evtmax):
             try:
-                evt = ievt.next()
+                evt = next(ievt)
                 evt.check() # may raise a RuntimeError
                 stream_tags = [dict(stream_type=tag.type,
                                     stream_name=tag.name,
