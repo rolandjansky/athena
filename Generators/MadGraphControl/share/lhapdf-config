@@ -1,20 +1,37 @@
 #! /usr/bin/env bash
 ## -*- sh -*-
-## lhapdf-config.  Generated from lhapdf-config.in by configure.
+## lhapdf-config for MadGraph use in Athena
+## this custom config is required to find both the lhapdf installation dir and the actual pdf set data from LHAPDF_DATA_PATH 
+## in the default configuration the installation dir is hardcoded
 
-## These variables need to exist
-## Note no use of $DESTDIR... we ignore it so that destdir can be used
-## for temp installs later copied to /
-#prefix=/afs/.cern.ch/sw/lcg/external/MCGenerators_lcgcmt67c/lhapdf/6.1.5/x86_64-slc6-gcc47-opt
-prefix=$(echo $LHAPATH | awk '{split($1,a,"/share");print a[1];}')
+prefix=
+datapath=
+for p in $(echo $LHAPDF_DATA_PATH | tr ":" "\n")
+do
+    # if this directory exists and prefix is not yet defined
+    if [[ -d "${p}/../../lib" ]] && [[ -z $prefix ]]
+    then
+	# we assume this is the lhapdf installation dir (and not the data dir)
+	prefix=${p}/../..
+    elif [[ -d ${p} ]] && [[ -z $datapath ]]
+    then
+	datapath=$p
+    fi
+done
+
+if [ -z $prefix ]
+then
+    echo "WARNING: could not get valid lhapdf prefix from LHAPDF_DATA_PATH"
+fi
+
 exec_prefix=${prefix}
-datarootdir=${prefix}/share
 
-version=$(echo "$prefix" | awk '{split($1,a,"lhapdf/"); split(a[2],b,"/");print b[1];}')
+version=$LHAPDFVER
+if [ -z $version ] 
+then
+    version=$(echo "$prefix" | awk '{split($1,a,"lhapdf/"); split(a[2],b,"/");print b[1];}')
+fi
 
-boost=$(find $(ls -d /cvmfs/atlas.cern.ch/repo/sw/software/x86_64-slc6-gcc47-opt/19.2.4/sw/lcg/external/Boost/$BoostVers*/) -name "boost-*")
-
-datapath=$(echo $LHAPDF_DATA_PATH | awk '{n=split($1,a,":");if(n>1){print a[2];}else{print a[1];}}')
 
 if [[ $# -eq 0 || -n $( echo $* | egrep -- "--help|-h" ) ]]; then
     echo "lhapdf-config: configuration tool for the LHAPDF"
@@ -44,7 +61,7 @@ tmp=$( echo "$*" | egrep -- '--\<incdir\>')
 test -n "$tmp" && OUT="$OUT ${prefix}/include"
 
 tmp=$( echo "$*" | egrep -- '--\<cflags|cppflags|cxxflags\>')
-test -n "$tmp" && OUT="$OUT -I${prefix}/include -I$boost"
+test -n "$tmp" && OUT="$OUT -I${prefix}/include"
 
 tmp=$( echo "$*" | egrep -- '--\<libdir\>')
 test -n "$tmp" && OUT="$OUT ${exec_prefix}/lib"

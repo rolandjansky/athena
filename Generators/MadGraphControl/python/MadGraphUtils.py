@@ -877,12 +877,17 @@ def setupFastjet(isNLO, proc_dir=None):
     return
 
 def get_LHAPDF_DATA_PATH():
-    LHAPATH=os.environ['LHAPATH'].split(':')[0]
-    if len(os.environ['LHAPATH'].split(':')) >=2 :
-        LHADATAPATH=os.environ['LHAPATH'].split(':')[1]
-    else:
-        LHADATAPATH=os.environ['LHAPATH'].split(':')[0]
-    return LHADATAPATH
+    return get_LHAPDF_DATA_PATHS()[1]
+
+def get_LHAPDF_DATA_PATHS():
+    LHADATAPATH=None
+    LHAPATH=None
+    for p in os.environ['LHAPDF_DATA_PATH'].split(':'):
+        if os.path.exists(p+"/../../lib") and LHAPATH==None:
+            LHAPATH=p
+        elif os.path.exists(p) and LHADATAPATH==None:
+            LHADATAPATH=p
+    return LHAPATH,LHADATAPATH
 
 # function to get lhapdf id and name from either id or name
 def get_lhapdf_id_and_name(pdf):
@@ -923,12 +928,7 @@ def setupLHAPDF(isNLO, version=None, proc_dir=None, extlhapath=None, allow_links
     origLHAPATH=os.environ['LHAPATH']
     origLHAPDF_DATA_PATH=os.environ['LHAPDF_DATA_PATH']
 
-
-    LHAPATH=os.environ['LHAPATH'].split(':')[0]
-    if len(os.environ['LHAPATH'].split(':')) >=2 :
-        LHADATAPATH=os.environ['LHAPATH'].split(':')[1]
-    else:
-        LHADATAPATH=os.environ['LHAPATH'].split(':')[0]
+    LHAPATH,LHADATAPATH=get_LHAPDF_DATA_PATHS()
 
     pdfname=''
     pdfid=-999
