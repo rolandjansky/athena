@@ -111,7 +111,7 @@ StatusCode TrigJetSelectorMT::execute() {
     }
 
     if ( fabs( jetEta ) > m_maxJetEta ) {
-      ATH_MSG_DEBUG( "** Jet outside the |eta| < " << m_maxJetEta.value() << " requirement; Eta = " << jetEta << "; Skipping this Jet." );
+      ATH_MSG_DEBUG( "** Jet outside the |eta| < " << m_maxJetEta.value() << " requirement (ID acceptance); Eta = " << jetEta << "; Skipping this Jet." );
       continue;
     }
 
