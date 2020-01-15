@@ -1,16 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <iostream>
-#include <math.h>
-#include <float.h>
 #include "JetSubStructureMomentTools/NSubjettinessTool.h"
-#include "JetEDM/JetConstituentFiller.h"
 #include "JetSubStructureUtils/Nsubjettiness.h"
-#include "fastjet/ClusterSequence.hh"
-
-using fastjet::PseudoJet;
 
 NSubjettinessTool::NSubjettinessTool(std::string name) : 
   JetSubStructureMomentToolsBase(name)
@@ -21,8 +14,8 @@ NSubjettinessTool::NSubjettinessTool(std::string name) :
 
 int NSubjettinessTool::modifyJet(xAOD::Jet &injet) const {
   
-  PseudoJet jet;
-  PseudoJet jet_ungroomed;
+  fastjet::PseudoJet jet;
+  fastjet::PseudoJet jet_ungroomed;
 
   bool decorate = SetupDecoration(jet,injet);
   bool decorate_ungroomed = false;

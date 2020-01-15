@@ -2,15 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <iostream>
-#include <math.h>
-#include <float.h>
 #include "JetSubStructureMomentTools/MultiplicitiesTool.h"
-#include "JetEDM/JetConstituentFiller.h"
 #include "JetSubStructureUtils/Multiplicities.h"
-#include "fastjet/ClusterSequence.hh"
-
-using fastjet::PseudoJet;
 
 MultiplicitiesTool::MultiplicitiesTool(std::string name) : 
   JetSubStructureMomentToolsBase(name)

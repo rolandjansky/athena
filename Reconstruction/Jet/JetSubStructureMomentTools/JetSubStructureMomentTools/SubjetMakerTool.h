@@ -1,13 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef jetsubstructuremomenttools_subjetmakertool_header
 #define jetsubstructuremomenttools_subjetmakertool_header
 
 #include "JetSubStructureMomentTools/JetSubStructureMomentToolsBase.h"
-
-#include <string>
 
 class SubjetMakerTool :
   public JetSubStructureMomentToolsBase {

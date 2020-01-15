@@ -1,16 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetSubStructureMomentTools/KtMassDropTool.h"
 #include "JetSubStructureUtils/KtMassDrop.h"
 
-using namespace std;
-
 KtMassDropTool::KtMassDropTool(std::string name) : 
   JetSubStructureMomentToolsBase(name)
 {
-  ATH_MSG_DEBUG("Initializing KtMassDrop tool.");
 }
 
 int KtMassDropTool::modifyJet(xAOD::Jet &injet) const {
