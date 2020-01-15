@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -359,13 +359,13 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
     if (Pn[3]>Po[3]) {
       for (; n1<static_cast<int>(layer[1].size()); ++n1) {
 	if (Pn[3] < layer[1].at(n1).r()) break;
-        assert( used.at(1).size() < static_cast<unsigned int>(n1) );
+        assert( used.at(1).size() > static_cast<unsigned int>(n1) );
 	layer[1].at(n1).getBarrelDetElements(Po, A, lDE, used[1][n1]);
       }
     } else {
       for (--n1; n1>=0; --n1) {
 	if (Pn[3] > layer[1].at(n1).r()+dr) break;
-        assert( used.at(1).size() < static_cast<unsigned int>(n1) );
+        assert( used.at(1).size() > static_cast<unsigned int>(n1) );
 	layer[1].at(n1).getBarrelDetElements(Po, A, lDE, used[1][n1]);
       }
       ++n1;
@@ -376,13 +376,13 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
     if (Pn[2]>Po[2]) {
       for (; n2<static_cast<int>(layer[2].size()); ++n2) {
 	if (Pn[2] < layer[2].at(n2).z()) break;
-        assert( used.at(2).size() < static_cast<unsigned int>(n2) );
+        assert( used.at(2).size() > static_cast<unsigned int>(n2) );
 	layer[2].at(n2).getEndcapDetElements(Po, A, lDE,used[2][n2]);
       }
     } else {
       for (--n2; n2>=0; --n2) {
 	if (Pn[2] > layer[2].at(n2).z()) break;
-        assert( used.at(2).size() < static_cast<unsigned int>(n2) );
+        assert( used.at(2).size() > static_cast<unsigned int>(n2) );
 	layer[2].at(n2).getEndcapDetElements(Po, A, lDE, used[2][n2]);
       }
       ++n2;
@@ -393,13 +393,13 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
     if (Pn[2]<Po[2]) {
       for (; n0<static_cast<int>(layer[0].size()); ++n0) {
 	if (Pn[2] > layer[0].at(n0).z()) break;
-        assert( used.at(0).size() < static_cast<unsigned int>(n0) );
+        assert( used.at(0).size() > static_cast<unsigned int>(n0) );
 	layer[0].at(n0).getEndcapDetElements(Po, A, lDE,used[0][n0]);
       }
     } else {
       for (--n0; n0>=0; --n0) {
 	if (Pn[2] < layer[0].at(n0).z()) break;
-        assert( used.at(0).size() < static_cast<unsigned int>(n0) );
+        assert( used.at(0).size() > static_cast<unsigned int>(n0) );
 	layer[0].at(n0).getEndcapDetElements(Po, A, lDE,used[0][n0]);
       }
       ++n0;

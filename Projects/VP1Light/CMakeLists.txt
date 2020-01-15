@@ -20,7 +20,7 @@ find_package( VP1LightExternals REQUIRED )
 # Find Python. This is needed because VP1LightExternals sets up
 # a wrong value for PYTHONHOME. And nothing in VP1Light builds
 # against Python to correct it.
-find_package( PythonInterp )
+find_package( Python COMPONENTS Interpreter )
 
 find_package( ROOT COMPONENTS Physics Core Tree MathCore Hist RIO pthread
                               GenVector REQUIRED )

@@ -16,8 +16,8 @@
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
-
-#include "PixelConditionsTools/IPixelTDAQSvc.h"
+#include "Identifier/Identifier.h"
+#include "Identifier/IdentifierHash.h"
 
 #include <set>
 #include <map>
@@ -30,7 +30,6 @@ class CondAttrListCollection;
 
 
 class TestPixelModuleDisablingSvc:  public AthService,
-  virtual public IPixelTDAQSvc,
   virtual public IIncidentListener
 {
 

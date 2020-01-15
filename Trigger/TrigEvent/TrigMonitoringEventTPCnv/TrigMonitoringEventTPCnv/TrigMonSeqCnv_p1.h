@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMON_SEQCNV_P1_H
@@ -17,25 +17,30 @@
 
 class MsgStream;
 
-class TrigMonSeqCnv_p1 : public T_AthenaPoolTPCnvBase<TrigMonSeq, TrigMonSeq_p1>
+class TrigMonSeqCnv_p1 : public T_AthenaPoolTPCnvConstBase<TrigMonSeq, TrigMonSeq_p1>
 {
  public:
-  
+  using base_class::transToPers;
+  using base_class::persToTrans;
+
+
   TrigMonSeqCnv_p1() {}
   virtual ~TrigMonSeqCnv_p1() {}
-  
+
+  virtual
   void persToTrans(const TrigMonSeq_p1* persObj,
 		   TrigMonSeq* transObj,
-		   MsgStream &log);
+		   MsgStream &log) const override;
   
+  virtual
   void transToPers(const TrigMonSeq* transObj,
 		   TrigMonSeq_p1* persObj,
-		   MsgStream &log);
+		   MsgStream &log) const override;
 
  private:
 
-  T_AthenaPoolTPCnvStdVector<std::vector<TrigMonAlg>,
-                             std::vector<TrigMonAlg_p1>, TrigMonAlgCnv_p1> m_algCnv;
+  T_AthenaPoolTPCnvStdVectorConst<std::vector<TrigMonAlg>,
+                                  std::vector<TrigMonAlg_p1>, TrigMonAlgCnv_p1> m_algCnv;
 };
 
 #endif

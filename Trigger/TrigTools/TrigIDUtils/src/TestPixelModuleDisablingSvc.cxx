@@ -29,9 +29,6 @@ StatusCode TestPixelModuleDisablingSvc::queryInterface(const InterfaceID& riid, 
   if(interfaceID() == riid){
     *ppvIf = dynamic_cast< TestPixelModuleDisablingSvc* > (this);
   }
-  else if(IPixelTDAQSvc::interfaceID() == riid){
-    *ppvIf = dynamic_cast< IPixelTDAQSvc* > (this);
-  }
   else if(IIncidentListener::interfaceID() == riid){
     *ppvIf = dynamic_cast< IIncidentListener* > (this);
   }

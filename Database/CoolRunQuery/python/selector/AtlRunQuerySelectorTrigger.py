@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 """Provides Trigger related selectors:
 
@@ -320,7 +322,7 @@ class RatesSelector(RunLBBasedCondition):
 
     def select(self, runlist):
         start = time()
-        print self,
+        print (self, end='')
         sys.stdout.flush()
 
         fL1R = coolDbConn.GetDBConn(self.schema,db=Selector.condDB()).getFolder(self.folder)
@@ -330,7 +332,7 @@ class RatesSelector(RunLBBasedCondition):
 
             namelookup = 256*['']
             channellist = []
-            #print menu
+            #print (menu)
             for tr in menu:
                 if not tr.name.startswith("L1_"): continue
                 ch = tr.counter
@@ -370,8 +372,8 @@ class RatesSelector(RunLBBasedCondition):
 
         duration = time() - start
 
-        if self.applySelection: print " ==> %i runs found (%.2f sec)" % (len(runlist),duration)
-        else:                   print " ==> Done (%g sec)" % duration
+        if self.applySelection: print (" ==> %i runs found (%.2f sec)" % (len(runlist),duration))
+        else:                   print (" ==> Done (%g sec)" % duration)
 
         return runlist
 
@@ -503,7 +505,7 @@ class TriggerSelector(RunLBBasedCondition):
                 p += "$"
                 self.compiledShowPatterns += [re.compile(p.replace('*','.*').replace('?','.').replace('%','.*'),re.I)]
 
-        print self,
+        print (self, end='')
         sys.stdout.flush()
         newrunlist = []
 
@@ -585,8 +587,8 @@ class TriggerSelector(RunLBBasedCondition):
 
         duration = time() - start
 
-        if self.applySelection: print " ==> %i runs found (%.2f sec)" % (len(runlist),duration)
-        else:                   print " ==> Done (%g sec)" % duration
+        if self.applySelection: print (" ==> %i runs found (%.2f sec)" % (len(runlist),duration))
+        else:                   print (" ==> Done (%g sec)" % duration)
 
         return runlist
 

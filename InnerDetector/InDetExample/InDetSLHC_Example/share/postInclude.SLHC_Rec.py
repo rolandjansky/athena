@@ -40,6 +40,7 @@ if rec.doWriteESD() or rec.doWriteAOD() or ('doWriteESD' in dir() and doWriteESD
     # --- turn off cluster calibration from DB, does not exist for IBL
     from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
     PixelConfigCondAlg.UseCalibConditions = False
+    PixelConfigCondAlg.UseDeadmapConditions = False
     
 # --- switch alignment for IBL geometry off (gives WARNING)
 from PixelGeoModel.PixelGeoModelConf import PixelDetectorTool

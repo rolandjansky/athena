@@ -205,7 +205,7 @@ Surface::isFree() const
 }
 
 inline void
-Surface::setOwner(SurfaceOwner x) const
+Surface::setOwner ATLAS_NOT_CONST_THREAD_SAFE (SurfaceOwner x) const
 {
   const_cast<SurfaceOwner&>(m_owner) = x;
 }
@@ -234,13 +234,13 @@ Surface::setMaterialLayer(const Layer* mlay)
 }
 
 inline void
-Surface::setMaterialLayer(const Layer& mlay) const
+Surface::setMaterialLayer ATLAS_NOT_CONST_THREAD_SAFE (const Layer& mlay) const
 {
   const_cast<Surface*>(this)->m_materialLayer = (&mlay);
 }
 
 inline void
-Surface::setMaterialLayer(const Layer* mlay) const
+Surface::setMaterialLayer ATLAS_NOT_CONST_THREAD_SAFE (const Layer* mlay) const
 {
   const_cast<Surface*>(this)->m_materialLayer = mlay;
 }
@@ -252,7 +252,7 @@ Surface::associateLayer(const Layer& lay)
 }
 
 inline void
-Surface::associateLayer(const Layer& lay) const
+Surface::associateLayer ATLAS_NOT_CONST_THREAD_SAFE (const Layer& lay) const
 {
   const_cast<Surface*>(this)->m_associatedLayer = (&lay);
 }

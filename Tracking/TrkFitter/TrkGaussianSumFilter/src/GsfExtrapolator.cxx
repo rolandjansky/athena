@@ -1045,12 +1045,10 @@ Trk::GsfExtrapolator::extrapolateToDestinationLayer(Cache& cache,
                            : nullptr;
 
   if(!updatedState)  
-    updatedState=std::move(destinationState);
+    return destinationState;
 
-  if (updatedState != destinationState) {
-    addMaterialtoVector(cache, &layer, updatedState->begin()->first.get(), direction, particleHypothesis);
-  }
-
+  addMaterialtoVector(cache, &layer, updatedState->begin()->first.get(), direction, particleHypothesis);
+  
   return updatedState;
 
 }

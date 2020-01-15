@@ -117,80 +117,62 @@ def TrigInDetCondConfig( flags ):
   acc.merge(addFoldersSplitOnline(flags, "TRT","/TRT/Onl/Calib/ToTCalib","/TRT/Calib/ToTCalib",className="CondAttrListCollection"))
   acc.merge(addFoldersSplitOnline(flags, "TRT","/TRT/Onl/Calib/HTCalib","/TRT/Calib/HTCalib",className="CondAttrListCollection"))
 
-  acc.merge(addFolders(flags, "/PIXEL/ReadoutSpeed", "PIXEL", className="AthenaAttributeList"))
-  acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/CablingMap","/PIXEL/CablingMap", className="AthenaAttributeList"))
-  acc.merge(addFolders(flags, "/PIXEL/HitDiscCnfg", "PIXEL", className="AthenaAttributeList"))
 
-  PixelAlignCondAlg=CompFactory.PixelAlignCondAlg
-  acc.addCondAlgo(PixelAlignCondAlg(UseDynamicAlignFolders = True))
+  ###############
+  # Pixel setup #
+  ###############
+  from PixelConditionsAlgorithms.PixelConditionsConfig import (
+      PixelConfigCondAlgCfg, PixelChargeCalibCondAlgCfg, PixelDCSCondHVAlgCfg,
+      PixelDCSCondTempAlgCfg, PixelAlignCondAlgCfg, PixelDetectorElementCondAlgCfg,
+      PixelHitDiscCnfgAlgCfg, PixelReadoutSpeedAlgCfg, PixelCablingCondAlgCfg,
+      PixelDCSCondStateAlgCfg, PixelDCSCondStatusAlgCfg, PixelTDAQCondAlgCfg,
+      PixelDistortionAlgCfg, PixelOfflineCalibCondAlgCfg
+# NEW FOR RUN3    PixelDeadMapCondAlgCfg
+  )
 
-  PixelDetectorElementCondAlg=CompFactory.PixelDetectorElementCondAlg
-  acc.addCondAlgo(PixelDetectorElementCondAlg(name = "PixelDetectorElementCondAlg"))
+  from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
+  from SiPropertiesTool.PixelSiPropertiesConfig import PixelSiPropertiesCfg
+  from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleCfg
+  from PixelCabling.PixelCablingConfigNew import PixelCablingSvcCfg
 
-  PixelReadoutSpeedAlg=CompFactory.PixelReadoutSpeedAlg
-  acc.addCondAlgo(PixelReadoutSpeedAlg(name="PixelReadoutSpeedAlg"))
+  # module parameters
+  acc.merge(PixelConfigCondAlgCfg(flags,
+                                  UseCalibConditions=False,
+                                  UseDeadmapConditions=True,
+                                  UseDCSStateConditions=False,
+                                  UseDCSStatusConditions=False,
+                                  UseDCSHVConditions=True,
+                                  UseDCSTemperatureConditions=True,
+                                  UseTDAQConditions=False))
+  # charge calibration
+  acc.merge(PixelChargeCalibCondAlgCfg(flags))
+  # DCS setup
+  acc.merge(PixelDCSCondHVAlgCfg(flags))
+  acc.merge(PixelDCSCondTempAlgCfg(flags))
+  # alignment setup
+  acc.merge(PixelAlignCondAlgCfg(flags, UseDynamicAlignFolders=True))
+  acc.merge(PixelDetectorElementCondAlgCfg(flags))
+  # cabling setup
+  acc.merge(PixelHitDiscCnfgAlgCfg(flags))
+  acc.merge(PixelReadoutSpeedAlgCfg(flags))
+  acc.merge(PixelCablingCondAlgCfg(flags))
+  # deadmap
+  acc.merge(PixelDCSCondStateAlgCfg(flags))
+  acc.merge(PixelDCSCondStatusAlgCfg(flags))
+# NEW FOR RUN3    acc.merge(PixelDeadMapCondAlgCfg(flags))
+  acc.merge(PixelTDAQCondAlgCfg(flags))
+  # offline calibration
+  acc.merge(PixelDistortionAlgCfg(flags))
+  acc.merge(PixelOfflineCalibCondAlgCfg(flags))
 
-  PixelCablingCondAlg=CompFactory.PixelCablingCondAlg
-  acc.addCondAlgo(PixelCablingCondAlg(name="PixelCablingCondAlg"))
+  acc.popToolsAndMerge(PixelConditionsSummaryCfg(flags))
+  acc.popToolsAndMerge(PixelSiPropertiesCfg(flags))
+  acc.popToolsAndMerge(PixelLorentzAngleCfg(flags))
+  acc.merge(PixelCablingSvcCfg(flags))
 
-  PixelHitDiscCnfgAlg=CompFactory.PixelHitDiscCnfgAlg
-  acc.addCondAlgo(PixelHitDiscCnfgAlg(name="PixelHitDiscCnfgAlg"))
-
-  from AthenaCommon.CfgGetter import getService
-  PixelCablingSvc = getService("PixelCablingSvc")
-  acc.addService(PixelCablingSvc)
-
-  PixelTDAQFolder   = "/TDAQ/Resources/ATLAS/PIXEL/Modules"
-  PixelTDAQInstance = "TDAQ_ONL"
-  acc.merge(addFolders(flags, PixelTDAQFolder, PixelTDAQInstance, className="CondAttrListCollection"))
-
-  acc.merge(addFolders(flags, "/PIXEL/DCS/HV", "DCS_OFL", className="CondAttrListCollection"))
-  acc.merge(addFolders(flags, "/PIXEL/DCS/TEMPERATURE", "DCS_OFL", className="CondAttrListCollection"))
-  acc.merge(addFolders(flags, "/PIXEL/PixCalib", "PIXEL_OFL", className="CondAttrListCollection"))
-
-  PixelDCSCondHVAlg=CompFactory.PixelDCSCondHVAlg
-  acc.addCondAlgo(PixelDCSCondHVAlg(name="PixelDCSCondHVAlg", ReadKey="/PIXEL/DCS/HV"))
-
-  PixelDCSCondTempAlg=CompFactory.PixelDCSCondTempAlg
-  acc.addCondAlgo(PixelDCSCondTempAlg(name="PixelDCSCondTempAlg", ReadKey="/PIXEL/DCS/TEMPERATURE"))
-
-  PixelChargeCalibCondAlg=CompFactory.PixelChargeCalibCondAlg
-  acc.addCondAlgo(PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib"))
-
-  PixelTDAQCondAlg=CompFactory.PixelTDAQCondAlg
-  acc.addCondAlgo(PixelTDAQCondAlg(name="PixelTDAQCondAlg", ReadKey=PixelTDAQFolder))
-
-  PixelDeadMapFolder = "/PIXEL/PixMapOverlay"
-  PixelDeadMapInstance = "PIXEL_OFL"
-
-  acc.merge(addFolders(flags, "/PIXEL/DCS/TEMPERATURE", "DCS_OFL", className="CondAttrListCollection"))
-  acc.merge(addFolders(flags, PixelDeadMapFolder, PixelDeadMapInstance, className="CondAttrListCollection"))
-
-  PixelConfigCondAlg=CompFactory.PixelConfigCondAlg
-  acc.addCondAlgo(PixelConfigCondAlg(name="PixelConfigCondAlg", UseDeadMap=False, ReadDeadMapKey=PixelDeadMapFolder, UseCalibConditions=False))
-
-  PixelSiPropertiesCondAlg=CompFactory.PixelSiPropertiesCondAlg
-  acc.addCondAlgo(PixelSiPropertiesCondAlg(name="PixelSiPropertiesCondAlg"))
-
-  SiPropertiesTool=CompFactory.SiPropertiesTool
-  TrigSiPropertiesTool = SiPropertiesTool(name="PixelSiPropertiesTool", DetectorName="Pixel", ReadKey="PixelSiliconPropertiesVector")
-
-  acc.addPublicTool(TrigSiPropertiesTool)
-
-  PixelSiLorentzAngleCondAlg=CompFactory.PixelSiLorentzAngleCondAlg
-  acc.addCondAlgo(PixelSiLorentzAngleCondAlg(name="PixelSiLorentzAngleCondAlg",
-                                             SiPropertiesTool=TrigSiPropertiesTool,
-                                             UseMagFieldSvc = True,
-                                             UseMagFieldDcs = False))
-
-  SiLorentzAngleTool=CompFactory.SiLorentzAngleTool
-  TrigPixelLorentzAngleTool = SiLorentzAngleTool(name = "PixelLorentzAngleTool", DetectorName="Pixel", SiLorentzAngleCondData="PixelSiLorentzAngleCondData")
-
-  acc.addPublicTool(TrigPixelLorentzAngleTool)
 
   BeamSpotCondAlg=CompFactory.BeamSpotCondAlg
   acc.addCondAlgo(BeamSpotCondAlg( "BeamSpotCondAlg" ))
-
 
   from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
   mfsc = MagneticFieldSvcCfg(flags)

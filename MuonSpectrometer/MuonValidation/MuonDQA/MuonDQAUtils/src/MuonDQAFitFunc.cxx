@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -9,52 +9,30 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////// 
 
 #include "MuonDQAUtils/MuonDQAFitFunc.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
-#include "GaudiKernel/MsgStream.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "StoreGate/StoreGateSvc.h"
 
-#include <math.h>
-#include "TMath.h"
 #include "TF1.h"
 #include "TH1.h"
-#include <sstream>
+
+namespace {
+  constexpr double Zmass = 91.1876;
+}
 
 namespace Muon {
  
   MuonDQAFitFunc::MuonDQAFitFunc(const std::string& ty,const std::string& na,const IInterface* pa)
     : AthAlgTool(ty,na,pa),
       m_minMuonEffWindow(0.8),
-      m_maxMuonEffWindow(1.05),
-      m_log(msgSvc(),na)      
+      m_maxMuonEffWindow(1.05)
   {
-    declareProperty("ZmumuPDGmass",     m_ZmumuPDGmass=91.1876*CLHEP::GeV);
+    declareProperty("ZmumuPDGmass",     m_ZmumuPDGmass=Zmass);
     declareProperty("minMuonEffWindow", m_minMuonEffWindow);
     declareProperty("maxMuonEffWindow", m_maxMuonEffWindow);
     declareInterface<MuonDQAFitFunc>(this);
   }
   
-  MuonDQAFitFunc::~MuonDQAFitFunc(){}
-  
-  StatusCode MuonDQAFitFunc::initialize()
-  {
-    StatusCode sc = AlgTool::initialize(); 
-    if ( sc.isFailure() ) return sc;
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode MuonDQAFitFunc::finalize()
-  {
-    StatusCode sc = AlgTool::finalize(); 
-    if( sc.isFailure() ) return StatusCode::FAILURE;
-    return sc;
-  }
-  
   //================================================================
   void MuonDQAFitFunc::ZmumuFitHistograms(TH1F* hmass, TH1F* hwidth, TH1F* h1[], int nbins)                                                      
   { 
-    MsgStream log( msgSvc(), name() ); 
     double mass=0.;
     double mass_error=0.;
     double width=0.;
@@ -67,7 +45,7 @@ namespace Muon {
 	ZmumFit->SetParameter(1,3.097);
 	ZmumFit->SetParameter(2,0.05);   
 	h1[i]->Fit("ZmumFit","RQNM");
-	mass=ZmumFit->GetParameter(1)-m_ZmumuPDGmass/CLHEP::GeV;
+	mass=ZmumFit->GetParameter(1)-m_ZmumuPDGmass;
 	mass_error=ZmumFit->GetParError(1);
 	width=ZmumFit->GetParameter(2);
 	width_error=ZmumFit->GetParError(2);
@@ -75,10 +53,8 @@ namespace Muon {
 	hmass->SetBinError(i+1,mass_error); 
 	hwidth->SetBinContent(i+1,width);
 	hwidth->SetBinError(i+1,width_error); 
-	//m_log<<MSG::DEBUG<<"mass shift: "<<mass<<" error: "<<mass_error<<endmsg;
-	//m_log<<MSG::DEBUG<<"mass width: "<<width<<" error: "<<width_error<<endmsg;
-	if( (fabs(mass)+mass_error)>maxmass ) maxmass=fabs(mass)+mass_error;
-	if( (fabs(width)+width_error)>maxwidth ) maxwidth=fabs(width)+width_error;
+	if( (std::fabs(mass)+mass_error)>maxmass ) maxmass=std::fabs(mass)+mass_error;
+	if( (std::fabs(width)+width_error)>maxwidth ) maxwidth=std::fabs(width)+width_error;
       }
     }
     if (maxmass>0.1) maxmass=0.1;
@@ -91,7 +67,6 @@ namespace Muon {
   //================================================================
   void MuonDQAFitFunc::MuonEffHisto1D(TH1F* h_Num, TH1F* h_Denom, TProfile* h_Eff) const
   { 
-    MsgStream log( msgSvc(), name() ); 
     int nBins;
     nBins = h_Num->GetNbinsX();
     for (int bin=0; bin!=nBins; ++bin) {
@@ -112,7 +87,6 @@ namespace Muon {
   //================================================================
   void MuonDQAFitFunc::MuonEffHisto2D(TH2F* h_Num, TH2F* h_Denom, TProfile2D* h_Eff) const 
   { 
-    MsgStream log( msgSvc(), name() ); 
     int nBins;
     int nBinsY;
     nBins = h_Num->GetNbinsX();
@@ -140,7 +114,6 @@ namespace Muon {
   //================================================================
   void MuonDQAFitFunc::MinWindow1Set_from_TProf(TProfile* hProf, float windowMin, float windowMax) const 
   {
-    MsgStream log( msgSvc(), name() ); 
     float min=hProf->GetMinimum();
     float max=hProf->GetMaximum();
     float margin=0.05*(max-min);
@@ -154,7 +127,6 @@ namespace Muon {
   //================================================================ 
   void MuonDQAFitFunc::MinWindow2Set_from_TProf(TProfile2D* hProf, float windowMin, float windowMax) const 
   {
-    MsgStream log( msgSvc(), name() ); 
     float min=hProf->GetMinimum();
     float max=hProf->GetMaximum();
     float margin=0.05*(max-min);
@@ -162,7 +134,6 @@ namespace Muon {
     if(max < windowMax) max=windowMax+margin;
     hProf->SetMinimum(min);
     hProf->SetMaximum(max);
- 
   }
 
   //================================================================
@@ -171,13 +142,11 @@ namespace Muon {
 
     // fills a 1-D histogram with either the mean or RMS of the residual distribution for each layer in the barrel. 
     // Does this by projecting a 2-D histo of residual vs layer. 
-
-    MsgStream log( msgSvc(), name() ); 
  
     int nBins_2d = h2d->GetNbinsX();
     int nBins_1d = h1d->GetNbinsX();
 
-    if(nBins_2d!=nBins_1d) log << MSG::DEBUG << "Mean/RMS Histograms not set up correctly - nBins mismatch" << endmsg;
+    if(nBins_2d!=nBins_1d) ATH_MSG_DEBUG("Mean/RMS Histograms not set up correctly - nBins mismatch");
  
     //calling this means that the histogram bin content is flagged 
     //as being an average and so adding histos from different jobs 
@@ -204,7 +173,7 @@ namespace Muon {
 	h1d->SetBinContent(j,hproj->GetRMS());
 	h1d->SetBinError(j,hproj->GetRMSError());
       }
-      else log << MSG::DEBUG << "Incorrect switch in MeanRMSProjectionsBarrel()" << endmsg;
+      else ATH_MSG_DEBUG("Incorrect switch in MeanRMSProjectionsBarrel()");
  
       delete hproj;
     }
@@ -217,8 +186,6 @@ namespace Muon {
   {
     //Uses the spread information in an already filled TProfile   
     //to fill a second TH1F with the (correctly weigthed by N events) RMS of each bin
-
-    MsgStream log(msgSvc(),name());
  
     int nBins = hProf->GetNbinsX();
  
@@ -233,7 +200,7 @@ namespace Muon {
       float binentries = (float)hProf->GetBinEntries(j);
  
       //calculating the RMS from the above quantities
-      float rms = (float)binerr*(sqrt(binentries));
+      float rms = (float)binerr*(std::sqrt(binentries));
       
       hRms->Fill(bincentre,rms);	
     } // Loop over bins
@@ -248,8 +215,6 @@ namespace Muon {
  
     //Uses the spread information in an already filled TProfile (with character bins) 
     //to fill a second TH1F with the (correctly weigthed by N events) RMS of each bin
-
-    MsgStream log(msgSvc(),name());
  
     int nBins = hProf_char->GetNbinsX();
  
@@ -265,7 +230,7 @@ namespace Muon {
       float binentries = (float)hProf_char->GetBinEntries(j);
  
       //calculating the RMS from the above quantities
-      float rms = (float)binerr*(sqrt(binentries));
+      float rms = (float)binerr*(std::sqrt(binentries));
      
 #if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0) 
       hRms_char->SetCanExtend(TH1::kAllAxes);
@@ -288,11 +253,6 @@ namespace Muon {
 
     //Makes a Gaussian fit to each bin of a TH2F and fills a TH1F with 
     //the either the mean or width of this Gaussian
-    // iopt=0; Mean
-    // iopt=1; Width
- 
-    MsgStream log(msgSvc(),name());
-
  
     //calling this means that the histogram bin content is flagged 
     //as being an average and so adding histos from different jobs 
@@ -302,7 +262,7 @@ namespace Muon {
     int nBins_2d = h2d->GetNbinsX();
     int nBins_1d = h1d->GetNbinsX();
  
-    if(nBins_2d!=nBins_1d) log << MSG::DEBUG << "Mean/Width Histograms not set up correctly - nBins mismatch" << endmsg;
+    if(nBins_2d!=nBins_1d) ATH_MSG_DEBUG("Mean/Width Histograms not set up correctly - nBins mismatch");
  
     for(int i = 1; i!=nBins_2d+1; i++){
 
@@ -330,7 +290,7 @@ namespace Muon {
 	h1d->SetBinContent(i,Width);
 	h1d->SetBinError(i,WidthSigma);
       }
-      else  log << MSG::DEBUG << "Incorrect switch in FillGausMeanOrWidth" << endmsg;
+      else ATH_MSG_DEBUG("Incorrect switch in FillGausMeanOrWidth");
  
       delete hProj;
       delete fit;
@@ -348,9 +308,7 @@ namespace Muon {
         
     //Makes a Gaussian fit to each bin of a TH2F and fills a TH1F,
     // the mean of this Gaussian, and the errors the width.
-      
-    MsgStream log(msgSvc(),name());//++++
-      
+            
     //calling this means that the histogram bin content is flagged
     //as being an average and so adding histos from different jobs
     //will produce weighted mean
@@ -359,7 +317,7 @@ namespace Muon {
     int nBins_2d = h2d->GetNbinsX();
     int nBins_1d = h1d->GetNbinsX();
       
-    if(nBins_2d!=nBins_1d) log << MSG::DEBUG << "Mean/Width Histograms not set up correctly - nBins mismatch" << endmsg;
+    if(nBins_2d!=nBins_1d) ATH_MSG_DEBUG("Mean/Width Histograms not set up correctly - nBins mismatch");
       
     for(int i = 1; i!=nBins_2d+1; i++){
       
@@ -406,9 +364,7 @@ namespace Muon {
   {
     // Makes a Gaussian fit to a TH1F and fills the given bin of another TH1F
     // with the mean of this Gaussian, and the errors with the width.
-      
-    MsgStream log(msgSvc(),name());//++++
-      
+            
     //calling this means that the histogram bin content is flagged
     //as being an average and so adding histos from different jobs
     //will produce weighted mean
