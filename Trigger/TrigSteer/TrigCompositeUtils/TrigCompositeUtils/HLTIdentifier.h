@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TrigCompositeUtils_HLTIdentifier_h
-#define TrigCompositeUtils_HLTIdentifier_h
+#ifndef DecisionHandling_HLTIdentifier_h
+#define DecisionHandling_HLTIdentifier_h
 
 #include <string>
 #include <vector>
