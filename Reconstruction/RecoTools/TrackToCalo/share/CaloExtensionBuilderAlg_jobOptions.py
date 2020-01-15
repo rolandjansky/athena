@@ -57,11 +57,11 @@ def CaloExtensionBuilder( cutLevel = "TightPrimary", minPT = 100.0 ):
                                                         #   minNTrtHits     = 0)
     TrackDetailedSelectionToolHC = InDet__InDetDetailedTrackSelectorTool(name = "CaloExtensionBuilderDetailedTrackSelectionTool",
                                                                          pTMin                = minPT,
-                                                                         IPd0Max              = 1.,
-                                                                         IPz0Max              = 1.5, 
+                                                                         IPd0Max              = 99999,
+                                                                         IPz0Max              = 99999, 
                                                                          useTrackSummaryInfo  = True,
                                                                          nHitBLayer           = 0, 
-                                                                         nHitPix              = 2,  # PixelHits + PixelDeadSensors
+                                                                         nHitPix              = 0,  # PixelHits + PixelDeadSensors
                                                                          nHitSct              = 0,  # SCTHits + SCTDeadSensors
                                                                          nHitSi               = 7,  # PixelHits + SCTHits + PixelDeadSensors + SCTDeadSensors
                                                                          nHitTrt              = 0,  # nTRTHits
@@ -70,7 +70,7 @@ def CaloExtensionBuilder( cutLevel = "TightPrimary", minPT = 100.0 ):
                                                                          nSharedPix           = 99999,
                                                                          nSharedSct           = 99999,
                                                                          nSharedSi            = 99999,
-                                                                         useTrackQualityInfo  = True,
+                                                                         useTrackQualityInfo  = False,
                                                                          fitChi2OnNdfMax      = 99999,
                                                                          TrackSummaryTool     = None,
                                                                          Extrapolator         = theAtlasExtrapolator)

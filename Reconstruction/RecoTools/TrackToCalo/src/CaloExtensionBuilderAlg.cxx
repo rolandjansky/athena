@@ -116,12 +116,10 @@ StatusCode Trk::CaloExtensionBuilderAlg::execute()
     CaloExtensionCollection* ptrPart=lastCache.ptr();
     std::vector<bool> mask (ptrTracks->size(),false);
     for (auto track: *tracks){
-      if( static_cast<bool>(m_TrkSelection->accept(*track, nullptr)) || 
-          // Adding the vxContainer tests if it is not a nullptr
-          (vxContainer && primaryVertex && m_TrkDetailedSelection->decision(*track, primaryVertex))    || 
-          (vxContainer && m_TrkDetailedSelection->decision(*track, (*vxContainer)[0])) ) {
-        mask[track->index()] = true;
-      }
+      
+      if ((vxContainer && primaryVertex && m_TrkDetailedSelection->decision(*track, primaryVertex))    || 
+          (vxContainer && m_TrkDetailedSelection->decision(*track, (*vxContainer)[0])) ) mask[track->index()] = true;
+      
     }
 
     ATH_CHECK(m_particleCaloExtensionTool->caloExtensionCollection(*ptrTracks,mask,*ptrPart));
