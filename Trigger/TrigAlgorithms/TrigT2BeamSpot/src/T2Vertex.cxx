@@ -10,7 +10,6 @@
 #include "T2Vertex.h"
 
 // Externals
-#include "TrigInDetEvent/TrigInDetTrack.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTrack/Track.h"
 #include "GaudiKernel/SystemOfUnits.h"
@@ -48,42 +47,12 @@ namespace PESA
     return nominalTransversePosition + tan(tilt) * (Zref-nominalZPosition);
   }
 
-
-  struct TrackPt : public unary_function< TrigInDetTrack, double >
-  {
-    double operator()( const TrigInDetTrack* track ) { return std::abs(track->param()->pT())/GeV; }
-  };
-
-
-  struct TrackPt2 : public unary_function< TrigInDetTrack, double >
-  {
-    double operator()( const TrigInDetTrack* track ) { const double pT = TrackPt()( track ); return pT*pT; }
-  };
-
-
-  template <class T>
-  struct SumOf : public binary_function< double, TrigInDetTrack, double >
-  {
-    double operator()( double x, const TrigInDetTrack* track ) { return x + T()( track ); }
-  };
-
   template <class T>
   struct TrkSumOf : public binary_function< double, Trk::Track, double >
   {
     double operator()( double x, const Trk::Track* track ) { return x + T()( track ); }
   };
 
-
-  double vertexSumPt( const TrackInVertexList& tracks )
-  {
-    return accumulate( tracks.begin(), tracks.end(), 0., SumOf< TrackPt >() );
-  }
-
-
-  double vertexSumPt2( const TrackInVertexList& tracks )
-  {
-    return sqrt( accumulate( tracks.begin(), tracks.end(), 0., SumOf< TrackPt2 >() ) );
-  }
 
   struct TrkTrackPt : public unary_function< Trk::Track, double >
   {
@@ -111,15 +80,6 @@ namespace PESA
   {
     return sqrt( accumulate( tracks.begin(), tracks.end(), 0., TrkSumOf< TrkTrackPt2 >() ) );
   }
-
-//    double sumPt = 0.;
-//
-//    for ( TrackInVertexList::const_iterator track = tracks.begin(); track != tracks.end(); ++track )
-//      {
-//        const double pt = track->abs(track.param()->pT())/GeV;
-//        sumPt += pT;
-//      }
-
 
   std::ostream& operator<<( std::ostream& os, const T2Vertex& vertex )
   {
