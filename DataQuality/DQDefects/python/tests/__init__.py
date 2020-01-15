@@ -1,5 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # -*- coding: utf-8 -*-
+# flake8: noqa
+#  unicode characters embedded below confuse flake8
 from os import unlink, environ
 from os.path import exists
 from nose import with_setup
@@ -9,6 +11,8 @@ from logging import getLogger; log = getLogger("DQDefects.tests")
 from DQUtils import init_logger
 from DQDefects import DefectsDB
 from DQDefects.exceptions import DefectExistsError, DefectUnknownError
+
+import six
 
 TEST_DATABASE = "test_defects.db/COMP200"
 
@@ -155,6 +159,12 @@ def test_defect_insertion_retrieval():
 
 @with_setup(create_database, teardown_database)
 def test_defect_insertion_retrieval_unicode():
+    if six.PY3:
+        import ROOT
+        if ROOT.gROOT.GetVersionInt() < 62000:
+            # Passing str objects using multibyte encodings is broken
+            # with pyroot up to 6.18.  Should be fixed in 6.20?
+            return
     ddb = DefectsDB(TEST_DATABASE, read_only=False)
     
     TEST_ID = 0
@@ -262,7 +272,7 @@ def test_many_sparse_channels():
     "Testing many virtual channels with sparsely placed IoVs"
     ddb = DefectsDB(TEST_DATABASE, read_only=False)
     all_defects = []
-    for i in xrange(52):
+    for i in range(52):
         all_defects.append(create_defect_type(ddb, i*2))
         
     with ddb.storage_buffer:
@@ -365,14 +375,14 @@ def test_virtual_defects_stress():
     
     STRESS_COUNT = 20
     
-    for i in xrange(STRESS_COUNT):
+    for i in range(STRESS_COUNT):
         create_defect_type(ddb, i)
         
     with ddb.storage_buffer:
-        for i in xrange(STRESS_COUNT):
+        for i in range(STRESS_COUNT):
             ddb.insert("DQD_TEST_DEFECT_%i" % i, i, i+1, "Test", "DQDefects.tests")
         
-    ALL_DEFECTS = " ".join("DQD_TEST_DEFECT_%i" % i for i in xrange(STRESS_COUNT))
+    ALL_DEFECTS = " ".join("DQD_TEST_DEFECT_%i" % i for i in range(STRESS_COUNT))
     ddb.new_virtual_defect("DQD_TEST_VIRTUAL_DEFECT", "", ALL_DEFECTS)
     
     iovs = ddb.retrieve(channels=["DQD_TEST_VIRTUAL_DEFECT"])
@@ -470,7 +480,7 @@ def test_tagging_unicode():
                            
     what = {"channels": [u"DQD_TEST_VIRTUAL_DEFECT"]}
 
-    orig_iovs = DefectsDB((TEST_DATABASE), tag=unicode(original_htag)).retrieve(**what)
+    orig_iovs = DefectsDB((TEST_DATABASE), tag=six.ensure_text(original_htag)).retrieve(**what)
     
     assert len(orig_iovs) == 2
     assert (orig_iovs[0].since, orig_iovs[0].until) == (  0, 100)
@@ -571,7 +581,7 @@ def test_query_with_primary_dependencies():
     ddb = DefectsDB(TEST_DATABASE, read_only=False)
     
     # Create two defects
-    defect_names = [create_defect_type(ddb, i) for i in xrange(3)]
+    defect_names = [create_defect_type(ddb, i) for i in range(3)]
     
     for i, defect in enumerate(defect_names):
         ddb.insert(defect, i*100, (i+1)*100, "", "")
@@ -653,7 +663,7 @@ def test_query_with_primary_dependencies_with_ignore():
     ddb = DefectsDB(TEST_DATABASE, read_only=False)
     
     # Create two defects
-    defect_names = [create_defect_type(ddb, i) for i in xrange(3)]
+    defect_names = [create_defect_type(ddb, i) for i in range(3)]
     
     for i, defect in enumerate(defect_names):
         ddb.insert(defect, i*100, (i+1)*100, "", "")
@@ -832,6 +842,6 @@ def test_noncontiguous_defectid_creation():
     create_defect_type(ddb, 3)
     # assert primary and virtual defects are right
     ids, names, m = ddb.get_channels()
-    assert m == {0L: 'DQD_TEST_DEFECT_0', 1L: 'DQD_TEST_DEFECT_1', 2: 'TEST_DEFECT_DQD_2', 3L: 'DQD_TEST_DEFECT_3', 'DQD_TEST_DEFECT_3': 3L, 'DQD_TEST_DEFECT_0': 0L, 'DQD_TEST_DEFECT_1': 1L, 'TEST_DEFECT_DQD_2': 2}, 'Primary defect problem'
+    assert m == {0: 'DQD_TEST_DEFECT_0', 1: 'DQD_TEST_DEFECT_1', 2: 'TEST_DEFECT_DQD_2', 3: 'DQD_TEST_DEFECT_3', 'DQD_TEST_DEFECT_3': 3, 'DQD_TEST_DEFECT_0': 0, 'DQD_TEST_DEFECT_1': 1, 'TEST_DEFECT_DQD_2': 2}, 'Primary defect problem'
     ids, names, m = ddb.get_virtual_channels()
-    assert m == {2147483648L: 'DQD_TEST_VIRTUAL_DEFECT', 2147483649L: 'DQD_TEST_VIRTUAL_DEFECT_2', 'DQD_TEST_VIRTUAL_DEFECT': 2147483648L, 'DQD_TEST_VIRTUAL_DEFECT_2': 2147483649L}, 'Virtual defect problem'
+    assert m == {2147483648: 'DQD_TEST_VIRTUAL_DEFECT', 2147483649: 'DQD_TEST_VIRTUAL_DEFECT_2', 'DQD_TEST_VIRTUAL_DEFECT': 2147483648, 'DQD_TEST_VIRTUAL_DEFECT_2': 2147483649}, 'Virtual defect problem'
