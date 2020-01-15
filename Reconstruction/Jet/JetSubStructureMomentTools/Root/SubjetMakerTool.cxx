@@ -1,21 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetSubStructureMomentTools/SubjetMakerTool.h"
-
-#include <vector>
-#include <sstream>
-#include <string>
-#include <fastjet/PseudoJet.hh>
-#include <fastjet/ClusterSequence.hh>
-
-#include "xAODJet/Jet.h"
-
 #include "JetEDM/JetConstituentFiller.h"
-
-using namespace std;
-using fastjet::PseudoJet;
+#include "fastjet/ClusterSequence.hh"
 
 SubjetMakerTool::SubjetMakerTool(std::string name) : 
   JetSubStructureMomentToolsBase(name)
@@ -23,7 +12,6 @@ SubjetMakerTool::SubjetMakerTool(std::string name) :
   declareProperty("type", m_type = "AntiKt");
   declareProperty("R", m_R = 0.2);
   declareProperty("PtCut", m_minPt = 20e3);
-  ATH_MSG_DEBUG("Initializing SubjetMaker tool.");
 }
 
 int SubjetMakerTool::modifyJet(xAOD::Jet &jet) const {
@@ -48,7 +36,7 @@ int SubjetMakerTool::modifyJet(xAOD::Jet &jet) const {
 
   fastjet::JetDefinition microjet_def(jetalg, m_R);
   fastjet::ClusterSequence microjet_cs(pjet.constituents(), microjet_def);
-  vector<fastjet::PseudoJet> microjets = fastjet::sorted_by_pt(microjet_cs.inclusive_jets(m_minPt));
+  std::vector<fastjet::PseudoJet> microjets = fastjet::sorted_by_pt(microjet_cs.inclusive_jets(m_minPt));
   for (size_t z = 0; z < microjets.size(); ++z) {
     s_e.push_back(microjets[z].e());
     s_px.push_back(microjets[z].px());
