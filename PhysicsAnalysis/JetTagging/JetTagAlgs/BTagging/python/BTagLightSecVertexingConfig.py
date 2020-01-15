@@ -1,9 +1,7 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from BTagging.BTaggingFlags import BTaggingFlags
-from BTagging.NewJetFitterVxFinderConfig import NewJetFitterVxFinderCfg
-from BTagging.InDetVKalVxInJetToolConfig import InDetVKalVxInJetToolCfg
 from JetTagTools.JetFitterVariablesFactoryConfig import JetFitterVariablesFactoryCfg
 #from BTagging.MSVVariablesFactoryConfig import MSVVariablesFactoryCfg
 
@@ -23,21 +21,19 @@ def BTagLightSecVtxToolCfg(flags, Name, JetCollection, TimeStamp = "", **options
     jetcol = JetCollection
     OutputFilesJFVxname = "JFVtx"
     OutputFilesSVname = "SecVtx"
-    secVtxFinderList = []
+    VxSecVertexInfoNameList = []
     secVtxFinderTrackNameList = []
     secVtxFinderxAODBaseNameList = []
     if TimeStamp:
         TimeStamp = '_' + TimeStamp
 
-    newJetFitterVxFinder = acc.popToolsAndMerge(NewJetFitterVxFinderCfg(flags, 'JFVxFinder'))
-    secVtxFinderList.append(newJetFitterVxFinder)
+    VxSecVertexInfoNameList.append('JetFitter'+'VxSecVertexInfo')
     secVtxFinderTrackNameList.append('BTagTrackToJetAssociator')
     secVtxFinderxAODBaseNameList.append('JetFitter')
 
     jetFitterVF = acc.popToolsAndMerge(JetFitterVariablesFactoryCfg('JFVarFactory'))
 
-    inDetVKalVxInJetTool = acc.popToolsAndMerge(InDetVKalVxInJetToolCfg("IDVKalVxInJet"))
-    secVtxFinderList.append(inDetVKalVxInJetTool)
+    VxSecVertexInfoNameList.append('SV1'+'VxSecVertexInfo')
     secVtxFinderTrackNameList.append('BTagTrackToJetAssociator')
     secVtxFinderxAODBaseNameList.append('SV1')
 
@@ -49,14 +45,14 @@ def BTagLightSecVtxToolCfg(flags, Name, JetCollection, TimeStamp = "", **options
     #varFactory = acc.popToolsAndMerge(MSVVariablesFactoryCfg("MSVVarFactory"))
 
     options = {}
-    options.setdefault('SecVtxFinderList', secVtxFinderList)
     options.setdefault('SecVtxFinderTrackNameList', secVtxFinderTrackNameList)
     options.setdefault('SecVtxFinderxAODBaseNameList', secVtxFinderxAODBaseNameList)
+    options['BTagVxSecVertexInfoNames'] = VxSecVertexInfoNameList
     options.setdefault('PrimaryVertexName', BTaggingFlags.PrimaryVertexCollectionName)
     options.setdefault('vxPrimaryCollectionName', BTaggingFlags.PrimaryVertexCollectionName)
     options.setdefault('JetFitterVariableFactory', jetFitterVF)
-    options['JetSecVtxLinkName'] = jetcol + 'Jets.SV1' + OutputFilesSVname
-    options['JetJFVtxLinkName'] = jetcol + 'Jets.JetFitter' + OutputFilesJFVxname
+    options['JetSecVtxLinkName'] = jetcol + 'Jets.' + OutputFilesSVname
+    options['JetJFVtxLinkName'] = jetcol + 'Jets.' + OutputFilesJFVxname
     #options.setdefault('MSVVariableFactory', varFactory)
     options['name'] = Name+TimeStamp
 
