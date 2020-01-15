@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from ..lib import DCSC_Subdetector, DCSC_Variable
 
@@ -7,10 +7,10 @@ class TDQ(DCSC_Subdetector):
     folder_base = "/TDQ/DCS"
     
     mapping = {
-        401: range( 5, 32),
-        402: range(51, 67),
-        403: range(32, 45),
-        404: range( 1,  5) + range(45, 51),
+        401: list(range( 5, 32)),
+        402: list(range(51, 67)),
+        403: list(range(32, 45)),
+        404: list(range( 1,  5)) + list(range(45, 51)),
     }
 
     variables = [

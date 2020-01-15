@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -71,10 +71,11 @@ namespace Muon {
       /** AlgTool finalize method */
       StatusCode finalize();
 
-      const std::vector<const Trk::DetachedTrackingVolume*>* buildDetachedTrackingVolumes(bool blend=false) const; 
-      const std::vector<const Trk::DetachedTrackingVolume*>* buildDetachedTrackingVolumeTypes(bool blend) const; 
+      const std::vector<const Trk::DetachedTrackingVolume*>* buildDetachedTrackingVolumes(bool blend=false); 
 
     private:
+
+      const std::vector<const Trk::DetachedTrackingVolume*>* buildDetachedTrackingVolumeTypes(bool blend); 
 
       void glueComponents(const Trk::DetachedTrackingVolume* ) const;    
       void encloseLayers( const Trk::DetachedTrackingVolume* ) const; 
@@ -96,8 +97,8 @@ namespace Muon {
       ToolHandle<Trk::ITrackingVolumeHelper>    m_trackingVolumeHelper{this,"TrackingVolumeHelper","Trk::TrackingVolumeHelper/TrackingVolumeHelper"};   //!< Helper Tool to create TrackingVolumes
 
       Trk::Material                   m_muonMaterial;               //!< the material
-      Trk::GeoShapeConverter*             m_geoShapeConverter;          //!< shape converter
-      Trk::GeoMaterialConverter*          m_materialConverter;          //!< material converter
+      std::unique_ptr<Trk::GeoShapeConverter>             m_geoShapeConverter;          //!< shape converter
+      std::unique_ptr<Trk::GeoMaterialConverter>          m_materialConverter;          //!< material converter
       Gaudi::Property<bool>               m_buildBarrel{this,"BuildBarrelStations",true};
       Gaudi::Property<bool>               m_buildEndcap{this,"BuildEndcapStations",true};
       Gaudi::Property<bool>               m_buildCsc{this,"BuildCSCStations",true};

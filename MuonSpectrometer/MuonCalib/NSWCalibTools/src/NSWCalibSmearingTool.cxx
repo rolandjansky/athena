@@ -1,14 +1,15 @@
-#include "NSWCalibSmearingTool.h"
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "NSWCalibSmearingTool.h"
 
 using namespace Muon;
 
 Muon::NSWCalibSmearingTool::NSWCalibSmearingTool(const std::string& t,
 						 const std::string& n, 
 						 const IInterface* p ) :
-  AthAlgTool(t,n,p),
-  m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool")
+  AthAlgTool(t,n,p)
 {
   declareInterface<INSWCalibSmearingTool>(this);
   
@@ -25,32 +26,19 @@ Muon::NSWCalibSmearingTool::NSWCalibSmearingTool(const std::string& t,
   
 }
 
-
-Muon::NSWCalibSmearingTool::~NSWCalibSmearingTool()
-{ }
-
-
 StatusCode Muon::NSWCalibSmearingTool::initialize()
 {
   ATH_MSG_DEBUG("In initialize()");
 
   // initialize the MuonIdHelperTool and check the configuration
-  ATH_CHECK(m_idHelperTool.retrieve());
+  ATH_CHECK(m_idHelperSvc.retrieve());
 
-  if ( !(m_idHelperTool->hasMM() && m_idHelperTool->hasSTgc() ) ) {
+  if ( !(m_idHelperSvc->hasMM() && m_idHelperSvc->hasSTgc() ) ) {
     ATH_MSG_ERROR("MuonIdHelperTool not properly configured, missing MM or STGC");
     return StatusCode::FAILURE;
   }
  
   m_random = TRandom3();
-
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode Muon::NSWCalibSmearingTool::finalize()
-{
-  ATH_MSG_DEBUG("In finalize()");
 
   return StatusCode::SUCCESS;
 }
@@ -117,7 +105,7 @@ StatusCode Muon::NSWCalibSmearingTool::smearCharge(Identifier id, float& charge,
 StatusCode Muon::NSWCalibSmearingTool::smearTimeAndCharge(Identifier id, float& time, float& charge, bool& accepted)
 {
   
-  if ( m_idHelperTool->issTgc(id) ) {
+  if ( m_idHelperSvc->issTgc(id) ) {
     ATH_MSG_ERROR("Can't smear time for the STGC's");
     return StatusCode::FAILURE;
   } 
@@ -181,17 +169,17 @@ bool NSWCalibSmearingTool::getIdFields(const Identifier id, int& etaSector, int&
 				       int& gasGap)
 {
 
-  if ( m_idHelperTool->isMM(id) ) {
-    int multilayer = m_idHelperTool->mmIdHelper().multilayer(id);
-    gasGap = (multilayer-1)*4+m_idHelperTool->mmIdHelper().gasGap(id);
-    etaSector = m_idHelperTool->mmIdHelper().stationEta(id);
-    phiSector = m_idHelperTool->mmIdHelper().stationPhi(id);
+  if ( m_idHelperSvc->isMM(id) ) {
+    int multilayer = m_idHelperSvc->mmIdHelper().multilayer(id);
+    gasGap = (multilayer-1)*4+m_idHelperSvc->mmIdHelper().gasGap(id);
+    etaSector = m_idHelperSvc->mmIdHelper().stationEta(id);
+    phiSector = m_idHelperSvc->mmIdHelper().stationPhi(id);
   } 
-  else if ( m_idHelperTool->issTgc(id) ) {
-    int multilayer = m_idHelperTool->stgcIdHelper().multilayer(id);
-    gasGap = (multilayer-1)*4+m_idHelperTool->stgcIdHelper().gasGap(id);
-    etaSector = m_idHelperTool->stgcIdHelper().stationEta(id);
-    phiSector = m_idHelperTool->stgcIdHelper().stationPhi(id);
+  else if ( m_idHelperSvc->issTgc(id) ) {
+    int multilayer = m_idHelperSvc->stgcIdHelper().multilayer(id);
+    gasGap = (multilayer-1)*4+m_idHelperSvc->stgcIdHelper().gasGap(id);
+    etaSector = m_idHelperSvc->stgcIdHelper().stationEta(id);
+    phiSector = m_idHelperSvc->stgcIdHelper().stationPhi(id);
   } 
   else {
     ATH_MSG_WARNING("Wrong identifier: should be MM or STGC");

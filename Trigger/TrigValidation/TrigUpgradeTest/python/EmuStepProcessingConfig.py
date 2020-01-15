@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Configure the scheduler
 from AthenaCommon.AlgScheduler import AlgScheduler
@@ -236,7 +236,7 @@ def generateL1DecoderAndChains():
 
     L1UnpackingSeq = parOR("L1UnpackingSeq")
 
-    l1Decoder = L1Decoder( RoIBResult="" )
+    l1Decoder = L1Decoder( RoIBResult="", L1TriggerResult="" )
     l1Decoder.prescaler.EventInfo=""
     l1Decoder.L1DecoderSummaryKey = "L1DecoderSummary"
 

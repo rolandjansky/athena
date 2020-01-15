@@ -139,7 +139,7 @@ StatusCode IOVDbSvc::initialize() {
   // check for global tag in jobopt, which will override anything in input file
   if (m_par_globalTag!="") {
     m_globalTag=m_par_globalTag;
-    ATH_MSG_INFO( "Global tag: " << m_par_globalTag << " set from joboptions" );
+    ATH_MSG_INFO( "Global tag: " << m_par_globalTag.value() << " set from joboptions" );
   }
 
   // setup folders and process tag overrides

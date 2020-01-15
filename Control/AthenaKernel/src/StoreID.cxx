@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "AthenaKernel/StoreID.h"
 #include <string>
@@ -10,8 +10,8 @@ static const std::vector<std::string> STORENAMES {
     "StoreGateSvc",
     "DetectorStore",
     "ConditionStore",
-    "InputMetaDataStore",
     "MetaDataStore",
+    "InputMetaDataStore",
     "PileupStore",
     "UnknownStore"
       };

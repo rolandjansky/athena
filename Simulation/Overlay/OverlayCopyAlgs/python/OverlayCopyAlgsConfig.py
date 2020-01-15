@@ -1,6 +1,6 @@
 """Define methods to construct configured overlay copy algorithms
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -244,6 +244,9 @@ def CopyCaloCalibrationHitContainersCfg(flags, **kwargs):
 
 def CopyJetTruthInfoCfg(flags, **kwargs):
     """Return overlay configuration for the CopyJetTruthInfo algorithms"""
+
+    if flags.Overlay.DataOverlay:
+        return ComponentAccumulator()
 
     acc = CopyInTimeJetTruthInfoCfg(flags, **kwargs)
     acc.merge(CopyOutOfTimeJetTruthInfoCfg(flags, **kwargs))

@@ -6,6 +6,7 @@ from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger("TrigEgammaHypo.TrigEgammaPrecisionElectronHypoTool") 
 from AthenaCommon.SystemOfUnits import GeV
+from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigElectronSelectors
 
 def _IncTool(name, threshold, sel):
 
@@ -41,6 +42,8 @@ def _IncTool(name, threshold, sel):
     tool.ETthr          = same( float(threshold) )
     tool.dETACLUSTERthr = 0.1
     tool.dPHICLUSTERthr = 0.1
+    
+    tool.ElectronLHSelector = TrigElectronSelectors(sel)
     #tool.ET2thr         = same( 90.0*GeV )
 
     if sel == 'nocut':

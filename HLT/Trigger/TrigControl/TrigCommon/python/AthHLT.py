@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # Utilities used in athenaHLT.py
 #
@@ -23,7 +23,7 @@ class CondDB:
 
 @memoize
 def get_sor_params(run_number):
-   import cPickle as pickle
+   import pickle
    cool_cache = 'AthHLT.sor.pkl'
 
    try:

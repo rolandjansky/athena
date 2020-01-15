@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -97,12 +97,12 @@ StatusCode Muon::TGC_RodDecoderRawdata::fillCollection(const ROBFragment& robFra
 
       if(m_checkRawData){
 	byteStream2Rdo(bs, *rdo, robFrag.rod_source_id());
-	if( !m_tgcRODReadOut->check(bs, *rdo, robFrag.rod_source_id(), msg())){
+	if( !m_tgcRODReadOut->check(bs, *rdo, robFrag.rod_source_id())){
 	  ATH_MSG_WARNING( " Can't Check the contents of TgcRdo: Skip decoding of remaining hits of this event..." );
 	  return StatusCode::SUCCESS;
 	}
       } else {  
-	if( !m_tgcRODReadOut->byteStream2Rdo(bs, *rdo, robFrag.rod_source_id(), msg())){
+	if( !m_tgcRODReadOut->byteStream2Rdo(bs, *rdo, robFrag.rod_source_id())){
 	  ATH_MSG_WARNING( " Can't Convert the TGC BS to Rdo: Skip decoding of remaining hits of this event..." );
 	  return StatusCode::SUCCESS;
 	}
