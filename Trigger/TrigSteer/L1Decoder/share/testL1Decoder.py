@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 include("TrigUpgradeTest/testHLT_MT.py")
 
 
@@ -8,7 +10,7 @@ topSequence = AlgSequence()
 topSequence.L1Decoder.ctpUnpacker.OutputLevel=DEBUG
 for unpack in topSequence.L1Decoder.roiUnpackers:
     unpack.OutputLevel=DEBUG
-    print unpack
+    print (unpack)
     
 
 # from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
@@ -23,7 +25,7 @@ for unpack in topSequence.L1Decoder.roiUnpackers:
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
 generateJSON()
 
-print topSequence.L1Decoder
+print (topSequence.L1Decoder)
 
 #from TrigUpgradeTest.jetDefs import jetRecoSequence
 #(recoSequence, sequenceOut) = jetRecoSequence("FSRoI") 
