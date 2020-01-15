@@ -35,8 +35,4 @@ class TFCS1DFunctionRegression:public TFCS1DFunction
 
 };
 
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCS1DFunctionRegression+;
-#endif
-
 #endif

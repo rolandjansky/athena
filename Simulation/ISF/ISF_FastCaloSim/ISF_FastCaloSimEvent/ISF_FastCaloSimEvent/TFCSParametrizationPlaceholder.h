@@ -20,8 +20,4 @@ private:
   ClassDefOverride(TFCSParametrizationPlaceholder,1)  //TFCSParametrizationPlaceholder
 };
 
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSParametrizationPlaceholder+;
-#endif
-
 #endif
