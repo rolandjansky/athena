@@ -15,6 +15,7 @@ decription           : Implementation code for ForwardGsfFitter class
 
 #include "TrkMultiComponentStateOnSurface/MultiComponentStateOnSurface.h"
 
+#include "TrkGaussianSumFilter/MultiComponentStateCombiner.h"
 #include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
 #include "TrkGaussianSumFilter/IMultiStateMeasurementUpdator.h"
 
@@ -44,8 +45,6 @@ StatusCode
 Trk::ForwardGsfFitter::initialize()
 {
 
-  // Request an instance of the state combiner
-  ATH_CHECK(m_stateCombiner.retrieve());
   ATH_MSG_DEBUG( "A cut on Chi2 / NDOF: " << m_cutChiSquaredPerNumberDOF << " will be applied");
 
   Trk::ParticleSwitcher particleSwitcher;
@@ -285,7 +284,7 @@ Trk::ForwardGsfFitter::stepForwardFit(ForwardTrajectory* forwardTrajectory,
     measurement.reset(originalMeasurement->clone());
   }
   else {
-    combinedState = m_stateCombiner->combine(*extrapolatedState);
+    combinedState = MultiComponentStateCombiner::combine(*extrapolatedState);
     if (!combinedState) {
       ATH_MSG_WARNING("State combination failed... exiting");
       return false;
