@@ -46,15 +46,6 @@ def CaloExtensionBuilder( cutLevel = "TightPrimary", minPT = 100.0 ):
     if jobproperties.Beam.beamType() != 'collisions':
         CaloExtensionBuilderTool.vertexInputContainer = ''
 
-    TrackSelectionToolHC = InDet__InDetTrackSelectionTool(name            = "CaloExtensionBuilderTrackSelectionTool",
-                                                          minPt           = minPT,
-                                                          CutLevel        = cutLevel)#,
-                                                        #   maxD0           = 9999.*mm,
-                                                        #   maxZ0           = 9999.*mm,                                                                 
-                                                        #   minNPixelHits   = 2,  # PixelHits + PixelDeadSensors
-                                                        #   minNSctHits     = 0,  # SCTHits + SCTDeadSensors
-                                                        #   minNSiHits      = 7,  # PixelHits + SCTHits + PixelDeadSensors + SCTDeadSensors
-                                                        #   minNTrtHits     = 0)
     TrackDetailedSelectionToolHC = InDet__InDetDetailedTrackSelectorTool(name = "CaloExtensionBuilderDetailedTrackSelectionTool",
                                                                          pTMin                = minPT,
                                                                          IPd0Max              = 99999,
@@ -74,8 +65,7 @@ def CaloExtensionBuilder( cutLevel = "TightPrimary", minPT = 100.0 ):
                                                                          fitChi2OnNdfMax      = 99999,
                                                                          TrackSummaryTool     = None,
                                                                          Extrapolator         = theAtlasExtrapolator)
-
-    ToolSvc += TrackSelectionToolHC
+    
     ToolSvc += TrackDetailedSelectionToolHC
 
     CaloExtensionBuilderTool.TrkSelection         = TrackSelectionToolHC
