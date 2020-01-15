@@ -8,71 +8,87 @@
 
 struct TRTDedxcorrection {
    
-  static const int nParameters_TrackBased_dEdx = 100;
-  static const int nParameters_HitBased_dEdx = 204;
+  static constexpr int nParametersTrackBaseddEdx = 100;
+  static constexpr int nParametersHitBaseddEdx = 204;
 
-  double HitOccPar[nParameters_HitBased_dEdx];
+  double HitOccPar[nParametersHitBaseddEdx];
 
+  // TrckOccupancy calibration constants are separated in three arrays as we use a polynomial
+  // function 2nd order of the form f(x)=a+b*x+c*x^2
+  
   // TrckOccupancy calibration constants, HT hits are excluded, Pt>0.4 GeV d0<0.4 mm deltaZ0sin(theta)<0.4 mm
-  double TrackOccPar0_noHT[nParameters_TrackBased_dEdx];
-  double TrackOccPar1_noHT[nParameters_TrackBased_dEdx];
-  double TrackOccPar2_noHT[nParameters_TrackBased_dEdx];
+  double TrackOccPar0_noHT[nParametersTrackBaseddEdx];
+  double TrackOccPar1_noHT[nParametersTrackBaseddEdx];
+  double TrackOccPar2_noHT[nParametersTrackBaseddEdx];
 
   // TrckOccupancy calibration constants, Pt>0.4 GeV d0<0.4 mm deltaZ0sin(theta)<0.4 mm
-  double TrackOccPar0[nParameters_TrackBased_dEdx];
-  double TrackOccPar1[nParameters_TrackBased_dEdx];
-  double TrackOccPar2[nParameters_TrackBased_dEdx];
+  double TrackOccPar0[nParametersTrackBaseddEdx];
+  double TrackOccPar1[nParametersTrackBaseddEdx];
+  double TrackOccPar2[nParametersTrackBaseddEdx];
 
-  double paraL_dEdx_p1[3];
-  double paraL_dEdx_p2[3];
-  double paraL_dEdx_p3[3];
-  double paraL_dEdx_p4[3];
-  double paraL_dEdx_p5[3];
+  static constexpr int nGasTypes = 3;
+  
+  double paraL_dEdx_p1[nGasTypes];
+  double paraL_dEdx_p2[nGasTypes];
+  double paraL_dEdx_p3[nGasTypes];
+  double paraL_dEdx_p4[nGasTypes];
+  double paraL_dEdx_p5[nGasTypes];
 
-  double para_dEdx_p1[3];
-  double para_dEdx_p2[3];
-  double para_dEdx_p3[3];
-  double para_dEdx_p4[3];
-  double para_dEdx_p5[3];
+  double para_dEdx_p1[nGasTypes];
+  double para_dEdx_p2[nGasTypes];
+  double para_dEdx_p3[nGasTypes];
+  double para_dEdx_p4[nGasTypes];
+  double para_dEdx_p5[nGasTypes];
 
       
   // resolution depends on the number of hits (and is different for e)
-  double resolution[3][4];
-  double resolution_e[3][4];
+  static constexpr int nParametersResolution = 4; //Polynomial function 3rd used
+  double resolution[nGasTypes][nParametersResolution];
+  double resolution_e[nGasTypes][nParametersResolution];
 
   // corrections for pile-up (as a function of NVtx linear behavior observed)
   // was in principle also done separately for different detector regions
   // should be checked in more details when high pileup data available
 
-  double norm_offset_data[3];  // offset in normalization between data and MC
-  double norm_slope_tot[3];    // nvtx dependence for ToT
-  double norm_slope_totl[3];   // nvtx dependence for ToT/L
-  double norm_offset_tot[3];   // nvtx dependence for ToT
-  double norm_offset_totl[3];  // nvtx dependence for ToT/L
-  int norm_nzero[3];           // for which average NVtx the fit parameters were determined
+  double norm_Offset_Data[nGasTypes];  // offset in normalization between data and MC
+  double norm_Slope_Tot[nGasTypes];    // nvtx dependence for ToT
+  double norm_Slope_Totl[nGasTypes];   // nvtx dependence for ToT/L
+  double norm_Offset_Tot[nGasTypes];   // nvtx dependence for ToT
+  double norm_Offset_Totl[nGasTypes];  // nvtx dependence for ToT/L
+  int norm_Nzero[nGasTypes];           // for which average NVtx the fit parameters were determined
 
-  double para_long_corrRZ[3][3240];
-  double para_short_corrRZ[3][216];
-  double para_end_corrRZ[3][336];
+  static constexpr int nParametersLongStrawsRZ = 3240;
+  static constexpr int nParametersShortStrawsRZ = 216;
+  static constexpr int nParametersEndcapRZ = 336;
+      
+  double para_Long_CorrRZ[nGasTypes][nParametersLongStrawsRZ];
+  double para_Short_CorrRZ[nGasTypes][nParametersShortStrawsRZ];
+  double para_End_CorrRZ[nGasTypes][nParametersEndcapRZ];
+  double para_Long_CorrRZ_MC[nGasTypes][nParametersLongStrawsRZ];
+  double para_Short_CorrRZ_MC[nGasTypes][nParametersShortStrawsRZ];
+  double para_End_CorrRZ_MC[nGasTypes][nParametersEndcapRZ];
+
+  static constexpr int nParametersLongStrawsRZL = 630;
+  static constexpr int nParametersShortStrawsRZL = 63;
+  static constexpr int nParametersEndcapRZL = 252;
   
-  double para_long_corrRZ_MC[3][3240];
-  double para_short_corrRZ_MC[3][216];
-  double para_end_corrRZ_MC[3][336]; 
-  double para_long_corrRZL_MC[3][630];
-  double para_short_corrRZL_MC[3][144];
-  double para_end_corrRZL_MC[3][252];
-  
-  double para_long_corrRZL_DATA[3][630];
-  double para_short_corrRZL_DATA[3][63];
-  double para_end_corrRZL_DATA[3][252]; 
+  double para_Long_CorrRZL_MC[nGasTypes][nParametersLongStrawsRZL];
+  double para_Short_CorrRZL_MC[nGasTypes][nParametersShortStrawsRZL];
+  double para_End_CorrRZL_MC[nGasTypes][nParametersEndcapRZL];
+  double para_Long_CorrRZL_DATA[nGasTypes][nParametersLongStrawsRZL];
+  double para_Short_CorrRZL_DATA[nGasTypes][nParametersShortStrawsRZL];
+  double para_End_CorrRZL_DATA[nGasTypes][nParametersEndcapRZL]; 
 
-  float para_end_mimicToXe_MC[3][560];
-  float para_end_mimicToXe_DATA[3][560];
+  static constexpr int nParametersLongStrawsMimic = 1800;
+  static constexpr int nParametersShortStrawsMimic = 180;
+  static constexpr int nParametersEndcapMimic = 560;
 
-  float para_short_mimicToXe_MC[3][180];
-  float para_short_mimicToXe_DATA[3][180];
-  float para_long_mimicToXe_MC[3][1800];
-  float para_long_mimicToXe_DATA[3][1800];
+  float para_Long_MimicToXe_MC[nGasTypes][nParametersLongStrawsMimic];
+  float para_Long_MimicToXe_DATA[nGasTypes][nParametersLongStrawsMimic];
+  float para_Short_MimicToXe_MC[nGasTypes][nParametersShortStrawsMimic];
+  float para_Short_MimicToXe_DATA[nGasTypes][nParametersShortStrawsMimic];
+  float para_End_MimicToXe_MC[nGasTypes][nParametersEndcapMimic];
+  float para_End_MimicToXe_DATA[nGasTypes][nParametersEndcapMimic];
  
   //==============================================================  
   
