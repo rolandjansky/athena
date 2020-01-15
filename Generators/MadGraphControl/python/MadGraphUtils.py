@@ -2673,17 +2673,19 @@ def hack_gridpack_script(gridpack_dir,reweight_card,madspin_card):
     newscript = open(runscript+'.tmp','w')
     # in older MG versions the gridpack is run with the command below
     gridrun_line_old='./bin/gridrun $num_events $seed'
-    syst_line_old='./bin/madevent syscalc GridRun_${seed} -f\n'
-    if systematics_program=='systematics':
-        #syst_line_old='./bin/madevent systematics GridRun_${seed} -f\n'
-        syst_line_old='python bin/internal/systematics.py Events/GridRun_123456/unweighted_events.lhe.gz Events/GridRun_123456/unweighted_events.lhe.gz '+systematics_arguments+'\n'
+    syst_line_old=''
+    if not is_version_or_newer([2,6,6]):
+        syst_line_old='./bin/madevent syscalc GridRun_${seed} -f\n'
+        if systematics_program=='systematics':
+            syst_line_old='python bin/internal/systematics.py Events/GridRun_${seed}/unweighted_events.lhe.gz Events/GridRun_${seed}/unweighted_events.lhe.gz '+systematics_arguments+'\n'
     reweight_line_old='./bin/madevent reweight GridRun_${seed} -f\n'
     # in new versions it is run like this
     gridrun_line_new='${DIR}/bin/gridrun $num_events $seed $gran'
-    syst_line_new='${DIR}/bin/madevent syscalc GridRun_${seed} -f\n'
-    if systematics_program=='systematics':
-#        syst_line_new='${DIR}/bin/madevent systematics GridRun_${seed} -f\n'
-        syst_line_new='python ${DIR}/bin/internal/systematics.py  ${DIR}/Events/GridRun_123456/unweighted_events.lhe.gz ${DIR}/Events/GridRun_123456/unweighted_events.lhe.gz '+systematics_arguments+'\n'
+    syst_line_new=''
+    if not is_version_or_newer([2,6,6]):
+        syst_line_new='${DIR}/bin/madevent syscalc GridRun_${seed} -f\n'
+        if systematics_program=='systematics':
+            syst_line_new='python ${DIR}/bin/internal/systematics.py  ${DIR}/Events/GridRun_${seed}/unweighted_events.lhe.gz ${DIR}/Events/GridRun_${seed}/unweighted_events.lhe.gz '+systematics_arguments+'\n'
     reweight_line_new='${DIR}/bin/madevent reweight GridRun_${seed} -f\n'
 
     for line in oldscript:
