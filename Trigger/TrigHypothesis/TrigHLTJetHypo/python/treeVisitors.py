@@ -34,6 +34,8 @@ def defaultParameters(parameter, default=''):  # default if parameter unknown
                 'momwidthhi': 'inf',
                 'smclo': '0',
                 'smchi': 'inf',                
+		'jvtlo': '0',
+		'jvthi': 'inf',
     }
 
     if parameter not in  defaults:
@@ -56,6 +58,7 @@ def scaleFactors(parameter):
         'djdphi': 0.1,
         'qjmass': 1000.,
         'momwidth': 1.0,
+        'jvt': 0.01,
     }
     return defaults[parameter]
         

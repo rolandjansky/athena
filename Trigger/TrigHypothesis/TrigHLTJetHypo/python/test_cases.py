@@ -3,6 +3,7 @@
 test_strings = [
     'simple([(38et, 0eta320)])',
     'simple([(38et, 0eta320)(40et, 0eta320)])',
+    'simple([(38et, 0eta320, 011jvt)])',
     'or([] simple([(10et)]) simple([(20et)(40et)]))',
     'and([] simple([(10et)]) simple([(20et)]))',
     'not([] simple([(10et)]))',

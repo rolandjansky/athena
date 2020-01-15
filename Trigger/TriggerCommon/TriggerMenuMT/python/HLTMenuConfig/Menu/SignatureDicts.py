@@ -93,6 +93,7 @@ JetChainParts = {
     'threshold'    : '',
     'multiplicity' : '',
     'etaRange'     : ['0eta320', '320eta490', '0eta240'],
+    'jvt'          : ['011jvt', '015jvt', '059jvt'],
     # May need to reinstate in the event that preselection is
     # needed before running tracking
     #'gscThreshold' : ['gsc'],
@@ -132,6 +133,7 @@ JetChainParts_Default = {
     'threshold'    : '',
     'multiplicity' : '',
     'etaRange'     : '0eta320',
+    'jvt'          : '',
     'trigType'     :'j',
     'extra'        : '',
     'cleaning'     : 'noCleaning',
