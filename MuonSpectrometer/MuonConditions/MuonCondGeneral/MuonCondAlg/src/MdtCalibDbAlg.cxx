@@ -2,7 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MdtCalibDbCoolStrTool/MdtCalibDbAlg.h"
+#include "MuonCondAlg/MdtCalibDbAlg.h"
 
 //from MdtCalibDbCoolStrTool.cxx
 
