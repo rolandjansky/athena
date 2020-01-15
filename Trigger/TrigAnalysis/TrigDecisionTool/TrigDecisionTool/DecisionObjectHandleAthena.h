@@ -43,7 +43,7 @@ namespace Trig {
   {
   public:
     DecisionObjectHandleAthena( SG::ReadHandleKey<TrigDec::TrigDecision>* olddeckey );
-    virtual void reset (bool hard) override;
+    virtual void reset (bool hard = false) override;
     virtual TrigDec::TrigDecision const * getDecision() const override;
     virtual TrigDec::TrigDecision const * getNavigation() const override;
   private:

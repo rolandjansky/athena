@@ -36,7 +36,7 @@ namespace Trig {
   {
   public:
     DecisionObjectHandleEventInfo( SG::ReadHandleKey<EventInfo>* oldEventInfoKey );
-    virtual void reset (bool hard) override;
+    virtual void reset (bool hard = false) override;
     virtual TriggerInfo const * getDecision() const override;
     virtual void const * getNavigation() const override; 
   private:

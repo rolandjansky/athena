@@ -190,7 +190,7 @@ namespace Trig {
     m_handle->validate();
   }
   void DecisionUnpackerEventInfo::invalidate_handle(){
-    m_handle->invalidate();
+    m_handle->reset(); // This used to be invalidate(), but we now use a ReadHandle, so it has to be a full reset.
     this->unpacked_navigation(false);
     this->unpacked_decision(false);
   }

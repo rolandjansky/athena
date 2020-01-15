@@ -142,7 +142,7 @@ namespace Trig {
       HLT::NavigationCore* fullNav = dynamic_cast<HLT::NavigationCore*>(nav);
       
       if(!fullNav){
-	ATH_MSG_WARNING("downcast failed");
+        ATH_MSG_WARNING("downcast failed");
       }
       
       fullNav->reset();
