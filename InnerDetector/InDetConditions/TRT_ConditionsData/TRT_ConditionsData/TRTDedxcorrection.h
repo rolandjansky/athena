@@ -8,6 +8,21 @@
 
 struct TRTDedxcorrection {
    
+  static const int nParameters_TrackBased_dEdx = 100;
+  static const int nParameters_HitBased_dEdx = 204;
+
+  double HitOccPar[nParameters_HitBased_dEdx];
+
+  // TrckOccupancy calibration constants, HT hits are excluded, Pt>0.4 GeV d0<0.4 mm deltaZ0sin(theta)<0.4 mm
+  double TrackOccPar0_noHT[nParameters_TrackBased_dEdx];
+  double TrackOccPar1_noHT[nParameters_TrackBased_dEdx];
+  double TrackOccPar2_noHT[nParameters_TrackBased_dEdx];
+
+  // TrckOccupancy calibration constants, Pt>0.4 GeV d0<0.4 mm deltaZ0sin(theta)<0.4 mm
+  double TrackOccPar0[nParameters_TrackBased_dEdx];
+  double TrackOccPar1[nParameters_TrackBased_dEdx];
+  double TrackOccPar2[nParameters_TrackBased_dEdx];
+
   double paraL_dEdx_p1[3];
   double paraL_dEdx_p2[3];
   double paraL_dEdx_p3[3];
