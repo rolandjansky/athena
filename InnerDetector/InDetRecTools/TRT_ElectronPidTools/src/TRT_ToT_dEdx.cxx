@@ -367,9 +367,7 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track, bool divideByL, bool useHThit
       // Boost speed
       if(nhits<1)return 0.0;
 
-      for (int i = 0; i < nhits;i++){
-        ToTsum+=vecToT.at(i);
-      }
+      ToTsum = std::accumulate(vecToT.begin(), vecToT.end(), 0);
       if (correction_type == ITRT_ToT_dEdx::EOccupancyCorrection::kTrackBased){correctionFactor=TrackOccupancyCorrection(track, useHThits);}
       else {correctionFactor=correctNormalization(divideByL, m_isData, nVtx);}
       ToTsum*=correctionFactor;
@@ -830,16 +828,16 @@ double TRT_ToT_dEdx::correctNormalization(bool divideLength,bool scaledata, doub
   EGasType gasType = static_cast<EGasType> (m_useTrackPartWithGasType);
   if(m_useTrackPartWithGasType==kUnset)
     gasType=kXenon;
-  if(nVtx<=0)nVtx=Dedxcorrection->norm_nzero[gasType];
-  double slope = Dedxcorrection->norm_slope_tot[gasType];
-  double offset = Dedxcorrection->norm_offset_tot[gasType];
+  if(nVtx<=0)nVtx=Dedxcorrection->norm_Nzero[gasType];
+  double slope = Dedxcorrection->norm_Slope_Tot[gasType];
+  double offset = Dedxcorrection->norm_Offset_Tot[gasType];
   if(divideLength){
-    slope = Dedxcorrection->norm_slope_tot[gasType];
-    offset = Dedxcorrection->norm_offset_tot[gasType];
+    slope = Dedxcorrection->norm_Slope_Totl[gasType];
+    offset = Dedxcorrection->norm_Offset_Totl[gasType];
   } 
-  double shift = Dedxcorrection->norm_offset_data[gasType];
+  double shift = Dedxcorrection->norm_Offset_Data[gasType];
   if(!scaledata)shift = 0;
-  return (slope*Dedxcorrection->norm_nzero[gasType]+offset)/(slope*nVtx+offset+shift);
+  return (slope*Dedxcorrection->norm_Nzero[gasType]+offset)/(slope*nVtx+offset+shift);
 }
 
 
@@ -1178,55 +1176,55 @@ double TRT_ToT_dEdx::fitFuncPol_corrRZ(EGasType gasType, int parameter, double d
       //int parId=0;
       //parId=0;
       //if(sign>0)parId=1620;  // FIXME: parId is not used
-      a = Dedxcorrection->para_long_corrRZ[gasType][(6*parameter+0)*30*3+Layer*30+Strawlayer+offset];
-      b = Dedxcorrection->para_long_corrRZ[gasType][(6*parameter+1)*30*3+Layer*30+Strawlayer+offset];
-      c = Dedxcorrection->para_long_corrRZ[gasType][(6*parameter+2)*30*3+Layer*30+Strawlayer+offset];
-      d = Dedxcorrection->para_long_corrRZ[gasType][(6*parameter+3)*30*3+Layer*30+Strawlayer+offset];
-      e = Dedxcorrection->para_long_corrRZ[gasType][(6*parameter+4)*30*3+Layer*30+Strawlayer+offset];
-      f = Dedxcorrection->para_long_corrRZ[gasType][(6*parameter+5)*30*3+Layer*30+Strawlayer+offset];
+      a = Dedxcorrection->para_Long_CorrRZ[gasType][(6*parameter+0)*30*3+Layer*30+Strawlayer+offset];
+      b = Dedxcorrection->para_Long_CorrRZ[gasType][(6*parameter+1)*30*3+Layer*30+Strawlayer+offset];
+      c = Dedxcorrection->para_Long_CorrRZ[gasType][(6*parameter+2)*30*3+Layer*30+Strawlayer+offset];
+      d = Dedxcorrection->para_Long_CorrRZ[gasType][(6*parameter+3)*30*3+Layer*30+Strawlayer+offset];
+      e = Dedxcorrection->para_Long_CorrRZ[gasType][(6*parameter+4)*30*3+Layer*30+Strawlayer+offset];
+      f = Dedxcorrection->para_Long_CorrRZ[gasType][(6*parameter+5)*30*3+Layer*30+Strawlayer+offset];
      
     }else if (set ==1) { // short straws in barrel
       if(sign > 0) offset+=108;
-      a = Dedxcorrection->para_short_corrRZ[gasType][(6*parameter+0)*9+Layer+offset];
-      b = Dedxcorrection->para_short_corrRZ[gasType][(6*parameter+1)*9+Layer+offset];
-      c = Dedxcorrection->para_short_corrRZ[gasType][(6*parameter+2)*9+Layer+offset];
-      d = Dedxcorrection->para_short_corrRZ[gasType][(6*parameter+3)*9+Layer+offset];
-      e = Dedxcorrection->para_short_corrRZ[gasType][(6*parameter+4)*9+Layer+offset];
-      f = Dedxcorrection->para_short_corrRZ[gasType][(6*parameter+5)*9+Layer+offset];
+      a = Dedxcorrection->para_Short_CorrRZ[gasType][(6*parameter+0)*9+Layer+offset];
+      b = Dedxcorrection->para_Short_CorrRZ[gasType][(6*parameter+1)*9+Layer+offset];
+      c = Dedxcorrection->para_Short_CorrRZ[gasType][(6*parameter+2)*9+Layer+offset];
+      d = Dedxcorrection->para_Short_CorrRZ[gasType][(6*parameter+3)*9+Layer+offset];
+      e = Dedxcorrection->para_Short_CorrRZ[gasType][(6*parameter+4)*9+Layer+offset];
+      f = Dedxcorrection->para_Short_CorrRZ[gasType][(6*parameter+5)*9+Layer+offset];
     }else{  // straws in endcap
       if(sign >0) Layer+=14;
-      a = Dedxcorrection->para_end_corrRZ[gasType][(6*parameter+0)*28+Layer];
-      b = Dedxcorrection->para_end_corrRZ[gasType][(6*parameter+1)*28+Layer];
-      c = Dedxcorrection->para_end_corrRZ[gasType][(6*parameter+2)*28+Layer];
-      d = Dedxcorrection->para_end_corrRZ[gasType][(6*parameter+3)*28+Layer];
-      e = Dedxcorrection->para_end_corrRZ[gasType][(6*parameter+4)*28+Layer];
-      f = Dedxcorrection->para_end_corrRZ[gasType][(6*parameter+5)*28+Layer];
+      a = Dedxcorrection->para_End_CorrRZ[gasType][(6*parameter+0)*28+Layer];
+      b = Dedxcorrection->para_End_CorrRZ[gasType][(6*parameter+1)*28+Layer];
+      c = Dedxcorrection->para_End_CorrRZ[gasType][(6*parameter+2)*28+Layer];
+      d = Dedxcorrection->para_End_CorrRZ[gasType][(6*parameter+3)*28+Layer];
+      e = Dedxcorrection->para_End_CorrRZ[gasType][(6*parameter+4)*28+Layer];
+      f = Dedxcorrection->para_End_CorrRZ[gasType][(6*parameter+5)*28+Layer];
     }
   }else{
     if(set==0){ // long straws in barrel
       if(sign > 0) offset=1620;
-      a = Dedxcorrection->para_long_corrRZ_MC[gasType][(6*parameter+0)*30*3+Layer*30+Strawlayer+offset];
-      b = Dedxcorrection->para_long_corrRZ_MC[gasType][(6*parameter+1)*30*3+Layer*30+Strawlayer+offset];
-      c = Dedxcorrection->para_long_corrRZ_MC[gasType][(6*parameter+2)*30*3+Layer*30+Strawlayer+offset];
-      d = Dedxcorrection->para_long_corrRZ_MC[gasType][(6*parameter+3)*30*3+Layer*30+Strawlayer+offset];
-      e = Dedxcorrection->para_long_corrRZ_MC[gasType][(6*parameter+4)*30*3+Layer*30+Strawlayer+offset];
-      f = Dedxcorrection->para_long_corrRZ_MC[gasType][(6*parameter+5)*30*3+Layer*30+Strawlayer+offset];
+      a = Dedxcorrection->para_Long_CorrRZ_MC[gasType][(6*parameter+0)*30*3+Layer*30+Strawlayer+offset];
+      b = Dedxcorrection->para_Long_CorrRZ_MC[gasType][(6*parameter+1)*30*3+Layer*30+Strawlayer+offset];
+      c = Dedxcorrection->para_Long_CorrRZ_MC[gasType][(6*parameter+2)*30*3+Layer*30+Strawlayer+offset];
+      d = Dedxcorrection->para_Long_CorrRZ_MC[gasType][(6*parameter+3)*30*3+Layer*30+Strawlayer+offset];
+      e = Dedxcorrection->para_Long_CorrRZ_MC[gasType][(6*parameter+4)*30*3+Layer*30+Strawlayer+offset];
+      f = Dedxcorrection->para_Long_CorrRZ_MC[gasType][(6*parameter+5)*30*3+Layer*30+Strawlayer+offset];
     }else if (set ==1) { // short straws in barrel
       if(sign > 0) offset+=108;
-      a = Dedxcorrection->para_short_corrRZ_MC[gasType][(6*parameter+0)*9+Layer+offset];
-      b = Dedxcorrection->para_short_corrRZ_MC[gasType][(6*parameter+1)*9+Layer+offset];
-      c = Dedxcorrection->para_short_corrRZ_MC[gasType][(6*parameter+2)*9+Layer+offset];
-      d = Dedxcorrection->para_short_corrRZ_MC[gasType][(6*parameter+3)*9+Layer+offset];
-      e = Dedxcorrection->para_short_corrRZ_MC[gasType][(6*parameter+4)*9+Layer+offset];
-      f = Dedxcorrection->para_short_corrRZ_MC[gasType][(6*parameter+5)*9+Layer+offset];
+      a = Dedxcorrection->para_Short_CorrRZ_MC[gasType][(6*parameter+0)*9+Layer+offset];
+      b = Dedxcorrection->para_Short_CorrRZ_MC[gasType][(6*parameter+1)*9+Layer+offset];
+      c = Dedxcorrection->para_Short_CorrRZ_MC[gasType][(6*parameter+2)*9+Layer+offset];
+      d = Dedxcorrection->para_Short_CorrRZ_MC[gasType][(6*parameter+3)*9+Layer+offset];
+      e = Dedxcorrection->para_Short_CorrRZ_MC[gasType][(6*parameter+4)*9+Layer+offset];
+      f = Dedxcorrection->para_Short_CorrRZ_MC[gasType][(6*parameter+5)*9+Layer+offset];
     }else{  // straws in endcap
       if(sign >0) Layer+=14;
-      a = Dedxcorrection->para_end_corrRZ_MC[gasType][(6*parameter+0)*28+Layer];
-      b = Dedxcorrection->para_end_corrRZ_MC[gasType][(6*parameter+1)*28+Layer];
-      c = Dedxcorrection->para_end_corrRZ_MC[gasType][(6*parameter+2)*28+Layer];
-      d = Dedxcorrection->para_end_corrRZ_MC[gasType][(6*parameter+3)*28+Layer];
-      e = Dedxcorrection->para_end_corrRZ_MC[gasType][(6*parameter+4)*28+Layer];
-      f = Dedxcorrection->para_end_corrRZ_MC[gasType][(6*parameter+5)*28+Layer];
+      a = Dedxcorrection->para_End_CorrRZ_MC[gasType][(6*parameter+0)*28+Layer];
+      b = Dedxcorrection->para_End_CorrRZ_MC[gasType][(6*parameter+1)*28+Layer];
+      c = Dedxcorrection->para_End_CorrRZ_MC[gasType][(6*parameter+2)*28+Layer];
+      d = Dedxcorrection->para_End_CorrRZ_MC[gasType][(6*parameter+3)*28+Layer];
+      e = Dedxcorrection->para_End_CorrRZ_MC[gasType][(6*parameter+4)*28+Layer];
+      f = Dedxcorrection->para_End_CorrRZ_MC[gasType][(6*parameter+5)*28+Layer];
     }    
   }
   return a+b*r+c*r*r+d*r*r*r+e*r*r*r*r+f*r*r*r*r*r;
@@ -1251,25 +1249,25 @@ double TRT_ToT_dEdx::fitFuncEndcap_corrRZL(EGasType gasType, double driftRadius,
   double a,b,c,d,e,f,g,h,i;  
   if(sign >0) Layer+=14;
   if(m_isData){
-    a = Dedxcorrection->para_end_corrRZL_DATA[gasType][(0)*28+Layer];
-    b = Dedxcorrection->para_end_corrRZL_DATA[gasType][(1)*28+Layer];
-    c = Dedxcorrection->para_end_corrRZL_DATA[gasType][(2)*28+Layer];
-    d = Dedxcorrection->para_end_corrRZL_DATA[gasType][(3)*28+Layer];
-    e = Dedxcorrection->para_end_corrRZL_DATA[gasType][(4)*28+Layer];
-    f = Dedxcorrection->para_end_corrRZL_DATA[gasType][(5)*28+Layer];  
-    g = Dedxcorrection->para_end_corrRZL_DATA[gasType][(6)*28+Layer];  
-    h = Dedxcorrection->para_end_corrRZL_DATA[gasType][(7)*28+Layer];  
-    i = Dedxcorrection->para_end_corrRZL_DATA[gasType][(8)*28+Layer];  
+    a = Dedxcorrection->para_End_CorrRZL_DATA[gasType][(0)*28+Layer];
+    b = Dedxcorrection->para_End_CorrRZL_DATA[gasType][(1)*28+Layer];
+    c = Dedxcorrection->para_End_CorrRZL_DATA[gasType][(2)*28+Layer];
+    d = Dedxcorrection->para_End_CorrRZL_DATA[gasType][(3)*28+Layer];
+    e = Dedxcorrection->para_End_CorrRZL_DATA[gasType][(4)*28+Layer];
+    f = Dedxcorrection->para_End_CorrRZL_DATA[gasType][(5)*28+Layer];  
+    g = Dedxcorrection->para_End_CorrRZL_DATA[gasType][(6)*28+Layer];  
+    h = Dedxcorrection->para_End_CorrRZL_DATA[gasType][(7)*28+Layer];  
+    i = Dedxcorrection->para_End_CorrRZL_DATA[gasType][(8)*28+Layer];  
   }else{
-    a = Dedxcorrection->para_end_corrRZL_MC[gasType][(0)*28+Layer];
-    b = Dedxcorrection->para_end_corrRZL_MC[gasType][(1)*28+Layer];
-    c = Dedxcorrection->para_end_corrRZL_MC[gasType][(2)*28+Layer];
-    d = Dedxcorrection->para_end_corrRZL_MC[gasType][(3)*28+Layer];
-    e = Dedxcorrection->para_end_corrRZL_MC[gasType][(4)*28+Layer];
-    f = Dedxcorrection->para_end_corrRZL_MC[gasType][(5)*28+Layer];  
-    g = Dedxcorrection->para_end_corrRZL_MC[gasType][(6)*28+Layer];  
-    h = Dedxcorrection->para_end_corrRZL_MC[gasType][(7)*28+Layer];  
-    i = Dedxcorrection->para_end_corrRZL_MC[gasType][(8)*28+Layer]; 
+    a = Dedxcorrection->para_End_CorrRZL_MC[gasType][(0)*28+Layer];
+    b = Dedxcorrection->para_End_CorrRZL_MC[gasType][(1)*28+Layer];
+    c = Dedxcorrection->para_End_CorrRZL_MC[gasType][(2)*28+Layer];
+    d = Dedxcorrection->para_End_CorrRZL_MC[gasType][(3)*28+Layer];
+    e = Dedxcorrection->para_End_CorrRZL_MC[gasType][(4)*28+Layer];
+    f = Dedxcorrection->para_End_CorrRZL_MC[gasType][(5)*28+Layer];  
+    g = Dedxcorrection->para_End_CorrRZL_MC[gasType][(6)*28+Layer];  
+    h = Dedxcorrection->para_End_CorrRZL_MC[gasType][(7)*28+Layer];  
+    i = Dedxcorrection->para_End_CorrRZL_MC[gasType][(8)*28+Layer]; 
   } 
 
   double T1    = b*r+c*r*r+d*r*r*r+e*r*r*r*r+f*r*r*r*r*r;
@@ -1297,40 +1295,40 @@ double TRT_ToT_dEdx::fitFuncBarrel_corrRZL(EGasType gasType, double driftRadius,
 
   if(Layer==0 && Strawlayer<9){ // short straws
     if(m_isData){
-      a = Dedxcorrection->para_short_corrRZL_DATA[gasType][(0)*9+Strawlayer];
-      b = Dedxcorrection->para_short_corrRZL_DATA[gasType][(1)*9+Strawlayer];
-      c = Dedxcorrection->para_short_corrRZL_DATA[gasType][(2)*9+Strawlayer];
-      d = Dedxcorrection->para_short_corrRZL_DATA[gasType][(3)*9+Strawlayer];
-      e = Dedxcorrection->para_short_corrRZL_DATA[gasType][(4)*9+Strawlayer];
-      f = Dedxcorrection->para_short_corrRZL_DATA[gasType][(5)*9+Strawlayer];
-      g = Dedxcorrection->para_short_corrRZL_DATA[gasType][(6)*9+Strawlayer];
+      a = Dedxcorrection->para_Short_CorrRZL_DATA[gasType][(0)*9+Strawlayer];
+      b = Dedxcorrection->para_Short_CorrRZL_DATA[gasType][(1)*9+Strawlayer];
+      c = Dedxcorrection->para_Short_CorrRZL_DATA[gasType][(2)*9+Strawlayer];
+      d = Dedxcorrection->para_Short_CorrRZL_DATA[gasType][(3)*9+Strawlayer];
+      e = Dedxcorrection->para_Short_CorrRZL_DATA[gasType][(4)*9+Strawlayer];
+      f = Dedxcorrection->para_Short_CorrRZL_DATA[gasType][(5)*9+Strawlayer];
+      g = Dedxcorrection->para_Short_CorrRZL_DATA[gasType][(6)*9+Strawlayer];
     }else{
-      a = Dedxcorrection->para_short_corrRZL_MC[gasType][(0)*9+Strawlayer];
-      b = Dedxcorrection->para_short_corrRZL_MC[gasType][(1)*9+Strawlayer];
-      c = Dedxcorrection->para_short_corrRZL_MC[gasType][(2)*9+Strawlayer];
-      d = Dedxcorrection->para_short_corrRZL_MC[gasType][(3)*9+Strawlayer];
-      e = Dedxcorrection->para_short_corrRZL_MC[gasType][(4)*9+Strawlayer];
-      f = Dedxcorrection->para_short_corrRZL_MC[gasType][(5)*9+Strawlayer];
-      g = Dedxcorrection->para_short_corrRZL_MC[gasType][(6)*9+Strawlayer];
+      a = Dedxcorrection->para_Short_CorrRZL_MC[gasType][(0)*9+Strawlayer];
+      b = Dedxcorrection->para_Short_CorrRZL_MC[gasType][(1)*9+Strawlayer];
+      c = Dedxcorrection->para_Short_CorrRZL_MC[gasType][(2)*9+Strawlayer];
+      d = Dedxcorrection->para_Short_CorrRZL_MC[gasType][(3)*9+Strawlayer];
+      e = Dedxcorrection->para_Short_CorrRZL_MC[gasType][(4)*9+Strawlayer];
+      f = Dedxcorrection->para_Short_CorrRZL_MC[gasType][(5)*9+Strawlayer];
+      g = Dedxcorrection->para_Short_CorrRZL_MC[gasType][(6)*9+Strawlayer];
     }
     
   }else{
     if(m_isData){
-      a = Dedxcorrection->para_long_corrRZL_DATA[gasType][(0)*30*3+Layer*30+Strawlayer];
-      b = Dedxcorrection->para_long_corrRZL_DATA[gasType][(1)*30*3+Layer*30+Strawlayer];
-      c = Dedxcorrection->para_long_corrRZL_DATA[gasType][(2)*30*3+Layer*30+Strawlayer];
-      d = Dedxcorrection->para_long_corrRZL_DATA[gasType][(3)*30*3+Layer*30+Strawlayer];
-      e = Dedxcorrection->para_long_corrRZL_DATA[gasType][(4)*30*3+Layer*30+Strawlayer];
-      f = Dedxcorrection->para_long_corrRZL_DATA[gasType][(5)*30*3+Layer*30+Strawlayer];
-      g = Dedxcorrection->para_long_corrRZL_DATA[gasType][(6)*30*3+Layer*30+Strawlayer];
+      a = Dedxcorrection->para_Long_CorrRZL_DATA[gasType][(0)*30*3+Layer*30+Strawlayer];
+      b = Dedxcorrection->para_Long_CorrRZL_DATA[gasType][(1)*30*3+Layer*30+Strawlayer];
+      c = Dedxcorrection->para_Long_CorrRZL_DATA[gasType][(2)*30*3+Layer*30+Strawlayer];
+      d = Dedxcorrection->para_Long_CorrRZL_DATA[gasType][(3)*30*3+Layer*30+Strawlayer];
+      e = Dedxcorrection->para_Long_CorrRZL_DATA[gasType][(4)*30*3+Layer*30+Strawlayer];
+      f = Dedxcorrection->para_Long_CorrRZL_DATA[gasType][(5)*30*3+Layer*30+Strawlayer];
+      g = Dedxcorrection->para_Long_CorrRZL_DATA[gasType][(6)*30*3+Layer*30+Strawlayer];
     }else{
-      a = Dedxcorrection->para_long_corrRZL_MC[gasType][(0)*30*3+Layer*30+Strawlayer];
-      b = Dedxcorrection->para_long_corrRZL_MC[gasType][(1)*30*3+Layer*30+Strawlayer];
-      c = Dedxcorrection->para_long_corrRZL_MC[gasType][(2)*30*3+Layer*30+Strawlayer];
-      d = Dedxcorrection->para_long_corrRZL_MC[gasType][(3)*30*3+Layer*30+Strawlayer];
-      e = Dedxcorrection->para_long_corrRZL_MC[gasType][(4)*30*3+Layer*30+Strawlayer];
-      f = Dedxcorrection->para_long_corrRZL_MC[gasType][(5)*30*3+Layer*30+Strawlayer];
-      g = Dedxcorrection->para_long_corrRZL_MC[gasType][(6)*30*3+Layer*30+Strawlayer];
+      a = Dedxcorrection->para_Long_CorrRZL_MC[gasType][(0)*30*3+Layer*30+Strawlayer];
+      b = Dedxcorrection->para_Long_CorrRZL_MC[gasType][(1)*30*3+Layer*30+Strawlayer];
+      c = Dedxcorrection->para_Long_CorrRZL_MC[gasType][(2)*30*3+Layer*30+Strawlayer];
+      d = Dedxcorrection->para_Long_CorrRZL_MC[gasType][(3)*30*3+Layer*30+Strawlayer];
+      e = Dedxcorrection->para_Long_CorrRZL_MC[gasType][(4)*30*3+Layer*30+Strawlayer];
+      f = Dedxcorrection->para_Long_CorrRZL_MC[gasType][(5)*30*3+Layer*30+Strawlayer];
+      g = Dedxcorrection->para_Long_CorrRZL_MC[gasType][(6)*30*3+Layer*30+Strawlayer];
     }
   }
   double z = fabs(zPosition);
@@ -1612,9 +1610,9 @@ double TRT_ToT_dEdx::mimicToXeHit_Endcap(EGasType gasType, double driftRadius, i
   int side = 0; // A side
   if(sign <0) side =1; // C side
   if(m_isData)
-    a = Dedxcorrection->para_end_mimicToXe_DATA[gasType][(side*14+Layer)*20+(rBin)];
+    a = Dedxcorrection->para_End_MimicToXe_DATA[gasType][(side*14+Layer)*20+(rBin)];
   else
-    a = Dedxcorrection->para_end_mimicToXe_MC[gasType][(side*14+Layer)*20+(rBin)];
+    a = Dedxcorrection->para_End_MimicToXe_MC[gasType][(side*14+Layer)*20+(rBin)];
 
   ATH_MSG_DEBUG("mimicToXeHit_Endcap():: isData = " << m_isData << " gasTypeInStraw = " << gasType
                 << " side = " << side << " Layer = " << Layer << " rBin = " << rBin <<" BINPOS = " << (side*14+Layer)*20+(rBin) 
@@ -1648,14 +1646,14 @@ double TRT_ToT_dEdx::mimicToXeHit_Barrel(EGasType gasType, double driftRadius, i
 
   if(Layer==0 && Strawlayer<9){ // short straws
     if(m_isData)
-      a = Dedxcorrection->para_short_mimicToXe_DATA[gasType][Strawlayer*20+(rBin)];
+      a = Dedxcorrection->para_Short_MimicToXe_DATA[gasType][Strawlayer*20+(rBin)];
     else
-      a = Dedxcorrection->para_short_mimicToXe_MC[gasType][Strawlayer*20+(rBin)];
+      a = Dedxcorrection->para_Short_MimicToXe_MC[gasType][Strawlayer*20+(rBin)];
   }else{
     if(m_isData)
-      a = Dedxcorrection->para_long_mimicToXe_DATA[gasType][Layer*30*20+Strawlayer*20+(rBin)];
+      a = Dedxcorrection->para_Long_MimicToXe_DATA[gasType][Layer*30*20+Strawlayer*20+(rBin)];
     else
-      a = Dedxcorrection->para_long_mimicToXe_MC[gasType][Layer*30*20+Strawlayer*20+(rBin)];
+      a = Dedxcorrection->para_Long_MimicToXe_MC[gasType][Layer*30*20+Strawlayer*20+(rBin)];
   }
 
   ATH_MSG_DEBUG("mimicToXeHit_Barrel():: isData = " << m_isData << " Layer = " << Layer << " Strawlayer = " << Strawlayer << " rBin = " << rBin << " a = " << a << "" );
