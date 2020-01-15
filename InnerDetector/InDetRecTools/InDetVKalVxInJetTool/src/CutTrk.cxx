@@ -193,7 +193,7 @@ namespace InDet{
           uint8_t PixelHits,SctHits,BLayHits;
           if( !((*i_ntrk)->summaryValue(PixelHits,xAOD::numberOfPixelHits)) )   continue; // Track is 
           if( !((*i_ntrk)->summaryValue(  SctHits,xAOD::numberOfSCTHits))   )   continue; // definitely  
-          if( SctHits<3 )                                                       continue; // bad
+	  // if( SctHits<3 )                                                       continue; // bad --commented out for ITk 
           if( !((*i_ntrk)->summaryValue(BLayHits,xAOD::numberOfInnermostPixelLayerHits)))  BLayHits=0;
           //if( !((*i_ntrk)->summaryValue(sctSharedHits,xAOD::numberOfSCTSharedHits)))  sctSharedHits=0;  //VK Bad for high Pt
           //if( !((*i_ntrk)->summaryValue(pixSharedHits,xAOD::numberOfPixelSharedHits)))pixSharedHits=0;  //and many tracks
@@ -225,12 +225,12 @@ namespace InDet{
 	  ImpactZ=Impact[1];   
 //---- Improved cleaning
 /////          if(PixelHits<=2 && ( outPixHits || splPixHits )) continue;  //VK Bad idea at high Pt!
-          if(fabs((*i_ntrk)->eta())>2.  ) {
+	  /* if(fabs((*i_ntrk)->eta())>2.  ) {
             if( PixelHits<=3 && ( splSCTHits || outSCTHits || outPixHits || splPixHits ))continue;
             if(m_existIBL){PixelHits -=1; SctHits   -=1;}             // 4-layer pixel detector
             else          {PixelHits -=1;}                            // 3-layer pixel detector
           }
-          if(fabs((*i_ntrk)->eta())>1.65)  SctHits   -=1;
+          if(fabs((*i_ntrk)->eta())>1.65)  SctHits   -=1;*/
 //----
           StatusCode sc = CutTrk( VectPerig[4] , VectPerig[3],
                           ImpactA0 , ImpactZ, trkChi2,
