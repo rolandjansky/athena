@@ -6,7 +6,7 @@ __doc__ = "Tool configuration for the track to calo tools."
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-from TrkExTools.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
 Trk__ParticleCaloExtensionTool, Rec__ParticleCaloCellAssociationTool=CompFactory.getComps("Trk__ParticleCaloExtensionTool","Rec__ParticleCaloCellAssociationTool",)
 
 def ParticleCaloExtensionToolCfg(flags, **kwargs):
