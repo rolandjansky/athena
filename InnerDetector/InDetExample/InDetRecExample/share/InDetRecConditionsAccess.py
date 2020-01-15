@@ -160,9 +160,9 @@ if DetFlags.haveRIO.pixel_on():
     if (conddb.dbdata=="CONDBR2" or (conddb.dbmc=="OFLP200" and geoFlags.isIBL()==True)) and not conddb.folderRequested("/PIXEL/HitDiscCnfg"):
         conddb.addFolderSplitMC("PIXEL","/PIXEL/HitDiscCnfg","/PIXEL/HitDiscCnfg", className="AthenaAttributeList")
 
-    if not hasattr(condSeq, 'PixelHitDiscCnfgAlg'):
-        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelHitDiscCnfgAlg
-        condSeq += PixelHitDiscCnfgAlg(name="PixelHitDiscCnfgAlg")
+        if not hasattr(condSeq, 'PixelHitDiscCnfgAlg'):
+            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelHitDiscCnfgAlg
+            condSeq += PixelHitDiscCnfgAlg(name="PixelHitDiscCnfgAlg")
 
     if not conddb.folderRequested("/PIXEL/ReadoutSpeed"):
         if not (globalflags.DataSource() == 'geant4'):
@@ -174,7 +174,7 @@ if DetFlags.haveRIO.pixel_on():
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelReadoutSpeedAlg
         condSeq += PixelReadoutSpeedAlg(name="PixelReadoutSpeedAlg")
 
-    if (globalflags.DataSource=='data'):
+    if (globalflags.DataSource=='data' and conddb.dbdata == 'CONDBR2'):
         if not conddb.folderRequested("/PIXEL/CablingMap"):
             conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/CablingMap","/PIXEL/CablingMap", className="AthenaAttributeList")
 
