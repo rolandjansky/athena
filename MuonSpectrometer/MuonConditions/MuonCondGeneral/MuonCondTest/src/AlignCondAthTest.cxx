@@ -15,7 +15,20 @@
 #include "GeoPrimitives/GeoPrimitivesToStringConverter.h"
 
 AlignCondAthTest::AlignCondAthTest(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator){
+  AthAlgorithm(name, pSvcLocator),
+  m_alinePrint(true),
+  m_blinePrint(true),
+  m_mdtPrint(true),
+  m_rpcPrint(true),
+  m_tgcPrint(true),
+  m_cscPrint(true)
+{
+  declareProperty( "ALinePrint", m_alinePrint );
+  declareProperty( "BLinePrint", m_blinePrint );
+  declareProperty( "MdtPrint", m_mdtPrint );
+  declareProperty( "RpcPrint", m_rpcPrint );
+  declareProperty( "TgcPrint", m_tgcPrint );
+  declareProperty( "CscPrint", m_cscPrint );
 }
  
 StatusCode AlignCondAthTest::initialize(){
@@ -47,14 +60,7 @@ StatusCode AlignCondAthTest::execute() {
     return StatusCode::FAILURE; 
   } 
 
-  bool ALinePrint = true;
-  bool BLinePrint = true;
-  bool MdtPrint = true;
-  bool RpcPrint = true;
-  bool TgcPrint = true;
-  bool CscPrint = true;
-
-  if(ALinePrint) {
+  if(m_alinePrint) {
     std::cout << "************************ BEGIN: ALines from Detector Store **************************" << std::endl;
     std::ofstream* foutDS = new std::ofstream("ALines_DS.txt");
     if(checkALines(m_MuonDetMgrDS, foutDS).isFailure()) return StatusCode::FAILURE;
@@ -66,7 +72,7 @@ StatusCode AlignCondAthTest::execute() {
     foutCS->close(); delete foutCS;
     std::cout << "************************ END: ALines from Conditions Store **************************" << std::endl;
   }
-  if(BLinePrint) {
+  if(m_blinePrint) {
     std::cout << "************************ BEGIN: BLines from Detector Store **************************" << std::endl;
     std::ofstream* foutDS = new std::ofstream("BLines_DS.txt");
     if(checkBLines(m_MuonDetMgrDS, foutDS).isFailure()) return StatusCode::FAILURE;
@@ -78,7 +84,7 @@ StatusCode AlignCondAthTest::execute() {
     foutCS->close(); delete foutCS;
     std::cout << "************************ END: BLines from Conditions Store **************************" << std::endl;
   }
-  if(MdtPrint) {
+  if(m_mdtPrint) {
     std::cout << "************************ BEGIN: MdtReadoutElements from Detector Store **************************" << std::endl;
     std::ofstream* foutDS = new std::ofstream("MdtOut_DS.txt");
     if(checkMdtGeometry(m_MuonDetMgrDS, foutDS).isFailure()) return StatusCode::FAILURE;
@@ -90,7 +96,7 @@ StatusCode AlignCondAthTest::execute() {
     foutCS->close(); delete foutCS;
     std::cout << "************************ END: MdtReadoutElements from Conditions Store **************************" << std::endl;
   }
-  if(RpcPrint) {
+  if(m_rpcPrint) {
     std::cout << "************************ BEGIN: RpcReadoutElements from Detector Store **************************" << std::endl;
     std::ofstream* foutDS = new std::ofstream("RpcOut_DS.txt");
     if(checkRpcGeometry(m_MuonDetMgrDS, foutDS).isFailure()) return StatusCode::FAILURE;
@@ -102,7 +108,7 @@ StatusCode AlignCondAthTest::execute() {
     foutCS->close(); delete foutCS;
     std::cout << "************************ END: RpcReadoutElements from Conditions Store **************************" << std::endl;
   }
-  if(TgcPrint) {
+  if(m_tgcPrint) {
     std::cout << "************************ BEGIN: TgcReadoutElements from Detector Store **************************" << std::endl;
     std::ofstream* foutDS = new std::ofstream("TgcOut_DS.txt");
     if(checkTgcGeometry(m_MuonDetMgrDS, foutDS).isFailure()) return StatusCode::FAILURE;
@@ -114,7 +120,7 @@ StatusCode AlignCondAthTest::execute() {
     foutCS->close(); delete foutCS;
     std::cout << "************************ END: TgcReadoutElements from Conditions Store **************************" << std::endl;
   }
-  if(CscPrint) {
+  if(m_cscPrint) {
     std::cout << "************************ BEGIN: CscReadoutElements from Detector Store **************************" << std::endl;
     std::ofstream* foutDS = new std::ofstream("CscOut_DS.txt");
     if(checkCscGeometry(m_MuonDetMgrDS, foutDS).isFailure()) return StatusCode::FAILURE;
@@ -229,43 +235,13 @@ StatusCode AlignCondAthTest::checkMdtGeometry(const MuonGM::MuonDetectorManager*
   		      << " Cent X, Y, Z: " << detEl->center(tl+1, t+1).x() << ", " << detEl->center(tl+1, t+1).y() << ", " << detEl->center(tl+1, t+1).z() << std::endl
   		      << " Norm X, Y, Z: " << detEl->normal(tl+1, t+1).x() << ", " << detEl->normal(tl+1, t+1).y() << ", " << detEl->normal(tl+1, t+1).z() << std::endl
   		      << " TNor X, Y, Z: " << detEl->tubeNormal(tl+1, t+1).x() << ", " << detEl->tubeNormal(tl+1, t+1).y() << ", " << detEl->tubeNormal(tl+1, t+1).z() << std::endl
-  		      << Amg::toString( surf.transform(),6 ) << std::endl
-  		      << Amg::toString( detEl->fromIdealToDeformed(i4, tl+1, t+1),6 ) << std::endl
-  		      << detEl->bounds(tl+1, t+1) << std::endl
-  		      << " transform at origin  " << (detEl->transform(tl+1, t+1)*Amg::Vector3D(0.,0.,0.)).x() << ", " 
-		      << (detEl->transform(tl+1, t+1)*Amg::Vector3D(0.,0.,0.)).y() << ", " << (detEl->transform(tl+1, t+1)*Amg::Vector3D(0.,0.,0.)).z() << std::endl;
-  		      // << Amg::toString( detEl->transform(tl+1, t+1),6 ) << std::endl;
+		      << Amg::toString( surf.transform(),6 ) << std::endl << detEl->bounds(tl+1, t+1) << std::endl;
   	    }
   	  }
   	}
       }
     }
   }
-  // for( int i1 = 0;i1 < manager->NMdtStatType; ++i1 ){
-  //   for( int i2 = 0;i2 < manager->NMdtStatEta; ++i2 ){
-  //     for( int i3 = 0;i3 < manager->NMdtStatPhi; ++i3 ){
-  // 	for( int i4 = 0;i4 < manager->NMdtMultilayer; ++i4 ){
-  // 	  const MuonGM::MdtReadoutElement* detEl = manager->getMdtReadoutElement(i1,i2,i3,i4);
-  // 	  if( !detEl ) continue;
-  // 	  const std::vector<const Trk::Surface*>& Nsurf = detEl->surfaces();
-  // 	  (*fout) << " New " << m_idHelperSvc->mdtIdHelper().print_to_string(detEl->identify())
-  // 		  << " nlayers " << detEl->getNLayers() << " ntubes " << detEl->getNtubesperlayer() << std::endl
-  // 		  << Amg::toString( detEl->transform(),6 ) << std::endl;
-	  
-  // 	  for( int tl = 0; tl<detEl->getNLayers();++tl ){
-  // 	    for( int t = 0; t<detEl->getNtubesperlayer();++t ){
-  // 	      const Trk::Surface& surf = detEl->surface(tl+1,t+1);
-  // 	      (*fout) << " New tube: layer " << tl << " tube " << t << std::endl
-  // 		      << " X, Y, Z:       " << detEl->tubePos(i4+1, tl+1, t+1).x() << ", " << detEl->tubePos(i4+1, tl+1, t+1).y() << ", " << detEl->tubePos(i4+1, tl+1, t+1).z() << std::endl
-  // 		      << " Local X, Y, Z: " << detEl->localTubePos(i4+1, tl+1, t+1).x() << ", " << detEl->localTubePos(i4+1, tl+1, t+1).y() << ", " << detEl->localTubePos(i4+1, tl+1, t+1).z() << std::endl
-  // 		      << Amg::toString( surf.transform(),6 ) << Amg::toString( detEl->fromIdealToDeformed(i4, tl+1, t+1) ) << std::endl;
-  // 	    }
-  // 	  }
-  // 	}
-  //     }
-  //   }
-  // }
-
   return StatusCode::SUCCESS;
 }
 

@@ -255,6 +255,13 @@ if hasattr(runArgs, "enableLooperKiller") and not runArgs.enableLooperKiller:
 #### *********** import ISF_Example code here **************** ####
 include("ISF_Config/ISF_ConfigJobInclude.py")
 
+from MuonTGRecTools.MuonTGRecToolsConf import Muon__MuonTGMeasurementTool
+MuonTGMeasurementTool = Muon__MuonTGMeasurementTool(  name = 'MuonTGMeasurementTool', 
+                                                      TrackingGeometryName = 'MuonStandaloneTrackingGeometry' )
+ToolSvc += MuonTGMeasurementTool
+MuonTGMeasurementTool.UseDSManager = True
+print MuonTGMeasurementTool 
+
 ## Add AMITag MetaData to TagInfoMgr
 if hasattr(runArgs, 'AMITag'):
     if runArgs.AMITag != "NONE":

@@ -41,6 +41,12 @@ private:
 
    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
+   bool m_alinePrint;
+   bool m_blinePrint;
+   bool m_mdtPrint;
+   bool m_rpcPrint;
+   bool m_tgcPrint;
+   bool m_cscPrint;
 
    StatusCode checkALines(const MuonGM::MuonDetectorManager* manager, std::ofstream* fout);
    StatusCode checkBLines(const MuonGM::MuonDetectorManager* manager, std::ofstream* fout);
