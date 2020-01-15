@@ -35,10 +35,9 @@ def JetSecVtxFindingAlgCfg(ConfigFlags, JetCollection, ParticleCollection="", SV
     options.setdefault('PrimaryVertexName', BTaggingFlags.PrimaryVertexCollectionName)
     options.setdefault('vxPrimaryCollectionName', BTaggingFlags.PrimaryVertexCollectionName)
     options['JetCollectionName'] = jetcol.replace('Track', 'PV0Track') + 'Jets'
-    options['TrackToJetAssociatorName'] = Associator
+    options['TrackToJetAssociatorName'] = options['JetCollectionName'] + '.' + Associator
     options['BTagVxSecVertexInfoName'] = SVFinder + 'VxSecVertexInfo'
     options['name'] = (jetcol + '_' + SVFinder + '_secvtxfinding').lower()
-    #options['OutputLevel'] = 1
 
     # -- create the association algorithm
     acc.addEventAlgo(Analysis__JetSecVtxFindingAlg(**options))

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from BTagging.BTagToolConfig import BTagToolCfg
@@ -13,8 +13,8 @@ def JetBTaggingAlgCfg(ConfigFlags, JetCollection="", TaggerList=[], SetupScheme=
     jetcol = JetCollection
 
     BTagTrackToJetAssocNameList = []
-    BTagTrackToJetAssocNameList.append('BTagTrackToJetAssociator')
-    
+    BTagTrackToJetAssocNameList.append(Associator)
+
     options.setdefault('BTagTool', acc.popToolsAndMerge(BTagToolCfg(ConfigFlags, jetcol, TaggerList)))
 
     timestamp = options.get('TimeStamp', None)
@@ -33,7 +33,7 @@ def JetBTaggingAlgCfg(ConfigFlags, JetCollection="", TaggerList=[], SetupScheme=
         # Set remaining options
         options['name'] = (btagname + ConfigFlags.BTagging.GeneralToolSuffix).lower()
         options['JetCollectionName'] = jetcol.replace('Track', 'PV0Track') + 'Jets'
-        options['TrackToJetAssociatorName'] = Associator
+        options['TrackToJetAssociatorName'] = options['JetCollectionName'] + '.' + Associator
         options['BTagSVCollectionName'] = btagname + 'SecVtx'
         options['BTagJFVtxCollectionName'] = btagname + 'JFVtx'
         options['JetCalibrationName'] = jetcol.replace('Track', 'PV0Track')

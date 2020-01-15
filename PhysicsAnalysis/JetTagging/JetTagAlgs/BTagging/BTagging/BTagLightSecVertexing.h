@@ -9,14 +9,11 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "BTagging/IBTagLightSecVertexing.h"
 
-namespace InDet {
-  class ISecVertexInJetFinder;
-}
-
 #include <string>
 
 #include "xAODJet/Jet.h"
 #include "xAODJet/JetContainer.h"
+#include "VxSecVertex/VxSecVertexInfo.h"
 #include "xAODBTagging/BTagging.h"
 #include "xAODBTagging/BTaggingContainer.h"
 #include "xAODTracking/VertexContainer.h"
@@ -25,6 +22,7 @@ namespace InDet {
 #include "xAODTracking/TrackParticleContainer.h"
 
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadHandleKeyArray.h"
 
 namespace Trk{
 
@@ -55,7 +53,6 @@ namespace Analysis
          StatusCode fillVkalVariables(const xAOD::Jet&, xAOD::BTagging*, const Trk::VxSecVKalVertexInfo*, const xAOD::TrackParticleContainer*,  std::string) const;
          StatusCode fillJFVariables(const xAOD::Jet&, xAOD::BTagging*, const Trk::VxJetFitterVertexInfo*, const xAOD::TrackParticleContainer*, std::string) const;
 
-         ToolHandleArray< InDet::ISecVertexInJetFinder > m_secVertexFinderToolsHandleArray;
          ToolHandle<IJetFitterVariablesFactory> m_JFvarFactory;
          //ToolHandle<IMSVVariablesFactory> m_MSVvarFactory;
 
@@ -66,6 +63,7 @@ namespace Analysis
          SG::ReadHandleKey<xAOD::VertexContainer> m_VertexCollectionName {this, "vxPrimaryCollectionName", "", "Input primary vertex container"};
          Gaudi::Property<SG::ReadDecorHandleKey<xAOD::JetContainer>> m_jetSVLinkName{ this, "JetSecVtxLinkName", "", "Element Link vector form jet to SV container"};
          Gaudi::Property<SG::ReadDecorHandleKey<xAOD::JetContainer>> m_jetJFVtxLinkName{ this, "JetJFVtxLinkName", "", "Element Link vector form jet to JF vertex"};
+         SG::ReadHandleKeyArray<Trk::VxSecVertexInfoContainer> m_VxSecVertexInfoNames {this, "BTagVxSecVertexInfoNames", {""}, "Input VxSecVertexInfo containers"};
 
   }; // End class
 

@@ -59,6 +59,7 @@ namespace Analysis {
     }
 
     SG::ReadDecorHandle<xAOD::JetContainer, std::vector<ElementLink< xAOD::TrackParticleContainer> > > h_jetParticleLinkName (m_jetParticleLinkName);
+    //This kind of check is needed but is crashing for the moment. Investigation is needed before opening a JIRA ticket
     /*if (!h_jetParticleLinkName.isAvailable()) { //isValid() is also crashing
       ATH_MSG_ERROR( " cannot retrieve jet container particle EL decoration with key " << m_jetParticleLinkName.key()  );
       return StatusCode::FAILURE;
