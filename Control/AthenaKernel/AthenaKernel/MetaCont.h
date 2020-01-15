@@ -25,8 +25,6 @@ namespace SG {
   class DataProxy;
   template<class T>
   class ReadMetaHandle;
-  template<class T>
-  class WriteMetaHandle;
 }
 
 class MetaContBase {
@@ -61,7 +59,6 @@ public:
   typedef T Payload_t;
 
   friend SG::ReadMetaHandle<T>;
-  friend SG::WriteMetaHandle<T>;
 
   MetaCont(const DataObjID& id, SG::DataProxy* prx=nullptr):
     m_id(id), m_proxy(prx) {};
