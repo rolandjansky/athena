@@ -60,10 +60,6 @@ namespace Trk
   /** @brief the Calo Extension tool*/
   ToolHandle<Trk::IParticleCaloExtensionTool> m_particleCaloExtensionTool {this,
       "LastCaloExtentionTool", "Trk::CaloExtensionBuilderTool"};
-  
-  ///Manages the track selection. It should be able to handle both pflow and tau selections
-  ToolHandle<InDet::IInDetTrackSelectionTool> m_TrkSelection {this,
-      "TrkSelection", "TrkSelectionCaloExtensionBuilder", "Tool that handles the track selection"};
 
   ToolHandle<Trk::ITrackSelectorTool> m_TrkDetailedSelection {this,
       "TrkDetailedSelection", "TrkDetailedSelectionCaloExtensionBuilder", "Tool that handles the detailed track selection"};

@@ -32,21 +32,13 @@ PURPOSE:  Performs Calo Extension for all selected tracks
 
 StatusCode Trk::CaloExtensionBuilderAlg::initialize() 
 {
-    ATH_CHECK(m_TrkSelection.retrieve());  
+    
     ATH_CHECK(m_TrkDetailedSelection.retrieve());  
     ATH_CHECK(m_particleCaloExtensionTool.retrieve());
 
     ATH_CHECK(m_ParticleCacheKey.initialize());
     ATH_CHECK(m_TrkPartContainerKey.initialize());
     ATH_CHECK(m_vertexInputContainer.initialize(SG::AllowEmpty));
-
-    if(m_TrkSelection.retrieve().isFailure()){
-        ATH_MSG_ERROR("initialize: Cannot retrieve " << m_TrkSelection);
-        return StatusCode::FAILURE;
-    }else {
-        ATH_MSG_VERBOSE("Successfully retrieved Extrapolation tool "
-                << m_TrkSelection.typeAndName());
-    }
 
     if(m_TrkDetailedSelection.retrieve().isFailure()){
         ATH_MSG_ERROR("initialize: Cannot retrieve " << m_TrkDetailedSelection);
