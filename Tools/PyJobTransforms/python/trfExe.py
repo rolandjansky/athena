@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 from __future__ import print_function
 from future.utils import iteritems
 import six
@@ -9,8 +11,6 @@ from builtins import next
 from builtins import object
 from builtins import range
 from builtins import int
-
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.trfExe
 #
@@ -49,6 +49,20 @@ import PyJobTransforms.trfExceptions as trfExceptions
 import PyJobTransforms.trfValidation as trfValidation
 import PyJobTransforms.trfArgClasses as trfArgClasses
 import PyJobTransforms.trfEnv as trfEnv
+
+
+# Depending on the setting of LANG, sys.stdout may end up with ascii or ansi
+# encoding, rather than utf-8.  But Athena uses unicode for some log messages
+# (another example of Gell-Mann's totalitarian principle) and that will result
+# in a crash with python 3.  In such a case, force the use of a utf-8 encoded
+# output stream instead.
+def _encoding_stream (s):
+    if six.PY2: return s
+    enc = s.encoding.lower()
+    if enc.find('ascii') >= 0 or enc.find('ansi') >= 0:
+        return open (s.fileno(), 'w', encoding='utf-8')
+    return s
+
 
 ## @note This class contains the configuration information necessary to run an executor.
 #  In most cases this is simply a collection of references to the parent transform, however,
@@ -658,12 +672,12 @@ class scriptExecutor(transformExecutor):
         self._echologger.setLevel(logging.INFO)
         self._echologger.propagate = False
         
-        self._exeLogFile = logging.FileHandler(self._logFileName, mode='w')
+        self._exeLogFile = logging.FileHandler(self._logFileName, mode='w', encoding='utf8')
         self._exeLogFile.setFormatter(logging.Formatter('%(asctime)s %(message)s', datefmt='%H:%M:%S'))
         self._echologger.addHandler(self._exeLogFile)
         
         if self._echoOutput:
-            self._echostream = logging.StreamHandler(sys.stdout)
+            self._echostream = logging.StreamHandler(_encoding_stream(sys.stdout))
             self._echostream.setFormatter(logging.Formatter('%(name)s %(asctime)s %(message)s', datefmt='%H:%M:%S'))
             self._echologger.addHandler(self._echostream)
 
