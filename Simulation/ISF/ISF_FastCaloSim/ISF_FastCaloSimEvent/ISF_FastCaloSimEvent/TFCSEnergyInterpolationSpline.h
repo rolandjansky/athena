@@ -43,8 +43,4 @@ private:
   ClassDefOverride(TFCSEnergyInterpolationSpline,1)  //TFCSEnergyInterpolationSpline
 };
 
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSEnergyInterpolationSpline+;
-#endif
-
 #endif
