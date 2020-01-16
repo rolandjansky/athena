@@ -1,6 +1,6 @@
 """Define functions to configure Pixel conditions algorithms
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -127,7 +127,7 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
             IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping.dat"
         
     elif not flags.Input.isMC:
-        runNum = flags.Input.RunNumber
+        runNum = flags.Input.RunNumber[0]
         if runNum < 222222:
             useCablingConditions = False
             IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
@@ -232,7 +232,7 @@ def PixelCablingCondAlgCfg(flags, name="PixelCablingCondAlg", **kwargs):
             IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping.dat"
         
     elif not flags.Input.isMC:
-        runNum = flags.Input.RunNumber
+        runNum = flags.Input.RunNumber[0]
         if runNum < 222222:
             IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
             rodIDForSingleLink40=1300000
