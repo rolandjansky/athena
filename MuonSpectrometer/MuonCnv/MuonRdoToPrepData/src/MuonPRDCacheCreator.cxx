@@ -70,29 +70,56 @@ StatusCode MuonPRDCacheCreator::execute (const EventContext& ctx) const {
      m_disableWarning = true; //only check once
   }
 
-  // Create all the cache containers
+  // Create all the cache containers (if the tools are available)
   // CSC
-  ATH_CHECK(createContainer(m_CscCacheKey, m_muonIdHelperTool->cscIdHelper().module_hash_max(), ctx));
-  ATH_CHECK(createContainer(m_CscStripCacheKey, m_muonIdHelperTool->cscIdHelper().module_hash_max(), ctx));
-  // MDT
-  auto maxHashMDTs = m_muonIdHelperTool->mdtIdHelper().stationNameIndex("BME") != -1 ? m_muonIdHelperTool->mdtIdHelper().detectorElement_hash_max() : m_muonIdHelperTool->mdtIdHelper().module_hash_max();
-  ATH_CHECK(createContainer(m_MdtCacheKey, maxHashMDTs, ctx));
-  // RPC
-  ATH_CHECK(createContainer(m_RpcCacheKey, m_muonIdHelperTool->rpcIdHelper().module_hash_max(), ctx));
-  // TGC
-  ATH_CHECK(createContainer(m_TgcCacheKey, m_muonIdHelperTool->tgcIdHelper().module_hash_max(), ctx));
-  // NSW STGC
-  ATH_CHECK(createContainer(m_sTgcCacheKey, m_muonIdHelperTool->stgcIdHelper().module_hash_max(), ctx));
-  // NSW MM
-  ATH_CHECK(createContainer(m_MmCacheKey, m_muonIdHelperTool->mmIdHelper().module_hash_max(), ctx));
+  if( m_muonIdHelperTool->hasCscIdHelper() ){
+    ATH_CHECK(createContainer(m_CscCacheKey, m_muonIdHelperTool->cscIdHelper().module_hash_max(), ctx));
+    ATH_CHECK(createContainer(m_CscStripCacheKey, m_muonIdHelperTool->cscIdHelper().module_hash_max(), ctx));
+  }
+  if( !m_muonIdHelperTool->hasCscIdHelper() && !m_CscCacheKey.key().empty() ){
+    ATH_MSG_WARNING("CSC ID Helper is not available and CSC PRD cache was requested. This will not be created");
+  }
 
-  ATH_MSG_DEBUG("Created cache container " << m_CscCacheKey );
-  ATH_MSG_DEBUG("Created cache container " << m_CscStripCacheKey );
-  ATH_MSG_DEBUG("Created cache container " << m_MdtCacheKey );
-  ATH_MSG_DEBUG("Created cache container " << m_RpcCacheKey );
-  ATH_MSG_DEBUG("Created cache container " << m_TgcCacheKey );
-  ATH_MSG_DEBUG("Created cache container " << m_sTgcCacheKey );
-  ATH_MSG_DEBUG("Created cache container " << m_MmCacheKey );
+  // MDT
+  if( m_muonIdHelperTool->hasMdtIdHelper() ){
+    auto maxHashMDTs = m_muonIdHelperTool->mdtIdHelper().stationNameIndex("BME") != -1 ? m_muonIdHelperTool->mdtIdHelper().detectorElement_hash_max() : m_muonIdHelperTool->mdtIdHelper().module_hash_max();
+    ATH_CHECK(createContainer(m_MdtCacheKey, maxHashMDTs, ctx));
+  }
+  if( !m_muonIdHelperTool->hasMdtIdHelper() && !m_MdtCacheKey.key().empty() ){
+    ATH_MSG_WARNING("MDT ID Helper is not available and MDT PRD cache was requested. This will not be created");
+  }
+
+  // RPC
+  if( m_muonIdHelperTool->hasRpcIdHelper() ){
+    ATH_CHECK(createContainer(m_RpcCacheKey, m_muonIdHelperTool->rpcIdHelper().module_hash_max(), ctx));
+  }
+  if( !m_muonIdHelperTool->hasRpcIdHelper() && !m_RpcCacheKey.key().empty() ){
+    ATH_MSG_WARNING("RPC ID Helper is not available and RPC PRD cache was requested. This will not be created");
+  }
+
+  // TGC
+  if( m_muonIdHelperTool->hasTgcIdHelper() ){
+    ATH_CHECK(createContainer(m_TgcCacheKey, m_muonIdHelperTool->tgcIdHelper().module_hash_max(), ctx));
+  }
+  if( !m_muonIdHelperTool->hasTgcIdHelper() && !m_TgcCacheKey.key().empty() ){
+    ATH_MSG_WARNING("TGC ID Helper is not available and TGC PRD cache was requested. This will not be created");
+  }
+
+  // NSW STGC
+  if( m_muonIdHelperTool->hasSTgcIdHelper() ){
+    ATH_CHECK(createContainer(m_sTgcCacheKey, m_muonIdHelperTool->stgcIdHelper().module_hash_max(), ctx));
+  }
+  if( !m_muonIdHelperTool->hasSTgcIdHelper() && !m_sTgcCacheKey.key().empty() ){
+    ATH_MSG_WARNING("STGC ID Helper is not available and STGC PRD cache was requested. This will not be created");
+  }
+
+  // NSW MM
+  if( m_muonIdHelperTool->hasMmIdHelper() ){
+    ATH_CHECK(createContainer(m_MmCacheKey, m_muonIdHelperTool->mmIdHelper().module_hash_max(), ctx));
+  }
+  if( !m_muonIdHelperTool->hasMmIdHelper() && !m_MmCacheKey.key().empty() ){
+    ATH_MSG_WARNING("MM ID Helper is not available and MM PRD cache was requested. This will not be created");
+  }
 
   return StatusCode::SUCCESS;
 }

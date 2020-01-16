@@ -32,7 +32,7 @@ using namespace Muon;
 CscRdoToCscPrepDataToolMT::CscRdoToCscPrepDataToolMT
 (const std::string& type, const std::string& name, const IInterface* parent)
   : CscRdoToCscPrepDataToolCore(type, name, parent) {
-    declareProperty("CscRdoContainterCacheKey", m_prdContainerCacheKey, "Optional external cache for the CSC RDO container");
+    declareProperty("CscStripPrdContainterCacheKey", m_prdContainerCacheKey, "Optional external cache for the CSC RDO container");
 }  
 
 CscRdoToCscPrepDataToolMT::~CscRdoToCscPrepDataToolMT(){}

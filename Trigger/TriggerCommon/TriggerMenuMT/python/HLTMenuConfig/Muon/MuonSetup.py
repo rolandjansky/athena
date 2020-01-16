@@ -10,6 +10,7 @@ log = logging.getLogger('MuonSetup')
 ### Output data name ###
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from MuonConfig.MuonBytestreamDecodeConfig import MuonCacheNames
+from MuonConfig.MuonRdoDecodeConfig import MuonPrdCacheNames
 
 TrackParticlesName = recordable("HLT_xAODTracks_Muon")
 theFTF_name = "FTFTracks_Muons"
@@ -78,8 +79,9 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
                                                                Decoder     = CSCRodDecoder )
   ToolSvc += MuonCscRawDataProviderTool
 
-  from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscRdoToCscPrepDataTool
-  CscRdoToCscPrepDataTool = Muon__CscRdoToCscPrepDataTool(name                = "CscRdoToCscPrepDataTool")
+  from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscRdoToCscPrepDataToolMT
+  CscRdoToCscPrepDataTool = Muon__CscRdoToCscPrepDataToolMT(name           = "CscRdoToCscPrepDataTool",
+                                                            CscStripPrdContainterCacheKey = MuonPrdCacheNames.CscStripCache)
 
   ToolSvc += CscRdoToCscPrepDataTool
 

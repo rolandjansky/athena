@@ -566,6 +566,9 @@ def triggerIDCCacheCreatorsCfg(flags):
     from MuonConfig.MuonBytestreamDecodeConfig import MuonCacheCfg
     acc.merge( MuonCacheCfg() )
 
+    from MuonConfig.MuonRdoDecodeConfig import MuonPrdCacheCfg
+    acc.merge( MuonPrdCacheCfg() )
+
     from TrigUpgradeTest.InDetConfig import InDetIDCCacheCreatorCfg
     acc.merge( InDetIDCCacheCreatorCfg() )
 
