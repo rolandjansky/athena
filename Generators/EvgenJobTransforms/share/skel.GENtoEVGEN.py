@@ -323,7 +323,7 @@ else:
 #        evgenLog.info('Replacing input nEventsPerJob '+str(evgenConfig.nEventsPerJob)+' with calculated '+str(dummy_nEventsPerJob))
 #        evgenConfig.nEventsPerJob = dummy_nEventsPerJob
 
-    if evgenConfig.nEventsPerJob >= 1000 and evgenConfig.nEventsPerJob % 1000 != 0:
+    if evgenConfig.nEventsPerJob >= 1000 and evgenConfig.nEventsPerJob % 1000 != 0 and 10000 % evgenConfig.nEventsPerJob != 0 :
 # introduced due to PRODSYS-788, commented out on 06.07.18 obo Dominic
 #        rest1000 = evgenConfig.nEventsPerJob % 1000
 #        if multiInput !=0 :
@@ -335,7 +335,7 @@ else:
 #                evgenLog.info('Replacing input nEventsPerJob '+str(evgenConfig.nEventsPerJob)+' with calculated '+str(evgenConfig.nEventsPerJob-rest1000+1000))
 #                evgenConfig.nEventsPerJob = evgenConfig.nEventsPerJob-rest1000+1000
 #        else:    
-           msg += "nEventsPerJob in range >= 1000 must be a multiple of 1000"
+           msg += "nEventsPerJob in range >= 1K must be a multiple of 1K and a divisor of 10K"
            raise RuntimeError(msg)
     elif evgenConfig.nEventsPerJob < 1000 and evgenConfig.nEventsPerJob not in allowed_nEventsPerJob_lt1000:
 # introduced due to PRODSYS-788, commented out on 06.07.18 obo Dominic
