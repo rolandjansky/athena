@@ -20,6 +20,8 @@ function( _setup_python_package name file md5 )
       URL ${file}
       URL_MD5 ${md5}
       BUILD_IN_SOURCE 1
+      PATCH_COMMAND patch -p0 < 
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/pyAMI-py3.patch
       CONFIGURE_COMMAND ${CMAKE_COMMAND} -E echo
       "Configuring the build of ${name}"
       BUILD_COMMAND
