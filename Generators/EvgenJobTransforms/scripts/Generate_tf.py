@@ -204,6 +204,8 @@ def main():
     main_dir = os.getcwd()
     trf = getTransform()
     trf.parseCmdLineArgs(sys.argv[1:])
+    msg.info('THIS TRANSFORM SHOULD NOT BE USED IN PRODUCTION')
+    msg.info('PLEASE USE GEN_TF')
 #    print("main ",main_dir)
     if (("cleanOut" in trf.argdict) and (trf.argdict["cleanOut"].value != 0)):
       name_tmpdir = "tmprun"
