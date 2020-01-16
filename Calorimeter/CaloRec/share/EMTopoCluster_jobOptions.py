@@ -3,7 +3,7 @@
 from CaloRec.CaloRecFlags import jobproperties
 
 theEMTopoThreshold=jobproperties.CaloRecFlags.emTopoClusterThreshold()
-print theEMTopoThreshold
+printfunc (theEMTopoThreshold)
 
 ETT=theEMTopoThreshold.startswith("633")
 if(ETT) : 

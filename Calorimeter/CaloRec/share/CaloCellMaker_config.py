@@ -15,7 +15,7 @@ if not 'doCompactCellInstead' in dir():
 
 # doLArCellDirect flag is used if defined
 if doCompactCellInstead and doCompactCellInAddition:
-    raise RuntimeError, 'only one of doCompactCellInstead  doCompactCellInAddition should be set'
+    raise RuntimeError ('only one of doCompactCellInstead  doCompactCellInAddition should be set')
 
 CaloCellMakerFlags.doCompactCellInstead=doCompactCellInstead
 CaloCellMakerFlags.doCompactCellInAddition=doCompactCellInAddition
