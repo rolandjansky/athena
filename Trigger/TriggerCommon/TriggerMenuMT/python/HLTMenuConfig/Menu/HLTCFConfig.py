@@ -566,21 +566,6 @@ def generateDecisionTreeOld(HLTNode, chains, allChainDicts):
 
 
 
-def findFilter(filter_name, cfseqList):
-      """
-      searches for a filter, with given name, in the CF sequence list of this step
-      """
-      log.debug( "findFilter: filter name %s", filter_name )
-      foundFilters = [cfseq for cfseq in cfseqList if filter_name in cfseq.filter.Alg.name()]
-      if len(foundFilters) > 1:
-          log.error("found %d filters  with name %s", len( foundFilters ), filter_name)
-
-      found = bool(foundFilters)
-      if found:
-          log.debug("Filter %s already exists", filter_name)
-          return (found, foundFilters[0])
-      return (found, None)
-
 def findCFSequences(filter_name, cfseqList):
       """
       searches for a filter, with given name, in the CF sequence list of this step
