@@ -6,22 +6,36 @@
 
 prefix=
 datapath=
-for p in $(echo $LHAPDF_DATA_PATH | tr ":" "\n")
+# to find the prefix we searh LHAPATH before LHAPDF_DATA_PATH because the latter is more likely to change
+for p in $(echo "${LHAPATH}:${LHAPDF_DATA_PATH}" | tr ":" "\n")
 do
-    # if this directory exists and prefix is not yet defined
+    # if LHAPDF libraries can be found from this dir and prefix is not yet defined
     if [[ -d "${p}/../../lib" ]] && [[ -z $prefix ]]
     then
 	# we assume this is the lhapdf installation dir (and not the data dir)
 	prefix=${p}/../..
-    elif [[ -d ${p} ]] && [[ -z $datapath ]]
+    fi
+done
+
+# data is first searched in LHAPDF_DATA_PATH
+for p in $(echo "${LHAPDF_DATA_PATH}:${LHAPATH}" | tr ":" "\n")
+do
+    # if this directory exists and datapath is not yet defined and its not the prefix dir
+    if [[ -d ${p} ]] && [[ -z $datapath ]] && [[ ${p}/../.. != ${prefix} ]]
     then
 	datapath=$p
     fi
 done
 
+# if no datapath is found we try the prefix path
+if [[ -z $datapath ]] && [ -d $prefix/share/LHAPDF ]
+then
+    datapath=$prefix/share/LHAPDF
+fi
+
 if [ -z $prefix ]
 then
-    echo "WARNING: could not get valid lhapdf prefix from LHAPDF_DATA_PATH"
+    echo "WARNING: lhapdf-config could not get valid lhapdf prefix from LHAPDF_DATA_PATH"
 fi
 
 exec_prefix=${prefix}
@@ -32,6 +46,12 @@ then
     version=$(echo "$prefix" | awk '{split($1,a,"lhapdf/"); split(a[2],b,"/");print b[1];}')
 fi
 
+#find boost 
+boost=$(find /cvmfs/atlas.cern.ch/repo/sw/software/21.6/sw/lcg/releases/Boost/*/*/* -type d -name "boost-*")
+if [ -z $boost ]
+then
+    echo "WARNING: lhapdf-config could not find boost headers"
+fi
 
 if [[ $# -eq 0 || -n $( echo $* | egrep -- "--help|-h" ) ]]; then
     echo "lhapdf-config: configuration tool for the LHAPDF"
@@ -61,7 +81,7 @@ tmp=$( echo "$*" | egrep -- '--\<incdir\>')
 test -n "$tmp" && OUT="$OUT ${prefix}/include"
 
 tmp=$( echo "$*" | egrep -- '--\<cflags|cppflags|cxxflags\>')
-test -n "$tmp" && OUT="$OUT -I${prefix}/include"
+test -n "$tmp" && OUT="$OUT -I${prefix}/include -I$boost"
 
 tmp=$( echo "$*" | egrep -- '--\<libdir\>')
 test -n "$tmp" && OUT="$OUT ${exec_prefix}/lib"
