@@ -129,7 +129,7 @@ StatusCode TRT_ToT_dEdx::initialize()
   //Get AssoTool
   ATH_CHECK(m_assoTool.retrieve());
   //Get LocalOccupancyTool
-  ATH_CHECK( m_LocalOccTool.retrieve() );
+  CHECK( m_LocalOccTool.retrieve() );
 
   sc = m_TRTStrawSummaryTool.retrieve();
   if (StatusCode::SUCCESS!= sc ){
