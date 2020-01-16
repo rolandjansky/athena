@@ -11,7 +11,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-#include "AthExJobOptions/KeyMixin.h"
+#include "KeyMixin.h"
 
 class IVirtualTool;
 class IVirtualSvc;
