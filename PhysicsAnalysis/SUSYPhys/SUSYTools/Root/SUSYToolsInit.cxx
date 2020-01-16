@@ -103,6 +103,7 @@ using namespace ST;
     ATH_CHECK(TOOLHANDLE.setProperty("IDLevel", TAUID ));                \
     ATH_CHECK(TOOLHANDLE.setProperty("PileupReweightingTool", m_prwTool.getHandle() )); \
     ATH_CHECK(TOOLHANDLE.setProperty("OutputLevel", this->msg().level())); \
+    ATH_CHECK(TOOLHANDLE.setProperty("isAFII", isAtlfast()) ); \
     ATH_CHECK(TOOLHANDLE.retrieve());                                        \
   } else if (TOOLHANDLE.isUserConfigured()) ATH_CHECK( TOOLHANDLE.retrieve());
 
@@ -1209,6 +1210,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       ATH_CHECK( m_tauEffTool.setProperty("TauSelectionTool", m_tauSelTool.getHandle()) );
     }
     ATH_CHECK( m_tauEffTool.setProperty("OutputLevel", this->msg().level()) );
+    ATH_CHECK( m_tauEffTool.setProperty("isAFII", isAtlfast()) );
     ATH_CHECK( m_tauEffTool.retrieve() );
   } else ATH_CHECK( m_tauEffTool.retrieve() );
 
@@ -1706,7 +1708,9 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     orFlags.outputPassValue = true;
     orFlags.linkOverlapObjects = m_orLinkOverlapObjects;
     if (m_jetInputType == xAOD::JetInput::EMPFlow) orFlags.doMuPFJetOR = true;
-    orFlags.doEleEleOR = false;
+    if (m_orDoElEl) {
+      orFlags.doEleEleOR = true;
+    } else orFlags.doEleEleOR = false;
     orFlags.doElectrons = true;
     orFlags.doMuons = true;
     orFlags.doJets = true;
