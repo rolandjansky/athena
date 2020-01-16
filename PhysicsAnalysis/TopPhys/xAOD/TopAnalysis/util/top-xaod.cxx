@@ -215,9 +215,17 @@ int main(int argc, char** argv) {
       bool isTruthDxAOD = top::isTruthDxAOD(testFile.get());
       topConfig->setIsTruthDxAOD(isTruthDxAOD);
 
-      if (!isTruthDxAOD && atLeastOneFileIsValid) {
-        unsigned int DSID = top::getDSID(testFile.get(), topConfig->sgKeyEventInfo());
-        topConfig->setDSID(DSID);
+      if (!isTruthDxAOD) {
+        unsigned int DSID = topConfig->getDSID();
+        if (DSID == ((unsigned int)-1)) {
+          if (atLeastOneFileIsValid) {
+            DSID = top::getDSID(testFile.get(), topConfig->sgKeyEventInfo());
+            topConfig->setDSID(DSID);
+          } else {
+            std::cout << "ERROR: We could not determine DSID for this sample from either CollectionTree, or FileMetaData, or TruthMetaData. There is something seriously wrong with this sample." << std::endl;
+            exit(1);
+          }
+        }
 
         // now need to get and set the parton shower generator from TopDataPrep
         SampleXsection tdp;
@@ -434,7 +442,7 @@ int main(int argc, char** argv) {
                                                     // of weights on the fly
   std::vector<std::string> names_LHE3;
   bool recalc_LHE3 = false;
-  int dsid = 0;
+  int dsid = topConfig->getDSID();
   int isAFII = topConfig->isAFII();
   std::string generators = topConfig->getGenerators();
   std::string AMITag = topConfig->getAMITag();
@@ -453,7 +461,7 @@ int main(int argc, char** argv) {
 
   TTree* sumPdfWeights = 0;
   std::unordered_map<std::string, std::vector<float>*> totalEventsPdfWeighted;
-  int dsidPdf = 0;
+  int dsidPdf = topConfig->getDSID();
   bool pdfMetadataExists = false;
   if (topConfig->doLHAPDF()) {
     sumPdfWeights = new TTree("PDFsumWeights", "");
@@ -645,21 +653,6 @@ int main(int argc, char** argv) {
       if (topConfig->doPileupReweighting() && !topConfig->isTruthDxAOD()) {
         top::check(topScaleFactors->executePileup(), "Failed to execute pileup reweighting");
         pileupWeight = topScaleFactors->pileupWeight();
-      }
-
-
-      // get mc channel number
-      // to save the sum of weights
-      if (totalYieldSoFar == 0 && topConfig->isMC()) {
-        const xAOD::EventInfo* ei(nullptr);
-        top::check(xaodEvent.retrieve(ei, topConfig->sgKeyEventInfo()),
-                   "xAOD::TEvent retrieve failed to get EventInfo");
-
-        //mcChannelNumber only available in MC simulation
-        if (ei->eventType(xAOD::EventInfo::IS_SIMULATION)) {
-          dsid = ei->mcChannelNumber();
-          dsidPdf = ei->mcChannelNumber();
-        }
       }
 
       ///-- Truth events --///
