@@ -18,12 +18,21 @@
 
 TFCSHistoLateralShapeWeight::TFCSHistoLateralShapeWeight(const char* name, const char* title) :
   TFCSLateralShapeParametrizationHitBase(name,title)
-{
-}
+{}
 
 TFCSHistoLateralShapeWeight::~TFCSHistoLateralShapeWeight()
 {
   if(m_hist) delete m_hist;
+}
+
+float TFCSHistoLateralShapeWeight::getMinWeight() const
+{
+  return m_minWeight;
+}
+
+float TFCSHistoLateralShapeWeight::getMaxWeight() const
+{
+  return m_maxWeight;
 }
 
 FCSReturnCode TFCSHistoLateralShapeWeight::simulate_hit(Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/)
@@ -82,7 +91,7 @@ void TFCSHistoLateralShapeWeight::Print(Option_t *option) const
   TFCSLateralShapeParametrizationHitBase::Print(option);
 
   if(longprint) {
-    if(m_hist) ATH_MSG_INFO(optprint <<"  Histogram: "<<m_hist->GetNbinsX()<<" bins ["<<m_hist->GetXaxis()->GetXmin()<<","<<m_hist->GetXaxis()->GetXmax()<<"]");
+    if(m_hist) ATH_MSG_INFO(optprint <<"  Histogram: "<<m_hist->GetNbinsX()<<" bins ["<<m_hist->GetXaxis()->GetXmin()<<","<<m_hist->GetXaxis()->GetXmax()<<"]" << " min weight: " << m_minWeight << " max weight: " << m_maxWeight);
      else ATH_MSG_INFO(optprint <<"  no Histogram");
   }  
 }
