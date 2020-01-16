@@ -61,9 +61,7 @@ TrigALFAROBMonitor::TrigALFAROBMonitor(const std::string& name, ISvcLocator* pSv
   //m_hist_pmfMonitoring( {0} ),
   m_hist_genericStatusForROB(0),
   m_hist_specificStatusForROB(0),
-  m_lvl1muCTPIResult(0),
-  m_hist_timeALFA(0),
-  m_histProp_timeALFA(Gaudi::Histo1DDef("Time_ALFA_Monitor" ,0.,100.,100))
+  m_lvl1muCTPIResult(0)
 {
   // Declare the properties
   declareProperty("Lvl1CTPROBid",                       m_lvl1CTPROBid=0x770001);
@@ -78,10 +76,8 @@ TrigALFAROBMonitor::TrigALFAROBMonitor(const std::string& name, ISvcLocator* pSv
   declareProperty("TestROBStatus",                      m_doROBStatus=true);
   declareProperty("MonitorALFATracks",                  m_doALFATracking=true);
   declareProperty("MonitorPMFactivity",                 m_doPMFMonitoring=true);
-  declareProperty("DoTiming",                           m_doTiming=true);
   declareProperty("DoGoodDataMonitoring",               m_doDataGoodMonitoring=true);
   declareProperty("DoODDistanceHistograming",           m_doODDistance=true);
-  declareProperty("HistTimeMuCTPiMonitor",              m_histProp_timeALFA, "Timing for ALFA monitoring algorithm");
 
   declareProperty("keyRBResult",  m_keyRBResult = "");
 
@@ -167,26 +163,14 @@ StatusCode TrigALFAROBMonitor::initialize(){
   ATH_MSG_INFO( " Do ROB checksum test                       = " << m_doROBChecksum );
   ATH_MSG_INFO( "        Hist:FailedChecksumForALFAROB       = " << m_histProp_failedChecksumForALFAROB );
   ATH_MSG_INFO( " Do ROB status test                         = " << m_doROBStatus );
-  ATH_MSG_INFO( " Do ALFA Monitoring Timing                = " << m_doTiming );
-  ATH_MSG_INFO( "        Hist:TimeALFAMonitor              = " << m_histProp_timeALFA );
 
   // Locate the ROBDataProviderSvc
   StatusCode sc = m_robDataProviderSvc.retrieve();
   if (!sc.isSuccess()) {
     ATH_MSG_ERROR( "Could not find ROBDataProviderSvc" );
     return sc;
-  } else {
-    // Setup the L2 ROB Data Provider Service when configured
-    m_trigROBDataProviderSvc = SmartIF<ITrigROBDataProviderSvc>( &*m_robDataProviderSvc );
-    if (m_trigROBDataProviderSvc.isValid()) {
-      ATH_MSG_DEBUG( "A ROBDataProviderSvc implementing the Level-2 interface ITrigROBDataProviderSvc was found."
-          );
-    } else {
-      ATH_MSG_DEBUG( "No ROBDataProviderSvc implementing the Level-2 interface ITrigROBDataProviderSvc was found."
-          );
-    }
-  }
-
+  } 
+  
   // locate the TrigConfSvc
   sc = m_configSvc.retrieve();
   if (!sc.isSuccess()) {
@@ -240,12 +224,6 @@ StatusCode TrigALFAROBMonitor::execute (const EventContext& ctx) const {
   if (Athena::Timeout::instance(ctx).reached()) {
     ATH_MSG_DEBUG(" Time out reached in entry to execute.");
     return StatusCode::SUCCESS;
-  }
-
-  struct timeval time_start;
-  struct timeval time_stop;
-  if ( m_doTiming.value() ) {
-    gettimeofday(&time_start, 0);
   }
 
   // get EventInfo - in new athena MT EventContext shoudl be used.
@@ -356,18 +334,6 @@ StatusCode TrigALFAROBMonitor::execute (const EventContext& ctx) const {
 
   if (ALFARobFragmentVec.size()==0) {
     ATH_MSG_INFO(" No ALFA ROB found.");
-    if ( m_doTiming.value() ) {
-      gettimeofday(&time_stop, 0);
-      int secs = 0 ;
-      if (time_stop.tv_sec >= time_start.tv_sec)
-	secs = time_stop.tv_sec - time_start.tv_sec;
-	
-      int usecs = time_stop.tv_usec - time_start.tv_usec;
-      float mtime = static_cast<float>(secs)*1000 + static_cast<float>(usecs)/1000;
-	
-      //* timing histogram
-      if (m_hist_timeALFA) m_hist_timeALFA->Fill(mtime,1.);	
-    }
     return StatusCode::SUCCESS;
   } 
  
@@ -398,18 +364,6 @@ StatusCode TrigALFAROBMonitor::execute (const EventContext& ctx) const {
     StatusCode sc = evtStore()->retrieve(p_EventInfo);
     if(sc.isFailure()){
       ATH_MSG_ERROR("Can't get EventInfo object for updating the StreamTag");
-      if ( m_doTiming.value() ) {
-	gettimeofday(&time_stop, 0);
-	int secs = 0 ;
-	if (time_stop.tv_sec >= time_start.tv_sec)
-	  secs = time_stop.tv_sec - time_start.tv_sec;
-	
-	int usecs = time_stop.tv_usec - time_start.tv_usec;
-	float mtime = static_cast<float>(secs)*1000 + static_cast<float>(usecs)/1000;
-	
-	//* timing histogram
-	if (m_hist_timeALFA) m_hist_timeALFA->Fill(mtime,1.);	
-      }
       return sc;
     }
 
@@ -421,20 +375,6 @@ StatusCode TrigALFAROBMonitor::execute (const EventContext& ctx) const {
       // FIXME: const_cast
       const_cast<TriggerInfo*>(p_EventInfo->trigger_info())->setStreamTags(vecStreamTags);
     }
-  }
-
-  if ( m_doTiming.value() ) {
-    gettimeofday(&time_stop, 0);
-    int secs = 0 ;
-    if (time_stop.tv_sec >= time_start.tv_sec) secs = time_stop.tv_sec-time_start.tv_sec;
-	
-    int usecs = time_stop.tv_usec - time_start.tv_usec;
-    float mtime = static_cast<float>(secs)*1000 + static_cast<float>(usecs)/1000;
-
-    ATH_MSG_DEBUG(" ---> Time used [ms] = " << mtime); 
-	      
-    //* timing histogram
-    if (m_hist_timeALFA) m_hist_timeALFA->Fill(mtime,1.);	
   }
 
   return StatusCode::SUCCESS;
@@ -677,22 +617,6 @@ StatusCode TrigALFAROBMonitor::start() {
      }
   }
 
-
-  if ( m_doTiming.value() ) {
-    // *-- Timing histogram for monitoring algorithm
-    m_hist_timeALFA = new TH1F (m_histProp_timeALFA.value().title().c_str(),
-				  (m_histProp_timeALFA.value().title()+";ms").c_str(),
-				  m_histProp_timeALFA.value().bins(),
-				  m_histProp_timeALFA.value().lowEdge(),
-				  m_histProp_timeALFA.value().highEdge());
-    if (m_hist_timeALFA) {
-      //      m_hist_timeMuCTPi->SetBit(TH1::kCanRebin);
-      if( m_rootHistSvc->regHist(m_pathHisto + m_hist_timeALFA->GetName(), m_hist_timeALFA).isFailure() ) {
-	ATH_MSG_WARNING("Can not register monitoring histogram: " << m_hist_timeALFA->GetName());
-      }
-    }
-  }
-
   // release histogramming service
   // when we plan to book now histograms at the LB boundaries we should not release the histogramming service ...m_rootHistSvc.release().ignore();
 
@@ -791,7 +715,7 @@ void TrigALFAROBMonitor::verifyROBStatusBits(const OFFLINE_FRAGMENTS_NAMESPACE::
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 uint32_t TrigALFAROBMonitor::decodeALFA(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag, 
-                                        std::vector<float> loc_pU [][10], std::vector<float> loc_pV [][10],
+                                        std::vector<float> (&loc_pU) [8][10], std::vector<float> (&loc_pV) [8][10],
                                         bool FiberHitsODNeg[][3][30], bool FiberHitsODPos[][3][30],
                                         std::map<int,int>& triggerHitPattern,std::map<int,int>& triggerHitPatternReady) const {
 
@@ -954,7 +878,7 @@ uint32_t TrigALFAROBMonitor::decodeALFA(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFr
 }
 
 void TrigALFAROBMonitor::decodeRealPMT (uint32_t dataWord, uint32_t quarter, uint32_t mbNb, uint32_t pmf, 
-                                        std::vector<float> loc_pU[][10], std::vector<float> loc_pV [][10], 
+                                        std::vector<float> (&loc_pU) [8][10], std::vector<float> (&loc_pV) [8][10], 
                                         bool FiberHitsODNeg[][3][30], bool FiberHitsODPos[][3][30]) const {
 
   // save input stream flags
@@ -972,12 +896,9 @@ void TrigALFAROBMonitor::decodeRealPMT (uint32_t dataWord, uint32_t quarter, uin
            m_hist_pmfMonitoring[mbNb]->Fill(double(channel),double(pmf)); 
            {
                std::string stationName = "det-" + m_stationNames[mbNb] + "-Channel";
-               auto channelNb = Monitored::Scalar<double>(stationName);
-               auto pmfNb     = Monitored::Scalar<double>("PMF");
+               auto channelNb = Monitored::Scalar<double>(stationName, channel);
+               auto pmfNb     = Monitored::Scalar<double>("PMF", pmf);
                auto monGroup = Monitored::Group ( m_monTool, channelNb, pmfNb );
-               channelNb = channel;
-               pmfNb = pmf;
-               monGroup.fill();
            }
 
            if (layerNb >= 0) {
@@ -1148,7 +1069,8 @@ void TrigALFAROBMonitor::reset60LBhistos() const {
 void TrigALFAROBMonitor::findALFATracks( const ROIB::RoIBResult* roIBResult, 
                                          const int lumiBlockNb, 
                                          const bool SBflag, 
-                                         std::vector<float> loc_pU [][10], std::vector<float> loc_pV [][10]) const {
+                                         std::vector<float> (&loc_pU) [8][10], 
+                                         std::vector<float> (&loc_pV) [8][10]) const {
 	float x_Rec[8];
 	float y_Rec[8];
 	
@@ -1300,12 +1222,9 @@ void TrigALFAROBMonitor::findALFATracks( const ROIB::RoIBResult* roIBResult,
                                                 m_hist_ALFA_trig_validated_tracks[it->second][iDet]->Fill(x_Rec[iDet],y_Rec[iDet]);
            					{
                						std::string stationName = "trk-full-" + m_trigConditions[it->second]+ "-" + m_stationNames[iDet] + "-x";
-               						auto x_coord = Monitored::Scalar<double>(stationName);
-               						auto y_coord = Monitored::Scalar<double>("y");
+               						auto x_coord = Monitored::Scalar<double>(stationName, x_Rec[iDet]);
+               						auto y_coord = Monitored::Scalar<double>("y", y_Rec[iDet]);
                						auto monGroup = Monitored::Group ( m_monTool, x_coord, y_coord );
-               						x_coord = x_Rec[iDet];
-               						y_coord = y_Rec[iDet];
-               						monGroup.fill();
            					}
 
                                                 m_hist_ALFA_trig_validated_tracks_1LB_current[it->second][iDet]->Fill(x_Rec[iDet],y_Rec[iDet]);
@@ -1340,14 +1259,10 @@ void TrigALFAROBMonitor::findALFATracks( const ROIB::RoIBResult* roIBResult,
               {
                   std::string stationName  = "goodDataAssessmentLB15";
                   std::string stationName1 = "com-goodDataAssessment";
-                  auto one      = Monitored::Scalar<double>(stationName);
-                  auto anotherOne = Monitored::Scalar<double>(stationName1);
-                  auto lbNb     = Monitored::Scalar<double>("com-LB");
+                  auto one      = Monitored::Scalar<double>(stationName, 1.);
+                  auto anotherOne = Monitored::Scalar<double>(stationName1, 1.);
+                  auto lbNb     = Monitored::Scalar<double>("com-LB", lumiBlockNb);
                   auto monGroup = Monitored::Group ( m_monTool, one, anotherOne, lbNb );
-                  one = 1.;
-                  anotherOne = 1.;
-                  lbNb = lumiBlockNb;
-                  monGroup.fill();
               }
               m_hist_goodData->Fill(1.);
               m_hist_goodDataLB15->Fill(lumiBlockNb, 1.);
@@ -1356,14 +1271,10 @@ void TrigALFAROBMonitor::findALFATracks( const ROIB::RoIBResult* roIBResult,
                  {
                      std::string stationName  = "goodDataAssessmentLB15";
                      std::string stationName1 = "com-goodDataAssessment";
-                     auto two      = Monitored::Scalar<double>(stationName);
-                     auto anotherTwo = Monitored::Scalar<double>(stationName1);
-                     auto lbNb     = Monitored::Scalar<double>("com-LB");
+                     auto two      = Monitored::Scalar<double>(stationName, 2.);
+                     auto anotherTwo = Monitored::Scalar<double>(stationName1, 2.);
+                     auto lbNb     = Monitored::Scalar<double>("com-LB", lumiBlockNb);
                      auto monGroup = Monitored::Group ( m_monTool, two, anotherTwo, lbNb );
-                     two = 2.;
-                     anotherTwo = 2.;
-                     lbNb = lumiBlockNb;
-                     monGroup.fill();
                  }
                  m_hist_goodData->Fill(2.);
                  m_hist_goodDataLB15->Fill(lumiBlockNb, 2.);
@@ -1373,14 +1284,10 @@ void TrigALFAROBMonitor::findALFATracks( const ROIB::RoIBResult* roIBResult,
                  {
                      std::string stationName  = "goodDataAssessmentLB18";
                      std::string stationName1 = "com-goodDataAssessment";
-                     auto one      = Monitored::Scalar<double>(stationName);
-                     auto four = Monitored::Scalar<double>(stationName1);
-                     auto lbNb     = Monitored::Scalar<double>("com-LB");
+                     auto one      = Monitored::Scalar<double>(stationName, 1.);
+                     auto four = Monitored::Scalar<double>(stationName1, 4.);
+                     auto lbNb     = Monitored::Scalar<double>("com-LB", lumiBlockNb);
                      auto monGroup = Monitored::Group ( m_monTool, one, four, lbNb );
-                     four = 4.;
-                     one = 1.;
-                     lbNb = lumiBlockNb;
-                     monGroup.fill();
                  }
               m_hist_goodData->Fill(4.);
               m_hist_goodDataLB18->Fill(lumiBlockNb, 1.);
@@ -1389,14 +1296,10 @@ void TrigALFAROBMonitor::findALFATracks( const ROIB::RoIBResult* roIBResult,
                  {
                      std::string stationName  = "goodDataAssessmentLB18";
                      std::string stationName1 = "com-goodDataAssessment";
-                     auto two      = Monitored::Scalar<double>(stationName);
-                     auto five = Monitored::Scalar<double>(stationName1);
-                     auto lbNb     = Monitored::Scalar<double>("com-LB");
+                     auto two      = Monitored::Scalar<double>(stationName, 2.);
+                     auto five = Monitored::Scalar<double>(stationName1, 5.);
+                     auto lbNb     = Monitored::Scalar<double>("com-LB", lumiBlockNb);
                      auto monGroup = Monitored::Group ( m_monTool, two, five, lbNb );
-                     two = 2.;
-                     five = 5.;
-                     lbNb = lumiBlockNb;
-                     monGroup.fill();
                  }
                  m_hist_goodData->Fill(5.);
                  m_hist_goodDataLB18->Fill(lumiBlockNb, 2.);
@@ -1597,10 +1500,8 @@ void TrigALFAROBMonitor::findODTracks( bool FiberHitsODNeg[][3][30], bool FiberH
                  {
                      std::string stationName  = "od-" + m_stationNames[iStation*2] + "-RP_" + std::to_string(iStation*2+1) + "_" + std::to_string(iSide) + " position";
                      ATH_MSG_INFO(stationName);
-                     auto pos    = Monitored::Scalar<double>(stationName);
+                     auto pos    = Monitored::Scalar<double>(stationName, Pos[0]);
                      auto monGroup = Monitored::Group ( m_monTool, pos );
-                     pos = Pos[0];
-                     monGroup.fill();
                  }
 
                  m_hist_PosDetector[iStation*2][iSide]->Fill(Pos[0]);
@@ -1610,10 +1511,8 @@ void TrigALFAROBMonitor::findODTracks( bool FiberHitsODNeg[][3][30], bool FiberH
                  {
                      std::string stationName  = "od-" + m_stationNames[iStation*2+1] + "-RP_" + std::to_string(iStation*2+2) + "_" + std::to_string(iSide) + " position";
                      ATH_MSG_INFO(stationName);
-                     auto pos    = Monitored::Scalar<double>(stationName);
+                     auto pos    = Monitored::Scalar<double>(stationName, Pos[1]);
                      auto monGroup = Monitored::Group ( m_monTool, pos );
-                     pos = Pos[1];
-                     monGroup.fill();
                  }
                  m_hist_PosDetector[iStation*2+1][iSide]->Fill(Pos[1]);
                  ODtracks[iStation*2+1][iSide] = Pos[1];
@@ -1623,10 +1522,8 @@ void TrigALFAROBMonitor::findODTracks( bool FiberHitsODNeg[][3][30], bool FiberH
               {
                   std::string stationName  = "od-" + m_stationNames[iStation*2] + "-distance_" + std::to_string(iStation*2+1) + "_" + std::to_string(iStation*2+2)+ "_side_" + std::to_string(iSide);
                   ATH_MSG_INFO(stationName);
-                  auto pos    = Monitored::Scalar<double>(stationName);
+                  auto pos    = Monitored::Scalar<double>(stationName, -ODtracks[iStation*2][iSide] - ODtracks[iStation*2+1][iSide] + m_alfa_edge[iStation*2] + m_alfa_edge[iStation*2+1]);
                   auto monGroup = Monitored::Group ( m_monTool, pos );
-                  pos = -ODtracks[iStation*2][iSide] - ODtracks[iStation*2+1][iSide] + m_alfa_edge[iStation*2] + m_alfa_edge[iStation*2+1];
-                  monGroup.fill();
               }
 
               m_hist_DistStation[2*iStation][iSide]->Fill(-ODtracks[iStation*2][iSide] - ODtracks[iStation*2+1][iSide] + m_alfa_edge[iStation*2] + m_alfa_edge[iStation*2+1]);

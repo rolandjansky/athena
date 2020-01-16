@@ -70,8 +70,6 @@ private:
   typedef ServiceHandle<IROBDataProviderSvc> IIROBDataProviderSvc_t;
   /// Reference to the ROBDataProviderSvc service
   ServiceHandle<IROBDataProviderSvc>           m_robDataProviderSvc;
-  /// Reference to a ROBDataProviderSvc which implements also the trigger additions
-  SmartIF<ITrigROBDataProviderSvc>             m_trigROBDataProviderSvc;
 
   /// Source identifiers for ROB fragments
   IntegerProperty                  m_lvl1CTPROBid ;
@@ -117,8 +115,6 @@ private:
   TH1F*                            m_hist_PosDetector[8][2];
   TH1F*                            m_hist_DistStation[8][2];
 
-  //mutable bool                             m_FiberHitsODNeg[8][3][30], m_FiberHitsODPos[8][3][30];
-
   /// Switch for ROB status bit histograms
   BooleanProperty                  m_doROBStatus;
   TH2F*                            m_hist_genericStatusForROB;
@@ -128,10 +124,6 @@ private:
 
   /// pointers to the CTP and muCTPi result objects
   ROIB::MuCTPIResult*              m_lvl1muCTPIResult;  // RoIB muCTPi Result
-
-  BooleanProperty                  m_doTiming;
-  TH1F*                            m_hist_timeALFA;
-  Histo1DProperty                  m_histProp_timeALFA;
 
   ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
 
@@ -198,19 +190,20 @@ private:
   void verifyROBStatusBits(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag) const ;
 
   /// Helper for decoding the ALFA ROB 
-  uint32_t  decodeALFA(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag, std::vector<float> loc_pU [][10], 
-                       std::vector<float> loc_pV [][10],
+  uint32_t  decodeALFA(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag, std::vector<float> (&loc_pU) [8][10], 
+                       std::vector<float> (&loc_pV) [8][10],
                        bool FiberHitsODNeg[][3][30], bool FiberHitsODPos[][3][30],
-                       std::map<int,int>& triggerHitPattern,std::map<int,int>& triggerHitPatternReady) const;
+                       std::map<int,int>& triggerHitPattern, std::map<int,int>& triggerHitPatternReady) const;
 
-  void   decodeRealPMT(uint32_t dataWord, uint32_t quarter, uint32_t mbNb, uint32_t pmf, std::vector<float> loc_pU [][10], std::vector<float> loc_pV [][10],
+  void   decodeRealPMT(uint32_t dataWord, uint32_t quarter, uint32_t mbNb, uint32_t pmf, std::vector<float> (&loc_pU) [8][10], 
+                       std::vector<float> (&loc_pV) [8][10],
                        bool FiberHitsODNeg[][3][30], bool FiberHitsODPos[][3][30]) const;
 
   uint32_t  decodePMT0(uint32_t dataWord) const;
 
   /// find tacks in ALFA detectors
   void findALFATracks(const ROIB::RoIBResult* roIBResult, const int lumiBlockNb, const bool SBflag, 
-                      std::vector<float> loc_pU [][10], std::vector<float> loc_pV [][10]) const;
+                      std::vector<float> (&loc_pU) [8][10], std::vector<float> (&loc_pV) [8][10]) const;
 
   // find OD tracks and calculate distance
   void findODTracks (bool FiberHitsODNeg[][3][30], bool FiberHitsODPos[][3][30], std::map<int,int>& triggerHitPattern,std::map<int,int>& triggerHitPatternReady) const;
