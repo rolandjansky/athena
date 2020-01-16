@@ -101,9 +101,9 @@ default_options = MTCalibPebHypoOptions()
 def make_l1_seq():
     all_algs = []
 
-    # Configure RoIBResult decoding (input to L1Decoder)
-    from TrigT1ResultByteStream.TrigT1ResultByteStreamConf import RoIBResultByteStreamDecoderAlg
-    all_algs.append(RoIBResultByteStreamDecoderAlg())
+    # Create inputs for L1Decoder from ByteStream
+    from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1ByteStreamDecodersRecExSetup
+    L1ByteStreamDecodersRecExSetup()
 
     # Set menu for L1ConfigSvc
     from TriggerJobOpts.TriggerFlags import TriggerFlags

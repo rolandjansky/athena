@@ -12,13 +12,6 @@
 
 namespace PESA
 {
-  int trackNDF( const TrigInDetTrack& track )
-  {
-    // To get the n.d.f. take the number of silicon measurements (2 x N SPs) and subtract 5 helix params
-    const int trackNDF = ( track.NPixelSpacePoints() + track.NSCT_SpacePoints() ) * 2 - 5;
-    return trackNDF;
-  }
-
   double trackChi2Prob( const T2Track& track )
   {
     // FIXME: unify with vertexChi2Prob()

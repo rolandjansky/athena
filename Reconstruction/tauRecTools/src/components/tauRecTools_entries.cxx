@@ -1,6 +1,5 @@
 #ifndef XAOD_ANALYSIS
 #include "../JetSeedBuilder.h"
-#include "../LockTauContainers.h"
 #include "../TauAxisSetter.h"
 #include "../TauCalibrateEM.h"
 #include "../TauCellVariables.h"
@@ -15,17 +14,13 @@
 #include "../PhotonConversionVertex.h"
 #include "../TauConversionTagger.h"
 #include "../TauVertexVariables.h"
-#include "../TauTestDump.h"
 //#include "../tauCalibrateWeightTool.h"  //for trigger
 #endif
 #include "tauRecTools/TauTrackFilter.h"
 #include "tauRecTools/TauGenericPi0Cone.h"
 #include "tauRecTools/TauCalibrateLC.h"
-#include "tauRecTools/TauIDPileupCorrection.h"
 #include "tauRecTools/TauCommonCalcVars.h"
 #include "tauRecTools/TauSubstructureVariables.h"
-#include "tauRecTools/TauProcessorTool.h"
-#include "tauRecTools/TauBuilderTool.h"
 #include "tauRecTools/MvaTESEvaluator.h"
 #include "tauRecTools/MvaTESVariableDecorator.h"
 #include "tauRecTools/TauTrackClassifier.h"
@@ -44,7 +39,6 @@
 
 #ifndef XAOD_ANALYSIS
 DECLARE_COMPONENT( JetSeedBuilder )
-DECLARE_COMPONENT( LockTauContainers )
 DECLARE_COMPONENT( TauAxisSetter )
 DECLARE_COMPONENT( TauCalibrateEM )
 DECLARE_COMPONENT( TauCellVariables )
@@ -60,13 +54,9 @@ DECLARE_COMPONENT( TauConversionFinder )
 DECLARE_COMPONENT( TauConversionTagger )
 DECLARE_COMPONENT( TauVertexVariables )
 //DECLARE_COMPONENT( tauCalibrateWeightTool )
-DECLARE_COMPONENT( TauTestDump )
 #endif
 
 DECLARE_COMPONENT( TauCalibrateLC )
-DECLARE_COMPONENT( TauIDPileupCorrection )
-DECLARE_COMPONENT( TauProcessorTool )
-DECLARE_COMPONENT( TauBuilderTool )
 DECLARE_COMPONENT( MvaTESVariableDecorator )
 DECLARE_COMPONENT( MvaTESEvaluator )
 DECLARE_COMPONENT( tauRecTools::TauTrackClassifier )
