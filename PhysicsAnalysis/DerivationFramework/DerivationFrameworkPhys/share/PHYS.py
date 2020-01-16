@@ -1,7 +1,8 @@
 #====================================================================
 # DAOD_PHYS.py
-# This defines DAOD_PHYS, which is a prototype for a possible new 
-# unskimmed format for Run 3
+# This defines DAOD_PHYS, an unskimmed DAOD format for Run 3.
+# It contains the variables and objects needed for the large majority 
+# of physics analyses in ATLAS.
 # It requires the reductionConf flag PHYS in Reco_tf.py   
 #====================================================================
 
@@ -224,6 +225,7 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("PHYSKern
 #====================================================================
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
 addVRJets(SeqPHYS)
+addVRJets(SeqPHYS, training='201903')
 #addVRJetsTCC(DerivationFrameworkJob, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet",
 #             VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track",
 #             ghostArea = 0 , ptmin = 2000, ptminFilter = 2000,
@@ -262,7 +264,9 @@ PHYSSlimmingHelper.SmartCollections = ["Electrons",
                                        "TauJets",
                                        "DiTauJets",
                                        "DiTauJetsLowPt",
-                                       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
+                                       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                                       "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",
+                                       "BTagging_AntiKtVR30Rmax4Rmin02Track_201903"
                                       ]
 
 excludedVertexAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
@@ -316,6 +320,7 @@ if DerivationFrameworkIsMonteCarlo:
                                             'TruthCharm':'xAOD::TruthParticleContainer','TruthCharmAux':'xAOD::TruthParticleAuxContainer',
                                             'TruthPrimaryVertices':'xAOD::TruthVertexContainer','TruthPrimaryVerticesAux':'xAOD::TruthVertexAuxContainer',
                                             'AntiKt10TruthTrimmedPtFrac5SmallR20Jets':'xAOD::JetContainer', 'AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux':'xAOD::JetAuxContainer',
+                                            'AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903':'xAOD::JetContainer','BTagging_AntiKtVR30Rmax4Rmin02Track_201903':'xAOD::BTagging'
                                            }
 
    from DerivationFrameworkMCTruth.MCTruthCommon import addTruth3ContentToSlimmerTool
