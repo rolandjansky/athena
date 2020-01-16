@@ -923,7 +923,7 @@ void Database::importSystTH1(const TH1* hist, EfficiencyType type, const std::st
     auto& table = m_tables[type].back();
     const int xmax = table.m_dimensions.front().nBounds;
     const int ymax = table.m_dimensions.size()>1? table.m_dimensions[1].nBounds : 2;
-    const int zmax = table.m_dimensions.size()>1? table.m_dimensions[2].nBounds : 2;
+    const int zmax = table.m_dimensions.size()>2? table.m_dimensions[2].nBounds : 2;
     if(xmax!=hist->GetNbinsX()+1 || ymax!=hist->GetNbinsY()+1 || zmax!=hist->GetNbinsZ()+1)
     {
         throw(GenericError() << "binning mismatch between the nominal histogram and " << hist->GetName());
