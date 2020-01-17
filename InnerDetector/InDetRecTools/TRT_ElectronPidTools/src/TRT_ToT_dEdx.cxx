@@ -622,7 +622,7 @@ double TRT_ToT_dEdx::getProb(EGasType gasType, const double dEdx_obs, const doub
 
   double Resolution = Dedxcorrection->resolution[gasType][0]+Dedxcorrection->resolution[gasType][1]*(nUsedHits+0.5)+Dedxcorrection->resolution[gasType][2]*(nUsedHits+0.5)*(nUsedHits+0.5)+Dedxcorrection->resolution[gasType][3]*(nUsedHits+0.5)*(nUsedHits+0.5)*(nUsedHits+0.5);
   if(hypothesis==Trk::electron){
-    Resolution = Dedxcorrection->resolution_e[gasType][0]+Dedxcorrection->resolution_e[gasType][1]*(nUsedHits+0.5)+Dedxcorrection->resolution_e[gasType][2]*(nUsedHits+0.5)*(nUsedHits+0.5)+Dedxcorrection->resolution_e[gasType][3]*(nUsedHits+0.5)*(nUsedHits+0.5)*(nUsedHits+0.5);
+    Resolution = Dedxcorrection->resolutionElectron[gasType][0]+Dedxcorrection->resolutionElectron[gasType][1]*(nUsedHits+0.5)+Dedxcorrection->resolutionElectron[gasType][2]*(nUsedHits+0.5)*(nUsedHits+0.5)+Dedxcorrection->resolutionElectron[gasType][3]*(nUsedHits+0.5)*(nUsedHits+0.5)*(nUsedHits+0.5);
   }
 
   double prob =exp( -0.5 * ( ( ( dEdx_obs - dEdx_pred ) / (Resolution*dEdx_pred) ) * 
@@ -700,15 +700,15 @@ double TRT_ToT_dEdx::predictdEdx(EGasType gasType, const double pTrk, Trk::Parti
   // do we want to throw an assertion here?
   if(pTrk<100)return 0; 
   if(divideByL){    
-    if(Dedxcorrection->paraL_dEdx_p3[gasType]+1./( std::pow( betaGamma, Dedxcorrection->paraL_dEdx_p5[gasType]))<=0) return 0;
-    return Dedxcorrection->paraL_dEdx_p1[gasType]/std::pow( sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), Dedxcorrection->paraL_dEdx_p4[gasType])  * 
-      (Dedxcorrection->paraL_dEdx_p2[gasType] - std::pow( sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), Dedxcorrection->paraL_dEdx_p4[gasType] ) 
-       - log(Dedxcorrection->paraL_dEdx_p3[gasType]+1./( std::pow( betaGamma, Dedxcorrection->paraL_dEdx_p5[gasType]) ) ) );
+    if(Dedxcorrection->paraDivideByLengthDedxP3[gasType]+1./( std::pow( betaGamma, Dedxcorrection->paraDivideByLengthDedxP5[gasType]))<=0) return 0;
+    return Dedxcorrection->paraDivideByLengthDedxP1[gasType]/std::pow( sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), Dedxcorrection->paraDivideByLengthDedxP4[gasType])  * 
+      (Dedxcorrection->paraDivideByLengthDedxP2[gasType] - std::pow( sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), Dedxcorrection->paraDivideByLengthDedxP4[gasType] ) 
+       - log(Dedxcorrection->paraDivideByLengthDedxP3[gasType]+1./( std::pow( betaGamma, Dedxcorrection->paraDivideByLengthDedxP5[gasType]) ) ) );
   }else {
-    if(Dedxcorrection->para_dEdx_p3[gasType]+1./( std::pow( betaGamma, Dedxcorrection->para_dEdx_p5[gasType]) )<=0)return 0; 
-    return Dedxcorrection->para_dEdx_p1[gasType]/std::pow( sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), Dedxcorrection->para_dEdx_p4[gasType])  * 
-      (Dedxcorrection->para_dEdx_p2[gasType] - std::pow( sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), Dedxcorrection->para_dEdx_p4[gasType] ) 
-       - log(Dedxcorrection->para_dEdx_p3[gasType]+1./( std::pow( betaGamma, Dedxcorrection->para_dEdx_p5[gasType]) ) ) );
+    if(Dedxcorrection->paraDedxP3[gasType]+1./( std::pow( betaGamma, Dedxcorrection->paraDedxP5[gasType]) )<=0)return 0; 
+    return Dedxcorrection->paraDedxP1[gasType]/std::pow( sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), Dedxcorrection->paraDedxP4[gasType])  * 
+      (Dedxcorrection->paraDedxP2[gasType] - std::pow( sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), Dedxcorrection->paraDedxP4[gasType] ) 
+       - log(Dedxcorrection->paraDedxP3[gasType]+1./( std::pow( betaGamma, Dedxcorrection->paraDedxP5[gasType]) ) ) );
   }
   //return 0;  
 }
@@ -746,7 +746,7 @@ double TRT_ToT_dEdx::mass(const Trk::TrackStateOnSurface *itr, const double pTrk
   
   TF1 blumRolandi( "BR", blumRolandiFunction.c_str(), 0.7, 100000);
 
-  blumRolandi.SetParameters(Dedxcorrection->para_dEdx_p1[gasType],Dedxcorrection->para_dEdx_p2[gasType],Dedxcorrection->para_dEdx_p3[gasType],Dedxcorrection->para_dEdx_p4[gasType],Dedxcorrection->para_dEdx_p5[gasType], 1. ); 
+  blumRolandi.SetParameters(Dedxcorrection->paraDedxP1[gasType],Dedxcorrection->paraDedxP2[gasType],Dedxcorrection->paraDedxP3[gasType],Dedxcorrection->paraDedxP4[gasType],Dedxcorrection->paraDedxP5[gasType], 1. ); 
   //blumRolandi.SetParameters(&Dedxcorrection->para_dEdx_BB);
   double betaGamma = blumRolandi.GetX(dEdx, bg_min, bg_max); 
   
@@ -828,16 +828,16 @@ double TRT_ToT_dEdx::correctNormalization(bool divideLength,bool scaledata, doub
   EGasType gasType = static_cast<EGasType> (m_useTrackPartWithGasType);
   if(m_useTrackPartWithGasType==kUnset)
     gasType=kXenon;
-  if(nVtx<=0)nVtx=Dedxcorrection->norm_Nzero[gasType];
-  double slope = Dedxcorrection->norm_Slope_Tot[gasType];
-  double offset = Dedxcorrection->norm_Offset_Tot[gasType];
+  if(nVtx<=0)nVtx=Dedxcorrection->normNzero[gasType];
+  double slope = Dedxcorrection->normSlopeTot[gasType];
+  double offset = Dedxcorrection->normOffsetTot[gasType];
   if(divideLength){
-    slope = Dedxcorrection->norm_Slope_Totl[gasType];
-    offset = Dedxcorrection->norm_Offset_Totl[gasType];
+    slope = Dedxcorrection->normSlopeTotDivideByLength[gasType];
+    offset = Dedxcorrection->normOffsetTotDivideByLength[gasType];
   } 
-  double shift = Dedxcorrection->norm_Offset_Data[gasType];
+  double shift = Dedxcorrection->normOffsetData[gasType];
   if(!scaledata)shift = 0;
-  return (slope*Dedxcorrection->norm_Nzero[gasType]+offset)/(slope*nVtx+offset+shift);
+  return (slope*Dedxcorrection->normNzero[gasType]+offset)/(slope*nVtx+offset+shift);
 }
 
 
@@ -1176,55 +1176,55 @@ double TRT_ToT_dEdx::fitFuncPol_corrRZ(EGasType gasType, int parameter, double d
       //int parId=0;
       //parId=0;
       //if(sign>0)parId=1620;  // FIXME: parId is not used
-      a = Dedxcorrection->para_Long_CorrRZ[gasType][(6*parameter+0)*30*3+Layer*30+Strawlayer+offset];
-      b = Dedxcorrection->para_Long_CorrRZ[gasType][(6*parameter+1)*30*3+Layer*30+Strawlayer+offset];
-      c = Dedxcorrection->para_Long_CorrRZ[gasType][(6*parameter+2)*30*3+Layer*30+Strawlayer+offset];
-      d = Dedxcorrection->para_Long_CorrRZ[gasType][(6*parameter+3)*30*3+Layer*30+Strawlayer+offset];
-      e = Dedxcorrection->para_Long_CorrRZ[gasType][(6*parameter+4)*30*3+Layer*30+Strawlayer+offset];
-      f = Dedxcorrection->para_Long_CorrRZ[gasType][(6*parameter+5)*30*3+Layer*30+Strawlayer+offset];
+      a = Dedxcorrection->paraLongCorrRZ[gasType][(6*parameter+0)*30*3+Layer*30+Strawlayer+offset];
+      b = Dedxcorrection->paraLongCorrRZ[gasType][(6*parameter+1)*30*3+Layer*30+Strawlayer+offset];
+      c = Dedxcorrection->paraLongCorrRZ[gasType][(6*parameter+2)*30*3+Layer*30+Strawlayer+offset];
+      d = Dedxcorrection->paraLongCorrRZ[gasType][(6*parameter+3)*30*3+Layer*30+Strawlayer+offset];
+      e = Dedxcorrection->paraLongCorrRZ[gasType][(6*parameter+4)*30*3+Layer*30+Strawlayer+offset];
+      f = Dedxcorrection->paraLongCorrRZ[gasType][(6*parameter+5)*30*3+Layer*30+Strawlayer+offset];
      
     }else if (set ==1) { // short straws in barrel
       if(sign > 0) offset+=108;
-      a = Dedxcorrection->para_Short_CorrRZ[gasType][(6*parameter+0)*9+Layer+offset];
-      b = Dedxcorrection->para_Short_CorrRZ[gasType][(6*parameter+1)*9+Layer+offset];
-      c = Dedxcorrection->para_Short_CorrRZ[gasType][(6*parameter+2)*9+Layer+offset];
-      d = Dedxcorrection->para_Short_CorrRZ[gasType][(6*parameter+3)*9+Layer+offset];
-      e = Dedxcorrection->para_Short_CorrRZ[gasType][(6*parameter+4)*9+Layer+offset];
-      f = Dedxcorrection->para_Short_CorrRZ[gasType][(6*parameter+5)*9+Layer+offset];
+      a = Dedxcorrection->paraShortCorrRZ[gasType][(6*parameter+0)*9+Layer+offset];
+      b = Dedxcorrection->paraShortCorrRZ[gasType][(6*parameter+1)*9+Layer+offset];
+      c = Dedxcorrection->paraShortCorrRZ[gasType][(6*parameter+2)*9+Layer+offset];
+      d = Dedxcorrection->paraShortCorrRZ[gasType][(6*parameter+3)*9+Layer+offset];
+      e = Dedxcorrection->paraShortCorrRZ[gasType][(6*parameter+4)*9+Layer+offset];
+      f = Dedxcorrection->paraShortCorrRZ[gasType][(6*parameter+5)*9+Layer+offset];
     }else{  // straws in endcap
       if(sign >0) Layer+=14;
-      a = Dedxcorrection->para_End_CorrRZ[gasType][(6*parameter+0)*28+Layer];
-      b = Dedxcorrection->para_End_CorrRZ[gasType][(6*parameter+1)*28+Layer];
-      c = Dedxcorrection->para_End_CorrRZ[gasType][(6*parameter+2)*28+Layer];
-      d = Dedxcorrection->para_End_CorrRZ[gasType][(6*parameter+3)*28+Layer];
-      e = Dedxcorrection->para_End_CorrRZ[gasType][(6*parameter+4)*28+Layer];
-      f = Dedxcorrection->para_End_CorrRZ[gasType][(6*parameter+5)*28+Layer];
+      a = Dedxcorrection->paraEndCorrRZ[gasType][(6*parameter+0)*28+Layer];
+      b = Dedxcorrection->paraEndCorrRZ[gasType][(6*parameter+1)*28+Layer];
+      c = Dedxcorrection->paraEndCorrRZ[gasType][(6*parameter+2)*28+Layer];
+      d = Dedxcorrection->paraEndCorrRZ[gasType][(6*parameter+3)*28+Layer];
+      e = Dedxcorrection->paraEndCorrRZ[gasType][(6*parameter+4)*28+Layer];
+      f = Dedxcorrection->paraEndCorrRZ[gasType][(6*parameter+5)*28+Layer];
     }
   }else{
     if(set==0){ // long straws in barrel
       if(sign > 0) offset=1620;
-      a = Dedxcorrection->para_Long_CorrRZ_MC[gasType][(6*parameter+0)*30*3+Layer*30+Strawlayer+offset];
-      b = Dedxcorrection->para_Long_CorrRZ_MC[gasType][(6*parameter+1)*30*3+Layer*30+Strawlayer+offset];
-      c = Dedxcorrection->para_Long_CorrRZ_MC[gasType][(6*parameter+2)*30*3+Layer*30+Strawlayer+offset];
-      d = Dedxcorrection->para_Long_CorrRZ_MC[gasType][(6*parameter+3)*30*3+Layer*30+Strawlayer+offset];
-      e = Dedxcorrection->para_Long_CorrRZ_MC[gasType][(6*parameter+4)*30*3+Layer*30+Strawlayer+offset];
-      f = Dedxcorrection->para_Long_CorrRZ_MC[gasType][(6*parameter+5)*30*3+Layer*30+Strawlayer+offset];
+      a = Dedxcorrection->paraLongCorrRZMC[gasType][(6*parameter+0)*30*3+Layer*30+Strawlayer+offset];
+      b = Dedxcorrection->paraLongCorrRZMC[gasType][(6*parameter+1)*30*3+Layer*30+Strawlayer+offset];
+      c = Dedxcorrection->paraLongCorrRZMC[gasType][(6*parameter+2)*30*3+Layer*30+Strawlayer+offset];
+      d = Dedxcorrection->paraLongCorrRZMC[gasType][(6*parameter+3)*30*3+Layer*30+Strawlayer+offset];
+      e = Dedxcorrection->paraLongCorrRZMC[gasType][(6*parameter+4)*30*3+Layer*30+Strawlayer+offset];
+      f = Dedxcorrection->paraLongCorrRZMC[gasType][(6*parameter+5)*30*3+Layer*30+Strawlayer+offset];
     }else if (set ==1) { // short straws in barrel
       if(sign > 0) offset+=108;
-      a = Dedxcorrection->para_Short_CorrRZ_MC[gasType][(6*parameter+0)*9+Layer+offset];
-      b = Dedxcorrection->para_Short_CorrRZ_MC[gasType][(6*parameter+1)*9+Layer+offset];
-      c = Dedxcorrection->para_Short_CorrRZ_MC[gasType][(6*parameter+2)*9+Layer+offset];
-      d = Dedxcorrection->para_Short_CorrRZ_MC[gasType][(6*parameter+3)*9+Layer+offset];
-      e = Dedxcorrection->para_Short_CorrRZ_MC[gasType][(6*parameter+4)*9+Layer+offset];
-      f = Dedxcorrection->para_Short_CorrRZ_MC[gasType][(6*parameter+5)*9+Layer+offset];
+      a = Dedxcorrection->paraShortCorrRZMC[gasType][(6*parameter+0)*9+Layer+offset];
+      b = Dedxcorrection->paraShortCorrRZMC[gasType][(6*parameter+1)*9+Layer+offset];
+      c = Dedxcorrection->paraShortCorrRZMC[gasType][(6*parameter+2)*9+Layer+offset];
+      d = Dedxcorrection->paraShortCorrRZMC[gasType][(6*parameter+3)*9+Layer+offset];
+      e = Dedxcorrection->paraShortCorrRZMC[gasType][(6*parameter+4)*9+Layer+offset];
+      f = Dedxcorrection->paraShortCorrRZMC[gasType][(6*parameter+5)*9+Layer+offset];
     }else{  // straws in endcap
       if(sign >0) Layer+=14;
-      a = Dedxcorrection->para_End_CorrRZ_MC[gasType][(6*parameter+0)*28+Layer];
-      b = Dedxcorrection->para_End_CorrRZ_MC[gasType][(6*parameter+1)*28+Layer];
-      c = Dedxcorrection->para_End_CorrRZ_MC[gasType][(6*parameter+2)*28+Layer];
-      d = Dedxcorrection->para_End_CorrRZ_MC[gasType][(6*parameter+3)*28+Layer];
-      e = Dedxcorrection->para_End_CorrRZ_MC[gasType][(6*parameter+4)*28+Layer];
-      f = Dedxcorrection->para_End_CorrRZ_MC[gasType][(6*parameter+5)*28+Layer];
+      a = Dedxcorrection->paraEndCorrRZMC[gasType][(6*parameter+0)*28+Layer];
+      b = Dedxcorrection->paraEndCorrRZMC[gasType][(6*parameter+1)*28+Layer];
+      c = Dedxcorrection->paraEndCorrRZMC[gasType][(6*parameter+2)*28+Layer];
+      d = Dedxcorrection->paraEndCorrRZMC[gasType][(6*parameter+3)*28+Layer];
+      e = Dedxcorrection->paraEndCorrRZMC[gasType][(6*parameter+4)*28+Layer];
+      f = Dedxcorrection->paraEndCorrRZMC[gasType][(6*parameter+5)*28+Layer];
     }    
   }
   return a+b*r+c*r*r+d*r*r*r+e*r*r*r*r+f*r*r*r*r*r;
@@ -1249,25 +1249,25 @@ double TRT_ToT_dEdx::fitFuncEndcap_corrRZL(EGasType gasType, double driftRadius,
   double a,b,c,d,e,f,g,h,i;  
   if(sign >0) Layer+=14;
   if(m_isData){
-    a = Dedxcorrection->para_End_CorrRZL_DATA[gasType][(0)*28+Layer];
-    b = Dedxcorrection->para_End_CorrRZL_DATA[gasType][(1)*28+Layer];
-    c = Dedxcorrection->para_End_CorrRZL_DATA[gasType][(2)*28+Layer];
-    d = Dedxcorrection->para_End_CorrRZL_DATA[gasType][(3)*28+Layer];
-    e = Dedxcorrection->para_End_CorrRZL_DATA[gasType][(4)*28+Layer];
-    f = Dedxcorrection->para_End_CorrRZL_DATA[gasType][(5)*28+Layer];  
-    g = Dedxcorrection->para_End_CorrRZL_DATA[gasType][(6)*28+Layer];  
-    h = Dedxcorrection->para_End_CorrRZL_DATA[gasType][(7)*28+Layer];  
-    i = Dedxcorrection->para_End_CorrRZL_DATA[gasType][(8)*28+Layer];  
+    a = Dedxcorrection->paraEndCorrRZDivideByLengthDATA[gasType][(0)*28+Layer];
+    b = Dedxcorrection->paraEndCorrRZDivideByLengthDATA[gasType][(1)*28+Layer];
+    c = Dedxcorrection->paraEndCorrRZDivideByLengthDATA[gasType][(2)*28+Layer];
+    d = Dedxcorrection->paraEndCorrRZDivideByLengthDATA[gasType][(3)*28+Layer];
+    e = Dedxcorrection->paraEndCorrRZDivideByLengthDATA[gasType][(4)*28+Layer];
+    f = Dedxcorrection->paraEndCorrRZDivideByLengthDATA[gasType][(5)*28+Layer];  
+    g = Dedxcorrection->paraEndCorrRZDivideByLengthDATA[gasType][(6)*28+Layer];  
+    h = Dedxcorrection->paraEndCorrRZDivideByLengthDATA[gasType][(7)*28+Layer];  
+    i = Dedxcorrection->paraEndCorrRZDivideByLengthDATA[gasType][(8)*28+Layer];  
   }else{
-    a = Dedxcorrection->para_End_CorrRZL_MC[gasType][(0)*28+Layer];
-    b = Dedxcorrection->para_End_CorrRZL_MC[gasType][(1)*28+Layer];
-    c = Dedxcorrection->para_End_CorrRZL_MC[gasType][(2)*28+Layer];
-    d = Dedxcorrection->para_End_CorrRZL_MC[gasType][(3)*28+Layer];
-    e = Dedxcorrection->para_End_CorrRZL_MC[gasType][(4)*28+Layer];
-    f = Dedxcorrection->para_End_CorrRZL_MC[gasType][(5)*28+Layer];  
-    g = Dedxcorrection->para_End_CorrRZL_MC[gasType][(6)*28+Layer];  
-    h = Dedxcorrection->para_End_CorrRZL_MC[gasType][(7)*28+Layer];  
-    i = Dedxcorrection->para_End_CorrRZL_MC[gasType][(8)*28+Layer]; 
+    a = Dedxcorrection->paraEndCorrRZDivideByLengthMC[gasType][(0)*28+Layer];
+    b = Dedxcorrection->paraEndCorrRZDivideByLengthMC[gasType][(1)*28+Layer];
+    c = Dedxcorrection->paraEndCorrRZDivideByLengthMC[gasType][(2)*28+Layer];
+    d = Dedxcorrection->paraEndCorrRZDivideByLengthMC[gasType][(3)*28+Layer];
+    e = Dedxcorrection->paraEndCorrRZDivideByLengthMC[gasType][(4)*28+Layer];
+    f = Dedxcorrection->paraEndCorrRZDivideByLengthMC[gasType][(5)*28+Layer];  
+    g = Dedxcorrection->paraEndCorrRZDivideByLengthMC[gasType][(6)*28+Layer];  
+    h = Dedxcorrection->paraEndCorrRZDivideByLengthMC[gasType][(7)*28+Layer];  
+    i = Dedxcorrection->paraEndCorrRZDivideByLengthMC[gasType][(8)*28+Layer]; 
   } 
 
   double T1    = b*r+c*r*r+d*r*r*r+e*r*r*r*r+f*r*r*r*r*r;
@@ -1295,40 +1295,40 @@ double TRT_ToT_dEdx::fitFuncBarrel_corrRZL(EGasType gasType, double driftRadius,
 
   if(Layer==0 && Strawlayer<9){ // short straws
     if(m_isData){
-      a = Dedxcorrection->para_Short_CorrRZL_DATA[gasType][(0)*9+Strawlayer];
-      b = Dedxcorrection->para_Short_CorrRZL_DATA[gasType][(1)*9+Strawlayer];
-      c = Dedxcorrection->para_Short_CorrRZL_DATA[gasType][(2)*9+Strawlayer];
-      d = Dedxcorrection->para_Short_CorrRZL_DATA[gasType][(3)*9+Strawlayer];
-      e = Dedxcorrection->para_Short_CorrRZL_DATA[gasType][(4)*9+Strawlayer];
-      f = Dedxcorrection->para_Short_CorrRZL_DATA[gasType][(5)*9+Strawlayer];
-      g = Dedxcorrection->para_Short_CorrRZL_DATA[gasType][(6)*9+Strawlayer];
+      a = Dedxcorrection->paraShortCorrRZDivideByLengthDATA[gasType][(0)*9+Strawlayer];
+      b = Dedxcorrection->paraShortCorrRZDivideByLengthDATA[gasType][(1)*9+Strawlayer];
+      c = Dedxcorrection->paraShortCorrRZDivideByLengthDATA[gasType][(2)*9+Strawlayer];
+      d = Dedxcorrection->paraShortCorrRZDivideByLengthDATA[gasType][(3)*9+Strawlayer];
+      e = Dedxcorrection->paraShortCorrRZDivideByLengthDATA[gasType][(4)*9+Strawlayer];
+      f = Dedxcorrection->paraShortCorrRZDivideByLengthDATA[gasType][(5)*9+Strawlayer];
+      g = Dedxcorrection->paraShortCorrRZDivideByLengthDATA[gasType][(6)*9+Strawlayer];
     }else{
-      a = Dedxcorrection->para_Short_CorrRZL_MC[gasType][(0)*9+Strawlayer];
-      b = Dedxcorrection->para_Short_CorrRZL_MC[gasType][(1)*9+Strawlayer];
-      c = Dedxcorrection->para_Short_CorrRZL_MC[gasType][(2)*9+Strawlayer];
-      d = Dedxcorrection->para_Short_CorrRZL_MC[gasType][(3)*9+Strawlayer];
-      e = Dedxcorrection->para_Short_CorrRZL_MC[gasType][(4)*9+Strawlayer];
-      f = Dedxcorrection->para_Short_CorrRZL_MC[gasType][(5)*9+Strawlayer];
-      g = Dedxcorrection->para_Short_CorrRZL_MC[gasType][(6)*9+Strawlayer];
+      a = Dedxcorrection->paraShortCorrRZDivideByLengthMC[gasType][(0)*9+Strawlayer];
+      b = Dedxcorrection->paraShortCorrRZDivideByLengthMC[gasType][(1)*9+Strawlayer];
+      c = Dedxcorrection->paraShortCorrRZDivideByLengthMC[gasType][(2)*9+Strawlayer];
+      d = Dedxcorrection->paraShortCorrRZDivideByLengthMC[gasType][(3)*9+Strawlayer];
+      e = Dedxcorrection->paraShortCorrRZDivideByLengthMC[gasType][(4)*9+Strawlayer];
+      f = Dedxcorrection->paraShortCorrRZDivideByLengthMC[gasType][(5)*9+Strawlayer];
+      g = Dedxcorrection->paraShortCorrRZDivideByLengthMC[gasType][(6)*9+Strawlayer];
     }
     
   }else{
     if(m_isData){
-      a = Dedxcorrection->para_Long_CorrRZL_DATA[gasType][(0)*30*3+Layer*30+Strawlayer];
-      b = Dedxcorrection->para_Long_CorrRZL_DATA[gasType][(1)*30*3+Layer*30+Strawlayer];
-      c = Dedxcorrection->para_Long_CorrRZL_DATA[gasType][(2)*30*3+Layer*30+Strawlayer];
-      d = Dedxcorrection->para_Long_CorrRZL_DATA[gasType][(3)*30*3+Layer*30+Strawlayer];
-      e = Dedxcorrection->para_Long_CorrRZL_DATA[gasType][(4)*30*3+Layer*30+Strawlayer];
-      f = Dedxcorrection->para_Long_CorrRZL_DATA[gasType][(5)*30*3+Layer*30+Strawlayer];
-      g = Dedxcorrection->para_Long_CorrRZL_DATA[gasType][(6)*30*3+Layer*30+Strawlayer];
+      a = Dedxcorrection->paraLongCorrRZDivideByLengthDATA[gasType][(0)*30*3+Layer*30+Strawlayer];
+      b = Dedxcorrection->paraLongCorrRZDivideByLengthDATA[gasType][(1)*30*3+Layer*30+Strawlayer];
+      c = Dedxcorrection->paraLongCorrRZDivideByLengthDATA[gasType][(2)*30*3+Layer*30+Strawlayer];
+      d = Dedxcorrection->paraLongCorrRZDivideByLengthDATA[gasType][(3)*30*3+Layer*30+Strawlayer];
+      e = Dedxcorrection->paraLongCorrRZDivideByLengthDATA[gasType][(4)*30*3+Layer*30+Strawlayer];
+      f = Dedxcorrection->paraLongCorrRZDivideByLengthDATA[gasType][(5)*30*3+Layer*30+Strawlayer];
+      g = Dedxcorrection->paraLongCorrRZDivideByLengthDATA[gasType][(6)*30*3+Layer*30+Strawlayer];
     }else{
-      a = Dedxcorrection->para_Long_CorrRZL_MC[gasType][(0)*30*3+Layer*30+Strawlayer];
-      b = Dedxcorrection->para_Long_CorrRZL_MC[gasType][(1)*30*3+Layer*30+Strawlayer];
-      c = Dedxcorrection->para_Long_CorrRZL_MC[gasType][(2)*30*3+Layer*30+Strawlayer];
-      d = Dedxcorrection->para_Long_CorrRZL_MC[gasType][(3)*30*3+Layer*30+Strawlayer];
-      e = Dedxcorrection->para_Long_CorrRZL_MC[gasType][(4)*30*3+Layer*30+Strawlayer];
-      f = Dedxcorrection->para_Long_CorrRZL_MC[gasType][(5)*30*3+Layer*30+Strawlayer];
-      g = Dedxcorrection->para_Long_CorrRZL_MC[gasType][(6)*30*3+Layer*30+Strawlayer];
+      a = Dedxcorrection->paraLongCorrRZDivideByLengthMC[gasType][(0)*30*3+Layer*30+Strawlayer];
+      b = Dedxcorrection->paraLongCorrRZDivideByLengthMC[gasType][(1)*30*3+Layer*30+Strawlayer];
+      c = Dedxcorrection->paraLongCorrRZDivideByLengthMC[gasType][(2)*30*3+Layer*30+Strawlayer];
+      d = Dedxcorrection->paraLongCorrRZDivideByLengthMC[gasType][(3)*30*3+Layer*30+Strawlayer];
+      e = Dedxcorrection->paraLongCorrRZDivideByLengthMC[gasType][(4)*30*3+Layer*30+Strawlayer];
+      f = Dedxcorrection->paraLongCorrRZDivideByLengthMC[gasType][(5)*30*3+Layer*30+Strawlayer];
+      g = Dedxcorrection->paraLongCorrRZDivideByLengthMC[gasType][(6)*30*3+Layer*30+Strawlayer];
     }
   }
   double z = fabs(zPosition);
@@ -1610,9 +1610,9 @@ double TRT_ToT_dEdx::mimicToXeHit_Endcap(EGasType gasType, double driftRadius, i
   int side = 0; // A side
   if(sign <0) side =1; // C side
   if(m_isData)
-    a = Dedxcorrection->para_End_MimicToXe_DATA[gasType][(side*14+Layer)*20+(rBin)];
+    a = Dedxcorrection->paraEndMimicToXeDATA[gasType][(side*14+Layer)*20+(rBin)];
   else
-    a = Dedxcorrection->para_End_MimicToXe_MC[gasType][(side*14+Layer)*20+(rBin)];
+    a = Dedxcorrection->paraEndMimicToXeMC[gasType][(side*14+Layer)*20+(rBin)];
 
   ATH_MSG_DEBUG("mimicToXeHit_Endcap():: isData = " << m_isData << " gasTypeInStraw = " << gasType
                 << " side = " << side << " Layer = " << Layer << " rBin = " << rBin <<" BINPOS = " << (side*14+Layer)*20+(rBin) 
@@ -1646,14 +1646,14 @@ double TRT_ToT_dEdx::mimicToXeHit_Barrel(EGasType gasType, double driftRadius, i
 
   if(Layer==0 && Strawlayer<9){ // short straws
     if(m_isData)
-      a = Dedxcorrection->para_Short_MimicToXe_DATA[gasType][Strawlayer*20+(rBin)];
+      a = Dedxcorrection->paraShortMimicToXeDATA[gasType][Strawlayer*20+(rBin)];
     else
-      a = Dedxcorrection->para_Short_MimicToXe_MC[gasType][Strawlayer*20+(rBin)];
+      a = Dedxcorrection->paraShortMimicToXeMC[gasType][Strawlayer*20+(rBin)];
   }else{
     if(m_isData)
-      a = Dedxcorrection->para_Long_MimicToXe_DATA[gasType][Layer*30*20+Strawlayer*20+(rBin)];
+      a = Dedxcorrection->paraLongMimicToXeDATA[gasType][Layer*30*20+Strawlayer*20+(rBin)];
     else
-      a = Dedxcorrection->para_Long_MimicToXe_MC[gasType][Layer*30*20+Strawlayer*20+(rBin)];
+      a = Dedxcorrection->paraLongMimicToXeMC[gasType][Layer*30*20+Strawlayer*20+(rBin)];
   }
 
   ATH_MSG_DEBUG("mimicToXeHit_Barrel():: isData = " << m_isData << " Layer = " << Layer << " Strawlayer = " << Strawlayer << " rBin = " << rBin << " a = " << a << "" );
@@ -1734,7 +1734,7 @@ double TRT_ToT_dEdx::TrackOccupancyCorrection(const Trk::Track* track,  bool use
 	
   //Function of the from f(x)=a+b*x+c*x^2 was used as a fitting function, separately for tracks with and excluding HT hits
   if (!useHThits){corr=Dedxcorrection->TrackOccPar0[ijk]+Dedxcorrection->TrackOccPar1[ijk]*trackOcc+Dedxcorrection->TrackOccPar2[ijk]*pow(trackOcc,2);}
-  else{corr=Dedxcorrection->TrackOccPar0_noHT[ijk]+Dedxcorrection->TrackOccPar1_noHT[ijk]*trackOcc+Dedxcorrection->TrackOccPar2_noHT[ijk]*pow(trackOcc,2);}
+  else{corr=Dedxcorrection->TrackOccPar0NoHT[ijk]+Dedxcorrection->TrackOccPar1NoHT[ijk]*trackOcc+Dedxcorrection->TrackOccPar2NoHT[ijk]*pow(trackOcc,2);}
 
   return corr;
 }
