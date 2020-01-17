@@ -51,6 +51,7 @@ Trk::MultiComponentStateModeCalculator::calculateMode(
     for (const Component& component : mixture[i]){
       double pdfValue =pdf(component.mean, i, mixture);
       if(pdfValue>largerPdfComponent){
+        largerPdfComponent=pdfValue;
         largerMeanComponent=component.mean;
       }
     }
