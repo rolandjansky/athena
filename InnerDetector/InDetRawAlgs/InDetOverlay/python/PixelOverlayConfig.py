@@ -15,8 +15,6 @@ def PixelOverlayAlgCfg(flags, name = "PixelOverlay", **kwargs):
     kwargs.setdefault("SignalInputKey", flags.Overlay.SigPrefix + "PixelRDOs")
     kwargs.setdefault("OutputKey", "PixelRDOs")
 
-    kwargs.setdefault("includeBkg", True)
-
     # Do Pixel overlay
     PixelOverlay=CompFactory.PixelOverlay
     alg = PixelOverlay(name, **kwargs)
