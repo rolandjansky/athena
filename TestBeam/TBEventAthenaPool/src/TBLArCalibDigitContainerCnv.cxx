@@ -62,10 +62,3 @@ StatusCode TBLArCalibDigitContainerCnv::PoolToDataObject(DataObject*& pObj,
 
   return StatusCode::SUCCESS; 
 }
-
-StatusCode TBLArCalibDigitContainerCnv::DataObjectToPool(DataObject* pObj, const std::string &tname) 
-{
-  MsgStream log(msgSvc(),"TBLArCalibDigitContainerCnv::DataObjectToPool" );
-  
-  return TBLArCalibDigitContainerCnvBase::DataObjectToPool( pObj, tname) ;
-}
