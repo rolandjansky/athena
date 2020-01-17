@@ -258,10 +258,8 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
     # use f2py2 if f2py not available
     if reweight_card_loc is not None:
         from distutils.spawn import find_executable
-        if find_executable('f2py') is not None:
-            mglog.info('Found f2py, can run reweighting.')
-        elif find_executable('f2py2') is not None:
-            mglog.info('f2py is called f2py2 on this machine, will update configuration')
+        if find_executable('f2py2') is not None:
+            mglog.info('found f2py2, will update configuration')
             if isNLO:
                 config_card=proc_dir+'/Cards/amcatnlo_configuration.txt'
             else:
@@ -276,6 +274,8 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
                     newcard.write(line)
             oldcard.close()
             newcard.close()
+        elif find_executable('f2py') is not None:
+            mglog.info('Found f2py, will use it for reweighting')
         else:
             mglog.error('Could not find f2py or f2py2, needed for reweighting')
             return 1
@@ -1614,7 +1614,8 @@ def check_reweight_card(reweight_card_loc):
     shutil.move(reweight_card_loc,reweight_card_loc+'.old')
     oldcard = open(reweight_card_loc+'.old','r')
     newcard = open(reweight_card_loc,'w')
-    changed=False
+    changed = False
+    nrwgt = 1
     for line in oldcard:
         if not line.strip().startswith('launch') :
             newcard.write(line)
@@ -1639,7 +1640,9 @@ def check_reweight_card(reweight_card_loc):
                     changed=True
             # if none is defined: complain
             else:
-                raise RuntimeError('Every reweighting needs a rwgt_name (see https://cp3.irmp.ucl.ac.be/projects/madgraph/wiki/Reweight)')
+                mglog.warning('Every reweighting launch needs a --rwgt_name (see https://cp3.irmp.ucl.ac.be/projects/madgraph/wiki/Reweight), please update your reweight_card accordingly. Added a dummy name for now.')
+                newcard.write(line.strip()+' --rwgt_name=dummy_rwgt_name_{0}  --rwgt_info=dummy_rwgt_info_{0}\n'.format(nrwgt))
+                nrwgt+=1
 
     if changed:
         mglog.info('Updated reweight_card')
