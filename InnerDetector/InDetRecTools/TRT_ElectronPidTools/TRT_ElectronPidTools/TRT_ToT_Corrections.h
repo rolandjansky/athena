@@ -17,9 +17,9 @@ namespace Dedxcorrection {
   // function 2nd order of the form f(x)=a+b*x+c*x^2
   
   // TrckOccupancy calibration constants, HT hits are excluded, Pt>0.4 GeV d0<0.4 mm deltaZ0sin(theta)<0.4 mm
-  double TrackOccPar0NoHT[nParametersTrackBaseddEdx];
-  double TrackOccPar1NoHT[nParametersTrackBaseddEdx];
-  double TrackOccPar2NoHT[nParametersTrackBaseddEdx];
+  double TrackOccPar0NoHt[nParametersTrackBaseddEdx];
+  double TrackOccPar1NoHt[nParametersTrackBaseddEdx];
+  double TrackOccPar2NoHt[nParametersTrackBaseddEdx];
 
   // TrckOccupancy calibration constants, Pt>0.4 GeV d0<0.4 mm deltaZ0sin(theta)<0.4 mm
   double TrackOccPar0[nParametersTrackBaseddEdx];
