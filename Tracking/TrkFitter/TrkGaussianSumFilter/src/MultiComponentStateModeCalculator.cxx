@@ -14,7 +14,6 @@ description          : Implementation code for MultiComponentStateModeCalculator
 #include "TrkGaussianSumFilter/MultiComponentStateModeCalculator.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include "TrkParameters/TrackParameters.h"
-#include <map>
 
 namespace {
 const double invsqrt2PI = 1. / sqrt(2. * M_PI);
@@ -33,26 +32,30 @@ Trk::MultiComponentStateModeCalculator::calculateMode(
     return modes;
   }
 
-  std::array<std::vector<Mixture>, 5> mixture;
+  std::array<std::vector<Component>, 5> mixture;
 
   fillMixture(multiComponentState, mixture);
 
+  /* loop over the 5 direction , d0,z0,phi,theta,qOverP*/
+
   for (int i = 0; i < 5; i++) {
-    std::multimap<double, double, std::greater<double>> para_startMap;
-
-    // Loop over the mixture and find the starting point
-    auto component = mixture[i].begin();
-
-    for (; component != mixture[i].end(); ++component)
-      para_startMap.insert(
-        std::pair<double, double>(pdf(component->mean, i, mixture), component->mean));
-
-    double para_start = para_startMap.begin()->second;
-
-    modes[i] = findMode(para_start, i, mixture);
+    double largerMeanComponent=0.0;   
+    /*
+     * Loop over the mixture in the ith direction and find the  component
+     * whose mean give the larger value for the Gaussian Mixture pdf.
+     * This should be a good enough starting point for the mode
+     * finding in this direction
+     */
+    for (const Component& component : mixture[i]){
+      double pdfValue =pdf(component.mean, i, mixture);
+      if(pdfValue>largerMeanComponent){
+        largerMeanComponent=pdfValue;
+      }
+    }
+    modes[i] = findMode(largerMeanComponent, i, mixture);
     // Calculate the FWHM and return this back so that it can be used to correct the covariance
     // matrix
-    if (para_start != modes[i]) {
+    if (largerMeanComponent != modes[i]) {
       // mode calculation was successful now calulate FWHM
       double currentWidth = width(i, mixture);
       modes[i + 5] = -1; // Failure is flagged with a value less than 0;
@@ -94,7 +97,6 @@ Trk::MultiComponentStateModeCalculator::calculateMode(
         }
       }
     }
-    para_startMap.clear();
   }
   return modes;
 }
@@ -102,7 +104,7 @@ Trk::MultiComponentStateModeCalculator::calculateMode(
 void
 Trk::MultiComponentStateModeCalculator::fillMixture(
   const Trk::MultiComponentState& multiComponentState,
-  std::array<std::vector<Mixture>, 5>& mixture)
+  std::array<std::vector<Component>, 5>& mixture)
 {
 
   for (int i = 0; i < 5; i++) {
@@ -138,8 +140,8 @@ Trk::MultiComponentStateModeCalculator::fillMixture(
           mean -= 2 * M_PI;
         }
       }
-      Mixture mix(weight, mean, sigma);
-      mixture[i].push_back(mix);
+      Component comp(weight, mean, sigma);
+      mixture[i].push_back(comp);
     }
   }
   return;
@@ -148,7 +150,7 @@ Trk::MultiComponentStateModeCalculator::fillMixture(
 double
 Trk::MultiComponentStateModeCalculator::findMode(double xStart,
                                                  int i,
-                                                 const std::array<std::vector<Mixture>, 5>& mixture)
+                                                 const std::array<std::vector<Component>, 5>& mixture)
 {
 
   int iteration(0);
@@ -190,7 +192,7 @@ Trk::MultiComponentStateModeCalculator::findMode(double xStart,
 double
 Trk::MultiComponentStateModeCalculator::findModeGlobal(double mean,
                                                        int i,
-                                                       const std::array<std::vector<Mixture>, 5>& mixture)
+                                                       const std::array<std::vector<Component>, 5>& mixture)
 {
 
   double start(-1);
@@ -220,7 +222,7 @@ Trk::MultiComponentStateModeCalculator::findModeGlobal(double mean,
 double
 Trk::MultiComponentStateModeCalculator::pdf(double x,
                                             int i,
-                                            const std::array<std::vector<Mixture>, 5>& mixture)
+                                            const std::array<std::vector<Component>, 5>& mixture)
 {
 
   double pdf(0.);
@@ -236,7 +238,7 @@ Trk::MultiComponentStateModeCalculator::pdf(double x,
 double
 Trk::MultiComponentStateModeCalculator::d1pdf(double x,
                                               int i,
-                                              const std::array<std::vector<Mixture>, 5>& mixture)
+                                              const std::array<std::vector<Component>, 5>& mixture)
 {
 
   double result(0.);
@@ -257,7 +259,7 @@ Trk::MultiComponentStateModeCalculator::d1pdf(double x,
 double
 Trk::MultiComponentStateModeCalculator::d2pdf(double x,
                                               int i,
-                                              const std::array<std::vector<Mixture>, 5>& mixture)
+                                              const std::array<std::vector<Component>, 5>& mixture)
 {
 
   double result(0.);
@@ -292,7 +294,7 @@ Trk::MultiComponentStateModeCalculator::gaus(double x, double mean, double sigma
 
 double
 Trk::MultiComponentStateModeCalculator::width(int i,
-                                              const std::array<std::vector<Mixture>, 5>& mixture)
+                                              const std::array<std::vector<Component>, 5>& mixture)
 {
 
   double pdf(0.);
@@ -311,7 +313,7 @@ Trk::MultiComponentStateModeCalculator::findRoot(double& result,
                                                  double xhi,
                                                  double value,
                                                  double i,
-                                                 const std::array<std::vector<Mixture>, 5>& mixture)
+                                                 const std::array<std::vector<Component>, 5>& mixture)
 {
   // Do the root finding using the Brent-Decker method. Returns a boolean status and
   // loads 'result' with our best guess at the root if true.
