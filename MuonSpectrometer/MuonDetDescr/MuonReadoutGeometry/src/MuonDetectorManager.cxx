@@ -226,7 +226,8 @@ void MuonDetectorManager::refreshCache() const
 }
 void MuonDetectorManager::refreshMdtCache() const
 {
-  clearMdtCache(); // no need to fill; it will happen on demand
+  clearMdtCache(); // NEED to fill since FillCacheInitTime = 1 is the default now.
+  fillMdtCache();
 }
 void MuonDetectorManager::refreshRpcCache() const
 {

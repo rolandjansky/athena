@@ -76,7 +76,7 @@ namespace Trk {
       const BinUtility* binUtility() const override;
       
       /** Update the BinUtility if necessary - passing ownership of the utility class*/
-      virtual void updateBinning(BinUtility* bu) const override;
+      virtual void updateBinning(BinUtility* bu) override;
        
       /**Return method for full material description of the Layer - for all bins*/
       const MaterialPropertiesVector& fullMaterial() const;
@@ -130,7 +130,7 @@ namespace Trk {
      return 0;
   }
   
-  inline void CompressedLayerMaterial::updateBinning(BinUtility* bu) const {
+  inline void CompressedLayerMaterial::updateBinning(BinUtility* bu){
       if (bu){
           delete m_binUtility;
           m_binUtility = bu;

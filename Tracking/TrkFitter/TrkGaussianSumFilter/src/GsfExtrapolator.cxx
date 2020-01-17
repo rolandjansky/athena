@@ -577,11 +577,12 @@ Trk::GsfExtrapolator::extrapolateToVolumeBoundary(Cache& cache,
       cache, propagator, *currentState, trackingVolume, associatedLayer, 0, direction, particleHypothesis);
 
     // Make sure reduced state is added to the list of garbage to be collected
-    if (nextState && nextState != currentState && currentState != &multiComponentState)
-      delete currentState;
-
-    // Refresh the current state pointer
-    currentState = nextState ? nextState : currentState;
+    if (nextState){
+      if( nextState != currentState && currentState != &multiComponentState)
+        delete currentState;
+      // Refresh the current state pointer
+      currentState = nextState;
+    }
   }
 
   /* =============================================
@@ -791,11 +792,12 @@ Trk::GsfExtrapolator::extrapolateInsideVolume(Cache& cache,
                                                                               particleHypothesis);
 
       // Memory clean-up
-      if (nextState && nextState != currentState && currentState != &multiComponentState)
-        delete currentState;
-
-      // Refresh the current state pointer
-      currentState = nextState ? nextState : currentState;
+      if (nextState){  
+        if(nextState != currentState && currentState != &multiComponentState)
+          delete currentState;
+        // Refresh the current state pointer
+        currentState = nextState;
+      }
     }
 
     // Final extrapolation to destination surface

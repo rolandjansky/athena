@@ -392,7 +392,7 @@ void AthenaOutputStream::handle(const Incident& inc)
             throw GaudiException("Unable to connect metadata services", name(), StatusCode::FAILURE);
          }
          m_checkNumberOfWrites = false;
-         m_outputAttributes = "[OutputCollection=MetaDataHdr][PoolContainerPrefix=MetaData][AttributeListKey=][DataHeaderSatellites=]";
+         m_outputAttributes = "[OutputCollection=MetaDataHdr][PoolContainerPrefix=MetaData][AttributeListKey=]";
          m_p2BWritten->clear();
          IProperty *pAsIProp(nullptr);
          if ((m_p2BWritten.retrieve()).isFailure() ||
@@ -586,12 +586,12 @@ StatusCode AthenaOutputStream::write() {
    // lock.unlock(); 
 
    // Connect the output file to the service
-   if( !streamer->connectOutput( connectStr ).isSuccess()) {
+   if (!streamer->connectOutput(outputFN).isSuccess()) {
       ATH_MSG_ERROR("Could not connectOutput");
       return StatusCode::FAILURE;
    }
-   ATH_MSG_DEBUG("connectOutput done for " + outputFN );
-   StatusCode currentStatus = streamer->streamObjects(objects);
+   ATH_MSG_DEBUG("connectOutput done for " + outputFN);
+   StatusCode currentStatus = streamer->streamObjects(objects, connectStr);
    // Do final check of streaming
    if (!currentStatus.isSuccess()) {
       if (!currentStatus.isRecoverable()) {
@@ -601,7 +601,7 @@ StatusCode AthenaOutputStream::write() {
          ATH_MSG_DEBUG("streamObjects failed.");
       }
    }
-   if( !streamer->commitOutput().isSuccess() ) {
+   if (!streamer->commitOutput().isSuccess()) {
       ATH_MSG_FATAL("commitOutput failed.");
       failed = true;
    }

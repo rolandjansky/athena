@@ -15,8 +15,6 @@ def getPixelOverlay(name="PixelOverlay", **kwargs):
         kwargs.setdefault("SignalInputKey", overlayFlags.evtStore() + "+PixelRDOs");
         kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+PixelRDOs");
 
-    kwargs.setdefault("includeBkg", True);
-
     return CfgMgr.PixelOverlay(name, **kwargs)
 
 
@@ -47,8 +45,6 @@ def getSCTOverlay(name="SCTOverlay", **kwargs):
         kwargs.setdefault("BkgInputKey", overlayFlags.dataStore() + "+SCT_RDOs");
         kwargs.setdefault("SignalInputKey", overlayFlags.evtStore() + "+SCT_RDOs");
         kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+SCT_RDOs");
-
-    kwargs.setdefault("includeBkg", True);
 
     return CfgMgr.SCTOverlay(name, **kwargs)
 
@@ -83,8 +79,6 @@ def getTRTOverlay(name="TRTOverlay", **kwargs):
         kwargs.setdefault("SignalInputKey", overlayFlags.evtStore() + "+TRT_RDOs");
         kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+TRT_RDOs");
         kwargs.setdefault("SignalInputSDOKey", overlayFlags.evtStore() + "+TRT_SDO_Map");
-
-    kwargs.setdefault("includeBkg", True);
 
     kwargs.setdefault("TRT_LocalOccupancyTool", "TRT_LocalOccupancy")
 
