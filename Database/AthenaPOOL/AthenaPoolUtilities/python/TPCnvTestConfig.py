@@ -3,6 +3,7 @@
 import os
 from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg
@@ -17,7 +18,7 @@ from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 #from AtlasGeoModel.ForDetGeoModelConfig import ForDetGeometryCfg
 Configurable.configurableRun3Behavior = True
 
-def TPCnvTest(infile, keys, useGeoModelSvc=False, useIOVDbSvc=False, doPixel=False, doSCT=False, doTRT=False, doLAr=False, doTile=False, doMuon=False):
+def TPCnvTest(infile, keys, useGeoModelSvc=False, useIOVDbSvc=False, doPixel=False, doSCT=False, doTRT=False, doLAr=False, doTile=False, doMuon=False, doTracks=False, configOnly=False):
     # Make sure we don't have a stale file catalog.
     if os.path.exists ('PoolFileCatalog.xml'):
         os.remove ('PoolFileCatalog.xml')
@@ -49,9 +50,11 @@ def TPCnvTest(infile, keys, useGeoModelSvc=False, useIOVDbSvc=False, doPixel=Fal
 
     # Construct ComponentAccumulator
     acc = MainServicesCfg(ConfigFlags)
+    acc.setAppProperty('PrintAlgsSequence', False, overwrite=True)
     acc.merge(PoolReadCfg(ConfigFlags))
     if useIOVDbSvc:
         acc.merge(IOVDbSvcCfg(ConfigFlags))
+    EventCnvSuperTool = None
     if useGeoModelSvc:
         if ConfigFlags.Detector.GeometryPixel:
             acc.merge(PixelGeometryCfg(ConfigFlags))
@@ -74,5 +77,16 @@ def TPCnvTest(infile, keys, useGeoModelSvc=False, useIOVDbSvc=False, doPixel=Fal
         #acc.merge(ForDetGeometryCfg(ConfigFlags))
         acc.merge(GeoModelCfg(ConfigFlags))
         acc.getService("GeoModelSvc").IgnoreTagDifference = True
+        if doTracks:
+            # Doing this here as Trk.EventCnvSuperTool isn't part of all projects
+            Trk_EventCnvSuperTool=CompFactory.Trk.EventCnvSuperTool
+            EventCnvSuperTool = Trk_EventCnvSuperTool('EventCnvSuperTool', MaxErrorCount=10)
     acc.addEventAlgo(Dumper ('dumper', ConfigFlags.Input.Files[0], keys, refpaths), 'AthAlgSeq')
+    if EventCnvSuperTool is not None:
+        acc.addPublicTool(EventCnvSuperTool)
+    if configOnly:
+        f = open('new.pkl', 'wb')
+        acc.store(f)
+        f.close()
+        return
     return acc.run(maxEvents=10)
