@@ -16,7 +16,6 @@
 #include "PersistentDataModel/Placement.h"
 #include "PersistentDataModel/Token.h"
 #include "PersistentDataModel/TokenAddress.h"
-#include "StorageSvc/DbType.h"
 
 //__________________________________________________________________________
 AthenaPoolConverter::~AthenaPoolConverter() {
@@ -87,14 +86,13 @@ StatusCode AthenaPoolConverter::createObj(IOpaqueAddress* pAddr, DataObject*& pO
 StatusCode AthenaPoolConverter::createRep(DataObject* pObj, IOpaqueAddress*& pAddr) {
    const SG::DataProxy* proxy = dynamic_cast<SG::DataProxy*>(pObj->registry());
    if (proxy == nullptr) {
-      ATH_MSG_ERROR("AthenaPoolConverter CreateRep failed to cast DataProxy, key = "
-             << pObj->registry()->name());
+      ATH_MSG_ERROR("AthenaPoolConverter CreateRep failed to cast DataProxy, key = " << pObj->name());
       return(StatusCode::FAILURE);
    }
    try {
       std::lock_guard<CallMutex> lock(m_conv_mut);
-      if (!DataObjectToPers(pObj, pObj->registry()->name()).isSuccess()) {
-         ATH_MSG_ERROR("CreateRep failed, key = " << pObj->registry()->name());
+      if (!DataObjectToPers(pObj, pAddr).isSuccess()) {
+         ATH_MSG_ERROR("CreateRep failed, key = " << pObj->name());
          return(StatusCode::FAILURE);
       }
    } catch (std::exception& e) {
@@ -102,8 +100,15 @@ StatusCode AthenaPoolConverter::createRep(DataObject* pObj, IOpaqueAddress*& pAd
       return(StatusCode::FAILURE);
    }
    const CLID clid = proxy->clID();
-   // Create a IOpaqueAddress for this object.
-   pAddr = new TokenAddress(POOL_StorageType, clid, "", "", 0, 0);
+   if (pAddr == nullptr) {
+      // Create a IOpaqueAddress for this object.
+      pAddr = new TokenAddress(this->storageType(), clid, "", "", 0, 0);
+   } else {
+      GenericAddress* gAddr = dynamic_cast<GenericAddress*>(pAddr);
+      if (gAddr != nullptr) {
+         gAddr->setSvcType(this->storageType());
+      }
+   }
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
@@ -111,8 +116,8 @@ StatusCode AthenaPoolConverter::fillRepRefs(IOpaqueAddress* pAddr, DataObject* p
    std::lock_guard<CallMutex> lock(m_conv_mut);
    try {
       pObj->registry()->setAddress(pAddr);
-      if (!DataObjectToPool(pObj, pObj->registry()->name()).isSuccess()) {
-         ATH_MSG_ERROR("FillRepRefs failed, key = " << pObj->registry()->name());
+      if (!DataObjectToPool(pAddr, pObj).isSuccess()) {
+         ATH_MSG_ERROR("FillRepRefs failed, key = " << pObj->name());
          return(StatusCode::FAILURE);
       }
    } catch (std::exception& e) {
@@ -140,42 +145,93 @@ AthenaPoolConverter::AthenaPoolConverter(const CLID& myCLID, ISvcLocator* pSvcLo
 	m_i_poolToken(nullptr) {
 }
 //__________________________________________________________________________
-void AthenaPoolConverter::setPlacementWithType(const std::string& tname, const std::string& key) {
+void AthenaPoolConverter::setPlacementWithType(const std::string& tname, const std::string& key, const std::string& output) {
    if (m_placement == nullptr) {
       // Create placement for this converter if needed
       m_placement = new Placement();
    }
+   // Override streaming parameters from StreamTool if requested.
+   std::string::size_type pos1 = output.find("[");
+   std::string outputConnectionSpec = output.substr(0, pos1);
+   int tech = 0;
+   m_athenaPoolCnvSvc->decodeOutputSpec(outputConnectionSpec, tech).ignore();
    // Set DB and Container names
-   m_placement->setFileName(m_athenaPoolCnvSvc->getOutputConnectionSpec());
+   m_placement->setFileName(outputConnectionSpec);
    std::string containerName;
-   if (key.empty()) { // No key will result in a separate tree by type for the data object
-      containerName = m_athenaPoolCnvSvc->getOutputContainer(tname);
-   } else if (m_placementHints.find(tname + key) != m_placementHints.end()) { // PlacementHint already generated?
+   if (m_placementHints.find(tname + key) != m_placementHints.end()) { // PlacementHint already generated?
       containerName = m_placementHints[tname + key];
    } else { // Generate PlacementHint
-      containerName = m_athenaPoolCnvSvc->getOutputContainer(tname, key);
+      // Override streaming parameters from StreamTool if requested.
+      IProperty* propertyServer(dynamic_cast<IProperty*>(m_athenaPoolCnvSvc.operator->()));
+      StringProperty containerPrefixProp("PoolContainerPrefix", "ROOTTREEINDEX:CollectionTree");
+      StringProperty containerNameHintProp("TopLevelContainerName", "");
+      StringProperty branchNameHintProp("SubLevelBranchName", "<type>/<key>");
+      if (propertyServer != nullptr) {
+         propertyServer->getProperty(&containerPrefixProp).ignore();
+         propertyServer->getProperty(&containerNameHintProp).ignore();
+         propertyServer->getProperty(&branchNameHintProp).ignore();
+      }
+      std::string containerPrefix = containerPrefixProp.value();
+      std::string dhContainerPrefix = "POOLContainer";
+      // Get Technology from containerPrefix
+      std::size_t colonPos = containerPrefix.find(":");
+      if (colonPos != std::string::npos) {
+         dhContainerPrefix = containerPrefix.substr(0, colonPos + 1) + dhContainerPrefix;
+      }
+      std::string containerNameHint = containerNameHintProp.value();
+      std::string branchNameHint = branchNameHintProp.value();
+      while (pos1 != std::string::npos) {
+         const std::string::size_type pos2 = output.find("=", pos1);
+         const std::string key = output.substr(pos1 + 1, pos2 - pos1 - 1);
+         const std::string::size_type pos3 = output.find("]", pos2);
+         const std::string value = output.substr(pos2 + 1, pos3 - pos2 - 1);
+         if (key == "OutputCollection") {
+            dhContainerPrefix = value;
+         } else if (key == "PoolContainerPrefix") {
+            containerPrefix = value;
+         } else if (key == "TopLevelContainerName") {
+            containerNameHint = value;
+         } else if (key == "SubLevelBranchName") {
+            branchNameHint = value;
+         }
+         pos1 = output.find("[", pos3);
+      }
+      if (tname.substr(0, 14) == "DataHeaderForm") {
+         containerName = dhContainerPrefix + "Form" + "(" + tname + ")";
+      } else if (tname.substr(0, 10) == "DataHeader") {
+         if (key.substr(key.size() - 1) == "/") {
+            containerName = dhContainerPrefix + "(" + key + tname + ")";
+         } else {
+            containerName = dhContainerPrefix + "(" + tname + ")";
+         }
+      } else if (tname.substr(0, 13) == "AttributeList") {
+         containerName = "ROOTTREE:POOLCollectionTree(" + key + ")";
+      } else if (key.empty()) {
+         containerName = containerPrefix + tname;
+      } else {
+         const std::string typeTok = "<type>", keyTok = "<key>";
+         containerName = containerPrefix + containerNameHint;
+         if (!branchNameHint.empty()) {
+            containerName += "(" + branchNameHint + ")";
+         }
+         const std::size_t pos1 = containerName.find(typeTok);
+         if (pos1 != std::string::npos) {
+            containerName.replace(pos1, typeTok.size(), tname);
+         }
+         const std::size_t pos2 = containerName.find(keyTok);
+         if (pos2 != std::string::npos) {
+            if (key.empty()) {
+               containerName.replace(pos2, keyTok.size(), tname);
+            } else {
+               containerName.replace(pos2, keyTok.size(), key);
+            }
+         }
+      }
       m_placementHints.insert(std::pair<std::string, std::string>(key, containerName));
    }
-   m_placement->setTechnology(m_athenaPoolCnvSvc->technologyType(containerName).type());
-   //  Remove Technology from containerName
-#if __cplusplus >= 201709
-   if (containerName.starts_with("ROOTKEY:")) {
-      containerName.erase(0, 8);
-   } else if (containerName.starts_with("ROOTTREE:")) {
-      containerName.erase(0, 9);
-   } else if (containerName.starts_with("ROOTTREEINDEX:")) {
-      containerName.erase(0, 14);
-   }
-#else
-   if (containerName.compare(0, 8, "ROOTKEY:", 8) == 0) {
-      containerName.erase(0, 8);
-   } else if (containerName.compare(0, 9, "ROOTTREE:", 9) == 0) {
-      containerName.erase(0, 9);
-   } else if (containerName.compare(0, 14, "ROOTTREEINDEX:", 14) == 0) {
-      containerName.erase(0, 14);
-   }
-#endif
+   m_athenaPoolCnvSvc->decodeOutputSpec(containerName, tech).ignore();
    m_placement->setContainerName(containerName);
+   m_placement->setTechnology(tech);
 }
 //__________________________________________________________________________
 const DataObject* AthenaPoolConverter::getDataObject() const {

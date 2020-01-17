@@ -81,12 +81,12 @@ protected:
    /// Convert an object into Persistent.
    /// @param pObj [IN] pointer to the transient object.
    /// @param key [IN] StoreGate key (string) - placement hint to generate POOL container name
-   virtual StatusCode DataObjectToPers(DataObject* pObj, const std::string& key) = 0;
+   virtual StatusCode DataObjectToPers(DataObject* pObj, IOpaqueAddress*& pAddr) = 0;
 
    /// Write an object into POOL.
    /// @param pObj [IN] pointer to the transient object.
    /// @param key [IN] StoreGate key (string) - placement hint to generate POOL container name
-   virtual StatusCode DataObjectToPool(DataObject* pObj, const std::string& key) = 0;
+   virtual StatusCode DataObjectToPool(IOpaqueAddress* pAddr, DataObject* pObj) = 0;
 
    /// Read an object from POOL.
    /// @param pObj [OUT] pointer to the transient object.
@@ -98,9 +98,9 @@ protected:
    /// Set POOL placement hint for a given type.
    /// @param tname [IN] type name.
    /// @param key [IN] SG key.
-   virtual void setPlacementWithType(const std::string& tname, const std::string& key = "");
+   virtual void setPlacementWithType(const std::string& tname, const std::string& key, const std::string& output);
    /// Set POOL placement hint; pure virtual method implemented by classes templated by type
-   virtual void setPlacement(const std::string& key = "") = 0;
+   virtual void setPlacement(const std::string& key, const std::string& output) = 0;
 
    /// @return data object from the converter.
    virtual const DataObject* getDataObject() const;
