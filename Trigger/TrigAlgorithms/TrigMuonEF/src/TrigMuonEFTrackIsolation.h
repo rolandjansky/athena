@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMUONEF_TRIGMUONEFTRACKISOLATION_H__
@@ -21,7 +21,6 @@ class IMuonEFTrackIsolationTool;
  * It uses the IMuonEFTrackIsolationTool tool interface for
  * the actual isolation calculation.
  *
- * As of Dec2016 it can also be used for L2 Muon isolation, using FTK tracks.
  * 
  * @author Mark Owen (markowen@cern.ch)
  * @author Michael Fenton (m.fenton@cern.ch
@@ -47,11 +46,7 @@ class TrigMuonEFTrackIsolation : public virtual HLT::FexAlgo,
 
   /// name of ID Track Particle container
   std::string m_idTrackParticlesName;
-  std::string m_FTKTrackParticlesName;
   
-  // Which setups to run
-  int m_isoType;
-
   /// Require that EF muons are combined (should move to pass bits)
   bool m_requireCombined;
 

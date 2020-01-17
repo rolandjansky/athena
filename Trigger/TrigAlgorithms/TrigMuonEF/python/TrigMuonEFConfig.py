@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -621,7 +621,6 @@ def TMEF_TrackIsolationTool(name='TMEF_isolationTool',**kwargs):
     kwargs.setdefault('removeSelf',True)
     kwargs.setdefault('useAnnulus',False)
     kwargs.setdefault('useVarIso',True)
-    kwargs.setdefault('removeSelfType',0)
     # Get the track selection tool
     from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
     trkseltool = InDet__InDetTrackSelectionTool()
@@ -648,8 +647,6 @@ class TrigMuonEFTrackIsolationConfig (TrigMuonEFTrackIsolation):
         self.IsolationTool = TMEF_IsolationTool
 
         # ID tracks
-        #self.IdTrackParticles = "InDetTrigParticleCreation_FullScan_EFID"
-        #self.IdTrackParticles = "InDetTrigParticleCreation_MuonIso_EFID"
         self.IdTrackParticles = "InDetTrigTrackingxAODCnv_Muon_IDTrig"
 
         # Only run algo on combined muons
@@ -679,8 +676,6 @@ class TrigMuonEFMSTrackIsolationConfig (TrigMuonEFTrackIsolation):
         self.IsolationTool = TMEF_IsolationTool
 
         # ID tracks
-        #self.IdTrackParticles = "InDetTrigParticleCreation_FullScan_EFID"
-        #self.IdTrackParticles = "InDetTrigParticleCreation_MuonIso_EFID"
         self.IdTrackParticles = "InDetTrigTrackingxAODCnv_Muon_IDTrig"
 
         # Only run algo on combined muons
@@ -715,22 +710,9 @@ class TrigMuonEFTrackIsolationVarConfig (TrigMuonEFTrackIsolation):
         # Isolation tool
         self.IsolationTool = TMEF_VarIsolationTool
 
-        # Which isolation to run?
-        if "FTK" in name:
-            self.IsoType=2
-            self.IsolationTool.removeSelfType=1 # use LeadTrk by default
-        else:
-            self.IsoType=1
-        # Options: 1=ID+EF, 2=FTK+L2
 
         # ID tracks
-        #self.IdTrackParticles = "InDetTrigParticleCreation_FullScan_EFID"
-        #self.IdTrackParticles = "InDetTrigParticleCreation_MuonIso_EFID"
         self.IdTrackParticles = "InDetTrigTrackingxAODCnv_Muon_IDTrig"
-
-        # FTK tracks
-        self.FTKTrackParticles = "InDetTrigTrackingxAODCnv_Muon_FTK_IDTrig"
-
 
         # Only run algo on combined muons
         self.requireCombinedMuon = True
@@ -750,39 +732,6 @@ class TrigMuonEFTrackIsolationVarConfig (TrigMuonEFTrackIsolation):
         timetool.TimerHistLimits=[0,1000]
 
         self.AthenaMonTools = [ validation_trkiso, online_trkiso, timetool ]
-
-
-class TrigMuonEFTrackIsolationAnnulusConfig (TrigMuonEFTrackIsolation):
-    __slots__ = ()
-
-    def __init__( self, name="TrigMuonEFTrackIsolationAnnulusConfig" ):
-        super( TrigMuonEFTrackIsolationAnnulusConfig, self ).__init__( name )
-
-        # configure the isolation tool
-        TMEF_AnnulusIsolationTool = TMEF_TrackIsolationTool('TMEF_AnnulusIsolationTool',
-                                                            useVarIso=False,
-                                                            useAnnlus=True,
-                                                            annulusSize=0.1)
-
-        # Isolation tool
-        self.IsolationTool = TMEF_AnnulusIsolationTool
-
-        # ID tracks
-        #self.IdTrackParticles = "InDetTrigParticleCreation_FullScan_EFID"
-        self.IdTrackParticles = "InDetTrigParticleCreation_MuonIso_EFID"
-
-        # Only run algo on combined muons
-        self.requireCombinedMuon = True
-
-        # Use offline isolation variables
-        self.useVarIso = False
-
-        # histograms
-        self.histoPathBase = ""
-        validation_trkiso = TrigMuonEFTrackIsolationValidationMonitoring()
-        online_trkiso     = TrigMuonEFTrackIsolationOnlineMonitoring()
-
-        self.AthenaMonTools = [ validation_trkiso, online_trkiso ]
 
 
 def InDetTrkRoiMaker_Muon(name="InDetTrkRoiMaker_Muon",**kwargs):
@@ -898,8 +847,6 @@ class TrigMuonEFTrackIsolationMTConfig (TrigMuonEFTrackIsolationAlgMT):
         self.OnlineIsolationTool = TMEF_IsolationTool
 
         # ID tracks
-        #self.IdTrackParticles = "InDetTrigParticleCreation_FullScan_EFID"
-        #self.IdTrackParticles = "InDetTrigParticleCreation_MuonIso_EFID"
         self.IdTrackParticles = "InDetTrigTrackingxAODCnv_Muon_IDTrig"
 
         # Only run algo on combined muons
