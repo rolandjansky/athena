@@ -21,6 +21,8 @@
 #include "MuonTrackMakerUtils/MuonTSOSHelper.h"
 #include "MuonTrackMakerUtils/MuonGetClosestParameters.h"
 
+#include "TrkTrackSummary/MuonTrackSummary.h"
+
 #include <set>
 
 #include "CxxUtils/checker_macros.h"
@@ -30,12 +32,15 @@ namespace Muon {
 
 
   MooTrackBuilder::MooTrackBuilder(const std::string& t,const std::string& n,const IInterface* p)  :
-    AthAlgTool(t,n,p)
+    AthAlgTool(t,n,p),
+    m_trackSummaryTool("Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool")
   {
     declareInterface<IMuonSegmentTrackBuilder>(this);
     declareInterface<MooTrackBuilder>(this);
     declareInterface<IMuonTrackRefiner>(this);
     declareInterface<IMuonTrackBuilder>(this);
+
+    declareProperty( "TrackSummeryTool", m_trackSummaryTool );
   }
 
   StatusCode MooTrackBuilder::initialize() {
@@ -58,6 +63,7 @@ namespace Muon {
     ATH_CHECK( m_compRotCreator.retrieve() );
     ATH_CHECK( m_propagator.retrieve() );
     ATH_CHECK( m_pullCalculator.retrieve() );
+    ATH_CHECK( m_trackSummaryTool.retrieve() );
 
     return StatusCode::SUCCESS;
   }
@@ -91,6 +97,14 @@ namespace Muon {
         << m_printer->print(*finalTrack) << std::endl
         << m_printer->printStations(*finalTrack) );
 
+    // generate a track summary for this track
+    if (m_trackSummaryTool.isEnabled()) {
+      const Trk::TrackSummary* summary = finalTrack->trackSummary();
+      if( !summary ) {
+        Trk::TrackSummary tmpSummary;
+        m_trackSummaryTool->addDetailedTrackSummary(*finalTrack,tmpSummary);
+      }
+    }
 
     bool recalibrateMDTHits = m_recalibrateMDTHits;
     bool recreateCompetingROTs = true;

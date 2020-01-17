@@ -26,6 +26,7 @@
 #include "TrkExInterfaces/IPropagator.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
+#include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
 
 // Tracking EDM
 #include "TrkGeometry/MagneticFieldProperties.h"
@@ -276,6 +277,7 @@ namespace Muon {
     ToolHandle<IMuonTrackExtrapolationTool>           m_trackExtrapolationTool  {this, "Extrapolator", "Muon::MuonTrackExtrapolationTool/MuonTrackExtrapolationTool"}; //<! track extrapolation tool
 
     ToolHandle<IMuonErrorOptimisationTool>            m_errorOptimisationTool {this, "ErrorOptimisationTool", ""};
+    ToolHandle<Trk::ITrackSummaryHelperTool>          m_trackSummaryTool;
     ServiceHandle<MagField::IMagFieldSvc>             m_magFieldSvc         {this, "MagFieldSvc", "AtlasFieldSvc"};
     Trk::MagneticFieldProperties                      m_magFieldProperties  {Trk::FullField}; //!< magnetic field properties
 
