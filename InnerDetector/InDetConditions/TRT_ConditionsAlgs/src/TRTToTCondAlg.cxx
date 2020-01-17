@@ -120,7 +120,7 @@ StatusCode TRTToTCondAlg::update1( TRTDedxcorrection& Dedxcorrection, const Cond
     "para_long_corrRZLXe","para_long_corrRZ_Xe","para_long_mimicToXeXe","para_short_corrRZLXe",
     "para_short_corrRZ_Xe","para_short_mimicToXeXe","resolution_Xe","resolution_e_Xe","para_end_corrRZLAr",
     "para_end_corrRZ_Ar","para_end_mimicToXeAr","para_long_corrRZLAr","para_long_corrRZ_Ar",
-    "para_long_mimicToXeAr","para_short_corrRZLAr","para_short_corrRZ_Ar","para_short_mimicToXeAr",
+    "paraLlong_mimicToXeAr","para_short_corrRZLAr","para_short_corrRZ_Ar","para_short_mimicToXeAr",
     "resolution_Ar","resolution_e_Ar","para_end_corrRZLKr","para_end_corrRZ_Kr","para_end_mimicToXeKr",
     "para_long_corrRZLKr","para_long_corrRZ_Kr","para_long_mimicToXeKr","para_short_corrRZLKr",
     "para_short_corrRZ_Kr","para_short_mimicToXeKr","resolution_Kr","resolution_e_Kr"};
@@ -187,6 +187,17 @@ StatusCode TRTToTCondAlg::update1( TRTDedxcorrection& Dedxcorrection, const Cond
 }
 
 void TRTToTCondAlg::update_New(TRTDedxcorrection & Dedxcorrection, std::map<std::string,std::vector<float> > &result_dict) {
+
+  // fill occupancy calibration parameters
+  for (unsigned int ind=0; ind < Dedxcorrection.nParametersHitBaseddEdx; ++ind) {
+    Dedxcorrection.HitOccPar[ind]=result_dict["HitOccPar"][ind];
+  }
+  for (unsigned int ind=0; ind < Dedxcorrection.nParametersTrackBaseddEdx; ++ind) {
+    Dedxcorrection.TrackOccPar0[ind]=result_dict["TrackOccPar0"][ind];
+    Dedxcorrection.TrackOccPar1[ind]=result_dict["TrackOccPar1"][ind];
+    Dedxcorrection.TrackOccPar2[ind]=result_dict["TrackOccPar2"][ind];
+  }
+  
   //      fill Xenon +++++++++++++++++++++++++++++++++++++++++++++++++++++++++    
   for (unsigned int ind=0; ind < 4; ++ind) {
     Dedxcorrection.resolution[0][ind]=result_dict["resolution_Xe"][ind];
@@ -197,72 +208,72 @@ void TRTToTCondAlg::update_New(TRTDedxcorrection & Dedxcorrection, std::map<std:
   }
 
   for (unsigned int ind=0; ind < 3240; ++ind) {
-    Dedxcorrection.para_long_corrRZ_MC[0][ind]=result_dict["para_long_corrRZ_Xe"][ind];
+    Dedxcorrection.para_Long_CorrRZ_MC[0][ind]=result_dict["para_long_corrRZ_Xe"][ind];
   }
 
   for (unsigned int ind=0; ind < 216; ++ind) {
-    Dedxcorrection.para_short_corrRZ_MC[0][ind]=result_dict["para_short_corrRZ_Xe"][ind];
+    Dedxcorrection.para_Short_CorrRZ_MC[0][ind]=result_dict["para_short_corrRZ_Xe"][ind];
   }
 
   for (unsigned int ind=0; ind < 630; ++ind) {
-    Dedxcorrection.para_long_corrRZL_MC[0][ind]=result_dict["para_long_corrRZLXe"][ind];
+    Dedxcorrection.para_Long_CorrRZL_MC[0][ind]=result_dict["para_long_corrRZLXe"][ind];
   }
 
   for (unsigned int ind=0; ind < 63; ++ind) {
-    Dedxcorrection.para_short_corrRZL_MC[0][ind]=result_dict["para_short_corrRZLXe"][ind];
+    Dedxcorrection.para_Short_CorrRZL_MC[0][ind]=result_dict["para_short_corrRZLXe"][ind];
   }
 
   for (unsigned int ind=0; ind < 252; ++ind) {
-    Dedxcorrection.para_end_corrRZL_MC[0][ind]=result_dict["para_end_corrRZLXe"][ind];
+    Dedxcorrection.para_End_CorrRZL_MC[0][ind]=result_dict["para_end_corrRZLXe"][ind];
   }
 
   for (unsigned int ind=0; ind < 3240; ++ind) {
-    Dedxcorrection.para_long_corrRZ[0][ind]=result_dict["para_long_corrRZ_Xe"][ind];
+    Dedxcorrection.para_Long_CorrRZ[0][ind]=result_dict["para_long_corrRZ_Xe"][ind];
   }
 
   for (unsigned int ind=0; ind < 216; ++ind) {
-    Dedxcorrection.para_short_corrRZ[0][ind]=result_dict["para_short_corrRZ_Xe"][ind];
+    Dedxcorrection.para_Short_CorrRZ[0][ind]=result_dict["para_short_corrRZ_Xe"][ind];
   }
 
   for (unsigned int ind=0; ind < 630; ++ind) {
-    Dedxcorrection.para_long_corrRZL_DATA[0][ind]=result_dict["para_long_corrRZLXe"][ind];
+    Dedxcorrection.para_Long_CorrRZL_DATA[0][ind]=result_dict["para_long_corrRZLXe"][ind];
   }
 
   for (unsigned int ind=0; ind < 63; ++ind) {
-    Dedxcorrection.para_short_corrRZL_DATA[0][ind]=result_dict["para_short_corrRZLXe"][ind];
+    Dedxcorrection.para_Short_CorrRZL_DATA[0][ind]=result_dict["para_short_corrRZLXe"][ind];
   }
 
   for (unsigned int ind=0; ind < 252; ++ind) {
-    Dedxcorrection.para_end_corrRZL_DATA[0][ind]=result_dict["para_end_corrRZLXe"][ind];
+    Dedxcorrection.para_End_CorrRZL_DATA[0][ind]=result_dict["para_end_corrRZLXe"][ind];
   }
 
   for (unsigned int ind=0; ind < 336; ++ind) {
-    Dedxcorrection.para_end_corrRZ[0][ind]=result_dict["para_end_corrRZ_Xe"][ind];
+    Dedxcorrection.para_End_CorrRZ[0][ind]=result_dict["para_end_corrRZ_Xe"][ind];
   }
 
   for (unsigned int ind=0; ind < 336; ++ind) {
-    Dedxcorrection.para_end_corrRZ_MC[0][ind]=result_dict["para_end_corrRZ_Xe"][ind];
+    Dedxcorrection.para_End_CorrRZ_MC[0][ind]=result_dict["para_end_corrRZ_Xe"][ind];
   }
 
         
                 
   for (unsigned int ind=0; ind < 560; ++ind) {
-    Dedxcorrection.para_end_mimicToXe_DATA[0][ind]=result_dict["para_end_mimicToXeXe"][ind];
+    Dedxcorrection.para_End_MimicToXe_DATA[0][ind]=result_dict["para_end_mimicToXeXe"][ind];
   }
   for (unsigned int ind=0; ind < 560; ++ind) {
-    Dedxcorrection.para_end_mimicToXe_MC[0][ind]=result_dict["para_end_mimicToXeXe"][ind];
+    Dedxcorrection.para_End_MimicToXe_MC[0][ind]=result_dict["para_end_mimicToXeXe"][ind];
   }
   for (unsigned int ind=0; ind < 180; ++ind) {
-    Dedxcorrection.para_short_mimicToXe_DATA[0][ind]=result_dict["para_short_mimicToXeXe"][ind];
+    Dedxcorrection.para_Short_MimicToXe_DATA[0][ind]=result_dict["para_short_mimicToXeXe"][ind];
   }
   for (unsigned int ind=0; ind < 180; ++ind) {
-    Dedxcorrection.para_short_mimicToXe_MC[0][ind]=result_dict["para_short_mimicToXeXe"][ind];
+    Dedxcorrection.para_Short_MimicToXe_MC[0][ind]=result_dict["para_short_mimicToXeXe"][ind];
   }
   for (unsigned int ind=0; ind < 1080; ++ind) {
-    Dedxcorrection.para_long_mimicToXe_DATA[0][ind]=result_dict["para_long_mimicToXeXe"][ind];
+    Dedxcorrection.para_Long_MimicToXe_DATA[0][ind]=result_dict["para_long_mimicToXeXe"][ind];
   }
   for (unsigned int ind=0; ind < 1080; ++ind) {
-    Dedxcorrection.para_long_mimicToXe_MC[0][ind]=result_dict["para_long_mimicToXeXe"][ind];
+    Dedxcorrection.para_Long_MimicToXe_MC[0][ind]=result_dict["para_long_mimicToXeXe"][ind];
   }
 
   //      fill Argon +++++++++++++++++++++++++++++++++++++++++++++++++++++++++    
@@ -275,72 +286,72 @@ void TRTToTCondAlg::update_New(TRTDedxcorrection & Dedxcorrection, std::map<std:
   }
 
   for (unsigned int ind=0; ind < 3240; ++ind) {
-    Dedxcorrection.para_long_corrRZ_MC[1][ind]=result_dict["para_long_corrRZ_Ar"][ind];
+    Dedxcorrection.para_Long_CorrRZ_MC[1][ind]=result_dict["para_long_corrRZ_Ar"][ind];
   }
 
   for (unsigned int ind=0; ind < 216; ++ind) {
-    Dedxcorrection.para_short_corrRZ_MC[1][ind]=result_dict["para_short_corrRZ_Ar"][ind];
+    Dedxcorrection.para_Short_CorrRZ_MC[1][ind]=result_dict["para_short_corrRZ_Ar"][ind];
   }
 
   for (unsigned int ind=0; ind < 630; ++ind) {
-    Dedxcorrection.para_long_corrRZL_MC[1][ind]=result_dict["para_long_corrRZLAr"][ind];
+    Dedxcorrection.para_Long_CorrRZL_MC[1][ind]=result_dict["para_long_corrRZLAr"][ind];
   }
 
   for (unsigned int ind=0; ind < 63; ++ind) {
-    Dedxcorrection.para_short_corrRZL_MC[1][ind]=result_dict["para_short_corrRZLAr"][ind];
+    Dedxcorrection.para_Short_CorrRZL_MC[1][ind]=result_dict["para_short_corrRZLAr"][ind];
   }
 
   for (unsigned int ind=0; ind < 252; ++ind) {
-    Dedxcorrection.para_end_corrRZL_MC[1][ind]=result_dict["para_end_corrRZLAr"][ind];
+    Dedxcorrection.para_End_CorrRZL_MC[1][ind]=result_dict["para_end_corrRZLAr"][ind];
   }
 
   for (unsigned int ind=0; ind < 3240; ++ind) {
-    Dedxcorrection.para_long_corrRZ[1][ind]=result_dict["para_long_corrRZ_Ar"][ind];
+    Dedxcorrection.para_Long_CorrRZ[1][ind]=result_dict["para_long_corrRZ_Ar"][ind];
   }
 
   for (unsigned int ind=0; ind < 216; ++ind) {
-    Dedxcorrection.para_short_corrRZ[1][ind]=result_dict["para_short_corrRZ_Ar"][ind];
+    Dedxcorrection.para_Short_CorrRZ[1][ind]=result_dict["para_short_corrRZ_Ar"][ind];
   }
 
   for (unsigned int ind=0; ind < 630; ++ind) {
-    Dedxcorrection.para_long_corrRZL_DATA[1][ind]=result_dict["para_long_corrRZLAr"][ind];
+    Dedxcorrection.para_Long_CorrRZL_DATA[1][ind]=result_dict["para_long_corrRZLAr"][ind];
   }
 
   for (unsigned int ind=0; ind < 63; ++ind) {
-    Dedxcorrection.para_short_corrRZL_DATA[1][ind]=result_dict["para_short_corrRZLAr"][ind];
+    Dedxcorrection.para_Short_CorrRZL_DATA[1][ind]=result_dict["para_short_corrRZLAr"][ind];
   }
 
   for (unsigned int ind=0; ind < 252; ++ind) {
-    Dedxcorrection.para_end_corrRZL_DATA[1][ind]=result_dict["para_end_corrRZLAr"][ind];
+    Dedxcorrection.para_End_CorrRZL_DATA[1][ind]=result_dict["para_end_corrRZLAr"][ind];
   }
 
   for (unsigned int ind=0; ind < 336; ++ind) {
-    Dedxcorrection.para_end_corrRZ[1][ind]=result_dict["para_end_corrRZ_Ar"][ind];
+    Dedxcorrection.para_End_CorrRZ[1][ind]=result_dict["para_end_corrRZ_Ar"][ind];
   }
 
   for (unsigned int ind=0; ind < 336; ++ind) {
-    Dedxcorrection.para_end_corrRZ_MC[1][ind]=result_dict["para_end_corrRZ_Ar"][ind];
+    Dedxcorrection.para_End_CorrRZ_MC[1][ind]=result_dict["para_end_corrRZ_Ar"][ind];
   }
 
         
                 
   for (unsigned int ind=0; ind < 560; ++ind) {
-    Dedxcorrection.para_end_mimicToXe_DATA[1][ind]=result_dict["para_end_mimicToXeAr"][ind];
+    Dedxcorrection.para_End_MimicToXe_DATA[1][ind]=result_dict["para_end_mimicToXeAr"][ind];
   }
   for (unsigned int ind=0; ind < 560; ++ind) {
-    Dedxcorrection.para_end_mimicToXe_MC[1][ind]=result_dict["para_end_mimicToXeAr"][ind];
+    Dedxcorrection.para_End_MimicToXe_MC[1][ind]=result_dict["para_end_mimicToXeAr"][ind];
   }
   for (unsigned int ind=0; ind < 180; ++ind) {
-    Dedxcorrection.para_short_mimicToXe_DATA[1][ind]=result_dict["para_short_mimicToXeAr"][ind];
+    Dedxcorrection.para_Short_MimicToXe_DATA[1][ind]=result_dict["para_short_mimicToXeAr"][ind];
   }
   for (unsigned int ind=0; ind < 180; ++ind) {
-    Dedxcorrection.para_short_mimicToXe_MC[1][ind]=result_dict["para_short_mimicToXeAr"][ind];
+    Dedxcorrection.para_Short_MimicToXe_MC[1][ind]=result_dict["para_short_mimicToXeAr"][ind];
   }
   for (unsigned int ind=0; ind < 1080; ++ind) {
-    Dedxcorrection.para_long_mimicToXe_DATA[1][ind]=result_dict["para_long_mimicToXeAr"][ind];
+    Dedxcorrection.para_Long_MimicToXe_DATA[1][ind]=result_dict["para_long_mimicToXeAr"][ind];
   }
   for (unsigned int ind=0; ind < 1080; ++ind) {
-    Dedxcorrection.para_long_mimicToXe_MC[1][ind]=result_dict["para_long_mimicToXeAr"][ind];
+    Dedxcorrection.para_Long_MimicToXe_MC[1][ind]=result_dict["para_long_mimicToXeAr"][ind];
   }
 
   //      fill Krypton +++++++++++++++++++++++++++++++++++++++++++++++++++++++++  
@@ -353,72 +364,72 @@ void TRTToTCondAlg::update_New(TRTDedxcorrection & Dedxcorrection, std::map<std:
   }
 
   for (unsigned int ind=0; ind < 3240; ++ind) {
-    Dedxcorrection.para_long_corrRZ_MC[2][ind]=result_dict["para_long_corrRZ_Kr"][ind];
+    Dedxcorrection.para_Long_CorrRZ_MC[2][ind]=result_dict["para_long_corrRZ_Kr"][ind];
   }
 
   for (unsigned int ind=0; ind < 216; ++ind) {
-    Dedxcorrection.para_short_corrRZ_MC[2][ind]=result_dict["para_short_corrRZ_Kr"][ind];
+    Dedxcorrection.para_Short_CorrRZ_MC[2][ind]=result_dict["para_short_corrRZ_Kr"][ind];
   }
 
   for (unsigned int ind=0; ind < 630; ++ind) {
-    Dedxcorrection.para_long_corrRZL_MC[2][ind]=result_dict["para_long_corrRZLKr"][ind];
+    Dedxcorrection.para_Long_CorrRZL_MC[2][ind]=result_dict["para_long_corrRZLKr"][ind];
   }
 
   for (unsigned int ind=0; ind < 63; ++ind) {
-    Dedxcorrection.para_short_corrRZL_MC[2][ind]=result_dict["para_short_corrRZLKr"][ind];
+    Dedxcorrection.para_Short_CorrRZL_MC[2][ind]=result_dict["para_short_corrRZLKr"][ind];
   }
 
   for (unsigned int ind=0; ind < 252; ++ind) {
-    Dedxcorrection.para_end_corrRZL_MC[2][ind]=result_dict["para_end_corrRZLKr"][ind];
+    Dedxcorrection.para_End_CorrRZL_MC[2][ind]=result_dict["para_end_corrRZLKr"][ind];
   }
 
   for (unsigned int ind=0; ind < 3240; ++ind) {
-    Dedxcorrection.para_long_corrRZ[2][ind]=result_dict["para_long_corrRZ_Kr"][ind];
+    Dedxcorrection.para_Long_CorrRZ[2][ind]=result_dict["para_long_corrRZ_Kr"][ind];
   }
 
   for (unsigned int ind=0; ind < 216; ++ind) {
-    Dedxcorrection.para_short_corrRZ[2][ind]=result_dict["para_short_corrRZ_Kr"][ind];
+    Dedxcorrection.para_Short_CorrRZ[2][ind]=result_dict["para_short_corrRZ_Kr"][ind];
   }
 
   for (unsigned int ind=0; ind < 630; ++ind) {
-    Dedxcorrection.para_long_corrRZL_DATA[2][ind]=result_dict["para_long_corrRZLKr"][ind];
+    Dedxcorrection.para_Long_CorrRZL_DATA[2][ind]=result_dict["para_long_corrRZLKr"][ind];
   }
 
   for (unsigned int ind=0; ind < 63; ++ind) {
-    Dedxcorrection.para_short_corrRZL_DATA[2][ind]=result_dict["para_short_corrRZLKr"][ind];
+    Dedxcorrection.para_Short_CorrRZL_DATA[2][ind]=result_dict["para_short_corrRZLKr"][ind];
   }
 
   for (unsigned int ind=0; ind < 252; ++ind) {
-    Dedxcorrection.para_end_corrRZL_DATA[2][ind]=result_dict["para_end_corrRZLKr"][ind];
+    Dedxcorrection.para_End_CorrRZL_DATA[2][ind]=result_dict["para_end_corrRZLKr"][ind];
   }
 
   for (unsigned int ind=0; ind < 336; ++ind) {
-    Dedxcorrection.para_end_corrRZ[2][ind]=result_dict["para_end_corrRZ_Kr"][ind];
+    Dedxcorrection.para_End_CorrRZ[2][ind]=result_dict["para_end_corrRZ_Kr"][ind];
   }
 
   for (unsigned int ind=0; ind < 336; ++ind) {
-    Dedxcorrection.para_end_corrRZ_MC[2][ind]=result_dict["para_end_corrRZ_Kr"][ind];
+    Dedxcorrection.para_End_CorrRZ_MC[2][ind]=result_dict["para_end_corrRZ_Kr"][ind];
   }
 
         
                 
   for (unsigned int ind=0; ind < 560; ++ind) {
-    Dedxcorrection.para_end_mimicToXe_DATA[2][ind]=result_dict["para_end_mimicToXeKr"][ind];
+    Dedxcorrection.para_End_MimicToXe_DATA[2][ind]=result_dict["para_end_mimicToXeKr"][ind];
   }
   for (unsigned int ind=0; ind < 560; ++ind) {
-    Dedxcorrection.para_end_mimicToXe_MC[2][ind]=result_dict["para_end_mimicToXeKr"][ind];
+    Dedxcorrection.para_End_MimicToXe_MC[2][ind]=result_dict["para_end_mimicToXeKr"][ind];
   }
   for (unsigned int ind=0; ind < 180; ++ind) {
-    Dedxcorrection.para_short_mimicToXe_DATA[2][ind]=result_dict["para_short_mimicToXeKr"][ind];
+    Dedxcorrection.para_Short_MimicToXe_DATA[2][ind]=result_dict["para_short_mimicToXeKr"][ind];
   }
   for (unsigned int ind=0; ind < 180; ++ind) {
-    Dedxcorrection.para_short_mimicToXe_MC[2][ind]=result_dict["para_short_mimicToXeKr"][ind];
+    Dedxcorrection.para_Short_MimicToXe_MC[2][ind]=result_dict["para_short_mimicToXeKr"][ind];
   }
   for (unsigned int ind=0; ind < 1080; ++ind) {
-    Dedxcorrection.para_long_mimicToXe_DATA[2][ind]=result_dict["para_long_mimicToXeKr"][ind];
+    Dedxcorrection.para_Long_MimicToXe_DATA[2][ind]=result_dict["para_long_mimicToXeKr"][ind];
   }
   for (unsigned int ind=0; ind < 1080; ++ind) {
-    Dedxcorrection.para_long_mimicToXe_MC[2][ind]=result_dict["para_long_mimicToXeKr"][ind];
+    Dedxcorrection.para_Long_MimicToXe_MC[2][ind]=result_dict["para_long_mimicToXeKr"][ind];
   }
 }
 
@@ -435,67 +446,67 @@ void TRTToTCondAlg::update_Old(TRTDedxcorrection & Dedxcorrection, std::map<std:
     }
 
     for (unsigned int ind=0; ind < 3240; ++ind) {
-      Dedxcorrection.para_long_corrRZ_MC[gasType][ind]=result_dict["para_long_corrRZ_MC"][ind];
+      Dedxcorrection.para_Long_CorrRZ_MC[gasType][ind]=result_dict["para_long_corrRZ_MC"][ind];
     }
 
     for (unsigned int ind=0; ind < 216; ++ind) {
-      Dedxcorrection.para_short_corrRZ_MC[gasType][ind]=result_dict["para_short_corrRZ_MC"][ind];
+      Dedxcorrection.para_Short_CorrRZ_MC[gasType][ind]=result_dict["para_short_corrRZ_MC"][ind];
     }
 
     for (unsigned int ind=0; ind < 630; ++ind) {
-      Dedxcorrection.para_long_corrRZL_MC[gasType][ind]=result_dict["para_long_corrRZL_MC"][ind];
+      Dedxcorrection.para_Long_CorrRZL_MC[gasType][ind]=result_dict["para_long_corrRZL_MC"][ind];
     }
 
     for (unsigned int ind=0; ind < 63; ++ind) {
-      Dedxcorrection.para_short_corrRZL_MC[gasType][ind]=result_dict["para_short_corrRZL_MC"][ind];
+      Dedxcorrection.para_Short_CorrRZL_MC[gasType][ind]=result_dict["para_short_corrRZL_MC"][ind];
     }
 
     for (unsigned int ind=0; ind < 252; ++ind) {
-      Dedxcorrection.para_end_corrRZL_MC[gasType][ind]=result_dict["para_end_corrRZL_MC"][ind];
+      Dedxcorrection.para_End_CorrRZL_MC[gasType][ind]=result_dict["para_end_corrRZL_MC"][ind];
     }
 
     for (unsigned int ind=0; ind < 3240; ++ind) {
-      Dedxcorrection.para_long_corrRZ[gasType][ind]=result_dict["para_long_corrRZ_MC"][ind];
+      Dedxcorrection.para_Long_CorrRZ[gasType][ind]=result_dict["para_long_corrRZ_MC"][ind];
     }
 
     for (unsigned int ind=0; ind < 216; ++ind) {
-      Dedxcorrection.para_short_corrRZ[gasType][ind]=result_dict["para_short_corrRZ_MC"][ind];
+      Dedxcorrection.para_Short_CorrRZ[gasType][ind]=result_dict["para_short_corrRZ_MC"][ind];
     }
 
     for (unsigned int ind=0; ind < 630; ++ind) {
-      Dedxcorrection.para_long_corrRZL_DATA[gasType][ind]=result_dict["para_long_corrRZL_MC"][ind];
+      Dedxcorrection.para_Long_CorrRZL_DATA[gasType][ind]=result_dict["para_long_corrRZL_MC"][ind];
     }
 
     for (unsigned int ind=0; ind < 63; ++ind) {
-      Dedxcorrection.para_short_corrRZL_DATA[gasType][ind]=result_dict["para_short_corrRZL_MC"][ind];
+      Dedxcorrection.para_Short_CorrRZL_DATA[gasType][ind]=result_dict["para_short_corrRZL_MC"][ind];
     }
 
     for (unsigned int ind=0; ind < 252; ++ind) {
-      Dedxcorrection.para_end_corrRZL_DATA[gasType][ind]=result_dict["para_end_corrRZL_MC"][ind];
+      Dedxcorrection.para_End_CorrRZL_DATA[gasType][ind]=result_dict["para_end_corrRZL_MC"][ind];
     }
 
     for (unsigned int ind=0; ind < 336; ++ind) {
-      Dedxcorrection.para_end_corrRZ[gasType][ind]=result_dict["para_end_corrRZ_MC"][ind];
+      Dedxcorrection.para_End_CorrRZ[gasType][ind]=result_dict["para_end_corrRZ_MC"][ind];
     }
 
     for (unsigned int ind=0; ind < 336; ++ind) {
-      Dedxcorrection.para_end_corrRZ_MC[gasType][ind]=result_dict["para_end_corrRZ_MC"][ind];
+      Dedxcorrection.para_End_CorrRZ_MC[gasType][ind]=result_dict["para_end_corrRZ_MC"][ind];
     }
 
     // Setting aditional corrections
     for (unsigned int ind=0; ind < 560; ++ind) {
-      Dedxcorrection.para_end_mimicToXe_MC[gasType][ind]   = 1.;
-      Dedxcorrection.para_end_mimicToXe_DATA[gasType][ind] = 1.;
+      Dedxcorrection.para_End_MimicToXe_MC[gasType][ind]   = 1.;
+      Dedxcorrection.para_End_MimicToXe_DATA[gasType][ind] = 1.;
     }
 
     for (unsigned int ind=0; ind < 180; ++ind) {
-      Dedxcorrection.para_short_mimicToXe_MC[gasType][ind]   = 1.;
-      Dedxcorrection.para_short_mimicToXe_DATA[gasType][ind] = 1.;
+      Dedxcorrection.para_Short_MimicToXe_MC[gasType][ind]   = 1.;
+      Dedxcorrection.para_Short_MimicToXe_DATA[gasType][ind] = 1.;
     }
 
     for (unsigned int ind=0; ind < 1080; ++ind) {
-      Dedxcorrection.para_long_mimicToXe_MC[gasType][ind]   = 1.;
-      Dedxcorrection.para_long_mimicToXe_DATA[gasType][ind] = 1.;
+      Dedxcorrection.para_Long_MimicToXe_MC[gasType][ind]   = 1.;
+      Dedxcorrection.para_Long_MimicToXe_DATA[gasType][ind] = 1.;
     }
   }
 }
@@ -523,12 +534,12 @@ StatusCode TRTToTCondAlg::update2(TRTDedxcorrection& Dedxcorrection, const CondA
         Dedxcorrection.para_dEdx_p4[index] = attrList["para_dEdx_p4"].data<float>();
         Dedxcorrection.para_dEdx_p5[index] = attrList["para_dEdx_p5"].data<float>();
                                   
-        Dedxcorrection.norm_offset_data[index] = attrList["norm_offset_data"].data<float>();
-        Dedxcorrection.norm_slope_tot[index] = attrList["norm_slope_tot"].data<float>();  
-        Dedxcorrection.norm_slope_totl[index] = attrList["norm_slope_totl"].data<float>(); 
-        Dedxcorrection.norm_offset_tot[index] = attrList["norm_offset_tot"].data<float>(); 
-        Dedxcorrection.norm_offset_totl[index] = attrList["norm_offset_totl"].data<float>();           
-        Dedxcorrection.norm_nzero[index]=attrList["norm_nzero"].data<int>();
+        Dedxcorrection.norm_Offset_Data[index] = attrList["norm_offset_data"].data<float>();
+        Dedxcorrection.norm_Slope_Tot[index] = attrList["norm_slope_tot"].data<float>();  
+        Dedxcorrection.norm_Slope_Totl[index] = attrList["norm_slope_totl"].data<float>(); 
+        Dedxcorrection.norm_Offset_Tot[index] = attrList["norm_offset_tot"].data<float>(); 
+        Dedxcorrection.norm_Offset_Totl[index] = attrList["norm_offset_totl"].data<float>();           
+        Dedxcorrection.norm_Nzero[index]=attrList["norm_nzero"].data<int>();
      }
   } else {
      ATH_MSG_WARNING ("update2():: Old COOL database tag!");
@@ -548,12 +559,12 @@ StatusCode TRTToTCondAlg::update2(TRTDedxcorrection& Dedxcorrection, const CondA
            Dedxcorrection.para_dEdx_p4[gasType] = attrList["para_dEdx_p4"].data<float>();
            Dedxcorrection.para_dEdx_p5[gasType] = attrList["para_dEdx_p5"].data<float>();
 
-           Dedxcorrection.norm_offset_data[gasType] = attrList["norm_offset_data"].data<float>();
-           Dedxcorrection.norm_slope_tot[gasType] = attrList["norm_slope_tot"].data<float>();  
-           Dedxcorrection.norm_slope_totl[gasType] = attrList["norm_slope_totl"].data<float>(); 
-           Dedxcorrection.norm_offset_tot[gasType] = attrList["norm_offset_tot"].data<float>(); 
-           Dedxcorrection.norm_offset_totl[gasType] = attrList["norm_offset_totl"].data<float>();         
-           Dedxcorrection.norm_nzero[gasType]=attrList["norm_nzero"].data<int>(); 
+           Dedxcorrection.norm_Offset_Data[gasType] = attrList["norm_offset_data"].data<float>();
+           Dedxcorrection.norm_Slope_Tot[gasType] = attrList["norm_slope_tot"].data<float>();  
+           Dedxcorrection.norm_Slope_Totl[gasType] = attrList["norm_slope_totl"].data<float>(); 
+           Dedxcorrection.norm_Offset_Tot[gasType] = attrList["norm_offset_tot"].data<float>(); 
+           Dedxcorrection.norm_Offset_Totl[gasType] = attrList["norm_offset_totl"].data<float>();         
+           Dedxcorrection.norm_Nzero[gasType]=attrList["norm_nzero"].data<int>(); 
         }
      }
   }
