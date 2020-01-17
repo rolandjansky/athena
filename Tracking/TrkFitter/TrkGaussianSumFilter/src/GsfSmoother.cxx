@@ -15,6 +15,7 @@ decription           : Implementation code for the class GsfSmoother
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkCaloCluster_OnTrack/CaloCluster_OnTrack.h"
 #include "TrkDetElementBase/TrkDetElementBase.h"
+#include "TrkGaussianSumFilter/MultiComponentStateCombiner.h"
 #include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
 #include "TrkGaussianSumFilter/IMultiStateMeasurementUpdator.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
@@ -36,7 +37,6 @@ Trk::GsfSmoother::initialize()
 {
 
   ATH_CHECK(m_merger.retrieve());
-  ATH_CHECK(m_combiner.retrieve());
   ATH_MSG_INFO("Initialisation of " << name() << " was successful");
   return StatusCode::SUCCESS;
 }
@@ -148,7 +148,7 @@ Trk::GsfSmoother::fit(const ForwardTrajectory& forwardTrajectory,
   }
   
   /*Get the first fitQuality*/
-  std::unique_ptr<Trk::TrackParameters> combinedFirstSmoothedState = m_combiner->combine(*firstSmoothedState, true);
+  std::unique_ptr<Trk::TrackParameters> combinedFirstSmoothedState = MultiComponentStateCombiner::combine(*firstSmoothedState, true);
   /*owned be the tragectory*/
   const Trk::MultiComponentStateOnSurface* updatedStateOnSurface 
     = new MultiComponentStateOnSurface(firstSmootherMeasurementOnTrack, 
@@ -294,7 +294,7 @@ Trk::GsfSmoother::fit(const ForwardTrajectory& forwardTrajectory,
       const Trk::MultiComponentStateOnSurface* updatedStateOnSurface = nullptr;
 
       if (trackStateOnSurface == lasttrackStateOnSurface) {
-        std::unique_ptr<Trk::TrackParameters> combinedLastState = m_combiner->combine(*updatedState, true);
+        std::unique_ptr<Trk::TrackParameters> combinedLastState = MultiComponentStateCombiner::combine(*updatedState, true);
 
         if (combinedLastState)
           updatedStateOnSurface = new Trk::MultiComponentStateOnSurface(
@@ -487,7 +487,7 @@ Trk::GsfSmoother::addCCOT(const Trk::TrackStateOnSurface* currentState,
   Trk::PseudoMeasurementOnTrack* pseudoMeasurement = new PseudoMeasurementOnTrack(locpars, covMatrix, *currentSurface);
 
   //  Combine the state using and find the mode of the distribution
-  std::unique_ptr<Trk::TrackParameters> combinedState = m_combiner->combine(*extrapolatedState, true);
+  std::unique_ptr<Trk::TrackParameters> combinedState = MultiComponentStateCombiner::combine(*extrapolatedState, true);
 
   const Trk::FitQualityOnSurface* combinedFitQuality = m_updator->fitQuality(*extrapolatedState, *ccot);
 

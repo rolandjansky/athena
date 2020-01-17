@@ -24,7 +24,6 @@ decription           : Abstract interface for the GSF smoother
 namespace Trk {
 
 class IMultiStateMeasurementUpdator;
-class MultiComponentStateCombiner;
 class IMultiStateExtrapolator;
 class CaloCluster_OnTrack;
 

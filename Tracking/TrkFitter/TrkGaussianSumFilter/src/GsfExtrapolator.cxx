@@ -14,7 +14,6 @@ decription           : Implementation code for GsfExtrapolator class
 #include "TrkGaussianSumFilter/GsfExtrapolator.h"
 #include "TrkExInterfaces/IMultipleScatteringUpdator.h"
 #include "TrkGaussianSumFilter/IMaterialMixtureConvolution.h"
-#include "TrkGaussianSumFilter/IMultiComponentStateCombiner.h"
 #include "TrkGaussianSumFilter/IMultiComponentStateMerger.h"
 
 #include "TrkGeometry/Layer.h"
@@ -91,9 +90,6 @@ Trk::GsfExtrapolator::initialize()
 
   // Request the Material Effects Updator AlgTool
   ATH_CHECK(m_materialUpdator.retrieve());
-
-  // Retrieve an instance of the multi-component state combiner tool
-  ATH_CHECK(m_stateCombiner.retrieve());
 
   ATH_CHECK(m_elossupdators.retrieve());
 
@@ -594,7 +590,7 @@ Trk::GsfExtrapolator::extrapolateToVolumeBoundary(Cache& cache,
 
   Trk::NavigationCell nextNavigationCell(0, 0);
 
-  combinedState = currentState->begin()->first->clone(); // m_stateCombiner->combine( *currentState );
+  combinedState = currentState->begin()->first->clone(); 
 
   const Trk::TrackingVolume* nextVolume = nullptr;
   const Trk::TrackParameters* navigationParameters = cache.m_stateAtBoundarySurface.navigationParameters
