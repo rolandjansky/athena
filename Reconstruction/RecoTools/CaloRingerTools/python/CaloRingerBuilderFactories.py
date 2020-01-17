@@ -1,11 +1,12 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-import CaloRingerToolsConf
+from . import CaloRingerToolsConf
 
 from egammaRec.Factories import PublicToolFactory
 from egammaRec import egammaKeys
 
 from CaloRingerAlgs import CaloRingerKeys
+import six
 
 class ConfigureEgammaCaloRings( object ):
   """
@@ -41,7 +42,7 @@ class ConfigureEgammaCaloRings( object ):
     self.CellsContainerName = egammaKeys.caloCellKey()
 
   def __call__(self, crBuilder):
-    for item, val in self.__dict__.iteritems():
+    for item, val in six.iteritems(self.__dict__):
       setattr(crBuilder, item, val)
 
 class ConfigureElectronCaloRings( ConfigureEgammaCaloRings ):
@@ -79,7 +80,7 @@ class AsymRings( object ):
       obj.NRings = [(rings-1)*2+1 for rings in obj.NRings]
 
   def __call__(self, crBuilder):
-    for item, val in self.__dict__.iteritems():
+    for item, val in six.iteritems(self.__dict__):
       setattr(crBuilder, item, val)
     self.resizeNRingsAsymRings( crBuilder )
 
