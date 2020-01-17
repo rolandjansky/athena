@@ -20,6 +20,7 @@ defaultInputKey = {
    'EMJet'     :'AntiKt4EMTopoJets',
    'PFlowJet'  :'AntiKt4EMPFlowJets',
    'PFlowJetHR':'AntiKt4EMPFlowCHSJets',
+
    'Muon'      :'Muons',
    'Soft'      :'',
    'Clusters'  :'CaloCalTopoClusters',
@@ -85,6 +86,8 @@ def getAssociator(config,suffix,doPFlow=False,doRecoil=False,
     if doPFlow:
         tool.PFlow = True
         tool.PFlowColl = modConstKey if modConstKey!="" else defaultInputKey["PFlowObj"]
+        if 'PFlowCustomVtx' in suffix and config.objType=='PFlowJet':
+            config.inputKey = suffix+'Jets'
     else:
         tool.UseModifiedClus = doModClus
     # set input/output key names
