@@ -174,8 +174,7 @@ reducedJetList = ["AntiKt2PV0TrackJets","AntiKt4PV0TrackJets"]
 
 if (DerivationFrameworkIsMonteCarlo):
    OutputJets["PHYS"].append("AntiKt10TruthTrimmedPtFrac5SmallR20Jets")
-   reducedJetList.append("AntiKt4TruthWZJets")
-   reducedJetList.append("AntiKt4TruthJets")  
+
 replaceAODReducedJets(reducedJetList,SeqPHYS,"PHYS")
 addDefaultTrimmedJets(SeqPHYS,"PHYS",dotruth=DerivationFrameworkIsMonteCarlo)
 
@@ -261,6 +260,8 @@ PHYSSlimmingHelper.SmartCollections = ["Electrons",
                                        "BTagging_AntiKt4EMTopo_201810",
                                        "BTagging_AntiKt4EMPFlow_201810",
                                        "BTagging_AntiKt4EMPFlow_201903",
+                                       "MET_Baseline_AntiKt4EMTopo",
+                                       "MET_Baseline_AntiKt4EMPFlow",
                                        "TauJets",
                                        "DiTauJets",
                                        "DiTauJetsLowPt",
@@ -327,13 +328,13 @@ if DerivationFrameworkIsMonteCarlo:
    addTruth3ContentToSlimmerTool(PHYSSlimmingHelper)
    PHYSSlimmingHelper.AllVariables += ['TruthHFWithDecayParticles','TruthHFWithDecayVertices','TruthCharm']
 
-PHYSSlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.Tau1_wta.Tau2_wta.Tau3_wta.D2",
+PHYSSlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.Tau1_wta.Tau2_wta.Tau3_wta.D2.GhostBHadronsFinalCount",
                                       "Electrons.TruthLink",
                                       "Muons.TruthLink",
                                       "Photons.TruthLink",
                                       "AntiKt2PV0TrackJets.pt.eta.phi.m",
-                                      "AntiKt4EMTopoJets.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_eta.NumTrkPt500PV.PartonTruthLabelID",
-                                      "AntiKt4EMPFlowJets.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_eta.NumTrkPt500PV.PartonTruthLabelID.DFCommonJets_fJvt",
+                                      "AntiKt4EMTopoJets.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_eta.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1.PartonTruthLabelID",
+                                      "AntiKt4EMPFlowJets.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_eta.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1.PartonTruthLabelID.DFCommonJets_fJvt",
                                       "TruthPrimaryVertices.t.x.y.z"]
 
 # Add trigger matching
