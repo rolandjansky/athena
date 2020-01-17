@@ -11,6 +11,8 @@ FullListOfSmartContainers = [
    "MET_Reference_AntiKt4LCTopo",
    "MET_Reference_AntiKt4EMTopo",
    "MET_Reference_AntiKt4EMPFlow",
+   "MET_Baseline_AntiKt4EMTopo",
+   "MET_Baseline_AntiKt4EMPFlow",
    "AntiKt2TruthJets",
    "AntiKt4TruthJets",
    "AntiKt4TruthWZJets",
