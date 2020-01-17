@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSegmentCombinationCleanerTool.h"
@@ -9,7 +9,6 @@
 #include <vector>
 #include <algorithm>
 
-
 #include "MuonSegment/MuonSegment.h"
 #include "MuonSegment/MuonSegmentCombination.h"
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
@@ -18,8 +17,6 @@
 
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
 
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentOverlapRemovalTool.h"
 
@@ -33,7 +30,6 @@ namespace Muon {
   MuonSegmentCombinationCleanerTool::MuonSegmentCombinationCleanerTool(const std::string& t,const std::string& n,const IInterface* p)  :  
     AthAlgTool(t,n,p),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_idHelperTool("Muon::MuonIdHelpers/MuonIdHelperTool"),
     m_overlapRemovalTool("Muon::MuonSegmentOverlapRemovalTool/MuonSegmentOverlapRemovalTool", this)
   {
     declareInterface<IMuonSegmentCombinationCleanerTool>(this);
@@ -43,47 +39,16 @@ namespace Muon {
 
   }
 
-  MuonSegmentCombinationCleanerTool::~MuonSegmentCombinationCleanerTool()
-  {
-  }
-
   StatusCode MuonSegmentCombinationCleanerTool::initialize()
   {
-  
-    StatusCode sc = AlgTool::initialize(); 
-    if (sc.isFailure()) return sc;
+    ATH_CHECK(AlgTool::initialize()); 
 
     ATH_MSG_VERBOSE(" MuonSegmentCombinationCleanerTool::Initializing ");
   
-    sc = m_printer.retrieve();
-    if (sc.isSuccess()){
-      ATH_MSG_INFO("Retrieved " << m_printer );
-    }else{
-      ATH_MSG_FATAL("Could not get " << m_printer); 
-      return sc;
-    }
-    sc = m_edmHelperSvc.retrieve();
-    if (sc.isSuccess()){
-      ATH_MSG_INFO("Retrieved " << m_edmHelperSvc );
-    }else{
-      ATH_MSG_FATAL("Could not get " << m_edmHelperSvc ); 
-      return sc;
-    }
-    sc = m_idHelperTool.retrieve();
-    if (sc.isSuccess()){
-      ATH_MSG_INFO("Retrieved " << m_idHelperTool );
-    }else{
-      ATH_MSG_FATAL("Could not get " << m_idHelperTool ); 
-      return sc;
-    }
-    
-    sc = m_overlapRemovalTool.retrieve();
-    if (sc.isSuccess()){
-      ATH_MSG_DEBUG("Retrieved " << m_overlapRemovalTool );
-    }else{
-      ATH_MSG_FATAL("Could not get " << m_overlapRemovalTool ); 
-      return sc;
-    }
+    ATH_CHECK(m_printer.retrieve());
+    ATH_CHECK(m_edmHelperSvc.retrieve());
+    ATH_CHECK(m_idHelperSvc.retrieve());
+    ATH_CHECK(m_overlapRemovalTool.retrieve());
 
     ATH_MSG_VERBOSE("End of Initializing");
     return StatusCode::SUCCESS; 
@@ -97,13 +62,6 @@ namespace Muon {
     cleanAndMergeCombis(combiCol,combiCleanCol.get(),segPattMap);
     
     return combiCleanCol;
-  }
-
-
-  StatusCode MuonSegmentCombinationCleanerTool::finalize()
-  {
-    ATH_MSG_VERBOSE("finalize()");
-    return StatusCode::SUCCESS;
   }
 
   void MuonSegmentCombinationCleanerTool::cleanAndMergeCombis( const MuonSegmentCombinationCollection& combiCol,
@@ -274,7 +232,7 @@ namespace Muon {
 	  if( addedSegments.count(bestSegment) ) continue;
 	  addedSegments.insert(bestSegment);
 	  Identifier chId = m_edmHelperSvc->chamberId( *bestSegment );
-	  MuonStationIndex::ChIndex chIndex = m_idHelperTool->chamberIndex(chId);
+	  MuonStationIndex::ChIndex chIndex = m_idHelperSvc->chamberIndex(chId);
 	  segmentsPerChamberLayer[chIndex].push_back(bestSegment);
 	}
 	
@@ -288,7 +246,7 @@ namespace Muon {
 	  if( addedSegments.count(bestSegment) ) continue;
 	  addedSegments.insert(bestSegment);
 	  Identifier chId = m_edmHelperSvc->chamberId( *bestSegment );
-	  MuonStationIndex::ChIndex chIndex = m_idHelperTool->chamberIndex(chId);
+	  MuonStationIndex::ChIndex chIndex = m_idHelperSvc->chamberIndex(chId);
 	  segmentsPerChamberLayer[chIndex].push_back(bestSegment);
 	}
 
@@ -302,7 +260,7 @@ namespace Muon {
 	  if( addedSegments.count(bestSegment) ) continue;
 	  addedSegments.insert(bestSegment);
 	  Identifier chId = m_edmHelperSvc->chamberId( *bestSegment );
-	  MuonStationIndex::ChIndex chIndex = m_idHelperTool->chamberIndex(chId);
+	  MuonStationIndex::ChIndex chIndex = m_idHelperSvc->chamberIndex(chId);
 	  segmentsPerChamberLayer[chIndex].push_back(bestSegment);
 	}
     
@@ -316,7 +274,7 @@ namespace Muon {
 	  if( addedSegments.count(bestSegment) ) continue;
 	  addedSegments.insert(bestSegment);
 	  Identifier chId = m_edmHelperSvc->chamberId( *bestSegment );
-	  MuonStationIndex::ChIndex chIndex = m_idHelperTool->chamberIndex(chId);
+	  MuonStationIndex::ChIndex chIndex = m_idHelperSvc->chamberIndex(chId);
 	  segmentsPerChamberLayer[chIndex].push_back(bestSegment);
 	}
 
@@ -330,7 +288,7 @@ namespace Muon {
 	  if( addedSegments.count(bestSegment) ) continue;
 	  addedSegments.insert(bestSegment);
 	  Identifier chId = m_edmHelperSvc->chamberId( *bestSegment );
-	  MuonStationIndex::ChIndex chIndex = m_idHelperTool->chamberIndex(chId);
+	  MuonStationIndex::ChIndex chIndex = m_idHelperSvc->chamberIndex(chId);
 	  segmentsPerChamberLayer[chIndex].push_back(bestSegment);
 	}
 
@@ -534,7 +492,7 @@ namespace Muon {
 
       // get chamber identifier, chamber index and station index
       Identifier chid = m_edmHelperSvc->chamberId( *stationSegs->front().get() );
-      MuonStationIndex::ChIndex chIndex = m_idHelperTool->chamberIndex(chid);
+      MuonStationIndex::ChIndex chIndex = m_idHelperSvc->chamberIndex(chid);
       MuonStationIndex::StIndex stIndex = MuonStationIndex::toStationIndex( chIndex );
       summary.stations.insert(stIndex);
       // reserve space for the new segments

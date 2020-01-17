@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////
-// TruthTrackBuilder.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 // package include
 #include "MuonTruthTrackBuilder.h"
@@ -64,7 +60,6 @@ namespace Muon {
     m_mdtCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"),
     m_muonClusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),
     m_muonCompRotCreator("Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator"),
-    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_trackExtrapolationTool("Muon::MuonTrackExtrapolationTool/MuonTrackExtrapolationTool"),
     m_trackCleaner("Muon::MuonTrackCleaner/MuonTrackCleaner"),
@@ -100,7 +95,7 @@ namespace Muon {
     ATH_MSG_VERBOSE("Initializing ...");
     ATH_CHECK( m_mdtCreator.retrieve() );
     ATH_CHECK( m_muonClusterCreator.retrieve() );
-    ATH_CHECK( m_idHelper.retrieve() );
+    ATH_CHECK( m_idHelperSvc.retrieve() );
     ATH_CHECK( m_printer.retrieve() );
     ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_muonCompRotCreator.retrieve() );
@@ -281,8 +276,8 @@ namespace Muon {
     for ( ;pit!=pit_end;++pit ) {
       const Trk::PrepRawData& prd = **pit;
       const Identifier& id = prd.identify();
-      MuonStationIndex::StIndex stIndex = m_idHelper->stationIndex(id);
-      bool isEndcap = m_idHelper->isEndcap(id);
+      MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(id);
+      bool isEndcap = m_idHelperSvc->isEndcap(id);
 
       if( isEndcap ) ++nendcap;
       else           ++nbarrel;
@@ -292,22 +287,22 @@ namespace Muon {
       detLayer.stIndex = stIndex;
 
       // const Trk::MeasurementBase* meas = 0;
-      if( m_idHelper->isMdt(id) ){
+      if( m_idHelperSvc->isMdt(id) ){
 	const MdtPrepData* mprd = dynamic_cast<const MdtPrepData*>(&prd);
 	if( !mprd ) {
-	  ATH_MSG_WARNING(" MDT PRD not of type MdtPrepData " << m_idHelper->toString(id) );
+	  ATH_MSG_WARNING(" MDT PRD not of type MdtPrepData " << m_idHelperSvc->toString(id) );
 	  continue;
 	}
 	const MuonSimData::Deposit* deposit = getDeposit(*mdtSimDataMap,*genPart,id);
 	if( !deposit ){
-	  ATH_MSG_WARNING(" Deposit for GenParticle not found " << m_idHelper->toString(id) );
+	  ATH_MSG_WARNING(" Deposit for GenParticle not found " << m_idHelperSvc->toString(id) );
 	  continue;
 	}
 
 	Amg::Vector2D lp(deposit->second.firstEntry(),deposit->second.secondEntry());
 	const Amg::Vector3D* gpos = prd.detectorElement()->surface(id).localToGlobal(lp);
 	if( !gpos ) {
-	  ATH_MSG_WARNING(" LocalToGlobal failed " << m_idHelper->toString(id) );
+	  ATH_MSG_WARNING(" LocalToGlobal failed " << m_idHelperSvc->toString(id) );
 	  continue;
 	}
 
@@ -328,37 +323,37 @@ namespace Muon {
 	const MdtDriftCircleOnTrack* mdt = m_mdtCreator->createRIO_OnTrack(*mprd,*gpos);
 	delete gpos;
 	if( !mdt ) {
-	  ATH_MSG_WARNING(" ROT creation failed " << m_idHelper->toString(id) );
+	  ATH_MSG_WARNING(" ROT creation failed " << m_idHelperSvc->toString(id) );
 	  continue;
 	}
 	Trk::DriftCircleSide side = deposit->second.firstEntry() < 0 ? Trk::LEFT : Trk::RIGHT;
 	m_mdtCreator->updateSign(*const_cast<MdtDriftCircleOnTrack*>(mdt),side);
 	double pull = (mdt->driftRadius()-deposit->second.firstEntry())/Amg::error(mdt->localCovariance(),Trk::locR) ;
-	ATH_MSG_VERBOSE(" new MDT    " << m_idHelper->toString(id) << " radius " << mdt->driftRadius() << " true radius " << deposit->second.firstEntry()
+	ATH_MSG_VERBOSE(" new MDT    " << m_idHelperSvc->toString(id) << " radius " << mdt->driftRadius() << " true radius " << deposit->second.firstEntry()
 			<< " pull " << pull );
 	if( fabs(pull)>3. ) ATH_MSG_VERBOSE(" hit with large pull ");
 	detLayer.meas.push_back(mdt);
-	if( m_idHelper->isSmallChamber(id) ) ++detLayer.nmdtS;
+	if( m_idHelperSvc->isSmallChamber(id) ) ++detLayer.nmdtS;
 	else                                 ++detLayer.nmdtL;
 	// meas = mdt;
-      }else if( m_idHelper->isMM(id) ){
+      }else if( m_idHelperSvc->isMM(id) ){
 
 	const MMPrepData* mm = dynamic_cast<const MMPrepData*>(&prd);
 	if( !mm ) {
-	  ATH_MSG_WARNING(" ROT creation failed " << m_idHelper->toString(id) );
+	  ATH_MSG_WARNING(" ROT creation failed " << m_idHelperSvc->toString(id) );
 	  continue;	
 	}
 
 	const MuonSimData::Deposit* deposit = getDeposit(*mmSimDataMap,*genPart,id);
 	if( !deposit ){
-	  ATH_MSG_WARNING(" Deposit for GenParticle not found " << m_idHelper->toString(id) );
+	  ATH_MSG_WARNING(" Deposit for GenParticle not found " << m_idHelperSvc->toString(id) );
 	  continue;
 	}
 
 	Amg::Vector2D lp(deposit->second.firstEntry(),deposit->second.secondEntry());
 	const Amg::Vector3D* gpos = prd.detectorElement()->surface(id).localToGlobal(lp);
 	if( !gpos ) {
-	  ATH_MSG_WARNING(" LocalToGlobal failed " <<  m_idHelper->toString(id) );
+	  ATH_MSG_WARNING(" LocalToGlobal failed " <<  m_idHelperSvc->toString(id) );
 	  continue;
 	}
 
@@ -378,40 +373,40 @@ namespace Muon {
 	const MuonClusterOnTrack* rot = m_muonClusterCreator->createRIO_OnTrack(*mm,*gpos);
 	if( !rot ) {
 	  delete gpos;
-	  ATH_MSG_WARNING(" ROT creation failed " << m_idHelper->toString(id) );
+	  ATH_MSG_WARNING(" ROT creation failed " << m_idHelperSvc->toString(id) );
 	  continue;
 	}
 	double residual = rot->localParameters().get(Trk::locX)-lp.x();
 	double pull = residual / Amg::error(rot->localCovariance(),Trk::locX);
-	ATH_MSG_DEBUG( "Adding r " << gpos->perp() << " z " << gpos->z() << "  " << m_idHelper->toString(id) << " " << residual << " pull " << pull  );
+	ATH_MSG_DEBUG( "Adding r " << gpos->perp() << " z " << gpos->z() << "  " << m_idHelperSvc->toString(id) << " " << residual << " pull " << pull  );
 	detLayer.meas.push_back(rot);
 	// meas = rot;
 	++detLayer.nnsw;
 	delete gpos;
 
-      }else if( m_idHelper->issTgc(id) ) {
+      }else if( m_idHelperSvc->issTgc(id) ) {
 
 	// skip pads in outer most two chambers as here the wires are more precise
-	if( m_idHelper->stgcIdHelper().channelType(id) == 0 && abs(m_idHelper->stationEta(id)) > 2 ) continue;
+	if( m_idHelperSvc->stgcIdHelper().channelType(id) == 0 && abs(m_idHelperSvc->stationEta(id)) > 2 ) continue;
 
 	if( !stgcSimDataMap ) continue;
 
 	const sTgcPrepData* stgc = dynamic_cast<const sTgcPrepData*>(&prd);
 	if( !stgc ) {
-	  ATH_MSG_WARNING(" ROT creation failed " << m_idHelper->toString(id) );	  
+	  ATH_MSG_WARNING(" ROT creation failed " << m_idHelperSvc->toString(id) );	  
 	  continue;
 	}
 	
 	const MuonSimData::Deposit* deposit = getDeposit(*stgcSimDataMap,*genPart,id);
 	if( !deposit ){
-	  ATH_MSG_WARNING(" Deposit for GenParticle not found " << m_idHelper->toString(id) );
+	  ATH_MSG_WARNING(" Deposit for GenParticle not found " << m_idHelperSvc->toString(id) );
 	  continue;
 	}
 
 	Amg::Vector2D lp(deposit->second.firstEntry(),deposit->second.secondEntry());
 	const Amg::Vector3D* gpos = prd.detectorElement()->surface(id).localToGlobal(lp);
 	if( !gpos ) {
-	  ATH_MSG_WARNING(" LocalToGlobal failed " <<  m_idHelper->toString(id) );
+	  ATH_MSG_WARNING(" LocalToGlobal failed " <<  m_idHelperSvc->toString(id) );
 	  continue;
 	}
 
@@ -432,12 +427,12 @@ namespace Muon {
 	const MuonClusterOnTrack* rot = m_muonClusterCreator->createRIO_OnTrack(*stgc,*gpos);
 	if( !rot ) {
 	  delete gpos;
-	  ATH_MSG_WARNING(" ROT creation failed " << m_idHelper->toString(id) );
+	  ATH_MSG_WARNING(" ROT creation failed " << m_idHelperSvc->toString(id) );
 	  continue;
 	}
 	double residual = rot->localParameters().get(Trk::locX) - lp.x();
 	double pull = residual / Amg::error(rot->localCovariance(),Trk::locX);
-	ATH_MSG_DEBUG( "Adding r " << gpos->perp() << " z " << gpos->z() << "  " << m_idHelper->toString(id) << " " << residual << " pull " << pull  );
+	ATH_MSG_DEBUG( "Adding r " << gpos->perp() << " z " << gpos->z() << "  " << m_idHelperSvc->toString(id) << " " << residual << " pull " << pull  );
 	detLayer.meas.push_back(rot);
 	// meas = rot;
 	++detLayer.nnsw;
@@ -446,19 +441,19 @@ namespace Muon {
       }else{
 	const MuonCluster* cl = dynamic_cast<const MuonCluster*>(&prd);
 	if( !cl ) {
-	  ATH_MSG_WARNING(" cluster PRD not of type MuonCluster " << m_idHelper->toString(id) );
+	  ATH_MSG_WARNING(" cluster PRD not of type MuonCluster " << m_idHelperSvc->toString(id) );
 	  continue;
 	}
 	if( m_buildCompRots ){
-	  if( m_idHelper->measuresPhi(id) ) clustersPerDetEl[cl->detectorElement()].first.push_back(cl);
+	  if( m_idHelperSvc->measuresPhi(id) ) clustersPerDetEl[cl->detectorElement()].first.push_back(cl);
 	  else                              clustersPerDetEl[cl->detectorElement()].second.push_back(cl);
 	}else{
 	  const MuonClusterOnTrack* rot = m_muonClusterCreator->createRIO_OnTrack(*cl,prd.detectorElement()->surface(id).center());
 	  if( !rot ) {
-	    ATH_MSG_WARNING(" ROT creation failed " << m_idHelper->toString(id) );
+	    ATH_MSG_WARNING(" ROT creation failed " << m_idHelperSvc->toString(id) );
 	    continue;
 	  }
-	  ATH_MSG_VERBOSE(" new Clu    " << m_idHelper->toString(id) );
+	  ATH_MSG_VERBOSE(" new Clu    " << m_idHelperSvc->toString(id) );
 	  detLayer.meas.push_back(rot);
 	  // meas = rot;
 	}
@@ -473,11 +468,11 @@ namespace Muon {
       for( ;cit!=cit_end;++cit ){
 
 	const Identifier& id = cit->first->identify();
-	bool isEndcap = m_idHelper->isEndcap(id);
-	MuonStationIndex::StIndex stIndex = m_idHelper->stationIndex(id);
+	bool isEndcap = m_idHelperSvc->isEndcap(id);
+	MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(id);
 	DetectorLayer& detLayer = hitsPerLayer[stIndex];
 	detLayer.isEndcap = isEndcap;
-	ATH_MSG_VERBOSE("  " << m_idHelper->toString(id) << " phi " << cit->second.first.size() << " eta " << cit->second.second.size() );
+	ATH_MSG_VERBOSE("  " << m_idHelperSvc->toString(id) << " phi " << cit->second.first.size() << " eta " << cit->second.second.size() );
 	const Trk::MeasurementBase* measPhi = 0;
 	if( !cit->second.first.empty() ){
 	  if( cit->second.first.size() == 1 ){
@@ -501,7 +496,7 @@ namespace Muon {
 	}
 	if( measEta ) detLayer.meas.push_back(measEta);
 
-	ATH_MSG_VERBOSE(" Adding compRot for  " << m_idHelper->toStringDetEl(id) << " phi " << cit->second.first.size() << " eta " << cit->second.second.size()  );
+	ATH_MSG_VERBOSE(" Adding compRot for  " << m_idHelperSvc->toStringDetEl(id) << " phi " << cit->second.first.size() << " eta " << cit->second.second.size()  );
       }
     }
 
@@ -656,7 +651,7 @@ namespace Muon {
       std::vector<const Trk::MeasurementBase*>::const_iterator it_end = layer.meas.end();
       for( ;it!=it_end;++it ){
 	msg(MSG::VERBOSE) << " r  " << (*it)->globalPosition().perp() <<  " z  " << (*it)->globalPosition().z() 
-			  << "   " <<  m_idHelper->toString( m_edmHelperSvc->getIdentifier(**it) ) << std::endl;
+			  << "   " <<  m_idHelperSvc->toString( m_edmHelperSvc->getIdentifier(**it) ) << std::endl;
       }
       msg(MSG::VERBOSE) << endmsg;
     }
@@ -792,7 +787,7 @@ namespace Muon {
   const MuonSimData::Deposit* MuonTruthTrackBuilder::getDeposit( const MuonSimDataCollection& simCol, const HepMC::GenParticle& genPart, const Identifier& id ) const {
     MuonSimDataCollection::const_iterator it = simCol.find(id);
     if( it == simCol.end() ) {
-      ATH_MSG_WARNING(" Truth PRD not found in simdata collection: " << m_idHelper->toString(id) );
+      ATH_MSG_WARNING(" Truth PRD not found in simdata collection: " << m_idHelperSvc->toString(id) );
       return 0;
     }
     
@@ -827,22 +822,22 @@ namespace Muon {
       // skip 
       Identifier id = m_edmHelperSvc->getIdentifier(**it);
       if( splitSL != -1 ){
-	bool isSmall = !m_idHelper->isSmallChamber(id);
-	bool isTgc = m_idHelper->isTgc(id);
+	bool isSmall = !m_idHelperSvc->isSmallChamber(id);
+	bool isTgc = m_idHelperSvc->isTgc(id);
 	if( isSmall != splitSL && !isTgc ) continue;
       }
 
       // for the first two trails build the NSW segments, for the second two the MDT ones
-      if( splitNSWEI == 0 && (m_idHelper->isMdt(id) || m_idHelper->isTgc(id) ) ) continue;
-      if( splitNSWEI == 1 && (m_idHelper->issTgc(id) || m_idHelper->isMM(id) ) ) continue;
+      if( splitNSWEI == 0 && (m_idHelperSvc->isMdt(id) || m_idHelperSvc->isTgc(id) ) ) continue;
+      if( splitNSWEI == 1 && (m_idHelperSvc->issTgc(id) || m_idHelperSvc->isMM(id) ) ) continue;
 
       hitsOut.push_back(*it);
 
-      bool isTrigger = m_idHelper->isTrigger(id);
-      bool measPhi =  m_idHelper->measuresPhi(id);
+      bool isTrigger = m_idHelperSvc->isTrigger(id);
+      bool measPhi =  m_idHelperSvc->measuresPhi(id);
       
       // for now exclude STGC pads as phi measurements
-      if( !m_usePadPhiHits && m_idHelper->issTgc(id) && m_idHelper->stgcIdHelper().channelType(id) == 0 ) measPhi = false;
+      if( !m_usePadPhiHits && m_idHelperSvc->issTgc(id) && m_idHelperSvc->stgcIdHelper().channelType(id) == 0 ) measPhi = false;
 
       if( !isTrigger && !measPhi ) ++nprec;
       if( measPhi ){ 
@@ -858,10 +853,10 @@ namespace Muon {
     
     if( !lastMeas ) return false;
     Identifier id = m_edmHelperSvc->getIdentifier(*firstMeas);
-    MuonStationIndex::StIndex stFirst = m_idHelper->stationIndex( id );
+    MuonStationIndex::StIndex stFirst = m_idHelperSvc->stationIndex( id );
     bool isEM = stFirst != MuonStationIndex::EM;
     if( (!isEM && nprec < 3 ) ||  ( isEM && (nprec < 2 || nprec + ntrigEta < 4 ) ) ) return false;
-    if( (m_idHelper->issTgc(id) || m_idHelper->isMM(id)) && nprec < 5 ) return false;
+    if( (m_idHelperSvc->issTgc(id) || m_idHelperSvc->isMM(id)) && nprec < 5 ) return false;
 
     ATH_MSG_DEBUG(" prec hits: " << nprec << " trigEta " << ntrigEta << " tot hits " << hitsOut.size() );
     double dist = 0.;
@@ -919,7 +914,7 @@ namespace Muon {
     // final check to ensure that we have a phi measurement or a pseudo at the start of the full track
     if( splitNSWEI == -1 && !addedFakePhiFirst ){
       // check if the is a phi measurement and it is in the same station layer
-      if( !firstPhi || stFirst != m_idHelper->stationIndex(  m_edmHelperSvc->getIdentifier(*firstPhi) ) ){
+      if( !firstPhi || stFirst != m_idHelperSvc->stationIndex(  m_edmHelperSvc->getIdentifier(*firstPhi) ) ){
 	Trk::PseudoMeasurementOnTrack* pseudo =  createPseudo( per, *firstMeas );
 	if( !pseudo ){
 	  ATH_MSG_WARNING("Failed to create pseudo measurement");
