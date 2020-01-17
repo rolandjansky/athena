@@ -249,7 +249,7 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     if geoFlags.isIBL()==True and not conddb.folderRequested("/PIXEL/HitDiscCnfg"):
         conddb.addFolderSplitMC("PIXEL","/PIXEL/HitDiscCnfg","/PIXEL/HitDiscCnfg", className="AthenaAttributeList")
 
-    if not hasattr(condSeq, 'PixelHitDiscCnfgAlg'):
+    if geoFlags.isIBL()==True and not hasattr(condSeq, 'PixelHitDiscCnfgAlg'):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelHitDiscCnfgAlg
         condSeq += PixelHitDiscCnfgAlg(name="PixelHitDiscCnfgAlg")
 
