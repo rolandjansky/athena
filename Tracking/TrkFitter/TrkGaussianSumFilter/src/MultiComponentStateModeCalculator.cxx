@@ -39,6 +39,8 @@ Trk::MultiComponentStateModeCalculator::calculateMode(
   /* loop over the 5 direction , d0,z0,phi,theta,qOverP*/
 
   for (int i = 0; i < 5; i++) {
+    
+    double largerPdfComponent=0.0;   
     double largerMeanComponent=0.0;   
     /*
      * Loop over the mixture in the ith direction and find the  component
@@ -48,8 +50,8 @@ Trk::MultiComponentStateModeCalculator::calculateMode(
      */
     for (const Component& component : mixture[i]){
       double pdfValue =pdf(component.mean, i, mixture);
-      if(pdfValue>largerMeanComponent){
-        largerMeanComponent=pdfValue;
+      if(pdfValue>largerPdfComponent){
+        largerMeanComponent=component.mean;
       }
     }
     modes[i] = findMode(largerMeanComponent, i, mixture);
