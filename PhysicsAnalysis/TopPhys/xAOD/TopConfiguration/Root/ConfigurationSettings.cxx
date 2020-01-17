@@ -225,13 +225,13 @@ namespace top {
                       "Default 25 GeV.",
                       "25000");
     registerParameter("TauJetIDWP",
-                      "Tau jet IDWP (None, Loose, Medium, Tight, LooseNotMedium, LooseNotTight, MediumNotTight, NotLoose)."
-                      "Default Medium.",
+                      "Tau jet IDWP (None, Loose, Medium, Tight, LooseNotMedium, LooseNotTight, MediumNotTight, NotLoose, RNNLoose, RNNMedium, RNNTight)."
+                      "Default RNNMedium.",
                       "RNNMedium");
     registerParameter("TauJetIDWPLoose",
                       "Loose Tau jet IDWP (None, Loose, Medium, Tight, LooseNotMedium, LooseNotTight, MediumNotTight, NotLoose)."
-                      "Default None.",
-                      "RNNMedium");
+                      "Default RNNLoose.",
+                      "RNNLoose");
     registerParameter("TauEleBDTWP",
                       "Tau electron BDT WP (None, Loose, Medium, Tight, OldLoose, OldMedium)."
                       "Default Loose.",
@@ -343,7 +343,7 @@ namespace top {
 
     registerParameter("ApplyElectronInJetSubtraction",
                       "Subtract electrons close to jets for boosted analysis : True or False(top default)", "False");
-    registerParameter("TopPartonHistory", "ttbar, tb, Wtb, ttz, ttgamma, False (default)", "False");
+    registerParameter("TopPartonHistory", "ttbar, tb, Wtb, ttz, ttgamma, tHqtautau, False (default)", "False");
 
     registerParameter("TopParticleLevel", "Perform particle level selection? True or False", "False");
     registerParameter("DoParticleLevelOverlapRemoval",

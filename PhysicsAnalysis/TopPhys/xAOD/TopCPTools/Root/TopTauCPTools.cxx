@@ -233,6 +233,9 @@ namespace top {
 
           top::check(asg::setProperty(tauEffCorrTool, "UseTauSubstructure", m_config->tauSubstructureSF()),
                      "Failed to set UseTauSubstructure for " + tauEffCorrName);
+
+          top::check(asg::setProperty(tauEffCorrTool, "isAFII", m_config->isAFII()),
+                               "Failed to set isAFII for " + tauEffCorrName);
         }
         top::check(asg::setProperty(tauEffCorrTool, "TauSelectionTool", m_tauSelectionTool),
                    "Failed to set TauSelectionTool for " + tauEffCorrName);
@@ -298,6 +301,9 @@ namespace top {
                      "Failed to set PileupReweightingTool for " + tauEffCorrNameLoose);
           top::check(asg::setProperty(tauEffCorrTool, "UseTauSubstructure", m_config->tauSubstructureSFLoose()),
                      "Failed to set UseTauSubstructure for " + tauEffCorrNameLoose);
+
+          top::check(asg::setProperty(tauEffCorrTool, "isAFII", m_config->isAFII()),
+                  "Failed to set isAFII for " + tauEffCorrNameLoose);
         }
         top::check(asg::setProperty(tauEffCorrTool, "TauSelectionTool", m_tauSelectionToolLoose),
                    "Failed to set TauSelectionTool for " + tauEffCorrNameLoose);
