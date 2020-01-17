@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AthExJobOptions/ExampleEvtLoopPreSelectTool.h"
+#include "ExampleEvtLoopPreSelectTool.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "EventInfo/EventType.h"
