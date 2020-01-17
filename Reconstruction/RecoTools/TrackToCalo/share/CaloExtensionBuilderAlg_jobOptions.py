@@ -46,30 +46,13 @@ def CaloExtensionBuilder( cutLevel = "TightPrimary", minPT = 100.0 ):
     if jobproperties.Beam.beamType() != 'collisions':
         CaloExtensionBuilderTool.vertexInputContainer = ''
 
-    TrackDetailedSelectionToolHC = InDet__InDetDetailedTrackSelectorTool(name = "CaloExtensionBuilderDetailedTrackSelectionTool",
-                                                                         pTMin                = minPT,
-                                                                         IPd0Max              = 99999,
-                                                                         IPz0Max              = 99999, 
-                                                                         useTrackSummaryInfo  = True,
-                                                                         nHitBLayer           = 0, 
-                                                                         nHitPix              = 0,  # PixelHits + PixelDeadSensors
-                                                                         nHitSct              = 0,  # SCTHits + SCTDeadSensors
-                                                                         nHitSi               = 7,  # PixelHits + SCTHits + PixelDeadSensors + SCTDeadSensors
-                                                                         nHitTrt              = 0,  # nTRTHits
-                                                                         useSharedHitInfo     = False,
-                                                                         nSharedBLayer        = 99999,
-                                                                         nSharedPix           = 99999,
-                                                                         nSharedSct           = 99999,
-                                                                         nSharedSi            = 99999,
-                                                                         useTrackQualityInfo  = False,
-                                                                         fitChi2OnNdfMax      = 99999,
-                                                                         TrackSummaryTool     = None,
-                                                                         Extrapolator         = theAtlasExtrapolator)
+    TrackSelectionToolHC = InDet__InDetTrackSelectionTool(name            = "CaloExtensionBuilderTrackSelectionTool",
+                                                           minPt           = minPT,
+                                                           CutLevel        = "NoCut",
+                                                           minNSiHits      = 7) # PixelHits + SCTHits + PixelDeadSensors + SCTDeadSensors
     
-    ToolSvc += TrackDetailedSelectionToolHC
-
-    CaloExtensionBuilderTool.TrkSelection         = TrackSelectionToolHC
-    CaloExtensionBuilderTool.TrkDetailedSelection = TrackDetailedSelectionToolHC
+        
+    CaloExtensionBuilderTool.TrkSelection         = TrackSelectionToolHC    
 
     ToolSvc += CaloExtensionBuilderTool.LastCaloExtentionTool
 
