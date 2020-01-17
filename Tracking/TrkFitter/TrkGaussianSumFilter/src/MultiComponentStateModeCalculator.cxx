@@ -20,19 +20,15 @@ namespace {
 const double invsqrt2PI = 1. / sqrt(2. * M_PI);
 }
 
-Amg::VectorX
+std::array<double,10>
 Trk::MultiComponentStateModeCalculator::calculateMode(
   const Trk::MultiComponentState& multiComponentState)
 {
-
-  Amg::VectorX modes(10);
-  modes.setZero();
-
+  std::array<double,10> modes{};
   // Check to see if the multi-component state is measured
   if (!MultiComponentStateHelpers::isMeasured(multiComponentState)) {
     return modes;
   }
-
   std::array<std::vector<Mixture>, 5> mixture;
 
   fillMixture(multiComponentState, mixture);
