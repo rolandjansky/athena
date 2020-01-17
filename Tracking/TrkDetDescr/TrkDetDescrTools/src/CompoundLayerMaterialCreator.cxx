@@ -46,7 +46,7 @@ StatusCode Trk::CompoundLayerMaterialCreator::finalize()
     return StatusCode::SUCCESS;
 }
 
-const Trk::LayerMaterialProperties* Trk::CompoundLayerMaterialCreator::createLayerMaterial(const Trk::LayerMaterialRecord& lmr) const
+Trk::LayerMaterialProperties* Trk::CompoundLayerMaterialCreator::createLayerMaterial(const Trk::LayerMaterialRecord& lmr) const
 {
     // get the material matrix
     const Trk::MaterialPropertiesMatrix& materialMatrix = lmr.associatedLayerMaterial();
@@ -62,11 +62,11 @@ const Trk::LayerMaterialProperties* Trk::CompoundLayerMaterialCreator::createLay
     return createCompoundLayerMaterial(materialMatrix,*binUtility);
 }    
 
-const Trk::LayerMaterialProperties* Trk::CompoundLayerMaterialCreator::convertLayerMaterial(const Trk::LayerMaterialProperties& lmProperties) const
+Trk::LayerMaterialProperties* Trk::CompoundLayerMaterialCreator::convertLayerMaterial(const Trk::LayerMaterialProperties& lmProperties) const
 {
     
     // the return object
-    const Trk::LayerMaterialProperties* bLayerMaterial = nullptr;
+    Trk::LayerMaterialProperties* bLayerMaterial = nullptr;
     // get the binUtility of the LayerMaterialProperties
     const Trk::BinUtility* bUtility = lmProperties.binUtility();
     // we have a bin utility, get the matrix and fill it
@@ -106,7 +106,7 @@ const Trk::LayerMaterialProperties* Trk::CompoundLayerMaterialCreator::convertLa
     return bLayerMaterial;
 }    
 
-const Trk::LayerMaterialProperties* Trk::CompoundLayerMaterialCreator::createCompoundLayerMaterial(const Trk::MaterialPropertiesMatrix& materialMatrix, const Trk::BinUtility& lBinUtility) const
+Trk::LayerMaterialProperties* Trk::CompoundLayerMaterialCreator::createCompoundLayerMaterial(const Trk::MaterialPropertiesMatrix& materialMatrix, const Trk::BinUtility& lBinUtility) const
 {
     
     

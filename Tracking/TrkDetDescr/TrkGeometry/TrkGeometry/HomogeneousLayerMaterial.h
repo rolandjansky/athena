@@ -88,7 +88,7 @@ namespace Trk {
       const BinUtility* binUtility() const  override { return 0; }
       
       /** Update the BinUtility if necessary - passing ownership of the utility class*/
-      virtual void updateBinning(BinUtility*) const override { }
+      virtual void updateBinning(BinUtility*) override { }
           
       /** Output Method for MsgStream, to be overloaded by child classes */
       MsgStream& dump(MsgStream& sl) const override;
