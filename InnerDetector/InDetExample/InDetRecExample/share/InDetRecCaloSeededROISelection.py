@@ -27,7 +27,7 @@ InDetCaloClusterROIBuilder = InDet__CaloClusterROI_Builder(name = "InDetCaloClus
                                                            EMEnergyOnly = True)
 
 if (InDetFlags.doPrintConfigurables()):
-    print InDetCaloClusterROIBuilder
+    printfunc (InDetCaloClusterROIBuilder)
 
 #
 # --- now load the algorithm
@@ -42,5 +42,5 @@ InDetCaloClusterROISelector = InDet__CaloClusterROI_Selector (name              
 
 topSequence += InDetCaloClusterROISelector
 if (InDetFlags.doPrintConfigurables()):
-    print InDetCaloClusterROISelector
+    printfunc (InDetCaloClusterROISelector)
 

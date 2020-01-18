@@ -77,7 +77,7 @@ class ConfiguredBackTracking:
 
             ServiceMgr += InDetRegSelSvc
             if (InDetFlags.doPrintConfigurables()):
-               print InDetRegSelSvc
+               printfunc (InDetRegSelSvc)
 
             from TRT_SeededSpacePointFinderTool.TRT_SeededSpacePointFinderToolConf import InDet__SimpleTRT_SeededSpacePointFinder_ATL
             InDetTRT_SeededSpacePointFinder = InDet__SimpleTRT_SeededSpacePointFinder_ATL(name                   = 'InDetTRT_SeededSpFinder'  ,
@@ -96,7 +96,7 @@ class ConfiguredBackTracking:
          # add either into the Tool Service
          ToolSvc += InDetTRT_SeededSpacePointFinder
          if (InDetFlags.doPrintConfigurables()):
-            print InDetTRT_SeededSpacePointFinder
+            printfunc (InDetTRT_SeededSpacePointFinder)
          #
          # Silicon det elements road maker tool
          #
@@ -122,7 +122,7 @@ class ConfiguredBackTracking:
 
          ToolSvc += InDetTRT_SeededSiRoadMaker
          if (InDetFlags.doPrintConfigurables()):
-            print InDetTRT_SeededSiRoadMaker
+            printfunc (InDetTRT_SeededSiRoadMaker)
          #
          # --- TRT seeded back tracking tool
          #
@@ -147,7 +147,7 @@ class ConfiguredBackTracking:
 
          ToolSvc   += InDetTRT_SeededTrackTool
          if (InDetFlags.doPrintConfigurables()):
-            print InDetTRT_SeededTrackTool
+            printfunc (InDetTRT_SeededTrackTool)
 
          #
          # --- Output key for the finder
@@ -184,7 +184,7 @@ class ConfiguredBackTracking:
          # InDetTRT_SeededTrackFinder.OutputLevel = VERBOSE
          topSequence += InDetTRT_SeededTrackFinder
          if (InDetFlags.doPrintConfigurables()):
-            print InDetTRT_SeededTrackFinder
+            printfunc (InDetTRT_SeededTrackFinder)
 
          #
          # ------------ Track truth.
@@ -254,7 +254,7 @@ class ConfiguredBackTracking:
          # InDetTRT_SeededScoringTool.OutputLevel = DEBUG
          ToolSvc += InDetTRT_SeededScoringTool
          if (InDetFlags.doPrintConfigurables()):
-            print InDetTRT_SeededScoringTool
+            printfunc (InDetTRT_SeededScoringTool)
 
          #
          # --- Load selection tool
@@ -275,7 +275,7 @@ class ConfiguredBackTracking:
          # InDetTRT_SeededAmbiTrackSelectionTool.OutputLevel = DEBUG
          ToolSvc += InDetTRT_SeededAmbiTrackSelectionTool
          if (InDetFlags.doPrintConfigurables()):
-            print InDetTRT_SeededAmbiTrackSelectionTool
+            printfunc (InDetTRT_SeededAmbiTrackSelectionTool)
 
          #
          # --- load Ambiguity Processor
@@ -298,7 +298,7 @@ class ConfiguredBackTracking:
          #
          ToolSvc += InDetTRT_SeededAmbiguityProcessor
          if (InDetFlags.doPrintConfigurables()):
-            print InDetTRT_SeededAmbiguityProcessor
+            printfunc (InDetTRT_SeededAmbiguityProcessor)
 
 
          #
@@ -321,7 +321,7 @@ class ConfiguredBackTracking:
                                                                   AmbiguityProcessor = InDetTRT_SeededAmbiguityProcessor)
          topSequence += InDetTRT_SeededAmbiguitySolver
          if (InDetFlags.doPrintConfigurables()):
-            print InDetTRT_SeededAmbiguitySolver
+            printfunc (InDetTRT_SeededAmbiguitySolver)
 
          # --- Delete (non-resloved) TRT seeded tracks
          from InDetRecExample.ConfiguredInDetSGDeletion import InDetSGDeletionAlg
