@@ -99,7 +99,7 @@ if DQMonFlags.monManEnvironment != 'tier0ESD':
         try:
             svcMgr.ByteStreamAddressProviderSvc.TypeNames.remove("RpcPadContainer/RPCPAD")
         except:
-            print 'RPCPAD cannot be removed'
+            printfunc ('RPCPAD cannot be removed')
 
 from DataQualityTools.DQTDataFlowMonAlg import DQTDataFlowMonAlgConfigOld
 topSequence += DQTDataFlowMonAlgConfigOld(DQMonFlags)

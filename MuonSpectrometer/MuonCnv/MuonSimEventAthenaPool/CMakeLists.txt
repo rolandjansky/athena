@@ -37,7 +37,7 @@ find_package( AthenaPoolUtilitiesTest )
 if( ATHENAPOOLUTILITIESTEST_FOUND )
   set( MUONSIMEVENTATHENAPOOL_REFERENCE_TAG
        MuonSimEventAthenaPoolReference-02-00-00 )
-  run_tpcnv_test( MuonSimEventTPCnv_HITS   HITS.04919495._000416
+  run_tpcnv_legacy_test( MuonSimEventTPCnv_HITS   HITS.04919495._000416
                    REFERENCE_TAG ${MUONSIMEVENTATHENAPOOL_REFERENCE_TAG} )
 else()
    message( WARNING "Couldn't find AthenaPoolUtilitiesTest. No test(s) set up." )
