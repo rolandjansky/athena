@@ -100,7 +100,7 @@ namespace Trk {
       virtual void moveLayer(Amg::Transform3D& shift) override;
 
       /** move the Layer */
-      virtual void moveLayer ATLAS_NOT_THREAD_SAFE (Amg::Transform3D& shift) const override{
+      virtual void moveLayer ATLAS_NOT_CONST_THREAD_SAFE (Amg::Transform3D& shift) const override{
        const_cast<ConeLayer*>(this)->moveLayer(shift); 
       };
 
@@ -113,8 +113,8 @@ namespace Trk {
 
       
     /** Resize the layer to the tracking volume - not supported since this an entry layer method*/ 
-    virtual void resizeAndRepositionLayer ATLAS_NOT_THREAD_SAFE(const VolumeBounds&,
-                                                                const Amg::Vector3D&, double) const override {}       
+    virtual void resizeAndRepositionLayer ATLAS_NOT_CONST_THREAD_SAFE(const VolumeBounds&,
+                                                                      const Amg::Vector3D&, double) const override {}       
       
   };
  
