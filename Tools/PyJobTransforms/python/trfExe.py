@@ -671,8 +671,9 @@ class scriptExecutor(transformExecutor):
         self._echologger = logging.getLogger(self._name)
         self._echologger.setLevel(logging.INFO)
         self._echologger.propagate = False
-        
-        self._exeLogFile = logging.FileHandler(self._logFileName, mode='w', encoding='utf8')
+
+        encargs = {} if six.PY2 else {'encoding' : 'utf-8'}
+        self._exeLogFile = logging.FileHandler(self._logFileName, mode='w', **encargs)
         self._exeLogFile.setFormatter(logging.Formatter('%(asctime)s %(message)s', datefmt='%H:%M:%S'))
         self._echologger.addHandler(self._exeLogFile)
         
