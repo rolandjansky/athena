@@ -8,6 +8,7 @@
 
 ## Create sequences for generators, clean-up algs, filters and analyses
 ## and import standard framework objects with standard local scope names
+
 import ast
 import os, re, string, subprocess
 import AthenaCommon.AlgSequence as acas
@@ -61,6 +62,11 @@ jobproperties.RecConfFlags.AllowBackNavigation = True
 ## Set up a standard logger
 from AthenaCommon.Logging import logging
 evgenLog = logging.getLogger('Generate_tf')
+
+# warning that the transform obsolete
+evgenLog.warning(" ############################################################################### ")
+evgenLog.warning(" Generate_tf is obsolete in rel. 21.6.X - Use Gen_tf ")
+evgenLog.warning(" ############################################################################### ")
 
 ##==============================================================
 ## Run arg handling
