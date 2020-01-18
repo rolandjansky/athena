@@ -52,7 +52,7 @@ if rec.doTruth() and muonCombinedRecFlags.doxAOD() and rec.doMuonCombined():
         if truthStrategy in ['MC15','MC18','MC18LLP']:
             topSequence.MuonTruthAssociationAlg.BarcodeOffset=10000000
     except:
-        print "Failed to read /Simulation/Parameters/ metadata"
+        printfunc ("Failed to read /Simulation/Parameters/ metadata")
         pass
 
 if muonCombinedRecFlags.doTrackPerformance:
