@@ -2,7 +2,7 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
-'''@file ExampleMonitorAlgorithm.py kristin
+'''@file Run3AFPExampleMonitorAlgorithm.py
 @author C. D. Burton
 @author P. Onyisi
 @date 2018-01-11
@@ -31,12 +31,12 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
     # helper. Then, the helper will instantiate an instance and set up the 
     # base class configuration following the inputFlags. The returned object 
     # is the algorithm.
-    from Run3AFPMonitoring.Run3AFPMonitoringConf import AFPHitsMonitorAlgorithm
-    exampleMonAlg = helper.addAlgorithm(AFPHitsMonitorAlgorithm,'exampleMonAlg')
+    from Run3AFPMonitoring.Run3AFPMonitoringConf import AFPSiLayerAlgorithm
+    afpSiLayerAlgorithm = helper.addAlgorithm(AFPSiLayerAlgorithm,'AFPSiLayer')
 
     # You can actually make multiple instances of the same algorithm and give 
-    # them different configurations
-    anotherExampleMonAlg = helper.addAlgorithm(AFPHitsMonitorAlgorithm,'AnotherExampleMonAlg')
+    # them different configuration
+    anotherExampleMonAlg = helper.addAlgorithm(AFPSiLayerAlgorithm,'AnotherExampleMonAlg')
 
     # # If for some really obscure reason you need to instantiate an algorithm
     # # yourself, the AddAlgorithm method will still configure the base 
@@ -62,27 +62,32 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
 
     # Add a generic monitoring tool (a "group" in old language). The returned 
     # object here is the standard GenericMonitoringTool.
-    myGroup = helper.addGroup(
-        exampleMonAlg,
-        'ExampleMonitor',
-        'OneRing/'
-    )
+    station0_1 = helper.addGroup(afpSiLayerAlgorithm, 'AFPSiLayer','Station0/')
 
     # Add a GMT for the other example monitor algorithm
-    anotherGroup = helper.addGroup(anotherExampleMonAlg,'ExampleMonitor')
+    anotherGroup = helper.addGroup(anotherExampleMonAlg,'AFPSiLayer')
 
 
     ### STEP 5 ###
-    # Configure histograms
-    myGroup.defineHistogram('lumiPerBCID',title='Luminosity,WithCommaInTitle;L/BCID;Events',
+    # Configure histogramsIf you want to create histograms with variable bin widths, ROOT provides another constructor suited for this purpose. Instead of passing the data interval and the number of bins, you have to pass an array (single or double precision) of bin edges. When the histogram has n bins, then there are n+1 distinct edges, so the array you pass must be of size n+1.
+
+
+    
+    # My histograms
+    station0_1.defineHistogram('h_hitMultiplicity', title='Number of hits per event', path='AFPSiLayerPath',xbins=40, xmin=-0.5, xmax=39.5)
+    station0_1.defineHistogram('h_timeOverThreshold', title='Time over threshold', path='AFPSiLayerPath', xbins=16, xmin=-0.5, xmax=15.5)
+    # nRows = 80, nColumns = 336.
+   # station0_1.defineHistogram('h_hitMap', title='Map of hits', type='TH2F', path='AFPSiLayer', xbins=80,xmin=0.5,xmax=80+0.5, ybins=336,ymin=0.5,ymax=336+0.5)
+    # end My histograms
+    station0_1.defineHistogram('lumiPerBCID',title='Luminosity,WithCommaInTitle;L/BCID;Events',
                             path='ToRuleThemAll',xbins=40,xmin=0.0,xmax=80.0)
-    myGroup.defineHistogram('lb', title='Luminosity Block;lb;Events',
+    station0_1.defineHistogram('lb', title='Luminosity Block;lb;Events',
                             path='ToFindThem',xbins=1000,xmin=-0.5,xmax=999.5,weight='testweight')
-    myGroup.defineHistogram('random', title='LB;x;Events',
+    station0_1.defineHistogram('random', title='LB;x;Events',
                             path='ToBringThemAll',xbins=30,xmin=0,xmax=1,opt='kLBNHistoryDepth=10')
-    myGroup.defineHistogram('random', title='title;x;y',path='ToBringThemAll',
+    station0_1.defineHistogram('random', title='title;x;y',path='ToBringThemAll',
                             xbins=[0,.1,.2,.4,.8,1.6])
-    myGroup.defineHistogram('random,pT', type='TH2F', title='title;x;y',path='ToBringThemAll',
+    station0_1.defineHistogram('random,pT', type='TH2F', title='title;x;y',path='ToBringThemAll',
                             xbins=[0,.1,.2,.4,.8,1.6],ybins=[0,10,30,40,60,70,90])
     # myGroup.defineHistogram('pT_passed,pT',type='TEfficiency',title='Test TEfficiency;x;Eff',
     #                         path='AndInTheDarkness',xbins=100,xmin=0.0,xmax=50.0)
@@ -96,24 +101,24 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
     # number of histograms in an organized manner. (For instance, one plot for each ASIC
     # in the subdetector, and these components are mapped in eta, phi, and layer.) Thus,
     # one might have an array of TH1's such as quantity[etaIndex][phiIndex][layerIndex].
-    for alg in [exampleMonAlg,anotherExampleMonAlg]:
+    for alg in [afpSiLayerAlgorithm,anotherExampleMonAlg]:
         # Using an array of groups
-        array = helper.addArray([2],alg,'ExampleMonitor')
+        array = helper.addArray([2],alg,'AFPSiLayer')
         array.defineHistogram('a,b',title='AB',type='TH2F',path='Eta',
                               xbins=10,xmin=0.0,xmax=10.0,
                               ybins=10,ymin=0.0,ymax=10.0)
         array.defineHistogram('c',title='C',path='Eta',
                               xbins=10,xmin=0.0,xmax=10.0)
-        array = helper.addArray([4,2],alg,'ExampleMonitor')
+        array = helper.addArray([4,2],alg,'AFPSiLayer')
         array.defineHistogram('a',title='A',path='EtaPhi',
                               xbins=10,xmin=0.0,xmax=10.0)
         # Using a map of groups
         layerList = ['layer1','layer2']
         clusterList = ['clusterX','clusterB']
-        array = helper.addArray([layerList],alg,'ExampleMonitor')
+        array = helper.addArray([layerList],alg,'AFPSiLayer')
         array.defineHistogram('c',title='C',path='Layer',
                               xbins=10,xmin=0,xmax=10.0)
-        array = helper.addArray([layerList,clusterList],alg,'ExampleMonitor')
+        array = helper.addArray([layerList,clusterList],alg,'AFPSiLayer')
         array.defineHistogram('c',title='C',path='LayerCluster',
                               xbins=10,xmin=0,xmax=10.0)
 
@@ -145,7 +150,7 @@ if __name__=='__main__':
     file = 'data16_13TeV.00311321.physics_Main.recon.AOD.r9264/AOD.11038520._000001.pool.root.1'
     ConfigFlags.Input.Files = [nightly+file]
     ConfigFlags.Input.isMC = False
-    ConfigFlags.Output.HISTFileName = 'ExampleMonitorOutput.root'
+    ConfigFlags.Output.HISTFileName = 'AFPOutput.root'
     
     ConfigFlags.lock()
 
