@@ -28,12 +28,8 @@ Trk::MultiComponentStateModeCalculator::calculateMode(
   if (!MultiComponentStateHelpers::isMeasured(multiComponentState)) {
     return modes;
   }
-<<<<<<< HEAD
 
   std::array<std::vector<Component>, 5> mixture;
-=======
-  std::array<std::vector<Mixture>, 5> mixture;
->>>>>>> upstream/master
 
   fillMixture(multiComponentState, mixture);
 
