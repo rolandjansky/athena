@@ -2,8 +2,8 @@
 from BTagging.BTaggingFlags import BTaggingFlags
 BTaggingAODList =  BTaggingFlags.btaggingAODList
 
-print "List of containers"
-print BTaggingAODList
+printfunc ("List of containers")
+printfunc (BTaggingAODList)
 if len(BTaggingAODList) == 0:
     # The list is empty if b-tagging was not set up; the typical use case for this is the ESDtoAOD step.
     # Apparently we are not allowed to use wildcards in the container names... (and they cause problems for HLT).
@@ -28,4 +28,4 @@ if len(BTaggingAODList) == 0:
 #    BTaggingAODList += ["xAOD::VertexContainer#BTagging*"]
 #    BTaggingAODList += ["xAOD::VertexAuxContainer#BTagging*"]
     
-print "#BTAG# AOD output container list: " + str(BTaggingAODList)
+printfunc ("#BTAG# AOD output container list: " + str(BTaggingAODList))
