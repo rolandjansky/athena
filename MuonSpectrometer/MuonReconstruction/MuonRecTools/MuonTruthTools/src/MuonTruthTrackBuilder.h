@@ -21,6 +21,7 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonCompetingClustersOnTrackCreator.h"
@@ -31,17 +32,13 @@
 
 namespace Trk {
   class Track;
-  class IRIO_OnTrackCreator;
-  class RIO_OnTrack;
   class MeasurementBase;
   class PseudoMeasurementOnTrack;
 }
 
 namespace Muon {
   
-  class MuonEDMPrinterTool;
   class MuonSegment;
-  class MuonClusterOnTrack;
   /**
      @class MuonTruthTrackBuilder
 

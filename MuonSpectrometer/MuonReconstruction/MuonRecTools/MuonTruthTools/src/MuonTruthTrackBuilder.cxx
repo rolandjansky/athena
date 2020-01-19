@@ -34,8 +34,6 @@
 #include "MuonSegment/MuonSegment.h"
 // HepMC
 #include "HepMC/GenParticle.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonCompetingClustersOnTrackCreator.h"

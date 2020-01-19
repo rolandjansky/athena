@@ -15,11 +15,6 @@
 
 #include "MuonPattern/MuonPatternCombination.h"
 
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-
-#include "MuonSegmentMakerToolInterfaces/IMuonSegmentOverlapRemovalTool.h"
-
 #include "MuonSegmentMakerUtils/MuonSegmentKey.h"
 #include "MuonSegmentMakerUtils/CompareMuonSegmentKeys.h"
 

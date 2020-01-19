@@ -71,11 +71,9 @@ namespace Muon {
         // skip if not found
         typename ContainerType::const_iterator colIt = container->indexFind(*it);
         if( colIt == container->end() ) {
-          //ATH_MSG_WARNING("Cannot find hash " << *it << " in container at " << location);
           continue;
         }
         ATH_MSG_VERBOSE("  adding " << m_idHelperSvc->toStringChamber((*colIt)->identify()) << " size " << (*colIt)->size());
-        // else add
         output.push_back(*colIt);
       }
       return true;

@@ -19,12 +19,12 @@
 #include "MuonSegmentMakerUtils/MuonSegmentCombiOverlapSummary.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "MuonSegmentMakerToolInterfaces/IMuonSegmentOverlapRemovalTool.h"
 
 namespace Muon {
 
   class MuonSegment;
-  class MuonEDMPrinterTool;
-  class IMuonSegmentOverlapRemovalTool;
 
   class MuonSegmentCombinationCleanerTool : virtual public IMuonSegmentCombinationCleanerTool, public AthAlgTool
   {
