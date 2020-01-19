@@ -31,4 +31,4 @@ rm -rf $testdir
 mkdir $testdir
 cd $testdir
 
-@testName@_test.py
+athena.py @pkgName@/@testName@_test.py

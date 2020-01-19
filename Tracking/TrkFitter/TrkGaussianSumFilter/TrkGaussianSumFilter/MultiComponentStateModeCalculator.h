@@ -14,9 +14,9 @@ description          : Class to calculate the mode (q/p) of a gaussian mixtureAr
 #ifndef Trk_MultiComponentStateModeCalculator_H
 #define Trk_MultiComponentStateModeCalculator_H
 
-#include "EventPrimitives/EventPrimitives.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include <array>
+#include <vector>
 
 namespace Trk {
 namespace MultiComponentStateModeCalculator {
@@ -38,7 +38,7 @@ struct Mixture {
 };
 
 //!< IMultiComponentStateModeCalculator interface method to calculate mode
-Amg::VectorX calculateMode(const MultiComponentState &);
+std::array<double,10> calculateMode(const MultiComponentState &);
 
 //!< Private method to extract the weight, mean and sigma values from the multi-component state
 void fillMixture(const MultiComponentState &, std::array<std::vector<Mixture>, 5> &mixture);

@@ -349,6 +349,9 @@ def PixelDistortionAlgCfg(flags, name="PixelDistortionAlg", **kwargs):
 def PixelHitDiscCnfgAlgCfg(flags, name="PixelHitDiscCnfgAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelHitDiscCnfgAlg"""
     acc = ComponentAccumulator()
+    # not for Run-1 data/MC
+    if flags.GeoModel.IBLLayout in ("noIBL", "UNDEFINED"):
+        return acc
     if (flags.IOVDb.DatabaseInstance=="CONDBR2"):
         acc.merge(addFolders(flags, "/PIXEL/HitDiscCnfg", "PIXEL", className="AthenaAttributeList"))
     elif (flags.Input.isMC and flags.GeoModel.Run=="RUN2") or (flags.Input.isMC and flags.GeoModel.Run=="RUN3"):

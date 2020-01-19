@@ -226,9 +226,7 @@ Trk::MultiComponentStateCombiner::compute(const Trk::MultiComponentState* uncomb
   if (useMode && dimension == 5) {
 
     // Calculate the mode of the q/p distribution
-    Amg::VectorX modes(10);
-    modes.setZero();
-    modes = Trk::MultiComponentStateModeCalculator::calculateMode(*uncombinedState);
+    std::array<double,10> modes = Trk::MultiComponentStateModeCalculator::calculateMode(*uncombinedState);
 
     //  Replace mean with mode if qOverP mode is not 0
     if (modes[4] != 0) {
