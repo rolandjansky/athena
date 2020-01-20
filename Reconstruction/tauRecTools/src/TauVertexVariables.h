@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUREC_TAUVERTEXVARIABLES_H
@@ -34,13 +34,12 @@ public:
     ASG_TOOL_CLASS2(TauVertexVariables, TauRecToolBase, ITauToolBase);
     ~TauVertexVariables();
     
-    virtual StatusCode initialize();
-    virtual StatusCode executeVertexVariables(xAOD::TauJet& pTau, xAOD::VertexContainer& pVertexContainer); 
-    virtual StatusCode eventInitialize();
-    virtual StatusCode finalize();
-    virtual StatusCode eventFinalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode executeVertexVariables(xAOD::TauJet& pTau, xAOD::VertexContainer& pVertexContainer) override; 
+    virtual StatusCode eventInitialize() override;
+    virtual StatusCode finalize() override;
+    virtual StatusCode eventFinalize() override;
 
-    virtual void print() const { }
     
     //-------------------------------------------------------------
     //! determines the transverse flight path significance from
