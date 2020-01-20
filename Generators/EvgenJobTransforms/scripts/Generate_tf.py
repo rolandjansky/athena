@@ -207,7 +207,7 @@ def main():
     msg.info(' ######################################################################################################## ')
     msg.info('THIS TRANSFORM SHOULD NOT BE USED IN PRODUCTION')
     msg.info('PLEASE USE GEN_TF !!! ')
-    msg.info(" ######################################################################################################## ')
+    msg.info(' ######################################################################################################## ')
 #    print("main ",main_dir)
     if (("cleanOut" in trf.argdict) and (trf.argdict["cleanOut"].value != 0)):
       name_tmpdir = "tmprun"
