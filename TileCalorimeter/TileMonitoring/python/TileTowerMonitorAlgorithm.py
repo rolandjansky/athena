@@ -61,8 +61,8 @@ def TileTowerMonitoringConfig(flags, **kwargs):
     addTileEtaPhiMapsArray(helper, tileTowerMonAlg, name = 'TileTowerEtaPhiDiff', type='TH2D',
                            title = 'Position correlation of Tile Tower opposite to most energetic tower',
                            path = 'Tile/Tower', run = run, triggers = l1Triggers, perSample = False,
-                           etaTitle = '#Delta #eta', etabins = 40, etamin = -2.0, etamax = 2.0,
-                           phiTitle = '#Delta #phi', phibins = Tile.MAX_DRAWER, phimin = 0.0, phimax = 6.4)
+                           etaTitle = '#Delta #eta', etabins = 41, etamin = -2.05, etamax = 2.05,
+                           phiTitle = '#Delta #phi', phibins = Tile.MAX_DRAWER + 1, phimin = -0.05, phimax = 6.45)
 
 
     from TileMonitoring.TileMonitoringCfgHelper import addTile1DHistogramsArray

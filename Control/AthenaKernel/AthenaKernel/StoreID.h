@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAKERNEL_STOREID_H
@@ -27,6 +27,7 @@ class StoreID
     DETECTOR_STORE,
     CONDITION_STORE,
     METADATA_STORE,
+    INPUT_METADATA_STORE,
     PILEUP_STORE,
     UNKNOWN
   } type;

@@ -44,8 +44,4 @@ private:
   ClassDefOverride(TFCSParametrizationBinnedChain,1)  //TFCSParametrizationBinnedChain
 };
 
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSParametrizationBinnedChain+;
-#endif
-
 #endif

@@ -84,7 +84,7 @@ class GSCFexSplit (TrigGSCFexMT):
                                                JetCollection="AntiKt4EMTopo", 
                                                ConfigFile="JES_data2016_data2015_Recommendation_Dec2016_rel21.config", 
                                                CalibSequence="JetArea_EtaJES_GSC_Insitu",
-                                               RhoKey="HLTKt4EMTopoEventShape",
+                                               RhoKey="HLT_Kt4EMTopoEventShape",
                                                IsData=True,
                                                #DoTrigger = True
                                                )

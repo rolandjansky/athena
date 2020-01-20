@@ -1,7 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import traceback
-import CaloRingerAlgsConf
+from . import CaloRingerAlgsConf
 # We use egammaRec.Factories as a helper to instantiate CaloRingerAlgorithm
 # handle
 from GaudiKernel.GaudiHandles import PublicToolHandle, PublicToolHandleArray, GaudiHandle, GaudiHandleArray
@@ -336,7 +336,7 @@ def removeFromToolSvc( tool ):
   "removeFromToolSvc( tool ) --> remove tool from ToolSvc"
   from AthenaCommon.AppMgr import ToolSvc
   if hasattr(ToolSvc, tool.getName()):
-    print "Removing tool %s from ToolSvc." % tool.getName()
+    print ("Removing tool %s from ToolSvc." % tool.getName())
     ToolSvc.remove(tool.getName())
 
 def removeFromTopSequence( alg ):
@@ -344,7 +344,7 @@ def removeFromTopSequence( alg ):
   from AthenaCommon.AlgSequence import AlgSequence
   topSequence = AlgSequence()
   if alg in topSequence:
-    print "Removing Algorithm %s from topSequence." % alg.getName()
+    print ("Removing Algorithm %s from topSequence." % alg.getName())
     # If this doesnt work, change by alg.getName()
     topSequence.remove( alg )
 

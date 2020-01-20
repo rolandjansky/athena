@@ -14,7 +14,6 @@ decription           : Implementation code for GsfExtrapolator class
 #include "TrkGaussianSumFilter/GsfExtrapolator.h"
 #include "TrkExInterfaces/IMultipleScatteringUpdator.h"
 #include "TrkGaussianSumFilter/IMaterialMixtureConvolution.h"
-#include "TrkGaussianSumFilter/IMultiComponentStateCombiner.h"
 #include "TrkGaussianSumFilter/IMultiComponentStateMerger.h"
 
 #include "TrkGeometry/Layer.h"
@@ -91,9 +90,6 @@ Trk::GsfExtrapolator::initialize()
 
   // Request the Material Effects Updator AlgTool
   ATH_CHECK(m_materialUpdator.retrieve());
-
-  // Retrieve an instance of the multi-component state combiner tool
-  ATH_CHECK(m_stateCombiner.retrieve());
 
   ATH_CHECK(m_elossupdators.retrieve());
 
@@ -581,11 +577,12 @@ Trk::GsfExtrapolator::extrapolateToVolumeBoundary(Cache& cache,
       cache, propagator, *currentState, trackingVolume, associatedLayer, 0, direction, particleHypothesis);
 
     // Make sure reduced state is added to the list of garbage to be collected
-    if (nextState && nextState != currentState && currentState != &multiComponentState)
-      delete currentState;
-
-    // Refresh the current state pointer
-    currentState = nextState ? nextState : currentState;
+    if (nextState){
+      if( nextState != currentState && currentState != &multiComponentState)
+        delete currentState;
+      // Refresh the current state pointer
+      currentState = nextState;
+    }
   }
 
   /* =============================================
@@ -594,7 +591,7 @@ Trk::GsfExtrapolator::extrapolateToVolumeBoundary(Cache& cache,
 
   Trk::NavigationCell nextNavigationCell(0, 0);
 
-  combinedState = currentState->begin()->first->clone(); // m_stateCombiner->combine( *currentState );
+  combinedState = currentState->begin()->first->clone(); 
 
   const Trk::TrackingVolume* nextVolume = nullptr;
   const Trk::TrackParameters* navigationParameters = cache.m_stateAtBoundarySurface.navigationParameters
@@ -795,11 +792,12 @@ Trk::GsfExtrapolator::extrapolateInsideVolume(Cache& cache,
                                                                               particleHypothesis);
 
       // Memory clean-up
-      if (nextState && nextState != currentState && currentState != &multiComponentState)
-        delete currentState;
-
-      // Refresh the current state pointer
-      currentState = nextState ? nextState : currentState;
+      if (nextState){  
+        if(nextState != currentState && currentState != &multiComponentState)
+          delete currentState;
+        // Refresh the current state pointer
+        currentState = nextState;
+      }
     }
 
     // Final extrapolation to destination surface
@@ -1045,12 +1043,10 @@ Trk::GsfExtrapolator::extrapolateToDestinationLayer(Cache& cache,
                            : nullptr;
 
   if(!updatedState)  
-    updatedState=std::move(destinationState);
+    return destinationState;
 
-  if (updatedState != destinationState) {
-    addMaterialtoVector(cache, &layer, updatedState->begin()->first.get(), direction, particleHypothesis);
-  }
-
+  addMaterialtoVector(cache, &layer, updatedState->begin()->first.get(), direction, particleHypothesis);
+  
   return updatedState;
 
 }

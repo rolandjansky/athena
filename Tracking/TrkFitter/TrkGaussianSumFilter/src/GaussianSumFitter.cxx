@@ -12,9 +12,9 @@ decription           : Implementation code for Gaussian Sum Fitter class
 ********************************************************************************** */
 
 #include "TrkGaussianSumFilter/GaussianSumFitter.h"
+#include "TrkGaussianSumFilter/MultiComponentStateCombiner.h"
 #include "TrkGaussianSumFilter/IForwardGsfFitter.h"
 #include "TrkGaussianSumFilter/IGsfSmoother.h"
-#include "TrkGaussianSumFilter/IMultiComponentStateCombiner.h"
 #include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
 #include "TrkGaussianSumFilter/IMultiStateMeasurementUpdator.h"
 
@@ -91,9 +91,6 @@ Trk::GaussianSumFitter::initialize()
 
   // Request the GSF extrapolator
   ATH_CHECK(m_extrapolator.retrieve());
-
-  // Request the state combiner
-  ATH_CHECK(m_stateCombiner.retrieve());
 
   // Request the RIO_OnTrack creator
   // No need to return if RioOnTrack creator tool, only if PrepRawData is used in fit
@@ -733,7 +730,8 @@ Trk::GaussianSumFitter::makePerigee(const Trk::SmoothedTrajectory* smoothedTraje
                     << "and is NO Longer Stored as a seperate Parameter");
   }
   // Determine the combined state as well to be passed to the MultiComponentStateOnSurface object
-  std::unique_ptr<Trk::TrackParameters> combinedPerigee = m_stateCombiner->combine(*stateExtrapolatedToPerigee, true);
+  std::unique_ptr<Trk::TrackParameters> combinedPerigee =
+    MultiComponentStateCombiner::combine(*stateExtrapolatedToPerigee, true);
 
   // Perigee is given as an additional MultiComponentStateOnSurface
   std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> pattern(0);

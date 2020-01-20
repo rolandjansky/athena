@@ -21,6 +21,12 @@
 #include "TrigDecisionTool/Logger.h"
 #include "TrigDecisionTool/EventPtrDef.h"
 
+// xAOD include(s):
+#include "xAODTrigger/TrigDecision.h"
+#include "xAODTrigger/TrigNavigation.h"
+
+#include "StoreGate/ReadHandleKey.h"
+
 // Forward declaration(s):
 namespace HLT {
   class TrigNavStructure;
@@ -41,8 +47,8 @@ namespace Trig {
 
   public:
     /// Constructor with arguments
-    DecisionUnpackerStandalone( EventPtr_t sg, const std::string& deckey,
-				const std::string& navikey);
+    DecisionUnpackerStandalone(SG::ReadHandleKey<xAOD::TrigDecision>*,
+				SG::ReadHandleKey<xAOD::TrigNavigation>* navikey);
     /// Destructor
     virtual ~DecisionUnpackerStandalone();
 

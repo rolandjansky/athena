@@ -152,7 +152,7 @@ def setupMdtCondDB():
         specialAddFolderSplitOnline(mdtCalibFlags.mdtCalibrationSource(), '/MDT/Onl/T0' + mdt_folder_name_appendix,'/MDT/T0' + mdt_folder_name_appendix)
 
     from AthenaCommon.AlgSequence import AthSequencer
-    from MdtCalibDbCoolStrTool.MdtCalibDbCoolStrToolConf import MdtCalibDbAlg
+    from MuonCondAlg.MuonCondAlgConf import MdtCalibDbAlg
     condSequence = AthSequencer("AthCondSeq")
     if not hasattr(condSequence,"MdtCalibDbAlg"):
         condSequence += MdtCalibDbAlg("MdtCalibDbAlg")

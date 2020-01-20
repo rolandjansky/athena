@@ -10,7 +10,7 @@ log = logging.getLogger( "TriggerConfigCheckMetadata.py" )
 if len(athenaCommonFlags.PoolESDInput())>0 or len(athenaCommonFlags.PoolAODInput())>0 :
     from PyUtils.MetaReaderPeekerFull import metadata
     if not 'DQMonFlags' in dir():
-        print "DataQualityMon_RecExCommon_Flags_jobOptions.py: DQMonFlags not yet imported - I import them now"
+        printfunc ("DataQualityMon_RecExCommon_Flags_jobOptions.py: DQMonFlags not yet imported - I import them now")
         from AthenaMonitoring.DQMonFlags import DQMonFlags
 
     if len(metadata) > 0:

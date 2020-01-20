@@ -31,6 +31,8 @@
 
 #include "TrigInDetPattRecoTools/TrigCombinatorialSettings.h"
 
+#include "AthenaMonitoringKernel/Monitored.h"
+
 class ITrigL2LayerNumberTool;
 class ITrigL2LayerSetPredictorTool;
 class ITrigSpacePointConversionTool;
@@ -108,6 +110,7 @@ protected:
   ToolHandle<ITrigInDetTrackFitter> m_trigInDetTrackFitter;
   ToolHandle<ITrigZFinder> m_trigZFinder;
   ToolHandle< Trk::ITrackSummaryTool > m_trackSummaryTool;
+  ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
 
   //DataHandles
   SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;

@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -147,7 +147,7 @@ TriggerFlags.EgammaSlice.setAll()
 TriggerFlags.MuonSlice.setAll()
 
 # Set up everything to run HLT
-include('TrigUpgradeTest/testHLT_MT.py')
+include('TriggerJobOpts/runHLT_standalone.py')
 
 # Generate the menu
 menu = GenerateMenuMT()
