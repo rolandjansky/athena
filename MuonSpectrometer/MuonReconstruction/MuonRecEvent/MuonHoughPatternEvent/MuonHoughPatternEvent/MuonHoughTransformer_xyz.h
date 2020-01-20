@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONHOUGHPATTERNEVENT_MUONHOUGHTRANSFORMER_XYZ_H
@@ -19,7 +19,7 @@ class MuonHoughTransformer_xyz : public MuonHoughTransformer
 
  public:
   /** destructor */
-  virtual ~MuonHoughTransformer_xyz();
+  virtual ~MuonHoughTransformer_xyz() = default;
 
   /** fill hit in histogram */
   virtual void fillHit(MuonHoughHit* hit, double weight=1.); 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHoughPatternTools/MuonHoughPatternFinderTool.h"
@@ -99,10 +99,6 @@ namespace Muon {
     declareProperty("COMBINED_PATTERNS", m_COMBINED_PATTERNSKey);
   }
 
-  MuonHoughPatternFinderTool::~MuonHoughPatternFinderTool()
-  {
-  }
-
   StatusCode MuonHoughPatternFinderTool::initialize()
   {
     if (m_use_histos == true) {
@@ -149,7 +145,6 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
                                     const MuonSegmentCombinationCollection* cscSegmentCombis ) const {
     // read event_data:
     const MuonHoughHitContainer* hitcontainer = getAllHits( mdtCols, cscCols, tgcCols, rpcCols, cscSegmentCombis );
-
     // analyse data
     std::unique_ptr<MuonPatternCombinationCollection> patCombiCol;
     if( hitcontainer ) {
@@ -438,24 +433,18 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
       }
   
      
-    // if statement for verbose:
-
-    if (this->msgLvl (MSG::VERBOSE)) {
+    ATH_MSG_VERBOSE ("MuonHoughPatternFinderTool::getAllHits() saving "
+		     << hitcontainer->size()<<" converted hits");
     
-      ATH_MSG_VERBOSE ("MuonHoughPatternFinderTool::getAllHits() saving "
-                       << hitcontainer->size()<<" converted hits");
+    for(unsigned int i=0;i<hitcontainer->size();i++)
+      {
+	ATH_MSG_VERBOSE (" hit " << hitcontainer->getHit(i)->getWhichDetector()
+			 << " (" << hitcontainer->getHit(i)->getHitx() << "," << hitcontainer->getHit(i)->getHity()
+			 << "," << hitcontainer->getHit(i)->getHitz() << ") " << " weight: " << hitcontainer->getHit(i)->getWeight() << " measures phi: " << hitcontainer->getHit(i)->getMeasuresPhi());
+      }
     
-      for(unsigned int i=0;i<hitcontainer->size();i++)
-	{
-	  ATH_MSG_VERBOSE (" hit " << hitcontainer->getHit(i)->getWhichDetector()
-                           << " (" << hitcontainer->getHit(i)->getHitx() << "," << hitcontainer->getHit(i)->getHity()
-                           << "," << hitcontainer->getHit(i)->getHitz() << ") " << " weight: " << hitcontainer->getHit(i)->getWeight() << " measures phi: " << hitcontainer->getHit(i)->getMeasuresPhi());
-	}
-    
-      ATH_MSG_VERBOSE ("MuonHoughPatternFinderTool::getAllHits() saving " << m_phietahitassociation->size() 
-                       << "associated hits ");
-    }
-
+    ATH_MSG_VERBOSE ("MuonHoughPatternFinderTool::getAllHits() saving " << m_phietahitassociation->size() 
+		     << "associated hits ");
     return hitcontainer;
   
   } // getAllHits
@@ -490,12 +479,10 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
   {
     if (1)
       {
-	//msg() << MSG::VERBOSE << "Event through Cut()" << endmsg;
 	return true;
       }
 
     else {
-      //msg() << MSG::VERBOSE << "Event not through Cut()" << endmsg;
       return false;
     }
   }
@@ -670,7 +657,6 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
 	  {
 	    const Muon::TgcPrepData* prd = *cit;
 	    Identifier id = prd->identify();
-	    //bool channel_type = prd->channelType(); 
 	    bool channel_type = m_muonIdHelperTool->tgcIdHelper().isStrip(id); // like measuresPhi()
 	    int channel = m_muonIdHelperTool->tgcIdHelper().channel(id); // between 1 and 135!
 	    if (channel_type==true) {channel+=m_muonIdHelperTool->tgcIdHelper().channelMax();} 
@@ -758,7 +744,6 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
 		  if (channel_type==true) layer_number = layer_number + 3 ;
 		  double number_of_hits = (double) number_of_hits_per_layer[layer_number];
 		  if (number_of_hits > 0) {    
-//		    weight =  1. / (0.75*std::sqrt(number_of_hits)+0.25*number_of_hits);
 		    weight =  1. / (0.25*std::sqrt(number_of_hits)+0.75*number_of_hits);
                     if( layers.size() == 2) weight = weight/2.;
 		  } else {
@@ -858,8 +843,6 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
     std::vector<int> multilayer;
     std::vector<int> tubelayer;
     std::vector<int> tubes;
-    //   std::vector<double> w1;
-    //   std::vector<double> w2;
     std::vector<int> onsegment; // non-zero if on segment, int indicates how many hits in same layer are on segment (used in weighting)
     std::vector<double> psi;
     std::vector<double> weight_trigger;
@@ -962,7 +945,6 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
 	    m_weighthistogram->Fill(0);
 	    m_weighthistogrammdt->Fill(0);
 	  }
-	  //msg() << MSG::DEBUG << "Hit accepted" << endmsg;
     
 	} // collection
 	return;
@@ -973,7 +955,6 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
     for (unsigned int i=0; i<prdsize; i++) {
 
       if (tubecount[tubes[i]] > 1 ) ++number_of_hits_per_layer[layers[i]];
-      //    if (tubecount[i] > tubem ) tubem = tubecount[i];
 
       // KILL 1 hit cases
       if (tubecount[tubes[i]] <= 1 ) prob[i] = 0;
@@ -1209,7 +1190,6 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
 	m_weighthistogram->Fill(weights[i]);
 	m_weighthistogrammdt->Fill(weights[i]);
       }
-      //msg() << MSG::DEBUG << "Hit accepted" << endmsg;
     
     } // collection
   }

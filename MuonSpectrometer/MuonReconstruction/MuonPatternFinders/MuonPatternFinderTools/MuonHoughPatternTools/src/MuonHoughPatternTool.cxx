@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHoughPatternTools/MuonHoughPatternTool.h"
@@ -133,7 +133,6 @@ void MuonHoughPatternTool::useIPMuons()
 void MuonHoughPatternTool::makePatterns(const MuonHoughHitContainer* hitcontainer) const
 {
   m_event = hitcontainer;
-
   /** empty and reinitialize the houghpattern vectors */
   reset();
   init();
@@ -159,22 +158,19 @@ void MuonHoughPatternTool::makePatterns(const MuonHoughHitContainer* hitcontaine
   // reset weights, based on rejection factor and m_weightmdt
   calculateWeights(m_event);
 
-  if( msgLvl(MSG::VERBOSE) ) {
-    msg(MSG::VERBOSE) << "Event Info";
+  ATH_MSG_VERBOSE("Event Info");
   
-    msg(MSG::VERBOSE) << "Size: " << m_event->size() << endmsg;
-    
-    for (unsigned int i=0; i<m_event->size(); i++) {
-      msg(MSG::VERBOSE) << m_event->getHit(i)->getHitx() << " " 
-			<< m_event->getHit(i)->getHity() << " " 
-			<< m_event->getHit(i)->getHitz() << " " 
-			<< m_event->getHit(i)->getMeasuresPhi() << " " 
-			<< m_event->getHit(i)->getWhichDetector() <<  " "
-			<< m_event->getHit(i)->getProbability() <<  " "
-			<< m_event->getHit(i)->getWeight() <<  " "
-			<< m_event->getHit(i)->getAssociated() <<
-	endmsg;
-    }
+  ATH_MSG_VERBOSE("Size: " << m_event->size());
+  
+  for (unsigned int i=0; i<m_event->size(); i++) {
+    ATH_MSG_VERBOSE(m_event->getHit(i)->getHitx() << " " 
+		    << m_event->getHit(i)->getHity() << " " 
+		    << m_event->getHit(i)->getHitz() << " " 
+		    << m_event->getHit(i)->getMeasuresPhi() << " " 
+		    << m_event->getHit(i)->getWhichDetector() <<  " "
+		    << m_event->getHit(i)->getProbability() <<  " "
+		    << m_event->getHit(i)->getWeight() <<  " "
+		    << m_event->getHit(i)->getAssociated());
   }
 
   makePatterns(MuonHough::hough_xy);
@@ -204,34 +200,28 @@ void MuonHoughPatternTool::makePatterns(int id_number) const
   MuonHoughHitContainer* event_for_hough = whichEventHough(id_number, m_event);
   MuonHoughHitContainer* event_for_association = whichEventAssociation(id_number, m_event);
 
-  if (msgLvl(MSG::VERBOSE)) {
-    msg(MSG::VERBOSE) << "Size event fill: " << event_for_hough->size() << endmsg;
-    for (unsigned int i=0; i<event_for_hough->size(); i++) {
-      msg(MSG::VERBOSE) << event_for_hough->getHit(i)->getHitx() << " " 
-			<< event_for_hough->getHit(i)->getHity() << " " 
-			<< event_for_hough->getHit(i)->getHitz() << " " 
-			<< event_for_hough->getHit(i)->getMeasuresPhi() << " " 
-			<< event_for_hough->getHit(i)->getWhichDetector() <<  " "
-			<< event_for_hough->getHit(i)->getProbability() <<  " "
-			<< event_for_hough->getHit(i)->getWeight() <<  " "
-			<< event_for_hough->getHit(i)->getAssociated() <<
-	endmsg;
-    }
-
-    if( msgLvl(MSG::VERBOSE) ) {
-      msg(MSG::VERBOSE) << "Size event association: " << event_for_association->size() << endmsg;
-      for (unsigned int i=0; i<event_for_association->size(); i++) {
-	msg(MSG::VERBOSE) << event_for_association->getHit(i)->getHitx() << " " 
-			  << event_for_association->getHit(i)->getHity() << " " 
-			  << event_for_association->getHit(i)->getHitz() << " " 
-			  << event_for_association->getHit(i)->getMeasuresPhi() << " " 
-			  << event_for_association->getHit(i)->getWhichDetector() <<  " "
-			  << event_for_association->getHit(i)->getProbability() <<  " "
-			  << event_for_association->getHit(i)->getWeight() <<  " "
-			  << event_for_association->getHit(i)->getAssociated() <<
-	  endmsg;
-      }
-    }
+  ATH_MSG_VERBOSE("Size event fill: " << event_for_hough->size());
+  for (unsigned int i=0; i<event_for_hough->size(); i++) {
+    ATH_MSG_VERBOSE(event_for_hough->getHit(i)->getHitx() << " " 
+		    << event_for_hough->getHit(i)->getHity() << " " 
+		    << event_for_hough->getHit(i)->getHitz() << " " 
+		    << event_for_hough->getHit(i)->getMeasuresPhi() << " " 
+		    << event_for_hough->getHit(i)->getWhichDetector() <<  " "
+		    << event_for_hough->getHit(i)->getProbability() <<  " "
+		    << event_for_hough->getHit(i)->getWeight() <<  " "
+		    << event_for_hough->getHit(i)->getAssociated());
+  }
+  
+  ATH_MSG_VERBOSE("Size event association: " << event_for_association->size());
+  for (unsigned int i=0; i<event_for_association->size(); i++) {
+    ATH_MSG_VERBOSE(event_for_association->getHit(i)->getHitx() << " " 
+		    << event_for_association->getHit(i)->getHity() << " " 
+		    << event_for_association->getHit(i)->getHitz() << " " 
+		    << event_for_association->getHit(i)->getMeasuresPhi() << " " 
+		    << event_for_association->getHit(i)->getWhichDetector() <<  " "
+		    << event_for_association->getHit(i)->getProbability() <<  " "
+		    << event_for_association->getHit(i)->getWeight() <<  " "
+		    << event_for_association->getHit(i)->getAssociated());
   }
 
   ATH_MSG_DEBUG("size of event: " << event_for_association->size() << " id_number: " << id_number);
@@ -513,9 +503,6 @@ bool MuonHoughPatternTool::analyseHisto(int id_number,int level,const MuonHoughH
 	  // print_of houghpatterns:
 	  ATH_MSG_DEBUG("Size of HoughPatterns: " << houghpattern->size());
 	  
-	  //m_log << MSG::DEBUG << "(ABsolut) Maxima: ");
-	  
-	  //m_log << MSG::DEBUG << "id " << id_number << ": "  << "withoutbinregion: " << histogram->getMaximum(maximum_number,which_segment,m_printlevel) << " with: " << numberofmaxima);
 	} // check op houghpattern pointer
     } //maximum_number 
   
@@ -1649,17 +1636,15 @@ Muon::MuonPrdPattern* MuonHoughPatternTool::houghPatternToCleanPhiPattern(MuonHo
 
   ATH_MSG_DEBUG("houghPatternToCleanPhiPattern");
 
-  if (msgLvl(MSG::VERBOSE)) {
-    for (unsigned int i=0; i<houghpattern->size(); i++) {
-      msg(MSG::VERBOSE) << houghpattern->getHit(i)->getHitx() << " " 
-			<< houghpattern->getHit(i)->getHity() << " " 
-			<< houghpattern->getHit(i)->getHitz() << " " 
-			<< houghpattern->getHit(i)->getPhi() << " " 
-			<< houghpattern->getHit(i)->getMeasuresPhi() << " " 
-			<< houghpattern->getHit(i)->getWhichDetector() <<  " "
-			<< houghpattern->getHit(i)->getWeight() <<  " "
-			<< houghpattern->getHit(i)->getAssociated() << endmsg;
-    }
+  for (unsigned int i=0; i<houghpattern->size(); i++) {
+    ATH_MSG_VERBOSE(houghpattern->getHit(i)->getHitx() << " " 
+		    << houghpattern->getHit(i)->getHity() << " " 
+		    << houghpattern->getHit(i)->getHitz() << " " 
+		    << houghpattern->getHit(i)->getPhi() << " " 
+		    << houghpattern->getHit(i)->getMeasuresPhi() << " " 
+		    << houghpattern->getHit(i)->getWhichDetector() <<  " "
+		    << houghpattern->getHit(i)->getWeight() <<  " "
+		    << houghpattern->getHit(i)->getAssociated());
   }
 
   double theta = houghpattern->getETheta();
@@ -1744,8 +1729,8 @@ Muon::MuonPrdPattern* MuonHoughPatternTool::houghPatternToCleanPhiPattern(MuonHo
   
   ATH_MSG_DEBUG("END Clean Phi hits " << newsize << " theta " << thetanew);
   
+  ATH_MSG_VERBOSE("cleaned pattern: ");
   if (msgLvl(MSG::VERBOSE)) {
-    msg(MSG::VERBOSE) << "cleaned pattern: " << endmsg;
     printPattern(muonpattern);
   }
 

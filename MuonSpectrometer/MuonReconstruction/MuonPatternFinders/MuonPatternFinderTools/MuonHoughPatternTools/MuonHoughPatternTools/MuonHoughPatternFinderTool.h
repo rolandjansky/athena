@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONHOUGHPATTERNALGS_MUONHOUGHPATTERNFINDERTOOL_H
@@ -40,7 +40,7 @@ namespace Muon {
     MuonHoughPatternFinderTool(const std::string&, const std::string&, const IInterface*);
 
     /** destructor */
-    virtual ~MuonHoughPatternFinderTool();
+    virtual ~MuonHoughPatternFinderTool() = default;
 
     /** initialize */
     virtual StatusCode initialize();
