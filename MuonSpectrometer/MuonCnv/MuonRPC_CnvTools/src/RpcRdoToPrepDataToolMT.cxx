@@ -14,7 +14,7 @@ Muon::RpcRdoToPrepDataToolMT::RpcRdoToPrepDataToolMT( const std::string& type, c
   : AthAlgTool( type, name, parent ),
     RpcRdoToPrepDataToolCore( type, name, parent )
 {
-  declareProperty("RpcRdoContainterCacheKey", m_prdContainerCacheKey, "Optional external cache for the RPC RDO container");
+  declareProperty("RpcRdoContainerCacheKey", m_prdContainerCacheKey, "Optional external cache for the RPC RDO container");
   declareProperty("RpcCoinContainterCacheKey", m_coinContainerCacheKey, "Optional external cache for the RPC Trigger Coin container");
 }
 
@@ -26,6 +26,8 @@ StatusCode Muon::RpcRdoToPrepDataToolMT::initialize()
 {
   ATH_MSG_VERBOSE("Starting init");
   ATH_CHECK( RpcRdoToPrepDataToolCore::initialize() );
+  ATH_CHECK( m_prdContainerCacheKey.initialize( !m_prdContainerCacheKey.key().empty() ) );
+  ATH_CHECK( m_coinContainerCacheKey.initialize( !m_coinContainerCacheKey.key().empty() ) );
   ATH_MSG_DEBUG("initialize() successful in " << name());
   return StatusCode::SUCCESS;
 }

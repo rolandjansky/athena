@@ -57,6 +57,7 @@ muNamesFS = muonNames().getNames('FS')
 def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
 
   from AthenaCommon.CFElements import parOR
+  from AthenaCommon.Constants import DEBUG, INFO
   
   muDecodeRecoSequence = parOR("decodeMuViewNode_"+RoIs)
 
@@ -82,7 +83,8 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
   from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscRdoToCscPrepDataToolMT
   CscRdoToCscPrepDataTool = Muon__CscRdoToCscPrepDataToolMT(name           = "CscRdoToCscPrepDataTool",
                                                             CscStripPrdContainterCacheKey = MuonPrdCacheNames.CscStripCache)
-
+  CscRdoToCscPrepDataTool.OutputLevel = DEBUG
+  
   ToolSvc += CscRdoToCscPrepDataTool
 
   from MuonRdoToPrepData.MuonRdoToPrepDataConf import CscRdoToCscPrepData
@@ -125,8 +127,9 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
                                                                Decoder     = MDTRodDecoder )
   ToolSvc += MuonMdtRawDataProviderTool
 
-  from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MdtRdoToPrepDataTool
-  MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataTool(name                = "MdtRdoToPrepDataTool")
+  from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MdtRdoToPrepDataToolMT
+  MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataToolMT(name                     = "MdtRdoToPrepDataTool",
+                                                         MdtPrdContainterCacheKey = MuonPrdCacheNames.MdtCache)
 
   ToolSvc += MdtRdoToMdtPrepDataTool
 
@@ -164,6 +167,12 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
 
   from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
   RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataTool(name                = "RpcRdoToPrepDataTool")
+
+  #from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataToolMT
+  #RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataToolMT(name                = "RpcRdoToPrepDataTool",
+  #                                                       RpcRdoContainerCacheKey = MuonPrdCacheNames.RpcCache)
+  #RpcRdoToRpcPrepDataTool.OutputLevel = DEBUG
+
   if athenaCommonFlags.isOnline: 
       RpcRdoToRpcPrepDataTool.ReadKey = ""
 
