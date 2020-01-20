@@ -19,37 +19,54 @@ namespace Monitored {
     HistogramFillerEfficiency(const HistogramDef& definition, std::shared_ptr<IHistogramProvider> provider)
       : HistogramFiller(definition, provider) {}
 
-    virtual HistogramFillerEfficiency* clone() override {
+    virtual HistogramFillerEfficiency* clone() const override {
       return new HistogramFillerEfficiency( *this );
     }
 
     virtual unsigned fill() override {
+      size_t varVecSize = m_monVariables.at(0).get().size();
+
+      auto cutMaskValuePair = getCutMaskFunc();
+      if (cutMaskValuePair.first == 0) { return 0; }
+      if (ATH_UNLIKELY(cutMaskValuePair.first > 1 && cutMaskValuePair.first != varVecSize)) {
+        MsgStream log(Athena::getMessageSvc(), "HistogramFillerEfficiency");
+        log << MSG::ERROR << "CutMask does not match the size of plotted variable: " 
+            << cutMaskValuePair.first << " " << varVecSize << endmsg;
+      }
+      auto cutMaskAccessor = cutMaskValuePair.second;
+
       auto efficiency = this->histogram<TEfficiency>();
       std::lock_guard<std::mutex> lock(*(this->m_mutex));
 
       int nMonVar = m_monVariables.size();
       if ( nMonVar==2 ) { // Single observable (1D TEfficiency)
-        auto valuesVector0 = m_monVariables[0].get().getVectorRepresentation();
-        auto valuesVector1 = retrieveVariable(efficiency, 1);
+        const auto valuesVector0 = m_monVariables[0].get().getVectorRepresentation();
+        const auto valuesVector1 = retrieveVariable(efficiency, 1);
         for (unsigned i = 0; i < std::size(valuesVector0); ++i) {
-          efficiency->Fill(valuesVector0[i], valuesVector1[i]);
+          if (cutMaskAccessor(i)) {
+            efficiency->Fill(valuesVector0[i], valuesVector1[i]);
+          }
         }
         return std::size(valuesVector0);
       } else if ( nMonVar==3 ) { // Two observables (2D TEfficiency)
-        auto valuesVector0 = m_monVariables[0].get().getVectorRepresentation();
-        auto valuesVector1 = retrieveVariable(efficiency, 1);
-        auto valuesVector2 = retrieveVariable(efficiency, 2);
+        const auto valuesVector0 = m_monVariables[0].get().getVectorRepresentation();
+        const auto valuesVector1 = retrieveVariable(efficiency, 1);
+        const auto valuesVector2 = retrieveVariable(efficiency, 2);
         for (unsigned i = 0; i < std::size(valuesVector0); ++i) {
-          efficiency->Fill(valuesVector0[i], valuesVector1[i], valuesVector2[i]);
+          if (cutMaskAccessor(i)) {
+            efficiency->Fill(valuesVector0[i], valuesVector1[i], valuesVector2[i]);
+          }
         }
         return std::size(valuesVector0);
       } else if ( nMonVar==4 ) { // Three observables (3D Efficiency)
-        auto valuesVector0 = m_monVariables[0].get().getVectorRepresentation();
-        auto valuesVector1 = retrieveVariable(efficiency, 1);
-        auto valuesVector2 = retrieveVariable(efficiency, 2);
-        auto valuesVector3 = retrieveVariable(efficiency, 3);
+        const auto valuesVector0 = m_monVariables[0].get().getVectorRepresentation();
+        const auto valuesVector1 = retrieveVariable(efficiency, 1);
+        const auto valuesVector2 = retrieveVariable(efficiency, 2);
+        const auto valuesVector3 = retrieveVariable(efficiency, 3);
         for (unsigned i = 0; i < std::size(valuesVector0); ++i) {
-          efficiency->Fill(valuesVector0[i], valuesVector1[i], valuesVector2[i], valuesVector3[i]);
+          if (cutMaskAccessor(i)) {
+            efficiency->Fill(valuesVector0[i], valuesVector1[i], valuesVector2[i], valuesVector3[i]);
+          }
         }
         return std::size(valuesVector0);
       } else {
@@ -59,9 +76,8 @@ namespace Monitored {
 
     const std::vector<double> retrieveVariable(TEfficiency* efficiency, int iVariable) {
       auto valueVariable = m_monVariables[iVariable];
-      auto valuesVector = valueVariable.get().getVectorRepresentation();
+      std::vector<double> valuesVector;
       if ( valueVariable.get().hasStringRepresentation() ) {
-        valuesVector.clear();
         TH1* tot ATLAS_THREAD_SAFE  = const_cast<TH1*>(efficiency->GetTotalHistogram());
         const TAxis* axis = getAxis(tot, iVariable);
         for ( const std::string& value : valueVariable.get().getStringVectorRepresentation() ) {
@@ -69,6 +85,8 @@ namespace Monitored {
           const double binCenter ATLAS_THREAD_SAFE = axis->GetBinCenter(binNumber);
           valuesVector.push_back(binCenter);
         }
+      } else {
+        valuesVector = valueVariable.get().getVectorRepresentation();
       }
       return valuesVector;
     }

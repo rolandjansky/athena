@@ -32,6 +32,7 @@ void resetHists( ITHistSvc* histSvc ) {
   resetHist( histSvc, "/EXPERT/TestGroup/Eta_vs_Phi" );
   resetHist( histSvc, "/EXPERT/TestGroup/Eta" );
   resetHist( histSvc, "/EXPERT/TestGroup/Phi" );
+  resetHist( histSvc, "/EXPERT/TestGroup/Eta_CutMask");
 }
 
 double contentInBin1DHist( ITHistSvc* histSvc, const std::string& histName, int bin ) {
@@ -153,7 +154,7 @@ bool fill2DWorked( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSv
   return true;
 }
 
-bool fillExplcitelyWorked( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSvc ) {
+bool fillExplicitlyWorked( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSvc ) {
   resetHists( histSvc );
   auto roiPhi = Monitored::Scalar( "Phi", -99.0 );
   auto roiEta = Monitored::Scalar( "Eta", -99.0 );
@@ -187,6 +188,34 @@ bool fillExplcitelyWorked( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc
   VALUE( getHist( histSvc, "/EXPERT/TestGroup/Eta_vs_Phi" )->GetEntries() ) EXPECTED( 4 );
   VALUE( getHist( histSvc, "/EXPERT/TestGroup/Eta" )->GetEntries() ) EXPECTED( 4 );
   VALUE( getHist( histSvc, "/EXPERT/TestGroup/Phi" )->GetEntries() ) EXPECTED( 4 );
+
+  return true;
+}
+
+bool fillWithCutMaskWorked( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSvc ) {
+  resetHists( histSvc );
+  for (int ctr = 0; ctr < 10; ++ctr) {
+    auto roiEta = Monitored::Scalar<double>( "Eta", -99 ); //explicit double
+    auto cutMask = Monitored::Scalar<bool>( "CutMask", (ctr % 2) == 0);
+    auto monitorIt = Monitored::Group( monTool, roiEta, cutMask );
+    roiEta = -0.2;
+    monitorIt.fill();
+  }
+
+  VALUE( contentInBin1DHist( histSvc, "/EXPERT/TestGroup/Eta_CutMask", 1 ) ) EXPECTED( 5 );
+  VALUE( contentInBin1DHist( histSvc, "/EXPERT/TestGroup/Eta_CutMask", 2 ) ) EXPECTED( 0 );
+
+  resetHists( histSvc );
+  {
+    std::vector<float> etaVec{-0.2, 0.2, -0.4, 0.4, -0.6};
+    auto roiEta = Monitored::Collection( "Eta", etaVec );
+    std::vector<char> cutMaskVec =  { 0, 1, 1, 1, 0 };
+    auto cutMask = Monitored::Collection( "CutMask", cutMaskVec );
+    auto monitorIt = Monitored::Group( monTool, roiEta, cutMask );
+  }
+
+  VALUE( contentInBin1DHist( histSvc, "/EXPERT/TestGroup/Eta_CutMask", 1 ) ) EXPECTED( 1 );
+  VALUE( contentInBin1DHist( histSvc, "/EXPERT/TestGroup/Eta_CutMask", 2 ) ) EXPECTED( 2 );
 
   return true;
 }
@@ -424,16 +453,28 @@ int main() {
     return -1;
   }
 
+  log << MSG::DEBUG << "Histograms defined: " << histSvc->getHists() << endmsg;
+  log << MSG::DEBUG << "fillFromScalarWorked" << endmsg;
   assert( fillFromScalarWorked( validMon, histSvc ) );
+  log << MSG::DEBUG << "noToolBehaviourCorrect" << endmsg;
   assert( noToolBehaviourCorrect( emptyMon ) );
+  log << MSG::DEBUG << "fillFromScalarIndependentScopesWorked" << endmsg;
   assert( fillFromScalarIndependentScopesWorked( validMon, histSvc ) );
+  log << MSG::DEBUG << "fill2DWorked" << endmsg;
   assert( fill2DWorked( validMon, histSvc ) );
-  assert( fillExplcitelyWorked( validMon, histSvc ) );
-  assert( fillFromScalarIndependentScopesWorked( validMon, histSvc ) );
+  log << MSG::DEBUG << "fillExplicitlyWorked" << endmsg;
+  assert( fillExplicitlyWorked( validMon, histSvc ) );
+  log << MSG::DEBUG << "fillWithCutMaskWorked" << endmsg;
+  assert( fillWithCutMaskWorked( validMon, histSvc ) );
+  log << MSG::DEBUG << "assignWorked" << endmsg;
   assert( assignWorked() );
+  log << MSG::DEBUG << "operatorsWorked" << endmsg;
   assert( operatorsWorked() );
+  log << MSG::DEBUG << "timerFillingWorked" << endmsg;
   assert( timerFillingWorked( validMon, histSvc ) );
+  log << MSG::DEBUG << "stringFillingWorked" << endmsg;
   assert( stringFillingWorked( validMon, histSvc ) );
+  log << MSG::DEBUG << "string2DFillingWorked" << endmsg;
   assert( string2DFillingWorked( validMon, histSvc ) );
   log << MSG::DEBUG << "All OK"  << endmsg;
 
