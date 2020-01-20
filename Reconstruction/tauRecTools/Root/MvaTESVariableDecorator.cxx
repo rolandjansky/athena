@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // local include(s)
@@ -167,7 +167,7 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) {
   acc_LeadClusterFrac(xTau) = (float) lead_cluster_frac;
   acc_UpsilonCluster(xTau) = (float) upsilon_cluster;
 
-  if(inTrigger()) {
+  if(m_in_trigger) {
     return StatusCode::SUCCESS;
   }
 

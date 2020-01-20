@@ -1,13 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
 
-//#include "Particle/TrackParticle.h"
 #include "Particle/TrackParticleContainer.h"
-//#include "TrkParameters/TrackParameters.h"
-
 #include "xAODTracking/TrackParticleContainer.h"
 
 #include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
@@ -18,7 +15,6 @@
 
 #include "tauRecTools/TauEventData.h"
 #include "TauVertexVariables.h"
-
 
 //-----------------------------------------------------------------------------
 // Constructor
@@ -83,10 +79,6 @@ StatusCode TauVertexVariables::finalize() {
 StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::VertexContainer& pSecVtxContainer) {
 
   ATH_MSG_DEBUG("executing TauVertexVariables");
-
-  // for tau trigger
-  bool inTrigger = tauEventData()->inTrigger();
-  if (inTrigger) ATH_MSG_DEBUG("We're in the Trigger");
 	
   // impact parameter variables for standard tracks
   if (pTau.nTracks() > 0) {
@@ -94,7 +86,7 @@ StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::
     const Trk::ImpactParametersAndSigma* myIPandSigma(0);
     const xAOD::Vertex* vxcand = nullptr;
 	  
-    if (inTrigger) {
+    if (m_in_trigger) {
 	  
       StatusCode scBeam = StatusCode::FAILURE;
 	  
@@ -213,7 +205,7 @@ StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::
   // fitting the vertex itself
   xAOD::Vertex* xAODvertex(0);
     xAODvertex = m_fitTool->fit(xaodTracks, seedPoint);
-    if (xAODvertex && !inTrigger) {
+    if (xAODvertex && !m_in_trigger) {
       ATH_MSG_VERBOSE("using new xAOD API: Secondary Vertex found and recorded! x="<<xAODvertex->position().x()<< ", y="<<xAODvertex->position().y()<<", perp="<<xAODvertex->position().perp());
       pSecVtxContainer.push_back(xAODvertex);
       xAODvertex->setVertexType(xAOD::VxType::NotSpecified);
@@ -230,7 +222,7 @@ StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::
   ATH_MSG_VERBOSE("transverse flight path significance="<<trFlightPS);
 
   // Note, we only attach the 2nd vertex if at offline, otherwise, break the trigger persistency
-  if  (!inTrigger) {
+  if  (!m_in_trigger) {
     pTau.setSecondaryVertex(&pSecVtxContainer, xAODvertex); 		// set the link to the vertex
   }
   else {

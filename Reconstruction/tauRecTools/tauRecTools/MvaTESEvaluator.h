@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAURECTOOLSDEV_MVATESEVALUATOR_H
@@ -21,10 +21,10 @@ class MvaTESEvaluator
   MvaTESEvaluator(const std::string& name="MvaTESEvaluator");
   virtual ~MvaTESEvaluator();
     
-  StatusCode initialize();
-  StatusCode eventInitialize();
-  StatusCode execute(xAOD::TauJet& xTau);
-  StatusCode finalize() { return StatusCode::SUCCESS; }
+  StatusCode initialize() override;
+  StatusCode eventInitialize() override;
+  StatusCode execute(xAOD::TauJet& xTau) override;
+  StatusCode finalize() override { return StatusCode::SUCCESS; }
   
  private:
    
