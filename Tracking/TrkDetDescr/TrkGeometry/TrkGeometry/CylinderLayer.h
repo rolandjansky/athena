@@ -170,7 +170,7 @@ class IApproachDescriptor;
        }
 
        /** build approach surfaces */
-       void buildApproachDescriptor() const;
+       void buildApproachDescriptor();
        
        /** Surface seen on approach - if not defined differently, it is the surfaceRepresentation() */
        const Surface& approachSurface(const Amg::Vector3D& pos,
@@ -179,7 +179,7 @@ class IApproachDescriptor;
 
      protected:
        /** surfaces on approach to the layer */
-       mutable IApproachDescriptor*  m_approachDescriptor;
+       IApproachDescriptor*  m_approachDescriptor;
        
        
   };

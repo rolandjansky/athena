@@ -285,7 +285,7 @@ const Trk::Surface& Trk::CylinderLayer::surfaceOnApproach(const Amg::Vector3D& p
 
 
 /** build approach surfaces */
-void Trk::CylinderLayer::buildApproachDescriptor() const {
+void Trk::CylinderLayer::buildApproachDescriptor(){
     // delete it
     delete m_approachDescriptor;
     // delete the surfaces    
