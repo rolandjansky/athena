@@ -24,7 +24,9 @@
 template<typename InputContainer>
 TrigHLTJetRecBase<InputContainer>::TrigHLTJetRecBase(const std::string& name, 
                                                      ISvcLocator* pSvcLocator):
-HLT::FexAlgo( name, pSvcLocator ) {
+HLT::FexAlgo( name, pSvcLocator ),
+m_jetBuildTool("",this)
+{
   declareProperty( "jetBuildTool", m_jetBuildTool);
   // declareProperty( "pseudoJetGetter", m_pseudoJetGetter);
   declareProperty( "cluster_calib", m_clusterCalib);
