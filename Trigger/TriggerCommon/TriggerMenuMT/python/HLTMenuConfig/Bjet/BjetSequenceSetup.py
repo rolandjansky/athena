@@ -87,9 +87,6 @@ def bJetStep2Sequence():
     InputMakerAlg.InViewRoIs = "InViewRoIs"
     InputMakerAlg.InViewJets = "InViewJets"
         
-    # View Test Algorithm
-    import AthenaCommon.CfgMgr as CfgMgr
-    viewTestAlg = CfgMgr.AthViews__ViewTestAlg( "view_testBjet2" )
 
     # Second stage of Fast Tracking and Precision Tracking
     from TriggerMenuMT.HLTMenuConfig.Bjet.BjetTrackingConfiguration import getSecondStageBjetTracking
@@ -99,8 +96,7 @@ def bJetStep2Sequence():
     from TriggerMenuMT.HLTMenuConfig.Bjet.BjetFlavourTaggingConfiguration import getFlavourTagging
     flavourTaggingAlgs = getFlavourTagging( inputJets=InputMakerAlg.InViewJets, inputVertex=prmVtxKey, inputTracks=PTTrackParticles[0] )
 
-
-    preAlgs = [ viewTestAlg ]
+    preAlgs = []
 
     bJetBtagSequence = seqAND( "bJetBtagSequence", preAlgs + secondStageAlgs + flavourTaggingAlgs )
     InputMakerAlg.ViewNodeName = "bJetBtagSequence"
