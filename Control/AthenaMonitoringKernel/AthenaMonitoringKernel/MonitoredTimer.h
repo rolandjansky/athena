@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AthenaMonitoringKernel_MonitoredTimer_h
@@ -36,7 +36,7 @@ namespace Monitored {
     void start();      //<! (re)starts the timer
     void stop();       //<! stops the timer
 
-    operator double() const; //!< duration between start and stop (or current time) in microseconds
+    operator double() const; //!< duration (in unit) between start and stop (or current time)
 
     std::vector<double> getVectorRepresentation() const override { return {double(*this)}; }
 
@@ -73,6 +73,35 @@ namespace Monitored {
     auto d = std::chrono::duration_cast<unit>(stopTime - m_startTime);
     return d.count();
   }
+
+  /**
+   * Helper class to create a scoped timer.
+   *
+   * This helper will call start()/stop() of the specified Monitored::Timer
+   * on creation/destruction. It is useful in case there is unrelated code
+   * between creation of the Monitored::Timer and the code of interest.
+   *
+   * \code
+   *    auto t1 = Monitored::Timer("TIME_t1");
+   *    // unrelated code
+   *    {
+   *       ScopedTimer timeit(t1);
+   *       // code to be timed
+   *    }
+   * \endcode
+   */
+  template<typename T>
+  class ScopedTimer {
+  public:
+    ScopedTimer(T& timer) : m_timer(timer) {
+      m_timer.start();
+    }
+    ~ScopedTimer() {
+      m_timer.stop();
+    }
+  private:
+    T& m_timer;
+  };
 
 } // namespace Monitored
 
